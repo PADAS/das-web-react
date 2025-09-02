@@ -178,6 +178,11 @@
       top: 1.25rem;
     }
 
+    [class=Collapsible] {
+      min-height: 3.3125rem;
+      width: 100%;
+    }
+
     [class*=Collapsible__trigger],
     .itemTitle {
       display: block;

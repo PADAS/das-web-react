@@ -159,7 +159,7 @@ const SideBar = () => {
     sideBarRef.current.focus();
   }, [itemId]);
 
-  return <aside
+  return <nav
       className={`${styles.sideBar} ${sideBar.showSideBar ? '' : 'hidden'}`}
       ref={sideBarRef}
       tabIndex={0}
@@ -284,7 +284,7 @@ const SideBar = () => {
         </div>
       </div>
     </div>
-  </aside>;
+  </nav>;
 };
 
 export default memo(SideBar);

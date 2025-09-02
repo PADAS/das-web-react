@@ -38,7 +38,11 @@
       "content": "Matukio yaliyonakiliwa yatajumuisha tu yale yanayolingana na vigezo vya uchujaji vilivyowekwa kwa sasa kwenye kichupo cha Matukio.",
       "title": "Matukio ya Uwanja"
     },
-    "ecoscopeDownloaderLink": "Upakuaji wa Ecoscope",
+    "ecoscopeAnalysisLinkAriaLabel": "Uchambuzi na Ecoscope",
+    "ecoscopeAnalysisLink": "Uchambuzi",
+    "ecoscopeDownloaderLinkAriaLabel": "Upakuaji wa Ecoscope",
+    "ecoscopeDownloaderLink": "Pakua",
+    "ecoscopeHeading": "ECOSCOPE",
     "footer": {
       "clientVersion": "Toleo la Wavuti: {{version}}",
       "copyright": "©{{year}} EarthRanger",
@@ -47,6 +51,7 @@
       "serverVersion": "Toleo la Seva: {{version}}",
       "websitePrivacyPolicyLink": "Sera ya Faragha ya Wavuti"
     },
+    "header": "Menyu Kuu",
     "helpCenterButton": "Kituo cha Msaada",
     "masterKMLModal": {
       "title": "KML ya Somo"

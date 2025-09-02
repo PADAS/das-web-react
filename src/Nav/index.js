@@ -104,7 +104,7 @@ const Nav = () => {
     dispatch(fetchCurrentUserProfiles());
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return <nav className="primary-nav">
+  return <header className="primary-nav">
     <div className="left-controls">
       <HamburgerMenuIcon
         aria-label={t('hamburgerMenuLabel')}
@@ -144,7 +144,7 @@ const Nav = () => {
         userProfiles={userProfiles}
       />
     </div>
-  </nav>;
+  </header>;
 };
 
 export default memo(Nav);

@@ -2,15 +2,15 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
+import { render, screen, within } from '../test-utils';
 import { addModal } from '../ducks/modals';
+import { createQuerySelectorMockImplementationWithHelpButtonReference } from '../JiraSupportWidget/index.test';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 import GlobalMenuDrawer from '.';
 import { hideDrawer } from '../ducks/drawer';
 import { mockStore } from '../__test-helpers/MockStore';
-import { createQuerySelectorMockImplementationWithHelpButtonReference } from '../JiraSupportWidget/index.test';
 import { PERMISSION_KEYS, PERMISSIONS, } from '../constants';
-import { render, screen, waitFor } from '../test-utils';
 import { useMatchMedia } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
@@ -66,6 +66,7 @@ describe('GlobalMenuDrawer', () => {
       },
       selectedUserProfile: null,
       view: {
+        drawer: {},
         featureFlagOverrides: {},
         systemConfig: {
           alerts_enabled: true,
@@ -75,387 +76,216 @@ describe('GlobalMenuDrawer', () => {
     };
   });
 
+  const renderGlobalMenuDrawer = () => render(<Provider store={mockStore(store)}>
+    <GlobalMenuDrawer />
+  </Provider>);
+
   test('hides the drawer when clicking the cross icon', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
-      </Provider>
-    );
+    renderGlobalMenuDrawer();
 
     expect(hideDrawer).toHaveBeenCalledTimes(0);
 
-    const crossButton = (await screen.findAllByRole('button'))[0];
-    await userEvent.click(crossButton);
+    await userEvent.click(screen.getByRole('button', { name: 'Close Main Menu' }));
 
     expect(hideDrawer).toHaveBeenCalledTimes(1);
   });
 
   test('does not render the navigation buttons in desktop screens', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
-      </Provider>
-    );
+    renderGlobalMenuDrawer();
 
-    expect((await screen.queryByText('Reports'))).toBeNull();
-    expect((await screen.queryByText('Patrols'))).toBeNull();
-    expect((await screen.queryByText('Map Layers'))).toBeNull();
+    expect(screen.queryByRole('navigation')).toBeNull();
   });
 
   test('renders the navigation buttons in small screens', async () => {
     useMatchMedia.mockImplementation(() => false);
-    render(
-      <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
-      </Provider>
-    );
+    renderGlobalMenuDrawer();
 
-    expect((await screen.findByText('Events'))).toBeDefined();
-    expect((await screen.findByText('Patrols'))).toBeDefined();
-    expect((await screen.findByText('Map Layers'))).toBeDefined();
+    const navigation = screen.getByRole('navigation');
+
+    expect(within(navigation).getByRole('link', { name: 'Events' })).toBeDefined();
+    expect(within(navigation).getByRole('link', { name: 'Patrols' })).toBeDefined();
+    expect(within(navigation).getByRole('link', { name: 'Map Layers' })).toBeDefined();
+    expect(within(navigation).getByRole('link', { name: 'Settings' })).toBeDefined();
   });
 
-  test('navigates to the Reports tab in the Sidebar when clicking the Reports navigation button', async () => {
-    useMatchMedia.mockImplementation(() => false);
-    render(
-      <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
-      </Provider>
-    );
-
-    expect(navigate).toHaveBeenCalledTimes(0);
-
-    const reportsNavigationButton = await screen.findByText('Events');
-    await userEvent.click(reportsNavigationButton);
-
-    expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/events');
-  });
-
-  test('does not render the Patrols navigation button if user does not have permissions', async () => {
+  test('does not show the Patrols link if user does not have permissions', async () => {
     useMatchMedia.mockImplementation(() => false);
     store.data.user.permissions = {};
-    const mockStoreInstance = mockStore(store);
-    render(
-      <Provider store={mockStoreInstance}>
-        <GlobalMenuDrawer />
-      </Provider>
-    );
+    renderGlobalMenuDrawer();
 
-    expect((await screen.queryByText('Patrols'))).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Patrols' })).toBeNull();
   });
 
-  test('navigates to the Patrols tab in the Sidebar when clicking the Patrols navigation button', async () => {
-    useMatchMedia.mockImplementation(() => false);
-    render(
-      <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
-      </Provider>
-    );
-
-    expect(navigate).toHaveBeenCalledTimes(0);
-
-    const patrolsNavigationButton = await screen.findByText('Patrols');
-    await userEvent.click(patrolsNavigationButton);
-
-    expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/patrols');
-  });
-
-  test('navigates to the Map Layers tab in the Sidebar when clicking the Map Layers navigation button', async () => {
-    useMatchMedia.mockImplementation(() => false);
-    render(
-      <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
-      </Provider>
-    );
-
-    expect(navigate).toHaveBeenCalledTimes(0);
-
-    const mapLayersNavigationButton = await screen.findByText('Map Layers');
-    await userEvent.click(mapLayersNavigationButton);
-
-    expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/layers');
-  });
-
-  test('does not render Tableau button if it is not enabled', async () => {
+  test('does not show the Tableau button if it is not enabled', async () => {
     store.view.systemConfig.tableau_enabled = false;
-    render(
-      <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
-      </Provider>
-    );
+    renderGlobalMenuDrawer();
 
-    expect((await screen.queryByText('Tableau'))).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Tableau' })).toBeNull();
   });
 
   test('opens a window to the tableau dashboard when clicking the Tableau button ', async () => {
     global.open = jest.fn();
-    render(
-      <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
-      </Provider>
-    );
+    renderGlobalMenuDrawer();
 
     expect(fetchTableauDashboard).toHaveBeenCalledTimes(0);
     expect(global.open).toHaveBeenCalledTimes(0);
 
-    const tableauButton = await screen.findByText('Tableau');
-    await userEvent.click(tableauButton);
+    await userEvent.click(screen.getByRole('button', { name: 'Tableau' }));
 
     expect(fetchTableauDashboard).toHaveBeenCalledTimes(1);
-
-    await waitFor(() => {
-      expect(global.open).toHaveBeenCalledTimes(1);
-      expect(global.open).toHaveBeenCalledWith('tableau url ', '_blank', 'noopener,noreferrer');
-    });
+    expect(global.open).toHaveBeenCalledTimes(1);
+    expect(global.open).toHaveBeenCalledWith('tableau url ', '_blank', 'noopener,noreferrer');
   });
 
-  test('does not render Alerts button if it is not enabled', async () => {
+  test('does not show the Alerts button if it is not enabled', async () => {
     store.view.systemConfig.alerts_enabled = false;
-    render(
-      <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
-      </Provider>
-    );
+    renderGlobalMenuDrawer();
 
-    expect((await screen.queryByText('Alerts'))).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Alerts' })).toBeNull();
   });
 
   test('opens the alerts modal when clicking the Alerts button ', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
-      </Provider>
-    );
+    renderGlobalMenuDrawer();
 
     expect(addModal).toHaveBeenCalledTimes(0);
 
-    const alertsButton = await screen.findByText('Alerts');
-    await userEvent.click(alertsButton);
+    await userEvent.click(screen.getByRole('button', { name: 'Alerts' }));
 
     expect(addModal).toHaveBeenCalledTimes(1);
     expect(addModal.mock.calls[0][0].title).toBe('Alerts');
   });
 
-  test('clicks the "show" button inside the Jira Support Management widget when clicking "Contact Support"', async () => {
+  test('forwards the click to the Jira Support Management widget Help button when clicking Contact Support', async () => {
     const [mockQuerySelector, mockHelpButton] = createQuerySelectorMockImplementationWithHelpButtonReference();
-
     jest.spyOn(global.document, 'querySelector').mockImplementation(mockQuerySelector);
 
-    render(
-      <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
-      </Provider>
-    );
+    renderGlobalMenuDrawer();
 
-    expect(global.open).toHaveBeenCalledTimes(0);
-
-    const supportButton = await screen.findByText('Contact Support');
-    await userEvent.click(supportButton);
+    await userEvent.click(screen.getByRole('button', { name: 'Contact Support' }));
 
     expect(mockHelpButton.click).toHaveBeenCalled();
   });
 
-  test('opens a page to the help center site when clicking the Help Center button', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
-      </Provider>
-    );
+  test('If the Jira Help button is not available, shows a link to send an email to the Help Center', async () => {
+    renderGlobalMenuDrawer();
 
-    expect(global.open).toHaveBeenCalledTimes(0);
-
-    const helpCenterButton = await screen.findByText('Help Center');
-    await userEvent.click(helpCenterButton);
-
-    expect(global.open).toHaveBeenCalledTimes(1);
-    expect(global.open).toHaveBeenCalledWith('https://support.earthranger.com/', '_blank', 'noopener,noreferrer');
-  });
-
-  test('opens a page to the community site when clicking the Community button', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
-      </Provider>
-    );
-
-    expect(global.open).toHaveBeenCalledTimes(0);
-
-    const communityButton = await screen.findByText('Community');
-    await userEvent.click(communityButton);
-
-    expect(global.open).toHaveBeenCalledTimes(1);
-    expect(global.open).toHaveBeenCalledWith('https://Community.EarthRanger.com', '_blank', 'noopener,noreferrer');
-  });
-
-  test('opens a page to the users guide site when clicking the User\'s Guide button', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
-      </Provider>
-    );
-
-    expect(global.open).toHaveBeenCalledTimes(0);
-
-    const usersGuideButton = await screen.findByText('User\'s Guide');
-    await userEvent.click(usersGuideButton);
-
-    expect(global.open).toHaveBeenCalledTimes(1);
-    expect(global.open).toHaveBeenCalledWith('https://support.earthranger.com/en_US/earthranger-web', '_blank', 'noopener,noreferrer');
+    expect(screen.getByRole('link', { name: 'Contact Support' }))
+      .toHaveAttribute('href', 'mailto:support@pamdas.org?subject=Support request from user&body=How can we help you?');
   });
 
   test('opens the daily report modal when clicking the Daily Report button', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
-      </Provider>
-    );
+    renderGlobalMenuDrawer();
 
     expect(addModal).toHaveBeenCalledTimes(0);
 
-    const dailyReportButton = await screen.findByText('Daily Report');
-    await userEvent.click(dailyReportButton);
+    await userEvent.click(screen.getByRole('button', { name: 'Daily Report' }));
 
     expect(addModal).toHaveBeenCalledTimes(1);
     expect(addModal.mock.calls[0][0].title).toBe('Daily Report');
   });
 
-  describe('exporting field reports', () => {
-    const getFieldEventsButton = () => screen.queryByText('Field Events');
-
-    test('does not show the Field Reports button if a user doesn\'t have export event data permissions', async () => {
-      delete store.data.user.permissions[PERMISSION_KEYS.EVENTS];
-
-      render(
-        <Provider store={mockStore(store)}>
-          <GlobalMenuDrawer />
-        </Provider>
-      );
-
-      const fieldEventsButton = getFieldEventsButton();
-
-      expect(fieldEventsButton).toBeNull();
-    });
-
-    test('opens the field reports modal when clicking the Field Reports button', async () => {
-      render(
-        <Provider store={mockStore(store)}>
-          <GlobalMenuDrawer />
-        </Provider>
-      );
-
-      expect(addModal).toHaveBeenCalledTimes(0);
-
-      const fieldEventsButton = getFieldEventsButton();
-      await userEvent.click(fieldEventsButton);
-
-      expect(addModal).toHaveBeenCalledTimes(1);
-      expect(addModal.mock.calls[0][0].title).toBe('Field Events');
-    });
-  });
-
-
   test('opens the kml export modal when clicking the Master KML button', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
-      </Provider>
-    );
+    renderGlobalMenuDrawer();
 
     expect(addModal).toHaveBeenCalledTimes(0);
 
-    const masterKMLButton = await screen.findByText('Subject KML');
-    await userEvent.click(masterKMLButton);
+    await userEvent.click(screen.getByRole('button', { name: 'Subject KML' }));
 
     expect(addModal).toHaveBeenCalledTimes(1);
     expect(addModal.mock.calls[0][0].title).toBe('Subject KML');
   });
 
+  test('does not show the subject information button if a user doesn\'t have export observation data permissions', async () => {
+    delete store.data.user.permissions[PERMISSION_KEYS.OBSERVATIONS];
+    renderGlobalMenuDrawer();
 
-  describe('exporting subject information', () => {
-    const getSubjectInfoButton = () => screen.queryByText('Subject Summary');
-
-    test('does not show the subject information link if a user doesn\'t have export observation data permissions', async () => {
-      delete store.data.user.permissions[PERMISSION_KEYS.OBSERVATIONS];
-
-      render(
-        <Provider store={mockStore(store)}>
-          <GlobalMenuDrawer />
-        </Provider>
-      );
-
-      const subjectInfoButton = getSubjectInfoButton();
-      expect(subjectInfoButton).toBeNull();
-    });
-
-    test('opens the subject information modal when clicking the Subject Information button', async () => {
-      render(
-        <Provider store={mockStore(store)}>
-          <GlobalMenuDrawer />
-        </Provider>
-      );
-
-      expect(addModal).toHaveBeenCalledTimes(0);
-
-      const subjectInfoButton = getSubjectInfoButton();
-      await userEvent.click(subjectInfoButton);
-
-      expect(addModal).toHaveBeenCalledTimes(1);
-      expect(addModal.mock.calls[0][0].title).toBe('Subject Summary');
-    });
+    expect(screen.queryByRole('button', { name: 'Subject Summary' })).toBeNull();
   });
 
-  describe('exporting subject reports', () => {
-    const getSubjectReportsButton = () => screen.queryByText('Observations');
+  test('opens the subject information modal when clicking the Subject Information button', async () => {
+    renderGlobalMenuDrawer();
 
-    test('does not show the subject reports link if a user doesn\'t have export observation data permissions', async () => {
-      delete store.data.user.permissions[PERMISSION_KEYS.OBSERVATIONS];
+    expect(addModal).toHaveBeenCalledTimes(0);
 
-      render(
-        <Provider store={mockStore(store)}>
-          <GlobalMenuDrawer />
-        </Provider>
-      );
+    await userEvent.click(screen.getByRole('button', { name: 'Subject Summary' }));
 
-      const subjectReportsButton = getSubjectReportsButton();
-      expect(subjectReportsButton).toBeNull();
-    });
-
-    test('opens the subject reports modal when clicking the Subject Reports button', async () => {
-      render(
-        <Provider store={mockStore(store)}>
-          <GlobalMenuDrawer />
-        </Provider>
-      );
-
-      expect(addModal).toHaveBeenCalledTimes(0);
-
-      const subjectReportsButton = getSubjectReportsButton();
-      await userEvent.click(subjectReportsButton);
-
-      expect(addModal).toHaveBeenCalledTimes(1);
-      expect(addModal.mock.calls[0][0].title).toBe('Observations');
-    });
+    expect(addModal).toHaveBeenCalledTimes(1);
+    expect(addModal.mock.calls[0][0].title).toBe('Subject Summary');
   });
 
+  test('does not show the subject reports button if a user doesn\'t have export observation data permissions', async () => {
+    delete store.data.user.permissions[PERMISSION_KEYS.OBSERVATIONS];
+    renderGlobalMenuDrawer();
 
-  test('lists links to various privacy and data policies', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
-      </Provider>
-    );
+    expect(screen.queryByRole('button', { name: 'Observations' })).toBeNull();
+  });
 
-    const eulaLink = await screen.getByTestId('eula-link');
-    const sitePrivacyPolicyLink = await screen.getByTestId('website-privacy-policy');
-    const dataPrivacyPolicyLink = await screen.getByTestId('data-privacy-policy');
+  test('opens the subject reports modal when clicking the Subject Reports button', async () => {
+    renderGlobalMenuDrawer();
 
-    [eulaLink, sitePrivacyPolicyLink, dataPrivacyPolicyLink].forEach((item) => {
-      expect(item).toHaveAttribute('rel', 'noreferrer');
-      expect(item).toHaveAttribute('target', '_blank');
-      expect(item).toHaveAttribute('href');
-    });
+    expect(addModal).toHaveBeenCalledTimes(0);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Observations' }));
+
+    expect(addModal).toHaveBeenCalledTimes(1);
+    expect(addModal.mock.calls[0][0].title).toBe('Observations');
+  });
+
+  test('does not show the Field Reports button if a user doesn\'t have export event data permissions', async () => {
+    delete store.data.user.permissions[PERMISSION_KEYS.EVENTS];
+    renderGlobalMenuDrawer();
+
+    expect(screen.queryByRole('button', { name: 'Field Events' })).toBeNull();
+  });
+
+  test('opens the field reports modal when clicking the Field Reports button', async () => {
+    renderGlobalMenuDrawer();
+
+    expect(addModal).toHaveBeenCalledTimes(0);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Field Events' }));
+
+    expect(addModal).toHaveBeenCalledTimes(1);
+    expect(addModal.mock.calls[0][0].title).toBe('Field Events');
+  });
+
+  test('when the global menu drawer is open the close button gets focused and there is a focus trap', async () => {
+    const { rerender } = renderGlobalMenuDrawer();
+
+    const closeButton = screen.getByRole('button', { name: 'Close Main Menu' });
+
+    expect(closeButton).not.toBe(document.activeElement);
+
+    store.view.drawer = { drawerId: 'global-menu', isOpen: true };
+    rerender(<Provider store={mockStore(store)}>
+      <GlobalMenuDrawer />
+    </Provider>);
+
+    expect(closeButton).toBe(document.activeElement);
+
+    await userEvent.keyboard('[Tab]');
+
+    expect(screen.getByRole('button', { name: 'Tableau' })).toBe(document.activeElement);
+
+    await userEvent.keyboard('{Shift>}[Tab]{/Shift}');
+
+    expect(closeButton).toBe(document.activeElement);
+
+    await userEvent.keyboard('{Shift>}[Tab]{/Shift}');
+    const dataPrivacyPolicyLink = screen.getByRole('link', { name: 'Data Privacy Policy' });
+
+    expect(dataPrivacyPolicyLink).toBe(document.activeElement);
+
+    await userEvent.keyboard('{Shift>}[Tab]{/Shift}');
+
+    expect(screen.getByRole('link', { name: 'Website Privacy Policy' })).toBe(document.activeElement);
+
+    await userEvent.keyboard('[Tab]');
+
+    expect(dataPrivacyPolicyLink).toBe(document.activeElement);
+
+    await userEvent.keyboard('[Tab]');
+
+    expect(closeButton).toBe(document.activeElement);
   });
 });

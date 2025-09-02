@@ -316,8 +316,7 @@ describe('ReportManager - DetailsSection', () => {
     const datePicker = await screen.findByTestId('reportManager-detailsSection-datePicker');
     const datePickerOpenCalendarButton = await within(datePicker).findByLabelText('Open calendar');
     await userEvent.click(datePickerOpenCalendarButton);
-    const options = await screen.findAllByRole('option');
-    await userEvent.click(options[16]);
+    await userEvent.click(screen.getByRole('gridcell', { name: 'Choose Tuesday, April 12th, 2022' }));
 
     expect(onReportDateChange).toHaveBeenCalledTimes(1);
     expect(onReportDateChange.mock.calls[0][0].toISOString()).toMatch(/^2022-04-12/);
