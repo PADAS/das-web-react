@@ -1,3 +1,9 @@
+.heading {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .subjectGroupDateTime {
   text-align: right;
 }
