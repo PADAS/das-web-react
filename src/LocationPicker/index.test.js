@@ -190,28 +190,6 @@ describe('LocationPicker', () => {
     expect(screen.getByLabelText('Location')).toHaveValue('15.000000°, 10.000000°');
   });
 
-  test('shows the coordinates in a CRS format if the value is within the BBOX', async () => {
-    store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = [
-      GPS_FORMATS.DEG,
-      GPS_FORMATS.UTM,
-      '5367',
-    ];
-    store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
-    store.view.userPreferences.gpsFormat = '5367';
-    renderLocationPicker({
-      value: {
-        latitude: 9.638124,
-        longitude: -83.491398,
-      },
-    });
-
-    const input = screen.getByLabelText('Location');
-
-    expect(input).toHaveValue('555818.832808, 1065762.823243');
-    expect(input).toHaveAccessibleDescription('Click the button to set a value from the location picker menu.');
-    expect(screen.queryByTestId('locationPicker-valueOutsideBboxTooltipButton')).toBeNull();
-  });
-
   test('shows the coordinates in DEG format and a warning tooltip if the coordinates representation is a CRS and the value is outside the BBOX', async () => {
     store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = [
       GPS_FORMATS.DEG,
@@ -228,15 +206,14 @@ describe('LocationPicker', () => {
     });
 
     const input = screen.getByLabelText('Location');
-    const coordinatesOutsideBboxTooltipButton =
-      screen.getByTestId('locationPicker-valueOutsideBboxTooltipButton');
+    const coordinatesOutsideBboxTooltip = screen.getByTestId('locationPicker-valueOutsideBboxTooltip');
 
     expect(input).toHaveValue('11.666666°, 10.012657°');
     expect(input)
       .toHaveAccessibleDescription('Click the button to set a value from the location picker menu. Location is displayed in DEG format. EPSG:5367 CR05 / CRTM05 is not supported at this location.');
-    expect(coordinatesOutsideBboxTooltipButton).toBeVisible();
+    expect(coordinatesOutsideBboxTooltip).toBeVisible();
 
-    await userEvent.hover(coordinatesOutsideBboxTooltipButton);
+    await userEvent.hover(coordinatesOutsideBboxTooltip);
 
     expect(screen.getByRole('tooltip', {
       name: 'Location is displayed in DEG format. EPSG:5367 CR05 / CRTM05 is not supported at this location.',

@@ -18,6 +18,8 @@ import MessageList from './';
 
 import * as styles from './styles.module.scss';
 
+const FETCH_MESSAGES_SINCE_PARAMETER = 2000;
+
 const ParamFedMessageList = ({ isReverse = false, params = null, ...restProps }) => {
   const { t } = useTranslation('components', { keyPrefix: 'messageList.paramFedMessageList' });
 
@@ -59,7 +61,7 @@ const ParamFedMessageList = ({ isReverse = false, params = null, ...restProps })
       window.clearTimeout(scrollPositionTimeout.current);
       setLoadState(true);
       isInit.current = false;
-      fetchMessages(params, true)
+      fetchMessages({ since: FETCH_MESSAGES_SINCE_PARAMETER, ...params }, true)
         .then((response) => dispatch(fetchMessagesSuccess(response.data.data, true)))
         .finally(() => {
           scrollPositionTimeout.current = window.setTimeout(() => setListScrollPosition(), 200);

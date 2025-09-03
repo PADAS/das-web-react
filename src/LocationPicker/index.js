@@ -1,17 +1,15 @@
-import React, { memo, useId, useImperativeHandle, useContext, useMemo, useRef, useState } from 'react';
+import React, { memo, useId, useImperativeHandle, useRef, useState } from 'react';
 import Overlay from 'react-bootstrap/Overlay';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Tooltip from 'react-bootstrap/Tooltip';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { ReactComponent as TriangleExclamationIcon } from '../common/images/icons/triangle-exclamation.svg';
 import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
 
-import { OUTSIDE_BBOX, stringifyCoordinates } from '../utils/location';
 import { selectCoordinatesRepresentation } from '../selectors/location';
 import useJumpToLocation from '../hooks/useJumpToLocation';
+import useStringifyCoordinates from '../hooks/useStringifyCoordinates';
 
+import IconTooltip from '../IconTooltip';
 import MenuPopover from './MenuPopover';
 import TextCopyBtn from '../TextCopyBtn';
 
@@ -53,19 +51,10 @@ const LocationPicker = ({
 
   const [isMenuPopoverOpen, setIsMenuPopoverOpen] = useState(false);
 
-  const { isValueOutsideCrsBbox, displayValue } = useMemo(() => {
-    if (value) {
-      // Calculate the display value in the coordinates representation and if
-      // it falls outside the BBOX of the CRS, fallback to degrees.
-      const displayValue = stringifyCoordinates(value, coordinatesRepresentation);
-      if (displayValue === OUTSIDE_BBOX) {
-        return { displayValue: stringifyCoordinates(value), isValueOutsideCrsBbox: true };
-      }
-      return { displayValue, isValueOutsideCrsBbox: false };
-    }
-
-    return { displayValue: '', isValueOutsideCrsBbox: false };
-  }, [coordinatesRepresentation, value]);
+  const {
+    coordinatesString: valueCoordinatesString,
+    outsideRepresentationBbox: valueOutsideRepresentationBbox,
+  } = useStringifyCoordinates(value);
 
   return <>
     <div
@@ -90,7 +79,7 @@ const LocationPicker = ({
         type="button"
       >
         <input
-          aria-describedby={`${inputDescriptionId}${isValueOutsideCrsBbox ? ` ${valueOutsideBboxTooltipId}`: ''}`}
+          aria-describedby={`${inputDescriptionId} ${valueOutsideBboxTooltipId}`}
           aria-label={t('inputLabel')}
           className={`${styles.input} ${readOnly ? styles.readOnly : ''}`}
           disabled={disabled}
@@ -101,7 +90,7 @@ const LocationPicker = ({
           required={required}
           tabIndex={-1}
           type="text"
-          value={displayValue}
+          value={valueCoordinatesString}
           {...inputProps}
         />
 
@@ -110,40 +99,22 @@ const LocationPicker = ({
         </p>
       </button>
 
-      {isValueOutsideCrsBbox && <>
-        <OverlayTrigger
-          overlay={(props) => <Tooltip {...props} arrowProps={{ style: { display: 'none' } }}>
-            {t('valueOutsideBboxTooltip', {
-              crsName: coordinatesRepresentation.name,
-              epsgCode: coordinatesRepresentation.code,
-            })}
-          </Tooltip>}
-          placement="bottom"
-        >
-          <button
-            aria-hidden
-            aria-label={t('valueOutsideBboxTooltipButtonLabel')}
-            className={styles.valueOutsideBboxTooltipButton}
-            data-testid="locationPicker-valueOutsideBboxTooltipButton"
-            type="button"
-          >
-            <TriangleExclamationIcon />
-          </button>
-        </OverlayTrigger>
-
-        <p className="sr-only" id={valueOutsideBboxTooltipId}>
-          {t('valueOutsideBboxTooltip', {
-            crsName: coordinatesRepresentation.name,
-            epsgCode: coordinatesRepresentation.code,
-          })}
-        </p>
-      </>}
+      {valueOutsideRepresentationBbox && <IconTooltip
+        aria-label={t('valueOutsideBboxTooltipButtonLabel')}
+        className={styles.valueOutsideBboxTooltip}
+        data-testid="locationPicker-valueOutsideBboxTooltip"
+        id={valueOutsideBboxTooltipId}
+        title={t('valueOutsideBboxTooltipTitle', {
+          crsName: coordinatesRepresentation.name,
+          epsgCode: coordinatesRepresentation.code,
+        })}
+      />}
 
       {value && <TextCopyBtn
         aria-label={t('textCopyButtonLabel')}
         className={styles.textCopyButton}
         disabled={disabled}
-        text={displayValue}
+        text={valueCoordinatesString}
         title={t('textCopyButtonLabel')}
       />}
 

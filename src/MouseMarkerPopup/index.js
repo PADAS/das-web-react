@@ -1,9 +1,7 @@
 import React, { memo } from 'react';
-import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { stringifyCoordinates } from '../utils/location';
-import { validateLngLat } from '../utils/location';
+import useStringifyCoordinates from '../hooks/useStringifyCoordinates';
 
 import Popup from '../Popup';
 
@@ -12,9 +10,12 @@ import * as styles from './styles.module.scss';
 const MouseMarkerPopup = ({ location = null, ...rest }) => {
   const { t } = useTranslation('map-popups', { keyPrefix: 'mouseMarkerPopup' });
 
-  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
+  const { coordinatesString, outsideRepresentationBbox } = useStringifyCoordinates({
+    latitude: location.lat,
+    longitude: location.lng,
+  });
 
-  return location && validateLngLat(location.lng, location.lat) && <Popup
+  return coordinatesString && <Popup
       anchor="right"
       className={styles.popup}
       coordinates={[location.lng, location.lat]}
@@ -23,7 +24,7 @@ const MouseMarkerPopup = ({ location = null, ...rest }) => {
     >
     <p>{t('title')}</p>
 
-    <p>{stringifyCoordinates({ latitude: location.lat, longitude: location.lng }, gpsFormat)}</p>
+    <p>{outsideRepresentationBbox ? t('coordinatesStringOutsideBbox') : coordinatesString}</p>
   </Popup>;
 };
 

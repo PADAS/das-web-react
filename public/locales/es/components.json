@@ -62,8 +62,8 @@
   },
   "gpsFormatToggle": {
     "fieldsetLegend": "Formato de GPS",
-    "coordinatesOutsideBboxTooltip": "La ubicación se muestra en formato DEG. EPSG:{{epsgCode}} {{crsName}} no es compatible en esta ubicación.",
     "coordinatesOutsideBboxTooltipButtonLabel": "Más información sobre el formato de ubicación",
+    "coordinatesOutsideBboxTooltipTitle": "La ubicación se muestra en formato DEG. EPSG:{{epsgCode}} {{crsName}} no es compatible en esta ubicación.",
     "textCopyButtonLabel": "Copiar valor GPS al portapapeles"
   },
   "gpsInput": {
@@ -98,8 +98,8 @@
       "open": "Cerrar el menú del selector de ubicación"
     },
     "textCopyButtonLabel": "Copiar ubicación al portapapeles",
-    "valueOutsideBboxTooltip": "La ubicación se muestra en formato DEG. EPSG:{{epsgCode}} {{crsName}} no es compatible en esta ubicación.",
-    "valueOutsideBboxTooltipButtonLabel": "Más información sobre el formato de ubicación"
+    "valueOutsideBboxTooltipButtonLabel": "Más información sobre el formato de ubicación",
+    "valueOutsideBboxTooltipTitle": "La ubicación se muestra en formato DEG. EPSG:{{epsgCode}} {{crsName}} no es compatible en esta ubicación."
   },
   "mapLocationSelectionOverview": {
     "chooseLocationHeader": {
@@ -222,6 +222,7 @@
           "coordinateReferenceSystemFinder": {
             "addCrsButton": "Agregar",
             "addCrsButtonLabel": "Agregar EPSG:{{epsgCode}} {{name}} a las opciones del selector de formato GPS",
+            "addedMaximumSystemsMessage": "Has añadido 6 sistemas de referencia de coordenadas. Elimina al menos 1 antes de añadir otros.",
             "emptyStateMessage": "Ajusta tu búsqueda para encontrar lo que estás buscando.",
             "emptyStateMessageTitle": "No se encontraron resultados.",
             "instructions": "Buscar sistemas de referencia de coordenadas adicionales",
@@ -239,8 +240,8 @@
             "resultsTableNameHeaderCell": "Nombre",
             "showingMaximumFilteredResultsMessage": "Mostrando los 10 principales resultados. Intenta refinar tu búsqueda para reducir la lista."
           },
-          "gpsFormatSelector": {
-            "deleteGpsFormatOptionButtonLabel": "Eliminar {{coordinateReferenceSystemName}} de las opciones",
+          "coordinateRepresentationsSelector": {
+            "deleteCrsOptionButtonLabel": "Eliminar {{coordinateReferenceSystemName}} de las opciones",
             "gpsFormatOptionExample": "Ejemplo: {{example}}",
             "gpsFormatOptionLabel": {
               "deg": "DEG Grados decimales",
@@ -253,7 +254,7 @@
             "legend": "Selector de formato GPS",
             "maximumOptionsSelectedMessage": "Tienes seleccionadas 4 de 4 opciones. Deselecciona al menos 1 opción antes de seleccionar otras."
           },
-          "title": "Coordenadas"
+          "title": "Sistemas de Coordenadas"
         },
         "mainMapSettingsView": {
           "displayFieldSet": {

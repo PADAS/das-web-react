@@ -4,7 +4,9 @@
   },
   "subjectHistoricalDataModal": {
     "observationRow": {
-      "noDataLabel": "Aucune donnée"
+      "noDataLabel": "Aucune donnée",
+      "observationOutsideBboxTooltipButtonLabel": "Plus d’informations sur le format de l’emplacement",
+      "observationOutsideBboxTooltipTitle": "L’emplacement est affiché au format DEG. EPSG:{{epsgCode}} {{crsName}} n’est pas pris en charge à cet emplacement."
     },
     "tableDateHeader": "Date",
     "tableLocationHeader": "Position"

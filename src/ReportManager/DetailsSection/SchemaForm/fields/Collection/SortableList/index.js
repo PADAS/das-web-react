@@ -18,6 +18,7 @@ import { useTranslation } from 'react-i18next';
 
 import { BOOTSTRAP_DEFAULTS } from '../../../../../../constants';
 import { getItemTitle } from './Item/utils';
+import { selectCoordinatesRepresentation } from '../../../../../../selectors/location';
 
 import Item from './Item';
 import SortableItem from './SortableItem';
@@ -71,7 +72,7 @@ const SortableList = ({
     keyPrefix: 'reportManager.detailsSection.schemaForm.fields.collection.sortableList',
   });
 
-  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
+  const coordinatesRepresentation = useSelector(selectCoordinatesRepresentation);
 
   const [activeItemIndex, setActiveItemIndex] = useState(null);
 
@@ -87,7 +88,7 @@ const SortableList = ({
         `${collectionDetails.itemName} ${items[activeItemIndex].id + 1}`,
         fields[collectionDetails.itemIdentifier],
         i18n.language,
-        gpsFormat,
+        coordinatesRepresentation,
         t
       ),
       ...(overId === null ? [] : [items.findIndex((item) => item.id === overId) + 1]),

@@ -12,7 +12,7 @@ import {
 } from '../../../../../ducks/coordinate-reference-systems';
 import { updateUserPreferences } from '../../../../../ducks/user-preferences';
 
-import GpsFormatSelector from './';
+import CoordinateRepresentationsSelector from './';
 
 jest.mock('../../../../../ducks/coordinate-reference-systems', () => ({
   ...jest.requireActual('../../../../../ducks/coordinate-reference-systems'),
@@ -25,7 +25,7 @@ jest.mock('../../../../../ducks/user-preferences', () => ({
   updateUserPreferences: jest.fn(),
 }));
 
-describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFormatSelector', () => {
+describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - CoordinateRepresentationsSelector', () => {
   let store;
   beforeEach(() => {
     setSelectedCoordinateRepresentations.mockImplementation(() => () => {});
@@ -46,14 +46,14 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
     };
   });
 
-  const renderGpsFormatSelector = (props, overrideStore) => render(
+  const renderCoorinatesRepresentationsSelector = (props, overrideStore) => render(
     <Provider store={mockStore({ ...store, ...overrideStore })}>
-      <GpsFormatSelector {...props} />
+      <CoordinateRepresentationsSelector {...props} />
     </Provider>
   );
 
-  test('shows default GPS format options are listed even if they are not stored', async () => {
-    renderGpsFormatSelector();
+  test('default GPS format options are listed even if they are not stored', async () => {
+    renderCoorinatesRepresentationsSelector();
 
     expect(screen.getByRole('checkbox', { name: 'DEG Decimal Degrees' })).toBeVisible();
     expect(screen.getByRole('checkbox', { name: 'DMS Degrees, Minutes, Seconds' })).toBeVisible();
@@ -63,20 +63,20 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
   });
 
   test('shows default GPS format options checked', async () => {
-    renderGpsFormatSelector();
+    renderCoorinatesRepresentationsSelector();
 
     expect(screen.getByRole('checkbox', { name: 'DMS Degrees, Minutes, Seconds' })).toBeChecked();
   });
 
   test('shows default GPS format options unchecked', async () => {
     store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = [GPS_FORMATS.DEG];
-    renderGpsFormatSelector();
+    renderCoorinatesRepresentationsSelector();
 
     expect(screen.getByRole('checkbox', { name: 'DMS Degrees, Minutes, Seconds' })).not.toBeChecked();
   });
 
   test('DEG GPS format option is always disabled', async () => {
-    renderGpsFormatSelector();
+    renderCoorinatesRepresentationsSelector();
 
     expect(screen.getByRole('checkbox', { name: 'DEG Decimal Degrees' })).toBeDisabled();
     expect(screen.getByText('DEG Decimal Degrees')).toHaveClass('disabled');
@@ -91,7 +91,7 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
       '5367',
       '26753'
     ];
-    renderGpsFormatSelector();
+    renderCoorinatesRepresentationsSelector();
 
     expect(screen.getByRole('checkbox', { name: 'DMS Degrees, Minutes, Seconds' })).toBeDisabled();
     expect(screen.getByText('DMS Degrees, Minutes, Seconds')).toHaveClass('disabled');
@@ -106,7 +106,7 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
       '5367',
       '26753',
     ];
-    renderGpsFormatSelector();
+    renderCoorinatesRepresentationsSelector();
 
     expect(screen.getByRole('checkbox', { name: 'UTM Universal Transverse Mercator' })).toBeEnabled();
     expect(screen.getByText('UTM Universal Transverse Mercator')).not.toHaveClass('disabled');
@@ -120,15 +120,15 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
       '4576',
       '5367',
     ];
-    renderGpsFormatSelector();
+    renderCoorinatesRepresentationsSelector();
 
     expect(screen.getByRole('checkbox', { name: 'DMS Degrees, Minutes, Seconds' })).toBeEnabled();
     expect(screen.getByText('DMS Degrees, Minutes, Seconds')).not.toHaveClass('disabled');
     expect(screen.getByText('Example: 0 9′ 10.5624″ S, 37 18′ 32.6185″ E')).not.toHaveClass('disabled');
   });
 
-  test('deselects a coordinate reference system when unchecking a default GPS format option', async () => {
-    renderGpsFormatSelector();
+  test('deselects a coordinates representation when unchecking a default GPS format option', async () => {
+    renderCoorinatesRepresentationsSelector();
 
     expect(setSelectedCoordinateRepresentations).not.toHaveBeenCalled();
 
@@ -139,9 +139,9 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
       .toHaveBeenCalledWith([GPS_FORMATS.DEG, GPS_FORMATS.DDM, GPS_FORMATS.UTM, GPS_FORMATS.MGRS]);
   });
 
-  test('sets the GPS format to DEG if the user deselects the GPS format option that is the current GPS format', async () => {
+  test('sets the GPS format to DEG if the user deselects the coordinates representation option that is the current GPS format', async () => {
     store.view.userPreferences.gpsFormat = GPS_FORMATS.DMS;
-    renderGpsFormatSelector();
+    renderCoorinatesRepresentationsSelector();
 
     expect(updateUserPreferences).not.toHaveBeenCalled();
 
@@ -151,14 +151,14 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
     expect(updateUserPreferences).toHaveBeenCalledWith({ gpsFormat: GPS_FORMATS.DEG });
   });
 
-  test('selects a coordinate reference system when checking a default GPS format option', async () => {
+  test('selects a coordinates representation when checking a default GPS format option', async () => {
     store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = [
       GPS_FORMATS.DEG,
       GPS_FORMATS.DDM,
       GPS_FORMATS.UTM,
       GPS_FORMATS.MGRS,
     ];
-    renderGpsFormatSelector();
+    renderCoorinatesRepresentationsSelector();
 
     expect(setSelectedCoordinateRepresentations).not.toHaveBeenCalled();
 
@@ -169,43 +169,43 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
       .toHaveBeenCalledWith([GPS_FORMATS.DEG, GPS_FORMATS.DDM, GPS_FORMATS.UTM, GPS_FORMATS.MGRS, GPS_FORMATS.DMS]);
   });
 
-  test('does not show CRS GPS format options that are not stored', async () => {
-    renderGpsFormatSelector();
+  test('does not show CRS options that are not stored', async () => {
+    renderCoorinatesRepresentationsSelector();
 
     expect(screen.queryByRole('checkbox', { name: 'EPSG:5367 CR05 / CRTM05' })).toBeNull();
   });
 
-  test('shows a CRS GPS format options if it is stored', async () => {
+  test('shows a CRS option if it is stored', async () => {
     store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
-    renderGpsFormatSelector();
+    renderCoorinatesRepresentationsSelector();
 
     expect(screen.getByRole('checkbox', { name: 'EPSG:5367 CR05 / CRTM05' })).toBeVisible();
   });
 
-  test('shows CRS GPS format options checked', async () => {
+  test('shows CRS options checked', async () => {
     store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
     store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = ['5367'];
-    renderGpsFormatSelector();
+    renderCoorinatesRepresentationsSelector();
 
     expect(screen.getByRole('checkbox', { name: 'EPSG:5367 CR05 / CRTM05' })).toBeChecked();
   });
 
-  test('shows CRS GPS format options unchecked', async () => {
+  test('shows CRS options unchecked', async () => {
     store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
-    renderGpsFormatSelector();
+    renderCoorinatesRepresentationsSelector();
 
     expect(screen.getByRole('checkbox', { name: 'EPSG:5367 CR05 / CRTM05' })).not.toBeChecked();
   });
 
-  test('disables CRS GPS format options if they are unchecked and the limit of choices has been reached', async () => {
+  test('disables CRS options if they are unchecked and the limit of choices has been reached', async () => {
     store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
-    renderGpsFormatSelector();
+    renderCoorinatesRepresentationsSelector();
 
     expect(screen.getByRole('checkbox', { name: 'EPSG:5367 CR05 / CRTM05' })).toBeDisabled();
     expect(screen.getByText('EPSG:5367 CR05 / CRTM05')).toHaveClass('disabled');
   });
 
-  test('selected default GPS format options are enabled if they are checked', async () => {
+  test('selected CRS options are enabled if they are checked', async () => {
     store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
     store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = [
       GPS_FORMATS.DEG,
@@ -214,13 +214,13 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
       GPS_FORMATS.UTM,
       '5367',
     ];
-    renderGpsFormatSelector();
+    renderCoorinatesRepresentationsSelector();
 
     expect(screen.getByRole('checkbox', { name: 'EPSG:5367 CR05 / CRTM05' })).toBeEnabled();
     expect(screen.getByText('EPSG:5367 CR05 / CRTM05')).not.toHaveClass('disabled');
   });
 
-  test('enables default GPS format options if they are unchecked and the limit of choices has not been reached', async () => {
+  test('enables CRS options if they are unchecked and the limit of choices has not been reached', async () => {
     store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
     store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = [
       GPS_FORMATS.DEG,
@@ -228,13 +228,13 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
       GPS_FORMATS.DDM,
       GPS_FORMATS.UTM,
     ];
-    renderGpsFormatSelector();
+    renderCoorinatesRepresentationsSelector();
 
     expect(screen.getByRole('checkbox', { name: 'EPSG:5367 CR05 / CRTM05' })).toBeEnabled();
     expect(screen.getByText('EPSG:5367 CR05 / CRTM05')).not.toHaveClass('disabled');
   });
 
-  test('deselects a coordinate reference system when unchecking a CRS GPS format option', async () => {
+  test('deselects a coordinates representation when unchecking a CRS option', async () => {
     store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
     store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = [
       GPS_FORMATS.DEG,
@@ -244,7 +244,7 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
       '5367',
     ];
 
-    renderGpsFormatSelector();
+    renderCoorinatesRepresentationsSelector();
 
     expect(setSelectedCoordinateRepresentations).not.toHaveBeenCalled();
 
@@ -255,7 +255,7 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
       .toHaveBeenCalledWith([GPS_FORMATS.DEG, GPS_FORMATS.DMS, GPS_FORMATS.DDM, GPS_FORMATS.UTM]);
   });
 
-  test('sets the GPS format to DEG if the user deselects the GPS format option that is the current GPS format', async () => {
+  test('sets the GPS format to DEG if the user deselects the CRS option that is the current GPS format', async () => {
     store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
     store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = [
       GPS_FORMATS.DEG,
@@ -265,7 +265,7 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
       '5367',
     ];
     store.view.userPreferences.gpsFormat = '5367';
-    renderGpsFormatSelector();
+    renderCoorinatesRepresentationsSelector();
 
     expect(updateUserPreferences).not.toHaveBeenCalled();
 
@@ -275,7 +275,7 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
     expect(updateUserPreferences).toHaveBeenCalledWith({ gpsFormat: GPS_FORMATS.DEG });
   });
 
-  test('selects a coordinate reference system when checking a CRS GPS format option', async () => {
+  test('selects a coordinates representation when checking a CRS option', async () => {
     store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
     store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = [
       GPS_FORMATS.DEG,
@@ -283,7 +283,7 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
       GPS_FORMATS.DDM,
       GPS_FORMATS.UTM,
     ];
-    renderGpsFormatSelector();
+    renderCoorinatesRepresentationsSelector();
 
     expect(setSelectedCoordinateRepresentations).not.toHaveBeenCalled();
 
@@ -294,9 +294,9 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
       .toHaveBeenCalledWith([GPS_FORMATS.DEG, GPS_FORMATS.DMS, GPS_FORMATS.DDM, GPS_FORMATS.UTM, '5367']);
   });
 
-  test('removes a CRS GPS format option from the list of stored systems when the user clicks the delete button', async () => {
+  test('removes a CRS option from the list of stored systems when the user clicks the delete button', async () => {
     store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
-    renderGpsFormatSelector();
+    renderCoorinatesRepresentationsSelector();
 
     expect(setStoredCoordinateReferenceSystems).not.toHaveBeenCalled();
 
@@ -306,7 +306,7 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
     expect(setStoredCoordinateReferenceSystems).toHaveBeenCalledWith([]);
   });
 
-  test('removes a CRS GPS format option from the list of stored systems and from the list of selected systems if it was checked when the user clicks the delete button', async () => {
+  test('removes a CRS option from the list of stored systems and from the list of selected systems if it was checked when the user clicks the delete button', async () => {
     store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
     store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = [
       GPS_FORMATS.DEG,
@@ -315,7 +315,7 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
       GPS_FORMATS.UTM,
       '5367',
     ];
-    renderGpsFormatSelector();
+    renderCoorinatesRepresentationsSelector();
 
     expect(setSelectedCoordinateRepresentations).not.toHaveBeenCalled();
     expect(setStoredCoordinateReferenceSystems).not.toHaveBeenCalled();
@@ -336,14 +336,14 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
       GPS_FORMATS.DDM,
       GPS_FORMATS.UTM,
     ];
-    renderGpsFormatSelector();
+    renderCoorinatesRepresentationsSelector();
 
     expect(screen.queryByText('You have 4 of 4 options selected. Deselect at least 1 option before selecting others.'))
       .toBeNull();
   });
 
   test('shows a message if the limit of selected systems has been reached', async () => {
-    renderGpsFormatSelector();
+    renderCoorinatesRepresentationsSelector();
 
     expect(screen.getByText('You have 4 of 4 options selected. Deselect at least 1 option before selecting others.'))
       .toBeVisible();

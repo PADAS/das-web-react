@@ -276,7 +276,7 @@ export const getProj4CompatibleCRS = async () => {
           }
 
           acc.push({
-            area: coordinateReferenceSystem.area,
+            area: coordinateReferenceSystem.area || '',
             bbox,
             code: coordinateReferenceSystem.code,
             name: coordinateReferenceSystem.name,

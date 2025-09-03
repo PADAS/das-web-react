@@ -63,8 +63,8 @@
     },
     "gpsFormatToggle": {
         "fieldsetLegend": "GPS ढाँचा",
-        "coordinatesOutsideBboxTooltip": "स्थान DEG ढाँचामा देखाइएको छ। EPSG:{{epsgCode}} {{crsName}} यो स्थानमा समर्थित छैन।",
         "coordinatesOutsideBboxTooltipButtonLabel": "स्थान ढाँचाबारे थप जानकारी",
+        "coordinatesOutsideBboxTooltipTitle": "स्थान DEG ढाँचामा देखाइएको छ। EPSG:{{epsgCode}} {{crsName}} यो स्थानमा समर्थित छैन।",
         "textCopyButtonLabel": "GPS मान क्लिपबोर्डमा प्रतिलिपि गर्नुहोस्"
     },
     "gpsInput": {
@@ -99,8 +99,8 @@
             "open": "स्थान चयन मेनु बन्द गर्नुहोस्"
         },
         "textCopyButtonLabel": "स्थान क्लिपबोर्डमा प्रतिलिपि गर्नुहोस्",
-        "valueOutsideBboxTooltip": "स्थान DEG ढाँचामा देखाइएको छ। EPSG:{{epsgCode}} {{crsName}} यो स्थानमा समर्थित छैन।",
-        "valueOutsideBboxTooltipButtonLabel": "स्थान ढाँचाबारे थप जानकारी"
+        "valueOutsideBboxTooltipButtonLabel": "स्थान ढाँचाबारे थप जानकारी",
+        "valueOutsideBboxTooltipTitle": "स्थान DEG ढाँचामा देखाइएको छ। EPSG:{{epsgCode}} {{crsName}} यो स्थानमा समर्थित छैन।"
     },
     "mapLocationSelectionOverview": {
         "chooseLocationHeader": {
@@ -223,6 +223,7 @@
                     "coordinateReferenceSystemFinder": {
                         "addCrsButton": "थप्नुहोस्",
                         "addCrsButtonLabel": "EPSG:{{epsgCode}} {{name}} लाई GPS ढाँचा चयन विकल्पहरूमा थप्नुहोस्",
+                        "addedMaximumSystemsMessage": "तपाईंले ६ निर्देशांक सन्दर्भ प्रणाली थप्नुभयो। अरू थप्नुअघि कम्तिमा १ मेटाउनुहोस्।",
                         "emptyStateMessage": "तपाईं खोजिरहनुभएको कुरा फेला पार्नको लागि आफ्नो खोज समायोजन गर्नुहोस्।",
                         "emptyStateMessageTitle": "कुनै परिणाम फेला परेन।",
                         "instructions": "थप समन्वय सन्दर्भ प्रणालीहरू खोज्नुहोस्",
@@ -240,8 +241,8 @@
                         "resultsTableNameHeaderCell": "नाम",
                         "showingMaximumFilteredResultsMessage": "शीर्ष १० परिणामहरू देखाउँदै। सूची संकुचित गर्न आफ्नो खोज परिष्कृत गर्नुहोस्।"
                     },
-                    "gpsFormatSelector": {
-                        "deleteGpsFormatOptionButtonLabel": "{{coordinateReferenceSystemName}} विकल्पबाट हटाउनुहोस्",
+                    "coordinateRepresentationsSelector": {
+                        "deleteCrsOptionButtonLabel": "{{coordinateReferenceSystemName}} विकल्पबाट हटाउनुहोस्",
                         "gpsFormatOptionExample": "उदाहरण: {{example}}",
                         "gpsFormatOptionLabel": {
                             "deg": "DEG दशमलव डिग्री",
@@ -254,7 +255,7 @@
                         "legend": "GPS ढाँचा चयनकर्ता",
                         "maximumOptionsSelectedMessage": "तपाईंले ४ मध्ये ४ विकल्पहरू चयन गर्नुभएको छ। अरू चयन गर्नुभन्दा पहिले कम्तीमा १ विकल्प हटाउनुहोस्।"
                     },
-                    "title": "समन्वय"
+                    "title": "समन्वय प्रणालीहरू"
                 },
                 "mainMapSettingsView": {
                     "displayFieldSet": {

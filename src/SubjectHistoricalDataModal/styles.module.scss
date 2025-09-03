@@ -11,6 +11,12 @@
     margin-bottom: 0rem;
     color: colors.$dark-gray;
     font-size: 0.87rem;
+
+    .observationCoordinates {
+      align-items: center;
+      display: flex;
+      gap: 0.5rem;
+    }
     
     thead {
       font-size: 1rem;

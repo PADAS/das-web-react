@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as ArrowLeftIcon } from '../../../../common/images/icons/arrow-left.svg';
 
 import CoordinateReferenceSystemFinder from './CoordinateReferenceSystemFinder';
-import GpsFormatSelector from './GpsFormatSelector';
+import CoordinateRepresentationsSelector from './CoordinateRepresentationsSelector';
 
 import * as styles from './styles.module.scss';
 
@@ -28,7 +28,7 @@ const CoordinateSystemSettingsView = ({ onOpenMainMapSettingsView }) => {
       <h4 className={styles.title}>{t('title')}</h4>
     </div>
 
-    <GpsFormatSelector />
+    <CoordinateRepresentationsSelector />
 
     <CoordinateReferenceSystemFinder />
   </>;

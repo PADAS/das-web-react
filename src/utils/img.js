@@ -12,23 +12,92 @@ const imgNeedsHostAppended = url => {
   return true;
 };
 
-const imageCache = new Map();
+export class ImageCache {
+  constructor() {
+    this.imageCache = new Map();
+    this.failedImageCache = new Map();
+    this.maxFailures = 3;
+  }
 
-const generateImageCacheKey = (src, width, height) => {
-  const w = width === null ? 'null' : (width === undefined ? 'undefined' : width);
-  const h = height === null ? 'null' : (height === undefined ? 'undefined' : height);
-  return `${src}:${w}:${h}`;
-};
+  static getInstance() {
+    if (!ImageCache.instance) {
+      ImageCache.instance = new ImageCache();
+    }
+    return ImageCache.instance;
+  }
+
+  generateCacheKey(src, width, height) {
+    const w = width === null ? 'null' : (width === undefined ? 'undefined' : width);
+    const h = height === null ? 'null' : (height === undefined ? 'undefined' : height);
+    return `${src}:${w}:${h}`;
+  }
+
+  getFailureCount(cacheKey) {
+    return this.failedImageCache.get(cacheKey) || 0;
+  }
+
+  hasExceededMaxFailures(cacheKey) {
+    return this.getFailureCount(cacheKey) >= this.maxFailures;
+  }
+
+  incrementFailureCount(cacheKey) {
+    const currentFailCount = this.getFailureCount(cacheKey);
+    this.failedImageCache.set(cacheKey, currentFailCount + 1);
+    return currentFailCount + 1;
+  }
+
+  clearFailureCount(cacheKey) {
+    this.failedImageCache.delete(cacheKey);
+  }
+
+  get(cacheKey) {
+    return this.imageCache.get(cacheKey);
+  }
+
+  has(cacheKey) {
+    return this.imageCache.has(cacheKey);
+  }
+
+  set(cacheKey, promise) {
+    this.imageCache.set(cacheKey, promise);
+  }
+
+  delete(cacheKey) {
+    this.imageCache.delete(cacheKey);
+  }
+
+  // Optional: methods for cache management
+  clear() {
+    this.imageCache.clear();
+    this.failedImageCache.clear();
+  }
+
+  getStats() {
+    return {
+      cachedImages: this.imageCache.size,
+      failedImages: this.failedImageCache.size,
+      failures: Array.from(this.failedImageCache.entries())
+    };
+  }
+}
 
 export const imgElFromSrc = (src, baseUnit = null) => {
+  const imgCacheInstance = ImageCache.getInstance();
+
   if (!src) {
     return Promise.reject('no src provided');
   }
 
-  const cacheKey = generateImageCacheKey(src, baseUnit, null);
+  const cacheKey = imgCacheInstance.generateCacheKey(src, baseUnit, null);
 
-  if (imageCache.has(cacheKey)) {
-    return imageCache.get(cacheKey);
+  // Check if this image has already failed 2+ times
+  const failCount = imgCacheInstance.getFailureCount(cacheKey);
+  if (failCount >= 3) {
+    return Promise.reject(`image failed ${failCount} times, not retrying`);
+  }
+
+  if (imgCacheInstance.has(cacheKey)) {
+    return imgCacheInstance.get(cacheKey);
   }
 
   const img = new Image();
@@ -36,6 +105,9 @@ export const imgElFromSrc = (src, baseUnit = null) => {
 
   const imagePromise = new Promise((resolve, reject) => {
     const cleanupAndResolve = () => {
+      // Clear any previous failure count on success
+      imgCacheInstance.clearFailureCount(cacheKey);
+
       if (baseUnit && img.naturalWidth && img.naturalHeight) {
         const widthIsLarger = img.naturalWidth > img.naturalHeight;
 
@@ -55,9 +127,6 @@ export const imgElFromSrc = (src, baseUnit = null) => {
         img.height = baseUnit;
       }
 
-
-
-
       resolve(img);
     };
 
@@ -70,16 +139,20 @@ export const imgElFromSrc = (src, baseUnit = null) => {
         URL.revokeObjectURL(src);
       }
 
-      imageCache.delete(cacheKey);
+      // Increment failure count instead of just deleting
+      const currentFailCount = ImageCache.getInstance().incrementFailureCount(cacheKey);
+
+      ImageCache.getInstance().delete(cacheKey);
+      img.src = '';
       img.onload = null;
       img.onerror = null;
-      reject('could not load image');
+      reject(`could not load image (attempt ${currentFailCount})`);
     };
 
     img.src = src;
   });
 
-  imageCache.set(cacheKey, imagePromise);
+  ImageCache.getInstance().set(cacheKey, imagePromise);
 
   return imagePromise;
 };

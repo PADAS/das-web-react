@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useId, useState } from 'react';
 import flatten from 'lodash/flatten';
 import Modal from 'react-bootstrap/Modal';
 import startCase from 'lodash/startCase';
@@ -9,9 +9,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { fetchObservationsForSubject } from '../ducks/observations';
-import { stringifyCoordinates } from '../utils/location';
+import { selectCoordinatesRepresentation } from '../selectors/location';
+import useStringifyCoordinates from '../hooks/useStringifyCoordinates';
 
 import DateTime from '../DateTime';
+import IconTooltip from '../IconTooltip';
 import LoadingOverlay from '../LoadingOverlay';
 
 import * as styles from './styles.module.scss';
@@ -49,9 +51,14 @@ const getPageItemNumbers = (pagesCount, activePage) => {
 const ObservationRow = ({ observation, observationProperties, subjectIsStatic }) => {
   const { t } = useTranslation('subjects', { keyPrefix: 'subjectHistoricalDataModal.observationRow' });
 
-  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
+  const coordinatesRepresentation = useSelector(selectCoordinatesRepresentation);
 
-  const locationString = !subjectIsStatic && stringifyCoordinates(observation.location, gpsFormat);
+  const observationOutsideBboxTooltipId = useId();
+
+  const {
+    coordinatesString: observationCoordinatesString,
+    outsideRepresentationBbox: observationOutsideRepresentationBbox,
+  } = useStringifyCoordinates(observation.location);
 
   return <tr>
     <td>
@@ -73,7 +80,20 @@ const ObservationRow = ({ observation, observationProperties, subjectIsStatic })
       </td>;
     })}
 
-    {!!locationString && <td>{locationString}</td>}
+    {!subjectIsStatic && observationCoordinatesString && <td>
+      <div className={styles.observationCoordinates}>
+        <span aria-describedby={observationOutsideBboxTooltipId}>{observationCoordinatesString}</span>
+
+        {observationOutsideRepresentationBbox && <IconTooltip
+          aria-label={t('observationOutsideBboxTooltipButtonLabel')}
+          id={observationOutsideBboxTooltipId}
+          title={t('observationOutsideBboxTooltipTitle', {
+            crsName: coordinatesRepresentation.name,
+            epsgCode: coordinatesRepresentation.code,
+          })}
+        />}
+      </div>
+    </td>}
   </tr>;
 };
 

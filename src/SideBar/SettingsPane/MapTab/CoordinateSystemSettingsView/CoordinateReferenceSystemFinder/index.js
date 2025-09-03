@@ -11,6 +11,7 @@ import SearchBar from '../../../../../SearchBar';
 import * as styles from './styles.module.scss';
 
 const LOADER_SIZE = 30;
+const MAX_COORDINATE_REFERENCE_SYSTEMS_ADDED = 6;
 const MAX_FILTERED_CRS_AREA_LENGTH = 60;
 const MAX_FILTERED_CRS_RESULTS = 10;
 
@@ -108,7 +109,7 @@ const CoordinateReferenceSystemFinder = () => {
     </label>
 
     <SearchBar
-      aria-describedby="crs-finder-message"
+      aria-describedby="crs-finder-showing-maximum-filtered-results-message crs-finder-empty-state-message"
       className={styles.searchBar}
       id="crs-finder-search"
       onChange={(event) => setSearchText(event.target.value)}
@@ -156,8 +157,10 @@ const CoordinateReferenceSystemFinder = () => {
             <AreaTD area={filteredCRS.area} epsgCode={filteredCRS.code} name={filteredCRS.name} />
             <td>
               <button
+                aria-describedby="crs-finder-added-maximum-systems-message"
                 aria-label={t('addCrsButtonLabel', { epsgCode: filteredCRS.code, name: filteredCRS.name })}
                 className={styles.addButton}
+                disabled={storedCRS.length === MAX_COORDINATE_REFERENCE_SYSTEMS_ADDED}
                 onClick={() => dispatch(setStoredCoordinateReferenceSystems([...storedCRS, filteredCRS]))}
                 title={t('addCrsButtonLabel', { epsgCode: filteredCRS.code, name: filteredCRS.name })}
                 type="button"
@@ -172,7 +175,7 @@ const CoordinateReferenceSystemFinder = () => {
         results, show an empty state. */}
         {supportedCRS !== null && filteredCRS.length === 0 && <tr>
           <td colSpan="100%">
-            <div className={styles.emptyState} id="crs-finder-message">
+            <div className={styles.emptyState} id="crs-finder-empty-state-message">
               {t('emptyStateMessageTitle')}
 
               <span className={styles.message}>{t('emptyStateMessage')}</span>
@@ -184,10 +187,18 @@ const CoordinateReferenceSystemFinder = () => {
 
     {filteredCRS.length === MAX_FILTERED_CRS_RESULTS && <p
         className={styles.crsFinderMessage}
-        id="crs-finder-message"
+        id="crs-finder-showing-maximum-filtered-results-message"
         role="status"
       >
       {t('showingMaximumFilteredResultsMessage')}
+    </p>}
+
+    {storedCRS.length === MAX_COORDINATE_REFERENCE_SYSTEMS_ADDED && <p
+        className={styles.crsFinderMessage}
+        id="crs-finder-added-maximum-systems-message"
+        role="status"
+      >
+      {t('addedMaximumSystemsMessage')}
     </p>}
   </div>;
 };

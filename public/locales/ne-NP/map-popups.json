@@ -14,6 +14,7 @@
         "searchBarPlaceholder": "खोज्नुहोस्"
     },
     "mouseMarkerPopup": {
+        "coordinatesStringOutsideBbox": "उ/ल",
         "title": "चिन्ह राख्न नक्सामा क्लिक गर्नुहोस् ।"
     }
 }

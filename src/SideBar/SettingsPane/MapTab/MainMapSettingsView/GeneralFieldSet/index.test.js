@@ -34,9 +34,9 @@ describe('SideBar - SettingsPane - MapTab - MainMapSettingsView - GeneralFieldSe
 
   let map, store;
   beforeEach(() => {
-    toggleMapDataSimplificationOnZoom.mockImplementation(() => () => {});
-    toggleMapLockState.mockImplementation(() => () => {});
-    updateUserPreferences.mockImplementation(() => () => {});
+    toggleMapDataSimplificationOnZoom.mockImplementation(() => () => { });
+    toggleMapLockState.mockImplementation(() => () => { });
+    updateUserPreferences.mockImplementation(() => () => { });
 
     map = createMapMock();
 

@@ -4,7 +4,9 @@
     },
     "subjectHistoricalDataModal": {
         "observationRow": {
-            "noDataLabel": "कुनै डाटा छैन"
+            "noDataLabel": "कुनै डाटा छैन",
+            "observationOutsideBboxTooltipButtonLabel": "स्थान ढाँचाबारे थप जानकारी",
+            "observationOutsideBboxTooltipTitle": "स्थान DEG ढाँचामा देखाइएको छ। EPSG:{{epsgCode}} {{crsName}} यो स्थानमा समर्थित छैन।"
         },
         "tableDateHeader": "मिति",
         "tableLocationHeader": "स्थान"

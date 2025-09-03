@@ -1,7 +1,6 @@
 @use 'sass:color';
 
 @use '../common/styles/vars/colors';
-@use '../common/styles/layout';
 
 .locationPicker {
   align-items: center;
@@ -93,38 +92,17 @@
     }
   }
 
-  .valueOutsideBboxTooltipButton {
-    align-items: center;
-    background: white;
-    border: none;
-    border-radius: 0.25rem;
-    color: colors.$bright-red;
-    display: flex;
-    height: 100%;
-    justify-content: center;
+  .valueOutsideBboxTooltip {
     margin: 0 1px;
     min-width: 1.5rem;
-    padding: 0;
     width: 1.5rem;
 
-    @media (min-width: layout.$md-layout-width-min) {
-      cursor: default;
-    }
-
-    &:focus-visible {
-      outline: 2px solid colors.$bright-blue;
-    }
-
-    svg {
-      height: 1.125rem;
-      width: 1.125rem;
-    }
   }
 
   .textCopyButton {
     height: 100%;
     margin: 0 1px;
-    width: 2.5rem;
+    width: 2rem;
 
     &:hover:not(:disabled) {
       background-color: white;

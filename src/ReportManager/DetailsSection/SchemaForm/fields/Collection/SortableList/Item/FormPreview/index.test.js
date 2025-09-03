@@ -23,6 +23,9 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
 
     store = {
       view: {
+        coordinateReferenceSystems: {
+          storedSystems: [],
+        },
         userPreferences: {
           gpsFormat: GPS_FORMATS.DEG,
         },
