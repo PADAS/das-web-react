@@ -128,6 +128,7 @@ const MenuPopover = ({ buttonRef, className, onClose, ref, ...otherProps }) => {
       >
         <SearchIcon className={styles.searchIcon} />
       </button>}
+      showTextSearchOption
       title={t('gpsDisplayTooltip')}
       value={gpsInputValue}
     />

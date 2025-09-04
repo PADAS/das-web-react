@@ -1,9 +1,12 @@
+import axios from 'axios';
 import { bearing } from '@turf/turf';
 import Dms from 'geodesy/dms';
 import Utm, { LatLon as LatLonUtm } from 'geodesy/utm';
 import Mgrs, { LatLon as LatLonMgrs } from 'geodesy/mgrs';
 import LatLon from 'geodesy/latlon-ellipsoidal-vincenty';
 import proj4 from 'proj4';
+
+import { REACT_APP_MAPBOX_TOKEN } from '../../constants';
 
 const MAX_WRAPPED_LONGITUDE_ABSOLUTE_VALUE = 180;
 const LOCATION_AXIS_DECIMAL_PRECISION = 6;
@@ -288,4 +291,17 @@ export const getProj4CompatibleCRS = async () => {
   }
 
   return proj4CompatibleCRSSingleton;
+};
+
+export const fetchForwardGeocoding = async (searchText) => {
+  const response = await axios.get('https://api.mapbox.com/search/geocode/v6/forward', {
+    params: {
+      q: searchText,
+      access_token: REACT_APP_MAPBOX_TOKEN,
+    },
+  });
+
+  // Mapbox returns a FeatureCollection with a feature for each place that
+  // matched the search text. We just want their properties.
+  return response.data.features.map((feature) => feature.properties);
 };
