@@ -8,6 +8,8 @@ import proj4 from 'proj4';
 
 import { REACT_APP_MAPBOX_TOKEN } from '../../constants';
 
+const MAPBOX_FORWARD_GEOCODING_ENDPOINT = 'https://api.mapbox.com/search/geocode/v6/forward';
+
 const MAX_WRAPPED_LONGITUDE_ABSOLUTE_VALUE = 180;
 const LOCATION_AXIS_DECIMAL_PRECISION = 6;
 const PROJ4_REQUIRES_GRID_SHIFT_FILES_REGEX = /\+nadgrids=(?!@null)[^\s]+/;
@@ -294,10 +296,10 @@ export const getProj4CompatibleCRS = async () => {
 };
 
 export const fetchForwardGeocoding = async (searchText) => {
-  const response = await axios.get('https://api.mapbox.com/search/geocode/v6/forward', {
+  const response = await axios.get(MAPBOX_FORWARD_GEOCODING_ENDPOINT, {
     params: {
-      q: searchText,
       access_token: REACT_APP_MAPBOX_TOKEN,
+      q: searchText,
     },
   });
 
