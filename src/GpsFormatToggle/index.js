@@ -112,6 +112,7 @@ const GpsFormatToggle = ({
 
         <label
           className={`${styles.label} ${isTextSearchOptionChecked ? styles.active : ''}`}
+          data-testid="gpsFormatToggle-textSearchOptionLabel"
           htmlFor={`${id}-text-search-radio`}
           title={t('textSearchOptionLabel')}
         >

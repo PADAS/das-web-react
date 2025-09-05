@@ -16,6 +16,8 @@ jest.mock('../ducks/user-preferences', () => ({
 }));
 
 describe('GpsFormatToggle', () => {
+  const setIsTextSearchOptionChecked = jest.fn();
+
   let store, updateUserPreferencesMock;
   beforeEach(() => {
     updateUserPreferencesMock = jest.fn(() => () => {});
@@ -55,17 +57,32 @@ describe('GpsFormatToggle', () => {
   });
 
   test('assigns the name to the radio inputs', async () => {
-    renderGpsFormatToggle({ name: 'name' });
+    renderGpsFormatToggle({ name: 'name', showTextSearchOption: true });
 
     const radiogroup = screen.getByRole('radiogroup', { name: 'GPS format' });
     const radioInputs = within(radiogroup).getAllByRole('radio');
 
-    expect(radioInputs).toHaveLength(5);
+    expect(radioInputs).toHaveLength(6);
     expect(radioInputs[0]).toHaveAttribute('name', 'name');
     expect(radioInputs[1]).toHaveAttribute('name', 'name');
     expect(radioInputs[2]).toHaveAttribute('name', 'name');
     expect(radioInputs[3]).toHaveAttribute('name', 'name');
     expect(radioInputs[4]).toHaveAttribute('name', 'name');
+    expect(radioInputs[5]).toHaveAttribute('name', 'name');
+  });
+
+  test('does not show an option for the text search', async () => {
+    renderGpsFormatToggle();
+
+    expect(screen.queryByRole('radio', { name: 'Search by name' })).toBeNull();
+    expect(screen.getAllByRole('radio')).toHaveLength(5);
+  });
+
+  test('shows an option for the text search', async () => {
+    renderGpsFormatToggle({ showTextSearchOption: true });
+
+    expect(screen.getByRole('radio', { name: 'Search by name' })).toBeVisible();
+    expect(screen.getAllByRole('radio')).toHaveLength(6);
   });
 
   test('checks the GPS format option that is currently selected', async () => {
@@ -73,6 +90,23 @@ describe('GpsFormatToggle', () => {
 
     expect(screen.getByLabelText(GPS_FORMATS.DEG)).toBeChecked();
     expect(screen.getByText(GPS_FORMATS.DEG)).toHaveClass('active');
+    expect(screen.getByLabelText(GPS_FORMATS.DDM)).not.toBeChecked();
+    expect(screen.getByText(GPS_FORMATS.DDM)).not.toHaveClass('active');
+    expect(screen.getByLabelText(GPS_FORMATS.DMS)).not.toBeChecked();
+    expect(screen.getByText(GPS_FORMATS.DMS)).not.toHaveClass('active');
+    expect(screen.getByLabelText(GPS_FORMATS.MGRS)).not.toBeChecked();
+    expect(screen.getByText(GPS_FORMATS.MGRS)).not.toHaveClass('active');
+    expect(screen.getByLabelText(GPS_FORMATS.UTM)).not.toBeChecked();
+    expect(screen.getByText(GPS_FORMATS.UTM)).not.toHaveClass('active');
+  });
+
+  test('checks the text search option', async () => {
+    renderGpsFormatToggle({ isTextSearchOptionChecked: true, showTextSearchOption: true });
+
+    expect(screen.getByLabelText('Search by name')).toBeChecked();
+    expect(screen.getByTestId('gpsFormatToggle-textSearchOptionLabel')).toHaveClass('active');
+    expect(screen.getByLabelText(GPS_FORMATS.DEG)).not.toBeChecked();
+    expect(screen.getByText(GPS_FORMATS.DEG)).not.toHaveClass('active');
     expect(screen.getByLabelText(GPS_FORMATS.DDM)).not.toBeChecked();
     expect(screen.getByText(GPS_FORMATS.DDM)).not.toHaveClass('active');
     expect(screen.getByLabelText(GPS_FORMATS.DMS)).not.toBeChecked();
@@ -97,6 +131,23 @@ describe('GpsFormatToggle', () => {
 
     expect(updateUserPreferences).toHaveBeenCalledTimes(2);
     expect(updateUserPreferences).toHaveBeenCalledWith({ gpsFormat: GPS_FORMATS.UTM });
+  });
+
+  test('updates the search text option through parent props', async () => {
+    renderGpsFormatToggle({
+      isTextSearchOptionChecked: false,
+      setIsTextSearchOptionChecked,
+      showTextSearchOption: true,
+    });
+
+    expect(updateUserPreferences).not.toHaveBeenCalled();
+    expect(setIsTextSearchOptionChecked).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole('radio', { name: 'Search by name' }));
+
+    expect(updateUserPreferences).not.toHaveBeenCalled();
+    expect(setIsTextSearchOptionChecked).toHaveBeenCalledTimes(1);
+    expect(setIsTextSearchOptionChecked).toHaveBeenCalledWith(true);
   });
 
   test('sets the label text and title for a coordinate reference system', async () => {

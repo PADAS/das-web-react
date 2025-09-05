@@ -124,35 +124,35 @@ describe('LocationPicker - MenuPopover', () => {
     expect(menuPopover).toHaveStyle('width: 380px;');
   });
 
-  test('changes the location when the user types in the GPS input', async () => {
+  test('changes the location when the user types in the search input', async () => {
     renderMenuPopover();
 
     expect(onChange).not.toHaveBeenCalled();
 
-    await userEvent.type(screen.getByLabelText('GPS location'), '10,10');
+    await userEvent.type(screen.getByRole('searchbox', { name: 'Search location in DEG format' }), '10,10');
 
     expect(onChange).toHaveBeenCalledTimes(2);
     expect(onChange).toHaveBeenCalledWith({ latitude: 10, longitude: 10 });
   });
 
-  test('closes the menu and focuses the set location button if the user presses enter while focusing the GPS input', async () => {
+  test('closes the menu and focuses the set location button if the user presses enter while focusing the search input', async () => {
     renderMenuPopover();
 
     expect(onClose).not.toHaveBeenCalled();
     expect(setLocationButtonRefFocus).not.toHaveBeenCalled();
 
-    await userEvent.type(screen.getByLabelText('GPS location'), '10,10');
+    await userEvent.type(screen.getByRole('searchbox', { name: 'Search location in DEG format' }), '10,10');
     await userEvent.keyboard('{Enter}');
 
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(setLocationButtonRefFocus).toHaveBeenCalledTimes(1);
   });
 
-  test('does neither close the menu nor focuse the set location button if the user presses enter while picking a location', async () => {
+  test('does neither close the menu nor focuses the set location button if the user presses enter while picking a location', async () => {
     store.view.mapLocationSelection.isPickingLocation = true;
     renderMenuPopover();
 
-    await userEvent.type(screen.getByLabelText('GPS location'), '10,10');
+    await userEvent.type(screen.getByRole('searchbox', { name: 'Search location in DEG format' }), '10,10');
     await userEvent.keyboard('{Enter}');
 
     expect(onClose).not.toHaveBeenCalled();
@@ -165,7 +165,7 @@ describe('LocationPicker - MenuPopover', () => {
     expect(onClose).not.toHaveBeenCalled();
     expect(setLocationButtonRefFocus).not.toHaveBeenCalled();
 
-    await userEvent.type(screen.getByLabelText('GPS location'), '10,10');
+    await userEvent.type(screen.getByRole('searchbox', { name: 'Search location in DEG format' }), '10,10');
     await userEvent.keyboard('{Escape}');
 
     expect(onClose).toHaveBeenCalledTimes(1);
@@ -176,7 +176,7 @@ describe('LocationPicker - MenuPopover', () => {
     store.view.mapLocationSelection.isPickingLocation = true;
     renderMenuPopover();
 
-    await userEvent.type(screen.getByLabelText('GPS location'), '10,10');
+    await userEvent.type(screen.getByRole('searchbox', { name: 'Search location in DEG format' }), '10,10');
     await userEvent.keyboard('{Escape}');
 
     expect(onClose).not.toHaveBeenCalled();

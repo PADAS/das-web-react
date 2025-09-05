@@ -281,7 +281,11 @@ const GpsInput = ({
         role="option"
         title={`${place.namePreferred} - ${place.placeFormatted}`}
       >
-        {selectedPlaceIndex === index && <CheckLightIcon className={styles.checkLightIcon} />}
+        {selectedPlaceIndex === index && <CheckLightIcon
+          aria-hidden
+          className={styles.checkLightIcon}
+          data-testid="gpsInput-placeFromSearchTextOption-checkLightIcon"
+        />}
 
         <div className={styles.labelWrapper}>
           {place.namePreferred}

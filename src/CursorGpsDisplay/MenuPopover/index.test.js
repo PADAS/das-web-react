@@ -68,7 +68,7 @@ describe('CursorGpsDisplay - MenuPopover', () => {
   test('jumps to the typed coordinates by pressing enter', async () => {
     renderMenuPopover();
 
-    await user.type(screen.getByLabelText('GPS location'), '10,10');
+    await user.type(screen.getByRole('searchbox', { name: 'Search location in DEG format' }), '10,10');
 
     expect(jumpToLocationMock).not.toHaveBeenCalled();
     expect(showPopup).not.toHaveBeenCalled();
@@ -100,7 +100,7 @@ describe('CursorGpsDisplay - MenuPopover', () => {
 
     expect(onClose).not.toHaveBeenCalled();
 
-    await user.type(screen.getByLabelText('GPS location'), '10,10');
+    await user.type(screen.getByRole('searchbox', { name: 'Search location in DEG format' }), '10,10');
     await user.keyboard('{Escape}');
 
     expect(onClose).toHaveBeenCalledTimes(1);
@@ -115,7 +115,7 @@ describe('CursorGpsDisplay - MenuPopover', () => {
   test('enables the GPS input button if there is a value', async () => {
     renderMenuPopover();
 
-    await user.type(screen.getByLabelText('GPS location'), '10,10');
+    await user.type(screen.getByRole('searchbox', { name: 'Search location in DEG format' }), '10,10');
 
     expect(screen.getByLabelText('Jump to coordinates')).toBeEnabled();
   });
@@ -123,7 +123,7 @@ describe('CursorGpsDisplay - MenuPopover', () => {
   test('jumps to the typed coordinates by clicking the GPS input button', async () => {
     renderMenuPopover();
 
-    await user.type(screen.getByLabelText('GPS location'), '10,10');
+    await user.type(screen.getByRole('searchbox', { name: 'Search location in DEG format' }), '10,10');
 
     expect(jumpToLocationMock).not.toHaveBeenCalled();
     expect(showPopup).not.toHaveBeenCalled();
@@ -148,6 +148,33 @@ describe('CursorGpsDisplay - MenuPopover', () => {
         offset: [0, 0],
       },
     });
+  });
+
+  test('adds a focus trap within the menu', async () => {
+    jest.useRealTimers();
+
+    renderMenuPopover();
+
+    const gpsInput = screen.getByRole('searchbox', { name: 'Search location in DEG format' });
+    const degRadioInput = screen.getByRole('radio', { name: 'DEG' });
+
+    await userEvent.keyboard('[Tab]');
+
+    expect(degRadioInput).toBe(document.activeElement);
+
+    await userEvent.keyboard('[Tab]');
+
+    expect(gpsInput).toBe(document.activeElement);
+
+    await userEvent.keyboard('{Shift>}[Tab]{/Shift}');
+
+    expect(degRadioInput).toBe(document.activeElement);
+
+    await userEvent.keyboard('{Shift>}[Tab]{/Shift}');
+
+    expect(gpsInput).toBe(document.activeElement);
+
+    jest.useFakeTimers();
   });
 
   test('closes the menu if the user clicks outside', async () => {
