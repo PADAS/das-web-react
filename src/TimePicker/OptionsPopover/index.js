@@ -208,13 +208,13 @@ const OptionsPopover = ({
   }, [options, selectedOptionIndex]);
 
   useEffect(() => {
-    const onMouseDown = (event) => !listRef.current.contains(event.target)
+    const onPointerDown = (event) => !listRef.current.contains(event.target)
       && !optionsPopoverButtonRef.current.contains(event.target)
       && onClose();
 
-    document.addEventListener('mousedown', onMouseDown);
+    document.addEventListener('pointerdown', onPointerDown);
 
-    return () => document.removeEventListener('mousedown', onMouseDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
   }, [onClose, optionsPopoverButtonRef]);
 
   return <Popover

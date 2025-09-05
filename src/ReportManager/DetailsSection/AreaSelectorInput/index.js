@@ -136,9 +136,9 @@ const AreaSelectorInput = ({ event, onGeometryChange = null, originalEvent = nul
       }
     };
 
-    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('pointerdown', handleOutsideClick);
 
-    return () => document.removeEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('pointerdown', handleOutsideClick);
   }, []);
 
   return <label

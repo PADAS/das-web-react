@@ -93,13 +93,13 @@ const MenuPopover = ({ buttonRef, className, onClose, ref, ...otherProps }) => {
   }, [gpsInputValue]);
 
   useEffect(() => {
-    const onMouseDown = (event) => !buttonRef.current.contains(event.target)
-    && !gpsInputWrapperRef.current.contains(event.target)
-    && onClose();
+    const onPointerDown = (event) => !buttonRef.current.contains(event.target)
+      && !gpsInputWrapperRef.current.contains(event.target)
+      && onClose();
 
-    document.addEventListener('mousedown', onMouseDown);
+    document.addEventListener('pointerdown', onPointerDown);
 
-    return () => document.removeEventListener('mousedown', onMouseDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
   }, [buttonRef, onClose]);
 
   return <Popover
