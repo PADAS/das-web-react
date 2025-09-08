@@ -505,6 +505,23 @@ describe('GpsInput', () => {
     expect(onChange).toHaveBeenCalledWith({ latitude: 20.674793, longitude: -103.35941 });
   });
 
+  test('notifies when there is a place selection', async () => {
+    const onPlaceSelected = jest.fn();
+    renderGpsInput({ onPlaceSelected, showTextSearchOption: true });
+
+    await userEvent.click(screen.getByRole('radio', { name: 'Search by name' }));
+    const gpsInput = screen.getByRole('combobox', { name: 'Search location by name' });
+    await userEvent.type(gpsInput, 'mexico');
+
+    expect(onPlaceSelected).not.toHaveBeenCalled();
+
+    await waitFor(async () => {
+      await userEvent.click(screen.getByRole('option', { name: 'Guadalajara - Jalisco, Mexico' }));
+    });
+
+    expect(onPlaceSelected).toHaveBeenCalledTimes(1);
+  });
+
   test('fills the displayed value with the selecte place when the user checks the text search option if there was a selected one', async () => {
     const { rerender } = renderGpsInput({ showTextSearchOption: true });
 

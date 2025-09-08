@@ -26,6 +26,7 @@ const GpsInput = ({
   id = null,
   inputRef = null,
   onChange,
+  onPlaceSelected = null,
   ref,
   renderButton = null,
   showTextSearchOption = false,
@@ -137,16 +138,20 @@ const GpsInput = ({
     }
   };
 
-  const onPlaceOptionSelected = (index) => {
+  const onPlaceOptionSelected = (event, index) => {
     // Make the place option active and selected, fill the input value with its
     // content, call onChange with the place coordinates and focus the input.
     const selectedPlace = placesFromSearchText[index];
+    const fullPlaceName = selectedPlace.placeFormatted
+      ? `${selectedPlace.namePreferred} - ${selectedPlace.placeFormatted}`
+      : selectedPlace.namePreferred;
 
     setActivePlaceIndex(index);
     setSelectedPlaceIndex(index);
-    setInputValue(`${selectedPlace.namePreferred} - ${selectedPlace.placeFormatted}`);
+    setInputValue(fullPlaceName);
 
     onChange(selectedPlace.coordinates);
+    onPlaceSelected?.(event, selectedPlace);
 
     innerInputRef.current.focus();
   };
@@ -177,9 +182,8 @@ const GpsInput = ({
       case 'Enter':
         if (activePlaceIndex >= 0) {
           event.preventDefault();
-          event.stopPropagation();
 
-          onPlaceOptionSelected(activePlaceIndex);
+          onPlaceOptionSelected(event, activePlaceIndex);
         }
 
         break;
@@ -271,28 +275,34 @@ const GpsInput = ({
       id={placesFromSearchTextListId}
       role="listbox"
     >
-      {placesFromSearchText.map((place, index) => <li
-        aria-label={`${place.namePreferred} - ${place.placeFormatted}`}
-        aria-selected={selectedPlaceIndex === index}
-        className={`${styles.placeFromSearchTextOption} ${activePlaceIndex === index ? styles.active : ''}`}
-        id={`place-from-search-text-option-${index}`}
-        key={`${place.namePreferred} - ${place.placeFormatted}`}
-        onClick={() => onPlaceOptionSelected(index)}
-        role="option"
-        title={`${place.namePreferred} - ${place.placeFormatted}`}
-      >
-        {selectedPlaceIndex === index && <CheckLightIcon
-          aria-hidden
-          className={styles.checkLightIcon}
-          data-testid="gpsInput-placeFromSearchTextOption-checkLightIcon"
-        />}
+      {placesFromSearchText.map((place, index) => {
+        const fullPlaceName = place.placeFormatted
+          ? `${place.namePreferred} - ${place.placeFormatted}`
+          : place.namePreferred;
 
-        <div className={styles.labelWrapper}>
-          {place.namePreferred}
+        return <li
+          aria-label={fullPlaceName}
+          aria-selected={selectedPlaceIndex === index}
+          className={`${styles.placeFromSearchTextOption} ${activePlaceIndex === index ? styles.active : ''}`}
+          id={`place-from-search-text-option-${index}`}
+          key={fullPlaceName}
+          onClick={(event) => onPlaceOptionSelected(event, index)}
+          role="option"
+          title={fullPlaceName}
+        >
+          {selectedPlaceIndex === index && <CheckLightIcon
+            aria-hidden
+            className={styles.checkLightIcon}
+            data-testid="gpsInput-placeFromSearchTextOption-checkLightIcon"
+          />}
 
-          <span className={styles.placeFormatted}>{place.placeFormatted}</span>
-        </div>
-      </li>)}
+          <div className={styles.labelWrapper}>
+            {place.namePreferred}
+
+            {place.placeFormatted && <span className={styles.placeFormatted}>{place.placeFormatted}</span>}
+          </div>
+        </li>;
+      })}
     </ul>}
   </div>;
 };

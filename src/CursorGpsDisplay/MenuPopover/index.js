@@ -24,21 +24,30 @@ const MenuPopover = ({ buttonRef, className, onClose, ref, ...otherProps }) => {
 
   const [gpsInputValue, setGpsInputValue] = useState(null);
 
-  const onJumpToCoordinates = useCallback(() => {
+  const onJumpToCoordinates = useCallback((coordinates = gpsInputValue) => {
     // If the GPS input value is defined, jump to the coordinates, show a dropped marker popup in the map and close the
     // menu.
-    if (gpsInputValue) {
-      jumpToLocation([gpsInputValue.longitude, gpsInputValue.latitude]);
+    if (coordinates) {
+      jumpToLocation([coordinates.longitude, coordinates.latitude]);
 
       setTimeout(() => dispatch(showPopup('dropped-marker', {
-        coordinates: [gpsInputValue.longitude, gpsInputValue.latitude],
-        location: { lat: gpsInputValue.latitude, lng: gpsInputValue.longitude },
+        coordinates: [coordinates.longitude, coordinates.latitude],
+        location: { lat: coordinates.latitude, lng: coordinates.longitude },
         popupAttrsOverride: { offset: [0, 0] },
       })), 50);
 
       onClose();
     }
   }, [dispatch, gpsInputValue, jumpToLocation, onClose]);
+
+  const onGpsInputPlaceSelected = (event, place) => {
+    // Either if the place was selected by clicking or pressing enter, we stop
+    // the propagation of the event so the GPS input keyboard events and map
+    // clicking events don't get triggered.
+    event.stopPropagation();
+
+    onJumpToCoordinates(place.coordinates);
+  };
 
   const onGpsInputKeyDown = (event) => {
     switch (event.key) {
@@ -116,6 +125,7 @@ const MenuPopover = ({ buttonRef, className, onClose, ref, ...otherProps }) => {
       inputRef={gpsInputRef}
       onChange={setGpsInputValue}
       onKeyDown={onGpsInputKeyDown}
+      onPlaceSelected={onGpsInputPlaceSelected}
       ref={gpsInputWrapperRef}
       renderButton={() => <button
         aria-label={t('gpsInputButtonLabel')}
