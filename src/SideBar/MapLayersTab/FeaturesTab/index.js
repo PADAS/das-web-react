@@ -30,18 +30,24 @@ const FeaturesTab = () => {
 
   const featureFilterEnabled = mapLayerFilter.text.length > 0;
 
-  const allFeatureIDs = useMemo(() => getUniqueIDsFromFeatures(
-    ...featureLayerList.reduce((accumulator, { featuresByType }) => [
-      ...accumulator,
-      ...featuresByType.reduce((result, { features }) => [...result, ...features], [])
-    ], [])
-  ), [featureLayerList]);
+  const allFeatureIDs = useMemo(() => {
+    return featureLayerList.reduce((accumulator, item, _idx) => {
+      const featuresInClass = item.featuresByType.map(({ features }) =>
+        features.map(({ id }) =>
+          id)
+      );
+
+      return [accumulator, featuresInClass].flat(2);
+    }, []);
+  }, [featureLayerList]);
+
+  console.log({ allFeatureIDs });
 
   const areFeaturesFullyChecked = !mapLayerFilter.hiddenFeatureIDs.length;
   const areFeaturesPartiallyChecked = !areFeaturesFullyChecked && mapLayerFilter.hiddenFeatureIDs.length !== allFeatureIDs.length;
 
   const getFeatureSetFeatureIDs = ({ featuresByType }) => getUniqueIDsFromFeatures(
-    ...featuresByType.reduce((result, { features }) => [...result, ...features], [])
+    ...featuresByType.reduce((result, { features }) => [result, ...features], [])
   );
 
   const allVisibleInSet = (set) => areFeaturesFullyChecked || !intersection(getFeatureSetFeatureIDs(set), mapLayerFilter.hiddenFeatureIDs).length;
@@ -78,7 +84,7 @@ const FeaturesTab = () => {
   };
 
   const featureFilterIsMatch = (feature) => mapLayerFilter.text.length === 0
-    || feature.properties.title.toLowerCase().includes(mapLayerFilter.text.toLowerCase());
+    || feature.name.toLowerCase().includes(mapLayerFilter.text.toLowerCase());
 
   const filteredFeatureList = featureFilterEnabled ?
     filterFeatures(featureLayerList, featureFilterIsMatch) : featureLayerList;

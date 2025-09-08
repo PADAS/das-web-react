@@ -7,13 +7,15 @@ const SPATIAL_FEATURES_SOURCE = 'spatial-features-source';
 
 const VECTOR_TILE_URL = `${API_URL}spatialfeatures/tiles/{z}/{x}/{y}.pbf`;
 
+export const SYMBOLS_LAYER_ID = 'spatial-features-symbols';
+export const LINES_LAYER_ID = 'spatial-features-lines';
+export const POLYGONS_LAYER_ID = 'spatial-features-polygons';
+
 const SpatialFeaturesLayer = ({ onFeatureClick }) => {
   const map = useContext(MapContext);
   const token = useSelector(state => state.data.token);
 
-  const SYMBOLS_LAYER_ID = 'spatial-features-symbols';
-  const LINES_LAYER_ID = 'spatial-features-lines';
-  const POLYGONS_LAYER_ID = 'spatial-features-polygons';
+
 
   const handleFeatureClick = useCallback((event) => {
     const features = map.queryRenderedFeatures(event.point, {

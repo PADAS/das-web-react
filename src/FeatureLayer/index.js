@@ -13,7 +13,7 @@ import useMapSources from '../hooks/useMapSources';
 import { MapContext } from '../App';
 import useMapLayers from '../hooks/useMapLayers';
 
-const { FEATURE_FILLS, FEATURE_LINES, FEATURE_SYMBOLS, SKY_LAYER } = LAYER_IDS;
+const { POLYGONS_LAYER_ID, LINES_LAYER_ID, SYMBOLS_LAYER_ID, SKY_LAYER } = LAYER_IDS;
 
 const { MAP_FEATURES_LINES_SOURCE, MAP_FEATURES_POLYGONS_SOURCE, MAP_FEATURES_SYMBOLS_SOURCE } = SOURCE_IDS;
 
@@ -104,7 +104,7 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserL
   const onSymbolMouseLeave = useCallback(() => map.getCanvas().style.cursor = '', [map]);
   const removeFeatureHighlightOnMapClick = useCallback(() => {
     map
-      .queryRenderedFeatures({ layers: [FEATURE_FILLS, FEATURE_LINES] })
+      .queryRenderedFeatures({ layers: [POLYGONS_LAYER_ID, LINES_LAYER_ID] })
       .forEach(f => map.setFeatureState(f, { 'active': false })
       );
   }, [map]);
@@ -123,7 +123,7 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserL
 
   // (layerId, type, sourceId, paint, layout, filter, min-zoom, max-zoom, condition = true)
   useMapLayers([{
-    id: FEATURE_FILLS,
+    id: POLYGONS_LAYER_ID,
     type: 'fill',
     sourceId: MAP_FEATURES_POLYGONS_SOURCE,
     paint: fillPaint,
@@ -132,7 +132,7 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserL
   }]);
 
   useMapLayers([{
-    id: FEATURE_LINES,
+    id: LINES_LAYER_ID,
     type: 'line',
     sourceId: MAP_FEATURES_LINES_SOURCE,
     paint: linePaint,
@@ -141,7 +141,7 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserL
   }]);
 
   useMapLayers([{
-    id: FEATURE_SYMBOLS,
+    id: SYMBOLS_LAYER_ID,
     type: 'symbol',
     sourceId: MAP_FEATURES_SYMBOLS_SOURCE,
     paint: symbolPaint,
@@ -149,9 +149,9 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserL
     options: layerConfig
   }]);
 
-  useMapEventBinding('click', onSymbolClick, FEATURE_SYMBOLS);
-  useMapEventBinding('mouseenter', onSymbolMouseEnter, FEATURE_SYMBOLS);
-  useMapEventBinding('mouseleave', onSymbolMouseLeave, FEATURE_SYMBOLS);
+  useMapEventBinding('click', onSymbolClick, SYMBOLS_LAYER_ID);
+  useMapEventBinding('mouseenter', onSymbolMouseEnter, SYMBOLS_LAYER_ID);
+  useMapEventBinding('mouseleave', onSymbolMouseLeave, SYMBOLS_LAYER_ID);
   useMapEventBinding('mousedown', removeFeatureHighlightOnMapClick);
 
   return null;

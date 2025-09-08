@@ -2,12 +2,13 @@
 import uniq from 'lodash/uniq';
 import { LngLatBounds } from 'mapbox-gl';
 
-import { LAYER_IDS } from '../constants';
-
-const { FEATURE_FILLS, FEATURE_LINES, FEATURE_SYMBOLS } = LAYER_IDS;
+import { POLYGONS_LAYER_ID, LINES_LAYER_ID, SYMBOLS_LAYER_ID } from '../SpatialFeaturesLayer';
 const MAX_JUMP_ZOOM = 17;
 
-export const getUniqueIDsFromFeatures = (...features) => uniq(features.map(({ properties: { id } }) => id));
+export const getUniqueIDsFromFeatures = (...features) => {
+  console.log({ features });
+  return uniq(features.map(({ id }) => id));
+};
 
 const getBoundsForArrayOfCoordinatePairs = (collection) => collection.reduce((bounds, coords) => {
   return bounds.extend(coords);
@@ -49,11 +50,12 @@ export const fitMapBoundsToGeoJson = (map, geojson) => {
   if (type === 'MultiPolygon') return fitMapBoundsToMultiPolygon(map, geojson);
 };
 
-export const setFeatureActiveStateByID = (map, id, state = true) => {
+export const setFeatureActiveStateByID = (map, int_id, state = true) => {
   const features = map.queryRenderedFeatures({
-    filter: ['in', 'id', id],
-    layers: [FEATURE_FILLS, FEATURE_LINES],
+    filter: ['in', 'int_id', int_id],
+    layers: [POLYGONS_LAYER_ID, LINES_LAYER_ID],
   });
+  console.log({ features });
   features.forEach((feature) => {
     map.setFeatureState(feature, { 'active': state });
   });
@@ -84,7 +86,7 @@ export const filterFeatures = (f, isMatch) => {
 
 export const getFeatureSymbolGeoJsonAtPoint = (geo, map) => {
   const features = map.queryRenderedFeatures(geo, {
-    layers: [FEATURE_SYMBOLS],
+    layers: [SYMBOLS_LAYER_ID],
   });
   // assume fist feature returned is closest
   return features[0];
