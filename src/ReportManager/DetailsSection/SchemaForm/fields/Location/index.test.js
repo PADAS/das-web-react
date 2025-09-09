@@ -146,7 +146,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Location', () =
     renderLocationField();
 
     await userEvent.click(screen.getByLabelText('Open the location picker menu to set a value'));
-    await userEvent.type(screen.getByLabelText('GPS location'), '10,10');
+    await userEvent.type(screen.getByRole('searchbox', { name: 'Search location in DEG format' }), '10,10');
 
     expect(onFieldChange).toHaveBeenCalledTimes(2);
     expect(onFieldChange).toHaveBeenCalledWith('location-1', { latitude: 10, longitude: 10 });

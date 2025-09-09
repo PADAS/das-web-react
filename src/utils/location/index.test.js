@@ -1,4 +1,7 @@
+import axios from 'axios';
+
 import {
+  fetchForwardGeocoding,
   getProj4CompatibleCRS,
   GPS_FORMATS,
   OUTSIDE_BBOX,
@@ -6,6 +9,8 @@ import {
   stringifyCoordinates,
   validateLocation,
 } from './';
+
+jest.mock('axios');
 
 describe('Utils - location', () => {
   let proj4CompatibleCRSByCode;
@@ -320,6 +325,26 @@ describe('Utils - location', () => {
       expect(validateLocation({ lng: -112.3835 })).toBe(false);
       expect(validateLocation({ lat: 91, lng: 0 })).toBe(false);
       expect(validateLocation({ lat: -91, lng: 0 })).toBe(false);
+    });
+  });
+
+  describe('fetchForwardGeocoding', () => {
+    it('returns an array of places that match the forward geocoding search text', async () => {
+      axios.get.mockResolvedValue({
+        data: {
+          features: [
+            { properties: { name: 'Mexico City', country: 'MX' } },
+            { properties: { name: 'Guadalajara', country: 'MX' } },
+          ],
+        },
+      });
+
+      const places = await fetchForwardGeocoding('mexico');
+
+      expect(places).toEqual([
+        { name: 'Mexico City', country: 'MX' },
+        { name: 'Guadalajara', country: 'MX' },
+      ]);
     });
   });
 });

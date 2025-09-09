@@ -64,22 +64,28 @@
     "fieldsetLegend": "Formato de GPS",
     "coordinatesOutsideBboxTooltipButtonLabel": "Más información sobre el formato de ubicación",
     "coordinatesOutsideBboxTooltipTitle": "La ubicación se muestra en formato DEG. EPSG:{{epsgCode}} {{crsName}} no es compatible en esta ubicación.",
-    "textCopyButtonLabel": "Copiar valor GPS al portapapeles"
+    "textCopyButtonLabel": "Copiar valor GPS al portapapeles",
+    "textSearchOptionLabel": "Buscar por nombre"
   },
   "gpsInput": {
-    "defaultPlaceholder": "Ubicación",
-    "inputDescription": "Ejemplo: {{gpsFormat}}",
-    "inputLabel": "Ubicación GPS",
-    "invalidLocationErrorMessage": "Ubicación inválida",
-    "outsideBboxErrorMessage": "EPSG:{{epsgCode}} {{crsName}} no es compatible en esta ubicación.",
-    "outsideBboxInputValue": "N/D",
-    "placeholders": {
+    "coordinatesRepresentationDescription": "Ejemplo: {{example}}",
+    "coordinatesRepresentationLabel": "Buscar ubicación en formato {{representation}}",
+    "coordinatesRepresentationPlaceholder": {
       "DDM": "Grados, Decimales, Minutos",
       "DEG": "Latitud, Longitud",
       "DMS": "Grados, Minutos, Segundos",
       "UTM": "Universal Transversal de Mercator",
       "MGRS": "Sistema de Referencia de Cuadrícula Militar"
-    }
+    },
+    "defaultLabel": "Buscar ubicación",
+    "defaultPlaceholder": "Ubicación",
+    "invalidLocationErrorMessage": "Ubicación inválida",
+    "outsideBboxErrorMessage": "EPSG:{{epsgCode}} {{crsName}} no es compatible en esta ubicación.",
+    "outsideBboxInputValue": "N/D",
+    "placesFromSearchTextListLabel": "Resultados de búsqueda de ubicaciones",
+    "textSearchDescription": "Busca una ubicación en el mapa por nombre",
+    "textSearchLabel": "Buscar ubicación por nombre",
+    "textSearchPlaceholder": "Buscar ubicación"
   },
   "locationJumpButton": {
     "title": "Ir a está ubicación"

@@ -64,22 +64,28 @@
     "fieldsetLegend": "Format GPS",
     "coordinatesOutsideBboxTooltipButtonLabel": "Plus d’informations sur le format de l’emplacement",
     "coordinatesOutsideBboxTooltipTitle": "L’emplacement est affiché au format DEG. EPSG:{{epsgCode}} {{crsName}} n’est pas pris en charge à cet emplacement.",
-    "textCopyButtonLabel": "Copier la valeur GPS dans le presse-papiers"
+    "textCopyButtonLabel": "Copier la valeur GPS dans le presse-papiers",
+    "textSearchOptionLabel": "Recherche par nom"
   },
   "gpsInput": {
-    "defaultPlaceholder": "Position",
-    "inputDescription": "Exemple: {{gpsFormat}}",
-    "inputLabel": "Position GPS",
-    "invalidLocationErrorMessage": "Coordonnées GPS invalides",
-    "outsideBboxErrorMessage": "EPSG:{{epsgCode}} {{crsName}} n’est pas pris en charge à cet emplacement.",
-    "outsideBboxInputValue": "N/D",
-    "placeholders": {
+    "coordinatesRepresentationDescription": "Exemple: {{example}}",
+    "coordinatesRepresentationLabel": "Rechercher un lieu au format {{representation}}",
+    "coordinatesRepresentationPlaceholder": {
       "DDM": "Degrés Decimaux Minutes (DDM)",
       "DEG": "Lattitude, Longitude",
       "DMS": "Degrés Minutes Secondes (DMS)",
       "UTM": "Transversale Universelle de Mercator (UTM)",
       "MGRS": "Système de Coordonnées Militaire (MGRS)"
-    }
+    },
+    "defaultLabel": "Rechercher un lieu",
+    "defaultPlaceholder": "Position",
+    "invalidLocationErrorMessage": "Coordonnées GPS invalides",
+    "outsideBboxErrorMessage": "EPSG:{{epsgCode}} {{crsName}} n’est pas pris en charge à cet emplacement.",
+    "outsideBboxInputValue": "N/D",
+    "placesFromSearchTextListLabel": "Résultats de recherche de lieux",
+    "textSearchDescription": "Recherchez un lieu sur la carte par nom",
+    "textSearchLabel": "Rechercher un lieu par nom",
+    "textSearchPlaceholder": "Rechercher un lieu"
   },
   "locationJumpButton": {
     "title": "Naviguer à la position suivante"
