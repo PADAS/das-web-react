@@ -106,17 +106,27 @@
   },
   "reportManager": {
     "detailsSection": {
-      "areaSelectorInput": {
-        "area": "Surface:",
-        "deleteAreaButton": "Supprimer la Zone",
-        "deleteAreaButtonTitle": "Supprimer la Zone",
+      "areaPicker": {
+        "defaultPlaceholder": "Définir la zone de l’événement",
         "displayString": "{{areaDisplayString}} surface, {{perimeterDisplayString}} périmètre",
-        "editAreaButton": "Modifier la Zone",
-        "editAreaButtonTitle": "Ajuster le polygone sur la carte",
-        "inputPlaceholder": "Définir la zone d'événement",
-        "staticMapImageAlt": "Carte statique avec le polygone",
-        "perimeter": "Périmètre: ",
-        "provenanceLabel": "Crée dans EarthRanger {{provenance}}"
+        "inputDescription": "Cliquez sur le bouton pour définir une valeur à partir du menu de sélection de zone.",
+        "inputLabel": "Zone",
+        "menuPopover": {
+          "area": "Surface:",
+          "deleteAreaButton": "Supprimer la Zone",
+          "dialogLabel": "Zone",
+          "editAreaButton": "Modifier la Zone",
+          "editAreaButtonLabel": "Modifier la zone sur la carte",
+          "perimeter": "Périmètre: ",
+          "provenanceLabel": "Crée dans EarthRanger {{provenance}}",
+          "staticMapImageAlt": "Carte statique avec le polygone"
+        },
+        "setAreaButtonLabel": {
+          "closed": "Ouvrir le menu de sélection de zone",
+          "create": "Créer une zone sur la carte",
+          "open": "Fermer le menu de sélection de zone"
+        },
+        "textCopyButtonLabel": "Copier la zone GeoJSON dans le presse-papiers"
       },
       "dateLabel": "Date de l'Événement",
       "detailsHeader": "Détails",

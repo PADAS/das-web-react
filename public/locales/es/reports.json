@@ -106,17 +106,27 @@
   },
   "reportManager": {
     "detailsSection": {
-      "areaSelectorInput": {
-        "area": "Área: ",
-        "deleteAreaButton": "Borrar Área",
-        "deleteAreaButtonTitle": "Borrar Área",
+      "areaPicker": {
+        "defaultPlaceholder": "Definir área del evento",
         "displayString": "{{areaDisplayString}} de área, {{perimeterDisplayString}} de perímetro",
-        "editAreaButton": "Editar área",
-        "editAreaButtonTitle": "Dibujar geometría",
-        "inputPlaceholder": "Colocar área del evento",
-        "staticMapImageAlt": "Mapa estático con geometría",
-        "perimeter": "Perímetro: ",
-        "provenanceLabel": "Creado en EarthRanger {{provenance}}"
+        "inputDescription": "Haz clic en el botón para establecer un valor desde el menú de selección de área.",
+        "inputLabel": "Área",
+        "menuPopover": {
+          "area": "Área: ",
+          "deleteAreaButton": "Borrar Área",
+          "dialogLabel": "Área",
+          "editAreaButton": "Editar área",
+          "editAreaButtonLabel": "Editar área en el mapa",
+          "perimeter": "Perímetro: ",
+          "provenanceLabel": "Creado en EarthRanger {{provenance}}",
+          "staticMapImageAlt": "Mapa estático con geometría"
+        },
+        "setAreaButtonLabel": {
+          "closed": "Abrir el menú de selección de área",
+          "create": "Crear área en el mapa",
+          "open": "Cerrar el menú de selección de área"
+        },
+        "textCopyButtonLabel": "Copiar área GeoJSON al portapapeles"
       },
       "dateLabel": "Fecha del Evento",
       "detailsHeader": "Detalles",

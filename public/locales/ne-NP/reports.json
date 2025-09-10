@@ -114,17 +114,27 @@
     },
     "reportManager": {
         "detailsSection": {
-            "areaSelectorInput": {
-                "area": "क्षेत्र:",
-                "deleteAreaButton": "क्षेत्र मेटाउनुहोस्",
-                "deleteAreaButtonTitle": "क्षेत्र मेटाउनुहोस्",
+            "areaPicker": {
+                "defaultPlaceholder": "कार्यक्रम क्षेत्र सेट गर्नुहोस्",
                 "displayString": "{{areaDisplayString}} क्षेत्र, {{perimeterDisplayString}} परिधि",
-                "editAreaButton": "क्षेत्र सम्पादन गर्नुहोस्",
-                "editAreaButtonTitle": "नक्सामा ज्यामिति राख्नुहोस्",
-                "inputPlaceholder": "घटना क्षेत्र सेट गर्नुहोस्",
-                "staticMapImageAlt": "ज्यामिति सहितको स्थिर नक्सा",
-                "perimeter": "परिधि:",
-                "provenanceLabel": "अर्थरेन्जरमा बनाइएको {{provenance}}"
+                "inputDescription": "बटन क्लिक गरेर क्षेत्र चयन मेनुबाट मान सेट गर्नुहोस्।",
+                "inputLabel": "क्षेत्र",
+                "menuPopover": {
+                    "area": "क्षेत्र:",
+                    "deleteAreaButton": "क्षेत्र मेटाउनुहोस्",
+                    "dialogLabel": "क्षेत्र",
+                    "editAreaButton": "क्षेत्र सम्पादन गर्नुहोस्",
+                    "editAreaButtonLabel": "नक्सामा क्षेत्र सम्पादन गर्नुहोस्",
+                    "perimeter": "परिधि:",
+                    "provenanceLabel": "अर्थरेन्जरमा बनाइएको {{provenance}}",
+                    "staticMapImageAlt": "ज्यामिति सहितको स्थिर नक्सा"
+                },
+                "setAreaButtonLabel": {
+                    "closed": "क्षेत्र चयन मेनु खोल्नुहोस्",
+                    "create": "नक्सामा क्षेत्र सिर्जना गर्नुहोस्",
+                    "open": "क्षेत्र चयन मेनु बन्द गर्नुहोस्"
+                },
+                "textCopyButtonLabel": "क्षेत्र GeoJSON क्लिपबोर्डमा प्रतिलिपि गर्नुहोस्"
             },
             "dateLabel": "घटनाको मिति",
             "detailsHeader": "विवरण",

@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import { MapContext } from '../../../App';
 import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from '../../../MapDrawingTools/ContextProvider';
-import AreaSelectorInput from './';
+import AreaPicker from './';
 import { createMapMock } from '../../../__test-helpers/mocks';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import { eventsWithGeometries } from '../../../__test-helpers/fixtures/events';
@@ -56,7 +56,7 @@ const geometryExample = {
   }
 };
 
-describe('The AreaSelector input', () => {
+describe('ReportManager - DetailsSection - AreaPicker', () => {
 
   let store, map, onGeometryChange, hideSideBarMock, report,
     setModalVisibilityStateMock, showSideBarMock, setIsPickingLocationMock;
@@ -99,7 +99,7 @@ describe('The AreaSelector input', () => {
           <FormDataContext.Provider value={{}}>
             <MapDrawingToolsContextProvider>
               <MapContext.Provider value={map}>
-                <AreaSelectorInput
+                <AreaPicker
                   event={withNoGeo}
                   originalEvent={withNoGeo}
                   map={map}
@@ -127,7 +127,7 @@ describe('The AreaSelector input', () => {
           <FormDataContext.Provider value={{}}>
             <MapDrawingToolsContextProvider>
               <MapContext.Provider value={map}>
-                <AreaSelectorInput
+                <AreaPicker
                   event={withNoGeo}
                   originalEvent={withNoGeo}
                   map={map}
@@ -155,7 +155,7 @@ describe('The AreaSelector input', () => {
           <FormDataContext.Provider value={report}>
             <MapDrawingToolsContextProvider>
               <MapContext.Provider value={map}>
-                <AreaSelectorInput
+                <AreaPicker
                   event={report}
                   originalEvent={report}
                   map={map}
@@ -191,7 +191,7 @@ describe('The AreaSelector input', () => {
           <FormDataContext.Provider value={report}>
             <MapDrawingToolsContext.Provider value={{ mapDrawingData: { fillPolygon }, setMapDrawingData }}>
               <MapContext.Provider value={map}>
-                <AreaSelectorInput
+                <AreaPicker
                   map={map}
                   onGeometryChange={onGeometryChange}
                 />
@@ -219,7 +219,7 @@ describe('The AreaSelector input', () => {
           <FormDataContext.Provider value={report}>
             <MapDrawingToolsContext.Provider value={{ mapDrawingData: { fillPolygon }, setMapDrawingData }}>
               <MapContext.Provider value={map}>
-                <AreaSelectorInput
+                <AreaPicker
                   event={{
                     ...report,
                     geometry: fillPolygon,

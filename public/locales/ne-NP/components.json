@@ -97,6 +97,7 @@
         "inputLabel": "स्थान",
         "jumpToLocationButtonLabel": "स्थानमा जानुहोस्",
         "menuPopover": {
+            "dialogLabel": "स्थान",
             "getUserLocationButton": "मेरो स्थान प्रयोग गर्नुहोस्",
             "pickMapLocationButton": "नक्सामा सेट गर्नुहोस्"
         },

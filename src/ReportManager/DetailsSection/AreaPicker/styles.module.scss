@@ -1,8 +1,8 @@
 @use 'sass:color';
 
-@use '../common/styles/vars/colors';
+@use '../../../common/styles/vars/colors';
 
-.locationPicker {
+.areaPicker {
   align-items: center;
   background: white;
   border: 1px solid colors.$light-gray-border;
@@ -13,7 +13,7 @@
   &.error {
     border-color: colors.$bright-red;
 
-    .setLocationButton {
+    .setAreaButton {
       .input {
         &::placeholder {
           color: color.adjust(colors.$bright-red, $lightness: 33%);
@@ -26,21 +26,17 @@
         color: colors.$bright-red;
       }
     }
-
-    .jumpToLocationButton {
-      color: colors.$bright-red;
-    }
   }
 
   &.disabled {
     background-color: colors.$disabled-field-gray;
   }
 
-  .setLocationButton {
+  .setAreaButton {
+    align-items: center;
     background: unset;
     border: none;
-    border-bottom-left-radius: 0.25rem;
-    border-top-left-radius: 0.25rem;
+    border-radius: 0.25rem;
     display: flex;
     flex-grow: 1;
     height: 100%;
@@ -56,10 +52,17 @@
       outline: 2px solid colors.$bright-blue;
     }
 
+    .icon {
+      color: colors.$secondary-medium-gray;
+      height: 1.125rem;
+      width: 1.125rem;
+    }
+
     .input {
       background: unset;
       border: none;
       cursor: pointer;
+      margin-left: 0.5rem;
       padding: 0;
       width: 100%;
 
@@ -79,24 +82,6 @@
         cursor: default;
       }
     }
-
-    .inputDescription {
-      border-width: 0;
-      clip: rect(0, 0, 0, 0);
-      height: 1px;
-      margin: -1px;
-      overflow: hidden;
-      padding: 0;
-      position: absolute;
-      white-space: nowrap;
-      width: 1px;
-    }
-  }
-
-  .valueOutsideBboxTooltip {
-    margin: 0 1px;
-    min-width: 1.5rem;
-    width: 1.5rem;
   }
 
   .textCopyButton {
@@ -107,30 +92,6 @@
     &:hover:not(:disabled) {
       background-color: white;
       color: colors.$bright-blue;
-    }
-  }
-
-  .jumpToLocationButton {
-    background-color: colors.$light-gray-background;
-    border: none;
-    border-radius: 0.25rem;
-    color: colors.$secondary-medium-gray;
-    height: 100%;
-    margin-left: 1px;
-    min-width: 2.5rem;
-    outline: none;
-    width: 2.5rem;
-
-    &:disabled {
-      background-color: colors.$disabled-field-gray;
-    }
-
-    &:focus-visible:not(:disabled) {
-      outline: 2px solid colors.$bright-blue;
-    }
-
-    &:hover:not(:disabled) {
-      background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
     }
   }
 }

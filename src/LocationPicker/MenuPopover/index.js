@@ -149,9 +149,10 @@ const MenuPopover = ({
   }, [isPickingLocation, onBlur, onClose, setLocationButtonRef, target]);
 
   return <Popover
+      aria-label={t('dialogLabel')}
       className={`${className} ${styles.menuPopover}`}
       ref={ref}
-      role="presentation"
+      role="dialog"
       style={{ ...style, minWidth: popoverWidthRef.current, width: popoverWidthRef.current }}
       {...otherProps}
     >

@@ -29,9 +29,9 @@ import {
   ObjectFieldTemplate,
   RemoveButton,
 } from '../../SchemaFields';
-import AreaSelectorInput from './AreaSelectorInput';
+import AreaPicker from './AreaPicker';
 import DatePicker, { EMPTY_DATE_VALUE } from '../../DatePicker';
-import GeometryPreview from './AreaSelectorInput/GeometryPreview';
+import { GeometryPreview } from './AreaPicker/MenuPopover';
 import LocationPicker from '../../LocationPicker';
 import PrioritySelect from '../../PrioritySelect';
 import ReportedBySelect from '../../ReportedBySelect';
@@ -191,14 +191,18 @@ const DetailsSection = ({
             {t('locationLabel')}
 
             {geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON
-              ? <AreaSelectorInput
+              ? <AreaPicker
+                className={jsonSchema?.readonly ? styles.readOnly : ''}
                 event={reportForm}
-                onGeometryChange={onReportGeometryChange}
-                originalEvent={originalReport}
+                onChange={onReportGeometryChange}
+                readOnly={jsonSchema?.readonly}
+                value={reportForm.geometry || null}
               />
               : <LocationPicker
+                className={jsonSchema?.readonly ? styles.readOnly : ''}
                 id="reportManager-detailsSection-locationPicker"
                 onChange={onReportLocationChange}
+                readOnly={jsonSchema?.readonly}
                 value={reportForm.location || null}
               />
             }
@@ -209,10 +213,11 @@ const DetailsSection = ({
               {t('dateLabel')}
 
               <DatePicker
+                className={jsonSchema?.readonly ? styles.readOnly : ''}
                 data-testid="reportManager-detailsSection-datePicker"
-                disabled={jsonSchema?.readonly}
                 max={format(new Date(), 'yyyy-MM-dd')}
                 onChange={onDatePickerChange}
+                readOnly={jsonSchema?.readonly}
                 value={date}
               />
             </label>
@@ -221,11 +226,12 @@ const DetailsSection = ({
               {t('timeLabel')}
 
               <TimePicker
+                className={jsonSchema?.readonly ? styles.readOnly : ''}
                 data-testid="reportManager-detailsSection-timePicker"
-                disabled={jsonSchema?.readonly}
                 max={reportTime && isToday(reportTime) ? getHoursAndMinutesString(new Date()) : undefined}
                 minutesInterval={15}
                 onChange={onTimePickerChange}
+                readOnly={jsonSchema?.readonly}
                 value={time}
               />
             </label>
