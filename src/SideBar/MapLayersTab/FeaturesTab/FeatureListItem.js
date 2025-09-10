@@ -33,7 +33,7 @@ const FeatureListItem = memo((props) => {
     showFeatures(props.id);
     map.fitBounds(props.bounds, { duration: 0, minZoom: 4, maxZoom: 16, padding: 80 });
     setTimeout(() => {
-      setFeatureActiveStateByID(map, props.int_id, true);
+      setFeatureActiveStateByID(map, props.id, true);
     }, 200);
 
     // const popupFeature = feature(geometry);
@@ -50,7 +50,7 @@ const FeatureListItem = memo((props) => {
   };
 
   const onMouseOverFeature = (enter) => {
-    setFeatureActiveStateByID(map, props.int_id, (enter));
+    setFeatureActiveStateByID(map, props.id, (enter));
   };
 
   return <span className={styles.featureTitle} onMouseEnter={() => onMouseOverFeature(true)} onMouseLeave={() => onMouseOverFeature(false)}>

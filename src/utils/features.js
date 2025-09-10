@@ -50,15 +50,15 @@ export const fitMapBoundsToGeoJson = (map, geojson) => {
   if (type === 'MultiPolygon') return fitMapBoundsToMultiPolygon(map, geojson);
 };
 
-export const setFeatureActiveStateByID = (map, int_id, state = true) => {
+export const setFeatureActiveStateByID = (map, id, state = true) => {
   const features = map.queryRenderedFeatures({
-    filter: ['in', 'int_id', int_id],
+    filter: ['in', 'id', id],
     layers: [POLYGONS_LAYER_ID, LINES_LAYER_ID],
   });
   console.log({ features });
-  features.forEach((feature) => {
-    map.setFeatureState(feature, { 'active': state });
-  });
+  // features.forEach((feature) => {
+  //   map.setFeatureState(feature, { 'active': state });
+  // });
 };
 
 /**

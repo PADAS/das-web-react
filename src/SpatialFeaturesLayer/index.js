@@ -15,8 +15,6 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
   const map = useContext(MapContext);
   const token = useSelector(state => state.data.token);
 
-
-
   const handleFeatureClick = useCallback((event) => {
     const features = map.queryRenderedFeatures(event.point, {
       layers: [SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID]
@@ -25,7 +23,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
     if (features.length > 0 && onFeatureClick) {
       onFeatureClick(features[0], event);
     }
-  }, [map, onFeatureClick, SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID]);
+  }, [map, onFeatureClick]);
 
   const onMouseEnter = useCallback(() => {
     map.getCanvas().style.cursor = 'pointer';
@@ -175,7 +173,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
       });
 
     };
-  }, [map, handleFeatureClick, onMouseEnter, onMouseLeave, SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID, token?.access_token]);
+  }, [map, handleFeatureClick, onMouseEnter, onMouseLeave, token?.access_token]);
 
   return null;
 };
