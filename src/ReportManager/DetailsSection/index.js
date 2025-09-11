@@ -193,13 +193,16 @@ const DetailsSection = ({
             {geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON
               ? <AreaPicker
                 className={jsonSchema?.readonly ? styles.readOnly : ''}
+                data-testid="reportManager-detailsSection-areaPicker"
                 event={reportForm}
+                id="reportManager-detailsSection-areaPicker"
                 onChange={onReportGeometryChange}
                 readOnly={jsonSchema?.readonly}
                 value={reportForm.geometry || null}
               />
               : <LocationPicker
                 className={jsonSchema?.readonly ? styles.readOnly : ''}
+                data-testid="reportManager-detailsSection-locationPicker"
                 id="reportManager-detailsSection-locationPicker"
                 onChange={onReportLocationChange}
                 readOnly={jsonSchema?.readonly}

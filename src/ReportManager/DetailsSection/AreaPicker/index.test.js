@@ -2,28 +2,16 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { MapContext } from '../../../App';
-import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from '../../../MapDrawingTools/ContextProvider';
-import AreaPicker from './';
-import { createMapMock } from '../../../__test-helpers/mocks';
-import { mockStore } from '../../../__test-helpers/MockStore';
+import { fireEvent, render, screen, waitFor } from '../../../test-utils';
 import { eventsWithGeometries } from '../../../__test-helpers/fixtures/events';
-import { render, screen, waitFor } from '../../../test-utils';
-import { setIsPickingLocation } from '../../../ducks/map-ui';
 import { hideSideBar, showSideBar } from '../../../ducks/side-bar';
+import { MAP_LOCATION_SELECTION_MODES } from '../../../ducks/map-ui';
+import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from '../../../MapDrawingTools/ContextProvider';
+import { mockStore } from '../../../__test-helpers/MockStore';
+import { setIsPickingLocation, setMapLocationSelectionEvent } from '../../../ducks/map-ui';
 import { setModalVisibilityState } from '../../../ducks/modals';
 
-import { FormDataContext } from '../../../EditableItem/context';
-
-const [, eventWithPolygon] = eventsWithGeometries;
-
-const CONTROL_SELECTOR = 'set-geometry-button';
-
-jest.mock('react-router', () => ({
-  ...jest.requireActual('react-router'),
-  useLocation: () => ({ pathname: '/events' }),
-}));
-
+import AreaPicker from './';
 
 jest.mock('../../../ducks/side-bar', () => ({
   ...jest.requireActual('../../../ducks/side-bar'),
@@ -31,213 +19,404 @@ jest.mock('../../../ducks/side-bar', () => ({
   showSideBar: jest.fn(),
 }));
 
+jest.mock('../../../ducks/map-ui', () => ({
+  ...jest.requireActual('../../../ducks/map-ui'),
+  setIsPickingLocation: jest.fn(),
+  setMapLocationSelectionEvent: jest.fn(),
+}));
+
 jest.mock('../../../ducks/modals', () => ({
   ...jest.requireActual('../../../ducks/modals'),
   setModalVisibilityState: jest.fn(),
 }));
 
-jest.mock('../../../ducks/map-ui', () => ({
-  ...jest.requireActual('../../../ducks/map-ui'),
-  setIsPickingLocation: jest.fn(),
-}));
+describe('AreaPicker', () => {
+  const onChange = jest.fn();
 
-const geometryExample = {
-  type: 'Feature',
-  geometry: {
-    type: 'Polygon',
-    coordinates: [
-      [
-        [6.657425, 9.301125],
-        [-40.668725, 5.047775],
-        [5.0602, -13.74975],
-        [6.657425, 9.301125],
-      ]
-    ]
-  }
-};
-
-describe('ReportManager - DetailsSection - AreaPicker', () => {
-
-  let store, map, onGeometryChange, hideSideBarMock, report,
-    setModalVisibilityStateMock, showSideBarMock, setIsPickingLocationMock;
-
+  let event, store;
   beforeEach(() => {
-    hideSideBarMock = jest.fn(() => () => {});
-    hideSideBar.mockImplementation(hideSideBarMock);
-    setModalVisibilityStateMock = jest.fn(() => () => {});
-    setModalVisibilityState.mockImplementation(setModalVisibilityStateMock);
-    showSideBarMock = jest.fn(() => () => {});
-    showSideBar.mockImplementation(showSideBarMock);
-    setIsPickingLocationMock = jest.fn(() => () => {});
-    setIsPickingLocation.mockImplementation(setIsPickingLocationMock);
-    map = createMapMock();
-    report = eventWithPolygon;
+    hideSideBar.mockImplementation(() => () => {});
+    showSideBar.mockImplementation(() => () => {});
+    setIsPickingLocation.mockImplementation(() => () => {});
+    setMapLocationSelectionEvent.mockImplementation(() => () => {});
+    setModalVisibilityState.mockImplementation(() => () => {});
+
+    event = { ...eventsWithGeometries[1] };
 
     store = {
-      view: {
-        mapLocationSelection: { event: report, isPickingLocation: false },
-        userPreferences: {},
-      },
       data: {
-        eventType: [],
         eventStore: {
-          [report.id]: report,
-        }
+          [event.id]: event,
+        },
+      },
+      view: {
+        mapLocationSelection: {
+          isPickingLocation: false,
+          mode: MAP_LOCATION_SELECTION_MODES.DEFAULT,
+        },
       },
     };
-    onGeometryChange = jest.fn();
-
   });
 
-  describe('with no area provided', () => {
-    const withNoGeo = { id: 'whatever', geometry: null };
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
 
-    test('starts picking an area on the map as soon as it\'s open', async () => {
+  const renderAreaPicker = (props, overrideStore) => render(
+    <Provider store={mockStore({ ...store, ...overrideStore })}>
+      <MapDrawingToolsContextProvider>
+        <AreaPicker
+          data-testid="areaPicker"
+          event={event}
+          id="areaPicker"
+          onChange={onChange}
+          value={event.geometry}
+          {...props}
+        />
+      </MapDrawingToolsContextProvider>
+    </Provider>
+  );
 
-      render(
-        <Provider store={mockStore(store)}>
-          <FormDataContext.Provider value={{}}>
-            <MapDrawingToolsContextProvider>
-              <MapContext.Provider value={map}>
-                <AreaPicker
-                  event={withNoGeo}
-                  originalEvent={withNoGeo}
-                  map={map}
-                  onGeometryChange={onGeometryChange}
-            />
-              </MapContext.Provider>
-            </MapDrawingToolsContextProvider>
-          </FormDataContext.Provider>
-        </Provider>
-      );
+  test('adds a custom class name', async () => {
+    renderAreaPicker({ className: 'className' });
 
-      expect(setIsPickingLocation).toHaveBeenCalledTimes(0);
+    expect(screen.getByTestId('areaPicker')).toHaveClass('className');
+  });
 
-      const setAreaButton = await screen.getByTestId(CONTROL_SELECTOR);
-      await userEvent.click(setAreaButton);
+  test('does not disable the area picker', async () => {
+    renderAreaPicker();
 
-      await waitFor(() => {
-        expect(setIsPickingLocation).toHaveBeenCalledTimes(1);
-      });
+    expect(screen.getByTestId('areaPicker')).not.toHaveClass('disabled');
+    expect(screen.getByRole('button', { name: 'Open the area picker menu' })).not.toBeDisabled();
+    expect(screen.getByRole('textbox', { name: 'Area' })).not.toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Copy area GeoJSON to clipboard' })).not.toBeDisabled();
+  });
+
+  test('disables the area picker', async () => {
+    renderAreaPicker({ disabled: true });
+
+    expect(screen.getByTestId('areaPicker')).toHaveClass('disabled');
+    expect(screen.getByRole('button', { name: 'Open the area picker menu' })).toBeDisabled();
+    expect(screen.getByRole('textbox', { name: 'Area' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Copy area GeoJSON to clipboard' })).toBeDisabled();
+  });
+
+  test('does not show an error state', async () => {
+    renderAreaPicker();
+
+    expect(screen.getByTestId('areaPicker')).not.toHaveClass('error');
+  });
+
+  test('shows an error state', async () => {
+    renderAreaPicker({
+      inputProps: {
+        'aria-invalid': true,
+      },
     });
 
-    test('renders the placeholder default value for area', async () => {
-      render(
-        <Provider store={mockStore(store)}>
-          <FormDataContext.Provider value={{}}>
-            <MapDrawingToolsContextProvider>
-              <MapContext.Provider value={map}>
-                <AreaPicker
-                  event={withNoGeo}
-                  originalEvent={withNoGeo}
-                  map={map}
-                  onGeometryChange={onGeometryChange}
+    expect(screen.getByTestId('areaPicker')).toHaveClass('error');
+  });
 
-            />
-              </MapContext.Provider>
-            </MapDrawingToolsContextProvider>
-          </FormDataContext.Provider>
-        </Provider>
-      );
+  test('sets the name to an input with the area picker GeoJSON value', async () => {
+    renderAreaPicker({ name: 'area-picker-name' });
 
-      expect((await screen.findByText('Set event area'))).toBeDefined();
-      expect((await screen.findByTestId('polygon-icon'))).toBeDefined();
+    const areaPickerInput = screen.getByTestId('areaPicker-input');
+
+    expect(areaPickerInput).toHaveAttribute('name', 'area-picker-name');
+    expect(areaPickerInput)
+      .toHaveValue('{"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[58.31891231904782,-32.95903350246844],[58.47630823380208,-32.59422031588628],[58.62248893060512,-32.69629040415761],[57.291173483506896,-33.91600187660145],[56.81251637929487,-33.02717890265869],[58.31891231904782,-32.95903350246844]]]}}]}');
+  });
+
+  test('blurs the area picker', async () => {
+    const onBlur = jest.fn();
+
+    renderAreaPicker({ onBlur });
+
+    const areaPicker = screen.getByTestId('areaPicker');
+    await userEvent.click(areaPicker);
+
+    expect(onBlur).not.toHaveBeenCalled();
+
+    fireEvent.blur(areaPicker);
+
+    expect(onBlur).toHaveBeenCalledTimes(1);
+  });
+
+  test('focuses the area picker when focusing one of the inner elements', async () => {
+    const onFocus = jest.fn();
+
+    renderAreaPicker({ onFocus });
+
+    expect(onFocus).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Open the area picker menu' }));
+
+    expect(onFocus).toHaveBeenCalledTimes(1);
+  });
+
+  test('shows a default placeholder', async () => {
+    renderAreaPicker();
+
+    expect(screen.getByRole('textbox', { name: 'Area' })).toHaveAttribute('placeholder', 'Set Event Area');
+  });
+
+  test('shows a custom placeholder', async () => {
+    renderAreaPicker({ placeholder: 'placeholder' });
+
+    expect(screen.getByRole('textbox', { name: 'Area' })).toHaveAttribute('placeholder', 'placeholder');
+  });
+
+  test('does not set the area picker as read only', async () => {
+    renderAreaPicker();
+
+    const setAreaButton = screen.getByRole('button', { name: 'Open the area picker menu' });
+
+    expect(setAreaButton).not.toHaveClass('readOnly');
+    expect(setAreaButton).not.toBeDisabled();
+    expect(screen.getByRole('textbox', { name: 'Area' })).not.toHaveClass('readOnly');
+  });
+
+  test('sets the area picker as read only', async () => {
+    renderAreaPicker({ readOnly: true });
+
+    const setAreaButton = screen.getByRole('button', { name: 'Open the area picker menu' });
+
+    expect(setAreaButton).toHaveClass('readOnly');
+    expect(setAreaButton).toBeDisabled();
+    expect(screen.getByRole('textbox', { name: 'Area' })).toHaveClass('readOnly');
+  });
+
+  test('does not set the area picker as required', async () => {
+    renderAreaPicker();
+
+    expect(screen.getByRole('textbox', { name: 'Area' })).not.toBeRequired();
+  });
+
+  test('sets the area picker as required', async () => {
+    renderAreaPicker({ required: true });
+
+    expect(screen.getByRole('textbox', { name: 'Area' })).toBeRequired();
+  });
+
+  test('forwards the focusing of the input to the set area button', async () => {
+    renderAreaPicker();
+
+    fireEvent.focus(screen.getByRole('textbox', { name: 'Area' }));
+
+    expect(screen.getByRole('button', { name: 'Open the area picker menu' })).toHaveFocus();
+  });
+
+  test('shows an empty value in the input if there is not a value', async () => {
+    renderAreaPicker({ value: null });
+
+    expect(screen.getByRole('textbox', { name: 'Area' })).toHaveValue('');
+  });
+
+  test('shows a display value in the input if there is a value', async () => {
+    renderAreaPicker();
+
+    expect(screen.getByRole('textbox', { name: 'Area' })).toHaveValue('7530.52km² area, 493.54km perimeter');
+  });
+
+  test('does not show a text copy button if there is no value yet', async () => {
+    renderAreaPicker({ value: null });
+
+    expect(screen.queryByRole('button', { name: 'Copy area GeoJSON to clipboard' })).toBeNull();
+  });
+
+  test('shows a text copy button if there is a value', async () => {
+    renderAreaPicker();
+
+    expect(screen.getByRole('button', { name: 'Copy area GeoJSON to clipboard' })).toBeVisible();
+  });
+
+  test('picks an area when clicking the set area button if there is not a value', async () => {
+    renderAreaPicker({ value: null });
+
+    const setAreaButton = screen.getByRole('button', { name: 'Create area on the map' });
+
+    expect(setMapLocationSelectionEvent).not.toHaveBeenCalled();
+    expect(setIsPickingLocation).toHaveBeenCalledTimes(1);
+    expect(setModalVisibilityState).toHaveBeenCalledTimes(1);
+    expect(hideSideBar).not.toHaveBeenCalled();
+
+    await userEvent.click(setAreaButton);
+
+    expect(setMapLocationSelectionEvent).toHaveBeenCalledTimes(1);
+    expect(setMapLocationSelectionEvent).toHaveBeenCalledWith(event);
+    expect(setIsPickingLocation).toHaveBeenCalledTimes(2);
+    expect(setIsPickingLocation).toHaveBeenCalledWith(true, MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY);
+    expect(setModalVisibilityState).toHaveBeenCalledTimes(2);
+    expect(setModalVisibilityState).toHaveBeenCalledWith(false);
+    expect(hideSideBar).toHaveBeenCalledTimes(1);
+  });
+
+  test('opens the menu popover when clicking the set area button if there is a value already', async () => {
+    renderAreaPicker();
+
+    const setAreaButton = screen.getByRole('button', { name: 'Open the area picker menu' });
+
+    expect(screen.queryByRole('dialog', { name: 'Area' })).toBeNull();
+    expect(setAreaButton).toHaveAttribute('aria-expanded', 'false');
+
+    await userEvent.click(setAreaButton);
+
+    expect(screen.getByRole('dialog', { name: 'Area' })).toBeVisible();
+    expect(setAreaButton).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  test('closes the menu popover', async () => {
+    renderAreaPicker();
+
+    const setAreaButton = screen.getByRole('button', { name: 'Open the area picker menu' });
+    await userEvent.click(setAreaButton);
+    const menuPopover = screen.getByRole('dialog', { name: 'Area' });
+
+    expect(menuPopover).toBeVisible();
+    expect(setAreaButton).toHaveAttribute('aria-expanded', 'true');
+
+    await userEvent.click(setAreaButton);
+
+    expect(setAreaButton).toHaveAttribute('aria-expanded', 'false');
+
+    await waitFor(() => {
+      expect(menuPopover).not.toBeVisible();
     });
   });
 
-  describe('with an area provided', () => {
+  test('picks an area from the area picker menu', async () => {
+    renderAreaPicker();
 
-    test('deletes the report area if user clicks delete area button', async () => {
-      report.geometry = geometryExample;
+    await userEvent.click(screen.getByRole('button', { name: 'Open the area picker menu' }));
 
-      render(
-        <Provider store={mockStore(store)}>
-          <FormDataContext.Provider value={report}>
-            <MapDrawingToolsContextProvider>
-              <MapContext.Provider value={map}>
-                <AreaPicker
-                  event={report}
-                  originalEvent={report}
-                  map={map}
-                  onGeometryChange={onGeometryChange}
+    expect(setMapLocationSelectionEvent).not.toHaveBeenCalled();
+    expect(setIsPickingLocation).toHaveBeenCalledTimes(1);
+    expect(setModalVisibilityState).toHaveBeenCalledTimes(1);
+    expect(hideSideBar).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Edit area on the map' }));
+
+    expect(setMapLocationSelectionEvent).toHaveBeenCalledTimes(1);
+    expect(setMapLocationSelectionEvent).toHaveBeenCalledWith(event);
+    expect(setIsPickingLocation).toHaveBeenCalledTimes(2);
+    expect(setIsPickingLocation).toHaveBeenCalledWith(true, MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY);
+    expect(setModalVisibilityState).toHaveBeenCalledTimes(2);
+    expect(setModalVisibilityState).toHaveBeenCalledWith(false);
+    expect(hideSideBar).toHaveBeenCalledTimes(1);
+  });
+
+  test('updates the value once the user finishes drawing a new area', async () => {
+    const setMapDrawingData = jest.fn();
+    render(
+      <Provider store={mockStore(store)}>
+        <MapDrawingToolsContext.Provider
+          value={{
+            mapDrawingData: {
+              fillPolygon: {
+                geometry: {
+                  type: 'Polygon',
+                  coordinates: []
+                },
+                type: 'Feature',
+              },
+            },
+            setMapDrawingData,
+          }}>
+          <AreaPicker
+            data-testid="areaPicker"
+            event={event}
+            id="areaPicker"
+            onChange={onChange}
+            value={null}
           />
-              </MapContext.Provider>
-            </MapDrawingToolsContextProvider>
-          </FormDataContext.Provider>
-        </Provider>
-      );
+        </MapDrawingToolsContext.Provider>
+      </Provider>
+    );
 
-      const setAreaButton = await screen.getByTestId(CONTROL_SELECTOR);
-      await userEvent.click(setAreaButton);
-
-      expect(onGeometryChange).toHaveBeenCalledTimes(0);
-
-      const deleteAreaButton = await screen.getByTitle('Delete Area');
-      await userEvent.click(deleteAreaButton);
-
-      await waitFor(async () => {
-        expect(onGeometryChange).toHaveBeenCalledTimes(1);
-        expect(onGeometryChange).toHaveBeenCalledWith(null);
-        expect((await screen.queryByRole('tooltip'))).toBeNull();
-      });
-    });
-
-    test('saving a new report area adds the provenance property', async () => {
-      const fillPolygon = { type: 'Feature' };
-      const setMapDrawingData = jest.fn();
-
-      render(
-        <Provider store={mockStore(store)}>
-          <FormDataContext.Provider value={report}>
-            <MapDrawingToolsContext.Provider value={{ mapDrawingData: { fillPolygon }, setMapDrawingData }}>
-              <MapContext.Provider value={map}>
-                <AreaPicker
-                  map={map}
-                  onGeometryChange={onGeometryChange}
-                />
-              </MapContext.Provider>
-            </MapDrawingToolsContext.Provider>
-          </FormDataContext.Provider>
-        </Provider>
-      );
-
-      expect(onGeometryChange).toHaveBeenCalledTimes(1);
-      expect(onGeometryChange).toHaveBeenCalledWith({
-        ...fillPolygon,
-        properties: { provenance: 'web' },
-      });
-      expect(setMapDrawingData).toHaveBeenCalledTimes(1);
-      expect(setMapDrawingData).toHaveBeenCalledWith(null);
-    });
-
-    test('saving an existing report area keeps the provenance property', async () => {
-      const fillPolygon = { type: 'Feature', properties: { provenance: 'mobile' } };
-      const setMapDrawingData = jest.fn();
-
-      render(
-        <Provider store={mockStore(store)}>
-          <FormDataContext.Provider value={report}>
-            <MapDrawingToolsContext.Provider value={{ mapDrawingData: { fillPolygon }, setMapDrawingData }}>
-              <MapContext.Provider value={map}>
-                <AreaPicker
-                  event={{
-                    ...report,
-                    geometry: fillPolygon,
-                  }}
-                  map={map}
-                  onGeometryChange={onGeometryChange}
-                />
-              </MapContext.Provider>
-            </MapDrawingToolsContext.Provider>
-          </FormDataContext.Provider>
-        </Provider>
-      );
-
-      expect(onGeometryChange).toHaveBeenCalledTimes(1);
-      expect(onGeometryChange).toHaveBeenCalledWith(fillPolygon);
-      expect(setMapDrawingData).toHaveBeenCalledTimes(1);
-      expect(setMapDrawingData).toHaveBeenCalledWith(null);
+    expect(setMapDrawingData).toHaveBeenCalledTimes(1);
+    expect(setMapDrawingData).toHaveBeenCalledWith(null);
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith({
+      geometry: {
+        type: 'Polygon',
+        coordinates: []
+      },
+      properties: {
+        provenance: 'web',
+      },
+      type: 'Feature',
     });
   });
 
+  test('updates the value once the user finishes editing an existing area', async () => {
+    const setMapDrawingData = jest.fn();
+    render(
+      <Provider store={mockStore(store)}>
+        <MapDrawingToolsContext.Provider
+          value={{
+            mapDrawingData: {
+              fillPolygon: {
+                geometry: {
+                  type: 'Polygon',
+                  coordinates: [
+                    [
+                      [1, 1],
+                      [2, 2],
+                      [1, 2],
+                      [1, 1],
+                    ]
+                  ]
+                },
+                type: 'Feature',
+              },
+            },
+            setMapDrawingData,
+          }}>
+          <AreaPicker
+            data-testid="areaPicker"
+            event={event}
+            id="areaPicker"
+            onChange={onChange}
+            value={{
+              properties: {
+                provenance: 'mobile',
+              },
+              type: 'Feature',
+            }}
+          />
+        </MapDrawingToolsContext.Provider>
+      </Provider>
+    );
+
+    expect(setMapDrawingData).toHaveBeenCalledTimes(1);
+    expect(setMapDrawingData).toHaveBeenCalledWith(null);
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith({
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [1, 1],
+            [2, 2],
+            [1, 2],
+            [1, 1],
+          ]
+        ]
+      },
+      properties: {
+        provenance: 'mobile',
+      },
+      type: 'Feature',
+    });
+  });
+
+  test('turns off the show map mode automatically when user is not drawing a geometry', async () => {
+    renderAreaPicker();
+
+    expect(setIsPickingLocation).toHaveBeenCalledTimes(1);
+    expect(setIsPickingLocation).toHaveBeenCalledWith(false, MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY);
+    expect(setModalVisibilityState).toHaveBeenCalledTimes(1);
+    expect(setModalVisibilityState).toHaveBeenCalledWith(true);
+    expect(showSideBar).toHaveBeenCalled();
+  });
 });

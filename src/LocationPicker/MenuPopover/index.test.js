@@ -86,7 +86,7 @@ describe('LocationPicker - MenuPopover', () => {
   test('matches the width of the target while is less than 380 and more than 280', async () => {
     renderMenuPopover();
 
-    const menuPopover = screen.getByRole('presentation');
+    const menuPopover = screen.getByRole('dialog', { name: 'Location' });
 
     expect(menuPopover).toHaveStyle('min-width: 320px;');
     expect(menuPopover).toHaveStyle('width: 320px;');
@@ -102,7 +102,7 @@ describe('LocationPicker - MenuPopover', () => {
       },
     });
 
-    const menuPopover = screen.getByRole('presentation');
+    const menuPopover = screen.getByRole('dialog', { name: 'Location' });
 
     expect(menuPopover).toHaveStyle('min-width: 280px;');
     expect(menuPopover).toHaveStyle('width: 280px;');
@@ -118,7 +118,7 @@ describe('LocationPicker - MenuPopover', () => {
       },
     });
 
-    const menuPopover = screen.getByRole('presentation');
+    const menuPopover = screen.getByRole('dialog', { name: 'Location' });
 
     expect(menuPopover).toHaveStyle('min-width: 380px;');
     expect(menuPopover).toHaveStyle('width: 380px;');
