@@ -4,15 +4,13 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon.svg';
 
-import { FEATURE_FLAG_LABELS } from '../constants';
 import { GPS_FORMAT_CATEGORY, trackEventFactory } from '../utils/analytics';
-import { GPS_FORMATS, OUTSIDE_BBOX, stringifyCoordinates } from '../utils/location';
+import { OUTSIDE_BBOX, stringifyCoordinates } from '../utils/location';
 import {
   selectCoordinatesRepresentation,
   selectStoredCoordinateReferenceSystemsMappedByCode,
 } from '../selectors/location';
 import { updateUserPreferences } from '../ducks/user-preferences';
-import { useFeatureFlag } from '../hooks';
 import useStringifyCoordinates from '../hooks/useStringifyCoordinates';
 
 import IconTooltip from '../IconTooltip';
@@ -33,8 +31,6 @@ const GpsFormatToggle = ({
   showTextSearchOption = false,
   ...otherProps
 }) => {
-  const customCoordinateSystemsEnabled = useFeatureFlag(FEATURE_FLAG_LABELS.CUSTOM_COORDINATE_SYSTEMS_ENABLED);
-
   const dispatch = useDispatch();
   const { t } = useTranslation('components', { keyPrefix: 'gpsFormatToggle' });
 
@@ -58,16 +54,14 @@ const GpsFormatToggle = ({
 
   const { coordinatesString, outsideRepresentationBbox } = useStringifyCoordinates(lngLat);
 
-  const gpsFormatOptions = customCoordinateSystemsEnabled
-    ? selectedCoordinateRepresentations.sort((optionA, optionB) => {
-      // Sort coordinate representation options alphabetically. If they are a
-      // CRS, we use the name property, otherwise we simply use the GPS format
-      // string.
-      const optionAName = storedCoordinateReferenceSystemsMappedByCode[optionA]?.name || optionA;
-      const optionBName = storedCoordinateReferenceSystemsMappedByCode[optionB]?.name || optionB;
-      return optionAName > optionBName ? 1 : -1;
-    })
-    : Object.values(GPS_FORMATS);
+  const gpsFormatOptions = selectedCoordinateRepresentations.sort((optionA, optionB) => {
+    // Sort coordinate representation options alphabetically. If they are a
+    // CRS, we use the name property, otherwise we simply use the GPS format
+    // string.
+    const optionAName = storedCoordinateReferenceSystemsMappedByCode[optionA]?.name || optionA;
+    const optionBName = storedCoordinateReferenceSystemsMappedByCode[optionB]?.name || optionB;
+    return optionAName > optionBName ? 1 : -1;
+  });
 
   const onGpsFormatChange = (gpsFormat) => {
     setIsTextSearchOptionChecked?.(false);

@@ -4,12 +4,10 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ChevronRight } from '../../../../../common/images/icons/chevron-right.svg';
 
-import { FEATURE_FLAG_LABELS } from '../../../../../constants';
 import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../../../../../utils/analytics';
 import { MapContext } from '../../../../../App';
 import { toggleMapDataSimplificationOnZoom, toggleMapLockState } from '../../../../../ducks/map-ui';
 import { updateUserPreferences } from '../../../../../ducks/user-preferences';
-import { useFeatureFlag } from '../../../../../hooks';
 
 import * as styles from '../styles.module.scss';
 
@@ -26,8 +24,6 @@ const LOCKABLE_MAP_CONTROLS = [
 ];
 
 const GeneralFieldSet = ({ onOpenCoordinateSystemSettingsView }) => {
-  const customCoordinateSystemsEnabled = useFeatureFlag(FEATURE_FLAG_LABELS.CUSTOM_COORDINATE_SYSTEMS_ENABLED);
-
   const dispatch = useDispatch();
   const { t } = useTranslation('components', {
     keyPrefix: 'sideBar.settingsPane.mapTab.mainMapSettingsView.generalFieldSet',
@@ -114,29 +110,27 @@ const GeneralFieldSet = ({ onOpenCoordinateSystemSettingsView }) => {
         </label>
       </div>
 
-      {customCoordinateSystemsEnabled && <>
-        <hr className={styles.separator} />
+      <hr className={styles.separator} />
 
-        <button
-          aria-label={t('openCoordinateSystemSettingsButtonLabel')}
-          className={styles.button}
-          onClick={() => onOpenCoordinateSystemSettingsView()}
-          title={t('openCoordinateSystemSettingsButtonLabel')}
-          type="button"
-        >
-          <span className={styles.text}>
-            {t('openCoordinateSystemSettingsButton')}
-          </span>
+      <button
+        aria-label={t('openCoordinateSystemSettingsButtonLabel')}
+        className={styles.button}
+        onClick={() => onOpenCoordinateSystemSettingsView()}
+        title={t('openCoordinateSystemSettingsButtonLabel')}
+        type="button"
+      >
+        <span className={styles.text}>
+          {t('openCoordinateSystemSettingsButton')}
+        </span>
 
-          <span className={styles.details}>
-            {t('openCoordinateSystemSettingsButtonDetails', {
-              selectedCoordinateRepresentationsCount: selectedCoordinateRepresentations.length,
-            })}
-          </span>
+        <span className={styles.details}>
+          {t('openCoordinateSystemSettingsButtonDetails', {
+            selectedCoordinateRepresentationsCount: selectedCoordinateRepresentations.length,
+          })}
+        </span>
 
-          <ChevronRight aria-hidden="true" className={styles.icon} />
-        </button>
-      </>}
+        <ChevronRight aria-hidden="true" className={styles.icon} />
+      </button>
     </div>
   </fieldset>;
 };
