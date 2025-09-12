@@ -213,15 +213,31 @@
         "settingsPane": {
             "alertsFrameTitle": "Configure seus alertas de EarthRanger",
             "alertsTabTitle": "Alertas",
-            "appRefreshDescription": "Manter minha configuração ao atualizar a página",
-            "appRefreshHeader": "Atualização do aplicativo",
-            "appRefreshMapLayersLabel": "Camadas do mapa",
-            "appRefreshMapPositionAndZoomLevelLabel": "Posição do mapa & Nível de zoom",
-            "appRefreshPatrolFiltersLabel": "Filtros de patrulhas",
-            "appRefreshReportFiltersLabel": "Filtros de eventos",
-            "experimentalFeaturesHeader": "Funções experimentais",
+            "generalTab": {
+                "appRefreshFieldSet": {
+                    "description": "Manter minha configuração ao atualizar a página",
+                    "eventFiltersCheckboxLabel": "Filtros de eventos",
+                    "legend": "Atualização do aplicativo",
+                    "mapLayersCheckboxLabel": "Camadas do mapa",
+                    "mapPositionAndZoomLevelCheckboxLabel": "Posição do mapa & nível de zoom",
+                    "patrolFiltersCheckboxLabel": "Filtros de patrulhas"
+                },
+                "experimentalFeaturesFieldSet": {
+                    "CUSTOM_COORDINATE_SYSTEMS_ENABLED": "Sistemas de referência de coordenadas",
+                    "legend": "Funções experimentais"
+                },
+                "languageSelect": {
+                    "label": "Idioma"
+                },
+                "soundFieldSet": {
+                    "description": "Reproduzir som para",
+                    "legend": "Som",
+                    "newEventsCheckboxLabel": "Novos eventos",
+                    "newInReachMessagesCheckboxLabel": "Novas mensagens inReach",
+                    "radioStateChangeToRedCheckboxLabel": "Quando um estado de rádio muda para vermelho (alarme)"
+                }
+            },
             "generalTabTitle": "Características Gerais",
-            "languagesHeader": "Idioma",
             "mapTab": {
                 "coordinateSystemSettingsView": {
                     "backButtonLabel": "Voltar às configurações principais do mapa",

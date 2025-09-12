@@ -214,15 +214,31 @@
         "settingsPane": {
             "alertsFrameTitle": "तपाईंको अर्थरेन्जर सतर्क सुचना मिलाउनुहोस्",
             "alertsTabTitle": "सर्तक सुचनाहरु",
-            "appRefreshDescription": "पृष्ठ रेफ्रेसका लागि मेरो सेटिङ सुरक्षित गर्नुहोस्",
-            "appRefreshHeader": "एप रिफ्रेस गर्नुहोस्",
-            "appRefreshMapLayersLabel": "नक्साका तहहरु",
-            "appRefreshMapPositionAndZoomLevelLabel": "नक्साको स्थिति र जुम स्तर",
-            "appRefreshPatrolFiltersLabel": "गस्ती फिल्टर",
-            "appRefreshReportFiltersLabel": "घटना फिल्टर",
-            "experimentalFeaturesHeader": "प्रयोगात्मक सुविधाहरु",
+            "generalTab": {
+                "appRefreshFieldSet": {
+                    "description": "पृष्ठ रेफ्रेसका लागि मेरो सेटिङ सुरक्षित गर्नुहोस्",
+                    "eventFiltersCheckboxLabel": "घटना फिल्टर",
+                    "legend": "एप रिफ्रेस गर्नुहोस्",
+                    "mapLayersCheckboxLabel": "नक्साका तहहरु",
+                    "mapPositionAndZoomLevelCheckboxLabel": "नक्साको स्थिति र जुम स्तर",
+                    "patrolFiltersCheckboxLabel": "गस्ती फिल्टर"
+                },
+                "experimentalFeaturesFieldSet": {
+                    "CUSTOM_COORDINATE_SYSTEMS_ENABLED": "समन्वय सन्दर्भ प्रणालीहरू",
+                    "legend": "प्रयोगात्मक सुविधाहरु"
+                },
+                "languageSelect": {
+                    "label": "भाषा"
+                },
+                "soundFieldSet": {
+                    "description": "यसका लागि ध्वनि बजाउनुहोस्",
+                    "legend": "ध्वनि",
+                    "newEventsCheckboxLabel": "नयाँ घटना",
+                    "newInReachMessagesCheckboxLabel": "नयाँ inReach सन्देशहरू",
+                    "radioStateChangeToRedCheckboxLabel": "जब रेडियोको अवस्था रातोमा परिवर्तन हुन्छ (सावधानी)"
+                }
+            },
             "generalTabTitle": "सामान्य",
-            "languagesHeader": "भाषा",
             "mapTab": {
                 "coordinateSystemSettingsView": {
                     "backButtonLabel": "मुख्य नक्सा सेटिङहरूमा फर्कनुहोस्",

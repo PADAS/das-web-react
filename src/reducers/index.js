@@ -18,7 +18,6 @@ import mapPositionReducer, { persistenceConfig as mapPositionPersistenceConfig }
 import tracksReducer, { trackSettingsReducer } from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer, subjectStoreReducer } from '../ducks/subjects';
 import systemStatusReducer, { systemConfigReducer } from '../ducks/system-status';
-import featureFlagOverrideReducer, { migrations as flagOverrideMigrations } from '../ducks/feature-flag-overrides';
 import {
   heatmapStyleConfigReducer,
   displayMapNamesReducer,
@@ -59,6 +58,7 @@ import patrolTrackedBySchemaReducer from '../ducks/trackedby';
 import sideBarReducer from '../ducks/side-bar';
 import locallyEditedEventReducer from '../ducks/locally-edited-event';
 import recentEventDataReceivedReducer from '../ducks/recent-event-data-received';
+import experimentalFeaturesReducer from '../ducks/experimental-features';
 
 const tokenPersistenceConfig = generateStorageConfig('token');
 const homeMapPersistenceConfig = generateStorageConfig('homeMap');
@@ -67,13 +67,13 @@ const heatmapConfigPersistenceConfig = generateStorageConfig('heatmapConfig');
 const userProfilePersistenceConfig = generateStorageConfig('userProfile');
 const mapsPersistenceConfig = generateStorageConfig('maps');
 const baseLayerPersistenceConfig = generateStorageConfig('baseLayer');
-const featureFlagOverrideConfig = generateStorageConfig('featureFlagOverrides', storage, 1, flagOverrideMigrations);
 const featureSetsPersistenceConfig = generateStorageConfig('featureSets', localForage);
 const analyzersPersistenceConfig = generateStorageConfig('analyzers', localForage);
 const mapDataZoomSimplificationConfig = generateStorageConfig('mapDataOnZoom', localForage);
 const trackSettingsPersistenceConfig = generateStorageConfig('trackSettings');
 const mapClusterStorageConfig = generateStorageConfig('mapClusterConfig', storage, 1, mapClusterConfigMigrations);
 const coordinateReferenceSystemsStorageConfig = generateStorageConfig('coordinateReferenceSystems');
+const experimentalFeaturesStorageConfig = generateStorageConfig('experimentalFeatures');
 
 const rootReducer = combineReducers({
   data: combineReducers({
@@ -119,7 +119,7 @@ const rootReducer = combineReducers({
   view: combineReducers({
     coordinateReferenceSystems: persistReducer(coordinateReferenceSystemsStorageConfig, coordinateReferenceSystemsReducer),
     currentBaseLayer: persistReducer(baseLayerPersistenceConfig, currentBaseLayerReducer),
-    featureFlagOverrides: persistReducer(featureFlagOverrideConfig, featureFlagOverrideReducer),
+    experimentalFeatures: persistReducer(experimentalFeaturesStorageConfig, experimentalFeaturesReducer),
     homeMap: persistReducer(homeMapPersistenceConfig, homeMapReducer),
     heatmapStyles: persistReducer(heatmapConfigPersistenceConfig, heatmapStyleConfigReducer),
     heatmapSubjectIDs: heatmapSubjectIDsReducer,

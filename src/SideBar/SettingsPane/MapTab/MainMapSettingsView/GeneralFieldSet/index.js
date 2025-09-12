@@ -11,7 +11,7 @@ import { toggleMapDataSimplificationOnZoom, toggleMapLockState } from '../../../
 import { updateUserPreferences } from '../../../../../ducks/user-preferences';
 import { useFeatureFlag } from '../../../../../hooks';
 
-import * as styles from '../styles.module.scss';
+import * as styles from '../../../styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -72,12 +72,12 @@ const GeneralFieldSet = ({ onOpenCoordinateSystemSettingsView }) => {
         <input
           checked={mapIsLocked}
           className={styles.checkbox}
-          id="lock-map-checkbox"
+          id="map-general-lock-map-checkbox"
           onChange={onLockMapCheckboxChange}
           type="checkbox"
         />
 
-        <label className={styles.label} htmlFor="lock-map-checkbox">
+        <label className={styles.label} htmlFor="map-general-lock-map-checkbox">
           {t('lockMapCheckboxLabel')}
         </label>
       </div>
@@ -88,12 +88,12 @@ const GeneralFieldSet = ({ onOpenCoordinateSystemSettingsView }) => {
         <input
           checked={enable3D}
           className={styles.checkbox}
-          id="3d-map-terrain-checkbox"
+          id="map-general-3d-map-terrain-checkbox"
           onChange={on3DMapTerrainCheckboxChange}
           type="checkbox"
         />
 
-        <label className={styles.label} htmlFor="3d-map-terrain-checkbox">
+        <label className={styles.label} htmlFor="map-general-3d-map-terrain-checkbox">
           {t('3DMapTerrainCheckboxLabel')}
         </label>
       </div>
@@ -104,12 +104,12 @@ const GeneralFieldSet = ({ onOpenCoordinateSystemSettingsView }) => {
         <input
           checked={simplifyMapDataOnZoom}
           className={styles.checkbox}
-          id="simplify-map-data-on-zoom-checkbox"
+          id="map-general-simplify-map-data-on-zoom-checkbox"
           onChange={onSimplifyMapDataOnZoomCheckboxChange}
           type="checkbox"
         />
 
-        <label className={styles.label} htmlFor="simplify-map-data-on-zoom-checkbox">
+        <label className={styles.label} htmlFor="map-general-simplify-map-data-on-zoom-checkbox">
           {t('simplifyMapDataOnZoomCheckboxLabel')}
         </label>
       </div>
