@@ -102,6 +102,7 @@
     "inputLabel": "Mahali",
     "jumpToLocationButtonLabel": "Ruka kwa mahali",
     "menuPopover": {
+      "dialogLabel": "Eneo",
       "getUserLocationButton": "Tumia eneo langu",
       "pickMapLocationButton": "Weka kwenye ramani"
     },

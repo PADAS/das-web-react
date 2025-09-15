@@ -723,10 +723,8 @@ const ReportDetailView = ({
   const shouldRenderHistorySection = reportForm?.updates;
   const shouldRenderLinksSection = !!linkedReports.length || !!linkedPatrols.length;
 
-  const isReadOnly = eventSchema?.schema?.readonly;
-
   return <div
-    className={`${styles.reportDetailView} ${className || ''} ${isReadOnly ? styles.readonly : ''}`}
+    className={`${styles.reportDetailView} ${className || ''}`}
     data-testid="reportManagerContainer"
     ref={printableContentRef}
     >
@@ -735,7 +733,7 @@ const ReportDetailView = ({
     <NavigationPromptModal onContinue={onNavigationContinue} when={shouldShowNavigationPrompt} />
 
     <Header
-      isReadOnly={isReadOnly}
+      isReadOnly={eventSchema?.schema?.readonly}
       onChangeTitle={onChangeTitle}
       onSaveReport={onSaveReport}
       printableContentRef={printableContentRef}

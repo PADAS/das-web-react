@@ -123,8 +123,8 @@
     width: 0;
   }
 
-  [class*=locationSelectionLabel] {
-    width: 100%;
+  .readOnly {
+    background-color: $disabled-field-gray;
   }
 
   @media (min-width: $md-layout-width-min) {

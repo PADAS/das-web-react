@@ -96,6 +96,7 @@
     "inputLabel": "Ubicación",
     "jumpToLocationButtonLabel": "Ir a la ubicación",
     "menuPopover": {
+      "dialogLabel": "Ubicación",
       "getUserLocationButton": "Usar mi ubicación",
       "pickMapLocationButton": "Establecer en el mapa"
     },
