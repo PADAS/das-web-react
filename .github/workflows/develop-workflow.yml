@@ -47,9 +47,12 @@ jobs:
       
       - name: "Make version"
         run: ci-helpers/makeversion.py
+      
+      - name: "Install yarn"
+        run: npm install --global yarn
 
       - name: Install dependencies
-        run: yarn --ignore-scripts
+        run: yarn
 
       - name: Run tests
         run: yarn test-ci
