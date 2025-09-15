@@ -208,7 +208,6 @@ export const setMapFeatureHighlightIDs = (featureIDs) => ({
 export const mapFeatureHighlightIdReducer = (state = [], action) => {
   const { type, payload } = action;
   if (type === SET_MAP_FEATURE_HIGHTLIGHT_IDS) {
-    console.log('oh yeah yo', payload);
     return payload;
   };
   return state;
