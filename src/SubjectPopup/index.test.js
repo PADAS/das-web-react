@@ -43,7 +43,6 @@ describe('SubjectPopup', () => {
           selectedCoordinateRepresentations: Object.values(GPS_FORMATS),
           storedSystems: [],
         },
-        featureFlagOverrides: {},
         heatmapSubjectIDs: [],
         timeSliderState: {
           active: false,

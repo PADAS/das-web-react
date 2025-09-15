@@ -1,4 +1,4 @@
-import { GPS_FORMATS } from '../utils/location';
+import { GPS_FORMATS } from '../../utils/location';
 
 // Actions
 export const SET_PLAY_SOUND_FOR_NEW_EVENTS = 'USER_PREFERENCES.SET_PLAY_SOUND_FOR_NEW_EVENTS';

@@ -47,6 +47,7 @@ const SettingsPane = () => {
     </Tab>
 
     {alertsEnabled && <Tab
+      as="section"
       className={`${styles.tab} ${styles.alertsTab}`}
       data-testid="settings-alertsTab"
       eventKey={TAB_KEYS.ALERTS}

@@ -11,12 +11,14 @@ import * as styles from '../../styles.module.scss';
 
 const settingsTracker = trackEventFactory(SETTINGS_CATEGORY);
 
+export const EXPERIMENTA_FEATURES_QUERY_PARAMETER = 'ef';
+
 const ExperimentalFeaturesFieldSet = () => {
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
   const { t } = useTranslation('components', { keyPrefix: 'sideBar.settingsPane.generalTab.experimentalFeaturesFieldSet' });
 
-  const experimentalFeatures = useSelector((state) => state.view.experimentalFeatures);
+  const experimentalFeatures = useSelector((state) => state.view.experimentalFeatures) || {};
 
   // If an experimental feature was already set in the store or its key comes
   // in the "ef" query parameter, we show their checkboxes as long as they are
@@ -28,7 +30,7 @@ const ExperimentalFeaturesFieldSet = () => {
       }
       return accumulator;
     }, []);
-  const validExperimentalFeaturesFromQueryParameter = (searchParams.get('ef') || '')
+  const validExperimentalFeaturesFromQueryParameter = (searchParams.get(EXPERIMENTA_FEATURES_QUERY_PARAMETER) || '')
     .split(',')
     .filter((featureKey) => featureKey in DEVELOPMENT_FEATURE_FLAGS);
 

@@ -11,7 +11,7 @@ import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 export const useSystemConfigFlag = (flag) => useSelector((state) => !!state?.view?.systemConfig?.[flag]);
 
 export const useFeatureFlag = (flagName) => {
-  const experimentalFeatures = useSelector((state) => state.view.experimentalFeatures);
+  const experimentalFeatures = useSelector((state) => state.view.experimentalFeatures) || {};
 
   if (!DEVELOPMENT_FEATURE_FLAGS.hasOwnProperty(flagName)) {
     throw new Error('no feature flag with that name exists');

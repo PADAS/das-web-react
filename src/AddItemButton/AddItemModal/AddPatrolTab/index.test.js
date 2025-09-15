@@ -20,7 +20,7 @@ describe('AddItemButton - AddItemModal - AddPatrolTab', () => {
     useNavigateMock = jest.fn(() => navigate);
     useNavigate.mockImplementation(useNavigateMock);
 
-    store = { data: { patrolTypes }, view: { featureFlagOverrides: {} } };
+    store = { data: { patrolTypes } };
 
     renderAddPatrolTab = (props, addItemContext, overrideStore) => {
       render(
