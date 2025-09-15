@@ -1,4 +1,4 @@
-import React, { Fragment, useRef } from 'react';
+import React, { Fragment, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
@@ -18,56 +18,49 @@ const ExperimentalFeaturesFieldSet = () => {
   const [searchParams] = useSearchParams();
   const { t } = useTranslation('components', { keyPrefix: 'sideBar.settingsPane.generalTab.experimentalFeaturesFieldSet' });
 
-  const experimentalFeatures = useSelector((state) => state.view.experimentalFeatures) || {};
+  const experimentalFeatures = useSelector((state) => state.view.experimentalFeatures);
 
-  // If an experimental feature was already set in the store or its key comes
-  // in the "ef" query parameter, we show their checkboxes as long as they are
-  // valid development feature flags.
-  const validExperimentalFeaturesFromStore = Object.entries(experimentalFeatures)
-    .reduce((accumulator, [featureKey]) => {
-      if (featureKey in DEVELOPMENT_FEATURE_FLAGS) {
-        accumulator.push(featureKey);
-      }
-      return accumulator;
-    }, []);
-  const validExperimentalFeaturesFromQueryParameter = (searchParams.get(EXPERIMENTA_FEATURES_QUERY_PARAMETER) || '')
-    .split(',')
-    .filter((featureKey) => featureKey in DEVELOPMENT_FEATURE_FLAGS);
+  // Calculate the experimental feature checkboxes to show from the store and
+  // from "ef" query parameter.
+  const experimentalFeatureCheckboxesToShow = useMemo(() => {
+    // Experimental features that are already enabled from the store that still
+    // are valid development feature flags.
+    const validExperimentalFeaturesFromStore = Object.entries(experimentalFeatures)
+      .reduce((accumulator, [featureKey]) => {
+        if (featureKey in DEVELOPMENT_FEATURE_FLAGS) {
+          accumulator.push(featureKey);
+        }
+        return accumulator;
+      }, []);
+    // Experimental features that come in the "ef" query parameter that are
+    // valid development feature flags.
+    const validExperimentalFeaturesFromQueryParameter = (searchParams.get(EXPERIMENTA_FEATURES_QUERY_PARAMETER) || '')
+      .split(',')
+      .filter((featureKey) => featureKey in DEVELOPMENT_FEATURE_FLAGS);
 
-  // Store the experimental features to show in a ref so the value stays
-  // constant over re-renders. Otherwise, when a user unchecks a feature
-  // enabled in the store, its checkbox would dissapear. Make sure items are
-  // unique by transforming the array into a set and then back.
-  const experimentalFeaturesToShowRef = useRef([
-    ...new Set([
-      ...validExperimentalFeaturesFromStore,
-      ...validExperimentalFeaturesFromQueryParameter,
-    ]),
-  ]);
+    // Make sure each feature keys are unique by parsing into a set.
+    return [
+      ...new Set([
+        ...validExperimentalFeaturesFromStore,
+        ...validExperimentalFeaturesFromQueryParameter,
+      ]),
+    ];
+  }, [experimentalFeatures, searchParams]);
 
   const onExperimentalFeatureCheckboxChange = (featureKey) => (event) => {
-    const newExperimentalFeatures = { ...experimentalFeatures, [featureKey]: event.target.checked };
-    // Clean old entries in the experimental features store that are no longer
-    // valid development feature flags.
-    dispatch(
-      setExperimentalFeatures(
-        Object.fromEntries(
-          Object.entries(newExperimentalFeatures).filter(([key]) => key in DEVELOPMENT_FEATURE_FLAGS)
-        )
-      )
-    );
+    dispatch(setExperimentalFeatures({ ...experimentalFeatures, [featureKey]: event.target.checked }));
 
     settingsTracker.track(`${event.target.checked ? 'Check' : 'Uncheck'} 'Experimental features: ${featureKey}' checkbox`);
   };
 
-  if (experimentalFeaturesToShowRef.current.length === 0) {
+  if (experimentalFeatureCheckboxesToShow.length === 0) {
     return null;
   }
   return <fieldset className={styles.section}>
     <legend className={styles.title}>{t('legend')}</legend>
 
     <div className={styles.sectionWrapper}>
-      {experimentalFeaturesToShowRef.current.map((featureKey, index) => {
+      {experimentalFeatureCheckboxesToShow.map((featureKey, index) => {
         const isChecked = featureKey in experimentalFeatures
           ? experimentalFeatures[featureKey]
           : DEVELOPMENT_FEATURE_FLAGS[featureKey];
@@ -87,7 +80,7 @@ const ExperimentalFeaturesFieldSet = () => {
             </label>
           </div>
 
-          {index < experimentalFeaturesToShowRef.current.length - 1 && <hr className={styles.separator} />}
+          {index < experimentalFeatureCheckboxesToShow.length - 1 && <hr className={styles.separator} />}
         </Fragment>;
       })}
     </div>

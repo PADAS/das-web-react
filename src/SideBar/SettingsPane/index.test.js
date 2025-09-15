@@ -1,6 +1,5 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import userEvent from '@testing-library/user-event';
 import { useSearchParams } from 'react-router';
 
 import { render, screen } from '../../test-utils';
@@ -26,6 +25,7 @@ describe('SideBar - SettingsPane', () => {
         coordinateReferenceSystems: {
           selectedCoordinateRepresentations: Object.values(GPS_FORMATS),
         },
+        experimentalFeatures: {},
         mapClusterConfig: {
           data: {
             events: true,
