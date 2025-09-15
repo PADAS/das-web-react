@@ -50,17 +50,6 @@ export const fitMapBoundsToGeoJson = (map, geojson) => {
   if (type === 'MultiPolygon') return fitMapBoundsToMultiPolygon(map, geojson);
 };
 
-export const setFeatureActiveStateByID = (map, id, state = true) => {
-  const features = map.queryRenderedFeatures({
-    filter: ['in', 'id', id],
-    layers: [POLYGONS_LAYER_ID, LINES_LAYER_ID],
-  });
-  console.log({ features });
-  // features.forEach((feature) => {
-  //   map.setFeatureState(feature, { 'active': state });
-  // });
-};
-
 /**
  * filterFeatures is a recursive function to drill down a featureset 
  * tree to filter for features matching the search filter as given by the 

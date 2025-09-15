@@ -2,6 +2,7 @@ import React, { memo, useContext, useCallback, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { MapContext } from '../App';
 import { API_URL, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
+import { polygon } from '@turf/turf';
 
 const SPATIAL_FEATURES_SOURCE = 'spatial-features-source';
 
@@ -11,9 +12,66 @@ export const SYMBOLS_LAYER_ID = 'spatial-features-symbols';
 export const LINES_LAYER_ID = 'spatial-features-lines';
 export const POLYGONS_LAYER_ID = 'spatial-features-polygons';
 
+const defaultLinePaintColor = [
+  'case',
+  ['has', 'stroke'], ['get', 'stroke'],
+  ['has', 'color'], ['get', 'color'],
+  ['has', 'line_color'], ['get', 'line_color'],
+  ['has', 'stroke_color'], ['get', 'stroke_color'],
+  '#ff6600'
+];
+
+const defaultPolygonFillColor = [
+  'case',
+  ['has', 'fill'], ['get', 'fill'],
+  ['has', 'color'], ['get', 'color'],
+  ['has', 'fill_color'], ['get', 'fill_color'],
+  ['has', 'stroke'], ['get', 'stroke'],
+  '#ff6600'
+];
+
 const SpatialFeaturesLayer = ({ onFeatureClick }) => {
   const map = useContext(MapContext);
   const token = useSelector(state => state.data.token);
+  const mapFeatureHighlightIDs = useSelector(state => state.view.mapFeatureHighlightIDs || []);
+
+
+  useEffect(() => {
+    const lineLayer = map?.getLayer?.(LINES_LAYER_ID);
+    const polyLayer = map?.getLayer?.(POLYGONS_LAYER_ID);
+
+    if (lineLayer) {
+      /* 
+      const originalArray = [1, 2, 6, 7];
+const elementsToInsert = [3, 4, 5];
+const insertionIndex = 2; // Insert at index 2
+
+const newArray = [
+  ...originalArray.slice(0, insertionIndex), // Elements before the insertion point
+  ...elementsToInsert,                     // Elements to insert
+  ...originalArray.slice(insertionIndex)   // Elements after the insertion point
+];
+      */
+      const highlightLinePaintColor = [
+        ...defaultLinePaintColor.slice(0, 1),
+        ['in', ['get', 'id'], ['literal', mapFeatureHighlightIDs]], 'red',
+        ...defaultLinePaintColor.slice(1),
+      ];
+
+      map.setPaintProperty(lineLayer.id, 'line-color', highlightLinePaintColor);
+    }
+
+    if (polyLayer) {
+      const highlightPolygonFillColor = [
+        ...defaultPolygonFillColor.slice(0, 1),
+        ['in', ['get', 'id'], ['literal', mapFeatureHighlightIDs]], 'red',
+        ...defaultPolygonFillColor.slice(1),
+      ];
+
+      map.setPaintProperty(polyLayer.id, 'fill-color', highlightPolygonFillColor);
+    }
+
+  }, [map, mapFeatureHighlightIDs]);
 
   const handleFeatureClick = useCallback((event) => {
     const features = map.queryRenderedFeatures(event.point, {
@@ -91,14 +149,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
         source: SPATIAL_FEATURES_SOURCE,
         'source-layer': 'spatial_features',
         paint: {
-          'line-color': [
-            'case',
-            ['has', 'stroke'], ['get', 'stroke'],
-            ['has', 'color'], ['get', 'color'],
-            ['has', 'line_color'], ['get', 'line_color'],
-            ['has', 'stroke_color'], ['get', 'stroke_color'],
-            '#ff6600'
-          ],
+          'line-color': defaultLinePaintColor,
           'line-width': [
             'case',
             ['has', 'stroke-width'], ['get', 'stroke-width'],
@@ -127,14 +178,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
         source: SPATIAL_FEATURES_SOURCE,
         'source-layer': 'spatial_features',
         paint: {
-          'fill-color': [
-            'case',
-            ['has', 'fill'], ['get', 'fill'],
-            ['has', 'color'], ['get', 'color'],
-            ['has', 'fill_color'], ['get', 'fill_color'],
-            ['has', 'stroke'], ['get', 'stroke'],
-            '#ff6600'
-          ],
+          'fill-color': defaultPolygonFillColor,
           'fill-opacity': [
             'case',
             ['has', 'fill-opacity'], ['get', 'fill-opacity'],

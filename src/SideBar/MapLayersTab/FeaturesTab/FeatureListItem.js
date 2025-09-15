@@ -1,16 +1,17 @@
 import React, { memo, useContext } from 'react';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import { center, bboxPolygon } from '@turf/turf';
 
 
 import { showFeatures } from '../../../ducks/map-layer-filter';
+import { setMapFeatureHighlightIDs } from '../../../ducks/map-ui';
 import { showPopup } from '../../../ducks/popup';
-import { setFeatureActiveStateByID } from '../../../utils/features';
 import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../../../utils/analytics';
 
 import { ReactComponent as GeofenceIcon } from '../../../common/images/icons/geofence-analyzer-icon.svg';
 import { ReactComponent as ProximityIcon } from '../../../common/images/icons/proximity-analyzer-icon.svg';
 import LocationJumpButton from '../../../LocationJumpButton';
+import { POLYGONS_LAYER_ID, LINES_LAYER_ID } from '../../../SpatialFeaturesLayer';
 
 import { MapContext } from '../../../App';
 
@@ -20,8 +21,28 @@ const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 // eslint-disable-next-line react/display-name
 const FeatureListItem = memo((props) => {
-  console.log({ 'FeatureListItem properties': props });
   const map = useContext(MapContext);
+
+  const dispatch = useDispatch();
+
+  const setFeatureActiveStateByID = (map, id, enter = true) => {
+    if (!enter) {
+      return dispatch(
+        setMapFeatureHighlightIDs([])
+      );
+    }
+
+    const features = map.queryRenderedFeatures({
+      filter: ['in', 'id', id],
+      layers: [POLYGONS_LAYER_ID, LINES_LAYER_ID],
+    });
+
+    const featureIds = features.map((feature) => feature?.properties?.id).filter(Boolean);
+
+    return dispatch(
+      setMapFeatureHighlightIDs(featureIds)
+    );
+  };
 
   const iconForCategory = category => {
     if (category === 'geofence') return <GeofenceIcon stroke='black' style={{ height: '2rem', width: '2rem' }} />;

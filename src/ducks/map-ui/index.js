@@ -31,6 +31,8 @@ const SET_BOUNCE_EVENT_ID = 'SET_BOUNCE_EVENT_ID';
 
 const SET_MAP_DATA_ZOOM_SIMPLIFICATION = 'SET_MAP_DATA_ZOOM_SIMPLIFICATION';
 
+export const SET_MAP_FEATURE_HIGHTLIGHT_IDS = 'SET_MAP_FEATURE_HIGHTLIGHT_IDS';
+
 export const SET_MAP_CLUSTER_DATA = 'MAP_UI.SET_MAP_CLUSTER_DATA';
 export const SET_SHOW_MAP_CLUSTER_POLYGONS = 'MAP_UI.SET_SHOW_MAP_CLUSTER_POLYGONS';
 
@@ -195,7 +197,22 @@ export const setShowMapClusterPolygons = (showMapClusterPolygons) => ({
   payload: showMapClusterPolygons,
 });
 
+
+export const setMapFeatureHighlightIDs = (featureIDs) => ({
+  type: SET_MAP_FEATURE_HIGHTLIGHT_IDS,
+  payload: featureIDs,
+});
+
 // Reducers
+
+export const mapFeatureHighlightIdReducer = (state = [], action) => {
+  const { type, payload } = action;
+  if (type === SET_MAP_FEATURE_HIGHTLIGHT_IDS) {
+    console.log('oh yeah yo', payload);
+    return payload;
+  };
+  return state;
+};
 
 const INITIAL_PRINT_TITLE_STATE = '';
 export const printTitleReducer = (state = INITIAL_PRINT_TITLE_STATE, action) => {

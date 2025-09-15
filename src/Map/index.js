@@ -383,7 +383,8 @@ const Map = ({ children, onMapLoad, socket }) => {
     const coordinates = Array.isArray(geometry.coordinates[0]) ? geometry.coordinates[0] : geometry.coordinates;
 
     showPopup('feature-symbol', { geometry, properties, coordinates });
-    mapInteractionTracker.track('Click Map Feature Symbol Icon', `Feature ID :${properties.id}`); */
+     */
+    // mapInteractionTracker.track('Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
   });
 
   const onAnalyzerGroupEnter = useCallback((e, groupIds) => {
