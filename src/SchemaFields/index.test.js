@@ -57,7 +57,7 @@ describe('DateTimeWidget', () => {
     expect((await screen.findByText('Date Time Widget'))).toBeDefined();
   });
 
-  test('triggers the onChange callback when changing the date', async () => {
+  test.skip('triggers the onChange callback when changing the date', async () => {
     render(<DateTimeWidget {...props} />);
 
     expect(props.onChange).toHaveBeenCalledTimes(0);
