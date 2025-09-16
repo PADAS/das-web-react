@@ -2,15 +2,15 @@ import React, { memo, useEffect, useId, useImperativeHandle, useRef } from 'reac
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { FEATURE_FLAG_LABELS } from '../constants';
+import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon.svg';
+
 import { GPS_FORMAT_CATEGORY, trackEventFactory } from '../utils/analytics';
-import { GPS_FORMATS, OUTSIDE_BBOX, stringifyCoordinates } from '../utils/location';
+import { OUTSIDE_BBOX, stringifyCoordinates } from '../utils/location';
 import {
   selectCoordinatesRepresentation,
   selectStoredCoordinateReferenceSystemsMappedByCode,
 } from '../selectors/location';
 import { updateUserPreferences } from '../ducks/user-preferences';
-import { useFeatureFlag } from '../hooks';
 import useStringifyCoordinates from '../hooks/useStringifyCoordinates';
 
 import IconTooltip from '../IconTooltip';
@@ -22,14 +22,15 @@ const gpsFormatTracker = trackEventFactory(GPS_FORMAT_CATEGORY);
 
 const GpsFormatToggle = ({
   className = '',
+  isTextSearchOptionChecked = false,
   lngLat = null,
   name = null,
   ref,
+  setIsTextSearchOptionChecked = null,
   showCoordinates = true,
+  showTextSearchOption = false,
   ...otherProps
 }) => {
-  const customCoordinateSystemsEnabled = useFeatureFlag(FEATURE_FLAG_LABELS.CUSTOM_COORDINATE_SYSTEMS_ENABLED);
-
   const dispatch = useDispatch();
   const { t } = useTranslation('components', { keyPrefix: 'gpsFormatToggle' });
 
@@ -46,32 +47,33 @@ const GpsFormatToggle = ({
   useImperativeHandle(ref, () => innerRef.current);
 
   const coordinatesOutsideBboxTooltipId = useId();
-  // We need to provide a name for the radio group to behave correctly, so we
-  // add a fallback in case the implementator didn't provide one.
-  const nameFallback = useId();
+  // The component may be rendered several times so we need a way to make the
+  // HTML ids unique. This id is also used as a name fallback if the
+  // implementator didn't provide one.
+  const id = useId();
 
   const { coordinatesString, outsideRepresentationBbox } = useStringifyCoordinates(lngLat);
 
-  const gpsFormatOptions = customCoordinateSystemsEnabled
-    ? selectedCoordinateRepresentations.sort((optionA, optionB) => {
-      // Sort coordinate representation options alphabetically. If they are a
-      // CRS, we use the name property, otherwise we simply use the GPS format
-      // string.
-      const optionAName = storedCoordinateReferenceSystemsMappedByCode[optionA]?.name || optionA;
-      const optionBName = storedCoordinateReferenceSystemsMappedByCode[optionB]?.name || optionB;
-      return optionAName > optionBName ? 1 : -1;
-    })
-    : Object.values(GPS_FORMATS);
+  const gpsFormatOptions = selectedCoordinateRepresentations.sort((optionA, optionB) => {
+    // Sort coordinate representation options alphabetically. If they are a
+    // CRS, we use the name property, otherwise we simply use the GPS format
+    // string.
+    const optionAName = storedCoordinateReferenceSystemsMappedByCode[optionA]?.name || optionA;
+    const optionBName = storedCoordinateReferenceSystemsMappedByCode[optionB]?.name || optionB;
+    return optionAName > optionBName ? 1 : -1;
+  });
 
   const onGpsFormatChange = (gpsFormat) => {
+    setIsTextSearchOptionChecked?.(false);
+
     dispatch(updateUserPreferences({ gpsFormat }));
 
     gpsFormatTracker.track('Change GPS Format', `GPS Format:${gpsFormat}`);
   };
 
   useEffect(() => {
-    // Fixes a bug in when mounting map popups where the browser automatically focuses the first input and not the
-    // one that is checked.
+    // Fixes a bug in when mounting map popups where the browser automatically
+    // focuses the first input and not the one that is checked.
     setTimeout(() => {
       if (fieldsetRef.current?.contains(document.activeElement) && document.activeElement !== innerRef.current) {
         innerRef.current.focus();
@@ -83,6 +85,37 @@ const GpsFormatToggle = ({
     <fieldset className={styles.fieldset} ref={fieldsetRef} role="radiogroup">
       <legend className={styles.legend}>{t('fieldsetLegend')}</legend>
 
+      {/* If the flag showTextSearchOption is true, the first option is the
+      text search, which is handled through a controlled prop and not through
+      the gpsFormat store variable. */}
+      {showTextSearchOption && <div className={styles.radio}>
+        <input
+          checked={isTextSearchOptionChecked}
+          className={styles.input}
+          id={`${id}-text-search-radio`}
+          name={name || id}
+          onChange={() => setIsTextSearchOptionChecked?.(true)}
+          ref={(element) => {
+            if (isTextSearchOptionChecked) {
+              innerRef.current = element;
+            }
+          }}
+          type="radio"
+          value={t('textSearchOptionLabel')}
+        />
+
+        <label
+          className={`${styles.label} ${isTextSearchOptionChecked ? styles.active : ''}`}
+          data-testid="gpsFormatToggle-textSearchOptionLabel"
+          htmlFor={`${id}-text-search-radio`}
+          title={t('textSearchOptionLabel')}
+        >
+          <SearchIcon aria-hidden />
+
+          <span className="sr-only">{t('textSearchOptionLabel')}</span>
+        </label>
+      </div>}
+
       {gpsFormatOptions.map((gpsFormatOption) => {
         // If the option is a CRS and there is a lngLat, calculate if the
         // lngLat point is outside the BBOX.
@@ -91,15 +124,19 @@ const GpsFormatToggle = ({
           ? stringifyCoordinates(lngLat, gpsFormatCoordinateReferenceSystem) === OUTSIDE_BBOX
           : false;
 
+        // If this option is the store gpsFormat and the text search is not
+        // checked, this option is checked.
+        const isChecked = !isTextSearchOptionChecked && gpsFormat === gpsFormatOption;
+
         return <div className={styles.radio} key={gpsFormatOption}>
           <input
-            checked={gpsFormat === gpsFormatOption}
+            checked={isChecked}
             className={styles.input}
-            id={`${gpsFormatOption}-radio`}
-            name={name || nameFallback}
+            id={`${id}-${gpsFormatOption}-radio`}
+            name={name || id}
             onChange={() => onGpsFormatChange(gpsFormatOption)}
             ref={(element) => {
-              if (gpsFormat === gpsFormatOption) {
+              if (isChecked) {
                 innerRef.current = element;
               }
             }}
@@ -108,8 +145,8 @@ const GpsFormatToggle = ({
           />
 
           <label
-            className={`${styles.label} ${gpsFormat === gpsFormatOption ? styles.active : ''} ${isLngLatOutsideCrsBbox ? styles.invalid : ''}`}
-            htmlFor={`${gpsFormatOption}-radio`}
+            className={`${styles.label} ${isChecked ? styles.active : ''} ${isLngLatOutsideCrsBbox ? styles.invalid : ''}`}
+            htmlFor={`${id}-${gpsFormatOption}-radio`}
             title={gpsFormatCoordinateReferenceSystem?.name || gpsFormatOption}
           >
             {gpsFormatCoordinateReferenceSystem?.name || gpsFormatOption}

@@ -64,22 +64,28 @@
         "fieldsetLegend": "Formato de GPS",
         "coordinatesOutsideBboxTooltipButtonLabel": "Mais informações sobre o formato da localização",
         "coordinatesOutsideBboxTooltipTitle": "A localização é exibida no formato DEG. EPSG:{{epsgCode}} {{crsName}} não é compatível nesta localização.",
-        "textCopyButtonLabel": "Copiar valor do GPS para a área de transferência"
+        "textCopyButtonLabel": "Copiar valor do GPS para a área de transferência",
+        "textSearchOptionLabel": "Pesquisar por nome"
     },
     "gpsInput": {
-        "defaultPlaceholder": "Localização",
-        "inputDescription": "Exemplo: {{gpsFormat}}",
-        "inputLabel": "Localização GPS",
-        "invalidLocationErrorMessage": "Localização inválida",
-        "outsideBboxErrorMessage": "EPSG:{{epsgCode}} {{crsName}} não é compatível nesta localização.",
-        "outsideBboxInputValue": "N/D",
-        "placeholders": {
+        "coordinatesRepresentationDescription": "Exemplo: {{example}}",
+        "coordinatesRepresentationLabel": "Pesquisar localização no formato {{representation}}",
+        "coordinatesRepresentationPlaceholder": {
             "DDM": "Graus, decimais, minutos (DDM)",
             "DEG": "Latitude, longitude",
             "DMS": "Graus, minutos e segundos (DMS)",
             "UTM": "Universal Transverso de Mercator (UTM)",
             "MGRS": "Sistema de referência de Grade Militar (MGRS)"
-        }
+        },
+        "defaultLabel": "Pesquisar localização",
+        "defaultPlaceholder": "Localização",
+        "invalidLocationErrorMessage": "Localização inválida",
+        "outsideBboxErrorMessage": "EPSG:{{epsgCode}} {{crsName}} não é compatível nesta localização.",
+        "outsideBboxInputValue": "N/D",
+        "placesFromSearchTextListLabel": "Resultados da pesquisa de localização",
+        "textSearchDescription": "Pesquise uma localização no mapa pelo nome",
+        "textSearchLabel": "Pesquisar localização por nome",
+        "textSearchPlaceholder": "Pesquisar localização"
     },
     "locationJumpButton": {
         "title": "Ir para esta localização"
@@ -90,6 +96,7 @@
         "inputLabel": "Localização",
         "jumpToLocationButtonLabel": "Ir para localização",
         "menuPopover": {
+            "dialogLabel": "Localização",
             "getUserLocationButton": "Usar minha localização",
             "pickMapLocationButton": "Definir no mapa"
         },
@@ -241,6 +248,7 @@
                         "showingMaximumFilteredResultsMessage": "Exibindo os 10 principais resultados. Tente refinar sua busca para reduzir a lista."
                     },
                     "coordinateRepresentationsSelector": {
+                        "addedMaximumSystemsMessage": "Você adicionou 6 sistemas de referência de coordenadas. Exclua pelo menos 1 antes de adicionar outros.",
                         "deleteCrsOptionButtonLabel": "Remover {{coordinateReferenceSystemName}} das opções",
                         "gpsFormatOptionExample": "Exemplo: {{example}}",
                         "gpsFormatOptionLabel": {

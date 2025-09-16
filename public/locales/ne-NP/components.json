@@ -65,22 +65,28 @@
         "fieldsetLegend": "GPS ढाँचा",
         "coordinatesOutsideBboxTooltipButtonLabel": "स्थान ढाँचाबारे थप जानकारी",
         "coordinatesOutsideBboxTooltipTitle": "स्थान DEG ढाँचामा देखाइएको छ। EPSG:{{epsgCode}} {{crsName}} यो स्थानमा समर्थित छैन।",
-        "textCopyButtonLabel": "GPS मान क्लिपबोर्डमा प्रतिलिपि गर्नुहोस्"
+        "textCopyButtonLabel": "GPS मान क्लिपबोर्डमा प्रतिलिपि गर्नुहोस्",
+        "textSearchOptionLabel": "नामद्वारा खोज्नुहोस्"
     },
     "gpsInput": {
-        "defaultPlaceholder": "लोकेसन",
-        "inputDescription": "उदाहरण: {{gpsFormat}}",
-        "inputLabel": "GPS स्थान",
-        "invalidLocationErrorMessage": "अमान्य लोकेसन",
-        "outsideBboxErrorMessage": "EPSG:{{epsgCode}} {{crsName}} यो स्थानमा समर्थित छैन।",
-        "outsideBboxInputValue": "उ/ल",
-        "placeholders": {
+        "coordinatesRepresentationDescription": "उदाहरण: {{example}}",
+        "coordinatesRepresentationLabel": "{{representation}} ढाँचामा स्थान खोज्नुहोस्",
+        "coordinatesRepresentationPlaceholder": {
             "DDM": "डिग्री, दशमलव, मिनेट",
             "DEG": "आक्षांश, देशान्तर",
             "DMS": "डिग्री, मिनेट, सेकेन्ड",
             "UTM": "विश्वव्यापी अनुप्रस्थ मर्केटर",
             "MGRS": "सैन्य ग्रिड सन्दर्भ सिस्टम"
-        }
+        },
+        "defaultLabel": "स्थान खोज्नुहोस्",
+        "defaultPlaceholder": "लोकेसन",
+        "invalidLocationErrorMessage": "अमान्य लोकेसन",
+        "outsideBboxErrorMessage": "EPSG:{{epsgCode}} {{crsName}} यो स्थानमा समर्थित छैन।",
+        "outsideBboxInputValue": "उ/ल",
+        "placesFromSearchTextListLabel": "स्थान खोज परिणामहरू",
+        "textSearchDescription": "नाम प्रयोग गरेर नक्सामा स्थान खोज्नुहोस्",
+        "textSearchLabel": "नामद्वारा स्थान खोज्नुहोस्",
+        "textSearchPlaceholder": "स्थान खोज्नुहोस्"
     },
     "locationJumpButton": {
         "title": "यो स्थानमा जानुहोस्"
@@ -91,6 +97,7 @@
         "inputLabel": "स्थान",
         "jumpToLocationButtonLabel": "स्थानमा जानुहोस्",
         "menuPopover": {
+            "dialogLabel": "स्थान",
             "getUserLocationButton": "मेरो स्थान प्रयोग गर्नुहोस्",
             "pickMapLocationButton": "नक्सामा सेट गर्नुहोस्"
         },
@@ -242,6 +249,7 @@
                         "showingMaximumFilteredResultsMessage": "शीर्ष १० परिणामहरू देखाउँदै। सूची संकुचित गर्न आफ्नो खोज परिष्कृत गर्नुहोस्।"
                     },
                     "coordinateRepresentationsSelector": {
+                        "addedMaximumSystemsMessage": "तपाईंले ६ निर्देशांक सन्दर्भ प्रणाली थप्नुभयो। अरू थप्नुअघि कम्तिमा १ मेटाउनुहोस्।",
                         "deleteCrsOptionButtonLabel": "{{coordinateReferenceSystemName}} विकल्पबाट हटाउनुहोस्",
                         "gpsFormatOptionExample": "उदाहरण: {{example}}",
                         "gpsFormatOptionLabel": {

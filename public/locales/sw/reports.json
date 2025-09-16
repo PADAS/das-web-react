@@ -117,17 +117,27 @@
   },
   "reportManager": {
     "detailsSection": {
-      "areaSelectorInput": {
-        "area": "Eneo: ",
-        "deleteAreaButton": "Futa Eneo",
-        "deleteAreaButtonTitle": "Futa Eneo",
+      "areaPicker": {
+        "defaultPlaceholder": "Weka eneo la tukio",
         "displayString": "{{areaDisplayString}} eneo, {{perimeterDisplayString}} mzingo",
-        "editAreaButton": "Hariri Eneo",
-        "editAreaButtonTitle": "Weka jiometri kwenye ramani",
-        "inputPlaceholder": "Weka eneo la tukio",
-        "staticMapImageAlt": "Ramani ya tuli na jiometri",
-        "perimeter": "Mzingo: ",
-        "provenanceLabel": "Imeundwa kwenye EarthRanger {{provenance}}"
+        "inputDescription": "Bofya kitufe ili kuweka thamani kutoka kwenye menyu ya kuchagua eneo.",
+        "inputLabel": "Eneo",
+        "menuPopover": {
+          "area": "Eneo: ",
+          "deleteAreaButton": "Futa Eneo",
+          "dialogLabel": "Eneo",
+          "editAreaButton": "Hariri Eneo",
+          "editAreaButtonLabel": "Hariri eneo kwenye ramani",
+          "perimeter": "Mzingo: ",
+          "provenanceLabel": "Imeundwa kwenye EarthRanger {{provenance}}",
+          "staticMapImageAlt": "Ramani ya tuli na jiometri"
+        },
+        "setAreaButtonLabel": {
+          "closed": "Fungua menyu ya kuchagua eneo",
+          "create": "Unda eneo kwenye ramani",
+          "open": "Funga menyu ya kuchagua eneo"
+        },
+        "textCopyButtonLabel": "Nakili eneo la GeoJSON kwenye ubao wa kunakili"
       },
       "dateLabel": "Tarehe ya Tukio",
       "detailsHeader": "Maelezo",

@@ -3,7 +3,14 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 
 import { render, screen } from '../../../../../test-utils';
-import { epsg5367 } from '../../../../../__test-helpers/fixtures/location';
+import {
+  epsg2154,
+  epsg2946,
+  epsg32633,
+  epsg32719,
+  epsg3857,
+  epsg5367,
+} from '../../../../../__test-helpers/fixtures/location';
 import { GPS_FORMATS } from '../../../../../utils/location';
 import { mockStore } from '../../../../../__test-helpers/MockStore';
 import {
@@ -340,12 +347,38 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - Coord
 
     expect(screen.queryByText('You have 4 of 4 options selected. Deselect at least 1 option before selecting others.'))
       .toBeNull();
+    expect(screen.getByRole('group', { name: 'GPS format selector' }))
+      .toHaveAccessibleDescription('Select up to 4 coordinate systems to display across the site. Options will be displayed alphabetically.');
   });
 
   test('shows a message if the limit of selected systems has been reached', async () => {
     renderCoorinatesRepresentationsSelector();
 
     expect(screen.getByText('You have 4 of 4 options selected. Deselect at least 1 option before selecting others.'))
+      .toBeVisible();
+    expect(screen.getByRole('group', { name: 'GPS format selector' }))
+      .toHaveAccessibleDescription('Select up to 4 coordinate systems to display across the site. Options will be displayed alphabetically. You have 4 of 4 options selected. Deselect at least 1 option before selecting others.');
+  });
+
+  test('does not show a message if the user has not added 6 CRS yet', async () => {
+    renderCoorinatesRepresentationsSelector();
+
+    expect(screen.queryByText('You have added 6 coordinate reference systems. Delete at least 1 of them before adding others.'))
+      .toBeNull();
+  });
+
+  test('shows a message if the limit of selected systems has been reached', async () => {
+    store.view.coordinateReferenceSystems.storedSystems = [
+      epsg2154,
+      epsg2946,
+      epsg3857,
+      epsg5367,
+      epsg32633,
+      epsg32719,
+    ];
+    renderCoorinatesRepresentationsSelector();
+
+    expect(screen.getByText('You have added 6 coordinate reference systems. Delete at least 1 of them before adding others.'))
       .toBeVisible();
   });
 });

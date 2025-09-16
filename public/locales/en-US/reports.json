@@ -117,17 +117,27 @@
   },
   "reportManager": {
     "detailsSection": {
-      "areaSelectorInput": {
-        "area": "Area: ",
-        "deleteAreaButton": "Delete Area",
-        "deleteAreaButtonTitle": "Delete Area",
+      "areaPicker": {
+        "defaultPlaceholder": "Set Event Area",
         "displayString": "{{areaDisplayString}} area, {{perimeterDisplayString}} perimeter",
-        "editAreaButton": "Edit Area",
-        "editAreaButtonTitle": "Place geometry on map",
-        "inputPlaceholder": "Set event area",
-        "staticMapImageAlt": "Static map with geometry",
-        "perimeter": "Perimeter: ",
-        "provenanceLabel": "Created on EarthRanger {{provenance}}"
+        "inputDescription": "Click the button to set a value from the area picker menu.",
+        "inputLabel": "Area",
+        "menuPopover": {
+          "area": "Area: ",
+          "deleteAreaButton": "Delete Area",
+          "dialogLabel": "Area",
+          "editAreaButton": "Edit Area",
+          "editAreaButtonLabel": "Edit area on the map",
+          "perimeter": "Perimeter: ",
+          "provenanceLabel": "Created on EarthRanger {{provenance}}",
+          "staticMapImageAlt": "Static map with geometry"
+        },
+        "setAreaButtonLabel": {
+          "closed": "Open the area picker menu",
+          "create": "Create area on the map",
+          "open": "Close the area picker menu"
+        },
+        "textCopyButtonLabel": "Copy area GeoJSON to clipboard"
       },
       "dateLabel": "Event Date",
       "detailsHeader": "Details",

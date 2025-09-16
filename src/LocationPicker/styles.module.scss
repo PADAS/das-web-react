@@ -4,6 +4,7 @@
 
 .locationPicker {
   align-items: center;
+  background: white;
   border: 1px solid colors.$light-gray-border;
   border-radius: 0.25rem;
   display: flex;
@@ -36,7 +37,7 @@
   }
 
   .setLocationButton {
-    background: white;
+    background: unset;
     border: none;
     border-bottom-left-radius: 0.25rem;
     border-top-left-radius: 0.25rem;
@@ -96,7 +97,6 @@
     margin: 0 1px;
     min-width: 1.5rem;
     width: 1.5rem;
-
   }
 
   .textCopyButton {

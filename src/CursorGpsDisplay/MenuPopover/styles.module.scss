@@ -15,7 +15,7 @@
   }
 
   .gpsInput {
-    input[type=text] {
+    input[type=search] {
       border-bottom-right-radius: 0;
       border-top-right-radius: 0;
     }
@@ -23,9 +23,10 @@
 
   .gpsInputButton {
     background-color: colors.$light-gray-background;
-    border: 1px solid #d8d9d9;
+    border: 1px solid colors.$secondary-light-gray;
     border-left: none;
     border-radius: 0 .2rem .2rem 0;
+    color: colors.$secondary-medium-gray;
     height: 2.5rem;
     min-width: 2.5rem;
     outline: none;
@@ -33,10 +34,15 @@
 
     &:disabled {
       background-color: colors.$disabled-field-gray;
+      cursor: not-allowed;
+      opacity: 0.66;
     }
 
     &:focus-visible:not(:disabled) {
-      border: 2px solid colors.$bright-blue;
+      background-color: white;
+      border: 1px solid colors.$bright-blue;
+      color: colors.$bright-blue;
+      outline: 1px solid colors.$bright-blue;
     }
 
     &:hover:not(:disabled) {
@@ -49,12 +55,7 @@
 
       circle {
         fill: none;
-        stroke: colors.$secondary-medium-gray;
         stroke-width: 1rem;
-      }
-
-      path {
-        fill: colors.$secondary-medium-gray;
       }
     }
   }

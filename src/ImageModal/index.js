@@ -51,9 +51,9 @@ const ImageModal = ({ id, src, title, url, tracker }) => {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('pointerdown', handleClickOutside);
 
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('pointerdown', handleClickOutside);
   }, [dispatch, id, tracker]);
 
   return <>

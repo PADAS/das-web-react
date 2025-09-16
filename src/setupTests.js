@@ -47,5 +47,3 @@ global.BroadcastChannel = require('worker_threads').BroadcastChannel;
 global.structuredClone = (value) => value === undefined ? undefined : JSON.parse(JSON.stringify(value));
 
 window.URL.createObjectURL = jest.fn();
-
-process.env.REACT_APP_CUSTOM_COORDINATE_SYSTEMS_ENABLED = true;

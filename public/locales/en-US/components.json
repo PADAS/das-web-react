@@ -70,22 +70,28 @@
     "fieldsetLegend": "GPS format",
     "coordinatesOutsideBboxTooltipButtonLabel": "More information about location format",
     "coordinatesOutsideBboxTooltipTitle": "Location is displayed in DEG format. EPSG:{{epsgCode}} {{crsName}} is not supported at this location.",
-    "textCopyButtonLabel": "Copy GPS value to clipboard"
+    "textCopyButtonLabel": "Copy GPS value to clipboard",
+    "textSearchOptionLabel": "Search by name"
   },
   "gpsInput": {
-    "defaultPlaceholder": "Location",
-    "inputDescription": "Example: {{gpsFormat}}",
-    "inputLabel": "GPS location",
-    "invalidLocationErrorMessage": "Invalid location",
-    "outsideBboxErrorMessage": "EPSG:{{epsgCode}} {{crsName}} is not supported at this location.",
-    "outsideBboxInputValue": "N/A",
-    "placeholders": {
+    "coordinatesRepresentationDescription": "Example: {{example}}",
+    "coordinatesRepresentationLabel": "Search location in {{representation}} format",
+    "coordinatesRepresentationPlaceholder": {
       "DDM": "Degrees, Decimals, Minutes",
       "DEG": "Latitude, Longitude",
       "DMS": "Degrees, Minutes, Seconds",
       "UTM": "Universal Transverse Mercator",
       "MGRS": "Military Grid Reference System"
-    }
+    },
+    "defaultLabel": "Search location",
+    "defaultPlaceholder": "Location",
+    "invalidLocationErrorMessage": "Invalid location",
+    "outsideBboxErrorMessage": "EPSG:{{epsgCode}} {{crsName}} is not supported at this location.",
+    "outsideBboxInputValue": "N/A",
+    "placesFromSearchTextListLabel": "Location search results",
+    "textSearchDescription": "Search for a location on the map by name",
+    "textSearchLabel": "Search location by name",
+    "textSearchPlaceholder": "Search Location"
   },
   "locationJumpButton": {
     "title": "Jump to this location"
@@ -96,6 +102,7 @@
     "inputLabel": "Location",
     "jumpToLocationButtonLabel": "Jump to location",
     "menuPopover": {
+      "dialogLabel": "Location",
       "getUserLocationButton": "Use my location",
       "pickMapLocationButton": "Set on map"
     },
@@ -258,6 +265,7 @@
             "showingMaximumFilteredResultsMessage": "Showing the top 10 results. Try refining your search to narrow down the list."
           },
           "coordinateRepresentationsSelector": {
+            "addedMaximumSystemsMessage": "You have added 6 coordinate reference systems. Delete at least 1 of them before adding others.",
             "deleteCrsOptionButtonLabel": "Delete {{coordinateReferenceSystemName}} from the options",
             "gpsFormatOptionExample": "Example: {{example}}",
             "gpsFormatOptionLabel": {

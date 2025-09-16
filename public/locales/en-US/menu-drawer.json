@@ -38,7 +38,11 @@
       "content": "Exported events will only include those matching the filter criteria currently set in the Events tab.",
       "title": "Field Events"
     },
-    "ecoscopeDownloaderLink": "Ecoscope Downloader",
+    "ecoscopeAnalysisLinkAriaLabel": "Ecoscope Analysis",
+    "ecoscopeAnalysisLink": "Analysis",
+    "ecoscopeDownloaderLinkAriaLabel": "Ecoscope Downloader",
+    "ecoscopeDownloaderLink": "Downloader",
+    "ecoscopeHeading": "ECOSCOPE",
     "footer": {
       "clientVersion": "Web client version: {{version}}",
       "copyright": "©{{year}} EarthRanger",
@@ -47,6 +51,7 @@
       "serverVersion": "Server version: {{version}}",
       "websitePrivacyPolicyLink": "Website Privacy Policy"
     },
+    "header": "Main Menu",
     "helpCenterButton": "Help Center",
     "masterKMLModal": {
       "title": "Subject KML"

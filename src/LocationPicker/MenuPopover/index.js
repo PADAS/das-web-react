@@ -115,10 +115,10 @@ const MenuPopover = ({
   }, [isPickingLocation]);
 
   useEffect(() => {
-    // Add a mouse down event to close the menu if the user clicks outside only if the user is not picking a location
+    // Add a pointer down event to close the menu if the user clicks outside only if the user is not picking a location
     // from the map.
     if (!isPickingLocation) {
-      const onMouseDown = (event) => {
+      const onPointerDown = (event) => {
         if (!wrapperRef.current.contains(event.target) && !setLocationButtonRef.current.contains(event.target)) {
           onClose(event);
 
@@ -142,16 +142,17 @@ const MenuPopover = ({
         }
       };
 
-      document.addEventListener('mousedown', onMouseDown);
+      document.addEventListener('pointerdown', onPointerDown);
 
-      return () => document.removeEventListener('mousedown', onMouseDown);
+      return () => document.removeEventListener('pointerdown', onPointerDown);
     }
   }, [isPickingLocation, onBlur, onClose, setLocationButtonRef, target]);
 
   return <Popover
+      aria-label={t('dialogLabel')}
       className={`${className} ${styles.menuPopover}`}
       ref={ref}
-      role="presentation"
+      role="dialog"
       style={{ ...style, minWidth: popoverWidthRef.current, width: popoverWidthRef.current }}
       {...otherProps}
     >

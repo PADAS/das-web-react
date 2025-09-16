@@ -36,7 +36,11 @@
       "content": "घटना ट्याबमा हाल सेट गरिएका फिल्टर मापदण्डसँग मेल खाने घटनाहरु मात्रै निर्यात घटनामा समावेश हुनेछन् ।",
       "title": "फिल्ड रिपोर्ट"
     },
-    "ecoscopeDownloaderLink": "इकोस्कोप डाउनलोडर",
+    "ecoscopeAnalysisLinkAriaLabel": "Ecoscope सँग विश्लेषण",
+    "ecoscopeAnalysisLink": "विश्लेषण",
+    "ecoscopeDownloaderLinkAriaLabel": "Ecoscope डाउनलोडर",
+    "ecoscopeDownloaderLink": "डाउनलोड",
+    "ecoscopeHeading": "ECOSCOPE",
     "footer": {
       "clientVersion": "वेब ग्राहक संस्करण: {{version}}",
       "copyright": "©{{year}} अर्थरेन्जर",
@@ -45,6 +49,7 @@
       "serverVersion": "सर्भर संस्करण: {{version}}",
       "websitePrivacyPolicyLink": "वेबसाइट गोपनीयता नीति"
     },
+    "header": "मुख्य मेनू",
     "helpCenterButton": "सहायता केन्द्र",
     "masterKMLModal": {
       "title": "विषय KML"

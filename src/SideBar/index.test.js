@@ -10,9 +10,10 @@ import { events, eventWithPoint } from '../__test-helpers/fixtures/events';
 import { EVENTS_API_URL, EVENT_API_URL } from '../ducks/events';
 import eventCategories from '../__test-helpers/fixtures/event-categories';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
-import { fetchPatrols } from '../ducks/patrols';
+import { fetchPatrols, PATROLS_API_URL } from '../ducks/patrols';
 import { INITIAL_FILTER_STATE } from '../ducks/patrol-filter';
 import { INITIAL_PATROLS_STATE } from '../ducks/patrols';
+import mockPatrolData from '../__test-helpers/fixtures/patrols';
 import MockSocketProvider, { mockedSocket } from '../__test-helpers/MockSocketContext';
 import { mockStore } from '../__test-helpers/MockStore';
 import patrols from '../__test-helpers/fixtures/patrols';
@@ -43,6 +44,9 @@ const server = setupServer(
   }),
   http.get(`${EVENT_API_URL}:id`, () => {
     return HttpResponse.json({ data: eventWithPoint });
+  }),
+  http.get(PATROLS_API_URL, () => {
+    return HttpResponse.json({ data: { results: mockPatrolData } });
   }),
 );
 

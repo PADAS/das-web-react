@@ -242,13 +242,13 @@ describe('ReportManager - DetailsSection', () => {
     expect(screen.queryByText('Event Location')).toBeNull();
   });
 
-  test('shows the location selector if the event is not a collection', async () => {
+  test('shows the location picker if the event is not a collection', async () => {
     renderDetailsSection();
 
-    expect(screen.getByText('Event Location')).toBeVisible();
+    expect(screen.getByRole('textbox', { name: 'Location' })).toBeVisible();
   });
 
-  test('shows the area selector input if the geometry type of the event is polygon', async () => {
+  test('shows the area picker if the geometry type of the event is polygon', async () => {
     store.data.eventTypes = eventTypes.map((eventType) => {
       if (eventType.value === report.event_type) {
         return { ...eventType, geometry_type: VALID_EVENT_GEOMETRY_TYPES.POLYGON };
@@ -257,11 +257,32 @@ describe('ReportManager - DetailsSection', () => {
     });
     renderDetailsSection();
 
-    expect(screen.getByText('Set event area')).toBeVisible();
-    expect(screen.queryByTestId('set-location-button')).toBeNull();
+    expect(screen.getByRole('textbox', { name: 'Area' })).toBeVisible();
+    expect(screen.queryByRole('textbox', { name: 'Location' })).toBeNull();
   });
 
-  test('changes the geometry of the event when selecting an area from the area selector input', async () => {
+  test('shows the area picker as read only if the event type is read only', async () => {
+    store.data.eventTypes = eventTypes.map((eventType) => {
+      if (eventType.value === report.event_type) {
+        return { ...eventType, geometry_type: VALID_EVENT_GEOMETRY_TYPES.POLYGON };
+      }
+      return eventType;
+    });
+    renderDetailsSection({
+      eventSchema: {
+        ...eventSchemas.accident_rep.base,
+        schema: {
+          ...eventSchemas.accident_rep.base.schema,
+          readonly: true,
+        },
+      }
+    });
+
+    expect(screen.getByTestId('reportManager-detailsSection-areaPicker')).toHaveClass('readOnly');
+    expect(screen.getByRole('textbox', { name: 'Area' })).toHaveClass('readOnly');
+  });
+
+  test('changes the geometry of the event when selecting an area from the area picker', async () => {
     store.data.eventTypes = eventTypes.map((eventType) => {
       if (eventType.value === report.event_type) {
         return { ...eventType, geometry_type: VALID_EVENT_GEOMETRY_TYPES.POLYGON };
@@ -273,14 +294,29 @@ describe('ReportManager - DetailsSection', () => {
     expect(onReportGeometryChange).toHaveBeenCalledTimes(1);
   });
 
-  test('shows the location selector input if the geometry type of the event is polygon', async () => {
+  test('shows the location picker if the geometry type of the event is not polygon', async () => {
     renderDetailsSection();
 
-    expect(screen.getByLabelText('Event Location')).toBeVisible();
-    expect(screen.queryByText('Set event area')).toBeNull();
+    expect(screen.getByRole('textbox', { name: 'Location' })).toBeVisible();
+    expect(screen.queryByRole('textbox', { name: 'Area' })).toBeNull();
   });
 
-  test('changes the location of the event when selecting a location from the location selector input', async () => {
+  test('shows the location picker as read only if the event type is read only', async () => {
+    renderDetailsSection({
+      eventSchema: {
+        ...eventSchemas.accident_rep.base,
+        schema: {
+          ...eventSchemas.accident_rep.base.schema,
+          readonly: true,
+        },
+      }
+    });
+
+    expect(screen.getByTestId('reportManager-detailsSection-locationPicker')).toHaveClass('readOnly');
+    expect(screen.getByRole('textbox', { name: 'Location' })).toHaveClass('readOnly');
+  });
+
+  test('changes the location of the event when selecting a location from the location picker', async () => {
     renderDetailsSection();
 
     await userEvent.click(screen.getByLabelText('Event Location'));
@@ -306,6 +342,20 @@ describe('ReportManager - DetailsSection', () => {
     expect(screen.getByText('Event Date')).toBeVisible();
   });
 
+  test('shows the date picker as read only if the event type is read only', async () => {
+    renderDetailsSection({
+      eventSchema: {
+        ...eventSchemas.accident_rep.base,
+        schema: {
+          ...eventSchemas.accident_rep.base.schema,
+          readonly: true,
+        },
+      }
+    });
+
+    expect(screen.getByTestId('reportManager-detailsSection-datePicker')).toHaveClass('readOnly');
+  });
+
   test('changes the date of the event when selecting an option from the date picker', async () => {
     renderDetailsSection();
 
@@ -316,8 +366,7 @@ describe('ReportManager - DetailsSection', () => {
     const datePicker = await screen.findByTestId('reportManager-detailsSection-datePicker');
     const datePickerOpenCalendarButton = await within(datePicker).findByLabelText('Open calendar');
     await userEvent.click(datePickerOpenCalendarButton);
-    const options = await screen.findAllByRole('option');
-    await userEvent.click(options[16]);
+    await userEvent.click(screen.getByRole('gridcell', { name: 'Choose Tuesday, April 12th, 2022' }));
 
     expect(onReportDateChange).toHaveBeenCalledTimes(1);
     expect(onReportDateChange.mock.calls[0][0].toISOString()).toMatch(/^2022-04-12/);
@@ -333,6 +382,20 @@ describe('ReportManager - DetailsSection', () => {
     renderDetailsSection();
 
     expect(screen.getByText('Event Time')).toBeVisible();
+  });
+
+  test('shows the date picker as read only if the event type is read only', async () => {
+    renderDetailsSection({
+      eventSchema: {
+        ...eventSchemas.accident_rep.base,
+        schema: {
+          ...eventSchemas.accident_rep.base.schema,
+          readonly: true,
+        },
+      }
+    });
+
+    expect(screen.getByTestId('reportManager-detailsSection-timePicker')).toHaveClass('readOnly');
   });
 
   test('changes the time of the event when selecting an option from the time picker', async () => {

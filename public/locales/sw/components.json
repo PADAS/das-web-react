@@ -70,22 +70,28 @@
     "fieldsetLegend": "Muundo wa GPS",
     "coordinatesOutsideBboxTooltipButtonLabel": "Maelezo zaidi kuhusu umbizo la eneo",
     "coordinatesOutsideBboxTooltipTitle": "Eneo linaonyeshwa kwa umbizo la DEG. EPSG:{{epsgCode}} {{crsName}} haipatikani katika eneo hili.",
-    "textCopyButtonLabel": "Nakili thamani ya GPS kwenye ubao wa kunakili"
+    "textCopyButtonLabel": "Nakili thamani ya GPS kwenye ubao wa kunakili",
+    "textSearchOptionLabel": "Tafuta kwa jina"
   },
   "gpsInput": {
-    "defaultPlaceholder": "Eneo",
-    "inputDescription": "Mfano: {{gpsFormat}}",
-    "inputLabel": "Mahali pa GPS",
-    "invalidLocationErrorMessage": "Eneo halali",
-    "outsideBboxErrorMessage": "EPSG:{{epsgCode}} {{crsName}} haipatikani katika eneo hili.",
-    "outsideBboxInputValue": "H/P",
-    "placeholders": {
+    "coordinatesRepresentationDescription": "Mfano: {{example}}",
+    "coordinatesRepresentationLabel": "Tafuta eneo kwa umbizo la {{representation}}",
+    "coordinatesRepresentationPlaceholder": {
       "DDM": "Digrii, Desimali, Dakika",
       "DEG": "Latitudo, Longitudo",
       "DMS": "Digrii, Dakika, Sekunde",
       "UTM": "Ukurasa wa Jumla wa Transverse",
       "MGRS": "Mfumo wa Kijeshi wa Kumbukumbu ya Gridi"
-    }
+    },
+    "defaultLabel": "Tafuta eneo",
+    "defaultPlaceholder": "Eneo",
+    "invalidLocationErrorMessage": "Eneo halali",
+    "outsideBboxErrorMessage": "EPSG:{{epsgCode}} {{crsName}} haipatikani katika eneo hili.",
+    "outsideBboxInputValue": "H/P",
+    "placesFromSearchTextListLabel": "Matokeo ya utafutaji wa eneo",
+    "textSearchDescription": "Tafuta eneo kwenye ramani kwa jina",
+    "textSearchLabel": "Tafuta eneo kwa jina",
+    "textSearchPlaceholder": "Tafuta eneo"
   },
   "locationJumpButton": {
     "title": "Ruka hadi eneo hili"
@@ -96,6 +102,7 @@
     "inputLabel": "Mahali",
     "jumpToLocationButtonLabel": "Ruka kwa mahali",
     "menuPopover": {
+      "dialogLabel": "Eneo",
       "getUserLocationButton": "Tumia eneo langu",
       "pickMapLocationButton": "Weka kwenye ramani"
     },
@@ -258,6 +265,7 @@
             "showingMaximumFilteredResultsMessage": "Inaonyesha matokeo 10 ya juu. Jaribu kuboresha utafutaji wako ili kupunguza orodha."
           },
           "coordinateRepresentationsSelector": {
+            "addedMaximumSystemsMessage": "Umeongeza mifumo 6 ya marejeleo ya kuratibu. Futa angalau 1 kabla ya kuongeza mingine.",
             "deleteCrsOptionButtonLabel": "Futa {{coordinateReferenceSystemName}} kutoka kwenye chaguzi",
             "gpsFormatOptionExample": "Mfano: {{example}}",
             "gpsFormatOptionLabel": {
