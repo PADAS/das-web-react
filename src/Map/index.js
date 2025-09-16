@@ -380,7 +380,9 @@ const Map = ({ children, onMapLoad, socket }) => {
   const onFeatureSymbolClick = useCallback((feature, event) => {
     const { geometry, properties } = feature;
 
-    showPopup('feature-symbol', { geometry, properties, coordinates: event.lngLat });
+    if (geometry.type === 'Point') {
+      showPopup('feature-symbol', { geometry, properties, coordinates: event.lngLat });
+    }
     // mapInteractionTracker.track('Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
   }, [showPopup]);
 

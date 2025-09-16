@@ -169,19 +169,21 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
 
     layerIds.forEach(layerId => {
       map.on('click', layerId, handleFeatureClick);
-      map.on('mouseenter', layerId, onMouseEnter);
-      map.on('mouseleave', layerId, onMouseLeave);
     });
+
+    map.on('mouseenter', SYMBOLS_LAYER_ID, onMouseEnter);
+    map.on('mouseleave', SYMBOLS_LAYER_ID, onMouseLeave);
 
     return () => {
       layerIds.forEach(layerId => {
         if (map.getLayer(layerId)) {
           map.off('click', layerId, handleFeatureClick);
-          map.off('mouseenter', layerId, onMouseEnter);
-          map.off('mouseleave', layerId, onMouseLeave);
           map.removeLayer(layerId);
         }
       });
+
+      map.off('mouseenter', SYMBOLS_LAYER_ID, onMouseEnter);
+      map.off('mouseleave', SYMBOLS_LAYER_ID, onMouseLeave);
     };
     /*
       # the filters are just used as an initializing state, not as a lifecycle dependency. 
