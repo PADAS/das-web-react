@@ -54,11 +54,11 @@ const FeatureListItem = memo((props) => {
     dispatch(
       showFeatures(props.id)
     );
-    map.fitBounds(props.bounds, { duration: 0, minZoom: 4, maxZoom: 16, padding: 80 });
+    map.fitBounds(props.bounds, { duration: 0, minZoom: 5, maxZoom: 16, padding: 20 });
     setTimeout(() => {
       setFeatureActiveStateByID(map, props.id, true);
 
-      const centerPoint = center(bboxPolygon(props.bounds));
+      const centerPoint = center(bboxPolygon(props.bounds), { properties: { id: props.id, name: props.name } });
       dispatch(
         showPopup('feature-symbol', { ...centerPoint, coordinates: centerPoint.geometry.coordinates })
       );

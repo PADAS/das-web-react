@@ -257,9 +257,9 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
       SYMBOLS_LAYER_ID,
       LINES_LAYER_ID,
       POLYGONS_LAYER_ID,
-    /* LINES_LABELS_LAYER_ID,
-      SYMBOLS_LABELS_LAYER_ID,
-      POLYGONS_LABELS_LAYER_ID */
+      /* LINES_LABELS_LAYER_ID,
+        SYMBOLS_LABELS_LAYER_ID,
+        POLYGONS_LABELS_LAYER_ID */
     ];
 
     layerIds.forEach(layerId => {
