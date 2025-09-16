@@ -6,7 +6,6 @@ import { POLYGONS_LAYER_ID, LINES_LAYER_ID, SYMBOLS_LAYER_ID } from '../SpatialF
 const MAX_JUMP_ZOOM = 17;
 
 export const getUniqueIDsFromFeatures = (...features) => {
-  console.log({ features });
   return uniq(features.map(({ id }) => id));
 };
 
@@ -71,12 +70,4 @@ export const filterFeatures = (f, isMatch) => {
     newF = newF.filter(fs => !!fs.featuresByType.length);
   }
   return newF;
-};
-
-export const getFeatureSymbolGeoJsonAtPoint = (geo, map) => {
-  const features = map.queryRenderedFeatures(geo, {
-    layers: [SYMBOLS_LAYER_ID],
-  });
-  // assume fist feature returned is closest
-  return features[0];
 };

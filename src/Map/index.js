@@ -686,13 +686,6 @@ const Map = ({ children, onMapLoad, socket }) => {
 
       {patrolTracksVisible && <PatrolTracks onPointClick={onTimepointClick} />}
 
-      {/* <FeatureLayer
-        symbols={symbolFeatures}
-        lines={lineFeatures}
-        polygons={fillFeatures}
-        onFeatureSymbolClick={onFeatureSymbolClick}
-      /> */}
-
       <SpatialFeaturesLayer
         onFeatureClick={onFeatureSymbolClick}
       />

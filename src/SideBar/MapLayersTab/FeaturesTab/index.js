@@ -41,8 +41,6 @@ const FeaturesTab = () => {
     }, []);
   }, [featureLayerList]);
 
-  console.log({ allFeatureIDs });
-
   const areFeaturesFullyChecked = !mapLayerFilter.hiddenFeatureIDs.length;
   const areFeaturesPartiallyChecked = !areFeaturesFullyChecked && mapLayerFilter.hiddenFeatureIDs.length !== allFeatureIDs.length;
 
