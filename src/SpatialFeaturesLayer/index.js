@@ -34,44 +34,9 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
   const map = useContext(MapContext);
   const token = useSelector(state => state.data.token);
   const mapFeatureHighlightIDs = useSelector(state => state.view.mapFeatureHighlightIDs || []);
+  const hiddenFeatureIDs = useSelector(state => state.data.mapLayerFilter?.hiddenFeatureIDs ?? []);
 
 
-  useEffect(() => {
-    const lineLayer = map?.getLayer?.(LINES_LAYER_ID);
-    const polyLayer = map?.getLayer?.(POLYGONS_LAYER_ID);
-
-    if (lineLayer) {
-      /* 
-      const originalArray = [1, 2, 6, 7];
-const elementsToInsert = [3, 4, 5];
-const insertionIndex = 2; // Insert at index 2
-
-const newArray = [
-  ...originalArray.slice(0, insertionIndex), // Elements before the insertion point
-  ...elementsToInsert,                     // Elements to insert
-  ...originalArray.slice(insertionIndex)   // Elements after the insertion point
-];
-      */
-      const highlightLinePaintColor = [
-        ...defaultLinePaintColor.slice(0, 1),
-        ['in', ['get', 'id'], ['literal', mapFeatureHighlightIDs]], 'red',
-        ...defaultLinePaintColor.slice(1),
-      ];
-
-      map.setPaintProperty(lineLayer.id, 'line-color', highlightLinePaintColor);
-    }
-
-    if (polyLayer) {
-      const highlightPolygonFillColor = [
-        ...defaultPolygonFillColor.slice(0, 1),
-        ['in', ['get', 'id'], ['literal', mapFeatureHighlightIDs]], 'red',
-        ...defaultPolygonFillColor.slice(1),
-      ];
-
-      map.setPaintProperty(polyLayer.id, 'fill-color', highlightPolygonFillColor);
-    }
-
-  }, [map, mapFeatureHighlightIDs]);
 
   const handleFeatureClick = useCallback((event) => {
     const features = map.queryRenderedFeatures(event.point, {
@@ -215,9 +180,55 @@ const newArray = [
           map.removeLayer(layerId);
         }
       });
-
     };
   }, [map, handleFeatureClick, onMouseEnter, onMouseLeave, token?.access_token]);
+
+  useEffect(() => {
+    const lineLayer = map?.getLayer?.(LINES_LAYER_ID);
+    const polyLayer = map?.getLayer?.(POLYGONS_LAYER_ID);
+
+    if (lineLayer) {
+      const highlightLinePaintColor = [
+        ...defaultLinePaintColor.slice(0, 1),
+        ['in', ['get', 'id'], ['literal', mapFeatureHighlightIDs]], 'red',
+        ...defaultLinePaintColor.slice(1),
+      ];
+
+      map.setPaintProperty(lineLayer.id, 'line-color', highlightLinePaintColor);
+    }
+
+    if (polyLayer) {
+      const highlightPolygonFillColor = [
+        ...defaultPolygonFillColor.slice(0, 1),
+        ['in', ['get', 'id'], ['literal', mapFeatureHighlightIDs]], 'red',
+        ...defaultPolygonFillColor.slice(1),
+      ];
+
+      map.setPaintProperty(polyLayer.id, 'fill-color', highlightPolygonFillColor);
+    }
+
+  }, [map, mapFeatureHighlightIDs]);
+
+  useEffect(() => {
+    const lineLayer = map?.getLayer?.(LINES_LAYER_ID);
+    const polyLayer = map?.getLayer?.(POLYGONS_LAYER_ID);
+    const symbolLayer = map?.getLayer?.(SYMBOLS_LAYER_ID);
+
+    const layers = [lineLayer, polyLayer, symbolLayer].filter(Boolean);
+
+    layers.forEach(layer => {
+      try {
+        if (!hiddenFeatureIDs.length) {
+          map.setFilter(layer.id, true);
+        } else {
+          map.setFilter(layer.id, ['!', ['in', ['get', 'id'], ['literal', hiddenFeatureIDs]]]);
+        }
+      }
+      catch (error) {
+        console.error('Error setting filter:', { error, hiddenFeatureIDs, layerId: layer.id });
+      }
+    });
+  }, [map, hiddenFeatureIDs]);
 
   return null;
 };

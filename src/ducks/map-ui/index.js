@@ -205,7 +205,8 @@ export const setMapFeatureHighlightIDs = (featureIDs) => ({
 
 // Reducers
 
-export const mapFeatureHighlightIdReducer = (state = [], action) => {
+const INITAL_FEATURE_HIGHLIGHT_STATE = [];
+export const mapFeatureHighlightIdReducer = (state = INITAL_FEATURE_HIGHLIGHT_STATE, action) => {
   const { type, payload } = action;
   if (type === SET_MAP_FEATURE_HIGHTLIGHT_IDS) {
     return payload;

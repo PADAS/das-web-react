@@ -55,16 +55,11 @@ const FeatureListItem = memo((props) => {
     map.fitBounds(props.bounds, { duration: 0, minZoom: 4, maxZoom: 16, padding: 80 });
     setTimeout(() => {
       setFeatureActiveStateByID(map, props.id, true);
+
+      const centerPoint = center(bboxPolygon(props.bounds));
+      showPopup('feature-symbol', { ...centerPoint, coordinates: centerPoint.geometry.coordinates });
     }, 200);
 
-    // const popupFeature = feature(geometry);
-    // const centerPoint = center(popupFeature);
-
-    const centerPoint = center(bboxPolygon(props.bounds));
-
-    const coordinates = Array.isArray(centerPoint.geometry.coordinates[0]) ? centerPoint.geometry.coordinates[0] : centerPoint.geometry.coordinates;
-
-    showPopup('feature-symbol', { ...centerPoint, coordinates });
 
     mapLayerTracker.track('Click Jump To Feature Location button',
       `Feature Type:${props.type_name}`);

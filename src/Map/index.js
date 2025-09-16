@@ -377,12 +377,12 @@ const Map = ({ children, onMapLoad, socket }) => {
     showPopup('timepoint', { geometry, properties, coordinates: geometry.coordinates });
   });
 
-  const onFeatureSymbolClick = withLocationPickerState((feature, event) => {
+  const onFeatureSymbolClick = useCallback((feature, event) => {
     const { geometry, properties } = feature;
 
     showPopup('feature-symbol', { geometry, properties, coordinates: event.lngLat });
     // mapInteractionTracker.track('Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
-  });
+  }, [showPopup]);
 
   const onAnalyzerGroupEnter = useCallback((e, groupIds) => {
     // if an analyzer popup is open, and the user selects a new analyzer, dismiss the current pop.
