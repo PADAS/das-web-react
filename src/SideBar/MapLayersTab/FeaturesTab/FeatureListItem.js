@@ -1,5 +1,5 @@
 import React, { memo, useContext } from 'react';
-import { connect, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { center, bboxPolygon } from '@turf/turf';
 
 
@@ -51,13 +51,17 @@ const FeatureListItem = memo((props) => {
   };
 
   const onJumpButtonClick = () => {
-    showFeatures(props.id);
+    dispatch(
+      showFeatures(props.id)
+    );
     map.fitBounds(props.bounds, { duration: 0, minZoom: 4, maxZoom: 16, padding: 80 });
     setTimeout(() => {
       setFeatureActiveStateByID(map, props.id, true);
 
       const centerPoint = center(bboxPolygon(props.bounds));
-      showPopup('feature-symbol', { ...centerPoint, coordinates: centerPoint.geometry.coordinates });
+      dispatch(
+        showPopup('feature-symbol', { ...centerPoint, coordinates: centerPoint.geometry.coordinates })
+      );
     }, 200);
 
 
@@ -75,4 +79,4 @@ const FeatureListItem = memo((props) => {
 
 });
 
-export default connect(null, { showFeatures, showPopup })(FeatureListItem);
+export default FeatureListItem;

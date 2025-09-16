@@ -1,8 +1,7 @@
-import React, { memo, useContext, useCallback, useEffect } from 'react';
+import React, { memo, useContext, useMemo, useCallback, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { MapContext } from '../App';
 import { API_URL, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
-import { polygon } from '@turf/turf';
 
 const SPATIAL_FEATURES_SOURCE = 'spatial-features-source';
 
@@ -30,13 +29,17 @@ const defaultPolygonFillColor = [
   '#ff6600'
 ];
 
+
+
 const SpatialFeaturesLayer = ({ onFeatureClick }) => {
   const map = useContext(MapContext);
   const token = useSelector(state => state.data.token);
   const mapFeatureHighlightIDs = useSelector(state => state.view.mapFeatureHighlightIDs || []);
   const hiddenFeatureIDs = useSelector(state => state.data.mapLayerFilter?.hiddenFeatureIDs ?? []);
 
-
+  const symbolLayerFilter = useMemo(() => ['all', ['==', ['geometry-type'], 'Point'], ['!', ['in', ['get', 'id'], ['literal', hiddenFeatureIDs]]]], [hiddenFeatureIDs]);
+  const lineLayerFilter = useMemo(() => ['all', ['==', ['geometry-type'], 'LineString'], ['!', ['in', ['get', 'id'], ['literal', hiddenFeatureIDs]]]], [hiddenFeatureIDs]);
+  const polygonLayerFilter = useMemo(() => ['all', ['==', ['geometry-type'], 'Polygon'], ['!', ['in', ['get', 'id'], ['literal', hiddenFeatureIDs]]]], [hiddenFeatureIDs]);
 
   const handleFeatureClick = useCallback((event) => {
     const features = map.queryRenderedFeatures(event.point, {
@@ -66,7 +69,6 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
         minzoom: 0,
         maxzoom: 22,
         transformRequest: (url, resourceType) => {
-          // Add authorization header for vector tile requests
           if (resourceType === 'Tile' && token?.access_token) {
             return {
               url,
@@ -103,7 +105,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
         paint: {
           ...DEFAULT_SYMBOL_PAINT
         },
-        filter: ['==', ['geometry-type'], 'Point']
+        filter: symbolLayerFilter
       });
     }
 
@@ -132,7 +134,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
             1
           ]
         },
-        filter: ['==', ['geometry-type'], 'LineString']
+        filter: lineLayerFilter
       });
     }
 
@@ -159,7 +161,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
             '#ff6600'
           ]
         },
-        filter: ['==', ['geometry-type'], 'Polygon']
+        filter: polygonLayerFilter
       });
     }
 
@@ -181,6 +183,11 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
         }
       });
     };
+    /*
+      # the filters are just used as an initializing state, not as a lifecycle dependency. 
+      # this will help us support possible in-memory retention/rehydration in the future (saved app state).
+    */
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, handleFeatureClick, onMouseEnter, onMouseLeave, token?.access_token]);
 
   useEffect(() => {
@@ -210,25 +217,25 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
   }, [map, mapFeatureHighlightIDs]);
 
   useEffect(() => {
-    const lineLayer = map?.getLayer?.(LINES_LAYER_ID);
-    const polyLayer = map?.getLayer?.(POLYGONS_LAYER_ID);
     const symbolLayer = map?.getLayer?.(SYMBOLS_LAYER_ID);
+    if (symbolLayer) {
+      map.setFilter(symbolLayer.id, symbolLayerFilter);
+    }
+  }, [map, symbolLayerFilter]);
 
-    const layers = [lineLayer, polyLayer, symbolLayer].filter(Boolean);
+  useEffect(() => {
+    const lineLayer = map?.getLayer?.(LINES_LAYER_ID);
+    if (lineLayer) {
+      map.setFilter(lineLayer.id, lineLayerFilter);
+    }
+  }, [map, lineLayerFilter]);
 
-    layers.forEach(layer => {
-      try {
-        if (!hiddenFeatureIDs.length) {
-          map.setFilter(layer.id, true);
-        } else {
-          map.setFilter(layer.id, ['!', ['in', ['get', 'id'], ['literal', hiddenFeatureIDs]]]);
-        }
-      }
-      catch (error) {
-        console.error('Error setting filter:', { error, hiddenFeatureIDs, layerId: layer.id });
-      }
-    });
-  }, [map, hiddenFeatureIDs]);
+  useEffect(() => {
+    const polygonLayer = map?.getLayer?.(POLYGONS_LAYER_ID);
+    if (polygonLayer) {
+      map.setFilter(polygonLayer.id, polygonLayerFilter);
+    }
+  }, [map, polygonLayerFilter]);
 
   return null;
 };
