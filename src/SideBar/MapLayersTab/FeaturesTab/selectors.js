@@ -21,6 +21,8 @@ export const getFeatureLayerListState = createSelector(
 
         }, []);
 
+      if (!featuresByType.length) return result;
+
       result.push({
         name: set.name,
         id: set.id,
