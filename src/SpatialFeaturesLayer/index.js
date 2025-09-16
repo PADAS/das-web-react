@@ -8,8 +8,11 @@ const SPATIAL_FEATURES_SOURCE = 'spatial-features-source';
 const VECTOR_TILE_URL = `${API_URL}spatialfeatures/tiles/{z}/{x}/{y}.pbf`;
 
 export const SYMBOLS_LAYER_ID = 'spatial-features-symbols';
+// const SYMBOLS_LABELS_LAYER_ID = 'spatial-features-point-labels';
 export const LINES_LAYER_ID = 'spatial-features-lines';
+// const LINES_LABELS_LAYER_ID = 'spatial-features-line-labels';
 export const POLYGONS_LAYER_ID = 'spatial-features-polygons';
+// const POLYGONS_LABELS_LAYER_ID = 'spatial-features-polygon-labels';
 
 const defaultLinePaintColor = [
   'case',
@@ -165,7 +168,97 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
       });
     }
 
-    const layerIds = [SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID];
+    /* // Add separate label layers for each geometry type
+    if (!map.getLayer(LINES_LABELS_LAYER_ID)) {
+      map.addLayer({
+        id: LINES_LABELS_LAYER_ID,
+        type: 'symbol',
+        source: SPATIAL_FEATURES_SOURCE,
+        'source-layer': 'spatial_features',
+        layout: {
+          'text-field': ['coalesce', ['get', 'title'], ['get', 'name'], ''],
+          'text-size': 14,
+          'symbol-placement': 'line', // Along the line
+          'text-anchor': 'center',
+          'text-max-angle': 45,
+          'text-letter-spacing': 0.05,
+          'text-allow-overlap': true,
+          'text-ignore-placement': true,
+        },
+        paint: {
+          ...DEFAULT_SYMBOL_PAINT,
+          'text-halo-color': '#ffffff',
+          'text-halo-width': 1,
+          'text-halo-blur': 1,
+        },
+        filter: lineLayerFilter
+      });
+    }
+
+    if (!map.getLayer(SYMBOLS_LABELS_LAYER_ID)) {
+      map.addLayer({
+        id: SYMBOLS_LABELS_LAYER_ID,
+        type: 'symbol',
+        source: SPATIAL_FEATURES_SOURCE,
+        'source-layer': 'spatial_features',
+        layout: {
+          'text-field': ['coalesce', ['get', 'title'], ['get', 'name'], ''],
+          'text-size': 14,
+          'symbol-placement': 'point',
+          'text-anchor': 'bottom',
+          'text-offset': [0, 1.5], // Below the point symbol
+          'text-allow-overlap': true,
+          'text-ignore-placement': true,
+        },
+        paint: {
+          ...DEFAULT_SYMBOL_PAINT,
+          'text-halo-color': '#ffffff',
+          'text-halo-width': 1,
+          'text-halo-blur': 1,
+        },
+        filter: ['all',
+          ['==', ['geometry-type'], 'Point'],
+          ['!', ['in', ['get', 'id'], ['literal', hiddenFeatureIDs]]]
+        ]
+      });
+    }
+
+    // Add labels for polygon features
+    if (!map.getLayer(POLYGONS_LABELS_LAYER_ID)) {
+      map.addLayer({
+        id: POLYGONS_LABELS_LAYER_ID,
+        type: 'symbol',
+        source: SPATIAL_FEATURES_SOURCE,
+        'source-layer': 'spatial_features',
+        layout: {
+          'text-field': ['coalesce', ['get', 'title'], ['get', 'name'], ''],
+          'text-size': 14,
+          'symbol-placement': 'point', // Center of polygon
+          'text-anchor': 'center',
+          'text-allow-overlap': true,
+          'text-ignore-placement': true,
+        },
+        paint: {
+          ...DEFAULT_SYMBOL_PAINT,
+          'text-halo-color': '#ffffff',
+          'text-halo-width': 1,
+          'text-halo-blur': 1,
+        },
+        filter: ['all',
+          ['==', ['geometry-type'], 'Polygon'],
+          ['!', ['in', ['get', 'id'], ['literal', hiddenFeatureIDs]]]
+        ]
+      });
+    } */
+
+    const layerIds = [
+      SYMBOLS_LAYER_ID,
+      LINES_LAYER_ID,
+      POLYGONS_LAYER_ID,
+    /* LINES_LABELS_LAYER_ID,
+      SYMBOLS_LABELS_LAYER_ID,
+      POLYGONS_LABELS_LAYER_ID */
+    ];
 
     layerIds.forEach(layerId => {
       map.on('click', layerId, handleFeatureClick);
@@ -219,23 +312,41 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
   }, [map, mapFeatureHighlightIDs]);
 
   useEffect(() => {
-    const symbolLayer = map?.getLayer?.(SYMBOLS_LAYER_ID);
-    if (symbolLayer) {
-      map.setFilter(symbolLayer.id, symbolLayerFilter);
+    const symbolLayers = [
+      map?.getLayer?.(SYMBOLS_LAYER_ID),
+      // map?.getLayer?.(SYMBOLS_LABELS_LAYER_ID),
+    ].filter(Boolean);
+
+    if (symbolLayers.length) {
+      symbolLayers.forEach((layer) => {
+        map.setFilter(layer.id, symbolLayerFilter);
+      });
     }
   }, [map, symbolLayerFilter]);
 
   useEffect(() => {
-    const lineLayer = map?.getLayer?.(LINES_LAYER_ID);
-    if (lineLayer) {
-      map.setFilter(lineLayer.id, lineLayerFilter);
+    const lineLayers = [
+      map?.getLayer?.(LINES_LAYER_ID),
+      // map?.getLayer?.(LINES_LABELS_LAYER_ID)
+    ].filter(Boolean);
+
+    if (lineLayers.length) {
+      lineLayers.forEach((layer) => {
+        map.setFilter(layer.id, lineLayerFilter);
+      });
     }
   }, [map, lineLayerFilter]);
 
   useEffect(() => {
-    const polygonLayer = map?.getLayer?.(POLYGONS_LAYER_ID);
-    if (polygonLayer) {
-      map.setFilter(polygonLayer.id, polygonLayerFilter);
+    const polygonLayers = [
+      map?.getLayer?.(POLYGONS_LAYER_ID),
+      // map?.getLayer?.(POLYGONS_LABELS_LAYER_ID),
+    ].filter(Boolean);
+
+    if (polygonLayers.length) {
+      polygonLayers.forEach((layer) => {
+        map.setFilter(layer.id, polygonLayerFilter);
+      });
     }
   }, [map, polygonLayerFilter]);
 
