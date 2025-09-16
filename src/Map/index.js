@@ -377,12 +377,10 @@ const Map = ({ children, onMapLoad, socket }) => {
     showPopup('timepoint', { geometry, properties, coordinates: geometry.coordinates });
   });
 
-  const onFeatureSymbolClick = withLocationPickerState((feature) => {
-    console.log('clicked feature', { feature });
+  const onFeatureSymbolClick = withLocationPickerState((feature, event) => {
     const { geometry, properties } = feature;
-    const coordinates = Array.isArray(geometry.coordinates[0]) ? geometry.coordinates[0] : geometry.coordinates;
 
-    // showPopup('feature-symbol', { geometry, properties, coordinates });
+    showPopup('feature-symbol', { geometry, properties, coordinates: event.lngLat });
     // mapInteractionTracker.track('Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
   });
 
