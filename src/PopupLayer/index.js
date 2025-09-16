@@ -56,7 +56,7 @@ const TEMPLATES = {
   },
   'feature-symbol': {
     Component: FeatureSymbolPopup,
-    popupAttrs: { anchor: 'bottom', offset: [0, -26] },
+    popupAttrs: { anchor: 'bottom', offset: [0, -12] },
   },
   'analyzer-config': {
     Component: AnalyzerConfigPopup,

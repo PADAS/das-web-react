@@ -377,13 +377,13 @@ const Map = ({ children, onMapLoad, socket }) => {
     showPopup('timepoint', { geometry, properties, coordinates: geometry.coordinates });
   });
 
-  const onFeatureSymbolClick = useCallback((feature, event) => {
+  const onFeatureSymbolClick = useCallback((feature) => {
     const { geometry, properties } = feature;
 
     if (geometry.type === 'Point') {
-      showPopup('feature-symbol', { geometry, properties, coordinates: event.lngLat });
+      showPopup('feature-symbol', { geometry, properties, coordinates: geometry.coordinates });
+      mapInteractionTracker.track('Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
     }
-    // mapInteractionTracker.track('Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
   }, [showPopup]);
 
   const onAnalyzerGroupEnter = useCallback((e, groupIds) => {
