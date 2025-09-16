@@ -50,7 +50,9 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
     });
 
     if (features.length > 0 && onFeatureClick) {
-      onFeatureClick(features[0], event);
+      features.forEach((feature) => {
+        onFeatureClick(feature, event);
+      });
     }
   }, [map, onFeatureClick]);
 
