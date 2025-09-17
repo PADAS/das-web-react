@@ -298,21 +298,21 @@ const INITIAL_MAP_LOCATION_SELECTION_STATE = {
 
 export const mapLocationSelectionReducer = (state = INITIAL_MAP_LOCATION_SELECTION_STATE, action) => {
   switch (action.type) {
-    case SET_MAP_LOCATION_SELECTION_EVENT:
-      return { ...state, event: action.payload.event, patrol: null };
+  case SET_MAP_LOCATION_SELECTION_EVENT:
+    return { ...state, event: action.payload.event, patrol: null };
 
-    case SET_MAP_LOCATION_SELECTION_PATROL:
-      return { ...state, event: null, patrol: action.payload.patrol };
+  case SET_MAP_LOCATION_SELECTION_PATROL:
+    return { ...state, event: null, patrol: action.payload.patrol };
 
-    case SET_IS_PICKING_LOCATION:
-      return {
-        ...state,
-        isPickingLocation: action.payload.isPickingLocation,
-        mode: action.payload.mode,
-      };
+  case SET_IS_PICKING_LOCATION:
+    return {
+      ...state,
+      isPickingLocation: action.payload.isPickingLocation,
+      mode: action.payload.mode,
+    };
 
-    default:
-      return state;
+  default:
+    return state;
   }
 };
 
@@ -361,13 +361,13 @@ export const INITIAL_MAP_CLUSTER_STATE = {
 
 export const mapClusterConfigReducer = (state = INITIAL_MAP_CLUSTER_STATE, action) => {
   switch (action.type) {
-    case SET_MAP_CLUSTER_DATA:
-      return { ...state, data: { ...state.data, ...action.payload } };
+  case SET_MAP_CLUSTER_DATA:
+    return { ...state, data: { ...state.data, ...action.payload } };
 
-    case SET_SHOW_MAP_CLUSTER_POLYGONS:
-      return { ...state, showPolygons: action.payload };
+  case SET_SHOW_MAP_CLUSTER_POLYGONS:
+    return { ...state, showPolygons: action.payload };
 
-    default:
-      return state;
+  default:
+    return state;
   }
 };
