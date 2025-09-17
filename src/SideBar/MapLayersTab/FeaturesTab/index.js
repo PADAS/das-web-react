@@ -45,7 +45,7 @@ const FeaturesTab = () => {
   const areFeaturesPartiallyChecked = !areFeaturesFullyChecked && mapLayerFilter.hiddenFeatureIDs.length !== allFeatureIDs.length;
 
   const getFeatureSetFeatureIDs = ({ featuresByType }) => getUniqueIDsFromFeatures(
-    ...featuresByType.reduce((result, { features }) => [result, ...features], [])
+    ...featuresByType.reduce((result, { features }) => [...result, ...features], [])
   );
 
   const allVisibleInSet = (set) => areFeaturesFullyChecked || !intersection(getFeatureSetFeatureIDs(set), mapLayerFilter.hiddenFeatureIDs).length;
