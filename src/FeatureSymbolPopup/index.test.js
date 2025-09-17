@@ -1,18 +1,18 @@
 import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
 
-import { GPS_FORMATS } from '../../utils/location';
+import { GPS_FORMATS } from '../utils/location';
 
-import AddItemButton from '../../AddItemButton';
+import AddItemButton from '../AddItemButton';
 import FeatureSymbolPopup from './';
-import { hidePopup } from '../../ducks/popup';
-import { mockStore } from '../../__test-helpers/MockStore';
-import { render, screen } from '../../test-utils';
+import { hidePopup } from '../ducks/popup';
+import { mockStore } from '../__test-helpers/MockStore';
+import { render, screen } from '../test-utils';
 
-jest.mock('../../AddItemButton', () => jest.fn());
+jest.mock('../AddItemButton', () => jest.fn());
 
-jest.mock('../../ducks/popup', () => ({
-  ...jest.requireActual('../../ducks/popup'),
+jest.mock('../ducks/popup', () => ({
+  ...jest.requireActual('../ducks/popup'),
   hidePopup: jest.fn(),
 }));
 

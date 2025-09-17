@@ -38,7 +38,6 @@ const postAuthSuccess = response => (dispatch) => {
 };
 
 export const clearAuth = () => (dispatch) => {
-  console.log('clearauth');
 
   return new Promise((resolve) => {
     if (window.map) {
