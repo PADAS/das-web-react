@@ -279,8 +279,10 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
 
       map.off('mouseenter', SYMBOLS_LAYER_ID, onMouseEnter);
       map.off('mouseleave', SYMBOLS_LAYER_ID, onMouseLeave);
+      map.removeSource(SPATIAL_FEATURES_SOURCE);
     };
     /*
+      # disable exhaustive dependencies here, since
       # the filters are just used as an initializing state, not as a lifecycle dependency. 
       # this will help us support possible in-memory retention/rehydration in the future (via saved app state).
     */
