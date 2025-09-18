@@ -95,9 +95,9 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
         'source-layer': 'spatial_features',
         layout: {
           ...DEFAULT_SYMBOL_LAYOUT,
-          'text-allow-overlap': true,           // crucial for consistent visibility
-          'icon-allow-overlap': true,           // crucial if icons are used
-          'text-ignore-placement': true,        // recommended to avoid hiding labels
+          'text-allow-overlap': true,
+          'icon-allow-overlap': true,
+          'text-ignore-placement': true,
           'icon-ignore-placement': true,
           'icon-image': ['case',
             ['==', ['get', 'title'], 'Ranger Stations'], 'ranger-stations',
@@ -282,7 +282,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
     };
     /*
       # the filters are just used as an initializing state, not as a lifecycle dependency. 
-      # this will help us support possible in-memory retention/rehydration in the future (saved app state).
+      # this will help us support possible in-memory retention/rehydration in the future (via saved app state).
     */
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, handleFeatureClick, onMouseEnter, onMouseLeave, token?.access_token]);

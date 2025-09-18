@@ -28,7 +28,6 @@ import {
   mapDataZoomSimplificationReducer,
   mapLocationSelectionReducer,
   printTitleReducer,
-  mapFeatureHighlightIdReducer,
   displayUserLocationReducer,
   bounceEventReducer,
   displayTrackTimepointsReducer,
@@ -38,6 +37,7 @@ import {
   mapClusterConfigReducer,
   mapClusterConfigMigrations,
 } from '../ducks/map-ui';
+import { mapFeatureHighlightIdReducer } from '../ducks/mapFeatureHighlight';
 import popupReducer from '../ducks/popup';
 import mapImagesReducer from '../ducks/map-images';
 import userPreferencesReducer from '../ducks/user-preferences';

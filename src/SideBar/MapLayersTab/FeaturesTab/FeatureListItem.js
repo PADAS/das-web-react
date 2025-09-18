@@ -4,14 +4,14 @@ import { center, bboxPolygon } from '@turf/turf';
 
 
 import { showFeatures } from '../../../ducks/map-layer-filter';
-import { setMapFeatureHighlightIDs } from '../../../ducks/map-ui';
+import { setMapFeatureHighlightIDs } from '../../../ducks/mapFeatureHighlight';
 import { showPopup } from '../../../ducks/popup';
 import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../../../utils/analytics';
 
 import { ReactComponent as GeofenceIcon } from '../../../common/images/icons/geofence-analyzer-icon.svg';
 import { ReactComponent as ProximityIcon } from '../../../common/images/icons/proximity-analyzer-icon.svg';
 import LocationJumpButton from '../../../LocationJumpButton';
-import { POLYGONS_LAYER_ID, LINES_LAYER_ID } from '../../../SpatialFeaturesLayer';
+import { SYMBOLS_LAYER_ID, POLYGONS_LAYER_ID, LINES_LAYER_ID } from '../../../SpatialFeaturesLayer';
 
 import { MapContext } from '../../../App';
 
@@ -55,6 +55,7 @@ const FeatureListItem = memo((props) => {
       showFeatures(props.id)
     );
     map.fitBounds(props.bounds, { duration: 0, minZoom: 5, maxZoom: 16, padding: 20 });
+    highlightClickedFeatureSymbol(map, SYMBOLS_LAYER_ID, props.id);
     setTimeout(() => {
       setFeatureActiveStateByID(map, props.id, true);
 
@@ -80,3 +81,43 @@ const FeatureListItem = memo((props) => {
 });
 
 export default FeatureListItem;
+
+let animationFrame = null;
+let t = 0;
+
+const animate = (map, layer_id, feature_id) => {
+  t += 0.1;
+  const pulse = (Math.sin(t) + 1) / 2; // oscillates between 0–1
+
+  const idExpr = ['==', ['get', 'id'], feature_id];
+
+  map.setPaintProperty(layer_id, 'icon-opacity', [
+    'case',
+    idExpr, pulse, // animate this feature’s opacity
+    1              // all others stay solid
+  ]);
+
+  animationFrame = requestAnimationFrame(() =>
+    animate(map, layer_id, feature_id)
+  );
+};
+
+const startHighlight = (map, layer_id, feature_id) => {
+  if (!animationFrame) {
+    animate(map, layer_id, feature_id);
+  }
+};
+
+const stopHighlight = (map, layer_id) => {
+  if (animationFrame) {
+    cancelAnimationFrame(animationFrame);
+    animationFrame = null;
+  }
+  // reset opacity to normal
+  map.setPaintProperty(layer_id, 'icon-opacity', 1);
+};
+
+const highlightClickedFeatureSymbol = (map, layer_id, feature_id) => {
+  startHighlight(map, layer_id, feature_id);
+  setTimeout(() => stopHighlight(map, layer_id), 1200); // flash for 2s
+};
