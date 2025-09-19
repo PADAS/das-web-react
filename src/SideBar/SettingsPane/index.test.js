@@ -71,18 +71,18 @@ describe('SideBar - SettingsPane', () => {
     global.localStorage.__proto__.setItem.mockRestore();
   });
 
-  test('setting persistance options to "false" if initializing for the first time', () => {
+  test('setting persistance options to "true" if initializing for the first time', () => {
     expect(global.localStorage.setItem).toHaveBeenCalledWith(
       'er-web-restorable:eventFilter',
-      JSON.stringify({ restore: false })
+      JSON.stringify({ restore: true })
     );
     expect(global.localStorage.setItem).toHaveBeenCalledWith(
       'er-web-restorable:eventFilter',
-      JSON.stringify({ restore: false })
+      JSON.stringify({ restore: true })
     );
     expect(global.localStorage.setItem).toHaveBeenCalledWith(
       'er-web-restorable:eventFilter',
-      JSON.stringify({ restore: false })
+      JSON.stringify({ restore: true })
     );
   });
 
@@ -99,7 +99,7 @@ describe('SideBar - SettingsPane', () => {
 
         expect(global.localStorage.setItem).toHaveBeenCalledWith(
           'er-web-restorable:eventFilter',
-          JSON.stringify({ restore: true })
+          JSON.stringify({ restore: false })
         );
       });
 
@@ -109,7 +109,7 @@ describe('SideBar - SettingsPane', () => {
 
         expect(global.localStorage.setItem).toHaveBeenCalledWith(
           'er-web-restorable:patrolFilter',
-          JSON.stringify({ restore: true })
+          JSON.stringify({ restore: false })
         );
       });
 
@@ -121,7 +121,7 @@ describe('SideBar - SettingsPane', () => {
 
         expect(global.localStorage.setItem).toHaveBeenCalledWith(
           'er-web-restorable:mapPosition',
-          JSON.stringify({ restore: true })
+          JSON.stringify({ restore: false })
         );
       });
     });
