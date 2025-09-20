@@ -149,7 +149,6 @@ describe('Map', () => {
         coordinateReferenceSystems: {
           storedSystems: [],
         },
-        featureFlagOverrides: {},
         heatmapSubjectIDs: [],
         homeMap: { center: [] },
         mapClusterConfig: {},

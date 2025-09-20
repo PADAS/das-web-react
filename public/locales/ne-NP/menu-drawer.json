@@ -3,11 +3,6 @@
     "iframeBottomMessage": "प्रत्येक अर्थरेन्जर प्रयोगकर्ताले प्रतिदिन २० वटा सम्म सुचना प्राप्त गर्नेछन् ।",
     "iframeTitle": "तपाईंको अर्थरेन्जरको सुचनाको स्वरुप मिलाउनुहोस्"
   },
-  "betaToggles": {
-    "playSoundForAlarmRadioState": "रेडियोको अवस्था रातो (अलार्म) मा परिवर्तन हुँदा ध्वनि बजाउनुहोस् र सूचना देखाउनुहोस्",
-    "playSoundForNewInReachMessage": "नयाँ inReach सन्देशहरूको लागि ध्वनि बजाउनुहोस्",
-    "reportNotification": "नयाँ घटनाका लागि ध्वनी बजाउनुहोस्"
-  },
   "dailyReportModal": {
     "dataExportModalTitle": "दैनिक रिपोर्ट",
     "todaysReportButton": "आजको रिपोर्ट",

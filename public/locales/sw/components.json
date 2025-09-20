@@ -231,15 +231,31 @@
     "settingsPane": {
       "alertsFrameTitle": "Sanidi tahadhari zako za EarthRanger",
       "alertsTabTitle": "Tahadhari",
-      "appRefreshDescription": "Hifadhi mipangilio yangu kwa upya wa ukurasa kwa",
-      "appRefreshHeader": "Upya wa Programu",
-      "appRefreshMapLayersLabel": "Safu za Ramani",
-      "appRefreshMapPositionAndZoomLevelLabel": "Nafasi ya Ramani & Kiwango cha Kukaribia",
-      "appRefreshPatrolFiltersLabel": "Vichuja vya Doria",
-      "appRefreshReportFiltersLabel": "Vichuja vya Tukio",
-      "experimentalFeaturesHeader": "Vipengele vya Majaribio",
+      "generalTab": {
+        "appRefreshFieldSet": {
+          "description": "Hifadhi mipangilio yangu kwa upya wa ukurasa kwa",
+          "eventFiltersCheckboxLabel": "Vichuja vya Tukio",
+          "legend": "Upya wa Programu",
+          "mapLayersCheckboxLabel": "Safu za Ramani",
+          "mapPositionAndZoomLevelCheckboxLabel": "Nafasi ya Ramani & Kiwango cha Kukaribia",
+          "patrolFiltersCheckboxLabel": "Vichuja vya Doria"
+        },
+        "experimentalFeaturesFieldSet": {
+          "CUSTOM_COORDINATE_SYSTEMS_ENABLED": "Mifumo ya Marejeo ya Koordinati",
+          "legend": "Vipengele vya Majaribio"
+        },
+        "languageSelect": {
+          "label": "Lugha"
+        },
+        "soundFieldSet": {
+          "description": "Chezesha sauti kwa",
+          "legend": "Sauti",
+          "newEventsCheckboxLabel": "Matukio Mapya",
+          "newInReachMessagesCheckboxLabel": "Ujumbe mpya wa inReach",
+          "radioStateChangeToRedCheckboxLabel": "Wakati hali ya redio inabadilika kuwa nyekundu (kengele)"
+        }
+      },
       "generalTabTitle": "Jumla",
-      "languagesHeader": "Lugha",
       "mapTab": {
         "coordinateSystemSettingsView": {
           "backButtonLabel": "Rudi kwenye mipangilio kuu ya ramani",

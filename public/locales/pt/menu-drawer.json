@@ -3,11 +3,6 @@
     "iframeBottomMessage": "Cada usuário EarthRanger pode receber até 20 alertas por dia.",
     "iframeTitle": "Configure seus alertas EarthRanger"
   },
-  "betaToggles": {
-    "playSoundForAlarmRadioState": "Reproduzir som e mostrar uma notificação quando o estado do rádio mudar para vermelho (alarme)",
-    "playSoundForNewInReachMessage": "Reproduzir notificações de som para novas mensagens do inReach",
-    "reportNotification": "Reproduz notificações de som para novos eventos"
-  },
   "dailyReportModal": {
     "dataExportModalTitle": "Relatórios diário",
     "todaysReportButton": "Relatório de hoje",

@@ -41,7 +41,6 @@ describe('AddItemButton - AddItemModal', () => {
           },
         },
       },
-      view: { featureFlagOverrides: {} },
     };
 
     renderAddItemModal = (props, addItemContext, overrideStore) => {

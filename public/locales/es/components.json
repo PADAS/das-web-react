@@ -214,15 +214,31 @@
     "settingsPane": {
       "alertsFrameTitle": "Configure sus alertas de EarthRanger",
       "alertsTabTitle": "Alertas",
-      "appRefreshDescription": "Preservar mis configuraciones al recargar la página",
-      "appRefreshHeader": "Recargar la página",
-      "appRefreshMapLayersLabel": "Capas de mapa",
-      "appRefreshMapPositionAndZoomLevelLabel": "Posición del mapa y nivel de zoom",
-      "appRefreshPatrolFiltersLabel": "Filtros de Patrullas",
-      "appRefreshReportFiltersLabel": "Filtros de Eventos",
-      "experimentalFeaturesHeader": "Funcionalidades experimentales",
+      "generalTab": {
+        "appRefreshFieldSet": {
+          "description": "Preservar mis configuraciones al recargar la página",
+          "eventFiltersCheckboxLabel": "Filtros de eventos",
+          "legend": "Recargar la página",
+          "mapLayersCheckboxLabel": "Capas de mapa",
+          "mapPositionAndZoomLevelCheckboxLabel": "Posición del mapa y nivel de zoom",
+          "patrolFiltersCheckboxLabel": "Filtros de patrullas"
+        },
+        "experimentalFeaturesFieldSet": {
+          "CUSTOM_COORDINATE_SYSTEMS_ENABLED": "Sistemas de referencia de coordenadas",
+          "legend": "Funcionalidades experimentales"
+        },
+        "languageSelect": {
+          "label": "Idioma"
+        },
+        "soundFieldSet": {
+          "description": "Reproducir sonido para",
+          "legend": "Sonido",
+          "newEventsCheckboxLabel": "Nuevos eventos",
+          "newInReachMessagesCheckboxLabel": "Nuevos mensajes de inReach",
+          "radioStateChangeToRedCheckboxLabel": "Cuando un radio cambia de estado a rojo (alarma)"
+        }
+      },
       "generalTabTitle": "General",
-      "languagesHeader": "Lenguaje",
       "mapTab": {
         "coordinateSystemSettingsView": {
           "backButtonLabel": "Volver a la configuración principal del mapa",

@@ -10,7 +10,7 @@ import {
   toggleTrackTimepointState,
 } from '../../../../../ducks/map-ui';
 
-import * as styles from '../styles.module.scss';
+import * as styles from '../../../styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -81,12 +81,12 @@ const DisplayFieldSet = () => {
         <input
           checked={showTrackTimepoints}
           className={styles.checkbox}
-          id="show-track-timepoints-checkbox"
+          id="map-display-show-track-timepoints-checkbox"
           onChange={onShowTrackTimepointsCheckboxChange}
           type="checkbox"
         />
 
-        <label className={styles.label} htmlFor="show-track-timepoints-checkbox">
+        <label className={styles.label} htmlFor="map-display-show-track-timepoints-checkbox">
           {t('showTrackTimepointsCheckboxLabel')}
         </label>
       </div>
@@ -97,12 +97,12 @@ const DisplayFieldSet = () => {
         <input
           checked={showInactiveRadios}
           className={styles.checkbox}
-          id="show-inactive-radios-checkbox"
+          id="map-display-show-inactive-radios-checkbox"
           onChange={onShowInactiveRadiosCheckboxChange}
           type="checkbox"
         />
 
-        <label className={styles.label} htmlFor="show-inactive-radios-checkbox">
+        <label className={styles.label} htmlFor="map-display-show-inactive-radios-checkbox">
           {t('showInactiveRadiosCheckboxLabel')}
         </label>
       </div>
@@ -114,14 +114,14 @@ const DisplayFieldSet = () => {
           checked={mapClusterConfig.showPolygons}
           className={styles.checkbox}
           disabled={!isClusterDataFullyChecked && !isClusterDataPartiallyChecked}
-          id="show-cluster-polygons-checkbox"
+          id="map-display-show-cluster-polygons-checkbox"
           onChange={onShowClusterPolygonsCheckboxChange}
           type="checkbox"
         />
 
         <label
           className={`${styles.label} ${!isClusterDataFullyChecked && !isClusterDataPartiallyChecked ? styles.disabled : ''}`}
-          htmlFor="show-cluster-polygons-checkbox"
+          htmlFor="map-display-show-cluster-polygons-checkbox"
         >
           {t('showClusterPolygonsCheckboxLabel')}
         </label>
@@ -138,7 +138,7 @@ const DisplayFieldSet = () => {
             checked={isClusterDataFullyChecked}
             className={styles.checkbox}
             disabled={isTimeSliderActive}
-            id="cluster-data-all-checkbox"
+            id="map-display-cluster-data-all-checkbox"
             onChange={onClusterDataAllCheckboxChange}
             ref={clusterDataAllChekboxRef}
             type="checkbox"
@@ -146,7 +146,7 @@ const DisplayFieldSet = () => {
 
           <label
             className={`${styles.label} ${isTimeSliderActive ? styles.disabled : ''}`}
-            htmlFor="cluster-data-all-checkbox"
+            htmlFor="map-display-cluster-data-all-checkbox"
           >
             {t('clusterDataAllCheckboxLabel')}
           </label>
@@ -160,14 +160,14 @@ const DisplayFieldSet = () => {
             checked={mapClusterConfig.data[mapClusterDataKey]}
             className={styles.checkbox}
             disabled={isTimeSliderActive}
-            id={`cluster-data-${mapClusterDataKey}-checkbox`}
+            id={`map-display-cluster-data-${mapClusterDataKey}-checkbox`}
             onChange={onClusterDataCheckboxChange(mapClusterDataKey)}
             type="checkbox"
           />
 
           <label
             className={`${styles.label} ${isTimeSliderActive ? styles.disabled : ''}`}
-            htmlFor={`cluster-data-${mapClusterDataKey}-checkbox`}
+            htmlFor={`map-display-cluster-data-${mapClusterDataKey}-checkbox`}
           >
             {t(`clusterDataCheckboxLabel.${mapClusterDataKey}`)}
           </label>

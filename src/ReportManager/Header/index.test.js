@@ -19,9 +19,6 @@ describe('ReportManager - Header', () => {
       eventTypes,
       patrolTypes,
     },
-    view: {
-      featureFlagOverrides: {},
-    },
   });
 
   const onChangeTitle = jest.fn();
