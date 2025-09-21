@@ -10,6 +10,6 @@ export const mapFeatureHighlightIdReducer = (state = INITIAL_FEATURE_HIGHLIGHT_S
   const { type, payload } = action;
   if (type === SET_MAP_FEATURE_HIGHLIGHT_IDS) {
     return payload;
-  };
+  }
   return state;
 };

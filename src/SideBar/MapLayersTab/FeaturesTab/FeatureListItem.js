@@ -119,5 +119,5 @@ const stopHighlight = (map, layer_id) => {
 
 const highlightClickedFeatureSymbol = (map, layer_id, feature_id) => {
   startHighlight(map, layer_id, feature_id);
-  setTimeout(() => stopHighlight(map, layer_id), 1200); // flash for 2s
+  setTimeout(() => stopHighlight(map, layer_id), 1200); // flash for 1.2s
 };
