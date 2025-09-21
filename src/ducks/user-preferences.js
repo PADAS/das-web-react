@@ -12,7 +12,7 @@ export const updateUserPreferences = (preference) => ({
 //REDUCER
 const INITIAL_STATE = {
   gpsFormat: Object.values(GPS_FORMATS)[0],
-  enable3D: false,
+  enable3D: true,
   autoStartPatrols: false,
   autoEndPatrols: false,
   hideModals: false,
