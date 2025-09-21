@@ -119,16 +119,16 @@ const LocationPicker = ({
         title={t('textCopyButtonLabel')}
       />}
 
-      {map && <button
+      <button
         aria-label={t('jumpToLocationButtonLabel')}
         className={styles.jumpToLocationButton}
-        disabled={!value || disabled}
+        disabled={!value || !map || disabled}
         onClick={() => jumpToLocation([value.longitude, value.latitude], jumpToLocationButtonZoom)}
         title={t('jumpToLocationButtonLabel')}
         type="button"
       >
         <MarkerFeedIcon />
-      </button>}
+      </button>
 
       <input
         data-testid="locationPicker-input"

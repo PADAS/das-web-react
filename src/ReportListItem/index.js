@@ -75,7 +75,7 @@ const ReportListItem = ({
 
   return <FeedListItem
     className={`${HOVER_EFFECTS[displayPriority]} ${className}`}
-    ControlsComponent={coordinates && map && !!coordinates.length && showJumpButton ? <LocationJumpButton
+    ControlsComponent={coordinates && !!coordinates.length && showJumpButton ? <LocationJumpButton
       clickAnalytics={[
         MAP_LAYERS_CATEGORY,
         'Click Jump To Report Location button',
