@@ -14,7 +14,7 @@ export const LINES_LAYER_ID = 'spatial-features-lines';
 export const POLYGONS_LAYER_ID = 'spatial-features-polygons';
 // const POLYGONS_LABELS_LAYER_ID = 'spatial-features-polygon-labels';
 
-const defaultLinePaintColor = [
+const DEFAULT_LINE_PAINT_COLOR = [
   'case',
   ['has', 'stroke'], ['get', 'stroke'],
   ['has', 'color'], ['get', 'color'],
@@ -23,7 +23,7 @@ const defaultLinePaintColor = [
   '#ff6600'
 ];
 
-const defaultPolygonFillColor = [
+const DEFAULT_POLYGON_FILL_COLOR = [
   'case',
   ['has', 'fill'], ['get', 'fill'],
   ['has', 'color'], ['get', 'color'],
@@ -64,6 +64,8 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
     map.getCanvas().style.cursor = '';
   }, [map]);
 
+  /* add the vector source + append bearer token to request headers */
+  /* add the vector layer and bind the event handlers */
   useEffect(() => {
     if (!map) return;
 
@@ -87,6 +89,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
       });
     }
 
+    /* add the layer */
     if (!map.getLayer(SYMBOLS_LAYER_ID)) {
       map.addLayer({
         id: SYMBOLS_LAYER_ID,
@@ -121,7 +124,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
         source: SPATIAL_FEATURES_SOURCE,
         'source-layer': 'spatial_features',
         paint: {
-          'line-color': defaultLinePaintColor,
+          'line-color': DEFAULT_LINE_PAINT_COLOR,
           'line-width': [
             'case',
             ['has', 'stroke-width'], ['get', 'stroke-width'],
@@ -150,7 +153,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
         source: SPATIAL_FEATURES_SOURCE,
         'source-layer': 'spatial_features',
         paint: {
-          'fill-color': defaultPolygonFillColor,
+          'fill-color': DEFAULT_POLYGON_FILL_COLOR,
           'fill-opacity': [
             'case',
             ['has', 'fill-opacity'], ['get', 'fill-opacity'],
@@ -289,15 +292,16 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, handleFeatureClick, onMouseEnter, onMouseLeave, token?.access_token]);
 
+  /* highlight spatial features based on the values in mapFeatureHighlightIDs */
   useEffect(() => {
     const lineLayer = map?.getLayer?.(LINES_LAYER_ID);
     const polyLayer = map?.getLayer?.(POLYGONS_LAYER_ID);
 
     if (lineLayer) {
       const highlightLinePaintColor = [
-        ...defaultLinePaintColor.slice(0, 1),
+        ...DEFAULT_LINE_PAINT_COLOR.slice(0, 1),
         ['in', ['get', 'id'], ['literal', mapFeatureHighlightIDs]], 'red',
-        ...defaultLinePaintColor.slice(1),
+        ...DEFAULT_LINE_PAINT_COLOR.slice(1),
       ];
 
       map.setPaintProperty(lineLayer.id, 'line-color', highlightLinePaintColor);
@@ -305,9 +309,9 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
 
     if (polyLayer) {
       const highlightPolygonFillColor = [
-        ...defaultPolygonFillColor.slice(0, 1),
+        ...DEFAULT_POLYGON_FILL_COLOR.slice(0, 1),
         ['in', ['get', 'id'], ['literal', mapFeatureHighlightIDs]], 'red',
-        ...defaultPolygonFillColor.slice(1),
+        ...DEFAULT_POLYGON_FILL_COLOR.slice(1),
       ];
 
       map.setPaintProperty(polyLayer.id, 'fill-color', highlightPolygonFillColor);
@@ -315,6 +319,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
 
   }, [map, mapFeatureHighlightIDs]);
 
+  /* filter out point features which are hidden by ID */
   useEffect(() => {
     const symbolLayers = [
       map?.getLayer?.(SYMBOLS_LAYER_ID),
@@ -328,6 +333,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
     }
   }, [map, symbolLayerFilter]);
 
+  /* filter out line features which are hidden by ID */
   useEffect(() => {
     const lineLayers = [
       map?.getLayer?.(LINES_LAYER_ID),
@@ -341,6 +347,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
     }
   }, [map, lineLayerFilter]);
 
+  /* filter out polygon features which are hidden by ID */
   useEffect(() => {
     const polygonLayers = [
       map?.getLayer?.(POLYGONS_LAYER_ID),
