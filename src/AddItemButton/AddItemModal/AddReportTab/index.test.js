@@ -21,7 +21,7 @@ describe('AddItemButton - AddItemModal - AddReportTab', () => {
     useNavigateMock = jest.fn(() => navigate);
     useNavigate.mockImplementation(useNavigateMock);
 
-    store = { data: { eventCategories, eventTypes }, view: { featureFlagOverrides: {} } };
+    store = { data: { eventCategories, eventTypes } };
 
     renderAddReportTab = (props, addItemContext, overrideStore) => {
       render(

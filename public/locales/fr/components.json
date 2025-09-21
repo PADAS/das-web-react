@@ -214,15 +214,31 @@
     "settingsPane": {
       "alertsFrameTitle": "Configurer vos alertes EarthRanger",
       "alertsTabTitle": "Alertes",
-      "appRefreshDescription": "Conserver mes paramètres lors de l'actualisation de la page pour:",
-      "appRefreshHeader": "Actualisation de l'Application",
-      "appRefreshMapLayersLabel": "Calques",
-      "appRefreshMapPositionAndZoomLevelLabel": "Positionnement de la Carte & Niveau du Zoom",
-      "appRefreshPatrolFiltersLabel": "Filtres de Patrouilles",
-      "appRefreshReportFiltersLabel": "Filtres des Événements",
-      "experimentalFeaturesHeader": "Fonctionnalités expérimentales",
+      "generalTab": {
+        "appRefreshFieldSet": {
+          "description": "Conserver mes paramètres lors de l'actualisation de la page pour:",
+          "eventFiltersCheckboxLabel": "Filtres des événements",
+          "legend": "Actualisation de l'application",
+          "mapLayersCheckboxLabel": "Calques",
+          "mapPositionAndZoomLevelCheckboxLabel": "Positionnement de la carte & niveau du zoom",
+          "patrolFiltersCheckboxLabel": "Filtres de patrouilles"
+        },
+        "experimentalFeaturesFieldSet": {
+          "CUSTOM_COORDINATE_SYSTEMS_ENABLED": "Systèmes de référence de coordonnées",
+          "legend": "Fonctionnalités expérimentales"
+        },
+        "languageSelect": {
+          "label": "Langue"
+        },
+        "soundFieldSet": {
+          "description": "Jouer un son pour",
+          "legend": "Son",
+          "newEventsCheckboxLabel": "Nouveaux événements",
+          "newInReachMessagesCheckboxLabel": "Nouveaux messages inReach",
+          "radioStateChangeToRedCheckboxLabel": "Lorsqu’un état radio passe au rouge (alarme)"
+        }
+      },
       "generalTabTitle": "Actualisation & Langue",
-      "languagesHeader": "Langues",
       "mapTab": {
         "coordinateSystemSettingsView": {
           "backButtonLabel": "Retour aux paramètres principaux de la carte",

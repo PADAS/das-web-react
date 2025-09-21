@@ -110,7 +110,6 @@ describe('SideBar', () => {
         },
       },
       view: {
-        featureFlagOverrides: {},
         mapLocationSelection: {
           isPickingLocation: false,
         },

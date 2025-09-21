@@ -66,7 +66,6 @@ describe('ReportManager', () => {
         coordinateReferenceSystems: {
           storedSystems: [],
         },
-        featureFlagOverrides: {},
         mapLocationSelection: { isPickingLocation: false },
         sideBar: {},
         userPreferences: { gpsFormat: GPS_FORMATS.DEG },

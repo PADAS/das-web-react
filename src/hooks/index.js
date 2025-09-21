@@ -11,17 +11,15 @@ import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 export const useSystemConfigFlag = (flag) => useSelector((state) => !!state?.view?.systemConfig?.[flag]);
 
 export const useFeatureFlag = (flagName) => {
-  const featureFlagOverrides = useSelector(state =>
-    state.view.featureFlagOverrides
-  );
+  const experimentalFeatures = useSelector((state) => state.view.experimentalFeatures) || {};
 
   if (!DEVELOPMENT_FEATURE_FLAGS.hasOwnProperty(flagName)) {
     throw new Error('no feature flag with that name exists');
   }
 
-  return featureFlagOverrides?.hasOwnProperty(flagName)
-    ? featureFlagOverrides[flagName].value
-    : DEVELOPMENT_FEATURE_FLAGS[flagName];
+  // Experimental features reducer properties override the systems development
+  // feature flags.
+  return flagName in experimentalFeatures ? experimentalFeatures[flagName] : DEVELOPMENT_FEATURE_FLAGS[flagName];
 };
 
 

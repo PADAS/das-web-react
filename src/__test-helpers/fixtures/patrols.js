@@ -1684,7 +1684,6 @@ export const patrolDefaultStoreData = {
     }],
   },
   view: {
-    featureFlagOverrides: {},
     timeSliderState: {
       active: false
     },

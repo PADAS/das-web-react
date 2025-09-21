@@ -36,6 +36,7 @@ export const GPS_FORMAT_CATEGORY = 'GPS Format';
 export const ALERTS_CATEGORY = 'Alerts';
 export const FEED_CATEGORY = 'Feed';
 export const BETA_PREVIEW_CATEGORY = 'Beta Preview';
+export const SETTINGS_CATEGORY = 'Settings';
 
 /**
  * Function to emit a GA event.

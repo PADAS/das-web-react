@@ -42,9 +42,6 @@ describe('Menu report options', () => {
         eventTypes,
         patrolTypes,
       },
-      view: {
-        featureFlagOverrides: {},
-      }
     });
   });
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -35,8 +35,12 @@ const AlarmRadioStateToastMessage = ({ onClickJumpToLocation, subject }) => {
 const RadioStateChangeToAlarmNotificationPlayer = ({ onPlayNotificationSound }) => {
   const jumpToLocation = useJumpToLocation();
 
-  const subjectsWithAlarmRadioState = useSelector((state) => Object.values(state.data.subjectStore)
-    .filter((subject) => subject?.last_position_status?.radio_state === 'alarm'));
+  const subjectStore = useSelector((state) => state.data.subjectStore);
+
+  const subjectsWithAlarmRadioState = useMemo(
+    () => Object.values(subjectStore).filter((subject) => subject?.last_position_status?.radio_state === 'alarm'),
+    [subjectStore]
+  );
 
   const previousSubjectsWithAlarmRadioState = useRef(subjectsWithAlarmRadioState?.map((subject) => subject.id));
 
