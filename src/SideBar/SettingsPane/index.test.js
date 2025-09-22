@@ -1,139 +1,77 @@
 import React from 'react';
-import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
+import { useSearchParams } from 'react-router';
 
 import { render, screen } from '../../test-utils';
-import { createMapMock } from '../../__test-helpers/mocks';
 import { GPS_FORMATS } from '../../utils/location';
-import { MapContext } from '../../App';
+import { LAYER_IDS } from '../../constants';
 import { mockStore } from '../../__test-helpers/MockStore';
 
 import SettingsPane from './';
 
-describe('SideBar - SettingsPane', () => {
-  let initialState, renderWithWrapper, Wrapper, store, map;
-  beforeEach(() => {
-    map = createMapMock();
-    jest.spyOn(global.localStorage.__proto__, 'getItem');
-    jest.spyOn(global.localStorage.__proto__, 'setItem');
-    global.localStorage.clear();
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useSearchParams: jest.fn(),
+}));
 
-    initialState = {
-      data: {
-        eventFilter: {},
-        patrolFilter: {},
-      },
+describe('SideBar - SettingsPane', () => {
+  let store;
+  beforeEach(() => {
+    useSearchParams.mockImplementation(() => [new URLSearchParams()]);
+
+    store = {
+      data: {},
       view: {
         coordinateReferenceSystems: {
           selectedCoordinateRepresentations: Object.values(GPS_FORMATS),
         },
-        featureFlagOverrides: {},
+        experimentalFeatures: {},
         mapClusterConfig: {
-          data: { events: true, subjects: true  },
+          data: {
+            events: true,
+            subjects: true,
+          },
         },
-        mapPosition: {
-          center: { lat: 0, lng: 0 },
-          zoom: 10,
+        showMapNames: {
+          [LAYER_IDS.SUBJECT_SYMBOLS]: { key: 'subjects', enabled: true },
+          [LAYER_IDS.STATIC_SENSOR]: { key: 'stationary_subjects', enabled: false },
+          [LAYER_IDS.EVENT_SYMBOLS]: { key: 'reports', enabled: true },
+          [LAYER_IDS.PATROL_SYMBOLS]: { key: 'patrols', enabled: true },
         },
-        showMapNames: {},
-        showUserLocation: true,
-        simplifyMapDataOnZoom: false,
-        systemConfig: { alerts_enabled: true },
-        timeSliderState: { active: false },
-        userLocation: {
-          lat: 10,
-          lng: 10,
+        simplifyMapDataOnZoom: {
+          enabled: false,
         },
-        userPreferences: { enable3D: true },
-      }
+        systemConfig: {
+          alerts_enabled: true,
+        },
+        timeSliderState: {
+          active: false,
+        },
+        userPreferences: {
+          playSoundForNewEvents: false,
+          playSoundForNewInReachMessages: false,
+          playSoundForRadioStateChangeToRed: false,
+        },
+      },
     };
-
-    store = mockStore(initialState);
-
-    Wrapper = ({ children }) => /* eslint-disable-line react/display-name */
-      <Provider store={store}>
-        <MapContext.Provider value={map}>
-          {children}
-        </MapContext.Provider>
-      </Provider>;
-
-    renderWithWrapper = (Component) => render(Component, { wrapper: Wrapper });
-
-    renderWithWrapper(
-      <SettingsPane />
-    );
-
-
   });
 
-  afterEach(() => {
-    global.localStorage.__proto__.getItem.mockRestore();
-    global.localStorage.__proto__.setItem.mockRestore();
+  const renderSoundFieldSet = (props, overrideStore) => render(
+    <Provider store={mockStore({ ...store, ...overrideStore })}>
+      <SettingsPane {...props} />
+    </Provider>
+  );
+
+  test('does not show the alerts tab if alerts are not enabled in the system configuration', async () => {
+    store.view.systemConfig.alerts_enabled = false;
+    renderSoundFieldSet();
+
+    expect(screen.queryByRole('tab', { name: 'Alerts' })).toBeNull();
   });
 
-  test('setting persistance options to "true" if initializing for the first time', () => {
-    expect(global.localStorage.setItem).toHaveBeenCalledWith(
-      'er-web-restorable:eventFilter',
-      JSON.stringify({ restore: true })
-    );
-    expect(global.localStorage.setItem).toHaveBeenCalledWith(
-      'er-web-restorable:eventFilter',
-      JSON.stringify({ restore: true })
-    );
-    expect(global.localStorage.setItem).toHaveBeenCalledWith(
-      'er-web-restorable:eventFilter',
-      JSON.stringify({ restore: true })
-    );
-  });
+  test('shows the alerts tab if alerts are enabled in the system configuration', async () => {
+    renderSoundFieldSet();
 
-  describe('the "General" settings tab', () => {
-    describe('persistence controls', () => {
-      beforeEach(() => {
-        /* clear the mocks as useLocalStorage calls these once when initializing */
-        global.localStorage.__proto__.getItem.mockClear();
-        global.localStorage.__proto__.setItem.mockClear();
-      });
-      test('toggling the event filter persistence setting when clicked', async () => {
-        const eventFilterPersistToggle = await screen.findByText('Event Filters');
-        await userEvent.click(eventFilterPersistToggle);
-
-        expect(global.localStorage.setItem).toHaveBeenCalledWith(
-          'er-web-restorable:eventFilter',
-          JSON.stringify({ restore: false })
-        );
-      });
-
-      test('toggling the patrol filter persistence setting when clicked', async () => {
-        const patrolFilterPersistToggle = await screen.findByText('Patrol Filters');
-        await userEvent.click(patrolFilterPersistToggle);
-
-        expect(global.localStorage.setItem).toHaveBeenCalledWith(
-          'er-web-restorable:patrolFilter',
-          JSON.stringify({ restore: false })
-        );
-      });
-
-      test('toggling the map position persistence setting when clicked', async () => {
-        expect(global.localStorage.setItem).not.toHaveBeenCalled();
-
-        const mapPositionPersistToggle = await screen.findByText('Map Position & Zoom Level');
-        await userEvent.click(mapPositionPersistToggle);
-
-        expect(global.localStorage.setItem).toHaveBeenCalledWith(
-          'er-web-restorable:mapPosition',
-          JSON.stringify({ restore: false })
-        );
-      });
-    });
-  });
-
-  describe('the alerts tab', () => {
-    test('showing the alerts iframe', async () => {
-      const alertsIframe = await screen.findByTestId('settings-alertsIframe');
-
-      expect(alertsIframe).toBeInTheDocument();
-    });
+    expect(screen.getByRole('tab', { name: 'Alerts' })).toBeVisible();
   });
 });
-
-

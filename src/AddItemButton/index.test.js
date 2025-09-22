@@ -20,7 +20,6 @@ describe('AddItemButton', () => {
   beforeEach(() => {
     store = {
       data: { eventTypes, eventCategories, patrolTypes, user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.CREATE] } }, },
-      view: { featureFlagOverrides: {} },
     };
 
     renderAddItemButton = (props, overrideStore) => {

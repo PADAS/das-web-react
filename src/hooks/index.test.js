@@ -2,7 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { renderHook } from '../test-utils';
 
-import { FEATURE_FLAG_LABELS, DEVELOPMENT_FEATURE_FLAGS } from '../constants';
+import { FEATURE_FLAG_LABELS } from '../constants';
 
 import { MapContext } from '../App';
 
@@ -96,11 +96,12 @@ describe('#useFeatureFlag', () => {
   beforeEach(() => {
     store = mockStore({
       view: {
-        featureFlagOverrides: {}
+        experimentalFeatures: {}
       },
     });
     wrapper = ({ children }) => <Provider store={store}>{children}</Provider>;  // eslint-disable-line react/display-name
   });
+
   test('throwing an error if no matching feature flag has been set in the environment file', async () => {
     expect(() => {
       renderHook(() => useFeatureFlag('this_does_not_exist_anywhere_yo'), { wrapper });
@@ -108,25 +109,22 @@ describe('#useFeatureFlag', () => {
   });
 
   test('using the default value if no override has been set', () => {
-    const { result } = renderHook(() => useFeatureFlag(FEATURE_FLAG_LABELS.DUMMY_FF_FOR_TESTING), { wrapper });
+    const { result } = renderHook(() => useFeatureFlag('DUMMY_FF_FOR_TESTING'), { wrapper });
 
-    expect(result.current).toBe(DEVELOPMENT_FEATURE_FLAGS.DUMMY_FF_FOR_TESTING);
+    expect(result.current).toBe(true);
   });
 
   test('using the override value if an override has been set', () => {
     store = mockStore({
       view: {
-        featureFlagOverrides: {
-          DUMMY_FF_FOR_TESTING: {
-            label: 'whatever',
-            value: !DEVELOPMENT_FEATURE_FLAGS.DUMMY_FF_FOR_TESTING,
-          }
+        experimentalFeatures: {
+          DUMMY_FF_FOR_TESTING: false,
         }
       },
     });
 
-    const { result } = renderHook(() => useFeatureFlag(FEATURE_FLAG_LABELS.DUMMY_FF_FOR_TESTING), { wrapper });
+    const { result } = renderHook(() => useFeatureFlag('DUMMY_FF_FOR_TESTING'), { wrapper });
 
-    expect(result.current).toBe(!DEVELOPMENT_FEATURE_FLAGS.DUMMY_FF_FOR_TESTING);
+    expect(result.current).toBe(false);
   });
 });

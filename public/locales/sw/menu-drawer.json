@@ -3,11 +3,6 @@
     "iframeBottomMessage": "Kila mtumiaji wa EarthRanger anaweza kupokea hadi arifa 20 kwa siku.",
     "iframeTitle": "Sanidi arifa zako za EarthRanger"
   },
-  "betaToggles": {
-    "playSoundForAlarmRadioState": "Cheza sauti na onyesha arifa wakati hali ya redio inabadilika kuwa nyekundu (kengele)",
-    "playSoundForNewInReachMessage": "Cheza sauti kwa ujumbe mpya wa inReach",
-    "reportNotification": "Cheza sauti kwa matukio mapya"
-  },
   "dailyReportModal": {
     "dataExportModalTitle": "Ripoti ya Kila Siku",
     "todaysReportButton": "Ripoti ya Leo",

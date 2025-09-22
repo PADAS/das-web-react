@@ -183,7 +183,6 @@ describe('ReportManager - ReportDetailView', () => {
           selectedCoordinateRepresentations: Object.values(GPS_FORMATS),
           storedSystems: [],
         },
-        featureFlagOverrides: {},
         mapLocationSelection: { isPickingLocation: false },
         sideBar: {},
         userPreferences: { gpsFormat: GPS_FORMATS.DEG },

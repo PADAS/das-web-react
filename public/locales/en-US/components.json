@@ -231,15 +231,31 @@
     "settingsPane": {
       "alertsFrameTitle": "Configure your EarthRanger alerts",
       "alertsTabTitle": "Alerts",
-      "appRefreshDescription": "Preserve my settings on page refresh for",
-      "appRefreshHeader": "App Refresh",
-      "appRefreshMapLayersLabel": "Map Layers",
-      "appRefreshMapPositionAndZoomLevelLabel": "Map Position & Zoom Level",
-      "appRefreshPatrolFiltersLabel": "Patrol Filters",
-      "appRefreshReportFiltersLabel": "Event Filters",
-      "experimentalFeaturesHeader": "Experimental Features",
+      "generalTab": {
+        "appRefreshFieldSet": {
+          "description": "Preserve my settings on page refresh for",
+          "eventFiltersCheckboxLabel": "Event Filters",
+          "legend": "App Refresh",
+          "mapLayersCheckboxLabel": "Map Layers",
+          "mapPositionAndZoomLevelCheckboxLabel": "Map Position & Zoom Level",
+          "patrolFiltersCheckboxLabel": "Patrol Filters"
+        },
+        "experimentalFeaturesFieldSet": {
+          "CUSTOM_COORDINATE_SYSTEMS_ENABLED": "Coordinate Reference Systems",
+          "legend": "Experimental Features"
+        },
+        "languageSelect": {
+          "label": "Language"
+        },
+        "soundFieldSet": {
+          "description": "Play sound for",
+          "legend": "Sound",
+          "newEventsCheckboxLabel": "New Events",
+          "newInReachMessagesCheckboxLabel": "New inReach messages",
+          "radioStateChangeToRedCheckboxLabel": "When a radio state changes to red (alarm)"
+        }
+      },
       "generalTabTitle": "General",
-      "languagesHeader": "Language",
       "mapTab": {
         "coordinateSystemSettingsView": {
           "backButtonLabel": "Go back to main map settings",
