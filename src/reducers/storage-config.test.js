@@ -32,7 +32,7 @@ describe('useOptionalPersistence', () => {
   });
 
   it('should initialize with provided persistence config, and use setRestorable to change the state', async () => {
-    const { result: { current: { restorable, setRestorable } } } = renderHook(() => useOptionalPersistence(storageKey, { restore: true }));
+    const { result: { current: { restorable, setRestorable } } } = renderHook(() => useOptionalPersistence(storageKey, true));
 
     expect(restorable).toEqual(true);
 

@@ -25,19 +25,15 @@ const TAB_KEYS = {
   ALERTS: 'alerts',
 };
 
-const RESTORABLE_DEFAULT_PERSISTENCE_CONFIG = {
-  restore: true
-};
-
 const SettingsPane = () => {
   const { i18n, t } = useTranslation('components', { keyPrefix: 'sideBar.settingsPane' });
 
   const alertsEnabled = useSelector((state) => state.view.systemConfig.alerts_enabled);
 
-  const { restorable: eventFilterRestorable, setRestorable: setEventFilterIsRestorable } = useOptionalPersistence(EVENT_FILTER_STORAGE_KEY, RESTORABLE_DEFAULT_PERSISTENCE_CONFIG);
-  const { restorable: patrolFilterRestorable, setRestorable: setPatrolFilterIsRestorable } = useOptionalPersistence(PATROL_FILTER_STORAGE_KEY, RESTORABLE_DEFAULT_PERSISTENCE_CONFIG);
-  const { restorable: mapPositionRestorable, setRestorable: setMapPositionIsRestorable } = useOptionalPersistence(MAP_POSITION_STORAGE_KEY, RESTORABLE_DEFAULT_PERSISTENCE_CONFIG);
-  const { restorable: mapLayersRestorable, setRestorable: setMapLayerFiltersAreRestorable } = useOptionalPersistence(MAP_LAYER_FILTER_STORAGE_KEY, RESTORABLE_DEFAULT_PERSISTENCE_CONFIG);
+  const { restorable: eventFilterRestorable, setRestorable: setEventFilterIsRestorable } = useOptionalPersistence(EVENT_FILTER_STORAGE_KEY, true);
+  const { restorable: patrolFilterRestorable, setRestorable: setPatrolFilterIsRestorable } = useOptionalPersistence(PATROL_FILTER_STORAGE_KEY, true);
+  const { restorable: mapPositionRestorable, setRestorable: setMapPositionIsRestorable } = useOptionalPersistence(MAP_POSITION_STORAGE_KEY, true);
+  const { restorable: mapLayersRestorable, setRestorable: setMapLayerFiltersAreRestorable } = useOptionalPersistence(MAP_LAYER_FILTER_STORAGE_KEY, true);
 
   const languageOptions = Object.entries(SUPPORTED_LANGUAGES)
     .reduce((accumulator, [value, label]) => [...accumulator, { label, value }], []);

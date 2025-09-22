@@ -44,10 +44,10 @@ export const generateOptionalStorageConfig = (key, INITIAL_STATE) => {
   return storageConfig;
 };
 
-export const useOptionalPersistence = (key, defaultPersistenceConfig = { restore: false }) => {
+export const useOptionalPersistence = (key, defaultRestorable = false ) => {
   const namespace = namespaceForKey(key);
 
-  const [value, setValue] = useLocalStorage(namespace, defaultPersistenceConfig);
+  const [value, setValue] = useLocalStorage(namespace, { restore: defaultRestorable });
   const restorable = value?.restore;
 
   const setRestorable = useCallback((restore = false) => {
