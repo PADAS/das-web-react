@@ -18,7 +18,7 @@ describe('SideBar - SettingsPane - GeneralTab - AppRefreshFieldSet', () => {
     expect(global.localStorage.setItem).toHaveBeenCalledTimes(4);
     expect(global.localStorage.setItem).not.toHaveBeenCalledWith(
       'er-web-restorable:mapPosition',
-      JSON.stringify({ restore: true })
+      JSON.stringify({ restore: false })
     );
 
     await userEvent.click(screen.getByRole('checkbox', { name: 'Map Position & Zoom Level' }));
@@ -36,7 +36,7 @@ describe('SideBar - SettingsPane - GeneralTab - AppRefreshFieldSet', () => {
     expect(global.localStorage.setItem).toHaveBeenCalledTimes(4);
     expect(global.localStorage.setItem).not.toHaveBeenCalledWith(
       'er-web-restorable:eventFilter',
-      JSON.stringify({ restore: true })
+      JSON.stringify({ restore: false })
     );
 
     await userEvent.click(screen.getByRole('checkbox', { name: 'Event Filters' }));
@@ -54,7 +54,7 @@ describe('SideBar - SettingsPane - GeneralTab - AppRefreshFieldSet', () => {
     expect(global.localStorage.setItem).toHaveBeenCalledTimes(4);
     expect(global.localStorage.setItem).not.toHaveBeenCalledWith(
       'er-web-restorable:patrolFilter',
-      JSON.stringify({ restore: true })
+      JSON.stringify({ restore: false })
     );
 
     await userEvent.click(screen.getByRole('checkbox', { name: 'Patrol Filters' }));
@@ -72,7 +72,7 @@ describe('SideBar - SettingsPane - GeneralTab - AppRefreshFieldSet', () => {
     expect(global.localStorage.setItem).toHaveBeenCalledTimes(4);
     expect(global.localStorage.setItem).not.toHaveBeenCalledWith(
       'er-web-restorable:mapLayerFilter',
-      JSON.stringify({ restore: true })
+      JSON.stringify({ restore: false })
     );
 
     await userEvent.click(screen.getByRole('checkbox', { name: 'Map Layers' }));
