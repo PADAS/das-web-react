@@ -27,10 +27,10 @@ const FeatureTypeListItem = (props) => {
 
   if (featureFilterEnabled && !features.length) return null;
 
-  const featureIsVisible = item => !hiddenFeatureIDs.includes(item.properties.id);
+  const featureIsVisible = item => !hiddenFeatureIDs.includes(item.id);
 
   const onCheckToggle = (item) => {
-    const { properties: { id } } = item;
+    const { id } = item;
     if (featureIsVisible(item)) {
       mapLayerTracker.track('Uncheck Feature checkbox');
       return hideFeatures(id);

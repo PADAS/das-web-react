@@ -36,6 +36,7 @@ import {
   mapClusterConfigReducer,
   mapClusterConfigMigrations,
 } from '../ducks/map-ui';
+import { mapFeatureHighlightIdReducer } from '../ducks/mapFeatureHighlight';
 import popupReducer from '../ducks/popup';
 import mapImagesReducer from '../ducks/map-images';
 import userPreferencesReducer from '../ducks/user-preferences';
@@ -145,6 +146,7 @@ const rootReducer = combineReducers({
     systemConfig: systemConfigReducer,
     timeSliderState: timeSliderReducer,
     printTitle: printTitleReducer,
+    mapFeatureHighlightIDs: mapFeatureHighlightIdReducer,
     bounceEventIDs: bounceEventReducer,
     showInactiveRadios: displayInactiveRadiosReducer,
     openMapFeatureTypeNames: openMapFeatureTypesReducer,

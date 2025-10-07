@@ -1,22 +1,25 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '../../../../../test-utils';
 import { GPS_FORMATS } from '../../../../../utils/location';
+import { createMapMock } from '../../../../../__test-helpers/mocks';
 import { mockStore } from '../../../../../__test-helpers/MockStore';
 
 import Location from './';
+import { MapContext } from '../../../../../App';
 
-jest.mock('../../../../../hooks/useJumpToLocation', () => () => () => {});
+jest.mock('../../../../../hooks/useJumpToLocation', () => () => () => { });
 
 describe('ReportManager - DetailsSection - SchemaForm - fields - Location', () => {
   const blurLocationMarker = jest.fn();
   const focusLocationMarker = jest.fn();
   const onFieldChange = jest.fn();
 
-  let details, store;
+  let details, store, map;
   beforeEach(() => {
+    map = createMapMock();
     details = {
       description: 'Location 1 Description',
       isRequired: false,
@@ -44,16 +47,18 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Location', () =
 
   const renderLocationField = (props, overrideStore) => render(
     <Provider store={mockStore({ ...store, ...overrideStore })}>
-      <Location
-        blurLocationMarker={blurLocationMarker}
-        details={details}
-        error={undefined}
-        focusLocationMarker={focusLocationMarker}
-        id="location-1"
-        onFieldChange={onFieldChange}
-        value={undefined}
-        {...props}
-      />
+      <MapContext.Provider value={map}>
+        <Location
+          blurLocationMarker={blurLocationMarker}
+          details={details}
+          error={undefined}
+          focusLocationMarker={focusLocationMarker}
+          id="location-1"
+          onFieldChange={onFieldChange}
+          value={undefined}
+          {...props}
+        />
+      </MapContext.Provider>
     </Provider>
   );
 

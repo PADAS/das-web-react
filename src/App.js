@@ -185,9 +185,9 @@ export const App = () => {
           {!mapboxSupported && <ErrorMessage className='webgl-error-message'
             message={t('webGlDisabled')} />}
 
-          {!!map && <SidebarScrollProvider>
+          <SidebarScrollProvider>
             <SideBar map={map} />
-          </SidebarScrollProvider>}
+          </SidebarScrollProvider>
 
           <ModalRenderer />
         </div>

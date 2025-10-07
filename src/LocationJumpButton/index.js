@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as MarkerIcon } from '../common/images/icons/marker-feed.svg';
@@ -8,6 +8,8 @@ import { trackEvent } from '../utils/analytics';
 import useJumpToLocation from '../hooks/useJumpToLocation';
 import useNavigate from '../hooks/useNavigate';
 import { validateLngLat } from '../utils/location';
+
+import { MapContext } from '../App';
 
 import * as styles from './styles.module.scss';
 
@@ -26,6 +28,7 @@ const LocationJumpButton = ({
   const { t } = useTranslation('components', { keyPrefix: 'locationJumpButton' });
 
   const buttonClass = className ? className : isMulti ? styles.multi : styles.jump;
+  const map = useContext(MapContext);
 
   const isValidLocation = useMemo(() => {
     if (bypassLocationValidation) {
@@ -72,6 +75,7 @@ const LocationJumpButton = ({
     : <MarkerIcon />;
 
   return isValidLocation && <button
+    disabled={!map}
     className={buttonClass}
     onClick={onJumpButtonClick}
     title={t('title')}

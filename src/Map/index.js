@@ -21,7 +21,6 @@ import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { subjectIsStatic } from '../utils/subjects';
 import { withMultiLayerHandlerAwareness, queryMultiLayerClickFeatures } from '../utils/map-handlers';
-import { getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 import { findAnalyzerIdByChildFeatureId, getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
@@ -52,7 +51,6 @@ import BuoyTrawlLineLayer from '../BuoyTrawlLineLayer';
 import StaticSensorsLayer from '../StaticSensorsLayer';
 import TracksLayer from '../TracksLayer';
 import PatrolStartStopLayer from '../PatrolStartStopLayer';
-import FeatureLayer from '../FeatureLayer';
 import AnalyzerLayer from '../AnalyzersLayer';
 import PopupLayer from '../PopupLayer';
 import SubjectHeatLayer from '../SubjectHeatLayer';
@@ -69,6 +67,7 @@ import MessageBadgeLayer from '../MessageBadgeLayer';
 import MapImagesLayer from '../MapImagesLayer';
 import SleepDetector from '../SleepDetector';
 import ClustersLayer from '../ClustersLayer';
+import SpatialFeaturesLayer from '../SpatialFeaturesLayer';
 
 import AddItemButton from '../AddItemButton';
 import MapRulerControl from '../MapRulerControl';
@@ -82,6 +81,7 @@ import ReportGeometryDrawer from '../ReportGeometryDrawer';
 import MapLocationSelectionOverview from '../MapLocationSelectionOverview';
 
 import './Map.scss';
+import { addMapImage } from '../utils/map';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -131,7 +131,6 @@ const Map = ({ children, onMapLoad, socket }) => {
   const trackLength = useSelector(state => state.view.trackSettings.length);
   const trackLengthOrigin = useSelector(state => state.view.trackSettings.origin);
   const mapImages = useSelector(state => state.view.mapImages);
-  const mapFeaturesFeatureCollection = useSelector(getFeatureSetFeatureCollectionsByType);
   const mapSubjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);
   const analyzersFeatureCollection = useSelector(getAnalyzerFeatureCollectionsByType);
   const showReportHeatmap = useSelector(state => state.view.showReportHeatmap);
@@ -159,8 +158,6 @@ const Map = ({ children, onMapLoad, socket }) => {
     && !isDrawingEventGeometry;
 
   const [currentAnalyzerIds, setCurrentAnalyzerIds] = useState([]);
-
-  const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
   const {
     analyzerWarningLines,
@@ -380,12 +377,14 @@ const Map = ({ children, onMapLoad, socket }) => {
     showPopup('timepoint', { geometry, properties, coordinates: geometry.coordinates });
   });
 
-  const onFeatureSymbolClick = withLocationPickerState(({ geometry, properties }) => {
-    const coordinates = Array.isArray(geometry.coordinates[0]) ? geometry.coordinates[0] : geometry.coordinates;
+  const onFeatureSymbolClick = useCallback((feature) => {
+    const { geometry, properties } = feature;
 
-    showPopup('feature-symbol', { geometry, properties, coordinates });
-    mapInteractionTracker.track('Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
-  });
+    if (geometry.type === 'Point') {
+      showPopup('feature-symbol', { geometry, properties, coordinates: geometry.coordinates });
+      mapInteractionTracker.track('Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
+    }
+  }, [showPopup]);
 
   const onAnalyzerGroupEnter = useCallback((e, groupIds) => {
     // if an analyzer popup is open, and the user selects a new analyzer, dismiss the current pop.
@@ -584,6 +583,32 @@ const Map = ({ children, onMapLoad, socket }) => {
     }
   }, [i18n.language, map]);
 
+  useEffect(() => {
+    const handleMapStyleImageMissing = async (event) => {
+      const { id } = event;
+      // querying from the root /static/ dir of the host means this is one of our static assets, let's get it
+      // if the map says it's missing.
+      if (id.includes('/static/')) {
+        const src = id.replace(/(\.svg|\.png|\.jpg).*$/, '$1');
+        try {
+          const img = await addMapImage({ src, id });
+        } catch (error) {
+          console.warn('Error adding map image:', { event, error });
+        }
+
+      }
+
+    };
+
+    if (map) {
+      map.on('styleimagemissing', handleMapStyleImageMissing);
+
+      return () => {
+        map.off('styleimagemissing', handleMapStyleImageMissing);
+      };
+    }
+  }, [map]);
+
   useMapEventBinding('movestart', cancelMapDataRequests);
   useMapEventBinding('moveend', fetchMapData);
   useMapEventBinding('moveend', debounce(saveMapPosition));
@@ -663,11 +688,8 @@ const Map = ({ children, onMapLoad, socket }) => {
 
       {patrolTracksVisible && <PatrolTracks onPointClick={onTimepointClick} />}
 
-      <FeatureLayer
-        symbols={symbolFeatures}
-        lines={lineFeatures}
-        polygons={fillFeatures}
-        onFeatureSymbolClick={onFeatureSymbolClick}
+      <SpatialFeaturesLayer
+        onFeatureClick={onFeatureSymbolClick}
       />
 
       <AnalyzerLayer
