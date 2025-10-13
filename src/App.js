@@ -39,6 +39,8 @@ import ErrorMessage from './ErrorMessage';
 import SideBar from './SideBar';
 import { SidebarScrollProvider } from './SidebarScrollContext';
 import WithSocketContext, { SocketContext } from './withSocketConnection';
+import { AuthProvider, useAuth } from './AuthContext';
+
 
 import 'axios-progress-bar/dist/nprogress.css';
 import './App.scss';
@@ -72,6 +74,8 @@ export const App = () => {
 
   const currentTab = getCurrentTabFromURL(location.pathname);
   let sidebarOpen = !!currentTab;
+
+  const { isAuthenticated, isLoading, handleCallback, logout } = useAuth();
 
   const jumpToStartingLocation = useCallback((map) => {
     const lnglat = new URLSearchParams(location.search).get('lnglat');
@@ -167,6 +171,15 @@ export const App = () => {
 
   const mapLocationSelectionModeClass = mapLocationSelection.isPickingLocation ? 'picking-location-fullscreen' : '';
 
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  // Don't render the app if not authenticated (e.g., during logout)
+  if (!isAuthenticated) {
+    return <div>Redirecting to login...</div>;
+  }
+
   return <div
     className={`App ${isDragging ? 'dragging' : ''} ${mapLocationSelectionModeClass}`}
     data-testid="app-wrapper"
@@ -200,6 +213,10 @@ export const App = () => {
 
         <Drawer />
 
+        <button onClick={logout} className="btn btn-secondary">
+          Logout
+        </button>
+
         <ServiceWorkerWatcher />
       </MapDrawingToolsContextProvider>
     </MapContext.Provider>
@@ -209,7 +226,9 @@ export const App = () => {
 };
 
 const AppWithSocketContext = () => <WithSocketContext>
-  <App />
+  <AuthProvider>
+    <App />
+  </AuthProvider>
 </WithSocketContext>;
 
 export default AppWithSocketContext;

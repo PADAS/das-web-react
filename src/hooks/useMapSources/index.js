@@ -37,11 +37,16 @@ const useMapSources = (sourceConfigsBatch = [], defaultConfig = { type: 'geojson
     return () => {
       if (map) {
         setTimeout(() => {
-          refs.forEach(id => {
-            if (map?.getSource(id)) {
-              map.removeSource(id);
-            }
-          });
+          try {
+            refs.forEach(id => {
+              if (map && map.getSource && map.removeSource && map.getSource(id)) {
+                map.removeSource(id);
+              }
+            });
+          } catch (error) {
+            // Silently handle cleanup errors that occur during unmounting
+            console.warn('Error cleaning up map sources:', error);
+          }
         });
       }
     };

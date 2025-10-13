@@ -164,12 +164,31 @@ const useMapLocationMarkers = (eventId, eventLocation, onMarkerClick = null, hid
 
       // Clean all the layers and sources when the hook unmounts.
       return () => {
-        map.removeLayer(layerIds.markerConnectinOutlines);
-        map.removeLayer(layerIds.markerConnectingLines);
-        map.removeLayer(layerIds.markers);
+        try {
+          if (map && map.getLayer && map.removeLayer) {
+            if (map.getLayer(layerIds.markerConnectinOutlines)) {
+              map.removeLayer(layerIds.markerConnectinOutlines);
+            }
+            if (map.getLayer(layerIds.markerConnectingLines)) {
+              map.removeLayer(layerIds.markerConnectingLines);
+            }
+            if (map.getLayer(layerIds.markers)) {
+              map.removeLayer(layerIds.markers);
+            }
+          }
 
-        map.removeSource(sourceIds.markerConnectingLines);
-        map.removeSource(sourceIds.markers);
+          if (map && map.getSource && map.removeSource) {
+            if (map.getSource(sourceIds.markerConnectingLines)) {
+              map.removeSource(sourceIds.markerConnectingLines);
+            }
+            if (map.getSource(sourceIds.markers)) {
+              map.removeSource(sourceIds.markers);
+            }
+          }
+        } catch (error) {
+          // Silently handle cleanup errors that occur during unmounting
+          console.warn('Error cleaning up map location markers:', error);
+        }
       };
     }
   }, [map]);

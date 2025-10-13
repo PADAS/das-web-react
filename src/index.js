@@ -32,6 +32,7 @@ import useWebVitals from './hooks/useWebVitals';
 const App = lazy(() => import('./App'));
 const EulaPage = lazy(() => import('./views/EULA'));
 const Login = lazy(() => import('./Login'));
+const Auth0CallbackWithContext = lazy(() => import('./Auth0Callback'));
 
 const AppWithTracker = withTracker(App, 'EarthRanger');
 const EulaPageWithTracker = withTracker(EulaPage, 'EULA');
@@ -77,7 +78,7 @@ const RootApp = () => {
     <Suspense fallback={<LoadingOverlay />}>
       <Routes>
         <Route path={`${REACT_APP_ROUTE_PREFIX}login`} element={<LoginWithTracker />} />
-
+        <Route path={`${REACT_APP_ROUTE_PREFIX}auth0/callback`} element={<Auth0CallbackWithContext />} />
         <Route
           path={`${REACT_APP_ROUTE_PREFIX}eula`}
           element={<RequireAccessToken>

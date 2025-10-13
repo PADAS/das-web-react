@@ -13,6 +13,8 @@ import { fetchEula } from '../ducks/eula';
 import { fetchSystemStatus } from '../ducks/system-status';
 import { REACT_APP_ROUTE_PREFIX, SYSTEM_CONFIG_FLAGS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
+import { AuthProvider } from '../AuthContext';
+import LoginButton from '../components/LoginButton';
 
 import * as styles from './styles.module.scss';
 
@@ -31,11 +33,11 @@ const LoginPage = () => {
 
   const isEULAEnabled = !!systemConfig?.[SYSTEM_CONFIG_FLAGS.EULA];
 
+
   const onFormSubmit = useCallback((event) => {
     event.preventDefault();
 
     setIsLoading(true);
-
     dispatch(postAuth(formData))
       .then(() => {
         const options = location.state?.from ? { state: { comesFromLogin: true } } : {};
@@ -64,6 +66,8 @@ const LoginPage = () => {
   }, [dispatch]);
 
   return <div className={styles.container}>
+
+
     <EarthRangerLogo className={styles.logo} />
 
     <Form name="login" className={styles.form} onSubmit={onFormSubmit}>
@@ -92,10 +96,16 @@ const LoginPage = () => {
       {!!errorMessage && <Alert className={styles.error} variant="danger">{errorMessage}</Alert>}
     </Form>
 
+    <LoginButton />
+
     {isEULAEnabled && <p className={styles.eulalink}>
       <a href={eulaURL} target="_blank" rel="noopener noreferrer">{t('eulaLink')}</a>
     </p>}
   </div>;
 };
 
-export default memo(LoginPage);
+const LoginPageWithAuth = () => {
+  return <AuthProvider><LoginPage /></AuthProvider>;
+};
+
+export default memo(LoginPageWithAuth);

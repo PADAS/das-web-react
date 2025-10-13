@@ -76,8 +76,17 @@ const useClusterPolygon = () => {
 
       return () => {
         // Clean map resources when the hook unmounts.
-        map.removeLayer(LAYER_IDS.CLUSTER_POLYGON_LAYER_ID);
-        map.removeSource(SOURCE_IDS.CLUSTER_POLYGON_SOURCE_ID);
+        try {
+          if (map && map.getLayer && map.removeLayer && map.getLayer(LAYER_IDS.CLUSTER_POLYGON_LAYER_ID)) {
+            map.removeLayer(LAYER_IDS.CLUSTER_POLYGON_LAYER_ID);
+          }
+          if (map && map.getSource && map.removeSource && map.getSource(SOURCE_IDS.CLUSTER_POLYGON_SOURCE_ID)) {
+            map.removeSource(SOURCE_IDS.CLUSTER_POLYGON_SOURCE_ID);
+          }
+        } catch (error) {
+          // Silently handle cleanup errors that occur during unmounting
+          console.warn('Error cleaning up cluster polygon:', error);
+        }
       };
     }
   }, [map, showMapClusterPolygons]);

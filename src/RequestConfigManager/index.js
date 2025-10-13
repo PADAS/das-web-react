@@ -109,6 +109,11 @@ const RequestConfigManager = ({
         return response;
       },
       (error) => {
+        // Don't reject canceled requests - they're expected during logout/cleanup
+        if (axios.isCancel(error)) {
+          // Return a resolved promise with canceled flag to prevent uncaught errors
+          return Promise.resolve({ data: null, canceled: true });
+        }
         handle401Errors(error);
         return Promise.reject(error);
       }
