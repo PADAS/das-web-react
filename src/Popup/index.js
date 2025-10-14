@@ -3,7 +3,9 @@ import { createPortal } from 'react-dom';
 import mapboxgl from 'mapbox-gl';
 import xor from 'lodash/xor';
 
+
 import { MapContext } from '../App';
+import { validateLngLat } from '../utils/location';
 
 const Popup = ({ className = '', trackPointer = false, offset, coordinates, anchor, children }) => {
   const map = useContext(MapContext);
@@ -12,6 +14,8 @@ const Popup = ({ className = '', trackPointer = false, offset, coordinates, anch
   const popupRef = useRef(null);
   const popupContainerRef = useRef(document.createElement('div'));
 
+  const locationIsValid = validateLngLat(coordinates);
+
   useEffect(() => {
     if (!popupRef.current) {
       const popup = new mapboxgl.Popup({ className, offset, anchor, closeButton: false });
@@ -19,7 +23,7 @@ const Popup = ({ className = '', trackPointer = false, offset, coordinates, anch
 
       if (trackPointer) {
         popup.trackPointer();
-      } else {
+      } else if (locationIsValid) {
         popup.setLngLat(coordinates);
       }
 
@@ -32,7 +36,7 @@ const Popup = ({ className = '', trackPointer = false, offset, coordinates, anch
 
       popupRef.current.addTo(map);
     }
-  }, [anchor, className, coordinates, map, offset, trackPointer]);
+  }, [anchor, className, coordinates, locationIsValid, map, offset, trackPointer]);
 
   useEffect(() => {
     if (popupRef.current) {
@@ -54,7 +58,7 @@ const Popup = ({ className = '', trackPointer = false, offset, coordinates, anch
   }, [className]);
 
   useEffect(() => {
-    if (!trackPointer)  {
+    if (!trackPointer) {
       if (popupRef.current && coordinates) {
         popupRef?.current?.setLngLat(coordinates);
       }

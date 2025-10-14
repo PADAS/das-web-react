@@ -5,7 +5,7 @@ import { MapContext } from '../App';
 
 import AnalyzerConfigPopup from '../AnalyzerConfigPopup';
 import DroppedMarkerPopup from '../DroppedMarkerPopup';
-import FeatureSymbolPopup from '../FeatureLayer/FeatureSymbolPopup';
+import FeatureSymbolPopup from '../FeatureSymbolPopup';
 import GpsFormatTogglePopup from '../GpsFormatTogglePopup';
 import LayerSelectorPopup from '../LayerSelectorPopup';
 import Popup from '../Popup';
@@ -56,7 +56,7 @@ const TEMPLATES = {
   },
   'feature-symbol': {
     Component: FeatureSymbolPopup,
-    popupAttrs: { anchor: 'bottom', offset: [0, -26] },
+    popupAttrs: { anchor: 'bottom', offset: [0, -12] },
   },
   'analyzer-config': {
     Component: AnalyzerConfigPopup,

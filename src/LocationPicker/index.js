@@ -1,4 +1,4 @@
-import React, { memo, useId, useImperativeHandle, useRef, useState } from 'react';
+import React, { memo, useId, useImperativeHandle, useRef, useState, useContext } from 'react';
 import Overlay from 'react-bootstrap/Overlay';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -14,6 +14,7 @@ import MenuPopover from './MenuPopover';
 import TextCopyBtn from '../TextCopyBtn';
 
 import * as styles from './styles.module.scss';
+import { MapContext } from '../App';
 
 const LocationPicker = ({
   className = '',
@@ -35,6 +36,7 @@ const LocationPicker = ({
   const { t } = useTranslation('components', { keyPrefix: 'locationPicker' });
 
   const jumpToLocation = useJumpToLocation();
+  const map = useContext(MapContext);
 
   const coordinatesRepresentation = useSelector(selectCoordinatesRepresentation);
 
@@ -120,7 +122,7 @@ const LocationPicker = ({
       <button
         aria-label={t('jumpToLocationButtonLabel')}
         className={styles.jumpToLocationButton}
-        disabled={!value || disabled}
+        disabled={!value || !map || disabled}
         onClick={() => jumpToLocation([value.longitude, value.latitude], jumpToLocationButtonZoom)}
         title={t('jumpToLocationButtonLabel')}
         type="button"

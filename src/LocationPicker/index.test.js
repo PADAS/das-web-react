@@ -4,9 +4,12 @@ import userEvent from '@testing-library/user-event';
 
 import { fireEvent, render, screen, waitFor } from '../test-utils';
 import { epsg5367 } from '../__test-helpers/fixtures/location';
+import { createMapMock } from '../__test-helpers/mocks';
 import { GPS_FORMATS } from '../utils/location';
 import useJumpToLocation from '../hooks/useJumpToLocation';
 import { mockStore } from '../__test-helpers/MockStore';
+
+import { MapContext } from '../App';
 
 import LocationPicker from './';
 
@@ -15,8 +18,11 @@ jest.mock('../hooks/useJumpToLocation', () => jest.fn());
 describe('LocationPicker', () => {
   const onChange = jest.fn();
 
+  let map;
+
   let jumpToLocationMock, store;
   beforeEach(() => {
+    map = createMapMock();
     jumpToLocationMock = jest.fn();
     useJumpToLocation.mockImplementation(() => jumpToLocationMock);
 
@@ -44,7 +50,9 @@ describe('LocationPicker', () => {
 
   const renderLocationPicker = (props, overrideStore) => render(
     <Provider store={mockStore({ ...store, ...overrideStore })}>
-      <LocationPicker data-testid="locationPicker" id="locationPicker" onChange={onChange} value={null} {...props} />
+      <MapContext.Provider value={map}>
+        <LocationPicker data-testid="locationPicker" id="locationPicker" onChange={onChange} value={null} {...props} />
+      </MapContext.Provider>
     </Provider>
   );
 
