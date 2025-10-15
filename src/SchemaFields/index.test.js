@@ -64,7 +64,7 @@ describe('DateTimeWidget', () => {
 
     const datePickerOpenCalendarButton = await screen.findByLabelText('Open calendar');
     await userEvent.click(datePickerOpenCalendarButton);
-    await userEvent.click(screen.getByRole('gridcell', { name: 'Choose Wednesday, December 11th, 2019' }));
+    await userEvent.click(screen.getAllByRole('gridcell')[10]);
 
     expect(props.onChange).toHaveBeenCalled();
   });
