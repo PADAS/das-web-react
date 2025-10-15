@@ -28,7 +28,7 @@ export const fetchAnalyzers = () => async (dispatch) => {
         const feature = analyzerFeature.features[0];
         feature.id = featureLayerIdentifier++;
         if (analyzer.analyzer_category === 'proximity') {
-          const proximityPoly = createGeoJSONBuffer(feature.geometry, analyzer.threshold_dist_meters);
+          const proximityPoly = createGeoJSONBuffer(feature, analyzer.threshold_dist_meters);
           feature.geometry = proximityPoly.geometry;
         }
         feature.properties.admin_href = analyzer.admin_href;
