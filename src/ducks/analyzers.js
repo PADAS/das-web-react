@@ -1,6 +1,6 @@
 import { API_URL } from '../constants';
 import axios from 'axios';
-import { createGeoJSONCircle } from '../utils/analyzers';
+import { createGeoJSONCircle, createGeoJSONBuffer } from '../utils/analyzers';
 import { featureCollection } from '@turf/turf';
 
 import globallyResettableReducer from '../reducers/global-resettable';
@@ -28,7 +28,7 @@ export const fetchAnalyzers = () => async (dispatch) => {
         const feature = analyzerFeature.features[0];
         feature.id = featureLayerIdentifier++;
         if (analyzer.analyzer_category === 'proximity') {
-          const proximityPoly = createGeoJSONCircle(feature.geometry, analyzer.threshold_dist_meters);
+          const proximityPoly = createGeoJSONBuffer(feature.geometry, analyzer.threshold_dist_meters);
           feature.geometry = proximityPoly.geometry;
         }
         feature.properties.admin_href = analyzer.admin_href;
