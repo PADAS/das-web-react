@@ -73,8 +73,8 @@ export const createGeoJSONCircle = (geometry, radius, options) => {
   return poly_circle;
 };
 
-export const createGeoJSONBuffer = (geojson, radius = 500, options) => {
-  if (!options) options = { steps: 32, units: 'kilometers' };
+export const createGeoJSONBuffer = (geojson, radius = 500, opts = {}) => {
+  const options = { ...opts, units: 'kilometers' };
   const poly_buffer = buffer(geojson, radius / 1000, options);
   return poly_buffer;
 };
