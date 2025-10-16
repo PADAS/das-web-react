@@ -1,4 +1,4 @@
-import { bbox, bboxPolygon, circle, buffer, centroid } from '@turf/turf';
+import { bbox, bboxPolygon, centroid } from '@turf/turf';
 
 import { LAYER_IDS, SOURCE_IDS } from '../constants';
 
@@ -63,12 +63,6 @@ export const getAnalyzerAdminPoint = (geometry) => {
   const poly = bboxPolygon(geometry);
   const centerPt = centroid(poly);
   return centerPt.geometry.coordinates;
-};
-
-export const createGeoJSONBuffer = (geojson, radius = 500, opts = {}) => {
-  const options = { steps: 32, ...opts, units: 'kilometers' };
-  const poly_buffer = buffer(geojson, radius / 1000, options);
-  return poly_buffer;
 };
 
 export const findAnalyzerIdByChildFeatureId = (featureId, analyzerFeatures) => {
