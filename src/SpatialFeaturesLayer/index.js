@@ -1,7 +1,7 @@
 import React, { memo, useContext, useMemo, useCallback, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { MapContext } from '../App';
-import { API_URL, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
+import { API_URL, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, SYMBOL_ICON_SIZE_EXPRESSION } from '../constants';
 
 const SPATIAL_FEATURES_SOURCE = 'spatial-features-source';
 
@@ -107,6 +107,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
             ['has', 'image'], DEFAULT_SYMBOL_LAYOUT['icon-image'],
             'marker-icon',
           ],
+          'icon-size': SYMBOL_ICON_SIZE_EXPRESSION,
           'text-size': 0,
           'icon-anchor': 'center',
         },
