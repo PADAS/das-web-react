@@ -26,8 +26,9 @@ const DEFAULT_LINE_PAINT_COLOR = [
 const DEFAULT_POLYGON_FILL_COLOR = [
   'case',
   ['has', 'fill'], ['get', 'fill'],
-  ['has', 'color'], ['get', 'color'],
+  ['has', 'fill-color'], ['get', 'fill-color'],
   ['has', 'fill_color'], ['get', 'fill_color'],
+  ['has', 'color'], ['get', 'color'],
   ['has', 'stroke'], ['get', 'stroke'],
   '#ff6600'
 ];
