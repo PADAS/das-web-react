@@ -18,6 +18,9 @@ jest.mock('../ducks/analyzers', () => ({}));
 jest.mock('../utils/map', () => ({
   addMapImage: jest.fn()
 }));
+jest.mock('../MessageBadgeLayer', () => ({
+  LAYER_ID: 'message-badge-layer'
+}));
 
 jest.mock('../constants', () => ({
   API_URL: 'http://test-api.com/',
@@ -34,8 +37,7 @@ jest.mock('../constants', () => ({
     ANALYZER_POLYS_CRITICAL: 'analyzer-polygon-critical',
     ANALYZER_POLYS_WARNING: 'analyzer-polygon-warning',
     EVENT_GEOMETRY_LAYER: 'event-geometry-layer',
-    CLUSTERS_LAYER_ID: 'clusters-layer',
-    SUBJECT_SYMBOLS: 'subject-symbol-layer'
+    CLUSTERS_LAYER_ID: 'clusters-layer'
   },
   SOURCE_IDS: {
     ANALYZER_LINES_CRITICAL_SOURCE: 'analyzer-line-critical-source',
@@ -43,7 +45,7 @@ jest.mock('../constants', () => ({
     ANALYZER_POLYS_CRITICAL_SOURCE: 'analyzer-polygon-critical-source',
     ANALYZER_POLYS_WARNING_SOURCE: 'analyzer-polygon-warning-source',
     CLUSTERS_SOURCE_ID: 'clusters-source'
-  }
+  },
 }));
 
 jest.mock('react-redux', () => ({
@@ -106,7 +108,7 @@ describe('SpatialFeaturesLayer', () => {
         ['==', ['geometry-type'], 'Point'],
         ['!', ['in', ['get', 'id'], ['literal', ['hidden-feature-1', 'hidden-feature-2']]]]
       ])
-    }), 'subject-symbol-layer');
+    }), 'message-badge-layer');
 
     // Verify line layer was added
     expect(mockMap.addLayer).toHaveBeenCalledWith(expect.objectContaining({
@@ -119,7 +121,7 @@ describe('SpatialFeaturesLayer', () => {
         ['==', ['geometry-type'], 'LineString'],
         ['!', ['in', ['get', 'id'], ['literal', ['hidden-feature-1', 'hidden-feature-2']]]]
       ])
-    }), 'subject-symbol-layer');
+    }), 'message-badge-layer');
 
     // Verify polygon layer was added
     expect(mockMap.addLayer).toHaveBeenCalledWith(expect.objectContaining({
@@ -132,7 +134,7 @@ describe('SpatialFeaturesLayer', () => {
         ['==', ['geometry-type'], 'Polygon'],
         ['!', ['in', ['get', 'id'], ['literal', ['hidden-feature-1', 'hidden-feature-2']]]]
       ])
-    }), 'subject-symbol-layer');
+    }), 'message-badge-layer');
 
     // Verify click handlers were added
     expect(mockMap.on).toHaveBeenCalledWith('click', SYMBOLS_LAYER_ID, expect.any(Function));
