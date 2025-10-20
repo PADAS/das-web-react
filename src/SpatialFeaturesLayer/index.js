@@ -1,7 +1,11 @@
 import React, { memo, useContext, useMemo, useCallback, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { MapContext } from '../App';
-import { API_URL, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, SYMBOL_ICON_SIZE_EXPRESSION } from '../constants';
+import { addMapImage } from '../utils/map';
+import { API_URL, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
+
+import MarkerImage from '../common/images/icons/mapbox-blue-marker-icon.png';
+import RangerStationsImage from '../common/images/icons/ranger-stations.png';
 
 const SPATIAL_FEATURES_SOURCE = 'spatial-features-source';
 
@@ -361,6 +365,15 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
       });
     }
   }, [map, polygonLayerFilter]);
+
+  useEffect(() => {
+    if (!!map && !map.hasImage('marker-icon')) {
+      addMapImage({ src: MarkerImage, id: 'marker-icon' });
+    }
+    if (!!map && !map.hasImage('ranger-stations')) {
+      addMapImage({ src: RangerStationsImage, id: 'ranger-stations' });
+    }
+  }, [map]);
 
   return null;
 };
