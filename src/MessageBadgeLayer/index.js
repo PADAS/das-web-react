@@ -43,7 +43,7 @@ const calcMapMessages = (messages = [], subjectFeatureCollection) => {
 };
 
 const SOURCE_ID = 'MESSAGE_BADGES';
-const LAYER_ID = `${SOURCE_ID}_LAYER`;
+export const LAYER_ID = `${SOURCE_ID}_LAYER`;
 
 const messageBadgeLayout = {
   'icon-anchor': 'bottom-left',
