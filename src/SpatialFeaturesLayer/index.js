@@ -108,7 +108,6 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
             ['has', 'image'], DEFAULT_SYMBOL_LAYOUT['icon-image'],
             'marker-icon',
           ],
-          'icon-size': SYMBOL_ICON_SIZE_EXPRESSION,
           'text-size': 0,
           'icon-anchor': 'center',
         },
