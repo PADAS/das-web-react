@@ -2,7 +2,7 @@ import React, { memo, useContext, useMemo, useCallback, useEffect } from 'react'
 import { useSelector } from 'react-redux';
 import { MapContext } from '../App';
 import { addMapImage } from '../utils/map';
-import { API_URL, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
+import { API_URL, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, LAYER_IDS } from '../constants';
 
 import MarkerImage from '../common/images/icons/mapbox-blue-marker-icon.png';
 import RangerStationsImage from '../common/images/icons/ranger-stations.png';
@@ -119,7 +119,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
           ...DEFAULT_SYMBOL_PAINT
         },
         filter: symbolLayerFilter
-      });
+      }, LAYER_IDS.SUBJECT_SYMBOLS);
     }
 
     if (!map.getLayer(LINES_LAYER_ID)) {
@@ -148,7 +148,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
           ]
         },
         filter: lineLayerFilter
-      });
+      }, LAYER_IDS.SUBJECT_SYMBOLS);
     }
 
     if (!map.getLayer(POLYGONS_LAYER_ID)) {
@@ -175,7 +175,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
           ]
         },
         filter: polygonLayerFilter
-      });
+      }, LAYER_IDS.SUBJECT_SYMBOLS);
     }
 
     /* // Add separate label layers for each geometry type
