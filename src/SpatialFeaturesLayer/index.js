@@ -30,7 +30,7 @@ const DEFAULT_POLYGON_FILL_COLOR = [
   ['has', 'fill_color'], ['get', 'fill_color'],
   ['has', 'color'], ['get', 'color'],
   ['has', 'stroke'], ['get', 'stroke'],
-  '#ff6600'
+  'rgba(255, 102, 0, 0)'
 ];
 
 
@@ -133,7 +133,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
             ['has', 'width'], ['get', 'width'],
             ['has', 'line_width'], ['get', 'line_width'],
             ['has', 'stroke_width'], ['get', 'stroke_width'],
-            3
+            1,
           ],
           'line-opacity': [
             'case',
@@ -168,7 +168,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
             ['has', 'stroke'], ['get', 'stroke'],
             ['has', 'outline_color'], ['get', 'outline_color'],
             ['has', 'border_color'], ['get', 'border_color'],
-            '#ff6600'
+            'rgba(255, 102, 0, 0.25)'
           ]
         },
         filter: polygonLayerFilter
