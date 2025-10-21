@@ -302,11 +302,13 @@ const DetailsSection = ({
       role="alert"
       aria-live="polite"
     >
-      <strong>{t('errorLoadingSchema')}</strong>
+      <p>
+        <strong>{t('errorLoadingSchema')}</strong>
 
-      {eventSchema?.response?.data?.status?.detail && <span>
-        {eventSchema.response.data.status.detail}
-      </span>}
+        {eventSchema?.response?.data?.status?.detail && <span className={styles.errorDetail}>
+          {eventSchema.response.data.status.detail}
+        </span>}
+      </p>
     </div>}
   </div>;
 };
