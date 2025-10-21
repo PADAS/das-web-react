@@ -130,6 +130,7 @@
       },
       "dateLabel": "Date de l'Événement",
       "detailsHeader": "Détails",
+      "errorLoadingSchema": "Erreur lors du chargement du schéma",
       "locationLabel": "Emplacement",
       "priorityLabel": "Priorité",
       "reportedByLabel": "Complété Par",

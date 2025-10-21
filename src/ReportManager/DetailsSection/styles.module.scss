@@ -204,3 +204,11 @@
   margin: 1rem;
   width: 100%;
 }
+
+.errorMessage {
+  color: $bright-red;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.875rem;
+  margin: 1rem 0.5rem;
+}

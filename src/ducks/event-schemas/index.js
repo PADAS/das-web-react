@@ -126,7 +126,7 @@ const eventSchemasReducer = (state, action) => {
       loading: false,
       [action.payload.eventTypeValue]: {
         ...state[action.payload.eventTypeValue],
-        [action.payload.eventId]: action.payload.error,
+        [action.payload.eventId || 'base']: action.payload.error,
       },
     };
 

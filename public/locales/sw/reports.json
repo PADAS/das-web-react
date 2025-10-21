@@ -141,6 +141,7 @@
       },
       "dateLabel": "Tarehe ya Tukio",
       "detailsHeader": "Maelezo",
+      "errorLoadingSchema": "Hitilafu wakati wa kupakia muundo",
       "locationLabel": "Mahali pa Tukio",
       "priorityLabel": "Kipaumbele",
       "reportedByLabel": "Iliripotiwa Na",

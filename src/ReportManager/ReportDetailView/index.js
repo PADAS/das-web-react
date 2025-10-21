@@ -124,7 +124,6 @@ const ReportDetailView = ({
   const reportTracker = useContext(TrackerContext);
   const { setScrollPosition } = useContext(SidebarScrollContext);
 
-  const loadingEventSchemas = useSelector((state) => state.data.eventSchemas.loading);
   const eventStore = useSelector((state) => state.data.eventStore);
   const patrolStore = useSelector((state) => state.data.patrolStore);
   const eventType = useSelector((state) => {
@@ -171,7 +170,6 @@ const ReportDetailView = ({
   const isActive = isReportActive(originalReport);
   const isCollection = !!reportForm?.is_collection;
   const isCollectionChild = eventBelongsToCollection(reportForm);
-  const isLoadingSchemas = (!!reportForm && !eventSchema) || !!loadingEventSchemas;
   const isPatrolAddedReport = formProps?.hasOwnProperty('isPatrolReport') && formProps.isPatrolReport;
   const belongsToPatrol = eventBelongsToPatrol(reportForm);
 
@@ -792,7 +790,6 @@ const ReportDetailView = ({
                 isBehindAddedEvent={isBehindAddedEvent}
                 isCollection={isCollection}
                 isNewEvent={isNewReport}
-                loadingSchema={isLoadingSchemas}
                 onFormDataChange={onFormDataChange}
                 onFormError={onFormError}
                 onFormSubmit={onFormSubmit}
@@ -803,7 +800,6 @@ const ReportDetailView = ({
                 onReportGeometryChange={onReportGeometryChange}
                 onReportLocationChange={onReportLocationChange}
                 onReportStateChange={onReportStateChange}
-                originalReport={originalReport}
                 reportForm={reportForm}
                 submitFormButtonRef={submitFormButtonRef}
                 formValidator={formValidator}
