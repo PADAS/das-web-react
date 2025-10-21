@@ -298,9 +298,9 @@ const DetailsSection = ({
     </div>}
 
     {eventSchema instanceof Error && <div
+      aria-live="polite"
       className={styles.errorMessage}
       role="alert"
-      aria-live="polite"
     >
       <p>
         <strong>{t('errorLoadingSchema')}</strong>
