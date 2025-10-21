@@ -299,13 +299,13 @@ const DetailsSection = ({
 
     {eventSchema instanceof Error && <div
       aria-live="polite"
-      className={styles.errorMessage}
+      className={styles.errorMessageWrapper}
       role="alert"
     >
-      <p>
+      <p className={styles.errorMessage}>
         <strong>{t('errorLoadingSchema')}</strong>
 
-        {eventSchema?.response?.data?.status?.detail && <span className={styles.errorDetail}>
+        {eventSchema?.response?.data?.status?.detail && <span>
           {eventSchema.response.data.status.detail}
         </span>}
       </p>
