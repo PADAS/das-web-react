@@ -138,6 +138,7 @@
             },
             "dateLabel": "घटनाको मिति",
             "detailsHeader": "विवरण",
+            "errorLoadingSchema": "स्किमा लोड गर्दा त्रुटि",
             "locationLabel": "घटनाको लोकेसन",
             "priorityLabel": "प्राथमिकता",
             "reportedByLabel": "द्वारा रिपार्ट गरिएको",

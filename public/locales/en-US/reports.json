@@ -141,6 +141,7 @@
       },
       "dateLabel": "Event Date",
       "detailsHeader": "Details",
+      "errorLoadingSchema": "Error loading schema",
       "locationLabel": "Event Location",
       "priorityLabel": "Priority",
       "reportedByLabel": "Reported By",

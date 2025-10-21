@@ -1,4 +1,5 @@
 import React from 'react';
+import { AxiosError } from 'axios';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
@@ -63,7 +64,10 @@ describe('ReportManager - DetailsSection', () => {
         eventStore: {},
         eventTypes,
         patrolTypes,
-        eventSchemas,
+        eventSchemas: {
+          ...eventSchemas,
+          loading: false,
+        },
       },
       view: {
         coordinateReferenceSystems: {
@@ -97,7 +101,6 @@ describe('ReportManager - DetailsSection', () => {
               isBehindAddedEvent={false}
               isCollection={false}
               isNewEvent={false}
-              loadingSchema={false}
               onFormDataChange={onFormDataChange}
               onFormError={onFormError}
               onFormSubmit={onFormSubmit}
@@ -108,7 +111,6 @@ describe('ReportManager - DetailsSection', () => {
               onReportGeometryChange={onReportGeometryChange}
               onReportLocationChange={onReportLocationChange}
               onReportStateChange={onReportStateChange}
-              originalReport={report}
               reportForm={report}
               submitFormButtonRef={submitFormButtonRef}
               {...props}
@@ -502,9 +504,48 @@ describe('ReportManager - DetailsSection', () => {
     expect(onFormSubmit).toHaveBeenCalledTimes(1);
   });
 
+  test('does not show the loader if the schema is loaded', async () => {
+    renderDetailsSection();
+
+    expect(screen.queryByTestId('reportManager-detailsSection-loader')).toBeNull();
+  });
+
   test('shows a loader while the schema loads', async () => {
-    renderDetailsSection({ eventSchema: null, loadingSchema: true });
+    store.data.eventSchemas.loading = true;
+    renderDetailsSection({ eventSchema: null });
 
     expect(screen.getByTestId('reportManager-detailsSection-loader')).toBeVisible();
+  });
+
+  test('does not show an error message if the schema is loaded correctly', async () => {
+    renderDetailsSection();
+
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  test('shows an error message if the schema is erroneous', async () => {
+    renderDetailsSection({ eventSchema: new Error('Error loading schema') });
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Error loading schema');
+  });
+
+  test('shows an error message with the detail of the error if the schema is erroneous', async () => {
+    renderDetailsSection({
+      eventSchema: new AxiosError(
+        'Request failed with status code 500',
+        'ERR_BAD_RESPONSE',
+        {},
+        {},
+        {
+          data: {
+            status: {
+              detail: 'Error detail',
+            },
+          },
+        },
+      ),
+    });
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Error loading schemaError detail');
   });
 });

@@ -136,6 +136,19 @@ describe('Ducks - Event schemas', () => {
       expect(eventSchemasReducer(INITIAL_STATE, action)).toEqual(expectedState);
     });
 
+    test('handles a FETCH_EVENT_TYPE_SCHEMA_FAILURE action with a base schema', async () => {
+      const payload = { error: 'Error', eventTypeValue: 'snare_rep' };
+      const action = { payload, type: FETCH_EVENT_TYPE_SCHEMA_FAILURE };
+      const expectedState = {
+        loading: false,
+        snare_rep: {
+          base: 'Error',
+        },
+      };
+
+      expect(eventSchemasReducer(INITIAL_STATE, action)).toEqual(expectedState);
+    });
+
     test('handles a FETCH_EVENT_TYPE_SCHEMA_V1_SUCCESS action', async () => {
       const payload = {
         definition: {},
