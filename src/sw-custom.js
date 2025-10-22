@@ -46,14 +46,14 @@ if ('function' === typeof importScripts) {
       event.waitUntil(self.skipWaiting());
     });
 
-    self.addEventListener('activate', function(event) {
+    self.addEventListener('activate', function (event) {
       event.waitUntil(self.clients.claim()); // Become available to all pages
     });
 
     workbox.core.clientsClaim();
 
     self.addEventListener('fetch', function (event) {
-      if ( event.request.url.match( '^.*(\/admin\/).*$' ) ) {
+      if (event.request.url.match('^.*(\/admin\/).*$')) {
         return false;
       }
     });
@@ -108,16 +108,16 @@ if ('function' === typeof importScripts) {
     // Examples:
     //   ^/tiles/          -> relative to your origin
     //   https://api.example.com/tiles/
-    const tileRouteMatch = ({url, request}) => {
+    const tileRouteMatch = ({ url, request }) => {
       if (request.method !== 'GET') return false;
       // Match your tile path(s); tweak as appropriate:
-      return url.pathname.includes('spatialfeatures/tiles/') || 
-             url.pathname.includes('observations/tiles/')
+      return url.pathname.includes('spatialfeatures/tiles/') ||
+        url.pathname.includes('observations/tiles/')
     };
 
     workbox.routing.registerRoute(
       tileRouteMatch,
-      async ({event, request}) => {
+      async ({ event, request }) => {
         // If we don't have a scope yet, bypass cache and hit the network.
         if (!CURRENT_SCOPE_HASH) {
           // console.log('No scope hash, bypassing cache for:', request.url);
@@ -136,38 +136,38 @@ if ('function' === typeof importScripts) {
             }),
             // Custom plugin to respect Cache-Control headers
             {
-              cacheKeyWillBeUsed: async ({request}) => {
+              cacheKeyWillBeUsed: async ({ request }) => {
                 return makeTileCacheKey(request);
               },
-              cacheWillUpdate: async ({response}) => {
+              cacheWillUpdate: async ({ response }) => {
                 return response.ok && responseIsVectorTile(response) ? response : null;
               },
-              cachedResponseWillBeUsed: async ({cachedResponse}) => {
+              cachedResponseWillBeUsed: async ({ cachedResponse }) => {
                 if (!cachedResponse) return null;
-                
+
                 const cacheControl = cachedResponse.headers.get('cache-control');
                 const cachedDate = cachedResponse.headers.get('date');
-                
+
                 if (cacheControl && cachedDate) {
                   const maxAgeMatch = cacheControl.match(/max-age=(\d+)/);
                   if (maxAgeMatch) {
                     const maxAge = parseInt(maxAgeMatch[1], 10);
                     const cachedTime = new Date(cachedDate).getTime();
                     const age = (Date.now() - cachedTime) / 1000;
-                    
+
                     if (age >= maxAge) {
                       return null;
                     }
                   }
                 }
-                
+
                 return cachedResponse;
               }
             }
           ]
         });
 
-        return strategy.handle({event, request});
+        return strategy.handle({ event, request });
       }
     );
     // ---------------------------------------------------------------------------
