@@ -65,7 +65,7 @@ export const App = () => {
   );
   const trackSettings = useSelector((state) => state.view.trackSettings);
 
-  // Send scope to service worker for tile caching
+  // set user scope for service worker caching
   useEffect(() => {
     if (navigator?.serviceWorker?.controller && user?.id) {
       navigator.serviceWorker.controller.postMessage({
