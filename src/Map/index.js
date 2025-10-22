@@ -589,7 +589,6 @@ const Map = ({ children, onMapLoad, socket }) => {
       // querying from the root /static/ dir of the host means this is one of our static assets, let's get it
       // if the map says it's missing.
       if (id.includes('/static/')) {
-        // Parse filepath to extract path and dimensions
         const dimensions = {};
         const match = id.match(/^(.*?)(?:-([^-.]+)-([^-.]+))?$/);
 

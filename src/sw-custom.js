@@ -134,17 +134,14 @@ if ('function' === typeof importScripts) {
             // Custom plugin to respect Cache-Control headers
             {
               cacheKeyWillBeUsed: async ({request}) => {
-                // Build a stable key that ignores auth headers/cookies
                 return makeTileCacheKey(request);
               },
               cacheWillUpdate: async ({response}) => {
-                // Only cache successful vector tiles
                 return response.ok && responseIsVectorTile(response) ? response : null;
               },
               cachedResponseWillBeUsed: async ({cachedResponse}) => {
                 if (!cachedResponse) return null;
                 
-                // Check Cache-Control headers for custom expiry
                 const cacheControl = cachedResponse.headers.get('cache-control');
                 const cachedDate = cachedResponse.headers.get('date');
                 
@@ -155,7 +152,6 @@ if ('function' === typeof importScripts) {
                     const cachedTime = new Date(cachedDate).getTime();
                     const age = (Date.now() - cachedTime) / 1000;
                     
-                    // If expired based on server headers, return null to trigger fresh fetch
                     if (age >= maxAge) {
                       return null;
                     }
