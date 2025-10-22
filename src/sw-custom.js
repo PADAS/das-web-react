@@ -60,7 +60,11 @@ if ('function' === typeof importScripts) {
 
     // Manual injection point for manifest files.
     // All assets under build/ and 5MB sizes are precached.
-    workbox.precaching.precacheAndRoute([]);
+    try {
+      workbox.precaching.precacheAndRoute([]);
+    } catch (error) {
+      console.warn('Initial precaching setup failed:', error);
+    }
 
     // Font caching
     workbox.routing.registerRoute(
@@ -214,6 +218,17 @@ if ('function' === typeof importScripts) {
     console.error('Workbox could not be loaded. No offline support');
   }
 
-  workbox.precaching.precacheAndRoute(self.__WB_MANIFEST);
+  // Gracefully handle precaching errors (missing files, cache mismatches)
+  try {
+    if (self.__WB_MANIFEST && self.__WB_MANIFEST.length > 0) {
+      workbox.precaching.precacheAndRoute(self.__WB_MANIFEST, {
+        // Ignore missing files instead of failing
+        ignoreURLParametersMatching: [/^utm_/, /^fbclid$/],
+        cleanupOutdatedCaches: true
+      });
+    }
+  } catch (error) {
+    console.warn('Precaching failed, continuing without it:', error);
+  }
 
 }
