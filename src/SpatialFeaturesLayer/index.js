@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 import { MapContext } from '../App';
 import { addMapImage } from '../utils/map';
 import { API_URL, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
-import { LAYER_ID as MESSAGE_BADGE_LAYER_ID } from '../MessageBadgeLayer';
 
 import MarkerImage from '../common/images/icons/mapbox-blue-marker-icon.png';
 import RangerStationsImage from '../common/images/icons/ranger-stations.png';
@@ -18,6 +17,8 @@ export const LINES_LAYER_ID = 'spatial-features-lines';
 // const LINES_LABELS_LAYER_ID = 'spatial-features-line-labels';
 export const POLYGONS_LAYER_ID = 'spatial-features-polygons';
 // const POLYGONS_LABELS_LAYER_ID = 'spatial-features-polygon-labels';
+
+const BEFORE_LAYER_ID = 'sky';
 
 const DEFAULT_LINE_PAINT_COLOR = [
   'case',
@@ -120,7 +121,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
           ...DEFAULT_SYMBOL_PAINT
         },
         filter: symbolLayerFilter
-      }, MESSAGE_BADGE_LAYER_ID);
+      }, BEFORE_LAYER_ID);
     }
 
     if (!map.getLayer(LINES_LAYER_ID)) {
@@ -149,7 +150,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
           ]
         },
         filter: lineLayerFilter
-      }, MESSAGE_BADGE_LAYER_ID);
+      }, BEFORE_LAYER_ID);
     }
 
     if (!map.getLayer(POLYGONS_LAYER_ID)) {
@@ -176,7 +177,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
           ]
         },
         filter: polygonLayerFilter
-      }, MESSAGE_BADGE_LAYER_ID);
+      }, BEFORE_LAYER_ID);
     }
 
     /* // Add separate label layers for each geometry type
