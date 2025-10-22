@@ -176,6 +176,10 @@ if ('function' === typeof importScripts) {
                     if (etag) headers['If-None-Match'] = etag;
                     if (lastModified) headers['If-Modified-Since'] = lastModified;
 
+                    // Debug: Check what auth header we have
+                    const authHeader = request.headers.get('Authorization');
+                    console.log('Auth header for conditional request:', authHeader ? 'Present' : 'Missing');
+                    
                     const conditionalRequest = new Request(request.url, {
                       method: 'GET',
                       headers: {
