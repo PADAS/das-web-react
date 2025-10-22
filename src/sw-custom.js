@@ -111,8 +111,8 @@ if ('function' === typeof importScripts) {
     const tileRouteMatch = ({url, request}) => {
       if (request.method !== 'GET') return false;
       // Match your tile path(s); tweak as appropriate:
-      return url.pathname.includes('/api/v1.0/spatialfeatures/tiles/') || 
-             url.pathname.includes('/api/v1.0/observations/tiles/')
+      return url.pathname.includes('spatialfeatures/tiles/') || 
+             url.pathname.includes('observations/tiles/')
     };
 
     workbox.routing.registerRoute(
