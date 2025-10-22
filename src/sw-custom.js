@@ -13,8 +13,8 @@ if ('function' === typeof importScripts) {
       CURRENT_SCOPE_HASH = String(data.scope.hash);
     }
     if (data.type === 'PURGE_SCOPE' && data.hash) {
-      // Best-effort delete; ignore errors
-      caches.delete(TILE_CACHE_NAME_PREFIX + String(data.hash)).catch(() => {});
+      // Best-effort delete; log errors for debugging
+      caches.delete(TILE_CACHE_NAME_PREFIX + String(data.hash)).catch((err) => console.warn('Failed to delete cache:', err));
       // If the current scope matches the purged hash, clear it
       if (CURRENT_SCOPE_HASH === String(data.hash)) CURRENT_SCOPE_HASH = null;
     }
