@@ -120,8 +120,11 @@ if ('function' === typeof importScripts) {
       async ({event, request}) => {
         // If we don't have a scope yet, bypass cache and hit the network.
         if (!CURRENT_SCOPE_HASH) {
+          console.log('No scope hash, bypassing cache for:', request.url);
           return fetch(request);
         }
+
+        console.log('Using tile cache for scope:', CURRENT_SCOPE_HASH, 'URL:', request.url);
 
         // Use Workbox CacheFirst strategy with user-scoped cache name
         const strategy = new workbox.strategies.CacheFirst({
