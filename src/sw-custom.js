@@ -109,10 +109,18 @@ if ('function' === typeof importScripts) {
     //   ^/tiles/          -> relative to your origin
     //   https://api.example.com/tiles/
     const tileRouteMatch = ({ url, request }) => {
-      if (request.method !== 'GET') return false;
-      // Match your tile path(s); tweak as appropriate:
-      return url.pathname.includes('spatialfeatures/tiles/') ||
-        url.pathname.includes('observations/tiles/')
+      console.log('Route match check:', url.pathname, request.method);
+      
+      if (request.method !== 'GET') {
+        console.log('Not GET method, skipping');
+        return false;
+      }
+      
+      const matches = url.pathname.includes('spatialfeatures/tiles/') ||
+                     url.pathname.includes('observations/tiles/');
+      
+      console.log('Tile route match result:', matches, 'for', url.pathname);
+      return matches;
     };
 
     workbox.routing.registerRoute(
@@ -120,11 +128,11 @@ if ('function' === typeof importScripts) {
       async ({ event, request }) => {
         // If we don't have a scope yet, bypass cache and hit the network.
         if (!CURRENT_SCOPE_HASH) {
-          // console.log('No scope hash, bypassing cache for:', request.url);
+          console.log('No scope hash, bypassing cache for:', request.url);
           return fetch(request);
         }
 
-        // console.log('Using tile cache for scope:', CURRENT_SCOPE_HASH, 'URL:', request.url);
+        console.log('Using tile cache for scope:', CURRENT_SCOPE_HASH, 'URL:', request.url);
 
         // Use Workbox CacheFirst strategy with user-scoped cache name
         const strategy = new workbox.strategies.CacheFirst({
