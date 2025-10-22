@@ -142,12 +142,15 @@ if ('function' === typeof importScripts) {
               cacheWillUpdate: async ({ response }) => {
                 return response.ok && responseIsVectorTile(response) ? response : null;
               },
-              cachedResponseWillBeUsed: async ({ cachedResponse }) => {
+              cachedResponseWillBeUsed: async ({ cachedResponse, request, cacheName }) => {
                 if (!cachedResponse) return null;
 
                 const cacheControl = cachedResponse.headers.get('cache-control');
                 const cachedDate = cachedResponse.headers.get('date');
+                const etag = cachedResponse.headers.get('etag');
+                const lastModified = cachedResponse.headers.get('last-modified');
 
+                // Check max-age expiry first
                 if (cacheControl && cachedDate) {
                   const maxAgeMatch = cacheControl.match(/max-age=(\d+)/);
                   if (maxAgeMatch) {
@@ -156,8 +159,42 @@ if ('function' === typeof importScripts) {
                     const age = (Date.now() - cachedTime) / 1000;
 
                     if (age >= maxAge) {
-                      return null;
+                      return null; // Expired, fetch fresh
                     }
+                  }
+                }
+
+                // If we have ETag or Last-Modified, do conditional request to validate
+                if (etag || lastModified) {
+                  try {
+                    const headers = {};
+                    if (etag) headers['If-None-Match'] = etag;
+                    if (lastModified) headers['If-Modified-Since'] = lastModified;
+
+                    const conditionalRequest = new Request(request.url, {
+                      method: 'GET',
+                      headers: {
+                        ...Object.fromEntries(request.headers.entries()),
+                        ...headers
+                      }
+                    });
+
+                    const response = await fetch(conditionalRequest);
+                    
+                    if (response.status === 304) {
+                      // Not modified - return cached response
+                      console.log('304 Not Modified - using cached tile:', request.url);
+                      return cachedResponse;
+                    } else if (response.ok && responseIsVectorTile(response)) {
+                      // Content changed - update cache and return new response
+                      console.log('Tile updated - caching fresh response:', request.url);
+                      const cache = await caches.open(cacheName);
+                      await cache.put(makeTileCacheKey(request), response.clone());
+                      return response;
+                    }
+                  } catch (error) {
+                    console.warn('Conditional request failed, using cached response:', error);
+                    return cachedResponse;
                   }
                 }
 
