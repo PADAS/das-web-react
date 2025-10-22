@@ -9,7 +9,7 @@ if ('function' === typeof importScripts) {
   // Accept scope updates / purges from the app
   self.addEventListener('message', (event) => {
     const data = event.data || {};
-    if (data.type === 'SET_SCOPE' && data.scope && data.scope.hash) {
+    if (data.type === 'SET_SCOPE' && data.scope && data.scope.hash !== null) {
       CURRENT_SCOPE_HASH = String(data.scope.hash);
     }
     if (data.type === 'PURGE_SCOPE' && data.hash) {
