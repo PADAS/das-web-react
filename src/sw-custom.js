@@ -133,8 +133,12 @@ if ('function' === typeof importScripts) {
             }),
             // Custom plugin to respect Cache-Control headers
             {
-              cacheKeyWillBeUsed: async ({ request }) => {
-                return makeTileCacheKey(request);
+              cacheKeyWillBeUsed: async ({ request, mode }) => {
+                // Only use clean cache key for cache operations, not network requests
+                if (mode === 'read' || mode === 'write') {
+                  return makeTileCacheKey(request);
+                }
+                return request;
               },
               cacheWillUpdate: async ({ response }) => {
                 return response.ok ? response : null;
