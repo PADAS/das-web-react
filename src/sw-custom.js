@@ -180,7 +180,3 @@ if ('function' === typeof importScripts) {
   workbox.precaching.precacheAndRoute(self.__WB_MANIFEST);
 
 }
-
-/* 
-  /api/v1.0/spatialfeatures/tiles/
-*/
