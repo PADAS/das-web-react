@@ -65,6 +65,16 @@ export const App = () => {
   );
   const trackSettings = useSelector((state) => state.view.trackSettings);
 
+  // Send scope to service worker for tile caching
+  useEffect(() => {
+    if (navigator?.serviceWorker?.controller && user?.id) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'SET_SCOPE',
+        scope: { hash: selectedUserProfile?.id ?? user.id }
+      });
+    }
+  }, [user, selectedUserProfile]);
+
   const socket = useContext(SocketContext);
 
   const [isDragging, setDragState] = useState(false);
