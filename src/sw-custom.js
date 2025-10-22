@@ -140,7 +140,7 @@ if ('function' === typeof importScripts) {
                 return makeTileCacheKey(request);
               },
               cacheWillUpdate: async ({ response }) => {
-                return response.ok && responseIsVectorTile(response) ? response : null;
+                return response.ok ? response : null;
               },
               cachedResponseWillBeUsed: async ({ cachedResponse, request, cacheName }) => {
                 if (!cachedResponse) return null;
@@ -185,7 +185,7 @@ if ('function' === typeof importScripts) {
                       // Not modified - return cached response
                       console.log('304 Not Modified - using cached tile:', request.url);
                       return cachedResponse;
-                    } else if (response.ok && responseIsVectorTile(response)) {
+                    } else if (response.ok) {
                       // Content changed - update cache and return new response
                       console.log('Tile updated - caching fresh response:', request.url);
                       const cache = await caches.open(cacheName);
