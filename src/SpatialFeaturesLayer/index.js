@@ -18,7 +18,7 @@ export const LINES_LAYER_ID = 'spatial-features-lines';
 export const POLYGONS_LAYER_ID = 'spatial-features-polygons';
 // const POLYGONS_LABELS_LAYER_ID = 'spatial-features-polygon-labels';
 
-const BEFORE_LAYER_ID = 'sky';
+const BEFORE_LAYER_ID = 'feature-separation-layer';
 
 const DEFAULT_LINE_PAINT_COLOR = [
   'case',
