@@ -81,22 +81,20 @@ export const clearSubjectData = () => ({
 });
 
 export const fetchSubjectGroups = () => dispatch => axios.get(SUBJECT_GROUPS_API_URL)
-  .then(response => dispatch(fetchSubjectGroupsSuccess(response)));
+  .then(response => dispatch(fetchSubjectGroupsSuccess(response)))
+  .catch(_error => dispatch(fetchSubjectGroupsError())); // Fallback to empty array on error
 
 const fetchMapSubjectsSuccess = response => ({
   type: FETCH_MAP_SUBJECTS_SUCCESS,
   payload: response.data,
 });
-/* 
-const fetchMapSubjectsError = error => ({
-  type: FETCH_MAP_SUBJECTS_ERROR,
-  payload: error,
-});
- */
+
 const fetchSubjectGroupsSuccess = response => ({
   type: FETCH_SUBJECT_GROUPS_SUCCESS,
-  payload: response.data.data,
+  payload: response?.data?.data ?? [],
 });
+
+const fetchSubjectGroupsError = _error => fetchSubjectGroupsSuccess([]);
 
 const INITIAL_MAP_SUBJECT_STATE = {
   bbox: null,
