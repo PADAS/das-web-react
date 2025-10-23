@@ -65,27 +65,6 @@ export const App = () => {
   );
   const trackSettings = useSelector((state) => state.view.trackSettings);
 
-  // set user scope for service worker caching
-  useEffect(() => {
-    if (navigator?.serviceWorker?.controller) {
-      if (user?.id) {
-        const scopeHash = selectedUserProfile?.id ?? user.id;
-        console.log('Setting SW scope to:', scopeHash);
-        navigator.serviceWorker.controller.postMessage({
-          type: 'SET_SCOPE',
-          scope: { hash: scopeHash }
-        });
-      } else {
-        console.log('Clearing SW scope - no user');
-        // Clear scope when user logs out
-        navigator.serviceWorker.controller.postMessage({
-          type: 'SET_SCOPE',
-          scope: { hash: null }
-        });
-      }
-    }
-  }, [user, selectedUserProfile]);
-
   const socket = useContext(SocketContext);
 
   const [isDragging, setDragState] = useState(false);
@@ -129,6 +108,28 @@ export const App = () => {
     disallowDragAndDrop(e);
     finishDrag(e);
   }, [disallowDragAndDrop, finishDrag]);
+
+
+  // set user scope for service worker caching
+  useEffect(() => {
+    if (navigator?.serviceWorker?.controller) {
+      if (user?.id) {
+        const scopeHash = selectedUserProfile?.id ?? user.id;
+        console.log('Setting SW scope to:', scopeHash);
+        navigator.serviceWorker.controller.postMessage({
+          type: 'SET_SCOPE',
+          scope: { hash: scopeHash }
+        });
+      } else {
+        console.log('Clearing SW scope - no user');
+        // Clear scope when user logs out
+        navigator.serviceWorker.controller.postMessage({
+          type: 'SET_SCOPE',
+          scope: { hash: null }
+        });
+      }
+    }
+  }, [user, selectedUserProfile]);
 
   useEffect(() => {
     /* use these catch blocks to provide error toasts if/as desired */
