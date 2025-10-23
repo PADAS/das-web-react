@@ -47,7 +47,7 @@ if ('function' === typeof importScripts) {
     workbox.core.clientsClaim();
 
     try {
-      workbox.precaching.precacheAndRoute([]);
+      workbox.precaching.precacheAndRoute(self.__WB_MANIFEST);
     } catch (error) {
       console.warn('Initial precaching setup failed:', error);
     }
@@ -140,17 +140,6 @@ if ('function' === typeof importScripts) {
     console.error('Workbox could not be loaded. No offline support');
   }
 
-  // Gracefully handle precaching errors (missing files, cache mismatches)
-  try {
-    if (self.__WB_MANIFEST && self.__WB_MANIFEST.length > 0) {
-      workbox.precaching.precacheAndRoute(self.__WB_MANIFEST, {
-        // Ignore missing files instead of failing
-        ignoreURLParametersMatching: [/^utm_/, /^fbclid$/],
-        cleanupOutdatedCaches: true
-      });
-    }
-  } catch (error) {
-    console.warn('Precaching failed, continuing without it:', error);
-  }
+
 
 }
