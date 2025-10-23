@@ -137,9 +137,8 @@ if ('function' === typeof importScripts) {
             }),
             {
               cacheKeyWillBeUsed: async ({ request, mode }) => {
-                // Only use clean cache key for cache operations, not network requests
                 if (mode === 'read' || mode === 'write') {
-                  return makeTileCacheKey(request);
+                  return makeTileCacheKey(request); // Only use clean cache key for cache operations, not network requests
                 }
                 return request;
               },
