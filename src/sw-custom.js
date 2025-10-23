@@ -54,7 +54,7 @@ if ('function' === typeof importScripts) {
 
     // Font caching
     workbox.routing.registerRoute(
-      new RegExp('https://fonts.(?:.googlepis|gstatic).com/(.*)'),
+      new RegExp('https://fonts.(?:.googleapis|gstatic).com/(.*)'),
       new workbox.strategies.CacheFirst({
         cacheName: 'googleapis',
         plugins: [
