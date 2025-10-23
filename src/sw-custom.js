@@ -180,11 +180,14 @@ if ('function' === typeof importScripts) {
 
                     console.log('Auth header for conditional request:', authHeader ? 'Present' : 'Missing');
                     headers['Authorization'] = authHeader;
+
+                    const originalRequestHeaders = Object.fromEntries(request.headers.entries());
+                    console.log({ originalRequestHeaders });
                     
                     const conditionalRequest = new Request(request.url, {
                       method: 'GET',
                       headers: {
-                        ...Object.fromEntries(request.headers.entries()),
+                        ...originalRequestHeaders,
                         ...headers,
                       }
                     });
