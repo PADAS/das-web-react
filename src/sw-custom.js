@@ -127,15 +127,14 @@ if ('function' === typeof importScripts) {
           return fetch(request);
         }
 
-        // Use Workbox CacheFirst strategy with user-scoped cache name
-        const strategy = new workbox.strategies.CacheFirst({
+        // Use Workbox StaleWhileRevalidate strategy with user-scoped cache name
+        const strategy = new workbox.strategies.StaleWhileRevalidate({
           cacheName: TILE_CACHE_NAME_PREFIX + CURRENT_SCOPE_HASH,
           plugins: [
             new workbox.expiration.ExpirationPlugin({
               maxAgeSeconds: 7 * 24 * 60 * 60, // 7 day safety net
               purgeOnQuotaError: true,
             }),
-            // Custom plugin to respect Cache-Control headers
             {
               cacheKeyWillBeUsed: async ({ request, mode }) => {
                 // Only use clean cache key for cache operations, not network requests
@@ -146,72 +145,6 @@ if ('function' === typeof importScripts) {
               },
               cacheWillUpdate: async ({ response }) => {
                 return response.ok ? response : null;
-              },
-              cachedResponseWillBeUsed: async ({ cachedResponse, request, cacheName }) => {
-                if (!cachedResponse) return null;
-
-                const cacheControl = cachedResponse.headers.get('cache-control');
-                const cachedDate = cachedResponse.headers.get('date');
-                const etag = cachedResponse.headers.get('etag');
-                const lastModified = cachedResponse.headers.get('last-modified');
-
-                // Check max-age expiry first
-                if (cacheControl && cachedDate) {
-                  const maxAgeMatch = cacheControl.match(/max-age=(\d+)/);
-                  if (maxAgeMatch) {
-                    const maxAge = parseInt(maxAgeMatch[1], 10);
-                    const cachedTime = new Date(cachedDate).getTime();
-                    const age = (Date.now() - cachedTime) / 1000;
-
-                    if (age >= maxAge) {
-                      return null; // Expired, fetch fresh
-                    }
-                  }
-                }
-
-                // If we have ETag or Last-Modified, do conditional request to validate
-                if (etag || lastModified) {
-                  try {
-                    const headers = {};
-                    if (etag) headers['If-None-Match'] = etag;
-                    if (lastModified) headers['If-Modified-Since'] = lastModified;
-
-                    const authHeader = request.headers.get('Authorization');
-
-                    console.log('Auth header for conditional request:', authHeader ? 'Present' : 'Missing');
-                    headers['Authorization'] = authHeader;
-
-                    const originalRequestHeaders = Object.fromEntries(request.headers.entries());
-                    console.log({ originalRequestHeaders });
-                    
-                    const conditionalRequest = new Request(request.url, {
-                      method: 'GET',
-                      headers: {
-                        ...originalRequestHeaders,
-                        ...headers,
-                      }
-                    });
-
-                    const response = await fetch(conditionalRequest);
-                    
-                    if (response.status === 304) {
-                      // Not modified - return cached response
-                      console.log('304 Not Modified - using cached tile:', request.url);
-                      return cachedResponse;
-                    } else if (response.ok) {
-                      // Content changed - update cache and return new response
-                      console.log('Tile updated - caching fresh response:', request.url);
-                      const cache = await caches.open(cacheName);
-                      await cache.put(makeTileCacheKey(request), response.clone());
-                      return response;
-                    }
-                  } catch (error) {
-                    console.warn('Conditional request failed, using cached response:', error);
-                    return cachedResponse;
-                  }
-                }
-
-                return cachedResponse;
               }
             }
           ]
