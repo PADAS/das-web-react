@@ -1,65 +1,51 @@
-/* eslint-disable */
+/* eslint-disable no-undef, no-restricted-globals */
 if ('function' === typeof importScripts) {
   importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.3.0/workbox-sw.js');
 
-  // ---- User-scoped tile cache — minimal additions for Workbox v7 ----
   const TILE_CACHE_NAME_PREFIX = 'tilecache-v1-';
-  let CURRENT_SCOPE_HASH = null; // set via postMessage after login
+  let CURRENT_SCOPE_HASH = null;
 
-  // Accept scope updates / purges from the app
-  self.addEventListener('message', (event) => {
+  const handleMessage = (event) => {
     const data = event.data || {};
     if (data.type === 'SET_SCOPE' && data.scope && data.scope.hash !== null) {
       CURRENT_SCOPE_HASH = String(data.scope.hash);
     }
     if (data.type === 'PURGE_SCOPE' && data.hash) {
-      // Best-effort delete; log errors for debugging
       caches.delete(TILE_CACHE_NAME_PREFIX + String(data.hash)).catch((err) => console.warn('Failed to delete cache:', err));
-      // If the current scope matches the purged hash, clear it
       if (CURRENT_SCOPE_HASH === String(data.hash)) CURRENT_SCOPE_HASH = null;
     }
-  });
+  };
 
-  function responseIsVectorTile(resp) {
-    const ct = resp.headers.get('Content-Type') || '';
-    return (
-      ct.includes('application/vnd.mapbox-vector-tile') ||
-      ct.includes('application/x-protobuf')
-    );
-  }
-
-  // Build a stable cache key for a tile URL.
-  function makeTileCacheKey(request) {
+  const makeTileCacheKey = (request) => {
     const url = new URL(request.url);
     return new Request(url.toString(), { method: 'GET' });
-  }
-  // -------------------------------------------------------------------
+  };
 
-  // Global workbox
   if (workbox) {
     console.log('Workbox is loaded');
 
-    // Disable logging
     workbox.setConfig({ debug: false });
 
-    self.addEventListener('install', (event) => {
+    const handleInstall = (event) => {
       event.waitUntil(self.skipWaiting());
-    });
+    };
 
-    self.addEventListener('activate', function (event) {
-      event.waitUntil(self.clients.claim()); // Become available to all pages
-    });
+    const handleActivate = (event) => {
+      event.waitUntil(self.clients.claim());
+    };
 
-    workbox.core.clientsClaim();
-
-    self.addEventListener('fetch', function (event) {
-      if (event.request.url.match('^.*(\/admin\/).*$')) {
+    const handleFetch = (event) => {
+      if (event.request.url.match('^.*(/admin/).*$')) {
         return false;
       }
-    });
+    };
 
-    // Manual injection point for manifest files.
-    // All assets under build/ and 5MB sizes are precached.
+    self.addEventListener('message', handleMessage);
+    self.addEventListener('install', handleInstall);
+    self.addEventListener('activate', handleActivate);
+    self.addEventListener('fetch', handleFetch);
+    workbox.core.clientsClaim();
+
     try {
       workbox.precaching.precacheAndRoute([]);
     } catch (error) {
@@ -107,14 +93,10 @@ if ('function' === typeof importScripts) {
       })
     );
 
-    // ---- Tiles: user-scoped disk cache (works with cookies or Authorization) ----
-    // Intercept only your tile requests. Adjust the path/pattern if needed.
-    // Examples:
-    //   ^/tiles/          -> relative to your origin
-    //   https://api.example.com/tiles/
+    // ---- user-scoped vector tile cache ----
     const tileRouteMatch = ({ url, request }) => {
       if (request.method !== 'GET') return false;
-      
+
       return url.pathname.includes('spatialfeatures/tiles/') ||
              url.pathname.includes('observations/tiles/');
     };
