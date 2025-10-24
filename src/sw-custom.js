@@ -115,6 +115,7 @@ if ('function' === typeof importScripts) {
           plugins: [
             new workbox.expiration.ExpirationPlugin({
               maxAgeSeconds: 7 * 24 * 60 * 60, // 7 day safety net
+              maxEntries: 15000,
               purgeOnQuotaError: true,
             }),
             {
