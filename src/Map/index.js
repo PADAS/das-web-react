@@ -136,6 +136,8 @@ const Map = ({ children, onMapLoad, socket }) => {
   const showReportHeatmap = useSelector(state => state.view.showReportHeatmap);
   const mapLocationSelection = useSelector(state => state.view.mapLocationSelection);
 
+  const messageableMapSubjects = mapSubjectFeatureCollection.features.filter(({ properties }) => !!properties?.messaging?.length);
+
   const currentTab = getCurrentTabFromURL(location.pathname);
 
   const showPopup = useCallback((...args) => dispatch(
@@ -671,7 +673,7 @@ const Map = ({ children, onMapLoad, socket }) => {
 
       <StaticSensorsLayer />
 
-      <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />
+      {!!messageableMapSubjects.length && <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />}
 
       <DelayedUnmount isMounted={!currentTab && !mapLocationSelection.isPickingLocation}>
         <div className='floating-report-filter'>
