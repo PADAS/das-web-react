@@ -109,6 +109,26 @@ export const App = () => {
     finishDrag(e);
   }, [disallowDragAndDrop, finishDrag]);
 
+
+  // set user scope for service worker caching
+  useEffect(() => {
+    if (navigator?.serviceWorker?.controller) {
+      if (user?.id) {
+        const scopeHash = selectedUserProfile?.id ?? user.id;
+        navigator.serviceWorker.controller.postMessage({
+          type: 'SET_SCOPE',
+          scope: { hash: scopeHash }
+        });
+      } else {
+        // Clear scope when user logs out
+        navigator.serviceWorker.controller.postMessage({
+          type: 'SET_SCOPE',
+          scope: { hash: null }
+        });
+      }
+    }
+  }, [user, selectedUserProfile]);
+
   useEffect(() => {
     /* use these catch blocks to provide error toasts if/as desired */
     dispatch(fetchEventTypes());

@@ -12,7 +12,7 @@ const buildSW = () => {
       globDirectory: path.join(process.cwd(), 'build'),
       globPatterns: ['**/*.{js,html,css,png,svg}'],
       globIgnores: ['**/*service-worker*.js', '**/*precache-manifest*.js'],
-      maximumFileSizeToCacheInBytes: 50 * 1024 * 102,
+      maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10 MB
     })
     .then(({ count, size, warnings }) => {
       warnings.forEach(console.warn);

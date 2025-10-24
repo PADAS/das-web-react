@@ -1,7 +1,11 @@
 import React, { memo, useContext, useMemo, useCallback, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { MapContext } from '../App';
+import { addMapImage } from '../utils/map';
 import { API_URL, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
+
+import MarkerImage from '../common/images/icons/mapbox-blue-marker-icon.png';
+import RangerStationsImage from '../common/images/icons/ranger-stations.png';
 
 const SPATIAL_FEATURES_SOURCE = 'spatial-features-source';
 
@@ -13,6 +17,8 @@ export const LINES_LAYER_ID = 'spatial-features-lines';
 // const LINES_LABELS_LAYER_ID = 'spatial-features-line-labels';
 export const POLYGONS_LAYER_ID = 'spatial-features-polygons';
 // const POLYGONS_LABELS_LAYER_ID = 'spatial-features-polygon-labels';
+
+const BEFORE_LAYER_ID = 'feature-separation-layer';
 
 const DEFAULT_LINE_PAINT_COLOR = [
   'case',
@@ -26,10 +32,11 @@ const DEFAULT_LINE_PAINT_COLOR = [
 const DEFAULT_POLYGON_FILL_COLOR = [
   'case',
   ['has', 'fill'], ['get', 'fill'],
-  ['has', 'color'], ['get', 'color'],
+  ['has', 'fill-color'], ['get', 'fill-color'],
   ['has', 'fill_color'], ['get', 'fill_color'],
+  ['has', 'color'], ['get', 'color'],
   ['has', 'stroke'], ['get', 'stroke'],
-  '#ff6600'
+  'rgba(255, 102, 0, 0)'
 ];
 
 
@@ -114,7 +121,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
           ...DEFAULT_SYMBOL_PAINT
         },
         filter: symbolLayerFilter
-      });
+      }, BEFORE_LAYER_ID);
     }
 
     if (!map.getLayer(LINES_LAYER_ID)) {
@@ -131,7 +138,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
             ['has', 'width'], ['get', 'width'],
             ['has', 'line_width'], ['get', 'line_width'],
             ['has', 'stroke_width'], ['get', 'stroke_width'],
-            3
+            1,
           ],
           'line-opacity': [
             'case',
@@ -143,7 +150,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
           ]
         },
         filter: lineLayerFilter
-      });
+      }, BEFORE_LAYER_ID);
     }
 
     if (!map.getLayer(POLYGONS_LAYER_ID)) {
@@ -166,11 +173,11 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
             ['has', 'stroke'], ['get', 'stroke'],
             ['has', 'outline_color'], ['get', 'outline_color'],
             ['has', 'border_color'], ['get', 'border_color'],
-            '#ff6600'
+            'rgba(255, 102, 0, 0.25)'
           ]
         },
         filter: polygonLayerFilter
-      });
+      }, BEFORE_LAYER_ID);
     }
 
     /* // Add separate label layers for each geometry type
@@ -360,6 +367,15 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
       });
     }
   }, [map, polygonLayerFilter]);
+
+  useEffect(() => {
+    if (!map?.hasImage?.('marker-icon')) {
+      addMapImage({ src: MarkerImage, id: 'marker-icon' });
+    }
+    if (!map?.hasImage?.('ranger-stations')) {
+      addMapImage({ src: RangerStationsImage, id: 'ranger-stations' });
+    }
+  }, [map]);
 
   return null;
 };
