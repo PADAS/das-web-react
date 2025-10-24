@@ -369,7 +369,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
   }, [map, polygonLayerFilter]);
 
   useEffect(() => {
-    if (!!map && !map.hasImage('marker-icon')) {
+    if (!map?.hasImage?.('marker-icon')) {
       addMapImage({ src: MarkerImage, id: 'marker-icon' });
     }
     if (!!map && !map.hasImage('ranger-stations')) {
