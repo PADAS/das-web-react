@@ -115,13 +115,11 @@ export const App = () => {
     if (navigator?.serviceWorker?.controller) {
       if (user?.id) {
         const scopeHash = selectedUserProfile?.id ?? user.id;
-        console.log('Setting SW scope to:', scopeHash);
         navigator.serviceWorker.controller.postMessage({
           type: 'SET_SCOPE',
           scope: { hash: scopeHash }
         });
       } else {
-        console.log('Clearing SW scope - no user');
         // Clear scope when user logs out
         navigator.serviceWorker.controller.postMessage({
           type: 'SET_SCOPE',
