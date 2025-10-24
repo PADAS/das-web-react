@@ -372,7 +372,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
     if (!map?.hasImage?.('marker-icon')) {
       addMapImage({ src: MarkerImage, id: 'marker-icon' });
     }
-    if (!!map && !map.hasImage('ranger-stations')) {
+    if (!map?.hasImage?.('ranger-stations')) {
       addMapImage({ src: RangerStationsImage, id: 'ranger-stations' });
     }
   }, [map]);
