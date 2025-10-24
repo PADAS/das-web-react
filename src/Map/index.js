@@ -605,7 +605,7 @@ const Map = ({ children, onMapLoad, socket }) => {
           }
         }
 
-        // Remove any remaining file extensions from the src path
+        // Sanitize the src path to remove internal icon ID suffixes
         src = src.replace(/(\.svg|\.png|\.jpg).*$/, '$1');
 
         try {
