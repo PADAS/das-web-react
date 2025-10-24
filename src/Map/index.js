@@ -82,6 +82,7 @@ import MapLocationSelectionOverview from '../MapLocationSelectionOverview';
 
 import './Map.scss';
 import { addMapImage } from '../utils/map';
+import ObservationsLayer from '../ObservationsLayer';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -691,6 +692,8 @@ const Map = ({ children, onMapLoad, socket }) => {
       <SpatialFeaturesLayer
         onFeatureClick={onFeatureSymbolClick}
       />
+
+      <ObservationsLayer />
 
       <AnalyzerLayer
         warningLines={analyzerWarningLines}
