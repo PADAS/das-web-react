@@ -1,13 +1,13 @@
 import React, { memo, useContext, useMemo, useEffect } from 'react';
 import { MapContext } from '../App';
 
-import { TILE_LAYER_SOURCE_TYPES, LAYER_IDS, MAX_ZOOM, MIN_ZOOM } from '../constants';
+import { TILE_LAYER_SOURCE_TYPES, MAX_ZOOM, MIN_ZOOM } from '../constants';
+
+import { SYMBOLS_LAYER_ID as BEFORE_LAYER_ID } from '../SpatialFeaturesLayer';
 
 import { calcConfigForMapAndSourceFromLayer } from '../utils/layers';
 import useMapSources from '../hooks/useMapSources';
 import useMapLayers from '../hooks/useMapLayers';
-
-const { TOPMOST_STYLE_LAYER } = LAYER_IDS;
 
 const RASTER_SOURCE_OPTIONS = {
   'type': 'raster',
@@ -56,7 +56,7 @@ const TileLayerRenderer = (props) => {
     type: 'raster',
     sourceId: `layer-source-${activeLayer?.id}`,
     options: {
-      before: TOPMOST_STYLE_LAYER,
+      before: BEFORE_LAYER_ID,
       condition: !!activeLayer
     }
   }]);
