@@ -128,7 +128,7 @@ describe('SpatialFeaturesLayer', () => {
       'source-layer': 'spatial_features',
       filter: expect.arrayContaining([
         'all',
-        ['==', ['geometry-type'], 'LineString'],
+        ['==', ['geometry-type'], 'Polygon'],
         ['!', ['in', ['get', 'id'], ['literal', ['hidden-feature-1', 'hidden-feature-2']]]]
       ])
     }), SYMBOLS_LAYER_ID);
