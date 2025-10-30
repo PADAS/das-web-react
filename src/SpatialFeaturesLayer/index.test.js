@@ -131,7 +131,7 @@ describe('SpatialFeaturesLayer', () => {
         ['==', ['geometry-type'], 'Polygon'],
         ['!', ['in', ['get', 'id'], ['literal', ['hidden-feature-1', 'hidden-feature-2']]]]
       ])
-    }), SYMBOLS_LAYER_ID);
+    }), LINES_LAYER_ID);
 
     // Verify polygon layer was added
     expect(mockMap.addLayer).toHaveBeenCalledWith(expect.objectContaining({

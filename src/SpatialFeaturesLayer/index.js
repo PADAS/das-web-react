@@ -176,7 +176,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
         'source-layer': 'spatial_features',
         paint,
         filter: polygonLayerFilter // this feed polygons into a line-typed layer so users can add stroke-width and stroke-opacity to their polygon features
-      }, SYMBOLS_LAYER_ID);
+      }, LINES_LAYER_ID);
     }
 
     if (!map.getLayer(POLYGONS_LAYER_ID)) {

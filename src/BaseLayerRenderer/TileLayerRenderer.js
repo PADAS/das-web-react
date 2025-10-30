@@ -3,7 +3,7 @@ import { MapContext } from '../App';
 
 import { TILE_LAYER_SOURCE_TYPES, MAX_ZOOM, MIN_ZOOM } from '../constants';
 
-import { SYMBOLS_LAYER_ID as BEFORE_LAYER_ID } from '../SpatialFeaturesLayer';
+import { POLYGONS_LAYER_ID as BEFORE_LAYER_ID } from '../SpatialFeaturesLayer';
 
 import { calcConfigForMapAndSourceFromLayer } from '../utils/layers';
 import useMapSources from '../hooks/useMapSources';
