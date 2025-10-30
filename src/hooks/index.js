@@ -8,8 +8,6 @@ import { MapContext } from '../App';
 
 import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 
-export const useSystemConfigFlag = (flag) => useSelector((state) => !!state?.view?.systemConfig?.[flag]);
-
 export const useFeatureFlag = (flagName) => {
   const experimentalFeatures = useSelector((state) => state.view.experimentalFeatures) || {};
 

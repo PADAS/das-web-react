@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { AddItemContext } from '..';
 import { getStoredTab, storeTab } from './utils';
 import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../constants';
-import { usePermissions, useSystemConfigFlag } from '../../hooks';
+import { usePermissions } from '../../hooks';
 
 import AddPatrolTab from './AddPatrolTab';
 import AddReportTab from './AddReportTab';
@@ -23,8 +23,8 @@ const AddItemModal = ({ onHide, show, ...restProps }) => {
   const { hideAddPatrolTab, hideAddReportTab } = useContext(AddItemContext);
 
   const hasPatrolWritePermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.CREATE);
-  const patrolFlagEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT);
 
+  const patrolFlagEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]);
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
   const storedActiveTabKey = getStoredTab() || ADD_TAB_KEYS.ADD_REPORT;

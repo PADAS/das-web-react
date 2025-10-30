@@ -3,19 +3,15 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { AddItemContext } from '../';
-import AddItemModal, { ADD_TAB_KEYS } from './';
 import eventCategories from '../../__test-helpers/fixtures/event-categories';
 import { eventTypes } from '../../__test-helpers/fixtures/event-types';
 import { getStoredTab, storeTab } from './utils';
 import { mockStore } from '../../__test-helpers/MockStore';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
-import { PERMISSION_KEYS, PERMISSIONS } from '../../constants';
+import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../constants';
 import { render, screen } from '../../test-utils';
 
-jest.mock('../../hooks', () => ({
-  ...jest.requireActual('../../hooks'),
-  useSystemConfigFlag: () => true,
-}));
+import AddItemModal, { ADD_TAB_KEYS } from './';
 
 jest.mock('./utils', () => ({
   getStoredTab: jest.fn(),
@@ -39,6 +35,11 @@ describe('AddItemButton - AddItemModal', () => {
           permissions: {
             [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.CREATE],
           },
+        },
+      },
+      view: {
+        systemConfig: {
+          [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true,
         },
       },
     };

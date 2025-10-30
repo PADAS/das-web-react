@@ -2,7 +2,6 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen, within } from '../test-utils';
 import { addModal } from '../ducks/modals';
 import { createQuerySelectorMockImplementationWithHelpButtonReference } from '../JiraSupportWidget/index.test';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
@@ -10,7 +9,8 @@ import { fetchTableauDashboard } from '../ducks/external-reporting';
 import GlobalMenuDrawer from '.';
 import { hideDrawer } from '../ducks/drawer';
 import { mockStore } from '../__test-helpers/MockStore';
-import { PERMISSION_KEYS, PERMISSIONS, } from '../constants';
+import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS, } from '../constants';
+import { render, screen, within } from '../test-utils';
 import { useMatchMedia } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
@@ -28,7 +28,6 @@ jest.mock('../ducks/drawer', () => ({
 }));
 jest.mock('../hooks', () => ({
   ...jest.requireActual('../hooks'),
-  useSystemConfigFlag: () => true,
   useMatchMedia: jest.fn(),
 }));
 jest.mock('../hooks/useNavigate', () => jest.fn());
@@ -68,8 +67,11 @@ describe('GlobalMenuDrawer', () => {
       view: {
         drawer: {},
         systemConfig: {
-          alerts_enabled: true,
-          tableau_enabled: true,
+          [SYSTEM_CONFIG_FLAGS.ALERTS]: true,
+          [SYSTEM_CONFIG_FLAGS.DAILY_REPORT]: true,
+          [SYSTEM_CONFIG_FLAGS.KML_EXPORT]: true,
+          [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true,
+          [SYSTEM_CONFIG_FLAGS.TABLEAU]: true,
         },
       },
     };

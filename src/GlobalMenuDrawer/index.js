@@ -34,7 +34,7 @@ import {
   JIRA_WIDGET_IFRAME_SELECTOR,
   selectSupportFormFieldByLabelText,
 } from '../JiraSupportWidget';
-import { useMatchMedia, usePermissions, useSystemConfigFlag } from '../hooks';
+import { useMatchMedia, usePermissions } from '../hooks';
 
 import EarthRangerLogo from '../EarthRangerLogo';
 import Link from '../Link';
@@ -60,10 +60,6 @@ export const USERS_GUIDE_SITE_URL = 'https://support.earthranger.com/en_US/earth
 export const WEBSITE_PRIVACY_POLICY_URL = 'https://www.earthranger.com/privacy-policy';
 
 const GlobalMenuDrawer = () => {
-  const dailyReportEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.DAILY_REPORT);
-  const kmlExportEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.KML_EXPORT);
-  const patrolFlagEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT);
-
   const dispatch = useDispatch();
   const { t } = useTranslation('menu-drawer', { keyPrefix: 'globalMenuDrawer' });
 
@@ -73,12 +69,15 @@ const GlobalMenuDrawer = () => {
 
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
-  const alertsEnabled = useSelector((state) => state.view.systemConfig.alerts_enabled);
+  const alertsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.ALERTS]);
+  const dailyReportEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.DAILY_REPORT]);
   const drawer = useSelector((state) => state.view.drawer);
   const eventTypes = useSelector((state) => state.data.eventTypes);
+  const kmlExportEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.KML_EXPORT]);
+  const patrolFlagEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]);
   const selectedUserProfile = useSelector((state) => state.data.selectedUserProfile);
   const serverData = useSelector((state) => state.data.systemStatus.server);
-  const tableauEnabled = useSelector((state) => state.view.systemConfig.tableau_enabled);
+  const tableauEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.TABLEAU]);
   const token = useSelector((state) => state.data.token);
   const user = useSelector((state) => state.data.user);
 

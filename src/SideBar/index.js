@@ -15,7 +15,7 @@ import { SYSTEM_CONFIG_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../
 import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
 import { FEED_CATEGORY } from '../utils/analytics';
 import { SocketContext } from '../withSocketConnection';
-import { useSystemConfigFlag, usePermissions } from '../hooks';
+import { usePermissions } from '../hooks';
 import useFetchPatrolsFeed from './useFetchPatrolsFeed';
 import useNavigate from '../hooks/useNavigate';
 import useReportsFeed from './useReportsFeed';
@@ -49,7 +49,6 @@ const SideBar = () => {
   const { t } = useTranslation('components', { keyPrefix: 'sideBar' });
 
   const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
-  const patrolFlagEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT);
 
   const patrolsFeed = useFetchPatrolsFeed();
   const reportsFeed = useReportsFeed();
@@ -59,6 +58,7 @@ const SideBar = () => {
   const sideBarRef = useRef();
 
   const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
+  const patrolFlagEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]);
   const sideBar = useSelector((state) => state.view.sideBar);
 
   const [showEventsBadge, setShowEventsBadge] = useState(false);

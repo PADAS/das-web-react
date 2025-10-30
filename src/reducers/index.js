@@ -17,7 +17,8 @@ import mapsReducer, { homeMapReducer } from '../ducks/maps';
 import mapPositionReducer, { persistenceConfig as mapPositionPersistenceConfig } from '../ducks/map-position';
 import tracksReducer, { trackSettingsReducer } from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer, subjectStoreReducer } from '../ducks/subjects';
-import systemStatusReducer, { systemConfigReducer } from '../ducks/system-status';
+import systemConfigReducer from '../ducks/system-config';
+import systemStatusReducer from '../ducks/system-status';
 import {
   heatmapStyleConfigReducer,
   displayMapNamesReducer,
