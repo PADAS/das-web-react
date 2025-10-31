@@ -590,33 +590,32 @@ const Map = ({ children, onMapLoad, socket }) => {
       const { id } = event;
       // querying from the root /static/ dir of the host means this is one of our static assets, let's get it
       // if the map says it's missing.
-      if (id.includes('/static/')) {
-        const dimensions = {};
-        const match = id.match(/^(.*?)(?:-([^-.]+)-([^-.]+))?$/);
+      // Parse filepath to extract path and dimensions
+      const dimensions = {};
+      const match = id.match(/^(.*?)(?:-([^-.]+)-([^-.]+))?$/);
 
-        let src = id;
-        if (match) {
-          const [, path, width, height] = match;
-          src = path;
+      let src = id;
+      if (match) {
+        const [, path, width, height] = match;
+        src = path;
 
-          if (width && width !== 'x') {
-            dimensions.width = Number(width);
-          }
-          if (height && height !== 'x') {
-            dimensions.height = Number(height);
-          }
+        if (width && width !== 'x') {
+          dimensions.width = Number(width);
         }
-
-        // Sanitize the src path to remove internal icon ID suffixes
-        src = src.replace(/(\.svg|\.png|\.jpg).*$/, '$1');
-
-        try {
-          await addMapImage({ src, id, ...dimensions });
-        } catch (error) {
-          console.warn('Error adding map image:', { event, error });
+        if (height && height !== 'x') {
+          dimensions.height = Number(height);
         }
-
       }
+
+      // Remove any remaining trailing dimension strings after the extension
+      src = src.replace(/(\.svg|\.png|\.jpg).*$/, '$1');
+
+      try {
+        await addMapImage({ src, id, ...dimensions });
+      } catch (error) {
+        console.warn('Error adding map image:', { event, error });
+      }
+
 
     };
 
