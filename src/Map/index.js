@@ -136,6 +136,8 @@ const Map = ({ children, onMapLoad, socket }) => {
 
   const { hasEventsReadPermission } = useEventsPermissions();
 
+  const messageableMapSubjects = mapSubjectFeatureCollection.features.filter(({ properties }) => !!properties?.messaging?.length);
+
   const currentTab = getCurrentTabFromURL(location.pathname);
 
   const showPopup = useCallback((...args) => dispatch(
@@ -588,15 +590,32 @@ const Map = ({ children, onMapLoad, socket }) => {
       const { id } = event;
       // querying from the root /static/ dir of the host means this is one of our static assets, let's get it
       // if the map says it's missing.
-      if (id.includes('/static/')) {
-        const src = id.replace(/(\.svg|\.png|\.jpg).*$/, '$1');
-        try {
-          const img = await addMapImage({ src, id });
-        } catch (error) {
-          console.warn('Error adding map image:', { event, error });
-        }
+      // Parse filepath to extract path and dimensions
+      const dimensions = {};
+      const match = id.match(/^(.*?)(?:-([^-.]+)-([^-.]+))?$/);
 
+      let src = id;
+      if (match) {
+        const [, path, width, height] = match;
+        src = path;
+
+        if (width && width !== 'x') {
+          dimensions.width = Number(width);
+        }
+        if (height && height !== 'x') {
+          dimensions.height = Number(height);
+        }
       }
+
+      // Remove any remaining trailing dimension strings after the extension
+      src = src.replace(/(\.svg|\.png|\.jpg).*$/, '$1');
+
+      try {
+        await addMapImage({ src, id, ...dimensions });
+      } catch (error) {
+        console.warn('Error adding map image:', { event, error });
+      }
+
 
     };
 
@@ -652,7 +671,7 @@ const Map = ({ children, onMapLoad, socket }) => {
 
       <StaticSensorsLayer />
 
-      <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />
+      {!!messageableMapSubjects.length && <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />}
 
       {hasEventsReadPermission && <DelayedUnmount isMounted={!currentTab && !mapLocationSelection.isPickingLocation}>
         <div className='floating-report-filter'>

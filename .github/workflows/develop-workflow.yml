@@ -49,7 +49,7 @@ jobs:
         run: ci-helpers/makeversion.py
 
       - name: Install dependencies
-        run: yarn --ignore-scripts
+        run: yarn install
 
       - name: Run tests
         run: yarn test-ci

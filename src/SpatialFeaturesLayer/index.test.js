@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import { useSelector } from 'react-redux';
-import SpatialFeaturesLayer, { SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID } from './';
+import SpatialFeaturesLayer, { SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID, POLYGONS_OUTLINE_LAYER_ID } from './';
 import { MapContext } from '../App';
 import { createMapMock, createMockInteractionEvent } from '../__test-helpers/mocks';
 
@@ -15,6 +15,9 @@ jest.mock('../App', () => {
 // Mock these to prevent dependency chain issues
 jest.mock('../utils/analyzers', () => ({}));
 jest.mock('../ducks/analyzers', () => ({}));
+jest.mock('../utils/map', () => ({
+  addMapImage: jest.fn()
+}));
 
 jest.mock('../constants', () => ({
   API_URL: 'http://test-api.com/',
@@ -39,7 +42,7 @@ jest.mock('../constants', () => ({
     ANALYZER_POLYS_CRITICAL_SOURCE: 'analyzer-polygon-critical-source',
     ANALYZER_POLYS_WARNING_SOURCE: 'analyzer-polygon-warning-source',
     CLUSTERS_SOURCE_ID: 'clusters-source'
-  }
+  },
 }));
 
 jest.mock('react-redux', () => ({
@@ -71,7 +74,7 @@ describe('SpatialFeaturesLayer', () => {
     });
   });
 
-  test('should add source and all three main layers when they do not exist', () => {
+  test('should add source and all four main layers when they do not exist', () => {
     // Configure mock to return null for getSource and getLayer to simulate they don't exist
     mockMap.getSource.mockReturnValue(null);
     mockMap.getLayer.mockReturnValue(null);
@@ -88,8 +91,8 @@ describe('SpatialFeaturesLayer', () => {
       tiles: [expect.stringContaining('spatialfeatures/tiles/{z}/{x}/{y}.pbf')],
     }));
 
-    // Verify all three main layers were added
-    expect(mockMap.addLayer).toHaveBeenCalledTimes(3);
+    // Verify all four layers were added
+    expect(mockMap.addLayer).toHaveBeenCalledTimes(4);
 
     // Verify symbol layer was added
     expect(mockMap.addLayer).toHaveBeenCalledWith(expect.objectContaining({
@@ -102,7 +105,7 @@ describe('SpatialFeaturesLayer', () => {
         ['==', ['geometry-type'], 'Point'],
         ['!', ['in', ['get', 'id'], ['literal', ['hidden-feature-1', 'hidden-feature-2']]]]
       ])
-    }));
+    }), 'feature-separation-layer');
 
     // Verify line layer was added
     expect(mockMap.addLayer).toHaveBeenCalledWith(expect.objectContaining({
@@ -115,7 +118,20 @@ describe('SpatialFeaturesLayer', () => {
         ['==', ['geometry-type'], 'LineString'],
         ['!', ['in', ['get', 'id'], ['literal', ['hidden-feature-1', 'hidden-feature-2']]]]
       ])
-    }));
+    }), SYMBOLS_LAYER_ID);
+
+    // Verify polygon outline layer was added
+    expect(mockMap.addLayer).toHaveBeenCalledWith(expect.objectContaining({
+      id: POLYGONS_OUTLINE_LAYER_ID,
+      type: 'line',
+      source: 'spatial-features-source',
+      'source-layer': 'spatial_features',
+      filter: expect.arrayContaining([
+        'all',
+        ['==', ['geometry-type'], 'Polygon'],
+        ['!', ['in', ['get', 'id'], ['literal', ['hidden-feature-1', 'hidden-feature-2']]]]
+      ])
+    }), LINES_LAYER_ID);
 
     // Verify polygon layer was added
     expect(mockMap.addLayer).toHaveBeenCalledWith(expect.objectContaining({
@@ -128,7 +144,7 @@ describe('SpatialFeaturesLayer', () => {
         ['==', ['geometry-type'], 'Polygon'],
         ['!', ['in', ['get', 'id'], ['literal', ['hidden-feature-1', 'hidden-feature-2']]]]
       ])
-    }));
+    }), POLYGONS_OUTLINE_LAYER_ID);
 
     // Verify click handlers were added
     expect(mockMap.on).toHaveBeenCalledWith('click', SYMBOLS_LAYER_ID, expect.any(Function));
@@ -184,7 +200,7 @@ describe('SpatialFeaturesLayer', () => {
     // Verify feature lookup and callback
     expect(mockMap.queryRenderedFeatures).toHaveBeenCalledWith(
       mockEvent.point,
-      { layers: [SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID] }
+      { layers: [SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_OUTLINE_LAYER_ID, POLYGONS_LAYER_ID] }
     );
     expect(mockOnFeatureClick).toHaveBeenCalledWith(mockFeature, mockEvent);
   });
