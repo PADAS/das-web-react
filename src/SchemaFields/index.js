@@ -271,7 +271,7 @@ export const SelectWidget = ({
 
   const getOptionValue = (optionValue) => isPlainObject(optionValue) ? optionValue.value : optionValue;
 
-  const isOptionDisabled = (option) => (schema?.inactive_enum ?? []).includes(option.value.toLowerCase());
+  const isOptionDisabled = (option) => (schema?.inactive_enum ?? []).includes(option.value);
 
   const selected = enumOptions.find((item) => value
     ? item.value === (isPlainObject(value) ? value.value : value)
