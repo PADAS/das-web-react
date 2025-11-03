@@ -39,7 +39,7 @@ import { useEventsPermissions } from '../hooks/usePermissions';
 import { useMapEventBinding } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
-import { LAYER_IDS, TAB_KEYS } from '../constants';
+import { LAYER_IDS, SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../constants';
 
 import DelayedUnmount from '../DelayedUnmount';
 import EarthRangerMap from '../EarthRangerMap';
@@ -113,6 +113,7 @@ const Map = ({ children, onMapLoad, socket }) => {
   const map = useContext(MapContext);
 
   const analyzerFeatures = useSelector(analyzerFeaturesSelector);
+  const analyzersEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.ANALYZERS]);
   const analyzersFeatureCollection = useSelector(getAnalyzerFeatureCollectionsByType);
   const bounceEventIDs = useSelector(state => state.view.bounceEventIDs);
   const heatmapSubjectIDs = useSelector(state => state.view.heatmapSubjectIDs);
@@ -129,7 +130,9 @@ const Map = ({ children, onMapLoad, socket }) => {
   const popup = useSelector(state => state.view.popup);
   const showReportHeatmap = useSelector(state => state.view.showReportHeatmap);
   const showTrackTimepoints = useSelector(state => state.view.showTrackTimepoints);
+  const spatialFeaturesEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]);
   const subjectTrackState = useSelector(state => state.view.subjectTrackState);
+  const subjectsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SUBJECTS]);
   const timeSliderState = useSelector(state => state.view.timeSliderState);
   const trackLength = useSelector(state => state.view.trackSettings.length);
   const trackLengthOrigin = useSelector(state => state.view.trackSettings.origin);
@@ -657,21 +660,21 @@ const Map = ({ children, onMapLoad, socket }) => {
 
       <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
 
-      <EventsLayer
+      {hasEventsReadPermission && <EventsLayer
         mapImages={mapImages}
         onEventClick={onSelectEvent}
         bounceEventIDs={bounceEventIDs}
-      />
+      />}
 
-      <SubjectsLayer mapImages={mapImages} onSubjectClick={onSelectSubject} />
+      {subjectsEnabled && <SubjectsLayer mapImages={mapImages} onSubjectClick={onSelectSubject} />}
 
       <MapImagesLayer />
 
       <UserCurrentLocationLayer onIconClick={onCurrentUserLocationClick} />
 
-      <StaticSensorsLayer />
+      {subjectsEnabled && <StaticSensorsLayer />}
 
-      {!!messageableMapSubjects.length && <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />}
+      {subjectsEnabled && !!messageableMapSubjects.length && <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />}
 
       {hasEventsReadPermission && <DelayedUnmount isMounted={!currentTab && !mapLocationSelection.isPickingLocation}>
         <div className='floating-report-filter'>
@@ -680,6 +683,7 @@ const Map = ({ children, onMapLoad, socket }) => {
       </DelayedUnmount>}
 
       {isDrawingEventGeometry && <ReportGeometryDrawer />}
+
       {isSelectingEventLocation && <MapLocationSelectionOverview />}
 
       <div className='map-legends'>
@@ -707,11 +711,11 @@ const Map = ({ children, onMapLoad, socket }) => {
 
       {patrolTracksVisible && <PatrolTracks onPointClick={onTimepointClick} />}
 
-      <SpatialFeaturesLayer
+      {spatialFeaturesEnabled && <SpatialFeaturesLayer
         onFeatureClick={onFeatureSymbolClick}
-      />
+      />}
 
-      <AnalyzerLayer
+      {analyzersEnabled && <AnalyzerLayer
         warningLines={analyzerWarningLines}
         criticalLines={analyzerCriticalLines}
         warningPolys={analyzerWarningPolys}
@@ -722,10 +726,9 @@ const Map = ({ children, onMapLoad, socket }) => {
         onAnalyzerFeatureClick={onAnalyzerFeatureClick}
         map={map}
         isSubjectSymbolsLayerReady={!!map.getLayer(SUBJECT_SYMBOLS)}
-      />
+      />}
 
       {!!popup && <PopupLayer popup={popup} />}
-
     </>}
 
     {timeSliderActive && <TimeSlider />}
@@ -733,6 +736,5 @@ const Map = ({ children, onMapLoad, socket }) => {
     <SleepDetector onSleepDetected={onSleepDetected} />
   </EarthRangerMap>;
 };
-
 
 export default Map;
