@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { canExpand, getInputProps, getTemplate, getUiOptions } from '@rjsf/utils';
 import Form from 'react-bootstrap/Form';
@@ -256,11 +256,6 @@ export const SelectWidget = ({
 
   const [isMenuOpen, setMenuOpen] = useState(false);
 
-  const schemaInactiveEnumLowercase = useMemo(
-    () => (schema.inactive_enum || []).map((inactiveOption) => inactiveOption.toLowerCase()),
-    [schema]
-  );
-
   const getOptionLabel = (option) => {
     const { label, name } = option;
     const value = getOptionValue(option);
@@ -276,7 +271,7 @@ export const SelectWidget = ({
 
   const getOptionValue = (optionValue) => isPlainObject(optionValue) ? optionValue.value : optionValue;
 
-  const isOptionDisabled = (option) => schemaInactiveEnumLowercase.includes(option.value.toLowerCase());
+  const isOptionDisabled = (option) => (schema?.inactive_enum ?? []).includes(option.value.toLowerCase());
 
   const selected = enumOptions.find((item) => value
     ? item.value === (isPlainObject(value) ? value.value : value)
