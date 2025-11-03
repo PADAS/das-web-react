@@ -17,11 +17,13 @@ import { setTrackLength } from '../ducks/tracks';
 import { updatePatrolTrackState } from '../ducks/patrols';
 
 import { createMapMock } from '../__test-helpers/mocks';
-import Map from './';
 import { MapContext } from '../App';
 import MapDrawingToolsContextProvider from '../MapDrawingTools/ContextProvider';
 import { mockedSocket } from '../__test-helpers/MockSocketContext';
 import { mockStore } from '../__test-helpers/MockStore';
+import { SYSTEM_CONFIG_FLAGS } from '../constants';
+
+import Map from './';
 
 jest.mock('mapbox-gl', () => ({
   ...jest.requireActual('mapbox-gl'),
@@ -159,6 +161,11 @@ describe('Map', () => {
         showMapNames: {},
         simplifyMapDataOnZoom: {},
         subjectTrackState: { pinned: [], visible: [] },
+        systemConfig: {
+          [SYSTEM_CONFIG_FLAGS.ANALYZERS]: true,
+          [SYSTEM_CONFIG_FLAGS.EVENTS]: true,
+          [SYSTEM_CONFIG_FLAGS.SUBJECTS]: true,
+        },
         timeSliderState: {},
         trackSettings: {},
         userPreferences: {},

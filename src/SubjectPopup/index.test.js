@@ -44,6 +44,7 @@ describe('SubjectPopup', () => {
           storedSystems: [],
         },
         heatmapSubjectIDs: [],
+        systemConfig: {},
         timeSliderState: {
           active: false,
           virtualDate: null,

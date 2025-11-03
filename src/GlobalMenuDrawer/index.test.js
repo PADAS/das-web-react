@@ -57,8 +57,8 @@ describe('GlobalMenuDrawer', () => {
         token: { access_token: '' },
         user: {
           permissions: {
-            [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ],
             [PERMISSION_KEYS.EVENTS]: [PERMISSIONS.EXPORT],
+            [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ],
             [PERMISSION_KEYS.OBSERVATIONS]: [PERMISSIONS.EXPORT],
           }
         },
@@ -68,9 +68,11 @@ describe('GlobalMenuDrawer', () => {
         drawer: {},
         systemConfig: {
           [SYSTEM_CONFIG_FLAGS.ALERTS]: true,
+          [SYSTEM_CONFIG_FLAGS.EVENTS]: true,
           [SYSTEM_CONFIG_FLAGS.DAILY_REPORT]: true,
           [SYSTEM_CONFIG_FLAGS.KML_EXPORT]: true,
           [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true,
+          [SYSTEM_CONFIG_FLAGS.SUBJECTS]: true,
           [SYSTEM_CONFIG_FLAGS.TABLEAU]: true,
         },
       },

@@ -33,12 +33,14 @@ describe('AddItemButton - AddItemModal', () => {
         patrolTypes,
         user: {
           permissions: {
+            [PERMISSION_KEYS.EVENTS]: [PERMISSIONS.CREATE],
             [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.CREATE],
           },
         },
       },
       view: {
         systemConfig: {
+          [SYSTEM_CONFIG_FLAGS.EVENTS]: true,
           [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true,
         },
       },
@@ -138,7 +140,11 @@ describe('AddItemButton - AddItemModal', () => {
   test('changes to Add Report tab if Add Patrol is selected but patrols are not enabled', async () => {
     getStoredTab.mockImplementation(() => ADD_TAB_KEYS.ADD_PATROL);
 
-    renderAddItemModal({}, {}, { data: { eventCategories, eventTypes, patrolTypes, user: { permissions: {} } } });
+    store.view.systemConfig = {
+      [SYSTEM_CONFIG_FLAGS.EVENTS]: true,
+      [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: false,
+    };
+    renderAddItemModal();
 
     const tabs = await screen.findAllByRole('tab');
 

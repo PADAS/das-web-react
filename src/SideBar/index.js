@@ -101,7 +101,7 @@ const SideBar = () => {
       });
     }
 
-    if (!location.key !== 'default' || location.state?.comesFromLogin || location.state?.comesFromLngLatRedirection) {
+    if (location.key === 'default' || location.state?.comesFromLogin || location.state?.comesFromLngLatRedirection) {
       return navigate(`/${getCurrentTabFromURL(location.pathname)}`, {});
     }
 

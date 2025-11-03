@@ -21,12 +21,14 @@ describe('AddItemButton', () => {
         patrolTypes,
         user: {
           permissions: {
+            [PERMISSION_KEYS.EVENTS]: [PERMISSIONS.CREATE],
             [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.CREATE],
           },
         },
       },
       view: {
         systemConfig: {
+          [SYSTEM_CONFIG_FLAGS.EVENTS]: true,
           [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true,
         },
       },

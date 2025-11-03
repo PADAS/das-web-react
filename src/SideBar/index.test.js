@@ -20,7 +20,7 @@ import patrols from '../__test-helpers/fixtures/patrols';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
 import { render, screen, waitFor } from '../test-utils';
 import SideBar from '.';
-import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
+import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
 import { MapContext } from '../App';
 import { report } from '../__test-helpers/fixtures/reports';
@@ -105,6 +105,7 @@ describe('SideBar', () => {
         subjectStore: {},
         user: {
           permissions: {
+            [PERMISSION_KEYS.EVENTS]: [PERMISSIONS.READ],
             [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ],
           }
         },
@@ -116,7 +117,11 @@ describe('SideBar', () => {
         userPreferences: {},
         sideBar: {},
         systemConfig: {
-          patrol_enabled: true,
+          [SYSTEM_CONFIG_FLAGS.ANALYZERS]: true,
+          [SYSTEM_CONFIG_FLAGS.EVENTS]: true,
+          [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true,
+          [SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]: true,
+          [SYSTEM_CONFIG_FLAGS.SUBJECTS]: true,
         },
       },
     };

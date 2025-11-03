@@ -10,6 +10,7 @@ import { EVENT_TYPE_SCHEMA_API_URL } from '../../ducks/event-schemas';
 import { files, notes, report } from '../../__test-helpers/fixtures/reports';
 import { mockStore } from '../../__test-helpers/MockStore';
 import patrols from '../../__test-helpers/fixtures/patrols';
+import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../constants';
 import { render, screen, waitFor, within } from '../../test-utils';
 import { TrackerContext } from '../../utils/analytics';
 
@@ -70,8 +71,22 @@ describe('DetailViewComponents - ActivitySection', () => {
   };
 
   const initialStore = {
-    data: { eventSchemas: {}, eventStore: {}, eventTypes: [], patrolTypes: [] },
-    view: {}
+    data: {
+      eventSchemas: {},
+      eventStore: {},
+      eventTypes: [],
+      patrolTypes: [],
+      user: {
+        permissions: {
+          [PERMISSION_KEYS.EVENTS]: [PERMISSIONS.READ],
+        }
+      },
+    },
+    view: {
+      systemConfig: {
+        [SYSTEM_CONFIG_FLAGS.EVENTS]: true,
+      },
+    },
   };
 
   const renderActivitySection = (props = defaultProps) => render(
