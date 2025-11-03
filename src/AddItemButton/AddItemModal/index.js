@@ -7,8 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 import { AddItemContext } from '..';
 import { getStoredTab, storeTab } from './utils';
-import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../constants';
-import { usePermissions } from '../../hooks';
+import { useEventsPermissions, usePatrolsPermissions } from '../../hooks/usePermissions';
 
 import AddPatrolTab from './AddPatrolTab';
 import AddReportTab from './AddReportTab';
@@ -20,18 +19,20 @@ export const ADD_TAB_KEYS = { ADD_REPORT: 'reports', ADD_PATROL: 'patrols' };
 const AddItemModal = ({ onHide, show, ...restProps }) => {
   const { t } = useTranslation('components', { keyPrefix: 'addItemButton.addItemModal' });
 
-  const { hideAddPatrolTab, hideAddReportTab } = useContext(AddItemContext);
-
-  const hasPatrolWritePermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.CREATE);
-
-  const patrolFlagEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]);
+  const eventTypes = useSelector((state) => state.data.eventTypes);
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
+
+  const { hasEventsCreatePermission } = useEventsPermissions();
+  const { hasPatrolsCreatePermission } = usePatrolsPermissions();
+
+  const { hideAddPatrolTab, hideAddReportTab } = useContext(AddItemContext);
 
   const storedActiveTabKey = getStoredTab() || ADD_TAB_KEYS.ADD_REPORT;
 
   const [activeTabKey, setActiveTabKey] = useState(storedActiveTabKey);
 
-  const patrolsEnabled = !!patrolFlagEnabled && !!hasPatrolWritePermissions && !!patrolTypes.length;
+  const canAddEvents = hasEventsCreatePermission && eventTypes.length > 0 && !hideAddReportTab;
+  const canAddPatrols = hasPatrolsCreatePermission && patrolTypes.length > 0 && !hideAddPatrolTab;
 
   const onTabSelect = useCallback((tab) => {
     storeTab(tab);
@@ -39,14 +40,18 @@ const AddItemModal = ({ onHide, show, ...restProps }) => {
   }, []);
 
   useEffect(() => {
-    const shouldSelectReportTab = !hideAddReportTab && (storedActiveTabKey === ADD_TAB_KEYS.ADD_REPORT || hideAddPatrolTab || !patrolsEnabled);
-    const shouldSelectPatrolTab = !hideAddPatrolTab && patrolsEnabled && (storedActiveTabKey === ADD_TAB_KEYS.ADD_PATROL || hideAddReportTab);
-    if (shouldSelectReportTab && activeTabKey !== ADD_TAB_KEYS.ADD_REPORT) {
+    const shouldSelectEventsTab = canAddEvents
+      && activeTabKey !== ADD_TAB_KEYS.ADD_REPORT
+      && (storedActiveTabKey === ADD_TAB_KEYS.ADD_REPORT || !canAddPatrols);
+    const shouldSelectPatrolsTab = canAddPatrols
+      && activeTabKey !== ADD_TAB_KEYS.ADD_PATROL
+      && (storedActiveTabKey === ADD_TAB_KEYS.ADD_PATROL || !canAddEvents);
+    if (shouldSelectEventsTab) {
       onTabSelect(ADD_TAB_KEYS.ADD_REPORT);
-    } else if (shouldSelectPatrolTab && activeTabKey !== ADD_TAB_KEYS.ADD_PATROL) {
+    } else if (shouldSelectPatrolsTab) {
       onTabSelect(ADD_TAB_KEYS.ADD_PATROL);
     }
-  }, [activeTabKey, hideAddPatrolTab, hideAddReportTab, onTabSelect, patrolsEnabled, storedActiveTabKey]);
+  }, [activeTabKey, canAddEvents, canAddPatrols, onTabSelect, storedActiveTabKey]);
 
   return <Modal data-testid="addItemButton-addItemModal" onHide={onHide} show={show} {...restProps}>
     <Modal.Header closeButton />
@@ -58,7 +63,7 @@ const AddItemModal = ({ onHide, show, ...restProps }) => {
         fill
         onSelect={onTabSelect}
       >
-        {!hideAddReportTab && <Tab
+        {canAddEvents && <Tab
           data-testid="addItemButton-addItemModal-reportTab"
           eventKey={ADD_TAB_KEYS.ADD_REPORT}
           title={t('addReportTabTitle')}
@@ -66,7 +71,7 @@ const AddItemModal = ({ onHide, show, ...restProps }) => {
           <AddReportTab onHideModal={onHide} />
         </Tab>}
 
-        {patrolsEnabled && !hideAddPatrolTab && <Tab
+        {canAddPatrols && <Tab
           data-testid="addItemButton-addItemModal-patrolTab"
           eventKey={ADD_TAB_KEYS.ADD_PATROL}
           title={t('addPatroTabTitle')}

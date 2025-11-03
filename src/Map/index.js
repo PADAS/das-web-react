@@ -35,13 +35,11 @@ import {
 import { MapContext } from '../App';
 import { updatePatrolTrackState } from '../ducks/patrols';
 import useCrsBoundingBoxLayer from './layers/useCrsBoundingBoxLayer';
+import { useEventsPermissions } from '../hooks/usePermissions';
 import { useMapEventBinding } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
-import {
-  LAYER_IDS,
-  TAB_KEYS,
-} from '../constants';
+import { LAYER_IDS, TAB_KEYS } from '../constants';
 
 import DelayedUnmount from '../DelayedUnmount';
 import EarthRangerMap from '../EarthRangerMap';
@@ -115,26 +113,28 @@ const Map = ({ children, onMapLoad, socket }) => {
   const map = useContext(MapContext);
 
   const analyzerFeatures = useSelector(analyzerFeaturesSelector);
-  const maps = useSelector(state => state.data.maps);
+  const analyzersFeatureCollection = useSelector(getAnalyzerFeatureCollectionsByType);
+  const bounceEventIDs = useSelector(state => state.view.bounceEventIDs);
   const heatmapSubjectIDs = useSelector(state => state.view.heatmapSubjectIDs);
   const hiddenAnalyzerIDs = useSelector(state => state.data.mapLayerFilter.hiddenAnalyzerIDs);
   const hiddenFeatureIDs = useSelector(state => state.data.mapLayerFilter.hiddenFeatureIDs);
+  const eventFilter = useSelector(state => state.data.eventFilter);
+  const mapImages = useSelector(state => state.view.mapImages);
   const mapIsLocked = useSelector(state => state.view.mapIsLocked);
+  const mapLocationSelection = useSelector(state => state.view.mapLocationSelection);
+  const maps = useSelector(state => state.data.maps);
+  const mapSubjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);
+  const patrolFilter = useSelector(state => state.data.patrolFilter);
   const patrolTrackState = useSelector(state => state.view.patrolTrackState);
   const popup = useSelector(state => state.view.popup);
-  const eventFilter = useSelector(state => state.data.eventFilter);
-  const patrolFilter = useSelector(state => state.data.patrolFilter);
-  const subjectTrackState = useSelector(state => state.view.subjectTrackState);
+  const showReportHeatmap = useSelector(state => state.view.showReportHeatmap);
   const showTrackTimepoints = useSelector(state => state.view.showTrackTimepoints);
+  const subjectTrackState = useSelector(state => state.view.subjectTrackState);
   const timeSliderState = useSelector(state => state.view.timeSliderState);
-  const bounceEventIDs = useSelector(state => state.view.bounceEventIDs);
   const trackLength = useSelector(state => state.view.trackSettings.length);
   const trackLengthOrigin = useSelector(state => state.view.trackSettings.origin);
-  const mapImages = useSelector(state => state.view.mapImages);
-  const mapSubjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);
-  const analyzersFeatureCollection = useSelector(getAnalyzerFeatureCollectionsByType);
-  const showReportHeatmap = useSelector(state => state.view.showReportHeatmap);
-  const mapLocationSelection = useSelector(state => state.view.mapLocationSelection);
+
+  const { hasEventsReadPermission } = useEventsPermissions();
 
   const currentTab = getCurrentTabFromURL(location.pathname);
 
@@ -654,11 +654,11 @@ const Map = ({ children, onMapLoad, socket }) => {
 
       <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />
 
-      <DelayedUnmount isMounted={!currentTab && !mapLocationSelection.isPickingLocation}>
+      {hasEventsReadPermission && <DelayedUnmount isMounted={!currentTab && !mapLocationSelection.isPickingLocation}>
         <div className='floating-report-filter'>
           <EventFilter className='report-filter' />
         </div>
-      </DelayedUnmount>
+      </DelayedUnmount>}
 
       {isDrawingEventGeometry && <ReportGeometryDrawer />}
       {isSelectingEventLocation && <MapLocationSelectionOverview />}

@@ -18,14 +18,7 @@ import {
   trackEvent,
   trackEventFactory,
 } from '../utils/analytics';
-import {
-  BREAKPOINTS,
-  CLIENT_BUILD_VERSION,
-  PERMISSION_KEYS,
-  PERMISSIONS,
-  SYSTEM_CONFIG_FLAGS,
-  TAB_KEYS,
-} from '../constants';
+import { BREAKPOINTS, CLIENT_BUILD_VERSION, SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../constants';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 import { hideDrawer } from '../ducks/drawer';
@@ -34,7 +27,8 @@ import {
   JIRA_WIDGET_IFRAME_SELECTOR,
   selectSupportFormFieldByLabelText,
 } from '../JiraSupportWidget';
-import { useMatchMedia, usePermissions } from '../hooks';
+import { useEventsPermissions, useObservationsPermissions, usePatrolsPermissions } from '../hooks/usePermissions';
+import { useMatchMedia } from '../hooks';
 
 import EarthRangerLogo from '../EarthRangerLogo';
 import Link from '../Link';
@@ -63,10 +57,6 @@ const GlobalMenuDrawer = () => {
   const dispatch = useDispatch();
   const { t } = useTranslation('menu-drawer', { keyPrefix: 'globalMenuDrawer' });
 
-  const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
-  const hasObservationExportPermissions = usePermissions(PERMISSION_KEYS.OBSERVATIONS, PERMISSIONS.EXPORT);
-  const hasEventExportPermissions = usePermissions(PERMISSION_KEYS.EVENTS, PERMISSIONS.EXPORT);
-
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
   const alertsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.ALERTS]);
@@ -74,12 +64,16 @@ const GlobalMenuDrawer = () => {
   const drawer = useSelector((state) => state.view.drawer);
   const eventTypes = useSelector((state) => state.data.eventTypes);
   const kmlExportEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.KML_EXPORT]);
-  const patrolFlagEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]);
   const selectedUserProfile = useSelector((state) => state.data.selectedUserProfile);
   const serverData = useSelector((state) => state.data.systemStatus.server);
+  const subjectsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SUBJECTS]);
   const tableauEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.TABLEAU]);
   const token = useSelector((state) => state.data.token);
   const user = useSelector((state) => state.data.user);
+
+  const { hasEventsExportPermission } = useEventsPermissions();
+  const { hasObservationsExportPermission } = useObservationsPermissions();
+  const { hasPatrolsReadPermission } = usePatrolsPermissions();
 
   const closeButtonRef = useRef();
   const dataPrivacyPolicyLinkRef = useRef();
@@ -102,7 +96,7 @@ const GlobalMenuDrawer = () => {
       });
     }
 
-    if (kmlExportEnabled) {
+    if (kmlExportEnabled && subjectsEnabled) {
       exportModals.push({
         content: KMLExportModal,
         modalProps: { className: 'kml-export-modal' },
@@ -111,7 +105,7 @@ const GlobalMenuDrawer = () => {
       });
     }
 
-    if (hasObservationExportPermissions) {
+    if (hasObservationsExportPermission && subjectsEnabled) {
       exportModals.push({
         content: DataExportModal,
         title: t('subjectInformationModal.title'),
@@ -123,7 +117,7 @@ const GlobalMenuDrawer = () => {
       });
     }
 
-    if (hasEventExportPermissions) {
+    if (hasEventsExportPermission) {
       exportModals.push({
         children: <div>{t('fieldReportsModal.content')}</div>,
         content: DataExportModal,
@@ -136,9 +130,10 @@ const GlobalMenuDrawer = () => {
     return exportModals;
   }, [
     dailyReportEnabled,
-    hasEventExportPermissions,
-    hasObservationExportPermissions,
+    hasEventsExportPermission,
+    hasObservationsExportPermission,
     kmlExportEnabled,
+    subjectsEnabled,
     t,
   ]);
 
@@ -188,12 +183,12 @@ const GlobalMenuDrawer = () => {
   // Calculate the navigation links to show based on the enabled features.
   const navigationItems = useMemo(() => [
     { icon: <DocumentIcon />, sidebarTab: TAB_KEYS.EVENTS, title: t('navigationButton.reports') },
-    ...(!!patrolFlagEnabled && !!hasPatrolViewPermissions
+    ...(hasPatrolsReadPermission
       ? [{ icon: <PatrolIcon />, sidebarTab: TAB_KEYS.PATROLS, title: t('navigationButton.patrols') }]
       : []),
     { icon: <LayersIcon />, sidebarTab: TAB_KEYS.LAYERS, title: t('navigationButton.mapLayers') },
     { icon: <GearIcon />, sidebarTab: TAB_KEYS.SETTINGS, title: t('navigationButton.settings') },
-  ], [hasPatrolViewPermissions, patrolFlagEnabled, t]);
+  ], [hasPatrolsReadPermission, t]);
 
   useEffect(() => {
     if (drawer.drawerId === 'global-menu' && drawer.isOpen) {

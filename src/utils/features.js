@@ -2,7 +2,6 @@
 import uniq from 'lodash/uniq';
 import { LngLatBounds } from 'mapbox-gl';
 
-import { POLYGONS_LAYER_ID, LINES_LAYER_ID, SYMBOLS_LAYER_ID } from '../SpatialFeaturesLayer';
 const MAX_JUMP_ZOOM = 17;
 
 export const getUniqueIDsFromFeatures = (...features) => {
