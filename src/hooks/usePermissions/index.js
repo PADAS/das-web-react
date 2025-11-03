@@ -57,6 +57,18 @@ export const useEventsPermissions = () => {
   }), [eventsPermissions]);
 };
 
+export const useMessagesPermissions = () => {
+  const messagesPermissions = usePermissions(PERMISSION_KEYS.MESSAGES);
+
+  return useMemo(() => ({
+    hasMessagesCreatePermission: messagesPermissions.hasCreatePermission,
+    hasMessagesDeletePermission: messagesPermissions.hasDeletePermission,
+    hasMessagesExportPermission: messagesPermissions.hasExportPermission,
+    hasMessagesReadPermission: messagesPermissions.hasReadPermission,
+    hasMessagesUpdatePermission: messagesPermissions.hasUpdatePermission,
+  }), [messagesPermissions]);
+};
+
 export const useObservationsPermissions = () => {
   const observationsPermissions = usePermissions(PERMISSION_KEYS.OBSERVATIONS);
 
