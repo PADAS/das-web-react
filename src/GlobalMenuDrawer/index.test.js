@@ -187,6 +187,20 @@ describe('GlobalMenuDrawer', () => {
     expect(addModal.mock.calls[0][0].title).toBe('Daily Report');
   });
 
+  test('does not show the Master KML button if KML export is not enabled', async () => {
+    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.KML_EXPORT] = false;
+    renderGlobalMenuDrawer();
+
+    expect(screen.queryByRole('button', { name: 'Subject KML' })).toBeNull();
+  });
+
+  test('does not show the Master KML button if subjects are not enabled', async () => {
+    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.SUBJECTS] = false;
+    renderGlobalMenuDrawer();
+
+    expect(screen.queryByRole('button', { name: 'Subject KML' })).toBeNull();
+  });
+
   test('opens the kml export modal when clicking the Master KML button', async () => {
     renderGlobalMenuDrawer();
 
@@ -198,14 +212,21 @@ describe('GlobalMenuDrawer', () => {
     expect(addModal.mock.calls[0][0].title).toBe('Subject KML');
   });
 
-  test('does not show the subject information button if a user doesn\'t have export observation data permissions', async () => {
+  test('does not show the subject Summary button if a user does not have export observation data permissions', async () => {
     delete store.data.user.permissions[PERMISSION_KEYS.OBSERVATIONS];
     renderGlobalMenuDrawer();
 
     expect(screen.queryByRole('button', { name: 'Subject Summary' })).toBeNull();
   });
 
-  test('opens the subject information modal when clicking the Subject Information button', async () => {
+  test('does not show the subject Summary button if subjects are not enabled', async () => {
+    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.SUBJECTS] = false;
+    renderGlobalMenuDrawer();
+
+    expect(screen.queryByRole('button', { name: 'Subject Summary' })).toBeNull();
+  });
+
+  test('opens the subject information modal when clicking the Subject Summary button', async () => {
     renderGlobalMenuDrawer();
 
     expect(addModal).toHaveBeenCalledTimes(0);
@@ -216,14 +237,14 @@ describe('GlobalMenuDrawer', () => {
     expect(addModal.mock.calls[0][0].title).toBe('Subject Summary');
   });
 
-  test('does not show the subject reports button if a user doesn\'t have export observation data permissions', async () => {
+  test('does not show the Observations button if a user does not have export observation data permissions', async () => {
     delete store.data.user.permissions[PERMISSION_KEYS.OBSERVATIONS];
     renderGlobalMenuDrawer();
 
     expect(screen.queryByRole('button', { name: 'Observations' })).toBeNull();
   });
 
-  test('opens the subject reports modal when clicking the Subject Reports button', async () => {
+  test('opens the subject reports modal when clicking the Observations button', async () => {
     renderGlobalMenuDrawer();
 
     expect(addModal).toHaveBeenCalledTimes(0);
@@ -234,14 +255,14 @@ describe('GlobalMenuDrawer', () => {
     expect(addModal.mock.calls[0][0].title).toBe('Observations');
   });
 
-  test('does not show the Field Reports button if a user doesn\'t have export event data permissions', async () => {
+  test('does not show the Field Events button if a user does not have export event data permissions', async () => {
     delete store.data.user.permissions[PERMISSION_KEYS.EVENTS];
     renderGlobalMenuDrawer();
 
     expect(screen.queryByRole('button', { name: 'Field Events' })).toBeNull();
   });
 
-  test('opens the field reports modal when clicking the Field Reports button', async () => {
+  test('opens the field reports modal when clicking the Field Events button', async () => {
     renderGlobalMenuDrawer();
 
     expect(addModal).toHaveBeenCalledTimes(0);

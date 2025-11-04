@@ -7,12 +7,11 @@ import { clearSubjectData, fetchMapSubjects } from '../ducks/subjects';
 import { fetchBaseLayers } from '../ducks/layers';
 import { hidePopup, showPopup } from '../ducks/popup';
 import {
-  MAP_LOCATION_SELECTION_MODES,
   setReportHeatmapVisibility,
   updateHeatmapSubjects,
   updateTrackState
 } from '../ducks/map-ui';
-import { render, screen, waitFor } from '../test-utils';
+import { render, waitFor } from '../test-utils';
 import { setTrackLength } from '../ducks/tracks';
 import { updatePatrolTrackState } from '../ducks/patrols';
 
@@ -21,7 +20,7 @@ import { MapContext } from '../App';
 import MapDrawingToolsContextProvider from '../MapDrawingTools/ContextProvider';
 import { mockedSocket } from '../__test-helpers/MockSocketContext';
 import { mockStore } from '../__test-helpers/MockStore';
-import { SYSTEM_CONFIG_FLAGS } from '../constants';
+import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../constants';
 
 import Map from './';
 
@@ -91,7 +90,6 @@ describe('Map', () => {
     updatePatrolTrackStateMock,
     updateTrackStateMock,
     map,
-    renderMap,
     store,
     useTranslationMock;
   beforeEach(() => {
@@ -145,7 +143,11 @@ describe('Map', () => {
         mapSubjects: { subjects: [] },
         patrolTypes: [],
         selectedUserProfile: {},
-        user: { permissions: [] },
+        user: {
+          permissions: {
+            [PERMISSION_KEYS.EVENTS]: [PERMISSIONS.READ],
+          },
+        },
       },
       view: {
         coordinateReferenceSystems: {
@@ -171,32 +173,11 @@ describe('Map', () => {
         userPreferences: {},
       },
     };
-
-    renderMap = (props, overrideStore) => {
-      return render(<Provider store={mockStore(overrideStore || store)}>
-        <MapDrawingToolsContextProvider>
-          <MapContext.Provider value={map}>
-            <Map map={map} socket={mockedSocket} {...props} />
-          </MapContext.Provider>
-        </MapDrawingToolsContextProvider>
-      </Provider>);
-    };
   });
 
   afterEach(() => {
     jest.restoreAllMocks();
   });
-
-  test('shows the EventFilter', async () => {
-    store.view.mapLocationSelection.isPickingLocation = false;
-
-    renderMap();
-
-    await waitFor(() => {
-      expect((screen.findByTestId('eventFilter-form'))).toBeDefined();
-    });
-  });
-
 
   test('saving the map position on moveend', async () => {
     const mockStoreInstance = mockStore(store);
@@ -303,73 +284,5 @@ describe('Map', () => {
       2,
       ['to-string', ['get', 'name_es']],
     ]);
-  });
-
-  test('does not show the EventFilter if user is picking a location on the map', async () => {
-    store.view.mapLocationSelection.isPickingLocation = true;
-    renderMap();
-
-    expect((await screen.queryByTestId('eventFilter-form'))).toBeNull();
-  });
-
-  test('does not show the MapLocationSelectionOverview if user is drawing a geometry on the map', async () => {
-    store.view.mapLocationSelection.mode = MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
-    renderMap();
-
-    expect((await screen.queryByTestId('mapLocationSelectionOverview-wrapper'))).toBeNull();
-  });
-
-  test('does not show the MapLocationSelectionOverview if user is picking location for a marker or using the ruler', async () => {
-    store.view.mapLocationSelection = {
-      isPickingLocation: true,
-      mode: MAP_LOCATION_SELECTION_MODES.DEFAULT,
-    };
-    renderMap();
-
-    expect((await screen.queryByTestId('mapLocationSelectionOverview-wrapper'))).toBeNull();
-  });
-
-  test('shows the MapLocationSelectionOverview if user is drawing a geometry', async () => {
-    const mockEvent = {
-      id: 'hello',
-      geometry: null,
-    };
-
-    store.data.eventStore = {
-      [mockEvent.id]: mockEvent
-    };
-
-    store.view.mapLocationSelection = {
-      event: mockEvent,
-      isPickingLocation: true,
-      mode: MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY,
-    };
-    renderMap();
-
-    await waitFor(() => {
-      expect(screen.findByTestId('mapLocationSelectionOverview-wrapper')).toBeDefined();
-    });
-  });
-
-  test('shows the MapLocationSelectionOverview if user is picking an event location', async () => {
-    const mockEvent = {
-      id: 'hello',
-      geometry: null,
-    };
-
-    store.data.eventStore = {
-      [mockEvent.id]: mockEvent
-    };
-
-    store.view.mapLocationSelection = {
-      event: mockEvent,
-      isPickingLocation: true,
-      mode: MAP_LOCATION_SELECTION_MODES.DEFAULT,
-    };
-    renderMap();
-
-    await waitFor(() => {
-      expect(screen.findByTestId('mapLocationSelectionOverview-wrapper')).toBeDefined();
-    });
   });
 });

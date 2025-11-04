@@ -47,12 +47,19 @@ describe('AddItemButton', () => {
     jest.restoreAllMocks();
   });
 
+  test('does not render if user has no events or patrols create permission', async () => {
+    store.data.user.permissions = {};
+    renderAddItemButton();
+
+    expect(screen.queryByRole('button', { name: 'Create Event or Patrol' })).toBeNull();
+  });
+
   test('shows the Add Modal when clicking the button', async () => {
     renderAddItemButton();
 
     expect((await screen.queryByTestId('addItemButton-addItemModal'))).toBeNull();
 
-    const addItemButton = await screen.findByTestId('addItemButton');
+    const addItemButton = screen.getByRole('button', { name: 'Create Event or Patrol' });
     await userEvent.click(addItemButton);
 
     expect((await screen.findByTestId('addItemButton-addItemModal'))).toBeDefined();

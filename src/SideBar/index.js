@@ -234,9 +234,7 @@ const SideBar = () => {
 
         <div className={styles.header}>
           <div className={styles.title}>
-            {(currentTab === TAB_KEYS.EVENTS || currentTab === TAB_KEYS.PATROLS) && <div
-              data-testid="sideBar-addReportButton"
-            >
+            {(currentTab === TAB_KEYS.EVENTS || currentTab === TAB_KEYS.PATROLS) && <div>
               {!!itemId
                 ? <button
                   aria-label={t('backButtonLabel')}
@@ -265,7 +263,6 @@ const SideBar = () => {
 
           <button
             aria-label={t(CLOSE_BUTTON_LABEL_KEY[currentTab])}
-            data-testid="sideBar-closeButton"
             onClick={() => navigate('/')}
             title={t('closeButtonTitle')}
           >
