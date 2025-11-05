@@ -67,7 +67,14 @@ import MessageBadgeLayer from '../MessageBadgeLayer';
 import MapImagesLayer from '../MapImagesLayer';
 import SleepDetector from '../SleepDetector';
 import ClustersLayer from '../ClustersLayer';
-import SpatialFeaturesLayer from '../SpatialFeaturesLayer';
+import {
+  SYMBOLS_LAYER_ID,
+  LINES_LAYER_ID,
+  POLYGONS_LAYER_ID,
+  POLYGONS_OUTLINE_LAYER_ID,
+  SpatialFeaturesLayer,
+} from '../SpatialFeaturesLayer';
+
 
 import AddItemButton from '../AddItemButton';
 import MapRulerControl from '../MapRulerControl';
@@ -445,6 +452,25 @@ const Map = ({ children, onMapLoad, socket }) => {
 
     if (clickedLayersOfInterest.length > 1) {
       handleMultiFeaturesAtSameLocationClick(event, clickedLayersOfInterest);
+      shouldHidePopup = false;
+    }
+
+    // Check if clicking on a timepoint (track layer point) - don't hide popup so it can be replaced
+    const timepointAtClick = map.queryRenderedFeatures(event.point)
+      .find((item) => item.layer.id.includes(LAYER_IDS.TRACK_TIMEPOINTS_SYMBOLS));
+    if (timepointAtClick) {
+      shouldHidePopup = false;
+    }
+
+    // Check if clicking on a spatial feature (symbol, line, or polygon) - don't hide popup so it can be replaced
+    const spatialFeatureAtClick = map.queryRenderedFeatures(event.point)
+      .find((item) => [
+        SYMBOLS_LAYER_ID,
+        LINES_LAYER_ID,
+        POLYGONS_LAYER_ID,
+        POLYGONS_OUTLINE_LAYER_ID
+      ].includes(item.layer.id));
+    if (spatialFeatureAtClick) {
       shouldHidePopup = false;
     }
 
