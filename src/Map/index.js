@@ -67,12 +67,11 @@ import MessageBadgeLayer from '../MessageBadgeLayer';
 import MapImagesLayer from '../MapImagesLayer';
 import SleepDetector from '../SleepDetector';
 import ClustersLayer from '../ClustersLayer';
-import {
+import SpatialFeaturesLayer, {
   SYMBOLS_LAYER_ID,
   LINES_LAYER_ID,
   POLYGONS_LAYER_ID,
   POLYGONS_OUTLINE_LAYER_ID,
-  SpatialFeaturesLayer,
 } from '../SpatialFeaturesLayer';
 
 
@@ -457,7 +456,7 @@ const Map = ({ children, onMapLoad, socket }) => {
 
     // Check if clicking on a timepoint (track layer point) - don't hide popup so it can be replaced
     const timepointAtClick = map.queryRenderedFeatures(event.point)
-      .find((item) => item.layer.id.includes(LAYER_IDS.TRACK_TIMEPOINTS_SYMBOLS));
+      .find((item) => item.layer.id.includes(LAYER_IDS.TRACK_TIMEPOINTS));
     if (timepointAtClick) {
       shouldHidePopup = false;
     }

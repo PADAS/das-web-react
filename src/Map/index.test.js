@@ -402,7 +402,6 @@ describe('Map', () => {
         });
       });
 
-      // hidePopup should NOT have been called
       expect(hidePopupMock).not.toHaveBeenCalled();
     });
 
@@ -421,7 +420,6 @@ describe('Map', () => {
       // Mock queryRenderedFeatures to return no timepoint layers
       // It's called multiple times: once for queryMultiLayerClickFeatures, once for cluster check, once for timepoint check
       map.queryRenderedFeatures.mockImplementation((point, options) => {
-        // For the timepoint check (no options or layers not specified)
         if (!options || !options.layers) {
           return [
             {
@@ -430,7 +428,6 @@ describe('Map', () => {
             }
           ];
         }
-        // For cluster check
         if (options?.layers?.includes('cluster-layer')) {
           return [];
         }
@@ -439,14 +436,12 @@ describe('Map', () => {
       });
 
       await waitFor(() => {
-        // Fire click event on map
         map.__test__.fireHandlers('click', {
           point: { x: 100, y: 100 },
           originalEvent: { stopPropagation: jest.fn() },
         });
       });
 
-      // hidePopup SHOULD have been called
       expect(hidePopupMock).toHaveBeenCalledWith('existing-popup-id');
     });
 
@@ -466,7 +461,6 @@ describe('Map', () => {
       map.queryRenderedFeatures.mockImplementation(() => []);
 
       await waitFor(() => {
-        // Fire click event on map
         map.__test__.fireHandlers('click', {
           point: { x: 100, y: 100 },
           originalEvent: { stopPropagation: jest.fn() },
@@ -482,9 +476,7 @@ describe('Map', () => {
 
       renderMap();
 
-      // Mock queryRenderedFeatures to return a timepoint layer
       map.queryRenderedFeatures.mockImplementation((point, options) => {
-        // For the timepoint check (no options or layers not specified)
         if (!options || !options.layers) {
           return [
             {
@@ -493,19 +485,16 @@ describe('Map', () => {
             }
           ];
         }
-        // For cluster check and queryMultiLayerClickFeatures
         return [];
       });
 
       await waitFor(() => {
-        // Fire click event on map
         map.__test__.fireHandlers('click', {
           point: { x: 100, y: 100 },
           originalEvent: { stopPropagation: jest.fn() },
         });
       });
 
-      // hidePopup should NOT have been called since there was no popup
       expect(hidePopupMock).not.toHaveBeenCalled();
     });
 
@@ -533,19 +522,16 @@ describe('Map', () => {
             }
           ];
         }
-        // For cluster check and queryMultiLayerClickFeatures
         return [];
       });
 
       await waitFor(() => {
-        // Fire click event on map
         map.__test__.fireHandlers('click', {
           point: { x: 100, y: 100 },
           originalEvent: { stopPropagation: jest.fn() },
         });
       });
 
-      // hidePopup should NOT have been called
       expect(hidePopupMock).not.toHaveBeenCalled();
     });
 
@@ -564,7 +550,6 @@ describe('Map', () => {
 
       // Mock queryRenderedFeatures to return a spatial feature line
       map.queryRenderedFeatures.mockImplementation((point, options) => {
-        // For the spatial feature check (no options or layers not specified)
         if (!options || !options.layers) {
           return [
             {
@@ -573,19 +558,16 @@ describe('Map', () => {
             }
           ];
         }
-        // For cluster check and queryMultiLayerClickFeatures
         return [];
       });
 
       await waitFor(() => {
-        // Fire click event on map
         map.__test__.fireHandlers('click', {
           point: { x: 100, y: 100 },
           originalEvent: { stopPropagation: jest.fn() },
         });
       });
 
-      // hidePopup should NOT have been called
       expect(hidePopupMock).not.toHaveBeenCalled();
     });
 
@@ -604,7 +586,6 @@ describe('Map', () => {
 
       // Mock queryRenderedFeatures to return a spatial feature polygon
       map.queryRenderedFeatures.mockImplementation((point, options) => {
-        // For the spatial feature check (no options or layers not specified)
         if (!options || !options.layers) {
           return [
             {
@@ -613,19 +594,16 @@ describe('Map', () => {
             }
           ];
         }
-        // For cluster check and queryMultiLayerClickFeatures
         return [];
       });
 
       await waitFor(() => {
-        // Fire click event on map
         map.__test__.fireHandlers('click', {
           point: { x: 100, y: 100 },
           originalEvent: { stopPropagation: jest.fn() },
         });
       });
 
-      // hidePopup should NOT have been called
       expect(hidePopupMock).not.toHaveBeenCalled();
     });
   });

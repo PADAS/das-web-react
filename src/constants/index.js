@@ -99,7 +99,7 @@ export const LAYER_IDS = {
   STATIC_SENSOR: 'static_sensor',
   SUBJECT_SYMBOLS: 'subject-symbol-layer',
   TOPMOST_STYLE_LAYER: 'feature-separation-layer',
-  TRACK_TIMEPOINTS_SYMBOLS: 'track-layer-points',
+  TRACK_TIMEPOINTS: 'track-layer-points',
   TRACKS_LINES: 'track-layer',
   UNCLUSTERED_STATIC_SENSORS_LAYER: 'unclustered_static_sensors_layer',
 };
