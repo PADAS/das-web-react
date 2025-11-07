@@ -431,19 +431,11 @@ const Map = ({ children, onMapLoad, socket }) => {
   }, [fetchMapData]);
 
   // Helper function to check if a feature should keep the popup open
-  const isPopupReplacementFeature = useCallback((feature) => {
-    const { layer } = feature;
-
-    if (layer.id.includes(LAYER_IDS.TRACK_TIMEPOINTS)) {
-      return true;
-    }
-
-    if ([SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID, POLYGONS_OUTLINE_LAYER_ID].includes(layer.id)) {
-      return true;
-    }
-
-    return false;
-  }, []);
+  const doesFeatureOpenPopup = useCallback(
+    (feature) => feature.layer.id.includes(LAYER_IDS.TRACK_TIMEPOINTS)
+       || [SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID, POLYGONS_OUTLINE_LAYER_ID].includes(feature.layer.id),
+    []
+  );
 
   const onMapClick = useMemo(() => withLocationPickerState((event) => {
     event.preventDefault();
@@ -470,8 +462,7 @@ const Map = ({ children, onMapLoad, socket }) => {
     }
 
     // Determine if we should hide the existing popup
-    const hasPopupReplacementFeature = featuresAtPoint.some(isPopupReplacementFeature);
-    const shouldHidePopup = !hasClusters && !hasPopupReplacementFeature;
+    const shouldHidePopup = !hasClusters && !featuresAtPoint.some(doesFeatureOpenPopup);
 
     // Handle popup visibility
     if (popup) {
@@ -491,7 +482,7 @@ const Map = ({ children, onMapLoad, socket }) => {
     handleMultiFeaturesAtSameLocationClick,
     hidePopup,
     hideUnpinnedTrackLayers,
-    isPopupReplacementFeature,
+    doesFeatureOpenPopup,
     map,
     popup,
     withLocationPickerState,
