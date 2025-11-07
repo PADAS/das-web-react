@@ -22,6 +22,8 @@ import { MapContext } from '../App';
 import MapDrawingToolsContextProvider from '../MapDrawingTools/ContextProvider';
 import { mockedSocket } from '../__test-helpers/MockSocketContext';
 import { mockStore } from '../__test-helpers/MockStore';
+import { LAYER_IDS } from '../constants';
+const { TRACK_TIMEPOINTS } = LAYER_IDS;
 
 jest.mock('mapbox-gl', () => ({
   ...jest.requireActual('mapbox-gl'),
@@ -385,7 +387,7 @@ describe('Map', () => {
         if (!options || !options.layers) {
           return [
             {
-              layer: { id: 'track-layer-points-123' },
+              layer: { id: `${TRACK_TIMEPOINTS}-123` },
               properties: { id: 'timepoint-1' },
             }
           ];
@@ -480,7 +482,7 @@ describe('Map', () => {
         if (!options || !options.layers) {
           return [
             {
-              layer: { id: 'track-layer-points-456' },
+              layer: { id: `${TRACK_TIMEPOINTS}-456` },
               properties: { id: 'timepoint-2' },
             }
           ];

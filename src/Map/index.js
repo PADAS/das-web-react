@@ -430,61 +430,72 @@ const Map = ({ children, onMapLoad, socket }) => {
     fetchMapData();
   }, [fetchMapData]);
 
+  // Helper function to check if a feature should keep the popup open
+  const isPopupReplacementFeature = useCallback((feature) => {
+    const { layer } = feature;
+
+    if (layer.id.includes(LAYER_IDS.TRACK_TIMEPOINTS)) {
+      return true;
+    }
+
+    if ([SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID, POLYGONS_OUTLINE_LAYER_ID].includes(layer.id)) {
+      return true;
+    }
+
+    return false;
+  }, []);
+
   const onMapClick = useMemo(() => withLocationPickerState((event) => {
     event.preventDefault();
     event.originalEvent.stopPropagation();
 
+    // Query features once for performance
+    const featuresAtPoint = map.queryRenderedFeatures(event.point);
     const clickedLayersOfInterest = queryMultiLayerClickFeatures(map, event);
 
-    let shouldHidePopup = true;
-
+    // Check for clusters
     const clusterApproxGeometry = [
       [event.point.x - CLUSTER_APPROX_WIDTH, event.point.y + CLUSTER_APPROX_HEIGHT],
       [event.point.x + CLUSTER_APPROX_WIDTH, event.point.y - CLUSTER_APPROX_HEIGHT]
     ];
-    const clustersAtPoint = map.queryRenderedFeatures(
-      clusterApproxGeometry,
-      { layers: [LAYER_IDS.CLUSTERS_LAYER_ID] }
-    );
+    const hasClusters = map.queryRenderedFeatures(clusterApproxGeometry, {
+      layers: [LAYER_IDS.CLUSTERS_LAYER_ID]
+    }).length > 0;
 
-    shouldHidePopup = !clustersAtPoint.length;
-
+    // Handle multiple features at the same location
     if (clickedLayersOfInterest.length > 1) {
       handleMultiFeaturesAtSameLocationClick(event, clickedLayersOfInterest);
-      shouldHidePopup = false;
+      hideUnpinnedTrackLayers(map, event);
+      return;
     }
 
-    // Check if clicking on a timepoint (track layer point) - don't hide popup so it can be replaced
-    const timepointAtClick = map.queryRenderedFeatures(event.point)
-      .find((item) => item.layer.id.includes(LAYER_IDS.TRACK_TIMEPOINTS));
-    if (timepointAtClick) {
-      shouldHidePopup = false;
-    }
+    // Determine if we should hide the existing popup
+    const hasPopupReplacementFeature = featuresAtPoint.some(isPopupReplacementFeature);
+    const shouldHidePopup = !hasClusters && !hasPopupReplacementFeature;
 
-    // Check if clicking on a spatial feature (symbol, line, or polygon) - don't hide popup so it can be replaced
-    const spatialFeatureAtClick = map.queryRenderedFeatures(event.point)
-      .find((item) => [
-        SYMBOLS_LAYER_ID,
-        LINES_LAYER_ID,
-        POLYGONS_LAYER_ID,
-        POLYGONS_OUTLINE_LAYER_ID
-      ].includes(item.layer.id));
-    if (spatialFeatureAtClick) {
-      shouldHidePopup = false;
-    }
-
+    // Handle popup visibility
     if (popup) {
-      // be sure to also deactivate the analyzer features when dismissing an analyzer popup
+      // Deactivate analyzer features when dismissing an analyzer popup
       if (popup.type === 'analyzer-config') {
         setAnalyzerFeatureActiveStateForIDs(map, currentAnalyzerIds, false);
       }
+
       if (shouldHidePopup) {
         hidePopup(popup.id);
       }
     }
 
     hideUnpinnedTrackLayers(map, event);
-  }), [currentAnalyzerIds, map, withLocationPickerState, handleMultiFeaturesAtSameLocationClick, hidePopup, hideUnpinnedTrackLayers, popup]);
+  }), [
+    currentAnalyzerIds,
+    handleMultiFeaturesAtSameLocationClick,
+    hidePopup,
+    hideUnpinnedTrackLayers,
+    isPopupReplacementFeature,
+    map,
+    popup,
+    withLocationPickerState,
+  ]);
 
   useEffect(() => {
     return () => {
