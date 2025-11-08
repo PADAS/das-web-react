@@ -22,7 +22,7 @@ const UserMenu = ({
 
   const cookieSettingsRef = useRef();
 
-  const displayUser = selectedUserProfile.username ? selectedUserProfile : user;
+  const displayUser = selectedUserProfile?.username ? selectedUserProfile : user;
 
   const onLogOutItemClick = () => {
     onLogOutClick();
@@ -47,14 +47,16 @@ const UserMenu = ({
 
       <Dropdown.Menu>
         {!!userProfiles.length && <>
-          {[user, ...userProfiles].map((profile, index) => <Dropdown.Item
-            active={profile.username === displayUser.username ? 'active' : null}
-            aria-label={profile.username}
-            key={`${profile.id}-${index}`}
-            onClick={() => onProfileClick(profile)}
-          >
-            {profile.username}
-          </Dropdown.Item>)}
+          <div className={styles.profilesList}>
+            {[user, ...userProfiles].map((profile, index) => <Dropdown.Item
+              active={profile.username === displayUser.username ? 'active' : null}
+              aria-label={profile.username}
+              key={`${profile.id}-${index}`}
+              onClick={() => onProfileClick(profile)}
+            >
+              {profile.username}
+            </Dropdown.Item>)}
+          </div>
 
           <Dropdown.Divider />
         </>}
