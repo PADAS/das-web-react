@@ -6,55 +6,37 @@ import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../constan
 const EMPTY_PERMISSION_SET = new Set();
 
 const usePermissions = (permissionKey) => {
-  const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
-  const patrolManagementEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]);
   const selectedUserProfile = useSelector((state) => state.data.selectedUserProfile);
   const user = useSelector((state) => state.data.user);
 
-  // Check if the feature is enabled in the system config flags.
-  const isFeatureEnabled = useMemo(() => {
-    switch (permissionKey) {
-    case PERMISSION_KEYS.EVENTS:
-      return eventsEnabled;
+  const permissionsSource = selectedUserProfile?.id ? selectedUserProfile : user;
 
-    case PERMISSION_KEYS.PATROLS:
-      return patrolManagementEnabled;
+  const permissionSet = useMemo(() => permissionsSource?.permissions?.[permissionKey]
+    ? new Set(permissionsSource.permissions[permissionKey])
+    : EMPTY_PERMISSION_SET, [permissionKey, permissionsSource]);
 
-    default:
-      return true;
-    }
-  }, [permissionKey, eventsEnabled, patrolManagementEnabled]);
-
-  // Get the current user's permission set for the given permission key.
-  const permissionSet = useMemo(() => {
-    const permissionsSource = selectedUserProfile?.id ? selectedUserProfile : user;
-
-    return permissionsSource?.permissions?.[permissionKey]
-      ? new Set(permissionsSource.permissions[permissionKey])
-      : EMPTY_PERMISSION_SET;
-  }, [permissionKey, selectedUserProfile, user]);
-
-  // Return the permissions. If the feature is not enabled, permissions are
-  // always false.
   return useMemo(() => ({
-    hasCreatePermission: isFeatureEnabled && permissionSet.has(PERMISSIONS.CREATE),
-    hasDeletePermission: isFeatureEnabled && permissionSet.has(PERMISSIONS.DELETE),
-    hasExportPermission: isFeatureEnabled && permissionSet.has(PERMISSIONS.EXPORT),
-    hasReadPermission: isFeatureEnabled && permissionSet.has(PERMISSIONS.READ),
-    hasUpdatePermission: isFeatureEnabled && permissionSet.has(PERMISSIONS.UPDATE),
-  }), [isFeatureEnabled, permissionSet]);
+    hasCreatePermission: permissionSet.has(PERMISSIONS.CREATE),
+    hasDeletePermission: permissionSet.has(PERMISSIONS.DELETE),
+    hasExportPermission: permissionSet.has(PERMISSIONS.EXPORT),
+    hasReadPermission: permissionSet.has(PERMISSIONS.READ),
+    hasUpdatePermission: permissionSet.has(PERMISSIONS.UPDATE),
+  }), [permissionSet]);
 };
 
 export const useEventsPermissions = () => {
+  // Event permissions are only available if the events feature is enabled.
+  const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
+
   const eventsPermissions = usePermissions(PERMISSION_KEYS.EVENTS);
 
   return useMemo(() => ({
-    hasEventsCreatePermission: eventsPermissions.hasCreatePermission,
-    hasEventsDeletePermission: eventsPermissions.hasDeletePermission,
-    hasEventsExportPermission: eventsPermissions.hasExportPermission,
-    hasEventsReadPermission: eventsPermissions.hasReadPermission,
-    hasEventsUpdatePermission: eventsPermissions.hasUpdatePermission,
-  }), [eventsPermissions]);
+    hasEventsCreatePermission: eventsEnabled && eventsPermissions.hasCreatePermission,
+    hasEventsDeletePermission: eventsEnabled && eventsPermissions.hasDeletePermission,
+    hasEventsExportPermission: eventsEnabled && eventsPermissions.hasExportPermission,
+    hasEventsReadPermission: eventsEnabled && eventsPermissions.hasReadPermission,
+    hasEventsUpdatePermission: eventsEnabled && eventsPermissions.hasUpdatePermission,
+  }), [eventsEnabled, eventsPermissions]);
 };
 
 export const useMessagesPermissions = () => {
@@ -82,13 +64,17 @@ export const useObservationsPermissions = () => {
 };
 
 export const usePatrolsPermissions = () => {
+  // Patrol permissions are only available if the patrol management feature is
+  // enabled.
+  const patrolManagementEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]);
+
   const patrolsPermissions = usePermissions(PERMISSION_KEYS.PATROLS);
 
   return useMemo(() => ({
-    hasPatrolsCreatePermission: patrolsPermissions.hasCreatePermission,
-    hasPatrolsDeletePermission: patrolsPermissions.hasDeletePermission,
-    hasPatrolsExportPermission: patrolsPermissions.hasExportPermission,
-    hasPatrolsReadPermission: patrolsPermissions.hasReadPermission,
-    hasPatrolsUpdatePermission: patrolsPermissions.hasUpdatePermission,
-  }), [patrolsPermissions]);
+    hasPatrolsCreatePermission: patrolManagementEnabled && patrolsPermissions.hasCreatePermission,
+    hasPatrolsDeletePermission: patrolManagementEnabled && patrolsPermissions.hasDeletePermission,
+    hasPatrolsExportPermission: patrolManagementEnabled && patrolsPermissions.hasExportPermission,
+    hasPatrolsReadPermission: patrolManagementEnabled && patrolsPermissions.hasReadPermission,
+    hasPatrolsUpdatePermission: patrolManagementEnabled && patrolsPermissions.hasUpdatePermission,
+  }), [patrolManagementEnabled, patrolsPermissions]);
 };
