@@ -52,6 +52,7 @@
     "WARNING": "Alerte"
   },
   "userMenu": {
+    "userAndProfilesHeader": "Utilisateur et profils",
     "cookieSettingsItem": "Réglages des Cookies",
     "logoutItem": "Déconnexion"
   }

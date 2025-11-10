@@ -47,11 +47,11 @@ const UserMenu = ({
 
       <Dropdown.Menu>
         {!!userProfiles.length && <>
+          <Dropdown.Header>{t('userAndProfilesHeader')}</Dropdown.Header>
           <div className={styles.profilesList}>
-            {[user, ...userProfiles].map((profile, index) => <Dropdown.Item
-              active={profile.username === displayUser.username ? 'active' : null}
-              aria-label={profile.username}
-              key={`${profile.id}-${index}`}
+            {[user, ...userProfiles].map((profile) => <Dropdown.Item
+              active={profile.username === displayUser.username}
+              key={`${profile.id}`}
               onClick={() => onProfileClick(profile)}
             >
               {profile.username}

@@ -52,6 +52,7 @@
     "WARNING": "Precaución"
   },
   "userMenu": {
+    "userAndProfilesHeader": "Usuario y perfiles",
     "cookieSettingsItem": "Configuración de cookies",
     "logoutItem": "Cerrar sesión"
   }

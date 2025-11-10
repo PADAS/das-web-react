@@ -61,6 +61,7 @@
     "WARNING": "Onyo"
   },
   "userMenu": {
+    "userAndProfilesHeader": "Mtumiaji na Profaili",
     "cookieSettingsItem": "Mipangilio ya Kidakuzi",
     "logoutItem": "Toka",
     "toggleLabel": "Fungua Mipangilio ya Mtumiaji",
