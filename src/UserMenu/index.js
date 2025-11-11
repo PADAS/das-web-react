@@ -51,7 +51,7 @@ const UserMenu = ({
           <div className={styles.profilesList}>
             {[user, ...userProfiles].map((profile) => <Dropdown.Item
               active={profile.username === displayUser.username}
-              key={`${profile.id}`}
+              key={profile.id}
               onClick={() => onProfileClick(profile)}
             >
               {profile.username}
