@@ -6,6 +6,7 @@ import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_butt
 
 import { selectCreatableEventTypesByCategory } from '../selectors/event-types';
 import { trackEvent } from '../utils/analytics';
+import { useEventsPermissions, usePatrolsPermissions } from '../hooks/usePermissions';
 
 import AddItemModal from './AddItemModal';
 import DelayedUnmount from '../DelayedUnmount';
@@ -42,6 +43,9 @@ const AddItemButton = ({
   const eventsByCategory = useSelector(selectCreatableEventTypesByCategory);
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
+  const { hasEventsCreatePermission } = useEventsPermissions();
+  const { hasPatrolsCreatePermission } = usePatrolsPermissions();
+
   const [showModal, setShowModal] = useState(false);
 
   const onClick = useCallback(() => {
@@ -53,17 +57,18 @@ const AddItemButton = ({
     );
   }, [analyticsMetadata.category, analyticsMetadata.location]);
 
-  const addItemContextValue = {
-    analyticsMetadata,
-    formProps,
-    hideAddPatrolTab,
-    hideAddReportTab,
-    onAddPatrol,
-    onAddReport,
-    patrolData,
-    reportData,
-  };
-  return <AddItemContext.Provider value={addItemContextValue}>
+  return (hasEventsCreatePermission || hasPatrolsCreatePermission) ? <AddItemContext.Provider
+      value={{
+        analyticsMetadata,
+        formProps,
+        hideAddPatrolTab,
+        hideAddReportTab,
+        onAddPatrol,
+        onAddReport,
+        patrolData,
+        reportData,
+      }}
+    >
     <DelayedUnmount isMounted={showModal}>
       <AddItemModal {...modalProps} onHide={() => setShowModal(false)} show={showModal} />
     </DelayedUnmount>
@@ -81,7 +86,7 @@ const AddItemButton = ({
 
       {showLabel && <label>{title || t('defaultTitle')}</label>}
     </button> : null}
-  </AddItemContext.Provider>;
+  </AddItemContext.Provider> : null;
 };
 
 export default memo(AddItemButton);

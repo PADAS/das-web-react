@@ -198,12 +198,12 @@ export const App = () => {
       <MapDrawingToolsContextProvider>
         <PrintTitle />
 
-        <Nav map={map} />
+        <Nav />
 
         <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
-          {mapboxSupported && <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} />}
-          {!mapboxSupported && <ErrorMessage className='webgl-error-message'
-            message={t('webGlDisabled')} />}
+          {mapboxSupported
+            ? <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} />
+            : <ErrorMessage className='webgl-error-message' message={t('webGlDisabled')} />}
 
           <SidebarScrollProvider>
             <SideBar map={map} />

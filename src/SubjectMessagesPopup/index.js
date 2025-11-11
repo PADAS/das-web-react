@@ -2,9 +2,8 @@ import React, { memo } from 'react';
 
 import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
 
-import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import { SENDER_DETAIL_STYLES } from '../MessageList/SenderDetails';
-import { usePermissions } from '../hooks';
+import { useMessagesPermissions } from '../hooks/usePermissions';
 
 import MessageInput from '../MessageInput';
 import ParamFedMessageList from '../MessageList/ParamFedMessageList';
@@ -12,7 +11,7 @@ import ParamFedMessageList from '../MessageList/ParamFedMessageList';
 import * as styles from './styles.module.scss';
 
 const SubjectMessagesPopup = ({ data }) => {
-  const hasMessagingWritePermissions = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.CREATE);
+  const { hasMessagesCreatePermission } = useMessagesPermissions();
 
   const { properties } = data;
 
@@ -30,7 +29,7 @@ const SubjectMessagesPopup = ({ data }) => {
       senderDetailStyle={SENDER_DETAIL_STYLES.SHORT}
     />
 
-    {!!hasMessagingWritePermissions && <MessageInput subjectId={properties.id} />}
+    {hasMessagesCreatePermission && <MessageInput subjectId={properties.id} />}
   </>;
 };
 

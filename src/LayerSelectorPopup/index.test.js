@@ -2,20 +2,17 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import LayerSelectorPopup from './';
 import { mockClusterLeaves } from '../__test-helpers/fixtures/clusters';
 import { hidePopup } from '../ducks/popup';
 import { mockStore } from '../__test-helpers/MockStore';
 import { render, screen } from '../test-utils';
 import { uuid } from '../utils/string';
 
+import LayerSelectorPopup from './';
+
 jest.mock('../ducks/popup', () => ({
   ...jest.requireActual('../ducks/popup'),
   hidePopup: jest.fn(),
-}));
-jest.mock('../hooks', () => ({
-  ...jest.requireActual('../hooks'),
-  useSystemConfigFlag: () => true,
 }));
 
 describe('LayerSelectorPopup', () => {

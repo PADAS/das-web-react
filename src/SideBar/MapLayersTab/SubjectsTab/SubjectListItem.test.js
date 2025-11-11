@@ -12,13 +12,14 @@ import SubjectListItem from './SubjectListItem';
 
 let map;
 const store= {
+  data: { tracks: {} },
   view: {
+    heatmapSubjectIDs: [],
     subjectTrackState: {
       pinned: [], visible: []
     },
-    heatmapSubjectIDs: []
+    systemConfig: {},
   },
-  data: { tracks: {} }
 };
 
 beforeEach(() => {

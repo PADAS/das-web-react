@@ -10,6 +10,7 @@ import { EVENT_TYPE_SCHEMA_API_URL } from '../../ducks/event-schemas';
 import { files, notes, report } from '../../__test-helpers/fixtures/reports';
 import { mockStore } from '../../__test-helpers/MockStore';
 import patrols from '../../__test-helpers/fixtures/patrols';
+import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../constants';
 import { render, screen, waitFor, within } from '../../test-utils';
 import { TrackerContext } from '../../utils/analytics';
 
@@ -32,6 +33,28 @@ describe('DetailViewComponents - ActivitySection', () => {
     onDeleteNote = jest.fn(),
     onDoneNote = jest.fn(),
     onChangeNote = jest.fn();
+
+  let store;
+  beforeEach(() => {
+    store = {
+      data: {
+        eventSchemas: {},
+        eventStore: {},
+        eventTypes: [],
+        patrolTypes: [],
+        user: {
+          permissions: {
+            [PERMISSION_KEYS.EVENTS]: [PERMISSIONS.READ],
+          }
+        },
+      },
+      view: {
+        systemConfig: {
+          [SYSTEM_CONFIG_FLAGS.EVENTS]: true,
+        },
+      },
+    };
+  });
 
   const currentDate = new Date();
   const notesToAdd = [{
@@ -69,13 +92,8 @@ describe('DetailViewComponents - ActivitySection', () => {
     onDoneNote,
   };
 
-  const initialStore = {
-    data: { eventSchemas: {}, eventStore: {}, eventTypes: [], patrolTypes: [] },
-    view: {}
-  };
-
   const renderActivitySection = (props = defaultProps) => render(
-    <Provider store={mockStore(initialStore)}>
+    <Provider store={mockStore(store)}>
       <TrackerContext.Provider value={{ track: jest.fn() }}>
         <ActivitySection {...props} />
       </TrackerContext.Provider>
@@ -117,6 +135,15 @@ describe('DetailViewComponents - ActivitySection', () => {
     await waitFor(() => {
       expect(reportCollapse).toHaveClass('collapse');
     });
+  });
+
+  test('hides contained reports if user has no events read permission', async () => {
+    store.data.user.permissions = {};
+    renderActivitySection();
+
+    const { id } = containedReports[0];
+
+    expect((await screen.queryByTestId(`activitySection-collapse-${id}`))).toBeNull();
   });
 
   test('expands an existing image attachment when clicking the down arrow', async () => {

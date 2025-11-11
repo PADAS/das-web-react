@@ -4,7 +4,7 @@ import { bbox, lineString } from '@turf/turf';
 import userEvent from '@testing-library/user-event';
 import { within } from '@testing-library/dom';
 
-import { PATROL_API_STATES, PATROL_UI_STATES } from '../constants';
+import { PATROL_API_STATES, PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../constants';
 
 import { mockStore } from '../__test-helpers/MockStore';
 
@@ -12,7 +12,6 @@ import { MapContext } from '../App';
 import * as trackUtils from '../utils/tracks';
 import { UPDATE_SUBJECT_TRACK_STATE } from '../ducks/map-ui';
 import * as patrolUtils from '../utils/patrols';
-import * as customHooks from '../hooks';
 
 import { UPDATE_PATROL_TRACK_STATE, updatePatrol } from '../ducks/patrols';
 
@@ -39,13 +38,21 @@ const minimumNecessaryStoreStructure = {
     },
     patrolTrackState: {
       pinned: [], visible: []
-    }
+    },
+    systemConfig: {
+      [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true,
+    },
   },
   data: {
     subjectStore: {},
     tracks: {},
     patrolTypes,
-    patrolStore: patrols.reduce((p, acc = {}) => ({ ...acc, [p.id]: p }))
+    patrolStore: patrols.reduce((p, acc = {}) => ({ ...acc, [p.id]: p })),
+    user: {
+      permissions: {
+        [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.UPDATE],
+      },
+    },
   }
 };
 
@@ -63,8 +70,6 @@ let updatePatrolMock;
 beforeEach(() => {
   updatePatrolMock = jest.fn(() => () => {});
   updatePatrol.mockImplementation(updatePatrolMock);
-
-  jest.spyOn(customHooks, 'usePermissions').mockImplementation(() => true); // full permissions for list item read+write access
 });
 
 const initialProps = {

@@ -2,24 +2,36 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import AddItemButton from './';
 import eventCategories from '../__test-helpers/fixtures/event-categories';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { mockStore } from '../__test-helpers/MockStore';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
-import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
+import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../constants';
 import { render, screen, waitFor } from '../test-utils';
 
-jest.mock('../hooks', () => ({
-  ...jest.requireActual('../hooks'),
-  useSystemConfigFlag: () => true,
-}));
+import AddItemButton from './';
 
 describe('AddItemButton', () => {
   let renderAddItemButton, store;
   beforeEach(() => {
     store = {
-      data: { eventTypes, eventCategories, patrolTypes, user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.CREATE] } }, },
+      data: {
+        eventCategories,
+        eventTypes,
+        patrolTypes,
+        user: {
+          permissions: {
+            [PERMISSION_KEYS.EVENTS]: [PERMISSIONS.CREATE],
+            [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.CREATE],
+          },
+        },
+      },
+      view: {
+        systemConfig: {
+          [SYSTEM_CONFIG_FLAGS.EVENTS]: true,
+          [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true,
+        },
+      },
     };
 
     renderAddItemButton = (props, overrideStore) => {
@@ -35,12 +47,19 @@ describe('AddItemButton', () => {
     jest.restoreAllMocks();
   });
 
+  test('does not render if user has no events or patrols create permission', async () => {
+    store.data.user.permissions = {};
+    renderAddItemButton();
+
+    expect(screen.queryByRole('button', { name: 'Create Event or Patrol' })).toBeNull();
+  });
+
   test('shows the Add Modal when clicking the button', async () => {
     renderAddItemButton();
 
     expect((await screen.queryByTestId('addItemButton-addItemModal'))).toBeNull();
 
-    const addItemButton = await screen.findByTestId('addItemButton');
+    const addItemButton = screen.getByRole('button', { name: 'Create Event or Patrol' });
     await userEvent.click(addItemButton);
 
     expect((await screen.findByTestId('addItemButton-addItemModal'))).toBeDefined();

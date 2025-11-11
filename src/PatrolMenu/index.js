@@ -9,8 +9,8 @@ import { ReactComponent as StopIcon } from '../common/images/icons/stop.svg';
 import { ReactComponent as CloseIcon } from '../common/images/icons/close-icon.svg';
 import { ReactComponent as RestoreIcon } from '../common/images/icons/restore.svg';
 
-import { DAS_HOST, PATROL_UI_STATES, PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS } from '../constants';
-import { usePermissions } from '../hooks';
+import { DAS_HOST, PATROL_UI_STATES, PATROL_API_STATES } from '../constants';
+import { usePatrolsPermissions } from '../hooks/usePermissions';
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
 import { canEndPatrol, calcPatrolState } from '../utils/patrols';
 import { basePrintingStyles } from '../utils/styles';
@@ -37,7 +37,8 @@ const PatrolMenu = ({
 
   const patrolState = calcPatrolState(patrol);
 
-  const canEditPatrol = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.UPDATE);
+  const { hasPatrolsUpdatePermission } = usePatrolsPermissions();
+
   const patrolIsDone = useMemo(() => {
     return patrolState === PATROL_UI_STATES.DONE;
   }, [patrolState]);
@@ -113,14 +114,14 @@ const PatrolMenu = ({
       title={t('title')}
       {...rest}
     >
-    { (canEditPatrol && !isPatrolCancelled && !patrolIsDone) &&
+    { (hasPatrolsUpdatePermission && !isPatrolCancelled && !patrolIsDone) &&
       <KebabMenu.Option disabled={!patrolStartEndCanBeToggled} onClick={togglePatrolStartStopState}>
         { canEnd ? <StopIcon /> : <PlayIcon data-testid="play-icon" /> }
         {patrolStartStopTitle}
       </KebabMenu.Option>
     }
 
-    { canEditPatrol &&
+    { hasPatrolsUpdatePermission &&
       <KebabMenu.Option disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancellationState}>
         { isPatrolCancelled || patrolIsDone ? <RestoreIcon /> : <CloseIcon data-testid="close-icon" /> }
         {patrolCancelRestoreTitle}

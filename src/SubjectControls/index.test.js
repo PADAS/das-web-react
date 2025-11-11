@@ -35,6 +35,7 @@ describe('SubjectControls', () => {
       view: {
         subjectTrackState: { pinned: [], visible: [] },
         heatmapSubjectIDs: [],
+        systemConfig: {},
       },
     });
   });

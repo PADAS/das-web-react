@@ -109,6 +109,7 @@ describe('SideBar - MapLayersTab - SubjectsTab', () => {
           pinned: [],
           visible: [],
         },
+        systemConfig: {},
       },
     };
   });

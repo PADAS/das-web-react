@@ -17,12 +17,14 @@ import { setTrackLength } from '../ducks/tracks';
 import { updatePatrolTrackState } from '../ducks/patrols';
 
 import { createMapMock } from '../__test-helpers/mocks';
-import Map from './';
 import { MapContext } from '../App';
 import MapDrawingToolsContextProvider from '../MapDrawingTools/ContextProvider';
 import { mockedSocket } from '../__test-helpers/MockSocketContext';
 import { mockStore } from '../__test-helpers/MockStore';
-import { LAYER_IDS } from '../constants';
+import { LAYER_IDS, PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../constants';
+
+import Map from './';
+
 const { TRACK_TIMEPOINTS } = LAYER_IDS;
 
 jest.mock('mapbox-gl', () => ({
@@ -91,7 +93,6 @@ describe('Map', () => {
     updatePatrolTrackStateMock,
     updateTrackStateMock,
     map,
-    renderMap,
     store,
     useTranslationMock;
   beforeEach(() => {
@@ -145,7 +146,11 @@ describe('Map', () => {
         mapSubjects: { subjects: [] },
         patrolTypes: [],
         selectedUserProfile: {},
-        user: { permissions: [] },
+        user: {
+          permissions: {
+            [PERMISSION_KEYS.EVENTS]: [PERMISSIONS.READ],
+          },
+        },
       },
       view: {
         coordinateReferenceSystems: {
@@ -161,20 +166,15 @@ describe('Map', () => {
         showMapNames: {},
         simplifyMapDataOnZoom: {},
         subjectTrackState: { pinned: [], visible: [] },
+        systemConfig: {
+          [SYSTEM_CONFIG_FLAGS.ANALYZERS]: true,
+          [SYSTEM_CONFIG_FLAGS.EVENTS]: true,
+          [SYSTEM_CONFIG_FLAGS.SUBJECTS]: true,
+        },
         timeSliderState: {},
         trackSettings: {},
         userPreferences: {},
       },
-    };
-
-    renderMap = (props, overrideStore) => {
-      return render(<Provider store={mockStore(overrideStore || store)}>
-        <MapDrawingToolsContextProvider>
-          <MapContext.Provider value={map}>
-            <Map map={map} socket={mockedSocket} {...props} />
-          </MapContext.Provider>
-        </MapDrawingToolsContextProvider>
-      </Provider>);
     };
   });
 
@@ -182,32 +182,23 @@ describe('Map', () => {
     jest.restoreAllMocks();
   });
 
-  test('shows the EventFilter', async () => {
-    store.view.mapLocationSelection.isPickingLocation = false;
-
-    renderMap();
-
-    await waitFor(() => {
-      expect((screen.findByTestId('eventFilter-form'))).toBeDefined();
-    });
-  });
-
+  const renderMap = (props, mockedStore) => render(<Provider store={mockedStore || mockStore(store)}>
+    <MapDrawingToolsContextProvider>
+      <MapContext.Provider value={map}>
+        <Map map={map} socket={mockedSocket} {...props} />
+      </MapContext.Provider>
+    </MapDrawingToolsContextProvider>
+  </Provider>);
 
   test('saving the map position on moveend', async () => {
-    const mockStoreInstance = mockStore(store);
+    const mockedStore = mockStore(store);
 
-    render(<Provider store={mockStoreInstance}>
-      <MapDrawingToolsContextProvider>
-        <MapContext.Provider value={map}>
-          <Map map={map} socket={mockedSocket} />
-        </MapContext.Provider>
-      </MapDrawingToolsContextProvider>
-    </Provider>);
+    renderMap(undefined, mockedStore);
 
     // Move the map
     map.__test__.fireHandlers('moveend');
 
-    const actions = mockStoreInstance.getActions();
+    const actions = mockedStore.getActions();
     await waitFor(() => {
 
       expect(actions).toEqual([
@@ -254,13 +245,7 @@ describe('Map', () => {
       }],
     }));
 
-    const { rerender } = render(<Provider store={mockStore(store)}>
-      <MapDrawingToolsContextProvider>
-        <MapContext.Provider value={map}>
-          <Map map={map} socket={mockedSocket} />
-        </MapContext.Provider>
-      </MapDrawingToolsContextProvider>
-    </Provider>);
+    const { rerender } = renderMap();
 
     expect(map.setLayoutProperty).toHaveBeenCalledTimes(2);
     expect(map.setLayoutProperty).toHaveBeenCalledWith('place-island', 'text-field', [

@@ -132,16 +132,19 @@ export const DEFAULT_SHOW_NAMES_IN_MAP_CONFIG = {
 };
 
 export const SYSTEM_CONFIG_FLAGS = {
-  PATROL_MANAGEMENT: 'patrol_enabled',
   ALERTS: 'alerts_enabled',
+  ANALYZERS: 'analyzers_enabled',
   DAILY_REPORT: 'daily_report_enabled',
-  EVENT_MATRIX: 'event_matrix_enabled',
-  EULA: 'eula_enabled',
-  KML_EXPORT: 'export_kml_enabled',
-  TABLEAU: 'tableau_enabled',
-  GEOPERMISSIONS: 'geopermissions_enabled',
   DEFAULT_EVENT_FILTER_FROM_DAYS: 'default_event_filter_from_days',
   DEFAULT_PATROL_FILTER_FROM_DAYS: 'default_patrol_filter_from_days',
+  EULA: 'eula_enabled',
+  EVENTS: 'events_enabled',
+  GEOPERMISSIONS: 'geopermissions_enabled',
+  KML_EXPORT: 'export_kml_enabled',
+  PATROL_MANAGEMENT: 'patrol_enabled',
+  SPATIAL_FEATURES: 'spatial_features_enabled',
+  SUBJECTS: 'subjects_enabled',
+  TABLEAU: 'tableau_enabled',
 };
 
 
@@ -278,11 +281,10 @@ export const EXTERNAL_SAME_DOMAIN_ROUTES = [
 export const PERMISSION_KEYS = {
   PATROLS: 'patrol',
   PATROL_TYPES: 'patroltype',
-  MESSAGING: 'message',
+  MESSAGES: 'message',
   OBSERVATIONS: 'observation',
   EVENTS: 'event',
 };
-
 
 export const PERMISSIONS = {
   CREATE: 'add',
