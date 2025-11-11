@@ -65,7 +65,13 @@ import MessageBadgeLayer from '../MessageBadgeLayer';
 import MapImagesLayer from '../MapImagesLayer';
 import SleepDetector from '../SleepDetector';
 import ClustersLayer from '../ClustersLayer';
-import SpatialFeaturesLayer from '../SpatialFeaturesLayer';
+import SpatialFeaturesLayer, {
+  SYMBOLS_LAYER_ID,
+  LINES_LAYER_ID,
+  POLYGONS_LAYER_ID,
+  POLYGONS_OUTLINE_LAYER_ID,
+} from '../SpatialFeaturesLayer';
+
 
 import AddItemButton from '../AddItemButton';
 import MapRulerControl from '../MapRulerControl';
@@ -427,42 +433,63 @@ const Map = ({ children, onMapLoad, socket }) => {
     fetchMapData();
   }, [fetchMapData]);
 
+  // Helper function to check if a feature should keep the popup open
+  const doesFeatureOpenPopup = useCallback(
+    (feature) => feature.layer.id.includes(LAYER_IDS.TRACK_TIMEPOINTS)
+       || [SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID, POLYGONS_OUTLINE_LAYER_ID].includes(feature.layer.id),
+    []
+  );
+
   const onMapClick = useMemo(() => withLocationPickerState((event) => {
     event.preventDefault();
     event.originalEvent.stopPropagation();
 
+    // Query features once for performance
+    const featuresAtPoint = map.queryRenderedFeatures(event.point);
     const clickedLayersOfInterest = queryMultiLayerClickFeatures(map, event);
 
-    let shouldHidePopup = true;
-
+    // Check for clusters
     const clusterApproxGeometry = [
       [event.point.x - CLUSTER_APPROX_WIDTH, event.point.y + CLUSTER_APPROX_HEIGHT],
       [event.point.x + CLUSTER_APPROX_WIDTH, event.point.y - CLUSTER_APPROX_HEIGHT]
     ];
-    const clustersAtPoint = map.queryRenderedFeatures(
-      clusterApproxGeometry,
-      { layers: [LAYER_IDS.CLUSTERS_LAYER_ID] }
-    );
+    const hasClusters = map.queryRenderedFeatures(clusterApproxGeometry, {
+      layers: [LAYER_IDS.CLUSTERS_LAYER_ID]
+    }).length > 0;
 
-    shouldHidePopup = !clustersAtPoint.length;
-
+    // Handle multiple features at the same location
     if (clickedLayersOfInterest.length > 1) {
       handleMultiFeaturesAtSameLocationClick(event, clickedLayersOfInterest);
-      shouldHidePopup = false;
+      hideUnpinnedTrackLayers(map, event);
+      return;
     }
 
+    // Determine if we should hide the existing popup
+    const shouldHidePopup = !hasClusters && !featuresAtPoint.some(doesFeatureOpenPopup);
+
+    // Handle popup visibility
     if (popup) {
-      // be sure to also deactivate the analyzer features when dismissing an analyzer popup
+      // Deactivate analyzer features when dismissing an analyzer popup
       if (popup.type === 'analyzer-config') {
         setAnalyzerFeatureActiveStateForIDs(map, currentAnalyzerIds, false);
       }
+
       if (shouldHidePopup) {
         hidePopup(popup.id);
       }
     }
 
     hideUnpinnedTrackLayers(map, event);
-  }), [currentAnalyzerIds, map, withLocationPickerState, handleMultiFeaturesAtSameLocationClick, hidePopup, hideUnpinnedTrackLayers, popup]);
+  }), [
+    currentAnalyzerIds,
+    handleMultiFeaturesAtSameLocationClick,
+    hidePopup,
+    hideUnpinnedTrackLayers,
+    doesFeatureOpenPopup,
+    map,
+    popup,
+    withLocationPickerState,
+  ]);
 
   useEffect(() => {
     return () => {

@@ -2,6 +2,7 @@ import React, { memo, useCallback, useContext, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
 import { addMapImage } from '../utils/map';
+import { LAYER_IDS } from '../constants';
 import { MAP_LAYERS_CATEGORY, trackEventFactory } from '../utils/analytics';
 import { MapContext } from '../App';
 import { selectSubjectTracksWithPatrolTrackShownFlag } from '../selectors/patrols';
@@ -20,7 +21,7 @@ const TracksLayer = ({ onPointClick, showTimepoints = true }) => {
 
   const onTimepointClick = useCallback((event) => {
     const layer = map.queryRenderedFeatures(event.point)
-      .filter((item) => item.layer.id.includes('track-layer-points-'))[0];
+      .filter((item) => item.layer.id.includes(LAYER_IDS.TRACK_TIMEPOINTS))[0];
     onPointClick(layer);
 
     mapLayerTracker.track('Clicked Track Timepoint');

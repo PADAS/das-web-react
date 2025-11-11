@@ -7,11 +7,12 @@ import { clearSubjectData, fetchMapSubjects } from '../ducks/subjects';
 import { fetchBaseLayers } from '../ducks/layers';
 import { hidePopup, showPopup } from '../ducks/popup';
 import {
+  MAP_LOCATION_SELECTION_MODES,
   setReportHeatmapVisibility,
   updateHeatmapSubjects,
   updateTrackState
 } from '../ducks/map-ui';
-import { render, waitFor } from '../test-utils';
+import { render, screen, waitFor } from '../test-utils';
 import { setTrackLength } from '../ducks/tracks';
 import { updatePatrolTrackState } from '../ducks/patrols';
 
@@ -20,9 +21,11 @@ import { MapContext } from '../App';
 import MapDrawingToolsContextProvider from '../MapDrawingTools/ContextProvider';
 import { mockedSocket } from '../__test-helpers/MockSocketContext';
 import { mockStore } from '../__test-helpers/MockStore';
-import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../constants';
+import { LAYER_IDS, PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../constants';
 
 import Map from './';
+
+const { TRACK_TIMEPOINTS } = LAYER_IDS;
 
 jest.mock('mapbox-gl', () => ({
   ...jest.requireActual('mapbox-gl'),
@@ -179,21 +182,23 @@ describe('Map', () => {
     jest.restoreAllMocks();
   });
 
-  test('saving the map position on moveend', async () => {
-    const mockStoreInstance = mockStore(store);
+  const renderMap = (props, mockedStore) => render(<Provider store={mockedStore || mockStore(store)}>
+    <MapDrawingToolsContextProvider>
+      <MapContext.Provider value={map}>
+        <Map map={map} socket={mockedSocket} {...props} />
+      </MapContext.Provider>
+    </MapDrawingToolsContextProvider>
+  </Provider>);
 
-    render(<Provider store={mockStoreInstance}>
-      <MapDrawingToolsContextProvider>
-        <MapContext.Provider value={map}>
-          <Map map={map} socket={mockedSocket} />
-        </MapContext.Provider>
-      </MapDrawingToolsContextProvider>
-    </Provider>);
+  test('saving the map position on moveend', async () => {
+    const mockedStore = mockStore(store);
+
+    renderMap(undefined, mockedStore);
 
     // Move the map
     map.__test__.fireHandlers('moveend');
 
-    const actions = mockStoreInstance.getActions();
+    const actions = mockedStore.getActions();
     await waitFor(() => {
 
       expect(actions).toEqual([
@@ -240,13 +245,7 @@ describe('Map', () => {
       }],
     }));
 
-    const { rerender } = render(<Provider store={mockStore(store)}>
-      <MapDrawingToolsContextProvider>
-        <MapContext.Provider value={map}>
-          <Map map={map} socket={mockedSocket} />
-        </MapContext.Provider>
-      </MapDrawingToolsContextProvider>
-    </Provider>);
+    const { rerender } = renderMap();
 
     expect(map.setLayoutProperty).toHaveBeenCalledTimes(2);
     expect(map.setLayoutProperty).toHaveBeenCalledWith('place-island', 'text-field', [
@@ -284,5 +283,315 @@ describe('Map', () => {
       2,
       ['to-string', ['get', 'name_es']],
     ]);
+  });
+
+  test('does not show the EventFilter if user is picking a location on the map', async () => {
+    store.view.mapLocationSelection.isPickingLocation = true;
+    renderMap();
+
+    expect((await screen.queryByTestId('eventFilter-form'))).toBeNull();
+  });
+
+  test('does not show the MapLocationSelectionOverview if user is drawing a geometry on the map', async () => {
+    store.view.mapLocationSelection.mode = MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
+    renderMap();
+
+    expect((await screen.queryByTestId('mapLocationSelectionOverview-wrapper'))).toBeNull();
+  });
+
+  test('does not show the MapLocationSelectionOverview if user is picking location for a marker or using the ruler', async () => {
+    store.view.mapLocationSelection = {
+      isPickingLocation: true,
+      mode: MAP_LOCATION_SELECTION_MODES.DEFAULT,
+    };
+    renderMap();
+
+    expect((await screen.queryByTestId('mapLocationSelectionOverview-wrapper'))).toBeNull();
+  });
+
+  test('shows the MapLocationSelectionOverview if user is drawing a geometry', async () => {
+    const mockEvent = {
+      id: 'hello',
+      geometry: null,
+    };
+
+    store.data.eventStore = {
+      [mockEvent.id]: mockEvent
+    };
+
+    store.view.mapLocationSelection = {
+      event: mockEvent,
+      isPickingLocation: true,
+      mode: MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY,
+    };
+    renderMap();
+
+    await waitFor(() => {
+      expect(screen.findByTestId('mapLocationSelectionOverview-wrapper')).toBeDefined();
+    });
+  });
+
+  test('shows the MapLocationSelectionOverview if user is picking an event location', async () => {
+    const mockEvent = {
+      id: 'hello',
+      geometry: null,
+    };
+
+    store.data.eventStore = {
+      [mockEvent.id]: mockEvent
+    };
+
+    store.view.mapLocationSelection = {
+      event: mockEvent,
+      isPickingLocation: true,
+      mode: MAP_LOCATION_SELECTION_MODES.DEFAULT,
+    };
+    renderMap();
+
+    await waitFor(() => {
+      expect(screen.findByTestId('mapLocationSelectionOverview-wrapper')).toBeDefined();
+    });
+  });
+
+  describe('onMapClick', () => {
+    test('does not hide popup when clicking on a timepoint', async () => {
+      store.view.popup = {
+        id: 'existing-popup-id',
+        type: 'timepoint',
+        data: {
+          geometry: { coordinates: [0, 0] },
+          properties: {},
+        },
+      };
+
+      renderMap();
+
+      // Mock queryRenderedFeatures to return a timepoint layer
+      map.queryRenderedFeatures.mockImplementation((point, options) => {
+        // For the timepoint check (no options or layers not specified)
+        if (!options || !options.layers) {
+          return [
+            {
+              layer: { id: `${TRACK_TIMEPOINTS}-123` },
+              properties: { id: 'timepoint-1' },
+            }
+          ];
+        }
+        // For cluster check and queryMultiLayerClickFeatures
+        return [];
+      });
+
+      await waitFor(() => {
+        // Fire click event on map
+        map.__test__.fireHandlers('click', {
+          point: { x: 100, y: 100 },
+          originalEvent: { stopPropagation: jest.fn() },
+        });
+      });
+
+      expect(hidePopupMock).not.toHaveBeenCalled();
+    });
+
+    test('hides popup when clicking elsewhere (not on a timepoint)', async () => {
+      store.view.popup = {
+        id: 'existing-popup-id',
+        type: 'timepoint',
+        data: {
+          geometry: { coordinates: [0, 0] },
+          properties: {},
+        },
+      };
+
+      renderMap();
+
+      // Mock queryRenderedFeatures to return no timepoint layers
+      // It's called multiple times: once for queryMultiLayerClickFeatures, once for cluster check, once for timepoint check
+      map.queryRenderedFeatures.mockImplementation((point, options) => {
+        if (!options || !options.layers) {
+          return [
+            {
+              layer: { id: 'some-other-layer' },
+              properties: { id: 'feature-1' },
+            }
+          ];
+        }
+        if (options?.layers?.includes('cluster-layer')) {
+          return [];
+        }
+        // For queryMultiLayerClickFeatures
+        return [];
+      });
+
+      await waitFor(() => {
+        map.__test__.fireHandlers('click', {
+          point: { x: 100, y: 100 },
+          originalEvent: { stopPropagation: jest.fn() },
+        });
+      });
+
+      expect(hidePopupMock).toHaveBeenCalledWith('existing-popup-id');
+    });
+
+    test('hides popup when clicking on empty map area', async () => {
+      store.view.popup = {
+        id: 'existing-popup-id',
+        type: 'subject',
+        data: {
+          geometry: { coordinates: [0, 0] },
+          properties: {},
+        },
+      };
+
+      renderMap();
+
+      // Mock queryRenderedFeatures to return no features
+      map.queryRenderedFeatures.mockImplementation(() => []);
+
+      await waitFor(() => {
+        map.__test__.fireHandlers('click', {
+          point: { x: 100, y: 100 },
+          originalEvent: { stopPropagation: jest.fn() },
+        });
+      });
+
+      // hidePopup SHOULD have been called
+      expect(hidePopupMock).toHaveBeenCalledWith('existing-popup-id');
+    });
+
+    test('does not hide popup when no popup is open and clicking on a timepoint', async () => {
+      store.view.popup = null;
+
+      renderMap();
+
+      map.queryRenderedFeatures.mockImplementation((point, options) => {
+        if (!options || !options.layers) {
+          return [
+            {
+              layer: { id: `${TRACK_TIMEPOINTS}-456` },
+              properties: { id: 'timepoint-2' },
+            }
+          ];
+        }
+        return [];
+      });
+
+      await waitFor(() => {
+        map.__test__.fireHandlers('click', {
+          point: { x: 100, y: 100 },
+          originalEvent: { stopPropagation: jest.fn() },
+        });
+      });
+
+      expect(hidePopupMock).not.toHaveBeenCalled();
+    });
+
+    test('does not hide popup when clicking on a spatial feature symbol', async () => {
+      store.view.popup = {
+        id: 'existing-popup-id',
+        type: 'feature-symbol',
+        data: {
+          geometry: { coordinates: [0, 0] },
+          properties: { id: 'feature-1' },
+        },
+      };
+      store.data.mapLayerFilter = { hiddenFeatureIDs: [] };
+
+      renderMap();
+
+      // Mock queryRenderedFeatures to return a spatial feature symbol
+      map.queryRenderedFeatures.mockImplementation((point, options) => {
+        // For the spatial feature check (no options or layers not specified)
+        if (!options || !options.layers) {
+          return [
+            {
+              layer: { id: 'spatial-features-symbols' },
+              properties: { id: 'feature-1' },
+            }
+          ];
+        }
+        return [];
+      });
+
+      await waitFor(() => {
+        map.__test__.fireHandlers('click', {
+          point: { x: 100, y: 100 },
+          originalEvent: { stopPropagation: jest.fn() },
+        });
+      });
+
+      expect(hidePopupMock).not.toHaveBeenCalled();
+    });
+
+    test('does not hide popup when clicking on a spatial feature line', async () => {
+      store.view.popup = {
+        id: 'existing-popup-id',
+        type: 'feature-symbol',
+        data: {
+          geometry: { coordinates: [[0, 0], [1, 1]] },
+          properties: { id: 'feature-2' },
+        },
+      };
+      store.data.mapLayerFilter = { hiddenFeatureIDs: [] };
+
+      renderMap();
+
+      // Mock queryRenderedFeatures to return a spatial feature line
+      map.queryRenderedFeatures.mockImplementation((point, options) => {
+        if (!options || !options.layers) {
+          return [
+            {
+              layer: { id: 'spatial-features-lines' },
+              properties: { id: 'feature-2' },
+            }
+          ];
+        }
+        return [];
+      });
+
+      await waitFor(() => {
+        map.__test__.fireHandlers('click', {
+          point: { x: 100, y: 100 },
+          originalEvent: { stopPropagation: jest.fn() },
+        });
+      });
+
+      expect(hidePopupMock).not.toHaveBeenCalled();
+    });
+
+    test('does not hide popup when clicking on a spatial feature polygon', async () => {
+      store.view.popup = {
+        id: 'existing-popup-id',
+        type: 'feature-symbol',
+        data: {
+          geometry: { coordinates: [[[0, 0], [1, 1], [1, 0], [0, 0]]] },
+          properties: { id: 'feature-3' },
+        },
+      };
+      store.data.mapLayerFilter = { hiddenFeatureIDs: [] };
+
+      renderMap();
+
+      // Mock queryRenderedFeatures to return a spatial feature polygon
+      map.queryRenderedFeatures.mockImplementation((point, options) => {
+        if (!options || !options.layers) {
+          return [
+            {
+              layer: { id: 'spatial-features-polygons' },
+              properties: { id: 'feature-3' },
+            }
+          ];
+        }
+        return [];
+      });
+
+      await waitFor(() => {
+        map.__test__.fireHandlers('click', {
+          point: { x: 100, y: 100 },
+          originalEvent: { stopPropagation: jest.fn() },
+        });
+      });
+
+      expect(hidePopupMock).not.toHaveBeenCalled();
+    });
   });
 });

@@ -11,7 +11,7 @@ import { selectTrackSettings } from '../selectors/tracks';
 import useMapSources from '../hooks/useMapSources';
 import useMapLayers from '../hooks/useMapLayers';
 
-const { TRACKS_LINES, SUBJECT_SYMBOLS } = LAYER_IDS;
+const { SUBJECT_SYMBOLS, TRACKS_LINES, TRACKS_SOURCE, TRACK_TIMEPOINTS,  } = LAYER_IDS;
 
 const STABLE_RANDOM_TRACK_COLOR_BASED_ON_ID = [
   'rgb',
@@ -72,11 +72,11 @@ const TrackLayer = ({
   const onSymbolMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
   const onSymbolMouseLeave = () => map.getCanvas().style.cursor = '';
 
-  const sourceId = `track-source-${trackId}`;
+  const sourceId = `${TRACKS_SOURCE}-${trackId}`;
   const pointSourceId = `${sourceId}-points`;
 
   const layerId = `${TRACKS_LINES}-${trackId}`;
-  const pointLayerId = `${TRACKS_LINES}-points-${trackId}`;
+  const pointLayerId = `${TRACK_TIMEPOINTS}-${trackId}`;
 
   const {
     sourcesConfigs,
