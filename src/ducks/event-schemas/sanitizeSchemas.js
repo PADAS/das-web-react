@@ -194,7 +194,7 @@ const addCustomLinksForExternalURIs = (schema) => Object.entries(schema.properti
     return accumulator;
   }, {});
 
-const createSchemaGroups = (schema, definitions) => {
+const createSchemaGroups = (schema, definitions, _whatever) => {
   const INFERRED_ORIGIN = 'inferred';
   const DEFINED_ORIGIN = 'fieldset';
 
