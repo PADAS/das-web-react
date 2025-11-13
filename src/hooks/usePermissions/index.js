@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
-import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../constants';
+import { PERMISSION_KEYS, PERMISSIONS } from '../../constants';
 
 const EMPTY_PERMISSION_SET = new Set();
 
@@ -25,18 +25,15 @@ const usePermissions = (permissionKey) => {
 };
 
 export const useEventsPermissions = () => {
-  // Event permissions are only available if the events feature is enabled.
-  const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
-
   const eventsPermissions = usePermissions(PERMISSION_KEYS.EVENTS);
 
   return useMemo(() => ({
-    hasEventsCreatePermission: eventsEnabled && eventsPermissions.hasCreatePermission,
-    hasEventsDeletePermission: eventsEnabled && eventsPermissions.hasDeletePermission,
-    hasEventsExportPermission: eventsEnabled && eventsPermissions.hasExportPermission,
-    hasEventsReadPermission: eventsEnabled && eventsPermissions.hasReadPermission,
-    hasEventsUpdatePermission: eventsEnabled && eventsPermissions.hasUpdatePermission,
-  }), [eventsEnabled, eventsPermissions]);
+    hasEventsCreatePermission: eventsPermissions.hasCreatePermission,
+    hasEventsDeletePermission: eventsPermissions.hasDeletePermission,
+    hasEventsExportPermission: eventsPermissions.hasExportPermission,
+    hasEventsReadPermission: eventsPermissions.hasReadPermission,
+    hasEventsUpdatePermission: eventsPermissions.hasUpdatePermission,
+  }), [eventsPermissions]);
 };
 
 export const useMessagesPermissions = () => {
@@ -64,17 +61,13 @@ export const useObservationsPermissions = () => {
 };
 
 export const usePatrolsPermissions = () => {
-  // Patrol permissions are only available if the patrol management feature is
-  // enabled.
-  const patrolManagementEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]);
-
   const patrolsPermissions = usePermissions(PERMISSION_KEYS.PATROLS);
 
   return useMemo(() => ({
-    hasPatrolsCreatePermission: patrolManagementEnabled && patrolsPermissions.hasCreatePermission,
-    hasPatrolsDeletePermission: patrolManagementEnabled && patrolsPermissions.hasDeletePermission,
-    hasPatrolsExportPermission: patrolManagementEnabled && patrolsPermissions.hasExportPermission,
-    hasPatrolsReadPermission: patrolManagementEnabled && patrolsPermissions.hasReadPermission,
-    hasPatrolsUpdatePermission: patrolManagementEnabled && patrolsPermissions.hasUpdatePermission,
-  }), [patrolManagementEnabled, patrolsPermissions]);
+    hasPatrolsCreatePermission: patrolsPermissions.hasCreatePermission,
+    hasPatrolsDeletePermission: patrolsPermissions.hasDeletePermission,
+    hasPatrolsExportPermission: patrolsPermissions.hasExportPermission,
+    hasPatrolsReadPermission: patrolsPermissions.hasReadPermission,
+    hasPatrolsUpdatePermission: patrolsPermissions.hasUpdatePermission,
+  }), [patrolsPermissions]);
 };

@@ -18,20 +18,17 @@ export const setSystemConfigFromSystemStatus = (systemStatus) => (dispatch) => {
   dispatch({
     type: SET_SYSTEM_CONFIG,
     payload: {
-      [SYSTEM_CONFIG_FLAGS.ALERTS]: systemStatus[SYSTEM_CONFIG_FLAGS.ALERTS],
-      // TODO: Temporarily force Analyzers, Events, Spatial Features, and
-      // Subjects to be enabled. Turn off once the feature flags are available
-      // in DAS.
-      [SYSTEM_CONFIG_FLAGS.ANALYZERS]: systemStatus[SYSTEM_CONFIG_FLAGS.ANALYZERS] || true,
-      [SYSTEM_CONFIG_FLAGS.DAILY_REPORT]: systemStatus[SYSTEM_CONFIG_FLAGS.DAILY_REPORT],
-      [SYSTEM_CONFIG_FLAGS.EVENTS]: systemStatus[SYSTEM_CONFIG_FLAGS.EVENTS] || true,
-      [SYSTEM_CONFIG_FLAGS.EULA]: systemStatus[SYSTEM_CONFIG_FLAGS.EULA],
+      [SYSTEM_CONFIG_FLAGS.ALERTS]: systemStatus[SYSTEM_CONFIG_FLAGS.ALERTS] ?? true,
+      [SYSTEM_CONFIG_FLAGS.ANALYZERS]: systemStatus[SYSTEM_CONFIG_FLAGS.ANALYZERS] ?? true,
+      [SYSTEM_CONFIG_FLAGS.DAILY_REPORT]: systemStatus[SYSTEM_CONFIG_FLAGS.DAILY_REPORT] ?? true,
+      [SYSTEM_CONFIG_FLAGS.EVENTS]: systemStatus[SYSTEM_CONFIG_FLAGS.EVENTS] ?? true,
+      [SYSTEM_CONFIG_FLAGS.EULA]: systemStatus[SYSTEM_CONFIG_FLAGS.EULA] ?? true,
       [SYSTEM_CONFIG_FLAGS.GEOPERMISSIONS]: systemStatus.geoPermissionsEnabled ?? false,
-      [SYSTEM_CONFIG_FLAGS.KML_EXPORT]: systemStatus[SYSTEM_CONFIG_FLAGS.KML_EXPORT],
-      [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: systemStatus[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT],
-      [SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]: systemStatus[SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES] || true,
-      [SYSTEM_CONFIG_FLAGS.SUBJECTS]: systemStatus[SYSTEM_CONFIG_FLAGS.SUBJECTS] || true,
-      [SYSTEM_CONFIG_FLAGS.TABLEAU]: systemStatus[SYSTEM_CONFIG_FLAGS.TABLEAU],
+      [SYSTEM_CONFIG_FLAGS.KML_EXPORT]: systemStatus[SYSTEM_CONFIG_FLAGS.KML_EXPORT] ?? true,
+      [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: systemStatus[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT] ?? true,
+      [SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]: systemStatus[SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES] ?? true,
+      [SYSTEM_CONFIG_FLAGS.SUBJECTS]: systemStatus[SYSTEM_CONFIG_FLAGS.SUBJECTS] ?? true,
+      [SYSTEM_CONFIG_FLAGS.TABLEAU]: systemStatus[SYSTEM_CONFIG_FLAGS.TABLEAU] ?? true,
       showTrackDays: systemStatus.show_track_days,
       sitename,
     },

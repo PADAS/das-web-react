@@ -47,11 +47,80 @@ describe('AddItemButton', () => {
     jest.restoreAllMocks();
   });
 
-  test('does not render if user has no events or patrols create permission', async () => {
+  test('does not render if user cannot create events or patrols', async () => {
     store.data.user.permissions = {};
+    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS] = false;
     renderAddItemButton();
 
     expect(screen.queryByRole('button', { name: 'Create Event or Patrol' })).toBeNull();
+  });
+
+  test('hides patrol tab when user cannot create patrols', async () => {
+    store.data.user.permissions[PERMISSION_KEYS.PATROLS] = [];
+    renderAddItemButton();
+
+    const addItemButton = await screen.findByTestId('addItemButton');
+    await userEvent.click(addItemButton);
+
+    const modal = await screen.findByTestId('addItemButton-addItemModal');
+    expect(modal).toBeInTheDocument();
+
+    const tabs = await screen.findAllByRole('tab');
+    expect(tabs).toHaveLength(1);
+    expect(tabs[0]).toHaveTextContent('Add Event');
+    expect(screen.queryByTestId('addItemButton-addItemModal-patrolTab')).not.toBeInTheDocument();
+  });
+
+  test('hides patrol tab when patrol management is disabled', async () => {
+    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT] = false;
+    renderAddItemButton();
+
+    const addItemButton = await screen.findByTestId('addItemButton');
+    await userEvent.click(addItemButton);
+
+    const tabs = await screen.findAllByRole('tab');
+    expect(tabs).toHaveLength(1);
+    expect(tabs[0]).toHaveTextContent('Add Event');
+    expect(screen.queryByTestId('addItemButton-addItemModal-patrolTab')).not.toBeInTheDocument();
+  });
+
+  test('hides patrol tab when there are no patrol types', async () => {
+    store.data.patrolTypes = [];
+    renderAddItemButton();
+
+    const addItemButton = await screen.findByTestId('addItemButton');
+    await userEvent.click(addItemButton);
+
+    const tabs = await screen.findAllByRole('tab');
+    expect(tabs).toHaveLength(1);
+    expect(tabs[0]).toHaveTextContent('Add Event');
+    expect(screen.queryByTestId('addItemButton-addItemModal-patrolTab')).not.toBeInTheDocument();
+  });
+
+  test('hides event tab when events are disabled even', async () => {
+    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS] = false;
+    renderAddItemButton();
+
+    const addItemButton = await screen.findByTestId('addItemButton');
+    await userEvent.click(addItemButton);
+
+    const tabs = await screen.findAllByRole('tab');
+    expect(tabs).toHaveLength(1);
+    expect(tabs[0]).toHaveTextContent('Add Patrol');
+    expect(screen.queryByTestId('addItemButton-addItemModal-reportTab')).not.toBeInTheDocument();
+  });
+
+  test('hides event tab when there are no event types', async () => {
+    store.data.eventTypes = [];
+    renderAddItemButton();
+
+    const addItemButton = await screen.findByTestId('addItemButton');
+    await userEvent.click(addItemButton);
+
+    const tabs = await screen.findAllByRole('tab');
+    expect(tabs).toHaveLength(1);
+    expect(tabs[0]).toHaveTextContent('Add Patrol');
+    expect(screen.queryByTestId('addItemButton-addItemModal-reportTab')).not.toBeInTheDocument();
   });
 
   test('shows the Add Modal when clicking the button', async () => {
@@ -147,5 +216,4 @@ describe('AddItemButton', () => {
     const addItemButton = await screen.queryByTestId('addItemButton');
     expect(addItemButton).not.toBeInTheDocument();
   });
-
 });

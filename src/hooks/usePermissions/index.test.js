@@ -5,7 +5,7 @@ import { mockStore } from '../../__test-helpers/MockStore';
 import { renderHook } from '../../test-utils';
 
 import { useEventsPermissions, useMessagesPermissions, useObservationsPermissions, usePatrolsPermissions } from '.';
-import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../constants';
+import { PERMISSION_KEYS, PERMISSIONS } from '../../constants';
 
 describe('usePermissions', () => {
   let store;
@@ -45,12 +45,7 @@ describe('usePermissions', () => {
           },
         },
       },
-      view: {
-        systemConfig: {
-          [SYSTEM_CONFIG_FLAGS.EVENTS]: true,
-          [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true,
-        },
-      },
+      view: {},
     };
   });
 
@@ -69,19 +64,6 @@ describe('usePermissions', () => {
         hasEventsExportPermission: true,
         hasEventsReadPermission: true,
         hasEventsUpdatePermission: true,
-      });
-    });
-
-    test('disables the events permissions if the events feature is disabled', async () => {
-      store.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS] = false;
-      const { result } = renderHook(() => useEventsPermissions(), { wrapper });
-
-      expect(result.current).toEqual({
-        hasEventsCreatePermission: false,
-        hasEventsDeletePermission: false,
-        hasEventsExportPermission: false,
-        hasEventsReadPermission: false,
-        hasEventsUpdatePermission: false,
       });
     });
   });
@@ -124,19 +106,6 @@ describe('usePermissions', () => {
         hasPatrolsExportPermission: true,
         hasPatrolsReadPermission: true,
         hasPatrolsUpdatePermission: true,
-      });
-    });
-
-    test('disables the patrols permissions if the patrol management feature is disabled', async () => {
-      store.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT] = false;
-      const { result } = renderHook(() => usePatrolsPermissions(), { wrapper });
-
-      expect(result.current).toEqual({
-        hasPatrolsCreatePermission: false,
-        hasPatrolsDeletePermission: false,
-        hasPatrolsExportPermission: false,
-        hasPatrolsReadPermission: false,
-        hasPatrolsUpdatePermission: false,
       });
     });
   });

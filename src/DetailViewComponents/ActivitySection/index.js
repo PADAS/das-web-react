@@ -1,13 +1,14 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Button from 'react-bootstrap/Button';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
 
 import { areCardsEquals } from '../utils';
 import { isGreaterThan } from '../../utils/datetime';
+import { SYSTEM_CONFIG_FLAGS } from '../../constants';
 import { TrackerContext } from '../../utils/analytics';
-import { useEventsPermissions } from '../../hooks/usePermissions';
 import { useSortedNodesWithToggleBtn } from '../../hooks/useSortedNodes';
 
 import AttachmentListItem from './AttachmentListItem';
@@ -40,7 +41,7 @@ const ActivitySection = ({
   const tracker = useContext(TrackerContext);
   const { t } = useTranslation('details-view', { keyPrefix: 'activitySection' });
 
-  const { hasEventsReadPermission } = useEventsPermissions();
+  const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
 
   const [cardsExpanded, setCardsExpanded] = useState([]);
 
@@ -87,7 +88,7 @@ const ActivitySection = ({
     />,
   })), [attachmentsToAdd, onDeleteAttachment]);
 
-  const containedReportsRendered = useMemo(() => hasEventsReadPermission
+  const containedReportsRendered = useMemo(() => eventsEnabled
     ? containedReports.map((containedReport) => ({
       sortDate: new Date(containedReport.time || containedReport.updated_at),
       node: <ContainedReportListItem
@@ -98,7 +99,7 @@ const ActivitySection = ({
         report={containedReport}
       />,
     }))
-    : [], [cardsExpanded, containedReports, hasEventsReadPermission, onCollapseCard, onExpandCard]);
+    : [], [cardsExpanded, containedReports, eventsEnabled, onCollapseCard, onExpandCard]);
 
   const datesRendered = useMemo(() => {
     const dates = [];
