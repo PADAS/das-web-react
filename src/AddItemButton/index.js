@@ -5,8 +5,9 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
 
 import { selectCreatableEventTypesByCategory } from '../selectors/event-types';
+import { SYSTEM_CONFIG_FLAGS } from '../constants';
 import { trackEvent } from '../utils/analytics';
-import { useEventsPermissions, usePatrolsPermissions } from '../hooks/usePermissions';
+import { usePatrolsPermissions } from '../hooks/usePermissions';
 
 import AddItemModal from './AddItemModal';
 import DelayedUnmount from '../DelayedUnmount';
@@ -26,7 +27,7 @@ const AddItemButton = ({
     relationshipButtonDisabled: false,
   },
   hideAddPatrolTab = false,
-  hideAddReportTab = false,
+  hideAddEventTab = false,
   iconComponent = <AddButtonIcon />,
   modalProps = {},
   onAddPatrol = null,
@@ -41,12 +42,16 @@ const AddItemButton = ({
   const { t } = useTranslation('components', { keyPrefix: 'addItemButton' });
 
   const eventsByCategory = useSelector(selectCreatableEventTypesByCategory);
+  const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
+  const patrolManagementEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]);
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
-  const { hasEventsCreatePermission } = useEventsPermissions();
   const { hasPatrolsCreatePermission } = usePatrolsPermissions();
 
   const [showModal, setShowModal] = useState(false);
+
+  const canCreateEvents = eventsEnabled && eventsByCategory?.length > 0;
+  const canCreatePatrols = patrolManagementEnabled && hasPatrolsCreatePermission && patrolTypes.length > 0;
 
   const onClick = useCallback(() => {
     setShowModal(true);
@@ -57,12 +62,12 @@ const AddItemButton = ({
     );
   }, [analyticsMetadata.category, analyticsMetadata.location]);
 
-  return (hasEventsCreatePermission || hasPatrolsCreatePermission) ? <AddItemContext.Provider
+  return (canCreateEvents || canCreatePatrols) ? <AddItemContext.Provider
       value={{
         analyticsMetadata,
         formProps,
-        hideAddPatrolTab,
-        hideAddReportTab,
+        hideAddPatrolTab: hideAddPatrolTab || !canCreatePatrols,
+        hideAddEventTab: hideAddEventTab || !canCreateEvents,
         onAddPatrol,
         onAddReport,
         patrolData,
@@ -73,7 +78,7 @@ const AddItemButton = ({
       <AddItemModal {...modalProps} onHide={() => setShowModal(false)} show={showModal} />
     </DelayedUnmount>
 
-    {(eventsByCategory?.length || patrolTypes?.length) ? <button
+    <button
       aria-label={t('defaultLabel')}
       className={`${styles[`addItemButton-${variant}`]} ${className}`}
       data-testid="addItemButton"
@@ -85,7 +90,7 @@ const AddItemButton = ({
       {iconComponent}
 
       {showLabel && <label>{title || t('defaultTitle')}</label>}
-    </button> : null}
+    </button>
   </AddItemContext.Provider> : null;
 };
 

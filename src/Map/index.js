@@ -35,7 +35,6 @@ import {
 import { MapContext } from '../App';
 import { updatePatrolTrackState } from '../ducks/patrols';
 import useCrsBoundingBoxLayer from './layers/useCrsBoundingBoxLayer';
-import { useEventsPermissions } from '../hooks/usePermissions';
 import { useMapEventBinding } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
@@ -126,6 +125,7 @@ const Map = ({ children, onMapLoad, socket }) => {
   const hiddenAnalyzerIDs = useSelector(state => state.data.mapLayerFilter.hiddenAnalyzerIDs);
   const hiddenFeatureIDs = useSelector(state => state.data.mapLayerFilter.hiddenFeatureIDs);
   const eventFilter = useSelector(state => state.data.eventFilter);
+  const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
   const mapImages = useSelector(state => state.view.mapImages);
   const mapIsLocked = useSelector(state => state.view.mapIsLocked);
   const mapLocationSelection = useSelector(state => state.view.mapLocationSelection);
@@ -142,8 +142,6 @@ const Map = ({ children, onMapLoad, socket }) => {
   const timeSliderState = useSelector(state => state.view.timeSliderState);
   const trackLength = useSelector(state => state.view.trackSettings.length);
   const trackLengthOrigin = useSelector(state => state.view.trackSettings.origin);
-
-  const { hasEventsReadPermission } = useEventsPermissions();
 
   const messageableMapSubjects = mapSubjectFeatureCollection.features.filter(({ properties }) => !!properties?.messaging?.length);
 
@@ -687,7 +685,7 @@ const Map = ({ children, onMapLoad, socket }) => {
 
       <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
 
-      {hasEventsReadPermission && <EventsLayer
+      {eventsEnabled && <EventsLayer
         mapImages={mapImages}
         onEventClick={onSelectEvent}
         bounceEventIDs={bounceEventIDs}
@@ -703,7 +701,7 @@ const Map = ({ children, onMapLoad, socket }) => {
 
       {subjectsEnabled && !!messageableMapSubjects.length && <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />}
 
-      {hasEventsReadPermission && <DelayedUnmount isMounted={!currentTab && !mapLocationSelection.isPickingLocation}>
+      {eventsEnabled && <DelayedUnmount isMounted={!currentTab && !mapLocationSelection.isPickingLocation}>
         <div className='floating-report-filter'>
           <EventFilter className='report-filter' />
         </div>

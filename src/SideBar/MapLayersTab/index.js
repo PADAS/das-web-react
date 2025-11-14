@@ -12,7 +12,6 @@ import { MAP_LAYERS_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import { SYSTEM_CONFIG_FLAGS } from '../../constants';
 import { TAB_KEYS } from './utils/constants';
 import { updateHeatmapSubjects, updateTrackState } from '../../ducks/map-ui';
-import { useEventsPermissions } from '../../hooks/usePermissions';
 
 import AnalyzersTab from './AnalyzersTab';
 import Checkmark from '../../Checkmark';
@@ -30,11 +29,10 @@ const MapLayersTab = () => {
   const { t } = useTranslation('components', { keyPrefix: 'sideBar.mapLayersTab' });
 
   const analyzersEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.ANALYZERS]);
+  const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
   const spatialFeaturesEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]);
   const subjectGroups = useSelector(getSubjectGroups);
   const subjectsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SUBJECTS]);
-
-  const { hasEventsReadPermission } = useEventsPermissions();
 
   const defaultActiveKey = useMemo(() => {
     if (subjectsEnabled) {
@@ -108,7 +106,7 @@ const MapLayersTab = () => {
         <AnalyzersTab />
       </Tab>}
 
-      {hasEventsReadPermission && <Tab
+      {eventsEnabled && <Tab
         as="section"
         className={styles.tab}
         eventKey={TAB_KEYS.EVENTS}

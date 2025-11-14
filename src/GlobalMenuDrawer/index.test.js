@@ -255,8 +255,8 @@ describe('GlobalMenuDrawer', () => {
     expect(addModal.mock.calls[0][0].title).toBe('Observations');
   });
 
-  test('does not show the Field Events button if a user does not have export event data permissions', async () => {
-    delete store.data.user.permissions[PERMISSION_KEYS.EVENTS];
+  test('does not show the Field Events button if events are not enabled', async () => {
+    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS] = false;
     renderGlobalMenuDrawer();
 
     expect(screen.queryByRole('button', { name: 'Field Events' })).toBeNull();

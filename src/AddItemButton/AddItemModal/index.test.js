@@ -31,19 +31,8 @@ describe('AddItemButton - AddItemModal', () => {
         eventCategories,
         eventTypes,
         patrolTypes,
-        user: {
-          permissions: {
-            [PERMISSION_KEYS.EVENTS]: [PERMISSIONS.CREATE],
-            [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.CREATE],
-          },
-        },
       },
-      view: {
-        systemConfig: {
-          [SYSTEM_CONFIG_FLAGS.EVENTS]: true,
-          [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true,
-        },
-      },
+      view: {},
     };
 
     renderAddItemModal = (props, addItemContext, overrideStore) => {
@@ -61,8 +50,8 @@ describe('AddItemButton - AddItemModal', () => {
                 onSaveSuccess: null,
                 relationshipButtonDisabled: false,
               },
+              hideAddEventTab: false,
               hideAddPatrolTab: false,
-              hideAddReportTab: false,
               onAddPatrol: null,
               onAddReport: null,
               patrolData: {},
@@ -137,14 +126,30 @@ describe('AddItemButton - AddItemModal', () => {
     expect(storeTab).toHaveBeenCalledWith(ADD_TAB_KEYS.ADD_REPORT);
   });
 
-  test('changes to Add Report tab if Add Patrol is selected but patrols are not enabled', async () => {
+  test('hides Add Event tab', async () => {
+    renderAddItemModal({}, { hideAddEventTab: true });
+
+    const tabs = await screen.findAllByRole('tab');
+
+    expect(tabs).toHaveLength(1);
+    expect(tabs[0]).toHaveTextContent('Add Patrol');
+    expect(tabs[0]).toHaveClass('active');
+  });
+
+  test('hides Add Patrol tab', async () => {
+    renderAddItemModal({}, { hideAddPatrolTab: true });
+
+    const tabs = await screen.findAllByRole('tab');
+
+    expect(tabs).toHaveLength(1);
+    expect(tabs[0]).toHaveTextContent('Add Event');
+    expect(tabs[0]).toHaveClass('active');
+  });
+
+  test('changes to Add Report tab if Add Patrol is selected but add patrol tab is hidden', async () => {
     getStoredTab.mockImplementation(() => ADD_TAB_KEYS.ADD_PATROL);
 
-    store.view.systemConfig = {
-      [SYSTEM_CONFIG_FLAGS.EVENTS]: true,
-      [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: false,
-    };
-    renderAddItemModal();
+    renderAddItemModal({}, { hideAddPatrolTab: true });
 
     const tabs = await screen.findAllByRole('tab');
 
@@ -155,14 +160,10 @@ describe('AddItemButton - AddItemModal', () => {
     expect(storeTab).toHaveBeenCalledWith(ADD_TAB_KEYS.ADD_REPORT);
   });
 
-  test('changes to Add Patrol tab if Add Event is selected but events are not enabled', async () => {
+  test('changes to Add Patrol tab if Add Event is selected but add event tab is hidden', async () => {
     getStoredTab.mockImplementation(() => ADD_TAB_KEYS.ADD_REPORT);
 
-    store.view.systemConfig = {
-      [SYSTEM_CONFIG_FLAGS.EVENTS]: false,
-      [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true,
-    };
-    renderAddItemModal();
+    renderAddItemModal({}, { hideAddEventTab: true });
 
     const tabs = await screen.findAllByRole('tab');
 
@@ -171,70 +172,6 @@ describe('AddItemButton - AddItemModal', () => {
     expect(tabs[0]).toHaveClass('active');
     expect(storeTab).toHaveBeenCalledTimes(1);
     expect(storeTab).toHaveBeenCalledWith(ADD_TAB_KEYS.ADD_PATROL);
-  });
-
-  test('hides Add Report if user has no events create permission', async () => {
-    store.data.user.permissions = { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.CREATE] };
-    renderAddItemModal();
-
-    const tabs = await screen.findAllByRole('tab');
-
-    expect(tabs).toHaveLength(1);
-    expect(tabs[0]).toHaveTextContent('Add Patrol');
-    expect(tabs[0]).toHaveClass('active');
-  });
-
-  test('hides Add Report if there are no event types', async () => {
-    store.data.eventTypes = [];
-    renderAddItemModal();
-
-    const tabs = await screen.findAllByRole('tab');
-
-    expect(tabs).toHaveLength(1);
-    expect(tabs[0]).toHaveTextContent('Add Patrol');
-    expect(tabs[0]).toHaveClass('active');
-  });
-
-  test('hides Add Report if hideAddReportTab is true', async () => {
-    renderAddItemModal({}, { hideAddReportTab: true });
-
-    const tabs = await screen.findAllByRole('tab');
-
-    expect(tabs).toHaveLength(1);
-    expect(tabs[0]).toHaveTextContent('Add Patrol');
-    expect(tabs[0]).toHaveClass('active');
-  });
-
-  test('hides Add Patrol if user has no patrols create permission', async () => {
-    store.data.user.permissions = { [PERMISSION_KEYS.EVENTS]: [PERMISSIONS.CREATE] };
-    renderAddItemModal();
-
-    const tabs = await screen.findAllByRole('tab');
-
-    expect(tabs).toHaveLength(1);
-    expect(tabs[0]).toHaveTextContent('Add Event');
-    expect(tabs[0]).toHaveClass('active');
-  });
-
-  test('hides Add Patrol if there are no patrol types', async () => {
-    store.data.patrolTypes = [];
-    renderAddItemModal();
-
-    const tabs = await screen.findAllByRole('tab');
-
-    expect(tabs).toHaveLength(1);
-    expect(tabs[0]).toHaveTextContent('Add Event');
-    expect(tabs[0]).toHaveClass('active');
-  });
-
-  test('hides Add Patrol if hideAddPatrolTab is true', async () => {
-    renderAddItemModal({}, { hideAddPatrolTab: true });
-
-    const tabs = await screen.findAllByRole('tab');
-
-    expect(tabs).toHaveLength(1);
-    expect(tabs[0]).toHaveTextContent('Add Event');
-    expect(tabs[0]).toHaveClass('active');
   });
 
   test('triggers onHide', async () => {

@@ -137,8 +137,8 @@ describe('DetailViewComponents - ActivitySection', () => {
     });
   });
 
-  test('hides contained reports if user has no events read permission', async () => {
-    store.data.user.permissions = {};
+  test('hides contained reports if events are not enabled', async () => {
+    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS] = false;
     renderActivitySection();
 
     const { id } = containedReports[0];

@@ -144,8 +144,8 @@ describe('SideBar', () => {
     expect(screen.getByRole('link', { name: 'Events' })).toBeVisible();
   });
 
-  test('does not show the events tab if user has not permissions', async () => {
-    store.data.user.permissions = {};
+  test('does not show the events tab if events are not enabled', async () => {
+    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS] = false;
     renderSideBar();
 
     expect(screen.queryByRole('link', { name: 'Events' })).toBeNull();
@@ -490,7 +490,7 @@ describe('SideBar', () => {
     expect(navigate).toHaveBeenCalledWith('/');
   });
 
-  test('redirects to events path when legacy reports URL is accessed and user has events permissions', async () => {
+  test('redirects to events path when legacy reports URL is accessed and events are enabled', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/reports' })));
     useLocation.mockImplementation(useLocationMock);
 
@@ -500,10 +500,8 @@ describe('SideBar', () => {
     expect(navigate).toHaveBeenCalledWith('/events', { replace: true });
   });
 
-  test('redirects to home when legacy reports URL is accessed and user does not have events permissions', async () => {
-    store.data.user.permissions = {
-      [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ, PERMISSIONS.CREATE],
-    };
+  test('redirects to home when legacy reports URL is accessed and events are not enabled', async () => {
+    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS] = false;
     useLocationMock = jest.fn((() => ({ pathname: '/reports' })));
     useLocation.mockImplementation(useLocationMock);
 

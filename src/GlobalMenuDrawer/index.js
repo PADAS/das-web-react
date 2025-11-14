@@ -27,7 +27,7 @@ import {
   JIRA_WIDGET_IFRAME_SELECTOR,
   selectSupportFormFieldByLabelText,
 } from '../JiraSupportWidget';
-import { useEventsPermissions, useObservationsPermissions, usePatrolsPermissions } from '../hooks/usePermissions';
+import { useObservationsPermissions, usePatrolsPermissions } from '../hooks/usePermissions';
 import { useMatchMedia } from '../hooks';
 
 import EarthRangerLogo from '../EarthRangerLogo';
@@ -62,8 +62,10 @@ const GlobalMenuDrawer = () => {
   const alertsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.ALERTS]);
   const dailyReportEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.DAILY_REPORT]);
   const drawer = useSelector((state) => state.view.drawer);
+  const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
   const eventTypes = useSelector((state) => state.data.eventTypes);
   const kmlExportEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.KML_EXPORT]);
+  const patrolManagementEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]);
   const selectedUserProfile = useSelector((state) => state.data.selectedUserProfile);
   const serverData = useSelector((state) => state.data.systemStatus.server);
   const subjectsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SUBJECTS]);
@@ -71,12 +73,13 @@ const GlobalMenuDrawer = () => {
   const token = useSelector((state) => state.data.token);
   const user = useSelector((state) => state.data.user);
 
-  const { hasEventsExportPermission } = useEventsPermissions();
   const { hasObservationsExportPermission } = useObservationsPermissions();
   const { hasPatrolsReadPermission } = usePatrolsPermissions();
 
   const closeButtonRef = useRef();
   const dataPrivacyPolicyLinkRef = useRef();
+
+  const canReadPatrols = patrolManagementEnabled && hasPatrolsReadPermission;
 
   const jiraIframeHelpButton = useMemo(() => {
     const jiraWidgetIframe = document.querySelector(JIRA_WIDGET_IFRAME_SELECTOR);
@@ -117,7 +120,7 @@ const GlobalMenuDrawer = () => {
       });
     }
 
-    if (hasEventsExportPermission) {
+    if (eventsEnabled) {
       exportModals.push({
         children: <div>{t('fieldReportsModal.content')}</div>,
         content: DataExportModal,
@@ -130,7 +133,7 @@ const GlobalMenuDrawer = () => {
     return exportModals;
   }, [
     dailyReportEnabled,
-    hasEventsExportPermission,
+    eventsEnabled,
     hasObservationsExportPermission,
     kmlExportEnabled,
     subjectsEnabled,
@@ -183,12 +186,12 @@ const GlobalMenuDrawer = () => {
   // Calculate the navigation links to show based on the enabled features.
   const navigationItems = useMemo(() => [
     { icon: <DocumentIcon />, sidebarTab: TAB_KEYS.EVENTS, title: t('navigationButton.reports') },
-    ...(hasPatrolsReadPermission
+    ...(canReadPatrols
       ? [{ icon: <PatrolIcon />, sidebarTab: TAB_KEYS.PATROLS, title: t('navigationButton.patrols') }]
       : []),
     { icon: <LayersIcon />, sidebarTab: TAB_KEYS.LAYERS, title: t('navigationButton.mapLayers') },
     { icon: <GearIcon />, sidebarTab: TAB_KEYS.SETTINGS, title: t('navigationButton.settings') },
-  ], [hasPatrolsReadPermission, t]);
+  ], [canReadPatrols, t]);
 
   useEffect(() => {
     if (drawer.drawerId === 'global-menu' && drawer.isOpen) {
