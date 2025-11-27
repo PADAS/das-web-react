@@ -48,7 +48,7 @@ export const useOptionalPersistence = (key, defaultRestorable = false ) => {
   const namespace = namespaceForKey(key);
 
   const [value, setValue] = useLocalStorage(namespace, { restore: defaultRestorable });
-  const restorable = value?.restore;
+  const restorable = value?.restore ?? defaultRestorable;
 
   const setRestorable = useCallback((restore = false) => {
     setValue({ restore });

@@ -231,3 +231,20 @@ export const calculatePopoverPlacement = async (map, popoverLocation) => {
   }
   return 'bottom';
 };
+
+
+export const safeRemoveMapLayer = (map, layerId) => {
+  try {
+    map?.removeLayer?.(layerId);
+  } catch (error) {
+    console.error(`error removing layer ${layerId} from map`, error);
+  }
+};
+
+export const safeRemoveMapSource = (map, sourceId) => {
+  try {
+    map?.removeSource?.(sourceId);
+  } catch (error) {
+    console.error(`error removing source ${sourceId} from map`, error);
+  }
+};

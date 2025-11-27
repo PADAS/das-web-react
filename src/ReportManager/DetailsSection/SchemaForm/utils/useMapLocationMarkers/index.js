@@ -4,7 +4,7 @@ import { featureCollection, lineString, point } from '@turf/turf';
 import LocationDotBluePNG from '../../../../../common/images/icons/location-dot-blue.png';
 import LocationDotGrayPNG from '../../../../../common/images/icons/location-dot-gray.png';
 
-import { addMapImage } from '../../../../../utils/map';
+import { addMapImage, safeRemoveMapLayer, safeRemoveMapSource } from '../../../../../utils/map';
 import { LAYER_IDS, SOURCE_IDS } from '../../../../../constants';
 import { MapContext } from '../../../../../App';
 
@@ -164,12 +164,12 @@ const useMapLocationMarkers = (eventId, eventLocation, onMarkerClick = null, hid
 
       // Clean all the layers and sources when the hook unmounts.
       return () => {
-        map.removeLayer(layerIds.markerConnectinOutlines);
-        map.removeLayer(layerIds.markerConnectingLines);
-        map.removeLayer(layerIds.markers);
+        safeRemoveMapLayer(map, layerIds.markerConnectinOutlines);
+        safeRemoveMapLayer(map, layerIds.markerConnectingLines);
+        safeRemoveMapLayer(map, layerIds.markers);
 
-        map.removeSource(sourceIds.markerConnectingLines);
-        map.removeSource(sourceIds.markers);
+        safeRemoveMapSource(map, sourceIds.markerConnectingLines);
+        safeRemoveMapSource(map, sourceIds.markers);
       };
     }
   }, [map]);

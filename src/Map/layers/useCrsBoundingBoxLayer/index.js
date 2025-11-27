@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { hidePopup, showPopup } from '../../../ducks/popup';
 import { injectStylesToElement } from '../../../utils/styles';
+import { safeRemoveMapLayer, safeRemoveMapSource } from '../../../utils/map';
 import { LAYER_IDS, SOURCE_IDS } from '../../../constants';
 import { MapContext } from '../../../App';
 
@@ -116,8 +117,8 @@ const useCrsBoundingBoxLayer = () => {
       }
 
       return () => {
-        map.removeLayer(LAYER_IDS.COORDINATE_REFERENCE_SYSTEM_BBOX);
-        map.removeSource(SOURCE_IDS.COORDINATE_REFERENCE_SYSTEM_BBOX);
+        safeRemoveMapLayer(map, LAYER_IDS.COORDINATE_REFERENCE_SYSTEM_BBOX);
+        safeRemoveMapSource(map, SOURCE_IDS.COORDINATE_REFERENCE_SYSTEM_BBOX);
       };
     }
   }, [map, selectedCrs?.bbox, shouldRenderCrsBoundingBoxLayer]);

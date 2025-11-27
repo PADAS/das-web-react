@@ -276,13 +276,13 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
       layerIds.forEach(layerId => {
         if (map.getLayer(layerId)) {
           map.off('click', layerId, handleFeatureClick);
-          map.removeLayer(layerId);
+          safeRemoveMapLayer(map, layerId);
         }
       });
 
       map.off('mouseenter', SYMBOLS_LAYER_ID, onMouseEnter);
       map.off('mouseleave', SYMBOLS_LAYER_ID, onMouseLeave);
-      map.removeSource(SPATIAL_FEATURES_SOURCE);
+      safeRemoveMapSource(map, SPATIAL_FEATURES_SOURCE);
     };
     /*
       # disable exhaustive dependencies here, since

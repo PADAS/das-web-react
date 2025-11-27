@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 
 import { CLUSTERS_MAX_ZOOM, LAYER_IDS, SOURCE_IDS } from '../../constants';
 import { MapContext } from '../../App';
+import { safeRemoveMapLayer, safeRemoveMapSource } from '../../utils/map';
 
 const ZOOM_FACTOR_BASE_DISTANCE = 0.75;
 const ZOOM_FACTOR_BASE_ZOOM = 10;
@@ -76,8 +77,8 @@ const useClusterPolygon = () => {
 
       return () => {
         // Clean map resources when the hook unmounts.
-        map.removeLayer(LAYER_IDS.CLUSTER_POLYGON_LAYER_ID);
-        map.removeSource(SOURCE_IDS.CLUSTER_POLYGON_SOURCE_ID);
+        safeRemoveMapLayer(map, LAYER_IDS.CLUSTER_POLYGON_LAYER_ID);
+        safeRemoveMapSource(map, SOURCE_IDS.CLUSTER_POLYGON_SOURCE_ID);
       };
     }
   }, [map, showMapClusterPolygons]);
