@@ -1,0 +1,112 @@
+import React from 'react';
+import { Provider } from 'react-redux';
+
+import { mockStore } from '../../__test-helpers/MockStore';
+import { renderHook } from '../../test-utils';
+
+import { useEventsPermissions, useMessagesPermissions, useObservationsPermissions, usePatrolsPermissions } from '.';
+import { PERMISSION_KEYS, PERMISSIONS } from '../../constants';
+
+describe('usePermissions', () => {
+  let store;
+  beforeEach(() => {
+    store = {
+      data: {
+        user: {
+          permissions: {
+            [PERMISSION_KEYS.EVENTS]: [
+              PERMISSIONS.CREATE,
+              PERMISSIONS.DELETE,
+              PERMISSIONS.EXPORT,
+              PERMISSIONS.READ,
+              PERMISSIONS.UPDATE,
+            ],
+            [PERMISSION_KEYS.MESSAGES]: [
+              PERMISSIONS.CREATE,
+              PERMISSIONS.DELETE,
+              PERMISSIONS.EXPORT,
+              PERMISSIONS.READ,
+              PERMISSIONS.UPDATE,
+            ],
+            [PERMISSION_KEYS.OBSERVATIONS]: [
+              PERMISSIONS.CREATE,
+              PERMISSIONS.DELETE,
+              PERMISSIONS.EXPORT,
+              PERMISSIONS.READ,
+              PERMISSIONS.UPDATE,
+            ],
+            [PERMISSION_KEYS.PATROLS]: [
+              PERMISSIONS.CREATE,
+              PERMISSIONS.DELETE,
+              PERMISSIONS.EXPORT,
+              PERMISSIONS.READ,
+              PERMISSIONS.UPDATE,
+            ],
+          },
+        },
+      },
+      view: {},
+    };
+  });
+
+  const wrapper = ({ children }) => <Provider store={mockStore(store)}>
+    {children}
+  </Provider>;
+
+
+  describe('useEventsPermissions', () => {
+    test('returns the events permissions', async () => {
+      const { result } = renderHook(() => useEventsPermissions(), { wrapper });
+
+      expect(result.current).toEqual({
+        hasEventsCreatePermission: true,
+        hasEventsDeletePermission: true,
+        hasEventsExportPermission: true,
+        hasEventsReadPermission: true,
+        hasEventsUpdatePermission: true,
+      });
+    });
+  });
+
+  describe('useMessagesPermissions', () => {
+    test('returns the messages permissions', async () => {
+      const { result } = renderHook(() => useMessagesPermissions(), { wrapper });
+
+      expect(result.current).toEqual({
+        hasMessagesCreatePermission: true,
+        hasMessagesDeletePermission: true,
+        hasMessagesExportPermission: true,
+        hasMessagesReadPermission: true,
+        hasMessagesUpdatePermission: true,
+      });
+    });
+  });
+
+  describe('useObservationsPermissions', () => {
+    test('returns the observations permissions', async () => {
+      const { result } = renderHook(() => useObservationsPermissions(), { wrapper });
+
+      expect(result.current).toEqual({
+        hasObservationsCreatePermission: true,
+        hasObservationsDeletePermission: true,
+        hasObservationsExportPermission: true,
+        hasObservationsReadPermission: true,
+        hasObservationsUpdatePermission: true,
+      });
+    });
+  });
+
+  describe('usePatrolsPermissions', () => {
+    test('returns the patrols permissions', async () => {
+      const { result } = renderHook(() => usePatrolsPermissions(), { wrapper });
+
+      expect(result.current).toEqual({
+        hasPatrolsCreatePermission: true,
+        hasPatrolsDeletePermission: true,
+        hasPatrolsExportPermission: true,
+        hasPatrolsReadPermission: true,
+        hasPatrolsUpdatePermission: true,
+      });
+    });
+  });
+});

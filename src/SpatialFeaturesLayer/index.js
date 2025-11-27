@@ -1,7 +1,11 @@
 import React, { memo, useContext, useMemo, useCallback, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { MapContext } from '../App';
+import { addMapImage, safeRemoveMapLayer, safeRemoveMapSource } from '../utils/map';
 import { API_URL, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
+
+import MarkerImage from '../common/images/icons/mapbox-blue-marker-icon.png';
+import RangerStationsImage from '../common/images/icons/ranger-stations.png';
 
 const SPATIAL_FEATURES_SOURCE = 'spatial-features-source';
 
@@ -13,6 +17,9 @@ export const LINES_LAYER_ID = 'spatial-features-lines';
 // const LINES_LABELS_LAYER_ID = 'spatial-features-line-labels';
 export const POLYGONS_LAYER_ID = 'spatial-features-polygons';
 // const POLYGONS_LABELS_LAYER_ID = 'spatial-features-polygon-labels';
+export const POLYGONS_OUTLINE_LAYER_ID = 'spatial-features-polygons-outlines';
+
+const BEFORE_LAYER_ID = 'feature-separation-layer';
 
 const DEFAULT_LINE_PAINT_COLOR = [
   'case',
@@ -26,11 +33,32 @@ const DEFAULT_LINE_PAINT_COLOR = [
 const DEFAULT_POLYGON_FILL_COLOR = [
   'case',
   ['has', 'fill'], ['get', 'fill'],
-  ['has', 'color'], ['get', 'color'],
+  ['has', 'fill-color'], ['get', 'fill-color'],
   ['has', 'fill_color'], ['get', 'fill_color'],
+  ['has', 'color'], ['get', 'color'],
   ['has', 'stroke'], ['get', 'stroke'],
-  '#ff6600'
+  'rgba(255, 102, 0, 0)'
 ];
+
+const LINE_LAYERS_PAINT = {
+  'line-color': DEFAULT_LINE_PAINT_COLOR,
+  'line-width': [
+    'case',
+    ['has', 'stroke-width'], ['get', 'stroke-width'],
+    ['has', 'width'], ['get', 'width'],
+    ['has', 'line_width'], ['get', 'line_width'],
+    ['has', 'stroke_width'], ['get', 'stroke_width'],
+    1,
+  ],
+  'line-opacity': [
+    'case',
+    ['has', 'stroke-opacity'], ['get', 'stroke-opacity'],
+    ['has', 'opacity'], ['get', 'opacity'],
+    ['has', 'line_opacity'], ['get', 'line_opacity'],
+    ['has', 'stroke_opacity'], ['get', 'stroke_opacity'],
+    1
+  ]
+};
 
 
 
@@ -46,7 +74,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
 
   const handleFeatureClick = useCallback((event) => {
     const features = map.queryRenderedFeatures(event.point, {
-      layers: [SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID]
+      layers: [SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_OUTLINE_LAYER_ID, POLYGONS_LAYER_ID]
     });
 
     if (features.length > 0 && onFeatureClick) {
@@ -114,7 +142,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
           ...DEFAULT_SYMBOL_PAINT
         },
         filter: symbolLayerFilter
-      });
+      }, BEFORE_LAYER_ID);
     }
 
     if (!map.getLayer(LINES_LAYER_ID)) {
@@ -123,27 +151,32 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
         type: 'line',
         source: SPATIAL_FEATURES_SOURCE,
         'source-layer': 'spatial_features',
-        paint: {
-          'line-color': DEFAULT_LINE_PAINT_COLOR,
-          'line-width': [
-            'case',
-            ['has', 'stroke-width'], ['get', 'stroke-width'],
-            ['has', 'width'], ['get', 'width'],
-            ['has', 'line_width'], ['get', 'line_width'],
-            ['has', 'stroke_width'], ['get', 'stroke_width'],
-            3
-          ],
-          'line-opacity': [
-            'case',
-            ['has', 'stroke-opacity'], ['get', 'stroke-opacity'],
-            ['has', 'opacity'], ['get', 'opacity'],
-            ['has', 'line_opacity'], ['get', 'line_opacity'],
-            ['has', 'stroke_opacity'], ['get', 'stroke_opacity'],
-            1
-          ]
-        },
+        paint: LINE_LAYERS_PAINT,
         filter: lineLayerFilter
-      });
+      }, SYMBOLS_LAYER_ID);
+    }
+
+    if (!map.getLayer(POLYGONS_OUTLINE_LAYER_ID)) {
+      const paint = {
+        ...LINE_LAYERS_PAINT,
+      };
+
+      paint['stroke'] = [
+        'case',
+        ['has', 'stroke'], ['get', 'stroke'],
+        ['has', 'outline_color'], ['get', 'outline_color'],
+        ['has', 'border_color'], ['get', 'border_color'],
+        'rgba(255, 102, 0, 0.25)'
+      ];
+
+      map.addLayer({
+        id: POLYGONS_OUTLINE_LAYER_ID,
+        type: 'line',
+        source: SPATIAL_FEATURES_SOURCE,
+        'source-layer': 'spatial_features',
+        paint,
+        filter: polygonLayerFilter // this feed polygons into a line-typed layer so users can add stroke-width and stroke-opacity to their polygon features
+      }, LINES_LAYER_ID);
     }
 
     if (!map.getLayer(POLYGONS_LAYER_ID)) {
@@ -166,11 +199,11 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
             ['has', 'stroke'], ['get', 'stroke'],
             ['has', 'outline_color'], ['get', 'outline_color'],
             ['has', 'border_color'], ['get', 'border_color'],
-            '#ff6600'
+            'rgba(255, 102, 0, 0.25)'
           ]
         },
         filter: polygonLayerFilter
-      });
+      }, POLYGONS_OUTLINE_LAYER_ID);
     }
 
     /* // Add separate label layers for each geometry type
@@ -259,6 +292,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
     const layerIds = [
       SYMBOLS_LAYER_ID,
       LINES_LAYER_ID,
+      POLYGONS_OUTLINE_LAYER_ID,
       POLYGONS_LAYER_ID,
       /* LINES_LABELS_LAYER_ID,
         SYMBOLS_LABELS_LAYER_ID,
@@ -360,6 +394,15 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
       });
     }
   }, [map, polygonLayerFilter]);
+
+  useEffect(() => {
+    if (!map?.hasImage?.('marker-icon')) {
+      addMapImage({ src: MarkerImage, id: 'marker-icon' });
+    }
+    if (!map?.hasImage?.('ranger-stations')) {
+      addMapImage({ src: RangerStationsImage, id: 'ranger-stations' });
+    }
+  }, [map]);
 
   return null;
 };

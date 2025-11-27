@@ -9,6 +9,7 @@ import { INITIAL_TRACK_STATE } from '../../ducks/map-ui';
 import { getSubjectGroups } from '../../selectors/subjects';
 import { getUniqueSubjectGroupSubjectIDs } from '../../utils/subjects';
 import { MAP_LAYERS_CATEGORY, trackEventFactory } from '../../utils/analytics';
+import { SYSTEM_CONFIG_FLAGS } from '../../constants';
 import { TAB_KEYS } from './utils/constants';
 import { updateHeatmapSubjects, updateTrackState } from '../../ducks/map-ui';
 
@@ -27,7 +28,22 @@ const MapLayersTab = () => {
   const dispatch = useDispatch();
   const { t } = useTranslation('components', { keyPrefix: 'sideBar.mapLayersTab' });
 
+  const analyzersEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.ANALYZERS]);
+  const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
+  const spatialFeaturesEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]);
   const subjectGroups = useSelector(getSubjectGroups);
+  const subjectsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SUBJECTS]);
+
+  const defaultActiveKey = useMemo(() => {
+    if (subjectsEnabled) {
+      return TAB_KEYS.SUBJECTS;
+    } else if (spatialFeaturesEnabled) {
+      return TAB_KEYS.FEATURES;
+    } else if (analyzersEnabled) {
+      return TAB_KEYS.ANALYZERS;
+    }
+    return TAB_KEYS.EVENTS;
+  }, [analyzersEnabled, spatialFeaturesEnabled, subjectsEnabled]);
 
   const subjectIDs = useMemo(() => getUniqueSubjectGroupSubjectIDs(...subjectGroups), [subjectGroups]);
 
@@ -48,10 +64,10 @@ const MapLayersTab = () => {
     <Tabs
         aria-labelledby="side-bar-tab-header"
         className={styles.tabs}
-        defaultActiveKey={TAB_KEYS.SUBJECTS}
+        defaultActiveKey={defaultActiveKey}
         variant="underline"
       >
-      <Tab
+      {subjectsEnabled && <Tab
         as="section"
         className={styles.tab}
         eventKey={TAB_KEYS.SUBJECTS}
@@ -62,9 +78,9 @@ const MapLayersTab = () => {
         <Filters tab={TAB_KEYS.SUBJECTS} />
 
         <SubjectsTab />
-      </Tab>
+      </Tab>}
 
-      <Tab
+      {spatialFeaturesEnabled && <Tab
         as="section"
         className={styles.tab}
         eventKey={TAB_KEYS.FEATURES}
@@ -75,9 +91,9 @@ const MapLayersTab = () => {
         <Filters tab={TAB_KEYS.FEATURES} />
 
         <FeaturesTab />
-      </Tab>
+      </Tab>}
 
-      <Tab
+      {analyzersEnabled && <Tab
         as="section"
         className={styles.tab}
         eventKey={TAB_KEYS.ANALYZERS}
@@ -88,16 +104,16 @@ const MapLayersTab = () => {
         <Filters tab={TAB_KEYS.ANALYZERS} />
 
         <AnalyzersTab />
-      </Tab>
+      </Tab>}
 
-      <Tab
+      {eventsEnabled && <Tab
         as="section"
         className={styles.tab}
         eventKey={TAB_KEYS.EVENTS}
         title={t('eventsTabTitle')}
       >
         <EventsTab />
-      </Tab>
+      </Tab>}
     </Tabs>
 
     <footer className={styles.footer}>

@@ -38,4 +38,18 @@
   button, a {
     text-align: right;
   }
+
+  [class*=dropdown-menu] {
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+}
+
+.profilesList {
+  max-height: 25vh;
+  overflow-y: auto;
+
+  @media (min-width: $md-layout-width-min) {
+    max-height: 300px;
+  }
 }

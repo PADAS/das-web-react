@@ -1,7 +1,6 @@
 import { API_URL } from '../constants';
 import axios from 'axios';
-import { createGeoJSONBuffer } from '../utils/analyzers';
-import { featureCollection } from '@turf/turf';
+import { buffer, featureCollection } from '@turf/turf';
 
 import globallyResettableReducer from '../reducers/global-resettable';
 
@@ -9,6 +8,8 @@ export const ANALYZERS_API_URL = `${API_URL}analyzers/spatial`;
 
 // actions
 export const FETCH_ANALYZERS_SUCCESS = 'FETCH_ANALYZERS_SUCCESS';
+
+const DEFAULT_PROXIMITY_ANALYZER_DISPLAY_RADIUS = 500; // meters
 
 // action creator - fetches the analyzer list, and then 
 // aggregates the features in that list and displayed in a AnalyzerLayer
@@ -28,7 +29,15 @@ export const fetchAnalyzers = () => async (dispatch) => {
         const feature = analyzerFeature.features[0];
         feature.id = featureLayerIdentifier++;
         if (analyzer.analyzer_category === 'proximity') {
-          const proximityPoly = createGeoJSONBuffer(feature.geometry, analyzer.threshold_dist_meters);
+
+          const proximityPoly = buffer(
+            feature,
+            (analyzer?.threshold_dist_meters ?? DEFAULT_PROXIMITY_ANALYZER_DISPLAY_RADIUS) / 1000,
+            {
+              steps: 32,
+              units: 'kilometers',
+            }
+          );
           feature.geometry = proximityPoly.geometry;
         }
         feature.properties.admin_href = analyzer.admin_href;

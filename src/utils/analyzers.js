@@ -1,4 +1,4 @@
-import { bbox, buffer, bboxPolygon, circle, centroid } from '@turf/turf';
+import { bbox, bboxPolygon, centroid } from '@turf/turf';
 
 import { LAYER_IDS, SOURCE_IDS } from '../constants';
 
@@ -63,14 +63,6 @@ export const getAnalyzerAdminPoint = (geometry) => {
   const poly = bboxPolygon(geometry);
   const centerPt = centroid(poly);
   return centerPt.geometry.coordinates;
-};
-
-// use turf.buffer to construct a GEOJson Feature of type polygon
-// increase/decrease steps will affect the render fps
-export const createGeoJSONBuffer = (geometry, radius, options) => {
-  if (!options) options = { steps: 32, units: 'kilometers' };
-  const poly_buffer = buffer((geometry), radius / 1000, options);
-  return poly_buffer;
 };
 
 export const findAnalyzerIdByChildFeatureId = (featureId, analyzerFeatures) => {

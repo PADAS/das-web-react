@@ -56,7 +56,7 @@ describe('SideBar - SettingsPane', () => {
     };
   });
 
-  const renderSoundFieldSet = (props, overrideStore) => render(
+  const renderSettingsPane = (props, overrideStore) => render(
     <Provider store={mockStore({ ...store, ...overrideStore })}>
       <SettingsPane {...props} />
     </Provider>
@@ -64,13 +64,13 @@ describe('SideBar - SettingsPane', () => {
 
   test('does not show the alerts tab if alerts are not enabled in the system configuration', async () => {
     store.view.systemConfig.alerts_enabled = false;
-    renderSoundFieldSet();
+    renderSettingsPane();
 
     expect(screen.queryByRole('tab', { name: 'Alerts' })).toBeNull();
   });
 
   test('shows the alerts tab if alerts are enabled in the system configuration', async () => {
-    renderSoundFieldSet();
+    renderSettingsPane();
 
     expect(screen.getByRole('tab', { name: 'Alerts' })).toBeVisible();
   });

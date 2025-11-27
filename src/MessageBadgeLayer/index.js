@@ -1,6 +1,6 @@
 import { useEffect, useContext, useReducer, useRef, memo } from 'react';
 import { bboxPolygon, booleanContains, featureCollection } from '@turf/turf';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import MessageBadgeIcon from '../common/images/icons/map-message-badge-icon.png';
 
@@ -9,14 +9,40 @@ import { extractSubjectFromMessage } from '../utils/messaging';
 import { getBboxParamsFromMap } from '../utils/query';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { MapContext } from '../App';
-import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
+import {
+  fetchAllMessages,
+  fetchMessagesSuccess,
+  INITIAL_MESSAGE_LIST_STATE,
+  messageListReducer,
+  removeMessageById,
+  updateMessageFromRealtime,
+} from '../ducks/messaging';
 import { SocketContext } from '../withSocketConnection';
-import { usePermissions } from '../hooks';
-import { messageListReducer, removeMessageById, fetchMessagesSuccess, updateMessageFromRealtime, INITIAL_MESSAGE_LIST_STATE, fetchAllMessages } from '../ducks/messaging';
+import { useMessagesPermissions } from '../hooks/usePermissions';
+
+const SOURCE_ID = 'MESSAGE_BADGES';
+const LAYER_ID = `${SOURCE_ID}_LAYER`;
+
+const MESSAGE_BADGE_LAYOUT = {
+  'icon-anchor': 'bottom-left',
+  'icon-ignore-placement': true,
+  'icon-allow-overlap': true,
+  'icon-image': 'message-badge',
+  'icon-offset': [2, -0.35],
+  'icon-size': 0.5,
+  'text-field': '{unread_message_count}',
+  'text-offset': [2, -0.65],
+  'text-size': 14,
+};
+
+const MESSAGE_BADGE_PAINT = {
+  'text-halo-color': 'white',
+  'text-halo-width': 0.2,
+  'text-color': 'white',
+};
 
 const calcMapMessages = (messages = [], subjectFeatureCollection) => {
   if (!messages.length || !subjectFeatureCollection?.features?.length) return featureCollection([]);
-
 
   const subjectFeaturesWithUnreadMessages =
     subjectFeatureCollection.features
@@ -42,38 +68,20 @@ const calcMapMessages = (messages = [], subjectFeatureCollection) => {
   );
 };
 
-const SOURCE_ID = 'MESSAGE_BADGES';
-const LAYER_ID = `${SOURCE_ID}_LAYER`;
-
-const messageBadgeLayout = {
-  'icon-anchor': 'bottom-left',
-  'icon-ignore-placement': true,
-  'icon-allow-overlap': true,
-  'icon-image': 'message-badge',
-  'icon-offset': [2, -0.35],
-  'icon-size': 0.5,
-  'text-field': '{unread_message_count}',
-  'text-offset': [2, -0.65],
-  'text-size': 14,
-};
-
-const messageBadgePaint = {
-  'text-halo-color': 'white',
-  'text-halo-width': 0.2,
-  'text-color': 'white',
-};
-
-const MessageBadgeLayer = ({ onBadgeClick, subjectFeatureCollection }) => {
+const MessageBadgeLayer = ({ onBadgeClick }) => {
   const map = useContext(MapContext);
   const socket = useContext(SocketContext);
 
-  const [state, dispatch] = useReducer(messageListReducer, INITIAL_MESSAGE_LIST_STATE);
-  const canViewMessages = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.READ);
+  const subjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);
+
+  const { hasMessagesReadPermission } = useMessagesPermissions();
 
   const lastRequestedSubjectIdList = useRef(null);
 
+  const [state, dispatch] = useReducer(messageListReducer, INITIAL_MESSAGE_LIST_STATE);
+
   useEffect(() => {
-    if (!!canViewMessages) {
+    if (!!hasMessagesReadPermission) {
       const handleRealtimeMessage = ({ data: msg }) => {
         if (!!lastRequestedSubjectIdList.current &&
           lastRequestedSubjectIdList.current.includes(extractSubjectFromMessage(msg)?.id)
@@ -92,10 +100,10 @@ const MessageBadgeLayer = ({ onBadgeClick, subjectFeatureCollection }) => {
         socket.off('radio_message', fnRef);
       };
     }
-  }, [canViewMessages, socket]);
+  }, [hasMessagesReadPermission, socket]);
 
   useEffect(() => {
-    if (map && !!canViewMessages) {
+    if (map && hasMessagesReadPermission) {
       const source = map.getSource(SOURCE_ID);
       const layer = map.getLayer(LAYER_ID);
 
@@ -118,16 +126,15 @@ const MessageBadgeLayer = ({ onBadgeClick, subjectFeatureCollection }) => {
           id: LAYER_ID,
           source: SOURCE_ID,
           type: 'symbol',
-          layout: messageBadgeLayout,
-          paint: messageBadgePaint,
+          layout: MESSAGE_BADGE_LAYOUT,
+          paint: MESSAGE_BADGE_PAINT,
         });
       }
     }
-  }, [canViewMessages, map, state.results, subjectFeatureCollection]);
+  }, [hasMessagesReadPermission, map, state.results, subjectFeatureCollection]);
 
   useEffect(() => {
-    if (!!canViewMessages) {
-
+    if (hasMessagesReadPermission) {
       const requestMapMessages = async () => {
         try {
           if (subjectFeatureCollection.features.length) {
@@ -158,19 +165,16 @@ const MessageBadgeLayer = ({ onBadgeClick, subjectFeatureCollection }) => {
         clearTimeout(handler);
       };
     }
-  }, [canViewMessages, map, subjectFeatureCollection.features]);
-
-
+  }, [hasMessagesReadPermission, map, subjectFeatureCollection.features]);
 
   useEffect(() => {
-    if (!map.hasImage('message-badge') && !!canViewMessages) {
+    if (!map.hasImage('message-badge') && hasMessagesReadPermission) {
       addMapImage({ src: MessageBadgeIcon, id: 'message-badge', width: 36 });
     }
-  }, [canViewMessages, map]);
+  }, [hasMessagesReadPermission, map]);
 
   useEffect(() => {
-    if (!!canViewMessages) {
-
+    if (hasMessagesReadPermission) {
       const onClick = (event) => {
         const layer = map.queryRenderedFeatures(event.point, { layers: [LAYER_ID] })[0];
 
@@ -182,13 +186,9 @@ const MessageBadgeLayer = ({ onBadgeClick, subjectFeatureCollection }) => {
         map.off('click', LAYER_ID, onClick);
       };
     }
-  }, [canViewMessages, map, onBadgeClick]);
+  }, [hasMessagesReadPermission, map, onBadgeClick]);
 
   return null;
 };
 
-const mapStateToProps = (state) => ({
-  subjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state),
-});
-
-export default connect(mapStateToProps, null)(memo(MessageBadgeLayer));
+export default memo(MessageBadgeLayer);

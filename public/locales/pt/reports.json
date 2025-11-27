@@ -130,6 +130,7 @@
             },
             "dateLabel": "Data do evento",
             "detailsHeader": "Detalhes",
+            "errorLoadingSchema": "Erro ao carregar esquema",
             "locationLabel": "Localização do evento",
             "priorityLabel": "Prioridade",
             "reportedByLabel": "Reportado por",

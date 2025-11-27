@@ -50,7 +50,6 @@ const DetailsSection = ({
   isBehindAddedEvent,
   isCollection,
   isNewEvent,
-  loadingSchema,
   onFormDataChange,
   onFormError,
   onFormSubmit,
@@ -61,7 +60,6 @@ const DetailsSection = ({
   onReportGeometryChange,
   onReportLocationChange,
   onReportStateChange,
-  originalReport,
   ref,
   reportForm,
   submitFormButtonRef,
@@ -69,6 +67,7 @@ const DetailsSection = ({
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection' });
 
   const eventType = useSelector((state) => reportForm?.event_type ? selectEventTypeByValue(state, reportForm.event_type) : null);
+  const loadingEventSchemas = useSelector((state) => state.data.eventSchemas.loading);
 
   const reportTracker = useContext(TrackerContext);
 
@@ -290,12 +289,26 @@ const DetailsSection = ({
       schema={eventSchema}
     />}
 
-    {!eventSchema && !reportForm.is_collection && loadingSchema && <div className={styles.loaderWrapper}>
+    {!eventSchema && !reportForm.is_collection && loadingEventSchemas && <div className={styles.loaderWrapper}>
       <MoonLoader
         color={LOADER_COLOR}
         data-testid="reportManager-detailsSection-loader"
         size={LOADER_SIZE}
       />
+    </div>}
+
+    {eventSchema instanceof Error && <div
+      aria-live="polite"
+      className={styles.errorMessageWrapper}
+      role="alert"
+    >
+      <p className={styles.errorMessage}>
+        <strong>{t('errorLoadingSchema')}</strong>
+
+        {eventSchema?.response?.data?.status?.detail && <span>
+          {eventSchema.response.data.status.detail}
+        </span>}
+      </p>
     </div>}
   </div>;
 };

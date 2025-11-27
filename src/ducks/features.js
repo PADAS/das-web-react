@@ -9,10 +9,6 @@ export const FEATURESET_API_URL = `${API_URL}featureset/`;
 const FETCH_FEATURESETS_SUCCESS = 'FETCH_FEATURESETS_SUCCESS';
 const FETCH_FEATURESETS_ERROR = 'FETCH_FEATURESETS_ERROR';
 
-
-// controlling individual featurestate using map#setFeatureState requires a integer based unique identifier, so we just increment this while building out the data. gross but manageable.
-let featureLayerIdentifier = 0;
-
 // action creators
 export const fetchFeaturesets = () => async (dispatch) => {
   try {

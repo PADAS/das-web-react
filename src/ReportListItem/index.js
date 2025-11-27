@@ -1,9 +1,7 @@
-import React, { memo, useCallback, useContext, useRef } from 'react';
+import React, { memo, useCallback, useRef } from 'react';
 import { useDispatch } from 'react-redux';
-
 import { useTranslation } from 'react-i18next';
 
-import { MapContext } from '../App';
 import {
   collectionHasMultipleValidLocations,
   getEventIdsForCollection,
@@ -41,7 +39,6 @@ const ReportListItem = ({
   const { t } = useTranslation('reports', { keyPrefix: 'reportListItem' });
 
   const locationClicked = useRef(false);
-  const map = useContext(MapContext);
 
   const { coordinates, displayPriority, displayTitle } = useReport(report);
   const jumpToLocation = useJumpToLocation();

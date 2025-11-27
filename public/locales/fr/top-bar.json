@@ -53,6 +53,9 @@
   },
   "userMenu": {
     "cookieSettingsItem": "Réglages des Cookies",
-    "logoutItem": "Déconnexion"
+    "logoutItem": "Déconnexion",
+    "toggleLabel": "Ouvrir les paramètres de l'utilisateur",
+    "toggleTitle": "Paramètres de l'utilisateur",
+    "userAndProfilesHeader": "Utilisateur et profils"
   }
 }

@@ -1693,5 +1693,6 @@ export const patrolDefaultStoreData = {
     patrolTrackState: {
       pinned: [], visible: []
     },
+    systemConfig: {},
   },
 };

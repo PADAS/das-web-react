@@ -6,4 +6,5 @@ on:
 
 jobs:
   cleanup:
-    uses: PADAS/.github/.github/workflows/pipeline-cleanup-stale-pr-envs.yml@main
+    ## This should be replaced by 'PADAS/.github/.github/workflows/pipeline-cleanup-stale-pr-envs.yml@main' when it becomes public.
+    uses: PADAS/gundi-workflows/.github/workflows/pipeline-cleanup-stale-pr-envs.yml@main

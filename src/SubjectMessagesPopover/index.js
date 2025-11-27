@@ -5,9 +5,8 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
 
-import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import { SENDER_DETAIL_STYLES } from '../MessageList/SenderDetails';
-import { usePermissions } from '../hooks';
+import { useMessagesPermissions } from '../hooks/usePermissions';
 
 import MessageInput from '../MessageInput';
 import ParamFedMessageList from '../MessageList/ParamFedMessageList';
@@ -18,7 +17,7 @@ import * as styles from './styles.module.scss';
 const SubjectMessagesPopover = ({ className = '', subject = null, ...restProps }) => {
   const { t } = useTranslation('subjects', { keyPrefix: 'subjectMessagesPopover' });
 
-  const hasMessagingWritePermissions = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.CREATE);
+  const { hasMessagesCreatePermission } = useMessagesPermissions();
 
   if (!subject) {
     return null;
@@ -38,7 +37,7 @@ const SubjectMessagesPopover = ({ className = '', subject = null, ...restProps }
         senderDetailStyle={SENDER_DETAIL_STYLES.SHORT}
       />
 
-      {!!hasMessagingWritePermissions && <MessageInput subjectId={subject.id} />}
+      {hasMessagesCreatePermission && <MessageInput subjectId={subject.id} />}
     </Popover.Body>
   </Popover>;
 

@@ -4,11 +4,12 @@ import userEvent from '@testing-library/user-event';
 
 import { activePatrol, patrolDefaultStoreData } from '../../__test-helpers/fixtures/patrols';
 import { mockStore } from '../../__test-helpers/MockStore';
-import useNavigate from '../../hooks/useNavigate';
 import { render, screen } from '../../test-utils';
+import useNavigate from '../../hooks/useNavigate';
+import { SidebarScrollProvider } from '../../SidebarScrollContext';
+import { SYSTEM_CONFIG_FLAGS } from '../../constants';
 
 import PatrolsFeedTab from './';
-import { SidebarScrollProvider } from '../../SidebarScrollContext';
 
 jest.mock('../../hooks/useNavigate', () => jest.fn());
 
@@ -22,6 +23,7 @@ let store = patrolDefaultStoreData;
 store.data.patrolFilter = patrolFilter;
 store.data.patrolStore = { [activePatrol.id]: activePatrol };
 store.data.patrolsFeed = [activePatrol.id];
+store.view.systemConfig = { [SYSTEM_CONFIG_FLAGS.EVENTS]: true };
 
 describe('PatrolsFeedTab', () => {
   let navigate, useNavigateMock;

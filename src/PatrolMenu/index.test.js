@@ -7,7 +7,7 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 import { useReactToPrint } from 'react-to-print';
 
-import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
+import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../constants';
 import { render, screen } from '../test-utils';
 
 jest.mock('react-to-print', () => ({
@@ -33,10 +33,16 @@ describe('PatrolMenu', () => {
     data: {
       patrolTypes,
       patrolStore: patrols.reduce((p, acc = {}) => ({ ...acc, [p.id]: p })),
-    }
+    },
+    view: {
+      systemConfig: {
+        [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true,
+      },
+    },
   };
 
   const storeWithUpdatePermissions = {
+    ...minimumNecessaryStoreStructure,
     data: {
       ...minimumNecessaryStoreStructure.data,
       user: {

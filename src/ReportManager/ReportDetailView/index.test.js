@@ -185,6 +185,7 @@ describe('ReportManager - ReportDetailView', () => {
         },
         mapLocationSelection: { isPickingLocation: false },
         sideBar: {},
+        systemConfig: {},
         userPreferences: { gpsFormat: GPS_FORMATS.DEG },
       },
     };

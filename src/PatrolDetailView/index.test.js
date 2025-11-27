@@ -210,6 +210,7 @@ describe('PatrolDetailView', () => {
       selectedCoordinateRepresentations: Object.values(GPS_FORMATS),
       storedSystems: [],
     };
+    store.view.systemConfig = {};
 
     map = createMapMock();
 

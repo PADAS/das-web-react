@@ -4,7 +4,7 @@ import { useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
 import { addModal } from '../ducks/modals';
-import { BREAKPOINTS, MAX_ZOOM, PERMISSION_KEYS, PERMISSIONS, REACT_APP_ROUTE_PREFIX } from '../constants';
+import { BREAKPOINTS, MAX_ZOOM, REACT_APP_ROUTE_PREFIX } from '../constants';
 import { clearAuth } from '../ducks/auth';
 import { clearUserProfile, fetchCurrentUser, fetchCurrentUserProfiles, setUserProfile } from '../ducks/user';
 import getWindowLocation from '../utils/getWindowLocation';
@@ -13,8 +13,9 @@ import { setHomeMap } from '../ducks/maps';
 import { showDrawer } from '../ducks/drawer';
 import { trackEventFactory, MAIN_TOOLBAR_CATEGORY } from '../utils/analytics';
 import useJumpToLocation from '../hooks/useJumpToLocation';
-import { useMatchMedia, usePermissions } from '../hooks';
+import { useMatchMedia } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
+import { useMessagesPermissions } from '../hooks/usePermissions';
 
 import EarthRangerLogo from '../EarthRangerLogo';
 import HamburgerMenuIcon from '../HamburgerMenuIcon';
@@ -49,7 +50,8 @@ const Nav = () => {
   const { t } = useTranslation('top-bar', { keyPrefix: 'nav' });
 
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
-  const canViewMessages = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.READ);
+
+  const { hasMessagesReadPermission } = useMessagesPermissions();
 
   const homeMap = useSelector((state) => state.view.homeMap);
   const maps = useSelector((state) => state.data.maps);
@@ -130,9 +132,9 @@ const Nav = () => {
     </div>}
 
     <div className="rightMenus">
-      {!!isMediumLayoutOrLarger && <SystemStatus />}
+      {isMediumLayoutOrLarger && <SystemStatus />}
 
-      {!!canViewMessages && <MessageMenu />}
+      {hasMessagesReadPermission && <MessageMenu />}
 
       <NotificationMenu />
 

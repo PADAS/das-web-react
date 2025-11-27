@@ -18,14 +18,7 @@ import {
   trackEvent,
   trackEventFactory,
 } from '../utils/analytics';
-import {
-  BREAKPOINTS,
-  CLIENT_BUILD_VERSION,
-  PERMISSION_KEYS,
-  PERMISSIONS,
-  SYSTEM_CONFIG_FLAGS,
-  TAB_KEYS,
-} from '../constants';
+import { BREAKPOINTS, CLIENT_BUILD_VERSION, SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../constants';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 import { hideDrawer } from '../ducks/drawer';
@@ -34,7 +27,8 @@ import {
   JIRA_WIDGET_IFRAME_SELECTOR,
   selectSupportFormFieldByLabelText,
 } from '../JiraSupportWidget';
-import { useMatchMedia, usePermissions, useSystemConfigFlag } from '../hooks';
+import { useObservationsPermissions, usePatrolsPermissions } from '../hooks/usePermissions';
+import { useMatchMedia } from '../hooks';
 
 import EarthRangerLogo from '../EarthRangerLogo';
 import Link from '../Link';
@@ -60,30 +54,32 @@ export const USERS_GUIDE_SITE_URL = 'https://support.earthranger.com/en_US/earth
 export const WEBSITE_PRIVACY_POLICY_URL = 'https://www.earthranger.com/privacy-policy';
 
 const GlobalMenuDrawer = () => {
-  const dailyReportEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.DAILY_REPORT);
-  const kmlExportEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.KML_EXPORT);
-  const patrolFlagEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT);
-
   const dispatch = useDispatch();
   const { t } = useTranslation('menu-drawer', { keyPrefix: 'globalMenuDrawer' });
 
-  const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
-  const hasObservationExportPermissions = usePermissions(PERMISSION_KEYS.OBSERVATIONS, PERMISSIONS.EXPORT);
-  const hasEventExportPermissions = usePermissions(PERMISSION_KEYS.EVENTS, PERMISSIONS.EXPORT);
-
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
-  const alertsEnabled = useSelector((state) => state.view.systemConfig.alerts_enabled);
+  const alertsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.ALERTS]);
+  const dailyReportEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.DAILY_REPORT]);
   const drawer = useSelector((state) => state.view.drawer);
+  const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
   const eventTypes = useSelector((state) => state.data.eventTypes);
+  const kmlExportEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.KML_EXPORT]);
+  const patrolManagementEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]);
   const selectedUserProfile = useSelector((state) => state.data.selectedUserProfile);
   const serverData = useSelector((state) => state.data.systemStatus.server);
-  const tableauEnabled = useSelector((state) => state.view.systemConfig.tableau_enabled);
+  const subjectsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SUBJECTS]);
+  const tableauEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.TABLEAU]);
   const token = useSelector((state) => state.data.token);
   const user = useSelector((state) => state.data.user);
 
+  const { hasObservationsExportPermission } = useObservationsPermissions();
+  const { hasPatrolsReadPermission } = usePatrolsPermissions();
+
   const closeButtonRef = useRef();
   const dataPrivacyPolicyLinkRef = useRef();
+
+  const canReadPatrols = patrolManagementEnabled && hasPatrolsReadPermission;
 
   const jiraIframeHelpButton = useMemo(() => {
     const jiraWidgetIframe = document.querySelector(JIRA_WIDGET_IFRAME_SELECTOR);
@@ -103,7 +99,7 @@ const GlobalMenuDrawer = () => {
       });
     }
 
-    if (kmlExportEnabled) {
+    if (kmlExportEnabled && subjectsEnabled) {
       exportModals.push({
         content: KMLExportModal,
         modalProps: { className: 'kml-export-modal' },
@@ -112,7 +108,7 @@ const GlobalMenuDrawer = () => {
       });
     }
 
-    if (hasObservationExportPermissions) {
+    if (hasObservationsExportPermission && subjectsEnabled) {
       exportModals.push({
         content: DataExportModal,
         title: t('subjectInformationModal.title'),
@@ -124,7 +120,7 @@ const GlobalMenuDrawer = () => {
       });
     }
 
-    if (hasEventExportPermissions) {
+    if (eventsEnabled) {
       exportModals.push({
         children: <div>{t('fieldReportsModal.content')}</div>,
         content: DataExportModal,
@@ -137,9 +133,10 @@ const GlobalMenuDrawer = () => {
     return exportModals;
   }, [
     dailyReportEnabled,
-    hasEventExportPermissions,
-    hasObservationExportPermissions,
+    eventsEnabled,
+    hasObservationsExportPermission,
     kmlExportEnabled,
+    subjectsEnabled,
     t,
   ]);
 
@@ -189,12 +186,12 @@ const GlobalMenuDrawer = () => {
   // Calculate the navigation links to show based on the enabled features.
   const navigationItems = useMemo(() => [
     { icon: <DocumentIcon />, sidebarTab: TAB_KEYS.EVENTS, title: t('navigationButton.reports') },
-    ...(!!patrolFlagEnabled && !!hasPatrolViewPermissions
+    ...(canReadPatrols
       ? [{ icon: <PatrolIcon />, sidebarTab: TAB_KEYS.PATROLS, title: t('navigationButton.patrols') }]
       : []),
     { icon: <LayersIcon />, sidebarTab: TAB_KEYS.LAYERS, title: t('navigationButton.mapLayers') },
     { icon: <GearIcon />, sidebarTab: TAB_KEYS.SETTINGS, title: t('navigationButton.settings') },
-  ], [hasPatrolViewPermissions, patrolFlagEnabled, t]);
+  ], [canReadPatrols, t]);
 
   useEffect(() => {
     if (drawer.drawerId === 'global-menu' && drawer.isOpen) {

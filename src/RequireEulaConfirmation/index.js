@@ -1,32 +1,33 @@
 import React, { memo, useEffect, useState } from 'react';
-import { connect } from 'react-redux';
 import { Navigate, useLocation } from 'react-router';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { SYSTEM_CONFIG_FLAGS, REACT_APP_ROUTE_PREFIX } from '../constants';
 import { fetchCurrentUser } from '../ducks/user';
 import { fetchSystemStatus } from '../ducks/system-status';
-import { useSystemConfigFlag } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
-const RequireEulaConfirmation = ({ children, fetchCurrentUser, fetchSystemStatus, user }) => {
+const RequireEulaConfirmation = ({ children }) => {
+  const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const eulaEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EULA]);
+  const user = useSelector((state) => state.data.user);
 
   const [eulaAccepted, setEulaAccepted] = useState('unknown');
 
   useEffect(() => {
-    fetchSystemStatus();
-  }, [fetchSystemStatus]);
+    dispatch(fetchSystemStatus());
+  }, [dispatch]);
 
   useEffect(() => {
-    fetchCurrentUser()
+    dispatch(fetchCurrentUser())
       .catch(() => {
         navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search: location.search });
       });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchCurrentUser]);
-
-  const eulaEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.EULA);
+  }, []);
 
   useEffect(() => {
     // null check to distinguish from eulaEnabled = false
@@ -48,6 +49,4 @@ const RequireEulaConfirmation = ({ children, fetchCurrentUser, fetchSystemStatus
   return eulaAccepted === 'unknown' ? null : children;
 };
 
-const mapStateToProps = ({ data: { user } }) => ({ user });
-
-export default connect(mapStateToProps, { fetchCurrentUser, fetchSystemStatus })(memo(RequireEulaConfirmation));
+export default memo(RequireEulaConfirmation);
