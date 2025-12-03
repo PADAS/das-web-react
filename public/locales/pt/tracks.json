@@ -57,7 +57,12 @@
           "customLengthInputLabel": "Duração da trajetória em dias",
           "eventFilterRadioLabel": "Corresponder ao filtro de eventos \"a partir de\" a data ({{length}} dias)",
           "title": "Configurações de trajetórias",
-          "trackLengthLegend": "Duração da trajetória"
+          "trackLengthLegend": "Duração da trajetória",
+          "segmentationLegend": "Configurações de segmentação",
+          "segmentOnTimeLabel": "Segmentar por tempo (segundos)",
+          "segmentOnSpeedLabel": "Segmentar por velocidade (km/h)",
+          "timeGapInputLabel": "Intervalo de tempo (segundos)",
+          "speedLimitInputLabel": "Limite de velocidade (km/h)"
         },
         "trackSettingsButtonLabel": {
           "closed": "Abrir configurações de trajetórias",

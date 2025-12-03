@@ -57,7 +57,12 @@
       "customLengthInputLabel": "Duración de la trayectoria en días",
       "eventFilterRadioLabel": "Coincidir con el filtro de eventos \"desde\" la fecha ({{length}} días)",
       "title": "Configuración de trayectorias",
-      "trackLengthLegend": "Duración de la trayectoria"
+      "trackLengthLegend": "Duración de la trayectoria",
+      "segmentationLegend": "Configuración de segmentación",
+      "segmentOnTimeLabel": "Segmentar por tiempo (segundos)",
+      "segmentOnSpeedLabel": "Segmentar por velocidad (km/h)",
+      "timeGapInputLabel": "Intervalo de tiempo (segundos)",
+      "speedLimitInputLabel": "Límite de velocidad (km/h)"
     },
     "trackSettingsButtonLabel": {
       "closed": "Abrir la configuración de trayectorias",

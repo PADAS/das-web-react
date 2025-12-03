@@ -57,7 +57,12 @@
       "customLengthInputLabel": "Urefu wa wimbo kwa siku",
       "eventFilterRadioLabel": "Linganisha na kichujio cha matukyo \"kuanzia\" tarehe ({{length}} siku)",
       "title": "Mipangilio ya Nyimbo",
-      "trackLengthLegend": "Urefu wa Wimbo"
+      "trackLengthLegend": "Urefu wa Wimbo",
+      "segmentationLegend": "Mipangilio ya Ugawanyaji",
+      "segmentOnTimeLabel": "Gawanya kwa muda (sekunde)",
+      "segmentOnSpeedLabel": "Gawanya kwa kasi (km/h)",
+      "timeGapInputLabel": "Pengo la muda (sekunde)",
+      "speedLimitInputLabel": "Kikomo cha kasi (km/h)"
     },
     "trackSettingsButtonLabel": {
       "closed": "Fungua mipangilio ya nyimbo",

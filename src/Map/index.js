@@ -730,9 +730,8 @@ const Map = ({ children, onMapLoad, socket }) => {
       {subjectHeatmapAvailable && <SubjectHeatLayer />}
       {showReportHeatmap && <ReportsHeatLayer />}
 
-      <TrackSegmentsLayer />
+      {subjectTracksVisible && <TrackSegmentsLayer /*  onPointClick={onTimepointClick} showTimepoints={showTrackTimepoints} /> */ />}
 
-      {subjectTracksVisible && <TracksLayer onPointClick={onTimepointClick} showTimepoints={showTrackTimepoints} />}
       {patrolTracksVisible && <PatrolStartStopLayer />}
 
       <BuoyTrawlLineLayer />

@@ -57,7 +57,12 @@
           "customLengthInputLabel": "दिनमा ट्र्याक लम्बाइ",
           "eventFilterRadioLabel": "इभेन्ट फिल्टर \"मिति\" सँग मिलाउनुहोस् ({{length}} दिन)",
           "title": "ट्र्याक सेटिङहरू",
-          "trackLengthLegend": "ट्र्याक लम्बाइ"
+          "trackLengthLegend": "ट्र्याक लम्बाइ",
+          "segmentationLegend": "खण्डीकरण सेटिङहरू",
+          "segmentOnTimeLabel": "समय अनुसार खण्ड गर्नुहोस् (सेकेन्ड)",
+          "segmentOnSpeedLabel": "गति अनुसार खण्ड गर्नुहोस् (km/h)",
+          "timeGapInputLabel": "समय अन्तराल (सेकेन्ड)",
+          "speedLimitInputLabel": "गति सीमा (km/h)"
         },
         "trackSettingsButtonLabel": {
           "closed": "ट्र्याक सेटिङहरू खोल्नुहोस्",
