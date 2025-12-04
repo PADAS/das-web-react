@@ -10,6 +10,7 @@ const TRACK_SEGMENTS_LAYER_ID = 'track-segments-layer';
 
 const VECTOR_TILE_URL = `${API_URL}observations/segments/tiles/{z}/{x}/{y}.pbf`;
 
+
 const TrackSegmentsLayer = () => {
   const map = useContext(MapContext);
 
