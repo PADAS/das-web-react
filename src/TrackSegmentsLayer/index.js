@@ -5,6 +5,7 @@ import { safeRemoveMapLayer, safeRemoveMapSource } from '../utils/map';
 import { API_URL } from '../constants';
 import { selectSubjectTracksWithPatrolTrackShownFlag } from '../selectors/patrols';
 
+
 const TRACK_SEGMENTS_SOURCE = 'track-segments-source';
 const TRACK_SEGMENTS_LAYER_ID = 'track-segments-layer';
 
