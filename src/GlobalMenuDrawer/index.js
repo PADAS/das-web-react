@@ -63,6 +63,7 @@ const GlobalMenuDrawer = () => {
   const dailyReportEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.DAILY_REPORT]);
   const drawer = useSelector((state) => state.view.drawer);
   const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
+  const eventFilter = useSelector((state) => state.data.eventFilter);
   const eventTypes = useSelector((state) => state.data.eventTypes);
   const kmlExportEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.KML_EXPORT]);
   const patrolManagementEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]);
@@ -131,8 +132,13 @@ const GlobalMenuDrawer = () => {
     }
 
     return exportModals;
+  // calcEventFilterForRequest uses store.getState() to fetch the event filter,
+  // so if eventFilter is not in the dependency array, the memoization will not
+  // be invalidated when the event filter changes.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     dailyReportEnabled,
+    eventFilter,
     eventsEnabled,
     hasObservationsExportPermission,
     kmlExportEnabled,
