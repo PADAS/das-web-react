@@ -5,11 +5,6 @@ import UndefinedFormElementError from '../UndefinedFormElementError';
 
 const SECTION_CHILD_TYPES = { FIELD: 'field', HEADER: 'header' };
 
-const getActiveChildrenIdsFromSectionColumn = (column, sectionJSONSubschema) => column
-  .filter((sectionChild) => sectionChild.type === SECTION_CHILD_TYPES.HEADER
-    || !sectionJSONSubschema.properties[sectionChild.name].deprecated)
-  .map((sectionChild) => sectionChild.name);
-
 const getSectionJSONSubschema = (sectionId, jsonSchema, uiSchema) => {
   if (uiSchema.sections[sectionId].conditions?.length > 0) {
     // The section has conditions. The parent JSON subschema is the "then"
@@ -32,12 +27,14 @@ const transformSection = (sectionId, jsonSchema, uiSchema, formElements) => {
 
   // Transform the section's columns and filter out inactive children from
   // them.
-  const leftColumn = sectionUISchema.leftColumn
-    ? getActiveChildrenIdsFromSectionColumn(sectionUISchema.leftColumn, sectionJSONSubschema)
-    : [];
-  const rightColumn = sectionUISchema.rightColumn
-    ? getActiveChildrenIdsFromSectionColumn(sectionUISchema.rightColumn, sectionJSONSubschema)
-    : [];
+  const leftColumn = (sectionUISchema.leftColumn ?? [])
+    .filter((sectionChild) => sectionChild.type === SECTION_CHILD_TYPES.HEADER
+      || !sectionJSONSubschema.properties[sectionChild.name].deprecated)
+    .map((sectionChild) => sectionChild.name);
+  const rightColumn = (sectionUISchema.rightColumn ?? [])
+    .filter((sectionChild) => sectionChild.type === SECTION_CHILD_TYPES.HEADER
+      || !sectionJSONSubschema.properties[sectionChild.name].deprecated)
+    .map((sectionChild) => sectionChild.name);
 
   // Add the section node to the form elements object.
   formElements[sectionId] = {

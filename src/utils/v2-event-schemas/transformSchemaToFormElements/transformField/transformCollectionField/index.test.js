@@ -1,4 +1,3 @@
-import { FORM_ELEMENT_TYPES } from '../../../constants';
 import UndefinedFormElementError from '../../UndefinedFormElementError';
 
 import transformCollectionField from '.';
@@ -7,19 +6,34 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   const transformField = jest.fn();
 
   const collectionFieldId = 'witnesses';
-  const parentId = 'section-1';
-  const items = {};
-  let jsonSchema, uiSchema;
+  let formElements, items, jsonSchema, uiSchema;
   beforeEach(() => {
+    formElements = {
+      [collectionFieldId]: {
+        details: {
+          isRequired: true,
+          label: 'Witnesses',
+          value: collectionFieldId,
+        },
+      },
+    };
+    items = {
+      properties: {
+        'witness-name': {
+          deprecated: false,
+        },
+        'witness-age': {
+          deprecated: false,
+        },
+      },
+    };
     jsonSchema = {
       properties: {
         [collectionFieldId]: {
-          deprecated: false,
           description: 'List of witnesses',
           items,
           maxItems: 5,
           minItems: 1,
-          title: 'Witnesses',
         },
       },
     };
@@ -28,12 +42,10 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
         [collectionFieldId]: {
           buttonText: 'Add Witness',
           columns: 2,
-          conditionalDependents: ['section-3'],
           itemIdentifier: 'witness-name',
           itemName: 'Witness',
           leftColumn: ['witness-name'],
           rightColumn: ['witness-age'],
-          parent: parentId,
         },
         'witness-name': {},
         'witness-age': {},
@@ -46,23 +58,21 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   });
 
   it('transforms a collection field', () => {
-    const fields = {};
     transformCollectionField(
       collectionFieldId,
       jsonSchema,
       uiSchema,
-      fields,
+      formElements,
       transformField,
     );
 
-    expect(fields).toEqual({
+    expect(formElements).toEqual({
       [collectionFieldId]: {
         details: {
           buttonText: 'Add Witness',
           columns: 2,
-          conditionalDependents: ['section-3'],
           description: 'List of witnesses',
-          isActive: true,
+          isRequired: true,
           itemIdentifier: 'witness-name',
           itemName: 'Witness',
           label: 'Witnesses',
@@ -72,11 +82,6 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           rightColumn: ['witness-age'],
           value: collectionFieldId,
         },
-        id: collectionFieldId,
-        isNew: false,
-        isSpacer: false,
-        parentId,
-        type: FORM_ELEMENT_TYPES.COLLECTION,
       },
     });
     expect(transformField).toHaveBeenCalledTimes(2);
@@ -84,36 +89,66 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
       'witness-name',
       items,
       uiSchema,
-      fields,
+      formElements,
     );
     expect(transformField).toHaveBeenCalledWith(
       'witness-age',
       items,
       uiSchema,
-      fields,
+      formElements,
+    );
+  });
+
+  it('filters out inactive collection field children', () => {
+    jsonSchema.properties[collectionFieldId].items.properties['witness-age'].deprecated = true;
+
+    transformCollectionField(collectionFieldId, jsonSchema, uiSchema, formElements, transformField);
+
+    expect(formElements).toEqual({
+      [collectionFieldId]: {
+        details: {
+          buttonText: 'Add Witness',
+          columns: 2,
+          description: 'List of witnesses',
+          isRequired: true,
+          itemIdentifier: 'witness-name',
+          itemName: 'Witness',
+          label: 'Witnesses',
+          leftColumn: ['witness-name'],
+          maxItems: 5,
+          minItems: 1,
+          rightColumn: [],
+          value: collectionFieldId,
+        },
+      },
+    });
+    expect(transformField).toHaveBeenCalledTimes(1);
+    expect(transformField).toHaveBeenCalledWith(
+      'witness-name',
+      items,
+      uiSchema,
+      formElements,
     );
   });
 
   it('transforms a collection field with no buttonText', () => {
     uiSchema.fields[collectionFieldId].buttonText = '';
 
-    const fields = {};
     transformCollectionField(
       collectionFieldId,
       jsonSchema,
       uiSchema,
-      fields,
+      formElements,
       transformField,
     );
 
-    expect(fields).toEqual({
+    expect(formElements).toEqual({
       [collectionFieldId]: {
         details: {
           buttonText: '',
           columns: 2,
-          conditionalDependents: ['section-3'],
           description: 'List of witnesses',
-          isActive: true,
+          isRequired: true,
           itemIdentifier: 'witness-name',
           itemName: 'Witness',
           label: 'Witnesses',
@@ -123,11 +158,6 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           rightColumn: ['witness-age'],
           value: collectionFieldId,
         },
-        id: collectionFieldId,
-        isNew: false,
-        isSpacer: false,
-        parentId,
-        type: FORM_ELEMENT_TYPES.COLLECTION,
       },
     });
     expect(transformField).toHaveBeenCalledTimes(2);
@@ -136,23 +166,21 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   it('transforms a single column collection field', () => {
     uiSchema.fields[collectionFieldId].columns = 1;
 
-    const fields = {};
     transformCollectionField(
       collectionFieldId,
       jsonSchema,
       uiSchema,
-      fields,
+      formElements,
       transformField,
     );
 
-    expect(fields).toEqual({
+    expect(formElements).toEqual({
       [collectionFieldId]: {
         details: {
           buttonText: 'Add Witness',
           columns: 1,
-          conditionalDependents: ['section-3'],
           description: 'List of witnesses',
-          isActive: true,
+          isRequired: true,
           itemIdentifier: 'witness-name',
           itemName: 'Witness',
           label: 'Witnesses',
@@ -162,50 +190,6 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           rightColumn: ['witness-age'],
           value: collectionFieldId,
         },
-        id: collectionFieldId,
-        isNew: false,
-        isSpacer: false,
-        parentId,
-        type: FORM_ELEMENT_TYPES.COLLECTION,
-      },
-    });
-    expect(transformField).toHaveBeenCalledTimes(2);
-  });
-
-  it('transforms a collection field with no conditional dependents', () => {
-    uiSchema.fields[collectionFieldId].conditionalDependents = [];
-
-    const fields = {};
-    transformCollectionField(
-      collectionFieldId,
-      jsonSchema,
-      uiSchema,
-      fields,
-      transformField,
-    );
-
-    expect(fields).toEqual({
-      [collectionFieldId]: {
-        details: {
-          buttonText: 'Add Witness',
-          columns: 2,
-          conditionalDependents: [],
-          description: 'List of witnesses',
-          isActive: true,
-          itemIdentifier: 'witness-name',
-          itemName: 'Witness',
-          label: 'Witnesses',
-          leftColumn: ['witness-name'],
-          maxItems: 5,
-          minItems: 1,
-          rightColumn: ['witness-age'],
-          value: collectionFieldId,
-        },
-        id: collectionFieldId,
-        isNew: false,
-        isSpacer: false,
-        parentId,
-        type: FORM_ELEMENT_TYPES.COLLECTION,
       },
     });
     expect(transformField).toHaveBeenCalledTimes(2);
@@ -214,23 +198,21 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   it('transforms a collection field with no description', () => {
     jsonSchema.properties[collectionFieldId].description = '';
 
-    const fields = {};
     transformCollectionField(
       collectionFieldId,
       jsonSchema,
       uiSchema,
-      fields,
+      formElements,
       transformField,
     );
 
-    expect(fields).toEqual({
+    expect(formElements).toEqual({
       [collectionFieldId]: {
         details: {
           buttonText: 'Add Witness',
           columns: 2,
-          conditionalDependents: ['section-3'],
           description: '',
-          isActive: true,
+          isRequired: true,
           itemIdentifier: 'witness-name',
           itemName: 'Witness',
           label: 'Witnesses',
@@ -240,50 +222,6 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           rightColumn: ['witness-age'],
           value: collectionFieldId,
         },
-        id: collectionFieldId,
-        isNew: false,
-        isSpacer: false,
-        parentId,
-        type: FORM_ELEMENT_TYPES.COLLECTION,
-      },
-    });
-    expect(transformField).toHaveBeenCalledTimes(2);
-  });
-
-  it('transforms an inactive collection field', () => {
-    jsonSchema.properties[collectionFieldId].deprecated = true;
-
-    const fields = {};
-    transformCollectionField(
-      collectionFieldId,
-      jsonSchema,
-      uiSchema,
-      fields,
-      transformField,
-    );
-
-    expect(fields).toEqual({
-      [collectionFieldId]: {
-        details: {
-          buttonText: 'Add Witness',
-          columns: 2,
-          conditionalDependents: ['section-3'],
-          description: 'List of witnesses',
-          isActive: false,
-          itemIdentifier: 'witness-name',
-          itemName: 'Witness',
-          label: 'Witnesses',
-          leftColumn: ['witness-name'],
-          maxItems: 5,
-          minItems: 1,
-          rightColumn: ['witness-age'],
-          value: collectionFieldId,
-        },
-        id: collectionFieldId,
-        isNew: false,
-        isSpacer: false,
-        parentId,
-        type: FORM_ELEMENT_TYPES.COLLECTION,
       },
     });
     expect(transformField).toHaveBeenCalledTimes(2);
@@ -292,23 +230,21 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   it('transforms a collection field with no itemIdentifier', () => {
     uiSchema.fields[collectionFieldId].itemIdentifier = '';
 
-    const fields = {};
     transformCollectionField(
       collectionFieldId,
       jsonSchema,
       uiSchema,
-      fields,
+      formElements,
       transformField,
     );
 
-    expect(fields).toEqual({
+    expect(formElements).toEqual({
       [collectionFieldId]: {
         details: {
           buttonText: 'Add Witness',
           columns: 2,
-          conditionalDependents: ['section-3'],
           description: 'List of witnesses',
-          isActive: true,
+          isRequired: true,
           itemIdentifier: '',
           itemName: 'Witness',
           label: 'Witnesses',
@@ -318,11 +254,6 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           rightColumn: ['witness-age'],
           value: collectionFieldId,
         },
-        id: collectionFieldId,
-        isNew: false,
-        isSpacer: false,
-        parentId,
-        type: FORM_ELEMENT_TYPES.COLLECTION,
       },
     });
     expect(transformField).toHaveBeenCalledTimes(2);
@@ -331,23 +262,21 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   it('transforms a collection field with no itemName', () => {
     uiSchema.fields[collectionFieldId].itemName = '';
 
-    const fields = {};
     transformCollectionField(
       collectionFieldId,
       jsonSchema,
       uiSchema,
-      fields,
+      formElements,
       transformField,
     );
 
-    expect(fields).toEqual({
+    expect(formElements).toEqual({
       [collectionFieldId]: {
         details: {
           buttonText: 'Add Witness',
           columns: 2,
-          conditionalDependents: ['section-3'],
           description: 'List of witnesses',
-          isActive: true,
+          isRequired: true,
           itemIdentifier: 'witness-name',
           itemName: '',
           label: 'Witnesses',
@@ -357,50 +286,6 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           rightColumn: ['witness-age'],
           value: collectionFieldId,
         },
-        id: collectionFieldId,
-        isNew: false,
-        isSpacer: false,
-        parentId,
-        type: FORM_ELEMENT_TYPES.COLLECTION,
-      },
-    });
-    expect(transformField).toHaveBeenCalledTimes(2);
-  });
-
-  it('transforms a collection field with no label', () => {
-    jsonSchema.properties[collectionFieldId].title = '';
-
-    const fields = {};
-    transformCollectionField(
-      collectionFieldId,
-      jsonSchema,
-      uiSchema,
-      fields,
-      transformField,
-    );
-
-    expect(fields).toEqual({
-      [collectionFieldId]: {
-        details: {
-          buttonText: 'Add Witness',
-          columns: 2,
-          conditionalDependents: ['section-3'],
-          description: 'List of witnesses',
-          isActive: true,
-          itemIdentifier: 'witness-name',
-          itemName: 'Witness',
-          label: '',
-          leftColumn: ['witness-name'],
-          maxItems: 5,
-          minItems: 1,
-          rightColumn: ['witness-age'],
-          value: collectionFieldId,
-        },
-        id: collectionFieldId,
-        isNew: false,
-        isSpacer: false,
-        parentId,
-        type: FORM_ELEMENT_TYPES.COLLECTION,
       },
     });
     expect(transformField).toHaveBeenCalledTimes(2);
@@ -409,23 +294,21 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   it('transforms a collection field with empty leftColumn', () => {
     uiSchema.fields[collectionFieldId].leftColumn = [];
 
-    const fields = {};
     transformCollectionField(
       collectionFieldId,
       jsonSchema,
       uiSchema,
-      fields,
+      formElements,
       transformField,
     );
 
-    expect(fields).toEqual({
+    expect(formElements).toEqual({
       [collectionFieldId]: {
         details: {
           buttonText: 'Add Witness',
           columns: 2,
-          conditionalDependents: ['section-3'],
           description: 'List of witnesses',
-          isActive: true,
+          isRequired: true,
           itemIdentifier: 'witness-name',
           itemName: 'Witness',
           label: 'Witnesses',
@@ -435,11 +318,6 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           rightColumn: ['witness-age'],
           value: collectionFieldId,
         },
-        id: collectionFieldId,
-        isNew: false,
-        isSpacer: false,
-        parentId,
-        type: FORM_ELEMENT_TYPES.COLLECTION,
       },
     });
     expect(transformField).toHaveBeenCalledTimes(1);
@@ -447,30 +325,28 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
       'witness-age',
       items,
       uiSchema,
-      fields,
+      formElements,
     );
   });
 
   it('transforms a collection field with empty right column', () => {
     uiSchema.fields[collectionFieldId].rightColumn = [];
 
-    const fields = {};
     transformCollectionField(
       collectionFieldId,
       jsonSchema,
       uiSchema,
-      fields,
+      formElements,
       transformField,
     );
 
-    expect(fields).toEqual({
+    expect(formElements).toEqual({
       [collectionFieldId]: {
         details: {
           buttonText: 'Add Witness',
           columns: 2,
-          conditionalDependents: ['section-3'],
           description: 'List of witnesses',
-          isActive: true,
+          isRequired: true,
           itemIdentifier: 'witness-name',
           itemName: 'Witness',
           label: 'Witnesses',
@@ -480,11 +356,6 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           rightColumn: [],
           value: collectionFieldId,
         },
-        id: collectionFieldId,
-        isNew: false,
-        isSpacer: false,
-        parentId,
-        type: FORM_ELEMENT_TYPES.COLLECTION,
       },
     });
     expect(transformField).toHaveBeenCalledTimes(1);
@@ -492,70 +363,57 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
       'witness-name',
       items,
       uiSchema,
-      fields,
+      formElements,
     );
   });
 
   it('throws an error when a collection child is missing from uiSchema.fields', () => {
     delete uiSchema.fields['witness-name'];
 
-    const fields = {};
-    expect(() => {
-      transformCollectionField(
-        collectionFieldId,
-        jsonSchema,
-        uiSchema,
-        fields,
-        transformField,
-      );
-    }).toThrow(UndefinedFormElementError);
+    expect(() => transformCollectionField(
+      collectionFieldId,
+      jsonSchema,
+      uiSchema,
+      formElements,
+      transformField,
+    )).toThrow(UndefinedFormElementError);
   });
 
   it('transforms a collection field with missing properties', () => {
     delete jsonSchema.properties[collectionFieldId].description;
-    delete jsonSchema.properties[collectionFieldId].deprecated;
     delete jsonSchema.properties[collectionFieldId].maxItems;
     delete jsonSchema.properties[collectionFieldId].minItems;
-    delete jsonSchema.properties[collectionFieldId].title;
     delete uiSchema.fields[collectionFieldId].buttonText;
     delete uiSchema.fields[collectionFieldId].columns;
-    delete uiSchema.fields[collectionFieldId].conditionalDependents;
     delete uiSchema.fields[collectionFieldId].itemIdentifier;
     delete uiSchema.fields[collectionFieldId].itemName;
     delete uiSchema.fields[collectionFieldId].leftColumn;
     delete uiSchema.fields[collectionFieldId].rightColumn;
 
-    const fields = {};
     transformCollectionField(
       collectionFieldId,
       jsonSchema,
       uiSchema,
-      fields,
+      formElements,
       transformField,
     );
 
-    expect(fields).toEqual({
+    expect(formElements).toEqual({
       [collectionFieldId]: {
         details: {
           buttonText: '',
           columns: 1,
-          conditionalDependents: [],
           description: '',
-          isActive: true,
+          isRequired: true,
           itemIdentifier: '',
           itemName: '',
-          label: '',
+          label: 'Witnesses',
           leftColumn: [],
-          maxItems: '',
-          minItems: '',
+          maxItems: null,
+          minItems: null,
           rightColumn: [],
           value: collectionFieldId,
         },
-        id: collectionFieldId,
-        isNew: false,
-        isSpacer: false,
-        parentId,
-        type: FORM_ELEMENT_TYPES.COLLECTION,
       },
     });
     expect(transformField).not.toHaveBeenCalled();

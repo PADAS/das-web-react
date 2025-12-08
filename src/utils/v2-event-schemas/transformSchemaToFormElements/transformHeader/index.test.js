@@ -5,8 +5,9 @@ import transformHeader from '.';
 describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformHeader', () => {
   const headerId = 'header-1';
   const parentId = 'section-1';
-  let uiSchema;
+  let formElements, uiSchema;
   beforeEach(() => {
+    formElements = {};
     uiSchema = {
       headers: {
         [headerId]: {
@@ -19,18 +20,14 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformHe
   });
 
   it('transforms a header', () => {
-    const fields = {};
-    transformHeader(headerId, uiSchema, fields);
+    transformHeader(headerId, uiSchema, formElements);
 
-    expect(fields).toEqual({
+    expect(formElements).toEqual({
       [headerId]: {
         details: {
           label: 'Arrestee Details',
           size: HEADER_ELEMENT_SIZES.MEDIUM,
         },
-        id: headerId,
-        isNew: false,
-        isSpacer: false,
         parentId: parentId,
         type: FORM_ELEMENT_TYPES.HEADER,
       },
@@ -40,18 +37,14 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformHe
   it('transforms a header with no label', () => {
     delete uiSchema.headers[headerId].label;
 
-    const fields = {};
-    transformHeader(headerId, uiSchema, fields);
+    transformHeader(headerId, uiSchema, formElements);
 
-    expect(fields).toEqual({
+    expect(formElements).toEqual({
       [headerId]: {
         details: {
           label: '',
           size: HEADER_ELEMENT_SIZES.MEDIUM,
         },
-        id: headerId,
-        isNew: false,
-        isSpacer: false,
         parentId: parentId,
         type: FORM_ELEMENT_TYPES.HEADER,
       },
@@ -61,18 +54,14 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformHe
   it('transforms a large header', () => {
     uiSchema.headers[headerId].size = HEADER_ELEMENT_SIZES.LARGE;
 
-    const fields = {};
-    transformHeader(headerId, uiSchema, fields);
+    transformHeader(headerId, uiSchema, formElements);
 
-    expect(fields).toEqual({
+    expect(formElements).toEqual({
       [headerId]: {
         details: {
           label: 'Arrestee Details',
           size: HEADER_ELEMENT_SIZES.LARGE,
         },
-        id: headerId,
-        isNew: false,
-        isSpacer: false,
         parentId: parentId,
         type: FORM_ELEMENT_TYPES.HEADER,
       },
@@ -82,18 +71,14 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformHe
   it('transforms a small header', () => {
     uiSchema.headers[headerId].size = HEADER_ELEMENT_SIZES.SMALL;
 
-    const fields = {};
-    transformHeader(headerId, uiSchema, fields);
+    transformHeader(headerId, uiSchema, formElements);
 
-    expect(fields).toEqual({
+    expect(formElements).toEqual({
       [headerId]: {
         details: {
           label: 'Arrestee Details',
           size: HEADER_ELEMENT_SIZES.SMALL,
         },
-        id: headerId,
-        isNew: false,
-        isSpacer: false,
         parentId: parentId,
         type: FORM_ELEMENT_TYPES.HEADER,
       },
@@ -104,18 +89,14 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformHe
     delete uiSchema.headers[headerId].label;
     delete uiSchema.headers[headerId].size;
 
-    const fields = {};
-    transformHeader(headerId, uiSchema, fields);
+    transformHeader(headerId, uiSchema, formElements);
 
-    expect(fields).toEqual({
+    expect(formElements).toEqual({
       [headerId]: {
         details: {
           label: '',
           size: HEADER_ELEMENT_SIZES.LARGE,
         },
-        id: headerId,
-        isNew: false,
-        isSpacer: false,
         parentId: parentId,
         type: FORM_ELEMENT_TYPES.HEADER,
       },

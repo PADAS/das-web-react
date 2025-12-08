@@ -1,8 +1,4 @@
-import {
-  CHOICE_LIST_ELEMENT_CHOICE_MY_DATA_TYPE,
-  CHOICE_LIST_ELEMENT_CHOICE_TYPES,
-  CHOICE_LIST_ELEMENT_INPUT_TYPES,
-} from '../../../constants';
+import { CHOICE_LIST_ELEMENT_INPUT_TYPES } from '../../../constants';
 
 const transformChoiceListField = (
   choiceListFieldId,
@@ -16,8 +12,10 @@ const transformChoiceListField = (
   // Infer if it is a multiple choice list and transform the choices subschemas
   // in an options array.
   const isMultipleChoiceList = choiceListFieldJSONSchema.type === 'array';
-  const options = (isMultipleChoiceList ? choiceListFieldJSONSchema.items.anyOf : choiceListFieldJSONSchema.anyOf)
-    .flatMap((choicesSubschema) => choicesSubschema.oneOf);
+  const choicesSubschemas = isMultipleChoiceList
+    ? choiceListFieldJSONSchema.items.anyOf
+    : choiceListFieldJSONSchema.anyOf;
+  const options = (choicesSubschemas ?? []).flatMap((choicesSubschema) => choicesSubschema.oneOf);
 
   // Add the choice list field specific properties to its node in the form
   // elements object.

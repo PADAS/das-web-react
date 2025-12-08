@@ -25,16 +25,21 @@ jest.mock('../transformHeader', () => {
 
 describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSection', () => {
   const sectionId = 'section-1';
-  let jsonSchema, uiSchema;
+  let formElements, jsonSchema, uiSchema;
   beforeEach(() => {
+    formElements = {};
     jsonSchema = {
       allOf: [
         {
           if: {},
           then: {
             properties: {
-              'number-of-vehicles': {},
-              'number-of-people-involved': {},
+              'number-of-vehicles': {
+                deprecated: false,
+              },
+              'number-of-people-involved': {
+                deprecated: false,
+              },
             },
             required: [],
           },
@@ -91,10 +96,9 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
   });
 
   it('transforms a section', () => {
-    const fields = {};
-    transformSection(sectionId, jsonSchema, uiSchema, fields);
+    transformSection(sectionId, jsonSchema, uiSchema, formElements);
 
-    expect(fields).toEqual({
+    expect(formElements).toEqual({
       [sectionId]: {
         details: {
           columns: 2,
@@ -106,14 +110,10 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
               value: 'car-accident',
             },
           ],
-          isActive: true,
           label: 'Accident Details',
           leftColumn: ['number-of-vehicles'],
           rightColumn: ['header-1', 'number-of-people-involved'],
         },
-        id: sectionId,
-        isNew: false,
-        isSpacer: false,
         parentId: ROOT_CANVAS_ID,
         type: FORM_ELEMENT_TYPES.SECTION,
       },
@@ -123,25 +123,60 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
       'number-of-vehicles',
       jsonSchema.allOf[0].then,
       uiSchema,
-      fields,
+      formElements,
     );
     expect(transformField).toHaveBeenCalledWith(
       'number-of-people-involved',
       jsonSchema.allOf[0].then,
       uiSchema,
-      fields,
+      formElements,
     );
     expect(transformHeader).toHaveBeenCalledTimes(1);
-    expect(transformHeader).toHaveBeenCalledWith('header-1', uiSchema, fields);
+    expect(transformHeader).toHaveBeenCalledWith('header-1', uiSchema, formElements);
+  });
+
+  it('filters out inactive section children', () => {
+    jsonSchema.allOf[0].then.properties['number-of-vehicles'].deprecated = true;
+
+    transformSection(sectionId, jsonSchema, uiSchema, formElements);
+
+    expect(formElements).toEqual({
+      [sectionId]: {
+        details: {
+          columns: 2,
+          conditions: [
+            {
+              field: 'type',
+              id: 'condition-1',
+              operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.HAS_INPUT,
+              value: 'car-accident',
+            },
+          ],
+          label: 'Accident Details',
+          leftColumn: [],
+          rightColumn: ['header-1', 'number-of-people-involved'],
+        },
+        parentId: ROOT_CANVAS_ID,
+        type: FORM_ELEMENT_TYPES.SECTION,
+      },
+    });
+    expect(transformField).toHaveBeenCalledTimes(1);
+    expect(transformField).toHaveBeenCalledWith(
+      'number-of-people-involved',
+      jsonSchema.allOf[0].then,
+      uiSchema,
+      formElements,
+    );
+    expect(transformHeader).toHaveBeenCalledTimes(1);
+    expect(transformHeader).toHaveBeenCalledWith('header-1', uiSchema, formElements);
   });
 
   it('transforms a single column section', () => {
     uiSchema.sections[sectionId].columns = 1;
 
-    const fields = {};
-    transformSection(sectionId, jsonSchema, uiSchema, fields);
+    transformSection(sectionId, jsonSchema, uiSchema, formElements);
 
-    expect(fields).toEqual({
+    expect(formElements).toEqual({
       [sectionId]: {
         details: {
           columns: 1,
@@ -153,14 +188,10 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
               value: 'car-accident',
             },
           ],
-          isActive: true,
           label: 'Accident Details',
           leftColumn: ['number-of-vehicles'],
           rightColumn: ['header-1', 'number-of-people-involved'],
         },
-        id: sectionId,
-        isNew: false,
-        isSpacer: false,
         parentId: ROOT_CANVAS_ID,
         type: FORM_ELEMENT_TYPES.SECTION,
       },
@@ -170,16 +201,16 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
       'number-of-vehicles',
       jsonSchema.allOf[0].then,
       uiSchema,
-      fields,
+      formElements,
     );
     expect(transformField).toHaveBeenCalledWith(
       'number-of-people-involved',
       jsonSchema.allOf[0].then,
       uiSchema,
-      fields,
+      formElements,
     );
     expect(transformHeader).toHaveBeenCalledTimes(1);
-    expect(transformHeader).toHaveBeenCalledWith('header-1', uiSchema, fields);
+    expect(transformHeader).toHaveBeenCalledWith('header-1', uiSchema, formElements);
   });
 
   it('transforms a section with no conditions', () => {
@@ -188,22 +219,17 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
     delete jsonSchema.allOf;
     uiSchema.sections[sectionId].conditions = [];
 
-    const fields = {};
-    transformSection(sectionId, jsonSchema, uiSchema, fields);
+    transformSection(sectionId, jsonSchema, uiSchema, formElements);
 
-    expect(fields).toEqual({
+    expect(formElements).toEqual({
       [sectionId]: {
         details: {
           columns: 2,
           conditions: [],
-          isActive: true,
           label: 'Accident Details',
           leftColumn: ['number-of-vehicles'],
           rightColumn: ['header-1', 'number-of-people-involved'],
         },
-        id: sectionId,
-        isNew: false,
-        isSpacer: false,
         parentId: ROOT_CANVAS_ID,
         type: FORM_ELEMENT_TYPES.SECTION,
       },
@@ -213,72 +239,24 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
       'number-of-vehicles',
       jsonSchema,
       uiSchema,
-      fields,
+      formElements,
     );
     expect(transformField).toHaveBeenCalledWith(
       'number-of-people-involved',
       jsonSchema,
       uiSchema,
-      fields,
+      formElements,
     );
     expect(transformHeader).toHaveBeenCalledTimes(1);
-    expect(transformHeader).toHaveBeenCalledWith('header-1', uiSchema, fields);
-  });
-
-  it('transforms an inactive section', () => {
-    uiSchema.sections[sectionId].isActive = false;
-
-    const fields = {};
-    transformSection(sectionId, jsonSchema, uiSchema, fields);
-
-    expect(fields).toEqual({
-      [sectionId]: {
-        details: {
-          columns: 2,
-          conditions: [
-            {
-              field: 'type',
-              id: 'condition-1',
-              operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.HAS_INPUT,
-              value: 'car-accident',
-            },
-          ],
-          isActive: false,
-          label: 'Accident Details',
-          leftColumn: ['number-of-vehicles'],
-          rightColumn: ['header-1', 'number-of-people-involved'],
-        },
-        id: sectionId,
-        isNew: false,
-        isSpacer: false,
-        parentId: ROOT_CANVAS_ID,
-        type: FORM_ELEMENT_TYPES.SECTION,
-      },
-    });
-    expect(transformField).toHaveBeenCalledTimes(2);
-    expect(transformField).toHaveBeenCalledWith(
-      'number-of-vehicles',
-      jsonSchema.allOf[0].then,
-      uiSchema,
-      fields,
-    );
-    expect(transformField).toHaveBeenCalledWith(
-      'number-of-people-involved',
-      jsonSchema.allOf[0].then,
-      uiSchema,
-      fields,
-    );
-    expect(transformHeader).toHaveBeenCalledTimes(1);
-    expect(transformHeader).toHaveBeenCalledWith('header-1', uiSchema, fields);
+    expect(transformHeader).toHaveBeenCalledWith('header-1', uiSchema, formElements);
   });
 
   it('transforms a section with no label', () => {
     uiSchema.sections[sectionId].label = '';
 
-    const fields = {};
-    transformSection(sectionId, jsonSchema, uiSchema, fields);
+    transformSection(sectionId, jsonSchema, uiSchema, formElements);
 
-    expect(fields).toEqual({
+    expect(formElements).toEqual({
       [sectionId]: {
         details: {
           columns: 2,
@@ -290,14 +268,10 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
               value: 'car-accident',
             },
           ],
-          isActive: true,
           label: '',
           leftColumn: ['number-of-vehicles'],
           rightColumn: ['header-1', 'number-of-people-involved'],
         },
-        id: sectionId,
-        isNew: false,
-        isSpacer: false,
         parentId: ROOT_CANVAS_ID,
         type: FORM_ELEMENT_TYPES.SECTION,
       },
@@ -307,25 +281,24 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
       'number-of-vehicles',
       jsonSchema.allOf[0].then,
       uiSchema,
-      fields,
+      formElements,
     );
     expect(transformField).toHaveBeenCalledWith(
       'number-of-people-involved',
       jsonSchema.allOf[0].then,
       uiSchema,
-      fields,
+      formElements,
     );
     expect(transformHeader).toHaveBeenCalledTimes(1);
-    expect(transformHeader).toHaveBeenCalledWith('header-1', uiSchema, fields);
+    expect(transformHeader).toHaveBeenCalledWith('header-1', uiSchema, formElements);
   });
 
   it('transforms a section with empty left column', () => {
     uiSchema.sections[sectionId].leftColumn = [];
 
-    const fields = {};
-    transformSection(sectionId, jsonSchema, uiSchema, fields);
+    transformSection(sectionId, jsonSchema, uiSchema, formElements);
 
-    expect(fields).toEqual({
+    expect(formElements).toEqual({
       [sectionId]: {
         details: {
           columns: 2,
@@ -337,14 +310,10 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
               value: 'car-accident',
             },
           ],
-          isActive: true,
           label: 'Accident Details',
           leftColumn: [],
           rightColumn: ['header-1', 'number-of-people-involved'],
         },
-        id: sectionId,
-        isNew: false,
-        isSpacer: false,
         parentId: ROOT_CANVAS_ID,
         type: FORM_ELEMENT_TYPES.SECTION,
       },
@@ -354,19 +323,18 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
       'number-of-people-involved',
       jsonSchema.allOf[0].then,
       uiSchema,
-      fields,
+      formElements,
     );
     expect(transformHeader).toHaveBeenCalledTimes(1);
-    expect(transformHeader).toHaveBeenCalledWith('header-1', uiSchema, fields);
+    expect(transformHeader).toHaveBeenCalledWith('header-1', uiSchema, formElements);
   });
 
   it('transforms a section with empty right column', () => {
     uiSchema.sections[sectionId].rightColumn = [];
 
-    const fields = {};
-    transformSection(sectionId, jsonSchema, uiSchema, fields);
+    transformSection(sectionId, jsonSchema, uiSchema, formElements);
 
-    expect(fields).toEqual({
+    expect(formElements).toEqual({
       [sectionId]: {
         details: {
           columns: 2,
@@ -378,14 +346,10 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
               value: 'car-accident',
             },
           ],
-          isActive: true,
           label: 'Accident Details',
           leftColumn: ['number-of-vehicles'],
           rightColumn: [],
         },
-        id: sectionId,
-        isNew: false,
-        isSpacer: false,
         parentId: ROOT_CANVAS_ID,
         type: FORM_ELEMENT_TYPES.SECTION,
       },
@@ -395,53 +359,41 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
       'number-of-vehicles',
       jsonSchema.allOf[0].then,
       uiSchema,
-      fields,
+      formElements,
     );
     expect(transformHeader).not.toHaveBeenCalled();
   });
 
-  it('throws an error when a section child field is missing from uiSchema.fields', () => {
+  it('throws an error when a section child field is missing from uiSchema.formElements', () => {
     delete uiSchema.fields['number-of-vehicles'];
 
-    const fields = {};
-    expect(() => {
-      transformSection(sectionId, jsonSchema, uiSchema, fields);
-    }).toThrow(UndefinedFormElementError);
+    expect(() => transformSection(sectionId, jsonSchema, uiSchema, formElements)).toThrow(UndefinedFormElementError);
   });
 
   it('throws an error when a section child header is missing from uiSchema.headers', () => {
     delete uiSchema.headers['header-1'];
 
-    const fields = {};
-    expect(() => {
-      transformSection(sectionId, jsonSchema, uiSchema, fields);
-    }).toThrow(UndefinedFormElementError);
+    expect(() => transformSection(sectionId, jsonSchema, uiSchema, formElements)).toThrow(UndefinedFormElementError);
   });
 
   it('transforms a section with missing properties', () => {
     delete uiSchema.sections[sectionId].columns;
     delete uiSchema.sections[sectionId].conditions;
-    delete uiSchema.sections[sectionId].isActive;
     delete uiSchema.sections[sectionId].label;
     delete uiSchema.sections[sectionId].leftColumn;
     delete uiSchema.sections[sectionId].rightColumn;
 
-    const fields = {};
-    transformSection(sectionId, jsonSchema, uiSchema, fields);
+    transformSection(sectionId, jsonSchema, uiSchema, formElements);
 
-    expect(fields).toEqual({
+    expect(formElements).toEqual({
       [sectionId]: {
         details: {
           columns: 1,
           conditions: [],
-          isActive: false,
           label: '',
           leftColumn: [],
           rightColumn: [],
         },
-        id: sectionId,
-        isNew: false,
-        isSpacer: false,
         parentId: ROOT_CANVAS_ID,
         type: FORM_ELEMENT_TYPES.SECTION,
       },
