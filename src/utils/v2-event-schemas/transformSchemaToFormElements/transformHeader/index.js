@@ -9,9 +9,6 @@ const transformHeader = (headerId, uiSchema, formElements) => {
       label: headerUISchema.label ?? '',
       size: headerUISchema.size ?? HEADER_ELEMENT_SIZES.LARGE,
     },
-    id: headerId,
-    isNew: false,
-    isSpacer: false,
     parentId: headerUISchema.section,
     type: FORM_ELEMENT_TYPES.HEADER,
   };

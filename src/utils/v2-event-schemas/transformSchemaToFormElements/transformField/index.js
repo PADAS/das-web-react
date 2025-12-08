@@ -9,8 +9,23 @@ import transformNumericField from './transformNumericField';
 import transformTextField from './transformTextField';
 
 const transformField = (fieldId, jsonSchema, uiSchema, formElements) => {
+  const fieldJSONSchema = jsonSchema.properties[fieldId];
   const fieldUISchema = uiSchema.fields[fieldId];
 
+  // Add the field node to the form elements object with the common properties.
+  formElements[fieldId] = {
+    details: {
+      isRequired: jsonSchema.required.some(
+        (requiredField) => requiredField === fieldId,
+      ),
+      label: fieldJSONSchema.title ?? '',
+      value: fieldId,
+    },
+    parentId: fieldUISchema.parent,
+    type: fieldUISchema.type,
+  };
+
+  // Add the specific properties for each field type.
   switch (fieldUISchema.type) {
   case FORM_ELEMENT_TYPES.ATTACHMENT:
     transformAttachmentField(fieldId, jsonSchema, uiSchema, formElements);

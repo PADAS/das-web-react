@@ -3,6 +3,13 @@ import transformField from '../transformField';
 import transformHeader from '../transformHeader';
 import UndefinedFormElementError from '../UndefinedFormElementError';
 
+const SECTION_CHILD_TYPES = { FIELD: 'field', HEADER: 'header' };
+
+const getActiveChildrenIdsFromSectionColumn = (column, sectionJSONSubschema) => column
+  .filter((sectionChild) => sectionChild.type === SECTION_CHILD_TYPES.HEADER
+    || !sectionJSONSubschema.properties[sectionChild.name].deprecated)
+  .map((sectionChild) => sectionChild.name);
+
 const getSectionJSONSubschema = (sectionId, jsonSchema, uiSchema) => {
   if (uiSchema.sections[sectionId].conditions?.length > 0) {
     // The section has conditions. The parent JSON subschema is the "then"
@@ -20,31 +27,30 @@ const getSectionJSONSubschema = (sectionId, jsonSchema, uiSchema) => {
 const transformSection = (sectionId, jsonSchema, uiSchema, formElements) => {
   const sectionUISchema = uiSchema.sections[sectionId];
 
-  // Transform the section's left and right columns.
-  const leftColumn =
-    sectionUISchema.leftColumn?.map((sectionChild) => sectionChild.name) ?? [];
-  const rightColumn =
-    sectionUISchema.rightColumn?.map((sectionChild) => sectionChild.name) ?? [];
+  // Get the JSON subschema where the section children are defined.
+  const sectionJSONSubschema = getSectionJSONSubschema(sectionId, jsonSchema, uiSchema);
+
+  // Transform the section's columns and filter out inactive children from
+  // them.
+  const leftColumn = sectionUISchema.leftColumn
+    ? getActiveChildrenIdsFromSectionColumn(sectionUISchema.leftColumn, sectionJSONSubschema)
+    : [];
+  const rightColumn = sectionUISchema.rightColumn
+    ? getActiveChildrenIdsFromSectionColumn(sectionUISchema.rightColumn, sectionJSONSubschema)
+    : [];
 
   // Add the section node to the form elements object.
   formElements[sectionId] = {
     details: {
       columns: sectionUISchema.columns ?? 1,
       conditions: sectionUISchema.conditions ?? [],
-      isActive: sectionUISchema.isActive ?? false,
       label: sectionUISchema.label ?? '',
       leftColumn,
       rightColumn,
     },
-    id: sectionId,
-    isNew: false,
-    isSpacer: false,
     parentId: ROOT_CANVAS_ID,
     type: FORM_ELEMENT_TYPES.SECTION,
   };
-
-  // Get the JSON subschema where the section children are defined.
-  const sectionJSONSubschema = getSectionJSONSubschema(sectionId, jsonSchema, uiSchema);
 
   // Transform each section child.
   const sectionChildrenIds = [...leftColumn, ...rightColumn];

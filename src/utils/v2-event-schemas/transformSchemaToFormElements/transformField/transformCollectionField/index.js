@@ -1,4 +1,3 @@
-import { FORM_ELEMENT_TYPES } from '../../../constants';
 import UndefinedFormElementError from '../../UndefinedFormElementError';
 
 const transformCollectionField = (
@@ -11,45 +10,41 @@ const transformCollectionField = (
   const collectionFieldJSONSchema = jsonSchema.properties[collectionFieldId];
   const collectionFieldUISchema = uiSchema.fields[collectionFieldId];
 
-  // Add the collection field node to the form elements object.
-  formElements[collectionFieldId] = {
-    details: {
-      buttonText: collectionFieldUISchema.buttonText ?? '',
-      columns: collectionFieldUISchema.columns ?? 1,
-      conditionalDependents: collectionFieldUISchema.conditionalDependents ?? [],
-      description: collectionFieldJSONSchema.description ?? '',
-      isActive: !collectionFieldJSONSchema.deprecated,
-      itemIdentifier: collectionFieldUISchema.itemIdentifier ?? '',
-      itemName: collectionFieldUISchema.itemName ?? '',
-      label: collectionFieldJSONSchema.title ?? '',
-      leftColumn: collectionFieldUISchema.leftColumn ?? [],
-      maxItems: collectionFieldJSONSchema.maxItems ?? '',
-      minItems: collectionFieldJSONSchema.minItems ?? '',
-      rightColumn: collectionFieldUISchema.rightColumn ?? [],
-      value: collectionFieldId,
-    },
-    id: collectionFieldId,
-    isNew: false,
-    isSpacer: false,
-    parentId: collectionFieldUISchema.parent,
-    type: FORM_ELEMENT_TYPES.COLLECTION,
+  // Filter out inactive children from the collection field's columns.
+  const leftColumn = (collectionFieldUISchema.leftColumn ?? []).filter(
+    (collectionFieldChildId) => !collectionFieldJSONSchema.items.properties[collectionFieldChildId].deprecated
+  );
+  const rightColumn = (collectionFieldUISchema.rightColumn ?? []).filter(
+    (collectionFieldChildId) => !collectionFieldJSONSchema.items.properties[collectionFieldChildId].deprecated
+  );
+
+  // Add the collection field specific properties to its node in the form
+  // elements object.
+  formElements[collectionFieldId].details = {
+    ...formElements[collectionFieldId].details,
+    buttonText: collectionFieldUISchema.buttonText ?? '',
+    columns: collectionFieldUISchema.columns ?? 1,
+    description: collectionFieldJSONSchema.description ?? '',
+    itemIdentifier: collectionFieldUISchema.itemIdentifier ?? '',
+    itemName: collectionFieldUISchema.itemName ?? '',
+    leftColumn,
+    maxItems: collectionFieldJSONSchema.maxItems ?? null,
+    minItems: collectionFieldJSONSchema.minItems ?? null,
+    rightColumn,
   };
 
-  // Transform each collection child.
-  const collectionChildrenIds = [
-    ...formElements[collectionFieldId].details.leftColumn,
-    ...formElements[collectionFieldId].details.rightColumn,
-  ];
-  collectionChildrenIds.forEach((collectionChildId) => {
-    if (uiSchema.fields[collectionChildId]) {
+  // Transform each collection field child.
+  const collectionFieldChildrenIds = [...leftColumn, ...rightColumn];
+  collectionFieldChildrenIds.forEach((collectionFieldChildId) => {
+    if (uiSchema.fields[collectionFieldChildId]) {
       transformField(
-        collectionChildId,
+        collectionFieldChildId,
         collectionFieldJSONSchema.items,
         uiSchema,
         formElements,
       );
     } else {
-      throw new UndefinedFormElementError(collectionChildId, collectionFieldId);
+      throw new UndefinedFormElementError(collectionFieldChildId, collectionFieldId);
     }
   });
 };
