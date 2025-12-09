@@ -336,6 +336,12 @@ const Map = ({ children, onMapLoad, socket }) => {
     );
   }, [patrolTrackState, subjectTrackState, dispatch]);
 
+  const setMap = useCallback((map) => {
+    window.map = map;
+
+    onMapLoad(map);
+  }, [onMapLoad]);
+
   const onShowClusterSelectPopup = useCallback((layers, coordinates) => {
     showPopup('cluster-select', {
       layers,
@@ -672,7 +678,7 @@ const Map = ({ children, onMapLoad, socket }) => {
       <MapPrintControl />
       <TimeSliderMapControl />
     </>}
-    onMapLoaded={onMapLoad}
+    onMapLoaded={setMap}
     >
     {map && <>
       {children}
