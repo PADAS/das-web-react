@@ -42,8 +42,8 @@ const SortableList = ({
   blurLocationMarker,
   breadcrumbs,
   collectionDetails,
-  fields,
   focusLocationMarker,
+  formElements,
   items,
   onItemChange,
   onItemDelete,
@@ -86,7 +86,7 @@ const SortableList = ({
         items[activeItemIndex].formData,
         collectionDetails.itemIdentifier,
         `${collectionDetails.itemName} ${items[activeItemIndex].id + 1}`,
-        fields[collectionDetails.itemIdentifier],
+        formElements[collectionDetails.itemIdentifier],
         i18n.language,
         coordinatesRepresentation,
         t
@@ -147,9 +147,9 @@ const SortableList = ({
           breadcrumbs={breadcrumbs}
           collectionDetails={collectionDetails}
           errors={item.error}
-          fields={fields}
           focusLocationMarker={focusLocationMarker(index)}
           formData={item.formData}
+          formElements={formElements}
           id={item.id}
           index={index}
           isFormModalOpen={item.isFormModalOpen}
@@ -182,8 +182,8 @@ const SortableList = ({
           {activeItemIndex !== null ? <Item
             collectionDetails={collectionDetails}
             errors={items[activeItemIndex].error}
-            fields={fields}
             formData={items[activeItemIndex].formData}
+            formElements={formElements}
             id={items[activeItemIndex].id}
             isDragOverlay
             isFormPreviewOpen={items[activeItemIndex].isFormPreviewOpen}

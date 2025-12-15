@@ -45,7 +45,7 @@ const Text = ({ autofillDefaultInput, details, error, id, onFieldChange, value =
       className={`${styles.input} ${STYLES[details.inputType]}`}
       id={id}
       onChange={(event) => onFieldChange(id, event.currentTarget.value || undefined)}
-      placeholder={details.placeholder}
+      placeholder={details.hint}
       value={value}
     />
 
