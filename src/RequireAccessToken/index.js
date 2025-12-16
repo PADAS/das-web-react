@@ -15,6 +15,7 @@ const RequireAccessToken = ({ children, token }) => {
     : <Navigate
         replace
         state={{ from: { ...location } }}
+        {...(() => { try { localStorage.setItem('er:intended_route', `${location.pathname}${location.search}`); } catch (_) {} return {}; })()}
         to={{ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search: location.search }}
       />;
 };

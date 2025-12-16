@@ -5,6 +5,7 @@ import Form from 'react-bootstrap/Form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { useAuth0 } from '@auth0/auth0-react';
 
 import { ReactComponent as EarthRangerLogo } from '../common/images/earth-ranger-logo-vertical.svg';
 
@@ -24,10 +25,14 @@ const LoginPage = () => {
 
   const eulaURL = useSelector((state) => state.data.eula.eula_url);
   const systemConfig = useSelector((state) => state.view.systemConfig);
+  const requireIdp = !!systemConfig?.require_idp;
+  const idpOrgId = systemConfig?.idp_org_id;
+  const { loginWithRedirect, isLoading: authLoading } = useAuth0();
 
   const [errorMessage, setErrorMessage] = useState(null);
   const [formData, setFormData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [authReady, setAuthReady] = useState(true);
 
   const isEULAEnabled = !!systemConfig?.[SYSTEM_CONFIG_FLAGS.EULA];
 
@@ -63,34 +68,71 @@ const LoginPage = () => {
     dispatch(fetchSystemStatus());
   }, [dispatch]);
 
+  useEffect(() => {
+    if (requireIdp && !idpOrgId) {
+      setErrorMessage('Identity provider organization is not configured.');
+      setAuthReady(false);
+    }
+  }, [requireIdp, idpOrgId]);
+
+  const onAuth0Login = useCallback(async () => {
+    try {
+      // Prefer router-provided from, then long-persisted intended route, else app root
+      const storedIntended = (() => { try { return localStorage.getItem('er:intended_route'); } catch (_) { return null; } })();
+      const rawReturnTo = (location.state?.from && (location.state.from.pathname + (location.state.from.search || ''))) || storedIntended || REACT_APP_ROUTE_PREFIX;
+      const returnTo = /\/login\b/.test(rawReturnTo) ? REACT_APP_ROUTE_PREFIX : rawReturnTo;
+
+      await loginWithRedirect({
+        appState: { returnTo },
+        authorizationParams: {
+          organization: idpOrgId,
+          audience: process.env.REACT_APP_AUTH0_AUDIENCE,
+        },
+      });
+    } catch (e) {
+      setErrorMessage('Sign-in failed. Please try again.');
+    }
+  }, [loginWithRedirect, idpOrgId, location.state?.from]);
+
   return <div className={styles.container}>
     <EarthRangerLogo className={styles.logo} />
+    {requireIdp ? (
+      <div className={styles.form}>
+        {!idpOrgId && <Alert className={styles.error} variant="danger">{t('errorAlert.missingOrg', 'Identity provider organization is not configured.')}</Alert>}
+        {idpOrgId && (
+          <Button disabled={!authReady || authLoading} name="idp-login" type="button" variant="primary" onClick={onAuth0Login}>
+            {t('loginButtonIdp', 'Sign in with Auth0')}
+          </Button>
+        )}
+        {!!errorMessage && <Alert className={styles.error} variant="danger">{errorMessage}</Alert>}
+      </div>
+    ) : (
+      <Form name="login" className={styles.form} onSubmit={onFormSubmit}>
+        <Form.Label htmlFor="username">{t('usernameLabel')}</Form.Label>
+        <Form.Control
+          id="username"
+          name="username"
+          onChange={onInputChange}
+          required={true}
+          type="text"
+          value={formData.username}
+        />
 
-    <Form name="login" className={styles.form} onSubmit={onFormSubmit}>
-      <Form.Label htmlFor="username">{t('usernameLabel')}</Form.Label>
-      <Form.Control
-        id="username"
-        name="username"
-        onChange={onInputChange}
-        required={true}
-        type="text"
-        value={formData.username}
-      />
+        <Form.Label htmlFor="password">{t('passwordLabel')}</Form.Label>
+        <Form.Control
+          id="password"
+          name="password"
+          onChange={onInputChange}
+          required={true}
+          type="password"
+          value={formData.password}
+        />
 
-      <Form.Label htmlFor="password">{t('passwordLabel')}</Form.Label>
-      <Form.Control
-        id="password"
-        name="password"
-        onChange={onInputChange}
-        required={true}
-        type="password"
-        value={formData.password}
-      />
+        <Button disabled={isLoading} name="submit" type="submit" variant="primary">{t('loginButton')}</Button>
 
-      <Button disabled={isLoading} name="submit" type="submit" variant="primary">{t('loginButton')}</Button>
-
-      {!!errorMessage && <Alert className={styles.error} variant="danger">{errorMessage}</Alert>}
-    </Form>
+        {!!errorMessage && <Alert className={styles.error} variant="danger">{errorMessage}</Alert>}
+      </Form>
+    )}
 
     {isEULAEnabled && <p className={styles.eulalink}>
       <a href={eulaURL} target="_blank" rel="noopener noreferrer">{t('eulaLink')}</a>

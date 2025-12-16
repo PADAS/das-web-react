@@ -31,6 +31,8 @@ export const setSystemConfigFromSystemStatus = (systemStatus) => (dispatch) => {
       [SYSTEM_CONFIG_FLAGS.TABLEAU]: systemStatus[SYSTEM_CONFIG_FLAGS.TABLEAU] ?? true,
       showTrackDays: systemStatus.show_track_days,
       sitename,
+      require_idp: !!systemStatus.require_idp,
+      idp_org_id: systemStatus.idp_org_id || null,
     },
   });
 
@@ -72,6 +74,8 @@ export const INITIAL_STATE = {
   [SYSTEM_CONFIG_FLAGS.TABLEAU]: false,
   showTrackDays: DEFAULT_SHOW_TRACK_DAYS,
   sitename: '',
+  require_idp: false,
+  idp_org_id: null,
 };
 
 const systemConfigReducer = (state = INITIAL_STATE, action) => {

@@ -6,6 +6,7 @@ import { persistStore } from 'redux-persist';
 import { Provider } from 'react-redux';
 import ReactGA4 from 'react-ga4';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 
 import 'bootstrap/dist/css/bootstrap.css';
 import 'react-toastify/dist/ReactToastify.css';
@@ -18,6 +19,7 @@ import registerServiceWorker from './registerServiceWorker';
 import { setClientReleaseIdentifier } from './utils/analytics';
 import store from './store';
 import withTracker from './WithTracker';
+import { Auth0Provider } from '@auth0/auth0-react';
 
 import DetectOffline from './DetectOffline';
 import GeoLocationWatcher from './GeoLocationWatcher';
@@ -25,6 +27,7 @@ import JiraSupportWidget from './JiraSupportWidget';
 import LoadingOverlay from './EarthRangerIconLoadingOverlay';
 import NavigationContextProvider from './NavigationContextProvider';
 import RequestConfigManager from './RequestConfigManager';
+import Auth0TokenManager from './Auth0TokenManager';
 import RequireAccessToken from './RequireAccessToken';
 import RequireEulaConfirmation from './RequireEulaConfirmation';
 import useWebVitals from './hooks/useWebVitals';
@@ -32,6 +35,7 @@ import useWebVitals from './hooks/useWebVitals';
 const App = lazy(() => import('./App'));
 const EulaPage = lazy(() => import('./views/EULA'));
 const Login = lazy(() => import('./Login'));
+const AuthCallback = lazy(() => import('./AuthCallback'));
 
 const AppWithTracker = withTracker(App, 'EarthRanger');
 const EulaPageWithTracker = withTracker(EulaPage, 'EULA');
@@ -61,6 +65,7 @@ const PathNormalizationRouteComponent = ({ location }) => {
 
 const RootApp = () => {
   const { i18n } = useTranslation();
+  const requireIdp = useSelector((state) => !!state.view.systemConfig?.require_idp);
 
   useWebVitals();
 
@@ -73,10 +78,12 @@ const RootApp = () => {
 
   return <>
     <RequestConfigManager />
+    {requireIdp && <Auth0TokenManager />}
 
     <Suspense fallback={<LoadingOverlay />}>
       <Routes>
         <Route path={`${REACT_APP_ROUTE_PREFIX}login`} element={<LoginWithTracker />} />
+        <Route path={'/auth/callback'} element={<AuthCallback />} />
 
         <Route
           path={`${REACT_APP_ROUTE_PREFIX}eula`}
@@ -104,11 +111,34 @@ const root = createRoot(document.getElementById('root'));
 root.render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistStore(store)} >
-      <BrowserRouter>
-        <NavigationContextProvider>
-          <RootApp />
-        </NavigationContextProvider>
-      </BrowserRouter>
+      <Auth0Provider
+        domain={process.env.REACT_APP_AUTH0_DOMAIN}
+        clientId={process.env.REACT_APP_AUTH0_CLIENT_ID}
+        authorizationParams={{
+          audience: process.env.REACT_APP_AUTH0_AUDIENCE,
+          redirect_uri: `${window.location.origin}`,
+        }}
+        onRedirectCallback={(appState) => {
+          let storedIntended = null;
+          try { storedIntended = localStorage.getItem('er:intended_route'); } catch (_) {}
+          const rawTarget = appState?.returnTo || storedIntended || REACT_APP_ROUTE_PREFIX;
+          const target = /\/login\b/.test(rawTarget) ? REACT_APP_ROUTE_PREFIX : rawTarget;
+          try { localStorage.removeItem('er:intended_route'); } catch (_) {}
+          try {
+            window.history.replaceState({}, document.title, target);
+          } catch (_) {
+            window.location.assign(target);
+          }
+        }}
+        useRefreshTokens
+        cacheLocation="memory"
+      >
+        <BrowserRouter>
+          <NavigationContextProvider>
+            <RootApp />
+          </NavigationContextProvider>
+        </BrowserRouter>
+      </Auth0Provider>
 
       <DetectOffline />
     </PersistGate>
