@@ -1,9 +1,12 @@
 import { memo, useContext, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import isEqual from 'react-fast-compare';
+import uniq from 'lodash/uniq';
+
 import { MapContext } from '../App';
 import { safeRemoveMapLayer, safeRemoveMapSource } from '../utils/map';
 import { API_URL } from '../constants';
-import { selectSubjectTracksWithPatrolTrackShownFlag } from '../selectors/patrols';
+import { selectSubjectTrackState } from '../selectors/tracks';
 
 
 const TRACK_SEGMENTS_SOURCE = 'track-segments-source';
@@ -20,10 +23,11 @@ const TrackSegmentsLayer = () => {
   const segmentTimeGapLength = useSelector((state) => state.view.trackSettings.segmentTimeGapLength);
   const segmentSpeedLimit = useSelector((state) => state.view.trackSettings.segmentSpeedLimit);
 
-  const subjectTracksWithPatrolTrackShownFlag = useSelector(selectSubjectTracksWithPatrolTrackShownFlag);
-  const visibleSubjectIds = subjectTracksWithPatrolTrackShownFlag.map(
-    (subjectTrack) => subjectTrack.track.features[0].properties.id
-  );
+  const subjectTrackState = useSelector(selectSubjectTrackState);
+  const visibleSubjectIds = uniq([
+    ...subjectTrackState.pinned,
+    ...subjectTrackState.visible,
+  ]);
 
   /* add the vector source */
   useEffect(() => {
@@ -80,12 +84,7 @@ const TrackSegmentsLayer = () => {
   useEffect(() => {
     if (!map || !map.getLayer(TRACK_SEGMENTS_LAYER_ID)) return;
 
-    const filters = ['all'];
-
-    // Filter by visible subject IDs
-    if (visibleSubjectIds.length > 0) {
-      filters.push(['in', ['get', 'subject_id'], ['literal', visibleSubjectIds]]);
-    }
+    const filters = ['all', ['in', ['get', 'subject_id'], ['literal', visibleSubjectIds]]];
 
     // Filter by time gap if enabled
     // time_gap_ms is in milliseconds, segmentTimeGapLength is in seconds
@@ -99,9 +98,9 @@ const TrackSegmentsLayer = () => {
       filters.push(['<=', ['get', 'speed_kmh'], segmentSpeedLimit]);
     }
 
-    // Apply filter (use null if no filters are active)
-    const finalFilter = filters.length > 1 ? filters : null;
-    map.setFilter(TRACK_SEGMENTS_LAYER_ID, finalFilter);
+    if (!isEqual(map.getFilter(TRACK_SEGMENTS_LAYER_ID), filters)) {
+      map.setFilter(TRACK_SEGMENTS_LAYER_ID, filters);
+    }
   }, [map, visibleSubjectIds, isSegmentOnTimeEnabled, isSegmentOnSpeedEnabled, segmentTimeGapLength, segmentSpeedLimit]);
 
   return null;

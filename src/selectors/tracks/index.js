@@ -11,7 +11,7 @@ import {
 
 const selectEventFilter = (state) => state.data.eventFilter;
 const selectHeatmapSubjectIDs = (state) => state.view.heatmapSubjectIDs;
-const selectSubjectTrackState = (state) => state.view.subjectTrackState;
+export const selectSubjectTrackState = (state) => state.view.subjectTrackState;
 const selectTimeSliderState = (state) => state.view.timeSliderState;
 export const selectTrackSettings = (state) => state.view.trackSettings;
 const selectTracks = (state) => state.data.tracks;
