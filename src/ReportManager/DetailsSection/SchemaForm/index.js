@@ -91,16 +91,27 @@ const SchemaForm = ({
   const onSectionFieldChange = (fieldId, value) => {
     const newFormData = { ...formData, [fieldId]: value };
 
-    const newVisibleSectionIds = getVisibleSectionIds(formElements, newFormData);
-    const hiddenSectionIds = visibleSectionIds.filter((id) => !newVisibleSectionIds.includes(id));
-    const hiddenFields = hiddenSectionIds.flatMap((sectionId) => [
-      ...formElements[sectionId].details.leftColumn,
-      ...formElements[sectionId].details.rightColumn,
-    ]).filter((fieldId) => fieldId in formData);
-    if (hiddenFields.length > 0) {
-      // The field change resulted in a section being hidden. Remove the hidden
-      // section's fields from the form data.
-      hiddenFields.forEach((fieldId) => delete newFormData[fieldId]);
+    // Conditional sections can depend on fields in other conditional sections.
+    // Remove hidden fields from the form data in a loop until all sections
+    // that will be hidden are iterated.
+    let previousVisibleSectionIds = visibleSectionIds;
+    while (true) {
+      const currentVisibleSectionIds = getVisibleSectionIds(formElements, newFormData);
+      const currentHiddenSectionIds = previousVisibleSectionIds.filter((id) => !currentVisibleSectionIds.includes(id));
+      const currentHiddenFields = currentHiddenSectionIds.flatMap((sectionId) => [
+        ...formElements[sectionId].details.leftColumn,
+        ...formElements[sectionId].details.rightColumn,
+      ]).filter((fieldId) => fieldId in newFormData);
+      if (currentHiddenFields.length > 0) {
+        // There are fields to hide in the current iteration. Remove them from
+        // the form data.
+        currentHiddenFields.forEach((fieldId) => delete newFormData[fieldId]);
+
+        previousVisibleSectionIds = currentVisibleSectionIds;
+      } else {
+        // There are no more fields to hide. The form data is stable.
+        break;
+      }
     }
 
     onFormDataChange(newFormData);
