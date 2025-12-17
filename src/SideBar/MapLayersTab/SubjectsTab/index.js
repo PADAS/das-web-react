@@ -187,7 +187,6 @@ const SubjectsTab = () => {
   /> : <CheckableList
     className={styles.flatCheckableList}
     items={sortedSubjectGroups}
-    itemProps={{ map }}
     itemFullyChecked={isSubjectVisible}
     onCheckClick={onSubjectCheckClick}
     itemComponent={SubjectListItem}
