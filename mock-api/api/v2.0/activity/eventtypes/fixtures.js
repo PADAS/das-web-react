@@ -65,7 +65,6 @@ const eventtypeSchemaFixtures = {
   animal_control_v2: {
     json: {
       $schema: 'https://json-schema.org/draft/2020-12/schema',
-      additionalProperties: false,
       properties: {
         number_of_shots_fired: {
           deprecated: false,
@@ -97,6 +96,7 @@ const eventtypeSchemaFixtures = {
       },
       required: ['animal_species', 'number_of_animals'],
       type: 'object',
+      unevaluatedProperties: false,
     },
     ui: {
       fields: {
@@ -145,7 +145,6 @@ const eventtypeSchemaFixtures = {
   fire_v2: {
     json: {
       $schema: 'https://json-schema.org/draft/2020-12/schema',
-      additionalProperties: false,
       properties: {
         direction_fire_is_moving: {
           default: '',
@@ -171,6 +170,7 @@ const eventtypeSchemaFixtures = {
       },
       required: ['direction_fire_is_moving', 'status'],
       type: 'object',
+      unevaluatedProperties: false,
     },
     ui: {
       fields: {
@@ -212,7 +212,6 @@ const eventtypeSchemaFixtures = {
   light_v2: {
     json: {
       $schema: 'https://json-schema.org/draft/2020-12/schema',
-      additionalProperties: false,
       properties: {
         what_was_detected: {
           default: '',
@@ -252,6 +251,7 @@ const eventtypeSchemaFixtures = {
       },
       required: ['what_was_detected'],
       type: 'object',
+      unevaluatedProperties: false,
     },
     ui: {
       fields: {

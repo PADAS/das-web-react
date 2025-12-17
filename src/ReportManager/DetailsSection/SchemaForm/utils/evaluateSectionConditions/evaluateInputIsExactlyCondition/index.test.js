@@ -2,8 +2,8 @@ import evaluateInputIsExactlyCondition from './';
 
 describe('ReportManager - DetailsSection - SchemaForm - utils - evaluateSectionConditions - evaluateInputIsExactlyCondition', () => {
   test('passes the condition if the field value is a number that is exactly the condition value', () => {
-    expect(evaluateInputIsExactlyCondition(0, 0)).toBe(true);
-    expect(evaluateInputIsExactlyCondition(1, 1)).toBe(true);
+    expect(evaluateInputIsExactlyCondition(0, '0')).toBe(true);
+    expect(evaluateInputIsExactlyCondition(1, '1')).toBe(true);
   });
 
   test('passes the condition if the field value is a string that is exactly the condition value', () => {
@@ -12,8 +12,8 @@ describe('ReportManager - DetailsSection - SchemaForm - utils - evaluateSectionC
   });
 
   test('fails the condition if the field value is a number that is not exactly the condition value', () => {
-    expect(evaluateInputIsExactlyCondition(0, 1)).toBe(false);
-    expect(evaluateInputIsExactlyCondition(1, 0)).toBe(false);
+    expect(evaluateInputIsExactlyCondition(0, '1')).toBe(false);
+    expect(evaluateInputIsExactlyCondition(1, '0')).toBe(false);
   });
 
   test('fails the condition if the field value is a string that is not exactly the condition value', () => {

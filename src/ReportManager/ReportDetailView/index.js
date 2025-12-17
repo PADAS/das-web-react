@@ -311,7 +311,7 @@ const ReportDetailView = ({
       reportToSubmit = {
         ...reportChanges,
         id: reportForm.id,
-        event_details: { ...originalReport.event_details, ...reportChanges.event_details },
+        event_details: reportForm.event_details,
         location: originalReport.location,
       };
 
@@ -368,7 +368,6 @@ const ReportDetailView = ({
     notesToAdd,
     onSaveError,
     onSaveSuccess,
-    originalReport.event_details,
     originalReport.location,
     reportChanges,
     reportForm,

@@ -22,9 +22,9 @@ const Item = ({
   breadcrumbs = null,
   collectionDetails,
   errors,
-  fields,
   focusLocationMarker = null,
   formData,
+  formElements,
   id,
   index = null,
   isDragging = false,
@@ -57,7 +57,7 @@ const Item = ({
     formData,
     collectionDetails.itemIdentifier,
     `${collectionDetails.itemName} ${id + 1}`,
-    fields[collectionDetails.itemIdentifier],
+    formElements[collectionDetails.itemIdentifier],
     i18n.language,
     coordinatesRepresentation,
     t
@@ -203,10 +203,10 @@ const Item = ({
         <FormPreview
           blurLocationMarker={blurLocationMarker}
           errors={errors}
+          fieldIds={[...collectionDetails.leftColumn, ...collectionDetails.rightColumn]}
           focusLocationMarker={focusLocationMarker}
           formData={formData}
-          fieldIds={[...collectionDetails.leftColumn, ...collectionDetails.rightColumn]}
-          fields={fields}
+          formElements={formElements}
           isDragOverlay={isDragOverlay}
         />
       </div>

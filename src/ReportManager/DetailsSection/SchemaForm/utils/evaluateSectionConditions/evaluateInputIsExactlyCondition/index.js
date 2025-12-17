@@ -1,6 +1,6 @@
 const evaluateInputIsExactlyCondition = (fieldValue, conditionValue) => {
   if (typeof fieldValue === 'number') {
-    return fieldValue === conditionValue;
+    return fieldValue === Number(conditionValue);
   }
 
   if (typeof fieldValue === 'string') {

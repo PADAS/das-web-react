@@ -14,10 +14,10 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
     details = {
       defaultInput: 'Text 1 Default Input',
       description: 'Text 1 Description',
+      hint: 'Text 1 Hint',
       inputType: TEXT_ELEMENT_INPUT_TYPES.SHORT,
       isRequired: false,
       label: 'Text 1 Label',
-      placeholder: 'Text 1 Placeholder',
       value: 'text-1',
     };
   });
@@ -143,9 +143,9 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
     expect(onFieldChange).toHaveBeenCalledWith('text-1', 'X');
   });
 
-  test('shows the placeholder', () => {
+  test('shows the hint', () => {
     renderTextField();
 
-    expect(screen.getByRole('textbox')).toHaveAttribute('placeholder', 'Text 1 Placeholder');
+    expect(screen.getByRole('textbox')).toHaveAttribute('placeholder', 'Text 1 Hint');
   });
 });
