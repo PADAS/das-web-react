@@ -82,6 +82,7 @@ const LoginPage = () => {
       const rawReturnTo = (location.state?.from && (location.state.from.pathname + (location.state.from.search || ''))) || storedIntended || REACT_APP_ROUTE_PREFIX;
       const returnTo = /\/login\b/.test(rawReturnTo) ? REACT_APP_ROUTE_PREFIX : rawReturnTo;
 
+
       await loginWithRedirect({
         appState: { returnTo },
         authorizationParams: {
