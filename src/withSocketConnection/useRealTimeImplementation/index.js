@@ -68,10 +68,11 @@ const useRealTimeImplementation = () => {
     });
     socket.on('resp_authorization', (msg) => {
       const { status } = msg;
-      console.log('realtime: authorized', msg);
       if (status.code === 401) {
-        return store.dispatch(clearAuth());
+        // return store.dispatch(clearAuth());
       }
+
+      console.log('realtime: authorized', msg);
 
       window.clearInterval(pingInterval);
       window.clearTimeout(pingTimeout);
