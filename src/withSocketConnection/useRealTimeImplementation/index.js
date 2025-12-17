@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { DAS_HOST } from '../../constants';
 import { resetSocketStateTracking } from './helpers';
 import { SOCKET_HEALTHY_STATUS } from '../../ducks/system-status';
-import { clearAuth } from '../../ducks/auth';
+// import { clearAuth } from '../../ducks/auth';
 import { events } from './config';
 import { calcEventFilterForRequest } from '../../utils/event-filter';
 import { calcPatrolFilterForRequest } from '../../utils/patrol-filter';
@@ -52,6 +52,8 @@ const useRealTimeImplementation = () => {
       store.dispatch({ type: SOCKET_HEALTHY_STATUS });
       const profileId = store.getState().data.selectedUserProfile?.id;
 
+      console.log('access token', store.getState().data.token.access_token);
+
       socket.emit('authorization', { type: 'authorization', id: 1, authorization: `Bearer ${store.getState().data.token.access_token}` });
 
       if (profileId) {
@@ -68,10 +70,12 @@ const useRealTimeImplementation = () => {
     });
     socket.on('resp_authorization', (msg) => {
       const { status } = msg;
-      console.log('realtime: authorized', msg);
       if (status.code === 401) {
-        return store.dispatch(clearAuth());
+        console.warn('realtime auth rejected', msg);
+        //return store.dispatch(clearAuth());
       }
+
+      console.log('realtime: authorized', msg);
 
       window.clearInterval(pingInterval);
       window.clearTimeout(pingTimeout);

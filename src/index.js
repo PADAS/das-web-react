@@ -6,7 +6,6 @@ import { persistStore } from 'redux-persist';
 import { Provider } from 'react-redux';
 import ReactGA4 from 'react-ga4';
 import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
 
 import 'bootstrap/dist/css/bootstrap.css';
 import 'react-toastify/dist/ReactToastify.css';
@@ -28,6 +27,7 @@ import LoadingOverlay from './EarthRangerIconLoadingOverlay';
 import NavigationContextProvider from './NavigationContextProvider';
 import RequestConfigManager from './RequestConfigManager';
 import Auth0TokenManager from './Auth0TokenManager';
+import Auth0NavigationManager from './Auth0NavigationManager';
 import RequireAccessToken from './RequireAccessToken';
 import RequireEulaConfirmation from './RequireEulaConfirmation';
 import useWebVitals from './hooks/useWebVitals';
@@ -35,7 +35,6 @@ import useWebVitals from './hooks/useWebVitals';
 const App = lazy(() => import('./App'));
 const EulaPage = lazy(() => import('./views/EULA'));
 const Login = lazy(() => import('./Login'));
-const AuthCallback = lazy(() => import('./AuthCallback'));
 
 const AppWithTracker = withTracker(App, 'EarthRanger');
 const EulaPageWithTracker = withTracker(EulaPage, 'EULA');
@@ -65,7 +64,6 @@ const PathNormalizationRouteComponent = ({ location }) => {
 
 const RootApp = () => {
   const { i18n } = useTranslation();
-  const requireIdp = useSelector((state) => !!state.view.systemConfig?.require_idp);
 
   useWebVitals();
 
@@ -78,12 +76,12 @@ const RootApp = () => {
 
   return <>
     <RequestConfigManager />
-    {requireIdp && <Auth0TokenManager />}
+    <Auth0TokenManager />
+    <Auth0NavigationManager />
 
     <Suspense fallback={<LoadingOverlay />}>
       <Routes>
         <Route path={`${REACT_APP_ROUTE_PREFIX}login`} element={<LoginWithTracker />} />
-        <Route path={'/auth/callback'} element={<AuthCallback />} />
 
         <Route
           path={`${REACT_APP_ROUTE_PREFIX}eula`}
@@ -116,19 +114,11 @@ root.render(
         clientId={process.env.REACT_APP_AUTH0_CLIENT_ID}
         authorizationParams={{
           audience: process.env.REACT_APP_AUTH0_AUDIENCE,
-          redirect_uri: `${window.location.origin}`,
+          redirect_uri: window.location.origin,
         }}
-        onRedirectCallback={(appState) => {
-          let storedIntended = null;
-          try { storedIntended = localStorage.getItem('er:intended_route'); } catch (_) {}
-          const rawTarget = appState?.returnTo || storedIntended || REACT_APP_ROUTE_PREFIX;
-          const target = /\/login\b/.test(rawTarget) ? REACT_APP_ROUTE_PREFIX : rawTarget;
-          try { localStorage.removeItem('er:intended_route'); } catch (_) {}
-          try {
-            window.history.replaceState({}, document.title, target);
-          } catch (_) {
-            window.location.assign(target);
-          }
+        onRedirectCallback={() => {
+          // Clean OAuth params from URL after callback
+          window.history.replaceState({}, document.title, window.location.pathname);
         }}
         useRefreshTokens
         cacheLocation="memory"

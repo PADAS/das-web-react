@@ -94,6 +94,15 @@ const LoginPage = () => {
     }
   }, [loginWithRedirect, idpOrgId, location.state?.from]);
 
+  // Wait for system config to load before rendering to prevent form flash
+  // systemConfig always exists but sitename is '' until loaded
+  const configLoaded = systemConfig?.sitename !== '';
+  if (!configLoaded) {
+    return <div className={styles.container}>
+      <EarthRangerLogo className={styles.logo} />
+    </div>;
+  }
+
   return <div className={styles.container}>
     <EarthRangerLogo className={styles.logo} />
     {requireIdp ? (
