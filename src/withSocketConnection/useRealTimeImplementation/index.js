@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { DAS_HOST } from '../../constants';
 import { resetSocketStateTracking } from './helpers';
 import { SOCKET_HEALTHY_STATUS } from '../../ducks/system-status';
-// import { clearAuth } from '../../ducks/auth';
+import { clearAuth } from '../../ducks/auth';
 import { events } from './config';
 import { calcEventFilterForRequest } from '../../utils/event-filter';
 import { calcPatrolFilterForRequest } from '../../utils/patrol-filter';
@@ -72,7 +72,7 @@ const useRealTimeImplementation = () => {
       const { status } = msg;
       if (status.code === 401) {
         console.warn('realtime auth rejected', msg);
-        //return store.dispatch(clearAuth());
+        return store.dispatch(clearAuth());
       }
 
       console.log('realtime: authorized', msg);
