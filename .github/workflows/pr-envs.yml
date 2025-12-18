@@ -35,12 +35,6 @@ jobs:
           tracking_id=$(grep REACT_APP_GA4_TRACKING_ID .env.development | cut -d '=' -f2)
           echo "build-args=REACT_APP_GA4_TRACKING_ID=$tracking_id" >> $GITHUB_OUTPUT
 
-  debug:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Debug labels
-        run: echo 'Labels debug: ${{ toJson(github.event.pull_request.labels) }}'
-
   build:
     if: contains(github.event.pull_request.labels.*.name, 'deploy')
     needs: config
