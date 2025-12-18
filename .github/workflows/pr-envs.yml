@@ -38,7 +38,8 @@ jobs:
   debug:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Labels debug: ${{ toJson(github.event.pull_request.labels) }}"
+      - name: Debug labels
+        run: echo "Labels debug: ${{ toJson(github.event.pull_request.labels) }}"
 
   build:
     if: contains(github.event.pull_request.labels.*.name, 'deploy')
