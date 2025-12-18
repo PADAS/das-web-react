@@ -161,10 +161,6 @@ const ContentComponent = (props) => {
   if (!name) return null;
   if (!subgroups.length && !subjects.length) return null;
 
-  const subjectItemProps = {
-    map,
-  };
-
   const triggerProps = {
     listLevel,
     name,
@@ -198,7 +194,6 @@ const ContentComponent = (props) => {
       <CheckableList
         className={`${mapLayersStyles.list} ${mapLayersStyles.itemList}`}
         items={subjects}
-        itemProps={subjectItemProps}
         itemFullyChecked={subjectIsVisible}
         onCheckClick={onSubjectCheckClick}
         itemComponent={SubjectListItem} />

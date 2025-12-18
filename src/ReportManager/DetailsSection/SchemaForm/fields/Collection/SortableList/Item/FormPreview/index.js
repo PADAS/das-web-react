@@ -16,9 +16,9 @@ const FormPreview = ({
   blurLocationMarker,
   errors,
   fieldIds,
-  fields,
   focusLocationMarker,
   formData,
+  formElements,
   isDragOverlay,
 }) => {
   const jumpToLocation = useJumpToLocation();
@@ -37,12 +37,12 @@ const FormPreview = ({
     {fieldIds.map((fieldId) => <li className={styles.fieldSummary} key={fieldId}>
       <div>
         <p className={`${styles.label} ${errors?.[fieldId] ? styles.error : ''}`}>
-          {fields[fieldId].details.label}
+          {formElements[fieldId].details.label}
         </p>
 
         <p className={`${styles.value} ${errors?.[fieldId] ? styles.error : ''}`}>
           {getHumanizedFieldValue(
-            fields[fieldId],
+            formElements[fieldId],
             formData[fieldId],
             '-',
             i18n.language,
@@ -52,8 +52,8 @@ const FormPreview = ({
         </p>
       </div>
 
-      {fields[fieldId].type === FORM_ELEMENT_TYPES.LOCATION && formData[fieldId] && <button
-        aria-label={t('jumpToLocationButtonLabel', { field: fields[fieldId].details.label })}
+      {formElements[fieldId].type === FORM_ELEMENT_TYPES.LOCATION && formData[fieldId] && <button
+        aria-label={t('jumpToLocationButtonLabel', { field: formElements[fieldId].details.label })}
         className={`${styles.jumpToLocationButton} ${isDragOverlay ? styles.dragOverlay : ''}`}
         onBlur={() => isDragOverlay ? undefined : blurLocationMarker()}
         onClick={() => isDragOverlay ? undefined : jumpToLocation(

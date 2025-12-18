@@ -54,7 +54,8 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
         breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
         details={details}
         error={undefined}
-        fields={{
+        focusLocationMarker={focusLocationMarker}
+        formElements={{
           'field-1': {
             details: {
               label: 'Field 1',
@@ -68,7 +69,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
             type: FORM_ELEMENT_TYPES.TEXT,
           },
         }}
-        focusLocationMarker={focusLocationMarker}
         id="collection-1"
         onFieldChange={onFieldChange}
         renderField={renderField}
@@ -337,7 +337,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
           breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
           details={details}
           error={{ 0: { 'field-1': { message: 'Error' } } }}
-          fields={{
+          formElements={{
             'field-1': {
               details: {
                 label: 'Field 1',

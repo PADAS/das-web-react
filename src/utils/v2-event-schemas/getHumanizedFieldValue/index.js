@@ -7,27 +7,25 @@ import { shouldUse12HourFormat } from '../../datetime';
 const getChoiceListOptionLabel = (value, field) => field.details.options
   .find((option) => option.const === value)?.title;
 
-// Utility to calculate a human readable version of the field values. For example, render a date-time like
-// 2020/01/01 12:00 PM instead of 2020-01-01T12:00:00Z.
+// Utility to calculate a human readable version of the field values. For
+// example, render a date-time like 2020/01/01 12:00 PM instead of
+// 2020-01-01T12:00:00Z.
 const getHumanizedFieldValue = (field, value, defaultHumanizedValue, language, coordinatesRepresentation, t) => {
-  if (!value) {
+  if (value === undefined) {
     return defaultHumanizedValue;
   }
 
   const use12HourFormat = shouldUse12HourFormat(language);
 
   switch (field.type) {
-  case FORM_ELEMENT_TYPES.COLLECTION:
-    return t('collectionHumanizedValue', { collectionLength: value.length });
-
   case FORM_ELEMENT_TYPES.CHOICE_LIST:
     if (field.details.multiple) {
-      const humanizedValues = value.map((val) => {
-        return getChoiceListOptionLabel(val, field);
-      });
-      return humanizedValues.join(', ');
+      return value.map((choiceValue) => getChoiceListOptionLabel(choiceValue, field)).join(', ');
     }
     return getChoiceListOptionLabel(value, field);
+
+  case FORM_ELEMENT_TYPES.COLLECTION:
+    return t('collectionHumanizedValue', { collectionLength: value.length });
 
   case FORM_ELEMENT_TYPES.DATE_TIME:
     let parsedDate;

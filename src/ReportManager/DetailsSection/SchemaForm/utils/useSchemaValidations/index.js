@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 const ajv = new Ajv2020({ allErrors: true });
 addFormats(ajv);
+ajv.addKeyword({ keyword: 'x-section', schemaType: 'string' });
 
 const insertErrorRecursively = (fieldId, message, errorPath, errors, t) => {
   if (errorPath.length === 0) {
