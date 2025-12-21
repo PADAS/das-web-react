@@ -5,7 +5,7 @@ import { useLocation } from 'react-router';
 import { POST_AUTH_SUCCESS } from '../ducks/auth';
 import useNavigate from '../hooks/useNavigate';
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
-import { hasOAuthCallbackParams } from '../utils/oauth';
+import { hasAuth0CallbackParams } from '../utils/auth0';
 import {
   clearIntendedRoute,
   getIntendedRoute,
@@ -26,7 +26,7 @@ const Auth0TokenManager = () => {
   useEffect(() => {
 
     const ensureIdpToken = async () => {
-      const hasOAuthParams = hasOAuthCallbackParams(location.search);
+      const hasOAuthParams = hasAuth0CallbackParams(location.search);
       // Remember if we ever saw OAuth params (they disappear when Auth0Provider processes them)
       if (hasOAuthParams) {
         sawOAuthParams.current = true;

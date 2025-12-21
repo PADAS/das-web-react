@@ -5,7 +5,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { useLocation } from 'react-router';
 import RequireAccessToken from './';
 import { getTemporaryAccessTokenFromCookies } from '../utils/auth';
-import { hasOAuthCallbackParams } from '../utils/oauth';
+import { hasAuth0CallbackParams } from '../utils/auth0';
 import { mockStore } from '../__test-helpers/MockStore';
 
 jest.mock('@auth0/auth0-react');
@@ -15,7 +15,7 @@ jest.mock('react-router', () => ({
   Navigate: ({ to }) => <div data-testid="navigate">{`Navigating to ${to}`}</div>,
 }));
 jest.mock('../utils/auth');
-jest.mock('../utils/oauth');
+jest.mock('../utils/auth0');
 /* eslint-disable-next-line */
 jest.mock('../LoadingOverlay', () => () => <div data-testid="loading">Loading...</div>);
 
@@ -41,7 +41,7 @@ describe('RequireAccessToken', () => {
     useLocation.mockReturnValue({ pathname: '/test', search: '' });
     useAuth0.mockReturnValue({ isLoading: false });
     getTemporaryAccessTokenFromCookies.mockReturnValue(null);
-    hasOAuthCallbackParams.mockReturnValue(false);
+    hasAuth0CallbackParams.mockReturnValue(false);
   });
 
   afterEach(() => {
@@ -50,7 +50,7 @@ describe('RequireAccessToken', () => {
 
   describe('OAuth callback handling', () => {
     test('shows loading overlay when OAuth params are present', () => {
-      hasOAuthCallbackParams.mockReturnValue(true);
+      hasAuth0CallbackParams.mockReturnValue(true);
       useLocation.mockReturnValue({ pathname: '/', search: '?code=abc&state=xyz' });
 
       renderWithProvider(
@@ -119,7 +119,7 @@ describe('RequireAccessToken', () => {
 
   describe('OAuth params priority', () => {
     test('shows loading even when no token and no Auth0 loading if OAuth params present', () => {
-      hasOAuthCallbackParams.mockReturnValue(true);
+      hasAuth0CallbackParams.mockReturnValue(true);
       useAuth0.mockReturnValue({ isLoading: false });
       useLocation.mockReturnValue({ pathname: '/', search: '?code=abc&state=xyz' });
 

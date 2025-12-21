@@ -8,18 +8,21 @@ import { render } from '@testing-library/react';
 import i18n from './i18nForTests';
 import NavigationContextProvider from './NavigationContextProvider';
 
-const AllTheProviders = ({ children }) => (
-  <I18nextProvider i18n={i18n}>
-    <MemoryRouter>
-      <NavigationContextProvider>
-        {children}
-      </NavigationContextProvider>
-    </MemoryRouter>
-  </I18nextProvider>
-);
+const createWrapper = ({ initialEntries } = {}) => {
+  /* eslint-disable-next-line react/display-name */
+  return ({ children }) => (
+    <I18nextProvider i18n={i18n}>
+      <MemoryRouter initialEntries={initialEntries || ['/']}>
+        <NavigationContextProvider>
+          {children}
+        </NavigationContextProvider>
+      </MemoryRouter>
+    </I18nextProvider>
+  );
+};
 
-const customRender = (ui, options) =>
-  render(ui, { wrapper: AllTheProviders, ...options });
+const customRender = (ui, { initialEntries, ...options } = {}) =>
+  render(ui, { wrapper: createWrapper({ initialEntries }), ...options });
 
 // re-export everything
 export * from '@testing-library/react';

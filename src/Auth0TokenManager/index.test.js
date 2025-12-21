@@ -3,14 +3,14 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
 import Auth0TokenManager from './';
-import { hasOAuthCallbackParams } from '../utils/oauth';
+import { hasAuth0CallbackParams } from '../utils/auth0';
 import { isValidTokenFormat } from '../utils/auth';
 import useNavigate from '../hooks/useNavigate';
 
 jest.mock('@auth0/auth0-react');
 jest.mock('react-redux');
 jest.mock('react-router');
-jest.mock('../utils/oauth');
+jest.mock('../utils/auth0');
 jest.mock('../utils/auth');
 jest.mock('../hooks/useNavigate');
 
@@ -38,7 +38,7 @@ describe('Auth0TokenManager', () => {
       isAuthenticated: false,
       getAccessTokenSilently: mockGetAccessTokenSilently,
     });
-    hasOAuthCallbackParams.mockReturnValue(false);
+    hasAuth0CallbackParams.mockReturnValue(false);
     isValidTokenFormat.mockReturnValue(true);
   });
 
@@ -52,7 +52,7 @@ describe('Auth0TokenManager', () => {
       mockGetAccessTokenSilently.mockResolvedValue(validToken);
 
       // First render: OAuth params present, not authenticated yet
-      hasOAuthCallbackParams.mockReturnValue(true);
+      hasAuth0CallbackParams.mockReturnValue(true);
       useLocation.mockReturnValue({ search: '?code=abc&state=xyz' });
       useAuth0.mockReturnValue({
         isAuthenticated: false,
@@ -66,7 +66,7 @@ describe('Auth0TokenManager', () => {
         isAuthenticated: true,
         getAccessTokenSilently: mockGetAccessTokenSilently,
       });
-      hasOAuthCallbackParams.mockReturnValue(false);
+      hasAuth0CallbackParams.mockReturnValue(false);
       useLocation.mockReturnValue({ search: '' });
 
       rerender();
@@ -84,7 +84,7 @@ describe('Auth0TokenManager', () => {
       const validToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test.signature';
       mockGetAccessTokenSilently.mockResolvedValue(validToken);
 
-      hasOAuthCallbackParams.mockReturnValue(true);
+      hasAuth0CallbackParams.mockReturnValue(true);
       useLocation.mockReturnValue({ search: '?code=abc&state=xyz' });
       useAuth0.mockReturnValue({
         isAuthenticated: true,
@@ -112,7 +112,7 @@ describe('Auth0TokenManager', () => {
       mockGetAccessTokenSilently.mockResolvedValue(invalidToken);
       isValidTokenFormat.mockReturnValue(false);
 
-      hasOAuthCallbackParams.mockReturnValue(true);
+      hasAuth0CallbackParams.mockReturnValue(true);
       useLocation.mockReturnValue({ search: '?code=abc&state=xyz' });
       useAuth0.mockReturnValue({
         isAuthenticated: true,
@@ -129,7 +129,7 @@ describe('Auth0TokenManager', () => {
     test('navigates to login on token fetch error', async () => {
       mockGetAccessTokenSilently.mockRejectedValue(new Error('Token fetch failed'));
 
-      hasOAuthCallbackParams.mockReturnValue(true);
+      hasAuth0CallbackParams.mockReturnValue(true);
       useLocation.mockReturnValue({ search: '?code=abc&state=xyz' });
       useAuth0.mockReturnValue({
         isAuthenticated: true,

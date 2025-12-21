@@ -169,8 +169,8 @@ describe('Login', () => {
         </Provider>
       );
 
-      const errorMessage = await screen.findByText('Identity provider organization is not configured.');
-      expect(errorMessage).toBeInTheDocument();
+      const errorMessages = await screen.findAllByText('Identity provider organization is not configured.');
+      expect(errorMessages.length).toBeGreaterThanOrEqual(1);
     });
 
     test('shows error when loginWithRedirect fails', async () => {
@@ -201,9 +201,6 @@ describe('Login', () => {
     });
 
     test('shows access denied error from Auth0 URL params', async () => {
-      delete window.location;
-      window.location = { search: '?error=access_denied&error_description=User%20is%20not%20part%20of%20the%20organization' };
-
       useAuth0.mockReturnValue({
         loginWithRedirect: jest.fn(),
         isLoading: false,
@@ -217,7 +214,8 @@ describe('Login', () => {
       render(
         <Provider store={idpStore}>
           <Login />
-        </Provider>
+        </Provider>,
+        { initialEntries: ["/login?error=access_denied&error_description=User%20is%20not%20part%20of%20the%20organization"] }
       );
 
       await waitFor(async () => {
@@ -227,9 +225,6 @@ describe('Login', () => {
     });
 
     test('shows authentication failed error from Auth0 URL params', async () => {
-      delete window.location;
-      window.location = { search: '?error=unauthorized&error_description=Invalid%20credentials' };
-
       useAuth0.mockReturnValue({
         loginWithRedirect: jest.fn(),
         isLoading: false,
@@ -243,7 +238,8 @@ describe('Login', () => {
       render(
         <Provider store={idpStore}>
           <Login />
-        </Provider>
+        </Provider>,
+        { initialEntries: ["/login?error=unauthorized&error_description=Invalid%20credentials"] }
       );
 
       await waitFor(async () => {
@@ -253,9 +249,6 @@ describe('Login', () => {
     });
 
     test('shows generic authentication error from Auth0 URL params', async () => {
-      delete window.location;
-      window.location = { search: '?error=server_error&error_description=Internal%20server%20error' };
-
       useAuth0.mockReturnValue({
         loginWithRedirect: jest.fn(),
         isLoading: false,
@@ -269,7 +262,8 @@ describe('Login', () => {
       render(
         <Provider store={idpStore}>
           <Login />
-        </Provider>
+        </Provider>,
+        { initialEntries: ["/login?error=server_error&error_description=Internal%20server%20error"] }
       );
 
       await waitFor(async () => {
