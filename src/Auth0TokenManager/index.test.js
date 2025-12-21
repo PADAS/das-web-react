@@ -46,12 +46,12 @@ describe('Auth0TokenManager', () => {
     jest.clearAllMocks();
   });
 
-  describe('OAuth callback handling', () => {
-    test('processes OAuth callback when params are present and user becomes authenticated', async () => {
+  describe('Auth0 callback handling', () => {
+    test('processes Auth0 callback when params are present and user becomes authenticated', async () => {
       const validToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test.signature';
       mockGetAccessTokenSilently.mockResolvedValue(validToken);
 
-      // First render: OAuth params present, not authenticated yet
+      // First render: Auth0 params present, not authenticated yet
       hasAuth0CallbackParams.mockReturnValue(true);
       useLocation.mockReturnValue({ search: '?code=abc&state=xyz' });
       useAuth0.mockReturnValue({

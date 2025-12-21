@@ -48,8 +48,8 @@ describe('RequireAccessToken', () => {
     jest.clearAllMocks();
   });
 
-  describe('OAuth callback handling', () => {
-    test('shows loading overlay when OAuth params are present', () => {
+  describe('Auth0 callback handling', () => {
+    test('shows loading overlay when Auth0 params are present', () => {
       hasAuth0CallbackParams.mockReturnValue(true);
       useLocation.mockReturnValue({ pathname: '/', search: '?code=abc&state=xyz' });
 
@@ -117,8 +117,8 @@ describe('RequireAccessToken', () => {
     });
   });
 
-  describe('OAuth params priority', () => {
-    test('shows loading even when no token and no Auth0 loading if OAuth params present', () => {
+  describe('Auth0 params priority', () => {
+    test('shows loading even when no token and no Auth0 loading if Auth0 params present', () => {
       hasAuth0CallbackParams.mockReturnValue(true);
       useAuth0.mockReturnValue({ isLoading: false });
       useLocation.mockReturnValue({ pathname: '/', search: '?code=abc&state=xyz' });

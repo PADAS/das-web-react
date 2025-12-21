@@ -11,7 +11,6 @@ import { ReactComponent as EarthRangerLogo } from '../common/images/earth-ranger
 
 import { clearAuth, postAuth } from '../ducks/auth';
 import { fetchEula } from '../ducks/eula';
-import { isSystemConfigLoaded } from '../utils/auth';
 import { REACT_APP_ROUTE_PREFIX, SYSTEM_CONFIG_FLAGS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
 

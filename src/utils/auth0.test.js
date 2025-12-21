@@ -1,6 +1,6 @@
 import { hasAuth0CallbackParams } from './auth0';
 
-describe('oauth utils', () => {
+describe('auth0 utils', () => {
   describe('hasAuth0CallbackParams', () => {
     test('returns true when code and state are present', () => {
       expect(hasAuth0CallbackParams('?code=abc123&state=xyz789')).toBe(true);
@@ -28,7 +28,7 @@ describe('oauth utils', () => {
       expect(hasAuth0CallbackParams('?error=access_denied')).toBe(false);
     });
 
-    test('returns false when no OAuth params are present', () => {
+    test('returns false when no auth0 params are present', () => {
       expect(hasAuth0CallbackParams('')).toBe(false);
       expect(hasAuth0CallbackParams('?foo=bar')).toBe(false);
       expect(hasAuth0CallbackParams('?lnglat=1,2')).toBe(false);

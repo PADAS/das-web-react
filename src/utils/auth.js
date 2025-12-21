@@ -13,11 +13,12 @@ export const deleteAuthTokenCookie = () => deleteCookie('token');
 
 export const deleteTemporaryAccessTokenCookie = () => deleteCookie('temporaryAccessToken');
 
-export const isValidTokenFormat = (token = '') => {
+export const isValidTokenFormat = (token) => {
+  if (!token) return false;
   return /^[A-Za-z0-9._-]+$/.test(token);
 };
 
-export const getIntendedRoute = () => {
+export const getIntendedPostAuth0SuccessRoute = () => {
   try {
     return localStorage.getItem('er:intended_route');
   } catch (_) {
@@ -25,7 +26,7 @@ export const getIntendedRoute = () => {
   }
 };
 
-export const clearIntendedRoute = () => {
+export const clearIntendedPostAuth0SuccessRoute = () => {
   try {
     localStorage.removeItem('er:intended_route');
   } catch (_) {
@@ -33,7 +34,7 @@ export const clearIntendedRoute = () => {
   }
 };
 
-export const setIntendedRoute = (route) => {
+export const setIntendedPostAuth0SuccessRoute = (route) => {
   try {
     localStorage.setItem('er:intended_route', route);
   } catch (_) {
@@ -41,7 +42,7 @@ export const setIntendedRoute = (route) => {
   }
 };
 
-export const stripOAuthParams = (url) => {
+export const stripAuth0Params = (url) => {
   const [pathname, searchString] = url.split('?');
   if (!searchString) return pathname;
 

@@ -1,10 +1,10 @@
 import {
   isSystemConfigLoaded,
   isValidTokenFormat,
-  getIntendedRoute,
-  setIntendedRoute,
-  clearIntendedRoute,
-  stripOAuthParams,
+  getIntendedPostAuth0SuccessRoute,
+  setIntendedPostAuth0SuccessRoute,
+  clearIntendedPostAuth0SuccessRoute,
+  stripAuth0Params,
   getAuthTokenFromCookies,
   getTemporaryAccessTokenFromCookies,
   deleteCookie,
@@ -63,41 +63,41 @@ describe('auth utils', () => {
     });
   });
 
-  describe('stripOAuthParams', () => {
+  describe('stripAuth0Params', () => {
     test('removes code parameter', () => {
-      expect(stripOAuthParams('/dashboard?code=abc123')).toBe('/dashboard');
+      expect(stripAuth0Params('/dashboard?code=abc123')).toBe('/dashboard');
     });
 
     test('removes state parameter', () => {
-      expect(stripOAuthParams('/dashboard?state=xyz789')).toBe('/dashboard');
+      expect(stripAuth0Params('/dashboard?state=xyz789')).toBe('/dashboard');
     });
 
     test('removes error parameter', () => {
-      expect(stripOAuthParams('/dashboard?error=access_denied')).toBe('/dashboard');
+      expect(stripAuth0Params('/dashboard?error=access_denied')).toBe('/dashboard');
     });
 
     test('removes error_description parameter', () => {
-      expect(stripOAuthParams('/dashboard?error_description=User%20denied')).toBe('/dashboard');
+      expect(stripAuth0Params('/dashboard?error_description=User%20denied')).toBe('/dashboard');
     });
 
-    test('removes multiple OAuth params', () => {
-      expect(stripOAuthParams('/dashboard?code=abc&state=xyz&error=denied')).toBe('/dashboard');
+    test('removes multiple Auth0 params', () => {
+      expect(stripAuth0Params('/dashboard?code=abc&state=xyz&error=denied')).toBe('/dashboard');
     });
 
-    test('preserves non-OAuth params', () => {
-      expect(stripOAuthParams('/dashboard?foo=bar&baz=qux')).toBe('/dashboard?foo=bar&baz=qux');
+    test('preserves non-Auth0 params', () => {
+      expect(stripAuth0Params('/dashboard?foo=bar&baz=qux')).toBe('/dashboard?foo=bar&baz=qux');
     });
 
-    test('removes OAuth params while preserving others', () => {
-      expect(stripOAuthParams('/dashboard?foo=bar&code=abc&baz=qux')).toBe('/dashboard?foo=bar&baz=qux');
+    test('removes Auth0 params while preserving others', () => {
+      expect(stripAuth0Params('/dashboard?foo=bar&code=abc&baz=qux')).toBe('/dashboard?foo=bar&baz=qux');
     });
 
     test('handles URL without query string', () => {
-      expect(stripOAuthParams('/dashboard')).toBe('/dashboard');
+      expect(stripAuth0Params('/dashboard')).toBe('/dashboard');
     });
 
     test('handles empty query string', () => {
-      expect(stripOAuthParams('/dashboard?')).toBe('/dashboard');
+      expect(stripAuth0Params('/dashboard?')).toBe('/dashboard');
     });
   });
 
@@ -110,15 +110,15 @@ describe('auth utils', () => {
       localStorage.clear();
     });
 
-    describe('setIntendedRoute', () => {
+    describe('setIntendedPostAuth0SuccessRoute', () => {
       test('stores route in localStorage', () => {
-        setIntendedRoute('/dashboard');
+        setIntendedPostAuth0SuccessRoute('/dashboard');
         expect(localStorage.getItem('er:intended_route')).toBe('/dashboard');
       });
 
       test('overwrites existing route', () => {
-        setIntendedRoute('/old-route');
-        setIntendedRoute('/new-route');
+        setIntendedPostAuth0SuccessRoute('/old-route');
+        setIntendedPostAuth0SuccessRoute('/new-route');
         expect(localStorage.getItem('er:intended_route')).toBe('/new-route');
       });
 
@@ -127,19 +127,19 @@ describe('auth utils', () => {
           throw new Error('localStorage unavailable');
         });
 
-        expect(() => setIntendedRoute('/dashboard')).not.toThrow();
+        expect(() => setIntendedPostAuth0SuccessRoute('/dashboard')).not.toThrow();
         mockSetItem.mockRestore();
       });
     });
 
-    describe('getIntendedRoute', () => {
+    describe('getIntendedPostAuth0SuccessRoute', () => {
       test('retrieves stored route', () => {
         localStorage.setItem('er:intended_route', '/dashboard');
-        expect(getIntendedRoute()).toBe('/dashboard');
+        expect(getIntendedPostAuth0SuccessRoute()).toBe('/dashboard');
       });
 
       test('returns null when no route stored', () => {
-        expect(getIntendedRoute()).toBeNull();
+        expect(getIntendedPostAuth0SuccessRoute()).toBeNull();
       });
 
       test('handles localStorage errors gracefully', () => {
@@ -147,20 +147,20 @@ describe('auth utils', () => {
           throw new Error('localStorage unavailable');
         });
 
-        expect(getIntendedRoute()).toBeNull();
+        expect(getIntendedPostAuth0SuccessRoute()).toBeNull();
         mockGetItem.mockRestore();
       });
     });
 
-    describe('clearIntendedRoute', () => {
+    describe('clearIntendedPostAuth0SuccessRoute', () => {
       test('removes stored route', () => {
         localStorage.setItem('er:intended_route', '/dashboard');
-        clearIntendedRoute();
+        clearIntendedPostAuth0SuccessRoute();
         expect(localStorage.getItem('er:intended_route')).toBeNull();
       });
 
       test('handles clearing non-existent route', () => {
-        expect(() => clearIntendedRoute()).not.toThrow();
+        expect(() => clearIntendedPostAuth0SuccessRoute()).not.toThrow();
       });
 
       test('handles localStorage errors gracefully', () => {
@@ -168,7 +168,7 @@ describe('auth utils', () => {
           throw new Error('localStorage unavailable');
         });
 
-        expect(() => clearIntendedRoute()).not.toThrow();
+        expect(() => clearIntendedPostAuth0SuccessRoute()).not.toThrow();
         mockRemoveItem.mockRestore();
       });
     });
