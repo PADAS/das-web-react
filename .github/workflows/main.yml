@@ -20,12 +20,15 @@ jobs:
           npm pkg set "buildbranch"="${{ github.head_ref || github.ref_name }}"
           npm pkg set "buildnum"="${{ github.run_number }}"
 
-      - name: Read env file
+      - name: Select env file for build
         id: env-vars
-        if: github.ref_name == 'develop'
         run: |
-          tracking_id=$(grep REACT_APP_GA4_TRACKING_ID .env.development | cut -d '=' -f2)
-          echo "build-args=REACT_APP_GA4_TRACKING_ID=$tracking_id" >> $GITHUB_OUTPUT
+          if [[ "${GITHUB_REF_NAME}" == "develop" ]]; then
+            echo "build-args=ENV_FILE=.env.development" >> $GITHUB_OUTPUT
+          else
+            # Default in Dockerfile.mt is .env.production; keep this explicit for clarity.
+            echo "build-args=ENV_FILE=.env.production" >> $GITHUB_OUTPUT
+          fi
 
       - uses: actions/upload-artifact@v4
         with:

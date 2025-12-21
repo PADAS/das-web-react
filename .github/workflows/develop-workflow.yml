@@ -57,18 +57,19 @@ jobs:
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v2'
 
+      - name: Select env file for build
+        if: github.ref_name == 'develop'
+        run: |
+          # `yarn build` always uses NODE_ENV=production, so copy the dev config
+          # into a file that is loaded for production builds.
+          cp .env.development .env.production.local
+
       - name: Validate existence of env
         id: validate_env
         run: |-
           export SITE=${GITHUB_REF#refs/heads/}
           if [[ ${SITE} =~ release-*.*.* ]]; then export SITE="stage"; else export SITE=$(echo ${SITE} | tr '[:upper:]' '[:lower:]'); fi
           if $(wget -q --method=HEAD "https://${SITE}.pamdas.org"); then echo "::set-output name=site_exists::true"; else echo "::set-output name=site_exists::false"; fi
-
-      - name: Set GA4 tracking ID for develop
-        if: github.ref_name == 'develop'
-        run: |
-          tracking_id=$(grep REACT_APP_GA4_TRACKING_ID .env.development | cut -d '=' -f2)
-          echo "REACT_APP_GA4_TRACKING_ID=$tracking_id" >> $GITHUB_ENV
 
       - name: Yarn build
         if: steps.validate_env.outputs.site_exists == 'true'
