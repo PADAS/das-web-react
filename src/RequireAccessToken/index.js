@@ -25,7 +25,8 @@ const RequireAccessToken = ({ children, token, systemConfig }) => {
     }
   }, [requireIdp, hasToken, hasOAuthParams, location.pathname, location.search]);
 
-  if (requireIdp && (hasOAuthParams || auth0Loading)) {
+  // Show loading during OAuth callback OR while Auth0 is processing
+  if ((requireIdp && auth0Loading) || hasOAuthParams) {
     return <LoadingOverlay />;
   }
 

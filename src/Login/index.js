@@ -11,7 +11,6 @@ import { ReactComponent as EarthRangerLogo } from '../common/images/earth-ranger
 
 import { clearAuth, postAuth } from '../ducks/auth';
 import { fetchEula } from '../ducks/eula';
-import { fetchSystemStatus } from '../ducks/system-status';
 import { REACT_APP_ROUTE_PREFIX, SYSTEM_CONFIG_FLAGS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
 
@@ -65,7 +64,6 @@ const LoginPage = () => {
   useEffect(() => {
     dispatch(clearAuth());
     dispatch(fetchEula());
-    dispatch(fetchSystemStatus());
 
     // Check for Auth0 errors in URL parameters
     const urlParams = new URLSearchParams(location.search);
@@ -125,7 +123,7 @@ const LoginPage = () => {
         {!idpOrgId && <Alert className={styles.error} variant="danger">{t('errorAlert.missingOrg', 'Identity provider organization is not configured.')}</Alert>}
         {idpOrgId && (
           <Button disabled={!authReady || authLoading} name="idp-login" type="button" variant="primary" onClick={onAuth0Login}>
-            {t('loginButtonIdp', 'Sign in with Auth0')}
+            {t('loginButtonIdp', 'Sign in')}
           </Button>
         )}
         {!!errorMessage && <Alert className={styles.error} variant="danger">{errorMessage}</Alert>}

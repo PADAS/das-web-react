@@ -21,20 +21,23 @@ const Auth0TokenManager = () => {
   const existingToken = useSelector((state) => state.data.token?.access_token);
   const requireIdp = useSelector((state) => !!state.view.systemConfig?.require_idp);
   const hasHandledCallback = useRef(false);
+  const sawOAuthParams = useRef(false);
 
   useEffect(() => {
+
     const ensureIdpToken = async () => {
-      if (!requireIdp) return;
-      if (!isAuthenticated || existingToken) return;
-
-      // Check if we're processing OAuth callback
       const hasOAuthParams = hasOAuthCallbackParams(location.search);
+      // Remember if we ever saw OAuth params (they disappear when Auth0Provider processes them)
+      if (hasOAuthParams) {
+        sawOAuthParams.current = true;
+      }
 
-      if (hasOAuthParams && !hasHandledCallback.current) {
+      // OAuth callback path: process when we saw params AND user is now authenticated
+      if (sawOAuthParams.current && isAuthenticated && !hasHandledCallback.current) {
         hasHandledCallback.current = true;
 
         try {
-          // Auth0Provider already handled the callback, just get the token
+          // Auth0Provider has processed the callback, now get the token
           const token = await getAccessTokenSilently({
             authorizationParams: {
               audience: process.env.REACT_APP_AUTH0_AUDIENCE,
@@ -65,24 +68,30 @@ const Auth0TokenManager = () => {
           console.error('Auth0 callback failed:', e);
           navigate(`${REACT_APP_ROUTE_PREFIX}login`, { replace: true });
         }
-      } else if (!hasOAuthParams) {
-        // Not a callback, just ensure token for already-authenticated users
-        try {
-          const token = await getAccessTokenSilently({
-            authorizationParams: {
-              audience: process.env.REACT_APP_AUTH0_AUDIENCE,
-            },
-          });
-          const safe = String(token).trim();
-          if (!isValidTokenFormat(token)) {
-            console.warn('Auth token format rejected');
-            return;
-          }
-          document.cookie = `token=${safe};path=/`;
-          dispatch({ type: POST_AUTH_SUCCESS, payload: { data: { access_token: safe } } });
-        } catch (_) {
-          // silently ignore; UI will route to login if needed
+        return;
+      }
+
+      if (!requireIdp || !isAuthenticated || existingToken) {
+        return;
+      }
+
+
+      // Token refresh for already-authenticated users
+      try {
+        const token = await getAccessTokenSilently({
+          authorizationParams: {
+            audience: process.env.REACT_APP_AUTH0_AUDIENCE,
+          },
+        });
+        const safe = String(token).trim();
+        if (!isValidTokenFormat(token)) {
+          console.warn('Auth token format rejected');
+          return;
         }
+        document.cookie = `token=${safe};path=/`;
+        dispatch({ type: POST_AUTH_SUCCESS, payload: { data: { access_token: safe } } });
+      } catch (_error) {
+        // silently ignore; UI will route to login if needed
       }
     };
     ensureIdpToken();

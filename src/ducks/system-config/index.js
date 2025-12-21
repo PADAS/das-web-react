@@ -74,7 +74,7 @@ export const INITIAL_STATE = {
   [SYSTEM_CONFIG_FLAGS.TABLEAU]: false,
   showTrackDays: DEFAULT_SHOW_TRACK_DAYS,
   sitename: '',
-  require_idp: false,
+  require_idp: null,  // null = not loaded yet
   idp_org_id: null,
 };
 

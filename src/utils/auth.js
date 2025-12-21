@@ -55,3 +55,7 @@ export const stripOAuthParams = (url) => {
   const remaining = params.toString();
   return remaining ? `${pathname}?${remaining}` : pathname;
 };
+
+export const isSystemConfigLoaded = (systemConfig) => {
+  return systemConfig.require_idp !== null;
+};
