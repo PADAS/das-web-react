@@ -1,9 +1,9 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Navigate, useLocation } from 'react-router';
 import { useAuth0 } from '@auth0/auth0-react';
 
-import { getTemporaryAccessTokenFromCookies } from '../utils/auth';
+import { getTemporaryAccessTokenFromCookies, setIntendedRoute } from '../utils/auth';
 import { hasOAuthCallbackParams } from '../utils/oauth';
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
 import LoadingOverlay from '../LoadingOverlay';
@@ -14,22 +14,30 @@ const RequireAccessToken = ({ children, token, systemConfig }) => {
 
   const temporaryAccessToken = getTemporaryAccessTokenFromCookies();
   const requireIdp = !!systemConfig?.require_idp;
-
-  // Check if we're in the middle of an OAuth callback
   const hasOAuthParams = hasOAuthCallbackParams(location.search);
+
+  const hasToken = temporaryAccessToken || token.access_token;
+
+  // Store intended route when redirecting to login (only for IDP mode to survive OAuth redirect)
+  useEffect(() => {
+    if (requireIdp && !hasToken && !hasOAuthParams) {
+      setIntendedRoute(`${location.pathname}${location.search}`);
+    }
+  }, [requireIdp, hasToken, hasOAuthParams, location.pathname, location.search]);
 
   if (requireIdp && (hasOAuthParams || auth0Loading)) {
     return <LoadingOverlay />;
   }
 
-  return (temporaryAccessToken || token.access_token)
-    ? children
-    : <Navigate
-        replace
-        state={{ from: { ...location } }}
-        {...(() => { try { localStorage.setItem('er:intended_route', `${location.pathname}${location.search}`); } catch (_) {} return {}; })()}
-        to={{ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search: location.search }}
-      />;
+  if (hasToken) {
+    return children;
+  }
+
+  return <Navigate
+    replace
+    state={{ from: location }}
+    to={`${REACT_APP_ROUTE_PREFIX}login`}
+  />;
 };
 
 const mapStateToProps = ({ data: { token }, view: { systemConfig } }) => ({ token, systemConfig });

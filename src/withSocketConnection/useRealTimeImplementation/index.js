@@ -52,8 +52,6 @@ const useRealTimeImplementation = () => {
       store.dispatch({ type: SOCKET_HEALTHY_STATUS });
       const profileId = store.getState().data.selectedUserProfile?.id;
 
-      console.log('access token', store.getState().data.token.access_token);
-
       socket.emit('authorization', { type: 'authorization', id: 1, authorization: `Bearer ${store.getState().data.token.access_token}` });
 
       if (profileId) {

@@ -12,3 +12,46 @@ export const deleteCookie = (name) => document.cookie = `${name}=;path=/;expires
 export const deleteAuthTokenCookie = () => deleteCookie('token');
 
 export const deleteTemporaryAccessTokenCookie = () => deleteCookie('temporaryAccessToken');
+
+export const isValidTokenFormat = (token) => {
+  const safe = String(token).trim();
+  return /^[A-Za-z0-9._-]+$/.test(safe);
+};
+
+export const getIntendedRoute = () => {
+  try {
+    return localStorage.getItem('er:intended_route');
+  } catch (_) {
+    return null;
+  }
+};
+
+export const clearIntendedRoute = () => {
+  try {
+    localStorage.removeItem('er:intended_route');
+  } catch (_) {
+    // Ignore errors
+  }
+};
+
+export const setIntendedRoute = (route) => {
+  try {
+    localStorage.setItem('er:intended_route', route);
+  } catch (_) {
+    // Ignore errors
+  }
+};
+
+export const stripOAuthParams = (url) => {
+  const [pathname, searchString] = url.split('?');
+  if (!searchString) return pathname;
+
+  const params = new URLSearchParams(searchString);
+  params.delete('code');
+  params.delete('state');
+  params.delete('error');
+  params.delete('error_description');
+
+  const remaining = params.toString();
+  return remaining ? `${pathname}?${remaining}` : pathname;
+};

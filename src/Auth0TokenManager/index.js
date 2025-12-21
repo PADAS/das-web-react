@@ -6,6 +6,12 @@ import { POST_AUTH_SUCCESS } from '../ducks/auth';
 import useNavigate from '../hooks/useNavigate';
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
 import { hasOAuthCallbackParams } from '../utils/oauth';
+import {
+  clearIntendedRoute,
+  getIntendedRoute,
+  isValidTokenFormat,
+  stripOAuthParams,
+} from '../utils/auth';
 
 const Auth0TokenManager = () => {
   const dispatch = useDispatch();
@@ -36,7 +42,7 @@ const Auth0TokenManager = () => {
           });
 
           const safe = String(token).trim();
-          if (!/^[A-Za-z0-9._-]+$/.test(safe)) {
+          if (!isValidTokenFormat(token)) {
             console.warn('Auth token format rejected');
             navigate(`${REACT_APP_ROUTE_PREFIX}login`, { replace: true });
             return;
@@ -46,26 +52,15 @@ const Auth0TokenManager = () => {
           document.cookie = `token=${safe};path=/`;
           dispatch({ type: POST_AUTH_SUCCESS, payload: { data: { access_token: safe } } });
 
-          // Navigate to intended route
-          const storedIntended = (() => { try { return localStorage.getItem('er:intended_route'); } catch (_) { return null; } })();
-          const rawReturnTo = storedIntended || REACT_APP_ROUTE_PREFIX;
-          const returnTo = /\/login\b/.test(rawReturnTo) ? REACT_APP_ROUTE_PREFIX : rawReturnTo;
-          console.log('[Auth0TokenManager] Navigation:', { storedIntended, rawReturnTo, returnTo, currentLocation: location.pathname });
-          try { localStorage.removeItem('er:intended_route'); } catch (_) {}
+          // Determine return route (localStorage survives OAuth redirect)
+          const intendedRoute = getIntendedRoute();
+          const returnTo = intendedRoute && !/\/login\b/.test(intendedRoute)
+            ? intendedRoute
+            : REACT_APP_ROUTE_PREFIX;
+          clearIntendedRoute();
 
-          // Strip OAuth params from URL
-          const [pathname, searchString] = returnTo.split('?');
-          let cleanSearch = '';
-          if (searchString) {
-            const params = new URLSearchParams(searchString);
-            params.delete('code');
-            params.delete('state');
-            const remaining = params.toString();
-            if (remaining) cleanSearch = `?${remaining}`;
-          }
-
-          console.log('[Auth0TokenManager] Navigating to:', pathname + cleanSearch);
-          navigate(pathname + cleanSearch, { replace: true, state: { comesFromLogin: true } });
+          const cleanUrl = stripOAuthParams(returnTo);
+          navigate(cleanUrl, { replace: true, state: { comesFromLogin: true } });
         } catch (e) {
           console.error('Auth0 callback failed:', e);
           navigate(`${REACT_APP_ROUTE_PREFIX}login`, { replace: true });
@@ -79,7 +74,7 @@ const Auth0TokenManager = () => {
             },
           });
           const safe = String(token).trim();
-          if (!/^[A-Za-z0-9._-]+$/.test(safe)) {
+          if (!isValidTokenFormat(token)) {
             console.warn('Auth token format rejected');
             return;
           }

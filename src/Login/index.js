@@ -100,8 +100,6 @@ const LoginPage = () => {
 
   const onAuth0Login = useCallback(async () => {
     try {
-      console.log('[Login] Starting Auth0 login, will redirect to root');
-
       await loginWithRedirect({
         authorizationParams: {
           organization: idpOrgId,
