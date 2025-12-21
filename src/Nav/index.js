@@ -2,6 +2,7 @@ import React, { lazy, memo, useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { useAuth0 } from '@auth0/auth0-react';
 
 import { addModal } from '../ducks/modals';
 import { BREAKPOINTS, MAX_ZOOM, REACT_APP_ROUTE_PREFIX } from '../constants';
@@ -13,8 +14,8 @@ import { setHomeMap } from '../ducks/maps';
 import { showDrawer } from '../ducks/drawer';
 import { trackEventFactory, MAIN_TOOLBAR_CATEGORY } from '../utils/analytics';
 import useJumpToLocation from '../hooks/useJumpToLocation';
-import { useMatchMedia } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
+import { useMatchMedia } from '../hooks';
 import { useMessagesPermissions } from '../hooks/usePermissions';
 
 import EarthRangerLogo from '../EarthRangerLogo';
@@ -48,6 +49,7 @@ const Nav = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation('top-bar', { keyPrefix: 'nav' });
+  const { logout: auth0Logout } = useAuth0();
 
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
@@ -58,6 +60,8 @@ const Nav = () => {
   const user = useSelector((state) => state.data.user);
   const userProfiles = useSelector((state) => state.data.userProfiles);
   const selectedUserProfile = useSelector((state) => state.data.selectedUserProfile);
+  const systemConfig = useSelector((state) => state.view.systemConfig);
+  const requireIdp = !!systemConfig?.require_idp;
 
   const onHomeMapSelect = (chosenMap) => {
     dispatch(setHomeMap(chosenMap));
@@ -100,6 +104,32 @@ const Nav = () => {
     }));
   }, [dispatch, handleProfileChange]);
 
+  const handleLogout = useCallback(async () => {
+    try {
+      // Clear local auth state
+      await dispatch(clearAuth());
+
+      // If using Auth0, also logout from Auth0 to clear their session
+      // Return to root, then natural flow will redirect to login
+      if (requireIdp) {
+        auth0Logout({
+          logoutParams: {
+            returnTo: `${window.location.origin}${REACT_APP_ROUTE_PREFIX}`
+          }
+        });
+      } else {
+        // Traditional auth: just navigate to login
+        navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login` }, { replace: true });
+      }
+
+    } catch (error) {
+      console.error('[Nav] Logout failed:', error);
+      // Fallback: clear everything and navigate to login
+      await dispatch(clearAuth());
+      navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login` }, { replace: true });
+    }
+  }, [dispatch, navigate, requireIdp, auth0Logout]);
+
   useEffect(() => {
     dispatch(fetchCurrentUser())
       .catch(() => navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search: location.search }));
@@ -139,7 +169,7 @@ const Nav = () => {
       <NotificationMenu />
 
       <UserMenu
-        onLogOutClick={() => dispatch(clearAuth())}
+        onLogOutClick={handleLogout}
         onProfileClick={onProfileClick}
         selectedUserProfile={selectedUserProfile}
         user={user}

@@ -66,7 +66,30 @@ const LoginPage = () => {
     dispatch(clearAuth());
     dispatch(fetchEula());
     dispatch(fetchSystemStatus());
-  }, [dispatch]);
+
+    // Check for Auth0 errors in URL parameters
+    const urlParams = new URLSearchParams(location.search);
+    const authError = urlParams.get('error');
+    const authErrorDescription = urlParams.get('error_description');
+
+    if (authError && authErrorDescription) {
+      // Display user-friendly error messages based on Auth0 error types
+      let userMessage;
+      if (authError === 'access_denied') {
+        if (authErrorDescription.includes('not part of the')) {
+          userMessage = 'Access denied: Your account is not authorized for this organization. Please contact your administrator.';
+        } else {
+          userMessage = 'Access denied: You do not have permission to access this application.';
+        }
+      } else if (authError === 'unauthorized') {
+        userMessage = 'Authentication failed: Please check your credentials and try again.';
+      } else {
+        userMessage = `Authentication error: ${authErrorDescription}`;
+      }
+
+      setErrorMessage(userMessage);
+    }
+  }, [dispatch, location.search]);
 
   useEffect(() => {
     if (requireIdp && !idpOrgId) {
@@ -77,14 +100,9 @@ const LoginPage = () => {
 
   const onAuth0Login = useCallback(async () => {
     try {
-      // Prefer router-provided from, then long-persisted intended route, else app root
-      const storedIntended = (() => { try { return localStorage.getItem('er:intended_route'); } catch (_) { return null; } })();
-      const rawReturnTo = (location.state?.from && (location.state.from.pathname + (location.state.from.search || ''))) || storedIntended || REACT_APP_ROUTE_PREFIX;
-      const returnTo = /\/login\b/.test(rawReturnTo) ? REACT_APP_ROUTE_PREFIX : rawReturnTo;
-
+      console.log('[Login] Starting Auth0 login, will redirect to root');
 
       await loginWithRedirect({
-        appState: { returnTo },
         authorizationParams: {
           organization: idpOrgId,
           audience: process.env.REACT_APP_AUTH0_AUDIENCE,
@@ -93,9 +111,7 @@ const LoginPage = () => {
     } catch (e) {
       setErrorMessage('Sign-in failed. Please try again.');
     }
-  }, [loginWithRedirect, idpOrgId, location.state?.from]);
-
-  // Wait for system config to load before rendering to prevent form flash
+  }, [loginWithRedirect, idpOrgId]);  // Wait for system config to load before rendering to prevent form flash
   // systemConfig always exists but sitename is '' until loaded
   const configLoaded = systemConfig?.sitename !== '';
   if (!configLoaded) {

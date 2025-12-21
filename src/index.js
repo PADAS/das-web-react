@@ -27,7 +27,6 @@ import LoadingOverlay from './EarthRangerIconLoadingOverlay';
 import NavigationContextProvider from './NavigationContextProvider';
 import RequestConfigManager from './RequestConfigManager';
 import Auth0TokenManager from './Auth0TokenManager';
-import Auth0NavigationManager from './Auth0NavigationManager';
 import RequireAccessToken from './RequireAccessToken';
 import RequireEulaConfirmation from './RequireEulaConfirmation';
 import useWebVitals from './hooks/useWebVitals';
@@ -77,7 +76,6 @@ const RootApp = () => {
   return <>
     <RequestConfigManager />
     <Auth0TokenManager />
-    <Auth0NavigationManager />
 
     <Suspense fallback={<LoadingOverlay />}>
       <Routes>
@@ -114,11 +112,7 @@ root.render(
         clientId={process.env.REACT_APP_AUTH0_CLIENT_ID}
         authorizationParams={{
           audience: process.env.REACT_APP_AUTH0_AUDIENCE,
-          redirect_uri: window.location.origin,
-        }}
-        onRedirectCallback={() => {
-          // Clean OAuth params from URL after callback
-          window.history.replaceState({}, document.title, window.location.pathname);
+          redirect_uri: `${window.location.origin}${REACT_APP_ROUTE_PREFIX}`,
         }}
         useRefreshTokens
         cacheLocation="memory"
