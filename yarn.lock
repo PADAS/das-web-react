@@ -38,6 +38,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@auth0/auth0-react@npm:^2.10.0":
+  version: 2.10.0
+  resolution: "@auth0/auth0-react@npm:2.10.0"
+  dependencies:
+    "@auth0/auth0-spa-js": "npm:^2.9.1"
+  peerDependencies:
+    react: ^16.11.0 || ^17 || ^18 || ~19.0.1 || ~19.1.2 || ^19.2.1
+    react-dom: ^16.11.0 || ^17 || ^18 || ~19.0.1 || ~19.1.2 || ^19.2.1
+  checksum: 10c0/6f9a150ae443de26d46d2d77e5664f86075ee3513708d12d18844c3945706b4cdbe01e48dec53c6d6339ba1074b6f3dc7d43f8f879352da1c9bfafbaab3ef110
+  languageName: node
+  linkType: hard
+
+"@auth0/auth0-spa-js@npm:^2.9.1":
+  version: 2.10.0
+  resolution: "@auth0/auth0-spa-js@npm:2.10.0"
+  dependencies:
+    browser-tabs-lock: "npm:^1.2.15"
+    dpop: "npm:^2.1.1"
+    es-cookie: "npm:~1.3.2"
+  checksum: 10c0/855447aed5627fb1296ed44e52687daa81f56ff0e30491395de8386dc65a55b9027591d2bac46a35b3c6a341a2da9ee1a892be47994e2f105a231cfb59fc469d
+  languageName: node
+  linkType: hard
+
 "@babel/code-frame@npm:^7.0.0, @babel/code-frame@npm:^7.10.4, @babel/code-frame@npm:^7.16.0, @babel/code-frame@npm:^7.27.1, @babel/code-frame@npm:^7.8.3":
   version: 7.27.1
   resolution: "@babel/code-frame@npm:7.27.1"
@@ -7431,6 +7454,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"browser-tabs-lock@npm:^1.2.15":
+  version: 1.3.0
+  resolution: "browser-tabs-lock@npm:1.3.0"
+  dependencies:
+    lodash: "npm:>=4.17.21"
+  checksum: 10c0/b1f9cbd221725cf3228daf42360ea6a97f69b29e0475ef734bc5a6bd5c27b61f99db716c49808988a1c735d828207dcaa3a8802e605d0195538fbf9e25d1753b
+  languageName: node
+  linkType: hard
+
 "browserslist@npm:^4.0.0, browserslist@npm:^4.18.1, browserslist@npm:^4.24.0, browserslist@npm:^4.24.4, browserslist@npm:^4.25.1, browserslist@npm:^4.25.3, browserslist@npm:^4.26.0, browserslist@npm:^4.26.2":
   version: 4.26.2
   resolution: "browserslist@npm:4.26.2"
@@ -8446,6 +8478,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "das-web-react@workspace:."
   dependencies:
+    "@auth0/auth0-react": "npm:^2.10.0"
     "@babel/core": "npm:^7.28.4"
     "@babel/eslint-parser": "npm:^7.28.4"
     "@babel/runtime": "npm:^7.28.4"
@@ -9003,6 +9036,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dpop@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "dpop@npm:2.1.1"
+  checksum: 10c0/e46dfd62325dd63372a17492c1867f79cdaf235645d32b87c3be8a09d4c7b03b8b44efec26688ba19e8279c77497a08deb302a9a4704b432795efd1163519611
+  languageName: node
+  linkType: hard
+
 "dunder-proto@npm:^1.0.0, dunder-proto@npm:^1.0.1":
   version: 1.0.1
   resolution: "dunder-proto@npm:1.0.1"
@@ -9306,6 +9346,13 @@ __metadata:
     unbox-primitive: "npm:^1.1.0"
     which-typed-array: "npm:^1.1.19"
   checksum: 10c0/b256e897be32df5d382786ce8cce29a1dd8c97efbab77a26609bd70f2ed29fbcfc7a31758cb07488d532e7ccccdfca76c1118f2afe5a424cdc05ca007867c318
+  languageName: node
+  linkType: hard
+
+"es-cookie@npm:~1.3.2":
+  version: 1.3.2
+  resolution: "es-cookie@npm:1.3.2"
+  checksum: 10c0/26eb6e06b25b5569d8763fcb23b5335a5098e354b0a9a7bc5122e8c8705003307187a165ddaeda5cff08fa4cc8e1675dbddd5709279fb27cfa8875514dc3eccb
   languageName: node
   linkType: hard
 
@@ -12794,7 +12841,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.17.4":
+"lodash@npm:>=4.17.21, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.17.4":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: 10c0/d8cbea072bb08655bb4c989da418994b073a608dffa608b09ac04b43a791b12aeae7cd7ad919aa4c925f33b48490b5cfe6c1f71d827956071dae2e7bb3a6b74c

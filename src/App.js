@@ -74,12 +74,18 @@ export const App = () => {
   let sidebarOpen = !!currentTab;
 
   const jumpToStartingLocation = useCallback((map) => {
-    const lnglat = new URLSearchParams(location.search).get('lnglat');
+    const urlParams = new URLSearchParams(location.search);
+    const lnglat = urlParams.get('lnglat');
 
     if (lnglat) {
       const lngLatFromParams = lnglat.replace(' ', '').split(',').map((n) => parseFloat(n));
-      const newLocation = { ...location };
-      delete newLocation.search;
+
+      urlParams.delete('lnglat');
+      const remainingSearch = urlParams.toString();
+      const newLocation = {
+        ...location,
+        search: remainingSearch ? `?${remainingSearch}` : ''
+      };
 
       navigate(newLocation, { replace: true, state: { comesFromLngLatRedirection: true } });
 

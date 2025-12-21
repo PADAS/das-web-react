@@ -1,9 +1,9 @@
-import React, { lazy, Suspense, useEffect, useRef } from 'react';
+import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import { createRoot } from 'react-dom/client';
 import { PersistGate } from 'redux-persist/integration/react';
 import { persistStore } from 'redux-persist';
-import { Provider } from 'react-redux';
+import { Provider, useDispatch, useSelector } from 'react-redux';
 import ReactGA4 from 'react-ga4';
 import { useTranslation } from 'react-i18next';
 
@@ -16,8 +16,11 @@ import './index.scss';
 import { EXTERNAL_SAME_DOMAIN_ROUTES, REACT_APP_GA4_TRACKING_ID, REACT_APP_ROUTE_PREFIX } from './constants';
 import registerServiceWorker from './registerServiceWorker';
 import { setClientReleaseIdentifier } from './utils/analytics';
+import { isSystemConfigLoaded } from './utils/auth';
 import store from './store';
 import withTracker from './WithTracker';
+import { Auth0Provider } from '@auth0/auth0-react';
+import { fetchSystemStatus } from './ducks/system-status';
 
 import DetectOffline from './DetectOffline';
 import GeoLocationWatcher from './GeoLocationWatcher';
@@ -25,6 +28,7 @@ import JiraSupportWidget from './JiraSupportWidget';
 import LoadingOverlay from './EarthRangerIconLoadingOverlay';
 import NavigationContextProvider from './NavigationContextProvider';
 import RequestConfigManager from './RequestConfigManager';
+import Auth0TokenManager from './Auth0TokenManager';
 import RequireAccessToken from './RequireAccessToken';
 import RequireEulaConfirmation from './RequireEulaConfirmation';
 import useWebVitals from './hooks/useWebVitals';
@@ -61,8 +65,16 @@ const PathNormalizationRouteComponent = ({ location }) => {
 
 const RootApp = () => {
   const { i18n } = useTranslation();
+  const dispatch = useDispatch();
+  const systemConfig = useSelector((state) => state.view.systemConfig);
+  const [configError, setConfigError] = useState(false);
 
   useWebVitals();
+
+  useEffect(() => {
+    dispatch(fetchSystemStatus())
+      .catch(() => setConfigError(true));
+  }, [dispatch]);
 
   useEffect(() => {
     if (window?.OneTrust) {
@@ -71,8 +83,17 @@ const RootApp = () => {
     }
   }, [i18n.language]);
 
+  // Block until system config is loaded from the server
+  if (!isSystemConfigLoaded(systemConfig)) {
+    if (configError) {
+      return <div>Failed to load system configuration. Please refresh.</div>;
+    }
+    return <LoadingOverlay />;
+  }
+
   return <>
     <RequestConfigManager />
+    <Auth0TokenManager />
 
     <Suspense fallback={<LoadingOverlay />}>
       <Routes>
@@ -104,11 +125,21 @@ const root = createRoot(document.getElementById('root'));
 root.render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistStore(store)} >
-      <BrowserRouter>
-        <NavigationContextProvider>
-          <RootApp />
-        </NavigationContextProvider>
-      </BrowserRouter>
+      <Auth0Provider
+        domain={process.env.REACT_APP_AUTH0_DOMAIN}
+        clientId={process.env.REACT_APP_AUTH0_CLIENT_ID}
+        authorizationParams={{
+          audience: process.env.REACT_APP_AUTH0_AUDIENCE,
+          redirect_uri: `${window.location.origin}${REACT_APP_ROUTE_PREFIX}`,
+        }}
+        cacheLocation="localstorage"
+      >
+        <BrowserRouter>
+          <NavigationContextProvider>
+            <RootApp />
+          </NavigationContextProvider>
+        </BrowserRouter>
+      </Auth0Provider>
 
       <DetectOffline />
     </PersistGate>
