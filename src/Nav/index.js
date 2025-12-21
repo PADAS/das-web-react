@@ -108,19 +108,7 @@ const Nav = () => {
     try {
       // Clear local auth state
       await dispatch(clearAuth());
-
-      // If using Auth0, also logout from Auth0 to clear their session
-      // Return to root, then natural flow will redirect to login
-      if (requireIdp) {
-        auth0Logout({
-          logoutParams: {
-            returnTo: `${window.location.origin}${REACT_APP_ROUTE_PREFIX}`
-          }
-        });
-      } else {
-        // Traditional auth: just navigate to login
-        navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login` }, { replace: true });
-      }
+      navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login` }, { replace: true });
 
     } catch (error) {
       console.error('[Nav] Logout failed:', error);
