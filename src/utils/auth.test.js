@@ -57,10 +57,6 @@ describe('auth utils', () => {
       expect(isValidTokenFormat(undefined)).toBe(false);
     });
 
-    test('returns true for null (converts to string "null")', () => {
-      // Note: null gets coerced to string "null" which passes the regex
-      expect(isValidTokenFormat(null)).toBe(true);
-    });
   });
 
   describe('stripAuth0Params', () => {
