@@ -76,26 +76,26 @@ const LoginPage = () => {
       let userMessage;
       if (authError === 'access_denied') {
         if (authErrorDescription.includes('not part of the')) {
-          userMessage = 'Access denied: Your account is not authorized for this organization. Please contact your administrator.';
+          userMessage = t('errorAlert.accessDeniedNotAuthorized');
         } else {
-          userMessage = 'Access denied: You do not have permission to access this application.';
+          userMessage = t('errorAlert.accessDeniedNoPermission');
         }
       } else if (authError === 'unauthorized') {
-        userMessage = 'Authentication failed: Please check your credentials and try again.';
+        userMessage = t('errorAlert.authenticationFailed');
       } else {
-        userMessage = `Authentication error: ${authErrorDescription}`;
+        userMessage = t('errorAlert.authenticationError', { errorDescription: authErrorDescription });
       }
 
       setErrorMessage(userMessage);
     }
-  }, [dispatch, location.search]);
+  }, [dispatch, location.search, t]);
 
   useEffect(() => {
     if (requireIdp && !idpOrgId) {
-      setErrorMessage('Identity provider organization is not configured.');
+      setErrorMessage(t('errorAlert.missingOrg'));
       setAuthReady(false);
     }
-  }, [requireIdp, idpOrgId]);
+  }, [requireIdp, idpOrgId, t]);
 
   const onAuth0Login = useCallback(async () => {
     try {
@@ -106,18 +106,18 @@ const LoginPage = () => {
         },
       });
     } catch (e) {
-      setErrorMessage('Sign-in failed. Please try again.');
+      setErrorMessage(t('errorAlert.signInFailed'));
     }
-  }, [loginWithRedirect, idpOrgId]);
+  }, [loginWithRedirect, idpOrgId, t]);
 
   return <div className={styles.container}>
     <EarthRangerLogo className={styles.logo} />
     {requireIdp ? (
       <div className={styles.form}>
-        {!idpOrgId && <Alert className={styles.error} variant="danger">{t('errorAlert.missingOrg', 'Identity provider organization is not configured.')}</Alert>}
+        {!idpOrgId && <Alert className={styles.error} variant="danger">{t('errorAlert.missingOrg')}</Alert>}
         {idpOrgId && (
           <Button disabled={!authReady || authLoading} name="idp-login" type="button" variant="primary" onClick={onAuth0Login}>
-            {t('loginButtonIdp', 'Sign in')}
+            {t('loginButtonIdp')}
           </Button>
         )}
         {!!errorMessage && <Alert className={styles.error} variant="danger">{errorMessage}</Alert>}

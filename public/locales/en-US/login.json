@@ -1,10 +1,17 @@
 {
   "errorAlert": {
+    "accessDeniedNotAuthorized": "Access denied: Your account is not authorized for this organization. Please contact your administrator.",
+    "accessDeniedNoPermission": "Access denied: You do not have permission to access this application.",
+    "authenticationFailed": "Authentication failed: Please check your credentials and try again.",
+    "authenticationError": "Authentication error: {{errorDescription}}",
     "invalidCredentialsMessage": "Invalid credentials given. Please try again.",
+    "missingOrg": "Identity provider organization is not configured.",
+    "signInFailed": "Sign-in failed. Please try again.",
     "unknownErrorMessage": "An error has occurred. Please try again."
   },
   "eulaLink": "EarthRanger EULA",
   "loginButton": "Log in",
+  "loginButtonIdp": "Sign in",
   "passwordLabel": "Password",
   "usernameLabel": "Username"
 }

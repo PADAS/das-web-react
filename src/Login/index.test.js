@@ -25,6 +25,11 @@ jest.mock('../ducks/auth', () => ({
   clearAuth: jest.fn(),
 }));
 jest.mock('../hooks/useNavigate', () => jest.fn());
+jest.mock('@auth0/auth0-react', () => ({
+  useAuth0: jest.fn(),
+}));
+
+const { useAuth0 } = require('@auth0/auth0-react');
 
 describe('Login', () => {
   const username = 'er_user', password = 'er_password';
@@ -46,6 +51,12 @@ describe('Login', () => {
     navigate = jest.fn();
     useNavigateMock = jest.fn(() => navigate);
     useNavigate.mockImplementation(useNavigateMock);
+
+    // Default Auth0 mock for non-IDP mode
+    useAuth0.mockReturnValue({
+      loginWithRedirect: jest.fn(),
+      isLoading: false,
+    });
 
     store = mockStore({ data: { eula: { eula_url: '' } }, view: { systemConfig: {} } });
 
@@ -86,6 +97,185 @@ describe('Login', () => {
 
     await waitFor(async () => {
       await screen.findByText('An error has occurred. Please try again.');
+    });
+  });
+
+  describe('Auth0 IDP mode', () => {
+    test('shows Auth0 sign in button when require_idp is true', async () => {
+      const loginWithRedirect = jest.fn();
+      useAuth0.mockReturnValue({
+        loginWithRedirect,
+        isLoading: false,
+      });
+
+      const idpStore = mockStore({
+        data: { eula: { eula_url: '' } },
+        view: { systemConfig: { require_idp: true, idp_org_id: 'org_123' } }
+      });
+
+      render(
+        <Provider store={idpStore}>
+          <Login />
+        </Provider>
+      );
+
+      const signInButton = await screen.findByText('Sign in');
+      expect(signInButton).toBeInTheDocument();
+    });
+
+    test('calls loginWithRedirect when Auth0 sign in button is clicked', async () => {
+      const loginWithRedirect = jest.fn().mockResolvedValue({});
+      useAuth0.mockReturnValue({
+        loginWithRedirect,
+        isLoading: false,
+      });
+
+      const idpStore = mockStore({
+        data: { eula: { eula_url: '' } },
+        view: { systemConfig: { require_idp: true, idp_org_id: 'org_456' } }
+      });
+
+      render(
+        <Provider store={idpStore}>
+          <Login />
+        </Provider>
+      );
+
+      const signInButton = await screen.findByText('Sign in');
+      await userEvent.click(signInButton);
+
+      expect(loginWithRedirect).toHaveBeenCalledWith({
+        authorizationParams: {
+          organization: 'org_456',
+          audience: process.env.REACT_APP_AUTH0_AUDIENCE,
+        },
+      });
+    });
+
+    test('shows error when IDP organization is not configured', async () => {
+      useAuth0.mockReturnValue({
+        loginWithRedirect: jest.fn(),
+        isLoading: false,
+      });
+
+      const idpStore = mockStore({
+        data: { eula: { eula_url: '' } },
+        view: { systemConfig: { require_idp: true, idp_org_id: null } }
+      });
+
+      render(
+        <Provider store={idpStore}>
+          <Login />
+        </Provider>
+      );
+
+      const errorMessage = await screen.findByText('Identity provider organization is not configured.');
+      expect(errorMessage).toBeInTheDocument();
+    });
+
+    test('shows error when loginWithRedirect fails', async () => {
+      const loginWithRedirect = jest.fn().mockRejectedValue(new Error('Auth0 error'));
+      useAuth0.mockReturnValue({
+        loginWithRedirect,
+        isLoading: false,
+      });
+
+      const idpStore = mockStore({
+        data: { eula: { eula_url: '' } },
+        view: { systemConfig: { require_idp: true, idp_org_id: 'org_789' } }
+      });
+
+      render(
+        <Provider store={idpStore}>
+          <Login />
+        </Provider>
+      );
+
+      const signInButton = await screen.findByText('Sign in');
+      await userEvent.click(signInButton);
+
+      await waitFor(async () => {
+        const errorMessage = await screen.findByText('Sign-in failed. Please try again.');
+        expect(errorMessage).toBeInTheDocument();
+      });
+    });
+
+    test('shows access denied error from Auth0 URL params', async () => {
+      delete window.location;
+      window.location = { search: '?error=access_denied&error_description=User%20is%20not%20part%20of%20the%20organization' };
+
+      useAuth0.mockReturnValue({
+        loginWithRedirect: jest.fn(),
+        isLoading: false,
+      });
+
+      const idpStore = mockStore({
+        data: { eula: { eula_url: '' } },
+        view: { systemConfig: { require_idp: true, idp_org_id: 'org_123' } }
+      });
+
+      render(
+        <Provider store={idpStore}>
+          <Login />
+        </Provider>
+      );
+
+      await waitFor(async () => {
+        const errorMessage = await screen.findByText('Access denied: Your account is not authorized for this organization. Please contact your administrator.');
+        expect(errorMessage).toBeInTheDocument();
+      });
+    });
+
+    test('shows authentication failed error from Auth0 URL params', async () => {
+      delete window.location;
+      window.location = { search: '?error=unauthorized&error_description=Invalid%20credentials' };
+
+      useAuth0.mockReturnValue({
+        loginWithRedirect: jest.fn(),
+        isLoading: false,
+      });
+
+      const idpStore = mockStore({
+        data: { eula: { eula_url: '' } },
+        view: { systemConfig: { require_idp: true, idp_org_id: 'org_123' } }
+      });
+
+      render(
+        <Provider store={idpStore}>
+          <Login />
+        </Provider>
+      );
+
+      await waitFor(async () => {
+        const errorMessage = await screen.findByText('Authentication failed: Please check your credentials and try again.');
+        expect(errorMessage).toBeInTheDocument();
+      });
+    });
+
+    test('shows generic authentication error from Auth0 URL params', async () => {
+      delete window.location;
+      window.location = { search: '?error=server_error&error_description=Internal%20server%20error' };
+
+      useAuth0.mockReturnValue({
+        loginWithRedirect: jest.fn(),
+        isLoading: false,
+      });
+
+      const idpStore = mockStore({
+        data: { eula: { eula_url: '' } },
+        view: { systemConfig: { require_idp: true, idp_org_id: 'org_123' } }
+      });
+
+      render(
+        <Provider store={idpStore}>
+          <Login />
+        </Provider>
+      );
+
+      await waitFor(async () => {
+        const errorMessage = await screen.findByText('Authentication error: Internal server error');
+        expect(errorMessage).toBeInTheDocument();
+      });
     });
   });
 });
