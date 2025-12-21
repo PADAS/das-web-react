@@ -16,6 +16,7 @@ jest.mock('react-router', () => ({
 }));
 jest.mock('../utils/auth');
 jest.mock('../utils/oauth');
+/* eslint-disable-next-line */
 jest.mock('../LoadingOverlay', () => () => <div data-testid="loading">Loading...</div>);
 
 describe('RequireAccessToken', () => {

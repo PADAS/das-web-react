@@ -45,7 +45,7 @@ const Auth0TokenManager = () => {
           });
 
           const safe = String(token).trim();
-          if (!isValidTokenFormat(token)) {
+          if (!isValidTokenFormat(safe)) {
             console.warn('Auth token format rejected');
             navigate(`${REACT_APP_ROUTE_PREFIX}login`, { replace: true });
             return;
@@ -73,25 +73,6 @@ const Auth0TokenManager = () => {
 
       if (!requireIdp || !isAuthenticated || existingToken) {
         return;
-      }
-
-
-      // Token refresh for already-authenticated users
-      try {
-        const token = await getAccessTokenSilently({
-          authorizationParams: {
-            audience: process.env.REACT_APP_AUTH0_AUDIENCE,
-          },
-        });
-        const safe = String(token).trim();
-        if (!isValidTokenFormat(token)) {
-          console.warn('Auth token format rejected');
-          return;
-        }
-        document.cookie = `token=${safe};path=/`;
-        dispatch({ type: POST_AUTH_SUCCESS, payload: { data: { access_token: safe } } });
-      } catch (_error) {
-        // silently ignore; UI will route to login if needed
       }
     };
     ensureIdpToken();

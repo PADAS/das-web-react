@@ -13,9 +13,8 @@ export const deleteAuthTokenCookie = () => deleteCookie('token');
 
 export const deleteTemporaryAccessTokenCookie = () => deleteCookie('temporaryAccessToken');
 
-export const isValidTokenFormat = (token) => {
-  const safe = String(token).trim();
-  return /^[A-Za-z0-9._-]+$/.test(safe);
+export const isValidTokenFormat = (token = '') => {
+  return /^[A-Za-z0-9._-]+$/.test(token);
 };
 
 export const getIntendedRoute = () => {

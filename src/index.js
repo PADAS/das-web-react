@@ -121,10 +121,6 @@ const RootApp = () => {
   </>;
 };
 
-const onRedirectCallback = (appState) => {
-  console.log('[Auth0Provider] onRedirectCallback called', appState);
-};
-
 const root = createRoot(document.getElementById('root'));
 root.render(
   <Provider store={store}>
@@ -136,7 +132,6 @@ root.render(
           audience: process.env.REACT_APP_AUTH0_AUDIENCE,
           redirect_uri: `${window.location.origin}${REACT_APP_ROUTE_PREFIX}`,
         }}
-        onRedirectCallback={onRedirectCallback}
         cacheLocation="localstorage"
       >
         <BrowserRouter>

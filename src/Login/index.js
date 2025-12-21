@@ -11,6 +11,7 @@ import { ReactComponent as EarthRangerLogo } from '../common/images/earth-ranger
 
 import { clearAuth, postAuth } from '../ducks/auth';
 import { fetchEula } from '../ducks/eula';
+import { isSystemConfigLoaded } from '../utils/auth';
 import { REACT_APP_ROUTE_PREFIX, SYSTEM_CONFIG_FLAGS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
 
@@ -107,14 +108,7 @@ const LoginPage = () => {
     } catch (e) {
       setErrorMessage('Sign-in failed. Please try again.');
     }
-  }, [loginWithRedirect, idpOrgId]);  // Wait for system config to load before rendering to prevent form flash
-  // systemConfig always exists but sitename is '' until loaded
-  const configLoaded = systemConfig?.sitename !== '';
-  if (!configLoaded) {
-    return <div className={styles.container}>
-      <EarthRangerLogo className={styles.logo} />
-    </div>;
-  }
+  }, [loginWithRedirect, idpOrgId]);
 
   return <div className={styles.container}>
     <EarthRangerLogo className={styles.logo} />
