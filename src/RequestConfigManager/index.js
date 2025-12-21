@@ -83,7 +83,6 @@ const RequestConfigManager = ({
     if (config.url && !config.url.includes('/user/me') && profile) {
       config.headers['USER-PROFILE'] = profile;
     }
-    // Status API is public and doesn't require authentication
     if (config.url.includes('api/v1.0/status')) {
       delete config.headers['Authorization'];
     }
