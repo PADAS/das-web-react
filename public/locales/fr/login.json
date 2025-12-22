@@ -12,6 +12,8 @@
   "eulaLink": "Contrat de License d'Utilisateur Final EarthRanger",
   "loginButton": "Se Connecter",
   "loginButtonIdp": "Se Connecter",
+  "loginButtonIdpAsUser": "Se reconnecter en tant que {{username}}",
+  "loginButtonIdpDifferentUser": "Se connecter en tant qu'utilisateur différent",
   "passwordLabel": "Mot de passe",
   "usernameLabel": "Nom d'utilisateur"
 }

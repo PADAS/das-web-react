@@ -12,6 +12,8 @@
   "eulaLink": "EarthRanger EULA",
   "loginButton": "Ingia",
   "loginButtonIdp": "Ingia",
+  "loginButtonIdpAsUser": "Ingia tena kama {{username}}",
+  "loginButtonIdpDifferentUser": "Ingia kama mtumiaji mwingine",
   "passwordLabel": "Nenosiri",
   "usernameLabel": "Jina la Mtumiaji"
 }

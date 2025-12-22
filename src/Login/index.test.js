@@ -56,6 +56,9 @@ describe('Login', () => {
     useAuth0.mockReturnValue({
       loginWithRedirect: jest.fn(),
       isLoading: false,
+      isAuthenticated: false,
+      user: null,
+      logout: jest.fn(),
     });
 
     store = mockStore({ data: { eula: { eula_url: '' } }, view: { systemConfig: {} } });
@@ -128,6 +131,9 @@ describe('Login', () => {
       useAuth0.mockReturnValue({
         loginWithRedirect,
         isLoading: false,
+        isAuthenticated: false,
+        user: null,
+        logout: jest.fn(),
       });
 
       const idpStore = mockStore({
@@ -156,6 +162,9 @@ describe('Login', () => {
       useAuth0.mockReturnValue({
         loginWithRedirect: jest.fn(),
         isLoading: false,
+        isAuthenticated: false,
+        user: null,
+        logout: jest.fn(),
       });
 
       const idpStore = mockStore({
@@ -178,6 +187,9 @@ describe('Login', () => {
       useAuth0.mockReturnValue({
         loginWithRedirect,
         isLoading: false,
+        isAuthenticated: false,
+        user: null,
+        logout: jest.fn(),
       });
 
       const idpStore = mockStore({
@@ -204,6 +216,9 @@ describe('Login', () => {
       useAuth0.mockReturnValue({
         loginWithRedirect: jest.fn(),
         isLoading: false,
+        isAuthenticated: false,
+        user: null,
+        logout: jest.fn(),
       });
 
       const idpStore = mockStore({
@@ -228,6 +243,9 @@ describe('Login', () => {
       useAuth0.mockReturnValue({
         loginWithRedirect: jest.fn(),
         isLoading: false,
+        isAuthenticated: false,
+        user: null,
+        logout: jest.fn(),
       });
 
       const idpStore = mockStore({
@@ -252,6 +270,9 @@ describe('Login', () => {
       useAuth0.mockReturnValue({
         loginWithRedirect: jest.fn(),
         isLoading: false,
+        isAuthenticated: false,
+        user: null,
+        logout: jest.fn(),
       });
 
       const idpStore = mockStore({
@@ -269,6 +290,136 @@ describe('Login', () => {
       await waitFor(async () => {
         const errorMessage = await screen.findByText('Authentication error: Internal server error');
         expect(errorMessage).toBeInTheDocument();
+      });
+    });
+
+    test('shows dual sign in buttons when Auth0 session exists', async () => {
+      const loginWithRedirect = jest.fn();
+      const logout = jest.fn();
+      useAuth0.mockReturnValue({
+        loginWithRedirect,
+        isLoading: false,
+        isAuthenticated: true,
+        user: { name: 'John Doe', email: 'john@example.com' },
+        logout,
+      });
+
+      const idpStore = mockStore({
+        data: { eula: { eula_url: '' } },
+        view: { systemConfig: { require_idp: true, idp_org_id: 'org_123' } }
+      });
+
+      render(
+        <Provider store={idpStore}>
+          <Login />
+        </Provider>
+      );
+
+      const primaryButton = await screen.findByText('Sign back in as John Doe');
+      const secondaryButton = await screen.findByText('Sign in as different user');
+
+      expect(primaryButton).toBeInTheDocument();
+      expect(secondaryButton).toBeInTheDocument();
+    });
+
+    test('uses email when user name is not available', async () => {
+      const loginWithRedirect = jest.fn();
+      const logout = jest.fn();
+      useAuth0.mockReturnValue({
+        loginWithRedirect,
+        isLoading: false,
+        isAuthenticated: true,
+        user: { email: 'john@example.com' },
+        logout,
+      });
+
+      const idpStore = mockStore({
+        data: { eula: { eula_url: '' } },
+        view: { systemConfig: { require_idp: true, idp_org_id: 'org_123' } }
+      });
+
+      render(
+        <Provider store={idpStore}>
+          <Login />
+        </Provider>
+      );
+
+      const primaryButton = await screen.findByText('Sign back in as john@example.com');
+      expect(primaryButton).toBeInTheDocument();
+    });
+
+    test('calls loginWithRedirect when primary button is clicked with existing session', async () => {
+      const loginWithRedirect = jest.fn().mockResolvedValue({});
+      const logout = jest.fn();
+      useAuth0.mockReturnValue({
+        loginWithRedirect,
+        isLoading: false,
+        isAuthenticated: true,
+        user: { name: 'John Doe', email: 'john@example.com' },
+        logout,
+      });
+
+      const idpStore = mockStore({
+        data: { eula: { eula_url: '' } },
+        view: { systemConfig: { require_idp: true, idp_org_id: 'org_456' } }
+      });
+
+      render(
+        <Provider store={idpStore}>
+          <Login />
+        </Provider>
+      );
+
+      const primaryButton = await screen.findByText('Sign back in as John Doe');
+      await userEvent.click(primaryButton);
+
+      expect(loginWithRedirect).toHaveBeenCalledWith({
+        authorizationParams: {
+          organization: 'org_456',
+          audience: process.env.REACT_APP_AUTH0_AUDIENCE,
+        },
+      });
+    });
+
+    test('calls logout and loginWithRedirect when "different user" button is clicked', async () => {
+      const loginWithRedirect = jest.fn().mockResolvedValue({});
+      const logout = jest.fn().mockResolvedValue({});
+      useAuth0.mockReturnValue({
+        loginWithRedirect,
+        isLoading: false,
+        isAuthenticated: true,
+        user: { name: 'John Doe', email: 'john@example.com' },
+        logout,
+      });
+
+      const idpStore = mockStore({
+        data: { eula: { eula_url: '' } },
+        view: { systemConfig: { require_idp: true, idp_org_id: 'org_456' } }
+      });
+
+      render(
+        <Provider store={idpStore}>
+          <Login />
+        </Provider>
+      );
+
+      const secondaryButton = await screen.findByText('Sign in as different user');
+      await userEvent.click(secondaryButton);
+
+      await waitFor(() => {
+        expect(logout).toHaveBeenCalledWith({
+          logoutParams: {
+            returnTo: expect.any(String),
+          },
+          openUrl: false,
+        });
+        expect(loginWithRedirect).toHaveBeenCalledWith({
+          authorizationParams: {
+            organization: 'org_456',
+            audience: process.env.REACT_APP_AUTH0_AUDIENCE,
+            prompt: 'login',
+          },
+        });
       });
     });
   });
