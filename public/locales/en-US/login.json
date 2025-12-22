@@ -12,6 +12,8 @@
   "eulaLink": "EarthRanger EULA",
   "loginButton": "Log in",
   "loginButtonIdp": "Sign in",
+  "loginButtonIdpAsUser": "Sign back in as {{username}}",
+  "loginButtonIdpDifferentUser": "Sign in as different user",
   "passwordLabel": "Password",
   "usernameLabel": "Username"
 }
