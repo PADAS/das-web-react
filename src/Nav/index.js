@@ -108,7 +108,17 @@ const Nav = () => {
     try {
       // Clear local auth state
       await dispatch(clearAuth());
-      navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login` }, { replace: true });
+
+      // Log out of IDP if enabled
+      if (requireIdp) {
+        auth0Logout({
+          logoutParams: {
+            returnTo: window.location.origin + REACT_APP_ROUTE_PREFIX,
+          },
+        });
+      } else {
+        navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login` }, { replace: true });
+      }
 
     } catch (error) {
       console.error('[Nav] Logout failed:', error);

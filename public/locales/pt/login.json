@@ -12,8 +12,6 @@
     "eulaLink": "Contrato de licença do usuário final EarthRanger",
     "loginButton": "Conecte-se",
     "loginButtonIdp": "Conecte-se",
-    "loginButtonIdpAsUser": "Conectar novamente como {{username}}",
-    "loginButtonIdpDifferentUser": "Conectar como um usuário diferente",
     "passwordLabel": "Senha",
     "usernameLabel": "Nome de usuário"
 }
