@@ -26,7 +26,7 @@ const LoginPage = () => {
   const systemConfig = useSelector((state) => state.view.systemConfig);
   const requireIdp = !!systemConfig?.require_idp;
   const idpOrgId = systemConfig?.idp_org_id;
-  const { loginWithRedirect, isLoading: authLoading, isAuthenticated, user, logout } = useAuth0();
+  const { loginWithRedirect, isLoading: authLoading } = useAuth0();
 
   const [errorMessage, setErrorMessage] = useState(null);
   const [formData, setFormData] = useState({});
@@ -109,42 +109,12 @@ const LoginPage = () => {
     }
   }, [loginWithRedirect, idpOrgId, t]);
 
-  const onAuth0LoginDifferentUser = useCallback(async () => {
-    try {
-      await logout({
-        logoutParams: {
-          returnTo: window.location.origin + window.location.pathname,
-        },
-        openUrl: false,
-      });
-      await loginWithRedirect({
-        authorizationParams: {
-          organization: idpOrgId,
-          audience: process.env.REACT_APP_AUTH0_AUDIENCE,
-          prompt: 'login',
-        },
-      });
-    } catch (e) {
-      setErrorMessage(t('errorAlert.signInFailed'));
-    }
-  }, [logout, loginWithRedirect, idpOrgId, t]);
-
   return <div className={styles.container}>
     <EarthRangerLogo className={styles.logo} />
     {requireIdp ? (
       <div className={styles.form}>
         {!idpOrgId && <Alert className={styles.error} variant="danger">{t('errorAlert.missingOrg')}</Alert>}
-        {idpOrgId && isAuthenticated && user && (
-          <>
-            <Button disabled={!authReady || authLoading} name="idp-login" type="button" variant="primary" onClick={onAuth0Login}>
-              {t('loginButtonIdpAsUser', { username: user.name || user.email })}
-            </Button>
-            <Button disabled={!authReady || authLoading} name="idp-login-different" type="button" variant="secondary" onClick={onAuth0LoginDifferentUser}>
-              {t('loginButtonIdpDifferentUser')}
-            </Button>
-          </>
-        )}
-        {idpOrgId && !isAuthenticated && (
+        {idpOrgId && (
           <Button disabled={!authReady || authLoading} name="idp-login" type="button" variant="primary" onClick={onAuth0Login}>
             {t('loginButtonIdp')}
           </Button>

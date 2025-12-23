@@ -12,8 +12,6 @@
     "eulaLink": "अर्थरेन्जर EULA",
     "loginButton": "लग इन",
     "loginButtonIdp": "साइन इन",
-    "loginButtonIdpAsUser": "{{username}} को रूपमा फेरि साइन इन गर्नुहोस्",
-    "loginButtonIdpDifferentUser": "फरक प्रयोगकर्ताको रूपमा साइन इन गर्नुहोस्",
     "passwordLabel": "पासवर्ड",
     "usernameLabel": "युजरनेम"
 }

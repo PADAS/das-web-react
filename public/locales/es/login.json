@@ -12,8 +12,6 @@
   "eulaLink": "EULA de EarthRanger",
   "loginButton": "Iniciar sesión",
   "loginButtonIdp": "Iniciar sesión",
-  "loginButtonIdpAsUser": "Volver a iniciar sesión como {{username}}",
-  "loginButtonIdpDifferentUser": "Iniciar sesión como otro usuario",
   "passwordLabel": "Contraseña",
   "usernameLabel": "Usuario"
 }
