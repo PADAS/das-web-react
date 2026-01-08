@@ -1,46 +1,95 @@
 import { createSelector } from 'reselect';
+import { featureCollection } from '@turf/turf';
 
-import { getTimeSliderState } from './';
+import {
+  addDefaultStatusValue,
+  markSubjectFeaturesWithActivePatrols,
+  pinMapSubjectsToVirtualPosition,
+  subjectIsStatic,
+} from '../utils/subjects';
+import { addPropsToGeoJsonByKey } from '../utils/map';
+import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../constants';
 
-import { SYSTEM_CONFIG_FLAGS, PERMISSION_KEYS, PERMISSIONS } from '../constants';
-import { createFeatureCollectionFromSubjects, filterInactiveRadiosFromCollection } from '../utils/map';
-import { pinMapSubjectsToVirtualPosition, markSubjectFeaturesWithActivePatrols, addDefaultStatusValue, subjectIsStatic } from '../utils/subjects';
+const selectHiddenSubjectIDs = (state) => state.data.mapLayerFilter.hiddenSubjectIDs;
+const selectMapSubjects = (state) => state.data.mapSubjects.subjects;
+const selectShowInactiveRadios = (state) => state.view.showInactiveRadios;
+const selectSubjectStore = (state) => state.data.subjectStore;
 
-const getMapSubjects = ({ data: { mapSubjects } }) => mapSubjects;
-const hiddenSubjectIDs = ({ data: { mapLayerFilter: { hiddenSubjectIDs } } }) => hiddenSubjectIDs;
 const subjectGroups = ({ data: { subjectGroups } }) => subjectGroups;
-const getSubjectStore = ({ data: { subjectStore } }) => subjectStore;
-const showInactiveRadios = ({ view: { showInactiveRadios } }) => showInactiveRadios;
 const getSystemConfig = ({ view: { systemConfig } }) => systemConfig;
 const getUserPermissions = ({ data: { user, selectedUserProfile } }) => (selectedUserProfile.id ? selectedUserProfile : user).permissions || {};
 const selectTracks = (state) => state.data.tracks;
+const getTimeSliderState = ({ view: { timeSliderState } }) => timeSliderState;
 
-export const getMapSubjectFeatureCollection = createSelector(
-  [getMapSubjects, getSubjectStore, hiddenSubjectIDs, showInactiveRadios],
+export const selectMapSubjectsFeatureCollection = createSelector(
+  [selectMapSubjects, selectSubjectStore, selectHiddenSubjectIDs, selectShowInactiveRadios],
   (mapSubjects, subjectStore, hiddenSubjectIDs, showInactiveRadios) => {
-    const fromStore = mapSubjects.subjects
-      .filter(id => !hiddenSubjectIDs.includes(id))
-      .map(id => subjectStore[id])
-      .filter(item => !!item);
+    const hiddenSubjectIDsSet = new Set(hiddenSubjectIDs);
+    const features = [];
+    const mapSubjectsLength = mapSubjects.length;
 
-    const mapSubjectCollection = createFeatureCollectionFromSubjects(fromStore);
+    for (let i = 0; i < mapSubjectsLength; i++) {
+      const subjectId = mapSubjects[i];
 
-    const withDefaultValuesForStationarySubjects = {
-      ...mapSubjectCollection,
-      features: mapSubjectCollection.features
-        .map(feature =>
-          subjectIsStatic(feature)
-            ? addDefaultStatusValue(feature)
-            : feature
-        ),
-    };
+      if (hiddenSubjectIDsSet.has(subjectId) || !subjectStore[subjectId]) {
+        // Subject is hidden or doesn't exist in store, skip it.
+        continue;
+      }
 
-    if (showInactiveRadios) return withDefaultValuesForStationarySubjects;
-    return filterInactiveRadiosFromCollection(withDefaultValuesForStationarySubjects);
-  });
+      const subject = subjectStore[subjectId];
+
+      const enrichedSubjectWithLastPosition = addPropsToGeoJsonByKey(subject, 'last_position');
+      const lastPositionGeoJson = enrichedSubjectWithLastPosition['last_position'];
+
+      if (!lastPositionGeoJson) {
+        // No last_position feature exists, skip it.
+        continue;
+      }
+
+      if (lastPositionGeoJson.type === 'FeatureCollection') {
+        // Last position is a FeatureCollection, process each feature.
+        const collectionFeatures = lastPositionGeoJson.features;
+        for (let j = 0; j < collectionFeatures.length; j++) {
+          let feature = collectionFeatures[j];
+
+          if (subjectIsStatic(feature)) {
+            // Subject is static, add default status value.
+            feature = addDefaultStatusValue(feature);
+          }
+
+          if (!showInactiveRadios && feature.properties?.radio_state === 'offline') {
+            // This subject has an offline radio and inactive radios are
+            // hidden, skip it.
+            continue;
+          }
+
+          features.push(feature);
+        }
+      } else {
+        // Last position is a single Feature, process it.
+        let feature = lastPositionGeoJson;
+
+        if (subjectIsStatic(feature)) {
+          // Subject is static, add default status value.
+          feature = addDefaultStatusValue(feature);
+        }
+
+        if (!showInactiveRadios && feature.properties?.radio_state === 'offline') {
+          // This subject has an offline radio and inactive radios are hidden,
+          // skip it.
+          continue;
+        }
+
+        features.push(feature);
+      }
+    }
+
+    return featureCollection(features);
+  }
+);
 
 export const getSubjectGroups = createSelector(
-  [subjectGroups, getSubjectStore],
+  [subjectGroups, selectSubjectStore],
   (subjectGroups, subjectStore) => {
     const hydrateSubjectGroupSubjects = (...groups) => groups.map((group) => {
       const { subgroups, subjects } = group;
@@ -76,16 +125,17 @@ export const getSubjectGroups = createSelector(
 
 
 export const allSubjects = createSelector(
-  [getSubjectStore],
+  [selectSubjectStore],
   subjectStore => Object.values(subjectStore),
 );
 
 export const getMapSubjectFeatureCollectionWithVirtualPositioning = createSelector(
-  [getMapSubjectFeatureCollection, getSystemConfig, getUserPermissions, selectTracks, getTimeSliderState],
-  (mapSubjectFeatureCollection, systemConfig, userPermissions, tracks, timeSliderState) => {
+  [selectMapSubjectsFeatureCollection, getSystemConfig, getUserPermissions, selectTracks, getTimeSliderState],
+  (mapSubjectsFeatureCollection, systemConfig, userPermissions, tracks, timeSliderState) => {
     const patrolsEnabled = !!systemConfig?.[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT] && (userPermissions[PERMISSION_KEYS.PATROLS] || []).includes(PERMISSIONS.READ);
 
-    const mapSubjectFeatureCollection_ = patrolsEnabled ? markSubjectFeaturesWithActivePatrols(mapSubjectFeatureCollection) : mapSubjectFeatureCollection;
+    console.log('mapSubjectsFeatureCollection', mapSubjectsFeatureCollection);
+    const mapSubjectFeatureCollection_ = patrolsEnabled ? markSubjectFeaturesWithActivePatrols(mapSubjectsFeatureCollection) : mapSubjectsFeatureCollection;
 
     const { active: timeSliderActive, virtualDate } = timeSliderState;
     if (!timeSliderActive) {

@@ -4,7 +4,6 @@ import { MapContext } from '../App';
 import { useSelector } from 'react-redux';
 
 import { getMapEventFeatureCollectionByTypeWithVirtualDate } from '../selectors/events';
-import { getShowReportsOnMap } from '../selectors/clusters';
 import { LAYER_IDS, SOURCE_IDS } from '../constants';
 import { MAP_LOCATION_SELECTION_MODES } from '../ducks/map-ui';
 import { PRIORITY_COLOR_MAP } from '../utils/events';
@@ -42,11 +41,11 @@ const paint = {
 const EventGeometryLayer = ({ onClick }) => {
   const map = useContext(MapContext);
 
-  const showReportsOnMap = useSelector(getShowReportsOnMap);
   const eventFeatureCollection = useSelector(
     getMapEventFeatureCollectionByTypeWithVirtualDate
   )?.Polygon ?? featureCollection([]);
   const mapLocationSelection = useSelector(({ view: { mapLocationSelection } }) => mapLocationSelection);
+  const showReportsOnMap = useSelector((state) => state.data.mapLayerFilter.showReportsOnMap);
 
   const isDrawingEventGeometry = mapLocationSelection.isPickingLocation
     && mapLocationSelection.mode  === MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
