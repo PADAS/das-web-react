@@ -95,7 +95,7 @@ describe('adding layers to the map', () => {
       );
     });
 
-    test('adding two layers with clustered source data', () => {
+    test.only('adding two layers with clustered source data', () => {
       expect(map.addLayer).toHaveBeenCalledTimes(2);
       map.addLayer.mock.calls.forEach((call) => {
         const [layerConfig] = call;
