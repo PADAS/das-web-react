@@ -62,7 +62,7 @@ const FormPreview = ({
         )}
         onFocus={() => isDragOverlay ? undefined : focusLocationMarker(fieldId)}
         onKeyDown={(event) => (event.key === 'Enter' || event.key === ' ') && event.stopPropagation()}
-        title={t('jumpToLocationButtonLabel')}
+        title={t('jumpToLocationButtonLabel', { field: formElements[fieldId].details.label })}
         type="button"
       >
         <MarkerFeedIcon />
