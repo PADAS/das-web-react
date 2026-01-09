@@ -13,6 +13,7 @@ describe('Selectors - Clusters', () => {
         mapClusterConfig: {
           data: {
             events: true,
+            subjects: true,
           },
         },
         timeSliderState: {
@@ -47,12 +48,12 @@ describe('Selectors - Clusters', () => {
   });
 
   describe('selectShouldSubjectsBeClustered', () => {
-    test('clusters subjects if the events map clustering is enabled and the time slider is not active', () => {
+    test('clusters subjects if the subjects map clustering is enabled and the time slider is not active', () => {
       expect(selectShouldSubjectsBeClustered(state)).toEqual(true);
     });
 
-    test('does not cluster subjects if the events map clustering is not enabled', () => {
-      state.view.mapClusterConfig.data.events = false;
+    test('does not cluster subjects if the subjects map clustering is not enabled', () => {
+      state.view.mapClusterConfig.data.subjects = false;
 
       expect(selectShouldSubjectsBeClustered(state)).toEqual(false);
     });

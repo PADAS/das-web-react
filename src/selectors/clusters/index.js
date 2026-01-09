@@ -1,6 +1,7 @@
 import { createSelector } from 'reselect';
 
 const selectIsEventsMapClusteringEnabled = (state) => state.view.mapClusterConfig.data.events;
+const selectIsSubjectsMapClusteringEnabled = (state) => state.view.mapClusterConfig.data.subjects;
 const selectIsTimeSliderActive = (state) => state.view.timeSliderState.active;
 const selectShowReportsOnMap = (state) => state.data.mapLayerFilter.showReportsOnMap;
 
@@ -12,6 +13,6 @@ export const selectShouldEventsBeClustered = createSelector(
 );
 
 export const selectShouldSubjectsBeClustered = createSelector(
-  [selectIsEventsMapClusteringEnabled, selectIsTimeSliderActive],
-  (isEventsMapClusteringEnabled, isTimeSliderActive) => isEventsMapClusteringEnabled && !isTimeSliderActive,
+  [selectIsSubjectsMapClusteringEnabled, selectIsTimeSliderActive],
+  (isSubjectsMapClusteringEnabled, isTimeSliderActive) => isSubjectsMapClusteringEnabled && !isTimeSliderActive,
 );
