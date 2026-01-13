@@ -65,6 +65,7 @@ import experimentalFeaturesReducer from '../ducks/experimental-features';
 const tokenPersistenceConfig = generateStorageConfig('token');
 const homeMapPersistenceConfig = generateStorageConfig('homeMap');
 const userPrefPersistenceConfig = generateStorageConfig('userPreferences');
+const mapLabelPreferencesPersistenceConfig = generateStorageConfig('mapLabelPreferences');
 const heatmapConfigPersistenceConfig = generateStorageConfig('heatmapConfig');
 const userProfilePersistenceConfig = generateStorageConfig('userProfile');
 const mapsPersistenceConfig = generateStorageConfig('maps');
@@ -129,7 +130,7 @@ const rootReducer = combineReducers({
     patrolTrackState: patrolTracksReducer,
     mapImages: mapImagesReducer,
     mapIsLocked: mapLockStateReducer,
-    showMapNames: displayMapNamesReducer,
+    showMapNames: persistReducer(mapLabelPreferencesPersistenceConfig, displayMapNamesReducer),
     showUserLocation: displayUserLocationReducer,
     showTrackTimepoints: displayTrackTimepointsReducer,
     simplifyMapDataOnZoom: persistReducer(mapDataZoomSimplificationConfig, mapDataZoomSimplificationReducer),

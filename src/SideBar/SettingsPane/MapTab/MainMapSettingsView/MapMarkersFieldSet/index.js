@@ -17,7 +17,12 @@ const MapMarkersFieldSet = () => {
   });
 
   const hasUserLocation = useSelector((state) => !!state.view.userLocation);
-  const showMapNames = useSelector((state) => state.view.showMapNames);
+  const showMapNames = useSelector((state) => {
+    const showMapNames = { ...state.view.showMapNames };
+    delete showMapNames._persist;
+
+    return showMapNames;
+  });
   const showUserLocation = useSelector((state) => state.view.showUserLocation);
 
   const markerNamesAllChekboxRef = useRef();

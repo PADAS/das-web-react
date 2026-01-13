@@ -39,11 +39,19 @@ const SubjectPopup = ({ data }) => {
   const { tracks_available } = properties;
 
   const hasAdditionalDeviceProps = !!device_status_properties?.length;
+  const isBuoy = properties.subject_subtype === 'ropeless_buoy_device' || properties.subject_subtype === 'ropeless_buoy_gearset';
+
   const additionalPropsShouldBeToggleable = hasAdditionalDeviceProps
     && device_status_properties.length > 2
     && !isStatic;
   const showAdditionalProps = hasAdditionalDeviceProps
     && (additionalPropsShouldBeToggleable ? additionalPropsToggledOn : true);
+
+  const buoySerialNumber = isBuoy && hasAdditionalDeviceProps && device_status_properties?.find(prop => prop.label === 'serialNumber')?.value;
+  const buoyManufacturer = isBuoy && properties?.additional?.manufacturer;
+  const buoyDisplayName = `${buoySerialNumber ? `${buoySerialNumber}: ` : ''}${buoyManufacturer || ''}`;
+
+  const displayName = isBuoy ? buoyDisplayName  : properties.name;
 
   const toggleShowAdditionalProperties = useCallback(() => {
     toggleAdditionalPropsVisibility(!additionalPropsToggledOn);
@@ -56,12 +64,16 @@ const SubjectPopup = ({ data }) => {
       <div>
         <div className={styles.defaultStatusProperty} data-testid="subject-popup-name">
           {properties.default_status_value && <>
-            {properties.image && <img alt={t('subjectIconAlt', { name: properties.name })} src={properties.image} />}
+            {properties.image && <img
+              alt={t('subjectIconAlt', { name: properties.name })}
+              className={isBuoy ? styles.buoyIcon : ''}
+              src={properties.image}
+            />}
 
             <span data-testid="header-default-status-property">{properties.default_status_value}</span>
           </>}
 
-          <h6>{properties.name}</h6>
+          <h6>{displayName}</h6>
         </div>
 
         <AddItemButton

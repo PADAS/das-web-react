@@ -1,4 +1,4 @@
-import { memo, useContext, useMemo } from 'react';
+import { memo, useCallback, useContext, useMemo } from 'react';
 
 import { LAYER_IDS, MAP_ICON_SCALE } from '../constants';
 import { MapContext } from '../App';
@@ -29,7 +29,7 @@ const TRACK_LAYER_LINE_PAINT = {
     ], ['to-color', ['get', 'stroke']],
     STABLE_RANDOM_TRACK_COLOR_BASED_ON_ID,
   ],
-  'line-width': ['step', ['zoom'], 1, 8, ['get', 'stroke-width']],
+  'line-width': ['step', ['zoom'], 3, 8, ['*', ['get', 'stroke-width'], 1.75]],
 };
 
 const TRACK_LAYER_LINE_LAYOUT = {
@@ -61,13 +61,19 @@ const TrackLayer = ({
   lineLayout = {},
   linePaint = {},
   onPointClick,
+  onTrackLabelClick,
   showTimepoints = true,
   trackData,
 }) => {
   const map = useContext(MapContext);
   const { isTimeOfDayColoringActive } = useSelector(selectTrackSettings);
+  const subjectStore = useSelector((state) => state.data.subjectStore);
 
   const trackId = id;
+
+  // Check if this is a ropeless_buoy_gearset subject
+  const subject = subjectStore[trackId];
+  const isRopelessBuoyGearset = subject?.subject_subtype === 'ropeless_buoy_gearset';
 
   const onSymbolMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
   const onSymbolMouseLeave = () => map.getCanvas().style.cursor = '';
@@ -77,6 +83,20 @@ const TrackLayer = ({
 
   const layerId = `${TRACKS_LINES}-${trackId}`;
   const pointLayerId = `${TRACK_TIMEPOINTS}-${trackId}`;
+
+  // Use ferry-11 icon for ropeless_buoy_gearset subjects with larger size, no rotation, and always visible
+  const timepointLayout = useMemo(() => ({
+    ...TIMEPOINT_LAYER_LAYOUT,
+    'icon-image': isRopelessBuoyGearset ? 'ferry-11' : 'track_arrow',
+    'icon-size': isRopelessBuoyGearset
+      ? ['interpolate', ['linear'], ['zoom'], 0, 1.2, 11, 1.5, 15, 2.0]
+      : TIMEPOINT_LAYER_LAYOUT['icon-size'],
+    'icon-rotate': isRopelessBuoyGearset ? 0 : ['get', 'bearing'],
+    'icon-allow-overlap': isRopelessBuoyGearset ? true : TIMEPOINT_LAYER_LAYOUT['icon-allow-overlap'],
+    'icon-anchor': isRopelessBuoyGearset ? 'center' : 'bottom',
+    'icon-rotation-alignment': isRopelessBuoyGearset ? 'viewport' : 'map',
+    'icon-pitch-alignment': isRopelessBuoyGearset ? 'viewport' : 'map',
+  }), [isRopelessBuoyGearset]);
 
   const {
     sourcesConfigs,
@@ -117,16 +137,91 @@ const TrackLayer = ({
     type: 'symbol',
     sourceId: pointSourceId,
     paint: TIMEPOINT_LAYER_PAINT,
-    layout: TIMEPOINT_LAYER_LAYOUT,
+    layout: timepointLayout,
     options: {
       before: before || SUBJECT_SYMBOLS,
       condition: showTimepoints
     }
   }]);
 
+  // Add track label layer for ropeless_buoy_gearset subjects
+  const trackLabelLayerId = `${layerId}-label`;
+  const trackLabelSourceId = `${sourceId}-label`;
+
+  const trackLabelText = useMemo(() => {
+    if (!isRopelessBuoyGearset || !subject) return '';
+
+    const manufacturer = subject.additional?.manufacturer || '';
+    const displayId = subject.additional?.display_id || '';
+
+    if (manufacturer && displayId) {
+      return `${manufacturer}: ${displayId}`;
+    } else if (manufacturer) {
+      return manufacturer;
+    } else if (displayId) {
+      return displayId;
+    }
+    return '';
+  }, [isRopelessBuoyGearset, subject]);
+
+  // Create source with only the first track feature for the label
+  const trackLabelSource = useMemo(() => {
+    if (!isRopelessBuoyGearset || !trackData.track.features.length) return null;
+
+    return {
+      type: 'FeatureCollection',
+      features: [trackData.track.features[0]]
+    };
+  }, [isRopelessBuoyGearset, trackData.track.features]);
+
+  useMapSources(trackLabelSource ? [{ id: trackLabelSourceId, data: trackLabelSource }] : [], { tolerance: 1.5, type: 'geojson', lineMetrics: true });
+
+  useMapLayers([{
+    id: trackLabelLayerId,
+    type: 'symbol',
+    sourceId: trackLabelSourceId,
+    paint: {
+      'text-color': '#ffffff',
+      'text-halo-color': '#000000',
+      'text-halo-width': 2
+    },
+    layout: {
+      'symbol-placement': 'line-center',
+      'text-field': trackLabelText,
+      'text-font': ['Open Sans Regular'],
+      'text-size': ['interpolate', ['linear'], ['zoom'], 0, 10, 14, 14],
+      'text-anchor': 'center',
+      'text-offset': [0, -3]
+    },
+    options: {
+      before: before || SUBJECT_SYMBOLS,
+      condition: isRopelessBuoyGearset && trackLabelText !== ''
+    }
+  }]);
+
   useMapEventBinding('click', onPointClick, pointLayerId, showTimepoints);
   useMapEventBinding('mouseenter', onSymbolMouseEnter, pointLayerId, showTimepoints);
   useMapEventBinding('mouseleave', onSymbolMouseLeave, pointLayerId, showTimepoints);
+
+  // Add event handlers for track label layer
+  const onLabelClick = useCallback((event) => {
+    if (!subject || !onTrackLabelClick) return;
+
+    // Create synthetic layer object matching the subject layer structure
+    const syntheticLayer = {
+      properties: {
+        ...subject,
+        coordinateProperties: subject.last_position?.properties?.coordinateProperties
+      },
+      geometry: { type: 'Point', coordinates: subject.last_position.geometry.coordinates }
+    };
+
+    onTrackLabelClick({ event, layer: syntheticLayer });
+  }, [subject, onTrackLabelClick]);
+
+  useMapEventBinding('click', onLabelClick, trackLabelLayerId, isRopelessBuoyGearset && trackLabelText !== '');
+  useMapEventBinding('mouseenter', onSymbolMouseEnter, trackLabelLayerId, isRopelessBuoyGearset && trackLabelText !== '');
+  useMapEventBinding('mouseleave', onSymbolMouseLeave, trackLabelLayerId, isRopelessBuoyGearset && trackLabelText !== '');
 
   return null;
 };
