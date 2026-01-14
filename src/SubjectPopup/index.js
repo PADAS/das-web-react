@@ -66,7 +66,6 @@ const SubjectPopup = ({ data }) => {
           {properties.default_status_value && <>
             {properties.image && <img
               alt={t('subjectIconAlt', { name: properties.name })}
-              className={isBuoy ? styles.buoyIcon : ''}
               src={properties.image}
             />}
 
