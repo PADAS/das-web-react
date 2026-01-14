@@ -49,7 +49,7 @@ const SubjectPopup = ({ data }) => {
 
   const buoySerialNumber = isBuoy && hasAdditionalDeviceProps && device_status_properties?.find(prop => prop.label === 'serialNumber')?.value;
   const buoyManufacturer = isBuoy && properties?.additional?.manufacturer;
-  const buoyDisplayName = `${buoySerialNumber ? `${buoySerialNumber}: ` : ''}${buoyManufacturer || ''}`;
+  const buoyDisplayName = `${buoyManufacturer ? `${buoyManufacturer}: ` : ''}${buoySerialNumber || properties.name || ''}`;
 
   const displayName = isBuoy ? buoyDisplayName  : properties.name;
 
