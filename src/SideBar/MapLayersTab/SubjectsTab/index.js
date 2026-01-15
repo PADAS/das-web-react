@@ -23,7 +23,10 @@ const filterSubjectsByTextAndEmptySubjectGroupsRecursively = (subjectGroup, filt
     // filter the subjects that match the text.
     const lowerCaseFilterText = filterText.toLowerCase();
     newSubjectGroup.subjects = subjectGroup.subjects.filter(
-      (subject) => calcDisplayNameForSubject(subject.name).toLowerCase().includes(lowerCaseFilterText)
+      (subject) =>
+        calcDisplayNameForSubject(subject)
+          .toLowerCase()
+          .includes(lowerCaseFilterText)
     );
   }
 
@@ -39,7 +42,10 @@ const filterSubjectsByTextAndEmptySubjectGroupsRecursively = (subjectGroup, filt
 };
 
 const alphabeticCompareFunction = (sortDirection) => (itemA, itemB) => {
-  if (itemA.name.toLowerCase() > itemB.name.toLowerCase()) {
+  const itemASortValue = calcDisplayNameForSubject(itemA).toLowerCase();
+  const itemBSortValue = calcDisplayNameForSubject(itemB).toLowerCase();
+
+  if (itemASortValue > itemBSortValue) {
     return sortDirection === SORT_DIRECTION.down ? 1 : -1;
   }
   return sortDirection === SORT_DIRECTION.down ? -1 : 1;
