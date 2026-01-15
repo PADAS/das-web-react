@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/Button';
 
 import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 import { format, STANDARD_DATE_FORMAT } from '../utils/datetime';
-import { subjectIsARadioWithRecentVoiceActivity, subjectIsStatic } from '../utils/subjects';
+import { calcDisplayNameForSubject, subjectIsARadioWithRecentVoiceActivity, subjectIsStatic } from '../utils/subjects';
 
 import AddItemButton from '../AddItemButton';
 import DateTime from '../DateTime';
@@ -17,6 +17,8 @@ import TrackLength from '../TrackLength';
 import * as styles from './styles.module.scss';
 
 const STORAGE_KEY = 'showSubjectDetailsByDefault';
+
+
 
 const SubjectPopup = ({ data }) => {
   const { t } = useTranslation('subjects', { keyPrefix: 'subjectPopup' });
@@ -32,14 +34,15 @@ const SubjectPopup = ({ data }) => {
   const coordProps = typeof properties.coordinateProperties === 'string'
     ? JSON.parse(properties.coordinateProperties)
     : properties.coordinateProperties;
+
   const device_status_properties = typeof properties?.device_status_properties === 'string'
     ? JSON.parse(properties?.device_status_properties ?? '[]')
     : properties?.device_status_properties;
+
   const radioWithRecentMicActivity = subjectIsARadioWithRecentVoiceActivity(properties);
   const { tracks_available } = properties;
 
   const hasAdditionalDeviceProps = !!device_status_properties?.length;
-  const isBuoy = properties.subject_subtype === 'ropeless_buoy_device' || properties.subject_subtype === 'ropeless_buoy_gearset';
 
   const additionalPropsShouldBeToggleable = hasAdditionalDeviceProps
     && device_status_properties.length > 2
@@ -47,11 +50,7 @@ const SubjectPopup = ({ data }) => {
   const showAdditionalProps = hasAdditionalDeviceProps
     && (additionalPropsShouldBeToggleable ? additionalPropsToggledOn : true);
 
-  const buoySerialNumber = isBuoy && hasAdditionalDeviceProps && device_status_properties?.find(prop => prop.label === 'serialNumber')?.value;
-  const buoyManufacturer = isBuoy && properties?.additional?.manufacturer;
-  const buoyDisplayName = `${buoyManufacturer ? `${buoyManufacturer}: ` : ''}${buoySerialNumber || properties.name || ''}`;
-
-  const displayName = isBuoy ? buoyDisplayName  : properties.name;
+  const displayName = calcDisplayNameForSubject(properties);
 
   const toggleShowAdditionalProperties = useCallback(() => {
     toggleAdditionalPropsVisibility(!additionalPropsToggledOn);
@@ -92,7 +91,7 @@ const SubjectPopup = ({ data }) => {
       </div>
 
       {coordProps.time && <div className={styles.dateTimeWrapper}>
-        <DateTime className={styles.dateTimeDetails} date={coordProps.time} showElapsed={false}/>
+        <DateTime className={styles.dateTimeDetails} date={coordProps.time} showElapsed={false} />
 
         <span className={styles.dateTimeComma}>, </span>
 
@@ -127,12 +126,12 @@ const SubjectPopup = ({ data }) => {
     {tracks_available && <TrackLength className={styles.trackLength} trackId={properties.id} />}
 
     {hasAdditionalDeviceProps && showAdditionalProps && <ul
-        className={`${styles.additionalProperties} ${isTimeSliderActive ? styles.disabled : ''}`}
-        data-testid="additional-props"
+      className={`${styles.additionalProperties} ${isTimeSliderActive ? styles.disabled : ''}`}
+      data-testid="additional-props"
       >
       {device_status_properties.map((deviceStatusProperty, index) => <li
-          key={`${deviceStatusProperty.label}-${index}`}
-        >
+        key={`${deviceStatusProperty.label}-${index}`}
+      >
         <strong>{deviceStatusProperty.label}</strong>
 
         {isTimeSliderActive ? <span>{t('noHistoricalDataSpan')}</span> : <span data-testid="additional-props-value">
@@ -145,12 +144,12 @@ const SubjectPopup = ({ data }) => {
 
     {hasAdditionalDeviceProps && <>
       {additionalPropsShouldBeToggleable && <Button
-          className={styles.toggleAdditionalProps}
-          data-testid="additional-props-toggle-btn"
-          onClick={toggleShowAdditionalProperties}
-          size="sm"
-          type="button"
-          variant="link"
+        className={styles.toggleAdditionalProps}
+        data-testid="additional-props-toggle-btn"
+        onClick={toggleShowAdditionalProperties}
+        size="sm"
+        type="button"
+        variant="link"
         >
         {t(`additionalPropsButton.${additionalPropsToggledOn ? 'fewer' : 'more'}`)}
       </Button>}

@@ -204,3 +204,16 @@ export const markSubjectFeaturesWithActivePatrols = mapSubjects => ({
       return feature;
     })
 });
+
+export const isBuoySubject = (subject) => subject.subject_subtype === 'ropeless_buoy_gearset';
+
+export const calcDisplayNameForSubject = (subject) => {
+  const primaryName = subject.name || subject.title || '';
+
+  if (!isBuoySubject(subject)) return primaryName;
+
+  const buoySerialNumber = subject?.device_status_properties?.find(prop => prop.label === 'serialNumber')?.value;
+  const buoyManufacturer = subject?.additional?.manufacturer;
+
+  return `${buoyManufacturer ? `${buoyManufacturer}: ` : ''}${buoySerialNumber || primaryName}`;
+};
