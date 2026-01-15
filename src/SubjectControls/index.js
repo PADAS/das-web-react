@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { addHeatmapSubjects, removeHeatmapSubjects, toggleTrackState } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
-import { canShowTrackForSubject, getSubjectLastPositionCoordinates } from '../utils/subjects';
+import { calcDisplayNameForSubject, canShowTrackForSubject, getSubjectLastPositionCoordinates } from '../utils/subjects';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { MAP_LAYERS_CATEGORY, trackEventFactory } from '../utils/analytics';
 import { subjectIsStatic } from '../utils/subjects';
@@ -119,7 +119,7 @@ const SubjectControls = ({
         content: SubjectHistoricalDataModal,
         subjectId: subject.id,
         subjectIsStatic: subjectIsStatic(subject),
-        title: t('historicalDataModalTitle', { subjectName: subject.name }),
+        title: t('historicalDataModalTitle', { subjectName: calcDisplayNameForSubject(subject.name) }),
       }))}
       showLabel={showLabels}
     />}

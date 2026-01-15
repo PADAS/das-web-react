@@ -2,7 +2,7 @@ import React, { useContext, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { getSubjectGroups } from '../../../selectors/subjects';
-import { getUniqueSubjectGroupSubjects } from '../../../utils/subjects';
+import { calcDisplayNameForSubject, getUniqueSubjectGroupSubjects } from '../../../utils/subjects';
 import { hideSubjects, showSubjects } from '../../../ducks/map-layer-filter';
 import { MAP_LAYERS_CATEGORY, trackEventFactory } from '../../../utils/analytics';
 import { MapContext } from '../../../App';
@@ -23,7 +23,7 @@ const filterSubjectsByTextAndEmptySubjectGroupsRecursively = (subjectGroup, filt
     // filter the subjects that match the text.
     const lowerCaseFilterText = filterText.toLowerCase();
     newSubjectGroup.subjects = subjectGroup.subjects.filter(
-      (subject) => subject.name.toLowerCase().includes(lowerCaseFilterText)
+      (subject) => calcDisplayNameForSubject(subject.name).toLowerCase().includes(lowerCaseFilterText)
     );
   }
 

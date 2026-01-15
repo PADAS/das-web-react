@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as EditIcon } from '../common/images/icons/edit.svg';
 
 import { extractSubjectFromMessage } from '../utils/messaging';
+import { calcDisplayNameForSubject } from '../utils/subjects';
 import { SENDER_DETAIL_STYLES } from '../MessageList/SenderDetails';
 import { useMessagesPermissions } from '../hooks/usePermissions';
 
@@ -50,7 +51,7 @@ const MessagesModal = ({ onSelectSubject, selectedSubject = null }) => {
     <Modal.Header style={{ alignItems: 'center', h5: { margin: 0 }, height: '4rem' }}>
       {selectedSubject
         ? <h5 style={{ alignItems: 'center', display: 'flex' }}>
-          {selectedSubject.name}
+          {calcDisplayNameForSubject(selectedSubject.name)}
 
           <Button
             onClick={() => onSelectSubject(null)}

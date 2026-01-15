@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import isEmpty from 'lodash/isEmpty';
 
-import { getSubjectDefaultDeviceProperty, isRadioWithImage, subjectIsStatic } from '../../../utils/subjects';
+import { calcDisplayNameForSubject, getSubjectDefaultDeviceProperty, isRadioWithImage, subjectIsStatic } from '../../../utils/subjects';
 
 import DateTime from '../../../DateTime';
 import SubjectControls from '../../../SubjectControls';
@@ -16,9 +16,9 @@ const SubjectListItem = ({ ...subject }) => {
 
   return <>
     <p className={mapLayersStyles.itemTitle} data-testid='subject-item-name'>
-      {subjectRadioImage && <img alt={subject.name} src={subjectRadioImage} />}
+      {subjectRadioImage && <img alt={calcDisplayNameForSubject(subject)} src={subjectRadioImage} />}
 
-      <span> {subject.name} </span>
+      <span> {calcDisplayNameForSubject(subject)} </span>
 
       {!isEmpty(defaultDeviceProperty) && <span className={mapLayersStyles.defaultProperty}>
         {`${defaultDeviceProperty.label}: ${defaultDeviceProperty.value} ${defaultDeviceProperty.units || ''}`}

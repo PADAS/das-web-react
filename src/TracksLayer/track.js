@@ -6,6 +6,7 @@ import {
   useMapEventBinding
 } from '../hooks';
 import { getTimeOfDaySourceAndLayerConfigurations } from './utils';
+import { isBuoySubject } from '../utils/subjects';
 import { useSelector } from 'react-redux';
 import { selectTrackSettings } from '../selectors/tracks';
 import useMapSources from '../hooks/useMapSources';
@@ -73,7 +74,7 @@ const TrackLayer = ({
 
   // Check if this is a ropeless_buoy_gearset subject
   const subject = subjectStore[trackId];
-  const isRopelessBuoyGearset = subject?.subject_subtype === 'ropeless_buoy_gearset';
+  const isRopelessBuoyGearset = isBuoySubject(subject);
 
   const onSymbolMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
   const onSymbolMouseLeave = () => map.getCanvas().style.cursor = '';
@@ -199,25 +200,43 @@ const TrackLayer = ({
     }
   }]);
 
-  useMapEventBinding('click', onPointClick, pointLayerId, showTimepoints);
-  useMapEventBinding('mouseenter', onSymbolMouseEnter, pointLayerId, showTimepoints);
-  useMapEventBinding('mouseleave', onSymbolMouseLeave, pointLayerId, showTimepoints);
-
   // Add event handlers for track label layer
   const onLabelClick = useCallback((event) => {
     if (!subject || !onTrackLabelClick) return;
 
+    const { lngLat } = event;
     // Create synthetic layer object matching the subject layer structure
     const syntheticLayer = {
       properties: {
         ...subject,
         coordinateProperties: subject.last_position?.properties?.coordinateProperties
       },
-      geometry: { type: 'Point', coordinates: subject.last_position.geometry.coordinates }
+      geometry: { type: 'Point', coordinates: [lngLat.lng, lngLat.lat] }
     };
 
     onTrackLabelClick({ event, layer: syntheticLayer });
   }, [subject, onTrackLabelClick]);
+
+  // For ropeless buoy gearsets, timepoint clicks should work like label clicks
+  // but show the popup on the clicked timepoint instead of the main subject
+  const onBuoyTimepointClick = useCallback((event) => {
+    if (!subject || !onTrackLabelClick) return;
+
+    const { lngLat } = event;
+    const syntheticLayer = {
+      properties: {
+        ...subject,
+        coordinateProperties: subject.last_position?.properties?.coordinateProperties
+      },
+      geometry: { type: 'Point', coordinates: [lngLat.lng, lngLat.lat] }
+    };
+
+    onTrackLabelClick({ event, layer: syntheticLayer });
+  }, [subject, onTrackLabelClick]);
+
+  useMapEventBinding('click', isRopelessBuoyGearset ? onBuoyTimepointClick : onPointClick, pointLayerId, showTimepoints);
+  useMapEventBinding('mouseenter', onSymbolMouseEnter, pointLayerId, showTimepoints);
+  useMapEventBinding('mouseleave', onSymbolMouseLeave, pointLayerId, showTimepoints);
 
   useMapEventBinding('click', onLabelClick, trackLabelLayerId, isRopelessBuoyGearset && trackLabelText !== '');
   useMapEventBinding('mouseenter', onSymbolMouseEnter, trackLabelLayerId, isRopelessBuoyGearset && trackLabelText !== '');

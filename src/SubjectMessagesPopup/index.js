@@ -4,6 +4,7 @@ import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg
 
 import { SENDER_DETAIL_STYLES } from '../MessageList/SenderDetails';
 import { useMessagesPermissions } from '../hooks/usePermissions';
+import { calcDisplayNameForSubject } from '../utils/subjects';
 
 import MessageInput from '../MessageInput';
 import ParamFedMessageList from '../MessageList/ParamFedMessageList';
@@ -18,7 +19,7 @@ const SubjectMessagesPopup = ({ data }) => {
   return <>
     <div className={styles.header}>
       <h6>
-        <ChatIcon /> {properties.name}
+        <ChatIcon /> {calcDisplayNameForSubject(properties.name)}
       </h6>
     </div>
 

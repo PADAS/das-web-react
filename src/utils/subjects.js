@@ -205,6 +205,11 @@ export const markSubjectFeaturesWithActivePatrols = mapSubjects => ({
     })
 });
 
+export const getDeviceStatusPropertiesForSubject = subject =>
+  subject?.device_status_properties === 'string'
+    ? JSON.parse(subject?.device_status_properties ?? '[]')
+    : subject?.device_status_properties;
+
 export const isBuoySubject = (subject) => subject.subject_subtype === 'ropeless_buoy_gearset';
 
 export const calcDisplayNameForSubject = (subject) => {
@@ -212,8 +217,7 @@ export const calcDisplayNameForSubject = (subject) => {
 
   if (!isBuoySubject(subject)) return primaryName;
 
-  const buoySerialNumber = subject?.device_status_properties?.find(prop => prop.label === 'serialNumber')?.value;
-  const buoyManufacturer = subject?.additional?.manufacturer;
+  const buoySerialNumber = subject?.device_status_properties?.find?.(prop => prop.label === 'serialNumber')?.value;
 
-  return `${buoyManufacturer ? `${buoyManufacturer}: ` : ''}${buoySerialNumber || primaryName}`;
+  return buoySerialNumber || primaryName;
 };

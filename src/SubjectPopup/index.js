@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/Button';
 
 import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 import { format, STANDARD_DATE_FORMAT } from '../utils/datetime';
-import { calcDisplayNameForSubject, subjectIsARadioWithRecentVoiceActivity, subjectIsStatic } from '../utils/subjects';
+import { calcDisplayNameForSubject, getDeviceStatusPropertiesForSubject, subjectIsARadioWithRecentVoiceActivity, subjectIsStatic } from '../utils/subjects';
 
 import AddItemButton from '../AddItemButton';
 import DateTime from '../DateTime';
@@ -35,9 +35,7 @@ const SubjectPopup = ({ data }) => {
     ? JSON.parse(properties.coordinateProperties)
     : properties.coordinateProperties;
 
-  const device_status_properties = typeof properties?.device_status_properties === 'string'
-    ? JSON.parse(properties?.device_status_properties ?? '[]')
-    : properties?.device_status_properties;
+  const device_status_properties = getDeviceStatusPropertiesForSubject(properties);
 
   const radioWithRecentMicActivity = subjectIsARadioWithRecentVoiceActivity(properties);
   const { tracks_available } = properties;
@@ -50,7 +48,10 @@ const SubjectPopup = ({ data }) => {
   const showAdditionalProps = hasAdditionalDeviceProps
     && (additionalPropsShouldBeToggleable ? additionalPropsToggledOn : true);
 
+  const buoyManufacturer = properties?.additional?.manufacturer;
   const displayName = calcDisplayNameForSubject(properties);
+
+  const popupTile = buoyManufacturer ? `${buoyManufacturer}: ${displayName}` : displayName;
 
   const toggleShowAdditionalProperties = useCallback(() => {
     toggleAdditionalPropsVisibility(!additionalPropsToggledOn);
@@ -64,14 +65,14 @@ const SubjectPopup = ({ data }) => {
         <div className={styles.defaultStatusProperty} data-testid="subject-popup-name">
           {properties.default_status_value && <>
             {properties.image && <img
-              alt={t('subjectIconAlt', { name: properties.name })}
+              alt={t('subjectIconAlt', { name: calcDisplayNameForSubject(properties.name) })}
               src={properties.image}
             />}
 
             <span data-testid="header-default-status-property">{properties.default_status_value}</span>
           </>}
 
-          <h6>{displayName}</h6>
+          <h6>{popupTile}</h6>
         </div>
 
         <AddItemButton
