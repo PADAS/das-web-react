@@ -14,10 +14,10 @@ import pluralize from 'pluralize';
 
 import dateLocales from './locales';
 
-export const EVENT_SYMBOL_DATE_FORMAT = 'dd MMM YY';
+export const EVENT_SYMBOL_DATE_FORMAT = 'dd MMM yy';
 
 export const SHORT_TIME_FORMAT = 'HH:mm';
-export const STANDARD_DATE_FORMAT = 'dd MMM YY HH:mm';
+export const STANDARD_DATE_FORMAT = 'dd MMM yy HH:mm';
 
 export const SHORTENED_DATE_FORMAT = STANDARD_DATE_FORMAT.replace(' HH:mm', '');
 
