@@ -74,13 +74,13 @@ const SubjectsLayer = ({ mapImages = {}, onSubjectClick }) => {
     }
   }]);
 
-  // Override icon-image and icon-size for ropeless_buoy_gearset subjects to use ferry-11
+  // Override icon-image and icon-size for ropeless_buoy_gearset subjects to use za-provincial-2
   // Note: icon-allow-overlap and icon-ignore-placement don't support data expressions,
   // so we set them globally to ensure buoys are always visible
   const buoyIconLayout = {
     'icon-image': [
       'case',
-      ['==', ['get', 'subject_subtype'], 'ropeless_buoy_gearset'], 'ferry-11',
+      ['==', ['get', 'subject_subtype'], 'ropeless_buoy_gearset'], 'za-provincial-2',
       ['concat',
         ['get', 'image'], '-',
         ['case',
@@ -94,9 +94,9 @@ const SubjectsLayer = ({ mapImages = {}, onSubjectClick }) => {
     ],
     'icon-size': [
       'interpolate', ['exponential', 0.5], ['zoom'],
-      0, ['case', ['==', ['get', 'subject_subtype'], 'ropeless_buoy_gearset'], 1.5, ['case', ['in', 'generic', ['get', 'image']], 0.1 / 3, 0.2 / 3]],
-      11, ['case', ['==', ['get', 'subject_subtype'], 'ropeless_buoy_gearset'], 1.85, ['case', ['in', 'generic', ['get', 'image']], 0.4 / 3, 0.8 / 3]],
-      14, ['case', ['==', ['get', 'subject_subtype'], 'ropeless_buoy_gearset'], 2.5, ['case', ['in', 'generic', ['get', 'image']], 0.5 / 3, 1 / 3]]
+      0, ['case', ['==', ['get', 'subject_subtype'], 'ropeless_buoy_gearset'], 0.75, ['case', ['in', 'generic', ['get', 'image']], 0.1 / 3, 0.2 / 3]],
+      11, ['case', ['==', ['get', 'subject_subtype'], 'ropeless_buoy_gearset'], 0.925, ['case', ['in', 'generic', ['get', 'image']], 0.4 / 3, 0.8 / 3]],
+      14, ['case', ['==', ['get', 'subject_subtype'], 'ropeless_buoy_gearset'], 1.25, ['case', ['in', 'generic', ['get', 'image']], 0.5 / 3, 1 / 3]]
     ],
     'icon-allow-overlap': true,
     'icon-ignore-placement': true

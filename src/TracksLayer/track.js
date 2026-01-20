@@ -85,10 +85,10 @@ const TrackLayer = ({
   const layerId = `${TRACKS_LINES}-${trackId}`;
   const pointLayerId = `${TRACK_TIMEPOINTS}-${trackId}`;
 
-  // Use ferry-11 icon for ropeless_buoy_gearset subjects with larger size, no rotation, and always visible
+  // Use dot-11 icon for ropeless_buoy_gearset subjects with larger size, no rotation, and always visible
   const timepointLayout = useMemo(() => ({
     ...TIMEPOINT_LAYER_LAYOUT,
-    'icon-image': isRopelessBuoyGearset ? 'ferry-11' : 'track_arrow',
+    'icon-image': isRopelessBuoyGearset ? 'dot-11' : 'track_arrow',
     'icon-size': isRopelessBuoyGearset
       ? ['interpolate', ['linear'], ['zoom'], 0, 1.2, 11, 1.5, 15, 2.0]
       : TIMEPOINT_LAYER_LAYOUT['icon-size'],
