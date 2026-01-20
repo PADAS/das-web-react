@@ -140,7 +140,7 @@ const TrackLayer = ({
     paint: TIMEPOINT_LAYER_PAINT,
     layout: timepointLayout,
     options: {
-      before: before || SUBJECT_SYMBOLS,
+      before: before || `${SUBJECT_SYMBOLS}-unclustered`,
       condition: showTimepoints
     }
   }]);

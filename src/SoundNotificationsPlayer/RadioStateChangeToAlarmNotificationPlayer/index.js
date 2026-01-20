@@ -16,7 +16,7 @@ const AlarmRadioStateToastMessage = ({ onClickJumpToLocation, subject }) => {
 
   return <div className={styles.alarmRadioStateToast}>
     <div>
-      {t('alarmRadioStateToastMessage', { subjectName: calcDisplayNameForSubject(subject.name) })}
+      {t('alarmRadioStateToastMessage', { subjectName: calcDisplayNameForSubject(subject) })}
 
       {subject.last_position_date && <DateTime
         className={styles.subjectLastPositionDate}

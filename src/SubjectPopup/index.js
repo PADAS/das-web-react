@@ -65,7 +65,7 @@ const SubjectPopup = ({ data }) => {
         <div className={styles.defaultStatusProperty} data-testid="subject-popup-name">
           {properties.default_status_value && <>
             {properties.image && <img
-              alt={t('subjectIconAlt', { name: calcDisplayNameForSubject(properties.name) })}
+              alt={t('subjectIconAlt', { name: calcDisplayNameForSubject(properties) })}
               src={properties.image}
             />}
 

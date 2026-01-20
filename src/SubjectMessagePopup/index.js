@@ -14,7 +14,7 @@ const SubjectMessagePopup = ({ data }) => {
   const { subject, message } = data;
   return <>
     <h6 onClick={() => jumpToLocation(getSubjectLastPositionCoordinates(subject))}>
-      <ChatIcon /> {calcDisplayNameForSubject(subject.name)}
+      <ChatIcon /> {calcDisplayNameForSubject(subject)}
     </h6>
 
     <p style={{ marginBottom: '0.25rem' }}>{message.text}</p>

@@ -19,7 +19,7 @@ const SubjectMessagesPopup = ({ data }) => {
   return <>
     <div className={styles.header}>
       <h6>
-        <ChatIcon /> {calcDisplayNameForSubject(properties.name)}
+        <ChatIcon /> {calcDisplayNameForSubject(properties)}
       </h6>
     </div>
 

@@ -51,7 +51,7 @@ const MessagesModal = ({ onSelectSubject, selectedSubject = null }) => {
     <Modal.Header style={{ alignItems: 'center', h5: { margin: 0 }, height: '4rem' }}>
       {selectedSubject
         ? <h5 style={{ alignItems: 'center', display: 'flex' }}>
-          {calcDisplayNameForSubject(selectedSubject.name)}
+          {calcDisplayNameForSubject(selectedSubject)}
 
           <Button
             onClick={() => onSelectSubject(null)}

@@ -119,7 +119,7 @@ const SubjectControls = ({
         content: SubjectHistoricalDataModal,
         subjectId: subject.id,
         subjectIsStatic: subjectIsStatic(subject),
-        title: t('historicalDataModalTitle', { subjectName: calcDisplayNameForSubject(subject.name) }),
+        title: t('historicalDataModalTitle', { subjectName: calcDisplayNameForSubject(subject) }),
       }))}
       showLabel={showLabels}
     />}

@@ -27,7 +27,7 @@ const SubjectMessagesPopover = ({ className = '', subject = null, ...restProps }
   const popover = <Popover className={styles.popover}>
     <Popover.Header>
       <h6>
-        <ChatIcon /> {calcDisplayNameForSubject(subject.name)}
+        <ChatIcon /> {calcDisplayNameForSubject(subject)}
       </h6>
     </Popover.Header>
 
