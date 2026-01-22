@@ -51,7 +51,7 @@ const SubjectPopup = ({ data }) => {
   const buoyManufacturer = properties?.additional?.manufacturer;
   const displayName = calcDisplayNameForSubject(properties);
 
-  const popupTile = buoyManufacturer ? `${buoyManufacturer}: ${displayName}` : displayName;
+  const popupTitle = buoyManufacturer ? `${buoyManufacturer}: ${displayName}` : displayName;
 
   const toggleShowAdditionalProperties = useCallback(() => {
     toggleAdditionalPropsVisibility(!additionalPropsToggledOn);
@@ -72,7 +72,7 @@ const SubjectPopup = ({ data }) => {
             <span data-testid="header-default-status-property">{properties.default_status_value}</span>
           </>}
 
-          <h6>{popupTile}</h6>
+          <h6>{popupTitle}</h6>
         </div>
 
         <AddItemButton

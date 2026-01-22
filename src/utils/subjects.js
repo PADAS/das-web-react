@@ -219,6 +219,8 @@ export const getDeviceStatusPropertiesForSubject = subject => {
 export const isBuoySubject = (subject) => subject?.subject_subtype === 'ropeless_buoy_gearset';
 
 export const calcDisplayNameForSubject = (subject) => {
+  if (!subject) return '';
+
   const primaryName = subject.name || subject.title || '';
 
   if (!isBuoySubject(subject)) return primaryName;
