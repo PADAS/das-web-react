@@ -13,6 +13,7 @@ import ParamFedMessageList from '../MessageList/ParamFedMessageList';
 import SubjectControlButton from '../SubjectControls/button';
 
 import * as styles from './styles.module.scss';
+import { calcDisplayNameForSubject } from '../utils/subjects';
 
 const SubjectMessagesPopover = ({ className = '', subject = null, ...restProps }) => {
   const { t } = useTranslation('subjects', { keyPrefix: 'subjectMessagesPopover' });
@@ -26,7 +27,7 @@ const SubjectMessagesPopover = ({ className = '', subject = null, ...restProps }
   const popover = <Popover className={styles.popover}>
     <Popover.Header>
       <h6>
-        <ChatIcon /> {subject.name}
+        <ChatIcon /> {calcDisplayNameForSubject(subject)}
       </h6>
     </Popover.Header>
 

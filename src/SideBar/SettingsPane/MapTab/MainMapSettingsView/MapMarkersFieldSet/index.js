@@ -20,6 +20,8 @@ const MapMarkersFieldSet = () => {
   const showMapNames = useSelector((state) => state.view.showMapNames);
   const showUserLocation = useSelector((state) => state.view.showUserLocation);
 
+  delete showMapNames._persist;
+
   const markerNamesAllChekboxRef = useRef();
 
   const isMarkerNamesFullyChecked = Object.values(showMapNames).every((markerNames) => markerNames.enabled);

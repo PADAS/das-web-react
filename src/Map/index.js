@@ -44,7 +44,6 @@ import DelayedUnmount from '../DelayedUnmount';
 import EarthRangerMap from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectsLayer';
-import BuoyTrawlLineLayer from '../BuoyTrawlLineLayer';
 import StaticSensorsLayer from '../StaticSensorsLayer';
 import TracksLayer from '../TracksLayer';
 import PatrolStartStopLayer from '../PatrolStartStopLayer';
@@ -729,10 +728,8 @@ const Map = ({ children, onMapLoad, socket }) => {
       {subjectHeatmapAvailable && <SubjectHeatLayer />}
       {showReportHeatmap && <ReportsHeatLayer />}
 
-      {subjectTracksVisible && <TracksLayer onPointClick={onTimepointClick} showTimepoints={showTrackTimepoints} />}
+      {subjectTracksVisible && <TracksLayer onPointClick={onTimepointClick} onTrackLabelClick={onSelectSubject} showTimepoints={showTrackTimepoints} />}
       {patrolTracksVisible && <PatrolStartStopLayer />}
-
-      <BuoyTrawlLineLayer />
 
       {patrolTracksVisible && <PatrolTracks onPointClick={onTimepointClick} />}
 
