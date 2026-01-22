@@ -206,7 +206,7 @@ export const markSubjectFeaturesWithActivePatrols = mapSubjects => ({
 });
 
 export const getDeviceStatusPropertiesForSubject = subject =>
-  subject?.device_status_properties === 'string'
+  typeof subject?.device_status_properties === 'string'
     ? JSON.parse(subject?.device_status_properties ?? '[]')
     : subject?.device_status_properties;
 
