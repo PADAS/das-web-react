@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/Button';
 
 import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 import { format, STANDARD_DATE_FORMAT } from '../utils/datetime';
-import { subjectIsARadioWithRecentVoiceActivity, subjectIsStatic } from '../utils/subjects';
+import { calcDisplayNameForSubject, getDeviceStatusPropertiesForSubject, subjectIsARadioWithRecentVoiceActivity, subjectIsStatic } from '../utils/subjects';
 
 import AddItemButton from '../AddItemButton';
 import DateTime from '../DateTime';
@@ -17,6 +17,8 @@ import TrackLength from '../TrackLength';
 import * as styles from './styles.module.scss';
 
 const STORAGE_KEY = 'showSubjectDetailsByDefault';
+
+
 
 const SubjectPopup = ({ data }) => {
   const { t } = useTranslation('subjects', { keyPrefix: 'subjectPopup' });
@@ -32,18 +34,24 @@ const SubjectPopup = ({ data }) => {
   const coordProps = typeof properties.coordinateProperties === 'string'
     ? JSON.parse(properties.coordinateProperties)
     : properties.coordinateProperties;
-  const device_status_properties = typeof properties?.device_status_properties === 'string'
-    ? JSON.parse(properties?.device_status_properties ?? '[]')
-    : properties?.device_status_properties;
+
+  const device_status_properties = getDeviceStatusPropertiesForSubject(properties);
+
   const radioWithRecentMicActivity = subjectIsARadioWithRecentVoiceActivity(properties);
   const { tracks_available } = properties;
 
   const hasAdditionalDeviceProps = !!device_status_properties?.length;
+
   const additionalPropsShouldBeToggleable = hasAdditionalDeviceProps
     && device_status_properties.length > 2
     && !isStatic;
   const showAdditionalProps = hasAdditionalDeviceProps
     && (additionalPropsShouldBeToggleable ? additionalPropsToggledOn : true);
+
+  const buoyManufacturer = properties?.additional?.manufacturer;
+  const displayName = calcDisplayNameForSubject(properties);
+
+  const popupTitle = buoyManufacturer ? `${buoyManufacturer}: ${displayName}` : displayName;
 
   const toggleShowAdditionalProperties = useCallback(() => {
     toggleAdditionalPropsVisibility(!additionalPropsToggledOn);
@@ -56,12 +64,15 @@ const SubjectPopup = ({ data }) => {
       <div>
         <div className={styles.defaultStatusProperty} data-testid="subject-popup-name">
           {properties.default_status_value && <>
-            {properties.image && <img alt={t('subjectIconAlt', { name: properties.name })} src={properties.image} />}
+            {properties.image && <img
+              alt={t('subjectIconAlt', { name: calcDisplayNameForSubject(properties) })}
+              src={properties.image}
+            />}
 
             <span data-testid="header-default-status-property">{properties.default_status_value}</span>
           </>}
 
-          <h6>{properties.name}</h6>
+          <h6>{popupTitle}</h6>
         </div>
 
         <AddItemButton
@@ -81,7 +92,7 @@ const SubjectPopup = ({ data }) => {
       </div>
 
       {coordProps.time && <div className={styles.dateTimeWrapper}>
-        <DateTime className={styles.dateTimeDetails} date={coordProps.time} showElapsed={false}/>
+        <DateTime className={styles.dateTimeDetails} date={coordProps.time} showElapsed={false} />
 
         <span className={styles.dateTimeComma}>, </span>
 
@@ -116,12 +127,12 @@ const SubjectPopup = ({ data }) => {
     {tracks_available && <TrackLength className={styles.trackLength} trackId={properties.id} />}
 
     {hasAdditionalDeviceProps && showAdditionalProps && <ul
-        className={`${styles.additionalProperties} ${isTimeSliderActive ? styles.disabled : ''}`}
-        data-testid="additional-props"
+      className={`${styles.additionalProperties} ${isTimeSliderActive ? styles.disabled : ''}`}
+      data-testid="additional-props"
       >
       {device_status_properties.map((deviceStatusProperty, index) => <li
-          key={`${deviceStatusProperty.label}-${index}`}
-        >
+        key={`${deviceStatusProperty.label}-${index}`}
+      >
         <strong>{deviceStatusProperty.label}</strong>
 
         {isTimeSliderActive ? <span>{t('noHistoricalDataSpan')}</span> : <span data-testid="additional-props-value">
@@ -134,12 +145,12 @@ const SubjectPopup = ({ data }) => {
 
     {hasAdditionalDeviceProps && <>
       {additionalPropsShouldBeToggleable && <Button
-          className={styles.toggleAdditionalProps}
-          data-testid="additional-props-toggle-btn"
-          onClick={toggleShowAdditionalProperties}
-          size="sm"
-          type="button"
-          variant="link"
+        className={styles.toggleAdditionalProps}
+        data-testid="additional-props-toggle-btn"
+        onClick={toggleShowAdditionalProperties}
+        size="sm"
+        type="button"
+        variant="link"
         >
         {t(`additionalPropsButton.${additionalPropsToggledOn ? 'fewer' : 'more'}`)}
       </Button>}

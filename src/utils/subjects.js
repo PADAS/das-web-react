@@ -204,3 +204,28 @@ export const markSubjectFeaturesWithActivePatrols = mapSubjects => ({
       return feature;
     })
 });
+
+export const getDeviceStatusPropertiesForSubject = subject => {
+  if (typeof subject?.device_status_properties === 'string') {
+    try {
+      return JSON.parse(subject.device_status_properties);
+    } catch {
+      return [];
+    }
+  }
+
+  return subject?.device_status_properties ?? [];
+};
+export const isBuoySubject = (subject) => subject?.subject_subtype === 'ropeless_buoy_gearset';
+
+export const calcDisplayNameForSubject = (subject) => {
+  if (!subject) return '';
+
+  const primaryName = subject.name || subject.title || '';
+
+  if (!isBuoySubject(subject)) return primaryName;
+
+  const buoySerialNumber = subject?.device_status_properties?.find?.(prop => prop.label === 'serialNumber')?.value;
+
+  return buoySerialNumber || primaryName;
+};

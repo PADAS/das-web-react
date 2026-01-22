@@ -215,7 +215,7 @@ describe('Login', () => {
         <Provider store={idpStore}>
           <Login />
         </Provider>,
-        { initialEntries: ["/login?error=access_denied&error_description=User%20is%20not%20part%20of%20the%20organization"] }
+        { initialEntries: ['/login?error=access_denied&error_description=User%20is%20not%20part%20of%20the%20organization'] }
       );
 
       await waitFor(async () => {
@@ -239,7 +239,7 @@ describe('Login', () => {
         <Provider store={idpStore}>
           <Login />
         </Provider>,
-        { initialEntries: ["/login?error=unauthorized&error_description=Invalid%20credentials"] }
+        { initialEntries: ['/login?error=unauthorized&error_description=Invalid%20credentials'] }
       );
 
       await waitFor(async () => {
@@ -263,7 +263,7 @@ describe('Login', () => {
         <Provider store={idpStore}>
           <Login />
         </Provider>,
-        { initialEntries: ["/login?error=server_error&error_description=Internal%20server%20error"] }
+        { initialEntries: ['/login?error=server_error&error_description=Internal%20server%20error'] }
       );
 
       await waitFor(async () => {
