@@ -210,7 +210,7 @@ export const getDeviceStatusPropertiesForSubject = subject =>
     ? JSON.parse(subject?.device_status_properties ?? '[]')
     : subject?.device_status_properties;
 
-export const isBuoySubject = (subject) => subject.subject_subtype === 'ropeless_buoy_gearset';
+export const isBuoySubject = (subject) => subject?.subject_subtype === 'ropeless_buoy_gearset';
 
 export const calcDisplayNameForSubject = (subject) => {
   const primaryName = subject.name || subject.title || '';
