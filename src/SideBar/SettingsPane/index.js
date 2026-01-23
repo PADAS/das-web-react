@@ -9,6 +9,8 @@ import { DAS_HOST } from '../../constants';
 import GeneralTab from './GeneralTab';
 import MapTab from './MapTab';
 
+import { getAlertsEnabled } from '../../selectors';
+
 import * as styles from './styles.module.scss';
 
 const ALERTS_URL = `${DAS_HOST}/alerts`;
@@ -18,7 +20,7 @@ const TAB_KEYS = { ALERTS: 'alerts', GENERAL: 'general', MAP: 'map' };
 const SettingsPane = () => {
   const { t } = useTranslation('components', { keyPrefix: 'sideBar.settingsPane' });
 
-  const alertsEnabled = useSelector((state) => state.view.systemConfig.alerts_enabled);
+  const alertsEnabled = useSelector(getAlertsEnabled);
 
   return <Tabs
       aria-labelledby="side-bar-tab-header"

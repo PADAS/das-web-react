@@ -1,6 +1,6 @@
 import { point, polygon } from '@turf/turf';
 
-import { getMapEventFeatureCollection } from './';
+import { getAlertsEnabled, getMapEventFeatureCollection } from './';
 
 describe('Selectors - getMapEventFeatureCollection', () => {
   const mapEventsMock = ['123', '456'];
@@ -40,5 +40,41 @@ describe('Selectors - getMapEventFeatureCollection', () => {
     expect(mapEventFeatureCollection.features[1].geometry.coordinates)
       .toEqual([[[20, -12], [20, 12], [-20, -12], [20, -12]]]);
     expect(mapEventFeatureCollection.features[2].geometry.coordinates).toEqual([70, 50]);
+  });
+});
+
+describe('Selectors - getAlertsEnabled', () => {
+  test('returns true when alerts feature flag is enabled and user has alertrule add permission', () => {
+    const user = { permissions: { alertrule: ['add'] } };
+    const alertsEnabled = true;
+
+    expect(getAlertsEnabled.resultFunc(user, alertsEnabled)).toBe(true);
+  });
+
+  test('returns false when alerts feature flag is disabled', () => {
+    const user = { permissions: { alertrule: ['add'] } };
+    const alertsEnabled = false;
+
+    expect(getAlertsEnabled.resultFunc(user, alertsEnabled)).toBe(false);
+  });
+
+  test('returns false when user does not have alertrule add permission', () => {
+    const user = { permissions: { alertrule: ['view'] } };
+    const alertsEnabled = true;
+
+    expect(getAlertsEnabled.resultFunc(user, alertsEnabled)).toBe(false);
+  });
+
+  test('returns false when user has no alertrule permissions', () => {
+    const user = { permissions: {} };
+    const alertsEnabled = true;
+
+    expect(getAlertsEnabled.resultFunc(user, alertsEnabled)).toBe(false);
+  });
+
+  test('returns false when user is null', () => {
+    const alertsEnabled = true;
+
+    expect(getAlertsEnabled.resultFunc(null, alertsEnabled)).toBe(false);
   });
 });

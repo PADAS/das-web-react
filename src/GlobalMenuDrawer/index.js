@@ -22,6 +22,7 @@ import { BREAKPOINTS, CLIENT_BUILD_VERSION, SYSTEM_CONFIG_FLAGS, TAB_KEYS } from
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 import { hideDrawer } from '../ducks/drawer';
+import { getAlertsEnabled } from '../selectors';
 import {
   JIRA_IFRAME_HELP_BUTTON_SELECTOR,
   JIRA_WIDGET_IFRAME_SELECTOR,
@@ -59,7 +60,7 @@ const GlobalMenuDrawer = () => {
 
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
-  const alertsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.ALERTS]);
+  const alertsEnabled = useSelector(getAlertsEnabled);
   const dailyReportEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.DAILY_REPORT]);
   const drawer = useSelector((state) => state.view.drawer);
   const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);

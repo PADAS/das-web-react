@@ -16,6 +16,8 @@ const hiddenAnalyzerIDs = ({ data: { mapLayerFilter: { hiddenAnalyzerIDs } } }) 
 const userLocation = ({ view: { userLocation } }) => userLocation;
 const showUserLocation = ({ view: { showUserLocation } }) => showUserLocation;
 const getLastKnownMapBbox = ({ data: { mapEvents: { bbox } } }) => bbox;
+const getUser = ({ data: { user } }) => user;
+const getAlertsFeatureFlag = ({ view: { systemConfig } }) => systemConfig?.alerts_enabled;
 
 export const analyzerFeatures = ({ data: { analyzerFeatures } }) => analyzerFeatures.data;
 export const featureSets = ({ data: { featureSets } }) => featureSets.data;
@@ -120,6 +122,14 @@ export const getAnalyzerFeatureCollectionsByType = createSelector(
     };
 
     return analyzerPayload;
+  },
+);
+
+export const getAlertsEnabled = createSelector(
+  [getUser, getAlertsFeatureFlag],
+  (user, alertsEnabled) => {
+    return !!alertsEnabled
+      && !!(user?.permissions?.alertrule?.find?.(perm => perm === 'add'));
   },
 );
 
