@@ -44,22 +44,22 @@ describe('Selectors - getMapEventFeatureCollection', () => {
 });
 
 describe('Selectors - getAlertsEnabled', () => {
-  test('returns true when alerts feature flag is enabled and user has alertrule add permission', () => {
-    const user = { permissions: { alertrule: ['add'] } };
+  test('returns true when alerts feature flag is enabled and user has alertrule view permission', () => {
+    const user = { permissions: { alertrule: ['view'] } };
     const alertsEnabled = true;
 
     expect(getAlertsEnabled.resultFunc(user, alertsEnabled)).toBe(true);
   });
 
   test('returns false when alerts feature flag is disabled', () => {
-    const user = { permissions: { alertrule: ['add'] } };
+    const user = { permissions: { alertrule: ['view'] } };
     const alertsEnabled = false;
 
     expect(getAlertsEnabled.resultFunc(user, alertsEnabled)).toBe(false);
   });
 
-  test('returns false when user does not have alertrule add permission', () => {
-    const user = { permissions: { alertrule: ['view'] } };
+  test('returns false when user does not have alertrule view permission', () => {
+    const user = { permissions: { alertrule: [] } };
     const alertsEnabled = true;
 
     expect(getAlertsEnabled.resultFunc(user, alertsEnabled)).toBe(false);

@@ -5,6 +5,7 @@ import pickBy from 'lodash/pickBy';
 
 import { createFeatureCollectionFromEvents } from '../utils/map';
 import { calcUrlForImage } from '../utils/img';
+import { PERMISSIONS } from '../constants';
 
 const locallyEditedEvent = ({ data: { locallyEditedEvent } }) => locallyEditedEvent;
 const mapEvents = ({ data: { mapEvents: { events } } }) => events;
@@ -129,7 +130,7 @@ export const getAlertsEnabled = createSelector(
   [getUser, getAlertsFeatureFlag],
   (user, alertsEnabled) => {
     return !!alertsEnabled
-      && !!(user?.permissions?.alertrule?.find?.(perm => perm === 'add'));
+      && !!(user?.permissions?.alertrule?.find?.(perm => perm === PERMISSIONS.READ));
   },
 );
 

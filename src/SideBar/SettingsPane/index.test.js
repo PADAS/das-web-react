@@ -23,7 +23,7 @@ describe('SideBar - SettingsPane', () => {
       data: {
         user: {
           permissions: {
-            alertrule: ['add'],
+            alertrule: ['view'],
           },
         },
       },
