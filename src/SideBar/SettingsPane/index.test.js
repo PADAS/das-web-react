@@ -20,7 +20,13 @@ describe('SideBar - SettingsPane', () => {
     useSearchParams.mockImplementation(() => [new URLSearchParams()]);
 
     store = {
-      data: {},
+      data: {
+        user: {
+          permissions: {
+            alertrule: ['view'],
+          },
+        },
+      },
       view: {
         coordinateReferenceSystems: {
           selectedCoordinateRepresentations: Object.values(GPS_FORMATS),

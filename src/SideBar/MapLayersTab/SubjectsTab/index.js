@@ -1,12 +1,12 @@
 import React, { useContext, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { selectHydratedSubjectGroupsWithLastPositionTime } from '../../../selectors/subjects';
-import { getUniqueSubjectGroupSubjects } from '../../../utils/subjects';
+import { calcDisplayNameForSubject, getUniqueSubjectGroupSubjects } from '../../../utils/subjects';
 import { hideSubjects, showSubjects } from '../../../ducks/map-layer-filter';
 import { MAP_LAYERS_CATEGORY, trackEventFactory } from '../../../utils/analytics';
 import { MapContext } from '../../../App';
 import { MAP_LAYER_SORT_VALUES, SORT_DIRECTION } from '../../../constants';
+import { selectHydratedSubjectGroupsWithLastPositionTime } from '../../../selectors/subjects';
 
 import CheckableList from '../../../CheckableList';
 import Content from './Content';
@@ -23,7 +23,10 @@ const filterSubjectsByTextAndEmptySubjectGroupsRecursively = (subjectGroup, filt
     // filter the subjects that match the text.
     const lowerCaseFilterText = filterText.toLowerCase();
     newSubjectGroup.subjects = subjectGroup.subjects.filter(
-      (subject) => subject.name.toLowerCase().includes(lowerCaseFilterText)
+      (subject) =>
+        calcDisplayNameForSubject(subject)
+          .toLowerCase()
+          .includes(lowerCaseFilterText)
     );
   }
 
@@ -39,7 +42,10 @@ const filterSubjectsByTextAndEmptySubjectGroupsRecursively = (subjectGroup, filt
 };
 
 const alphabeticCompareFunction = (sortDirection) => (itemA, itemB) => {
-  if (itemA.name.toLowerCase() > itemB.name.toLowerCase()) {
+  const itemASortValue = calcDisplayNameForSubject(itemA).toLowerCase();
+  const itemBSortValue = calcDisplayNameForSubject(itemB).toLowerCase();
+
+  if (itemASortValue > itemBSortValue) {
     return sortDirection === SORT_DIRECTION.down ? 1 : -1;
   }
   return sortDirection === SORT_DIRECTION.down ? -1 : 1;

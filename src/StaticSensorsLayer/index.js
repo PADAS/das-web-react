@@ -42,7 +42,8 @@ const StaticSensorsLayer = () => {
 
   const isDataInMapSimplified = useSelector((state) => state.view.simplifyMapDataOnZoom?.enabled);
   const shouldSubjectsBeClustered = useSelector(selectShouldSubjectsBeClustered);
-  const showMapNames = useSelector((state) => state.view.showMapNames);
+  const rawShowMapNames = useSelector((state) => state.view.showMapNames) || {};
+  const { _persist, ...showMapNames } = rawShowMapNames;
 
   const [layerFilter, setLayerFilter] = useState(DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER);
 
@@ -51,7 +52,6 @@ const StaticSensorsLayer = () => {
   const currentSourceId = shouldSubjectsBeClustered ? CLUSTERS_SOURCE_ID : SUBJECT_SYMBOLS;
 
   const showMapStaticSubjectsNames = showMapNames[STATIC_SENSOR]?.enabled ?? false;
-
   const dynamicBackgroundLayerLayoutProps = calcDynamicBackgroundLayerLayout(
     isDataInMapSimplified,
     showMapStaticSubjectsNames
