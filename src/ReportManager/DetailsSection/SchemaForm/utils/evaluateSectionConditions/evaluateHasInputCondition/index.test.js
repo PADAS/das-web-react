@@ -1,57 +1,38 @@
 import evaluateHasInputCondition from './';
 
 describe('ReportManager - DetailsSection - SchemaForm - utils - evaluateSectionConditions - evaluateHasInputCondition', () => {
-  test('passes the condition if the field value is a non-empty array', () => {
-    expect(evaluateHasInputCondition(['Ranger 1'])).toBe(true);
-    expect(evaluateHasInputCondition(['Ranger 1', 'Ranger 2'])).toBe(true);
-    expect(evaluateHasInputCondition([1, 2, 3])).toBe(true);
-    expect(evaluateHasInputCondition([{}])).toBe(true);
+  test('if the field value is null, the condition is not fulfilled', () => {
+    expect(evaluateHasInputCondition(null)).toBe(false);
   });
 
-  test('passes the condition if the field value is a boolean', () => {
+  test('if the field value is an array, the condition is fulfilled if the field value has at least one item', () => {
+    expect(evaluateHasInputCondition(['elephant'])).toBe(true);
+    expect(evaluateHasInputCondition(['elephant', 'lion', 'giraffe'])).toBe(true);
+    expect(evaluateHasInputCondition([])).toBe(false);
+  });
+
+  test('if the field value is a boolean, the condition is fulfilled', () => {
     expect(evaluateHasInputCondition(true)).toBe(true);
     expect(evaluateHasInputCondition(false)).toBe(true);
   });
 
-  test('passes the condition if the field value is a number', () => {
+  test('if the field value is a number, the condition is fulfilled', () => {
     expect(evaluateHasInputCondition(0)).toBe(true);
-    expect(evaluateHasInputCondition(1)).toBe(true);
+    expect(evaluateHasInputCondition(3)).toBe(true);
   });
 
-  test('passes the condition if the field value is a non-empty object', () => {
-    expect(evaluateHasInputCondition({ name: 'Ranger 1' })).toBe(true);
-    expect(evaluateHasInputCondition({ age: 25, name: 'Ranger 1' })).toBe(true);
-    expect(evaluateHasInputCondition({
-      animals: [],
-      location: {
-        latitude: 23.435,
-        longitude: -100.343,
-      },
-    })).toBe(true);
-  });
-
-  test('passes the condition if the field value is a non-empty string', () => {
-    expect(evaluateHasInputCondition('Ranger 1')).toBe(true);
-    expect(evaluateHasInputCondition('x')).toBe(true);
-  });
-
-  test('fails the condition if the field value is undefined', () => {
-    expect(evaluateHasInputCondition(undefined)).toBe(false);
-  });
-
-  test('fails the condition if the field value is null', () => {
-    expect(evaluateHasInputCondition(null)).toBe(false);
-  });
-
-  test('fails the condition if the field value is an empty array', () => {
-    expect(evaluateHasInputCondition([])).toBe(false);
-  });
-
-  test('fails the condition if the field value is an empty object', () => {
+  test('if the field value is an object, the condition is fulfilled if the field value has at least one property', () => {
+    expect(evaluateHasInputCondition({ elephant: true })).toBe(true);
+    expect(evaluateHasInputCondition({ elephant: true, lion: true, giraffe: true })).toBe(true);
     expect(evaluateHasInputCondition({})).toBe(false);
   });
 
-  test('fails the condition if the field value is an empty string', () => {
+  test('if the field value is a string, the condition is fulfilled if the field value has at least one character', () => {
+    expect(evaluateHasInputCondition('elephant')).toBe(true);
     expect(evaluateHasInputCondition('')).toBe(false);
+  });
+
+  test('else, the condition is not fulfilled', () => {
+    expect(evaluateHasInputCondition(undefined)).toBe(false);
   });
 });

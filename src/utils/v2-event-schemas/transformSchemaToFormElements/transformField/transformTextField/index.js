@@ -9,8 +9,7 @@ const transformTextField = (
   const textFieldJSONSchema = jsonSchema.properties[textFieldId];
   const textFieldUISchema = uiSchema.fields[textFieldId];
 
-  // Add the text field specific properties to its node in the form elements
-  // object.
+  // Add the text field form element specific properties.
   formElements[textFieldId].details = {
     ...formElements[textFieldId].details,
     defaultInput: textFieldJSONSchema.default ?? '',

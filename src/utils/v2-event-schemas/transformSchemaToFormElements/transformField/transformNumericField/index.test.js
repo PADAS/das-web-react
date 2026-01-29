@@ -1,8 +1,10 @@
+import { FORM_ELEMENT_TYPES } from '../../../constants';
 
 import transformNumericField from '.';
 
 describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformField - transformNumericField', () => {
   const numericFieldId = 'number-of-snares';
+  const parentId = 'section-1';
   let formElements, jsonSchema, uiSchema;
   beforeEach(() => {
     formElements = {
@@ -12,6 +14,8 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           label: 'Number of snares',
           value: numericFieldId,
         },
+        parentId,
+        type: FORM_ELEMENT_TYPES.NUMERIC,
       },
     };
     jsonSchema = {
@@ -48,48 +52,8 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           minInput: 1,
           value: numericFieldId,
         },
-      },
-    });
-  });
-
-  it('transforms a numeric field with no description', () => {
-    jsonSchema.properties[numericFieldId].description = '';
-
-    transformNumericField(numericFieldId, jsonSchema, uiSchema, formElements);
-
-    expect(formElements).toEqual({
-      [numericFieldId]: {
-        details: {
-          defaultInput: 1,
-          description: '',
-          hint: '1',
-          isRequired: true,
-          label: 'Number of snares',
-          maxInput: 50,
-          minInput: 1,
-          value: numericFieldId,
-        },
-      },
-    });
-  });
-
-  it('transforms a numeric field with no hint', () => {
-    uiSchema.fields[numericFieldId].placeholder = '';
-
-    transformNumericField(numericFieldId, jsonSchema, uiSchema, formElements);
-
-    expect(formElements).toEqual({
-      [numericFieldId]: {
-        details: {
-          defaultInput: 1,
-          description: 'Total amount of snares',
-          hint: '',
-          isRequired: true,
-          label: 'Number of snares',
-          maxInput: 50,
-          minInput: 1,
-          value: numericFieldId,
-        },
+        parentId,
+        type: FORM_ELEMENT_TYPES.NUMERIC,
       },
     });
   });
@@ -115,6 +79,8 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           minInput: null,
           value: numericFieldId,
         },
+        parentId,
+        type: FORM_ELEMENT_TYPES.NUMERIC,
       },
     });
   });

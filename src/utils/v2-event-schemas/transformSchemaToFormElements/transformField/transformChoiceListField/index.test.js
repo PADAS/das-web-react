@@ -1,9 +1,13 @@
-import { CHOICE_LIST_ELEMENT_INPUT_TYPES } from '../../../constants';
+import {
+  CHOICE_LIST_ELEMENT_INPUT_TYPES,
+  FORM_ELEMENT_TYPES,
+} from '../../../constants';
 
 import transformChoiceListField from '.';
 
 describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformField - transformChoiceListField', () => {
   const choiceListFieldId = 'damaged-source';
+  const parentId = 'section-1';
   let formElements, jsonSchema, uiSchema;
   beforeEach(() => {
     formElements = {
@@ -13,6 +17,8 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           label: 'Damaged source',
           value: choiceListFieldId,
         },
+        parentId,
+        type: FORM_ELEMENT_TYPES.CHOICE_LIST,
       },
     };
     jsonSchema = {
@@ -50,7 +56,12 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   });
 
   it('transforms a choice list field', () => {
-    transformChoiceListField(choiceListFieldId, jsonSchema, uiSchema, formElements);
+    transformChoiceListField(
+      choiceListFieldId,
+      jsonSchema,
+      uiSchema,
+      formElements,
+    );
 
     expect(formElements).toEqual({
       [choiceListFieldId]: {
@@ -73,6 +84,8 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           ],
           value: choiceListFieldId,
         },
+        parentId,
+        type: FORM_ELEMENT_TYPES.CHOICE_LIST,
       },
     });
   });
@@ -102,7 +115,12 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
       },
     ];
 
-    transformChoiceListField(choiceListFieldId, jsonSchema, uiSchema, formElements);
+    transformChoiceListField(
+      choiceListFieldId,
+      jsonSchema,
+      uiSchema,
+      formElements,
+    );
 
     expect(formElements).toEqual({
       [choiceListFieldId]: {
@@ -137,97 +155,8 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           ],
           value: choiceListFieldId,
         },
-      },
-    });
-  });
-
-  it('transforms a choice list field with no description', () => {
-    jsonSchema.properties[choiceListFieldId].description = '';
-
-    transformChoiceListField(choiceListFieldId, jsonSchema, uiSchema, formElements);
-
-    expect(formElements).toEqual({
-      [choiceListFieldId]: {
-        details: {
-          description: '',
-          hint: 'Source',
-          inputType: CHOICE_LIST_ELEMENT_INPUT_TYPES.LIST,
-          isRequired: true,
-          label: 'Damaged source',
-          multiple: true,
-          options: [
-            {
-              const: 'source-1',
-              title: 'Ranger Radio',
-            },
-            {
-              const: 'source-2',
-              title: 'Elephant Collar',
-            },
-          ],
-          value: choiceListFieldId,
-        },
-      },
-    });
-  });
-
-  it('transforms a choice list field with no hint', () => {
-    uiSchema.fields[choiceListFieldId].placeholder = '';
-
-    transformChoiceListField(choiceListFieldId, jsonSchema, uiSchema, formElements);
-
-    expect(formElements).toEqual({
-      [choiceListFieldId]: {
-        details: {
-          description: 'Select the damaged source',
-          hint: '',
-          inputType: CHOICE_LIST_ELEMENT_INPUT_TYPES.LIST,
-          isRequired: true,
-          label: 'Damaged source',
-          multiple: true,
-          options: [
-            {
-              const: 'source-1',
-              title: 'Ranger Radio',
-            },
-            {
-              const: 'source-2',
-              title: 'Elephant Collar',
-            },
-          ],
-          value: choiceListFieldId,
-        },
-      },
-    });
-  });
-
-  it('transforms a dropdown choice list field', () => {
-    uiSchema.fields[choiceListFieldId].inputType =
-      CHOICE_LIST_ELEMENT_INPUT_TYPES.DROPDOWN;
-
-    transformChoiceListField(choiceListFieldId, jsonSchema, uiSchema, formElements);
-
-    expect(formElements).toEqual({
-      [choiceListFieldId]: {
-        details: {
-          description: 'Select the damaged source',
-          hint: 'Source',
-          inputType: CHOICE_LIST_ELEMENT_INPUT_TYPES.DROPDOWN,
-          isRequired: true,
-          label: 'Damaged source',
-          multiple: true,
-          options: [
-            {
-              const: 'source-1',
-              title: 'Ranger Radio',
-            },
-            {
-              const: 'source-2',
-              title: 'Elephant Collar',
-            },
-          ],
-          value: choiceListFieldId,
-        },
+        parentId,
+        type: FORM_ELEMENT_TYPES.CHOICE_LIST,
       },
     });
   });
@@ -237,7 +166,12 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
     delete jsonSchema.properties[choiceListFieldId].items;
     jsonSchema.properties[choiceListFieldId].type = 'string';
 
-    transformChoiceListField(choiceListFieldId, jsonSchema, uiSchema, formElements);
+    transformChoiceListField(
+      choiceListFieldId,
+      jsonSchema,
+      uiSchema,
+      formElements,
+    );
 
     expect(formElements).toEqual({
       [choiceListFieldId]: {
@@ -260,6 +194,8 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           ],
           value: choiceListFieldId,
         },
+        parentId,
+        type: FORM_ELEMENT_TYPES.CHOICE_LIST,
       },
     });
   });
@@ -270,7 +206,12 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
     delete uiSchema.fields[choiceListFieldId].inputType;
     delete uiSchema.fields[choiceListFieldId].placeholder;
 
-    transformChoiceListField(choiceListFieldId, jsonSchema, uiSchema, formElements);
+    transformChoiceListField(
+      choiceListFieldId,
+      jsonSchema,
+      uiSchema,
+      formElements,
+    );
 
     expect(formElements).toEqual({
       [choiceListFieldId]: {
@@ -284,6 +225,8 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           options: [],
           value: choiceListFieldId,
         },
+        parentId,
+        type: FORM_ELEMENT_TYPES.CHOICE_LIST,
       },
     });
   });

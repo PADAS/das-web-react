@@ -2,6 +2,8 @@ import evaluateContainsCondition from './evaluateContainsCondition';
 import evaluateDoesNotHaveInputCondition from './evaluateDoesNotHaveInputCondition';
 import evaluateHasInputCondition from './evaluateHasInputCondition';
 import evaluateInputIsExactlyCondition from './evaluateInputIsExactlyCondition';
+import evaluateIsContainedByCondition from './evaluateIsContainedByCondition';
+import evaluateIsNotContainedByCondition from './evaluateIsNotContainedByCondition';
 import { FORM_ELEMENT_LOGIC_CONDITION_OPERATORS } from '../../../../../utils/v2-event-schemas/constants';
 
 const evaluateSectionConditions = (sectionConditions, formData) =>
@@ -20,6 +22,12 @@ const evaluateSectionConditions = (sectionConditions, formData) =>
 
     case FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.INPUT_IS_EXACTLY:
       return evaluateInputIsExactlyCondition(conditionFieldValue, sectionCondition.value);
+
+    case FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_CONTAINED_BY:
+      return evaluateIsContainedByCondition(conditionFieldValue, sectionCondition.value);
+
+    case FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_NOT_CONTAINED_BY:
+      return evaluateIsNotContainedByCondition(conditionFieldValue, sectionCondition.value);
 
     default:
       return false;

@@ -7,8 +7,7 @@ const transformNumericField = (
   const numericFieldJSONSchema = jsonSchema.properties[numericFieldId];
   const numericFieldUISchema = uiSchema.fields[numericFieldId];
 
-  // Add the numeric field specific properties to its node in the form elements
-  // object.
+  // Add the numeric field form element specific properties.
   formElements[numericFieldId].details = {
     ...formElements[numericFieldId].details,
     defaultInput: numericFieldJSONSchema.default ?? null,

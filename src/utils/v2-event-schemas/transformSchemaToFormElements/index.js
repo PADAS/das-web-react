@@ -3,15 +3,14 @@ import transformSection from './transformSection';
 import UndefinedFormElementError from './UndefinedFormElementError';
 
 export const transformSchemaToFormElements = (schema) => {
-  // Throw an error if a section is missing from uiSchema.sections.
+  // Throw an error if a section is missing from schema.ui.sections.
   schema.ui.order.forEach((sectionId) => {
     if (!schema.ui.sections[sectionId]) {
       throw new UndefinedFormElementError(sectionId, ROOT_CANVAS_ID);
     }
   });
 
-  // Initialize the form elements object with the root canvas and the active
-  // sections.
+  // Initialize the formElements object with only the active sections order.
   const formElements = {
     [ROOT_CANVAS_ID]: {
       details: {
@@ -21,8 +20,8 @@ export const transformSchemaToFormElements = (schema) => {
   };
 
   // Transform each section.
-  formElements[ROOT_CANVAS_ID].details.sections.forEach(
-    (sectionId) => transformSection(sectionId, schema.json, schema.ui, formElements)
+  formElements[ROOT_CANVAS_ID].details.sections.forEach((sectionId) =>
+    transformSection(sectionId, schema.json, schema.ui, formElements),
   );
 
   return formElements;

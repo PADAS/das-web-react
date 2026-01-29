@@ -10,7 +10,7 @@ const transformCollectionField = (
   const collectionFieldJSONSchema = jsonSchema.properties[collectionFieldId];
   const collectionFieldUISchema = uiSchema.fields[collectionFieldId];
 
-  // Filter out inactive children from the collection field's columns.
+  // Transform the collection field's columns with only the active children.
   const leftColumn = (collectionFieldUISchema.leftColumn ?? []).filter(
     (collectionFieldChildId) => !collectionFieldJSONSchema.items.properties[collectionFieldChildId].deprecated
   );
@@ -18,8 +18,20 @@ const transformCollectionField = (
     (collectionFieldChildId) => !collectionFieldJSONSchema.items.properties[collectionFieldChildId].deprecated
   );
 
-  // Add the collection field specific properties to its node in the form
-  // elements object.
+  // Get the collection field children IDs.
+  const collectionFieldChildrenIds = [...leftColumn, ...rightColumn];
+
+  // Throw an error if a collection field child is missing from uiSchema.fields.
+  collectionFieldChildrenIds.forEach((collectionFieldChildId) => {
+    if (!uiSchema.fields[collectionFieldChildId]) {
+      throw new UndefinedFormElementError(
+        collectionFieldChildId,
+        collectionFieldId,
+      );
+    }
+  });
+
+  // Add the collection field form element specific properties.
   formElements[collectionFieldId].details = {
     ...formElements[collectionFieldId].details,
     buttonText: collectionFieldUISchema.buttonText ?? '',
@@ -33,20 +45,19 @@ const transformCollectionField = (
     rightColumn,
   };
 
+  // The JSON schema for the collection field children is the "items" subschema
+  // of the collection field JSON subschema.
+  const collectionFieldJSONSubschema = collectionFieldJSONSchema.items;
+
   // Transform each collection field child.
-  const collectionFieldChildrenIds = [...leftColumn, ...rightColumn];
-  collectionFieldChildrenIds.forEach((collectionFieldChildId) => {
-    if (uiSchema.fields[collectionFieldChildId]) {
-      transformField(
-        collectionFieldChildId,
-        collectionFieldJSONSchema.items,
-        uiSchema,
-        formElements,
-      );
-    } else {
-      throw new UndefinedFormElementError(collectionFieldChildId, collectionFieldId);
-    }
-  });
+  collectionFieldChildrenIds.forEach((collectionFieldChildId) =>
+    transformField(
+      collectionFieldChildId,
+      collectionFieldJSONSubschema,
+      uiSchema,
+      formElements,
+    ),
+  );
 };
 
 export default transformCollectionField;

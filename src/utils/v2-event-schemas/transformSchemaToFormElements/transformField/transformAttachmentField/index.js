@@ -6,8 +6,7 @@ const transformAttachmentField = (
 ) => {
   const attachmentFieldUISchema = uiSchema.fields[attachmentFieldId];
 
-  // Add the attachment field specific properties to its node in the form
-  // elements object.
+  // Add the attachment field form element specific properties.
   formElements[attachmentFieldId].details = {
     ...formElements[attachmentFieldId].details,
     allowableFileTypes: attachmentFieldUISchema.allowableFileTypes ?? [],

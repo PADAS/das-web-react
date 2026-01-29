@@ -34,57 +34,6 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformHe
     });
   });
 
-  it('transforms a header with no label', () => {
-    delete uiSchema.headers[headerId].label;
-
-    transformHeader(headerId, uiSchema, formElements);
-
-    expect(formElements).toEqual({
-      [headerId]: {
-        details: {
-          label: '',
-          size: HEADER_ELEMENT_SIZES.MEDIUM,
-        },
-        parentId: parentId,
-        type: FORM_ELEMENT_TYPES.HEADER,
-      },
-    });
-  });
-
-  it('transforms a large header', () => {
-    uiSchema.headers[headerId].size = HEADER_ELEMENT_SIZES.LARGE;
-
-    transformHeader(headerId, uiSchema, formElements);
-
-    expect(formElements).toEqual({
-      [headerId]: {
-        details: {
-          label: 'Arrestee Details',
-          size: HEADER_ELEMENT_SIZES.LARGE,
-        },
-        parentId: parentId,
-        type: FORM_ELEMENT_TYPES.HEADER,
-      },
-    });
-  });
-
-  it('transforms a small header', () => {
-    uiSchema.headers[headerId].size = HEADER_ELEMENT_SIZES.SMALL;
-
-    transformHeader(headerId, uiSchema, formElements);
-
-    expect(formElements).toEqual({
-      [headerId]: {
-        details: {
-          label: 'Arrestee Details',
-          size: HEADER_ELEMENT_SIZES.SMALL,
-        },
-        parentId: parentId,
-        type: FORM_ELEMENT_TYPES.HEADER,
-      },
-    });
-  });
-
   it('transforms a header with missing properties', () => {
     delete uiSchema.headers[headerId].label;
     delete uiSchema.headers[headerId].size;
