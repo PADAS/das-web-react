@@ -101,8 +101,25 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
                     text_field: {
                       anyOf: [
                         {
+                          allOf: [{ contains: { const: 'value' } }],
+                          maxItems: 1,
+                          type: 'array',
+                        },
+                        {
+                          const: null,
+                          type: 'boolean',
+                        },
+                        {
                           const: null,
                           type: 'number'
+                        },
+                        {
+                          properties: {
+                            value: {},
+                          },
+                          required: ['value'],
+                          type: 'object',
+                          unevaluatedProperties: false,
                         },
                         {
                           const: 'value',
@@ -137,8 +154,25 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
                     text_field: {
                       anyOf: [
                         {
+                          allOf: [{ contains: { const: 'invalid' } }],
+                          maxItems: 1,
+                          type: 'array',
+                        },
+                        {
+                          const: null,
+                          type: 'boolean',
+                        },
+                        {
                           const: null,
                           type: 'number'
+                        },
+                        {
+                          properties: {
+                            invalid: {},
+                          },
+                          required: ['invalid'],
+                          type: 'object',
+                          unevaluatedProperties: false,
                         },
                         {
                           const: 'invalid',
@@ -392,11 +426,11 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
     expect(screen.getByTestId('schema-form-section-section-3')).toBeVisible();
     expect(screen.getByTestId('schema-form-text-field-text_field')).toBeVisible();
 
-    // section-2 has condition text_field === "value", which passes, so it should be visible
+    // section-2 has condition text_field input is exactly "value", which passes, so it should be visible
     expect(screen.getByTestId('schema-form-section-section-2')).toBeVisible();
     expect(screen.getByTestId('schema-form-text-field-text_field_2')).toBeVisible();
 
-    // section-1 has condition text_field === "invalid", which fails, so it should not be visible
+    // section-1 has condition text_field input is exactly "invalid", which fails, so it should not be visible
     expect(screen.queryByTestId('schema-form-section-section-1')).toBeNull();
     expect(screen.queryByTestId('schema-form-text-field-text_field_3')).toBeNull();
   });
