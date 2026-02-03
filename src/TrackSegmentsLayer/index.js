@@ -1,21 +1,26 @@
-import { memo, useContext, useEffect } from 'react';
+import { memo, useCallback, useContext, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import isEqual from 'react-fast-compare';
 import uniq from 'lodash/uniq';
 
 import { MapContext } from '../App';
-import { safeRemoveMapLayer, safeRemoveMapSource } from '../utils/map';
-import { API_URL } from '../constants';
+import { useMapEventBinding } from '../hooks';
+import { addMapImage, safeRemoveMapLayer, safeRemoveMapSource } from '../utils/map';
+import { API_URL, MAP_ICON_SCALE } from '../constants';
 import { selectSubjectTrackState } from '../selectors/tracks';
 
+import Arrow from '../common/images/icons/track-arrow.svg';
+
+const ARROW_IMG_ID = 'track_arrow';
 
 const TRACK_SEGMENTS_SOURCE = 'track-segments-source';
 const TRACK_SEGMENTS_LAYER_ID = 'track-segments-layer';
+const TRACK_SEGMENTS_START_LAYER_ID = 'track-segments-start-layer';
 
 const VECTOR_TILE_URL = `${API_URL}observations/segments/tiles/{z}/{x}/{y}.pbf`;
 
 
-const TrackSegmentsLayer = () => {
+const TrackSegmentsLayer = ({ onPointClick }) => {
   const map = useContext(MapContext);
 
   const isSegmentOnTimeEnabled = useSelector((state) => state.view.trackSettings.isSegmentOnTimeEnabled);
@@ -28,6 +33,15 @@ const TrackSegmentsLayer = () => {
     ...subjectTrackState.pinned,
     ...subjectTrackState.visible,
   ]);
+
+  /* add arrow image to map */
+  useEffect(() => {
+    if (!map) return;
+
+    if (!map.hasImage(ARROW_IMG_ID)) {
+      addMapImage({ src: Arrow, id: ARROW_IMG_ID });
+    }
+  }, [map]);
 
   /* add the vector source */
   useEffect(() => {
@@ -70,7 +84,33 @@ const TrackSegmentsLayer = () => {
       });
     }
 
+    /* track point layer */
+    if (!map.getLayer(TRACK_SEGMENTS_START_LAYER_ID)) {
+      map.addLayer({
+        id: TRACK_SEGMENTS_START_LAYER_ID,
+        type: 'symbol',
+        source: TRACK_SEGMENTS_SOURCE,
+        'source-layer': 'observation_segments',
+        minzoom: 3,
+        layout: {
+          'icon-image': ARROW_IMG_ID,
+          'icon-rotate': ['get', 'bearing_deg'],
+          'icon-size': 0.3 / MAP_ICON_SCALE,
+          'icon-allow-overlap': true,
+          'icon-pitch-alignment': 'map',
+          'icon-rotation-alignment': 'map',
+          'symbol-placement': 'point',
+        },
+        paint: {
+          'icon-opacity': 0.8
+        }
+      });
+    }
+
     return () => {
+      if (map.getLayer(TRACK_SEGMENTS_START_LAYER_ID)) {
+        safeRemoveMapLayer(map, TRACK_SEGMENTS_START_LAYER_ID);
+      }
       if (map.getLayer(TRACK_SEGMENTS_LAYER_ID)) {
         safeRemoveMapLayer(map, TRACK_SEGMENTS_LAYER_ID);
       }
@@ -101,7 +141,52 @@ const TrackSegmentsLayer = () => {
     if (!isEqual(map.getFilter(TRACK_SEGMENTS_LAYER_ID), filters)) {
       map.setFilter(TRACK_SEGMENTS_LAYER_ID, filters);
     }
+
+    if (map.getLayer(TRACK_SEGMENTS_START_LAYER_ID) && !isEqual(map.getFilter(TRACK_SEGMENTS_START_LAYER_ID), filters)) {
+      map.setFilter(TRACK_SEGMENTS_START_LAYER_ID, filters);
+    }
   }, [map, visibleSubjectIds, isSegmentOnTimeEnabled, isSegmentOnSpeedEnabled, segmentTimeGapLength, segmentSpeedLimit]);
+
+  /* click handler for starting point arrows */
+  const handleStartPointClick = useCallback((event) => {
+    event.preventDefault();
+    if (!onPointClick || !event.features?.length) return;
+
+    const feature = event.features[0];
+    const { properties, geometry } = feature;
+
+    // Extract the start point coordinates from the LineString
+    const startCoords = geometry.type === 'LineString'
+      ? geometry.coordinates[0]
+      : geometry.coordinates;
+
+    // Transform properties to match TimepointPopup expectations
+    const transformedLayer = {
+      geometry: {
+        type: 'Point',
+        coordinates: startCoords,
+      },
+      properties: {
+        name: properties.subject_name,
+        time: properties.start_recorded_at,
+        id: properties.subject_id,
+      },
+    };
+
+    onPointClick(transformedLayer);
+  }, [onPointClick]);
+
+  const onMouseEnter = useCallback(() => {
+    if (map) map.getCanvas().style.cursor = 'pointer';
+  }, [map]);
+
+  const onMouseLeave = useCallback(() => {
+    if (map) map.getCanvas().style.cursor = '';
+  }, [map]);
+
+  useMapEventBinding('click', handleStartPointClick, TRACK_SEGMENTS_START_LAYER_ID, !!onPointClick);
+  useMapEventBinding('mouseenter', onMouseEnter, TRACK_SEGMENTS_START_LAYER_ID, !!onPointClick);
+  useMapEventBinding('mouseleave', onMouseLeave, TRACK_SEGMENTS_START_LAYER_ID, !!onPointClick);
 
   return null;
 };

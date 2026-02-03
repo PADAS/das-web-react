@@ -46,7 +46,6 @@ import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectsLayer';
 import BuoyTrawlLineLayer from '../BuoyTrawlLineLayer';
 import StaticSensorsLayer from '../StaticSensorsLayer';
-import TracksLayer from '../TracksLayer';
 import PatrolStartStopLayer from '../PatrolStartStopLayer';
 import AnalyzerLayer from '../AnalyzersLayer';
 import PopupLayer from '../PopupLayer';
@@ -136,7 +135,7 @@ const Map = ({ children, onMapLoad, socket }) => {
   const patrolTrackState = useSelector(state => state.view.patrolTrackState);
   const popup = useSelector(state => state.view.popup);
   const showReportHeatmap = useSelector(state => state.view.showReportHeatmap);
-  const showTrackTimepoints = useSelector(state => state.view.showTrackTimepoints);
+  // const showTrackTimepoints = useSelector(state => state.view.showTrackTimepoints);
   const spatialFeaturesEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]);
   const subjectTrackState = useSelector(state => state.view.subjectTrackState);
   const subjectsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SUBJECTS]);
@@ -178,7 +177,7 @@ const Map = ({ children, onMapLoad, socket }) => {
   } = analyzersFeatureCollection;
 
   const subjectHeatmapAvailable = !!heatmapSubjectIDs.length;
-  const subjectTracksVisible = !!subjectTrackState.pinned.length || !!subjectTrackState.visible.length;
+  // const subjectTracksVisible = !!subjectTrackState.pinned.length || !!subjectTrackState.visible.length;
   const patrolTracksVisible = !!patrolTrackState.pinned.length || !!patrolTrackState.visible.length;
 
   const onReportMarkerDrop = useCallback((location) => {
@@ -730,7 +729,7 @@ const Map = ({ children, onMapLoad, socket }) => {
       {subjectHeatmapAvailable && <SubjectHeatLayer />}
       {showReportHeatmap && <ReportsHeatLayer />}
 
-      <TrackSegmentsLayer /*  onPointClick={onTimepointClick} showTimepoints={showTrackTimepoints} /> */ />
+      <TrackSegmentsLayer onPointClick={onTimepointClick} />
 
       {patrolTracksVisible && <PatrolStartStopLayer />}
 
