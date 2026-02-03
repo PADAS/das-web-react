@@ -13,6 +13,7 @@ const Section = ({
   onFieldChange,
   onFieldErrorsChange,
   renderField,
+  ...otherProps
 }) => {
   const onColumnFieldChange = (fieldId, value, error) => {
     onFieldChange(fieldId, value);
@@ -22,6 +23,7 @@ const Section = ({
   return <div
       className={styles.section}
       data-testid={`schema-form-section-${id}`}
+      {...otherProps}
     >
     {details.label && <h3 className={styles.header}>{details.label}</h3>}
 

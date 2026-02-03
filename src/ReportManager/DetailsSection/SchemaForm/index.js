@@ -191,11 +191,12 @@ const SchemaForm = ({
   }, [formData, formElements, setLocationMarkers]);
 
   return <form onSubmit={onSubmit}>
-    {visibleSectionIds.map((sectionId) => <Section
+    {formElements[ROOT_CANVAS_ID]?.details.sections.map((sectionId) => <Section
       details={formElements[sectionId].details}
       fieldErrors={fieldErrors}
       focusLocationMarker={focusLocationMarker}
       formData={formData}
+      hidden={!visibleSectionIds.includes(sectionId)}
       id={sectionId}
       key={sectionId}
       onFieldChange={onSectionFieldChange}
