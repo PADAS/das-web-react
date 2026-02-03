@@ -33,6 +33,12 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () =>
     {...props}
   />);
 
+  test('configures the section with other props', async () => {
+    renderSectionField({ hidden: true });
+
+    expect(screen.getByTestId('schema-form-section-section-1')).toHaveAttribute('hidden');
+  });
+
   test('does not show a header if the label is not defined', async () => {
     details.label = '';
     renderSectionField();
