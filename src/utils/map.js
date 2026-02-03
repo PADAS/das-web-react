@@ -99,13 +99,6 @@ export const addFeatureCollectionImagesToMap = (collection, options = {}, map = 
   return Promise.all(images).then(results => results);
 };
 
-export const filterInactiveRadiosFromCollection = (subjects) => {
-  if (subjects && subjects.features.length) {
-    return featureCollection(subjects.features.filter( (subject) => subject.properties.radio_state !== 'offline'));
-  }
-  return featureCollection([]);
-};
-
 export const addTitleWithDateToGeoJson = (geojson, title) => {
   const addTitle = (feature) => {
     const displayTitle = feature.properties.time ? title + '\n' + formatEventSymbolDate(feature.properties.time) : title;
@@ -146,16 +139,7 @@ export const getEventTypeTitle = (event_types, event_type) => {
   return (typeTitle && typeTitle.display) ? typeTitle.display : typeTitle;
 };
 
-const setUpSubjectGeoJson = subjects =>
-  subjects
-    .map(subject => {
-      const key = 'last_position';
-
-      return addPropsToGeoJsonByKey(subject, key)[key];
-    })
-    .filter((subject) => !!subject);
-
-const featureCollectionFromGeoJson = geojson_array => {
+export const featureCollectionFromGeoJson = geojson_array => {
   const flattened = geojson_array.reduce((array, item) => {
     if (item.type === 'FeatureCollection') {
       return [
@@ -172,10 +156,6 @@ const featureCollectionFromGeoJson = geojson_array => {
   return featureCollection(flattened);
 };
 
-export const createFeatureCollectionFromSubjects = subjects =>
-  featureCollectionFromGeoJson(
-    setUpSubjectGeoJson(subjects)
-  );
 export const createFeatureCollectionFromEvents = (events, eventTypes) =>
   featureCollectionFromGeoJson(
     setUpEventGeoJson(events, eventTypes)

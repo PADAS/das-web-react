@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 
 import { addFeatureCollectionImagesToMap } from '../utils/map';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
-import { getShouldSubjectsBeClustered } from '../selectors/clusters';
+import { selectShouldSubjectsBeClustered } from '../selectors/clusters';
 import { LAYER_IDS, SOURCE_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { MapContext } from '../App';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
@@ -34,7 +34,7 @@ const UNCLUSTERED_SOURCE_ID = 'subject-symbol-source';
 const SubjectsLayer = ({ mapImages = {}, onSubjectClick }) => {
   const map = useContext(MapContext);
 
-  const shouldSubjectsBeClustered = useSelector(getShouldSubjectsBeClustered);
+  const shouldSubjectsBeClustered = useSelector(selectShouldSubjectsBeClustered);
   const subjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);
 
   const [mapSubjectFeatures, setMapSubjectFeatures] = useState(featureCollection([]));

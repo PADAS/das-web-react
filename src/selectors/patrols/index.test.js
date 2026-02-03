@@ -15,6 +15,13 @@ describe('Selectors - Patrols', () => {
   beforeEach(() => {
     state = {
       data: {
+        eventFilter: {
+          filter: {
+            date_range: {
+              lower: '2020-01-01T06:00:00.000Z',
+            },
+          },
+        },
         patrolLeaderSchema: {},
         patrolStore: {},
         subjectStore: {},
