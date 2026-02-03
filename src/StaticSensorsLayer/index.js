@@ -3,7 +3,7 @@ import { featureCollection } from '@turf/turf';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { addFeatureCollectionImagesToMap } from '../utils/map';
-import { getShouldSubjectsBeClustered } from '../selectors/clusters';
+import { selectShouldSubjectsBeClustered } from '../selectors/clusters';
 import { LAYER_IDS, SOURCE_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import LayerBackground from '../common/images/sprites/layer-background-sprite.png';
 import { MapContext } from '../App';
@@ -41,7 +41,7 @@ const StaticSensorsLayer = () => {
   const map = useContext(MapContext);
 
   const isDataInMapSimplified = useSelector((state) => state.view.simplifyMapDataOnZoom?.enabled);
-  const shouldSubjectsBeClustered = useSelector(getShouldSubjectsBeClustered);
+  const shouldSubjectsBeClustered = useSelector(selectShouldSubjectsBeClustered);
   const rawShowMapNames = useSelector((state) => state.view.showMapNames) || {};
   const { _persist, ...showMapNames } = rawShowMapNames;
 

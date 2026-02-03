@@ -1,12 +1,12 @@
 import React, { useContext, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { getSubjectGroups } from '../../../selectors/subjects';
 import { calcDisplayNameForSubject, getUniqueSubjectGroupSubjects } from '../../../utils/subjects';
 import { hideSubjects, showSubjects } from '../../../ducks/map-layer-filter';
 import { MAP_LAYERS_CATEGORY, trackEventFactory } from '../../../utils/analytics';
 import { MapContext } from '../../../App';
 import { MAP_LAYER_SORT_VALUES, SORT_DIRECTION } from '../../../constants';
+import { selectHydratedSubjectGroupsWithLastPositionTime } from '../../../selectors/subjects';
 
 import CheckableList from '../../../CheckableList';
 import Content from './Content';
@@ -74,7 +74,7 @@ const SubjectsTab = () => {
   const dispatch = useDispatch();
 
   const mapLayerFilter = useSelector((state) => state.data.mapLayerFilter);
-  const subjectGroups = useSelector(getSubjectGroups);
+  const subjectGroups = useSelector(selectHydratedSubjectGroupsWithLastPositionTime);
 
   const map = useContext(MapContext);
 

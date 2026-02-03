@@ -8,7 +8,6 @@ import {
 import { getTimeOfDaySourceAndLayerConfigurations } from './utils';
 import { isBuoySubject } from '../utils/subjects';
 import { useSelector } from 'react-redux';
-import { selectTrackSettings } from '../selectors/tracks';
 import useMapSources from '../hooks/useMapSources';
 import useMapLayers from '../hooks/useMapLayers';
 
@@ -67,7 +66,10 @@ const TrackLayer = ({
   trackData,
 }) => {
   const map = useContext(MapContext);
-  const { isTimeOfDayColoringActive } = useSelector(selectTrackSettings);
+
+  const isTimeOfDayColoringActive = useSelector(
+    (state) => state.view.trackSettings.isTimeOfDayColoringActive
+  );
   const subjectStore = useSelector((state) => state.data.subjectStore);
 
   const trackId = id;

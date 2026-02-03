@@ -44,58 +44,37 @@ export const calcIconColorByPriority = (priority) => {
   }
 };
 
+const getOrdernum = (item) => typeof item.ordernum === 'number' ? item.ordernum : 1000;
+
 export const mapEventTypesToCategories = (eventTypes, eventCategories) => {
-  const visibleEventTypesMappedByCategory = eventTypes.reduce((accumulator, eventType) => {
-    // Read the event type category. The location of the event category value property depends on the event type
-    // version.
-    const eventTypeCategory = eventType.version === 1
-      ? eventType.category
-      : eventCategories[eventType.category];
+  // Map the event type categories by their value.
+  const categoriesByValue = {};
+  eventTypes.forEach((eventType) => {
+    const eventTypeCategory = eventType.version === 1 ? eventType.category : eventCategories[eventType.category];
 
-    if (!eventTypeCategory) return accumulator;
+    if (eventTypeCategory && eventTypeCategory.value !== 'hidden') {
+      // The event type category is defined and is not the hidden category. Add
+      // the event type to the category types.
+      if (!categoriesByValue[eventTypeCategory.value]) {
+        // The category hasn't been added yet to the object. Add it with an
+        // empty types array.
+        categoriesByValue[eventTypeCategory.value] = { ...eventTypeCategory, types: [] };
+      }
 
-    if (eventTypeCategory.value === 'hidden') {
-      // Ignore the hidden category.
-      return accumulator;
+      categoriesByValue[eventTypeCategory.value].types.push(eventType);
     }
-    if (accumulator[eventTypeCategory.value]) {
-      // Append the event type to the types of an event category that is already in the accumulator.
-      return {
-        ...accumulator,
-        [eventTypeCategory.value]: {
-          ...accumulator[eventTypeCategory.value],
-          types: [...accumulator[eventTypeCategory.value].types, eventType],
-        },
-      };
-    }
-    // If the event category is not yet in the accumulator, add it with the event type mapped in its types.
-    return {
-      ...accumulator,
-      [eventTypeCategory.value]: {
-        ...eventTypeCategory,
-        types: [eventType],
-      },
-    };
-  }, {});
+  });
 
-  return Object.values(visibleEventTypesMappedByCategory)
-    // Sort the event types in each category by their ordernum.
-    .map((eventCategory) => ({
-      ...eventCategory,
-      types: eventCategory.types.sort((eventTypeA, eventTypeB) => {
-        const eventTypeAOrdernum = typeof eventTypeA.ordernum === 'number' ? eventTypeA.ordernum : 1000;
-        const eventTypeBOrdernum = typeof eventTypeB.ordernum === 'number' ? eventTypeB.ordernum : 1000;
-        return eventTypeAOrdernum - eventTypeBOrdernum;
-      })
-    }))
-    // Sort the event categories by their ordernum.
-    .sort((eventCategoryA, eventCategoryB) => {
-      const eventCategoryAOrdernum = typeof eventCategoryA.ordernum === 'number'
-        ? eventCategoryA.ordernum
-        : 1000;
-      const eventCategoryBOrdernum = typeof eventCategoryB.ordernum === 'number'
-        ? eventCategoryB.ordernum
-        : 1000;
-      return eventCategoryAOrdernum - eventCategoryBOrdernum;
-    });
+  // Transform the categories object into an array.
+  const categories = Object.values(categoriesByValue);
+
+  // Sort the event types in each category by the ordernum.
+  categories.forEach(
+    (category) => category.types.sort((eventTypeA, eventTypeB) => getOrdernum(eventTypeA) - getOrdernum(eventTypeB))
+  );
+
+  // Sort the categories by the ordernum.
+  return categories.sort(
+    (eventCategoryA, eventCategoryB) => getOrdernum(eventCategoryA) - getOrdernum(eventCategoryB)
+  );
 };
