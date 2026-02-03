@@ -397,8 +397,8 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
     expect(screen.getByTestId('schema-form-text-field-text_field_2')).toBeVisible();
 
     // section-1 has condition text_field === "invalid", which fails, so it should not be visible
-    expect(screen.queryByTestId('schema-form-section-section-1')).toBeNull();
-    expect(screen.queryByTestId('schema-form-text-field-text_field_3')).toBeNull();
+    expect(screen.getByTestId('schema-form-section-section-1')).not.toBeVisible();
+    expect(screen.getByTestId('schema-form-text-field-text_field_3')).not.toBeVisible();
   });
 
   test('shows validation errors if there are any when the user submits the form', async () => {
