@@ -1,18 +1,23 @@
-name: Build das-server on Pull Request
+name: Build das-web-react on Pull Request
 on:
   pull_request:
     types:
       - labeled
       - synchronize
-      - reopened
+      - opened
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   config:
     if: contains(github.event.pull_request.labels.*.name, 'deploy')
     runs-on: ubuntu-latest
     outputs:
+      image-tag: ${{ steps.tag.outputs.tag }}
       build-args: ${{ steps.env-vars.outputs.build-args }}
-    environment: 
+    environment:
       name: ${{ github.head_ref }}
       url: "https://${{ github.head_ref }}.dev.pamdas.org"
     steps:
@@ -21,6 +26,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Generate image tag
+        id: tag
+        run: |
+          echo "tag=${{ github.event.pull_request.head.sha }}" >> "$GITHUB_OUTPUT"
       - run: |
           npm pkg set "buildbranch"="${{ github.event.pull_request.head.sha }}"
           npm pkg set "buildnum"="${{ github.run_number }}"
@@ -34,15 +43,42 @@ jobs:
           # PR envs deploy to *.dev.pamdas.org, so always use the development config.
           echo "build-args=ENV_FILE=.env.development" >> $GITHUB_OUTPUT
 
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+      - run: yarn install --immutable
+      - run: yarn lint
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+      - run: yarn install --immutable
+      - run: yarn test-ci
+
   build:
     if: contains(github.event.pull_request.labels.*.name, 'deploy')
-    needs: config
-    uses: PADAS/gundi-workflows/.github/workflows/build_docker.yml@main
+    needs: [config, lint, test]
+    uses: PADAS/serca-pipelines/.github/workflows/_docker-build.yml@feature/argocd-sync-workflow
     with:
-      environment: padas-app
-      repository: europe-west3-docker.pkg.dev/padas-app/er-mt/das-web-react
-      tag: ${{ github.event.pull_request.head.sha }}
+      repository: europe-west3-docker.pkg.dev/serca-artifact-registry/serca-apps/das-web-react
+      tag: ${{ needs.config.outputs.image-tag }}
       dockerfile: Dockerfile.mt
+      push: true
       artifact-download: true
       artifact-name: npm-config
-      build-args: ${{ needs.config.outputs.build-args || '' }}
+      build-args: ${{ needs.config.outputs.build-args }}
+      base-image-registry: europe-west3-docker.pkg.dev/serca-artifact-registry
+      enable-trivy-scan: true
+      trivy-exit-code: '0'

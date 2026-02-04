@@ -5,10 +5,15 @@ on:
       - develop
       - 'release-**'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   config:
     runs-on: ubuntu-latest
     outputs:
+      image-tag: ${{ steps.tag.outputs.tag }}
       build-args: ${{ steps.env-vars.outputs.build-args }}
     steps:
       - uses: actions/checkout@v4
@@ -16,32 +21,65 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Generate image tag
+        id: tag
+        run: |
+          BRANCH="${GITHUB_REF_NAME}"
+          SHORT_SHA="${GITHUB_SHA:0:7}"
+          BRANCH_SAFE=$(echo "$BRANCH" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
+          TAG="${BRANCH_SAFE}-${SHORT_SHA}"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
       - run: |
           npm pkg set "buildbranch"="${{ github.head_ref || github.ref_name }}"
           npm pkg set "buildnum"="${{ github.run_number }}"
-
       - name: Select env file for build
         id: env-vars
         run: |
           if [[ "${GITHUB_REF_NAME}" == "develop" ]]; then
             echo "build-args=ENV_FILE=.env.development" >> $GITHUB_OUTPUT
           else
-            # Default in Dockerfile.mt is .env.production; keep this explicit for clarity.
             echo "build-args=ENV_FILE=.env.production" >> $GITHUB_OUTPUT
           fi
-
       - uses: actions/upload-artifact@v4
         with:
           name: npm-config
           path: package.json
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+      - run: yarn install --immutable
+      - run: yarn lint
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+      - run: yarn install --immutable
+      - run: yarn test-ci
+
   build:
-    needs: config
-    uses: PADAS/gundi-workflows/.github/workflows/build_docker.yml@main
+    needs: [config, lint, test]
+    uses: PADAS/serca-pipelines/.github/workflows/_docker-build.yml@feature/argocd-sync-workflow
     with:
-      environment: padas-app
-      repository: europe-west3-docker.pkg.dev/padas-app/er-mt/das-web-react
-      tag: ${{ github.head_ref || github.ref_name }}-${{ github.run_number }}
+      repository: europe-west3-docker.pkg.dev/serca-artifact-registry/serca-apps/das-web-react
+      tag: ${{ needs.config.outputs.image-tag }}
       dockerfile: Dockerfile.mt
+      push: true
       artifact-download: true
       artifact-name: npm-config
-      build-args: ${{ needs.config.outputs.build-args || '' }}
+      build-args: ${{ needs.config.outputs.build-args }}
+      base-image-registry: europe-west3-docker.pkg.dev/serca-artifact-registry
+      enable-trivy-scan: true
+      trivy-exit-code: '0'
