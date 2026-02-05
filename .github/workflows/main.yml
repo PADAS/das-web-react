@@ -1,42 +1,291 @@
-name: Build das-web-react
+name: Build and Deploy das-web-react
+
 on:
   push:
     branches:
       - develop
-      - 'release-**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  APP_NAME: das-web-react
+  REPOSITORY: europe-west3-docker.pkg.dev/padas-app/er-mt/das-web-react
+  SECONDARY_REPOSITORY: europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react
+  DOCKERFILE: Dockerfile.mt
+  ENVIRONMENT: er-dev
+
 jobs:
+  # Generate image tag and build config
   config:
     runs-on: ubuntu-latest
     outputs:
+      image-tag: ${{ steps.tag.outputs.tag }}
       build-args: ${{ steps.env-vars.outputs.build-args }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Generate image tag
+        id: tag
+        run: |
+          BRANCH="${GITHUB_REF_NAME}"
+          SHORT_SHA="${GITHUB_SHA:0:7}"
+          BRANCH_SAFE=$(echo "$BRANCH" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
+          TAG="${BRANCH_SAFE}-${SHORT_SHA}"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "Generated image tag: ${TAG}"
+
       - name: Select env file for build
         id: env-vars
         run: |
-          if [[ "${GITHUB_REF_NAME}" == "develop" ]]; then
-            echo "build-args=ENV_FILE=.env.development" >> $GITHUB_OUTPUT
-          else
-            echo "build-args=ENV_FILE=.env.production" >> $GITHUB_OUTPUT
+          echo "build-args=ENV_FILE=.env.development" >> "$GITHUB_OUTPUT"
+
+  # Lint
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+      - run: yarn install --immutable
+      - run: yarn lint
+
+  # Test
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+      - run: yarn install --immutable
+      - run: yarn test-ci
+
+  # Build and push Docker image
+  docker-build:
+    needs: [config, lint, test]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      security-events: write
+      actions: read
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: GCP Auth
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          token_format: access_token
+          workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.SERVICE_ACCOUNT }}
+
+      - name: Login to GAR (primary)
+        uses: docker/login-action@v3
+        with:
+          registry: europe-west3-docker.pkg.dev
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env.REPOSITORY }}
+            ${{ env.SECONDARY_REPOSITORY }}
+          tags: |
+            type=raw,value=${{ needs.config.outputs.image-tag }}
+
+      - name: Build and push
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          context: .
+          file: ${{ env.DOCKERFILE }}
+          platforms: linux/amd64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ github.ref_name }}
+          cache-to: type=gha,mode=max,scope=${{ github.ref_name }}
+          build-args: |
+            ${{ needs.config.outputs.build-args }}
+          provenance: true
+          sbom: true
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ env.REPOSITORY }}@${{ steps.build.outputs.digest }}
+          format: sarif
+          output: trivy-results.sarif
+          severity: CRITICAL,HIGH
+          exit-code: "0"
+          timeout: 10m0s
+
+      - name: Upload Trivy results to GitHub Security
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-results.sarif
+
+      - name: Generate build summary
+        run: |
+          {
+            echo "## 🐳 Docker Build"
+            echo ""
+            echo "| Property | Value |"
+            echo "|----------|-------|"
+            echo "| Image Tag | \`${{ needs.config.outputs.image-tag }}\` |"
+            echo "| Digest | \`${{ steps.build.outputs.digest }}\` |"
+            echo "| Platform | linux/amd64 |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # Update image tag in serca-argocd-apps
+  update-image:
+    needs: [config, docker-build]
+    runs-on: ubuntu-latest
+    outputs:
+      commit-sha: ${{ steps.update.outputs.commit_sha }}
+      commit-url: ${{ steps.update.outputs.commit_url }}
+    steps:
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Update image tag in values file
+        id: update
+        env:
+          GH_TOKEN: ${{ secrets.ARGOCD_APPS_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          APP_NAME="${{ env.APP_NAME }}"
+          IMAGE_TAG="${{ needs.config.outputs.image-tag }}"
+          ENVIRONMENT="${{ env.ENVIRONMENT }}"
+          ARGOCD_APPS_REPO="PADAS/serca-argocd-apps"
+
+          echo "Cloning serca-argocd-apps..."
+          git clone --depth=1 "https://x-access-token:${GH_TOKEN}@github.com/${ARGOCD_APPS_REPO}.git" /tmp/argocd-apps
+          cd /tmp/argocd-apps
+
+          VALUES_FILE="${APP_NAME}/values-${ENVIRONMENT}.yaml"
+
+          if [[ ! -f "$VALUES_FILE" ]]; then
+            echo "::error::Values file not found: $VALUES_FILE"
+            exit 1
           fi
 
-  build-and-deploy:
-    needs: config
-    uses: PADAS/serca-pipelines/.github/workflows/pipeline-kubernetes-node-main.yml@main
-    secrets: inherit
-    with:
-      app-name: das-web-react
-      node-version: "22"
-      lint-command: "yarn lint"
-      test-command: "yarn test-ci"
-      build-enabled: false  # Build happens in Docker
-      repository: europe-west3-docker.pkg.dev/padas-app/er-mt/das-web-react
-      secondary-repository: europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react
-      dockerfile: Dockerfile.mt
-      build-args: ${{ needs.config.outputs.build-args }}
-      deploy-enabled: false  # ArgoCD not ready yet
+          echo "Updating image.tag in $VALUES_FILE to $IMAGE_TAG"
+          yq -i ".image.tag = \"${IMAGE_TAG}\"" "$VALUES_FILE"
+
+          # Check if there are changes
+          if git diff --quiet "$VALUES_FILE"; then
+            echo "No changes detected - image tag already matches"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Commit and push
+          git add "$VALUES_FILE"
+          git commit -m "chore(${APP_NAME}): update image to ${IMAGE_TAG}
+
+          Environment: ${ENVIRONMENT}
+          Triggered by: ${GITHUB_ACTOR}
+          Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+
+          echo "Pushing changes..."
+          git push
+
+          COMMIT_SHA=$(git rev-parse HEAD)
+          echo "Successfully updated $VALUES_FILE"
+          echo "Commit: $COMMIT_SHA"
+
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "commit_sha=$COMMIT_SHA" >> "$GITHUB_OUTPUT"
+          echo "commit_url=https://github.com/${ARGOCD_APPS_REPO}/commit/${COMMIT_SHA}" >> "$GITHUB_OUTPUT"
+
+  # Sync ArgoCD application
+  argocd-sync:
+    needs: [config, update-image]
+    runs-on: ubuntu-latest
+    outputs:
+      sync-status: ${{ steps.status.outputs.sync-status }}
+      health-status: ${{ steps.status.outputs.health-status }}
+    steps:
+      - name: Install ArgoCD CLI
+        run: |
+          curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+          chmod +x argocd
+          sudo mv argocd /usr/local/bin/
+
+      - name: Trigger Sync
+        env:
+          ARGOCD_SERVER: ${{ vars.ARGOCD_SERVER }}
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+        run: |
+          APP_NAME="${{ env.APP_NAME }}-${{ env.ENVIRONMENT }}"
+          echo "Triggering sync for $APP_NAME..."
+          argocd app sync "$APP_NAME" --grpc-web --prune --force
+
+      - name: Wait for Deployment
+        env:
+          ARGOCD_SERVER: ${{ vars.ARGOCD_SERVER }}
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+        run: |
+          APP_NAME="${{ env.APP_NAME }}-${{ env.ENVIRONMENT }}"
+          echo "Waiting for deployment to complete (timeout: 300s)..."
+          argocd app wait "$APP_NAME" --grpc-web --timeout 300 --health --sync || true
+
+      - name: Get Application Status
+        id: status
+        if: always()
+        env:
+          ARGOCD_SERVER: ${{ vars.ARGOCD_SERVER }}
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+        run: |
+          APP_NAME="${{ env.APP_NAME }}-${{ env.ENVIRONMENT }}"
+
+          argocd app get "$APP_NAME" --grpc-web -o json > /tmp/app.json
+
+          SYNC_STATUS=$(jq -r '.status.sync.status // "Unknown"' /tmp/app.json)
+          HEALTH_STATUS=$(jq -r '.status.health.status // "Unknown"' /tmp/app.json)
+
+          echo "sync-status=$SYNC_STATUS" >> "$GITHUB_OUTPUT"
+          echo "health-status=$HEALTH_STATUS" >> "$GITHUB_OUTPUT"
+
+          # Generate summary
+          {
+            echo "## 🚀 ArgoCD Deployment"
+            echo ""
+            echo "| Property | Value |"
+            echo "|----------|-------|"
+            echo "| Application | \`$APP_NAME\` |"
+            echo "| Image Tag | \`${{ needs.config.outputs.image-tag }}\` |"
+            echo "| Sync Status | $SYNC_STATUS |"
+            echo "| Health | $HEALTH_STATUS |"
+            echo "| ArgoCD | [View in ArgoCD](https://${{ vars.ARGOCD_SERVER }}/applications/argocd/$APP_NAME) |"
+            echo "| Values Commit | [${{ needs.update-image.outputs.commit-sha }}](${{ needs.update-image.outputs.commit-url }}) |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$HEALTH_STATUS" != "Healthy" ]; then
+            echo "::warning::Application is not healthy: $HEALTH_STATUS"
+          fi

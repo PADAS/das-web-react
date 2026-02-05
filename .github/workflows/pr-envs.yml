@@ -1,4 +1,5 @@
 name: Build das-web-react on Pull Request
+
 on:
   pull_request:
     types:
@@ -10,39 +11,62 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  APP_NAME: das-web-react
+  REPOSITORY: europe-west3-docker.pkg.dev/padas-app/er-mt/das-web-react
+  SECONDARY_REPOSITORY: europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react
+  DOCKERFILE: Dockerfile.mt
+
 jobs:
+  # Generate image tag and build config
   config:
     if: contains(github.event.pull_request.labels.*.name, 'deploy')
     runs-on: ubuntu-latest
     outputs:
       image-tag: ${{ steps.tag.outputs.tag }}
       build-args: ${{ steps.env-vars.outputs.build-args }}
+      pr-number: ${{ steps.pr.outputs.number }}
     environment:
       name: ${{ github.head_ref }}
       url: "https://${{ github.head_ref }}.dev.pamdas.org"
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
+
+      - name: Get PR number
+        id: pr
+        run: |
+          echo "number=${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+
       - name: Generate image tag
         id: tag
         run: |
-          echo "tag=${{ github.event.pull_request.head.sha }}" >> "$GITHUB_OUTPUT"
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          SHORT_SHA="${GITHUB_SHA:0:7}"
+          TAG="pr-${PR_NUMBER}-${SHORT_SHA}"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "Generated image tag: ${TAG}"
+
       - run: |
           npm pkg set "buildbranch"="${{ github.event.pull_request.head.sha }}"
           npm pkg set "buildnum"="${{ github.run_number }}"
+
       - uses: actions/upload-artifact@v4
         with:
           name: npm-config
           path: package.json
+
       - name: Select env file for build
         id: env-vars
         run: |
           # PR envs deploy to *.dev.pamdas.org, so always use the development config.
           echo "build-args=ENV_FILE=.env.development" >> "$GITHUB_OUTPUT"
 
+  # Lint (always runs)
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -55,6 +79,7 @@ jobs:
       - run: yarn install --immutable
       - run: yarn lint
 
+  # Test (always runs)
   test:
     runs-on: ubuntu-latest
     steps:
@@ -67,15 +92,261 @@ jobs:
       - run: yarn install --immutable
       - run: yarn test-ci
 
-  build:
+  # Build and push Docker image (only with deploy label)
+  docker-build:
     if: contains(github.event.pull_request.labels.*.name, 'deploy')
     needs: [config, lint, test]
-    uses: PADAS/gundi-workflows/.github/workflows/build_docker.yml@main
-    with:
-      environment: padas-app
-      repository: europe-west3-docker.pkg.dev/padas-app/er-mt/das-web-react
-      tag: ${{ needs.config.outputs.image-tag }}
-      dockerfile: Dockerfile.mt
-      artifact-download: true
-      artifact-name: npm-config
-      build-args: ${{ needs.config.outputs.build-args || '' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      security-events: write
+      actions: read
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: npm-config
+
+      - name: GCP Auth
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          token_format: access_token
+          workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.SERVICE_ACCOUNT }}
+
+      - name: Login to GAR
+        uses: docker/login-action@v3
+        with:
+          registry: europe-west3-docker.pkg.dev
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env.REPOSITORY }}
+            ${{ env.SECONDARY_REPOSITORY }}
+          tags: |
+            type=raw,value=${{ needs.config.outputs.image-tag }}
+
+      - name: Build and push
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          context: .
+          file: ${{ env.DOCKERFILE }}
+          platforms: linux/amd64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=pr-${{ github.event.pull_request.number }}
+          cache-to: type=gha,mode=max,scope=pr-${{ github.event.pull_request.number }}
+          build-args: |
+            ${{ needs.config.outputs.build-args }}
+          provenance: true
+          sbom: true
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ env.REPOSITORY }}@${{ steps.build.outputs.digest }}
+          format: sarif
+          output: trivy-results.sarif
+          severity: CRITICAL,HIGH
+          exit-code: "0"
+          timeout: 10m0s
+
+      - name: Upload Trivy results to GitHub Security
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-results.sarif
+
+      - name: Generate build summary
+        run: |
+          {
+            echo "## 🐳 Docker Build"
+            echo ""
+            echo "| Property | Value |"
+            echo "|----------|-------|"
+            echo "| Image Tag | \`${{ needs.config.outputs.image-tag }}\` |"
+            echo "| Digest | \`${{ steps.build.outputs.digest }}\` |"
+            echo "| Platform | linux/amd64 |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # Sync ArgoCD PR application (ApplicationSet creates the app)
+  argocd-sync:
+    if: contains(github.event.pull_request.labels.*.name, 'deploy')
+    needs: [config, docker-build]
+    runs-on: ubuntu-latest
+    outputs:
+      sync-status: ${{ steps.status.outputs.sync-status }}
+      health-status: ${{ steps.status.outputs.health-status }}
+    steps:
+      - name: Install ArgoCD CLI
+        run: |
+          curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+          chmod +x argocd
+          sudo mv argocd /usr/local/bin/
+
+      - name: Wait for Application to exist
+        id: wait-app
+        env:
+          ARGOCD_SERVER: ${{ vars.ARGOCD_SERVER }}
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+        run: |
+          APP_NAME="${{ env.APP_NAME }}-pr-${{ needs.config.outputs.pr-number }}"
+          echo "Waiting for application $APP_NAME to be created..."
+          MAX_ATTEMPTS=18  # 180 seconds
+
+          for i in $(seq 1 $MAX_ATTEMPTS); do
+            if argocd app get "$APP_NAME" --grpc-web 2>/dev/null; then
+              echo "Application found!"
+              echo "app-exists=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "Attempt $i/$MAX_ATTEMPTS: Application not found yet, waiting 10s..."
+            sleep 10
+          done
+
+          echo "::warning::Application $APP_NAME was not created within 180s - PR environment may not be configured"
+          echo "app-exists=false" >> "$GITHUB_OUTPUT"
+
+      - name: Trigger Sync
+        if: steps.wait-app.outputs.app-exists == 'true'
+        env:
+          ARGOCD_SERVER: ${{ vars.ARGOCD_SERVER }}
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+        run: |
+          APP_NAME="${{ env.APP_NAME }}-pr-${{ needs.config.outputs.pr-number }}"
+          echo "Triggering sync for $APP_NAME..."
+          argocd app sync "$APP_NAME" --grpc-web --prune --force
+
+      - name: Wait for Deployment
+        if: steps.wait-app.outputs.app-exists == 'true'
+        env:
+          ARGOCD_SERVER: ${{ vars.ARGOCD_SERVER }}
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+        run: |
+          APP_NAME="${{ env.APP_NAME }}-pr-${{ needs.config.outputs.pr-number }}"
+          echo "Waiting for deployment to complete (timeout: 300s)..."
+          argocd app wait "$APP_NAME" --grpc-web --timeout 300 --health --sync || true
+
+      - name: Get Application Status
+        id: status
+        if: always() && steps.wait-app.outputs.app-exists == 'true'
+        env:
+          ARGOCD_SERVER: ${{ vars.ARGOCD_SERVER }}
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+        run: |
+          APP_NAME="${{ env.APP_NAME }}-pr-${{ needs.config.outputs.pr-number }}"
+
+          argocd app get "$APP_NAME" --grpc-web -o json > /tmp/app.json
+
+          SYNC_STATUS=$(jq -r '.status.sync.status // "Unknown"' /tmp/app.json)
+          HEALTH_STATUS=$(jq -r '.status.health.status // "Unknown"' /tmp/app.json)
+
+          echo "sync-status=$SYNC_STATUS" >> "$GITHUB_OUTPUT"
+          echo "health-status=$HEALTH_STATUS" >> "$GITHUB_OUTPUT"
+
+          if [ "$HEALTH_STATUS" != "Healthy" ]; then
+            echo "::warning::Application is not healthy: $HEALTH_STATUS"
+          fi
+
+  # Post PR comment with deployment status
+  summary:
+    if: contains(github.event.pull_request.labels.*.name, 'deploy')
+    needs: [config, docker-build, argocd-sync]
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Generate PR environment URL
+        id: url
+        run: |
+          PR_NUMBER="${{ needs.config.outputs.pr-number }}"
+          # PR environments are accessible at pr-{number}.dev.pamdas.org
+          PR_URL="https://pr-${PR_NUMBER}.dev.pamdas.org"
+          echo "url=${PR_URL}" >> "$GITHUB_OUTPUT"
+
+      - name: Post PR comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = ${{ needs.config.outputs.pr-number }};
+            const imageTag = '${{ needs.config.outputs.image-tag }}';
+            const healthStatus = '${{ needs.argocd-sync.outputs.health-status }}' || 'Unknown';
+            const syncStatus = '${{ needs.argocd-sync.outputs.sync-status }}' || 'Unknown';
+            const prUrl = '${{ steps.url.outputs.url }}';
+            const argocdServer = '${{ vars.ARGOCD_SERVER }}';
+            const appName = '${{ env.APP_NAME }}-pr-' + prNumber;
+
+            const healthEmoji = healthStatus === 'Healthy' ? '✅' : healthStatus === 'Progressing' ? '⏳' : '❌';
+            const syncEmoji = syncStatus === 'Synced' ? '✅' : '⚠️';
+
+            const body = `## 🚀 PR Environment Deployed
+
+            | Property | Value |
+            |----------|-------|
+            | Status | ${healthEmoji} ${healthStatus} |
+            | Sync | ${syncEmoji} ${syncStatus} |
+            | Image | \`${imageTag}\` |
+
+            **Access:** ${prUrl}
+
+            [View in ArgoCD](https://${argocdServer}/applications/argocd/${appName})
+
+            ---
+            <sub>🤖 Generated by GitHub Actions</sub>`;
+
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+
+            const botComment = comments.find(c =>
+              c.user.type === 'Bot' && c.body.includes('PR Environment Deployed')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: body,
+              });
+            }
+
+      - name: Generate workflow summary
+        run: |
+          {
+            echo "## 🚀 PR Environment"
+            echo ""
+            echo "| Property | Value |"
+            echo "|----------|-------|"
+            echo "| PR | #${{ needs.config.outputs.pr-number }} |"
+            echo "| Image Tag | \`${{ needs.config.outputs.image-tag }}\` |"
+            echo "| Health | ${{ needs.argocd-sync.outputs.health-status }} |"
+            echo "| URL | ${{ steps.url.outputs.url }} |"
+            echo "| ArgoCD | [View in ArgoCD](https://${{ vars.ARGOCD_SERVER }}/applications/argocd/${{ env.APP_NAME }}-pr-${{ needs.config.outputs.pr-number }}) |"
+          } >> "$GITHUB_STEP_SUMMARY"
