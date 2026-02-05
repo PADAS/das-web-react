@@ -3,7 +3,9 @@ on:
   pull_request:
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Hello"
+  build:
+    uses: PADAS/serca-pipelines/.github/workflows/pipeline-kubernetes-node-pr.yml@main
+    secrets: inherit
+    with:
+      app-name: das-web-react
+      repository: europe-west3-docker.pkg.dev/padas-app/er-mt/das-web-react
