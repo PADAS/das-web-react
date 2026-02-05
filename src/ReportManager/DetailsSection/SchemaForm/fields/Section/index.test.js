@@ -10,6 +10,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () =>
   const onFieldChange = jest.fn();
   const onFieldErrorsChange = jest.fn();
   const renderField = jest.fn();
+  const setDefaultFormData = jest.fn();
 
   let details;
   beforeEach(() => {
@@ -26,17 +27,105 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () =>
     fieldErrors={{}}
     focusLocationMarker={focusLocationMarker}
     formData={{ 'text-1': 'Value 1' }}
+    formElements={{
+      'text-1': {
+        details: {
+          defaultInput: 'Default Value 1',
+        },
+      },
+    }}
+    hidden={false}
     id="section-1"
     onFieldChange={onFieldChange}
     onFieldErrorsChange={onFieldErrorsChange}
     renderField={renderField}
+    setDefaultFormData={setDefaultFormData}
     {...props}
   />);
 
-  test('configures the section with other props', async () => {
-    renderSectionField({ hidden: true });
+  test('does not set the default form data for sections that are not hidden', async () => {
+    const { rerender } = renderSectionField();
 
-    expect(screen.getByTestId('schema-form-section-section-1')).toHaveAttribute('hidden');
+    expect(setDefaultFormData).not.toHaveBeenCalled();
+
+    rerender(<Section
+      details={details}
+      fieldErrors={{}}
+      focusLocationMarker={focusLocationMarker}
+      formData={{ 'text-1': 'Value 1' }}
+      formElements={{
+        'text-1': {
+          details: {
+            defaultInput: 'Default Value 1',
+          },
+        },
+      }}
+      hidden={false}
+      id="section-1"
+      onFieldChange={onFieldChange}
+      onFieldErrorsChange={onFieldErrorsChange}
+      renderField={renderField}
+      setDefaultFormData={setDefaultFormData}
+    />);
+
+    expect(setDefaultFormData).not.toHaveBeenCalled();
+  });
+
+  test('does not set the default form data for sections that remain hidden', async () => {
+    const { rerender } = renderSectionField({ hidden: true });
+
+    expect(setDefaultFormData).not.toHaveBeenCalled();
+
+    rerender(<Section
+      details={details}
+      fieldErrors={{}}
+      focusLocationMarker={focusLocationMarker}
+      formData={{ 'text-1': 'Value 1' }}
+      formElements={{
+        'text-1': {
+          details: {
+            defaultInput: 'Default Value 1',
+          },
+        },
+      }}
+      hidden={true}
+      id="section-1"
+      onFieldChange={onFieldChange}
+      onFieldErrorsChange={onFieldErrorsChange}
+      renderField={renderField}
+      setDefaultFormData={setDefaultFormData}
+    />);
+
+    expect(setDefaultFormData).not.toHaveBeenCalled();
+  });
+
+  test('sets the default form data for sections that were hidden and become visible', async () => {
+    const { rerender } = renderSectionField({ hidden: true });
+
+    expect(setDefaultFormData).not.toHaveBeenCalled();
+
+    rerender(<Section
+      details={details}
+      fieldErrors={{}}
+      focusLocationMarker={focusLocationMarker}
+      formData={{ 'text-1': 'Value 1' }}
+      formElements={{
+        'text-1': {
+          details: {
+            defaultInput: 'Default Value 1',
+          },
+        },
+      }}
+      hidden={false}
+      id="section-1"
+      onFieldChange={onFieldChange}
+      onFieldErrorsChange={onFieldErrorsChange}
+      renderField={renderField}
+      setDefaultFormData={setDefaultFormData}
+    />);
+
+    expect(setDefaultFormData).toHaveBeenCalledTimes(1);
+    expect(setDefaultFormData).toHaveBeenCalledWith({ 'text-1': 'Default Value 1' });
   });
 
   test('does not show a header if the label is not defined', async () => {

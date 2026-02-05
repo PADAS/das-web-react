@@ -26,10 +26,9 @@ const Section = ({
 
   useEffect(() => {
     const sectionBecameVisible = previousHiddenRef.current && !hidden;
-    if (details.conditions?.length > 0 && sectionBecameVisible) {
-      // The section has conditions and it just became visible. Set the
-      // section's default form data from the default values of the section's
-      // children.
+    if (sectionBecameVisible) {
+      // The section just became visible. Set the section's default form data
+      // from the default values of the section's children.
       const sectionChildrenIds = [...details.leftColumn, ...details.rightColumn];
       const defaultFormData = sectionChildrenIds.reduce((accumulator, sectionChildId) => {
         if (formElements[sectionChildId].details.defaultInput) {
