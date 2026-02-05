@@ -14,8 +14,7 @@ const transformDateTimeField = (
 ) => {
   const dateTimeFieldJSONSchema = jsonSchema.properties[dateTimeFieldId];
 
-  // Add the date-time field specific properties to its node in the form
-  // elements object.
+  // Add the date-time field form element specific properties.
   formElements[dateTimeFieldId].details = {
     ...formElements[dateTimeFieldId].details,
     description: dateTimeFieldJSONSchema.description ?? '',

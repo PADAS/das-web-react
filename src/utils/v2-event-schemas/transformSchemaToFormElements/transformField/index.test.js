@@ -1,6 +1,7 @@
 import { FORM_ELEMENT_TYPES } from '../../constants';
 import InvalidFormElementTypeError from '../InvalidFormElementTypeError';
 import transformAttachmentField from './transformAttachmentField';
+import transformBooleanField from './transformBooleanField';
 import transformChoiceListField from './transformChoiceListField';
 import transformCollectionField from './transformCollectionField';
 import transformDateTimeField from './transformDateTimeField';
@@ -12,6 +13,15 @@ import transformField from '.';
 
 jest.mock('./transformAttachmentField', () => {
   const actual = jest.requireActual('./transformAttachmentField');
+  return {
+    ...actual,
+    __esModule: true,
+    default: jest.fn(),
+  };
+});
+
+jest.mock('./transformBooleanField', () => {
+  const actual = jest.requireActual('./transformBooleanField');
   return {
     ...actual,
     __esModule: true,
@@ -115,12 +125,46 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           label: 'Evidence of confiscated items',
           value: fieldId,
         },
-        parentId: 'section-1',
+        parentId,
         type: FORM_ELEMENT_TYPES.ATTACHMENT,
       },
     });
     expect(transformAttachmentField).toHaveBeenCalledTimes(1);
     expect(transformAttachmentField).toHaveBeenCalledWith(
+      fieldId,
+      jsonSchema,
+      uiSchema,
+      formElements,
+    );
+    expect(transformBooleanField).not.toHaveBeenCalled();
+    expect(transformChoiceListField).not.toHaveBeenCalled();
+    expect(transformCollectionField).not.toHaveBeenCalled();
+    expect(transformDateTimeField).not.toHaveBeenCalled();
+    expect(transformLocationField).not.toHaveBeenCalled();
+    expect(transformNumericField).not.toHaveBeenCalled();
+    expect(transformTextField).not.toHaveBeenCalled();
+  });
+
+  it('transforms a boolean field', () => {
+    jsonSchema.properties[fieldId].title = 'Is animal injured?';
+    uiSchema.fields[fieldId].type = FORM_ELEMENT_TYPES.BOOLEAN;
+
+    transformField(fieldId, jsonSchema, uiSchema, formElements);
+
+    expect(formElements).toEqual({
+      [fieldId]: {
+        details: {
+          isRequired: true,
+          label: 'Is animal injured?',
+          value: fieldId,
+        },
+        parentId,
+        type: FORM_ELEMENT_TYPES.BOOLEAN,
+      },
+    });
+    expect(transformAttachmentField).not.toHaveBeenCalled();
+    expect(transformBooleanField).toHaveBeenCalledTimes(1);
+    expect(transformBooleanField).toHaveBeenCalledWith(
       fieldId,
       jsonSchema,
       uiSchema,
@@ -147,11 +191,12 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           label: 'Damaged source',
           value: fieldId,
         },
-        parentId: 'section-1',
+        parentId,
         type: FORM_ELEMENT_TYPES.CHOICE_LIST,
       },
     });
     expect(transformAttachmentField).not.toHaveBeenCalled();
+    expect(transformBooleanField).not.toHaveBeenCalled();
     expect(transformChoiceListField).toHaveBeenCalledTimes(1);
     expect(transformChoiceListField).toHaveBeenCalledWith(
       fieldId,
@@ -179,11 +224,12 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           label: 'Witnesses',
           value: fieldId,
         },
-        parentId: 'section-1',
+        parentId,
         type: FORM_ELEMENT_TYPES.COLLECTION,
       },
     });
     expect(transformAttachmentField).not.toHaveBeenCalled();
+    expect(transformBooleanField).not.toHaveBeenCalled();
     expect(transformChoiceListField).not.toHaveBeenCalled();
     expect(transformCollectionField).toHaveBeenCalledTimes(1);
     expect(transformCollectionField).toHaveBeenCalledWith(
@@ -212,11 +258,12 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           label: 'Date of birth',
           value: fieldId,
         },
-        parentId: 'section-1',
+        parentId,
         type: FORM_ELEMENT_TYPES.DATE_TIME,
       },
     });
     expect(transformAttachmentField).not.toHaveBeenCalled();
+    expect(transformBooleanField).not.toHaveBeenCalled();
     expect(transformChoiceListField).not.toHaveBeenCalled();
     expect(transformCollectionField).not.toHaveBeenCalled();
     expect(transformDateTimeField).toHaveBeenCalledTimes(1);
@@ -244,11 +291,12 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           label: 'Weapon location',
           value: fieldId,
         },
-        parentId: 'section-1',
+        parentId,
         type: FORM_ELEMENT_TYPES.LOCATION,
       },
     });
     expect(transformAttachmentField).not.toHaveBeenCalled();
+    expect(transformBooleanField).not.toHaveBeenCalled();
     expect(transformChoiceListField).not.toHaveBeenCalled();
     expect(transformCollectionField).not.toHaveBeenCalled();
     expect(transformDateTimeField).not.toHaveBeenCalled();
@@ -276,11 +324,12 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           label: 'Number of snares',
           value: fieldId,
         },
-        parentId: 'section-1',
+        parentId,
         type: FORM_ELEMENT_TYPES.NUMERIC,
       },
     });
     expect(transformAttachmentField).not.toHaveBeenCalled();
+    expect(transformBooleanField).not.toHaveBeenCalled();
     expect(transformChoiceListField).not.toHaveBeenCalled();
     expect(transformCollectionField).not.toHaveBeenCalled();
     expect(transformDateTimeField).not.toHaveBeenCalled();
@@ -305,11 +354,12 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           label: 'Name',
           value: fieldId,
         },
-        parentId: 'section-1',
+        parentId,
         type: FORM_ELEMENT_TYPES.TEXT,
       },
     });
     expect(transformAttachmentField).not.toHaveBeenCalled();
+    expect(transformBooleanField).not.toHaveBeenCalled();
     expect(transformChoiceListField).not.toHaveBeenCalled();
     expect(transformCollectionField).not.toHaveBeenCalled();
     expect(transformDateTimeField).not.toHaveBeenCalled();
@@ -336,31 +386,13 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           label: 'Name',
           value: fieldId,
         },
-        parentId: 'section-1',
+        parentId,
         type: FORM_ELEMENT_TYPES.TEXT,
       },
     });
   });
 
-  it('transforms a field with no label', () => {
-    jsonSchema.properties[fieldId].title = '';
-
-    transformField(fieldId, jsonSchema, uiSchema, formElements);
-
-    expect(formElements).toEqual({
-      [fieldId]: {
-        details: {
-          isRequired: true,
-          label: '',
-          value: fieldId,
-        },
-        parentId: 'section-1',
-        type: FORM_ELEMENT_TYPES.TEXT,
-      },
-    });
-  });
-
-  it('transforms a field with missing label', () => {
+  it('transforms a field with missing properties', () => {
     delete jsonSchema.properties[fieldId].title;
 
     transformField(fieldId, jsonSchema, uiSchema, formElements);
@@ -372,7 +404,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           label: '',
           value: fieldId,
         },
-        parentId: 'section-1',
+        parentId,
         type: FORM_ELEMENT_TYPES.TEXT,
       },
     });
@@ -381,8 +413,8 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   it('throws an error if the field type is invalid', () => {
     uiSchema.fields[fieldId].type = 'INVALID';
 
-    expect(() => transformField(fieldId, jsonSchema, uiSchema, formElements)).toThrow(
-      InvalidFormElementTypeError,
-    );
+    expect(() =>
+      transformField(fieldId, jsonSchema, uiSchema, formElements),
+    ).toThrow(InvalidFormElementTypeError);
   });
 });

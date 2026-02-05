@@ -3,7 +3,7 @@ import { FORM_ELEMENT_TYPES, HEADER_ELEMENT_SIZES } from '../../constants';
 const transformHeader = (headerId, uiSchema, formElements) => {
   const headerUISchema = uiSchema.headers[headerId];
 
-  // Add the header node to the form elements object.
+  // Add the header form element.
   formElements[headerId] = {
     details: {
       label: headerUISchema.label ?? '',

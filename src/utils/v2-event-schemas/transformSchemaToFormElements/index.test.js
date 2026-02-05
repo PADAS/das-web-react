@@ -35,10 +35,12 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements', () => {
   it('throws an error if a section is missing from uiSchema.sections', () => {
     delete schema.ui.sections['section-1'];
 
-    expect(() => transformSchemaToFormElements(schema)).toThrow(UndefinedFormElementError);
+    expect(() => transformSchemaToFormElements(schema)).toThrow(
+      UndefinedFormElementError,
+    );
   });
 
-  it('transforms a schema to form elements', () => {
+  it('transforms schema to form elements', () => {
     const formElements = transformSchemaToFormElements(schema);
 
     expect(formElements).toEqual({

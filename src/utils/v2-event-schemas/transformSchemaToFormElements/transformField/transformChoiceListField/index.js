@@ -17,8 +17,7 @@ const transformChoiceListField = (
     : choiceListFieldJSONSchema.anyOf;
   const options = (choicesSubschemas ?? []).flatMap((choicesSubschema) => choicesSubschema.oneOf);
 
-  // Add the choice list field specific properties to its node in the form
-  // elements object.
+  // Add the choice list field form element specific properties.
   formElements[choiceListFieldId].details = {
     ...formElements[choiceListFieldId].details,
     description: choiceListFieldJSONSchema.description ?? '',

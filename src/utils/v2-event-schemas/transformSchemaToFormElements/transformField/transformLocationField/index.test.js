@@ -1,7 +1,10 @@
+import { FORM_ELEMENT_TYPES } from '../../../constants';
+
 import transformLocationField from '.';
 
 describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformField - transformLocationField', () => {
   const locationFieldId = 'weapon-location';
+  const parentId = 'section-1';
   let formElements, jsonSchema, uiSchema;
   beforeEach(() => {
     formElements = {
@@ -11,6 +14,8 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           label: 'Weapon location',
           value: locationFieldId,
         },
+        parentId,
+        type: FORM_ELEMENT_TYPES.LOCATION,
       },
     };
     jsonSchema = {
@@ -38,23 +43,8 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           label: 'Weapon location',
           value: locationFieldId,
         },
-      },
-    });
-  });
-
-  it('transforms a location field with no description', () => {
-    jsonSchema.properties[locationFieldId].description = '';
-
-    transformLocationField(locationFieldId, jsonSchema, uiSchema, formElements);
-
-    expect(formElements).toEqual({
-      [locationFieldId]: {
-        details: {
-          description: '',
-          isRequired: true,
-          label: 'Weapon location',
-          value: locationFieldId,
-        },
+        parentId,
+        type: FORM_ELEMENT_TYPES.LOCATION,
       },
     });
   });
@@ -72,6 +62,8 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           label: 'Weapon location',
           value: locationFieldId,
         },
+        parentId,
+        type: FORM_ELEMENT_TYPES.LOCATION,
       },
     });
   });

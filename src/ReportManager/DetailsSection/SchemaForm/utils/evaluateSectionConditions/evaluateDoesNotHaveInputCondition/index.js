@@ -7,7 +7,11 @@ const evaluateDoesNotHaveInputCondition = (fieldValue) => {
     return fieldValue.length === 0;
   }
 
-  if (typeof fieldValue === 'object' && fieldValue !== null) {
+  if (fieldValue === null) {
+    return true;
+  }
+
+  if (typeof fieldValue === 'object') {
     return Object.keys(fieldValue).length === 0;
   }
 

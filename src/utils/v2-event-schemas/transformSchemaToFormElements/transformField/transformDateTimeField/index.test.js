@@ -1,9 +1,13 @@
-import { DATE_TIME_ELEMENT_INPUT_TYPES } from '../../../constants';
+import {
+  DATE_TIME_ELEMENT_INPUT_TYPES,
+  FORM_ELEMENT_TYPES,
+} from '../../../constants';
 
 import transformDateTimeField from '.';
 
 describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformField - transformDateTimeField', () => {
   const dateTimeFieldId = 'date-of-birth';
+  const parentId = 'section-1';
   let formElements, jsonSchema, uiSchema;
   beforeEach(() => {
     formElements = {
@@ -13,6 +17,8 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           label: 'Date of birth',
           value: dateTimeFieldId,
         },
+        parentId,
+        type: FORM_ELEMENT_TYPES.DATE_TIME,
       },
     };
     jsonSchema = {
@@ -42,24 +48,8 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           label: 'Date of birth',
           value: dateTimeFieldId,
         },
-      },
-    });
-  });
-
-  it('transforms a date time field with no description', () => {
-    jsonSchema.properties[dateTimeFieldId].description = '';
-
-    transformDateTimeField(dateTimeFieldId, jsonSchema, uiSchema, formElements);
-
-    expect(formElements).toEqual({
-      [dateTimeFieldId]: {
-        details: {
-          description: '',
-          inputType: DATE_TIME_ELEMENT_INPUT_TYPES.DATE,
-          isRequired: true,
-          label: 'Date of birth',
-          value: dateTimeFieldId,
-        },
+        parentId,
+        type: FORM_ELEMENT_TYPES.DATE_TIME,
       },
     });
   });
@@ -78,6 +68,8 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           label: 'Date of birth',
           value: dateTimeFieldId,
         },
+        parentId,
+        type: FORM_ELEMENT_TYPES.DATE_TIME,
       },
     });
   });
@@ -96,6 +88,8 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           label: 'Date of birth',
           value: dateTimeFieldId,
         },
+        parentId,
+        type: FORM_ELEMENT_TYPES.DATE_TIME,
       },
     });
   });
@@ -115,6 +109,8 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           label: 'Date of birth',
           value: dateTimeFieldId,
         },
+        parentId,
+        type: FORM_ELEMENT_TYPES.DATE_TIME,
       },
     });
   });

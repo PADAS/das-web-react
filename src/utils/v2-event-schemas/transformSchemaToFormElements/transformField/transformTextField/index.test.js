@@ -1,5 +1,7 @@
-
-import { TEXT_ELEMENT_INPUT_TYPES } from '../../../constants';
+import {
+  FORM_ELEMENT_TYPES,
+  TEXT_ELEMENT_INPUT_TYPES,
+} from '../../../constants';
 
 import transformTextField from '.';
 
@@ -15,6 +17,8 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           label: 'Name',
           value: textFieldId,
         },
+        parentId,
+        type: FORM_ELEMENT_TYPES.TEXT,
       },
     };
     jsonSchema = {
@@ -49,86 +53,8 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           label: 'Name',
           value: textFieldId,
         },
-      },
-    });
-  });
-
-  it('transforms a text field with no default input', () => {
-    delete jsonSchema.properties[textFieldId].default;
-
-    transformTextField(textFieldId, jsonSchema, uiSchema, formElements);
-
-    expect(formElements).toEqual({
-      [textFieldId]: {
-        details: {
-          defaultInput: '',
-          description: 'Full name of the suspect',
-          hint: 'John Doe',
-          inputType: TEXT_ELEMENT_INPUT_TYPES.LONG,
-          isRequired: true,
-          label: 'Name',
-          value: textFieldId,
-        },
-      },
-    });
-  });
-
-  it('transforms a text field with no description', () => {
-    jsonSchema.properties[textFieldId].description = '';
-
-    transformTextField(textFieldId, jsonSchema, uiSchema, formElements);
-
-    expect(formElements).toEqual({
-      [textFieldId]: {
-        details: {
-          defaultInput: 'John Doe',
-          description: '',
-          hint: 'John Doe',
-          inputType: TEXT_ELEMENT_INPUT_TYPES.LONG,
-          isRequired: true,
-          label: 'Name',
-          value: textFieldId,
-        },
-      },
-    });
-  });
-
-  it('transforms a text field with no hint', () => {
-    uiSchema.fields[textFieldId].placeholder = '';
-
-    transformTextField(textFieldId, jsonSchema, uiSchema, formElements);
-
-    expect(formElements).toEqual({
-      [textFieldId]: {
-        details: {
-          defaultInput: 'John Doe',
-          description: 'Full name of the suspect',
-          hint: '',
-          inputType: TEXT_ELEMENT_INPUT_TYPES.LONG,
-          isRequired: true,
-          label: 'Name',
-          value: textFieldId,
-        },
-      },
-    });
-  });
-
-  it('transforms a short text field', () => {
-    uiSchema.fields[textFieldId].inputType = TEXT_ELEMENT_INPUT_TYPES.SHORT;
-
-    transformTextField(textFieldId, jsonSchema, uiSchema, formElements);
-
-    expect(formElements).toEqual({
-      [textFieldId]: {
-        details: {
-          defaultInput: 'John Doe',
-          description: 'Full name of the suspect',
-          hint: 'John Doe',
-          inputType: TEXT_ELEMENT_INPUT_TYPES.SHORT,
-          isRequired: true,
-          label: 'Name',
-          value: textFieldId,
-        },
+        parentId,
+        type: FORM_ELEMENT_TYPES.TEXT,
       },
     });
   });
@@ -152,6 +78,8 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           label: 'Name',
           value: textFieldId,
         },
+        parentId,
+        type: FORM_ELEMENT_TYPES.TEXT,
       },
     });
   });

@@ -1,6 +1,7 @@
 import { FORM_ELEMENT_TYPES } from '../../constants';
 import InvalidFormElementTypeError from '../InvalidFormElementTypeError';
 import transformAttachmentField from './transformAttachmentField';
+import transformBooleanField from './transformBooleanField';
 import transformChoiceListField from './transformChoiceListField';
 import transformCollectionField from './transformCollectionField';
 import transformDateTimeField from './transformDateTimeField';
@@ -12,7 +13,7 @@ const transformField = (fieldId, jsonSchema, uiSchema, formElements) => {
   const fieldJSONSchema = jsonSchema.properties[fieldId];
   const fieldUISchema = uiSchema.fields[fieldId];
 
-  // Add the field node to the form elements object with the common properties.
+  // Add the field form element common properties.
   formElements[fieldId] = {
     details: {
       isRequired: jsonSchema.required.some(
@@ -25,10 +26,14 @@ const transformField = (fieldId, jsonSchema, uiSchema, formElements) => {
     type: fieldUISchema.type,
   };
 
-  // Add the specific properties for each field type.
+  // Add the field form element type-specific properties.
   switch (fieldUISchema.type) {
   case FORM_ELEMENT_TYPES.ATTACHMENT:
     transformAttachmentField(fieldId, jsonSchema, uiSchema, formElements);
+    break;
+
+  case FORM_ELEMENT_TYPES.BOOLEAN:
+    transformBooleanField(fieldId, jsonSchema, uiSchema, formElements);
     break;
 
   case FORM_ELEMENT_TYPES.CHOICE_LIST:
@@ -36,7 +41,13 @@ const transformField = (fieldId, jsonSchema, uiSchema, formElements) => {
     break;
 
   case FORM_ELEMENT_TYPES.COLLECTION:
-    transformCollectionField(fieldId, jsonSchema, uiSchema, formElements, transformField);
+    transformCollectionField(
+      fieldId,
+      jsonSchema,
+      uiSchema,
+      formElements,
+      transformField,
+    );
     break;
 
   case FORM_ELEMENT_TYPES.DATE_TIME:
