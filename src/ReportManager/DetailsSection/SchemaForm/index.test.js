@@ -330,6 +330,13 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
     expect(onFormDataChange).not.toHaveBeenCalled();
   });
 
+  test('does not set the initial form data from the default values of the fields in the visible sections if no fields have default values', async () => {
+    schema.json.properties.text_field.default = '';
+    renderSchemaForm({ autofillDefaultInputs: true });
+
+    expect(onFormDataChange).not.toHaveBeenCalled();
+  });
+
   test('sets the initial form data from the default values of the fields in the visible sections if autofill default inputs is true', async () => {
     renderSchemaForm({ autofillDefaultInputs: true });
 

@@ -124,7 +124,9 @@ const Item = ({
         return accumulator;
       }, {});
 
-      onChange({ ...defaultFormData, ...formData }, errors);
+      if (Object.keys(defaultFormData).length > 0) {
+        onChange({ ...defaultFormData, ...formData }, errors);
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

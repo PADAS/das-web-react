@@ -183,7 +183,9 @@ const SchemaForm = ({
         return accumulator;
       }, {});
 
-      onFormDataChange(initialFormData);
+      if (Object.keys(initialFormData).length > 0) {
+        onFormDataChange(initialFormData);
+      }
 
       setShouldAutofillDefaultInputs(false);
     }

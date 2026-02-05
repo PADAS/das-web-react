@@ -99,6 +99,43 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () =>
     expect(setDefaultFormData).not.toHaveBeenCalled();
   });
 
+  test('does not set the default form data if the section children do not have default inputs', async () => {
+    const { rerender } = renderSectionField({
+      formElements: {
+        'text-1': {
+          details: {
+            defaultInput: '',
+          },
+        },
+      },
+      hidden: true,
+    });
+
+    expect(setDefaultFormData).not.toHaveBeenCalled();
+
+    rerender(<Section
+      details={details}
+      fieldErrors={{}}
+      focusLocationMarker={focusLocationMarker}
+      formData={{ 'text-1': 'Value 1' }}
+      formElements={{
+        'text-1': {
+          details: {
+            defaultInput: '',
+          },
+        },
+      }}
+      hidden={false}
+      id="section-1"
+      onFieldChange={onFieldChange}
+      onFieldErrorsChange={onFieldErrorsChange}
+      renderField={renderField}
+      setDefaultFormData={setDefaultFormData}
+    />);
+
+    expect(setDefaultFormData).not.toHaveBeenCalled();
+  });
+
   test('sets the default form data for sections that were hidden and become visible', async () => {
     const { rerender } = renderSectionField({ hidden: true });
 

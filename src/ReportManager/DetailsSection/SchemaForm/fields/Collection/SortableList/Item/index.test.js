@@ -98,6 +98,31 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
     expect(onChange).not.toHaveBeenCalled();
   });
 
+  test('does not set the default form data for items that do not have default values', async () => {
+    renderItem({
+      formData: {},
+      formElements: {
+        'field-1': {
+          details: {
+            defaultInput: '',
+            label: 'Field 1',
+          },
+          type: FORM_ELEMENT_TYPES.TEXT,
+        },
+        'field-2': {
+          details: {
+            defaultInput: '',
+            label: 'Field 2',
+          },
+          type: FORM_ELEMENT_TYPES.TEXT,
+        },
+      },
+      wasItemRecentlyAdded: true,
+    });
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
   test('sets the default form data for items that were recently added and are not drag overlays', async () => {
     renderItem({ formData: {}, wasItemRecentlyAdded: true });
 

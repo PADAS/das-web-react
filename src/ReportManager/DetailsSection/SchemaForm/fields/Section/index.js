@@ -37,9 +37,11 @@ const Section = ({
         return accumulator;
       }, {});
 
-      setDefaultFormData(defaultFormData);
+      if (Object.keys(defaultFormData).length > 0) {
+        setDefaultFormData(defaultFormData);
+      }
     }
-  }, [details.conditions?.length, details.leftColumn, details.rightColumn, formElements, hidden, setDefaultFormData]);
+  }, [details.leftColumn, details.rightColumn, formElements, hidden, setDefaultFormData]);
 
   useEffect(() => {
     previousHiddenRef.current = hidden;
