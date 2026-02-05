@@ -27,7 +27,7 @@ jobs:
 
   build-and-deploy:
     needs: config
-    uses: PADAS/serca-pipelines/.github/workflows/pipeline-kubernetes-node-main.yml@feature/argocd-sync-workflow
+    uses: PADAS/serca-pipelines/.github/workflows/pipeline-kubernetes-node-main.yml@main
     secrets: inherit
     with:
       app-name: das-web-react
