@@ -4,7 +4,7 @@ on:
 
 jobs:
   build:
-    uses: PADAS/serca-pipelines/.github/workflows/pipeline-kubernetes-node-pr.yml@main
+    uses: PADAS/serca-pipelines/.github/workflows/pipeline-kubernetes-node-main.yml@main
     secrets: inherit
     with:
       app-name: das-web-react
