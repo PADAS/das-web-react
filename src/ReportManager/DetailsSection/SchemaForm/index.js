@@ -6,6 +6,7 @@ import transformSchemaToFormElements from '../../../utils/v2-event-schemas/trans
 import useMapLocationMarkers from './utils/useMapLocationMarkers';
 import useSchemaValidations from './utils/useSchemaValidations';
 
+import Boolean from './fields/Boolean';
 import Collection from './fields/Collection';
 import ChoiceList from './fields/ChoiceList';
 import DateTime from './fields/DateTime';
@@ -16,6 +17,7 @@ import Section from './fields/Section';
 import Text from './fields/Text';
 
 export const FIELDS = {
+  [FORM_ELEMENT_TYPES.BOOLEAN]: Boolean,
   [FORM_ELEMENT_TYPES.CHOICE_LIST]: ChoiceList,
   [FORM_ELEMENT_TYPES.DATE_TIME]: DateTime,
   [FORM_ELEMENT_TYPES.NUMERIC]: Numeric,
