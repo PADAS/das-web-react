@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect, useRef } from 'react';
 
 import * as styles from './styles.module.scss';
 
@@ -9,22 +9,44 @@ const Section = ({
   fieldErrors,
   focusLocationMarker,
   formData,
+  formElements,
+  hidden,
   id,
   onFieldChange,
   onFieldErrorsChange,
   renderField,
-  ...otherProps
+  setDefaultFormData,
 }) => {
+  const previousHiddenRef = useRef(hidden);
+
   const onColumnFieldChange = (fieldId, value, error) => {
     onFieldChange(fieldId, value);
     onFieldErrorsChange({ ...fieldErrors, [fieldId]: error });
   };
 
-  return <div
-      className={styles.section}
-      data-testid={`schema-form-section-${id}`}
-      {...otherProps}
-    >
+  useEffect(() => {
+    const sectionBecameVisible = previousHiddenRef.current && !hidden;
+    if (details.conditions?.length > 0 && sectionBecameVisible) {
+      // The section has conditions and it just became visible. Set the
+      // section's default form data from the default values of the section's
+      // children.
+      const sectionChildrenIds = [...details.leftColumn, ...details.rightColumn];
+      const defaultFormData = sectionChildrenIds.reduce((accumulator, sectionChildId) => {
+        if (formElements[sectionChildId].details.defaultInput) {
+          accumulator[sectionChildId] = formElements[sectionChildId].details.defaultInput;
+        }
+        return accumulator;
+      }, {});
+
+      setDefaultFormData(defaultFormData);
+    }
+  }, [details.conditions?.length, details.leftColumn, details.rightColumn, formElements, hidden, setDefaultFormData]);
+
+  useEffect(() => {
+    previousHiddenRef.current = hidden;
+  }, [hidden]);
+
+  return <div className={styles.section} data-testid={`schema-form-section-${id}`} hidden={hidden}>
     {details.label && <h3 className={styles.header}>{details.label}</h3>}
 
     <div className={styles.columns}>

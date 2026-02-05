@@ -1,4 +1,4 @@
-import React, { memo, useRef, useState } from 'react';
+import React, { memo, useState } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';
 import Collapse from 'react-bootstrap/Collapse';
 import { useTranslation } from 'react-i18next';
@@ -25,10 +25,6 @@ const Collection = ({
 }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection.schemaForm.fields.collection' });
 
-  // Ref to keep track of the temporal id of the last added item so we keep
-  // incrementing them when the user adds more items.
-  const lastAddedItemIdRef = useRef(value.length - 1);
-
   const [isOpen, setIsOpen] = useState(true);
   // Items is an internal state variable to assign temporal ids to each
   // collection item and to track their modal and preview open state.
@@ -36,6 +32,7 @@ const Collection = ({
     id: index,
     isFormModalOpen: false,
     isFormPreviewOpen: false,
+    wasItemRecentlyAdded: false,
   })));
 
   const hasError = !!error?.message;
@@ -63,7 +60,7 @@ const Collection = ({
     );
   };
 
-  const onItemDelete = (itemIndex) => (decreaseLastAddedItemId = false) => {
+  const onItemDelete = (itemIndex) => () => {
     // Clean the error of the deleted item and the collection error message.
     let updatedError = { ...error };
     delete updatedError[itemIndex];
@@ -79,10 +76,6 @@ const Collection = ({
           delete updatedError[erroneousItemIndex];
         }
       });
-    }
-
-    if (decreaseLastAddedItemId){
-      lastAddedItemIdRef.current -= 1;
     }
 
     onFieldChange(id, value.filter((_, index) => itemIndex !== index), updatedError);
@@ -136,15 +129,15 @@ const Collection = ({
       updatedError = undefined;
     }
 
-    lastAddedItemIdRef.current += 1;
+    const highestExistingItemId = items.reduce((highestItemId, item) => Math.max(highestItemId, item.id), -1);
     onFieldChange(id, [...value, {}], updatedError);
     setItems([
       ...items,
       {
-        id: lastAddedItemIdRef.current,
+        id: highestExistingItemId + 1,
         isFormModalOpen: true,
         isFormPreviewOpen: false,
-        wasItemRecentlyAdded: true
+        wasItemRecentlyAdded: true,
       }
     ]);
   };

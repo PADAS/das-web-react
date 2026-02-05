@@ -94,7 +94,7 @@ const Item = ({
   };
 
   const onDeleteItem = () => {
-    onDelete(shouldDeleteOnCancelRef.current);
+    onDelete();
     setIsFormModalOpen(false);
   };
 
@@ -111,6 +111,23 @@ const Item = ({
     setIsFormModalOpen(false);
     shouldDeleteOnCancelRef.current = false;
   };
+
+  useEffect(() => {
+    if (wasItemRecentlyAdded && !isDragOverlay) {
+      // This is a new item and it's not a drag overlay. Set the item's default
+      // form data from the default values of the item's children.
+      const collectionChildrenIds = [...collectionDetails.leftColumn, ...collectionDetails.rightColumn];
+      const defaultFormData = collectionChildrenIds.reduce((accumulator, collectionChildId) => {
+        if (formElements[collectionChildId].details.defaultInput) {
+          accumulator[collectionChildId] = formElements[collectionChildId].details.defaultInput;
+        }
+        return accumulator;
+      }, {});
+
+      onChange({ ...defaultFormData, ...formData }, errors);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (isDragging) {
