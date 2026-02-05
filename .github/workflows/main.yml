@@ -71,15 +71,13 @@ jobs:
 
   build:
     needs: [config, lint, test]
-    uses: PADAS/serca-pipelines/.github/workflows/_docker-build.yml@feature/argocd-sync-workflow
+    uses: PADAS/serca-pipelines/.github/workflows/_docker-build.yml@main
+    secrets: inherit
     with:
-      repository: europe-west3-docker.pkg.dev/serca-artifact-registry/serca-apps/das-web-react
+      repository: europe-west3-docker.pkg.dev/padas-app/er-mt/das-web-react
+      additional_repository: europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react
       tag: ${{ needs.config.outputs.image-tag }}
       dockerfile: Dockerfile.mt
-      push: true
       artifact-download: true
       artifact-name: npm-config
       build-args: ${{ needs.config.outputs.build-args }}
-      base-image-registry: europe-west3-docker.pkg.dev/serca-artifact-registry
-      enable-trivy-scan: true
-      trivy-exit-code: '0'
