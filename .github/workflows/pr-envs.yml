@@ -24,5 +24,4 @@ jobs:
       repository: europe-west3-docker.pkg.dev/padas-app/er-mt/das-web-react
       secondary-repository: europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react
       dockerfile: Dockerfile.mt
-      build-args: ENV_FILE=.env.development
       deploy-pr-env: false
