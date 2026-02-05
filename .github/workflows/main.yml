@@ -13,25 +13,9 @@ jobs:
   config:
     runs-on: ubuntu-latest
     outputs:
-      image-tag: ${{ steps.tag.outputs.tag }}
       build-args: ${{ steps.env-vars.outputs.build-args }}
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - name: Generate image tag
-        id: tag
-        run: |
-          BRANCH="${GITHUB_REF_NAME}"
-          SHORT_SHA="${GITHUB_SHA:0:7}"
-          BRANCH_SAFE=$(echo "$BRANCH" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
-          TAG="${BRANCH_SAFE}-${SHORT_SHA}"
-          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
-      - run: |
-          npm pkg set "buildbranch"="${{ github.head_ref || github.ref_name }}"
-          npm pkg set "buildnum"="${{ github.run_number }}"
       - name: Select env file for build
         id: env-vars
         run: |
@@ -40,44 +24,19 @@ jobs:
           else
             echo "build-args=ENV_FILE=.env.production" >> $GITHUB_OUTPUT
           fi
-      - uses: actions/upload-artifact@v4
-        with:
-          name: npm-config
-          path: package.json
 
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: yarn
-      - run: yarn install --immutable
-      - run: yarn lint
-
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: yarn
-      - run: yarn install --immutable
-      - run: yarn test-ci
-
-  build:
-    needs: [config, lint, test]
-    uses: PADAS/serca-pipelines/.github/workflows/_docker-build.yml@main
+  build-and-deploy:
+    needs: config
+    uses: PADAS/serca-pipelines/.github/workflows/pipeline-kubernetes-node-main.yml@feature/argocd-sync-workflow
     secrets: inherit
     with:
+      app-name: das-web-react
+      node-version: "22"
+      lint-command: "yarn lint"
+      test-command: "yarn test-ci"
+      build-enabled: false  # Build happens in Docker
       repository: europe-west3-docker.pkg.dev/padas-app/er-mt/das-web-react
-      additional_repository: europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react
-      tag: ${{ needs.config.outputs.image-tag }}
+      secondary-repository: europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react
       dockerfile: Dockerfile.mt
-      artifact-download: true
-      artifact-name: npm-config
       build-args: ${{ needs.config.outputs.build-args }}
+      deploy-enabled: false  # ArgoCD not ready yet
