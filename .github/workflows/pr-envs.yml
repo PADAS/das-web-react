@@ -4,8 +4,9 @@ on:
 
 jobs:
   build:
-    uses: PADAS/serca-pipelines/.github/workflows/pipeline-kubernetes-node-main.yml@main
-    secrets: inherit
+    uses: PADAS/gundi-workflows/.github/workflows/build_docker.yml@main
     with:
-      app-name: das-web-react
+      environment: padas-app
       repository: europe-west3-docker.pkg.dev/padas-app/er-mt/das-web-react
+      tag: ${{ github.event.pull_request.head.sha }}
+      dockerfile: Dockerfile.mt
