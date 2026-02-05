@@ -12,75 +12,30 @@ concurrency:
 
 jobs:
   config:
-    if: contains(github.event.pull_request.labels.*.name, 'deploy')
     runs-on: ubuntu-latest
     outputs:
-      image-tag: ${{ steps.tag.outputs.tag }}
       build-args: ${{ steps.env-vars.outputs.build-args }}
-    environment:
-      name: ${{ github.head_ref }}
-      url: "https://${{ github.head_ref }}.dev.pamdas.org"
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - name: Generate image tag
-        id: tag
-        run: |
-          echo "tag=${{ github.event.pull_request.head.sha }}" >> "$GITHUB_OUTPUT"
-      - run: |
-          npm pkg set "buildbranch"="${{ github.event.pull_request.head.sha }}"
-          npm pkg set "buildnum"="${{ github.run_number }}"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: npm-config
-          path: package.json
       - name: Select env file for build
         id: env-vars
         run: |
           # PR envs deploy to *.dev.pamdas.org, so always use the development config.
-          echo "build-args=ENV_FILE=.env.development" >> $GITHUB_OUTPUT
-
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: yarn
-      - run: yarn install --immutable
-      - run: yarn lint
-
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: yarn
-      - run: yarn install --immutable
-      - run: yarn test-ci
+          echo "build-args=ENV_FILE=.env.development" >> "$GITHUB_OUTPUT"
 
   build:
+    needs: config
     if: contains(github.event.pull_request.labels.*.name, 'deploy')
-    needs: [config, lint, test]
-    uses: PADAS/serca-pipelines/.github/workflows/_docker-build.yml@main
+    uses: PADAS/serca-pipelines/.github/workflows/pipeline-kubernetes-node-pr.yml@main
     secrets: inherit
     with:
+      app-name: das-web-react
+      node-version: "22"
+      lint-command: "yarn lint"
+      test-command: "yarn test-ci"
+      build-enabled: false  # Build happens in Docker
       repository: europe-west3-docker.pkg.dev/padas-app/er-mt/das-web-react
       secondary-repository: europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react
-      tag: ${{ needs.config.outputs.image-tag }}
       dockerfile: Dockerfile.mt
-      push: true
-      artifact-download: true
-      artifact-name: npm-config
       build-args: ${{ needs.config.outputs.build-args }}
-      base-image-registry: europe-west3-docker.pkg.dev/serca-artifact-registry/docker-mirror
-      enable-trivy-scan: true
-      trivy-exit-code: '0'
+      deploy-pr-env: false  # PR env not ready yet
