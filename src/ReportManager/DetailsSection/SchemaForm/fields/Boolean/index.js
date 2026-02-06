@@ -4,7 +4,7 @@ import Switch from '../../../../../Switch';
 
 import * as styles from './styles.module.scss';
 
-const Boolean = ({ details, error, id, onFieldChange, value = '' }) => {
+const Boolean = ({ details, error, id, onFieldChange, value = false }) => {
   const hasError = !!error;
   const hasDescription = !!details.description && !hasError;
   const label = details.isRequired ? `${details.label} *` : details.label;
