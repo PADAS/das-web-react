@@ -34,7 +34,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Boolean', () =>
     expect(screen.getByRole('switch', { name: 'Boolean 1 Label' })).not.toBeRequired();
   });
 
-  test('shows a required text field', () => {
+  test('shows a required boolean field', () => {
     details.isRequired = true;
     renderBooleanField();
 
