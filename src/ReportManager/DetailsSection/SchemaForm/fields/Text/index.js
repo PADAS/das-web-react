@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef } from 'react';
+import React, { memo } from 'react';
 
 import { TEXT_ELEMENT_INPUT_TYPES } from '../../../../../utils/v2-event-schemas/constants';
 
@@ -17,22 +17,12 @@ const STYLES = {
   [TEXT_ELEMENT_INPUT_TYPES.LONG]: styles.longInput,
 };
 
-const Text = ({ autofillDefaultInput, details, error, id, onFieldChange, value = '' }) => {
-  const shouldAutofillDefaultInputRef = useRef(autofillDefaultInput && details.defaultInput);
-
+const Text = ({ details, error, id, onFieldChange, value = '' }) => {
   const Input = INPUTS[details.inputType];
 
   const hasError = !!error;
   const hasDescription = !!details.description && !hasError;
   const label = details.isRequired ? `${details.label} *` : details.label;
-
-  useEffect(() => {
-    if (shouldAutofillDefaultInputRef.current) {
-      onFieldChange(id, details.defaultInput);
-
-      shouldAutofillDefaultInputRef.current = false;
-    }
-  }, [details.defaultInput, id, onFieldChange, value]);
 
   return <div className={styles.text} data-testid={`schema-form-text-field-${id}`}>
     <label className={`${styles.label} ${hasError ? styles.error : ''}`} htmlFor={id}>{label}</label>
