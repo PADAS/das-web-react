@@ -20,7 +20,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Boolean', () =>
   });
 
   const renderBooleanField = (props) => render(<Boolean
-    autofillDefaultInput={false}
     details={details}
     error={undefined}
     id="boolean-1"
@@ -28,19 +27,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Boolean', () =>
     value={undefined}
     {...props}
   />);
-
-  test('sets the default value when mounting the input if the autofill default input flag is on', () => {
-    renderBooleanField({ autofillDefaultInput: true });
-
-    expect(onFieldChange).toHaveBeenCalledTimes(1);
-    expect(onFieldChange).toHaveBeenCalledWith('boolean-1', true);
-  });
-
-  test('does not change the input value automatically if the autofill default input flag is off', () => {
-    renderBooleanField();
-
-    expect(onFieldChange).not.toHaveBeenCalled();
-  });
 
   test('shows a non required boolean field', () => {
     renderBooleanField();

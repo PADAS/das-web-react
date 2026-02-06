@@ -1,23 +1,13 @@
-import React, { memo, useEffect, useRef } from 'react';
+import React, { memo } from 'react';
 
 import Switch from '../../../../../Switch';
 
 import * as styles from './styles.module.scss';
 
-const Boolean = ({ autofillDefaultInput, details, error, id, onFieldChange, value = '' }) => {
-  const shouldAutofillDefaultInputRef = useRef(autofillDefaultInput);
-
+const Boolean = ({ details, error, id, onFieldChange, value = '' }) => {
   const hasError = !!error;
   const hasDescription = !!details.description && !hasError;
   const label = details.isRequired ? `${details.label} *` : details.label;
-
-  useEffect(() => {
-    if (shouldAutofillDefaultInputRef.current) {
-      onFieldChange(id, details.defaultInput);
-
-      shouldAutofillDefaultInputRef.current = false;
-    }
-  }, [details.defaultInput, id, onFieldChange, value]);
 
   return <div className={styles.boolean} data-testid={`schema-form-boolean-field-${id}`}>
     <label className={`${styles.label} ${hasError ? styles.error : ''}`} htmlFor={id}>{label}</label>
