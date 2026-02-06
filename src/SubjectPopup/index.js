@@ -23,6 +23,9 @@ const STORAGE_KEY = 'showSubjectDetailsByDefault';
 const SubjectPopup = ({ data }) => {
   const { t } = useTranslation('subjects', { keyPrefix: 'subjectPopup' });
   const isTimeSliderActive = useSelector((state) => state.view.timeSliderState.active);
+  const subjectFromStore = useSelector((state) =>
+    data?.properties?.id ? state.data.subjectStore[data.properties.id] : null
+  );
 
   const [additionalPropsToggledOn, toggleAdditionalPropsVisibility] = useState(
     window.localStorage.getItem(STORAGE_KEY) === 'true'
@@ -48,8 +51,10 @@ const SubjectPopup = ({ data }) => {
   const showAdditionalProps = hasAdditionalDeviceProps
     && (additionalPropsShouldBeToggleable ? additionalPropsToggledOn : true);
 
-  const buoyManufacturer = properties?.additional?.manufacturer;
-  const displayName = calcDisplayNameForSubject(properties);
+  // Prefer full subject from store so manufacturer and name/serial are always shown
+  const subjectForDisplay = subjectFromStore ?? properties;
+  const buoyManufacturer = subjectForDisplay?.additional?.manufacturer;
+  const displayName = calcDisplayNameForSubject(subjectForDisplay);
 
   const popupTitle = buoyManufacturer ? `${buoyManufacturer}: ${displayName}` : displayName;
 
@@ -65,7 +70,7 @@ const SubjectPopup = ({ data }) => {
         <div className={styles.defaultStatusProperty} data-testid="subject-popup-name">
           {properties.default_status_value && <>
             {properties.image && <img
-              alt={t('subjectIconAlt', { name: calcDisplayNameForSubject(properties) })}
+              alt={t('subjectIconAlt', { name: displayName })}
               src={properties.image}
             />}
 
