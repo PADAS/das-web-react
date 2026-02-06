@@ -63,6 +63,7 @@ const SchemaForm = ({
   } = useMapLocationMarkers(eventId, eventLocation, onLocationMarkerClick, hideMapLocationMarkers);
 
   const [fieldErrors, setFieldErrors] = useState({});
+  const [shouldAutofillDefaultInputs, setShouldAutofillDefaultInputs] = useState(autofillDefaultInputs);
 
   const formElements = useMemo(() => transformSchemaToFormElements(schema), [schema]);
 
@@ -153,7 +154,6 @@ const SchemaForm = ({
     default:
       const Field = FIELDS[formElements[id].type];
       return <Field
-        autofillDefaultInput={autofillDefaultInputs && !value}
         details={formElements[id].details}
         error={error}
         id={id}
@@ -163,6 +163,33 @@ const SchemaForm = ({
       />;
     }
   };
+
+  useEffect(() => {
+    if (shouldAutofillDefaultInputs) {
+      // The "should autofill default inputs" flag is on, meaning that this is
+      // a new event and the initial form data hasn't been set. Set the initial
+      // form data from the default values of the fields in the visible
+      // sections.
+      const initialFormData = visibleSectionIds.reduce((accumulator, sectionId) => {
+        const sectionChildrenIds = [
+          ...formElements[sectionId].details.leftColumn,
+          ...formElements[sectionId].details.rightColumn,
+        ];
+        sectionChildrenIds.forEach((sectionChildId) => {
+          if (formElements[sectionChildId].details.defaultInput) {
+            accumulator[sectionChildId] = formElements[sectionChildId].details.defaultInput;
+          }
+        });
+        return accumulator;
+      }, {});
+
+      if (Object.keys(initialFormData).length > 0) {
+        onFormDataChange(initialFormData);
+      }
+
+      setShouldAutofillDefaultInputs(false);
+    }
+  }, [formElements, onFormDataChange, shouldAutofillDefaultInputs, visibleSectionIds]);
 
   useEffect(() => {
     // Update the location markers when there is a change in the form data.
@@ -196,12 +223,14 @@ const SchemaForm = ({
       fieldErrors={fieldErrors}
       focusLocationMarker={focusLocationMarker}
       formData={formData}
+      formElements={formElements}
       hidden={!visibleSectionIds.includes(sectionId)}
       id={sectionId}
       key={sectionId}
       onFieldChange={onSectionFieldChange}
       onFieldErrorsChange={(newFieldErrors) => setFieldErrors(newFieldErrors)}
       renderField={renderField}
+      setDefaultFormData={(defaultFormData) => onFormDataChange({ ...defaultFormData, ...formData })}
     />)}
 
     {renderSubmitButton()}

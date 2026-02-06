@@ -23,7 +23,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Numeric', () =>
   });
 
   const renderNumericField = (props) => render(<Numeric
-        autofillDefaultInput={false}
         details={details}
         error={undefined}
         id="numeric-1"
@@ -31,26 +30,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Numeric', () =>
         value={undefined}
         {...props}
     />);
-
-  test('sets the default value when mounting the input if the autofill default input flag is on', () => {
-    renderNumericField({ autofillDefaultInput: true });
-
-    expect(onFieldChange).toHaveBeenCalledTimes(1);
-    expect(onFieldChange).toHaveBeenCalledWith('numeric-1', 100);
-  });
-
-  test('does not change the input value automatically if there is no default input', () => {
-    details.defaultInput = null;
-    renderNumericField({ autofillDefaultInput: true });
-
-    expect(onFieldChange).not.toHaveBeenCalled();
-  });
-
-  test('does not change the input value automatically if the autofill default input flag is off', () => {
-    renderNumericField();
-
-    expect(onFieldChange).not.toHaveBeenCalled();
-  });
 
   test('shows a non required numeric field', () => {
     renderNumericField();

@@ -48,7 +48,7 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
             unevaluatedProperties: false
           },
           text_field: {
-            default: '',
+            default: 'Default Value 1',
             deprecated: false,
             description: '',
             title: 'Text Field',
@@ -323,6 +323,50 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
       />
     </Provider>
   );
+
+  test('does not set the initial form data from the default values of the fields in the visible sections if autofill default inputs is false', async () => {
+    renderSchemaForm();
+
+    expect(onFormDataChange).not.toHaveBeenCalled();
+  });
+
+  test('does not set the initial form data from the default values of the fields in the visible sections if no fields have default values', async () => {
+    schema.json.properties.text_field.default = '';
+    renderSchemaForm({ autofillDefaultInputs: true });
+
+    expect(onFormDataChange).not.toHaveBeenCalled();
+  });
+
+  test('sets the initial form data from the default values of the fields in the visible sections if autofill default inputs is true', async () => {
+    renderSchemaForm({ autofillDefaultInputs: true });
+
+    expect(onFormDataChange).toHaveBeenCalledTimes(1);
+    expect(onFormDataChange).toHaveBeenCalledWith({ text_field: 'Default Value 1' });
+  });
+
+  test('does not set the initial form data from the default values of the fields in the visible sections once it has been set', async () => {
+    const { rerender } = renderSchemaForm({ autofillDefaultInputs: true });
+
+    expect(onFormDataChange).toHaveBeenCalledTimes(1);
+
+    rerender(
+      <Provider store={mockStore({ ...store })}>
+        <SchemaForm
+          autofillDefaultInputs={true}
+          eventId="event-id"
+          eventLocation={{ latitude: 10, longitude: 10 }}
+          formData={{ text_field: 'a text value' }}
+          hideMapLocationMarkers={false}
+          onFormDataChange={onFormDataChange}
+          onFormSubmit={onFormSubmit}
+          renderSubmitButton={() => <button type="submit">Submit</button>}
+          schema={schema}
+        />
+      </Provider>
+    );
+
+    expect(onFormDataChange).toHaveBeenCalledTimes(1);
+  });
 
   test('focuses a location field if its marker is clicked', () => {
     let onMarkerClickCallback;
