@@ -23,9 +23,15 @@ const STORAGE_KEY = 'showSubjectDetailsByDefault';
 const SubjectPopup = ({ data }) => {
   const { t } = useTranslation('subjects', { keyPrefix: 'subjectPopup' });
   const isTimeSliderActive = useSelector((state) => state.view.timeSliderState.active);
-  const subjectFromStore = useSelector((state) =>
-    data?.properties?.id ? state.data.subjectStore[data.properties.id] : null
-  );
+  // Select only the title string so we don't re-render on every store update (avoids update loops)
+  const popupTitleFromStore = useSelector((state) => {
+    if (!data?.properties?.id) return null;
+    const subject = state.data.subjectStore[data.properties.id];
+    if (!subject) return null;
+    const manufacturer = subject.additional?.manufacturer;
+    const name = calcDisplayNameForSubject(subject);
+    return manufacturer ? `${manufacturer}: ${name}` : name;
+  });
 
   const [additionalPropsToggledOn, toggleAdditionalPropsVisibility] = useState(
     window.localStorage.getItem(STORAGE_KEY) === 'true'
@@ -51,12 +57,10 @@ const SubjectPopup = ({ data }) => {
   const showAdditionalProps = hasAdditionalDeviceProps
     && (additionalPropsShouldBeToggleable ? additionalPropsToggledOn : true);
 
-  // Prefer full subject from store so manufacturer and name/serial are always shown
-  const subjectForDisplay = subjectFromStore ?? properties;
-  const buoyManufacturer = subjectForDisplay?.additional?.manufacturer;
-  const displayName = calcDisplayNameForSubject(subjectForDisplay);
-
-  const popupTitle = buoyManufacturer ? `${buoyManufacturer}: ${displayName}` : displayName;
+  // Prefer title from store so manufacturer and name/serial are always shown; fallback to layer properties
+  const buoyManufacturer = properties?.additional?.manufacturer;
+  const displayName = calcDisplayNameForSubject(properties);
+  const popupTitle = popupTitleFromStore ?? (buoyManufacturer ? `${buoyManufacturer}: ${displayName}` : displayName);
 
   const toggleShowAdditionalProperties = useCallback(() => {
     toggleAdditionalPropsVisibility(!additionalPropsToggledOn);
@@ -70,7 +74,7 @@ const SubjectPopup = ({ data }) => {
         <div className={styles.defaultStatusProperty} data-testid="subject-popup-name">
           {properties.default_status_value && <>
             {properties.image && <img
-              alt={t('subjectIconAlt', { name: displayName })}
+              alt={t('subjectIconAlt', { name: popupTitle })}
               src={properties.image}
             />}
 
