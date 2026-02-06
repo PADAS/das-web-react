@@ -21,7 +21,7 @@ describe('Switch', () => {
     expect(screen.getByRole('switch')).not.toBeDisabled();
   });
 
-  test('disables the time picker', async () => {
+  test('disables the switch', async () => {
     renderSwitch({ disabled: true });
 
     expect(screen.getByTestId('switch-base')).toHaveClass('disabled');
