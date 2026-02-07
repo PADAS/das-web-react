@@ -26,7 +26,7 @@ const SubjectPopup = ({ data }) => {
   // Select only the title string so we don't re-render on every store update (avoids update loops)
   const popupTitleFromStore = useSelector((state) => {
     if (!data?.properties?.id) return null;
-    const subject = state.data.subjectStore[data.properties.id];
+    const subject = state.data?.subjectStore?.[data.properties.id];
     if (!subject) return null;
     const manufacturer = subject.additional?.manufacturer;
     const name = calcDisplayNameForSubject(subject);
