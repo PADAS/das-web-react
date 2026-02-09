@@ -136,7 +136,7 @@ describe('TrackSegmentsLayer', () => {
       const expectedFilter = [
         'all',
         ['in', ['get', 'subject_id'], ['literal', ['aaa', 'bbb']]],
-        ['>=', ['get', 'start_recorded_at'], TRACK_SINCE.toISOString()],
+        ['>=', ['get', 'start_time'], TRACK_SINCE.toISOString()],
       ];
 
       expect(mockMap.setFilter).toHaveBeenCalledWith('track-segments-layer', expectedFilter);
@@ -159,7 +159,7 @@ describe('TrackSegmentsLayer', () => {
 
       const filter = mockMap.setFilter.mock.calls[0][1];
       expect(filter).toContainEqual(
-        ['<=', ['get', 'start_recorded_at'], until.toISOString()]
+        ['<=', ['get', 'start_time'], until.toISOString()]
       );
     });
 
@@ -222,8 +222,8 @@ describe('TrackSegmentsLayer', () => {
 
       expect(filter[0]).toBe('all');
       expect(filter).toContainEqual(['in', ['get', 'subject_id'], ['literal', ['x', 'y']]]);
-      expect(filter).toContainEqual(['>=', ['get', 'start_recorded_at'], TRACK_SINCE.toISOString()]);
-      expect(filter).toContainEqual(['<=', ['get', 'start_recorded_at'], until.toISOString()]);
+      expect(filter).toContainEqual(['>=', ['get', 'start_time'], TRACK_SINCE.toISOString()]);
+      expect(filter).toContainEqual(['<=', ['get', 'start_time'], until.toISOString()]);
       expect(filter).toContainEqual(['<=', ['get', 'time_gap_ms'], 7200000]);
       expect(filter).toContainEqual(['<=', ['get', 'speed_kmh'], 100]);
     });

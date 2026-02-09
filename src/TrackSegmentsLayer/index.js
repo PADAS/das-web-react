@@ -126,12 +126,13 @@ const TrackSegmentsLayer = ({ onPointClick }) => {
 
     const filters = ['all', ['in', ['get', 'subject_id'], ['literal', visibleSubjectIds]]];
 
-    // Filter segments to the track time envelope (track length setting)
+    // Filter segments to the track time envelope (track length setting).
+    // start_time is ISO 8601 formatted on the server for lexicographic comparison.
     if (trackTimeEnvelope.from) {
-      filters.push(['>=', ['get', 'start_recorded_at'], trackTimeEnvelope.from.toISOString()]);
+      filters.push(['>=', ['get', 'start_time'], trackTimeEnvelope.from.toISOString()]);
     }
     if (trackTimeEnvelope.until) {
-      filters.push(['<=', ['get', 'start_recorded_at'], trackTimeEnvelope.until.toISOString()]);
+      filters.push(['<=', ['get', 'start_time'], trackTimeEnvelope.until.toISOString()]);
     }
 
     // Filter by time gap if enabled
@@ -176,7 +177,7 @@ const TrackSegmentsLayer = ({ onPointClick }) => {
       },
       properties: {
         name: properties.subject_name,
-        time: properties.start_recorded_at,
+        time: properties.start_time,
         id: properties.subject_id,
       },
     };
