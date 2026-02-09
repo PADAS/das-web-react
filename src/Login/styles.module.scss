@@ -22,6 +22,9 @@
   input {
     margin-bottom: 1rem;
   }
+  button + button {
+    margin-top: 0.75rem;
+  }
 }
 
 .eulalink {

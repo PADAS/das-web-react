@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { SYSTEM_CONFIG_FLAGS, REACT_APP_ROUTE_PREFIX } from '../constants';
 import { fetchCurrentUser } from '../ducks/user';
-import { fetchSystemStatus } from '../ducks/system-status';
 import useNavigate from '../hooks/useNavigate';
 
 const RequireEulaConfirmation = ({ children }) => {
@@ -16,10 +15,6 @@ const RequireEulaConfirmation = ({ children }) => {
   const user = useSelector((state) => state.data.user);
 
   const [eulaAccepted, setEulaAccepted] = useState('unknown');
-
-  useEffect(() => {
-    dispatch(fetchSystemStatus());
-  }, [dispatch]);
 
   useEffect(() => {
     dispatch(fetchCurrentUser())

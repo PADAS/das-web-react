@@ -6,7 +6,7 @@ import { addNewClusterMarkers, getRenderedClustersData, removeOldClusterMarkers 
 import { CLUSTERS_MAX_ZOOM, CLUSTERS_RADIUS, LAYER_IDS, SOURCE_IDS } from '../constants';
 import { getMapEventSymbolPointsWithVirtualDate } from '../selectors/events';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
-import { getShouldEventsBeClustered, getShouldSubjectsBeClustered } from '../selectors/clusters';
+import { selectShouldEventsBeClustered, selectShouldSubjectsBeClustered } from '../selectors/clusters';
 import { MapContext } from '../App';
 import useClusterPolygon from '../hooks/useClusterPolygon';
 import { useMapEventBinding } from '../hooks';
@@ -36,11 +36,10 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
 
   const clusterMarkerHashMapRef = useRef({});
 
-  const shouldEventsBeClustered = useSelector(getShouldEventsBeClustered);
-  const shouldSubjectsBeClustered = useSelector(getShouldSubjectsBeClustered);
   const eventPointFeatureCollection = useSelector(getMapEventSymbolPointsWithVirtualDate);
+  const shouldEventsBeClustered = useSelector(selectShouldEventsBeClustered);
+  const shouldSubjectsBeClustered = useSelector(selectShouldSubjectsBeClustered);
   const subjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);
-
 
   const clustersSourceData = useMemo(() => featureCollection(
     [

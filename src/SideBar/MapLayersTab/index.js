@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { displayReportsOnMapState, hideSubjects } from '../../ducks/map-layer-filter';
 import { INITIAL_TRACK_STATE } from '../../ducks/map-ui';
-import { getSubjectGroups } from '../../selectors/subjects';
+import { selectHydratedSubjectGroupsWithLastPositionTime } from '../../selectors/subjects';
 import { getUniqueSubjectGroupSubjectIDs } from '../../utils/subjects';
 import { MAP_LAYERS_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import { SYSTEM_CONFIG_FLAGS } from '../../constants';
@@ -31,7 +31,7 @@ const MapLayersTab = () => {
   const analyzersEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.ANALYZERS]);
   const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
   const spatialFeaturesEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]);
-  const subjectGroups = useSelector(getSubjectGroups);
+  const subjectGroups = useSelector(selectHydratedSubjectGroupsWithLastPositionTime);
   const subjectsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SUBJECTS]);
 
   const defaultActiveKey = useMemo(() => {

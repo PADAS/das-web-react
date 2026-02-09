@@ -28,12 +28,11 @@ jobs:
         with:
           name: npm-config
           path: package.json
-      - name: Read env file
+      - name: Select env file for build
         id: env-vars
-        if: github.ref_name == 'develop'
         run: |
-          tracking_id=$(grep REACT_APP_GA4_TRACKING_ID .env.development | cut -d '=' -f2)
-          echo "build-args=REACT_APP_GA4_TRACKING_ID=$tracking_id" >> $GITHUB_OUTPUT
+          # PR envs deploy to *.dev.pamdas.org, so always use the development config.
+          echo "build-args=ENV_FILE=.env.development" >> $GITHUB_OUTPUT
 
   build:
     if: contains(github.event.pull_request.labels.*.name, 'deploy')

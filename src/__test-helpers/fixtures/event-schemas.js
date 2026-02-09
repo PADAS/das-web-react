@@ -357,7 +357,6 @@ export const snareSchemaV1 = {
 export const snareSchemaV2 = {
   json: {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
-    additionalProperties: false,
     properties: {
       number_of_snares_found: {
         deprecated: false,
@@ -369,6 +368,7 @@ export const snareSchemaV2 = {
     },
     required: ['number_of_snares_found'],
     type: 'object',
+    unevaluatedProperties: false,
   },
   ui: {
     fields: {

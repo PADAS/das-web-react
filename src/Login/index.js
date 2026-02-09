@@ -5,12 +5,12 @@ import Form from 'react-bootstrap/Form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { useAuth0 } from '@auth0/auth0-react';
 
 import { ReactComponent as EarthRangerLogo } from '../common/images/earth-ranger-logo-vertical.svg';
 
 import { clearAuth, postAuth } from '../ducks/auth';
 import { fetchEula } from '../ducks/eula';
-import { fetchSystemStatus } from '../ducks/system-status';
 import { REACT_APP_ROUTE_PREFIX, SYSTEM_CONFIG_FLAGS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
 
@@ -24,10 +24,14 @@ const LoginPage = () => {
 
   const eulaURL = useSelector((state) => state.data.eula.eula_url);
   const systemConfig = useSelector((state) => state.view.systemConfig);
+  const requireIdp = !!systemConfig?.require_idp;
+  const idpOrgId = systemConfig?.idp_org_id;
+  const { loginWithRedirect, isLoading: authLoading } = useAuth0();
 
   const [errorMessage, setErrorMessage] = useState(null);
   const [formData, setFormData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [authReady, setAuthReady] = useState(true);
 
   const isEULAEnabled = !!systemConfig?.[SYSTEM_CONFIG_FLAGS.EULA];
 
@@ -60,37 +64,90 @@ const LoginPage = () => {
   useEffect(() => {
     dispatch(clearAuth());
     dispatch(fetchEula());
-    dispatch(fetchSystemStatus());
-  }, [dispatch]);
+
+    // Check for Auth0 errors in URL parameters
+    const urlParams = new URLSearchParams(location.search);
+    const authError = urlParams.get('error');
+    const authErrorDescription = urlParams.get('error_description');
+
+    if (authError && authErrorDescription) {
+      // Display user-friendly error messages based on Auth0 error types
+      let userMessage;
+      if (authError === 'access_denied') {
+        if (authErrorDescription.includes('not part of the')) {
+          userMessage = t('errorAlert.accessDeniedNotAuthorized');
+        } else {
+          userMessage = t('errorAlert.accessDeniedNoPermission');
+        }
+      } else if (authError === 'unauthorized') {
+        userMessage = t('errorAlert.authenticationFailed');
+      } else {
+        userMessage = t('errorAlert.authenticationError', { errorDescription: authErrorDescription });
+      }
+
+      setErrorMessage(userMessage);
+    }
+  }, [dispatch, location.search, t]);
+
+  useEffect(() => {
+    if (requireIdp && !idpOrgId) {
+      setErrorMessage(t('errorAlert.missingOrg'));
+      setAuthReady(false);
+    }
+  }, [requireIdp, idpOrgId, t]);
+
+  const onAuth0Login = useCallback(async () => {
+    try {
+      await loginWithRedirect({
+        authorizationParams: {
+          organization: idpOrgId,
+          audience: process.env.REACT_APP_AUTH0_AUDIENCE,
+        },
+      });
+    } catch (e) {
+      setErrorMessage(t('errorAlert.signInFailed'));
+    }
+  }, [loginWithRedirect, idpOrgId, t]);
 
   return <div className={styles.container}>
     <EarthRangerLogo className={styles.logo} />
+    {requireIdp ? (
+      <div className={styles.form}>
+        {!idpOrgId && <Alert className={styles.error} variant="danger">{t('errorAlert.missingOrg')}</Alert>}
+        {idpOrgId && (
+          <Button disabled={!authReady || authLoading} name="idp-login" type="button" variant="primary" onClick={onAuth0Login}>
+            {t('loginButtonIdp')}
+          </Button>
+        )}
+        {!!errorMessage && <Alert className={styles.error} variant="danger">{errorMessage}</Alert>}
+      </div>
+    ) : (
+      <Form name="login" className={styles.form} onSubmit={onFormSubmit}>
+        <Form.Label htmlFor="username">{t('usernameLabel')}</Form.Label>
+        <Form.Control
+          id="username"
+          name="username"
+          onChange={onInputChange}
+          required={true}
+          type="text"
+          value={formData.username}
+        />
 
-    <Form name="login" className={styles.form} onSubmit={onFormSubmit}>
-      <Form.Label htmlFor="username">{t('usernameLabel')}</Form.Label>
-      <Form.Control
-        id="username"
-        name="username"
-        onChange={onInputChange}
-        required={true}
-        type="text"
-        value={formData.username}
-      />
+        <Form.Label htmlFor="password">{t('passwordLabel')}</Form.Label>
+        <Form.Control
+          id="password"
+          name="password"
+          onChange={onInputChange}
+          required={true}
+          type="password"
+          value={formData.password}
+        />
 
-      <Form.Label htmlFor="password">{t('passwordLabel')}</Form.Label>
-      <Form.Control
-        id="password"
-        name="password"
-        onChange={onInputChange}
-        required={true}
-        type="password"
-        value={formData.password}
-      />
+        <Button disabled={isLoading} name="submit" type="submit" variant="primary">{t('loginButton')}</Button>
 
-      <Button disabled={isLoading} name="submit" type="submit" variant="primary">{t('loginButton')}</Button>
-
-      {!!errorMessage && <Alert className={styles.error} variant="danger">{errorMessage}</Alert>}
-    </Form>
+        {!!errorMessage && <Alert className={styles.error} variant="danger">{errorMessage}</Alert>}
+      </Form>
+    )}
 
     {isEULAEnabled && <p className={styles.eulalink}>
       <a href={eulaURL} target="_blank" rel="noopener noreferrer">{t('eulaLink')}</a>

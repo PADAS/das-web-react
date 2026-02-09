@@ -53,7 +53,7 @@ export const getTimeOfDaySourceAndLayerConfigurations = (trackData, isTimeOfDayC
       type: 'line',
       sourceId: pairSourceId,
       paint: {
-        'line-width': 2,
+        'line-width': 3,
         'line-gradient': [
           'interpolate',
           ['linear'],

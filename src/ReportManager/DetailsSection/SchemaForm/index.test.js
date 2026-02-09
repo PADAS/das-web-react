@@ -2,7 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen } from '../../../test-utils';
+import { fireEvent, render, screen } from '../../../test-utils';
 import { GPS_FORMATS } from '../../../utils/location';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import useMapLocationMarkers from './utils/useMapLocationMarkers';
@@ -14,7 +14,6 @@ jest.mock('./utils/useMapLocationMarkers', () => jest.fn());
 describe('ReportManager - DetailsSection - SchemaForm', () => {
   const onFormDataChange = jest.fn();
   const onFormSubmit = jest.fn();
-  const renderSubmitButton = jest.fn();
 
   const blurLocationMarker = jest.fn();
   const focusLocationMarker = jest.fn();
@@ -27,94 +26,295 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
     schema = {
       json: {
         $schema: 'https://json-schema.org/draft/2020-12/schema',
-        additionalProperties: false,
         properties: {
-          this_is_a_text: {
-            default: 'initial value',
+          location_field: {
             deprecated: false,
-            description: 'some good description',
-            title: 'This is a text',
-            type: 'string',
+            description: '',
+            properties: {
+              latitude: {
+                maximum: 90,
+                minimum: -90,
+                type: 'number'
+              },
+              longitude: {
+                maximum: 180,
+                minimum: -180,
+                type: 'number'
+              }
+            },
+            required: ['latitude', 'longitude'],
+            title: 'Location Field',
+            type: 'object',
+            unevaluatedProperties: false
           },
-          this_is_a_collection: {
+          text_field: {
+            default: '',
             deprecated: false,
+            description: '',
+            title: 'Text Field',
+            type: 'string'
+          },
+          collection_field: {
+            deprecated: false,
+            description: '',
             items: {
-              additionalProperties: false,
               properties: {
-                collection_text: {
-                  default: '',
+                location_field_2: {
                   deprecated: false,
                   description: '',
-                  title: 'Collection text',
-                  type: 'string',
-                },
+                  properties: {
+                    latitude: {
+                      maximum: 90,
+                      minimum: -90,
+                      type: 'number'
+                    },
+                    longitude: {
+                      maximum: 180,
+                      minimum: -180,
+                      type: 'number'
+                    }
+                  },
+                  required: ['latitude', 'longitude'],
+                  title: 'Location Field 2',
+                  type: 'object',
+                  unevaluatedProperties: false
+                }
               },
               required: [],
               type: 'object',
+              unevaluatedProperties: false
             },
-            title: 'This is a collection',
+            title: 'Collection Field',
             type: 'array',
-            unevaluatedItems: false,
-          },
+            unevaluatedItems: false
+          }
         },
-        required: ['this_is_a_text'],
+        required: ['text_field'],
         type: 'object',
+        unevaluatedProperties: false,
+        allOf: [
+          {
+            if: {
+              allOf: [
+                {
+                  properties: {
+                    text_field: {
+                      anyOf: [
+                        {
+                          allOf: [{ contains: { const: 'value' } }],
+                          maxItems: 1,
+                          type: 'array',
+                        },
+                        {
+                          const: null,
+                          type: 'boolean',
+                        },
+                        {
+                          const: null,
+                          type: 'number'
+                        },
+                        {
+                          properties: {
+                            value: {},
+                          },
+                          required: ['value'],
+                          type: 'object',
+                          unevaluatedProperties: false,
+                        },
+                        {
+                          const: 'value',
+                          type: 'string'
+                        }
+                      ]
+                    }
+                  },
+                  required: ['text_field'],
+                }
+              ]
+            },
+            then: {
+              properties: {
+                text_field_2: {
+                  default: '',
+                  deprecated: false,
+                  description: '',
+                  title: 'Text Field 2',
+                  type: 'string'
+                }
+              },
+              required: []
+            },
+            'x-section': 'section-2'
+          },
+          {
+            if: {
+              allOf: [
+                {
+                  properties: {
+                    text_field: {
+                      anyOf: [
+                        {
+                          allOf: [{ contains: { const: 'invalid' } }],
+                          maxItems: 1,
+                          type: 'array',
+                        },
+                        {
+                          const: null,
+                          type: 'boolean',
+                        },
+                        {
+                          const: null,
+                          type: 'number'
+                        },
+                        {
+                          properties: {
+                            invalid: {},
+                          },
+                          required: ['invalid'],
+                          type: 'object',
+                          unevaluatedProperties: false,
+                        },
+                        {
+                          const: 'invalid',
+                          type: 'string'
+                        }
+                      ]
+                    }
+                  },
+                  required: ['text_field'],
+                }
+              ]
+            },
+            then: {
+              properties: {
+                text_field_3: {
+                  default: '',
+                  deprecated: false,
+                  description: '',
+                  title: 'Text Field 3',
+                  type: 'string'
+                }
+              },
+              required: []
+            },
+            'x-section': 'section-1'
+          }
+        ]
       },
       ui: {
         fields: {
-          this_is_a_text: {
-            inputType: 'SHORT_TEXT',
-            placeholder: 'a placeholder',
-            type: 'TEXT',
-            parent: 'section-_PdgePvPWyACfu9sgN_F6',
-          },
-          this_is_a_collection: {
-            buttonText: 'a button text',
-            columns: 1,
-            itemIdentifier: 'collection_text',
-            leftColumn: ['collection_text'],
-            parent: 'section-_PdgePvPWyACfu9sgN_F6',
-            rightColumn: [],
-            type: 'COLLECTION',
-          },
-          collection_text: {
+          text_field_3: {
+            conditionalDependents: [],
             inputType: 'SHORT_TEXT',
             placeholder: '',
             type: 'TEXT',
-            parent: 'this_is_a_collection',
+            parent: 'section-1'
           },
-        },
-        headers: {
-          'header-ghqdjqGinaJMptIEJBQmO': {
-            label: 'A great header',
-            section: 'section-_PdgePvPWyACfu9sgN_F6',
-            size: 'LARGE',
+          location_field: {
+            conditionalDependents: [],
+            type: 'LOCATION',
+            parent: 'section-3'
           },
-        },
-        order: ['section-_PdgePvPWyACfu9sgN_F6'],
-        sections: {
-          'section-_PdgePvPWyACfu9sgN_F6': {
+          text_field: {
+            conditionalDependents: [
+              'section-2',
+              'section-1'
+            ],
+            inputType: 'SHORT_TEXT',
+            placeholder: '',
+            type: 'TEXT',
+            parent: 'section-3'
+          },
+          collection_field: {
+            buttonText: '',
             columns: 1,
+            conditionalDependents: [],
+            itemIdentifier: '',
+            itemName: 'Item',
+            leftColumn: ['location_field_2'],
+            rightColumn: [],
+            type: 'COLLECTION',
+            parent: 'section-3'
+          },
+          location_field_2: {
+            conditionalDependents: [],
+            type: 'LOCATION',
+            parent: 'collection_field'
+          },
+          text_field_2: {
+            conditionalDependents: [],
+            inputType: 'SHORT_TEXT',
+            placeholder: '',
+            type: 'TEXT',
+            parent: 'section-2'
+          }
+        },
+        headers: {},
+        order: ['section-3', 'section-2', 'section-1'],
+        sections: {
+          'section-3': {
+            columns: 1,
+            conditions: [],
             isActive: true,
             label: '',
             leftColumn: [
               {
-                name: 'header-ghqdjqGinaJMptIEJBQmO',
-                type: 'header',
+                name: 'text_field',
+                type: 'field'
               },
               {
-                name: 'this_is_a_text',
-                type: 'field',
+                name: 'location_field',
+                type: 'field'
               },
               {
-                name: 'this_is_a_collection',
-                type: 'field',
-              },
+                name: 'collection_field',
+                type: 'field'
+              }
             ],
-            rightColumn: [],
+            rightColumn: []
           },
-        },
-      },
+          'section-2': {
+            columns: 1,
+            conditions: [
+              {
+                field: 'text_field',
+                id: 'condition-uJ98mtxIoOvX17IIz_Ftx',
+                operator: 'INPUT_IS_EXACTLY',
+                value: 'value'
+              }
+            ],
+            isActive: true,
+            label: '',
+            leftColumn: [
+              {
+                name: 'text_field_2',
+                type: 'field'
+              }
+            ],
+            rightColumn: []
+          },
+          'section-1': {
+            columns: 1,
+            conditions: [
+              {
+                field: 'text_field',
+                id: 'condition-t7dZY9V6UKQ0wRF-GLjI3',
+                operator: 'INPUT_IS_EXACTLY',
+                value: 'invalid'
+              }
+            ],
+            isActive: true,
+            label: '',
+            leftColumn: [
+              {
+                type: 'field',
+                name: 'text_field_3'
+              }
+            ],
+            rightColumn: []
+          }
+        }
+      }
     };
 
     store = {
@@ -124,6 +324,9 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
         },
         mapLocationSelection: {
           isPickingLocation: false,
+        },
+        modals: {
+          canShowModals: true,
         },
         showUserLocation: false,
         userLocation: null,
@@ -144,101 +347,16 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
         autofillDefaultInputs={false}
         eventId="event-id"
         eventLocation={{ latitude: 10, longitude: 10 }}
+        formData={{ text_field: 'a text value' }}
         hideMapLocationMarkers={false}
-        initialFormData={{ this_is_a_text: 'a text value' }}
         onFormDataChange={onFormDataChange}
         onFormSubmit={onFormSubmit}
-        renderSubmitButton={renderSubmitButton}
+        renderSubmitButton={() => <button type="submit">Submit</button>}
         schema={schema}
         {...props}
       />
     </Provider>
   );
-
-  test('renders sections, fields, collections and headers from the schema', () => {
-    renderSchemaForm();
-
-    const section = screen.getByTestId('schema-form-section-section-_PdgePvPWyACfu9sgN_F6');
-    const textField = screen.getByTestId('schema-form-text-field-this_is_a_text');
-    const collectionField = screen.getByTestId('schema-form-collection-this_is_a_collection');
-    const header = screen.getByTestId('schema-form-header-header-ghqdjqGinaJMptIEJBQmO');
-
-    expect(section).toBeVisible();
-    expect(textField).toBeVisible();
-    expect(collectionField).toBeVisible();
-    expect(header).toBeVisible();
-  });
-
-  test('sets the map location markers', () => {
-    renderSchemaForm({
-      initialFormData: {
-        location_field: {
-          latitude: 15,
-          longitude: 15,
-        },
-      },
-      schema: {
-        json: {
-          $schema: 'https://json-schema.org/draft/2020-12/schema',
-          additionalProperties: false,
-          properties: {
-            location_field: {
-              deprecated: false,
-              description: '',
-              properties: {
-                latitude: {
-                  maximum: 90,
-                  minimum: -90,
-                  type: 'number',
-                },
-                longitude: {
-                  maximum: 180,
-                  minimum: -180,
-                  type: 'number',
-                },
-              },
-              title: 'Location field',
-              type: 'object',
-            },
-          },
-          required: [],
-          type: 'object',
-        },
-        ui: {
-          fields: {
-            location_field: {
-              type: 'LOCATION',
-              parent: 'section-_PdgePvPWyACfu9sgN_F6',
-            },
-          },
-          headers: {},
-          order: ['section-_PdgePvPWyACfu9sgN_F6'],
-          sections: {
-            'section-_PdgePvPWyACfu9sgN_F6': {
-              columns: 1,
-              isActive: true,
-              label: '',
-              leftColumn: [
-                {
-                  name: 'location_field',
-                  type: 'field',
-                },
-              ],
-              rightColumn: [],
-            },
-          },
-        },
-      }
-    });
-
-    expect(setLocationMarkers).toHaveBeenCalledTimes(1);
-    expect(setLocationMarkers).toHaveBeenCalledWith({
-      location_field: {
-        latitude: 15,
-        longitude: 15,
-      },
-    });
-  });
 
   test('focuses a location field if its marker is clicked', () => {
     let onMarkerClickCallback;
@@ -257,60 +375,7 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
       return undefined;
     });
 
-    renderSchemaForm({
-      schema: {
-        json: {
-          $schema: 'https://json-schema.org/draft/2020-12/schema',
-          additionalProperties: false,
-          properties: {
-            location_field: {
-              deprecated: false,
-              description: '',
-              properties: {
-                latitude: {
-                  maximum: 90,
-                  minimum: -90,
-                  type: 'number',
-                },
-                longitude: {
-                  maximum: 180,
-                  minimum: -180,
-                  type: 'number',
-                },
-              },
-              title: 'Location field',
-              type: 'object',
-            },
-          },
-          required: [],
-          type: 'object',
-        },
-        ui: {
-          fields: {
-            location_field: {
-              type: 'LOCATION',
-              parent: 'section-_PdgePvPWyACfu9sgN_F6',
-            },
-          },
-          headers: {},
-          order: ['section-_PdgePvPWyACfu9sgN_F6'],
-          sections: {
-            'section-_PdgePvPWyACfu9sgN_F6': {
-              columns: 1,
-              isActive: true,
-              label: '',
-              leftColumn: [
-                {
-                  name: 'location_field',
-                  type: 'field',
-                },
-              ],
-              rightColumn: [],
-            },
-          },
-        },
-      }
-    });
+    renderSchemaForm();
 
     expect(locationFieldElement.focus).toHaveBeenCalledTimes(0);
 
@@ -321,69 +386,162 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
     document.getElementById = originalGetElementById;
   });
 
-  test('renders the submit button', async () => {
-    renderSchemaForm({ renderSubmitButton: () => <button data-testid="submit-button">Submit</button> });
+  test('focuses a collection item if the marker of a location field inside it is clicked', () => {
+    let onMarkerClickCallback;
+    useMapLocationMarkers.mockImplementation((_eventId, _eventLocation, onMarkerClick) => {
+      onMarkerClickCallback = onMarkerClick;
 
-    expect(screen.getByTestId('submit-button')).toBeVisible();
-  });
+      return { blurLocationMarker, focusLocationMarker, setLocationMarkers };
+    });
 
-  test('shows the values of the fields', async () => {
+    const collectionItemElement = { focus: jest.fn() };
+    const originalGetElementById = document.getElementById;
+    document.getElementById = jest.fn((id) => {
+      // The collection item is in the document
+      if (id === 'collection_field.0') {
+        return collectionItemElement;
+      }
+      return undefined;
+    });
+
     renderSchemaForm();
 
-    expect(screen.getByLabelText('This is a text *')).toHaveValue('a text value');
+    expect(collectionItemElement.focus).toHaveBeenCalledTimes(0);
+
+    onMarkerClickCallback('collection_field.0.location_field_2');
+
+    expect(collectionItemElement.focus).toHaveBeenCalledTimes(1);
+
+    document.getElementById = originalGetElementById;
   });
 
-  test('changes the field values when the user interacts with them', async () => {
-    renderSchemaForm();
+  test('only shows the sections with passing conditions', () => {
+    renderSchemaForm({
+      formData: {
+        text_field: 'value',
+      },
+    });
 
-    const inputField = screen.getByLabelText('This is a text *');
+    // section-3 has no conditions, so it should always be visible
+    expect(screen.getByTestId('schema-form-section-section-3')).toBeVisible();
+    expect(screen.getByTestId('schema-form-text-field-text_field')).toBeVisible();
 
-    expect(inputField).toHaveValue('a text value');
-    expect(onFormDataChange).not.toHaveBeenCalled();
+    // section-2 has condition text_field input is exactly "value", which passes, so it should be visible
+    expect(screen.getByTestId('schema-form-section-section-2')).toBeVisible();
+    expect(screen.getByTestId('schema-form-text-field-text_field_2')).toBeVisible();
 
-    await userEvent.type(screen.getByLabelText('This is a text *'), ' ');
-
-    expect(inputField).toHaveValue('a text value ');
-    expect(onFormDataChange).toHaveBeenCalledTimes(1);
-    expect(onFormDataChange).toHaveBeenCalledWith({ this_is_a_text: 'a text value ' });
+    // section-1 has condition text_field input is exactly "invalid", which fails, so it should not be visible
+    expect(screen.getByTestId('schema-form-section-section-1')).not.toBeVisible();
+    expect(screen.getByTestId('schema-form-text-field-text_field_3')).not.toBeVisible();
   });
 
   test('shows validation errors if there are any when the user submits the form', async () => {
-    renderSchemaForm({ initialFormData: { this_is_a_text: undefined } });
+    renderSchemaForm({ formData: { text_field: undefined } });
 
-    const inputField = screen.getByLabelText('This is a text *');
+    const inputField = screen.getByRole('textbox', { name: 'Text Field *' });
 
     expect(inputField).toBeValid();
     expect(inputField).not.toHaveAccessibleErrorMessage();
+    expect(inputField).not.toHaveFocus();
 
-    await userEvent.type(inputField, '{enter}');
+    await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
     expect(onFormSubmit).not.toHaveBeenCalled();
     expect(inputField).toBeInvalid();
     expect(inputField).toHaveAccessibleErrorMessage('This is a required field.');
-  });
-
-  test('clears validation errors of a field when the user changes its value', async () => {
-    renderSchemaForm({ initialFormData: { this_is_a_text: undefined } });
-
-    const inputField = screen.getByLabelText('This is a text *');
-    await userEvent.type(inputField, '{enter}');
-
-    expect(inputField).toBeInvalid();
-    expect(inputField).toHaveAccessibleErrorMessage('This is a required field.');
-
-    await userEvent.type(screen.getByLabelText('This is a text *'), 'a');
-
-    expect(inputField).toBeValid();
-    expect(inputField).not.toHaveAccessibleErrorMessage();
+    expect(inputField).toHaveFocus();
   });
 
   test('submits the form when there are no validation errors', async () => {
     renderSchemaForm();
 
-    const inputField = screen.getByLabelText('This is a text *');
-    await userEvent.type(inputField, '{enter}');
+    expect(onFormSubmit).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
     expect(onFormSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  test('updates the form data when the user changes a field', async () => {
+    renderSchemaForm();
+
+    expect(onFormDataChange).not.toHaveBeenCalled();
+
+    await userEvent.type(screen.getByLabelText('Text Field *'), ' ');
+
+    expect(onFormDataChange).toHaveBeenCalledTimes(1);
+    expect(onFormDataChange).toHaveBeenLastCalledWith({ text_field: 'a text value ' });
+  });
+
+  test('removes fields from the form data when the section that contains them is hidden', async () => {
+    renderSchemaForm({
+      formData: {
+        text_field: 'value',
+        text_field_2: 'some value',
+      },
+    });
+
+    await userEvent.type(screen.getByRole('textbox', { name: 'Text Field *' }), ' ');
+
+    expect(onFormDataChange).toHaveBeenCalledTimes(1);
+    expect(onFormDataChange).toHaveBeenLastCalledWith({ text_field: 'value ' });
+  });
+
+  test('sets the map location markers', () => {
+    renderSchemaForm({
+      formData: {
+        location_field: {
+          latitude: 15,
+          longitude: 15,
+        },
+      },
+    });
+
+    expect(setLocationMarkers).toHaveBeenCalledTimes(1);
+    expect(setLocationMarkers).toHaveBeenCalledWith({
+      location_field: {
+        latitude: 15,
+        longitude: 15,
+      },
+    });
+  });
+
+  test('focuses a location marker when the user focuses a location field', async () => {
+    renderSchemaForm({
+      formData: {
+        location_field: {
+          latitude: 15,
+          longitude: 15,
+        },
+      },
+    });
+
+    expect(focusLocationMarker).not.toHaveBeenCalled();
+
+    fireEvent.focus(screen.getByRole('textbox', { name: 'Location' }));
+
+    expect(focusLocationMarker).toHaveBeenCalled();
+    expect(focusLocationMarker).toHaveBeenCalledWith('location_field');
+  });
+
+  test('updates the field errors', async () => {
+    renderSchemaForm({ formData: { this_is_a_text: undefined } });
+
+    const inputField = screen.getByLabelText('Text Field *');
+    await userEvent.type(inputField, '{enter}');
+
+    expect(inputField).toBeInvalid();
+    expect(inputField).toHaveAccessibleErrorMessage('This is a required field.');
+
+    await userEvent.type(inputField, 'N');
+
+    expect(inputField).toBeValid();
+    expect(inputField).not.toHaveAccessibleErrorMessage();
+  });
+
+  test('renders the submit button', async () => {
+    renderSchemaForm();
+
+    expect(screen.getByRole('button', { name: 'Submit' })).toBeVisible();
   });
 });

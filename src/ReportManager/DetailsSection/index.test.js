@@ -492,10 +492,8 @@ describe('ReportManager - DetailsSection', () => {
     store.data.eventTypes = [...eventTypes, snareV2];
     renderDetailsSection({
       eventSchema: snareSchemaV2,
-      reportForm: { ...report, event_type: 'snare_v2_rep' },
+      reportForm: { ...report, event_details: { number_of_snares_found: 3 }, event_type: 'snare_v2_rep' },
     });
-
-    await userEvent.type(screen.getByLabelText('Number of Snares Found *'), '3');
 
     expect(onFormSubmit).toHaveBeenCalledTimes(0);
 

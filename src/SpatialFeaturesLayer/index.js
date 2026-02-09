@@ -385,6 +385,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
   useEffect(() => {
     const polygonLayers = [
       map?.getLayer?.(POLYGONS_LAYER_ID),
+      map?.getLayer?.(POLYGONS_OUTLINE_LAYER_ID),
       // map?.getLayer?.(POLYGONS_LABELS_LAYER_ID),
     ].filter(Boolean);
 

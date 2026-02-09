@@ -6,20 +6,19 @@ import { render, screen } from '../../../../../test-utils';
 import Numeric from './';
 
 describe('ReportManager - DetailsSection - SchemaForm - fields - Numeric', () => {
-
   const onFieldChange = jest.fn();
 
   let details;
   beforeEach(() => {
     details = {
-      'defaultInput': 100,
-      'description': 'Numeric field description',
-      'isRequired': false,
-      'label': 'Numeric field label',
-      'placeholder': 'Numeric field placeholder',
-      'value': 'numeric-1',
-      'maxInput': 200,
-      'minInput': 1,
+      defaultInput: 100,
+      description: 'Numeric field description',
+      hint: 'Numeric field hint',
+      isRequired: false,
+      label: 'Numeric field label',
+      value: 'numeric-1',
+      maxInput: 200,
+      minInput: 1,
     };
   });
 
@@ -140,9 +139,9 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Numeric', () =>
     expect(onFieldChange).toHaveBeenCalledWith('numeric-1', 1);
   });
 
-  test('shows the placeholder', () => {
+  test('shows the hint', () => {
     renderNumericField();
 
-    expect(screen.getByRole('textbox')).toHaveAttribute('placeholder', 'Numeric field placeholder');
+    expect(screen.getByRole('textbox')).toHaveAttribute('placeholder', 'Numeric field hint');
   });
 });

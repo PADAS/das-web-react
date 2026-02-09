@@ -277,8 +277,8 @@ const DetailsSection = ({
       autofillDefaultInputs={isNewEvent}
       eventId={eventId}
       eventLocation={reportForm.location}
+      formData={reportForm.event_details}
       hideMapLocationMarkers={isBehindAddedEvent}
-      initialFormData={reportForm.event_details}
       onFormDataChange={onFormDataChange}
       onFormSubmit={onFormSubmit}
       renderSubmitButton={() => <button

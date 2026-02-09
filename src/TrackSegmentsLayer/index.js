@@ -5,9 +5,9 @@ import uniq from 'lodash/uniq';
 
 import { MapContext } from '../App';
 import { useMapEventBinding } from '../hooks';
-import { addMapImage, safeRemoveMapLayer, safeRemoveMapSource } from '../utils/map';
+import { addMapImage, safeRemoveMapLayer } from '../utils/map';
 import { API_URL, MAP_ICON_SCALE } from '../constants';
-import { selectSubjectTrackState } from '../selectors/tracks';
+import { selectSubjectTrackState, selectTrackTimeEnvelope } from '../selectors/tracks';
 
 import Arrow from '../common/images/icons/track-arrow.svg';
 
@@ -29,6 +29,7 @@ const TrackSegmentsLayer = ({ onPointClick }) => {
   const segmentSpeedLimit = useSelector((state) => state.view.trackSettings.segmentSpeedLimit);
 
   const subjectTrackState = useSelector(selectSubjectTrackState);
+  const trackTimeEnvelope = useSelector(selectTrackTimeEnvelope);
   const visibleSubjectIds = uniq([
     ...subjectTrackState.pinned,
     ...subjectTrackState.visible,
@@ -114,9 +115,8 @@ const TrackSegmentsLayer = ({ onPointClick }) => {
       if (map.getLayer(TRACK_SEGMENTS_LAYER_ID)) {
         safeRemoveMapLayer(map, TRACK_SEGMENTS_LAYER_ID);
       }
-      if (map.getSource(TRACK_SEGMENTS_SOURCE)) {
-        safeRemoveMapSource(map, TRACK_SEGMENTS_SOURCE);
-      }
+      // Do NOT remove the shared vector tile source – SubjectTileLayer
+      // and other consumers share it.
     };
   }, [map]);
 
@@ -125,6 +125,14 @@ const TrackSegmentsLayer = ({ onPointClick }) => {
     if (!map || !map.getLayer(TRACK_SEGMENTS_LAYER_ID)) return;
 
     const filters = ['all', ['in', ['get', 'subject_id'], ['literal', visibleSubjectIds]]];
+
+    // Filter segments to the track time envelope (track length setting)
+    if (trackTimeEnvelope.from) {
+      filters.push(['>=', ['get', 'start_recorded_at'], trackTimeEnvelope.from.toISOString()]);
+    }
+    if (trackTimeEnvelope.until) {
+      filters.push(['<=', ['get', 'start_recorded_at'], trackTimeEnvelope.until.toISOString()]);
+    }
 
     // Filter by time gap if enabled
     // time_gap_ms is in milliseconds, segmentTimeGapLength is in seconds
@@ -145,7 +153,7 @@ const TrackSegmentsLayer = ({ onPointClick }) => {
     if (map.getLayer(TRACK_SEGMENTS_START_LAYER_ID) && !isEqual(map.getFilter(TRACK_SEGMENTS_START_LAYER_ID), filters)) {
       map.setFilter(TRACK_SEGMENTS_START_LAYER_ID, filters);
     }
-  }, [map, visibleSubjectIds, isSegmentOnTimeEnabled, isSegmentOnSpeedEnabled, segmentTimeGapLength, segmentSpeedLimit]);
+  }, [map, visibleSubjectIds, trackTimeEnvelope, isSegmentOnTimeEnabled, isSegmentOnSpeedEnabled, segmentTimeGapLength, segmentSpeedLimit]);
 
   /* click handler for starting point arrows */
   const handleStartPointClick = useCallback((event) => {

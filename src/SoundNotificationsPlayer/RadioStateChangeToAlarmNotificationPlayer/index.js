@@ -9,13 +9,14 @@ import DateTime from '../../DateTime';
 import LocationJumpButton from '../../LocationJumpButton';
 
 import * as styles from './styles.module.scss';
+import { calcDisplayNameForSubject } from '../../utils/subjects';
 
 const AlarmRadioStateToastMessage = ({ onClickJumpToLocation, subject }) => {
   const { t } = useTranslation('components', { keyPrefix: 'soundNotificationsPlayer' });
 
   return <div className={styles.alarmRadioStateToast}>
     <div>
-      {t('alarmRadioStateToastMessage', { subjectName: subject.name })}
+      {t('alarmRadioStateToastMessage', { subjectName: calcDisplayNameForSubject(subject) })}
 
       {subject.last_position_date && <DateTime
         className={styles.subjectLastPositionDate}

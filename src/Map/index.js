@@ -44,7 +44,6 @@ import DelayedUnmount from '../DelayedUnmount';
 import EarthRangerMap from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectsLayer';
-import BuoyTrawlLineLayer from '../BuoyTrawlLineLayer';
 import StaticSensorsLayer from '../StaticSensorsLayer';
 import PatrolStartStopLayer from '../PatrolStartStopLayer';
 import AnalyzerLayer from '../AnalyzersLayer';
@@ -63,6 +62,7 @@ import MessageBadgeLayer from '../MessageBadgeLayer';
 import MapImagesLayer from '../MapImagesLayer';
 import SleepDetector from '../SleepDetector';
 import ClustersLayer from '../ClustersLayer';
+import SubjectTileLayer from '../SubjectTileLayer';
 import TrackSegmentsLayer from '../TrackSegmentsLayer';
 import SpatialFeaturesLayer, {
   SYMBOLS_LAYER_ID,
@@ -691,6 +691,8 @@ const Map = ({ children, onMapLoad, socket }) => {
         bounceEventIDs={bounceEventIDs}
       />}
 
+      {subjectsEnabled && <SubjectTileLayer onSubjectClick={onSelectSubject} />}
+
       {subjectsEnabled && <SubjectsLayer mapImages={mapImages} onSubjectClick={onSelectSubject} />}
 
       <MapImagesLayer />
@@ -732,8 +734,6 @@ const Map = ({ children, onMapLoad, socket }) => {
       <TrackSegmentsLayer onPointClick={onTimepointClick} />
 
       {patrolTracksVisible && <PatrolStartStopLayer />}
-
-      <BuoyTrawlLineLayer />
 
       {patrolTracksVisible && <PatrolTracks onPointClick={onTimepointClick} />}
 

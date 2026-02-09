@@ -51,7 +51,9 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
         collectionDetails={collectionDetails}
         errors={undefined}
-        fields={{
+        focusLocationMarker={focusLocationMarker}
+        formData={{ 'field-1': 'Value 1', 'field-2': 'Value 2' }}
+        formElements={{
           'field-1': {
             details: {
               label: 'Field 1',
@@ -65,8 +67,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
             type: FORM_ELEMENT_TYPES.TEXT,
           },
         }}
-        focusLocationMarker={focusLocationMarker}
-        formData={{ 'field-1': 'Value 1', 'field-2': 'Value 2' }}
         id={1}
         index={0}
         isDragging={false}
@@ -298,7 +298,8 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
           breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
           collectionDetails={collectionDetails}
           errors={undefined}
-          fields={{
+          formData={{ 'field-1': 'New value 1', 'field-2': 'Value 2' }}
+          formElements={{
             'field-1': {
               details: {
                 label: 'Field 1',
@@ -312,7 +313,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
               type: FORM_ELEMENT_TYPES.TEXT,
             },
           }}
-          formData={{ 'field-1': 'New value 1', 'field-2': 'Value 2' }}
           id={1}
           isDragging={false}
           isDragOverlay={false}

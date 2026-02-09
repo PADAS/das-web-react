@@ -25,8 +25,8 @@ const Numeric = ({ autofillDefaultInput, details, error, id, onFieldChange, valu
     </label>
 
     <NumericInput
-        max={details.maxInput ?? null}
-        min={details.minInput ?? null}
+        max={details.maxInput}
+        min={details.minInput}
         value={value}
         id={id}
         inputProps={{
@@ -37,7 +37,7 @@ const Numeric = ({ autofillDefaultInput, details, error, id, onFieldChange, valu
         }}
         blockOutOfRangeValues={false}
         inputClassName={styles.numInput}
-        placeholder={details.placeholder}
+        placeholder={details.hint}
         onChange={(number) => {
           onFieldChange(id, number ?? undefined);
         }}

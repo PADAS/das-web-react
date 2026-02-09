@@ -1,9 +1,11 @@
 FROM node:22-alpine AS build
+ARG ENV_FILE=.env.production
 ARG REACT_APP_GA4_TRACKING_ID
 ENV REACT_APP_GA4_TRACKING_ID=$REACT_APP_GA4_TRACKING_ID
 COPY . /app
 WORKDIR /app
 RUN yarn install --immutable
+RUN test -f "$ENV_FILE" && cp "$ENV_FILE" .env.production.local
 RUN ls -la && yarn build
 
 FROM nginx:1.29-alpine

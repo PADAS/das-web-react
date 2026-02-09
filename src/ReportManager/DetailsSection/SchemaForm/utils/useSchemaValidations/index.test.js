@@ -12,10 +12,10 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - useSchemaValidat
     schema = {
       json: {
         $schema: 'https://json-schema.org/draft/2020-12/schema',
-        additionalProperties: false,
         properties: {},
         required: [],
         type: 'object',
+        unevaluatedProperties: false,
       },
       ui: {
         fields: {},
@@ -197,10 +197,10 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - useSchemaValidat
     schema.json.properties.this_is_a_collection = {
       deprecated: false,
       items: {
-        additionalProperties: false,
         properties: {},
         required: [],
         type: 'object',
+        unevaluatedProperties: false,
       },
       maxItems: 3,
       title: 'This is a collection',
@@ -239,10 +239,10 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - useSchemaValidat
     schema.json.properties.this_is_a_collection = {
       deprecated: false,
       items: {
-        additionalProperties: false,
         properties: {},
         required: [],
         type: 'object',
+        unevaluatedProperties: false,
       },
       minItems: 3,
       title: 'This is a collection',
@@ -281,17 +281,14 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - useSchemaValidat
     schema.json.properties.collection_1 = {
       deprecated: false,
       items: {
-        additionalProperties: false,
         properties: {
           collection_2: {
             deprecated: false,
             items: {
-              additionalProperties: false,
               properties: {
                 collection_3: {
                   deprecated: false,
                   items: {
-                    additionalProperties: false,
                     properties: {
                       text_1: {
                         default: '',
@@ -303,6 +300,7 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - useSchemaValidat
                     },
                     required: ['text_1'],
                     type: 'object',
+                    unevaluatedProperties: false,
                   },
                   title: 'Collection 3',
                   type: 'array',
@@ -311,6 +309,7 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - useSchemaValidat
               },
               required: [],
               type: 'object',
+              unevaluatedProperties: false,
             },
             title: 'Collection 2',
             type: 'array',
@@ -319,6 +318,7 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - useSchemaValidat
         },
         required: [],
         type: 'object',
+        unevaluatedProperties: false,
       },
       title: 'Collection 1',
       type: 'array',

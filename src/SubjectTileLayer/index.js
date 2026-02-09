@@ -1,0 +1,185 @@
+import { memo, useCallback, useContext, useEffect, useMemo } from 'react';
+import { useSelector } from 'react-redux';
+
+import { MapContext } from '../App';
+import { useMapEventBinding } from '../hooks';
+import { safeRemoveMapLayer } from '../utils/map';
+import { API_URL, LAYER_IDS, SYMBOL_TEXT_SIZE_EXPRESSION } from '../constants';
+import { selectFreshSubjectIds } from '../selectors/subjects';
+import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
+
+const VECTOR_TILE_SOURCE = 'track-segments-source';
+const VECTOR_TILE_URL = `${API_URL}observations/segments/tiles/{z}/{x}/{y}.pbf`;
+
+const SUBJECT_TILE_LAYER_ID = 'subject-tile-layer';
+const SUBJECT_TILE_LABEL_LAYER_ID = 'subject-tile-layer-labels';
+
+const { SKY_LAYER } = LAYER_IDS;
+
+/**
+ * Renders "stale" subjects (those whose last position is older than 1 hour)
+ * from the vector tile source.  Fresh subjects are rendered by the GeoJSON
+ * SubjectsLayer; the two layers together cover the full subject set without
+ * duplication.
+ */
+const SubjectTileLayer = ({ onSubjectClick }) => {
+  const map = useContext(MapContext);
+  const freshSubjectIds = useSelector(selectFreshSubjectIds);
+  const showInactiveRadios = useSelector((state) => state.view.showInactiveRadios);
+
+  /* ── source & layers ──────────────────────────────────────────────── */
+
+  useEffect(() => {
+    if (!map) return;
+
+    // Ensure the shared vector tile source exists (TrackSegmentsLayer may
+    // have already created it).
+    if (!map.getSource(VECTOR_TILE_SOURCE)) {
+      map.addSource(VECTOR_TILE_SOURCE, {
+        type: 'vector',
+        tiles: [VECTOR_TILE_URL],
+        minzoom: 0,
+        maxzoom: 22,
+      });
+    }
+
+    // Subject icon layer
+    if (!map.getLayer(SUBJECT_TILE_LAYER_ID)) {
+      map.addLayer({
+        id: SUBJECT_TILE_LAYER_ID,
+        type: 'symbol',
+        source: VECTOR_TILE_SOURCE,
+        'source-layer': 'subjects',
+        layout: {
+          'icon-image': [
+            'case',
+            ['==', ['get', 'subject_subtype_value'], 'ropeless_buoy_gearset'],
+            'za-provincial-2',
+            ['get', 'image_url'],
+          ],
+          'icon-size': [
+            'interpolate', ['exponential', 0.5], ['zoom'],
+            0, 0.2 / 3,
+            11, 0.8 / 3,
+            14, 1 / 3,
+          ],
+          'icon-allow-overlap': true,
+          'icon-ignore-placement': true,
+          'text-field': '',
+        },
+        paint: {
+          'icon-opacity': [
+            'case',
+            ['==', ['get', 'subject_subtype_value'], 'ropeless_buoy_gearset'], 0.5,
+            1,
+          ],
+        },
+      }, SKY_LAYER);
+    }
+
+    // Subject label layer (mirrors LabeledSymbolLayer label sublayer)
+    if (!map.getLayer(SUBJECT_TILE_LABEL_LAYER_ID)) {
+      map.addLayer({
+        id: SUBJECT_TILE_LABEL_LAYER_ID,
+        type: 'symbol',
+        source: VECTOR_TILE_SOURCE,
+        'source-layer': 'subjects',
+        layout: {
+          'icon-allow-overlap': ['step', ['zoom'], false, 10, true],
+          'icon-anchor': 'bottom',
+          'icon-image': 'name-label-78-sdf',
+          'icon-size': 1,
+          'icon-text-fit': 'both',
+          'icon-text-fit-padding': [5, 8, 5, 8],
+          'text-allow-overlap': ['step', ['zoom'], false, 10, true],
+          'text-anchor': 'top',
+          'text-offset': [0, 1.1],
+          'text-field': ['get', 'name'],
+          'text-justify': 'center',
+          'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+          'text-size': SYMBOL_TEXT_SIZE_EXPRESSION,
+        },
+        paint: {
+          'text-halo-color': 'rgba(255,255,255,0.7)',
+          'text-halo-width': 1,
+          'text-halo-blur': 1,
+          'text-translate-anchor': 'viewport',
+          'icon-opacity': 0.5,
+          'icon-color': '#ffffff',
+          'text-opacity': [
+            'case',
+            ['==', ['get', 'subject_subtype_value'], 'ropeless_buoy_gearset'], 0,
+            1,
+          ],
+        },
+      }, SKY_LAYER);
+    }
+
+    return () => {
+      if (map.getLayer(SUBJECT_TILE_LABEL_LAYER_ID)) {
+        safeRemoveMapLayer(map, SUBJECT_TILE_LABEL_LAYER_ID);
+      }
+      if (map.getLayer(SUBJECT_TILE_LAYER_ID)) {
+        safeRemoveMapLayer(map, SUBJECT_TILE_LAYER_ID);
+      }
+      // Do NOT remove the shared vector tile source – TrackSegmentsLayer
+      // and other consumers share it.
+    };
+  }, [map]);
+
+  /* ── dedup + inactive radio filter ────────────────────────────────── */
+
+  useEffect(() => {
+    if (!map || !map.getLayer(SUBJECT_TILE_LAYER_ID)) return;
+
+    const filters = ['all'];
+
+    // Exclude fresh subjects already rendered via GeoJSON
+    if (freshSubjectIds.length > 0) {
+      filters.push(['!', ['in', ['get', 'id'], ['literal', freshSubjectIds]]]);
+    }
+
+    // Respect the "show inactive radios" user preference
+    if (!showInactiveRadios) {
+      filters.push(['!=', ['get', 'radio_state'], 'offline']);
+    }
+
+    const filter = filters.length > 1 ? filters : null;
+    map.setFilter(SUBJECT_TILE_LAYER_ID, filter);
+    map.setFilter(SUBJECT_TILE_LABEL_LAYER_ID, filter);
+  }, [map, freshSubjectIds, showInactiveRadios]);
+
+  /* ── click / hover handlers ───────────────────────────────────────── */
+
+  const handleSubjectTileClick = useMemo(() => withMultiLayerHandlerAwareness(
+    map,
+    (event) => {
+      const layers = [SUBJECT_TILE_LAYER_ID, SUBJECT_TILE_LABEL_LAYER_ID];
+      const clickedLayer = map.queryRenderedFeatures(event.point, { layers })[0];
+      if (clickedLayer && onSubjectClick) {
+        onSubjectClick({ event, layer: clickedLayer });
+      }
+    },
+  ), [map, onSubjectClick]);
+
+  const onMouseEnter = useCallback(() => {
+    if (map) map.getCanvas().style.cursor = 'pointer';
+  }, [map]);
+
+  const onMouseLeave = useCallback(() => {
+    if (map) map.getCanvas().style.cursor = '';
+  }, [map]);
+
+  useMapEventBinding('click', handleSubjectTileClick, SUBJECT_TILE_LAYER_ID, !!onSubjectClick);
+  useMapEventBinding('click', handleSubjectTileClick, SUBJECT_TILE_LABEL_LAYER_ID, !!onSubjectClick);
+
+  useMapEventBinding('mouseenter', onMouseEnter, SUBJECT_TILE_LAYER_ID);
+  useMapEventBinding('mouseenter', onMouseEnter, SUBJECT_TILE_LABEL_LAYER_ID);
+
+  useMapEventBinding('mouseleave', onMouseLeave, SUBJECT_TILE_LAYER_ID);
+  useMapEventBinding('mouseleave', onMouseLeave, SUBJECT_TILE_LABEL_LAYER_ID);
+
+  return null;
+};
+
+export default memo(SubjectTileLayer);

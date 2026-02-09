@@ -73,6 +73,8 @@ describe('Ducks - System config', () => {
         [SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]: true,
         [SYSTEM_CONFIG_FLAGS.SUBJECTS]: true,
         [SYSTEM_CONFIG_FLAGS.TABLEAU]: true,
+        idp_org_id: null,
+        require_idp: false,
         showTrackDays: true,
         sitename: 'Site name',
       },
@@ -191,6 +193,8 @@ describe('Ducks - System config', () => {
         [SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]: true,
         [SYSTEM_CONFIG_FLAGS.SUBJECTS]: true,
         [SYSTEM_CONFIG_FLAGS.TABLEAU]: true,
+        idp_org_id: null,
+        require_idp: null,
         showTrackDays: true,
         sitename: 'Site name',
       };
