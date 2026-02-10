@@ -1,9 +1,9 @@
-import { memo, useCallback, useContext, useEffect, useMemo } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
 
 import { MapContext } from '../App';
 import { useMapEventBinding } from '../hooks';
-import { safeRemoveMapLayer } from '../utils/map';
+import { addPropsToGeoJsonByKey, safeRemoveMapLayer } from '../utils/map';
 import { API_URL, LAYER_IDS, SYMBOL_TEXT_SIZE_EXPRESSION } from '../constants';
 import { selectFreshSubjectIds } from '../selectors/subjects';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
@@ -26,6 +26,12 @@ const SubjectTileLayer = ({ onSubjectClick }) => {
   const map = useContext(MapContext);
   const freshSubjectIds = useSelector(selectFreshSubjectIds);
   const showInactiveRadios = useSelector((state) => state.view.showInactiveRadios);
+  const subjectStore = useSelector((state) => state.data.subjectStore);
+
+  // Ref so the click handler always reads the latest store without
+  // re-creating the memoised callback on every store update.
+  const subjectStoreRef = useRef(subjectStore);
+  subjectStoreRef.current = subjectStore;
 
   /* ── source & layers ──────────────────────────────────────────────── */
 
@@ -155,9 +161,32 @@ const SubjectTileLayer = ({ onSubjectClick }) => {
     map,
     (event) => {
       const layers = [SUBJECT_TILE_LAYER_ID, SUBJECT_TILE_LABEL_LAYER_ID];
-      const clickedLayer = map.queryRenderedFeatures(event.point, { layers })[0];
-      if (clickedLayer && onSubjectClick) {
-        onSubjectClick({ event, layer: clickedLayer });
+      const clickedFeature = map.queryRenderedFeatures(event.point, { layers })[0];
+      if (!clickedFeature || !onSubjectClick) return;
+
+      const subjectId = clickedFeature.properties.id;
+      const storeSubject = subjectStoreRef.current[subjectId];
+
+      if (storeSubject?.last_position) {
+        // Hydrate from the Redux store – same enrichment the GeoJSON
+        // SubjectsLayer path uses so SubjectPopup receives the full
+        // contract (coordinateProperties, tracks_available, image, etc.).
+        const enriched = addPropsToGeoJsonByKey(storeSubject, 'last_position');
+        onSubjectClick({ event, layer: enriched.last_position });
+      } else {
+        // Fallback: reshape flat tile properties to the minimum shape
+        // SubjectPopup needs when the subject isn't in the store.
+        const { properties, geometry } = clickedFeature;
+        const layer = {
+          type: 'Feature',
+          geometry,
+          properties: {
+            ...properties,
+            image: properties.image_url,
+            coordinateProperties: { time: properties.recorded_at },
+          },
+        };
+        onSubjectClick({ event, layer });
       }
     },
   ), [map, onSubjectClick]);
