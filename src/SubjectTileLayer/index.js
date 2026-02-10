@@ -3,7 +3,8 @@ import { useSelector } from 'react-redux';
 
 import { MapContext } from '../App';
 import { useMapEventBinding } from '../hooks';
-import { addPropsToGeoJsonByKey, safeRemoveMapLayer } from '../utils/map';
+import { addMapImage, addPropsToGeoJsonByKey, safeRemoveMapLayer } from '../utils/map';
+import { calcImgIdFromUrlForMapImages } from '../utils/img';
 import { API_URL, LAYER_IDS, SYMBOL_TEXT_SIZE_EXPRESSION } from '../constants';
 import { selectFreshSubjectIds } from '../selectors/subjects';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
@@ -33,6 +34,42 @@ const SubjectTileLayer = ({ onSubjectClick }) => {
   const subjectStoreRef = useRef(subjectStore);
   subjectStoreRef.current = subjectStore;
 
+  /* ── preload subject images & build icon-image expression ─────────
+   *
+   * The tile's SQL-computed `image_url` doesn't match the model's resolved
+   * `image_url` (which uses StaticImageFinder with a fallback chain).
+   * Instead, we pull the correct image from the Redux store (populated by
+   * subject groups) and build a Mapbox GL `match` expression that maps
+   * each subject ID → its correct sprite image ID.
+   * ──────────────────────────────────────────────────────────────────── */
+
+  const iconImageExpr = useMemo(() => {
+    const entries = [];
+    const seen = new Set();
+
+    Object.values(subjectStore).forEach((subject) => {
+      const image = subject.last_position?.properties?.image;
+      if (!image) return;
+
+      const spriteId = calcImgIdFromUrlForMapImages(image);
+      entries.push(subject.id, spriteId);
+
+      // Preload each unique image into the map sprite
+      if (!seen.has(image)) {
+        seen.add(image);
+        addMapImage({ src: image });
+      }
+    });
+
+    if (entries.length === 0) {
+      // No subjects in store yet — fall back to tile's image_url
+      // (styleimagemissing will attempt to load it)
+      return ['get', 'image_url'];
+    }
+
+    return ['match', ['get', 'id'], ...entries, 'pin-black'];
+  }, [subjectStore]);
+
   /* ── source & layers ──────────────────────────────────────────────── */
 
   useEffect(() => {
@@ -61,6 +98,7 @@ const SubjectTileLayer = ({ onSubjectClick }) => {
             'case',
             ['==', ['get', 'subject_subtype_value'], 'ropeless_buoy_gearset'],
             'za-provincial-2',
+            // Placeholder — overridden by the iconImageExpr effect below
             ['get', 'image_url'],
           ],
           'icon-size': [
@@ -132,6 +170,19 @@ const SubjectTileLayer = ({ onSubjectClick }) => {
       // and other consumers share it.
     };
   }, [map]);
+
+  /* ── update icon-image when store images are resolved ────────────── */
+
+  useEffect(() => {
+    if (!map || !map.getLayer(SUBJECT_TILE_LAYER_ID)) return;
+
+    map.setLayoutProperty(SUBJECT_TILE_LAYER_ID, 'icon-image', [
+      'case',
+      ['==', ['get', 'subject_subtype_value'], 'ropeless_buoy_gearset'],
+      'za-provincial-2',
+      iconImageExpr,
+    ]);
+  }, [map, iconImageExpr]);
 
   /* ── dedup + inactive radio filter ────────────────────────────────── */
 
