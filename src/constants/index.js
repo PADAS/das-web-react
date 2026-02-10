@@ -20,6 +20,10 @@ export const DAS_HOST = process.env.REACT_APP_DAS_HOST
 
 export const CLIENT_BUILD_VERSION = `${buildbranch}-${buildnum}`;
 
+// Subjects with a last-position newer than this are "fresh" and fetched via
+// the GeoJSON API; older subjects are rendered from vector tiles only.
+export const FRESH_SUBJECT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+
 export const MIN_ZOOM = 2.5;
 export const MAX_ZOOM = 20;
 

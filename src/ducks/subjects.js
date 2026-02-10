@@ -2,7 +2,7 @@ import axios, { CancelToken } from 'axios';
 import union from 'lodash/union';
 import merge from 'lodash/merge';
 
-import { API_URL } from '../constants';
+import { API_URL, FRESH_SUBJECT_WINDOW_MS } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
 import { getBboxParamsFromMap } from '../utils/query';
 import { calcUrlForImage } from '../utils/img';
@@ -52,11 +52,20 @@ const cancelableMapSubjectsFetch = () => {
       cancelToken.cancel();
       cancelToken = CancelToken.source();
 
+      // When not in timeslider mode, only fetch subjects updated in the last
+      // hour — stale subjects are already rendered from the vector tile layer.
+      // The 1-hour window matches selectFreshSubjectIds in selectors/subjects.
+      const freshParams = {};
+      if (!timeSliderActive && !params?.updated_since) {
+        freshParams.updated_since = new Date(Date.now() - FRESH_SUBJECT_WINDOW_MS).toISOString();
+      }
+
       return axios.get(SUBJECTS_API_URL, {
         cancelToken: cancelToken.token,
         params: {
           bbox,
           use_lkl,
+          ...freshParams,
           ...params,
           include_inactive: false,
         }

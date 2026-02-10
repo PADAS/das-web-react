@@ -8,7 +8,7 @@ import {
   subjectIsStatic,
 } from '../../utils/subjects';
 import { addPropsToGeoJsonByKey } from '../../utils/map';
-import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../constants';
+import { FRESH_SUBJECT_WINDOW_MS, PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../constants';
 
 const selectHiddenSubjectIDs = (state) => state.data.mapLayerFilter.hiddenSubjectIDs;
 const selectMapSubjects = (state) => state.data.mapSubjects.subjects;
@@ -150,8 +150,6 @@ export const getMapSubjectFeatureCollectionWithVirtualPositioning = createSelect
   },
 );
 
-const ONE_HOUR_MS = 60 * 60 * 1000;
-
 /**
  * Returns an array of subject IDs whose last known position is within the last
  * hour.  These "fresh" subjects are rendered via the GeoJSON SubjectsLayer and
@@ -160,7 +158,7 @@ const ONE_HOUR_MS = 60 * 60 * 1000;
 export const selectFreshSubjectIds = createSelector(
   [selectSubjectStore],
   (subjectStore) => {
-    const cutoff = Date.now() - ONE_HOUR_MS;
+    const cutoff = Date.now() - FRESH_SUBJECT_WINDOW_MS;
     return Object.values(subjectStore)
       .filter((subject) => {
         const time = subject.last_position?.properties?.coordinateProperties?.time;
