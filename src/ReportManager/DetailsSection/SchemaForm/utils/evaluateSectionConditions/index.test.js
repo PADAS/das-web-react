@@ -1,42 +1,15 @@
 import evaluateContainsCondition from './evaluateContainsCondition';
-import evaluateDoesNotHaveInputCondition from './evaluateDoesNotHaveInputCondition';
-import evaluateHasInputCondition from './evaluateHasInputCondition';
-import evaluateInputIsExactlyCondition from './evaluateInputIsExactlyCondition';
 import evaluateIsContainedByCondition from './evaluateIsContainedByCondition';
+import evaluateIsEmptyCondition from './evaluateIsEmptyCondition';
+import evaluateIsExactlyCondition from './evaluateIsExactlyCondition';
 import evaluateIsNotContainedByCondition from './evaluateIsNotContainedByCondition';
+import evaluateIsNotEmptyCondition from './evaluateIsNotEmptyCondition';
 import { FORM_ELEMENT_LOGIC_CONDITION_OPERATORS } from '../../../../../utils/v2-event-schemas/constants';
 
 import evaluateSectionConditions from './';
 
 jest.mock('./evaluateContainsCondition', () => {
   const actual = jest.requireActual('./evaluateContainsCondition');
-  return {
-    ...actual,
-    __esModule: true,
-    default: jest.fn(),
-  };
-});
-
-jest.mock('./evaluateDoesNotHaveInputCondition', () => {
-  const actual = jest.requireActual('./evaluateDoesNotHaveInputCondition');
-  return {
-    ...actual,
-    __esModule: true,
-    default: jest.fn(),
-  };
-});
-
-jest.mock('./evaluateHasInputCondition', () => {
-  const actual = jest.requireActual('./evaluateHasInputCondition');
-  return {
-    ...actual,
-    __esModule: true,
-    default: jest.fn(),
-  };
-});
-
-jest.mock('./evaluateInputIsExactlyCondition', () => {
-  const actual = jest.requireActual('./evaluateInputIsExactlyCondition');
   return {
     ...actual,
     __esModule: true,
@@ -53,8 +26,35 @@ jest.mock('./evaluateIsContainedByCondition', () => {
   };
 });
 
+jest.mock('./evaluateIsEmptyCondition', () => {
+  const actual = jest.requireActual('./evaluateIsEmptyCondition');
+  return {
+    ...actual,
+    __esModule: true,
+    default: jest.fn(),
+  };
+});
+
+jest.mock('./evaluateIsExactlyCondition', () => {
+  const actual = jest.requireActual('./evaluateIsExactlyCondition');
+  return {
+    ...actual,
+    __esModule: true,
+    default: jest.fn(),
+  };
+});
+
 jest.mock('./evaluateIsNotContainedByCondition', () => {
   const actual = jest.requireActual('./evaluateIsNotContainedByCondition');
+  return {
+    ...actual,
+    __esModule: true,
+    default: jest.fn(),
+  };
+});
+
+jest.mock('./evaluateIsNotEmptyCondition', () => {
+  const actual = jest.requireActual('./evaluateIsNotEmptyCondition');
   return {
     ...actual,
     __esModule: true,
@@ -67,11 +67,11 @@ describe('ReportManager - DetailsSection - SchemaForm - utils - evaluateSectionC
   let sectionConditions;
   beforeEach(() => {
     evaluateContainsCondition.mockImplementation(() => true);
-    evaluateDoesNotHaveInputCondition.mockImplementation(() => true);
-    evaluateHasInputCondition.mockImplementation(() => true);
-    evaluateInputIsExactlyCondition.mockImplementation(() => true);
     evaluateIsContainedByCondition.mockImplementation(() => true);
+    evaluateIsEmptyCondition.mockImplementation(() => true);
+    evaluateIsExactlyCondition.mockImplementation(() => true);
     evaluateIsNotContainedByCondition.mockImplementation(() => true);
+    evaluateIsNotEmptyCondition.mockImplementation(() => true);
 
     sectionConditions = [
       {
@@ -90,50 +90,11 @@ describe('ReportManager - DetailsSection - SchemaForm - utils - evaluateSectionC
     expect(evaluateSectionConditions(sectionConditions, formData)).toBe(true);
     expect(evaluateContainsCondition).toHaveBeenCalledTimes(1);
     expect(evaluateContainsCondition).toHaveBeenCalledWith(formData.name, sectionConditions[0].value);
-    expect(evaluateDoesNotHaveInputCondition).not.toHaveBeenCalled();
-    expect(evaluateHasInputCondition).not.toHaveBeenCalled();
-    expect(evaluateInputIsExactlyCondition).not.toHaveBeenCalled();
     expect(evaluateIsContainedByCondition).not.toHaveBeenCalled();
+    expect(evaluateIsEmptyCondition).not.toHaveBeenCalled();
+    expect(evaluateIsExactlyCondition).not.toHaveBeenCalled();
     expect(evaluateIsNotContainedByCondition).not.toHaveBeenCalled();
-  });
-
-  test('evaluates a section with a DOES_NOT_HAVE_INPUT condition', () => {
-    sectionConditions[0].operator = FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.DOES_NOT_HAVE_INPUT;
-
-    expect(evaluateSectionConditions(sectionConditions, formData)).toBe(true);
-    expect(evaluateContainsCondition).not.toHaveBeenCalled();
-    expect(evaluateDoesNotHaveInputCondition).toHaveBeenCalledTimes(1);
-    expect(evaluateDoesNotHaveInputCondition).toHaveBeenCalledWith(formData.name);
-    expect(evaluateHasInputCondition).not.toHaveBeenCalled();
-    expect(evaluateInputIsExactlyCondition).not.toHaveBeenCalled();
-    expect(evaluateIsContainedByCondition).not.toHaveBeenCalled();
-    expect(evaluateIsNotContainedByCondition).not.toHaveBeenCalled();
-  });
-
-  test('evaluates a section with a HAS_INPUT condition', () => {
-    sectionConditions[0].operator = FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.HAS_INPUT;
-
-    expect(evaluateSectionConditions(sectionConditions, formData)).toBe(true);
-    expect(evaluateContainsCondition).not.toHaveBeenCalled();
-    expect(evaluateDoesNotHaveInputCondition).not.toHaveBeenCalled();
-    expect(evaluateHasInputCondition).toHaveBeenCalledTimes(1);
-    expect(evaluateHasInputCondition).toHaveBeenCalledWith(formData.name);
-    expect(evaluateInputIsExactlyCondition).not.toHaveBeenCalled();
-    expect(evaluateIsContainedByCondition).not.toHaveBeenCalled();
-    expect(evaluateIsNotContainedByCondition).not.toHaveBeenCalled();
-  });
-
-  test('evaluates a section with a INPUT_IS_EXACTLY condition', () => {
-    sectionConditions[0].operator = FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.INPUT_IS_EXACTLY;
-
-    expect(evaluateSectionConditions(sectionConditions, formData)).toBe(true);
-    expect(evaluateContainsCondition).not.toHaveBeenCalled();
-    expect(evaluateDoesNotHaveInputCondition).not.toHaveBeenCalled();
-    expect(evaluateHasInputCondition).not.toHaveBeenCalled();
-    expect(evaluateInputIsExactlyCondition).toHaveBeenCalledTimes(1);
-    expect(evaluateInputIsExactlyCondition).toHaveBeenCalledWith(formData.name, sectionConditions[0].value);
-    expect(evaluateIsContainedByCondition).not.toHaveBeenCalled();
-    expect(evaluateIsNotContainedByCondition).not.toHaveBeenCalled();
+    expect(evaluateIsNotEmptyCondition).not.toHaveBeenCalled();
   });
 
   test('evaluates a section with a IS_CONTAINED_BY condition', () => {
@@ -142,12 +103,38 @@ describe('ReportManager - DetailsSection - SchemaForm - utils - evaluateSectionC
 
     expect(evaluateSectionConditions(sectionConditions, formData)).toBe(true);
     expect(evaluateContainsCondition).not.toHaveBeenCalled();
-    expect(evaluateDoesNotHaveInputCondition).not.toHaveBeenCalled();
-    expect(evaluateHasInputCondition).not.toHaveBeenCalled();
-    expect(evaluateInputIsExactlyCondition).not.toHaveBeenCalled();
     expect(evaluateIsContainedByCondition).toHaveBeenCalledTimes(1);
     expect(evaluateIsContainedByCondition).toHaveBeenCalledWith(formData.name, sectionConditions[0].value);
+    expect(evaluateIsEmptyCondition).not.toHaveBeenCalled();
+    expect(evaluateIsExactlyCondition).not.toHaveBeenCalled();
     expect(evaluateIsNotContainedByCondition).not.toHaveBeenCalled();
+    expect(evaluateIsNotEmptyCondition).not.toHaveBeenCalled();
+  });
+
+  test('evaluates a section with a IS_EMPTY condition', () => {
+    sectionConditions[0].operator = FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_EMPTY;
+
+    expect(evaluateSectionConditions(sectionConditions, formData)).toBe(true);
+    expect(evaluateContainsCondition).not.toHaveBeenCalled();
+    expect(evaluateIsContainedByCondition).not.toHaveBeenCalled();
+    expect(evaluateIsEmptyCondition).toHaveBeenCalledTimes(1);
+    expect(evaluateIsEmptyCondition).toHaveBeenCalledWith(formData.name);
+    expect(evaluateIsExactlyCondition).not.toHaveBeenCalled();
+    expect(evaluateIsNotContainedByCondition).not.toHaveBeenCalled();
+    expect(evaluateIsNotEmptyCondition).not.toHaveBeenCalled();
+  });
+
+  test('evaluates a section with a IS_EXACTLY condition', () => {
+    sectionConditions[0].operator = FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_EXACTLY;
+
+    expect(evaluateSectionConditions(sectionConditions, formData)).toBe(true);
+    expect(evaluateContainsCondition).not.toHaveBeenCalled();
+    expect(evaluateIsContainedByCondition).not.toHaveBeenCalled();
+    expect(evaluateIsEmptyCondition).not.toHaveBeenCalled();
+    expect(evaluateIsExactlyCondition).toHaveBeenCalledTimes(1);
+    expect(evaluateIsExactlyCondition).toHaveBeenCalledWith(formData.name, sectionConditions[0].value);
+    expect(evaluateIsNotContainedByCondition).not.toHaveBeenCalled();
+    expect(evaluateIsNotEmptyCondition).not.toHaveBeenCalled();
   });
 
   test('evaluates a section with a IS_NOT_CONTAINED_BY condition', () => {
@@ -156,12 +143,25 @@ describe('ReportManager - DetailsSection - SchemaForm - utils - evaluateSectionC
 
     expect(evaluateSectionConditions(sectionConditions, formData)).toBe(true);
     expect(evaluateContainsCondition).not.toHaveBeenCalled();
-    expect(evaluateDoesNotHaveInputCondition).not.toHaveBeenCalled();
-    expect(evaluateHasInputCondition).not.toHaveBeenCalled();
-    expect(evaluateInputIsExactlyCondition).not.toHaveBeenCalled();
     expect(evaluateIsContainedByCondition).not.toHaveBeenCalled();
+    expect(evaluateIsEmptyCondition).not.toHaveBeenCalled();
+    expect(evaluateIsExactlyCondition).not.toHaveBeenCalled();
     expect(evaluateIsNotContainedByCondition).toHaveBeenCalledTimes(1);
     expect(evaluateIsNotContainedByCondition).toHaveBeenCalledWith(formData.name, sectionConditions[0].value);
+    expect(evaluateIsNotEmptyCondition).not.toHaveBeenCalled();
+  });
+
+  test('evaluates a section with a IS_NOT_EMPTY condition', () => {
+    sectionConditions[0].operator = FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_NOT_EMPTY;
+
+    expect(evaluateSectionConditions(sectionConditions, formData)).toBe(true);
+    expect(evaluateContainsCondition).not.toHaveBeenCalled();
+    expect(evaluateIsContainedByCondition).not.toHaveBeenCalled();
+    expect(evaluateIsEmptyCondition).not.toHaveBeenCalled();
+    expect(evaluateIsExactlyCondition).not.toHaveBeenCalled();
+    expect(evaluateIsNotContainedByCondition).not.toHaveBeenCalled();
+    expect(evaluateIsNotEmptyCondition).toHaveBeenCalledTimes(1);
+    expect(evaluateIsNotEmptyCondition).toHaveBeenCalledWith(formData.name);
   });
 
   test('passes the evaluate of a section with multiple conditions if all conditions pass', () => {
@@ -173,11 +173,11 @@ describe('ReportManager - DetailsSection - SchemaForm - utils - evaluateSectionC
       },
       {
         field: 'age',
-        operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.HAS_INPUT,
+        operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_NOT_EMPTY,
       },
       {
         field: 'nationality',
-        operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.INPUT_IS_EXACTLY,
+        operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_EXACTLY,
         value: 'Mexican',
       },
     ];
@@ -185,17 +185,17 @@ describe('ReportManager - DetailsSection - SchemaForm - utils - evaluateSectionC
     expect(evaluateSectionConditions(sectionConditions, formData)).toBe(true);
     expect(evaluateContainsCondition).toHaveBeenCalledTimes(1);
     expect(evaluateContainsCondition).toHaveBeenCalledWith(formData.name, sectionConditions[0].value);
-    expect(evaluateDoesNotHaveInputCondition).not.toHaveBeenCalled();
-    expect(evaluateHasInputCondition).toHaveBeenCalledTimes(1);
-    expect(evaluateHasInputCondition).toHaveBeenCalledWith(formData.age);
-    expect(evaluateInputIsExactlyCondition).toHaveBeenCalledTimes(1);
-    expect(evaluateInputIsExactlyCondition).toHaveBeenCalledWith(formData.nationality, sectionConditions[2].value);
     expect(evaluateIsContainedByCondition).not.toHaveBeenCalled();
+    expect(evaluateIsEmptyCondition).not.toHaveBeenCalled();
+    expect(evaluateIsExactlyCondition).toHaveBeenCalledTimes(1);
+    expect(evaluateIsExactlyCondition).toHaveBeenCalledWith(formData.nationality, sectionConditions[2].value);
     expect(evaluateIsNotContainedByCondition).not.toHaveBeenCalled();
+    expect(evaluateIsNotEmptyCondition).toHaveBeenCalledTimes(1);
+    expect(evaluateIsNotEmptyCondition).toHaveBeenCalledWith(formData.age);
   });
 
   test('fails the evaluate of a section with multiple conditions if any condition fails', () => {
-    evaluateInputIsExactlyCondition.mockImplementation(() => false);
+    evaluateIsExactlyCondition.mockImplementation(() => false);
 
     sectionConditions = [
       {
@@ -205,11 +205,11 @@ describe('ReportManager - DetailsSection - SchemaForm - utils - evaluateSectionC
       },
       {
         field: 'age',
-        operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.HAS_INPUT,
+        operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_NOT_EMPTY,
       },
       {
         field: 'nationality',
-        operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.INPUT_IS_EXACTLY,
+        operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_EXACTLY,
         value: 'Mexican',
       },
     ];
@@ -217,13 +217,13 @@ describe('ReportManager - DetailsSection - SchemaForm - utils - evaluateSectionC
     expect(evaluateSectionConditions(sectionConditions, formData)).toBe(false);
     expect(evaluateContainsCondition).toHaveBeenCalledTimes(1);
     expect(evaluateContainsCondition).toHaveBeenCalledWith(formData.name, sectionConditions[0].value);
-    expect(evaluateDoesNotHaveInputCondition).not.toHaveBeenCalled();
-    expect(evaluateHasInputCondition).toHaveBeenCalledTimes(1);
-    expect(evaluateHasInputCondition).toHaveBeenCalledWith(formData.age);
-    expect(evaluateInputIsExactlyCondition).toHaveBeenCalledTimes(1);
-    expect(evaluateInputIsExactlyCondition).toHaveBeenCalledWith(formData.nationality, sectionConditions[2].value);
     expect(evaluateIsContainedByCondition).not.toHaveBeenCalled();
+    expect(evaluateIsEmptyCondition).not.toHaveBeenCalled();
+    expect(evaluateIsExactlyCondition).toHaveBeenCalledTimes(1);
+    expect(evaluateIsExactlyCondition).toHaveBeenCalledWith(formData.nationality, sectionConditions[2].value);
     expect(evaluateIsNotContainedByCondition).not.toHaveBeenCalled();
+    expect(evaluateIsNotEmptyCondition).toHaveBeenCalledTimes(1);
+    expect(evaluateIsNotEmptyCondition).toHaveBeenCalledWith(formData.age);
   });
 
   test('evaluates a section with an invalid operator', () => {
@@ -231,10 +231,10 @@ describe('ReportManager - DetailsSection - SchemaForm - utils - evaluateSectionC
 
     expect(evaluateSectionConditions(sectionConditions, formData)).toBe(false);
     expect(evaluateContainsCondition).not.toHaveBeenCalled();
-    expect(evaluateDoesNotHaveInputCondition).not.toHaveBeenCalled();
-    expect(evaluateHasInputCondition).not.toHaveBeenCalled();
-    expect(evaluateInputIsExactlyCondition).not.toHaveBeenCalled();
     expect(evaluateIsContainedByCondition).not.toHaveBeenCalled();
+    expect(evaluateIsEmptyCondition).not.toHaveBeenCalled();
+    expect(evaluateIsExactlyCondition).not.toHaveBeenCalled();
     expect(evaluateIsNotContainedByCondition).not.toHaveBeenCalled();
+    expect(evaluateIsNotEmptyCondition).not.toHaveBeenCalled();
   });
 });
