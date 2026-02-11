@@ -1,4 +1,4 @@
-const evaluateDoesNotHaveInputCondition = (fieldValue) => {
+const evaluateIsEmptyCondition = (fieldValue) => {
   if (fieldValue === undefined) {
     return true;
   }
@@ -22,4 +22,4 @@ const evaluateDoesNotHaveInputCondition = (fieldValue) => {
   return false;
 };
 
-export default evaluateDoesNotHaveInputCondition;
+export default evaluateIsEmptyCondition;

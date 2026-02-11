@@ -1,9 +1,9 @@
 import evaluateContainsCondition from './evaluateContainsCondition';
-import evaluateDoesNotHaveInputCondition from './evaluateDoesNotHaveInputCondition';
-import evaluateHasInputCondition from './evaluateHasInputCondition';
-import evaluateInputIsExactlyCondition from './evaluateInputIsExactlyCondition';
 import evaluateIsContainedByCondition from './evaluateIsContainedByCondition';
+import evaluateIsEmptyCondition from './evaluateIsEmptyCondition';
+import evaluateIsExactlyCondition from './evaluateIsExactlyCondition';
 import evaluateIsNotContainedByCondition from './evaluateIsNotContainedByCondition';
+import evaluateIsNotEmptyCondition from './evaluateIsNotEmptyCondition';
 import { FORM_ELEMENT_LOGIC_CONDITION_OPERATORS } from '../../../../../utils/v2-event-schemas/constants';
 
 const evaluateSectionConditions = (sectionConditions, formData) =>
@@ -14,20 +14,20 @@ const evaluateSectionConditions = (sectionConditions, formData) =>
     case FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.CONTAINS:
       return evaluateContainsCondition(conditionFieldValue, sectionCondition.value);
 
-    case FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.DOES_NOT_HAVE_INPUT:
-      return evaluateDoesNotHaveInputCondition(conditionFieldValue);
-
-    case FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.HAS_INPUT:
-      return evaluateHasInputCondition(conditionFieldValue);
-
-    case FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.INPUT_IS_EXACTLY:
-      return evaluateInputIsExactlyCondition(conditionFieldValue, sectionCondition.value);
-
     case FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_CONTAINED_BY:
       return evaluateIsContainedByCondition(conditionFieldValue, sectionCondition.value);
 
+    case FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_EMPTY:
+      return evaluateIsEmptyCondition(conditionFieldValue);
+
+    case FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_EXACTLY:
+      return evaluateIsExactlyCondition(conditionFieldValue, sectionCondition.value);
+
     case FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_NOT_CONTAINED_BY:
       return evaluateIsNotContainedByCondition(conditionFieldValue, sectionCondition.value);
+
+    case FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_NOT_EMPTY:
+      return evaluateIsNotEmptyCondition(conditionFieldValue);
 
     default:
       return false;
