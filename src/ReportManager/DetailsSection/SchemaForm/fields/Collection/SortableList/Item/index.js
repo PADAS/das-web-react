@@ -9,6 +9,7 @@ import { ReactComponent as GripDotsVerticalIcon } from '../../../../../../../com
 import { ReactComponent as PencilIcon } from '../../../../../../../common/images/icons/pencil.svg';
 import { ReactComponent as TrashCanIcon } from '../../../../../../../common/images/icons/trash-can.svg';
 
+import getDefaultFormData from '../../../../utils/getDefaultFormData';
 import { getItemTitle } from './utils';
 import { selectCoordinatesRepresentation } from '../../../../../../../selectors/location';
 
@@ -115,15 +116,9 @@ const Item = ({
   useEffect(() => {
     if (wasItemRecentlyAdded && !isDragOverlay) {
       // This is a new item and it's not a drag overlay. Set the item's default
-      // form data from the default values of the item's children.
+      // form data from the item's children.
       const collectionChildrenIds = [...collectionDetails.leftColumn, ...collectionDetails.rightColumn];
-      const defaultFormData = collectionChildrenIds.reduce((accumulator, collectionChildId) => {
-        if (formElements[collectionChildId].details.defaultInput) {
-          accumulator[collectionChildId] = formElements[collectionChildId].details.defaultInput;
-        }
-        return accumulator;
-      }, {});
-
+      const defaultFormData = getDefaultFormData(collectionChildrenIds, formElements);
       if (Object.keys(defaultFormData).length > 0) {
         onChange({ ...defaultFormData, ...formData }, errors);
       }

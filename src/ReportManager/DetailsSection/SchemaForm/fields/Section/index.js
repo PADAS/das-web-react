@@ -1,5 +1,7 @@
 import React, { memo, useEffect, useRef } from 'react';
 
+import getDefaultFormData from '../../utils/getDefaultFormData';
+
 import * as styles from './styles.module.scss';
 
 // Sections are just visual elements that are not present in the form data structure. Thus, fields contained by
@@ -28,15 +30,9 @@ const Section = ({
     const sectionBecameVisible = previousHiddenRef.current && !hidden;
     if (sectionBecameVisible) {
       // The section just became visible. Set the section's default form data
-      // from the default values of the section's children.
+      // from the section's children.
       const sectionChildrenIds = [...details.leftColumn, ...details.rightColumn];
-      const defaultFormData = sectionChildrenIds.reduce((accumulator, sectionChildId) => {
-        if (formElements[sectionChildId].details.defaultInput) {
-          accumulator[sectionChildId] = formElements[sectionChildId].details.defaultInput;
-        }
-        return accumulator;
-      }, {});
-
+      const defaultFormData = getDefaultFormData(sectionChildrenIds, formElements);
       if (Object.keys(defaultFormData).length > 0) {
         setDefaultFormData(defaultFormData);
       }
