@@ -17,7 +17,7 @@
     "@rjsf/validator-ajv6": "^5.24.13",
     "@svgr/webpack": "^8.1.0",
     "@turf/turf": "^7.2.0",
-    "ajv": "^8.17.1",
+    "ajv": "^8.18.0",
     "ajv-draft-04": "^1.0.0",
     "ajv-formats": "^3.0.1",
     "axios": "1.12.2",
