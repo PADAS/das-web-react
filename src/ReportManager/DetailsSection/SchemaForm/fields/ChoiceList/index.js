@@ -12,14 +12,7 @@ const INPUTS = {
   [CHOICE_LIST_ELEMENT_INPUT_TYPES.LIST]: List
 };
 
-const ChoiceList = ({
-  autofillDefaultInput: _autofillDefaultInput,
-  details,
-  error,
-  id,
-  onFieldChange,
-  value = '',
-}) => {
+const ChoiceList = ({ details, error, id, onFieldChange, value = '' }) => {
   const Input = INPUTS[details.inputType];
 
   const hasError = !!error;

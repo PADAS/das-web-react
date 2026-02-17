@@ -6,6 +6,7 @@ import transformSchemaToFormElements from '../../../utils/v2-event-schemas/trans
 import useMapLocationMarkers from './utils/useMapLocationMarkers';
 import useSchemaValidations from './utils/useSchemaValidations';
 
+import Boolean from './fields/Boolean';
 import Collection from './fields/Collection';
 import ChoiceList from './fields/ChoiceList';
 import DateTime from './fields/DateTime';
@@ -16,6 +17,7 @@ import Section from './fields/Section';
 import Text from './fields/Text';
 
 export const FIELDS = {
+  [FORM_ELEMENT_TYPES.BOOLEAN]: Boolean,
   [FORM_ELEMENT_TYPES.CHOICE_LIST]: ChoiceList,
   [FORM_ELEMENT_TYPES.DATE_TIME]: DateTime,
   [FORM_ELEMENT_TYPES.NUMERIC]: Numeric,
@@ -63,6 +65,7 @@ const SchemaForm = ({
   } = useMapLocationMarkers(eventId, eventLocation, onLocationMarkerClick, hideMapLocationMarkers);
 
   const [fieldErrors, setFieldErrors] = useState({});
+  const [shouldAutofillDefaultInputs, setShouldAutofillDefaultInputs] = useState(autofillDefaultInputs);
 
   const formElements = useMemo(() => transformSchemaToFormElements(schema), [schema]);
 
@@ -153,7 +156,6 @@ const SchemaForm = ({
     default:
       const Field = FIELDS[formElements[id].type];
       return <Field
-        autofillDefaultInput={autofillDefaultInputs && !value}
         details={formElements[id].details}
         error={error}
         id={id}
@@ -163,6 +165,33 @@ const SchemaForm = ({
       />;
     }
   };
+
+  useEffect(() => {
+    if (shouldAutofillDefaultInputs) {
+      // The "should autofill default inputs" flag is on, meaning that this is
+      // a new event and the initial form data hasn't been set. Set the initial
+      // form data from the default values of the fields in the visible
+      // sections.
+      const initialFormData = visibleSectionIds.reduce((accumulator, sectionId) => {
+        const sectionChildrenIds = [
+          ...formElements[sectionId].details.leftColumn,
+          ...formElements[sectionId].details.rightColumn,
+        ];
+        sectionChildrenIds.forEach((sectionChildId) => {
+          if (formElements[sectionChildId].details.defaultInput) {
+            accumulator[sectionChildId] = formElements[sectionChildId].details.defaultInput;
+          }
+        });
+        return accumulator;
+      }, {});
+
+      if (Object.keys(initialFormData).length > 0) {
+        onFormDataChange(initialFormData);
+      }
+
+      setShouldAutofillDefaultInputs(false);
+    }
+  }, [formElements, onFormDataChange, shouldAutofillDefaultInputs, visibleSectionIds]);
 
   useEffect(() => {
     // Update the location markers when there is a change in the form data.
@@ -196,12 +225,14 @@ const SchemaForm = ({
       fieldErrors={fieldErrors}
       focusLocationMarker={focusLocationMarker}
       formData={formData}
+      formElements={formElements}
       hidden={!visibleSectionIds.includes(sectionId)}
       id={sectionId}
       key={sectionId}
       onFieldChange={onSectionFieldChange}
       onFieldErrorsChange={(newFieldErrors) => setFieldErrors(newFieldErrors)}
       renderField={renderField}
+      setDefaultFormData={(defaultFormData) => onFormDataChange({ ...defaultFormData, ...formData })}
     />)}
 
     {renderSubmitButton()}

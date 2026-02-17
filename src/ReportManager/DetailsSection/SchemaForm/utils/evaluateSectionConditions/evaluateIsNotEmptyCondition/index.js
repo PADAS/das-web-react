@@ -1,4 +1,4 @@
-const evaluateHasInputCondition = (fieldValue) => {
+const evaluateIsNotEmptyCondition = (fieldValue) => {
   if (fieldValue === null) {
     return false;
   }
@@ -26,4 +26,4 @@ const evaluateHasInputCondition = (fieldValue) => {
   return false;
 };
 
-export default evaluateHasInputCondition;
+export default evaluateIsNotEmptyCondition;

@@ -56,12 +56,14 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         formElements={{
           'field-1': {
             details: {
+              defaultInput: 'Default Value 1',
               label: 'Field 1',
             },
             type: FORM_ELEMENT_TYPES.TEXT,
           },
           'field-2': {
             details: {
+              defaultInput: 'Default Value 2',
               label: 'Field 2',
             },
             type: FORM_ELEMENT_TYPES.TEXT,
@@ -78,10 +80,55 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         renderField={renderField}
         setIsFormModalOpen={setIsFormModalOpen}
         setIsFormPreviewOpen={setIsFormPreviewOpen}
+        wasItemRecentlyAdded={false}
         {...props}
       />
     </Provider>
   );
+
+  test('does not set the default form data for items that were not recently added', async () => {
+    renderItem({ formData: {} });
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  test('does not set the default form data for new items that are drag overlays', async () => {
+    renderItem({ formData: {}, wasItemRecentlyAdded: true, isDragOverlay: true });
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  test('does not set the default form data for items that do not have default values', async () => {
+    renderItem({
+      formData: {},
+      formElements: {
+        'field-1': {
+          details: {
+            defaultInput: '',
+            label: 'Field 1',
+          },
+          type: FORM_ELEMENT_TYPES.TEXT,
+        },
+        'field-2': {
+          details: {
+            defaultInput: '',
+            label: 'Field 2',
+          },
+          type: FORM_ELEMENT_TYPES.TEXT,
+        },
+      },
+      wasItemRecentlyAdded: true,
+    });
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  test('sets the default form data for items that were recently added and are not drag overlays', async () => {
+    renderItem({ formData: {}, wasItemRecentlyAdded: true });
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith({ 'field-1': 'Default Value 1', 'field-2': 'Default Value 2' }, undefined);
+  });
 
   test('shows the item with the form preview open', async () => {
     renderItem({ isFormPreviewOpen: true });

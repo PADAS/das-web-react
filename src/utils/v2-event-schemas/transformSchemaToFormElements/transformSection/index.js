@@ -1,7 +1,17 @@
-import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from '../../constants';
+import {
+  FORM_ELEMENT_LOGIC_CONDITION_OPERATORS,
+  FORM_ELEMENT_TYPES,
+  ROOT_CANVAS_ID,
+} from '../../constants';
 import transformField from '../transformField';
 import transformHeader from '../transformHeader';
 import UndefinedFormElementError from '../UndefinedFormElementError';
+
+const CONDITION_OPERATOR_MIGRATIONS = {
+  'DOES_NOT_HAVE_INPUT': FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_EMPTY,
+  'HAS_INPUT': FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_NOT_EMPTY,
+  'INPUT_IS_EXACTLY': FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_EXACTLY,
+};
 
 const SECTION_CHILD_TYPES = { FIELD: 'field', HEADER: 'header' };
 
@@ -44,7 +54,12 @@ const transformSection = (sectionId, jsonSchema, uiSchema, formElements) => {
   formElements[sectionId] = {
     details: {
       columns: sectionUISchema.columns ?? 1,
-      conditions: sectionUISchema.conditions ?? [],
+      // Some condition operators were renamed. Schemas with old operators are
+      // migrated here.
+      conditions: (sectionUISchema.conditions ?? []).map((condition) => ({
+        ...condition,
+        operator: CONDITION_OPERATOR_MIGRATIONS[condition.operator] ?? condition.operator,
+      })),
       label: sectionUISchema.label ?? '',
       leftColumn,
       rightColumn,

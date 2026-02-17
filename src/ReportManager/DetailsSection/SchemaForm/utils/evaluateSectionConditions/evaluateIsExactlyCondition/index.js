@@ -1,4 +1,4 @@
-const evaluateInputIsExactlyCondition = (fieldValue, conditionValue) => {
+const evaluateIsExactlyCondition = (fieldValue, conditionValue) => {
   const conditionValueArray = Array.isArray(conditionValue) ? conditionValue : [conditionValue];
 
   if (Array.isArray(fieldValue)) {
@@ -29,4 +29,4 @@ const evaluateInputIsExactlyCondition = (fieldValue, conditionValue) => {
   return false;
 };
 
-export default evaluateInputIsExactlyCondition;
+export default evaluateIsExactlyCondition;

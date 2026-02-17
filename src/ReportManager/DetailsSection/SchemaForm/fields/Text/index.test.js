@@ -23,7 +23,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
   });
 
   const renderTextField = (props) => render(<Text
-    autofillDefaultInput={false}
     details={details}
     error={undefined}
     id="text-1"
@@ -31,26 +30,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
     value={undefined}
     {...props}
   />);
-
-  test('sets the default value when mounting the input if the autofill default input flag is on', () => {
-    renderTextField({ autofillDefaultInput: true });
-
-    expect(onFieldChange).toHaveBeenCalledTimes(1);
-    expect(onFieldChange).toHaveBeenCalledWith('text-1', 'Text 1 Default Input');
-  });
-
-  test('does not change the input value automatically if there is no default input', () => {
-    details.defaultInput = '';
-    renderTextField({ autofillDefaultInput: true });
-
-    expect(onFieldChange).not.toHaveBeenCalled();
-  });
-
-  test('does not change the input value automatically if the autofill default input flag is off', () => {
-    renderTextField();
-
-    expect(onFieldChange).not.toHaveBeenCalled();
-  });
 
   test('shows a non required text field', () => {
     renderTextField();

@@ -68,13 +68,13 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
             {
               field: 'type',
               id: 'condition-1',
-              operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.HAS_INPUT,
+              operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_NOT_EMPTY,
               value: 'car-accident',
             },
             {
               field: 'victim-injuries',
               id: 'condition-2',
-              operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.INPUT_IS_EXACTLY,
+              operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_EXACTLY,
               value: 'yes',
             },
           ],
@@ -132,13 +132,13 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
             {
               field: 'type',
               id: 'condition-1',
-              operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.HAS_INPUT,
+              operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_NOT_EMPTY,
               value: 'car-accident',
             },
             {
               field: 'victim-injuries',
               id: 'condition-2',
-              operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.INPUT_IS_EXACTLY,
+              operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_EXACTLY,
               value: 'yes',
             },
           ],
@@ -184,13 +184,13 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
             {
               field: 'type',
               id: 'condition-1',
-              operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.HAS_INPUT,
+              operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_NOT_EMPTY,
               value: 'car-accident',
             },
             {
               field: 'victim-injuries',
               id: 'condition-2',
-              operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.INPUT_IS_EXACTLY,
+              operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_EXACTLY,
               value: 'yes',
             },
           ],
@@ -244,6 +244,59 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
     expect(transformField).toHaveBeenCalledWith(
       'number-of-people-involved',
       jsonSchema,
+      uiSchema,
+      formElements,
+    );
+    expect(transformHeader).toHaveBeenCalledTimes(1);
+    expect(transformHeader).toHaveBeenCalledWith(
+      'header-1',
+      uiSchema,
+      formElements,
+    );
+  });
+
+  it('transforms a section with deprecated condition operator names', () => {
+    uiSchema.sections[sectionId].conditions[0].operator = 'HAS_INPUT';
+    uiSchema.sections[sectionId].conditions[1].operator = 'INPUT_IS_EXACTLY';
+
+    transformSection(sectionId, jsonSchema, uiSchema, formElements);
+
+    expect(formElements).toEqual({
+      [sectionId]: {
+        details: {
+          columns: 2,
+          conditions: [
+            {
+              field: 'type',
+              id: 'condition-1',
+              operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_NOT_EMPTY,
+              value: 'car-accident',
+            },
+            {
+              field: 'victim-injuries',
+              id: 'condition-2',
+              operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_EXACTLY,
+              value: 'yes',
+            },
+          ],
+          label: 'Accident Details',
+          leftColumn: ['number-of-vehicles'],
+          rightColumn: ['header-1', 'number-of-people-involved'],
+        },
+        parentId: ROOT_CANVAS_ID,
+        type: FORM_ELEMENT_TYPES.SECTION,
+      },
+    });
+    expect(transformField).toHaveBeenCalledTimes(2);
+    expect(transformField).toHaveBeenCalledWith(
+      'number-of-vehicles',
+      jsonSchema.allOf[0].then,
+      uiSchema,
+      formElements,
+    );
+    expect(transformField).toHaveBeenCalledWith(
+      'number-of-people-involved',
+      jsonSchema.allOf[0].then,
       uiSchema,
       formElements,
     );
