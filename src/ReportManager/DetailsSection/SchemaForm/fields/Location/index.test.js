@@ -2,7 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen, within } from '../../../../../test-utils';
+import { render, screen } from '../../../../../test-utils';
 import { GPS_FORMATS } from '../../../../../utils/location';
 import { createMapMock } from '../../../../../__test-helpers/mocks';
 import { mockStore } from '../../../../../__test-helpers/MockStore';
