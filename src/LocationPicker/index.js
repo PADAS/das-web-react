@@ -58,7 +58,11 @@ const LocationPicker = ({
 
   return <>
     <div
-        className={`${styles.locationPicker} ${disabled ? styles.disabled : ''} ${inputProps['aria-invalid'] ? styles.error : ''} ${className}`}
+        className={styles.locationPicker
+          + (readOnly ? ` ${styles.readOnly}` : '')
+          + (disabled ? ` ${styles.disabled}` : '')
+          + (inputProps['aria-invalid'] ? ` ${styles.error}` : '')
+          + ` ${className}`}
         // Since our picker is a group of buttons, we handle the blur and focus from the wrapper but make sure to not
         // call the methods if we are just changing focus within the inner buttons.
         onBlur={(event) => !innerRef.current.contains(event.relatedTarget) && onBlur?.(event)}
@@ -73,8 +77,8 @@ const LocationPicker = ({
         aria-haspopup="dialog"
         aria-label={t(`setLocationButtonLabel.${isMenuPopoverOpen ? 'open' : 'closed'}`)}
         className={`${styles.setLocationButton} ${readOnly ? styles.readOnly : ''}`}
-        disabled={disabled || readOnly}
-        onClick={() => setIsMenuPopoverOpen(!isMenuPopoverOpen)}
+        disabled={disabled}
+        onClick={readOnly ? undefined : () => setIsMenuPopoverOpen(!isMenuPopoverOpen)}
         ref={setLocationButtonRef}
         title={t(`setLocationButtonLabel.${isMenuPopoverOpen ? 'open' : 'closed'}`)}
         type="button"

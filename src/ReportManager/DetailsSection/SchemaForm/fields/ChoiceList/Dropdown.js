@@ -21,7 +21,7 @@ const Option = ({ data, innerProps, isSelected, isMulti, ...restProps }) => <com
   </span>
 </components.Option>;
 
-const Dropdown = ({ details, disabled, id, invalid, onChange, value, ...otherProps }) => {
+const Dropdown = ({ details, disabled, id, invalid, onChange, readOnly, value, ...otherProps }) => {
   const { t } = useTranslation('components', { keyPrefix: 'choiceList' });
 
   const [isMenuOpen, setMenuOpen] = useState(false);
@@ -51,21 +51,28 @@ const Dropdown = ({ details, disabled, id, invalid, onChange, value, ...otherPro
     classNames={{
       clearIndicator: () => styles.clearIndicator,
       container: () => styles.container,
-      control: (state) => `${styles.control} ${ invalid ? styles.dropdownError : '' } ${ state.isFocused ? styles.controlFocused : '' }`,
-      dropdownIndicator: () => styles.cursorPointer,
-      indicatorsContainer: () => invalid && styles.caretError,
+      control: (state) => styles.control
+        + (invalid ? ` ${styles.dropdownError}` : '')
+        + (state.isFocused ? ` ${styles.controlFocused}` : '')
+        + (readOnly ? ` ${styles.readOnly}` : ''),
+      dropdownIndicator: readOnly ? undefined : () => styles.cursorPointer,
+      indicatorsContainer: () => styles.indicatorContainer
+        + (invalid ? ` ${styles.caretError}` : '')
+        + (readOnly ? ` ${styles.readOnly}` : ''),
       multiValue: () => styles.multiValue,
-      multiValueRemove: () => styles.multiValueRemove,
-      option: () => styles.cursorPointer,
+      multiValueRemove: () => `${styles.multiValueRemove} ${readOnly ? styles.readOnly : ''}`,
+      option: readOnly ? undefined : () => styles.cursorPointer,
       placeholder: () => invalid && styles.error,
     }}
     components={{ IndicatorSeparator, Option }}
     inputId={id}
-    isClearable
+    isClearable={!readOnly}
     isDisabled={disabled}
     isMulti={details.multiple}
+    isSearchable={!readOnly}
+    menuIsOpen={readOnly ? false : undefined}
     noOptionsMessage={() => t('select.noOptionsMessage')}
-    onChange={onSelectChange}
+    onChange={readOnly ? undefined : onSelectChange}
     onKeyDown={(event) => event.key === 'Escape' && isMenuOpen && event.stopPropagation()}
     onMenuClose={() => setMenuOpen(false)}
     onMenuOpen={() => setMenuOpen(true)}

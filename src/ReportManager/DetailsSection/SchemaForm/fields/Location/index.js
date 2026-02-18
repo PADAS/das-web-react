@@ -12,6 +12,7 @@ const Location = ({
   focusLocationMarker,
   id,
   onFieldChange,
+  readOnly,
   value = null,
 }) => {
   const hasError = !!error;
@@ -37,6 +38,7 @@ const Location = ({
       onBlur={() => blurLocationMarker()}
       onChange={(newLocation) => onFieldChange(id, newLocation || undefined)}
       onFocus={() => focusLocationMarker(id)}
+      readOnly={readOnly}
       value={value}
     />
 

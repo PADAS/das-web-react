@@ -15,22 +15,19 @@
   width: 7rem;
 
   &:focus-within:not(.disabled) {
-    border: 2px solid colors.$bright-blue;
+    border: 1px solid colors.$bright-blue;
+    outline: 1px solid colors.$bright-blue;
   }
 
   &[aria-invalid="true"] {
     border-color: colors.$bright-red;
 
-    svg {
-      > g {
-        stroke: colors.$bright-red;
-      }
+    svg > g {
+      stroke: colors.$bright-red;
     }
 
-    .optionsPopoverButton {
-      .caret {
-        border-top-color: colors.$bright-red;
-      }
+    .optionsPopoverButton .caret {
+      border-top-color: colors.$bright-red;
     }
 
     ::placeholder {
@@ -40,6 +37,10 @@
 
   &.twelveHourFormat {
     width: 8.5rem;
+  }
+
+  &.readOnly {
+    background-color: colors.$off-white;
   }
 
   &.disabled {

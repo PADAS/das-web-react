@@ -22,14 +22,16 @@
     }
 
     .textCopyButton {
-      button {
-        color: colors.$bright-red;
-      }
+      color: colors.$bright-red;
     }
 
     .jumpToLocationButton {
       color: colors.$bright-red;
     }
+  }
+
+  &.readOnly {
+    background-color: colors.$off-white;
   }
 
   &.disabled {
@@ -105,7 +107,7 @@
     width: 2rem;
 
     &:hover:not(:disabled) {
-      background-color: white;
+      background-color: transparent;
       color: colors.$bright-blue;
     }
   }

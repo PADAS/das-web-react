@@ -40,6 +40,7 @@ const SchemaForm = ({
   hideMapLocationMarkers,
   onFormDataChange,
   onFormSubmit,
+  readOnly,
   renderSubmitButton,
   schema,
 }) => {
@@ -138,6 +139,7 @@ const SchemaForm = ({
         id={id}
         key={id}
         onFieldChange={onChange}
+        readOnly={readOnly}
         renderField={renderField}
         value={value}
       />;
@@ -151,6 +153,7 @@ const SchemaForm = ({
         id={id}
         key={id}
         onFieldChange={onChange}
+        readOnly={readOnly}
         value={value}
       />;
 
@@ -162,6 +165,7 @@ const SchemaForm = ({
         id={id}
         key={id}
         onFieldChange={onChange}
+        readOnly={readOnly}
         value={value}
       />;
     }

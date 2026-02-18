@@ -84,7 +84,11 @@
     outline: none;
     width: 2.25rem;
 
-    &:hover {
+    &:disabled {
+      opacity: 0.66;
+    }
+
+    &:hover:not(:disabled) {
       background-color: color.adjust(colors.$high-priority-bg-hover, $lightness: -5%);
     }
 

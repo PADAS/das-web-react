@@ -39,10 +39,17 @@
 .multiValueRemove{
   background: rgba(0, 0, 0, 0.1);
   border-radius: 50% !important;
+  color: colors.$secondary-medium-gray;
   width: 1.2rem;
   height: 1.2rem;
   margin-top: 0.2rem;
   margin-right: 0.2rem;
+
+  &.readOnly:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    color: colors.$secondary-medium-gray;
+    cursor: default;
+  }
 }
 
 .dropdownError {
@@ -52,8 +59,12 @@
 .control {
   font-weight: normal;
 
-  &:hover{
+  &:hover:not(.readOnly){
     cursor: text;
+  }
+
+  &.readOnly {
+    background-color: colors.$off-white;
   }
 }
 
@@ -66,11 +77,24 @@
   color: colors.$bright-red !important;
 }
 
-.caretError {
+.indicatorContainer {
   > div {
-    > div {
-      border-top: 0.3rem solid colors.$bright-red !important;
+    border-radius: 0.25rem;
+    color: colors.$secondary-medium-gray;
+
+    &:hover {
+      background-color: colors.$semi-light-gray;
+      color: colors.$secondary-medium-gray;
     }
+  }
+
+  &.caretError > div {
+    color: colors.$bright-red;
+  }
+
+  &.readOnly > div:hover {
+    background-color: colors.$off-white;
+    color: colors.$secondary-medium-gray;
   }
 }
 
