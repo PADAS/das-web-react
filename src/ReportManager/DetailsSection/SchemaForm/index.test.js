@@ -351,6 +351,7 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
         hideMapLocationMarkers={false}
         onFormDataChange={onFormDataChange}
         onFormSubmit={onFormSubmit}
+        readOnly={false}
         renderSubmitButton={() => <button type="submit">Submit</button>}
         schema={schema}
         {...props}
@@ -393,6 +394,7 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
           hideMapLocationMarkers={false}
           onFormDataChange={onFormDataChange}
           onFormSubmit={onFormSubmit}
+          readOnly={false}
           renderSubmitButton={() => <button type="submit">Submit</button>}
           schema={schema}
         />
@@ -400,6 +402,22 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
     );
 
     expect(onFormDataChange).toHaveBeenCalledTimes(1);
+  });
+
+  test('does not show the form fields as read only', async () => {
+    renderSchemaForm();
+
+    expect(screen.getByRole('textbox', { name: 'Text Field *' })).not.toHaveAttribute('readonly');
+    expect(screen.getByRole('group')).not.toHaveClass('readOnly');
+    expect(screen.getByRole('button', { name: 'Add Item' })).toBeEnabled();
+  });
+
+  test('shows the form fields as read only', async () => {
+    renderSchemaForm({ readOnly: true });
+
+    expect(screen.getByRole('textbox', { name: 'Text Field *' })).toHaveAttribute('readonly');
+    expect(screen.getByRole('group')).toHaveClass('readOnly');
+    expect(screen.getByRole('button', { name: 'Add Item' })).toBeDisabled();
   });
 
   test('focuses a location field if its marker is clicked', () => {

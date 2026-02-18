@@ -17,7 +17,7 @@ const Switch = ({
       + ` ${className}`}
     data-testid="switch"
   >
-  <span className={styles.base} data-testid="switch-base">
+  <span className={styles.base}>
     <input
       aria-readonly={readOnly ? 'true' : undefined}
       checked={checked}

@@ -169,21 +169,29 @@ describe('AreaPicker', () => {
   test('does not set the area picker as read only', async () => {
     renderAreaPicker();
 
+    expect(screen.getByTestId('areaPicker')).not.toHaveClass('readOnly');
+
     const setAreaButton = screen.getByRole('button', { name: 'Open the area picker menu' });
 
-    expect(setAreaButton).not.toHaveClass('readOnly');
-    expect(setAreaButton).not.toBeDisabled();
-    expect(screen.getByRole('textbox', { name: 'Area' })).not.toHaveClass('readOnly');
+    expect(setAreaButton).toHaveAttribute('aria-expanded', 'false');
+
+    await userEvent.click(setAreaButton);
+
+    expect(setAreaButton).toHaveAttribute('aria-expanded', 'true');
   });
 
   test('sets the area picker as read only', async () => {
     renderAreaPicker({ readOnly: true });
 
+    expect(screen.getByTestId('areaPicker')).toHaveClass('readOnly');
+
     const setAreaButton = screen.getByRole('button', { name: 'Open the area picker menu' });
 
-    expect(setAreaButton).toHaveClass('readOnly');
-    expect(setAreaButton).toBeDisabled();
-    expect(screen.getByRole('textbox', { name: 'Area' })).toHaveClass('readOnly');
+    expect(setAreaButton).toHaveAttribute('aria-expanded', 'false');
+
+    await userEvent.click(setAreaButton);
+
+    expect(setAreaButton).toHaveAttribute('aria-expanded', 'false');
   });
 
   test('does not set the area picker as required', async () => {

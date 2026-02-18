@@ -76,7 +76,7 @@ const LocationPicker = ({
         aria-expanded={isMenuPopoverOpen}
         aria-haspopup="dialog"
         aria-label={t(`setLocationButtonLabel.${isMenuPopoverOpen ? 'open' : 'closed'}`)}
-        className={`${styles.setLocationButton} ${readOnly ? styles.readOnly : ''}`}
+        className={styles.setLocationButton}
         disabled={disabled}
         onClick={readOnly ? undefined : () => setIsMenuPopoverOpen(!isMenuPopoverOpen)}
         ref={setLocationButtonRef}
@@ -86,7 +86,7 @@ const LocationPicker = ({
         <input
           aria-describedby={`${inputDescriptionId} ${valueOutsideBboxTooltipId}`}
           aria-label={t('inputLabel')}
-          className={`${styles.input} ${readOnly ? styles.readOnly : ''}`}
+          className={styles.input}
           disabled={disabled}
           id={id}
           onFocus={() => setLocationButtonRef.current.focus()}

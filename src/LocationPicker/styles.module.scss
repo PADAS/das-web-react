@@ -32,6 +32,18 @@
 
   &.readOnly {
     background-color: colors.$off-white;
+
+    .setLocationButton {
+      cursor: default;
+
+      &:hover:not(:disabled) {
+        background-color: unset;
+      }
+
+      .input {
+        cursor: default;
+      }
+    }
   }
 
   &.disabled {
@@ -50,12 +62,12 @@
     outline: none;
     padding: 0 0.5rem;
 
-    &:disabled:not(.readOnly) {
-      background-color: colors.$disabled-field-gray;
-    }
-
     &:focus:not(:disabled) {
       outline: 2px solid colors.$bright-blue;
+    }
+
+    &:hover:not(:disabled) {
+      background-color: colors.$very-light-blue;
     }
 
     .input {
@@ -75,10 +87,6 @@
         &::placeholder {
           color: unset;
         }
-      }
-
-      &.readOnly {
-        cursor: default;
       }
     }
 

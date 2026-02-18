@@ -2,7 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen } from '../../../../../test-utils';
+import { render, screen, within } from '../../../../../test-utils';
 import { GPS_FORMATS } from '../../../../../utils/location';
 import { createMapMock } from '../../../../../__test-helpers/mocks';
 import { mockStore } from '../../../../../__test-helpers/MockStore';
@@ -61,6 +61,18 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Location', () =
       </MapContext.Provider>
     </Provider>
   );
+
+  test('shows a non read only location field', () => {
+    renderLocationField();
+
+    expect(screen.getByRole('group')).not.toHaveClass('readOnly');
+  });
+
+  test('shows a read only location field', () => {
+    renderLocationField({ readOnly: true });
+
+    expect(screen.getByRole('group')).toHaveClass('readOnly');
+  });
 
   test('shows a non required location field', () => {
     renderLocationField();
