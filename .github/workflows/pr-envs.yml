@@ -104,7 +104,6 @@ jobs:
           tags: |
             type=raw,value=${{ needs.prepare.outputs.image-tag }}
             type=raw,value=pr-${{ needs.prepare.outputs.image-tag }}
-            type=sha,prefix={{branch}}-
 
       - name: Build and push
         uses: docker/build-push-action@v6
