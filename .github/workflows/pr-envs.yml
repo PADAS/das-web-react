@@ -98,12 +98,13 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: |
-            europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react
+          images: >
+            europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react,
             europe-west3-docker.pkg.dev/padas-app/er-mt/das-web-react
           tags: |
             type=raw,value=${{ needs.prepare.outputs.image-tag }}
             type=raw,value=pr-${{ needs.prepare.outputs.image-tag }}
+            type=sha,prefix={{branch}}-
 
       - name: Build and push
         uses: docker/build-push-action@v6
