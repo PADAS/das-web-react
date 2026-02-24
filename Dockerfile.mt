@@ -1,4 +1,4 @@
-FROM europe-west3-docker.pkg.dev/serca-artifact-registry/virtual-docker/node:22-alpine AS build
+FROM europe-west3-docker.pkg.dev/serca-artifact-registry/virtual-docker/node:24-alpine AS build
 ARG ENV_FILE=.env.production
 ARG REACT_APP_GA4_TRACKING_ID
 ENV REACT_APP_GA4_TRACKING_ID=$REACT_APP_GA4_TRACKING_ID
