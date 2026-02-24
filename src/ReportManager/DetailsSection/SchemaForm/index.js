@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import evaluateSectionConditions from './utils/evaluateSectionConditions';
 import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from '../../../utils/v2-event-schemas/constants';
+import getDefaultFormData from './utils/getDefaultFormData';
 import transformSchemaToFormElements from '../../../utils/v2-event-schemas/transformSchemaToFormElements';
 import useMapLocationMarkers from './utils/useMapLocationMarkers';
 import useSchemaValidations from './utils/useSchemaValidations';
@@ -170,23 +171,14 @@ const SchemaForm = ({
     if (shouldAutofillDefaultInputs) {
       // The "should autofill default inputs" flag is on, meaning that this is
       // a new event and the initial form data hasn't been set. Set the initial
-      // form data from the default values of the fields in the visible
-      // sections.
-      const initialFormData = visibleSectionIds.reduce((accumulator, sectionId) => {
-        const sectionChildrenIds = [
-          ...formElements[sectionId].details.leftColumn,
-          ...formElements[sectionId].details.rightColumn,
-        ];
-        sectionChildrenIds.forEach((sectionChildId) => {
-          if (formElements[sectionChildId].details.defaultInput) {
-            accumulator[sectionChildId] = formElements[sectionChildId].details.defaultInput;
-          }
-        });
-        return accumulator;
-      }, {});
-
-      if (Object.keys(initialFormData).length > 0) {
-        onFormDataChange(initialFormData);
+      // form data from the visible fields.
+      const visibleFieldIds = visibleSectionIds.flatMap((sectionId) => [
+        ...formElements[sectionId].details.leftColumn,
+        ...formElements[sectionId].details.rightColumn,
+      ]);
+      const defaultFormData = getDefaultFormData(visibleFieldIds, formElements);
+      if (Object.keys(defaultFormData).length > 0) {
+        onFormDataChange(defaultFormData);
       }
 
       setShouldAutofillDefaultInputs(false);
