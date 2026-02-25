@@ -7,7 +7,7 @@ import { MAP_LAYERS_CATEGORY, trackEventFactory } from '../utils/analytics';
 import { MapContext } from '../App';
 import { selectSubjectTracksWithPatrolTrackShownFlag } from '../selectors/patrols';
 
-import Arrow from '../common/images/icons/track-arrow.svg';
+import Arrow from '../common/images/icons/track-arrow.svg?url';
 import TrackLayer from './track';
 
 const ARROW_IMG_ID = 'track_arrow';

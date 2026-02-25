@@ -9,7 +9,7 @@ import { MapContext } from '../App';
 import { useMapEventBinding } from '../hooks';
 import useMapSources from '../hooks/useMapSources';
 
-import GpsLocationIcon from '../common/images/icons/gps-location-icon-blue.svg';
+import GpsLocationIcon from '../common/images/icons/gps-location-icon-blue.svg?url';
 import useMapLayers from '../hooks/useMapLayers';
 
 const { CURRENT_USER_LOCATION_SOURCE } = SOURCE_IDS;

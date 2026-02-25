@@ -3,8 +3,8 @@ import axios from 'axios';
 import { API_URL, API_V2_URL } from '../../constants';
 import globallyResettableReducer from '../../reducers/global-resettable';
 
-const USE_EVENT_TYPES_V2_MOCK_API = process.env.REACT_APP_MOCK_EVENTTYPES_V2_API === 'true'
-  && process.env.NODE_ENV === 'development';
+const USE_EVENT_TYPES_V2_MOCK_API = import.meta.env.REACT_APP_MOCK_EVENTTYPES_V2_API === 'true'
+  && import.meta.env.DEV;
 
 export const EVENT_TYPES_API_URL = `${API_URL}activity/events/eventtypes`;
 export const EVENT_TYPES_V2_API_URL =

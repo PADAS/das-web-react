@@ -18,7 +18,7 @@ const Boolean = ({ details, error, id, onFieldChange, value = false }) => {
       aria-invalid={hasError}
       aria-required={details.isRequired}
       checked={value}
-      className={styles.switch}
+      className={styles.switchField}
       id={id}
       onChange={(event) => onFieldChange(id, event.target.checked)}
     />

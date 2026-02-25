@@ -4,6 +4,11 @@ import ReactGA4 from 'react-ga4';
 
 import MockSocketContext, { SocketContext } from './__test-helpers/MockSocketContext';
 
+// Default env for Jest (Babel transforms import.meta.env to process.env in tests)
+if (typeof process !== 'undefined' && process.env) {
+  process.env.REACT_APP_ROUTE_PREFIX = process.env.REACT_APP_ROUTE_PREFIX ?? '/';
+}
+
 ReactGA4.initialize('dummy', { testMode: true });
 
 Object.defineProperty(window, 'matchMedia', {
