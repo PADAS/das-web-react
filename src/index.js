@@ -7,18 +7,6 @@ import { Provider, useDispatch, useSelector } from 'react-redux';
 import ReactGA4 from 'react-ga4';
 import { useTranslation } from 'react-i18next';
 
-// OneTrust Cookies Consent (production only)
-if (import.meta.env.PROD) {
-  const otScript = document.createElement('script');
-  otScript.src = 'https://cdn.cookielaw.org/scripttemplates/otSDKStub.js';
-  otScript.setAttribute('data-document-language', 'true');
-  otScript.setAttribute('type', 'text/javascript');
-  otScript.setAttribute('charset', 'UTF-8');
-  otScript.setAttribute('data-domain-script', '3593d516-42e1-432a-89b5-ecb82c267279');
-  document.body.appendChild(otScript);
-  window.OptanonWrapper = function OptanonWrapper() {};
-}
-
 import 'bootstrap/dist/css/bootstrap.css';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -45,6 +33,18 @@ import RequireAccessToken from './RequireAccessToken';
 import RequireEulaConfirmation from './RequireEulaConfirmation';
 import useWebVitals from './hooks/useWebVitals';
 
+// OneTrust Cookies Consent (production only)
+if (import.meta.env.PROD) {
+  const otScript = document.createElement('script');
+  otScript.src = 'https://cdn.cookielaw.org/scripttemplates/otSDKStub.js';
+  otScript.setAttribute('data-document-language', 'true');
+  otScript.setAttribute('type', 'text/javascript');
+  otScript.setAttribute('charset', 'UTF-8');
+  otScript.setAttribute('data-domain-script', '3593d516-42e1-432a-89b5-ecb82c267279');
+  document.body.appendChild(otScript);
+  window.OptanonWrapper = function OptanonWrapper() {};
+}
+
 const App = lazy(() => import('./App'));
 const EulaPage = lazy(() => import('./views/EULA'));
 const Login = lazy(() => import('./Login'));
@@ -52,6 +52,9 @@ const Login = lazy(() => import('./Login'));
 const AppWithTracker = withTracker(App, 'EarthRanger');
 const EulaPageWithTracker = withTracker(EulaPage, 'EULA');
 const LoginWithTracker = withTracker(Login, 'Login');
+
+console.log('import.meta.env', import.meta.env);
+console.log('REACT_APP_GA4_TRACKING_ID', REACT_APP_GA4_TRACKING_ID);
 
 ReactGA4.initialize(REACT_APP_GA4_TRACKING_ID, {
   gaOptions: { debug_mode: import.meta.env.DEV },
