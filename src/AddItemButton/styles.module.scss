@@ -1,7 +1,7 @@
 @import '../common/styles/buttons';
 @import '../common/styles/layout';
 
-.addItemButton-primary {
+.addItemButtonPrimary {
   @include addButton;
 
   svg {
@@ -20,6 +20,6 @@
   }
 }
 
-.addItemButton-secondary {
+.addItemButtonSecondary {
   @include addButton;
 }

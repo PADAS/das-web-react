@@ -80,7 +80,7 @@ const AddItemButton = ({
 
     <button
       aria-label={t('defaultLabel')}
-      className={`${styles[`addItemButton${variant.charAt(0).toUpperCase() + variant.slice(1)}`] ?? ''} ${className}`.trim()}
+      className={`${styles[`addItemButton${variant.charAt(0).toUpperCase() + variant.slice(1)}`]} ${className}`}
       data-testid="addItemButton"
       onClick={onClick}
       title={title || t('defaultTitle')}
