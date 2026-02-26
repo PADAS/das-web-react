@@ -7014,6 +7014,7 @@ __metadata:
     bootstrap: "npm:5.3.8"
     buffer: "npm:^6.0.3"
     date-fns: "npm:^4.1.0"
+    dotenv: "npm:^17.3.1"
     epsg-index: "npm:^2.0.0"
     eslint: "npm:^9.39.3"
     eslint-config-airbnb: "npm:^19.0.4"
@@ -7279,6 +7280,13 @@ __metadata:
     no-case: "npm:^3.0.4"
     tslib: "npm:^2.0.3"
   checksum: 10c0/5b859ea65097a7ea870e2c91b5768b72ddf7fa947223fd29e167bcdff58fe731d941c48e47a38ec8aa8e43044c8fbd15cd8fa21689a526bc34b6548197cd5b05
+  languageName: node
+  linkType: hard
+
+"dotenv@npm:^17.3.1":
+  version: 17.3.1
+  resolution: "dotenv@npm:17.3.1"
+  checksum: 10c0/c78e0c2d5a549c751e544cc60e2b95e7cb67e0c551f42e094d161c6b297aa44b630a3c2dcacf5569e529a6c2a6b84e2ab9be8d37b299d425df5a18b81ce4a35f
   languageName: node
   linkType: hard
 
