@@ -12,7 +12,7 @@ const INPUTS = {
   [CHOICE_LIST_ELEMENT_INPUT_TYPES.LIST]: List
 };
 
-const ChoiceList = ({ details, error, id, onFieldChange, value = '' }) => {
+const ChoiceList = ({ details, error, id, onFieldChange, readOnly, value = '' }) => {
   const Input = INPUTS[details.inputType];
 
   const hasError = !!error;
@@ -37,6 +37,7 @@ const ChoiceList = ({ details, error, id, onFieldChange, value = '' }) => {
       invalid={hasError}
       label={label}
       onChange={(newValue) => onFieldChange(id, newValue)}
+      readOnly={readOnly}
       value={value}
     />
 

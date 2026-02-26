@@ -730,7 +730,7 @@ const ReportDetailView = ({
     <NavigationPromptModal onContinue={onNavigationContinue} when={shouldShowNavigationPrompt} />
 
     <Header
-      isReadOnly={eventSchema?.schema?.readonly}
+      isReadOnly={eventType?.readonly}
       onChangeTitle={onChangeTitle}
       onSaveReport={onSaveReport}
       printableContentRef={printableContentRef}

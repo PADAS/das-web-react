@@ -4,7 +4,7 @@ import Switch from '../../../../../Switch';
 
 import * as styles from './styles.module.scss';
 
-const Boolean = ({ details, error, id, onFieldChange, value = false }) => {
+const Boolean = ({ details, error, id, onFieldChange, readOnly, value = false }) => {
   const hasError = !!error;
   const hasDescription = !!details.description && !hasError;
   const label = details.isRequired ? `${details.label} *` : details.label;
@@ -20,7 +20,8 @@ const Boolean = ({ details, error, id, onFieldChange, value = false }) => {
       checked={value}
       className={styles.switch}
       id={id}
-      onChange={(event) => onFieldChange(id, event.target.checked)}
+      onChange={(checked) => onFieldChange(id, checked)}
+      readOnly={readOnly}
     />
 
     {(hasDescription || hasError) && <p

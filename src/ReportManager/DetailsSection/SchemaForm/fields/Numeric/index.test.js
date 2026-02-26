@@ -31,6 +31,18 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Numeric', () =>
         {...props}
     />);
 
+  test('shows a non read only numeric field', () => {
+    renderNumericField();
+
+    expect(screen.getByRole('textbox')).not.toHaveAttribute('readonly');
+  });
+
+  test('shows a read only numeric field', () => {
+    renderNumericField({ readOnly: true });
+
+    expect(screen.getByRole('textbox')).toHaveAttribute('readonly');
+  });
+
   test('shows a non required numeric field', () => {
     renderNumericField();
 

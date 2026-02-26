@@ -26,7 +26,6 @@ const NumericInput = ({
   disabled = false,
   id,
   inputProps= {},
-  inputClassName = '',
   max = '',
   min = '',
   onChange,
@@ -39,6 +38,8 @@ const NumericInput = ({
   value = '',
   ...otherProps
 }) => {
+  const { t } = useTranslation('components', { keyPrefix: 'numericInput' });
+
   const [numberConfig, setNumberConfig] = useState({
     amountOfZeros: 0,
     amountOfZerosAfterLastPositiveNumber: 0,
@@ -48,59 +49,44 @@ const NumericInput = ({
     isPlainDecimal: false
   });
 
-  const { t } = useTranslation('components', { keyPrefix: 'numericInput' });
+  const stringifiedNumber = parseAndLocalizeNumber(value, numberConfig);
 
-  let stringifiedNumber = parseAndLocalizeNumber(value, numberConfig);
-
-  const handleOnValueChange = (newValue) => {
-    onChange(
-      isNumber(newValue)
-        ? parseStringValueToNumber(newValue)
-        : null
-    );
-  };
+  const handleOnValueChange = (newValue) => onChange(isNumber(newValue) ? parseStringValueToNumber(newValue) : null);
 
   const handleOnKeyDown = (event) => {
     switch (event.key){
     case 'ArrowUp':
       event.preventDefault();
-      handleOnValueChange( incrementValue(stringifiedNumber, min, max) );
+      handleOnValueChange(incrementValue(stringifiedNumber, min, max));
       break;
+
     case 'ArrowDown':
       event.preventDefault();
-      handleOnValueChange( decrementValue(stringifiedNumber, min) );
+      handleOnValueChange(decrementValue(stringifiedNumber, min));
       break;
+
     default:
       break;
     }
   };
 
   const handleOnBlur = () => {
-    if (numberConfig.decimalSymbol && stringifiedNumber.endsWith(numberConfig.decimalSymbol)){
+    if (numberConfig.decimalSymbol && stringifiedNumber.endsWith(numberConfig.decimalSymbol)) {
       handleOnValueChange(stringifiedNumber.slice(0, -1));
-      setNumberConfig({
-        ...numberConfig,
-        decimalSymbol: null
-      });
+      setNumberConfig({ ...numberConfig, decimalSymbol: null });
     }
   };
 
   const handleOnChange = ({ currentTarget: { value: eventValue } }) => {
-    const validInput = sanitizeNegativeSymbols(
-      sanitizeDecimalSymbols(
-        eraseNonNumericValidChars(eventValue)
-      )
-    );
+    const validInput = sanitizeNegativeSymbols(sanitizeDecimalSymbols(eraseNonNumericValidChars(eventValue)));
 
-    if ( blockOutOfRangeValues && ( max && parseFloat(validInput) > max ) ) {
+    if (blockOutOfRangeValues && max && parseFloat(validInput) > max) {
       return;
     }
 
     const decimalDigits = getFloatDigits(validInput) ?? '';
     const decimalsArray = decimalDigits.split('');
-    const areAllZeros = decimalsArray.length > 0 && decimalsArray.every((decimal) => {
-      return decimal === '0';
-    });
+    const areAllZeros = decimalsArray.length > 0 && decimalsArray.every((decimal) => decimal === '0');
     const endsWithZero = decimalDigits.endsWith('0');
 
     setNumberConfig({
@@ -115,49 +101,58 @@ const NumericInput = ({
     handleOnValueChange(validInput);
   };
 
-
   return <div
-      className={`${styles.numericInput} ${className}`}
+      className={styles.numericInput
+        + (readOnly ? ` ${styles.readOnly}` : '')
+        + (disabled ? ` ${styles.disabled}` : '')
+        + (inputProps['aria-invalid'] ? ` ${styles.error}` : '')
+        + ` ${className}`}
       data-testid="numericInput"
       role="group"
       {...otherProps}
     >
-    <input id={id}
-           className={inputClassName}
-           type="text"
-           inputMode="numeric"
-           onKeyDown={handleOnKeyDown}
-           onChange={handleOnChange}
-           onBlur={handleOnBlur}
-           value={stringifiedNumber}
-           disabled={disabled}
-           readOnly={readOnly}
-           placeholder={placeholder}
-           required={required}
-           aria-label={t('numericInputLabel')}
-           {...inputProps}
-           ref={ref}
-           title={title} />
-    {
-      !readOnly && (
-      <div className={styles.controls}>
-        <button disabled={disabled}
-                onClick={() => handleOnValueChange( incrementValue(stringifiedNumber, min, max) )}
-                type='button'
-                aria-label={t('incrementValueNumericInputButtonLabel')}
-                aria-controls={id}>
-          <ArrowUpSimpleIcon />
-        </button>
-        <button disabled={disabled}
-                onClick={() => handleOnValueChange( decrementValue(stringifiedNumber, min) )}
-                type='button'
-                aria-label={t('decrementValueNumericInputButtonLabel')}
-                aria-controls={id}>
-          <ArrowDownSimpleIcon />
-        </button>
-      </div>
-        )
-    }
+    <input
+      aria-label={t('numericInputLabel')}
+      className={styles.input}
+      disabled={disabled}
+      id={id}
+      inputMode="numeric"
+      onBlur={readOnly ? undefined : handleOnBlur}
+      onChange={(event) => handleOnChange(event)}
+      onKeyDown={readOnly ? undefined : handleOnKeyDown}
+      placeholder={placeholder}
+      readOnly={readOnly}
+      required={required}
+      title={title}
+      type="text"
+      value={stringifiedNumber}
+      {...inputProps}
+      ref={ref}
+    />
+
+    <div className={styles.controls}>
+      <button
+        aria-controls={id}
+        aria-label={t('incrementValueNumericInputButtonLabel')}
+        disabled={disabled || readOnly}
+        onClick={() => handleOnValueChange(incrementValue(stringifiedNumber, min, max))}
+        tabIndex={-1}
+        type="button"
+      >
+        <ArrowUpSimpleIcon />
+      </button>
+
+      <button
+        aria-controls={id}
+        aria-label={t('decrementValueNumericInputButtonLabel')}
+        disabled={disabled || readOnly}
+        onClick={() => handleOnValueChange(decrementValue(stringifiedNumber, min))}
+        tabIndex={-1}
+        type="button"
+      >
+        <ArrowDownSimpleIcon />
+      </button>
+    </div>
   </div>;
 };
 

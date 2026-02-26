@@ -154,17 +154,29 @@ describe('LocationPicker', () => {
   test('does not set the location picker as read only', async () => {
     renderLocationPicker();
 
-    expect(screen.getByLabelText('Open the location picker menu to set a value')).not.toHaveClass('readOnly');
-    expect(screen.getByLabelText('Open the location picker menu to set a value')).not.toBeDisabled();
-    expect(screen.getByLabelText('Location')).not.toHaveClass('readOnly');
+    expect(screen.getByTestId('locationPicker')).not.toHaveClass('readOnly');
+
+    const setLocationButton = screen.getByLabelText('Open the location picker menu to set a value');
+
+    expect(setLocationButton).toHaveAttribute('aria-expanded', 'false');
+
+    await userEvent.click(setLocationButton);
+
+    expect(setLocationButton).toHaveAttribute('aria-expanded', 'true');
   });
 
   test('sets the location picker as read only', async () => {
     renderLocationPicker({ readOnly: true });
 
-    expect(screen.getByLabelText('Open the location picker menu to set a value')).toHaveClass('readOnly');
-    expect(screen.getByLabelText('Open the location picker menu to set a value')).toBeDisabled();
-    expect(screen.getByLabelText('Location')).toHaveClass('readOnly');
+    expect(screen.getByTestId('locationPicker')).toHaveClass('readOnly');
+
+    const setLocationButton = screen.getByLabelText('Open the location picker menu to set a value');
+
+    expect(setLocationButton).toHaveAttribute('aria-expanded', 'false');
+
+    await userEvent.click(setLocationButton);
+
+    expect(setLocationButton).toHaveAttribute('aria-expanded', 'false');
   });
 
   test('does not set the location picker as required', async () => {

@@ -28,6 +28,18 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Boolean', () =>
     {...props}
   />);
 
+  test('shows a non read only boolean field', () => {
+    renderBooleanField();
+
+    expect(screen.getByRole('switch', { name: 'Boolean 1 Label' })).not.toHaveAttribute('readonly');
+  });
+
+  test('shows a read only boolean field', () => {
+    renderBooleanField({ readOnly: true });
+
+    expect(screen.getByRole('switch', { name: 'Boolean 1 Label' })).toHaveAttribute('readonly');
+  });
+
   test('shows a non required boolean field', () => {
     renderBooleanField();
 

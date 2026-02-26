@@ -62,6 +62,18 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Location', () =
     </Provider>
   );
 
+  test('shows a non read only location field', () => {
+    renderLocationField();
+
+    expect(screen.getByRole('group')).not.toHaveClass('readOnly');
+  });
+
+  test('shows a read only location field', () => {
+    renderLocationField({ readOnly: true });
+
+    expect(screen.getByRole('group')).toHaveClass('readOnly');
+  });
+
   test('shows a non required location field', () => {
     renderLocationField();
 

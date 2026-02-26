@@ -78,6 +78,18 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
     </Provider>
   );
 
+  test('shows a non read only collection field', () => {
+    renderCollectionField();
+
+    expect(screen.getByRole('button', { name: 'Add Item' })).not.toBeDisabled();
+  });
+
+  test('shows a read only collection field', () => {
+    renderCollectionField({ readOnly: true });
+
+    expect(screen.getByRole('button', { name: 'Add Item' })).toBeDisabled();
+  });
+
   test('shows a valid collection when there are no errors', async () => {
     renderCollectionField();
 

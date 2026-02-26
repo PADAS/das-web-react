@@ -22,8 +22,22 @@
     }
 
     .textCopyButton {
-      button {
-        color: colors.$bright-red;
+      color: colors.$bright-red;
+    }
+  }
+
+  &.readOnly {
+    background-color: colors.$off-white;
+
+    .setAreaButton {
+      cursor: default;
+
+      &:hover:not(:disabled) {
+        background-color: unset;
+      }
+
+      .input {
+        cursor: default;
       }
     }
   }
@@ -44,12 +58,12 @@
     outline: none;
     padding: 0 0.5rem;
 
-    &:disabled:not(.readOnly) {
-      background-color: colors.$disabled-field-gray;
-    }
-
     &:focus:not(:disabled) {
       outline: 2px solid colors.$bright-blue;
+    }
+
+    &:hover:not(:disabled) {
+      background-color: colors.$very-light-blue;
     }
 
     .icon {
@@ -77,10 +91,6 @@
           color: unset;
         }
       }
-
-      &.readOnly {
-        cursor: default;
-      }
     }
   }
 
@@ -90,7 +100,7 @@
     width: 2rem;
 
     &:hover:not(:disabled) {
-      background-color: white;
+      background-color: transparent;
       color: colors.$bright-blue;
     }
   }

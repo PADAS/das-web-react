@@ -25,16 +25,12 @@
     .timePicker {
       border-color: colors.$bright-red;
   
-      svg {
-        > g {
-          stroke: colors.$bright-red;
-        }
+      svg > g {
+        stroke: colors.$bright-red;
       }
   
-      .menuButton {
-        .caret {
-          border-top-color: colors.$bright-red;
-        }
+      button div[role="img"] {
+        border-top-color: colors.$bright-red;
       }
   
       ::placeholder {

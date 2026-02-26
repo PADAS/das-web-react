@@ -15,7 +15,8 @@
   width: 10rem;
 
   &:focus-within:not(.disabled) {
-    border: 2px solid colors.$bright-blue;
+    border: 1px solid colors.$bright-blue;
+    outline: 1px solid colors.$bright-blue;
   }
 
   &[aria-invalid="true"] {
@@ -32,6 +33,10 @@
     ::placeholder {
       color: color.adjust(colors.$bright-red, $lightness: 33%);
     }
+  }
+
+  &.readOnly {
+    background-color: colors.$off-white;
   }
 
   &.disabled {
