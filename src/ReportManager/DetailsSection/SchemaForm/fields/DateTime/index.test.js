@@ -31,6 +31,28 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - DateTime', () =
     {...props}
   />);
 
+  test('shows a non read only date time field', () => {
+    renderDateTimeField();
+
+    expect(screen.getByRole('textbox', { name: 'Year' })).not.toHaveAttribute('readonly');
+    expect(screen.getByRole('textbox', { name: 'Month' })).not.toHaveAttribute('readonly');
+    expect(screen.getByRole('textbox', { name: 'Day' })).not.toHaveAttribute('readonly');
+    expect(screen.getByRole('textbox', { name: 'Hour' })).not.toHaveAttribute('readonly');
+    expect(screen.getByRole('textbox', { name: 'Minute' })).not.toHaveAttribute('readonly');
+    expect(screen.getByRole('textbox', { name: 'Time period' })).not.toHaveAttribute('readonly');
+  });
+
+  test('shows a read only date time field', () => {
+    renderDateTimeField({ readOnly: true });
+
+    expect(screen.getByRole('textbox', { name: 'Year' })).toHaveAttribute('readonly');
+    expect(screen.getByRole('textbox', { name: 'Month' })).toHaveAttribute('readonly');
+    expect(screen.getByRole('textbox', { name: 'Day' })).toHaveAttribute('readonly');
+    expect(screen.getByRole('textbox', { name: 'Hour' })).toHaveAttribute('readonly');
+    expect(screen.getByRole('textbox', { name: 'Minute' })).toHaveAttribute('readonly');
+    expect(screen.getByRole('textbox', { name: 'Time period' })).toHaveAttribute('readonly');
+  });
+
   test('shows a non required date time field', () => {
     renderDateTimeField();
 

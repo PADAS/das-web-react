@@ -20,6 +20,7 @@ const Collection = ({
   formElements,
   id,
   onFieldChange,
+  readOnly,
   renderField,
   value = [],
 }) => {
@@ -35,9 +36,10 @@ const Collection = ({
     wasItemRecentlyAdded: false,
   })));
 
+  const doesChildrenHaveErrors = !!error && Object.keys(error).some((errorKey) => errorKey !== 'message');
   const hasError = !!error?.message;
   const hasDescription = !!details.description && !hasError;
-  const doesChildrenHaveErrors = !!error && Object.keys(error).some((errorKey) => errorKey !== 'message');
+  const isMaxItemsReached = details.maxItems === null ? false : value.length >= details.maxItems;
   const label = details.isRequired ? `${details.label} (${value.length}) *` : `${details.label} (${value.length})` ;
 
   const onItemChange = (itemIndex) => (itemValue, itemError) => {
@@ -194,15 +196,16 @@ const Collection = ({
             onItemChange={onItemChange}
             onItemDelete={onItemDelete}
             onItemMove={onItemMove}
+            readOnly={readOnly}
+            renderField={renderField}
             setIsItemFormModalOpen={setIsItemFormModalOpen}
             setIsItemFormPreviewOpen={setIsItemFormPreviewOpen}
-            renderField={renderField}
           />}
 
         <button
           aria-label={t('addButtonLabel', { itemName: details.itemName })}
           className={styles.addButton}
-          disabled={details.maxItems === null ? false : value.length >= details.maxItems}
+          disabled={readOnly || isMaxItemsReached}
           onClick={onAddButtonClick}
           title={t('addButtonLabel', { itemName: details.itemName })}
           type="button"

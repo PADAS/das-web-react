@@ -152,9 +152,9 @@ describe('SelectListGroup - SelectableItem', () => {
         readOnly: true,
       });
 
-      expect(onClick).not.toHaveBeenCalled();
-
       const input = screen.getByRole('checkbox');
+
+      expect(input).toHaveAttribute('readonly');
 
       await userEvent.click(input);
 
@@ -217,17 +217,13 @@ describe('SelectListGroup - SelectableItem', () => {
         isMulti: false
       });
 
-      expect(onClick).not.toHaveBeenCalled();
-
       const input = screen.getByRole('radio');
+
+      expect(input).toHaveAttribute('readonly');
 
       await userEvent.click(input);
 
       expect(onClick).not.toHaveBeenCalled();
     });
-
   });
-
-
-
 });

@@ -35,6 +35,7 @@ const Item = ({
   isFormPreviewOpen,
   onChange = null,
   onDelete = null,
+  readOnly,
   ref,
   renderField = null,
   setIsFormModalOpen = null,
@@ -147,7 +148,8 @@ const Item = ({
     + (isFormPreviewOpen ? ` ${styles.open}` : '')
     + (isDragging ? ` ${styles.isDragging}` : '')
     + (isDragOverlay ? ` ${styles.dragOverlay}` : '')
-    + (hasError ? ` ${styles.error}` : '');
+    + (hasError ? ` ${styles.error}` : '')
+    + (readOnly ? ` ${styles.readOnly}` : '');
   return <li
       className={itemClassName}
       data-testid="schema-form-collection-item"
@@ -178,6 +180,7 @@ const Item = ({
         <button
           aria-label={t('deleteButtonLabel', { itemTitle: title } )}
           className={styles.actionButton}
+          disabled={readOnly}
           onClick={isDragOverlay ? undefined : onDelete}
           onKeyDown={(event) => (event.key === 'Enter' || event.key === ' ') && event.stopPropagation()}
           title={t('deleteButtonLabel', { itemTitle: title } )}
@@ -229,9 +232,10 @@ const Item = ({
     {!isDragOverlay && <FormModal
       breadcrumbs={breadcrumbs}
       columns={collectionDetails.columns}
+      errors={errors}
       focusLocationMarker={focusLocationMarker}
       formData={formData}
-      errors={errors}
+      hideDeleteButton={shouldDeleteOnCancelRef.current}
       isOpen={isFormModalOpen}
       itemName={collectionDetails.itemName}
       leftColumn={collectionDetails.leftColumn}
@@ -239,7 +243,7 @@ const Item = ({
       onDeleteItem={onDeleteItem}
       onDone={onFormModalDone}
       onFieldChange={onFieldChange}
-      hideDeleteButton={shouldDeleteOnCancelRef.current}
+      readOnly={readOnly}
       renderField={renderField}
       rightColumn={collectionDetails.rightColumn}
       title={title}

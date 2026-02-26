@@ -19,6 +19,7 @@
 
     &.shortInput {
       height: 2.5rem;
+      padding: 0.25rem 0.5rem;
     }
     
     &.longInput {
@@ -31,6 +32,10 @@
 
     &:focus {
       border: 2px solid colors.$bright-blue;
+    }
+
+    &:read-only {
+      background-color: colors.$off-white;
     }
 
     &[aria-invalid="true"] {

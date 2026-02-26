@@ -167,6 +167,13 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
     expect(screen.getByTestId('schema-form-collection-item')).toHaveClass('error');
   });
 
+  test('shows the item as read only if the collection is read only', async () => {
+    renderItem({ readOnly: true });
+
+    expect(screen.getByTestId('schema-form-collection-item')).toHaveClass('readOnly');
+    expect(screen.getByRole('button', { name: 'Delete Value 1' })).toBeDisabled();
+  });
+
   test('shows the item normally', async () => {
     renderItem();
 
@@ -174,6 +181,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
     expect(screen.getByTestId('schema-form-collection-item')).not.toHaveClass('isDragging');
     expect(screen.getByTestId('schema-form-collection-item')).not.toHaveClass('dragOverlay');
     expect(screen.getByTestId('schema-form-collection-item')).not.toHaveClass('error');
+    expect(screen.getByTestId('schema-form-collection-item')).not.toHaveClass('readOnly');
     expect(document.body.style.cursor).not.toBe('grabbing');
     expect(onDelete).not.toHaveBeenCalled();
 

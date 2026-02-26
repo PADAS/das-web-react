@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 @use '../common/styles/vars/colors';
 
 .switchField {
@@ -8,6 +10,44 @@
   padding: 0.875rem;
   position: relative;
   width: 4rem;
+
+  &.checked {
+    .base {
+      color: colors.$bright-blue;
+      transform: translateX(1.5rem);
+    }
+
+    .track {
+      background-color: color.adjust(colors.$light-blue, $lightness: 20%);
+    }
+  }
+
+  &.disabled {
+    .base {
+      color: colors.$very-light-gray;
+      cursor: default;
+
+      &:hover {
+        background: none;
+      }
+    }
+
+    .track {
+      background-color: colors.$disabled-field-gray;
+    }
+  }
+
+  &.readOnly {
+    opacity: 0.85;
+
+    .base {
+      cursor: default;
+
+      &:hover {
+        background: none;
+      }
+    }
+  }
 
   .base {
     align-items: center;
@@ -22,30 +62,11 @@
     top: 0;
     transition: left 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, transform 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
 
-    &.checked {
-      color: colors.$bright-blue;
-      transform: translateX(1.5rem);
-
-      &:not(.disabled) + .track {
-        background-color: colors.$bright-blue;
-        opacity: 0.5;
-      }
-    }
-
-    &.disabled {
-      color: colors.$very-light-gray;
-      cursor: default;
-
-      & + .track {
-        background-color: colors.$disabled-field-gray;
-      }
-    }
-
-    &:has(input:focus-visible):not(.disabled) {
+    &:has(input:focus-visible) {
       background: rgba(colors.$bright-blue, 0.16);
     }
 
-    &:hover:not(.disabled) {
+    &:hover {
       background: rgba(colors.$bright-blue, 0.08);
     }
 

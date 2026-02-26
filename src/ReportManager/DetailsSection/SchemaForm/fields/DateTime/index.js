@@ -66,7 +66,7 @@ const INPUTS = {
   [DATE_TIME_ELEMENT_INPUT_TYPES.TIME]: TimeInput,
 };
 
-const DateTime = ({ details, error, id, onFieldChange, value = '' }) => {
+const DateTime = ({ details, error, id, onFieldChange, readOnly, value = '' }) => {
   const [hasTimezoneBeenCorrected, setHasTimezoneBeenCorrected] = useState(false);
 
   const Input = INPUTS[details.inputType];
@@ -112,6 +112,7 @@ const DateTime = ({ details, error, id, onFieldChange, value = '' }) => {
         data-testid={`schemaForm-field-dateTime-${id}`}
         id={id}
         onChange={(value) => onFieldChange(id, value)}
+        readOnly={readOnly}
         value={value}
       />
     </label>

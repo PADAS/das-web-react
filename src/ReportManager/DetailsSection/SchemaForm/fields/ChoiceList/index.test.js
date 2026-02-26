@@ -42,6 +42,18 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
 
   describe('Dropdown', () => {
 
+    test('shows a non read only choice-list field as a Dropdown', () => {
+      renderChoiceList();
+
+      expect(screen.getByRole('combobox', { name: 'Choice list label' })).not.toHaveAttribute('aria-readonly');
+    });
+
+    test('shows a read only choice-list field as a Dropdown', () => {
+      renderChoiceList({ ...defaultProps, readOnly: true });
+
+      expect(screen.getByRole('combobox', { name: 'Choice list label' })).toHaveAttribute('aria-readonly', 'true');
+    });
+
     test('shows a non required choice-list field as a Dropdown', () => {
       renderChoiceList({
         ...defaultProps
@@ -183,6 +195,34 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
   });
 
   describe('List', () => {
+    test('shows a non read only choice-list field as a List', () => {
+      renderChoiceList({
+        ...defaultProps,
+        details: {
+          ...defaultProps.details,
+          inputType: CHOICE_LIST_ELEMENT_INPUT_TYPES.LIST
+        }
+      });
+
+      expect(screen.getByRole('checkbox', { name: 'DumboAlfonso' })).not.toHaveAttribute('readonly');
+      expect(screen.getByRole('checkbox', { name: 'EarthRanger System' })).not.toHaveAttribute('readonly');
+      expect(screen.getByRole('checkbox', { name: 'frank' })).not.toHaveAttribute('readonly');
+    });
+
+    test('shows a read only choice-list field as a List', () => {
+      renderChoiceList({
+        ...defaultProps,
+        details: {
+          ...defaultProps.details,
+          inputType: CHOICE_LIST_ELEMENT_INPUT_TYPES.LIST
+        },
+        readOnly: true
+      });
+
+      expect(screen.getByRole('checkbox', { name: 'DumboAlfonso' })).toHaveAttribute('readonly');
+      expect(screen.getByRole('checkbox', { name: 'EarthRanger System' })).toHaveAttribute('readonly');
+      expect(screen.getByRole('checkbox', { name: 'frank' })).toHaveAttribute('readonly');
+    });
 
     test('shows a non required choice-list field as a List', () => {
       renderChoiceList({

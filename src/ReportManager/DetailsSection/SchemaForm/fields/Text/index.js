@@ -17,7 +17,7 @@ const STYLES = {
   [TEXT_ELEMENT_INPUT_TYPES.LONG]: styles.longInput,
 };
 
-const Text = ({ details, error, id, onFieldChange, value = '' }) => {
+const Text = ({ details, error, id, onFieldChange, readOnly, value = '' }) => {
   const Input = INPUTS[details.inputType];
 
   const hasError = !!error;
@@ -36,6 +36,7 @@ const Text = ({ details, error, id, onFieldChange, value = '' }) => {
       id={id}
       onChange={(event) => onFieldChange(id, event.currentTarget.value || undefined)}
       placeholder={details.hint}
+      readOnly={readOnly}
       value={value}
     />
 

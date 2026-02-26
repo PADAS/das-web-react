@@ -394,7 +394,11 @@ const TimePicker = ({
   }, [period, periodFromValue, value]);
 
   return <div
-      className={`${styles.timePicker} ${use12HourFormat ? styles.twelveHourFormat : ''} ${disabled ? styles.disabled : ''} ${className}`}
+      className={styles.timePicker
+        + (use12HourFormat ? ` ${styles.twelveHourFormat}` : '')
+        + (readOnly ? ` ${styles.readOnly}` : '')
+        + (disabled ? ` ${styles.disabled}` : '')
+        + ` ${className}`}
       // Since our picker is a group of inputs, we handle the blur and focus from the wrapper but make sure to not call
       // the methods if we are just changing focus within the inner inputs.
       onBlur={onWrapperBlur}

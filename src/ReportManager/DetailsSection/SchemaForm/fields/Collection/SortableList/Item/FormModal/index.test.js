@@ -147,6 +147,12 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
     expect(screen.queryByLabelText('Delete Item 3')).not.toBeInTheDocument();
   });
 
+  test('disables the trash icon if the collection is read only', async () => {
+    renderFormModal({ readOnly: true });
+
+    expect(screen.getByLabelText('Delete Item 3')).toBeDisabled();
+  });
+
   test('cancels the edition of the form when user clicks Cancel', async () => {
     renderFormModal();
 

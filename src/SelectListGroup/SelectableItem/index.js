@@ -12,43 +12,34 @@ const SelectableItem = ({
   isMulti = true,
   label,
   onClick,
-  readOnly = false,
+  readOnly,
   ref,
   value,
   ...otherProps
-}) => {
-  const onChange = (event) => {
-    if (!readOnly){
-      event?.preventDefault();
+}) => <div className={`${styles.selectableItem} ${disabled || readOnly ? styles.inactive : ''} ${className}`}>
+  <div className={styles.ripple}>
+    <input
+      checked={isChecked}
+      className={styles.input}
+      data-testid={`input-for-${label}`}
+      disabled={disabled}
+      id={id}
+      name={isMulti ? id : `${groupId}-option`}
+      onChange={readOnly ? undefined : () => onClick(value, !isChecked)}
+      readOnly={readOnly}
+      ref={ref}
+      type={isMulti ? 'checkbox' : 'radio'}
+      value={!isMulti ? value : undefined}
+      {...otherProps}
+    />
+  </div>
 
-      onClick(value, !isChecked);
-    }
-  };
-
-  return <div className={`${styles.selectableItem} ${className}`}>
-    <div className={`${styles.ripple} ${!readOnly && !disabled ? styles.active : ''}`}>
-      <input
-        checked={isChecked}
-        className={styles.input}
-        data-testid={`input-for-${label}`}
-        disabled={disabled}
-        id={id}
-        name={isMulti ? id : `${groupId}-option`}
-        onChange={onChange}
-        ref={ref}
-        type={isMulti ? 'checkbox' : 'radio'}
-        value={!isMulti ? value : undefined}
-        {...otherProps}
-      />
-    </div>
-
-    <label
-      className={`${styles.label} ${disabled ? styles.disabled : ''} ${invalid ? styles.error : ''}`}
-      htmlFor={id}
-    >
-      {label}
-    </label>
-  </div>;
-};
+  <label
+    className={`${styles.label} ${invalid ? styles.error : ''}`}
+    htmlFor={id}
+  >
+    {label}
+  </label>
+</div>;
 
 export default SelectableItem;

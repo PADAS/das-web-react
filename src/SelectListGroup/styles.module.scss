@@ -1,6 +1,9 @@
 @use '../common/styles/vars/colors';
 
 .fieldset {
+  &.readOnly .container {
+    background-color: colors.$off-white;
+  }
 
   legend {
     width: 100%;
@@ -13,7 +16,7 @@
   .container {
     border: 1px solid colors.$light-gray-border;
     border-radius: 0.15rem;
-    padding: 0.7rem;
+    padding: 0.5rem;
   }
 
   &.error {

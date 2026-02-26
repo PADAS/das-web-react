@@ -31,6 +31,18 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
     {...props}
   />);
 
+  test('shows a non read only text field', () => {
+    renderTextField();
+
+    expect(screen.getByRole('textbox')).not.toHaveAttribute('readonly');
+  });
+
+  test('shows a read only text field', () => {
+    renderTextField({ readOnly: true });
+
+    expect(screen.getByRole('textbox')).toHaveAttribute('readonly');
+  });
+
   test('shows a non required text field', () => {
     renderTextField();
 

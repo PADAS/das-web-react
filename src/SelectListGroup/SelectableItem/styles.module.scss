@@ -1,10 +1,27 @@
+@use 'sass:color';
+
 @use "../../common/styles/vars/colors";
 
 .selectableItem {
   align-items: center;
-  background: white;
   display: flex;
   margin-bottom: 0.25rem;
+
+  &.inactive {
+    .ripple {
+      &:hover {
+        background: transparent;
+      }
+
+      .input:hover {
+        cursor: default;
+      }
+    }
+
+    .label:hover {
+      cursor: text;
+    }
+  }
 
   .ripple {
     align-items: center;
@@ -17,14 +34,14 @@
     transition: background-color 200ms ease-in-out;
     width: 2rem;
 
-    &.active:hover {
+    &:hover {
       background: rgba(colors.$bright-blue, 0.08);
     }
 
     .input {
       height: 1rem;
       width: 1rem;
-  
+
       &:hover {
         cursor: pointer;
       }
@@ -33,9 +50,9 @@
 
   .label {
     color: colors.$off-black;
-    width: 100%;
+    width: fit-content;
 
-    &:hover:not(.disabled) {
+    &:hover {
       cursor: pointer;
     }
 
