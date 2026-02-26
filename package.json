@@ -76,13 +76,12 @@
     "workbox-build": "^7.4.0"
   },
   "scripts": {
-    "start": "vite",
     "build": "vite build && yarn build-sw",
     "build-sw": "node ./src/sw-build.js",
-    "serve": "vite preview",
-    "test": "jest",
     "lint": "CI=true eslint src",
+    "start": "vite",
     "stylelint": "stylelint ./src/**/*.scss",
+    "test": "jest",
     "test-ci": "CI=true jest --silent --detectOpenHandles --forceExit"
   },
   "devDependencies": {
