@@ -422,7 +422,6 @@ const ReportDetailView = ({
   }, [reportForm, reportTracker]);
 
   const onLegacyFormChange = useCallback((event) => {
-    console.log('event', event);
     const formData = Object.entries(event.formData).reduce((acc, [formKey, formData]) => ({
       ...acc,
       [formKey]: formData === undefined ? '' : formData
