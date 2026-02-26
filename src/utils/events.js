@@ -1,8 +1,8 @@
+import AjvDraft04 from 'ajv-draft-04';
 import axios from 'axios';
 import { center, centerOfMass, featureCollection } from '@turf/turf';
-import { customizeValidator } from '@rjsf/validator-ajv6';
+import { customizeValidator } from '@rjsf/validator-ajv8';
 import isObject from 'lodash/isObject';
-import metaSchemaDraft04 from 'ajv-draft-04/dist/refs/json-schema-draft-04.json';
 
 import { addNoteToEvent, createEvent, EVENT_API_URL, updateEvent, uploadEventFile } from '../ducks/events';
 import { calcTopRatedReportAndTypeForCollection } from './event-types';
@@ -290,7 +290,7 @@ export const setOriginalTextToEventNotes = (event) => {
 
 export const isReportActive = (report) => ['active', 'new'].includes(report?.state);
 
-export const formValidator = customizeValidator({ additionalMetaSchemas: [metaSchemaDraft04] });
+export const formValidator = customizeValidator({ AjvClass: AjvDraft04 });
 
 export const REPORT_SAVE_ACTIONS = {
   create: (data) => ({

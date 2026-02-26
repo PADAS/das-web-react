@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import Form from '@rjsf/bootstrap-4';
+import Form from '@rjsf/react-bootstrap';
 
 import { formValidator } from '../../utils/events';
 

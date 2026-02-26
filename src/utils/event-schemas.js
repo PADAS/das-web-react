@@ -1,4 +1,7 @@
 export const getLinearErrorPropTree = (errorProperty) => {
+  if (errorProperty == null || typeof errorProperty !== 'string') {
+    return [];
+  }
   const nonPropAccessorNotations = /'|\.properties|\[|\]|\.enumNames|\.enum/g;
   return errorProperty.replace(nonPropAccessorNotations, '.')
     .split('.')
