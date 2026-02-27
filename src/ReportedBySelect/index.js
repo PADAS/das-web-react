@@ -118,9 +118,11 @@ const MenuList = ({ options, children, maxHeight, getValue }) => {
 
   useEffect(() => {
     if (selectedIndex >= 0) {
-      setTimeout(() => {
+      const timeout = setTimeout(() => {
         listRef.current.scrollToRow({ index: selectedIndex, align: 'start', behavior: 'instant' });
       }, 0);
+
+      return () => clearTimeout(timeout);
     }
   }, [selectedIndex]);
 
