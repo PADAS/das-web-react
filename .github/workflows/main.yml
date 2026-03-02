@@ -156,7 +156,28 @@ jobs:
           echo "::error::App $APP_NAME not found after 180s" && exit 1
 
       - name: Sync
-        run: argocd app sync "$APP_NAME" --grpc-web --prune
+        run: |
+          MAX_RETRIES=3
+          RETRY_WAIT=2
+          for attempt in $(seq 1 $MAX_RETRIES); do
+            echo "Sync attempt $attempt/$MAX_RETRIES..."
+            if argocd app sync "$APP_NAME" --grpc-web --prune; then
+              echo "Sync triggered successfully"
+              exit 0
+            fi
+            if [ $attempt -lt $MAX_RETRIES ]; then
+              echo "Sync failed — terminating in-progress operations..."
+              argocd app terminate-op "$APP_NAME" --grpc-web 2>/dev/null || true
+              sleep 2
+              argocd app get "$APP_NAME" --grpc-web --refresh > /dev/null 2>&1 || true
+              echo "Retrying in ${RETRY_WAIT}s... [Attempt $((attempt + 1))/$MAX_RETRIES]"
+              sleep "$RETRY_WAIT"
+              RETRY_WAIT=$((RETRY_WAIT * 2))
+            else
+              echo "::error::Sync failed after $MAX_RETRIES attempts"
+              exit 1
+            fi
+          done
 
       - name: Wait for health
         run: argocd app wait "$APP_NAME" --grpc-web --health --sync --timeout 300
