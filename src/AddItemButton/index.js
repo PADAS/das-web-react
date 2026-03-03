@@ -12,7 +12,7 @@ import { usePatrolsPermissions } from '../hooks/usePermissions';
 import AddItemModal from './AddItemModal';
 import DelayedUnmount from '../DelayedUnmount';
 
-import * as styles from './styles.module.scss';
+import styles from './styles.module.scss';
 
 export const AddItemContext = createContext();
 
@@ -62,6 +62,11 @@ const AddItemButton = ({
     );
   }, [analyticsMetadata.category, analyticsMetadata.location]);
 
+  console.log(styles);
+  console.log(variant);
+  console.log(`addItemButton-${variant}`);
+  console.log(styles[`addItemButton-${variant}`]);
+
   return (canCreateEvents || canCreatePatrols) ? <AddItemContext.Provider
       value={{
         analyticsMetadata,
@@ -80,7 +85,7 @@ const AddItemButton = ({
 
     <button
       aria-label={t('defaultLabel')}
-      className={`${styles[`addItemButton${variant.charAt(0).toUpperCase() + variant.slice(1)}`]} ${className}`}
+      className={`${styles[`addItemButton-${variant}`]} ${className}`}
       data-testid="addItemButton"
       onClick={onClick}
       title={title || t('defaultTitle')}
