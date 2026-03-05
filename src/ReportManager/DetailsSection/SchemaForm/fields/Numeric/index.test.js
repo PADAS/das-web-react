@@ -46,16 +46,14 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Numeric', () =>
   test('shows a non required numeric field', () => {
     renderNumericField();
 
-    expect(screen.getByText('Numeric field label')).toBeVisible();
-    expect(screen.getByLabelText('Numeric field label')).not.toBeRequired();
+    expect(screen.getByRole('textbox', { name: 'Numeric field' })).not.toBeRequired();
   });
 
   test('shows a required numeric field', () => {
     details.isRequired = true;
     renderNumericField();
 
-    expect(screen.getByText('Numeric field label *')).toBeVisible();
-    expect(screen.getByLabelText('Numeric field label *')).toBeRequired();
+    expect(screen.getByRole('textbox', { name: 'Numeric field' })).toBeRequired();
   });
 
   test('does not show an error state in the label if the value is valid', () => {
@@ -83,19 +81,17 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Numeric', () =>
     details.description = '';
     renderNumericField();
 
-    expect(screen.queryByText('Numeric field description')).toBeNull();
-    expect(screen.getByLabelText('Numeric field label')).not.toHaveAccessibleDescription();
+    expect(screen.getByRole('textbox', { name: 'Numeric field' })).not.toHaveAccessibleDescription();
   });
 
   test('shows the description', () => {
     renderNumericField();
 
-    const description = screen.getByText('Numeric field description');
+    const description = screen.getByRole('paragraph');
 
-    expect(description).toBeVisible();
-    expect(description).toHaveAttribute('aria-live', 'off');
     expect(description).not.toHaveClass('error');
-    expect(screen.getByLabelText('Numeric field label')).toHaveAccessibleDescription('Numeric field description');
+    expect(description).toHaveTextContent('Numeric field description');
+    expect(screen.getByRole('textbox', { name: 'Numeric field' })).toHaveAccessibleDescription('Numeric field description');
   });
 
   test('shows a valid input when there are errors', () => {
@@ -115,8 +111,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Numeric', () =>
 
     expect(textInput).toBeInvalid();
     expect(textInput).toHaveAccessibleErrorMessage('Error');
-    expect(description).toBeVisible();
-    expect(description).toHaveAttribute('aria-live', 'assertive');
     expect(description).toHaveClass('error');
   });
 

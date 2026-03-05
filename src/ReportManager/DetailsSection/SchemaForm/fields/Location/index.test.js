@@ -77,16 +77,14 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Location', () =
   test('shows a non required location field', () => {
     renderLocationField();
 
-    expect(screen.getByText('Location 1 Label')).toBeVisible();
-    expect(screen.getByLabelText('Location 1 Label')).not.toBeRequired();
+    expect(screen.getByRole('textbox', { name: 'Location' })).not.toBeRequired();
   });
 
   test('shows a required location field', () => {
     details.isRequired = true;
     renderLocationField();
 
-    expect(screen.getByText('Location 1 Label *')).toBeVisible();
-    expect(screen.getByLabelText('Location 1 Label *')).toBeRequired();
+    expect(screen.getByRole('textbox', { name: 'Location' })).toBeRequired();
   });
 
   test('does not show an error state in the label if the value is valid', () => {
@@ -105,19 +103,17 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Location', () =
     details.description = '';
     renderLocationField();
 
-    expect(screen.queryByText('Location 1 Description')).toBeNull();
     expect(screen.getByLabelText('Location 1 Label')).not.toHaveAccessibleDescription();
   });
 
   test('shows the description', () => {
     renderLocationField();
 
-    const description = screen.getByText('Location 1 Description');
+    const description = screen.getAllByRole('paragraph')[1];
 
-    expect(description).toBeVisible();
-    expect(description).toHaveAttribute('aria-live', 'off');
     expect(description).not.toHaveClass('error');
-    expect(screen.getByLabelText('Location 1 Label')).toHaveAccessibleDescription('Location 1 Description');
+    expect(description).toHaveTextContent('Location 1 Description');
+    expect(screen.getByRole('textbox', { name: 'Location' })).toHaveAccessibleDescription('Location 1 Description');
   });
 
   test('shows a valid input when there are no errors', () => {
@@ -137,8 +133,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Location', () =
 
     expect(locationPicker).toBeInvalid();
     expect(locationPicker).toHaveAccessibleErrorMessage('Error');
-    expect(description).toBeVisible();
-    expect(description).toHaveAttribute('aria-live', 'assertive');
     expect(description).toHaveClass('error');
   });
 

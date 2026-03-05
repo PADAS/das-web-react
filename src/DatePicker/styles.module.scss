@@ -14,11 +14,6 @@
   padding: 0.25rem 0.5rem;
   width: 10rem;
 
-  &:focus-within:not(.disabled) {
-    border: 1px solid colors.$bright-blue;
-    outline: 1px solid colors.$bright-blue;
-  }
-
   &[aria-invalid="true"] {
     border-color: colors.$bright-red;
 
@@ -42,6 +37,11 @@
   &.disabled {
     background-color: colors.$disabled-field-gray;
     pointer-events: none;
+  }
+
+  &:focus-within:not(.disabled) {
+    border: 1px solid colors.$bright-blue;
+    outline: 1px solid colors.$bright-blue;
   }
 
   .calendarIcon {

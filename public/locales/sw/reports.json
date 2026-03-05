@@ -148,9 +148,12 @@
       "schemaForm": {
         "errors": {
           "collectionItems": "Baadhi ya vitu vya mkusanyiko huu vina makosa katika fomu zao za ndani.",
+          "alphanumericPattern": "Herufi na nambari tu ndizo zinazoruhusiwa.",
           "dateFormat": "Muundo wa tarehe haukubaliwi au tarehe isiyo sahihi. Angalia tena siku, mwezi na mwaka.",
           "dateTimeFormat": "Muundo wa tarehe na muda haukubaliwi au tarehe isiyo sahihi. Angalia tena siku, mwezi na mwaka.",
           "defaultFormat": "Muundo si sahihi.",
+          "defaultPattern": "Thamani hailingani na muundo unaotakiwa.",
+          "emailFormat": "Muundo wa barua pepe haukubaliwi.",
           "maximum": "Thamani hii inapaswa kuwa chini ya au sawa na {{maximum}}.",
           "maxItems_one": "Mkusanyiko huu unapaswa kuwa na vitu si zaidi ya {{count}}.",
           "maxItems_other": "Mkusanyiko huu unapaswa kuwa na vitu si zaidi ya {{count}}.",
@@ -158,7 +161,9 @@
           "minItems_one": "Mkusanyiko huu unapaswa kuwa na angalau {{count}} kitu.",
           "minItems_other": "Mkusanyiko huu unapaswa kuwa na angalau {{count}} vitu.",
           "required": "Hili ni shamba la lazima.",
-          "timeFormat": "Muundo wa muda haukubaliwi."
+          "timeFormat": "Muundo wa muda haukubaliwi.",
+          "uriFormat": "Muundo wa URL haukubaliwi.",
+          "uuidFormat": "Muundo wa UUID haukubaliwi."
         },
         "fields": {
           "collection": {
@@ -193,6 +198,9 @@
                 }
               }
             }
+          },
+          "text": {
+            "urlLinkLabel": "Fungua URL kwenye kichupo kipya"
           }
         }
       },

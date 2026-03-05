@@ -73,7 +73,6 @@ const DateTime = ({ details, error, id, onFieldChange, readOnly, value = '' }) =
 
   const hasError = !!error;
   const hasDescription = !!details.description && !hasError;
-  const label = details.isRequired ? `${details.label} *` : details.label;
 
   // Date-time and time input types have a timezone offset, so we correct the input value to the current user timezone
   // before rendering it.
@@ -94,6 +93,7 @@ const DateTime = ({ details, error, id, onFieldChange, readOnly, value = '' }) =
       }
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHasTimezoneBeenCorrected(true);
   }, [details.inputType, hasTimezoneBeenCorrected, id, onFieldChange, value]);
 
@@ -102,12 +102,14 @@ const DateTime = ({ details, error, id, onFieldChange, readOnly, value = '' }) =
       data-testid={`schema-form-date-time-field-${id}`}
     >
     <label className={`${styles.label} ${hasError ? styles.error : ''}`}>
-      {label}
+      {details.label}
+
+      {details.isRequired && <span aria-hidden="true"> *</span>}
 
       <Input
         aria-describedby={hasDescription ? `${id}-description`: undefined}
         aria-errormessage={hasError ? `${id}-description` : undefined}
-        aria-invalid={hasError}
+        aria-invalid={hasError ? 'true' : 'false'}
         aria-required={details.isRequired}
         data-testid={`schemaForm-field-dateTime-${id}`}
         id={id}
@@ -117,13 +119,13 @@ const DateTime = ({ details, error, id, onFieldChange, readOnly, value = '' }) =
       />
     </label>
 
-    {(hasDescription || hasError) && <p
-      aria-live={hasError ? 'assertive' : 'off'}
+    <p
+      aria-live="assertive"
       className={`${styles.description} ${hasError ? styles.error : ''}`}
       id={`${id}-description`}
     >
       {error?.message || details.description}
-    </p>}
+    </p>
   </div> : null;
 };
 

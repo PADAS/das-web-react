@@ -113,7 +113,7 @@ const TrackSettings = ({ onClose }) => {
     <div className={styles.customLengthInputs}>
       <input
         aria-errormessage={!isCustomLengthValid ? 'customLengthErrorMessage' : undefined}
-        aria-invalid={!isCustomLengthValid}
+        aria-invalid={isCustomLengthValid ? 'false' : 'true'}
         aria-label={t('customLengthInputLabel')}
         className={styles.rangeInput}
         disabled={trackSettings.origin !== TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH}
@@ -131,7 +131,7 @@ const TrackSettings = ({ onClose }) => {
         disabled={trackSettings.origin !== TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH}
         inputProps={{
           'aria-errormessage': !isCustomLengthValid ? 'customLengthErrorMessage' : undefined,
-          'aria-invalid': !isCustomLengthValid,
+          'aria-invalid': isCustomLengthValid ? 'false' : 'true',
           'aria-label': t('customLengthInputLabel'),
         }}
         max={MAX_NUMBER_INPUT_TRACK_LENGTH}

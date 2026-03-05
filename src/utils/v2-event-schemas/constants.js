@@ -53,6 +53,16 @@ export const HEADER_ELEMENT_SIZES = {
 
 export const ROOT_CANVAS_ID = 'root';
 
+export const TEXT_ELEMENT_ALPHANUMERIC_FORMAT_VALIDATION_PATTERN =
+  '^[a-zA-Z0-9]+$';
+
+export const TEXT_ELEMENT_FORMAT_VALIDATIONS = {
+  ALPHANUMERIC: 'ALPHANUMERIC',
+  EMAIL: 'EMAIL',
+  URI: 'URI',
+  UUID: 'UUID',
+};
+
 export const TEXT_ELEMENT_INPUT_TYPES = {
   SHORT: 'SHORT_TEXT',
   LONG: 'LONG_TEXT',

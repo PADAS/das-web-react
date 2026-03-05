@@ -147,10 +147,13 @@
       "reportedByLabel": "Reported By",
       "schemaForm": {
         "errors": {
+          "alphanumericPattern": "Only letters and numbers are allowed.",
           "collectionItems": "Some items of this collection have errors in their inner forms.",
           "dateFormat": "Invalid date format or invalid date. Double-check the day, month and year.",
           "dateTimeFormat": "Invalid date & time format or invalid date. Double-check the day, month and year.",
           "defaultFormat": "Invalid format.",
+          "defaultPattern": "Invalid pattern.",
+          "emailFormat": "Invalid email format.",
           "maximum": "This value should be less than or equal to {{maximum}}.",
           "maxItems_one": "This collection must have at most {{count}} item.",
           "maxItems_other": "This collection must have at most {{count}} items.",
@@ -158,7 +161,9 @@
           "minItems_one": "This collection must have at least {{count}} item.",
           "minItems_other": "This collection must have at least {{count}} items.",
           "required": "This is a required field.",
-          "timeFormat": "Invalid time format."
+          "timeFormat": "Invalid time format.",
+          "uriFormat": "Invalid URL format.",
+          "uuidFormat": "Invalid UUID format."
         },
         "fields": {
           "collection": {
@@ -193,6 +198,9 @@
                 }
               }
             }
+          },
+          "text": {
+            "urlLinkLabel": "Open URL in new tab"
           }
         }
       },

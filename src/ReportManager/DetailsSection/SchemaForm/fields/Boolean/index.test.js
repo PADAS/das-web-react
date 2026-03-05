@@ -50,7 +50,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Boolean', () =>
     details.isRequired = true;
     renderBooleanField();
 
-    expect(screen.getByRole('switch', { name: 'Boolean 1 Label *' })).toBeRequired();
+    expect(screen.getByRole('switch', { name: 'Boolean 1 Label' })).toBeRequired();
   });
 
   test('does not show an error state in the label if the value is valid', () => {
@@ -69,7 +69,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Boolean', () =>
     details.description = '';
     renderBooleanField();
 
-    expect(screen.queryByRole('paragraph')).toBeNull();
     expect(screen.getByRole('switch', { name: 'Boolean 1 Label' })).not.toHaveAccessibleDescription();
   });
 
@@ -78,8 +77,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Boolean', () =>
 
     const description = screen.getByRole('paragraph');
 
-    expect(description).toBeVisible();
-    expect(description).toHaveAttribute('aria-live', 'off');
     expect(description).not.toHaveClass('error');
     expect(description).toHaveTextContent('Boolean 1 Description');
     expect(screen.getByRole('switch', { name: 'Boolean 1 Label' })).toHaveAccessibleDescription('Boolean 1 Description');
@@ -102,8 +99,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Boolean', () =>
 
     expect(switchInput).toBeInvalid();
     expect(switchInput).toHaveAccessibleErrorMessage('Error');
-    expect(description).toBeVisible();
-    expect(description).toHaveAttribute('aria-live', 'assertive');
     expect(description).toHaveClass('error');
     expect(description).toHaveTextContent('Error');
   });

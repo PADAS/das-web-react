@@ -137,9 +137,12 @@
             "schemaForm": {
                 "errors": {
                     "collectionItems": "Alguns itens desta coleção têm erros nos seus formulários internos.",
+                    "alphanumericPattern": "Apenas letras e números são permitidos.",
                     "dateFormat": "Formato de data inválido ou data inválida. Verifique o dia, mês e ano.",
                     "dateTimeFormat": "Formato de data e hora inválido ou data inválida. Verifique o dia, mês e ano.",
                     "defaultFormat": "Formato inválido.",
+                    "defaultPattern": "O valor não corresponde ao formato exigido.",
+                    "emailFormat": "Formato de e-mail inválido.",
                     "maximum": "Este valor deve ser menor ou igual a {{maximum}}.",
                     "maxItems_one": "Esta coleção deve ter no máximo {{count}} item.",
                     "maxItems_other": "Esta coleção deve ter no máximo {{count}} itens.",
@@ -147,7 +150,9 @@
                     "minItems_one": "Esta coleção deve ter pelo menos {{count}} item.",
                     "minItems_other": "Esta coleção deve ter pelo menos {{count}} itens.",
                     "required": "Este é um campo obrigatório.",
-                    "timeFormat": "Formato de hora inválido."
+                    "timeFormat": "Formato de hora inválido.",
+                    "uriFormat": "Formato de URL inválido.",
+                    "uuidFormat": "Formato de UUID inválido."
                 },
                 "fields": {
                   "collection": {
@@ -183,6 +188,9 @@
                       }
                     }
                   }
+                },
+                "text": {
+                  "urlLinkLabel": "Abrir URL em nova guia"
                 }
             },
             "stateDropdown": {

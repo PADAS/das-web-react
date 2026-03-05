@@ -4,6 +4,15 @@ export const fileNameFromPath = path => path.match(/[^\\/]+$/)[0];
 export const uuid = () => uuidv4();
 export const caseInsensitiveCompare = (str1, str2) => str1.toLowerCase() === str2.toLowerCase();
 
+export const getIsValidWebUrl = (string) => {
+  try {
+    const url = new URL(string);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
+
 export const hashCode = (string) => {
   if (string.length === 0) return 0;
 

@@ -6,7 +6,7 @@ import ReactGA4 from 'react-ga4';
 import MockSocketContext, { SocketContext } from './__test-helpers/MockSocketContext';
 
 // Set test environment variables.
-dotenv.config();
+dotenv.config({ quiet: true });
 process.env.MODE = 'test';
 process.env.DEV = 'true';
 process.env.PROD = '';

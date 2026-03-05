@@ -407,7 +407,7 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
   test('does not show the form fields as read only', async () => {
     renderSchemaForm();
 
-    expect(screen.getByRole('textbox', { name: 'Text Field *' })).not.toHaveAttribute('readonly');
+    expect(screen.getByRole('textbox', { name: 'Text Field' })).not.toHaveAttribute('readonly');
     expect(screen.getByRole('group')).not.toHaveClass('readOnly');
     expect(screen.getByRole('button', { name: 'Add Item' })).toBeEnabled();
   });
@@ -415,7 +415,7 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
   test('shows the form fields as read only', async () => {
     renderSchemaForm({ readOnly: true });
 
-    expect(screen.getByRole('textbox', { name: 'Text Field *' })).toHaveAttribute('readonly');
+    expect(screen.getByRole('textbox', { name: 'Text Field' })).toHaveAttribute('readonly');
     expect(screen.getByRole('group')).toHaveClass('readOnly');
     expect(screen.getByRole('button', { name: 'Add Item' })).toBeDisabled();
   });
@@ -500,7 +500,7 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
   test('shows validation errors if there are any when the user submits the form', async () => {
     renderSchemaForm({ formData: { text_field: undefined } });
 
-    const inputField = screen.getByRole('textbox', { name: 'Text Field *' });
+    const inputField = screen.getByRole('textbox', { name: 'Text Field' });
 
     expect(inputField).toBeValid();
     expect(inputField).not.toHaveAccessibleErrorMessage();
@@ -543,7 +543,7 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
       },
     });
 
-    await userEvent.type(screen.getByRole('textbox', { name: 'Text Field *' }), ' ');
+    await userEvent.type(screen.getByRole('textbox', { name: 'Text Field' }), ' ');
 
     expect(onFormDataChange).toHaveBeenCalledTimes(1);
     expect(onFormDataChange).toHaveBeenLastCalledWith({ text_field: 'value ' });

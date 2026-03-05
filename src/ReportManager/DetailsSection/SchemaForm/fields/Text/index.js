@@ -1,52 +1,80 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
-import { TEXT_ELEMENT_INPUT_TYPES } from '../../../../../utils/v2-event-schemas/constants';
+import { ReactComponent as ArrowUpRightFromSquareIcon } from '../../../../../common/images/icons/arrow-up-right-from-square.svg';
+
+import { getIsValidWebUrl } from '../../../../../utils/string';
+import { TEXT_ELEMENT_FORMAT_VALIDATIONS, TEXT_ELEMENT_INPUT_TYPES } from '../../../../../utils/v2-event-schemas/constants';
 
 import * as styles from './styles.module.scss';
 
-const ShortTextInput = (props) => <input type="text" {...props} />;
+const ShortTextInput = (props) => <input className={styles.shortTextInput} type="text" {...props} />;
 
-const LongTextInput = (props) => <textarea {...props} />;
+const LongTextInput = (props) => <textarea className={styles.longTextInput} {...props} />;
 
 const INPUTS = {
   [TEXT_ELEMENT_INPUT_TYPES.SHORT]: ShortTextInput,
   [TEXT_ELEMENT_INPUT_TYPES.LONG]: LongTextInput,
 };
-const STYLES = {
-  [TEXT_ELEMENT_INPUT_TYPES.SHORT]: styles.shortInput,
-  [TEXT_ELEMENT_INPUT_TYPES.LONG]: styles.longInput,
-};
 
 const Text = ({ details, error, id, onFieldChange, readOnly, value = '' }) => {
+  const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection.schemaForm.fields.text' });
+
+  const inputRef = useRef(null);
+
   const Input = INPUTS[details.inputType];
 
   const hasError = !!error;
   const hasDescription = !!details.description && !hasError;
-  const label = details.isRequired ? `${details.label} *` : details.label;
+
+  const showUrlLink = useMemo(
+    () => readOnly && details.formatValidation === TEXT_ELEMENT_FORMAT_VALIDATIONS.URI && getIsValidWebUrl(value),
+    [details.formatValidation, readOnly, value]
+  );
 
   return <div className={styles.text} data-testid={`schema-form-text-field-${id}`}>
-    <label className={`${styles.label} ${hasError ? styles.error : ''}`} htmlFor={id}>{label}</label>
+    <label className={`${styles.label} ${hasError ? styles.error : ''}`} htmlFor={id}>
+      {details.label}
 
-    <Input
-      aria-describedby={hasDescription ? `${id}-description`: undefined}
-      aria-errormessage={hasError ? `${id}-description` : undefined}
-      aria-invalid={hasError}
-      aria-required={details.isRequired}
-      className={`${styles.input} ${STYLES[details.inputType]}`}
-      id={id}
-      onChange={(event) => onFieldChange(id, event.currentTarget.value || undefined)}
-      placeholder={details.hint}
-      readOnly={readOnly}
-      value={value}
-    />
+      {details.isRequired && <span aria-hidden="true"> *</span>}
+    </label>
 
-    {(hasDescription || hasError) && <p
-      aria-live={hasError ? 'assertive' : 'off'}
+    <div
+      className={`${styles.textInput} ${readOnly ? styles.readOnly : ''} ${hasError ? styles.error : ''}`}
+      data-testid={`schemaForm-field-text-${id}-textInput`}
+      onClick={(event) => event.target === event.currentTarget && inputRef.current?.focus()}
+    >
+      <Input
+        aria-describedby={hasDescription ? `${id}-description`: undefined}
+        aria-errormessage={hasError ? `${id}-description` : undefined}
+        aria-invalid={hasError ? 'true' : 'false'}
+        aria-required={details.isRequired}
+        id={id}
+        onChange={(event) => onFieldChange(id, event.currentTarget.value || undefined)}
+        placeholder={details.hint}
+        readOnly={readOnly}
+        ref={inputRef}
+        value={value}
+      />
+
+      {showUrlLink && <a
+        aria-label={t('urlLinkLabel')}
+        className={styles.urlLink}
+        href={value}
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        <ArrowUpRightFromSquareIcon aria-hidden="true" />
+      </a>}
+    </div>
+
+    <p
+      aria-live="assertive"
       className={`${styles.description} ${hasError ? styles.error : ''}`}
       id={`${id}-description`}
     >
       {error?.message || details.description}
-    </p>}
+    </p>
   </div>;
 };
 

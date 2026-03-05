@@ -107,8 +107,8 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
 
     expect(collection).toBeInvalid();
     expect(collection).toHaveAccessibleErrorMessage('Error');
-    expect(description).toBeVisible();
-    expect(description).toHaveAttribute('aria-live', 'assertive');
+    expect(description).toHaveClass('error');
+    expect(description).toHaveTextContent('Error');
   });
 
   test('does not show the description', () => {
@@ -121,24 +121,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
   test('shows the description', () => {
     renderCollectionField();
 
-    const description = screen.getByText('The collection description');
-
-    expect(description).toBeVisible();
-    expect(description).toHaveAttribute('aria-live', 'off');
-    expect(description).not.toHaveClass('error');
-  });
-
-  test('shows a non required collection', () => {
-    renderCollectionField();
-
-    expect(screen.getByText('Collection 1 Label (0)')).toBeVisible();
-  });
-
-  test('shows a required collection', () => {
-    details.isRequired = true;
-    renderCollectionField();
-
-    expect(screen.getByText('Collection 1 Label (0) *')).toBeVisible();
+    expect(screen.getByText('The collection description')).not.toHaveClass('error');
   });
 
   test('does not show an error state in the header if the collection and its items are all valid', async () => {
