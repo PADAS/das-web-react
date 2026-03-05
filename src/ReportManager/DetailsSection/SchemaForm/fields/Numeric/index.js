@@ -26,7 +26,7 @@ const Numeric = ({ details, error, id, onFieldChange, readOnly, value = '' }) =>
       }}
       max={details.maxInput}
       min={details.minInput}
-      onChange={(number) => onFieldChange(id, number || undefined)}
+      onChange={(number) => onFieldChange(id, number || number === 0 ? number : undefined)}
       placeholder={details.hint}
       readOnly={readOnly}
       value={value}
