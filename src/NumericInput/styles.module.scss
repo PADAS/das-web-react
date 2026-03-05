@@ -10,6 +10,11 @@
   display: flex;
   height: 2.5rem;
 
+  &:focus-within:not(.disabled) {
+    border: 1px solid colors.$bright-blue;
+    outline: 1px solid colors.$bright-blue;
+  }
+
   &.error {
     border-color: colors.$bright-red;
 
@@ -28,11 +33,6 @@
 
   &.disabled {
     background-color: colors.$disabled-field-gray;
-  }
-
-  &:focus-within:not(.disabled) {
-    border: 1px solid colors.$bright-blue;
-    outline: 1px solid colors.$bright-blue;
   }
 
   .input {
