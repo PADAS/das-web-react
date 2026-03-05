@@ -62,11 +62,6 @@ const AddItemButton = ({
     );
   }, [analyticsMetadata.category, analyticsMetadata.location]);
 
-  console.log(styles);
-  console.log(variant);
-  console.log(`addItemButton-${variant}`);
-  console.log(styles[`addItemButton-${variant}`]);
-
   return (canCreateEvents || canCreatePatrols) ? <AddItemContext.Provider
       value={{
         analyticsMetadata,
