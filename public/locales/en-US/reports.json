@@ -202,7 +202,8 @@
           "text": {
             "urlLinkLabel": "Open URL in new tab"
           }
-        }
+        },
+        "validationErrorsAnnouncement": "There are validation errors in the following fields:"
       },
       "stateDropdown": {
         "active": "active",

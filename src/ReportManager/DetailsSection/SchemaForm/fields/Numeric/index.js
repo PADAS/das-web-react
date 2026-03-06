@@ -6,7 +6,6 @@ import * as styles from './styles.module.scss';
 
 const Numeric = ({ details, error, id, onFieldChange, readOnly, value = '' }) => {
   const hasError = !!error;
-  const hasDescription = !!details.description && !hasError;
 
   return <div data-testid={`schema-form-numeric-field-${id}`} className={styles.numeric}>
     <label className={`${styles.label} ${hasError ? styles.error : ''}`} htmlFor={id}>
@@ -19,7 +18,7 @@ const Numeric = ({ details, error, id, onFieldChange, readOnly, value = '' }) =>
       blockOutOfRangeValues={false}
       id={id}
       inputProps={{
-        'aria-describedby': hasDescription ? `${id}-description`: undefined,
+        'aria-describedby': `${id}-description`,
         'aria-errormessage': hasError ? `${id}-description` : undefined,
         'aria-invalid': hasError ? 'true' : 'false',
         'aria-required': details.isRequired
@@ -33,7 +32,6 @@ const Numeric = ({ details, error, id, onFieldChange, readOnly, value = '' }) =>
     />
 
     <p
-      aria-live="assertive"
       className={`${styles.description} ${hasError ? styles.error : ''}`}
       id={`${id}-description`}
     >

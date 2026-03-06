@@ -191,7 +191,8 @@
           "text": {
             "urlLinkLabel": "Abrir URL en nueva pestaña"
           }
-        }
+        },
+        "validationErrorsAnnouncement": "Hay errores de validación en los siguientes campos:"
       },
       "stateDropdown": {
         "active": "activo",

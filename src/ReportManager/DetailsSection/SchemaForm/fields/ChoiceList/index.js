@@ -16,7 +16,6 @@ const ChoiceList = ({ details, error, id, onFieldChange, readOnly, value = '' })
   const Input = INPUTS[details.inputType];
 
   const hasError = !!error;
-  const hasDescription = !!details.description && !hasError;
 
   return <div>
     {details.inputType === CHOICE_LIST_ELEMENT_INPUT_TYPES.DROPDOWN && <label
@@ -29,7 +28,7 @@ const ChoiceList = ({ details, error, id, onFieldChange, readOnly, value = '' })
     </label>}
 
     <Input
-      aria-describedby={hasDescription ? `${id}-description`: ''}
+      aria-describedby={`${id}-description`}
       aria-errormessage={hasError ? `${id}-description` : undefined}
       aria-invalid={hasError ? 'true' : 'false'}
       aria-required={details.isRequired}
@@ -43,7 +42,6 @@ const ChoiceList = ({ details, error, id, onFieldChange, readOnly, value = '' })
     />
 
     <p
-      aria-live="assertive"
       className={`${styles.description} ${hasError ? styles.error : ''}`}
       id={`${id}-description`}
     >

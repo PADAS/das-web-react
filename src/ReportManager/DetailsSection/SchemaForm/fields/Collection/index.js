@@ -218,7 +218,6 @@ const Collection = ({
     </Collapse>
 
     <p
-      aria-live="assertive"
       className={`${styles.description} ${hasError ? styles.error : ''}`}
       id={`${id}-description`}
     >

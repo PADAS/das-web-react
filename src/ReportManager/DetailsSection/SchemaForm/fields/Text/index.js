@@ -25,7 +25,6 @@ const Text = ({ details, error, id, onFieldChange, readOnly, value = '' }) => {
   const Input = INPUTS[details.inputType];
 
   const hasError = !!error;
-  const hasDescription = !!details.description && !hasError;
 
   const showUrlLink = useMemo(
     () => readOnly && details.formatValidation === TEXT_ELEMENT_FORMAT_VALIDATIONS.URI && getIsValidWebUrl(value),
@@ -45,7 +44,7 @@ const Text = ({ details, error, id, onFieldChange, readOnly, value = '' }) => {
       onClick={(event) => event.target === event.currentTarget && inputRef.current?.focus()}
     >
       <Input
-        aria-describedby={hasDescription ? `${id}-description`: undefined}
+        aria-describedby={`${id}-description`}
         aria-errormessage={hasError ? `${id}-description` : undefined}
         aria-invalid={hasError ? 'true' : 'false'}
         aria-required={details.isRequired}
@@ -69,7 +68,6 @@ const Text = ({ details, error, id, onFieldChange, readOnly, value = '' }) => {
     </div>
 
     <p
-      aria-live="assertive"
       className={`${styles.description} ${hasError ? styles.error : ''}`}
       id={`${id}-description`}
     >

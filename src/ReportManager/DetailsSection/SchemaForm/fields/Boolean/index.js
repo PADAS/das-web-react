@@ -6,7 +6,6 @@ import * as styles from './styles.module.scss';
 
 const Boolean = ({ details, error, id, onFieldChange, readOnly, value = false }) => {
   const hasError = !!error;
-  const hasDescription = !!details.description && !hasError;
 
   return <div className={styles.boolean} data-testid={`schema-form-boolean-field-${id}`}>
     <label className={`${styles.label} ${hasError ? styles.error : ''}`} htmlFor={id}>
@@ -16,7 +15,7 @@ const Boolean = ({ details, error, id, onFieldChange, readOnly, value = false })
     </label>
 
     <Switch
-      aria-describedby={hasDescription ? `${id}-description`: undefined}
+      aria-describedby={`${id}-description`}
       aria-errormessage={hasError ? `${id}-description` : undefined}
       aria-invalid={hasError ? 'true' : 'false'}
       aria-required={details.isRequired}
@@ -28,7 +27,6 @@ const Boolean = ({ details, error, id, onFieldChange, readOnly, value = false })
     />
 
     <p
-      aria-live="assertive"
       className={`${styles.description} ${hasError ? styles.error : ''}`}
       id={`${id}-description`}
     >

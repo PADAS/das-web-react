@@ -202,7 +202,8 @@
           "text": {
             "urlLinkLabel": "Fungua URL kwenye kichupo kipya"
           }
-        }
+        },
+        "validationErrorsAnnouncement": "Kuna makosa ya uthibitishaji katika sehemu zifuatazo:"
       },
       "stateDropdown": {
         "active": "inachukua hatua",

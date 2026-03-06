@@ -16,7 +16,6 @@ const Location = ({
   value = null,
 }) => {
   const hasError = !!error;
-  const hasDescription = !!details.description && !hasError;
 
   // When closing a collection item form modal, the location fields get unmounted without triggering the blur event, so
   // we need to blur the location markers manually.
@@ -32,7 +31,7 @@ const Location = ({
     <LocationPicker
       id={id}
       inputProps={{
-        'aria-describedby': hasDescription ? `${id}-description`: undefined,
+        'aria-describedby': `${id}-description`,
         'aria-errormessage': hasError ? `${id}-description` : undefined,
         'aria-invalid': hasError ? 'true' : 'false',
         'aria-required': details.isRequired,
@@ -46,7 +45,6 @@ const Location = ({
     />
 
     <p
-      aria-live="assertive"
       className={`${styles.description} ${hasError ? styles.error : ''}`}
       id={`${id}-description`}
     >

@@ -191,7 +191,8 @@
           "text": {
             "urlLinkLabel": "Ouvrir l'URL dans un nouvel onglet"
           }
-        }
+        },
+        "validationErrorsAnnouncement": "Il y a des erreurs de validation dans les champs suivants :"
       },
       "stateDropdown": {
         "active": "Actif",

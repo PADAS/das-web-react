@@ -72,7 +72,6 @@ const DateTime = ({ details, error, id, onFieldChange, readOnly, value = '' }) =
   const Input = INPUTS[details.inputType];
 
   const hasError = !!error;
-  const hasDescription = !!details.description && !hasError;
 
   // Date-time and time input types have a timezone offset, so we correct the input value to the current user timezone
   // before rendering it.
@@ -107,7 +106,7 @@ const DateTime = ({ details, error, id, onFieldChange, readOnly, value = '' }) =
       {details.isRequired && <span aria-hidden="true"> *</span>}
 
       <Input
-        aria-describedby={hasDescription ? `${id}-description`: undefined}
+        aria-describedby={`${id}-description`}
         aria-errormessage={hasError ? `${id}-description` : undefined}
         aria-invalid={hasError ? 'true' : 'false'}
         aria-required={details.isRequired}
@@ -120,7 +119,6 @@ const DateTime = ({ details, error, id, onFieldChange, readOnly, value = '' }) =
     </label>
 
     <p
-      aria-live="assertive"
       className={`${styles.description} ${hasError ? styles.error : ''}`}
       id={`${id}-description`}
     >
