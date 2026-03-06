@@ -2,7 +2,7 @@ import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useSt
 import { featureCollection } from '@turf/turf';
 import { useSelector } from 'react-redux';
 
-import ClusterIcon from '../common/images/icons/cluster-icon.svg';
+import ClusterIcon from '../common/images/icons/cluster-icon.svg?url';
 
 import { addBounceToEventMapFeatures } from '../utils/events';
 import { addMapImage } from '../utils/map';

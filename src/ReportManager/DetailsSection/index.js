@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useContext, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
-import Form from '@rjsf/bootstrap-4';
+import Form from '@rjsf/react-bootstrap';
 import { format, isToday, isValid, parseISO } from 'date-fns';
 import MoonLoader from 'react-spinners/MoonLoader';
 import { useSelector } from 'react-redux';

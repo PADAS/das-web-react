@@ -34,20 +34,16 @@ export const AddButton = ({ className, uiSchema: _uiSchema, ...restProps }) => {
 };
 
 export const ArrayFieldItemTemplate = ({
+  buttonsProps,
   children,
   disabled,
   hasToolbar,
-  hasMoveDown,
-  hasMoveUp,
-  hasRemove,
-  index,
-  onDropIndexClick,
-  onReorderClick,
   readonly,
   registry,
   uiSchema,
 }) => {
   const { MoveDownButton, MoveUpButton, RemoveButton } = registry.templates.ButtonTemplates;
+  const { hasMoveDown, hasMoveUp, hasRemove, onMoveDownItem, onMoveUpItem, onRemoveItem } = buttonsProps || {};
 
   return <div className={styles.arrayFieldItemTemplate}>
     {children}
@@ -55,19 +51,19 @@ export const ArrayFieldItemTemplate = ({
     {hasToolbar && <div className={styles.arrayFieldItemButtons}>
       {(hasMoveUp || hasMoveDown) && <MoveUpButton
         disabled={disabled || readonly || !hasMoveUp}
-        onClick={onReorderClick(index, index - 1)}
+        onClick={onMoveUpItem}
         uiSchema={uiSchema}
       />}
 
       {(hasMoveUp || hasMoveDown) && <MoveDownButton
         disabled={disabled || readonly || !hasMoveDown}
-        onClick={onReorderClick(index, index + 1)}
+        onClick={onMoveDownItem}
         uiSchema={uiSchema}
       />}
 
       {hasRemove && <RemoveButton
         disabled={disabled || readonly}
-        onClick={onDropIndexClick(index)}
+        onClick={onRemoveItem}
         uiSchema={uiSchema}
       />}
     </div>}
@@ -77,8 +73,7 @@ export const ArrayFieldItemTemplate = ({
 export const ArrayFieldTemplate = ({
   canAdd,
   disabled,
-  idSchema,
-  uiSchema,
+  fieldPathId,
   items,
   onAddClick,
   readonly,
@@ -86,11 +81,11 @@ export const ArrayFieldTemplate = ({
   required,
   schema,
   title,
+  uiSchema,
 }) => {
   const uiOptions = getUiOptions(uiSchema);
 
   const ArrayFieldDescriptionTemplate = getTemplate('ArrayFieldDescriptionTemplate', registry, uiOptions);
-  const ArrayFieldItemTemplate = getTemplate('ArrayFieldItemTemplate', registry, uiOptions);
   const ArrayFieldTitleTemplate = getTemplate('ArrayFieldTitleTemplate', registry, uiOptions);
 
   const { ButtonTemplates: { AddButton } } = registry.templates;
@@ -100,7 +95,7 @@ export const ArrayFieldTemplate = ({
 
   return <div className={styles.arrayFieldTemplate}>
     {titleToRender && <ArrayFieldTitleTemplate
-      idSchema={idSchema}
+      fieldPathId={fieldPathId}
       registry={registry}
       required={required}
       schema={schema}
@@ -110,17 +105,17 @@ export const ArrayFieldTemplate = ({
 
     {descriptionToRender && <ArrayFieldDescriptionTemplate
       description={descriptionToRender}
-      idSchema={idSchema}
+      fieldPathId={fieldPathId}
       registry={registry}
       schema={schema}
       uiSchema={uiSchema}
     />}
 
     <div>
-      {items && items.map(({ key, ...rest }) => <ArrayFieldItemTemplate key={key} {...rest} />)}
+      {items}
 
       {canAdd && <AddButton
-        className="array-item-add"
+        className="rjsf-array-item-add"
         disabled={disabled || readonly}
         onClick={onAddClick}
         uiSchema={uiSchema}
@@ -134,6 +129,7 @@ export const BaseInputTemplate = ({
   children,
   disabled,
   extraProps,
+  fieldPathId,
   id,
   onBlur,
   onChange,
@@ -149,7 +145,7 @@ export const BaseInputTemplate = ({
 }) => {
   const inputProps = { ...extraProps, ...getInputProps(schema, type, options) };
 
-  const _onChange = ({ target: { value } }) => onChange(value === '' ? options.emptyValue : value);
+  const _onChange = ({ target: { value } }) => onChange(value === '' ? options.emptyValue : value, fieldPathId?.path ?? []);
 
   const _onBlur = ({ target: { value } }) => onBlur(id, value);
 
@@ -235,6 +231,7 @@ const scrollSelectIntoViewOnMenuOpenIfNecessary = (scrollContainer, element, hei
 export const SelectWidget = ({
   autofocus,
   disabled,
+  fieldPathId,
   id,
   multiple,
   onBlur,
@@ -256,18 +253,7 @@ export const SelectWidget = ({
 
   const [isMenuOpen, setMenuOpen] = useState(false);
 
-  const getOptionLabel = (option) => {
-    const { label, name } = option;
-    const value = getOptionValue(option);
-    if (label === value && schema.enumNames) {
-      if (Array.isArray(schema.enumNames) && schema.enumNames.includes(value)) {
-        return value;
-      } else if (schema.enumNames[value]) {
-        return (schema.enumNames[value]);
-      }
-    }
-    return label || name;
-  };
+  const getOptionLabel = (option) => option.label ?? option.name ?? getOptionValue(option);
 
   const getOptionValue = (optionValue) => isPlainObject(optionValue) ? optionValue.value : optionValue;
 
@@ -277,7 +263,10 @@ export const SelectWidget = ({
     ? item.value === (isPlainObject(value) ? value.value : value)
     : null);
 
-  const handleChange = useCallback((update) => onChange(update?.value), [onChange]);
+  const handleChange = useCallback(
+    (update) => onChange(update?.value, fieldPathId?.path ?? []),
+    [fieldPathId, onChange]
+  );
 
   const onMenuOpen = useCallback(() => {
     setMenuOpen(true);
@@ -334,8 +323,8 @@ export const SelectWidget = ({
 export const DateTimeWidget = ({
   autofocus,
   disabled,
+  fieldPathId,
   formData,
-  idSchema: { id },
   onBlur,
   onChange,
   onFocus,
@@ -343,6 +332,7 @@ export const DateTimeWidget = ({
   required,
   schema,
 }) => {
+  const id = fieldPathId?.$id ?? '';
   // If the form data contains a value, we use date-fns format to transform it to the user's current time zone and set
   // the initial value string in the time picker format.
   const [dateTime, setDateTime] = useState(formData
@@ -355,7 +345,8 @@ export const DateTimeWidget = ({
     // When there is a change, if the new date time is valid, we store it with the right offset corresponding to the
     // date (format method considers the daylight saving) and the user's current time zone.
     const parsedNewDateTime = parseISO(newDateTime);
-    onChange(isValid(parsedNewDateTime) ? format(parsedNewDateTime, 'yyyy-MM-dd\'T\'HH:mm:ssxxx') : undefined);
+    const newValue = isValid(parsedNewDateTime) ? format(parsedNewDateTime, 'yyyy-MM-dd\'T\'HH:mm:ssxxx') : undefined;
+    onChange(newValue, fieldPathId?.path ?? []);
   };
 
   return <>
@@ -402,6 +393,7 @@ const parseCheckboxesWidgetValue = (value) => {
 export const CheckboxesWidget = ({
   autofocus,
   disabled,
+  fieldPathId,
   id,
   onBlur,
   onChange,
@@ -425,9 +417,9 @@ export const CheckboxesWidget = ({
     const all = filteredEnumOptions.map(({ value }) => value);
 
     if (checked) {
-      onChange(selectValue(option.value, parsedValue, all));
+      onChange(selectValue(option.value, parsedValue, all), fieldPathId?.path ?? []);
     } else {
-      onChange(deselectValue(option.value, parsedValue));
+      onChange(deselectValue(option.value, parsedValue), fieldPathId?.path ?? []);
     }
   };
 
@@ -460,7 +452,7 @@ export const CheckboxesWidget = ({
   </Form.Group>;
 };
 
-export const ExternalLinkField = ({ formData, idSchema, schema }) => {
+export const ExternalLinkField = ({ fieldPathId, formData, schema }) => {
   const onClick = useCallback(() => {
     const urlDomain = formData?.value?.replace('http://', '').replace('https://', '').split(/[/?#:]/g)[0] ?? '';
 
@@ -468,9 +460,10 @@ export const ExternalLinkField = ({ formData, idSchema, schema }) => {
   }, [formData?.value]);
 
   const value = typeof formData === 'string' ? formData : formData?.value;
+  const fieldId = fieldPathId?.$id ?? '';
 
   return value && <div className={styles.externalLinkField}>
-    <label htmlFor={idSchema.id} data-testid={`schema-link-label-${idSchema.id}`}>
+    <label htmlFor={fieldId} data-testid={`schema-link-label-${fieldId}`}>
       {schema.title}
 
       <a onClick={onClick} target='_blank' rel='noopener noreferrer' href={value}>
@@ -478,7 +471,7 @@ export const ExternalLinkField = ({ formData, idSchema, schema }) => {
       </a>
     </label>
 
-    <a onClick={onClick} target='_blank' rel='noopener noreferrer' href={value} data-testid={`schema-link-${idSchema.id}`} >{value}</a>
+    <a onClick={onClick} target='_blank' rel='noopener noreferrer' href={value} data-testid={`schema-link-${fieldId}`} >{value}</a>
   </div>;
 };
 
@@ -529,9 +522,9 @@ export const ObjectFieldTemplate = (props) => {
   const {
     description,
     disabled,
+    fieldPathId,
     formData,
-    idSchema,
-    onAddClick,
+    onAddProperty,
     properties,
     readonly,
     registry,
@@ -550,13 +543,14 @@ export const ObjectFieldTemplate = (props) => {
 
   const { ButtonTemplates: { AddButton } } = registry.templates;
 
+  const fieldId = fieldPathId?.$id ?? '';
   // If it's the whole event type object field schema it will have the icon_id and we don't want to render its title
   const titleToRender = schema.icon_id ? null : uiOptions.title?.trim() || title?.trim();
   const descriptionToRender = uiOptions.description?.trim() || description?.trim();
 
   return <>
     {titleToRender && <TitleFieldTemplate
-      id={`${idSchema.$id}-title`}
+      id={`${fieldId}-title`}
       registry={registry}
       required={required}
       schema={schema}
@@ -566,7 +560,7 @@ export const ObjectFieldTemplate = (props) => {
 
     {descriptionToRender && <DescriptionFieldTemplate
       description={descriptionToRender}
-      id={`${idSchema.$id}-description`}
+      id={`${fieldId}-description`}
       registry={registry}
       schema={schema}
       uiSchema={uiSchema}
@@ -582,9 +576,9 @@ export const ObjectFieldTemplate = (props) => {
 
       {canExpand(schema, uiSchema, formData)
         ? <AddButton
-          className="object-property-expand"
+          className="rjsf-object-property-expand"
           disabled={disabled || readonly}
-          onClick={onAddClick(schema)}
+          onClick={onAddProperty}
           uiSchema={uiSchema}
         />
         : null}

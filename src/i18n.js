@@ -60,4 +60,5 @@ i18n
         queryStringParams: { v: I18N_FILES_VERSION },
       }],
     },
+    showSupportNotice: false,
   });

@@ -12,7 +12,7 @@ const isLocalhost = () => {
 export const initializeWebVitals = (userData = {}) => {
   const sendToGA4 = (metric) => {
     if (isLocalhost()) {
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.DEV) {
         console.log('localhost web vitals:', {
           name: metric.name,
           value: metric.value,
@@ -38,7 +38,7 @@ export const initializeWebVitals = (userData = {}) => {
       ...userData,
     });
 
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       console.log('Web Vital sent to GA4:', {
         name: metric.name,
         value: metric.value,

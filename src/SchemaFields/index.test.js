@@ -9,9 +9,9 @@ describe('the ExternalLinkField field',  () => {
     render(
       <ExternalLinkField
         formData='https://testing-this-neat-thing.biz'
-          idSchema={{ id: 'link-1' }}
-          schema={{ title: 'here is your great link' }}
-        />
+        fieldPathId={{ $id: 'link-1', path: [] }}
+        schema={{ title: 'here is your great link' }}
+      />
     );
   });
   test('rendering a label', async  () => {
@@ -33,7 +33,7 @@ describe('DateTimeWidget', () => {
       autofocus: false,
       disabled: false,
       formData: '2020-01-01T00:00:00+00:00',
-      idSchema: '1234',
+      fieldPathId: { $id: '1234', path: [] },
       onBlur: jest.fn(),
       onChange: jest.fn(),
       onFocus: jest.fn(),

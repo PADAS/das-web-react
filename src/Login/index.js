@@ -101,7 +101,7 @@ const LoginPage = () => {
       await loginWithRedirect({
         authorizationParams: {
           organization: idpOrgId,
-          audience: process.env.REACT_APP_AUTH0_AUDIENCE,
+          audience: import.meta.env.REACT_APP_AUTH0_AUDIENCE,
         },
       });
     } catch (e) {

@@ -42,9 +42,9 @@ const EulaPageWithTracker = withTracker(EulaPage, 'EULA');
 const LoginWithTracker = withTracker(Login, 'Login');
 
 ReactGA4.initialize(REACT_APP_GA4_TRACKING_ID, {
-  gaOptions: { debug_mode: process.env.NODE_ENV === 'development' },
-  gtagOptions: { debug_mode: process.env.NODE_ENV === 'development' },
-  testMode: process.env.NODE_ENV === 'test'
+  gaOptions: { debug_mode: import.meta.env.DEV },
+  gtagOptions: { debug_mode: import.meta.env.DEV },
+  testMode: import.meta.env.MODE === 'test'
 });
 
 setClientReleaseIdentifier();
@@ -57,7 +57,7 @@ const PathNormalizationRouteComponent = ({ location }) => {
   });
 
   const localMatch = EXTERNAL_SAME_DOMAIN_ROUTES.find(item => item === location.pathname);
-  if (process.env.NODE_ENV !== 'production' || !localMatch) {
+  if (!import.meta.env.PROD || !localMatch) {
     return <Navigate replace to={REACT_APP_ROUTE_PREFIX} />;
   }
   return <a href={localMatch} ref={externalRedirectRef} style={{ opacity: 0 }} target="_self">{localMatch}</a>;
@@ -126,10 +126,10 @@ root.render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistStore(store)} >
       <Auth0Provider
-        domain={process.env.REACT_APP_AUTH0_DOMAIN}
-        clientId={process.env.REACT_APP_AUTH0_CLIENT_ID}
+        domain={import.meta.env.REACT_APP_AUTH0_DOMAIN}
+        clientId={import.meta.env.REACT_APP_AUTH0_CLIENT_ID}
         authorizationParams={{
-          audience: process.env.REACT_APP_AUTH0_AUDIENCE,
+          audience: import.meta.env.REACT_APP_AUTH0_AUDIENCE,
           redirect_uri: `${window.location.origin}${REACT_APP_ROUTE_PREFIX}`,
         }}
         cacheLocation="localstorage"

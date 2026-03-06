@@ -15,8 +15,8 @@ import parallelPaginatedQuery from '../utils/parallelPaginatedRequest';
 import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
 
 export const EVENTS_API_URL = (
-  process.env.REACT_APP_MOCK_EVENTS_API === 'true'
-  && process.env.NODE_ENV === 'development'
+  import.meta.env.REACT_APP_MOCK_EVENTS_API === 'true'
+  && import.meta.env.DEV
 ) ? '/api/v1.0/activity/events/'
   : `${API_URL}activity/events`;
 export const EVENT_API_URL = `${API_URL}activity/event/`;

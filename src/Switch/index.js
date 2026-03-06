@@ -10,7 +10,7 @@ const Switch = ({
   onChange,
   ...otherProps
 }) => <div
-    className={styles.switch
+    className={styles.switchField
       + (checked ? ` ${styles.checked}` : '')
       + (readOnly ? ` ${styles.readOnly}` : '')
       + (disabled ? ` ${styles.disabled}` : '')

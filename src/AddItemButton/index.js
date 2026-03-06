@@ -12,7 +12,7 @@ import { usePatrolsPermissions } from '../hooks/usePermissions';
 import AddItemModal from './AddItemModal';
 import DelayedUnmount from '../DelayedUnmount';
 
-import * as styles from './styles.module.scss';
+import styles from './styles.module.scss';
 
 export const AddItemContext = createContext();
 
