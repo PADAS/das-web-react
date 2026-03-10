@@ -59,7 +59,11 @@ const SelectListGroup = ({
       id={id}
       {...otherProps}
     >
-    <legend>{label}</legend>
+    <legend>
+      {label}
+
+      {ariaRequired && <span aria-hidden="true"> *</span>}
+    </legend>
 
     <div className={styles.container}>
       {optionItems.map((optionItem, index) => <SelectableItem

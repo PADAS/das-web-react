@@ -26,6 +26,10 @@
   font-size: 0.875rem;
   font-weight: 400;
   margin: 0.125rem 0 0;
+
+  &:empty {
+    margin: 0;
+  }
 }
 
 /* react-select overrides */

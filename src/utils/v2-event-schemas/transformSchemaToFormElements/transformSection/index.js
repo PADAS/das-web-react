@@ -8,9 +8,9 @@ import transformHeader from '../transformHeader';
 import UndefinedFormElementError from '../UndefinedFormElementError';
 
 const CONDITION_OPERATOR_MIGRATIONS = {
-  'DOES_NOT_HAVE_INPUT': FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_EMPTY,
-  'HAS_INPUT': FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_NOT_EMPTY,
-  'INPUT_IS_EXACTLY': FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_EXACTLY,
+  DOES_NOT_HAVE_INPUT: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_EMPTY,
+  HAS_INPUT: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_NOT_EMPTY,
+  INPUT_IS_EXACTLY: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_EXACTLY,
 };
 
 const SECTION_CHILD_TYPES = { FIELD: 'field', HEADER: 'header' };
@@ -58,7 +58,9 @@ const transformSection = (sectionId, jsonSchema, uiSchema, formElements) => {
       // migrated here.
       conditions: (sectionUISchema.conditions ?? []).map((condition) => ({
         ...condition,
-        operator: CONDITION_OPERATOR_MIGRATIONS[condition.operator] ?? condition.operator,
+        operator:
+          CONDITION_OPERATOR_MIGRATIONS[condition.operator] ??
+          condition.operator,
       })),
       label: sectionUISchema.label ?? '',
       leftColumn,

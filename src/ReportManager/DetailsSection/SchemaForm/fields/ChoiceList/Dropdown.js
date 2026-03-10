@@ -8,6 +8,13 @@ import * as styles from './styles.module.scss';
 
 const IndicatorSeparator = () => null;
 
+const Input = ({ selectProps, ...otherProps }) => <components.Input
+  selectProps={selectProps}
+  {...otherProps}
+  aria-describedby={selectProps['aria-describedby']}
+  aria-required={selectProps['aria-required']}
+/>;
+
 const Option = ({ data, innerProps, isSelected, isMulti, ...restProps }) => <components.Option
     data={data}
     innerProps={{ ...innerProps, title: data.label }}
@@ -64,7 +71,7 @@ const Dropdown = ({ details, disabled, id, invalid, onChange, readOnly, value, .
       option: readOnly ? undefined : () => styles.cursorPointer,
       placeholder: () => invalid && styles.error,
     }}
-    components={{ IndicatorSeparator, Option }}
+    components={{ IndicatorSeparator, Input, Option }}
     inputId={id}
     isClearable={!readOnly}
     isDisabled={disabled}

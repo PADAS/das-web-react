@@ -59,8 +59,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
         ...defaultProps
       });
 
-      expect(screen.getByText('Choice list label')).toBeVisible();
-      expect(screen.getByRole('combobox')).not.toBeRequired();
+      expect(screen.getByRole('combobox', { name: 'Choice list label' })).not.toBeRequired();
     });
 
     test('shows a required choice-list field as a Dropdown', () => {
@@ -72,7 +71,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
         }
       });
 
-      expect(screen.getByText('Choice list label *')).toBeVisible();
+      expect(screen.getByRole('combobox', { name: 'Choice list label' })).toBeRequired();
     });
 
     test('does not show an error state in the label if the value is valid', () => {
@@ -103,14 +102,17 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
         }
       });
 
-      expect(screen.queryByText('A really great description')).toBeNull();
+      expect(screen.getByRole('combobox', { name: 'Choice list label' })).not.toHaveAccessibleDescription();
     });
 
     test('shows the description', () => {
       renderChoiceList();
 
-      expect(screen.queryByText('A really great description')).toBeVisible();
-      expect(screen.getByRole('combobox')).toHaveAccessibleDescription();
+      const description = screen.getByRole('paragraph');
+
+      expect(description).not.toHaveClass('error');
+      expect(description).toHaveTextContent('A really great description');
+      expect(screen.getByRole('combobox', { name: 'Choice list label' })).toHaveAccessibleDescription('A really great description');
     });
 
     test('shows a valid input when there are no errors', () => {
@@ -135,8 +137,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
 
       expect(choiceListInput).toBeInvalid();
       expect(choiceListInput).toHaveAccessibleErrorMessage('A incredible error message');
-      expect(description).toBeVisible();
-      expect(description).toHaveAttribute('aria-live', 'assertive');
       expect(description).toHaveClass('error');
     });
 
@@ -233,8 +233,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
         }
       });
 
-      expect(screen.getByText('Choice list label')).toBeVisible();
-      expect(screen.getByRole('group')).not.toBeRequired();
+      expect(screen.getByRole('checkbox', { name: 'DumboAlfonso' })).not.toBeRequired();
     });
 
     test('shows a required choice-list field as a List', () => {
@@ -247,7 +246,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
         }
       });
 
-      expect(screen.getByText('Choice list label *')).toBeVisible();
+      expect(screen.getByRole('checkbox', { name: 'DumboAlfonso' })).toBeRequired();
     });
 
     test('does not show an error state in the label if the value is valid', () => {
@@ -289,7 +288,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
         }
       });
 
-      expect(screen.queryByText('A really great description')).toBeNull();
+      expect(screen.getByRole('checkbox', { name: 'DumboAlfonso' })).not.toHaveAccessibleDescription();
     });
 
     test('shows the description', () => {
@@ -301,8 +300,11 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
         }
       });
 
-      expect(screen.queryByText('A really great description')).toBeVisible();
-      expect(screen.getByRole('group')).toHaveAccessibleDescription();
+      const description = screen.getByRole('paragraph');
+
+      expect(description).not.toHaveClass('error');
+      expect(description).toHaveTextContent('A really great description');
+      expect(screen.getByRole('group', { name: 'Choice list label' })).toHaveAccessibleDescription('A really great description');
     });
 
     test('shows a valid input when there are no errors', () => {
@@ -337,8 +339,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
 
       expect(fieldset).toBeInvalid();
       expect(fieldset).toHaveAccessibleErrorMessage('A incredible error message');
-      expect(description).toBeVisible();
-      expect(description).toHaveAttribute('aria-live', 'assertive');
       expect(description).toHaveClass('error');
     });
 

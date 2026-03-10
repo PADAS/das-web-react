@@ -407,7 +407,7 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
   test('does not show the form fields as read only', async () => {
     renderSchemaForm();
 
-    expect(screen.getByRole('textbox', { name: 'Text Field *' })).not.toHaveAttribute('readonly');
+    expect(screen.getByRole('textbox', { name: 'Text Field' })).not.toHaveAttribute('readonly');
     expect(screen.getByRole('group')).not.toHaveClass('readOnly');
     expect(screen.getByRole('button', { name: 'Add Item' })).toBeEnabled();
   });
@@ -415,7 +415,7 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
   test('shows the form fields as read only', async () => {
     renderSchemaForm({ readOnly: true });
 
-    expect(screen.getByRole('textbox', { name: 'Text Field *' })).toHaveAttribute('readonly');
+    expect(screen.getByRole('textbox', { name: 'Text Field' })).toHaveAttribute('readonly');
     expect(screen.getByRole('group')).toHaveClass('readOnly');
     expect(screen.getByRole('button', { name: 'Add Item' })).toBeDisabled();
   });
@@ -500,8 +500,10 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
   test('shows validation errors if there are any when the user submits the form', async () => {
     renderSchemaForm({ formData: { text_field: undefined } });
 
-    const inputField = screen.getByRole('textbox', { name: 'Text Field *' });
+    const alert = screen.getByRole('alert');
+    const inputField = screen.getByRole('textbox', { name: 'Text Field' });
 
+    expect(alert).not.toHaveTextContent('There are validation errors in the following fields:');
     expect(inputField).toBeValid();
     expect(inputField).not.toHaveAccessibleErrorMessage();
     expect(inputField).not.toHaveFocus();
@@ -509,6 +511,8 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
     expect(onFormSubmit).not.toHaveBeenCalled();
+    expect(alert).toHaveTextContent('There are validation errors in the following fields:');
+    expect(alert).toHaveTextContent('Text Field');
     expect(inputField).toBeInvalid();
     expect(inputField).toHaveAccessibleErrorMessage('This is a required field.');
     expect(inputField).toHaveFocus();
@@ -522,6 +526,7 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
     expect(onFormSubmit).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('alert')).not.toHaveTextContent('There are validation errors in the following fields:');
   });
 
   test('updates the form data when the user changes a field', async () => {
@@ -543,7 +548,7 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
       },
     });
 
-    await userEvent.type(screen.getByRole('textbox', { name: 'Text Field *' }), ' ');
+    await userEvent.type(screen.getByRole('textbox', { name: 'Text Field' }), ' ');
 
     expect(onFormDataChange).toHaveBeenCalledTimes(1);
     expect(onFormDataChange).toHaveBeenLastCalledWith({ text_field: 'value ' });

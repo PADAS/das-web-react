@@ -110,7 +110,7 @@ describe('AreaPicker', () => {
   test('shows an error state', async () => {
     renderAreaPicker({
       inputProps: {
-        'aria-invalid': true,
+        'aria-invalid': 'true',
       },
     });
 

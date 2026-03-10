@@ -2,7 +2,7 @@ import React from 'react';
 import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '../../../../../test-utils';
-import { TEXT_ELEMENT_INPUT_TYPES } from '../../../../../utils/v2-event-schemas/constants';
+import { TEXT_ELEMENT_FORMAT_VALIDATIONS, TEXT_ELEMENT_INPUT_TYPES } from '../../../../../utils/v2-event-schemas/constants';
 
 import Text from './';
 
@@ -14,6 +14,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
     details = {
       defaultInput: 'Text 1 Default Input',
       description: 'Text 1 Description',
+      formatValidation: '',
       hint: 'Text 1 Hint',
       inputType: TEXT_ELEMENT_INPUT_TYPES.SHORT,
       isRequired: false,
@@ -46,16 +47,14 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
   test('shows a non required text field', () => {
     renderTextField();
 
-    expect(screen.getByText('Text 1 Label')).toBeVisible();
-    expect(screen.getByLabelText('Text 1 Label')).not.toBeRequired();
+    expect(screen.getByRole('textbox', { name: 'Text 1 Label' })).not.toBeRequired();
   });
 
   test('shows a required text field', () => {
     details.isRequired = true;
     renderTextField();
 
-    expect(screen.getByText('Text 1 Label *')).toBeVisible();
-    expect(screen.getByLabelText('Text 1 Label *')).toBeRequired();
+    expect(screen.getByRole('textbox', { name: 'Text 1 Label' })).toBeRequired();
   });
 
   test('does not show an error state in the label if the value is valid', () => {
@@ -68,6 +67,26 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
     renderTextField({ error: { message: 'Error' } });
 
     expect(screen.getByText('Text 1 Label')).toHaveClass('error');
+  });
+
+  test('does not show an error state in the text input if the value is valid', () => {
+    renderTextField();
+
+    expect(screen.getByTestId('schemaForm-field-text-text-1-textInput')).not.toHaveClass('error');
+  });
+
+  test('shows an error state in the text input if the value is invalid', () => {
+    renderTextField({ error: { message: 'Error' } });
+
+    expect(screen.getByTestId('schemaForm-field-text-text-1-textInput')).toHaveClass('error');
+  });
+
+  test('forwards clicks from the text input to the input element', async () => {
+    renderTextField();
+
+    await userEvent.click(screen.getByTestId('schemaForm-field-text-text-1-textInput'));
+
+    expect(screen.getByRole('textbox', { name: 'Text 1 Label' })).toHaveFocus();
   });
 
   test('shows the field for short text inputs', () => {
@@ -83,23 +102,37 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
     expect(screen.getByRole('textbox').tagName).toBe('TEXTAREA');
   });
 
+  test('does not show the URL link', () => {
+    renderTextField();
+
+    expect(screen.queryByRole('link', { name: 'Open URL in new tab' })).not.toBeInTheDocument();
+  });
+
+  test('shows the URL link if the format is URL, the field is read only, and the value is a valid web url', () => {
+    details.formatValidation = TEXT_ELEMENT_FORMAT_VALIDATIONS.URI;
+    renderTextField({ readOnly: true, value: 'https://example.com' });
+
+    const link = screen.getByRole('link', { name: 'Open URL in new tab' });
+
+    expect(link).toBeVisible();
+    expect(link).toHaveAttribute('href', 'https://example.com');
+  });
+
   test('does not show the description', () => {
     details.description = '';
     renderTextField();
 
-    expect(screen.queryByText('Text 1 Description')).toBeNull();
-    expect(screen.getByLabelText('Text 1 Label')).not.toHaveAccessibleDescription();
+    expect(screen.getByRole('textbox', { name: 'Text 1 Label' })).not.toHaveAccessibleDescription();
   });
 
   test('shows the description', () => {
     renderTextField();
 
-    const description = screen.getByText('Text 1 Description');
+    const description = screen.getByRole('paragraph');
 
-    expect(description).toBeVisible();
-    expect(description).toHaveAttribute('aria-live', 'off');
     expect(description).not.toHaveClass('error');
-    expect(screen.getByLabelText('Text 1 Label')).toHaveAccessibleDescription('Text 1 Description');
+    expect(description).toHaveTextContent('Text 1 Description');
+    expect(screen.getByRole('textbox', { name: 'Text 1 Label' })).toHaveAccessibleDescription('Text 1 Description');
   });
 
   test('shows a valid input when there are no errors', () => {
@@ -119,8 +152,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
 
     expect(textInput).toBeInvalid();
     expect(textInput).toHaveAccessibleErrorMessage('Error');
-    expect(description).toBeVisible();
-    expect(description).toHaveAttribute('aria-live', 'assertive');
     expect(description).toHaveClass('error');
   });
 

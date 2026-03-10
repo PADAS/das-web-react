@@ -105,7 +105,7 @@ const NumericInput = ({
       className={styles.numericInput
         + (readOnly ? ` ${styles.readOnly}` : '')
         + (disabled ? ` ${styles.disabled}` : '')
-        + (inputProps['aria-invalid'] ? ` ${styles.error}` : '')
+        + (inputProps['aria-invalid'] === 'true' ? ` ${styles.error}` : '')
         + ` ${className}`}
       data-testid="numericInput"
       role="group"

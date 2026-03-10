@@ -128,7 +128,7 @@ const AreaPicker = ({
         className={styles.areaPicker
           + (readOnly ? ` ${styles.readOnly}` : '')
           + (disabled ? ` ${styles.disabled}` : '')
-          + (inputProps['aria-invalid'] ? ` ${styles.error}` : '')
+          + (inputProps['aria-invalid'] === 'true' ? ` ${styles.error}` : '')
           + ` ${className}`}
         // Since our picker is a group of buttons, we handle the blur and focus
         // from the wrapper but make sure to not call the methods if we are

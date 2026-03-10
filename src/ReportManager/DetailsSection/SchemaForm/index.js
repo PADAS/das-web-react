@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import evaluateSectionConditions from './utils/evaluateSectionConditions';
 import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from '../../../utils/v2-event-schemas/constants';
@@ -44,6 +45,8 @@ const SchemaForm = ({
   renderSubmitButton,
   schema,
 }) => {
+  const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection.schemaForm' });
+
   const runValidations = useSchemaValidations(schema);
 
   const onLocationMarkerClick = useCallback((markerId) => {
@@ -67,6 +70,7 @@ const SchemaForm = ({
   } = useMapLocationMarkers(eventId, eventLocation, onLocationMarkerClick, hideMapLocationMarkers);
 
   const [fieldErrors, setFieldErrors] = useState({});
+  const [lastSubmissionErroneousFields, setLastSubmissionErroneousFields] = useState([]);
   const [shouldAutofillDefaultInputs, setShouldAutofillDefaultInputs] = useState(autofillDefaultInputs);
 
   const formElements = useMemo(() => transformSchemaToFormElements(schema), [schema]);
@@ -82,6 +86,7 @@ const SchemaForm = ({
     const fieldErrors = runValidations(formData);
     if (fieldErrors) {
       setFieldErrors(fieldErrors);
+      setLastSubmissionErroneousFields(Object.keys(fieldErrors));
 
       // Focus the first erroneous field if possible (it may be inside a
       // collection).
@@ -89,6 +94,9 @@ const SchemaForm = ({
       const elementWithError = document.getElementById(idOfFirstErroneousField);
       elementWithError?.focus();
     } else {
+      setFieldErrors({});
+      setLastSubmissionErroneousFields([]);
+
       onFormSubmit();
     }
   };
@@ -216,6 +224,18 @@ const SchemaForm = ({
   }, [formData, formElements, setLocationMarkers]);
 
   return <form onSubmit={onSubmit}>
+    <div className="sr-only" role="alert">
+      {lastSubmissionErroneousFields.length > 0 && <>
+        <p>{t('validationErrorsAnnouncement')}</p>
+
+        <ul>
+          {lastSubmissionErroneousFields.map((fieldId) => <li key={fieldId}>
+            {formElements[fieldId].details.label}
+          </li>)}
+        </ul>
+      </>}
+    </div>
+
     {formElements[ROOT_CANVAS_ID]?.details.sections.map((sectionId) => <Section
       details={formElements[sectionId].details}
       fieldErrors={fieldErrors}
