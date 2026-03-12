@@ -7,7 +7,7 @@ import LocalStorageBackend from 'i18next-localstorage-backend';
 
 import { SUPPORTED_LANGUAGES } from './constants';
 
-const I18N_FILES_VERSION = '1.30';
+const I18N_FILES_VERSION = '1.31';
 
 const preloadNamespaces = [
   'components',
@@ -60,4 +60,5 @@ i18n
         queryStringParams: { v: I18N_FILES_VERSION },
       }],
     },
+    showSupportNotice: false,
   });

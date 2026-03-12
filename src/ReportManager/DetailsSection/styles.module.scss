@@ -123,10 +123,6 @@
     width: 0;
   }
 
-  .readOnly {
-    background-color: $disabled-field-gray;
-  }
-
   @media (min-width: $md-layout-width-min) {
     width: 50%;
   }

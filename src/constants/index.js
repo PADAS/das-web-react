@@ -3,19 +3,17 @@ import * as layoutVariables from '../common/styles/layout.module.scss';
 
 const { buildbranch, buildnum } = packageJson;
 
-export const {
-  REACT_APP_DAS_AUTH_TOKEN_URL,
-  REACT_APP_MAPBOX_TOKEN,
-  REACT_APP_DAS_API_URL,
-  REACT_APP_DAS_API_V2_URL,
-  REACT_APP_ROUTE_PREFIX,
-  REACT_APP_GA4_TRACKING_ID,
-  REACT_APP_BASE_MAP_STYLES,
-  REACT_APP_DEFAULT_EVENT_FILTER_FROM_DAYS,
-  REACT_APP_DEFAULT_PATROL_FILTER_FROM_DAYS,
-} = process.env;
+export const REACT_APP_DAS_AUTH_TOKEN_URL = import.meta.env.REACT_APP_DAS_AUTH_TOKEN_URL;
+export const REACT_APP_MAPBOX_TOKEN = import.meta.env.REACT_APP_MAPBOX_TOKEN;
+export const REACT_APP_DAS_API_URL = import.meta.env.REACT_APP_DAS_API_URL;
+export const REACT_APP_DAS_API_V2_URL = import.meta.env.REACT_APP_DAS_API_V2_URL;
+export const REACT_APP_ROUTE_PREFIX = import.meta.env.REACT_APP_ROUTE_PREFIX;
+export const REACT_APP_GA4_TRACKING_ID = import.meta.env.REACT_APP_GA4_TRACKING_ID;
+export const REACT_APP_BASE_MAP_STYLES = import.meta.env.REACT_APP_BASE_MAP_STYLES;
+export const REACT_APP_DEFAULT_EVENT_FILTER_FROM_DAYS = import.meta.env.REACT_APP_DEFAULT_EVENT_FILTER_FROM_DAYS;
+export const REACT_APP_DEFAULT_PATROL_FILTER_FROM_DAYS = import.meta.env.REACT_APP_DEFAULT_PATROL_FILTER_FROM_DAYS;
 
-export const DAS_HOST = process.env.REACT_APP_DAS_HOST
+export const DAS_HOST = import.meta.env.REACT_APP_DAS_HOST
   || `${window.location.protocol}//${window.location.host}`;
 
 export const CLIENT_BUILD_VERSION = `${buildbranch}-${buildnum}`;

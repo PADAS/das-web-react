@@ -115,6 +115,12 @@ describe('SelectListGroup', () => {
     expect( screen.getByText('A custom product') ).toBeVisible();
   });
 
+  test('shows a read only list', async () => {
+    renderSelectListGroup({ ...initialProps, readOnly: true });
+
+    expect(screen.getByRole('group', { name: 'A selectable group' })).toHaveClass('readOnly');
+  });
+
   test('shows a disabled list of checkboxes', async () => {
     renderSelectListGroup({
       ...initialProps,

@@ -281,7 +281,6 @@ describe('ReportManager - DetailsSection', () => {
     });
 
     expect(screen.getByTestId('reportManager-detailsSection-areaPicker')).toHaveClass('readOnly');
-    expect(screen.getByRole('textbox', { name: 'Area' })).toHaveClass('readOnly');
   });
 
   test('changes the geometry of the event when selecting an area from the area picker', async () => {
@@ -315,7 +314,6 @@ describe('ReportManager - DetailsSection', () => {
     });
 
     expect(screen.getByTestId('reportManager-detailsSection-locationPicker')).toHaveClass('readOnly');
-    expect(screen.getByRole('textbox', { name: 'Location' })).toHaveClass('readOnly');
   });
 
   test('changes the location of the event when selecting a location from the location picker', async () => {

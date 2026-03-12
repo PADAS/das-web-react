@@ -38,5 +38,9 @@
     &.error {
       color: colors.$bright-red;
     }
+
+    &:empty {
+      margin: 0;
+    }
   }
 }

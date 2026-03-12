@@ -1,5 +1,7 @@
 import {
   FORM_ELEMENT_TYPES,
+  TEXT_ELEMENT_ALPHANUMERIC_FORMAT_VALIDATION_PATTERN,
+  TEXT_ELEMENT_FORMAT_VALIDATIONS,
   TEXT_ELEMENT_INPUT_TYPES,
 } from '../../../constants';
 
@@ -47,6 +49,100 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
         details: {
           defaultInput: 'John Doe',
           description: 'Full name of the suspect',
+          formatValidation: '',
+          hint: 'John Doe',
+          inputType: TEXT_ELEMENT_INPUT_TYPES.LONG,
+          isRequired: true,
+          label: 'Name',
+          value: textFieldId,
+        },
+        parentId,
+        type: FORM_ELEMENT_TYPES.TEXT,
+      },
+    });
+  });
+
+  it('transforms an alphanumeric format text field', () => {
+    jsonSchema.properties[textFieldId].pattern =
+      TEXT_ELEMENT_ALPHANUMERIC_FORMAT_VALIDATION_PATTERN;
+
+    transformTextField(textFieldId, jsonSchema, uiSchema, formElements);
+
+    expect(formElements).toEqual({
+      [textFieldId]: {
+        details: {
+          defaultInput: 'John Doe',
+          description: 'Full name of the suspect',
+          formatValidation: TEXT_ELEMENT_FORMAT_VALIDATIONS.ALPHANUMERIC,
+          hint: 'John Doe',
+          inputType: TEXT_ELEMENT_INPUT_TYPES.LONG,
+          isRequired: true,
+          label: 'Name',
+          value: textFieldId,
+        },
+        parentId,
+        type: FORM_ELEMENT_TYPES.TEXT,
+      },
+    });
+  });
+
+  it('transforms an email format text field', () => {
+    jsonSchema.properties[textFieldId].format = 'email';
+
+    transformTextField(textFieldId, jsonSchema, uiSchema, formElements);
+
+    expect(formElements).toEqual({
+      [textFieldId]: {
+        details: {
+          defaultInput: 'John Doe',
+          description: 'Full name of the suspect',
+          formatValidation: TEXT_ELEMENT_FORMAT_VALIDATIONS.EMAIL,
+          hint: 'John Doe',
+          inputType: TEXT_ELEMENT_INPUT_TYPES.LONG,
+          isRequired: true,
+          label: 'Name',
+          value: textFieldId,
+        },
+        parentId,
+        type: FORM_ELEMENT_TYPES.TEXT,
+      },
+    });
+  });
+
+  it('transforms a URI format text field', () => {
+    jsonSchema.properties[textFieldId].format = 'uri';
+
+    transformTextField(textFieldId, jsonSchema, uiSchema, formElements);
+
+    expect(formElements).toEqual({
+      [textFieldId]: {
+        details: {
+          defaultInput: 'John Doe',
+          description: 'Full name of the suspect',
+          formatValidation: TEXT_ELEMENT_FORMAT_VALIDATIONS.URI,
+          hint: 'John Doe',
+          inputType: TEXT_ELEMENT_INPUT_TYPES.LONG,
+          isRequired: true,
+          label: 'Name',
+          value: textFieldId,
+        },
+        parentId,
+        type: FORM_ELEMENT_TYPES.TEXT,
+      },
+    });
+  });
+
+  it('transforms a UUID format text field', () => {
+    jsonSchema.properties[textFieldId].format = 'uuid';
+
+    transformTextField(textFieldId, jsonSchema, uiSchema, formElements);
+
+    expect(formElements).toEqual({
+      [textFieldId]: {
+        details: {
+          defaultInput: 'John Doe',
+          description: 'Full name of the suspect',
+          formatValidation: TEXT_ELEMENT_FORMAT_VALIDATIONS.UUID,
           hint: 'John Doe',
           inputType: TEXT_ELEMENT_INPUT_TYPES.LONG,
           isRequired: true,
@@ -72,6 +168,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
         details: {
           defaultInput: '',
           description: '',
+          formatValidation: '',
           hint: '',
           inputType: TEXT_ELEMENT_INPUT_TYPES.SHORT,
           isRequired: true,

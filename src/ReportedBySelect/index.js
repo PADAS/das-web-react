@@ -1,6 +1,6 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { components } from 'react-select';
-import { FixedSizeList } from 'react-window';
+import { List } from 'react-window';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -108,30 +108,34 @@ const getOptionValue = ({ hidden, id }) => {
   return id;
 };
 
-const MenuRow = memo(({ child, style }) => <div style={style}>{child}</div>); /* eslint-disable-line react/display-name */
+const MenuRow = ({ children, index, style }) => <div style={style}>{children[index]}</div>;
 
 const MenuList = ({ options, children, maxHeight, getValue }) => {
-  const [value] = getValue();
-  const itemSize = LIST_ITEM_HEIGHT;
-  const initialScrollOffset = options.indexOf(value) * itemSize;
-  const itemCount = children.length;
-  const height = Math.min((itemSize * itemCount), maxHeight);
-  const overscanCount = MENU_OVERSCAN_COUNT;
+  const listRef = useRef();
 
-  const renderRow = useCallback(({ index, style }) => {
-    return <MenuRow style={style} child={children[index]} />;
-  }, [children]);
+  const [value] = getValue();
+  const selectedIndex = value != null ? options.findIndex((opt) => opt === value) : -1;
+
+  useEffect(() => {
+    if (selectedIndex >= 0) {
+      const timeout = setTimeout(() => {
+        listRef.current.scrollToRow({ index: selectedIndex, align: 'start', behavior: 'instant' });
+      }, 0);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [selectedIndex]);
 
   return (
-    <FixedSizeList
-        height={height}
-        itemCount={itemCount}
-        itemSize={itemSize}
-        initialScrollOffset={initialScrollOffset}
-        overscanCount={overscanCount}
-      >
-      {renderRow}
-    </FixedSizeList>
+    <List
+      listRef={listRef}
+      overscanCount={MENU_OVERSCAN_COUNT}
+      rowComponent={MenuRow}
+      rowCount={children.length}
+      rowHeight={LIST_ITEM_HEIGHT}
+      rowProps={{ children }}
+      style={{ height: Math.min((LIST_ITEM_HEIGHT * children.length), maxHeight) }}
+    />
   );
 };
 

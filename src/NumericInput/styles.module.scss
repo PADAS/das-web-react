@@ -1,74 +1,86 @@
+@use 'sass:color';
+
+@use '../common/styles/vars/colors';
+
 .numericInput {
-  position: relative;
-  width: 100%;
+  align-items: center;
+  background: white;
+  border: 1px solid colors.$light-gray-border;
+  border-radius: 0.25rem;
+  display: flex;
+  height: 2.5rem;
 
-  > input {
-    width: 100%;
+  &:focus-within:not(.disabled) {
+    border: 1px solid colors.$bright-blue;
+    outline: 1px solid colors.$bright-blue;
+  }
 
-    &[disabled]{
-      opacity: 0.6;
+  &.error {
+    border-color: colors.$bright-red;
+
+    .controls button {
+      color: colors.$bright-red;
+    }
+
+    ::placeholder {
+      color: color.adjust(colors.$bright-red, $lightness: 33%);
     }
   }
 
-  .controls {
-    width: 1.25rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    top: 0;
-    right: 0.3125rem;
+  &.readOnly {
+    background-color: colors.$off-white;
+  }
+
+  &.disabled {
+    background-color: colors.$disabled-field-gray;
+  }
+
+  .input {
+    background-color: transparent;
+    border: none;
     height: 100%;
-    padding: 0.15rem 0;
+    outline: none;
+    padding: 0.25rem 0.5rem;
+    width: 100%;
+  }
+
+  .controls {
+    height: 100%;
+    width: 1.5rem;
 
     button {
-      border: 1px solid #dbdbdb;
-      padding: 0;
-      margin: 0;
-      color: #7d7d7d;
-      width: 100%;
-      display: flex;
       align-items: center;
+      background-color: colors.$light-gray-background;
+      border: none;
+      color: colors.$secondary-medium-gray;
+      display: flex;
+      height: 50%;
       justify-content: center;
-      height: 0.95rem;
-      background: #f4f6f9;
-      border-radius: 0.1875rem 0.1875rem 0 0;
+      outline: none;
+      padding: 0;
+      width: 100%;
 
-
-      &:nth-child(2){
-        border-radius: 0 0 0.1875rem 0.1875rem;
-        border-top: none;
+      &:first-child {
+        border-top-left-radius: 0.25rem;
+        border-top-right-radius: 0.25rem;
+      }
+    
+      &:last-child {
+        border-bottom-left-radius: 0.25rem;
+        border-bottom-right-radius: 0.25rem;
       }
 
-
-      &:hover {
-        cursor: pointer;
-        background: #dfdfdf;
+      &:disabled {
+        background-color: colors.$disabled-field-gray;
       }
-
-      &:active {
-        background: unset;
-      }
-
-      &[disabled]{
-        opacity: 0.4;
-
-        &:hover {
-          cursor: unset;
-          background: unset;
-        }
-
-        &:active {
-          background: #f9f9f9;
-        }
+  
+      &:hover:not(:disabled) {
+        background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
       }
 
       svg {
         width: 0.625rem;
       }
-
     }
   }
-
 }

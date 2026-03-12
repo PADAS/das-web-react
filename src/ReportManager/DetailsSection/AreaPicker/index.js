@@ -125,7 +125,11 @@ const AreaPicker = ({
 
   return <>
     <div
-        className={`${styles.areaPicker} ${disabled ? styles.disabled : ''} ${inputProps['aria-invalid'] ? styles.error : ''} ${className}`}
+        className={styles.areaPicker
+          + (readOnly ? ` ${styles.readOnly}` : '')
+          + (disabled ? ` ${styles.disabled}` : '')
+          + (inputProps['aria-invalid'] === 'true' ? ` ${styles.error}` : '')
+          + ` ${className}`}
         // Since our picker is a group of buttons, we handle the blur and focus
         // from the wrapper but make sure to not call the methods if we are
         // just changing focus within the inner buttons.
@@ -141,8 +145,8 @@ const AreaPicker = ({
         aria-haspopup="dialog"
         aria-label={t(`setAreaButtonLabel.${!value ? 'create' : isMenuPopoverOpen ? 'open' : 'closed'}`)}
         className={`${styles.setAreaButton} ${readOnly ? styles.readOnly : ''}`}
-        disabled={disabled || readOnly}
-        onClick={() => value ? setIsMenuPopoverOpen(!isMenuPopoverOpen) : onPickArea()}
+        disabled={disabled}
+        onClick={readOnly ? undefined : () => value ? setIsMenuPopoverOpen(!isMenuPopoverOpen) : onPickArea()}
         ref={setAreaButtonRef}
         title={t(`setAreaButtonLabel.${!value ? 'create' : isMenuPopoverOpen ? 'open' : 'closed'}`)}
         type="button"

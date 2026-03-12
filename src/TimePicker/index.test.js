@@ -98,6 +98,7 @@ describe('TimePicker', () => {
   test('does not set the time picker as read only', async () => {
     renderTimePicker();
 
+    expect(screen.getByTestId('timePicker')).not.toHaveClass('readOnly');
     expect(screen.getByLabelText('Hour')).not.toHaveAttribute('readonly');
     expect(screen.getByLabelText('Minute')).not.toHaveAttribute('readonly');
     expect(screen.getByLabelText('Time period')).not.toHaveAttribute('readonly');
@@ -111,6 +112,7 @@ describe('TimePicker', () => {
     const minuteInput = screen.getByLabelText('Minute');
     const timePeriodInput = screen.getByLabelText('Time period');
 
+    expect(screen.getByTestId('timePicker')).toHaveClass('readOnly');
     expect(hourInput).toHaveAttribute('readonly');
     expect(minuteInput).toHaveAttribute('readonly');
     expect(timePeriodInput).toHaveAttribute('readonly');

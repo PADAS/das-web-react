@@ -46,6 +46,8 @@ i18n
         'utils': utilsEnUS,
       },
     },
+
+    showSupportNotice: false,
   });
 
 export default i18n;

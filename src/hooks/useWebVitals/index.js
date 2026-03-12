@@ -15,7 +15,7 @@ const useWebVitals = () => {
       initializeWebVitals(userData);
       isInitialized.current = true;
 
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.DEV) {
         console.log('Web vitals initialized with user context:', userData);
       }
     }

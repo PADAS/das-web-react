@@ -303,7 +303,10 @@ const DatePicker = ({
   }, [day]);
 
   return <div
-      className={`${styles.datePicker} ${disabled ? styles.disabled : ''} ${className}`}
+      className={styles.datePicker
+        + (readOnly ? ` ${styles.readOnly}` : '')
+        + (disabled ? ` ${styles.disabled}` : '')
+        + ` ${className}`}
       // Since our picker is a group of inputs, we handle the blur and focus from the wrapper but make sure to not call
       // the methods if we are just changing focus within the inner inputs.
       onBlur={(event) => !innerRef.current.contains(event.relatedTarget) && onBlur?.(event)}

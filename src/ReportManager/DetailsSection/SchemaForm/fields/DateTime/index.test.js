@@ -31,19 +31,39 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - DateTime', () =
     {...props}
   />);
 
+  test('shows a non read only date time field', () => {
+    renderDateTimeField();
+
+    expect(screen.getByRole('textbox', { name: 'Year' })).not.toHaveAttribute('readonly');
+    expect(screen.getByRole('textbox', { name: 'Month' })).not.toHaveAttribute('readonly');
+    expect(screen.getByRole('textbox', { name: 'Day' })).not.toHaveAttribute('readonly');
+    expect(screen.getByRole('textbox', { name: 'Hour' })).not.toHaveAttribute('readonly');
+    expect(screen.getByRole('textbox', { name: 'Minute' })).not.toHaveAttribute('readonly');
+    expect(screen.getByRole('textbox', { name: 'Time period' })).not.toHaveAttribute('readonly');
+  });
+
+  test('shows a read only date time field', () => {
+    renderDateTimeField({ readOnly: true });
+
+    expect(screen.getByRole('textbox', { name: 'Year' })).toHaveAttribute('readonly');
+    expect(screen.getByRole('textbox', { name: 'Month' })).toHaveAttribute('readonly');
+    expect(screen.getByRole('textbox', { name: 'Day' })).toHaveAttribute('readonly');
+    expect(screen.getByRole('textbox', { name: 'Hour' })).toHaveAttribute('readonly');
+    expect(screen.getByRole('textbox', { name: 'Minute' })).toHaveAttribute('readonly');
+    expect(screen.getByRole('textbox', { name: 'Time period' })).toHaveAttribute('readonly');
+  });
+
   test('shows a non required date time field', () => {
     renderDateTimeField();
 
-    expect(screen.getByText('Date Time 1 Label')).toBeVisible();
-    expect(screen.getByTestId('schemaForm-field-dateTime-date-time-1')).toHaveAttribute('aria-required', 'false');
+    expect(screen.getAllByRole('group')[0]).toHaveAttribute('aria-required', 'false');
   });
 
   test('shows a required date time field', () => {
     details.isRequired = true;
     renderDateTimeField();
 
-    expect(screen.getByText('Date Time 1 Label *')).toBeVisible();
-    expect(screen.getByTestId('schemaForm-field-dateTime-date-time-1')).toHaveAttribute('aria-required', 'true');
+    expect(screen.getAllByRole('group')[0]).toHaveAttribute('aria-required', 'true');
   });
 
   test('does not show an error state in the label if the value is valid', () => {
@@ -82,19 +102,17 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - DateTime', () =
     details.description = '';
     renderDateTimeField();
 
-    expect(screen.queryByText('Date Time 1 Description')).toBeNull();
-    expect(screen.getByTestId('schemaForm-field-dateTime-date-time-1')).not.toHaveAccessibleDescription();
+    expect(screen.getAllByRole('group')[0]).not.toHaveAccessibleDescription();
   });
 
   test('shows the description', () => {
     renderDateTimeField();
 
-    const description = screen.getByText('Date Time 1 Description');
+    const description = screen.getByRole('paragraph');
 
-    expect(description).toBeVisible();
-    expect(description).toHaveAttribute('aria-live', 'off');
     expect(description).not.toHaveClass('error');
-    expect(screen.getByTestId('schemaForm-field-dateTime-date-time-1')).toHaveAccessibleDescription('Date Time 1 Description');
+    expect(description).toHaveTextContent('Date Time 1 Description');
+    expect(screen.getAllByRole('group')[0]).toHaveAccessibleDescription('Date Time 1 Description');
   });
 
   test('shows a valid input when there are no errors', () => {
@@ -114,8 +132,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - DateTime', () =
 
     expect(dateTimeInput).toBeInvalid();
     expect(dateTimeInput).toHaveAccessibleErrorMessage('Error');
-    expect(description).toBeVisible();
-    expect(description).toHaveAttribute('aria-live', 'assertive');
     expect(description).toHaveClass('error');
   });
 

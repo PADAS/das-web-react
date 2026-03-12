@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useContext, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
-import Form from '@rjsf/bootstrap-4';
+import Form from '@rjsf/react-bootstrap';
 import { format, isToday, isValid, parseISO } from 'date-fns';
 import MoonLoader from 'react-spinners/MoonLoader';
 import { useSelector } from 'react-redux';
@@ -69,17 +69,18 @@ const DetailsSection = ({
   const eventType = useSelector((state) => reportForm?.event_type ? selectEventTypeByValue(state, reportForm.event_type) : null);
   const loadingEventSchemas = useSelector((state) => state.data.eventSchemas.loading);
 
-  const reportTracker = useContext(TrackerContext);
+  const eventTracker = useContext(TrackerContext);
 
-  const reportTime = reportForm?.time ? new Date(reportForm.time) : null;
+  const eventTime = reportForm?.time ? new Date(reportForm.time) : null;
 
   const [showStateDropdown, setShowStateDropdown] = useState(false);
-  const [date, setDate] = useState(reportTime ? format(reportTime, 'yyyy-MM-dd') : EMPTY_DATE_VALUE);
-  const [time, setTime] = useState(reportTime ? getHoursAndMinutesString(reportTime) : EMPTY_TIME_VALUE);
+  const [date, setDate] = useState(eventTime ? format(eventTime, 'yyyy-MM-dd') : EMPTY_DATE_VALUE);
+  const [time, setTime] = useState(eventTime ? getHoursAndMinutesString(eventTime) : EMPTY_TIME_VALUE);
 
+  const eventState = reportForm.state === EVENT_FORM_STATES.NEW_LEGACY ? EVENT_FORM_STATES.ACTIVE : reportForm.state;
   const geometryType = eventType?.geometry_type;
   const jsonSchema = eventType?.version === 1 ? eventSchema?.schema : eventSchema?.json;
-  const reportState = reportForm.state === EVENT_FORM_STATES.NEW_LEGACY ? EVENT_FORM_STATES.ACTIVE : reportForm.state;
+  const isReadOnly = eventType?.version === 1 ? jsonSchema?.readonly : eventType?.readonly;
 
   const onStateDropdownKeyDown = useCallback((event) => {
     if (event.key === 'Escape') {
@@ -98,7 +99,7 @@ const DetailsSection = ({
       onReportDateChange(undefined);
     }
 
-    reportTracker.track('Change Report Date');
+    eventTracker.track('Change Report Date');
   };
 
   const onTimePickerChange = (newTime) => {
@@ -111,7 +112,7 @@ const DetailsSection = ({
       onReportDateChange(undefined);
     }
 
-    reportTracker.track('Change Report Time');
+    eventTracker.track('Change Report Time');
   };
 
   const transformErrors = useCallback((errors) => {
@@ -141,7 +142,7 @@ const DetailsSection = ({
             show={showStateDropdown}
           >
             <Dropdown.Toggle variant="success">
-              {t(`stateDropdown.${reportState}`)}
+              {t(`stateDropdown.${eventState}`)}
             </Dropdown.Toggle>
 
             <Dropdown.Menu
@@ -168,7 +169,7 @@ const DetailsSection = ({
             {t('reportedByLabel')}
 
             <ReportedBySelect
-              isDisabled={jsonSchema?.readonly}
+              isDisabled={isReadOnly}
               onChange={onReportedByChange}
               value={reportForm?.reported_by}
             />
@@ -178,7 +179,7 @@ const DetailsSection = ({
             {t('priorityLabel')}
 
             <PrioritySelect
-              isDisabled={jsonSchema?.readonly}
+              isDisabled={isReadOnly}
               onChange={onPriorityChange}
               priority={reportForm?.priority}
             />
@@ -191,20 +192,18 @@ const DetailsSection = ({
 
             {geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON
               ? <AreaPicker
-                className={jsonSchema?.readonly ? styles.readOnly : ''}
                 data-testid="reportManager-detailsSection-areaPicker"
                 event={reportForm}
                 id="reportManager-detailsSection-areaPicker"
                 onChange={onReportGeometryChange}
-                readOnly={jsonSchema?.readonly}
+                readOnly={isReadOnly}
                 value={reportForm.geometry || null}
               />
               : <LocationPicker
-                className={jsonSchema?.readonly ? styles.readOnly : ''}
                 data-testid="reportManager-detailsSection-locationPicker"
                 id="reportManager-detailsSection-locationPicker"
                 onChange={onReportLocationChange}
-                readOnly={jsonSchema?.readonly}
+                readOnly={isReadOnly}
                 value={reportForm.location || null}
               />
             }
@@ -215,11 +214,10 @@ const DetailsSection = ({
               {t('dateLabel')}
 
               <DatePicker
-                className={jsonSchema?.readonly ? styles.readOnly : ''}
                 data-testid="reportManager-detailsSection-datePicker"
                 max={format(new Date(), 'yyyy-MM-dd')}
                 onChange={onDatePickerChange}
-                readOnly={jsonSchema?.readonly}
+                readOnly={isReadOnly}
                 value={date}
               />
             </label>
@@ -228,12 +226,11 @@ const DetailsSection = ({
               {t('timeLabel')}
 
               <TimePicker
-                className={jsonSchema?.readonly ? styles.readOnly : ''}
                 data-testid="reportManager-detailsSection-timePicker"
-                max={reportTime && isToday(reportTime) ? getHoursAndMinutesString(new Date()) : undefined}
+                max={eventTime && isToday(eventTime) ? getHoursAndMinutesString(new Date()) : undefined}
                 minutesInterval={15}
                 onChange={onTimePickerChange}
-                readOnly={jsonSchema?.readonly}
+                readOnly={isReadOnly}
                 value={time}
               />
             </label>
@@ -251,7 +248,7 @@ const DetailsSection = ({
     {/* Legacy form renderer */}
     {eventType?.version === 1 && !!jsonSchema && <Form
       className={`${styles.form} ${reportForm.is_collection ? styles.hidden : ''}`}
-      disabled={jsonSchema?.readonly}
+      disabled={isReadOnly}
       fields={{ externalLink: ExternalLinkField }}
       formData={reportForm.event_details}
       onChange={onLegacyFormChange}
@@ -281,6 +278,7 @@ const DetailsSection = ({
       hideMapLocationMarkers={isBehindAddedEvent}
       onFormDataChange={onFormDataChange}
       onFormSubmit={onFormSubmit}
+      readOnly={isReadOnly}
       renderSubmitButton={() => <button
         className={styles.schemaFormSubmitButton}
         ref={submitFormButtonRef}

@@ -6,8 +6,8 @@ import globallyResettableReducer from '../../reducers/global-resettable';
 import sanitizeSchemas from './sanitizeSchemas';
 import { selectEventTypeByValue } from '../../selectors/event-types';
 
-const USE_EVENTTYPE_SCHEMA_V2_MOCK_API = process.env.REACT_APP_MOCK_EVENTTYPES_V2_API === 'true'
-  && process.env.NODE_ENV === 'development';
+const USE_EVENTTYPE_SCHEMA_V2_MOCK_API = import.meta.env.REACT_APP_MOCK_EVENTTYPES_V2_API === 'true'
+  && import.meta.env.DEV;
 
 export const EVENTS_SCHEMA_API_URL = `${API_URL}activity/events/schema`;
 export const EVENT_TYPE_SCHEMA_API_URL = `${API_URL}activity/events/schema/eventtype`;

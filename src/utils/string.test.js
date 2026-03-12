@@ -1,6 +1,19 @@
-import { hashCode, hashString } from './string';
+import { getIsValidWebUrl, hashCode, hashString } from './string';
 
 describe('String utils', () => {
+  describe('getIsValidWebUrl', () => {
+    test('returns true for a valid web url', () => {
+      expect(getIsValidWebUrl('https://www.earthranger.com')).toBe(true);
+      expect(getIsValidWebUrl('http://earthranger.com')).toBe(true);
+    });
+
+    test('returns false for an invalid web url', () => {
+      expect(getIsValidWebUrl('ftp://www.google.com')).toBe(false);
+      expect(getIsValidWebUrl('mailto:test@example.com')).toBe(false);
+      expect(getIsValidWebUrl('invalid-url')).toBe(false);
+    });
+  });
+
   describe('hashCode', () => {
     test('hashes an empty string', () => {
       expect(hashCode('')).toBe(0);

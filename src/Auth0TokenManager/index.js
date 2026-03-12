@@ -40,7 +40,7 @@ const Auth0TokenManager = () => {
           // Auth0Provider has processed the callback, now get the token
           const token = await getAccessTokenSilently({
             authorizationParams: {
-              audience: process.env.REACT_APP_AUTH0_AUDIENCE,
+              audience: import.meta.env.REACT_APP_AUTH0_AUDIENCE,
             },
           });
 

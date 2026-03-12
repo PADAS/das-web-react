@@ -48,6 +48,7 @@ const SortableList = ({
   onItemChange,
   onItemDelete,
   onItemMove,
+  readOnly,
   renderField,
   setIsItemFormModalOpen,
   setIsItemFormPreviewOpen,
@@ -136,7 +137,7 @@ const SortableList = ({
       }}
       autoScroll={false}
       collisionDetection={closestCenter}
-      sensors={sensors}
+      sensors={readOnly ? [] : sensors}
       onDragCancel={() => setActiveItemIndex(null)}
       onDragEnd={onDragEnd}
       onDragStart={(event) => setActiveItemIndex(items.findIndex((item) => item.id === event.active.id))}
@@ -158,6 +159,7 @@ const SortableList = ({
           key={item.id}
           onChange={onItemChange(index)}
           onDelete={onItemDelete(index)}
+          readOnly={readOnly}
           setIsFormModalOpen={setIsItemFormModalOpen(index)}
           setIsFormPreviewOpen={setIsItemFormPreviewOpen(index)}
           renderField={renderField}

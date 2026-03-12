@@ -25,7 +25,7 @@ const SelectListGroup = ({
   label,
   onChange,
   options,
-  readOnly,
+  readOnly = false,
   value,
   ...otherProps
 }) => {
@@ -54,15 +54,23 @@ const SelectListGroup = ({
   };
 
   return <fieldset
-      className={`${styles.fieldset} ${className} ${invalid ? styles.error : ''}`}
+      className={`${styles.fieldset} ${invalid ? styles.error : ''} ${readOnly ? styles.readOnly : ''} ${className}`}
       disabled={disabled}
       id={id}
       {...otherProps}
     >
-    <legend>{label}</legend>
+    <legend>
+      {label}
+
+      {ariaRequired && <span aria-hidden="true"> *</span>}
+    </legend>
 
     <div className={styles.container}>
       {optionItems.map((optionItem, index) => <SelectableItem
+        aria-required={isMulti
+          ? ariaRequired
+          : index === 0 && ariaRequired ? ariaRequired : undefined
+        }
         disabled={disabled}
         groupId={id}
         invalid={invalid}
@@ -74,10 +82,6 @@ const SelectListGroup = ({
         onClick={handleOnSelectableItemClick}
         readOnly={readOnly}
         value={optionItem.value}
-        aria-required={isMulti
-          ? ariaRequired
-          : index === 0 && ariaRequired ? ariaRequired : undefined
-        }
       />)}
     </div>
   </fieldset>;

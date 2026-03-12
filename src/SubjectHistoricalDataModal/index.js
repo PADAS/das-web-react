@@ -112,6 +112,7 @@ const SubjectHistoricalDataModal = ({ subjectId, subjectIsStatic, title }) => {
 
     dispatch(fetchObservationsForSubject({
       subject_id: subjectId,
+      include_empty_location: true,
       page: activePage,
       page_size: ITEMS_PER_PAGE,
       sort_by: SORT_BY,

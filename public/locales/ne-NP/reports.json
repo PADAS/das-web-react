@@ -145,9 +145,12 @@
             "schemaForm": {
                 "errors": {
                     "collectionItems": "यस संग्रहका केही वस्तुहरूमा तिनीहरूको आन्तरिक फारमहरूमा त्रुटिहरू छन्।",
+                    "alphanumericPattern": "अक्षर र नम्बरहरू मात्र अनुमति छ।",
                     "dateFormat": "अमान्य मिति ढांचा वा अमान्य मिति। दिन, महिना र वर्षको पुन: जाँच गर्नुहोस्।",
                     "dateTimeFormat": "अमान्य मिति र समय ढांचा वा अमान्य मिति। दिन, महिना र वर्षको पुन: जाँच गर्नुहोस्।",
                     "defaultFormat": "अमान्य ढाँचा।",
+                    "defaultPattern": "मान आवश्यक ढाँचासँग मेल खाँदैन।",
+                    "emailFormat": "अमान्य इमेल ढाँचा।",
                     "maximum": "यो मान भन्दा कम वा बराबर हुनुपर्छ {{maximum}}।",
                     "maxItems_one": "यो सङ्कलनमा धेरैमा {{count}} वस्तु मात्र हुन सक्छ।",
                     "maxItems_other": "यो सङ्कलनमा धेरैमा {{count}} वस्तुहरू मात्र हुन सक्छन्।",
@@ -155,43 +158,49 @@
                     "minItems_one": "यो सङ्कलनमा कम्तीमा {{count}} वस्तु हुनुपर्छ।",
                     "minItems_other": "यो सङ्कलनमा कम्तीमा {{count}} वस्तुहरू हुनुपर्छ।",
                     "required": "यो आवश्यक फिल्ड हो।",
-                    "timeFormat": "अमान्य समय ढांचा।"
+                    "timeFormat": "अमान्य समय ढांचा।",
+                    "uriFormat": "अमान्य URL ढाँचा।",
+                    "uuidFormat": "अमान्य UUID ढाँचा।"
                 },
                 "fields": {
-                  "collection": {
-                    "addButtonLabel": "{{itemName}} थप्नुहोस्",
-                    "defaultAddButton": "थप्नुहोस्",
-                    "chevronButtonLabel": {
-                      "closed": "{{collectionLabel}} सूची खोल्नुहोस्",
-                      "open": "{{collectionLabel}} सूची बन्द गर्नुहोस्"
-                    },
-                    "sortableList": {
-                      "dragCancelAnnouncement": "तान्ने कार्य रद्द गरिएको छ। {{activeItemTitle}} खसालिएको छ।",
-                      "dragEndAnnouncement": "{{activeItemTitle}} लाई {{itemsLength}} को स्थान {{overItemPosition}} मा खसालिएको छ।",
-                      "draggableScreenReaderInstructions": "{{itemName}} उचाल्न, space वा enter थिच्नुहोस्। तान्दै गर्दा, माथि र तलको एरो कुञ्जी प्रयोग गरेर {{itemName}} सार्न र यसको स्थान अद्यावधिक गर्नुहोस्। {{itemName}} लाई नयाँ स्थानमा छोड्न space वा enter फेरि थिच्नुहोस्।",
-                      "dragOverAnnouncement": "{{activeItemTitle}} लाई {{itemsLength}} को स्थान {{overItemPosition}} मा सारिएको छ।",
-                      "dragStartAnnouncement": "{{activeItemTitle}} उचालिएको छ। {{activeItemTitle}} {{itemsLength}} मध्ये स्थान {{activeItemPosition}} मा छ।",
-                      "item": {
-                        "collectionHumanizedValue": "{{collectionLength}} वस्तुहरू",
-                        "deleteButtonLabel": "{{itemTitle}} मेट्नुहोस्",
-                        "editButtonLabel": "{{itemTitle}} सम्पादन गर्नुहोस्",
-                        "formModal": {
-                          "cancelButton": "रद्द गर्नुहोस्",
-                          "deleteButton": "{{itemTitle}} मेटाउनुहोस्",
-                          "doneButton": "सम्पन्न"
-                        },
-                        "formPreview": {
-                          "collectionHumanizedValue": "{{collectionLength}} वस्तुहरू",
-                          "jumpToLocationButtonLabel": "{{field}} स्थानमा जानुहोस्"
-                        },
+                    "collection": {
+                        "addButtonLabel": "{{itemName}} थप्नुहोस्",
+                        "defaultAddButton": "थप्नुहोस्",
                         "chevronButtonLabel": {
-                          "closed": "{{itemTitle}} फारमको पूर्वावलोकन खोल्नुहोस्",
-                          "open": "{{itemTitle}} फारमको पूर्वावलोकन बन्द गर्नुहोस्"
+                            "closed": "{{collectionLabel}} सूची खोल्नुहोस्",
+                            "open": "{{collectionLabel}} सूची बन्द गर्नुहोस्"
+                        },
+                        "sortableList": {
+                            "dragCancelAnnouncement": "तान्ने कार्य रद्द गरिएको छ। {{activeItemTitle}} खसालिएको छ।",
+                            "dragEndAnnouncement": "{{activeItemTitle}} लाई {{itemsLength}} को स्थान {{overItemPosition}} मा खसालिएको छ।",
+                            "draggableScreenReaderInstructions": "{{itemName}} उचाल्न, space वा enter थिच्नुहोस्। तान्दै गर्दा, माथि र तलको एरो कुञ्जी प्रयोग गरेर {{itemName}} सार्न र यसको स्थान अद्यावधिक गर्नुहोस्। {{itemName}} लाई नयाँ स्थानमा छोड्न space वा enter फेरि थिच्नुहोस्।",
+                            "dragOverAnnouncement": "{{activeItemTitle}} लाई {{itemsLength}} को स्थान {{overItemPosition}} मा सारिएको छ।",
+                            "dragStartAnnouncement": "{{activeItemTitle}} उचालिएको छ। {{activeItemTitle}} {{itemsLength}} मध्ये स्थान {{activeItemPosition}} मा छ।",
+                            "item": {
+                                "collectionHumanizedValue": "{{collectionLength}} वस्तुहरू",
+                                "deleteButtonLabel": "{{itemTitle}} मेट्नुहोस्",
+                                "editButtonLabel": "{{itemTitle}} सम्पादन गर्नुहोस्",
+                                "formModal": {
+                                    "cancelButton": "रद्द गर्नुहोस्",
+                                    "deleteButton": "{{itemTitle}} मेटाउनुहोस्",
+                                    "doneButton": "सम्पन्न"
+                                },
+                                "formPreview": {
+                                    "collectionHumanizedValue": "{{collectionLength}} वस्तुहरू",
+                                    "jumpToLocationButtonLabel": "{{field}} स्थानमा जानुहोस्"
+                                },
+                                "chevronButtonLabel": {
+                                    "closed": "{{itemTitle}} फारमको पूर्वावलोकन खोल्नुहोस्",
+                                    "open": "{{itemTitle}} फारमको पूर्वावलोकन बन्द गर्नुहोस्"
+                                }
+                            }
                         }
-                      }
+                    },
+                    "text": {
+                        "urlLinkLabel": "URL नयाँ ट्याबमा खोल्नुहोस्"
                     }
-                  }
-                }
+                },
+                "validationErrorsAnnouncement": "निम्न फिल्डहरूमा सत्यापन त्रुटिहरू छन्:"
             },
             "stateDropdown": {
                 "active": "सक्रिय",
