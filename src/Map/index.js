@@ -283,7 +283,7 @@ const Map = ({ children, onMapLoad, socket }) => {
 
       window.setTimeout(() => showPopup('subject', { geometry, properties, coordinates: geometry.coordinates }));
 
-      await tracks_available ? fetchTracksIfNecessary([id]) : new Promise(resolve => resolve());
+      // await tracks_available ? fetchTracksIfNecessary([id]) : new Promise(resolve => resolve());
 
       if (tracks_available) {
         dispatch(
@@ -508,7 +508,7 @@ const Map = ({ children, onMapLoad, socket }) => {
 
   const onTrackLengthChange = useCallback(() => {
     resetTrackRequestCancelToken();
-    fetchTracksIfNecessary(uniq([...subjectTrackState.visible, ...subjectTrackState.pinned, ...heatmapSubjectIDs]));
+    // fetchTracksIfNecessary(uniq([...subjectTrackState.visible, ...subjectTrackState.pinned, ...heatmapSubjectIDs]));
   }, [heatmapSubjectIDs, resetTrackRequestCancelToken, subjectTrackState.pinned, subjectTrackState.visible]);
 
   useEffect(() => {

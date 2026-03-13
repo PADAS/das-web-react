@@ -57,7 +57,7 @@ const MessageListItem = (props) => {
 
           const subjectTrackHidden = !uniq([...subjectTrackState.visible, ...subjectTrackState.pinned]).includes(subject.id);
           if (subjectTrackHidden) {
-            await fetchTracksIfNecessary([subject.id]);
+            // await fetchTracksIfNecessary([subject.id]);
             toggleTrackState(subject.id);
           }
           const coordinates = [message.device_location.longitude, message.device_location.latitude];

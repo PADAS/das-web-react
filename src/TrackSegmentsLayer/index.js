@@ -9,7 +9,7 @@ import { addMapImage, safeRemoveMapLayer } from '../utils/map';
 import { API_URL, MAP_ICON_SCALE } from '../constants';
 import { selectSubjectTrackState, selectTrackTimeEnvelope } from '../selectors/tracks';
 
-import Arrow from '../common/images/icons/track-arrow.svg';
+import Arrow from '../common/images/icons/track-arrow.svg?url';
 
 const ARROW_IMG_ID = 'track_arrow';
 

@@ -58,9 +58,9 @@ const SubjectControls = ({
   const onTrackButtonClick = async () => {
     setTrackLoadingState(true);
 
-    if (!tracksLoaded) {
-      await fetchTracksIfNecessary([subject.id]);
-    }
+    // if (!tracksLoaded) {
+    //   await fetchTracksIfNecessary([subject.id]);
+    // }
 
     setTrackLoadingState(false);
     dispatch(toggleTrackState(subject.id));
