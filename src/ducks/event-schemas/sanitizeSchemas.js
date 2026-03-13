@@ -78,7 +78,7 @@ const processProperty = (key, value, fieldPath) => {
   return {};
 };
 
-const convertSchemaEnumNameObjectsIntoArray = (schema, path = '') => {
+export const convertSchemaEnumNameObjectsIntoArray = (schema, path = '') => {
   const schemaUpdates = {};
   const uiEnumNames = {};
 
