@@ -7,7 +7,7 @@ import { useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useAuth0 } from '@auth0/auth0-react';
 
-import { ReactComponent as EarthRangerLogo } from '../common/images/earth-ranger-logo-vertical.svg';
+import { ReactComponent as EarthRangerLogo } from '../common/images/earth-ranger-logo-new.svg';
 
 import { clearAuth, postAuth } from '../ducks/auth';
 import { fetchEula } from '../ducks/eula';
