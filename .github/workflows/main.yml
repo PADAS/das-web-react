@@ -181,3 +181,16 @@ jobs:
 
       - name: Wait for health
         run: argocd app wait "$APP_NAME" --grpc-web --health --sync --timeout 300
+
+  deploy-stage:
+    needs: [config, build]
+    if: startsWith(github.ref_name, 'release-')
+    uses: PADAS/serca-pipelines/.github/workflows/_argocd-deploy.yml@main
+    with:
+      app-name: das-web-react
+      app-subdir: earthranger
+      environment: er-stage
+      image-tag: ${{ needs.config.outputs.image-tag }}
+    secrets:
+      ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+      ARGOCD_APPS_SSH_KEY: ${{ secrets.ARGOCD_APPS_SSH_KEY }}
