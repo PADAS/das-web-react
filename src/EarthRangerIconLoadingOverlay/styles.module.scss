@@ -12,11 +12,9 @@
 
 .wrapper {
   align-items: center;
-  animation: palpitate 2s ease-in-out infinite;
   display: flex;
   flex-flow: column;
   justify-content: center;
-  opacity: 1;
   position: fixed;
   height: 100vh;
   width: 100vw;
@@ -24,6 +22,7 @@
 }
 
 .logo {
+  animation: palpitate 2s ease-in-out infinite;
   max-height: 14.4rem;
   max-width: 14.4rem;
 }
