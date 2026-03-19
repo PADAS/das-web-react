@@ -1,0 +1,50 @@
+name: ArgoCD Update Image (internal)
+
+on:
+  workflow_call:
+    inputs:
+      app-name:
+        required: true
+        type: string
+      app-subdir:
+        type: string
+        default: ""
+      environment:
+        required: true
+        type: string
+      image-tag:
+        required: true
+        type: string
+    secrets:
+      ARGOCD_APPS_SSH_KEY:
+        required: true
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.ARGOCD_APPS_SSH_KEY }}
+
+      - name: Update image tag in serca-argocd-apps
+        env:
+          TAG: ${{ inputs.image-tag }}
+          APP_NAME: ${{ inputs.app-name }}
+          APP_SUBDIR: ${{ inputs.app-subdir }}
+          ENVIRONMENT: ${{ inputs.environment }}
+        run: |
+          git clone --depth 1 git@github.com:PADAS/serca-argocd-apps.git
+          cd serca-argocd-apps
+          pip install yq
+
+          VALUES_FILE="${APP_SUBDIR:+${APP_SUBDIR}/}${APP_NAME}/values-${ENVIRONMENT}.yaml"
+          yq -Yi ".image.tag = \"${TAG}\"" "$VALUES_FILE"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "$VALUES_FILE"
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "${APP_NAME}: update ${ENVIRONMENT} image to ${TAG}"
+          git push
