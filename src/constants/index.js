@@ -22,6 +22,9 @@ export const CLIENT_BUILD_VERSION = `${buildbranch}-${buildnum}`;
 // the GeoJSON API; older subjects are rendered from vector tiles only.
 export const FRESH_SUBJECT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 
+// Realtime overlay: fetch last N ms of GeoJSON to cover data outside vector tile TTL (~15 min).
+export const REALTIME_OVERLAY_WINDOW_MS = 30 * 60 * 1000; // 30 minutes
+
 export const MIN_ZOOM = 2.5;
 export const MAX_ZOOM = 20;
 
@@ -386,12 +389,12 @@ export const TIME_OF_DAY_PERIODS = [
   {
     rangeString: '06:01 - 09:00',
     rangeMinutesMin: 361,
-    rangeMinutesMax: 54,
+    rangeMinutesMax: 540,
     color: '#29a272'
   },
   {
     rangeString: '09:01 - 12:00',
-    rangeMinutesMin: 55,
+    rangeMinutesMin: 541,
     rangeMinutesMax: 720,
     color: '#2ec27e'
   }

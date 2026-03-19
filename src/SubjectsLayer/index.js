@@ -31,11 +31,12 @@ const UNCLUSTERED_FILTER = [
 const UNCLUSTERED_LAYER_ID = `${SUBJECT_SYMBOLS}-unclustered`;
 const UNCLUSTERED_SOURCE_ID = 'subject-symbol-source';
 
-const SubjectsLayer = ({ mapImages = {}, onSubjectClick }) => {
+const SubjectsLayer = ({ mapImages = {}, onSubjectClick, subjectFeatureCollectionOverride }) => {
   const map = useContext(MapContext);
 
   const shouldSubjectsBeClustered = useSelector(selectShouldSubjectsBeClustered);
-  const subjectFeatureCollection = useSelector(selectFreshMapSubjectsFeatureCollection);
+  const freshSubjectFeatureCollection = useSelector(selectFreshMapSubjectsFeatureCollection);
+  const subjectFeatureCollection = subjectFeatureCollectionOverride ?? freshSubjectFeatureCollection;
 
   const [mapSubjectFeatures, setMapSubjectFeatures] = useState(featureCollection([]));
   const [subjectLayerIds, setSubjectLayerIds] = useState([]);

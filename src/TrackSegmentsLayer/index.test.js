@@ -28,6 +28,7 @@ jest.mock('react-redux', () => ({
 jest.mock('../selectors/tracks', () => ({
   selectSubjectTrackState: (state) => state?.view?.subjectTrackState,
   selectTrackTimeEnvelope: (state) => state?.view?.trackTimeEnvelope,
+  selectVectorTileRangeParam: (state) => state?.view?.vectorTileRangeParam ?? 'all',
 }));
 
 const TRACK_SINCE = new Date('2026-02-02T00:00:00Z');
@@ -43,6 +44,7 @@ const buildMockState = (overrides = {}) => ({
     },
     subjectTrackState: { pinned: [], visible: [], ...overrides.subjectTrackState },
     trackTimeEnvelope: { from: TRACK_SINCE, until: null, ...overrides.trackTimeEnvelope },
+    vectorTileRangeParam: overrides.vectorTileRangeParam,
   },
 });
 
@@ -74,7 +76,7 @@ describe('TrackSegmentsLayer', () => {
 
       expect(mockMap.addSource).toHaveBeenCalledWith('track-segments-source', expect.objectContaining({
         type: 'vector',
-        tiles: ['http://test-api.com/observations/segments/tiles/{z}/{x}/{y}.pbf'],
+        tiles: ['http://test-api.com/observations/segments/tiles/{z}/{x}/{y}.pbf?range=all'],
         minzoom: 0,
         maxzoom: 22,
       }));
@@ -108,6 +110,23 @@ describe('TrackSegmentsLayer', () => {
 
       expect(mockMap.addSource).not.toHaveBeenCalled();
       expect(mockMap.addLayer).not.toHaveBeenCalled();
+    });
+
+    test('uses range=45 in tile URL when vectorTileRangeParam is "45"', () => {
+      mockMap.getSource.mockReturnValue(null);
+      mockMap.getLayer.mockReturnValue(null);
+      const state = buildMockState({ vectorTileRangeParam: '45' });
+      useSelector.mockImplementation((selector) => selector(state));
+
+      render(
+        <MapContext.Provider value={mockMap}>
+          <TrackSegmentsLayer />
+        </MapContext.Provider>
+      );
+
+      expect(mockMap.addSource).toHaveBeenCalledWith('track-segments-source', expect.objectContaining({
+        tiles: ['http://test-api.com/observations/segments/tiles/{z}/{x}/{y}.pbf?range=45'],
+      }));
     });
   });
 
@@ -232,7 +251,7 @@ describe('TrackSegmentsLayer', () => {
   // ── paint config ─────────────────────────────────────────────────
 
   describe('paint configuration', () => {
-    test('configures line-width to scale with zoom', () => {
+    test('uses server-driven line-width (stroke-width or stroke_width) with zoom step', () => {
       mockMap.getSource.mockReturnValue(null);
       mockMap.getLayer.mockReturnValue(null);
 
@@ -245,15 +264,17 @@ describe('TrackSegmentsLayer', () => {
       const lineLayerCall = mockMap.addLayer.mock.calls.find(
         ([config]) => config.id === 'track-segments-layer'
       );
-      expect(lineLayerCall[0].paint['line-width']).toEqual([
-        'interpolate', ['linear'], ['zoom'],
-        3, 1,
-        10, 2,
-        15, 3,
-      ]);
+      const lineWidth = lineLayerCall[0].paint['line-width'];
+      expect(lineWidth[0]).toBe('step');
+      expect(lineWidth[1]).toEqual(['zoom']);
+      expect(lineWidth[2]).toBe(3);
+      expect(lineWidth[3]).toBe(8);
+      expect(lineWidth[4]).toEqual(['*', expect.any(Array), 1.75]);
+      const widthCase = lineWidth[4][1];
+      expect(widthCase).toEqual(['case', ['has', 'stroke-width'], ['get', 'stroke-width'], ['has', 'stroke_width'], ['get', 'stroke_width'], 1]);
     });
 
-    test('uses stroke color with fallback', () => {
+    test('uses stroke color with stable random fallback by subject_id', () => {
       mockMap.getSource.mockReturnValue(null);
       mockMap.getLayer.mockReturnValue(null);
 
@@ -266,8 +287,18 @@ describe('TrackSegmentsLayer', () => {
       const lineLayerCall = mockMap.addLayer.mock.calls.find(
         ([config]) => config.id === 'track-segments-layer'
       );
-      expect(lineLayerCall[0].paint['line-color']).toEqual(['coalesce', ['get', 'stroke'], '#3887be']);
-      expect(lineLayerCall[0].paint['line-opacity']).toEqual(['coalesce', ['get', 'stroke-opacity'], 0.8]);
+      const lineColor = lineLayerCall[0].paint['line-color'];
+      expect(lineColor[0]).toBe('case');
+      const emptyStr = '';
+      expect(lineColor[1]).toEqual(['all', ['has', 'stroke'], ['!=', ['get', 'stroke'], emptyStr]]);
+      expect(lineColor[2]).toEqual(['to-color', ['get', 'stroke']]);
+      expect(lineColor[3][0]).toBe('rgb');
+      expect(lineColor[3][1]).toEqual(['random', 64, 224, ['concat', ['get', 'subject_id'], '-r']]);
+      const lineOpacity = lineLayerCall[0].paint['line-opacity'];
+      expect(lineOpacity[0]).toBe('case');
+      expect(lineOpacity).toContainEqual(['has', 'stroke-opacity']);
+      expect(lineOpacity).toContainEqual(['has', 'stroke_opacity']);
+      expect(lineOpacity).toContainEqual(0.8);
     });
   });
 

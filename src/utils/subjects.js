@@ -5,7 +5,7 @@ import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 import keyBy from 'lodash/keyBy';
 
-import { findTimeEnvelopeIndices } from './tracks';
+import { findClosestPositionDescending } from './tracks';
 import { getActivePatrolsForLeaderId } from './patrols';
 
 
@@ -139,50 +139,43 @@ export const updateSubjectLastPositionFromSocketStatusUpdate = (subject, updateO
   return returnVal;
 };
 
-export const pinMapSubjectsToVirtualPosition = (mapSubjectFeatureCollection, tracks, virtualDate) => {
+/**
+ * Pin subject features to replay positions at virtualDate using subject-movement-timeline data only.
+ * bySubject[id] must be an array (possibly empty) for subjects returned in the last fetch; otherwise
+ * the feature is left unchanged (not yet loaded, or unknown to the API).
+ * Points are ordered by t descending (newest first).
+ */
+export const pinMapSubjectsToVirtualPosition = (mapSubjectFeatureCollection, virtualDate, bySubject) => {
+  const series = bySubject && typeof bySubject === 'object' ? bySubject : {};
   return {
     ...mapSubjectFeatureCollection,
     features: mapSubjectFeatureCollection.features
       .map((feature) => {
-        const trackMatch = tracks[feature.properties.id];
-
-        if (!trackMatch) return feature;
-
-        const [trackFeature] = trackMatch.track.features;
-
-        // this guard clause is a bit overboard because we're potentially querying very old/quirky track data.
-        if (!trackFeature || !trackFeature.geometry || !trackFeature.geometry.coordinates || !trackFeature.geometry.coordinates.length) {
+        const subjectId = feature.properties.id;
+        if (!Object.prototype.hasOwnProperty.call(series, subjectId)) {
           return feature;
         }
-
-        const { properties: { coordinateProperties: { times } } } = trackFeature;
-        const { until } = findTimeEnvelopeIndices(times, null, virtualDate);
-
-        const hasUntil = until > -1;
-
-        let index = 0;
-
-        if (hasUntil) {
-          if (until === times.length) {
-            index = until - 1;
-          } else {
-            index = until;
-          }
+        const points = series[subjectId];
+        if (!Array.isArray(points) || !points.length) {
+          return feature;
         }
-
+        const position = findClosestPositionDescending(points, virtualDate);
+        if (!position) {
+          return feature;
+        }
         return {
           ...feature,
           geometry: {
             ...feature.geometry,
-            coordinates: trackFeature.geometry.coordinates[index] || feature.geometry.coordinates,
+            coordinates: [position.lon, position.lat],
           },
           properties: {
             ...feature.properties,
             coordinateProperties: {
               ...feature.properties.coordinateProperties,
-              time: trackFeature.properties.coordinateProperties.times[index] || feature.properties.coordinateProperties.time,
-            }
-          }
+              time: position.t,
+            },
+          },
         };
       }),
   };

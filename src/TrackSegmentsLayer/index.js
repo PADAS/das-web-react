@@ -5,9 +5,10 @@ import uniq from 'lodash/uniq';
 
 import { MapContext } from '../App';
 import { useMapEventBinding } from '../hooks';
-import { addMapImage, safeRemoveMapLayer } from '../utils/map';
+import { addMapImage, getTimeOfDayLineColorExpression, safeRemoveMapLayer } from '../utils/map';
+import { getTimezoneOffsetMinutes } from '../utils/datetime';
 import { API_URL, MAP_ICON_SCALE } from '../constants';
-import { selectSubjectTrackState, selectTrackTimeEnvelope } from '../selectors/tracks';
+import { selectSubjectTrackState, selectTrackTimeEnvelope, selectVectorTileRangeParam } from '../selectors/tracks';
 
 import Arrow from '../common/images/icons/track-arrow.svg?url';
 
@@ -17,12 +18,57 @@ const TRACK_SEGMENTS_SOURCE = 'track-segments-source';
 const TRACK_SEGMENTS_LAYER_ID = 'track-segments-layer';
 const TRACK_SEGMENTS_START_LAYER_ID = 'track-segments-start-layer';
 
-const VECTOR_TILE_URL = `${API_URL}observations/segments/tiles/{z}/{x}/{y}.pbf`;
+const VECTOR_TILE_BASE = `${API_URL}observations/segments/tiles/{z}/{x}/{y}.pbf`;
 
+const buildVectorTileUrl = (rangeParam) =>
+  `${VECTOR_TILE_BASE}?range=${rangeParam}`;
+
+// Server-controlled styling: match TracksLayer/track.js TRACK_LAYER_LINE_PAINT.
+// Vector tiles may use snake_case (stroke_width); support both.
+const STABLE_RANDOM_TRACK_COLOR_BASED_ON_SUBJECT_ID = [
+  'rgb',
+  ['random', 64, 224, ['concat', ['get', 'subject_id'], '-r']],
+  ['random', 64, 224, ['concat', ['get', 'subject_id'], '-g']],
+  ['random', 64, 224, ['concat', ['get', 'subject_id'], '-b']]
+];
+
+const TRACK_SEGMENTS_LINE_PAINT = {
+  'line-color': [
+    'case',
+    ['all',
+      ['has', 'stroke'],
+      ['!=', ['get', 'stroke'], '']
+    ],
+    ['to-color', ['get', 'stroke']],
+    STABLE_RANDOM_TRACK_COLOR_BASED_ON_SUBJECT_ID,
+  ],
+  'line-width': [
+    'step',
+    ['zoom'],
+    3,
+    8,
+    ['*',
+      ['case',
+        ['has', 'stroke-width'], ['get', 'stroke-width'],
+        ['has', 'stroke_width'], ['get', 'stroke_width'],
+        1
+      ],
+      1.75
+    ]
+  ],
+  'line-opacity': [
+    'case',
+    ['has', 'stroke-opacity'], ['get', 'stroke-opacity'],
+    ['has', 'stroke_opacity'], ['get', 'stroke_opacity'],
+    0.8
+  ],
+};
 
 const TrackSegmentsLayer = ({ onPointClick }) => {
   const map = useContext(MapContext);
 
+  const isTimeOfDayColoringActive = useSelector((state) => state.view.trackSettings.isTimeOfDayColoringActive);
+  const timeOfDayTimeZone = useSelector((state) => state.view.trackSettings.timeOfDayTimeZone);
   const isSegmentOnTimeEnabled = useSelector((state) => state.view.trackSettings.isSegmentOnTimeEnabled);
   const isSegmentOnSpeedEnabled = useSelector((state) => state.view.trackSettings.isSegmentOnSpeedEnabled);
   const segmentTimeGapLength = useSelector((state) => state.view.trackSettings.segmentTimeGapLength);
@@ -30,6 +76,7 @@ const TrackSegmentsLayer = ({ onPointClick }) => {
 
   const subjectTrackState = useSelector(selectSubjectTrackState);
   const trackTimeEnvelope = useSelector(selectTrackTimeEnvelope);
+  const rangeParam = useSelector(selectVectorTileRangeParam);
   const visibleSubjectIds = uniq([
     ...subjectTrackState.pinned,
     ...subjectTrackState.visible,
@@ -44,14 +91,14 @@ const TrackSegmentsLayer = ({ onPointClick }) => {
     }
   }, [map]);
 
-  /* add the vector source */
+  /* add the vector source (URL includes range=45|all); only clean up on unmount */
   useEffect(() => {
     if (!map) return;
 
     if (!map.getSource(TRACK_SEGMENTS_SOURCE)) {
       map.addSource(TRACK_SEGMENTS_SOURCE, {
         type: 'vector',
-        tiles: [VECTOR_TILE_URL],
+        tiles: [buildVectorTileUrl(rangeParam)],
         minzoom: 0,
         maxzoom: 22,
       });
@@ -70,18 +117,7 @@ const TrackSegmentsLayer = ({ onPointClick }) => {
           'line-cap': 'round',
           'visibility': 'visible'
         },
-        paint: {
-          'line-color': ['coalesce', ['get', 'stroke'], '#3887be'],
-          'line-width': [
-            'interpolate',
-            ['linear'],
-            ['zoom'],
-            3, 1,
-            10, 2,
-            15, 3
-          ],
-          'line-opacity': ['coalesce', ['get', 'stroke-opacity'], 0.8]
-        }
+        paint: TRACK_SEGMENTS_LINE_PAINT
       });
     }
 
@@ -115,10 +151,25 @@ const TrackSegmentsLayer = ({ onPointClick }) => {
       if (map.getLayer(TRACK_SEGMENTS_LAYER_ID)) {
         safeRemoveMapLayer(map, TRACK_SEGMENTS_LAYER_ID);
       }
-      // Do NOT remove the shared vector tile source – SubjectTileLayer
-      // and other consumers share it.
+      // Do NOT remove the shared vector tile source – SubjectTileLayer owns cleanup on unmount.
     };
-  }, [map]);
+  }, [map, rangeParam]);
+
+  /* time-of-day line color: when active, color segments by start_time in selected timezone */
+  useEffect(() => {
+    if (!map || !map.getLayer(TRACK_SEGMENTS_LAYER_ID)) return;
+
+    const timeZoneOffset = timeOfDayTimeZone ? getTimezoneOffsetMinutes(timeOfDayTimeZone) : 0;
+    const lineColor = isTimeOfDayColoringActive
+      ? getTimeOfDayLineColorExpression(
+          'start_time',
+          STABLE_RANDOM_TRACK_COLOR_BASED_ON_SUBJECT_ID,
+          timeZoneOffset
+        )
+      : TRACK_SEGMENTS_LINE_PAINT['line-color'];
+
+    map.setPaintProperty(TRACK_SEGMENTS_LAYER_ID, 'line-color', lineColor);
+  }, [map, isTimeOfDayColoringActive, timeOfDayTimeZone]);
 
   /* update layer filter based on segmentation settings */
   useEffect(() => {

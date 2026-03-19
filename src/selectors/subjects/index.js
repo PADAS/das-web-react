@@ -18,7 +18,11 @@ const selectSubjectGroups = (state) => state.data.subjectGroups;
 const selectSubjectStore = (state) => state.data.subjectStore;
 const selectSystemConfig = (state) => state.view.systemConfig;
 const selectTimeSliderState = (state) => state.view.timeSliderState;
-const selectTracks = (state) => state.data.tracks;
+const selectSubjectPositionTimeSeriesState = (state) => state.data.subjectPositionTimeSeries ?? {
+  bySubject: {},
+  unknownSubjectIds: [],
+  truncatedSubjectIds: [],
+};
 const selectUser = (state) => state.data.user;
 
 export const selectMapSubjectsFeatureCollection = createSelector(
@@ -128,10 +132,10 @@ export const getMapSubjectFeatureCollectionWithVirtualPositioning = createSelect
     selectMapSubjectsFeatureCollection,
     selectSystemConfig,
     selectPatrolsUserPermissions,
-    selectTracks,
+    selectSubjectPositionTimeSeriesState,
     selectTimeSliderState,
   ],
-  (mapSubjectsFeatureCollection, systemConfig, patrolsUserPermissions, tracks, timeSliderState) => {
+  (mapSubjectsFeatureCollection, systemConfig, patrolsUserPermissions, timelineState, timeSliderState) => {
     const patrolsEnabled = !!systemConfig?.[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]
       && (patrolsUserPermissions || []).includes(PERMISSIONS.READ);
 
@@ -142,8 +146,8 @@ export const getMapSubjectFeatureCollectionWithVirtualPositioning = createSelect
     if (timeSliderState.active) {
       return pinMapSubjectsToVirtualPosition(
         mapSubjectFeatureCollectionWithVirtualPositioning,
-        tracks,
         timeSliderState.virtualDate,
+        timelineState.bySubject,
       );
     }
     return mapSubjectFeatureCollectionWithVirtualPositioning;

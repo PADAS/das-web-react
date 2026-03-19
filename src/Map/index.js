@@ -18,7 +18,8 @@ import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
 import { getPatrolsForLeaderId } from '../utils/patrols';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
-import { fetchTracksIfNecessary } from '../utils/tracks';
+import { fetchSubjectPositionTimeSeries } from '../ducks/subject-position-time-series';
+import { selectTrackTimeEnvelope } from '../selectors/tracks';
 import { subjectIsStatic } from '../utils/subjects';
 import { withMultiLayerHandlerAwareness, queryMultiLayerClickFeatures } from '../utils/map-handlers';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
@@ -64,6 +65,8 @@ import SleepDetector from '../SleepDetector';
 import ClustersLayer from '../ClustersLayer';
 import SubjectTileLayer from '../SubjectTileLayer';
 import TrackSegmentsLayer from '../TrackSegmentsLayer';
+import RealtimeOverlayLayer from '../RealtimeOverlayLayer';
+import { fetchRealtimeOverlay } from '../ducks/realtime-overlay';
 import SpatialFeaturesLayer, {
   SYMBOLS_LAYER_ID,
   LINES_LAYER_ID,
@@ -155,7 +158,8 @@ const Map = ({ children, onMapLoad, socket }) => {
     hidePopupActionCreator(popupId)
   ), [dispatch]);
 
-  const trackRequestCancelToken = useRef(CancelToken.source());
+  const timeSeriesCancelToken = useRef(CancelToken.source());
+  const overlayCancelToken = useRef(CancelToken.source());
 
   const timeSliderActive = timeSliderState.active;
 
@@ -196,19 +200,10 @@ const Map = ({ children, onMapLoad, socket }) => {
   }
   , [dispatch, map]);
 
-  const resetTrackRequestCancelToken = useCallback(() => {
-    trackRequestCancelToken.current.cancel();
-    trackRequestCancelToken.current = CancelToken.source();
+  const resetTimeSeriesCancelToken = useCallback(() => {
+    timeSeriesCancelToken.current.cancel();
+    timeSeriesCancelToken.current = CancelToken.source();
   }, []);
-
-  const fetchMapSubjectTracksForTimeslider = useCallback((subjects) => {
-    resetTrackRequestCancelToken();
-    return fetchTracksIfNecessary(subjects
-      .filter(subject => !subjectIsStatic(subject))
-      .filter(({ last_position_date }) =>
-        (new Date(last_position_date) - new Date(eventFilter.filter.date_range.lower) >= 0))
-      .map(({ id }) => id));
-  }, [eventFilter.filter.date_range.lower, resetTrackRequestCancelToken]);
 
 
   const fetchMapSubjectsFromTimeslider = useCallback(() => {
@@ -221,15 +216,34 @@ const Map = ({ children, onMapLoad, socket }) => {
     }
 
     return dispatch(fetchMapSubjects(...args))
-      .then((latestMapSubjects) => timeSliderActive
-        ? fetchMapSubjectTracksForTimeslider(latestMapSubjects)
-        : Promise.resolve(latestMapSubjects))
+      .then((latestMapSubjects) => {
+        if (timeSliderActive) {
+          resetTimeSeriesCancelToken();
+          dispatch((_, getState) => {
+            const envelope = selectTrackTimeEnvelope(getState());
+            const ids = latestMapSubjects
+              .filter(subject => !subjectIsStatic(subject))
+              .filter(({ last_position_date }) =>
+                (new Date(last_position_date) - new Date(eventFilter.filter.date_range.lower) >= 0))
+              .map(({ id }) => id);
+            if (ids.length && envelope?.from && envelope?.until) {
+              return dispatch(fetchSubjectPositionTimeSeries(
+                envelope.from,
+                envelope.until,
+                ids,
+                timeSeriesCancelToken.current
+              ));
+            }
+          });
+        }
+        return latestMapSubjects;
+      })
       .catch(() => { });
   },
   [
     dispatch,
     eventFilter.filter.date_range,
-    fetchMapSubjectTracksForTimeslider,
+    resetTimeSeriesCancelToken,
     map,
     timeSliderActive,
   ]);
@@ -507,9 +521,8 @@ const Map = ({ children, onMapLoad, socket }) => {
   }, [dispatch, eventFilter.filter.date_range.lower]);
 
   const onTrackLengthChange = useCallback(() => {
-    resetTrackRequestCancelToken();
-    // fetchTracksIfNecessary(uniq([...subjectTrackState.visible, ...subjectTrackState.pinned, ...heatmapSubjectIDs]));
-  }, [heatmapSubjectIDs, resetTrackRequestCancelToken, subjectTrackState.pinned, subjectTrackState.visible]);
+    resetTimeSeriesCancelToken();
+  }, [resetTimeSeriesCancelToken]);
 
   useEffect(() => {
     dispatch(
@@ -553,6 +566,16 @@ const Map = ({ children, onMapLoad, socket }) => {
       fetchMapData();
     }
   }, [fetchMapData, map, timeSliderState.active]);
+
+  useEffect(() => {
+    if (!map || !subjectsEnabled) return;
+    overlayCancelToken.current.cancel();
+    overlayCancelToken.current = CancelToken.source();
+    dispatch(fetchRealtimeOverlay(map, overlayCancelToken.current));
+    return () => {
+      overlayCancelToken.current.cancel();
+    };
+  }, [dispatch, map, subjectsEnabled]);
 
   useEffect(() => {
     if (!!map && heatmapSubjectIDs.length && showReportHeatmap) {
@@ -691,9 +714,13 @@ const Map = ({ children, onMapLoad, socket }) => {
         bounceEventIDs={bounceEventIDs}
       />}
 
-      {subjectsEnabled && <SubjectTileLayer onSubjectClick={onSelectSubject} />}
+      {subjectsEnabled && !timeSliderActive && <SubjectTileLayer onSubjectClick={onSelectSubject} />}
 
-      {subjectsEnabled && <SubjectsLayer mapImages={mapImages} onSubjectClick={onSelectSubject} />}
+      {subjectsEnabled && <SubjectsLayer
+        mapImages={mapImages}
+        onSubjectClick={onSelectSubject}
+        subjectFeatureCollectionOverride={timeSliderActive ? mapSubjectFeatureCollection : undefined}
+      />}
 
       <MapImagesLayer />
 
@@ -732,6 +759,8 @@ const Map = ({ children, onMapLoad, socket }) => {
       {showReportHeatmap && <ReportsHeatLayer />}
 
       <TrackSegmentsLayer onPointClick={onTimepointClick} />
+
+      {subjectsEnabled && <RealtimeOverlayLayer onSubjectClick={onSelectSubject} />}
 
       {patrolTracksVisible && <PatrolStartStopLayer />}
 

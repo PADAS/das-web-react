@@ -94,6 +94,27 @@ export const fixAntimeridianCrossing = (featCollection) => {
   return featCollection;
 };
 
+/**
+ * Count track points in a GeoJSON FeatureCollection (e.g. API track response).
+ * Does not mutate; safe to call then discard the collection.
+ * @param {object} featureCollection - GeoJSON FeatureCollection
+ * @returns {number}
+ */
+export const countTrackPointsInFeatureCollection = (featureCollection) => {
+  if (!featureCollection?.features?.length) return 0;
+  return featureCollection.features.reduce((total, f) => {
+    const coords = f?.geometry?.coordinates;
+    if (!coords) return total;
+    if (Array.isArray(coords[0]) && typeof coords[0][0] === 'number') {
+      return total + coords.length; // LineString
+    }
+    if (Array.isArray(coords[0]) && Array.isArray(coords[0][0])) {
+      return total + coords.reduce((s, ring) => s + ring.length, 0); // MultiLineString or Polygon
+    }
+    return total;
+  }, 0);
+};
+
 export const convertTrackFeatureCollectionToPoints = feature => {
   if (!feature.features.length) return featureCollection([]);
 
@@ -174,6 +195,29 @@ export const findTimeEnvelopeIndices = (times, from = null, until = null) => {
     }
   }
   return results;
+};
+
+/**
+ * Binary search for "closest but not over" virtualDate in a time series ordered by t descending.
+ * Returns the point { t, lon, lat } at or before virtualDate (most recent such point), or null.
+ * Used for replay when the API returns points in natural/descending order.
+ */
+export const findClosestPositionDescending = (points, virtualDate) => {
+  if (!points?.length || virtualDate == null) return null;
+  const v = new Date(virtualDate);
+  let low = 0;
+  let high = points.length - 1;
+  if (new Date(points[high].t) > v) return null;
+  if (new Date(points[0].t) <= v) return points[0];
+  while (low < high) {
+    const mid = (low + high) >> 1;
+    if (new Date(points[mid].t) > v) {
+      low = mid + 1;
+    } else {
+      high = mid;
+    }
+  }
+  return points[low] && new Date(points[low].t) <= v ? points[low] : null;
 };
 
 export const trimArrayWithEnvelopeIndices = (collection, envelope = {}) => {

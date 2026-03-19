@@ -16,7 +16,9 @@ jest.mock('../App', () => {
 jest.mock('../utils/analyzers', () => ({}));
 jest.mock('../ducks/analyzers', () => ({}));
 jest.mock('../utils/map', () => ({
-  addMapImage: jest.fn()
+  addMapImage: jest.fn(),
+  safeRemoveMapLayer: jest.fn(),
+  safeRemoveMapSource: jest.fn(),
 }));
 
 jest.mock('../constants', () => ({
@@ -49,6 +51,10 @@ jest.mock('react-redux', () => ({
   useSelector: jest.fn(),
 }));
 
+jest.mock('../selectors/tracks', () => ({
+  selectVectorTileRangeParam: () => '45',
+}));
+
 describe('SpatialFeaturesLayer', () => {
   let mockMap;
   let mockOnFeatureClick;
@@ -60,7 +66,11 @@ describe('SpatialFeaturesLayer', () => {
     mockOnFeatureClick = jest.fn();
 
     // Mock the selectors
+    const { selectVectorTileRangeParam } = require('../selectors/tracks');
     useSelector.mockImplementation(selector => {
+      if (selector === selectVectorTileRangeParam) {
+        return selector();
+      }
       if (selector.toString().includes('token')) {
         return { access_token: 'mock-token' };
       }
@@ -85,11 +95,11 @@ describe('SpatialFeaturesLayer', () => {
       </MapContext.Provider>
     );
 
-    // Verify source was added
-    expect(mockMap.addSource).toHaveBeenCalledWith('spatial-features-source', expect.objectContaining({
-      type: 'vector',
-      tiles: [expect.stringContaining('spatialfeatures/tiles/{z}/{x}/{y}.pbf')],
-    }));
+    // Verify source was added with range param (45 or all)
+    const addSourceCall = mockMap.addSource.mock.calls.find((c) => c[0] === 'spatial-features-source');
+    expect(addSourceCall).toBeDefined();
+    expect(addSourceCall[1].type).toBe('vector');
+    expect(addSourceCall[1].tiles[0]).toMatch(/spatialfeatures\/tiles\/\{z\}\/\{x\}\/\{y\}\.pbf\?range=(45|all)/);
 
     // Verify all four layers were added
     expect(mockMap.addLayer).toHaveBeenCalledTimes(4);

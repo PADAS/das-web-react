@@ -19,13 +19,24 @@ const selectTracks = (state) => state.data.tracks;
 const selectTrackSettingsLength = (state) => state.view.trackSettings.length;
 const selectTrackSettingsOrigin = (state) => state.view.trackSettings.origin;
 
-const selectTrackLengthInDays = createSelector(
+export const selectTrackLengthInDays = createSelector(
   [selectEventFilterLowerDateRange, selectTrackSettingsLength, selectTrackSettingsOrigin],
   (eventFilterLowerDateRange, trackSettingsLength, trackSettingsOrigin) =>
     // Get the track length in days depending on the origin set in the track settings.
     trackSettingsOrigin === TRACK_LENGTH_ORIGINS.EVENT_FILTER
       ? differenceInCalendarDays(new Date(), new Date(eventFilterLowerDateRange))
       : trackSettingsLength,
+);
+
+/**
+ * Vector tile API only accepts two range values: "45" (last 45 days) or "all".
+ * Client keeps fine-grained track length; this maps to the param when building the tile URL.
+ * Use the smallest range that covers the requested length: <= 45 days → "45", > 45 → "all".
+ * The client filters segments to the track time envelope (start_time) so 21 days still shows 21 days.
+ */
+export const selectVectorTileRangeParam = createSelector(
+  [selectTrackLengthInDays],
+  (trackLengthInDays) => (trackLengthInDays <= 45 ? '45' : 'all')
 );
 
 export const selectTrackTimeEnvelope = createSelector(
@@ -91,6 +102,35 @@ const selectSubjectShownTracks = createSelector(
     });
     return subjectTracks;
   }
+);
+
+/**
+ * Subject IDs that currently have tracks visible or pinned (vector or legacy).
+ * Use this to drive the track legend and layer filters without requiring fetched GeoJSON.
+ */
+export const selectSubjectTrackVisibleIds = createSelector(
+  [selectSubjectTrackState],
+  (subjectTrackState) => uniq([...subjectTrackState.pinned, ...subjectTrackState.visible])
+);
+
+const selectSubjectStore = (state) => state.data.subjectStore;
+
+/**
+ * Legend item data for subjects with tracks visible/pinned, from subjectStore only.
+ * Does not depend on state.data.tracks, so the legend works when tracks are from vector tiles.
+ */
+export const selectSubjectTrackLegendItemsData = createSelector(
+  [selectSubjectTrackVisibleIds, selectSubjectStore],
+  (subjectIds, subjectStore) =>
+    subjectIds
+      .filter((id) => subjectStore[id])
+      .map((id) => {
+        const subject = subjectStore[id];
+        const lastPosition = subject?.last_position;
+        const title = lastPosition?.properties?.title ?? lastPosition?.properties?.name ?? subject?.name ?? id;
+        const imageUrl = lastPosition?.properties?.image ?? subject?.image_url ?? subject?.last_position?.properties?.image_url;
+        return { id, title, imageUrl };
+      })
 );
 
 export const selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod = createSelector(

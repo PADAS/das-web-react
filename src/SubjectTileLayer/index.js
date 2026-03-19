@@ -3,13 +3,15 @@ import { useSelector } from 'react-redux';
 
 import { MapContext } from '../App';
 import { useMapEventBinding } from '../hooks';
-import { addPropsToGeoJsonByKey, safeRemoveMapLayer } from '../utils/map';
+import { addPropsToGeoJsonByKey, safeRemoveMapLayer, safeRemoveMapSource } from '../utils/map';
 import { API_URL, LAYER_IDS, SYMBOL_TEXT_SIZE_EXPRESSION } from '../constants';
 import { selectFreshSubjectIds } from '../selectors/subjects';
+import { selectVectorTileRangeParam } from '../selectors/tracks';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
 
 const VECTOR_TILE_SOURCE = 'track-segments-source';
-const VECTOR_TILE_URL = `${API_URL}observations/segments/tiles/{z}/{x}/{y}.pbf`;
+const VECTOR_TILE_BASE = `${API_URL}observations/segments/tiles/{z}/{x}/{y}.pbf`;
+const buildVectorTileUrl = (rangeParam) => `${VECTOR_TILE_BASE}?range=${rangeParam}`;
 
 const SUBJECT_TILE_LAYER_ID = 'subject-tile-layer';
 const SUBJECT_TILE_LABEL_LAYER_ID = 'subject-tile-layer-labels';
@@ -25,6 +27,7 @@ const { SKY_LAYER } = LAYER_IDS;
 const SubjectTileLayer = ({ onSubjectClick }) => {
   const map = useContext(MapContext);
   const freshSubjectIds = useSelector(selectFreshSubjectIds);
+  const rangeParam = useSelector(selectVectorTileRangeParam);
   const showInactiveRadios = useSelector((state) => state.view.showInactiveRadios);
   const subjectStore = useSelector((state) => state.data.subjectStore);
 
@@ -39,11 +42,11 @@ const SubjectTileLayer = ({ onSubjectClick }) => {
     if (!map) return;
 
     // Ensure the shared vector tile source exists (TrackSegmentsLayer may
-    // have already created it).
+    // have already created it with the same range param).
     if (!map.getSource(VECTOR_TILE_SOURCE)) {
       map.addSource(VECTOR_TILE_SOURCE, {
         type: 'vector',
-        tiles: [VECTOR_TILE_URL],
+        tiles: [buildVectorTileUrl(rangeParam)],
         minzoom: 0,
         maxzoom: 22,
       });
@@ -128,10 +131,12 @@ const SubjectTileLayer = ({ onSubjectClick }) => {
       if (map.getLayer(SUBJECT_TILE_LAYER_ID)) {
         safeRemoveMapLayer(map, SUBJECT_TILE_LAYER_ID);
       }
-      // Do NOT remove the shared vector tile source – TrackSegmentsLayer
-      // and other consumers share it.
+      // Remove the shared vector tile source on unmount (we unmount after TrackSegmentsLayer).
+      if (map.getSource(VECTOR_TILE_SOURCE)) {
+        safeRemoveMapSource(map, VECTOR_TILE_SOURCE);
+      }
     };
-  }, [map]);
+  }, [map, rangeParam]);
 
   /* ── dedup + inactive radio filter ────────────────────────────────── */
 

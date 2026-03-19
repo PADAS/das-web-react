@@ -3,13 +3,15 @@ import { useSelector } from 'react-redux';
 import { MapContext } from '../App';
 import { addMapImage, safeRemoveMapLayer, safeRemoveMapSource } from '../utils/map';
 import { API_URL, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
+import { selectVectorTileRangeParam } from '../selectors/tracks';
 
 import MarkerImage from '../common/images/icons/mapbox-blue-marker-icon.png';
 import RangerStationsImage from '../common/images/icons/ranger-stations.png';
 
 const SPATIAL_FEATURES_SOURCE = 'spatial-features-source';
 
-const VECTOR_TILE_URL = `${API_URL}spatialfeatures/tiles/{z}/{x}/{y}.pbf`;
+const VECTOR_TILE_BASE = `${API_URL}spatialfeatures/tiles/{z}/{x}/{y}.pbf`;
+const buildVectorTileUrl = (rangeParam) => `${VECTOR_TILE_BASE}?range=${rangeParam}`;
 
 export const SYMBOLS_LAYER_ID = 'spatial-features-symbols';
 // const SYMBOLS_LABELS_LAYER_ID = 'spatial-features-point-labels';
@@ -65,6 +67,7 @@ const LINE_LAYERS_PAINT = {
 const SpatialFeaturesLayer = ({ onFeatureClick }) => {
   const map = useContext(MapContext);
   const token = useSelector(state => state.data.token);
+  const rangeParam = useSelector(selectVectorTileRangeParam);
   const mapFeatureHighlightIDs = useSelector(state => state.view.mapFeatureHighlightIDs || []);
   const hiddenFeatureIDs = useSelector(state => state.data.mapLayerFilter?.hiddenFeatureIDs ?? []);
 
@@ -100,7 +103,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
     if (!map.getSource(SPATIAL_FEATURES_SOURCE)) {
       map.addSource(SPATIAL_FEATURES_SOURCE, {
         type: 'vector',
-        tiles: [VECTOR_TILE_URL],
+        tiles: [buildVectorTileUrl(rangeParam)],
         minzoom: 0,
         maxzoom: 22,
         transformRequest: (url, resourceType) => {
@@ -307,13 +310,13 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
     map.on('mouseleave', SYMBOLS_LAYER_ID, onMouseLeave);
 
     return () => {
+      if (!map) return;
       layerIds.forEach(layerId => {
         if (map.getLayer(layerId)) {
           map.off('click', layerId, handleFeatureClick);
           safeRemoveMapLayer(map, layerId);
         }
       });
-
       map.off('mouseenter', SYMBOLS_LAYER_ID, onMouseEnter);
       map.off('mouseleave', SYMBOLS_LAYER_ID, onMouseLeave);
       safeRemoveMapSource(map, SPATIAL_FEATURES_SOURCE);
@@ -324,7 +327,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
       # this will help us support possible in-memory retention/rehydration in the future (via saved app state).
     */
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map, handleFeatureClick, onMouseEnter, onMouseLeave, token?.access_token]);
+  }, [map, rangeParam, handleFeatureClick, onMouseEnter, onMouseLeave, token?.access_token]);
 
   /* highlight spatial features based on the values in mapFeatureHighlightIDs */
   useEffect(() => {

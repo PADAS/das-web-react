@@ -27,12 +27,17 @@ const mockAddPropsToGeoJsonByKey = (item, key) => {
 jest.mock('../utils/map', () => ({
   addPropsToGeoJsonByKey: (...args) => mockAddPropsToGeoJsonByKey(...args),
   safeRemoveMapLayer: jest.fn(),
+  safeRemoveMapSource: jest.fn(),
 }));
 
 jest.mock('../constants', () => ({
   API_URL: 'http://test-api.com/',
   LAYER_IDS: { SKY_LAYER: 'sky-layer' },
   SYMBOL_TEXT_SIZE_EXPRESSION: ['interpolate', ['linear'], ['zoom'], 0, 10, 22, 14],
+}));
+
+jest.mock('../selectors/tracks', () => ({
+  selectVectorTileRangeParam: () => '45',
 }));
 
 jest.mock('react-redux', () => ({

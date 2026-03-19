@@ -1,6 +1,6 @@
 import { createMapMock } from '../__test-helpers/mocks';
 
-import { calculatePopoverPlacement, waitForMapBounds } from './map';
+import { calculatePopoverPlacement, getTimeOfDayLineColorExpression, waitForMapBounds } from './map';
 
 let map;
 const errorObj = new Error('invalid LngLat');
@@ -149,5 +149,26 @@ describe('calculatePopoverPlacement', () => {
     }));
 
     expect(await calculatePopoverPlacement(map, { lat: -2.7, lng: 37.5 })).toBe('bottom');
+  });
+});
+
+describe('getTimeOfDayLineColorExpression', () => {
+  const fallback = ['get', 'stroke'];
+
+  test('returns a case expression with fallback when property missing or empty', () => {
+    const expr = getTimeOfDayLineColorExpression('start_time', fallback);
+    expect(expr[0]).toBe('case');
+    expect(expr[1]).toEqual(['all', ['has', 'start_time'], ['!=', ['get', 'start_time'], '']]);
+    expect(expr[expr.length - 1]).toEqual(fallback);
+  });
+
+  test('uses given property name in expression', () => {
+    const expr = getTimeOfDayLineColorExpression('recorded_at', fallback);
+    expect(JSON.stringify(expr)).toContain('recorded_at');
+  });
+
+  test('accepts timezone offset for localization', () => {
+    const expr = getTimeOfDayLineColorExpression('start_time', fallback, -360);
+    expect(JSON.stringify(expr)).toContain('-360');
   });
 });
