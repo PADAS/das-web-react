@@ -105,7 +105,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  update-image:
+  update-image-dev:
     needs: [config, build]
     if: github.ref_name == 'develop'
     uses: ./.github/workflows/_update-argo.yml
@@ -117,8 +117,8 @@ jobs:
     secrets:
       ARGOCD_APPS_SSH_KEY: ${{ secrets.ARGOCD_APPS_SSH_KEY }}
 
-  sync:
-    needs: [config, update-image]
+  sync-dev:
+    needs: [config, update-image-dev]
     if: github.ref_name == 'develop'
     uses: ./.github/workflows/_sync-argo.yml
     with:
