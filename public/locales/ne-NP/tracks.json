@@ -5,11 +5,19 @@
         "trackLegendItemsName": "गस्तीहरु"
     },
     "subjectTrackLegend": {
-        "description": "{{trackTime}} मा {{pointCount}} पोइन्टहरू",
+        "description": "{{trackTime}}",
         "itemDescription_one": "{{count}} पोइन्ट",
         "itemDescription_other": "{{count}} पोइन्टहरू",
         "itemIcon": "{{title}} को आइकन",
-        "trackLegendItemsName": "विषयहरू"
+        "trackLegendItemsName": "विषयहरू",
+        "popoverTriggerLabel": "मिति दायरा र पोइन्ट गणना देखाउनुहोस्",
+        "tooltip": {
+            "dateRange": "{{from}} – {{until}}",
+            "untilNow": "अहिले",
+            "pointCount": "{{count}} पोइन्टहरू",
+            "pointCountLoading": "लोड हुँदैछ…",
+            "pointCountError": "पोइन्ट गणना लोड गर्न सकिएन"
+        }
     },
     "trackLegend": {
         "clearTracksButton": "ट्र्याकहरू खाली गर्नुहोस्",

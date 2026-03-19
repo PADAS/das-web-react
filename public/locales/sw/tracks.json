@@ -5,11 +5,19 @@
     "trackLegendItemsName": "doria"
   },
   "subjectTrackLegend": {
-    "description": "Pointi {{pointCount}} kwa muda wa {{trackTime}}",
+    "description": "{{trackTime}}",
     "itemDescription_one": "Pointi {{count}}",
     "itemDescription_other": "Pointi {{count}}",
     "itemIcon": "Ikoni ya {{title}}",
-    "trackLegendItemsName": "wasanii"
+    "trackLegendItemsName": "wasanii",
+    "popoverTriggerLabel": "Onyesha kipindi cha tarehe na idadi ya pointi",
+    "tooltip": {
+      "dateRange": "{{from}} – {{until}}",
+      "untilNow": "sasa",
+      "pointCount": "Pointi {{count}}",
+      "pointCountLoading": "Inapakia…",
+      "pointCountError": "Imeshindwa kupakia idadi ya pointi"
+    }
   },
   "trackLegend": {
     "clearTracksButton": "Futa nyimbo",

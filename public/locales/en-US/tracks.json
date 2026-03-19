@@ -5,11 +5,19 @@
     "trackLegendItemsName": "patrols"
   },
   "subjectTrackLegend": {
-    "description": "{{pointCount}} points over {{trackTime}}",
+    "description": "{{trackTime}}",
     "itemDescription_one": "{{count}} point",
     "itemDescription_other": "{{count}} points",
     "itemIcon": "Icon for {{title}}",
-    "trackLegendItemsName": "subjects"
+    "trackLegendItemsName": "subjects",
+    "popoverTriggerLabel": "Show date range and point count",
+    "tooltip": {
+      "dateRange": "{{from}} – {{until}}",
+      "untilNow": "now",
+      "pointCount": "{{count}} points",
+      "pointCountLoading": "Loading…",
+      "pointCountError": "Could not load point count"
+    }
   },
   "trackLegend": {
     "clearTracksButton": "Clear Tracks",

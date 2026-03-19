@@ -5,11 +5,19 @@
     "trackLegendItemsName": "patrullas"
   },
   "subjectTrackLegend": {
-    "description": "{{pointCount}} puntos en {{trackTime}}",
+    "description": "{{trackTime}}",
     "itemDescription_one": "{{count}} punto",
     "itemDescription_other": "{{count}} puntos",
     "itemIcon": "Icono para {{title}}",
-    "trackLegendItemsName": "sujetos"
+    "trackLegendItemsName": "sujetos",
+    "popoverTriggerLabel": "Mostrar rango de fechas y número de puntos",
+    "tooltip": {
+      "dateRange": "{{from}} – {{until}}",
+      "untilNow": "ahora",
+      "pointCount": "{{count}} puntos",
+      "pointCountLoading": "Cargando…",
+      "pointCountError": "No se pudo cargar el número de puntos"
+    }
   },
   "trackLegend": {
     "clearTracksButton": "Limpiar trayectorias",

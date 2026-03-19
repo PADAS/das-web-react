@@ -5,11 +5,19 @@
     "trackLegendItemsName": "patrouilles"
   },
   "subjectTrackLegend": {
-    "description": "{{pointCount}} points sur {{trackTime}}",
+    "description": "{{trackTime}}",
     "itemDescription_one": "{{count}} point",
     "itemDescription_other": "{{count}} points",
     "itemIcon": "Icône pour {{title}}",
-    "trackLegendItemsName": "sujets"
+    "trackLegendItemsName": "sujets",
+    "popoverTriggerLabel": "Afficher la plage de dates et le nombre de points",
+    "tooltip": {
+      "dateRange": "{{from}} – {{until}}",
+      "untilNow": "maintenant",
+      "pointCount": "{{count}} points",
+      "pointCountLoading": "Chargement…",
+      "pointCountError": "Impossible de charger le nombre de points"
+    }
   },
   "trackLegend": {
     "clearTracksButton": "Effacer les trajectoires",
