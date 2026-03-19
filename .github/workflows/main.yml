@@ -108,76 +108,41 @@ jobs:
   update-image:
     needs: [config, build]
     if: github.ref_name == 'develop'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.ARGOCD_APPS_SSH_KEY }}
-
-      - name: Update image tag in serca-argocd-apps
-        env:
-          TAG: ${{ needs.config.outputs.image-tag }}
-        run: |
-          git clone --depth 1 git@github.com:PADAS/serca-argocd-apps.git
-          cd serca-argocd-apps
-
-          pip install yq
-          yq -Yi ".image.tag = \"${TAG}\"" earthranger/das-web-react/values-er-dev.yaml
-
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add earthranger/das-web-react/values-er-dev.yaml
-          git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "das-web-react: update er-dev image to ${TAG}"
-          git push
+    uses: ./.github/workflows/_update-argo.yml
+    with:
+      app-name: das-web-react
+      app-subdir: earthranger
+      environment: er-dev
+      image-tag: ${{ needs.config.outputs.image-tag }}
+    secrets:
+      ARGOCD_APPS_SSH_KEY: ${{ secrets.ARGOCD_APPS_SSH_KEY }}
 
   sync:
     needs: [config, update-image]
     if: github.ref_name == 'develop'
-    runs-on: ubuntu-latest
-    env:
-      ARGOCD_SERVER: ${{ vars.ARGOCD_SERVER }}
+    uses: ./.github/workflows/_sync-argo.yml
+    with:
+      app-name: das-web-react-er-dev
+    secrets:
       ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
-      APP_NAME: das-web-react-er-dev
-    steps:
-      - name: Install ArgoCD CLI
-        run: |
-          curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-          chmod +x argocd && sudo mv argocd /usr/local/bin/
 
-      - name: Wait for app
-        run: |
-          for i in $(seq 1 18); do
-            argocd app get "$APP_NAME" --grpc-web &>/dev/null && exit 0
-            echo "[$i/18] Not found, retrying in 10s..."
-            sleep 10
-          done
-          echo "::error::App $APP_NAME not found after 180s" && exit 1
+  update-image-stage:
+    needs: [config, build]
+    if: startsWith(github.ref_name, 'release-')
+    uses: ./.github/workflows/_update-argo.yml
+    with:
+      app-name: das-web-react
+      app-subdir: earthranger
+      environment: er-stage
+      image-tag: ${{ needs.config.outputs.image-tag }}
+    secrets:
+      ARGOCD_APPS_SSH_KEY: ${{ secrets.ARGOCD_APPS_SSH_KEY }}
 
-      - name: Sync
-        run: |
-          MAX_RETRIES=3
-          RETRY_WAIT=2
-          for attempt in $(seq 1 $MAX_RETRIES); do
-            echo "Sync attempt $attempt/$MAX_RETRIES..."
-            if argocd app sync "$APP_NAME" --grpc-web --prune; then
-              echo "Sync triggered successfully"
-              exit 0
-            fi
-            if [ $attempt -lt $MAX_RETRIES ]; then
-              echo "Sync failed — terminating in-progress operations..."
-              argocd app terminate-op "$APP_NAME" --grpc-web 2>/dev/null || true
-              sleep 2
-              argocd app get "$APP_NAME" --grpc-web --refresh > /dev/null 2>&1 || true
-              echo "Retrying in ${RETRY_WAIT}s... [Attempt $((attempt + 1))/$MAX_RETRIES]"
-              sleep "$RETRY_WAIT"
-              RETRY_WAIT=$((RETRY_WAIT * 2))
-            else
-              echo "::error::Sync failed after $MAX_RETRIES attempts"
-              exit 1
-            fi
-          done
-
-      - name: Wait for health
-        run: argocd app wait "$APP_NAME" --grpc-web --health --sync --timeout 300
+  sync-stage:
+    needs: [config, update-image-stage]
+    if: startsWith(github.ref_name, 'release-')
+    uses: ./.github/workflows/_sync-argo.yml
+    with:
+      app-name: das-web-react-er-stage
+    secrets:
+      ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
