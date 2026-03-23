@@ -211,3 +211,15 @@ export const calculatePopoverPlacement = async (map, popoverLocation) => {
   }
   return 'bottom';
 };
+
+
+export const buildGeoSpanFilter = (geoSpan) => {
+  if (!geoSpan) return null;
+
+  const [minLon, maxLon] = geoSpan.lon;
+  const [minLat, maxLat] = geoSpan.lat;
+
+  return [minLon, minLat, maxLon, maxLat];
+};
+
+
