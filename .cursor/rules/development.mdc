@@ -9,15 +9,15 @@ alwaysApply: true
 - **Runtime:** Node.js 24
 - **Package manager:** Yarn 4
 - **UI:** React 19, `react-dom`
-- **Routing:** React Router 7 — client-only SPA (`BrowserRouter`, `react-router` APIs)
-- **Build:** Vite 7 (`envPrefix: REACT_APP_`, `import.meta.env`, SVG via `vite-plugin-svgr` as `ReactComponent`)
+- **Routing:** React Router 7 (client-only SPA with `BrowserRouter`)
+- **Build:** Vite 7
 - **State:** Redux 5 + `redux-thunk`, `redux-promise`; persistence via `redux-persist` (default web storage + localforage for some slices)
 - **Map:** Mapbox GL
 - **HTTP:** Axios
 - **Real-time:** Socket.IO
 - **Auth:** Auth0 + DAS token exchange
 - **Geo / utilities:** `@turf/turf`, `proj4`, `geodesy`, `date-fns`
-- **i18n:** `i18next`, `react-i18next` (chained localStorage + HTTP backend)
+- **i18n:** `i18next` (chained localStorage + HTTP backend)
 - **Lint / style:** ESLint (Airbnb-oriented), Stylelint on `src/**/*.scss`
 - **PWA:** Workbox service worker
 - **Deployment:** Docker and GitHub Actions
@@ -55,8 +55,15 @@ System config loads before the main route tree renders: `fetchSystemStatus` + `i
 ### Redux and data loading
 
 - Prefer function components with `useDispatch` / `useSelector`
-- Async operations use thunks in `ducks/`; promise middleware allows dispatching promises where used
+- All Redux logic (actions, reducers, selectors) lives in single files under `src/ducks/`
+- State structure: `state.data` - API data, `state.view` - UI state
 - Add derived state in `selectors/` with reselect
+
+### Map
+
+### React Context Architecture
+
+Central `map` instance shared via `MapContext`.
 
 ### API layer
 
