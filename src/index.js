@@ -77,12 +77,9 @@ const RootApp = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.Osano) {
+    if (window?.Osano?.cm) {
       document.documentElement.lang = i18n.language;
       window.Osano.cm.locale = i18n.language;
-      if (window.Osano.cm.locale !== i18n.language) {
-        window.Osano.cm.locale = 'en';
-      }
     }
   }, [i18n.language]);
 

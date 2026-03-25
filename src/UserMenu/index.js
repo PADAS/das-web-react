@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { useTranslation } from 'react-i18next';
 
@@ -20,8 +20,6 @@ const UserMenu = ({
 }) => {
   const { t } = useTranslation('top-bar', { keyPrefix: 'userMenu' });
 
-  const cookieSettingsRef = useRef();
-
   const displayUser = selectedUserProfile?.username ? selectedUserProfile : user;
 
   const onLogOutItemClick = () => {
@@ -31,8 +29,6 @@ const UserMenu = ({
   };
 
   return <>
-    <button className="ot-sdk-show-settings" hidden id="ot-sdk-btn" ref={cookieSettingsRef} />
-
     <Dropdown
       align="end"
       className={styles.menu}
@@ -61,7 +57,7 @@ const UserMenu = ({
           <Dropdown.Divider />
         </>}
 
-        {window.Osano?.cm && (
+        {window?.Osano?.cm && (
           <Dropdown.Item onClick={() => window.Osano.cm.showDrawer('osano-cm-dom-info-dialog-open')}>
             {t('cookieSettingsItem')}
           </Dropdown.Item>
