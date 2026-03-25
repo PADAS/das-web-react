@@ -2,20 +2,17 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import LayerSelectorPopup from './';
 import { mockClusterLeaves } from '../__test-helpers/fixtures/clusters';
 import { hidePopup } from '../ducks/popup';
 import { mockStore } from '../__test-helpers/MockStore';
 import { render, screen } from '../test-utils';
 import { uuid } from '../utils/string';
 
+import LayerSelectorPopup from './';
+
 jest.mock('../ducks/popup', () => ({
   ...jest.requireActual('../ducks/popup'),
   hidePopup: jest.fn(),
-}));
-jest.mock('../hooks', () => ({
-  ...jest.requireActual('../hooks'),
-  useSystemConfigFlag: () => true,
 }));
 
 describe('LayerSelectorPopup', () => {
@@ -45,7 +42,7 @@ describe('LayerSelectorPopup', () => {
       </Provider>
     );
 
-    expect(await screen.queryByRole('textbox')).toBeNull();
+    expect(await screen.queryByRole('searchbox')).toBeNull();
   });
 
   test('shows the search bar if there are more than 5 features', async () => {
@@ -61,7 +58,7 @@ describe('LayerSelectorPopup', () => {
       </Provider>
     );
 
-    expect(await screen.queryByRole('textbox')).toBeDefined();
+    expect(await screen.queryByRole('searchbox')).toBeDefined();
   });
 
   test('filters the layers shown in the list when user types in the search bar', async () => {
@@ -79,7 +76,7 @@ describe('LayerSelectorPopup', () => {
 
     expect(await screen.findAllByRole('listitem')).toHaveLength(6);
 
-    const searchBar = await screen.findByRole('textbox');
+    const searchBar = await screen.findByRole('searchbox');
     await userEvent.type(searchBar, 'Jenae One Field');
 
     expect(await screen.findAllByRole('listitem')).toHaveLength(4);
@@ -98,7 +95,7 @@ describe('LayerSelectorPopup', () => {
       </Provider>
     );
 
-    const searchBar = await screen.findByRole('textbox');
+    const searchBar = await screen.findByRole('searchbox');
     await userEvent.type(searchBar, 'Jenae One Field');
 
     expect(await screen.findAllByRole('listitem')).toHaveLength(4);

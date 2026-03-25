@@ -1,10 +1,11 @@
 import React from 'react';
+import { AxiosError } from 'axios';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { createMapMock } from '../../__test-helpers/mocks';
-import { eventSchemas } from '../../__test-helpers/fixtures/event-schemas';
-import { eventTypes } from '../../__test-helpers/fixtures/event-types';
+import { eventSchemas, snareSchemaV2 } from '../../__test-helpers/fixtures/event-schemas';
+import { eventTypes, snareV2 } from '../../__test-helpers/fixtures/event-types';
 import { formValidator } from '../../utils/events';
 import { GPS_FORMATS } from '../../utils/location';
 import { MapContext } from '../../App';
@@ -63,12 +64,17 @@ describe('ReportManager - DetailsSection', () => {
         eventStore: {},
         eventTypes,
         patrolTypes,
-        eventSchemas,
+        eventSchemas: {
+          ...eventSchemas,
+          loading: false,
+        },
       },
       view: {
-        featureFlagOverrides: {},
+        coordinateReferenceSystems: {
+          selectedCoordinateRepresentations: Object.values(GPS_FORMATS),
+          storedSystems: [],
+        },
         mapLocationSelection: { isPickingLocation: false },
-        schemaSelector: { schema: {} },
         sideBar: {},
         userPreferences: { gpsFormat: GPS_FORMATS.DEG },
       },
@@ -95,7 +101,6 @@ describe('ReportManager - DetailsSection', () => {
               isBehindAddedEvent={false}
               isCollection={false}
               isNewEvent={false}
-              loadingSchema={false}
               onFormDataChange={onFormDataChange}
               onFormError={onFormError}
               onFormSubmit={onFormSubmit}
@@ -106,7 +111,6 @@ describe('ReportManager - DetailsSection', () => {
               onReportGeometryChange={onReportGeometryChange}
               onReportLocationChange={onReportLocationChange}
               onReportStateChange={onReportStateChange}
-              originalReport={report}
               reportForm={report}
               submitFormButtonRef={submitFormButtonRef}
               {...props}
@@ -240,13 +244,13 @@ describe('ReportManager - DetailsSection', () => {
     expect(screen.queryByText('Event Location')).toBeNull();
   });
 
-  test('shows the location selector if the event is not a collection', async () => {
+  test('shows the location picker if the event is not a collection', async () => {
     renderDetailsSection();
 
-    expect(screen.getByText('Event Location')).toBeVisible();
+    expect(screen.getByRole('textbox', { name: 'Location' })).toBeVisible();
   });
 
-  test('shows the area selector input if the geometry type of the event is polygon', async () => {
+  test('shows the area picker if the geometry type of the event is polygon', async () => {
     store.data.eventTypes = eventTypes.map((eventType) => {
       if (eventType.value === report.event_type) {
         return { ...eventType, geometry_type: VALID_EVENT_GEOMETRY_TYPES.POLYGON };
@@ -255,11 +259,31 @@ describe('ReportManager - DetailsSection', () => {
     });
     renderDetailsSection();
 
-    expect(screen.getByText('Set event area')).toBeVisible();
-    expect(screen.queryByTestId('set-location-button')).toBeNull();
+    expect(screen.getByRole('textbox', { name: 'Area' })).toBeVisible();
+    expect(screen.queryByRole('textbox', { name: 'Location' })).toBeNull();
   });
 
-  test('changes the geometry of the event when selecting an area from the area selector input', async () => {
+  test('shows the area picker as read only if the event type is read only', async () => {
+    store.data.eventTypes = eventTypes.map((eventType) => {
+      if (eventType.value === report.event_type) {
+        return { ...eventType, geometry_type: VALID_EVENT_GEOMETRY_TYPES.POLYGON };
+      }
+      return eventType;
+    });
+    renderDetailsSection({
+      eventSchema: {
+        ...eventSchemas.accident_rep.base,
+        schema: {
+          ...eventSchemas.accident_rep.base.schema,
+          readonly: true,
+        },
+      }
+    });
+
+    expect(screen.getByTestId('reportManager-detailsSection-areaPicker')).toHaveClass('readOnly');
+  });
+
+  test('changes the geometry of the event when selecting an area from the area picker', async () => {
     store.data.eventTypes = eventTypes.map((eventType) => {
       if (eventType.value === report.event_type) {
         return { ...eventType, geometry_type: VALID_EVENT_GEOMETRY_TYPES.POLYGON };
@@ -271,14 +295,28 @@ describe('ReportManager - DetailsSection', () => {
     expect(onReportGeometryChange).toHaveBeenCalledTimes(1);
   });
 
-  test('shows the location selector input if the geometry type of the event is polygon', async () => {
+  test('shows the location picker if the geometry type of the event is not polygon', async () => {
     renderDetailsSection();
 
-    expect(screen.getByLabelText('Event Location')).toBeVisible();
-    expect(screen.queryByText('Set event area')).toBeNull();
+    expect(screen.getByRole('textbox', { name: 'Location' })).toBeVisible();
+    expect(screen.queryByRole('textbox', { name: 'Area' })).toBeNull();
   });
 
-  test('changes the location of the event when selecting a location from the location selector input', async () => {
+  test('shows the location picker as read only if the event type is read only', async () => {
+    renderDetailsSection({
+      eventSchema: {
+        ...eventSchemas.accident_rep.base,
+        schema: {
+          ...eventSchemas.accident_rep.base.schema,
+          readonly: true,
+        },
+      }
+    });
+
+    expect(screen.getByTestId('reportManager-detailsSection-locationPicker')).toHaveClass('readOnly');
+  });
+
+  test('changes the location of the event when selecting a location from the location picker', async () => {
     renderDetailsSection();
 
     await userEvent.click(screen.getByLabelText('Event Location'));
@@ -304,6 +342,20 @@ describe('ReportManager - DetailsSection', () => {
     expect(screen.getByText('Event Date')).toBeVisible();
   });
 
+  test('shows the date picker as read only if the event type is read only', async () => {
+    renderDetailsSection({
+      eventSchema: {
+        ...eventSchemas.accident_rep.base,
+        schema: {
+          ...eventSchemas.accident_rep.base.schema,
+          readonly: true,
+        },
+      }
+    });
+
+    expect(screen.getByTestId('reportManager-detailsSection-datePicker')).toHaveClass('readOnly');
+  });
+
   test('changes the date of the event when selecting an option from the date picker', async () => {
     renderDetailsSection();
 
@@ -314,8 +366,7 @@ describe('ReportManager - DetailsSection', () => {
     const datePicker = await screen.findByTestId('reportManager-detailsSection-datePicker');
     const datePickerOpenCalendarButton = await within(datePicker).findByLabelText('Open calendar');
     await userEvent.click(datePickerOpenCalendarButton);
-    const options = await screen.findAllByRole('option');
-    await userEvent.click(options[16]);
+    await userEvent.click(screen.getByRole('gridcell', { name: 'Choose Tuesday, April 12th, 2022' }));
 
     expect(onReportDateChange).toHaveBeenCalledTimes(1);
     expect(onReportDateChange.mock.calls[0][0].toISOString()).toMatch(/^2022-04-12/);
@@ -331,6 +382,20 @@ describe('ReportManager - DetailsSection', () => {
     renderDetailsSection();
 
     expect(screen.getByText('Event Time')).toBeVisible();
+  });
+
+  test('shows the date picker as read only if the event type is read only', async () => {
+    renderDetailsSection({
+      eventSchema: {
+        ...eventSchemas.accident_rep.base,
+        schema: {
+          ...eventSchemas.accident_rep.base.schema,
+          readonly: true,
+        },
+      }
+    });
+
+    expect(screen.getByTestId('reportManager-detailsSection-timePicker')).toHaveClass('readOnly');
   });
 
   test('changes the time of the event when selecting an option from the time picker', async () => {
@@ -406,11 +471,77 @@ describe('ReportManager - DetailsSection', () => {
     });
   });
 
+  test('changes the event form when changing the value of an input for v2 schemas', async () => {
+    store.data.eventTypes = [...eventTypes, snareV2];
+    renderDetailsSection({
+      eventSchema: snareSchemaV2,
+      reportForm: { ...report, event_type: 'snare_v2_rep' },
+    });
+
+    expect(onFormDataChange).toHaveBeenCalledTimes(0);
+
+    await userEvent.type(screen.getByLabelText('Number of Snares Found *'), '3');
+
+    expect(onFormDataChange).toHaveBeenCalled();
+    expect(onFormDataChange).toHaveBeenCalledWith({ number_of_snares_found: 3 });
+  });
+
+  test('submits the form for v2 schemas', async () => {
+    store.data.eventTypes = [...eventTypes, snareV2];
+    renderDetailsSection({
+      eventSchema: snareSchemaV2,
+      reportForm: { ...report, event_details: { number_of_snares_found: 3 }, event_type: 'snare_v2_rep' },
+    });
+
+    expect(onFormSubmit).toHaveBeenCalledTimes(0);
+
+    submitFormButtonRef.current.click();
+
+    expect(onFormSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  test('does not show the loader if the schema is loaded', async () => {
+    renderDetailsSection();
+
+    expect(screen.queryByTestId('reportManager-detailsSection-loader')).toBeNull();
+  });
+
   test('shows a loader while the schema loads', async () => {
-    renderDetailsSection({ eventSchema: null, loadingSchema: true });
+    store.data.eventSchemas.loading = true;
+    renderDetailsSection({ eventSchema: null });
 
     expect(screen.getByTestId('reportManager-detailsSection-loader')).toBeVisible();
   });
 
-  // TODO: Add tests for new schemas once we stop using the feature flag
+  test('does not show an error message if the schema is loaded correctly', async () => {
+    renderDetailsSection();
+
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  test('shows an error message if the schema is erroneous', async () => {
+    renderDetailsSection({ eventSchema: new Error('Error loading schema') });
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Error loading schema');
+  });
+
+  test('shows an error message with the detail of the error if the schema is erroneous', async () => {
+    renderDetailsSection({
+      eventSchema: new AxiosError(
+        'Request failed with status code 500',
+        'ERR_BAD_RESPONSE',
+        {},
+        {},
+        {
+          data: {
+            status: {
+              detail: 'Error detail',
+            },
+          },
+        },
+      ),
+    });
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Error loading schemaError detail');
+  });
 });

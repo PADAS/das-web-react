@@ -1,14 +1,6 @@
-FROM node:22-alpine
+FROM node:24-alpine
+COPY . /app
 WORKDIR /app
-
-RUN apk add --no-cache git alpine-sdk python3
-
-COPY package.json .
-COPY yarn.lock .
-RUN yarn --ignore-scripts
-
-COPY . .
-
-EXPOSE 3000
-
+RUN yarn install --immutable
+EXPOSE 9000
 CMD ["yarn", "start"]

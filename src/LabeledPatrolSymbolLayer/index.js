@@ -4,9 +4,9 @@ import withMapViewConfig from '../WithMapViewConfig';
 
 import LabeledSymbolLayer from '../LabeledSymbolLayer';
 
-const LabeledPatrolSymbolLayer = ({ id, ...otherProps }) => <LabeledSymbolLayer
+const LabeledPatrolSymbolLayer = ({ id, layout, ...otherProps }) => <LabeledSymbolLayer
   id={id}
-  layout={{ 'text-field': '{ticker}', 'text-offset': [1.1, -1.1] }}
+  layout={{ 'text-field': '{ticker}', 'text-offset': [1.1, -1.1], ...layout }}
   {...otherProps}
 />;
 

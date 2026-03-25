@@ -12,6 +12,7 @@ import {
   MIN_ZOOM,
   REACT_APP_BASE_MAP_STYLES,
   REACT_APP_MAPBOX_TOKEN,
+  API_URL,
 } from '../constants';
 
 import Attribution from './Attribution';
@@ -33,6 +34,7 @@ const EarthRangerMap = ({ children, controls, onMapLoaded, ...otherProps }) => {
 
   const currentBaseLayer = useSelector(state => state.view.currentBaseLayer);
   const mapPosition = useSelector(state => state.data.mapPosition);
+  const token = useSelector(state => state.data.token);
 
   const baseStyleRef = useRef(REACT_APP_BASE_MAP_STYLES);
   const mapContainerRef = useRef(null);
@@ -56,6 +58,27 @@ const EarthRangerMap = ({ children, controls, onMapLoaded, ...otherProps }) => {
     setMapLoaded(true);
   }, [onMapLoaded]);
 
+  /* Keep latest access token in a ref so transformRequest always sees it without
+   needing to recreate the map instance when the token changes. */
+  const tokenRef = useRef();
+  tokenRef.current = token?.access_token;
+
+  /* Ensures Authorization header is added to any spatial features tile requests. 
+   This survives style changes that would otherwise drop per-source transformRequest handlers. */
+  const transformRequest = useCallback((url, resourceType) => {
+    if (
+      resourceType === 'Tile'
+      && tokenRef.current
+      && url.startsWith(API_URL)
+    ) {
+      return {
+        url,
+        headers: { Authorization: `Bearer ${tokenRef.current}` }
+      };
+    }
+    return { url };
+  }, []);
+
   useEffect(() => {
     if (!mapRef.current) {
       mapRef.current = new mapboxgl.Map({
@@ -70,12 +93,13 @@ const EarthRangerMap = ({ children, controls, onMapLoaded, ...otherProps }) => {
         maxZoom: MAX_ZOOM,
         minZoom: MIN_ZOOM,
         style: REACT_APP_BASE_MAP_STYLES,
+        transformRequest,
         ...getStartingMapPositionValues(mapPosition),
       });
 
       mapRef.current.on('load', onLoad);
     }
-  }, [mapPosition, onLoad, t]);
+  }, [mapPosition, onLoad, t, transformRequest]);
 
   useEffect(() => {
     if (mapRef.current
@@ -103,7 +127,7 @@ const EarthRangerMap = ({ children, controls, onMapLoaded, ...otherProps }) => {
 
         {children}
 
-        <Attribution currentBaseLayer={currentBaseLayer}  className='mapboxgl-ctrl mapboxgl-ctrl-attrib er-map' />
+        <Attribution currentBaseLayer={currentBaseLayer} className='mapboxgl-ctrl mapboxgl-ctrl-attrib er-map' />
 
         <BaseLayerRenderer />
       </>}

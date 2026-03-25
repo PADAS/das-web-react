@@ -4,6 +4,7 @@
       "closed": "Fungua menyu ya onyesho la GPS",
       "open": "Funga menyu ya onyesho la GPS"
     },
+    "cursorCoordinatesStringOutsideBbox": "H/P",
     "menuPopover": {
       "gpsDisplayTooltip": "Bonyeza Enter ili kuruka kwa viwianishi",
       "gpsInputButtonLabel": "Ruka kwa viwianishi"

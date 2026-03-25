@@ -1,12 +1,11 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import Overlay from 'react-bootstrap/Overlay';
 import throttle from 'lodash/throttle';
-import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon.svg';
 
-import { calcGpsDisplayString, validateLocation } from '../utils/location';
+import useStringifyCoordinates from '../hooks/useStringifyCoordinates';
 
 import { MapContext } from '../App';
 import MenuPopover from './MenuPopover';
@@ -18,19 +17,21 @@ const CursorGpsDisplay = () => {
 
   const map = useContext(MapContext);
 
-  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
-
   const buttonRef = useRef();
 
   const [cursorCoordinates, setCursorCoordinates] = useState(null);
   const [isMenuPopoverOpen, setIsMenuPopoverOpen] = useState(false);
 
-  const isValidLocation = validateLocation(cursorCoordinates);
+  const {
+    coordinatesString: cursorCoordinatesString,
+    outsideRepresentationBbox: cursorOutsideRepresentationBbox
+  } = useStringifyCoordinates(cursorCoordinates);
 
   useEffect(() => {
     if (map) {
-      // When the user moves the cursor, update its coordinates in the display every 50ms.
-      const onMouseMove = (event) => setCursorCoordinates(event.lngLat);
+      // When the user moves the cursor, update its coordinates in the display
+      // every 50ms.
+      const onMouseMove = (event) => setCursorCoordinates({ latitude: event.lngLat.lat, longitude: event.lngLat.lng });
       const onMouseMoveThrottle = throttle(onMouseMove, 50);
 
       map.on('mousemove', onMouseMoveThrottle);
@@ -50,13 +51,13 @@ const CursorGpsDisplay = () => {
         title={t(`buttonLabel.${isMenuPopoverOpen ? 'open' : 'closed'}`)}
         type="button"
       >
-      <div className={styles.searchIcon}>
+      <div aria-hidden className={styles.searchIcon}>
         <SearchIcon />
       </div>
 
-      {isValidLocation && calcGpsDisplayString(cursorCoordinates.lat, cursorCoordinates.lng, gpsFormat)}
+      {cursorOutsideRepresentationBbox ? t('cursorCoordinatesStringOutsideBbox') : cursorCoordinatesString}
 
-      <div className={`${styles.caret} ${isMenuPopoverOpen ? styles.open : ''}`} role="img" />
+      <div aria-hidden className={`${styles.caret} ${isMenuPopoverOpen ? styles.open : ''}`} />
     </button>
 
     <Overlay placement="bottom-end" show={isMenuPopoverOpen} target={buttonRef}>

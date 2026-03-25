@@ -4,6 +4,7 @@
             "closed": "GPS प्रदर्शन मेनु खोल्नुहोस्",
             "open": "GPS प्रदर्शन मेनु बन्द गर्नुहोस्"
         },
+        "cursorCoordinatesStringOutsideBbox": "उ/ल",
         "menuPopover": {
             "gpsDisplayTooltip": "निर्देशांकमा जान Enter थिच्नुहोस्",
             "gpsInputButtonLabel": "निर्देशांकमा जानुहोस्"

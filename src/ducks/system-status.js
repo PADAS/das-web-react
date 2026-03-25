@@ -1,11 +1,9 @@
 import axios from 'axios';
 import { combineReducers } from 'redux';
 
-import { API_URL, DAS_HOST, SYSTEM_CONFIG_FLAGS, STATUSES, DEFAULT_SHOW_TRACK_DAYS } from '../constants';
-import { endOfToday, generateDaysAgoDate } from '../utils/datetime';
-import { setServerVersionAnalyticsDimension, setSitenameDimension } from '../utils/analytics';
-import { setDefaultDateRange as setDefaultEventDateRange } from './event-filter';
-import { setDefaultDateRange as setDefaultPatrolDateRange } from './patrol-filter';
+import { API_URL, DAS_HOST, STATUSES } from '../constants';
+import { setServerVersionAnalyticsDimension } from '../utils/analytics';
+import { setSystemConfigFromSystemStatus } from './system-config';
 
 export const STATUS_API_URL = `${API_URL}status`;
 
@@ -21,8 +19,6 @@ export const SOCKET_HEALTHY_STATUS = 'SOCKET_HEALTHY_STATUS';
 export const SOCKET_UNHEALTHY_STATUS = 'SOCKET_UNHEALTHY_STATUS';
 export const SOCKET_WARNING_STATUS = 'SOCKET_WARNING_STATUS';
 export const SOCKET_SERVICE_STATUS = 'SOCKET_SERVICE_STATUS';
-
-export const SET_SYSTEM_CONFIG = 'SET_SYSTEM_CONFIG';
 
 const { HEALTHY_STATUS, WARNING_STATUS, UNHEALTHY_STATUS, UNKNOWN_STATUS } = STATUSES;
 
@@ -57,49 +53,13 @@ export const fetchSystemStatus = () => (dispatch) => axios.get(STATUS_API_URL, {
   },
 })
   .then((response) => {
-    dispatch(setSystemConfig(response));
+    dispatch(setSystemConfigFromSystemStatus(response.data.data));
     dispatch(fetchSystemStatusSuccess(response));
     return response.data.data;
   })
   .catch(error => {
     dispatch(fetchSystemStatusError(error));
   });
-
-const setSystemConfig = ({ data: { data } }) => (dispatch) => {
-  const sitename = data.site_name || window.location.hostname;
-  setSitenameDimension(sitename);
-
-  dispatch({
-    type: SET_SYSTEM_CONFIG,
-    payload: {
-      [SYSTEM_CONFIG_FLAGS.ALERTS]: data[SYSTEM_CONFIG_FLAGS.ALERTS],
-      [SYSTEM_CONFIG_FLAGS.DAILY_REPORT]: data[SYSTEM_CONFIG_FLAGS.DAILY_REPORT],
-      [SYSTEM_CONFIG_FLAGS.EULA]: data[SYSTEM_CONFIG_FLAGS.EULA],
-      // Change the following line to "true" to test the functionality of appending 'location' params to map event
-      // requests
-      [SYSTEM_CONFIG_FLAGS.GEOPERMISSIONS]: data?.geoPermissionsEnabled ?? false,
-      [SYSTEM_CONFIG_FLAGS.KML_EXPORT]: data[SYSTEM_CONFIG_FLAGS.KML_EXPORT],
-      [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: data[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT],
-      [SYSTEM_CONFIG_FLAGS.TABLEAU]: data[SYSTEM_CONFIG_FLAGS.TABLEAU],
-      showTrackDays: data.show_track_days,
-      sitename,
-    },
-  });
-
-  if (data[SYSTEM_CONFIG_FLAGS.DEFAULT_EVENT_FILTER_FROM_DAYS]) {
-    dispatch(setDefaultEventDateRange(
-      generateDaysAgoDate(data[SYSTEM_CONFIG_FLAGS.DEFAULT_EVENT_FILTER_FROM_DAYS]).toISOString(),
-      null
-    ));
-  }
-
-  if (data[SYSTEM_CONFIG_FLAGS.DEFAULT_PATROL_FILTER_FROM_DAYS]) {
-    dispatch(setDefaultPatrolDateRange(
-      generateDaysAgoDate(data[SYSTEM_CONFIG_FLAGS.DEFAULT_PATROL_FILTER_FROM_DAYS]).toISOString(),
-      endOfToday().toISOString()
-    ));
-  }
-};
 
 const fetchSystemStatusSuccess = ({ data: { data } }) => ({
   type: FETCH_SYSTEM_STATUS_SUCCESS,
@@ -311,21 +271,3 @@ export default combineReducers({
   realtime: realtimeStatusReducer,
   services: serviceStatusReducer,
 });
-
-const INITIAL_SYSTEM_CONFIG_STATE = {
-  [SYSTEM_CONFIG_FLAGS.ALERTS]: false,
-  [SYSTEM_CONFIG_FLAGS.DAILY_REPORT]: false,
-  [SYSTEM_CONFIG_FLAGS.EULA]: false,
-  [SYSTEM_CONFIG_FLAGS.GEOPERMISSIONS]: false,
-  [SYSTEM_CONFIG_FLAGS.KML_EXPORT]: false,
-  [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: false,
-  showTrackDays: DEFAULT_SHOW_TRACK_DAYS,
-  sitename: '',
-};
-
-export const systemConfigReducer = (state = INITIAL_SYSTEM_CONFIG_STATE, { type, payload }) => {
-  if (type === SET_SYSTEM_CONFIG) {
-    return { ...state, ...payload, };
-  }
-  return state;
-};

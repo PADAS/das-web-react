@@ -2,7 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { renderHook } from '../test-utils';
 
-import { FEATURE_FLAG_LABELS, DEVELOPMENT_FEATURE_FLAGS } from '../constants';
+import { FEATURE_FLAG_LABELS } from '../constants';
 
 import { MapContext } from '../App';
 
@@ -10,6 +10,12 @@ import { createMapMock } from '../__test-helpers/mocks';
 import { mockStore } from '../__test-helpers/MockStore';
 
 import { useFeatureFlag, useMemoCompare, useMapEventBinding } from './';
+
+jest.mock('../constants', () => ({
+  ...jest.requireActual('../constants'),
+  DEVELOPMENT_FEATURE_FLAGS: { DUMMY_FF_FOR_TESTING: true },
+  FEATURE_FLAG_LABELS: { DUMMY_FF_FOR_TESTING: 'DUMMY_FF_FOR_TESTING' },
+}));
 
 describe('#useMapEventBinding', () => {
   let map, wrapper, handler;
@@ -86,16 +92,16 @@ describe('#useMemoCompare', () => {
 
 describe('#useFeatureFlag', () => {
   let wrapper, store;
-  const knownProperty = 'EFB_FORM_SCHEMA_SUPPORT_ENABLED';
 
   beforeEach(() => {
     store = mockStore({
       view: {
-        featureFlagOverrides: {}
+        experimentalFeatures: {}
       },
     });
     wrapper = ({ children }) => <Provider store={store}>{children}</Provider>;  // eslint-disable-line react/display-name
   });
+
   test('throwing an error if no matching feature flag has been set in the environment file', async () => {
     expect(() => {
       renderHook(() => useFeatureFlag('this_does_not_exist_anywhere_yo'), { wrapper });
@@ -103,28 +109,22 @@ describe('#useFeatureFlag', () => {
   });
 
   test('using the default value if no override has been set', () => {
+    const { result } = renderHook(() => useFeatureFlag('DUMMY_FF_FOR_TESTING'), { wrapper });
 
-    expect(FEATURE_FLAG_LABELS).toHaveProperty(knownProperty);
-    expect(DEVELOPMENT_FEATURE_FLAGS).toHaveProperty(knownProperty);
-
-    const { result } = renderHook(() => useFeatureFlag(FEATURE_FLAG_LABELS[knownProperty]), { wrapper });
-    expect(result.current).toBe(DEVELOPMENT_FEATURE_FLAGS[knownProperty]);
+    expect(result.current).toBe(true);
   });
 
   test('using the override value if an override has been set', () => {
     store = mockStore({
       view: {
-        featureFlagOverrides: {
-          [FEATURE_FLAG_LABELS[knownProperty]]: {
-            label: 'whatever',
-            value: !DEVELOPMENT_FEATURE_FLAGS[knownProperty],
-          }
+        experimentalFeatures: {
+          DUMMY_FF_FOR_TESTING: false,
         }
       },
     });
 
-    const { result } = renderHook(() => useFeatureFlag(FEATURE_FLAG_LABELS[knownProperty]), { wrapper });
+    const { result } = renderHook(() => useFeatureFlag('DUMMY_FF_FOR_TESTING'), { wrapper });
 
-    expect(result.current).toBe(!DEVELOPMENT_FEATURE_FLAGS[knownProperty]);
+    expect(result.current).toBe(false);
   });
 });

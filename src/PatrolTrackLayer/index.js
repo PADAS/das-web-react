@@ -2,6 +2,7 @@ import React, { memo, useContext, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
 import { selectPatrolData } from '../selectors/patrols';
+import { LAYER_IDS } from '../constants';
 import { MapContext } from '../App';
 import { trimTrackDataToTimeRange } from '../utils/tracks';
 
@@ -14,7 +15,7 @@ const LINE_PAINT = {
 };
 
 const getPointLayer = (event, map) => map.queryRenderedFeatures(event.point)
-  .filter((item) => item.layer.id.includes('track-layer-points-'))[0];
+  .filter((item) => item.layer.id.includes(LAYER_IDS.TRACK_TIMEPOINTS))[0];
 
 const PatrolTrackLayer = ({ onPointClick, patrol: patrolFromProps, trackTimeEnvelope, ...restProps }) => {
   const map = useContext(MapContext);

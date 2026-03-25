@@ -9,11 +9,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@faker-js/faker": "^9.4.0",
-    "@turf/turf": "^7.2.0",
-    "express": "^4.21.2",
-    "nodemon": "^3.1.9"
-  },
-  "devDependencies": {
+    "@faker-js/faker": "^10.3.0",
+    "@turf/turf": "^7.3.4",
+    "express": "^5.2.1",
+    "nodemon": "^3.1.14"
   }
 }

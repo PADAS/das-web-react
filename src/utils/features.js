@@ -2,12 +2,11 @@
 import uniq from 'lodash/uniq';
 import { LngLatBounds } from 'mapbox-gl';
 
-import { LAYER_IDS } from '../constants';
-
-const { FEATURE_FILLS, FEATURE_LINES, FEATURE_SYMBOLS } = LAYER_IDS;
 const MAX_JUMP_ZOOM = 17;
 
-export const getUniqueIDsFromFeatures = (...features) => uniq(features.map(({ properties: { id } }) => id));
+export const getUniqueIDsFromFeatures = (...features) => {
+  return uniq(features.map(({ id }) => id));
+};
 
 const getBoundsForArrayOfCoordinatePairs = (collection) => collection.reduce((bounds, coords) => {
   return bounds.extend(coords);
@@ -49,16 +48,6 @@ export const fitMapBoundsToGeoJson = (map, geojson) => {
   if (type === 'MultiPolygon') return fitMapBoundsToMultiPolygon(map, geojson);
 };
 
-export const setFeatureActiveStateByID = (map, id, state = true) => {
-  const features = map.queryRenderedFeatures({
-    filter: ['in', 'id', id],
-    layers: [FEATURE_FILLS, FEATURE_LINES],
-  });
-  features.forEach((feature) => {
-    map.setFeatureState(feature, { 'active': state });
-  });
-};
-
 /**
  * filterFeatures is a recursive function to drill down a featureset 
  * tree to filter for features matching the search filter as given by the 
@@ -80,12 +69,4 @@ export const filterFeatures = (f, isMatch) => {
     newF = newF.filter(fs => !!fs.featuresByType.length);
   }
   return newF;
-};
-
-export const getFeatureSymbolGeoJsonAtPoint = (geo, map) => {
-  const features = map.queryRenderedFeatures(geo, {
-    layers: [FEATURE_SYMBOLS],
-  });
-  // assume fist feature returned is closest
-  return features[0];
 };

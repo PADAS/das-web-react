@@ -1,4 +1,7 @@
 export const getLinearErrorPropTree = (errorProperty) => {
+  if (errorProperty == null || typeof errorProperty !== 'string') {
+    return [];
+  }
   const nonPropAccessorNotations = /'|\.properties|\[|\]|\.enumNames|\.enum/g;
   return errorProperty.replace(nonPropAccessorNotations, '.')
     .split('.')
@@ -21,11 +24,4 @@ export const filterOutErrorsForHiddenProperties = (errors, uiSchema) => {
 
     return !!propsInForm[propName];
   });
-};
-
-export const getSchemasForEventTypeByEventId = (eventSchemas, event_type, event_id) => {
-  if (event_id) {
-    return eventSchemas?.[event_type]?.[event_id];
-  }
-  return eventSchemas?.[event_type]?.base;
 };

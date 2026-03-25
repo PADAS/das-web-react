@@ -3,11 +3,6 @@ import { useSelector } from 'react-redux';
 import useSound from 'use-sound';
 
 import ding from '../common/sounds/ding.mp3';
-import {
-  ENABLE_NEW_REPORT_NOTIFICATION_SOUND,
-  ENABLE_NEW_IN_REACH_MESSAGE_NOTIFICATION_SOUND,
-  ENABLE_RADIO_STATE_CHANGE_TO_ALARM_NOTIFICATION_SOUND,
-} from '../ducks/feature-flag-overrides';
 
 import NewEventNotificationPlayer from './NewEventNotificationPlayer';
 import NewInReachMessageNotificationPlayer from './NewInReachMessageNotificationPlayer';
@@ -18,17 +13,15 @@ export const SOUND_DEBOUNCE_TIME = 5000;
 const SoundNotificationsPlayer = () => {
   const [play] = useSound(ding);
 
-  const canPlayNotificationSound = useRef(true);
+  const playSoundForNewEvents = useSelector((state) => state.view.userPreferences.playSoundForNewEvents);
+  const playSoundForNewInReachMessages = useSelector(
+    (state) => state.view.userPreferences.playSoundForNewInReachMessages
+  );
+  const playSoundForRadioStateChangeToRed = useSelector(
+    (state) => state.view.userPreferences.playSoundForRadioStateChangeToRed
+  );
 
-  const isNewEventNotificationSoundEnabled = useSelector(
-    (state) => !!state.view.featureFlagOverrides?.[ENABLE_NEW_REPORT_NOTIFICATION_SOUND]?.value
-  );
-  const isNewInReachMessageNotificationSoundEnabled = useSelector(
-    (state) => !!state.view.featureFlagOverrides?.[ENABLE_NEW_IN_REACH_MESSAGE_NOTIFICATION_SOUND]?.value
-  );
-  const isRadioStateChangeToAlarmNotificationSoundEnabled = useSelector(
-    (state) => !!state.view.featureFlagOverrides?.[ENABLE_RADIO_STATE_CHANGE_TO_ALARM_NOTIFICATION_SOUND]?.value
-  );
+  const canPlayNotificationSound = useRef(true);
 
   const onPlayNotificationSound = useCallback(() => {
     if (canPlayNotificationSound.current) {
@@ -42,15 +35,15 @@ const SoundNotificationsPlayer = () => {
   }, [play]);
 
   return <>
-    {isNewEventNotificationSoundEnabled && <NewEventNotificationPlayer
+    {playSoundForNewEvents && <NewEventNotificationPlayer
       onPlayNotificationSound={onPlayNotificationSound}
     />}
 
-    {isNewInReachMessageNotificationSoundEnabled && <NewInReachMessageNotificationPlayer
+    {playSoundForNewInReachMessages && <NewInReachMessageNotificationPlayer
       onPlayNotificationSound={onPlayNotificationSound}
     />}
 
-    {isRadioStateChangeToAlarmNotificationSoundEnabled && <RadioStateChangeToAlarmNotificationPlayer
+    {playSoundForRadioStateChangeToRed && <RadioStateChangeToAlarmNotificationPlayer
       onPlayNotificationSound={onPlayNotificationSound}
     />}
   </>;

@@ -7,6 +7,7 @@ import userEvent from '@testing-library/user-event';
 import { createMapMock } from '../__test-helpers/mocks';
 import { clearUserProfile, USER_API_URL, CURRENT_USER_API_URL, USER_PROFILES_API_URL } from '../ducks/user';
 import { cleanup, render, screen, waitFor } from '../test-utils';
+import getWindowLocation from '../utils/getWindowLocation';
 import { NEWS_API_URL } from '../ducks/news';
 import { userWithPin, userWithoutPin, userWithoutEula, userList } from '../__test-helpers/fixtures/users';
 
@@ -16,6 +17,8 @@ import Nav from './';
 import ModalRenderer from '../ModalRenderer';
 import useNavigate from '../hooks/useNavigate';
 jest.mock('../hooks/useNavigate', () => jest.fn());
+
+jest.mock('../utils/getWindowLocation', () => jest.fn());
 
 const generateResponse = (data = []) => ({ data });
 
@@ -47,9 +50,12 @@ afterEach(() => {
 afterAll(() => server.close());
 
 describe('the Nav component', () => {
+  const reload = jest.fn();
+
   let map, navigate, useNavigateMock;
   beforeEach(() => {
     navigate = jest.fn();
+    getWindowLocation.mockImplementation(() => ({ reload }));
     useNavigateMock = jest.fn(() => navigate);
     useNavigate.mockImplementation(useNavigateMock);
     map = createMapMock();
@@ -93,16 +99,10 @@ describe('the Nav component', () => {
     });
   });
   describe('changing profiles', () => {
-    let reloadMock, userToggleBtn;
+    let userToggleBtn;
 
     beforeEach(async () => {
-      reloadMock = jest.fn();
-
-      delete window.location;
-      window.location = { reload: jest.fn() };
-
       window.localStorage.setItem('persist:userProfile', '{"username":""profile""}');
-      window.location.reload = reloadMock;
 
       userToggleBtn = await screen.findByTestId('user-menu-toggle-btn');
 
@@ -123,7 +123,7 @@ describe('the Nav component', () => {
 
       jest.advanceTimersByTime(500);
 
-      expect(reloadMock).toHaveBeenCalled();
+      expect(reload).toHaveBeenCalled();
 
       jest.useRealTimers();
     });
@@ -158,7 +158,7 @@ describe('the Nav component', () => {
 
       jest.advanceTimersByTime(500);
 
-      expect(reloadMock).toHaveBeenCalled();
+      expect(reload).toHaveBeenCalled();
 
       jest.useRealTimers();
     });
@@ -178,13 +178,13 @@ describe('the Nav component', () => {
 
       jest.advanceTimersByTime(500);
 
-      expect(reloadMock).not.toHaveBeenCalled();
+      expect(reload).not.toHaveBeenCalled();
 
       window.localStorage.setItem('persist:userProfile', '{"username":""profile""}');
 
       jest.advanceTimersByTime(500);
 
-      expect(reloadMock).toHaveBeenCalled();
+      expect(reload).toHaveBeenCalled();
 
       jest.useRealTimers();
     });

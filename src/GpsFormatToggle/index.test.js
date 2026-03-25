@@ -2,7 +2,8 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen } from '../test-utils';
+import { render, screen, within } from '../test-utils';
+import { epsg5367 } from '../__test-helpers/fixtures/location';
 import { GPS_FORMATS } from '../utils/location';
 import { mockStore } from '../__test-helpers/MockStore';
 import { updateUserPreferences } from '../ducks/user-preferences';
@@ -15,6 +16,8 @@ jest.mock('../ducks/user-preferences', () => ({
 }));
 
 describe('GpsFormatToggle', () => {
+  const setIsTextSearchOptionChecked = jest.fn();
+
   let store, updateUserPreferencesMock;
   beforeEach(() => {
     updateUserPreferencesMock = jest.fn(() => () => {});
@@ -22,6 +25,10 @@ describe('GpsFormatToggle', () => {
 
     store = {
       view: {
+        coordinateReferenceSystems: {
+          selectedCoordinateRepresentations: Object.values(GPS_FORMATS),
+          storedSystems: [],
+        },
         userPreferences: {
           gpsFormat: GPS_FORMATS.DEG,
         },
@@ -31,15 +38,75 @@ describe('GpsFormatToggle', () => {
 
   const renderGpsFormatToggle = (props, overrideStore) => render(
     <Provider store={mockStore({ ...store, ...overrideStore })}>
-      <GpsFormatToggle lat={11.666666} lng={10.012657} name="name" {...props} />
+      <GpsFormatToggle lngLat={{ latitude: 11.666666, longitude: 10.012657 }} {...props} />
     </Provider>
   );
+
+  test('sorts the radio inputs alphabetically', async () => {
+    renderGpsFormatToggle({ name: 'name' });
+
+    const radiogroup = screen.getByRole('radiogroup', { name: 'GPS format' });
+    const radioInputs = within(radiogroup).getAllByRole('radio');
+
+    expect(radioInputs).toHaveLength(5);
+    expect(radioInputs[0]).toHaveAttribute('value', 'DDM');
+    expect(radioInputs[1]).toHaveAttribute('value', 'DEG');
+    expect(radioInputs[2]).toHaveAttribute('value', 'DMS');
+    expect(radioInputs[3]).toHaveAttribute('value', 'MGRS');
+    expect(radioInputs[4]).toHaveAttribute('value', 'UTM');
+  });
+
+  test('assigns the name to the radio inputs', async () => {
+    renderGpsFormatToggle({ name: 'name', showTextSearchOption: true });
+
+    const radiogroup = screen.getByRole('radiogroup', { name: 'GPS format' });
+    const radioInputs = within(radiogroup).getAllByRole('radio');
+
+    expect(radioInputs).toHaveLength(6);
+    expect(radioInputs[0]).toHaveAttribute('name', 'name');
+    expect(radioInputs[1]).toHaveAttribute('name', 'name');
+    expect(radioInputs[2]).toHaveAttribute('name', 'name');
+    expect(radioInputs[3]).toHaveAttribute('name', 'name');
+    expect(radioInputs[4]).toHaveAttribute('name', 'name');
+    expect(radioInputs[5]).toHaveAttribute('name', 'name');
+  });
+
+  test('does not show an option for the text search', async () => {
+    renderGpsFormatToggle();
+
+    expect(screen.queryByRole('radio', { name: 'Search by name' })).toBeNull();
+    expect(screen.getAllByRole('radio')).toHaveLength(5);
+  });
+
+  test('shows an option for the text search', async () => {
+    renderGpsFormatToggle({ showTextSearchOption: true });
+
+    expect(screen.getByRole('radio', { name: 'Search by name' })).toBeVisible();
+    expect(screen.getAllByRole('radio')).toHaveLength(6);
+  });
 
   test('checks the GPS format option that is currently selected', async () => {
     renderGpsFormatToggle();
 
     expect(screen.getByLabelText(GPS_FORMATS.DEG)).toBeChecked();
     expect(screen.getByText(GPS_FORMATS.DEG)).toHaveClass('active');
+    expect(screen.getByLabelText(GPS_FORMATS.DDM)).not.toBeChecked();
+    expect(screen.getByText(GPS_FORMATS.DDM)).not.toHaveClass('active');
+    expect(screen.getByLabelText(GPS_FORMATS.DMS)).not.toBeChecked();
+    expect(screen.getByText(GPS_FORMATS.DMS)).not.toHaveClass('active');
+    expect(screen.getByLabelText(GPS_FORMATS.MGRS)).not.toBeChecked();
+    expect(screen.getByText(GPS_FORMATS.MGRS)).not.toHaveClass('active');
+    expect(screen.getByLabelText(GPS_FORMATS.UTM)).not.toBeChecked();
+    expect(screen.getByText(GPS_FORMATS.UTM)).not.toHaveClass('active');
+  });
+
+  test('checks the text search option', async () => {
+    renderGpsFormatToggle({ isTextSearchOptionChecked: true, showTextSearchOption: true });
+
+    expect(screen.getByLabelText('Search by name')).toBeChecked();
+    expect(screen.getByTestId('gpsFormatToggle-textSearchOptionLabel')).toHaveClass('active');
+    expect(screen.getByLabelText(GPS_FORMATS.DEG)).not.toBeChecked();
+    expect(screen.getByText(GPS_FORMATS.DEG)).not.toHaveClass('active');
     expect(screen.getByLabelText(GPS_FORMATS.DDM)).not.toBeChecked();
     expect(screen.getByText(GPS_FORMATS.DDM)).not.toHaveClass('active');
     expect(screen.getByLabelText(GPS_FORMATS.DMS)).not.toBeChecked();
@@ -66,22 +133,116 @@ describe('GpsFormatToggle', () => {
     expect(updateUserPreferences).toHaveBeenCalledWith({ gpsFormat: GPS_FORMATS.UTM });
   });
 
-  test('shows the GPS string and the copy button if there are valid lat and lng values', async () => {
+  test('updates the search text option through parent props', async () => {
+    renderGpsFormatToggle({
+      isTextSearchOptionChecked: false,
+      setIsTextSearchOptionChecked,
+      showTextSearchOption: true,
+    });
+
+    expect(updateUserPreferences).not.toHaveBeenCalled();
+    expect(setIsTextSearchOptionChecked).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole('radio', { name: 'Search by name' }));
+
+    expect(updateUserPreferences).not.toHaveBeenCalled();
+    expect(setIsTextSearchOptionChecked).toHaveBeenCalledTimes(1);
+    expect(setIsTextSearchOptionChecked).toHaveBeenCalledWith(true);
+  });
+
+  test('sets the label text and title for a coordinate reference system', async () => {
+    store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = [
+      GPS_FORMATS.DEG,
+      GPS_FORMATS.UTM,
+      '5367',
+    ];
+    store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
+    store.view.userPreferences.gpsFormat = '5367';
+    renderGpsFormatToggle();
+
+    const crs5367Label = screen.getByText('CR05 / CRTM05');
+
+    expect(crs5367Label).toBeVisible();
+    expect(crs5367Label).toHaveAttribute('title', 'CR05 / CRTM05');
+    expect(screen.getByLabelText('CR05 / CRTM05')).toBeChecked();
+  });
+
+  test('sets the label text and title for a GPS format', async () => {
+    renderGpsFormatToggle();
+
+    const degGpsFormatLabel = screen.getByText(GPS_FORMATS.DEG);
+
+    expect(degGpsFormatLabel).toBeVisible();
+    expect(degGpsFormatLabel).toHaveAttribute('title', GPS_FORMATS.DEG);
+    expect(screen.getByLabelText(GPS_FORMATS.DEG)).toBeChecked();
+  });
+
+  test('shows the label as invalid for a coordinate reference system if the lngLat is outside its BBOX', async () => {
+    store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = [
+      GPS_FORMATS.DEG,
+      GPS_FORMATS.UTM,
+      '5367',
+    ];
+    store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
+    renderGpsFormatToggle();
+
+    expect(screen.getByText('CR05 / CRTM05')).toHaveClass('invalid');
+  });
+
+  test('does not show the label as invalid for a coordinate reference system if the lngLat is inside its BBOX', async () => {
+    store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = [
+      GPS_FORMATS.DEG,
+      GPS_FORMATS.UTM,
+      '5367',
+    ];
+    store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
+    renderGpsFormatToggle({ lngLat: { latitude: 9.638124, longitude: -83.491398 } });
+
+    expect(screen.getByText('CR05 / CRTM05')).not.toHaveClass('invalid');
+  });
+
+  test('shows the coordinates and the copy button if there are valid lat and lng values', async () => {
     renderGpsFormatToggle();
 
     expect(screen.getByText('11.666666°, 10.012657°')).toBeVisible();
     expect(screen.getByLabelText('Copy GPS value to clipboard')).toBeVisible();
   });
 
-  test('does not show either the GPS string nor the copy button if there are not valid lat and lng values set', async () => {
-    renderGpsFormatToggle({ lat: null, lng: null });
+  test('shows the coordinates in DEG format and a warning tooltip if the lngLat is outside the CRS BBOX', async () => {
+    store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = [
+      GPS_FORMATS.DEG,
+      GPS_FORMATS.UTM,
+      '5367',
+    ];
+    store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
+    store.view.userPreferences.gpsFormat = '5367';
+    renderGpsFormatToggle();
+
+    const coordinatesString = screen.getByText('11.666666°, 10.012657°');
+    const coordinatesOutsideBboxTooltip =
+      screen.getByTestId('gpsFormatToggle-coordinatesOutsideBboxTooltip');
+
+    expect(coordinatesString).toBeVisible();
+    expect(coordinatesString)
+      .toHaveAccessibleDescription('Location is displayed in DEG format. EPSG:5367 CR05 / CRTM05 is not supported at this location.');
+    expect(coordinatesOutsideBboxTooltip).toBeVisible();
+
+    await userEvent.hover(coordinatesOutsideBboxTooltip);
+
+    expect(screen.getByRole('tooltip', {
+      name: 'Location is displayed in DEG format. EPSG:5367 CR05 / CRTM05 is not supported at this location.',
+    })).toBeVisible();
+  });
+
+  test('does not show either the GPS string nor the copy button if the lngLat value is not set set', async () => {
+    renderGpsFormatToggle({ lngLat: null });
 
     expect(screen.queryByText('11.666666°, 10.012657°')).toBeNull();
     expect(screen.queryByLabelText('Copy GPS value to clipboard')).toBeNull();
   });
 
-  test('does not show either the GPS string nor the copy button if the showGpsString is false', async () => {
-    renderGpsFormatToggle({ showGpsString: false });
+  test('does not show either the GPS string nor the copy button if the showCoordinates is false', async () => {
+    renderGpsFormatToggle({ showCoordinates: false });
 
     expect(screen.queryByText('11.666666°, 10.012657°')).toBeNull();
     expect(screen.queryByLabelText('Copy GPS value to clipboard')).toBeNull();

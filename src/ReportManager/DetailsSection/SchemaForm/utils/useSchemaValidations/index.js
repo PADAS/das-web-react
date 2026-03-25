@@ -3,8 +3,11 @@ import addFormats from 'ajv-formats';
 import Ajv2020 from 'ajv/dist/2020';
 import { useTranslation } from 'react-i18next';
 
+import { TEXT_ELEMENT_ALPHANUMERIC_FORMAT_VALIDATION_PATTERN } from '../../../../../utils/v2-event-schemas/constants';
+
 const ajv = new Ajv2020({ allErrors: true });
 addFormats(ajv);
+ajv.addKeyword({ keyword: 'x-section', schemaType: 'string' });
 
 const insertErrorRecursively = (fieldId, message, errorPath, errors, t) => {
   if (errorPath.length === 0) {
@@ -50,6 +53,10 @@ const useSchemaValidations = (schema) => {
           fieldId = errorPath.pop();
 
           switch (error.params.format) {
+          case 'email':
+            message = t('emailFormat');
+            break;
+
           case 'date':
             message = t('dateFormat');
             break;
@@ -62,15 +69,17 @@ const useSchemaValidations = (schema) => {
             message = t('timeFormat');
             break;
 
+          case 'uri':
+            message = t('uriFormat');
+            break;
+
+          case 'uuid':
+            message = t('uuidFormat');
+            break;
+
           default:
             message = t('defaultFormat');
           };
-          break;
-
-        case 'minimum':
-          errorPath = error.instancePath.split('/').slice(1);
-          fieldId = errorPath.pop();
-          message = t('minimum', { minimum: error.params.limit });
           break;
 
         case 'maximum':
@@ -85,10 +94,30 @@ const useSchemaValidations = (schema) => {
           message = t('maxItems', { count: error.params.limit  });
           break;
 
+        case 'minimum':
+          errorPath = error.instancePath.split('/').slice(1);
+          fieldId = errorPath.pop();
+          message = t('minimum', { minimum: error.params.limit });
+          break;
+
         case 'minItems':
           errorPath = error.instancePath.split('/').slice(1);
           fieldId = errorPath.pop();
           message = t('minItems', { count: error.params.limit  });
+          break;
+
+        case 'pattern':
+          errorPath = error.instancePath.split('/').slice(1);
+          fieldId = errorPath.pop();
+
+          switch (error.params.pattern) {
+          case TEXT_ELEMENT_ALPHANUMERIC_FORMAT_VALIDATION_PATTERN:
+            message = t('alphanumericPattern');
+            break;
+
+          default:
+            message = t('defaultPattern');
+          };
           break;
 
         case 'required':

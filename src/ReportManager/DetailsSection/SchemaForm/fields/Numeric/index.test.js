@@ -6,25 +6,23 @@ import { render, screen } from '../../../../../test-utils';
 import Numeric from './';
 
 describe('ReportManager - DetailsSection - SchemaForm - fields - Numeric', () => {
-
   const onFieldChange = jest.fn();
 
   let details;
   beforeEach(() => {
     details = {
-      'defaultInput': 100,
-      'description': 'Numeric field description',
-      'isRequired': false,
-      'label': 'Numeric field label',
-      'placeholder': 'Numeric field placeholder',
-      'value': 'numeric-1',
-      'maxInput': 200,
-      'minInput': 1,
+      defaultInput: 100,
+      description: 'Numeric field description',
+      hint: 'Numeric field hint',
+      isRequired: false,
+      label: 'Numeric field label',
+      value: 'numeric-1',
+      maxInput: 200,
+      minInput: 1,
     };
   });
 
   const renderNumericField = (props) => render(<Numeric
-        autofillDefaultInput={false}
         details={details}
         error={undefined}
         id="numeric-1"
@@ -33,39 +31,29 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Numeric', () =>
         {...props}
     />);
 
-  test('sets the default value when mounting the input if the autofill default input flag is on', () => {
-    renderNumericField({ autofillDefaultInput: true });
-
-    expect(onFieldChange).toHaveBeenCalledTimes(1);
-    expect(onFieldChange).toHaveBeenCalledWith('numeric-1', 100);
-  });
-
-  test('does not change the input value automatically if there is no default input', () => {
-    details.defaultInput = null;
-    renderNumericField({ autofillDefaultInput: true });
-
-    expect(onFieldChange).not.toHaveBeenCalled();
-  });
-
-  test('does not change the input value automatically if the autofill default input flag is off', () => {
+  test('shows a non read only numeric field', () => {
     renderNumericField();
 
-    expect(onFieldChange).not.toHaveBeenCalled();
+    expect(screen.getByRole('textbox')).not.toHaveAttribute('readonly');
+  });
+
+  test('shows a read only numeric field', () => {
+    renderNumericField({ readOnly: true });
+
+    expect(screen.getByRole('textbox')).toHaveAttribute('readonly');
   });
 
   test('shows a non required numeric field', () => {
     renderNumericField();
 
-    expect(screen.getByText('Numeric field label')).toBeVisible();
-    expect(screen.getByLabelText('Numeric field label')).not.toBeRequired();
+    expect(screen.getByRole('textbox', { name: 'Numeric field' })).not.toBeRequired();
   });
 
   test('shows a required numeric field', () => {
     details.isRequired = true;
     renderNumericField();
 
-    expect(screen.getByText('Numeric field label *')).toBeVisible();
-    expect(screen.getByLabelText('Numeric field label *')).toBeRequired();
+    expect(screen.getByRole('textbox', { name: 'Numeric field' })).toBeRequired();
   });
 
   test('does not show an error state in the label if the value is valid', () => {
@@ -93,19 +81,17 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Numeric', () =>
     details.description = '';
     renderNumericField();
 
-    expect(screen.queryByText('Numeric field description')).toBeNull();
-    expect(screen.getByLabelText('Numeric field label')).not.toHaveAccessibleDescription();
+    expect(screen.getByRole('textbox', { name: 'Numeric field' })).not.toHaveAccessibleDescription();
   });
 
   test('shows the description', () => {
     renderNumericField();
 
-    const description = screen.getByText('Numeric field description');
+    const description = screen.getByRole('paragraph');
 
-    expect(description).toBeVisible();
-    expect(description).toHaveAttribute('aria-live', 'off');
     expect(description).not.toHaveClass('error');
-    expect(screen.getByLabelText('Numeric field label')).toHaveAccessibleDescription('Numeric field description');
+    expect(description).toHaveTextContent('Numeric field description');
+    expect(screen.getByRole('textbox', { name: 'Numeric field' })).toHaveAccessibleDescription('Numeric field description');
   });
 
   test('shows a valid input when there are errors', () => {
@@ -125,8 +111,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Numeric', () =>
 
     expect(textInput).toBeInvalid();
     expect(textInput).toHaveAccessibleErrorMessage('Error');
-    expect(description).toBeVisible();
-    expect(description).toHaveAttribute('aria-live', 'assertive');
     expect(description).toHaveClass('error');
   });
 
@@ -140,9 +124,9 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Numeric', () =>
     expect(onFieldChange).toHaveBeenCalledWith('numeric-1', 1);
   });
 
-  test('shows the placeholder', () => {
+  test('shows the hint', () => {
     renderNumericField();
 
-    expect(screen.getByRole('textbox')).toHaveAttribute('placeholder', 'Numeric field placeholder');
+    expect(screen.getByRole('textbox')).toHaveAttribute('placeholder', 'Numeric field hint');
   });
 });

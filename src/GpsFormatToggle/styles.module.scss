@@ -1,14 +1,15 @@
 @use 'sass:color';
 
 @use '../common/styles/vars/colors';
+@use '../common/styles/layout';
 
 .fieldset {
   align-items: center;
-  background-color: colors.$very-light-gray;
+  background-color: colors.$light-gray;
   display: flex;
   justify-content: space-evenly;
 
-  .legend, .radioInput {
+  .legend, .input {
     border: 0;
     clip: rect(0, 0, 0, 0);
     height: 1px;
@@ -16,46 +17,83 @@
     overflow: hidden;
     padding: 0;
     position: absolute;
+    white-space: nowrap;
     width: 1px;
   }
 
-  .label {
-    border: none;
-    color: colors.$off-black;
-    cursor: pointer;
-    outline: none;
-    text-align: center;
-    padding: 0.25rem;
-    width: 100%;
+  .radio {
+    flex: 1;
+    width: 20%;
 
-    &:focus-within {
+    .input:focus-visible + .label {
       border: 2px solid colors.$bright-blue;
     }
 
-    &:hover {
-      background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
-    }
+    .label {
+      border: 2px solid colors.$light-gray;
+      color: colors.$off-black;
+      cursor: pointer;
+      display: block;
+      height: 100%;
+      overflow: hidden;
+      padding: 0.25rem 0;
+      text-align: center;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      width: 100%;
 
-    &.active {
-      background-color: white;
-      color: colors.$bright-blue;
+      &.invalid {
+        color: colors.$bright-red;
+      }
+
+      &:hover {
+        background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+        border-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+      }
+
+      &.active {
+        background-color: white;
+        border-color: white;
+        border-bottom-color: colors.$bright-blue;
+        color: colors.$bright-blue;
+      }
+
+      svg {
+        height: 0.875rem;
+        width: 0.875rem;
+
+        circle {
+          fill: none;
+          stroke-width: 1rem;
+        }
+      }
     }
   }
 }
 
-.gpsStringWrapper {
+.coordinatesStringWrapper {
   align-items: center;
   display: flex;
-  justify-content: space-between;
+  margin-top: 0.25rem;
   position: relative;
 
-  .value {
+  .coordinatesString {
     display: block;
+    flex-grow: 1;
     text-align: center;
-    width: 100%;
   }
 
   .textCopyButton {
     margin: 0;
+  }
+
+  .coordinatesOutsideBboxTooltip {
+    height: 1.25rem;
+    width: 1.25rem;
+
+    svg {
+      height: 1rem;
+      width: 1rem;
+    }
   }
 }

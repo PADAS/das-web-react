@@ -1,7 +1,7 @@
 import axios, { CancelToken, isCancel } from 'axios';
 import union from 'lodash/union';
 
-import { API_URL } from '../constants';
+import { API_URL, TAB_KEYS } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
 import { getBboxParamsFromMap } from '../utils/query';
 import { generateErrorMessageForRequest } from '../utils/request';
@@ -12,10 +12,11 @@ import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { calcLocationParamStringForUserLocationCoords } from '../utils/location';
 import parallelPaginatedQuery from '../utils/parallelPaginatedRequest';
+import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
 
 export const EVENTS_API_URL = (
-  process.env.REACT_APP_MOCK_EVENTS_API === 'true'
-  && process.env.NODE_ENV === 'development'
+  import.meta.env.REACT_APP_MOCK_EVENTS_API === 'true'
+  && import.meta.env.DEV
 ) ? '/api/v1.0/activity/events/'
   : `${API_URL}activity/events`;
 export const EVENT_API_URL = `${API_URL}activity/event/`;
@@ -68,6 +69,15 @@ const shouldAppendLocationToRequest = (state) => {
     ? state?.data?.selectedUserProfile
     : state?.data?.user;
   return userIsGeoPermissionRestricted(currentUser) && !!state?.view?.userLocation?.coords;
+};
+
+const excludeOpenEventIfAlreadyInEventStore = (events, eventStore) => {
+  const currentTab = getCurrentTabFromURL(window.location.pathname);
+  const openEventId = getCurrentIdFromURL(window.location.pathname);
+  if (currentTab === TAB_KEYS.EVENTS && openEventId && eventStore[openEventId]) {
+    return events.filter((event) => event.id !== openEventId);
+  }
+  return events;
 };
 
 export const socketEventData = (payload) => (dispatch) => {
@@ -127,7 +137,7 @@ const fetchNamedFeedActionCreator = (name) => {
     })
       .then((response) => {
         if (typeof response !== 'undefined') { /* response === undefined for canceled requests. it's not an error, but it's a no-op for state management */
-          dispatch(updateEventStore(...response.data.data.results));
+          dispatch(updateEventStore(...excludeOpenEventIfAlreadyInEventStore(response.data.data.results, state.data.eventStore)));
 
           if (
             !response.data.data.results.length
@@ -152,7 +162,9 @@ const fetchNamedFeedActionCreator = (name) => {
       });
   };
 
-  const fetchNextPageFn = url => dispatch => {
+  const fetchNextPageFn = url => (dispatch, getState) => {
+    const state = getState();
+
     cancelToken.cancel();
     cancelToken = CancelToken.source();
 
@@ -160,7 +172,7 @@ const fetchNamedFeedActionCreator = (name) => {
       cancelToken: cancelToken.token,
     })
       .then(response => {
-        dispatch(updateEventStore(...response.data.data.results));
+        dispatch(updateEventStore(...excludeOpenEventIfAlreadyInEventStore(response.data.data.results, state.data.eventStore)));
         dispatch({
           name,
           type: FEED_FETCH_NEXT_PAGE_SUCCESS,
@@ -426,7 +438,7 @@ export const fetchMapEvents = (map, parameters) => async (dispatch, getState) =>
   if (!map && !lastKnownBbox) return Promise.reject('no map available');
 
   const bbox = map ? await getBboxParamsFromMap(map) : lastKnownBbox;
-  const params = { bbox, ...parameters, include_updates: false };
+  const params = { bbox, ...parameters, include_updates: false, include_notes: false, include_details: false, include_related_events: false };
 
   if (shouldAppendLocationToRequest(state)) {
     params.location = calcLocationParamStringForUserLocationCoords(state.view.userLocation.coords);
@@ -467,20 +479,24 @@ export const fetchMapEvents = (map, parameters) => async (dispatch, getState) =>
     });
 };
 
-const fetchMapEventsComplete = results => (dispatch) => {
+const fetchMapEventsComplete = results => (dispatch, getState) => {
+  const state = getState();
+
   dispatch({
     type: FETCH_MAP_EVENTS_COMPLETE,
     payload: results,
   });
-  dispatch(updateEventStore(...results));
+  dispatch(updateEventStore(...excludeOpenEventIfAlreadyInEventStore(results, state.data.eventStore)));
 };
 
-const fetchMapEventsPageSuccess = results => (dispatch) => {
+const fetchMapEventsPageSuccess = results => (dispatch, getState) => {
+  const state = getState();
+
   dispatch({
     type: FETCH_MAP_EVENTS_PAGE_SUCCESS,
     payload: results,
   });
-  dispatch(updateEventStore(...results));
+  dispatch(updateEventStore(...excludeOpenEventIfAlreadyInEventStore(results, state.data.eventStore)));
 };
 
 const fetchMapEventsError = error => ({

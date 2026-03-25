@@ -48,7 +48,11 @@ const PointPopup = (props) => {
   return <Popup className={`${styles.popup} ${drawing ? styles.unfinished : ''}`} offset={popupOffset} coordinates={point} anchor={popupAnchorPosition}>
 
     {!drawing && <>
-      <GpsFormatToggle lng={point[0]} lat={point[1]} name="mapRulerControl-pointPopup-gpsFormatToggle" />
+      <GpsFormatToggle
+        lngLat={{ latitude: point[1], longitude: point[0] }}
+        name="mapRulerControl-pointPopup-gpsFormatToggle"
+      />
+
       {points.length > 1 && !isFirstPoint && <>
         <p>
           <strong>{t('bearingLabel')}</strong> {bearingFromPrev}&deg; <br />

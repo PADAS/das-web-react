@@ -3,19 +3,17 @@ import * as layoutVariables from '../common/styles/layout.module.scss';
 
 const { buildbranch, buildnum } = packageJson;
 
-export const {
-  REACT_APP_DAS_AUTH_TOKEN_URL,
-  REACT_APP_MAPBOX_TOKEN,
-  REACT_APP_DAS_API_URL,
-  REACT_APP_DAS_API_V2_URL,
-  REACT_APP_ROUTE_PREFIX,
-  REACT_APP_GA4_TRACKING_ID,
-  REACT_APP_BASE_MAP_STYLES,
-  REACT_APP_DEFAULT_EVENT_FILTER_FROM_DAYS,
-  REACT_APP_DEFAULT_PATROL_FILTER_FROM_DAYS,
-} = process.env;
+export const REACT_APP_DAS_AUTH_TOKEN_URL = import.meta.env.REACT_APP_DAS_AUTH_TOKEN_URL;
+export const REACT_APP_MAPBOX_TOKEN = import.meta.env.REACT_APP_MAPBOX_TOKEN;
+export const REACT_APP_DAS_API_URL = import.meta.env.REACT_APP_DAS_API_URL;
+export const REACT_APP_DAS_API_V2_URL = import.meta.env.REACT_APP_DAS_API_V2_URL;
+export const REACT_APP_ROUTE_PREFIX = import.meta.env.REACT_APP_ROUTE_PREFIX;
+export const REACT_APP_GA4_TRACKING_ID = import.meta.env.REACT_APP_GA4_TRACKING_ID;
+export const REACT_APP_BASE_MAP_STYLES = import.meta.env.REACT_APP_BASE_MAP_STYLES;
+export const REACT_APP_DEFAULT_EVENT_FILTER_FROM_DAYS = import.meta.env.REACT_APP_DEFAULT_EVENT_FILTER_FROM_DAYS;
+export const REACT_APP_DEFAULT_PATROL_FILTER_FROM_DAYS = import.meta.env.REACT_APP_DEFAULT_PATROL_FILTER_FROM_DAYS;
 
-export const DAS_HOST = process.env.REACT_APP_DAS_HOST
+export const DAS_HOST = import.meta.env.REACT_APP_DAS_HOST
   || `${window.location.protocol}//${window.location.host}`;
 
 export const CLIENT_BUILD_VERSION = `${buildbranch}-${buildnum}`;
@@ -82,16 +80,14 @@ export const LAYER_IDS = {
   ANALYZER_LINES_WARNING: 'analyzer-line-warning',
   ANALYZER_POLYS_CRITICAL: 'analyzer-polygon-critical',
   ANALYZER_POLYS_WARNING: 'analyzer-polygon-warning',
-  CLUSTER_BUFFER_POLYGON_LAYER_ID: 'cluster-buffer-polygon-layer',
+  COORDINATE_REFERENCE_SYSTEM_BBOX: 'coordinate-reference-system-bbox-layer',
+  CLUSTER_POLYGON_LAYER_ID: 'cluster-polygon-layer',
   CLUSTERED_STATIC_SENSORS_LAYER: 'clustered_static_sensors_layer',
   CLUSTERS_LAYER_ID: 'clusters-layer',
   EVENT_CLUSTER_COUNT_SYMBOLS: 'event_cluster_count',
   EVENT_GEOMETRY_LAYER: 'event-geometry-layer',
   EVENT_LOCATION_MARKERS: 'event-location-markers-layer',
   EVENT_SYMBOLS: 'event_symbols',
-  FEATURE_FILLS: 'feature-fills',
-  FEATURE_LINES: 'feature-lines',
-  FEATURE_SYMBOLS: 'feature-symbols',
   HEATMAP_LAYER: 'heatmap',
   ISOCHRONE_LAYER: 'isochrone',
   MOUSE_MARKER_LAYER: 'mouse-marker-layer',
@@ -101,8 +97,9 @@ export const LAYER_IDS = {
   STATIC_SENSOR: 'static_sensor',
   SUBJECT_SYMBOLS: 'subject-symbol-layer',
   TOPMOST_STYLE_LAYER: 'feature-separation-layer',
-  TRACK_TIMEPOINTS_SYMBOLS: 'track-layer-timepoints',
   TRACKS_LINES: 'track-layer',
+  TRACKS_SOURCE: 'track-source',
+  TRACK_TIMEPOINTS: 'track-layer-points',
   UNCLUSTERED_STATIC_SENSORS_LAYER: 'unclustered_static_sensors_layer',
 };
 
@@ -111,7 +108,8 @@ export const SOURCE_IDS = {
   ANALYZER_LINES_WARNING_SOURCE: 'analyzer-line-warning-source',
   ANALYZER_POLYS_CRITICAL_SOURCE: 'analyzer-polygon-critical-source',
   ANALYZER_POLYS_WARNING_SOURCE: 'analyzer-polygon-warning-source',
-  CLUSTER_BUFFER_POLYGON_SOURCE_ID: 'cluster-buffer-polygon-source',
+  COORDINATE_REFERENCE_SYSTEM_BBOX: 'coordinate-reference-system-bbox-source',
+  CLUSTER_POLYGON_SOURCE_ID: 'cluster-polygon-source',
   CLUSTERS_SOURCE_ID: 'clusters-source',
   CURRENT_USER_LOCATION_SOURCE: 'current-user-location-source',
   EVENT_GEOMETRY: 'event-geometry-source',
@@ -132,16 +130,19 @@ export const DEFAULT_SHOW_NAMES_IN_MAP_CONFIG = {
 };
 
 export const SYSTEM_CONFIG_FLAGS = {
-  PATROL_MANAGEMENT: 'patrol_enabled',
   ALERTS: 'alerts_enabled',
+  ANALYZERS: 'analyzers_enabled',
   DAILY_REPORT: 'daily_report_enabled',
-  EVENT_MATRIX: 'event_matrix_enabled',
-  EULA: 'eula_enabled',
-  KML_EXPORT: 'export_kml_enabled',
-  TABLEAU: 'tableau_enabled',
-  GEOPERMISSIONS: 'geopermissions_enabled',
   DEFAULT_EVENT_FILTER_FROM_DAYS: 'default_event_filter_from_days',
   DEFAULT_PATROL_FILTER_FROM_DAYS: 'default_patrol_filter_from_days',
+  EULA: 'eula_enabled',
+  EVENTS: 'events_enabled',
+  GEOPERMISSIONS: 'geopermissions_enabled',
+  KML_EXPORT: 'export_kml_enabled',
+  PATROL_MANAGEMENT: 'patrol_enabled',
+  SPATIAL_FEATURES: 'spatial_features_enabled',
+  SUBJECTS: 'subjects_enabled',
+  TABLEAU: 'tableau_enabled',
 };
 
 
@@ -278,11 +279,10 @@ export const EXTERNAL_SAME_DOMAIN_ROUTES = [
 export const PERMISSION_KEYS = {
   PATROLS: 'patrol',
   PATROL_TYPES: 'patroltype',
-  MESSAGING: 'message',
+  MESSAGES: 'message',
   OBSERVATIONS: 'observation',
   EVENTS: 'event',
 };
-
 
 export const PERMISSIONS = {
   CREATE: 'add',
@@ -311,13 +311,9 @@ export const SUPPORTED_LANGUAGES = {
   sw: 'Swahili',
 };
 
-export const FEATURE_FLAG_LABELS = {
-  EFB_FORM_SCHEMA_SUPPORT_ENABLED: 'EFB_FORM_SCHEMA_SUPPORT_ENABLED',
-};
+export const FEATURE_FLAG_LABELS = {};
 
-export const DEVELOPMENT_FEATURE_FLAGS = {
-  [FEATURE_FLAG_LABELS.EFB_FORM_SCHEMA_SUPPORT_ENABLED]: process.env.REACT_APP_EFB_FORM_SCHEMA_SUPPORT_ENABLED === 'true',
-};
+export const DEVELOPMENT_FEATURE_FLAGS = {};
 
 export const LINK_TYPES = { PATROL: 'patrol', EVENT: 'event' };
 
@@ -325,6 +321,16 @@ export const EVENT_SORT_OPTIONS = [
   { value: 'updated_at', key: 'updatedAtLabel' },
   { value: 'created_at', key: 'createdAtLabel' },
   { value: 'event_time', key: 'eventTimeLabel' },
+];
+
+export const MAP_LAYER_SORT_VALUES = {
+  ALPHABETICAL: 'alphabetical',
+  LAST_UPDATE: 'last_update',
+};
+
+export const MAP_LAYER_SORT_OPTIONS = [
+  { value: 'last_update', key: 'lastUpdate' },
+  { value: 'alphabetical', key: 'alphabetical' },
 ];
 
 export const SORT_DIRECTION = { up: 'up', down: 'down' };
@@ -386,3 +392,12 @@ export const TIME_OF_DAY_PERIODS = [
     color: '#2ec27e'
   }
 ];
+
+export const TRACKING_CONTROL_STATES = {
+  FULLY_HEATMAPPED: 'FULLY_HEATMAPPED',
+  PARTIALLY_HEATMAPPED: 'PARTIALLY_HEATMAPPED',
+  FULLY_PINNED: 'FULLY_PINNED',
+  PARTIALLY_PINNED: 'PARTIALLY_PINNED',
+  FULLY_VISIBLE: 'FULLY_VISIBLE',
+  PARTIALLY_VISIBLE: 'PARTIALLY_VISIBLE',
+};

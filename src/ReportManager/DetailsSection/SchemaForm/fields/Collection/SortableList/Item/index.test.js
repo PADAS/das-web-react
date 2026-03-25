@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { render, screen, within } from '../../../../../../../test-utils';
-import { FORM_ELEMENT_TYPES } from '../../../../constants';
+import { FORM_ELEMENT_TYPES } from '../../../../../../../utils/v2-event-schemas/constants';
 import { GPS_FORMATS } from '../../../../../../../utils/location';
 import { mockStore } from '../../../../../../../__test-helpers/MockStore';
 
@@ -31,6 +31,9 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
 
     store = {
       view: {
+        coordinateReferenceSystems: {
+          storedSystems: [],
+        },
         modals: {
           canShowModals: true,
         },
@@ -48,22 +51,24 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
         collectionDetails={collectionDetails}
         errors={undefined}
-        fields={{
+        focusLocationMarker={focusLocationMarker}
+        formData={{ 'field-1': 'Value 1', 'field-2': 'Value 2' }}
+        formElements={{
           'field-1': {
             details: {
+              defaultInput: 'Default Value 1',
               label: 'Field 1',
             },
             type: FORM_ELEMENT_TYPES.TEXT,
           },
           'field-2': {
             details: {
+              defaultInput: 'Default Value 2',
               label: 'Field 2',
             },
             type: FORM_ELEMENT_TYPES.TEXT,
           },
         }}
-        focusLocationMarker={focusLocationMarker}
-        formData={{ 'field-1': 'Value 1', 'field-2': 'Value 2' }}
         id={1}
         index={0}
         isDragging={false}
@@ -75,10 +80,55 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         renderField={renderField}
         setIsFormModalOpen={setIsFormModalOpen}
         setIsFormPreviewOpen={setIsFormPreviewOpen}
+        wasItemRecentlyAdded={false}
         {...props}
       />
     </Provider>
   );
+
+  test('does not set the default form data for items that were not recently added', async () => {
+    renderItem({ formData: {} });
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  test('does not set the default form data for new items that are drag overlays', async () => {
+    renderItem({ formData: {}, wasItemRecentlyAdded: true, isDragOverlay: true });
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  test('does not set the default form data for items that do not have default values', async () => {
+    renderItem({
+      formData: {},
+      formElements: {
+        'field-1': {
+          details: {
+            defaultInput: '',
+            label: 'Field 1',
+          },
+          type: FORM_ELEMENT_TYPES.TEXT,
+        },
+        'field-2': {
+          details: {
+            defaultInput: '',
+            label: 'Field 2',
+          },
+          type: FORM_ELEMENT_TYPES.TEXT,
+        },
+      },
+      wasItemRecentlyAdded: true,
+    });
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  test('sets the default form data for items that were recently added and are not drag overlays', async () => {
+    renderItem({ formData: {}, wasItemRecentlyAdded: true });
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith({ 'field-1': 'Default Value 1', 'field-2': 'Default Value 2' }, undefined);
+  });
 
   test('shows the item with the form preview open', async () => {
     renderItem({ isFormPreviewOpen: true });
@@ -117,6 +167,13 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
     expect(screen.getByTestId('schema-form-collection-item')).toHaveClass('error');
   });
 
+  test('shows the item as read only if the collection is read only', async () => {
+    renderItem({ readOnly: true });
+
+    expect(screen.getByTestId('schema-form-collection-item')).toHaveClass('readOnly');
+    expect(screen.getByRole('button', { name: 'Delete Value 1' })).toBeDisabled();
+  });
+
   test('shows the item normally', async () => {
     renderItem();
 
@@ -124,6 +181,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
     expect(screen.getByTestId('schema-form-collection-item')).not.toHaveClass('isDragging');
     expect(screen.getByTestId('schema-form-collection-item')).not.toHaveClass('dragOverlay');
     expect(screen.getByTestId('schema-form-collection-item')).not.toHaveClass('error');
+    expect(screen.getByTestId('schema-form-collection-item')).not.toHaveClass('readOnly');
     expect(document.body.style.cursor).not.toBe('grabbing');
     expect(onDelete).not.toHaveBeenCalled();
 
@@ -295,7 +353,8 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
           breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
           collectionDetails={collectionDetails}
           errors={undefined}
-          fields={{
+          formData={{ 'field-1': 'New value 1', 'field-2': 'Value 2' }}
+          formElements={{
             'field-1': {
               details: {
                 label: 'Field 1',
@@ -309,7 +368,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
               type: FORM_ELEMENT_TYPES.TEXT,
             },
           }}
-          formData={{ 'field-1': 'New value 1', 'field-2': 'Value 2' }}
           id={1}
           isDragging={false}
           isDragOverlay={false}

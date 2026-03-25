@@ -1,4 +1,4 @@
-import React, { memo, useRef, useState } from 'react';
+import React, { memo, useState } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';
 import Collapse from 'react-bootstrap/Collapse';
 import { useTranslation } from 'react-i18next';
@@ -11,43 +11,37 @@ import SortableList from './SortableList';
 
 import * as styles from './styles.module.scss';
 
-// Collections have an array of objects as their value in the form data object. Each of the objects is a collection
-// item and it contains the values of the fields rendered by a collection item. They can be nested within sections and
-// within other collections, so we propagate values, errors and breadcrumbs and their changes to the parent and the
-// children.
 const Collection = ({
   blurLocationMarker,
   breadcrumbs,
   details,
   error,
-  fields,
   focusLocationMarker,
+  formElements,
   id,
   onFieldChange,
+  readOnly,
   renderField,
   value = [],
 }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection.schemaForm.fields.collection' });
 
-  // Ref to keep track of the temporal id of the last added item so we keep incrementing them when the user adds more
-  // items.
-  const lastAddedItemIdRef = useRef(value.length - 1);
-
   const [isOpen, setIsOpen] = useState(true);
-  // Items is an internal state variable to assign temporal ids to each collection item (used as the key prop, sortable
-  // id and numeric identifier) and to track their state. It's stored as an array and the index of each item in the
-  // value prop will always be matched in here.
+  // Items is an internal state variable to assign temporal ids to each
+  // collection item and to track their modal and preview open state.
   const [items, setItems] = useState(value.map((_, index) => ({
     id: index,
     isFormModalOpen: false,
     isFormPreviewOpen: false,
+    wasItemRecentlyAdded: false,
   })));
 
-  const hasError = !!error?.message;
   const doesChildrenHaveErrors = !!error && Object.keys(error).some((errorKey) => errorKey !== 'message');
+  const hasError = !!error?.message;
+  const isMaxItemsReached = details.maxItems === null ? false : value.length >= details.maxItems;
 
   const onItemChange = (itemIndex) => (itemValue, itemError) => {
-    // We clean the collection error message and update the changed item error.
+    // Clean the collection error message and update the changed item error.
     let updatedError = { ...error };
     delete updatedError.message;
     if (itemError) {
@@ -66,16 +60,16 @@ const Collection = ({
     );
   };
 
-  const onItemDelete = (itemIndex) => (decreaseLastAddedItemId = false) => {
-    // We clean the error of the deleted item and the collection error message.
+  const onItemDelete = (itemIndex) => () => {
+    // Clean the error of the deleted item and the collection error message.
     let updatedError = { ...error };
     delete updatedError[itemIndex];
     delete updatedError.message;
     if (Object.keys(updatedError).length === 0) {
       updatedError = undefined;
     } else {
-      // If there were errors assigned to other items, we decrease the index number of all the erroneous items over the
-      // deleted item.
+      // If there were errors assigned to other items, decrease the index
+      // number of all the erroneous items over the deleted item.
       Object.keys(updatedError).forEach((erroneousItemIndex) => {
         if (erroneousItemIndex > itemIndex) {
           updatedError[parseInt(erroneousItemIndex) - 1] = updatedError[erroneousItemIndex];
@@ -84,17 +78,13 @@ const Collection = ({
       });
     }
 
-    if (decreaseLastAddedItemId){
-      lastAddedItemIdRef.current -= 1;
-    }
-
     onFieldChange(id, value.filter((_, index) => itemIndex !== index), updatedError);
     setItems(items.filter((_, index) => itemIndex !== index));
   };
 
   const onItemMove = (originalItemIndex, newItemIndex) => {
-    // If there were any errors before moving the item, we update the indexes of the items after the update in the
-    // error object.
+    // If there were any errors before moving the item, update the indexes of
+    // the items after the update in the error object.
     let updatedError;
     if (error) {
       updatedError = error.message ? { message: error.message } : {};
@@ -132,35 +122,35 @@ const Collection = ({
   ]);
 
   const onAddButtonClick = () => {
-    // We clean the collection error message.
+    // Clean the collection error message.
     let updatedError = { ...error };
     delete updatedError.message;
     if (Object.keys(updatedError).length === 0) {
       updatedError = undefined;
     }
 
-    lastAddedItemIdRef.current += 1;
+    const highestExistingItemId = items.reduce((highestItemId, item) => Math.max(highestItemId, item.id), -1);
     onFieldChange(id, [...value, {}], updatedError);
     setItems([
       ...items,
       {
-        id: lastAddedItemIdRef.current,
+        id: highestExistingItemId + 1,
         isFormModalOpen: true,
         isFormPreviewOpen: false,
-        wasItemRecentlyAdded: true
+        wasItemRecentlyAdded: true,
       }
     ]);
   };
 
-  // If a location field from an item requests to focus its location marker, prefix the marker id with the collection
-  // id and the item index.
+  // If a location field from an item requests to focus its location marker,
+  // prefix the marker id with the collection id and the item index.
   const focusLocationMarkerFromItem = (itemIndex) => (markerId) =>
     focusLocationMarker(`${id}.${itemIndex}.${markerId}`);
 
   return <div
       aria-errormessage={hasError ? `${id}-description` : undefined}
       aria-labelledby={`${id}-label`}
-      aria-invalid={hasError}
+      aria-invalid={hasError ? 'true' : 'false'}
       className={styles.collection}
       data-testid={`schema-form-collection-${id}`}
       id={id}
@@ -171,6 +161,8 @@ const Collection = ({
     >
       <label className={styles.label} id={`${id}-label`}>
         {`${details.label} (${value.length})`}
+
+        {details.isRequired && <span aria-hidden="true"> *</span>}
       </label>
 
       <button
@@ -194,24 +186,26 @@ const Collection = ({
             blurLocationMarker={blurLocationMarker}
             breadcrumbs={breadcrumbs}
             collectionDetails={details}
-            fields={fields}
             focusLocationMarker={focusLocationMarkerFromItem}
-            // Merge the value, error and items array into a single array of item objects.
+            formElements={formElements}
+            // Merge the value, error and items array into a single array of
+            // item objects.
             items={items
               .filter((_, index) => !!value[index])
               .map((item, index) => ({ ...item, error: error?.[index], formData: value[index] }))}
             onItemChange={onItemChange}
             onItemDelete={onItemDelete}
             onItemMove={onItemMove}
+            readOnly={readOnly}
+            renderField={renderField}
             setIsItemFormModalOpen={setIsItemFormModalOpen}
             setIsItemFormPreviewOpen={setIsItemFormPreviewOpen}
-            renderField={renderField}
           />}
 
         <button
           aria-label={t('addButtonLabel', { itemName: details.itemName })}
           className={styles.addButton}
-          disabled={details.maxItems === null ? false : value.length >= details.maxItems}
+          disabled={readOnly || isMaxItemsReached}
           onClick={onAddButtonClick}
           title={t('addButtonLabel', { itemName: details.itemName })}
           type="button"
@@ -223,7 +217,12 @@ const Collection = ({
       </div>
     </Collapse>
 
-    {hasError && <p aria-live="assertive" className={styles.description} id={`${id}-description`}>{error.message}</p>}
+    <p
+      className={`${styles.description} ${hasError ? styles.error : ''}`}
+      id={`${id}-description`}
+    >
+      {error?.message || details.description}
+    </p>
   </div>;
 };
 

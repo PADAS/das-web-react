@@ -2,58 +2,44 @@ import React from 'react';
 
 import * as styles from './styles.module.scss';
 
-const INPUT_ROLES = {
-  CHECKBOX: 'checkbox',
-  RADIO: 'radio'
-};
-
-const Ripple = ({ readOnly, disabled, children }) =>
-  <div className={styles.rippleContainer}>
-    {children}
-    <div className={`${styles.ripple} ${!readOnly && !disabled ? styles.active : ''}`} />
-  </div>
-;
-
 const SelectableItem = ({
   className = '',
-  invalid,
   disabled = false,
   groupId,
-  isChecked,
   id,
+  invalid,
+  isChecked,
+  isMulti = true,
   label,
   onClick,
-  readOnly = false,
-  value,
-  isMulti = true,
+  readOnly,
   ref,
+  value,
   ...otherProps
-}) => {
-  const handleOnChange = (event) => {
-    if (!readOnly && !disabled){
-      event?.preventDefault();
-      onClick(value, !isChecked);
-    }
-  };
+}) => <div className={`${styles.selectableItem} ${disabled || readOnly ? styles.inactive : ''} ${className}`}>
+  <div className={styles.ripple}>
+    <input
+      checked={isChecked}
+      className={styles.input}
+      data-testid={`input-for-${label}`}
+      disabled={disabled}
+      id={id}
+      name={isMulti ? id : `${groupId}-option`}
+      onChange={readOnly ? undefined : () => onClick(value, !isChecked)}
+      readOnly={readOnly}
+      ref={ref}
+      type={isMulti ? 'checkbox' : 'radio'}
+      value={!isMulti ? value : undefined}
+      {...otherProps}
+    />
+  </div>
 
-  return <div className={`${styles.container} ${disabled ? styles.disabled : ''} ${className} ${invalid ? styles.error : ''}`}>
-    <Ripple>
-      <input type={isMulti ? INPUT_ROLES.CHECKBOX : INPUT_ROLES.RADIO}
-             readOnly={readOnly}
-             disabled={disabled}
-             value={!isMulti ? value : undefined}
-             checked={isChecked}
-             id={id}
-             name={ isMulti ? id : `${groupId}-option`}
-             data-testid={`input-for-${label}`}
-             onChange={handleOnChange}
-             ref={ref}
-             {...otherProps} />
-    </Ripple>
-    <label htmlFor={id}>
-      {label}
-    </label>
-  </div>;
-};
+  <label
+    className={`${styles.label} ${invalid ? styles.error : ''}`}
+    htmlFor={id}
+  >
+    {label}
+  </label>
+</div>;
 
 export default SelectableItem;

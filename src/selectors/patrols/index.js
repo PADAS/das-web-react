@@ -114,17 +114,33 @@ export const selectPatrolLeadersWithLastPosition = createSelector(
 
 export const selectPatrolsFeedMappedFromStore = createSelector(
   [selectPatrolsFeed, selectPatrolStore],
-  // Map each patrol id from the feed to its patrol object and filter just the defined ones.
-  (patrolsFeed, patrolStore) => patrolsFeed.map((patrolId) => patrolStore[patrolId]).filter((patrol) => !!patrol),
+  (patrolsFeed, patrolStore) => {
+    // List the patrols from the feed that are defined in the patrol store.
+    const patrolsFeedMappedFromStore = [];
+    patrolsFeed.forEach((patrolId) => {
+      if (patrolStore[patrolId]) {
+        patrolsFeedMappedFromStore.push(patrolStore[patrolId]);
+      }
+    });
+
+    return patrolsFeedMappedFromStore;
+  }
 );
 
 export const selectPatrolsWithTracks = createSelector(
   [selectPatrolStore, selectVisibleAndPinnedPatrolTracks],
-  (patrolStore, visibleAndPinnedPatrolTracks) => visibleAndPinnedPatrolTracks
-    // Map the ids of the patrols with visible and pinned tracks to their patrol object.
-    .map((patrolId) => patrolStore[patrolId])
-    // Filter just the defined patrols that allow track display.
-    .filter((patrol) => !!patrol && patrolStateAllowsTrackDisplay(patrol))
+  (patrolStore, visibleAndPinnedPatrolTracks) => {
+    // List the patrols with visible and pinned tracks that are defined in the
+    // patrol store and that allow track display.
+    const patrolsWithTracks = [];
+    visibleAndPinnedPatrolTracks.forEach((patrolId) => {
+      if (patrolStore[patrolId] && patrolStateAllowsTrackDisplay(patrolStore[patrolId])) {
+        patrolsWithTracks.push(patrolStore[patrolId]);
+      }
+    });
+
+    return patrolsWithTracks;
+  }
 );
 
 export const selectPatrolsWithTracksData = createSelector(

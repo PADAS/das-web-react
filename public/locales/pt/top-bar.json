@@ -53,6 +53,9 @@
     },
     "userMenu": {
         "cookieSettingsItem": "Configuração de cookies",
-        "logoutItem": "Encerrar sessão"
+        "logoutItem": "Encerrar sessão",
+        "toggleLabel": "Abrir configuração de usuário",
+        "toggleTitle": "Configuração de usuário",
+        "userAndProfilesHeader": "Usuário e perfis"
     }
 }

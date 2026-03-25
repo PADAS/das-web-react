@@ -22,6 +22,7 @@ const FormModal = ({
   onDeleteItem,
   onDone,
   onFieldChange,
+  readOnly,
   renderField,
   rightColumn,
   title,
@@ -103,6 +104,7 @@ const FormModal = ({
           <button
               aria-label={t('deleteButton', { itemTitle: title } )}
               className={styles.deleteButton}
+              disabled={readOnly}
               onClick={onDeleteItem}
               title={t('deleteButton', { itemTitle: title } )}
               type="button">

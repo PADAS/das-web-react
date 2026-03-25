@@ -11,6 +11,7 @@
 .primary-nav {
   align-items: center;
   background: $title-bar-color;
+  box-shadow: 0 0.25rem 0.25rem 0 rgba(0, 0, 0, 0.33);
   color: white;
   display: flex;
   height: var(--nav-height);
@@ -19,6 +20,11 @@
   position: relative;
   width: 100vw;
   z-index: 2;
+
+  @media (min-width: $md-layout-width-min) {
+    padding: 0;
+  }
+
   .dropdown-menu {
     background: $off-white;
     box-shadow: 3px 3px 0.5rem rgba($dark-gray, 0.25);
@@ -35,6 +41,10 @@
     display: flex;
     justify-content: flex-start;
     flex: 2;
+    
+    @media (min-width: $md-layout-width-min) {
+      padding-left: 1.5rem;
+    }
 
     .logo-wrapper {
       display: none;
@@ -61,7 +71,7 @@
 
     @media (min-width: $md-layout-width-min) {
       .global-menu-button {
-        margin-right: 2rem;
+        margin-right: 1.5rem;
         opacity: 0.9;
         
         &:hover {
@@ -101,6 +111,10 @@
     display: flex;
     justify-content: flex-end;
     flex: 2;
+    
+    @media (min-width: $md-layout-width-min) {
+      padding-right: 1.5rem;
+    }
   }
   .dropdown.show {
     max-width: 95vw;

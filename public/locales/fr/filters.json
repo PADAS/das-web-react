@@ -30,8 +30,8 @@
       "noneSelected": "Aucune sélection",
       "someSelected": "{{reportTypesCheckedCount}} sur {{eventTypeIDsLength}} sélectionnés "
     },
-    "restAllButton": "Tout réinitialiser",
-    "restButton": "Réinitialiser",
+    "resetAllButton": "Tout réinitialiser",
+    "resetButton": "Réinitialiser",
     "stateLabel": "Statut",
     "stateSelector": {
       "active": "Actif",
@@ -54,7 +54,37 @@
     },
     "ascendingLabel": "croissant"
   },
-  "mapLayerSearchbarPlaceholder": "Recherche...",
+  "mapLayerFilter": {
+    "formLabel": "Rechercher des couches",
+    "groupButton": {
+      "grouped": "Groupées",
+      "ungrouped": "Non groupées"
+    },
+    "groupButtonLabel": {
+      "grouped": "Dégrouper les couches",
+      "ungrouped": "Grouper les couches"
+    },
+    "searchBarLabel": "Rechercher des couches",
+    "searchBarPlaceholder": "Rechercher des couches...",
+    "setSortByButton": {
+      "alphabetical": "Alphabétique",
+      "last_update": "Dernière mise à jour"
+    },
+    "setSortByButtonLabel": "Ouvrir les options de tri des couches",
+    "sortDirectionButtonLabel": {
+      "down": "Trier les couches par ordre croissant",
+      "up": "Trier les couches par ordre décroissant"
+    },
+    "sortByMenuLabel": "Options de tri des couches",
+    "sortByMenuOption": {
+      "alphabetical": "Alphabétique",
+      "lastUpdate": "Dernière mise à jour"
+    },
+    "sortByMenuOptionLabel": {
+      "alphabetical": "Trier les couches par ordre alphabétique",
+      "lastUpdate": "Trier les couches par date de mise à jour"
+    }
+  },
   "patrolFilters": {
     "datesTitle": "Dates",
     "dateRangePopover": {

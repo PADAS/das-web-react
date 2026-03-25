@@ -1,14 +1,14 @@
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
-import Form from '@rjsf/bootstrap-4';
+import Form from '@rjsf/react-bootstrap';
 import { format, isToday, isValid, parseISO } from 'date-fns';
 import MoonLoader from 'react-spinners/MoonLoader';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 
-import { EVENT_FORM_STATES, FEATURE_FLAG_LABELS, VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
+import { EVENT_FORM_STATES, VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 import {
   filterOutErrorsForHiddenProperties,
   filterOutRequiredValueOnSchemaPropErrors,
@@ -16,9 +16,7 @@ import {
 } from '../../utils/event-schemas';
 import { getHoursAndMinutesString } from '../../utils/datetime';
 import { selectEventTypeByValue } from '../../selectors/event-types';
-import { setMapLocationSelectionEvent } from '../../ducks/map-ui';
 import { TrackerContext } from '../../utils/analytics';
-import { useFeatureFlag } from '../../hooks';
 
 import {
   AddButton,
@@ -31,9 +29,9 @@ import {
   ObjectFieldTemplate,
   RemoveButton,
 } from '../../SchemaFields';
-import AreaSelectorInput from './AreaSelectorInput';
+import AreaPicker from './AreaPicker';
 import DatePicker, { EMPTY_DATE_VALUE } from '../../DatePicker';
-import GeometryPreview from './AreaSelectorInput/GeometryPreview';
+import { GeometryPreview } from './AreaPicker/MenuPopover';
 import LocationPicker from '../../LocationPicker';
 import PrioritySelect from '../../PrioritySelect';
 import ReportedBySelect from '../../ReportedBySelect';
@@ -52,7 +50,6 @@ const DetailsSection = ({
   isBehindAddedEvent,
   isCollection,
   isNewEvent,
-  loadingSchema,
   onFormDataChange,
   onFormError,
   onFormSubmit,
@@ -63,38 +60,27 @@ const DetailsSection = ({
   onReportGeometryChange,
   onReportLocationChange,
   onReportStateChange,
-  originalReport,
   ref,
   reportForm,
   submitFormButtonRef,
 }) => {
-  const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection' });
 
   const eventType = useSelector((state) => reportForm?.event_type ? selectEventTypeByValue(state, reportForm.event_type) : null);
+  const loadingEventSchemas = useSelector((state) => state.data.eventSchemas.loading);
 
-  // Temporary solution to test new schemas starts here.
-  // Feature flag to enable mocks schemas from the selector.
-  const efbFormSchemaSupportEnabled = useFeatureFlag(FEATURE_FLAG_LABELS.EFB_FORM_SCHEMA_SUPPORT_ENABLED);
-  // Schema from schema selector, it is stored in redux.
-  const schemaFromSchemaSelector = useSelector(
-    (state) => efbFormSchemaSupportEnabled ? state.view.schemaSelector.schema?.schema : null
-  );
-  // Override to the schema.
-  const eventSchemaOverride = efbFormSchemaSupportEnabled ? schemaFromSchemaSelector : eventSchema;
-  // Temporary solution to test new schemas ends here.
+  const eventTracker = useContext(TrackerContext);
 
-  const reportTracker = useContext(TrackerContext);
-
-  const reportTime = reportForm?.time ? new Date(reportForm.time) : null;
+  const eventTime = reportForm?.time ? new Date(reportForm.time) : null;
 
   const [showStateDropdown, setShowStateDropdown] = useState(false);
-  const [date, setDate] = useState(reportTime ? format(reportTime, 'yyyy-MM-dd') : EMPTY_DATE_VALUE);
-  const [time, setTime] = useState(reportTime ? getHoursAndMinutesString(reportTime) : EMPTY_TIME_VALUE);
+  const [date, setDate] = useState(eventTime ? format(eventTime, 'yyyy-MM-dd') : EMPTY_DATE_VALUE);
+  const [time, setTime] = useState(eventTime ? getHoursAndMinutesString(eventTime) : EMPTY_TIME_VALUE);
 
+  const eventState = reportForm.state === EVENT_FORM_STATES.NEW_LEGACY ? EVENT_FORM_STATES.ACTIVE : reportForm.state;
   const geometryType = eventType?.geometry_type;
-  const jsonSchema = eventType?.version === 1 ? eventSchemaOverride?.schema : eventSchemaOverride?.json;
-  const reportState = reportForm.state === EVENT_FORM_STATES.NEW_LEGACY ? EVENT_FORM_STATES.ACTIVE : reportForm.state;
+  const jsonSchema = eventType?.version === 1 ? eventSchema?.schema : eventSchema?.json;
+  const isReadOnly = eventType?.version === 1 ? jsonSchema?.readonly : eventType?.readonly;
 
   const onStateDropdownKeyDown = useCallback((event) => {
     if (event.key === 'Escape') {
@@ -113,7 +99,7 @@ const DetailsSection = ({
       onReportDateChange(undefined);
     }
 
-    reportTracker.track('Change Report Date');
+    eventTracker.track('Change Report Date');
   };
 
   const onTimePickerChange = (newTime) => {
@@ -126,23 +112,17 @@ const DetailsSection = ({
       onReportDateChange(undefined);
     }
 
-    reportTracker.track('Change Report Time');
+    eventTracker.track('Change Report Time');
   };
 
   const transformErrors = useCallback((errors) => {
     const filteredErrors = filterOutErrorsForHiddenProperties(
       filterOutRequiredValueOnSchemaPropErrors(errors),
-      eventSchemaOverride.uiSchema
+      eventSchema.uiSchema
     );
 
     return filteredErrors.map((error) => ({ ...error, linearProperty: getLinearErrorPropTree(error.property) }));
-  }, [eventSchemaOverride?.uiSchema]);
-
-  useEffect(() => {
-    dispatch(setMapLocationSelectionEvent(reportForm));
-
-    return () => dispatch(setMapLocationSelectionEvent(null));
-  }, [dispatch, reportForm]);
+  }, [eventSchema?.uiSchema]);
 
   return <div ref={ref}>
     <div className={styles.globalDetails}>
@@ -162,7 +142,7 @@ const DetailsSection = ({
             show={showStateDropdown}
           >
             <Dropdown.Toggle variant="success">
-              {t(`stateDropdown.${reportState}`)}
+              {t(`stateDropdown.${eventState}`)}
             </Dropdown.Toggle>
 
             <Dropdown.Menu
@@ -189,7 +169,7 @@ const DetailsSection = ({
             {t('reportedByLabel')}
 
             <ReportedBySelect
-              isDisabled={jsonSchema?.readonly}
+              isDisabled={isReadOnly}
               onChange={onReportedByChange}
               value={reportForm?.reported_by}
             />
@@ -199,7 +179,7 @@ const DetailsSection = ({
             {t('priorityLabel')}
 
             <PrioritySelect
-              isDisabled={jsonSchema?.readonly}
+              isDisabled={isReadOnly}
               onChange={onPriorityChange}
               priority={reportForm?.priority}
             />
@@ -211,14 +191,19 @@ const DetailsSection = ({
             {t('locationLabel')}
 
             {geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON
-              ? <AreaSelectorInput
+              ? <AreaPicker
+                data-testid="reportManager-detailsSection-areaPicker"
                 event={reportForm}
-                onGeometryChange={onReportGeometryChange}
-                originalEvent={originalReport}
+                id="reportManager-detailsSection-areaPicker"
+                onChange={onReportGeometryChange}
+                readOnly={isReadOnly}
+                value={reportForm.geometry || null}
               />
               : <LocationPicker
+                data-testid="reportManager-detailsSection-locationPicker"
                 id="reportManager-detailsSection-locationPicker"
                 onChange={onReportLocationChange}
+                readOnly={isReadOnly}
                 value={reportForm.location || null}
               />
             }
@@ -230,9 +215,9 @@ const DetailsSection = ({
 
               <DatePicker
                 data-testid="reportManager-detailsSection-datePicker"
-                disabled={jsonSchema?.readonly}
                 max={format(new Date(), 'yyyy-MM-dd')}
                 onChange={onDatePickerChange}
+                readOnly={isReadOnly}
                 value={date}
               />
             </label>
@@ -242,10 +227,10 @@ const DetailsSection = ({
 
               <TimePicker
                 data-testid="reportManager-detailsSection-timePicker"
-                disabled={jsonSchema?.readonly}
-                max={reportTime && isToday(reportTime) ? getHoursAndMinutesString(new Date()) : undefined}
+                max={eventTime && isToday(eventTime) ? getHoursAndMinutesString(new Date()) : undefined}
                 minutesInterval={15}
                 onChange={onTimePickerChange}
+                readOnly={isReadOnly}
                 value={time}
               />
             </label>
@@ -261,9 +246,9 @@ const DetailsSection = ({
     </div>
 
     {/* Legacy form renderer */}
-    {(eventType?.version === 1 && !efbFormSchemaSupportEnabled) && !!jsonSchema && <Form
+    {eventType?.version === 1 && !!jsonSchema && <Form
       className={`${styles.form} ${reportForm.is_collection ? styles.hidden : ''}`}
-      disabled={jsonSchema?.readonly}
+      disabled={isReadOnly}
       fields={{ externalLink: ExternalLinkField }}
       formData={reportForm.event_details}
       onChange={onLegacyFormChange}
@@ -279,34 +264,49 @@ const DetailsSection = ({
         ObjectFieldTemplate,
       }}
       transformErrors={transformErrors}
-      uiSchema={eventSchemaOverride?.uiSchema}
+      uiSchema={eventSchema?.uiSchema}
       validator={formValidator}
     >
       <button ref={submitFormButtonRef} type="submit" />
     </Form>}
 
-    {(eventType?.version === 2 || efbFormSchemaSupportEnabled) && eventSchemaOverride && <SchemaForm
+    {eventType?.version === 2 && eventSchema && <SchemaForm
       autofillDefaultInputs={isNewEvent}
       eventId={eventId}
       eventLocation={reportForm.location}
+      formData={reportForm.event_details}
       hideMapLocationMarkers={isBehindAddedEvent}
-      initialFormData={reportForm.event_details}
       onFormDataChange={onFormDataChange}
       onFormSubmit={onFormSubmit}
+      readOnly={isReadOnly}
       renderSubmitButton={() => <button
         className={styles.schemaFormSubmitButton}
         ref={submitFormButtonRef}
         type="submit"
       />}
-      schema={eventSchemaOverride}
+      schema={eventSchema}
     />}
 
-    {!eventSchemaOverride && !reportForm.is_collection && loadingSchema && <div className={styles.loaderWrapper}>
+    {!eventSchema && !reportForm.is_collection && loadingEventSchemas && <div className={styles.loaderWrapper}>
       <MoonLoader
         color={LOADER_COLOR}
         data-testid="reportManager-detailsSection-loader"
         size={LOADER_SIZE}
       />
+    </div>}
+
+    {eventSchema instanceof Error && <div
+      aria-live="polite"
+      className={styles.errorMessageWrapper}
+      role="alert"
+    >
+      <p className={styles.errorMessage}>
+        <strong>{t('errorLoadingSchema')}</strong>
+
+        {eventSchema?.response?.data?.status?.detail && <span>
+          {eventSchema.response.data.status.detail}
+        </span>}
+      </p>
     </div>}
   </div>;
 };

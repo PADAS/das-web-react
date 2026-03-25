@@ -117,29 +117,43 @@
   },
   "reportManager": {
     "detailsSection": {
-      "areaSelectorInput": {
-        "area": "Eneo: ",
-        "deleteAreaButton": "Futa Eneo",
-        "deleteAreaButtonTitle": "Futa Eneo",
+      "areaPicker": {
+        "defaultPlaceholder": "Weka eneo la tukio",
         "displayString": "{{areaDisplayString}} eneo, {{perimeterDisplayString}} mzingo",
-        "editAreaButton": "Hariri Eneo",
-        "editAreaButtonTitle": "Weka jiometri kwenye ramani",
-        "inputPlaceholder": "Weka eneo la tukio",
-        "staticMapImageAlt": "Ramani ya tuli na jiometri",
-        "perimeter": "Mzingo: ",
-        "provenanceLabel": "Imeundwa kwenye EarthRanger {{provenance}}"
+        "inputDescription": "Bofya kitufe ili kuweka thamani kutoka kwenye menyu ya kuchagua eneo.",
+        "inputLabel": "Eneo",
+        "menuPopover": {
+          "area": "Eneo: ",
+          "deleteAreaButton": "Futa Eneo",
+          "dialogLabel": "Eneo",
+          "editAreaButton": "Hariri Eneo",
+          "editAreaButtonLabel": "Hariri eneo kwenye ramani",
+          "perimeter": "Mzingo: ",
+          "provenanceLabel": "Imeundwa kwenye EarthRanger {{provenance}}",
+          "staticMapImageAlt": "Ramani ya tuli na jiometri"
+        },
+        "setAreaButtonLabel": {
+          "closed": "Fungua menyu ya kuchagua eneo",
+          "create": "Unda eneo kwenye ramani",
+          "open": "Funga menyu ya kuchagua eneo"
+        },
+        "textCopyButtonLabel": "Nakili eneo la GeoJSON kwenye ubao wa kunakili"
       },
       "dateLabel": "Tarehe ya Tukio",
       "detailsHeader": "Maelezo",
+      "errorLoadingSchema": "Hitilafu wakati wa kupakia muundo",
       "locationLabel": "Mahali pa Tukio",
       "priorityLabel": "Kipaumbele",
       "reportedByLabel": "Iliripotiwa Na",
       "schemaForm": {
         "errors": {
           "collectionItems": "Baadhi ya vitu vya mkusanyiko huu vina makosa katika fomu zao za ndani.",
+          "alphanumericPattern": "Herufi na nambari tu ndizo zinazoruhusiwa.",
           "dateFormat": "Muundo wa tarehe haukubaliwi au tarehe isiyo sahihi. Angalia tena siku, mwezi na mwaka.",
           "dateTimeFormat": "Muundo wa tarehe na muda haukubaliwi au tarehe isiyo sahihi. Angalia tena siku, mwezi na mwaka.",
           "defaultFormat": "Muundo si sahihi.",
+          "defaultPattern": "Thamani hailingani na muundo unaotakiwa.",
+          "emailFormat": "Muundo wa barua pepe haukubaliwi.",
           "maximum": "Thamani hii inapaswa kuwa chini ya au sawa na {{maximum}}.",
           "maxItems_one": "Mkusanyiko huu unapaswa kuwa na vitu si zaidi ya {{count}}.",
           "maxItems_other": "Mkusanyiko huu unapaswa kuwa na vitu si zaidi ya {{count}}.",
@@ -147,7 +161,9 @@
           "minItems_one": "Mkusanyiko huu unapaswa kuwa na angalau {{count}} kitu.",
           "minItems_other": "Mkusanyiko huu unapaswa kuwa na angalau {{count}} vitu.",
           "required": "Hili ni shamba la lazima.",
-          "timeFormat": "Muundo wa muda haukubaliwi."
+          "timeFormat": "Muundo wa muda haukubaliwi.",
+          "uriFormat": "Muundo wa URL haukubaliwi.",
+          "uuidFormat": "Muundo wa UUID haukubaliwi."
         },
         "fields": {
           "collection": {
@@ -182,8 +198,12 @@
                 }
               }
             }
+          },
+          "text": {
+            "urlLinkLabel": "Fungua URL kwenye kichupo kipya"
           }
-        }
+        },
+        "validationErrorsAnnouncement": "Kuna makosa ya uthibitishaji katika sehemu zifuatazo:"
       },
       "stateDropdown": {
         "active": "inachukua hatua",

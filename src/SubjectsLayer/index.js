@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 
 import { addFeatureCollectionImagesToMap } from '../utils/map';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
-import { getShouldSubjectsBeClustered } from '../selectors/clusters';
+import { selectShouldSubjectsBeClustered } from '../selectors/clusters';
 import { LAYER_IDS, SOURCE_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { MapContext } from '../App';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
@@ -25,7 +25,7 @@ const CLUTERED_FILTER = [
 const UNCLUSTERED_FILTER = [
   'all',
   ['==', 'content_type', SUBJECT_FEATURE_CONTENT_TYPE],
-  ['!=', 'is_static', true],
+  ['!=', 'is_static', true]
 ];
 
 const UNCLUSTERED_LAYER_ID = `${SUBJECT_SYMBOLS}-unclustered`;
@@ -34,7 +34,7 @@ const UNCLUSTERED_SOURCE_ID = 'subject-symbol-source';
 const SubjectsLayer = ({ mapImages = {}, onSubjectClick }) => {
   const map = useContext(MapContext);
 
-  const shouldSubjectsBeClustered = useSelector(getShouldSubjectsBeClustered);
+  const shouldSubjectsBeClustered = useSelector(selectShouldSubjectsBeClustered);
   const subjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);
 
   const [mapSubjectFeatures, setMapSubjectFeatures] = useState(featureCollection([]));
@@ -74,14 +74,57 @@ const SubjectsLayer = ({ mapImages = {}, onSubjectClick }) => {
     }
   }]);
 
+  // Override icon-image and icon-size for ropeless_buoy_gearset subjects to use za-provincial-2
+  // Note: icon-allow-overlap and icon-ignore-placement don't support data expressions,
+  // so we set them globally to ensure buoys are always visible
+  const buoyIconLayout = {
+    'icon-image': [
+      'case',
+      ['==', ['get', 'subject_subtype'], 'ropeless_buoy_gearset'], 'za-provincial-2',
+      ['concat',
+        ['get', 'image'], '-',
+        ['case',
+          ['has', 'width'], ['get', 'width'],
+          'x'],
+        '-',
+        ['case',
+          ['has', 'height'], ['get', 'height'],
+          'x'],
+      ]
+    ],
+    'icon-size': [
+      'interpolate', ['exponential', 0.5], ['zoom'],
+      0, ['case', ['==', ['get', 'subject_subtype'], 'ropeless_buoy_gearset'], 0.75, ['case', ['in', 'generic', ['get', 'image']], 0.1 / 3, 0.2 / 3]],
+      11, ['case', ['==', ['get', 'subject_subtype'], 'ropeless_buoy_gearset'], 0.925, ['case', ['in', 'generic', ['get', 'image']], 0.4 / 3, 0.8 / 3]],
+      14, ['case', ['==', ['get', 'subject_subtype'], 'ropeless_buoy_gearset'], 1.25, ['case', ['in', 'generic', ['get', 'image']], 0.5 / 3, 1 / 3]]
+    ],
+    'icon-allow-overlap': true,
+    'icon-ignore-placement': true
+  };
+
+  const buoyTextPaint = {
+    'text-opacity': [
+      'case',
+      ['==', ['get', 'subject_subtype'], 'ropeless_buoy_gearset'], 0,
+      1
+    ],
+    'icon-opacity': [
+      'case',
+      ['==', ['get', 'subject_subtype'], 'ropeless_buoy_gearset'], 0,
+      0.5
+    ]
+  };
+
   return <>
     <LabeledPatrolSymbolLayer
       before={SKY_LAYER}
       filter={UNCLUSTERED_FILTER}
       id={UNCLUSTERED_LAYER_ID}
+      layout={buoyIconLayout}
       onClick={onSubjectSymbolClick}
       onInit={onInit}
       sourceId={UNCLUSTERED_SOURCE_ID}
+      textPaint={buoyTextPaint}
       type="symbol"
     />
 
@@ -89,8 +132,10 @@ const SubjectsLayer = ({ mapImages = {}, onSubjectClick }) => {
       before={SKY_LAYER}
       filter={CLUTERED_FILTER}
       id={SUBJECT_SYMBOLS}
+      layout={buoyIconLayout}
       onClick={onSubjectSymbolClick}
       sourceId={CLUSTERS_SOURCE_ID}
+      textPaint={buoyTextPaint}
       type="symbol"
     />}
   </>;

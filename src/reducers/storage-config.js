@@ -10,7 +10,7 @@ const RESTORABLE_PREFIX = 'er-web-restorable';
 
 const namespaceForKey = key => `${RESTORABLE_PREFIX}:${key}`;
 
-const getKeyIsRestorable = (key) =>
+export const getKeyIsRestorable = (key) =>
   JSON.parse(
     window.localStorage.getItem(namespaceForKey(key))
   )?.restore;
@@ -44,10 +44,10 @@ export const generateOptionalStorageConfig = (key, INITIAL_STATE) => {
   return storageConfig;
 };
 
-export const useOptionalPersistence = (key) => {
+export const useOptionalPersistence = (key, defaultRestorable = false ) => {
   const namespace = namespaceForKey(key);
 
-  const [value, setValue] = useLocalStorage(namespace, { restore: false });
+  const [value, setValue] = useLocalStorage(namespace, { restore: defaultRestorable });
   const restorable = value?.restore;
 
   const setRestorable = useCallback((restore = false) => {

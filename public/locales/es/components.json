@@ -62,20 +62,30 @@
   },
   "gpsFormatToggle": {
     "fieldsetLegend": "Formato de GPS",
-    "textCopyButtonLabel": "Copiar valor GPS al portapapeles"
+    "coordinatesOutsideBboxTooltipButtonLabel": "Más información sobre el formato de ubicación",
+    "coordinatesOutsideBboxTooltipTitle": "La ubicación se muestra en formato DEG. EPSG:{{epsgCode}} {{crsName}} no es compatible en esta ubicación.",
+    "textCopyButtonLabel": "Copiar valor GPS al portapapeles",
+    "textSearchOptionLabel": "Buscar por nombre"
   },
   "gpsInput": {
-    "defaultPlaceholder": "Ubicación",
-    "errorMessage": "Ubicación inválida",
-    "inputDescription": "Ejemplo: {{gpsFormat}}",
-    "inputLabel": "Ubicación GPS",
-    "placeholders": {
+    "coordinatesRepresentationDescription": "Ejemplo: {{example}}",
+    "coordinatesRepresentationLabel": "Buscar ubicación en formato {{representation}}",
+    "coordinatesRepresentationPlaceholder": {
       "DDM": "Grados, Decimales, Minutos",
       "DEG": "Latitud, Longitud",
       "DMS": "Grados, Minutos, Segundos",
       "UTM": "Universal Transversal de Mercator",
       "MGRS": "Sistema de Referencia de Cuadrícula Militar"
-    }
+    },
+    "defaultLabel": "Buscar ubicación",
+    "defaultPlaceholder": "Ubicación",
+    "invalidLocationErrorMessage": "Ubicación inválida",
+    "outsideBboxErrorMessage": "EPSG:{{epsgCode}} {{crsName}} no es compatible en esta ubicación.",
+    "outsideBboxInputValue": "N/D",
+    "placesFromSearchTextListLabel": "Resultados de búsqueda de ubicaciones",
+    "textSearchDescription": "Busca una ubicación en el mapa por nombre",
+    "textSearchLabel": "Buscar ubicación por nombre",
+    "textSearchPlaceholder": "Buscar ubicación"
   },
   "locationJumpButton": {
     "title": "Ir a está ubicación"
@@ -86,6 +96,7 @@
     "inputLabel": "Ubicación",
     "jumpToLocationButtonLabel": "Ir a la ubicación",
     "menuPopover": {
+      "dialogLabel": "Ubicación",
       "getUserLocationButton": "Usar mi ubicación",
       "pickMapLocationButton": "Establecer en el mapa"
     },
@@ -93,7 +104,9 @@
       "closed": "Abrir el menú del selector de ubicación para establecer un valor",
       "open": "Cerrar el menú del selector de ubicación"
     },
-    "textCopyButtonLabel": "Copiar ubicación al portapapeles"
+    "textCopyButtonLabel": "Copiar ubicación al portapapeles",
+    "valueOutsideBboxTooltipButtonLabel": "Más información sobre el formato de ubicación",
+    "valueOutsideBboxTooltipTitle": "La ubicación se muestra en formato DEG. EPSG:{{epsgCode}} {{crsName}} no es compatible en esta ubicación."
   },
   "mapLocationSelectionOverview": {
     "chooseLocationHeader": {
@@ -175,7 +188,7 @@
     }
   },
   "searchBar": {
-    "clearIconTitle": "Limpiar la barra de búsqueda",
+    "clearButtonLabel": "Limpiar la barra de búsqueda",
     "defaultPlaceholder": "Buscar..."
   },
   "serviceWorkerWatcher": {
@@ -184,7 +197,14 @@
   },
   "sideBar": {
     "layersLink": "Capas de mapa",
-    "noItemsToDisplayInLayers": "No hay elementos que mostrar.",
+    "mapLayersTab": {
+      "analyzersTabTitle": "Analizadores",
+      "clearAllMapLayersButton": "Limpiar todo",
+      "clearAllMapLayersButtonLabel": "Limpiar todas las capas del mapa",
+      "eventsTabTitle": "Eventos",
+      "featuresTabTitle": "Funcionalidades",
+      "subjectsTabTitle": "Sujetos"
+    },
     "patrolsLink": "Patrullas",
     "reportsFeedTab": {
       "fetchReportsErrorMessage": "No se pudieron cargar los eventos. Por favor intente de nuevo.",
@@ -194,20 +214,108 @@
     "settingsPane": {
       "alertsFrameTitle": "Configure sus alertas de EarthRanger",
       "alertsTabTitle": "Alertas",
-      "appRefreshDescription": "Preservar mis configuraciones al recargar la página",
-      "appRefreshHeader": "Recargar la página",
-      "appRefreshMapLayersLabel": "Capas de mapa",
-      "appRefreshMapPositionAndZoomLevelLabel": "Posición del mapa y nivel de zoom",
-      "appRefreshPatrolFiltersLabel": "Filtros de Patrullas",
-      "appRefreshReportFiltersLabel": "Filtros de Eventos",
-      "clusterDataDescription": "Agrupar datos cuando se superpongan",
-      "displayHeader": "Información mostrada",
-      "experimentalFeaturesHeader": "Funcionalidades experimentales",
-      "generalHeader": "General",
+      "generalTab": {
+        "appRefreshFieldSet": {
+          "description": "Preservar mis configuraciones al recargar la página",
+          "eventFiltersCheckboxLabel": "Filtros de eventos",
+          "legend": "Recargar la página",
+          "mapLayersCheckboxLabel": "Capas de mapa",
+          "mapPositionAndZoomLevelCheckboxLabel": "Posición del mapa y nivel de zoom",
+          "patrolFiltersCheckboxLabel": "Filtros de patrullas"
+        },
+        "experimentalFeaturesFieldSet": {
+          "CUSTOM_COORDINATE_SYSTEMS_ENABLED": "Sistemas de referencia de coordenadas",
+          "legend": "Funcionalidades experimentales"
+        },
+        "languageSelect": {
+          "label": "Idioma"
+        },
+        "soundFieldSet": {
+          "description": "Reproducir sonido para",
+          "legend": "Sonido",
+          "newEventsCheckboxLabel": "Nuevos eventos",
+          "newInReachMessagesCheckboxLabel": "Nuevos mensajes de inReach",
+          "radioStateChangeToRedCheckboxLabel": "Cuando un radio cambia de estado a rojo (alarma)"
+        }
+      },
       "generalTabTitle": "General",
-      "languagesHeader": "Lenguaje",
-      "mapMarkersDescription": "Mostrar nombres de marcadores del mapa para",
-      "mapMarkersHeader": "Marcadores del mapa",
+      "mapTab": {
+        "coordinateSystemSettingsView": {
+          "backButtonLabel": "Volver a la configuración principal del mapa",
+          "coordinateReferenceSystemFinder": {
+            "addCrsButton": "Agregar",
+            "addCrsButtonLabel": "Agregar EPSG:{{epsgCode}} {{name}} a las opciones del selector de formato GPS",
+            "addedMaximumSystemsMessage": "Has añadido 6 sistemas de referencia de coordenadas. Elimina al menos 1 antes de añadir otros.",
+            "emptyStateMessage": "Ajusta tu búsqueda para encontrar lo que estás buscando.",
+            "emptyStateMessageTitle": "No se encontraron resultados.",
+            "instructions": "Buscar sistemas de referencia de coordenadas adicionales",
+            "readMoreLessButton": {
+              "less": "Leer menos",
+              "more": "Leer más"
+            },
+            "readMoreLessButtonLabel": {
+              "less": "Ocultar la descripción completa del área para EPSG:{{epsgCode}} {{name}}",
+              "more": "Mostrar la descripción completa del área para EPSG:{{epsgCode}} {{name}}"
+            },
+            "resultsTableAreaHeaderCell": "Área",
+            "resultsTableCaption": "Lista de resultados de búsqueda de sistemas de referencia de coordenadas",
+            "resultsTableCodeHeaderCell": "Código",
+            "resultsTableNameHeaderCell": "Nombre",
+            "showingMaximumFilteredResultsMessage": "Mostrando los 10 principales resultados. Intenta refinar tu búsqueda para reducir la lista."
+          },
+          "coordinateRepresentationsSelector": {
+            "addedMaximumSystemsMessage": "Has añadido 6 sistemas de referencia de coordenadas. Elimina al menos 1 antes de añadir otros.",
+            "deleteCrsOptionButtonLabel": "Eliminar {{coordinateReferenceSystemName}} de las opciones",
+            "gpsFormatOptionExample": "Ejemplo: {{example}}",
+            "gpsFormatOptionLabel": {
+              "deg": "DEG Grados decimales",
+              "dms": "DMS Grados, minutos, segundos",
+              "ddm": "DDM Grados, minutos decimales",
+              "utm": "UTM Transversal Universal de Mercator",
+              "mgrs": "MGRS Sistema de referencia de cuadrícula militar"
+            },
+            "instructions": "Selecciona hasta 4 sistemas de coordenadas para mostrar en todo el sitio. Las opciones se mostrarán en orden alfabético.",
+            "legend": "Selector de formato GPS",
+            "maximumOptionsSelectedMessage": "Tienes seleccionadas 4 de 4 opciones. Deselecciona al menos 1 opción antes de seleccionar otras."
+          },
+          "title": "Sistemas de Coordenadas"
+        },
+        "mainMapSettingsView": {
+          "displayFieldSet": {
+            "clusterDataAllCheckboxLabel": "Todo",
+            "clusterDataCheckboxLabel": {
+              "events": "Eventos",
+              "subjects": "Sujetos"
+            },
+            "clusterDataLegend": "Agrupar datos cuando se superpongan",
+            "legend": "Información mostrada",
+            "showClusterPolygonsCheckboxLabel": "Mostrar polígono que delimita el área de datos agrupados",
+            "showInactiveRadiosCheckboxLabel": "Mostrar radios inactivos",
+            "showTrackTimepointsCheckboxLabel": "Mostrar puntos de tiempo en trayectorias"
+          },
+          "generalFieldSet": {
+            "3DMapTerrainCheckboxLabel": "Mapa de terreno 3D",
+            "legend": "General",
+            "lockMapCheckboxLabel": "Bloquear mapa",
+            "openCoordinateSystemSettingsButton": "Sistemas de coordenadas",
+            "openCoordinateSystemSettingsButtonDetails": "{{selectedCoordinateRepresentationsCount}} seleccionados",
+            "openCoordinateSystemSettingsButtonLabel": "Abrir configuración de sistemas de coordenadas",
+            "simplifyMapDataOnZoomCheckboxLabel": "Simplificar información del mapa al hacer zoom"
+          },
+          "mapMarkersFieldSet": {
+            "legend": "Marcadores del mapa",
+            "markerNamesAllCheckboxLabel": "Todos",
+            "markerNamesCheckboxLabel": {
+              "patrols": "Patrullas",
+              "reports": "Eventos",
+              "stationary_subjects": "Sujetos estacionarios",
+              "subjects": "Sujetos"
+            },
+            "markerNamesLegend": "Mostrar nombres de marcadores del mapa para",
+            "showUserLocationCheckboxLabel": "Mostrar mi ubicación actual"
+          }
+        }
+      },
       "mapTabTitle": "Mapa"
     },
     "settingsLink": "Preferencias"

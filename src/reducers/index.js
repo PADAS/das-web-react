@@ -4,6 +4,7 @@ import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
 import { generateStorageConfig } from './storage-config';
+import coordinateReferenceSystemsReducer from '../ducks/coordinate-reference-systems';
 import tokenReducer, { masterRequestTokenReducer } from '../ducks/auth';
 import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedReducer } from '../ducks/events';
 import eventCategoriesReducer from '../ducks/event-categories';
@@ -16,15 +17,27 @@ import mapsReducer, { homeMapReducer } from '../ducks/maps';
 import mapPositionReducer, { persistenceConfig as mapPositionPersistenceConfig } from '../ducks/map-position';
 import tracksReducer, { trackSettingsReducer } from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer, subjectStoreReducer } from '../ducks/subjects';
-import systemStatusReducer, { systemConfigReducer } from '../ducks/system-status';
-import featureFlagOverrideReducer, { migrations as flagOverrideMigrations } from '../ducks/feature-flag-overrides';
+import systemConfigReducer from '../ducks/system-config';
+import systemStatusReducer from '../ducks/system-status';
 import {
-  heatmapStyleConfigReducer, displayMapNamesReducer,
-  heatmapSubjectIDsReducer, subjectTrackReducer, mapLockStateReducer,
-  mapDataZoomSimplificationReducer, mapLocationSelectionReducer, printTitleReducer,
-  displayUserLocationReducer, bounceEventReducer,
-  displayTrackTimepointsReducer, reportHeatmapStateReducer, displayInactiveRadiosReducer, openMapFeatureTypesReducer, mapClusterConfigReducer,
+  heatmapStyleConfigReducer,
+  displayMapNamesReducer,
+  heatmapSubjectIDsReducer,
+  subjectTrackReducer,
+  mapLockStateReducer,
+  mapDataZoomSimplificationReducer,
+  mapLocationSelectionReducer,
+  printTitleReducer,
+  displayUserLocationReducer,
+  bounceEventReducer,
+  displayTrackTimepointsReducer,
+  reportHeatmapStateReducer,
+  displayInactiveRadiosReducer,
+  openMapFeatureTypesReducer,
+  mapClusterConfigReducer,
+  mapClusterConfigMigrations,
 } from '../ducks/map-ui';
+import { mapFeatureHighlightIdReducer } from '../ducks/mapFeatureHighlight';
 import popupReducer from '../ducks/popup';
 import mapImagesReducer from '../ducks/map-images';
 import userPreferencesReducer from '../ducks/user-preferences';
@@ -47,22 +60,23 @@ import patrolTrackedBySchemaReducer from '../ducks/trackedby';
 import sideBarReducer from '../ducks/side-bar';
 import locallyEditedEventReducer from '../ducks/locally-edited-event';
 import recentEventDataReceivedReducer from '../ducks/recent-event-data-received';
-import schemaSelectorReducer from '../ducks/schema-selector';
+import experimentalFeaturesReducer from '../ducks/experimental-features';
 
 const tokenPersistenceConfig = generateStorageConfig('token');
 const homeMapPersistenceConfig = generateStorageConfig('homeMap');
 const userPrefPersistenceConfig = generateStorageConfig('userPreferences');
+const mapLabelPreferencesPersistenceConfig = generateStorageConfig('mapLabelPreferences');
 const heatmapConfigPersistenceConfig = generateStorageConfig('heatmapConfig');
 const userProfilePersistenceConfig = generateStorageConfig('userProfile');
 const mapsPersistenceConfig = generateStorageConfig('maps');
 const baseLayerPersistenceConfig = generateStorageConfig('baseLayer');
-const featureFlagOverrideConfig = generateStorageConfig('featureFlagOverrides', storage, 1, flagOverrideMigrations);
 const featureSetsPersistenceConfig = generateStorageConfig('featureSets', localForage);
 const analyzersPersistenceConfig = generateStorageConfig('analyzers', localForage);
 const mapDataZoomSimplificationConfig = generateStorageConfig('mapDataOnZoom', localForage);
 const trackSettingsPersistenceConfig = generateStorageConfig('trackSettings');
-const mapClusterStorageConfig = generateStorageConfig('mapClusterConfig');
-const schemaSelectorPersistenceConfig = generateStorageConfig('schemaSelector');
+const mapClusterStorageConfig = generateStorageConfig('mapClusterConfig', storage, 1, mapClusterConfigMigrations);
+const coordinateReferenceSystemsStorageConfig = generateStorageConfig('coordinateReferenceSystems');
+const experimentalFeaturesStorageConfig = generateStorageConfig('experimentalFeatures');
 
 const rootReducer = combineReducers({
   data: combineReducers({
@@ -106,8 +120,9 @@ const rootReducer = combineReducers({
     patrolLeaderSchema: patrolTrackedBySchemaReducer,
   }),
   view: combineReducers({
+    coordinateReferenceSystems: persistReducer(coordinateReferenceSystemsStorageConfig, coordinateReferenceSystemsReducer),
     currentBaseLayer: persistReducer(baseLayerPersistenceConfig, currentBaseLayerReducer),
-    featureFlagOverrides: persistReducer(featureFlagOverrideConfig, featureFlagOverrideReducer),
+    experimentalFeatures: persistReducer(experimentalFeaturesStorageConfig, experimentalFeaturesReducer),
     homeMap: persistReducer(homeMapPersistenceConfig, homeMapReducer),
     heatmapStyles: persistReducer(heatmapConfigPersistenceConfig, heatmapStyleConfigReducer),
     heatmapSubjectIDs: heatmapSubjectIDsReducer,
@@ -115,7 +130,7 @@ const rootReducer = combineReducers({
     patrolTrackState: patrolTracksReducer,
     mapImages: mapImagesReducer,
     mapIsLocked: mapLockStateReducer,
-    showMapNames: displayMapNamesReducer,
+    showMapNames: persistReducer(mapLabelPreferencesPersistenceConfig, displayMapNamesReducer),
     showUserLocation: displayUserLocationReducer,
     showTrackTimepoints: displayTrackTimepointsReducer,
     simplifyMapDataOnZoom: persistReducer(mapDataZoomSimplificationConfig, mapDataZoomSimplificationReducer),
@@ -128,12 +143,12 @@ const rootReducer = combineReducers({
     userLocation: userLocationReducer,
     userLocationAccessGranted: userLocationAccessGrantedReducer,
     showReportHeatmap: reportHeatmapStateReducer,
-    schemaSelector: persistReducer(schemaSelectorPersistenceConfig, schemaSelectorReducer), /*ToDo: Remove reducer once mock data is no longer needed for EFB support*/
     trackSettings: persistReducer(trackSettingsPersistenceConfig, trackSettingsReducer),
     userNotifications: userNotificationReducer,
     systemConfig: systemConfigReducer,
     timeSliderState: timeSliderReducer,
     printTitle: printTitleReducer,
+    mapFeatureHighlightIDs: mapFeatureHighlightIdReducer,
     bounceEventIDs: bounceEventReducer,
     showInactiveRadios: displayInactiveRadiosReducer,
     openMapFeatureTypeNames: openMapFeatureTypesReducer,

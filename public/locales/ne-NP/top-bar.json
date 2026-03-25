@@ -66,6 +66,7 @@
         "cookieSettingsItem": "कुकी सेटिङ",
         "logoutItem": "लग आउट",
         "toggleLabel": "प्रयोगकर्ता सेटिङ खोल्नुहोस्",
-        "toggleTitle": "प्रयोगकर्ता सेटिङ"
+        "toggleTitle": "प्रयोगकर्ता सेटिङ",
+        "userAndProfilesHeader": "प्रयोगकर्ता र प्रोफाइलहरु"
     }
 }

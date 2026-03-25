@@ -7,7 +7,8 @@ import eventSchemasReducer, {
   EVENTS_SCHEMA_API_URL,
   FETCH_EVENT_TYPE_SCHEMA,
   FETCH_EVENT_TYPE_SCHEMA_FAILURE,
-  FETCH_EVENT_TYPE_SCHEMA_SUCCESS,
+  FETCH_EVENT_TYPE_SCHEMA_V1_SUCCESS,
+  FETCH_EVENT_TYPE_SCHEMA_V2_SUCCESS,
   FETCH_EVENTS_SCHEMA_SUCCESS,
   fetchEventsSchema,
   fetchEventTypeSchema,
@@ -41,7 +42,7 @@ describe('Ducks - Event schemas', () => {
     expect(dispatch).toHaveBeenCalledWith({ payload: globalSchema, type: FETCH_EVENTS_SCHEMA_SUCCESS });
   });
 
-  test('fetchEventTypeSchema dispatches the FETCH_EVENT_TYPE_SCHEMA_SUCCESS action after fetching a v1 schema', async () => {
+  test('fetchEventTypeSchema dispatches the FETCH_EVENT_TYPE_SCHEMA_V1_SUCCESS action after fetching a v1 schema', async () => {
     const dispatch = jest.fn();
     const getState = () => ({
       data: {
@@ -63,15 +64,14 @@ describe('Ducks - Event schemas', () => {
         definition: snareSchemaV1.definition,
         eventId: '123',
         eventTypeValue: 'snare_rep',
-        eventTypeVersion: 1,
         schema,
         uiSchema,
       },
-      type: FETCH_EVENT_TYPE_SCHEMA_SUCCESS,
+      type: FETCH_EVENT_TYPE_SCHEMA_V1_SUCCESS,
     });
   });
 
-  test('fetchEventTypeSchema dispatches the FETCH_EVENT_TYPE_SCHEMA_SUCCESS action after fetching a v2 schema', async () => {
+  test('fetchEventTypeSchema dispatches the FETCH_EVENT_TYPE_SCHEMA_V2_SUCCESS action after fetching a v2 schema', async () => {
     const dispatch = jest.fn();
     const getState = () => ({
       data: {
@@ -91,10 +91,9 @@ describe('Ducks - Event schemas', () => {
       payload: {
         eventId: '123',
         eventTypeValue: 'snare_rep',
-        eventTypeVersion: 2,
         schema: snareSchemaV2,
       },
-      type: FETCH_EVENT_TYPE_SCHEMA_SUCCESS,
+      type: FETCH_EVENT_TYPE_SCHEMA_V2_SUCCESS,
     });
   });
 
@@ -137,16 +136,28 @@ describe('Ducks - Event schemas', () => {
       expect(eventSchemasReducer(INITIAL_STATE, action)).toEqual(expectedState);
     });
 
-    test('handles a FETCH_EVENT_TYPE_SCHEMA_SUCCESS action with a v1 schema', async () => {
+    test('handles a FETCH_EVENT_TYPE_SCHEMA_FAILURE action with a base schema', async () => {
+      const payload = { error: 'Error', eventTypeValue: 'snare_rep' };
+      const action = { payload, type: FETCH_EVENT_TYPE_SCHEMA_FAILURE };
+      const expectedState = {
+        loading: false,
+        snare_rep: {
+          base: 'Error',
+        },
+      };
+
+      expect(eventSchemasReducer(INITIAL_STATE, action)).toEqual(expectedState);
+    });
+
+    test('handles a FETCH_EVENT_TYPE_SCHEMA_V1_SUCCESS action', async () => {
       const payload = {
         definition: {},
         eventId: '123',
         eventTypeValue: 'snare_rep',
-        eventTypeVersion: 1,
         schema: {},
         uiSchema: {},
       };
-      const action = { payload, type: FETCH_EVENT_TYPE_SCHEMA_SUCCESS };
+      const action = { payload, type: FETCH_EVENT_TYPE_SCHEMA_V1_SUCCESS };
       const expectedState = {
         loading: false,
         snare_rep: {
@@ -161,15 +172,14 @@ describe('Ducks - Event schemas', () => {
       expect(eventSchemasReducer(INITIAL_STATE, action)).toEqual(expectedState);
     });
 
-    test('handles a FETCH_EVENT_TYPE_SCHEMA_SUCCESS action with a v1 base schema', async () => {
+    test('handles a FETCH_EVENT_TYPE_SCHEMA_V1_SUCCESS action with a base schema', async () => {
       const payload = {
         definition: {},
         eventTypeValue: 'snare_rep',
-        eventTypeVersion: 1,
         schema: {},
         uiSchema: {},
       };
-      const action = { payload, type: FETCH_EVENT_TYPE_SCHEMA_SUCCESS };
+      const action = { payload, type: FETCH_EVENT_TYPE_SCHEMA_V1_SUCCESS };
       const expectedState = {
         loading: false,
         snare_rep: {
@@ -184,17 +194,16 @@ describe('Ducks - Event schemas', () => {
       expect(eventSchemasReducer(INITIAL_STATE, action)).toEqual(expectedState);
     });
 
-    test('handles a FETCH_EVENT_TYPE_SCHEMA_SUCCESS action with a v2 schema', async () => {
+    test('handles a FETCH_EVENT_TYPE_SCHEMA_V2_SUCCESS action', async () => {
       const payload = {
         eventId: '123',
         eventTypeValue: 'snare_rep',
-        eventTypeVersion: 2,
         schema: {
           json: {},
           ui: {},
         },
       };
-      const action = { payload, type: FETCH_EVENT_TYPE_SCHEMA_SUCCESS };
+      const action = { payload, type: FETCH_EVENT_TYPE_SCHEMA_V2_SUCCESS };
       const expectedState = {
         loading: false,
         snare_rep: {
@@ -208,16 +217,15 @@ describe('Ducks - Event schemas', () => {
       expect(eventSchemasReducer(INITIAL_STATE, action)).toEqual(expectedState);
     });
 
-    test('handles a FETCH_EVENT_TYPE_SCHEMA_SUCCESS action with a v2 base schema', async () => {
+    test('handles a FETCH_EVENT_TYPE_SCHEMA_V2_SUCCESS action with a base schema', async () => {
       const payload = {
         eventTypeValue: 'snare_rep',
-        eventTypeVersion: 2,
         schema: {
           json: {},
           ui: {},
         },
       };
-      const action = { payload, type: FETCH_EVENT_TYPE_SCHEMA_SUCCESS };
+      const action = { payload, type: FETCH_EVENT_TYPE_SCHEMA_V2_SUCCESS };
       const expectedState = {
         loading: false,
         snare_rep: {

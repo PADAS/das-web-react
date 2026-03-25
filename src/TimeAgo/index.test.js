@@ -64,7 +64,7 @@ describe('the TimeAgo component', () => {
 
     const component = await screen.findByTestId('time-ago');
 
-    expect(component).toHaveTextContent('1y 2mo 1d 23h');
+    expect(component).toHaveTextContent('1y 2mo');
   });
 
   it('displays a prefix', async () => {

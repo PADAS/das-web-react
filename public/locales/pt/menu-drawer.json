@@ -3,11 +3,6 @@
     "iframeBottomMessage": "Cada usuário EarthRanger pode receber até 20 alertas por dia.",
     "iframeTitle": "Configure seus alertas EarthRanger"
   },
-  "betaToggles": {
-    "playSoundForAlarmRadioState": "Reproduzir som e mostrar uma notificação quando o estado do rádio mudar para vermelho (alarme)",
-    "playSoundForNewInReachMessage": "Reproduzir notificações de som para novas mensagens do inReach",
-    "reportNotification": "Reproduz notificações de som para novos eventos"
-  },
   "dailyReportModal": {
     "dataExportModalTitle": "Relatórios diário",
     "todaysReportButton": "Relatório de hoje",
@@ -36,6 +31,11 @@
       "content": "Os eventos exportados incluirão apenas aqueles que coincidam com os critérios de Filtros atualmente configurados na aba \"Eventos\".",
       "title": "Relatórios de campo"
     },
+    "ecoscopeAnalysisLinkAriaLabel": "Análise com Ecoscope",
+    "ecoscopeAnalysisLink": "Análise",
+    "ecoscopeDownloaderLinkAriaLabel": "Baixador do Ecoscope",
+    "ecoscopeDownloaderLink": "Baixar",
+    "ecoscopeHeading": "ECOSCOPE",
     "footer": {
       "clientVersion": "Versão do cliente web: {{version}}",
       "copyright": "©{{year}} EarthRanger",
@@ -44,6 +44,7 @@
       "serverVersion": "Versão do servidor: {{version}}",
       "websitePrivacyPolicyLink": "Política de privacidade da página web"
     },
+    "header": "Menu principal",
     "helpCenterButton": "Central de Ajuda",
     "masterKMLModal": {
       "title": "KML de indivíduos rastreados"

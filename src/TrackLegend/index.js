@@ -103,7 +103,7 @@ const TrackLegend = ({
             ? <>
               {items[0].icon}
 
-              <p className={styles.title} title={items[0].title}>{items[0].title}</p>
+              <p className={styles.title} data-testid="points-over-time" title={items[0].title}>{items[0].title}</p>
             </>
             : <>
               <TracksOffIcon className={styles.tracksOffIcon} data-testid="tracks-off-icon" />

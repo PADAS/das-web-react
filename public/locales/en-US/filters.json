@@ -30,8 +30,8 @@
       "noneSelected": "None selected",
       "someSelected": "{{reportTypesCheckedCount}} of {{eventTypeIDsLength}} selected"
     },
-    "restAllButton": "Reset All",
-    "restButton": "Reset",
+    "resetAllButton": "Reset All",
+    "resetButton": "Reset",
     "stateLabel": "State",
     "stateSelector": {
       "active": "Active",
@@ -54,7 +54,37 @@
     },
     "ascendingLabel": " ascending"
   },
-  "mapLayerSearchbarPlaceholder": "Search Layers...",
+  "mapLayerFilter": {
+    "formLabel": "Search layers",
+    "groupButton": {
+      "grouped": "Grouped",
+      "ungrouped": "Ungrouped"
+    },
+    "groupButtonLabel": {
+      "grouped": "Ungroup layers",
+      "ungrouped": "Group layers"
+    },
+    "searchBarLabel": "Search layers",
+    "searchBarPlaceholder": "Search Layers...",
+    "setSortByButton": {
+      "alphabetical": "Alphabetical",
+      "last_update": "Last update"
+    },
+    "setSortByButtonLabel": "Open sort options for layers",
+    "sortDirectionButtonLabel": {
+      "down": "Sort layers in ascending order",
+      "up": "Sort layers in descending order"
+    },
+    "sortByMenuLabel": "Sort options for layers",
+    "sortByMenuOption": {
+      "alphabetical": "Alphabetical",
+      "lastUpdate": "Last update"
+    },
+    "sortByMenuOptionLabel": {
+      "alphabetical": "Sort layers alphabetically",
+      "lastUpdate": "Sort layers by last update"
+    }
+  },
   "patrolFilters": {
     "datesTitle": "Dates",
     "dateRangePopover": {

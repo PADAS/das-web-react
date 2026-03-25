@@ -8,7 +8,7 @@ import { uuid } from '../utils/string';
 import useMapSources from '../hooks/useMapSources';
 import useMapLayers from '../hooks/useMapLayers';
 
-const { HEATMAP_LAYER, SKY_LAYER } = LAYER_IDS;
+const { HEATMAP_LAYER, EVENT_SYMBOLS } = LAYER_IDS;
 
 const HeatLayer = ({ points }) => {
   const heatmapStyles = useSelector((state) => state.view.heatmapStyles);
@@ -37,7 +37,7 @@ const HeatLayer = ({ points }) => {
     sourceId: `heatmap-source-${idRef.current}`,
     paint,
     options: {
-      before: SKY_LAYER
+      before: EVENT_SYMBOLS,
     }
   }]);
 

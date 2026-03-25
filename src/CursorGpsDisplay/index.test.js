@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import { act, render, screen, waitFor } from '../test-utils';
 import { createMapMock } from '../__test-helpers/mocks';
+import { epsg5367 } from '../__test-helpers/fixtures/location';
 import { GPS_FORMATS } from '../utils/location';
 import { MapContext } from '../App';
 import { mockStore } from '../__test-helpers/MockStore';
@@ -30,6 +31,10 @@ describe('CursorGpsDisplay', () => {
     store = {
       data: {},
       view: {
+        coordinateReferenceSystems: {
+          selectedCoordinateRepresentations: Object.values(GPS_FORMATS),
+          storedSystems: [],
+        },
         userPreferences: {
           gpsFormat: GPS_FORMATS.DEG,
         },
@@ -75,6 +80,16 @@ describe('CursorGpsDisplay', () => {
     act(() => map.__test__.fireHandlers('mousemove', { lngLat: { lng: 10.012657, lat: 11.666666 } }));
 
     expect(screen.getByLabelText('Open the GPS display menu')).toHaveTextContent(('11.666666°, 10.012657°'));
+  });
+
+  test('shows N/A if the coordinates representation is a CRS and the coordinates are outside of the BBOX', async () => {
+    store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
+    store.view.userPreferences.gpsFormat = '5367';
+    renderCursorGpsDisplay();
+
+    act(() => map.__test__.fireHandlers('mousemove', { lngLat: { lng: 10.012657, lat: 11.666666 } }));
+
+    expect(screen.getByLabelText('Open the GPS display menu')).toHaveTextContent(('N/A'));
   });
 
   test('opens the menu', async () => {

@@ -18,6 +18,7 @@ import { useTranslation } from 'react-i18next';
 
 import { BOOTSTRAP_DEFAULTS } from '../../../../../../constants';
 import { getItemTitle } from './Item/utils';
+import { selectCoordinatesRepresentation } from '../../../../../../selectors/location';
 
 import Item from './Item';
 import SortableItem from './SortableItem';
@@ -41,12 +42,13 @@ const SortableList = ({
   blurLocationMarker,
   breadcrumbs,
   collectionDetails,
-  fields,
   focusLocationMarker,
+  formElements,
   items,
   onItemChange,
   onItemDelete,
   onItemMove,
+  readOnly,
   renderField,
   setIsItemFormModalOpen,
   setIsItemFormPreviewOpen,
@@ -71,7 +73,7 @@ const SortableList = ({
     keyPrefix: 'reportManager.detailsSection.schemaForm.fields.collection.sortableList',
   });
 
-  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
+  const coordinatesRepresentation = useSelector(selectCoordinatesRepresentation);
 
   const [activeItemIndex, setActiveItemIndex] = useState(null);
 
@@ -85,9 +87,9 @@ const SortableList = ({
         items[activeItemIndex].formData,
         collectionDetails.itemIdentifier,
         `${collectionDetails.itemName} ${items[activeItemIndex].id + 1}`,
-        fields[collectionDetails.itemIdentifier],
+        formElements[collectionDetails.itemIdentifier],
         i18n.language,
-        gpsFormat,
+        coordinatesRepresentation,
         t
       ),
       ...(overId === null ? [] : [items.findIndex((item) => item.id === overId) + 1]),
@@ -135,7 +137,7 @@ const SortableList = ({
       }}
       autoScroll={false}
       collisionDetection={closestCenter}
-      sensors={sensors}
+      sensors={readOnly ? [] : sensors}
       onDragCancel={() => setActiveItemIndex(null)}
       onDragEnd={onDragEnd}
       onDragStart={(event) => setActiveItemIndex(items.findIndex((item) => item.id === event.active.id))}
@@ -146,9 +148,9 @@ const SortableList = ({
           breadcrumbs={breadcrumbs}
           collectionDetails={collectionDetails}
           errors={item.error}
-          fields={fields}
           focusLocationMarker={focusLocationMarker(index)}
           formData={item.formData}
+          formElements={formElements}
           id={item.id}
           index={index}
           isFormModalOpen={item.isFormModalOpen}
@@ -157,6 +159,7 @@ const SortableList = ({
           key={item.id}
           onChange={onItemChange(index)}
           onDelete={onItemDelete(index)}
+          readOnly={readOnly}
           setIsFormModalOpen={setIsItemFormModalOpen(index)}
           setIsFormPreviewOpen={setIsItemFormPreviewOpen(index)}
           renderField={renderField}
@@ -181,8 +184,8 @@ const SortableList = ({
           {activeItemIndex !== null ? <Item
             collectionDetails={collectionDetails}
             errors={items[activeItemIndex].error}
-            fields={fields}
             formData={items[activeItemIndex].formData}
+            formElements={formElements}
             id={items[activeItemIndex].id}
             isDragOverlay
             isFormPreviewOpen={items[activeItemIndex].isFormPreviewOpen}

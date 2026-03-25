@@ -1,10 +1,17 @@
 {
     "errorAlert": {
+        "accessDeniedNotAuthorized": "Acesso negado: Sua conta não está autorizada para esta organização. Entre em contato com o administrador.",
+        "accessDeniedNoPermission": "Acesso negado: Você não tem permissão para acessar esta aplicação.",
+        "authenticationFailed": "Falha na autenticação: Verifique suas credenciais e tente novamente.",
+        "authenticationError": "Erro de autenticação: {{errorDescription}}",
         "invalidCredentialsMessage": "As credenciais fornecidas são inválidas. Por favor\ntente novamente.",
+        "missingOrg": "A organização do provedor de identidade não está configurada.",
+        "signInFailed": "Falha ao entrar. Por favor, tente novamente.",
         "unknownErrorMessage": "Ocorreu um erro. Por favor, tente\nde novo."
     },
     "eulaLink": "Contrato de licença do usuário final EarthRanger",
     "loginButton": "Conecte-se",
+    "loginButtonIdp": "Conecte-se",
     "passwordLabel": "Senha",
     "usernameLabel": "Nome de usuário"
 }

@@ -179,9 +179,13 @@ describe('ReportManager - ReportDetailView', () => {
         tracks: {},
       },
       view: {
-        featureFlagOverrides: {},
+        coordinateReferenceSystems: {
+          selectedCoordinateRepresentations: Object.values(GPS_FORMATS),
+          storedSystems: [],
+        },
         mapLocationSelection: { isPickingLocation: false },
         sideBar: {},
+        systemConfig: {},
         userPreferences: { gpsFormat: GPS_FORMATS.DEG },
       },
     };
@@ -245,6 +249,7 @@ describe('ReportManager - ReportDetailView', () => {
 
     expect(titleInput).toHaveTextContent('Accident');
 
+    await userEvent.clear(titleInput);
     await userEvent.type(titleInput, '2');
 
     expect(titleInput).toHaveTextContent('2');
@@ -266,7 +271,7 @@ describe('ReportManager - ReportDetailView', () => {
     map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
 
     await waitFor(() => {
-      expect(within(locationPickerButton).getByRole('textbox')).toHaveValue('55.000000°,  88.000000°');
+      expect(within(locationPickerButton).getByRole('textbox')).toHaveValue('55.000000°, 88.000000°');
     });
   });
 
@@ -278,8 +283,7 @@ describe('ReportManager - ReportDetailView', () => {
     const datePicker = await screen.findByTestId('reportManager-detailsSection-datePicker');
     const datePickerOpenCalendarButton = await within(datePicker).findByLabelText('Open calendar');
     await userEvent.click(datePickerOpenCalendarButton);
-    const options = await screen.findAllByRole('option');
-    await userEvent.click(options[25]);
+    await userEvent.click(screen.getByRole('gridcell', { name: 'Choose Thursday, December 22nd, 2022' }));
 
     expect(await within(datePicker).findByTestId('datePicker-input')).toHaveValue('2022-12-22');
   });
@@ -815,6 +819,7 @@ describe('ReportManager - ReportDetailView', () => {
     expect(unsetLocallyEditedEvent).toHaveBeenCalledTimes(1);
 
     const titleInput = await screen.findByTestId('reportManager-header-title');
+    await userEvent.clear(titleInput);
     await userEvent.type(titleInput, '2');
     titleInput.blur();
 
@@ -822,6 +827,7 @@ describe('ReportManager - ReportDetailView', () => {
       expect(setLocallyEditedEvent).toHaveBeenCalledTimes(1);
     });
 
+    await userEvent.clear(titleInput);
     await userEvent.type(titleInput, 'title');
     titleInput.blur();
 
@@ -843,6 +849,7 @@ describe('ReportManager - ReportDetailView', () => {
     );
 
     const titleTextBox = await screen.findByTestId('reportManager-header-title');
+    await userEvent.clear(titleTextBox);
     await userEvent.type(titleTextBox, '2');
     await userEvent.tab();
 

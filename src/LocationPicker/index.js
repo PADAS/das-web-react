@@ -1,17 +1,20 @@
-import React, { memo, useImperativeHandle, useRef, useState } from 'react';
+import React, { memo, useId, useImperativeHandle, useRef, useState, useContext } from 'react';
 import Overlay from 'react-bootstrap/Overlay';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
 
-import { calcGpsDisplayString } from '../utils/location';
+import { selectCoordinatesRepresentation } from '../selectors/location';
 import useJumpToLocation from '../hooks/useJumpToLocation';
+import useStringifyCoordinates from '../hooks/useStringifyCoordinates';
 
+import IconTooltip from '../IconTooltip';
 import MenuPopover from './MenuPopover';
 import TextCopyBtn from '../TextCopyBtn';
 
 import * as styles from './styles.module.scss';
+import { MapContext } from '../App';
 
 const LocationPicker = ({
   className = '',
@@ -30,24 +33,36 @@ const LocationPicker = ({
   value,
   ...otherProps
 }) => {
-  const jumpToLocation = useJumpToLocation();
   const { t } = useTranslation('components', { keyPrefix: 'locationPicker' });
 
-  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
+  const jumpToLocation = useJumpToLocation();
+  const map = useContext(MapContext);
+
+  const coordinatesRepresentation = useSelector(selectCoordinatesRepresentation);
 
   const innerRef = useRef();
   const setLocationButtonRef = useRef();
 
   useImperativeHandle(ref, () => innerRef.current);
 
+  const inputDescriptionId = useId();
+  const menuPopoverId = useId();
+  const valueOutsideBboxTooltipId = useId();
+
   const [isMenuPopoverOpen, setIsMenuPopoverOpen] = useState(false);
 
-  const displayValue = value ? calcGpsDisplayString(value.latitude, value.longitude, gpsFormat) : '';
+  const {
+    coordinatesString: valueCoordinatesString,
+    outsideRepresentationBbox: valueOutsideRepresentationBbox,
+  } = useStringifyCoordinates(value);
 
   return <>
     <div
-        className={`${styles.locationPicker} ${disabled ? styles.disabled : ''} ${inputProps['aria-invalid'] ? styles.error : ''} ${className}`}
-        id={`${id}-wrapper`}
+        className={styles.locationPicker
+          + (readOnly ? ` ${styles.readOnly}` : '')
+          + (disabled ? ` ${styles.disabled}` : '')
+          + (inputProps['aria-invalid'] === 'true' ? ` ${styles.error}` : '')
+          + ` ${className}`}
         // Since our picker is a group of buttons, we handle the blur and focus from the wrapper but make sure to not
         // call the methods if we are just changing focus within the inner buttons.
         onBlur={(event) => !innerRef.current.contains(event.relatedTarget) && onBlur?.(event)}
@@ -57,20 +72,21 @@ const LocationPicker = ({
         {...otherProps}
       >
       <button
-        aria-controls={`${id}-menuPopover`}
+        aria-controls={menuPopoverId}
         aria-expanded={isMenuPopoverOpen}
+        aria-haspopup="dialog"
         aria-label={t(`setLocationButtonLabel.${isMenuPopoverOpen ? 'open' : 'closed'}`)}
-        className={`${styles.setLocationButton} ${readOnly ? styles.readOnly : ''}`}
-        disabled={disabled || readOnly}
-        onClick={() => setIsMenuPopoverOpen(!isMenuPopoverOpen)}
+        className={styles.setLocationButton}
+        disabled={disabled}
+        onClick={readOnly ? undefined : () => setIsMenuPopoverOpen(!isMenuPopoverOpen)}
         ref={setLocationButtonRef}
         title={t(`setLocationButtonLabel.${isMenuPopoverOpen ? 'open' : 'closed'}`)}
         type="button"
       >
         <input
-          aria-describedby={`${id}-inputDescription`}
+          aria-describedby={`${inputDescriptionId} ${valueOutsideBboxTooltipId}`}
           aria-label={t('inputLabel')}
-          className={`${styles.input} ${readOnly ? styles.readOnly : ''}`}
+          className={styles.input}
           disabled={disabled}
           id={id}
           onFocus={() => setLocationButtonRef.current.focus()}
@@ -79,27 +95,38 @@ const LocationPicker = ({
           required={required}
           tabIndex={-1}
           type="text"
-          value={displayValue}
+          value={valueCoordinatesString}
           {...inputProps}
         />
 
-        <p className={styles.inputDescription} id={`${id}-inputDescription`}>
+        <p className={styles.inputDescription} id={inputDescriptionId}>
           {t('inputDescription')}
         </p>
       </button>
+
+      {valueOutsideRepresentationBbox && <IconTooltip
+        aria-label={t('valueOutsideBboxTooltipButtonLabel')}
+        className={styles.valueOutsideBboxTooltip}
+        data-testid="locationPicker-valueOutsideBboxTooltip"
+        id={valueOutsideBboxTooltipId}
+        title={t('valueOutsideBboxTooltipTitle', {
+          crsName: coordinatesRepresentation.name,
+          epsgCode: coordinatesRepresentation.code,
+        })}
+      />}
 
       {value && <TextCopyBtn
         aria-label={t('textCopyButtonLabel')}
         className={styles.textCopyButton}
         disabled={disabled}
-        text={displayValue}
+        text={valueCoordinatesString}
         title={t('textCopyButtonLabel')}
       />}
 
       <button
         aria-label={t('jumpToLocationButtonLabel')}
         className={styles.jumpToLocationButton}
-        disabled={!value || disabled}
+        disabled={!value || !map || disabled}
         onClick={() => jumpToLocation([value.longitude, value.latitude], jumpToLocationButtonZoom)}
         title={t('jumpToLocationButtonLabel')}
         type="button"
@@ -117,7 +144,7 @@ const LocationPicker = ({
 
     <Overlay container={innerRef} placement="bottom-start" show={isMenuPopoverOpen} target={innerRef}>
       <MenuPopover
-        id={id}
+        id={menuPopoverId}
         onChange={onChange}
         onBlur={onBlur}
         onClose={() => setIsMenuPopoverOpen(false)}

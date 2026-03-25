@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { memo, useState, useEffect, useRef, useCallback } from 'react';
 import Button from 'react-bootstrap/Button';
 import { connect } from 'react-redux';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -21,8 +21,6 @@ import { getGlobalSchemaReportedBy } from '../selectors';
 
 import SearchBar from '../SearchBar';
 import FriendlyFilterString from '../FriendlyFilterString';
-import { ReactComponent as FilterIcon } from '../common/images/icons/filter-icon.svg';
-import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
 import * as styles from './styles.module.scss';
 import DateFilter from './DateFilter';
@@ -47,7 +45,6 @@ const EventFilter = ({
 }) => {
   const { state, filter: { date_range, event_type: currentFilterReportTypes, priority, reported_by, text } } = eventFilter;
   const eventTypeFilterEmpty = !currentFilterReportTypes.length;
-  const hasChildrenComponents = useMemo(() => !!React.Children.count(children), [children]);
   const [reportTypeFilterText, setReportTypeFilterText] = useState('');
   const [filterText, setFilterText] = useState(eventFilter.filter.text);
   const isLargeLayout = useMatchMedia(BREAKPOINTS.screenIsLargeLayoutOrLarger);
@@ -95,14 +92,6 @@ const EventFilter = ({
     if (filterText) onSearchClear();
     onResetAll();
   }, [clearDateRange, isDateRangeModified, filterModified, filterText, onResetAll, onSearchClear, resetPopoverFilters]);
-
-  const onDateFilterIconClicked = useCallback(() => {
-    reportsTracker.track('Dates Icon Clicked');
-  }, []);
-
-  const onEventFilterIconClicked = useCallback(() => {
-    reportsTracker.track('Filters Icon Clicked');
-  }, []);
 
   const onSearchChange = useCallback(({ target: { value } }) => {
     setFilterText(value);
@@ -183,39 +172,39 @@ const EventFilter = ({
       data-testid="eventFilter-form"
       onSubmit={e => e.preventDefault()}
       >
-      <div className={styles.controls}>
-        <SearchBar
-          className={`${styles.search} ${!hasChildrenComponents ? styles.wider : ''}`}
-          placeholder={t('searchBarPlaceholder')}
-          value={filterText}
-          onChange={onSearchChange}
-          onClear={onSearchClear}
-        />
+      <SearchBar
+        className={styles.searchBar}
+        placeholder={t('searchBarPlaceholder')}
+        value={filterText}
+        onChange={onSearchChange}
+        onClear={onSearchClear}
+      />
+
+      <div className={styles.buttons}>
         <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='bottom' overlay={FiltersPopover} flip={true}>
-          <Button
-            variant={filterModified ? 'primary' : 'light'}
-            size='sm'
-            className={styles.popoverTrigger}
+          <button
+            className={`${styles.button} ${filterModified ? styles.active : styles.inactive}`}
             data-testid='filter-btn'
+            onClick={() => reportsTracker.track('Filters Icon Clicked')}
           >
-            <FilterIcon onClick={onEventFilterIconClicked} title={t('filtersButton')} />
-            <span>{t('filtersButton')}</span>
-          </Button>
+            {t('filtersButton')}
+          </button>
         </OverlayTrigger>
+
         <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={DateFilterPopover} flip={true}>
-          <Button
-            variant={isDateRangeModified ? 'primary' : 'light'}
-            size='sm'
-            className={styles.popoverTrigger}
+          <button
+            className={`${styles.button} ${isDateRangeModified ? styles.active : styles.inactive}`}
             data-testid='date-filter-btn'
+            onClick={() => reportsTracker.track('Dates Icon Clicked')}
           >
-            <ClockIcon onClick={onDateFilterIconClicked} title={t('datesButton')} />
-            <span>{t('datesButton')}</span>
-          </Button>
+            {t('datesButton')}
+          </button>
         </OverlayTrigger>
+
         {children}
       </div>
     </form>
+
     {isLargeLayout && <div className={`${styles.filterStringWrapper} ${className}`} data-testid='general-reset-wrapper'>
       <FriendlyFilterString
         className={styles.friendlyFilterString}

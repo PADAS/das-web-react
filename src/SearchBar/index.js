@@ -1,37 +1,46 @@
-import React, { memo, useState } from 'react';
+import React, { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { ReactComponent as ClearIcon } from '../common/images/icons/close-icon.svg';
+import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon.svg';
 
 import * as styles from './styles.module.scss';
 
-const SearchBar = ({ className = '', onChange, onClear = null, placeholder = null, value, ...restProps }) => {
+const SearchBar = ({ className = '', onClear = null, value, ...otherProps }) => {
   const { t } = useTranslation('components', { keyPrefix: 'searchBar' });
 
-  const [isActive, setIsActiveState] = useState(false);
+  const searchInputRef = useRef();
 
-  return <label
-      className={`${styles.search} ${styles.oldNavigation} ${value?.length && styles.isFiltered} ${isActive && styles.isActive} ${className ? className : ''}`}
-      {...restProps}
+  return <div
+      className={`${styles.searchBar} ${className}`}
+      data-testid="searchBar"
+      onClick={() => searchInputRef.current.focus()}
     >
-    <SearchIcon className={styles.searchIcon} />
+    <span aria-hidden className={styles.searchIconContainer}>
+      <SearchIcon />
+    </span>
 
     <input
-      data-testid="search-input"
-      onBlur={() => setIsActiveState(false)}
-      onChange={onChange}
-      onFocus={() => setIsActiveState(true)}
-      onKeyDown={(event) => event.key === 'Enter' && event.preventDefault()}
-      placeholder={placeholder || t('defaultPlaceholder')}
-      type="text"
+      className={styles.searchInput}
+      placeholder={t('defaultPlaceholder')}
+      ref={searchInputRef}
+      type="search"
       value={value}
+      {...otherProps}
     />
 
-    <button className={styles.clearButton} data-testid="reset-search-button" onClick={(event) => onClear?.(event)}>
-      <ClearIcon title={t('clearIconTitle')} />
-    </button>
-  </label>;
+    {onClear && value && <button
+      aria-label={t('clearButtonLabel')}
+      className={styles.clearButton}
+      data-testid="reset-search-button"
+      onClick={onClear}
+      tabIndex={-1}
+      title={t('clearButtonLabel')}
+      type="button"
+    >
+      <CrossIcon />
+    </button>}
+  </div>;
 };
 
-export default memo(SearchBar);
+export default SearchBar;

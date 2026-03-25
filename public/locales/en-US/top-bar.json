@@ -64,6 +64,7 @@
     "cookieSettingsItem": "Cookie Settings",
     "logoutItem": "Log out",
     "toggleLabel": "Open User Settings",
-    "toggleTitle": "User Settings"
+    "toggleTitle": "User Settings",
+    "userAndProfilesHeader": "User and Profiles"
   }
 }

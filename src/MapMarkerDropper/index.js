@@ -10,7 +10,7 @@ import MouseMarkerLayer from '../MouseMarkerLayer';
 import MouseMarkerPopup from '../MouseMarkerPopup';
 import PickMapLocationButton from '../PickMapLocationButton';
 
-import MarkerImage from '../common/images/icons/marker-feed.svg';
+import MarkerImage from '../common/images/icons/marker-feed.svg?url';
 
 import * as styles from './styles.module.scss';
 

@@ -206,6 +206,11 @@ describe('PatrolDetailView', () => {
     store.data.user = { permissions: { patrol: ['change'] } };
     store.view.userPreferences = { gpsFormat: Object.values(GPS_FORMATS)[0] };
     store.view.mapLocationSelection = {};
+    store.view.coordinateReferenceSystems = {
+      selectedCoordinateRepresentations: Object.values(GPS_FORMATS),
+      storedSystems: [],
+    };
+    store.view.systemConfig = {};
 
     map = createMapMock();
 
@@ -322,7 +327,7 @@ describe('PatrolDetailView', () => {
 
     act(() => map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } }));
 
-    expect(within(startLocationPickerButton).getByRole('textbox')).toHaveValue('55.000000°,  88.000000°');
+    expect(within(startLocationPickerButton).getByRole('textbox')).toHaveValue('55.000000°, 88.000000°');
   });
 
   test('sets the start date when user changes it', async () => {
@@ -334,8 +339,7 @@ describe('PatrolDetailView', () => {
     const startDatePicker = await screen.findByTestId('patrolDetailView-planSection-startDatePicker');
     const startDatePickerOpenCalendarButton = await within(startDatePicker).findByLabelText('Open calendar');
     await userEvent.click(startDatePickerOpenCalendarButton);
-    const options = await screen.findAllByRole('option');
-    await userEvent.click(options[25]);
+    await userEvent.click(screen.getByRole('gridcell', { name: 'Choose Thursday, January 20th, 2022' }));
 
     expect(await within(startDatePicker).findByTestId('datePicker-input')).toHaveValue('2022-01-20');
   });
@@ -365,7 +369,7 @@ describe('PatrolDetailView', () => {
 
     act(() => map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } }));
 
-    expect(within(endLocationPickerButton).getByRole('textbox')).toHaveValue('55.000000°,  88.000000°');
+    expect(within(endLocationPickerButton).getByRole('textbox')).toHaveValue('55.000000°, 88.000000°');
   });
 
   test('sets the end date when user changes it', async () => {
@@ -377,8 +381,7 @@ describe('PatrolDetailView', () => {
     const endDatePicker = await screen.findByTestId('patrolDetailView-planSection-endDatePicker');
     const endDatePickerOpenCalendarButton = await within(endDatePicker).findByLabelText('Open calendar');
     await userEvent.click(endDatePickerOpenCalendarButton);
-    const endOptions = await screen.findAllByRole('option');
-    await userEvent.click(endOptions[25]);
+    await userEvent.click(screen.getByRole('gridcell', { name: 'Choose Thursday, January 20th, 2022' }));
 
     expect(await within(endDatePicker).findByTestId('datePicker-input')).toHaveValue('2022-01-20');
   });
@@ -406,8 +409,7 @@ describe('PatrolDetailView', () => {
     const endDatePicker = await screen.findByTestId('patrolDetailView-planSection-endDatePicker');
     const endDatePickerOpenCalendarButton = await within(endDatePicker).findByLabelText('Open calendar');
     await userEvent.click(endDatePickerOpenCalendarButton);
-    const endOptions = await screen.findAllByRole('option');
-    await userEvent.click(endOptions[25]);
+    await userEvent.click(screen.getByRole('gridcell', { name: 'Choose Thursday, January 20th, 2022' }));
 
     const endTimePicker = await screen.findByTestId('patrolDetailView-planSection-endTimePicker');
     const endTimePickerOpenOptionsButton = await within(endTimePicker).findByLabelText('Open time options');
@@ -478,14 +480,12 @@ describe('PatrolDetailView', () => {
     const endDatePicker = await screen.findByTestId('patrolDetailView-planSection-endDatePicker');
     const endDatePickerOpenCalendarButton = await within(endDatePicker).findByLabelText('Open calendar');
     await userEvent.click(endDatePickerOpenCalendarButton);
-    const endOptions = await screen.findAllByRole('option');
-    await userEvent.click(endOptions[25]);
+    await userEvent.click(screen.getByRole('gridcell', { name: 'Choose Thursday, January 20th, 2022' }));
 
     const startDatePicker = await screen.findByTestId('patrolDetailView-planSection-startDatePicker');
     const startDatePickerOpenCalendarButton = await within(startDatePicker).findByLabelText('Open calendar');
     await userEvent.click(startDatePickerOpenCalendarButton);
-    const options = await screen.findAllByRole('option');
-    await userEvent.click(options[26]);
+    await userEvent.click(screen.getByRole('gridcell', { name: 'Choose Friday, January 21st, 2022' }));
 
     const saveButton = await screen.findByText('Save');
     await userEvent.click(saveButton);

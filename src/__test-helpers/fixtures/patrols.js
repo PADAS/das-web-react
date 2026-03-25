@@ -1684,7 +1684,6 @@ export const patrolDefaultStoreData = {
     }],
   },
   view: {
-    featureFlagOverrides: {},
     timeSliderState: {
       active: false
     },
@@ -1694,5 +1693,6 @@ export const patrolDefaultStoreData = {
     patrolTrackState: {
       pinned: [], visible: []
     },
+    systemConfig: {},
   },
 };

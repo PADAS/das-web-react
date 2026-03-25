@@ -21,7 +21,6 @@ import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { subjectIsStatic } from '../utils/subjects';
 import { withMultiLayerHandlerAwareness, queryMultiLayerClickFeatures } from '../utils/map-handlers';
-import { getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 import { findAnalyzerIdByChildFeatureId, getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
@@ -35,23 +34,19 @@ import {
 } from '../ducks/map-ui';
 import { MapContext } from '../App';
 import { updatePatrolTrackState } from '../ducks/patrols';
+import useCrsBoundingBoxLayer from './layers/useCrsBoundingBoxLayer';
 import { useMapEventBinding } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
-import {
-  LAYER_IDS,
-  TAB_KEYS,
-} from '../constants';
+import { LAYER_IDS, SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../constants';
 
 import DelayedUnmount from '../DelayedUnmount';
 import EarthRangerMap from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectsLayer';
-import BuoyTrawlLineLayer from '../BuoyTrawlLineLayer';
 import StaticSensorsLayer from '../StaticSensorsLayer';
 import TracksLayer from '../TracksLayer';
 import PatrolStartStopLayer from '../PatrolStartStopLayer';
-import FeatureLayer from '../FeatureLayer';
 import AnalyzerLayer from '../AnalyzersLayer';
 import PopupLayer from '../PopupLayer';
 import SubjectHeatLayer from '../SubjectHeatLayer';
@@ -68,6 +63,13 @@ import MessageBadgeLayer from '../MessageBadgeLayer';
 import MapImagesLayer from '../MapImagesLayer';
 import SleepDetector from '../SleepDetector';
 import ClustersLayer from '../ClustersLayer';
+import SpatialFeaturesLayer, {
+  SYMBOLS_LAYER_ID,
+  LINES_LAYER_ID,
+  POLYGONS_LAYER_ID,
+  POLYGONS_OUTLINE_LAYER_ID,
+} from '../SpatialFeaturesLayer';
+
 
 import AddItemButton from '../AddItemButton';
 import MapRulerControl from '../MapRulerControl';
@@ -81,6 +83,7 @@ import ReportGeometryDrawer from '../ReportGeometryDrawer';
 import MapLocationSelectionOverview from '../MapLocationSelectionOverview';
 
 import './Map.scss';
+import { addMapImage } from '../utils/map';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -109,30 +112,37 @@ const Map = ({ children, onMapLoad, socket }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  useCrsBoundingBoxLayer();
+
   const map = useContext(MapContext);
 
   const analyzerFeatures = useSelector(analyzerFeaturesSelector);
-  const maps = useSelector(state => state.data.maps);
+  const analyzersEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.ANALYZERS]);
+  const analyzersFeatureCollection = useSelector(getAnalyzerFeatureCollectionsByType);
+  const bounceEventIDs = useSelector(state => state.view.bounceEventIDs);
   const heatmapSubjectIDs = useSelector(state => state.view.heatmapSubjectIDs);
   const hiddenAnalyzerIDs = useSelector(state => state.data.mapLayerFilter.hiddenAnalyzerIDs);
   const hiddenFeatureIDs = useSelector(state => state.data.mapLayerFilter.hiddenFeatureIDs);
+  const eventFilter = useSelector(state => state.data.eventFilter);
+  const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
+  const mapImages = useSelector(state => state.view.mapImages);
   const mapIsLocked = useSelector(state => state.view.mapIsLocked);
+  const mapLocationSelection = useSelector(state => state.view.mapLocationSelection);
+  const maps = useSelector(state => state.data.maps);
+  const mapSubjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);
+  const patrolFilter = useSelector(state => state.data.patrolFilter);
   const patrolTrackState = useSelector(state => state.view.patrolTrackState);
   const popup = useSelector(state => state.view.popup);
-  const eventFilter = useSelector(state => state.data.eventFilter);
-  const patrolFilter = useSelector(state => state.data.patrolFilter);
-  const subjectTrackState = useSelector(state => state.view.subjectTrackState);
+  const showReportHeatmap = useSelector(state => state.view.showReportHeatmap);
   const showTrackTimepoints = useSelector(state => state.view.showTrackTimepoints);
+  const spatialFeaturesEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]);
+  const subjectTrackState = useSelector(state => state.view.subjectTrackState);
+  const subjectsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SUBJECTS]);
   const timeSliderState = useSelector(state => state.view.timeSliderState);
-  const bounceEventIDs = useSelector(state => state.view.bounceEventIDs);
   const trackLength = useSelector(state => state.view.trackSettings.length);
   const trackLengthOrigin = useSelector(state => state.view.trackSettings.origin);
-  const mapImages = useSelector(state => state.view.mapImages);
-  const mapFeaturesFeatureCollection = useSelector(getFeatureSetFeatureCollectionsByType);
-  const mapSubjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);
-  const analyzersFeatureCollection = useSelector(getAnalyzerFeatureCollectionsByType);
-  const showReportHeatmap = useSelector(state => state.view.showReportHeatmap);
-  const mapLocationSelection = useSelector(state => state.view.mapLocationSelection);
+
+  const messageableMapSubjects = mapSubjectFeatureCollection.features.filter(({ properties }) => !!properties?.messaging?.length);
 
   const currentTab = getCurrentTabFromURL(location.pathname);
 
@@ -156,8 +166,6 @@ const Map = ({ children, onMapLoad, socket }) => {
     && !isDrawingEventGeometry;
 
   const [currentAnalyzerIds, setCurrentAnalyzerIds] = useState([]);
-
-  const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
   const {
     analyzerWarningLines,
@@ -377,12 +385,14 @@ const Map = ({ children, onMapLoad, socket }) => {
     showPopup('timepoint', { geometry, properties, coordinates: geometry.coordinates });
   });
 
-  const onFeatureSymbolClick = withLocationPickerState(({ geometry, properties }) => {
-    const coordinates = Array.isArray(geometry.coordinates[0]) ? geometry.coordinates[0] : geometry.coordinates;
+  const onFeatureSymbolClick = useCallback((feature) => {
+    const { geometry, properties } = feature;
 
-    showPopup('feature-symbol', { geometry, properties, coordinates });
-    mapInteractionTracker.track('Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
-  });
+    if (geometry.type === 'Point') {
+      showPopup('feature-symbol', { geometry, properties, coordinates: geometry.coordinates });
+      mapInteractionTracker.track('Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
+    }
+  }, [showPopup]);
 
   const onAnalyzerGroupEnter = useCallback((e, groupIds) => {
     // if an analyzer popup is open, and the user selects a new analyzer, dismiss the current pop.
@@ -420,42 +430,63 @@ const Map = ({ children, onMapLoad, socket }) => {
     fetchMapData();
   }, [fetchMapData]);
 
+  // Helper function to check if a feature should keep the popup open
+  const doesFeatureOpenPopup = useCallback(
+    (feature) => feature.layer.id.includes(LAYER_IDS.TRACK_TIMEPOINTS)
+       || [SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID, POLYGONS_OUTLINE_LAYER_ID].includes(feature.layer.id),
+    []
+  );
+
   const onMapClick = useMemo(() => withLocationPickerState((event) => {
     event.preventDefault();
     event.originalEvent.stopPropagation();
 
+    // Query features once for performance
+    const featuresAtPoint = map.queryRenderedFeatures(event.point);
     const clickedLayersOfInterest = queryMultiLayerClickFeatures(map, event);
 
-    let shouldHidePopup = true;
-
+    // Check for clusters
     const clusterApproxGeometry = [
       [event.point.x - CLUSTER_APPROX_WIDTH, event.point.y + CLUSTER_APPROX_HEIGHT],
       [event.point.x + CLUSTER_APPROX_WIDTH, event.point.y - CLUSTER_APPROX_HEIGHT]
     ];
-    const clustersAtPoint = map.queryRenderedFeatures(
-      clusterApproxGeometry,
-      { layers: [LAYER_IDS.CLUSTERS_LAYER_ID] }
-    );
+    const hasClusters = map.queryRenderedFeatures(clusterApproxGeometry, {
+      layers: [LAYER_IDS.CLUSTERS_LAYER_ID]
+    }).length > 0;
 
-    shouldHidePopup = !clustersAtPoint.length;
-
+    // Handle multiple features at the same location
     if (clickedLayersOfInterest.length > 1) {
       handleMultiFeaturesAtSameLocationClick(event, clickedLayersOfInterest);
-      shouldHidePopup = false;
+      hideUnpinnedTrackLayers(map, event);
+      return;
     }
 
+    // Determine if we should hide the existing popup
+    const shouldHidePopup = !hasClusters && !featuresAtPoint.some(doesFeatureOpenPopup);
+
+    // Handle popup visibility
     if (popup) {
-      // be sure to also deactivate the analyzer features when dismissing an analyzer popup
+      // Deactivate analyzer features when dismissing an analyzer popup
       if (popup.type === 'analyzer-config') {
         setAnalyzerFeatureActiveStateForIDs(map, currentAnalyzerIds, false);
       }
+
       if (shouldHidePopup) {
         hidePopup(popup.id);
       }
     }
 
     hideUnpinnedTrackLayers(map, event);
-  }), [currentAnalyzerIds, map, withLocationPickerState, handleMultiFeaturesAtSameLocationClick, hidePopup, hideUnpinnedTrackLayers, popup]);
+  }), [
+    currentAnalyzerIds,
+    handleMultiFeaturesAtSameLocationClick,
+    hidePopup,
+    hideUnpinnedTrackLayers,
+    doesFeatureOpenPopup,
+    map,
+    popup,
+    withLocationPickerState,
+  ]);
 
   useEffect(() => {
     return () => {
@@ -581,6 +612,49 @@ const Map = ({ children, onMapLoad, socket }) => {
     }
   }, [i18n.language, map]);
 
+  useEffect(() => {
+    const handleMapStyleImageMissing = async (event) => {
+      const { id } = event;
+      // querying from the root /static/ dir of the host means this is one of our static assets, let's get it
+      // if the map says it's missing.
+      // Parse filepath to extract path and dimensions
+      const dimensions = {};
+      const match = id.match(/^(.*?)(?:-([^-.]+)-([^-.]+))?$/);
+
+      let src = id;
+      if (match) {
+        const [, path, width, height] = match;
+        src = path;
+
+        if (width && width !== 'x') {
+          dimensions.width = Number(width);
+        }
+        if (height && height !== 'x') {
+          dimensions.height = Number(height);
+        }
+      }
+
+      // Remove any remaining trailing dimension strings after the extension
+      src = src.replace(/(\.svg|\.png|\.jpg).*$/, '$1');
+
+      try {
+        await addMapImage({ src, id, ...dimensions });
+      } catch (error) {
+        console.warn('Error adding map image:', { event, error });
+      }
+
+
+    };
+
+    if (map) {
+      map.on('styleimagemissing', handleMapStyleImageMissing);
+
+      return () => {
+        map.off('styleimagemissing', handleMapStyleImageMissing);
+      };
+    }
+  }, [map]);
+
   useMapEventBinding('movestart', cancelMapDataRequests);
   useMapEventBinding('moveend', fetchMapData);
   useMapEventBinding('moveend', debounce(saveMapPosition));
@@ -610,29 +684,30 @@ const Map = ({ children, onMapLoad, socket }) => {
 
       <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
 
-      <EventsLayer
+      {eventsEnabled && <EventsLayer
         mapImages={mapImages}
         onEventClick={onSelectEvent}
         bounceEventIDs={bounceEventIDs}
-      />
+      />}
 
-      <SubjectsLayer mapImages={mapImages} onSubjectClick={onSelectSubject} />
+      {subjectsEnabled && <SubjectsLayer mapImages={mapImages} onSubjectClick={onSelectSubject} />}
 
       <MapImagesLayer />
 
       <UserCurrentLocationLayer onIconClick={onCurrentUserLocationClick} />
 
-      <StaticSensorsLayer />
+      {subjectsEnabled && <StaticSensorsLayer />}
 
-      <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />
+      {subjectsEnabled && !!messageableMapSubjects.length && <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />}
 
-      <DelayedUnmount isMounted={!currentTab && !mapLocationSelection.isPickingLocation}>
+      {eventsEnabled && <DelayedUnmount isMounted={!currentTab && !mapLocationSelection.isPickingLocation}>
         <div className='floating-report-filter'>
           <EventFilter className='report-filter' />
         </div>
-      </DelayedUnmount>
+      </DelayedUnmount>}
 
       {isDrawingEventGeometry && <ReportGeometryDrawer />}
+
       {isSelectingEventLocation && <MapLocationSelectionOverview />}
 
       <div className='map-legends'>
@@ -653,21 +728,16 @@ const Map = ({ children, onMapLoad, socket }) => {
       {subjectHeatmapAvailable && <SubjectHeatLayer />}
       {showReportHeatmap && <ReportsHeatLayer />}
 
-      {subjectTracksVisible && <TracksLayer onPointClick={onTimepointClick} showTimepoints={showTrackTimepoints} />}
+      {subjectTracksVisible && <TracksLayer onPointClick={onTimepointClick} onTrackLabelClick={onSelectSubject} showTimepoints={showTrackTimepoints} />}
       {patrolTracksVisible && <PatrolStartStopLayer />}
-
-      <BuoyTrawlLineLayer />
 
       {patrolTracksVisible && <PatrolTracks onPointClick={onTimepointClick} />}
 
-      <FeatureLayer
-        symbols={symbolFeatures}
-        lines={lineFeatures}
-        polygons={fillFeatures}
-        onFeatureSymbolClick={onFeatureSymbolClick}
-      />
+      {spatialFeaturesEnabled && <SpatialFeaturesLayer
+        onFeatureClick={onFeatureSymbolClick}
+      />}
 
-      <AnalyzerLayer
+      {analyzersEnabled && <AnalyzerLayer
         warningLines={analyzerWarningLines}
         criticalLines={analyzerCriticalLines}
         warningPolys={analyzerWarningPolys}
@@ -678,10 +748,9 @@ const Map = ({ children, onMapLoad, socket }) => {
         onAnalyzerFeatureClick={onAnalyzerFeatureClick}
         map={map}
         isSubjectSymbolsLayerReady={!!map.getLayer(SUBJECT_SYMBOLS)}
-      />
+      />}
 
       {!!popup && <PopupLayer popup={popup} />}
-
     </>}
 
     {timeSliderActive && <TimeSlider />}
@@ -689,6 +758,5 @@ const Map = ({ children, onMapLoad, socket }) => {
     <SleepDetector onSleepDetected={onSleepDetected} />
   </EarthRangerMap>;
 };
-
 
 export default Map;

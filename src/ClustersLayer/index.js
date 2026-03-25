@@ -6,9 +6,9 @@ import { addNewClusterMarkers, getRenderedClustersData, removeOldClusterMarkers 
 import { CLUSTERS_MAX_ZOOM, CLUSTERS_RADIUS, LAYER_IDS, SOURCE_IDS } from '../constants';
 import { getMapEventSymbolPointsWithVirtualDate } from '../selectors/events';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
-import { getShouldEventsBeClustered, getShouldSubjectsBeClustered } from '../selectors/clusters';
+import { selectShouldEventsBeClustered, selectShouldSubjectsBeClustered } from '../selectors/clusters';
 import { MapContext } from '../App';
-import useClusterBufferPolygon from '../hooks/useClusterBufferPolygon';
+import useClusterPolygon from '../hooks/useClusterPolygon';
 import { useMapEventBinding } from '../hooks';
 import useMapSources from '../hooks/useMapSources';
 import useMapLayers from '../hooks/useMapLayers';
@@ -36,11 +36,10 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
 
   const clusterMarkerHashMapRef = useRef({});
 
-  const shouldEventsBeClustered = useSelector(getShouldEventsBeClustered);
-  const shouldSubjectsBeClustered = useSelector(getShouldSubjectsBeClustered);
   const eventPointFeatureCollection = useSelector(getMapEventSymbolPointsWithVirtualDate);
+  const shouldEventsBeClustered = useSelector(selectShouldEventsBeClustered);
+  const shouldSubjectsBeClustered = useSelector(selectShouldSubjectsBeClustered);
   const subjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);
-
 
   const clustersSourceData = useMemo(() => featureCollection(
     [
@@ -63,7 +62,7 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
     options: CLUSTER_LAYER_CONFIG
   }]);
 
-  const { removeClusterPolygon, renderClusterPolygon } = useClusterBufferPolygon();
+  const { addClusterPolygon, removeClusterPolygon } = useClusterPolygon();
 
   const mapImages = useSelector((state) => state.view.mapImages);
 
@@ -78,17 +77,17 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
     removeOldClusterMarkers(clusterMarkerHashMapRef, removeClusterPolygon, renderedClusterHashes);
 
     clusterMarkerHashMapRef.current = addNewClusterMarkers(
+      addClusterPolygon,
       clusterMarkerHashMapRef,
       CLUSTERS_SOURCE_ID,
       map,
       mapImages,
       removeClusterPolygon,
-      renderClusterPolygon,
       renderedClusterFeatures,
       renderedClusterHashes,
       renderedClusterIds,
       onShowClusterSelectPopup);
-  }, [map, mapImages,  onShowClusterSelectPopup, removeClusterPolygon, renderClusterPolygon]);
+  }, [addClusterPolygon, map, mapImages,  onShowClusterSelectPopup, removeClusterPolygon]);
 
   const onSourceData = useMemo(() => (event) => {
     if (event.sourceId === CLUSTERS_SOURCE_ID) {

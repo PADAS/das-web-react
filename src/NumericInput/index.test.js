@@ -55,11 +55,12 @@ describe('NumericInput', () => {
   test('display proper readOnly input', () => {
     renderNumericInput({ ...initialProps, readOnly: true });
 
-    const [upButton, downButton] = screen.queryAllByRole('button');
+    const [upButton, downButton] = screen.getAllByRole('button');
 
+    expect(screen.getByTestId('numericInput')).toHaveClass('readOnly');
     expect( screen.getByRole('textbox').readOnly ).toBe(true);
-    expect(upButton).not.toBeDefined();
-    expect(downButton).not.toBeDefined();
+    expect(upButton).toBeDisabled();
+    expect(downButton).toBeDisabled();
   });
 
   test('sets the title of the input', () => {

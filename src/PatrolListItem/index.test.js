@@ -4,7 +4,7 @@ import { bbox, lineString } from '@turf/turf';
 import userEvent from '@testing-library/user-event';
 import { within } from '@testing-library/dom';
 
-import { PATROL_API_STATES, PATROL_UI_STATES } from '../constants';
+import { PATROL_API_STATES, PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../constants';
 
 import { mockStore } from '../__test-helpers/MockStore';
 
@@ -12,7 +12,6 @@ import { MapContext } from '../App';
 import * as trackUtils from '../utils/tracks';
 import { UPDATE_SUBJECT_TRACK_STATE } from '../ducks/map-ui';
 import * as patrolUtils from '../utils/patrols';
-import * as customHooks from '../hooks';
 
 import { UPDATE_PATROL_TRACK_STATE, updatePatrol } from '../ducks/patrols';
 
@@ -23,8 +22,6 @@ import { render, screen } from '../test-utils';
 import PatrolListItem from './';
 
 import { createMapMock } from '../__test-helpers/mocks';
-
-import * as colorVariables from '../common/styles/vars/colors.module.scss';
 
 jest.mock('../ducks/patrols', () => ({
   ...jest.requireActual('../ducks/patrols'),
@@ -41,13 +38,21 @@ const minimumNecessaryStoreStructure = {
     },
     patrolTrackState: {
       pinned: [], visible: []
-    }
+    },
+    systemConfig: {
+      [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true,
+    },
   },
   data: {
     subjectStore: {},
     tracks: {},
     patrolTypes,
-    patrolStore: patrols.reduce((p, acc = {}) => ({ ...acc, [p.id]: p }))
+    patrolStore: patrols.reduce((p, acc = {}) => ({ ...acc, [p.id]: p })),
+    user: {
+      permissions: {
+        [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.UPDATE],
+      },
+    },
   }
 };
 
@@ -65,8 +70,6 @@ let updatePatrolMock;
 beforeEach(() => {
   updatePatrolMock = jest.fn(() => () => {});
   updatePatrol.mockImplementation(updatePatrolMock);
-
-  jest.spyOn(customHooks, 'usePermissions').mockImplementation(() => true); // full permissions for list item read+write access
 });
 
 const initialProps = {
@@ -248,13 +251,6 @@ describe('for active patrols', () => {
     expect(updatePatrol).toHaveBeenCalledTimes(1);
     expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.DONE);
   });
-
-  test('theming', async () => {
-    const iconContainer = await screen.findByRole('img');
-
-    expect(iconContainer).toHaveStyle(`background-color: ${colorVariables.patrolActiveThemeColor}`);
-  });
-
 });
 
 describe('for scheduled patrols', () => {
@@ -292,13 +288,6 @@ describe('for scheduled patrols', () => {
     expect(updatePatrol).toHaveBeenCalledTimes(1);
     expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.CANCELLED);
   });
-
-  test('theming', async () => {
-    const iconContainer = await screen.findByRole('img');
-
-    expect(iconContainer).toHaveStyle(`background-color: ${colorVariables.patrolReadyThemeColor}`);
-  });
-
 });
 
 describe('for overdue patrols', () => {
@@ -318,13 +307,6 @@ describe('for overdue patrols', () => {
 
     expect(stateIndicator).toHaveTextContent(PATROL_UI_STATES.START_OVERDUE.title);
   });
-
-  test('theming', async () => {
-    const iconContainer = await screen.findByRole('img');
-
-    expect(iconContainer).toHaveStyle(`background-color: ${colorVariables.patrolOverdueThemeColor}`);
-  });
-
 });
 
 describe('for cancelled patrols', () => {
@@ -362,12 +344,6 @@ describe('for cancelled patrols', () => {
     expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.OPEN);
     expect(updatePatrol.mock.calls[0][0].patrol_segments[0].time_range.end_time).toBeNull();
   });
-
-  test('theming', async () => {
-    const iconContainer = await screen.findByRole('img');
-
-    expect(iconContainer).toHaveStyle(`background-color: ${colorVariables.patrolCancelledThemeColor}`);
-  });
 });
 
 describe('for completed patrols', () => {
@@ -393,11 +369,5 @@ describe('for completed patrols', () => {
     expect(updatePatrol).toHaveBeenCalledTimes(1);
     expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.OPEN);
     expect(updatePatrol.mock.calls[0][0].patrol_segments[0].time_range.end_time).toBeNull();
-  });
-
-  test('theming', async () => {
-    const iconContainer = await screen.findByRole('img');
-
-    expect(iconContainer).toHaveStyle(`background-color: ${colorVariables.patrolDoneThemeColor}`);
   });
 });

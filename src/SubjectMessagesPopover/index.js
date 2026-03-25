@@ -5,20 +5,20 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
 
-import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import { SENDER_DETAIL_STYLES } from '../MessageList/SenderDetails';
-import { usePermissions } from '../hooks';
+import { useMessagesPermissions } from '../hooks/usePermissions';
 
 import MessageInput from '../MessageInput';
 import ParamFedMessageList from '../MessageList/ParamFedMessageList';
 import SubjectControlButton from '../SubjectControls/button';
 
 import * as styles from './styles.module.scss';
+import { calcDisplayNameForSubject } from '../utils/subjects';
 
 const SubjectMessagesPopover = ({ className = '', subject = null, ...restProps }) => {
   const { t } = useTranslation('subjects', { keyPrefix: 'subjectMessagesPopover' });
 
-  const hasMessagingWritePermissions = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.CREATE);
+  const { hasMessagesCreatePermission } = useMessagesPermissions();
 
   if (!subject) {
     return null;
@@ -27,7 +27,7 @@ const SubjectMessagesPopover = ({ className = '', subject = null, ...restProps }
   const popover = <Popover className={styles.popover}>
     <Popover.Header>
       <h6>
-        <ChatIcon /> {subject.name}
+        <ChatIcon /> {calcDisplayNameForSubject(subject)}
       </h6>
     </Popover.Header>
 
@@ -38,7 +38,7 @@ const SubjectMessagesPopover = ({ className = '', subject = null, ...restProps }
         senderDetailStyle={SENDER_DETAIL_STYLES.SHORT}
       />
 
-      {!!hasMessagingWritePermissions && <MessageInput subjectId={subject.id} />}
+      {hasMessagesCreatePermission && <MessageInput subjectId={subject.id} />}
     </Popover.Body>
   </Popover>;
 
@@ -54,6 +54,7 @@ const SubjectMessagesPopover = ({ className = '', subject = null, ...restProps }
       buttonClassName={`${className} ${styles.button}`}
       containerClassName={styles.container}
       labelText={t('label')}
+      data-testid="subject-messages-popover"
       {...restProps}
     />
   </OverlayTrigger>;

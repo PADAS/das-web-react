@@ -1,4 +1,6 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect, useRef } from 'react';
+
+import getDefaultFormData from '../../utils/getDefaultFormData';
 
 import * as styles from './styles.module.scss';
 
@@ -9,20 +11,39 @@ const Section = ({
   fieldErrors,
   focusLocationMarker,
   formData,
+  formElements,
+  hidden,
   id,
   onFieldChange,
   onFieldErrorsChange,
   renderField,
+  setDefaultFormData,
 }) => {
+  const previousHiddenRef = useRef(hidden);
+
   const onColumnFieldChange = (fieldId, value, error) => {
     onFieldChange(fieldId, value);
     onFieldErrorsChange({ ...fieldErrors, [fieldId]: error });
   };
 
-  return <div
-      className={styles.section}
-      data-testid={`schema-form-section-${id}`}
-    >
+  useEffect(() => {
+    const sectionBecameVisible = previousHiddenRef.current && !hidden;
+    if (sectionBecameVisible) {
+      // The section just became visible. Set the section's default form data
+      // from the section's children.
+      const sectionChildrenIds = [...details.leftColumn, ...details.rightColumn];
+      const defaultFormData = getDefaultFormData(sectionChildrenIds, formElements);
+      if (Object.keys(defaultFormData).length > 0) {
+        setDefaultFormData(defaultFormData);
+      }
+    }
+  }, [details.leftColumn, details.rightColumn, formElements, hidden, setDefaultFormData]);
+
+  useEffect(() => {
+    previousHiddenRef.current = hidden;
+  }, [hidden]);
+
+  return <div className={styles.section} data-testid={`schema-form-section-${id}`} hidden={hidden}>
     {details.label && <h3 className={styles.header}>{details.label}</h3>}
 
     <div className={styles.columns}>

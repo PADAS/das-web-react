@@ -21,37 +21,32 @@ export const subjectIsAFixedPositionRadio = subject => STATIONARY_RADIO_SUBTYPES
 export const subjectIsARadioWithRecentVoiceActivity = (properties) => {
   return subjectIsARadio(properties)
     && !!properties.last_voice_call_start_at
-    && properties.last_voice_call_start_at !== 'null'; /* extra check for bad deserialization from mapbox-held subject data */
+    && !['null', 'undefined'].includes(properties.last_voice_call_start_at); /* extra check for bad deserialization from mapbox-held subject data */
 };
 
 export const isRadioWithImage = (subject) => subjectIsARadio(subject) && !!subject.last_position && !!subject.last_position.properties && subject.last_position.properties.image;
 
-const calcElapsedTimeSinceSubjectRadioActivity = (subject) => {
-  if (subject
-    && subject.last_position_status
-    && subject.last_position_status.last_voice_call_start_at) {
-    const updatedTime = new Date(subject.last_position_status.last_voice_call_start_at);
-    if (updatedTime) {
-      const delta = differenceInSeconds(new Date(), updatedTime);
-      if (delta > 0) {
-        return delta;
-      }
-    }
-  }
+const calcElapsedTimeSinceSubjectActivity = (subject) => {
+  const time = new Date(subject?.last_position_date);
+  if (window.isNaN(time)) return -1;
+
+  const delta = differenceInSeconds(new Date(), time);
+  if (delta > 0) return delta;
+
   return -1;
 };
 
 export const radioHasRecentActivity = (radio) => {
-  const elapsedSeconds = calcElapsedTimeSinceSubjectRadioActivity(radio);
-
-  return (elapsedSeconds >= 0) && (elapsedSeconds < RECENT_RADIO_DECAY_THRESHOLD);
+  const elapsedSeconds = calcElapsedTimeSinceSubjectActivity(radio);
+  const hasRecentActivity = (elapsedSeconds >= 0) && (elapsedSeconds < RECENT_RADIO_DECAY_THRESHOLD);
+  return hasRecentActivity;
 };
 
 export const calcRecentRadiosFromSubjects = (...subjects) => {
   const recentRadios = subjects
     .filter(subjectIsARadio)
     .filter(radioHasRecentActivity)
-    .sort((a, b) => calcElapsedTimeSinceSubjectRadioActivity(a) - calcElapsedTimeSinceSubjectRadioActivity(b));
+    .sort((a, b) => calcElapsedTimeSinceSubjectActivity(a) - calcElapsedTimeSinceSubjectActivity(b));
 
   return recentRadios;
 };
@@ -67,12 +62,11 @@ export const getSubjectGroupSubjects = (...groups) => groups.reduce((accumulator
 }, []);
 
 export const getUniqueSubjectGroupSubjects = (...groups) => uniqBy(getSubjectGroupSubjects(...groups), 'id');
-
 export const getUniqueSubjectGroupSubjectIDs = (...groups) => getUniqueSubjectGroupSubjects(...groups).map(subject => subject.id);
 
 export const subjectIsStatic = subject => {
   return subject?.is_static ?? subject?.properties?.is_static ?? subject.last_position?.properties?.is_static ??
-  subject?.subject_type === STATIONARY_SUBJECT_TYPE ?? subject?.properties?.subject_type === STATIONARY_SUBJECT_TYPE;
+    subject?.subject_type === STATIONARY_SUBJECT_TYPE ?? subject?.properties?.subject_type === STATIONARY_SUBJECT_TYPE;
 };
 
 export const canShowTrackForSubject = subject =>
@@ -80,7 +74,7 @@ export const canShowTrackForSubject = subject =>
   && !subjectIsAFixedPositionRadio(subject);
 
 
-export const getHeatmapEligibleSubjectsFromGroups = (...groups) => getUniqueSubjectGroupSubjects(...groups)
+export const getSubjectsWithViewableTrackingDataFromGroups = (...groups) => getUniqueSubjectGroupSubjects(...groups)
   .filter(canShowTrackForSubject);
 
 export const getSubjectLastPositionCoordinates = subject => {
@@ -93,10 +87,8 @@ export const getSubjectDefaultDeviceProperty = subject => {
   return deviceStatusProperties.find(deviceProperty => deviceProperty?.default ?? false) ?? {};
 };
 
-
 export const addDefaultStatusValue = (originalFeature) => {
   const feature = cloneDeep(originalFeature);
-
   const { properties } = feature;
   const defaultProperty = getSubjectDefaultDeviceProperty(feature);
 
@@ -106,7 +98,7 @@ export const addDefaultStatusValue = (originalFeature) => {
   }
 
   if (!properties?.image?.length) {
-    set(feature, 'properties.default_status_label', defaultProperty.label) ;
+    set(feature, 'properties.default_status_label', defaultProperty.label);
   }
 
   return feature;
@@ -204,44 +196,6 @@ export const updateDeviceStatusProperties = (existing, incoming, matchProp = 'la
     }
   );
 
-/**
- * filterSubjects is a function to drill down a given subject group array tree 
- * to filter for subjects matching the search filter as given by the function 
- * isMatch. 
- * @param {Object} s a subject groups array. 
- * @param {function} isMatch function to check if subject matches the filter.
- */
-export const filterSubjects = (s, isMatch) => {
-  // call recursive helper function and then filter out empty subject groups.
-  return s
-    .map(sg => filterSubjectsHelper(sg, isMatch))
-    .filter(sg => !!sg.subgroups.length || !!sg.subjects.length);
-};
-
-/**
- * filterSubjectsHelper is a recursive function to drill down a given subject group 
- * array tree to filter for subjects matching the search filter as given by the 
- * function isMatch. 
- * NOTE that subject groups have both a subgroups and subjects array.
- * @param {Object} s either a subject group or subgroup. 
- * @param {function} isMatch function to check if subject matches the filter.
- */
-const filterSubjectsHelper = (s, isMatch) => {
-  let newS = [];
-  if (s.subjects) { // filter the subjects array:
-    newS = { ...s, subjects: s.subjects.filter(isMatch) };
-  }
-  if (s.subgroups) { // filter subgroups array:
-    newS = {
-      ...newS,
-      subgroups: newS.subgroups
-        .map(sg => filterSubjectsHelper(sg, isMatch))
-        .filter(sg => !!sg.subjects.length || !!sg.subgroups.length)
-    };
-  }
-  return newS;
-};
-
 export const markSubjectFeaturesWithActivePatrols = mapSubjects => ({
   ...mapSubjects,
   features: mapSubjects.features
@@ -250,3 +204,28 @@ export const markSubjectFeaturesWithActivePatrols = mapSubjects => ({
       return feature;
     })
 });
+
+export const getDeviceStatusPropertiesForSubject = subject => {
+  if (typeof subject?.device_status_properties === 'string') {
+    try {
+      return JSON.parse(subject.device_status_properties);
+    } catch {
+      return [];
+    }
+  }
+
+  return subject?.device_status_properties ?? [];
+};
+export const isBuoySubject = (subject) => subject?.subject_subtype === 'ropeless_buoy_gearset';
+
+export const calcDisplayNameForSubject = (subject) => {
+  if (!subject) return '';
+
+  const primaryName = subject.name || subject.title || '';
+
+  if (!isBuoySubject(subject)) return primaryName;
+
+  const buoySerialNumber = subject?.device_status_properties?.find?.(prop => prop.label === 'serialNumber')?.value;
+
+  return buoySerialNumber || primaryName;
+};

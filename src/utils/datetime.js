@@ -14,10 +14,10 @@ import pluralize from 'pluralize';
 
 import dateLocales from './locales';
 
-export const EVENT_SYMBOL_DATE_FORMAT = 'dd MMM YY';
+export const EVENT_SYMBOL_DATE_FORMAT = 'dd MMM yy';
 
 export const SHORT_TIME_FORMAT = 'HH:mm';
-export const STANDARD_DATE_FORMAT = 'dd MMM YY HH:mm';
+export const STANDARD_DATE_FORMAT = 'dd MMM yy HH:mm';
 
 export const SHORTENED_DATE_FORMAT = STANDARD_DATE_FORMAT.replace(' HH:mm', '');
 
@@ -98,6 +98,7 @@ export const HUMANIZED_DURATION_CONFIGS = {
   FULL_FORMAT: (language = 'en') => ({
     ...DEFAULT_HUMANIZED_DURATION_PROPS,
     language,
+    largest: 2,
     units: ['y', 'mo', 'd', 'h', 'm', 's'],
   }),
   MINUTES_ONLY: (minutesLabel) => ({ // 'minute'
@@ -108,6 +109,7 @@ export const HUMANIZED_DURATION_CONFIGS = {
         m: (n) => pluralize(minutesLabel, n),
       },
     },
+    largest: 2,
     units: ['m'],
     spacer: ' ',
   }),
@@ -117,6 +119,7 @@ export const HUMANIZED_DURATION_CONFIGS = {
     languages: {
       abbreviated: abbreviations,
     },
+    largest: 2,
     units: ['y', 'mo', 'w', 'd', 'h', 'm', 's'],
     spacer: '',
   }),
@@ -126,6 +129,7 @@ export const HUMANIZED_DURATION_CONFIGS = {
     languages: {
       long_term: abbreviations,
     },
+    largest: 2,
     units: ['y', 'mo', 'w', 'd', 'h', 'm'],
     spacer: '',
   })

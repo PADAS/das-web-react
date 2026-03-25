@@ -4,7 +4,6 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     volumes:
-      - /app/node_modules
       - .:/app
     restart: on-failure
   # mock_api:
@@ -14,17 +13,17 @@ services:
   #   volumes:
   #     - /app/node_modules
   #     - ./mock-api:/app
-  web_test:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    volumes:
-      - /app/node_modules
-      - .:/app
-    # environment:
-    #   - CI=true
-    command: yarn test
-    restart: on-failure
+  # web_test:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.dev
+  #   volumes:
+  #     - /app/node_modules
+  #     - .:/app
+  #   # environment:
+  #   #   - CI=true
+  #   command: yarn test
+  #   restart: on-failure
   nginx:
     build:
       context: ./nginx

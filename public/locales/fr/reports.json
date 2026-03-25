@@ -106,29 +106,43 @@
   },
   "reportManager": {
     "detailsSection": {
-      "areaSelectorInput": {
-        "area": "Surface:",
-        "deleteAreaButton": "Supprimer la Zone",
-        "deleteAreaButtonTitle": "Supprimer la Zone",
+      "areaPicker": {
+        "defaultPlaceholder": "Définir la zone de l’événement",
         "displayString": "{{areaDisplayString}} surface, {{perimeterDisplayString}} périmètre",
-        "editAreaButton": "Modifier la Zone",
-        "editAreaButtonTitle": "Ajuster le polygone sur la carte",
-        "inputPlaceholder": "Définir la zone d'événement",
-        "staticMapImageAlt": "Carte statique avec le polygone",
-        "perimeter": "Périmètre: ",
-        "provenanceLabel": "Crée dans EarthRanger {{provenance}}"
+        "inputDescription": "Cliquez sur le bouton pour définir une valeur à partir du menu de sélection de zone.",
+        "inputLabel": "Zone",
+        "menuPopover": {
+          "area": "Surface:",
+          "deleteAreaButton": "Supprimer la Zone",
+          "dialogLabel": "Zone",
+          "editAreaButton": "Modifier la Zone",
+          "editAreaButtonLabel": "Modifier la zone sur la carte",
+          "perimeter": "Périmètre: ",
+          "provenanceLabel": "Crée dans EarthRanger {{provenance}}",
+          "staticMapImageAlt": "Carte statique avec le polygone"
+        },
+        "setAreaButtonLabel": {
+          "closed": "Ouvrir le menu de sélection de zone",
+          "create": "Créer une zone sur la carte",
+          "open": "Fermer le menu de sélection de zone"
+        },
+        "textCopyButtonLabel": "Copier la zone GeoJSON dans le presse-papiers"
       },
       "dateLabel": "Date de l'Événement",
       "detailsHeader": "Détails",
+      "errorLoadingSchema": "Erreur lors du chargement du schéma",
       "locationLabel": "Emplacement",
       "priorityLabel": "Priorité",
       "reportedByLabel": "Complété Par",
       "schemaForm": {
         "errors": {
           "collectionItems": "Certains éléments de cette collection contiennent des erreurs dans leurs formulaires internes.",
+          "alphanumericPattern": "Seules les lettres et les chiffres sont autorisés.",
           "dateFormat": "Format de date invalide ou date invalide. Vérifiez le jour, le mois et l'année.",
           "dateTimeFormat": "Format de date et heure invalide ou date invalide. Vérifiez le jour, le mois et l'année.",
           "defaultFormat": "Format invalide.",
+          "defaultPattern": "La valeur ne correspond pas au format requis.",
+          "emailFormat": "Format d'adresse e-mail invalide.",
           "maximum": "Cette valeur doit être inférieure ou égale à {{maximum}}.",
           "maxItems_one": "Cette collection doit contenir au maximum {{count}} élément.",
           "maxItems_other": "Cette collection doit contenir au maximum {{count}} éléments.",
@@ -136,7 +150,9 @@
           "minItems_one": "Cette collection doit contenir au moins {{count}} élément.",
           "minItems_other": "Cette collection doit contenir au moins {{count}} éléments.",
           "required": "Ceci est un champ obligatoire.",
-          "timeFormat": "Format d'heure invalide."
+          "timeFormat": "Format d'heure invalide.",
+          "uriFormat": "Format d'URL invalide.",
+          "uuidFormat": "Format d'UUID invalide."
         },
         "fields": {
           "collection": {
@@ -171,8 +187,12 @@
                 }
               }
             }
+          },
+          "text": {
+            "urlLinkLabel": "Ouvrir l'URL dans un nouvel onglet"
           }
-        }
+        },
+        "validationErrorsAnnouncement": "Il y a des erreurs de validation dans les champs suivants :"
       },
       "stateDropdown": {
         "active": "Actif",

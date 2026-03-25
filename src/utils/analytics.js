@@ -1,6 +1,8 @@
 import { createContext } from 'react';
 import ReactGA4 from 'react-ga4';
 import debounce from 'lodash/debounce';
+import getWindowLocation from './getWindowLocation';
+import { hashString } from './string';
 
 import { CLIENT_BUILD_VERSION } from '../constants';
 
@@ -34,6 +36,7 @@ export const GPS_FORMAT_CATEGORY = 'GPS Format';
 export const ALERTS_CATEGORY = 'Alerts';
 export const FEED_CATEGORY = 'Feed';
 export const BETA_PREVIEW_CATEGORY = 'Beta Preview';
+export const SETTINGS_CATEGORY = 'Settings';
 
 /**
  * Function to emit a GA event.
@@ -84,4 +87,18 @@ export const setSitenameDimension = (site) => {
 
 export const setClientReleaseIdentifier = () => {
   ReactGA4.set({ 'user_properties': { release_identifier: CLIENT_BUILD_VERSION } });
+};
+
+export const createUserAnalyticsData = (user = {}, selectedUserProfile = {}, serverVersion = 'unknown') => {
+  const activeUser = selectedUserProfile.id ? selectedUserProfile : user;
+
+  return {
+    user_role: activeUser.role || 'unknown',
+    organization: getWindowLocation().hostname,
+    user_id_hash: hashString(activeUser.id),
+    is_staff: activeUser.is_staff || false,
+    is_superuser: activeUser.is_superuser || false,
+    client_version: CLIENT_BUILD_VERSION,
+    server_version: serverVersion,
+  };
 };

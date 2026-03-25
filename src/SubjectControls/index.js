@@ -4,12 +4,11 @@ import { useTranslation } from 'react-i18next';
 
 import { addHeatmapSubjects, removeHeatmapSubjects, toggleTrackState } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
-import { canShowTrackForSubject, getSubjectLastPositionCoordinates } from '../utils/subjects';
+import { calcDisplayNameForSubject, canShowTrackForSubject, getSubjectLastPositionCoordinates } from '../utils/subjects';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { MAP_LAYERS_CATEGORY, trackEventFactory } from '../utils/analytics';
-import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import { subjectIsStatic } from '../utils/subjects';
-import { usePermissions } from '../hooks';
+import { useMessagesPermissions } from '../hooks/usePermissions';
 
 // HeatmapToggleButton needs to be imported after TrackToggleButton to work properly (seems like some side effect)
 import TrackToggleButton from '../TrackToggleButton';
@@ -45,7 +44,7 @@ const SubjectControls = ({
   const tracksPinned = useSelector((state) => state.view.subjectTrackState.pinned.includes(subject.id));
   const tracksVisible = useSelector((state) => state.view.subjectTrackState.visible.includes(subject.id));
 
-  const canViewMessages = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.READ);
+  const { hasMessagesReadPermission } = useMessagesPermissions();
 
   const [loadingHeatmap, setHeatmapLoadingState] = useState(false);
   const [loadingTracks, setTrackLoadingState] = useState(false);
@@ -54,7 +53,7 @@ const SubjectControls = ({
   const coordinates = getSubjectLastPositionCoordinates(subject);
   const hasAdditionalDeviceProps = !!subject?.device_status_properties?.length;
   const canShowHistoryButton = showHistoryButton && (subjectIsStatic(subject) ? !!hasAdditionalDeviceProps : true);
-  const isMessageable = !!canViewMessages && !!showMessageButton && !!subject?.messaging?.length;
+  const isMessageable = hasMessagesReadPermission && !!showMessageButton && !!subject?.messaging?.length;
 
   const onTrackButtonClick = async () => {
     setTrackLoadingState(true);
@@ -120,7 +119,7 @@ const SubjectControls = ({
         content: SubjectHistoricalDataModal,
         subjectId: subject.id,
         subjectIsStatic: subjectIsStatic(subject),
-        title: t('historicalDataModalTitle', { subjectName: subject.name }),
+        title: t('historicalDataModalTitle', { subjectName: calcDisplayNameForSubject(subject) }),
       }))}
       showLabel={showLabels}
     />}

@@ -7,8 +7,6 @@
 
   &[aria-invalid="true"] {
     .datePicker {
-      border-color: colors.$bright-red;
-
       > svg {
         color: colors.$bright-red;
       }
@@ -22,24 +20,26 @@
       }
     }
 
-    .timePicker {
+    .datePicker:not(:focus-within) {
       border-color: colors.$bright-red;
-  
-      svg {
-        > g {
-          stroke: colors.$bright-red;
-        }
+    }
+
+    .timePicker {
+      svg > g {
+        stroke: colors.$bright-red;
       }
   
-      .menuButton {
-        .caret {
-          border-top-color: colors.$bright-red;
-        }
+      button div[role="img"] {
+        border-top-color: colors.$bright-red;
       }
   
       ::placeholder {
         color: color.adjust(colors.$bright-red, $lightness: 33%);
       }
+    }
+
+    .timePicker:not(:focus-within) {
+      border-color: colors.$bright-red;
     }
   }
 

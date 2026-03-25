@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useId, useState } from 'react';
 import flatten from 'lodash/flatten';
 import Modal from 'react-bootstrap/Modal';
 import startCase from 'lodash/startCase';
@@ -8,10 +8,12 @@ import unionBy from 'lodash/unionBy';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { calcGpsDisplayString } from '../utils/location';
 import { fetchObservationsForSubject } from '../ducks/observations';
+import { selectCoordinatesRepresentation } from '../selectors/location';
+import useStringifyCoordinates from '../hooks/useStringifyCoordinates';
 
 import DateTime from '../DateTime';
+import IconTooltip from '../IconTooltip';
 import LoadingOverlay from '../LoadingOverlay';
 
 import * as styles from './styles.module.scss';
@@ -49,20 +51,26 @@ const getPageItemNumbers = (pagesCount, activePage) => {
 const ObservationRow = ({ observation, observationProperties, subjectIsStatic }) => {
   const { t } = useTranslation('subjects', { keyPrefix: 'subjectHistoricalDataModal.observationRow' });
 
-  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
+  const coordinatesRepresentation = useSelector(selectCoordinatesRepresentation);
 
-  const locationString = !subjectIsStatic
-    && calcGpsDisplayString(observation.location.latitude, observation.location.longitude, gpsFormat);
+  const observationOutsideBboxTooltipId = useId();
+
+  const {
+    coordinatesString: observationCoordinatesString,
+    outsideRepresentationBbox: observationOutsideRepresentationBbox,
+  } = useStringifyCoordinates(observation.location);
 
   return <tr>
     <td>
-      <DateTime className={styles.dateTime} date={observation.recorded_at}/>
+      <DateTime className={styles.dateTime} date={observation.recorded_at} />
     </td>
 
     {observationProperties.map((property) => {
       const matchedProp = observation.device_status_properties?.find((observationProperty) => observationProperty.label === property);
       if (!matchedProp) {
-        return <span className={styles.noDataLabel} key={property}>{t('noDataLabel')}</span>;
+        return <td key={property}>
+          <span className={styles.noDataLabel} key={property}>{t('noDataLabel')}</span>
+        </td>;
       }
 
       const propertyUnitsLabel = JSON.parse(JSON.stringify(matchedProp.units)) ? ` ${matchedProp.units}` : '';
@@ -72,7 +80,20 @@ const ObservationRow = ({ observation, observationProperties, subjectIsStatic })
       </td>;
     })}
 
-    {!!locationString && <td>{locationString}</td>}
+    {!subjectIsStatic && observationCoordinatesString && <td>
+      <div className={styles.observationCoordinates}>
+        <span aria-describedby={observationOutsideBboxTooltipId}>{observationCoordinatesString}</span>
+
+        {observationOutsideRepresentationBbox && <IconTooltip
+          aria-label={t('observationOutsideBboxTooltipButtonLabel')}
+          id={observationOutsideBboxTooltipId}
+          title={t('observationOutsideBboxTooltipTitle', {
+            crsName: coordinatesRepresentation.name,
+            epsgCode: coordinatesRepresentation.code,
+          })}
+        />}
+      </div>
+    </td>}
   </tr>;
 };
 
@@ -91,6 +112,7 @@ const SubjectHistoricalDataModal = ({ subjectId, subjectIsStatic, title }) => {
 
     dispatch(fetchObservationsForSubject({
       subject_id: subjectId,
+      include_empty_location: true,
       page: activePage,
       page_size: ITEMS_PER_PAGE,
       sort_by: SORT_BY,
@@ -111,7 +133,7 @@ const SubjectHistoricalDataModal = ({ subjectId, subjectIsStatic, title }) => {
     </Modal.Header>
 
     <Modal.Body className={styles.modalBody}>
-      {loading && <LoadingOverlay/>}
+      {loading && <LoadingOverlay />}
 
       <Table bordered hover responsive size="sm">
         <thead>

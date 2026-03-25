@@ -2,7 +2,7 @@ import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useSt
 import { featureCollection } from '@turf/turf';
 import { useSelector } from 'react-redux';
 
-import ClusterIcon from '../common/images/icons/cluster-icon.svg';
+import ClusterIcon from '../common/images/icons/cluster-icon.svg?url';
 
 import { addBounceToEventMapFeatures } from '../utils/events';
 import { addMapImage } from '../utils/map';
@@ -14,7 +14,7 @@ import {
   SOURCE_IDS,
 } from '../constants';
 import { getMapEventSymbolPointsWithVirtualDate } from '../selectors/events';
-import { getShouldEventsBeClustered, getShowReportsOnMap } from '../selectors/clusters';
+import { selectShouldEventsBeClustered } from '../selectors/clusters';
 import { MapContext } from '../App';
 import MapImageFromSvgSpriteRenderer, { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
 import useMapSources from '../hooks/useMapSources';
@@ -70,8 +70,8 @@ const EventsLayer = ({
   const map = useContext(MapContext);
 
   const eventPointFeatureCollection = useSelector(getMapEventSymbolPointsWithVirtualDate);
-  const shouldEventsBeClustered = useSelector(getShouldEventsBeClustered);
-  const showReportsOnMap = useSelector(getShowReportsOnMap);
+  const shouldEventsBeClustered = useSelector(selectShouldEventsBeClustered);
+  const showReportsOnMap = useSelector((state) => state.data.mapLayerFilter.showReportsOnMap);
 
   const animationFrameID = useRef(null);
   const clicking = useRef(false);

@@ -4,15 +4,35 @@ export const fileNameFromPath = path => path.match(/[^\\/]+$/)[0];
 export const uuid = () => uuidv4();
 export const caseInsensitiveCompare = (str1, str2) => str1.toLowerCase() === str2.toLowerCase();
 
+export const getIsValidWebUrl = (string) => {
+  try {
+    const url = new URL(string);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
+
 export const hashCode = (string) => {
   if (string.length === 0) return 0;
 
   const hash = string.split('').reduce((hash, char) => {
-    hash  = ((hash << 5) - hash) + char.charCodeAt(0);
+    hash = ((hash << 5) - hash) + char.charCodeAt(0);
     hash |= 0;
 
     return hash;
   }, 0);
 
   return hash;
+};
+
+export const hashString = (str) => { // String hashing function for anonymization. Differs from hashCode above as hashCode is a numeric hash for map feature idenitification.
+  if (!str) return 'unknown';
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash |= 0; // Coerce to 32-bit integer
+  }
+  return Math.abs(hash).toString(36);
 };

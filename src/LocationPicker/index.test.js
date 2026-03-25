@@ -3,9 +3,13 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { fireEvent, render, screen, waitFor } from '../test-utils';
+import { epsg5367 } from '../__test-helpers/fixtures/location';
+import { createMapMock } from '../__test-helpers/mocks';
 import { GPS_FORMATS } from '../utils/location';
 import useJumpToLocation from '../hooks/useJumpToLocation';
 import { mockStore } from '../__test-helpers/MockStore';
+
+import { MapContext } from '../App';
 
 import LocationPicker from './';
 
@@ -14,13 +18,20 @@ jest.mock('../hooks/useJumpToLocation', () => jest.fn());
 describe('LocationPicker', () => {
   const onChange = jest.fn();
 
+  let map;
+
   let jumpToLocationMock, store;
   beforeEach(() => {
+    map = createMapMock();
     jumpToLocationMock = jest.fn();
     useJumpToLocation.mockImplementation(() => jumpToLocationMock);
 
     store = {
       view: {
+        coordinateReferenceSystems: {
+          selectedCoordinateRepresentations: Object.values(GPS_FORMATS),
+          storedSystems: [],
+        },
         mapLocationSelection: {
           isPickingLocation: false,
         },
@@ -39,7 +50,9 @@ describe('LocationPicker', () => {
 
   const renderLocationPicker = (props, overrideStore) => render(
     <Provider store={mockStore({ ...store, ...overrideStore })}>
-      <LocationPicker data-testid="locationPicker" id="locationPicker" onChange={onChange} value={null} {...props} />
+      <MapContext.Provider value={map}>
+        <LocationPicker data-testid="locationPicker" id="locationPicker" onChange={onChange} value={null} {...props} />
+      </MapContext.Provider>
     </Provider>
   );
 
@@ -141,17 +154,29 @@ describe('LocationPicker', () => {
   test('does not set the location picker as read only', async () => {
     renderLocationPicker();
 
-    expect(screen.getByLabelText('Open the location picker menu to set a value')).not.toHaveClass('readOnly');
-    expect(screen.getByLabelText('Open the location picker menu to set a value')).not.toBeDisabled();
-    expect(screen.getByLabelText('Location')).not.toHaveClass('readOnly');
+    expect(screen.getByTestId('locationPicker')).not.toHaveClass('readOnly');
+
+    const setLocationButton = screen.getByLabelText('Open the location picker menu to set a value');
+
+    expect(setLocationButton).toHaveAttribute('aria-expanded', 'false');
+
+    await userEvent.click(setLocationButton);
+
+    expect(setLocationButton).toHaveAttribute('aria-expanded', 'true');
   });
 
   test('sets the location picker as read only', async () => {
     renderLocationPicker({ readOnly: true });
 
-    expect(screen.getByLabelText('Open the location picker menu to set a value')).toHaveClass('readOnly');
-    expect(screen.getByLabelText('Open the location picker menu to set a value')).toBeDisabled();
-    expect(screen.getByLabelText('Location')).toHaveClass('readOnly');
+    expect(screen.getByTestId('locationPicker')).toHaveClass('readOnly');
+
+    const setLocationButton = screen.getByLabelText('Open the location picker menu to set a value');
+
+    expect(setLocationButton).toHaveAttribute('aria-expanded', 'false');
+
+    await userEvent.click(setLocationButton);
+
+    expect(setLocationButton).toHaveAttribute('aria-expanded', 'false');
   });
 
   test('does not set the location picker as required', async () => {
@@ -182,7 +207,37 @@ describe('LocationPicker', () => {
       },
     });
 
-    expect(screen.getByLabelText('Location')).toHaveValue('15.000000°,  10.000000°');
+    expect(screen.getByLabelText('Location')).toHaveValue('15.000000°, 10.000000°');
+  });
+
+  test('shows the coordinates in DEG format and a warning tooltip if the coordinates representation is a CRS and the value is outside the BBOX', async () => {
+    store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = [
+      GPS_FORMATS.DEG,
+      GPS_FORMATS.UTM,
+      '5367',
+    ];
+    store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
+    store.view.userPreferences.gpsFormat = '5367';
+    renderLocationPicker({
+      value: {
+        latitude: 11.666666,
+        longitude: 10.012657,
+      },
+    });
+
+    const input = screen.getByLabelText('Location');
+    const coordinatesOutsideBboxTooltip = screen.getByTestId('locationPicker-valueOutsideBboxTooltip');
+
+    expect(input).toHaveValue('11.666666°, 10.012657°');
+    expect(input)
+      .toHaveAccessibleDescription('Click the button to set a value from the location picker menu. Location is displayed in DEG format. EPSG:5367 CR05 / CRTM05 is not supported at this location.');
+    expect(coordinatesOutsideBboxTooltip).toBeVisible();
+
+    await userEvent.hover(coordinatesOutsideBboxTooltip);
+
+    expect(screen.getByRole('tooltip', {
+      name: 'Location is displayed in DEG format. EPSG:5367 CR05 / CRTM05 is not supported at this location.',
+    })).toBeVisible();
   });
 
   test('does not show a text copy button if there is no value yet', async () => {
@@ -261,7 +316,7 @@ describe('LocationPicker', () => {
 
     await userEvent.click(setLocationButton);
 
-    expect(screen.getByRole('presentation')).toBeVisible();
+    expect(screen.getByRole('dialog')).toBeVisible();
     expect(setLocationButton).toHaveAttribute('aria-expanded', 'true');
   });
 
@@ -270,7 +325,7 @@ describe('LocationPicker', () => {
 
     const setLocationButton = screen.getByLabelText('Open the location picker menu to set a value');
     await userEvent.click(setLocationButton);
-    const menuPopover = screen.getByRole('presentation');
+    const menuPopover = screen.getByRole('dialog');
 
     expect(menuPopover).toBeVisible();
     expect(setLocationButton).toHaveAttribute('aria-expanded', 'true');

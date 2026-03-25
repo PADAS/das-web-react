@@ -1,10 +1,13 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Button from 'react-bootstrap/Button';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
 
+import { areCardsEquals } from '../utils';
 import { isGreaterThan } from '../../utils/datetime';
+import { SYSTEM_CONFIG_FLAGS } from '../../constants';
 import { TrackerContext } from '../../utils/analytics';
 import { useSortedNodesWithToggleBtn } from '../../hooks/useSortedNodes';
 
@@ -14,7 +17,6 @@ import DateListItem from './DateListItem';
 import NoteListItem from './NoteListItem';
 
 import * as styles from './styles.module.scss';
-import { areCardsEquals } from '../utils';
 
 const ATTACHMENT_ANALYTICS_SUBSTRING = 'attachment';
 const CONTAINED_REPORT_ANALYTICS_SUBSTRING = 'contained report';
@@ -38,6 +40,8 @@ const ActivitySection = ({
 }) => {
   const tracker = useContext(TrackerContext);
   const { t } = useTranslation('details-view', { keyPrefix: 'activitySection' });
+
+  const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
 
   const [cardsExpanded, setCardsExpanded] = useState([]);
 
@@ -84,16 +88,18 @@ const ActivitySection = ({
     />,
   })), [attachmentsToAdd, onDeleteAttachment]);
 
-  const containedReportsRendered = useMemo(() => containedReports.map((containedReport) => ({
-    sortDate: new Date(containedReport.time || containedReport.updated_at),
-    node: <ContainedReportListItem
-      cardsExpanded={cardsExpanded}
-      key={containedReport.id}
-      onCollapse={() => onCollapseCard(containedReport, CONTAINED_REPORT_ANALYTICS_SUBSTRING)}
-      onExpand={() => onExpandCard(containedReport, CONTAINED_REPORT_ANALYTICS_SUBSTRING)}
-      report={containedReport}
-    />,
-  })), [cardsExpanded, containedReports, onCollapseCard, onExpandCard]);
+  const containedReportsRendered = useMemo(() => eventsEnabled
+    ? containedReports.map((containedReport) => ({
+      sortDate: new Date(containedReport.time || containedReport.updated_at),
+      node: <ContainedReportListItem
+        cardsExpanded={cardsExpanded}
+        key={containedReport.id}
+        onCollapse={() => onCollapseCard(containedReport, CONTAINED_REPORT_ANALYTICS_SUBSTRING)}
+        onExpand={() => onExpandCard(containedReport, CONTAINED_REPORT_ANALYTICS_SUBSTRING)}
+        report={containedReport}
+      />,
+    }))
+    : [], [cardsExpanded, containedReports, eventsEnabled, onCollapseCard, onExpandCard]);
 
   const datesRendered = useMemo(() => {
     const dates = [];

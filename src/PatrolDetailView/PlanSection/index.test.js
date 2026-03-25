@@ -44,6 +44,10 @@ const store = {
   ...patrolDefaultStoreData,
   view: {
     ...patrolDefaultStoreData.view,
+    coordinateReferenceSystems: {
+      selectedCoordinateRepresentations: Object.values(GPS_FORMATS),
+      storedSystems: [],
+    },
     mapLocationSelection: { isPickingLocation: false },
     userPreferences: { gpsFormat: GPS_FORMATS.DEG },
   },
@@ -179,8 +183,7 @@ describe('PatrolDetailView - PlanSection', () => {
     const startDatePicker = await screen.findByTestId('patrolDetailView-planSection-startDatePicker');
     const startDatePickerOpenCalendarButton = await within(startDatePicker).findByLabelText('Open calendar');
     await userEvent.click(startDatePickerOpenCalendarButton);
-    const options = await screen.findAllByRole('option');
-    await userEvent.click(options[25]);
+    await userEvent.click(screen.getByRole('gridcell', { name: 'Choose Friday, January 28th, 2022' }));
 
     expect(onPatrolStartDateChange).toHaveBeenCalled();
   });
@@ -218,8 +221,7 @@ describe('PatrolDetailView - PlanSection', () => {
     const endDatePicker = await screen.findByTestId('patrolDetailView-planSection-endDatePicker');
     const endDatePickerOpenCalendarButton = await within(endDatePicker).findByLabelText('Open calendar');
     await userEvent.click(endDatePickerOpenCalendarButton);
-    const options = await screen.findAllByRole('option');
-    await userEvent.click(options[25]);
+    await userEvent.click(screen.getByRole('gridcell', { name: 'Choose Friday, January 28th, 2022' }));
 
     expect(onPatrolEndDateChange).toHaveBeenCalled();
   });

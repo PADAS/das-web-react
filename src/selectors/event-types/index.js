@@ -8,21 +8,29 @@ const selectPatrolTypes = (state) => state.data.patrolTypes;
 
 export const selectCreatableEventTypesByCategory = createSelector(
   [selectEventCategories, selectEventTypes],
-  (eventCategories, eventTypes) => mapEventTypesToCategories(eventTypes, eventCategories)
-    // Filter out the event categories for which the user don't have the create permission.
-    .filter((eventCategory) => {
-      if (eventCategory.flag) {
-        return eventCategory.flag === 'user' ? eventCategory.permissions.includes('create') : false;
+  (eventCategories, eventTypes) => {
+    // Map the event types to categories.
+    const categories = mapEventTypesToCategories(eventTypes, eventCategories);
+
+    // Filter the creatable event types of each category.
+    const creatableEventTypesByCategory = [];
+    categories.forEach((category) => {
+      if (!category.flag || (category.flag === 'user' && category.permissions.includes('create'))) {
+        // User can create event types in this category. Filter out the event
+        // types that are collections or readonly.
+        const creatableEventTypes = category.types.filter(
+          (eventType) => !eventType.is_collection && !eventType.readonly
+        );
+
+        if (creatableEventTypes.length > 0) {
+          // The category has creatable event types, add it to the result.
+          creatableEventTypesByCategory.push({ ...category, types: creatableEventTypes });
+        }
       }
-      return true;
-    })
-    // Filter out the event types that are collections or that are readonly.
-    .map((eventCategory) => ({
-      ...eventCategory,
-      types: eventCategory.types.filter((eventType) => !eventType.is_collection && !eventType.readonly),
-    }))
-    // And filter out the event categories where no event types passed the filters.
-    .filter((eventCategory) => !!eventCategory.types.length)
+    });
+
+    return creatableEventTypesByCategory;
+  }
 );
 
 export const selectDisplayEventTypes = createSelector(

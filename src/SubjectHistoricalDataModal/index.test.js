@@ -9,6 +9,7 @@ import { mockStore } from '../__test-helpers/MockStore';
 import { GPS_FORMATS } from '../utils/location';
 import mockedObservationsData from '../__test-helpers/fixtures/observations';
 import { render, waitFor, screen } from '../test-utils';
+import { epsg5367 } from '../__test-helpers/fixtures/location';
 
 import SubjectHistoricalDataModal, { ITEMS_PER_PAGE, getObservationUniqProperties, SORT_BY } from './';
 
@@ -17,24 +18,40 @@ jest.mock('../ducks/observations', () => ({
   fetchObservationsForSubject: jest.fn(),
 }));
 
-const store = mockStore({ data: {}, view: { userPreferences: { gpsFormat: GPS_FORMATS.DEG } } });
-
 describe('SubjectHistoricalDataModal', () => {
-  let fetchObservationsForSubjectMock;
+  let fetchObservationsForSubjectMock, store;
   beforeEach(() => {
     fetchObservationsForSubjectMock = jest.fn(() => () => Promise.resolve({
       count: 16,
       results: mockedObservationsData
     }));
     fetchObservationsForSubject.mockImplementation(fetchObservationsForSubjectMock);
+
+    store = {
+      data: {},
+      view: {
+        coordinateReferenceSystems: {
+          storedSystems: [],
+        },
+        userPreferences: {
+          gpsFormat: GPS_FORMATS.DEG,
+        },
+      },
+    };
   });
 
   test('fetching observations on render', async () => {
-    render(<Provider store={store}>
+    render(<Provider store={mockStore(store)}>
       <SubjectHistoricalDataModal title='Historical data' subjectId='fake-id' fetchObservationsForSubject/>
     </Provider>);
 
-    expect(fetchObservationsForSubject).toHaveBeenCalledWith({ 'page': 1, 'page_size': ITEMS_PER_PAGE, 'subject_id': 'fake-id', sort_by: SORT_BY });
+    expect(fetchObservationsForSubject).toHaveBeenCalledWith({
+      include_empty_location: true,
+      page: 1,
+      page_size: ITEMS_PER_PAGE,
+      subject_id: 'fake-id',
+      sort_by: SORT_BY,
+    });
   });
 
   describe('rendering table correctly', () => {
@@ -44,7 +61,7 @@ describe('SubjectHistoricalDataModal', () => {
     });
 
     test('rendering table cells matched with property header', async () => {
-      render(<Provider store={store}>
+      render(<Provider store={mockStore(store)}>
         <SubjectHistoricalDataModal title='Historical data' subjectId='fake-id' fetchObservationsForSubject/>
       </Provider>);
 
@@ -60,10 +77,26 @@ describe('SubjectHistoricalDataModal', () => {
       expect(tableHeaders[3].childNodes[0]).toHaveTextContent('Location');
       expect(tableCells[3].childNodes[0]).toHaveTextContent('20.701133°, -103.572941°');
     });
+
+    test('renders the location in DEG if the coordinates fall outside the BBOX of the current representation and shows a warning tooltip', async () => {
+      store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
+      store.view.userPreferences.gpsFormat = '5367';
+      render(<Provider store={mockStore(store)}>
+        <SubjectHistoricalDataModal title='Historical data' subjectId='fake-id' fetchObservationsForSubject/>
+      </Provider>);
+
+      const tableCells = await screen.findAllByRole('cell');
+      const tableHeaders = await screen.findAllByRole('columnheader');
+      const locationCell = within(tableCells[3].childNodes[0]).getByText('20.701133°, -103.572941°');
+
+      expect(tableHeaders[3].childNodes[0]).toHaveTextContent('Location');
+      expect(locationCell).toHaveAccessibleDescription('Location is displayed in DEG format. EPSG:5367 CR05 / CRTM05 is not supported at this location.');
+    });
   });
+
   describe('pagination', () => {
     test('should show pagination if has as total more than items per page', async () => {
-      render(<Provider store={store}>
+      render(<Provider store={mockStore(store)}>
         <SubjectHistoricalDataModal title='Historical data' subjectId='fake-id' fetchObservationsForSubject/>
       </Provider>);
 
@@ -82,7 +115,7 @@ describe('SubjectHistoricalDataModal', () => {
       }));
       fetchObservationsForSubject.mockImplementation(fetchObservationsForSubjectMock);
 
-      render(<Provider store={store}>
+      render(<Provider store={mockStore(store)}>
         <SubjectHistoricalDataModal title='Historical data' subjectId='fake-id' fetchObservationsForSubject/>
       </Provider>);
 
@@ -96,11 +129,17 @@ describe('SubjectHistoricalDataModal', () => {
     test('clicking in page should fetch observations again', async () => {
       let paginationListItems, pageLink;
 
-      render(<Provider store={store}>
+      render(<Provider store={mockStore(store)}>
         <SubjectHistoricalDataModal title='Historical data' subjectId='fake-id' fetchObservationsForSubject/>
       </Provider>);
 
-      expect(fetchObservationsForSubject).toHaveBeenCalledWith({ 'page': 1, 'page_size': ITEMS_PER_PAGE, 'subject_id': 'fake-id', sort_by: SORT_BY });
+      expect(fetchObservationsForSubject).toHaveBeenCalledWith({
+        include_empty_location: true,
+        page: 1,
+        page_size: ITEMS_PER_PAGE,
+        subject_id: 'fake-id',
+        sort_by: SORT_BY,
+      });
 
       await waitFor(() => {
         paginationListItems = screen.getAllByRole('listitem');
@@ -110,7 +149,13 @@ describe('SubjectHistoricalDataModal', () => {
       expect(pageLink).toHaveTextContent('2');
       await userEvent.click(pageLink);
 
-      expect(fetchObservationsForSubject).toHaveBeenCalledWith({ 'page': 2, 'page_size': ITEMS_PER_PAGE, 'subject_id': 'fake-id', sort_by: SORT_BY });
+      expect(fetchObservationsForSubject).toHaveBeenCalledWith({
+        include_empty_location: true,
+        page: 2,
+        page_size: ITEMS_PER_PAGE,
+        subject_id: 'fake-id',
+        sort_by: SORT_BY,
+      });
     });
   });
 });

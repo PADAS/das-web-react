@@ -8,33 +8,16 @@ import { MapContext } from '../App';
 
 import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 
-export const useSystemConfigFlag = (flag) => useSelector((state) => !!state?.view?.systemConfig?.[flag]);
-
 export const useFeatureFlag = (flagName) => {
-  const featureFlagOverrides = useSelector(state =>
-    state.view.featureFlagOverrides
-  );
+  const experimentalFeatures = useSelector((state) => state.view.experimentalFeatures) || {};
 
   if (!DEVELOPMENT_FEATURE_FLAGS.hasOwnProperty(flagName)) {
     throw new Error('no feature flag with that name exists');
   }
 
-  return featureFlagOverrides.hasOwnProperty(flagName)
-    ? featureFlagOverrides[flagName].value
-    : DEVELOPMENT_FEATURE_FLAGS[flagName];
-};
-
-
-export const usePermissions = (permissionKey, ...permissions) => {
-  const permissionSet = useSelector(state => {
-    const permissionsSource = state.data.selectedUserProfile?.id ? state.data.selectedUserProfile : state.data.user;
-
-    return permissionsSource?.permissions?.[permissionKey];
-  }
-  )
-    || [];
-
-  return permissions.every(item => permissionSet.includes(item));
+  // Experimental features reducer properties override the systems development
+  // feature flags.
+  return flagName in experimentalFeatures ? experimentalFeatures[flagName] : DEVELOPMENT_FEATURE_FLAGS[flagName];
 };
 
 export const useMatchMedia = (matchMediaDef) => {

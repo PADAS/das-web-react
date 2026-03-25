@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { fireEvent, render, screen } from '../../../../../../../../test-utils';
-import { FORM_ELEMENT_TYPES } from '../../../../../constants';
+import { FORM_ELEMENT_TYPES } from '../../../../../../../../utils/v2-event-schemas/constants';
 import { GPS_FORMATS } from '../../../../../../../../utils/location';
 import { mockStore } from '../../../../../../../../__test-helpers/MockStore';
 import useJumpToLocation from '../../../../../../../../hooks/useJumpToLocation';
@@ -23,6 +23,9 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
 
     store = {
       view: {
+        coordinateReferenceSystems: {
+          storedSystems: [],
+        },
         userPreferences: {
           gpsFormat: GPS_FORMATS.DEG,
         },
@@ -36,7 +39,9 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         blurLocationMarker={blurLocationMarker}
         errors={undefined}
         fieldIds={['field-1', 'field-2']}
-        fields={{
+        focusLocationMarker={focusLocationMarker}
+        formData={{ 'field-1': 'Value 1', 'field-2': 'Value 2' }}
+        formElements={{
           'field-1': {
             details: {
               label: 'Field 1',
@@ -50,8 +55,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
             type: FORM_ELEMENT_TYPES.TEXT,
           },
         }}
-        focusLocationMarker={focusLocationMarker}
-        formData={{ 'field-1': 'Value 1', 'field-2': 'Value 2' }}
         isDragOverlay={false}
         {...props}
       />
@@ -103,7 +106,8 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
   test('shows a jump to location button for location fields with values', async () => {
     renderFormPreview({
       fieldIds: ['field-1', 'field-2'],
-      fields: {
+      formData: { 'field-1': 'Value 1', 'field-2': { latitude: 10, longitude: 10 } },
+      formElements: {
         'field-1': {
           details: {
             label: 'Field 1',
@@ -117,7 +121,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
           type: FORM_ELEMENT_TYPES.LOCATION,
         },
       },
-      formData: { 'field-1': 'Value 1', 'field-2': { latitude: 10, longitude: 10 } },
     });
 
     expect(screen.getByLabelText('Jump to Field 2 location')).toBeVisible();
@@ -132,7 +135,8 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
   test('does not show a jump to location button for location fields without values', async () => {
     renderFormPreview({
       fieldIds: ['field-1', 'field-2'],
-      fields: {
+      formData: { 'field-1': 'Value 1' },
+      formElements: {
         'field-1': {
           details: {
             label: 'Field 1',
@@ -146,7 +150,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
           type: FORM_ELEMENT_TYPES.LOCATION,
         },
       },
-      formData: { 'field-1': 'Value 1' },
     });
 
     expect(screen.queryByLabelText('Jump to Field 2 location')).toBeNull();
@@ -155,7 +158,8 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
   test('jumps to the location of a location field when clicking the button and focuses its marker', async () => {
     renderFormPreview({
       fieldIds: ['field-1', 'field-2'],
-      fields: {
+      formData: { 'field-1': 'Value 1', 'field-2': { latitude: 10, longitude: 10 } },
+      formElements: {
         'field-1': {
           details: {
             label: 'Field 1',
@@ -169,7 +173,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
           type: FORM_ELEMENT_TYPES.LOCATION,
         },
       },
-      formData: { 'field-1': 'Value 1', 'field-2': { latitude: 10, longitude: 10 } },
     });
 
     expect(jumpToLocationMock).not.toHaveBeenCalled();
@@ -186,7 +189,8 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
   test('does neither jump to the location of a location field when clicking the button nor focuses its marker if its a drag overlay', async () => {
     renderFormPreview({
       fieldIds: ['field-1', 'field-2'],
-      fields: {
+      formData: { 'field-1': 'Value 1', 'field-2': { latitude: 10, longitude: 10 } },
+      formElements: {
         'field-1': {
           details: {
             label: 'Field 1',
@@ -200,7 +204,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
           type: FORM_ELEMENT_TYPES.LOCATION,
         },
       },
-      formData: { 'field-1': 'Value 1', 'field-2': { latitude: 10, longitude: 10 } },
       isDragOverlay: true,
     });
 
@@ -213,7 +216,8 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
   test('blurs the location marker when the jump to location button is blurred', async () => {
     renderFormPreview({
       fieldIds: ['field-1', 'field-2'],
-      fields: {
+      formData: { 'field-1': 'Value 1', 'field-2': { latitude: 10, longitude: 10 } },
+      formElements: {
         'field-1': {
           details: {
             label: 'Field 1',
@@ -227,7 +231,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
           type: FORM_ELEMENT_TYPES.LOCATION,
         },
       },
-      formData: { 'field-1': 'Value 1', 'field-2': { latitude: 10, longitude: 10 } },
     });
 
     await userEvent.click(screen.getByLabelText('Jump to Field 2 location'));

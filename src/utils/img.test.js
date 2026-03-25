@@ -1,4 +1,4 @@
-import { imgElFromSrc, calcImgIdFromUrlForMapImages, calcUrlForImage, registerActiveURL } from './img';
+import { imgElFromSrc, calcImgIdFromUrlForMapImages, calcUrlForImage, ImageCache } from './img';
 
 global.URL.createObjectURL = jest.fn();
 global.URL.revokeObjectURL = jest.fn();
@@ -208,6 +208,216 @@ describe('img utility functions', () => {
         expect(mapDeleteSpy).toHaveBeenCalled();
 
         mapDeleteSpy.mockRestore();
+      });
+    });
+  });
+
+  describe('ImageCache', () => {
+    let cache;
+
+    beforeEach(() => {
+      // Reset singleton instance before each test
+      ImageCache.instance = null;
+      cache = ImageCache.getInstance();
+    });
+
+    afterEach(() => {
+      // Clean up singleton instance after each test
+      if (cache) {
+        cache.clear();
+      }
+      ImageCache.instance = null;
+    });
+
+    describe('singleton pattern', () => {
+      it('should return the same instance when called multiple times', () => {
+        const instance1 = ImageCache.getInstance();
+        const instance2 = ImageCache.getInstance();
+
+        expect(instance1).toBe(instance2);
+        expect(instance1).toBe(cache);
+      });
+
+      it('should create a new instance when existing instance is cleared', () => {
+        const firstInstance = ImageCache.getInstance();
+        ImageCache.instance = null;
+        const secondInstance = ImageCache.getInstance();
+
+        expect(firstInstance).not.toBe(secondInstance);
+      });
+    });
+
+    describe('cache key generation', () => {
+      it('should generate consistent cache keys for same parameters', () => {
+        const key1 = cache.generateCacheKey('test.jpg', 100, 200);
+        const key2 = cache.generateCacheKey('test.jpg', 100, 200);
+
+        expect(key1).toBe(key2);
+        expect(key1).toBe('test.jpg:100:200');
+      });
+
+      it('should handle null and undefined values correctly', () => {
+        const keyWithNull = cache.generateCacheKey('test.jpg', null, undefined);
+        expect(keyWithNull).toBe('test.jpg:null:undefined');
+      });
+
+      it('should generate different keys for different parameters', () => {
+        const key1 = cache.generateCacheKey('test.jpg', 100, 200);
+        const key2 = cache.generateCacheKey('test.jpg', 150, 200);
+        const key3 = cache.generateCacheKey('other.jpg', 100, 200);
+
+        expect(key1).not.toBe(key2);
+        expect(key1).not.toBe(key3);
+        expect(key2).not.toBe(key3);
+      });
+    });
+
+    describe('failure tracking', () => {
+      const testKey = 'test-failure-key';
+
+      it('should start with zero failures for new keys', () => {
+        expect(cache.getFailureCount(testKey)).toBe(0);
+        expect(cache.hasExceededMaxFailures(testKey)).toBe(false);
+      });
+
+      it('should increment failure count correctly', () => {
+        expect(cache.incrementFailureCount(testKey)).toBe(1);
+        expect(cache.getFailureCount(testKey)).toBe(1);
+
+        expect(cache.incrementFailureCount(testKey)).toBe(2);
+        expect(cache.getFailureCount(testKey)).toBe(2);
+      });
+
+      it('should detect when max failures exceeded', () => {
+        // Default maxFailures is 3
+        cache.incrementFailureCount(testKey); // 1
+        cache.incrementFailureCount(testKey); // 2
+        expect(cache.hasExceededMaxFailures(testKey)).toBe(false);
+
+        cache.incrementFailureCount(testKey); // 3
+        expect(cache.hasExceededMaxFailures(testKey)).toBe(true);
+      });
+
+      it('should clear failure count', () => {
+        cache.incrementFailureCount(testKey);
+        cache.incrementFailureCount(testKey);
+        expect(cache.getFailureCount(testKey)).toBe(2);
+
+        cache.clearFailureCount(testKey);
+        expect(cache.getFailureCount(testKey)).toBe(0);
+      });
+    });
+
+    describe('image cache operations', () => {
+      const testKey = 'test-image-key';
+      const testPromise = Promise.resolve(new Image());
+
+      it('should store and retrieve cached promises', () => {
+        expect(cache.has(testKey)).toBe(false);
+        expect(cache.get(testKey)).toBeUndefined();
+
+        cache.set(testKey, testPromise);
+
+        expect(cache.has(testKey)).toBe(true);
+        expect(cache.get(testKey)).toBe(testPromise);
+      });
+
+      it('should delete cached entries', () => {
+        cache.set(testKey, testPromise);
+        expect(cache.has(testKey)).toBe(true);
+
+        cache.delete(testKey);
+        expect(cache.has(testKey)).toBe(false);
+      });
+
+      it('should clear all cached entries', () => {
+        cache.set('key1', testPromise);
+        cache.set('key2', testPromise);
+        cache.incrementFailureCount('failed-key');
+
+        expect(cache.has('key1')).toBe(true);
+        expect(cache.has('key2')).toBe(true);
+        expect(cache.getFailureCount('failed-key')).toBe(1);
+
+        cache.clear();
+
+        expect(cache.has('key1')).toBe(false);
+        expect(cache.has('key2')).toBe(false);
+        expect(cache.getFailureCount('failed-key')).toBe(0);
+      });
+    });
+
+    describe('cache statistics', () => {
+      it('should return accurate statistics', () => {
+        const stats = cache.getStats();
+
+        expect(stats.cachedImages).toBe(0);
+        expect(stats.failedImages).toBe(0);
+        expect(stats.failures).toEqual([]);
+      });
+
+      it('should track cached images count', () => {
+        cache.set('image1', Promise.resolve());
+        cache.set('image2', Promise.resolve());
+
+        const stats = cache.getStats();
+        expect(stats.cachedImages).toBe(2);
+      });
+
+      it('should track failed images and failure details', () => {
+        cache.incrementFailureCount('failed1');
+        cache.incrementFailureCount('failed1'); // 2 failures
+        cache.incrementFailureCount('failed2'); // 1 failure
+
+        const stats = cache.getStats();
+        expect(stats.failedImages).toBe(2);
+        expect(stats.failures).toEqual([
+          ['failed1', 2],
+          ['failed2', 1]
+        ]);
+      });
+
+      it('should provide comprehensive statistics', () => {
+        // Add some cached images
+        cache.set('cached1', Promise.resolve());
+        cache.set('cached2', Promise.resolve());
+
+        // Add some failures
+        cache.incrementFailureCount('failed1');
+        cache.incrementFailureCount('failed2');
+        cache.incrementFailureCount('failed2');
+
+        const stats = cache.getStats();
+
+        expect(stats.cachedImages).toBe(2);
+        expect(stats.failedImages).toBe(2);
+        expect(stats.failures).toHaveLength(2);
+        expect(stats.failures).toContainEqual(['failed1', 1]);
+        expect(stats.failures).toContainEqual(['failed2', 2]);
+      });
+    });
+
+    describe('integration with cache operations', () => {
+      it('should handle mixed operations correctly', () => {
+        const cacheKey = cache.generateCacheKey('test.jpg', 100, 200);
+
+        // Test failure tracking
+        cache.incrementFailureCount(cacheKey);
+        expect(cache.hasExceededMaxFailures(cacheKey)).toBe(false);
+
+        // Test successful caching
+        const testPromise = Promise.resolve(new Image());
+        cache.set(cacheKey, testPromise);
+        expect(cache.get(cacheKey)).toBe(testPromise);
+
+        // Clear failure on success
+        cache.clearFailureCount(cacheKey);
+        expect(cache.getFailureCount(cacheKey)).toBe(0);
+
+        // Verify stats
+        const stats = cache.getStats();
+        expect(stats.cachedImages).toBe(1);
+        expect(stats.failedImages).toBe(0);
       });
     });
   });

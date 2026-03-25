@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useState } from 'react';
 import { format, isValid, parseISO } from 'date-fns';
 
-import { DATE_TIME_ELEMENT_INPUT_TYPES } from '../../constants';
+import { DATE_TIME_ELEMENT_INPUT_TYPES } from '../../../../../utils/v2-event-schemas/constants';
 
 import DatePicker, { isValidDate, EMPTY_DATE_VALUE } from '../../../../../DatePicker';
 import DateTimePicker, { EMPTY_DATE_TIME_VALUE } from '../../../../../DateTimePicker';
@@ -66,14 +66,12 @@ const INPUTS = {
   [DATE_TIME_ELEMENT_INPUT_TYPES.TIME]: TimeInput,
 };
 
-const DateTime = ({ autofillDefaultInput: _autofillDefaultInput, details, error, id, onFieldChange, value = '' }) => {
+const DateTime = ({ details, error, id, onFieldChange, readOnly, value = '' }) => {
   const [hasTimezoneBeenCorrected, setHasTimezoneBeenCorrected] = useState(false);
 
   const Input = INPUTS[details.inputType];
 
   const hasError = !!error;
-  const hasDescription = !!details.description && !hasError;
-  const label = details.isRequired ? `${details.label} *` : details.label;
 
   // Date-time and time input types have a timezone offset, so we correct the input value to the current user timezone
   // before rendering it.
@@ -94,6 +92,7 @@ const DateTime = ({ autofillDefaultInput: _autofillDefaultInput, details, error,
       }
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHasTimezoneBeenCorrected(true);
   }, [details.inputType, hasTimezoneBeenCorrected, id, onFieldChange, value]);
 
@@ -102,27 +101,29 @@ const DateTime = ({ autofillDefaultInput: _autofillDefaultInput, details, error,
       data-testid={`schema-form-date-time-field-${id}`}
     >
     <label className={`${styles.label} ${hasError ? styles.error : ''}`}>
-      {label}
+      {details.label}
+
+      {details.isRequired && <span aria-hidden="true"> *</span>}
 
       <Input
-        aria-describedby={hasDescription ? `${id}-description`: undefined}
+        aria-describedby={`${id}-description`}
         aria-errormessage={hasError ? `${id}-description` : undefined}
-        aria-invalid={hasError}
+        aria-invalid={hasError ? 'true' : 'false'}
         aria-required={details.isRequired}
         data-testid={`schemaForm-field-dateTime-${id}`}
         id={id}
         onChange={(value) => onFieldChange(id, value)}
+        readOnly={readOnly}
         value={value}
       />
     </label>
 
-    {(hasDescription || hasError) && <p
-      aria-live={hasError ? 'assertive' : 'off'}
+    <p
       className={`${styles.description} ${hasError ? styles.error : ''}`}
       id={`${id}-description`}
     >
       {error?.message || details.description}
-    </p>}
+    </p>
   </div> : null;
 };
 

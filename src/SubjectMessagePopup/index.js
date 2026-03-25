@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 
 import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
 
-import { getSubjectLastPositionCoordinates } from '../utils/subjects';
+import { calcDisplayNameForSubject, getSubjectLastPositionCoordinates } from '../utils/subjects';
 import useJumpToLocation from '../hooks/useJumpToLocation';
 
 import DateTime from '../DateTime';
@@ -14,18 +14,14 @@ const SubjectMessagePopup = ({ data }) => {
   const { subject, message } = data;
   return <>
     <h6 onClick={() => jumpToLocation(getSubjectLastPositionCoordinates(subject))}>
-      <ChatIcon /> {subject.name}
+      <ChatIcon /> {calcDisplayNameForSubject(subject)}
     </h6>
 
     <p style={{ marginBottom: '0.25rem' }}>{message.text}</p>
 
     <DateTime date={message.message_time} />
 
-    <GpsFormatToggle
-      lat={message.device_location.latitude}
-      lng={message.device_location.longitude}
-      name="subjectMessagePopup-gpsFormatToggle"
-    />
+    <GpsFormatToggle lngLat={message.device_location} name="subjectMessagePopup-gpsFormatToggle" />
   </>;
 };
 

@@ -3,11 +3,6 @@
     "iframeBottomMessage": "Kila mtumiaji wa EarthRanger anaweza kupokea hadi arifa 20 kwa siku.",
     "iframeTitle": "Sanidi arifa zako za EarthRanger"
   },
-  "betaToggles": {
-    "playSoundForAlarmRadioState": "Cheza sauti na onyesha arifa wakati hali ya redio inabadilika kuwa nyekundu (kengele)",
-    "playSoundForNewInReachMessage": "Cheza sauti kwa ujumbe mpya wa inReach",
-    "reportNotification": "Cheza sauti kwa matukio mapya"
-  },
   "dailyReportModal": {
     "dataExportModalTitle": "Ripoti ya Kila Siku",
     "todaysReportButton": "Ripoti ya Leo",
@@ -38,6 +33,11 @@
       "content": "Matukio yaliyonakiliwa yatajumuisha tu yale yanayolingana na vigezo vya uchujaji vilivyowekwa kwa sasa kwenye kichupo cha Matukio.",
       "title": "Matukio ya Uwanja"
     },
+    "ecoscopeAnalysisLinkAriaLabel": "Uchambuzi na Ecoscope",
+    "ecoscopeAnalysisLink": "Uchambuzi",
+    "ecoscopeDownloaderLinkAriaLabel": "Upakuaji wa Ecoscope",
+    "ecoscopeDownloaderLink": "Pakua",
+    "ecoscopeHeading": "ECOSCOPE",
     "footer": {
       "clientVersion": "Toleo la Wavuti: {{version}}",
       "copyright": "©{{year}} EarthRanger",
@@ -46,6 +46,7 @@
       "serverVersion": "Toleo la Seva: {{version}}",
       "websitePrivacyPolicyLink": "Sera ya Faragha ya Wavuti"
     },
+    "header": "Menyu Kuu",
     "helpCenterButton": "Kituo cha Msaada",
     "masterKMLModal": {
       "title": "KML ya Somo"

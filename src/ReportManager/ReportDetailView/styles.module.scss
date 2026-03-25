@@ -11,36 +11,10 @@
   @media (min-width: $md-layout-width-min) {
     width: 46rem;
   }
-
-  &.readonly {
-    [class*=fieldLabel] {
-      * {
-        color: $primary-font-color;
-        pointer-events: none;
-        &:focus {
-          box-shadow: none;
-          outline: none;
-        }
-      }
-      div, input {
-        background-color: $disabled-field-gray;
-      }
-    }
-  }
 }
 
 .loadingOverlay {
   z-index: 6;
-}
-
-.printLogo {
-  display: none;
-  height: 1.25rem;
-  margin: 0.75rem;
-
-  @media print {
-    display: block;
-  }
 }
 
 .body {

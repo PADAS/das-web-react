@@ -9,7 +9,9 @@ import { ReactComponent as GripDotsVerticalIcon } from '../../../../../../../com
 import { ReactComponent as PencilIcon } from '../../../../../../../common/images/icons/pencil.svg';
 import { ReactComponent as TrashCanIcon } from '../../../../../../../common/images/icons/trash-can.svg';
 
+import getDefaultFormData from '../../../../utils/getDefaultFormData';
 import { getItemTitle } from './utils';
+import { selectCoordinatesRepresentation } from '../../../../../../../selectors/location';
 
 import FormModal from './FormModal';
 import FormPreview from './FormPreview';
@@ -21,9 +23,9 @@ const Item = ({
   breadcrumbs = null,
   collectionDetails,
   errors,
-  fields,
   focusLocationMarker = null,
   formData,
+  formElements,
   id,
   index = null,
   isDragging = false,
@@ -33,6 +35,7 @@ const Item = ({
   isFormPreviewOpen,
   onChange = null,
   onDelete = null,
+  readOnly,
   ref,
   renderField = null,
   setIsFormModalOpen = null,
@@ -43,7 +46,7 @@ const Item = ({
     keyPrefix: 'reportManager.detailsSection.schemaForm.fields.collection.sortableList.item',
   });
 
-  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
+  const coordinatesRepresentation = useSelector(selectCoordinatesRepresentation);
 
   // We use these variables to store the initial errors and form data so we can restore those values if the user does
   // changes and then clicks the cancel button.
@@ -56,9 +59,9 @@ const Item = ({
     formData,
     collectionDetails.itemIdentifier,
     `${collectionDetails.itemName} ${id + 1}`,
-    fields[collectionDetails.itemIdentifier],
+    formElements[collectionDetails.itemIdentifier],
     i18n.language,
-    gpsFormat,
+    coordinatesRepresentation,
     t
   );
 
@@ -93,7 +96,7 @@ const Item = ({
   };
 
   const onDeleteItem = () => {
-    onDelete(shouldDeleteOnCancelRef.current);
+    onDelete();
     setIsFormModalOpen(false);
   };
 
@@ -110,6 +113,19 @@ const Item = ({
     setIsFormModalOpen(false);
     shouldDeleteOnCancelRef.current = false;
   };
+
+  useEffect(() => {
+    if (wasItemRecentlyAdded && !isDragOverlay) {
+      // This is a new item and it's not a drag overlay. Set the item's default
+      // form data from the item's children.
+      const collectionChildrenIds = [...collectionDetails.leftColumn, ...collectionDetails.rightColumn];
+      const defaultFormData = getDefaultFormData(collectionChildrenIds, formElements);
+      if (Object.keys(defaultFormData).length > 0) {
+        onChange({ ...defaultFormData, ...formData }, errors);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (isDragging) {
@@ -132,7 +148,8 @@ const Item = ({
     + (isFormPreviewOpen ? ` ${styles.open}` : '')
     + (isDragging ? ` ${styles.isDragging}` : '')
     + (isDragOverlay ? ` ${styles.dragOverlay}` : '')
-    + (hasError ? ` ${styles.error}` : '');
+    + (hasError ? ` ${styles.error}` : '')
+    + (readOnly ? ` ${styles.readOnly}` : '');
   return <li
       className={itemClassName}
       data-testid="schema-form-collection-item"
@@ -163,6 +180,7 @@ const Item = ({
         <button
           aria-label={t('deleteButtonLabel', { itemTitle: title } )}
           className={styles.actionButton}
+          disabled={readOnly}
           onClick={isDragOverlay ? undefined : onDelete}
           onKeyDown={(event) => (event.key === 'Enter' || event.key === ' ') && event.stopPropagation()}
           title={t('deleteButtonLabel', { itemTitle: title } )}
@@ -202,10 +220,10 @@ const Item = ({
         <FormPreview
           blurLocationMarker={blurLocationMarker}
           errors={errors}
+          fieldIds={[...collectionDetails.leftColumn, ...collectionDetails.rightColumn]}
           focusLocationMarker={focusLocationMarker}
           formData={formData}
-          fieldIds={[...collectionDetails.leftColumn, ...collectionDetails.rightColumn]}
-          fields={fields}
+          formElements={formElements}
           isDragOverlay={isDragOverlay}
         />
       </div>
@@ -214,9 +232,10 @@ const Item = ({
     {!isDragOverlay && <FormModal
       breadcrumbs={breadcrumbs}
       columns={collectionDetails.columns}
+      errors={errors}
       focusLocationMarker={focusLocationMarker}
       formData={formData}
-      errors={errors}
+      hideDeleteButton={shouldDeleteOnCancelRef.current}
       isOpen={isFormModalOpen}
       itemName={collectionDetails.itemName}
       leftColumn={collectionDetails.leftColumn}
@@ -224,7 +243,7 @@ const Item = ({
       onDeleteItem={onDeleteItem}
       onDone={onFormModalDone}
       onFieldChange={onFieldChange}
-      hideDeleteButton={shouldDeleteOnCancelRef.current}
+      readOnly={readOnly}
       renderField={renderField}
       rightColumn={collectionDetails.rightColumn}
       title={title}

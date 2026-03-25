@@ -4,8 +4,10 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as MarkerFeedIcon } from '../../../../../../../../common/images/icons/marker-feed.svg';
 
-import { FORM_ELEMENT_TYPES, JUMP_TO_LOCATION_BUTTON_ZOOM } from '../../../../../constants';
-import { getHumanizedValue } from '../utils';
+import { FORM_ELEMENT_TYPES } from '../../../../../../../../utils/v2-event-schemas/constants';
+import getHumanizedFieldValue from '../../../../../../../../utils/v2-event-schemas/getHumanizedFieldValue';
+import { JUMP_TO_LOCATION_BUTTON_ZOOM } from '../../../../../constants';
+import { selectCoordinatesRepresentation } from '../../../../../../../../selectors/location';
 import useJumpToLocation from '../../../../../../../../hooks/useJumpToLocation';
 
 import * as styles from './styles.module.scss';
@@ -14,9 +16,9 @@ const FormPreview = ({
   blurLocationMarker,
   errors,
   fieldIds,
-  fields,
   focusLocationMarker,
   formData,
+  formElements,
   isDragOverlay,
 }) => {
   const jumpToLocation = useJumpToLocation();
@@ -24,7 +26,7 @@ const FormPreview = ({
     keyPrefix: 'reportManager.detailsSection.schemaForm.fields.collection.sortableList.item.formPreview',
   });
 
-  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
+  const coordinatesRepresentation = useSelector(selectCoordinatesRepresentation);
 
   const hasError = !!errors;
 
@@ -35,16 +37,23 @@ const FormPreview = ({
     {fieldIds.map((fieldId) => <li className={styles.fieldSummary} key={fieldId}>
       <div>
         <p className={`${styles.label} ${errors?.[fieldId] ? styles.error : ''}`}>
-          {fields[fieldId].details.label}
+          {formElements[fieldId].details.label}
         </p>
 
         <p className={`${styles.value} ${errors?.[fieldId] ? styles.error : ''}`}>
-          {getHumanizedValue(fields[fieldId], formData[fieldId], '-', i18n.language, gpsFormat, t)}
+          {getHumanizedFieldValue(
+            formElements[fieldId],
+            formData[fieldId],
+            '-',
+            i18n.language,
+            coordinatesRepresentation,
+            t
+          )}
         </p>
       </div>
 
-      {fields[fieldId].type === FORM_ELEMENT_TYPES.LOCATION && formData[fieldId] && <button
-        aria-label={t('jumpToLocationButtonLabel', { field: fields[fieldId].details.label })}
+      {formElements[fieldId].type === FORM_ELEMENT_TYPES.LOCATION && formData[fieldId] && <button
+        aria-label={t('jumpToLocationButtonLabel', { field: formElements[fieldId].details.label })}
         className={`${styles.jumpToLocationButton} ${isDragOverlay ? styles.dragOverlay : ''}`}
         onBlur={() => isDragOverlay ? undefined : blurLocationMarker()}
         onClick={() => isDragOverlay ? undefined : jumpToLocation(
@@ -53,7 +62,7 @@ const FormPreview = ({
         )}
         onFocus={() => isDragOverlay ? undefined : focusLocationMarker(fieldId)}
         onKeyDown={(event) => (event.key === 'Enter' || event.key === ' ') && event.stopPropagation()}
-        title={t('jumpToLocationButtonLabel')}
+        title={t('jumpToLocationButtonLabel', { field: formElements[fieldId].details.label })}
         type="button"
       >
         <MarkerFeedIcon />

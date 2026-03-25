@@ -106,29 +106,43 @@
     },
     "reportManager": {
         "detailsSection": {
-            "areaSelectorInput": {
-                "area": "Área:",
-                "deleteAreaButton": "Apagar área",
-                "deleteAreaButtonTitle": "Apagar área",
+            "areaPicker": {
+                "defaultPlaceholder": "Definir área do evento",
                 "displayString": "{{areaDisplayString}} área, {{perimeterDisplayString}} perímetro",
-                "editAreaButton": "Editar área",
-                "editAreaButtonTitle": "Definir polígono no mapa",
-                "inputPlaceholder": "Definir área do evento",
-                "staticMapImageAlt": "Mapa estático com polígono",
-                "perimeter": "Perímetro",
-                "provenanceLabel": "Criado em EarthRanger {{provenance}}"
+                "inputDescription": "Clique no botão para definir um valor no menu de seleção de área.",
+                "inputLabel": "Área",
+                "menuPopover": {
+                    "area": "Área:",
+                    "deleteAreaButton": "Apagar área",
+                    "dialogLabel": "Área",
+                    "editAreaButton": "Editar área",
+                    "editAreaButtonLabel": "Editar área no mapa",
+                    "perimeter": "Perímetro",
+                    "provenanceLabel": "Criado em EarthRanger {{provenance}}",
+                    "staticMapImageAlt": "Mapa estático com polígono"
+                },
+                "setAreaButtonLabel": {
+                    "closed": "Abrir o menu de seleção de área",
+                    "create": "Criar área no mapa",
+                    "open": "Fechar o menu de seleção de área"
+                },
+                "textCopyButtonLabel": "Copiar área GeoJSON para a área de transferência"
             },
             "dateLabel": "Data do evento",
             "detailsHeader": "Detalhes",
+            "errorLoadingSchema": "Erro ao carregar esquema",
             "locationLabel": "Localização do evento",
             "priorityLabel": "Prioridade",
             "reportedByLabel": "Reportado por",
             "schemaForm": {
                 "errors": {
                     "collectionItems": "Alguns itens desta coleção têm erros nos seus formulários internos.",
+                    "alphanumericPattern": "Apenas letras e números são permitidos.",
                     "dateFormat": "Formato de data inválido ou data inválida. Verifique o dia, mês e ano.",
                     "dateTimeFormat": "Formato de data e hora inválido ou data inválida. Verifique o dia, mês e ano.",
                     "defaultFormat": "Formato inválido.",
+                    "defaultPattern": "O valor não corresponde ao formato exigido.",
+                    "emailFormat": "Formato de e-mail inválido.",
                     "maximum": "Este valor deve ser menor ou igual a {{maximum}}.",
                     "maxItems_one": "Esta coleção deve ter no máximo {{count}} item.",
                     "maxItems_other": "Esta coleção deve ter no máximo {{count}} itens.",
@@ -136,43 +150,49 @@
                     "minItems_one": "Esta coleção deve ter pelo menos {{count}} item.",
                     "minItems_other": "Esta coleção deve ter pelo menos {{count}} itens.",
                     "required": "Este é um campo obrigatório.",
-                    "timeFormat": "Formato de hora inválido."
+                    "timeFormat": "Formato de hora inválido.",
+                    "uriFormat": "Formato de URL inválido.",
+                    "uuidFormat": "Formato de UUID inválido."
                 },
                 "fields": {
-                  "collection": {
-                    "addButtonLabel": "Adicionar {{itemName}}",
-                    "defaultAddButton": "Adicionar",
-                    "chevronButtonLabel": {
-                      "closed": "Abrir a lista de {{collectionLabel}}",
-                      "open": "Fechar a lista de {{collectionLabel}}"
-                    },
-                    "sortableList": {
-                      "dragCancelAnnouncement": "Arrasto cancelado. {{activeItemTitle}} foi solto.",
-                      "dragEndAnnouncement": "{{activeItemTitle}} foi solto na posição {{overItemPosition}} de {{itemsLength}}.",
-                      "draggableScreenReaderInstructions": "Para pegar um {{itemName}}, pressione a tecla de espaço ou Enter. Durante o arrasto, use as teclas de seta para cima e para baixo para mover o {{itemName}} e atualizar sua posição. Pressione a tecla de espaço ou Enter novamente para soltar o {{itemName}} em sua nova posição.",
-                      "dragOverAnnouncement": "{{activeItemTitle}} foi movido para a posição {{overItemPosition}} de {{itemsLength}}.",
-                      "dragStartAnnouncement": "{{activeItemTitle}} foi selecionado. {{activeItemTitle}} está na posição {{activeItemPosition}} de {{itemsLength}}.",
-                      "item": {
-                        "collectionHumanizedValue": "{{collectionLength}} itens",
-                        "deleteButtonLabel": "Excluir {{itemTitle}}",
-                        "editButtonLabel": "Editar {{itemTitle}}",
-                        "formModal": {
-                          "cancelButton": "Cancelar",
-                          "deleteButton": "Excluir {{itemTitle}}",
-                          "doneButton": "Concluído"
-                        },
-                        "formPreview": {
-                          "collectionHumanizedValue": "{{collectionLength}} itens",
-                          "jumpToLocationButtonLabel": "Ir para a localização de {{field}}"
-                        },
+                    "collection": {
+                        "addButtonLabel": "Adicionar {{itemName}}",
+                        "defaultAddButton": "Adicionar",
                         "chevronButtonLabel": {
-                          "closed": "Abrir a visualização do formulário {{itemTitle}}",
-                          "open": "Fechar a visualização do formulário {{itemTitle}}"
+                        "closed": "Abrir a lista de {{collectionLabel}}",
+                        "open": "Fechar a lista de {{collectionLabel}}"
+                        },
+                        "sortableList": {
+                        "dragCancelAnnouncement": "Arrasto cancelado. {{activeItemTitle}} foi solto.",
+                        "dragEndAnnouncement": "{{activeItemTitle}} foi solto na posição {{overItemPosition}} de {{itemsLength}}.",
+                        "draggableScreenReaderInstructions": "Para pegar um {{itemName}}, pressione a tecla de espaço ou Enter. Durante o arrasto, use as teclas de seta para cima e para baixo para mover o {{itemName}} e atualizar sua posição. Pressione a tecla de espaço ou Enter novamente para soltar o {{itemName}} em sua nova posição.",
+                        "dragOverAnnouncement": "{{activeItemTitle}} foi movido para a posição {{overItemPosition}} de {{itemsLength}}.",
+                        "dragStartAnnouncement": "{{activeItemTitle}} foi selecionado. {{activeItemTitle}} está na posição {{activeItemPosition}} de {{itemsLength}}.",
+                        "item": {
+                            "collectionHumanizedValue": "{{collectionLength}} itens",
+                            "deleteButtonLabel": "Excluir {{itemTitle}}",
+                            "editButtonLabel": "Editar {{itemTitle}}",
+                            "formModal": {
+                            "cancelButton": "Cancelar",
+                            "deleteButton": "Excluir {{itemTitle}}",
+                            "doneButton": "Concluído"
+                            },
+                            "formPreview": {
+                            "collectionHumanizedValue": "{{collectionLength}} itens",
+                            "jumpToLocationButtonLabel": "Ir para a localização de {{field}}"
+                            },
+                            "chevronButtonLabel": {
+                            "closed": "Abrir a visualização do formulário {{itemTitle}}",
+                            "open": "Fechar a visualização do formulário {{itemTitle}}"
+                            }
                         }
-                      }
+                        }
+                    },
+                    "text": {
+                      "urlLinkLabel": "Abrir URL em nova guia"
                     }
-                  }
-                }
+                },
+                "validationErrorsAnnouncement": "Há erros de validação nos seguintes campos:"
             },
             "stateDropdown": {
                 "active": "Ativo",

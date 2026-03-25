@@ -68,20 +68,30 @@
   },
   "gpsFormatToggle": {
     "fieldsetLegend": "Muundo wa GPS",
-    "textCopyButtonLabel": "Nakili thamani ya GPS kwenye ubao wa kunakili"
+    "coordinatesOutsideBboxTooltipButtonLabel": "Maelezo zaidi kuhusu umbizo la eneo",
+    "coordinatesOutsideBboxTooltipTitle": "Eneo linaonyeshwa kwa umbizo la DEG. EPSG:{{epsgCode}} {{crsName}} haipatikani katika eneo hili.",
+    "textCopyButtonLabel": "Nakili thamani ya GPS kwenye ubao wa kunakili",
+    "textSearchOptionLabel": "Tafuta kwa jina"
   },
   "gpsInput": {
-    "defaultPlaceholder": "Eneo",
-    "errorMessage": "Eneo halali",
-    "inputDescription": "Mfano: {{gpsFormat}}",
-    "inputLabel": "Mahali pa GPS",
-    "placeholders": {
+    "coordinatesRepresentationDescription": "Mfano: {{example}}",
+    "coordinatesRepresentationLabel": "Tafuta eneo kwa umbizo la {{representation}}",
+    "coordinatesRepresentationPlaceholder": {
       "DDM": "Digrii, Desimali, Dakika",
       "DEG": "Latitudo, Longitudo",
       "DMS": "Digrii, Dakika, Sekunde",
       "UTM": "Ukurasa wa Jumla wa Transverse",
       "MGRS": "Mfumo wa Kijeshi wa Kumbukumbu ya Gridi"
-    }
+    },
+    "defaultLabel": "Tafuta eneo",
+    "defaultPlaceholder": "Eneo",
+    "invalidLocationErrorMessage": "Eneo halali",
+    "outsideBboxErrorMessage": "EPSG:{{epsgCode}} {{crsName}} haipatikani katika eneo hili.",
+    "outsideBboxInputValue": "H/P",
+    "placesFromSearchTextListLabel": "Matokeo ya utafutaji wa eneo",
+    "textSearchDescription": "Tafuta eneo kwenye ramani kwa jina",
+    "textSearchLabel": "Tafuta eneo kwa jina",
+    "textSearchPlaceholder": "Tafuta eneo"
   },
   "locationJumpButton": {
     "title": "Ruka hadi eneo hili"
@@ -92,6 +102,7 @@
     "inputLabel": "Mahali",
     "jumpToLocationButtonLabel": "Ruka kwa mahali",
     "menuPopover": {
+      "dialogLabel": "Eneo",
       "getUserLocationButton": "Tumia eneo langu",
       "pickMapLocationButton": "Weka kwenye ramani"
     },
@@ -99,7 +110,9 @@
       "closed": "Fungua menyu ya kiondoa mahali ili kuweka thamani",
       "open": "Funga menyu ya kiondoa mahali"
     },
-    "textCopyButtonLabel": "Nakili mahali kwenye ubao wa kunakili"
+    "textCopyButtonLabel": "Nakili mahali kwenye ubao wa kunakili",
+    "valueOutsideBboxTooltipButtonLabel": "Maelezo zaidi kuhusu umbizo la eneo",
+    "valueOutsideBboxTooltipTitle": "Eneo linaonyeshwa kwa umbizo la DEG. EPSG:{{epsgCode}} {{crsName}} haipatikani katika eneo hili."
   },
   "mapLocationSelectionOverview": {
     "chooseLocationHeader": {
@@ -181,7 +194,7 @@
     }
   },
   "searchBar": {
-    "clearIconTitle": "Futa kisanduku cha utafutaji",
+    "clearButtonLabel": "Futa kisanduku cha utafutaji",
     "defaultPlaceholder": "Tafuta..."
   },
   "serviceWorkerWatcher": {
@@ -201,7 +214,14 @@
     "closePatrolFeedButtonLabel": "Funga Onyesha Doria",
     "closeSettingsButtonLabel": "Funga Mipangilio",
     "layersLink": "Safu za Ramani",
-    "noItemsToDisplayInLayers": "Hakuna vitu vya kuonyesha.",
+    "mapLayersTab": {
+      "analyzersTabTitle": "Wachambuzi",
+      "clearAllMapLayersButton": "Ondoa Yote",
+      "clearAllMapLayersButtonLabel": "Futa tabaka zote za ramani",
+      "eventsTabTitle": "Matukio",
+      "featuresTabTitle": "Vipengele",
+      "subjectsTabTitle": "Masomo"
+    },
     "patrolsLink": "Doria",
     "reportsFeedTab": {
       "fetchReportsErrorMessage": "Haikuweza kupakia matukio. Tafadhali jaribu tena.",
@@ -211,20 +231,108 @@
     "settingsPane": {
       "alertsFrameTitle": "Sanidi tahadhari zako za EarthRanger",
       "alertsTabTitle": "Tahadhari",
-      "appRefreshDescription": "Hifadhi mipangilio yangu kwa upya wa ukurasa kwa",
-      "appRefreshHeader": "Upya wa Programu",
-      "appRefreshMapLayersLabel": "Safu za Ramani",
-      "appRefreshMapPositionAndZoomLevelLabel": "Nafasi ya Ramani & Kiwango cha Kukaribia",
-      "appRefreshPatrolFiltersLabel": "Vichuja vya Doria",
-      "appRefreshReportFiltersLabel": "Vichuja vya Tukio",
-      "clusterDataDescription": "Kuweka vikundi data wakati kuna lapitiko kwa",
-      "displayHeader": "Onyesha",
-      "experimentalFeaturesHeader": "Vipengele vya Majaribio",
-      "generalHeader": "Jumla",
+      "generalTab": {
+        "appRefreshFieldSet": {
+          "description": "Hifadhi mipangilio yangu kwa upya wa ukurasa kwa",
+          "eventFiltersCheckboxLabel": "Vichuja vya Tukio",
+          "legend": "Upya wa Programu",
+          "mapLayersCheckboxLabel": "Safu za Ramani",
+          "mapPositionAndZoomLevelCheckboxLabel": "Nafasi ya Ramani & Kiwango cha Kukaribia",
+          "patrolFiltersCheckboxLabel": "Vichuja vya Doria"
+        },
+        "experimentalFeaturesFieldSet": {
+          "CUSTOM_COORDINATE_SYSTEMS_ENABLED": "Mifumo ya Marejeo ya Koordinati",
+          "legend": "Vipengele vya Majaribio"
+        },
+        "languageSelect": {
+          "label": "Lugha"
+        },
+        "soundFieldSet": {
+          "description": "Chezesha sauti kwa",
+          "legend": "Sauti",
+          "newEventsCheckboxLabel": "Matukio Mapya",
+          "newInReachMessagesCheckboxLabel": "Ujumbe mpya wa inReach",
+          "radioStateChangeToRedCheckboxLabel": "Wakati hali ya redio inabadilika kuwa nyekundu (kengele)"
+        }
+      },
       "generalTabTitle": "Jumla",
-      "languagesHeader": "Lugha",
-      "mapMarkersDescription": "Onyesha majina kwenye alama za ramani kwa",
-      "mapMarkersHeader": "Alama za Ramani",
+      "mapTab": {
+        "coordinateSystemSettingsView": {
+          "backButtonLabel": "Rudi kwenye mipangilio kuu ya ramani",
+          "coordinateReferenceSystemFinder": {
+            "addCrsButton": "Ongeza",
+            "addCrsButtonLabel": "Ongeza EPSG:{{epsgCode}} {{name}} kwenye chaguzi za kielelezo cha muundo wa GPS",
+            "addedMaximumSystemsMessage": "Umeongeza mifumo 6 ya marejeleo ya kuratibu. Futa angalau 1 kabla ya kuongeza mingine.",
+            "emptyStateMessage": "Rekebisha utafutaji wako ili kupata kile unachotafuta.",
+            "emptyStateMessageTitle": "Hakuna matokeo yaliyopatikana.",
+            "instructions": "Tafuta mifumo mingine ya marejeleo ya uratibu",
+            "readMoreLessButton": {
+              "less": "Soma kidogo",
+              "more": "Soma zaidi"
+            },
+            "readMoreLessButtonLabel": {
+              "less": "Ficha maelezo kamili ya eneo kwa EPSG:{{epsgCode}} {{name}}",
+              "more": "Onyesha maelezo kamili ya eneo kwa EPSG:{{epsgCode}} {{name}}"
+            },
+            "resultsTableAreaHeaderCell": "Eneo",
+            "resultsTableCaption": "Orodha ya matokeo ya utafutaji wa mifumo ya marejeleo ya uratibu",
+            "resultsTableCodeHeaderCell": "Msimbo",
+            "resultsTableNameHeaderCell": "Jina",
+            "showingMaximumFilteredResultsMessage": "Inaonyesha matokeo 10 ya juu. Jaribu kuboresha utafutaji wako ili kupunguza orodha."
+          },
+          "coordinateRepresentationsSelector": {
+            "addedMaximumSystemsMessage": "Umeongeza mifumo 6 ya marejeleo ya kuratibu. Futa angalau 1 kabla ya kuongeza mingine.",
+            "deleteCrsOptionButtonLabel": "Futa {{coordinateReferenceSystemName}} kutoka kwenye chaguzi",
+            "gpsFormatOptionExample": "Mfano: {{example}}",
+            "gpsFormatOptionLabel": {
+              "deg": "DEG Digrii za Kidesimali",
+              "dms": "DMS Digrii, Dakika, Sekunde",
+              "ddm": "DDM Digrii, Dakika za Kidesimali",
+              "utm": "UTM Mercator ya Mlalo Ulimwenguni",
+              "mgrs": "MGRS Mfumo wa Marejeleo wa Gridi ya Kijeshi"
+            },
+            "instructions": "Chagua hadi mifumo 4 ya uratibu kuonyeshwa kwenye tovuti yote. Chaguo zitaonyeshwa kwa mpangilio wa alfabeti.",
+            "legend": "Kichagua muundo wa GPS",
+            "maximumOptionsSelectedMessage": "Umechagua chaguzi 4 kati ya 4. Tafadhali ondoa angalau chaguo 1 kabla ya kuchagua nyingine."
+          },
+          "title": "Mifumo ya uratibu"
+        },
+        "mainMapSettingsView": {
+          "displayFieldSet": {
+            "clusterDataAllCheckboxLabel": "Yote",
+            "clusterDataCheckboxLabel": {
+              "events": "Matukio",
+              "subjects": "Mada"
+            },
+            "clusterDataLegend": "Kuweka vikundi data wakati kuna lapitiko kwa",
+            "legend": "Onyesha",
+            "showClusterPolygonsCheckboxLabel": "Onyesha poligoni inayoonyesha eneo la data iliyowekwa kwenye kundi",
+            "showInactiveRadiosCheckboxLabel": "Onyesha redio zisizo na shughuli",
+            "showTrackTimepointsCheckboxLabel": "Onyesha muda wa vipindi vya nyayo kwenye ramani"
+          },
+          "generalFieldSet": {
+            "3DMapTerrainCheckboxLabel": "Mazingira ya ramani ya 3D",
+            "legend": "Jumla",
+            "lockMapCheckboxLabel": "Funga ramani",
+            "openCoordinateSystemSettingsButton": "Mifumo ya uratibu",
+            "openCoordinateSystemSettingsButtonDetails": "{{selectedCoordinateRepresentationsCount}} vimechaguliwa",
+            "openCoordinateSystemSettingsButtonLabel": "Fungua mipangilio ya mifumo ya uratibu",
+            "simplifyMapDataOnZoomCheckboxLabel": "Rahisisha data ya ramani kwenye kuongeza kupunguza"
+          },
+          "mapMarkersFieldSet": {
+            "legend": "Alama za ramani",
+            "markerNamesAllCheckboxLabel": "Yote",
+            "markerNamesCheckboxLabel": {
+              "patrols": "Doria",
+              "reports": "Matukio",
+              "stationary_subjects": "Mada zisizotembea",
+              "subjects": "Mada"
+            },
+            "markerNamesLegend": "Onyesha majina kwenye alama za ramani kwa",
+            "showUserLocationCheckboxLabel": "Onyesha mahali yangu ya sasa"
+          }
+        }
+      },
       "mapTabTitle": "Ramani"
     },
     "settingsLink": "Mipangilio"

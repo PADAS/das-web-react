@@ -106,29 +106,43 @@
   },
   "reportManager": {
     "detailsSection": {
-      "areaSelectorInput": {
-        "area": "Área: ",
-        "deleteAreaButton": "Borrar Área",
-        "deleteAreaButtonTitle": "Borrar Área",
+      "areaPicker": {
+        "defaultPlaceholder": "Definir área del evento",
         "displayString": "{{areaDisplayString}} de área, {{perimeterDisplayString}} de perímetro",
-        "editAreaButton": "Editar área",
-        "editAreaButtonTitle": "Dibujar geometría",
-        "inputPlaceholder": "Colocar área del evento",
-        "staticMapImageAlt": "Mapa estático con geometría",
-        "perimeter": "Perímetro: ",
-        "provenanceLabel": "Creado en EarthRanger {{provenance}}"
+        "inputDescription": "Haz clic en el botón para establecer un valor desde el menú de selección de área.",
+        "inputLabel": "Área",
+        "menuPopover": {
+          "area": "Área: ",
+          "deleteAreaButton": "Borrar Área",
+          "dialogLabel": "Área",
+          "editAreaButton": "Editar área",
+          "editAreaButtonLabel": "Editar área en el mapa",
+          "perimeter": "Perímetro: ",
+          "provenanceLabel": "Creado en EarthRanger {{provenance}}",
+          "staticMapImageAlt": "Mapa estático con geometría"
+        },
+        "setAreaButtonLabel": {
+          "closed": "Abrir el menú de selección de área",
+          "create": "Crear área en el mapa",
+          "open": "Cerrar el menú de selección de área"
+        },
+        "textCopyButtonLabel": "Copiar área GeoJSON al portapapeles"
       },
       "dateLabel": "Fecha del Evento",
       "detailsHeader": "Detalles",
+      "errorLoadingSchema": "Error cargando esquema",
       "locationLabel": "Ubicación del evento",
       "priorityLabel": "Prioridad",
       "reportedByLabel": "Reportado por",
       "schemaForm": {
         "errors": {
           "collectionItems": "Algunos elementos de esta colección tienen errores en sus formularios internos.",
+          "alphanumericPattern": "Solo se permiten letras y números.",
           "dateFormat": "Formato de fecha inválido o fecha no válida. Verifica el día, mes y año.",
           "dateTimeFormat": "Formato de fecha y hora inválido o fecha no válida. Verifica el día, mes y año.",
           "defaultFormat": "Formato inválido.",
+          "defaultPattern": "El valor no coincide con el formato requerido.",
+          "emailFormat": "Formato de correo electrónico inválido.",
           "maximum": "Este valor debe ser menor o igual a {{maximum}}.",
           "maxItems_one": "Esta colección debe tener como máximo {{count}} elemento.",
           "maxItems_other": "Esta colección debe tener como máximo {{count}} elementos.",
@@ -136,7 +150,9 @@
           "minItems_one": "Esta colección debe tener al menos {{count}} elemento.",
           "minItems_other": "Esta colección debe tener al menos {{count}} elementos.",
           "required": "Este campo es obligatorio.",
-          "timeFormat": "Formato de hora inválido."
+          "timeFormat": "Formato de hora inválido.",
+          "uriFormat": "Formato de URL inválido.",
+          "uuidFormat": "Formato de UUID inválido."
         },
         "fields": {
           "collection": {
@@ -171,8 +187,12 @@
                 }
               }
             }
+          },
+          "text": {
+            "urlLinkLabel": "Abrir URL en nueva pestaña"
           }
-        }
+        },
+        "validationErrorsAnnouncement": "Hay errores de validación en los siguientes campos:"
       },
       "stateDropdown": {
         "active": "activo",

@@ -13,6 +13,7 @@ export const EVENT_FILTER_STORAGE_KEY = 'eventFilter';
 
 export const INITIAL_FILTER_STATE = {
   include_notes: true,
+  include_files: false,
   include_related_events: true,
   state: EVENT_STATE_CHOICES[0].value,
   filter: {

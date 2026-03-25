@@ -19,9 +19,6 @@ describe('ReportManager - Header', () => {
       eventTypes,
       patrolTypes,
     },
-    view: {
-      featureFlagOverrides: {},
-    },
   });
 
   const onChangeTitle = jest.fn();
@@ -68,7 +65,8 @@ describe('ReportManager - Header', () => {
     );
 
     const titleTextBox = await screen.findByTestId('reportManager-header-title');
-    await userEvent.type(titleTextBox, '{del}{del}{del}{del}{del}2');
+    await userEvent.clear(titleTextBox);
+    await userEvent.type(titleTextBox, '2');
     await userEvent.tab();
 
     await waitFor(() => {

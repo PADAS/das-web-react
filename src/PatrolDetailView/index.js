@@ -55,7 +55,6 @@ import * as styles from './styles.module.scss';
 import * as activitySectionStyles from '../DetailViewComponents/ActivitySection/styles.module.scss';
 import { areCardsEquals as areNotesEqual } from '../DetailViewComponents/utils';
 import { SidebarScrollContext } from '../SidebarScrollContext';
-import { ReactComponent as ERLogo } from '../common/images/icons/er-logo.svg';
 
 const patrolDetailViewTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
 
@@ -528,8 +527,6 @@ const PatrolDetailView = () => {
     {isSaving && <LoadingOverlay className={styles.loadingOverlay} message={t('loadingMessage')} />}
 
     <NavigationPromptModal onContinue={onNavigationContinue} when={shouldShowNavigationPrompt} />
-
-    <ERLogo className={styles.printLogo} />
 
     <Header printableContentRef={printableContentRef} onChangeTitle={onChangeTitle} patrol={patrolForm} setRedirectTo={setRedirectTo} />
 

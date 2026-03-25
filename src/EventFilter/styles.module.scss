@@ -4,43 +4,64 @@
 @import '../common/styles/popovers';
 
 .form {
-  align-items: center;
-  border-bottom: 1px solid $light-gray-border;
-  flex-wrap: wrap;
+  border-bottom: 1px solid $gray-border;
   display: flex;
-  justify-content: flex-end;
-  padding: 0.5rem;
-  position: relative;
-  z-index: 2;
+  padding: 0.25rem 0.75rem 0.75rem;
 
-  .filterDetails {
-    font-size: 75%;
-    line-height: normal;
-    margin-top: 0.5rem;
-    margin-left: 4rem;
-    width: 100%;
-  }
-}
-
-.search {
-  flex-basis: 100%;  
-  margin-bottom: 0.75rem;
-  margin-right: 0.2rem;
-  width: 50%;
-
-  @media (min-width: $md-layout-width-min) {
-    margin-right: unset;
-    width: 35%;
-    
-    &.wider {
-      width: 56%;
-    };
+  .searchBar {
+    width: 40%;
   }
 
-  @media (min-width: $lg-layout-width-min) {
-    flex-basis: initial;
-    margin-bottom: 0;
-    width: 35%;
+  .buttons {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    width: 60%;
+
+    .button {
+      align-items: center;
+      border-radius: 0.25rem;
+      display: flex;
+      font-size: 0.875rem;
+      font-weight: 500;
+      height: 2rem;
+      padding: 0 0.5rem;
+
+      &.inactive {
+        background-color: $light-gray-background;
+        border: 1px solid $light-gray-background;
+        color: $secondary-medium-gray;
+
+        &:hover {
+          background-color: darken($light-gray-background, 5%);
+          border-color: darken($light-gray-background, 5%);
+        }
+
+        &:focus-visible:not(:disabled) {
+          border-color: $bright-blue;
+          outline: 1px solid $bright-blue;
+        }
+      }
+
+      &.active {
+        background-color: $bright-blue;
+        border: 1px solid $bright-blue;
+        color: white;
+
+        &:hover {
+          background-color: darken($bright-blue, 5%);
+          border-color: darken($bright-blue, 5%);
+        }
+
+        &:focus-visible:not(:disabled) {
+          background-color: white;
+          border-color: $bright-blue;
+          color: $bright-blue;
+          outline: 1px solid $bright-blue;
+        }
+      }
+    }
   }
 }
 
@@ -98,60 +119,6 @@ div.filterPopover {
 
   &.filters {
     overflow: hidden;
-  }
-}
-
-.controls {
-  align-items: center;
-  justify-content: flex-end;
-  display: flex;
-  flex-wrap: wrap;
-  width: 100%;
-  
-  button {
-    margin-left: 0.5rem;
-  }
-
-  @media (min-width: $md-layout-width-min) {
-    button {
-      margin-left: 0;
-    }
-  }
-
-  @media (min-width: $lg-layout-width-min) {
-    flex-wrap: initial;
-    justify-content: space-between;
-  }
-}
-
-.popoverTrigger {
-  --iconDimensions: 0.875rem;
-
-  svg {
-    display: inline-block;
-    height: var(--iconDimensions);
-    width: var(--iconDimensions);
-    margin-right: 0.25rem;
-
-    * {
-      stroke: gray;
-    }
-  }
-
-  &[class*=btn-primary] {
-    svg {
-      * {
-        stroke: white;
-      }
-    }
-  }
-
-  span {
-    font-size: 0.725rem;
-
-    @media (min-width: $md-layout-width-min) {
-      font-size: 0.875rem;
-    }
   }
 }
 

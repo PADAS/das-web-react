@@ -4,19 +4,22 @@ import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '../../../../../test-utils';
 import { GPS_FORMATS } from '../../../../../utils/location';
+import { createMapMock } from '../../../../../__test-helpers/mocks';
 import { mockStore } from '../../../../../__test-helpers/MockStore';
 
 import Location from './';
+import { MapContext } from '../../../../../App';
 
-jest.mock('../../../../../hooks/useJumpToLocation', () => () => () => {});
+jest.mock('../../../../../hooks/useJumpToLocation', () => () => () => { });
 
 describe('ReportManager - DetailsSection - SchemaForm - fields - Location', () => {
   const blurLocationMarker = jest.fn();
   const focusLocationMarker = jest.fn();
   const onFieldChange = jest.fn();
 
-  let details, store;
+  let details, store, map;
   beforeEach(() => {
+    map = createMapMock();
     details = {
       description: 'Location 1 Description',
       isRequired: false,
@@ -26,6 +29,10 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Location', () =
 
     store = {
       view: {
+        coordinateReferenceSystems: {
+          selectedCoordinateRepresentations: Object.values(GPS_FORMATS),
+          storedSystems: [],
+        },
         mapLocationSelection: {
           isPickingLocation: false,
         },
@@ -40,32 +47,44 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Location', () =
 
   const renderLocationField = (props, overrideStore) => render(
     <Provider store={mockStore({ ...store, ...overrideStore })}>
-      <Location
-        blurLocationMarker={blurLocationMarker}
-        details={details}
-        error={undefined}
-        focusLocationMarker={focusLocationMarker}
-        id="location-1"
-        onFieldChange={onFieldChange}
-        value={undefined}
-        {...props}
-      />
+      <MapContext.Provider value={map}>
+        <Location
+          blurLocationMarker={blurLocationMarker}
+          details={details}
+          error={undefined}
+          focusLocationMarker={focusLocationMarker}
+          id="location-1"
+          onFieldChange={onFieldChange}
+          value={undefined}
+          {...props}
+        />
+      </MapContext.Provider>
     </Provider>
   );
+
+  test('shows a non read only location field', () => {
+    renderLocationField();
+
+    expect(screen.getByRole('group')).not.toHaveClass('readOnly');
+  });
+
+  test('shows a read only location field', () => {
+    renderLocationField({ readOnly: true });
+
+    expect(screen.getByRole('group')).toHaveClass('readOnly');
+  });
 
   test('shows a non required location field', () => {
     renderLocationField();
 
-    expect(screen.getByText('Location 1 Label')).toBeVisible();
-    expect(screen.getByLabelText('Location 1 Label')).not.toBeRequired();
+    expect(screen.getByRole('textbox', { name: 'Location' })).not.toBeRequired();
   });
 
   test('shows a required location field', () => {
     details.isRequired = true;
     renderLocationField();
 
-    expect(screen.getByText('Location 1 Label *')).toBeVisible();
-    expect(screen.getByLabelText('Location 1 Label *')).toBeRequired();
+    expect(screen.getByRole('textbox', { name: 'Location' })).toBeRequired();
   });
 
   test('does not show an error state in the label if the value is valid', () => {
@@ -84,19 +103,17 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Location', () =
     details.description = '';
     renderLocationField();
 
-    expect(screen.queryByText('Location 1 Description')).toBeNull();
     expect(screen.getByLabelText('Location 1 Label')).not.toHaveAccessibleDescription();
   });
 
   test('shows the description', () => {
     renderLocationField();
 
-    const description = screen.getByText('Location 1 Description');
+    const description = screen.getAllByRole('paragraph')[1];
 
-    expect(description).toBeVisible();
-    expect(description).toHaveAttribute('aria-live', 'off');
     expect(description).not.toHaveClass('error');
-    expect(screen.getByLabelText('Location 1 Label')).toHaveAccessibleDescription('Location 1 Description');
+    expect(description).toHaveTextContent('Location 1 Description');
+    expect(screen.getByRole('textbox', { name: 'Location' })).toHaveAccessibleDescription('Location 1 Description');
   });
 
   test('shows a valid input when there are no errors', () => {
@@ -116,8 +133,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Location', () =
 
     expect(locationPicker).toBeInvalid();
     expect(locationPicker).toHaveAccessibleErrorMessage('Error');
-    expect(description).toBeVisible();
-    expect(description).toHaveAttribute('aria-live', 'assertive');
     expect(description).toHaveClass('error');
   });
 
@@ -142,7 +157,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Location', () =
     renderLocationField();
 
     await userEvent.click(screen.getByLabelText('Open the location picker menu to set a value'));
-    await userEvent.type(screen.getByLabelText('GPS location'), '10,10');
+    await userEvent.type(screen.getByRole('searchbox', { name: 'Search location in DEG format' }), '10,10');
 
     expect(onFieldChange).toHaveBeenCalledTimes(2);
     expect(onFieldChange).toHaveBeenCalledWith('location-1', { latitude: 10, longitude: 10 });

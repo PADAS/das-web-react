@@ -1,8 +1,5 @@
-FROM node:alpine
+FROM node:24-alpine
+COPY . /app
 WORKDIR /app
-COPY ./package.json ./
-RUN yarn
-    
-COPY ./ ./
-
+RUN yarn install --immutable
 CMD ["yarn", "test"]

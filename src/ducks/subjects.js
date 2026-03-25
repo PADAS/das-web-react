@@ -7,6 +7,7 @@ import globallyResettableReducer from '../reducers/global-resettable';
 import { getBboxParamsFromMap } from '../utils/query';
 import { calcUrlForImage } from '../utils/img';
 import { getUniqueSubjectGroupSubjects, updateDeviceStatusProperties, updateSubjectLastPositionFromSocketStatusUpdate } from '../utils/subjects';
+import { pinSubjectTracks } from './map-ui';
 
 const SUBJECTS_API_URL = `${API_URL}subjects`;
 export const SUBJECT_GROUPS_API_URL = `${API_URL}subjectgroups`;
@@ -57,11 +58,28 @@ const cancelableMapSubjectsFetch = () => {
           bbox,
           use_lkl,
           ...params,
+          include_inactive: false,
         }
       })
         .then((response) => {
           if (response) {
             dispatch(fetchMapSubjectsSuccess(response));
+
+            // Auto-pin tracks for ropeless_buoy_gearset subjects (buoy site feature)
+            // Only when zoomed in (z > 10) to avoid unnecessary track loading when zoomed out
+            const currentZoom = map?.getZoom();
+            if (currentZoom && currentZoom > 8) {
+              const subjects = response.data.data || [];
+              const buoyGearsetSubjects = subjects.filter(
+                subject => subject.subject_subtype === 'ropeless_buoy_gearset'
+              );
+
+              if (buoyGearsetSubjects.length > 0) {
+                const buoyGearsetIDs = buoyGearsetSubjects.map(s => s.id);
+                dispatch(pinSubjectTracks(...buoyGearsetIDs));
+              }
+            }
+
             return response.data.data;
           }
           return [];
@@ -79,23 +97,24 @@ export const clearSubjectData = () => ({
   type: CLEAR_SUBJECT_DATA,
 });
 
-export const fetchSubjectGroups = () => dispatch => axios.get(SUBJECT_GROUPS_API_URL)
-  .then(response => dispatch(fetchSubjectGroupsSuccess(response)));
+export const fetchSubjectGroups = () => (dispatch) => axios.get(SUBJECT_GROUPS_API_URL)
+  .then(response => {
+    dispatch(fetchSubjectGroupsSuccess(response));
+    return response;
+  })
+  .catch(_error => dispatch(fetchSubjectGroupsError())); // Fallback to empty array on error
 
 const fetchMapSubjectsSuccess = response => ({
   type: FETCH_MAP_SUBJECTS_SUCCESS,
   payload: response.data,
 });
-/* 
-const fetchMapSubjectsError = error => ({
-  type: FETCH_MAP_SUBJECTS_ERROR,
-  payload: error,
-});
- */
+
 const fetchSubjectGroupsSuccess = response => ({
   type: FETCH_SUBJECT_GROUPS_SUCCESS,
-  payload: response.data.data,
+  payload: response?.data?.data ?? [],
 });
+
+const fetchSubjectGroupsError = _error => fetchSubjectGroupsSuccess([]);
 
 const INITIAL_MAP_SUBJECT_STATE = {
   bbox: null,
@@ -144,7 +163,7 @@ export const subjectGroupsReducer = globallyResettableReducer((state, action = {
       return {
         ...group,
         subgroups: replaceGroupSubjectsWithSubjectIDs(...subgroups),
-        subjects: subjects.map(({ id }) =>  id),
+        subjects: subjects.map(({ id }) => id),
       };
 
     });

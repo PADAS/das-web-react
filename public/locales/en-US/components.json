@@ -68,20 +68,30 @@
   },
   "gpsFormatToggle": {
     "fieldsetLegend": "GPS format",
-    "textCopyButtonLabel": "Copy GPS value to clipboard"
+    "coordinatesOutsideBboxTooltipButtonLabel": "More information about location format",
+    "coordinatesOutsideBboxTooltipTitle": "Location is displayed in DEG format. EPSG:{{epsgCode}} {{crsName}} is not supported at this location.",
+    "textCopyButtonLabel": "Copy GPS value to clipboard",
+    "textSearchOptionLabel": "Search by name"
   },
   "gpsInput": {
-    "defaultPlaceholder": "Location",
-    "errorMessage": "Invalid location",
-    "inputDescription": "Example: {{gpsFormat}}",
-    "inputLabel": "GPS location",
-    "placeholders": {
+    "coordinatesRepresentationDescription": "Example: {{example}}",
+    "coordinatesRepresentationLabel": "Search location in {{representation}} format",
+    "coordinatesRepresentationPlaceholder": {
       "DDM": "Degrees, Decimals, Minutes",
       "DEG": "Latitude, Longitude",
       "DMS": "Degrees, Minutes, Seconds",
       "UTM": "Universal Transverse Mercator",
       "MGRS": "Military Grid Reference System"
-    }
+    },
+    "defaultLabel": "Search location",
+    "defaultPlaceholder": "Location",
+    "invalidLocationErrorMessage": "Invalid location",
+    "outsideBboxErrorMessage": "EPSG:{{epsgCode}} {{crsName}} is not supported at this location.",
+    "outsideBboxInputValue": "N/A",
+    "placesFromSearchTextListLabel": "Location search results",
+    "textSearchDescription": "Search for a location on the map by name",
+    "textSearchLabel": "Search location by name",
+    "textSearchPlaceholder": "Search Location"
   },
   "locationJumpButton": {
     "title": "Jump to this location"
@@ -92,6 +102,7 @@
     "inputLabel": "Location",
     "jumpToLocationButtonLabel": "Jump to location",
     "menuPopover": {
+      "dialogLabel": "Location",
       "getUserLocationButton": "Use my location",
       "pickMapLocationButton": "Set on map"
     },
@@ -99,7 +110,9 @@
       "closed": "Open the location picker menu to set a value",
       "open": "Close the location picker menu"
     },
-    "textCopyButtonLabel": "Copy location to clipboard"
+    "textCopyButtonLabel": "Copy location to clipboard",
+    "valueOutsideBboxTooltipButtonLabel": "More information about location format",
+    "valueOutsideBboxTooltipTitle": "Location is displayed in DEG format. EPSG:{{epsgCode}} {{crsName}} is not supported at this location."
   },
   "mapLocationSelectionOverview": {
     "chooseLocationHeader": {
@@ -181,7 +194,7 @@
     }
   },
   "searchBar": {
-    "clearIconTitle": "Clear search bar",
+    "clearButtonLabel": "Clear search",
     "defaultPlaceholder": "Search..."
   },
   "serviceWorkerWatcher": {
@@ -201,7 +214,14 @@
     "closePatrolFeedButtonLabel": "Close Patrol Feed",
     "closeSettingsButtonLabel": "Close Settings",
     "layersLink": "Map Layers",
-    "noItemsToDisplayInLayers": "No items to display.",
+    "mapLayersTab": {
+      "analyzersTabTitle": "Analyzers",
+      "clearAllMapLayersButton": "Clear All",
+      "clearAllMapLayersButtonLabel": "Clear all map layers",
+      "eventsTabTitle": "Events",
+      "featuresTabTitle": "Features",
+      "subjectsTabTitle": "Subjects"
+    },
     "patrolsLink": "Patrols",
     "reportsFeedTab": {
       "fetchReportsErrorMessage": "Could not load events. Please try again.",
@@ -211,20 +231,108 @@
     "settingsPane": {
       "alertsFrameTitle": "Configure your EarthRanger alerts",
       "alertsTabTitle": "Alerts",
-      "appRefreshDescription": "Preserve my settings on page refresh for",
-      "appRefreshHeader": "App Refresh",
-      "appRefreshMapLayersLabel": "Map Layers",
-      "appRefreshMapPositionAndZoomLevelLabel": "Map Position & Zoom Level",
-      "appRefreshPatrolFiltersLabel": "Patrol Filters",
-      "appRefreshReportFiltersLabel": "Event Filters",
-      "clusterDataDescription": "Cluster data when there is overlap for",
-      "displayHeader": "Display",
-      "experimentalFeaturesHeader": "Experimental Features",
-      "generalHeader": "General",
+      "generalTab": {
+        "appRefreshFieldSet": {
+          "description": "Preserve my settings on page refresh for",
+          "eventFiltersCheckboxLabel": "Event Filters",
+          "legend": "App Refresh",
+          "mapLayersCheckboxLabel": "Map Layers",
+          "mapPositionAndZoomLevelCheckboxLabel": "Map Position & Zoom Level",
+          "patrolFiltersCheckboxLabel": "Patrol Filters"
+        },
+        "experimentalFeaturesFieldSet": {
+          "CUSTOM_COORDINATE_SYSTEMS_ENABLED": "Coordinate Reference Systems",
+          "legend": "Experimental Features"
+        },
+        "languageSelect": {
+          "label": "Language"
+        },
+        "soundFieldSet": {
+          "description": "Play sound for",
+          "legend": "Sound",
+          "newEventsCheckboxLabel": "New Events",
+          "newInReachMessagesCheckboxLabel": "New inReach messages",
+          "radioStateChangeToRedCheckboxLabel": "When a radio state changes to red (alarm)"
+        }
+      },
       "generalTabTitle": "General",
-      "languagesHeader": "Language",
-      "mapMarkersDescription": "Show names on map markers for",
-      "mapMarkersHeader": "Map Markers",
+      "mapTab": {
+        "coordinateSystemSettingsView": {
+          "backButtonLabel": "Go back to main map settings",
+          "coordinateReferenceSystemFinder": {
+            "addCrsButton": "Add",
+            "addCrsButtonLabel": "Add EPSG:{{epsgCode}} {{name}} to the GPS format selector options",
+            "addedMaximumSystemsMessage": "You have added 6 coordinate reference systems. Delete at least 1 of them before adding others.",
+            "emptyStateMessage": "Adjust your search to find what you are looking for.",
+            "emptyStateMessageTitle": "No results found.",
+            "instructions": "Search additional coordinate reference systems",
+            "readMoreLessButton": {
+              "less": "Read less",
+              "more": "Read more"
+            },
+            "readMoreLessButtonLabel": {
+              "less": "Hide full area description for EPSG:{{epsgCode}} {{name}}",
+              "more": "Show full area description for EPSG:{{epsgCode}} {{name}}"
+            },
+            "resultsTableAreaHeaderCell": "Area",
+            "resultsTableCaption": "List of coordinate reference system search results",
+            "resultsTableCodeHeaderCell": "Code",
+            "resultsTableNameHeaderCell": "Name",
+            "showingMaximumFilteredResultsMessage": "Showing the top 10 results. Try refining your search to narrow down the list."
+          },
+          "coordinateRepresentationsSelector": {
+            "addedMaximumSystemsMessage": "You have added 6 coordinate reference systems. Delete at least 1 of them before adding others.",
+            "deleteCrsOptionButtonLabel": "Delete {{coordinateReferenceSystemName}} from the options",
+            "gpsFormatOptionExample": "Example: {{example}}",
+            "gpsFormatOptionLabel": {
+              "deg": "DEG Decimal Degrees",
+              "dms": "DMS Degrees, Minutes, Seconds",
+              "ddm": "DDM Degrees, Decimal Minutes",
+              "utm": "UTM Universal Transverse Mercator",
+              "mgrs": "MGRS Military Grid Reference System"
+            },
+            "instructions": "Select up to 4 coordinate systems to display across the site. Options will be displayed alphabetically.",
+            "legend": "GPS format selector",
+            "maximumOptionsSelectedMessage": "You have 4 of 4 options selected. Deselect at least 1 option before selecting others."
+          },
+          "title": "Coordinate Systems"
+        },
+        "mainMapSettingsView": {
+          "displayFieldSet": {
+            "clusterDataAllCheckboxLabel": "All",
+            "clusterDataCheckboxLabel": {
+              "events": "Events",
+              "subjects": "Subjects"
+            },
+            "clusterDataLegend": "Cluster data when there is overlap for",
+            "legend": "Display",
+            "showClusterPolygonsCheckboxLabel": "Show polygon outlining area of clustered data",
+            "showInactiveRadiosCheckboxLabel": "Show inactive radios",
+            "showTrackTimepointsCheckboxLabel": "Show track timepoints"
+          },
+          "generalFieldSet": {
+            "3DMapTerrainCheckboxLabel": "3D map terrain",
+            "legend": "General",
+            "lockMapCheckboxLabel": "Lock map",
+            "openCoordinateSystemSettingsButton": "Coordinate systems",
+            "openCoordinateSystemSettingsButtonDetails": "{{selectedCoordinateRepresentationsCount}} selected",
+            "openCoordinateSystemSettingsButtonLabel": "Open coordinate system settings",
+            "simplifyMapDataOnZoomCheckboxLabel": "Simplify map data on zoom"
+          },
+          "mapMarkersFieldSet": {
+            "legend": "Map markers",
+            "markerNamesAllCheckboxLabel": "All",
+            "markerNamesCheckboxLabel": {
+              "patrols": "Patrols",
+              "reports": "Events",
+              "stationary_subjects": "Stationary Subjects",
+              "subjects": "Subjects"
+            },
+            "markerNamesLegend": "Show names on map markers for",
+            "showUserLocationCheckboxLabel": "Show my current location"
+          }
+        }
+      },
       "mapTabTitle": "Map"
     },
     "settingsLink": "Settings"

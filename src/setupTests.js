@@ -1,8 +1,16 @@
 import '@testing-library/jest-dom';
 import 'jest-webgl-canvas-mock';
+import dotenv from 'dotenv';
 import ReactGA4 from 'react-ga4';
 
 import MockSocketContext, { SocketContext } from './__test-helpers/MockSocketContext';
+
+// Set test environment variables.
+dotenv.config({ quiet: true });
+process.env.MODE = 'test';
+process.env.DEV = 'true';
+process.env.PROD = '';
+process.env.BASE_URL = '/';
 
 ReactGA4.initialize('dummy', { testMode: true });
 
@@ -41,11 +49,3 @@ global.IntersectionObserver = class IntersectionObserver {
   takeRecords = jest.fn();
   unobserve = jest.fn();
 };
-
-global.BroadcastChannel = require('worker_threads').BroadcastChannel;
-
-global.structuredClone = (value) => value === undefined ? undefined : JSON.parse(JSON.stringify(value));
-
-window.URL.createObjectURL = jest.fn();
-
-process.env.REACT_APP_EFB_FORM_SCHEMA_SUPPORT_ENABLED = false;

@@ -1,0 +1,10 @@
+name: Cleanup Stale PR Environments
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    ## This should be replaced by 'PADAS/.github/.github/workflows/pipeline-cleanup-stale-pr-envs.yml@main' when it becomes public.
+    uses: PADAS/gundi-workflows/.github/workflows/pipeline-cleanup-stale-pr-envs.yml@main

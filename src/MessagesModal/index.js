@@ -7,9 +7,9 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as EditIcon } from '../common/images/icons/edit.svg';
 
 import { extractSubjectFromMessage } from '../utils/messaging';
-import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
+import { calcDisplayNameForSubject } from '../utils/subjects';
 import { SENDER_DETAIL_STYLES } from '../MessageList/SenderDetails';
-import { usePermissions } from '../hooks';
+import { useMessagesPermissions } from '../hooks/usePermissions';
 
 import MessageInput from '../MessageInput';
 import MessageSummaryList from '../MessageList/MessageSummaryList';
@@ -28,7 +28,7 @@ const MessagesModal = ({ onSelectSubject, selectedSubject = null }) => {
 
   const subjectStore = useSelector((state) => state.data.subjectStore);
 
-  const hasMessagingWritePermissions = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.CREATE);
+  const { hasMessagesCreatePermission } = useMessagesPermissions();
 
   const [selectingRecipient, setSelectingRecipient] = useState(false);
 
@@ -51,7 +51,7 @@ const MessagesModal = ({ onSelectSubject, selectedSubject = null }) => {
     <Modal.Header style={{ alignItems: 'center', h5: { margin: 0 }, height: '4rem' }}>
       {selectedSubject
         ? <h5 style={{ alignItems: 'center', display: 'flex' }}>
-          {selectedSubject.name}
+          {calcDisplayNameForSubject(selectedSubject)}
 
           <Button
             onClick={() => onSelectSubject(null)}
@@ -76,7 +76,7 @@ const MessagesModal = ({ onSelectSubject, selectedSubject = null }) => {
     </Modal.Body>}
 
     {!selectingRecipient && <>
-      {!selectedSubject && !!hasMessagingWritePermissions && <Modal.Footer>
+      {!selectedSubject && hasMessagesCreatePermission && <Modal.Footer>
         <Button onClick={() => setSelectingRecipient(true)} variant="light">
           <EditIcon /> {t('newMessageButton')}
         </Button>
@@ -85,7 +85,7 @@ const MessagesModal = ({ onSelectSubject, selectedSubject = null }) => {
       {selectedSubject && <Modal.Footer>
         {!selectedSubject.messaging && <strong>{t('noMessagingSubjectText')}</strong>}
 
-        {!!hasMessagingWritePermissions && <MessageInput subjectId={selectedSubject.id} />}
+        {hasMessagesCreatePermission && <MessageInput subjectId={selectedSubject.id} />}
       </Modal.Footer>}
     </>}
 

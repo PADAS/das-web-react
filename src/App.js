@@ -1,9 +1,14 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
+import mapboxgl from 'mapbox-gl';
 import { loadProgressBar } from 'axios-progress-bar';
 import { Slide, toast, ToastContainer } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
+import { useTranslation } from 'react-i18next';
+import ReactGA4 from 'react-ga4';
+
+import { createUserAnalyticsData } from './utils/analytics';
 
 import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
 import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/event-svg-sprite.svg';
@@ -30,6 +35,7 @@ import ModalRenderer from './ModalRenderer';
 import Nav from './Nav';
 import PrintTitle from './PrintTitle';
 import ServiceWorkerWatcher from './ServiceWorkerWatcher';
+import ErrorMessage from './ErrorMessage';
 import SideBar from './SideBar';
 import { SidebarScrollProvider } from './SidebarScrollContext';
 import WithSocketContext, { SocketContext } from './withSocketConnection';
@@ -44,11 +50,18 @@ export const App = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const { t } = useTranslation('errors');
+
   const homeMap = useSelector((state) => state.view.homeMap);
   const mapLocationSelection = useSelector((state) => state.view.mapLocationSelection);
   const mapPosition = useSelector((state) => state.data.mapPosition);
+  const user = useSelector((state) => state.data.user);
+  const selectedUserProfile = useSelector((state) => state.data.selectedUserProfile);
+  const serverVersion = useSelector((state) => state.data?.systemStatus?.server?.version);
+  const mapboxSupported = useMemo(() => !!mapboxgl.supported(), []);
+
   const showGeoPermWarningMessage = useSelector(
-    (state) => !!state.view.userLocation && userIsGeoPermissionRestricted(state.data.user)
+    (state) => !!state.view.userLocation && userIsGeoPermissionRestricted(user)
   );
   const trackSettings = useSelector((state) => state.view.trackSettings);
 
@@ -61,12 +74,18 @@ export const App = () => {
   let sidebarOpen = !!currentTab;
 
   const jumpToStartingLocation = useCallback((map) => {
-    const lnglat = new URLSearchParams(location.search).get('lnglat');
+    const urlParams = new URLSearchParams(location.search);
+    const lnglat = urlParams.get('lnglat');
 
     if (lnglat) {
       const lngLatFromParams = lnglat.replace(' ', '').split(',').map((n) => parseFloat(n));
-      const newLocation = { ...location };
-      delete newLocation.search;
+
+      urlParams.delete('lnglat');
+      const remainingSearch = urlParams.toString();
+      const newLocation = {
+        ...location,
+        search: remainingSearch ? `?${remainingSearch}` : ''
+      };
 
       navigate(newLocation, { replace: true, state: { comesFromLngLatRedirection: true } });
 
@@ -96,6 +115,26 @@ export const App = () => {
     finishDrag(e);
   }, [disallowDragAndDrop, finishDrag]);
 
+
+  // set user scope for service worker caching
+  useEffect(() => {
+    if (navigator?.serviceWorker?.controller) {
+      if (user?.id) {
+        const scopeHash = selectedUserProfile?.id ?? user.id;
+        navigator.serviceWorker.controller.postMessage({
+          type: 'SET_SCOPE',
+          scope: { hash: scopeHash }
+        });
+      } else {
+        // Clear scope when user logs out
+        navigator.serviceWorker.controller.postMessage({
+          type: 'SET_SCOPE',
+          scope: { hash: null }
+        });
+      }
+    }
+  }, [user, selectedUserProfile]);
+
   useEffect(() => {
     /* use these catch blocks to provide error toasts if/as desired */
     dispatch(fetchEventTypes());
@@ -122,7 +161,7 @@ export const App = () => {
       });
 
     loadProgressBar({}, axios);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -133,7 +172,7 @@ export const App = () => {
         toastConfig: {
           autoClose: false,
           type: 'info',
-          onClose: () => {},
+          onClose: () => { },
         },
       });
 
@@ -141,27 +180,40 @@ export const App = () => {
     }
   }, [showGeoPermWarningMessage]);
 
+  useEffect(() => {
+    if (!mapboxSupported && import.meta.env.PROD) {
+      const userData = createUserAnalyticsData(user, selectedUserProfile, serverVersion);
+
+      ReactGA4.event('MapboxGL not supported', {
+        event_category: 'Client Hardware Issue',
+        ...userData,
+      });
+    }
+  }, [mapboxSupported, selectedUserProfile, user, serverVersion]);
+
   const mapLocationSelectionModeClass = mapLocationSelection.isPickingLocation ? 'picking-location-fullscreen' : '';
 
   return <div
-      className={`App ${isDragging ? 'dragging' : ''} ${mapLocationSelectionModeClass}`}
-      data-testid="app-wrapper"
-      onDrop={onDrop}
-      onDragLeave={finishDrag}
-      onDragOver={disallowDragAndDrop}
+    className={`App ${isDragging ? 'dragging' : ''} ${mapLocationSelectionModeClass}`}
+    data-testid="app-wrapper"
+    onDrop={onDrop}
+    onDragLeave={finishDrag}
+    onDragOver={disallowDragAndDrop}
     >
     <MapContext.Provider value={map}>
       <MapDrawingToolsContextProvider>
         <PrintTitle />
 
-        <Nav map={map} />
+        <Nav />
 
         <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
-          <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} />
+          {mapboxSupported
+            ? <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} />
+            : <ErrorMessage className='webgl-error-message' message={t('webGlDisabled')} />}
 
-          {!!map && <SidebarScrollProvider>
+          <SidebarScrollProvider>
             <SideBar map={map} />
-          </SidebarScrollProvider>}
+          </SidebarScrollProvider>
 
           <ModalRenderer />
         </div>

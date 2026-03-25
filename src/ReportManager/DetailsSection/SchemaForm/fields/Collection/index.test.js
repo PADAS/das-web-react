@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { render, screen, within } from '../../../../../test-utils';
-import { FORM_ELEMENT_TYPES } from '../../constants';
+import { FORM_ELEMENT_TYPES } from '../../../../../utils/v2-event-schemas/constants';
 import { GPS_FORMATS } from '../../../../../utils/location';
 import { mockStore } from '../../../../../__test-helpers/MockStore';
 
@@ -20,6 +20,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
     details = {
       buttonText: 'Add button text',
       columns: 1,
+      description: 'The collection description',
       isActive: true,
       itemIdentifier: 'field-1',
       itemName: 'Item',
@@ -33,6 +34,9 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
 
     store = {
       view: {
+        coordinateReferenceSystems: {
+          storedSystems: [],
+        },
         modals: {
           canShowModals: true,
         },
@@ -50,7 +54,8 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
         breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
         details={details}
         error={undefined}
-        fields={{
+        focusLocationMarker={focusLocationMarker}
+        formElements={{
           'field-1': {
             details: {
               label: 'Field 1',
@@ -64,7 +69,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
             type: FORM_ELEMENT_TYPES.TEXT,
           },
         }}
-        focusLocationMarker={focusLocationMarker}
         id="collection-1"
         onFieldChange={onFieldChange}
         renderField={renderField}
@@ -73,6 +77,18 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
       />
     </Provider>
   );
+
+  test('shows a non read only collection field', () => {
+    renderCollectionField();
+
+    expect(screen.getByRole('button', { name: 'Add Item' })).not.toBeDisabled();
+  });
+
+  test('shows a read only collection field', () => {
+    renderCollectionField({ readOnly: true });
+
+    expect(screen.getByRole('button', { name: 'Add Item' })).toBeDisabled();
+  });
 
   test('shows a valid collection when there are no errors', async () => {
     renderCollectionField();
@@ -91,8 +107,21 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
 
     expect(collection).toBeInvalid();
     expect(collection).toHaveAccessibleErrorMessage('Error');
-    expect(description).toBeVisible();
-    expect(description).toHaveAttribute('aria-live', 'assertive');
+    expect(description).toHaveClass('error');
+    expect(description).toHaveTextContent('Error');
+  });
+
+  test('does not show the description', () => {
+    details.description = '';
+    renderCollectionField();
+
+    expect(screen.queryByText('The collection description')).toBeNull();
+  });
+
+  test('shows the description', () => {
+    renderCollectionField();
+
+    expect(screen.getByText('The collection description')).not.toHaveClass('error');
   });
 
   test('does not show an error state in the header if the collection and its items are all valid', async () => {
@@ -113,7 +142,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
     expect(screen.getByTestId('schema-form-collection-header-collection-1')).toHaveClass('error');
   });
 
-  test('sets the collection label with the number of items it continas', async () => {
+  test('sets the collection label with the number of items it contains', async () => {
     renderCollectionField({ value: [{}, {}] });
 
     expect(screen.getByLabelText('Collection 1 Label (2)')).toBeVisible();
@@ -303,7 +332,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
           breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
           details={details}
           error={{ 0: { 'field-1': { message: 'Error' } } }}
-          fields={{
+          formElements={{
             'field-1': {
               details: {
                 label: 'Field 1',

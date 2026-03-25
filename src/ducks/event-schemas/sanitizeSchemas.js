@@ -11,50 +11,118 @@ const GLOBAL_UI_SCHEMA_CONFIG = {
   Details: { 'ui:widget': 'textarea' },
 };
 
-const convertSchemaEnumNameObjectsIntoArray = (schema) => {
-  const { properties } = schema;
-  const updates = Object.entries(properties).reduce((propsObject, [key, value]) => {
-    if (value.enumNames && !Array.isArray(value.enumNames)) {
-      propsObject[key] = {
-        ...value,
-        enumNames: value.enum.map(item => value.enumNames[item]),
-      };
+const getEnumDisplayNames = (schemaValue) => {
+  if (!schemaValue?.enumNames) {
+    return null;
+  }
 
-    } else if (value.properties) {
-      propsObject[key] = convertSchemaEnumNameObjectsIntoArray(value);
+  if (Array.isArray(schemaValue.enumNames)) {
+    return { namesArray: schemaValue.enumNames, stripFromSchema: false };
+  }
+
+  const namesArray = (schemaValue.enum ?? []).map((item) => schemaValue.enumNames[item]);
+  return { namesArray, stripFromSchema: true };
+};
+
+const processProperty = (key, value, fieldPath) => {
+  const enumDisplayNames = getEnumDisplayNames(value);
+  if (enumDisplayNames) {
+    // Enum field at this path
+    const update = {
+      uiEnumNames: {
+        [fieldPath]: enumDisplayNames.namesArray,
+      },
+    };
+
+    if (enumDisplayNames.stripFromSchema) {
+      const { enumNames: _removed, ...rest } = value;
+      update.schemaUpdate = { [key]: rest };
     }
-    return propsObject;
-  }, []);
+
+    return update;
+  }
+
+  if (value.properties) {
+    // Nested object: recurse into its properties
+    const nested = convertSchemaEnumNameObjectsIntoArray(value, fieldPath);
+    return {
+      schemaUpdate: { [key]: nested.schema },
+      uiEnumNames: nested.uiEnumNames,
+    };
+  }
+
+  if (value.type === 'array' && value.items?.properties) {
+    // Array of objects: recurse into items.properties so enums inside items get ui:enumNames
+    const nested = convertSchemaEnumNameObjectsIntoArray(value.items, `${fieldPath}.items`);
+    return {
+      schemaUpdate: { [key]: { ...value, items: nested.schema } },
+      uiEnumNames: nested.uiEnumNames,
+    };
+  }
+
+  // Array of primitives with enum: set ui:enumNames at fieldPath.items
+  if (value.type === 'array' && value.items) {
+    const itemsEnumDisplayNames = getEnumDisplayNames(value.items);
+    if (itemsEnumDisplayNames) {
+      const update = { uiEnumNames: { [`${fieldPath}.items`]: itemsEnumDisplayNames.namesArray } };
+
+      if (itemsEnumDisplayNames.stripFromSchema) {
+        const { enumNames: _removed, ...itemsRest } = value.items;
+        update.schemaUpdate = { [key]: { ...value, items: itemsRest } };
+      }
+
+      return update;
+    }
+  }
+
+  return {};
+};
+
+export const convertSchemaEnumNameObjectsIntoArray = (schema, path = '') => {
+  const schemaUpdates = {};
+  const uiEnumNames = {};
+
+  Object.entries(schema.properties).forEach(([key, value]) => {
+    const fieldPath = path ? `${path}.${key}` : key;
+    const result = processProperty(key, value, fieldPath);
+
+    if (result.schemaUpdate) {
+      Object.assign(schemaUpdates, result.schemaUpdate);
+    }
+
+    if (result.uiEnumNames) {
+      Object.assign(uiEnumNames, result.uiEnumNames);
+    }
+  });
 
   return {
-    ...schema,
-    properties: {
-      ...properties,
-      ...updates,
+    schema: {
+      ...schema,
+      properties: { ...schema.properties, ...schemaUpdates },
     },
+    uiEnumNames,
   };
 };
 
 const generateSchemaAndUiSchemaForCheckbox = (definition, schema) => {
   const { key, title: definitionTitle, titleMap: definitionTitleMap } = definition;
-  const { titleMap: schemaTitleMap, title: schemaTitle } = schema.properties[key];
+  const { title: schemaTitle, titleMap: schemaTitleMap } = schema.properties[key];
 
-  const title = schemaTitle || definitionTitle;
   const titleMap = schemaTitleMap || definitionTitleMap;
 
   return {
     schemaEntry: {
-      key,
-      items: {
-        enum: titleMap.map(item => item.value),
-        enumNames: titleMap.map(item => item.name),
-      },
       inactive_enum: definition.inactive_titleMap || null,
-      title,
+      items: {
+        enum: titleMap.map((item) => item.value),
+      },
+      key,
+      title: schemaTitle || definitionTitle,
       type: 'array',
       uniqueItems: true,
     },
     uiSchemaEntry: {
+      'ui:enumNames': titleMap.map((item) => item.name),
       'ui:widget': CheckboxesWidget,
     },
   };
@@ -281,8 +349,31 @@ const extractRequiredPropsFromSchemaAndDefinition = (schema = { properties: {} }
   return [...fromSchema, ...fromDefs, ...fromProps];
 };
 
+const setUiSchemaByPath = (uiSchema, path, key, value) => {
+  const parts = path.split('.');
+
+  let current = uiSchema;
+  for (let i = 0; i < parts.length - 1; i++) {
+    const part = parts[i];
+
+    if (!current[part]) {
+      current[part] = {};
+    }
+
+    current = current[part];
+  }
+
+  const last = parts[parts.length - 1];
+
+  if (!current[last]) {
+    current[last] = {};
+  }
+
+  current[last][key] = value;
+};
+
 const sanitizeSchemas = ({ definition, schema: originalSchema }) => {
-  const schemaWithEnumsAsArrays = convertSchemaEnumNameObjectsIntoArray({ ...originalSchema });
+  const { schema: schemaWithEnumsAsArrays, uiEnumNames } = convertSchemaEnumNameObjectsIntoArray({ ...originalSchema });
 
   const {
     schema: schemaFromDefinitions,
@@ -301,6 +392,10 @@ const sanitizeSchemas = ({ definition, schema: originalSchema }) => {
     uiSchemasForSelectFields,
     uiSchemasForExternalURIs
   );
+
+  Object.entries(uiEnumNames).forEach(([path, enumNames]) => {
+    setUiSchemaByPath(uiSchema, path, 'ui:enumNames', enumNames);
+  });
 
   const requiredProperties = extractRequiredPropsFromSchemaAndDefinition(schema, definition);
   schema.required = requiredProperties;

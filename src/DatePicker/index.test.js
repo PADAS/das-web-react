@@ -108,6 +108,7 @@ describe('DatePicker', () => {
   test('does not set the date picker as read only', async () => {
     renderDatePicker();
 
+    expect(screen.getByTestId('datePicker')).not.toHaveClass('readOnly');
     expect(screen.getByLabelText('Year')).not.toHaveAttribute('readonly');
     expect(screen.getByLabelText('Month')).not.toHaveAttribute('readonly');
     expect(screen.getByLabelText('Day')).not.toHaveAttribute('readonly');
@@ -121,6 +122,7 @@ describe('DatePicker', () => {
     const montInput = screen.getByLabelText('Month');
     const dayInput = screen.getByLabelText('Day');
 
+    expect(screen.getByTestId('datePicker')).toHaveClass('readOnly');
     expect(yearInput).toHaveAttribute('readonly');
     expect(montInput).toHaveAttribute('readonly');
     expect(dayInput).toHaveAttribute('readonly');

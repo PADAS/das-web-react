@@ -14,7 +14,7 @@ import LinkItem from '.';
 
 const store = {
   data: { eventFilter: { filter: { date_range: {} } }, eventTypes: [], patrolTypes: [], tracks: {} },
-  view: { timeSliderState: {}, trackSettings: { origin: 'eventFilter' }, featureFlagOverrides: {} },
+  view: { timeSliderState: {}, trackSettings: { origin: 'eventFilter' } },
 };
 
 jest.mock('../../../store', () => mockStore(store));

@@ -6,7 +6,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { render, screen } from '../../../../../../../test-utils';
 import { GPS_FORMATS } from '../../../../../../../utils/location';
 import { mockStore } from '../../../../../../../__test-helpers/MockStore';
-import { FORM_ELEMENT_TYPES } from '../../../../constants';
+import { FORM_ELEMENT_TYPES } from '../../../../../../../utils/v2-event-schemas/constants';
 
 import SortableItem from './';
 
@@ -42,6 +42,9 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
 
     store = {
       view: {
+        coordinateReferenceSystems: {
+          storedSystems: [],
+        },
         modals: {
           canShowModals: true,
         },
@@ -58,7 +61,8 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
         collectionDetails={collectionDetails}
         errors={undefined}
-        fields={{
+        formData={{ 'field-1': 'Value 1', 'field-2': 'Value 2' }}
+        formElements={{
           'field-1': {
             details: {
               label: 'Field 1',
@@ -72,7 +76,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
             type: FORM_ELEMENT_TYPES.TEXT,
           },
         }}
-        formData={{ 'field-1': 'Value 1', 'field-2': 'Value 2' }}
         id={1}
         isDragOverlay={false}
         isFormModalOpen={false}

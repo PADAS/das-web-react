@@ -30,8 +30,8 @@
             "noneSelected": "कुनैपनि छानिएन",
             "someSelected": "{{eventTypeIDsLength}} को {{reportTypesCheckedCount}} वटा छानियो"
         },
-        "restAllButton": "सबै रिसेट गर्नुहोस्",
-        "restButton": "रिसेट गर्नुहोस्",
+        "resetAllButton": "सबै रिसेट गर्नुहोस्",
+        "resetButton": "रिसेट गर्नुहोस्",
         "stateLabel": "अवस्था",
         "stateSelector": {
             "active": "सकृय",
@@ -54,7 +54,37 @@
         },
         "ascendingLabel": "बढ्दो क्रम अनुसार"
     },
-    "mapLayerSearchbarPlaceholder": "तहहरु खोज्नुहोस्…",
+    "mapLayerFilter": {
+        "formLabel": "लेयर खोज्नुहोस्",
+        "groupButton": {
+            "grouped": "समूहबद्ध",
+            "ungrouped": "असमूहबद्ध"
+        },
+        "groupButtonLabel": {
+            "grouped": "लेयरहरू असमूहबद्ध गर्नुहोस्",
+            "ungrouped": "लेयरहरू समूहबद्ध गर्नुहोस्"
+        },
+        "searchBarLabel": "लेयर खोज्नुहोस्",
+        "searchBarPlaceholder": "लेयर खोज्नुहोस्...",
+        "setSortByButton": {
+            "alphabetical": "वर्णानुक्रम",
+            "last_update": "अन्तिम अपडेट"
+        },
+        "setSortByButtonLabel": "लेयरहरूको लागि क्रमबद्ध विकल्पहरू खोल्नुहोस्",
+        "sortDirectionButtonLabel": {
+            "down": "लेयरहरू आरोही क्रममा क्रमबद्ध गर्नुहोस्",
+            "up": "लेयरहरू अवरोही क्रममा क्रमबद्ध गर्नुहोस्"
+        },
+        "sortByMenuLabel": "लेयरहरूको लागि क्रमबद्ध विकल्पहरू",
+        "sortByMenuOption": {
+            "alphabetical": "वर्णानुक्रम",
+            "lastUpdate": "अन्तिम अपडेट"
+        },
+        "sortByMenuOptionLabel": {
+            "alphabetical": "लेयरहरू वर्णानुक्रम अनुसार क्रमबद्ध गर्नुहोस्",
+            "lastUpdate": "लेयरहरू अन्तिम अपडेट अनुसार क्रमबद्ध गर्नुहोस्"
+        }
+    },
     "patrolFilters": {
         "datesTitle": "मिति",
         "dateRangePopover": {

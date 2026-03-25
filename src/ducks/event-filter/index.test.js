@@ -17,6 +17,7 @@ describe('Ducks - Event filter', () => {
       const payload =
         {
           include_notes: false,
+          include_files: false,
           include_related_events: false,
           state: ['resolved'],
           filter: {

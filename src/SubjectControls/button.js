@@ -16,7 +16,7 @@ const SubjectControlButton = ({
   ...rest
 }) => {
   return <div className={`${styles.container} ${containerClassName} ${showLabel ? ` ${styles.hasLabel}` : ''}`} onClick={onClick || undefined}>
-    {loading && <LoadingOverlay className={styles.loadingOverlay} />}
+    {loading && <LoadingOverlay loaderSize='24' className={styles.loadingOverlay} />}
     <button ref={ref} disabled={disabled} title={labelText} type="button" className={`${styles.button} ${buttonClassName}`} {...rest}></button>
     {showLabel && labelText && <span>{labelText}</span>}
   </div>;
