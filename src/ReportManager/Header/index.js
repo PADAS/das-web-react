@@ -10,7 +10,7 @@ import EventIcon from '../../EventIcon';
 import LocationJumpButton from '../../LocationJumpButton';
 import ReportMenu from './ReportMenu';
 
-import * as styles from './styles.module.scss';
+import styles from './styles.module.scss';
 
 const Header = ({
   isReadOnly = false,
