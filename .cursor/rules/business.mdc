@@ -1,0 +1,90 @@
+---
+alwaysApply: true
+---
+
+# Business Context
+
+**Organization:** EarthRanger  
+**Domain:** Wildlife Conservation Technology
+
+EarthRanger is a real-time conservation platform that unifies field data, tracked assets, and people on a shared map. Core workflows: recording field events, monitoring wildlife and vehicles, planning and documenting patrols, and layering reference geography for spatial decision-making.
+
+**DAS** (Domain Awareness System) is the legacy product name. EarthRanger is the official name today. The acronym remains visible in API paths, host URLs, and related identifiers — treat them as synonymous.
+
+**Events** and **reports** refer to the same domain object. **Events** is the preferred term.
+
+## Events
+
+Events are time-stamped operational records tied to a geographic point or polygon. They represent field situations: wildlife sightings, human–wildlife conflict, enforcement actions, community reports, infrastructure issues, or any workflow the tenant configures. Each event has **state** (e.g. active / resolved), **priority** (red / amber / green), and optionally a **reporter**.
+
+**Event categories** are a server-defined taxonomy grouping **event types**. Each event type defines presentation (display name, icon), defaults (state, priority), and the structure of captured data. Example: the category **Security** may contain types **Animal Control**, **Carcass**, and **Spoor** — actual names are deployment-specific.
+
+**Incident collections** are a special event class: a parent record (`incident_collection`) that groups multiple child events through a `contains` relationship, keeping one field response under a single umbrella (e.g. a snare, carcass, and arrest linked to the same incident). The collection aggregates display metadata such as priority.
+
+Every event type has a **form schema** expressed as JSON that defines fields, layout, and validation.
+
+Operators discover events through the **Events sidebar** (text search, filters, sort, date range). The map renders markers, clusters, optional heatmaps, and drawn polygon geometry.
+
+## Subjects, Observations, and Tracks
+
+**Subjects** are entities tracked over time: collared animals, vehicles, aircraft, personnel, and fixed sensors. They are organized into **subject groups**, each with a **subject type** and optionally a **subject subtype**. Telemetry arrives through **sources** tied to **source providers**.
+
+An **observation** is a discrete, time-stamped position or telemetry update for a subject. **Tracks** are the ordered sequence of observations rendered as paths on the map over a selected time interval. Operators control **how much history** is retrieved, **time-of-day coloring** along a path, and whether **timepoints** are emphasized along the line.
+
+Track visibility has three states: **shown**, **pinned** (kept in a persistent monitoring set), and **hidden**.
+
+**Subject heatmaps** aggregate presence for a chosen set of subjects into a density surface on the map.
+
+## Patrols
+
+Patrols are field activities (foot, vehicle, aerial, etc.) with a lifecycle: scheduled → ready → active → completed / cancelled. **Patrol types** define structure and applicable fields.
+
+A patrol is modeled as one or more **patrol segments**, each with a time range and optional **patrol leader** (a subject such as a ranger or vehicle). The patrol track shown on the map is the leader's observation track trimmed to the segment's time window. Patrols may reference or link events. On the map they appear as symbols and geometry alongside the leader-derived track.
+
+The **Patrols feed** supports filters: date range, overlap semantics, patrol type, text, tracked-by identity, and patrol status.
+
+## Spatial Features
+
+**Spatial features** are geographic data managed as **featuresets**: points, lines, polygons, and symbols used for zones, boundaries, infrastructure, habitat, or reference cartography. Distinct from live subjects, events, and patrols, but share the same map stack.
+
+## Analyzers and Alerts
+
+**Analyzers** are server-side algorithms that evaluate streaming or recent data against configured rules. When conditions are met, they raise **alerts** — notifications delivered through tenant-configured methods (e.g. email, WhatsApp). The web client does not execute analyzers. It renders analyzer-derived spatial overlays on the map and hosts **alerts configuration** (global menu modal and **Settings → Alerts**).
+
+## Time Slider
+
+The time slider is a map control bound to the event date range. Moving the handle sets a virtual timestamp, enabling replay or inspection of the map state at a specific moment. When inactive, the client favors last-known positions for live monitoring.
+
+## Coordinate Systems
+
+Operators work in **WGS84** but may need other conventions. **Settings → Map** manages stored **CRS** definitions (by EPSG code) and a bounding box overlay for the active CRS. Cursor and picked locations can display in multiple formats simultaneously: decimal degrees, DMS, DDM, UTM, MGRS — with decimal degrees always retained as baseline.
+
+## Filtering
+
+**Event filtering:** date range + event type, category, free text, duration, priority, reported by, and state. Sort direction and field are persisted per user.
+
+**Patrol filtering:** date range, overlap semantics, patrol type, text, tracked-by identity, and patrol status.
+
+## Map Settings (summary)
+
+**Settings → Map** covers: map lock; 3D / terrain; data simplification at low zoom; CRS and coordinate readout management; clustering (subjects, events, stationary assets) with optional cluster footprint polygons; track timepoints; inactive radio visibility; and name labels per symbology class (subjects, stationary sensors, events, patrols) plus operator location.
+
+## Messaging
+
+**Messaging** lets authorized operators exchange **two-way communications** with assets or people represented as subjects when the deployment integrates supported radio or satellite services (for example **inReach**).
+
+## Sidebar and Settings
+
+The sidebar organizes: **Events** (feed and detail), **Patrols** (when enabled), **Map Layers** (subjects, tracks, heatmaps, spatial features, analyzers, event visibility), and **Settings**.
+
+**Settings → General:** manual refresh, language, sound preferences (new events, satellite messages, radio critical-state transitions), and experimental features.
+
+**Settings → Alerts:** embeds the full alerts configuration app when enabled.
+
+## Global Menu
+
+The hamburger menu provides: alerts configuration (modal); contact support; help, community, and user guide links; exports (daily report, KML, subject/observation/event exports — permission and flag gated); Ecoscope companion links; and version and legal references.
+
+## Project Scope
+
+This repository is the **operator-facing web application** for EarthRanger: authenticated access to a single tenant's data and configuration, the primary map and sidebar workflows, and live feed updates. Feature flags and user permissions determine which capabilities are available per deployment.
