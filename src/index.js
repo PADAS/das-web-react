@@ -77,9 +77,9 @@ const RootApp = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (window?.OneTrust) {
+    if (window?.Osano?.cm) {
       document.documentElement.lang = i18n.language;
-      window.OneTrust.changeLanguage(i18n.language);
+      window.Osano.cm.locale = i18n.language;
     }
   }, [i18n.language]);
 
