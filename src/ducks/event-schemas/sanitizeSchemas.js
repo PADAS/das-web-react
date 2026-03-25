@@ -122,7 +122,9 @@ const generateSchemaAndUiSchemaForCheckbox = (definition, schema) => {
       uniqueItems: true,
     },
     uiSchemaEntry: {
-      'ui:enumNames': titleMap.map((item) => item.name),
+      items: {
+        'ui:enumNames': titleMap.map((item) => item.name),
+      },
       'ui:widget': CheckboxesWidget,
     },
   };
