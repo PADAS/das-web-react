@@ -1,5 +1,5 @@
-import React, { memo, useEffect, useState } from 'react';
-import { format, isValid, parseISO } from 'date-fns';
+import React, { memo } from 'react';
+import { format } from 'date-fns';
 
 import { DATE_TIME_ELEMENT_INPUT_TYPES } from '../../../../../utils/v2-event-schemas/constants';
 
@@ -67,36 +67,11 @@ const INPUTS = {
 };
 
 const DateTime = ({ details, error, id, onFieldChange, readOnly, value = '' }) => {
-  const [hasTimezoneBeenCorrected, setHasTimezoneBeenCorrected] = useState(false);
-
   const Input = INPUTS[details.inputType];
 
   const hasError = !!error;
 
-  // Date-time and time input types have a timezone offset, so we correct the input value to the current user timezone
-  // before rendering it.
-  useEffect(() => {
-    if (value && !hasTimezoneBeenCorrected) {
-      if (details.inputType === DATE_TIME_ELEMENT_INPUT_TYPES.DATE_TIME) {
-        const parsedDateTimeValue = parseISO(value);
-        if (isValid(parsedDateTimeValue)) {
-          onFieldChange(id, format(parsedDateTimeValue, 'yyyy-MM-dd\'T\'HH:mm:ssXXX'));
-        }
-      }
-
-      if (details.inputType === DATE_TIME_ELEMENT_INPUT_TYPES.TIME) {
-        const parsedTimeValue = parseISO(`${format(new Date(), 'yyyy-MM-dd')}T${value}`);
-        if (isValid(parsedTimeValue)) {
-          onFieldChange(id, format(parsedTimeValue, 'HH:mm:ssXXX'));
-        }
-      }
-    }
-
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setHasTimezoneBeenCorrected(true);
-  }, [details.inputType, hasTimezoneBeenCorrected, id, onFieldChange, value]);
-
-  return hasTimezoneBeenCorrected ? <div
+  return <div
       className={styles.dateTime}
       data-testid={`schema-form-date-time-field-${id}`}
     >
@@ -124,7 +99,7 @@ const DateTime = ({ details, error, id, onFieldChange, readOnly, value = '' }) =
     >
       {error?.message || details.description}
     </p>
-  </div> : null;
+  </div>;
 };
 
 export default memo(DateTime);
