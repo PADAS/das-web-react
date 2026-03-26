@@ -216,9 +216,23 @@ export const calculatePopoverPlacement = async (map, popoverLocation) => {
 export const buildGeoSpanFilter = (geoSpan) => {
   if (!geoSpan) return null;
 
-  const [minLon, maxLon] = geoSpan.lon;
-  const [minLat, maxLat] = geoSpan.lat;
+  const { lon, lat } = geoSpan;
 
+  if (!Array.isArray(lon) || !Array.isArray(lat) || lon.length < 2 || lat.length < 2) {
+    return null;
+  }
+
+  const [minLon, maxLon] = lon;
+  const [minLat, maxLat] = lat;
+
+  if (
+    !Number.isFinite(minLon) ||
+    !Number.isFinite(maxLon) ||
+    !Number.isFinite(minLat) ||
+    !Number.isFinite(maxLat)
+  ) {
+    return null;
+  }
   return [minLon, minLat, maxLon, maxLat];
 };
 
