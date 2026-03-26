@@ -29,6 +29,7 @@ export const setSystemConfigFromSystemStatus = (systemStatus) => (dispatch) => {
       [SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]: systemStatus[SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES] ?? true,
       [SYSTEM_CONFIG_FLAGS.SUBJECTS]: systemStatus[SYSTEM_CONFIG_FLAGS.SUBJECTS] ?? true,
       [SYSTEM_CONFIG_FLAGS.TABLEAU]: systemStatus[SYSTEM_CONFIG_FLAGS.TABLEAU] ?? true,
+      [SYSTEM_CONFIG_FLAGS.GEO_SPAN]: systemStatus[SYSTEM_CONFIG_FLAGS.GEO_SPAN] ?? null,
       showTrackDays: systemStatus.show_track_days,
       sitename,
       require_idp: !!systemStatus.require_idp,
@@ -72,6 +73,7 @@ export const INITIAL_STATE = {
   [SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]: false,
   [SYSTEM_CONFIG_FLAGS.SUBJECTS]: false,
   [SYSTEM_CONFIG_FLAGS.TABLEAU]: false,
+  [SYSTEM_CONFIG_FLAGS.GEO_SPAN]: null,
   showTrackDays: DEFAULT_SHOW_TRACK_DAYS,
   sitename: '',
   require_idp: null,  // null = not loaded yet

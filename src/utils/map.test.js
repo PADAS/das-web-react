@@ -1,6 +1,6 @@
 import { createMapMock } from '../__test-helpers/mocks';
 
-import { calculatePopoverPlacement, waitForMapBounds } from './map';
+import { buildGeoSpanFilter, calculatePopoverPlacement, waitForMapBounds } from './map';
 
 let map;
 const errorObj = new Error('invalid LngLat');
@@ -149,5 +149,30 @@ describe('calculatePopoverPlacement', () => {
     }));
 
     expect(await calculatePopoverPlacement(map, { lat: -2.7, lng: 37.5 })).toBe('bottom');
+  });
+});
+
+describe('buildGeoSpanFilter', () => {
+  test('returns null when geoSpan is null', () => {
+    expect(buildGeoSpanFilter(null)).toBeNull();
+  });
+
+  test('returns null when geoSpan is undefined', () => {
+    expect(buildGeoSpanFilter(undefined)).toBeNull();
+  });
+
+  test('returns [minLon, minLat, maxLon, maxLat] for a valid geoSpan', () => {
+    const geoSpan = { lon: [-10, 10], lat: [-5, 5] };
+    expect(buildGeoSpanFilter(geoSpan)).toEqual([-10, -5, 10, 5]);
+  });
+
+  test('handles negative coordinate ranges', () => {
+    const geoSpan = { lon: [-180, -90], lat: [-90, -45] };
+    expect(buildGeoSpanFilter(geoSpan)).toEqual([-180, -90, -90, -45]);
+  });
+
+  test('handles a geoSpan that spans the antimeridian', () => {
+    const geoSpan = { lon: [170, -170], lat: [-10, 10] };
+    expect(buildGeoSpanFilter(geoSpan)).toEqual([170, -10, -170, 10]);
   });
 });
