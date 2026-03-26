@@ -16,7 +16,8 @@ jest.mock('../App', () => {
 jest.mock('../utils/analyzers', () => ({}));
 jest.mock('../ducks/analyzers', () => ({}));
 jest.mock('../utils/map', () => ({
-  addMapImage: jest.fn()
+  addMapImage: jest.fn(),
+  buildGeoSpanFilter: jest.fn().mockReturnValue(null),
 }));
 
 jest.mock('../constants', () => ({
