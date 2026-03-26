@@ -1,8 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import isEqual from 'react-fast-compare';
 
 import evaluateSectionConditions from './utils/evaluateSectionConditions';
 import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from '../../../utils/v2-event-schemas/constants';
 import getDefaultFormData from './utils/getDefaultFormData';
+import getFormDataWithFixedTimezones from './utils/getFormDataWithFixedTimezones';
 import transformSchemaToFormElements from '../../../utils/v2-event-schemas/transformSchemaToFormElements';
 import useMapLocationMarkers from './utils/useMapLocationMarkers';
 import useSchemaValidations from './utils/useSchemaValidations';
@@ -33,11 +35,11 @@ const getVisibleSectionIds = (formElements, formData) =>
     ));
 
 const SchemaForm = ({
-  autofillDefaultInputs,
   eventId,
   eventLocation,
   formData,
   hideMapLocationMarkers,
+  isNewEvent,
   onFormDataChange,
   onFormSubmit,
   renderSubmitButton,
@@ -66,7 +68,7 @@ const SchemaForm = ({
   } = useMapLocationMarkers(eventId, eventLocation, onLocationMarkerClick, hideMapLocationMarkers);
 
   const [fieldErrors, setFieldErrors] = useState({});
-  const [shouldAutofillDefaultInputs, setShouldAutofillDefaultInputs] = useState(autofillDefaultInputs);
+  const [shouldCalculateInitialData, setShouldCalculateInitialData] = useState(true);
 
   const formElements = useMemo(() => transformSchemaToFormElements(schema), [schema]);
 
@@ -154,7 +156,7 @@ const SchemaForm = ({
         value={value}
       />;
 
-    default:
+    default: {
       const Field = FIELDS[formElements[id].type];
       return <Field
         details={formElements[id].details}
@@ -165,25 +167,33 @@ const SchemaForm = ({
         value={value}
       />;
     }
+    }
   };
 
   useEffect(() => {
-    if (shouldAutofillDefaultInputs) {
-      // The "should autofill default inputs" flag is on, meaning that this is
-      // a new event and the initial form data hasn't been set. Set the initial
-      // form data from the visible fields.
-      const visibleFieldIds = visibleSectionIds.flatMap((sectionId) => [
-        ...formElements[sectionId].details.leftColumn,
-        ...formElements[sectionId].details.rightColumn,
-      ]);
-      const defaultFormData = getDefaultFormData(visibleFieldIds, formElements);
-      if (Object.keys(defaultFormData).length > 0) {
-        onFormDataChange(defaultFormData);
+    if (shouldCalculateInitialData) {
+      let initialData;
+      if (isNewEvent) {
+        // The initial form data for a new event is the default input values
+        // for the visible fields.
+        const visibleFieldIds = visibleSectionIds.flatMap((sectionId) => [
+          ...formElements[sectionId].details.leftColumn,
+          ...formElements[sectionId].details.rightColumn,
+        ]);
+        initialData = getDefaultFormData(visibleFieldIds, formElements);
+      } else {
+        // The initial form data for an existing event is the form data with
+        // the timezone corrected in the date-time and time fields.
+        initialData = getFormDataWithFixedTimezones(formData, formElements);
       }
 
-      setShouldAutofillDefaultInputs(false);
+      if (!isEqual(initialData, formData)) {
+        onFormDataChange(initialData);
+      }
+
+      setShouldCalculateInitialData(false);
     }
-  }, [formElements, onFormDataChange, shouldAutofillDefaultInputs, visibleSectionIds]);
+  }, [formData, formElements, onFormDataChange, isNewEvent, shouldCalculateInitialData, visibleSectionIds]);
 
   useEffect(() => {
     // Update the location markers when there is a change in the form data.
