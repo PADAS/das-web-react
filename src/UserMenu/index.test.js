@@ -43,10 +43,12 @@ describe('UserMenu', () => {
   beforeEach(() => {
     onLogOutClickMock = jest.fn();
     onProfileClickMock = jest.fn();
+    window.Osano = { cm: { showDrawer: jest.fn() } };
   });
 
   afterEach(() => {
     jest.clearAllMocks();
+    delete window.Osano;
   });
 
   describe('rendering', () => {
@@ -77,12 +79,19 @@ describe('UserMenu', () => {
       expect(iconElement).toBeInTheDocument();
     });
 
-    test('renders cookie settings button', () => {
+    test('renders cookie settings in menu when Osano is available', async () => {
       renderUserMenu();
+      await openDropdown();
 
-      const cookieSettingsButton = document.getElementById('ot-sdk-btn');
-      expect(cookieSettingsButton).toBeInTheDocument();
-      expect(cookieSettingsButton).toHaveAttribute('hidden');
+      expect(screen.getByRole('button', { name: 'Cookie Settings' })).toBeInTheDocument();
+    });
+
+    test('does not render cookie settings in menu when Osano is unavailable', async () => {
+      delete window.Osano;
+      renderUserMenu();
+      await openDropdown();
+
+      expect(screen.queryByRole('button', { name: 'Cookie Settings' })).not.toBeInTheDocument();
     });
   });
 
@@ -145,15 +154,10 @@ describe('UserMenu', () => {
       renderUserMenu();
       await openDropdown();
 
-      const cookieSettingsButton = document.getElementById('ot-sdk-btn');
-      expect(cookieSettingsButton).toBeInTheDocument();
-
-      const clickSpy = jest.spyOn(cookieSettingsButton, 'click');
-
       const cookieSettingsItem = screen.getByRole('button', { name: 'Cookie Settings' });
       await userEvent.click(cookieSettingsItem);
 
-      expect(clickSpy).toHaveBeenCalled();
+      expect(window.Osano.cm.showDrawer).toHaveBeenCalledWith('osano-cm-dom-info-dialog-open');
     });
   });
 

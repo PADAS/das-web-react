@@ -1,0 +1,79 @@
+@import '../common/styles/vars/colors';
+
+.header {
+  background-color: $off-black;
+  border-radius: 0.5rem 0.5rem 0 0;
+  color: white;
+  margin: -0.7rem -0.7rem 0.75rem -0.7rem;
+  padding: 0.5rem;
+  text-align: left;
+
+  .dateTimeWrapper {
+    display: flex;
+    flex-wrap: wrap;
+    line-height: normal;
+    margin-top: 0.35rem;
+    white-space: nowrap;
+
+    .dateTimeDetails {
+      color: white;
+      display: inline;
+    }
+
+    .dateTimeComma {
+      margin-right: 0.25rem;
+    }
+
+    .timeAgo {
+      font-size: 0.7rem;
+      font-style: italic;
+    }
+  }
+}
+
+.title {
+  margin: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.body {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+  padding: 0 0.35rem;
+}
+
+.details {
+  margin: 0;
+  max-width: 100%;
+  min-width: 0;
+  text-align: center;
+
+  dt {
+    font-weight: 600;
+    margin-top: 0.5rem;
+  }
+
+  dd {
+    margin: 0.15rem 0 0;
+    max-width: 100%;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+}
+
+.deviceId {
+  display: block;
+  font-family: monospace;
+  font-size: 0.9em;
+  margin-top: 0.1rem;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+}
+
+.gpsFormatToggle {
+  margin-bottom: 0.75rem;
+}

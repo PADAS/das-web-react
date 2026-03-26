@@ -1,4 +1,10 @@
 {
+  "gearPopup": {
+    "dateTimeSuffix": "iliyopita",
+    "deviceLabel": "Kifaa {{label}}",
+    "lastUpdatedLabel": "Ilisasishwa mwisho",
+    "typeLabel": "Aina"
+  },
   "analyzerConfigPopup": {
     "analyzerTypeHeader": {
       "environmental": "Mazingira",

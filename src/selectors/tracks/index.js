@@ -8,6 +8,7 @@ import {
   trimTrackDataToTimeRange,
   buildTrackSegments
 } from '../../utils/tracks';
+import { isGearSubjectSubtype } from '../../utils/subjects';
 
 const selectEventFilterLowerDateRange = (state) => state.data.eventFilter.filter.date_range.lower;
 const selectHeatmapSubjectIDs = (state) => state.view.heatmapSubjectIDs;
@@ -16,6 +17,7 @@ const selectSubjectTrackState = (state) => state.view.subjectTrackState;
 const selectTimeOfDayTimeZone = (state) => state.view.trackSettings.timeOfDayTimeZone;
 const selectTimeSliderState = (state) => state.view.timeSliderState;
 const selectTracks = (state) => state.data.tracks;
+const selectSubjectStore = (state) => state.data.subjectStore;
 const selectTrackSettingsLength = (state) => state.view.trackSettings.length;
 const selectTrackSettingsOrigin = (state) => state.view.trackSettings.origin;
 
@@ -57,11 +59,13 @@ export const selectTrackTimeEnvelope = createSelector(
   });
 
 const selectHeatmapSubjectTracks = createSelector(
-  [selectHeatmapSubjectIDs, selectTracks],
-  (heatmapSubjectIDs, tracks) => {
+  [selectHeatmapSubjectIDs, selectTracks, selectSubjectStore],
+  (heatmapSubjectIDs, tracks, subjectStore) => {
     // Calculate the tracks of the heatmap subjects.
     const heatmapSubjectTracks = [];
     heatmapSubjectIDs.forEach((subjectId) => {
+      const subject = subjectStore?.[subjectId];
+      if (subject && isGearSubjectSubtype(subject)) return;
       if (tracks[subjectId]) {
         heatmapSubjectTracks.push(tracks[subjectId]);
       }
@@ -80,11 +84,13 @@ export const selectHeatmapSubjectTracksTrimmedToTrackTimeEnvelope = createSelect
 );
 
 const selectSubjectShownTracks = createSelector(
-  [selectSubjectTrackState, selectTracks],
-  (subjectTrackState, tracks) => {
+  [selectSubjectTrackState, selectTracks, selectSubjectStore],
+  (subjectTrackState, tracks, subjectStore) => {
     // Calculate the tracks of the subjects with shown tracks.
     const subjectTracks = [];
     uniq([...subjectTrackState.pinned, ...subjectTrackState.visible]).forEach((subjectId) => {
+      const subject = subjectStore?.[subjectId];
+      if (subject && isGearSubjectSubtype(subject)) return;
       if (tracks[subjectId]) {
         subjectTracks.push(tracks[subjectId]);
       }

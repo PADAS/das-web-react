@@ -3,6 +3,7 @@ import { featureCollection } from '@turf/turf';
 
 import {
   addDefaultStatusValue,
+  isGearSubjectSubtype,
   markSubjectFeaturesWithActivePatrols,
   pinMapSubjectsToVirtualPosition,
   subjectIsStatic,
@@ -29,10 +30,11 @@ export const selectMapSubjectsFeatureCollection = createSelector(
     // Calculate the subject features to show on the map.
     const features = [];
     mapSubjects.forEach((subjectId) => {
-      if (!hiddenSubjectIDsSet.has(subjectId) && subjectStore[subjectId]) {
+      const subjectRecord = subjectStore[subjectId];
+      if (!hiddenSubjectIDsSet.has(subjectId) && subjectRecord && !isGearSubjectSubtype(subjectRecord)) {
         // The subject is not hidden and exists in the subject store. Get the
         // last position of the subject in GeoJSON format.
-        const enrichedSubjectWithLastPosition = addPropsToGeoJsonByKey(subjectStore[subjectId], 'last_position');
+        const enrichedSubjectWithLastPosition = addPropsToGeoJsonByKey(subjectRecord, 'last_position');
         const lastPositionGeoJson = enrichedSubjectWithLastPosition['last_position'];
         if (lastPositionGeoJson) {
           if (lastPositionGeoJson.type === 'FeatureCollection') {
@@ -78,7 +80,9 @@ export const selectHydratedSubjectGroupsWithLastPositionTime = createSelector(
       const { subgroups, subjects } = group;
 
       const hydratedSubGroups = hydrateSubjectGroupSubjects(...subgroups);
-      const hydratedSubjects = subjects.map((id) => subjectStore[id]).filter((subject) => !!subject);
+      const hydratedSubjects = subjects
+        .map((id) => subjectStore[id])
+        .filter((subject) => !!subject && !isGearSubjectSubtype(subject));
 
       let lastPositionTime;
       hydratedSubGroups.forEach((subGroup) => {

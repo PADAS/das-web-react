@@ -43,6 +43,7 @@ import { LAYER_IDS, SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../constants';
 import DelayedUnmount from '../DelayedUnmount';
 import EarthRangerMap from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
+import GearLayer from '../GearLayer';
 import SubjectsLayer from '../SubjectsLayer';
 import StaticSensorsLayer from '../StaticSensorsLayer';
 import TracksLayer from '../TracksLayer';
@@ -125,6 +126,7 @@ const Map = ({ children, onMapLoad, socket }) => {
   const hiddenFeatureIDs = useSelector(state => state.data.mapLayerFilter.hiddenFeatureIDs);
   const eventFilter = useSelector(state => state.data.eventFilter);
   const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
+  const gearTabEligible = useSelector((state) => state.data.gear.tabEligible);
   const mapImages = useSelector(state => state.view.mapImages);
   const mapIsLocked = useSelector(state => state.view.mapIsLocked);
   const mapLocationSelection = useSelector(state => state.view.mapLocationSelection);
@@ -275,6 +277,21 @@ const Map = ({ children, onMapLoad, socket }) => {
     }
   }, [mapLocationSelection.isPickingLocation]);
 
+  const onSelectGear = withLocationPickerState(
+    ({ coordinates: coordinatesOverride, event, layer }) => {
+      const { geometry, properties } = layer;
+      const coordinates = coordinatesOverride ?? (
+        geometry.type === 'Point'
+          ? geometry.coordinates
+          : [event.lngLat.lng, event.lngLat.lat]
+      );
+
+      window.setTimeout(() => showPopup('gear', { geometry, properties, coordinates }));
+
+      mapInteractionTracker.track('Click Map Gear', `Gear:${properties.id}`);
+    }
+  );
+
   const onSelectSubject = withLocationPickerState(
     async ({ layer }) => {
       const { geometry, properties } = layer;
@@ -309,10 +326,11 @@ const Map = ({ children, onMapLoad, socket }) => {
     showPopup('multi-layer-select', {
       layers,
       coordinates: [event.lngLat.lng, event.lngLat.lat],
-      onSelectSubject: onSelectSubject,
       onSelectEvent: onSelectEvent,
+      onSelectGear: onSelectGear,
+      onSelectSubject: onSelectSubject,
     });
-  }, [onSelectEvent, onSelectSubject, showPopup]);
+  }, [onSelectEvent, onSelectGear, onSelectSubject, showPopup]);
 
   const hideUnpinnedTrackLayers = useCallback((map, event) => {
     const { visible } = subjectTrackState;
@@ -346,9 +364,10 @@ const Map = ({ children, onMapLoad, socket }) => {
       layers,
       coordinates,
       onSelectEvent: onSelectEvent,
+      onSelectGear: onSelectGear,
       onSelectSubject: onSelectSubject,
     });
-  }, [onSelectEvent, onSelectSubject, showPopup]);
+  }, [onSelectEvent, onSelectGear, onSelectSubject, showPopup]);
 
   const onCurrentUserLocationClick = withLocationPickerState((location) => {
     showPopup('current-user-location', {
@@ -433,7 +452,9 @@ const Map = ({ children, onMapLoad, socket }) => {
   // Helper function to check if a feature should keep the popup open
   const doesFeatureOpenPopup = useCallback(
     (feature) => feature.layer.id.includes(LAYER_IDS.TRACK_TIMEPOINTS)
-       || [SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID, POLYGONS_OUTLINE_LAYER_ID].includes(feature.layer.id),
+       || [SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID, POLYGONS_OUTLINE_LAYER_ID].includes(feature.layer.id)
+       || feature.layer.id === LAYER_IDS.GEAR_LINE
+       || feature.layer.id === LAYER_IDS.GEAR_POINT,
     []
   );
 
@@ -691,6 +712,8 @@ const Map = ({ children, onMapLoad, socket }) => {
       />}
 
       {subjectsEnabled && <SubjectsLayer mapImages={mapImages} onSubjectClick={onSelectSubject} />}
+
+      {gearTabEligible && <GearLayer onGearClick={onSelectGear} />}
 
       <MapImagesLayer />
 

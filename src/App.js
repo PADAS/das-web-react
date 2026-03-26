@@ -20,6 +20,7 @@ import { fetchEventTypes } from './ducks/event-types';
 import { fetchFeaturesets } from './ducks/features';
 import { fetchMaps } from './ducks/maps';
 import { fetchPatrolTypes } from './ducks/patrol-types';
+import { fetchAllGear } from './ducks/gear';
 import { fetchSubjectGroups } from './ducks/subjects';
 import { fetchSystemStatus } from './ducks/system-status';
 import { getCurrentTabFromURL } from './utils/navigation';
@@ -163,6 +164,15 @@ export const App = () => {
     loadProgressBar({}, axios);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    dispatch(fetchAllGear());
+    const intervalId = window.setInterval(() => {
+      dispatch(fetchAllGear());
+    }, 600000);
+
+    return () => window.clearInterval(intervalId);
+  }, [dispatch]);
 
   useEffect(() => {
     if (showGeoPermWarningMessage) {

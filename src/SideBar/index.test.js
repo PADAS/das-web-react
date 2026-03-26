@@ -12,6 +12,7 @@ import eventCategories from '../__test-helpers/fixtures/event-categories';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { fetchPatrols, PATROLS_API_URL } from '../ducks/patrols';
 import { INITIAL_FILTER_STATE } from '../ducks/patrol-filter';
+import { INITIAL_GEAR_STATE } from '../ducks/gear';
 import { INITIAL_PATROLS_STATE } from '../ducks/patrols';
 import mockPatrolData from '../__test-helpers/fixtures/patrols';
 import MockSocketProvider, { mockedSocket } from '../__test-helpers/MockSocketContext';
@@ -88,6 +89,7 @@ describe('SideBar', () => {
         eventTypes,
         featureSets: { data: [] },
         feedEvents: { results: [] },
+        gear: { ...INITIAL_GEAR_STATE },
         mapLayerFilter: { text: '', hiddenAnalyzerIDs: [] },
         patrolFilter: {
           filter: {

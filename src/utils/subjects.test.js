@@ -1,4 +1,11 @@
-import { subjectIsStatic, getSubjectDefaultDeviceProperty, addDefaultStatusValue, isBuoySubject, calcDisplayNameForSubject } from './subjects.js';
+import {
+  subjectIsStatic,
+  getSubjectDefaultDeviceProperty,
+  addDefaultStatusValue,
+  isBuoySubject,
+  isGearSubjectSubtype,
+  calcDisplayNameForSubject,
+} from './subjects.js';
 import { subjectFeatureWithOneDeviceProp, staticSubjectFeature, staticSubjectFeatureWithoutIcon } from '../__test-helpers/fixtures/subjects';
 import {
   ropelessBuoySubject,
@@ -40,6 +47,18 @@ test('adding a default status value to stationary subjects', () => {
 
   const withDefault = addDefaultStatusValue(staticSubjectFeature);
   expect(withDefault).toHaveProperty(['properties', 'default_status_value']);
+});
+
+describe('isGearSubjectSubtype', () => {
+  test('returns true for ropeless buoy gearset and device subtypes', () => {
+    expect(isGearSubjectSubtype({ subject_subtype: 'ropeless_buoy_gearset' })).toBe(true);
+    expect(isGearSubjectSubtype({ subject_subtype: 'ropeless_buoy_device' })).toBe(true);
+  });
+
+  test('returns false for other subjects', () => {
+    expect(isGearSubjectSubtype({ subject_subtype: 'pants' })).toBe(false);
+    expect(isGearSubjectSubtype({})).toBe(false);
+  });
 });
 
 describe('isBuoySubject', () => {

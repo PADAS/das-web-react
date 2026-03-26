@@ -196,6 +196,20 @@
         "newVersionAvailableNotification": "Una nova versão de EarthRanger est;a disponível. Ela será carregada na próxima vez em que você atualizar seu navegador."
     },
     "sideBar": {
+        "closeGearTabButtonLabel": "Fechar equipamento",
+        "gearLink": "Equipamento",
+        "gearTab": {
+            "gearCount": "{{count}} conjuntos de equipamento carregados",
+            "unknownManufacturer": "Outro",
+            "loadErrorFallback": "Falha na solicitação",
+            "loadErrorIntro": "Não foi possível carregar o equipamento do servidor.",
+            "loading": "Atualizando…",
+            "loadingInitial": "Carregando equipamento…",
+            "loadingList": "Ainda carregando a lista completa…",
+            "noSearchResults": "Nenhum conjunto corresponde à pesquisa.",
+            "retryButton": "Tentar novamente",
+            "searchPlaceholder": "Pesquisar por nome"
+        },
         "layersLink": "Camadas do mapa",
         "mapLayersTab": {
             "analyzersTabTitle": "Analisadores",

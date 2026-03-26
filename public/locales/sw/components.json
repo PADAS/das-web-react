@@ -213,6 +213,20 @@
     "closeMapLayersButtonLabel": "Funga Safu za Ramani",
     "closePatrolFeedButtonLabel": "Funga Onyesha Doria",
     "closeSettingsButtonLabel": "Funga Mipangilio",
+    "closeGearTabButtonLabel": "Funga vifaa",
+    "gearLink": "Vifaa",
+    "gearTab": {
+      "gearCount": "Seti {{count}} za vifaa zimepakuliwa",
+      "unknownManufacturer": "Nyingine",
+      "loadErrorFallback": "Ombi halikufaulu",
+      "loadErrorIntro": "Haikuweza kupakia vifaa kutoka kwa seva.",
+      "loading": "Inasasishwa…",
+      "loadingInitial": "Inapakia vifaa…",
+      "loadingList": "Bado inapakia orodha kamili…",
+      "noSearchResults": "Hakuna seti inayolingana na utafutaji.",
+      "retryButton": "Jaribu tena",
+      "searchPlaceholder": "Tafuta kwa jina"
+    },
     "layersLink": "Safu za Ramani",
     "mapLayersTab": {
       "analyzersTabTitle": "Wachambuzi",

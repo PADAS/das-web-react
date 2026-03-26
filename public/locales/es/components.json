@@ -196,6 +196,20 @@
     "newVersionAvailableNotification": "Una nueva versión de EarthRanger está disponible. Se cargará la siguiente vez que recargue su navegador."
   },
   "sideBar": {
+    "closeGearTabButtonLabel": "Cerrar aparejos",
+    "gearLink": "Aparejos",
+    "gearTab": {
+      "gearCount": "{{count}} conjuntos de aparejos cargados",
+      "unknownManufacturer": "Otro",
+      "loadErrorFallback": "Error en la solicitud",
+      "loadErrorIntro": "No se pudo cargar el aparejo desde el servidor.",
+      "loading": "Actualizando…",
+      "loadingInitial": "Cargando aparejos…",
+      "loadingList": "Aún cargando la lista completa…",
+      "noSearchResults": "Ningún conjunto coincide con la búsqueda.",
+      "retryButton": "Reintentar",
+      "searchPlaceholder": "Buscar por nombre"
+    },
     "layersLink": "Capas de mapa",
     "mapLayersTab": {
       "analyzersTabTitle": "Analizadores",
