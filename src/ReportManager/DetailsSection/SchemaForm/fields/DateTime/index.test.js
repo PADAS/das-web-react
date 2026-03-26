@@ -1,12 +1,9 @@
 import React from 'react';
-import { format, parseISO } from 'date-fns';
 
 import { render, screen } from '../../../../../test-utils';
 import { DATE_TIME_ELEMENT_INPUT_TYPES } from '../../../../../utils/v2-event-schemas/constants';
 
 import DateTime from './';
-
-const transformISOToCurrentTimezone = (dateValue) => format(parseISO(dateValue), 'yyyy-MM-dd\'T\'HH:mm:ssXXX');
 
 describe('ReportManager - DetailsSection - SchemaForm - fields - DateTime', () => {
   const onFieldChange = jest.fn();

@@ -392,10 +392,6 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
       ...schema.ui.sections['section-3'].leftColumn,
       { name: 'date_time_field', type: 'field' },
     ];
-    schema.ui.sections['section-3'].leftColumn = [
-      ...schema.ui.sections['section-3'].leftColumn,
-      { name: 'date_time_field', type: 'field' },
-    ];
 
     const formElements = transformSchemaToFormElements(schema);
     const formData = {

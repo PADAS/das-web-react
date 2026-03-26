@@ -11,9 +11,7 @@ import getFormDataWithFixedTimezones from './';
 const expectedFormattedDateTime = (dateTime) =>
   format(parseISO(dateTime), 'yyyy-MM-dd\'T\'HH:mm:ssXXX');
 const expectedFormattedTime = (time) =>
-  format(
-    parseISO(`${format(new Date(), 'yyyy-MM-dd')}T${time}`), 'HH:mm:ssXXX'
-  );
+  format(parseISO(`2001-01-01T${time}`), 'HH:mm:ssXXX');
 
 describe('ReportManager - DetailsSection - SchemaForm - utils - getFormDataWithFixedTimezones', () => {
   it('does not modify the form data if it does not contain date-time form elements with date-time or time input types', () => {
