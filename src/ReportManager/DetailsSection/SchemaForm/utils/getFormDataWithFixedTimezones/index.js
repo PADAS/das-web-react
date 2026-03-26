@@ -34,16 +34,24 @@ const fixTimezoneRecursively = (formData, formElements) => {
   Object.entries(formData).forEach(([fieldId, fieldValue]) => {
     switch (formElements[fieldId]?.type) {
     case FORM_ELEMENT_TYPES.COLLECTION:
-      newFormData[fieldId] = fieldValue.map(
-        (item) => fixTimezoneRecursively(item, formElements)
-      );
+      if (Array.isArray(fieldValue)) {
+        newFormData[fieldId] = fieldValue.map(
+          (item) => fixTimezoneRecursively(item, formElements)
+        );
+      } else {
+        newFormData[fieldId] = fieldValue;
+      }
       break;
 
     case FORM_ELEMENT_TYPES.DATE_TIME:
-      newFormData[fieldId] = correctDateTimeValue(
-        fieldValue,
-        formElements[fieldId].details.inputType
-      );
+      if (typeof fieldValue === 'string') {
+        newFormData[fieldId] = correctDateTimeValue(
+          fieldValue,
+          formElements[fieldId].details.inputType
+        );
+      } else {
+        newFormData[fieldId] = fieldValue;
+      }
       break;
 
     default:
