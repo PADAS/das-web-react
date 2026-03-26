@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { caseInsensitiveCompare } from '../utils/string';
 import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../ducks/patrol-filter';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
-import { selectPatrolsFeedMappedFromStore } from '../selectors/patrols';
+import { selectPatrolsFeedMappedFromStore, selectPatrolsFeedTotalCount } from '../selectors/patrols';
 import { isFilterModified } from '../utils/patrol-filter';
 import { trackEventFactory, PATROL_FILTER_CATEGORY } from '../utils/analytics';
 
@@ -30,6 +30,7 @@ const PatrolFilter = ({ className = '' }) => {
   const { t } = useTranslation('filters', { keyPrefix: 'patrolFilters' });
   const dispatch = useDispatch();
   const patrolsFeedMappedFromStore = useSelector(selectPatrolsFeedMappedFromStore);
+  const patrolsFeedTotalCount = useSelector(selectPatrolsFeedTotalCount);
   const patrolFilter = useSelector(state => state.data.patrolFilter);
 
   const [filterText, setFilterText] = useState(patrolFilter.filter.text);
@@ -150,7 +151,7 @@ const PatrolFilter = ({ className = '' }) => {
         className={styles.friendlyFilterString}
         dateRange={patrolFilter.filter.date_range}
         isFiltered={isFilterModified(patrolFilter)}
-        totalFeedCount={patrolsFeedMappedFromStore.length}
+        totalFeedCount={patrolsFeedTotalCount}
       />
 
       {

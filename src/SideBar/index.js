@@ -10,6 +10,7 @@ import { ReactComponent as ERLogo } from '../common/images/icons/er-logo.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
+import { ReactComponent as DataAnalyticsIcon } from '../common/images/icons/data-analytics.svg';
 
 import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
 import { FEED_CATEGORY } from '../utils/analytics';
@@ -70,6 +71,8 @@ const SideBar = () => {
 
   const canReadPatrols = patrolManagementEnabled && hasPatrolsReadPermission;
 
+  const showDataTab = eventsEnabled || subjectsEnabled || canReadPatrols;
+
   const currentTab = getCurrentTabFromURL(location.pathname);
   const itemId = getCurrentIdFromURL(location.pathname);
 
@@ -84,10 +87,11 @@ const SideBar = () => {
 
   const enabledTabKeys = useMemo(() => ({
     ...TAB_KEYS,
+    DATA: showDataTab ? TAB_KEYS.DATA : undefined,
     EVENTS: eventsEnabled ? TAB_KEYS.EVENTS : undefined,
     LAYERS: showLayersTab ? TAB_KEYS.LAYERS : undefined,
     PATROLS: canReadPatrols ? TAB_KEYS.PATROLS : undefined,
-  }), [canReadPatrols, eventsEnabled, showLayersTab]);
+  }), [canReadPatrols, eventsEnabled, showDataTab, showLayersTab]);
 
   // If there is a current tab and it is in the enabled tab keys, the side bar
   // is open.
@@ -210,6 +214,16 @@ const SideBar = () => {
         <span>{t('patrolsLink')}</span>
       </Link>}
 
+      {showDataTab && <Link
+        className={`${styles.navItem} ${currentTab === TAB_KEYS.DATA ? styles.active : ''}`}
+        data-testid="sideBar-dataLink"
+        to={`/${TAB_KEYS.DATA}`}
+      >
+        <DataAnalyticsIcon />
+
+        <span>{t('dataLink')}</span>
+      </Link>}
+
       {showLayersTab && <Link
         className={`${styles.navItem} ${currentTab === TAB_KEYS.LAYERS ? styles.active : ''}`}
         to={`/${TAB_KEYS.LAYERS}`}
@@ -229,7 +243,7 @@ const SideBar = () => {
       </Link>
     </div>
 
-    <div className={`${styles.tabsContainer} ${isSideBarOpen ? 'open' : ''}`}>
+    {currentTab !== TAB_KEYS.DATA && <div className={`${styles.tabsContainer} ${isSideBarOpen ? 'open' : ''}`}>
       <div className={`${styles.tab}  ${isSideBarOpen ? 'open' : ''}`}>
         <div className={styles.printLogo}>
           <ERLogo />
@@ -266,6 +280,7 @@ const SideBar = () => {
 
           <button
             aria-label={t(CLOSE_BUTTON_LABEL_KEY[currentTab])}
+            data-testid="sideBar-closeTabButton"
             onClick={() => navigate('/')}
             title={t('closeButtonTitle')}
           >
@@ -303,7 +318,7 @@ const SideBar = () => {
           </Routes>
         </div>
       </div>
-    </div>
+    </div>}
   </nav>;
 };
 

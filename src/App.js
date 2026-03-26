@@ -27,7 +27,9 @@ import { setDefaultCustomTrackLength, setTrackLength } from './ducks/tracks';
 import { showToast } from './utils/toast';
 import useNavigate from './hooks/useNavigate';
 import { userIsGeoPermissionRestricted } from './utils/geo-perms';
+import { TAB_KEYS } from './constants';
 
+import DataWorkspace from './DataWorkspace';
 import Drawer from './Drawer';
 import Map from './Map';
 import MapDrawingToolsContextProvider from './MapDrawingTools/ContextProvider';
@@ -71,7 +73,7 @@ export const App = () => {
   const [map, setMap] = useState(null);
 
   const currentTab = getCurrentTabFromURL(location.pathname);
-  let sidebarOpen = !!currentTab;
+  const sidebarOpen = !!currentTab && currentTab !== TAB_KEYS.DATA;
 
   const jumpToStartingLocation = useCallback((map) => {
     const urlParams = new URLSearchParams(location.search);
@@ -207,9 +209,11 @@ export const App = () => {
         <Nav />
 
         <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
-          {mapboxSupported
-            ? <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} />
-            : <ErrorMessage className='webgl-error-message' message={t('webGlDisabled')} />}
+          {currentTab === TAB_KEYS.DATA
+            ? <DataWorkspace />
+            : mapboxSupported
+              ? <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} />
+              : <ErrorMessage className='webgl-error-message' message={t('webGlDisabled')} />}
 
           <SidebarScrollProvider>
             <SideBar map={map} />

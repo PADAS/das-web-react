@@ -66,7 +66,13 @@ const buildPatrolData = (patrol, timeSliderState, tracks) => {
   return patrolData;
 };
 
-const selectPatrolsFeed = (state) => state.data.patrolsFeed;
+export const selectPatrolsFeed = (state) => state.data.patrolsFeed;
+
+const patrolFeedIds = (feed) => {
+  if (feed == null) return [];
+  if (Array.isArray(feed)) return feed;
+  return feed.results ?? [];
+};
 const selectPatrolLeaderSchema = (state) => state.data.patrolLeaderSchema;
 const selectPatrolStore = (state) => state.data.patrolStore;
 const selectPatrolTrackState = (state) => state.view.patrolTrackState;
@@ -117,13 +123,22 @@ export const selectPatrolsFeedMappedFromStore = createSelector(
   (patrolsFeed, patrolStore) => {
     // List the patrols from the feed that are defined in the patrol store.
     const patrolsFeedMappedFromStore = [];
-    patrolsFeed.forEach((patrolId) => {
+    patrolFeedIds(patrolsFeed).forEach((patrolId) => {
       if (patrolStore[patrolId]) {
         patrolsFeedMappedFromStore.push(patrolStore[patrolId]);
       }
     });
 
     return patrolsFeedMappedFromStore;
+  }
+);
+
+export const selectPatrolsFeedTotalCount = createSelector(
+  [selectPatrolsFeed, selectPatrolsFeedMappedFromStore],
+  (feed, mapped) => {
+    if (feed == null) return mapped.length;
+    if (Array.isArray(feed)) return feed.length;
+    return feed.count != null ? feed.count : mapped.length;
   }
 );
 

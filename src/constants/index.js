@@ -53,6 +53,7 @@ export const PATROL_API_STATES = {
 };
 
 export const TAB_KEYS = {
+  DATA: 'data',
   EVENTS: 'events',
   LAYERS: 'layers',
   PATROLS: 'patrols',
