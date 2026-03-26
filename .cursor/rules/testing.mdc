@@ -32,8 +32,8 @@ alwaysApply: false
 
 ### Testing
 
-- Use `render` from `app/test-utils.jsx` for components, with a custom `renderComponent` helper.
-- Use `renderHook` from `app/test-utils.jsx` for hooks.
+- Use `render` from `src/test-utils.jsx` for components, with a custom `renderComponent` helper.
+- Use `renderHook` from `src/test-utils.jsx` for hooks.
 - Test user interactions with `@testing-library/user-event`.
 - Use `screen` queries for selecting elements.
 - Test accessibility; prefer `getByRole('role', { name: 'accessible name' })` queries.
