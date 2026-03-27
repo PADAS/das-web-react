@@ -93,6 +93,9 @@ jobs:
           password: ${{ steps.auth.outputs.access_token }}
 
       - uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: |
+            image=europe-west3-docker.pkg.dev/serca-artifact-registry/virtual-docker/moby/buildkit:buildx-stable-1
 
       - name: Docker metadata
         id: meta
