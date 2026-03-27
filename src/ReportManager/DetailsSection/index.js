@@ -271,11 +271,11 @@ const DetailsSection = ({
     </Form>}
 
     {eventType?.version === 2 && eventSchema && <SchemaForm
-      autofillDefaultInputs={isNewEvent}
       eventId={eventId}
       eventLocation={reportForm.location}
       formData={reportForm.event_details}
       hideMapLocationMarkers={isBehindAddedEvent}
+      isNewEvent={isNewEvent}
       onFormDataChange={onFormDataChange}
       onFormSubmit={onFormSubmit}
       readOnly={isReadOnly}

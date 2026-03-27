@@ -1,0 +1,63 @@
+name: ArgoCD Sync (internal)
+
+on:
+  workflow_call:
+    inputs:
+      app-name:
+        required: true
+        type: string
+      wait-timeout:
+        type: number
+        default: 300
+    secrets:
+      ARGOCD_AUTH_TOKEN:
+        required: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      ARGOCD_SERVER: ${{ vars.ARGOCD_SERVER }}
+      ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+      APP_NAME: ${{ inputs.app-name }}
+    steps:
+      - name: Install ArgoCD CLI
+        run: |
+          curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+          chmod +x argocd && sudo mv argocd /usr/local/bin/
+
+      - name: Wait for app
+        run: |
+          for i in $(seq 1 18); do
+            argocd app get "$APP_NAME" --grpc-web &>/dev/null && exit 0
+            echo "[$i/18] Not found, retrying in 10s..."
+            sleep 10
+          done
+          echo "::error::App $APP_NAME not found after 180s" && exit 1
+
+      - name: Sync
+        run: |
+          MAX_RETRIES=3
+          RETRY_WAIT=2
+          for attempt in $(seq 1 $MAX_RETRIES); do
+            echo "Sync attempt $attempt/$MAX_RETRIES..."
+            if argocd app sync "$APP_NAME" --grpc-web --prune; then
+              echo "Sync triggered successfully"
+              exit 0
+            fi
+            if [ $attempt -lt $MAX_RETRIES ]; then
+              echo "Sync failed — terminating in-progress operations..."
+              argocd app terminate-op "$APP_NAME" --grpc-web 2>/dev/null || true
+              sleep 2
+              argocd app get "$APP_NAME" --grpc-web --refresh > /dev/null 2>&1 || true
+              echo "Retrying in ${RETRY_WAIT}s... [Attempt $((attempt + 1))/$MAX_RETRIES]"
+              sleep "$RETRY_WAIT"
+              RETRY_WAIT=$((RETRY_WAIT * 2))
+            else
+              echo "::error::Sync failed after $MAX_RETRIES attempts"
+              exit 1
+            fi
+          done
+
+      - name: Wait for health
+        run: argocd app wait "$APP_NAME" --grpc-web --health --sync --timeout ${{ inputs.wait-timeout }}

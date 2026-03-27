@@ -1,17 +1,11 @@
-# See https://help.github.com/ignore-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-# yarn.lock
-
-# testing
-/coverage
-
-# production
-/build
-
-# misc
 .DS_Store
+
+/.yarn/*
+/build
+/coverage
+/node_modules
+/.vscode
+
 .env.local
 .env.development.local
 .env.test.local
@@ -96,3 +90,8 @@ flycheck_*.el
 
 # network security
 /network-security.data
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

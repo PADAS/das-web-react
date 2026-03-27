@@ -1,8 +1,8 @@
 import React, { memo, useContext, useMemo, useCallback, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { MapContext } from '../App';
-import { addMapImage, safeRemoveMapLayer, safeRemoveMapSource } from '../utils/map';
-import { API_URL, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
+import { addMapImage, safeRemoveMapLayer, safeRemoveMapSource, buildGeoSpanFilter } from '../utils/map';
+import { API_URL, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, SYSTEM_CONFIG_FLAGS } from '../constants';
 import { selectVectorTileRangeParam } from '../selectors/tracks';
 
 import MarkerImage from '../common/images/icons/mapbox-blue-marker-icon.png';
@@ -68,6 +68,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
   const map = useContext(MapContext);
   const token = useSelector(state => state.data.token);
   const rangeParam = useSelector(selectVectorTileRangeParam);
+  const geoSpan = useSelector(state => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.GEO_SPAN]);
   const mapFeatureHighlightIDs = useSelector(state => state.view.mapFeatureHighlightIDs || []);
   const hiddenFeatureIDs = useSelector(state => state.data.mapLayerFilter?.hiddenFeatureIDs ?? []);
 
@@ -99,13 +100,14 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
   /* add the vector layer and bind the event handlers */
   useEffect(() => {
     if (!map) return;
-
     if (!map.getSource(SPATIAL_FEATURES_SOURCE)) {
+      const geoSpanFilter = buildGeoSpanFilter(geoSpan);
       map.addSource(SPATIAL_FEATURES_SOURCE, {
         type: 'vector',
         tiles: [buildVectorTileUrl(rangeParam)],
         minzoom: 0,
         maxzoom: 22,
+        ...(geoSpanFilter && { bounds: geoSpanFilter }),
         transformRequest: (url, resourceType) => {
           if (resourceType === 'Tile' && token?.access_token) {
             return {

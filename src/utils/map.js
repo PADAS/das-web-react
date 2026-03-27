@@ -261,3 +261,32 @@ export const getTimeOfDayLineColorExpression = (propertyName, fallbackExpression
     fallbackExpression,
   ];
 };
+export const buildGeoSpanFilter = (geoSpan) => {
+  if (!geoSpan) return null;
+
+  const { lon, lat } = geoSpan;
+
+  if (!Array.isArray(lon) || !Array.isArray(lat) || lon.length < 2 || lat.length < 2) {
+    return null;
+  }
+
+  const [lon1, lon2] = lon;
+  const [lat1, lat2] = lat;
+
+  if (
+    !Number.isFinite(lon1) ||
+    !Number.isFinite(lon2) ||
+    !Number.isFinite(lat1) ||
+    !Number.isFinite(lat2)
+  ) {
+    return null;
+  }
+
+  const minLon = Math.min(lon1, lon2);
+  const maxLon = Math.max(lon1, lon2);
+  const minLat = Math.min(lat1, lat2);
+  const maxLat = Math.max(lat1, lat2);
+  return [minLon, minLat, maxLon, maxLat];
+};
+
+

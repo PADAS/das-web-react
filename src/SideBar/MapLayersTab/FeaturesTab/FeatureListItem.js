@@ -2,7 +2,8 @@ import React, { memo, useContext } from 'react';
 import { useDispatch } from 'react-redux';
 import { center, bboxPolygon } from '@turf/turf';
 
-
+import { BREAKPOINTS } from '../../../constants';
+import { useMatchMedia } from '../../../hooks';
 import { showFeatures } from '../../../ducks/map-layer-filter';
 import { setMapFeatureHighlightIDs } from '../../../ducks/mapFeatureHighlight';
 import { showPopup } from '../../../ducks/popup';
@@ -20,8 +21,11 @@ import * as styles from '../styles.module.scss';
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 // eslint-disable-next-line react/display-name
+const SIDEBAR_WIDTH_PIXELS = 512;
+
 const FeatureListItem = memo((props) => {
   const map = useContext(MapContext);
+  const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
   const dispatch = useDispatch();
 
@@ -54,7 +58,8 @@ const FeatureListItem = memo((props) => {
     dispatch(
       showFeatures(props.id)
     );
-    map.fitBounds(props.bounds, { duration: 0, minZoom: 5, maxZoom: 16, padding: 20 });
+    const leftPadding = isMediumLayoutOrLarger ? SIDEBAR_WIDTH_PIXELS + 20 : 20;
+    map.fitBounds(props.bounds, { duration: 0, minZoom: 5, maxZoom: 16, padding: { top: 20, bottom: 20, right: 20, left: leftPadding } });
     highlightClickedFeatureSymbol(map, SYMBOLS_LAYER_ID, props.id);
     setTimeout(() => {
       setFeatureActiveStateByID(map, props.id, true);
