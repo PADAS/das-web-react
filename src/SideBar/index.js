@@ -10,7 +10,6 @@ import { ReactComponent as ERLogo } from '../common/images/icons/er-logo.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
-import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 
 import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
 import { FEED_CATEGORY } from '../utils/analytics';
