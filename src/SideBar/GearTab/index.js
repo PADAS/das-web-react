@@ -141,11 +141,15 @@ const GearTab = () => {
     return mfrExpanded[manufacturerStateKey(manufacturerKey)] !== false;
   }, [mfrExpanded, searchActive]);
 
-  const isGearVisible = useCallback(
-    (gear) => !hiddenGearIds.includes(gear.id),
+  const hiddenGearIdSet = useMemo(
+    () => new Set(hiddenGearIds || []),
     [hiddenGearIds],
   );
 
+  const isGearVisible = useCallback(
+    (gear) => !hiddenGearIdSet.has(gear.id),
+    [hiddenGearIdSet],
+  );
   const onGearCheckClick = useCallback((gear) => {
     dispatch(isGearVisible(gear) ? hideGearOnMap(gear.id) : showGearOnMap(gear.id));
   }, [dispatch, isGearVisible]);
