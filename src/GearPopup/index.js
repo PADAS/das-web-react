@@ -24,7 +24,7 @@ const GearPopup = ({ data }) => {
 
   return <>
     <div className={styles.header}>
-      <h6 className={styles.title} data-testid="gear-popup-title">{popupTitle}</h6>
+      <h2 className={styles.title} data-testid="gear-popup-title">{popupTitle}</h2>
 
       {gear.last_updated && <div className={styles.dateTimeWrapper}>
         <DateTime className={styles.dateTimeDetails} date={gear.last_updated} showElapsed={false} />
@@ -43,19 +43,19 @@ const GearPopup = ({ data }) => {
       />}
 
       <dl className={styles.details}>
-      <dt>{t('typeLabel')}</dt>
-      <dd>{gear.type}</dd>
+        <dt>{t('typeLabel')}</dt>
+        <dd>{gear.type}</dd>
 
-      {(gear.devices || []).map((device) => <React.Fragment key={device.device_id}>
-        <dt>{t('deviceLabel', { label: device.label || device.mfr_device_id || device.device_id })}</dt>
-        <dd>
-          <span className={styles.deviceId}>{device.mfr_device_id || device.device_id}</span>
-          {device.last_updated && <>
-            {' '}
-            <DateTime date={device.last_updated} showElapsed={false} />
-          </>}
-        </dd>
-      </React.Fragment>)}
+        {(gear.devices || []).map((device) => <React.Fragment key={device.device_id}>
+          <dt>{t('deviceLabel', { label: device.label || device.mfr_device_id || device.device_id })}</dt>
+          <dd>
+            <span className={styles.deviceId}>{device.mfr_device_id || device.device_id}</span>
+            {device.last_updated && <>
+              {' '}
+              <DateTime date={device.last_updated} showElapsed={false} />
+            </>}
+          </dd>
+        </React.Fragment>)}
       </dl>
     </div>
   </>;

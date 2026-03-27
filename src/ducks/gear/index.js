@@ -6,9 +6,16 @@ import { API_URL } from '../../constants';
 import globallyResettableReducer from '../../reducers/global-resettable';
 import { generateStorageConfig } from '../../reducers/storage-config';
 import { showToast } from '../../utils/toast';
-import { parseGearListPagePayload } from '../../utils/gear';
+import {
+  buildGearIndexFromRows,
+  mergeGearRowsIntoIndex,
+  normalizeGearListPage,
+} from '../../utils/gear';
 
 const GEAR_API_URL = `${API_URL}gear`;
+
+/** Interval for background refresh of the gear list (ms). */
+export const GEAR_LIST_POLL_INTERVAL_MS = 10 * 60 * 1000;
 
 const FETCH_GEAR_START = 'FETCH_GEAR_START';
 const FETCH_GEAR_APPEND_PAGE = 'FETCH_GEAR_APPEND_PAGE';
@@ -36,10 +43,16 @@ const fetchGearSuccess = (results) => ({
   payload: results,
 });
 
-const fetchGearError = (error) => ({
+const fetchGearError = (message) => ({
   type: FETCH_GEAR_ERROR,
-  payload: error,
+  payload: message,
 });
+
+const gearFetchErrorMessage = (error) => {
+  const detail = error?.response?.data?.detail;
+  if (typeof detail === 'string') return detail;
+  return typeof error?.message === 'string' ? error.message : 'Could not load gear';
+};
 
 /**
  * Paginate through GET /api/v1.0/gear (default deployed state).
@@ -50,7 +63,7 @@ export const fetchAllGear = () => async (dispatch, getState) => {
   dispatch({ type: FETCH_GEAR_START });
 
   try {
-    const merged = [];
+    const mergedRows = [];
     let page = 1;
     let hasNext = true;
 
@@ -58,8 +71,8 @@ export const fetchAllGear = () => async (dispatch, getState) => {
       const { data } = await axios.get(GEAR_API_URL, {
         params: { page, page_size: GEAR_PAGE_SIZE },
       });
-      const { rows, hasNextPage } = parseGearListPagePayload(data);
-      merged.push(...rows);
+      const { rows, hasNextPage } = normalizeGearListPage(data);
+      mergedRows.push(...rows);
       if (!hadDataBeforeFetch && rows.length > 0) {
         dispatch({ type: FETCH_GEAR_APPEND_PAGE, payload: rows });
       }
@@ -67,12 +80,11 @@ export const fetchAllGear = () => async (dispatch, getState) => {
       page += 1;
     }
 
-    dispatch(fetchGearSuccess(merged));
-    return merged;
+    dispatch(fetchGearSuccess(mergedRows));
+    return mergedRows;
   } catch (error) {
-    dispatch(fetchGearError(error));
-    const detail = error?.response?.data?.detail ?? error?.response?.data?.message;
-    const message = detail != null ? String(detail) : (error?.message || 'Could not load gear');
+    const message = gearFetchErrorMessage(error);
+    dispatch(fetchGearError(message));
     showToast({
       message,
       toastConfig: { type: 'error' },
@@ -88,42 +100,10 @@ export const INITIAL_GEAR_STATE = {
   hiddenGearIds: [],
   initialLoadInProgress: false,
   loading: false,
-  tabEligible: false,
+  hasGear: false,
 };
 
-const mergeGearResults = (results) => {
-  const byId = {};
-  const allIds = [];
-
-  (results || []).forEach((row) => {
-    if (!row?.id) return;
-    const id = row.id;
-    if (!byId[id]) {
-      allIds.push(id);
-    }
-    byId[id] = row;
-  });
-
-  return { allIds, byId };
-};
-
-/** Merge one API page into existing store (first-load pagination only). */
-const mergeGearAppendRows = (state, rows) => {
-  const byId = { ...state.byId };
-  const allIds = [...state.allIds];
-  const existing = new Set(allIds);
-  (rows || []).forEach((row) => {
-    if (!row?.id) return;
-    if (!existing.has(row.id)) {
-      existing.add(row.id);
-      allIds.push(row.id);
-    }
-    byId[row.id] = row;
-  });
-  return { allIds, byId };
-};
-
-const gearReducer = (state = INITIAL_GEAR_STATE, action) => {
+export const gearReducer = (state = INITIAL_GEAR_STATE, action) => {
   switch (action.type) {
   case FETCH_GEAR_START:
     return {
@@ -134,17 +114,17 @@ const gearReducer = (state = INITIAL_GEAR_STATE, action) => {
     };
 
   case FETCH_GEAR_APPEND_PAGE: {
-    const { allIds, byId } = mergeGearAppendRows(state, action.payload);
+    const { allIds, byId } = mergeGearRowsIntoIndex(state.allIds, state.byId, action.payload);
     return {
       ...state,
       allIds,
       byId,
-      tabEligible: allIds.length > 0,
+      hasGear: allIds.length > 0,
     };
   }
 
   case FETCH_GEAR_SUCCESS: {
-    const { allIds, byId } = mergeGearResults(action.payload);
+    const { allIds, byId } = buildGearIndexFromRows(action.payload);
     const idSet = new Set(allIds);
     return {
       ...state,
@@ -153,7 +133,7 @@ const gearReducer = (state = INITIAL_GEAR_STATE, action) => {
       error: null,
       initialLoadInProgress: false,
       loading: false,
-      tabEligible: allIds.length > 0,
+      hasGear: allIds.length > 0,
       hiddenGearIds: state.hiddenGearIds.filter((gid) => idSet.has(gid)),
     };
   }

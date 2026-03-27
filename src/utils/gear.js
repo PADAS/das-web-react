@@ -7,29 +7,44 @@ export const GEAR_POINT_ROLE_SINGLE = 'single';
 export const GEAR_POINT_ROLE_TRAWL_END = 'trawl_end';
 
 /**
- * Normalize one GET /api/v1.0/gear response body. Deployments differ:
- * - DRF pagination: { count, next, previous, results }
- * - Bare array (or copied payload): [...]
- * - v1 envelope used elsewhere: { data: { results, next } } or { data: [...] }
+ * One page from GET /api/v1.0/gear — DRF pagination: { count, next, previous, results }.
  */
-export const parseGearListPagePayload = (data) => {
-  if (data == null) {
-    return { hasNextPage: false, rows: [] };
-  }
-  if (Array.isArray(data)) {
-    return { hasNextPage: false, rows: data };
-  }
-  const inner = data.data;
-  if (Array.isArray(inner)) {
-    return { hasNextPage: false, rows: inner };
-  }
-  if (inner && typeof inner === 'object' && Array.isArray(inner.results)) {
-    return { hasNextPage: !!inner.next, rows: inner.results };
-  }
-  if (Array.isArray(data.results)) {
-    return { hasNextPage: !!data.next, rows: data.results };
-  }
-  return { hasNextPage: false, rows: [] };
+export const normalizeGearListPage = (body) => ({
+  hasNextPage: Boolean(body?.next),
+  rows: Array.isArray(body?.results) ? body.results : [],
+});
+
+/**
+ * Stable { allIds, byId } from an array of gear rows (order preserved on first sighting).
+ */
+export const buildGearIndexFromRows = (gearRows) => {
+  const byId = {};
+  const allIds = [];
+  (gearRows || []).forEach((row) => {
+    if (!row?.id) return;
+    const id = row.id;
+    if (!byId[id]) {
+      allIds.push(id);
+    }
+    byId[id] = row;
+  });
+  return { allIds, byId };
+};
+
+/** Append/replace rows into an existing id-ordered index (pagination during first load). */
+export const mergeGearRowsIntoIndex = (priorAllIds, priorById, incomingRows) => {
+  const byId = { ...priorById };
+  const allIds = [...priorAllIds];
+  const existing = new Set(allIds);
+  (incomingRows || []).forEach((row) => {
+    if (!row?.id) return;
+    if (!existing.has(row.id)) {
+      existing.add(row.id);
+      allIds.push(row.id);
+    }
+    byId[row.id] = row;
+  });
+  return { allIds, byId };
 };
 
 /** UUID v4-style (loose) — API often uses this for gear.display_id while hardware id lives on devices. */
@@ -81,15 +96,15 @@ export const gearMatchesSearchQuery = (gear, query) => {
  */
 export const groupGearByManufacturer = (gearList) => {
   const map = new Map();
-  (gearList || []).forEach((g) => {
-    const raw = g?.manufacturer != null ? String(g.manufacturer).trim() : '';
+  (gearList || []).forEach((gearItem) => {
+    const raw = gearItem?.manufacturer != null ? String(gearItem.manufacturer).trim() : '';
     const key = raw;
     if (!map.has(key)) map.set(key, []);
-    map.get(key).push(g);
+    map.get(key).push(gearItem);
   });
 
-  const byLabel = (a, b) => gearHumanReadableLabel(a).localeCompare(
-    gearHumanReadableLabel(b),
+  const byLabel = (left, right) => gearHumanReadableLabel(left).localeCompare(
+    gearHumanReadableLabel(right),
     undefined,
     { numeric: true, sensitivity: 'base' },
   );
@@ -110,54 +125,54 @@ export const groupGearByManufacturer = (gearList) => {
 /** Ms since epoch from `gear.last_updated`, or null if missing/invalid. */
 export const getGearLastUpdatedMs = (gear) => {
   if (!gear?.last_updated) return null;
-  const ms = new Date(gear.last_updated).getTime();
-  return Number.isNaN(ms) ? null : ms;
+  const epochMs = new Date(gear.last_updated).getTime();
+  return Number.isNaN(epochMs) ? null : epochMs;
 };
 
 const maxGearLastUpdatedMs = (gearList) => {
   let best = null;
-  (gearList || []).forEach((g) => {
-    const ms = getGearLastUpdatedMs(g);
-    if (ms != null && (best == null || ms > best)) best = ms;
+  (gearList || []).forEach((gearItem) => {
+    const epochMs = getGearLastUpdatedMs(gearItem);
+    if (epochMs != null && (best == null || epochMs > best)) best = epochMs;
   });
   return best;
 };
 
-export const compareGearAlphabetically = (sortDirection) => (a, b) => {
-  const aVal = gearHumanReadableLabel(a).toLowerCase();
-  const bVal = gearHumanReadableLabel(b).toLowerCase();
-  if (aVal > bVal) return sortDirection === SORT_DIRECTION.down ? 1 : -1;
-  if (aVal < bVal) return sortDirection === SORT_DIRECTION.down ? -1 : 1;
+export const compareGearAlphabetically = (sortDirection) => (left, right) => {
+  const leftVal = gearHumanReadableLabel(left).toLowerCase();
+  const rightVal = gearHumanReadableLabel(right).toLowerCase();
+  if (leftVal > rightVal) return sortDirection === SORT_DIRECTION.down ? 1 : -1;
+  if (leftVal < rightVal) return sortDirection === SORT_DIRECTION.down ? -1 : 1;
   return 0;
 };
 
-export const compareGearByLastUpdated = (sortDirection) => (a, b) => {
-  const ta = getGearLastUpdatedMs(a);
-  const tb = getGearLastUpdatedMs(b);
-  if (ta == null) return 1;
-  if (tb == null) return -1;
-  if (tb > ta) return sortDirection === SORT_DIRECTION.down ? 1 : -1;
-  if (tb < ta) return sortDirection === SORT_DIRECTION.down ? -1 : 1;
+export const compareGearByLastUpdated = (sortDirection) => (left, right) => {
+  const leftTime = getGearLastUpdatedMs(left);
+  const rightTime = getGearLastUpdatedMs(right);
+  if (leftTime == null) return 1;
+  if (rightTime == null) return -1;
+  if (rightTime > leftTime) return sortDirection === SORT_DIRECTION.down ? 1 : -1;
+  if (rightTime < leftTime) return sortDirection === SORT_DIRECTION.down ? -1 : 1;
   return 0;
 };
 
-export const compareGearManufacturerGroups = (sortBy, sortDirection) => (ga, gb) => {
+export const compareGearManufacturerGroups = (sortBy, sortDirection) => (firstGroup, secondGroup) => {
   if (sortBy === MAP_LAYER_SORT_VALUES.LAST_UPDATE) {
-    const ma = maxGearLastUpdatedMs(ga.items);
-    const mb = maxGearLastUpdatedMs(gb.items);
+    const ma = maxGearLastUpdatedMs(firstGroup.items);
+    const mb = maxGearLastUpdatedMs(secondGroup.items);
     if (ma == null) return 1;
     if (mb == null) return -1;
     if (mb > ma) return sortDirection === SORT_DIRECTION.down ? 1 : -1;
     if (mb < ma) return sortDirection === SORT_DIRECTION.down ? -1 : 1;
     return 0;
   }
-  const aEmpty = ga.manufacturerKey === '';
-  const bEmpty = gb.manufacturerKey === '';
-  if (aEmpty !== bEmpty) return aEmpty ? 1 : -1;
-  const aVal = ga.manufacturerKey.toLowerCase();
-  const bVal = gb.manufacturerKey.toLowerCase();
-  if (aVal > bVal) return sortDirection === SORT_DIRECTION.down ? 1 : -1;
-  if (aVal < bVal) return sortDirection === SORT_DIRECTION.down ? -1 : 1;
+  const firstEmpty = firstGroup.manufacturerKey === '';
+  const secondEmpty = secondGroup.manufacturerKey === '';
+  if (firstEmpty !== secondEmpty) return firstEmpty ? 1 : -1;
+  const firstVal = firstGroup.manufacturerKey.toLowerCase();
+  const secondVal = secondGroup.manufacturerKey.toLowerCase();
+  if (firstVal > secondVal) return sortDirection === SORT_DIRECTION.down ? 1 : -1;
+  if (firstVal < secondVal) return sortDirection === SORT_DIRECTION.down ? -1 : 1;
   return 0;
 };
 

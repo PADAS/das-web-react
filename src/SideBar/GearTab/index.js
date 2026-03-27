@@ -89,19 +89,11 @@ const GearTab = () => {
 
   const allIds = useSelector((state) => state.data.gear.allIds);
   const byId = useSelector((state) => state.data.gear.byId);
-  const fetchError = useSelector((state) => state.data.gear.error);
+  const gearErrorMessage = useSelector((state) => state.data.gear.error);
   const hiddenGearIds = useSelector((state) => state.data.gear.hiddenGearIds);
   const loading = useSelector((state) => state.data.gear.loading);
   const initialLoadInProgress = useSelector((state) => state.data.gear.initialLoadInProgress);
   const mapLayerFilter = useSelector((state) => state.data.mapLayerFilter);
-
-  const errorMessage = useMemo(() => {
-    if (!fetchError) return null;
-    const data = fetchError.response?.data;
-    const detail = data?.detail ?? data?.message;
-    if (detail != null) return String(detail);
-    return String(fetchError.message || t('loadErrorFallback'));
-  }, [fetchError, t]);
 
   const [filterText, setFilterText] = useState('');
   const [mfrExpanded, setMfrExpanded] = useState({});
@@ -160,7 +152,7 @@ const GearTab = () => {
 
   const showNoSearchResults = filterText.trim() && filteredGear.length === 0 && gearItems.length > 0;
 
-  const showInitialLoader = loading && gearItems.length === 0 && !errorMessage;
+  const showInitialLoader = loading && gearItems.length === 0 && !gearErrorMessage;
   const showPaginatingHint = loading && gearItems.length > 0 && initialLoadInProgress;
   const showRefreshHint = loading && gearItems.length > 0 && !initialLoadInProgress;
 
@@ -178,9 +170,9 @@ const GearTab = () => {
       <SidebarListSortingControls />
     </div>
 
-    {!!errorMessage && !loading && <div className={styles.errorBanner} role="alert">
+    {!!gearErrorMessage && !loading && <div className={styles.errorBanner} role="alert">
       <p>{t('loadErrorIntro')}</p>
-      <p className={styles.errorDetail}>{errorMessage}</p>
+      <p className={styles.errorDetail}>{gearErrorMessage}</p>
       <Button onClick={onRetry} size="sm" type="button" variant="outline-secondary">
         {t('retryButton')}
       </Button>

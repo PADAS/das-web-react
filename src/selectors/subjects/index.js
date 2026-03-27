@@ -22,12 +22,15 @@ const selectTimeSliderState = (state) => state.view.timeSliderState;
 const selectTracks = (state) => state.data.tracks;
 const selectUser = (state) => state.data.user;
 
+/**
+ * Map subject pins (GeoJSON) for the main map. Excludes hidden subjects and ropeless-gear
+ * subjects (those use the Gear tab / GearLayer instead).
+ */
 export const selectMapSubjectsFeatureCollection = createSelector(
   [selectMapSubjects, selectSubjectStore, selectHiddenSubjectIDs, selectShowInactiveRadios],
   (mapSubjects, subjectStore, hiddenSubjectIDs, showInactiveRadios) => {
     const hiddenSubjectIDsSet = new Set(hiddenSubjectIDs);
 
-    // Calculate the subject features to show on the map.
     const features = [];
     mapSubjects.forEach((subjectId) => {
       const subjectRecord = subjectStore[subjectId];
@@ -71,11 +74,13 @@ export const selectMapSubjectsFeatureCollection = createSelector(
   }
 );
 
+/**
+ * Subject groups with hydrated subject records and subgroup last-position times.
+ * Gear / ropeless subjects are omitted from group membership lists (same as map subjects).
+ */
 export const selectHydratedSubjectGroupsWithLastPositionTime = createSelector(
   [selectSubjectGroups, selectSubjectStore],
   (subjectGroups, subjectStore) => {
-    // Hydrate a subject group subjects recursively and calculate the group's
-    // last position time.
     const hydrateSubjectGroupSubjects = (...groups) => groups.map((group) => {
       const { subgroups, subjects } = group;
 

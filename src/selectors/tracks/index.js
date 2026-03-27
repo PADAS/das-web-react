@@ -58,10 +58,10 @@ export const selectTrackTimeEnvelope = createSelector(
     return { from: trackLengthStartFromNow, until: null };
   });
 
+/** Heatmap track payloads: skips ropeless-gear subjects (handled on GearLayer). */
 const selectHeatmapSubjectTracks = createSelector(
   [selectHeatmapSubjectIDs, selectTracks, selectSubjectStore],
   (heatmapSubjectIDs, tracks, subjectStore) => {
-    // Calculate the tracks of the heatmap subjects.
     const heatmapSubjectTracks = [];
     heatmapSubjectIDs.forEach((subjectId) => {
       const subject = subjectStore?.[subjectId];
@@ -83,10 +83,10 @@ export const selectHeatmapSubjectTracksTrimmedToTrackTimeEnvelope = createSelect
   )
 );
 
+/** Visible/pinned subject tracks: skips ropeless-gear subjects. */
 const selectSubjectShownTracks = createSelector(
   [selectSubjectTrackState, selectTracks, selectSubjectStore],
   (subjectTrackState, tracks, subjectStore) => {
-    // Calculate the tracks of the subjects with shown tracks.
     const subjectTracks = [];
     uniq([...subjectTrackState.pinned, ...subjectTrackState.visible]).forEach((subjectId) => {
       const subject = subjectStore?.[subjectId];

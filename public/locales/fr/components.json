@@ -199,7 +199,6 @@
     "closeGearTabButtonLabel": "Fermer les engins",
     "gearLink": "Engins",
     "gearTab": {
-      "unknownManufacturer": "Autre",
       "loadErrorFallback": "Échec de la requête",
       "loadErrorIntro": "Impossible de charger les engins depuis le serveur.",
       "loading": "Mise à jour…",
@@ -207,8 +206,9 @@
       "loadingList": "Chargement de la liste complète…",
       "noSearchResults": "Aucun ensemble ne correspond à la recherche.",
       "retryButton": "Réessayer",
+      "searchFormAriaLabel": "Rechercher des engins",
       "searchPlaceholder": "Rechercher par nom",
-      "searchFormAriaLabel": "Rechercher des engins"
+      "unknownManufacturer": "Autre"
     },
     "layersLink": "Calques",
     "mapLayersTab": {

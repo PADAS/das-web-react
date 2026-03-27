@@ -199,7 +199,6 @@
     "closeGearTabButtonLabel": "Cerrar aparejos",
     "gearLink": "Aparejos",
     "gearTab": {
-      "unknownManufacturer": "Otro",
       "loadErrorFallback": "Error en la solicitud",
       "loadErrorIntro": "No se pudo cargar el aparejo desde el servidor.",
       "loading": "Actualizando…",
@@ -207,8 +206,9 @@
       "loadingList": "Aún cargando la lista completa…",
       "noSearchResults": "Ningún conjunto coincide con la búsqueda.",
       "retryButton": "Reintentar",
+      "searchFormAriaLabel": "Buscar aparejos",
       "searchPlaceholder": "Buscar por nombre",
-      "searchFormAriaLabel": "Buscar aparejos"
+      "unknownManufacturer": "Otro"
     },
     "layersLink": "Capas de mapa",
     "mapLayersTab": {

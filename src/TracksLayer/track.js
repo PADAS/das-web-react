@@ -60,7 +60,6 @@ const TrackLayer = ({
   lineLayout = {},
   linePaint = {},
   onPointClick,
-  onTrackLabelClick: _onTrackLabelClick,
   showTimepoints = true,
   trackData,
 }) => {

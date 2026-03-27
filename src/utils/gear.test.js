@@ -1,6 +1,7 @@
 import { MAP_LAYER_SORT_VALUES, SORT_DIRECTION } from '../constants';
 
 import {
+  buildGearIndexFromRows,
   buildGearMapFeatureCollection,
   gearDisplayName,
   gearHumanReadableLabel,
@@ -9,30 +10,41 @@ import {
   groupGearByManufacturer,
   GEAR_POINT_ROLE_SINGLE,
   GEAR_POINT_ROLE_TRAWL_END,
-  parseGearListPagePayload,
+  mergeGearRowsIntoIndex,
+  normalizeGearListPage,
   sortGearGroupsForSidebar,
   sortGearListForSidebar,
 } from './gear';
 
 describe('gear utils', () => {
-  describe('parseGearListPagePayload', () => {
-    test('reads DRF paginated shape', () => {
+  describe('normalizeGearListPage', () => {
+    test('reads DRF paginated GET /gear page body', () => {
       const rows = [{ id: 'a' }];
-      expect(parseGearListPagePayload({ results: rows, next: 'http://x?page=2' }))
+      expect(normalizeGearListPage({ results: rows, next: 'http://x?page=2' }))
         .toEqual({ rows, hasNextPage: true });
-      expect(parseGearListPagePayload({ results: rows, next: null }))
+      expect(normalizeGearListPage({ results: rows, next: null }))
         .toEqual({ rows, hasNextPage: false });
     });
 
-    test('reads bare array response', () => {
-      const rows = [{ id: 'x' }, { id: 'y' }];
-      expect(parseGearListPagePayload(rows)).toEqual({ rows, hasNextPage: false });
+    test('returns empty rows when body is missing results', () => {
+      expect(normalizeGearListPage({})).toEqual({ rows: [], hasNextPage: false });
+      expect(normalizeGearListPage(null)).toEqual({ rows: [], hasNextPage: false });
+    });
+  });
+
+  describe('buildGearIndexFromRows / mergeGearRowsIntoIndex', () => {
+    test('buildGearIndexFromRows preserves order and overwrites by id', () => {
+      const rows = [{ id: '1', name: 'a' }, { id: '2', name: 'b' }, { id: '1', name: 'c' }];
+      const { allIds, byId } = buildGearIndexFromRows(rows);
+      expect(allIds).toEqual(['1', '2']);
+      expect(byId['1'].name).toBe('c');
     });
 
-    test('reads v1 data envelope with nested results', () => {
-      const rows = [{ id: 'z' }];
-      expect(parseGearListPagePayload({ data: { results: rows, next: null } }))
-        .toEqual({ rows, hasNextPage: false });
+    test('mergeGearRowsIntoIndex appends new ids only', () => {
+      const merged = mergeGearRowsIntoIndex(['1'], { 1: { id: '1' } }, [{ id: '2' }, { id: '1', x: 1 }]);
+      expect(merged.allIds).toEqual(['1', '2']);
+      expect(merged.byId['1']).toEqual({ id: '1', x: 1 });
+      expect(merged.byId['2']).toEqual({ id: '2' });
     });
   });
 

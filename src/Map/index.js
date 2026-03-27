@@ -126,7 +126,7 @@ const Map = ({ children, onMapLoad, socket }) => {
   const hiddenFeatureIDs = useSelector(state => state.data.mapLayerFilter.hiddenFeatureIDs);
   const eventFilter = useSelector(state => state.data.eventFilter);
   const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
-  const gearTabEligible = useSelector((state) => state.data.gear.tabEligible);
+  const hasGear = useSelector((state) => state.data.gear.hasGear);
   const mapImages = useSelector(state => state.view.mapImages);
   const mapIsLocked = useSelector(state => state.view.mapIsLocked);
   const mapLocationSelection = useSelector(state => state.view.mapLocationSelection);
@@ -286,7 +286,8 @@ const Map = ({ children, onMapLoad, socket }) => {
           : [event.lngLat.lng, event.lngLat.lat]
       );
 
-      window.setTimeout(() => showPopup('gear', { geometry, properties, coordinates }));
+      // Defer opening the popup so the map finishes processing the click event first.
+      window.setTimeout(() => showPopup('gear', { geometry, properties, coordinates }), 0);
 
       mapInteractionTracker.track('Click Map Gear', `Gear:${properties.id}`);
     }
@@ -713,7 +714,7 @@ const Map = ({ children, onMapLoad, socket }) => {
 
       {subjectsEnabled && <SubjectsLayer mapImages={mapImages} onSubjectClick={onSelectSubject} />}
 
-      {gearTabEligible && <GearLayer onGearClick={onSelectGear} />}
+      {hasGear && <GearLayer onGearClick={onSelectGear} />}
 
       <MapImagesLayer />
 
@@ -751,7 +752,7 @@ const Map = ({ children, onMapLoad, socket }) => {
       {subjectHeatmapAvailable && <SubjectHeatLayer />}
       {showReportHeatmap && <ReportsHeatLayer />}
 
-      {subjectTracksVisible && <TracksLayer onPointClick={onTimepointClick} onTrackLabelClick={onSelectSubject} showTimepoints={showTrackTimepoints} />}
+      {subjectTracksVisible && <TracksLayer onPointClick={onTimepointClick} showTimepoints={showTrackTimepoints} />}
       {patrolTracksVisible && <PatrolStartStopLayer />}
 
       {patrolTracksVisible && <PatrolTracks onPointClick={onTimepointClick} />}

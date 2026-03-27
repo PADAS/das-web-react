@@ -216,7 +216,6 @@
     "closeGearTabButtonLabel": "Funga vifaa",
     "gearLink": "Vifaa",
     "gearTab": {
-      "unknownManufacturer": "Nyingine",
       "loadErrorFallback": "Ombi halikufaulu",
       "loadErrorIntro": "Haikuweza kupakia vifaa kutoka kwa seva.",
       "loading": "Inasasishwa…",
@@ -224,8 +223,9 @@
       "loadingList": "Bado inapakia orodha kamili…",
       "noSearchResults": "Hakuna seti inayolingana na utafutaji.",
       "retryButton": "Jaribu tena",
+      "searchFormAriaLabel": "Tafuta vifaa",
       "searchPlaceholder": "Tafuta kwa jina",
-      "searchFormAriaLabel": "Tafuta vifaa"
+      "unknownManufacturer": "Nyingine"
     },
     "layersLink": "Safu za Ramani",
     "mapLayersTab": {

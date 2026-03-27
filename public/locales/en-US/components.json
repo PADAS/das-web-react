@@ -210,13 +210,12 @@
     "backButtonTitle": "Back",
     "closeButtonTitle": "Close",
     "closeEventFeedButtonLabel": "Close Event Feed",
+    "closeGearTabButtonLabel": "Close Gear",
     "closeMapLayersButtonLabel": "Close Map Layers",
     "closePatrolFeedButtonLabel": "Close Patrol Feed",
     "closeSettingsButtonLabel": "Close Settings",
-    "closeGearTabButtonLabel": "Close Gear",
     "gearLink": "Gear",
     "gearTab": {
-      "unknownManufacturer": "Other",
       "loadErrorFallback": "Request failed",
       "loadErrorIntro": "Could not load gear from the server.",
       "loading": "Updating…",
@@ -224,8 +223,9 @@
       "loadingList": "Still loading the full list…",
       "noSearchResults": "No gear sets match your search.",
       "retryButton": "Try again",
+      "searchFormAriaLabel": "Search gear",
       "searchPlaceholder": "Search by name",
-      "searchFormAriaLabel": "Search gear"
+      "unknownManufacturer": "Other"
     },
     "layersLink": "Map Layers",
     "mapLayersTab": {

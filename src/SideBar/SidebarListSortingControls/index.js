@@ -16,7 +16,7 @@ import {
   setMapLayersSortDirection,
 } from '../../ducks/map-layer-filter';
 
-import * as styles from '../MapLayersTab/Filters/styles.module.scss';
+import * as styles from './styles.module.scss';
 
 /**
  * Group / sort-by / sort-direction controls shared by Map Layers → Subjects and Gear tab.
