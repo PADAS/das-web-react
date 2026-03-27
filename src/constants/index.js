@@ -147,6 +147,7 @@ export const SYSTEM_CONFIG_FLAGS = {
   SPATIAL_FEATURES: 'spatial_features_enabled',
   SUBJECTS: 'subjects_enabled',
   TABLEAU: 'tableau_enabled',
+  GEO_SPAN: 'geo_span',
 };
 
 

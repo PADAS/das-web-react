@@ -8,6 +8,7 @@ import UserMenu from './';
 describe('UserMenu', () => {
   let onLogOutClickMock;
   let onProfileClickMock;
+  let osanoBackup;
 
   const mockUser = {
     id: 'user-1',
@@ -40,20 +41,34 @@ describe('UserMenu', () => {
     return menuItems.find(item => item.classList.contains('active'));
   };
 
+  const mockOsanoConsentManager = () => {
+    window.Osano = {
+      cm: {
+        showDrawer: jest.fn(),
+      },
+    };
+  };
+
   beforeEach(() => {
     onLogOutClickMock = jest.fn();
     onProfileClickMock = jest.fn();
-    window.Osano = { cm: { showDrawer: jest.fn() } };
+    osanoBackup = window.Osano;
+    delete window.Osano;
   });
 
   afterEach(() => {
     jest.clearAllMocks();
-    delete window.Osano;
+    if (osanoBackup === undefined) {
+      delete window.Osano;
+    } else {
+      window.Osano = osanoBackup;
+    }
   });
 
   describe('rendering', () => {
     test('renders without crashing', () => {
       renderUserMenu();
+      expect(screen.getByRole('button', { name: 'Open User Settings' })).toBeInTheDocument();
     });
 
     test('displays the current user username', () => {
@@ -78,21 +93,6 @@ describe('UserMenu', () => {
       const iconElement = toggleButton.querySelector('[class*="icon"]');
       expect(iconElement).toBeInTheDocument();
     });
-
-    test('renders cookie settings in menu when Osano is available', async () => {
-      renderUserMenu();
-      await openDropdown();
-
-      expect(screen.getByRole('button', { name: 'Cookie Settings' })).toBeInTheDocument();
-    });
-
-    test('does not render cookie settings in menu when Osano is unavailable', async () => {
-      delete window.Osano;
-      renderUserMenu();
-      await openDropdown();
-
-      expect(screen.queryByRole('button', { name: 'Cookie Settings' })).not.toBeInTheDocument();
-    });
   });
 
   describe('dropdown menu', () => {
@@ -100,7 +100,6 @@ describe('UserMenu', () => {
       renderUserMenu();
       await openDropdown();
 
-      expect(screen.getByRole('button', { name: 'Cookie Settings' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Log out' })).toBeInTheDocument();
     });
 
@@ -129,6 +128,40 @@ describe('UserMenu', () => {
     });
   });
 
+  describe('Osano cookie preferences', () => {
+    beforeEach(() => {
+      mockOsanoConsentManager();
+    });
+
+    test('shows cookie settings when Osano consent manager is available', async () => {
+      renderUserMenu();
+      await openDropdown();
+
+      expect(screen.getByRole('button', { name: 'Cookie Settings' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Log out' })).toBeInTheDocument();
+    });
+
+    test('does not show cookie settings when Osano.cm is missing', async () => {
+      delete window.Osano;
+
+      renderUserMenu();
+      await openDropdown();
+
+      expect(screen.queryByRole('button', { name: 'Cookie Settings' })).not.toBeInTheDocument();
+    });
+
+    test('opens Osano preferences drawer when cookie settings is clicked', async () => {
+      renderUserMenu();
+      await openDropdown();
+
+      const cookieSettingsItem = screen.getByRole('button', { name: 'Cookie Settings' });
+      await userEvent.click(cookieSettingsItem);
+
+      expect(window.Osano.cm.showDrawer).toHaveBeenCalledTimes(1);
+      expect(window.Osano.cm.showDrawer).toHaveBeenCalledWith('osano-cm-dom-info-dialog-open');
+    });
+  });
+
   describe('user interactions', () => {
     test('calls onProfileClick when a profile is selected', async () => {
       renderUserMenu({ userProfiles: mockUserProfiles });
@@ -148,16 +181,6 @@ describe('UserMenu', () => {
       await userEvent.click(logoutItem);
 
       expect(onLogOutClickMock).toHaveBeenCalled();
-    });
-
-    test('triggers cookie settings when cookie settings is clicked', async () => {
-      renderUserMenu();
-      await openDropdown();
-
-      const cookieSettingsItem = screen.getByRole('button', { name: 'Cookie Settings' });
-      await userEvent.click(cookieSettingsItem);
-
-      expect(window.Osano.cm.showDrawer).toHaveBeenCalledWith('osano-cm-dom-info-dialog-open');
     });
   });
 
@@ -180,7 +203,6 @@ describe('UserMenu', () => {
       renderUserMenu({ userProfiles: manyProfiles });
       await openDropdown();
 
-      expect(screen.getByRole('button', { name: 'Cookie Settings' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Log out' })).toBeInTheDocument();
 
       manyProfiles.forEach(profile => {
