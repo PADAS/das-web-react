@@ -1,6 +1,6 @@
 import { featureCollection } from '@turf/turf';
 
-import { GEAR_FEATURE_CONTENT_TYPE } from '../constants';
+import { GEAR_FEATURE_CONTENT_TYPE, MAP_LAYER_SORT_VALUES, SORT_DIRECTION } from '../constants';
 
 /** Point layer styling: single-device vs trawl endpoints (see GearLayer). */
 export const GEAR_POINT_ROLE_SINGLE = 'single';
@@ -105,6 +105,85 @@ export const groupGearByManufacturer = (gearList) => {
       if (aEmpty !== bEmpty) return aEmpty ? 1 : -1;
       return a.manufacturerKey.localeCompare(b.manufacturerKey, undefined, { sensitivity: 'base' });
     });
+};
+
+/** Ms since epoch from `gear.last_updated`, or null if missing/invalid. */
+export const getGearLastUpdatedMs = (gear) => {
+  if (!gear?.last_updated) return null;
+  const ms = new Date(gear.last_updated).getTime();
+  return Number.isNaN(ms) ? null : ms;
+};
+
+const maxGearLastUpdatedMs = (gearList) => {
+  let best = null;
+  (gearList || []).forEach((g) => {
+    const ms = getGearLastUpdatedMs(g);
+    if (ms != null && (best == null || ms > best)) best = ms;
+  });
+  return best;
+};
+
+export const compareGearAlphabetically = (sortDirection) => (a, b) => {
+  const aVal = gearHumanReadableLabel(a).toLowerCase();
+  const bVal = gearHumanReadableLabel(b).toLowerCase();
+  if (aVal > bVal) return sortDirection === SORT_DIRECTION.down ? 1 : -1;
+  if (aVal < bVal) return sortDirection === SORT_DIRECTION.down ? -1 : 1;
+  return 0;
+};
+
+export const compareGearByLastUpdated = (sortDirection) => (a, b) => {
+  const ta = getGearLastUpdatedMs(a);
+  const tb = getGearLastUpdatedMs(b);
+  if (ta == null) return 1;
+  if (tb == null) return -1;
+  if (tb > ta) return sortDirection === SORT_DIRECTION.down ? 1 : -1;
+  if (tb < ta) return sortDirection === SORT_DIRECTION.down ? -1 : 1;
+  return 0;
+};
+
+export const compareGearManufacturerGroups = (sortBy, sortDirection) => (ga, gb) => {
+  if (sortBy === MAP_LAYER_SORT_VALUES.LAST_UPDATE) {
+    const ma = maxGearLastUpdatedMs(ga.items);
+    const mb = maxGearLastUpdatedMs(gb.items);
+    if (ma == null) return 1;
+    if (mb == null) return -1;
+    if (mb > ma) return sortDirection === SORT_DIRECTION.down ? 1 : -1;
+    if (mb < ma) return sortDirection === SORT_DIRECTION.down ? -1 : 1;
+    return 0;
+  }
+  const aEmpty = ga.manufacturerKey === '';
+  const bEmpty = gb.manufacturerKey === '';
+  if (aEmpty !== bEmpty) return aEmpty ? 1 : -1;
+  const aVal = ga.manufacturerKey.toLowerCase();
+  const bVal = gb.manufacturerKey.toLowerCase();
+  if (aVal > bVal) return sortDirection === SORT_DIRECTION.down ? 1 : -1;
+  if (aVal < bVal) return sortDirection === SORT_DIRECTION.down ? -1 : 1;
+  return 0;
+};
+
+/** Flat gear list sorted like Map Layers subject list (alphabetical or last update). */
+export const sortGearListForSidebar = (gearList, sortBy, sortDirection) => {
+  const itemCompare = sortBy === MAP_LAYER_SORT_VALUES.LAST_UPDATE
+    ? compareGearByLastUpdated(sortDirection)
+    : compareGearAlphabetically(sortDirection);
+  return [...(gearList || [])].sort(itemCompare);
+};
+
+/**
+ * Manufacturer groups with per-group item order and group order (Map Layers preferences).
+ */
+export const sortGearGroupsForSidebar = (groups, sortBy, sortDirection) => {
+  const itemCompare = sortBy === MAP_LAYER_SORT_VALUES.LAST_UPDATE
+    ? compareGearByLastUpdated(sortDirection)
+    : compareGearAlphabetically(sortDirection);
+  const groupCompare = compareGearManufacturerGroups(sortBy, sortDirection);
+
+  return [...groups]
+    .map((g) => ({
+      ...g,
+      items: [...g.items].sort(itemCompare),
+    }))
+    .sort(groupCompare);
 };
 
 /**

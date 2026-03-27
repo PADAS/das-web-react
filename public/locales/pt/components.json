@@ -199,7 +199,6 @@
         "closeGearTabButtonLabel": "Fechar equipamento",
         "gearLink": "Equipamento",
         "gearTab": {
-            "gearCount": "{{count}} conjuntos de equipamento carregados",
             "unknownManufacturer": "Outro",
             "loadErrorFallback": "Falha na solicitação",
             "loadErrorIntro": "Não foi possível carregar o equipamento do servidor.",
@@ -208,7 +207,8 @@
             "loadingList": "Ainda carregando a lista completa…",
             "noSearchResults": "Nenhum conjunto corresponde à pesquisa.",
             "retryButton": "Tentar novamente",
-            "searchPlaceholder": "Pesquisar por nome"
+            "searchPlaceholder": "Pesquisar por nome",
+            "searchFormAriaLabel": "Pesquisar equipamento"
         },
         "layersLink": "Camadas do mapa",
         "mapLayersTab": {

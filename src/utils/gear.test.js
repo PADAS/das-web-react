@@ -1,3 +1,5 @@
+import { MAP_LAYER_SORT_VALUES, SORT_DIRECTION } from '../constants';
+
 import {
   buildGearMapFeatureCollection,
   gearDisplayName,
@@ -8,6 +10,8 @@ import {
   GEAR_POINT_ROLE_SINGLE,
   GEAR_POINT_ROLE_TRAWL_END,
   parseGearListPagePayload,
+  sortGearGroupsForSidebar,
+  sortGearListForSidebar,
 } from './gear';
 
 describe('gear utils', () => {
@@ -129,6 +133,49 @@ describe('gear utils', () => {
       expect(gearMatchesSearchQuery(gear, 'b7983b60')).toBe(true);
       expect(gearMatchesSearchQuery(gear, '88CE')).toBe(true);
       expect(gearMatchesSearchQuery(gear, 'nomatch')).toBe(false);
+    });
+  });
+
+  describe('sortGearListForSidebar', () => {
+    test('sorts alphabetically', () => {
+      const list = [
+        { id: 'b', display_id: 'Bravo' },
+        { id: 'a', display_id: 'Alpha' },
+      ];
+      const sorted = sortGearListForSidebar(
+        list,
+        MAP_LAYER_SORT_VALUES.ALPHABETICAL,
+        SORT_DIRECTION.down,
+      );
+      expect(sorted.map((g) => g.id)).toEqual(['a', 'b']);
+    });
+
+    test('sorts by last_updated (newer first when sort down)', () => {
+      const list = [
+        { id: 'old', display_id: 'O', last_updated: '2020-01-01T00:00:00Z' },
+        { id: 'new', display_id: 'N', last_updated: '2024-06-01T12:00:00Z' },
+      ];
+      const sorted = sortGearListForSidebar(
+        list,
+        MAP_LAYER_SORT_VALUES.LAST_UPDATE,
+        SORT_DIRECTION.down,
+      );
+      expect(sorted.map((g) => g.id)).toEqual(['new', 'old']);
+    });
+  });
+
+  describe('sortGearGroupsForSidebar', () => {
+    test('orders manufacturer groups by newest item when sorting by last update', () => {
+      const groups = groupGearByManufacturer([
+        { id: 'a1', manufacturer: 'MfrA', display_id: 'x', last_updated: '2020-01-01T00:00:00Z' },
+        { id: 'b1', manufacturer: 'MfrB', display_id: 'y', last_updated: '2025-01-01T00:00:00Z' },
+      ]);
+      const sorted = sortGearGroupsForSidebar(
+        groups,
+        MAP_LAYER_SORT_VALUES.LAST_UPDATE,
+        SORT_DIRECTION.down,
+      );
+      expect(sorted.map((g) => g.manufacturerKey)).toEqual(['MfrB', 'MfrA']);
     });
   });
 

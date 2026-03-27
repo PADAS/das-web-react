@@ -216,7 +216,6 @@
     "closeGearTabButtonLabel": "Close Gear",
     "gearLink": "Gear",
     "gearTab": {
-      "gearCount": "{{count}} gear sets loaded",
       "unknownManufacturer": "Other",
       "loadErrorFallback": "Request failed",
       "loadErrorIntro": "Could not load gear from the server.",
@@ -225,7 +224,8 @@
       "loadingList": "Still loading the full list…",
       "noSearchResults": "No gear sets match your search.",
       "retryButton": "Try again",
-      "searchPlaceholder": "Search by name"
+      "searchPlaceholder": "Search by name",
+      "searchFormAriaLabel": "Search gear"
     },
     "layersLink": "Map Layers",
     "mapLayersTab": {

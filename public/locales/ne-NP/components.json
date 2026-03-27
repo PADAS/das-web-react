@@ -200,7 +200,6 @@
         "closeGearTabButtonLabel": "जाल बन्द गर्नुहोस्",
         "gearLink": "जाल",
         "gearTab": {
-            "gearCount": "{{count}} जाल सेट लोड भयो",
             "unknownManufacturer": "अन्य",
             "loadErrorFallback": "अनुरोध असफल भयो",
             "loadErrorIntro": "सर्भरबाट जाल लोड गर्न सकिएन।",
@@ -209,7 +208,8 @@
             "loadingList": "पूर्ण सूची अझै लोड हुँदै…",
             "noSearchResults": "खोजसँग मेल खाने कुनै सेट छैन।",
             "retryButton": "फेरि प्रयास गर्नुहोस्",
-            "searchPlaceholder": "नामद्वारा खोज्नुहोस्"
+            "searchPlaceholder": "नामद्वारा खोज्नुहोस्",
+            "searchFormAriaLabel": "जाल खोज्नुहोस्"
         },
         "layersLink": "नक्साका तहहरु",
         "mapLayersTab": {

@@ -6,18 +6,25 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { fetchAllGear, hideGearOnMap, showGearOnMap } from '../../ducks/gear';
+import { showPopup } from '../../ducks/popup';
 import {
   gearHumanReadableLabel,
   gearMatchesSearchQuery,
   getGearRepresentativeCoordinates,
   groupGearByManufacturer,
+  sortGearGroupsForSidebar,
+  sortGearListForSidebar,
 } from '../../utils/gear';
 import { MAP_LAYERS_CATEGORY } from '../../utils/analytics';
 
 import CheckableList from '../../CheckableList';
+import DateTime from '../../DateTime';
+import useJumpToLocation from '../../hooks/useJumpToLocation';
 import LocationJumpButton from '../../LocationJumpButton';
 import SearchBar from '../../SearchBar';
+import SidebarListSortingControls from '../SidebarListSortingControls';
 
+import * as filterStyles from '../MapLayersTab/Filters/styles.module.scss';
 import * as mapLayersStyles from '../MapLayersTab/styles.module.scss';
 import * as styles from './styles.module.scss';
 
@@ -28,23 +35,46 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 
 const manufacturerStateKey = (manufacturerKey) => (manufacturerKey === '' ? '__other' : manufacturerKey);
 
-const GearListItem = memo(({ type, ...gear }) => {
+const GEAR_JUMP_ZOOM = 14;
+
+const GearListItem = memo(({ ...gear }) => {
+  const dispatch = useDispatch();
+  const jumpToLocation = useJumpToLocation();
   const coordinates = getGearRepresentativeCoordinates(gear);
-  const metaParts = [type].filter(Boolean);
   const rowTitle = gearHumanReadableLabel(gear) || '—';
+
+  const onJumpClick = useCallback(() => {
+    if (!coordinates) return;
+    jumpToLocation(coordinates, GEAR_JUMP_ZOOM);
+    window.setTimeout(() => {
+      dispatch(showPopup('gear', {
+        coordinates,
+        geometry: { type: 'Point', coordinates },
+        properties: { id: gear.id },
+      }));
+    }, 0);
+  }, [coordinates, dispatch, gear.id, jumpToLocation]);
+
   return <>
     <p className={mapLayersStyles.itemTitle} data-testid="gear-item-name">
       <span className={styles.displayId}>{rowTitle}</span>
-      {metaParts.length > 0 && <span className={styles.metaLine}>{metaParts.join(' · ')}</span>}
     </p>
+
+    {gear.last_updated && <DateTime
+      className={styles.gearDateTime}
+      date={gear.last_updated}
+    />}
+
     <div className={mapLayersStyles.controls}>
       {coordinates && <LocationJumpButton
         clickAnalytics={[
           MAP_LAYERS_CATEGORY,
           'Click Jump To Gear Location',
-          `Gear:${type || 'unknown'}`,
+          `Gear:${gear.type || 'unknown'}`,
         ]}
         coordinates={coordinates}
+        onClick={onJumpClick}
+        zoom={GEAR_JUMP_ZOOM}
       />}
     </div>
   </>;
@@ -63,6 +93,7 @@ const GearTab = () => {
   const hiddenGearIds = useSelector((state) => state.data.gear.hiddenGearIds);
   const loading = useSelector((state) => state.data.gear.loading);
   const initialLoadInProgress = useSelector((state) => state.data.gear.initialLoadInProgress);
+  const mapLayerFilter = useSelector((state) => state.data.mapLayerFilter);
 
   const errorMessage = useMemo(() => {
     if (!fetchError) return null;
@@ -85,9 +116,22 @@ const GearTab = () => {
     return gearItems.filter((g) => gearMatchesSearchQuery(g, filterText));
   }, [filterText, gearItems]);
 
-  const gearGroups = useMemo(
-    () => groupGearByManufacturer(filteredGear),
-    [filteredGear],
+  const sortedFlatGear = useMemo(
+    () => sortGearListForSidebar(
+      filteredGear,
+      mapLayerFilter.sortBy,
+      mapLayerFilter.sortDirection,
+    ),
+    [filteredGear, mapLayerFilter.sortBy, mapLayerFilter.sortDirection],
+  );
+
+  const sortedGearGroups = useMemo(
+    () => sortGearGroupsForSidebar(
+      groupGearByManufacturer(filteredGear),
+      mapLayerFilter.sortBy,
+      mapLayerFilter.sortDirection,
+    ),
+    [filteredGear, mapLayerFilter.sortBy, mapLayerFilter.sortDirection],
   );
 
   const searchActive = filterText.trim().length > 0;
@@ -117,14 +161,18 @@ const GearTab = () => {
   const showRefreshHint = loading && gearItems.length > 0 && !initialLoadInProgress;
 
   return <div className={styles.gearTab}>
-    <SearchBar
-      className={styles.search}
-      disabled={showInitialLoader}
-      onChange={(event) => setFilterText(event.target.value)}
-      onClear={() => setFilterText('')}
-      placeholder={t('searchPlaceholder')}
-      value={filterText}
-    />
+    <div aria-label={t('searchFormAriaLabel')} className={`${filterStyles.form} ${styles.filterBar}`} role="search">
+      <SearchBar
+        className={filterStyles.searchBar}
+        disabled={showInitialLoader}
+        onChange={(event) => setFilterText(event.target.value)}
+        onClear={() => setFilterText('')}
+        placeholder={t('searchPlaceholder')}
+        value={filterText}
+      />
+
+      <SidebarListSortingControls />
+    </div>
 
     {!!errorMessage && !loading && <div className={styles.errorBanner} role="alert">
       <p>{t('loadErrorIntro')}</p>
@@ -140,10 +188,6 @@ const GearTab = () => {
     </div>}
 
     {!showInitialLoader && <>
-      {gearItems.length > 0 && <p className={styles.summary}>
-        {t('gearCount', { count: gearItems.length })}
-      </p>}
-
       {showPaginatingHint && <p className={styles.loadingList}>{t('loadingList')}</p>}
 
       {showRefreshHint && <p className={styles.loadingList}>{t('loading')}</p>}
@@ -151,8 +195,8 @@ const GearTab = () => {
       {showNoSearchResults && <p className={styles.emptyFilter}>{t('noSearchResults')}</p>}
 
       {!showNoSearchResults && gearItems.length > 0 && <div className={styles.gearListScroll}>
-        <ul className={`${mapLayersStyles.list} ${styles.gearManufacturerList}`}>
-          {gearGroups.map(({ manufacturerKey, items }) => {
+        {mapLayerFilter.grouped ? <ul className={`${mapLayersStyles.list} ${styles.gearManufacturerList}`}>
+          {sortedGearGroups.map(({ manufacturerKey, items }) => {
             const stateKey = manufacturerStateKey(manufacturerKey);
             const open = isMfrOpen(manufacturerKey);
             const groupTitle = manufacturerKey || t('unknownManufacturer');
@@ -180,7 +224,13 @@ const GearTab = () => {
               </Collapsible>
             </li>;
           })}
-        </ul>
+        </ul> : <CheckableList
+          className={`${mapLayersStyles.flatCheckableList} ${styles.gearFlatList}`}
+          itemComponent={GearListItem}
+          itemFullyChecked={isGearVisible}
+          items={sortedFlatGear}
+          onCheckClick={onGearCheckClick}
+        />}
       </div>}
     </>}
   </div>;
