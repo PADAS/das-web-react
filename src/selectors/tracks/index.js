@@ -15,7 +15,7 @@ const selectIsTimeOfDayColoringActive = (state) => state.view.trackSettings.isTi
 export const selectSubjectTrackState = (state) => state.view.subjectTrackState;
 const selectTimeOfDayTimeZone = (state) => state.view.trackSettings.timeOfDayTimeZone;
 const selectTimeSliderState = (state) => state.view.timeSliderState;
-const selectTracks = (state) => state.data.tracks;
+export const selectTracks = (state) => state.data.tracks;
 const selectTrackSettingsLength = (state) => state.view.trackSettings.length;
 const selectTrackSettingsOrigin = (state) => state.view.trackSettings.origin;
 
@@ -53,7 +53,7 @@ export const selectTrackTimeEnvelope = createSelector(
         // start from the virtual date, until the virtual date.
         return {
           from: new Date(Math.max(trackLengthStartFromVirtualDate, new Date(eventFilterLowerDateRange))),
-          until: timeSliderState.virtualDate,
+          until: new Date(timeSliderState.virtualDate),
         };
       }
       // If the time slider is active but there is no virtual date the envelope is from whatever is more recent, the

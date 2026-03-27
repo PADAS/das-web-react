@@ -16,7 +16,6 @@ import patrolFilterReducer, { persistenceConfig as patrolFilterPersistenceConfig
 import mapsReducer, { homeMapReducer } from '../ducks/maps';
 import mapPositionReducer, { persistenceConfig as mapPositionPersistenceConfig } from '../ducks/map-position';
 import tracksReducer, { trackSettingsReducer } from '../ducks/tracks';
-import subjectPositionTimeSeriesReducer from '../ducks/subject-position-time-series';
 import mapSubjectReducer, { subjectGroupsReducer, subjectStoreReducer } from '../ducks/subjects';
 import realtimeOverlayReducer from '../ducks/realtime-overlay';
 import systemConfigReducer from '../ducks/system-config';
@@ -116,7 +115,6 @@ const rootReducer = combineReducers({
     systemStatus: systemStatusReducer,
     token: persistReducer(tokenPersistenceConfig, tokenReducer),
     tracks: tracksReducer,
-    subjectPositionTimeSeries: subjectPositionTimeSeriesReducer,
     user: userReducer,
     userProfiles: userProfilesReducer,
     selectedUserProfile: persistReducer(userProfilePersistenceConfig, selectedUserProfileReducer),

@@ -18,8 +18,7 @@ import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
 import { getPatrolsForLeaderId } from '../utils/patrols';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
-import { fetchSubjectPositionTimeSeries } from '../ducks/subject-position-time-series';
-import { selectTrackTimeEnvelope } from '../selectors/tracks';
+import { fetchTracksIfNecessary } from '../utils/tracks';
 import { subjectIsStatic } from '../utils/subjects';
 import { withMultiLayerHandlerAwareness, queryMultiLayerClickFeatures } from '../utils/map-handlers';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
@@ -158,7 +157,7 @@ const Map = ({ children, onMapLoad, socket }) => {
     hidePopupActionCreator(popupId)
   ), [dispatch]);
 
-  const timeSeriesCancelToken = useRef(CancelToken.source());
+  const trackRequestCancelToken = useRef(CancelToken.source());
   const overlayCancelToken = useRef(CancelToken.source());
 
   const timeSliderActive = timeSliderState.active;
@@ -200,11 +199,19 @@ const Map = ({ children, onMapLoad, socket }) => {
   }
   , [dispatch, map]);
 
-  const resetTimeSeriesCancelToken = useCallback(() => {
-    timeSeriesCancelToken.current.cancel();
-    timeSeriesCancelToken.current = CancelToken.source();
+  const resetTrackRequestCancelToken = useCallback(() => {
+    trackRequestCancelToken.current.cancel();
+    trackRequestCancelToken.current = CancelToken.source();
   }, []);
 
+  const fetchMapSubjectTracksForTimeslider = useCallback((subjects) => {
+    resetTrackRequestCancelToken();
+    return fetchTracksIfNecessary(subjects
+      .filter(subject => !subjectIsStatic(subject))
+      .filter(({ last_position_date }) =>
+        (new Date(last_position_date) - new Date(eventFilter.filter.date_range.lower) >= 0))
+      .map(({ id }) => id));
+  }, [eventFilter.filter.date_range.lower, resetTrackRequestCancelToken]);
 
   const fetchMapSubjectsFromTimeslider = useCallback(() => {
     const args = [map];
@@ -216,34 +223,15 @@ const Map = ({ children, onMapLoad, socket }) => {
     }
 
     return dispatch(fetchMapSubjects(...args))
-      .then((latestMapSubjects) => {
-        if (timeSliderActive) {
-          resetTimeSeriesCancelToken();
-          dispatch((_, getState) => {
-            const envelope = selectTrackTimeEnvelope(getState());
-            const ids = latestMapSubjects
-              .filter(subject => !subjectIsStatic(subject))
-              .filter(({ last_position_date }) =>
-                (new Date(last_position_date) - new Date(eventFilter.filter.date_range.lower) >= 0))
-              .map(({ id }) => id);
-            if (ids.length && envelope?.from && envelope?.until) {
-              return dispatch(fetchSubjectPositionTimeSeries(
-                envelope.from,
-                envelope.until,
-                ids,
-                timeSeriesCancelToken.current
-              ));
-            }
-          });
-        }
-        return latestMapSubjects;
-      })
+      .then((latestMapSubjects) => (timeSliderActive
+        ? fetchMapSubjectTracksForTimeslider(latestMapSubjects)
+        : Promise.resolve(latestMapSubjects)))
       .catch(() => { });
   },
   [
     dispatch,
     eventFilter.filter.date_range,
-    resetTimeSeriesCancelToken,
+    fetchMapSubjectTracksForTimeslider,
     map,
     timeSliderActive,
   ]);
@@ -521,8 +509,9 @@ const Map = ({ children, onMapLoad, socket }) => {
   }, [dispatch, eventFilter.filter.date_range.lower]);
 
   const onTrackLengthChange = useCallback(() => {
-    resetTimeSeriesCancelToken();
-  }, [resetTimeSeriesCancelToken]);
+    resetTrackRequestCancelToken();
+    fetchTracksIfNecessary(uniq([...subjectTrackState.visible, ...subjectTrackState.pinned, ...heatmapSubjectIDs]));
+  }, [heatmapSubjectIDs, resetTrackRequestCancelToken, subjectTrackState.pinned, subjectTrackState.visible]);
 
   useEffect(() => {
     dispatch(
