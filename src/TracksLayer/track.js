@@ -1,17 +1,14 @@
-import { memo, useCallback, useContext, useMemo } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo } from 'react';
+import { useSelector } from 'react-redux';
 
 import { LAYER_IDS, MAP_ICON_SCALE } from '../constants';
 import { MapContext } from '../App';
-import {
-  useMapEventBinding
-} from '../hooks';
-import { getTimeOfDaySourceAndLayerConfigurations } from './utils';
+import { useMapEventBinding } from '../hooks';
+import { getTimeOfDayLineColorExpression, safeRemoveMapLayer, safeRemoveMapSource } from '../utils/map';
+import { getTimezoneOffsetMinutes } from '../utils/datetime';
 import { isBuoySubject } from '../utils/subjects';
-import { useSelector } from 'react-redux';
-import useMapSources from '../hooks/useMapSources';
-import useMapLayers from '../hooks/useMapLayers';
 
-const { SUBJECT_SYMBOLS, TRACKS_LINES, TRACKS_SOURCE, TRACK_TIMEPOINTS,  } = LAYER_IDS;
+const { SUBJECT_SYMBOLS, TRACKS_LINES, TRACKS_SOURCE, TRACK_TIMEPOINTS } = LAYER_IDS;
 
 const STABLE_RANDOM_TRACK_COLOR_BASED_ON_ID = [
   'rgb',
@@ -55,6 +52,8 @@ const TIMEPOINT_LAYER_PAINT = {
   ],
 };
 
+const EMPTY_FC = { type: 'FeatureCollection', features: [] };
+
 const TrackLayer = ({
   before = null,
   id = null,
@@ -70,11 +69,13 @@ const TrackLayer = ({
   const isTimeOfDayColoringActive = useSelector(
     (state) => state.view.trackSettings.isTimeOfDayColoringActive
   );
+  const timeOfDayTimeZone = useSelector(
+    (state) => state.view.trackSettings.timeOfDayTimeZone
+  );
   const subjectStore = useSelector((state) => state.data.subjectStore);
 
   const trackId = id;
 
-  // Check if this is a ropeless_buoy_gearset subject
   const subject = subjectStore[trackId];
   const isRopelessBuoyGearset = isBuoySubject(subject);
 
@@ -87,7 +88,11 @@ const TrackLayer = ({
   const layerId = `${TRACKS_LINES}-${trackId}`;
   const pointLayerId = `${TRACK_TIMEPOINTS}-${trackId}`;
 
-  // Use dot-11 icon for ropeless_buoy_gearset subjects with larger size, no rotation, and always visible
+  const todSourceId = `${sourceId}-tod`;
+  const todLayerId = `${layerId}-tod`;
+  const trackLabelLayerId = `${layerId}-label`;
+  const trackLabelSourceId = `${sourceId}-label`;
+
   const timepointLayout = useMemo(() => ({
     ...TIMEPOINT_LAYER_LAYOUT,
     'icon-image': isRopelessBuoyGearset ? 'dot-11' : 'track_arrow',
@@ -101,113 +106,161 @@ const TrackLayer = ({
     'icon-pitch-alignment': isRopelessBuoyGearset ? 'viewport' : 'map',
   }), [isRopelessBuoyGearset]);
 
-  const {
-    sourcesConfigs,
-    layersConfigs
-  } = useMemo(() => getTimeOfDaySourceAndLayerConfigurations(
-    trackData,
-    isTimeOfDayColoringActive,
-    sourceId,
-    layerId,
-    { ...TRACK_LAYER_LINE_LAYOUT, ...lineLayout },
-    {
-      before: before || SUBJECT_SYMBOLS
-    }
-  ), [trackData, sourceId, layerId, lineLayout, before, isTimeOfDayColoringActive]);
-
-
-  useMapSources([{ id: sourceId, data: trackData.track }], { tolerance: 1.5, type: 'geojson', lineMetrics: true });
-  useMapSources([{ id: pointSourceId, data: trackData.points }]);
-
-  useMapSources(sourcesConfigs, { tolerance: 1.5, type: 'geojson', lineMetrics: true });
-  useMapLayers(layersConfigs);
-
-  // Only create the normal layer if there are no time_of_day_segments
-  useMapLayers([{
-    id: layerId,
-    type: 'line',
-    sourceId,
-    paint: { ...TRACK_LAYER_LINE_PAINT, ...linePaint },
-    layout: { ...TRACK_LAYER_LINE_LAYOUT, ...lineLayout },
-    options: {
-      before: before || SUBJECT_SYMBOLS,
-      condition: !isTimeOfDayColoringActive && sourcesConfigs.length === 0
-    }
-  }]);
-
-  useMapLayers([{
-    id: pointLayerId,
-    type: 'symbol',
-    sourceId: pointSourceId,
-    paint: TIMEPOINT_LAYER_PAINT,
-    layout: timepointLayout,
-    options: {
-      before: before || `${SUBJECT_SYMBOLS}-unclustered`,
-      condition: showTimepoints
-    }
-  }]);
-
-  // Add track label layer for ropeless_buoy_gearset subjects
-  const trackLabelLayerId = `${layerId}-label`;
-  const trackLabelSourceId = `${sourceId}-label`;
-
   const trackLabelText = useMemo(() => {
     if (!isRopelessBuoyGearset || !subject) return '';
-
     const manufacturer = subject.additional?.manufacturer || '';
     const displayId = subject.additional?.display_id || '';
-
-    if (manufacturer && displayId) {
-      return `${manufacturer}: ${displayId}`;
-    } else if (manufacturer) {
-      return manufacturer;
-    } else if (displayId) {
-      return displayId;
-    }
-    return '';
+    if (manufacturer && displayId) return `${manufacturer}: ${displayId}`;
+    return manufacturer || displayId || '';
   }, [isRopelessBuoyGearset, subject]);
 
-  // Create source with only the first track feature for the label
   const trackLabelSource = useMemo(() => {
     if (!isRopelessBuoyGearset || !trackData.track.features.length) return null;
-
-    return {
-      type: 'FeatureCollection',
-      features: [trackData.track.features[0]]
-    };
+    return { type: 'FeatureCollection', features: [trackData.track.features[0]] };
   }, [isRopelessBuoyGearset, trackData.track.features]);
 
-  useMapSources(trackLabelSource ? [{ id: trackLabelSourceId, data: trackLabelSource }] : [], { tolerance: 1.5, type: 'geojson', lineMetrics: true });
+  /* create base sources + layers; full teardown on unmount */
+  useEffect(() => {
+    if (!map) return;
 
-  useMapLayers([{
-    id: trackLabelLayerId,
-    type: 'symbol',
-    sourceId: trackLabelSourceId,
-    paint: {
-      'text-color': '#ffffff',
-      'text-halo-color': '#000000',
-      'text-halo-width': 2
-    },
-    layout: {
-      'symbol-placement': 'line-center',
-      'text-field': trackLabelText,
-      'text-font': ['Open Sans Regular'],
-      'text-size': ['interpolate', ['linear'], ['zoom'], 0, 10, 14, 14],
-      'text-anchor': 'center',
-      'text-offset': [0, -3]
-    },
-    options: {
-      before: before || SUBJECT_SYMBOLS,
-      condition: isRopelessBuoyGearset && trackLabelText !== ''
+    if (!map.getSource(sourceId)) {
+      map.addSource(sourceId, { type: 'geojson', data: trackData.track, tolerance: 1.5, lineMetrics: true });
     }
-  }]);
+    if (!map.getSource(pointSourceId)) {
+      map.addSource(pointSourceId, { type: 'geojson', data: trackData.points });
+    }
 
-  // Add event handlers for track label layer
+    if (!map.getLayer(layerId)) {
+      map.addLayer({
+        id: layerId,
+        type: 'line',
+        source: sourceId,
+        layout: { ...TRACK_LAYER_LINE_LAYOUT, ...lineLayout },
+        paint: { ...TRACK_LAYER_LINE_PAINT, ...linePaint },
+      }, before || SUBJECT_SYMBOLS);
+    }
+
+    if (!map.getLayer(pointLayerId)) {
+      map.addLayer({
+        id: pointLayerId,
+        type: 'symbol',
+        source: pointSourceId,
+        layout: timepointLayout,
+        paint: TIMEPOINT_LAYER_PAINT,
+      }, before || `${SUBJECT_SYMBOLS}-unclustered`);
+    }
+
+    if (isRopelessBuoyGearset) {
+      if (!map.getSource(trackLabelSourceId)) {
+        map.addSource(trackLabelSourceId, {
+          type: 'geojson', data: trackLabelSource || EMPTY_FC, tolerance: 1.5, lineMetrics: true,
+        });
+      }
+      if (!map.getLayer(trackLabelLayerId)) {
+        map.addLayer({
+          id: trackLabelLayerId,
+          type: 'symbol',
+          source: trackLabelSourceId,
+          paint: { 'text-color': '#ffffff', 'text-halo-color': '#000000', 'text-halo-width': 2 },
+          layout: {
+            'symbol-placement': 'line-center',
+            'text-field': trackLabelText,
+            'text-font': ['Open Sans Regular'],
+            'text-size': ['interpolate', ['linear'], ['zoom'], 0, 10, 14, 14],
+            'text-anchor': 'center',
+            'text-offset': [0, -3],
+          },
+        }, before || SUBJECT_SYMBOLS);
+      }
+    }
+
+    return () => {
+      [todLayerId, trackLabelLayerId, pointLayerId, layerId].forEach((lid) => {
+        if (map.getLayer(lid)) safeRemoveMapLayer(map, lid);
+      });
+      [todSourceId, trackLabelSourceId, pointSourceId, sourceId].forEach((sid) => {
+        if (map.getSource(sid)) safeRemoveMapSource(map, sid);
+      });
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map]);
+
+  /* push fresh GeoJSON data into base sources */
+  useEffect(() => {
+    if (!map) return;
+    const src = map.getSource(sourceId);
+    if (src?.setData) src.setData(trackData.track);
+    const ptSrc = map.getSource(pointSourceId);
+    if (ptSrc?.setData) ptSrc.setData(trackData.points);
+  }, [map, sourceId, pointSourceId, trackData.track, trackData.points]);
+
+  /* sync line paint overrides (e.g. patrol opacity) */
+  useEffect(() => {
+    if (!map || !map.getLayer(layerId)) return;
+    const merged = { ...TRACK_LAYER_LINE_PAINT, ...linePaint };
+    Object.entries(merged).forEach(([k, v]) => map.setPaintProperty(layerId, k, v));
+  }, [map, layerId, linePaint]);
+
+  /* time-of-day coloring: single source + layer with color expression */
+  useEffect(() => {
+    if (!map) return;
+
+    const hasTod = isTimeOfDayColoringActive && trackData.trackSegments?.features?.length > 0;
+
+    if (hasTod) {
+      const offset = timeOfDayTimeZone ? getTimezoneOffsetMinutes(timeOfDayTimeZone) : 0;
+      const colorExpr = getTimeOfDayLineColorExpression(
+        'startTime', TRACK_LAYER_LINE_PAINT['line-color'], offset
+      );
+
+      const src = map.getSource(todSourceId);
+      if (src) {
+        src.setData(trackData.trackSegments);
+      } else {
+        map.addSource(todSourceId, { type: 'geojson', data: trackData.trackSegments, tolerance: 1.5 });
+      }
+
+      if (!map.getLayer(todLayerId)) {
+        map.addLayer({
+          id: todLayerId,
+          type: 'line',
+          source: todSourceId,
+          layout: { ...TRACK_LAYER_LINE_LAYOUT, ...lineLayout },
+          paint: { 'line-color': colorExpr, 'line-width': 3 },
+        }, before || SUBJECT_SYMBOLS);
+      } else {
+        map.setPaintProperty(todLayerId, 'line-color', colorExpr);
+      }
+    } else {
+      if (map.getLayer(todLayerId)) safeRemoveMapLayer(map, todLayerId);
+      if (map.getSource(todSourceId)) safeRemoveMapSource(map, todSourceId);
+    }
+
+    if (map.getLayer(layerId)) {
+      map.setLayoutProperty(layerId, 'visibility', hasTod ? 'none' : 'visible');
+    }
+  }, [map, trackData.trackSegments, isTimeOfDayColoringActive, timeOfDayTimeZone,
+    todSourceId, todLayerId, layerId, lineLayout, before]);
+
+  /* timepoint arrow visibility */
+  useEffect(() => {
+    if (!map || !map.getLayer(pointLayerId)) return;
+    map.setLayoutProperty(pointLayerId, 'visibility', showTimepoints ? 'visible' : 'none');
+  }, [map, pointLayerId, showTimepoints]);
+
+  /* buoy label data + text updates */
+  useEffect(() => {
+    if (!map || !isRopelessBuoyGearset) return;
+    const src = map.getSource(trackLabelSourceId);
+    if (src?.setData) src.setData(trackLabelSource || EMPTY_FC);
+    if (map.getLayer(trackLabelLayerId)) {
+      map.setLayoutProperty(trackLabelLayerId, 'text-field', trackLabelText);
+    }
+  }, [map, isRopelessBuoyGearset, trackLabelSourceId, trackLabelLayerId, trackLabelSource, trackLabelText]);
+
   const onLabelClick = useCallback((event) => {
     if (!subject || !onTrackLabelClick) return;
-
     const { lngLat } = event;
-    // Create synthetic layer object matching the subject layer structure
     const syntheticLayer = {
       properties: {
         ...subject,
@@ -215,15 +268,11 @@ const TrackLayer = ({
       },
       geometry: { type: 'Point', coordinates: [lngLat.lng, lngLat.lat] }
     };
-
     onTrackLabelClick({ event, layer: syntheticLayer });
   }, [subject, onTrackLabelClick]);
 
-  // For ropeless buoy gearsets, timepoint clicks should work like label clicks
-  // but show the popup on the clicked timepoint instead of the main subject
   const onBuoyTimepointClick = useCallback((event) => {
     if (!subject || !onTrackLabelClick) return;
-
     const { lngLat } = event;
     const syntheticLayer = {
       properties: {
@@ -232,7 +281,6 @@ const TrackLayer = ({
       },
       geometry: { type: 'Point', coordinates: [lngLat.lng, lngLat.lat] }
     };
-
     onTrackLabelClick({ event, layer: syntheticLayer });
   }, [subject, onTrackLabelClick]);
 
