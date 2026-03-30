@@ -47,6 +47,9 @@ const DetailsSection = ({
   eventId,
   eventSchema = null,
   formValidator,
+  hideReportedBy = false,
+  hidePriority = false,
+  isCommunity = false,
   isBehindAddedEvent,
   isCollection,
   isNewEvent,
@@ -79,7 +82,7 @@ const DetailsSection = ({
 
   const eventState = reportForm.state === EVENT_FORM_STATES.NEW_LEGACY ? EVENT_FORM_STATES.ACTIVE : reportForm.state;
   const geometryType = eventType?.geometry_type;
-  const jsonSchema = eventType?.version === 1 ? eventSchema?.schema : eventSchema?.json;
+  const jsonSchema = eventSchema?.schema ?? eventSchema?.json;
   const isReadOnly = eventType?.version === 1 ? jsonSchema?.readonly : eventType?.readonly;
 
   const onStateDropdownKeyDown = useCallback((event) => {
@@ -127,13 +130,13 @@ const DetailsSection = ({
   return <div ref={ref}>
     <div className={styles.globalDetails}>
       <div className={styles.sectionHeader}>
-        <div className={styles.title}>
+        {!isCommunity && <div className={styles.title}>
           <PencilWritingIcon />
 
           <h2>{t('detailsHeader')}</h2>
-        </div>
+        </div>}
 
-        <div>
+        {!isCommunity && <div>
           <Dropdown
             className={`${styles.stateDropdown} ${styles[reportForm.state]}`}
             onKeyDown={onStateDropdownKeyDown}
@@ -160,12 +163,12 @@ const DetailsSection = ({
                 </Dropdown.Item>)}
             </Dropdown.Menu>
           </Dropdown>
-        </div>
+        </div>}
       </div>
 
       <div className={styles.container}>
         <div className={styles.row}>
-          {!isCollection && <label className={styles.fieldLabel} data-testid="reportManager-reportedBySelect">
+          {!isCollection && !hideReportedBy && <label className={styles.fieldLabel} data-testid="reportManager-reportedBySelect">
             {t('reportedByLabel')}
 
             <ReportedBySelect
@@ -175,7 +178,7 @@ const DetailsSection = ({
             />
           </label>}
 
-          <label className={styles.fieldLabel}>
+          {!hidePriority && <label className={styles.fieldLabel}>
             {t('priorityLabel')}
 
             <PrioritySelect
@@ -183,7 +186,7 @@ const DetailsSection = ({
               onChange={onPriorityChange}
               priority={reportForm?.priority}
             />
-          </label>
+          </label>}
         </div>
 
         {!isCollection && <div className={styles.row}>
@@ -246,7 +249,7 @@ const DetailsSection = ({
     </div>
 
     {/* Legacy form renderer */}
-    {eventType?.version === 1 && !!jsonSchema && <Form
+    {!!eventSchema?.schema && !!jsonSchema && <Form
       className={`${styles.form} ${reportForm.is_collection ? styles.hidden : ''}`}
       disabled={isReadOnly}
       fields={{ externalLink: ExternalLinkField }}
@@ -270,7 +273,7 @@ const DetailsSection = ({
       <button ref={submitFormButtonRef} type="submit" />
     </Form>}
 
-    {eventType?.version === 2 && eventSchema && <SchemaForm
+    {eventType?.version === 2 && eventSchema?.json && !(eventSchema instanceof Error) && <SchemaForm
       eventId={eventId}
       eventLocation={reportForm.location}
       formData={reportForm.event_details}

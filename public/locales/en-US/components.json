@@ -14,6 +14,11 @@
     "defaultLabel": "Create Event or Patrol",
     "defaultTitle": "Create"
   },
+  "communityPage": {
+    "formSubmitted": "Form Submitted",
+    "invalidCommunityUrl": "Invalid Community URL",
+    "searchPlaceholder": "Search event types..."
+  },
   "checkMark": {
     "fullyCheckedTitle": "Visible",
     "partiallyCheckedTitle": "Partially visible",
@@ -101,6 +106,7 @@
     "inputDescription": "Click the button to set a value from the location picker menu.",
     "inputLabel": "Location",
     "jumpToLocationButtonLabel": "Jump to location",
+    "locationAccessError": "Cannot access your location. Have you enabled access?",
     "menuPopover": {
       "dialogLabel": "Location",
       "getUserLocationButton": "Use my location",

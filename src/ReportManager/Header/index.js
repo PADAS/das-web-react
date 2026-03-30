@@ -13,6 +13,7 @@ import ReportMenu from './ReportMenu';
 import styles from './styles.module.scss';
 
 const Header = ({
+  isCommunity = false,
   isReadOnly = false,
   onChangeTitle,
   onSaveReport,
@@ -98,14 +99,14 @@ const Header = ({
       />
     </div>}
 
-    <div className={styles.menu} style={isNewReport ? { marginLeft: 'auto' } : {} }>
+    {!isCommunity && <div className={styles.menu} style={isNewReport ? { marginLeft: 'auto' } : {} }>
       <ReportMenu
         onSaveReport={onSaveReport}
         printableContentRef={printableContentRef}
         report={report}
         setRedirectTo={setRedirectTo}
       />
-    </div>
+    </div>}
   </div>;
 };
 

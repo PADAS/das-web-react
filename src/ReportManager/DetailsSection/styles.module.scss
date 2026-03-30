@@ -37,7 +37,7 @@
     display: block;
 
     @media (min-width: $md-layout-width-min) {
-      align-items: flex-end;
+      align-items: flex-start;
       display: flex;
 
       > :not(:first-child) {

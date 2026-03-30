@@ -23,13 +23,12 @@ export const FETCH_EVENT_TYPE_SCHEMA_V2_SUCCESS = 'FETCH_EVENT_TYPE_SCHEMA_V2_SU
 export const FETCH_EVENT_TYPE_SCHEMA_FAILURE = 'FETCH_EVENT_TYPE_SCHEMA_FAILURE';
 
 // Action creators
-export const fetchEventsSchema = () => async (dispatch) => {
-  const response = await axios.get(EVENTS_SCHEMA_API_URL);
-
+export const fetchEventsSchema = (params = {}, config = {}) => async (dispatch) => {
+  const response = await axios.get(EVENTS_SCHEMA_API_URL, { params, ...config });
   dispatch({ payload: response.data.data, type: FETCH_EVENTS_SCHEMA_SUCCESS });
 };
 
-export const fetchEventTypeSchema = (eventTypeValue, eventId) => async (dispatch, getState) => {
+export const fetchEventTypeSchema = (eventTypeValue, eventId, extraParams = {}, axiosConfig = {}) => async (dispatch, getState) => {
   dispatch({ type: FETCH_EVENT_TYPE_SCHEMA });
 
   const state = getState();
@@ -44,7 +43,9 @@ export const fetchEventTypeSchema = (eventTypeValue, eventId) => async (dispatch
           location: userLocationCoords
             ? calcLocationParamStringForUserLocationCoords(userLocationCoords)
             : undefined,
+          ...extraParams,
         },
+        ...axiosConfig,
       });
 
       const { schema, uiSchema } = sanitizeSchemas(response.data.data);
@@ -67,13 +68,28 @@ export const fetchEventTypeSchema = (eventTypeValue, eventId) => async (dispatch
             ? calcLocationParamStringForUserLocationCoords(userLocationCoords)
             : undefined,
           pre_render: true,
+          ...extraParams,
         },
+        ...axiosConfig,
       });
 
-      dispatch({
-        payload: { eventId, eventTypeValue, schema: response.data },
-        type: FETCH_EVENT_TYPE_SCHEMA_V2_SUCCESS,
-      });
+      const rawSchema = response.data;
+
+      if (rawSchema?.schema) {
+        // v2 endpoint returned v1-format schema (common for community event types)
+        const { schema, uiSchema } = sanitizeSchemas(rawSchema);
+        dispatch({
+          payload: { definition: rawSchema.definition, eventId, eventTypeValue, schema, uiSchema },
+          type: FETCH_EVENT_TYPE_SCHEMA_V1_SUCCESS,
+        });
+      } else {
+        // Standard v2 format: { json, ui } directly or wrapped as { data: { json, ui }, status: {...} }
+        const schema = rawSchema?.json ? rawSchema : rawSchema?.data;
+        dispatch({
+          payload: { eventId, eventTypeValue, schema },
+          type: FETCH_EVENT_TYPE_SCHEMA_V2_SUCCESS,
+        });
+      }
     } else {
       throw new Error('Event type version is missing.');
     }

@@ -34,6 +34,7 @@ import RequireEulaConfirmation from './RequireEulaConfirmation';
 import useWebVitals from './hooks/useWebVitals';
 
 const App = lazy(() => import('./App'));
+const CommunityPage = lazy(() => import('./CommunityPage'));
 const EulaPage = lazy(() => import('./views/EULA'));
 const Login = lazy(() => import('./Login'));
 
@@ -104,6 +105,11 @@ const RootApp = () => {
           element={<RequireAccessToken>
             <EulaPageWithTracker />
           </RequireAccessToken>}
+        />
+
+        <Route
+          path={`${REACT_APP_ROUTE_PREFIX}community/:value/*`}
+          element={<CommunityPage />}
         />
 
         <Route

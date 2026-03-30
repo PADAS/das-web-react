@@ -293,20 +293,20 @@ export const isReportActive = (report) => ['active', 'new'].includes(report?.sta
 export const formValidator = customizeValidator({ AjvClass: AjvDraft04 });
 
 export const REPORT_SAVE_ACTIONS = {
-  create: (data) => ({
-    action: () => store.dispatch(createEvent(data)),
+  create: (data, extraParams = {}) => ({
+    action: () => store.dispatch(createEvent(data, extraParams)),
     priority: 300,
   }),
-  update: (data) => ({
-    action: () => store.dispatch(updateEvent(data)),
+  update: (data, extraParams = {}) => ({
+    action: () => store.dispatch(updateEvent(data, extraParams)),
     priority: 250,
   }),
-  addNote: (note) => ({
-    action: (event_id) => store.dispatch(addNoteToEvent(event_id, note)),
+  addNote: (note, extraParams = {}) => ({
+    action: (event_id) => store.dispatch(addNoteToEvent(event_id, note, extraParams)),
     priority: 200,
   }),
-  addFile: (file) => ({
-    action: (event_id) => store.dispatch(uploadEventFile(event_id, file)),
+  addFile: (file, extraParams = {}) => ({
+    action: (event_id) => store.dispatch(uploadEventFile(event_id, file, extraParams)),
     priority: 200,
   }),
 };

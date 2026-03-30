@@ -14,10 +14,10 @@ export const EVENT_TYPES_V2_API_URL =
 export const FETCH_EVENT_TYPES_SUCCESS = 'FETCH_EVENT_TYPES_SUCCESS';
 
 // Action creators
-export const fetchEventTypes = () => async (dispatch) => {
+export const fetchEventTypes = (params = {}, config = {}) => async (dispatch) => {
   const [eventTypesResponse, eventTypesV2Response] = await Promise.all([
-    axios.get(EVENT_TYPES_API_URL),
-    axios.get(EVENT_TYPES_V2_API_URL)
+    axios.get(EVENT_TYPES_API_URL, { params, ...config }),
+    axios.get(EVENT_TYPES_V2_API_URL, { params, ...config })
   ]);
 
   const eventTypes = [

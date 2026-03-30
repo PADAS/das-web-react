@@ -233,7 +233,7 @@ describe('ReportManager - ReportDetailView', () => {
     );
 
     expect(fetchEventTypeSchema).toHaveBeenCalled();
-    expect(fetchEventTypeSchema).toHaveBeenCalledWith('fire_rep', undefined);
+    expect(fetchEventTypeSchema).toHaveBeenCalledWith('fire_rep', undefined, {}, {});
   });
 
   test('updates the title when user types in it', async () => {

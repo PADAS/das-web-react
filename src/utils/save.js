@@ -3,7 +3,7 @@
 import { REPORT_SAVE_ACTIONS } from './events';
 import { PATROL_SAVE_ACTIONS } from './patrols';
 
-export const generateSaveActionsForReportLikeObject = (formData, type = 'report', notesToAdd = [], filesToAdd = []) => {
+export const generateSaveActionsForReportLikeObject = (formData, type = 'report', notesToAdd = [], filesToAdd = [], extraParams = {}) => {
   const data = { ...formData };
 
   let ACTIONS;
@@ -13,13 +13,13 @@ export const generateSaveActionsForReportLikeObject = (formData, type = 'report'
 
   if (!ACTIONS) throw new Error('Invalid save operation type');
 
-  const primarySaveOperation = data.id ? ACTIONS.update(data) : ACTIONS.create(data);
+  const primarySaveOperation = data.id ? ACTIONS.update(data, extraParams) : ACTIONS.create(data, extraParams);
   const fileOperations = [
-    ...filesToAdd.map(ACTIONS.addFile),
+    ...filesToAdd.map((file) => ACTIONS.addFile(file, extraParams)),
   ];
 
   const noteOperations = [
-    ...notesToAdd.map(ACTIONS.addNote),
+    ...notesToAdd.map((note) => ACTIONS.addNote(note, extraParams)),
   ];
 
   return [primarySaveOperation, ...fileOperations, ...noteOperations].sort((a, b) => b.priority - a.priority);

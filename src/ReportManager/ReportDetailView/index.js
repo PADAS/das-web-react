@@ -84,6 +84,8 @@ const calculateFormattedReportDiffs = (reportForm, originalReport) => {
   }, []);
 };
 
+const EMPTY_OBJECT = {};
+
 const calculateSchemaFieldsChanges = (reportField, reportSchemaProps, originalReport) => Object.entries(reportField).reduce((acc, [reportFieldKey, reportFieldValue]) => {
   const schemaDefaultValue = reportSchemaProps?.[reportFieldKey]?.default;
   const defValueHasChanged = schemaDefaultValue && reportFieldValue !== schemaDefaultValue;
@@ -100,7 +102,8 @@ const generateErrorListForApiResponseDetails = (response, t) => {
         [{ label: key, message: value }, ...accumulator],
       []);
   } catch (e) {
-    return [{ label: t('reportDetailView.unknownErrorLabel') }];
+    const message = response?.response?.data?.status?.message;
+    return [{ label: t('reportDetailView.unknownErrorLabel'), message }];
   }
 };
 
@@ -112,9 +115,17 @@ const ReportDetailView = ({
   isNewReport,
   newReportTypeId = null,
   onAddReport = null,
+  onBack = null,
   onSaveAddedReport: onSaveAddedReportCallback = null,
   reportData = null,
   reportId,
+  hidePriority = false,
+  hideReportedBy = false,
+  isCommunity = false,
+  saveExtraParams = EMPTY_OBJECT,
+  schemaFetchAxiosConfig = EMPTY_OBJECT,
+  schemaFetchExtraParams = EMPTY_OBJECT,
+  skipSchemaFetch = false,
 }) => {
   const dispatch = useDispatch();
   const location = useLocation();
@@ -264,6 +275,8 @@ const ReportDetailView = ({
 
     if (isAddedReport) {
       onSaveAddedReportCallback?.();
+    } else if (isCommunity) {
+      onBack?.();
     } else if (redirectToFromFormProps || redirectTo) {
       setRedirectTo(redirectToFromFormProps || redirectTo);
       setScrollPosition(TAB_KEYS.EVENTS, 0);
@@ -279,6 +292,8 @@ const ReportDetailView = ({
   }, [
     dispatch,
     isAddedReport,
+    isCommunity,
+    onBack,
     onSaveAddedReportCallback,
     onSaveSuccessCallback,
     redirectToFromFormProps,
@@ -291,7 +306,7 @@ const ReportDetailView = ({
     setTimeout(onClearErrors, CLEAR_ERRORS_TIMEOUT);
   }, [onClearErrors, onSaveErrorCallback, t]);
 
-  const onSaveReport = useCallback((redirectToAfterSave, shouldFetchAfterSave = !isAddedReport) => {
+  const onSaveReport = useCallback((redirectToAfterSave, shouldFetchAfterSave = !isAddedReport && !isCommunity) => {
     if (isSaving) {
       return;
     }
@@ -339,7 +354,7 @@ const ReportDetailView = ({
       []
     );
     const newAttachments = attachmentsToAdd.map((attachmentToAdd) => attachmentToAdd.file);
-    const saveActions = generateSaveActionsForReportLikeObject(reportToSubmit, 'report', newNotes, newAttachments);
+    const saveActions = generateSaveActionsForReportLikeObject(reportToSubmit, 'report', newNotes, newAttachments, saveExtraParams);
     return executeSaveActions(saveActions)
       .then((results) => {
         if (reportForm.is_collection && reportChanges.state) {
@@ -363,6 +378,7 @@ const ReportDetailView = ({
     attachmentsToAdd,
     dispatch,
     isAddedReport,
+    isCommunity,
     isNewReport,
     isSaving,
     notesToAdd,
@@ -440,7 +456,10 @@ const ReportDetailView = ({
     setSaveError([...formattedErrors]);
   }, [eventSchema?.schema?.properties]);
 
-  const onFormSubmit = useCallback(() => onSaveReport(`/${TAB_KEYS.EVENTS}`), [onSaveReport]);
+  const onFormSubmit = useCallback(
+    () => onSaveReport(isCommunity ? null : `/${TAB_KEYS.EVENTS}`),
+    [isCommunity, onSaveReport]
+  );
 
   const onFormDataChange = useCallback((formData) => {
     setReportForm((reportForm) => ({
@@ -665,10 +684,10 @@ const ReportDetailView = ({
   ]);
 
   useEffect(() => {
-    if (!!reportForm && !!eventType && !eventSchema) {
-      dispatch(fetchEventTypeSchema(reportForm.event_type, reportForm.id));
+    if (!skipSchemaFetch && !!reportForm && !!eventType && !eventSchema) {
+      dispatch(fetchEventTypeSchema(reportForm.event_type, reportForm.id, schemaFetchExtraParams, schemaFetchAxiosConfig));
     }
-  }, [eventSchema, dispatch, eventType, reportForm]);
+  }, [eventSchema, dispatch, eventType, reportForm, schemaFetchAxiosConfig, schemaFetchExtraParams, skipSchemaFetch]);
 
   useEffect(() => {
     if (linkedPatrolIds?.length > 0) {
@@ -730,6 +749,7 @@ const ReportDetailView = ({
     <NavigationPromptModal onContinue={onNavigationContinue} when={shouldShowNavigationPrompt} />
 
     <Header
+      isCommunity={isCommunity}
       isReadOnly={eventType?.readonly}
       onChangeTitle={onChangeTitle}
       onSaveReport={onSaveReport}
@@ -746,7 +766,7 @@ const ReportDetailView = ({
 
     <div className={styles.body}>
       <QuickLinks scrollTopOffset={QUICK_LINKS_SCROLL_TOP_OFFSET}>
-        <QuickLinks.NavigationBar className={styles.navigationBar}>
+        {!isCommunity && <QuickLinks.NavigationBar className={styles.navigationBar}>
           <QuickLinks.Anchor
             anchorTitle={t('reportDetailView.quickLinks.detailsAnchor')}
             iconComponent={<PencilWritingIcon />}
@@ -778,7 +798,7 @@ const ReportDetailView = ({
               `Click the "History" quicklink in a ${isNewReport ? 'new' : 'existing'} report`
             )}
           />
-        </QuickLinks.NavigationBar>
+        </QuickLinks.NavigationBar>}
 
         <div className={styles.content}>
           <QuickLinks.SectionsWrapper>
@@ -786,6 +806,9 @@ const ReportDetailView = ({
               <DetailsSection
                 eventId={reportId}
                 eventSchema={eventSchema}
+                hidePriority={hidePriority}
+                hideReportedBy={hideReportedBy}
+                isCommunity={isCommunity}
                 isBehindAddedEvent={isBehindAddedEvent}
                 isCollection={isCollection}
                 isNewEvent={isNewReport}
@@ -816,6 +839,7 @@ const ReportDetailView = ({
                 attachments={reportAttachments}
                 attachmentsToAdd={attachmentsToAdd}
                 containedReports={containedReports}
+                isCommunity={isCommunity}
                 notes={reportNotes}
                 notesToAdd={notesToAdd}
                 onDeleteAttachment={onDeleteAttachment}
@@ -867,7 +891,7 @@ const ReportDetailView = ({
             </div>
 
             <div className={styles.actionButtons}>
-              <Button
+              {!isCommunity && <Button
                 data-testid="report-details-cancel-btn"
                 className={styles.cancelButton}
                 onClick={onClickCancelButton}
@@ -875,22 +899,32 @@ const ReportDetailView = ({
                 variant="secondary"
               >
                 {t('reportDetailView.cancelButton')}
-              </Button>
+              </Button>}
 
-              <SplitButton
-                className={styles.saveButton}
-                drop="down"
-                variant="primary"
-                type="button"
-                title={t('reportDetailView.saveSplitButton.title')}
-                onClick={onClickSaveButton}
-              >
-                <Dropdown.Item className={styles.saveSplitButtonItem} data-testid="report-details-resolve-btn-toggle">
-                  <Button onClick={onClickSaveAndToggleStateButton} type="button" variant="primary">
-                    {t(`reportDetailView.saveSplitButton.${isActive ? 'saveAndResolveItem' : 'saveAndReopenItem'}`)}
+              {isCommunity
+                ? <Button
+                    className={styles.saveButton}
+                    onClick={onClickSaveButton}
+                    type="button"
+                    variant="primary"
+                  >
+                    {t('reportDetailView.saveSplitButton.title')}
                   </Button>
-                </Dropdown.Item>
-              </SplitButton>
+                : <SplitButton
+                    className={styles.saveButton}
+                    drop="down"
+                    variant="primary"
+                    type="button"
+                    title={t('reportDetailView.saveSplitButton.title')}
+                    onClick={onClickSaveButton}
+                  >
+                    <Dropdown.Item className={styles.saveSplitButtonItem} data-testid="report-details-resolve-btn-toggle">
+                      <Button onClick={onClickSaveAndToggleStateButton} type="button" variant="primary">
+                        {t(`reportDetailView.saveSplitButton.${isActive ? 'saveAndResolveItem' : 'saveAndReopenItem'}`)}
+                      </Button>
+                    </Dropdown.Item>
+                  </SplitButton>
+              }
             </div>
           </div>
         </div>

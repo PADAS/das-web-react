@@ -234,11 +234,9 @@ export const buildGeoSpanFilter = (geoSpan) => {
     return null;
   }
 
-  const minLon = Math.min(lon1, lon2);
-  const maxLon = Math.max(lon1, lon2);
   const minLat = Math.min(lat1, lat2);
   const maxLat = Math.max(lat1, lat2);
-  return [minLon, minLat, maxLon, maxLat];
+  return [lon1, minLat, lon2, maxLat];
 };
 
 

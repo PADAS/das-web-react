@@ -12,7 +12,7 @@ import LoadingOverlay from '../LoadingOverlay';
 
 import * as styles from './styles.module.scss';
 
-const GetUserLocationButton = ({ onClick = null, onGet, ref, renderContent = null, ...otherProps }) => {
+const GetUserLocationButton = ({ onClick = null, onError = null, onGet, ref, renderContent = null, ...otherProps }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('components', { keyPrefix: 'getUserLocationButton' });
 
@@ -41,13 +41,22 @@ const GetUserLocationButton = ({ onClick = null, onGet, ref, renderContent = nul
           (error) => {
             setIsLoading(false);
 
-            toast.error(t('errorToastMessage', { errorMessage: error.message }));
+            if (onError) {
+              onError(error);
+            } else {
+              toast.error(t('errorToastMessage', { errorMessage: error.message }));
+            }
           },
           GEOLOCATOR_OPTIONS
         );
       } catch (error) {
         setIsLoading(false);
-        toast.error(t('errorToastMessage', { errorMessage: error.message }));
+
+        if (onError) {
+          onError(error);
+        } else {
+          toast.error(t('errorToastMessage', { errorMessage: error.message }));
+        }
       }
     }
   };

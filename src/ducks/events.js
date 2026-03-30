@@ -200,8 +200,8 @@ export const clearEventData = () => ({
   type: CLEAR_EVENT_DATA,
 });
 
-export const createEvent = event => (dispatch, getState) => {
-  const params = {};
+export const createEvent = (event, extraParams = {}) => (dispatch, getState) => {
+  const params = { ...extraParams };
   const state = getState();
 
   if (shouldAppendLocationToRequest(state)) {
@@ -231,8 +231,8 @@ export const createEvent = event => (dispatch, getState) => {
     });
 };
 
-export const addNoteToEvent = (event_id, note) => (dispatch, getState) => {
-  const params = {};
+export const addNoteToEvent = (event_id, note, extraParams = {}) => (dispatch, getState) => {
+  const params = { ...extraParams };
   const state = getState();
 
   if (shouldAppendLocationToRequest(state)) {
@@ -292,8 +292,8 @@ export const fetchEvent = (event_id, parameters = {}) =>
       });
   };
 
-export const updateEvent = (event) => (dispatch, getState) => {
-  const params = {};
+export const updateEvent = (event, extraParams = {}) => (dispatch, getState) => {
+  const params = { ...extraParams };
   const state = getState();
 
   if (shouldAppendLocationToRequest(state)) {
@@ -370,9 +370,9 @@ export const setEventState = (id, state) => (dispatch, getState) => {
     });
 };
 
-export const uploadEventFile = (event_id, file) => (dispatch, getState) => {
+export const uploadEventFile = (event_id, file, extraParams = {}) => (dispatch, getState) => {
   const uploadUrl = `${EVENT_API_URL}${event_id}/files/`;
-  const params = {};
+  const params = { ...extraParams };
   const state = getState();
 
   if (shouldAppendLocationToRequest(state)) {
