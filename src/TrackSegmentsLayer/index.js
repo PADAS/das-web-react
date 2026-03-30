@@ -15,7 +15,7 @@ import Arrow from '../common/images/icons/track-arrow.svg?url';
 const ARROW_IMG_ID = 'track_arrow';
 
 const TRACK_SEGMENTS_SOURCE = 'track-segments-source';
-const TRACK_SEGMENTS_LAYER_ID = 'track-segments-layer';
+export const TRACK_SEGMENTS_LAYER_ID = 'track-segments-layer';
 const TRACK_SEGMENTS_START_LAYER_ID = 'track-segments-start-layer';
 
 const VECTOR_TILE_BASE = `${API_URL}observations/segments/tiles/{z}/{x}/{y}.pbf`;
@@ -25,14 +25,15 @@ const buildVectorTileUrl = (rangeParam) =>
 
 // Server-controlled styling: match TracksLayer/track.js TRACK_LAYER_LINE_PAINT.
 // Vector tiles may use snake_case (stroke_width); support both.
-const STABLE_RANDOM_TRACK_COLOR_BASED_ON_SUBJECT_ID = [
+// Shared with RealtimeOverlayLayer for visual continuity.
+export const STABLE_RANDOM_TRACK_COLOR_BASED_ON_SUBJECT_ID = [
   'rgb',
   ['random', 64, 224, ['concat', ['get', 'subject_id'], '-r']],
   ['random', 64, 224, ['concat', ['get', 'subject_id'], '-g']],
   ['random', 64, 224, ['concat', ['get', 'subject_id'], '-b']]
 ];
 
-const TRACK_SEGMENTS_LINE_PAINT = {
+export const TRACK_SEGMENTS_LINE_PAINT = {
   'line-color': [
     'case',
     ['all',
@@ -74,6 +75,7 @@ const TrackSegmentsLayer = ({ onPointClick }) => {
   const segmentTimeGapLength = useSelector((state) => state.view.trackSettings.segmentTimeGapLength);
   const segmentSpeedLimit = useSelector((state) => state.view.trackSettings.segmentSpeedLimit);
 
+  const showTrackTimepoints = useSelector((state) => state.view.showTrackTimepoints);
   const subjectTrackState = useSelector((state) => state.view.subjectTrackState);
   const trackTimeEnvelope = useSelector(selectTrackTimeEnvelope);
   const trackLengthInDays = useSelector(selectTrackLengthInDays);
@@ -133,8 +135,8 @@ const TrackSegmentsLayer = ({ onPointClick }) => {
         layout: {
           'icon-image': ARROW_IMG_ID,
           'icon-rotate': ['get', 'bearing_deg'],
-          'icon-size': 0.3 / MAP_ICON_SCALE,
-          'icon-allow-overlap': true,
+          'icon-size': 0.4 / MAP_ICON_SCALE,
+          'icon-allow-overlap': ['step', ['zoom'], false, 15, true],
           'icon-pitch-alignment': 'map',
           'icon-rotation-alignment': 'map',
           'symbol-placement': 'point',
@@ -207,6 +209,16 @@ const TrackSegmentsLayer = ({ onPointClick }) => {
       map.setFilter(TRACK_SEGMENTS_START_LAYER_ID, filters);
     }
   }, [map, visibleSubjectIds, trackTimeEnvelope, isSegmentOnTimeEnabled, isSegmentOnSpeedEnabled, segmentTimeGapLength, segmentSpeedLimit]);
+
+  /* toggle timepoint arrow visibility from map settings */
+  useEffect(() => {
+    if (!map || !map.getLayer(TRACK_SEGMENTS_START_LAYER_ID)) return;
+    map.setLayoutProperty(
+      TRACK_SEGMENTS_START_LAYER_ID,
+      'visibility',
+      showTrackTimepoints ? 'visible' : 'none'
+    );
+  }, [map, showTrackTimepoints]);
 
   /* click handler for starting point arrows */
   const handleStartPointClick = useCallback((event) => {

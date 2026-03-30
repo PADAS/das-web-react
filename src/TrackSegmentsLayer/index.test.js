@@ -41,6 +41,7 @@ const buildMockState = (overrides = {}) => ({
       segmentSpeedLimit: 60,
       ...overrides.trackSettings,
     },
+    showTrackTimepoints: overrides.showTrackTimepoints ?? true,
     subjectTrackState: { pinned: [], visible: [], ...overrides.subjectTrackState },
     trackTimeEnvelope: { from: TRACK_SINCE, until: null, ...overrides.trackTimeEnvelope },
     trackLengthInDays: overrides.trackLengthInDays,
@@ -298,6 +299,46 @@ describe('TrackSegmentsLayer', () => {
       expect(lineOpacity).toContainEqual(['has', 'stroke-opacity']);
       expect(lineOpacity).toContainEqual(['has', 'stroke_opacity']);
       expect(lineOpacity).toContainEqual(0.8);
+    });
+  });
+
+  // ── timepoint visibility toggle ──────────────────────────────────
+
+  describe('timepoint arrow visibility', () => {
+    beforeEach(() => {
+      mockMap.getSource.mockReturnValue({ type: 'vector' });
+      mockMap.getLayer.mockReturnValue({ id: 'exists' });
+      mockMap.getFilter.mockReturnValue(null);
+    });
+
+    test('sets arrow layer visible when showTrackTimepoints is true', () => {
+      const state = buildMockState({ showTrackTimepoints: true });
+      useSelector.mockImplementation((selector) => selector(state));
+
+      render(
+        <MapContext.Provider value={mockMap}>
+          <TrackSegmentsLayer />
+        </MapContext.Provider>
+      );
+
+      expect(mockMap.setLayoutProperty).toHaveBeenCalledWith(
+        'track-segments-start-layer', 'visibility', 'visible'
+      );
+    });
+
+    test('hides arrow layer when showTrackTimepoints is false', () => {
+      const state = buildMockState({ showTrackTimepoints: false });
+      useSelector.mockImplementation((selector) => selector(state));
+
+      render(
+        <MapContext.Provider value={mockMap}>
+          <TrackSegmentsLayer />
+        </MapContext.Provider>
+      );
+
+      expect(mockMap.setLayoutProperty).toHaveBeenCalledWith(
+        'track-segments-start-layer', 'visibility', 'none'
+      );
     });
   });
 

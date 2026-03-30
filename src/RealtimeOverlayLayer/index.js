@@ -1,6 +1,7 @@
-import { memo, useContext, useEffect } from 'react';
+import { memo, useContext, useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { featureCollection } from '@turf/turf';
+import uniq from 'lodash/uniq';
 
 import { MapContext } from '../App';
 import {
@@ -10,48 +11,16 @@ import {
   safeRemoveMapSource,
 } from '../utils/map';
 import { getTimezoneOffsetMinutes } from '../utils/datetime';
+import {
+  STABLE_RANDOM_TRACK_COLOR_BASED_ON_SUBJECT_ID,
+  TRACK_SEGMENTS_LAYER_ID,
+  TRACK_SEGMENTS_LINE_PAINT,
+} from '../TrackSegmentsLayer';
 
 const OVERLAY_SUBJECTS_SOURCE = 'realtime-overlay-subjects';
 const OVERLAY_SEGMENTS_SOURCE = 'realtime-overlay-segments';
 const OVERLAY_SEGMENTS_LAYER_ID = 'realtime-overlay-segments-layer';
 const OVERLAY_SUBJECTS_LAYER_ID = 'realtime-overlay-subjects-layer';
-
-// Same server-driven styling as TrackSegmentsLayer for segment lines.
-const STABLE_RANDOM_TRACK_COLOR_BASED_ON_SUBJECT_ID = [
-  'rgb',
-  ['random', 64, 224, ['concat', ['get', 'subject_id'], '-r']],
-  ['random', 64, 224, ['concat', ['get', 'subject_id'], '-g']],
-  ['random', 64, 224, ['concat', ['get', 'subject_id'], '-b']]
-];
-
-const OVERLAY_SEGMENTS_LINE_PAINT = {
-  'line-color': [
-    'case',
-    ['all', ['has', 'stroke'], ['!=', ['get', 'stroke'], '']],
-    ['to-color', ['get', 'stroke']],
-    STABLE_RANDOM_TRACK_COLOR_BASED_ON_SUBJECT_ID,
-  ],
-  'line-width': [
-    'step',
-    ['zoom'],
-    3,
-    8,
-    ['*',
-      ['case',
-        ['has', 'stroke-width'], ['get', 'stroke-width'],
-        ['has', 'stroke_width'], ['get', 'stroke_width'],
-        1
-      ],
-      1.75
-    ]
-  ],
-  'line-opacity': [
-    'case',
-    ['has', 'stroke-opacity'], ['get', 'stroke-opacity'],
-    ['has', 'stroke_opacity'], ['get', 'stroke_opacity'],
-    0.8
-  ],
-};
 
 const RealtimeOverlayLayer = ({ onSubjectClick }) => {
   const map = useContext(MapContext);
@@ -60,6 +29,11 @@ const RealtimeOverlayLayer = ({ onSubjectClick }) => {
     (state) => state.view.trackSettings.isTimeOfDayColoringActive
   );
   const timeOfDayTimeZone = useSelector((state) => state.view.trackSettings.timeOfDayTimeZone);
+  const subjectTrackState = useSelector((state) => state.view.subjectTrackState);
+  const visibleSubjectIds = useMemo(
+    () => uniq([...subjectTrackState.pinned, ...subjectTrackState.visible]),
+    [subjectTrackState.pinned, subjectTrackState.visible]
+  );
 
   const overlaySubjects = overlay?.subjects && overlay.subjects.type === 'FeatureCollection'
     ? overlay.subjects
@@ -86,6 +60,9 @@ const RealtimeOverlayLayer = ({ onSubjectClick }) => {
     }
 
     if (!map.getLayer(OVERLAY_SEGMENTS_LAYER_ID)) {
+      const beforeLayer = map.getLayer(TRACK_SEGMENTS_LAYER_ID)
+        ? TRACK_SEGMENTS_LAYER_ID
+        : undefined;
       map.addLayer({
         id: OVERLAY_SEGMENTS_LAYER_ID,
         type: 'line',
@@ -94,8 +71,8 @@ const RealtimeOverlayLayer = ({ onSubjectClick }) => {
           'line-join': 'round',
           'line-cap': 'round',
         },
-        paint: OVERLAY_SEGMENTS_LINE_PAINT,
-      });
+        paint: TRACK_SEGMENTS_LINE_PAINT,
+      }, beforeLayer);
     }
 
     if (!map.getLayer(OVERLAY_SUBJECTS_LAYER_ID)) {
@@ -172,10 +149,22 @@ const RealtimeOverlayLayer = ({ onSubjectClick }) => {
         STABLE_RANDOM_TRACK_COLOR_BASED_ON_SUBJECT_ID,
         timeZoneOffset
       )
-      : OVERLAY_SEGMENTS_LINE_PAINT['line-color'];
+      : TRACK_SEGMENTS_LINE_PAINT['line-color'];
 
     map.setPaintProperty(OVERLAY_SEGMENTS_LAYER_ID, 'line-color', lineColor);
   }, [map, isTimeOfDayColoringActive, timeOfDayTimeZone]);
+
+  /* filter overlay segments to match visible subjects in TrackSegmentsLayer */
+  useEffect(() => {
+    if (!map || !map.getLayer(OVERLAY_SEGMENTS_LAYER_ID)) return;
+    if (visibleSubjectIds.length > 0) {
+      map.setFilter(OVERLAY_SEGMENTS_LAYER_ID,
+        ['in', ['get', 'subject_id'], ['literal', visibleSubjectIds]]
+      );
+    } else {
+      map.setFilter(OVERLAY_SEGMENTS_LAYER_ID, ['literal', false]);
+    }
+  }, [map, visibleSubjectIds]);
 
   return null;
 };

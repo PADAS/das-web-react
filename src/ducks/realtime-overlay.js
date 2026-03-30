@@ -145,14 +145,22 @@ export const fetchRealtimeOverlay = (map, cancelToken = CancelToken.source()) =>
         }))
       );
       const subjectStore = getState().data.subjectStore || {};
+      const freshSubjectById = {};
+      subjectsData.forEach((s) => { if (s.id) freshSubjectById[s.id] = s; });
       trackResponses.forEach((response, index) => {
         const subjectId = subjectIds[index];
         const trackFc = fixAntimeridianCrossing(response?.data?.data);
         if (!trackFc?.features?.length) return;
         const trackFeature = trackFc.features[0];
         const subject = subjectStore[subjectId];
-        const stroke = subject?.last_position?.properties?.stroke || subject?.stroke;
-        const strokeWidth = subject?.last_position?.properties?.['stroke-width'] ?? subject?.['stroke-width'] ?? 1;
+        const fresh = freshSubjectById[subjectId];
+        const stroke = fresh?.last_position?.properties?.stroke
+          || subject?.last_position?.properties?.stroke
+          || subject?.stroke;
+        const strokeWidth = fresh?.last_position?.properties?.['stroke-width']
+          ?? subject?.last_position?.properties?.['stroke-width']
+          ?? subject?.['stroke-width']
+          ?? 1;
         segmentFeatures.push({
           type: 'Feature',
           geometry: trackFeature.geometry,
@@ -160,7 +168,9 @@ export const fetchRealtimeOverlay = (map, cancelToken = CancelToken.source()) =>
             subject_id: subjectId,
             stroke: stroke || undefined,
             'stroke-width': strokeWidth,
-            stroke_opacity: subject?.last_position?.properties?.['stroke-opacity'] ?? 0.8,
+            stroke_opacity: fresh?.last_position?.properties?.['stroke-opacity']
+              ?? subject?.last_position?.properties?.['stroke-opacity']
+              ?? 0.8,
             start_time: trackFeature.properties?.coordinateProperties?.times?.[0],
           },
         });
