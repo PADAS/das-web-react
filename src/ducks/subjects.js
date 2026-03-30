@@ -52,12 +52,10 @@ const cancelableMapSubjectsFetch = () => {
       cancelToken.cancel();
       cancelToken = CancelToken.source();
 
-      // When not in timeslider mode, only fetch subjects updated in the last
-      // hour — stale subjects are already rendered from the vector tile layer.
-      // The 1-hour window matches selectFreshSubjectIds in selectors/subjects.
-      const freshParams = {};
-      if (!timeSliderActive && !params?.updated_since) {
-        freshParams.updated_since = new Date(Date.now() - FRESH_SUBJECT_WINDOW_MS).toISOString();
+      const { updated_since: paramUpdatedSince, ...restParams } = params || {};
+      let updated_since = paramUpdatedSince;
+      if (!timeSliderActive && !updated_since) {
+        updated_since = new Date(Date.now() - FRESH_SUBJECT_WINDOW_MS).toISOString();
       }
 
       return axios.get(SUBJECTS_API_URL, {
@@ -65,8 +63,8 @@ const cancelableMapSubjectsFetch = () => {
         params: {
           bbox,
           use_lkl,
-          ...freshParams,
-          ...params,
+          ...restParams,
+          ...(updated_since ? { updated_since } : {}),
           include_inactive: false,
         }
       })

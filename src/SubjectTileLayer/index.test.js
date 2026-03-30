@@ -37,7 +37,7 @@ jest.mock('../constants', () => ({
 }));
 
 jest.mock('../selectors/tracks', () => ({
-  selectVectorTileRangeParam: () => '45',
+  selectTrackLengthInDays: () => 21,
 }));
 
 jest.mock('react-redux', () => ({

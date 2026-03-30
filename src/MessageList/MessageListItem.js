@@ -8,7 +8,6 @@ import SenderDetails from './SenderDetails';
 import LocationJumpButton from '../LocationJumpButton';
 
 import { extractSubjectFromMessage } from '../utils/messaging';
-import { fetchTracksIfNecessary } from '../utils/tracks';
 import { toggleTrackState } from '../ducks/map-ui';
 import { showPopup } from '../ducks/popup';
 import useJumpToLocation from '../hooks/useJumpToLocation';
@@ -57,7 +56,6 @@ const MessageListItem = (props) => {
 
           const subjectTrackHidden = !uniq([...subjectTrackState.visible, ...subjectTrackState.pinned]).includes(subject.id);
           if (subjectTrackHidden) {
-            // await fetchTracksIfNecessary([subject.id]);
             toggleTrackState(subject.id);
           }
           const coordinates = [message.device_location.longitude, message.device_location.latitude];

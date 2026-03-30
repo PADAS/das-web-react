@@ -6,7 +6,7 @@ import { useMapEventBinding } from '../hooks';
 import { addPropsToGeoJsonByKey, safeRemoveMapLayer, safeRemoveMapSource } from '../utils/map';
 import { API_URL, LAYER_IDS, SYMBOL_TEXT_SIZE_EXPRESSION } from '../constants';
 import { selectFreshSubjectIds } from '../selectors/subjects';
-import { selectVectorTileRangeParam } from '../selectors/tracks';
+import { selectTrackLengthInDays } from '../selectors/tracks';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
 
 const VECTOR_TILE_SOURCE = 'track-segments-source';
@@ -27,7 +27,8 @@ const { SKY_LAYER } = LAYER_IDS;
 const SubjectTileLayer = ({ onSubjectClick }) => {
   const map = useContext(MapContext);
   const freshSubjectIds = useSelector(selectFreshSubjectIds);
-  const rangeParam = useSelector(selectVectorTileRangeParam);
+  const trackLengthInDays = useSelector(selectTrackLengthInDays);
+  const rangeParam = trackLengthInDays <= 45 ? '45' : 'all';
   const showInactiveRadios = useSelector((state) => state.view.showInactiveRadios);
   const subjectStore = useSelector((state) => state.data.subjectStore);
 
@@ -35,8 +36,6 @@ const SubjectTileLayer = ({ onSubjectClick }) => {
   // re-creating the memoised callback on every store update.
   const subjectStoreRef = useRef(subjectStore);
   subjectStoreRef.current = subjectStore;
-
-  /* ── source & layers ──────────────────────────────────────────────── */
 
   useEffect(() => {
     if (!map) return;

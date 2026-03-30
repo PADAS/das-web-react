@@ -5,7 +5,6 @@
     "trackLegendItemsName": "doria"
   },
   "subjectTrackLegend": {
-    "description": "{{trackTime}}",
     "itemDescription_one": "Pointi {{count}}",
     "itemDescription_other": "Pointi {{count}}",
     "itemIcon": "Ikoni ya {{title}}",

@@ -54,7 +54,7 @@ jest.mock('react-redux', () => ({
 }));
 
 jest.mock('../selectors/tracks', () => ({
-  selectVectorTileRangeParam: () => '45',
+  selectTrackLengthInDays: () => 21,
 }));
 
 describe('SpatialFeaturesLayer', () => {
@@ -67,10 +67,9 @@ describe('SpatialFeaturesLayer', () => {
     mockMap = createMapMock();
     mockOnFeatureClick = jest.fn();
 
-    // Mock the selectors
-    const { selectVectorTileRangeParam } = require('../selectors/tracks');
+    const { selectTrackLengthInDays } = require('../selectors/tracks');
     useSelector.mockImplementation(selector => {
-      if (selector === selectVectorTileRangeParam) {
+      if (selector === selectTrackLengthInDays) {
         return selector();
       }
       if (selector.toString().includes('token')) {

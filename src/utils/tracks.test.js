@@ -1,6 +1,9 @@
+import axios from 'axios';
+
 import {
   buildTrackSegments,
   countTrackPointsInFeatureCollection,
+  fetchTrackPointCount,
   findClosestPositionDescending,
   getTimeOfDayPeriodBasedOnTime,
   fixAntimeridianCrossing,
@@ -42,6 +45,35 @@ describe('utils - tracks', () => {
         ],
       };
       expect(countTrackPointsInFeatureCollection(fc)).toBe(2);
+    });
+  });
+
+  describe('fetchTrackPointCount', () => {
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    test('returns 0 without subjects or start date', async () => {
+      await expect(fetchTrackPointCount([], new Date('2020-01-01'), new Date('2020-01-02'))).resolves.toBe(0);
+      await expect(fetchTrackPointCount(['a'], null, new Date('2020-01-02'))).resolves.toBe(0);
+    });
+
+    test('sums points from parallel track API responses', async () => {
+      jest.spyOn(axios, 'get').mockResolvedValue({
+        data: {
+          data: {
+            type: 'FeatureCollection',
+            features: [{ geometry: { type: 'LineString', coordinates: [[0, 0], [1, 1], [2, 2]] } }],
+          },
+        },
+      });
+      const total = await fetchTrackPointCount(
+        ['sub-a', 'sub-b'],
+        new Date('2020-01-01T00:00:00.000Z'),
+        new Date('2020-01-02T00:00:00.000Z')
+      );
+      expect(axios.get).toHaveBeenCalledTimes(2);
+      expect(total).toBe(6);
     });
   });
 

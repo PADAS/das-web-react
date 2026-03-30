@@ -162,18 +162,13 @@ export const getTimeInTimezone = (date, timeZone) => new Intl.DateTimeFormat('en
   hourCycle: 'h23',
 }).format(date);
 
-/**
- * Offset in minutes such that local minutes-since-midnight (in timeZone) ≈ (utcMinutes + offset + 1440) % 1440.
- * Used for time-of-day map expressions that cannot do timezone conversion; computed at reference time (now).
- * @param {string} timeZone - IANA timezone (e.g. 'America/Monterrey')
- * @returns {number} offset in minutes (e.g. -360 for UTC-6)
- */
+/** UTC vs `timeZone` offset in minutes, for time-of-day Mapbox expressions (sampled at current instant). */
 export const getTimezoneOffsetMinutes = (timeZone) => {
-  const d = new Date();
-  const utcMins = d.getUTCHours() * 60 + d.getUTCMinutes();
-  const localStr = getTimeInTimezone(d, timeZone);
-  const [h, m] = localStr.split(':').map(Number);
-  const localMins = h * 60 + m;
+  const referenceDate = new Date();
+  const utcMins = referenceDate.getUTCHours() * 60 + referenceDate.getUTCMinutes();
+  const localStr = getTimeInTimezone(referenceDate, timeZone);
+  const [localHours, localMinutes] = localStr.split(':').map(Number);
+  const localMins = localHours * 60 + localMinutes;
   return localMins - utcMins;
 };
 

@@ -1,6 +1,6 @@
 import { bearing, explode, featureCollection } from '@turf/turf';
 import isEqual from 'react-fast-compare';
-import { CancelToken } from 'axios';
+import axios, { CancelToken } from 'axios';
 import {
   subDays,
   startOfDay,
@@ -14,7 +14,9 @@ import store from '../store';
 import { TRACK_LENGTH_ORIGINS, fetchTracks } from '../ducks/tracks';
 import { removeNullAndUndefinedValuesFromObject } from './objects';
 import { getTimeInTimezone } from './datetime';
-import { TIME_OF_DAY_PERIODS } from '../constants';
+import { API_URL, TIME_OF_DAY_PERIODS } from '../constants';
+
+const subjectTracksApiUrl = (id) => `${API_URL}subject/${id}/tracks/`;
 
 const MAX_ABSOLUTE_LONGITUDE = 180;
 const WORLD_TOTAL_LONGITUDE = 360;
@@ -113,6 +115,26 @@ export const countTrackPointsInFeatureCollection = (featureCollection) => {
     }
     return total;
   }, 0);
+};
+
+/**
+ * Fetches track GeoJSON for the given subjects and date range, counts points, then discards the response.
+ * Does not write to Redux `tracks` (vector tiles may already supply geometry).
+ */
+export const fetchTrackPointCount = async (subjectIds, from, until, signal) => {
+  if (!subjectIds?.length || !from) return 0;
+  const since = from.toISOString();
+  const untilParam = until ? until.toISOString() : new Date().toISOString();
+  const params = { since, until: untilParam };
+  const responses = await Promise.all(
+    subjectIds.map((id) => axios.get(subjectTracksApiUrl(id), { params, signal }))
+  );
+  let total = 0;
+  for (const res of responses) {
+    const fc = res?.data?.data;
+    if (fc) total += countTrackPointsInFeatureCollection(fc);
+  }
+  return total;
 };
 
 export const convertTrackFeatureCollectionToPoints = feature => {

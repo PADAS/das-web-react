@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { EVENT_FILTER_STORAGE_KEY } from '../../../../ducks/event-filter';
@@ -19,12 +19,6 @@ const AppRefreshFieldSet = () => {
   const { restorable: mapLayersRestorable, setRestorable: setMapLayerFiltersAreRestorable } = useOptionalPersistence(MAP_LAYER_FILTER_STORAGE_KEY, true);
   const { restorable: mapPositionRestorable, setRestorable: setMapPositionIsRestorable } = useOptionalPersistence(MAP_POSITION_STORAGE_KEY, true);
   const { restorable: patrolFilterRestorable, setRestorable: setPatrolFilterIsRestorable } = useOptionalPersistence(PATROL_FILTER_STORAGE_KEY, true);
-
-  useEffect(() => {
-    if (mapPositionRestorable === undefined) {
-      setMapPositionIsRestorable(true);
-    }
-  }, [mapPositionRestorable, setMapPositionIsRestorable]);
 
   const onMapPositionAndZoomLevelCheckboxChange = (event) => {
     setMapPositionIsRestorable(event.target.checked);

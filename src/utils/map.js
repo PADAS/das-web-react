@@ -2,7 +2,7 @@ import { featureCollection } from '@turf/turf';
 
 import store from '../store';
 import { addImageToMapIfNecessary } from '../ducks/map-images';
-import { MAP_ICON_SIZE, MAP_ICON_SCALE, TIME_OF_DAY_PERIODS } from '../constants';
+import { MAP_ICON_SIZE, MAP_ICON_SCALE, TIME_OF_DAY_LINE_COLOR_FALLBACK, TIME_OF_DAY_PERIODS } from '../constants';
 import { format, formatEventSymbolDate } from './datetime';
 import { imgElFromSrc, calcUrlForImage, calcImgIdFromUrlForMapImages } from './img';
 
@@ -231,16 +231,7 @@ export const safeRemoveMapSource = (map, sourceId) => {
   }
 };
 
-/**
- * Build a Mapbox GL line-color expression that colors by time-of-day from an ISO datetime property.
- * Used for vector tiles and realtime overlay segments that have start_time but no per-vertex times.
- * Applies the given timezone offset so colors match the user's selected timezone (localization).
- * When the property is missing or empty, returns fallbackExpression.
- * @param {string} propertyName - Feature property with ISO 8601 datetime (e.g. 'start_time')
- * @param {array} fallbackExpression - Mapbox expression for line-color when time-of-day is not applied
- * @param {number} [timeZoneOffsetMinutes] - Offset from UTC (e.g. -360 for UTC-6). Omit for UTC.
- * @returns {array} Mapbox 'line-color' expression
- */
+/** Mapbox `line-color` expression from an ISO datetime property and `TIME_OF_DAY_PERIODS` (see constants). */
 export const getTimeOfDayLineColorExpression = (propertyName, fallbackExpression, timeZoneOffsetMinutes = 0) => {
   // Parse UTC hour and minute from ISO string (indices 11-12 = HH, 14-15 = MM)
   const hourExpr = ['to-number', ['slice', ['get', propertyName], 11, 13]];
@@ -257,7 +248,7 @@ export const getTimeOfDayLineColorExpression = (propertyName, fallbackExpression
   return [
     'case',
     ['all', ['has', propertyName], ['!=', ['get', propertyName], '']],
-    ['case', ...periodBranches, '#2ec27e'],
+    ['case', ...periodBranches, TIME_OF_DAY_LINE_COLOR_FALLBACK],
     fallbackExpression,
   ];
 };

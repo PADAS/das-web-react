@@ -137,7 +137,6 @@ const Map = ({ children, onMapLoad, socket }) => {
   const patrolTrackState = useSelector(state => state.view.patrolTrackState);
   const popup = useSelector(state => state.view.popup);
   const showReportHeatmap = useSelector(state => state.view.showReportHeatmap);
-  // const showTrackTimepoints = useSelector(state => state.view.showTrackTimepoints);
   const spatialFeaturesEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]);
   const subjectTrackState = useSelector(state => state.view.subjectTrackState);
   const subjectsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SUBJECTS]);
@@ -180,7 +179,6 @@ const Map = ({ children, onMapLoad, socket }) => {
   } = analyzersFeatureCollection;
 
   const subjectHeatmapAvailable = !!heatmapSubjectIDs.length;
-  // const subjectTracksVisible = !!subjectTrackState.pinned.length || !!subjectTrackState.visible.length;
   const patrolTracksVisible = !!patrolTrackState.pinned.length || !!patrolTrackState.visible.length;
 
   const onReportMarkerDrop = useCallback((location) => {
@@ -284,8 +282,6 @@ const Map = ({ children, onMapLoad, socket }) => {
       const { id, tracks_available } = properties;
 
       window.setTimeout(() => showPopup('subject', { geometry, properties, coordinates: geometry.coordinates }));
-
-      // await tracks_available ? fetchTracksIfNecessary([id]) : new Promise(resolve => resolve());
 
       if (tracks_available) {
         dispatch(
@@ -556,6 +552,7 @@ const Map = ({ children, onMapLoad, socket }) => {
     }
   }, [fetchMapData, map, timeSliderState.active]);
 
+  // Cancel previous overlay request when map/subjectsEnabled changes; cleanup aborts on unmount.
   useEffect(() => {
     if (!map || !subjectsEnabled) return;
     overlayCancelToken.current.cancel();
@@ -696,6 +693,7 @@ const Map = ({ children, onMapLoad, socket }) => {
       {children}
 
       <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
+      <MapImagesLayer />
 
       {eventsEnabled && <EventsLayer
         mapImages={mapImages}
@@ -703,21 +701,23 @@ const Map = ({ children, onMapLoad, socket }) => {
         bounceEventIDs={bounceEventIDs}
       />}
 
-      {subjectsEnabled && !timeSliderActive && <SubjectTileLayer onSubjectClick={onSelectSubject} />}
+      {/* Stale subjects: vector tiles. Fresh subjects: GeoJSON. Both are intentional (see SubjectTileLayer). */}
+      {subjectsEnabled && <>
+        {!timeSliderActive && <SubjectTileLayer onSubjectClick={onSelectSubject} />}
 
-      {subjectsEnabled && <SubjectsLayer
+        <SubjectsLayer
         mapImages={mapImages}
         onSubjectClick={onSelectSubject}
         subjectFeatureCollectionOverride={timeSliderActive ? mapSubjectFeatureCollection : undefined}
-      />}
+        />
 
-      <MapImagesLayer />
+        <StaticSensorsLayer />
+
+        {!!messageableMapSubjects.length && <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />}
+      </>}
+
 
       <UserCurrentLocationLayer onIconClick={onCurrentUserLocationClick} />
-
-      {subjectsEnabled && <StaticSensorsLayer />}
-
-      {subjectsEnabled && !!messageableMapSubjects.length && <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />}
 
       {eventsEnabled && <DelayedUnmount isMounted={!currentTab && !mapLocationSelection.isPickingLocation}>
         <div className='floating-report-filter'>

@@ -12,7 +12,7 @@ import {
 const selectEventFilterLowerDateRange = (state) => state.data.eventFilter.filter.date_range.lower;
 const selectHeatmapSubjectIDs = (state) => state.view.heatmapSubjectIDs;
 const selectIsTimeOfDayColoringActive = (state) => state.view.trackSettings.isTimeOfDayColoringActive;
-export const selectSubjectTrackState = (state) => state.view.subjectTrackState;
+const selectSubjectTrackState = (state) => state.view.subjectTrackState;
 const selectTimeOfDayTimeZone = (state) => state.view.trackSettings.timeOfDayTimeZone;
 const selectTimeSliderState = (state) => state.view.timeSliderState;
 export const selectTracks = (state) => state.data.tracks;
@@ -26,17 +26,6 @@ export const selectTrackLengthInDays = createSelector(
     trackSettingsOrigin === TRACK_LENGTH_ORIGINS.EVENT_FILTER
       ? differenceInCalendarDays(new Date(), new Date(eventFilterLowerDateRange))
       : trackSettingsLength,
-);
-
-/**
- * Vector tile API only accepts two range values: "45" (last 45 days) or "all".
- * Client keeps fine-grained track length; this maps to the param when building the tile URL.
- * Use the smallest range that covers the requested length: <= 45 days → "45", > 45 → "all".
- * The client filters segments to the track time envelope (start_time) so 21 days still shows 21 days.
- */
-export const selectVectorTileRangeParam = createSelector(
-  [selectTrackLengthInDays],
-  (trackLengthInDays) => (trackLengthInDays <= 45 ? '45' : 'all')
 );
 
 export const selectTrackTimeEnvelope = createSelector(

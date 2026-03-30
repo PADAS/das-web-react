@@ -8,7 +8,7 @@ import { useMapEventBinding } from '../hooks';
 import { addMapImage, getTimeOfDayLineColorExpression, safeRemoveMapLayer } from '../utils/map';
 import { getTimezoneOffsetMinutes } from '../utils/datetime';
 import { API_URL, MAP_ICON_SCALE } from '../constants';
-import { selectSubjectTrackState, selectTrackTimeEnvelope, selectVectorTileRangeParam } from '../selectors/tracks';
+import { selectTrackLengthInDays, selectTrackTimeEnvelope } from '../selectors/tracks';
 
 import Arrow from '../common/images/icons/track-arrow.svg?url';
 
@@ -74,9 +74,10 @@ const TrackSegmentsLayer = ({ onPointClick }) => {
   const segmentTimeGapLength = useSelector((state) => state.view.trackSettings.segmentTimeGapLength);
   const segmentSpeedLimit = useSelector((state) => state.view.trackSettings.segmentSpeedLimit);
 
-  const subjectTrackState = useSelector(selectSubjectTrackState);
+  const subjectTrackState = useSelector((state) => state.view.subjectTrackState);
   const trackTimeEnvelope = useSelector(selectTrackTimeEnvelope);
-  const rangeParam = useSelector(selectVectorTileRangeParam);
+  const trackLengthInDays = useSelector(selectTrackLengthInDays);
+  const rangeParam = trackLengthInDays <= 45 ? '45' : 'all';
   const visibleSubjectIds = uniq([
     ...subjectTrackState.pinned,
     ...subjectTrackState.visible,
@@ -162,10 +163,10 @@ const TrackSegmentsLayer = ({ onPointClick }) => {
     const timeZoneOffset = timeOfDayTimeZone ? getTimezoneOffsetMinutes(timeOfDayTimeZone) : 0;
     const lineColor = isTimeOfDayColoringActive
       ? getTimeOfDayLineColorExpression(
-          'start_time',
-          STABLE_RANDOM_TRACK_COLOR_BASED_ON_SUBJECT_ID,
-          timeZoneOffset
-        )
+        'start_time',
+        STABLE_RANDOM_TRACK_COLOR_BASED_ON_SUBJECT_ID,
+        timeZoneOffset
+      )
       : TRACK_SEGMENTS_LINE_PAINT['line-color'];
 
     map.setPaintProperty(TRACK_SEGMENTS_LAYER_ID, 'line-color', lineColor);

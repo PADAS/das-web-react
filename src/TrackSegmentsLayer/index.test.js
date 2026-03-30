@@ -26,9 +26,8 @@ jest.mock('react-redux', () => ({
 
 // Prevent deep import chain (selectors/tracks → ducks/tracks → store → …)
 jest.mock('../selectors/tracks', () => ({
-  selectSubjectTrackState: (state) => state?.view?.subjectTrackState,
+  selectTrackLengthInDays: (state) => state?.view?.trackLengthInDays ?? 21,
   selectTrackTimeEnvelope: (state) => state?.view?.trackTimeEnvelope,
-  selectVectorTileRangeParam: (state) => state?.view?.vectorTileRangeParam ?? 'all',
 }));
 
 const TRACK_SINCE = new Date('2026-02-02T00:00:00Z');
@@ -44,7 +43,7 @@ const buildMockState = (overrides = {}) => ({
     },
     subjectTrackState: { pinned: [], visible: [], ...overrides.subjectTrackState },
     trackTimeEnvelope: { from: TRACK_SINCE, until: null, ...overrides.trackTimeEnvelope },
-    vectorTileRangeParam: overrides.vectorTileRangeParam,
+    trackLengthInDays: overrides.trackLengthInDays,
   },
 });
 
@@ -76,7 +75,7 @@ describe('TrackSegmentsLayer', () => {
 
       expect(mockMap.addSource).toHaveBeenCalledWith('track-segments-source', expect.objectContaining({
         type: 'vector',
-        tiles: ['http://test-api.com/observations/segments/tiles/{z}/{x}/{y}.pbf?range=all'],
+        tiles: ['http://test-api.com/observations/segments/tiles/{z}/{x}/{y}.pbf?range=45'],
         minzoom: 0,
         maxzoom: 22,
       }));
@@ -112,10 +111,10 @@ describe('TrackSegmentsLayer', () => {
       expect(mockMap.addLayer).not.toHaveBeenCalled();
     });
 
-    test('uses range=45 in tile URL when vectorTileRangeParam is "45"', () => {
+    test('uses range=45 in tile URL when track length is within 45 days', () => {
       mockMap.getSource.mockReturnValue(null);
       mockMap.getLayer.mockReturnValue(null);
-      const state = buildMockState({ vectorTileRangeParam: '45' });
+      const state = buildMockState({ trackLengthInDays: 21 });
       useSelector.mockImplementation((selector) => selector(state));
 
       render(

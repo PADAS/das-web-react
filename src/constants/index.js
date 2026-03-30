@@ -350,6 +350,12 @@ export const BOOTSTRAP_DEFAULTS = {
   MODAL_ZINDEX: 1055,
 };
 
+/** Fallback line color when a datetime property is present but no period matches (see `getTimeOfDayLineColorExpression`). */
+export const TIME_OF_DAY_LINE_COLOR_FALLBACK = '#2ec27e';
+/**
+ * Local time-of-day buckets as minutes 1–1440 for track line coloring (`getTimeOfDayLineColorExpression`).
+ * Labels (rangeString) are for UI; minute bounds must stay consistent with that expression.
+ */
 export const TIME_OF_DAY_PERIODS = [
   {
     rangeString: '12:01 - 15:00',
@@ -397,7 +403,7 @@ export const TIME_OF_DAY_PERIODS = [
     rangeString: '09:01 - 12:00',
     rangeMinutesMin: 541,
     rangeMinutesMax: 720,
-    color: '#2ec27e'
+    color: TIME_OF_DAY_LINE_COLOR_FALLBACK,
   }
 ];
 

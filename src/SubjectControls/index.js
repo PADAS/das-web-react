@@ -40,7 +40,6 @@ const SubjectControls = ({
   const { t } = useTranslation('subjects', { keyPrefix: 'subjectControls' });
 
   const subjectIsInHeatmap = useSelector((state) => state.view.heatmapSubjectIDs.includes(subject.id));
-  const tracksLoaded = useSelector((state) => !!state.data.tracks[subject.id]);
   const tracksPinned = useSelector((state) => state.view.subjectTrackState.pinned.includes(subject.id));
   const tracksVisible = useSelector((state) => state.view.subjectTrackState.visible.includes(subject.id));
 
@@ -57,10 +56,6 @@ const SubjectControls = ({
 
   const onTrackButtonClick = async () => {
     setTrackLoadingState(true);
-
-    // if (!tracksLoaded) {
-    //   await fetchTracksIfNecessary([subject.id]);
-    // }
 
     setTrackLoadingState(false);
     dispatch(toggleTrackState(subject.id));

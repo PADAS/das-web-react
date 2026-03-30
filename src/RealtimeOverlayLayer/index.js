@@ -136,11 +136,10 @@ const RealtimeOverlayLayer = ({ onSubjectClick }) => {
     }
 
     return () => {
-      if (!map) return;
-      if (map.getLayer(OVERLAY_SUBJECTS_LAYER_ID)) safeRemoveMapLayer(map, OVERLAY_SUBJECTS_LAYER_ID);
-      if (map.getLayer(OVERLAY_SEGMENTS_LAYER_ID)) safeRemoveMapLayer(map, OVERLAY_SEGMENTS_LAYER_ID);
-      if (map.getSource(OVERLAY_SUBJECTS_SOURCE)) safeRemoveMapSource(map, OVERLAY_SUBJECTS_SOURCE);
-      if (map.getSource(OVERLAY_SEGMENTS_SOURCE)) safeRemoveMapSource(map, OVERLAY_SEGMENTS_SOURCE);
+      safeRemoveMapLayer(map, OVERLAY_SUBJECTS_LAYER_ID);
+      safeRemoveMapLayer(map, OVERLAY_SEGMENTS_LAYER_ID);
+      safeRemoveMapSource(map, OVERLAY_SUBJECTS_SOURCE);
+      safeRemoveMapSource(map, OVERLAY_SEGMENTS_SOURCE);
     };
   }, [map]);
 
@@ -169,10 +168,10 @@ const RealtimeOverlayLayer = ({ onSubjectClick }) => {
     const timeZoneOffset = timeOfDayTimeZone ? getTimezoneOffsetMinutes(timeOfDayTimeZone) : 0;
     const lineColor = isTimeOfDayColoringActive
       ? getTimeOfDayLineColorExpression(
-          'start_time',
-          STABLE_RANDOM_TRACK_COLOR_BASED_ON_SUBJECT_ID,
-          timeZoneOffset
-        )
+        'start_time',
+        STABLE_RANDOM_TRACK_COLOR_BASED_ON_SUBJECT_ID,
+        timeZoneOffset
+      )
       : OVERLAY_SEGMENTS_LINE_PAINT['line-color'];
 
     map.setPaintProperty(OVERLAY_SEGMENTS_LAYER_ID, 'line-color', lineColor);

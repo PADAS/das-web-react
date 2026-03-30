@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { MapContext } from '../App';
 import { addMapImage, safeRemoveMapLayer, safeRemoveMapSource, buildGeoSpanFilter } from '../utils/map';
 import { API_URL, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, SYSTEM_CONFIG_FLAGS } from '../constants';
-import { selectVectorTileRangeParam } from '../selectors/tracks';
+import { selectTrackLengthInDays } from '../selectors/tracks';
 
 import MarkerImage from '../common/images/icons/mapbox-blue-marker-icon.png';
 import RangerStationsImage from '../common/images/icons/ranger-stations.png';
@@ -67,7 +67,8 @@ const LINE_LAYERS_PAINT = {
 const SpatialFeaturesLayer = ({ onFeatureClick }) => {
   const map = useContext(MapContext);
   const token = useSelector(state => state.data.token);
-  const rangeParam = useSelector(selectVectorTileRangeParam);
+  const trackLengthInDays = useSelector(selectTrackLengthInDays);
+  const rangeParam = trackLengthInDays <= 45 ? '45' : 'all';
   const geoSpan = useSelector(state => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.GEO_SPAN]);
   const mapFeatureHighlightIDs = useSelector(state => state.view.mapFeatureHighlightIDs || []);
   const hiddenFeatureIDs = useSelector(state => state.data.mapLayerFilter?.hiddenFeatureIDs ?? []);
