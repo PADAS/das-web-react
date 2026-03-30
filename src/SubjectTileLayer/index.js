@@ -130,10 +130,6 @@ const SubjectTileLayer = ({ onSubjectClick }) => {
       if (map.getLayer(SUBJECT_TILE_LAYER_ID)) {
         safeRemoveMapLayer(map, SUBJECT_TILE_LAYER_ID);
       }
-      // Remove the shared vector tile source on unmount (we unmount after TrackSegmentsLayer).
-      if (map.getSource(VECTOR_TILE_SOURCE)) {
-        safeRemoveMapSource(map, VECTOR_TILE_SOURCE);
-      }
     };
   }, [map, rangeParam]);
 
