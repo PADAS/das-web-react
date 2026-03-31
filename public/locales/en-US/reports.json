@@ -47,7 +47,7 @@
   "eventItemContextMenu": {
     "errorToastMessage": "#{{serialNumber}} still {{state}}, something went wrong",
     "notificationDetails": {
-      "failedReports": "WARNING: These events are still {{state}}",
+      "failedReports": "WARNING: These events could not be changed to state {{state}}",
       "processedReports": {
         "activated": "activated",
         "resolved": "resolved",

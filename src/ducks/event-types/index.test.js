@@ -22,7 +22,7 @@ describe('Ducks - Event types', () => {
 
   afterAll(() => server.close());
 
-  test('fetchEventTypes dispatches the FETCH_EVENT_TYPES_SUCCESS action', async () => {
+  test('fetchEventTypes dispatches the FETCH_EVENT_TYPES_SUCCESS action with both v1 and v2 types by default', async () => {
     const dispatch = jest.fn();
 
     await fetchEventTypes()(dispatch);
@@ -32,6 +32,36 @@ describe('Ducks - Event types', () => {
       payload: [
         { ...snareTypeV1, version: 1 },
         { ...spoorTypeV1, version: 1 },
+        { ...animalControlTypeV2, version: 2 },
+        { ...fireTypeV2, version: 2 },
+      ],
+      type: FETCH_EVENT_TYPES_SUCCESS,
+    });
+  });
+
+  test('fetchEventTypes dispatches only v1 types when version: 1 is passed', async () => {
+    const dispatch = jest.fn();
+
+    await fetchEventTypes({}, { version: 1 })(dispatch);
+
+    expect(dispatch).toHaveBeenCalledTimes(1);
+    expect(dispatch).toHaveBeenCalledWith({
+      payload: [
+        { ...snareTypeV1, version: 1 },
+        { ...spoorTypeV1, version: 1 },
+      ],
+      type: FETCH_EVENT_TYPES_SUCCESS,
+    });
+  });
+
+  test('fetchEventTypes dispatches only v2 types when version: 2 is passed', async () => {
+    const dispatch = jest.fn();
+
+    await fetchEventTypes({}, { version: 2 })(dispatch);
+
+    expect(dispatch).toHaveBeenCalledTimes(1);
+    expect(dispatch).toHaveBeenCalledWith({
+      payload: [
         { ...animalControlTypeV2, version: 2 },
         { ...fireTypeV2, version: 2 },
       ],

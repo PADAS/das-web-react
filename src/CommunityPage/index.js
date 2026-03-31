@@ -54,7 +54,7 @@ const CommunityPage = () => {
   useEffect(() => {
     setIsLoading(true);
     setIsUnauthorized(false);
-    dispatch(fetchEventTypes({ community_input: value }, { skipAuth: true }))
+    dispatch(fetchEventTypes({ community_input: value }, { skipAuth: true, version: 2 }))
       .then(() => setIsLoading(false))
       .catch((e) => {
         if (e?.response?.status === 401) {

@@ -20,10 +20,10 @@ export const fetchEventTypes = (params = {}, config = {}) => async (dispatch) =>
     axios.get(EVENT_TYPES_V2_API_URL, { params, ...config })
   ]);
 
-  const eventTypes = [
-    ...eventTypesResponse.data.data.map((eventType) => ({ ...eventType, version: 1 })),
-    ...eventTypesV2Response.data.data.map((eventType) => ({ ...eventType, version: 2 })),
-  ];
+  const byValue = new Map();
+  eventTypesV2Response.data.data.forEach((eventType) => byValue.set(eventType.value, { ...eventType, version: 2 }));
+  eventTypesResponse.data.data.forEach((eventType) => byValue.set(eventType.value, { ...eventType, version: 1 }));
+  const eventTypes = Array.from(byValue.values());
 
   dispatch({ payload: eventTypes, type: FETCH_EVENT_TYPES_SUCCESS });
 };

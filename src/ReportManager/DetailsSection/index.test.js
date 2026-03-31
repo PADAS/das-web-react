@@ -159,9 +159,10 @@ describe('ReportManager - DetailsSection', () => {
     const stateDropdownMenu = screen.getByTestId('reportManager-detailsSection-stateDropdownMenu');
     const stateDropdownItems = within(stateDropdownMenu).getAllByRole('button');
 
-    expect(stateDropdownItems).toHaveLength(2);
+    expect(stateDropdownItems).toHaveLength(3);
     expect(stateDropdownItems[0]).toHaveTextContent('active');
     expect(stateDropdownItems[1]).toHaveTextContent('resolved');
+    expect(stateDropdownItems[2]).toHaveTextContent('review');
   });
 
   test('changes the state of the event when selecting an item from the state dropdown', async () => {

@@ -108,12 +108,12 @@ describe('CommunityPage', () => {
   });
 
   describe('data fetching', () => {
-    test('dispatches fetchEventTypes with community_input and skipAuth on mount', () => {
+    test('dispatches fetchEventTypes with community_input, skipAuth, and version 2 on mount', () => {
       const { fetchEventTypes } = require('../ducks/event-types');
       renderPage();
       expect(fetchEventTypes).toHaveBeenCalledWith(
         { community_input: COMMUNITY_VALUE },
-        { skipAuth: true }
+        { skipAuth: true, version: 2 }
       );
     });
 
@@ -139,7 +139,7 @@ describe('CommunityPage', () => {
 
       expect(fetchEventTypes).toHaveBeenCalledWith(
         { community_input: 'other-community' },
-        { skipAuth: true }
+        { skipAuth: true, version: 2 }
       );
     });
   });

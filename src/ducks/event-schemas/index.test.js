@@ -2,8 +2,8 @@ import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 
 import eventSchemasReducer, {
-  EVENT_TYPE_SCHEMA_API_URL,
-  EVENT_TYPE_SCHEMA_V2_API_URL,
+  EVENT_TYPE_SCHEMA_V1_URL,
+  EVENT_TYPE_SCHEMA_V2_URL,
   EVENTS_SCHEMA_API_URL,
   FETCH_EVENT_TYPE_SCHEMA,
   FETCH_EVENT_TYPE_SCHEMA_FAILURE,
@@ -18,9 +18,9 @@ import { globalSchema, snareSchemaV1, snareSchemaV2 } from '../../__test-helpers
 import sanitizeSchemas from './sanitizeSchemas';
 
 const server = setupServer(
-  http.get(`${EVENT_TYPE_SCHEMA_API_URL}/snare_rep`, () => HttpResponse.json({ data: snareSchemaV1 })),
+  http.get(EVENT_TYPE_SCHEMA_V1_URL('snare_rep'), () => HttpResponse.json({ data: snareSchemaV1 })),
   http.get(
-    EVENT_TYPE_SCHEMA_V2_API_URL('snare_rep'),
+    EVENT_TYPE_SCHEMA_V2_URL('snare_rep'),
     () => HttpResponse.json(snareSchemaV2)
   ),
   http.get(`${EVENTS_SCHEMA_API_URL}`, () => HttpResponse.json({ data: globalSchema })),

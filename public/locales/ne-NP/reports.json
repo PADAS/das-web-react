@@ -44,7 +44,7 @@
   "eventItemContextMenu": {
     "errorToastMessage": "#{{serialNumber}} अझै {{state}}, केही समस्या उत्पन्न भएको छ",
     "notificationDetails": {
-      "failedReports": "चेतावनीः यी घटनाहरु अझै {{state}} छन्",
+      "failedReports": "चेतावनीः यी घटनाहरु {{state}} अवस्थामा परिवर्तन गर्न सकिएन",
       "processedReports": {
         "activated": "सक्रिय बनाईयो",
         "resolved": "समाधान गरियो",

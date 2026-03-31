@@ -10,8 +10,9 @@ const USE_EVENTTYPE_SCHEMA_V2_MOCK_API = import.meta.env.REACT_APP_MOCK_EVENTTYP
   && import.meta.env.DEV;
 
 export const EVENTS_SCHEMA_API_URL = `${API_URL}activity/events/schema`;
-export const EVENT_TYPE_SCHEMA_API_URL = `${API_URL}activity/events/schema/eventtype`;
-export const EVENT_TYPE_SCHEMA_V2_API_URL = (eventTypeValue) =>
+export const EVENT_TYPE_SCHEMA_V1_URL = (eventTypeValue) =>
+  `${API_URL}activity/events/schema/eventtype/${eventTypeValue}`;
+export const EVENT_TYPE_SCHEMA_V2_URL = (eventTypeValue) =>
   `${USE_EVENTTYPE_SCHEMA_V2_MOCK_API ? '/api/v2.0/' : API_V2_URL}activity/eventtypes/${eventTypeValue}/schema`;
 
 // Actions
@@ -37,7 +38,7 @@ export const fetchEventTypeSchema = (eventTypeValue, eventId, extraParams = {}, 
 
   try {
     if (eventType.version === 1) {
-      const response = await axios.get(`${EVENT_TYPE_SCHEMA_API_URL}/${eventTypeValue}`, {
+      const response = await axios.get(EVENT_TYPE_SCHEMA_V1_URL(eventTypeValue), {
         params: {
           event_id: eventId,
           location: userLocationCoords
@@ -61,7 +62,7 @@ export const fetchEventTypeSchema = (eventTypeValue, eventId, extraParams = {}, 
         type: FETCH_EVENT_TYPE_SCHEMA_V1_SUCCESS,
       });
     } else if (eventType.version === 2) {
-      const response = await axios.get(EVENT_TYPE_SCHEMA_V2_API_URL(eventTypeValue), {
+      const response = await axios.get(EVENT_TYPE_SCHEMA_V2_URL(eventTypeValue), {
         params: {
           event_id: eventId,
           location: userLocationCoords
@@ -76,7 +77,7 @@ export const fetchEventTypeSchema = (eventTypeValue, eventId, extraParams = {}, 
       const rawSchema = response.data;
 
       if (rawSchema?.schema) {
-        // v2 endpoint returned v1-format schema (common for community event types)
+        // v2 endpoint returned v1-format schema
         const { schema, uiSchema } = sanitizeSchemas(rawSchema);
         dispatch({
           payload: { definition: rawSchema.definition, eventId, eventTypeValue, schema, uiSchema },
