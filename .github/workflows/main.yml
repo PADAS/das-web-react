@@ -146,11 +146,6 @@ jobs:
       - name: Build
         run: CI=false yarn build
 
-      - name: Sync static assets with GCS
-        run: |
-          gsutil -m cp -r build/static gs://er-static/
-          gsutil -m cp -r gs://er-static/api/* build/static/
-
       - name: Sanitize branch name for GCR path
         id: gcr
         run: |
