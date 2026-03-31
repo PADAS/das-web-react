@@ -108,6 +108,65 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+  build-st:
+    name: Build ST Image (GCR)
+    needs: [config]
+    if: startsWith(github.ref_name, 'release-')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: npm-config
+          path: .
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: GCP Auth
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          token_format: 'access_token'
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure GCR Docker auth
+        run: gcloud auth configure-docker
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Build
+        run: CI=false yarn build
+
+      - name: Sync static assets with GCS
+        run: |
+          gsutil -m cp -r build/static gs://er-static/
+          gsutil -m cp -r gs://er-static/api/* build/static/
+
+      - name: Sanitize branch name for GCR path
+        id: gcr
+        run: |
+          BRANCH="${GITHUB_REF_NAME}"
+          SANITIZED=$(echo "$BRANCH" | sed 's/[^/A-Za-z0-9_-]/_/g' | tr '[:upper:]' '[:lower:]')
+          echo "path=gcr.io/padas-app/circleci/das-web-react/${SANITIZED}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push ST image
+        run: |
+          docker build -f Dockerfile.prod \
+            -t ${{ steps.gcr.outputs.path }}:latest \
+            -t ${{ steps.gcr.outputs.path }}:${{ github.sha }} \
+            .
+          docker push ${{ steps.gcr.outputs.path }}:latest
+          docker push ${{ steps.gcr.outputs.path }}:${{ github.sha }}
+
   update-image-dev:
     needs: [config, build]
     if: github.ref_name == 'develop'
