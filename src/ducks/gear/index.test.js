@@ -2,7 +2,7 @@ import axios from 'axios';
 
 import { mockStore } from '../../__test-helpers/MockStore';
 import { showToast } from '../../utils/toast';
-import { API_URL } from '../../constants';
+import { API_URL, SYSTEM_CONFIG_FLAGS } from '../../constants';
 
 import {
   fetchAllGear,
@@ -82,6 +82,16 @@ describe('Ducks - Gear', () => {
       expect(next.initialLoadInProgress).toBe(false);
     });
 
+    test('GEAR_ENDPOINT_UNAVAILABLE clears loading without error', () => {
+      const next = gearReducer(
+        { ...INITIAL_GEAR_STATE, loading: true, initialLoadInProgress: true },
+        { type: 'GEAR_ENDPOINT_UNAVAILABLE' },
+      );
+      expect(next.gearEndpointUnavailable).toBe(true);
+      expect(next.loading).toBe(false);
+      expect(next.error).toBeNull();
+    });
+
     test('HIDE_GEAR_ON_MAP and SHOW_GEAR_ON_MAP update hiddenGearIds', () => {
       let state = gearReducer(INITIAL_GEAR_STATE, hideGearOnMap('1', '2'));
       expect(state.hiddenGearIds).toEqual(['1', '2']);
@@ -115,6 +125,31 @@ describe('Ducks - Gear', () => {
       expect(axios.get.mock.calls[0][0]).toBe(GEAR_ENDPOINT);
       expect(axios.get.mock.calls[0][1]).toMatchObject({ params: { page: 1, page_size: 100 } });
       expect(axios.get.mock.calls[1][1]).toMatchObject({ params: { page: 2, page_size: 100 } });
+    });
+
+    test('paginates when list payload is under response.data.data (DAS envelope)', async () => {
+      jest.spyOn(axios, 'get')
+        .mockResolvedValueOnce({
+          data: {
+            data: { results: [{ id: '1' }], next: 'http://n' },
+          },
+        })
+        .mockResolvedValueOnce({
+          data: {
+            data: { results: [{ id: '2' }], next: null },
+          },
+        });
+
+      const store = mockStore({ data: { gear: INITIAL_GEAR_STATE } });
+      await store.dispatch(fetchAllGear());
+
+      expect(store.getActions().map((a) => a.type)).toEqual([
+        'FETCH_GEAR_START',
+        'FETCH_GEAR_APPEND_PAGE',
+        'FETCH_GEAR_APPEND_PAGE',
+        'FETCH_GEAR_SUCCESS',
+      ]);
+      expect(axios.get).toHaveBeenCalledTimes(2);
     });
 
     test('refresh with existing data skips append and only succeeds', async () => {
@@ -158,6 +193,31 @@ describe('Ducks - Gear', () => {
           toastConfig: { type: 'error' },
         }),
       );
+    });
+
+    test('404 dispatches GEAR_ENDPOINT_UNAVAILABLE without toast', async () => {
+      jest.spyOn(axios, 'get').mockRejectedValue({
+        response: { status: 404 },
+      });
+
+      const store = mockStore({ data: { gear: INITIAL_GEAR_STATE } });
+      await store.dispatch(fetchAllGear());
+
+      expect(store.getActions().map((a) => a.type)).toEqual([
+        'FETCH_GEAR_START',
+        'GEAR_ENDPOINT_UNAVAILABLE',
+      ]);
+      expect(showToast).not.toHaveBeenCalled();
+    });
+
+    test('no-op when system config disables gear', async () => {
+      const store = mockStore({
+        data: { gear: INITIAL_GEAR_STATE },
+        view: { systemConfig: { [SYSTEM_CONFIG_FLAGS.GEAR]: false } },
+      });
+      await store.dispatch(fetchAllGear());
+
+      expect(store.getActions()).toEqual([]);
     });
   });
 });

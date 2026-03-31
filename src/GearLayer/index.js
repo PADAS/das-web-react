@@ -73,14 +73,26 @@ const GearLayer = ({ onGearClick }) => {
         paint: {
           'circle-color': '#0d6efd',
           'circle-radius': [
-            'match',
-            ['get', 'gearPointRole'],
-            GEAR_POINT_ROLE_TRAWL_END,
-            6,
-            8,
+            'step',
+            ['zoom'],
+            [
+              'match',
+              ['get', 'gearPointRole'],
+              GEAR_POINT_ROLE_TRAWL_END,
+              4,
+              5,
+            ],
+            13,
+            [
+              'match',
+              ['get', 'gearPointRole'],
+              GEAR_POINT_ROLE_TRAWL_END,
+              6,
+              8,
+            ],
           ],
           'circle-stroke-color': '#ffffff',
-          'circle-stroke-width': 2,
+          'circle-stroke-width': ['step', ['zoom'], 1.5, 13, 2],
         },
       }, beforeId);
     }

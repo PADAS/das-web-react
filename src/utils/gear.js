@@ -8,11 +8,15 @@ export const GEAR_POINT_ROLE_TRAWL_END = 'trawl_end';
 
 /**
  * One page from GET /api/v1.0/gear — DRF pagination: { count, next, previous, results }.
+ * DAS wraps list payloads in `{ data: { … } }` like other v1 endpoints; accept either shape.
  */
-export const normalizeGearListPage = (body) => ({
-  hasNextPage: Boolean(body?.next),
-  rows: Array.isArray(body?.results) ? body.results : [],
-});
+export const normalizeGearListPage = (body) => {
+  const page = body?.data ?? body;
+  return {
+    hasNextPage: Boolean(page?.next),
+    rows: Array.isArray(page?.results) ? page.results : [],
+  };
+};
 
 /**
  * Stable { allIds, byId } from an array of gear rows (order preserved on first sighting).
@@ -203,7 +207,9 @@ export const sortGearGroupsForSidebar = (groups, sortBy, sortDirection) => {
 
 /**
  * Build GeoJSON for map rendering from /api/v1.0/gear list rows.
- * Device order from the API defines LineString vertex order.
+ * Device order from the API defines LineString vertex order. Each device with a valid
+ * location gets a Point so multi-device trawls show a marker at every unit (not only
+ * the first and last vertices).
  */
 export const buildGearMapFeatureCollection = (gearList, hiddenGearIds) => {
   const hidden = new Set(hiddenGearIds || []);
@@ -247,16 +253,13 @@ export const buildGearMapFeatureCollection = (gearList, hiddenGearIds) => {
       properties: { ...baseProps },
     });
 
-    const endProps = { ...baseProps, gearPointRole: GEAR_POINT_ROLE_TRAWL_END };
-    features.push({
-      type: 'Feature',
-      geometry: { type: 'Point', coordinates: coords[0] },
-      properties: endProps,
-    });
-    features.push({
-      type: 'Feature',
-      geometry: { type: 'Point', coordinates: coords[coords.length - 1] },
-      properties: endProps,
+    const trawlVertexProps = { ...baseProps, gearPointRole: GEAR_POINT_ROLE_TRAWL_END };
+    coords.forEach((c) => {
+      features.push({
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: c },
+        properties: trawlVertexProps,
+      });
     });
   });
 

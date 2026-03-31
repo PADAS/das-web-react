@@ -2,7 +2,7 @@ import axios from 'axios';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
-import { API_URL } from '../../constants';
+import { API_URL, SYSTEM_CONFIG_FLAGS } from '../../constants';
 import globallyResettableReducer from '../../reducers/global-resettable';
 import { generateStorageConfig } from '../../reducers/storage-config';
 import { showToast } from '../../utils/toast';
@@ -24,6 +24,7 @@ const FETCH_GEAR_ERROR = 'FETCH_GEAR_ERROR';
 
 const HIDE_GEAR_ON_MAP = 'HIDE_GEAR_ON_MAP';
 const SHOW_GEAR_ON_MAP = 'SHOW_GEAR_ON_MAP';
+const GEAR_ENDPOINT_UNAVAILABLE = 'GEAR_ENDPOINT_UNAVAILABLE';
 
 const MAX_GEAR_PAGES = 500;
 const GEAR_PAGE_SIZE = 100;
@@ -58,6 +59,10 @@ const gearFetchErrorMessage = (error) => {
  * Paginate through GET /api/v1.0/gear (default deployed state).
  */
 export const fetchAllGear = () => async (dispatch, getState) => {
+  if (getState().view?.systemConfig?.[SYSTEM_CONFIG_FLAGS.GEAR] === false) {
+    return [];
+  }
+
   const hadDataBeforeFetch = getState().data.gear.allIds.length > 0;
 
   dispatch({ type: FETCH_GEAR_START });
@@ -83,6 +88,11 @@ export const fetchAllGear = () => async (dispatch, getState) => {
     dispatch(fetchGearSuccess(mergedRows));
     return mergedRows;
   } catch (error) {
+    const status = error?.response?.status;
+    if (status === 404 || status === 405) {
+      dispatch({ type: GEAR_ENDPOINT_UNAVAILABLE });
+      return [];
+    }
     const message = gearFetchErrorMessage(error);
     dispatch(fetchGearError(message));
     showToast({
@@ -97,6 +107,7 @@ export const INITIAL_GEAR_STATE = {
   allIds: [],
   byId: {},
   error: null,
+  gearEndpointUnavailable: false,
   hiddenGearIds: [],
   initialLoadInProgress: false,
   loading: false,
@@ -109,6 +120,7 @@ export const gearReducer = (state = INITIAL_GEAR_STATE, action) => {
     return {
       ...state,
       error: null,
+      gearEndpointUnavailable: false,
       initialLoadInProgress: state.allIds.length === 0,
       loading: true,
     };
@@ -131,12 +143,22 @@ export const gearReducer = (state = INITIAL_GEAR_STATE, action) => {
       allIds,
       byId,
       error: null,
+      gearEndpointUnavailable: false,
       initialLoadInProgress: false,
       loading: false,
       hasGear: allIds.length > 0,
       hiddenGearIds: state.hiddenGearIds.filter((gid) => idSet.has(gid)),
     };
   }
+
+  case GEAR_ENDPOINT_UNAVAILABLE:
+    return {
+      ...state,
+      error: null,
+      gearEndpointUnavailable: true,
+      initialLoadInProgress: false,
+      loading: false,
+    };
 
   case FETCH_GEAR_ERROR:
     return {

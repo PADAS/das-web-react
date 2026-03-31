@@ -26,6 +26,15 @@ describe('gear utils', () => {
         .toEqual({ rows, hasNextPage: false });
     });
 
+    test('unwraps DAS { data: { results, next } } envelope', () => {
+      const rows = [{ id: 'b' }];
+      expect(normalizeGearListPage({
+        data: { results: rows, next: 'http://x?page=2' },
+      })).toEqual({ rows, hasNextPage: true });
+      expect(normalizeGearListPage({ data: { results: rows, next: null } }))
+        .toEqual({ rows, hasNextPage: false });
+    });
+
     test('returns empty rows when body is missing results', () => {
       expect(normalizeGearListPage({})).toEqual({ rows: [], hasNextPage: false });
       expect(normalizeGearListPage(null)).toEqual({ rows: [], hasNextPage: false });
@@ -76,7 +85,7 @@ describe('gear utils', () => {
       expect(fc.features[0].properties.display_id).toBe(uuid);
     });
 
-    test('builds a LineString plus endpoint Points for multiple devices in API order', () => {
+    test('builds a LineString plus a Point per device for multiple devices in API order', () => {
       const fc = buildGearMapFeatureCollection([{
         id: 'g2',
         display_id: 'Trawl',
@@ -92,6 +101,22 @@ describe('gear utils', () => {
       expect(points).toHaveLength(2);
       expect(points.every((p) => p.properties.gearPointRole === GEAR_POINT_ROLE_TRAWL_END)).toBe(true);
       expect(points.map((p) => p.geometry.coordinates)).toEqual([[0, 0], [1, 1]]);
+    });
+
+    test('builds a Point for each vertex on a three-device trawl (including the middle)', () => {
+      const fc = buildGearMapFeatureCollection([{
+        id: 'g3',
+        display_id: 'Trawl-3',
+        devices: [
+          { location: { latitude: 0, longitude: 0 } },
+          { location: { latitude: 1, longitude: 1 } },
+          { location: { latitude: 2, longitude: 2 } },
+        ],
+      }], []);
+      expect(fc.features).toHaveLength(4);
+      const points = fc.features.filter((f) => f.geometry.type === 'Point');
+      expect(points).toHaveLength(3);
+      expect(points.map((p) => p.geometry.coordinates)).toEqual([[0, 0], [1, 1], [2, 2]]);
     });
 
     test('omits hidden gear ids', () => {
