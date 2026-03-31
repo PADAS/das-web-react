@@ -36,7 +36,8 @@
     "stateSelector": {
       "active": "Active",
       "resolved": "Resolved",
-      "all": "All"
+      "all": "All",
+      "review": "Review"
     },
     "title": "Event Filters"
   },

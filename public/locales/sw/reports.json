@@ -51,12 +51,14 @@
       "processedReports": {
         "activated": "limeanzishwa",
         "resolved": "limekamilishwa",
-        "title": "Matukio haya yanayohusiana yalikuwa pia {{newState}}:"
+        "title": "Matukio haya yanayohusiana yalikuwa pia {{newState}}:",
+        "review": "sent to review"
       }
     },
     "state": {
       "active": "inachukua hatua",
-      "resolved": "limekamilishwa"
+      "resolved": "limekamilishwa",
+      "review": "review"
     },
     "textCopyButtonItem": {
       "label": "Nakili kiungo cha tukio",
@@ -65,12 +67,14 @@
     "updatedCollectionInfoToast": {
       "activated": "limeanzishwa",
       "message": "Ukusanyaji #{{collectionSerialNumber}} ulikuwa {{newState}} kwa usahihi",
-      "resolved": "limekamilishwa"
+      "resolved": "limekamilishwa",
+      "review": "sent to review"
     },
     "updatedReportInfoToastMessage": "#{{reportSerialNumber}} {{newState}}",
     "updateReportStateItem": {
       "reopen": "Fungua tena",
-      "resolve": "Kamilisha"
+      "resolve": "Kamilisha",
+      "review": "Send to review"
     }
   },
   "prioritySelect": {
@@ -113,7 +117,8 @@
   },
   "reportListItem": {
     "dateTimeSuffix": "ilipita",
-    "resolvedState": "limekamilishwa"
+    "resolvedState": "limekamilishwa",
+    "reviewState": "review"
   },
   "reportManager": {
     "detailsSection": {
@@ -189,8 +194,8 @@
                   "doneButton": "Imekamilika"
                 },
                 "formPreview": {
-                    "collectionHumanizedValue": "{{collectionLength}} vitu",
-                    "jumpToLocationButtonLabel": "Ruka kwenye eneo la {{field}}"
+                  "collectionHumanizedValue": "{{collectionLength}} vitu",
+                  "jumpToLocationButtonLabel": "Ruka kwenye eneo la {{field}}"
                 },
                 "chevronButtonLabel": {
                   "closed": "Fungua muhtasari wa fomu ya {{itemTitle}}",
@@ -207,7 +212,8 @@
       },
       "stateDropdown": {
         "active": "inachukua hatua",
-        "resolved": "limekamilishwa"
+        "resolved": "limekamilishwa",
+        "review": "review"
       },
       "timeLabel": "Muda wa Tukio"
     },
@@ -245,7 +251,9 @@
       "saveSplitButton": {
         "saveAndReopenItem": "Hifadhi na fungua tena",
         "saveAndResolveItem": "Hifadhi na kamilisha",
-        "title": "Hifadhi"
+        "title": "Hifadhi",
+        "saveAndReviewItem": "Save and review",
+        "saveAndActivateItem": "Save and activate"
       },
       "unknownErrorLabel": "Hitilafu isiyojulikana"
     }

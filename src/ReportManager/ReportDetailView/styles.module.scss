@@ -131,6 +131,10 @@
     background-color: unset;
   }
 
+  :global(.dropdown-item) button {
+    width: 100%;
+  }
+
   > button {
     font-size: 0.875rem;
 

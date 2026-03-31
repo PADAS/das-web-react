@@ -36,7 +36,8 @@
     "stateSelector": {
       "active": "Tendaji",
       "resolved": "Imetatuliwa",
-      "all": "Zote"
+      "all": "Zote",
+      "review": "Review"
     },
     "title": "Vichujio vya Matukio"
   },

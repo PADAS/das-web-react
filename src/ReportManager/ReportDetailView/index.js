@@ -13,6 +13,7 @@ import { ReactComponent as LinkIcon } from '../../common/images/icons/link.svg';
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 
 import * as activitySectionStyles from '../../DetailViewComponents/ActivitySection/styles.module.scss';
+import { EVENT_FORM_STATES } from '../../constants';
 import { addEventToIncident, createEvent, fetchEvent, setEventState } from '../../ducks/events';
 import { areCardsEquals as areNotesEqual } from '../../DetailViewComponents/utils';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../../utils/file';
@@ -179,6 +180,7 @@ const ReportDetailView = ({
 
   const originalReport = isNewReport ? newReport : reportFromStore;
   const isActive = isReportActive(originalReport);
+  const isInReview = originalReport?.state === EVENT_FORM_STATES.REVIEW;
   const isCollection = !!reportForm?.is_collection;
   const isCollectionChild = eventBelongsToCollection(reportForm);
   const isPatrolAddedReport = formProps?.hasOwnProperty('isPatrolReport') && formProps.isPatrolReport;
@@ -619,12 +621,12 @@ const ReportDetailView = ({
     submitFormButtonRef?.current?.click();
   }, [reportTracker]);
 
-  const onClickSaveAndToggleStateButton = useCallback(() => {
-    setReportForm({ ...reportForm, state: isActive ? 'resolved' : 'active' });
+  const onClickSaveAndSetState = useCallback((targetState) => {
+    setReportForm({ ...reportForm, state: targetState });
     setTimeout(() => {
       onClickSaveButton();
     });
-  }, [isActive, onClickSaveButton, reportForm]);
+  }, [onClickSaveButton, reportForm]);
 
   const trackDiscard = useCallback(() => {
     reportTracker.track(`Discard changes to ${isNewReport ? 'new' : 'existing'} report`);
@@ -918,11 +920,28 @@ const ReportDetailView = ({
                     title={t('reportDetailView.saveSplitButton.title')}
                     onClick={onClickSaveButton}
                   >
-                    <Dropdown.Item className={styles.saveSplitButtonItem} data-testid="report-details-resolve-btn-toggle">
-                      <Button onClick={onClickSaveAndToggleStateButton} type="button" variant="primary">
-                        {t(`reportDetailView.saveSplitButton.${isActive ? 'saveAndResolveItem' : 'saveAndReopenItem'}`)}
+                    {isActive && <Dropdown.Item className={styles.saveSplitButtonItem} data-testid="report-details-resolve-btn-toggle">
+                      <Button onClick={() => onClickSaveAndSetState(EVENT_FORM_STATES.RESOLVED)} type="button" variant="primary">
+                        {t('reportDetailView.saveSplitButton.saveAndResolveItem')}
                       </Button>
-                    </Dropdown.Item>
+                    </Dropdown.Item>}
+                    {isInReview && <>
+                      <Dropdown.Item className={styles.saveSplitButtonItem} data-testid="report-details-resolve-btn-toggle">
+                        <Button onClick={() => onClickSaveAndSetState(EVENT_FORM_STATES.RESOLVED)} type="button" variant="primary">
+                          {t('reportDetailView.saveSplitButton.saveAndResolveItem')}
+                        </Button>
+                      </Dropdown.Item>
+                      <Dropdown.Item className={styles.saveSplitButtonItem}>
+                        <Button onClick={() => onClickSaveAndSetState(EVENT_FORM_STATES.ACTIVE)} type="button" variant="primary">
+                          {t('reportDetailView.saveSplitButton.saveAndActivateItem')}
+                        </Button>
+                      </Dropdown.Item>
+                    </>}
+                    {!isActive && !isInReview && <Dropdown.Item className={styles.saveSplitButtonItem}>
+                      <Button onClick={() => onClickSaveAndSetState(EVENT_FORM_STATES.ACTIVE)} type="button" variant="primary">
+                        {t('reportDetailView.saveSplitButton.saveAndReopenItem')}
+                      </Button>
+                    </Dropdown.Item>}
                   </SplitButton>
               }
             </div>

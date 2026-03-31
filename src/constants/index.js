@@ -204,6 +204,11 @@ export const EVENT_STATE_CHOICES = [
     key: 'active'
   },
   {
+    label: 'Review',
+    value: ['review'],
+    key: 'review'
+  },
+  {
     label: 'Resolved',
     value: ['resolved'],
     key: 'resolved'
@@ -219,6 +224,7 @@ export const EVENT_FORM_STATES = {
   ACTIVE: 'active',
   NEW_LEGACY: 'new',
   RESOLVED: 'resolved',
+  REVIEW: 'review',
 };
 
 // TODO i18n: Remove the display values once all translations are done

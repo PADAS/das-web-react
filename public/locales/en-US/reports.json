@@ -51,12 +51,14 @@
       "processedReports": {
         "activated": "activated",
         "resolved": "resolved",
-        "title": "These related events were {{newState}} as well:"
+        "title": "These related events were {{newState}} as well:",
+        "review": "sent to review"
       }
     },
     "state": {
       "active": "active",
-      "resolved": "resolved"
+      "resolved": "resolved",
+      "review": "review"
     },
     "textCopyButtonItem": {
       "label": "Copy event link",
@@ -65,12 +67,14 @@
     "updatedCollectionInfoToast": {
       "activated": "activated",
       "message": "The collection #{{collectionSerialNumber}} was {{newState}} correctly",
-      "resolved": "resolved"
+      "resolved": "resolved",
+      "review": "sent to review"
     },
     "updatedReportInfoToastMessage": "#{{reportSerialNumber}} {{newState}}",
     "updateReportStateItem": {
       "reopen": "Reopen",
-      "resolve": "Resolve"
+      "resolve": "Resolve",
+      "review": "Send to review"
     }
   },
   "prioritySelect": {
@@ -113,7 +117,8 @@
   },
   "reportListItem": {
     "dateTimeSuffix": "ago",
-    "resolvedState": "resolved"
+    "resolvedState": "resolved",
+    "reviewState": "review"
   },
   "reportManager": {
     "detailsSection": {
@@ -207,7 +212,8 @@
       },
       "stateDropdown": {
         "active": "active",
-        "resolved": "resolved"
+        "resolved": "resolved",
+        "review": "review"
       },
       "timeLabel": "Event Time"
     },
@@ -245,7 +251,9 @@
       "saveSplitButton": {
         "saveAndReopenItem": "Save and reopen",
         "saveAndResolveItem": "Save and resolve",
-        "title": "Save"
+        "title": "Save",
+        "saveAndReviewItem": "Save and review",
+        "saveAndActivateItem": "Save and activate"
       },
       "unknownErrorLabel": "Unknown error"
     }

@@ -80,6 +80,13 @@
     }
   }
 
+  &.review {
+    button {
+      background-color: $mustard-yellow;
+      border-color: $mustard-yellow;
+    }
+  }
+
   .stateDropdownMenu {
     padding: 0.312rem 0;
     @include boxShadow;
