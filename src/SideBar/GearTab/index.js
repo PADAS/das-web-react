@@ -15,8 +15,9 @@ import {
   sortGearGroupsForSidebar,
   sortGearListForSidebar,
 } from '../../utils/gear';
-import { MAP_LAYERS_CATEGORY } from '../../utils/analytics';
+import { MAP_LAYERS_CATEGORY, trackEventFactory } from '../../utils/analytics';
 
+import CheckMark from '../../Checkmark';
 import CheckableList from '../../CheckableList';
 import DateTime from '../../DateTime';
 import useJumpToLocation from '../../hooks/useJumpToLocation';
@@ -34,6 +35,8 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 };
 
 const manufacturerStateKey = (manufacturerKey) => (manufacturerKey === '' ? '__other' : manufacturerKey);
+
+const gearGroupTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 const GEAR_JUMP_ZOOM = 14;
 
@@ -146,6 +149,30 @@ const GearTab = () => {
     dispatch(isGearVisible(gear) ? hideGearOnMap(gear.id) : showGearOnMap(gear.id));
   }, [dispatch, isGearVisible]);
 
+  const isManufacturerGroupFullyVisible = useCallback((items) => {
+    if (!items?.length) return true;
+    return items.every((g) => !hiddenGearIdSet.has(g.id));
+  }, [hiddenGearIdSet]);
+
+  const isManufacturerGroupPartiallyVisible = useCallback((items) => {
+    if (!items?.length) return false;
+    const someVisible = items.some((g) => !hiddenGearIdSet.has(g.id));
+    const someHidden = items.some((g) => hiddenGearIdSet.has(g.id));
+    return someVisible && someHidden;
+  }, [hiddenGearIdSet]);
+
+  const onManufacturerGroupCheckClick = useCallback((items, groupTitleForAnalytics) => {
+    const ids = items.map((g) => g.id).filter(Boolean);
+    if (ids.length === 0) return;
+    if (isManufacturerGroupFullyVisible(items)) {
+      dispatch(hideGearOnMap(...ids));
+      gearGroupTracker.track('Uncheck Group Map Layer checkbox', `GearManufacturer:${groupTitleForAnalytics}`);
+    } else {
+      dispatch(showGearOnMap(...ids));
+      gearGroupTracker.track('Check Group Map Layer checkbox', `GearManufacturer:${groupTitleForAnalytics}`);
+    }
+  }, [dispatch, isManufacturerGroupFullyVisible]);
+
   const onRetry = useCallback(() => {
     dispatch(fetchAllGear());
   }, [dispatch]);
@@ -203,6 +230,15 @@ const GearTab = () => {
                 onOpening={() => setMfrExpanded((prev) => ({ ...prev, [stateKey]: true }))}
                 open={open}
                 trigger={<div className={mapLayersStyles.trigger}>
+                  <CheckMark
+                    fullyChecked={isManufacturerGroupFullyVisible(items)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onManufacturerGroupCheckClick(items, groupTitle);
+                    }}
+                    partiallyChecked={isManufacturerGroupPartiallyVisible(items)}
+                  />
                   <h6>{groupTitle}</h6>
                 </div>}
                 triggerElementProps={{
