@@ -1,6 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import { useSelector } from 'react-redux';
+import { buildGeoSpanFilter } from '../utils/map';
 import SpatialFeaturesLayer, { SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID, POLYGONS_OUTLINE_LAYER_ID } from './';
 import { MapContext } from '../App';
 import { createMapMock, createMockInteractionEvent } from '../__test-helpers/mocks';
@@ -16,7 +17,8 @@ jest.mock('../App', () => {
 jest.mock('../utils/analyzers', () => ({}));
 jest.mock('../ducks/analyzers', () => ({}));
 jest.mock('../utils/map', () => ({
-  addMapImage: jest.fn()
+  addMapImage: jest.fn(),
+  buildGeoSpanFilter: jest.fn().mockReturnValue(null),
 }));
 
 jest.mock('../constants', () => ({
@@ -150,6 +152,34 @@ describe('SpatialFeaturesLayer', () => {
     expect(mockMap.on).toHaveBeenCalledWith('click', SYMBOLS_LAYER_ID, expect.any(Function));
     expect(mockMap.on).toHaveBeenCalledWith('click', LINES_LAYER_ID, expect.any(Function));
     expect(mockMap.on).toHaveBeenCalledWith('click', POLYGONS_LAYER_ID, expect.any(Function));
+  });
+
+  test('should include bounds in addSource call when geoSpan is configured', () => {
+    const mockBbox = [-10, -5, 10, 5];
+    buildGeoSpanFilter.mockReturnValueOnce(mockBbox);
+
+    mockMap.getSource.mockReturnValue(null);
+    mockMap.getLayer.mockReturnValue(null);
+
+    useSelector.mockImplementation(selector => {
+      const str = selector.toString();
+      if (str.includes('token')) return { access_token: 'mock-token' };
+      if (str.includes('systemConfig')) return { lon: [-10, 10], lat: [-5, 5] };
+      if (str.includes('mapFeatureHighlightIDs')) return [];
+      if (str.includes('hiddenFeatureIDs')) return [];
+      return null;
+    });
+
+    render(
+      <MapContext.Provider value={mockMap}>
+        <SpatialFeaturesLayer onFeatureClick={mockOnFeatureClick} />
+      </MapContext.Provider>
+    );
+
+    expect(buildGeoSpanFilter).toHaveBeenCalledWith({ lon: [-10, 10], lat: [-5, 5] });
+    expect(mockMap.addSource).toHaveBeenCalledWith('spatial-features-source', expect.objectContaining({
+      bounds: mockBbox,
+    }));
   });
 
   test('should not add layers that already exist', () => {

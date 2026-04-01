@@ -3,8 +3,10 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { fireEvent, render, screen } from '../../../test-utils';
+import getFormDataWithFixedTimezones from './utils/getFormDataWithFixedTimezones';
 import { GPS_FORMATS } from '../../../utils/location';
 import { mockStore } from '../../../__test-helpers/MockStore';
+import transformSchemaToFormElements from '../../../utils/v2-event-schemas/transformSchemaToFormElements';
 import useMapLocationMarkers from './utils/useMapLocationMarkers';
 
 import SchemaForm from './';
@@ -344,11 +346,11 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
   const renderSchemaForm = (props, overrideStore) => render(
     <Provider store={mockStore({ ...store, ...overrideStore })}>
       <SchemaForm
-        autofillDefaultInputs={false}
         eventId="event-id"
         eventLocation={{ latitude: 10, longitude: 10 }}
         formData={{ text_field: 'a text value' }}
         hideMapLocationMarkers={false}
+        isNewEvent={false}
         onFormDataChange={onFormDataChange}
         onFormSubmit={onFormSubmit}
         readOnly={false}
@@ -359,39 +361,69 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
     </Provider>
   );
 
-  test('does not set the default form data from the visible sections if autofill default inputs is false', async () => {
-    renderSchemaForm();
-
-    expect(onFormDataChange).not.toHaveBeenCalled();
-  });
-
-  test('does not set the default form data from the visible sections if no fields have default values', async () => {
-    schema.json.properties.text_field.default = '';
-    renderSchemaForm({ autofillDefaultInputs: true });
-
-    expect(onFormDataChange).not.toHaveBeenCalled();
-  });
-
-  test('sets the default form data from the visible sections if autofill default inputs is true', async () => {
-    renderSchemaForm({ autofillDefaultInputs: true });
+  test('sets the initial form data for a new event with default inputs', async () => {
+    renderSchemaForm({ isNewEvent: true });
 
     expect(onFormDataChange).toHaveBeenCalledTimes(1);
     expect(onFormDataChange).toHaveBeenCalledWith({ text_field: 'Default Value 1' });
   });
 
-  test('does not set the initial form data from the default values of the fields in the visible sections once it has been set', async () => {
-    const { rerender } = renderSchemaForm({ autofillDefaultInputs: true });
+  test('does not set the initial form data for a new event without default inputs', async () => {
+    schema.json.properties.text_field.default = '';
+    renderSchemaForm({ formData: {}, isNewEvent: true });
+
+    expect(onFormDataChange).not.toHaveBeenCalled();
+  });
+
+  test('sets the initial form data for an existing event with time data that needs timezone correction', async () => {
+    schema.json.properties.date_time_field = {
+      deprecated: false,
+      description: '',
+      format: 'date-time',
+      title: 'Date Time Field',
+      type: 'string',
+    };
+    schema.ui.fields.date_time_field = {
+      conditionalDependents: [],
+      type: 'DATE_TIME',
+      parent: 'section-3',
+    };
+    schema.ui.sections['section-3'].leftColumn = [
+      ...schema.ui.sections['section-3'].leftColumn,
+      { name: 'date_time_field', type: 'field' },
+    ];
+
+    const formElements = transformSchemaToFormElements(schema);
+    const formData = {
+      text_field: 'a text value',
+      date_time_field: '2024-06-15T14:30:45',
+    };
+
+    renderSchemaForm({ formData });
+
+    expect(onFormDataChange).toHaveBeenCalledTimes(1);
+    expect(onFormDataChange).toHaveBeenCalledWith(getFormDataWithFixedTimezones(formData, formElements));
+  });
+
+  test('does not set the initial form data for an existing event without time data that needs timezone correction', async () => {
+    renderSchemaForm();
+
+    expect(onFormDataChange).not.toHaveBeenCalled();
+  });
+
+  test('does not set the initial form data after it has been set', async () => {
+    const { rerender } = renderSchemaForm({ isNewEvent: true });
 
     expect(onFormDataChange).toHaveBeenCalledTimes(1);
 
     rerender(
       <Provider store={mockStore({ ...store })}>
         <SchemaForm
-          autofillDefaultInputs={true}
           eventId="event-id"
           eventLocation={{ latitude: 10, longitude: 10 }}
           formData={{ text_field: 'a text value' }}
           hideMapLocationMarkers={false}
+          isNewEvent
           onFormDataChange={onFormDataChange}
           onFormSubmit={onFormSubmit}
           readOnly={false}
