@@ -82,15 +82,16 @@ const EventItemContextMenu = ({ children, className = '', report }) => {
           return { ...accumulator, failedReports: [...accumulator.failedReports, report] };
         }, { failedReports: [], processedReports: [] });
 
+        const toastStateKey = newState === EVENT_FORM_STATES.ACTIVE ? 'activated' : newState;
         showToast({
           details: <NotificationDetails
             failedReports={failedReports}
-            newState={newState}
+            newState={toastStateKey}
             processedReports={processedReports}
           />,
           message: t('updatedCollectionInfoToast.message', {
             collectionSerialNumber: report.serial_number,
-            newState: t(`updatedCollectionInfoToast.${newState}`),
+            newState: t(`updatedCollectionInfoToast.${toastStateKey}`),
           }),
           showDetailsByDefault: true,
           toastConfig: { autoClose: 4000, hideProgressBar: true, type: 'info' },
