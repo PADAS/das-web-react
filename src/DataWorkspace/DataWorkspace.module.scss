@@ -1,0 +1,275 @@
+@import '../common/styles/layout';
+@import '../common/styles/vars/colors';
+
+.root {
+  background: $off-white;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  width: 100%;
+
+  @media (min-width: $md-layout-width-min) {
+    padding-left: var(--vertical-nav-width);
+  }
+}
+
+.toolbar {
+  align-items: flex-start;
+  border-bottom: 1px solid $light-gray-lines;
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+
+  @media (min-width: $lg-layout-width-min) {
+    align-items: center;
+    flex-wrap: nowrap;
+  }
+}
+
+.toolbarActions {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.entityNav {
+  background: $off-white;
+  border-bottom: 1px solid $light-gray-lines;
+  flex-shrink: 0;
+  padding: 0.5rem 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.entitySelect {
+  max-width: 18rem;
+  width: 100%;
+}
+
+.filterSlot {
+  flex: 1 1 16rem;
+  min-width: 0;
+  position: relative;
+
+  @media (max-width: $md-layout-width-max) {
+    flex: 1 1 100%;
+  }
+}
+
+.embeddedEventFilter {
+  max-width: none;
+  width: 100%;
+}
+
+.filterSlot [data-testid='general-reset-wrapper'] {
+  max-width: none;
+  width: 100%;
+
+  & > :first-child {
+    flex: 1;
+    max-width: none;
+    min-width: 0;
+    width: auto !important;
+  }
+}
+
+.gridHost {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0 1rem 1rem;
+  position: relative;
+  width: 100%;
+}
+
+.gridToolbar {
+  display: flex;
+  flex-shrink: 0;
+  justify-content: flex-end;
+  padding: 0.25rem 0 0.5rem;
+}
+
+.gridWrapper {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  position: relative;
+  width: 100%;
+}
+
+.gridBusyOverlay {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.72);
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  left: 0;
+  pointer-events: all;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 4;
+}
+
+.gridInner {
+  flex: 1;
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+
+  // Let mouse selection / native copy work inside React cell renderers (AG Grid defaults lean toward no selection).
+  :global(.ag-cell),
+  :global(.ag-cell-wrapper),
+  :global(.ag-cell-value) {
+    user-select: text;
+  }
+
+  // Bordered input style (`ag-theme-inputStyle-*`, injected with the grid) draws a search icon via
+  // `.ag-input-wrapper::before` and adds horizontal padding for it — hide both so filter text is clean.
+  :global(.ag-column-select-header-filter-wrapper .ag-input-wrapper::before),
+  :global(.ag-filter-add-select .ag-input-wrapper::before),
+  :global(.ag-filter-filter .ag-input-wrapper::before),
+  :global(.ag-filter-toolpanel-search .ag-input-wrapper::before),
+  :global(.ag-floating-filter-search-icon .ag-input-wrapper::before),
+  :global(.ag-mini-filter .ag-input-wrapper::before) {
+    background: none !important;
+    content: none !important;
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+    mask-image: none !important;
+    -webkit-mask-image: none !important;
+    width: 0 !important;
+  }
+
+  :global(.ag-ltr .ag-column-select-header-filter-wrapper input.ag-text-field-input),
+  :global(.ag-ltr .ag-column-select-header-filter-wrapper input.ag-number-field-input),
+  :global(.ag-ltr .ag-filter-add-select input.ag-text-field-input),
+  :global(.ag-ltr .ag-filter-add-select input.ag-number-field-input),
+  :global(.ag-ltr .ag-filter-filter input.ag-text-field-input),
+  :global(.ag-ltr .ag-filter-filter input.ag-number-field-input),
+  :global(.ag-ltr .ag-filter-toolpanel-search input.ag-text-field-input),
+  :global(.ag-ltr .ag-filter-toolpanel-search input.ag-number-field-input),
+  :global(.ag-ltr .ag-floating-filter-search-icon input.ag-text-field-input),
+  :global(.ag-ltr .ag-floating-filter-search-icon input.ag-number-field-input),
+  :global(.ag-ltr .ag-mini-filter input.ag-text-field-input),
+  :global(.ag-ltr .ag-mini-filter input.ag-number-field-input) {
+    padding-left: var(--ag-grid-size) !important;
+  }
+
+  :global(.ag-rtl .ag-column-select-header-filter-wrapper input.ag-text-field-input),
+  :global(.ag-rtl .ag-column-select-header-filter-wrapper input.ag-number-field-input),
+  :global(.ag-rtl .ag-filter-add-select input.ag-text-field-input),
+  :global(.ag-rtl .ag-filter-add-select input.ag-number-field-input),
+  :global(.ag-rtl .ag-filter-filter input.ag-text-field-input),
+  :global(.ag-rtl .ag-filter-filter input.ag-number-field-input),
+  :global(.ag-rtl .ag-filter-toolpanel-search input.ag-text-field-input),
+  :global(.ag-rtl .ag-filter-toolpanel-search input.ag-number-field-input),
+  :global(.ag-rtl .ag-floating-filter-search-icon input.ag-text-field-input),
+  :global(.ag-rtl .ag-floating-filter-search-icon input.ag-number-field-input),
+  :global(.ag-rtl .ag-mini-filter input.ag-text-field-input),
+  :global(.ag-rtl .ag-mini-filter input.ag-number-field-input) {
+    padding-right: var(--ag-grid-size) !important;
+  }
+}
+
+.breadcrumbNav {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  list-style: none;
+  margin: 0;
+  padding: 0 1rem 0.5rem;
+}
+
+.breadcrumbNav li {
+  align-items: center;
+  display: flex;
+  gap: 0.35rem;
+}
+
+.breadcrumbSep {
+  color: $secondary-medium-gray;
+  user-select: none;
+}
+
+.breadcrumbButton {
+  background: none;
+  border: 0;
+  color: $link-color;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.breadcrumbCurrent {
+  color: $off-black;
+  font-weight: 600;
+}
+
+.drillToolbar {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.5rem;
+  padding: 0 1rem 0.5rem;
+}
+
+.emptyHint {
+  color: $secondary-medium-gray;
+  padding: 1rem;
+}
+
+.sidebarHint {
+  color: $secondary-medium-gray;
+  font-size: 0.875rem;
+  padding: 1rem;
+}
+
+.drillValueCell {
+  align-items: center;
+  display: flex;
+  gap: 0.35rem;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.drillValueText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.drillDownIconButton {
+  align-items: center;
+  background: transparent;
+  border: none;
+  color: $link-color;
+  cursor: pointer;
+  display: inline-flex;
+  padding: 0;
+
+  svg {
+    height: 0.9rem;
+    width: 0.9rem;
+  }
+
+  &:hover {
+    color: darken($link-color, 10%);
+  }
+
+  &:focus-visible {
+    outline: 1px solid $bright-blue;
+    outline-offset: 2px;
+  }
+}

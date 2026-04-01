@@ -22,7 +22,7 @@ const patrolFilter = { filter: {
 let store = patrolDefaultStoreData;
 store.data.patrolFilter = patrolFilter;
 store.data.patrolStore = { [activePatrol.id]: activePatrol };
-store.data.patrolsFeed = [activePatrol.id];
+store.data.patrolsFeed = { count: 1, next: null, results: [activePatrol.id] };
 store.view.systemConfig = { [SYSTEM_CONFIG_FLAGS.EVENTS]: true };
 
 describe('PatrolsFeedTab', () => {

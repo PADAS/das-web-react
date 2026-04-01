@@ -270,9 +270,15 @@ body {
 .app-container {
   flex: 1;
   max-height: calc(100vh - 2.75rem);
+  min-height: 0;
   position: relative;
   width: 100vw;
   z-index: 1;
+
+  > *:first-child {
+    height: 100%;
+    min-height: 0;
+  }
 
   .mapboxgl-map {
     height: 100%;

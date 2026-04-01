@@ -1672,7 +1672,7 @@ export const patrolDefaultStoreData = {
     },
     patrolStore: {},
     subjectStore: {},
-    patrolsFeed: [],
+    patrolsFeed: { count: null, next: null, results: [] },
     patrolTypes: [{
       display: 'Dog Patrol',
       icon_id: 'dog-patrol-icon',
