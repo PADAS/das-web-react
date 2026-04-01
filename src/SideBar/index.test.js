@@ -122,6 +122,7 @@ describe('SideBar', () => {
         systemConfig: {
           [SYSTEM_CONFIG_FLAGS.ANALYZERS]: true,
           [SYSTEM_CONFIG_FLAGS.EVENTS]: true,
+          [SYSTEM_CONFIG_FLAGS.GEAR]: true,
           [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true,
           [SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]: true,
           [SYSTEM_CONFIG_FLAGS.SUBJECTS]: true,
@@ -695,5 +696,44 @@ describe('SideBar', () => {
     await userEvent.keyboard('{Escape}');
 
     expect(navigate).not.toHaveBeenCalled();
+  });
+
+  test('does not redirect away from /gear while the initial gear list is still loading', async () => {
+    useLocationMock = jest.fn((() => ({ pathname: '/gear' })));
+    useLocation.mockImplementation(useLocationMock);
+    store.data.gear = {
+      ...INITIAL_GEAR_STATE,
+      initialLoadInProgress: true,
+      loading: true,
+    };
+
+    renderSideBar();
+
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  test('redirects from /gear to home when gear is disabled in system config', async () => {
+    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.GEAR] = false;
+    useLocationMock = jest.fn((() => ({ pathname: '/gear' })));
+    useLocation.mockImplementation(useLocationMock);
+
+    renderSideBar();
+
+    expect(navigate).toHaveBeenCalledWith('/', { replace: true });
+  });
+
+  test('redirects from /gear to home when the gear list has loaded and is empty', async () => {
+    useLocationMock = jest.fn((() => ({ pathname: '/gear' })));
+    useLocation.mockImplementation(useLocationMock);
+    store.data.gear = {
+      ...INITIAL_GEAR_STATE,
+      hasGear: false,
+      initialLoadInProgress: false,
+      loading: false,
+    };
+
+    renderSideBar();
+
+    expect(navigate).toHaveBeenCalledWith('/', { replace: true });
   });
 });
