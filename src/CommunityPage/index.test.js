@@ -16,6 +16,10 @@ jest.mock('react-router', () => ({
 
 jest.mock('../ReportManager', () => jest.fn());
 
+jest.mock('../ducks/community', () => ({
+  fetchCommunityInfo: jest.fn(() => () => Promise.resolve({ name: 'Test Community' })),
+}));
+
 jest.mock('../ducks/event-types', () => ({
   ...jest.requireActual('../ducks/event-types'),
   fetchEventTypes: jest.fn(() => () => Promise.resolve()),
@@ -65,8 +69,10 @@ describe('CommunityPage', () => {
     );
 
   beforeEach(() => {
+    const { fetchCommunityInfo } = require('../ducks/community');
     const { fetchEventTypes } = require('../ducks/event-types');
     const { fetchEventsSchema } = require('../ducks/event-schemas');
+    fetchCommunityInfo.mockReturnValue(() => Promise.resolve({ name: 'Test Community' }));
     fetchEventTypes.mockReturnValue(() => Promise.resolve());
     fetchEventsSchema.mockReturnValue(() => Promise.resolve());
 
@@ -79,7 +85,7 @@ describe('CommunityPage', () => {
   describe('type selection view', () => {
     test('renders the community name as the page heading', async () => {
       renderPage();
-      expect(await screen.findByRole('heading', { level: 2 })).toHaveTextContent(COMMUNITY_VALUE);
+      expect(await screen.findByRole('heading', { level: 2 })).toHaveTextContent('Test Community');
     });
 
     test('renders a button for each creatable event type', async () => {
@@ -113,7 +119,7 @@ describe('CommunityPage', () => {
       renderPage();
       expect(fetchEventTypes).toHaveBeenCalledWith(
         { community_input: COMMUNITY_VALUE },
-        { skipAuth: true, version: 2 }
+        { skipAuth: true }
       );
     });
 
@@ -139,7 +145,7 @@ describe('CommunityPage', () => {
 
       expect(fetchEventTypes).toHaveBeenCalledWith(
         { community_input: 'other-community' },
-        { skipAuth: true, version: 2 }
+        { skipAuth: true }
       );
     });
   });

@@ -10,7 +10,7 @@ export const EVENT_TYPES_API_URL = `${API_URL}activity/events/eventtypes`;
 export const EVENT_TYPES_V2_API_URL =
   `${USE_EVENT_TYPES_V2_MOCK_API ? '/api/v2.0/' : API_V2_URL}activity/eventtypes`;
 export const COMMUNITY_EVENT_TYPES_API_URL = (communityValue) =>
-  `${API_V2_URL}community/${communityValue}/eventtypes/`;
+  `${API_V2_URL}community/${communityValue}/eventtypes`;
 
 // Actions
 export const FETCH_EVENT_TYPES_SUCCESS = 'FETCH_EVENT_TYPES_SUCCESS';

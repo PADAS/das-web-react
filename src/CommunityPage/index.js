@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as EarthRangerLogo } from '../common/images/earth-ranger-logo.svg';
 import { ReactComponent as ReportTypeIconSprite } from '../common/images/sprites/event-svg-sprite.svg';
 
+import { fetchCommunityInfo } from '../ducks/community';
 import { fetchEventsSchema } from '../ducks/event-schemas';
 import { fetchEventTypes } from '../ducks/event-types';
 import { SidebarScrollProvider } from '../SidebarScrollContext';
@@ -31,6 +32,7 @@ const CommunityPage = () => {
     return creatableTypes.length ? [{ value: 'all', display: '', types: creatableTypes }] : [];
   }, [allEventTypes]);
 
+  const [communityName, setCommunityName] = useState('');
   const [searchText, setSearchText] = useState('');
   const [showSubmittedModal, setShowSubmittedModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -54,15 +56,12 @@ const CommunityPage = () => {
   useEffect(() => {
     setIsLoading(true);
     setIsUnauthorized(false);
-    dispatch(fetchEventTypes({ community_input: value }, { skipAuth: true, version: 2 }))
+    dispatch(fetchCommunityInfo(value, { skipAuth: true }))
+      .then((data) => setCommunityName(data.name))
+      .catch(() => { setIsUnauthorized(true); });
+    dispatch(fetchEventTypes({ community_input: value }, { skipAuth: true }))
       .then(() => setIsLoading(false))
-      .catch((e) => {
-        if (e?.response?.status === 401) {
-          setIsUnauthorized(true);
-        } else {
-          setIsLoading(false);
-        }
-      });
+      .catch(() => setIsLoading(false));
     dispatch(fetchEventsSchema({ community_input: value }, { skipAuth: true }));
   }, [dispatch, value]);
 
@@ -98,7 +97,7 @@ const CommunityPage = () => {
     </Modal>
 
     <div className={styles.pageContainer}>
-      {(isLoading || (!eventTypeValue && !isUnauthorized && eventsByCategory[0]?.types.length === 1))
+      {(isLoading || isUnauthorized || (!eventTypeValue && !isUnauthorized && eventsByCategory[0]?.types.length === 1))
         ? <div className={styles.loadingView}>
             {isUnauthorized
               ? <EarthRangerLogo className={styles.earthRangerLogo} />
@@ -120,7 +119,7 @@ const CommunityPage = () => {
                 schemaFetchExtraParams={schemaFetchExtraParams}
               />
           : <div className={styles.communityPage}>
-              <h2 className={styles.heading}>{value}</h2>
+              <h2 className={styles.heading}>{communityName}</h2>
 
               <div className={styles.searchControls}>
                 <SearchBar
