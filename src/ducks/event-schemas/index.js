@@ -14,6 +14,10 @@ export const EVENT_TYPE_SCHEMA_V1_URL = (eventTypeValue) =>
   `${API_URL}activity/events/schema/eventtype/${eventTypeValue}`;
 export const EVENT_TYPE_SCHEMA_V2_URL = (eventTypeValue) =>
   `${USE_EVENTTYPE_SCHEMA_V2_MOCK_API ? '/api/v2.0/' : API_V2_URL}activity/eventtypes/${eventTypeValue}/schema`;
+export const COMMUNITY_EVENTS_SCHEMA_API_URL = (communityValue) =>
+  `${API_V2_URL}community/${communityValue}/schemas/event_types.json`;
+export const COMMUNITY_EVENT_TYPE_SCHEMA_URL = (communityValue, eventTypeValue) =>
+  `${API_V2_URL}community/${communityValue}/eventtypes/${eventTypeValue}/schema`;
 
 // Actions
 export const FETCH_EVENTS_SCHEMA_SUCCESS = 'FETCH_EVENTS_SCHEMA_SUCCESS';
@@ -25,7 +29,9 @@ export const FETCH_EVENT_TYPE_SCHEMA_FAILURE = 'FETCH_EVENT_TYPE_SCHEMA_FAILURE'
 
 // Action creators
 export const fetchEventsSchema = (params = {}, config = {}) => async (dispatch) => {
-  const response = await axios.get(EVENTS_SCHEMA_API_URL, { params, ...config });
+  const { community_input, ...restParams } = params;
+  const url = community_input ? COMMUNITY_EVENTS_SCHEMA_API_URL(community_input) : EVENTS_SCHEMA_API_URL;
+  const response = await axios.get(url, { params: restParams, ...config });
   dispatch({ payload: response.data.data, type: FETCH_EVENTS_SCHEMA_SUCCESS });
 };
 
@@ -35,9 +41,40 @@ export const fetchEventTypeSchema = (eventTypeValue, eventId, extraParams = {}, 
   const state = getState();
   const eventType = selectEventTypeByValue(state, eventTypeValue);
   const userLocationCoords = state.view.userLocation?.coords;
+  const { community_input, ...restExtraParams } = extraParams;
+
+  const locationParam = userLocationCoords
+    ? calcLocationParamStringForUserLocationCoords(userLocationCoords)
+    : undefined;
 
   try {
-    if (eventType.version === 1) {
+    if (community_input) {
+      const response = await axios.get(COMMUNITY_EVENT_TYPE_SCHEMA_URL(community_input, eventTypeValue), {
+        params: {
+          event_id: eventId,
+          location: locationParam,
+          pre_render: true,
+          ...restExtraParams,
+        },
+        ...axiosConfig,
+      });
+
+      const rawSchema = response.data;
+
+      if (rawSchema?.schema) {
+        const { schema, uiSchema } = sanitizeSchemas(rawSchema);
+        dispatch({
+          payload: { definition: rawSchema.definition, eventId, eventTypeValue, schema, uiSchema },
+          type: FETCH_EVENT_TYPE_SCHEMA_V1_SUCCESS,
+        });
+      } else {
+        const schema = rawSchema?.json ? rawSchema : rawSchema?.data;
+        dispatch({
+          payload: { eventId, eventTypeValue, schema },
+          type: FETCH_EVENT_TYPE_SCHEMA_V2_SUCCESS,
+        });
+      }
+    } else if (eventType.version === 1) {
       const response = await axios.get(EVENT_TYPE_SCHEMA_V1_URL(eventTypeValue), {
         params: {
           event_id: eventId,

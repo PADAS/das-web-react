@@ -9,12 +9,23 @@ const USE_EVENT_TYPES_V2_MOCK_API = import.meta.env.REACT_APP_MOCK_EVENTTYPES_V2
 export const EVENT_TYPES_API_URL = `${API_URL}activity/events/eventtypes`;
 export const EVENT_TYPES_V2_API_URL =
   `${USE_EVENT_TYPES_V2_MOCK_API ? '/api/v2.0/' : API_V2_URL}activity/eventtypes`;
+export const COMMUNITY_EVENT_TYPES_API_URL = (communityValue) =>
+  `${API_V2_URL}community/${communityValue}/eventtypes/`;
 
 // Actions
 export const FETCH_EVENT_TYPES_SUCCESS = 'FETCH_EVENT_TYPES_SUCCESS';
 
 // Action creators
 export const fetchEventTypes = (params = {}, config = {}) => async (dispatch) => {
+  const { community_input, ...restParams } = params;
+
+  if (community_input) {
+    const response = await axios.get(COMMUNITY_EVENT_TYPES_API_URL(community_input), { params: restParams, ...config });
+    const eventTypes = response.data.data.map((eventType) => ({ ...eventType, version: 2 }));
+    dispatch({ payload: eventTypes, type: FETCH_EVENT_TYPES_SUCCESS });
+    return;
+  }
+
   const [eventTypesResponse, eventTypesV2Response] = await Promise.all([
     axios.get(EVENT_TYPES_API_URL, { params, ...config }),
     axios.get(EVENT_TYPES_V2_API_URL, { params, ...config })

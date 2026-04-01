@@ -2,6 +2,7 @@ import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 
 import eventTypesReducer, {
+  COMMUNITY_EVENT_TYPES_API_URL,
   EVENT_TYPES_API_URL,
   EVENT_TYPES_V2_API_URL,
   FETCH_EVENT_TYPES_SUCCESS,
@@ -13,6 +14,7 @@ import { animalControlTypeV2, fireTypeV2, snareTypeV1, spoorTypeV1 } from '../..
 const server = setupServer(
   http.get(`${EVENT_TYPES_API_URL}`, () => HttpResponse.json({ data: [snareTypeV1, spoorTypeV1] })),
   http.get(`${EVENT_TYPES_V2_API_URL}`, () => HttpResponse.json({ data: [animalControlTypeV2, fireTypeV2] })),
+  http.get(COMMUNITY_EVENT_TYPES_API_URL('test-community'), () => HttpResponse.json({ data: [snareTypeV1, spoorTypeV1] })),
 );
 
 describe('Ducks - Event types', () => {
@@ -30,23 +32,8 @@ describe('Ducks - Event types', () => {
     expect(dispatch).toHaveBeenCalledTimes(1);
     expect(dispatch).toHaveBeenCalledWith({
       payload: [
-        { ...snareTypeV1, version: 1 },
-        { ...spoorTypeV1, version: 1 },
         { ...animalControlTypeV2, version: 2 },
         { ...fireTypeV2, version: 2 },
-      ],
-      type: FETCH_EVENT_TYPES_SUCCESS,
-    });
-  });
-
-  test('fetchEventTypes dispatches only v1 types when version: 1 is passed', async () => {
-    const dispatch = jest.fn();
-
-    await fetchEventTypes({}, { version: 1 })(dispatch);
-
-    expect(dispatch).toHaveBeenCalledTimes(1);
-    expect(dispatch).toHaveBeenCalledWith({
-      payload: [
         { ...snareTypeV1, version: 1 },
         { ...spoorTypeV1, version: 1 },
       ],
@@ -54,16 +41,17 @@ describe('Ducks - Event types', () => {
     });
   });
 
-  test('fetchEventTypes dispatches only v2 types when version: 2 is passed', async () => {
+
+  test('fetchEventTypes uses the community URL and marks all types as version 2 when community_input is provided', async () => {
     const dispatch = jest.fn();
 
-    await fetchEventTypes({}, { version: 2 })(dispatch);
+    await fetchEventTypes({ community_input: 'test-community' })(dispatch);
 
     expect(dispatch).toHaveBeenCalledTimes(1);
     expect(dispatch).toHaveBeenCalledWith({
       payload: [
-        { ...animalControlTypeV2, version: 2 },
-        { ...fireTypeV2, version: 2 },
+        { ...snareTypeV1, version: 2 },
+        { ...spoorTypeV1, version: 2 },
       ],
       type: FETCH_EVENT_TYPES_SUCCESS,
     });

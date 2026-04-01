@@ -1,7 +1,7 @@
 import axios, { CancelToken, isCancel } from 'axios';
 import union from 'lodash/union';
 
-import { API_URL, TAB_KEYS } from '../constants';
+import { API_URL, API_V2_URL, TAB_KEYS } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
 import { getBboxParamsFromMap } from '../utils/query';
 import { generateErrorMessageForRequest } from '../utils/request';
@@ -20,6 +20,13 @@ export const EVENTS_API_URL = (
 ) ? '/api/v1.0/activity/events/'
   : `${API_URL}activity/events`;
 export const EVENT_API_URL = `${API_URL}activity/event/`;
+
+const COMMUNITY_EVENTS_API_URL = (communityValue) =>
+  `${API_V2_URL}community/${communityValue}/activity/events/`;
+const COMMUNITY_EVENT_NOTES_URL = (communityValue, eventId) =>
+  `${API_V2_URL}community/${communityValue}/activity/events/${eventId}/notes/`;
+const COMMUNITY_EVENT_FILES_URL = (communityValue, eventId) =>
+  `${API_V2_URL}community/${communityValue}/activity/events/${eventId}/files/`;
 
 // actions
 const CLEAR_EVENT_DATA = 'CLEAR_EVENT_DATA';
@@ -201,7 +208,8 @@ export const clearEventData = () => ({
 });
 
 export const createEvent = (event, extraParams = {}) => (dispatch, getState) => {
-  const params = { ...extraParams };
+  const { community_input, ...restExtraParams } = extraParams;
+  const params = { ...restExtraParams };
   const state = getState();
 
   if (shouldAppendLocationToRequest(state)) {
@@ -213,7 +221,8 @@ export const createEvent = (event, extraParams = {}) => (dispatch, getState) => 
     payload: event,
   });
 
-  return axios.post(EVENTS_API_URL, event, { params })
+  const url = community_input ? COMMUNITY_EVENTS_API_URL(community_input) : EVENTS_API_URL;
+  return axios.post(url, event, { params })
     .then((response) => {
       dispatch({
         type: CREATE_EVENT_SUCCESS,
@@ -232,7 +241,8 @@ export const createEvent = (event, extraParams = {}) => (dispatch, getState) => 
 };
 
 export const addNoteToEvent = (event_id, note, extraParams = {}) => (dispatch, getState) => {
-  const params = { ...extraParams };
+  const { community_input, ...restExtraParams } = extraParams;
+  const params = { ...restExtraParams };
   const state = getState();
 
   if (shouldAppendLocationToRequest(state)) {
@@ -243,7 +253,10 @@ export const addNoteToEvent = (event_id, note, extraParams = {}) => (dispatch, g
     type: ADD_EVENT_NOTE_START,
     payload: note,
   });
-  return axios.post(`${EVENT_API_URL}${event_id}/notes/`, note, { params })
+  const notesUrl = community_input
+    ? COMMUNITY_EVENT_NOTES_URL(community_input, event_id)
+    : `${EVENT_API_URL}${event_id}/notes/`;
+  return axios.post(notesUrl, note, { params })
     .then((response) => {
       dispatch({
         type: ADD_EVENT_NOTE_SUCCESS,
@@ -371,8 +384,11 @@ export const setEventState = (id, state) => (dispatch, getState) => {
 };
 
 export const uploadEventFile = (event_id, file, extraParams = {}) => (dispatch, getState) => {
-  const uploadUrl = `${EVENT_API_URL}${event_id}/files/`;
-  const params = { ...extraParams };
+  const { community_input, ...restExtraParams } = extraParams;
+  const uploadUrl = community_input
+    ? COMMUNITY_EVENT_FILES_URL(community_input, event_id)
+    : `${EVENT_API_URL}${event_id}/files/`;
+  const params = { ...restExtraParams };
   const state = getState();
 
   if (shouldAppendLocationToRequest(state)) {

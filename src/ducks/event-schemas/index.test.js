@@ -2,6 +2,8 @@ import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 
 import eventSchemasReducer, {
+  COMMUNITY_EVENTS_SCHEMA_API_URL,
+  COMMUNITY_EVENT_TYPE_SCHEMA_URL,
   EVENT_TYPE_SCHEMA_V1_URL,
   EVENT_TYPE_SCHEMA_V2_URL,
   EVENTS_SCHEMA_API_URL,
@@ -19,11 +21,10 @@ import sanitizeSchemas from './sanitizeSchemas';
 
 const server = setupServer(
   http.get(EVENT_TYPE_SCHEMA_V1_URL('snare_rep'), () => HttpResponse.json({ data: snareSchemaV1 })),
-  http.get(
-    EVENT_TYPE_SCHEMA_V2_URL('snare_rep'),
-    () => HttpResponse.json(snareSchemaV2)
-  ),
+  http.get(EVENT_TYPE_SCHEMA_V2_URL('snare_rep'), () => HttpResponse.json(snareSchemaV2)),
   http.get(`${EVENTS_SCHEMA_API_URL}`, () => HttpResponse.json({ data: globalSchema })),
+  http.get(COMMUNITY_EVENTS_SCHEMA_API_URL('test-community'), () => HttpResponse.json({ data: globalSchema })),
+  http.get(COMMUNITY_EVENT_TYPE_SCHEMA_URL('test-community', 'snare_rep'), () => HttpResponse.json(snareSchemaV2)),
 );
 
 describe('Ducks - Event schemas', () => {
@@ -37,6 +38,15 @@ describe('Ducks - Event schemas', () => {
     const dispatch = jest.fn();
 
     await fetchEventsSchema()(dispatch);
+
+    expect(dispatch).toHaveBeenCalledTimes(1);
+    expect(dispatch).toHaveBeenCalledWith({ payload: globalSchema, type: FETCH_EVENTS_SCHEMA_SUCCESS });
+  });
+
+  test('fetchEventsSchema uses the community URL when community_input is provided', async () => {
+    const dispatch = jest.fn();
+
+    await fetchEventsSchema({ community_input: 'test-community' })(dispatch);
 
     expect(dispatch).toHaveBeenCalledTimes(1);
     expect(dispatch).toHaveBeenCalledWith({ payload: globalSchema, type: FETCH_EVENTS_SCHEMA_SUCCESS });
@@ -84,6 +94,62 @@ describe('Ducks - Event schemas', () => {
     });
 
     await fetchEventTypeSchema('snare_rep', '123')(dispatch, getState);
+
+    expect(dispatch).toHaveBeenCalledTimes(2);
+    expect(dispatch).toHaveBeenCalledWith({ type: FETCH_EVENT_TYPE_SCHEMA });
+    expect(dispatch).toHaveBeenCalledWith({
+      payload: {
+        eventId: '123',
+        eventTypeValue: 'snare_rep',
+        schema: snareSchemaV2,
+      },
+      type: FETCH_EVENT_TYPE_SCHEMA_V2_SUCCESS,
+    });
+  });
+
+  test('fetchEventTypeSchema uses the community URL and dispatches FETCH_EVENT_TYPE_SCHEMA_V2_SUCCESS when community_input is provided', async () => {
+    const dispatch = jest.fn();
+    const getState = () => ({
+      data: {
+        eventTypes: [{
+          value: 'snare_rep',
+          version: 2,
+        }],
+      },
+      view: {},
+    });
+
+    await fetchEventTypeSchema('snare_rep', '123', { community_input: 'test-community' })(dispatch, getState);
+
+    expect(dispatch).toHaveBeenCalledTimes(2);
+    expect(dispatch).toHaveBeenCalledWith({ type: FETCH_EVENT_TYPE_SCHEMA });
+    expect(dispatch).toHaveBeenCalledWith({
+      payload: {
+        eventId: '123',
+        eventTypeValue: 'snare_rep',
+        schema: snareSchemaV2,
+      },
+      type: FETCH_EVENT_TYPE_SCHEMA_V2_SUCCESS,
+    });
+  });
+
+  test('fetchEventTypeSchema uses the community URL for v1 event types when community_input is provided', async () => {
+    const dispatch = jest.fn();
+    const getState = () => ({
+      data: {
+        eventTypes: [{
+          value: 'snare_rep',
+          version: 1,
+        }],
+      },
+      view: {},
+    });
+
+    server.use(
+      http.get(COMMUNITY_EVENT_TYPE_SCHEMA_URL('test-community', 'snare_rep'), () => HttpResponse.json(snareSchemaV2)),
+    );
+
+    await fetchEventTypeSchema('snare_rep', '123', { community_input: 'test-community' })(dispatch, getState);
 
     expect(dispatch).toHaveBeenCalledTimes(2);
     expect(dispatch).toHaveBeenCalledWith({ type: FETCH_EVENT_TYPE_SCHEMA });
