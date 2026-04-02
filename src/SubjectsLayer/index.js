@@ -5,13 +5,8 @@ import { useSelector } from 'react-redux';
 import { addFeatureCollectionImagesToMap } from '../utils/map';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { selectShouldSubjectsBeClustered } from '../selectors/clusters';
-<<<<<<< ERA-12933
-import { LAYER_IDS, SOURCE_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
-import { MapContext } from '../MapContext';
-=======
 import { DEFAULT_SYMBOL_LAYOUT, LAYER_IDS, SOURCE_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
-import { MapContext } from '../App';
->>>>>>> develop
+import { MapContext } from '../MapContext';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
 import useMapSources from '../hooks/useMapSources';
 
