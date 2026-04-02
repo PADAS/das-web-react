@@ -53,3 +53,12 @@
     padding-bottom: 0;
   }
 }
+
+.listItemGearIcon {
+  background: $highlight-color;
+  border-radius: 50%;
+  flex-shrink: 0;
+  height: 0.75rem;
+  margin-right: 0.75rem;
+  width: 0.75rem;
+}

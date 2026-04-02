@@ -54,6 +54,7 @@ export const PATROL_API_STATES = {
 
 export const TAB_KEYS = {
   EVENTS: 'events',
+  GEAR: 'gear',
   LAYERS: 'layers',
   PATROLS: 'patrols',
   SETTINGS: 'settings',
@@ -88,6 +89,8 @@ export const LAYER_IDS = {
   EVENT_GEOMETRY_LAYER: 'event-geometry-layer',
   EVENT_LOCATION_MARKERS: 'event-location-markers-layer',
   EVENT_SYMBOLS: 'event_symbols',
+  GEAR_LINE: 'gear-line-layer',
+  GEAR_POINT: 'gear-point-layer',
   HEATMAP_LAYER: 'heatmap',
   ISOCHRONE_LAYER: 'isochrone',
   MOUSE_MARKER_LAYER: 'mouse-marker-layer',
@@ -118,6 +121,7 @@ export const SOURCE_IDS = {
   MAP_FEATURES_POLYGONS_SOURCE: 'feature-polygon-source',
   MAP_FEATURES_SYMBOLS_SOURCE: 'feature-symbol-source',
   MOUSE_MARKER_SOURCE: 'mouse-marker-source',
+  GEAR_FEATURES: 'gear-features-source',
   SUBJECT_SYMBOLS: 'subject-symbol-source',
   UNCLUSTERED_EVENTS_SOURCE: 'events-data-unclustered',
 };
@@ -137,6 +141,7 @@ export const SYSTEM_CONFIG_FLAGS = {
   DEFAULT_PATROL_FILTER_FROM_DAYS: 'default_patrol_filter_from_days',
   EULA: 'eula_enabled',
   EVENTS: 'events_enabled',
+  GEAR: 'gear_enabled',
   GEOPERMISSIONS: 'geopermissions_enabled',
   KML_EXPORT: 'export_kml_enabled',
   PATROL_MANAGEMENT: 'patrol_enabled',
@@ -300,6 +305,8 @@ export const PERMISSIONS = {
 };
 
 export const SUBJECT_FEATURE_CONTENT_TYPE = 'observations.subject';
+
+export const GEAR_FEATURE_CONTENT_TYPE = 'buoy.gear';
 
 export const ASCENDING_SORT_ORDER = 'asc';
 export const DESCENDING_SORT_ORDER = 'desc';
