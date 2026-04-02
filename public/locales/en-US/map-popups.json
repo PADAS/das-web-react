@@ -1,4 +1,10 @@
 {
+  "gearPopup": {
+    "dateTimeSuffix": "ago",
+    "deviceLabel": "Device {{label}}",
+    "lastUpdatedLabel": "Last updated",
+    "typeLabel": "Type"
+  },
   "analyzerConfigPopup": {
     "analyzerTypeHeader": {
       "environmental": "Environmental",

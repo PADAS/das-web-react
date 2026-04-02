@@ -241,4 +241,15 @@ export const buildGeoSpanFilter = (geoSpan) => {
   return [minLon, minLat, maxLon, maxLat];
 };
 
+export const safeRemoveMapLayer = (map, layerId) => {
+  if (map?.getLayer?.(layerId)) {
+    map.removeLayer(layerId);
+  }
+};
+
+export const safeRemoveMapSource = (map, sourceId) => {
+  if (map?.getSource?.(sourceId)) {
+    map.removeSource(sourceId);
+  }
+};
 

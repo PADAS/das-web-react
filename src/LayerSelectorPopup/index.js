@@ -1,10 +1,11 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { center } from '@turf/turf';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { calcImgIdFromUrlForMapImages, calcUrlForImage } from '../utils/img';
 import { hidePopup } from '../ducks/popup';
-import { SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
+import { GEAR_FEATURE_CONTENT_TYPE, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { subjectIsStatic } from '../utils/subjects';
 
 import SearchBar from '../SearchBar';
@@ -19,18 +20,29 @@ const LayerSelectorPopup = ({ data, id }) => {
 
   const [filter, setFilter] = useState('');
 
-  const { layers: layerList, onSelectEvent, onSelectSubject } = data;
+  const { layers: layerList, onSelectEvent, onSelectGear, onSelectSubject } = data;
   const showFilterInput = layerList.length > 5;
 
   const handleClick = useCallback((event, feature) => {
     dispatch(hidePopup(id));
+
+    if (feature.properties?.content_type === GEAR_FEATURE_CONTENT_TYPE) {
+      const coordinates = feature.geometry?.type === 'Point'
+        ? feature.geometry.coordinates
+        : center(feature).geometry.coordinates;
+      onSelectGear?.({
+        coordinates,
+        layer: { geometry: feature.geometry, properties: feature.properties },
+      });
+      return;
+    }
 
     if (feature.properties?.content_type === SUBJECT_FEATURE_CONTENT_TYPE) {
       onSelectSubject({ event, layer: { geometry: feature.geometry, properties: feature.properties } });
     } else {
       onSelectEvent({ event, layer: { geometry: feature.geometry, properties: feature.properties } });
     }
-  }, [dispatch, id, onSelectEvent, onSelectSubject]);
+  }, [dispatch, id, onSelectEvent, onSelectGear, onSelectSubject]);
 
   const renderedLayerListItems = useMemo(() => {
     const sortedLayerList = layerList.sort((a, b) => {
@@ -48,21 +60,26 @@ const LayerSelectorPopup = ({ data, id }) => {
       });
 
     return filteredLayerList.map((layer) => {
-      const imageinStore = mapImages[
+      const isGearLayerItem = layer.properties?.content_type === GEAR_FEATURE_CONTENT_TYPE;
+      const imageinStore = !isGearLayerItem && mapImages[
         calcImgIdFromUrlForMapImages(layer.properties.image, layer.properties.height, layer.properties.width)
       ];
       const imgSrc = imageinStore
         ? imageinStore.image.src
         : calcUrlForImage(layer.properties.image || layer.properties.image_url);
 
-      return <li className={styles.listItem} key={layer.properties.id} onClick={(e) => handleClick(e, layer)}>
-        <img
-          alt={layer.properties.display_title || layer.properties.name || layer.properties.title}
-          src={imgSrc}
-          style={subjectIsStatic(layer) ? { filter: 'brightness(0) opacity(60%)' } : {}}
-        />
+      const listLabel = layer.properties.display_title || layer.properties.name || layer.properties.title;
 
-        <span>{layer.properties.display_title || layer.properties.name || layer.properties.title}</span>
+      return <li className={styles.listItem} key={layer.properties.id} onClick={(e) => handleClick(e, layer)}>
+        {isGearLayerItem
+          ? <span className={styles.listItemGearIcon} />
+          : <img
+            alt={listLabel}
+            src={imgSrc}
+            style={subjectIsStatic(layer) ? { filter: 'brightness(0) opacity(60%)' } : {}}
+          />}
+
+        <span>{listLabel}</span>
       </li>;
     });
   }, [filter, handleClick, layerList, mapImages]);

@@ -196,6 +196,20 @@
     "newVersionAvailableNotification": "Une nouvelle version de EarthRanger est disponible. Elle sera appliquée la prochaine fois que vous actualiserez votre navigateur. "
   },
   "sideBar": {
+    "closeGearTabButtonLabel": "Fermer les engins",
+    "gearLink": "Engins",
+    "gearTab": {
+      "loadErrorFallback": "Échec de la requête",
+      "loadErrorIntro": "Impossible de charger les engins depuis le serveur.",
+      "loading": "Mise à jour…",
+      "loadingInitial": "Chargement des engins…",
+      "loadingList": "Chargement de la liste complète…",
+      "noSearchResults": "Aucun ensemble ne correspond à la recherche.",
+      "retryButton": "Réessayer",
+      "searchFormAriaLabel": "Rechercher des engins",
+      "searchPlaceholder": "Rechercher par nom",
+      "unknownManufacturer": "Autre"
+    },
     "layersLink": "Calques",
     "mapLayersTab": {
       "analyzersTabTitle": "Barriere Virtuelle",

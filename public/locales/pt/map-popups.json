@@ -1,5 +1,11 @@
 {
-    "analyzerConfigPopup": {
+  "gearPopup": {
+    "dateTimeSuffix": "atrás",
+    "deviceLabel": "Dispositivo {{label}}",
+    "lastUpdatedLabel": "Última atualização",
+    "typeLabel": "Tipo"
+  },
+  "analyzerConfigPopup": {
         "analyzerTypeHeader": {
             "environmental": "Ambiental",
             "generic": "Alerta genérico",

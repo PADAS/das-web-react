@@ -1,4 +1,10 @@
 {
+  "gearPopup": {
+    "dateTimeSuffix": "Il y a date",
+    "deviceLabel": "Appareil {{label}}",
+    "lastUpdatedLabel": "Dernière mise à jour",
+    "typeLabel": "Type"
+  },
   "analyzerConfigPopup": {
     "analyzerTypeHeader": {
       "environmental": "Alerte Environnementale",
