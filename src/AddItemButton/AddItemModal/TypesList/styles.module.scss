@@ -18,7 +18,9 @@
     display: flex;
     flex-wrap: wrap;
     line-height: normal;
+    list-style: none;
     margin-bottom: 0;
+    padding: 0;
     width: 100%;
   
     button {
@@ -46,9 +48,10 @@
       }
     }
   
-    svg {
+    svg,
+    img {
       --dimensions: 1.666rem;
-  
+
       height: var(--dimensions);
       margin-bottom: 0.25rem;
       width: var(--dimensions);

@@ -6,7 +6,7 @@ import { addFeatureCollectionImagesToMap } from '../utils/map';
 import { selectShouldSubjectsBeClustered } from '../selectors/clusters';
 import { LAYER_IDS, SOURCE_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import LayerBackground from '../common/images/sprites/layer-background-sprite.png';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { showPopup } from '../ducks/popup';
 import { useMapEventBinding } from '../hooks';
 import { backgroundLayerStyles, calcDynamicBackgroundLayerLayout, calcDynamicLabelLayerLayoutStyles, labelLayerStyles } from './layerStyles';

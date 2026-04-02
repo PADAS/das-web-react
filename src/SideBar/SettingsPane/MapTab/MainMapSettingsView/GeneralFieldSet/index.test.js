@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import { render, screen } from '../../../../../test-utils';
 import { createMapMock } from '../../../../../__test-helpers/mocks';
 import { GPS_FORMATS } from '../../../../../utils/location';
-import { MapContext } from '../../../../../App';
+import { MapContext } from '../../../../../MapContext';
 import { mockStore } from '../../../../../__test-helpers/MockStore';
 import { toggleMapDataSimplificationOnZoom, toggleMapLockState } from '../../../../../ducks/map-ui';
 import { updateUserPreferences } from '../../../../../ducks/user-preferences';

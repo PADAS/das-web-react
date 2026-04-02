@@ -1,10 +1,9 @@
 import { useContext, useMemo } from 'react';
-import { LngLatBounds } from 'mapbox-gl';
 import { useLocation as useRouterLocation } from 'react-router';
 
 import { BREAKPOINTS } from '../../constants';
 import { getCurrentTabFromURL, getCurrentIdFromURL } from '../../utils/navigation';
-import { MapContext } from '../../App';
+import { MapContext } from '../../MapContext';
 import { useMatchMedia } from '../';
 
 const SIDEBAR_WIDTH_PIXELS = 512;
@@ -56,12 +55,13 @@ const useJumpToLocation = () => {
     itemId: getCurrentIdFromURL(routerLocation.pathname),
   }), [routerLocation.pathname]);
 
-  return (coords, zoom = 15) => {
+  return async (coords, zoom = 15) => {
     const isArrayCoords = Array.isArray(coords[0]);
 
     const padding = calcPadding(currentTab, isArrayCoords, itemId, isMediumLayoutOrLarger);
 
     if (isArrayCoords && coords.length > 1) {
+      const { LngLatBounds } = await import('mapbox-gl');
       const mapBoundaries = coords.reduce(buildLocationJumpBounds, new LngLatBounds());
       map.fitBounds(mapBoundaries, { linear: true, speed: 200, padding });
     } else {

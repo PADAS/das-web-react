@@ -4,7 +4,7 @@ import isEqual from 'react-fast-compare';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { LAYER_IDS } from '../MapDrawingTools/MapLayers';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
 import reportGeometryReducer, { reset, setGeometryPoints, undo } from '../ducks/report-geometry';
 import { setIsPickingLocation, setMapLocationSelectionEvent } from '../ducks/map-ui';

@@ -14,7 +14,7 @@ import MenuPopover from './MenuPopover';
 import TextCopyBtn from '../TextCopyBtn';
 
 import * as styles from './styles.module.scss';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 
 const LocationPicker = ({
   className = '',

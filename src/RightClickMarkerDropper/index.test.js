@@ -10,7 +10,7 @@ import { mockStore } from '../__test-helpers/MockStore';
 import { act, render } from '@testing-library/react';
 
 import RightClickMarkerDropper from '../RightClickMarkerDropper';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 
 let map;
 let store;

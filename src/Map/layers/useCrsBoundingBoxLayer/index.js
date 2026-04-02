@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { hidePopup, showPopup } from '../../../ducks/popup';
 import { injectStylesToElement } from '../../../utils/styles';
 import { LAYER_IDS, SOURCE_IDS } from '../../../constants';
-import { MapContext } from '../../../App';
+import { MapContext } from '../../../MapContext';
 
 const BRIGHT_BLUE = '#006cd9';
 // For hover effect.

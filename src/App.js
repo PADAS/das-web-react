@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import mapboxgl from 'mapbox-gl';
 import { loadProgressBar } from 'axios-progress-bar';
@@ -43,7 +43,8 @@ import WithSocketContext, { SocketContext } from './withSocketConnection';
 import 'axios-progress-bar/dist/nprogress.css';
 import './App.scss';
 
-export const MapContext = createContext(null);
+import { MapContext } from './MapContext';
+export { MapContext };
 
 export const App = () => {
   const dispatch = useDispatch();

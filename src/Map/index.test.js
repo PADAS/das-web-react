@@ -17,7 +17,7 @@ import { setTrackLength } from '../ducks/tracks';
 import { updatePatrolTrackState } from '../ducks/patrols';
 
 import { createMapMock } from '../__test-helpers/mocks';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import MapDrawingToolsContextProvider from '../MapDrawingTools/ContextProvider';
 import { mockedSocket } from '../__test-helpers/MockSocketContext';
 import { mockStore } from '../__test-helpers/MockStore';

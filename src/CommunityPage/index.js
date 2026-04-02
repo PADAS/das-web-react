@@ -6,8 +6,6 @@ import { useNavigate, useParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as EarthRangerLogo } from '../common/images/earth-ranger-logo.svg';
-import { ReactComponent as ReportTypeIconSprite } from '../common/images/sprites/event-svg-sprite.svg';
-
 import { fetchCommunityInfo } from '../ducks/community';
 import { fetchEventsSchema } from '../ducks/event-schemas';
 import { fetchEventTypes } from '../ducks/event-types';
@@ -87,10 +85,6 @@ const CommunityPage = () => {
   }, [navigate, value]);
 
   return <SidebarScrollProvider>
-    <div style={{ display: 'none', height: 0, width: 0 }}>
-      <ReportTypeIconSprite id="reportTypeIconSprite" />
-    </div>
-
     <Modal centered show={showSubmittedModal} onHide={() => setShowSubmittedModal(false)}>
       <Modal.Header closeButton />
       <Modal.Body className={styles.submittedModalBody}>{t('formSubmitted')}</Modal.Body>

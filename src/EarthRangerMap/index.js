@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import mapLabel from '../common/images/icons/symbol-label-outline.png';
 
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import {
   MAPBOX_STYLE_LAYER_SOURCE_TYPES,
   MAX_ZOOM,

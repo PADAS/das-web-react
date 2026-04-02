@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { calcDisplayNameForSubject, getUniqueSubjectGroupSubjects } from '../../../utils/subjects';
 import { hideSubjects, showSubjects } from '../../../ducks/map-layer-filter';
 import { MAP_LAYERS_CATEGORY, trackEventFactory } from '../../../utils/analytics';
-import { MapContext } from '../../../App';
+import { MapContext } from '../../../MapContext';
 import { MAP_LAYER_SORT_VALUES, SORT_DIRECTION } from '../../../constants';
 import { selectHydratedSubjectGroupsWithLastPositionTime } from '../../../selectors/subjects';
 

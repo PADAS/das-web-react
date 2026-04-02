@@ -12,7 +12,7 @@ import { NEWS_API_URL } from '../ducks/news';
 import { userWithPin, userWithoutPin, userWithoutEula, userList } from '../__test-helpers/fixtures/users';
 
 import store from '../store';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import Nav from './';
 import ModalRenderer from '../ModalRenderer';
 import useNavigate from '../hooks/useNavigate';

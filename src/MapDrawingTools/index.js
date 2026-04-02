@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { BREAKPOINTS } from '../constants';
 import { calcPositiveBearing } from '../utils/location';
 import { LAYER_IDS, SOURCE_IDS } from './MapLayers';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { useDrawToolGeoJson } from './hooks';
 import { useMapEventBinding, useMatchMedia } from '../hooks';
 

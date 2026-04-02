@@ -8,7 +8,7 @@ import { eventSchemas, snareSchemaV2 } from '../../__test-helpers/fixtures/event
 import { eventTypes, snareV2 } from '../../__test-helpers/fixtures/event-types';
 import { formValidator } from '../../utils/events';
 import { GPS_FORMATS } from '../../utils/location';
-import { MapContext } from '../../App';
+import { MapContext } from '../../MapContext';
 import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 import { mockStore } from '../../__test-helpers/MockStore';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';

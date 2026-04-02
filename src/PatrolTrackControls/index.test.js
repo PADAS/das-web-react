@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import { bbox, lineString } from '@turf/turf';
 import userEvent from '@testing-library/user-event';
 
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { mockStore } from '../__test-helpers/MockStore';
 import { createMapMock } from '../__test-helpers/mocks';
 import { UPDATE_SUBJECT_TRACK_STATE } from '../ducks/map-ui';

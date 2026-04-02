@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useRef } from 'react';
 
 import { fitMapBoundsForAnalyzer } from '../utils/analyzers';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import usePatrol from '../hooks/usePatrol';
 
 import LocationJumpButton from '../LocationJumpButton';

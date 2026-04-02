@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import { createMapMock } from '../../__test-helpers/mocks';
 import { GPS_FORMATS } from '../../utils/location';
-import { MapContext } from '../../App';
+import { MapContext } from '../../MapContext';
 import MapDrawingToolsContextProvider from '../../MapDrawingTools/ContextProvider';
 import { newPatrol, overduePatrol,  patrolDefaultStoreData } from '../../__test-helpers/fixtures/patrols';
 import { render, screen, within } from '../../test-utils';

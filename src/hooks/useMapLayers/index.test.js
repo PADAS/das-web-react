@@ -3,7 +3,7 @@ import { waitFor } from '@testing-library/react';
 
 import { renderHook } from '../../test-utils';
 import { createMapMock } from '../../__test-helpers/mocks';
-import { MapContext } from '../../App';
+import { MapContext } from '../../MapContext';
 import useMapLayers from './';
 
 describe('hooks - useMapLayers', () => {

@@ -4,7 +4,7 @@ import { renderHook } from '../test-utils';
 
 import { FEATURE_FLAG_LABELS } from '../constants';
 
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 
 import { createMapMock } from '../__test-helpers/mocks';
 import { mockStore } from '../__test-helpers/MockStore';

@@ -1,4 +1,5 @@
 import React, { memo } from 'react';
+import { API_URL, API_V2_URL } from '../constants';
 
 const spriteMappings = {
   events: {
@@ -24,6 +25,19 @@ export const calcIconUrl = (type, iconId) => {
 };
 
 const DasIcon = ({ type, iconId, color = 'gray', dispatch: _dispatch, className, ...rest }) => {
+  if (window.location.pathname.startsWith('/community') && type === 'events' && iconId) {
+    const communityValue = window.location.pathname.split('/')[2];
+    return (
+      <img
+        alt=""
+        className={className || ''}
+        onError={(e) => { e.target.style.display = 'none'; }}
+        src={`${API_V2_URL}community/${communityValue}/activity/events/eventtypes/icons/${iconId}`}
+        {...rest}
+      />
+    );
+  }
+
   const svgHref = calcIconUrl(type, iconId);
 
   const isGeneric = svgHref.includes('generic');

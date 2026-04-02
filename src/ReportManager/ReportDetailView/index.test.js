@@ -16,7 +16,7 @@ import { executeSaveActions, generateSaveActionsForReportLikeObject } from '../.
 import { TrackerContext } from '../../utils/analytics';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
 import { GPS_FORMATS } from '../../utils/location';
-import { MapContext } from '../../App';
+import { MapContext } from '../../MapContext';
 import NavigationContextProvider from '../../NavigationContextProvider';
 import { mockStore } from '../../__test-helpers/MockStore';
 import { PATROLS_API_URL } from '../../ducks/patrols';
