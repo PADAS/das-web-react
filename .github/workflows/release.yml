@@ -231,3 +231,30 @@ jobs:
       app-name: das-web-react-er-prod-us
     secrets:
       ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+
+  approve-prod:
+    needs: [sync-stage]
+    runs-on: ubuntu-latest
+    timeout-minutes: 4320
+    environment: production
+    steps:
+      - run: echo "Production EU deployment approved"
+
+  deploy-prod:
+    needs: [config, build, approve-prod]
+    uses: ./.github/workflows/_update-argo.yml
+    with:
+      app-name: das-web-react
+      app-subdir: earthranger
+      environment: er-prod
+      image-tag: ${{ needs.config.outputs.image-tag }}
+    secrets:
+      ARGOCD_APPS_SSH_KEY: ${{ secrets.ARGOCD_APPS_SSH_KEY }}
+
+  sync-prod:
+    needs: [config, deploy-prod]
+    uses: ./.github/workflows/_sync-argo.yml
+    with:
+      app-name: das-web-react-er-prod
+    secrets:
+      ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
