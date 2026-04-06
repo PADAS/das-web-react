@@ -216,6 +216,10 @@ export const getDeviceStatusPropertiesForSubject = subject => {
 
   return subject?.device_status_properties ?? [];
 };
+const GEAR_SUBJECT_SUBTYPES = new Set(['ropeless_buoy_gearset', 'ropeless_buoy_device']);
+
+export const isGearSubjectSubtype = (subject) => GEAR_SUBJECT_SUBTYPES.has(subject?.subject_subtype);
+
 export const isBuoySubject = (subject) => subject?.subject_subtype === 'ropeless_buoy_gearset';
 
 export const calcDisplayNameForSubject = (subject) => {

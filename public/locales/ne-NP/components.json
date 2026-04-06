@@ -197,6 +197,20 @@
         "newVersionAvailableNotification": "अर्थरेन्जरको नयाँ संस्करण उपलब्ध छ । तपाईंले अर्को पटक आफ्नो ब्राउजर रिफ्रेस गर्दा त्यो लोड हुनेछ ।"
     },
     "sideBar": {
+        "closeGearTabButtonLabel": "जाल बन्द गर्नुहोस्",
+        "gearLink": "जाल",
+        "gearTab": {
+            "loadErrorFallback": "अनुरोध असफल भयो",
+            "loadErrorIntro": "सर्भरबाट जाल लोड गर्न सकिएन।",
+            "loading": "अद्यावधिक हुँदै…",
+            "loadingInitial": "जाल लोड हुँदै…",
+            "loadingList": "पूर्ण सूची अझै लोड हुँदै…",
+            "noSearchResults": "खोजसँग मेल खाने कुनै सेट छैन।",
+            "retryButton": "फेरि प्रयास गर्नुहोस्",
+            "searchFormAriaLabel": "जाल खोज्नुहोस्",
+            "searchPlaceholder": "नामद्वारा खोज्नुहोस्",
+            "unknownManufacturer": "अन्य"
+        },
         "layersLink": "नक्साका तहहरु",
         "mapLayersTab": {
             "analyzersTabTitle": "विश्लेषकहरु",

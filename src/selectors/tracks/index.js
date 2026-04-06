@@ -8,6 +8,7 @@ import {
   trimTrackDataToTimeRange,
   buildTrackSegments
 } from '../../utils/tracks';
+import { isGearSubjectSubtype } from '../../utils/subjects';
 
 const selectEventFilterLowerDateRange = (state) => state.data.eventFilter.filter.date_range.lower;
 const selectHeatmapSubjectIDs = (state) => state.view.heatmapSubjectIDs;
@@ -16,6 +17,7 @@ const selectSubjectTrackState = (state) => state.view.subjectTrackState;
 const selectTimeOfDayTimeZone = (state) => state.view.trackSettings.timeOfDayTimeZone;
 const selectTimeSliderState = (state) => state.view.timeSliderState;
 const selectTracks = (state) => state.data.tracks;
+const selectSubjectStore = (state) => state.data.subjectStore;
 const selectTrackSettingsLength = (state) => state.view.trackSettings.length;
 const selectTrackSettingsOrigin = (state) => state.view.trackSettings.origin;
 
@@ -56,12 +58,14 @@ export const selectTrackTimeEnvelope = createSelector(
     return { from: trackLengthStartFromNow, until: null };
   });
 
+/** Heatmap track payloads: skips ropeless-gear subjects (handled on GearLayer). */
 const selectHeatmapSubjectTracks = createSelector(
-  [selectHeatmapSubjectIDs, selectTracks],
-  (heatmapSubjectIDs, tracks) => {
-    // Calculate the tracks of the heatmap subjects.
+  [selectHeatmapSubjectIDs, selectTracks, selectSubjectStore],
+  (heatmapSubjectIDs, tracks, subjectStore) => {
     const heatmapSubjectTracks = [];
     heatmapSubjectIDs.forEach((subjectId) => {
+      const subject = subjectStore?.[subjectId];
+      if (subject && isGearSubjectSubtype(subject)) return;
       if (tracks[subjectId]) {
         heatmapSubjectTracks.push(tracks[subjectId]);
       }
@@ -79,12 +83,14 @@ export const selectHeatmapSubjectTracksTrimmedToTrackTimeEnvelope = createSelect
   )
 );
 
+/** Visible/pinned subject tracks: skips ropeless-gear subjects. */
 const selectSubjectShownTracks = createSelector(
-  [selectSubjectTrackState, selectTracks],
-  (subjectTrackState, tracks) => {
-    // Calculate the tracks of the subjects with shown tracks.
+  [selectSubjectTrackState, selectTracks, selectSubjectStore],
+  (subjectTrackState, tracks, subjectStore) => {
     const subjectTracks = [];
     uniq([...subjectTrackState.pinned, ...subjectTrackState.visible]).forEach((subjectId) => {
+      const subject = subjectStore?.[subjectId];
+      if (subject && isGearSubjectSubtype(subject)) return;
       if (tracks[subjectId]) {
         subjectTracks.push(tracks[subjectId]);
       }
