@@ -5,16 +5,24 @@ import svgr from 'vite-plugin-svgr';
 function osanoPlugin() {
   return {
     name: 'inject-osano',
+    apply: 'build',
     transformIndexHtml: {
       order: 'pre',
-      handler(html, ctx) {
-        if (ctx.server) return html;
-        const osanoSnippet = `
-    <!-- Osano Cookies Consent Notice start for pamdas.org -->
-    <script src="https://cmp.osano.com/AzqB4OUPPVD5j8EeT/bc796e8a-d3d4-4a74-b9c7-f737cbc3379b/osano.js"></script>
-    <style>.osano-cm-widget{display: none;}</style>
-    <!-- Osano Cookies Consent Notice end for pamdas.org -->`;
-        return html.replace('</body>', `${osanoSnippet}\n</body>`);
+      handler() {
+        return [
+          {
+            tag: 'script',
+            attrs: {
+              src: 'https://cmp.osano.com/AzqB4OUPPVD5j8EeT/bc796e8a-d3d4-4a74-b9c7-f737cbc3379b/osano.js',
+            },
+            injectTo: 'body',
+          },
+          {
+            tag: 'style',
+            children: '.osano-cm-widget{display: none;}',
+            injectTo: 'body',
+          },
+        ];
       },
     },
   };
