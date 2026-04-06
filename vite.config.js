@@ -11,15 +11,15 @@ function osanoPlugin() {
       handler() {
         return [
           {
+            tag: 'style',
+            children: '.osano-cm-widget{display: none;}',
+            injectTo: 'head',
+          },
+          {
             tag: 'script',
             attrs: {
               src: 'https://cmp.osano.com/AzqB4OUPPVD5j8EeT/bc796e8a-d3d4-4a74-b9c7-f737cbc3379b/osano.js',
             },
-            injectTo: 'body',
-          },
-          {
-            tag: 'style',
-            children: '.osano-cm-widget{display: none;}',
             injectTo: 'body',
           },
         ];
