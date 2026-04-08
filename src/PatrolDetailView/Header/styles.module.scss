@@ -31,14 +31,10 @@
   width: 3rem;
   height: 100%;
 
-  svg {
+  img {
     width: 1.5rem;
     height: 1.5rem;
-    fill: white;
-
-    &[class*=newPatrol] {
-      fill: $dark-gray;
-    }
+    filter: invert(1);
 
     @media (min-width: $md-layout-width-min) {
       width: 2rem;

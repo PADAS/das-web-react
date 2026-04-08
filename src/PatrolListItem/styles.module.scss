@@ -7,12 +7,11 @@
   height: 100%;
   width: 100%;
 
-  svg,
-  svg > svg {
+  img {
     --dimensions: 2rem;
     --half-size: calc(var(--dimensions) / 2);
 
-    fill: white;
+    filter: invert(1);
     height: var(--dimensions);
     width: var(--dimensions);
 

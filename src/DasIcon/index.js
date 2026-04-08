@@ -1,37 +1,54 @@
 import React, { memo } from 'react';
+import { API_V2_URL, DAS_HOST } from '../constants';
 
-const spriteMappings = {
-  events: {
-    id: 'reportTypeIconSprite',
-    prefix: 'das--activity--static--sprite-src--',
-  },
-};
+const GENERIC_ICON_ID = 'generic_rep';
 
-export const calcIconUrl = (type, iconId) => {
-  const SPRITE_ID = spriteMappings[type].id;
-  const ICON_PREFIX = spriteMappings[type].prefix;
-
-  const iconIdMatch = document.querySelector(`#${SPRITE_ID} #${ICON_PREFIX}${iconId}`);
-  const iconIdRepMatch = document.querySelector(`#${SPRITE_ID} #${ICON_PREFIX}${iconId}_rep`);
-  if (iconIdMatch) {
-    return `#${ICON_PREFIX}${iconId}`;
+const DasIcon = ({ type, iconId, imageUrl, color: _color, dispatch: _dispatch, className, ...rest }) => {
+  if (type === 'subjects') {
+    return (
+      <img
+        alt=""
+        className={className || ''}
+        onError={(e) => { e.target.style.display = 'none'; }}
+        src={imageUrl}
+        {...rest}
+      />
+    );
   }
-  else if (iconIdRepMatch) {
-    return `#${ICON_PREFIX}${iconId}_rep`;
-  } else {
-    return `#${ICON_PREFIX}generic_rep`;
+
+  if (window.location.pathname.startsWith('/community') && iconId) {
+    const communityValue = window.location.pathname.split('/')[2];
+    return (
+      <img
+        alt=""
+        className={className || ''}
+        onError={(e) => { e.target.style.display = 'none'; }}
+        src={`${API_V2_URL}community/${communityValue}/activity/events/eventtypes/icons/${iconId}`}
+        {...rest}
+      />
+    );
   }
-};
 
-const DasIcon = ({ type, iconId, color = 'gray', dispatch: _dispatch, className, ...rest }) => {
-  const svgHref = calcIconUrl(type, iconId);
+  const effectiveIconId = iconId || GENERIC_ICON_ID;
+  const isGeneric = effectiveIconId.includes('generic');
 
-  const isGeneric = svgHref.includes('generic');
+  const handleError = (e) => {
+    if (!e.target.src.includes(GENERIC_ICON_ID)) {
+      e.target.src = `${DAS_HOST}/static/sprite-src/${GENERIC_ICON_ID}.svg`;
+      e.target.classList.add('generic');
+    } else {
+      e.target.style.display = 'none';
+    }
+  };
 
   return (
-    <svg className={`${className || ''} ${isGeneric ? 'generic' : ''}`} {...rest} fill={color}>
-      <use href={svgHref} />
-    </svg>
+    <img
+      alt=""
+      className={`${className || ''} ${isGeneric ? 'generic' : ''}`}
+      onError={handleError}
+      src={`${DAS_HOST}/static/sprite-src/${effectiveIconId}.svg`}
+      {...rest}
+    />
   );
 };
 
