@@ -2,31 +2,27 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
 
-function osanoPlugin() {
-  return {
-    name: 'inject-osano',
-    apply: 'build',
-    transformIndexHtml: {
-      order: 'pre',
-      handler() {
-        return [
-          {
-            tag: 'style',
-            children: '.osano-cm-widget{display: none;}',
-            injectTo: 'head',
-          },
-          {
-            tag: 'script',
-            attrs: {
-              src: 'https://cmp.osano.com/AzqB4OUPPVD5j8EeT/bc796e8a-d3d4-4a74-b9c7-f737cbc3379b/osano.js',
-            },
-            injectTo: 'body',
-          },
-        ];
+const osanoPlugin = () => ({
+  name: 'inject-osano',
+  apply: 'build',
+  transformIndexHtml: {
+    order: 'pre',
+    handler: () => [
+      {
+        tag: 'style',
+        children: '.osano-cm-widget{display: none;}',
+        injectTo: 'head',
       },
-    },
-  };
-}
+      {
+        tag: 'script',
+        attrs: {
+          src: 'https://cmp.osano.com/AzqB4OUPPVD5j8EeT/bc796e8a-d3d4-4a74-b9c7-f737cbc3379b/osano.js',
+        },
+        injectTo: 'body',
+      },
+    ],
+  },
+});
 
 export default defineConfig({
   build: {
@@ -54,7 +50,6 @@ export default defineConfig({
   },
 
   plugins: [
-    osanoPlugin(),
     react(),
 
     // Match CRA SVG transformation.
@@ -66,6 +61,8 @@ export default defineConfig({
         namedExport: 'ReactComponent',
       },
     }),
+
+    osanoPlugin(),
   ],
 
   server: {
