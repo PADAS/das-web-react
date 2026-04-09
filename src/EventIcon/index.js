@@ -9,7 +9,7 @@ import DasIcon from '../DasIcon';
 
 import * as styles from './styles.module.scss';
 
-const EventIcon = ({ ref, report, ...rest }) => {
+const EventIcon = ({ report, ...rest }) => {
   const eventTypes = useSelector(selectDisplayEventTypes);
 
   const iconId = useMemo(() => {
@@ -35,7 +35,7 @@ const EventIcon = ({ ref, report, ...rest }) => {
   }, [eventTypes, report]);
 
   if (nonContainerIconId) {
-    return <span className={styles.wrapper} ref={ref}>
+    return <span className={styles.wrapper}>
       <DasIcon iconId={iconId} type="events" title={report.event_type} {...rest} />
       <DasIcon className={styles.content} iconId={nonContainerIconId} type="events" />
     </span>;
