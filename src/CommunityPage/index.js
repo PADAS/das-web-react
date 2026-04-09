@@ -52,6 +52,11 @@ const CommunityPage = () => {
   }, [allEventTypes, eventTypeValue]);
 
   useEffect(() => {
+    if (!value) {
+      setIsLoading(false);
+      setIsUnauthorized(true);
+      return;
+    }
     setIsLoading(true);
     setIsUnauthorized(false);
     dispatch(fetchCommunityInfo(value, { skipAuth: true }))
