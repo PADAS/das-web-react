@@ -148,7 +148,7 @@ export const onClusterClick = (
   }
 };
 
-export const getRenderedClustersData = async (clustersSource, map, locallyEditedEvent = null) => {
+export const getRenderedClustersData = async (clustersSource, map, locallyEditedEvent = null, mapImages = null) => {
   const renderedClusterIds = map.queryRenderedFeatures({ layers: [CLUSTERS_LAYER_ID] })
     .map((cluster) => cluster.properties.cluster_id);
 
@@ -166,9 +166,16 @@ export const getRenderedClustersData = async (clustersSource, map, locallyEdited
     (clusterFeatures) => hashCode(clusterFeatures.map((clusterFeature) => {
       const isLocally = locallyEditedEvent?.id === clusterFeature.properties.id;
       const priority = clusterFeature.properties.priority ?? 0;
+      // Include whether the icon image is loaded so the hash changes when mapImages gains the entry,
+      // forcing the marker to be recreated with the correct icon.
+      const iconKey = calcSvgImageIconId({
+        icon_id: clusterFeature.properties.icon_id,
+        priority: clusterFeature.properties.priority,
+      });
+      const imageLoaded = mapImages?.[iconKey] ? '1' : '0';
       const suffix = isLocally
         ? `local-${locallyEditedEvent.priority ?? 0}`
-        : `${clusterFeature.properties.updated_at}-${priority}`;
+        : `${clusterFeature.properties.updated_at}-${priority}-${imageLoaded}`;
       return `${clusterFeature.properties.id} ${suffix}`;
     }).join(''))
   );

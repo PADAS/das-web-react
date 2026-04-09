@@ -6,17 +6,13 @@
 .icon {
   height: 100%;
   width: 100%;
-
-  svg, svg * {
-    fill: currentColor;
-  }
-
   color: white;
 
   svg {
     --dimensions: 2rem;
     --half-size: calc(var(--dimensions) / 2);
 
+    fill: currentColor;
     height: var(--dimensions);
     width: var(--dimensions);
 

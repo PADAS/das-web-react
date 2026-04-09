@@ -1311,8 +1311,8 @@ export const eventTypes = [
   {
     'version': 1,
     'id': '3bdde979-3471-4cde-9bb3-4c5c4beb41f8',
-    'icon': 'incident_collection',
-    'value': 'sand_incident_collection',
+    'icon': 'incident_collection_rep',
+    'value': 'sand_incident_collection_rep',
     'display': 'Sand-Incident Collection',
     'ordernum': 70,
     'is_collection': true,
@@ -1330,7 +1330,7 @@ export const eventTypes = [
         'delete'
       ]
     },
-    'icon_id': 'incident_collection',
+    'icon_id': 'incident_collection_rep',
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/3bdde979-3471-4cde-9bb3-4c5c4beb41f8',
@@ -1341,7 +1341,7 @@ export const eventTypes = [
     'version': 1,
     'id': '6408afcf-c3b6-4f4b-a440-2d87d87f8424',
     'icon': null,
-    'value': 'incident_collection',
+    'value': 'incident_collection_rep',
     'display': 'Incident Collection',
     'ordernum': 70,
     'is_collection': true,
@@ -1359,7 +1359,7 @@ export const eventTypes = [
         'delete'
       ]
     },
-    'icon_id': 'incident_collection',
+    'icon_id': 'incident_collection_rep',
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/6408afcf-c3b6-4f4b-a440-2d87d87f8424',
@@ -1397,8 +1397,8 @@ export const eventTypes = [
   {
     'version': 1,
     'id': 'cacf8f8a-c45c-4ac9-a816-0de988c0afdf',
-    'icon': 'incident_collection',
-    'value': 'sand_easterisland_incident_collection',
+    'icon': 'incident_collection_rep',
+    'value': 'sand_easterisland_incident_collection_rep',
     'display': 'Sand-Easter Island-Incident Collection',
     'ordernum': 70,
     'is_collection': true,
@@ -1416,7 +1416,7 @@ export const eventTypes = [
         'delete'
       ]
     },
-    'icon_id': 'incident_collection',
+    'icon_id': 'incident_collection_rep',
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/cacf8f8a-c45c-4ac9-a816-0de988c0afdf',

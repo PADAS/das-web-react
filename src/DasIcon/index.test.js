@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, waitFor } from '../test-utils';
-import DasIcon from './';
+import DasIcon, { svgCache } from './';
 
 const mockFetch = (contentType, body) =>
   jest.fn().mockResolvedValue({
@@ -10,9 +10,20 @@ const mockFetch = (contentType, body) =>
   });
 
 describe('DasIcon', () => {
+  let fetchSpy;
+
+  beforeEach(() => {
+    svgCache.clear();
+    fetchSpy = jest.spyOn(global, 'fetch');
+  });
+
+  afterEach(() => {
+    fetchSpy.mockRestore();
+  });
+
   describe('event icons', () => {
     test('renders inline SVG when the server returns an SVG content-type', async () => {
-      global.fetch = mockFetch('image/svg+xml', '<svg><path d="M0 0"/></svg>');
+      fetchSpy.mockImplementation(mockFetch('image/svg+xml', '<svg><path d="M0 0"/></svg>'));
 
       render(<DasIcon type="events" iconId="fire_rep" />);
 
@@ -22,7 +33,7 @@ describe('DasIcon', () => {
     });
 
     test('renders an img when the server returns a non-SVG content-type (e.g. PNG)', async () => {
-      global.fetch = mockFetch('image/png', '');
+      fetchSpy.mockImplementation(mockFetch('image/png', ''));
 
       const { container } = render(<DasIcon type="events" iconId="confiscation_rep" />);
 

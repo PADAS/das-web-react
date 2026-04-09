@@ -1,29 +1,65 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import DOMPurify from 'dompurify';
 import { API_V2_URL, DAS_HOST } from '../constants';
 
 const GENERIC_ICON_ID = 'generic_rep';
-const svgCache = new Map();
+export const svgCache = new Map();
 
-const UNSAFE_ELEMENTS = new Set(['script', 'foreignObject', 'use', 'animate', 'set']);
-const UNSAFE_ATTR_PATTERN = /^on/i;
+const CONTAINER_SELECTOR = 'svg,g,defs,symbol,marker,clipPath,mask,pattern';
 
 const sanitizeSvg = (text) => {
-  const doc = new DOMParser().parseFromString(text, 'image/svg+xml');
-  const parseError = doc.querySelector('parsererror');
-  if (parseError) return null;
+  const sanitized = DOMPurify.sanitize(text, {
+    USE_PROFILES: { svg: true, svgFilters: true },
+    RETURN_DOM_IMPORT: false,
+    RETURN_DOM: false,
+  });
+  if (!sanitized) return null;
 
-  doc.querySelectorAll('*').forEach(el => {
-    if (UNSAFE_ELEMENTS.has(el.tagName.toLowerCase())) {
-      el.remove();
-      return;
-    }
-    Array.from(el.attributes).forEach(attr => {
-      if (UNSAFE_ATTR_PATTERN.test(attr.name)) el.removeAttribute(attr.name);
-      if (attr.value.toLowerCase().includes('javascript:')) el.removeAttribute(attr.name);
-    });
+  const doc = new DOMParser().parseFromString(sanitized, 'image/svg+xml');
+
+  // Identify which containers have fill="none" as a base default before we strip anything.
+  // A container's fill="none" should be removed only if it was acting as a default that its
+  // children override — either via explicit fill attributes or CSS classes in a <style> block.
+  // Removing it unconditionally breaks stroke-based icons where fill="none" is the design intent.
+  const containersToUnfill = new Set();
+  doc.querySelectorAll(CONTAINER_SELECTOR).forEach((container) => {
+    if (container.getAttribute('fill') !== 'none') return;
+    const hasExplicitFill = !!container.querySelector('[fill]:not([fill="none"])');
+    const hasClassBasedFill = !!container.querySelector('[class]');
+    if (hasExplicitFill || hasClassBasedFill) containersToUnfill.add(container);
   });
 
-  return new XMLSerializer().serializeToString(doc.documentElement);
+  // Remove <style> blocks — their fill/color rules reference class names we're about to strip,
+  // and the class-defined colors would otherwise survive intact.
+  doc.querySelectorAll('style').forEach((el) => el.remove());
+
+  // Remove class attributes — they reference the now-removed CSS rules and may also conflict
+  // with the app's own stylesheet.
+  doc.querySelectorAll('[class]').forEach((el) => el.removeAttribute('class'));
+
+  // Strip all hardcoded (non-"none") fill attributes so shapes inherit currentColor via CSS.
+  doc.querySelectorAll('[fill]:not([fill="none"])').forEach((el) => el.removeAttribute('fill'));
+
+  // Replace hardcoded stroke colors with currentColor so stroked shapes (crosshairs, outlines,
+  // etc.) follow the icon's color context. We replace rather than remove because CSS does not
+  // set a global stroke: currentColor the way it does for fill.
+  doc.querySelectorAll('[stroke]:not([stroke="none"])').forEach((el) => {
+    el.setAttribute('stroke', 'currentColor');
+  });
+
+  // Strip inline fill/stroke from style attributes (presentation attributes above handle these).
+  doc.querySelectorAll('[style]').forEach((el) => {
+    const cleaned = el.getAttribute('style')
+      .replace(/\bfill\s*:[^;]*(;?)/g, '')
+      .replace(/\bstroke\s*:[^;]*(;?)/g, '');
+    el.setAttribute('style', cleaned);
+  });
+
+  // Remove fill="none" only from containers that were acting as a base default over colored
+  // children — not from containers whose fill="none" is the actual design intent.
+  containersToUnfill.forEach((container) => container.removeAttribute('fill'));
+
+  return new XMLSerializer().serializeToString(doc.documentElement) || null;
 };
 
 const injectClass = (markup, className) => {
@@ -35,25 +71,28 @@ const injectClass = (markup, className) => {
 };
 
 // Cache entries are either { svg: string } or { imgSrc: string }
-const InlineSvg = ({ src, fallbackSrc, className, ...rest }) => {
+const InlineSvg = ({ src, fallbackSrc, className, style, ...rest }) => {
   const [cached, setCached] = useState(() => svgCache.get(src) ?? null);
 
   useEffect(() => {
+    let current = true;
+
     if (svgCache.has(src)) {
       const entry = svgCache.get(src);
-      Promise.resolve().then(() => setCached(entry));
-      return;
+      Promise.resolve().then(() => { if (current) setCached(entry); });
+      return () => { current = false; };
     }
 
+    const controller = new AbortController();
+    const { signal } = controller;
+
     const fetchIcon = (url) =>
-      fetch(url).then(res => {
+      fetch(url, { signal }).then(res => {
         if (!res.ok) return Promise.reject();
         const contentType = res.headers.get('Content-Type') || '';
         if (contentType.includes('svg')) {
           return res.text().then(text => {
-            const clean = sanitizeSvg(text
-              .replace(/\sfill="(?!none")[^"]*"/g, '')
-              .replace(/(\sstyle="[^"]*)fill\s*:[^;"]*(;?)/g, '$1$2'));
+            const clean = sanitizeSvg(text);
             return clean ? { svg: clean } : Promise.reject();
           });
         }
@@ -63,10 +102,10 @@ const InlineSvg = ({ src, fallbackSrc, className, ...rest }) => {
     fetchIcon(src)
       .then(entry => {
         svgCache.set(src, entry);
-        setCached(entry);
+        if (current) setCached(entry);
       })
       .catch(() => {
-        if (!fallbackSrc || src === fallbackSrc) return;
+        if (!current || !fallbackSrc || src === fallbackSrc) return;
         if (svgCache.has(fallbackSrc)) {
           setCached(svgCache.get(fallbackSrc));
           return;
@@ -74,34 +113,39 @@ const InlineSvg = ({ src, fallbackSrc, className, ...rest }) => {
         fetchIcon(fallbackSrc)
           .then(entry => {
             svgCache.set(fallbackSrc, entry);
-            setCached(entry);
+            if (current) setCached(entry);
           })
           .catch(() => {});
       });
+
+    return () => {
+      current = false;
+      controller.abort();
+    };
   }, [src, fallbackSrc]);
 
   if (!cached) return null;
 
   if (cached.imgSrc) {
-    return <img alt="" className={className} src={cached.imgSrc} {...rest} />;
+    return <img alt="" className={className} src={cached.imgSrc} style={style} {...rest} />;
   }
 
   return (
     <span
       dangerouslySetInnerHTML={{ __html: injectClass(cached.svg, className) }}
-      style={{ display: 'contents' }}
+      style={{ display: 'contents', ...style }}
       {...rest}
     />
   );
 };
 
-const DasIcon = ({ type, iconId, imageUrl, className, ...rest }) => {
+const DasIcon = ({ type, iconId, imageUrl, className, color, style, ...rest }) => {
   const onImgError = (event) => {
     event.currentTarget.style.display = 'none';
   };
 
   if (type === 'subjects') {
-    return <img alt={`${type} icon`} className={className} onError={onImgError} src={imageUrl} {...rest} />;
+    return <img alt={`${type} icon`} className={className} onError={onImgError} src={imageUrl} style={style} {...rest} />;
   }
 
   if (window.location.pathname.startsWith('/community') && iconId) {
@@ -112,6 +156,7 @@ const DasIcon = ({ type, iconId, imageUrl, className, ...rest }) => {
         className={className}
         onError={onImgError}
         src={`${API_V2_URL}community/${communityValue}/activity/events/eventtypes/icons/${iconId}`}
+        style={style}
         {...rest}
       />
     );
@@ -120,11 +165,17 @@ const DasIcon = ({ type, iconId, imageUrl, className, ...rest }) => {
   const effectiveIconId = iconId || GENERIC_ICON_ID;
   const isGeneric = effectiveIconId.includes('generic');
 
+  // Map legacy color prop and style.fill to CSS color so fill:currentColor in the SVG inherits it.
+  const { fill: styleFill, ...restStyle } = style || {};
+  const effectiveColor = color || styleFill;
+  const svgStyle = effectiveColor ? { ...restStyle, color: effectiveColor } : restStyle;
+
   return (
     <InlineSvg
       className={`${className || ''} ${isGeneric ? 'generic' : ''}`.trim()}
       fallbackSrc={`${DAS_HOST}/static/sprite-src/${GENERIC_ICON_ID}.svg`}
       src={`${DAS_HOST}/static/sprite-src/${effectiveIconId}.svg`}
+      style={svgStyle}
       {...rest}
     />
   );

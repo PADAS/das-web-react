@@ -68,13 +68,17 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
   const locallyEditedEvent = useSelector((state) => state.data.locallyEditedEvent);
   const eventStore = useSelector((state) => state.data.eventStore);
 
-  const updateClusterMarkersCallback = useCallback(async () => {
+  // Use a ref so the callback doesn't need to be recreated on every mapImages update —
+  // mapImages changes are handled by a dedicated effect below.
+  const mapImagesRef = useRef(mapImages);
+  mapImagesRef.current = mapImages;
 
+  const updateClusterMarkersCallback = useCallback(async () => {
     const {
       renderedClusterHashes,
       renderedClusterFeatures,
       renderedClusterIds,
-    } = await getRenderedClustersData(map.getSource(CLUSTERS_SOURCE_ID), map, locallyEditedEvent);
+    } = await getRenderedClustersData(map.getSource(CLUSTERS_SOURCE_ID), map, locallyEditedEvent, mapImagesRef.current);
 
     removeOldClusterMarkers(clusterMarkerHashMapRef, removeClusterPolygon, renderedClusterHashes);
 
@@ -83,7 +87,7 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
       clusterMarkerHashMapRef,
       CLUSTERS_SOURCE_ID,
       map,
-      mapImages,
+      mapImagesRef.current,
       removeClusterPolygon,
       renderedClusterFeatures,
       renderedClusterHashes,
@@ -91,7 +95,7 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
       onShowClusterSelectPopup,
       locallyEditedEvent,
       eventStore);
-  }, [addClusterPolygon, eventStore, locallyEditedEvent, map, mapImages, onShowClusterSelectPopup, removeClusterPolygon]);
+  }, [addClusterPolygon, eventStore, locallyEditedEvent, map, onShowClusterSelectPopup, removeClusterPolygon]);
 
   const onSourceData = useMemo(() => (event) => {
     if (event.sourceId === CLUSTERS_SOURCE_ID) {
@@ -106,6 +110,12 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
       updateClusterMarkersCallback();
     }
   }, [locallyEditedEvent, updateClusterMarkersCallback]);
+
+  // Trigger a marker refresh when mapImages changes so clusters show the correct icon
+  // as soon as the image is available (sourcedata doesn't fire on mapImages updates).
+  useEffect(() => {
+    updateClusterMarkersCallback();
+  }, [mapImages, updateClusterMarkersCallback]);
 
   return null;
 };

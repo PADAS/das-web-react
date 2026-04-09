@@ -14,7 +14,10 @@ const EventIcon = ({ ref, report, ...rest }) => {
 
   const iconId = useMemo(() => {
     if (report.is_collection) {
-      return 'incident_collection_rep';
+      if (!report.icon_id || report.icon_id === 'incident_collection') {
+        return 'incident_collection_rep';
+      }
+      return report.icon_id;
     }
 
     const isPatrol = !!report?.patrol_segments?.length && isObject(report.patrol_segments[0]);
@@ -22,7 +25,7 @@ const EventIcon = ({ ref, report, ...rest }) => {
     const matchingEventType = eventTypes.find((eventType) => eventType.value === type);
 
     return matchingEventType?.icon_id ?? null;
-  }, [eventTypes, report.event_type, report.is_collection, report.patrol_segments]);
+  }, [eventTypes, report.event_type, report.icon_id, report.is_collection, report.patrol_segments]);
 
   const nonContainerIconId = useMemo(() => {
     if (!report.is_collection) return null;

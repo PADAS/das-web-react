@@ -2,6 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { mockStore } from '../__test-helpers/MockStore';
 import { render, waitFor } from '../test-utils';
+import { svgCache } from '../DasIcon';
 import EventIcon from './';
 
 const mockSvgFetch = () =>
@@ -24,13 +25,20 @@ const store = mockStore({
 
 const makeCollection = (containedEvents) => ({
   is_collection: true,
-  event_type: 'incident_collection',
+  event_type: 'incident_collection_rep',
   contains: containedEvents.map((event) => ({ related_event: event })),
 });
 
 describe('EventIcon collection badge icon', () => {
+  let fetchSpy;
+
   beforeEach(() => {
-    global.fetch = mockSvgFetch();
+    svgCache.clear();
+    fetchSpy = jest.spyOn(global, 'fetch').mockImplementation(mockSvgFetch());
+  });
+
+  afterEach(() => {
+    fetchSpy.mockRestore();
   });
 
   test('shows the highest-priority contained event icon as the badge — not just the first', async () => {
@@ -48,7 +56,7 @@ describe('EventIcon collection badge icon', () => {
     );
 
     await waitFor(() => {
-      const fetchedUrls = global.fetch.mock.calls.map(([url]) => url);
+      const fetchedUrls = fetchSpy.mock.calls.map(([url]) => url);
       expect(fetchedUrls.some((url) => url.includes('high_icon'))).toBe(true);
       expect(fetchedUrls.some((url) => url.includes('low_icon'))).toBe(false);
     });
