@@ -8,8 +8,10 @@
   width: 100%;
 
   svg, svg * {
-    fill: white !important;
+    fill: currentColor;
   }
+
+  color: white;
 
   svg {
     --dimensions: 2rem;

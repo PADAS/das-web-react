@@ -78,8 +78,7 @@ const PatrolListItem = ({
   const TitleDetailsComponent = useMemo(() => {
     if (isPatrolActiveOrDone) {
       return <span className={styles.titleDetails}>
-        <span>{patrolElapsedTime}</span> |
-        <span>
+        <span>{patrolElapsedTime}</span> | <span>
           <PatrolDistanceCovered patrolsData={patrolsData} suffix=' km' />
         </span>
       </span>;

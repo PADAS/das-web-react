@@ -65,7 +65,7 @@ h6 {
   padding: 1rem;
 
   .btn-close {
-    filter: brightness(0) white;
+    filter: brightness(0) invert(1);
     opacity: 1;
   }
 }

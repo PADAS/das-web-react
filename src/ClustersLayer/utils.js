@@ -2,6 +2,7 @@ import { centroid, featureCollection } from '@turf/turf';
 import mapboxgl from 'mapbox-gl';
 
 import { CLUSTER_CLICK_ZOOM_THRESHOLD, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
+import { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
 import { subjectIsStatic } from '../utils/subjects';
 import { injectStylesToElement } from '../utils/styles';
 import { hashCode } from '../utils/string';
@@ -23,8 +24,25 @@ const FEATURE_ICON_HTML_STYLES = { maxWidth: '24px', minWidth: '18px', height: '
 const FEATURE_SS_ICON_HTML_STYLES = { filter: 'brightness(0)' };
 const FEATURE_COUNT_HTML_STYLES = { fontSize: '16px', fontWeight: '500', paddingLeft: '4px', margin: '0' };
 
-const getFeatureIcon = (feature, mapImages) =>
-  mapImages[`${feature.properties.icon_id}-${feature.properties.priority}`]?.image;
+const getFeatureIcon = (feature, mapImages, locallyEditedEvent, eventStore) => {
+  const isLocally = locallyEditedEvent?.id === feature.properties.id;
+  if (isLocally) {
+    const iconId = locallyEditedEvent.icon_id ?? feature.properties.icon_id;
+    // Use !== undefined so that an explicit null priority (meaning "none"/0) isn't skipped by ??
+    const priority = locallyEditedEvent.priority !== undefined
+      ? locallyEditedEvent.priority
+      : feature.properties.priority;
+    const newImage = mapImages[calcSvgImageIconId({ icon_id: iconId, priority })]?.image;
+    if (newImage) return newImage;
+    // Fall back to the saved event's priority image (feature.properties may already reflect
+    // the locally-edited priority since the source is updated before getClusterLeaves runs)
+    const savedEvent = eventStore?.[feature.properties.id];
+    if (savedEvent) {
+      return mapImages[calcSvgImageIconId({ icon_id: savedEvent.icon_id || iconId, priority: savedEvent.priority })]?.image;
+    }
+  }
+  return mapImages[calcSvgImageIconId({ icon_id: feature.properties.icon_id, priority: feature.properties.priority })]?.image;
+};
 
 export const getClusterIconFeatures = (clusterFeatures) => {
   const { eventFeatures, subjectFeatures } = clusterFeatures.reduce((accumulator, feature) => {
@@ -72,7 +90,9 @@ export const createClusterHTMLMarker = (
   mapImages,
   onClusterClick,
   onMouseOverCluster,
-  onMouseLeaveCluster
+  onMouseLeaveCluster,
+  locallyEditedEvent = null,
+  eventStore = null
 ) => {
   const clusterHTMLMarkerContainer = document.createElement('div');
   clusterHTMLMarkerContainer.onclick = onClusterClick;
@@ -81,7 +101,7 @@ export const createClusterHTMLMarker = (
   injectStylesToElement(clusterHTMLMarkerContainer, CLUSTER_HTML_MARKER_CONTAINER_STYLES);
 
   getClusterIconFeatures(clusterFeatures).forEach((feature) => {
-    let featureImageHTML = getFeatureIcon(feature, mapImages)?.cloneNode(true);
+    let featureImageHTML = getFeatureIcon(feature, mapImages, locallyEditedEvent, eventStore)?.cloneNode(true);
     if (!featureImageHTML) {
       featureImageHTML = document.createElement('img');
       featureImageHTML.src = feature.properties.image || feature.properties.image_url;
@@ -128,7 +148,7 @@ export const onClusterClick = (
   }
 };
 
-export const getRenderedClustersData = async (clustersSource, map) => {
+export const getRenderedClustersData = async (clustersSource, map, locallyEditedEvent = null) => {
   const renderedClusterIds = map.queryRenderedFeatures({ layers: [CLUSTERS_LAYER_ID] })
     .map((cluster) => cluster.properties.cluster_id);
 
@@ -142,11 +162,15 @@ export const getRenderedClustersData = async (clustersSource, map) => {
   }));
   const renderedClusterFeatures = await Promise.all(getAllClusterLeavesPromises);
 
-  // const renderedClusterHashes = renderedClusterIds;
   const renderedClusterHashes = renderedClusterFeatures.map(
-    (clusterFeatures) => hashCode(clusterFeatures.map(
-      clusterFeature => `${clusterFeature.properties.id} ${clusterFeature.properties.updated_at}`).join('')
-    )
+    (clusterFeatures) => hashCode(clusterFeatures.map((clusterFeature) => {
+      const isLocally = locallyEditedEvent?.id === clusterFeature.properties.id;
+      const priority = clusterFeature.properties.priority ?? 0;
+      const suffix = isLocally
+        ? `local-${locallyEditedEvent.priority ?? 0}`
+        : `${clusterFeature.properties.updated_at}-${priority}`;
+      return `${clusterFeature.properties.id} ${suffix}`;
+    }).join(''))
   );
 
   return { renderedClusterFeatures, renderedClusterHashes, renderedClusterIds };
@@ -173,7 +197,9 @@ export const addNewClusterMarkers = (
   renderedClusterFeatures,
   renderedClusterHashes,
   renderedClusterIds,
-  onShowClusterSelectPopup
+  onShowClusterSelectPopup,
+  locallyEditedEvent = null,
+  eventStore = null
 ) => {
   const renderedClusterMarkersHashMap = {};
 
@@ -181,9 +207,21 @@ export const addNewClusterMarkers = (
     const clusterHash = renderedClusterHashes[index];
     const clusterId = renderedClusterIds[index];
 
-    let marker = clusterMarkerHashMapRef.current[clusterHash]?.marker
-      || renderedClusterMarkersHashMap[clusterHash]?.marker;
+    // If the cluster contains the locally-edited event, always recreate the marker
+    // so it reflects the latest mapImages (which may now have the new-priority image).
+    const hasLocallyEditedFeature = locallyEditedEvent
+      && clusterFeatures.some((f) => f.properties.id === locallyEditedEvent.id);
+
+    let marker = !hasLocallyEditedFeature && (
+      clusterMarkerHashMapRef.current[clusterHash]?.marker
+      || renderedClusterMarkersHashMap[clusterHash]?.marker
+    );
+
     if (!marker) {
+      if (hasLocallyEditedFeature) {
+        clusterMarkerHashMapRef.current[clusterHash]?.marker?.remove();
+      }
+
       const clusterFeatureCollection = featureCollection(clusterFeatures);
       const clusterPoint = centroid(clusterFeatureCollection);
       const onClick = onClusterClick(
@@ -204,6 +242,8 @@ export const addNewClusterMarkers = (
         onClick,
         onMouseOver,
         onMouseLeave,
+        locallyEditedEvent,
+        eventStore,
       );
 
       marker = new mapboxgl.Marker(newClusterHTMLMarkerContainer)

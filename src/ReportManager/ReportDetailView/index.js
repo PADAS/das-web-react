@@ -691,7 +691,7 @@ const ReportDetailView = ({
   useEffect(() => {
     const shouldUpdateMapEvent = reportChanges?.geometry ||
       reportChanges?.location ||
-      reportChanges?.priority ||
+      reportChanges?.priority !== undefined ||
       reportChanges?.time ||
       reportChanges?.title;
     if (!isNewReport && shouldUpdateMapEvent) {

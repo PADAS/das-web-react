@@ -25,7 +25,7 @@ $background_image_url: '../common/images/icons/';
         margin-bottom: .5rem;
         margin-right: .5rem;
         height: 1.15rem;
-        filter: brightness(0) white;
+        filter: brightness(0) invert(1);
       }
     }
   }

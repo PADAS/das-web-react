@@ -22,7 +22,7 @@ describe('LayerSelectorPopup', () => {
     hidePopupMock = jest.fn(() => () => {});
     hidePopup.mockImplementation(hidePopupMock);
 
-    store = mockStore({ view: { mapImages: [] } });
+    store = mockStore({ view: { mapImages: [] }, data: { eventStore: {}, locallyEditedEvent: null } });
   });
 
   afterEach(() => {

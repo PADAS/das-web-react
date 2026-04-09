@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { calcImgIdFromUrlForMapImages, calcUrlForImage } from '../utils/img';
+import { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
 import { hidePopup } from '../ducks/popup';
 import { SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { subjectIsStatic } from '../utils/subjects';
@@ -16,6 +17,8 @@ const LayerSelectorPopup = ({ data, id }) => {
   const { t } = useTranslation('map-popups', { keyPrefix: 'layerSelectorPopup' });
 
   const mapImages = useSelector((state) => state.view.mapImages);
+  const eventStore = useSelector((state) => state.data.eventStore);
+  const locallyEditedEvent = useSelector((state) => state.data.locallyEditedEvent);
 
   const [filter, setFilter] = useState('');
 
@@ -48,24 +51,35 @@ const LayerSelectorPopup = ({ data, id }) => {
       });
 
     return filteredLayerList.map((layer) => {
-      const imageinStore = mapImages[
-        calcImgIdFromUrlForMapImages(layer.properties.image, layer.properties.height, layer.properties.width)
-      ];
+      const isEvent = layer.properties?.content_type !== SUBJECT_FEATURE_CONTENT_TYPE;
+      const isLocallyEdited = isEvent && locallyEditedEvent?.id === layer.properties.id;
+      const liveEvent = isLocallyEdited ? locallyEditedEvent : (isEvent ? eventStore[layer.properties.id] : null);
+      const eventIconKey = isEvent && (liveEvent?.icon_id || layer.properties.icon_id)
+        ? calcSvgImageIconId({
+          icon_id: liveEvent?.icon_id ?? layer.properties.icon_id,
+          priority: liveEvent?.priority ?? layer.properties.priority,
+        })
+        : null;
+      const imageinStore = (eventIconKey && mapImages[eventIconKey])
+        || mapImages[calcImgIdFromUrlForMapImages(layer.properties.image, layer.properties.height, layer.properties.width)];
       const imgSrc = imageinStore
         ? imageinStore.image.src
         : calcUrlForImage(layer.properties.image || layer.properties.image_url);
 
+      const displayTitle = layer.properties.display_title || layer.properties.name || layer.properties.title;
+      const title = isLocallyEdited ? `* ${displayTitle}` : displayTitle;
+
       return <li className={styles.listItem} key={layer.properties.id} onClick={(e) => handleClick(e, layer)}>
         <img
-          alt={layer.properties.display_title || layer.properties.name || layer.properties.title}
+          alt={displayTitle}
           src={imgSrc}
           style={subjectIsStatic(layer) ? { filter: 'brightness(0) opacity(60%)' } : {}}
         />
 
-        <span>{layer.properties.display_title || layer.properties.name || layer.properties.title}</span>
+        <span>{title}</span>
       </li>;
     });
-  }, [filter, handleClick, layerList, mapImages]);
+  }, [eventStore, filter, handleClick, layerList, locallyEditedEvent, mapImages]);
 
   const onFilterChange = useCallback((value) => setFilter(value), []);
 

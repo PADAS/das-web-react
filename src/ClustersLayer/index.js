@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useMemo, useRef } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { featureCollection } from '@turf/turf';
 import { useSelector } from 'react-redux';
 
@@ -65,6 +65,8 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
   const { addClusterPolygon, removeClusterPolygon } = useClusterPolygon();
 
   const mapImages = useSelector((state) => state.view.mapImages);
+  const locallyEditedEvent = useSelector((state) => state.data.locallyEditedEvent);
+  const eventStore = useSelector((state) => state.data.eventStore);
 
   const updateClusterMarkersCallback = useCallback(async () => {
 
@@ -72,7 +74,7 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
       renderedClusterHashes,
       renderedClusterFeatures,
       renderedClusterIds,
-    } = await getRenderedClustersData(map.getSource(CLUSTERS_SOURCE_ID), map);
+    } = await getRenderedClustersData(map.getSource(CLUSTERS_SOURCE_ID), map, locallyEditedEvent);
 
     removeOldClusterMarkers(clusterMarkerHashMapRef, removeClusterPolygon, renderedClusterHashes);
 
@@ -86,8 +88,10 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
       renderedClusterFeatures,
       renderedClusterHashes,
       renderedClusterIds,
-      onShowClusterSelectPopup);
-  }, [addClusterPolygon, map, mapImages,  onShowClusterSelectPopup, removeClusterPolygon]);
+      onShowClusterSelectPopup,
+      locallyEditedEvent,
+      eventStore);
+  }, [addClusterPolygon, eventStore, locallyEditedEvent, map, mapImages, onShowClusterSelectPopup, removeClusterPolygon]);
 
   const onSourceData = useMemo(() => (event) => {
     if (event.sourceId === CLUSTERS_SOURCE_ID) {
@@ -96,6 +100,12 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
   }, [updateClusterMarkersCallback]);
 
   useMapEventBinding('sourcedata', onSourceData);
+
+  useEffect(() => {
+    if (locallyEditedEvent) {
+      updateClusterMarkersCallback();
+    }
+  }, [locallyEditedEvent, updateClusterMarkersCallback]);
 
   return null;
 };

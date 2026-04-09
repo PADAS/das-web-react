@@ -4,6 +4,28 @@ import { API_V2_URL, DAS_HOST } from '../constants';
 const GENERIC_ICON_ID = 'generic_rep';
 const svgCache = new Map();
 
+const UNSAFE_ELEMENTS = new Set(['script', 'foreignObject', 'use', 'animate', 'set']);
+const UNSAFE_ATTR_PATTERN = /^on/i;
+
+const sanitizeSvg = (text) => {
+  const doc = new DOMParser().parseFromString(text, 'image/svg+xml');
+  const parseError = doc.querySelector('parsererror');
+  if (parseError) return null;
+
+  doc.querySelectorAll('*').forEach(el => {
+    if (UNSAFE_ELEMENTS.has(el.tagName.toLowerCase())) {
+      el.remove();
+      return;
+    }
+    Array.from(el.attributes).forEach(attr => {
+      if (UNSAFE_ATTR_PATTERN.test(attr.name)) el.removeAttribute(attr.name);
+      if (attr.value.toLowerCase().includes('javascript:')) el.removeAttribute(attr.name);
+    });
+  });
+
+  return new XMLSerializer().serializeToString(doc.documentElement);
+};
+
 const injectClass = (markup, className) => {
   if (!className) return markup;
   if (/<svg[^>]* class="/.test(markup)) {
@@ -28,7 +50,12 @@ const InlineSvg = ({ src, fallbackSrc, className, ...rest }) => {
         if (!res.ok) return Promise.reject();
         const contentType = res.headers.get('Content-Type') || '';
         if (contentType.includes('svg')) {
-          return res.text().then(text => ({ svg: text }));
+          return res.text().then(text => {
+            const clean = sanitizeSvg(text
+              .replace(/\sfill="(?!none")[^"]*"/g, '')
+              .replace(/(\sstyle="[^"]*)fill\s*:[^;"]*(;?)/g, '$1$2'));
+            return clean ? { svg: clean } : Promise.reject();
+          });
         }
         return { imgSrc: url };
       });

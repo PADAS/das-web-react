@@ -24,6 +24,7 @@
 }
 
 .icon {
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -32,7 +33,7 @@
   height: 100%;
 
   svg, svg * {
-    fill: white !important;
+    fill: currentColor;
   }
 
   svg {
