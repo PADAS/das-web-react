@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import DOMPurify from 'dompurify';
 import { API_V2_URL, DAS_HOST } from '../constants';
 
@@ -148,22 +148,13 @@ const DasIcon = ({ type, iconId, imageUrl, className, color, style, ...rest }) =
     return <img alt={`${type} icon`} className={className} onError={onImgError} src={imageUrl} style={style} {...rest} />;
   }
 
-  if (window.location.pathname.startsWith('/community') && iconId) {
-    const communityValue = window.location.pathname.split('/')[2];
-    return (
-      <img
-        alt={`${type} icon`}
-        className={className}
-        onError={onImgError}
-        src={`${API_V2_URL}community/${communityValue}/activity/events/eventtypes/icons/${iconId}`}
-        style={style}
-        {...rest}
-      />
-    );
-  }
-
   const effectiveIconId = iconId || GENERIC_ICON_ID;
   const isGeneric = effectiveIconId.includes('generic');
+
+  const communityMatch = window.location.pathname.match(/^\/community\/([^/]+)/);
+  const iconBase = communityMatch
+    ? `${API_V2_URL}community/${communityMatch[1]}/static/sprite-src`
+    : `${DAS_HOST}/static/sprite-src`;
 
   // Map legacy color prop and style.fill to CSS color so fill:currentColor in the SVG inherits it.
   const { fill: styleFill, ...restStyle } = style || {};
@@ -174,7 +165,7 @@ const DasIcon = ({ type, iconId, imageUrl, className, color, style, ...rest }) =
     <InlineSvg
       className={`${className || ''} ${isGeneric ? 'generic' : ''}`.trim()}
       fallbackSrc={`${DAS_HOST}/static/sprite-src/${GENERIC_ICON_ID}.svg`}
-      src={`${DAS_HOST}/static/sprite-src/${effectiveIconId}.svg`}
+      src={`${iconBase}/${effectiveIconId}.svg`}
       style={svgStyle}
       {...rest}
     />
