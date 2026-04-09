@@ -2,6 +2,7 @@ import React, { memo, useMemo } from 'react';
 import isObject from 'lodash/isObject';
 import { useSelector } from 'react-redux';
 
+import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
 import { selectDisplayEventTypes } from '../selectors/event-types';
 
 import DasIcon from '../DasIcon';
@@ -23,17 +24,17 @@ const EventIcon = ({ ref, report, ...rest }) => {
     return matchingEventType?.icon_id ?? null;
   }, [eventTypes, report.event_type, report.is_collection, report.patrol_segments]);
 
-  const singleContainedIconId = useMemo(() => {
-    if (!report.is_collection || report.contains?.length !== 1) return null;
+  const nonContainerIconId = useMemo(() => {
+    if (!report.is_collection) return null;
 
-    const containedEventType = report.contains[0]?.related_event?.event_type;
-    return eventTypes.find((et) => et.value === containedEventType)?.icon_id ?? null;
-  }, [eventTypes, report.contains, report.is_collection]);
+    const topRated = calcTopRatedReportAndTypeForCollection(report, eventTypes);
+    return topRated?.event_type?.icon_id ?? null;
+  }, [eventTypes, report]);
 
-  if (singleContainedIconId) {
+  if (nonContainerIconId) {
     return <span className={styles.wrapper} ref={ref}>
       <DasIcon iconId={iconId} type="events" title={report.event_type} {...rest} />
-      <DasIcon className={styles.content} iconId={singleContainedIconId} type="events" />
+      <DasIcon className={styles.content} iconId={nonContainerIconId} type="events" />
     </span>;
   }
 

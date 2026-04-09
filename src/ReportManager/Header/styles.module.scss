@@ -81,10 +81,13 @@
     @include priority0;
   }
 
-  img {
+  svg, svg * {
+    fill: white !important;
+  }
+
+  svg {
     width: 2rem;
     height: 2rem;
-    filter: invert(1);
 
     @media (min-width: $md-layout-width-min) {
       width: 2rem;

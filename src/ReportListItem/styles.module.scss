@@ -6,7 +6,11 @@
   height: 100%;
   width: 100%;
 
-  img {
+  svg, svg * {
+    fill: white !important;
+  }
+
+  svg {
     --dimensions: 1.75rem;
 
     @media (min-width: $md-layout-width-min) {
@@ -15,7 +19,6 @@
 
     --half-size: calc(var(--dimensions) / 2);
 
-    filter: invert(1);
     height: var(--dimensions);
     width: var(--dimensions);
 
