@@ -64,6 +64,7 @@
     "endPatrol": "End Patrol",
     "label": "View Patrol Options",
     "title": "Patrol Options",
+    "downloadTrackButton": "Download Patrol Track",
     "printPatrolButton": "Print Patrol",
     "restorePatrol": "Restore Patrol",
     "startPatrol": "Start Patrol"
