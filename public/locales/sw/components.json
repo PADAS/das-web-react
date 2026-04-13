@@ -349,7 +349,9 @@
       },
       "mapTabTitle": "Ramani"
     },
-    "settingsLink": "Mipangilio"
+    "settingsLink": "Mipangilio",
+    "otusLink": "Otus",
+    "closeOtusButtonLabel": "Funga Otus"
   },
   "sortedNodes": {
     "labelAscending": "Badilisha Kwa Mpangilio wa Kushuka",

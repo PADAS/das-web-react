@@ -10,12 +10,13 @@ import { ReactComponent as ERLogo } from '../common/images/icons/er-logo.svg';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
+import { ReactComponent as OtusIcon } from '../common/images/icons/otus-icon.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
 
 import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
 import { FEED_CATEGORY } from '../utils/analytics';
 import { SocketContext } from '../withSocketConnection';
-import { SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../constants';
+import { REACT_APP_OTUS_URL, SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../constants';
 import { usePatrolsPermissions } from '../hooks/usePermissions';
 import useFetchPatrolsFeed from './useFetchPatrolsFeed';
 import useNavigate from '../hooks/useNavigate';
@@ -30,6 +31,7 @@ import SoundNotificationsPlayer from '../SoundNotificationsPlayer';
 
 import GearTab from './GearTab';
 import MapLayersTab from './MapLayersTab';
+import OtusPane from './OtusPane';
 import PatrolsFeedTab from './PatrolsFeedTab';
 import ReportsFeedTab from './ReportsFeedTab';
 import SettingsPane from './SettingsPane';
@@ -40,6 +42,7 @@ const CLOSE_BUTTON_LABEL_KEY = {
   [TAB_KEYS.EVENTS]: 'closeEventFeedButtonLabel',
   [TAB_KEYS.GEAR]: 'closeGearTabButtonLabel',
   [TAB_KEYS.LAYERS]: 'closeMapLayersButtonLabel',
+  [TAB_KEYS.OTUS]: 'closeOtusButtonLabel',
   [TAB_KEYS.PATROLS]: 'closePatrolFeedButtonLabel',
   [TAB_KEYS.SETTINGS]: 'closeSettingsButtonLabel',
 };
@@ -104,6 +107,7 @@ const SideBar = () => {
     EVENTS: eventsEnabled ? TAB_KEYS.EVENTS : undefined,
     GEAR: showGearTab ? TAB_KEYS.GEAR : undefined,
     LAYERS: showLayersTab ? TAB_KEYS.LAYERS : undefined,
+    OTUS: REACT_APP_OTUS_URL ? TAB_KEYS.OTUS : undefined,
     PATROLS: canReadPatrols ? TAB_KEYS.PATROLS : undefined,
   }), [canReadPatrols, eventsEnabled, showGearTab, showLayersTab]);
 
@@ -254,6 +258,15 @@ const SideBar = () => {
 
         <span>{t('settingsLink')}</span>
       </Link>
+
+      {!!REACT_APP_OTUS_URL && <Link
+        className={`${styles.navItem} ${currentTab === TAB_KEYS.OTUS ? styles.active : ''}`}
+        to={`/${TAB_KEYS.OTUS}`}
+      >
+        <OtusIcon />
+
+        <span>{t('otusLink')}</span>
+      </Link>}
     </div>
 
     <div className={`${styles.tabsContainer} ${isSideBarOpen ? 'open' : ''}`}>
@@ -331,6 +344,8 @@ const SideBar = () => {
             {showLayersTab && <Route path={TAB_KEYS.LAYERS} element={<MapLayersTab />} />}
 
             <Route path={TAB_KEYS.SETTINGS} element={<SettingsPane />} />
+
+            {!!REACT_APP_OTUS_URL && <Route path={TAB_KEYS.OTUS} element={<OtusPane />} />}
           </Routes>
         </div>
       </div>

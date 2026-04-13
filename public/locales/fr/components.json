@@ -332,7 +332,9 @@
       },
       "mapTabTitle": "Carte"
     },
-    "settingsLink": "Réglages"
+    "settingsLink": "Réglages",
+    "otusLink": "Otus",
+    "closeOtusButtonLabel": "Fermer Otus"
   },
   "soundNotificationsPlayer": {
     "alarmRadioStateToastMessage": "TODO"

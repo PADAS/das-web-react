@@ -332,7 +332,9 @@
       },
       "mapTabTitle": "Mapa"
     },
-    "settingsLink": "Preferencias"
+    "settingsLink": "Preferencias",
+    "otusLink": "Otus",
+    "closeOtusButtonLabel": "Cerrar Otus"
   },
   "soundNotificationsPlayer": {
     "alarmRadioStateToastMessage": "{{subjectName}} necesita atención inmediata"

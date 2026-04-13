@@ -12,6 +12,7 @@ export const REACT_APP_GA4_TRACKING_ID = import.meta.env.REACT_APP_GA4_TRACKING_
 export const REACT_APP_BASE_MAP_STYLES = import.meta.env.REACT_APP_BASE_MAP_STYLES;
 export const REACT_APP_DEFAULT_EVENT_FILTER_FROM_DAYS = import.meta.env.REACT_APP_DEFAULT_EVENT_FILTER_FROM_DAYS;
 export const REACT_APP_DEFAULT_PATROL_FILTER_FROM_DAYS = import.meta.env.REACT_APP_DEFAULT_PATROL_FILTER_FROM_DAYS;
+export const REACT_APP_OTUS_URL = import.meta.env.REACT_APP_OTUS_URL || '';
 
 export const DAS_HOST = import.meta.env.REACT_APP_DAS_HOST
   || `${window.location.protocol}//${window.location.host}`;
@@ -56,6 +57,7 @@ export const TAB_KEYS = {
   EVENTS: 'events',
   GEAR: 'gear',
   LAYERS: 'layers',
+  OTUS: 'otus',
   PATROLS: 'patrols',
   SETTINGS: 'settings',
 };

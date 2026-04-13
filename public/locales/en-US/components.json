@@ -349,7 +349,9 @@
       },
       "mapTabTitle": "Map"
     },
-    "settingsLink": "Settings"
+    "settingsLink": "Settings",
+    "otusLink": "Otus",
+    "closeOtusButtonLabel": "Close Otus"
   },
   "sortedNodes": {
     "labelAscending": "Change Order to Descending",
