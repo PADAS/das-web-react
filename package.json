@@ -37,7 +37,7 @@
     "jest-watch-typeahead": "^3.0.1",
     "legacy-socket.io-client": "npm:socket.io-client@2.2.0",
     "localforage": "^1.10.0",
-    "lodash-es": "^4.17.23",
+    "lodash-es": "^4.18.1",
     "mapbox-gl": "^3.20.0",
     "pluralize": "^8.0.0",
     "proj4": "^2.20.4",

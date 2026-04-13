@@ -1,13 +1,13 @@
-name: Build das-web-react
+name: Release Deploy das-web-react
 on:
   push:
     branches:
-      - develop
       - 'release-**'
+  workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 
 permissions:
   actions: read
@@ -27,21 +27,19 @@ jobs:
         with:
           node-version: 24
       - run: |
-          npm pkg set "buildbranch"="${{ github.head_ref || github.ref_name }}"
+          npm pkg set "buildbranch"="${{ github.ref_name }}"
           npm pkg set "buildnum"="${{ github.run_number }}"
 
       - name: Select env file for build
         id: env-vars
-        run: |
-          if [[ "${GITHUB_REF_NAME}" == "develop" ]]; then
-            echo "build-args=ENV_FILE=.env.development" >> $GITHUB_OUTPUT
-          else
-            echo "build-args=ENV_FILE=.env.production" >> $GITHUB_OUTPUT
-          fi
+        run: echo "build-args=ENV_FILE=.env.production" >> $GITHUB_OUTPUT
 
-      - name: Image tag
+      - name: Generate image tag
         id: tag
-        run: echo "value=${{ github.ref_name }}-${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+        run: |
+          SHORT_SHA="${GITHUB_SHA:0:7}"
+          BRANCH_SAFE=$(echo "${GITHUB_REF_NAME}" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
+          echo "value=${BRANCH_SAFE}-${SHORT_SHA}" >> "$GITHUB_OUTPUT"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -111,7 +109,6 @@ jobs:
   build-st:
     name: Build ST Image (GCR)
     needs: [config]
-    if: startsWith(github.ref_name, 'release-')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -162,30 +159,8 @@ jobs:
           docker push ${{ steps.gcr.outputs.path }}:latest
           docker push ${{ steps.gcr.outputs.path }}:${{ github.sha }}
 
-  update-image-dev:
+  deploy-stage:
     needs: [config, build]
-    if: github.ref_name == 'develop'
-    uses: ./.github/workflows/_update-argo.yml
-    with:
-      app-name: das-web-react
-      app-subdir: earthranger
-      environment: er-dev
-      image-tag: ${{ needs.config.outputs.image-tag }}
-    secrets:
-      ARGOCD_APPS_SSH_KEY: ${{ secrets.ARGOCD_APPS_SSH_KEY }}
-
-  sync-dev:
-    needs: [config, update-image-dev]
-    if: github.ref_name == 'develop'
-    uses: ./.github/workflows/_sync-argo.yml
-    with:
-      app-name: das-web-react-er-dev
-    secrets:
-      ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
-
-  update-image-stage:
-    needs: [config, build]
-    if: startsWith(github.ref_name, 'release-')
     uses: ./.github/workflows/_update-argo.yml
     with:
       app-name: das-web-react
@@ -196,10 +171,90 @@ jobs:
       ARGOCD_APPS_SSH_KEY: ${{ secrets.ARGOCD_APPS_SSH_KEY }}
 
   sync-stage:
-    needs: [config, update-image-stage]
-    if: startsWith(github.ref_name, 'release-')
+    needs: [config, deploy-stage]
     uses: ./.github/workflows/_sync-argo.yml
     with:
       app-name: das-web-react-er-stage
+    secrets:
+      ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+
+  approve-prod-me:
+    needs: [sync-stage]
+    runs-on: ubuntu-latest
+    timeout-minutes: 4320
+    environment: production-me
+    steps:
+      - run: echo "Production ME deployment approved"
+
+  approve-prod-us:
+    needs: [sync-stage]
+    runs-on: ubuntu-latest
+    timeout-minutes: 4320
+    environment: production-us
+    steps:
+      - run: echo "Production US deployment approved"
+
+  deploy-prod-me:
+    needs: [config, build, approve-prod-me]
+    uses: ./.github/workflows/_update-argo.yml
+    with:
+      app-name: das-web-react
+      app-subdir: earthranger
+      environment: er-prod-me
+      image-tag: ${{ needs.config.outputs.image-tag }}
+    secrets:
+      ARGOCD_APPS_SSH_KEY: ${{ secrets.ARGOCD_APPS_SSH_KEY }}
+
+  sync-prod-me:
+    needs: [config, deploy-prod-me]
+    uses: ./.github/workflows/_sync-argo.yml
+    with:
+      app-name: das-web-react-er-prod-me
+    secrets:
+      ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+
+  deploy-prod-us:
+    needs: [config, build, approve-prod-us]
+    uses: ./.github/workflows/_update-argo.yml
+    with:
+      app-name: das-web-react
+      app-subdir: earthranger
+      environment: er-prod-us
+      image-tag: ${{ needs.config.outputs.image-tag }}
+    secrets:
+      ARGOCD_APPS_SSH_KEY: ${{ secrets.ARGOCD_APPS_SSH_KEY }}
+
+  sync-prod-us:
+    needs: [config, deploy-prod-us]
+    uses: ./.github/workflows/_sync-argo.yml
+    with:
+      app-name: das-web-react-er-prod-us
+    secrets:
+      ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+
+  approve-prod:
+    needs: [sync-stage]
+    runs-on: ubuntu-latest
+    timeout-minutes: 4320
+    environment: production
+    steps:
+      - run: echo "Production EU deployment approved"
+
+  deploy-prod:
+    needs: [config, build, approve-prod]
+    uses: ./.github/workflows/_update-argo.yml
+    with:
+      app-name: das-web-react
+      app-subdir: earthranger
+      environment: er-prod
+      image-tag: ${{ needs.config.outputs.image-tag }}
+    secrets:
+      ARGOCD_APPS_SSH_KEY: ${{ secrets.ARGOCD_APPS_SSH_KEY }}
+
+  sync-prod:
+    needs: [config, deploy-prod]
+    uses: ./.github/workflows/_sync-argo.yml
+    with:
+      app-name: das-web-react-er-prod
     secrets:
       ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}

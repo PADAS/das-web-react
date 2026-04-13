@@ -7034,7 +7034,7 @@ __metadata:
     jest-webgl-canvas-mock: "npm:^2.5.3"
     legacy-socket.io-client: "npm:socket.io-client@2.2.0"
     localforage: "npm:^1.10.0"
-    lodash-es: "npm:^4.17.23"
+    lodash-es: "npm:^4.18.1"
     mapbox-gl: "npm:^3.20.0"
     msw: "npm:2.12.14"
     pluralize: "npm:^8.0.0"
@@ -10291,6 +10291,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lodash-es@npm:^4.18.1":
+  version: 4.18.1
+  resolution: "lodash-es@npm:4.18.1"
+  checksum: 10c0/35d4dcf87ef07f8d090f409447575800108057e360b445f590d0d25d09e3d1e33a163d2fc100d4d072b0f901d5e2fc533cd7c4bfd8eeb38a06abec693823c8b8
+  languageName: node
+  linkType: hard
+
 "lodash.debounce@npm:^4.0.8":
   version: 4.0.8
   resolution: "lodash.debounce@npm:4.0.8"
@@ -10334,9 +10341,9 @@ __metadata:
   linkType: hard
 
 "lodash@npm:>=4.17.21, lodash@npm:^4.17.20, lodash@npm:^4.17.23":
-  version: 4.17.23
-  resolution: "lodash@npm:4.17.23"
-  checksum: 10c0/1264a90469f5bb95d4739c43eb6277d15b6d9e186df4ac68c3620443160fc669e2f14c11e7d8b2ccf078b81d06147c01a8ccced9aab9f9f63d50dcf8cace6bf6
+  version: 4.18.1
+  resolution: "lodash@npm:4.18.1"
+  checksum: 10c0/757228fc68805c59789e82185135cf85f05d0b2d3d54631d680ca79ec21944ec8314d4533639a14b8bcfbd97a517e78960933041a5af17ecb693ec6eecb99a27
   languageName: node
   linkType: hard
 
