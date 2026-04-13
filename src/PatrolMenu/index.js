@@ -2,7 +2,6 @@ import React, { memo, useMemo, useCallback } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { useTranslation } from 'react-i18next';
 
-import { ReactComponent as DownloadArrowIcon } from '../common/images/icons/download-arrow.svg';
 import { ReactComponent as PrinterIcon } from '../common/images/icons/printer-outline.svg';
 import { ReactComponent as ClipIcon } from '../common/images/icons/link.svg';
 import { ReactComponent as PlayIcon } from '../common/images/icons/play-circle.svg';
@@ -11,12 +10,10 @@ import { ReactComponent as CloseIcon } from '../common/images/icons/close-icon.s
 import { ReactComponent as RestoreIcon } from '../common/images/icons/restore.svg';
 
 import { DAS_HOST, PATROL_UI_STATES, PATROL_API_STATES } from '../constants';
-import { TRACKS_API_URL } from '../ducks/tracks';
 import { usePatrolsPermissions } from '../hooks/usePermissions';
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
 import { canEndPatrol, calcPatrolState } from '../utils/patrols';
 import { basePrintingStyles } from '../utils/styles';
-import { downloadFileFromUrl } from '../utils/download';
 
 import TextCopyBtn from '../TextCopyBtn';
 import KebabMenu from '../KebabMenu';
@@ -103,19 +100,6 @@ const PatrolMenu = ({
     }
   }, [canEnd, onPatrolChange, patrolStartStopTitle]);
 
-  const patrolLeader = patrol.patrol_segments[0]?.leader;
-  const patrolTimeRange = patrol.patrol_segments[0]?.time_range;
-
-  const handleDownloadTrack = useCallback(() => {
-    patrolListItemTracker.track('Download patrol track from patrol list item kebab menu');
-
-    const params = {};
-    if (patrolTimeRange?.start_time) params.since = patrolTimeRange.start_time;
-    if (patrolTimeRange?.end_time) params.until = patrolTimeRange.end_time;
-
-    downloadFileFromUrl(TRACKS_API_URL(patrolLeader.id), { params, filename: `Patrol_${patrol.serial_number}_${patrolLeader.name}.geojson` });
-  }, [patrol.serial_number, patrolLeader, patrolTimeRange]);
-
   const handlePrint = useReactToPrint({
     contentRef: printableContentRef,
     documentTitle: `${patrol.serial_number} ${patrolTitle} `,
@@ -159,13 +143,6 @@ const PatrolMenu = ({
       <KebabMenu.Option onClick={handlePrint}>
         <PrinterIcon data-testid="printer-icon" />
         {t('printPatrolButton')}
-      </KebabMenu.Option>
-    }
-
-    { !!patrolLeader &&
-      <KebabMenu.Option onClick={handleDownloadTrack}>
-        <DownloadArrowIcon data-testid="download-arrow-icon" />
-        {t('downloadTrackButton')}
       </KebabMenu.Option>
     }
   </KebabMenu>;
