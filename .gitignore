@@ -11,6 +11,8 @@
 .env.test.local
 .env.production.local
 
+.idea
+
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases
