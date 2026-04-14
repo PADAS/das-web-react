@@ -68,7 +68,7 @@
     "startPatrol": "गस्ती सुरु गर्नुहोस्",
     "label": "गस्तीका विकल्पहरु हेर्नुहोस्",
     "title": "गस्तीका विकल्पहरु",
-    "noTrackDataTooltip": "No data to download"
+    "noTrackDataTooltip": "डाउनलोड गर्न कुनै डेटा छैन"
   },
   "patrolList": {
     "emptyPatrolList": "प्रदर्शनीका लागि कुनै गस्ती छैन ।"

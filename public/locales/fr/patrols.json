@@ -66,7 +66,7 @@
     "printPatrolButton": "Imprimer la Patrouille",
     "restorePatrol": "Restaurer la Patrouille",
     "startPatrol": "Commencer la Patrouille",
-    "noTrackDataTooltip": "No data to download"
+    "noTrackDataTooltip": "Aucune donnée à télécharger"
   },
   "patrolList": {
     "emptyPatrolList": "Aucune patrouille à afficher."
