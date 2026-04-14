@@ -133,7 +133,7 @@
       "^(?!.*\\.(js|jsx|mjs|cjs|ts|tsx|json)$)": "<rootDir>/jest-config/transformers/fileTransform.js"
     },
     "transformIgnorePatterns": [
-      "/node_modules/(?!(@rjsf|@x0k|geodesy|geokdbush|kdbush|lodash-es|nanoid|react-debounce-render|react-error-boundary|react-ga4|until-async|uuid)/)"
+      "/node_modules/(?!(@rjsf|@x0k|geodesy|geokdbush|kdbush|lodash-es|nanoid|react-debounce-render|react-error-boundary|react-ga4|rettime|until-async|uuid)/)"
     ],
     "watchPlugins": [
       "jest-watch-typeahead/filename",
