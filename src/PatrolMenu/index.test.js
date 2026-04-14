@@ -15,6 +15,12 @@ jest.mock('react-to-print', () => ({
   useReactToPrint: jest.fn(),
 }));
 
+jest.mock('../store', () => ({}));
+
+jest.mock('../ducks/tracks', () => ({
+  TRACKS_API_URL: (id) => `/api/v1.0/subject/${id}/tracks/`,
+}));
+
 describe('PatrolMenu', () => {
 
   let useReactToPrintMock = null;
@@ -33,6 +39,7 @@ describe('PatrolMenu', () => {
     data: {
       patrolTypes,
       patrolStore: patrols.reduce((p, acc = {}) => ({ ...acc, [p.id]: p })),
+      tracks: {},
     },
     view: {
       systemConfig: {
@@ -130,6 +137,66 @@ describe('PatrolMenu', () => {
     expect(onPatrolChange).toHaveBeenCalledWith({
       patrol_segments: [{ time_range: { end_time: null } }],
       state: 'open'
+    });
+  });
+
+  describe('Download Patrol Track button', () => {
+    // patrols[1] has a leader and a start_time, making it suitable for track tests
+    const patrolWithLeader = patrols[1];
+    const leaderId = patrolWithLeader.patrol_segments[0].leader.id;
+    const patrolStartTime = patrolWithLeader.patrol_segments[0].time_range.start_time;
+
+    const makeTrackStore = (times) => ({
+      ...minimumNecessaryStoreStructure,
+      data: {
+        ...minimumNecessaryStoreStructure.data,
+        tracks: {
+          [leaderId]: {
+            track: {
+              features: [{
+                properties: { coordinateProperties: { times } },
+              }],
+            },
+          },
+        },
+      },
+    });
+
+    const openMenu = async () => {
+      await userEvent.click(screen.getByRole('button'));
+    };
+
+    const getDownloadOption = () =>
+      screen.getByText('Download Patrol Track').closest('a');
+
+    test('is disabled when patrol has no leader', async () => {
+      renderPatrolMenu({ ...initialProps, patrol: patrols[0] });
+      await openMenu();
+      expect(getDownloadOption()).toHaveClass('disabled');
+    });
+
+    test('is disabled when leader has no track in the store', async () => {
+      renderPatrolMenu({ ...initialProps, patrol: patrolWithLeader });
+      await openMenu();
+      expect(getDownloadOption()).toHaveClass('disabled');
+    });
+
+    test('is disabled when track has no points within the patrol time range', async () => {
+      // All times are before the patrol start_time
+      const beforeStart = new Date(new Date(patrolStartTime).getTime() - 60000).toISOString();
+      const store = makeTrackStore([beforeStart]);
+      renderPatrolMenu({ ...initialProps, patrol: patrolWithLeader }, store);
+      await openMenu();
+      expect(getDownloadOption()).toHaveClass('disabled');
+    });
+
+    test('is enabled when track has points within the patrol time range', async () => {
+      // Time is after the patrol start_time
+      const afterStart = new Date(new Date(patrolStartTime).getTime() + 60000).toISOString();
+      const store = makeTrackStore([afterStart]);
+      renderPatrolMenu({ ...initialProps, patrol: patrolWithLeader }, store);
+      await openMenu();
+      expect(getDownloadOption()).not.toHaveClass('disabled');
     });
   });
 
