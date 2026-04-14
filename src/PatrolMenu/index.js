@@ -1,4 +1,5 @@
 import React, { memo, useMemo, useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import { useReactToPrint } from 'react-to-print';
 import { useTranslation } from 'react-i18next';
 
@@ -41,6 +42,19 @@ const PatrolMenu = ({
   const patrolState = calcPatrolState(patrol);
 
   const { hasPatrolsUpdatePermission } = usePatrolsPermissions();
+  const patrolLeader = patrol.patrol_segments[0]?.leader;
+  const patrolTimeRange = patrol.patrol_segments[0]?.time_range;
+  const patrolLeaderTrackHasPoints = useSelector((state) => {
+    const times = state.data.tracks[patrolLeader?.id]?.track?.features?.[0]?.properties?.coordinateProperties?.times;
+    if (!times?.length) return false;
+    const since = patrolTimeRange?.start_time ? new Date(patrolTimeRange.start_time).getTime() : null;
+    const until = patrolTimeRange?.end_time ? new Date(patrolTimeRange.end_time).getTime() : null;
+    if (!since && !until) return true;
+    return times.some((time) => {
+      const t = new Date(time).getTime();
+      return (!since || t >= since) && (!until || t <= until);
+    });
+  });
 
   const patrolIsDone = useMemo(() => {
     return patrolState === PATROL_UI_STATES.DONE;
@@ -103,9 +117,6 @@ const PatrolMenu = ({
     }
   }, [canEnd, onPatrolChange, patrolStartStopTitle]);
 
-  const patrolLeader = patrol.patrol_segments[0]?.leader;
-  const patrolTimeRange = patrol.patrol_segments[0]?.time_range;
-
   const handleDownloadTrack = useCallback(() => {
     patrolListItemTracker.track('Download patrol track from patrol list item kebab menu');
 
@@ -162,12 +173,15 @@ const PatrolMenu = ({
       </KebabMenu.Option>
     }
 
-    { !!patrolLeader &&
-      <KebabMenu.Option onClick={handleDownloadTrack}>
+    <span title={(!patrolLeader || !patrolLeaderTrackHasPoints) ? t('noTrackDataTooltip') : ''}>
+      <KebabMenu.Option
+        disabled={!patrolLeader || !patrolLeaderTrackHasPoints}
+        onClick={handleDownloadTrack}
+      >
         <DownloadArrowIcon data-testid="download-arrow-icon" />
         {t('downloadTrackButton')}
       </KebabMenu.Option>
-    }
+    </span>
   </KebabMenu>;
 };
 

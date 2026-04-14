@@ -65,6 +65,7 @@
     "label": "View Patrol Options",
     "title": "Patrol Options",
     "downloadTrackButton": "Download Patrol Track",
+    "noTrackDataTooltip": "No data to download",
     "printPatrolButton": "Print Patrol",
     "restorePatrol": "Restore Patrol",
     "startPatrol": "Start Patrol"

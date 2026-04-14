@@ -65,7 +65,8 @@
     "downloadTrackButton": "Télécharger la Piste de la Patrouille",
     "printPatrolButton": "Imprimer la Patrouille",
     "restorePatrol": "Restaurer la Patrouille",
-    "startPatrol": "Commencer la Patrouille"
+    "startPatrol": "Commencer la Patrouille",
+    "noTrackDataTooltip": "No data to download"
   },
   "patrolList": {
     "emptyPatrolList": "Aucune patrouille à afficher."

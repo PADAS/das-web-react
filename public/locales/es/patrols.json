@@ -65,7 +65,8 @@
     "downloadTrackButton": "Descargar ruta de patrulla",
     "printPatrolButton": "Imprimir patrulla",
     "restorePatrol": "Restaurar Patrulla",
-    "startPatrol": "Iniciar Patrullaje"
+    "startPatrol": "Iniciar Patrullaje",
+    "noTrackDataTooltip": "No data to download"
   },
   "patrolList": {
     "emptyPatrolList": "No hay más patrullas que mostrar."

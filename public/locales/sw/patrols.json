@@ -67,7 +67,8 @@
     "downloadTrackButton": "Pakua Njia ya Doria",
     "printPatrolButton": "Chapisha Doria",
     "restorePatrol": "Rejesha Doria",
-    "startPatrol": "Anza Doria"
+    "startPatrol": "Anza Doria",
+    "noTrackDataTooltip": "No data to download"
   },
   "patrolList": {
     "emptyPatrolList": "Hakuna doria za kuonyesha."
