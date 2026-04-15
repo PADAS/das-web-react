@@ -199,7 +199,7 @@ const PatrolMenu = ({
     {isDownloadDisabled
       ? <OverlayTrigger
           placement="top"
-          overlay={<Tooltip id="download-track-tooltip">{t('noTrackDataTooltip')}</Tooltip>}
+          overlay={<Tooltip id={`download-track-tooltip-${patrol.id}`}>{t('noTrackDataTooltip')}</Tooltip>}
         >
         <span>
           <KebabMenu.Option disabled onClick={handleDownloadTrack}>
