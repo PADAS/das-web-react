@@ -224,6 +224,51 @@ describe('PatrolMenu', () => {
         })
       );
     });
+
+    test('passes until param when patrol has an end_time', async () => {
+      const patrolEndTime = new Date(new Date(patrolStartTime).getTime() + 3600000).toISOString();
+      const trackTime = new Date(new Date(patrolStartTime).getTime() + 1800000).toISOString();
+      const patrolWithEndTime = {
+        ...patrolWithLeader,
+        patrol_segments: [{
+          ...patrolWithLeader.patrol_segments[0],
+          time_range: { start_time: patrolStartTime, end_time: patrolEndTime },
+        }],
+      };
+      const store = makeTrackStore([trackTime]);
+      renderPatrolMenu({ ...initialProps, patrol: patrolWithEndTime }, store);
+      await openMenu();
+
+      await userEvent.click(screen.getByText('Download Patrol Track'));
+
+      expect(downloadFileFromUrl).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          params: expect.objectContaining({ since: patrolStartTime, until: patrolEndTime }),
+        })
+      );
+    });
+
+    test('sanitizes invalid characters in leader name for the filename', async () => {
+      const afterStart = new Date(new Date(patrolStartTime).getTime() + 60000).toISOString();
+      const patrolWithSpecialName = {
+        ...patrolWithLeader,
+        patrol_segments: [{
+          ...patrolWithLeader.patrol_segments[0],
+          leader: { ...patrolWithLeader.patrol_segments[0].leader, name: 'John/Doe:Test' },
+        }],
+      };
+      const store = makeTrackStore([afterStart]);
+      renderPatrolMenu({ ...initialProps, patrol: patrolWithSpecialName }, store);
+      await openMenu();
+
+      await userEvent.click(screen.getByText('Download Patrol Track'));
+
+      expect(downloadFileFromUrl).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ filename: expect.stringContaining('John_Doe_Test') })
+      );
+    });
   });
 
   test('starts a patrol using menu option', async () => {

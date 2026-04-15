@@ -52,23 +52,23 @@ const PatrolMenu = ({
   );
 
   const doesPatrolLeaderHaveTracksWithinPatrolTimeRange = useMemo(() => {
-    if (patrolLeaderTrackTimes?.length > 0) {
-      const patrolStartTimeStamp = patrolTimeRange?.start_time
-        ? new Date(patrolTimeRange.start_time).getTime()
-        : null;
-      const patrolEndTimeStamp = patrolTimeRange?.end_time
-        ? new Date(patrolTimeRange.end_time).getTime()
-        : null;
-      if (!patrolStartTimeStamp && !patrolEndTimeStamp) {
-        return true;
-      }
-      return patrolLeaderTrackTimes.some((trackTime) => {
-        const trackTimeStamp = new Date(trackTime).getTime();
-        return (!patrolStartTimeStamp || trackTimeStamp >= patrolStartTimeStamp)
-          && (!patrolEndTimeStamp || trackTimeStamp <= patrolEndTimeStamp);
-      });
-    }
-    return false;
+    if (!patrolLeaderTrackTimes?.length) return false;
+
+    const patrolStartTimestamp = patrolTimeRange?.start_time
+      ? new Date(patrolTimeRange.start_time).getTime()
+      : null;
+    const patrolEndTimestamp = patrolTimeRange?.end_time
+      ? new Date(patrolTimeRange.end_time).getTime()
+      : null;
+
+    if (!patrolStartTimestamp && !patrolEndTimestamp) return true;
+
+    // Track times are sorted newest-first; check range overlap using only the first/last entries
+    const trackNewest = new Date(patrolLeaderTrackTimes[0]).getTime();
+    const trackOldest = new Date(patrolLeaderTrackTimes[patrolLeaderTrackTimes.length - 1]).getTime();
+
+    return (!patrolStartTimestamp || trackNewest >= patrolStartTimestamp)
+      && (!patrolEndTimestamp || trackOldest <= patrolEndTimestamp);
   }, [patrolLeaderTrackTimes, patrolTimeRange]);
 
   const patrolIsDone = useMemo(() => {
@@ -148,6 +148,8 @@ const PatrolMenu = ({
       });
   }, [patrol.serial_number, patrolLeader, patrolTimeRange]);
 
+  const isDownloadDisabled = !patrolLeader || !doesPatrolLeaderHaveTracksWithinPatrolTimeRange;
+
   const handlePrint = useReactToPrint({
     contentRef: printableContentRef,
     documentTitle: `${patrol.serial_number} ${patrolTitle} `,
@@ -194,23 +196,23 @@ const PatrolMenu = ({
       </KebabMenu.Option>
     }
 
-    <OverlayTrigger
-      placement="top"
-      overlay={(!patrolLeader || !doesPatrolLeaderHaveTracksWithinPatrolTimeRange)
-        ? <Tooltip>{t('noTrackDataTooltip')}</Tooltip>
-        : <span />
-      }
-    >
-      <span>
-        <KebabMenu.Option
-          disabled={!patrolLeader || !doesPatrolLeaderHaveTracksWithinPatrolTimeRange}
-          onClick={handleDownloadTrack}
+    {isDownloadDisabled
+      ? <OverlayTrigger
+          placement="top"
+          overlay={<Tooltip id="download-track-tooltip">{t('noTrackDataTooltip')}</Tooltip>}
         >
-          <DownloadArrowIcon data-testid="download-arrow-icon" />
-          {t('downloadTrackButton')}
-        </KebabMenu.Option>
-      </span>
-    </OverlayTrigger>
+        <span>
+          <KebabMenu.Option disabled onClick={handleDownloadTrack}>
+            <DownloadArrowIcon data-testid="download-arrow-icon" />
+            {t('downloadTrackButton')}
+          </KebabMenu.Option>
+        </span>
+      </OverlayTrigger>
+      : <KebabMenu.Option onClick={handleDownloadTrack}>
+        <DownloadArrowIcon data-testid="download-arrow-icon" />
+        {t('downloadTrackButton')}
+      </KebabMenu.Option>
+    }
   </KebabMenu>;
 };
 
