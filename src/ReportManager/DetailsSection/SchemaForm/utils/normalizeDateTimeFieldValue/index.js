@@ -12,9 +12,7 @@ const normalizeDateTimeFieldValue = (value, inputType) => {
   switch (inputType) {
   case DATE_TIME_ELEMENT_INPUT_TYPES.DATE_TIME: {
     // Normalize the separator to be "T".
-    const normalizedValue = value.includes('T')
-      ? value
-      : value.replace(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2})/, '$1T$2');
+    const normalizedValue = value.replace(' ', 'T');
 
     // If the value is already a valid date-time, format it so it gets timezone
     // corrected.
