@@ -64,9 +64,11 @@
     "endPatrol": "Maliza Doria",
     "label": "Angalia Chaguzi za Doria",
     "title": "Chaguzi za Doria",
+    "downloadTrackButton": "Pakua Njia ya Doria",
     "printPatrolButton": "Chapisha Doria",
     "restorePatrol": "Rejesha Doria",
-    "startPatrol": "Anza Doria"
+    "startPatrol": "Anza Doria",
+    "noTrackDataTooltip": "Hakuna data ya kupakua"
   },
   "patrolList": {
     "emptyPatrolList": "Hakuna doria za kuonyesha."
