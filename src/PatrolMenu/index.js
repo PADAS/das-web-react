@@ -1,5 +1,7 @@
 import React, { memo, useMemo, useCallback } from 'react';
 import { useSelector } from 'react-redux';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 import { useReactToPrint } from 'react-to-print';
 import { useTranslation } from 'react-i18next';
 
@@ -44,17 +46,30 @@ const PatrolMenu = ({
   const { hasPatrolsUpdatePermission } = usePatrolsPermissions();
   const patrolLeader = patrol.patrol_segments[0]?.leader;
   const patrolTimeRange = patrol.patrol_segments[0]?.time_range;
-  const patrolLeaderTrackHasPoints = useSelector((state) => {
-    const times = state.data.tracks[patrolLeader?.id]?.track?.features?.[0]?.properties?.coordinateProperties?.times;
-    if (!times?.length) return false;
-    const since = patrolTimeRange?.start_time ? new Date(patrolTimeRange.start_time).getTime() : null;
-    const until = patrolTimeRange?.end_time ? new Date(patrolTimeRange.end_time).getTime() : null;
-    if (!since && !until) return true;
-    return times.some((time) => {
-      const t = new Date(time).getTime();
-      return (!since || t >= since) && (!until || t <= until);
-    });
-  });
+
+  const patrolLeaderTrackTimes = useSelector((state) =>
+    state.data.tracks[patrolLeader?.id]?.track?.features?.[0]?.properties?.coordinateProperties?.times
+  );
+
+  const doesPatrolLeaderHaveTracksWithinPatrolTimeRange = useMemo(() => {
+    if (patrolLeaderTrackTimes?.length > 0) {
+      const patrolStartTimeStamp = patrolTimeRange?.start_time
+        ? new Date(patrolTimeRange.start_time).getTime()
+        : null;
+      const patrolEndTimeStamp = patrolTimeRange?.end_time
+        ? new Date(patrolTimeRange.end_time).getTime()
+        : null;
+      if (!patrolStartTimeStamp && !patrolEndTimeStamp) {
+        return true;
+      }
+      return patrolLeaderTrackTimes.some((trackTime) => {
+        const trackTimeStamp = new Date(trackTime).getTime();
+        return (!patrolStartTimeStamp || trackTimeStamp >= patrolStartTimeStamp)
+          && (!patrolEndTimeStamp || trackTimeStamp <= patrolEndTimeStamp);
+      });
+    }
+    return false;
+  }, [patrolLeaderTrackTimes, patrolTimeRange]);
 
   const patrolIsDone = useMemo(() => {
     return patrolState === PATROL_UI_STATES.DONE;
@@ -118,13 +133,19 @@ const PatrolMenu = ({
   }, [canEnd, onPatrolChange, patrolStartStopTitle]);
 
   const handleDownloadTrack = useCallback(() => {
+    if (!patrolLeader) return;
+
     patrolListItemTracker.track('Download patrol track from patrol list item kebab menu');
 
     const params = {};
     if (patrolTimeRange?.start_time) params.since = patrolTimeRange.start_time;
     if (patrolTimeRange?.end_time) params.until = patrolTimeRange.end_time;
 
-    downloadFileFromUrl(TRACKS_API_URL(patrolLeader.id), { params, filename: `Patrol_${patrol.serial_number}_${patrolLeader.name}.geojson` });
+    const sanitizedLeaderName = patrolLeader.name.replace(/[/\\:*?"<>|]/g, '_').trim();
+    void downloadFileFromUrl(TRACKS_API_URL(patrolLeader.id), { params, filename: `Patrol_${patrol.serial_number}_${sanitizedLeaderName}.geojson` })
+      .catch((error) => {
+        console.error('Failed to download patrol track', error);
+      });
   }, [patrol.serial_number, patrolLeader, patrolTimeRange]);
 
   const handlePrint = useReactToPrint({
@@ -173,15 +194,23 @@ const PatrolMenu = ({
       </KebabMenu.Option>
     }
 
-    <span title={(!patrolLeader || !patrolLeaderTrackHasPoints) ? t('noTrackDataTooltip') : ''}>
-      <KebabMenu.Option
-        disabled={!patrolLeader || !patrolLeaderTrackHasPoints}
-        onClick={handleDownloadTrack}
-      >
-        <DownloadArrowIcon data-testid="download-arrow-icon" />
-        {t('downloadTrackButton')}
-      </KebabMenu.Option>
-    </span>
+    <OverlayTrigger
+      placement="top"
+      overlay={(!patrolLeader || !doesPatrolLeaderHaveTracksWithinPatrolTimeRange)
+        ? <Tooltip>{t('noTrackDataTooltip')}</Tooltip>
+        : <span />
+      }
+    >
+      <span>
+        <KebabMenu.Option
+          disabled={!patrolLeader || !doesPatrolLeaderHaveTracksWithinPatrolTimeRange}
+          onClick={handleDownloadTrack}
+        >
+          <DownloadArrowIcon data-testid="download-arrow-icon" />
+          {t('downloadTrackButton')}
+        </KebabMenu.Option>
+      </span>
+    </OverlayTrigger>
   </KebabMenu>;
 };
 

@@ -9,6 +9,7 @@ import { useReactToPrint } from 'react-to-print';
 
 import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../constants';
 import { render, screen } from '../test-utils';
+import { downloadFileFromUrl } from '../utils/download';
 
 jest.mock('react-to-print', () => ({
   ...jest.requireActual('react-to-print'),
@@ -19,6 +20,10 @@ jest.mock('../store', () => ({}));
 
 jest.mock('../ducks/tracks', () => ({
   TRACKS_API_URL: (id) => `/api/v1.0/subject/${id}/tracks/`,
+}));
+
+jest.mock('../utils/download', () => ({
+  downloadFileFromUrl: jest.fn(() => Promise.resolve()),
 }));
 
 describe('PatrolMenu', () => {
@@ -38,7 +43,7 @@ describe('PatrolMenu', () => {
   const minimumNecessaryStoreStructure = {
     data: {
       patrolTypes,
-      patrolStore: patrols.reduce((p, acc = {}) => ({ ...acc, [p.id]: p })),
+      patrolStore: patrols.reduce((acc, p) => ({ ...acc, [p.id]: p }), {}),
       tracks: {},
     },
     view: {
@@ -141,6 +146,10 @@ describe('PatrolMenu', () => {
   });
 
   describe('Download Patrol Track button', () => {
+    beforeEach(() => {
+      downloadFileFromUrl.mockImplementation(() => Promise.resolve());
+    });
+
     // patrols[1] has a leader and a start_time, making it suitable for track tests
     const patrolWithLeader = patrols[1];
     const leaderId = patrolWithLeader.patrol_segments[0].leader.id;
@@ -197,6 +206,23 @@ describe('PatrolMenu', () => {
       renderPatrolMenu({ ...initialProps, patrol: patrolWithLeader }, store);
       await openMenu();
       expect(getDownloadOption()).not.toHaveClass('disabled');
+    });
+
+    test('calls downloadFileFromUrl with correct url, params, and filename when clicked', async () => {
+      const afterStart = new Date(new Date(patrolStartTime).getTime() + 60000).toISOString();
+      const store = makeTrackStore([afterStart]);
+      renderPatrolMenu({ ...initialProps, patrol: patrolWithLeader }, store);
+      await openMenu();
+
+      await userEvent.click(screen.getByText('Download Patrol Track'));
+
+      expect(downloadFileFromUrl).toHaveBeenCalledWith(
+        `/api/v1.0/subject/${leaderId}/tracks/`,
+        expect.objectContaining({
+          params: expect.objectContaining({ since: patrolStartTime }),
+          filename: `Patrol_${patrolWithLeader.serial_number}_${patrolWithLeader.patrol_segments[0].leader.name}.geojson`,
+        })
+      );
     });
   });
 
