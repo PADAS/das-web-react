@@ -7,6 +7,7 @@ import { useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useAuth0 } from '@auth0/auth0-react';
 
+import auth0Config from '../auth0-config';
 import { ReactComponent as EarthRangerLogo } from '../common/images/earth-ranger-logo.svg';
 
 import { clearAuth, postAuth } from '../ducks/auth';
@@ -101,7 +102,7 @@ const LoginPage = () => {
       await loginWithRedirect({
         authorizationParams: {
           organization: idpOrgId,
-          audience: import.meta.env.REACT_APP_AUTH0_AUDIENCE,
+          audience: auth0Config.audience,
         },
       });
     } catch (e) {
