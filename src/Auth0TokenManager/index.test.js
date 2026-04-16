@@ -2,6 +2,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
+import auth0Config from '../auth0-config';
 import Auth0TokenManager from './';
 import { hasAuth0CallbackParams } from '../utils/auth0';
 import { isValidTokenFormat } from '../utils/auth';
@@ -74,7 +75,7 @@ describe('Auth0TokenManager', () => {
       await waitFor(() => {
         expect(mockGetAccessTokenSilently).toHaveBeenCalledWith({
           authorizationParams: {
-            audience: undefined, // process.env.REACT_APP_AUTH0_AUDIENCE
+            audience: auth0Config.audience,
           },
         });
       });
