@@ -147,7 +147,7 @@ describe('Login', () => {
       expect(loginWithRedirect).toHaveBeenCalledWith({
         authorizationParams: {
           organization: 'org_456',
-          audience: process.env.REACT_APP_AUTH0_AUDIENCE,
+          audience: 'https://pamdas.org/api',
         },
       });
     });

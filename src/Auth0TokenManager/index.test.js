@@ -74,7 +74,7 @@ describe('Auth0TokenManager', () => {
       await waitFor(() => {
         expect(mockGetAccessTokenSilently).toHaveBeenCalledWith({
           authorizationParams: {
-            audience: undefined, // process.env.REACT_APP_AUTH0_AUDIENCE
+            audience: 'https://pamdas.org/api',
           },
         });
       });
