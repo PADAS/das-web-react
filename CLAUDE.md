@@ -10,3 +10,5 @@
 ## Vite Plugins
 
 - Order plugins by relevance: core framework plugins first (react, svgr), utility/injection plugins last.
+
+- 
