@@ -1,10 +1,12 @@
 // Copy this file to public/config.js for local development.
 // public/config.js is gitignored and will not be committed.
 //
-// Without this file, the app uses production Auth0 values
-// from src/auth0-config.js.
-window.__AUTH0_CONFIG__ = {
-  domain: 'auth-dev.pamdas.org',
-  clientId: 'hLoPCTgBCrlLAVzqg74YSmOftaSfb5Uf',
-  audience: 'https://dev.pamdas.org/api',
+// Without this file, the app uses production values
+// from src/config.js.
+window.__APP_CONFIG__ = {
+  auth0: {
+    audience: 'https://dev.pamdas.org/api',
+    clientId: 'hLoPCTgBCrlLAVzqg74YSmOftaSfb5Uf',
+    domain: 'auth-dev.pamdas.org',
+  },
 };

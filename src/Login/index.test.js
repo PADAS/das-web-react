@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import { render, screen, waitFor } from '../test-utils';
 
-import auth0Config from '../auth0-config';
+import appConfig from '../config';
 import { fetchEula } from '../ducks/eula';
 import { fetchSystemStatus } from '../ducks/system-status';
 import Login from './';
@@ -148,7 +148,7 @@ describe('Login', () => {
       expect(loginWithRedirect).toHaveBeenCalledWith({
         authorizationParams: {
           organization: 'org_456',
-          audience: auth0Config.audience,
+          audience: appConfig.auth0.audience,
         },
       });
     });
