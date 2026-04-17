@@ -63,6 +63,22 @@ describe('appConfig', () => {
     });
   });
 
+  test('preserves empty string overrides instead of falling back to defaults', () => {
+    window.__APP_CONFIG__ = { auth0: { audience: '', clientId: 'devClientId', domain: 'auth-dev.pamdas.org' } };
+
+    const { default: appConfig } = require('./config');
+
+    expect(appConfig.auth0.audience).toBe('');
+  });
+
+  test('falls back to defaults for null override values', () => {
+    window.__APP_CONFIG__ = { auth0: { audience: null } };
+
+    const { default: appConfig } = require('./config');
+
+    expect(appConfig.auth0.audience).toBe(PRODUCTION_DEFAULTS.auth0.audience);
+  });
+
   test('ignores unrecognized top-level keys', () => {
     window.__APP_CONFIG__ = { unknownSection: { foo: 'bar' } };
 

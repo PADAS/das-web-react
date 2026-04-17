@@ -14,13 +14,13 @@ const PRODUCTION_DEFAULTS = {
   },
 };
 
-const overrides = window.__APP_CONFIG__ || {};
+const overrides = window.__APP_CONFIG__ ?? {};
 
 const appConfig = {
   auth0: {
-    audience: overrides.auth0?.audience || PRODUCTION_DEFAULTS.auth0.audience,
-    clientId: overrides.auth0?.clientId || PRODUCTION_DEFAULTS.auth0.clientId,
-    domain: overrides.auth0?.domain || PRODUCTION_DEFAULTS.auth0.domain,
+    audience: overrides.auth0?.audience ?? PRODUCTION_DEFAULTS.auth0.audience,
+    clientId: overrides.auth0?.clientId ?? PRODUCTION_DEFAULTS.auth0.clientId,
+    domain: overrides.auth0?.domain ?? PRODUCTION_DEFAULTS.auth0.domain,
   },
 };
 
