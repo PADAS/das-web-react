@@ -15,7 +15,7 @@ import './index.scss';
 
 import { EXTERNAL_SAME_DOMAIN_ROUTES, REACT_APP_GA4_TRACKING_ID, REACT_APP_ROUTE_PREFIX } from './constants';
 import registerServiceWorker from './registerServiceWorker';
-import auth0Config from './auth0-config';
+import appConfig from './config';
 import { setClientReleaseIdentifier } from './utils/analytics';
 import { isSystemConfigLoaded } from './utils/auth';
 import store from './store';
@@ -127,10 +127,10 @@ root.render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistStore(store)} >
       <Auth0Provider
-        domain={auth0Config.domain}
-        clientId={auth0Config.clientId}
+        domain={appConfig.auth0.domain}
+        clientId={appConfig.auth0.clientId}
         authorizationParams={{
-          audience: auth0Config.audience,
+          audience: appConfig.auth0.audience,
           redirect_uri: `${window.location.origin}${REACT_APP_ROUTE_PREFIX}`,
         }}
         cacheLocation="localstorage"
