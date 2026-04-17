@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import evaluateSectionConditions from './utils/evaluateSectionConditions';
 import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from '../../../utils/v2-event-schemas/constants';
 import getDefaultFormData from './utils/getDefaultFormData';
-import getFormDataWithFixedTimezones from './utils/getFormDataWithFixedTimezones';
+import normalizeDateTimeFieldValue from './utils/normalizeDateTimeFieldValue';
 import transformSchemaToFormElements from '../../../utils/v2-event-schemas/transformSchemaToFormElements';
 import useMapLocationMarkers from './utils/useMapLocationMarkers';
 import useSchemaValidations from './utils/useSchemaValidations';
@@ -154,6 +154,20 @@ const SchemaForm = ({
         value={value}
       />;
 
+    case FORM_ELEMENT_TYPES.DATE_TIME:
+      return <DateTime
+        details={formElements[id].details}
+        error={error}
+        id={id}
+        key={id}
+        onFieldChange={onChange}
+        readOnly={readOnly}
+        value={normalizeDateTimeFieldValue(
+          value,
+          formElements[id].details.inputType
+        )}
+      />;
+
     case FORM_ELEMENT_TYPES.LOCATION:
       return <Location
         blurLocationMarker={blurLocationMarker}
@@ -183,24 +197,18 @@ const SchemaForm = ({
   };
 
   useEffect(() => {
+    // Calculate the initial form data (default input values) for a new event.
     if (shouldCalculateInitialData) {
-      let initialData;
       if (isNewEvent) {
-        // The initial form data for a new event is the default input values
-        // for the visible fields.
         const visibleFieldIds = visibleSectionIds.flatMap((sectionId) => [
           ...formElements[sectionId].details.leftColumn,
           ...formElements[sectionId].details.rightColumn,
         ]);
-        initialData = getDefaultFormData(visibleFieldIds, formElements);
-      } else {
-        // The initial form data for an existing event is the form data with
-        // the timezone corrected in the date-time and time fields.
-        initialData = getFormDataWithFixedTimezones(formData, formElements);
-      }
+        const initialData = getDefaultFormData(visibleFieldIds, formElements);
 
-      if (!isEqual(initialData, formData)) {
-        onFormDataChange(initialData);
+        if (!isEqual(initialData, formData)) {
+          onFormDataChange(initialData);
+        }
       }
 
       // eslint-disable-next-line react-hooks/set-state-in-effect

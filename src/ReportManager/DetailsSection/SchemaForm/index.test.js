@@ -3,15 +3,16 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { fireEvent, render, screen } from '../../../test-utils';
-import getFormDataWithFixedTimezones from './utils/getFormDataWithFixedTimezones';
+import { DATE_TIME_ELEMENT_INPUT_TYPES } from '../../../utils/v2-event-schemas/constants';
 import { GPS_FORMATS } from '../../../utils/location';
 import { mockStore } from '../../../__test-helpers/MockStore';
-import transformSchemaToFormElements from '../../../utils/v2-event-schemas/transformSchemaToFormElements';
+import normalizeDateTimeFieldValue from './utils/normalizeDateTimeFieldValue';
 import useMapLocationMarkers from './utils/useMapLocationMarkers';
 
 import SchemaForm from './';
 
 jest.mock('./utils/useMapLocationMarkers', () => jest.fn());
+jest.mock('./utils/normalizeDateTimeFieldValue', () => jest.fn((value) => value));
 
 describe('ReportManager - DetailsSection - SchemaForm', () => {
   const onFormDataChange = jest.fn();
@@ -375,37 +376,7 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
     expect(onFormDataChange).not.toHaveBeenCalled();
   });
 
-  test('sets the initial form data for an existing event with time data that needs timezone correction', async () => {
-    schema.json.properties.date_time_field = {
-      deprecated: false,
-      description: '',
-      format: 'date-time',
-      title: 'Date Time Field',
-      type: 'string',
-    };
-    schema.ui.fields.date_time_field = {
-      conditionalDependents: [],
-      type: 'DATE_TIME',
-      parent: 'section-3',
-    };
-    schema.ui.sections['section-3'].leftColumn = [
-      ...schema.ui.sections['section-3'].leftColumn,
-      { name: 'date_time_field', type: 'field' },
-    ];
-
-    const formElements = transformSchemaToFormElements(schema);
-    const formData = {
-      text_field: 'a text value',
-      date_time_field: '2024-06-15T14:30:45',
-    };
-
-    renderSchemaForm({ formData });
-
-    expect(onFormDataChange).toHaveBeenCalledTimes(1);
-    expect(onFormDataChange).toHaveBeenCalledWith(getFormDataWithFixedTimezones(formData, formElements));
-  });
-
-  test('does not set the initial form data for an existing event without time data that needs timezone correction', async () => {
+  test('does not set the initial form data for an existing event', async () => {
     renderSchemaForm();
 
     expect(onFormDataChange).not.toHaveBeenCalled();
@@ -642,5 +613,71 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
     renderSchemaForm();
 
     expect(screen.getByRole('button', { name: 'Submit' })).toBeVisible();
+  });
+
+  test('normalizes a date-time field value', () => {
+    schema.json.properties.datetime_field = {
+      deprecated: false,
+      description: '',
+      format: 'date-time',
+      title: 'Date Time Field',
+      type: 'string',
+    };
+    schema.ui.fields.datetime_field = {
+      conditionalDependents: [],
+      parent: 'section-3',
+      type: 'DATE_TIME',
+    };
+    schema.ui.sections['section-3'].leftColumn.push({
+      name: 'datetime_field',
+      type: 'field',
+    });
+
+    const rawDateTimeValue = '2024-06-01 10:30:00';
+    renderSchemaForm({
+      formData: {
+        text_field: 'a text value',
+        datetime_field: rawDateTimeValue,
+      },
+    });
+
+    expect(screen.getByTestId('schema-form-date-time-field-datetime_field')).toBeVisible();
+    expect(normalizeDateTimeFieldValue).toHaveBeenCalledWith(
+      rawDateTimeValue,
+      DATE_TIME_ELEMENT_INPUT_TYPES.DATE_TIME,
+    );
+  });
+
+  test('normalizes a time field value', () => {
+    schema.json.properties.time_field = {
+      deprecated: false,
+      description: '',
+      format: 'time',
+      title: 'Time Field',
+      type: 'string',
+    };
+    schema.ui.fields.time_field = {
+      conditionalDependents: [],
+      parent: 'section-3',
+      type: 'DATE_TIME',
+    };
+    schema.ui.sections['section-3'].leftColumn.push({
+      name: 'time_field',
+      type: 'field',
+    });
+
+    const rawTimeValue = '14:05:00';
+    renderSchemaForm({
+      formData: {
+        text_field: 'a text value',
+        time_field: rawTimeValue,
+      },
+    });
+
+    expect(screen.getByTestId('schema-form-date-time-field-time_field')).toBeVisible();
+    expect(normalizeDateTimeFieldValue).toHaveBeenCalledWith(
+      rawTimeValue,
+      DATE_TIME_ELEMENT_INPUT_TYPES.TIME,
+    );
   });
 });
