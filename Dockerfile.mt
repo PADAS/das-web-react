@@ -1,3 +1,4 @@
+# check=skip=InvalidDefaultArgInFrom
 ARG NODE_VERSION
 FROM europe-west3-docker.pkg.dev/serca-artifact-registry/virtual-docker/node:${NODE_VERSION}-alpine AS build
 ARG ENV_FILE=.env.production
