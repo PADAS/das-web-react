@@ -21,11 +21,58 @@ on:
 
 jobs:
   update:
-    uses: PADAS/serca-pipelines/.github/workflows/_argocd-update-image.yml@main
-    with:
-      app-name: ${{ inputs.app-name }}
-      app-subdir: ${{ inputs.app-subdir }}
-      environment: ${{ inputs.environment }}
-      image-tag: ${{ inputs.image-tag }}
-    secrets:
-      ARGOCD_APPS_SSH_KEY: ${{ secrets.ARGOCD_APPS_SSH_KEY }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.ARGOCD_APPS_SSH_KEY }}
+
+      - name: Update image tag in serca-argocd-apps
+        env:
+          TAG: ${{ inputs.image-tag }}
+          APP_NAME: ${{ inputs.app-name }}
+          APP_SUBDIR: ${{ inputs.app-subdir }}
+          ENVIRONMENT: ${{ inputs.environment }}
+          MAX_RETRIES: "5"
+        run: |
+          set -euo pipefail
+
+          git clone --depth=1 git@github.com:PADAS/serca-argocd-apps.git
+          cd serca-argocd-apps
+          pip install yq
+
+          VALUES_FILE="${APP_SUBDIR:+${APP_SUBDIR}/}${APP_NAME}/values-${ENVIRONMENT}.yaml"
+          yq -Yi ".image.tag = \"${TAG}\"" "$VALUES_FILE"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "$VALUES_FILE"
+          if git diff --cached --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+          git commit -m "${APP_NAME}: update ${ENVIRONMENT} image to ${TAG}"
+
+          # Push with retry-on-rebase to survive concurrent pushes from parallel pipelines
+          attempt=1
+          while [ "$attempt" -le "$MAX_RETRIES" ]; do
+            if git push; then
+              echo "Push succeeded on attempt ${attempt}"
+              exit 0
+            fi
+
+            if [ "$attempt" -eq "$MAX_RETRIES" ]; then
+              echo "::error::Failed to push after ${MAX_RETRIES} attempts - too much contention on serca-argocd-apps"
+              exit 1
+            fi
+
+            wait_time=$(( (RANDOM % 4) + 2 ))
+            echo "::warning::Push rejected (attempt ${attempt}/${MAX_RETRIES}). Rebasing onto origin/main and retrying in ${wait_time}s..."
+            sleep "$wait_time"
+
+            git fetch origin main
+            git rebase origin/main
+
+            attempt=$((attempt + 1))
+          done
