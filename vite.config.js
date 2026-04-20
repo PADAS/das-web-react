@@ -28,6 +28,9 @@ export default defineConfig({
   build: {
     // Match CRA build output directory.
     outDir: 'build',
+    // Generate source maps alongside the minified build output.
+    // The source repo is public, so there is no reason to restrict access.
+    sourcemap: true,
   },
 
   // Match CRA environment variable prefix.
