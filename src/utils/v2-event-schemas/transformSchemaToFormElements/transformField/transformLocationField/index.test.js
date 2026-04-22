@@ -3,16 +3,17 @@ import { FORM_ELEMENT_TYPES } from '../../../constants';
 import transformLocationField from '.';
 
 describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformField - transformLocationField', () => {
-  const locationFieldId = 'weapon-location';
-  const parentId = 'section-1';
-  let formElements, jsonSchema, uiSchema;
+  const locationFieldName = 'weapon-location';
+  let formElements, jsonSchema, locationFieldId, parentId, uiSchema;
   beforeEach(() => {
+    parentId = 'section-1';
+    locationFieldId = locationFieldName;
     formElements = {
       [locationFieldId]: {
         details: {
           isRequired: true,
           label: 'Weapon location',
-          value: locationFieldId,
+          value: locationFieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.LOCATION,
@@ -20,7 +21,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
     };
     jsonSchema = {
       properties: {
-        [locationFieldId]: {
+        [locationFieldName]: {
           description: 'Location where the weapon was found',
         },
       },
@@ -33,7 +34,13 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   });
 
   it('transforms a location field', () => {
-    transformLocationField(locationFieldId, jsonSchema, uiSchema, formElements);
+    transformLocationField(
+      locationFieldId,
+      locationFieldName,
+      jsonSchema,
+      uiSchema,
+      formElements,
+    );
 
     expect(formElements).toEqual({
       [locationFieldId]: {
@@ -41,7 +48,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           description: 'Location where the weapon was found',
           isRequired: true,
           label: 'Weapon location',
-          value: locationFieldId,
+          value: locationFieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.LOCATION,
@@ -50,9 +57,15 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   });
 
   it('transforms a location field with missing properties', () => {
-    delete jsonSchema.properties[locationFieldId].description;
+    delete jsonSchema.properties[locationFieldName].description;
 
-    transformLocationField(locationFieldId, jsonSchema, uiSchema, formElements);
+    transformLocationField(
+      locationFieldId,
+      locationFieldName,
+      jsonSchema,
+      uiSchema,
+      formElements,
+    );
 
     expect(formElements).toEqual({
       [locationFieldId]: {
@@ -60,7 +73,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           description: '',
           isRequired: true,
           label: 'Weapon location',
-          value: locationFieldId,
+          value: locationFieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.LOCATION,

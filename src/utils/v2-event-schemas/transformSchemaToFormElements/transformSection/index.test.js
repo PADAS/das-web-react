@@ -105,7 +105,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
     jest.resetAllMocks();
   });
 
-  it('throws an error when a section child field is missing from uiSchema.formElements', () => {
+  it('throws an error when a section child field is missing from uiSchema.fields', () => {
     delete uiSchema.fields['number-of-vehicles'];
 
     expect(() => {
@@ -153,12 +153,14 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
     expect(transformField).toHaveBeenCalledTimes(2);
     expect(transformField).toHaveBeenCalledWith(
       'number-of-vehicles',
+      null,
       jsonSchema.allOf[0].then,
       uiSchema,
       formElements,
     );
     expect(transformField).toHaveBeenCalledWith(
       'number-of-people-involved',
+      null,
       jsonSchema.allOf[0].then,
       uiSchema,
       formElements,
@@ -205,6 +207,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
     expect(transformField).toHaveBeenCalledTimes(1);
     expect(transformField).toHaveBeenCalledWith(
       'number-of-people-involved',
+      null,
       jsonSchema.allOf[0].then,
       uiSchema,
       formElements,
@@ -237,12 +240,14 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
     expect(transformField).toHaveBeenCalledTimes(2);
     expect(transformField).toHaveBeenCalledWith(
       'number-of-vehicles',
+      null,
       jsonSchema,
       uiSchema,
       formElements,
     );
     expect(transformField).toHaveBeenCalledWith(
       'number-of-people-involved',
+      null,
       jsonSchema,
       uiSchema,
       formElements,
@@ -290,12 +295,14 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
     expect(transformField).toHaveBeenCalledTimes(2);
     expect(transformField).toHaveBeenCalledWith(
       'number-of-vehicles',
+      null,
       jsonSchema.allOf[0].then,
       uiSchema,
       formElements,
     );
     expect(transformField).toHaveBeenCalledWith(
       'number-of-people-involved',
+      null,
       jsonSchema.allOf[0].then,
       uiSchema,
       formElements,

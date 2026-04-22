@@ -6,16 +6,17 @@ import transformCollectionField from '.';
 describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformField - transformCollectionField', () => {
   const transformField = jest.fn();
 
-  const collectionFieldId = 'witnesses';
-  const parentId = 'section-1';
-  let formElements, items, jsonSchema, uiSchema;
+  const collectionFieldName = 'witnesses';
+  let collectionFieldId, formElements, items, jsonSchema, parentId, uiSchema;
   beforeEach(() => {
+    parentId = 'section-1';
+    collectionFieldId = collectionFieldName;
     formElements = {
       [collectionFieldId]: {
         details: {
           isRequired: true,
           label: 'Witnesses',
-          value: collectionFieldId,
+          value: collectionFieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.COLLECTION,
@@ -33,7 +34,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
     };
     jsonSchema = {
       properties: {
-        [collectionFieldId]: {
+        [collectionFieldName]: {
           description: 'List of witnesses',
           items,
           maxItems: 5,
@@ -46,13 +47,13 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
         [collectionFieldId]: {
           buttonText: 'Add Witness',
           columns: 2,
-          itemIdentifier: 'witness-name',
+          itemIdentifier: `${collectionFieldId}.witness-name`,
           itemName: 'Witness',
-          leftColumn: ['witness-name'],
-          rightColumn: ['witness-age'],
+          leftColumn: [`${collectionFieldId}.witness-name`],
+          rightColumn: [`${collectionFieldId}.witness-age`],
         },
-        'witness-name': {},
-        'witness-age': {},
+        [`${collectionFieldId}.witness-name`]: {},
+        [`${collectionFieldId}.witness-age`]: {},
       },
     };
   });
@@ -62,11 +63,12 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   });
 
   it('throws an error when a collection child is missing from uiSchema.fields', () => {
-    delete uiSchema.fields['witness-name'];
+    delete uiSchema.fields[`${collectionFieldId}.witness-name`];
 
     expect(() =>
       transformCollectionField(
         collectionFieldId,
+        collectionFieldName,
         jsonSchema,
         uiSchema,
         formElements,
@@ -78,6 +80,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   it('transforms a collection field', () => {
     transformCollectionField(
       collectionFieldId,
+      collectionFieldName,
       jsonSchema,
       uiSchema,
       formElements,
@@ -91,14 +94,14 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           columns: 2,
           description: 'List of witnesses',
           isRequired: true,
-          itemIdentifier: 'witness-name',
+          itemIdentifier: `${collectionFieldId}.witness-name`,
           itemName: 'Witness',
           label: 'Witnesses',
-          leftColumn: ['witness-name'],
+          leftColumn: [`${collectionFieldId}.witness-name`],
           maxItems: 5,
           minItems: 1,
-          rightColumn: ['witness-age'],
-          value: collectionFieldId,
+          rightColumn: [`${collectionFieldId}.witness-age`],
+          value: collectionFieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.COLLECTION,
@@ -107,12 +110,90 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
     expect(transformField).toHaveBeenCalledTimes(2);
     expect(transformField).toHaveBeenCalledWith(
       'witness-name',
+      collectionFieldId,
       items,
       uiSchema,
       formElements,
     );
     expect(transformField).toHaveBeenCalledWith(
       'witness-age',
+      collectionFieldId,
+      items,
+      uiSchema,
+      formElements,
+    );
+  });
+
+  it('transforms a collection field from a schema that stored fields by name', () => {
+    parentId = 'collection-1.collection-2';
+    collectionFieldId = `${parentId}.${collectionFieldName}`;
+
+    formElements = {
+      [collectionFieldId]: {
+        details: {
+          isRequired: true,
+          label: 'Witnesses',
+          value: collectionFieldName,
+        },
+        parentId,
+        type: FORM_ELEMENT_TYPES.COLLECTION,
+      },
+    };
+    uiSchema = {
+      fields: {
+        [collectionFieldName]: {
+          buttonText: 'Add Witness',
+          columns: 2,
+          itemIdentifier: 'witness-name',
+          itemName: 'Witness',
+          leftColumn: ['witness-name'],
+          rightColumn: ['witness-age'],
+        },
+        'witness-name': {},
+        'witness-age': {},
+      },
+    };
+
+    transformCollectionField(
+      collectionFieldId,
+      collectionFieldName,
+      jsonSchema,
+      uiSchema,
+      formElements,
+      transformField,
+    );
+
+    expect(formElements).toEqual({
+      [collectionFieldId]: {
+        details: {
+          buttonText: 'Add Witness',
+          columns: 2,
+          description: 'List of witnesses',
+          itemIdentifier: `${collectionFieldId}.witness-name`,
+          itemName: 'Witness',
+          isRequired: true,
+          label: 'Witnesses',
+          leftColumn: [`${collectionFieldId}.witness-name`],
+          maxItems: 5,
+          minItems: 1,
+          rightColumn: [`${collectionFieldId}.witness-age`],
+          value: collectionFieldName,
+        },
+        parentId,
+        type: FORM_ELEMENT_TYPES.COLLECTION,
+      },
+    });
+    expect(transformField).toHaveBeenCalledTimes(2);
+    expect(transformField).toHaveBeenCalledWith(
+      'witness-name',
+      collectionFieldId,
+      items,
+      uiSchema,
+      formElements,
+    );
+    expect(transformField).toHaveBeenCalledWith(
+      'witness-age',
+      collectionFieldId,
       items,
       uiSchema,
       formElements,
@@ -124,6 +205,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
 
     transformCollectionField(
       collectionFieldId,
+      collectionFieldName,
       jsonSchema,
       uiSchema,
       formElements,
@@ -137,14 +219,14 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           columns: 2,
           description: 'List of witnesses',
           isRequired: true,
-          itemIdentifier: 'witness-name',
+          itemIdentifier: `${collectionFieldId}.witness-name`,
           itemName: 'Witness',
           label: 'Witnesses',
-          leftColumn: ['witness-name'],
+          leftColumn: [`${collectionFieldId}.witness-name`],
           maxItems: 5,
           minItems: 1,
           rightColumn: [],
-          value: collectionFieldId,
+          value: collectionFieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.COLLECTION,
@@ -153,6 +235,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
     expect(transformField).toHaveBeenCalledTimes(1);
     expect(transformField).toHaveBeenCalledWith(
       'witness-name',
+      collectionFieldId,
       items,
       uiSchema,
       formElements,
@@ -160,9 +243,9 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   });
 
   it('transforms a collection field with missing properties', () => {
-    delete jsonSchema.properties[collectionFieldId].description;
-    delete jsonSchema.properties[collectionFieldId].maxItems;
-    delete jsonSchema.properties[collectionFieldId].minItems;
+    delete jsonSchema.properties[collectionFieldName].description;
+    delete jsonSchema.properties[collectionFieldName].maxItems;
+    delete jsonSchema.properties[collectionFieldName].minItems;
     delete uiSchema.fields[collectionFieldId].buttonText;
     delete uiSchema.fields[collectionFieldId].columns;
     delete uiSchema.fields[collectionFieldId].itemIdentifier;
@@ -172,6 +255,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
 
     transformCollectionField(
       collectionFieldId,
+      collectionFieldName,
       jsonSchema,
       uiSchema,
       formElements,
@@ -192,7 +276,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           maxItems: null,
           minItems: null,
           rightColumn: [],
-          value: collectionFieldId,
+          value: collectionFieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.COLLECTION,

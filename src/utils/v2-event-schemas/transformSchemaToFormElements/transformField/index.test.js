@@ -84,18 +84,19 @@ jest.mock('./transformTextField', () => {
 });
 
 describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformField', () => {
-  const fieldId = 'field-1';
-  const parentId = 'section-1';
-  let formElements, jsonSchema, uiSchema;
+  const fieldName = 'field-1';
+  let fieldId, formElements, jsonSchema, parentId, uiSchema;
   beforeEach(() => {
+    parentId = 'section-1';
+    fieldId = fieldName;
     formElements = {};
     jsonSchema = {
       properties: {
-        [fieldId]: {
+        [fieldName]: {
           title: 'Name',
         },
       },
-      required: [fieldId],
+      required: [fieldName],
     };
     uiSchema = {
       fields: {
@@ -113,17 +114,17 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   });
 
   it('transforms an attachment field', () => {
-    jsonSchema.properties[fieldId].title = 'Evidence of confiscated items';
+    jsonSchema.properties[fieldName].title = 'Evidence of confiscated items';
     uiSchema.fields[fieldId].type = FORM_ELEMENT_TYPES.ATTACHMENT;
 
-    transformField(fieldId, jsonSchema, uiSchema, formElements);
+    transformField(fieldName, null, jsonSchema, uiSchema, formElements);
 
     expect(formElements).toEqual({
       [fieldId]: {
         details: {
           isRequired: true,
           label: 'Evidence of confiscated items',
-          value: fieldId,
+          value: fieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.ATTACHMENT,
@@ -132,6 +133,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
     expect(transformAttachmentField).toHaveBeenCalledTimes(1);
     expect(transformAttachmentField).toHaveBeenCalledWith(
       fieldId,
+      fieldName,
       jsonSchema,
       uiSchema,
       formElements,
@@ -146,17 +148,17 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   });
 
   it('transforms a boolean field', () => {
-    jsonSchema.properties[fieldId].title = 'Is animal injured?';
+    jsonSchema.properties[fieldName].title = 'Is animal injured?';
     uiSchema.fields[fieldId].type = FORM_ELEMENT_TYPES.BOOLEAN;
 
-    transformField(fieldId, jsonSchema, uiSchema, formElements);
+    transformField(fieldName, null, jsonSchema, uiSchema, formElements);
 
     expect(formElements).toEqual({
       [fieldId]: {
         details: {
           isRequired: true,
           label: 'Is animal injured?',
-          value: fieldId,
+          value: fieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.BOOLEAN,
@@ -166,6 +168,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
     expect(transformBooleanField).toHaveBeenCalledTimes(1);
     expect(transformBooleanField).toHaveBeenCalledWith(
       fieldId,
+      fieldName,
       jsonSchema,
       uiSchema,
       formElements,
@@ -179,17 +182,17 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   });
 
   it('transforms a choice list field', () => {
-    jsonSchema.properties[fieldId].title = 'Damaged source';
+    jsonSchema.properties[fieldName].title = 'Damaged source';
     uiSchema.fields[fieldId].type = FORM_ELEMENT_TYPES.CHOICE_LIST;
 
-    transformField(fieldId, jsonSchema, uiSchema, formElements);
+    transformField(fieldName, null, jsonSchema, uiSchema, formElements);
 
     expect(formElements).toEqual({
       [fieldId]: {
         details: {
           isRequired: true,
           label: 'Damaged source',
-          value: fieldId,
+          value: fieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.CHOICE_LIST,
@@ -200,6 +203,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
     expect(transformChoiceListField).toHaveBeenCalledTimes(1);
     expect(transformChoiceListField).toHaveBeenCalledWith(
       fieldId,
+      fieldName,
       jsonSchema,
       uiSchema,
       formElements,
@@ -212,17 +216,17 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   });
 
   it('transforms a collection field', () => {
-    jsonSchema.properties[fieldId].title = 'Witnesses';
+    jsonSchema.properties[fieldName].title = 'Witnesses';
     uiSchema.fields[fieldId].type = FORM_ELEMENT_TYPES.COLLECTION;
 
-    transformField(fieldId, jsonSchema, uiSchema, formElements);
+    transformField(fieldName, null, jsonSchema, uiSchema, formElements);
 
     expect(formElements).toEqual({
       [fieldId]: {
         details: {
           isRequired: true,
           label: 'Witnesses',
-          value: fieldId,
+          value: fieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.COLLECTION,
@@ -234,6 +238,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
     expect(transformCollectionField).toHaveBeenCalledTimes(1);
     expect(transformCollectionField).toHaveBeenCalledWith(
       fieldId,
+      fieldName,
       jsonSchema,
       uiSchema,
       formElements,
@@ -246,17 +251,17 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   });
 
   it('transforms a date time field', () => {
-    jsonSchema.properties[fieldId].title = 'Date of birth';
+    jsonSchema.properties[fieldName].title = 'Date of birth';
     uiSchema.fields[fieldId].type = FORM_ELEMENT_TYPES.DATE_TIME;
 
-    transformField(fieldId, jsonSchema, uiSchema, formElements);
+    transformField(fieldName, null, jsonSchema, uiSchema, formElements);
 
     expect(formElements).toEqual({
       [fieldId]: {
         details: {
           isRequired: true,
           label: 'Date of birth',
-          value: fieldId,
+          value: fieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.DATE_TIME,
@@ -269,6 +274,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
     expect(transformDateTimeField).toHaveBeenCalledTimes(1);
     expect(transformDateTimeField).toHaveBeenCalledWith(
       fieldId,
+      fieldName,
       jsonSchema,
       uiSchema,
       formElements,
@@ -279,17 +285,17 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   });
 
   it('transforms a location field', () => {
-    jsonSchema.properties[fieldId].title = 'Weapon location';
+    jsonSchema.properties[fieldName].title = 'Weapon location';
     uiSchema.fields[fieldId].type = FORM_ELEMENT_TYPES.LOCATION;
 
-    transformField(fieldId, jsonSchema, uiSchema, formElements);
+    transformField(fieldName, null, jsonSchema, uiSchema, formElements);
 
     expect(formElements).toEqual({
       [fieldId]: {
         details: {
           isRequired: true,
           label: 'Weapon location',
-          value: fieldId,
+          value: fieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.LOCATION,
@@ -303,6 +309,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
     expect(transformLocationField).toHaveBeenCalledTimes(1);
     expect(transformLocationField).toHaveBeenCalledWith(
       fieldId,
+      fieldName,
       jsonSchema,
       uiSchema,
       formElements,
@@ -312,17 +319,17 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   });
 
   it('transforms a numeric field', () => {
-    jsonSchema.properties[fieldId].title = 'Number of snares';
+    jsonSchema.properties[fieldName].title = 'Number of snares';
     uiSchema.fields[fieldId].type = FORM_ELEMENT_TYPES.NUMERIC;
 
-    transformField(fieldId, jsonSchema, uiSchema, formElements);
+    transformField(fieldName, null, jsonSchema, uiSchema, formElements);
 
     expect(formElements).toEqual({
       [fieldId]: {
         details: {
           isRequired: true,
           label: 'Number of snares',
-          value: fieldId,
+          value: fieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.NUMERIC,
@@ -337,6 +344,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
     expect(transformNumericField).toHaveBeenCalledTimes(1);
     expect(transformNumericField).toHaveBeenCalledWith(
       fieldId,
+      fieldName,
       jsonSchema,
       uiSchema,
       formElements,
@@ -345,14 +353,14 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   });
 
   it('transforms a text field', () => {
-    transformField(fieldId, jsonSchema, uiSchema, formElements);
+    transformField(fieldName, null, jsonSchema, uiSchema, formElements);
 
     expect(formElements).toEqual({
       [fieldId]: {
         details: {
           isRequired: true,
           label: 'Name',
-          value: fieldId,
+          value: fieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.TEXT,
@@ -368,23 +376,83 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
     expect(transformTextField).toHaveBeenCalledTimes(1);
     expect(transformTextField).toHaveBeenCalledWith(
       fieldId,
+      fieldName,
       jsonSchema,
       uiSchema,
       formElements,
     );
   });
 
+  it('transforms a field parented by a collection', () => {
+    parentId = 'collection-1.collection-2';
+    fieldId = `${parentId}.field-1`;
+
+    uiSchema = {
+      fields: {
+        [fieldId]: {
+          conditionalDependents: ['section-3'],
+          parent: parentId,
+          type: FORM_ELEMENT_TYPES.TEXT,
+        },
+      },
+    };
+
+    transformField(fieldName, parentId, jsonSchema, uiSchema, formElements);
+
+    expect(formElements).toEqual({
+      [fieldId]: {
+        details: {
+          isRequired: true,
+          label: 'Name',
+          value: fieldName,
+        },
+        parentId,
+        type: FORM_ELEMENT_TYPES.TEXT,
+      },
+    });
+  });
+
+  it('transforms a field from a schema that stored fields by name', () => {
+    const parentName = 'collection-2';
+    parentId = `collection-1.${parentName}`;
+    fieldId = `${parentId}.${fieldName}`;
+
+    uiSchema = {
+      fields: {
+        [fieldName]: {
+          conditionalDependents: ['section-3'],
+          parent: parentName,
+          type: FORM_ELEMENT_TYPES.TEXT,
+        },
+      },
+    };
+
+    transformField(fieldName, parentId, jsonSchema, uiSchema, formElements);
+
+    expect(formElements).toEqual({
+      [fieldId]: {
+        details: {
+          isRequired: true,
+          label: 'Name',
+          value: fieldName,
+        },
+        parentId,
+        type: FORM_ELEMENT_TYPES.TEXT,
+      },
+    });
+  });
+
   it('transforms a non-required field', () => {
     jsonSchema.required = [];
 
-    transformField(fieldId, jsonSchema, uiSchema, formElements);
+    transformField(fieldName, null, jsonSchema, uiSchema, formElements);
 
     expect(formElements).toEqual({
       [fieldId]: {
         details: {
           isRequired: false,
           label: 'Name',
-          value: fieldId,
+          value: fieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.TEXT,
@@ -393,16 +461,16 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   });
 
   it('transforms a field with missing properties', () => {
-    delete jsonSchema.properties[fieldId].title;
+    delete jsonSchema.properties[fieldName].title;
 
-    transformField(fieldId, jsonSchema, uiSchema, formElements);
+    transformField(fieldName, null, jsonSchema, uiSchema, formElements);
 
     expect(formElements).toEqual({
       [fieldId]: {
         details: {
           isRequired: true,
           label: '',
-          value: fieldId,
+          value: fieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.TEXT,
@@ -414,7 +482,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
     uiSchema.fields[fieldId].type = 'INVALID';
 
     expect(() =>
-      transformField(fieldId, jsonSchema, uiSchema, formElements),
+      transformField(fieldName, null, jsonSchema, uiSchema, formElements),
     ).toThrow(InvalidFormElementTypeError);
   });
 });
