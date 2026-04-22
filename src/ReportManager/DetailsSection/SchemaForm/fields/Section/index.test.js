@@ -9,7 +9,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () =>
   const focusLocationMarker = jest.fn();
   const onFieldChange = jest.fn();
   const onFieldErrorsChange = jest.fn();
-  const renderField = jest.fn();
+  const renderFormElement = jest.fn();
   const setDefaultFormData = jest.fn();
 
   let details;
@@ -38,7 +38,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () =>
     id="section-1"
     onFieldChange={onFieldChange}
     onFieldErrorsChange={onFieldErrorsChange}
-    renderField={renderField}
+    renderFormElement={renderFormElement}
     setDefaultFormData={setDefaultFormData}
     {...props}
   />);
@@ -64,7 +64,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () =>
       id="section-1"
       onFieldChange={onFieldChange}
       onFieldErrorsChange={onFieldErrorsChange}
-      renderField={renderField}
+      renderFormElement={renderFormElement}
       setDefaultFormData={setDefaultFormData}
     />);
 
@@ -92,7 +92,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () =>
       id="section-1"
       onFieldChange={onFieldChange}
       onFieldErrorsChange={onFieldErrorsChange}
-      renderField={renderField}
+      renderFormElement={renderFormElement}
       setDefaultFormData={setDefaultFormData}
     />);
 
@@ -129,7 +129,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () =>
       id="section-1"
       onFieldChange={onFieldChange}
       onFieldErrorsChange={onFieldErrorsChange}
-      renderField={renderField}
+      renderFormElement={renderFormElement}
       setDefaultFormData={setDefaultFormData}
     />);
 
@@ -157,7 +157,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () =>
       id="section-1"
       onFieldChange={onFieldChange}
       onFieldErrorsChange={onFieldErrorsChange}
-      renderField={renderField}
+      renderFormElement={renderFormElement}
       setDefaultFormData={setDefaultFormData}
     />);
 
@@ -213,15 +213,15 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () =>
   test('renders the children', async () => {
     renderSectionField();
 
-    expect(renderField).toHaveBeenCalledTimes(1);
-    expect(renderField.mock.calls[0][0]).toBe('text-1');
-    expect(renderField.mock.calls[0][1]).toBe('Value 1');
-    expect(renderField.mock.calls[0][3]).toBe(undefined);
-    expect(renderField.mock.calls[0][4]).toBe(focusLocationMarker);
+    expect(renderFormElement).toHaveBeenCalledTimes(1);
+    expect(renderFormElement.mock.calls[0][0]).toBe('text-1');
+    expect(renderFormElement.mock.calls[0][1]).toBe('Value 1');
+    expect(renderFormElement.mock.calls[0][3]).toBe(undefined);
+    expect(renderFormElement.mock.calls[0][4]).toBe(focusLocationMarker);
   });
 
   test('applies changes in values and errors from the children', async () => {
-    renderField.mockImplementation((id, value, onChange) => <input
+    renderFormElement.mockImplementation((id, value, onChange) => <input
       data-testid={id}
       onChange={(event) => onChange(id, event.target.value)}
       value={value}

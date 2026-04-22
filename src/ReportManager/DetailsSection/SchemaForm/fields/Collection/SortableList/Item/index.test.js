@@ -14,7 +14,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
   const focusLocationMarker = jest.fn();
   const onChange = jest.fn();
   const onDelete = jest.fn();
-  const renderField = jest.fn();
+  const renderFormElement = jest.fn();
   const setIsFormModalOpen = jest.fn();
   const setIsFormPreviewOpen = jest.fn();
 
@@ -22,9 +22,9 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
   beforeEach(() => {
     collectionDetails = {
       columns: 1,
-      itemIdentifier: 'field-1',
+      itemIdentifier: 'collection-1.field-1',
       itemName: 'Collection 1',
-      leftColumn: ['field-1', 'field-2'],
+      leftColumn: ['collection-1.field-1', 'collection-1.field-2'],
       rightColumn: [],
       value: 'collection-1',
     };
@@ -54,14 +54,14 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         focusLocationMarker={focusLocationMarker}
         formData={{ 'field-1': 'Value 1', 'field-2': 'Value 2' }}
         formElements={{
-          'field-1': {
+          'collection-1.field-1': {
             details: {
               defaultInput: 'Default Value 1',
               label: 'Field 1',
             },
             type: FORM_ELEMENT_TYPES.TEXT,
           },
-          'field-2': {
+          'collection-1.field-2': {
             details: {
               defaultInput: 'Default Value 2',
               label: 'Field 2',
@@ -77,7 +77,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         isFormPreviewOpen={false}
         onChange={onChange}
         onDelete={onDelete}
-        renderField={renderField}
+        renderFormElement={renderFormElement}
         setIsFormModalOpen={setIsFormModalOpen}
         setIsFormPreviewOpen={setIsFormPreviewOpen}
         wasItemRecentlyAdded={false}
@@ -102,14 +102,14 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
     renderItem({
       formData: {},
       formElements: {
-        'field-1': {
+        'collection-1.field-1': {
           details: {
             defaultInput: '',
             label: 'Field 1',
           },
           type: FORM_ELEMENT_TYPES.TEXT,
         },
-        'field-2': {
+        'collection-1.field-2': {
           details: {
             defaultInput: '',
             label: 'Field 2',
@@ -203,7 +203,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
   test('assigns an id to the item based on its position in the form data', async () => {
     renderItem();
 
-    expect(screen.getByTestId('schema-form-collection-item')).toHaveAttribute('id', 'collection-1.0');
+    expect(screen.getByTestId('schema-form-collection-item')).toHaveAttribute('id', 'collection-1[0]');
   });
 
   test('does not assign an id to the item if the position index is not provided', async () => {
@@ -309,7 +309,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
   });
 
   test('closes the form modal when the user clicks Done', async () => {
-    renderField.mockImplementation((id, value, onChange) => <input
+    renderFormElement.mockImplementation((id, value, onChange) => <input
       data-testid={id}
       onChange={(event) => onChange(id, event.target.value)}
       value={value}
@@ -325,7 +325,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
   });
 
   test('changes the content of a child field and clears its error in the form modal', async () => {
-    renderField.mockImplementation((id, value, onChange) => <input
+    renderFormElement.mockImplementation((id, value, onChange) => <input
       data-testid={id}
       onChange={(event) => onChange(id, event.target.value)}
       value={value}
@@ -334,7 +334,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
 
     expect(onChange).not.toHaveBeenCalled();
 
-    await userEvent.type(screen.getByTestId('field-1'), 'a');
+    await userEvent.type(screen.getByTestId('collection-1.field-1'), 'a');
 
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledWith(
@@ -355,13 +355,13 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
           errors={undefined}
           formData={{ 'field-1': 'New value 1', 'field-2': 'Value 2' }}
           formElements={{
-            'field-1': {
+            'collection-1.field-1': {
               details: {
                 label: 'Field 1',
               },
               type: FORM_ELEMENT_TYPES.TEXT,
             },
-            'field-2': {
+            'collection-1.field-2': {
               details: {
                 label: 'Field 2',
               },
@@ -375,7 +375,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
           isFormPreviewOpen={false}
           onChange={onChange}
           onDelete={onDelete}
-          renderField={renderField}
+          renderFormElement={renderFormElement}
           setIsFormModalOpen={setIsFormModalOpen}
           setIsFormPreviewOpen={setIsFormPreviewOpen}
         />

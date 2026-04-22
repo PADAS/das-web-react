@@ -16,6 +16,7 @@ const Location = ({
   value = null,
 }) => {
   const hasError = !!error;
+  const name = id.split('.').pop();
 
   // When closing a collection item form modal, the location fields get unmounted without triggering the blur event, so
   // we need to blur the location markers manually.
@@ -39,7 +40,7 @@ const Location = ({
       jumpToLocationButtonZoom={JUMP_TO_LOCATION_BUTTON_ZOOM}
       onBlur={() => blurLocationMarker()}
       onChange={(newLocation) => onFieldChange(id, newLocation || undefined)}
-      onFocus={() => focusLocationMarker(id)}
+      onFocus={() => focusLocationMarker(name)}
       readOnly={readOnly}
       value={value}
     />

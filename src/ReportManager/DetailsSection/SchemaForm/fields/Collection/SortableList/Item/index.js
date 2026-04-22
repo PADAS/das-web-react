@@ -37,7 +37,7 @@ const Item = ({
   onDelete = null,
   readOnly,
   ref,
-  renderField = null,
+  renderFormElement = null,
   setIsFormModalOpen = null,
   setIsFormPreviewOpen = null,
   ...otherProps
@@ -55,9 +55,10 @@ const Item = ({
   const shouldDeleteOnCancelRef = useRef(wasItemRecentlyAdded);
 
   const hasError = !!errors;
+  const itemIdentifierName = collectionDetails.itemIdentifier?.split('.').pop();
   const title = getItemTitle(
     formData,
-    collectionDetails.itemIdentifier,
+    itemIdentifierName,
     `${collectionDetails.itemName} ${id + 1}`,
     formElements[collectionDetails.itemIdentifier],
     i18n.language,
@@ -81,18 +82,20 @@ const Item = ({
   };
 
   const onFieldChange = (fieldId, value, error) => {
+    const fieldName = fieldId.split('.').pop();
+
     // We update the field error in the errors object.
     let updatedErrors = { ...errors };
     if (error) {
-      updatedErrors[fieldId] = error;
+      updatedErrors[fieldName] = error;
     } else {
-      delete updatedErrors[fieldId];
+      delete updatedErrors[fieldName];
       if (Object.keys(updatedErrors).length === 0) {
         updatedErrors = undefined;
       }
     }
 
-    onChange({ ...formData, [fieldId]: value }, updatedErrors);
+    onChange({ ...formData, [fieldName]: value }, updatedErrors);
   };
 
   const onDeleteItem = () => {
@@ -155,7 +158,7 @@ const Item = ({
       data-testid="schema-form-collection-item"
       // We use the index and not the item id because the id is internal for having a constant default title, while the
       // index corresponds directly to the position of the item in the form data object.
-      id={index !== null ? `${collectionDetails.value}.${index}` : undefined}
+      id={index !== null ? `${collectionDetails.value}[${index}]` : undefined}
       ref={ref}
       {...otherProps}
     >
@@ -244,7 +247,7 @@ const Item = ({
       onDone={onFormModalDone}
       onFieldChange={onFieldChange}
       readOnly={readOnly}
-      renderField={renderField}
+      renderFormElement={renderFormElement}
       rightColumn={collectionDetails.rightColumn}
       title={title}
     />}

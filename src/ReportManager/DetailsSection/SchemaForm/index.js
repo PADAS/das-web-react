@@ -11,8 +11,8 @@ import useMapLocationMarkers from './utils/useMapLocationMarkers';
 import useSchemaValidations from './utils/useSchemaValidations';
 
 import Boolean from './fields/Boolean';
-import Collection from './fields/Collection';
 import ChoiceList from './fields/ChoiceList';
+import Collection from './fields/Collection';
 import DateTime from './fields/DateTime';
 import Header from './fields/Header';
 import Location from './fields/Location';
@@ -60,7 +60,7 @@ const SchemaForm = ({
       // The location field is not in the document, it must be contained by a
       // collection item. Calculate the collection item id to focus it.
       const markerIdPathParts = markerId.split('.');
-      const collectionItemId = `${markerIdPathParts[0]}.${markerIdPathParts[1]}`;
+      const collectionItemId = `${markerIdPathParts[0]}`;
       document.getElementById(collectionItemId)?.focus();
     }
   }, []);
@@ -104,7 +104,9 @@ const SchemaForm = ({
   };
 
   const onSectionFieldChange = (fieldId, value) => {
-    const newFormData = { ...formData, [fieldId]: value };
+    // Section children's ids and names are the same.
+    const fieldName = fieldId;
+    const newFormData = { ...formData, [fieldName]: value };
 
     // Conditional sections can depend on fields in other conditional sections.
     // Remove hidden fields from the form data in a loop until all sections
@@ -112,15 +114,17 @@ const SchemaForm = ({
     let previousVisibleSectionIds = visibleSectionIds;
     while (true) {
       const currentVisibleSectionIds = getVisibleSectionIds(formElements, newFormData);
-      const currentHiddenSectionIds = previousVisibleSectionIds.filter((id) => !currentVisibleSectionIds.includes(id));
-      const currentHiddenFields = currentHiddenSectionIds.flatMap((sectionId) => [
+      const currentHiddenSectionIds = previousVisibleSectionIds.filter(
+        (sectionId) => !currentVisibleSectionIds.includes(sectionId)
+      );
+      const currentHiddenFieldsWithFormData = currentHiddenSectionIds.flatMap((sectionId) => [
         ...formElements[sectionId].details.leftColumn,
         ...formElements[sectionId].details.rightColumn,
-      ]).filter((fieldId) => fieldId in newFormData);
-      if (currentHiddenFields.length > 0) {
+      ]).filter((sectionChildId) => sectionChildId in newFormData);
+      if (currentHiddenFieldsWithFormData.length > 0) {
         // There are fields to hide in the current iteration. Remove them from
         // the form data.
-        currentHiddenFields.forEach((fieldId) => delete newFormData[fieldId]);
+        currentHiddenFieldsWithFormData.forEach((fieldName) => delete newFormData[fieldName]);
 
         previousVisibleSectionIds = currentVisibleSectionIds;
       } else {
@@ -132,8 +136,8 @@ const SchemaForm = ({
     onFormDataChange(newFormData);
   };
 
-  // This method is designed to render fields inside sections and collections.
-  const renderField = (id, value, onChange, error, focusLocationMarker, breadcrumbs = []) => {
+  // This method is designed to render form elments inside sections and collections.
+  const renderFormElement = (id, value, onChange, error, focusLocationMarker, breadcrumbs = []) => {
     switch (formElements[id].type) {
     case FORM_ELEMENT_TYPES.HEADER:
       return <Header details={formElements[id].details} id={id} key={id} />;
@@ -150,7 +154,7 @@ const SchemaForm = ({
         key={id}
         onFieldChange={onChange}
         readOnly={readOnly}
-        renderField={renderField}
+        renderFormElement={renderFormElement}
         value={value}
       />;
 
@@ -219,19 +223,22 @@ const SchemaForm = ({
   useEffect(() => {
     // Update the location markers when there is a change in the form data.
     const locationMarkers = {};
-    const addLocationMarkersFromFormDataRecursively = (formData, idPrefix = '') => {
-      Object.entries(formData).forEach(([fieldId, fieldValue]) => {
+    const addLocationMarkersFromFormDataRecursively = (formData, parentCollectionFieldId = null, parentPath = '') => {
+      Object.entries(formData).forEach(([fieldName, fieldValue]) => {
+        const fieldId = parentCollectionFieldId ? `${parentCollectionFieldId}.${fieldName}` : fieldName;
+
         if (formElements[fieldId]?.type === FORM_ELEMENT_TYPES.LOCATION && fieldValue) {
           // The field is a location with a value, add it to the location
           // markers.
-          locationMarkers[`${idPrefix}${fieldId}`] = fieldValue;
+          locationMarkers[`${parentPath}${fieldName}`] = fieldValue;
         } else if (formElements[fieldId]?.type === FORM_ELEMENT_TYPES.COLLECTION) {
           // The field is a collection, add the location markers for each of
-          // its items recursively with a prefix to differentiate the same
-          // fields in different collection items.
+          // its items recursively prefixing them with the collection path to
+          // differentiate the same field names in different collection items.
           fieldValue.forEach((itemFormData, index) => addLocationMarkersFromFormDataRecursively(
             itemFormData,
-            `${idPrefix}${fieldId}.${index}.`
+            fieldId,
+            `${parentPath}${fieldName}[${index}].`
           ));
         }
       });
@@ -266,7 +273,7 @@ const SchemaForm = ({
       key={sectionId}
       onFieldChange={onSectionFieldChange}
       onFieldErrorsChange={(newFieldErrors) => setFieldErrors(newFieldErrors)}
-      renderField={renderField}
+      renderFormElement={renderFormElement}
       setDefaultFormData={(defaultFormData) => onFormDataChange({ ...defaultFormData, ...formData })}
     />)}
 

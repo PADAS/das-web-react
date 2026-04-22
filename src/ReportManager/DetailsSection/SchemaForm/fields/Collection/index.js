@@ -21,7 +21,7 @@ const Collection = ({
   id,
   onFieldChange,
   readOnly,
-  renderField,
+  renderFormElement,
   value = [],
 }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection.schemaForm.fields.collection' });
@@ -39,6 +39,7 @@ const Collection = ({
   const doesChildrenHaveErrors = !!error && Object.keys(error).some((errorKey) => errorKey !== 'message');
   const hasError = !!error?.message;
   const isMaxItemsReached = details.maxItems === null ? false : value.length >= details.maxItems;
+  const name = id.split('.').pop();
 
   const onItemChange = (itemIndex) => (itemValue, itemError) => {
     // Clean the collection error message and update the changed item error.
@@ -144,8 +145,8 @@ const Collection = ({
 
   // If a location field from an item requests to focus its location marker,
   // prefix the marker id with the collection id and the item index.
-  const focusLocationMarkerFromItem = (itemIndex) => (markerId) =>
-    focusLocationMarker(`${id}.${itemIndex}.${markerId}`);
+  const focusLocationMarkerFromItem = (itemIndex) => (locationFieldName) =>
+    focusLocationMarker(`${name}[${itemIndex}].${locationFieldName}`);
 
   return <div
       aria-errormessage={hasError ? `${id}-description` : undefined}
@@ -197,7 +198,7 @@ const Collection = ({
             onItemDelete={onItemDelete}
             onItemMove={onItemMove}
             readOnly={readOnly}
-            renderField={renderField}
+            renderFormElement={renderFormElement}
             setIsItemFormModalOpen={setIsItemFormModalOpen}
             setIsItemFormPreviewOpen={setIsItemFormPreviewOpen}
           />}

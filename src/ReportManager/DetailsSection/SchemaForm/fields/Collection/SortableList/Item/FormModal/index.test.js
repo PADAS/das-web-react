@@ -13,7 +13,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
   const onDeleteItem = jest.fn();
   const onDone = jest.fn();
   const onFieldChange = jest.fn();
-  const renderField = jest.fn();
+  const renderFormElement = jest.fn();
 
   let store;
   beforeEach(() => {
@@ -36,12 +36,12 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         formData={{ 'field-1': 'Value 1', 'field-2': 'Value 2' }}
         isOpen
         itemName="Item"
-        leftColumn={['field-1', 'field-2']}
+        leftColumn={['collection-1.field-1', 'collection-1.field-2']}
         onCancel={onCancel}
         onDeleteItem={onDeleteItem}
         onDone={onDone}
         onFieldChange={onFieldChange}
-        renderField={renderField}
+        renderFormElement={renderFormElement}
         rightColumn={[]}
         title="Item 3"
         hideDeleteButton={false}
@@ -112,22 +112,22 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
   test('renders the children', async () => {
     renderFormModal();
 
-    expect(renderField).toHaveBeenCalledTimes(2);
-    expect(renderField).toHaveBeenCalledWith(
-      'field-1',
+    expect(renderFormElement).toHaveBeenCalledTimes(2);
+    expect(renderFormElement).toHaveBeenCalledWith(
+      'collection-1.field-1',
       'Value 1',
       onFieldChange,
       undefined,
       focusLocationMarker,
-      [{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }, { id: 'field-1', display: 'Item 3' }]
+      [{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }, { id: 'collection-1.field-1', display: 'Item 3' }]
     );
-    expect(renderField).toHaveBeenCalledWith(
-      'field-2',
+    expect(renderFormElement).toHaveBeenCalledWith(
+      'collection-1.field-2',
       'Value 2',
       onFieldChange,
       undefined,
       focusLocationMarker,
-      [{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }, { id: 'field-2', display: 'Item 3' }]
+      [{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }, { id: 'collection-1.field-2', display: 'Item 3' }]
     );
   });
 

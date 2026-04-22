@@ -13,7 +13,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
   const blurLocationMarker = jest.fn();
   const focusLocationMarker = jest.fn();
   const onFieldChange = jest.fn();
-  const renderField = jest.fn();
+  const renderFormElement = jest.fn();
 
   let details, store;
   beforeEach(() => {
@@ -22,10 +22,10 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
       columns: 1,
       description: 'The collection description',
       isActive: true,
-      itemIdentifier: 'field-1',
+      itemIdentifier: 'collection-1.field-1',
       itemName: 'Item',
       label: 'Collection 1 Label',
-      leftColumn: ['field-1', 'field-2'],
+      leftColumn: ['collection-1.field-1', 'collection-1.field-2'],
       maxItems: null,
       minItems: null,
       rightColumn: [],
@@ -56,13 +56,13 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
         error={undefined}
         focusLocationMarker={focusLocationMarker}
         formElements={{
-          'field-1': {
+          'collection-1.field-1': {
             details: {
               label: 'Field 1',
             },
             type: FORM_ELEMENT_TYPES.TEXT,
           },
-          'field-2': {
+          'collection-1.field-2': {
             details: {
               label: 'Field 2',
             },
@@ -71,7 +71,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
         }}
         id="collection-1"
         onFieldChange={onFieldChange}
-        renderField={renderField}
+        renderFormElement={renderFormElement}
         value={undefined}
         {...props}
       />
@@ -188,8 +188,8 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
     expect(screen.queryByTestId('schema-form-collection-list-empty-state')).toBeNull();
   });
 
-  test('focuses a location marker prefixed with the collection value and the item index', async () => {
-    renderField.mockImplementation((_id, _value, _onChange, _error, focusLocationMarker) => {
+  test('focuses a location marker', async () => {
+    renderFormElement.mockImplementation((_id, _value, _onChange, _error, focusLocationMarker) => {
       focusLocationMarker('location-1');
 
       return null;
@@ -199,7 +199,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
     await userEvent.click(screen.getByLabelText('Edit Item 1'));
 
     expect(focusLocationMarker).toHaveBeenCalled();
-    expect(focusLocationMarker).toHaveBeenCalledWith('collection-1.0.location-1');
+    expect(focusLocationMarker).toHaveBeenCalledWith('collection-1[0].location-1');
   });
 
   test('opens and closes the form preview of an item', async () => {
@@ -234,7 +234,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
   });
 
   test('changes the collection value when there is a change in an item and updates the error from the item', async () => {
-    renderField.mockImplementation((id, value, onChange) => <input
+    renderFormElement.mockImplementation((id, value, onChange) => <input
       data-testid={id}
       onChange={(event) => onChange(id, event.target.value)}
       value={value}
@@ -248,7 +248,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
 
     expect(onFieldChange).not.toHaveBeenCalled();
 
-    await userEvent.type(screen.getByTestId('field-1'), 'a');
+    await userEvent.type(screen.getByTestId('collection-1.field-1'), 'a');
 
     expect(onFieldChange).toHaveBeenCalledTimes(1);
     expect(onFieldChange).toHaveBeenCalledWith(
@@ -333,13 +333,13 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
           details={details}
           error={{ 0: { 'field-1': { message: 'Error' } } }}
           formElements={{
-            'field-1': {
+            'collection-1.field-1': {
               details: {
                 label: 'Field 1',
               },
               type: FORM_ELEMENT_TYPES.TEXT,
             },
-            'field-2': {
+            'collection-1.field-2': {
               details: {
                 label: 'Field 2',
               },
@@ -348,7 +348,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
           }}
           id="collection-1"
           onFieldChange={onFieldChange}
-          renderField={renderField}
+          renderFormElement={renderFormElement}
           value={[{}, {}, {}]}
         />
       </Provider>

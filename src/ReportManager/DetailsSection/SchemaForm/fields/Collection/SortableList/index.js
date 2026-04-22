@@ -49,7 +49,7 @@ const SortableList = ({
   onItemDelete,
   onItemMove,
   readOnly,
-  renderField,
+  renderFormElement,
   setIsItemFormModalOpen,
   setIsItemFormPreviewOpen,
 }) => {
@@ -80,12 +80,13 @@ const SortableList = ({
   // Utility to calculate variables needed for a11y announcements on drag operations.
   const getActiveItemAnnouncementData = (activeId, overId = null) => {
     const activeItemIndex = items.findIndex((item) => item.id === activeId);
+    const itemIdentifierName = collectionDetails.itemIdentifier?.split('.').pop();
 
     return [
       activeItemIndex + 1,
       getItemTitle(
         items[activeItemIndex].formData,
-        collectionDetails.itemIdentifier,
+        itemIdentifierName,
         `${collectionDetails.itemName} ${items[activeItemIndex].id + 1}`,
         formElements[collectionDetails.itemIdentifier],
         i18n.language,
@@ -160,9 +161,9 @@ const SortableList = ({
           onChange={onItemChange(index)}
           onDelete={onItemDelete(index)}
           readOnly={readOnly}
+          renderFormElement={renderFormElement}
           setIsFormModalOpen={setIsItemFormModalOpen(index)}
           setIsFormPreviewOpen={setIsItemFormPreviewOpen(index)}
-          renderField={renderField}
         />)}
       </SortableContext>
 

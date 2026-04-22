@@ -16,7 +16,7 @@ jest.mock('@dnd-kit/sortable', () => ({
 }));
 
 describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - SortableList - SortableItem', () => {
-  const renderField = jest.fn();
+  const renderFormElement = jest.fn();
 
   let attributes, collectionDetails, listeners, store, transform, transition;
   beforeEach(() => {
@@ -80,7 +80,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         isDragOverlay={false}
         isFormModalOpen={false}
         isFormPreviewOpen={false}
-        renderField={renderField}
+        renderFormElement={renderFormElement}
         {...props}
       />
     </Provider>

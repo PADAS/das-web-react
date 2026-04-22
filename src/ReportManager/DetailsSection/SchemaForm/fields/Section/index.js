@@ -16,14 +16,16 @@ const Section = ({
   id,
   onFieldChange,
   onFieldErrorsChange,
-  renderField,
+  renderFormElement,
   setDefaultFormData,
 }) => {
   const previousHiddenRef = useRef(hidden);
 
   const onColumnFieldChange = (fieldId, value, error) => {
     onFieldChange(fieldId, value);
-    onFieldErrorsChange({ ...fieldErrors, [fieldId]: error });
+
+    const fieldName = fieldId;
+    onFieldErrorsChange({ ...fieldErrors, [fieldName]: error });
   };
 
   useEffect(() => {
@@ -51,26 +53,34 @@ const Section = ({
         className={`${styles.column} ${details.columns === 1 ? styles.fullWidth : styles.halfWidthLeft}`}
         data-testid={`schema-form-section-${id}-left-column`}
       >
-        {details.leftColumn.map((fieldId) => renderField(
-          fieldId,
-          formData[fieldId],
-          onColumnFieldChange,
-          fieldErrors[fieldId],
-          focusLocationMarker
-        ))}
+        {details.leftColumn.map((leftColumnChildId) => {
+          const leftColumnChildName = leftColumnChildId;
+
+          return renderFormElement(
+            leftColumnChildId,
+            formData[leftColumnChildName],
+            onColumnFieldChange,
+            fieldErrors[leftColumnChildName],
+            focusLocationMarker
+          );
+        })}
       </div>
 
       {details.columns === 2 && <div
         className={`${styles.column} ${styles.halfWidthRight}`}
         data-testid={`schema-form-section-${id}-right-column`}
       >
-        {details.rightColumn.map((fieldId) => renderField(
-          fieldId,
-          formData[fieldId],
-          onColumnFieldChange,
-          fieldErrors[fieldId],
-          focusLocationMarker
-        ))}
+        {details.rightColumn.map((rightColumnChildId) => {
+          const rightColumnChildName = rightColumnChildId;
+
+          return renderFormElement(
+            rightColumnChildId,
+            formData[rightColumnChildName],
+            onColumnFieldChange,
+            fieldErrors[rightColumnChildName],
+            focusLocationMarker
+          );
+        })}
       </div>}
     </div>
   </div>;

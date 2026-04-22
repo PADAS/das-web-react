@@ -34,40 +34,44 @@ const FormPreview = ({
       className={`${styles.formPreview} ${isDragOverlay ? styles.dragOverlay : ''} ${hasError ? styles.error : ''}`}
       data-testid="schema-form-collection-item-form-preview"
     >
-    {fieldIds.map((fieldId) => <li className={styles.fieldSummary} key={fieldId}>
-      <div>
-        <p className={`${styles.label} ${errors?.[fieldId] ? styles.error : ''}`}>
-          {formElements[fieldId].details.label}
-        </p>
+    {fieldIds.map((fieldId) => {
+      const fieldName = fieldId.split('.').pop();
 
-        <p className={`${styles.value} ${errors?.[fieldId] ? styles.error : ''}`}>
-          {getHumanizedFieldValue(
-            formElements[fieldId],
-            formData[fieldId],
-            '-',
-            i18n.language,
-            coordinatesRepresentation,
-            t
+      return <li className={styles.fieldSummary} key={fieldId}>
+        <div>
+          <p className={`${styles.label} ${errors?.[fieldName] ? styles.error : ''}`}>
+            {formElements[fieldId].details.label}
+          </p>
+
+          <p className={`${styles.value} ${errors?.[fieldName] ? styles.error : ''}`}>
+            {getHumanizedFieldValue(
+              formElements[fieldId],
+              formData[fieldName],
+              '-',
+              i18n.language,
+              coordinatesRepresentation,
+              t
+            )}
+          </p>
+        </div>
+
+        {formElements[fieldId].type === FORM_ELEMENT_TYPES.LOCATION && formData[fieldName] && <button
+          aria-label={t('jumpToLocationButtonLabel', { field: formElements[fieldId].details.label })}
+          className={`${styles.jumpToLocationButton} ${isDragOverlay ? styles.dragOverlay : ''}`}
+          onBlur={() => isDragOverlay ? undefined : blurLocationMarker()}
+          onClick={() => isDragOverlay ? undefined : jumpToLocation(
+            [formData[fieldName].longitude, formData[fieldName].latitude],
+            JUMP_TO_LOCATION_BUTTON_ZOOM
           )}
-        </p>
-      </div>
-
-      {formElements[fieldId].type === FORM_ELEMENT_TYPES.LOCATION && formData[fieldId] && <button
-        aria-label={t('jumpToLocationButtonLabel', { field: formElements[fieldId].details.label })}
-        className={`${styles.jumpToLocationButton} ${isDragOverlay ? styles.dragOverlay : ''}`}
-        onBlur={() => isDragOverlay ? undefined : blurLocationMarker()}
-        onClick={() => isDragOverlay ? undefined : jumpToLocation(
-          [formData[fieldId].longitude, formData[fieldId].latitude],
-          JUMP_TO_LOCATION_BUTTON_ZOOM
-        )}
-        onFocus={() => isDragOverlay ? undefined : focusLocationMarker(fieldId)}
-        onKeyDown={(event) => (event.key === 'Enter' || event.key === ' ') && event.stopPropagation()}
-        title={t('jumpToLocationButtonLabel', { field: formElements[fieldId].details.label })}
-        type="button"
-      >
-        <MarkerFeedIcon />
-      </button>}
-    </li>)}
+          onFocus={() => isDragOverlay ? undefined : focusLocationMarker(fieldName)}
+          onKeyDown={(event) => (event.key === 'Enter' || event.key === ' ') && event.stopPropagation()}
+          title={t('jumpToLocationButtonLabel', { field: formElements[fieldId].details.label })}
+          type="button"
+        >
+          <MarkerFeedIcon />
+        </button>}
+      </li>;
+    })}
   </ul>;
 };
 

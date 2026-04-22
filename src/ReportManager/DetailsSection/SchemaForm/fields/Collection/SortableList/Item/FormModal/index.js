@@ -23,7 +23,7 @@ const FormModal = ({
   onDone,
   onFieldChange,
   readOnly,
-  renderField,
+  renderFormElement,
   rightColumn,
   title,
 }) => {
@@ -72,28 +72,36 @@ const FormModal = ({
           className={`${styles.column} ${columns === 1 ? styles.fullWidth : styles.halfWidthLeft}`}
           data-testid="schema-form-collection-form-modal-left-column"
         >
-          {leftColumn.map((fieldId) => renderField(
-            fieldId,
-            formData[fieldId],
-            onFieldChange,
-            errors?.[fieldId],
-            focusLocationMarker,
-            [...breadcrumbs, { display: title, id: fieldId }]
-          ))}
+          {leftColumn.map((leftColumnChildId) => {
+            const leftColumnChildName = leftColumnChildId.split('.').pop();
+
+            return renderFormElement(
+              leftColumnChildId,
+              formData[leftColumnChildName],
+              onFieldChange,
+              errors?.[leftColumnChildName],
+              focusLocationMarker,
+              [...breadcrumbs, { display: title, id: leftColumnChildId }]
+            );
+          })}
         </div>
 
         {columns === 2 && <div
           className={`${styles.column} ${styles.halfWidthRight}`}
           data-testid="schema-form-collection-form-modal-right-column"
         >
-          {rightColumn.map((fieldId) => renderField(
-            fieldId,
-            formData[fieldId],
-            onFieldChange,
-            errors?.[fieldId],
-            focusLocationMarker,
-            [...breadcrumbs, { display: title, id: fieldId }]
-          ))}
+          {rightColumn.map((rightColumnChildId) => {
+            const rightColumnChildName = rightColumnChildId.split('.').pop();
+
+            return renderFormElement(
+              rightColumnChildId,
+              formData[rightColumnChildName],
+              onFieldChange,
+              errors?.[rightColumnChildName],
+              focusLocationMarker,
+              [...breadcrumbs, { display: title, id: rightColumnChildId }]
+            );
+          })}
         </div>}
       </div>
     </Modal.Body>

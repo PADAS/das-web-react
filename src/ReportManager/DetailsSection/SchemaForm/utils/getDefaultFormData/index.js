@@ -2,7 +2,8 @@ const getDefaultFormData = (fieldIds, formElements) => fieldIds.reduce((accumula
   const fieldDefaultInput = formElements[fieldId].details.defaultInput;
   const doesFieldHaveDefaultInput = fieldDefaultInput || fieldDefaultInput === 0 || fieldDefaultInput === false;
   if (doesFieldHaveDefaultInput) {
-    accumulator[fieldId] = fieldDefaultInput;
+    const fieldName = fieldId.split('.').pop();
+    accumulator[fieldName] = fieldDefaultInput;
   }
   return accumulator;
 }, {});
