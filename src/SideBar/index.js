@@ -92,12 +92,12 @@ const SideBar = () => {
   const isReportDetailsViewActive = eventsEnabled
     && !!matchPath(`/${TAB_KEYS.EVENTS}/:id`, location.pathname);
 
-  /** True while the first gear list fetch is in flight so /gear stays valid before hasGear is known. */
-  const resolvingInitialGear = gearEnabled !== false
+
+  const showGearTab = !!gearEnabled && hasGear;
+
+  const gearStillResolving = !!gearEnabled
     && !gearEndpointUnavailable
     && (initialLoadInProgress || (gearLoading && !hasGear));
-
-  const showGearTab = gearEnabled !== false && (hasGear || resolvingInitialGear);
 
   const enabledTabKeys = useMemo(() => ({
     ...TAB_KEYS,
@@ -150,10 +150,11 @@ const SideBar = () => {
   useEffect(() => {
     if (currentTab
       && !Object.values(enabledTabKeys).includes(currentTab.toLowerCase())
-      && !isLegacyEventURL) {
+      && !isLegacyEventURL
+      && !(currentTab === TAB_KEYS.GEAR && gearStillResolving)) {
       navigate('/', { replace: true });
     }
-  }, [currentTab, enabledTabKeys, isLegacyEventURL, navigate]);
+  }, [currentTab, enabledTabKeys, gearStillResolving, isLegacyEventURL, navigate]);
 
   useEffect(() => {
     if (showEventsBadge && currentTab === TAB_KEYS.EVENTS && !isReportDetailsViewActive) {
