@@ -48,7 +48,7 @@ const useMapLocationMarkers = (eventId, eventLocation, onMarkerClick = null, hid
   const eventLocationLatitude = eventLocation?.latitude;
   const eventLocationLongitude = eventLocation?.longitude;
   const markerConnectingLinesSourceData = useMemo(() => featureCollection(
-    eventLocationLatitude && eventLocationLongitude
+    eventLocationLatitude != null && eventLocationLongitude != null
       ? Object.values(markers).map((markerLocation) => lineString([
         [markerLocation.longitude, markerLocation.latitude],
         [eventLocationLongitude, eventLocationLatitude],

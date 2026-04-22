@@ -136,7 +136,7 @@ const SchemaForm = ({
     onFormDataChange(newFormData);
   };
 
-  // This method is designed to render form elments inside sections and collections.
+  // This method is designed to render form elements inside sections and collections.
   const renderFormElement = (id, value, onChange, error, focusLocationMarker, breadcrumbs = []) => {
     switch (formElements[id].type) {
     case FORM_ELEMENT_TYPES.HEADER:
