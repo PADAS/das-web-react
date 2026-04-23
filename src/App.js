@@ -168,7 +168,7 @@ export const App = () => {
   }, []);
 
   useEffect(() => {
-    if (gearEnabled === false) {
+    if (!gearEnabled) {
       return undefined;
     }
     dispatch(fetchAllGear());
@@ -176,7 +176,7 @@ export const App = () => {
       dispatch((innerDispatch, getState) => {
         const { gear } = getState().data;
         const { systemConfig } = getState().view;
-        if (systemConfig?.[SYSTEM_CONFIG_FLAGS.GEAR] === false) return;
+        if (!systemConfig?.[SYSTEM_CONFIG_FLAGS.GEAR]) return;
         if (gear.gearEndpointUnavailable) return;
         if (!gear.loading) {
           innerDispatch(fetchAllGear());

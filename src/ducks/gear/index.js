@@ -59,7 +59,7 @@ const gearFetchErrorMessage = (error) => {
  * Paginate through GET /api/v1.0/gear (default deployed state).
  */
 export const fetchAllGear = () => async (dispatch, getState) => {
-  if (getState().view?.systemConfig?.[SYSTEM_CONFIG_FLAGS.GEAR] === false) {
+  if (!getState().view?.systemConfig?.[SYSTEM_CONFIG_FLAGS.GEAR]) {
     return [];
   }
 

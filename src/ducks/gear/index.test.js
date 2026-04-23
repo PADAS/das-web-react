@@ -101,6 +101,8 @@ describe('Ducks - Gear', () => {
   });
 
   describe('fetchAllGear', () => {
+    const gearEnabledView = { view: { systemConfig: { [SYSTEM_CONFIG_FLAGS.GEAR]: true } } };
+
     afterEach(() => {
       jest.restoreAllMocks();
       showToast.mockClear();
@@ -111,7 +113,7 @@ describe('Ducks - Gear', () => {
         .mockResolvedValueOnce({ data: { results: [{ id: '1' }], next: 'http://n' } })
         .mockResolvedValueOnce({ data: { results: [{ id: '2' }], next: null } });
 
-      const store = mockStore({ data: { gear: INITIAL_GEAR_STATE } });
+      const store = mockStore({ data: { gear: INITIAL_GEAR_STATE }, ...gearEnabledView });
       await store.dispatch(fetchAllGear());
 
       const types = store.getActions().map((a) => a.type);
@@ -140,7 +142,7 @@ describe('Ducks - Gear', () => {
           },
         });
 
-      const store = mockStore({ data: { gear: INITIAL_GEAR_STATE } });
+      const store = mockStore({ data: { gear: INITIAL_GEAR_STATE }, ...gearEnabledView });
       await store.dispatch(fetchAllGear());
 
       expect(store.getActions().map((a) => a.type)).toEqual([
@@ -163,7 +165,7 @@ describe('Ducks - Gear', () => {
         byId: { 9: { id: '9' } },
         hasGear: true,
       };
-      const store = mockStore({ data: { gear: existing } });
+      const store = mockStore({ data: { gear: existing }, ...gearEnabledView });
       await store.dispatch(fetchAllGear());
 
       expect(store.getActions().map((a) => a.type)).toEqual([
@@ -178,7 +180,7 @@ describe('Ducks - Gear', () => {
         response: { data: { detail: 'Forbidden' } },
       });
 
-      const store = mockStore({ data: { gear: INITIAL_GEAR_STATE } });
+      const store = mockStore({ data: { gear: INITIAL_GEAR_STATE }, ...gearEnabledView });
       const result = await store.dispatch(fetchAllGear());
 
       expect(result).toEqual([]);
@@ -200,7 +202,7 @@ describe('Ducks - Gear', () => {
         response: { status: 404 },
       });
 
-      const store = mockStore({ data: { gear: INITIAL_GEAR_STATE } });
+      const store = mockStore({ data: { gear: INITIAL_GEAR_STATE }, ...gearEnabledView });
       await store.dispatch(fetchAllGear());
 
       expect(store.getActions().map((a) => a.type)).toEqual([
