@@ -93,6 +93,14 @@
   word-break: break-word;
 }
 
+.displayIdClickable {
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 /* Match Map Layers → Subjects row timestamp alignment. */
 .gearDateTime {
   margin-right: 0.5rem;

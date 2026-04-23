@@ -22,16 +22,21 @@ const GearPopup = ({ data }) => {
     : primaryLabel;
   const { coordinates } = data;
 
+  const mostRecentDate = (gear.devices || []).reduce((best, device) => {
+    if (!device.last_deployed) return best;
+    return !best || device.last_deployed > best ? device.last_deployed : best;
+  }, null) || gear.last_updated;
+
   return <>
     <div className={styles.header}>
       <h2 className={styles.title} data-testid="gear-popup-title">{popupTitle}</h2>
 
-      {gear.last_updated && <div className={styles.dateTimeWrapper}>
-        <DateTime className={styles.dateTimeDetails} date={gear.last_updated} showElapsed={false} />
+      {mostRecentDate && <div className={styles.dateTimeWrapper}>
+        <DateTime className={styles.dateTimeDetails} date={mostRecentDate} showElapsed={false} />
 
         <span className={styles.dateTimeComma}>, </span>
 
-        <TimeAgo className={styles.timeAgo} date={gear.last_updated} suffix={t('dateTimeSuffix')} />
+        <TimeAgo className={styles.timeAgo} date={mostRecentDate} suffix={t('dateTimeSuffix')} />
       </div>}
     </div>
 
@@ -46,13 +51,19 @@ const GearPopup = ({ data }) => {
         <dt>{t('typeLabel')}</dt>
         <dd>{gear.type}</dd>
 
-        {(gear.devices || []).map((device) => <React.Fragment key={device.device_id}>
+        {[...(gear.devices || [])].sort((a, b) => {
+          if (!a.last_deployed && !b.last_deployed) return 0;
+          if (!a.last_deployed) return 1;
+          if (!b.last_deployed) return -1;
+          if (a.last_deployed === b.last_deployed) return 0;
+          return a.last_deployed > b.last_deployed ? 1 : -1;
+        }).map((device) => <React.Fragment key={device.device_id}>
           <dt>{t('deviceLabel', { label: device.label || device.mfr_device_id || device.device_id })}</dt>
           <dd>
             <span className={styles.deviceId}>{device.mfr_device_id || device.device_id}</span>
-            {device.last_updated && <>
+            {device.last_deployed && <>
               {' '}
-              <DateTime date={device.last_updated} showElapsed={false} />
+              <DateTime date={device.last_deployed} showElapsed={false} />
             </>}
           </dd>
         </React.Fragment>)}

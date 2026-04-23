@@ -60,7 +60,13 @@ const GearListItem = memo(({ ...gear }) => {
 
   return <>
     <p className={mapLayersStyles.itemTitle} data-testid="gear-item-name">
-      <span className={styles.displayId}>{rowTitle}</span>
+      <span
+        className={`${styles.displayId}${coordinates ? ` ${styles.displayIdClickable}` : ''}`}
+        onClick={coordinates ? onJumpClick : undefined}
+        role={coordinates ? 'button' : undefined}
+        tabIndex={coordinates ? 0 : undefined}
+        onKeyDown={coordinates ? (e) => { if (e.key === 'Enter' || e.key === ' ') onJumpClick(); } : undefined}
+      >{rowTitle}</span>
     </p>
 
     {gear.last_updated && <DateTime
