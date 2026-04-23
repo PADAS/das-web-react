@@ -39,6 +39,7 @@ const manufacturerStateKey = (manufacturerKey) => (manufacturerKey === '' ? '__o
 const gearGroupTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 const GEAR_JUMP_ZOOM = 14;
+const GEAR_POPUP_CENTER_OFFSET = [0, 175];
 
 const GearListItem = memo(({ ...gear }) => {
   const dispatch = useDispatch();
@@ -48,7 +49,7 @@ const GearListItem = memo(({ ...gear }) => {
 
   const onJumpClick = useCallback(() => {
     if (!coordinates) return;
-    jumpToLocation(coordinates, GEAR_JUMP_ZOOM);
+    jumpToLocation(coordinates, GEAR_JUMP_ZOOM, { offset: GEAR_POPUP_CENTER_OFFSET });
     window.setTimeout(() => {
       dispatch(showPopup('gear', {
         coordinates,
