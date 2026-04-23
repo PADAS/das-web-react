@@ -96,8 +96,14 @@
 .displayIdClickable {
   cursor: pointer;
 
-  &:hover {
+  &:hover,
+  &:focus-visible {
     text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
   }
 }
 
