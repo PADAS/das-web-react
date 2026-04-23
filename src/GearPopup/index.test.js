@@ -66,6 +66,17 @@ describe('GearPopup', () => {
     expect(screen.getByTestId('date-time')).toBeInTheDocument();
   });
 
+  test('uses the most recent device last_deployed in the header when multiple devices have dates', () => {
+    renderGearPopup(makeGear([
+      { device_id: 'old', mfr_device_id: 'MFR-OLD', last_deployed: '2024-01-15T12:00:00Z' },
+      { device_id: 'new', mfr_device_id: 'MFR-NEW', last_deployed: '2024-06-15T12:00:00Z' },
+    ]));
+
+    const headerDate = screen.getAllByTestId('date-time')[0];
+    expect(headerDate).toHaveTextContent(/Jun/);
+    expect(headerDate).not.toHaveTextContent(/Jan/);
+  });
+
   test('uses device.label in the device label when present', () => {
     renderGearPopup(makeGear([
       { device_id: 'd1', mfr_device_id: 'MFR-1', label: 'Buoy Alpha' },
