@@ -58,7 +58,6 @@ const SideBar = () => {
 
   const analyzersEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.ANALYZERS]);
   const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
-  const gearEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.GEAR]);
   const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
   const {
     gearEndpointUnavailable,
@@ -93,10 +92,9 @@ const SideBar = () => {
     && !!matchPath(`/${TAB_KEYS.EVENTS}/:id`, location.pathname);
 
 
-  const showGearTab = !!gearEnabled && hasGear;
+  const showGearTab = hasGear;
 
-  const gearStillResolving = !!gearEnabled
-    && !gearEndpointUnavailable
+  const gearStillResolving = !gearEndpointUnavailable
     && (initialLoadInProgress || (gearLoading && !hasGear));
 
   const enabledTabKeys = useMemo(() => ({
