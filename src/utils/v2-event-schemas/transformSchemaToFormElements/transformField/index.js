@@ -32,6 +32,7 @@ const transformField = (
       label: fieldJSONSchema.title ?? '',
       value: fieldName,
     },
+    id: fieldId,
     parentId: parentCollectionFieldId ?? fieldUISchema.parent,
     type: fieldUISchema.type,
   };

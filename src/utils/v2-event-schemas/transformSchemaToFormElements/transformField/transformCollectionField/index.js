@@ -88,7 +88,7 @@ const transformCollectionField = (
     rightColumn: rightColumnActiveChildrenIds,
   };
 
-  // Transform each collection field child.
+  // Transform each active collection field child.
   const collectionFieldActiveChildrenIds = [
     ...leftColumnActiveChildrenIds,
     ...rightColumnActiveChildrenIds,

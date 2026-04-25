@@ -62,6 +62,21 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
     jest.resetAllMocks();
   });
 
+  it('throws an error when a collection child is missing from the collection field JSON subschema properties', () => {
+    delete items.properties['witness-name'];
+
+    expect(() =>
+      transformCollectionField(
+        collectionFieldId,
+        collectionFieldName,
+        jsonSchema,
+        uiSchema,
+        formElements,
+        transformField,
+      ),
+    ).toThrow(UndefinedFormElementError);
+  });
+
   it('throws an error when a collection child is missing from uiSchema.fields', () => {
     delete uiSchema.fields[`${collectionFieldId}.witness-name`];
 

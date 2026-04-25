@@ -105,6 +105,14 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
     jest.resetAllMocks();
   });
 
+  it('throws an error when a collection child is missing from the section JSON subschema properties', () => {
+    delete jsonSchema.allOf[0].then.properties['number-of-vehicles'];
+
+    expect(() =>
+      transformSection(sectionId, jsonSchema, uiSchema, formElements),
+    ).toThrow(UndefinedFormElementError);
+  });
+
   it('throws an error when a section child field is missing from uiSchema.fields', () => {
     delete uiSchema.fields['number-of-vehicles'];
 
@@ -146,6 +154,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
           leftColumn: ['number-of-vehicles'],
           rightColumn: ['header-1', 'number-of-people-involved'],
         },
+        id: sectionId,
         parentId: ROOT_CANVAS_ID,
         type: FORM_ELEMENT_TYPES.SECTION,
       },
@@ -200,6 +209,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
           leftColumn: [],
           rightColumn: ['header-1', 'number-of-people-involved'],
         },
+        id: sectionId,
         parentId: ROOT_CANVAS_ID,
         type: FORM_ELEMENT_TYPES.SECTION,
       },
@@ -233,6 +243,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
           leftColumn: ['number-of-vehicles'],
           rightColumn: ['header-1', 'number-of-people-involved'],
         },
+        id: sectionId,
         parentId: ROOT_CANVAS_ID,
         type: FORM_ELEMENT_TYPES.SECTION,
       },
@@ -288,6 +299,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
           leftColumn: ['number-of-vehicles'],
           rightColumn: ['header-1', 'number-of-people-involved'],
         },
+        id: sectionId,
         parentId: ROOT_CANVAS_ID,
         type: FORM_ELEMENT_TYPES.SECTION,
       },
@@ -333,6 +345,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
           leftColumn: [],
           rightColumn: [],
         },
+        id: sectionId,
         parentId: ROOT_CANVAS_ID,
         type: FORM_ELEMENT_TYPES.SECTION,
       },

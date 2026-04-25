@@ -81,11 +81,12 @@ const transformSection = (sectionId, jsonSchema, uiSchema, formElements) => {
       leftColumn: leftColumnActiveChildrenIds,
       rightColumn: rightColumnActiveChildrenIds,
     },
+    id: sectionId,
     parentId: ROOT_CANVAS_ID,
     type: FORM_ELEMENT_TYPES.SECTION,
   };
 
-  // Transform each section child.
+  // Transform each active section child.
   const sectionActiveChildrenIds = [
     ...leftColumnActiveChildrenIds,
     ...rightColumnActiveChildrenIds,
