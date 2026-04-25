@@ -9,7 +9,7 @@ import { mockStore } from '../../../../../__test-helpers/MockStore';
 
 import Collection from './';
 
-describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', () => {
+describe('ReportManager - DetailsSection - SchemaForm - formElements - Collection', () => {
   const blurLocationMarker = jest.fn();
   const focusLocationMarker = jest.fn();
   const onFieldChange = jest.fn();

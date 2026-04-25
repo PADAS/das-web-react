@@ -12,7 +12,7 @@ import FormPreview from './';
 
 jest.mock('../../../../../../../../hooks/useJumpToLocation', () => jest.fn());
 
-describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - SortableList - Item - FormPreview', () => {
+describe('ReportManager - DetailsSection - SchemaForm - formElements - Collection - SortableList - Item - FormPreview', () => {
   const blurLocationMarker = jest.fn();
   const focusLocationMarker = jest.fn();
 

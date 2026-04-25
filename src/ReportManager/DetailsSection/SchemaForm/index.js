@@ -10,15 +10,15 @@ import transformSchemaToFormElements from '../../../utils/v2-event-schemas/trans
 import useMapLocationMarkers from './utils/useMapLocationMarkers';
 import useSchemaValidations from './utils/useSchemaValidations';
 
-import Boolean from './fields/Boolean';
-import ChoiceList from './fields/ChoiceList';
-import Collection from './fields/Collection';
-import DateTime from './fields/DateTime';
-import Header from './fields/Header';
-import Location from './fields/Location';
-import Numeric from './fields/Numeric';
-import Section from './fields/Section';
-import Text from './fields/Text';
+import Boolean from './formElements/Boolean';
+import ChoiceList from './formElements/ChoiceList';
+import Collection from './formElements/Collection';
+import DateTime from './formElements/DateTime';
+import Header from './formElements/Header';
+import Location from './formElements/Location';
+import Numeric from './formElements/Numeric';
+import Section from './formElements/Section';
+import Text from './formElements/Text';
 
 export const FIELDS = {
   [FORM_ELEMENT_TYPES.BOOLEAN]: Boolean,

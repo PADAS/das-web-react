@@ -5,7 +5,7 @@ import { render, screen } from '../../../../../test-utils';
 
 import Numeric from './';
 
-describe('ReportManager - DetailsSection - SchemaForm - fields - Numeric', () => {
+describe('ReportManager - DetailsSection - SchemaForm - formElements - Numeric', () => {
   const onFieldChange = jest.fn();
 
   let details;

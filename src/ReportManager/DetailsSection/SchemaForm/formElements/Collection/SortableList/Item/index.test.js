@@ -9,7 +9,7 @@ import { mockStore } from '../../../../../../../__test-helpers/MockStore';
 
 import Item from './';
 
-describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - SortableList - Item', () => {
+describe('ReportManager - DetailsSection - SchemaForm - formElements - Collection - SortableList - Item', () => {
   const blurLocationMarker = jest.fn();
   const focusLocationMarker = jest.fn();
   const onChange = jest.fn();

@@ -3,7 +3,7 @@ import { GPS_FORMATS } from '../../../../../../../../utils/location';
 
 import { getItemTitle } from './';
 
-describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - SortableList - Item - utils', () => {
+describe('ReportManager - DetailsSection - SchemaForm - formElements - Collection - SortableList - Item - utils', () => {
   describe('getItemTitle', () => {
     const t = (_, { collectionLength }) => `${collectionLength} items`;
 

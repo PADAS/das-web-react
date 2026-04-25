@@ -8,7 +8,7 @@ import { render, screen } from '../../../../../../../../test-utils';
 
 import FormModal from './';
 
-describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - SortableList - Item - FormModal', () => {
+describe('ReportManager - DetailsSection - SchemaForm - formElements - Collection - SortableList - Item - FormModal', () => {
   const focusLocationMarker = jest.fn();
   const onCancel = jest.fn();
   const onDeleteItem = jest.fn();

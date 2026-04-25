@@ -5,7 +5,7 @@ import { render, screen } from '../../../../../test-utils';
 
 import Section from './';
 
-describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () => {
+describe('ReportManager - DetailsSection - SchemaForm - formElements - Section', () => {
   const focusLocationMarker = jest.fn();
   const onFieldChange = jest.fn();
   const onFieldErrorsChange = jest.fn();

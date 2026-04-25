@@ -6,7 +6,7 @@ import { CHOICE_LIST_ELEMENT_INPUT_TYPES } from '../../../../../utils/v2-event-s
 
 import ChoiceList from './';
 
-describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', () => {
+describe('ReportManager - DetailsSection - SchemaForm - formElements - ChoiceList', () => {
 
   const defaultProps = {
     details: {

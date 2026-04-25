@@ -5,7 +5,7 @@ import { render, screen } from '../../../../../test-utils';
 
 import Boolean from './';
 
-describe('ReportManager - DetailsSection - SchemaForm - fields - Boolean', () => {
+describe('ReportManager - DetailsSection - SchemaForm - formElements - Boolean', () => {
   const onFieldChange = jest.fn();
 
   let details;

@@ -12,7 +12,7 @@ import { MapContext } from '../../../../../App';
 
 jest.mock('../../../../../hooks/useJumpToLocation', () => () => () => { });
 
-describe('ReportManager - DetailsSection - SchemaForm - fields - Location', () => {
+describe('ReportManager - DetailsSection - SchemaForm - formElements - Location', () => {
   const blurLocationMarker = jest.fn();
   const focusLocationMarker = jest.fn();
   const onFieldChange = jest.fn();

@@ -7,7 +7,7 @@ import Header from './';
 
 import * as styles from './styles.module.scss';
 
-describe('ReportManager - DetailsSection - SchemaForm - fields - Header', () => {
+describe('ReportManager - DetailsSection - SchemaForm - formElements - Header', () => {
 
   const headerDetails = {
     size: HEADER_ELEMENT_SIZES.LARGE,

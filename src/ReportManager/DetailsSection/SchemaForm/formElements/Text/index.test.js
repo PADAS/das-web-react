@@ -6,7 +6,7 @@ import { TEXT_ELEMENT_FORMAT_VALIDATIONS, TEXT_ELEMENT_INPUT_TYPES } from '../..
 
 import Text from './';
 
-describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
+describe('ReportManager - DetailsSection - SchemaForm - formElements - Text', () => {
   const onFieldChange = jest.fn();
 
   let details;

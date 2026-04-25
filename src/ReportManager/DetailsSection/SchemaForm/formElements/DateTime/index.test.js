@@ -5,7 +5,7 @@ import { DATE_TIME_ELEMENT_INPUT_TYPES } from '../../../../../utils/v2-event-sch
 
 import DateTime from './';
 
-describe('ReportManager - DetailsSection - SchemaForm - fields - DateTime', () => {
+describe('ReportManager - DetailsSection - SchemaForm - formElements - DateTime', () => {
   const onFieldChange = jest.fn();
 
   let details;

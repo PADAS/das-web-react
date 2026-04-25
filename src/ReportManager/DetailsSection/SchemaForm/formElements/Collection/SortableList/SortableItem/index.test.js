@@ -15,7 +15,7 @@ jest.mock('@dnd-kit/sortable', () => ({
   useSortable: jest.fn(),
 }));
 
-describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - SortableList - SortableItem', () => {
+describe('ReportManager - DetailsSection - SchemaForm - formElements - Collection - SortableList - SortableItem', () => {
   const renderFormElement = jest.fn();
 
   let attributes, collectionDetails, listeners, store, transform, transition;
