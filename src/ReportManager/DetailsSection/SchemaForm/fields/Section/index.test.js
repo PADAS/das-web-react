@@ -31,6 +31,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () =>
       'text-1': {
         details: {
           defaultInput: 'Default Value 1',
+          value: 'text-1',
         },
       },
     }}
@@ -57,6 +58,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () =>
         'text-1': {
           details: {
             defaultInput: 'Default Value 1',
+            value: 'text-1',
           },
         },
       }}
@@ -85,6 +87,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () =>
         'text-1': {
           details: {
             defaultInput: 'Default Value 1',
+            value: 'text-1',
           },
         },
       }}
@@ -122,6 +125,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () =>
         'text-1': {
           details: {
             defaultInput: '',
+            value: 'text-1',
           },
         },
       }}
@@ -150,6 +154,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () =>
         'text-1': {
           details: {
             defaultInput: 'Default Value 1',
+            value: 'text-1',
           },
         },
       }}

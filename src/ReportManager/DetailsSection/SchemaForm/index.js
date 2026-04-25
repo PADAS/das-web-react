@@ -105,7 +105,7 @@ const SchemaForm = ({
 
   const onSectionFieldChange = (fieldId, value) => {
     // Section children's ids and names are the same.
-    const fieldName = fieldId;
+    const fieldName = formElements[fieldId].details.value;
     const newFormData = { ...formData, [fieldName]: value };
 
     // Conditional sections can depend on fields in other conditional sections.

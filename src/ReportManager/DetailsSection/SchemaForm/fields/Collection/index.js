@@ -39,7 +39,6 @@ const Collection = ({
   const doesChildrenHaveErrors = !!error && Object.keys(error).some((errorKey) => errorKey !== 'message');
   const hasError = !!error?.message;
   const isMaxItemsReached = details.maxItems === null ? false : value.length >= details.maxItems;
-  const name = id.split('.').pop();
 
   const onItemChange = (itemIndex) => (itemValue, itemError) => {
     // Clean the collection error message and update the changed item error.
@@ -146,7 +145,7 @@ const Collection = ({
   // If a location field from an item requests to focus its location marker,
   // prefix the marker id with the collection id and the item index.
   const focusLocationMarkerFromItem = (itemIndex) => (locationFieldName) =>
-    focusLocationMarker(`${name}[${itemIndex}].${locationFieldName}`);
+    focusLocationMarker(`${details.value}[${itemIndex}].${locationFieldName}`);
 
   return <div
       aria-errormessage={hasError ? `${id}-description` : undefined}

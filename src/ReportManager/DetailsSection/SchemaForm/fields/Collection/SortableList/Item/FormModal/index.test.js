@@ -2,8 +2,9 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen } from '../../../../../../../../test-utils';
+import { FORM_ELEMENT_TYPES } from '../../../../../../../../utils/v2-event-schemas/constants';
 import { mockStore } from '../../../../../../../../__test-helpers/MockStore';
+import { render, screen } from '../../../../../../../../test-utils';
 
 import FormModal from './';
 
@@ -34,6 +35,20 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         errors={{}}
         focusLocationMarker={focusLocationMarker}
         formData={{ 'field-1': 'Value 1', 'field-2': 'Value 2' }}
+        formElements={{
+          'collection-1.field-1': {
+            details: {
+              value: 'field-1',
+            },
+            type: FORM_ELEMENT_TYPES.TEXT,
+          },
+          'collection-1.field-2': {
+            details: {
+              value: 'field-2',
+            },
+            type: FORM_ELEMENT_TYPES.TEXT,
+          },
+        }}
         isOpen
         itemName="Item"
         leftColumn={['collection-1.field-1', 'collection-1.field-2']}

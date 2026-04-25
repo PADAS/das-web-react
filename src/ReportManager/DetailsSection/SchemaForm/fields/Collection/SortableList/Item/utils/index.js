@@ -2,17 +2,17 @@ import getHumanizedFieldValue from '../../../../../../../../utils/v2-event-schem
 
 export const getItemTitle = (
   formData,
-  identifierName,
+  itemIdentifierFieldName,
   defaultTitle,
   identifierField,
   language,
   coordinatesRepresentation,
   t
-) => !identifierName || !formData[identifierName]
+) => !itemIdentifierFieldName || !formData[itemIdentifierFieldName]
   ? defaultTitle
   : getHumanizedFieldValue(
     identifierField,
-    formData[identifierName],
+    formData[itemIdentifierFieldName],
     defaultTitle,
     language,
     coordinatesRepresentation,

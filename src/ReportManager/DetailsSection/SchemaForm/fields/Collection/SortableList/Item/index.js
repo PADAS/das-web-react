@@ -55,10 +55,12 @@ const Item = ({
   const shouldDeleteOnCancelRef = useRef(wasItemRecentlyAdded);
 
   const hasError = !!errors;
-  const itemIdentifierName = collectionDetails.itemIdentifier?.split('.').pop();
+  const itemIdentifierFieldName = collectionDetails.itemIdentifier
+    ? formElements[collectionDetails.itemIdentifier].details.value
+    : null;
   const title = getItemTitle(
     formData,
-    itemIdentifierName,
+    itemIdentifierFieldName,
     `${collectionDetails.itemName} ${id + 1}`,
     formElements[collectionDetails.itemIdentifier],
     i18n.language,
@@ -82,7 +84,7 @@ const Item = ({
   };
 
   const onFieldChange = (fieldId, value, error) => {
-    const fieldName = fieldId.split('.').pop();
+    const fieldName = formElements[fieldId].details.value;
 
     // We update the field error in the errors object.
     let updatedErrors = { ...errors };
@@ -238,6 +240,8 @@ const Item = ({
       errors={errors}
       focusLocationMarker={focusLocationMarker}
       formData={formData}
+      formElements={formElements}
+      // eslint-disable-next-line react-hooks/refs
       hideDeleteButton={shouldDeleteOnCancelRef.current}
       isOpen={isFormModalOpen}
       itemName={collectionDetails.itemName}

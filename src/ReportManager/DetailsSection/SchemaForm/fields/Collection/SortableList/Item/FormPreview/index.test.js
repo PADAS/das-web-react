@@ -45,12 +45,14 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
           'collection-1.field-1': {
             details: {
               label: 'Field 1',
+              value: 'field-1',
             },
             type: FORM_ELEMENT_TYPES.TEXT,
           },
           'collection-1.field-2': {
             details: {
               label: 'Field 2',
+              value: 'field-2',
             },
             type: FORM_ELEMENT_TYPES.TEXT,
           },
@@ -111,12 +113,14 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         'collection-1.field-1': {
           details: {
             label: 'Field 1',
+            value: 'field-1',
           },
           type: FORM_ELEMENT_TYPES.TEXT,
         },
         'collection-1.field-2': {
           details: {
             label: 'Field 2',
+            value: 'field-2',
           },
           type: FORM_ELEMENT_TYPES.LOCATION,
         },
@@ -140,12 +144,14 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         'collection-1.field-1': {
           details: {
             label: 'Field 1',
+            value: 'field-1',
           },
           type: FORM_ELEMENT_TYPES.TEXT,
         },
         'collection-1.field-2': {
           details: {
             label: 'Field 2',
+            value: 'field-2',
           },
           type: FORM_ELEMENT_TYPES.LOCATION,
         },
@@ -163,12 +169,14 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         'collection-1.field-1': {
           details: {
             label: 'Field 1',
+            value: 'field-1',
           },
           type: FORM_ELEMENT_TYPES.TEXT,
         },
         'collection-1.field-2': {
           details: {
             label: 'Field 2',
+            value: 'field-2',
           },
           type: FORM_ELEMENT_TYPES.LOCATION,
         },
@@ -194,12 +202,14 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         'collection-1.field-1': {
           details: {
             label: 'Field 1',
+            value: 'field-1',
           },
           type: FORM_ELEMENT_TYPES.TEXT,
         },
         'collection-1.field-2': {
           details: {
             label: 'Field 2',
+            value: 'field-2',
           },
           type: FORM_ELEMENT_TYPES.LOCATION,
         },
@@ -221,12 +231,14 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         'collection-1.field-1': {
           details: {
             label: 'Field 1',
+            value: 'field-1',
           },
           type: FORM_ELEMENT_TYPES.TEXT,
         },
         'collection-1.field-2': {
           details: {
             label: 'Field 2',
+            value: 'field-2',
           },
           type: FORM_ELEMENT_TYPES.LOCATION,
         },

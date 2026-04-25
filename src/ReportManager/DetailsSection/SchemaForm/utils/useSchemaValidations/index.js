@@ -14,8 +14,7 @@ const insertErrorRecursively = (fieldName, message, errorPath, errors, t) => {
     // If there is no path, the error should be inserted in this errors object.
     errors[fieldName] = { message };
   } else {
-    // If there is a path, we extract the parent collection name and the index, then inject the error recursively in
-    // the errors object of that specific item.
+    // If there is a path, the error should be inserted in the parent collection errors object.
     const parentCollectionName = errorPath[0];
     const itemIndex = errorPath[1];
     errors[parentCollectionName] = {

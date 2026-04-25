@@ -24,7 +24,7 @@ const Section = ({
   const onColumnFieldChange = (fieldId, value, error) => {
     onFieldChange(fieldId, value);
 
-    const fieldName = fieldId;
+    const fieldName = formElements[fieldId].details.value;
     onFieldErrorsChange({ ...fieldErrors, [fieldName]: error });
   };
 
@@ -54,7 +54,7 @@ const Section = ({
         data-testid={`schema-form-section-${id}-left-column`}
       >
         {details.leftColumn.map((leftColumnChildId) => {
-          const leftColumnChildName = leftColumnChildId;
+          const leftColumnChildName = formElements[leftColumnChildId].details.value;
 
           return renderFormElement(
             leftColumnChildId,
@@ -71,7 +71,7 @@ const Section = ({
         data-testid={`schema-form-section-${id}-right-column`}
       >
         {details.rightColumn.map((rightColumnChildId) => {
-          const rightColumnChildName = rightColumnChildId;
+          const rightColumnChildName = formElements[rightColumnChildId].details.value;
 
           return renderFormElement(
             rightColumnChildId,

@@ -80,13 +80,15 @@ const SortableList = ({
   // Utility to calculate variables needed for a11y announcements on drag operations.
   const getActiveItemAnnouncementData = (activeId, overId = null) => {
     const activeItemIndex = items.findIndex((item) => item.id === activeId);
-    const itemIdentifierName = collectionDetails.itemIdentifier?.split('.').pop();
+    const itemIdentifierFieldName = collectionDetails.itemIdentifier
+      ? formElements[collectionDetails.itemIdentifier].details.value
+      : null;
 
     return [
       activeItemIndex + 1,
       getItemTitle(
         items[activeItemIndex].formData,
-        itemIdentifierName,
+        itemIdentifierFieldName,
         `${collectionDetails.itemName} ${items[activeItemIndex].id + 1}`,
         formElements[collectionDetails.itemIdentifier],
         i18n.language,
@@ -96,6 +98,7 @@ const SortableList = ({
       ...(overId === null ? [] : [items.findIndex((item) => item.id === overId) + 1]),
     ];
   };
+
   const dndAnnouncements = {
     onDragStart: (event) => {
       const [activeItemPosition, activeItemTitle] = getActiveItemAnnouncementData(event.active.id);
@@ -156,7 +159,6 @@ const SortableList = ({
           index={index}
           isFormModalOpen={item.isFormModalOpen}
           isFormPreviewOpen={item.isFormPreviewOpen}
-          wasItemRecentlyAdded={item.wasItemRecentlyAdded}
           key={item.id}
           onChange={onItemChange(index)}
           onDelete={onItemDelete(index)}
@@ -164,6 +166,7 @@ const SortableList = ({
           renderFormElement={renderFormElement}
           setIsFormModalOpen={setIsItemFormModalOpen(index)}
           setIsFormPreviewOpen={setIsItemFormPreviewOpen(index)}
+          wasItemRecentlyAdded={item.wasItemRecentlyAdded}
         />)}
       </SortableContext>
 

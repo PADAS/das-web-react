@@ -21,10 +21,11 @@ const FormPreview = ({
   formElements,
   isDragOverlay,
 }) => {
-  const jumpToLocation = useJumpToLocation();
   const { t, i18n } = useTranslation('reports', {
     keyPrefix: 'reportManager.detailsSection.schemaForm.fields.collection.sortableList.item.formPreview',
   });
+
+  const jumpToLocation = useJumpToLocation();
 
   const coordinatesRepresentation = useSelector(selectCoordinatesRepresentation);
 
@@ -35,17 +36,18 @@ const FormPreview = ({
       data-testid="schema-form-collection-item-form-preview"
     >
     {fieldIds.map((fieldId) => {
-      const fieldName = fieldId.split('.').pop();
+      const field = formElements[fieldId];
 
+      const fieldName = field.details.value;
       return <li className={styles.fieldSummary} key={fieldId}>
         <div>
           <p className={`${styles.label} ${errors?.[fieldName] ? styles.error : ''}`}>
-            {formElements[fieldId].details.label}
+            {field.details.label}
           </p>
 
           <p className={`${styles.value} ${errors?.[fieldName] ? styles.error : ''}`}>
             {getHumanizedFieldValue(
-              formElements[fieldId],
+              field,
               formData[fieldName],
               '-',
               i18n.language,
@@ -55,8 +57,8 @@ const FormPreview = ({
           </p>
         </div>
 
-        {formElements[fieldId].type === FORM_ELEMENT_TYPES.LOCATION && formData[fieldName] && <button
-          aria-label={t('jumpToLocationButtonLabel', { field: formElements[fieldId].details.label })}
+        {field.type === FORM_ELEMENT_TYPES.LOCATION && formData[fieldName] && <button
+          aria-label={t('jumpToLocationButtonLabel', { field: field.details.label })}
           className={`${styles.jumpToLocationButton} ${isDragOverlay ? styles.dragOverlay : ''}`}
           onBlur={() => isDragOverlay ? undefined : blurLocationMarker()}
           onClick={() => isDragOverlay ? undefined : jumpToLocation(
@@ -65,7 +67,7 @@ const FormPreview = ({
           )}
           onFocus={() => isDragOverlay ? undefined : focusLocationMarker(fieldName)}
           onKeyDown={(event) => (event.key === 'Enter' || event.key === ' ') && event.stopPropagation()}
-          title={t('jumpToLocationButtonLabel', { field: formElements[fieldId].details.label })}
+          title={t('jumpToLocationButtonLabel', { field: field.details.label })}
           type="button"
         >
           <MarkerFeedIcon />

@@ -14,6 +14,7 @@ const FormModal = ({
   errors,
   focusLocationMarker,
   formData,
+  formElements,
   hideDeleteButton,
   isOpen,
   itemName,
@@ -73,7 +74,7 @@ const FormModal = ({
           data-testid="schema-form-collection-form-modal-left-column"
         >
           {leftColumn.map((leftColumnChildId) => {
-            const leftColumnChildName = leftColumnChildId.split('.').pop();
+            const leftColumnChildName = formElements[leftColumnChildId].details.value;
 
             return renderFormElement(
               leftColumnChildId,
@@ -91,7 +92,7 @@ const FormModal = ({
           data-testid="schema-form-collection-form-modal-right-column"
         >
           {rightColumn.map((rightColumnChildId) => {
-            const rightColumnChildName = rightColumnChildId.split('.').pop();
+            const rightColumnChildName = formElements[rightColumnChildId].details.value;
 
             return renderFormElement(
               rightColumnChildId,
