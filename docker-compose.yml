@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
+      args:
+        NODE_VERSION: ${NODE_VERSION:?NODE_VERSION must be set (e.g. export NODE_VERSION=$(cat .node-version))}
     volumes:
       - .:/app
     restart: on-failure
@@ -10,6 +12,8 @@ services:
   #   build:
   #     context: ./mock-api
   #     dockerfile: Dockerfile.dev
+  #     args:
+  #       NODE_VERSION: ${NODE_VERSION:?NODE_VERSION must be set (e.g. export NODE_VERSION=$(cat .node-version))}
   #   volumes:
   #     - /app/node_modules
   #     - ./mock-api:/app
@@ -17,6 +21,8 @@ services:
   #   build:
   #     context: .
   #     dockerfile: Dockerfile.dev
+  #     args:
+  #       NODE_VERSION: ${NODE_VERSION:?NODE_VERSION must be set (e.g. export NODE_VERSION=$(cat .node-version))}
   #   volumes:
   #     - /app/node_modules
   #     - .:/app

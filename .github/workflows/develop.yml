@@ -14,6 +14,18 @@ permissions:
   id-token: write
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+      - name: Install dependencies
+        run: yarn install --immutable
+      - name: Run tests
+        run: yarn test-ci
+
   config:
     runs-on: ubuntu-latest
     outputs:
@@ -24,7 +36,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version-file: '.node-version'
       - run: |
           npm pkg set "buildbranch"="${{ github.ref_name }}"
           npm pkg set "buildnum"="${{ github.run_number }}"
@@ -93,6 +105,10 @@ jobs:
           tags: |
             type=raw,value=${{ needs.config.outputs.image-tag }}
 
+      - name: Read node version
+        id: node-ver
+        run: echo "value=$(cat .node-version)" >> $GITHUB_OUTPUT
+
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
@@ -101,12 +117,14 @@ jobs:
           file: Dockerfile.mt
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: ${{ needs.config.outputs.build-args }}
+          build-args: |
+            ${{ needs.config.outputs.build-args }}
+            NODE_VERSION=${{ steps.node-ver.outputs.value }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
   deploy-dev:
-    needs: [config, build]
+    needs: [config, build, test]
     uses: ./.github/workflows/_update-argo.yml
     with:
       app-name: das-web-react
