@@ -18,9 +18,7 @@
     You need to enable JavaScript to run this app.
   </noscript>
   <div id="root"></div>
-  <!-- Intentionally not deferred — must execute before the module bundle to
-       guarantee window.__APP_CONFIG__ is set. The fetch is local (nginx
-       serving a tiny file) so the parsing block is negligible. -->
+  <!-- Not deferred, window.__APP_CONFIG__ must be set before the bundle. -->
   <script src="/config.js"></script>
   <script data-jsd-embedded data-key="e1d5f5e4-1bf6-43ce-ae10-972895d6c040"
     data-base-url="https://jsd-widget.atlassian.com" src="https://jsd-widget.atlassian.com/assets/embed.js"></script>
