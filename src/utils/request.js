@@ -3,11 +3,11 @@ import i18next from 'i18next';
 export const generateErrorMessageForRequest = (error) => {
   const t = i18next.getFixedT(null, 'utils', 'generateErrorMessageForRequest');
 
-  if (!!error.request) {
+  if (error.request) {
     return t('noResponse');
   }
 
-  if (!!error.response?.status?.code) {
+  if (error.response?.status?.code) {
     switch (error.response.status.code) {
     case 400: {
       return t('badRequest');

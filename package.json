@@ -25,7 +25,7 @@
     "buffer": "^6.0.3",
     "date-fns": "^4.1.0",
     "epsg-index": "^2.0.0",
-    "eslint": "^9.39.4",
+    "eslint": "^10.2.1",
     "geodesy": "^2.4.0",
     "humanize-duration": "^3.33.2",
     "i18next": "^26.0.8",

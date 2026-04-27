@@ -48,7 +48,7 @@ const SubjectsLayer = ({ mapImages = {}, onSubjectClick }) => {
   ]), []);
 
   useEffect(() => {
-    if (!!subjectFeatureCollection?.features?.length) {
+    if (subjectFeatureCollection?.features?.length) {
       addFeatureCollectionImagesToMap(subjectFeatureCollection);
     }
   }, [subjectFeatureCollection]);

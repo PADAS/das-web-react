@@ -19,10 +19,15 @@ export default defineConfig([
     'terraform/',
   ]),
 
-  js.configs.recommended,
-
   {
+    name: 'src/javascript',
     files: ['**/*.{js,jsx}'],
+    extends: [
+      js.configs.recommended,
+      react.configs.flat.recommended,
+      react.configs.flat['jsx-runtime'],
+      reactHooks.configs.flat.recommended,
+    ],
     languageOptions: {
       ecmaVersion: 'latest',
       globals: {
@@ -36,18 +41,13 @@ export default defineConfig([
       },
       sourceType: 'module',
     },
-    plugins: {
-      react,
-      'react-hooks': reactHooks,
-    },
     settings: {
       react: {
-        version: 'detect',
+        // `version: "detect"` still uses APIs removed in ESLint 10.
+        version: '19.2.5',
       },
     },
     rules: {
-      ...react.configs.recommended.rules,
-      ...reactHooks.configs.recommended.rules,
       'keyword-spacing': [
         'error',
         { before: true, after: true },
@@ -111,7 +111,8 @@ export default defineConfig([
   },
 
   {
+    name: 'src/jest',
     files: ['**/*.test.{js,jsx}', '**/setupTests.js', '**/src/__test-helpers/**/*.js'],
-    ...jest.configs['flat/recommended'],
+    extends: [jest.configs['flat/recommended']],
   },
 ]);
