@@ -82,7 +82,7 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      await dispatch(postAuth(formData));
+      await dispatch(postAuth({ username, password }));
       const options = location.state?.from
         ? { state: { comesFromLogin: true } }
         : {};
