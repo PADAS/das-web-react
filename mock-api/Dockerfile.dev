@@ -1,4 +1,6 @@
-FROM node:24-alpine
+# check=skip=InvalidDefaultArgInFrom
+ARG NODE_VERSION
+FROM node:${NODE_VERSION}-alpine
 WORKDIR /app
 
 RUN yarn global add nodemon
