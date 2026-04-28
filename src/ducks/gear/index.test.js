@@ -2,7 +2,7 @@ import axios from 'axios';
 
 import { mockStore } from '../../__test-helpers/MockStore';
 import { showToast } from '../../utils/toast';
-import { API_URL, SYSTEM_CONFIG_FLAGS } from '../../constants';
+import { API_URL } from '../../constants';
 
 import {
   fetchAllGear,
@@ -172,10 +172,10 @@ describe('Ducks - Gear', () => {
       ]);
     });
 
-    test('dispatches error and toast on failure', async () => {
+    test('swallows any fetch error silently as GEAR_ENDPOINT_UNAVAILABLE', async () => {
       jest.spyOn(axios, 'get').mockRejectedValue({
         message: 'network',
-        response: { data: { detail: 'Forbidden' } },
+        response: { status: 403, data: { detail: 'Forbidden' } },
       });
 
       const store = mockStore({ data: { gear: INITIAL_GEAR_STATE } });
@@ -184,40 +184,9 @@ describe('Ducks - Gear', () => {
       expect(result).toEqual([]);
       expect(store.getActions().map((a) => a.type)).toEqual([
         'FETCH_GEAR_START',
-        'FETCH_GEAR_ERROR',
-      ]);
-      expect(store.getActions()[1].payload).toBe('Forbidden');
-      expect(showToast).toHaveBeenCalledWith(
-        expect.objectContaining({
-          message: 'Forbidden',
-          toastConfig: { type: 'error' },
-        }),
-      );
-    });
-
-    test('404 dispatches GEAR_ENDPOINT_UNAVAILABLE without toast', async () => {
-      jest.spyOn(axios, 'get').mockRejectedValue({
-        response: { status: 404 },
-      });
-
-      const store = mockStore({ data: { gear: INITIAL_GEAR_STATE } });
-      await store.dispatch(fetchAllGear());
-
-      expect(store.getActions().map((a) => a.type)).toEqual([
-        'FETCH_GEAR_START',
         'GEAR_ENDPOINT_UNAVAILABLE',
       ]);
       expect(showToast).not.toHaveBeenCalled();
-    });
-
-    test('no-op when system config disables gear', async () => {
-      const store = mockStore({
-        data: { gear: INITIAL_GEAR_STATE },
-        view: { systemConfig: { [SYSTEM_CONFIG_FLAGS.GEAR]: false } },
-      });
-      await store.dispatch(fetchAllGear());
-
-      expect(store.getActions()).toEqual([]);
     });
   });
 });

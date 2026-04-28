@@ -9,6 +9,7 @@ import {
   ReactComponent as EarthRangerLogo,
 } from '../common/images/earth-ranger-logo.svg';
 
+import appConfig from '../config';
 import { clearAuth, postAuth } from '../ducks/auth';
 import { fetchEula } from '../ducks/eula';
 import { REACT_APP_ROUTE_PREFIX, SYSTEM_CONFIG_FLAGS } from '../constants';
@@ -47,7 +48,7 @@ const LoginPage = () => {
     try {
       await auth0LoginWithRedirect({
         authorizationParams: {
-          audience: import.meta.env.REACT_APP_AUTH0_AUDIENCE,
+          audience: appConfig.auth0.audience,
           organization: idpOrgId,
         },
       });

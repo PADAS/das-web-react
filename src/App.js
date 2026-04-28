@@ -9,7 +9,6 @@ import { useTranslation } from 'react-i18next';
 import ReactGA4 from 'react-ga4';
 
 import { createUserAnalyticsData } from './utils/analytics';
-import { SYSTEM_CONFIG_FLAGS } from './constants';
 
 import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
 import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/event-svg-sprite.svg';
@@ -66,7 +65,6 @@ export const App = () => {
     (state) => !!state.view.userLocation && userIsGeoPermissionRestricted(user)
   );
   const trackSettings = useSelector((state) => state.view.trackSettings);
-  const gearEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.GEAR]);
 
   const socket = useContext(SocketContext);
 
@@ -168,15 +166,10 @@ export const App = () => {
   }, []);
 
   useEffect(() => {
-    if (gearEnabled === false) {
-      return undefined;
-    }
     dispatch(fetchAllGear());
     const intervalId = window.setInterval(() => {
       dispatch((innerDispatch, getState) => {
         const { gear } = getState().data;
-        const { systemConfig } = getState().view;
-        if (systemConfig?.[SYSTEM_CONFIG_FLAGS.GEAR] === false) return;
         if (gear.gearEndpointUnavailable) return;
         if (!gear.loading) {
           innerDispatch(fetchAllGear());
@@ -185,7 +178,7 @@ export const App = () => {
     }, GEAR_LIST_POLL_INTERVAL_MS);
 
     return () => window.clearInterval(intervalId);
-  }, [dispatch, gearEnabled]);
+  }, [dispatch]);
 
   useEffect(() => {
     if (showGeoPermWarningMessage) {
