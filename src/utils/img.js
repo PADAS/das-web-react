@@ -169,6 +169,6 @@ export const calcUrlForImage = imagePath => {
   if (!imgNeedsHostAppended(imagePath)) {
     return imagePath;
   }
-  const appendString = !!DAS_HOST ? `${DAS_HOST}/` : '';
+  const appendString = DAS_HOST ? `${DAS_HOST}/` : '';
   return `${appendString}${imagePath}`.replace(/^http:\/\//i, 'https://').replace('.org//', '.org/');
 };

@@ -73,7 +73,7 @@ const PatrolFilter = ({ className = '' }) => {
 
   useEffect(() => {
     if (!caseInsensitiveCompare(filterText, patrolFilter.filter.text)) {
-      if (!!filterText.length) {
+      if (filterText.length) {
         updatePatrolFilterDebounced.current({ filter: { text: filterText } });
       } else {
         dispatch(

@@ -264,7 +264,7 @@ const SideBar = () => {
         <div className={styles.header}>
           <div className={styles.title}>
             {(currentTab === TAB_KEYS.EVENTS || currentTab === TAB_KEYS.PATROLS) && <div>
-              {!!itemId
+              {itemId
                 ? <button
                   aria-label={t('backButtonLabel')}
                   className={styles.backButton}

@@ -1,46 +1,126 @@
-@import '../common/styles/vars/colors';
+@use "sass:color";
+
+@use "../common/styles/vars/colors";
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 
 .container {
   align-items: center;
+  animation: fadein 0.5s ease-in;
   display: flex;
-  flex-flow: column;
+  flex-direction: column;
   height: 100vh;
+  padding-top: 3rem;
   width: 100vw;
-  padding: 3rem 1rem 1rem;
-}
 
-.form {
-  justify-content: center;
-  display: flex;
-  flex-flow: column;
-  margin: 0 1rem;
-  max-width: 20rem;
-  width: 100%;
-  label {
-    margin: 0;
+  .logo {
+    margin-bottom: 3.5rem;
+    max-width: 20rem;
+    width: 100%;
   }
-  input {
-    margin-bottom: 1rem;
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    max-width: 20rem;
+    width: 100%;
+
+    .label {
+      color: colors.$secondary-medium-gray;
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 0.125rem;
+
+      &.error {
+        color: colors.$bright-red;
+      }
+    }
+
+    .input {
+      border: 1px solid colors.$light-gray-border;
+      border-radius: 0.25rem;
+      height: 2.5rem;
+      margin-bottom: 1.5rem;
+      min-width: 0;
+      padding: 0 0.5rem;
+
+      &:has(+ .errorMessage) {
+        margin-bottom: 0.25rem;
+      }
+
+      &[aria-invalid="true"] {
+        border-color: colors.$bright-red;
+      }
+    }
+
+    .errorMessage {
+      color: colors.$bright-red;
+      font-size: 0.875rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .loginButton {
+      align-items: center;
+      background-color: colors.$bright-blue;
+      border: none;
+      border-radius: 0.25rem;
+      color: white;
+      display: inline-flex;
+      font-size: 1rem;
+      font-weight: 500;
+      height: 2.25rem;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+      outline: none;
+      padding: 0 0.5rem;
+      transition: background-color 150ms ease;
+
+      &:hover:not(:disabled) {
+        background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+      }
+
+      &:focus-visible {
+        background-color: white;
+        border: 2px solid colors.$bright-blue;
+        color: colors.$bright-blue;
+      }
+
+      &:disabled {
+        opacity: 0.75;
+      }
+    }
   }
-  button + button {
-    margin-top: 0.75rem;
+
+  .alertMessage {
+    color: colors.$bright-red;
+    background-color: color.adjust(colors.$bright-red, $lightness: 56%);
+    border: 1px solid colors.$bright-red;
+    margin-bottom: 1.5rem;
+    max-width: 20rem;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+  }
+
+  .eulaLink {
+    margin-top: 1rem;
   }
 }
 
-.eulalink {
-  padding-top: 2rem;
-}
-
-.error {
-  margin-top: 1rem;
-}
-
-.logo {
-  margin: 0 0 3rem;
-  max-height: 10rem;
-}
-
-@keyframes fadein {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+.srOnly {
+  border-width: 0;
+  clip: rect(0, 0, 0, 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
 }

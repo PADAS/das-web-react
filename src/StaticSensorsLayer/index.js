@@ -128,7 +128,7 @@ const StaticSensorsLayer = () => {
   useMapEventBinding('mouseenter', onLayerMouseLeave, currentBackgroundLayerId);
 
   useEffect(() => {
-    if (!!map?.getLayer(currentBackgroundLayerId)) {
+    if (map?.getLayer(currentBackgroundLayerId)) {
       const onSourceData = ({ sourceDataType, sourceId }) => {
         if (sourceId === currentSourceId && sourceDataType !== 'metadata') {
           const features = map.queryRenderedFeatures({ layers: [currentBackgroundLayerId, currentLayerId] });

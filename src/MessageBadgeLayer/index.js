@@ -81,7 +81,7 @@ const MessageBadgeLayer = ({ onBadgeClick }) => {
   const [state, dispatch] = useReducer(messageListReducer, INITIAL_MESSAGE_LIST_STATE);
 
   useEffect(() => {
-    if (!!hasMessagesReadPermission) {
+    if (hasMessagesReadPermission) {
       const handleRealtimeMessage = ({ data: msg }) => {
         if (!!lastRequestedSubjectIdList.current &&
           lastRequestedSubjectIdList.current.includes(extractSubjectFromMessage(msg)?.id)

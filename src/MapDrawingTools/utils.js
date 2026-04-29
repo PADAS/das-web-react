@@ -70,7 +70,7 @@ export const createPointsGeoJsonForCoords = (coords, isDrawing, isMediumLayoutOr
       points.pop(); // Remove the point below the cursor
     }
 
-    if (!!points.length) {
+    if (points.length) {
       points[0].properties = { ...points[0].properties, initialPoint: true };
     }
   }

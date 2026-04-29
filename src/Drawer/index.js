@@ -32,13 +32,13 @@ const Drawer = () => {
 
   return <>
     <div
-      className={`${styles.overlay} ${!!drawer.isOpen ? 'open' : ''}`}
+      className={`${styles.overlay} ${drawer.isOpen ? 'open' : ''}`}
       data-testid="overlay"
       onClick={() => dispatch(hideDrawer())}
     />
 
     <div
-      className={`${styles.drawer} ${!!drawer.isOpen ? 'open' : ''} direction-${drawer.direction}`}
+      className={`${styles.drawer} ${drawer.isOpen ? 'open' : ''} direction-${drawer.direction}`}
       data-testid="drawerContainer"
       >
       {drawerRendered}

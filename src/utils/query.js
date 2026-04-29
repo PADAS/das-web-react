@@ -54,7 +54,7 @@ export const cleanedUpFilterObject = (filter) =>
     .reduce((accumulator, [key, value]) => {
 
       if (Array.isArray(value)) {
-        return !!value.length ? {
+        return value.length ? {
           ...accumulator,
           [key]: value,
         } : accumulator;
