@@ -100,7 +100,7 @@ const AttachmentListItem = ({
   if (attachment.file_type === 'image') {
     return <li className={isOpen ? styles.openItem : ''} ref={ref}>
       <div className={`${styles.itemRow} ${styles.collapseRow}`} onClick={isOpen ? onCollapse : onExpand}>
-        {!!imageIconSource
+        {imageIconSource
           ? <img
             alt={`${attachment.filename} thumbnail`}
             className={styles.attachmentThumbnail}

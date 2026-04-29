@@ -78,7 +78,7 @@ describe('useJumpToLocation', () => {
     });
   });
 
-  test('fits multi-dimensional coordinates into map boundaries ', async () => {
+  test('fits multi-dimensional coordinates into map boundaries', async () => {
     const mapBoundaries = {
       start: [-104.19557197413907, 20.75709101172957],
       end: [-45.19557197413907, 65.75709101172957]

@@ -9,9 +9,16 @@
     "signInFailed": "Sign-in failed. Please try again.",
     "unknownErrorMessage": "An error has occurred. Please try again."
   },
+  "errors": {
+    "passwordRequired": "Password is required.",
+    "usernameRequired": "Username is required."
+  },
   "eulaLink": "EarthRanger EULA",
+  "eulaLinkLabel": "EarthRanger EULA (opens in a new tab)",
   "loginButton": "Log in",
   "loginButtonIdp": "Sign in",
+  "loginButtonLoadingLabel": "Loading",
   "passwordLabel": "Password",
+  "title": "Log In",
   "usernameLabel": "Username"
 }

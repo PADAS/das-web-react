@@ -9,9 +9,16 @@
     "signInFailed": "Kuingia kumeshindwa. Tafadhali jaribu tena.",
     "unknownErrorMessage": "Kumetokea kosa. Tafadhali jaribu tena."
   },
+  "errors": {
+    "passwordRequired": "Nenosiri linahitajika.",
+    "usernameRequired": "Jina la mtumiaji linahitajika."
+  },
   "eulaLink": "EarthRanger EULA",
+  "eulaLinkLabel": "EarthRanger EULA (hufungua kwenye kichupo kipya)",
   "loginButton": "Ingia",
   "loginButtonIdp": "Ingia",
+  "loginButtonLoadingLabel": "Inapakia",
   "passwordLabel": "Nenosiri",
+  "title": "Ingia",
   "usernameLabel": "Jina la Mtumiaji"
 }
