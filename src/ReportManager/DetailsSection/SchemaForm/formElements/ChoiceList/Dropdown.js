@@ -15,7 +15,7 @@ const Input = ({ selectProps, ...otherProps }) => <components.Input
   aria-required={selectProps['aria-required']}
 />;
 
-const Option = ({ className, data, innerProps, isSelected, isMulti, ...restProps }) => <components.Option
+const Option = ({ className = '', data, innerProps, isSelected, isMulti, ...restProps }) => <components.Option
     className={`${className} ${styles.option}`}
     data={data}
     innerProps={{ ...innerProps, title: data.label }}
