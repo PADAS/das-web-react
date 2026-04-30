@@ -15,7 +15,8 @@ const Input = ({ selectProps, ...otherProps }) => <components.Input
   aria-required={selectProps['aria-required']}
 />;
 
-const Option = ({ data, innerProps, isSelected, isMulti, ...restProps }) => <components.Option
+const Option = ({ className, data, innerProps, isSelected, isMulti, ...restProps }) => <components.Option
+    className={`${className} ${styles.option}`}
     data={data}
     innerProps={{ ...innerProps, title: data.label }}
     isMulti={isMulti}
@@ -23,9 +24,11 @@ const Option = ({ data, innerProps, isSelected, isMulti, ...restProps }) => <com
   >
   {isSelected && !isMulti && <CheckIcon className={styles.checkMark} />}
 
-  <span className={`${styles.optionLabel} ${ !isMulti && !isSelected && styles.singleOption }`}>
-    {data.label}
-  </span>
+  <div className={`${styles.optionLabel} ${ !isMulti && !isSelected && styles.singleOption }`}>
+    <span className={styles.display} title={data.label}>{data.label}</span>
+
+    {data.description && <span className={styles.description} title={data.description}>{data.description}</span>}
+  </div>
 </components.Option>;
 
 const Dropdown = ({ details, disabled, id, invalid, onChange, readOnly, value, ...otherProps }) => {
@@ -34,7 +37,11 @@ const Dropdown = ({ details, disabled, id, invalid, onChange, readOnly, value, .
   const [isMenuOpen, setMenuOpen] = useState(false);
 
   const options = useMemo(
-    () => details.options.map((option) => ({ label: option.title, value: option.const })),
+    () => details.options.map((option) => ({
+      description: option.description,
+      label: option.display,
+      value: option.value,
+    })),
     [details.options]
   );
 

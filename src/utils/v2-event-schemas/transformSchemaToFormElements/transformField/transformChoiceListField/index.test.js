@@ -32,10 +32,12 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
                 oneOf: [
                   {
                     const: 'source-1',
+                    description: 'radio_manufacturer',
                     title: 'Ranger Radio',
                   },
                   {
                     const: 'source-2',
+                    description: 'collar_manufacturer',
                     title: 'Elephant Collar',
                   },
                 ],
@@ -76,12 +78,14 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           multiple: true,
           options: [
             {
-              const: 'source-1',
-              title: 'Ranger Radio',
+              description: 'radio_manufacturer',
+              display: 'Ranger Radio',
+              value: 'source-1',
             },
             {
-              const: 'source-2',
-              title: 'Elephant Collar',
+              description: 'collar_manufacturer',
+              display: 'Elephant Collar',
+              value: 'source-2',
             },
           ],
           value: choiceListFieldName,
@@ -135,12 +139,14 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           multiple: true,
           options: [
             {
-              const: 'source-1',
-              title: 'Ranger Radio',
+              description: 'radio_manufacturer',
+              display: 'Ranger Radio',
+              value: 'source-1',
             },
             {
-              const: 'source-2',
-              title: 'Elephant Collar',
+              description: 'collar_manufacturer',
+              display: 'Elephant Collar',
+              value: 'source-2',
             },
           ],
           value: choiceListFieldName,
@@ -158,10 +164,12 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
         oneOf: [
           {
             const: 'source-3',
+            description: 'collar_manufacturer_2',
             title: 'Rhino Collar',
           },
           {
             const: 'source-4',
+            description: 'sensor_manufacturer',
             title: 'Static Wheather Sensor',
           },
         ],
@@ -170,6 +178,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
         oneOf: [
           {
             const: 'source-5',
+            description: 'tracker_manufacturer',
             title: 'Vehicle Tracker',
           },
         ],
@@ -195,24 +204,29 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           multiple: true,
           options: [
             {
-              const: 'source-1',
-              title: 'Ranger Radio',
+              description: 'radio_manufacturer',
+              display: 'Ranger Radio',
+              value: 'source-1',
             },
             {
-              const: 'source-2',
-              title: 'Elephant Collar',
+              description: 'collar_manufacturer',
+              display: 'Elephant Collar',
+              value: 'source-2',
             },
             {
-              const: 'source-3',
-              title: 'Rhino Collar',
+              description: 'collar_manufacturer_2',
+              display: 'Rhino Collar',
+              value: 'source-3',
             },
             {
-              const: 'source-4',
-              title: 'Static Wheather Sensor',
+              description: 'sensor_manufacturer',
+              display: 'Static Wheather Sensor',
+              value: 'source-4',
             },
             {
-              const: 'source-5',
-              title: 'Vehicle Tracker',
+              description: 'tracker_manufacturer',
+              display: 'Vehicle Tracker',
+              value: 'source-5',
             },
           ],
           value: choiceListFieldName,
@@ -247,12 +261,14 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           multiple: false,
           options: [
             {
-              const: 'source-1',
-              title: 'Ranger Radio',
+              description: 'radio_manufacturer',
+              display: 'Ranger Radio',
+              value: 'source-1',
             },
             {
-              const: 'source-2',
-              title: 'Elephant Collar',
+              description: 'collar_manufacturer',
+              display: 'Elephant Collar',
+              value: 'source-2',
             },
           ],
           value: choiceListFieldName,

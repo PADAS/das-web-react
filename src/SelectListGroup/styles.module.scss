@@ -16,6 +16,9 @@
   .container {
     border: 1px solid colors.$light-gray-border;
     border-radius: 0.15rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
     padding: 0.5rem;
   }
 
@@ -26,7 +29,4 @@
       color: colors.$bright-red;
     }
   }
-
 }
-
-
