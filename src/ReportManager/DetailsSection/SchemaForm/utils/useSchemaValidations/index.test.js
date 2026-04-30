@@ -590,34 +590,34 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - useSchemaValidat
       buttonText: '',
       columns: 1,
       itemIdentifier: '',
-      leftColumn: ['collection_2'],
+      leftColumn: ['collection_1.collection_2'],
       parent: 'section-_PdgePvPWyACfu9sgN_F6',
       rightColumn: [],
       type: 'COLLECTION',
     };
-    schema.ui.fields.collection_2 = {
+    schema.ui.fields['collection_1.collection_2'] = {
       buttonText: '',
       columns: 1,
       itemIdentifier: '',
-      leftColumn: ['collection_3'],
+      leftColumn: ['collection_1.collection_2.collection_3'],
       parent: 'collection_1',
       rightColumn: [],
       type: 'COLLECTION',
     };
-    schema.ui.fields.collection_3 = {
+    schema.ui.fields['collection_1.collection_2.collection_3'] = {
       buttonText: '',
       columns: 1,
       itemIdentifier: '',
-      leftColumn: ['text_1'],
-      parent: 'collection_2',
+      leftColumn: ['collection_1.collection_2.collection_3.text_1'],
+      parent: 'collection_1.collection_2',
       rightColumn: [],
       type: 'COLLECTION',
     };
-    schema.ui.fields.text_1 = {
+    schema.ui.fields['collection_1.collection_2.collection_3.text_1'] = {
       inputType: 'SHORT_TEXT',
       placeholder: '',
       type: 'TEXT',
-      parent: 'collection_3',
+      parent: 'collection_1.collection_2.collection_3',
     };
     schema.ui.sections['section-_PdgePvPWyACfu9sgN_F6'].leftColumn = [
       {

@@ -6,16 +6,17 @@ import {
 import transformDateTimeField from '.';
 
 describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformField - transformDateTimeField', () => {
-  const dateTimeFieldId = 'date-of-birth';
-  const parentId = 'section-1';
-  let formElements, jsonSchema, uiSchema;
+  const dateTimeFieldName = 'date-of-birth';
+  let dateTimeFieldId, formElements, jsonSchema, parentId, uiSchema;
   beforeEach(() => {
+    parentId = 'section-1';
+    dateTimeFieldId = dateTimeFieldName;
     formElements = {
       [dateTimeFieldId]: {
         details: {
           isRequired: true,
           label: 'Date of birth',
-          value: dateTimeFieldId,
+          value: dateTimeFieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.DATE_TIME,
@@ -23,7 +24,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
     };
     jsonSchema = {
       properties: {
-        [dateTimeFieldId]: {
+        [dateTimeFieldName]: {
           description: 'Date of birth of the suspect',
           format: 'date',
         },
@@ -37,7 +38,13 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   });
 
   it('transforms a date time field', () => {
-    transformDateTimeField(dateTimeFieldId, jsonSchema, uiSchema, formElements);
+    transformDateTimeField(
+      dateTimeFieldId,
+      dateTimeFieldName,
+      jsonSchema,
+      uiSchema,
+      formElements,
+    );
 
     expect(formElements).toEqual({
       [dateTimeFieldId]: {
@@ -46,7 +53,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           inputType: DATE_TIME_ELEMENT_INPUT_TYPES.DATE,
           isRequired: true,
           label: 'Date of birth',
-          value: dateTimeFieldId,
+          value: dateTimeFieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.DATE_TIME,
@@ -55,9 +62,15 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   });
 
   it('transforms a date-time format date time field', () => {
-    jsonSchema.properties[dateTimeFieldId].format = 'date-time';
+    jsonSchema.properties[dateTimeFieldName].format = 'date-time';
 
-    transformDateTimeField(dateTimeFieldId, jsonSchema, uiSchema, formElements);
+    transformDateTimeField(
+      dateTimeFieldId,
+      dateTimeFieldName,
+      jsonSchema,
+      uiSchema,
+      formElements,
+    );
 
     expect(formElements).toEqual({
       [dateTimeFieldId]: {
@@ -66,7 +79,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           inputType: DATE_TIME_ELEMENT_INPUT_TYPES.DATE_TIME,
           isRequired: true,
           label: 'Date of birth',
-          value: dateTimeFieldId,
+          value: dateTimeFieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.DATE_TIME,
@@ -75,9 +88,15 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   });
 
   it('transforms a time format date time field', () => {
-    jsonSchema.properties[dateTimeFieldId].format = 'time';
+    jsonSchema.properties[dateTimeFieldName].format = 'time';
 
-    transformDateTimeField(dateTimeFieldId, jsonSchema, uiSchema, formElements);
+    transformDateTimeField(
+      dateTimeFieldId,
+      dateTimeFieldName,
+      jsonSchema,
+      uiSchema,
+      formElements,
+    );
 
     expect(formElements).toEqual({
       [dateTimeFieldId]: {
@@ -86,7 +105,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           inputType: DATE_TIME_ELEMENT_INPUT_TYPES.TIME,
           isRequired: true,
           label: 'Date of birth',
-          value: dateTimeFieldId,
+          value: dateTimeFieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.DATE_TIME,
@@ -95,10 +114,16 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   });
 
   it('transforms a date time field with missing properties', () => {
-    delete jsonSchema.properties[dateTimeFieldId].description;
-    delete jsonSchema.properties[dateTimeFieldId].format;
+    delete jsonSchema.properties[dateTimeFieldName].description;
+    delete jsonSchema.properties[dateTimeFieldName].format;
 
-    transformDateTimeField(dateTimeFieldId, jsonSchema, uiSchema, formElements);
+    transformDateTimeField(
+      dateTimeFieldId,
+      dateTimeFieldName,
+      jsonSchema,
+      uiSchema,
+      formElements,
+    );
 
     expect(formElements).toEqual({
       [dateTimeFieldId]: {
@@ -107,7 +132,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           inputType: DATE_TIME_ELEMENT_INPUT_TYPES.DATE_TIME,
           isRequired: true,
           label: 'Date of birth',
-          value: dateTimeFieldId,
+          value: dateTimeFieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.DATE_TIME,

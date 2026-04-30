@@ -2,28 +2,49 @@ import UndefinedFormElementError from '../../UndefinedFormElementError';
 
 const transformCollectionField = (
   collectionFieldId,
+  collectionFieldName,
   jsonSchema,
   uiSchema,
   formElements,
   transformField,
 ) => {
-  const collectionFieldJSONSchema = jsonSchema.properties[collectionFieldId];
-  const collectionFieldUISchema = uiSchema.fields[collectionFieldId];
+  const collectionFieldJSONSchema = jsonSchema.properties[collectionFieldName];
+  // Backwards compatibility: uiSchema.fields keys used to be the field names.
+  const collectionFieldUISchema =
+    uiSchema.fields[collectionFieldId] ?? uiSchema.fields[collectionFieldName];
 
-  // Transform the collection field's columns with only the active children.
-  const leftColumn = (collectionFieldUISchema.leftColumn ?? []).filter(
-    (collectionFieldChildId) => !collectionFieldJSONSchema.items.properties[collectionFieldChildId].deprecated
+  // The JSON schema for the collection field children is the "items" subschema
+  // of the collection field JSON subschema.
+  const collectionFieldJSONSubschema = collectionFieldJSONSchema.items;
+
+  // Backwards compatibility: columns used to store the children names.
+  const leftColumnChildrenIds = (collectionFieldUISchema.leftColumn ?? []).map(
+    (leftColumnChildId) =>
+      leftColumnChildId.includes('.')
+        ? leftColumnChildId
+        : `${collectionFieldId}.${leftColumnChildId}`,
   );
-  const rightColumn = (collectionFieldUISchema.rightColumn ?? []).filter(
-    (collectionFieldChildId) => !collectionFieldJSONSchema.items.properties[collectionFieldChildId].deprecated
+  const rightColumnChildrenIds = (
+    collectionFieldUISchema.rightColumn ?? []
+  ).map((rightColumnChildId) =>
+    rightColumnChildId.includes('.')
+      ? rightColumnChildId
+      : `${collectionFieldId}.${rightColumnChildId}`,
   );
+  const collectionFieldChildrenIds = [
+    ...leftColumnChildrenIds,
+    ...rightColumnChildrenIds,
+  ];
 
-  // Get the collection field children IDs.
-  const collectionFieldChildrenIds = [...leftColumn, ...rightColumn];
-
-  // Throw an error if a collection field child is missing from uiSchema.fields.
   collectionFieldChildrenIds.forEach((collectionFieldChildId) => {
-    if (!uiSchema.fields[collectionFieldChildId]) {
+    // Backwards compatibility: uiSchema.fields keys used to be the field
+    // names.
+    const collectionFieldChildName = collectionFieldChildId.split('.').pop();
+    if (
+      !collectionFieldJSONSubschema.properties[collectionFieldChildName] ||
+      (!uiSchema.fields[collectionFieldChildId] &&
+        !uiSchema.fields[collectionFieldChildName])
+    ) {
       throw new UndefinedFormElementError(
         collectionFieldChildId,
         collectionFieldId,
@@ -31,33 +52,57 @@ const transformCollectionField = (
     }
   });
 
+  const leftColumnActiveChildrenIds = leftColumnChildrenIds.filter(
+    (leftColumnChildId) => {
+      const leftColumnChildName = leftColumnChildId.split('.').pop();
+      return !collectionFieldJSONSubschema.properties[leftColumnChildName]
+        .deprecated;
+    },
+  );
+  const rightColumnActiveChildrenIds = rightColumnChildrenIds.filter(
+    (rightColumnChildId) => {
+      const rightColumnChildName = rightColumnChildId.split('.').pop();
+      return !collectionFieldJSONSubschema.properties[rightColumnChildName]
+        .deprecated;
+    },
+  );
+
+  // Backwards compatibility: itemIdentifier used to be the item identifier
+  // field name.
+  let itemIdentifier = collectionFieldUISchema.itemIdentifier ?? '';
+  if (itemIdentifier && !itemIdentifier.includes('.')) {
+    itemIdentifier = `${collectionFieldId}.${itemIdentifier}`;
+  }
+
   // Add the collection field form element specific properties.
   formElements[collectionFieldId].details = {
     ...formElements[collectionFieldId].details,
     buttonText: collectionFieldUISchema.buttonText ?? '',
     columns: collectionFieldUISchema.columns ?? 1,
     description: collectionFieldJSONSchema.description ?? '',
-    itemIdentifier: collectionFieldUISchema.itemIdentifier ?? '',
+    itemIdentifier,
     itemName: collectionFieldUISchema.itemName ?? '',
-    leftColumn,
+    leftColumn: leftColumnActiveChildrenIds,
     maxItems: collectionFieldJSONSchema.maxItems ?? null,
     minItems: collectionFieldJSONSchema.minItems ?? null,
-    rightColumn,
+    rightColumn: rightColumnActiveChildrenIds,
   };
 
-  // The JSON schema for the collection field children is the "items" subschema
-  // of the collection field JSON subschema.
-  const collectionFieldJSONSubschema = collectionFieldJSONSchema.items;
-
-  // Transform each collection field child.
-  collectionFieldChildrenIds.forEach((collectionFieldChildId) =>
+  // Transform each active collection field child.
+  const collectionFieldActiveChildrenIds = [
+    ...leftColumnActiveChildrenIds,
+    ...rightColumnActiveChildrenIds,
+  ];
+  collectionFieldActiveChildrenIds.forEach((collectionFieldActiveChildId) => {
+    const collectionFieldActiveChildName = collectionFieldActiveChildId.split('.').pop();
     transformField(
-      collectionFieldChildId,
+      collectionFieldActiveChildName,
+      collectionFieldId,
       collectionFieldJSONSubschema,
       uiSchema,
       formElements,
-    ),
-  );
+    );
+  });
 };
 
 export default transformCollectionField;

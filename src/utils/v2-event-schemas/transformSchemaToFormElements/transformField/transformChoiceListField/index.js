@@ -2,12 +2,15 @@ import { CHOICE_LIST_ELEMENT_INPUT_TYPES } from '../../../constants';
 
 const transformChoiceListField = (
   choiceListFieldId,
+  choiceListFieldName,
   jsonSchema,
   uiSchema,
   formElements,
 ) => {
-  const choiceListFieldJSONSchema = jsonSchema.properties[choiceListFieldId];
-  const choiceListFieldUISchema = uiSchema.fields[choiceListFieldId];
+  const choiceListFieldJSONSchema = jsonSchema.properties[choiceListFieldName];
+  // Backwards compatibility: uiSchema.fields keys used to be the field names.
+  const choiceListFieldUISchema =
+    uiSchema.fields[choiceListFieldId] ?? uiSchema.fields[choiceListFieldName];
 
   // Infer if it is a multiple choice list and transform the choices subschemas
   // in an options array.

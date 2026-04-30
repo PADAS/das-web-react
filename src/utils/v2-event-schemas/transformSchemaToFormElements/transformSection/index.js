@@ -29,33 +29,48 @@ const transformSection = (sectionId, jsonSchema, uiSchema, formElements) => {
       ).then
       : jsonSchema;
 
-  // Transform the section's columns with only the active children.
-  const leftColumn = (sectionUISchema.leftColumn ?? [])
-    .filter((sectionChild) => sectionChild.type === SECTION_CHILD_TYPES.HEADER
-      || !sectionJSONSubschema.properties[sectionChild.name].deprecated)
-    .map((sectionChild) => sectionChild.name);
-  const rightColumn = (sectionUISchema.rightColumn ?? [])
-    .filter((sectionChild) => sectionChild.type === SECTION_CHILD_TYPES.HEADER
-      || !sectionJSONSubschema.properties[sectionChild.name].deprecated)
-    .map((sectionChild) => sectionChild.name);
+  const leftColumnChildren = sectionUISchema.leftColumn ?? [];
+  const rightColumnChildren = sectionUISchema.rightColumn ?? [];
+  const sectionChildren = [...leftColumnChildren, ...rightColumnChildren];
 
-  // Get the section children IDs.
-  const sectionChildrenIds = [...leftColumn, ...rightColumn];
+  sectionChildren.forEach((sectionChild) => {
+    // Section children's ids and names are the same.
+    const sectionChildId = sectionChild.name;
+    const sectionChildName = sectionChild.name;
 
-  // Throw an error if a section child is missing from uiSchema.fields and
-  // uiSchema.headers.
-  sectionChildrenIds.forEach((sectionChildId) => {
-    if (!uiSchema.fields[sectionChildId] && !uiSchema.headers[sectionChildId]) {
+    if (sectionChild.type === SECTION_CHILD_TYPES.HEADER && !uiSchema.headers[sectionChildId]) {
+      throw new UndefinedFormElementError(sectionChildId, sectionId);
+    }
+
+    if (
+      sectionChild.type === SECTION_CHILD_TYPES.FIELD &&
+      (!sectionJSONSubschema.properties[sectionChildName] ||
+        !uiSchema.fields[sectionChildId])
+    ) {
       throw new UndefinedFormElementError(sectionChildId, sectionId);
     }
   });
+
+  const leftColumnActiveChildrenIds = leftColumnChildren
+    .filter((leftColumnChild) => {
+      const leftColumnChildName = leftColumnChild.name;
+      return leftColumnChild.type === SECTION_CHILD_TYPES.HEADER
+        || !sectionJSONSubschema.properties[leftColumnChildName].deprecated;
+    })
+    .map((sectionChild) => sectionChild.name);
+  const rightColumnActiveChildrenIds = rightColumnChildren
+    .filter((rightColumnChild) => {
+      const rightColumnChildName = rightColumnChild.name;
+      return rightColumnChild.type === SECTION_CHILD_TYPES.HEADER
+        || !sectionJSONSubschema.properties[rightColumnChildName].deprecated;
+    })
+    .map((rightColumnChild) => rightColumnChild.name);
 
   // Add the section form element.
   formElements[sectionId] = {
     details: {
       columns: sectionUISchema.columns ?? 1,
-      // Some condition operators were renamed. Schemas with old operators are
-      // migrated here.
+      // Backwards compatibility: some condition operators were renamed.
       conditions: (sectionUISchema.conditions ?? []).map((condition) => ({
         ...condition,
         operator:
@@ -63,20 +78,27 @@ const transformSection = (sectionId, jsonSchema, uiSchema, formElements) => {
           condition.operator,
       })),
       label: sectionUISchema.label ?? '',
-      leftColumn,
-      rightColumn,
+      leftColumn: leftColumnActiveChildrenIds,
+      rightColumn: rightColumnActiveChildrenIds,
     },
+    id: sectionId,
     parentId: ROOT_CANVAS_ID,
     type: FORM_ELEMENT_TYPES.SECTION,
   };
 
-  // Transform each section child.
-  sectionChildrenIds.forEach((sectionChildId) => {
-    if (uiSchema.headers[sectionChildId]) {
-      transformHeader(sectionChildId, uiSchema, formElements);
+  // Transform each active section child.
+  const sectionActiveChildrenIds = [
+    ...leftColumnActiveChildrenIds,
+    ...rightColumnActiveChildrenIds,
+  ];
+  sectionActiveChildrenIds.forEach((sectionActiveChildId) => {
+    if (uiSchema.headers[sectionActiveChildId]) {
+      transformHeader(sectionActiveChildId, uiSchema, formElements);
     } else {
+      const sectionActiveChildName = sectionActiveChildId;
       transformField(
-        sectionChildId,
+        sectionActiveChildName,
+        null,
         sectionJSONSubschema,
         uiSchema,
         formElements,

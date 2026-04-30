@@ -45,14 +45,16 @@ const useMapLocationMarkers = (eventId, eventLocation, onMarkerClick = null, hid
 
   // The data for the marker connecting lines source is a feature collection of two-coordinates line strings connecting
   // each marker to the event location, if it is available.
+  const eventLocationLatitude = eventLocation?.latitude;
+  const eventLocationLongitude = eventLocation?.longitude;
   const markerConnectingLinesSourceData = useMemo(() => featureCollection(
-    eventLocation?.latitude && eventLocation?.longitude
+    eventLocationLatitude != null && eventLocationLongitude != null
       ? Object.values(markers).map((markerLocation) => lineString([
         [markerLocation.longitude, markerLocation.latitude],
-        [eventLocation.longitude, eventLocation.latitude],
+        [eventLocationLongitude, eventLocationLatitude],
       ]))
       : []
-  ), [eventLocation?.latitude, eventLocation?.longitude, markers]);
+  ), [eventLocationLatitude, eventLocationLongitude, markers]);
 
   useEffect(() => {
     if (map) {
