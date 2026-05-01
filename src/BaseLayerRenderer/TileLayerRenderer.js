@@ -17,14 +17,15 @@ const RASTER_SOURCE_OPTIONS = {
 
 const RenderFunction = ({ children }) => <>{children}</>;
 
-const SourceComponent = ({ id, tileUrl, sourceConfig }) => {
-  const config = useMemo(() => ({
-    ...RASTER_SOURCE_OPTIONS,
-    tiles: [
-      tileUrl,
-    ],
-    ...sourceConfig,
-  }), [sourceConfig, tileUrl]);
+const SourceComponent = ({ id, layer }) => {
+  const config = useMemo(() => {
+    const { sourceConfig } = calcConfigForMapAndSourceFromLayer(layer);
+    return {
+      ...RASTER_SOURCE_OPTIONS,
+      tiles: [layer.attributes.url],
+      ...sourceConfig,
+    };
+  }, [layer]);
 
   useMapSources([{ id }], config);
 
@@ -40,15 +41,24 @@ const TileLayerRenderer = (props) => {
     layers.find(({ id }) => id === currentBaseLayer?.id)
   , [currentBaseLayer?.id, layers]);
 
-  const { mapConfig, sourceConfig } = useMemo(() =>
-    calcConfigForMapAndSourceFromLayer(currentBaseLayer)
-  , [currentBaseLayer]);
+  const { mapConfig } = useMemo(() =>
+    calcConfigForMapAndSourceFromLayer(activeLayer ?? currentBaseLayer)
+  , [activeLayer, currentBaseLayer]);
 
   useEffect(() => {
-    if (map) {
+    if (!map) return;
+
+    const assertZoomLimits = () => {
       map.setMaxZoom(mapConfig.maxzoom || MAX_ZOOM);
       map.setMinZoom(mapConfig.minzoom || MIN_ZOOM);
-    }
+    };
+
+    assertZoomLimits();
+    // Re-assert after GL finishes async source processing, which can override
+    // transform.maxZoom when a source has maxzoom set (e.g. from maxNativeZoom).
+    map.once('idle', assertZoomLimits);
+
+    return () => map.off('idle', assertZoomLimits);
   }, [map, mapConfig]);
 
   useMapLayers([{
@@ -65,7 +75,7 @@ const TileLayerRenderer = (props) => {
     .filter(layer => TILE_LAYER_SOURCE_TYPES.includes(layer.attributes.type))
     .map(layer =>
       <RenderFunction key={layer.id}>
-        <SourceComponent id={`layer-source-${layer.id}`} sourceConfig={sourceConfig} tileUrl={layer.attributes.url} />
+        <SourceComponent id={`layer-source-${layer.id}`} layer={layer} />
       </RenderFunction>
     );
 };
