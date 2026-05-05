@@ -126,7 +126,9 @@ const useSchemaValidations = (schema) => {
           break;
 
         default:
-          return accumulator;
+          errorPath = error.instancePath.split('/').slice(1);
+          fieldName = errorPath.pop();
+          message = t('defaultKeyword');
         }
 
         // Then, we insert the error in the accumulated errors structure.

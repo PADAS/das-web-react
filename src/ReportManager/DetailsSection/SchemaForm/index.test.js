@@ -595,7 +595,7 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
   });
 
   test('updates the field errors', async () => {
-    renderSchemaForm({ formData: { this_is_a_text: undefined } });
+    renderSchemaForm({ formData: { text_field: undefined } });
 
     const inputField = screen.getByLabelText('Text Field *');
     await userEvent.type(inputField, '{enter}');

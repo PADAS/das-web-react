@@ -539,6 +539,40 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - useSchemaValidat
     });
   });
 
+  it('returns the default keyword validation error for unhandled AJV keywords', () => {
+    schema.json.properties.text = {
+      default: '',
+      deprecated: false,
+      description: '',
+      title: 'Text field',
+      type: 'string',
+    };
+    schema.json.required = ['text'];
+    schema.ui.fields.text = {
+      inputType: 'SHORT_TEXT',
+      placeholder: '',
+      type: 'TEXT',
+      parent: 'section-_PdgePvPWyACfu9sgN_F6',
+    };
+    schema.ui.sections['section-_PdgePvPWyACfu9sgN_F6'].leftColumn = [
+      {
+        name: 'text',
+        type: 'field',
+      },
+    ];
+    const formData = { text: ['Invalid text value'] };
+
+    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+
+    const runValidations = result.current;
+
+    expect(runValidations(formData)).toEqual({
+      text: {
+        message: 'Invalid value.',
+      },
+    });
+  });
+
   it('injects nested errors in collection item forms', () => {
     schema.json.properties.collection_1 = {
       deprecated: false,
