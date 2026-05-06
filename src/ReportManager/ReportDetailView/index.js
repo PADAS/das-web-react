@@ -101,7 +101,7 @@ const generateErrorListForApiResponseDetails = (response, t) => {
         [{ label: key, message: value }, ...accumulator],
       []);
   } catch (e) {
-    const message = generateErrorMessageForRequest(response);
+    const message = response != null && generateErrorMessageForRequest(response);
     return [{ label: message || t('reportDetailView.unknownErrorLabel') }];
   }
 };
