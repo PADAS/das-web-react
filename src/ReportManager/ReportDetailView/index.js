@@ -26,6 +26,7 @@ import {
 } from '../../utils/events';
 import { createNewReportForEventType } from '../../utils/events';
 import { executeSaveActions, generateSaveActionsForReportLikeObject } from '../../utils/save';
+import { generateErrorMessageForRequest } from '../../utils/request';
 import { extractObjectDifference } from '../../utils/objects';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
 import { fetchPatrol } from '../../ducks/patrols';
@@ -100,7 +101,8 @@ const generateErrorListForApiResponseDetails = (response, t) => {
         [{ label: key, message: value }, ...accumulator],
       []);
   } catch (e) {
-    return [{ label: t('reportDetailView.unknownErrorLabel') }];
+    const message = generateErrorMessageForRequest(response);
+    return [{ label: message || t('reportDetailView.unknownErrorLabel') }];
   }
 };
 

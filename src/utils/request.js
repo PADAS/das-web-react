@@ -7,8 +7,8 @@ export const generateErrorMessageForRequest = (error) => {
     return t('noResponse');
   }
 
-  if (error.response?.status?.code) {
-    switch (error.response.status.code) {
+  if (error.response?.status) {
+    switch (error.response.status) {
     case 400: {
       return t('badRequest');
     }
