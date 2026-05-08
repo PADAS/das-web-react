@@ -141,6 +141,7 @@
           "dateFormat": "Format de date invalide ou date invalide. Vérifiez le jour, le mois et l'année.",
           "dateTimeFormat": "Format de date et heure invalide ou date invalide. Vérifiez le jour, le mois et l'année.",
           "defaultFormat": "Format invalide.",
+          "defaultKeyword": "Valeur invalide.",
           "defaultPattern": "La valeur ne correspond pas au format requis.",
           "emailFormat": "Format d'adresse e-mail invalide.",
           "maximum": "Cette valeur doit être inférieure ou égale à {{maximum}}.",
