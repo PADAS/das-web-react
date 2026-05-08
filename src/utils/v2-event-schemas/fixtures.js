@@ -1,66 +1,72 @@
 export const choicesListOptions = [
   {
-    const: '048fdcef-f599-4205-8b44-1536d46645aa',
-    title: 'DumboAlfonso'
+    description: 'ranger',
+    display: 'DumboAlfonso',
+    value: '048fdcef-f599-4205-8b44-1536d46645aa',
   },
   {
-    const: '0d553bb7-5c4f-43d7-9b82-a561a668ae64',
-    title: 'EarthRanger System'
+    description: 'system',
+    display: 'EarthRanger System',
+    value: '0d553bb7-5c4f-43d7-9b82-a561a668ae64',
   },
   {
-    const: '0d9fbeea-5252-4723-ba59-ca696baef2d9',
-    title: 'frank'
+    description: 'manager',
+    display: 'frank',
+    value: '0d9fbeea-5252-4723-ba59-ca696baef2d9',
   },
   {
-    const: '17e67b22-0e4a-4fcb-aeee-903b51a7a2e0',
-    title: 'Desert Bighorn Sheep'
+    description: 'species',
+    display: 'Desert Bighorn Sheep',
+    value: '17e67b22-0e4a-4fcb-aeee-903b51a7a2e0',
   },
   {
-    const: '1f32688b-26ea-4648-a995-d5f9bca326e7',
-    title: 'test_alan'
+    description: 'device_manufacturer',
+    display: 'test_alan',
+    value: '1f32688b-26ea-4648-a995-d5f9bca326e7',
   },
   {
-    const: '200cca41-3303-4b63-a835-4bea40afcc95',
-    title: 'Pronghorn'
+    description: 'species',
+    display: 'Pronghorn',
+    value: '200cca41-3303-4b63-a835-4bea40afcc95',
   },
   {
-    const: '223ab492-0ea7-4ff2-b8b8-cb6504c943b6',
-    title: 'Ranger Cruz'
+    display: 'Ranger Cruz',
+    value: '223ab492-0ea7-4ff2-b8b8-cb6504c943b6',
   },
   {
-    const: '25567b9a-500f-427c-8a87-59f5e41f858b',
-    title: 'Rabbit'
+    display: 'Rabbit',
+    value: '25567b9a-500f-427c-8a87-59f5e41f858b',
   },
   {
-    const: '2b7286bf-1734-490b-87c2-ee4206805b47',
-    title: 'ERA-10171'
+    display: 'ERA-10171',
+    value: '2b7286bf-1734-490b-87c2-ee4206805b47',
   },
   {
-    const: '2db50099-8d3b-4f29-ab04-fd42f01d4267',
-    title: 'Ludwig'
+    display: 'Ludwig',
+    value: '2db50099-8d3b-4f29-ab04-fd42f01d4267',
   },
   {
-    const: '3492ef65-0519-4b28-9294-a5c55f619696',
-    title: 'Testosteron'
+    display: 'Testosteron',
+    value: '3492ef65-0519-4b28-9294-a5c55f619696',
   },
   {
-    const: '35ed3fdd-ba65-4201-9a8a-05775249d534',
-    title: 'alan radio'
+    display: 'alan radio',
+    value: '35ed3fdd-ba65-4201-9a8a-05775249d534',
   },
   {
-    const: '37906bc2-5323-40d9-8be3-10700af31d26',
-    title: 'Alfonso Hernandez'
+    display: 'Alfonso Hernandez',
+    value: '37906bc2-5323-40d9-8be3-10700af31d26',
   },
   {
-    const: '382860ff-d848-426e-b1f0-43cbfaaf9a12',
-    title: 'GFW Webhook'
+    display: 'GFW Webhook',
+    value: '382860ff-d848-426e-b1f0-43cbfaaf9a12',
   },
   {
-    const: '3b8c7f7d-526e-46a7-8e0d-cf042ab32027',
-    title: 'pw_source'
+    display: 'pw_source',
+    value: '3b8c7f7d-526e-46a7-8e0d-cf042ab32027',
   },
   {
-    const: '3bc7c8df-3461-47f2-8196-7b0a45405a13',
-    title: 'Subject X'
+    display: 'Subject X',
+    value: '3bc7c8df-3461-47f2-8196-7b0a45405a13',
   }
 ];

@@ -10,8 +10,8 @@ const List = ({ details, onChange, ...otherProps }) => {
   };
 
   return <SelectListGroup
-    getOptionLabel={(option) => option.title}
-    getOptionValue={(option) => option.const}
+    getOptionLabel={(option) => option.display}
+    getOptionValue={(option) => option.value}
     isMulti={details.multiple}
     onChange={onSelectListGroupChange}
     options={details.options}
