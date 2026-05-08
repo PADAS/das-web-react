@@ -168,7 +168,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           },
           'source-4': {
             description: 'sensor_manufacturer',
-            display: 'Static Wheather Sensor',
+            display: 'Static Weather Sensor',
           },
         },
       },
@@ -218,7 +218,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
             },
             {
               description: 'sensor_manufacturer',
-              display: 'Static Wheather Sensor',
+              display: 'Static Weather Sensor',
               value: 'source-4',
             },
             {
