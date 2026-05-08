@@ -19,11 +19,14 @@ const transformChoiceListField = (
     ? choiceListFieldJSONSchema.items.anyOf
     : choiceListFieldJSONSchema.anyOf;
   const options = (choicesSubschemas ?? [])
-    .flatMap((choicesSubschema) => choicesSubschema.oneOf)
-    .map((choice) => ({
-      description: choice.description,
-      display: choice.title,
-      value: choice.const,
+    .flatMap((choicesSubschema) => choicesSubschema.enum.map((optionValue) => {
+      const optionExtra = choicesSubschema['x-enumExtra'][optionValue];
+
+      return {
+        description: optionExtra.description,
+        display: optionExtra.display,
+        value: optionValue,
+      };
     }));
 
   // Add the choice list field form element specific properties.
