@@ -35,7 +35,7 @@ const LocationJumpButton = ({
       return true;
     }
 
-    if (!!coordinates) {
+    if (coordinates) {
       if (Array.isArray(coordinates[0])) {
         return coordinates.every((coords) => {
           if (Array.isArray(coords[0])) {

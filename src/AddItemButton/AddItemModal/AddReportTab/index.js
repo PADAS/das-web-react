@@ -37,7 +37,7 @@ const AddReportTab = ({ onHideModal }) => {
       delete reportDataToEdit.location;
     }
 
-    if (!!onAddReport) {
+    if (onAddReport) {
       onAddReport(formProps, reportDataToEdit, reportType.id);
     } else {
       navigate(

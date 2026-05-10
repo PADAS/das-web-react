@@ -43,7 +43,7 @@ jest.mock('mapbox-gl', () => ({
 
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
-  useNavigate: () => () => null, /* eslint-disable-line react/display-name */
+  useNavigate: () => () => null,
 }));
 
 jest.mock('../../AddItemButton', () => jest.fn());

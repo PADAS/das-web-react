@@ -157,6 +157,7 @@
           "dateFormat": "Invalid date format or invalid date. Double-check the day, month and year.",
           "dateTimeFormat": "Invalid date & time format or invalid date. Double-check the day, month and year.",
           "defaultFormat": "Invalid format.",
+          "defaultKeyword": "Invalid value.",
           "defaultPattern": "Invalid pattern.",
           "emailFormat": "Invalid email format.",
           "maximum": "This value should be less than or equal to {{maximum}}.",

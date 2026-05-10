@@ -37,7 +37,7 @@ export const createMapMock = (override = {}) => {
     },
     on: jest.fn((name, ...rest) => {
       const layerId = isString(rest[0]) ? rest[0] : '';
-      const callback = !!layerId ? rest[1] : rest[0];
+      const callback = layerId ? rest[1] : rest[0];
 
       const eventId = `${name}-${layerId}`;
 
@@ -46,7 +46,7 @@ export const createMapMock = (override = {}) => {
     once: jest.fn(),
     off: jest.fn((name, ...rest) => {
       const layerId = isString(rest[0]) ? rest[0] : '';
-      const callback = !!layerId ? rest[1] : rest[0];
+      const callback = layerId ? rest[1] : rest[0];
 
       const eventId = `${name}-${layerId}`;
 

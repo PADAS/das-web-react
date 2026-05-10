@@ -146,6 +146,7 @@
           "dateFormat": "Formato de fecha inválido o fecha no válida. Verifica el día, mes y año.",
           "dateTimeFormat": "Formato de fecha y hora inválido o fecha no válida. Verifica el día, mes y año.",
           "defaultFormat": "Formato inválido.",
+          "defaultKeyword": "Valor no válido.",
           "defaultPattern": "El valor no coincide con el formato requerido.",
           "emailFormat": "Formato de correo electrónico inválido.",
           "maximum": "Este valor debe ser menor o igual a {{maximum}}.",

@@ -545,7 +545,7 @@ const Map = ({ children, onMapLoad, socket }) => {
   }, [eventFilter, mapEventsFetch, map]);
 
   useEffect(() => {
-    if (!!map) {
+    if (map) {
       socket.emit('event_filter', calcEventFilterForRequest({ format: 'object' }));
     }
 
@@ -616,7 +616,7 @@ const Map = ({ children, onMapLoad, socket }) => {
   }, [hiddenAnalyzerIDs, hiddenFeatureIDs, hidePopup, map, popup]);
 
   useEffect(() => {
-    if (!!map) {
+    if (map) {
       // If i18n language change, here we update the map layer layouts to set the translated text fields recursively
       let newLanguage = i18n.language.split('-')[0];
       if (!MAP_SUPPORTED_TEXT_FIELD_LANGUAGES.includes(newLanguage)) {

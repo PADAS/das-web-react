@@ -20,7 +20,7 @@ import * as styles from '../styles.module.scss';
 
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
-// eslint-disable-next-line react/display-name
+
 const SIDEBAR_WIDTH_PIXELS = 512;
 
 const FeatureListItem = memo((props) => {

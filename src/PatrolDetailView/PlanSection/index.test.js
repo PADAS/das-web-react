@@ -300,7 +300,7 @@ describe('PatrolDetailView - PlanSection', () => {
     expect(await screen.findByTestId('patrol-is-auto-end')).toBeDisabled();
   });
 
-  test('allows the user to check auto-end checkbox when the end date is the same as the start date ', async () => {
+  test('allows the user to check auto-end checkbox when the end date is the same as the start date', async () => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
 

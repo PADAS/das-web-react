@@ -333,7 +333,7 @@ const ReportDetailView = ({
       };
 
       if (reportChanges.hasOwnProperty('location')) {
-        reportToSubmit.location = !!reportChanges.location
+        reportToSubmit.location = reportChanges.location
           ? { ...originalReport.location, ...reportChanges.location }
           : null;
       }

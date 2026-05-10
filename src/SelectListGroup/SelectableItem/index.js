@@ -4,6 +4,7 @@ import * as styles from './styles.module.scss';
 
 const SelectableItem = ({
   className = '',
+  description = null,
   disabled = false,
   groupId,
   id,
@@ -16,7 +17,10 @@ const SelectableItem = ({
   ref,
   value,
   ...otherProps
-}) => <div className={`${styles.selectableItem} ${disabled || readOnly ? styles.inactive : ''} ${className}`}>
+}) => <div
+    className={`${styles.selectableItem} ${disabled || readOnly ? styles.inactive : ''} ${className}`}
+    data-testid={`selectable-item-${id}`}
+  >
   <div className={styles.ripple}>
     <input
       checked={isChecked}
@@ -38,7 +42,9 @@ const SelectableItem = ({
     className={`${styles.label} ${invalid ? styles.error : ''}`}
     htmlFor={id}
   >
-    {label}
+    <span className={styles.display} title={label}>{label}</span>
+
+    {description && <span className={styles.description} title={description}>{description}</span>}
   </label>
 </div>;
 

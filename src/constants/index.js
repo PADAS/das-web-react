@@ -141,7 +141,6 @@ export const SYSTEM_CONFIG_FLAGS = {
   DEFAULT_PATROL_FILTER_FROM_DAYS: 'default_patrol_filter_from_days',
   EULA: 'eula_enabled',
   EVENTS: 'events_enabled',
-  GEAR: 'gear_enabled',
   GEOPERMISSIONS: 'geopermissions_enabled',
   KML_EXPORT: 'export_kml_enabled',
   PATROL_MANAGEMENT: 'patrol_enabled',

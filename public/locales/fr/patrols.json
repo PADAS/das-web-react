@@ -62,9 +62,11 @@
     "copyButton": "Copier le lien de la patrouille",
     "copyButtonMessage": "Lien copié avec succès",
     "endPatrol": "Terminer la Patrouille",
+    "downloadTrackButton": "Télécharger la Piste de la Patrouille",
     "printPatrolButton": "Imprimer la Patrouille",
     "restorePatrol": "Restaurer la Patrouille",
-    "startPatrol": "Commencer la Patrouille"
+    "startPatrol": "Commencer la Patrouille",
+    "noTrackDataTooltip": "Aucune donnée à télécharger"
   },
   "patrolList": {
     "emptyPatrolList": "Aucune patrouille à afficher."

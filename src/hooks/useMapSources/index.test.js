@@ -12,7 +12,7 @@ describe('hooks - useMapSource', () => {
     map = createMapMock();
   });
 
-  // eslint-disable-next-line react/display-name
+
   const Wrapper = ({ children }) => <MapContext.Provider value={map}>
     {children}
   </MapContext.Provider>;

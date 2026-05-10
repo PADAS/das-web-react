@@ -58,7 +58,6 @@ const SideBar = () => {
 
   const analyzersEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.ANALYZERS]);
   const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
-  const gearEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.GEAR]);
   const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
   const {
     gearEndpointUnavailable,
@@ -92,12 +91,11 @@ const SideBar = () => {
   const isReportDetailsViewActive = eventsEnabled
     && !!matchPath(`/${TAB_KEYS.EVENTS}/:id`, location.pathname);
 
-  /** True while the first gear list fetch is in flight so /gear stays valid before hasGear is known. */
-  const resolvingInitialGear = gearEnabled !== false
-    && !gearEndpointUnavailable
-    && (initialLoadInProgress || (gearLoading && !hasGear));
 
-  const showGearTab = gearEnabled !== false && (hasGear || resolvingInitialGear);
+  const showGearTab = hasGear;
+
+  const gearStillResolving = !gearEndpointUnavailable
+    && (initialLoadInProgress || (gearLoading && !hasGear));
 
   const enabledTabKeys = useMemo(() => ({
     ...TAB_KEYS,
@@ -150,10 +148,11 @@ const SideBar = () => {
   useEffect(() => {
     if (currentTab
       && !Object.values(enabledTabKeys).includes(currentTab.toLowerCase())
-      && !isLegacyEventURL) {
+      && !isLegacyEventURL
+      && !(currentTab === TAB_KEYS.GEAR && gearStillResolving)) {
       navigate('/', { replace: true });
     }
-  }, [currentTab, enabledTabKeys, isLegacyEventURL, navigate]);
+  }, [currentTab, enabledTabKeys, gearStillResolving, isLegacyEventURL, navigate]);
 
   useEffect(() => {
     if (showEventsBadge && currentTab === TAB_KEYS.EVENTS && !isReportDetailsViewActive) {
@@ -265,7 +264,7 @@ const SideBar = () => {
         <div className={styles.header}>
           <div className={styles.title}>
             {(currentTab === TAB_KEYS.EVENTS || currentTab === TAB_KEYS.PATROLS) && <div>
-              {!!itemId
+              {itemId
                 ? <button
                   aria-label={t('backButtonLabel')}
                   className={styles.backButton}
