@@ -4,9 +4,11 @@ import userEvent from '@testing-library/user-event';
 
 import { fireEvent, render, screen } from '../../../test-utils';
 import { DATE_TIME_ELEMENT_INPUT_TYPES } from '../../../utils/v2-event-schemas/constants';
+import getFormDataWithFixedTimezones from './utils/getFormDataWithFixedTimezones';
 import { GPS_FORMATS } from '../../../utils/location';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import normalizeDateTimeFieldValue from './utils/normalizeDateTimeFieldValue';
+import transformSchemaToFormElements from '../../../utils/v2-event-schemas/transformSchemaToFormElements';
 import useMapLocationMarkers from './utils/useMapLocationMarkers';
 
 import SchemaForm from './';
@@ -376,7 +378,41 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
     expect(onFormDataChange).not.toHaveBeenCalled();
   });
 
-  test('does not set the initial form data for an existing event', async () => {
+  test('sets the initial form data for an existing event with time data that needs timezone correction', async () => {
+    schema.json.properties.date_time_field = {
+      deprecated: false,
+      description: '',
+      format: 'date-time',
+      title: 'Date Time Field',
+      type: 'string',
+    };
+    schema.ui.fields.date_time_field = {
+      conditionalDependents: [],
+      type: 'DATE_TIME',
+      parent: 'section-3',
+    };
+    schema.ui.sections['section-3'].leftColumn = [
+      ...schema.ui.sections['section-3'].leftColumn,
+      { name: 'date_time_field', type: 'field' },
+    ];
+    schema.ui.sections['section-3'].leftColumn = [
+      ...schema.ui.sections['section-3'].leftColumn,
+      { name: 'date_time_field', type: 'field' },
+    ];
+
+    const formElements = transformSchemaToFormElements(schema);
+    const formData = {
+      text_field: 'a text value',
+      date_time_field: '2024-06-15T14:30:45',
+    };
+
+    renderSchemaForm({ formData });
+
+    expect(onFormDataChange).toHaveBeenCalledTimes(1);
+    expect(onFormDataChange).toHaveBeenCalledWith(getFormDataWithFixedTimezones(formData, formElements));
+  });
+
+  test('does not set the initial form data for an existing event without time data that needs timezone correction', async () => {
     renderSchemaForm();
 
     expect(onFormDataChange).not.toHaveBeenCalled();
