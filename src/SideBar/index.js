@@ -272,7 +272,7 @@ const SideBar = () => {
           <ERLogo />
         </div>
 
-        {!isPatrolLegDetailViewActive && !isPatrolOverviewActive && !isPatrolFormActive && (<div className={styles.header}>
+        {!isPatrolLegDetailViewActive && (<div className={styles.header}>
           <div className={styles.title}>
             {(currentTab === TAB_KEYS.EVENTS || currentTab === TAB_KEYS.PATROLS) && <div>
               {itemId

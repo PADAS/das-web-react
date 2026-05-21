@@ -58,10 +58,11 @@ describe('AddItemButton - AddItemModal - AddPatrolTab', () => {
     const renderedResults = await screen.findAllByTestId((content) => content.startsWith('categoryList-button-'));
     expect(renderedResults).toHaveLength(4);
 
-    expect(renderedResults[0]).toHaveTextContent('Routine Patrol');
-    expect(renderedResults[1]).toHaveTextContent('Dog Patrol');
-    expect(renderedResults[2]).toHaveTextContent('Fence Patrol');
-    expect(renderedResults[3]).toHaveTextContent('Aerial');
+    // Prototype uses a curated fixed list of patrol types.
+    expect(renderedResults[0]).toHaveTextContent('Vehicle Patrol');
+    expect(renderedResults[1]).toHaveTextContent('Foot Patrol');
+    expect(renderedResults[2]).toHaveTextContent('Aerial Patrol');
+    expect(renderedResults[3]).toHaveTextContent('Routine Patrol');
   });
 
   test('filters patrol types by search text', async () => {
@@ -99,12 +100,13 @@ describe('AddItemButton - AddItemModal - AddPatrolTab', () => {
 
     expect(onAddPatrol).toHaveBeenCalledTimes(0);
 
-    const typeButton = await screen.findByTestId('categoryList-button-c6f88fd2-2b87-477a-9c23-3bc4b3eb845d');
+    // Prototype uses 'Vehicle Patrol' as the first patrol type id.
+    const typeButton = await screen.findByTestId('categoryList-button-Vehicle Patrol');
     await userEvent.click(typeButton);
 
     expect(onHideModal).toHaveBeenCalledTimes(1);
     expect(onAddPatrol).toHaveBeenCalledTimes(1);
-    expect(onAddPatrol.mock.calls[0][2]).toBe('c6f88fd2-2b87-477a-9c23-3bc4b3eb845d');
+    expect(onAddPatrol.mock.calls[0][2]).toBe('Vehicle Patrol');
   });
 
   test('navigates to /patrols/new if onAddPatrols is not defined when user clicks a patrol type', async () => {
@@ -112,12 +114,13 @@ describe('AddItemButton - AddItemModal - AddPatrolTab', () => {
 
     expect(navigate).toHaveBeenCalledTimes(0);
 
-    const typeButton = await screen.findByTestId('categoryList-button-c6f88fd2-2b87-477a-9c23-3bc4b3eb845d');
+    // Prototype uses 'Vehicle Patrol' as the first patrol type id.
+    const typeButton = await screen.findByTestId('categoryList-button-Vehicle Patrol');
     await userEvent.click(typeButton);
 
     expect(onHideModal).toHaveBeenCalledTimes(1);
     expect(navigate).toHaveBeenCalledTimes(1);
     expect(navigate.mock.calls[0][0].pathname).toBe('/patrols/new');
-    expect(navigate.mock.calls[0][0].search).toBe('?patrolType=c6f88fd2-2b87-477a-9c23-3bc4b3eb845d');
+    expect(navigate.mock.calls[0][0].search).toBe('?patrolType=Vehicle%20Patrol');
   });
 });

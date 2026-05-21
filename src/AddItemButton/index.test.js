@@ -197,11 +197,12 @@ describe('AddItemButton', () => {
 
     const addPatrolTab = (await screen.findAllByRole('tab'))[1];
     await userEvent.click(addPatrolTab);
-    const patrolTypeButton = await screen.findByTestId('categoryList-button-c6f88fd2-2b87-477a-9c23-3bc4b3eb845d');
+    // Prototype uses 'Vehicle Patrol' as the first patrol type id.
+    const patrolTypeButton = await screen.findByTestId('categoryList-button-Vehicle Patrol');
     await userEvent.click(patrolTypeButton);
 
     expect(onAddPatrol).toHaveBeenCalledTimes(1);
-    expect(onAddPatrol.mock.calls[0][2]).toBe('c6f88fd2-2b87-477a-9c23-3bc4b3eb845d');
+    expect(onAddPatrol.mock.calls[0][2]).toBe('Vehicle Patrol');
   });
 
   test('it shows the AddItemButton even if there are no patrol info', async () => {
