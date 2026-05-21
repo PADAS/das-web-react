@@ -25,6 +25,9 @@ import AddItemButton from '../AddItemButton';
 import BadgeIcon from '../Badge';
 import Link from '../Link';
 import PatrolDetailView from '../PatrolDetailView';
+import PatrolLegDetailView from '../PatrolLegDetailView';
+import PatrolOverview from '../PatrolOverview';
+import PatrolForm from '../PatrolForm';
 import ReportManager from '../ReportManager';
 import SoundNotificationsPlayer from '../SoundNotificationsPlayer';
 
@@ -88,6 +91,14 @@ const SideBar = () => {
 
   const isPatrolDetailsViewActive = canReadPatrols
     && !!matchPath(`/${TAB_KEYS.PATROLS}/:id`, location.pathname);
+  const isPatrolLegDetailViewActive = canReadPatrols
+    && !!matchPath(`/${TAB_KEYS.PATROLS}/:id/legs/:legIndex`, location.pathname);
+  const isPatrolOverviewActive = canReadPatrols
+    && !!matchPath(`/${TAB_KEYS.PATROLS}/:id`, location.pathname);
+  const isPatrolFormActive = canReadPatrols
+    && (!!matchPath(`/${TAB_KEYS.PATROLS}/new`, location.pathname)
+      || !!matchPath(`/${TAB_KEYS.PATROLS}/:id/legs/new`, location.pathname)
+      || !!matchPath(`/${TAB_KEYS.PATROLS}/:id/legs/:legIndex/edit`, location.pathname));
   const isReportDetailsViewActive = eventsEnabled
     && !!matchPath(`/${TAB_KEYS.EVENTS}/:id`, location.pathname);
 
@@ -261,7 +272,7 @@ const SideBar = () => {
           <ERLogo />
         </div>
 
-        <div className={styles.header}>
+        {!isPatrolLegDetailViewActive && !isPatrolOverviewActive && !isPatrolFormActive && (<div className={styles.header}>
           <div className={styles.title}>
             {(currentTab === TAB_KEYS.EVENTS || currentTab === TAB_KEYS.PATROLS) && <div>
               {!!itemId
@@ -297,9 +308,9 @@ const SideBar = () => {
           >
             <CrossIcon />
           </button>
-        </div>
+        </div>)}
 
-        <div className={styles.tabBody}>
+        <div className={`${styles.tabBody} ${isPatrolLegDetailViewActive || isPatrolOverviewActive || isPatrolFormActive ? styles.tabBodyFullHeight : ''}`}>
           <Routes>
             {/* Gets rid of warning */}
             <Route path="/" element={null} />
@@ -319,6 +330,16 @@ const SideBar = () => {
 
             {canReadPatrols && <Route path={TAB_KEYS.PATROLS}>
               <Route index element={<PatrolsFeedTab loadingPatrolsFeed={patrolsFeed.loadingPatrolsFeed} />} />
+
+              <Route path="new" element={<PatrolForm />} />
+
+              <Route path=":id/legs/new" element={<PatrolForm />} />
+
+              <Route path=":id/legs/:legIndex/edit" element={<PatrolForm />} />
+
+              <Route path=":id/legs/:legIndex" element={<PatrolLegDetailView />} />
+
+              <Route path=":id" element={<PatrolOverview />} />
 
               <Route path=":id/*" element={<PatrolDetailView />} />
             </Route>}

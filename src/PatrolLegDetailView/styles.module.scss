@@ -1,0 +1,541 @@
+@import '../common/styles/layout';
+@import '../common/styles/vars/colors';
+@import '../common/styles/buttons';
+
+.patrolLegDetailView {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: $very-light-gray-alt;
+
+  @media (min-width: $md-layout-width-min) {
+    width: 46rem;
+  }
+}
+
+.breadcrumb {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1.125rem;
+  background-color: white;
+  border-bottom: 1px solid $very-light-gray-alt;
+  font-size: 0.9rem;
+
+  ol {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 0.4rem;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: $secondary-medium-gray;
+
+    a, button {
+      color: $secondary-medium-gray;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    a:hover, button:hover {
+      text-decoration: underline;
+    }
+
+    &.current {
+      color: $bright-blue;
+      font-weight: 500;
+    }
+  }
+
+  .closeButton {
+    background: none;
+    border: none;
+    color: $secondary-medium-gray;
+    cursor: pointer;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+  }
+}
+
+.body {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.header {
+  background-color: white;
+  padding: 1rem 1.125rem;
+}
+
+.headerTop {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.iconBadge {
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: $secondary-medium-gray;
+
+  svg {
+    width: 2.25rem;
+    height: 2.25rem;
+    fill: currentColor;
+  }
+}
+
+.titleBlock {
+  flex: 1;
+  min-width: 0;
+
+  .title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.2;
+    margin: 0;
+    color: $off-black;
+  }
+
+  .subtitleRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+    font-size: 0.85rem;
+    color: $secondary-medium-gray;
+  }
+
+  .doneBadge {
+    background-color: $off-black;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.1rem 0.45rem;
+    border-radius: 0.2rem;
+  }
+
+  .activeBadge {
+    background-color: #3F35A3;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.1rem 0.45rem;
+    border-radius: 0.2rem;
+  }
+}
+
+.headerActions {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.actionButton {
+  --hamburger-menu-color: #{$secondary-medium-gray};
+
+  background: #f3f3f3;
+  border: none;
+  border-radius: 3px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: $secondary-medium-gray;
+  padding: 0;
+  overflow: hidden;
+
+  &:hover {
+    background-color: darken(#f3f3f3, 3%);
+  }
+
+  // Generic icon (svg from common/images/icons) sized 24px
+  > svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+  }
+}
+
+// Track button uses tracks_off/on/pinned SVGs that ship full button visuals
+// (28x28 with their own rect bg). Render the SVG as the button visual at 36px.
+.trackButton {
+  background: transparent;
+  padding: 0;
+  overflow: hidden;
+
+  &:hover {
+    background-color: transparent;
+  }
+
+  > svg {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.5rem;
+  margin-top: 0.875rem;
+}
+
+.stat {
+  border: 1px solid $very-light-gray-alt;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.6rem;
+
+  .statLabel {
+    font-size: 0.7rem;
+    color: $secondary-medium-gray;
+    margin-bottom: 0.15rem;
+  }
+
+  .statValue {
+    font-size: 1rem;
+    font-weight: 600;
+    color: $off-black;
+  }
+}
+
+.section {
+  padding: 1rem 1.125rem;
+  background-color: white;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem;
+  color: $off-black;
+}
+
+.topGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.fieldGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.fieldStack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .fieldLabel {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 14px;
+    color: #767676;
+  }
+
+  .fieldValue {
+    font-size: 16px;
+    color: $off-black;
+    line-height: 20px;
+  }
+
+  .iconInline {
+    width: 0.95rem;
+    height: 0.95rem;
+    color: $secondary-medium-gray;
+    fill: currentColor;
+    flex-shrink: 0;
+  }
+}
+
+.editableField {
+  position: relative;
+  border-radius: 4px;
+  padding: 6px 8px;
+  margin: -6px -8px;
+  cursor: pointer;
+  text-align: left;
+  background: transparent;
+  border: none;
+
+  &:hover {
+    background-color: #E8F0FB;
+  }
+}
+
+.fieldEditPencil {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  padding: 4px;
+  width: 28px;
+  height: 28px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #0056C7;
+  border-radius: 3px;
+
+  svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+  }
+}
+
+.editableField:hover .fieldEditPencil {
+  display: inline-flex;
+}
+
+.coordRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  height: 24px;
+}
+
+.coordText {
+  font-size: 14px;
+  color: $secondary-medium-gray;
+  white-space: nowrap;
+}
+
+.coordActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.coordButton {
+  background: transparent;
+  border: none;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: $secondary-medium-gray;
+
+  svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+  }
+
+  &:hover {
+    color: $off-black;
+  }
+}
+
+.iconInline {
+  width: 0.95rem;
+  height: 0.95rem;
+  color: $secondary-medium-gray;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+.collapsibleStack {
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.75rem;
+}
+
+.collapsibleParent {
+  border-bottom: 1px solid $very-light-gray-alt;
+}
+
+.collapsibleTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  cursor: pointer;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  color: $secondary-medium-gray;
+}
+
+.collapsibleChevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: $secondary-medium-gray;
+
+  svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+  }
+}
+
+.collapsibleContent {
+  padding-bottom: 8px;
+}
+
+.collectionHeaderRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid $very-light-gray-alt;
+}
+
+.collectionHeaderCell {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  color: $secondary-medium-gray;
+}
+
+.collectionList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.collectionRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 0;
+  border-bottom: 1px solid $very-light-gray-alt;
+  font-size: 16px;
+  color: $off-black;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .withRole & {
+    grid-template-columns: 1fr 1fr auto;
+  }
+}
+
+.collectionName {
+  font-size: 16px;
+  color: $off-black;
+}
+
+.collectionRole {
+  font-size: 16px;
+  color: $off-black;
+}
+
+.collectionRowActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.trackInlineButton {
+  background: transparent;
+  border: none;
+  padding: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+
+  svg {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+.activityActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 1rem;
+}
+
+.activityActionButton {
+  @include footerActionButton;
+  margin-right: 0; // override mixin's margin-right; we use gap instead
+}
+
+.stickyFooter {
+  position: sticky;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 16px;
+  display: flex;
+  justify-content: flex-end;
+  z-index: 2;
+}
+
+.editButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background-color: #DDE8F8;
+  border: none;
+  color: #0056C7;
+  font-weight: 600;
+  font-size: 16px;
+  height: 36px;
+  padding: 8px;
+  border-radius: 3px;
+  cursor: pointer;
+
+  svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+  }
+
+  &:hover {
+    background-color: darken(#DDE8F8, 3%);
+  }
+}
+
+.closeButton svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  fill: currentColor;
+}

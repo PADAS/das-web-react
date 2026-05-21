@@ -1,0 +1,49 @@
+@import '../common/styles/vars/colors';
+
+.wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin: -2px -6px;
+  position: relative;
+
+  &:hover {
+    background-color: #E8F0FB;
+  }
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 500;
+  margin: 0;
+  color: $off-black;
+  line-height: 1.2;
+}
+
+.pencil {
+  width: 18px;
+  height: 18px;
+  fill: #0056C7;
+  // Always visible — makes the editable affordance obvious without requiring
+  // a hover.
+  opacity: 1;
+}
+
+.input {
+  font-size: 24px;
+  font-weight: 500;
+  color: $off-black;
+  line-height: 1.2;
+  border: 1px solid #0056C7;
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin: -2px -6px;
+  background: white;
+  outline: none;
+  font-family: inherit;
+  width: 100%;
+  max-width: 100%;
+}

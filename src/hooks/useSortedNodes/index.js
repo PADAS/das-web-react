@@ -10,9 +10,21 @@ import isFunction from 'lodash/isFunction';
 
 import * as styles from './styles.module.scss';
 
-const sortAscending = (a, b) => a.sortDate > b.sortDate ? 1 : -1;
+// Return 0 on equality so Array.prototype.sort (stable since ES2019) preserves
+// the original insertion order for items at the same sortDate. This is what
+// the patrol activity feed relies on to show same-time entries in the order
+// the user added them.
+const sortAscending = (a, b) => {
+  if (a.sortDate > b.sortDate) return 1;
+  if (a.sortDate < b.sortDate) return -1;
+  return 0;
+};
 
-const sortDescending = (a, b) => a.sortDate < b.sortDate ? 1 : -1;
+const sortDescending = (a, b) => {
+  if (a.sortDate < b.sortDate) return 1;
+  if (a.sortDate > b.sortDate) return -1;
+  return 0;
+};
 
 const useSortedNodes = (list = [], sortOrder = DESCENDING_SORT_ORDER) => {
   const isAscending = sortOrder === ASCENDING_SORT_ORDER;
