@@ -382,7 +382,7 @@ describe('Login', () => {
 
     await waitFor(() => {
       expect(navigate).toHaveBeenCalledWith(
-        { pathname: REACT_APP_ROUTE_PREFIX, search: '?next=1' },
+        { pathname: `${REACT_APP_ROUTE_PREFIX}events`, search: '?next=1' },
         {},
       );
     });

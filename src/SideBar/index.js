@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { matchPath, Navigate, Route, Routes, useLocation } from 'react-router';
+import { matchPath, Route, Routes, useLocation } from 'react-router';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -312,8 +312,8 @@ const SideBar = () => {
 
         <div className={`${styles.tabBody} ${isPatrolLegDetailViewActive || isPatrolOverviewActive || isPatrolFormActive ? styles.tabBodyFullHeight : ''}`}>
           <Routes>
-            {/* Gets rid of warning */}
-            <Route path="/" element={<Navigate to={`/${TAB_KEYS.EVENTS}`} replace />} />
+            {/* Suppress "no route matched" warning without triggering a redirect */}
+            <Route path="/" element={null} />
 
             {eventsEnabled && <Route path={TAB_KEYS.EVENTS}>
               <Route index element={<ReportsFeedTab
