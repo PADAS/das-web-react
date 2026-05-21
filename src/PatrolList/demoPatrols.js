@@ -19,7 +19,7 @@
 import { addUserPatrolRaw } from './userPatrolsStore';
 import { seedLegs } from '../PatrolOverview/legsStore';
 
-const SEEDED_KEY = 'er-prototype-demo-patrols-seeded-v4';
+const SEEDED_KEY = 'er-prototype-demo-patrols-seeded-v7';
 
 // Build a polyline of N points stepping from start by heading + per-step
 // jitter. Used to generate tracks that look hand-drawn rather than perfectly
@@ -171,14 +171,14 @@ const DEMO_PATROLS = [
     id: 'demo-active-1',
     serial: 102,
     state: 'Active',
-    title: 'North Ridge Loop',
+    title: 'Charlie - North Ridge Loop',
     patrolType: 'Foot Patrol',
     startedAt: '2026-05-20T08:00:00',
     legs: [
       {
         patrolType: 'Foot Patrol',
         startDate: '2026-05-20', startTime: '08:00',
-        endDate: '2026-05-20', endTime: '10:30',
+        endDate: '', endTime: '',
         team: 'Delta',
         teamMembers: [
           { id: 'd1', name: 'Maya Chen', role: 'Patrol Lead', tracked: true },
@@ -188,22 +188,6 @@ const DEMO_PATROLS = [
         gear: 'Hiking Pack',
         rations: ['Energy Bars', 'Water Bottles'],
         objective: 'Climb to north ridge overlook',
-        station: 'Station 0',
-        armed: 'Yes',
-      },
-      {
-        patrolType: 'Foot Patrol',
-        startDate: '2026-05-20', startTime: '10:30',
-        endDate: '', endTime: '',
-        team: 'Delta',
-        teamMembers: [
-          { id: 'd1', name: 'Maya Chen', role: 'Patrol Lead', tracked: true },
-          { id: 'd4', name: 'Amara Osei', role: 'Ranger' },
-        ],
-        assets: [{ id: 'a-garmin-1', name: 'Maya Chen (Garmin)' }],
-        gear: 'Hiking Pack',
-        rations: ['Energy Bars', 'Trail Mix'],
-        objective: 'Descend along eastern path',
         station: 'Station 0',
         armed: 'Yes',
       },
@@ -295,7 +279,7 @@ const DEMO_PATROLS = [
     id: 'demo-active-2',
     serial: 103,
     state: 'Active',
-    title: 'Coast Road Sweep',
+    title: 'Echo - Coast Road Sweep',
     patrolType: 'Vehicle Patrol',
     startedAt: '2026-05-20T05:30:00',
     legs: [

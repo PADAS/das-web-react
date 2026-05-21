@@ -78,7 +78,9 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding-bottom: 8px;
+  // Extra bottom padding so the sticky footer never obscures the last
+  // interactive element when scrolled to the end of the feed.
+  padding-bottom: 5rem;
 }
 
 .header {

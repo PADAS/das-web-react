@@ -60,7 +60,7 @@ const Auth0TokenManager = () => {
           const intendedRoute = getIntendedPostAuth0SuccessRoute();
           const returnTo = intendedRoute && !/\/login\b/.test(intendedRoute)
             ? intendedRoute
-            : REACT_APP_ROUTE_PREFIX;
+            : `${REACT_APP_ROUTE_PREFIX}events`;
           clearIntendedPostAuth0SuccessRoute();
 
           const cleanUrl = stripAuth0Params(returnTo);

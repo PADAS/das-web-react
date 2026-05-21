@@ -280,6 +280,59 @@ const PatrolTracksLayer = ({ patrolId }) => {
             .addTo(map)
         );
       });
+
+      // --- Entity last-position subject markers ---
+      // Colored circle with initials + name label, one per tracked entity.
+      Object.entries(tracks).forEach(([name, pts]) => {
+        if (!pts?.length || !isEntityVisible(patrolId, name)) return;
+        const last = pts[pts.length - 1];
+        const color = colorForEntity(name);
+        const initials = name
+          .split(/\s+/)
+          .map((w) => w[0] || '')
+          .slice(0, 2)
+          .join('')
+          .toUpperCase();
+
+        const wrap = document.createElement('div');
+        wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;pointer-events:none;';
+
+        const circle = document.createElement('div');
+        circle.style.cssText = `
+          width:32px;height:32px;border-radius:50%;
+          background:${color};
+          border:2.5px solid white;
+          box-shadow:0 2px 6px rgba(0,0,0,0.35);
+          display:flex;align-items:center;justify-content:center;
+          color:white;font-size:11px;font-weight:700;
+          font-family:'Open Sans Semibold','Open Sans',sans-serif;
+          flex-shrink:0;
+        `;
+        circle.textContent = initials;
+
+        const nameLabel = document.createElement('div');
+        nameLabel.style.cssText = `
+          margin-top:3px;
+          background:rgba(0,0,0,0.6);
+          color:white;
+          padding:2px 6px;
+          border-radius:3px;
+          font-size:10px;font-weight:600;
+          font-family:'Open Sans Semibold','Open Sans',sans-serif;
+          white-space:nowrap;
+          max-width:120px;overflow:hidden;text-overflow:ellipsis;
+        `;
+        nameLabel.textContent = name;
+
+        wrap.appendChild(circle);
+        wrap.appendChild(nameLabel);
+
+        markers.push(
+          new Marker({ element: wrap, anchor: 'top' })
+            .setLngLat([last.lng, last.lat])
+            .addTo(map)
+        );
+      });
     };
 
     const safeAdd = () => { try { addMarkers(); } catch (_e) { /* ignore */ } };
@@ -414,11 +467,7 @@ const PatrolTracksLayer = ({ patrolId }) => {
         }
       });
 
-      // Entity last-position circles intentionally omitted —
-      // they rendered as plain coloured dots and were visually confusing.
-      // Subject positions are already conveyed by where the track lines end.
-
-      // (Event markers removed — real events render via the app's own EventsLayer)
+      // (subject markers are in addMarkers where DOM Marker objects are managed)
     };
 
     const safeRun = () => {

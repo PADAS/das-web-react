@@ -10,6 +10,7 @@ import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as ChevronRightIcon } from '../common/images/icons/chevron-right.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
+import { ReactComponent as PhoneIphoneIcon } from '../common/images/icons/phone-iphone.svg';
 
 import Select from '../Select';
 import LocationPicker from '../LocationPicker';
@@ -39,6 +40,7 @@ const TEAM_ROSTERS = {
     { id: 'bravo-2', name: 'Naledi Khumalo', role: 'Pilot', tracked: true },
     { id: 'bravo-3', name: 'Hana Okafor', role: 'Ranger' },
     { id: 'bravo-4', name: 'Carter Mwangi', role: 'Ranger' },
+    { id: 'bravo-5', name: 'Rafael Soto', role: 'Pilot' },
   ],
   Charlie: [
     { id: 'charlie-1', name: 'Priya Sharma', role: 'Patrol Lead', tracked: true },
@@ -69,7 +71,7 @@ const TEAM_ROSTERS = {
 
 const TEAM_NAMES = Object.keys(TEAM_ROSTERS);
 
-const ROLE_OPTIONS = ['Patrol Lead', 'Driver', 'Ranger'];
+const ROLE_OPTIONS = ['Patrol Lead', 'Driver', 'Pilot', 'Ranger'];
 
 // All known people across teams (deduplicated by name).
 // Each person's default role is the role from the first team they appear on.
@@ -388,8 +390,11 @@ const AddAssetModal = ({ show, index, existingNames, initial, onCancel, onDone }
   </Modal>;
 };
 
-const CollectionItem = ({ name, role, onDelete, onEdit, showRole }) => <div className={styles.collectionItem}>
-  <span className={styles.collectionName}>{name}</span>
+const CollectionItem = ({ name, role, tracked, onDelete, onEdit, showRole }) => <div className={styles.collectionItem}>
+  <span className={styles.collectionName}>
+    {name}
+    {tracked && <PhoneIphoneIcon className={styles.trackedIcon} aria-label="Tracked" />}
+  </span>
   {showRole
     ? <span className={styles.collectionRoleText}>{role || ''}</span>
     : <span />}
@@ -743,6 +748,7 @@ const PatrolForm = () => {
                 key={m.id}
                 name={m.name}
                 role={m.role}
+                tracked={m.tracked}
                 showRole
                 onDelete={() => removeTeamMember(m.id)}
                 onEdit={() => setEditingMemberId(m.id)}

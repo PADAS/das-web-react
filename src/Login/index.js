@@ -88,7 +88,7 @@ const LoginPage = () => {
         : {};
       navigate(
         location.state?.from
-          || { pathname: REACT_APP_ROUTE_PREFIX, search: location.search },
+          || { pathname: `${REACT_APP_ROUTE_PREFIX}events`, search: location.search },
         options
       );
     } catch (error) {
