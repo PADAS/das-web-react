@@ -695,19 +695,21 @@ const PatrolOverview = () => {
         <button type="button" className={styles.endButton} onClick={onEnd}>
           <StopCircleOutlinedIcon /> <span>End</span>
         </button>
-        <button type="button" className={styles.cancelButton} onClick={onCancel}>
-          <CancelOutlinedIcon /> <span>Cancel</span>
-        </button>
-        <button type="button" className={styles.pauseButton} onClick={onPause}>
-          <PauseOutlinedIcon /> <span>Pause</span>
-        </button>
-        <button
-          type="button"
-          className={styles.newLegButton}
-          onClick={() => navigate(`/${TAB_KEYS.PATROLS}/${patrolId}/legs/new?newLeg=1`)}
-        >
-          <AddOutlinedIcon /> <span>New Patrol Leg</span>
-        </button>
+        {!userPatrol?.mobileOrigin && <>
+          <button type="button" className={styles.cancelButton} onClick={onCancel}>
+            <CancelOutlinedIcon /> <span>Cancel</span>
+          </button>
+          <button type="button" className={styles.pauseButton} onClick={onPause}>
+            <PauseOutlinedIcon /> <span>Pause</span>
+          </button>
+          <button
+            type="button"
+            className={styles.newLegButton}
+            onClick={() => navigate(`/${TAB_KEYS.PATROLS}/${patrolId}/legs/new?newLeg=1`)}
+          >
+            <AddOutlinedIcon /> <span>New Patrol Leg</span>
+          </button>
+        </>}
       </div>}
 
       {isPaused && <div className={styles.stickyFooter}>

@@ -210,7 +210,12 @@ const CoordRowField = ({ value }) => <div className={styles.coordRow}>
 </div>;
 
 const EditableField = ({ onEdit, fieldKey, children }) => {
-  const trigger = () => onEdit?.(fieldKey);
+  // When onEdit is not provided the field is read-only — render as a plain
+  // container with no pencil icon and no interactive semantics.
+  if (!onEdit) {
+    return <div className={styles.field}>{children}</div>;
+  }
+  const trigger = () => onEdit(fieldKey);
   return <div
     className={`${styles.field} ${styles.editableField}`}
     onClick={trigger}
@@ -515,6 +520,10 @@ const PatrolLegDetailView = () => {
   const isLegActive = Number(legIndex) === legs.length - 1 && !leg.endTime;
   const patrolTitle = patrol ? displayTitleForPatrol(patrol) : 'Patrol';
 
+  // Mobile-origin patrols started from the app cannot have their active leg
+  // edited from the web — fields become read-only until the leg is done.
+  const canEditFields = !(userPatrol?.mobileOrigin && isLegActive);
+
   const onClose = () => navigate(`/${TAB_KEYS.PATROLS}`);
 
   // Patrol-state subscription (for pause sessions shown in the active leg).
@@ -646,9 +655,9 @@ const PatrolLegDetailView = () => {
 
       <div className={styles.body}>
         <LegHeader leg={legWithStats} legNumber={legNumber} isActive={isLegActive} />
-        <TopSection leg={leg} onEdit={goToEdit} />
-        <PatrolTypeDetailsSection leg={leg} onEdit={goToEdit} />
-        <TeamTrackingSection leg={leg} onEdit={goToEdit} />
+        <TopSection leg={leg} onEdit={canEditFields ? goToEdit : null} />
+        <PatrolTypeDetailsSection leg={leg} onEdit={canEditFields ? goToEdit : null} />
+        <TeamTrackingSection leg={leg} onEdit={canEditFields ? goToEdit : null} />
 
         <section className={styles.section}>
           <ActivitySection
@@ -688,12 +697,12 @@ const PatrolLegDetailView = () => {
         </section>
       </div>
 
-      <div className={styles.stickyFooter}>
+      {canEditFields && <div className={styles.stickyFooter}>
         <button type="button" className={styles.editButton} onClick={goToEdit}>
           <PencilIcon />
           <span>Edit Patrol Leg</span>
         </button>
-      </div>
+      </div>}
     </TrackerContext.Provider>
   </div>;
 };

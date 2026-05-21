@@ -19,7 +19,7 @@
 import { addUserPatrolRaw } from './userPatrolsStore';
 import { seedLegs } from '../PatrolOverview/legsStore';
 
-const SEEDED_KEY = 'er-prototype-demo-patrols-seeded-v7';
+const SEEDED_KEY = 'er-prototype-demo-patrols-seeded-v8';
 
 // Build a polyline of N points stepping from start by heading + per-step
 // jitter. Used to generate tracks that look hand-drawn rather than perfectly
@@ -433,8 +433,9 @@ const DEMO_PATROLS = [
     id: 'demo-active-3',
     serial: 104,
     state: 'Active',
-    title: 'Aerial Sweep — Sector 9',
+    title: 'Aerial Patrol',
     patrolType: 'Aerial Patrol',
+    mobileOrigin: true,
     startedAt: '2026-05-20T07:00:00',
     legs: [
       {
@@ -892,6 +893,7 @@ export const seedDemoPatrolsOnce = () => {
       patrolType: demo.patrolType,
       objective: demo.legs?.[0]?.objective || '',
       startedAt: new Date(demo.startedAt),
+      mobileOrigin: demo.mobileOrigin || false,
     });
 
     // State + pause sessions + ended-at.

@@ -130,6 +130,7 @@ const PrototypePatrolList = () => {
       state: variant,
       serial: p.serial,
       title: p.title,
+      titleBadge: p.mobileOrigin ? 'phone' : undefined,
       sub: `0min | 0km`,
       statusLabel: label,
       statusSub: dateLabel,
