@@ -165,7 +165,7 @@ const ReportedBySelect = ({
   );
 
   const selected = useMemo(() => {
-    if (!Boolean(value)) {
+    if (!value) {
       return null;
     }
 
@@ -183,7 +183,7 @@ const ReportedBySelect = ({
   const options = useMemo(() => {
     const displayOptions = selections.filter(({ id }) => !recentRadios.some(({ id: radioId }) => radioId === id));
 
-    if (!!recentRadios.length) {
+    if (recentRadios.length) {
       return [
         {
           disabled: true,

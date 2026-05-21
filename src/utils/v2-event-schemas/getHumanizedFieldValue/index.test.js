@@ -39,7 +39,7 @@ describe('getHumanizedFieldValue', () => {
       'en-US',
       GPS_FORMATS.DEG,
       t
-    )).toBe('Desert Bighorn Sheep, Ranger Cruz');
+    )).toBe('Desert Bighorn Sheep (species), Ranger Cruz');
   });
 
   test('returns the choice list value it supports a single value', () => {
@@ -56,7 +56,7 @@ describe('getHumanizedFieldValue', () => {
       'en-US',
       GPS_FORMATS.DEG,
       t
-    )).toBe('EarthRanger System');
+    )).toBe('EarthRanger System (system)');
   });
 
   test('returns a readable date value', () => {

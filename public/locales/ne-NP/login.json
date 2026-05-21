@@ -1,17 +1,24 @@
 {
-    "errorAlert": {
-        "accessDeniedNotAuthorized": "पहुँच अस्वीकार गरियो: तपाईंको खाता यस संस्थाको लागि अधिकृत छैन। कृपया आफ्नो प्रशासकलाई सम्पर्क गर्नुहोस्।",
-        "accessDeniedNoPermission": "पहुँच अस्वीकार गरियो: तपाईंसँग यो अनुप्रयोग पहुँच गर्ने अनुमति छैन।",
-        "authenticationFailed": "प्रमाणीकरण असफल भयो: कृपया आफ्नो प्रमाणहरू जाँच गर्नुहोस् र पुनः प्रयास गर्नुहोस्।",
-        "authenticationError": "प्रमाणीकरण त्रुटि: {{errorDescription}}",
-        "invalidCredentialsMessage": "गलत प्रमाणहरु दिइयो । कृपया पुनः प्रयास गर्नुहोस् ।",
-        "missingOrg": "पहिचान प्रदायक संस्था कन्फिगर गरिएको छैन।",
-        "signInFailed": "साइन इन असफल भयो। कृपया पुनः प्रयास गर्नुहोस्।",
-        "unknownErrorMessage": "केही त्रुटी भएको छ । कृपया पुनः प्रयास गर्नुहोस् ।"
-    },
-    "eulaLink": "अर्थरेन्जर EULA",
-    "loginButton": "लग इन",
-    "loginButtonIdp": "साइन इन",
-    "passwordLabel": "पासवर्ड",
-    "usernameLabel": "युजरनेम"
+  "errorAlert": {
+    "accessDeniedNotAuthorized": "पहुँच अस्वीकार गरियो: तपाईंको खाता यस संस्थाको लागि अधिकृत छैन। कृपया आफ्नो प्रशासकलाई सम्पर्क गर्नुहोस्।",
+    "accessDeniedNoPermission": "पहुँच अस्वीकार गरियो: तपाईंसँग यो अनुप्रयोग पहुँच गर्ने अनुमति छैन।",
+    "authenticationFailed": "प्रमाणीकरण असफल भयो: कृपया आफ्नो प्रमाणहरू जाँच गर्नुहोस् र पुनः प्रयास गर्नुहोस्।",
+    "authenticationError": "प्रमाणीकरण त्रुटि: {{errorDescription}}",
+    "invalidCredentialsMessage": "गलत प्रमाणहरु दिइयो । कृपया पुनः प्रयास गर्नुहोस् ।",
+    "missingOrg": "पहिचान प्रदायक संस्था कन्फिगर गरिएको छैन।",
+    "signInFailed": "साइन इन असफल भयो। कृपया पुनः प्रयास गर्नुहोस्।",
+    "unknownErrorMessage": "केही त्रुटी भएको छ । कृपया पुनः प्रयास गर्नुहोस् ।"
+  },
+  "errors": {
+    "passwordRequired": "पासवर्ड आवश्यक छ।",
+    "usernameRequired": "युजरनेम आवश्यक छ।"
+  },
+  "eulaLink": "अर्थरेन्जर EULA",
+  "eulaLinkLabel": "अर्थरेन्जर EULA (नयाँ ट्याबमा खुल्छ)",
+  "loginButton": "लग इन",
+  "loginButtonIdp": "साइन इन",
+  "loginButtonLoadingLabel": "लोड हुँदैछ",
+  "passwordLabel": "पासवर्ड",
+  "title": "लग इन",
+  "usernameLabel": "युजरनेम"
 }

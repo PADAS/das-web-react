@@ -25,7 +25,7 @@ const JiraSupportWidget = () => {
 
     const onDocumentChange = (_tree) => {
       const supportiFrameDocument = window.document.querySelector(JIRA_WIDGET_IFRAME_SELECTOR)?.contentDocument;
-      if (!!supportiFrameDocument) {
+      if (supportiFrameDocument) {
         setWidgetAppended(true);
         window.clearTimeout(timeoutRef);
         disconnectObserver();

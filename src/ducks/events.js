@@ -599,7 +599,7 @@ export const eventStoreReducer = (state, { type, payload }) => {
           .map(({ related_event: { id } }) => state[id])
           .filter(item => !!item);
         incidentsToUpdate.forEach(incident => {
-          const toMerge = !!accumulator[incident.id] ? accumulator[incident.id] : incident;
+          const toMerge = accumulator[incident.id] ? accumulator[incident.id] : incident;
 
           accumulator[incident.id] = {
             ...toMerge,

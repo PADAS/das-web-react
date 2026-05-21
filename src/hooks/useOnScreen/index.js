@@ -14,7 +14,7 @@ const useOnScreen = (element) => {
   }, []);
 
   useEffect(() => {
-    if (!!element) {
+    if (element) {
       intersectionObserverRef.current.observe(element);
     } else {
       setIsElementOnScreen(false);

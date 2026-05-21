@@ -3,16 +3,17 @@ import { FORM_ELEMENT_TYPES } from '../../../constants';
 import transformBooleanField from '.';
 
 describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformField - transformBooleanField', () => {
-  const booleanFieldId = 'is-animal-injured';
-  const parentId = 'section-1';
-  let formElements, jsonSchema, uiSchema;
+  const booleanFieldName = 'is-animal-injured';
+  let booleanFieldId, formElements, jsonSchema, parentId, uiSchema;
   beforeEach(() => {
+    parentId = 'section-1';
+    booleanFieldId = booleanFieldName;
     formElements = {
       [booleanFieldId]: {
         details: {
           isRequired: true,
           label: 'Is animal injured?',
-          value: booleanFieldId,
+          value: booleanFieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.BOOLEAN,
@@ -20,7 +21,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
     };
     jsonSchema = {
       properties: {
-        [booleanFieldId]: {
+        [booleanFieldName]: {
           default: true,
           description: 'Does the animal show any signs of injury?',
         },
@@ -34,7 +35,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   });
 
   it('transforms a boolean field', () => {
-    transformBooleanField(booleanFieldId, jsonSchema, uiSchema, formElements);
+    transformBooleanField(booleanFieldId, booleanFieldName, jsonSchema, uiSchema, formElements);
 
     expect(formElements).toEqual({
       [booleanFieldId]: {
@@ -43,7 +44,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           description: 'Does the animal show any signs of injury?',
           isRequired: true,
           label: 'Is animal injured?',
-          value: booleanFieldId,
+          value: booleanFieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.BOOLEAN,
@@ -52,10 +53,10 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   });
 
   it('transforms a boolean field with missing properties', () => {
-    delete jsonSchema.properties[booleanFieldId].default;
-    delete jsonSchema.properties[booleanFieldId].description;
+    delete jsonSchema.properties[booleanFieldName].default;
+    delete jsonSchema.properties[booleanFieldName].description;
 
-    transformBooleanField(booleanFieldId, jsonSchema, uiSchema, formElements);
+    transformBooleanField(booleanFieldId, booleanFieldName, jsonSchema, uiSchema, formElements);
 
     expect(formElements).toEqual({
       [booleanFieldId]: {
@@ -64,7 +65,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           description: '',
           isRequired: true,
           label: 'Is animal injured?',
-          value: booleanFieldId,
+          value: booleanFieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.BOOLEAN,

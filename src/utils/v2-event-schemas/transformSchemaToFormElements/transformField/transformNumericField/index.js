@@ -1,11 +1,14 @@
 const transformNumericField = (
   numericFieldId,
+  numericFieldName,
   jsonSchema,
   uiSchema,
   formElements,
 ) => {
-  const numericFieldJSONSchema = jsonSchema.properties[numericFieldId];
-  const numericFieldUISchema = uiSchema.fields[numericFieldId];
+  const numericFieldJSONSchema = jsonSchema.properties[numericFieldName];
+  // Backwards compatibility: uiSchema.fields keys used to be the field names.
+  const numericFieldUISchema =
+    uiSchema.fields[numericFieldId] ?? uiSchema.fields[numericFieldName];
 
   // Add the numeric field form element specific properties.
   formElements[numericFieldId].details = {

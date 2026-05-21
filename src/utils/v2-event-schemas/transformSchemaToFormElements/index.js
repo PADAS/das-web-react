@@ -10,7 +10,7 @@ export const transformSchemaToFormElements = (schema) => {
     }
   });
 
-  // Initialize the formElements object with only the active sections order.
+  // Initialize the formElements object with the active sections order.
   const formElements = {
     [ROOT_CANVAS_ID]: {
       details: {

@@ -234,12 +234,12 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
             conditionalDependents: [],
             itemIdentifier: '',
             itemName: 'Item',
-            leftColumn: ['location_field_2'],
+            leftColumn: ['collection_field.location_field_2'],
             rightColumn: [],
             type: 'COLLECTION',
             parent: 'section-3'
           },
-          location_field_2: {
+          'collection_field.location_field_2': {
             conditionalDependents: [],
             type: 'LOCATION',
             parent: 'collection_field'
@@ -463,7 +463,7 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
     const originalGetElementById = document.getElementById;
     document.getElementById = jest.fn((id) => {
       // The collection item is in the document
-      if (id === 'collection_field.0') {
+      if (id === 'collection_field[0]') {
         return collectionItemElement;
       }
       return undefined;
@@ -473,7 +473,7 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
 
     expect(collectionItemElement.focus).toHaveBeenCalledTimes(0);
 
-    onMarkerClickCallback('collection_field.0.location_field_2');
+    onMarkerClickCallback('collection_field[0].location_field_2');
 
     expect(collectionItemElement.focus).toHaveBeenCalledTimes(1);
 
@@ -595,7 +595,7 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
   });
 
   test('updates the field errors', async () => {
-    renderSchemaForm({ formData: { this_is_a_text: undefined } });
+    renderSchemaForm({ formData: { text_field: undefined } });
 
     const inputField = screen.getByLabelText('Text Field *');
     await userEvent.type(inputField, '{enter}');

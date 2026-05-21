@@ -3,16 +3,17 @@ import { FORM_ELEMENT_TYPES } from '../../../constants';
 import transformNumericField from '.';
 
 describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformField - transformNumericField', () => {
-  const numericFieldId = 'number-of-snares';
-  const parentId = 'section-1';
-  let formElements, jsonSchema, uiSchema;
+  const numericFieldName = 'number-of-snares';
+  let formElements, jsonSchema, numericFieldId, parentId, uiSchema;
   beforeEach(() => {
+    parentId = 'section-1';
+    numericFieldId = numericFieldName;
     formElements = {
       [numericFieldId]: {
         details: {
           isRequired: true,
           label: 'Number of snares',
-          value: numericFieldId,
+          value: numericFieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.NUMERIC,
@@ -20,7 +21,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
     };
     jsonSchema = {
       properties: {
-        [numericFieldId]: {
+        [numericFieldName]: {
           default: 1,
           description: 'Total amount of snares',
           maximum: 50,
@@ -38,7 +39,13 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   });
 
   it('transforms a numeric field', () => {
-    transformNumericField(numericFieldId, jsonSchema, uiSchema, formElements);
+    transformNumericField(
+      numericFieldId,
+      numericFieldName,
+      jsonSchema,
+      uiSchema,
+      formElements,
+    );
 
     expect(formElements).toEqual({
       [numericFieldId]: {
@@ -50,7 +57,56 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           label: 'Number of snares',
           maxInput: 50,
           minInput: 1,
-          value: numericFieldId,
+          value: numericFieldName,
+        },
+        parentId,
+        type: FORM_ELEMENT_TYPES.NUMERIC,
+      },
+    });
+  });
+
+  it('transforms a numeric field stored by name in uiSchema.fields', () => {
+    parentId = 'collection-1.collection-2';
+    numericFieldId = `${parentId}.${numericFieldName}`;
+
+    formElements = {
+      [numericFieldId]: {
+        details: {
+          isRequired: true,
+          label: 'Number of snares',
+          value: numericFieldName,
+        },
+        parentId,
+        type: FORM_ELEMENT_TYPES.NUMERIC,
+      },
+    };
+    uiSchema = {
+      fields: {
+        [numericFieldName]: {
+          placeholder: '1',
+        },
+      },
+    };
+
+    transformNumericField(
+      numericFieldId,
+      numericFieldName,
+      jsonSchema,
+      uiSchema,
+      formElements,
+    );
+
+    expect(formElements).toEqual({
+      [numericFieldId]: {
+        details: {
+          defaultInput: 1,
+          description: 'Total amount of snares',
+          hint: '1',
+          isRequired: true,
+          label: 'Number of snares',
+          maxInput: 50,
+          minInput: 1,
+          value: numericFieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.NUMERIC,
@@ -59,13 +115,19 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
   });
 
   it('transforms a numeric field with missing properties', () => {
-    delete jsonSchema.properties[numericFieldId].default;
-    delete jsonSchema.properties[numericFieldId].description;
-    delete jsonSchema.properties[numericFieldId].maximum;
-    delete jsonSchema.properties[numericFieldId].minimum;
+    delete jsonSchema.properties[numericFieldName].default;
+    delete jsonSchema.properties[numericFieldName].description;
+    delete jsonSchema.properties[numericFieldName].maximum;
+    delete jsonSchema.properties[numericFieldName].minimum;
     delete uiSchema.fields[numericFieldId].placeholder;
 
-    transformNumericField(numericFieldId, jsonSchema, uiSchema, formElements);
+    transformNumericField(
+      numericFieldId,
+      numericFieldName,
+      jsonSchema,
+      uiSchema,
+      formElements,
+    );
 
     expect(formElements).toEqual({
       [numericFieldId]: {
@@ -77,7 +139,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           label: 'Number of snares',
           maxInput: null,
           minInput: null,
-          value: numericFieldId,
+          value: numericFieldName,
         },
         parentId,
         type: FORM_ELEMENT_TYPES.NUMERIC,

@@ -9,9 +9,16 @@
     "signInFailed": "Error al iniciar sesión. Por favor intente de nuevo.",
     "unknownErrorMessage": "Ha ocurrido un error. Por favor intente de nuevo."
   },
+  "errors": {
+    "passwordRequired": "La contraseña es obligatoria.",
+    "usernameRequired": "El nombre de usuario es obligatorio."
+  },
   "eulaLink": "EULA de EarthRanger",
+  "eulaLinkLabel": "EULA de EarthRanger (se abre en una nueva pestaña)",
   "loginButton": "Iniciar sesión",
   "loginButtonIdp": "Iniciar sesión",
+  "loginButtonLoadingLabel": "Cargando",
   "passwordLabel": "Contraseña",
+  "title": "Iniciar sesión",
   "usernameLabel": "Usuario"
 }
