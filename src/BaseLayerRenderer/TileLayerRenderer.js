@@ -5,7 +5,7 @@ import { TILE_LAYER_SOURCE_TYPES, MAX_ZOOM, MIN_ZOOM } from '../constants';
 
 import { POLYGONS_LAYER_ID as BEFORE_LAYER_ID } from '../SpatialFeaturesLayer';
 
-import { calcConfigForMapAndSourceFromLayer } from '../utils/layers';
+import { calculateSourceConfigurationFromLayer, calculateMapConfigurationFromLayer } from '../utils/layers';
 import useMapSources from '../hooks/useMapSources';
 import useMapLayers from '../hooks/useMapLayers';
 
@@ -18,14 +18,12 @@ const RASTER_SOURCE_OPTIONS = {
 const RenderFunction = ({ children }) => <>{children}</>;
 
 const SourceComponent = ({ id, layer }) => {
-  const config = useMemo(() => {
-    const { sourceConfig } = calcConfigForMapAndSourceFromLayer(layer);
-    return {
-      ...RASTER_SOURCE_OPTIONS,
-      tiles: [layer.attributes.url],
-      ...sourceConfig,
-    };
-  }, [layer]);
+  // useMemo keeps config referentially stable so useMapSources doesn't re-run on every render.
+  const config = useMemo(() => ({
+    ...RASTER_SOURCE_OPTIONS,
+    tiles: [layer.attributes.url],
+    ...calculateSourceConfigurationFromLayer(layer),
+  }), [layer]);
 
   useMapSources([{ id }], config);
 
@@ -41,8 +39,9 @@ const TileLayerRenderer = (props) => {
     layers.find(({ id }) => id === currentBaseLayer?.id)
   , [currentBaseLayer?.id, layers]);
 
-  const { mapConfig } = useMemo(() =>
-    calcConfigForMapAndSourceFromLayer(activeLayer ?? currentBaseLayer)
+  // useMemo keeps mapConfig referentially stable so the useEffect below doesn't re-run on every render.
+  const mapConfig = useMemo(() =>
+    calculateMapConfigurationFromLayer(activeLayer ?? currentBaseLayer)
   , [activeLayer, currentBaseLayer]);
 
   useEffect(() => {
