@@ -1,8 +1,0 @@
-image:
-  repository: europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react
-  pullPolicy: IfNotPresent
-ingress:
-  enabled: false
-autoscaling:
-  enabled: false
-# TODO: add app-specific env vars for the legacy dev environment

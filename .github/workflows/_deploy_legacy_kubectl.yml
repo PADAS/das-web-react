@@ -1,4 +1,4 @@
-name: Legacy Deploy
+name: Legacy Deploy (kubectl)
 
 on:
   workflow_call:
@@ -7,14 +7,9 @@ on:
         description: 'Environment to deploy to'
         required: true
         type: string
-      chart_version:
-        description: 'Chart version to deploy'
-        required: false
-        type: string
-        default: '1.0.2'
       image_tag:
         description: 'Image Tag'
-        required: false
+        required: true
         type: string
       project_id:
         description: 'GCP Project ID'
@@ -40,33 +35,24 @@ on:
         description: 'Bastion zone'
         required: true
         type: string
-      values_file_name:
-        description: 'Name of the values file'
-        type: string
-        default: legacy-dev-values.yml
       tenants:
-        description: 'JSON array of tenants'
+        description: 'Comma-separated list of tenant namespaces'
         required: true
         type: string
 
 jobs:
-  helm-apply:
+  kubectl-apply:
     runs-on: ubuntu-latest
     environment: legacy
-    timeout-minutes: 120
+    timeout-minutes: 60
     permissions:
       id-token: write
       contents: read
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: GCP Auth
-        id: auth
         uses: google-github-actions/auth@v2
         with:
-          token_format: 'access_token'
           workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ vars.SERVICE_ACCOUNT }}
 
@@ -74,23 +60,6 @@ jobs:
         uses: google-github-actions/setup-gcloud@v1
         with:
           install_components: 'kubectl'
-
-      - name: Login to Helm Registry
-        uses: docker/login-action@v3
-        with:
-          registry: europe-west3-docker.pkg.dev
-          username: oauth2accesstoken
-          password: ${{ steps.auth.outputs.access_token }}
-
-      - name: Setup Helm
-        uses: azure/setup-helm@v4
-        with:
-          version: '3.12.0'
-
-      - name: Download Chart
-        run: |
-          echo "📦 Downloading Chart..."
-          helm pull oci://europe-west3-docker.pkg.dev/padas-app/er-mt-helm/das-web-react --version "${{ inputs.chart_version }}"
 
       - name: Get Creds
         run: |
@@ -145,38 +114,25 @@ jobs:
         run: |
           set +e
 
+          IMAGE="europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react:${{ inputs.image_tag }}"
           IFS=',' read -ra TENANTS <<< "${{ inputs.tenants }}"
           TENANT_COUNT=${#TENANTS[@]}
 
           echo "🚀 Starting deployment to ${{ inputs.environment }} environment"
           echo "📊 Total tenants: $TENANT_COUNT"
-          echo "📦 Chart version: ${{ inputs.chart_version }}"
+          echo "🐳 Image: $IMAGE"
 
           SUCCESS_COUNT=0
           FAILED_TENANTS=()
           DEPLOY_COUNT=0
 
-          echo "🔍 Checking for stuck helm releases..."
-          for TENANT in "${TENANTS[@]}"; do
-            STATUS=$(helm status das-web-react -n "$TENANT" -o json 2>/dev/null | jq -r '.info.status' || echo "not-found")
-            if [[ "$STATUS" == "pending-upgrade" || "$STATUS" == "pending-install" ]]; then
-              echo "⚠️  Stuck release in $TENANT ($STATUS), rolling back..."
-              helm rollback das-web-react -n "$TENANT" 2>/dev/null || \
-              helm uninstall das-web-react -n "$TENANT" 2>/dev/null || true
-            fi
-          done
-
           for TENANT in "${TENANTS[@]}"; do
             ((DEPLOY_COUNT++))
             echo "🏢 Deploying to tenant: $TENANT ($DEPLOY_COUNT/$TENANT_COUNT)"
 
-            helm upgrade --install das-web-react ./das-web-react-${{ inputs.chart_version }}.tgz \
-              --namespace "$TENANT" \
-              --timeout 10m \
-              --values ./.github/workflows/helm/${{ inputs.values_file_name }} \
-              --set image.tag="${{ inputs.image_tag }}" \
-              --cleanup-on-fail \
-              --wait
+            kubectl set image deployment/das-web-react \
+              das-web-react="$IMAGE" \
+              -n "$TENANT"
 
             if [ $? -eq 0 ]; then
               echo "✅ SUCCESS for $TENANT"
