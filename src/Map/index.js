@@ -453,7 +453,7 @@ const Map = ({ children, onMapLoad, socket }) => {
   const doesFeatureOpenPopup = useCallback(
     (feature) => feature.layer.id.includes(LAYER_IDS.TRACK_TIMEPOINTS)
        || [SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID, POLYGONS_OUTLINE_LAYER_ID].includes(feature.layer.id)
-       || feature.layer.id === LAYER_IDS.GEAR_LINE
+       || feature.layer.id === LAYER_IDS.GEAR_LINE_HIT
        || feature.layer.id === LAYER_IDS.GEAR_POINT,
     []
   );

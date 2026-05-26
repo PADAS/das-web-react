@@ -29,18 +29,17 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
           items: {
             anyOf: [
               {
-                oneOf: [
-                  {
-                    const: 'source-1',
+                enum: ['source-1', 'source-2'],
+                'x-enumExtra': {
+                  'source-1': {
                     description: 'radio_manufacturer',
-                    title: 'Ranger Radio',
+                    display: 'Ranger Radio',
                   },
-                  {
-                    const: 'source-2',
+                  'source-2': {
                     description: 'collar_manufacturer',
-                    title: 'Elephant Collar',
+                    display: 'Elephant Collar',
                   },
-                ],
+                },
               },
             ],
           },
@@ -161,27 +160,26 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
     jsonSchema.properties[choiceListFieldName].items.anyOf = [
       ...jsonSchema.properties[choiceListFieldName].items.anyOf,
       {
-        oneOf: [
-          {
-            const: 'source-3',
+        enum: ['source-3', 'source-4'],
+        'x-enumExtra': {
+          'source-3': {
             description: 'collar_manufacturer_2',
-            title: 'Rhino Collar',
+            display: 'Rhino Collar',
           },
-          {
-            const: 'source-4',
+          'source-4': {
             description: 'sensor_manufacturer',
-            title: 'Static Wheather Sensor',
+            display: 'Static Weather Sensor',
           },
-        ],
+        },
       },
       {
-        oneOf: [
-          {
-            const: 'source-5',
+        enum: ['source-5'],
+        'x-enumExtra': {
+          'source-5': {
             description: 'tracker_manufacturer',
-            title: 'Vehicle Tracker',
+            display: 'Vehicle Tracker',
           },
-        ],
+        },
       },
     ];
 
@@ -220,7 +218,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
             },
             {
               description: 'sensor_manufacturer',
-              display: 'Static Wheather Sensor',
+              display: 'Static Weather Sensor',
               value: 'source-4',
             },
             {

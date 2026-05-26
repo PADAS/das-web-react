@@ -97,6 +97,7 @@ export const LAYER_IDS = {
   EVENT_LOCATION_MARKERS: 'event-location-markers-layer',
   EVENT_SYMBOLS: 'event_symbols',
   GEAR_LINE: 'gear-line-layer',
+  GEAR_LINE_HIT: 'gear-line-hit-layer',
   GEAR_POINT: 'gear-point-layer',
   HEATMAP_LAYER: 'heatmap',
   ISOCHRONE_LAYER: 'isochrone',
