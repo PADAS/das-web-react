@@ -276,3 +276,67 @@ jobs:
       app-name: das-web-react-er-prod
     secrets:
       ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+
+  # Legacy Helm deployments
+  deploy-dev-legacy:
+    needs: [config, build, sync-stage]
+    uses: ./.github/workflows/_deploy_legacy.yml
+    with:
+      environment: "legacy"
+      chart_version: "1.0.2"
+      image_tag: ${{ needs.config.outputs.image-tag }}
+      project_id: "earthranger-78ca55ca"
+      cluster_name: "das-dev"
+      cluster_zone: "us-west1-a"
+      bastion_host: "34.105.19.155"
+      bastion_instance: "kubernetes-bastion-2"
+      bastion_zone: "us-west1-a"
+      tenants: ${{ vars.LEGACY_TENANTS_DEV }}
+
+  deploy-prod-legacy-1:
+    needs: [config, deploy-dev-legacy]
+    uses: ./.github/workflows/_deploy_legacy.yml
+    with:
+      environment: "legacy"
+      chart_version: "1.0.2"
+      image_tag: ${{ needs.config.outputs.image-tag }}
+      project_id: "earthranger-78ca55ca"
+      cluster_name: "das-prod1"
+      cluster_zone: "europe-west3-a"
+      bastion_host: "34.105.19.155"
+      bastion_instance: "kubernetes-bastion-2"
+      bastion_zone: "us-west1-a"
+      values_file_name: legacy-prod-values.yml
+      tenants: ${{ vars.LEGACY_TENANTS_1 }}
+
+  deploy-prod-legacy-2:
+    needs: [config, deploy-dev-legacy]
+    uses: ./.github/workflows/_deploy_legacy.yml
+    with:
+      environment: "legacy"
+      chart_version: "1.0.2"
+      image_tag: ${{ needs.config.outputs.image-tag }}
+      project_id: "earthranger-78ca55ca"
+      cluster_name: "das-prod1"
+      cluster_zone: "europe-west3-a"
+      bastion_host: "34.105.19.155"
+      bastion_instance: "kubernetes-bastion-2"
+      bastion_zone: "us-west1-a"
+      values_file_name: legacy-prod-values.yml
+      tenants: ${{ vars.LEGACY_TENANTS_2 }}
+
+  deploy-prod-legacy-3:
+    needs: [config, deploy-dev-legacy]
+    uses: ./.github/workflows/_deploy_legacy.yml
+    with:
+      environment: "legacy"
+      chart_version: "1.0.2"
+      image_tag: ${{ needs.config.outputs.image-tag }}
+      project_id: "earthranger-78ca55ca"
+      cluster_name: "das-prod1"
+      cluster_zone: "europe-west3-a"
+      bastion_host: "34.105.19.155"
+      bastion_instance: "kubernetes-bastion-2"
+      bastion_zone: "us-west1-a"
+      values_file_name: legacy-prod-values.yml
+      tenants: ${{ vars.LEGACY_TENANTS_3 }}

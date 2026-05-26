@@ -1,0 +1,217 @@
+name: Legacy Deploy
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        type: string
+      chart_version:
+        description: 'Chart version to deploy'
+        required: false
+        type: string
+        default: '1.0.2'
+      image_tag:
+        description: 'Image Tag'
+        required: false
+        type: string
+      project_id:
+        description: 'GCP Project ID'
+        required: true
+        type: string
+      cluster_name:
+        description: 'GKE cluster name'
+        required: true
+        type: string
+      cluster_zone:
+        description: 'GKE cluster zone'
+        required: true
+        type: string
+      bastion_host:
+        description: 'Bastion host address'
+        required: true
+        type: string
+      bastion_instance:
+        description: 'Bastion instance name'
+        required: true
+        type: string
+      bastion_zone:
+        description: 'Bastion zone'
+        required: true
+        type: string
+      values_file_name:
+        description: 'Name of the values file'
+        type: string
+        default: legacy-dev-values.yml
+      tenants:
+        description: 'JSON array of tenants'
+        required: true
+        type: string
+
+jobs:
+  helm-apply:
+    runs-on: ubuntu-latest
+    environment: legacy
+    timeout-minutes: 120
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: GCP Auth
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          token_format: 'access_token'
+          workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.SERVICE_ACCOUNT }}
+
+      - name: Setup gcloud and kubectl
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          install_components: 'kubectl'
+
+      - name: Login to Helm Registry
+        uses: docker/login-action@v3
+        with:
+          registry: europe-west3-docker.pkg.dev
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: '3.12.0'
+
+      - name: Download Chart
+        run: |
+          echo "📦 Downloading Chart..."
+          helm pull oci://europe-west3-docker.pkg.dev/padas-app/er-mt-helm/das-web-react --version "${{ inputs.chart_version }}"
+
+      - name: Get Creds
+        run: |
+          for i in {1..5}; do
+            if gcloud container clusters get-credentials ${{ inputs.cluster_name }} \
+              --zone=${{ inputs.cluster_zone }} \
+              --project=${{ inputs.project_id }}; then
+              break
+            fi
+            sleep 15
+          done
+
+      - name: Setup SSH tunnel
+        timeout-minutes: 5
+        run: |
+          echo "Setting up tunnel for ${{ inputs.environment }} environment"
+          echo "Bastion: ${{ inputs.bastion_instance }} in ${{ inputs.bastion_zone }}"
+
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          ssh-keyscan -H ${{ inputs.bastion_host }} >> ~/.ssh/known_hosts
+
+          for i in {1..3}; do
+            echo "Tunnel attempt $i..."
+            gcloud compute ssh kubernetes-bastion-2 \
+              --project=earthranger-78ca55ca \
+              --zone=us-west1-a \
+              --ssh-flag="-4 -L8888:localhost:8888 -N -f" && break
+            sleep 10
+          done
+
+          sleep 10
+          if ! netstat -ln | grep -q :8888; then
+            echo "Tunnel setup failed"
+            exit 1
+          fi
+          echo "Tunnel established successfully"
+
+      - name: Configure kubectl
+        timeout-minutes: 5
+        env:
+          HTTPS_PROXY: localhost:8888
+        run: |
+          echo "Testing kubectl connection..."
+          kubectl get nodes
+
+      - name: Deploy to all tenants
+        env:
+          HTTPS_PROXY: localhost:8888
+          NO_PROXY: accounts.google.com,oauth2.googleapis.com,*.googleapis.com
+        run: |
+          set +e
+
+          IFS=',' read -ra TENANTS <<< "${{ inputs.tenants }}"
+          TENANT_COUNT=${#TENANTS[@]}
+
+          echo "🚀 Starting deployment to ${{ inputs.environment }} environment"
+          echo "📊 Total tenants: $TENANT_COUNT"
+          echo "📦 Chart version: ${{ inputs.chart_version }}"
+
+          SUCCESS_COUNT=0
+          FAILED_TENANTS=()
+          DEPLOY_COUNT=0
+
+          echo "🔍 Checking for stuck helm releases..."
+          for TENANT in "${TENANTS[@]}"; do
+            STATUS=$(helm status das-web-react -n "$TENANT" -o json 2>/dev/null | jq -r '.info.status' || echo "not-found")
+            if [[ "$STATUS" == "pending-upgrade" || "$STATUS" == "pending-install" ]]; then
+              echo "⚠️  Stuck release in $TENANT ($STATUS), rolling back..."
+              helm rollback das-web-react -n "$TENANT" 2>/dev/null || \
+              helm uninstall das-web-react -n "$TENANT" 2>/dev/null || true
+            fi
+          done
+
+          for TENANT in "${TENANTS[@]}"; do
+            ((DEPLOY_COUNT++))
+            echo "🏢 Deploying to tenant: $TENANT ($DEPLOY_COUNT/$TENANT_COUNT)"
+
+            helm upgrade --install das-web-react ./das-web-react-${{ inputs.chart_version }}.tgz \
+              --namespace "$TENANT" \
+              --timeout 10m \
+              --values ./.github/workflows/helm/${{ inputs.values_file_name }} \
+              --set image.tag="${{ inputs.image_tag }}" \
+              --cleanup-on-fail \
+              --wait
+
+            if [ $? -eq 0 ]; then
+              echo "✅ SUCCESS for $TENANT"
+              ((SUCCESS_COUNT++))
+            else
+              echo "❌ FAILED for $TENANT"
+              FAILED_TENANTS+=("$TENANT")
+            fi
+          done
+
+          set -e
+
+          echo "🏁 DEPLOYMENT SUMMARY"
+          echo "✅ Successful: $SUCCESS_COUNT"
+          echo "❌ Failed: ${#FAILED_TENANTS[@]}"
+
+          if [ ${#FAILED_TENANTS[@]} -gt 0 ]; then
+            echo "💥 Failed tenants: ${FAILED_TENANTS[*]}"
+            exit 1
+          else
+            echo "🎉 All deployments successful!"
+          fi
+
+      - name: Cleanup tunnel
+        if: always()
+        run: |
+          echo "Cleaning up SSH tunnel..."
+          pkill -f "L8888:localhost:8888" || true
+          sleep 2
+
+      - name: Cleanup SSH key
+        if: always()
+        run: |
+          echo "Removing SSH key from bastion..."
+          gcloud compute ssh kubernetes-bastion-2 \
+              --project=earthranger-78ca55ca \
+              --zone=us-west1-a \
+              --command="sed -i '/$(whoami)@/d' ~/.ssh/authorized_keys" || true
