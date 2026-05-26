@@ -32,7 +32,7 @@ const Footer = ({
   const { t } = useTranslation('details-view', { keyPrefix: 'footer' });
   const { cancelTitle = t('cancelButton') } = restProps;
   const stateButtonLabel = t(isActiveState ? 'stateResolveButton' : 'stateReopenButton');
-  const SaveButtonComponent = !!onStateToggle ? SplitButton : Button;
+  const SaveButtonComponent = onStateToggle ? SplitButton : Button;
 
   return <div className={styles.formButtons}>
     <Button type="button" onClick={onCancel} variant="secondary">{cancelTitle}</Button>

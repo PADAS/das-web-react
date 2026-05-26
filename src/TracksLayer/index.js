@@ -14,7 +14,7 @@ const ARROW_IMG_ID = 'track_arrow';
 
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
-const TracksLayer = ({ onPointClick, onTrackLabelClick, showTimepoints = true }) => {
+const TracksLayer = ({ onPointClick, showTimepoints = true }) => {
   const map = useContext(MapContext);
 
   const subjectTracksWithPatrolTrackShownFlag = useSelector(selectSubjectTracksWithPatrolTrackShownFlag);
@@ -39,7 +39,6 @@ const TracksLayer = ({ onPointClick, onTrackLabelClick, showTimepoints = true })
       key={`track-layer-${subjectTracks.track.features[0].properties.id}`}
       linePaint={{ 'line-opacity': subjectTracks.patrolTrackShown ? 0.4 : 1 }}
       onPointClick={onTimepointClick}
-      onTrackLabelClick={onTrackLabelClick}
       showTimepoints={showTimepoints}
       trackData={subjectTracks}
     />)

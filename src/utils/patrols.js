@@ -341,7 +341,7 @@ export const isPatrolDone = (patrol) => patrol.state === 'done';
 export const isSegmentFinished = (patrolSegment) => {
   const { time_range: { end_time } = {} } = patrolSegment;
 
-  if (!!end_time) {
+  if (end_time) {
     const patrolEndDate = new Date(end_time);
     const now = new Date();
 
@@ -366,7 +366,7 @@ export const isSegmentOverdue = (patrolSegment) => {
 export const isSegmentActive = (patrolSegment) => {
   const { time_range: { start_time, end_time } = {} } = patrolSegment;
 
-  if (!!start_time) {
+  if (start_time) {
     const patrolStartDate = new Date(start_time);
     const now = new Date();
     if (patrolStartDate.getTime() < now.getTime()) {
@@ -382,7 +382,7 @@ export const isSegmentPending = (patrolSegment) => {
   const { time_range: { start_time } = {} } = patrolSegment;
 
   let isPatrolStartDateInTheFuture = false;
-  if (!!start_time) {
+  if (start_time) {
     const patrolStartDate = new Date(start_time);
     const now = new Date();
 

@@ -43,6 +43,7 @@ import { LAYER_IDS, SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../constants';
 import DelayedUnmount from '../DelayedUnmount';
 import EarthRangerMap from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
+import GearLayer from '../GearLayer';
 import SubjectsLayer from '../SubjectsLayer';
 import StaticSensorsLayer from '../StaticSensorsLayer';
 import PatrolStartStopLayer from '../PatrolStartStopLayer';
@@ -128,6 +129,7 @@ const Map = ({ children, onMapLoad, socket }) => {
   const hiddenFeatureIDs = useSelector(state => state.data.mapLayerFilter.hiddenFeatureIDs);
   const eventFilter = useSelector(state => state.data.eventFilter);
   const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
+  const hasGear = useSelector((state) => state.data.gear.hasGear);
   const mapImages = useSelector(state => state.view.mapImages);
   const mapIsLocked = useSelector(state => state.view.mapIsLocked);
   const mapLocationSelection = useSelector(state => state.view.mapLocationSelection);
@@ -276,6 +278,22 @@ const Map = ({ children, onMapLoad, socket }) => {
     }
   }, [mapLocationSelection.isPickingLocation]);
 
+  const onSelectGear = withLocationPickerState(
+    ({ coordinates: coordinatesOverride, event, layer }) => {
+      const { geometry, properties } = layer;
+      const coordinates = coordinatesOverride ?? (
+        geometry.type === 'Point'
+          ? geometry.coordinates
+          : [event.lngLat.lng, event.lngLat.lat]
+      );
+
+      // Defer opening the popup so the map finishes processing the click event first.
+      window.setTimeout(() => showPopup('gear', { geometry, properties, coordinates }), 0);
+
+      mapInteractionTracker.track('Click Map Gear', `Gear:${properties.id}`);
+    }
+  );
+
   const onSelectSubject = withLocationPickerState(
     async ({ layer }) => {
       const { geometry, properties } = layer;
@@ -308,10 +326,11 @@ const Map = ({ children, onMapLoad, socket }) => {
     showPopup('multi-layer-select', {
       layers,
       coordinates: [event.lngLat.lng, event.lngLat.lat],
-      onSelectSubject: onSelectSubject,
       onSelectEvent: onSelectEvent,
+      onSelectGear: onSelectGear,
+      onSelectSubject: onSelectSubject,
     });
-  }, [onSelectEvent, onSelectSubject, showPopup]);
+  }, [onSelectEvent, onSelectGear, onSelectSubject, showPopup]);
 
   const hideUnpinnedTrackLayers = useCallback((map, event) => {
     const { visible } = subjectTrackState;
@@ -345,9 +364,10 @@ const Map = ({ children, onMapLoad, socket }) => {
       layers,
       coordinates,
       onSelectEvent: onSelectEvent,
+      onSelectGear: onSelectGear,
       onSelectSubject: onSelectSubject,
     });
-  }, [onSelectEvent, onSelectSubject, showPopup]);
+  }, [onSelectEvent, onSelectGear, onSelectSubject, showPopup]);
 
   const onCurrentUserLocationClick = withLocationPickerState((location) => {
     showPopup('current-user-location', {
@@ -432,7 +452,9 @@ const Map = ({ children, onMapLoad, socket }) => {
   // Helper function to check if a feature should keep the popup open
   const doesFeatureOpenPopup = useCallback(
     (feature) => feature.layer.id.includes(LAYER_IDS.TRACK_TIMEPOINTS)
-       || [SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID, POLYGONS_OUTLINE_LAYER_ID].includes(feature.layer.id),
+       || [SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID, POLYGONS_OUTLINE_LAYER_ID].includes(feature.layer.id)
+       || feature.layer.id === LAYER_IDS.GEAR_LINE
+       || feature.layer.id === LAYER_IDS.GEAR_POINT,
     []
   );
 
@@ -522,7 +544,7 @@ const Map = ({ children, onMapLoad, socket }) => {
   }, [eventFilter, mapEventsFetch, map]);
 
   useEffect(() => {
-    if (!!map) {
+    if (map) {
       socket.emit('event_filter', calcEventFilterForRequest({ format: 'object' }));
     }
 
@@ -604,7 +626,7 @@ const Map = ({ children, onMapLoad, socket }) => {
   }, [hiddenAnalyzerIDs, hiddenFeatureIDs, hidePopup, map, popup]);
 
   useEffect(() => {
-    if (!!map) {
+    if (map) {
       // If i18n language change, here we update the map layer layouts to set the translated text fields recursively
       let newLanguage = i18n.language.split('-')[0];
       if (!MAP_SUPPORTED_TEXT_FIELD_LANGUAGES.includes(newLanguage)) {
@@ -716,6 +738,9 @@ const Map = ({ children, onMapLoad, socket }) => {
         {!!messageableMapSubjects.length && <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />}
       </>}
 
+      {hasGear && <GearLayer onGearClick={onSelectGear} />}
+
+      <MapImagesLayer />
 
       <UserCurrentLocationLayer onIconClick={onCurrentUserLocationClick} />
 

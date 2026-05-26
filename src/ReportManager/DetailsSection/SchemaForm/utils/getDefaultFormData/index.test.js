@@ -3,26 +3,32 @@ import getDefaultFormData from './';
 describe('ReportManager - DetailsSection - SchemaForm - utils - getDefaultFormData', () => {
   const formElements = {
     'field-1': {
-      details: {},
+      details: {
+        value: 'field-1',
+      },
     },
     'field-2': {
       details: {
         defaultInput: '',
+        value: 'field-2',
       },
     },
     'field-3': {
       details: {
         defaultInput: 'default',
+        value: 'field-3',
       },
     },
     'field-4': {
       details: {
         defaultInput: 0,
+        value: 'field-4',
       },
     },
     'field-5': {
       details: {
         defaultInput: false,
+        value: 'field-5',
       },
     },
   };

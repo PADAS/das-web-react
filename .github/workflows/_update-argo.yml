@@ -34,8 +34,11 @@ jobs:
           APP_NAME: ${{ inputs.app-name }}
           APP_SUBDIR: ${{ inputs.app-subdir }}
           ENVIRONMENT: ${{ inputs.environment }}
+          MAX_RETRIES: "5"
         run: |
-          git clone --depth 1 git@github.com:PADAS/serca-argocd-apps.git
+          set -euo pipefail
+
+          git clone --depth=1 git@github.com:PADAS/serca-argocd-apps.git
           cd serca-argocd-apps
           pip install yq
 
@@ -45,6 +48,31 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add "$VALUES_FILE"
-          git diff --cached --quiet && echo "No changes" && exit 0
+          if git diff --cached --quiet; then
+            echo "No changes"
+            exit 0
+          fi
           git commit -m "${APP_NAME}: update ${ENVIRONMENT} image to ${TAG}"
-          git push
+
+          # Push with retry-on-rebase to survive concurrent pushes from parallel pipelines
+          attempt=1
+          while [ "$attempt" -le "$MAX_RETRIES" ]; do
+            if git push; then
+              echo "Push succeeded on attempt ${attempt}"
+              exit 0
+            fi
+
+            if [ "$attempt" -eq "$MAX_RETRIES" ]; then
+              echo "::error::Failed to push after ${MAX_RETRIES} attempts - too much contention on serca-argocd-apps"
+              exit 1
+            fi
+
+            wait_time=$(( (RANDOM % 4) + 2 ))
+            echo "::warning::Push rejected (attempt ${attempt}/${MAX_RETRIES}). Rebasing onto origin/main and retrying in ${wait_time}s..."
+            sleep "$wait_time"
+
+            git fetch origin main
+            git rebase origin/main
+
+            attempt=$((attempt + 1))
+          done

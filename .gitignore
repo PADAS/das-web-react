@@ -6,6 +6,7 @@
 /node_modules
 /.vscode
 
+public/config.js
 .env.local
 .env.development.local
 .env.test.local
@@ -90,6 +91,8 @@ flycheck_*.el
 
 # network security
 /network-security.data
+.idea
+
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases

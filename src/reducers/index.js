@@ -18,6 +18,7 @@ import mapPositionReducer, { persistenceConfig as mapPositionPersistenceConfig }
 import tracksReducer, { trackSettingsReducer } from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer, subjectStoreReducer } from '../ducks/subjects';
 import realtimeOverlayReducer from '../ducks/realtime-overlay';
+import gearReducer from '../ducks/gear';
 import systemConfigReducer from '../ducks/system-config';
 import systemStatusReducer from '../ducks/system-status';
 import {
@@ -96,6 +97,7 @@ const rootReducer = combineReducers({
     eventCategories: eventCategoriesReducer,
     eventTypes: eventTypesReducer,
     featureSets: persistReducer(featureSetsPersistenceConfig, featuresReducer),
+    gear: gearReducer,
     mapLayerFilter: persistReducer(
       mapLayerFilterPersistenceConfig,
       mapLayerFilterReducer,

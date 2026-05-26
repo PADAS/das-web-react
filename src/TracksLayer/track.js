@@ -1,4 +1,4 @@
-import { memo, useCallback, useContext, useEffect, useMemo } from 'react';
+import { memo, useContext, useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
 import { LAYER_IDS, MAP_ICON_SCALE } from '../constants';
@@ -59,8 +59,6 @@ const TrackLayer = ({
   id = null,
   lineLayout = {},
   linePaint = {},
-  onPointClick,
-  onTrackLabelClick,
   showTimepoints = true,
   trackData,
 }) => {
@@ -258,39 +256,9 @@ const TrackLayer = ({
     }
   }, [map, isRopelessBuoyGearset, trackLabelSourceId, trackLabelLayerId, trackLabelSource, trackLabelText]);
 
-  const onLabelClick = useCallback((event) => {
-    if (!subject || !onTrackLabelClick) return;
-    const { lngLat } = event;
-    const syntheticLayer = {
-      properties: {
-        ...subject,
-        coordinateProperties: subject.last_position?.properties?.coordinateProperties
-      },
-      geometry: { type: 'Point', coordinates: [lngLat.lng, lngLat.lat] }
-    };
-    onTrackLabelClick({ event, layer: syntheticLayer });
-  }, [subject, onTrackLabelClick]);
 
-  const onBuoyTimepointClick = useCallback((event) => {
-    if (!subject || !onTrackLabelClick) return;
-    const { lngLat } = event;
-    const syntheticLayer = {
-      properties: {
-        ...subject,
-        coordinateProperties: subject.last_position?.properties?.coordinateProperties
-      },
-      geometry: { type: 'Point', coordinates: [lngLat.lng, lngLat.lat] }
-    };
-    onTrackLabelClick({ event, layer: syntheticLayer });
-  }, [subject, onTrackLabelClick]);
-
-  useMapEventBinding('click', isRopelessBuoyGearset ? onBuoyTimepointClick : onPointClick, pointLayerId, showTimepoints);
   useMapEventBinding('mouseenter', onSymbolMouseEnter, pointLayerId, showTimepoints);
   useMapEventBinding('mouseleave', onSymbolMouseLeave, pointLayerId, showTimepoints);
-
-  useMapEventBinding('click', onLabelClick, trackLabelLayerId, isRopelessBuoyGearset && trackLabelText !== '');
-  useMapEventBinding('mouseenter', onSymbolMouseEnter, trackLabelLayerId, isRopelessBuoyGearset && trackLabelText !== '');
-  useMapEventBinding('mouseleave', onSymbolMouseLeave, trackLabelLayerId, isRopelessBuoyGearset && trackLabelText !== '');
 
   return null;
 };

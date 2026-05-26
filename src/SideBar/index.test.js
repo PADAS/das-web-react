@@ -12,6 +12,7 @@ import eventCategories from '../__test-helpers/fixtures/event-categories';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { fetchPatrols, PATROLS_API_URL } from '../ducks/patrols';
 import { INITIAL_FILTER_STATE } from '../ducks/patrol-filter';
+import { INITIAL_GEAR_STATE } from '../ducks/gear';
 import { INITIAL_PATROLS_STATE } from '../ducks/patrols';
 import mockPatrolData from '../__test-helpers/fixtures/patrols';
 import MockSocketProvider, { mockedSocket } from '../__test-helpers/MockSocketContext';
@@ -88,6 +89,7 @@ describe('SideBar', () => {
         eventTypes,
         featureSets: { data: [] },
         feedEvents: { results: [] },
+        gear: { ...INITIAL_GEAR_STATE },
         mapLayerFilter: { text: '', hiddenAnalyzerIDs: [] },
         patrolFilter: {
           filter: {
@@ -693,5 +695,44 @@ describe('SideBar', () => {
     await userEvent.keyboard('{Escape}');
 
     expect(navigate).not.toHaveBeenCalled();
+  });
+
+  test('does not redirect away from /gear while the initial gear list is still loading', async () => {
+    useLocationMock = jest.fn((() => ({ pathname: '/gear' })));
+    useLocation.mockImplementation(useLocationMock);
+    store.data.gear = {
+      ...INITIAL_GEAR_STATE,
+      initialLoadInProgress: true,
+      loading: true,
+    };
+
+    renderSideBar();
+
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  test('redirects from /gear to home when the gear endpoint is unavailable', async () => {
+    store.data.gear = { ...INITIAL_GEAR_STATE, gearEndpointUnavailable: true };
+    useLocationMock = jest.fn((() => ({ pathname: '/gear' })));
+    useLocation.mockImplementation(useLocationMock);
+
+    renderSideBar();
+
+    expect(navigate).toHaveBeenCalledWith('/', { replace: true });
+  });
+
+  test('redirects from /gear to home when the gear list has loaded and is empty', async () => {
+    useLocationMock = jest.fn((() => ({ pathname: '/gear' })));
+    useLocation.mockImplementation(useLocationMock);
+    store.data.gear = {
+      ...INITIAL_GEAR_STATE,
+      hasGear: false,
+      initialLoadInProgress: false,
+      loading: false,
+    };
+
+    renderSideBar();
+
+    expect(navigate).toHaveBeenCalledWith('/', { replace: true });
   });
 });

@@ -51,7 +51,7 @@ export const HEADER_ELEMENT_SIZES = {
   SMALL: 'SMALL',
 };
 
-export const ROOT_CANVAS_ID = 'root';
+export const ROOT_CANVAS_ID = '__root__';
 
 export const TEXT_ELEMENT_ALPHANUMERIC_FORMAT_VALIDATION_PATTERN =
   '^[a-zA-Z0-9]+$';

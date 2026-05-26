@@ -147,7 +147,7 @@ export const convertTrackFeatureCollectionToPoints = feature => {
     const returnValue = { ...item };
     const { coordinateProperties: _omittedCoordProps, ...restProperties } = returnValue.properties;
 
-    const measuredBearing = !!collection[index - 1] ? bearing(item.geometry, collection[index - 1].geometry) : 0;
+    const measuredBearing = collection[index - 1] ? bearing(item.geometry, collection[index - 1].geometry) : 0;
 
 
     return {
@@ -311,7 +311,7 @@ export const fetchTracksIfNecessary = (ids, config) => {
     }
 
     /* use optional date boundaries to further expand the lower and upper limits of the track request, if necessary, to have maximum necessary data coverage */
-    if (!!optionalDateBoundaries) {
+    if (optionalDateBoundaries) {
       if (!!optionalDateBoundaries.since && !!dateRange.since) {
         dateRange.since = new Date(Math.min(new Date(optionalDateBoundaries.since).getTime(), new Date(dateRange.since).getTime())).toISOString();
       }
@@ -352,7 +352,7 @@ export const fetchTracksIfNecessary = (ids, config) => {
         if (new Date(dateRange.since).getTime() < new Date(oldRange.since).getTime()) {
           shouldCancelPriorRequest = true;
         }
-      } else if (!!oldRange?.until) {
+      } else if (oldRange?.until) {
         if (!dateRange.until
           || new Date(dateRange.until).getTime() > new Date(oldRange.until).getTime()) {
           shouldCancelPriorRequest = true;

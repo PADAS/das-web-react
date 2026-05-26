@@ -50,7 +50,7 @@ describe('parallelPaginatedRequest', () => {
     expect(allItems.length).toBe(results.length * expectedPages);
   });
 
-  test('handle proper amount of pages with its callback respectively ', async () => {
+  test('handle proper amount of pages with its callback respectively', async () => {
     const onPageFetch = jest.fn();
     const expectedPages = 4;
 

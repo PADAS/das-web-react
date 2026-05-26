@@ -222,15 +222,6 @@ export const safeRemoveMapLayer = (map, layerId) => {
   }
 };
 
-export const safeRemoveMapSource = (map, sourceId) => {
-  if (!map) return;
-  try {
-    map.removeSource(sourceId);
-  } catch (error) {
-    console.error(`error removing source ${sourceId} from map`, error);
-  }
-};
-
 /** Mapbox `line-color` expression from an ISO datetime property and `TIME_OF_DAY_PERIODS` (see constants). */
 export const getTimeOfDayLineColorExpression = (propertyName, fallbackExpression, timeZoneOffsetMinutes = 0) => {
   // Parse UTC hour and minute from ISO string (indices 11-12 = HH, 14-15 = MM)
@@ -280,4 +271,9 @@ export const buildGeoSpanFilter = (geoSpan) => {
   return [minLon, minLat, maxLon, maxLat];
 };
 
+export const safeRemoveMapSource = (map, sourceId) => {
+  if (map?.getSource?.(sourceId)) {
+    map.removeSource(sourceId);
+  }
+};
 

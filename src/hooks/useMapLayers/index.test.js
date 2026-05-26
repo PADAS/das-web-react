@@ -16,7 +16,7 @@ describe('hooks - useMapLayers', () => {
       getSource: jest.fn(() => true),
     });
 
-    wrapper = ({ children }) => <MapContext.Provider value={map}>{children}</MapContext.Provider>; // eslint-disable-line react/display-name
+    wrapper = ({ children }) => <MapContext.Provider value={map}>{children}</MapContext.Provider>;
   });
 
   test('adding a layer to the map', () => {

@@ -233,7 +233,7 @@ export const addPatrolSegmentToEvent = (segment_id, event_id) => {
 };
 
 export const calcDisplayPriorityForReport = (report, eventTypes) => {
-  if (!!report.priority) {
+  if (report.priority) {
     return report.priority;
   }
 
