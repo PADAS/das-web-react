@@ -116,7 +116,7 @@ jobs:
             gcloud compute ssh "${{ inputs.bastion_instance }}" \
               --project="$BASTION_PROJECT" \
               --zone="${{ inputs.bastion_zone }}" \
-              --ssh-flag="-4 -L8888:localhost:8888 -N -f" && break
+              --ssh-flag="-4 -L8888:localhost:8888 -N -f" && break || echo "Attempt $i failed, retrying in 10s..."
             sleep 10
           done
 
@@ -131,7 +131,9 @@ jobs:
         timeout-minutes: 5
         env:
           HTTPS_PROXY: localhost:8888
-          NO_PROXY: accounts.google.com,oauth2.googleapis.com,*.googleapis.com
+          # Wildcard (*.googleapis.com) is not honoured by Go's HTTP client (used by kubectl).
+          # Enumerate specific GCP domains to prevent auth requests being proxied through the tunnel.
+          NO_PROXY: accounts.google.com,oauth2.googleapis.com,storage.googleapis.com,container.googleapis.com,iam.googleapis.com
         run: |
           echo "Testing kubectl connection..."
           kubectl get nodes
@@ -139,7 +141,7 @@ jobs:
       - name: Deploy to all tenants
         env:
           HTTPS_PROXY: localhost:8888
-          NO_PROXY: accounts.google.com,oauth2.googleapis.com,*.googleapis.com
+          NO_PROXY: accounts.google.com,oauth2.googleapis.com,storage.googleapis.com,container.googleapis.com,iam.googleapis.com
         run: |
           if [ -z "${{ inputs.tenants }}" ]; then
             echo "❌ tenants input is empty — set the LEGACY_TENANTS_* repo variable before running"
