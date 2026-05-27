@@ -218,6 +218,10 @@ const PatrolTracksLayer = ({ patrolId }) => {
     return subscribeVisibility(applyVisibility);
   }, []); // intentionally empty — uses refs
 
+  // Fingerprint ref — skip the full marker teardown/rebuild when the underlying
+  // data for this patrol hasn't actually changed between renders.
+  const markerFingerprintRef = useRef(null);
+
   // Place flag markers at each leg start, and text labels at patrol start/end.
   // Re-runs when tracks, legs, or patrol state change.
   useEffect(() => {
@@ -225,15 +229,21 @@ const PatrolTracksLayer = ({ patrolId }) => {
     const markers = [];
 
     const addMarkers = () => {
+      const tracks = getPatrolTracks(patrolId);
+      const legs = getLegs(patrolId);
+      const { state } = getPatrolStateEntry(patrolId);
+      // Fingerprint: patrolId + entity names + point counts + leg count + state.
+      // Cheap to compute; avoids full DOM teardown/rebuild when nothing changed.
+      const fp = `${patrolId}|${state}|${legs.length}|${Object.entries(tracks).map(([n, pts]) => `${n}:${pts?.length ?? 0}`).join(',')}`;
+      if (fp === markerFingerprintRef.current) return;
+      markerFingerprintRef.current = fp;
+
+      if (!Object.keys(tracks).length) return;
+
       // Remove any previous markers before rebuilding.
       markers.forEach((m) => m.remove());
       markers.length = 0;
 
-      const tracks = getPatrolTracks(patrolId);
-      if (!Object.keys(tracks).length) return;
-
-      const legs = getLegs(patrolId);
-      const { state } = getPatrolStateEntry(patrolId);
       const isTerminal = state === 'Done' || state === 'Cancelled';
 
       // --- Patrol Start label ---

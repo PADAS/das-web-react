@@ -12,6 +12,26 @@ import { ReactComponent as ChevronRightIcon } from '../common/images/icons/chevr
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
 import { ReactComponent as PhoneIphoneIcon } from '../common/images/icons/phone-iphone.svg';
 
+const ICON_PREFIX = 'das--activity--static--sprite-src--';
+
+const assetSpriteId = (name = '') => {
+  const n = name.toLowerCase();
+  if (n.includes('helicopter') || n.includes('heli')) return 'helicopter-patrol-icon';
+  if (n.includes('boat') || n.includes('vessel') || n.includes('marine')) return 'boat-patrol-icon';
+  if (n.includes('drone') || n.includes('uav')) return 'drone-patrol-icon';
+  if (n.includes('garmin') || n.includes('radio') || n.includes('sat')) return 'radio_rep';
+  return 'vehicle-patrol-icon';
+};
+
+const AssetIcon = ({ name, className }) => <svg
+  width="20"
+  height="20"
+  className={className}
+  aria-hidden="true"
+>
+  <use href={`#${ICON_PREFIX}${assetSpriteId(name)}`} />
+</svg>;
+
 import Select from '../Select';
 import LocationPicker from '../LocationPicker';
 import useNavigate from '../hooks/useNavigate';
@@ -373,6 +393,10 @@ const AddAssetModal = ({ show, index, existingNames, initial, onCancel, onDone }
           options={availableOptions}
           isClearable
           isSearchable
+          formatOptionLabel={(opt) => <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <AssetIcon name={opt.value} />
+            {opt.label}
+          </span>}
         />
       </div>
     </Modal.Body>
@@ -392,6 +416,7 @@ const AddAssetModal = ({ show, index, existingNames, initial, onCancel, onDone }
 
 const CollectionItem = ({ name, role, tracked, onDelete, onEdit, showRole }) => <div className={styles.collectionItem}>
   <span className={styles.collectionName}>
+    {!showRole && <AssetIcon name={name} className={styles.assetIcon} />}
     {name}
     {tracked && <PhoneIphoneIcon className={styles.trackedIcon} aria-label="Tracked" />}
   </span>
@@ -692,11 +717,8 @@ const PatrolForm = () => {
         />
 
         {form.patrolType === 'Vehicle Patrol' && <div className={styles.fieldGrid}>
-          <div data-field-key="driverName">
-            <TextField label="Driver Name" value={form.driverName} onChange={(v) => set('driverName', v)} />
-          </div>
-          <div data-field-key="vehicleName">
-            <TextField label="Vehicle Name" value={form.vehicleName} onChange={(v) => set('vehicleName', v)} />
+          <div data-field-key="fuel">
+            <NumericField label="Gas in Tank" unit="L" value={form.fuel} onChange={(v) => set('fuel', v)} />
           </div>
         </div>}
 
@@ -711,7 +733,6 @@ const PatrolForm = () => {
         {form.patrolType === 'Aerial Patrol' && <>
           <div className={styles.fieldGrid}>
             <SelectField label="Aircraft" value={form.aircraft} onChange={(v) => set('aircraft', v)} options={AIRCRAFT_OPTIONS} />
-            <TextField label="Pilot Name" value={form.pilotName} onChange={(v) => set('pilotName', v)} />
           </div>
           <div className={styles.fieldGrid}>
             <NumericField label="Fuel" unit="L" value={form.fuel} onChange={(v) => set('fuel', v)} />

@@ -140,7 +140,7 @@ const TrackToggleButton = () => {
   </button>;
 };
 
-const LegHeader = ({ leg, legNumber, isActive }) => <header className={styles.header}>
+const LegHeader = ({ leg, legNumber, isActive, onFitToView, fitActive }) => <header className={styles.header}>
   <div className={styles.headerTop}>
     <div className={styles.iconBadge}>
       <PatrolTypeIcon patrolType={leg.patrolTypeLabel} />
@@ -161,7 +161,13 @@ const LegHeader = ({ leg, legNumber, isActive }) => <header className={styles.he
       <button type="button" className={styles.actionButton} aria-label="Jump to location">
         <MarkerFeedIcon />
       </button>
-      <button type="button" className={styles.actionButton} aria-label="Fit to view">
+      <button
+        type="button"
+        className={styles.actionButton}
+        aria-label="Fit to view"
+        onClick={onFitToView}
+        style={fitActive ? { backgroundColor: '#0056C7', color: 'white' } : undefined}
+      >
         <FitScreenOutlinedIcon />
       </button>
       <button type="button" className={styles.actionButton} aria-label="More">
@@ -288,6 +294,28 @@ const CollectionRowActions = ({ hasLocation, hasTracks }) => {
   </div>;
 };
 
+const ICON_PREFIX = 'das--activity--static--sprite-src--';
+
+// Map an asset name to a sprite symbol id based on keywords in the name.
+const assetSpriteId = (name = '') => {
+  const n = name.toLowerCase();
+  if (n.includes('helicopter') || n.includes('heli')) return 'helicopter-patrol-icon';
+  if (n.includes('boat') || n.includes('vessel') || n.includes('marine')) return 'boat-patrol-icon';
+  if (n.includes('drone') || n.includes('uav')) return 'drone-patrol-icon';
+  if (n.includes('garmin') || n.includes('radio') || n.includes('sat')) return 'radio_rep';
+  // Default: vehicle (covers KTN-*, trucks, jeeps, etc.)
+  return 'vehicle-patrol-icon';
+};
+
+const AssetIcon = ({ name }) => <svg
+  width="20"
+  height="20"
+  className={styles.assetIcon}
+  aria-hidden="true"
+>
+  <use href={`#${ICON_PREFIX}${assetSpriteId(name)}`} />
+</svg>;
+
 const CollapsibleCollection = ({ label, count, items, showRole = false }) => <Collapsible
   classParentString={styles.collapsibleParent}
   contentInnerClassName={styles.collapsibleContent}
@@ -307,7 +335,10 @@ const CollapsibleCollection = ({ label, count, items, showRole = false }) => <Co
   </div>}
   <ul className={`${styles.collectionList} ${showRole ? styles.withRole : ''}`}>
     {items.map((item) => <li key={item.name} className={styles.collectionRow}>
-      <span className={styles.collectionName}>{item.name}</span>
+      <span className={styles.collectionName}>
+        {!showRole && <AssetIcon name={item.name} />}
+        {item.name}
+      </span>
       {showRole && <span className={styles.collectionRole}>{item.role}</span>}
       <CollectionRowActions hasLocation={item.hasLocation} hasTracks={item.hasTracks} />
     </li>)}
@@ -349,13 +380,9 @@ const PatrolTypeDetailsSection = ({ leg, onEdit }) => {
       </EditableField>
 
       {type === 'Vehicle Patrol' && <>
-        <EditableField onEdit={onEdit} fieldKey="driverName">
-          <div className={styles.fieldLabel}>Driver Name</div>
-          <div className={styles.fieldValue}>{leg.driverName || '—'}</div>
-        </EditableField>
-        <EditableField onEdit={onEdit} fieldKey="vehicleName">
-          <div className={styles.fieldLabel}>Vehicle Name</div>
-          <div className={styles.fieldValue}>{leg.vehicleName || '—'}</div>
+        <EditableField onEdit={onEdit} fieldKey="fuel">
+          <div className={styles.fieldLabel}>Gas in Tank</div>
+          <div className={styles.fieldValue}>{leg.fuel ? `${leg.fuel} L` : '—'}</div>
         </EditableField>
       </>}
 
@@ -378,10 +405,6 @@ const PatrolTypeDetailsSection = ({ leg, onEdit }) => {
         <EditableField onEdit={onEdit} fieldKey="aircraft">
           <div className={styles.fieldLabel}>Aircraft</div>
           <div className={styles.fieldValue}>{leg.aircraft || '—'}</div>
-        </EditableField>
-        <EditableField onEdit={onEdit} fieldKey="pilotName">
-          <div className={styles.fieldLabel}>Pilot Name</div>
-          <div className={styles.fieldValue}>{leg.pilotName || '—'}</div>
         </EditableField>
         <EditableField onEdit={onEdit} fieldKey="fuel">
           <div className={styles.fieldLabel}>Fuel</div>
@@ -535,6 +558,65 @@ const PatrolLegDetailView = () => {
     [patrolId, patrolStateVersion]
   );
 
+  // Whether the leg fit button is highlighted blue.
+  const [fitActive, setFitActive] = useState(false);
+  const legFitListenerRef = useRef(null);
+
+  // Fit the map to track points that fall within this leg's time window.
+  // Button turns blue and clears automatically when the user pans/zooms away.
+  const onFitLegToView = useCallback(() => {
+    if (!map) return;
+    const tracks = getPatrolTracks(patrolId);
+    const startMs = leg.startedAt ? new Date(leg.startedAt).getTime() : null;
+    const endMs = leg.endedAt ? new Date(leg.endedAt).getTime() : Date.now();
+    if (!startMs) return;
+
+    const legPts = Object.values(tracks).flatMap((pts) =>
+      (pts || []).filter((p) => {
+        if (!p.time) return false;
+        const t = new Date(p.time).getTime();
+        return t >= startMs && t <= endMs;
+      })
+    );
+    if (!legPts.length) return;
+
+    let minLng = +Infinity, minLat = +Infinity, maxLng = -Infinity, maxLat = -Infinity;
+    legPts.forEach((p) => {
+      if (p.lng < minLng) minLng = p.lng;
+      if (p.lng > maxLng) maxLng = p.lng;
+      if (p.lat < minLat) minLat = p.lat;
+      if (p.lat > maxLat) maxLat = p.lat;
+    });
+    try {
+      map.fitBounds([[minLng, minLat], [maxLng, maxLat]], {
+        padding: { left: 756, top: 80, right: 80, bottom: 80 },
+        duration: 800,
+        maxZoom: 15,
+      });
+    } catch (_e) { /* ignore */ }
+
+    setFitActive(true);
+    if (legFitListenerRef.current) {
+      try { map.off('movestart', legFitListenerRef.current); } catch (_e) { /* ignore */ }
+    }
+    const handler = (e) => {
+      if (e.originalEvent) {
+        setFitActive(false);
+        try { map.off('movestart', handler); } catch (_e) { /* ignore */ }
+        legFitListenerRef.current = null;
+      }
+    };
+    legFitListenerRef.current = handler;
+    map.on('movestart', handler);
+  }, [map, patrolId, leg.startedAt, leg.endedAt]);
+
+  // Clean up the movestart listener on unmount.
+  useEffect(() => () => {
+    if (legFitListenerRef.current && map) {
+      try { map.off('movestart', legFitListenerRef.current); } catch (_e) { /* ignore */ }
+    }
+  }, [map]);
+
   const jumpToDate = useCallback((date) => {
     if (!map) return;
     const tracks = getPatrolTracks(patrolId);
@@ -654,7 +736,7 @@ const PatrolLegDetailView = () => {
       <Breadcrumb patrolTitle={patrolTitle} patrolId={patrolId} legNumber={legNumber} onClose={onClose} />
 
       <div className={styles.body}>
-        <LegHeader leg={legWithStats} legNumber={legNumber} isActive={isLegActive} />
+        <LegHeader leg={legWithStats} legNumber={legNumber} isActive={isLegActive} onFitToView={onFitLegToView} fitActive={fitActive} />
         <TopSection leg={leg} onEdit={canEditFields ? goToEdit : null} />
         <PatrolTypeDetailsSection leg={leg} onEdit={canEditFields ? goToEdit : null} />
         <TeamTrackingSection leg={leg} onEdit={canEditFields ? goToEdit : null} />

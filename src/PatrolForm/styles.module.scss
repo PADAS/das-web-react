@@ -345,6 +345,11 @@
   gap: 5px;
 }
 
+.assetIcon {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
 .trackedIcon {
   flex-shrink: 0;
   width: 14px;

@@ -18,6 +18,8 @@ import { ReactComponent as RestoreIcon } from '../common/images/icons/restore.sv
 
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as ChevronRightIcon } from '../common/images/icons/chevron-right.svg';
+import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
+import { ReactComponent as PhoneIphoneIcon } from '../common/images/icons/phone-iphone.svg';
 import PatrolTypeIcon from '../PatrolTypeIcon';
 import { ReactComponent as TracksOffIcon } from '../common/images/icons/tracks_off.svg';
 import { ReactComponent as TracksOnIcon } from '../common/images/icons/tracks_on.svg';
@@ -130,10 +132,10 @@ const TrackToggleButton = ({ patrolId }) => {
   </button>;
 };
 
-const Breadcrumb = ({ patrolTitle, onClose }) => <nav className={styles.breadcrumb} aria-label="Breadcrumb">
+const Breadcrumb = ({ patrolTitle, onClose, backPath, backLabel }) => <nav className={styles.breadcrumb} aria-label="Breadcrumb">
   <ol>
     <li>
-      <Link to={`/${TAB_KEYS.PATROLS}`}>Patrols</Link>
+      <Link to={backPath}>{backLabel}</Link>
       <ChevronRightIcon width={10} height={10} />
     </li>
     <li className={styles.current}>{patrolTitle}</li>
@@ -190,7 +192,7 @@ const PatrolMenuDropdown = ({ patrolState, onRestore }) => {
   </Dropdown>;
 };
 
-const Header = ({ patrol, patrolId, patrolState, pausedTimeDisplay, onRestore, onFitToView, focusActive, title = 'Delta Patrol', currentPatrolType, editableTitle, onChangeTitle }) => <header className={styles.header}>
+const Header = ({ patrol, patrolId, patrolState, pausedTimeDisplay, onRestore, onFitToView, onJumpToLocation, activeMapAction, title = 'Delta Patrol', currentPatrolType, editableTitle, onChangeTitle, mobileOrigin }) => <header className={styles.header}>
   <div className={styles.headerTop}>
     <div className={styles.iconBadge}>
       <PatrolTypeIcon patrolType={currentPatrolType} />
@@ -202,6 +204,7 @@ const Header = ({ patrol, patrolId, patrolState, pausedTimeDisplay, onRestore, o
         {editableTitle
           ? <EditableTitle value={title} onChange={onChangeTitle} placeholder="New Patrol" />
           : <h2 className={styles.title}>{title}</h2>}
+        {mobileOrigin && <PhoneIphoneIcon className={styles.mobileIcon} aria-label="Started on mobile" />}
         <span
           className={styles.activeBadge}
           style={PATROL_STATE_STYLES[patrolState] || PATROL_STATE_STYLES.Active}
@@ -219,9 +222,18 @@ const Header = ({ patrol, patrolId, patrolState, pausedTimeDisplay, onRestore, o
       <button
         type="button"
         className={styles.actionButton}
+        aria-label="Jump to current location"
+        onClick={onJumpToLocation}
+        style={activeMapAction === 'jump' ? { backgroundColor: '#0056C7', color: 'white' } : undefined}
+      >
+        <MarkerFeedIcon />
+      </button>
+      <button
+        type="button"
+        className={styles.actionButton}
         aria-label="Fit to view"
         onClick={onFitToView}
-        style={focusActive ? { backgroundColor: '#0056C7', color: 'white' } : undefined}
+        style={activeMapAction === 'fit' ? { backgroundColor: '#0056C7', color: 'white' } : undefined}
       >
         <FitScreenOutlinedIcon />
       </button>
@@ -270,7 +282,7 @@ const Tabs = ({ active, onChange }) => <div className={styles.tabs}>
   </button>
 </div>;
 
-const LegsTable = ({ legs, patrolId }) => {
+const LegsTable = ({ legs, patrolId, onFitLegToView, activeMapAction }) => {
   const navigate = useReactNavigate();
   const goToLeg = (legIndex) => navigate(`/${TAB_KEYS.PATROLS}/${patrolId}/legs/${legIndex}`);
 
@@ -303,7 +315,8 @@ const LegsTable = ({ legs, patrolId }) => {
           type="button"
           className={styles.rowIconButton}
           aria-label="Fit to view"
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => { e.stopPropagation(); onFitLegToView?.(leg); }}
+          style={activeMapAction === `leg-${leg.index}` ? { backgroundColor: '#0056C7', color: 'white', borderRadius: 3 } : undefined}
         >
           <FitScreenOutlinedIcon />
         </button>
@@ -416,10 +429,36 @@ const PatrolOverview = () => {
   // (Live simulation removed — demo patrols come pre-seeded with track data
   // via demoPatrols.js so tracks render immediately.)
 
-  // Whether the focus (fit-to-view) button is in its active/blue state.
-  const [focusActive, setFocusActive] = useState(false);
-  // Ref to the movestart listener so we can remove it on cleanup / re-fire.
-  const focusMoveListenerRef = useRef(null);
+  // Tracks which header/table button is currently highlighted blue:
+  //   null | 'fit' | 'jump' | `leg-${index}`
+  // A single movestart listener clears it when the user manually interacts
+  // with the map (pan/pinch/scroll), replacing any previous listener so only
+  // one is ever registered at a time.
+  const [activeMapAction, setActiveMapAction] = useState(null);
+  const mapActionListenerRef = useRef(null);
+
+  const activateMapAction = useCallback((key) => {
+    setActiveMapAction(key);
+    if (mapActionListenerRef.current) {
+      try { map.off('movestart', mapActionListenerRef.current); } catch (_e) { /* ignore */ }
+    }
+    const handler = (e) => {
+      if (e.originalEvent) {
+        setActiveMapAction(null);
+        try { map.off('movestart', handler); } catch (_e) { /* ignore */ }
+        mapActionListenerRef.current = null;
+      }
+    };
+    mapActionListenerRef.current = handler;
+    map.on('movestart', handler);
+  }, [map]);
+
+  // Clean up the movestart listener when the component unmounts or patrolId changes.
+  useEffect(() => () => {
+    if (mapActionListenerRef.current && map) {
+      try { map.off('movestart', mapActionListenerRef.current); } catch (_e) { /* ignore */ }
+    }
+  }, [map, patrolId]);
 
   // Fit the map to the full extent of this patrol's tracks, offset so the
   // tracks land in the visible area to the right of the patrol panel.
@@ -446,31 +485,61 @@ const PatrolOverview = () => {
         maxZoom: 15,
       });
     } catch (_e) { /* ignore */ }
+    activateMapAction('fit');
+  }, [map, patrolId, activateMapAction]);
 
-    // Button turns blue; clears when the user manually pans or zooms.
-    setFocusActive(true);
+  // Fit the map to the track points that fall within a specific leg's time window.
+  // Called from the per-row fit button in the legs table.
+  const onFitLegToView = useCallback((leg) => {
+    if (!map) return;
+    const tracks = getPatrolTracks(patrolId);
+    const startMs = leg.startedAt ? new Date(leg.startedAt).getTime() : null;
+    const endMs = leg.endedAt ? new Date(leg.endedAt).getTime() : Date.now();
+    if (!startMs) return;
 
-    // Remove any previous listener before adding a new one.
-    if (focusMoveListenerRef.current) {
-      try { map.off('movestart', focusMoveListenerRef.current); } catch (_e) { /* ignore */ }
+    const legPts = Object.values(tracks).flatMap((pts) =>
+      (pts || []).filter((p) => {
+        if (!p.time) return false;
+        const t = new Date(p.time).getTime();
+        return t >= startMs && t <= endMs;
+      })
+    );
+    if (!legPts.length) return;
+
+    let minLng = +Infinity, minLat = +Infinity, maxLng = -Infinity, maxLat = -Infinity;
+    legPts.forEach((p) => {
+      if (p.lng < minLng) minLng = p.lng;
+      if (p.lng > maxLng) maxLng = p.lng;
+      if (p.lat < minLat) minLat = p.lat;
+      if (p.lat > maxLat) maxLat = p.lat;
+    });
+    try {
+      map.fitBounds([[minLng, minLat], [maxLng, maxLat]], {
+        padding: { left: 756, top: 80, right: 80, bottom: 80 },
+        duration: 800,
+        maxZoom: 15,
+      });
+    } catch (_e) { /* ignore */ }
+    activateMapAction(`leg-${leg.index}`);
+  }, [map, patrolId, activateMapAction]);
+
+  // Jump the map to the most recent position across all tracked entities.
+  const onJumpToLocation = useCallback(() => {
+    if (!map) return;
+    const tracks = getPatrolTracks(patrolId);
+    let best = null;
+    let bestTime = -Infinity;
+    Object.values(tracks).forEach((pts) => {
+      if (!pts?.length) return;
+      const last = pts[pts.length - 1];
+      const t = last.time ? new Date(last.time).getTime() : 0;
+      if (t > bestTime) { bestTime = t; best = last; }
+    });
+    if (best) {
+      try { map.easeTo({ center: [best.lng, best.lat], zoom: 15, duration: 600 }); } catch (_e) { /* ignore */ }
+      activateMapAction('jump');
     }
-    const onUserMove = (e) => {
-      if (e.originalEvent) {
-        setFocusActive(false);
-        map.off('movestart', onUserMove);
-        focusMoveListenerRef.current = null;
-      }
-    };
-    focusMoveListenerRef.current = onUserMove;
-    map.on('movestart', onUserMove);
-  }, [map, patrolId]);
-
-  // Clean up the map listener when the component unmounts or patrolId changes.
-  useEffect(() => () => {
-    if (focusMoveListenerRef.current && map) {
-      try { map.off('movestart', focusMoveListenerRef.current); } catch (_e) { /* ignore */ }
-    }
-  }, [map, patrolId]);
+  }, [map, patrolId, activateMapAction]);
 
   const onEnd = () => {
     // Stamp the active leg's end + mark patrol Done (so the feed shows both
@@ -522,7 +591,14 @@ const PatrolOverview = () => {
   const patrolTitle = isUserPatrol
     ? userPatrol.title
     : (patrol ? displayTitleForPatrol(patrol) : 'Patrol');
-  const onClose = () => navigate(`/${TAB_KEYS.PATROLS}`);
+
+  // If the user navigated here from an event, location.state.from holds the
+  // event's path and location.state.fromLabel holds its display name.
+  // In that case both the breadcrumb link and the × close button go back to
+  // the event instead of the patrol list.
+  const backPath = location.state?.from || `/${TAB_KEYS.PATROLS}`;
+  const backLabel = location.state?.fromLabel || 'Patrols';
+  const onClose = () => navigate(backPath);
 
   // Jump the map to the nearest track position at a given date/time.
   // Used by leg boundary items to let the user jump to where the patrol
@@ -611,7 +687,7 @@ const PatrolOverview = () => {
   return <div className={styles.patrolOverview}>
     <PatrolTracksLayer patrolId={patrolId} />
     <TrackerContext.Provider value={tracker}>
-      <Breadcrumb patrolTitle={patrolTitle} onClose={onClose} />
+      <Breadcrumb patrolTitle={patrolTitle} onClose={onClose} backPath={backPath} backLabel={backLabel} />
 
       <div className={styles.body}>
         <Header
@@ -635,19 +711,21 @@ const PatrolOverview = () => {
           pausedTimeDisplay={pausedTimeDisplay}
           onRestore={onRestore}
           onFitToView={onFitToView}
-          focusActive={focusActive}
+          onJumpToLocation={onJumpToLocation}
+          activeMapAction={activeMapAction}
           title={isUserPatrol ? userPatrol.title : 'Delta Patrol'}
           editableTitle={isUserPatrol}
           onChangeTitle={(v) => updateUserPatrolTitle(patrolId, v)}
           currentPatrolType={legs.length
             ? legs[legs.length - 1].typeLabel
             : (isUserPatrol ? userPatrol.patrolType : 'Vehicle Patrol')}
+          mobileOrigin={!!userPatrol?.mobileOrigin}
         />
         <Tabs active={activeTab} onChange={setActiveTab} />
 
         {activeTab === 'overview' && <>
           <section className={styles.section}>
-            <LegsTable legs={legs} patrolId={patrolId} />
+            <LegsTable legs={legs} patrolId={patrolId} onFitLegToView={onFitLegToView} activeMapAction={activeMapAction} />
           </section>
 
           <section className={styles.section}>

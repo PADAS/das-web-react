@@ -13,8 +13,6 @@ import { getUserPatrols, subscribeUserPatrols } from '../userPatrolsStore';
 import { getPatrolStateEntry, subscribePatrolState } from '../../PatrolOverview/patrolStateStore';
 import { seedDemoPatrolsOnce } from '../demoPatrols';
 
-seedDemoPatrolsOnce();
-
 import * as styles from './styles.module.scss';
 
 // The patrol list is driven entirely by the demo data (seeded at module
@@ -107,6 +105,7 @@ const STATE_TO_VARIANT = {
 const PrototypePatrolList = () => {
   const navigate = useNavigate();
   const [, force] = useState(0);
+  useEffect(() => { seedDemoPatrolsOnce(); }, []);
   useEffect(() => subscribeUserPatrols(() => force((v) => v + 1)), []);
   useEffect(() => subscribePatrolState(() => force((v) => v + 1)), []);
 

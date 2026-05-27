@@ -19,7 +19,7 @@
 import { addUserPatrolRaw } from './userPatrolsStore';
 import { seedLegs } from '../PatrolOverview/legsStore';
 
-const SEEDED_KEY = 'er-prototype-demo-patrols-seeded-v8';
+const SEEDED_KEY = 'er-prototype-demo-patrols-seeded-v9';
 
 // Build a polyline of N points stepping from start by heading + per-step
 // jitter. Used to generate tracks that look hand-drawn rather than perfectly
@@ -106,7 +106,7 @@ const DEMO_PATROLS = [
     ],
     tracks: (() => {
       const base = withTimes(
-        polyline({ lat: -27.150, lng: -109.430 }, Math.PI * 0.3, 0.00045, 70, 0.25),
+        polyline({ lat: -27.150, lng: -109.430 }, Math.PI * 0.3, 0.00045, 35, 0.25),
         '2026-05-20T06:00:00', 90,
       );
       return {
@@ -193,8 +193,8 @@ const DEMO_PATROLS = [
       },
     ],
     tracks: (() => {
-      const leg1 = withTimes(polyline({ lat: -27.090, lng: -109.330 }, 0.4 * Math.PI, 0.0004, 35, 0.3), '2026-05-20T08:00:00', 150);
-      const leg2 = withTimes(polyline(leg1[leg1.length - 1], -0.3 * Math.PI, 0.00045, 45, 0.3), '2026-05-20T10:30:00', 120);
+      const leg1 = withTimes(polyline({ lat: -27.090, lng: -109.330 }, 0.4 * Math.PI, 0.0004, 18, 0.3), '2026-05-20T08:00:00', 150);
+      const leg2 = withTimes(polyline(leg1[leg1.length - 1], -0.3 * Math.PI, 0.00045, 22, 0.3), '2026-05-20T10:30:00', 120);
       const base = [...leg1, ...leg2];
       return {
         'Maya Chen': offsetTrack(base, 0.0002, -0.0003),
@@ -325,9 +325,9 @@ const DEMO_PATROLS = [
       },
     ],
     tracks: (() => {
-      const a = withTimes(polyline({ lat: -27.180, lng: -109.450 }, 0.1 * Math.PI, 0.00055, 45, 0.2), '2026-05-20T05:30:00', 105);
-      const b = withTimes(polyline(a[a.length - 1], -0.4 * Math.PI, 0.0003, 25, 0.3), '2026-05-20T07:15:00', 105);
-      const c = withTimes(polyline(b[b.length - 1], 0.7 * Math.PI, 0.0005, 35, 0.2), '2026-05-20T09:00:00', 90);
+      const a = withTimes(polyline({ lat: -27.180, lng: -109.450 }, 0.1 * Math.PI, 0.00055, 22, 0.2), '2026-05-20T05:30:00', 105);
+      const b = withTimes(polyline(a[a.length - 1], -0.4 * Math.PI, 0.0003, 13, 0.3), '2026-05-20T07:15:00', 105);
+      const c = withTimes(polyline(b[b.length - 1], 0.7 * Math.PI, 0.0005, 18, 0.2), '2026-05-20T09:00:00', 90);
       const base = [...a, ...b, ...c];
       return {
         'Maya Chen': offsetTrack(base, 0.0001, -0.0002),
@@ -468,8 +468,8 @@ const DEMO_PATROLS = [
       },
     ],
     tracks: (() => {
-      const a = withTimes(polyline({ lat: -27.060, lng: -109.290 }, 0.6 * Math.PI, 0.0009, 25, 0.12), '2026-05-20T07:00:00', 90);
-      const b = withTimes(polyline(a[a.length - 1], 1.1 * Math.PI, 0.0009, 30, 0.12), '2026-05-20T08:30:00', 90);
+      const a = withTimes(polyline({ lat: -27.060, lng: -109.290 }, 0.6 * Math.PI, 0.0009, 13, 0.12), '2026-05-20T07:00:00', 90);
+      const b = withTimes(polyline(a[a.length - 1], 1.1 * Math.PI, 0.0009, 15, 0.12), '2026-05-20T08:30:00', 90);
       const base = [...a, ...b];
       return {
         'Lukas Becker': offsetTrack(base, 0.00015, -0.00015),
@@ -590,8 +590,8 @@ const DEMO_PATROLS = [
       },
     ],
     tracks: (() => {
-      const a = withTimes(polyline({ lat: -27.045, lng: -109.435 }, 0.8 * Math.PI, 0.0006, 40, 0.18), '2026-05-20T04:30:00', 110);
-      const b = withTimes(polyline(a[a.length - 1], -0.2 * Math.PI, 0.0005, 40, 0.18), '2026-05-20T06:20:00', 115);
+      const a = withTimes(polyline({ lat: -27.045, lng: -109.435 }, 0.8 * Math.PI, 0.0006, 20, 0.18), '2026-05-20T04:30:00', 110);
+      const b = withTimes(polyline(a[a.length - 1], -0.2 * Math.PI, 0.0005, 20, 0.18), '2026-05-20T06:20:00', 115);
       const base = [...a, ...b];
       return {
         'Eli Rosenberg': offsetTrack(base, 0.0002, -0.00025),
@@ -710,8 +710,8 @@ const DEMO_PATROLS = [
       },
     ],
     tracks: (() => {
-      const a = withTimes(polyline({ lat: -27.155, lng: -109.470 }, -0.2 * Math.PI, 0.0004, 30, 0.25), '2026-05-19T13:00:00', 130);
-      const b = withTimes(polyline(a[a.length - 1], 0.8 * Math.PI, 0.00038, 35, 0.25), '2026-05-19T15:10:00', 155);
+      const a = withTimes(polyline({ lat: -27.155, lng: -109.470 }, -0.2 * Math.PI, 0.0004, 15, 0.25), '2026-05-19T13:00:00', 130);
+      const b = withTimes(polyline(a[a.length - 1], 0.8 * Math.PI, 0.00038, 18, 0.25), '2026-05-19T15:10:00', 155);
       const base = [...a, ...b];
       return {
         'Priya Sharma': offsetTrack(base, 0.0002, -0.0002),

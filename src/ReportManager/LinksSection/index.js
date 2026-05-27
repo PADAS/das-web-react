@@ -9,7 +9,7 @@ import LinkItem from './LinkItem';
 
 import * as styles from './styles.module.scss';
 
-const LinksSection = ({ linkedPatrols = [], linkedReports = [] }) => {
+const LinksSection = ({ linkedPatrols = [], linkedReports = [], fromLabel }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager' });
 
   return <div data-testid="reportManager-linksSection">
@@ -33,6 +33,7 @@ const LinksSection = ({ linkedPatrols = [], linkedReports = [] }) => {
       key={linkedPatrol.id}
       type={LINK_TYPES.PATROL}
       to={`/${TAB_KEYS.PATROLS}/${linkedPatrol.id}`}
+      fromLabel={fromLabel}
     />)}
   </div>;
 };

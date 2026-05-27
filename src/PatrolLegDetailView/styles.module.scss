@@ -454,6 +454,14 @@
 .collectionName {
   font-size: 16px;
   color: $off-black;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.assetIcon {
+  flex-shrink: 0;
+  opacity: 0.7;
 }
 
 .collectionRole {
