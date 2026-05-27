@@ -574,16 +574,21 @@ const Map = ({ children, onMapLoad, socket }) => {
     }
   }, [fetchMapData, map, timeSliderState.active]);
 
-  // Cancel previous overlay request when map/subjectsEnabled changes; cleanup aborts on unmount.
-  useEffect(() => {
-    if (!map || !subjectsEnabled) return;
+  const fetchOverlayData = useCallback(() => {
+    if (!subjectsEnabled) return;
     overlayCancelToken.current.cancel();
     overlayCancelToken.current = CancelToken.source();
-    dispatch(fetchRealtimeOverlay(map, overlayCancelToken.current));
+    dispatch(fetchRealtimeOverlay(overlayCancelToken.current));
+  }, [dispatch, subjectsEnabled]);
+
+  // Fetch at bootstrap and re-fetch when subjectsEnabled changes.
+  // No map dependency — fetchRealtimeOverlay paginates without a bbox.
+  useEffect(() => {
+    fetchOverlayData();
     return () => {
       overlayCancelToken.current.cancel();
     };
-  }, [dispatch, map, subjectsEnabled]);
+  }, [fetchOverlayData]);
 
   useEffect(() => {
     if (!!map && heatmapSubjectIDs.length && showReportHeatmap) {

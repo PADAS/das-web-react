@@ -77,7 +77,6 @@ const SubjectTrackLegend = () => {
   const items = useMemo(() => legendItemsData.map(({ id, title, imageUrl }) => ({
     id,
     title,
-    description: t('itemDescription', { count: 0 }),
     icon: <img alt={t('itemIcon', { title })} className={styles.itemIcon} src={imageUrl || ''} />,
   })), [legendItemsData, t]);
 

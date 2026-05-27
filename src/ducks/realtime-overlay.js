@@ -4,7 +4,7 @@ import merge from 'lodash/merge';
 
 import { API_URL, REALTIME_OVERLAY_WINDOW_MS } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
-import { getBboxParamsFromMap } from '../utils/query';
+import { recursivePaginatedQuery } from '../utils/query';
 import { addPropsToGeoJsonByKey } from '../utils/map';
 import { fixAntimeridianCrossing } from '../utils/tracks';
 import { TRACKS_API_URL } from './tracks';
@@ -99,25 +99,20 @@ export const updateOverlayFromSubjectStatus = (payload) => (dispatch, getState) 
 
 /**
  * Fetch last REALTIME_OVERLAY_WINDOW_MS of subjects and tracks as GeoJSON for the overlay.
+ * Paginates to completion — no bbox filter so results are stable across map moves.
  * Does not replace map subjects; only updates realtimeOverlay state.
  */
-export const fetchRealtimeOverlay = (map, cancelToken = CancelToken.source()) => async (dispatch, getState) => {
-  if (!map) return;
+export const fetchRealtimeOverlay = (cancelToken = CancelToken.source()) => async (dispatch, getState) => {
   try {
-    const bbox = await getBboxParamsFromMap(map);
     const updatedSince = new Date(Date.now() - REALTIME_OVERLAY_WINDOW_MS).toISOString();
 
-    const subjectsResponse = await axios.get(SUBJECTS_API_URL, {
-      cancelToken: cancelToken.token,
-      params: {
-        bbox,
-        updated_since: updatedSince,
-        use_lkl: true,
-        include_inactive: false,
-      },
-    });
+    const subjectsData = await recursivePaginatedQuery(
+      axios.get(SUBJECTS_API_URL, {
+        cancelToken: cancelToken.token,
+        params: { updated_since: updatedSince, use_lkl: true, include_inactive: false },
+      })
+    ) ?? [];
 
-    const subjectsData = subjectsResponse?.data?.data || [];
     const subjectIds = subjectsData.map((s) => s.id).filter(Boolean);
     if (subjectIds.length === 0) {
       dispatch(setRealtimeOverlay(featureCollection([]), featureCollection([])));
@@ -233,8 +228,15 @@ function realtimeOverlayReducer(state = INITIAL_STATE, action = {}) {
     const segmentFeature = payload;
     if (!segmentFeature?.geometry?.coordinates?.length) return state;
 
-    const segments = { ...state.segments };
-    const features = [...(segments.features || []), segmentFeature];
+    // Evict segments outside the overlay window before appending; discard
+    // entries with no start_time to prevent unbounded growth from malformed payloads.
+    const cutoff = new Date(Date.now() - REALTIME_OVERLAY_WINDOW_MS).toISOString();
+    const features = [
+      ...(state.segments.features || []).filter(
+        (f) => f.properties?.start_time && f.properties.start_time >= cutoff
+      ),
+      segmentFeature,
+    ];
     return {
       ...state,
       segments: featureCollection(features),

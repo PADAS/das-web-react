@@ -17,6 +17,8 @@ const SOCKET_DISPATCHES = {
   reconnecting: [/* 'SOCKET_RECONNECTING' ,*/() => updateSocketHealthStatus(SOCKET_WARNING_STATUS)],
   service_status: [SOCKET_SERVICE_STATUS, () => updateSocketHealthStatus(SOCKET_HEALTHY_STATUS)],
   socket_error: [/* 'SOCKET_WEBSOCKET_ERROR' ,*/() => updateSocketHealthStatus(SOCKET_UNHEALTHY_STATUS)],
+  // updateOverlayFromSubjectStatus MUST remain first: it reads subjectStore for the
+  // previous position before SOCKET_SUBJECT_STATUS overwrites it.
   subject_status: [updateOverlayFromSubjectStatus, SOCKET_SUBJECT_STATUS, () => updateSocketHealthStatus(SOCKET_HEALTHY_STATUS)],
   new_patrol: [socketCreatePatrol, () => updateSocketHealthStatus(SOCKET_HEALTHY_STATUS)],
   update_patrol: [socketUpdatePatrol, () => updateSocketHealthStatus(SOCKET_HEALTHY_STATUS)],

@@ -1,14 +1,15 @@
-import { memo, useCallback, useContext, useEffect } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import isEqual from 'react-fast-compare';
 import uniq from 'lodash/uniq';
 
 import { MapContext } from '../App';
 import { useMapEventBinding } from '../hooks';
-import { addMapImage, getTimeOfDayLineColorExpression, safeRemoveMapLayer } from '../utils/map';
+import { addMapImage, getTimeOfDayLineColorExpression, safeRemoveMapLayer, safeRemoveMapSource } from '../utils/map';
 import { getTimezoneOffsetMinutes } from '../utils/datetime';
-import { API_URL, MAP_ICON_SCALE } from '../constants';
+import { MAP_ICON_SCALE } from '../constants';
 import { selectTrackLengthInDays, selectTrackTimeEnvelope } from '../selectors/tracks';
+import { buildVtTileUrl, getVtRangeParam } from '../utils/tracks';
 
 import Arrow from '../common/images/icons/track-arrow.svg?url';
 
@@ -17,11 +18,6 @@ const ARROW_IMG_ID = 'track_arrow';
 const TRACK_SEGMENTS_SOURCE = 'track-segments-source';
 export const TRACK_SEGMENTS_LAYER_ID = 'track-segments-layer';
 const TRACK_SEGMENTS_START_LAYER_ID = 'track-segments-start-layer';
-
-const VECTOR_TILE_BASE = `${API_URL}observations/segments/tiles/{z}/{x}/{y}.pbf`;
-
-const buildVectorTileUrl = (rangeParam) =>
-  `${VECTOR_TILE_BASE}?range=${rangeParam}`;
 
 // Server-controlled styling: match TracksLayer/track.js TRACK_LAYER_LINE_PAINT.
 // Vector tiles may use snake_case (stroke_width); support both.
@@ -79,11 +75,11 @@ const TrackSegmentsLayer = ({ onPointClick }) => {
   const subjectTrackState = useSelector((state) => state.view.subjectTrackState);
   const trackTimeEnvelope = useSelector(selectTrackTimeEnvelope);
   const trackLengthInDays = useSelector(selectTrackLengthInDays);
-  const rangeParam = trackLengthInDays <= 45 ? '45' : 'all';
-  const visibleSubjectIds = uniq([
+  const rangeParam = getVtRangeParam(trackLengthInDays);
+  const visibleSubjectIds = useMemo(() => uniq([
     ...subjectTrackState.pinned,
     ...subjectTrackState.visible,
-  ]);
+  ]), [subjectTrackState.pinned, subjectTrackState.visible]);
 
   /* add arrow image to map */
   useEffect(() => {
@@ -101,7 +97,7 @@ const TrackSegmentsLayer = ({ onPointClick }) => {
     if (!map.getSource(TRACK_SEGMENTS_SOURCE)) {
       map.addSource(TRACK_SEGMENTS_SOURCE, {
         type: 'vector',
-        tiles: [buildVectorTileUrl(rangeParam)],
+        tiles: [buildVtTileUrl(rangeParam)],
         minzoom: 0,
         maxzoom: 22,
       });
@@ -148,13 +144,9 @@ const TrackSegmentsLayer = ({ onPointClick }) => {
     }
 
     return () => {
-      if (map.getLayer(TRACK_SEGMENTS_START_LAYER_ID)) {
-        safeRemoveMapLayer(map, TRACK_SEGMENTS_START_LAYER_ID);
-      }
-      if (map.getLayer(TRACK_SEGMENTS_LAYER_ID)) {
-        safeRemoveMapLayer(map, TRACK_SEGMENTS_LAYER_ID);
-      }
-      // Do NOT remove the shared vector tile source – SubjectTileLayer owns cleanup on unmount.
+      safeRemoveMapLayer(map, TRACK_SEGMENTS_START_LAYER_ID);
+      safeRemoveMapLayer(map, TRACK_SEGMENTS_LAYER_ID);
+      safeRemoveMapSource(map, TRACK_SEGMENTS_SOURCE);
     };
   }, [map, rangeParam]);
 

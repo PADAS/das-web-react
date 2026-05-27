@@ -4,14 +4,13 @@ import { useSelector } from 'react-redux';
 import { MapContext } from '../App';
 import { useMapEventBinding } from '../hooks';
 import { addPropsToGeoJsonByKey, safeRemoveMapLayer, safeRemoveMapSource } from '../utils/map';
-import { API_URL, LAYER_IDS, SYMBOL_TEXT_SIZE_EXPRESSION } from '../constants';
+import { LAYER_IDS, SYMBOL_TEXT_SIZE_EXPRESSION } from '../constants';
 import { selectFreshSubjectIds } from '../selectors/subjects';
 import { selectTrackLengthInDays } from '../selectors/tracks';
+import { buildVtTileUrl, getVtRangeParam } from '../utils/tracks';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
 
-const VECTOR_TILE_SOURCE = 'track-segments-source';
-const VECTOR_TILE_BASE = `${API_URL}observations/segments/tiles/{z}/{x}/{y}.pbf`;
-const buildVectorTileUrl = (rangeParam) => `${VECTOR_TILE_BASE}?range=${rangeParam}`;
+const SUBJECT_TILE_SOURCE = 'subject-tile-source';
 
 const SUBJECT_TILE_LAYER_ID = 'subject-tile-layer';
 const SUBJECT_TILE_LABEL_LAYER_ID = 'subject-tile-layer-labels';
@@ -28,7 +27,7 @@ const SubjectTileLayer = ({ onSubjectClick }) => {
   const map = useContext(MapContext);
   const freshSubjectIds = useSelector(selectFreshSubjectIds);
   const trackLengthInDays = useSelector(selectTrackLengthInDays);
-  const rangeParam = trackLengthInDays <= 45 ? '45' : 'all';
+  const rangeParam = getVtRangeParam(trackLengthInDays);
   const showInactiveRadios = useSelector((state) => state.view.showInactiveRadios);
   const subjectStore = useSelector((state) => state.data.subjectStore);
 
@@ -42,10 +41,10 @@ const SubjectTileLayer = ({ onSubjectClick }) => {
 
     // Ensure the shared vector tile source exists (TrackSegmentsLayer may
     // have already created it with the same range param).
-    if (!map.getSource(VECTOR_TILE_SOURCE)) {
-      map.addSource(VECTOR_TILE_SOURCE, {
+    if (!map.getSource(SUBJECT_TILE_SOURCE)) {
+      map.addSource(SUBJECT_TILE_SOURCE, {
         type: 'vector',
-        tiles: [buildVectorTileUrl(rangeParam)],
+        tiles: [buildVtTileUrl(rangeParam)],
         minzoom: 0,
         maxzoom: 22,
       });
@@ -56,7 +55,7 @@ const SubjectTileLayer = ({ onSubjectClick }) => {
       map.addLayer({
         id: SUBJECT_TILE_LAYER_ID,
         type: 'symbol',
-        source: VECTOR_TILE_SOURCE,
+        source: SUBJECT_TILE_SOURCE,
         'source-layer': 'subjects',
         layout: {
           'icon-image': [
@@ -90,7 +89,7 @@ const SubjectTileLayer = ({ onSubjectClick }) => {
       map.addLayer({
         id: SUBJECT_TILE_LABEL_LAYER_ID,
         type: 'symbol',
-        source: VECTOR_TILE_SOURCE,
+        source: SUBJECT_TILE_SOURCE,
         'source-layer': 'subjects',
         layout: {
           'icon-allow-overlap': ['step', ['zoom'], false, 10, true],
@@ -124,12 +123,9 @@ const SubjectTileLayer = ({ onSubjectClick }) => {
     }
 
     return () => {
-      if (map.getLayer(SUBJECT_TILE_LABEL_LAYER_ID)) {
-        safeRemoveMapLayer(map, SUBJECT_TILE_LABEL_LAYER_ID);
-      }
-      if (map.getLayer(SUBJECT_TILE_LAYER_ID)) {
-        safeRemoveMapLayer(map, SUBJECT_TILE_LAYER_ID);
-      }
+      safeRemoveMapLayer(map, SUBJECT_TILE_LABEL_LAYER_ID);
+      safeRemoveMapLayer(map, SUBJECT_TILE_LAYER_ID);
+      safeRemoveMapSource(map, SUBJECT_TILE_SOURCE);
     };
   }, [map, rangeParam]);
 

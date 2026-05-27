@@ -36,6 +36,14 @@ jest.mock('../constants', () => ({
   SYMBOL_TEXT_SIZE_EXPRESSION: ['interpolate', ['linear'], ['zoom'], 0, 10, 22, 14],
 }));
 
+jest.mock('../utils/tracks', () => ({
+  getVtRangeParam: (days) => {
+    const steps = [30, 45, 60, 90, 150, 210, 365, 500];
+    const step = steps.find((s) => days <= s);
+    return step !== undefined ? String(step) : 'all';
+  },
+}));
+
 jest.mock('../selectors/tracks', () => ({
   selectTrackLengthInDays: () => 21,
 }));

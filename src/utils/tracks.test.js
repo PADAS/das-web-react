@@ -7,6 +7,7 @@ import {
   findClosestPositionDescending,
   getTimeOfDayPeriodBasedOnTime,
   fixAntimeridianCrossing,
+  getVtRangeParam,
 } from './tracks';
 
 import { TIME_OF_DAY_PERIODS } from '../constants';
@@ -688,6 +689,31 @@ describe('utils - tracks', () => {
     test('accepts Date object for virtualDate', () => {
       const result = findClosestPositionDescending(pointsDesc, new Date('2024-03-15T09:30:00.000Z'));
       expect(result).toEqual({ t: '2024-03-15T09:00:00.000Z', lon: 9, lat: 9 });
+    });
+  });
+
+  describe('getVtRangeParam', () => {
+    test.each([
+      [1,   '30'],
+      [30,  '30'],
+      [31,  '45'],
+      [45,  '45'],
+      [46,  '60'],
+      [60,  '60'],
+      [61,  '90'],
+      [90,  '90'],
+      [91,  '150'],
+      [150, '150'],
+      [151, '210'],
+      [210, '210'],
+      [211, '365'],
+      [365, '365'],
+      [366, '500'],
+      [500, '500'],
+      [501, 'all'],
+      [999, 'all'],
+    ])('returns %s for %i days', (days, expected) => {
+      expect(getVtRangeParam(days)).toBe(expected);
     });
   });
 

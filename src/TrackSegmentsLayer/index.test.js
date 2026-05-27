@@ -20,6 +20,14 @@ jest.mock('../constants', () => ({
   MAP_ICON_SCALE: 2,
 }));
 
+jest.mock('../utils/tracks', () => ({
+  getVtRangeParam: (days) => {
+    const steps = [30, 45, 60, 90, 150, 210, 365, 500];
+    const step = steps.find((s) => days <= s);
+    return step !== undefined ? String(step) : 'all';
+  },
+}));
+
 jest.mock('react-redux', () => ({
   useSelector: jest.fn(),
 }));
@@ -29,6 +37,7 @@ jest.mock('../selectors/tracks', () => ({
   selectTrackLengthInDays: (state) => state?.view?.trackLengthInDays ?? 21,
   selectTrackTimeEnvelope: (state) => state?.view?.trackTimeEnvelope,
 }));
+
 
 const TRACK_SINCE = new Date('2026-02-02T00:00:00Z');
 
@@ -76,7 +85,7 @@ describe('TrackSegmentsLayer', () => {
 
       expect(mockMap.addSource).toHaveBeenCalledWith('track-segments-source', expect.objectContaining({
         type: 'vector',
-        tiles: ['http://test-api.com/observations/segments/tiles/{z}/{x}/{y}.pbf?range=45'],
+        tiles: ['http://test-api.com/observations/segments/tiles/{z}/{x}/{y}.pbf?range=30'],
         minzoom: 0,
         maxzoom: 22,
       }));
@@ -112,10 +121,29 @@ describe('TrackSegmentsLayer', () => {
       expect(mockMap.addLayer).not.toHaveBeenCalled();
     });
 
-    test('uses range=45 in tile URL when track length is within 45 days', () => {
+    test.each([
+      [1,   '30'],
+      [30,  '30'],
+      [31,  '45'],
+      [45,  '45'],
+      [46,  '60'],
+      [60,  '60'],
+      [61,  '90'],
+      [90,  '90'],
+      [91,  '150'],
+      [150, '150'],
+      [151, '210'],
+      [210, '210'],
+      [211, '365'],
+      [365, '365'],
+      [366, '500'],
+      [500, '500'],
+      [501, 'all'],
+      [999, 'all'],
+    ])('uses range=%s in tile URL when track length is %i days', (trackLengthInDays, expectedRange) => {
       mockMap.getSource.mockReturnValue(null);
       mockMap.getLayer.mockReturnValue(null);
-      const state = buildMockState({ trackLengthInDays: 21 });
+      const state = buildMockState({ trackLengthInDays });
       useSelector.mockImplementation((selector) => selector(state));
 
       render(
@@ -125,7 +153,7 @@ describe('TrackSegmentsLayer', () => {
       );
 
       expect(mockMap.addSource).toHaveBeenCalledWith('track-segments-source', expect.objectContaining({
-        tiles: ['http://test-api.com/observations/segments/tiles/{z}/{x}/{y}.pbf?range=45'],
+        tiles: [`http://test-api.com/observations/segments/tiles/{z}/{x}/{y}.pbf?range=${expectedRange}`],
       }));
     });
   });

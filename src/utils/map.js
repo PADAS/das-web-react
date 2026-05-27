@@ -216,7 +216,9 @@ export const calculatePopoverPlacement = async (map, popoverLocation) => {
 export const safeRemoveMapLayer = (map, layerId) => {
   if (!map) return;
   try {
-    map.removeLayer(layerId);
+    if (map.getLayer(layerId)) {
+      map.removeLayer(layerId);
+    }
   } catch (error) {
     console.error(`error removing layer ${layerId} from map`, error);
   }
