@@ -23,7 +23,6 @@ const preloadNamespaces = [
   'menu-drawer',
   'patrols',
   'reports',
-  'settings',
   'subjects',
   'top-bar',
   'tracks',
