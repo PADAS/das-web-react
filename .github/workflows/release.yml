@@ -284,8 +284,8 @@ jobs:
     with:
       environment: "legacy"
       image_repository: "europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react"
-      deployment_name: "das-web-react"
-      container_name: "das-web-react"
+      deployment_name: "web-react"
+      container_name: "web-react"
       image_tag: ${{ needs.config.outputs.image-tag }}
       project_id: "earthranger-78ca55ca"
       cluster_name: "das-dev"
@@ -301,8 +301,8 @@ jobs:
     with:
       environment: "legacy"
       image_repository: "europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react"
-      deployment_name: "das-web-react"
-      container_name: "das-web-react"
+      deployment_name: "web-react"
+      container_name: "web-react"
       image_tag: ${{ needs.config.outputs.image-tag }}
       project_id: "earthranger-78ca55ca"
       cluster_name: "das-prod1"
@@ -318,8 +318,8 @@ jobs:
     with:
       environment: "legacy"
       image_repository: "europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react"
-      deployment_name: "das-web-react"
-      container_name: "das-web-react"
+      deployment_name: "web-react"
+      container_name: "web-react"
       image_tag: ${{ needs.config.outputs.image-tag }}
       project_id: "earthranger-78ca55ca"
       cluster_name: "das-prod1"
@@ -335,8 +335,8 @@ jobs:
     with:
       environment: "legacy"
       image_repository: "europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react"
-      deployment_name: "das-web-react"
-      container_name: "das-web-react"
+      deployment_name: "web-react"
+      container_name: "web-react"
       image_tag: ${{ needs.config.outputs.image-tag }}
       project_id: "earthranger-78ca55ca"
       cluster_name: "das-prod1"
