@@ -60,6 +60,11 @@ on:
         description: 'Comma-separated list of tenant namespaces'
         required: true
         type: string
+      service_account:
+        description: 'Service account to impersonate (defaults to vars.SERVICE_ACCOUNT)'
+        required: false
+        type: string
+        default: ''
 
 jobs:
   kubectl-apply:
@@ -75,7 +80,7 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ vars.SERVICE_ACCOUNT }}
+          service_account: ${{ inputs.service_account || vars.SERVICE_ACCOUNT }}
 
       - name: Setup gcloud and kubectl
         uses: google-github-actions/setup-gcloud@v2
@@ -179,7 +184,7 @@ jobs:
               if kubectl rollout status "deployment/${{ inputs.deployment_name }}" \
                   -n "$TENANT" --timeout=300s; then
                 echo "  ✅ SUCCESS for $TENANT"
-                ((SUCCESS_COUNT++))
+                SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
               else
                 echo "  ❌ ROLLOUT FAILED for $TENANT"
                 FAILED_TENANTS+=("$TENANT")

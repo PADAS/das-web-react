@@ -294,6 +294,7 @@ jobs:
       bastion_instance: "kubernetes-bastion-2"
       bastion_zone: "us-west1-a"
       tenants: ${{ vars.LEGACY_TENANTS_DEV }}
+      service_account: ${{ vars.LEGACY_DEPLOY_SERVICE_ACCOUNT }}
 
   deploy-prod-legacy-1:
     needs: [config, deploy-dev-legacy]
@@ -311,6 +312,7 @@ jobs:
       bastion_instance: "kubernetes-bastion-2"
       bastion_zone: "us-west1-a"
       tenants: ${{ vars.LEGACY_TENANTS_1 }}
+      service_account: ${{ vars.LEGACY_DEPLOY_SERVICE_ACCOUNT }}
 
   deploy-prod-legacy-2:
     needs: [config, deploy-dev-legacy]
@@ -328,6 +330,7 @@ jobs:
       bastion_instance: "kubernetes-bastion-2"
       bastion_zone: "us-west1-a"
       tenants: ${{ vars.LEGACY_TENANTS_2 }}
+      service_account: ${{ vars.LEGACY_DEPLOY_SERVICE_ACCOUNT }}
 
   deploy-prod-legacy-3:
     needs: [config, deploy-dev-legacy]
@@ -345,3 +348,4 @@ jobs:
       bastion_instance: "kubernetes-bastion-2"
       bastion_zone: "us-west1-a"
       tenants: ${{ vars.LEGACY_TENANTS_3 }}
+      service_account: ${{ vars.LEGACY_DEPLOY_SERVICE_ACCOUNT }}
