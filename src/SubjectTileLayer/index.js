@@ -39,8 +39,6 @@ const SubjectTileLayer = ({ onSubjectClick }) => {
   useEffect(() => {
     if (!map) return;
 
-    // Ensure the shared vector tile source exists (TrackSegmentsLayer may
-    // have already created it with the same range param).
     if (!map.getSource(SUBJECT_TILE_SOURCE)) {
       map.addSource(SUBJECT_TILE_SOURCE, {
         type: 'vector',

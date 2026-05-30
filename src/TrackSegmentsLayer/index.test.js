@@ -21,6 +21,7 @@ jest.mock('../constants', () => ({
 }));
 
 jest.mock('../utils/tracks', () => ({
+  ...jest.requireActual('../utils/tracks'),
   getVtRangeParam: (days) => {
     const steps = [30, 45, 60, 90, 150, 210, 365, 500];
     const step = steps.find((s) => days <= s);
