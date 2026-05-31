@@ -5,8 +5,6 @@
     "trackLegendItemsName": "patrullas"
   },
   "subjectTrackLegend": {
-    "itemDescription_one": "{{count}} punto",
-    "itemDescription_other": "{{count}} puntos",
     "itemIcon": "Icono para {{title}}",
     "trackLegendItemsName": "sujetos",
     "popoverTriggerLabel": "Mostrar rango de fechas y número de puntos",

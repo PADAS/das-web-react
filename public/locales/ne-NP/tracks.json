@@ -5,8 +5,6 @@
         "trackLegendItemsName": "गस्तीहरु"
     },
     "subjectTrackLegend": {
-        "itemDescription_one": "{{count}} पोइन्ट",
-        "itemDescription_other": "{{count}} पोइन्टहरू",
         "itemIcon": "{{title}} को आइकन",
         "trackLegendItemsName": "विषयहरू",
         "popoverTriggerLabel": "मिति दायरा र पोइन्ट गणना देखाउनुहोस्",

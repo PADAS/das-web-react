@@ -1,16 +1,14 @@
-import { memo, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import { memo, useCallback, useContext, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 
 import { MapContext } from '../App';
 import { useMapEventBinding } from '../hooks';
-import { addPropsToGeoJsonByKey, safeRemoveMapLayer, safeRemoveMapSource } from '../utils/map';
+import { addPropsToGeoJsonByKey, safeRemoveMapLayer } from '../utils/map';
 import { LAYER_IDS, SYMBOL_TEXT_SIZE_EXPRESSION } from '../constants';
 import { selectFreshSubjectIds } from '../selectors/subjects';
 import { selectTrackLengthInDays } from '../selectors/tracks';
-import { buildVtTileUrl, getVtRangeParam } from '../utils/tracks';
-import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
-
-const SUBJECT_TILE_SOURCE = 'subject-tile-source';
+import { buildVtTileUrl, getVtRangeParam, VECTOR_TILE_SOURCE } from '../utils/tracks';
+import { queryMultiLayerClickFeatures } from '../utils/map-handlers';
 
 const SUBJECT_TILE_LAYER_ID = 'subject-tile-layer';
 const SUBJECT_TILE_LABEL_LAYER_ID = 'subject-tile-layer-labels';
@@ -32,15 +30,20 @@ const SubjectTileLayer = ({ onSubjectClick }) => {
   const subjectStore = useSelector((state) => state.data.subjectStore);
 
   // Ref so the click handler always reads the latest store without
-  // re-creating the memoised callback on every store update.
+  // re-creating the memoised callback on every store update (which would
+  // rebind the map event listeners). Updated in an effect, not during render.
   const subjectStoreRef = useRef(subjectStore);
-  subjectStoreRef.current = subjectStore;
+  useEffect(() => {
+    subjectStoreRef.current = subjectStore;
+  }, [subjectStore]);
 
   useEffect(() => {
     if (!map) return;
 
-    if (!map.getSource(SUBJECT_TILE_SOURCE)) {
-      map.addSource(SUBJECT_TILE_SOURCE, {
+    // Shared with TrackSegmentsLayer. Create only if it doesn't exist yet
+    // (SubjectTileLayer may mount before TrackSegmentsLayer on cold start).
+    if (!map.getSource(VECTOR_TILE_SOURCE)) {
+      map.addSource(VECTOR_TILE_SOURCE, {
         type: 'vector',
         tiles: [buildVtTileUrl(rangeParam)],
         minzoom: 0,
@@ -53,7 +56,7 @@ const SubjectTileLayer = ({ onSubjectClick }) => {
       map.addLayer({
         id: SUBJECT_TILE_LAYER_ID,
         type: 'symbol',
-        source: SUBJECT_TILE_SOURCE,
+        source: VECTOR_TILE_SOURCE,
         'source-layer': 'subjects',
         layout: {
           'icon-image': [
@@ -87,7 +90,7 @@ const SubjectTileLayer = ({ onSubjectClick }) => {
       map.addLayer({
         id: SUBJECT_TILE_LABEL_LAYER_ID,
         type: 'symbol',
-        source: SUBJECT_TILE_SOURCE,
+        source: VECTOR_TILE_SOURCE,
         'source-layer': 'subjects',
         layout: {
           'icon-allow-overlap': ['step', ['zoom'], false, 10, true],
@@ -120,10 +123,10 @@ const SubjectTileLayer = ({ onSubjectClick }) => {
       }, SKY_LAYER);
     }
 
+    // Remove only our own layers; TrackSegmentsLayer owns the shared source.
     return () => {
       safeRemoveMapLayer(map, SUBJECT_TILE_LABEL_LAYER_ID);
       safeRemoveMapLayer(map, SUBJECT_TILE_LAYER_ID);
-      safeRemoveMapSource(map, SUBJECT_TILE_SOURCE);
     };
   }, [map, rangeParam]);
 
@@ -151,39 +154,39 @@ const SubjectTileLayer = ({ onSubjectClick }) => {
 
   /* ── click / hover handlers ───────────────────────────────────────── */
 
-  const handleSubjectTileClick = useMemo(() => withMultiLayerHandlerAwareness(
-    map,
-    (event) => {
-      const layers = [SUBJECT_TILE_LAYER_ID, SUBJECT_TILE_LABEL_LAYER_ID];
-      const clickedFeature = map.queryRenderedFeatures(event.point, { layers })[0];
-      if (!clickedFeature || !onSubjectClick) return;
+  const handleSubjectTileClick = useCallback((event) => {
+    // Defer to other layers when a click hits more than one (multi-layer awareness).
+    if (queryMultiLayerClickFeatures(map, event).length > 1) return;
 
-      const subjectId = clickedFeature.properties.id;
-      const storeSubject = subjectStoreRef.current[subjectId];
+    const layers = [SUBJECT_TILE_LAYER_ID, SUBJECT_TILE_LABEL_LAYER_ID];
+    const clickedFeature = map.queryRenderedFeatures(event.point, { layers })[0];
+    if (!clickedFeature || !onSubjectClick) return;
 
-      if (storeSubject?.last_position) {
-        // Hydrate from the Redux store – same enrichment the GeoJSON
-        // SubjectsLayer path uses so SubjectPopup receives the full
-        // contract (coordinateProperties, tracks_available, image, etc.).
-        const enriched = addPropsToGeoJsonByKey(storeSubject, 'last_position');
-        onSubjectClick({ event, layer: enriched.last_position });
-      } else {
-        // Fallback: reshape flat tile properties to the minimum shape
-        // SubjectPopup needs when the subject isn't in the store.
-        const { properties, geometry } = clickedFeature;
-        const layer = {
-          type: 'Feature',
-          geometry,
-          properties: {
-            ...properties,
-            image: properties.image_url,
-            coordinateProperties: { time: properties.recorded_at },
-          },
-        };
-        onSubjectClick({ event, layer });
-      }
-    },
-  ), [map, onSubjectClick]);
+    const subjectId = clickedFeature.properties.id;
+    const storeSubject = subjectStoreRef.current[subjectId];
+
+    if (storeSubject?.last_position) {
+      // Hydrate from the Redux store – same enrichment the GeoJSON
+      // SubjectsLayer path uses so SubjectPopup receives the full
+      // contract (coordinateProperties, tracks_available, image, etc.).
+      const enriched = addPropsToGeoJsonByKey(storeSubject, 'last_position');
+      onSubjectClick({ event, layer: enriched.last_position });
+    } else {
+      // Fallback: reshape flat tile properties to the minimum shape
+      // SubjectPopup needs when the subject isn't in the store.
+      const { properties, geometry } = clickedFeature;
+      const layer = {
+        type: 'Feature',
+        geometry,
+        properties: {
+          ...properties,
+          image: properties.image_url,
+          coordinateProperties: { time: properties.recorded_at },
+        },
+      };
+      onSubjectClick({ event, layer });
+    }
+  }, [map, onSubjectClick]);
 
   const onMouseEnter = useCallback(() => {
     if (map) map.getCanvas().style.cursor = 'pointer';

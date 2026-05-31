@@ -33,9 +33,9 @@ export const updateOverlaySubjectFromSocket = (feature) => ({
   payload: feature,
 });
 
-export const appendOverlaySegmentFromSocket = (segmentFeature) => ({
+export const appendOverlaySegmentFromSocket = (segmentFeature, cutoff) => ({
   type: APPEND_OVERLAY_SEGMENT_FROM_SOCKET,
-  payload: segmentFeature,
+  payload: { segment: segmentFeature, cutoff },
 });
 
 /**
@@ -92,7 +92,8 @@ export const updateOverlayFromSubjectStatus = (payload) => (dispatch, getState) 
         start_time: payload.properties?.coordinateProperties?.time,
       },
     };
-    dispatch(appendOverlaySegmentFromSocket(segmentFeature));
+    const cutoff = new Date(Date.now() - REALTIME_OVERLAY_WINDOW_MS).toISOString();
+    dispatch(appendOverlaySegmentFromSocket(segmentFeature, cutoff));
   }
 };
 
@@ -223,12 +224,12 @@ function realtimeOverlayReducer(state = INITIAL_STATE, action = {}) {
   }
 
   if (type === APPEND_OVERLAY_SEGMENT_FROM_SOCKET) {
-    const segmentFeature = payload;
+    const { segment: segmentFeature, cutoff } = payload;
     if (!segmentFeature?.geometry?.coordinates?.length) return state;
 
     // Discard segments (existing or incoming) with no start_time or outside
     // the overlay window to prevent unbounded growth from malformed payloads.
-    const cutoff = new Date(Date.now() - REALTIME_OVERLAY_WINDOW_MS).toISOString();
+    // Cutoff is computed by the dispatching thunk so this reducer stays pure.
     const isWithinWindow = (f) => f.properties?.start_time && f.properties.start_time >= cutoff;
     if (!isWithinWindow(segmentFeature)) return state;
 

@@ -25,6 +25,10 @@ export const FRESH_SUBJECT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 // Realtime overlay: fetch last N ms of GeoJSON to cover data outside vector tile TTL (~15 min).
 export const REALTIME_OVERLAY_WINDOW_MS = 30 * 60 * 1000; // 30 minutes
 
+// Realtime overlay: re-fetch the base snapshot on this interval so it does not
+// drift over a long session (socket updates only cover incremental changes).
+export const REALTIME_OVERLAY_REFRESH_MS = 5 * 60 * 1000; // 5 minutes
+
 export const MIN_ZOOM = 2.5;
 export const MAX_ZOOM = 20;
 

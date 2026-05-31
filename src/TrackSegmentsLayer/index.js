@@ -9,13 +9,12 @@ import { addMapImage, getTimeOfDayLineColorExpression, safeRemoveMapLayer, safeR
 import { getTimezoneOffsetMinutes } from '../utils/datetime';
 import { MAP_ICON_SCALE } from '../constants';
 import { selectTrackLengthInDays, selectTrackTimeEnvelope } from '../selectors/tracks';
-import { buildVtTileUrl, getVtRangeParam } from '../utils/tracks';
+import { buildVtTileUrl, getVtRangeParam, VECTOR_TILE_SOURCE } from '../utils/tracks';
 
 import Arrow from '../common/images/icons/track-arrow.svg?url';
 
 const ARROW_IMG_ID = 'track_arrow';
 
-const TRACK_SEGMENTS_SOURCE = 'track-segments-source';
 export const TRACK_SEGMENTS_LAYER_ID = 'track-segments-layer';
 const TRACK_SEGMENTS_START_LAYER_ID = 'track-segments-start-layer';
 
@@ -90,25 +89,37 @@ const TrackSegmentsLayer = ({ onPointClick }) => {
     }
   }, [map]);
 
-  /* add the vector source (URL includes range=45|all); only clean up on unmount */
+  /* own the shared vector source: create on mount, update range in place via
+     setTiles (avoids tearing down a source shared with SubjectTileLayer) */
   useEffect(() => {
     if (!map) return;
 
-    if (!map.getSource(TRACK_SEGMENTS_SOURCE)) {
-      map.addSource(TRACK_SEGMENTS_SOURCE, {
+    const source = map.getSource(VECTOR_TILE_SOURCE);
+    if (!source) {
+      map.addSource(VECTOR_TILE_SOURCE, {
         type: 'vector',
         tiles: [buildVtTileUrl(rangeParam)],
         minzoom: 0,
         maxzoom: 22,
       });
+    } else if (source.setTiles) {
+      source.setTiles([buildVtTileUrl(rangeParam)]);
     }
+  }, [map, rangeParam]);
+
+  /* remove the shared source only on unmount */
+  useEffect(() => () => safeRemoveMapSource(map, VECTOR_TILE_SOURCE), [map]);
+
+  /* add the track layers; only clean up on unmount */
+  useEffect(() => {
+    if (!map) return;
 
     /* add the line layer */
     if (!map.getLayer(TRACK_SEGMENTS_LAYER_ID)) {
       map.addLayer({
         id: TRACK_SEGMENTS_LAYER_ID,
         type: 'line',
-        source: TRACK_SEGMENTS_SOURCE,
+        source: VECTOR_TILE_SOURCE,
         'source-layer': 'observation_segments',
         minzoom: 3,
         layout: {
@@ -125,7 +136,7 @@ const TrackSegmentsLayer = ({ onPointClick }) => {
       map.addLayer({
         id: TRACK_SEGMENTS_START_LAYER_ID,
         type: 'symbol',
-        source: TRACK_SEGMENTS_SOURCE,
+        source: VECTOR_TILE_SOURCE,
         'source-layer': 'observation_segments',
         minzoom: 3,
         layout: {
@@ -146,9 +157,8 @@ const TrackSegmentsLayer = ({ onPointClick }) => {
     return () => {
       safeRemoveMapLayer(map, TRACK_SEGMENTS_START_LAYER_ID);
       safeRemoveMapLayer(map, TRACK_SEGMENTS_LAYER_ID);
-      safeRemoveMapSource(map, TRACK_SEGMENTS_SOURCE);
     };
-  }, [map, rangeParam]);
+  }, [map]);
 
   /* time-of-day line color: when active, color segments by start_time in selected timezone */
   useEffect(() => {

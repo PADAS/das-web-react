@@ -382,6 +382,9 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - useMapLocationMa
     expect(map.removeLayer).not.toHaveBeenCalled();
     expect(map.removeSource).not.toHaveBeenCalled();
 
+    // Layers exist on the map at teardown; safeRemoveMapLayer guards on getLayer.
+    map.getLayer.mockReturnValue(true);
+
     unmount();
 
     expect(map.removeLayer).toHaveBeenCalledTimes(3);

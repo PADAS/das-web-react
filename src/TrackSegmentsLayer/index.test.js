@@ -28,6 +28,7 @@ jest.mock('../utils/tracks', () => ({
     return step !== undefined ? String(step) : 'all';
   },
   buildVtTileUrl: (rangeParam) => `http://test-api.com/observations/segments/tiles/{z}/{x}/{y}.pbf?range=${rangeParam}`,
+  VECTOR_TILE_SOURCE: 'track-segments-source',
 }));
 
 jest.mock('react-redux', () => ({

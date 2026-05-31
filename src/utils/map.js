@@ -274,8 +274,12 @@ export const buildGeoSpanFilter = (geoSpan) => {
 };
 
 export const safeRemoveMapSource = (map, sourceId) => {
-  if (map?.getSource?.(sourceId)) {
+  if (!map?.getSource?.(sourceId)) return;
+  try {
     map.removeSource(sourceId);
+  } catch (error) {
+    // A shared source may still be referenced by another layer mid-teardown.
+    console.error(`error removing source ${sourceId} from map`, error);
   }
 };
 

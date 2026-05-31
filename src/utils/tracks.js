@@ -569,3 +569,8 @@ export const getVtRangeParam = (trackLengthInDays) => {
 
 const VECTOR_TILE_BASE = `${API_URL}observations/segments/tiles/{z}/{x}/{y}.pbf`;
 export const buildVtTileUrl = (rangeParam) => `${VECTOR_TILE_BASE}?range=${rangeParam}`;
+
+// Single shared vector tile source for both track segments and subjects.
+// TrackSegmentsLayer (always mounted) owns its lifecycle; SubjectTileLayer
+// shares it so the same .pbf tiles are not fetched twice.
+export const VECTOR_TILE_SOURCE = 'track-segments-source';

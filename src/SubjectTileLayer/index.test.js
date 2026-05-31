@@ -43,6 +43,7 @@ jest.mock('../utils/tracks', () => ({
     return step !== undefined ? String(step) : 'all';
   },
   buildVtTileUrl: (rangeParam) => `http://test-api.com/observations/segments/tiles/{z}/{x}/{y}.pbf?range=${rangeParam}`,
+  VECTOR_TILE_SOURCE: 'track-segments-source',
 }));
 
 jest.mock('../selectors/tracks', () => ({
@@ -57,9 +58,9 @@ jest.mock('../selectors/subjects', () => ({
   selectFreshSubjectIds: (state) => state?.freshSubjectIds ?? [],
 }));
 
-// Bypass the multi-layer guard so the inner handler always fires.
+// Bypass the multi-layer guard (return <2 features) so the handler always fires.
 jest.mock('../utils/map-handlers', () => ({
-  withMultiLayerHandlerAwareness: (_map, fn) => fn,
+  queryMultiLayerClickFeatures: () => [],
 }));
 
 const STORE_SUBJECT = {
