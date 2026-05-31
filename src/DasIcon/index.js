@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import { useLocation } from 'react-router';
 import { API_V2_URL } from '../constants';
 
@@ -27,14 +27,19 @@ export const calcIconUrl = (type, iconId) => {
 
 const DasIcon = ({ type, iconId, color = 'gray', dispatch: _dispatch, className, ...rest }) => {
   const location = useLocation();
+  const [hasError, setHasError] = useState(false);
 
   if (location.pathname.startsWith('/community') && type === 'events' && iconId) {
+    if (hasError) {
+      return null;
+    }
+
     const communityValue = location.pathname.split('/')[2];
     return (
       <img
         alt=""
         className={className || ''}
-        onError={(e) => { e.target.style.display = 'none'; }}
+        onError={() => setHasError(true)}
         src={`${API_V2_URL}community/${communityValue}/activity/events/eventtypes/icons/${iconId}`}
         {...rest}
       />

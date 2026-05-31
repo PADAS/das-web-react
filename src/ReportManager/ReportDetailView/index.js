@@ -907,8 +907,8 @@ const ReportDetailView = ({
                     type="button"
                     variant="primary"
                   >
-                    {t('reportDetailView.saveSplitButton.title')}
-                  </Button>
+                  {t('reportDetailView.saveSplitButton.title')}
+                </Button>
                 : <SplitButton
                     className={styles.saveButton}
                     drop="down"
@@ -917,29 +917,27 @@ const ReportDetailView = ({
                     title={t('reportDetailView.saveSplitButton.title')}
                     onClick={onClickSaveButton}
                   >
-                    {isActive && <Dropdown.Item className={styles.saveSplitButtonItem} data-testid="report-details-resolve-btn-toggle">
-                      <Button onClick={() => onClickSaveAndSetState(EVENT_FORM_STATES.RESOLVED)} type="button" variant="primary">
-                        {t('reportDetailView.saveSplitButton.saveAndResolveItem')}
-                      </Button>
-                    </Dropdown.Item>}
-                    {isInReview && <>
-                      <Dropdown.Item className={styles.saveSplitButtonItem} data-testid="report-details-resolve-btn-toggle">
-                        <Button onClick={() => onClickSaveAndSetState(EVENT_FORM_STATES.RESOLVED)} type="button" variant="primary">
-                          {t('reportDetailView.saveSplitButton.saveAndResolveItem')}
-                        </Button>
-                      </Dropdown.Item>
-                      <Dropdown.Item className={styles.saveSplitButtonItem}>
-                        <Button onClick={() => onClickSaveAndSetState(EVENT_FORM_STATES.ACTIVE)} type="button" variant="primary">
-                          {t('reportDetailView.saveSplitButton.saveAndActivateItem')}
-                        </Button>
-                      </Dropdown.Item>
-                    </>}
-                    {!isActive && !isInReview && <Dropdown.Item className={styles.saveSplitButtonItem}>
-                      <Button onClick={() => onClickSaveAndSetState(EVENT_FORM_STATES.ACTIVE)} type="button" variant="primary">
-                        {t('reportDetailView.saveSplitButton.saveAndReopenItem')}
-                      </Button>
-                    </Dropdown.Item>}
-                  </SplitButton>
+                  {(isActive || isInReview) && <Dropdown.Item className={styles.saveSplitButtonItem} data-testid="report-details-resolve-btn-toggle">
+                    <Button onClick={() => onClickSaveAndSetState(EVENT_FORM_STATES.RESOLVED)} type="button" variant="primary">
+                      {t('reportDetailView.saveSplitButton.saveAndResolveItem')}
+                    </Button>
+                  </Dropdown.Item>}
+                  {isActive && <Dropdown.Item className={styles.saveSplitButtonItem}>
+                    <Button onClick={() => onClickSaveAndSetState(EVENT_FORM_STATES.REVIEW)} type="button" variant="primary">
+                      {t('reportDetailView.saveSplitButton.saveAndReviewItem')}
+                    </Button>
+                  </Dropdown.Item>}
+                  {isInReview && <Dropdown.Item className={styles.saveSplitButtonItem}>
+                    <Button onClick={() => onClickSaveAndSetState(EVENT_FORM_STATES.ACTIVE)} type="button" variant="primary">
+                      {t('reportDetailView.saveSplitButton.saveAndActivateItem')}
+                    </Button>
+                  </Dropdown.Item>}
+                  {!isActive && !isInReview && <Dropdown.Item className={styles.saveSplitButtonItem}>
+                    <Button onClick={() => onClickSaveAndSetState(EVENT_FORM_STATES.ACTIVE)} type="button" variant="primary">
+                      {t('reportDetailView.saveSplitButton.saveAndReopenItem')}
+                    </Button>
+                  </Dropdown.Item>}
+                </SplitButton>
               }
             </div>
           </div>

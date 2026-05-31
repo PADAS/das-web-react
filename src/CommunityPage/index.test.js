@@ -204,14 +204,12 @@ describe('CommunityPage', () => {
       await waitFor(() => expect(ReportManager).toHaveBeenCalled());
     });
 
-    test('passes isCommunity, hidePriority and hideReportedBy to ReportManager', async () => {
+    test('passes isCommunity to ReportManager', async () => {
       useParams.mockReturnValue({ value: COMMUNITY_VALUE, '*': TYPE_A.value });
       renderPage();
       await waitFor(() => expect(ReportManager).toHaveBeenCalledWith(
         expect.objectContaining({
           isCommunity: true,
-          hidePriority: true,
-          hideReportedBy: true,
         }),
         undefined
       ));

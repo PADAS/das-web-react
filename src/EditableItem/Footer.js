@@ -6,11 +6,12 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import SplitButton from 'react-bootstrap/SplitButton';
 
 import { EVENT_FORM_STATES } from '../constants';
+import { isReportActive } from '../utils/events';
 
 import * as styles from './styles.module.scss';
 
 const StateButton = ({ label, onStateToggle, targetState, ...rest }) => (
-  <Button type='button' variant='primary' onClick={() => onStateToggle(targetState)} {...rest}>
+  <Button className={styles.stateButton} type='button' variant='primary' onClick={() => onStateToggle(targetState)} {...rest}>
     {label}
   </Button>
 );
@@ -21,12 +22,12 @@ const Footer = ({
   onSave,
   onStateToggle,
   data,
-  isActiveState,
   saveDisabled,
   ...restProps
 }) => {
   const { t } = useTranslation('details-view', { keyPrefix: 'footer' });
   const { cancelTitle = t('cancelButton') } = restProps;
+  const isActive = isReportActive(data);
   const isInReview = data?.state === EVENT_FORM_STATES.REVIEW;
   const SaveButtonComponent = onStateToggle ? SplitButton : Button;
 
@@ -35,30 +36,28 @@ const Footer = ({
     {!readonly && <SaveButtonComponent className={styles.saveButton} disabled={saveDisabled} drop='down' variant='primary' type='submit' title={t('saveButton')} onClick={onSave}>
       {!onStateToggle && t('saveButton')}
       {!!onStateToggle && <>
-        {isActiveState && <Dropdown.Item>
+        {(isActive || isInReview) && <Dropdown.Item>
           <StateButton
             targetState={EVENT_FORM_STATES.RESOLVED}
             onStateToggle={onStateToggle}
             label={t('stateResolveButton')}
           />
         </Dropdown.Item>}
-        {isInReview && <>
-          <Dropdown.Item>
-            <StateButton
-              targetState={EVENT_FORM_STATES.RESOLVED}
-              onStateToggle={onStateToggle}
-              label={t('stateResolveButton')}
-            />
-          </Dropdown.Item>
-          <Dropdown.Item>
-            <StateButton
-              targetState={EVENT_FORM_STATES.ACTIVE}
-              onStateToggle={onStateToggle}
-              label={t('stateActivateButton')}
-            />
-          </Dropdown.Item>
-        </>}
-        {!isActiveState && !isInReview && <Dropdown.Item>
+        {isActive && <Dropdown.Item>
+          <StateButton
+            targetState={EVENT_FORM_STATES.REVIEW}
+            onStateToggle={onStateToggle}
+            label={t('stateReviewButton')}
+          />
+        </Dropdown.Item>}
+        {isInReview && <Dropdown.Item>
+          <StateButton
+            targetState={EVENT_FORM_STATES.ACTIVE}
+            onStateToggle={onStateToggle}
+            label={t('stateActivateButton')}
+          />
+        </Dropdown.Item>}
+        {!isActive && !isInReview && <Dropdown.Item>
           <StateButton
             targetState={EVENT_FORM_STATES.ACTIVE}
             onStateToggle={onStateToggle}

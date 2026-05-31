@@ -20,6 +20,10 @@ const GetUserLocationButton = ({ onClick = null, onError = null, onGet, ref, ren
 
   const [isLoading, setIsLoading] = useState(false);
 
+  const reportError = (error) => (onError
+    ? onError(error)
+    : toast.error(t('errorToastMessage', { errorMessage: error.message })));
+
   const onButtonClick = () => {
     onClick?.();
 
@@ -41,22 +45,14 @@ const GetUserLocationButton = ({ onClick = null, onError = null, onGet, ref, ren
           (error) => {
             setIsLoading(false);
 
-            if (onError) {
-              onError(error);
-            } else {
-              toast.error(t('errorToastMessage', { errorMessage: error.message }));
-            }
+            reportError(error);
           },
           GEOLOCATOR_OPTIONS
         );
       } catch (error) {
         setIsLoading(false);
 
-        if (onError) {
-          onError(error);
-        } else {
-          toast.error(t('errorToastMessage', { errorMessage: error.message }));
-        }
+        reportError(error);
       }
     }
   };

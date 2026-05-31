@@ -104,8 +104,6 @@ const CommunityPage = () => {
     content = (
       <ReportManager
         fallbackPath={`/community/${value}`}
-        hidePriority
-        hideReportedBy
         isCommunity
         newReportTypeId={selectedType.id}
         reportId={selectedType.temporalId}

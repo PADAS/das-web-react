@@ -109,11 +109,6 @@ const RootApp = () => {
         />
 
         <Route
-          path={`${REACT_APP_ROUTE_PREFIX}community`}
-          element={<CommunityPage />}
-        />
-
-        <Route
           path={`${REACT_APP_ROUTE_PREFIX}community/:value/*`}
           element={<CommunityPage />}
         />

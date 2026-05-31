@@ -521,26 +521,28 @@ describe('ReportManager - DetailsSection', () => {
   });
 
   test('shows an error message if the schema is erroneous', async () => {
-    renderDetailsSection({ eventSchema: new Error('Error loading schema') });
+    renderDetailsSection({ eventSchema: { error: new Error('Error loading schema') } });
 
     expect(screen.getByRole('alert')).toHaveTextContent('Error loading schema');
   });
 
   test('shows an error message with the detail of the error if the schema is erroneous', async () => {
     renderDetailsSection({
-      eventSchema: new AxiosError(
-        'Request failed with status code 500',
-        'ERR_BAD_RESPONSE',
-        {},
-        {},
-        {
-          data: {
-            status: {
-              detail: 'Error detail',
+      eventSchema: {
+        error: new AxiosError(
+          'Request failed with status code 500',
+          'ERR_BAD_RESPONSE',
+          {},
+          {},
+          {
+            data: {
+              status: {
+                detail: 'Error detail',
+              },
             },
           },
-        },
-      ),
+        ),
+      },
     });
 
     expect(screen.getByRole('alert')).toHaveTextContent('Error loading schemaError detail');

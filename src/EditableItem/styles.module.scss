@@ -362,9 +362,10 @@
     background: darken($primary-button-color, 10%);
     padding: 0 0.5rem;
   }
-  :global(.dropdown-item) button {
-    width: 100%;
-  }
+}
+
+.stateButton {
+  width: 100%;
 }
 
 .icon {

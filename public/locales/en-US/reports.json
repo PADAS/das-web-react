@@ -72,6 +72,7 @@
     },
     "updatedReportInfoToastMessage": "#{{reportSerialNumber}} {{newState}}",
     "updateReportStateItem": {
+      "activate": "Activate",
       "reopen": "Reopen",
       "resolve": "Resolve",
       "review": "Send to review"
@@ -252,6 +253,7 @@
       "saveSplitButton": {
         "saveAndReopenItem": "Save and reopen",
         "saveAndResolveItem": "Save and resolve",
+        "saveAndReviewItem": "Save and review",
         "title": "Save",
         "saveAndActivateItem": "Save and activate"
       },

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useId, useImperativeHandle, useRef, useState, useContext } from 'react';
+import React, { memo, useId, useImperativeHandle, useRef, useState, useContext } from 'react';
 import Overlay from 'react-bootstrap/Overlay';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -50,12 +50,6 @@ const LocationPicker = ({
   const valueOutsideBboxTooltipId = useId();
 
   const [isMenuPopoverOpen, setIsMenuPopoverOpen] = useState(false);
-  const [locationError, setLocationError] = useState(null);
-
-  const onLocationError = useCallback(() => {
-    setLocationError(t('locationAccessError'));
-    setIsMenuPopoverOpen(false);
-  }, [t]);
 
   const {
     coordinatesString: valueCoordinatesString,
@@ -148,15 +142,12 @@ const LocationPicker = ({
       />
     </div>
 
-    {locationError && <p className={styles.locationError} role="alert">{locationError}</p>}
-
     <Overlay container={innerRef} placement="bottom-start" show={isMenuPopoverOpen} target={innerRef}>
       <MenuPopover
         id={menuPopoverId}
-        onChange={(location) => { setLocationError(null); onChange(location); }}
+        onChange={onChange}
         onBlur={onBlur}
         onClose={() => setIsMenuPopoverOpen(false)}
-        onLocationError={onLocationError}
         setLocationButtonRef={setLocationButtonRef}
         target={innerRef}
         value={value}

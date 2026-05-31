@@ -198,7 +198,7 @@ describe('Ducks - Event schemas', () => {
       const expectedState = {
         loading: false,
         snare_rep: {
-          123: 'Error',
+          123: { error: 'Error' },
         },
       };
 
@@ -211,7 +211,7 @@ describe('Ducks - Event schemas', () => {
       const expectedState = {
         loading: false,
         snare_rep: {
-          base: 'Error',
+          base: { error: 'Error' },
         },
       };
 

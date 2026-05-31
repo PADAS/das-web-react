@@ -106,7 +106,6 @@
     "inputDescription": "Click the button to set a value from the location picker menu.",
     "inputLabel": "Location",
     "jumpToLocationButtonLabel": "Jump to location",
-    "locationAccessError": "Cannot access your location. Have you enabled access?",
     "menuPopover": {
       "dialogLabel": "Location",
       "getUserLocationButton": "Use my location",

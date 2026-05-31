@@ -74,6 +74,10 @@ const PickMapLocationButton = ({
     }
   }, [isPickingMapLocation, map, onCancel, onPick, setAppToShowMapMode]);
 
+  if (!map) {
+    return null;
+  }
+
   return <>
     <button
         aria-label={t('pickLocationButtonLabel')}

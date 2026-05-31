@@ -2,12 +2,6 @@
 
 @use '../common/styles/vars/colors';
 
-.locationError {
-  color: colors.$bright-red;
-  font-size: 0.8125rem;
-  margin-top: 0.25rem;
-}
-
 .locationPicker {
   align-items: center;
   background: white;

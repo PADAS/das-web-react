@@ -1,4 +1,5 @@
 import { useContext, useMemo } from 'react';
+import { LngLatBounds } from 'mapbox-gl';
 import { useLocation as useRouterLocation } from 'react-router';
 
 import { BREAKPOINTS } from '../../constants';
@@ -61,7 +62,6 @@ const useJumpToLocation = () => {
     const padding = calcPadding(currentTab, isArrayCoords, itemId, isMediumLayoutOrLarger);
 
     if (isArrayCoords && coords.length > 1) {
-      const { LngLatBounds } = await import('mapbox-gl');
       const mapBoundaries = coords.reduce(buildLocationJumpBounds, new LngLatBounds());
       map.fitBounds(mapBoundaries, { linear: true, speed: 200, padding });
     } else {

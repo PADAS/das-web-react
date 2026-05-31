@@ -128,7 +128,10 @@ const EventItemContextMenu = ({ children, className = '', report }) => {
       {isActive && <Dropdown.Item className={styles.option} onClick={() => updateReportState(EVENT_FORM_STATES.REVIEW)}>
         {t('updateReportStateItem.review')} #{report.serial_number}
       </Dropdown.Item>}
-      {!isActive && <Dropdown.Item className={styles.option} onClick={() => updateReportState(EVENT_FORM_STATES.ACTIVE)}>
+      {isInReview && <Dropdown.Item className={styles.option} onClick={() => updateReportState(EVENT_FORM_STATES.ACTIVE)}>
+        {t('updateReportStateItem.activate')} #{report.serial_number}
+      </Dropdown.Item>}
+      {!isActive && !isInReview && <Dropdown.Item className={styles.option} onClick={() => updateReportState(EVENT_FORM_STATES.ACTIVE)}>
         {t('updateReportStateItem.reopen')} #{report.serial_number}
       </Dropdown.Item>}
 

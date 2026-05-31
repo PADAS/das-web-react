@@ -36,6 +36,7 @@
     "cancelButton": "Cancel",
     "saveButton": "Save",
     "stateResolveButton": "Save and resolve",
+    "stateReviewButton": "Save and review",
     "stateReopenButton": "Save and reopen",
     "stateActivateButton": "Save and activate"
   },

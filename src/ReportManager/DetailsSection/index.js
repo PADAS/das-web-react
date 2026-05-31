@@ -47,8 +47,6 @@ const DetailsSection = ({
   eventId,
   eventSchema = null,
   formValidator,
-  hideReportedBy = false,
-  hidePriority = false,
   isCommunity = false,
   isBehindAddedEvent,
   isCollection,
@@ -168,7 +166,7 @@ const DetailsSection = ({
 
       <div className={styles.container}>
         <div className={styles.row}>
-          {!isCollection && !hideReportedBy && <label className={styles.fieldLabel} data-testid="reportManager-reportedBySelect">
+          {!isCollection && !isCommunity && <label className={styles.fieldLabel} data-testid="reportManager-reportedBySelect">
             {t('reportedByLabel')}
 
             <ReportedBySelect
@@ -178,7 +176,7 @@ const DetailsSection = ({
             />
           </label>}
 
-          {!hidePriority && <label className={styles.fieldLabel}>
+          {!isCommunity && <label className={styles.fieldLabel}>
             {t('priorityLabel')}
 
             <PrioritySelect
@@ -273,7 +271,7 @@ const DetailsSection = ({
       <button ref={submitFormButtonRef} type="submit" />
     </Form>}
 
-    {eventType?.version === 2 && eventSchema?.json && !(eventSchema instanceof Error) && <SchemaForm
+    {eventType?.version === 2 && eventSchema?.json && !eventSchema?.error && <SchemaForm
       eventId={eventId}
       eventLocation={reportForm.location}
       formData={reportForm.event_details}
@@ -298,7 +296,7 @@ const DetailsSection = ({
       />
     </div>}
 
-    {eventSchema instanceof Error && <div
+    {eventSchema?.error && <div
       aria-live="polite"
       className={styles.errorMessageWrapper}
       role="alert"
@@ -306,8 +304,8 @@ const DetailsSection = ({
       <p className={styles.errorMessage}>
         <strong>{t('errorLoadingSchema')}</strong>
 
-        {eventSchema?.response?.data?.status?.detail && <span>
-          {eventSchema.response.data.status.detail}
+        {eventSchema?.error?.response?.data?.status?.detail && <span>
+          {eventSchema.error.response.data.status.detail}
         </span>}
       </p>
     </div>}

@@ -24,7 +24,7 @@ import * as styles from './styles.module.scss';
 
 const ADDED_REPORT_TRANSITION_EFFECT_TIME = 600;
 
-const ReportManager = ({ communityInputValue = null, hidePriority = false, hideReportedBy = false, isCommunity = false, onBack = null, onReportBeingAdded = null, fallbackPath = null, newReportTypeId: newReportTypeIdProp = null, reportId: reportIdProp = null, skipSchemaFetch = false }) => {
+const ReportManager = ({ communityInputValue = null, isCommunity = false, onBack = null, onReportBeingAdded = null, fallbackPath = null, newReportTypeId: newReportTypeIdProp = null, reportId: reportIdProp = null }) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
@@ -120,8 +120,6 @@ const ReportManager = ({ communityInputValue = null, hidePriority = false, hideR
   return <TrackerContext.Provider value={reportTracker}>
     {shouldRenderReportDetailView ? <ReportDetailView
       formProps={navigationData?.formProps}
-      hidePriority={hidePriority}
-      hideReportedBy={hideReportedBy}
       isCommunity={isCommunity}
       isBehindAddedEvent={showAddedReport}
       isNewReport={isNewReport}
@@ -132,7 +130,6 @@ const ReportManager = ({ communityInputValue = null, hidePriority = false, hideR
       reportData={reportData}
       reportId={reportId}
       communityInputValue={communityInputValue}
-      skipSchemaFetch={skipSchemaFetch}
     /> : <LoadingOverlay />}
 
     <DelayedUnmount isMounted={showAddedReport}>

@@ -45,7 +45,6 @@ import 'axios-progress-bar/dist/nprogress.css';
 import './App.scss';
 
 import { MapContext } from './MapContext';
-export { MapContext };
 
 export const App = () => {
   const dispatch = useDispatch();
