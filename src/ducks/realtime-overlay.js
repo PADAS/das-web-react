@@ -226,13 +226,14 @@ function realtimeOverlayReducer(state = INITIAL_STATE, action = {}) {
     const segmentFeature = payload;
     if (!segmentFeature?.geometry?.coordinates?.length) return state;
 
-    // Evict segments outside the overlay window before appending; discard
-    // entries with no start_time to prevent unbounded growth from malformed payloads.
+    // Discard segments (existing or incoming) with no start_time or outside
+    // the overlay window to prevent unbounded growth from malformed payloads.
     const cutoff = new Date(Date.now() - REALTIME_OVERLAY_WINDOW_MS).toISOString();
+    const isWithinWindow = (f) => f.properties?.start_time && f.properties.start_time >= cutoff;
+    if (!isWithinWindow(segmentFeature)) return state;
+
     const features = [
-      ...(state.segments.features || []).filter(
-        (f) => f.properties?.start_time && f.properties.start_time >= cutoff
-      ),
+      ...(state.segments.features || []).filter(isWithinWindow),
       segmentFeature,
     ];
     return {

@@ -142,7 +142,7 @@ describe('TrackSegmentsLayer', () => {
       [500, '500'],
       [501, 'all'],
       [999, 'all'],
-    ])('uses range=%s in tile URL when track length is %i days', (trackLengthInDays, expectedRange) => {
+    ])('track length %i days → uses range=%s in tile URL', (trackLengthInDays, expectedRange) => {
       mockMap.getSource.mockReturnValue(null);
       mockMap.getLayer.mockReturnValue(null);
       const state = buildMockState({ trackLengthInDays });
@@ -374,8 +374,8 @@ describe('TrackSegmentsLayer', () => {
 
   // ── cleanup ──────────────────────────────────────────────────────
 
-  test('removes both layers on unmount', () => {
-    const { safeRemoveMapLayer } = require('../utils/map');
+  test('removes both layers and the source on unmount', () => {
+    const { safeRemoveMapLayer, safeRemoveMapSource } = require('../utils/map');
 
     mockMap.getSource.mockReturnValue(null);
     mockMap.getLayer.mockReturnValue(null);
@@ -394,6 +394,7 @@ describe('TrackSegmentsLayer', () => {
     expect(safeRemoveMapLayer).toHaveBeenCalledWith(mockMap, 'track-segments-layer');
     expect(safeRemoveMapLayer).toHaveBeenCalledWith(mockMap, 'track-segments-start-layer');
     expect(safeRemoveMapLayer).toHaveBeenCalledTimes(2);
+    expect(safeRemoveMapSource).toHaveBeenCalledWith(mockMap, 'track-segments-source');
   });
 
   // ── edge cases ───────────────────────────────────────────────────

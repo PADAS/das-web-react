@@ -712,7 +712,7 @@ describe('utils - tracks', () => {
       [500, '500'],
       [501, 'all'],
       [999, 'all'],
-    ])('returns %s for %i days', (days, expected) => {
+    ])('%i days → returns %s', (days, expected) => {
       expect(getVtRangeParam(days)).toBe(expected);
     });
   });
