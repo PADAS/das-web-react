@@ -8,6 +8,7 @@ import { TEXT_ELEMENT_ALPHANUMERIC_FORMAT_VALIDATION_PATTERN } from '../../../..
 const ajv = new Ajv2020({ allErrors: true });
 addFormats(ajv);
 ajv.addKeyword({ keyword: 'x-section', schemaType: 'string' });
+ajv.addKeyword({ keyword: 'x-enumExtra', schemaType: 'object' });
 
 const insertErrorRecursively = (fieldName, message, errorPath, errors, t) => {
   if (errorPath.length === 0) {
