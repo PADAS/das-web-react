@@ -28,9 +28,7 @@
     "cancelButton": "रद्द गर्नुहोस्",
     "saveButton": "सुरक्षित गर्नुहोस्",
     "stateResolveButton": "सुरक्षित गरि समाधान गर्नुहोस्",
-    "stateReopenButton": "सुरक्षित गरि फेरी खोल्नुहोस्",
-    "stateReviewButton": "Save and review",
-    "stateActivateButton": "Save and activate"
+    "stateReopenButton": "सुरक्षित गरि फेरी खोल्नुहोस्"
   },
   "containedReportListItem": {
     "goToReportButtonTooltip": "घटनामा जानुहोस्",
@@ -43,8 +41,7 @@
     "historyLinkCreated": "सिर्जना गरिएको",
     "historyLinkUpdated": "अद्यावधिक गरिएको",
     "resolvedLabel": "समाधान गरिएको",
-    "sectionTitle": "इतिहास",
-    "reviewLabel": "review"
+    "sectionTitle": "इतिहास"
   },
   "historySection": {
     "sectionTitle": "इतिहास",

@@ -63,8 +63,10 @@ $cardExpansionTransitionTime: 300ms;
 .list {
   display: flex;
   flex-flow: column;
+  list-style: none;
   margin-bottom: 0;
-  
+  padding-left: 0;
+
   li {
     transition: margin $cardExpansionTransitionTime;
 

@@ -36,8 +36,7 @@
     "stateSelector": {
       "active": "सकृय",
       "resolved": "समाधान गरिएको",
-      "all": "सबै",
-      "review": "Review"
+      "all": "सबै"
     },
     "title": "घटना फिल्टर"
   },

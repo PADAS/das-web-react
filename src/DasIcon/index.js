@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
-import { API_URL, API_V2_URL } from '../constants';
+import { useLocation } from 'react-router';
+import { API_V2_URL } from '../constants';
 
 const spriteMappings = {
   events: {
@@ -25,8 +26,10 @@ export const calcIconUrl = (type, iconId) => {
 };
 
 const DasIcon = ({ type, iconId, color = 'gray', dispatch: _dispatch, className, ...rest }) => {
-  if (window.location.pathname.startsWith('/community') && type === 'events' && iconId) {
-    const communityValue = window.location.pathname.split('/')[2];
+  const location = useLocation();
+
+  if (location.pathname.startsWith('/community') && type === 'events' && iconId) {
+    const communityValue = location.pathname.split('/')[2];
     return (
       <img
         alt=""

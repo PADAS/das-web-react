@@ -7,6 +7,9 @@ import { mockStore } from '../__test-helpers/MockStore';
 import { act, render, screen, waitFor } from '../test-utils';
 import CommunityPage from './';
 import ReportManager from '../ReportManager';
+import { fetchCommunityInfo } from '../ducks/community';
+import { fetchEventTypes } from '../ducks/event-types';
+import { fetchEventsSchema } from '../ducks/event-schemas';
 
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
@@ -17,17 +20,18 @@ jest.mock('react-router', () => ({
 jest.mock('../ReportManager', () => jest.fn());
 
 jest.mock('../ducks/community', () => ({
-  fetchCommunityInfo: jest.fn(() => () => Promise.resolve({ name: 'Test Community' })),
+  ...jest.requireActual('../ducks/community'),
+  fetchCommunityInfo: jest.fn(),
 }));
 
 jest.mock('../ducks/event-types', () => ({
   ...jest.requireActual('../ducks/event-types'),
-  fetchEventTypes: jest.fn(() => () => Promise.resolve()),
+  fetchEventTypes: jest.fn(),
 }));
 
 jest.mock('../ducks/event-schemas', () => ({
   ...jest.requireActual('../ducks/event-schemas'),
-  fetchEventsSchema: jest.fn(() => () => Promise.resolve()),
+  fetchEventsSchema: jest.fn(),
 }));
 
 // Fixtures - two distinct creatable types used throughout
@@ -59,7 +63,7 @@ describe('CommunityPage', () => {
   let navigate;
 
   const buildStore = (types = [TYPE_A, TYPE_B]) =>
-    mockStore({ data: { eventTypes: types } });
+    mockStore({ data: { community: { name: 'Test Community' }, eventTypes: types } });
 
   const renderPage = (types) =>
     render(
@@ -69,9 +73,6 @@ describe('CommunityPage', () => {
     );
 
   beforeEach(() => {
-    const { fetchCommunityInfo } = require('../ducks/community');
-    const { fetchEventTypes } = require('../ducks/event-types');
-    const { fetchEventsSchema } = require('../ducks/event-schemas');
     fetchCommunityInfo.mockReturnValue(() => Promise.resolve({ name: 'Test Community' }));
     fetchEventTypes.mockReturnValue(() => Promise.resolve());
     fetchEventsSchema.mockReturnValue(() => Promise.resolve());
@@ -114,26 +115,17 @@ describe('CommunityPage', () => {
   });
 
   describe('data fetching', () => {
-    test('dispatches fetchEventTypes with community_input, skipAuth, and version 2 on mount', () => {
-      const { fetchEventTypes } = require('../ducks/event-types');
+    test('dispatches fetchEventTypes with the community value on mount', () => {
       renderPage();
-      expect(fetchEventTypes).toHaveBeenCalledWith(
-        { community_input: COMMUNITY_VALUE },
-        { skipAuth: true }
-      );
+      expect(fetchEventTypes).toHaveBeenCalledWith(COMMUNITY_VALUE);
     });
 
-    test('dispatches fetchEventsSchema with community_input and skipAuth on mount', () => {
-      const { fetchEventsSchema } = require('../ducks/event-schemas');
+    test('dispatches fetchEventsSchema with the community value on mount', () => {
       renderPage();
-      expect(fetchEventsSchema).toHaveBeenCalledWith(
-        { community_input: COMMUNITY_VALUE },
-        { skipAuth: true }
-      );
+      expect(fetchEventsSchema).toHaveBeenCalledWith(COMMUNITY_VALUE);
     });
 
     test('re-fetches event types when the community value changes', () => {
-      const { fetchEventTypes } = require('../ducks/event-types');
       const { rerender } = renderPage();
 
       useParams.mockReturnValue({ value: 'other-community', '*': '' });
@@ -143,10 +135,7 @@ describe('CommunityPage', () => {
         </Provider>
       );
 
-      expect(fetchEventTypes).toHaveBeenCalledWith(
-        { community_input: 'other-community' },
-        { skipAuth: true }
-      );
+      expect(fetchEventTypes).toHaveBeenCalledWith('other-community');
     });
   });
 
@@ -237,12 +226,12 @@ describe('CommunityPage', () => {
       ));
     });
 
-    test('passes community_input in saveExtraParams to ReportManager', async () => {
+    test('passes communityInputValue to ReportManager', async () => {
       useParams.mockReturnValue({ value: COMMUNITY_VALUE, '*': TYPE_A.value });
       renderPage();
       await waitFor(() => expect(ReportManager).toHaveBeenCalledWith(
         expect.objectContaining({
-          saveExtraParams: { community_input: COMMUNITY_VALUE },
+          communityInputValue: COMMUNITY_VALUE,
         }),
         undefined
       ));

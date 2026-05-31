@@ -28,100 +28,56 @@ export const FETCH_EVENT_TYPE_SCHEMA_V2_SUCCESS = 'FETCH_EVENT_TYPE_SCHEMA_V2_SU
 export const FETCH_EVENT_TYPE_SCHEMA_FAILURE = 'FETCH_EVENT_TYPE_SCHEMA_FAILURE';
 
 // Action creators
-export const fetchEventsSchema = (params = {}, config = {}) => async (dispatch) => {
-  const { community_input, ...restParams } = params;
-  const url = community_input ? COMMUNITY_EVENTS_SCHEMA_API_URL(community_input) : EVENTS_SCHEMA_API_URL;
-  const response = await axios.get(url, { params: restParams, ...config });
+export const fetchEventsSchema = (communityInputValue = null) => async (dispatch) => {
+  const response = communityInputValue
+    ? await axios.get(COMMUNITY_EVENTS_SCHEMA_API_URL(communityInputValue), { skipAuth: true })
+    : await axios.get(EVENTS_SCHEMA_API_URL);
   dispatch({ payload: response.data.data, type: FETCH_EVENTS_SCHEMA_SUCCESS });
 };
 
-export const fetchEventTypeSchema = (eventTypeValue, eventId, extraParams = {}, axiosConfig = {}) => async (dispatch, getState) => {
+export const fetchEventTypeSchema = (eventTypeValue, eventId, communityInputValue = null) => async (dispatch, getState) => {
   dispatch({ type: FETCH_EVENT_TYPE_SCHEMA });
 
   const state = getState();
   const eventType = selectEventTypeByValue(state, eventTypeValue);
   const userLocationCoords = state.view.userLocation?.coords;
-  const { community_input, ...restExtraParams } = extraParams;
 
   const locationParam = userLocationCoords
     ? calcLocationParamStringForUserLocationCoords(userLocationCoords)
     : undefined;
 
   try {
-    if (community_input) {
-      const response = await axios.get(COMMUNITY_EVENT_TYPE_SCHEMA_URL(community_input, eventTypeValue), {
-        params: {
-          event_id: eventId,
-          location: locationParam,
-          pre_render: true,
-          ...restExtraParams,
-        },
-        ...axiosConfig,
-      });
-
-      const rawSchema = response.data;
-
-      if (rawSchema?.schema) {
-        const { schema, uiSchema } = sanitizeSchemas(rawSchema);
-        dispatch({
-          payload: { definition: rawSchema.definition, eventId, eventTypeValue, schema, uiSchema },
-          type: FETCH_EVENT_TYPE_SCHEMA_V1_SUCCESS,
-        });
-      } else {
-        const schema = rawSchema?.json ? rawSchema : rawSchema?.data;
-        dispatch({
-          payload: { eventId, eventTypeValue, schema },
-          type: FETCH_EVENT_TYPE_SCHEMA_V2_SUCCESS,
-        });
-      }
-    } else if (eventType.version === 1) {
+    if (eventType.version === 1) {
       const response = await axios.get(EVENT_TYPE_SCHEMA_V1_URL(eventTypeValue), {
-        params: {
-          event_id: eventId,
-          location: userLocationCoords
-            ? calcLocationParamStringForUserLocationCoords(userLocationCoords)
-            : undefined,
-          ...extraParams,
-        },
-        ...axiosConfig,
+        params: { event_id: eventId, location: locationParam },
       });
 
       const { schema, uiSchema } = sanitizeSchemas(response.data.data);
 
       dispatch({
-        payload: {
-          definition: response.data.data.definition,
-          eventId,
-          eventTypeValue,
-          schema: schema,
-          uiSchema: uiSchema,
-        },
+        payload: { definition: response.data.data.definition, eventId, eventTypeValue, schema, uiSchema },
         type: FETCH_EVENT_TYPE_SCHEMA_V1_SUCCESS,
       });
     } else if (eventType.version === 2) {
-      const response = await axios.get(EVENT_TYPE_SCHEMA_V2_URL(eventTypeValue), {
-        params: {
-          event_id: eventId,
-          location: userLocationCoords
-            ? calcLocationParamStringForUserLocationCoords(userLocationCoords)
-            : undefined,
-          pre_render: true,
-          ...extraParams,
-        },
-        ...axiosConfig,
+      const url = communityInputValue
+        ? COMMUNITY_EVENT_TYPE_SCHEMA_URL(communityInputValue, eventTypeValue)
+        : EVENT_TYPE_SCHEMA_V2_URL(eventTypeValue);
+
+      const response = await axios.get(url, {
+        params: { event_id: eventId, location: locationParam, pre_render: true },
+        ...(communityInputValue ? { skipAuth: true } : {}),
       });
 
       const rawSchema = response.data;
 
       if (rawSchema?.schema) {
-        // v2 endpoint returned v1-format schema
+        // v2 endpoint returns v1-format schema for VERSION_1 event types (e.g. community)
         const { schema, uiSchema } = sanitizeSchemas(rawSchema);
         dispatch({
           payload: { definition: rawSchema.definition, eventId, eventTypeValue, schema, uiSchema },
           type: FETCH_EVENT_TYPE_SCHEMA_V1_SUCCESS,
         });
       } else {
-        // Standard v2 format: { json, ui } directly or wrapped as { data: { json, ui }, status: {...} }
         const schema = rawSchema?.json ? rawSchema : rawSchema?.data;
         dispatch({
           payload: { eventId, eventTypeValue, schema },

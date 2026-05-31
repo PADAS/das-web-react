@@ -16,19 +16,17 @@ export const COMMUNITY_EVENT_TYPES_API_URL = (communityValue) =>
 export const FETCH_EVENT_TYPES_SUCCESS = 'FETCH_EVENT_TYPES_SUCCESS';
 
 // Action creators
-export const fetchEventTypes = (params = {}, config = {}) => async (dispatch) => {
-  const { community_input, ...restParams } = params;
-
-  if (community_input) {
-    const response = await axios.get(COMMUNITY_EVENT_TYPES_API_URL(community_input), { params: restParams, ...config });
+export const fetchEventTypes = (communityInputValue = null) => async (dispatch) => {
+  if (communityInputValue) {
+    const response = await axios.get(COMMUNITY_EVENT_TYPES_API_URL(communityInputValue), { skipAuth: true });
     const eventTypes = response.data.data.map((eventType) => ({ ...eventType, version: 2 }));
     dispatch({ payload: eventTypes, type: FETCH_EVENT_TYPES_SUCCESS });
     return;
   }
 
   const [eventTypesResponse, eventTypesV2Response] = await Promise.all([
-    axios.get(EVENT_TYPES_API_URL, { params, ...config }),
-    axios.get(EVENT_TYPES_V2_API_URL, { params, ...config })
+    axios.get(EVENT_TYPES_API_URL),
+    axios.get(EVENT_TYPES_V2_API_URL)
   ]);
 
   const byValue = new Map();

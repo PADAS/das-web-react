@@ -24,7 +24,7 @@ const NotificationDetails = ({ failedReports, newState, processedReports }) => {
   const processedReportsElements = processedReports.length ? <div>
     <p>
       {t('notificationDetails.processedReports.title', {
-        newState: t(`notificationDetails.processedReports.${newState}`),
+        newState: t(`notificationDetails.processedReports.${newState === EVENT_FORM_STATES.ACTIVE ? 'activated' : newState}`),
       })}
     </p>
 
@@ -86,7 +86,7 @@ const EventItemContextMenu = ({ children, className = '', report }) => {
         showToast({
           details: <NotificationDetails
             failedReports={failedReports}
-            newState={toastStateKey}
+            newState={newState}
             processedReports={processedReports}
           />,
           message: t('updatedCollectionInfoToast.message', {

@@ -293,20 +293,20 @@ export const isReportActive = (report) => ['active', 'new'].includes(report?.sta
 export const formValidator = customizeValidator({ AjvClass: AjvDraft04 });
 
 export const REPORT_SAVE_ACTIONS = {
-  create: (data, extraParams = {}) => ({
-    action: () => store.dispatch(createEvent(data, extraParams)),
+  create: (data, communityInputValue = null) => ({
+    action: () => store.dispatch(createEvent(data, communityInputValue)),
     priority: 300,
   }),
-  update: (data, extraParams = {}) => ({
-    action: () => store.dispatch(updateEvent(data, extraParams)),
+  update: (data, communityInputValue = null) => ({
+    action: () => store.dispatch(updateEvent(data, communityInputValue)),
     priority: 250,
   }),
-  addNote: (note, extraParams = {}) => ({
-    action: (event_id) => store.dispatch(addNoteToEvent(event_id, note, extraParams)),
+  addNote: (note, communityInputValue = null) => ({
+    action: (event_id) => store.dispatch(addNoteToEvent(event_id, note, communityInputValue)),
     priority: 200,
   }),
-  addFile: (file, extraParams = {}) => ({
-    action: (event_id) => store.dispatch(uploadEventFile(event_id, file, extraParams)),
+  addFile: (file, communityInputValue = null) => ({
+    action: (event_id) => store.dispatch(uploadEventFile(event_id, file, communityInputValue)),
     priority: 200,
   }),
 };

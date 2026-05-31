@@ -51,14 +51,12 @@
       "processedReports": {
         "activated": "limeanzishwa",
         "resolved": "limekamilishwa",
-        "title": "Matukio haya yanayohusiana yalikuwa pia {{newState}}:",
-        "review": "sent to review"
+        "title": "Matukio haya yanayohusiana yalikuwa pia {{newState}}:"
       }
     },
     "state": {
       "active": "inachukua hatua",
-      "resolved": "limekamilishwa",
-      "review": "review"
+      "resolved": "limekamilishwa"
     },
     "textCopyButtonItem": {
       "label": "Nakili kiungo cha tukio",
@@ -67,14 +65,12 @@
     "updatedCollectionInfoToast": {
       "activated": "limeanzishwa",
       "message": "Ukusanyaji #{{collectionSerialNumber}} ulikuwa {{newState}} kwa usahihi",
-      "resolved": "limekamilishwa",
-      "review": "sent to review"
+      "resolved": "limekamilishwa"
     },
     "updatedReportInfoToastMessage": "#{{reportSerialNumber}} {{newState}}",
     "updateReportStateItem": {
       "reopen": "Fungua tena",
-      "resolve": "Kamilisha",
-      "review": "Send to review"
+      "resolve": "Kamilisha"
     }
   },
   "prioritySelect": {
@@ -117,8 +113,7 @@
   },
   "reportListItem": {
     "dateTimeSuffix": "ilipita",
-    "resolvedState": "limekamilishwa",
-    "reviewState": "review"
+    "resolvedState": "limekamilishwa"
   },
   "reportManager": {
     "detailsSection": {
@@ -213,8 +208,7 @@
       },
       "stateDropdown": {
         "active": "inachukua hatua",
-        "resolved": "limekamilishwa",
-        "review": "review"
+        "resolved": "limekamilishwa"
       },
       "timeLabel": "Muda wa Tukio"
     },
@@ -252,9 +246,7 @@
       "saveSplitButton": {
         "saveAndReopenItem": "Hifadhi na fungua tena",
         "saveAndResolveItem": "Hifadhi na kamilisha",
-        "title": "Hifadhi",
-        "saveAndReviewItem": "Save and review",
-        "saveAndActivateItem": "Save and activate"
+        "title": "Hifadhi"
       },
       "unknownErrorLabel": "Hitilafu isiyojulikana"
     }

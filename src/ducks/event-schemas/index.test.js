@@ -43,10 +43,10 @@ describe('Ducks - Event schemas', () => {
     expect(dispatch).toHaveBeenCalledWith({ payload: globalSchema, type: FETCH_EVENTS_SCHEMA_SUCCESS });
   });
 
-  test('fetchEventsSchema uses the community URL when community_input is provided', async () => {
+  test('fetchEventsSchema uses the community URL when a community input value is provided', async () => {
     const dispatch = jest.fn();
 
-    await fetchEventsSchema({ community_input: 'test-community' })(dispatch);
+    await fetchEventsSchema('test-community')(dispatch);
 
     expect(dispatch).toHaveBeenCalledTimes(1);
     expect(dispatch).toHaveBeenCalledWith({ payload: globalSchema, type: FETCH_EVENTS_SCHEMA_SUCCESS });
@@ -107,7 +107,7 @@ describe('Ducks - Event schemas', () => {
     });
   });
 
-  test('fetchEventTypeSchema uses the community URL and dispatches FETCH_EVENT_TYPE_SCHEMA_V2_SUCCESS when community_input is provided', async () => {
+  test('fetchEventTypeSchema uses the community URL and dispatches FETCH_EVENT_TYPE_SCHEMA_V2_SUCCESS when a community input value is provided', async () => {
     const dispatch = jest.fn();
     const getState = () => ({
       data: {
@@ -119,7 +119,7 @@ describe('Ducks - Event schemas', () => {
       view: {},
     });
 
-    await fetchEventTypeSchema('snare_rep', '123', { community_input: 'test-community' })(dispatch, getState);
+    await fetchEventTypeSchema('snare_rep', '123', 'test-community')(dispatch, getState);
 
     expect(dispatch).toHaveBeenCalledTimes(2);
     expect(dispatch).toHaveBeenCalledWith({ type: FETCH_EVENT_TYPE_SCHEMA });
@@ -133,33 +133,36 @@ describe('Ducks - Event schemas', () => {
     });
   });
 
-  test('fetchEventTypeSchema uses the community URL for v1 event types when community_input is provided', async () => {
+  test('fetchEventTypeSchema dispatches FETCH_EVENT_TYPE_SCHEMA_V1_SUCCESS when the community v2 endpoint returns a v1-format schema', async () => {
     const dispatch = jest.fn();
     const getState = () => ({
       data: {
         eventTypes: [{
           value: 'snare_rep',
-          version: 1,
+          version: 2,
         }],
       },
       view: {},
     });
 
     server.use(
-      http.get(COMMUNITY_EVENT_TYPE_SCHEMA_URL('test-community', 'snare_rep'), () => HttpResponse.json(snareSchemaV2)),
+      http.get(COMMUNITY_EVENT_TYPE_SCHEMA_URL('test-community', 'snare_rep'), () => HttpResponse.json(snareSchemaV1)),
     );
 
-    await fetchEventTypeSchema('snare_rep', '123', { community_input: 'test-community' })(dispatch, getState);
+    await fetchEventTypeSchema('snare_rep', '123', 'test-community')(dispatch, getState);
+    const { schema, uiSchema } = sanitizeSchemas(snareSchemaV1);
 
     expect(dispatch).toHaveBeenCalledTimes(2);
     expect(dispatch).toHaveBeenCalledWith({ type: FETCH_EVENT_TYPE_SCHEMA });
     expect(dispatch).toHaveBeenCalledWith({
       payload: {
+        definition: snareSchemaV1.definition,
         eventId: '123',
         eventTypeValue: 'snare_rep',
-        schema: snareSchemaV2,
+        schema,
+        uiSchema,
       },
-      type: FETCH_EVENT_TYPE_SCHEMA_V2_SUCCESS,
+      type: FETCH_EVENT_TYPE_SCHEMA_V1_SUCCESS,
     });
   });
 

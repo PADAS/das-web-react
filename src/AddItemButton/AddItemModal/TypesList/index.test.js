@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router';
 
 import TypesList from './';
 
@@ -9,22 +10,24 @@ describe('AddItemButton - AddItemModal - TypesList', () => {
   let renderTypesList;
   beforeEach(() => {
     renderTypesList = (props) => {
-      render(<TypesList
-        filterText=""
-        onClickType={onClickType}
-        typesByCategory={[{
-          display: 'Category 1',
-          id: 'cat1',
-          types: [{ display: 'Type 1', id: 'typ1' }, { display: 'Type 2', id: 'typ2' }],
-          value: 'category 1',
-        }, {
-          display: 'Category 2',
-          id: 'cat2',
-          types: [{ display: 'Type 3', id: 'typ3' }],
-          value: 'category 2',
-        }]}
-        {...props}
-      />);
+      render(<MemoryRouter>
+        <TypesList
+          filterText=""
+          onClickType={onClickType}
+          typesByCategory={[{
+            display: 'Category 1',
+            id: 'cat1',
+            types: [{ display: 'Type 1', id: 'typ1' }, { display: 'Type 2', id: 'typ2' }],
+            value: 'category 1',
+          }, {
+            display: 'Category 2',
+            id: 'cat2',
+            types: [{ display: 'Type 3', id: 'typ3' }],
+            value: 'category 2',
+          }]}
+          {...props}
+        />
+      </MemoryRouter>);
     };
   });
 

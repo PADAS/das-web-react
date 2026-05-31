@@ -25,17 +25,14 @@
     "cancelButton": "Annuler",
     "saveButton": "Sauvegarder",
     "stateResolveButton": "Sauvegarder et résoudre",
-    "stateReopenButton": "Sauvregarder et réouvrir",
-    "stateReviewButton": "Save and review",
-    "stateActivateButton": "Save and activate"
+    "stateReopenButton": "Sauvregarder et réouvrir"
   },
   "goToReportButtonTooltip": "Accéder a l'événement",
   "header": {
     "historyLinkCreated": "Crée",
     "historyLinkUpdated": "Actualisé",
     "resolvedLabel": "Resolu",
-    "sectionTitle": "Historique",
-    "reviewLabel": "review"
+    "sectionTitle": "Historique"
   },
   "historySection": {
     "sectionTitle": "Historique",

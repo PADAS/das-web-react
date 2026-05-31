@@ -85,8 +85,6 @@ const calculateFormattedReportDiffs = (reportForm, originalReport) => {
   }, []);
 };
 
-const EMPTY_OBJECT = {};
-
 const calculateSchemaFieldsChanges = (reportField, reportSchemaProps, originalReport) => Object.entries(reportField).reduce((acc, [reportFieldKey, reportFieldValue]) => {
   const schemaDefaultValue = reportSchemaProps?.[reportFieldKey]?.default;
   const defValueHasChanged = schemaDefaultValue && reportFieldValue !== schemaDefaultValue;
@@ -123,9 +121,7 @@ const ReportDetailView = ({
   hidePriority = false,
   hideReportedBy = false,
   isCommunity = false,
-  saveExtraParams = EMPTY_OBJECT,
-  schemaFetchAxiosConfig = EMPTY_OBJECT,
-  schemaFetchExtraParams = EMPTY_OBJECT,
+  communityInputValue = null,
   skipSchemaFetch = false,
 }) => {
   const dispatch = useDispatch();
@@ -356,7 +352,7 @@ const ReportDetailView = ({
       []
     );
     const newAttachments = attachmentsToAdd.map((attachmentToAdd) => attachmentToAdd.file);
-    const saveActions = generateSaveActionsForReportLikeObject(reportToSubmit, 'report', newNotes, newAttachments, saveExtraParams);
+    const saveActions = generateSaveActionsForReportLikeObject(reportToSubmit, 'report', newNotes, newAttachments, communityInputValue);
     return executeSaveActions(saveActions)
       .then((results) => {
         if (reportForm.is_collection && reportChanges.state) {
@@ -378,6 +374,7 @@ const ReportDetailView = ({
       .finally(() => setIsSaving(false));
   }, [
     attachmentsToAdd,
+    communityInputValue,
     dispatch,
     isAddedReport,
     isCommunity,
@@ -687,9 +684,9 @@ const ReportDetailView = ({
 
   useEffect(() => {
     if (!skipSchemaFetch && !!reportForm && !!eventType && !eventSchema) {
-      dispatch(fetchEventTypeSchema(reportForm.event_type, reportForm.id, schemaFetchExtraParams, schemaFetchAxiosConfig));
+      dispatch(fetchEventTypeSchema(reportForm.event_type, reportForm.id, communityInputValue));
     }
-  }, [eventSchema, dispatch, eventType, reportForm, schemaFetchAxiosConfig, schemaFetchExtraParams, skipSchemaFetch]);
+  }, [communityInputValue, eventSchema, dispatch, eventType, reportForm, skipSchemaFetch]);
 
   useEffect(() => {
     if (linkedPatrolIds?.length > 0) {

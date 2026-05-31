@@ -45,7 +45,7 @@ describe('Ducks - Event types', () => {
   test('fetchEventTypes uses the community URL and marks all types as version 2 when community_input is provided', async () => {
     const dispatch = jest.fn();
 
-    await fetchEventTypes({ community_input: 'test-community' })(dispatch);
+    await fetchEventTypes('test-community')(dispatch);
 
     expect(dispatch).toHaveBeenCalledTimes(1);
     expect(dispatch).toHaveBeenCalledWith({

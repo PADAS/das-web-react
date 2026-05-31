@@ -36,16 +36,13 @@
     "cancelButton": "Ghairi",
     "saveButton": "Hifadhi",
     "stateResolveButton": "Hifadhi na Tatua",
-    "stateReopenButton": "Hifadhi na Fungua tena",
-    "stateReviewButton": "Save and review",
-    "stateActivateButton": "Save and activate"
+    "stateReopenButton": "Hifadhi na Fungua tena"
   },
   "header": {
     "historyLinkCreated": "Imeundwa",
     "historyLinkUpdated": "Imesasishwa",
     "resolvedLabel": "imesuluhishwa",
-    "sectionTitle": "Historia",
-    "reviewLabel": "review"
+    "sectionTitle": "Historia"
   },
   "historySection": {
     "sectionTitle": "Historia",

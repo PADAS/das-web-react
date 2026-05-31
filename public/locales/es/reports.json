@@ -40,14 +40,12 @@
       "processedReports": {
         "activated": "activos",
         "resolved": "resueltos",
-        "title": "Estos eventos relacionados ahora están {{newState}} también:",
-        "review": "sent to review"
+        "title": "Estos eventos relacionados ahora están {{newState}} también:"
       }
     },
     "state": {
       "active": "activo",
-      "resolved": "resuelto",
-      "review": "review"
+      "resolved": "resuelto"
     },
     "textCopyButtonItem": {
       "label": "Copiar enlace del evento",
@@ -56,14 +54,12 @@
     "updatedCollectionInfoToast": {
       "activated": "activada",
       "message": "La colección #{{collectionSerialNumber}} fue {{newState}} correctamente",
-      "resolved": "resuelta",
-      "review": "sent to review"
+      "resolved": "resuelta"
     },
     "updatedReportInfoToastMessage": "#{{reportSerialNumber}} {{newState}}",
     "updateReportStateItem": {
       "reopen": "Reabierto",
-      "resolve": "Resuelto",
-      "review": "Send to review"
+      "resolve": "Resuelto"
     }
   },
   "prioritySelect": {
@@ -106,8 +102,7 @@
   },
   "reportListItem": {
     "dateTimeSuffix": "atrás",
-    "resolvedState": "resuelto",
-    "reviewState": "review"
+    "resolvedState": "resuelto"
   },
   "reportManager": {
     "detailsSection": {
@@ -202,8 +197,7 @@
       },
       "stateDropdown": {
         "active": "activo",
-        "resolved": "resuelto",
-        "review": "review"
+        "resolved": "resuelto"
       },
       "timeLabel": "Hora del evento"
     },
@@ -239,9 +233,7 @@
       "saveSplitButton": {
         "saveAndReopenItem": "Guardar y reabrir",
         "saveAndResolveItem": "Guardar y resolver",
-        "title": "Guardar",
-        "saveAndReviewItem": "Save and review",
-        "saveAndActivateItem": "Save and activate"
+        "title": "Guardar"
       },
       "unknownErrorLabel": "Error desconocido"
     }

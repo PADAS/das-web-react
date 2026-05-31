@@ -207,9 +207,8 @@ export const clearEventData = () => ({
   type: CLEAR_EVENT_DATA,
 });
 
-export const createEvent = (event, extraParams = {}) => (dispatch, getState) => {
-  const { community_input, ...restExtraParams } = extraParams;
-  const params = { ...restExtraParams };
+export const createEvent = (event, communityInputValue = null) => (dispatch, getState) => {
+  const params = {};
   const state = getState();
 
   if (shouldAppendLocationToRequest(state)) {
@@ -221,7 +220,7 @@ export const createEvent = (event, extraParams = {}) => (dispatch, getState) => 
     payload: event,
   });
 
-  const url = community_input ? COMMUNITY_EVENTS_API_URL(community_input) : EVENTS_API_URL;
+  const url = communityInputValue ? COMMUNITY_EVENTS_API_URL(communityInputValue) : EVENTS_API_URL;
   return axios.post(url, event, { params })
     .then((response) => {
       dispatch({
@@ -240,9 +239,8 @@ export const createEvent = (event, extraParams = {}) => (dispatch, getState) => 
     });
 };
 
-export const addNoteToEvent = (event_id, note, extraParams = {}) => (dispatch, getState) => {
-  const { community_input, ...restExtraParams } = extraParams;
-  const params = { ...restExtraParams };
+export const addNoteToEvent = (event_id, note, communityInputValue = null) => (dispatch, getState) => {
+  const params = {};
   const state = getState();
 
   if (shouldAppendLocationToRequest(state)) {
@@ -253,8 +251,8 @@ export const addNoteToEvent = (event_id, note, extraParams = {}) => (dispatch, g
     type: ADD_EVENT_NOTE_START,
     payload: note,
   });
-  const notesUrl = community_input
-    ? COMMUNITY_EVENT_NOTES_URL(community_input, event_id)
+  const notesUrl = communityInputValue
+    ? COMMUNITY_EVENT_NOTES_URL(communityInputValue, event_id)
     : `${EVENT_API_URL}${event_id}/notes/`;
   return axios.post(notesUrl, note, { params })
     .then((response) => {
@@ -305,8 +303,8 @@ export const fetchEvent = (event_id, parameters = {}) =>
       });
   };
 
-export const updateEvent = (event, extraParams = {}) => (dispatch, getState) => {
-  const params = { ...extraParams };
+export const updateEvent = (event, communityInputValue = null) => (dispatch, getState) => {
+  const params = {};
   const state = getState();
 
   if (shouldAppendLocationToRequest(state)) {
@@ -383,12 +381,11 @@ export const setEventState = (id, state) => (dispatch, getState) => {
     });
 };
 
-export const uploadEventFile = (event_id, file, extraParams = {}) => (dispatch, getState) => {
-  const { community_input, ...restExtraParams } = extraParams;
-  const uploadUrl = community_input
-    ? COMMUNITY_EVENT_FILES_URL(community_input, event_id)
+export const uploadEventFile = (event_id, file, communityInputValue = null) => (dispatch, getState) => {
+  const uploadUrl = communityInputValue
+    ? COMMUNITY_EVENT_FILES_URL(communityInputValue, event_id)
     : `${EVENT_API_URL}${event_id}/files/`;
-  const params = { ...restExtraParams };
+  const params = {};
   const state = getState();
 
   if (shouldAppendLocationToRequest(state)) {

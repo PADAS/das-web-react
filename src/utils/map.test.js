@@ -179,7 +179,7 @@ describe('buildGeoSpanFilter', () => {
 
   test('handles a geoSpan that spans the antimeridian', () => {
     const geoSpan = { lon: [170, -170], lat: [-10, 10] };
-    expect(buildGeoSpanFilter(geoSpan)).toEqual([-170, -10, 170, 10]);
+    expect(buildGeoSpanFilter(geoSpan)).toEqual([170, -10, -170, 10]);
   });
 });
 

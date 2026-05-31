@@ -18,6 +18,8 @@ import TypesList from '../AddItemButton/AddItemModal/TypesList';
 
 import * as styles from './styles.module.scss';
 
+const SUBMITTED_MODAL_TIMEOUT = 3000;
+
 const CommunityPage = () => {
   const { t } = useTranslation('components', { keyPrefix: 'communityPage' });
   const dispatch = useDispatch();
@@ -25,31 +27,32 @@ const CommunityPage = () => {
   const { value, '*': eventTypeValue } = useParams();
 
   const allEventTypes = useSelector((state) => state.data.eventTypes);
-  const eventsByCategory = useMemo(() => {
-    const creatableTypes = allEventTypes.filter((t) => !t.is_collection && !t.readonly);
-    return creatableTypes.length ? [{ value: 'all', display: '', types: creatableTypes }] : [];
-  }, [allEventTypes]);
+  const community = useSelector((state) => state.data.community);
 
-  const [communityName, setCommunityName] = useState('');
+  const creatableEventTypes = useMemo(
+    () => allEventTypes.filter((eventType) => !eventType.is_collection && !eventType.readonly),
+    [allEventTypes],
+  );
+
+  const eventsByCategory = useMemo(
+    () => (creatableEventTypes.length ? [{ value: 'all', display: '', types: creatableEventTypes }] : []),
+    [creatableEventTypes],
+  );
+
   const [searchText, setSearchText] = useState('');
   const [showSubmittedModal, setShowSubmittedModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isUnauthorized, setIsUnauthorized] = useState(false);
-  const typesListRef = useRef(null);
-  const temporalIdRef = useRef(null);
-  const prevEventTypeValueRef = useRef(null);
+  const timeoutRef = useRef(null);
 
-  if (eventTypeValue !== prevEventTypeValueRef.current) {
-    prevEventTypeValueRef.current = eventTypeValue;
-    temporalIdRef.current = eventTypeValue ? uuid() : null;
-  }
+  const temporalId = useMemo(() => (eventTypeValue ? uuid() : null), [eventTypeValue]);
 
   const selectedType = useMemo(() => {
     if (!eventTypeValue) return null;
-    const matchingType = allEventTypes.find((t) => t.value === eventTypeValue);
+    const matchingType = allEventTypes.find((eventType) => eventType.value === eventTypeValue);
     if (!matchingType) return null;
-    return { id: matchingType.id, temporalId: temporalIdRef.current };
-  }, [allEventTypes, eventTypeValue]);
+    return { id: matchingType.id, temporalId };
+  }, [allEventTypes, eventTypeValue, temporalId]);
 
   useEffect(() => {
     if (!value) {
@@ -59,25 +62,22 @@ const CommunityPage = () => {
     }
     setIsLoading(true);
     setIsUnauthorized(false);
-    dispatch(fetchCommunityInfo(value, { skipAuth: true }))
-      .then((data) => setCommunityName(data.name))
+    dispatch(fetchCommunityInfo(value))
       .catch(() => { setIsUnauthorized(true); });
-    dispatch(fetchEventTypes({ community_input: value }, { skipAuth: true }))
+    dispatch(fetchEventTypes(value))
       .then(() => setIsLoading(false))
       .catch(() => setIsLoading(false));
-    dispatch(fetchEventsSchema({ community_input: value }, { skipAuth: true }));
+    dispatch(fetchEventsSchema(value));
   }, [dispatch, value]);
 
   useEffect(() => {
     if (isLoading || isUnauthorized || eventTypeValue) return;
-    const creatableTypes = allEventTypes.filter((t) => !t.is_collection && !t.readonly);
-    if (creatableTypes.length === 1) {
-      navigate(`/community/${value}/${creatableTypes[0].value}`, { replace: true });
+    if (creatableEventTypes.length === 1) {
+      navigate(`/community/${value}/${creatableEventTypes[0].value}`, { replace: true });
     }
-  }, [allEventTypes, eventTypeValue, isLoading, isUnauthorized, navigate, value]);
+  }, [creatableEventTypes, eventTypeValue, isLoading, isUnauthorized, navigate, value]);
 
-  const schemaFetchExtraParams = useMemo(() => ({ community_input: value }), [value]);
-  const schemaFetchAxiosConfig = useMemo(() => ({ skipAuth: true }), []);
+  useEffect(() => () => clearTimeout(timeoutRef.current), []);
 
   const onClickType = useCallback((reportType) => {
     navigate(`/community/${value}/${reportType.value}`);
@@ -86,8 +86,55 @@ const CommunityPage = () => {
   const onBack = useCallback(() => {
     navigate(`/community/${value}`);
     setShowSubmittedModal(true);
-    setTimeout(() => setShowSubmittedModal(false), 3000);
+    timeoutRef.current = setTimeout(() => setShowSubmittedModal(false), SUBMITTED_MODAL_TIMEOUT);
   }, [navigate, value]);
+
+  let content;
+  if (isLoading || isUnauthorized || (!eventTypeValue && !isUnauthorized && eventsByCategory[0]?.types.length === 1)) {
+    content = (
+      <div className={styles.loadingView}>
+        {isUnauthorized
+          ? <EarthRangerLogo className={styles.earthRangerLogo} />
+          : <MoonLoader color="#333" size={50} />
+        }
+        {isUnauthorized && <span className={styles.loadingError}>{t('invalidCommunityUrl')}</span>}
+      </div>
+    );
+  } else if (selectedType) {
+    content = (
+      <ReportManager
+        fallbackPath={`/community/${value}`}
+        hidePriority
+        hideReportedBy
+        isCommunity
+        newReportTypeId={selectedType.id}
+        reportId={selectedType.temporalId}
+        onBack={onBack}
+        communityInputValue={value}
+      />
+    );
+  } else {
+    content = (
+      <div className={styles.communityPage}>
+        <h2 className={styles.heading}>{community?.name}</h2>
+
+        <div className={styles.searchControls}>
+          <SearchBar
+            onChange={(e) => setSearchText(e.target.value)}
+            onClear={() => setSearchText('')}
+            placeholder={t('searchPlaceholder')}
+            value={searchText}
+          />
+        </div>
+
+        <TypesList
+          filterText={searchText}
+          onClickType={onClickType}
+          typesByCategory={eventsByCategory}
+        />
+      </div>
+    );
+  }
 
   return <SidebarScrollProvider>
     <Modal centered show={showSubmittedModal} onHide={() => setShowSubmittedModal(false)}>
@@ -96,47 +143,7 @@ const CommunityPage = () => {
     </Modal>
 
     <div className={styles.pageContainer}>
-      {(isLoading || isUnauthorized || (!eventTypeValue && !isUnauthorized && eventsByCategory[0]?.types.length === 1))
-        ? <div className={styles.loadingView}>
-            {isUnauthorized
-              ? <EarthRangerLogo className={styles.earthRangerLogo} />
-              : <MoonLoader color="#333" size={50} />
-            }
-            {isUnauthorized && <span className={styles.loadingError}>{t('invalidCommunityUrl')}</span>}
-          </div>
-        : selectedType
-          ? <ReportManager
-                fallbackPath={`/community/${value}`}
-                hidePriority
-                hideReportedBy
-                isCommunity
-                newReportTypeId={selectedType.id}
-                reportId={selectedType.temporalId}
-                onBack={onBack}
-                saveExtraParams={schemaFetchExtraParams}
-                schemaFetchAxiosConfig={schemaFetchAxiosConfig}
-                schemaFetchExtraParams={schemaFetchExtraParams}
-              />
-          : <div className={styles.communityPage}>
-              <h2 className={styles.heading}>{communityName}</h2>
-
-              <div className={styles.searchControls}>
-                <SearchBar
-                  onChange={(e) => setSearchText(e.target.value)}
-                  onClear={() => setSearchText('')}
-                  placeholder={t('searchPlaceholder')}
-                  value={searchText}
-                />
-              </div>
-
-              <TypesList
-                filterText={searchText}
-                onClickType={onClickType}
-                ref={typesListRef}
-                typesByCategory={eventsByCategory}
-              />
-            </div>
-      }
+      {content}
     </div>
   </SidebarScrollProvider>;
 };

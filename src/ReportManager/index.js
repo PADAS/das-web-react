@@ -23,9 +23,8 @@ import ReportDetailView from './ReportDetailView';
 import * as styles from './styles.module.scss';
 
 const ADDED_REPORT_TRANSITION_EFFECT_TIME = 600;
-const EMPTY_OBJECT = {};
 
-const ReportManager = ({ hidePriority = false, hideReportedBy = false, isCommunity = false, onBack = null, onReportBeingAdded = null, fallbackPath = null, newReportTypeId: newReportTypeIdProp = null, reportId: reportIdProp = null, saveExtraParams = EMPTY_OBJECT, schemaFetchAxiosConfig = EMPTY_OBJECT, schemaFetchExtraParams = EMPTY_OBJECT, skipSchemaFetch = false }) => {
+const ReportManager = ({ communityInputValue = null, hidePriority = false, hideReportedBy = false, isCommunity = false, onBack = null, onReportBeingAdded = null, fallbackPath = null, newReportTypeId: newReportTypeIdProp = null, reportId: reportIdProp = null, skipSchemaFetch = false }) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
@@ -132,9 +131,7 @@ const ReportManager = ({ hidePriority = false, hideReportedBy = false, isCommuni
       onBack={onBack}
       reportData={reportData}
       reportId={reportId}
-      saveExtraParams={saveExtraParams}
-      schemaFetchAxiosConfig={schemaFetchAxiosConfig}
-      schemaFetchExtraParams={schemaFetchExtraParams}
+      communityInputValue={communityInputValue}
       skipSchemaFetch={skipSchemaFetch}
     /> : <LoadingOverlay />}
 

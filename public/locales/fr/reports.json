@@ -40,14 +40,12 @@
       "processedReports": {
         "activated": "Actif",
         "resolved": "Résolu",
-        "title": "Ces événements associés sont aussi {{newState}}:",
-        "review": "sent to review"
+        "title": "Ces événements associés sont aussi {{newState}}:"
       }
     },
     "state": {
       "active": "Actif",
-      "resolved": "Résolu",
-      "review": "review"
+      "resolved": "Résolu"
     },
     "textCopyButtonItem": {
       "label": "Copier le lien de l'événement",
@@ -56,14 +54,12 @@
     "updatedCollectionInfoToast": {
       "activated": "Actif",
       "message": "La collection d'événements #{{collectionSerialNumber}} a été {{newState}} avec succès",
-      "resolved": "Résolu",
-      "review": "sent to review"
+      "resolved": "Résolu"
     },
     "updatedReportInfoToastMessage": "#{{reportSerialNumber}} {{newState}}",
     "updateReportStateItem": {
       "reopen": "Réouvrir",
-      "resolve": "Résoudre",
-      "review": "Send to review"
+      "resolve": "Résoudre"
     }
   },
   "prioritySelect": {
@@ -106,8 +102,7 @@
   },
   "reportListItem": {
     "dateTimeSuffix": "Il y a date",
-    "resolvedState": "résolu",
-    "reviewState": "review"
+    "resolvedState": "résolu"
   },
   "reportManager": {
     "detailsSection": {
@@ -202,8 +197,7 @@
       },
       "stateDropdown": {
         "active": "Actif",
-        "resolved": "Résolu",
-        "review": "review"
+        "resolved": "Résolu"
       },
       "timeLabel": "Heure"
     },
@@ -239,9 +233,7 @@
       "saveSplitButton": {
         "saveAndReopenItem": "Sauvegarder et réouvrir",
         "saveAndResolveItem": "Sauvegarder et résoudre",
-        "title": "Sauvegarder",
-        "saveAndReviewItem": "Save and review",
-        "saveAndActivateItem": "Save and activate"
+        "title": "Sauvegarder"
       },
       "unknownErrorLabel": "Erreur rencontrée indéterminée"
     }

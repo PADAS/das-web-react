@@ -253,7 +253,6 @@
         "saveAndReopenItem": "Save and reopen",
         "saveAndResolveItem": "Save and resolve",
         "title": "Save",
-        "saveAndReviewItem": "Save and review",
         "saveAndActivateItem": "Save and activate"
       },
       "unknownErrorLabel": "Unknown error"
