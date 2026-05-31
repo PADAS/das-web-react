@@ -13,6 +13,7 @@ jest.mock('../App', () => {
 jest.mock('../utils/map', () => ({
   addMapImage: jest.fn(),
   safeRemoveMapLayer: jest.fn(),
+  safeRemoveMapSource: jest.fn(),
 }));
 
 jest.mock('../constants', () => ({
@@ -21,12 +22,12 @@ jest.mock('../constants', () => ({
 }));
 
 jest.mock('../utils/tracks', () => ({
-  ...jest.requireActual('../utils/tracks'),
   getVtRangeParam: (days) => {
     const steps = [30, 45, 60, 90, 150, 210, 365, 500];
     const step = steps.find((s) => days <= s);
     return step !== undefined ? String(step) : 'all';
   },
+  buildVtTileUrl: (rangeParam) => `http://test-api.com/observations/segments/tiles/{z}/{x}/{y}.pbf?range=${rangeParam}`,
 }));
 
 jest.mock('react-redux', () => ({
@@ -373,7 +374,7 @@ describe('TrackSegmentsLayer', () => {
 
   // ── cleanup ──────────────────────────────────────────────────────
 
-  test('removes layers but not the shared source on unmount', () => {
+  test('removes both layers on unmount', () => {
     const { safeRemoveMapLayer } = require('../utils/map');
 
     mockMap.getSource.mockReturnValue(null);
@@ -392,7 +393,6 @@ describe('TrackSegmentsLayer', () => {
 
     expect(safeRemoveMapLayer).toHaveBeenCalledWith(mockMap, 'track-segments-layer');
     expect(safeRemoveMapLayer).toHaveBeenCalledWith(mockMap, 'track-segments-start-layer');
-    // Source must NOT be removed — it is shared with SubjectTileLayer
     expect(safeRemoveMapLayer).toHaveBeenCalledTimes(2);
   });
 

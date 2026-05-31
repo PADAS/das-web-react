@@ -37,12 +37,12 @@ jest.mock('../constants', () => ({
 }));
 
 jest.mock('../utils/tracks', () => ({
-  ...jest.requireActual('../utils/tracks'),
   getVtRangeParam: (days) => {
     const steps = [30, 45, 60, 90, 150, 210, 365, 500];
     const step = steps.find((s) => days <= s);
     return step !== undefined ? String(step) : 'all';
   },
+  buildVtTileUrl: (rangeParam) => `http://test-api.com/observations/segments/tiles/{z}/{x}/{y}.pbf?range=${rangeParam}`,
 }));
 
 jest.mock('../selectors/tracks', () => ({
