@@ -67,6 +67,7 @@ export const fetchEventTypeSchema = (eventTypeValue, eventId) => async (dispatch
             ? calcLocationParamStringForUserLocationCoords(userLocationCoords)
             : undefined,
           pre_render: true,
+          s_format: 'enum',
         },
       });
 
