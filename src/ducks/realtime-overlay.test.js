@@ -45,6 +45,18 @@ describe('realtime-overlay reducer — APPEND_OVERLAY_SEGMENT_FROM_SOCKET', () =
     expect(next).toBe(state);
   });
 
+  test('keeps a segment whose offset-formatted start_time is numerically within the window', () => {
+    // 06:00-07:00 == 13:00Z, which is after the noon cutoff. The offset string
+    // sorts lexicographically before the UTC cutoff, so a string comparison
+    // would wrongly discard this in-window segment.
+    const noonCutoff = '2026-05-31T12:00:00.000Z';
+    const seg = segment({ startTime: '2026-05-31T06:00:00-07:00' });
+    const next = reducer(undefined, appendOverlaySegmentFromSocket(seg, noonCutoff));
+
+    expect(next.segments.features).toHaveLength(1);
+    expect(next.segments.features[0]).toEqual(seg);
+  });
+
   test('drops stale existing segments when a fresh one is appended', () => {
     const stale = segment({ startTime: STALE, id: 'stale' });
     const fresh = segment({ startTime: IN_WINDOW, id: 'fresh' });

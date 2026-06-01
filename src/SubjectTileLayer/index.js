@@ -7,7 +7,7 @@ import { addPropsToGeoJsonByKey, safeRemoveMapLayer } from '../utils/map';
 import { LAYER_IDS, SYMBOL_TEXT_SIZE_EXPRESSION } from '../constants';
 import { selectFreshSubjectIds } from '../selectors/subjects';
 import { selectTrackLengthInDays } from '../selectors/tracks';
-import { buildVtTileUrl, getVtRangeParam, VECTOR_TILE_SOURCE } from '../utils/tracks';
+import { buildVtTileUrl, getVtRangeParam, VECTOR_TILE_SOURCE } from '../utils/vector-tiles';
 import { queryMultiLayerClickFeatures } from '../utils/map-handlers';
 
 const SUBJECT_TILE_LAYER_ID = 'subject-tile-layer';

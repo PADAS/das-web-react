@@ -36,14 +36,9 @@ jest.mock('../constants', () => ({
   SYMBOL_TEXT_SIZE_EXPRESSION: ['interpolate', ['linear'], ['zoom'], 0, 10, 22, 14],
 }));
 
-jest.mock('../utils/tracks', () => ({
-  getVtRangeParam: (days) => {
-    const steps = [30, 45, 60, 90, 150, 210, 365, 500];
-    const step = steps.find((s) => days <= s);
-    return step !== undefined ? String(step) : 'all';
-  },
+jest.mock('../utils/vector-tiles', () => ({
+  ...jest.requireActual('../utils/vector-tiles'),
   buildVtTileUrl: (rangeParam) => `http://test-api.com/observations/segments/tiles/{z}/{x}/{y}.pbf?range=${rangeParam}`,
-  VECTOR_TILE_SOURCE: 'track-segments-source',
 }));
 
 jest.mock('../selectors/tracks', () => ({

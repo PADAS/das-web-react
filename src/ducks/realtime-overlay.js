@@ -230,7 +230,12 @@ function realtimeOverlayReducer(state = INITIAL_STATE, action = {}) {
     // Discard segments (existing or incoming) with no start_time or outside
     // the overlay window to prevent unbounded growth from malformed payloads.
     // Cutoff is computed by the dispatching thunk so this reducer stays pure.
-    const isWithinWindow = (f) => f.properties?.start_time && f.properties.start_time >= cutoff;
+    // Compare numerically so timezone-offset timestamps are handled correctly.
+    const cutoffMs = Date.parse(cutoff);
+    const isWithinWindow = (f) => {
+      const startMs = Date.parse(f.properties?.start_time);
+      return !Number.isNaN(startMs) && startMs >= cutoffMs;
+    };
     if (!isWithinWindow(segmentFeature)) return state;
 
     const features = [

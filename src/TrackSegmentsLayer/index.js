@@ -9,7 +9,7 @@ import { addMapImage, getTimeOfDayLineColorExpression, safeRemoveMapLayer, safeR
 import { getTimezoneOffsetMinutes } from '../utils/datetime';
 import { MAP_ICON_SCALE } from '../constants';
 import { selectTrackLengthInDays, selectTrackTimeEnvelope } from '../selectors/tracks';
-import { buildVtTileUrl, getVtRangeParam, VECTOR_TILE_SOURCE } from '../utils/tracks';
+import { buildVtTileUrl, getVtRangeParam, VECTOR_TILE_SOURCE } from '../utils/vector-tiles';
 
 import Arrow from '../common/images/icons/track-arrow.svg?url';
 
