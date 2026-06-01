@@ -1,0 +1,247 @@
+name: Legacy Deploy (kubectl)
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'GitHub environment name for job protection rules'
+        required: true
+        type: string
+      image_repository:
+        description: 'Full Docker image repository path (without tag)'
+        required: true
+        type: string
+      deployments:
+        description: >-
+          Comma-separated list of deployment=container pairs to update with the
+          image (e.g. "api=das-api,worker=das-worker"). Deployments not present
+          in a given tenant namespace are skipped (non-fatal).
+        required: true
+        type: string
+      image_tag:
+        description: 'Docker image tag to deploy'
+        required: true
+        type: string
+      cluster_name:
+        description: 'GKE cluster name'
+        required: true
+        type: string
+      cluster_zone:
+        description: 'GKE cluster zone'
+        required: true
+        type: string
+      tenants:
+        description: 'Comma-separated list of tenant namespaces'
+        required: true
+        type: string
+      project_id:
+        description: 'GCP project ID of the target cluster'
+        required: false
+        type: string
+        default: 'earthranger-78ca55ca'
+      bastion_host:
+        description: 'Bastion host IP address (used for ssh-keyscan)'
+        required: false
+        type: string
+        default: '34.105.19.155'
+      bastion_instance:
+        description: 'GCE instance name of the bastion'
+        required: false
+        type: string
+        default: 'kubernetes-bastion-2'
+      bastion_zone:
+        description: 'Zone where the bastion GCE instance lives'
+        required: false
+        type: string
+        default: 'us-west1-a'
+      bastion_project:
+        description: 'GCP project ID of the bastion instance (defaults to project_id)'
+        required: false
+        type: string
+        default: ''
+      service_account:
+        description: 'Service account to impersonate (defaults to vars.SERVICE_ACCOUNT)'
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  kubectl-apply:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    timeout-minutes: 60
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: GCP Auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ inputs.service_account || vars.SERVICE_ACCOUNT }}
+
+      - name: Setup gcloud and kubectl
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          install_components: 'kubectl'
+
+      - name: Get cluster credentials
+        run: |
+          SUCCESS=false
+          for i in {1..5}; do
+            if gcloud container clusters get-credentials "${{ inputs.cluster_name }}" \
+              --zone="${{ inputs.cluster_zone }}" \
+              --project="${{ inputs.project_id }}"; then
+              SUCCESS=true
+              break
+            fi
+            echo "Attempt $i failed, retrying in 15s..."
+            sleep 15
+          done
+          if [ "$SUCCESS" = "false" ]; then
+            echo "❌ Failed to get cluster credentials after 5 attempts"
+            exit 1
+          fi
+
+      - name: Setup SSH tunnel
+        timeout-minutes: 5
+        run: |
+          BASTION_PROJECT="${{ inputs.bastion_project || inputs.project_id }}"
+          echo "Setting up tunnel for ${{ inputs.environment }} environment"
+          echo "Bastion: ${{ inputs.bastion_instance }} ($BASTION_PROJECT / ${{ inputs.bastion_zone }})"
+
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          ssh-keyscan -H "${{ inputs.bastion_host }}" >> ~/.ssh/known_hosts
+
+          for i in {1..3}; do
+            echo "Tunnel attempt $i..."
+            gcloud compute ssh "${{ inputs.bastion_instance }}" \
+              --project="$BASTION_PROJECT" \
+              --zone="${{ inputs.bastion_zone }}" \
+              --ssh-flag="-4 -L8888:localhost:8888 -N -f" && break || echo "Attempt $i failed, retrying in 10s..."
+            sleep 10
+          done
+
+          sleep 10
+          if ! ss -ltn | grep -q ':8888'; then
+            echo "❌ SSH tunnel setup failed"
+            exit 1
+          fi
+          echo "✅ Tunnel established successfully"
+
+      - name: Configure kubectl
+        timeout-minutes: 5
+        env:
+          HTTPS_PROXY: localhost:8888
+          # Wildcard (*.googleapis.com) is not honoured by Go's HTTP client (used by kubectl).
+          # Enumerate specific GCP domains to prevent auth requests being proxied through the tunnel.
+          NO_PROXY: accounts.google.com,oauth2.googleapis.com,storage.googleapis.com,container.googleapis.com,iam.googleapis.com
+        run: |
+          echo "Testing kubectl connection..."
+          kubectl get nodes
+
+      - name: Deploy to all tenants
+        env:
+          HTTPS_PROXY: localhost:8888
+          NO_PROXY: accounts.google.com,oauth2.googleapis.com,storage.googleapis.com,container.googleapis.com,iam.googleapis.com
+          ENVIRONMENT: ${{ inputs.environment }}
+          IMAGE_REPOSITORY: ${{ inputs.image_repository }}
+          IMAGE_TAG: ${{ inputs.image_tag }}
+          TENANTS: ${{ inputs.tenants }}
+          DEPLOYMENTS: ${{ inputs.deployments }}
+        run: |
+          if [ -z "$TENANTS" ]; then
+            echo "❌ tenants input is empty — set the LEGACY_TENANTS_* repo variable before running"
+            exit 1
+          fi
+          if [ -z "$DEPLOYMENTS" ]; then
+            echo "❌ deployments input is empty — set the LEGACY_DEPLOYMENTS repo variable before running"
+            exit 1
+          fi
+
+          IMAGE="${IMAGE_REPOSITORY}:${IMAGE_TAG}"
+
+          # Parse deployments: comma-separated deployment=container pairs
+          IFS=',' read -ra RAW_PAIRS <<< "$DEPLOYMENTS"
+          PAIRS=()
+          for p in "${RAW_PAIRS[@]}"; do
+            p="${p#"${p%%[![:space:]]*}"}"
+            p="${p%"${p##*[![:space:]]}"}"
+            [ -z "$p" ] && continue
+            PAIRS+=("$p")
+          done
+
+          # Parse + trim tenant names
+          IFS=',' read -ra RAW_TENANTS <<< "$TENANTS"
+          TENANT_LIST=()
+          for t in "${RAW_TENANTS[@]}"; do
+            t="${t#"${t%%[![:space:]]*}"}"
+            t="${t%"${t##*[![:space:]]}"}"
+            [ -z "$t" ] && continue
+            TENANT_LIST+=("$t")
+          done
+
+          TENANT_COUNT=${#TENANT_LIST[@]}
+          SUCCESS_COUNT=0
+          FAILED_TENANTS=()
+
+          echo "🚀 Starting deployment to $ENVIRONMENT environment"
+          echo "📊 Total tenants: $TENANT_COUNT"
+          echo "🐳 Image: $IMAGE"
+          echo "📦 Deployments: ${PAIRS[*]}"
+          echo ""
+
+          for i in "${!TENANT_LIST[@]}"; do
+            TENANT="${TENANT_LIST[$i]}"
+            echo "🏢 [$((i+1))/$TENANT_COUNT] Tenant: $TENANT"
+            TENANT_OK=true
+
+            for pair in "${PAIRS[@]}"; do
+              DEP="${pair%%=*}"
+              CONTAINER="${pair#*=}"
+
+              if ! kubectl get deployment "$DEP" -n "$TENANT" >/dev/null 2>&1; then
+                echo "    ⏭️  $DEP not present in $TENANT — skipping"
+                continue
+              fi
+
+              if kubectl set image "deployment/$DEP" "$CONTAINER=$IMAGE" -n "$TENANT"; then
+                if kubectl rollout status "deployment/$DEP" -n "$TENANT" --timeout=300s; then
+                  echo "    ✅ $DEP ($CONTAINER)"
+                else
+                  echo "    ❌ rollout failed: $DEP"
+                  TENANT_OK=false
+                fi
+              else
+                echo "    ❌ set image failed: $DEP"
+                TENANT_OK=false
+              fi
+            done
+
+            if [ "$TENANT_OK" = "true" ]; then
+              echo "  ✅ SUCCESS for $TENANT"
+              SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
+            else
+              echo "  ❌ FAILED for $TENANT"
+              FAILED_TENANTS+=("$TENANT")
+            fi
+          done
+
+          echo ""
+          echo "🏁 DEPLOYMENT SUMMARY"
+          echo "  ✅ Successful: $SUCCESS_COUNT / $TENANT_COUNT"
+          echo "  ❌ Failed:     ${#FAILED_TENANTS[@]}"
+
+          if [ ${#FAILED_TENANTS[@]} -gt 0 ]; then
+            echo "💥 Failed tenants: ${FAILED_TENANTS[*]}"
+            exit 1
+          fi
+          echo "🎉 All deployments successful!"
+
+      - name: Cleanup tunnel
+        if: always()
+        run: |
+          echo "Cleaning up SSH tunnel..."
+          pkill -f "L8888:localhost:8888" || true
