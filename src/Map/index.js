@@ -38,7 +38,7 @@ import useCrsBoundingBoxLayer from './layers/useCrsBoundingBoxLayer';
 import { useMapEventBinding } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
-import { LAYER_IDS, SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../constants';
+import { LAYER_IDS, REALTIME_OVERLAY_REFRESH_MS, SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../constants';
 
 import DelayedUnmount from '../DelayedUnmount';
 import EarthRangerMap from '../EarthRangerMap';
@@ -574,16 +574,24 @@ const Map = ({ children, onMapLoad, socket }) => {
     }
   }, [fetchMapData, map, timeSliderState.active]);
 
-  // Cancel previous overlay request when map/subjectsEnabled changes; cleanup aborts on unmount.
-  useEffect(() => {
-    if (!map || !subjectsEnabled) return;
+  const fetchOverlayData = useCallback(() => {
+    if (!subjectsEnabled) return;
     overlayCancelToken.current.cancel();
     overlayCancelToken.current = CancelToken.source();
-    dispatch(fetchRealtimeOverlay(map, overlayCancelToken.current));
+    dispatch(fetchRealtimeOverlay(overlayCancelToken.current));
+  }, [dispatch, subjectsEnabled]);
+
+  // Fetch at bootstrap and re-fetch when subjectsEnabled changes, then on a
+  // fixed interval so the base snapshot doesn't drift over a long session.
+  // No map dependency — fetchRealtimeOverlay paginates without a bbox.
+  useEffect(() => {
+    fetchOverlayData();
+    const refreshId = setInterval(fetchOverlayData, REALTIME_OVERLAY_REFRESH_MS);
     return () => {
+      clearInterval(refreshId);
       overlayCancelToken.current.cancel();
     };
-  }, [dispatch, map, subjectsEnabled]);
+  }, [fetchOverlayData]);
 
   useEffect(() => {
     if (!!map && heatmapSubjectIDs.length && showReportHeatmap) {

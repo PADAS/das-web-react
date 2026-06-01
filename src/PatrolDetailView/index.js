@@ -57,6 +57,7 @@ import { areCardsEquals as areNotesEqual } from '../DetailViewComponents/utils';
 import { SidebarScrollContext } from '../SidebarScrollContext';
 
 const patrolDetailViewTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
+const trackSetPatrolObjective = patrolDetailViewTracker.debouncedTrack(1000);
 
 const QUICK_LINKS_SCROLL_TOP_OFFSET = 20;
 
@@ -274,7 +275,7 @@ const PatrolDetailView = () => {
 
     setPatrolForm({ ...patrolForm, objective: event.target.value });
 
-    patrolDetailViewTracker.track('Set patrol objective');
+    trackSetPatrolObjective('Set patrol objective');
   }, [patrolForm]);
 
   const onPatrolReportedByChange = useCallback((selection) => {

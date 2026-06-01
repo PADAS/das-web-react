@@ -36,6 +36,11 @@ jest.mock('../constants', () => ({
   SYMBOL_TEXT_SIZE_EXPRESSION: ['interpolate', ['linear'], ['zoom'], 0, 10, 22, 14],
 }));
 
+jest.mock('../utils/vector-tiles', () => ({
+  ...jest.requireActual('../utils/vector-tiles'),
+  buildVtTileUrl: (rangeParam) => `http://test-api.com/observations/segments/tiles/{z}/{x}/{y}.pbf?range=${rangeParam}`,
+}));
+
 jest.mock('../selectors/tracks', () => ({
   selectTrackLengthInDays: () => 21,
 }));
@@ -48,9 +53,9 @@ jest.mock('../selectors/subjects', () => ({
   selectFreshSubjectIds: (state) => state?.freshSubjectIds ?? [],
 }));
 
-// Bypass the multi-layer guard so the inner handler always fires.
+// Bypass the multi-layer guard (return <2 features) so the handler always fires.
 jest.mock('../utils/map-handlers', () => ({
-  withMultiLayerHandlerAwareness: (_map, fn) => fn,
+  queryMultiLayerClickFeatures: () => [],
 }));
 
 const STORE_SUBJECT = {

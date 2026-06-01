@@ -4,7 +4,6 @@ import merge from 'lodash/merge';
 
 import { API_URL, REALTIME_OVERLAY_WINDOW_MS } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
-import { getBboxParamsFromMap } from '../utils/query';
 import { addPropsToGeoJsonByKey } from '../utils/map';
 import { fixAntimeridianCrossing } from '../utils/tracks';
 import { TRACKS_API_URL } from './tracks';
@@ -34,9 +33,9 @@ export const updateOverlaySubjectFromSocket = (feature) => ({
   payload: feature,
 });
 
-export const appendOverlaySegmentFromSocket = (segmentFeature) => ({
+export const appendOverlaySegmentFromSocket = (segmentFeature, cutoff) => ({
   type: APPEND_OVERLAY_SEGMENT_FROM_SOCKET,
-  payload: segmentFeature,
+  payload: { segment: segmentFeature, cutoff },
 });
 
 /**
@@ -93,31 +92,26 @@ export const updateOverlayFromSubjectStatus = (payload) => (dispatch, getState) 
         start_time: payload.properties?.coordinateProperties?.time,
       },
     };
-    dispatch(appendOverlaySegmentFromSocket(segmentFeature));
+    const cutoff = new Date(Date.now() - REALTIME_OVERLAY_WINDOW_MS).toISOString();
+    dispatch(appendOverlaySegmentFromSocket(segmentFeature, cutoff));
   }
 };
 
 /**
  * Fetch last REALTIME_OVERLAY_WINDOW_MS of subjects and tracks as GeoJSON for the overlay.
+ * No bbox filter so results are stable across map moves.
  * Does not replace map subjects; only updates realtimeOverlay state.
  */
-export const fetchRealtimeOverlay = (map, cancelToken = CancelToken.source()) => async (dispatch, getState) => {
-  if (!map) return;
+export const fetchRealtimeOverlay = (cancelToken = CancelToken.source()) => async (dispatch, getState) => {
   try {
-    const bbox = await getBboxParamsFromMap(map);
     const updatedSince = new Date(Date.now() - REALTIME_OVERLAY_WINDOW_MS).toISOString();
 
     const subjectsResponse = await axios.get(SUBJECTS_API_URL, {
       cancelToken: cancelToken.token,
-      params: {
-        bbox,
-        updated_since: updatedSince,
-        use_lkl: true,
-        include_inactive: false,
-      },
+      params: { updated_since: updatedSince, use_lkl: true, include_inactive: false },
     });
-
     const subjectsData = subjectsResponse?.data?.data || [];
+
     const subjectIds = subjectsData.map((s) => s.id).filter(Boolean);
     if (subjectIds.length === 0) {
       dispatch(setRealtimeOverlay(featureCollection([]), featureCollection([])));
@@ -230,11 +224,24 @@ function realtimeOverlayReducer(state = INITIAL_STATE, action = {}) {
   }
 
   if (type === APPEND_OVERLAY_SEGMENT_FROM_SOCKET) {
-    const segmentFeature = payload;
+    const { segment: segmentFeature, cutoff } = payload;
     if (!segmentFeature?.geometry?.coordinates?.length) return state;
 
-    const segments = { ...state.segments };
-    const features = [...(segments.features || []), segmentFeature];
+    // Discard segments (existing or incoming) with no start_time or outside
+    // the overlay window to prevent unbounded growth from malformed payloads.
+    // Cutoff is computed by the dispatching thunk so this reducer stays pure.
+    // Compare numerically so timezone-offset timestamps are handled correctly.
+    const cutoffMs = Date.parse(cutoff);
+    const isWithinWindow = (f) => {
+      const startMs = Date.parse(f.properties?.start_time);
+      return !Number.isNaN(startMs) && startMs >= cutoffMs;
+    };
+    if (!isWithinWindow(segmentFeature)) return state;
+
+    const features = [
+      ...(state.segments.features || []).filter(isWithinWindow),
+      segmentFeature,
+    ];
     return {
       ...state,
       segments: featureCollection(features),

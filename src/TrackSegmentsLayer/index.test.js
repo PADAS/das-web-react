@@ -13,11 +13,17 @@ jest.mock('../App', () => {
 jest.mock('../utils/map', () => ({
   addMapImage: jest.fn(),
   safeRemoveMapLayer: jest.fn(),
+  safeRemoveMapSource: jest.fn(),
 }));
 
 jest.mock('../constants', () => ({
   API_URL: 'http://test-api.com/',
   MAP_ICON_SCALE: 2,
+}));
+
+jest.mock('../utils/vector-tiles', () => ({
+  ...jest.requireActual('../utils/vector-tiles'),
+  buildVtTileUrl: (rangeParam) => `http://test-api.com/observations/segments/tiles/{z}/{x}/{y}.pbf?range=${rangeParam}`,
 }));
 
 jest.mock('react-redux', () => ({
@@ -29,6 +35,7 @@ jest.mock('../selectors/tracks', () => ({
   selectTrackLengthInDays: (state) => state?.view?.trackLengthInDays ?? 21,
   selectTrackTimeEnvelope: (state) => state?.view?.trackTimeEnvelope,
 }));
+
 
 const TRACK_SINCE = new Date('2026-02-02T00:00:00Z');
 
@@ -76,7 +83,7 @@ describe('TrackSegmentsLayer', () => {
 
       expect(mockMap.addSource).toHaveBeenCalledWith('track-segments-source', expect.objectContaining({
         type: 'vector',
-        tiles: ['http://test-api.com/observations/segments/tiles/{z}/{x}/{y}.pbf?range=45'],
+        tiles: ['http://test-api.com/observations/segments/tiles/{z}/{x}/{y}.pbf?range=30'],
         minzoom: 0,
         maxzoom: 22,
       }));
@@ -112,10 +119,29 @@ describe('TrackSegmentsLayer', () => {
       expect(mockMap.addLayer).not.toHaveBeenCalled();
     });
 
-    test('uses range=45 in tile URL when track length is within 45 days', () => {
+    test.each([
+      [1,   '30'],
+      [30,  '30'],
+      [31,  '45'],
+      [45,  '45'],
+      [46,  '60'],
+      [60,  '60'],
+      [61,  '90'],
+      [90,  '90'],
+      [91,  '150'],
+      [150, '150'],
+      [151, '210'],
+      [210, '210'],
+      [211, '365'],
+      [365, '365'],
+      [366, '500'],
+      [500, '500'],
+      [501, 'all'],
+      [999, 'all'],
+    ])('track length %i days → uses range=%s in tile URL', (trackLengthInDays, expectedRange) => {
       mockMap.getSource.mockReturnValue(null);
       mockMap.getLayer.mockReturnValue(null);
-      const state = buildMockState({ trackLengthInDays: 21 });
+      const state = buildMockState({ trackLengthInDays });
       useSelector.mockImplementation((selector) => selector(state));
 
       render(
@@ -125,7 +151,7 @@ describe('TrackSegmentsLayer', () => {
       );
 
       expect(mockMap.addSource).toHaveBeenCalledWith('track-segments-source', expect.objectContaining({
-        tiles: ['http://test-api.com/observations/segments/tiles/{z}/{x}/{y}.pbf?range=45'],
+        tiles: [`http://test-api.com/observations/segments/tiles/{z}/{x}/{y}.pbf?range=${expectedRange}`],
       }));
     });
   });
@@ -344,8 +370,8 @@ describe('TrackSegmentsLayer', () => {
 
   // ── cleanup ──────────────────────────────────────────────────────
 
-  test('removes layers but not the shared source on unmount', () => {
-    const { safeRemoveMapLayer } = require('../utils/map');
+  test('removes both layers and the source on unmount', () => {
+    const { safeRemoveMapLayer, safeRemoveMapSource } = require('../utils/map');
 
     mockMap.getSource.mockReturnValue(null);
     mockMap.getLayer.mockReturnValue(null);
@@ -363,8 +389,8 @@ describe('TrackSegmentsLayer', () => {
 
     expect(safeRemoveMapLayer).toHaveBeenCalledWith(mockMap, 'track-segments-layer');
     expect(safeRemoveMapLayer).toHaveBeenCalledWith(mockMap, 'track-segments-start-layer');
-    // Source must NOT be removed — it is shared with SubjectTileLayer
     expect(safeRemoveMapLayer).toHaveBeenCalledTimes(2);
+    expect(safeRemoveMapSource).toHaveBeenCalledWith(mockMap, 'track-segments-source');
   });
 
   // ── edge cases ───────────────────────────────────────────────────
