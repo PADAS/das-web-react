@@ -277,75 +277,36 @@ jobs:
     secrets:
       ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
 
-  # Legacy kubectl deployments
+  # Legacy kubectl deployments.
+  # Constant infra (project_id, bastion_host/instance/zone) is defaulted in the
+  # reusable workflow. Deployment set lives in the LEGACY_DEPLOYMENTS repo var.
   deploy-dev-legacy:
     needs: [config, build, sync-stage]
     uses: ./.github/workflows/_deploy_legacy_kubectl.yml
     with:
       environment: "legacy"
       image_repository: "europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react"
-      deployment_name: "web-react"
-      container_name: "web-react"
       image_tag: ${{ needs.config.outputs.image-tag }}
-      project_id: "earthranger-78ca55ca"
+      deployments: ${{ vars.LEGACY_DEPLOYMENTS }}
       cluster_name: "das-dev"
       cluster_zone: "us-west1-a"
-      bastion_host: "34.105.19.155"
-      bastion_instance: "kubernetes-bastion-2"
-      bastion_zone: "us-west1-a"
       tenants: ${{ vars.LEGACY_TENANTS_DEV }}
       service_account: ${{ vars.LEGACY_DEPLOY_SERVICE_ACCOUNT }}
 
-  deploy-prod-legacy-1:
+  deploy-prod-legacy:
     needs: [config, deploy-dev-legacy]
+    strategy:
+      max-parallel: 3
+      fail-fast: false
+      matrix:
+        tenants_var: [LEGACY_TENANTS_1, LEGACY_TENANTS_2, LEGACY_TENANTS_3]
     uses: ./.github/workflows/_deploy_legacy_kubectl.yml
     with:
       environment: "legacy"
       image_repository: "europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react"
-      deployment_name: "web-react"
-      container_name: "web-react"
       image_tag: ${{ needs.config.outputs.image-tag }}
-      project_id: "earthranger-78ca55ca"
+      deployments: ${{ vars.LEGACY_DEPLOYMENTS }}
       cluster_name: "das-prod1"
       cluster_zone: "europe-west3-a"
-      bastion_host: "34.105.19.155"
-      bastion_instance: "kubernetes-bastion-2"
-      bastion_zone: "us-west1-a"
-      tenants: ${{ vars.LEGACY_TENANTS_1 }}
-      service_account: ${{ vars.LEGACY_DEPLOY_SERVICE_ACCOUNT }}
-
-  deploy-prod-legacy-2:
-    needs: [config, deploy-dev-legacy]
-    uses: ./.github/workflows/_deploy_legacy_kubectl.yml
-    with:
-      environment: "legacy"
-      image_repository: "europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react"
-      deployment_name: "web-react"
-      container_name: "web-react"
-      image_tag: ${{ needs.config.outputs.image-tag }}
-      project_id: "earthranger-78ca55ca"
-      cluster_name: "das-prod1"
-      cluster_zone: "europe-west3-a"
-      bastion_host: "34.105.19.155"
-      bastion_instance: "kubernetes-bastion-2"
-      bastion_zone: "us-west1-a"
-      tenants: ${{ vars.LEGACY_TENANTS_2 }}
-      service_account: ${{ vars.LEGACY_DEPLOY_SERVICE_ACCOUNT }}
-
-  deploy-prod-legacy-3:
-    needs: [config, deploy-dev-legacy]
-    uses: ./.github/workflows/_deploy_legacy_kubectl.yml
-    with:
-      environment: "legacy"
-      image_repository: "europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react"
-      deployment_name: "web-react"
-      container_name: "web-react"
-      image_tag: ${{ needs.config.outputs.image-tag }}
-      project_id: "earthranger-78ca55ca"
-      cluster_name: "das-prod1"
-      cluster_zone: "europe-west3-a"
-      bastion_host: "34.105.19.155"
-      bastion_instance: "kubernetes-bastion-2"
-      bastion_zone: "us-west1-a"
-      tenants: ${{ vars.LEGACY_TENANTS_3 }}
+      tenants: ${{ vars[matrix.tenants_var] }}
       service_account: ${{ vars.LEGACY_DEPLOY_SERVICE_ACCOUNT }}

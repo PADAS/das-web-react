@@ -1,9 +1,5 @@
 name: Legacy Deploy (kubectl)
 
-# NOTE: das-web-react is a public repository; it cannot call reusable workflows
-# from the private PADAS/serca-pipelines repo. This workflow is kept in-repo
-# and kept in sync manually with serca-pipelines/_deploy_legacy_kubectl.yml.
-
 on:
   workflow_call:
     inputs:
@@ -15,20 +11,15 @@ on:
         description: 'Full Docker image repository path (without tag)'
         required: true
         type: string
-      deployment_name:
-        description: 'Kubernetes Deployment name to update'
-        required: true
-        type: string
-      container_name:
-        description: 'Container name within the Deployment to update'
+      deployments:
+        description: >-
+          Comma-separated list of deployment=container pairs to update with the
+          image (e.g. "api=das-api,worker=das-worker"). Deployments not present
+          in a given tenant namespace are skipped (non-fatal).
         required: true
         type: string
       image_tag:
         description: 'Docker image tag to deploy'
-        required: true
-        type: string
-      project_id:
-        description: 'GCP project ID of the target cluster'
         required: true
         type: string
       cluster_name:
@@ -39,27 +30,35 @@ on:
         description: 'GKE cluster zone'
         required: true
         type: string
+      tenants:
+        description: 'Comma-separated list of tenant namespaces'
+        required: true
+        type: string
+      project_id:
+        description: 'GCP project ID of the target cluster'
+        required: false
+        type: string
+        default: 'earthranger-78ca55ca'
       bastion_host:
         description: 'Bastion host IP address (used for ssh-keyscan)'
-        required: true
+        required: false
         type: string
+        default: '34.105.19.155'
       bastion_instance:
         description: 'GCE instance name of the bastion'
-        required: true
+        required: false
         type: string
+        default: 'kubernetes-bastion-2'
       bastion_zone:
         description: 'Zone where the bastion GCE instance lives'
-        required: true
+        required: false
         type: string
+        default: 'us-west1-a'
       bastion_project:
         description: 'GCP project ID of the bastion instance (defaults to project_id)'
         required: false
         type: string
         default: ''
-      tenants:
-        description: 'Comma-separated list of tenant namespaces'
-        required: true
-        type: string
       service_account:
         description: 'Service account to impersonate (defaults to vars.SERVICE_ACCOUNT)'
         required: false
@@ -147,50 +146,85 @@ jobs:
         env:
           HTTPS_PROXY: localhost:8888
           NO_PROXY: accounts.google.com,oauth2.googleapis.com,storage.googleapis.com,container.googleapis.com,iam.googleapis.com
+          ENVIRONMENT: ${{ inputs.environment }}
+          IMAGE_REPOSITORY: ${{ inputs.image_repository }}
+          IMAGE_TAG: ${{ inputs.image_tag }}
+          TENANTS: ${{ inputs.tenants }}
+          DEPLOYMENTS: ${{ inputs.deployments }}
         run: |
-          if [ -z "${{ inputs.tenants }}" ]; then
+          if [ -z "$TENANTS" ]; then
             echo "❌ tenants input is empty — set the LEGACY_TENANTS_* repo variable before running"
             exit 1
           fi
+          if [ -z "$DEPLOYMENTS" ]; then
+            echo "❌ deployments input is empty — set the LEGACY_DEPLOYMENTS repo variable before running"
+            exit 1
+          fi
 
-          IMAGE="${{ inputs.image_repository }}:${{ inputs.image_tag }}"
-          IFS=',' read -ra RAW_TENANTS <<< "${{ inputs.tenants }}"
+          IMAGE="${IMAGE_REPOSITORY}:${IMAGE_TAG}"
 
-          # Trim surrounding whitespace from each tenant name
-          TENANTS=()
+          # Parse deployments: comma-separated deployment=container pairs
+          IFS=',' read -ra RAW_PAIRS <<< "$DEPLOYMENTS"
+          PAIRS=()
+          for p in "${RAW_PAIRS[@]}"; do
+            p="${p#"${p%%[![:space:]]*}"}"
+            p="${p%"${p##*[![:space:]]}"}"
+            [ -z "$p" ] && continue
+            PAIRS+=("$p")
+          done
+
+          # Parse + trim tenant names
+          IFS=',' read -ra RAW_TENANTS <<< "$TENANTS"
+          TENANT_LIST=()
           for t in "${RAW_TENANTS[@]}"; do
             t="${t#"${t%%[![:space:]]*}"}"
             t="${t%"${t##*[![:space:]]}"}"
-            TENANTS+=("$t")
+            [ -z "$t" ] && continue
+            TENANT_LIST+=("$t")
           done
 
-          TENANT_COUNT=${#TENANTS[@]}
+          TENANT_COUNT=${#TENANT_LIST[@]}
           SUCCESS_COUNT=0
           FAILED_TENANTS=()
 
-          echo "🚀 Starting deployment to ${{ inputs.environment }} environment"
+          echo "🚀 Starting deployment to $ENVIRONMENT environment"
           echo "📊 Total tenants: $TENANT_COUNT"
           echo "🐳 Image: $IMAGE"
+          echo "📦 Deployments: ${PAIRS[*]}"
           echo ""
 
-          for i in "${!TENANTS[@]}"; do
-            TENANT="${TENANTS[$i]}"
-            echo "🏢 [$((i+1))/$TENANT_COUNT] Deploying to tenant: $TENANT"
+          for i in "${!TENANT_LIST[@]}"; do
+            TENANT="${TENANT_LIST[$i]}"
+            echo "🏢 [$((i+1))/$TENANT_COUNT] Tenant: $TENANT"
+            TENANT_OK=true
 
-            if kubectl set image "deployment/${{ inputs.deployment_name }}" \
-                "${{ inputs.container_name }}=$IMAGE" \
-                -n "$TENANT"; then
-              echo "  ↳ Waiting for rollout to complete..."
-              if kubectl rollout status "deployment/${{ inputs.deployment_name }}" \
-                  -n "$TENANT" --timeout=300s; then
-                echo "  ✅ SUCCESS for $TENANT"
-                SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
-              else
-                echo "  ❌ ROLLOUT FAILED for $TENANT"
-                FAILED_TENANTS+=("$TENANT")
+            for pair in "${PAIRS[@]}"; do
+              DEP="${pair%%=*}"
+              CONTAINER="${pair#*=}"
+
+              if ! kubectl get deployment "$DEP" -n "$TENANT" >/dev/null 2>&1; then
+                echo "    ⏭️  $DEP not present in $TENANT — skipping"
+                continue
               fi
+
+              if kubectl set image "deployment/$DEP" "$CONTAINER=$IMAGE" -n "$TENANT"; then
+                if kubectl rollout status "deployment/$DEP" -n "$TENANT" --timeout=300s; then
+                  echo "    ✅ $DEP ($CONTAINER)"
+                else
+                  echo "    ❌ rollout failed: $DEP"
+                  TENANT_OK=false
+                fi
+              else
+                echo "    ❌ set image failed: $DEP"
+                TENANT_OK=false
+              fi
+            done
+
+            if [ "$TENANT_OK" = "true" ]; then
+              echo "  ✅ SUCCESS for $TENANT"
+              SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
             else
-              echo "  ❌ SET IMAGE FAILED for $TENANT"
+              echo "  ❌ FAILED for $TENANT"
               FAILED_TENANTS+=("$TENANT")
             fi
           done
