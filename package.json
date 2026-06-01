@@ -23,9 +23,9 @@
     "babel-jest": "^30.4.1",
     "bootstrap": "5.3.8",
     "buffer": "^6.0.3",
-    "date-fns": "^4.3.0",
+    "date-fns": "^4.4.0",
     "epsg-index": "^2.0.0",
-    "eslint": "^10.4.0",
+    "eslint": "^10.4.1",
     "geodesy": "^2.4.0",
     "humanize-duration": "^3.33.2",
     "i18next": "^26.3.0",
@@ -72,7 +72,7 @@
     "suncalc": "^1.9.0",
     "use-sound": "^5.0.0",
     "uuid": "^14.0.0",
-    "web-vitals": "^5.2.0",
+    "web-vitals": "^5.3.0",
     "workbox-build": "^7.4.1"
   },
   "scripts": {
