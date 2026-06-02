@@ -81,7 +81,7 @@ const transformSection = (sectionId, jsonSchema, uiSchema, formElements) => {
           condition.operator,
       })),
       // If there are conditions and they are combined with "anyOf", the
-      // conditionas logical operator is "OR". Otherwise, it is "AND".
+      // conditions logical operator is "OR". Otherwise, it is "AND".
       conditionsLogicalOperator:
         Array.isArray(conditionalSectionJSONSubschema?.if?.anyOf) &&
         conditionalSectionJSONSubschema.if.anyOf.length > 0

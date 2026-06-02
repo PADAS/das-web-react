@@ -69,7 +69,7 @@ const evaluateSectionConditions = (
     );
 
   default:
-    return true;
+    return false;
   }
 };
 

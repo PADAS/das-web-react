@@ -295,7 +295,7 @@ describe('ReportManager - DetailsSection - SchemaForm - utils - evaluateSectionC
   });
 
   test('passes the evaluation of a section if the conditions logical operator is not valid', () => {
-    expect(evaluateSectionConditions(sectionConditions, 'INVALID_LOGICAL_OPERATOR', formData)).toBe(true);
+    expect(evaluateSectionConditions(sectionConditions, 'INVALID_LOGICAL_OPERATOR', formData)).toBe(false);
     expect(evaluateContainsCondition).not.toHaveBeenCalled();
     expect(evaluateIsContainedByCondition).not.toHaveBeenCalled();
     expect(evaluateIsEmptyCondition).not.toHaveBeenCalled();
