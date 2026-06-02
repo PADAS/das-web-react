@@ -354,7 +354,9 @@
     "timeSliderMapControl": {
       "iconTitle": "Curseur Temporel"
     },
-    "untilNowButton": "Maintenant"
+    "untilNowButton": "Maintenant",
+    "playButton": "Lancer",
+    "stopButton": "Arrêter"
   },
   "toastBody": {
     "defaultLinkTitle": "Cliquez ici  ",

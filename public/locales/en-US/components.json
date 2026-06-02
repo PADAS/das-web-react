@@ -377,7 +377,9 @@
     "timeSliderMapControl": {
       "iconTitle": "Timeslider"
     },
-    "untilNowButton": "Now"
+    "untilNowButton": "Now",
+    "playButton": "Play",
+    "stopButton": "Stop"
   },
   "toastBody": {
     "defaultLinkTitle": "Click here",

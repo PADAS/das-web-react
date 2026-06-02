@@ -377,7 +377,9 @@
     "timeSliderMapControl": {
       "iconTitle": "Kishikilia Muda"
     },
-    "untilNowButton": "Sasa"
+    "untilNowButton": "Sasa",
+    "playButton": "Cheza",
+    "stopButton": "Simama"
   },
   "toastBody": {
     "defaultLinkTitle": "Bonyeza hapa",

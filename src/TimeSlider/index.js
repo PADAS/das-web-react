@@ -8,6 +8,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
+import { ReactComponent as PlayIcon } from '../common/images/icons/play-circle.svg';
+import { ReactComponent as StopIcon } from '../common/images/icons/stop.svg';
 
 import { clearVirtualDate, setVirtualDate } from '../ducks/timeslider';
 import {
@@ -29,6 +31,10 @@ import * as styles from './styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
+const PLAYBACK_DURATION_MS = 30_000;
+const FRAME_INTERVAL_MS = 33; // ~30fps
+const FRAME_STEP_FRACTION = FRAME_INTERVAL_MS / PLAYBACK_DURATION_MS;
+
 const WINDOW_RESIZE_HANDLER_DEBOUNCE_DELAY = 300;
 
 const TimeSlider = ({ className }) => {
@@ -44,6 +50,7 @@ const TimeSlider = ({ className }) => {
   const leftPopoverTrigger = useRef(null);
   const rightPopoverTrigger = useRef(null);
 
+  const [isPlaying, setIsPlaying] = useState(false);
   const [sliderPositionValue, setSliderPositionValue] = useState(100);
 
   const { virtualDate } = timeSliderState;
@@ -73,8 +80,7 @@ const TimeSlider = ({ className }) => {
   const onHandleClick = (direction) => mapInteractionTracker.track(`Click '${direction} Time Slider Anchor'`);
 
   const onRangeChange = useCallback((event) => {
-    // slight 'snap' at upper limit
-    if (event.target.value >= .99999) {
+    if (event.target.value >= 0.99999) {
       if (until) {
         dispatch(setVirtualDate(until));
       } else {
@@ -93,9 +99,51 @@ const TimeSlider = ({ className }) => {
 
   const onSliderChange = (event) => {
     onRangeChange(event);
+    setIsPlaying(false);
 
     debouncedRangeChangeAnalytics.current('Changed \'Time Slider\'');
   };
+
+  const togglePlay = () => {
+    if (isPlaying) {
+      setIsPlaying(false);
+    } else {
+      if (value >= 0.99999) {
+        // Slider value is at the end of the range.
+        const rangeDurationMs = endDate - startDate;
+        const firstFrameDateValue = new Date(startDate.getTime() + rangeDurationMs * FRAME_STEP_FRACTION);
+        dispatch(setVirtualDate(firstFrameDateValue.toISOString()));
+        setSliderPositionValue(FRAME_STEP_FRACTION * 100);
+      }
+      setIsPlaying(true);
+    }
+  };
+
+  useEffect(() => {
+    if (isPlaying) {
+      const intervalId = setInterval(() => {
+        const nextValue = value + FRAME_STEP_FRACTION;
+
+        if (nextValue >= 1) {
+          if (until) {
+            dispatch(setVirtualDate(until));
+          } else {
+            dispatch(clearVirtualDate());
+          }
+
+          setSliderPositionValue(100);
+          setIsPlaying(false);
+        } else {
+          const rangeDurationMs = endDate - startDate;
+          const nextFrameDateValue = new Date(startDate.getTime() + rangeDurationMs * nextValue);
+          dispatch(setVirtualDate(nextFrameDateValue.toISOString()));
+          setSliderPositionValue(nextValue * 100);
+        }
+      }, FRAME_INTERVAL_MS);
+
+      return () => clearInterval(intervalId);
+    }
+  }, [dispatch, endDate, isPlaying, startDate, until, value]);
 
   const setDateFormat = (dateTime) => {
     const twoWeekAgo = new Date(generateWeeksAgoDate(2));
@@ -108,6 +156,8 @@ const TimeSlider = ({ className }) => {
 
   useEffect(() => {
     onRangeChange({ target: { value: 1 } });
+
+    setIsPlaying(false);
   }, [since, until]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -155,6 +205,16 @@ const TimeSlider = ({ className }) => {
   const RightPopoverContent = (props) => PopoverContent({ ...props, popoverClassName: styles.rightPopover });
 
   return <div className={`${styles.wrapper} ${sidebarOpen ? styles.sidebarOpen : styles.sidebarClosed}`}>
+    <button
+      aria-label={isPlaying ? t('stopButton') : t('playButton')}
+      className={styles.playButton}
+      onClick={togglePlay}
+      title={isPlaying ? t('stopButton') : t('playButton')}
+      type="button"
+    >
+      {isPlaying ? <StopIcon aria-hidden="true" /> : <PlayIcon aria-hidden="true" />}
+    </button>
+
     <OverlayTrigger
       flip
       overlay={PopoverContent}

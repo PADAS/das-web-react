@@ -354,7 +354,9 @@
     "timeSliderMapControl": {
       "iconTitle": "Control de tiempo"
     },
-    "untilNowButton": "Ahora"
+    "untilNowButton": "Ahora",
+    "playButton": "Reproducir",
+    "stopButton": "Detener"
   },
   "toastBody": {
     "defaultLinkTitle": "Haga clic aquí",
