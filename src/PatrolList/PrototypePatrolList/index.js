@@ -15,9 +15,13 @@ import { seedDemoPatrolsOnce } from '../demoPatrols';
 
 import * as styles from './styles.module.scss';
 
-// The patrol list is driven entirely by the demo data (seeded at module
-// load) + any patrols the user creates. The previous static example rows
-// were removed once the demo dataset covered the same visual states.
+// Seed at module load so the stores are populated before the first render.
+// seedDemoPatrolsOnce() is guarded by a sessionStorage key — on repeat calls
+// it does a single getItem check and returns, so the cost is negligible.
+seedDemoPatrolsOnce();
+
+// The patrol list is driven entirely by the demo data (seeded above)
+// + any patrols the user creates.
 const EXAMPLE_PATROLS = [];
 
 const STATE_CLASSES = {
@@ -105,7 +109,6 @@ const STATE_TO_VARIANT = {
 const PrototypePatrolList = () => {
   const navigate = useNavigate();
   const [, force] = useState(0);
-  useEffect(() => { seedDemoPatrolsOnce(); }, []);
   useEffect(() => subscribeUserPatrols(() => force((v) => v + 1)), []);
   useEffect(() => subscribePatrolState(() => force((v) => v + 1)), []);
 
