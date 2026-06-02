@@ -186,6 +186,11 @@
   &:focus {
     border: none;
   }
+
+  &.tabBodyFullHeight {
+    min-height: 100% !important;
+    height: 100%;
+  }
 }
 
 /* Gear tab only: fill tab body height for inner scroll (avoid tabBody > * — breaks Map Layers / feeds). */

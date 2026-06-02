@@ -1,0 +1,496 @@
+@import '../common/styles/layout';
+@import '../common/styles/vars/colors';
+@import '../common/styles/buttons';
+
+.patrolOverview {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: $very-light-gray-alt;
+
+  @media (min-width: $md-layout-width-min) {
+    width: 46rem;
+  }
+}
+
+.breadcrumb {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background-color: white;
+  border-bottom: 1px solid $very-light-gray-alt;
+  font-size: 16px;
+
+  ol {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 4px;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: $secondary-medium-gray;
+
+    a {
+      color: $secondary-medium-gray;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    &.current {
+      color: #0056c7;
+      font-weight: 500;
+    }
+  }
+
+  .closeButton {
+    background: none;
+    border: none;
+    color: $secondary-medium-gray;
+    cursor: pointer;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+
+    svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+  }
+}
+
+.body {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  // Extra bottom padding so the sticky footer never obscures the last
+  // interactive element when scrolled to the end of the feed.
+  padding-bottom: 5rem;
+}
+
+.header {
+  background-color: white;
+  padding: 16px;
+}
+
+.headerTop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.iconBadge {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: $secondary-medium-gray;
+
+  svg {
+    width: 36px;
+    height: 36px;
+    fill: currentColor;
+  }
+}
+
+.titleBlock {
+  flex: 1;
+  min-width: 0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .serial {
+    font-size: 24px;
+    color: $off-black;
+  }
+
+  .title {
+    font-size: 24px;
+    font-weight: 500;
+    margin: 0;
+    color: $off-black;
+  }
+
+  .activeBadge {
+    background-color: #3e35a3;
+    color: white;
+    font-size: 14px;
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  .mobileIcon {
+    width: 18px;
+    height: 18px;
+    fill: $secondary-medium-gray;
+    flex-shrink: 0;
+  }
+}
+
+.currentLegLink {
+  font-size: 16px;
+  color: #0056c7;
+  text-decoration: none;
+  margin-top: 4px;
+  display: inline-block;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &.currentLegLinkMuted {
+    color: $secondary-medium-gray;
+  }
+}
+
+.headerActions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.actionButton {
+  --hamburger-menu-color: #{$secondary-medium-gray};
+
+  background: #f3f3f3;
+  border: none;
+  border-radius: 3px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: $secondary-medium-gray;
+  padding: 0;
+  overflow: hidden;
+
+  &:hover {
+    background-color: darken(#f3f3f3, 3%);
+  }
+
+  > svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+  }
+}
+
+.trackButton {
+  background: transparent;
+  padding: 0;
+
+  &:hover {
+    background-color: transparent;
+  }
+
+  > svg {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+.kebabToggle {
+  // remove react-bootstrap's caret
+  &::after {
+    display: none;
+  }
+}
+
+.kebabMenu {
+  min-width: 220px;
+  padding: 4px 0;
+  border: 1px solid $very-light-gray-alt;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.kebabItem {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px !important;
+  font-size: 14px;
+  color: $off-black;
+  background: white;
+
+  &:hover, &:focus {
+    background-color: #f3f3f3 !important;
+    color: $off-black !important;
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+    flex-shrink: 0;
+  }
+}
+
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.stat {
+  border: 1px solid $very-light-gray-alt;
+  border-radius: 4px;
+  padding: 6px 10px;
+
+  .statLabel {
+    font-size: 12px;
+    color: $secondary-medium-gray;
+    margin-bottom: 2px;
+  }
+
+  .statValue {
+    font-size: 18px;
+    font-weight: 500;
+    color: $off-black;
+  }
+}
+
+.tabs {
+  display: flex;
+  background-color: white;
+  padding: 0 16px;
+  gap: 24px;
+  border-bottom: 1px solid $very-light-gray-alt;
+}
+
+.tab {
+  background: none;
+  border: none;
+  height: 48px;
+  font-size: 18px;
+  font-weight: 700;
+  color: $secondary-medium-gray;
+  cursor: pointer;
+  padding: 0 4px;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+
+  &.tabActive {
+    color: $off-black;
+    border-bottom-color: #0056c7;
+  }
+}
+
+.section {
+  padding: 16px;
+  background-color: white;
+}
+
+.legsTable {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid $very-light-gray-alt;
+}
+
+.legsRow {
+  display: grid;
+  grid-template-columns: 48px 1.5fr 1.5fr 1.5fr 1.5fr 88px;
+  align-items: center;
+  background-color: white;
+  border: none;
+  border-bottom: 1px solid $very-light-gray-alt;
+  padding: 12px 8px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 16px;
+  color: $off-black;
+  gap: 8px;
+
+  &.legsHeader {
+    cursor: default;
+    background-color: white;
+
+    &:hover {
+      background-color: white;
+    }
+  }
+
+  &:hover {
+    background-color: #E8F0FB;
+  }
+}
+
+.legsCellLeg {
+  font-size: 16px;
+  color: $off-black;
+}
+
+.legsCellType {
+  font-size: 16px;
+  color: $off-black;
+}
+
+.legsCellDate,
+.legsCellTeam {
+  font-size: 14px;
+  color: $secondary-medium-gray;
+}
+
+.legsCellActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.rowIconButton {
+  background: transparent;
+  border: none;
+  padding: 4px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: $secondary-medium-gray;
+  border-radius: 3px;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+    color: $off-black;
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+  }
+}
+
+.legsHeader {
+  .legsCellLeg,
+  .legsCellType,
+  .legsCellDate,
+  .legsCellTeam {
+    font-size: 14px;
+    color: $secondary-medium-gray;
+    font-weight: 400;
+  }
+}
+
+.activityActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.activityActionButton {
+  @include footerActionButton;
+  margin-right: 0;
+}
+
+.historyPlaceholder {
+  text-align: center;
+  color: $secondary-medium-gray;
+  padding: 32px 0;
+  margin: 0;
+}
+
+.stickyFooter {
+  position: sticky;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: 16px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+  z-index: 2;
+}
+
+%toolbarButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: none;
+  height: 36px;
+  padding: 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+
+  svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.endButton {
+  @extend %toolbarButton;
+  background-color: #FDF2F4;
+  color: #d0031b;
+
+  &:hover:not(:disabled) {
+    background-color: darken(#FDF2F4, 3%);
+  }
+}
+
+.cancelButton {
+  @extend %toolbarButton;
+  background-color: #F3F3F3;
+  color: $off-black;
+
+  &:hover:not(:disabled) {
+    background-color: darken(#F3F3F3, 3%);
+  }
+}
+
+.pauseButton {
+  @extend %toolbarButton;
+  background-color: #DDE8F8;
+  color: #0056C7;
+
+  &:hover:not(:disabled) {
+    background-color: darken(#DDE8F8, 3%);
+  }
+}
+
+.newLegButton {
+  @extend %toolbarButton;
+  background-color: #0056C7;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: darken(#0056C7, 5%);
+  }
+}

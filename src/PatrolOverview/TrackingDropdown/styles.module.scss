@@ -1,0 +1,119 @@
+@import '../../common/styles/vars/colors';
+
+.wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  padding: 4px 6px;
+  margin: -4px -6px;
+  cursor: pointer;
+  border-radius: 3px;
+  font: inherit;
+  color: $off-black;
+
+  &:hover {
+    background-color: $very-light-gray;
+  }
+}
+
+.summary {
+  font: inherit;
+  color: inherit;
+}
+
+.chevron {
+  width: 18px;
+  height: 18px;
+  fill: $secondary-medium-gray;
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  min-width: 240px;
+  background: white;
+  border: 1px solid $very-light-gray-alt;
+  border-radius: 4px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  padding: 4px;
+}
+
+.empty {
+  padding: 12px;
+  color: $secondary-medium-gray;
+  font-size: 14px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 28px 1fr auto auto;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 6px;
+  border-bottom: 1px solid $very-light-gray-alt;
+  font-size: 14px;
+  color: $off-black;
+
+  &:last-child { border-bottom: none; }
+}
+
+.rowIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: $secondary-medium-gray;
+
+  svg {
+    width: 22px;
+    height: 22px;
+    fill: currentColor;
+  }
+}
+
+.rowName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actionButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: #f3f3f3;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  color: $secondary-medium-gray;
+
+  &:hover { background-color: darken(#f3f3f3, 3%); }
+
+  svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+  }
+}
+
+// Pinned/active track variant — the right-most button shown solid blue in
+// the Figma reference.
+.trackButton {
+  background-color: #0056C7;
+  color: white;
+
+  &:hover { background-color: darken(#0056C7, 5%); }
+}

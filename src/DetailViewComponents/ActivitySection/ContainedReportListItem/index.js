@@ -8,6 +8,8 @@ import { ReactComponent as ArrowDownSimpleIcon } from '../../../common/images/ic
 import { ReactComponent as ArrowIntoIcon } from '../../../common/images/icons/arrow-into.svg';
 import { ReactComponent as ArrowUpSimpleIcon } from '../../../common/images/icons/arrow-up-simple.svg';
 
+import { useLocation } from 'react-router';
+
 import { fetchEvent } from '../../../ducks/events';
 import { TAB_KEYS } from '../../../constants';
 import useNavigate from '../../../hooks/useNavigate';
@@ -24,6 +26,7 @@ const LOADER_SIZE = 30;
 
 const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }) => {
   const dispatch = useDispatch();
+  const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation('details-view', { keyPrefix: 'containedReportListItem' });
 
@@ -31,7 +34,10 @@ const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }
 
   const isOpen = useMemo(() => cardsExpanded.includes(report), [cardsExpanded, report]);
 
-  const onClickArrowIntoIcon = useCallback(() => navigate(`/${TAB_KEYS.EVENTS}/${report.id}`), [navigate, report]);
+  const onClickArrowIntoIcon = useCallback(
+    () => navigate(`/${TAB_KEYS.EVENTS}/${report.id}`, { state: { returnTo: location.pathname } }),
+    [location.pathname, navigate, report.id]
+  );
 
   useEffect(() => {
     if (!reportFromEventStore) {

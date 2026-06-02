@@ -1,0 +1,59 @@
+@import '../../../common/styles/layout';
+@import '../../../common/styles/vars/colors';
+
+.reportListItem {
+  background-color: transparent !important;
+  flex: 7;
+  height: 100%;
+  position: relative;
+  width: 100%;
+
+  [class*=iconContainer] { width: 3.5rem; }
+
+  [class*=titleContainer] {
+    left: 3.125rem;
+    position: absolute;
+    top: -0.5rem;
+    @media (min-width: $md-layout-width-min) { position: unset; }
+  }
+
+  [class*=dateContainer] {
+    bottom: -0.5rem;
+    left: 3.5rem;
+    position: absolute;
+    @media (min-width: $md-layout-width-min) { position: unset; }
+  }
+
+  span[class*=date] { font-size: 0.875rem; }
+
+  @media (min-width: $md-layout-width-min) { flex: 11; }
+}
+
+.detailsBody {
+  padding: 1rem 1.25rem;
+}
+
+.detailRow {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.25rem 0;
+  font-size: 0.875rem;
+  border-bottom: 0.0625rem solid $light-gray;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.detailLabel {
+  font-weight: 500;
+  color: $secondary-medium-gray;
+  min-width: 10rem;
+  flex-shrink: 0;
+  text-transform: capitalize;
+}
+
+.detailValue {
+  color: $off-black;
+  word-break: break-word;
+}

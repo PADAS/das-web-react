@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useContext } from 'react';
+import { useLocation } from 'react-router';
 
 import { TrackerContext } from '../../../utils/analytics';
 
@@ -9,15 +10,22 @@ import { LINK_TYPES, TAB_KEYS } from '../../../constants';
 
 import * as styles from './styles.module.scss';
 
-const LinkItem = ({ item, to, type }) => {
+const LinkItem = ({ item, to, type, fromLabel }) => {
   const analytics = useContext(TrackerContext);
+  const location = useLocation();
 
   const onClick = useCallback(() => {
     analytics?.track(`Navigate to ${type} from links section`);
   }, [analytics, type]);
 
   if (type === LINK_TYPES.PATROL) {
-    return <Link className={styles.link} to={`/${TAB_KEYS.PATROLS}/${item.id}`}>
+    // Pass the current location as `from` state so PatrolOverview's breadcrumb
+    // can navigate back to this event instead of the patrol list.
+    const patrolLinkState = {
+      from: location.pathname + location.search,
+      fromLabel: fromLabel || 'Event',
+    };
+    return <Link className={styles.link} to={`/${TAB_KEYS.PATROLS}/${item.id}`} state={patrolLinkState}>
       <PatrolListItem
           className={styles.item}
           patrol={item}

@@ -1,0 +1,19 @@
+@import '../../../common/styles/vars/colors';
+
+.itemRow {
+  background: white;
+}
+
+.itemIcon {
+  background: white;
+  border: 1px solid $very-light-gray-alt;
+  color: $secondary-medium-gray;
+
+  svg {
+    fill: $secondary-medium-gray;
+  }
+}
+
+.itemTitle {
+  font-weight: 500;
+}

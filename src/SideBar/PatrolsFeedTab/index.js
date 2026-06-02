@@ -1,24 +1,15 @@
-import React, { memo, useMemo } from 'react';
-import { useSelector } from 'react-redux';
-
-import useNavigate from '../../hooks/useNavigate';
-import { selectPatrolsFeedMappedFromStore } from '../../selectors/patrols';
-import { sortPatrolList } from '../../utils/patrols';
+import React, { memo } from 'react';
 
 import PatrolFilter from '../../PatrolFilter';
-import PatrolList from '../../PatrolList';
+import PrototypePatrolList from '../../PatrolList/PrototypePatrolList';
 
-const PatrolsFeedTab = ({ loadingPatrolsFeed }) => {
-  const navigate= useNavigate();
-
-  const patrolsFeedMappedFromStore = useSelector(selectPatrolsFeedMappedFromStore);
-
-  const sortedPatrols = useMemo(() => sortPatrolList(patrolsFeedMappedFromStore), [patrolsFeedMappedFromStore]);
-
+// Prototype: only render the curated PrototypePatrolList (Figma reference)
+// so the patrols list shows the example states + any user-created patrols.
+const PatrolsFeedTab = () => {
   return <>
     <PatrolFilter />
 
-    <PatrolList loading={loadingPatrolsFeed} onItemClick={(id) => navigate(id)} patrols={sortedPatrols} />
+    <PrototypePatrolList />
   </>;
 };
 

@@ -1,0 +1,44 @@
+@import '../../../common/styles/layout';
+
+// Mirrors ContainedReportListItem — makes the embedded ReportListItem (FeedListItem)
+// stretch to fill the row and removes its own background so the activitySectionStyles
+// priority background shows through correctly.
+.reportListItem {
+  background-color: transparent !important;
+  flex: 7;
+  height: 100%;
+  position: relative;
+  width: 100%;
+
+  [class*=iconContainer] {
+    width: 3.5rem;
+  }
+
+  [class*=titleContainer] {
+    left: 3.125rem;
+    position: absolute;
+    top: -0.5rem;
+
+    @media (min-width: $md-layout-width-min) {
+      position: unset;
+    }
+  }
+
+  [class*=dateContainer] {
+    bottom: -0.5rem;
+    left: 3.5rem;
+    position: absolute;
+
+    @media (min-width: $md-layout-width-min) {
+      position: unset;
+    }
+  }
+
+  span[class*=date] {
+    font-size: 0.875rem;
+  }
+
+  @media (min-width: $md-layout-width-min) {
+    flex: 11;
+  }
+}

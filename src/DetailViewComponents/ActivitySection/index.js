@@ -7,7 +7,7 @@ import { ReactComponent as BulletListIcon } from '../../common/images/icons/bull
 
 import { areCardsEquals } from '../utils';
 import { isGreaterThan } from '../../utils/datetime';
-import { SYSTEM_CONFIG_FLAGS } from '../../constants';
+import { DESCENDING_SORT_ORDER, SYSTEM_CONFIG_FLAGS } from '../../constants';
 import { TrackerContext } from '../../utils/analytics';
 import { useSortedNodesWithToggleBtn } from '../../hooks/useSortedNodes';
 
@@ -27,7 +27,9 @@ const ActivitySection = ({
   attachments,
   attachmentsToAdd,
   containedReports,
+  defaultSortOrder = DESCENDING_SORT_ORDER,
   endTime = null,
+  extraItems = [],
   notes,
   notesToAdd,
   onDeleteAttachment,
@@ -156,6 +158,7 @@ const ActivitySection = ({
     ...attachmentsToAddRendered,
     ...containedReportsRendered,
     ...datesRendered,
+    ...extraItems,
     ...notesRendered,
     ...notesToAddRendered,
   ], [
@@ -163,6 +166,7 @@ const ActivitySection = ({
     attachmentsToAddRendered,
     containedReportsRendered,
     datesRendered,
+    extraItems,
     notesRendered,
     notesToAddRendered,
   ]);
@@ -171,7 +175,7 @@ const ActivitySection = ({
     tracker.track(`Sort activity section in ${order} order`);
   }, [tracker]);
 
-  const [SortButton, sortedItemsRendered] = useSortedNodesWithToggleBtn(sortableList, onSort);
+  const [SortButton, sortedItemsRendered] = useSortedNodesWithToggleBtn(sortableList, onSort, defaultSortOrder);
 
   const imageAttachments = useMemo(
     () => attachments.filter((attachment) => attachment.file_type === 'image'),

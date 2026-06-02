@@ -1,0 +1,18 @@
+@import '../../../common/styles/vars/colors';
+
+.itemRow {
+  background: #fef7e6;
+}
+
+.itemIcon {
+  background: #f4b942;
+  color: white;
+
+  svg {
+    fill: white;
+  }
+}
+
+.itemTitle {
+  font-weight: 500;
+}

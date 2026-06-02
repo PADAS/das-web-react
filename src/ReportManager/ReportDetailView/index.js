@@ -650,6 +650,8 @@ const ReportDetailView = ({
       );
     } else if (isPatrolAddedReport) {
       navigate(...redirectToFromFormProps);
+    } else if (location.state?.returnTo) {
+      navigate(location.state.returnTo);
     } else {
       navigate(`/${TAB_KEYS.EVENTS}`);
     }
