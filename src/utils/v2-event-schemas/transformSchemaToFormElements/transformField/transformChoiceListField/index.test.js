@@ -235,6 +235,49 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
     });
   });
 
+  it('transforms choices subschemas without enum', () => {
+    jsonSchema.properties[choiceListFieldName].items.anyOf = [
+      ...jsonSchema.properties[choiceListFieldName].items.anyOf,
+      { 'x-enumExtra': {} },
+    ];
+
+    transformChoiceListField(
+      choiceListFieldId,
+      choiceListFieldName,
+      jsonSchema,
+      uiSchema,
+      formElements,
+    );
+
+    expect(formElements).toEqual({
+      [choiceListFieldId]: {
+        details: {
+          description: 'Select the damaged source',
+          hint: 'Source',
+          inputType: CHOICE_LIST_ELEMENT_INPUT_TYPES.LIST,
+          isRequired: true,
+          label: 'Damaged source',
+          multiple: true,
+          options: [
+            {
+              description: 'radio_manufacturer',
+              display: 'Ranger Radio',
+              value: 'source-1',
+            },
+            {
+              description: 'collar_manufacturer',
+              display: 'Elephant Collar',
+              value: 'source-2',
+            },
+          ],
+          value: choiceListFieldName,
+        },
+        parentId,
+        type: FORM_ELEMENT_TYPES.CHOICE_LIST,
+      },
+    });
+  });
+
   it('transforms a single choice list field', () => {
     jsonSchema.properties[choiceListFieldName].anyOf = jsonSchema.properties[choiceListFieldName].items.anyOf;
     delete jsonSchema.properties[choiceListFieldName].items;
