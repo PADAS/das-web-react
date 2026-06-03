@@ -354,14 +354,16 @@
     "periodInputLabel": "Parte do dia"
   },
   "timeSlider": {
+    "closeButtonLabel": "Fechar deslizador de tempo",
+    "dateRangeButtonLabel": "Alterar intervalo de datas",
+    "endDateNowSliderLabel": "Agora",
     "popoverHeader": "Intervalo de datas",
     "popoverResetButton": "Redefinir",
-    "slider": "Deslizador de tempo",
+    "sliderLabel": "Deslizador de tempo",
     "timeSliderMapControl": {
       "iconTitle": "Deslizador de tempo"
     },
-    "untilNowButton": "Agora",
-    "playButton": "Reproduzir",
-    "stopButton": "Parar"
+    "playButtonLabel": "Reproduzir",
+    "stopButtonLabel": "Parar"
   }
 }

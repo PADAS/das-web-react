@@ -348,15 +348,17 @@
     "periodInputLabel": "Partie de la journée"
   },
   "timeSlider": {
+    "closeButtonLabel": "Fermer le curseur temporel",
+    "dateRangeButtonLabel": "Modifier la plage de dates",
+    "endDateNowSliderLabel": "Maintenant",
     "popoverHeader": "Intervalle de Dates",
     "popoverResetButton": "Réinitialiser",
-    "slider": "Curseur Temporel",
+    "sliderLabel": "Curseur Temporel",
     "timeSliderMapControl": {
       "iconTitle": "Curseur Temporel"
     },
-    "untilNowButton": "Maintenant",
-    "playButton": "Lancer",
-    "stopButton": "Arrêter"
+    "playButtonLabel": "Lancer",
+    "stopButtonLabel": "Arrêter"
   },
   "toastBody": {
     "defaultLinkTitle": "Cliquez ici  ",

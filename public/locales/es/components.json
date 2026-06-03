@@ -348,15 +348,17 @@
     "periodInputLabel": "Parte del día"
   },
   "timeSlider": {
+    "closeButtonLabel": "Cerrar control de tiempo",
+    "dateRangeButtonLabel": "Cambiar rango de fechas",
+    "endDateNowSliderLabel": "Ahora",
     "popoverHeader": "Rango de fechas",
     "popoverResetButton": "Reiniciar",
-    "slider": "Control de tiempo",
+    "sliderLabel": "Control de tiempo",
     "timeSliderMapControl": {
       "iconTitle": "Control de tiempo"
     },
-    "untilNowButton": "Ahora",
-    "playButton": "Reproducir",
-    "stopButton": "Detener"
+    "playButtonLabel": "Reproducir",
+    "stopButtonLabel": "Detener"
   },
   "toastBody": {
     "defaultLinkTitle": "Haga clic aquí",

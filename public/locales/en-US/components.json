@@ -371,15 +371,17 @@
     "periodInputLabel": "Time period"
   },
   "timeSlider": {
+    "closeButtonLabel": "Close timeslider",
+    "dateRangeButtonLabel": "Change date range",
+    "endDateNowSliderLabel": "Now",
     "popoverHeader": "Date Range",
     "popoverResetButton": "Reset",
-    "slider": "Timeslider",
+    "sliderLabel": "Timeslider",
     "timeSliderMapControl": {
       "iconTitle": "Timeslider"
     },
-    "untilNowButton": "Now",
-    "playButton": "Play",
-    "stopButton": "Stop"
+    "playButtonLabel": "Play",
+    "stopButtonLabel": "Stop"
   },
   "toastBody": {
     "defaultLinkTitle": "Click here",

@@ -57,7 +57,7 @@ import SubjectTrackLegend from '../SubjectTrackLegend';
 import PatrolTrackLegend from '../PatrolTrackLegend';
 import EventFilter from '../EventFilter';
 import TimeSlider from '../TimeSlider';
-import TimeSliderMapControl from '../TimeSlider/TimeSliderMapControl';
+import TimeSliderMapControl from '../TimeSliderMapControl';
 import ReportsHeatLayer from '../ReportsHeatLayer';
 import ReportsHeatmapLegend from '../ReportsHeatmapLegend';
 import MessageBadgeLayer from '../MessageBadgeLayer';

@@ -366,15 +366,17 @@
     "periodInputLabel": "दिनको भाग"
   },
   "timeSlider": {
+    "closeButtonLabel": "समय स्लाइडर बन्द गर्नुहोस्",
+    "dateRangeButtonLabel": "मिति दायरा परिवर्तन गर्नुहोस्",
+    "endDateNowSliderLabel": "अहिले",
     "popoverHeader": "मितिको दायरा",
     "popoverResetButton": "रिसेट गर्नुहोस्",
-    "slider": "समय स्लाइडर",
+    "sliderLabel": "समय स्लाइडर",
     "timeSliderMapControl": {
       "iconTitle": "समय स्लाइडर"
     },
-    "untilNowButton": "अहिले",
-    "playButton": "चलाउनुहोस्",
-    "stopButton": "रोक्नुहोस्"
+    "playButtonLabel": "चलाउनुहोस्",
+    "stopButtonLabel": "रोक्नुहोस्"
   },
   "checkMark": {
     "fullyCheckedTitle": "देखिने",
