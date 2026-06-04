@@ -19,15 +19,14 @@
   backdrop-filter: blur(22px) saturate(175%);
   background: rgba(255, 255, 255, 0.55);
   border-radius: 2rem;
-  bottom: 1rem;
+  bottom: 1.5rem;
   display: flex;
   gap: 1rem;
   height: 3.75rem;
-  width: 66%;
+  width: 70%;
   left: 1rem;
   padding: 0 0.5rem;
   position: absolute;
-  right: 1rem;
 
   .playStopButton {
     align-items: center;
@@ -81,12 +80,18 @@
 
   .separator {
     background-color: colors.$secondary-light-gray;
+    display: none;
     height: 1.875rem;
     width: 1px;
+
+    @media (min-width: layout.$md-layout-width-min) {
+      display: block;
+    }
   }
 
   .track {
     flex: 1;
+    margin-right: 1rem;
     min-width: 8rem;
 
     .slider {
@@ -136,6 +141,10 @@
         }
       }
     }
+
+    @media (min-width: layout.$md-layout-width-min) {
+      margin-right: 0;
+    }
   }
 
   .dateRangeButton {
@@ -143,6 +152,7 @@
     border: none;
     border-radius: 0.25rem;
     color: colors.$secondary-medium-gray;
+    display: none;
     flex-shrink: 0;
     font-size: 1rem;
     font-weight: 500;
@@ -177,6 +187,10 @@
       height: 1.25rem;
       width: 1.25rem;
     }
+
+    @media (min-width: layout.$md-layout-width-min) {
+      display: block;
+    }
   }
 
   .closeButton {
@@ -185,7 +199,7 @@
     border: none;
     border-radius: 50%;
     color: colors.$secondary-medium-gray;
-    display: flex;
+    display: none;
     height: 2.625rem;
     justify-content: center;
     outline: none;
@@ -200,12 +214,17 @@
     &:hover {
       color: colors.$dark-gray;
     }
+
+    @media (min-width: layout.$md-layout-width-min) {
+      display: flex;
+    }
   }
 
   @media (min-width: layout.$md-layout-width-min) {
     left: 50%;
     transform: translateX(-50%);
     transition: left 0.3s ease-in-out;
+    width: 66%;
 
     &.sidebarOpen {
       left: calc(5rem + var(--sidebar-width));
