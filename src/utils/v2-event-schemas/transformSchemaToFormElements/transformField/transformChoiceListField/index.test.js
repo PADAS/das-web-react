@@ -277,6 +277,22 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
     });
   });
 
+  it('produces empty options when a subschema has no enum key (backend empty-choices fix)', () => {
+    jsonSchema.properties[choiceListFieldName].items.anyOf = [
+      { 'not': {}, 'x-enumExtra': {} },
+    ];
+
+    transformChoiceListField(
+      choiceListFieldId,
+      choiceListFieldName,
+      jsonSchema,
+      uiSchema,
+      formElements,
+    );
+
+    expect(formElements[choiceListFieldId].details.options).toEqual([]);
+  });
+
   it('transforms a choice list field with missing properties', () => {
     delete jsonSchema.properties[choiceListFieldName].description;
     delete jsonSchema.properties[choiceListFieldName].items.anyOf;
