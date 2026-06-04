@@ -245,6 +245,7 @@ const TimeSlider = () => {
           </Popover.Body>
         </Popover>
       }
+      rootClose
       trigger="click"
     >
       <button
