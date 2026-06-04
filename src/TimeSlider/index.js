@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import isEqual from 'react-fast-compare';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -38,7 +38,7 @@ import * as styles from './styles.module.scss';
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const PLAYBACK_DURATION_MS = 30_000;
-export const FRAME_INTERVAL_MS = 66; // ~15fps
+export const FRAME_INTERVAL_MS = 33; // ~30fps
 const FRAME_STEP_FRACTION = FRAME_INTERVAL_MS / PLAYBACK_DURATION_MS;
 
 const trackDateChange = () => mapInteractionTracker.track('Update Time Slider Date Range');
@@ -75,6 +75,12 @@ const TimeSlider = () => {
   const currentDate = virtualDate ? new Date(virtualDate) : endDate;
 
   const sliderValue = (currentDate - startDate) / (endDate - startDate);
+
+  // Copy of the current slider value to be used in the playback interval
+  // callback to avoid the useEffect unmounting on every frame.
+  const sliderValueRef = useRef();
+  // eslint-disable-next-line react-hooks/refs
+  sliderValueRef.current = sliderValue;
 
   const isEventFilterLowerDateRangeDateModified = !isEqual(
     INITIAL_FILTER_STATE.filter.date_range.lower,
@@ -148,7 +154,7 @@ const TimeSlider = () => {
       // Playing mode is active, automatically advance the virtual date by
       // intervals.
       const intervalId = setInterval(() => {
-        const nextValue = sliderValue + FRAME_STEP_FRACTION;
+        const nextValue = sliderValueRef.current + FRAME_STEP_FRACTION;
 
         setVirtualDateFromSliderValue(nextValue);
 
@@ -159,7 +165,7 @@ const TimeSlider = () => {
 
       return () => clearInterval(intervalId);
     }
-  }, [isPlaying, sliderValue, setVirtualDateFromSliderValue]);
+  }, [isPlaying, setVirtualDateFromSliderValue]);
 
   useEffect(() => () => debouncedRangeChangeAnalytics.cancel(), [debouncedRangeChangeAnalytics]);
 
