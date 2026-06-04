@@ -380,8 +380,8 @@
     "timeSliderMapControl": {
       "iconTitle": "Kishikilia Muda"
     },
-    "playButtonLabel": "Cheza",
-    "stopButtonLabel": "Simama"
+    "playButtonLabel": "Cheza kishikilia muda",
+    "stopButtonLabel": "Simama kishikilia muda"
   },
   "toastBody": {
     "defaultLinkTitle": "Bonyeza hapa",

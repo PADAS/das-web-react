@@ -357,8 +357,8 @@
     "timeSliderMapControl": {
       "iconTitle": "Curseur Temporel"
     },
-    "playButtonLabel": "Lancer",
-    "stopButtonLabel": "Arrêter"
+    "playButtonLabel": "Lancer le curseur temporel",
+    "stopButtonLabel": "Arrêter le curseur temporel"
   },
   "toastBody": {
     "defaultLinkTitle": "Cliquez ici  ",

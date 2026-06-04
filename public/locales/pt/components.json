@@ -363,7 +363,7 @@
     "timeSliderMapControl": {
       "iconTitle": "Deslizador de tempo"
     },
-    "playButtonLabel": "Reproduzir",
-    "stopButtonLabel": "Parar"
+    "playButtonLabel": "Reproduzir deslizador de tempo",
+    "stopButtonLabel": "Parar deslizador de tempo"
   }
 }

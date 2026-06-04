@@ -357,8 +357,8 @@
     "timeSliderMapControl": {
       "iconTitle": "Control de tiempo"
     },
-    "playButtonLabel": "Reproducir",
-    "stopButtonLabel": "Detener"
+    "playButtonLabel": "Reproducir control de tiempo",
+    "stopButtonLabel": "Detener control de tiempo"
   },
   "toastBody": {
     "defaultLinkTitle": "Haga clic aquí",

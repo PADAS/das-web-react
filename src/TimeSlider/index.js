@@ -17,6 +17,7 @@ import {
   setVirtualDate,
   setTimeSliderState,
 } from '../ducks/timeslider';
+import dateLocales from '../utils/locales';
 import {
   format,
   SHORT_TIME_FORMAT,
@@ -29,7 +30,6 @@ import {
   trackEventFactory,
 } from '../utils/analytics';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
-import dateLocales from '../utils/locales';
 
 import EventFilterDateRange from '../EventFilter/DateRange';
 
@@ -38,14 +38,14 @@ import * as styles from './styles.module.scss';
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const PLAYBACK_DURATION_MS = 30_000;
-const FRAME_INTERVAL_MS = 66; // ~15fps
+export const FRAME_INTERVAL_MS = 66; // ~15fps
 const FRAME_STEP_FRACTION = FRAME_INTERVAL_MS / PLAYBACK_DURATION_MS;
 
 const trackDateChange = () => mapInteractionTracker.track('Update Time Slider Date Range');
 
 const isAtEnd = (value) => value >= 0.99999;
 
-const TimeSlider = ({ className }) => {
+const TimeSlider = () => {
   const dispatch = useDispatch();
   const { i18n, t } = useTranslation('components', { keyPrefix: 'timeSlider' });
 
@@ -74,7 +74,7 @@ const TimeSlider = ({ className }) => {
 
   const currentDate = virtualDate ? new Date(virtualDate) : endDate;
 
-  const rangeValue = (currentDate - startDate) / (endDate - startDate);
+  const sliderValue = (currentDate - startDate) / (endDate - startDate);
 
   const isEventFilterLowerDateRangeDateModified = !isEqual(
     INITIAL_FILTER_STATE.filter.date_range.lower,
@@ -87,16 +87,16 @@ const TimeSlider = ({ className }) => {
   const isEventFilterDateRangeModified = isEventFilterLowerDateRangeDateModified
     || isEventFilterUpperDateRangeDateModified;
 
-  const setVirtualDateFromRangeValue = useCallback((rangeValue) => {
-    if (isAtEnd(rangeValue)) {
+  const setVirtualDateFromSliderValue = useCallback((sliderValue) => {
+    if (isAtEnd(sliderValue)) {
       if (eventFilterUpperDateRange) {
         dispatch(setVirtualDate(eventFilterUpperDateRange));
       } else {
         dispatch(clearVirtualDate());
       }
     } else {
-      const rangeValueOffsetTime = (endDate - startDate) * rangeValue;
-      const nextVirtualDateTime = startDate.getTime() + rangeValueOffsetTime;
+      const sliderValueOffsetTime = (endDate - startDate) * sliderValue;
+      const nextVirtualDateTime = startDate.getTime() + sliderValueOffsetTime;
       const nextVirtualDate = new Date(nextVirtualDateTime);
       dispatch(setVirtualDate(nextVirtualDate.toISOString()));
     }
@@ -106,7 +106,7 @@ const TimeSlider = ({ className }) => {
     if (isPlaying) {
       setIsPlaying(false);
     } else {
-      if (isAtEnd(rangeValue)) {
+      if (isAtEnd(sliderValue)) {
         // The range value is at the end of the range, place it at the first
         // frame.
         const frameStepFractionTime = (endDate - startDate) * FRAME_STEP_FRACTION;
@@ -119,8 +119,8 @@ const TimeSlider = ({ className }) => {
     }
   };
 
-  const onChangeRange = (event) => {
-    setVirtualDateFromRangeValue(event.target.value);
+  const onChangeSlider = (event) => {
+    setVirtualDateFromSliderValue(event.target.value);
     setIsPlaying(false);
 
     debouncedRangeChangeAnalytics('Changed \'Time Slider\'');
@@ -136,7 +136,7 @@ const TimeSlider = ({ className }) => {
   useEffect(() => {
     // Reset the virtual date to the end of the range when the event filter
     // date range is changed.
-    setVirtualDateFromRangeValue(1);
+    setVirtualDateFromSliderValue(1);
 
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsPlaying(false);
@@ -148,9 +148,9 @@ const TimeSlider = ({ className }) => {
       // Playing mode is active, automatically advance the virtual date by
       // intervals.
       const intervalId = setInterval(() => {
-        const nextValue = rangeValue + FRAME_STEP_FRACTION;
+        const nextValue = sliderValue + FRAME_STEP_FRACTION;
 
-        setVirtualDateFromRangeValue(nextValue);
+        setVirtualDateFromSliderValue(nextValue);
 
         if (isAtEnd(nextValue)) {
           setIsPlaying(false);
@@ -159,7 +159,7 @@ const TimeSlider = ({ className }) => {
 
       return () => clearInterval(intervalId);
     }
-  }, [isPlaying, rangeValue, setVirtualDateFromRangeValue]);
+  }, [isPlaying, sliderValue, setVirtualDateFromSliderValue]);
 
   useEffect(() => () => debouncedRangeChangeAnalytics.cancel(), [debouncedRangeChangeAnalytics]);
 
@@ -197,16 +197,16 @@ const TimeSlider = ({ className }) => {
         className={styles.slider}
         max="1"
         min="0"
-        onChange={onChangeRange}
+        onChange={onChangeSlider}
         step="any"
         type="range"
-        value={rangeValue}
+        value={sliderValue}
       />
 
       <div aria-hidden="true" className={styles.sliderLabels}>
-        <span>{startDateFormatted}</span>
+        <span data-testid="timeSlider-startDate">{startDateFormatted}</span>
 
-        <span className={styles.nowLabel}>
+        <span className={styles.endDate} data-testid="timeSlider-endDate">
           {!eventFilterUpperDateRange && <span aria-hidden="true" className={styles.nowDot} />}
 
           {eventFilterUpperDateRange ? endDateFormatted : t('endDateNowSliderLabel')}
@@ -216,7 +216,7 @@ const TimeSlider = ({ className }) => {
 
     <OverlayTrigger
       overlay={
-        <Popover className={`${styles.popover} ${className}`}>
+        <Popover className={styles.popover}>
           <Popover.Header className={styles.popoverTitle}>
             <ClockIcon aria-hidden="true" />
 

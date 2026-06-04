@@ -375,8 +375,8 @@
     "timeSliderMapControl": {
       "iconTitle": "समय स्लाइडर"
     },
-    "playButtonLabel": "चलाउनुहोस्",
-    "stopButtonLabel": "रोक्नुहोस्"
+    "playButtonLabel": "समय स्लाइडर चलाउनुहोस्",
+    "stopButtonLabel": "समय स्लाइडर रोक्नुहोस्"
   },
   "checkMark": {
     "fullyCheckedTitle": "देखिने",

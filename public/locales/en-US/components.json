@@ -380,8 +380,8 @@
     "timeSliderMapControl": {
       "iconTitle": "Timeslider"
     },
-    "playButtonLabel": "Play",
-    "stopButtonLabel": "Stop"
+    "playButtonLabel": "Play timeslider",
+    "stopButtonLabel": "Stop timeslider"
   },
   "toastBody": {
     "defaultLinkTitle": "Click here",
