@@ -225,10 +225,6 @@
     transform: translateX(-50%);
     transition: left 0.3s ease-in-out;
     width: 66%;
-
-    &.sidebarOpen {
-      left: calc(5rem + var(--sidebar-width));
-    }
   }
 
   @media print {
