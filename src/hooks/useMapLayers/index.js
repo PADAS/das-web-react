@@ -1,6 +1,7 @@
 import { useContext, useEffect, useRef } from 'react';
 
 import { MapContext } from '../../App';
+import { safeRemoveMapLayer } from '../../utils/map';
 
 const assertLayerCondition = (layerConfig) => layerConfig?.options?.condition ?? true;
 
@@ -21,7 +22,7 @@ const useMapLayers = (layerConfigsBatch = []) => {
       const existingLayers = layerConfigsBatch.map(config => config.id).filter((id) => !!id);
       layerIdsRef.current.forEach(id => {
         if (!existingLayers.includes(id) && map.getLayer(id)) {
-          map.removeLayer(id);
+          safeRemoveMapLayer(map, id);
         }
       });
 
@@ -95,7 +96,7 @@ const useMapLayers = (layerConfigsBatch = []) => {
     if (map) {
       layerConfigsBatch.forEach(layerConfig => {
         if ( layerConfig?.id && !assertLayerCondition(layerConfig) && map.getLayer(layerConfig.id) ){
-          map.removeLayer(layerConfig.id);
+          safeRemoveMapLayer(map, layerConfig.id);
         }
       });
     }
@@ -108,7 +109,7 @@ const useMapLayers = (layerConfigsBatch = []) => {
         try {
           refs.forEach(layerId => {
             if (map.getLayer(layerId)) {
-              map.removeLayer(layerId);
+              safeRemoveMapLayer(map, layerId);
             }
           });
         } catch (error) {

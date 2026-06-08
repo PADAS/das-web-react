@@ -128,6 +128,10 @@ export const SET_TRACK_SETTINGS_IS_TIME_OF_DAY_COLORING_ACTIVE = 'SET_TRACK_SETT
 export const SET_TRACK_SETTINGS_LENGTH = 'SET_TRACK_SETTINGS_LENGTH';
 export const SET_TRACK_SETTINGS_TIME_OF_DAY_TIME_ZONE = 'SET_TRACK_SETTINGS_TIME_OF_DAY_TIME_ZONE';
 export const SET_TRACK_SETTINGS_TRACK_LENGTH_ORIGIN = 'SET_TRACK_SETTINGS_TRACK_LENGTH_ORIGIN';
+export const SET_TRACK_SETTINGS_IS_SEGMENT_ON_TIME_ENABLED = 'SET_TRACK_SETTINGS_IS_SEGMENT_ON_TIME_ENABLED';
+export const SET_TRACK_SETTINGS_IS_SEGMENT_ON_SPEED_ENABLED = 'SET_TRACK_SETTINGS_IS_SEGMENT_ON_SPEED_ENABLED';
+export const SET_TRACK_SETTINGS_SEGMENT_TIME_GAP_LENGTH = 'SET_TRACK_SETTINGS_SEGMENT_TIME_GAP_LENGTH';
+export const SET_TRACK_SETTINGS_SEGMENT_SPEED_LIMIT = 'SET_TRACK_SETTINGS_SEGMENT_SPEED_LIMIT';
 
 // Action creators
 export const setDefaultCustomTrackLength = (defaultCustomTrackLength) => ({
@@ -152,6 +156,26 @@ export const setTrackLengthOrigin = (origin) => ({
   type: SET_TRACK_SETTINGS_TRACK_LENGTH_ORIGIN,
 });
 
+export const setIsSegmentOnTimeEnabled = (isEnabled) => ({
+  payload: isEnabled,
+  type: SET_TRACK_SETTINGS_IS_SEGMENT_ON_TIME_ENABLED,
+});
+
+export const setIsSegmentOnSpeedEnabled = (isEnabled) => ({
+  payload: isEnabled,
+  type: SET_TRACK_SETTINGS_IS_SEGMENT_ON_SPEED_ENABLED,
+});
+
+export const setSegmentTimeGapLength = (timeGapLength) => ({
+  payload: timeGapLength,
+  type: SET_TRACK_SETTINGS_SEGMENT_TIME_GAP_LENGTH,
+});
+
+export const setSegmentSpeedLimit = (speedLimit) => ({
+  payload: speedLimit,
+  type: SET_TRACK_SETTINGS_SEGMENT_SPEED_LIMIT,
+});
+
 // Reducer
 export const INITIAL_TRACK_SETTINGS_STATE = {
   defaultCustomTrackLength: undefined,
@@ -159,6 +183,10 @@ export const INITIAL_TRACK_SETTINGS_STATE = {
   length: 21,
   origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH,
   timeOfDayTimeZone: null,
+  isSegmentOnTimeEnabled: false,
+  isSegmentOnSpeedEnabled: false,
+  segmentTimeGapLength: 3600,
+  segmentSpeedLimit: 60,
 };
 
 export const trackSettingsReducer = globallyResettableReducer((state, action) => {
@@ -177,6 +205,18 @@ export const trackSettingsReducer = globallyResettableReducer((state, action) =>
 
   case SET_TRACK_SETTINGS_TRACK_LENGTH_ORIGIN:
     return { ...state, origin: action.payload };
+
+  case SET_TRACK_SETTINGS_IS_SEGMENT_ON_TIME_ENABLED:
+    return { ...state, isSegmentOnTimeEnabled: action.payload };
+
+  case SET_TRACK_SETTINGS_IS_SEGMENT_ON_SPEED_ENABLED:
+    return { ...state, isSegmentOnSpeedEnabled: action.payload };
+
+  case SET_TRACK_SETTINGS_SEGMENT_TIME_GAP_LENGTH:
+    return { ...state, segmentTimeGapLength: action.payload };
+
+  case SET_TRACK_SETTINGS_SEGMENT_SPEED_LIMIT:
+    return { ...state, segmentSpeedLimit: action.payload };
 
   default:
     return state;

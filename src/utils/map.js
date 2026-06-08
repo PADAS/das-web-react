@@ -2,7 +2,7 @@ import { featureCollection } from '@turf/turf';
 
 import store from '../store';
 import { addImageToMapIfNecessary } from '../ducks/map-images';
-import { MAP_ICON_SIZE, MAP_ICON_SCALE } from '../constants';
+import { MAP_ICON_SIZE, MAP_ICON_SCALE, TIME_OF_DAY_LINE_COLOR_FALLBACK, TIME_OF_DAY_PERIODS } from '../constants';
 import { format, formatEventSymbolDate } from './datetime';
 import { imgElFromSrc, calcUrlForImage, calcImgIdFromUrlForMapImages } from './img';
 
@@ -213,6 +213,36 @@ export const calculatePopoverPlacement = async (map, popoverLocation) => {
 };
 
 
+export const safeRemoveMapLayer = (map, layerId) => {
+  if (!map) return;
+  try {
+    map.removeLayer(layerId);
+  } catch (error) {
+    console.error(`error removing layer ${layerId} from map`, error);
+  }
+};
+
+/** Mapbox `line-color` expression from an ISO datetime property and `TIME_OF_DAY_PERIODS` (see constants). */
+export const getTimeOfDayLineColorExpression = (propertyName, fallbackExpression, timeZoneOffsetMinutes = 0) => {
+  // Parse UTC hour and minute from ISO string (indices 11-12 = HH, 14-15 = MM)
+  const hourExpr = ['to-number', ['slice', ['get', propertyName], 11, 13]];
+  const minuteExpr = ['to-number', ['slice', ['get', propertyName], 14, 16]];
+  const utcMinutesSinceMidnight = ['+', ['*', hourExpr, 60], minuteExpr];
+  // Localize: localMinutes = (utcMinutes + offset + 4320) % 1440 (4320 ensures positive before mod)
+  const localMinutesSinceMidnight = ['%', ['+', utcMinutesSinceMidnight, timeZoneOffsetMinutes, 4320], 1440];
+
+  const periodBranches = TIME_OF_DAY_PERIODS.flatMap(({ rangeMinutesMin, rangeMinutesMax, color }) => [
+    ['all', ['>=', localMinutesSinceMidnight, rangeMinutesMin], ['<=', localMinutesSinceMidnight, rangeMinutesMax]],
+    color,
+  ]);
+
+  return [
+    'case',
+    ['all', ['has', propertyName], ['!=', ['get', propertyName], '']],
+    ['case', ...periodBranches, TIME_OF_DAY_LINE_COLOR_FALLBACK],
+    fallbackExpression,
+  ];
+};
 export const buildGeoSpanFilter = (geoSpan) => {
   if (!geoSpan) return null;
 
@@ -239,12 +269,6 @@ export const buildGeoSpanFilter = (geoSpan) => {
   const minLat = Math.min(lat1, lat2);
   const maxLat = Math.max(lat1, lat2);
   return [minLon, minLat, maxLon, maxLat];
-};
-
-export const safeRemoveMapLayer = (map, layerId) => {
-  if (map?.getLayer?.(layerId)) {
-    map.removeLayer(layerId);
-  }
 };
 
 export const safeRemoveMapSource = (map, sourceId) => {

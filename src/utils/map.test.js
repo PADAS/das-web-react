@@ -3,6 +3,7 @@ import { createMapMock } from '../__test-helpers/mocks';
 import {
   buildGeoSpanFilter,
   calculatePopoverPlacement,
+  getTimeOfDayLineColorExpression,
   safeRemoveMapLayer,
   safeRemoveMapSource,
   waitForMapBounds,
@@ -158,6 +159,26 @@ describe('calculatePopoverPlacement', () => {
   });
 });
 
+describe('getTimeOfDayLineColorExpression', () => {
+  const fallback = ['get', 'stroke'];
+
+  test('returns a case expression with fallback when property missing or empty', () => {
+    const expr = getTimeOfDayLineColorExpression('start_time', fallback);
+    expect(expr[0]).toBe('case');
+    expect(expr[1]).toEqual(['all', ['has', 'start_time'], ['!=', ['get', 'start_time'], '']]);
+    expect(expr[expr.length - 1]).toEqual(fallback);
+  });
+
+  test('uses given property name in expression', () => {
+    const expr = getTimeOfDayLineColorExpression('recorded_at', fallback);
+    expect(JSON.stringify(expr)).toContain('recorded_at');
+  });
+
+  test('accepts timezone offset for localization', () => {
+    const expr = getTimeOfDayLineColorExpression('start_time', fallback, -360);
+    expect(JSON.stringify(expr)).toContain('-360');
+  });
+});
 describe('buildGeoSpanFilter', () => {
   test('returns null when geoSpan is null', () => {
     expect(buildGeoSpanFilter(null)).toBeNull();

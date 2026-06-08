@@ -9,7 +9,8 @@ import {
   subjectIsStatic,
 } from '../../utils/subjects';
 import { addPropsToGeoJsonByKey } from '../../utils/map';
-import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../constants';
+import { FRESH_SUBJECT_WINDOW_MS, PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../constants';
+import { selectTracks } from '../tracks';
 
 const selectHiddenSubjectIDs = (state) => state.data.mapLayerFilter.hiddenSubjectIDs;
 const selectMapSubjects = (state) => state.data.mapSubjects.subjects;
@@ -19,7 +20,6 @@ const selectSubjectGroups = (state) => state.data.subjectGroups;
 const selectSubjectStore = (state) => state.data.subjectStore;
 const selectSystemConfig = (state) => state.view.systemConfig;
 const selectTimeSliderState = (state) => state.view.timeSliderState;
-const selectTracks = (state) => state.data.tracks;
 const selectUser = (state) => state.data.user;
 
 /**
@@ -156,5 +156,40 @@ export const getMapSubjectFeatureCollectionWithVirtualPositioning = createSelect
       );
     }
     return mapSubjectFeatureCollectionWithVirtualPositioning;
+  },
+);
+
+/**
+ * Returns an array of subject IDs whose last known position is within the last
+ * hour.  These "fresh" subjects are rendered via the GeoJSON SubjectsLayer and
+ * must be excluded from the vector-tile SubjectTileLayer to avoid duplicates.
+ */
+export const selectFreshSubjectIds = createSelector(
+  [selectSubjectStore],
+  (subjectStore) => {
+    const cutoff = Date.now() - FRESH_SUBJECT_WINDOW_MS;
+    return Object.values(subjectStore)
+      .filter((subject) => {
+        const time = subject.last_position?.properties?.coordinateProperties?.time;
+        return time && new Date(time).getTime() > cutoff;
+      })
+      .map((subject) => subject.id);
+  },
+);
+
+/**
+ * Feature collection containing only "fresh" subjects (position within last
+ * hour).  Derives directly from the base feature collection — intentionally
+ * bypasses virtual positioning (timeslider pins use track GeoJSON via
+ * getMapSubjectFeatureCollectionWithVirtualPositioning). Used by the GeoJSON
+ * SubjectsLayer so stale subjects are rendered from vector tiles only.
+ */
+export const selectFreshMapSubjectsFeatureCollection = createSelector(
+  [selectMapSubjectsFeatureCollection, selectFreshSubjectIds],
+  (fc, freshIds) => {
+    const freshSet = new Set(freshIds);
+    return featureCollection(
+      fc.features.filter((f) => freshSet.has(f.properties.id)),
+    );
   },
 );

@@ -5,11 +5,18 @@
         "trackLegendItemsName": "patrulhas"
     },
     "subjectTrackLegend": {
-        "description": "{{pointCount}} pontos ao longo de {{trackTime}}",
         "itemDescription_one": "{{count}} ponto",
         "itemDescription_other": "{{count}} pontos",
         "itemIcon": "Ícone para {{title}}",
-        "trackLegendItemsName": "sujeitos"
+        "trackLegendItemsName": "sujeitos",
+        "popoverTriggerLabel": "Mostrar intervalo de datas e contagem de pontos",
+        "tooltip": {
+            "dateRange": "{{from}} – {{until}}",
+            "untilNow": "agora",
+            "pointCount": "{{count}} pontos",
+            "pointCountLoading": "A carregar…",
+            "pointCountError": "Não foi possível carregar a contagem de pontos"
+        }
     },
     "trackLegend": {
         "clearTracksButton": "Limpar trajetórias",
@@ -57,7 +64,12 @@
           "customLengthInputLabel": "Duração da trajetória em dias",
           "eventFilterRadioLabel": "Corresponder ao filtro de eventos \"a partir de\" a data ({{length}} dias)",
           "title": "Configurações de trajetórias",
-          "trackLengthLegend": "Duração da trajetória"
+          "trackLengthLegend": "Duração da trajetória",
+          "segmentationLegend": "Configurações de segmentação",
+          "segmentOnTimeLabel": "Segmentar por tempo (segundos)",
+          "segmentOnSpeedLabel": "Segmentar por velocidade (km/h)",
+          "timeGapInputLabel": "Intervalo de tempo (segundos)",
+          "speedLimitInputLabel": "Limite de velocidade (km/h)"
         },
         "trackSettingsButtonLabel": {
           "closed": "Abrir configurações de trajetórias",

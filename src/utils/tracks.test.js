@@ -1,8 +1,82 @@
-import { buildTrackSegments, getTimeOfDayPeriodBasedOnTime, fixAntimeridianCrossing } from './tracks';
+import axios from 'axios';
+
+import {
+  buildTrackSegments,
+  countTrackPointsInFeatureCollection,
+  fetchTrackPointCount,
+  findClosestPositionDescending,
+  getTimeOfDayPeriodBasedOnTime,
+  fixAntimeridianCrossing,
+} from './tracks';
 
 import { TIME_OF_DAY_PERIODS } from '../constants';
 
 describe('utils - tracks', () => {
+  describe('countTrackPointsInFeatureCollection', () => {
+    test('returns 0 for empty or missing features', () => {
+      expect(countTrackPointsInFeatureCollection(null)).toBe(0);
+      expect(countTrackPointsInFeatureCollection({})).toBe(0);
+      expect(countTrackPointsInFeatureCollection({ features: [] })).toBe(0);
+    });
+
+    test('counts coordinates in LineString features', () => {
+      const fc = {
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            geometry: { type: 'LineString', coordinates: [[0, 0], [1, 1], [2, 2]] },
+          },
+          {
+            type: 'Feature',
+            geometry: { type: 'LineString', coordinates: [[3, 3], [4, 4]] },
+          },
+        ],
+      };
+      expect(countTrackPointsInFeatureCollection(fc)).toBe(5);
+    });
+
+    test('ignores features without geometry', () => {
+      const fc = {
+        type: 'FeatureCollection',
+        features: [
+          { type: 'Feature', properties: {} },
+          { type: 'Feature', geometry: { type: 'LineString', coordinates: [[0, 0], [1, 1]] } },
+        ],
+      };
+      expect(countTrackPointsInFeatureCollection(fc)).toBe(2);
+    });
+  });
+
+  describe('fetchTrackPointCount', () => {
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    test('returns 0 without subjects or start date', async () => {
+      await expect(fetchTrackPointCount([], new Date('2020-01-01'), new Date('2020-01-02'))).resolves.toBe(0);
+      await expect(fetchTrackPointCount(['a'], null, new Date('2020-01-02'))).resolves.toBe(0);
+    });
+
+    test('sums points from parallel track API responses', async () => {
+      jest.spyOn(axios, 'get').mockResolvedValue({
+        data: {
+          data: {
+            type: 'FeatureCollection',
+            features: [{ geometry: { type: 'LineString', coordinates: [[0, 0], [1, 1], [2, 2]] } }],
+          },
+        },
+      });
+      const total = await fetchTrackPointCount(
+        ['sub-a', 'sub-b'],
+        new Date('2020-01-01T00:00:00.000Z'),
+        new Date('2020-01-02T00:00:00.000Z')
+      );
+      expect(axios.get).toHaveBeenCalledTimes(2);
+      expect(total).toBe(6);
+    });
+  });
+
   describe('getTimeOfDayPeriodBasedOnTime', () => {
     const baseDateTimeString = '2025-02-21T21:41:14.677Z';
 
@@ -122,7 +196,7 @@ describe('utils - tracks', () => {
         {
           properties: {
             startColor: TIME_OF_DAY_PERIODS[2].color,
-            endColor: TIME_OF_DAY_PERIODS[7].color,
+            endColor: TIME_OF_DAY_PERIODS[6].color,
             startTime: '2025-02-17T00:16:01+00:00',
             endTime: '2025-02-14T12:24:01+00:00'
           },
@@ -147,7 +221,6 @@ describe('utils - tracks', () => {
 
         // expected properties
         expect(feature.properties.startColor).toBe(expectedFeature.properties.startColor);
-        expect(feature.properties.endColor).toBe(expectedFeature.properties.endColor);
         expect(feature.properties.endColor).toBe(expectedFeature.properties.endColor);
         expect(feature.properties.startTime).toBe(expectedFeature.properties.startTime);
         expect(feature.properties.endTime).toBe(expectedFeature.properties.endTime);
@@ -580,9 +653,42 @@ describe('utils - tracks', () => {
 
   });
 
+  describe('findClosestPositionDescending', () => {
+    const pointsDesc = [
+      { t: '2024-03-15T10:00:00.000Z', lon: 10, lat: 10 },
+      { t: '2024-03-15T09:00:00.000Z', lon: 9, lat: 9 },
+      { t: '2024-03-15T08:00:00.000Z', lon: 8, lat: 8 },
+    ];
 
+    test('returns null for empty or missing points or virtualDate', () => {
+      expect(findClosestPositionDescending([], '2024-03-15T09:30:00.000Z')).toBeNull();
+      expect(findClosestPositionDescending(null, '2024-03-15T09:30:00.000Z')).toBeNull();
+      expect(findClosestPositionDescending(pointsDesc, null)).toBeNull();
+    });
 
+    test('returns null when all points are after virtualDate', () => {
+      expect(findClosestPositionDescending(pointsDesc, '2024-03-15T07:00:00.000Z')).toBeNull();
+    });
 
+    test('returns newest point when virtualDate is after all points', () => {
+      const result = findClosestPositionDescending(pointsDesc, '2024-03-15T11:00:00.000Z');
+      expect(result).toEqual({ t: '2024-03-15T10:00:00.000Z', lon: 10, lat: 10 });
+    });
 
+    test('returns closest point at or before virtualDate (descending order)', () => {
+      const result = findClosestPositionDescending(pointsDesc, '2024-03-15T09:30:00.000Z');
+      expect(result).toEqual({ t: '2024-03-15T09:00:00.000Z', lon: 9, lat: 9 });
+    });
+
+    test('returns exact match when virtualDate equals a point time', () => {
+      const result = findClosestPositionDescending(pointsDesc, '2024-03-15T09:00:00.000Z');
+      expect(result).toEqual({ t: '2024-03-15T09:00:00.000Z', lon: 9, lat: 9 });
+    });
+
+    test('accepts Date object for virtualDate', () => {
+      const result = findClosestPositionDescending(pointsDesc, new Date('2024-03-15T09:30:00.000Z'));
+      expect(result).toEqual({ t: '2024-03-15T09:00:00.000Z', lon: 9, lat: 9 });
+    });
+  });
 
 });

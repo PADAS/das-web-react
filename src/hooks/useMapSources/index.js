@@ -1,6 +1,7 @@
 import { useContext, useEffect, useRef } from 'react';
 
 import { MapContext } from '../../App';
+import { safeRemoveMapSource } from '../../utils/map';
 
 
 const useMapSources = (sourceConfigsBatch = [], defaultConfig = { type: 'geojson' }) => {
@@ -39,7 +40,7 @@ const useMapSources = (sourceConfigsBatch = [], defaultConfig = { type: 'geojson
         setTimeout(() => {
           refs.forEach(id => {
             if (map?.getSource(id)) {
-              map.removeSource(id);
+              safeRemoveMapSource(map, id);
             }
           });
         });

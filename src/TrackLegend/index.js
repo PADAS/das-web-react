@@ -31,6 +31,7 @@ const TrackLegend = ({
   onRemoveItemTracks,
   showTimeOfDaySettings = true,
   showTrackSettings = true,
+  titleSuffix,
 }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('tracks', { keyPrefix: 'trackLegend' });
@@ -104,6 +105,7 @@ const TrackLegend = ({
               {items[0].icon}
 
               <p className={styles.title} data-testid="points-over-time" title={items[0].title}>{items[0].title}</p>
+              {titleSuffix}
             </>
             : <>
               <TracksOffIcon className={styles.tracksOffIcon} data-testid="tracks-off-icon" />
@@ -119,6 +121,7 @@ const TrackLegend = ({
               >
                 {`${items.length} ${itemsName}`}
               </button>
+              {titleSuffix}
             </>}
         </div>
 

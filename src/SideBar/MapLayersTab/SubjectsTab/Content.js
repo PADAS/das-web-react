@@ -119,8 +119,6 @@ const ContentComponent = (props) => {
     if (subjectTrackIDsToLoad.length) {
       setTrackLoadingState(true);
 
-      await fetchTracksIfNecessary(subjectTrackIDsToLoad);
-
       setTrackLoadingState(false);
     }
 

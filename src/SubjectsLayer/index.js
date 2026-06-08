@@ -3,7 +3,7 @@ import { featureCollection } from '@turf/turf';
 import { useSelector } from 'react-redux';
 
 import { addFeatureCollectionImagesToMap } from '../utils/map';
-import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
+import { selectFreshMapSubjectsFeatureCollection } from '../selectors/subjects';
 import { selectShouldSubjectsBeClustered } from '../selectors/clusters';
 import { DEFAULT_SYMBOL_LAYOUT, LAYER_IDS, SOURCE_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { MapContext } from '../App';
@@ -31,11 +31,12 @@ const UNCLUSTERED_FILTER = [
 const UNCLUSTERED_LAYER_ID = `${SUBJECT_SYMBOLS}-unclustered`;
 const UNCLUSTERED_SOURCE_ID = 'subject-symbol-source';
 
-const SubjectsLayer = ({ mapImages = {}, onSubjectClick }) => {
+const SubjectsLayer = ({ mapImages = {}, onSubjectClick, subjectFeatureCollectionOverride }) => {
   const map = useContext(MapContext);
 
   const shouldSubjectsBeClustered = useSelector(selectShouldSubjectsBeClustered);
-  const subjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);
+  const freshSubjectFeatureCollection = useSelector(selectFreshMapSubjectsFeatureCollection);
+  const subjectFeatureCollection = subjectFeatureCollectionOverride ?? freshSubjectFeatureCollection;
 
   const [mapSubjectFeatures, setMapSubjectFeatures] = useState(featureCollection([]));
   const [subjectLayerIds, setSubjectLayerIds] = useState([]);

@@ -46,7 +46,6 @@ import EventsLayer from '../EventsLayer';
 import GearLayer from '../GearLayer';
 import SubjectsLayer from '../SubjectsLayer';
 import StaticSensorsLayer from '../StaticSensorsLayer';
-import TracksLayer from '../TracksLayer';
 import PatrolStartStopLayer from '../PatrolStartStopLayer';
 import AnalyzerLayer from '../AnalyzersLayer';
 import PopupLayer from '../PopupLayer';
@@ -64,6 +63,10 @@ import MessageBadgeLayer from '../MessageBadgeLayer';
 import MapImagesLayer from '../MapImagesLayer';
 import SleepDetector from '../SleepDetector';
 import ClustersLayer from '../ClustersLayer';
+import SubjectTileLayer from '../SubjectTileLayer';
+import TrackSegmentsLayer from '../TrackSegmentsLayer';
+import RealtimeOverlayLayer from '../RealtimeOverlayLayer';
+import { fetchRealtimeOverlay } from '../ducks/realtime-overlay';
 import SpatialFeaturesLayer, {
   SYMBOLS_LAYER_ID,
   LINES_LAYER_ID,
@@ -136,7 +139,6 @@ const Map = ({ children, onMapLoad, socket }) => {
   const patrolTrackState = useSelector(state => state.view.patrolTrackState);
   const popup = useSelector(state => state.view.popup);
   const showReportHeatmap = useSelector(state => state.view.showReportHeatmap);
-  const showTrackTimepoints = useSelector(state => state.view.showTrackTimepoints);
   const spatialFeaturesEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]);
   const subjectTrackState = useSelector(state => state.view.subjectTrackState);
   const subjectsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SUBJECTS]);
@@ -157,6 +159,7 @@ const Map = ({ children, onMapLoad, socket }) => {
   ), [dispatch]);
 
   const trackRequestCancelToken = useRef(CancelToken.source());
+  const overlayCancelToken = useRef(CancelToken.source());
 
   const timeSliderActive = timeSliderState.active;
 
@@ -178,7 +181,6 @@ const Map = ({ children, onMapLoad, socket }) => {
   } = analyzersFeatureCollection;
 
   const subjectHeatmapAvailable = !!heatmapSubjectIDs.length;
-  const subjectTracksVisible = !!subjectTrackState.pinned.length || !!subjectTrackState.visible.length;
   const patrolTracksVisible = !!patrolTrackState.pinned.length || !!patrolTrackState.visible.length;
 
   const onReportMarkerDrop = useCallback((location) => {
@@ -211,7 +213,6 @@ const Map = ({ children, onMapLoad, socket }) => {
       .map(({ id }) => id));
   }, [eventFilter.filter.date_range.lower, resetTrackRequestCancelToken]);
 
-
   const fetchMapSubjectsFromTimeslider = useCallback(() => {
     const args = [map];
 
@@ -222,9 +223,9 @@ const Map = ({ children, onMapLoad, socket }) => {
     }
 
     return dispatch(fetchMapSubjects(...args))
-      .then((latestMapSubjects) => timeSliderActive
+      .then((latestMapSubjects) => (timeSliderActive
         ? fetchMapSubjectTracksForTimeslider(latestMapSubjects)
-        : Promise.resolve(latestMapSubjects))
+        : Promise.resolve(latestMapSubjects)))
       .catch(() => { });
   },
   [
@@ -299,8 +300,6 @@ const Map = ({ children, onMapLoad, socket }) => {
       const { id, tracks_available } = properties;
 
       window.setTimeout(() => showPopup('subject', { geometry, properties, coordinates: geometry.coordinates }));
-
-      await tracks_available ? fetchTracksIfNecessary([id]) : new Promise(resolve => resolve());
 
       if (tracks_available) {
         dispatch(
@@ -575,6 +574,17 @@ const Map = ({ children, onMapLoad, socket }) => {
     }
   }, [fetchMapData, map, timeSliderState.active]);
 
+  // Cancel previous overlay request when map/subjectsEnabled changes; cleanup aborts on unmount.
+  useEffect(() => {
+    if (!map || !subjectsEnabled) return;
+    overlayCancelToken.current.cancel();
+    overlayCancelToken.current = CancelToken.source();
+    dispatch(fetchRealtimeOverlay(map, overlayCancelToken.current));
+    return () => {
+      overlayCancelToken.current.cancel();
+    };
+  }, [dispatch, map, subjectsEnabled]);
+
   useEffect(() => {
     if (!!map && heatmapSubjectIDs.length && showReportHeatmap) {
       onCloseReportHeatmap();
@@ -705,6 +715,7 @@ const Map = ({ children, onMapLoad, socket }) => {
       {children}
 
       <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
+      <MapImagesLayer />
 
       {eventsEnabled && <EventsLayer
         mapImages={mapImages}
@@ -712,17 +723,26 @@ const Map = ({ children, onMapLoad, socket }) => {
         bounceEventIDs={bounceEventIDs}
       />}
 
-      {subjectsEnabled && <SubjectsLayer mapImages={mapImages} onSubjectClick={onSelectSubject} />}
+      {/* Stale subjects: vector tiles. Fresh subjects: GeoJSON. Both are intentional (see SubjectTileLayer). */}
+      {subjectsEnabled && <>
+        {!timeSliderActive && <SubjectTileLayer onSubjectClick={onSelectSubject} />}
+
+        <SubjectsLayer
+        mapImages={mapImages}
+        onSubjectClick={onSelectSubject}
+        subjectFeatureCollectionOverride={timeSliderActive ? mapSubjectFeatureCollection : undefined}
+        />
+
+        <StaticSensorsLayer />
+
+        {!!messageableMapSubjects.length && <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />}
+      </>}
 
       {hasGear && <GearLayer onGearClick={onSelectGear} />}
 
       <MapImagesLayer />
 
       <UserCurrentLocationLayer onIconClick={onCurrentUserLocationClick} />
-
-      {subjectsEnabled && <StaticSensorsLayer />}
-
-      {subjectsEnabled && !!messageableMapSubjects.length && <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />}
 
       {eventsEnabled && <DelayedUnmount isMounted={!currentTab && !mapLocationSelection.isPickingLocation}>
         <div className='floating-report-filter'>
@@ -752,7 +772,10 @@ const Map = ({ children, onMapLoad, socket }) => {
       {subjectHeatmapAvailable && <SubjectHeatLayer />}
       {showReportHeatmap && <ReportsHeatLayer />}
 
-      {subjectTracksVisible && <TracksLayer onPointClick={onTimepointClick} showTimepoints={showTrackTimepoints} />}
+      <TrackSegmentsLayer onPointClick={onTimepointClick} />
+
+      {subjectsEnabled && <RealtimeOverlayLayer onSubjectClick={onSelectSubject} />}
+
       {patrolTracksVisible && <PatrolStartStopLayer />}
 
       {patrolTracksVisible && <PatrolTracks onPointClick={onTimepointClick} />}

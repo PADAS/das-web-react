@@ -2,7 +2,7 @@ import axios, { CancelToken } from 'axios';
 import union from 'lodash/union';
 import merge from 'lodash/merge';
 
-import { API_URL } from '../constants';
+import { API_URL, FRESH_SUBJECT_WINDOW_MS } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
 import { getBboxParamsFromMap } from '../utils/query';
 import { calcUrlForImage } from '../utils/img';
@@ -50,12 +50,19 @@ const cancelableMapSubjectsFetch = () => {
       cancelToken.cancel();
       cancelToken = CancelToken.source();
 
+      const { updated_since: paramUpdatedSince, ...restParams } = params || {};
+      let updated_since = paramUpdatedSince;
+      if (!timeSliderActive && !updated_since) {
+        updated_since = new Date(Date.now() - FRESH_SUBJECT_WINDOW_MS).toISOString();
+      }
+
       return axios.get(SUBJECTS_API_URL, {
         cancelToken: cancelToken.token,
         params: {
           bbox,
           use_lkl,
-          ...params,
+          ...restParams,
+          ...(updated_since ? { updated_since } : {}),
           include_inactive: false,
         }
       })

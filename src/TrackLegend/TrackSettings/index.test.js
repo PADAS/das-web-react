@@ -91,14 +91,14 @@ describe('TrackLegend - TrackSettings', () => {
     store.view.trackSettings.origin = TRACK_LENGTH_ORIGINS.EVENT_FILTER;
     renderTrackSettings();
 
-    expect(screen.getByRole('slider')).toBeDisabled();
+    expect(screen.getByRole('slider', { name: 'Track length in days' })).toBeDisabled();
     expect(screen.getAllByLabelText('Track length in days')[1]).toBeDisabled();
   });
 
   test('does not disable the track length inputs if the track length origin is a custom length', async () => {
     renderTrackSettings();
 
-    expect(screen.getByRole('slider')).toBeEnabled();
+    expect(screen.getByRole('slider', { name: 'Track length in days' })).toBeEnabled();
     expect(screen.getAllByLabelText('Track length in days')[1]).toBeEnabled();
   });
 
@@ -108,7 +108,7 @@ describe('TrackLegend - TrackSettings', () => {
     expect(setTrackLength).toHaveBeenCalledTimes(1);
     expect(setTrackLength).toHaveBeenCalledWith(21);
 
-    fireEvent.change(screen.getByRole('slider'), { target: { value: 60 } });
+    fireEvent.change(screen.getByRole('slider', { name: 'Track length in days' }), { target: { value: 60 } });
 
     expect(setTrackLength).toHaveBeenCalledTimes(2);
     expect(setTrackLength).toHaveBeenCalledWith(60);
@@ -130,7 +130,7 @@ describe('TrackLegend - TrackSettings', () => {
     renderTrackSettings();
 
     fireEvent.change(screen.getAllByLabelText('Track length in days')[1], { target: { value: 0 } });
-    const customLenghtSlider = screen.getByRole('slider');
+    const customLenghtSlider = screen.getByRole('slider', { name: 'Track length in days' });
     const customLenghtNumericInput = screen.getAllByLabelText('Track length in days')[1];
 
     expect(screen.getByText('Please enter a track length between 1 and 365.')).toBeVisible();
@@ -143,7 +143,7 @@ describe('TrackLegend - TrackSettings', () => {
   test('does not show an error if the custom length inputs have a valid value', async () => {
     renderTrackSettings();
 
-    const customLenghtSlider = screen.getByRole('slider');
+    const customLenghtSlider = screen.getByRole('slider', { name: 'Track length in days' });
     const customLenghtNumericInput = screen.getAllByLabelText('Track length in days')[1];
 
     expect(screen.queryByText('Please enter a track length between 1 and 365.')).toBeNull();

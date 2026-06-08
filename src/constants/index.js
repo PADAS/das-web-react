@@ -18,6 +18,13 @@ export const DAS_HOST = import.meta.env.REACT_APP_DAS_HOST
 
 export const CLIENT_BUILD_VERSION = `${buildbranch}-${buildnum}`;
 
+// Subjects with a last-position newer than this are "fresh" and fetched via
+// the GeoJSON API; older subjects are rendered from vector tiles only.
+export const FRESH_SUBJECT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+
+// Realtime overlay: fetch last N ms of GeoJSON to cover data outside vector tile TTL (~15 min).
+export const REALTIME_OVERLAY_WINDOW_MS = 30 * 60 * 1000; // 30 minutes
+
 export const MIN_ZOOM = 2.5;
 export const MAX_ZOOM = 20;
 
@@ -350,6 +357,12 @@ export const BOOTSTRAP_DEFAULTS = {
   MODAL_ZINDEX: 1055,
 };
 
+/** Fallback line color when a datetime property is present but no period matches (see `getTimeOfDayLineColorExpression`). */
+export const TIME_OF_DAY_LINE_COLOR_FALLBACK = '#2ec27e';
+/**
+ * Local time-of-day buckets as minutes 1–1440 for track line coloring (`getTimeOfDayLineColorExpression`).
+ * Labels (rangeString) are for UI; minute bounds must stay consistent with that expression.
+ */
 export const TIME_OF_DAY_PERIODS = [
   {
     rangeString: '12:01 - 15:00',
@@ -390,14 +403,14 @@ export const TIME_OF_DAY_PERIODS = [
   {
     rangeString: '06:01 - 09:00',
     rangeMinutesMin: 361,
-    rangeMinutesMax: 54,
+    rangeMinutesMax: 540,
     color: '#29a272'
   },
   {
     rangeString: '09:01 - 12:00',
-    rangeMinutesMin: 55,
+    rangeMinutesMin: 541,
     rangeMinutesMax: 720,
-    color: '#2ec27e'
+    color: TIME_OF_DAY_LINE_COLOR_FALLBACK,
   }
 ];
 

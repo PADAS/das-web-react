@@ -40,9 +40,9 @@ const SubjectPopup = ({ data }) => {
   const { geometry, properties } = data;
   const isStatic = subjectIsStatic(data);
 
-  const coordProps = typeof properties.coordinateProperties === 'string'
+  const coordProps = (typeof properties.coordinateProperties === 'string'
     ? JSON.parse(properties.coordinateProperties)
-    : properties.coordinateProperties;
+    : properties.coordinateProperties) || {};
 
   const device_status_properties = getDeviceStatusPropertiesForSubject(properties);
 

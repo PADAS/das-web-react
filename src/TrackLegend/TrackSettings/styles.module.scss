@@ -89,4 +89,57 @@
     margin: 0;
     margin-left: 1rem;
   }
+
+  .segmentationSettings {
+    border: none;
+    margin-top: 1rem;
+    padding: 0;
+
+    .segmentationLegend {
+      color: black;
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .segmentationControl {
+      margin-bottom: 0.75rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .segmentationHeader {
+        align-items: center;
+        display: flex;
+        margin-bottom: 0.25rem;
+
+        .checkbox {
+          height: 0.875rem;
+          outline-color: colors.$bright-blue;
+          width: 0.875rem;
+        }
+
+        .label {
+          color: black;
+          font-size: 0.875rem;
+          margin-left: 0.25rem;
+        }
+      }
+
+      .sliderInputs {
+        align-items: center;
+        display: flex;
+        padding-left: 1rem;
+
+        .rangeInput {
+          margin-right: 0.5rem;
+          min-width: 10rem;
+        }
+
+        .numberInput {
+          max-width: 4rem;
+        }
+      }
+    }
+  }
 }

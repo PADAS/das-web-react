@@ -1,15 +1,17 @@
 import React, { memo, useContext, useMemo, useCallback, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { MapContext } from '../App';
-import { addMapImage, buildGeoSpanFilter } from '../utils/map';
+import { addMapImage, safeRemoveMapLayer, safeRemoveMapSource, buildGeoSpanFilter } from '../utils/map';
 import { API_URL, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, SYSTEM_CONFIG_FLAGS } from '../constants';
+import { selectTrackLengthInDays } from '../selectors/tracks';
 
 import MarkerImage from '../common/images/icons/mapbox-blue-marker-icon.png';
 import RangerStationsImage from '../common/images/icons/ranger-stations.png';
 
 const SPATIAL_FEATURES_SOURCE = 'spatial-features-source';
 
-const VECTOR_TILE_URL = `${API_URL}spatialfeatures/tiles/{z}/{x}/{y}.pbf`;
+const VECTOR_TILE_BASE = `${API_URL}spatialfeatures/tiles/{z}/{x}/{y}.pbf`;
+const buildVectorTileUrl = (rangeParam) => `${VECTOR_TILE_BASE}?range=${rangeParam}`;
 
 export const SYMBOLS_LAYER_ID = 'spatial-features-symbols';
 // const SYMBOLS_LABELS_LAYER_ID = 'spatial-features-point-labels';
@@ -65,6 +67,8 @@ const LINE_LAYERS_PAINT = {
 const SpatialFeaturesLayer = ({ onFeatureClick }) => {
   const map = useContext(MapContext);
   const token = useSelector(state => state.data.token);
+  const trackLengthInDays = useSelector(selectTrackLengthInDays);
+  const rangeParam = trackLengthInDays <= 45 ? '45' : 'all';
   const geoSpan = useSelector(state => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.GEO_SPAN]);
   const mapFeatureHighlightIDs = useSelector(state => state.view.mapFeatureHighlightIDs || []);
   const hiddenFeatureIDs = useSelector(state => state.data.mapLayerFilter?.hiddenFeatureIDs ?? []);
@@ -101,7 +105,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
       const geoSpanFilter = buildGeoSpanFilter(geoSpan);
       map.addSource(SPATIAL_FEATURES_SOURCE, {
         type: 'vector',
-        tiles: [VECTOR_TILE_URL],
+        tiles: [buildVectorTileUrl(rangeParam)],
         minzoom: 0,
         maxzoom: 22,
         ...(geoSpanFilter && { bounds: geoSpanFilter }),
@@ -309,16 +313,16 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
     map.on('mouseleave', SYMBOLS_LAYER_ID, onMouseLeave);
 
     return () => {
+      if (!map) return;
       layerIds.forEach(layerId => {
         if (map.getLayer(layerId)) {
           map.off('click', layerId, handleFeatureClick);
-          map.removeLayer(layerId);
+          safeRemoveMapLayer(map, layerId);
         }
       });
-
       map.off('mouseenter', SYMBOLS_LAYER_ID, onMouseEnter);
       map.off('mouseleave', SYMBOLS_LAYER_ID, onMouseLeave);
-      map.removeSource(SPATIAL_FEATURES_SOURCE);
+      safeRemoveMapSource(map, SPATIAL_FEATURES_SOURCE);
     };
     /*
       # disable exhaustive dependencies here, since
@@ -326,7 +330,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
       # this will help us support possible in-memory retention/rehydration in the future (via saved app state).
     */
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map, handleFeatureClick, onMouseEnter, onMouseLeave, token?.access_token]);
+  }, [map, rangeParam, handleFeatureClick, onMouseEnter, onMouseLeave, token?.access_token]);
 
   /* highlight spatial features based on the values in mapFeatureHighlightIDs */
   useEffect(() => {

@@ -16,12 +16,12 @@ const selectIsTimeOfDayColoringActive = (state) => state.view.trackSettings.isTi
 const selectSubjectTrackState = (state) => state.view.subjectTrackState;
 const selectTimeOfDayTimeZone = (state) => state.view.trackSettings.timeOfDayTimeZone;
 const selectTimeSliderState = (state) => state.view.timeSliderState;
-const selectTracks = (state) => state.data.tracks;
+export const selectTracks = (state) => state.data.tracks;
 const selectSubjectStore = (state) => state.data.subjectStore;
 const selectTrackSettingsLength = (state) => state.view.trackSettings.length;
 const selectTrackSettingsOrigin = (state) => state.view.trackSettings.origin;
 
-const selectTrackLengthInDays = createSelector(
+export const selectTrackLengthInDays = createSelector(
   [selectEventFilterLowerDateRange, selectTrackSettingsLength, selectTrackSettingsOrigin],
   (eventFilterLowerDateRange, trackSettingsLength, trackSettingsOrigin) =>
     // Get the track length in days depending on the origin set in the track settings.
@@ -44,7 +44,7 @@ export const selectTrackTimeEnvelope = createSelector(
         // start from the virtual date, until the virtual date.
         return {
           from: new Date(Math.max(trackLengthStartFromVirtualDate, new Date(eventFilterLowerDateRange))),
-          until: timeSliderState.virtualDate,
+          until: new Date(timeSliderState.virtualDate),
         };
       }
       // If the time slider is active but there is no virtual date the envelope is from whatever is more recent, the
@@ -97,6 +97,33 @@ const selectSubjectShownTracks = createSelector(
     });
     return subjectTracks;
   }
+);
+
+/**
+ * Subject IDs that currently have tracks visible or pinned (vector or legacy).
+ * Use this to drive the track legend and layer filters without requiring fetched GeoJSON.
+ */
+export const selectSubjectTrackVisibleIds = createSelector(
+  [selectSubjectTrackState],
+  (subjectTrackState) => uniq([...subjectTrackState.pinned, ...subjectTrackState.visible])
+);
+
+/**
+ * Legend item data for subjects with tracks visible/pinned, from subjectStore only.
+ * Does not depend on state.data.tracks, so the legend works when tracks are from vector tiles.
+ */
+export const selectSubjectTrackLegendItemsData = createSelector(
+  [selectSubjectTrackVisibleIds, selectSubjectStore],
+  (subjectIds, subjectStore) =>
+    subjectIds
+      .filter((id) => subjectStore[id])
+      .map((id) => {
+        const subject = subjectStore[id];
+        const lastPosition = subject?.last_position;
+        const title = lastPosition?.properties?.title ?? lastPosition?.properties?.name ?? subject?.name ?? id;
+        const imageUrl = lastPosition?.properties?.image ?? subject?.image_url ?? subject?.last_position?.properties?.image_url;
+        return { id, title, imageUrl };
+      })
 );
 
 export const selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod = createSelector(

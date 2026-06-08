@@ -5,11 +5,18 @@
     "trackLegendItemsName": "patrouilles"
   },
   "subjectTrackLegend": {
-    "description": "{{pointCount}} points sur {{trackTime}}",
     "itemDescription_one": "{{count}} point",
     "itemDescription_other": "{{count}} points",
     "itemIcon": "Icône pour {{title}}",
-    "trackLegendItemsName": "sujets"
+    "trackLegendItemsName": "sujets",
+    "popoverTriggerLabel": "Afficher la plage de dates et le nombre de points",
+    "tooltip": {
+      "dateRange": "{{from}} – {{until}}",
+      "untilNow": "maintenant",
+      "pointCount": "{{count}} points",
+      "pointCountLoading": "Chargement…",
+      "pointCountError": "Impossible de charger le nombre de points"
+    }
   },
   "trackLegend": {
     "clearTracksButton": "Effacer les trajectoires",
@@ -57,7 +64,12 @@
       "customLengthInputLabel": "Durée de la trajectoire en jours",
       "eventFilterRadioLabel": "Correspondre au filtre d'événements \"à partir de\" la date ({{length}} jours)",
       "title": "Paramètres des trajectoires",
-      "trackLengthLegend": "Durée de la trajectoire"
+      "trackLengthLegend": "Durée de la trajectoire",
+      "segmentationLegend": "Paramètres de segmentation",
+      "segmentOnTimeLabel": "Segmenter par temps (secondes)",
+      "segmentOnSpeedLabel": "Segmenter par vitesse (km/h)",
+      "timeGapInputLabel": "Intervalle de temps (secondes)",
+      "speedLimitInputLabel": "Limite de vitesse (km/h)"
     },
     "trackSettingsButtonLabel": {
       "closed": "Ouvrir les paramètres des trajectoires",

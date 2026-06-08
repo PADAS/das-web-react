@@ -1,5 +1,27 @@
+@import '../common/styles/buttons';
+
 .itemIcon {
   height: 1rem;
   margin-right: 0.5rem;
   min-width: 1.5rem;
+}
+
+.infoButton {
+  @include unstyledButton;
+}
+
+.infoIcon {
+  height: 1rem;
+  width: 1rem;
+}
+
+.trackDetailsPopover {
+  max-width: 20rem;
+}
+
+.popoverContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-align: left;
 }

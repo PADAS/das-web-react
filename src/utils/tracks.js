@@ -1,6 +1,6 @@
 import { bearing, explode, featureCollection } from '@turf/turf';
 import isEqual from 'react-fast-compare';
-import { CancelToken } from 'axios';
+import axios, { CancelToken } from 'axios';
 import {
   subDays,
   startOfDay,
@@ -14,7 +14,9 @@ import store from '../store';
 import { TRACK_LENGTH_ORIGINS, fetchTracks } from '../ducks/tracks';
 import { removeNullAndUndefinedValuesFromObject } from './objects';
 import { getTimeInTimezone } from './datetime';
-import { TIME_OF_DAY_PERIODS } from '../constants';
+import { API_URL, TIME_OF_DAY_PERIODS } from '../constants';
+
+const subjectTracksApiUrl = (id) => `${API_URL}subject/${id}/tracks/`;
 
 const MAX_ABSOLUTE_LONGITUDE = 180;
 const WORLD_TOTAL_LONGITUDE = 360;
@@ -92,6 +94,47 @@ export const fixAntimeridianCrossing = (featCollection) => {
   });
 
   return featCollection;
+};
+
+/**
+ * Count track points in a GeoJSON FeatureCollection (e.g. API track response).
+ * Does not mutate; safe to call then discard the collection.
+ * @param {object} featureCollection - GeoJSON FeatureCollection
+ * @returns {number}
+ */
+export const countTrackPointsInFeatureCollection = (featureCollection) => {
+  if (!featureCollection?.features?.length) return 0;
+  return featureCollection.features.reduce((total, f) => {
+    const coords = f?.geometry?.coordinates;
+    if (!coords) return total;
+    if (Array.isArray(coords[0]) && typeof coords[0][0] === 'number') {
+      return total + coords.length; // LineString
+    }
+    if (Array.isArray(coords[0]) && Array.isArray(coords[0][0])) {
+      return total + coords.reduce((s, ring) => s + ring.length, 0); // MultiLineString or Polygon
+    }
+    return total;
+  }, 0);
+};
+
+/**
+ * Fetches track GeoJSON for the given subjects and date range, counts points, then discards the response.
+ * Does not write to Redux `tracks` (vector tiles may already supply geometry).
+ */
+export const fetchTrackPointCount = async (subjectIds, from, until, signal) => {
+  if (!subjectIds?.length || !from) return 0;
+  const since = from.toISOString();
+  const untilParam = until ? until.toISOString() : new Date().toISOString();
+  const params = { since, until: untilParam };
+  const responses = await Promise.all(
+    subjectIds.map((id) => axios.get(subjectTracksApiUrl(id), { params, signal }))
+  );
+  let total = 0;
+  for (const res of responses) {
+    const fc = res?.data?.data;
+    if (fc) total += countTrackPointsInFeatureCollection(fc);
+  }
+  return total;
 };
 
 export const convertTrackFeatureCollectionToPoints = feature => {
@@ -174,6 +217,29 @@ export const findTimeEnvelopeIndices = (times, from = null, until = null) => {
     }
   }
   return results;
+};
+
+/**
+ * Binary search for "closest but not over" virtualDate in a time series ordered by t descending.
+ * Returns the point { t, lon, lat } at or before virtualDate (most recent such point), or null.
+ * Used for replay when the API returns points in natural/descending order.
+ */
+export const findClosestPositionDescending = (points, virtualDate) => {
+  if (!points?.length || virtualDate == null) return null;
+  const v = new Date(virtualDate);
+  let low = 0;
+  let high = points.length - 1;
+  if (new Date(points[high].t) > v) return null;
+  if (new Date(points[0].t) <= v) return points[0];
+  while (low < high) {
+    const mid = (low + high) >> 1;
+    if (new Date(points[mid].t) > v) {
+      low = mid + 1;
+    } else {
+      high = mid;
+    }
+  }
+  return points[low] && new Date(points[low].t) <= v ? points[low] : null;
 };
 
 export const trimArrayWithEnvelopeIndices = (collection, envelope = {}) => {

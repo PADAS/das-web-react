@@ -5,11 +5,18 @@
     "trackLegendItemsName": "patrols"
   },
   "subjectTrackLegend": {
-    "description": "{{pointCount}} points over {{trackTime}}",
     "itemDescription_one": "{{count}} point",
     "itemDescription_other": "{{count}} points",
     "itemIcon": "Icon for {{title}}",
-    "trackLegendItemsName": "subjects"
+    "trackLegendItemsName": "subjects",
+    "popoverTriggerLabel": "Show date range and point count",
+    "tooltip": {
+      "dateRange": "{{from}} – {{until}}",
+      "untilNow": "now",
+      "pointCount": "{{count}} points",
+      "pointCountLoading": "Loading…",
+      "pointCountError": "Could not load point count"
+    }
   },
   "trackLegend": {
     "clearTracksButton": "Clear Tracks",
@@ -57,7 +64,12 @@
       "customLengthInputLabel": "Track length in days",
       "eventFilterRadioLabel": "Match event filter \"from\" date ({{length}} days)",
       "title": "Track Settings",
-      "trackLengthLegend": "Track Length"
+      "trackLengthLegend": "Track Length",
+      "segmentationLegend": "Segmentation Settings",
+      "segmentOnTimeLabel": "Segment on Time (seconds)",
+      "segmentOnSpeedLabel": "Segment on Speed (km/h)",
+      "timeGapInputLabel": "Time gap (seconds)",
+      "speedLimitInputLabel": "Speed limit (km/h)"
     },
     "trackSettingsButtonLabel": {
       "closed": "Open the track settings",

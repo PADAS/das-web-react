@@ -162,3 +162,13 @@ export const getTimeInTimezone = (date, timeZone) => new Intl.DateTimeFormat('en
   hourCycle: 'h23',
 }).format(date);
 
+/** UTC vs `timeZone` offset in minutes, for time-of-day Mapbox expressions (sampled at current instant). */
+export const getTimezoneOffsetMinutes = (timeZone) => {
+  const referenceDate = new Date();
+  const utcMins = referenceDate.getUTCHours() * 60 + referenceDate.getUTCMinutes();
+  const localStr = getTimeInTimezone(referenceDate, timeZone);
+  const [localHours, localMinutes] = localStr.split(':').map(Number);
+  const localMins = localHours * 60 + localMinutes;
+  return localMins - utcMins;
+};
+

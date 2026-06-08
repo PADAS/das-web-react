@@ -17,6 +17,7 @@ import mapsReducer, { homeMapReducer } from '../ducks/maps';
 import mapPositionReducer, { persistenceConfig as mapPositionPersistenceConfig } from '../ducks/map-position';
 import tracksReducer, { trackSettingsReducer } from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer, subjectStoreReducer } from '../ducks/subjects';
+import realtimeOverlayReducer from '../ducks/realtime-overlay';
 import gearReducer from '../ducks/gear';
 import systemConfigReducer from '../ducks/system-config';
 import systemStatusReducer from '../ducks/system-status';
@@ -112,6 +113,7 @@ const rootReducer = combineReducers({
     reports: externalReportingReducer,
     subjectGroups: subjectGroupsReducer,
     subjectStore: subjectStoreReducer,
+    realtimeOverlay: realtimeOverlayReducer,
     systemStatus: systemStatusReducer,
     token: persistReducer(tokenPersistenceConfig, tokenReducer),
     tracks: tracksReducer,

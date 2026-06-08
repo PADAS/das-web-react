@@ -5,6 +5,7 @@ import { refreshTrackOnBulkObservationUpdateIfNecessary } from '../../ducks/trac
 import { updateMessageFromRealtime } from '../../ducks/messaging';
 import { socketEventData } from '../../ducks/events';
 import { updateSocketHealthStatus } from '../../ducks/system-status';
+import { updateOverlayFromSubjectStatus } from '../../ducks/realtime-overlay';
 
 const SOCKET_DISPATCHES = {
   resp_authorization: [/* 'SOCKET_AUTH_RESPONSE' ,*/ () => updateSocketHealthStatus(SOCKET_HEALTHY_STATUS)],
@@ -16,7 +17,7 @@ const SOCKET_DISPATCHES = {
   reconnecting: [/* 'SOCKET_RECONNECTING' ,*/() => updateSocketHealthStatus(SOCKET_WARNING_STATUS)],
   service_status: [SOCKET_SERVICE_STATUS, () => updateSocketHealthStatus(SOCKET_HEALTHY_STATUS)],
   socket_error: [/* 'SOCKET_WEBSOCKET_ERROR' ,*/() => updateSocketHealthStatus(SOCKET_UNHEALTHY_STATUS)],
-  subject_status: [SOCKET_SUBJECT_STATUS, () => updateSocketHealthStatus(SOCKET_HEALTHY_STATUS)],
+  subject_status: [updateOverlayFromSubjectStatus, SOCKET_SUBJECT_STATUS, () => updateSocketHealthStatus(SOCKET_HEALTHY_STATUS)],
   new_patrol: [socketCreatePatrol, () => updateSocketHealthStatus(SOCKET_HEALTHY_STATUS)],
   update_patrol: [socketUpdatePatrol, () => updateSocketHealthStatus(SOCKET_HEALTHY_STATUS)],
   delete_patrol: [socketDeletePatrol, () => updateSocketHealthStatus(SOCKET_HEALTHY_STATUS)],

@@ -52,7 +52,7 @@ describe('Selectors - Tracks', () => {
       };
       expect(selectTrackTimeEnvelope(state)).toEqual({
         from: new Date('2020-05-11T06:00:00.000Z'),
-        until: '2020-06-01T06:00:00.000Z',
+        until: new Date('2020-06-01T06:00:00.000Z'),
       });
     });
 

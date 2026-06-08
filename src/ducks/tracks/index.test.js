@@ -54,6 +54,10 @@ describe('Ducks - Tracks', () => {
         length: 21,
         origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH,
         timeOfDayTimeZone: null,
+        isSegmentOnTimeEnabled: false,
+        isSegmentOnSpeedEnabled: false,
+        segmentTimeGapLength: 3600,
+        segmentSpeedLimit: 60,
       };
 
       expect(trackSettingsReducer(INITIAL_TRACK_SETTINGS_STATE, action)).toEqual(expectedState);
@@ -67,6 +71,10 @@ describe('Ducks - Tracks', () => {
         length: 21,
         origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH,
         timeOfDayTimeZone: null,
+        isSegmentOnTimeEnabled: false,
+        isSegmentOnSpeedEnabled: false,
+        segmentTimeGapLength: 3600,
+        segmentSpeedLimit: 60,
       };
 
       expect(trackSettingsReducer(INITIAL_TRACK_SETTINGS_STATE, action)).toEqual(expectedState);
@@ -80,6 +88,10 @@ describe('Ducks - Tracks', () => {
         length: 21,
         origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH,
         timeOfDayTimeZone: 'America/Mexico_City',
+        isSegmentOnTimeEnabled: false,
+        isSegmentOnSpeedEnabled: false,
+        segmentTimeGapLength: 3600,
+        segmentSpeedLimit: 60,
       };
 
       expect(trackSettingsReducer(INITIAL_TRACK_SETTINGS_STATE, action)).toEqual(expectedState);
@@ -93,6 +105,10 @@ describe('Ducks - Tracks', () => {
         length: 60,
         origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH,
         timeOfDayTimeZone: null,
+        isSegmentOnTimeEnabled: false,
+        isSegmentOnSpeedEnabled: false,
+        segmentTimeGapLength: 3600,
+        segmentSpeedLimit: 60,
       };
 
       expect(trackSettingsReducer(INITIAL_TRACK_SETTINGS_STATE, action)).toEqual(expectedState);
@@ -106,6 +122,10 @@ describe('Ducks - Tracks', () => {
         length: 21,
         origin: TRACK_LENGTH_ORIGINS.EVENT_FILTER,
         timeOfDayTimeZone: null,
+        isSegmentOnTimeEnabled: false,
+        isSegmentOnSpeedEnabled: false,
+        segmentTimeGapLength: 3600,
+        segmentSpeedLimit: 60,
       };
 
       expect(trackSettingsReducer(INITIAL_TRACK_SETTINGS_STATE, action)).toEqual(expectedState);
