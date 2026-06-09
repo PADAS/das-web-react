@@ -371,13 +371,17 @@
     "periodInputLabel": "Sehemu ya siku"
   },
   "timeSlider": {
+    "closeButtonLabel": "Funga kishikilia muda",
+    "dateRangeButtonLabel": "Badilisha masafa ya tarehe",
+    "endDateNowSliderLabel": "Sasa",
     "popoverHeader": "Upeo wa Tarehe",
     "popoverResetButton": "Rudisha",
-    "slider": "Kishikilia Muda",
+    "sliderLabel": "Kishikilia Muda",
     "timeSliderMapControl": {
       "iconTitle": "Kishikilia Muda"
     },
-    "untilNowButton": "Sasa"
+    "playButtonLabel": "Cheza kishikilia muda",
+    "stopButtonLabel": "Simama kishikilia muda"
   },
   "toastBody": {
     "defaultLinkTitle": "Bonyeza hapa",

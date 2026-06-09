@@ -243,6 +243,10 @@ Central `map` instance shared via `MapContext`.
 
 Component-specific styles use co-located `styles.module.scss`. Global partials in `src/common/styles/` are imported where needed. SVGs are imported as React components via `{ ReactComponent as XIcon } from '*.svg'`.
 
+#### Internationalization
+
+Translation files live under `public/locales/{locale}/`. Each locale directory contains one JSON file per UI namespace. All new user-facing strings must be added to every locale file, properly translated into each locale's language.
+
 #### Event form schema
 
 The server stores a canonical **JSON Schema** per event type. Client-side editing and rendering use a flat **formElements** structure derived from it. Transformation utilities live in `utils/v2-event-schemas/`.

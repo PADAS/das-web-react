@@ -1,101 +1,230 @@
-@import '../common/styles/buttons';
-@import '../common/styles/vars/colors';
-@import '../common/styles/layout';
+@use 'sass:color';
 
+@use '../common/styles/vars/colors';
+@use '../common/styles/layout';
 
-$track-color: rgba(white, 0.35);
-$thumb-color: lighten(#CCC, 15%);
-$track-color__active: #3eb2f0;
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0.2rem rgba(colors.$bright-green, 0.3);
+  }
 
-$thumb-radius: 2.25rem;
-$thumb-height: 2.75rem;
-$thumb-shadow-size: 0.0625rem;
-$thumb-shadow-blur: 0.0625rem;
-$thumb-shadow-color: #111;
-$thumb-border-width: 0.0625rem;
-$thumb-border-color: white;
-
-$track-width: 100%;
-$track-height: 0.333rem;
-$track-shadow-size: 0;
-$track-shadow-blur: 0;
-$track-shadow-color: #222;
-$track-border-width: 0;
-$track-border-color: black;
-
-$track-radius: 5px;
-$contrast: 25%;
-
-@mixin shadow($shadow-size,$shadow-blur,$shadow-color) {
-  box-shadow: $shadow-size $shadow-size $shadow-blur $shadow-color, 0px 0px $shadow-size lighten($shadow-color,5%);
-}
-
-.dateRangePopover {
-  top: -16rem;
-}
-
-.rightPopover.sidebarClosed {
-  > [class*=arrow] {
-    margin-left: 13rem;
+  50% {
+    box-shadow: 0 0 0 0.35rem rgba(colors.$bright-green, 0.1);
   }
 }
-
-@mixin track {
-  width: $track-width;
-  height: $track-height;
-  cursor: pointer;
-  animate: 0.2s;
-}
-
-@mixin thumbWidth {
-  --thumb-width: 6rem;
-  @media (min-width: $lg-layout-width-min) {
-    --thumb-width: 9rem;
-  }
-}
-
-@mixin thumb {
-  @include thumbWidth;
-  // @include shadow($thumb-shadow-size,$thumb-shadow-blur,$thumb-shadow-color);
-  border: $thumb-border-width solid $thumb-border-color;
-  height: $thumb-height;
-  width: var(--thumb-width);
-  border-radius: $thumb-radius;
-  background: rgba($thumb-color, 0.85);
-  cursor: pointer;
-  &:hover, &:active, &:focus {
-    background: $thumb-color;
-    outline: none;
-  }
-}
-
-@import '../common/styles/buttons';
 
 .wrapper {
+  align-items: center;
+  backdrop-filter: blur(22px) saturate(175%);
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 2rem;
   bottom: 1.5rem;
   display: flex;
-  left: 1rem;
-  position: absolute;
+  gap: 1rem;
+  height: 3.75rem;
   width: 70%;
-  z-index: 10;
+  left: 1rem;
+  padding: 0 0.5rem;
+  position: absolute;
 
-  @media (min-width: $md-layout-width-min) {
-    left: 5rem;
-    width: 75%;
-    transition: width 0.3s ease-in-out, left 0.3s ease-in-out;
+  .playStopButton {
+    align-items: center;
+    background: colors.$bright-blue;
+    border: none;
+    border-radius: 50%;
+    box-shadow: 0 3px 10px rgba(27, 111, 208, 0.4);
+    color: white;
+    display: flex;
+    flex-shrink: 0;
+    height: 2.625rem;
+    justify-content: center;
+    padding: 0;
+    width: 2.625rem;
 
-    &.sidebarOpen {
-      width: calc(75% - var(--sidebar-width));
-      left: calc(8rem + var(--sidebar-width));
+    svg {
+      height: 1.25rem;
+      width: 1.25rem;
+    }
+
+    &:hover {
+      background: darken(colors.$bright-blue, 8%);
+    }
+
+    &:focus-visible {
+      outline: 2px solid colors.$bright-blue;
+      outline-offset: 3px;
     }
   }
 
-  @media (min-width: $xl-layout-width-min) {
-    width: 85%;
+  .virtualDateWrapper {
+    display: none;
+    flex-direction: column;
+    flex-shrink: 0;
 
-    &.sidebarOpen {
-      width: calc(85% - var(--sidebar-width));
+    .virtualTime {
+      font-size: 1.125rem;
+      font-weight: 700;
+      line-height: 1;
     }
+
+    .virtualDate {
+      color: colors.$light-font-color;
+      font-size: 0.75rem;
+    }
+
+    @media (min-width: layout.$md-layout-width-min) {
+      display: flex;
+    }
+  }
+
+  .separator {
+    background-color: colors.$secondary-light-gray;
+    display: none;
+    height: 1.875rem;
+    width: 1px;
+
+    @media (min-width: layout.$md-layout-width-min) {
+      display: block;
+    }
+  }
+
+  .track {
+    flex: 1;
+    margin-right: 1rem;
+    min-width: 8rem;
+
+    .slider {
+      cursor: pointer;
+      width: 100%;
+
+      &::-webkit-slider-thumb {
+        border-radius: 50%;
+      }
+
+      &::-moz-range-thumb {
+        border-radius: 50%;
+      }
+
+      &:focus-visible {
+        outline: none;
+
+        &::-webkit-slider-thumb {
+          box-shadow: 0 0 0 2px white, 0 0 0 5px colors.$bright-blue;
+        }
+
+        &::-moz-range-thumb {
+          box-shadow: 0 0 0 2px white, 0 0 0 5px colors.$bright-blue;
+        }
+      }
+    }
+
+    .sliderLabels {
+      color: colors.$light-font-color;
+      display: flex;
+      font-size: 0.625rem;
+      justify-content: space-between;
+      line-height: 1;
+
+      .endDate {
+        align-items: center;
+        display: flex;
+
+        .nowDot {
+          animation: pulse 1.9s infinite;
+          background: colors.$bright-green;
+          border-radius: 50%;
+          box-shadow: 0 0 0 0.2rem rgba(colors.$bright-green, 0.3);
+          height: 0.5rem;
+          margin-right: 0.5rem;
+          width: 0.5rem;
+        }
+      }
+    }
+
+    @media (min-width: layout.$md-layout-width-min) {
+      margin-right: 0;
+    }
+  }
+
+  .dateRangeButton {
+    background-color: colors.$light-gray-background;
+    border: none;
+    border-radius: 0.25rem;
+    color: colors.$secondary-medium-gray;
+    display: none;
+    flex-shrink: 0;
+    font-size: 1rem;
+    font-weight: 500;
+    height: 2.25rem;
+    outline: none;
+    padding: 0 0.75rem;
+
+    &:hover {
+      background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+    }
+
+    &:focus-visible {
+      outline: 2px solid colors.$bright-blue;
+    }
+
+    &.modified {
+      background-color: colors.$bright-blue;
+      color: white;
+
+      &:hover {
+        background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+      }
+
+      &:focus-visible {
+        background-color: white;
+        color: colors.$bright-blue;
+        outline: 2px solid colors.$bright-blue;
+      }
+    }
+
+    svg {
+      height: 1.25rem;
+      width: 1.25rem;
+    }
+
+    @media (min-width: layout.$md-layout-width-min) {
+      display: block;
+    }
+  }
+
+  .closeButton {
+    align-items: center;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    color: colors.$secondary-medium-gray;
+    display: none;
+    height: 2.625rem;
+    justify-content: center;
+    outline: none;
+    padding: 0;
+    width: 2.625rem;
+
+    &:focus-visible {
+      outline: 2px solid colors.$bright-blue;
+      color: colors.$bright-blue;
+    }
+
+    &:hover {
+      color: colors.$dark-gray;
+    }
+
+    @media (min-width: layout.$md-layout-width-min) {
+      display: flex;
+    }
+  }
+
+  @media (min-width: layout.$md-layout-width-min) {
+    left: 50%;
+    transform: translateX(-50%);
+    transition: left 0.3s ease-in-out;
+    width: 66%;
   }
 
   @media print {
@@ -103,253 +232,43 @@ $contrast: 25%;
   }
 }
 
-.handle {
-  @include thumbWidth;
-  align-items: center;
-  display: none;
-  flex-flow: column;
-  height: $thumb-height;
-  justify-content: center;
-  padding: 0.5rem;
-  position: relative;
-  top: 0.15rem;
-  width: 10.5rem;
-  @media (min-width: 2560px) {
-     width: 9.8rem;
-   }
-  &::before {
-    background: url('../common/images/timeslider-bumper.png') bottom right/var(--thumb-width) $thumb-height no-repeat;
-    background-size: 100% 100%;
-    content: '';
-    cursor: pointer;
-    display: none;
-    height: 100%;
-    opacity: 0.75;
-    position: absolute;
-    top: 0;
-    transition: .1s opacity ease-in-out;
-    width: var(--thumb-width);
-  }
-  time {
-    color: lighten($light-font-color, 25%);
-    font-size: 0.6875rem;
-  }
-  &.left {
-    left: 1.15rem;
-  }
-  &.right {
-    right: 1.15rem;
-    &::before {
-      transform: rotate(180deg);
-    }
-  }
-  &.modified {
-    .handleDate {
-      color: $bright-blue;
-    }
-  }
-  &:hover {
-    &::before {
-      opacity: 0.9;
-    }
-  }
-  > * {
-    @include unstyledButton;
-    cursor: pointer;
-    font-size: 0.5rem;
-    line-height: normal;
-    position: relative;
-    text-align: center;
-  }
-  @media (min-width: $md-layout-width-min) {
-    display: flex;
-    &::before {
-      display: block;
-    }
-    > * {
-      font-size: 0.6rem;
-    }
-  }
-}
-
-.handleDate {
-  color: $light-font-color;
-  display: none;
-  font-size: 0.6875rem;
-  margin-bottom: 0.1rem;
-  @media (min-width: $lg-layout-width-min) {
-    display: initial;
-  }
-}
-
-
-.mapControl {
-  @include mapboxControlButton;
-}
-
-.slider {
-  -webkit-appearance: none;
-  background: none;
-  margin: $thumb-height/2 0;
-  width: $track-width;
-  outline: none;
-
-  &:focus {
-    &::-webkit-slider-runnable-track {
-      background: $track-color__active;
-    }
-    &::-webkit-slider-thumb, &::-moz-range-thumb, &::-ms-thumb {
-      outline: none;
-    }
-  }
-
-  &::-webkit-slider-runnable-track {
-    @include track;
-    // @include shadow($track-shadow-size,$track-shadow-blur,$track-shadow-color);
-    background: $track-color;
-    border-radius: $track-radius;
-    border: $track-border-width solid $track-border-color;
-  }
-
-  &::-webkit-slider-thumb {
-    @include thumb;
-    -webkit-appearance: none;
-    margin-top: ((-$track-border-width * 2 + $track-height) / 2) - ($thumb-height / 2);
-  }
-
-
-  &:focus::-webkit-slider-runnable-track {
-    background: $track-color__active;
-  }
-
-  &::-moz-range-track {
-    @include track;
-    // @include shadow($track-shadow-size,$track-shadow-blur,$track-shadow-color);
-    background: $track-color;
-    border-radius: $track-radius;
-     border: $track-border-width solid $track-border-color;
-  }
-  &::-moz-range-thumb {
-     @include thumb;
-  }
-
-  &::-ms-track {
-    @include track;
-    @include thumbWidth;
-    background: transparent;
-    border-color: transparent;
-    border-width: var(--thumb-width) 0;
-    color: transparent;
-  }
-
-  &::-ms-fill-lower {
-    background: darken($track-color, $contrast);
-    border: $track-border-width solid $track-border-color;
-    border-radius: $track-radius*2;
-    // @include shadow($track-shadow-size,$track-shadow-blur,$track-shadow-color);
-  }
-  &::-ms-fill-upper {
-    // background: $track-color;
-    border: $track-border-width solid $track-border-color;
-    border-radius: $track-radius*2;
-    // @include shadow($track-shadow-size,$track-shadow-blur,$track-shadow-color);
-  }
-  &::-ms-thumb {
-    @include thumb;
-  }
-  &:focus::-ms-fill-lower {
-    background: $track-color__active;
-  }
-  &:focus::-ms-fill-upper {
-    background: lighten($track-color, $contrast);
-  }
-}
-
-.handleText {
-  @include thumbWidth;
-  align-items: center;
-  display: flex;
-  flex-flow: column;
-  font-size: 0.55rem;
-  justify-content: center;
-  text-align: center;
-  position: absolute;
-  pointer-events: none;
-  top: 15%;
-  white-space: nowrap;
-  width: var(--thumb-width);
-  @media (min-width: $md-layout-width-min) {
-    font-size: 0.7rem;
-  }
-}
-
-.handleText span {
-  margin-left: 0.5rem;
-  color: #6d6d6d;
-
-}
-
-.wrapper_slider {
-  position: relative;
-  width: 100%;
-  z-index: -1;
-}
-
-.icon {
-  --dimensions: 1rem;
-  height: var(--dimensions);
-  width: var(--dimensions);
-  g {
-    stroke: $primary-font-color;
-  }
-  &.iconFill, &.iconFill * {
-    fill: $primary-font-color;
-  }
-  circle, g, path {
-    transition: stroke 0.1s linear;
-  }
-}
-
 .popover {
   display: flex;
-  flex-flow: column;
+  flex-direction: column;
   max-width: unset;
   padding: 0;
   width: 24rem;
-}
 
-.popoverTitle {
-  align-items: center;
-  background: $highlight-color;
-  color: white;
-  display: flex;
-  padding: 1rem;
-  svg {
-    height: 1.5rem;
-    margin-right: 1rem;
-    width: 1.5rem;
-    g, path, circle {
-      stroke: white;
+  .popoverTitle {
+    align-items: center;
+    background: colors.$bright-blue;
+    color: white;
+    display: flex;
+    padding: 1rem;
+
+    svg {
+      height: 1.5rem;
+      margin-right: 1rem;
+      width: 1.5rem;
+
+      circle,
+      g,
+      path {
+        stroke: white;
+      }
+    }
+
+    button {
+      margin-left: auto;
     }
   }
-  button {
-    margin-left: auto;
-  }
-}
 
-.popoverBody {
-  padding: 1rem 0 0;
-  overflow: visible;
-}
-
-.activeIcon {
-  circle, g, path {
-    stroke: $bright-blue;
-  }
-}
-
-.warningIcon {
-  circle, g, path {
-    stroke: $bright-red;
+  .popoverBody {
+    overflow: visible;
+    padding: 1rem 0 0;
+  
+    .dateRangePopover {
+      top: -16rem;
+    }
   }
 }
