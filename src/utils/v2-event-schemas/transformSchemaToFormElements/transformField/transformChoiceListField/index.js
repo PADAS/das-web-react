@@ -19,7 +19,7 @@ const transformChoiceListField = (
     ? choiceListFieldJSONSchema.items.anyOf
     : choiceListFieldJSONSchema.anyOf;
   const options = (choicesSubschemas ?? [])
-    .flatMap((choicesSubschema) => choicesSubschema.enum.map((optionValue) => {
+    .flatMap((choicesSubschema) => (choicesSubschema.enum ?? []).map((optionValue) => {
       const optionExtra = choicesSubschema['x-enumExtra'][optionValue];
 
       return {
