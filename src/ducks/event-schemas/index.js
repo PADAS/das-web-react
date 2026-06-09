@@ -64,7 +64,7 @@ export const fetchEventTypeSchema = (eventTypeValue, eventId, communityInputValu
         : EVENT_TYPE_SCHEMA_V2_URL(eventTypeValue);
 
       const response = await axios.get(url, {
-        params: { event_id: eventId, location: locationParam, pre_render: true },
+        params: { event_id: eventId, location: locationParam, pre_render: true, s_format: 'enum' },
         ...(communityInputValue ? { skipAuth: true } : {}),
       });
 
