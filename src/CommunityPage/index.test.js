@@ -352,6 +352,36 @@ describe('CommunityPage', () => {
     });
   });
 
+  describe('single creatable type', () => {
+    test('auto-redirects to the only creatable type when none is selected in the URL', async () => {
+      useParams.mockReturnValue({ value: COMMUNITY_VALUE, '*': '' });
+      renderPage([TYPE_A]);
+      await waitFor(() => expect(navigate).toHaveBeenCalledWith(
+        `/community/${COMMUNITY_VALUE}/${TYPE_A.value}`,
+        { replace: true }
+      ));
+    });
+
+    test('refreshes the form in place (new reportId) instead of navigating on form submission', async () => {
+      let captureOnBack;
+      ReportManager.mockImplementation(({ onBack }) => {
+        captureOnBack = onBack;
+        return null;
+      });
+      useParams.mockReturnValue({ value: COMMUNITY_VALUE, '*': TYPE_A.value });
+      renderPage([TYPE_A]);
+
+      await waitFor(() => expect(captureOnBack).toBeDefined());
+      const firstCallId = ReportManager.mock.calls.at(-1)[0].reportId;
+
+      await act(async () => captureOnBack());
+
+      const secondCallId = ReportManager.mock.calls.at(-1)[0].reportId;
+      expect(secondCallId).not.toBe(firstCallId);
+      expect(navigate).not.toHaveBeenCalledWith(`/community/${COMMUNITY_VALUE}`);
+    });
+  });
+
   describe('back-button navigation', () => {
     test('shows the type list when navigating back clears the event type from the URL', async () => {
       useParams.mockReturnValue({ value: COMMUNITY_VALUE, '*': TYPE_A.value });

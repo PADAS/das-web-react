@@ -181,6 +181,16 @@ describe('buildGeoSpanFilter', () => {
     const geoSpan = { lon: [170, -170], lat: [-10, 10] };
     expect(buildGeoSpanFilter(geoSpan)).toEqual([170, -10, -170, 10]);
   });
+
+  test('normalizes a reverse-order non-antimeridian span', () => {
+    const geoSpan = { lon: [10, -10], lat: [-5, 5] };
+    expect(buildGeoSpanFilter(geoSpan)).toEqual([-10, -5, 10, 5]);
+  });
+
+  test('preserves an antimeridian span drawn in the other direction', () => {
+    const geoSpan = { lon: [-170, 170], lat: [-10, 10] };
+    expect(buildGeoSpanFilter(geoSpan)).toEqual([170, -10, -170, 10]);
+  });
 });
 
 describe('safeRemoveMapLayer / safeRemoveMapSource', () => {

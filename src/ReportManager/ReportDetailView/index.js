@@ -122,7 +122,6 @@ const ReportDetailView = ({
   hideReportedBy = false,
   isCommunity = false,
   communityInputValue = null,
-  skipSchemaFetch = false,
 }) => {
   const dispatch = useDispatch();
   const location = useLocation();
@@ -683,10 +682,10 @@ const ReportDetailView = ({
   ]);
 
   useEffect(() => {
-    if (!skipSchemaFetch && !!reportForm && !!eventType && !eventSchema) {
+    if (!!reportForm && !!eventType && !eventSchema) {
       dispatch(fetchEventTypeSchema(reportForm.event_type, reportForm.id, communityInputValue));
     }
-  }, [communityInputValue, eventSchema, dispatch, eventType, reportForm, skipSchemaFetch]);
+  }, [communityInputValue, eventSchema, dispatch, eventType, reportForm]);
 
   useEffect(() => {
     if (linkedPatrolIds?.length > 0) {

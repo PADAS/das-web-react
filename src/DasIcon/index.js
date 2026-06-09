@@ -1,5 +1,5 @@
 import React, { memo, useState } from 'react';
-import { useLocation } from 'react-router';
+import { useSelector } from 'react-redux';
 import { API_V2_URL } from '../constants';
 
 const spriteMappings = {
@@ -26,20 +26,19 @@ export const calcIconUrl = (type, iconId) => {
 };
 
 const DasIcon = ({ type, iconId, color = 'gray', dispatch: _dispatch, className, ...rest }) => {
-  const location = useLocation();
-  const [hasError, setHasError] = useState(false);
+  const communityValue = useSelector((state) => state.data.community?.value);
+  const [erroredIconId, setErroredIconId] = useState(null);
 
-  if (location.pathname.startsWith('/community') && type === 'events' && iconId) {
-    if (hasError) {
+  if (communityValue && type === 'events' && iconId) {
+    if (erroredIconId === iconId) {
       return null;
     }
 
-    const communityValue = location.pathname.split('/')[2];
     return (
       <img
         alt=""
         className={className || ''}
-        onError={() => setHasError(true)}
+        onError={() => setErroredIconId(iconId)}
         src={`${API_V2_URL}community/${communityValue}/activity/events/eventtypes/icons/${iconId}`}
         {...rest}
       />

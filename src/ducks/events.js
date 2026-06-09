@@ -21,11 +21,11 @@ export const EVENTS_API_URL = (
   : `${API_URL}activity/events`;
 export const EVENT_API_URL = `${API_URL}activity/event/`;
 
-const COMMUNITY_EVENTS_API_URL = (communityValue) =>
+export const COMMUNITY_EVENTS_API_URL = (communityValue) =>
   `${API_V2_URL}community/${communityValue}/activity/events/`;
-const COMMUNITY_EVENT_NOTES_URL = (communityValue, eventId) =>
+export const COMMUNITY_EVENT_NOTES_URL = (communityValue, eventId) =>
   `${API_V2_URL}community/${communityValue}/activity/events/${eventId}/notes/`;
-const COMMUNITY_EVENT_FILES_URL = (communityValue, eventId) =>
+export const COMMUNITY_EVENT_FILES_URL = (communityValue, eventId) =>
   `${API_V2_URL}community/${communityValue}/activity/events/${eventId}/files/`;
 
 // actions
@@ -221,7 +221,7 @@ export const createEvent = (event, communityInputValue = null) => (dispatch, get
   });
 
   const url = communityInputValue ? COMMUNITY_EVENTS_API_URL(communityInputValue) : EVENTS_API_URL;
-  return axios.post(url, event, { params })
+  return axios.post(url, event, { params, ...(communityInputValue ? { skipAuth: true } : {}) })
     .then((response) => {
       dispatch({
         type: CREATE_EVENT_SUCCESS,
@@ -254,7 +254,7 @@ export const addNoteToEvent = (event_id, note, communityInputValue = null) => (d
   const notesUrl = communityInputValue
     ? COMMUNITY_EVENT_NOTES_URL(communityInputValue, event_id)
     : `${EVENT_API_URL}${event_id}/notes/`;
-  return axios.post(notesUrl, note, { params })
+  return axios.post(notesUrl, note, { params, ...(communityInputValue ? { skipAuth: true } : {}) })
     .then((response) => {
       dispatch({
         type: ADD_EVENT_NOTE_SUCCESS,
@@ -303,7 +303,10 @@ export const fetchEvent = (event_id, parameters = {}) =>
       });
   };
 
-export const updateEvent = (event, communityInputValue = null) => (dispatch, getState) => {
+// Community reports are always new (no id), so the save pipeline (generateSaveActionsForReportLikeObject)
+// routes them to createEvent, never here — and there is no community event-update endpoint. The
+// communityInputValue arg is accepted only for save-action signature parity and is intentionally unused.
+export const updateEvent = (event, _communityInputValue = null) => (dispatch, getState) => {
   const params = {};
   const state = getState();
 
@@ -408,6 +411,7 @@ export const uploadEventFile = (event_id, file, communityInputValue = null) => (
       'Content-Type': 'multipart/form-data',
     },
     params,
+    ...(communityInputValue ? { skipAuth: true } : {}),
   }).then((response) => {
     dispatch({
       type: UPLOAD_EVENT_FILES_SUCCESS,

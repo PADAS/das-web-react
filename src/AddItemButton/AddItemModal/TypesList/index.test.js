@@ -1,33 +1,39 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 
+import { mockStore } from '../../../__test-helpers/MockStore';
 import TypesList from './';
 
 describe('AddItemButton - AddItemModal - TypesList', () => {
   const onClickType = jest.fn();
   let renderTypesList;
   beforeEach(() => {
+    const store = mockStore({ data: { community: null } });
+
     renderTypesList = (props) => {
-      render(<MemoryRouter>
-        <TypesList
-          filterText=""
-          onClickType={onClickType}
-          typesByCategory={[{
-            display: 'Category 1',
-            id: 'cat1',
-            types: [{ display: 'Type 1', id: 'typ1' }, { display: 'Type 2', id: 'typ2' }],
-            value: 'category 1',
-          }, {
-            display: 'Category 2',
-            id: 'cat2',
-            types: [{ display: 'Type 3', id: 'typ3' }],
-            value: 'category 2',
-          }]}
-          {...props}
-        />
-      </MemoryRouter>);
+      render(<Provider store={store}>
+        <MemoryRouter>
+          <TypesList
+            filterText=""
+            onClickType={onClickType}
+            typesByCategory={[{
+              display: 'Category 1',
+              id: 'cat1',
+              types: [{ display: 'Type 1', id: 'typ1' }, { display: 'Type 2', id: 'typ2' }],
+              value: 'category 1',
+            }, {
+              display: 'Category 2',
+              id: 'cat2',
+              types: [{ display: 'Type 3', id: 'typ3' }],
+              value: 'category 2',
+            }]}
+            {...props}
+          />
+        </MemoryRouter>
+      </Provider>);
     };
   });
 

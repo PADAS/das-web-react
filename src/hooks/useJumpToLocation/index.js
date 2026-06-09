@@ -56,7 +56,7 @@ const useJumpToLocation = () => {
     itemId: getCurrentIdFromURL(routerLocation.pathname),
   }), [routerLocation.pathname]);
 
-  return async (coords, zoom = 15) => {
+  return (coords, zoom = 15) => {
     const isArrayCoords = Array.isArray(coords[0]);
 
     const padding = calcPadding(currentTab, isArrayCoords, itemId, isMediumLayoutOrLarger);

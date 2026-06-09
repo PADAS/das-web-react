@@ -71,7 +71,8 @@ export const fetchEventTypeSchema = (eventTypeValue, eventId, communityInputValu
       const rawSchema = response.data;
 
       if (rawSchema?.schema) {
-        // v2 endpoint returns v1-format schema for VERSION_1 event types (e.g. community)
+        // The v2 endpoint can return a v1-format schema (a top-level `schema`) when the underlying
+        // event type is VERSION_1 on the backend; detect and handle that shape here.
         const { schema, uiSchema } = sanitizeSchemas(rawSchema);
         dispatch({
           payload: { definition: rawSchema.definition, eventId, eventTypeValue, schema, uiSchema },

@@ -47,6 +47,12 @@ const DetailsSection = ({
   eventId,
   eventSchema = null,
   formValidator,
+  // hidePriority / hideReportedBy are intentionally generic visibility props expressed in this
+  // component's own vocabulary, rather than gating these fields on isCommunity (the caller's reason).
+  // This lets a future caller hide these fields for some other reason without adding yet another
+  // context flag here — the component stays agnostic of *why* a field is hidden.
+  hidePriority = false,
+  hideReportedBy = false,
   isCommunity = false,
   isBehindAddedEvent,
   isCollection,
@@ -166,7 +172,7 @@ const DetailsSection = ({
 
       <div className={styles.container}>
         <div className={styles.row}>
-          {!isCollection && !isCommunity && <label className={styles.fieldLabel} data-testid="reportManager-reportedBySelect">
+          {!isCollection && !hideReportedBy && <label className={styles.fieldLabel} data-testid="reportManager-reportedBySelect">
             {t('reportedByLabel')}
 
             <ReportedBySelect
@@ -176,7 +182,7 @@ const DetailsSection = ({
             />
           </label>}
 
-          {!isCommunity && <label className={styles.fieldLabel}>
+          {!hidePriority && <label className={styles.fieldLabel}>
             {t('priorityLabel')}
 
             <PrioritySelect
@@ -247,6 +253,9 @@ const DetailsSection = ({
     </div>
 
     {/* Legacy form renderer */}
+    {/* Gate by schema shape, not eventType.version: community event types are forced to version 2
+       client-side, yet the backend can still return a v1-format schema (a top-level `schema`),
+       so the actual shape is the reliable signal for which renderer to use. */}
     {!!eventSchema?.schema && !!jsonSchema && <Form
       className={`${styles.form} ${reportForm.is_collection ? styles.hidden : ''}`}
       disabled={isReadOnly}

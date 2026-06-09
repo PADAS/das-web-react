@@ -24,14 +24,17 @@
   "footer": {
     "cancelButton": "Cancelar",
     "saveButton": "Salvar",
+    "stateActivateButton": "Salvar e ativar",
     "stateResolveButton": "Salvar e resolver",
-    "stateReopenButton": "Salvar e reabrir"
+    "stateReopenButton": "Salvar e reabrir",
+    "stateReviewButton": "Salvar e revisar"
   },
   "goToReportButtonTooltip": "Ir a Evento",
   "header": {
     "historyLinkCreated": "Criado",
     "historyLinkUpdated": "Atualizado",
     "resolvedLabel": "Resolvido",
+    "reviewLabel": "em revisão",
     "sectionTitle": "Histórico"
   },
   "historySection": {

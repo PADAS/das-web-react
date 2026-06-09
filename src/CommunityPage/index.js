@@ -43,9 +43,13 @@ const CommunityPage = () => {
   const [showSubmittedModal, setShowSubmittedModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isUnauthorized, setIsUnauthorized] = useState(false);
+  const [formResetKey, setFormResetKey] = useState(0);
   const timeoutRef = useRef(null);
 
-  const temporalId = useMemo(() => (eventTypeValue ? uuid() : null), [eventTypeValue]);
+  // formResetKey is an intentional trigger: bumping it regenerates a fresh temporalId (form reset)
+  // even though it isn't read in the callback body.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const temporalId = useMemo(() => (eventTypeValue ? uuid() : null), [eventTypeValue, formResetKey]);
 
   const selectedType = useMemo(() => {
     if (!eventTypeValue) return null;
@@ -62,11 +66,15 @@ const CommunityPage = () => {
     }
     setIsLoading(true);
     setIsUnauthorized(false);
-    dispatch(fetchCommunityInfo(value))
-      .catch(() => { setIsUnauthorized(true); });
-    dispatch(fetchEventTypes(value))
-      .then(() => setIsLoading(false))
-      .catch(() => setIsLoading(false));
+    Promise.allSettled([
+      dispatch(fetchCommunityInfo(value)),
+      dispatch(fetchEventTypes(value)),
+    ]).then(([communityResult]) => {
+      if (communityResult.status === 'rejected') {
+        setIsUnauthorized(true);
+      }
+      setIsLoading(false);
+    });
     dispatch(fetchEventsSchema(value));
   }, [dispatch, value]);
 
@@ -84,26 +92,43 @@ const CommunityPage = () => {
   }, [navigate, value]);
 
   const onBack = useCallback(() => {
-    navigate(`/community/${value}`);
+    clearTimeout(timeoutRef.current);
     setShowSubmittedModal(true);
     timeoutRef.current = setTimeout(() => setShowSubmittedModal(false), SUBMITTED_MODAL_TIMEOUT);
-  }, [navigate, value]);
+
+    if (creatableEventTypes.length === 1) {
+      // Only one creatable type: there's no list to return to, so refresh the form in place
+      // (bump the reset key → new temporalId → ReportManager remounts) instead of navigating to
+      // /community/:value, which would immediately auto-redirect back here.
+      setFormResetKey((key) => key + 1);
+    } else {
+      navigate(`/community/${value}`);
+    }
+  }, [creatableEventTypes.length, navigate, value]);
+
+  const isRedirectingToOnlyType = !eventTypeValue && !isUnauthorized && eventsByCategory[0]?.types.length === 1;
 
   let content;
-  if (isLoading || isUnauthorized || (!eventTypeValue && !isUnauthorized && eventsByCategory[0]?.types.length === 1)) {
+  if (isUnauthorized) {
     content = (
       <div className={styles.loadingView}>
-        {isUnauthorized
-          ? <EarthRangerLogo className={styles.earthRangerLogo} />
-          : <MoonLoader color="#333" size={50} />
-        }
-        {isUnauthorized && <span className={styles.loadingError}>{t('invalidCommunityUrl')}</span>}
+        <EarthRangerLogo className={styles.earthRangerLogo} />
+
+        <span className={styles.loadingError}>{t('invalidCommunityUrl')}</span>
+      </div>
+    );
+  } else if (isLoading || isRedirectingToOnlyType) {
+    content = (
+      <div className={styles.loadingView}>
+        <MoonLoader color="#333" size={50} />
       </div>
     );
   } else if (selectedType) {
     content = (
       <ReportManager
         fallbackPath={`/community/${value}`}
+        hidePriority
+        hideReportedBy
         isCommunity
         newReportTypeId={selectedType.id}
         reportId={selectedType.temporalId}
