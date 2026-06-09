@@ -1,6 +1,6 @@
 import React, { memo, useContext, useMemo, useCallback, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { addMapImage, buildGeoSpanFilter } from '../utils/map';
 import { API_URL, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, SYSTEM_CONFIG_FLAGS } from '../constants';
 

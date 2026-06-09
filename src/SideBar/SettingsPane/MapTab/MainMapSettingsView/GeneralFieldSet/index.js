@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as ChevronRight } from '../../../../../common/images/icons/chevron-right.svg';
 
 import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../../../../../utils/analytics';
-import { MapContext } from '../../../../../App';
+import { MapContext } from '../../../../../MapContext';
 import { toggleMapDataSimplificationOnZoom, toggleMapLockState } from '../../../../../ducks/map-ui';
 import { updateUserPreferences } from '../../../../../ducks/user-preferences';
 

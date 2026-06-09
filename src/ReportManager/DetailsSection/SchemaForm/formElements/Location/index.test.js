@@ -8,7 +8,7 @@ import { createMapMock } from '../../../../../__test-helpers/mocks';
 import { mockStore } from '../../../../../__test-helpers/MockStore';
 
 import Location from './';
-import { MapContext } from '../../../../../App';
+import { MapContext } from '../../../../../MapContext';
 
 jest.mock('../../../../../hooks/useJumpToLocation', () => () => () => { });
 

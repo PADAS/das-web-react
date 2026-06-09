@@ -36,16 +36,18 @@
   "eventItemContextMenu": {
     "errorToastMessage": "#{{serialNumber}} aún está {{state}}, algo salió mal",
     "notificationDetails": {
-      "failedReports": "ADVERTENCIA: Estos eventos aún están {{state}}",
+      "failedReports": "ADVERTENCIA: Estos eventos no pudieron cambiarse al estado {{state}}",
       "processedReports": {
         "activated": "activos",
         "resolved": "resueltos",
+        "review": "enviado a revisión",
         "title": "Estos eventos relacionados ahora están {{newState}} también:"
       }
     },
     "state": {
       "active": "activo",
-      "resolved": "resuelto"
+      "resolved": "resuelto",
+      "review": "en revisión"
     },
     "textCopyButtonItem": {
       "label": "Copiar enlace del evento",
@@ -54,12 +56,15 @@
     "updatedCollectionInfoToast": {
       "activated": "activada",
       "message": "La colección #{{collectionSerialNumber}} fue {{newState}} correctamente",
-      "resolved": "resuelta"
+      "resolved": "resuelta",
+      "review": "enviado a revisión"
     },
     "updatedReportInfoToastMessage": "#{{reportSerialNumber}} {{newState}}",
     "updateReportStateItem": {
+      "activate": "Activar",
       "reopen": "Reabierto",
-      "resolve": "Resuelto"
+      "resolve": "Resuelto",
+      "review": "Enviar a revisión"
     }
   },
   "prioritySelect": {
@@ -102,7 +107,8 @@
   },
   "reportListItem": {
     "dateTimeSuffix": "atrás",
-    "resolvedState": "resuelto"
+    "resolvedState": "resuelto",
+    "reviewState": "en revisión"
   },
   "reportManager": {
     "detailsSection": {
@@ -197,7 +203,8 @@
       },
       "stateDropdown": {
         "active": "activo",
-        "resolved": "resuelto"
+        "resolved": "resuelto",
+        "review": "en revisión"
       },
       "timeLabel": "Hora del evento"
     },
@@ -231,8 +238,10 @@
       },
       "saveErrorMessage": "Hubo un error guardando el evento.",
       "saveSplitButton": {
+        "saveAndActivateItem": "Guardar y activar",
         "saveAndReopenItem": "Guardar y reabrir",
         "saveAndResolveItem": "Guardar y resolver",
+        "saveAndReviewItem": "Guardar y revisar",
         "title": "Guardar"
       },
       "unknownErrorLabel": "Error desconocido"

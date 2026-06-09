@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as LocationIcon } from '../common/images/icons/marker-feed.svg';
 
 import { hideSideBar, showSideBar } from '../ducks/side-bar';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { setIsPickingLocation } from '../ducks/map-ui';
 import { setModalVisibilityState } from '../ducks/modals';
 
@@ -73,6 +73,10 @@ const PickMapLocationButton = ({
       };
     }
   }, [isPickingMapLocation, map, onCancel, onPick, setAppToShowMapMode]);
+
+  if (!map) {
+    return null;
+  }
 
   return <>
     <button

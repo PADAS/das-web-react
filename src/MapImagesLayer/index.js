@@ -1,7 +1,7 @@
 import { memo, useContext, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 
 const MapImagesLayer = () => {
   const map = useContext(MapContext);

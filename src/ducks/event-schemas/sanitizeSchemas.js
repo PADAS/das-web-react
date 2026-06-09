@@ -20,7 +20,12 @@ const getEnumDisplayNames = (schemaValue) => {
     return { namesArray: schemaValue.enumNames, stripFromSchema: false };
   }
 
-  const namesArray = (schemaValue.enum ?? []).map((item) => schemaValue.enumNames[item]);
+  if (!Array.isArray(schemaValue.enum)) {
+    // enum is an unresolved template string or otherwise not an array — skip
+    return null;
+  }
+
+  const namesArray = schemaValue.enum.map((item) => schemaValue.enumNames[item]);
   return { namesArray, stripFromSchema: true };
 };
 
@@ -228,7 +233,7 @@ const generateUiSchemaForSelectFields = (key) => {
 
 const addCustomSelectFieldForEnums = (schema) => {
   return Object.entries(schema.properties).reduce((accumulator, [key, value]) => {
-    if (value.hasOwnProperty('enum')) {
+    if (value.hasOwnProperty('enum') && Array.isArray(value.enum)) {
       return merge(accumulator, generateUiSchemaForSelectFields(key));
     }
     if (value.type === 'object') {

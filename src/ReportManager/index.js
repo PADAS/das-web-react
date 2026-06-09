@@ -24,7 +24,7 @@ import * as styles from './styles.module.scss';
 
 const ADDED_REPORT_TRANSITION_EFFECT_TIME = 600;
 
-const ReportManager = ({ onReportBeingAdded = null }) => {
+const ReportManager = ({ communityInputValue = null, hidePriority = false, hideReportedBy = false, isCommunity = false, onBack = null, onReportBeingAdded = null, fallbackPath = null, newReportTypeId: newReportTypeIdProp = null, reportId: reportIdProp = null }) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
@@ -69,10 +69,10 @@ const ReportManager = ({ onReportBeingAdded = null }) => {
   // Primary report
   const existingReportId = getCurrentIdFromURL(location.pathname);
   const newReportTemporalId = location.state?.temporalId;
-  const newReportTypeId = searchParams.get('reportType');
+  const newReportTypeId = newReportTypeIdProp ?? searchParams.get('reportType');
 
-  const isNewReport = existingReportId === 'new';
-  const reportId = isNewReport ? newReportTemporalId : existingReportId;
+  const isNewReport = !!newReportTypeIdProp || existingReportId === 'new';
+  const reportId = reportIdProp ?? (isNewReport ? newReportTemporalId : existingReportId);
 
   const event = useSelector((state) => state.data.eventStore[reportId]);
   const eventType = useSelector((state) => selectEventTypeById(state, newReportTypeId));
@@ -91,15 +91,15 @@ const ReportManager = ({ onReportBeingAdded = null }) => {
   useEffect(() => {
     if (isNewReport) {
       if (!eventType) {
-        navigate(`/${TAB_KEYS.EVENTS}`, { replace: true });
-      } else if (!newReportTemporalId) {
+        navigate(fallbackPath ?? `/${TAB_KEYS.EVENTS}`, { replace: true });
+      } else if (!reportIdProp && !newReportTemporalId) {
         navigate(
           `${location.pathname}${location.search}`,
           { replace: true, state: { ...location.state, temporalId: uuid() } }
         );
       }
     }
-  }, [eventType, isNewReport, location.pathname, location.search, location.state, navigate, newReportTemporalId]);
+  }, [eventType, fallbackPath, isNewReport, location.pathname, location.search, location.state, navigate, newReportTemporalId, reportIdProp]);
 
   useEffect(() => {
     const shouldFetchEventDetails = !event
@@ -120,13 +120,18 @@ const ReportManager = ({ onReportBeingAdded = null }) => {
   return <TrackerContext.Provider value={reportTracker}>
     {shouldRenderReportDetailView ? <ReportDetailView
       formProps={navigationData?.formProps}
+      hidePriority={hidePriority}
+      hideReportedBy={hideReportedBy}
+      isCommunity={isCommunity}
       isBehindAddedEvent={showAddedReport}
       isNewReport={isNewReport}
       key={reportId} // This resets component state when the id changes
       newReportTypeId={newReportTypeId}
       onAddReport={onAddReport}
+      onBack={onBack}
       reportData={reportData}
       reportId={reportId}
+      communityInputValue={communityInputValue}
     /> : <LoadingOverlay />}
 
     <DelayedUnmount isMounted={showAddedReport}>

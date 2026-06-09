@@ -1,7 +1,7 @@
 import React from 'react';
 import { createMapMock } from '../__test-helpers/mocks';
 
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import MapDrawingTools, { DRAWING_MODES } from './';
 import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from './ContextProvider';
 import { useMatchMedia } from '../hooks';

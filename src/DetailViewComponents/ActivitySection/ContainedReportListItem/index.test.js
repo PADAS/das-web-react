@@ -5,7 +5,7 @@ import { setupServer } from 'msw/node';
 import userEvent from '@testing-library/user-event';
 
 import { EVENT_API_URL } from '../../../ducks/events';
-import { EVENT_TYPE_SCHEMA_API_URL } from '../../../ducks/event-schemas';
+import { EVENT_TYPE_SCHEMA_V1_URL } from '../../../ducks/event-schemas';
 import { eventSchemas } from '../../../__test-helpers/fixtures/event-schemas';
 import { eventTypes } from '../../../__test-helpers/fixtures/event-types';
 import { mockStore } from '../../../__test-helpers/MockStore';
@@ -16,7 +16,7 @@ import ContainedReportListItem from '.';
 
 const server = setupServer(
   http.get(`${EVENT_API_URL}:eventId`, () => HttpResponse.json( { data: { ...report } })),
-  http.get(`${EVENT_TYPE_SCHEMA_API_URL}/:name`, () => HttpResponse.json( { data: { results: {} } }))
+  http.get(EVENT_TYPE_SCHEMA_V1_URL(':name'), () => HttpResponse.json( { data: { results: {} } }))
 );
 
 beforeAll(() => server.listen());

@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 
 import { useMapEventBinding } from '../hooks';
 import useMapSources from '../hooks/useMapSources';

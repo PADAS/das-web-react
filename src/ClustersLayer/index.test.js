@@ -14,7 +14,7 @@ import { CLUSTER_CLICK_ZOOM_THRESHOLD, SOURCE_IDS } from '../constants';
 import ClustersLayer from '.';
 import { createMapMock, createMockInteractionEvent } from '../__test-helpers/mocks';
 import { mockStore } from '../__test-helpers/MockStore';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import {
   mockClusterIds,
   mockClusterLeaves,

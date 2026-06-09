@@ -32,7 +32,7 @@ import {
   updateHeatmapSubjects,
   updateTrackState
 } from '../ducks/map-ui';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { updatePatrolTrackState } from '../ducks/patrols';
 import useCrsBoundingBoxLayer from './layers/useCrsBoundingBoxLayer';
 import { useMapEventBinding } from '../hooks';

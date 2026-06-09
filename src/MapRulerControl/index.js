@@ -8,7 +8,7 @@ import { ReactComponent as RulerIcon } from '../common/images/icons/ruler-icon.s
 
 import { LAYER_IDS } from '../MapDrawingTools/MapLayers';
 import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { setIsPickingLocation } from '../ducks/map-ui';
 import { useMapEventBinding } from '../hooks';
 

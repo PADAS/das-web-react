@@ -3,7 +3,7 @@ import { render, waitFor } from '@testing-library/react';
 import { useLocation as useRouterLocation } from 'react-router';
 
 import { createMapMock } from '../../__test-helpers/mocks';
-import { MapContext } from '../../App';
+import { MapContext } from '../../MapContext';
 import useJumpToLocation from './';
 import { useMatchMedia } from '../';
 

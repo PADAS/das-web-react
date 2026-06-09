@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { render, screen } from '../../test-utils';
 import { createMapMock } from '../../__test-helpers/mocks';
 import { GPS_FORMATS } from '../../utils/location';
-import { MapContext } from '../../App';
+import { MapContext } from '../../MapContext';
 import { mockStore } from '../../__test-helpers/MockStore';
 
 import MenuPopover from '.';

@@ -1,7 +1,7 @@
 import React, { memo, useContext, useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { LAYER_IDS, SOURCE_IDS } from '../constants';
 import { safeRemoveMapLayer, safeRemoveMapSource } from '../utils/map';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';

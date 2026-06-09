@@ -1,5 +1,5 @@
 import React, { memo, useContext, useMemo, useEffect } from 'react';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 
 import { TILE_LAYER_SOURCE_TYPES, MAX_ZOOM, MIN_ZOOM } from '../constants';
 

@@ -8,7 +8,7 @@ import { eventSchemas, snareSchemaV2 } from '../../__test-helpers/fixtures/event
 import { eventTypes, snareV2 } from '../../__test-helpers/fixtures/event-types';
 import { formValidator } from '../../utils/events';
 import { GPS_FORMATS } from '../../utils/location';
-import { MapContext } from '../../App';
+import { MapContext } from '../../MapContext';
 import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 import { mockStore } from '../../__test-helpers/MockStore';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
@@ -159,9 +159,10 @@ describe('ReportManager - DetailsSection', () => {
     const stateDropdownMenu = screen.getByTestId('reportManager-detailsSection-stateDropdownMenu');
     const stateDropdownItems = within(stateDropdownMenu).getAllByRole('button');
 
-    expect(stateDropdownItems).toHaveLength(2);
+    expect(stateDropdownItems).toHaveLength(3);
     expect(stateDropdownItems[0]).toHaveTextContent('active');
     expect(stateDropdownItems[1]).toHaveTextContent('resolved');
+    expect(stateDropdownItems[2]).toHaveTextContent('review');
   });
 
   test('changes the state of the event when selecting an item from the state dropdown', async () => {
@@ -520,26 +521,28 @@ describe('ReportManager - DetailsSection', () => {
   });
 
   test('shows an error message if the schema is erroneous', async () => {
-    renderDetailsSection({ eventSchema: new Error('Error loading schema') });
+    renderDetailsSection({ eventSchema: { error: new Error('Error loading schema') } });
 
     expect(screen.getByRole('alert')).toHaveTextContent('Error loading schema');
   });
 
   test('shows an error message with the detail of the error if the schema is erroneous', async () => {
     renderDetailsSection({
-      eventSchema: new AxiosError(
-        'Request failed with status code 500',
-        'ERR_BAD_RESPONSE',
-        {},
-        {},
-        {
-          data: {
-            status: {
-              detail: 'Error detail',
+      eventSchema: {
+        error: new AxiosError(
+          'Request failed with status code 500',
+          'ERR_BAD_RESPONSE',
+          {},
+          {},
+          {
+            data: {
+              status: {
+                detail: 'Error detail',
+              },
             },
           },
-        },
-      ),
+        ),
+      },
     });
 
     expect(screen.getByRole('alert')).toHaveTextContent('Error loading schemaError detail');

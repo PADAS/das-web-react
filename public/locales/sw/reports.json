@@ -47,7 +47,7 @@
   "eventItemContextMenu": {
     "errorToastMessage": "#{{serialNumber}} bado {{state}}, kitu kimeenda kombo",
     "notificationDetails": {
-      "failedReports": "ONYO: Matukio haya bado {{state}}",
+      "failedReports": "ONYO: Matukio haya hayakuweza kubadilishwa hadi hali ya {{state}}",
       "processedReports": {
         "activated": "limeanzishwa",
         "resolved": "limekamilishwa",
@@ -190,8 +190,8 @@
                   "doneButton": "Imekamilika"
                 },
                 "formPreview": {
-                    "collectionHumanizedValue": "{{collectionLength}} vitu",
-                    "jumpToLocationButtonLabel": "Ruka kwenye eneo la {{field}}"
+                  "collectionHumanizedValue": "{{collectionLength}} vitu",
+                  "jumpToLocationButtonLabel": "Ruka kwenye eneo la {{field}}"
                 },
                 "chevronButtonLabel": {
                   "closed": "Fungua muhtasari wa fomu ya {{itemTitle}}",

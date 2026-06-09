@@ -6,7 +6,7 @@ import { act, render, screen, waitFor } from '../test-utils';
 import { createMapMock } from '../__test-helpers/mocks';
 import { epsg5367 } from '../__test-helpers/fixtures/location';
 import { GPS_FORMATS } from '../utils/location';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { mockStore } from '../__test-helpers/MockStore';
 import { showPopup } from '../ducks/popup';
 import useJumpToLocation from '../hooks/useJumpToLocation';

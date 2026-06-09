@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import noop from 'lodash/noop';
 
 
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 
 import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 

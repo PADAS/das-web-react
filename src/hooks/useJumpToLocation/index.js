@@ -4,7 +4,7 @@ import { useLocation as useRouterLocation } from 'react-router';
 
 import { BREAKPOINTS } from '../../constants';
 import { getCurrentTabFromURL, getCurrentIdFromURL } from '../../utils/navigation';
-import { MapContext } from '../../App';
+import { MapContext } from '../../MapContext';
 import { useMatchMedia } from '../';
 
 const SIDEBAR_WIDTH_PIXELS = 512;

@@ -18,6 +18,11 @@
       "noOptionsMessage": "Não há opções para exibir"
     }
   },
+  "communityPage": {
+    "formSubmitted": "Formulário enviado",
+    "invalidCommunityUrl": "URL da comunidade inválida",
+    "searchPlaceholder": "Pesquisar tipos de evento..."
+  },
   "datePicker": {
     "calendarPopper": {
       "menuButtonLabel": "Abrir calendário",
