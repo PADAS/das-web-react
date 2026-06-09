@@ -2,6 +2,7 @@ import {
   FORM_ELEMENT_LOGIC_CONDITION_OPERATORS,
   FORM_ELEMENT_TYPES,
   ROOT_CANVAS_ID,
+  SECTION_ELEMENT_CONDITIONS_LOGICAL_OPERATORS,
 } from '../../constants';
 import transformField from '../transformField';
 import transformHeader from '../transformHeader';
@@ -35,7 +36,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
     jsonSchema = {
       allOf: [
         {
-          if: {},
+          if: { allOf: [] },
           then: {
             properties: {
               'number-of-vehicles': {
@@ -150,6 +151,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
               value: 'yes',
             },
           ],
+          conditionsLogicalOperator: SECTION_ELEMENT_CONDITIONS_LOGICAL_OPERATORS.AND,
           label: 'Accident Details',
           leftColumn: ['number-of-vehicles'],
           rightColumn: ['header-1', 'number-of-people-involved'],
@@ -205,6 +207,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
               value: 'yes',
             },
           ],
+          conditionsLogicalOperator: SECTION_ELEMENT_CONDITIONS_LOGICAL_OPERATORS.AND,
           label: 'Accident Details',
           leftColumn: [],
           rightColumn: ['header-1', 'number-of-people-involved'],
@@ -239,6 +242,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
         details: {
           columns: 2,
           conditions: [],
+          conditionsLogicalOperator: SECTION_ELEMENT_CONDITIONS_LOGICAL_OPERATORS.AND,
           label: 'Accident Details',
           leftColumn: ['number-of-vehicles'],
           rightColumn: ['header-1', 'number-of-people-involved'],
@@ -295,6 +299,65 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
               value: 'yes',
             },
           ],
+          conditionsLogicalOperator: SECTION_ELEMENT_CONDITIONS_LOGICAL_OPERATORS.AND,
+          label: 'Accident Details',
+          leftColumn: ['number-of-vehicles'],
+          rightColumn: ['header-1', 'number-of-people-involved'],
+        },
+        id: sectionId,
+        parentId: ROOT_CANVAS_ID,
+        type: FORM_ELEMENT_TYPES.SECTION,
+      },
+    });
+    expect(transformField).toHaveBeenCalledTimes(2);
+    expect(transformField).toHaveBeenCalledWith(
+      'number-of-vehicles',
+      null,
+      jsonSchema.allOf[0].then,
+      uiSchema,
+      formElements,
+    );
+    expect(transformField).toHaveBeenCalledWith(
+      'number-of-people-involved',
+      null,
+      jsonSchema.allOf[0].then,
+      uiSchema,
+      formElements,
+    );
+    expect(transformHeader).toHaveBeenCalledTimes(1);
+    expect(transformHeader).toHaveBeenCalledWith(
+      'header-1',
+      uiSchema,
+      formElements,
+    );
+  });
+
+  it('transforms a section with OR conditions logical operator', () => {
+    jsonSchema.allOf[0].if = { anyOf: [{}] };
+    delete jsonSchema.allOf[0].if.allOf;
+
+    transformSection(sectionId, jsonSchema, uiSchema, formElements);
+
+    expect(formElements).toEqual({
+      [sectionId]: {
+        details: {
+          columns: 2,
+          conditions: [
+            {
+              field: 'type',
+              id: 'condition-1',
+              operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_NOT_EMPTY,
+              value: 'car-accident',
+            },
+            {
+              field: 'victim-injuries',
+              id: 'condition-2',
+              operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_EXACTLY,
+              value: 'yes',
+            },
+          ],
+          conditionsLogicalOperator:
+            SECTION_ELEMENT_CONDITIONS_LOGICAL_OPERATORS.OR,
           label: 'Accident Details',
           leftColumn: ['number-of-vehicles'],
           rightColumn: ['header-1', 'number-of-people-involved'],
@@ -341,6 +404,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformSe
         details: {
           columns: 1,
           conditions: [],
+          conditionsLogicalOperator: SECTION_ELEMENT_CONDITIONS_LOGICAL_OPERATORS.AND,
           label: '',
           leftColumn: [],
           rightColumn: [],
