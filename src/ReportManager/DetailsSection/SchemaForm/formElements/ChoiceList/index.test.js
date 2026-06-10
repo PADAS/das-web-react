@@ -1,8 +1,9 @@
 import React from 'react';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen } from '../../../../../test-utils';
+import { BOOTSTRAP_DEFAULTS } from '../../../../../constants';
 import { CHOICE_LIST_ELEMENT_INPUT_TYPES } from '../../../../../utils/v2-event-schemas/constants';
+import { render, screen } from '../../../../../test-utils';
 
 import ChoiceList from './';
 
@@ -193,6 +194,20 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - ChoiceLis
       ]);
 
       expect(onFieldChange).toHaveBeenCalledTimes(2);
+    });
+
+    test('renders the open menu in a portal on the document body above the modal layer so it is not clipped', async () => {
+      renderChoiceList();
+
+      await userEvent.type(screen.getByRole('combobox'), '{arrowdown}');
+
+      let menuPortal = await screen.findByRole('listbox');
+      while (menuPortal.parentElement && menuPortal.parentElement !== document.body) {
+        menuPortal = menuPortal.parentElement;
+      }
+
+      expect(menuPortal.parentElement).toBe(document.body);
+      expect(menuPortal).toHaveStyle({ zIndex: BOOTSTRAP_DEFAULTS.MODAL_ZINDEX + 1 });
     });
   });
 
