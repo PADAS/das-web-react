@@ -194,7 +194,6 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - ChoiceLis
 
       expect(onFieldChange).toHaveBeenCalledTimes(2);
     });
-
   });
 
   describe('List', () => {
