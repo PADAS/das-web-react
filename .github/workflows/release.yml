@@ -296,7 +296,7 @@ jobs:
   # Split the single LEGACY_TENANTS_PROD list into parallel chunks.
   legacy-prod-split:
     needs: [config, deploy-dev-legacy]
-    uses: PADAS/serca-pipelines/.github/workflows/_split-list.yml@main
+    uses: ./.github/workflows/_split-list.yml
     with:
       list: ${{ vars.LEGACY_TENANTS_PROD }}
       groups: 3
