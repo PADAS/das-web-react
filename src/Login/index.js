@@ -13,6 +13,7 @@ import appConfig from '../config';
 import { clearAuth, postAuth } from '../ducks/auth';
 import { fetchEula } from '../ducks/eula';
 import { REACT_APP_ROUTE_PREFIX, SYSTEM_CONFIG_FLAGS } from '../constants';
+import { buildAuth0AuthorizationParams } from '../utils/auth0';
 import useNavigate from '../hooks/useNavigate';
 
 import * as styles from './styles.module.scss';
@@ -47,10 +48,7 @@ const LoginPage = () => {
   const onAuth0Login = useCallback(async () => {
     try {
       await auth0LoginWithRedirect({
-        authorizationParams: {
-          audience: appConfig.auth0.audience,
-          organization: idpOrgId,
-        },
+        authorizationParams: buildAuth0AuthorizationParams(appConfig.auth0.audience, idpOrgId),
       });
     } catch (_error) {
       setAlertMessage(t('errorAlert.signInFailed'));
