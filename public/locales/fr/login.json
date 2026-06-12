@@ -5,7 +5,6 @@
     "authenticationFailed": "Authentification échouée : Veuillez vérifier vos identifiants et réessayer.",
     "authenticationError": "Erreur d'authentification : {{errorDescription}}",
     "invalidCredentialsMessage": "Identifiants fournis incorrectes. Veuillez réessayez.",
-    "missingOrg": "L'organisation du fournisseur d'identité n'est pas configurée.",
     "signInFailed": "Échec de la connexion. Veuillez réessayer.",
     "unknownErrorMessage": "Une erreur s'est produite. Veuillez réessayez."
   },

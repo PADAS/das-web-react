@@ -5,7 +5,6 @@
     "authenticationFailed": "Autenticación fallida: Por favor verifique sus credenciales e intente de nuevo.",
     "authenticationError": "Error de autenticación: {{errorDescription}}",
     "invalidCredentialsMessage": "Las credenciales son inválidas. Por favor intente de nuevo.",
-    "missingOrg": "La organización del proveedor de identidad no está configurada.",
     "signInFailed": "Error al iniciar sesión. Por favor intente de nuevo.",
     "unknownErrorMessage": "Ha ocurrido un error. Por favor intente de nuevo."
   },

@@ -143,13 +143,6 @@ const LoginPage = () => {
     }
   }, [dispatch, location.search, t]);
 
-  useEffect(() => {
-    if (requireIdp && !idpOrgId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setAlertMessage(t('errorAlert.missingOrg'));
-    }
-  }, [requireIdp, idpOrgId, t]);
-
   return <div className={styles.container}>
     <EarthRangerLogo aria-label="EarthRanger" className={styles.logo} role="img" />
 
@@ -157,7 +150,7 @@ const LoginPage = () => {
 
     {requireIdp ? (
       <div className={styles.form}>
-        {idpOrgId && <button
+        <button
           aria-busy={isAuth0Loading}
           aria-label={isAuth0Loading ? t('loginButtonLoadingLabel') : undefined}
           className={styles.loginButton}
@@ -167,8 +160,8 @@ const LoginPage = () => {
         >
           {isAuth0Loading
             ? <MoonLoader aria-hidden color="white" size={SUBMIT_LOADER_SIZE} />
-            : t('loginButtonIdp')}
-        </button>}
+            : t(idpOrgId?.trim() ? 'loginButtonIdp' : 'loginButtonEmail')}
+        </button>
       </div>
     ) : (
       <form className={styles.form} noValidate onSubmit={onFormSubmit}>
