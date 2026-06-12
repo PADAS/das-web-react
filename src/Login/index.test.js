@@ -136,7 +136,7 @@ describe('Login', () => {
     expect(button).toBeDisabled();
   });
 
-  test('hides the sign-in button and shows a configuration error when IDP is required without an organization ID', () => {
+  test('shows the common-DB "Sign in with email" button and no configuration error when IDP is required without an organization ID', () => {
     store = mockStore({
       data: { eula: { eula_url: '' } },
       view: { systemConfig: { require_idp: true } },
@@ -144,11 +144,28 @@ describe('Login', () => {
 
     renderLogin();
 
-    expect(screen.queryByRole('button', { name: 'Sign in' })).not.toBeInTheDocument();
-    const alert = screen.getByText('Identity provider organization is not configured.');
-    expect(alert).toBeVisible();
-    expect(alert).toHaveAttribute('role', 'alert');
-    expect(alert).toHaveClass(loginStyles.alertMessage);
+    const signIn = screen.getByRole('button', { name: 'Sign in with email' });
+    expect(signIn).toBeVisible();
+    expect(signIn).toHaveAttribute('type', 'button');
+    expect(signIn).toBeEnabled();
+    expect(screen.queryByText('Identity provider organization is not configured.')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Username')).not.toBeInTheDocument();
+  });
+
+  test('calls loginWithRedirect with audience and no organization when the user clicks Sign in with email', async () => {
+    store = mockStore({
+      data: { eula: { eula_url: '' } },
+      view: { systemConfig: { require_idp: true } },
+    });
+    loginWithRedirect.mockResolvedValue(undefined);
+
+    renderLogin();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Sign in with email' }));
+
+    expect(loginWithRedirect).toHaveBeenCalledWith({
+      authorizationParams: { audience: appConfig.auth0.audience },
+    });
   });
 
   test('shows a sign-in failure alert when loginWithRedirect rejects', async () => {

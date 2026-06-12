@@ -5,7 +5,6 @@
     "authenticationFailed": "Uthibitishaji umeshindwa: Tafadhali hakikisha maelezo yako na jaribu tena.",
     "authenticationError": "Kosa la uthibitishaji: {{errorDescription}}",
     "invalidCredentialsMessage": "Maelezo yasiyo sahihi yametolewa. Tafadhali jaribu tena.",
-    "missingOrg": "Shirika la mtoa utambulisho halijasanidiwa.",
     "signInFailed": "Kuingia kumeshindwa. Tafadhali jaribu tena.",
     "unknownErrorMessage": "Kumetokea kosa. Tafadhali jaribu tena."
   },
@@ -16,6 +15,7 @@
   "eulaLink": "EarthRanger EULA",
   "eulaLinkLabel": "EarthRanger EULA (hufungua kwenye kichupo kipya)",
   "loginButton": "Ingia",
+  "loginButtonEmail": "Ingia kwa barua pepe",
   "loginButtonIdp": "Ingia",
   "loginButtonLoadingLabel": "Inapakia",
   "passwordLabel": "Nenosiri",
