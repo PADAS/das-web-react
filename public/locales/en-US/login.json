@@ -16,6 +16,7 @@
   "eulaLink": "EarthRanger EULA",
   "eulaLinkLabel": "EarthRanger EULA (opens in a new tab)",
   "loginButton": "Log in",
+  "loginButtonEmail": "Sign in with email",
   "loginButtonIdp": "Sign in",
   "loginButtonLoadingLabel": "Loading",
   "passwordLabel": "Password",

@@ -16,6 +16,7 @@
   "eulaLink": "Contrato de licença do usuário final EarthRanger",
   "eulaLinkLabel": "EULA EarthRanger (abre em uma nova guia)",
   "loginButton": "Conecte-se",
+  "loginButtonEmail": "Conecte-se com e-mail",
   "loginButtonIdp": "Conecte-se",
   "loginButtonLoadingLabel": "Carregando",
   "passwordLabel": "Senha",

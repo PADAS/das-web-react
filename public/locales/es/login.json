@@ -16,6 +16,7 @@
   "eulaLink": "EULA de EarthRanger",
   "eulaLinkLabel": "EULA de EarthRanger (se abre en una nueva pestaña)",
   "loginButton": "Iniciar sesión",
+  "loginButtonEmail": "Iniciar sesión con correo electrónico",
   "loginButtonIdp": "Iniciar sesión",
   "loginButtonLoadingLabel": "Cargando",
   "passwordLabel": "Contraseña",
