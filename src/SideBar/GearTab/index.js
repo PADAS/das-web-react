@@ -60,15 +60,20 @@ const GearListItem = memo(({ ...gear }) => {
   }, [coordinates, dispatch, gear.id, jumpToLocation]);
 
   return <>
-    <p className={mapLayersStyles.itemTitle} data-testid="gear-item-name">
-      <span
-        className={`${styles.displayId}${coordinates ? ` ${styles.displayIdClickable}` : ''}`}
-        onClick={coordinates ? onJumpClick : undefined}
-        role={coordinates ? 'button' : undefined}
-        tabIndex={coordinates ? 0 : undefined}
-        onKeyDown={coordinates ? (e) => { if (e.key === 'Enter' || e.key === ' ') onJumpClick(); } : undefined}
-      >{rowTitle}</span>
-    </p>
+    {coordinates ? (
+      <button
+        className={`${mapLayersStyles.itemTitle} ${styles.displayId} ${styles.displayIdClickable}`}
+        data-testid="gear-item-name"
+        onClick={onJumpClick}
+        type="button"
+      >
+        {rowTitle}
+      </button>
+    ) : (
+      <span className={`${mapLayersStyles.itemTitle} ${styles.displayId}`} data-testid="gear-item-name">
+        {rowTitle}
+      </span>
+    )}
 
     {gear.last_updated && <DateTime
       className={styles.gearDateTime}
