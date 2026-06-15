@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, waitFor } from '../test-utils';
-import DasIcon, { svgCache } from './';
+import SvgIcon, { svgCache } from './';
 
 const mockFetch = (contentType, body) =>
   jest.fn().mockResolvedValue({
@@ -9,7 +9,7 @@ const mockFetch = (contentType, body) =>
     text: () => Promise.resolve(body),
   });
 
-describe('DasIcon', () => {
+describe('SvgIcon', () => {
   let fetchSpy;
 
   beforeEach(() => {
@@ -25,7 +25,7 @@ describe('DasIcon', () => {
     test('renders inline SVG when the server returns an SVG content-type', async () => {
       fetchSpy.mockImplementation(mockFetch('image/svg+xml', '<svg><path d="M0 0"/></svg>'));
 
-      render(<DasIcon type="events" iconId="fire_rep" />);
+      render(<SvgIcon type="events" iconId="fire_rep" />);
 
       await waitFor(() => {
         expect(document.querySelector('svg')).toBeInTheDocument();
@@ -35,7 +35,7 @@ describe('DasIcon', () => {
     test('renders an img when the server returns a non-SVG content-type (e.g. PNG)', async () => {
       fetchSpy.mockImplementation(mockFetch('image/png', ''));
 
-      const { container } = render(<DasIcon type="events" iconId="confiscation_rep" />);
+      const { container } = render(<SvgIcon type="events" iconId="confiscation_rep" />);
 
       await waitFor(() => {
         expect(container.querySelector('img')).toBeInTheDocument();
@@ -46,7 +46,7 @@ describe('DasIcon', () => {
 
   describe('subject icons', () => {
     test('renders an img for SVG subject image URLs', () => {
-      render(<DasIcon type="subjects" imageUrl="https://example.com/subject.svg" />);
+      render(<SvgIcon type="subjects" imageUrl="https://example.com/subject.svg" />);
 
       const img = screen.getByRole('img');
       expect(img).toBeInTheDocument();
@@ -54,7 +54,7 @@ describe('DasIcon', () => {
     });
 
     test('renders an img for PNG subject image URLs', () => {
-      render(<DasIcon type="subjects" imageUrl="https://example.com/subject.png" />);
+      render(<SvgIcon type="subjects" imageUrl="https://example.com/subject.png" />);
 
       const img = screen.getByRole('img');
       expect(img).toBeInTheDocument();

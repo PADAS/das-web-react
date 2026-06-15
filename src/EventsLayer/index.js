@@ -6,6 +6,7 @@ import ClusterIcon from '../common/images/icons/cluster-icon.svg?url';
 
 import { addBounceToEventMapFeatures } from '../utils/events';
 import { addMapImage } from '../utils/map';
+import { calcSvgImageIconId } from '../utils/mapImages';
 import {
   DEFAULT_SYMBOL_LAYOUT,
   IF_IS_GENERIC,
@@ -16,7 +17,7 @@ import {
 import { getMapEventSymbolPointsWithVirtualDate } from '../selectors/events';
 import { selectShouldEventsBeClustered } from '../selectors/clusters';
 import { MapContext } from '../App';
-import MapImageFromSvgSpriteRenderer, { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
+import MapImageFromSvgSpriteRenderer from '../MapImageFromSvgSpriteRenderer';
 import useMapSources from '../hooks/useMapSources';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
 

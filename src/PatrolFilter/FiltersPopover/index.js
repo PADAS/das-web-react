@@ -13,7 +13,7 @@ import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../../ducks/patrol-fil
 import { trackEventFactory, PATROL_FILTER_CATEGORY } from '../../utils/analytics';
 
 import CheckboxList from '../../CheckboxList';
-import DasIcon from '../../DasIcon';
+import SvgIcon from '../../SvgIcon';
 import ReportedBySelect from '../../ReportedBySelect';
 
 import * as colorVariables from '../../common/styles/vars/colors.module.scss';
@@ -130,7 +130,7 @@ const FiltersPopover = ({ ref, ...rest }) => {
   const statusFilterOptions = PATROL_FILTERS_STATUS_OPTIONS.map(status => ({
     id: status.id,
     value: <div className='statusItem'>
-      {<DasIcon color={status.color} iconId='generic_rep' type='events' />}
+      {<SvgIcon color={status.color} iconId='generic_rep' type='events' />}
       {(t(`patrolStatuses.${status.id}`))}
     </div>,
   }));
@@ -145,7 +145,7 @@ const FiltersPopover = ({ ref, ...rest }) => {
     return {
       id: patrolType.id,
       value: <div className='patrolTypeItem'>
-        {patrolIconId && <DasIcon color='black' iconId={patrolIconId} type='events' />}
+        {patrolIconId && <SvgIcon color='black' iconId={patrolIconId} type='events' />}
         {patrolType.display}
       </div>,
     };

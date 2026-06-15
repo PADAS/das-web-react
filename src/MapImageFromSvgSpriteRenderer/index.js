@@ -3,21 +3,10 @@ import axios from 'axios';
 import { connect } from 'react-redux';
 import { calcIconColorByPriority } from '../utils/event-types';
 import { calcUrlForImage, imgElFromSrc } from '../utils/img';
+import { calcSvgImageIconId } from '../utils/mapImages';
 import { addImageToMapIfNecessary } from '../ducks/map-images';
 
 import { DAS_HOST, MAP_ICON_SIZE, MAP_ICON_SCALE } from '../constants';
-
-export const calcSvgImageIconId = ({ icon_id, priority, height, width }) => {
-  let string = `${icon_id}`;
-
-  [priority, height, width]
-    .filter(item => item === 0 || !!item)
-    .forEach((item) => {
-      string+=`-${item}`;
-    });
-
-  return string;
-};
 
 const fetchSpriteImage = (icon_id) => axios.get(`${DAS_HOST}/static/sprite-src/${icon_id}.svg`,
   {

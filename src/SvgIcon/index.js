@@ -7,6 +7,63 @@ export const svgCache = new Map();
 
 const CONTAINER_SELECTOR = 'svg,g,defs,symbol,marker,clipPath,mask,pattern';
 
+// Identify which containers have fill="none" as a base default before we strip anything.
+// A container's fill="none" should be removed only if it was acting as a default that its
+// children override — either via explicit fill attributes or CSS classes in a <style> block.
+// Removing it unconditionally breaks stroke-based icons where fill="none" is the design intent.
+const collectContainerDefaultFills = (doc) => {
+  const containersToUnfill = new Set();
+  doc.querySelectorAll(CONTAINER_SELECTOR).forEach((container) => {
+    if (container.getAttribute('fill') !== 'none') return;
+    const hasExplicitFill = !!container.querySelector('[fill]:not([fill="none"])');
+    const hasClassBasedFill = !!container.querySelector('[class]');
+    if (hasExplicitFill || hasClassBasedFill) containersToUnfill.add(container);
+  });
+  return containersToUnfill;
+};
+
+// Remove <style> blocks — their fill/color rules reference class names we're about to strip,
+// and the class-defined colors would otherwise survive intact.
+const removeStyleBlocks = (doc) => {
+  doc.querySelectorAll('style').forEach((el) => el.remove());
+};
+
+// Remove class attributes — they reference the now-removed CSS rules and may also conflict
+// with the app's own stylesheet.
+const removeClassAttributes = (doc) => {
+  doc.querySelectorAll('[class]').forEach((el) => el.removeAttribute('class'));
+};
+
+// Strip all hardcoded (non-"none") fill attributes so shapes inherit currentColor via CSS.
+const stripHardcodedFills = (doc) => {
+  doc.querySelectorAll('[fill]:not([fill="none"])').forEach((el) => el.removeAttribute('fill'));
+};
+
+// Replace hardcoded stroke colors with currentColor so stroked shapes (crosshairs, outlines,
+// etc.) follow the icon's color context. We replace rather than remove because CSS does not
+// set a global stroke: currentColor the way it does for fill.
+const rewriteStrokesToCurrentColor = (doc) => {
+  doc.querySelectorAll('[stroke]:not([stroke="none"])').forEach((el) => {
+    el.setAttribute('stroke', 'currentColor');
+  });
+};
+
+// Strip inline fill/stroke from style attributes (presentation attributes above handle these).
+const stripInlineFillAndStroke = (doc) => {
+  doc.querySelectorAll('[style]').forEach((el) => {
+    const cleaned = el.getAttribute('style')
+      .replace(/\bfill\s*:[^;]*(;?)/g, '')
+      .replace(/\bstroke\s*:[^;]*(;?)/g, '');
+    el.setAttribute('style', cleaned);
+  });
+};
+
+// Remove fill="none" only from containers that were acting as a base default over colored
+// children — not from containers whose fill="none" is the actual design intent.
+const removeContainerDefaultFills = (doc, containers) => {
+  containers.forEach((container) => container.removeAttribute('fill'));
+};
+
 const sanitizeSvg = (text) => {
   const sanitized = DOMPurify.sanitize(text, {
     USE_PROFILES: { svg: true, svgFilters: true },
@@ -17,47 +74,14 @@ const sanitizeSvg = (text) => {
 
   const doc = new DOMParser().parseFromString(sanitized, 'image/svg+xml');
 
-  // Identify which containers have fill="none" as a base default before we strip anything.
-  // A container's fill="none" should be removed only if it was acting as a default that its
-  // children override — either via explicit fill attributes or CSS classes in a <style> block.
-  // Removing it unconditionally breaks stroke-based icons where fill="none" is the design intent.
-  const containersToUnfill = new Set();
-  doc.querySelectorAll(CONTAINER_SELECTOR).forEach((container) => {
-    if (container.getAttribute('fill') !== 'none') return;
-    const hasExplicitFill = !!container.querySelector('[fill]:not([fill="none"])');
-    const hasClassBasedFill = !!container.querySelector('[class]');
-    if (hasExplicitFill || hasClassBasedFill) containersToUnfill.add(container);
-  });
+  const containersToUnfill = collectContainerDefaultFills(doc);
 
-  // Remove <style> blocks — their fill/color rules reference class names we're about to strip,
-  // and the class-defined colors would otherwise survive intact.
-  doc.querySelectorAll('style').forEach((el) => el.remove());
-
-  // Remove class attributes — they reference the now-removed CSS rules and may also conflict
-  // with the app's own stylesheet.
-  doc.querySelectorAll('[class]').forEach((el) => el.removeAttribute('class'));
-
-  // Strip all hardcoded (non-"none") fill attributes so shapes inherit currentColor via CSS.
-  doc.querySelectorAll('[fill]:not([fill="none"])').forEach((el) => el.removeAttribute('fill'));
-
-  // Replace hardcoded stroke colors with currentColor so stroked shapes (crosshairs, outlines,
-  // etc.) follow the icon's color context. We replace rather than remove because CSS does not
-  // set a global stroke: currentColor the way it does for fill.
-  doc.querySelectorAll('[stroke]:not([stroke="none"])').forEach((el) => {
-    el.setAttribute('stroke', 'currentColor');
-  });
-
-  // Strip inline fill/stroke from style attributes (presentation attributes above handle these).
-  doc.querySelectorAll('[style]').forEach((el) => {
-    const cleaned = el.getAttribute('style')
-      .replace(/\bfill\s*:[^;]*(;?)/g, '')
-      .replace(/\bstroke\s*:[^;]*(;?)/g, '');
-    el.setAttribute('style', cleaned);
-  });
-
-  // Remove fill="none" only from containers that were acting as a base default over colored
-  // children — not from containers whose fill="none" is the actual design intent.
-  containersToUnfill.forEach((container) => container.removeAttribute('fill'));
+  removeStyleBlocks(doc);
+  removeClassAttributes(doc);
+  stripHardcodedFills(doc);
+  rewriteStrokesToCurrentColor(doc);
+  stripInlineFillAndStroke(doc);
+  removeContainerDefaultFills(doc, containersToUnfill);
 
   return new XMLSerializer().serializeToString(doc.documentElement) || null;
 };
@@ -139,7 +163,7 @@ const InlineSvg = ({ src, fallbackSrc, className, style, ...rest }) => {
   );
 };
 
-const DasIcon = ({ type, iconId, imageUrl, className, color, style, ...rest }) => {
+const SvgIcon = ({ type, iconId, imageUrl, className, color, style, ...rest }) => {
   const onImgError = (event) => {
     event.currentTarget.style.display = 'none';
   };
@@ -172,4 +196,4 @@ const DasIcon = ({ type, iconId, imageUrl, className, color, style, ...rest }) =
   );
 };
 
-export default DasIcon;
+export default SvgIcon;

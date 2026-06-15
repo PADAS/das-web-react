@@ -2,7 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { mockStore } from '../__test-helpers/MockStore';
 import { render, waitFor } from '../test-utils';
-import { svgCache } from '../DasIcon';
+import { svgCache } from '../SvgIcon';
 import EventIcon from './';
 
 const mockSvgFetch = () =>

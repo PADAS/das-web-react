@@ -7,7 +7,7 @@ import { displayTitleForPatrol, iconTypeForPatrol, patrolStateAllowsTrackDisplay
 import { selectPatrolsWithTracksData } from '../selectors/patrols';
 import { updatePatrolTrackState } from '../ducks/patrols';
 
-import DasIcon from '../DasIcon';
+import SvgIcon from '../SvgIcon';
 import TrackLegend from '../TrackLegend';
 
 import * as styles from './styles.module.scss';
@@ -40,7 +40,7 @@ const PatrolTrackLegend = () => {
 
     return {
       description: `${patrolData.trackData ? length(patrolData.trackData.track).toFixed(2): 0.00}km`,
-      icon: <DasIcon
+      icon: <SvgIcon
         className={styles.itemIcon}
         iconId={iconId}
         title={t('icon', { patrolTitle })}

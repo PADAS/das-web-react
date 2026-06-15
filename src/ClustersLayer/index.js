@@ -66,36 +66,49 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
 
   const mapImages = useSelector((state) => state.view.mapImages);
   const locallyEditedEvent = useSelector((state) => state.data.locallyEditedEvent);
-  const eventStore = useSelector((state) => state.data.eventStore);
 
-  // Use a ref so the callback doesn't need to be recreated on every mapImages update —
-  // mapImages changes are handled by a dedicated effect below.
+  // Use refs so the callback doesn't need to be recreated when these frequently-changing
+  // values update — their respective effects (and sourcedata) drive the marker refresh,
+  // and the callback reads the latest values from the refs at call time.
   const mapImagesRef = useRef(mapImages);
   mapImagesRef.current = mapImages;
 
+  const locallyEditedEventRef = useRef(locallyEditedEvent);
+  locallyEditedEventRef.current = locallyEditedEvent;
+
+  const addClusterPolygonRef = useRef(addClusterPolygon);
+  addClusterPolygonRef.current = addClusterPolygon;
+
+  const removeClusterPolygonRef = useRef(removeClusterPolygon);
+  removeClusterPolygonRef.current = removeClusterPolygon;
+
+  const onShowClusterSelectPopupRef = useRef(onShowClusterSelectPopup);
+  onShowClusterSelectPopupRef.current = onShowClusterSelectPopup;
+
+  // The callback intentionally reads these values from refs so its identity stays stable
+  // across frequent locallyEditedEvent/mapImages/etc. changes; only `map` is a real dep.
   const updateClusterMarkersCallback = useCallback(async () => {
     const {
       renderedClusterHashes,
       renderedClusterFeatures,
       renderedClusterIds,
-    } = await getRenderedClustersData(map.getSource(CLUSTERS_SOURCE_ID), map, locallyEditedEvent, mapImagesRef.current);
+    } = await getRenderedClustersData(map.getSource(CLUSTERS_SOURCE_ID), map, locallyEditedEventRef.current, mapImagesRef.current);
 
-    removeOldClusterMarkers(clusterMarkerHashMapRef, removeClusterPolygon, renderedClusterHashes);
+    removeOldClusterMarkers(clusterMarkerHashMapRef, removeClusterPolygonRef.current, renderedClusterHashes);
 
     clusterMarkerHashMapRef.current = addNewClusterMarkers(
-      addClusterPolygon,
+      addClusterPolygonRef.current,
       clusterMarkerHashMapRef,
       CLUSTERS_SOURCE_ID,
       map,
       mapImagesRef.current,
-      removeClusterPolygon,
+      removeClusterPolygonRef.current,
       renderedClusterFeatures,
       renderedClusterHashes,
       renderedClusterIds,
-      onShowClusterSelectPopup,
-      locallyEditedEvent,
-      eventStore);
-  }, [addClusterPolygon, eventStore, locallyEditedEvent, map, onShowClusterSelectPopup, removeClusterPolygon]);
+      onShowClusterSelectPopupRef.current,
+      locallyEditedEventRef.current);
+  }, [map]);
 
   const onSourceData = useMemo(() => (event) => {
     if (event.sourceId === CLUSTERS_SOURCE_ID) {
@@ -105,17 +118,22 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
 
   useMapEventBinding('sourcedata', onSourceData);
 
+  // updateClusterMarkersCallback is stable (reads current values from refs), so it is
+  // intentionally omitted from the deps to avoid re-firing on its identity churn.
   useEffect(() => {
     if (locallyEditedEvent) {
       updateClusterMarkersCallback();
     }
-  }, [locallyEditedEvent, updateClusterMarkersCallback]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locallyEditedEvent]);
 
   // Trigger a marker refresh when mapImages changes so clusters show the correct icon
   // as soon as the image is available (sourcedata doesn't fire on mapImages updates).
+  // updateClusterMarkersCallback is stable, so it is intentionally omitted from the deps.
   useEffect(() => {
     updateClusterMarkersCallback();
-  }, [mapImages, updateClusterMarkersCallback]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mapImages]);
 
   return null;
 };

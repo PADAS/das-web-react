@@ -8,7 +8,7 @@ import { PATROL_DETAIL_VIEW_CATEGORY, trackEventFactory } from '../../utils/anal
 import { TAB_KEYS } from '../../constants';
 import usePatrol from '../../hooks/usePatrol';
 
-import DasIcon from '../../DasIcon';
+import SvgIcon from '../../SvgIcon';
 import PatrolTrackControls from '../../PatrolTrackControls';
 import PatrolDistanceCovered from '../../Patrols/DistanceCovered';
 import PatrolMenu from '../../PatrolMenu';
@@ -112,7 +112,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
 
   return <div className={styles.header} style={{ backgroundColor: !isNewPatrol ? theme.background : undefined }}>
     <div className={styles.icon} style={{ backgroundColor: !isNewPatrol ? theme.base : undefined }}>
-      <DasIcon className={!isNewPatrol ? '' : 'newPatrol'} style={{ fill: theme.fontColor ? theme.fontColor : 'white' }} type='events' iconId={patrolIconId}  />
+      <SvgIcon className={!isNewPatrol ? '' : 'newPatrol'} style={{ fill: theme.fontColor ? theme.fontColor : 'white' }} type='events' iconId={patrolIconId}  />
     </div>
 
     <p className={styles.serialNumber}>{patrol.serial_number}</p>

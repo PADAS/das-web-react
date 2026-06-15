@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
 import { selectDisplayEventTypes } from '../selectors/event-types';
 
-import DasIcon from '../DasIcon';
+import SvgIcon from '../SvgIcon';
 
 import * as styles from './styles.module.scss';
 
@@ -36,12 +36,12 @@ const EventIcon = ({ report, ...rest }) => {
 
   if (nonContainerIconId) {
     return <span className={styles.wrapper}>
-      <DasIcon iconId={iconId} type="events" title={report.event_type} {...rest} />
-      <DasIcon className={styles.content} iconId={nonContainerIconId} type="events" />
+      <SvgIcon iconId={iconId} type="events" title={report.event_type} {...rest} />
+      <SvgIcon className={styles.content} iconId={nonContainerIconId} type="events" />
     </span>;
   }
 
-  return <DasIcon iconId={iconId} type="events" title={report.event_type} {...rest} />;
+  return <SvgIcon iconId={iconId} type="events" title={report.event_type} {...rest} />;
 };
 
 export default memo(EventIcon);

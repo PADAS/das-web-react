@@ -2,7 +2,7 @@ import { centroid, featureCollection } from '@turf/turf';
 import mapboxgl from 'mapbox-gl';
 
 import { CLUSTER_CLICK_ZOOM_THRESHOLD, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
-import { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
+import { calcSvgImageIconId } from '../utils/mapImages';
 import { subjectIsStatic } from '../utils/subjects';
 import { injectStylesToElement } from '../utils/styles';
 import { hashCode } from '../utils/string';
@@ -24,24 +24,11 @@ const FEATURE_ICON_HTML_STYLES = { maxWidth: '24px', minWidth: '18px', height: '
 const FEATURE_SS_ICON_HTML_STYLES = { filter: 'brightness(0)' };
 const FEATURE_COUNT_HTML_STYLES = { fontSize: '16px', fontWeight: '500', paddingLeft: '4px', margin: '0' };
 
-const getFeatureIcon = (feature, mapImages, locallyEditedEvent, eventStore) => {
-  const isLocally = locallyEditedEvent?.id === feature.properties.id;
-  if (isLocally) {
-    const iconId = locallyEditedEvent.icon_id ?? feature.properties.icon_id;
-    // Use !== undefined so that an explicit null priority (meaning "none"/0) isn't skipped by ??
-    const priority = locallyEditedEvent.priority !== undefined
-      ? locallyEditedEvent.priority
-      : feature.properties.priority;
-    const newImage = mapImages[calcSvgImageIconId({ icon_id: iconId, priority })]?.image;
-    if (newImage) return newImage;
-    // Fall back to the saved event's priority image (feature.properties may already reflect
-    // the locally-edited priority since the source is updated before getClusterLeaves runs)
-    const savedEvent = eventStore?.[feature.properties.id];
-    if (savedEvent) {
-      return mapImages[calcSvgImageIconId({ icon_id: savedEvent.icon_id || iconId, priority: savedEvent.priority })]?.image;
-    }
-  }
-  return mapImages[calcSvgImageIconId({ icon_id: feature.properties.icon_id, priority: feature.properties.priority })]?.image;
+const getFeatureIcon = (feature, mapImages, locallyEditedEvent) => {
+  const priority = locallyEditedEvent?.id === feature.properties.id
+    ? locallyEditedEvent.priority
+    : feature.properties.priority;
+  return mapImages[calcSvgImageIconId({ icon_id: feature.properties.icon_id, priority })]?.image;
 };
 
 export const getClusterIconFeatures = (clusterFeatures) => {
@@ -91,8 +78,7 @@ export const createClusterHTMLMarker = (
   onClusterClick,
   onMouseOverCluster,
   onMouseLeaveCluster,
-  locallyEditedEvent = null,
-  eventStore = null
+  locallyEditedEvent = null
 ) => {
   const clusterHTMLMarkerContainer = document.createElement('div');
   clusterHTMLMarkerContainer.onclick = onClusterClick;
@@ -101,7 +87,7 @@ export const createClusterHTMLMarker = (
   injectStylesToElement(clusterHTMLMarkerContainer, CLUSTER_HTML_MARKER_CONTAINER_STYLES);
 
   getClusterIconFeatures(clusterFeatures).forEach((feature) => {
-    let featureImageHTML = getFeatureIcon(feature, mapImages, locallyEditedEvent, eventStore)?.cloneNode(true);
+    let featureImageHTML = getFeatureIcon(feature, mapImages, locallyEditedEvent)?.cloneNode(true);
     if (!featureImageHTML) {
       featureImageHTML = document.createElement('img');
       featureImageHTML.src = feature.properties.image || feature.properties.image_url;
@@ -164,7 +150,7 @@ export const getRenderedClustersData = async (clustersSource, map, locallyEdited
 
   const renderedClusterHashes = renderedClusterFeatures.map(
     (clusterFeatures) => hashCode(clusterFeatures.map((clusterFeature) => {
-      const isLocally = locallyEditedEvent?.id === clusterFeature.properties.id;
+      const isLocallyEdited = locallyEditedEvent?.id === clusterFeature.properties.id;
       const priority = clusterFeature.properties.priority ?? 0;
       // Include whether the icon image is loaded so the hash changes when mapImages gains the entry,
       // forcing the marker to be recreated with the correct icon.
@@ -173,7 +159,7 @@ export const getRenderedClustersData = async (clustersSource, map, locallyEdited
         priority: clusterFeature.properties.priority,
       });
       const imageLoaded = mapImages?.[iconKey] ? '1' : '0';
-      const suffix = isLocally
+      const suffix = isLocallyEdited
         ? `local-${locallyEditedEvent.priority ?? 0}`
         : `${clusterFeature.properties.updated_at}-${priority}-${imageLoaded}`;
       return `${clusterFeature.properties.id} ${suffix}`;
@@ -205,8 +191,7 @@ export const addNewClusterMarkers = (
   renderedClusterHashes,
   renderedClusterIds,
   onShowClusterSelectPopup,
-  locallyEditedEvent = null,
-  eventStore = null
+  locallyEditedEvent = null
 ) => {
   const renderedClusterMarkersHashMap = {};
 
@@ -250,7 +235,6 @@ export const addNewClusterMarkers = (
         onMouseOver,
         onMouseLeave,
         locallyEditedEvent,
-        eventStore,
       );
 
       marker = new mapboxgl.Marker(newClusterHTMLMarkerContainer)

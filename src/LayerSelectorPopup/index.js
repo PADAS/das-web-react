@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { calcImgIdFromUrlForMapImages, calcUrlForImage } from '../utils/img';
-import { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
+import { calcSvgImageIconId } from '../utils/mapImages';
 import { hidePopup } from '../ducks/popup';
 import { SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { subjectIsStatic } from '../utils/subjects';
@@ -72,6 +72,7 @@ const LayerSelectorPopup = ({ data, id }) => {
       return <li className={styles.listItem} key={layer.properties.id} onClick={(e) => handleClick(e, layer)}>
         <img
           alt={displayTitle}
+          onError={(event) => { event.currentTarget.style.display = 'none'; }}
           src={imgSrc}
           style={subjectIsStatic(layer) ? { filter: 'brightness(0) opacity(60%)' } : {}}
         />
