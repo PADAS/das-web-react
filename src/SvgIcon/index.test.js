@@ -49,6 +49,37 @@ describe('SvgIcon', () => {
     });
   });
 
+  describe('community icons', () => {
+    test('fetches the extension-less community events endpoint for event icons', async () => {
+      fetchSpy.mockImplementation(mockFetch('image/svg+xml', '<svg><path d="M0 0"/></svg>'));
+      store = mockStore({ data: { community: { value: 'my-community' } } });
+
+      renderWithStore(<SvgIcon type="events" iconId="fire_rep" />);
+
+      await waitFor(() => {
+        expect(document.querySelector('svg')).toBeInTheDocument();
+      });
+      expect(fetchSpy.mock.calls[0][0]).toEqual(
+        expect.stringContaining('community/my-community/activity/events/eventtypes/icons/fire_rep')
+      );
+      expect(fetchSpy.mock.calls[0][0]).not.toContain('community/my-community/activity/events/eventtypes/icons/fire_rep.svg');
+    });
+
+    test('fetches the community sprite-src endpoint for non-event icons', async () => {
+      fetchSpy.mockImplementation(mockFetch('image/svg+xml', '<svg><path d="M0 0"/></svg>'));
+      store = mockStore({ data: { community: { value: 'my-community' } } });
+
+      renderWithStore(<SvgIcon type="patrols" iconId="ranger_rep" />);
+
+      await waitFor(() => {
+        expect(document.querySelector('svg')).toBeInTheDocument();
+      });
+      expect(fetchSpy.mock.calls[0][0]).toEqual(
+        expect.stringContaining('community/my-community/static/sprite-src/ranger_rep.svg')
+      );
+    });
+  });
+
   describe('subject icons', () => {
     test('renders an img for SVG subject image URLs', () => {
       renderWithStore(<SvgIcon type="subjects" imageUrl="https://example.com/subject.svg" />);

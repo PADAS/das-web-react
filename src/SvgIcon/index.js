@@ -74,6 +74,7 @@ const sanitizeSvg = (text) => {
   if (!sanitized) return null;
 
   const doc = new DOMParser().parseFromString(sanitized, 'image/svg+xml');
+  if (doc.querySelector('parsererror')) return null;
 
   const containersToUnfill = collectContainerDefaultFills(doc);
 
@@ -90,7 +91,7 @@ const sanitizeSvg = (text) => {
 const injectClass = (markup, className) => {
   if (!className) return markup;
   if (/<svg[^>]* class="/.test(markup)) {
-    return markup.replace(/(<svg[^>]*) class="([^"]*)"/, `$1 class="$2 ${className}"`);
+    return markup.replace(/(<svg[^>]*) class="([^"]*)"/, (match, prefix, existing) => `${prefix} class="${`${existing} ${className}`.trim()}"`);
   }
   return markup.replace('<svg', `<svg class="${className}"`);
 };

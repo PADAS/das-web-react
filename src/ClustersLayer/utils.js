@@ -158,6 +158,10 @@ export const getRenderedClustersData = async (clustersSource, map, locallyEdited
         icon_id: clusterFeature.properties.icon_id,
         priority: clusterFeature.properties.priority,
       });
+      // For a locally-edited feature, imageLoaded is computed from the feature's ORIGINAL
+      // priority icon key (not the locally-edited priority). That is intentional and harmless
+      // because addNewClusterMarkers unconditionally recreates any marker containing the
+      // locally-edited feature, so its icon is always refreshed regardless of this bit.
       const imageLoaded = mapImages?.[iconKey] ? '1' : '0';
       const suffix = isLocallyEdited
         ? `local-${locallyEditedEvent.priority ?? 0}`
