@@ -3,10 +3,6 @@ import i18next from 'i18next';
 export const generateErrorMessageForRequest = (error) => {
   const t = i18next.getFixedT(null, 'utils', 'generateErrorMessageForRequest');
 
-  if (error.request) {
-    return t('noResponse');
-  }
-
   if (error.response?.status) {
     switch (error.response.status) {
     case 400: {
@@ -35,5 +31,10 @@ export const generateErrorMessageForRequest = (error) => {
     }
     }
   }
+
+  if (error.request) {
+    return t('noResponse');
+  }
+
   return t('noCode');
 };

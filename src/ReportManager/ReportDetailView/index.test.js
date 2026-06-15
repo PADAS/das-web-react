@@ -652,6 +652,32 @@ describe('ReportManager - ReportDetailView', () => {
     expect(await screen.findByText('Error saving event.')).toBeDefined();
   });
 
+  test('shows a human-readable error message for an HTTP error response when saving fails', async () => {
+    const tooManyRequestsError = { request: {}, response: { status: 429 } };
+
+    executeSaveActionsMock = jest.fn(() => Promise.reject(tooManyRequestsError));
+    executeSaveActions.mockImplementation(executeSaveActionsMock);
+
+    renderWithWrapper(
+      <ReportDetailView
+            isNewReport
+            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+            reportId="456"
+          />
+    );
+
+    const titleTextBox = await screen.findByTestId('reportManager-header-title');
+    await userEvent.type(titleTextBox, '2');
+    await userEvent.tab();
+    const saveButton = await screen.findByText('Save');
+    await userEvent.click(saveButton);
+
+    expect(await screen.findByText(
+      'Too many requests. Please try again later, and contact your administrator if this problem persists (429).'
+    )).toBeDefined();
+    expect(screen.queryByText('Unknown error')).toBeNull();
+  });
+
   test('omits duplicated attachment files', async () => {
     window.alert = jest.fn();
 
