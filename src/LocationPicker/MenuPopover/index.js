@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { lazy, Suspense, useEffect, useRef } from 'react';
 import Popover from 'react-bootstrap/Popover';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +10,8 @@ import { EVENT_REPORT_CATEGORY, trackEventFactory } from '../../utils/analytics'
 
 import GetUserLocationButton from '../../GetUserLocationButton';
 import GpsInput from '../../GpsInput';
-import PickMapLocationButton from '../../PickMapLocationButton';
+
+const PickMapLocationButton = lazy(() => import('../../PickMapLocationButton'));
 
 import * as styles from './styles.module.scss';
 
@@ -166,16 +167,18 @@ const MenuPopover = ({
       />
 
       <div className={styles.buttons}>
-        <PickMapLocationButton
-          onClick={() => eventReportTracker.track('Click \'Set on map\'')}
-          onPick={onMapLocationPick}
-          ref={!showUserLocation ? lastFocusableElementRef : undefined}
-          renderContent={() => <>
-            <MarkerFeedIcon />
+        <Suspense fallback={null}>
+          <PickMapLocationButton
+            onClick={() => eventReportTracker.track('Click \'Set on map\'')}
+            onPick={onMapLocationPick}
+            ref={!showUserLocation ? lastFocusableElementRef : undefined}
+            renderContent={() => <>
+              <MarkerFeedIcon />
 
-            {t('pickMapLocationButton')}
-          </>}
-        />
+              {t('pickMapLocationButton')}
+            </>}
+          />
+        </Suspense>
 
         {showUserLocation && <GetUserLocationButton
           onClick={() => eventReportTracker.track('Click \'Use my location\'')}

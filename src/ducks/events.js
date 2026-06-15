@@ -1,7 +1,7 @@
 import axios, { CancelToken, isCancel } from 'axios';
 import union from 'lodash/union';
 
-import { API_URL, TAB_KEYS } from '../constants';
+import { API_URL, API_V2_URL, TAB_KEYS } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
 import { getBboxParamsFromMap } from '../utils/query';
 import { generateErrorMessageForRequest } from '../utils/request';
@@ -20,6 +20,13 @@ export const EVENTS_API_URL = (
 ) ? '/api/v1.0/activity/events/'
   : `${API_URL}activity/events`;
 export const EVENT_API_URL = `${API_URL}activity/event/`;
+
+export const COMMUNITY_EVENTS_API_URL = (communityValue) =>
+  `${API_V2_URL}community/${communityValue}/activity/events/`;
+export const COMMUNITY_EVENT_NOTES_URL = (communityValue, eventId) =>
+  `${API_V2_URL}community/${communityValue}/activity/events/${eventId}/notes/`;
+export const COMMUNITY_EVENT_FILES_URL = (communityValue, eventId) =>
+  `${API_V2_URL}community/${communityValue}/activity/events/${eventId}/files/`;
 
 // actions
 const CLEAR_EVENT_DATA = 'CLEAR_EVENT_DATA';
@@ -200,7 +207,7 @@ export const clearEventData = () => ({
   type: CLEAR_EVENT_DATA,
 });
 
-export const createEvent = event => (dispatch, getState) => {
+export const createEvent = (event, communityInputValue = null) => (dispatch, getState) => {
   const params = {};
   const state = getState();
 
@@ -213,7 +220,8 @@ export const createEvent = event => (dispatch, getState) => {
     payload: event,
   });
 
-  return axios.post(EVENTS_API_URL, event, { params })
+  const url = communityInputValue ? COMMUNITY_EVENTS_API_URL(communityInputValue) : EVENTS_API_URL;
+  return axios.post(url, event, { params, ...(communityInputValue ? { skipAuth: true } : {}) })
     .then((response) => {
       dispatch({
         type: CREATE_EVENT_SUCCESS,
@@ -231,7 +239,7 @@ export const createEvent = event => (dispatch, getState) => {
     });
 };
 
-export const addNoteToEvent = (event_id, note) => (dispatch, getState) => {
+export const addNoteToEvent = (event_id, note, communityInputValue = null) => (dispatch, getState) => {
   const params = {};
   const state = getState();
 
@@ -243,7 +251,10 @@ export const addNoteToEvent = (event_id, note) => (dispatch, getState) => {
     type: ADD_EVENT_NOTE_START,
     payload: note,
   });
-  return axios.post(`${EVENT_API_URL}${event_id}/notes/`, note, { params })
+  const notesUrl = communityInputValue
+    ? COMMUNITY_EVENT_NOTES_URL(communityInputValue, event_id)
+    : `${EVENT_API_URL}${event_id}/notes/`;
+  return axios.post(notesUrl, note, { params, ...(communityInputValue ? { skipAuth: true } : {}) })
     .then((response) => {
       dispatch({
         type: ADD_EVENT_NOTE_SUCCESS,
@@ -292,7 +303,10 @@ export const fetchEvent = (event_id, parameters = {}) =>
       });
   };
 
-export const updateEvent = (event) => (dispatch, getState) => {
+// Community reports are always new (no id), so the save pipeline (generateSaveActionsForReportLikeObject)
+// routes them to createEvent, never here — and there is no community event-update endpoint. The
+// communityInputValue arg is accepted only for save-action signature parity and is intentionally unused.
+export const updateEvent = (event, _communityInputValue = null) => (dispatch, getState) => {
   const params = {};
   const state = getState();
 
@@ -370,8 +384,10 @@ export const setEventState = (id, state) => (dispatch, getState) => {
     });
 };
 
-export const uploadEventFile = (event_id, file) => (dispatch, getState) => {
-  const uploadUrl = `${EVENT_API_URL}${event_id}/files/`;
+export const uploadEventFile = (event_id, file, communityInputValue = null) => (dispatch, getState) => {
+  const uploadUrl = communityInputValue
+    ? COMMUNITY_EVENT_FILES_URL(communityInputValue, event_id)
+    : `${EVENT_API_URL}${event_id}/files/`;
   const params = {};
   const state = getState();
 
@@ -395,6 +411,7 @@ export const uploadEventFile = (event_id, file) => (dispatch, getState) => {
       'Content-Type': 'multipart/form-data',
     },
     params,
+    ...(communityInputValue ? { skipAuth: true } : {}),
   }).then((response) => {
     dispatch({
       type: UPLOAD_EVENT_FILES_SUCCESS,

@@ -36,7 +36,8 @@
     "stateSelector": {
       "active": "Actif",
       "resolved": "Résolu",
-      "all": "Tous statut"
+      "all": "Tous statut",
+      "review": "En révision"
     },
     "title": "Filtre d'Événements"
   },

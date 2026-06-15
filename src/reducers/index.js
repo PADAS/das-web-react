@@ -7,6 +7,7 @@ import { generateStorageConfig } from './storage-config';
 import coordinateReferenceSystemsReducer from '../ducks/coordinate-reference-systems';
 import tokenReducer, { masterRequestTokenReducer } from '../ducks/auth';
 import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedReducer } from '../ducks/events';
+import communityReducer from '../ducks/community';
 import eventCategoriesReducer from '../ducks/event-categories';
 import eventTypesReducer from '../ducks/event-types';
 import observationsReducer from '../ducks/observations';
@@ -87,6 +88,7 @@ const rootReducer = combineReducers({
     patrolStore: patrolStoreReducer,
     feedEvents: eventFeedReducer,
     feedIncidents: incidentFeedReducer,
+    community: communityReducer,
     locallyEditedEvent: locallyEditedEventReducer,
     mapEvents: mapEventsReducer,
     eula: eulaReducer,

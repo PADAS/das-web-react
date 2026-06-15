@@ -17,6 +17,7 @@ const SelectListGroup = ({
   'aria-required': ariaRequired,
   className = '',
   disabled = false,
+  getOptionDescription = null,
   getOptionLabel = null,
   getOptionValue = null,
   id = '',
@@ -33,12 +34,13 @@ const SelectListGroup = ({
     const optionValue = option.value ?? getOptionValue?.(option);
 
     return {
+      description: option.description ?? getOptionDescription?.(option),
       isChecked: isOptionChecked(option, value, isMulti, !value || value?.length === 0, getOptionValue),
       id: `${id}-${optionValue}`,
       label: option.label ?? getOptionLabel?.(option),
       value: optionValue
     };
-  }), [getOptionLabel, getOptionValue, id, isMulti, options, value]);
+  }), [getOptionDescription, getOptionLabel, getOptionValue, id, isMulti, options, value]);
 
   const handleOnSelectableItemClick = (selectedOptionValue, isChecked) => {
     if (isMulti){
@@ -71,6 +73,7 @@ const SelectListGroup = ({
           ? ariaRequired
           : index === 0 && ariaRequired ? ariaRequired : undefined
         }
+        description={optionItem.description}
         disabled={disabled}
         groupId={id}
         invalid={invalid}

@@ -8,6 +8,7 @@ import { TEXT_ELEMENT_ALPHANUMERIC_FORMAT_VALIDATION_PATTERN } from '../../../..
 const ajv = new Ajv2020({ allErrors: true });
 addFormats(ajv);
 ajv.addKeyword({ keyword: 'x-section', schemaType: 'string' });
+ajv.addKeyword({ keyword: 'x-enumExtra', schemaType: 'object' });
 
 const insertErrorRecursively = (fieldName, message, errorPath, errors, t) => {
   if (errorPath.length === 0) {
@@ -43,12 +44,11 @@ const useSchemaValidations = (schema) => {
       return validate.errors.reduce((accumulator, error) => {
         // First we calculate the error path, the field id and the message. The error path tells us if the erroneus
         // field is nested in a collection and in which of its items.
-        let errorPath;
+        const errorPath = error.instancePath.split('/').slice(1);
         let fieldName;
         let message;
         switch (error.keyword) {
         case 'format':
-          errorPath = error.instancePath.split('/').slice(1);
           fieldName = errorPath.pop();
 
           switch (error.params.format) {
@@ -82,31 +82,26 @@ const useSchemaValidations = (schema) => {
           break;
 
         case 'maximum':
-          errorPath = error.instancePath.split('/').slice(1);
           fieldName = errorPath.pop();
           message = t('maximum', { maximum: error.params.limit });
           break;
 
         case 'maxItems':
-          errorPath = error.instancePath.split('/').slice(1);
           fieldName = errorPath.pop();
           message = t('maxItems', { count: error.params.limit  });
           break;
 
         case 'minimum':
-          errorPath = error.instancePath.split('/').slice(1);
           fieldName = errorPath.pop();
           message = t('minimum', { minimum: error.params.limit });
           break;
 
         case 'minItems':
-          errorPath = error.instancePath.split('/').slice(1);
           fieldName = errorPath.pop();
           message = t('minItems', { count: error.params.limit  });
           break;
 
         case 'pattern':
-          errorPath = error.instancePath.split('/').slice(1);
           fieldName = errorPath.pop();
 
           switch (error.params.pattern) {
@@ -120,13 +115,16 @@ const useSchemaValidations = (schema) => {
           break;
 
         case 'required':
-          errorPath = error.instancePath.split('/').slice(1);
           fieldName = error.params.missingProperty;
           message = t('required');
           break;
 
         default:
-          return accumulator;
+          fieldName = error.params?.additionalProperty
+            ?? error.params?.unevaluatedProperty
+            ?? error.params?.propertyName
+            ?? errorPath.pop();
+          message = t('defaultKeyword');
         }
 
         // Then, we insert the error in the accumulated errors structure.

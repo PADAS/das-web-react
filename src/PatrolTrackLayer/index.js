@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 
 import { selectPatrolData } from '../selectors/patrols';
 import { LAYER_IDS } from '../constants';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { trimTrackDataToTimeRange } from '../utils/tracks';
 
 import TrackLayer from '../TracksLayer/track';

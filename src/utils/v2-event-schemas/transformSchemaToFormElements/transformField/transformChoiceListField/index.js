@@ -18,7 +18,16 @@ const transformChoiceListField = (
   const choicesSubschemas = isMultipleChoiceList
     ? choiceListFieldJSONSchema.items.anyOf
     : choiceListFieldJSONSchema.anyOf;
-  const options = (choicesSubschemas ?? []).flatMap((choicesSubschema) => choicesSubschema.oneOf);
+  const options = (choicesSubschemas ?? [])
+    .flatMap((choicesSubschema) => (choicesSubschema.enum ?? []).map((optionValue) => {
+      const optionExtra = choicesSubschema['x-enumExtra'][optionValue];
+
+      return {
+        description: optionExtra.description,
+        display: optionExtra.display,
+        value: optionValue,
+      };
+    }));
 
   // Add the choice list field form element specific properties.
   formElements[choiceListFieldId].details = {

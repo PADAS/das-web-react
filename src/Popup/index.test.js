@@ -4,7 +4,7 @@ import { cleanup, render } from '@testing-library/react';
 import { createMapMock } from '../__test-helpers/mocks';
 
 import Popup from './';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 
 const popupAnchor = [];
 const popupClass = [];

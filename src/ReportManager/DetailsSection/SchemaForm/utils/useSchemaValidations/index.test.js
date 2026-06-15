@@ -539,6 +539,105 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - useSchemaValidat
     });
   });
 
+  it('returns the default keyword validation error for unhandled AJV keywords', () => {
+    schema.json.properties.text = {
+      default: '',
+      deprecated: false,
+      description: '',
+      title: 'Text field',
+      type: 'string',
+    };
+    schema.json.required = ['text'];
+    schema.ui.fields.text = {
+      inputType: 'SHORT_TEXT',
+      placeholder: '',
+      type: 'TEXT',
+      parent: 'section-_PdgePvPWyACfu9sgN_F6',
+    };
+    schema.ui.sections['section-_PdgePvPWyACfu9sgN_F6'].leftColumn = [
+      {
+        name: 'text',
+        type: 'field',
+      },
+    ];
+    const formData = { text: ['Invalid text value'] };
+
+    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+
+    const runValidations = result.current;
+
+    expect(runValidations(formData)).toEqual({
+      text: {
+        message: 'Invalid value.',
+      },
+    });
+  });
+
+  it('returns the default keyword validation error for unhandled AJV keywords when the error params include additionalProperty', () => {
+    schema.json.properties.knownField = {
+      default: '',
+      deprecated: false,
+      description: '',
+      title: 'Known field',
+      type: 'string',
+    };
+    schema.json.additionalProperties = false;
+    schema.ui.fields.knownField = {
+      inputType: 'SHORT_TEXT',
+      placeholder: '',
+      type: 'TEXT',
+      parent: 'section-_PdgePvPWyACfu9sgN_F6',
+    };
+    schema.ui.sections['section-_PdgePvPWyACfu9sgN_F6'].leftColumn = [
+      {
+        name: 'knownField',
+        type: 'field',
+      },
+    ];
+    const formData = { knownField: 'ok', unexpectedKey: 1 };
+
+    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+
+    const runValidations = result.current;
+
+    expect(runValidations(formData)).toEqual({
+      unexpectedKey: {
+        message: 'Invalid value.',
+      },
+    });
+  });
+
+  it('returns the default keyword validation error for unhandled AJV keywords when the error params include unevaluatedProperty', () => {
+    const formData = { rogueField: 123 };
+
+    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+
+    const runValidations = result.current;
+
+    expect(runValidations(formData)).toEqual({
+      rogueField: {
+        message: 'Invalid value.',
+      },
+    });
+  });
+
+  it('returns the default keyword validation error for unhandled AJV keywords when the error params include propertyName', () => {
+    schema.json.unevaluatedProperties = true;
+    schema.json.propertyNames = { pattern: '^[a-z]+$' };
+    schema.json.additionalProperties = true;
+    const formData = { BadKey: 1 };
+
+    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+
+    const runValidations = result.current;
+
+    expect(runValidations(formData)).toEqual(expect.objectContaining({
+      BadKey: {
+        message: 'Invalid value.',
+      },
+    }));
+  });
+
   it('injects nested errors in collection item forms', () => {
     schema.json.properties.collection_1 = {
       deprecated: false,

@@ -4,8 +4,17 @@ import { DATE_TIME_ELEMENT_INPUT_TYPES, FORM_ELEMENT_TYPES } from '../constants'
 import { OUTSIDE_BBOX, stringifyCoordinates } from '../../location';
 import { shouldUse12HourFormat } from '../../datetime';
 
-const getChoiceListOptionLabel = (value, field) => field.details.options
-  .find((option) => option.const === value)?.title;
+const getChoiceListOptionHumanizedValue = (value, field) => {
+  const option = field.details.options.find((option) => option.value === value) ?? {};
+
+  if (!option.display) {
+    return value;
+  }
+  if (!option.description) {
+    return option.display;
+  }
+  return `${option.display} (${option.description})`;
+};
 
 // Utility to calculate a human readable version of the field values. For
 // example, render a date-time like 2020/01/01 12:00 PM instead of
@@ -20,9 +29,9 @@ const getHumanizedFieldValue = (field, value, defaultHumanizedValue, language, c
   switch (field.type) {
   case FORM_ELEMENT_TYPES.CHOICE_LIST:
     if (field.details.multiple) {
-      return value.map((choiceValue) => getChoiceListOptionLabel(choiceValue, field)).join(', ');
+      return value.map((choiceValue) => getChoiceListOptionHumanizedValue(choiceValue, field)).join(', ');
     }
-    return getChoiceListOptionLabel(value, field);
+    return getChoiceListOptionHumanizedValue(value, field);
 
   case FORM_ELEMENT_TYPES.COLLECTION:
     return t('collectionHumanizedValue', { collectionLength: value.length });

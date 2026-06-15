@@ -13,17 +13,21 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - ChoiceLis
       inputType: CHOICE_LIST_ELEMENT_INPUT_TYPES.DROPDOWN,
       options: [
         {
-          'const': '048fdcef-f599-4205-8b44-1536d46645aa',
-          'title': 'DumboAlfonso'
+          description: 'ranger',
+          display: 'DumboAlfonso',
+          value: '048fdcef-f599-4205-8b44-1536d46645aa',
         },
         {
-          'const': '0d553bb7-5c4f-43d7-9b82-a561a668ae64',
-          'title': 'EarthRanger System'
+          description: 'system',
+          display: 'EarthRanger System',
+          value: '0d553bb7-5c4f-43d7-9b82-a561a668ae64',
         },
         {
-          'const': '0d9fbeea-5252-4723-ba59-ca696baef2d9',
-          'title': 'frank'
-        }],
+          description: 'manager',
+          display: 'frank',
+          value: '0d9fbeea-5252-4723-ba59-ca696baef2d9',
+        },
+      ],
       description: 'A really great description',
       hint: 'This is a placeholder',
       multiple: true,
@@ -41,7 +45,6 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - ChoiceLis
   );
 
   describe('Dropdown', () => {
-
     test('shows a non read only choice-list field as a Dropdown', () => {
       renderChoiceList();
 
@@ -204,9 +207,9 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - ChoiceLis
         }
       });
 
-      expect(screen.getByRole('checkbox', { name: 'DumboAlfonso' })).not.toHaveAttribute('readonly');
-      expect(screen.getByRole('checkbox', { name: 'EarthRanger System' })).not.toHaveAttribute('readonly');
-      expect(screen.getByRole('checkbox', { name: 'frank' })).not.toHaveAttribute('readonly');
+      expect(screen.getByRole('checkbox', { name: 'DumboAlfonso ranger' })).not.toHaveAttribute('readonly');
+      expect(screen.getByRole('checkbox', { name: 'EarthRanger System system' })).not.toHaveAttribute('readonly');
+      expect(screen.getByRole('checkbox', { name: 'frank manager' })).not.toHaveAttribute('readonly');
     });
 
     test('shows a read only choice-list field as a List', () => {
@@ -219,9 +222,9 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - ChoiceLis
         readOnly: true
       });
 
-      expect(screen.getByRole('checkbox', { name: 'DumboAlfonso' })).toHaveAttribute('readonly');
-      expect(screen.getByRole('checkbox', { name: 'EarthRanger System' })).toHaveAttribute('readonly');
-      expect(screen.getByRole('checkbox', { name: 'frank' })).toHaveAttribute('readonly');
+      expect(screen.getByRole('checkbox', { name: 'DumboAlfonso ranger' })).toHaveAttribute('readonly');
+      expect(screen.getByRole('checkbox', { name: 'EarthRanger System system' })).toHaveAttribute('readonly');
+      expect(screen.getByRole('checkbox', { name: 'frank manager' })).toHaveAttribute('readonly');
     });
 
     test('shows a non required choice-list field as a List', () => {
@@ -233,7 +236,7 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - ChoiceLis
         }
       });
 
-      expect(screen.getByRole('checkbox', { name: 'DumboAlfonso' })).not.toBeRequired();
+      expect(screen.getByRole('checkbox', { name: 'DumboAlfonso ranger' })).not.toBeRequired();
     });
 
     test('shows a required choice-list field as a List', () => {
@@ -246,7 +249,7 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - ChoiceLis
         }
       });
 
-      expect(screen.getByRole('checkbox', { name: 'DumboAlfonso' })).toBeRequired();
+      expect(screen.getByRole('checkbox', { name: 'DumboAlfonso ranger' })).toBeRequired();
     });
 
     test('does not show an error state in the label if the value is valid', () => {
@@ -288,7 +291,7 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - ChoiceLis
         }
       });
 
-      expect(screen.getByRole('checkbox', { name: 'DumboAlfonso' })).not.toHaveAccessibleDescription();
+      expect(screen.getByRole('checkbox', { name: 'DumboAlfonso ranger' })).not.toHaveAccessibleDescription();
     });
 
     test('shows the description', () => {

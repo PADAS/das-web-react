@@ -90,6 +90,7 @@ export const LAYER_IDS = {
   EVENT_LOCATION_MARKERS: 'event-location-markers-layer',
   EVENT_SYMBOLS: 'event_symbols',
   GEAR_LINE: 'gear-line-layer',
+  GEAR_LINE_HIT: 'gear-line-hit-layer',
   GEAR_POINT: 'gear-point-layer',
   HEATMAP_LAYER: 'heatmap',
   ISOCHRONE_LAYER: 'isochrone',
@@ -208,6 +209,11 @@ export const EVENT_STATE_CHOICES = [
     key: 'active'
   },
   {
+    label: 'Review',
+    value: ['review'],
+    key: 'review'
+  },
+  {
     label: 'Resolved',
     value: ['resolved'],
     key: 'resolved'
@@ -223,6 +229,7 @@ export const EVENT_FORM_STATES = {
   ACTIVE: 'active',
   NEW_LEGACY: 'new',
   RESOLVED: 'resolved',
+  REVIEW: 'review',
 };
 
 // TODO i18n: Remove the display values once all translations are done

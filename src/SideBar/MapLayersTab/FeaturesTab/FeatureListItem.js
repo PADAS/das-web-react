@@ -14,7 +14,7 @@ import { ReactComponent as ProximityIcon } from '../../../common/images/icons/pr
 import LocationJumpButton from '../../../LocationJumpButton';
 import { SYMBOLS_LAYER_ID, POLYGONS_LAYER_ID, LINES_LAYER_ID } from '../../../SpatialFeaturesLayer';
 
-import { MapContext } from '../../../App';
+import { MapContext } from '../../../MapContext';
 
 import * as styles from '../styles.module.scss';
 

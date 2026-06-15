@@ -32,7 +32,8 @@ const getVisibleSectionIds = (formElements, formData) =>
   formElements[ROOT_CANVAS_ID]?.details.sections
     .filter((sectionId) => evaluateSectionConditions(
       formElements[sectionId].details.conditions,
-      formData
+      formElements[sectionId].details.conditionsLogicalOperator,
+      formData,
     ));
 
 const SchemaForm = ({

@@ -32,7 +32,7 @@ import {
   updateHeatmapSubjects,
   updateTrackState
 } from '../ducks/map-ui';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { updatePatrolTrackState } from '../ducks/patrols';
 import useCrsBoundingBoxLayer from './layers/useCrsBoundingBoxLayer';
 import { useMapEventBinding } from '../hooks';
@@ -57,7 +57,7 @@ import SubjectTrackLegend from '../SubjectTrackLegend';
 import PatrolTrackLegend from '../PatrolTrackLegend';
 import EventFilter from '../EventFilter';
 import TimeSlider from '../TimeSlider';
-import TimeSliderMapControl from '../TimeSlider/TimeSliderMapControl';
+import TimeSliderMapControl from '../TimeSliderMapControl';
 import ReportsHeatLayer from '../ReportsHeatLayer';
 import ReportsHeatmapLegend from '../ReportsHeatmapLegend';
 import MessageBadgeLayer from '../MessageBadgeLayer';
@@ -454,7 +454,7 @@ const Map = ({ children, onMapLoad, socket }) => {
   const doesFeatureOpenPopup = useCallback(
     (feature) => feature.layer.id.includes(LAYER_IDS.TRACK_TIMEPOINTS)
        || [SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID, POLYGONS_OUTLINE_LAYER_ID].includes(feature.layer.id)
-       || feature.layer.id === LAYER_IDS.GEAR_LINE
+       || feature.layer.id === LAYER_IDS.GEAR_LINE_HIT
        || feature.layer.id === LAYER_IDS.GEAR_POINT,
     []
   );

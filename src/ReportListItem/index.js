@@ -85,7 +85,7 @@ const ReportListItem = ({
     DateComponent={dateTime && <span className={styles.dateComponent}>
       <DateTime date={dateTime} showElapsed={showElapsedTime} suffix={t('dateTimeSuffix')}/>
 
-      {report.state === 'resolved' && <small className={styles.resolved}>{t('resolvedState')}</small>}
+      {(report.state === 'resolved' || report.state === 'review') && <small className={styles[report.state]}>{t(`${report.state}State`)}</small>}
     </span>}
     IconComponent={<button className={styles.icon} onClick={() => iconClickHandler?.(report)} type="button">
       <EventIcon report={report} />

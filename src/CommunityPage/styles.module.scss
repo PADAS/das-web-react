@@ -1,0 +1,59 @@
+@import '../common/styles/vars/colors';
+
+.pageContainer {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  overflow-y: auto;
+  background-color: white;
+}
+
+.communityPage {
+  display: flex;
+  flex-direction: column;
+  width: 640px;
+  padding: 2rem 1rem 1rem;
+}
+
+.heading {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.loadingView {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: center;
+}
+
+.earthRangerLogo {
+  max-height: 14.4rem;
+  max-width: 14.4rem;
+}
+
+.loadingError {
+  color: $bright-red;
+  font-weight: 500;
+  margin-top: 0.75rem;
+}
+
+.submittedModalBody {
+  font-size: 1.25rem;
+  font-weight: 500;
+  padding: 2rem;
+  text-align: center;
+}
+
+.searchControls {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  > * {
+    flex: 1;
+  }
+}

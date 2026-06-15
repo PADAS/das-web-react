@@ -80,9 +80,10 @@
     @include priority0;
   }
 
-  svg {
-    width: 1.5rem;
-    height: 1.5rem;
+  svg,
+  img {
+    width: 2rem;
+    height: 2rem;
     fill: white;
 
     &[class*=newPatrol] {
@@ -90,8 +91,8 @@
     }
 
     @media (min-width: $md-layout-width-min) {
-      width: 2rem;
-      height: 2rem;
+      width: 2.75rem;
+      height: 2.75rem;
     }
   }
   

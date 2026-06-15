@@ -4,7 +4,7 @@ import { waitFor } from '@testing-library/dom';
 import { renderHook } from '../../../../../test-utils';
 import { addMapImage } from '../../../../../utils/map';
 import { createMapMock } from '../../../../../__test-helpers/mocks';
-import { MapContext } from '../../../../../App';
+import { MapContext } from '../../../../../MapContext';
 
 import useMapLocationMarkers from '.';
 

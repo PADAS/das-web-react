@@ -23,7 +23,7 @@ import { render, screen, waitFor } from '../test-utils';
 import SideBar from '.';
 import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { report } from '../__test-helpers/fixtures/reports';
 
 jest.mock('react-router', () => ({

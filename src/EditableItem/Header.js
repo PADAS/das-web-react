@@ -168,8 +168,8 @@ const EditableItemHeader = ({
           <HistoryPopover />
         </Overlay>
 
-        {data.state === 'resolved' && <small>
-          {t('resolvedLabel')}
+        {(data.state === 'resolved' || data.state === 'review') && <small>
+          {t(`${data.state}Label`)}
         </small>}
       </div>
     </h4>

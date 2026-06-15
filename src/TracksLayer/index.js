@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { addMapImage } from '../utils/map';
 import { LAYER_IDS } from '../constants';
 import { MAP_LAYERS_CATEGORY, trackEventFactory } from '../utils/analytics';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { selectSubjectTracksWithPatrolTrackShownFlag } from '../selectors/patrols';
 
 import Arrow from '../common/images/icons/track-arrow.svg?url';

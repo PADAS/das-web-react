@@ -8,7 +8,7 @@ import { addMapImage } from '../utils/map';
 import { extractSubjectFromMessage } from '../utils/messaging';
 import { getBboxParamsFromMap } from '../utils/query';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import {
   fetchAllMessages,
   fetchMessagesSuccess,

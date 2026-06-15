@@ -13,6 +13,7 @@ import { ReactComponent as LinkIcon } from '../../common/images/icons/link.svg';
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 
 import * as activitySectionStyles from '../../DetailViewComponents/ActivitySection/styles.module.scss';
+import { EVENT_FORM_STATES } from '../../constants';
 import { addEventToIncident, createEvent, fetchEvent, setEventState } from '../../ducks/events';
 import { areCardsEquals as areNotesEqual } from '../../DetailViewComponents/utils';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../../utils/file';
@@ -101,8 +102,10 @@ const generateErrorListForApiResponseDetails = (response, t) => {
         [{ label: key, message: value }, ...accumulator],
       []);
   } catch (e) {
-    const message = response != null && generateErrorMessageForRequest(response);
-    return [{ label: message || t('reportDetailView.unknownErrorLabel') }];
+    const label = (response != null && generateErrorMessageForRequest(response))
+      || t('reportDetailView.unknownErrorLabel');
+    const message = response?.response?.data?.status?.message;
+    return [{ label, message }];
   }
 };
 
@@ -114,9 +117,14 @@ const ReportDetailView = ({
   isNewReport,
   newReportTypeId = null,
   onAddReport = null,
+  onBack = null,
   onSaveAddedReport: onSaveAddedReportCallback = null,
   reportData = null,
   reportId,
+  hidePriority = false,
+  hideReportedBy = false,
+  isCommunity = false,
+  communityInputValue = null,
 }) => {
   const dispatch = useDispatch();
   const location = useLocation();
@@ -170,6 +178,7 @@ const ReportDetailView = ({
 
   const originalReport = isNewReport ? newReport : reportFromStore;
   const isActive = isReportActive(originalReport);
+  const isInReview = originalReport?.state === EVENT_FORM_STATES.REVIEW;
   const isCollection = !!reportForm?.is_collection;
   const isCollectionChild = eventBelongsToCollection(reportForm);
   const isPatrolAddedReport = formProps?.hasOwnProperty('isPatrolReport') && formProps.isPatrolReport;
@@ -266,6 +275,8 @@ const ReportDetailView = ({
 
     if (isAddedReport) {
       onSaveAddedReportCallback?.();
+    } else if (isCommunity) {
+      onBack?.();
     } else if (redirectToFromFormProps || redirectTo) {
       setRedirectTo(redirectToFromFormProps || redirectTo);
       setScrollPosition(TAB_KEYS.EVENTS, 0);
@@ -281,6 +292,8 @@ const ReportDetailView = ({
   }, [
     dispatch,
     isAddedReport,
+    isCommunity,
+    onBack,
     onSaveAddedReportCallback,
     onSaveSuccessCallback,
     redirectToFromFormProps,
@@ -293,7 +306,7 @@ const ReportDetailView = ({
     setTimeout(onClearErrors, CLEAR_ERRORS_TIMEOUT);
   }, [onClearErrors, onSaveErrorCallback, t]);
 
-  const onSaveReport = useCallback((redirectToAfterSave, shouldFetchAfterSave = !isAddedReport) => {
+  const onSaveReport = useCallback((redirectToAfterSave, shouldFetchAfterSave = !isAddedReport && !isCommunity) => {
     if (isSaving) {
       return;
     }
@@ -341,7 +354,7 @@ const ReportDetailView = ({
       []
     );
     const newAttachments = attachmentsToAdd.map((attachmentToAdd) => attachmentToAdd.file);
-    const saveActions = generateSaveActionsForReportLikeObject(reportToSubmit, 'report', newNotes, newAttachments);
+    const saveActions = generateSaveActionsForReportLikeObject(reportToSubmit, 'report', newNotes, newAttachments, communityInputValue);
     return executeSaveActions(saveActions)
       .then((results) => {
         if (reportForm.is_collection && reportChanges.state) {
@@ -363,8 +376,10 @@ const ReportDetailView = ({
       .finally(() => setIsSaving(false));
   }, [
     attachmentsToAdd,
+    communityInputValue,
     dispatch,
     isAddedReport,
+    isCommunity,
     isNewReport,
     isSaving,
     notesToAdd,
@@ -442,7 +457,10 @@ const ReportDetailView = ({
     setSaveError([...formattedErrors]);
   }, [eventSchema?.schema?.properties]);
 
-  const onFormSubmit = useCallback(() => onSaveReport(`/${TAB_KEYS.EVENTS}`), [onSaveReport]);
+  const onFormSubmit = useCallback(
+    () => onSaveReport(isCommunity ? null : `/${TAB_KEYS.EVENTS}`),
+    [isCommunity, onSaveReport]
+  );
 
   const onFormDataChange = useCallback((formData) => {
     setReportForm((reportForm) => ({
@@ -602,12 +620,12 @@ const ReportDetailView = ({
     submitFormButtonRef?.current?.click();
   }, [reportTracker]);
 
-  const onClickSaveAndToggleStateButton = useCallback(() => {
-    setReportForm({ ...reportForm, state: isActive ? 'resolved' : 'active' });
+  const onClickSaveAndSetState = useCallback((targetState) => {
+    setReportForm({ ...reportForm, state: targetState });
     setTimeout(() => {
       onClickSaveButton();
     });
-  }, [isActive, onClickSaveButton, reportForm]);
+  }, [onClickSaveButton, reportForm]);
 
   const trackDiscard = useCallback(() => {
     reportTracker.track(`Discard changes to ${isNewReport ? 'new' : 'existing'} report`);
@@ -668,9 +686,9 @@ const ReportDetailView = ({
 
   useEffect(() => {
     if (!!reportForm && !!eventType && !eventSchema) {
-      dispatch(fetchEventTypeSchema(reportForm.event_type, reportForm.id));
+      dispatch(fetchEventTypeSchema(reportForm.event_type, reportForm.id, communityInputValue));
     }
-  }, [eventSchema, dispatch, eventType, reportForm]);
+  }, [communityInputValue, eventSchema, dispatch, eventType, reportForm]);
 
   useEffect(() => {
     if (linkedPatrolIds?.length > 0) {
@@ -732,6 +750,7 @@ const ReportDetailView = ({
     <NavigationPromptModal onContinue={onNavigationContinue} when={shouldShowNavigationPrompt} />
 
     <Header
+      isCommunity={isCommunity}
       isReadOnly={eventType?.readonly}
       onChangeTitle={onChangeTitle}
       onSaveReport={onSaveReport}
@@ -748,7 +767,7 @@ const ReportDetailView = ({
 
     <div className={styles.body}>
       <QuickLinks scrollTopOffset={QUICK_LINKS_SCROLL_TOP_OFFSET}>
-        <QuickLinks.NavigationBar className={styles.navigationBar}>
+        {!isCommunity && <QuickLinks.NavigationBar className={styles.navigationBar}>
           <QuickLinks.Anchor
             anchorTitle={t('reportDetailView.quickLinks.detailsAnchor')}
             iconComponent={<PencilWritingIcon />}
@@ -780,7 +799,7 @@ const ReportDetailView = ({
               `Click the "History" quicklink in a ${isNewReport ? 'new' : 'existing'} report`
             )}
           />
-        </QuickLinks.NavigationBar>
+        </QuickLinks.NavigationBar>}
 
         <div className={styles.content}>
           <QuickLinks.SectionsWrapper>
@@ -788,6 +807,9 @@ const ReportDetailView = ({
               <DetailsSection
                 eventId={reportId}
                 eventSchema={eventSchema}
+                hidePriority={hidePriority}
+                hideReportedBy={hideReportedBy}
+                isCommunity={isCommunity}
                 isBehindAddedEvent={isBehindAddedEvent}
                 isCollection={isCollection}
                 isNewEvent={isNewReport}
@@ -818,6 +840,7 @@ const ReportDetailView = ({
                 attachments={reportAttachments}
                 attachmentsToAdd={attachmentsToAdd}
                 containedReports={containedReports}
+                isCommunity={isCommunity}
                 notes={reportNotes}
                 notesToAdd={notesToAdd}
                 onDeleteAttachment={onDeleteAttachment}
@@ -869,7 +892,7 @@ const ReportDetailView = ({
             </div>
 
             <div className={styles.actionButtons}>
-              <Button
+              {!isCommunity && <Button
                 data-testid="report-details-cancel-btn"
                 className={styles.cancelButton}
                 onClick={onClickCancelButton}
@@ -877,22 +900,47 @@ const ReportDetailView = ({
                 variant="secondary"
               >
                 {t('reportDetailView.cancelButton')}
-              </Button>
+              </Button>}
 
-              <SplitButton
-                className={styles.saveButton}
-                drop="down"
-                variant="primary"
-                type="button"
-                title={t('reportDetailView.saveSplitButton.title')}
-                onClick={onClickSaveButton}
-              >
-                <Dropdown.Item className={styles.saveSplitButtonItem} data-testid="report-details-resolve-btn-toggle">
-                  <Button onClick={onClickSaveAndToggleStateButton} type="button" variant="primary">
-                    {t(`reportDetailView.saveSplitButton.${isActive ? 'saveAndResolveItem' : 'saveAndReopenItem'}`)}
-                  </Button>
-                </Dropdown.Item>
-              </SplitButton>
+              {isCommunity
+                ? <Button
+                    className={styles.saveButton}
+                    onClick={onClickSaveButton}
+                    type="button"
+                    variant="primary"
+                  >
+                  {t('reportDetailView.saveSplitButton.title')}
+                </Button>
+                : <SplitButton
+                    className={styles.saveButton}
+                    drop="down"
+                    variant="primary"
+                    type="button"
+                    title={t('reportDetailView.saveSplitButton.title')}
+                    onClick={onClickSaveButton}
+                  >
+                  {(isActive || isInReview) && <Dropdown.Item className={styles.saveSplitButtonItem} data-testid="report-details-resolve-btn-toggle">
+                    <Button onClick={() => onClickSaveAndSetState(EVENT_FORM_STATES.RESOLVED)} type="button" variant="primary">
+                      {t('reportDetailView.saveSplitButton.saveAndResolveItem')}
+                    </Button>
+                  </Dropdown.Item>}
+                  {isActive && <Dropdown.Item className={styles.saveSplitButtonItem}>
+                    <Button onClick={() => onClickSaveAndSetState(EVENT_FORM_STATES.REVIEW)} type="button" variant="primary">
+                      {t('reportDetailView.saveSplitButton.saveAndReviewItem')}
+                    </Button>
+                  </Dropdown.Item>}
+                  {isInReview && <Dropdown.Item className={styles.saveSplitButtonItem}>
+                    <Button onClick={() => onClickSaveAndSetState(EVENT_FORM_STATES.ACTIVE)} type="button" variant="primary">
+                      {t('reportDetailView.saveSplitButton.saveAndActivateItem')}
+                    </Button>
+                  </Dropdown.Item>}
+                  {!isActive && !isInReview && <Dropdown.Item className={styles.saveSplitButtonItem}>
+                    <Button onClick={() => onClickSaveAndSetState(EVENT_FORM_STATES.ACTIVE)} type="button" variant="primary">
+                      {t('reportDetailView.saveSplitButton.saveAndReopenItem')}
+                    </Button>
+                  </Dropdown.Item>}
+                </SplitButton>
+              }
             </div>
           </div>
         </div>

@@ -6,7 +6,7 @@ import LocationDotGrayPNG from '../../../../../common/images/icons/location-dot-
 
 import { addMapImage } from '../../../../../utils/map';
 import { LAYER_IDS, SOURCE_IDS } from '../../../../../constants';
-import { MapContext } from '../../../../../App';
+import { MapContext } from '../../../../../MapContext';
 
 const MARKERS_SOURCE_ID = SOURCE_IDS.EVENT_LOCATION_MARKERS;
 const MARKER_CONNECTING_LINES_SOURCE_ID = `${SOURCE_IDS.EVENT_LOCATION_MARKERS}-lines`;

@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as LinkIcon } from '../common/images/icons/link.svg';
 
+import { EVENT_FORM_STATES } from '../constants';
 import { getReportLink, isReportActive } from '../utils/events';
 import { setEventState, updateEvent } from '../ducks/events';
 import { showToast } from '../utils/toast';
@@ -17,13 +18,13 @@ import * as styles from './styles.module.scss';
 
 const LOADER_SIZE = 30;
 
-const NotificationDetails = ({ failedReports, isActive, processedReports }) => {
+const NotificationDetails = ({ failedReports, newState, processedReports }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'eventItemContextMenu' });
 
   const processedReportsElements = processedReports.length ? <div>
     <p>
       {t('notificationDetails.processedReports.title', {
-        newState: t(`notificationDetails.processedReports.${isActive ? 'resolved' : 'activated'}`),
+        newState: t(`notificationDetails.processedReports.${newState === EVENT_FORM_STATES.ACTIVE ? 'activated' : newState}`),
       })}
     </p>
 
@@ -34,7 +35,7 @@ const NotificationDetails = ({ failedReports, isActive, processedReports }) => {
     return <div>
       {processedReportsElements}
 
-      <p>{t('notificationDetails.failedReports', { state: t(`state.${isActive ? 'active' : 'resolved'}`) })}</p>
+      <p>{t('notificationDetails.failedReports', { state: t(`state.${newState}`) })}</p>
 
       <ul>{failedReports.map((report) => <li key={report.serial_number}>#{report.serial_number}</li>)}</ul>
     </div>;
@@ -50,6 +51,7 @@ const EventItemContextMenu = ({ children, className = '', report }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const isActive = isReportActive(report);
+  const isInReview = report?.state === EVENT_FORM_STATES.REVIEW;
 
   const setStateContainedReport = useCallback(async (report, state) => {
     const reportStatus = [];
@@ -65,11 +67,9 @@ const EventItemContextMenu = ({ children, className = '', report }) => {
     return reportStatus;
   }, [dispatch]);
 
-  const updateReportState = useCallback(async () => {
+  const updateReportState = useCallback(async (newState) => {
     try {
       setIsLoading(true);
-
-      const newState = isActive ? 'resolved' : 'active';
 
       await dispatch(updateEvent({ id: report.id, state: newState }));
 
@@ -82,15 +82,16 @@ const EventItemContextMenu = ({ children, className = '', report }) => {
           return { ...accumulator, failedReports: [...accumulator.failedReports, report] };
         }, { failedReports: [], processedReports: [] });
 
+        const toastStateKey = newState === EVENT_FORM_STATES.ACTIVE ? 'activated' : newState;
         showToast({
           details: <NotificationDetails
             failedReports={failedReports}
-            isActive={isActive}
+            newState={newState}
             processedReports={processedReports}
           />,
           message: t('updatedCollectionInfoToast.message', {
             collectionSerialNumber: report.serial_number,
-            newState: t(`updatedCollectionInfoToast.${isActive ? 'resolved' : 'activated'}`),
+            newState: t(`updatedCollectionInfoToast.${toastStateKey}`),
           }),
           showDetailsByDefault: true,
           toastConfig: { autoClose: 4000, hideProgressBar: true, type: 'info' },
@@ -99,7 +100,7 @@ const EventItemContextMenu = ({ children, className = '', report }) => {
         showToast({
           details: '',
           message: t('updatedReportInfoToastMessage', {
-            newState: t(`state.${isActive ? 'resolved' : 'active'}`),
+            newState: t(`state.${newState}`),
             reportSerialNumber: report.serial_number,
           }),
           toastConfig: { autoClose: 4000, hideProgressBar: true, type: 'info' },
@@ -110,20 +111,29 @@ const EventItemContextMenu = ({ children, className = '', report }) => {
         details: '',
         message: t('errorToastMessage', {
           serialNumber: report.serial_number,
-          state: t(`state.${isActive ? 'active' : 'resolved'}`),
+          state: t(`state.${report.state}`),
         }),
         toastConfig: { autoClose: 4000, hideProgressBar: true, type: 'error' },
       });
     } finally {
       setIsLoading(false);
     }
-  }, [dispatch, isActive, report, setStateContainedReport, t]);
+  }, [dispatch, report, setStateContainedReport, t]);
 
   return <ContextMenu className={className} disabled={isLoading} options={
     <>
-      <Dropdown.Item className={styles.option} onClick={updateReportState}>
-        {t(`updateReportStateItem.${isActive ? 'resolve': 'reopen'}`)} #{report.serial_number}
-      </Dropdown.Item>
+      {(isActive || isInReview) && <Dropdown.Item className={styles.option} onClick={() => updateReportState(EVENT_FORM_STATES.RESOLVED)}>
+        {t('updateReportStateItem.resolve')} #{report.serial_number}
+      </Dropdown.Item>}
+      {isActive && <Dropdown.Item className={styles.option} onClick={() => updateReportState(EVENT_FORM_STATES.REVIEW)}>
+        {t('updateReportStateItem.review')} #{report.serial_number}
+      </Dropdown.Item>}
+      {isInReview && <Dropdown.Item className={styles.option} onClick={() => updateReportState(EVENT_FORM_STATES.ACTIVE)}>
+        {t('updateReportStateItem.activate')} #{report.serial_number}
+      </Dropdown.Item>}
+      {!isActive && !isInReview && <Dropdown.Item className={styles.option} onClick={() => updateReportState(EVENT_FORM_STATES.ACTIVE)}>
+        {t('updateReportStateItem.reopen')} #{report.serial_number}
+      </Dropdown.Item>}
 
       <Dropdown.Item className={styles.option}>
         <TextCopyBtn

@@ -1,7 +1,7 @@
 import { memo, useContext, useMemo } from 'react';
 
 import { LAYER_IDS, MAP_ICON_SCALE } from '../constants';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import {
   useMapEventBinding
 } from '../hooks';

@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { getAnalyzerListState } from './selectors';
 import { hideAnalyzers, showAnalyzers } from '../../../ducks/map-layer-filter';
-import { MapContext } from '../../../App';
+import { MapContext } from '../../../MapContext';
 import { setAnalyzerFeatureActiveStateForIDs } from '../../../utils/analyzers';
 import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../../../utils/analytics';
 

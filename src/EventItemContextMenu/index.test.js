@@ -130,7 +130,7 @@ describe('EventItemContextMenu', () => {
     await waitFor(() => {
       expect(screen.getByText(`The collection #${report.serial_number} was resolved correctly`)).toBeDefined();
       expect(screen.queryByText('These related events were resolved as well:')).toBeNull();
-      expect(screen.getByText('WARNING: These events are still active')).toBeDefined();
+      expect(screen.getByText('WARNING: These events could not be changed to state resolved')).toBeDefined();
       expect(screen.getByText('#1')).toBeDefined();
       expect(screen.getByText('#2')).toBeDefined();
     });
