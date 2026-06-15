@@ -84,7 +84,7 @@ const ParamFedMessageList = ({ isReverse = false, params = null, ...restProps })
   }, [dispatch, isReverse, params, setListScrollPosition, socket]);
 
   useEffect(() => {
-    if (!!unreads.length) {
+    if (unreads.length) {
       bulkReadMessages(unreads.map(({ id }) => id));
     }
   }, [unreads]);

@@ -5,7 +5,9 @@
 /coverage
 /node_modules
 /.vscode
+/.idea
 
+public/config.js
 .env.local
 .env.development.local
 .env.test.local

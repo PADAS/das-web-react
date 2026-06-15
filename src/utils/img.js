@@ -2,13 +2,27 @@ import { DAS_HOST } from '../constants';
 
 const urlContainsOwnHost = url => url.includes('http');
 const imgIsDataUrl = url => url.includes('data:image');
-const imgIsFromStaticMedia = url => /^(\/static\/media)/.test(url);
+
+const imgIsAppBundledAsset = url => {
+  if (typeof url === 'string') {
+    const base = import.meta.env.BASE_URL || '/';
+    const appBundledAssetsPrefix = base.endsWith('/') ? `${base}assets/` : `${base}/assets/`;
+    if (url.startsWith(appBundledAssetsPrefix)) {
+      return true;
+    }
+    if (import.meta.env.DEV && url.startsWith('/src/')) {
+      return true;
+    }
+  }
+  return false;
+};
+
 const isObjectURL = url => url && typeof url === 'string' && url.startsWith('blob:');
 
 const imgNeedsHostAppended = url => {
   if (urlContainsOwnHost(url)) return false;
   if (imgIsDataUrl(url)) return false;
-  if (imgIsFromStaticMedia(url)) return false;
+  if (imgIsAppBundledAsset(url)) return false;
   return true;
 };
 
@@ -169,6 +183,6 @@ export const calcUrlForImage = imagePath => {
   if (!imgNeedsHostAppended(imagePath)) {
     return imagePath;
   }
-  const appendString = !!DAS_HOST ? `${DAS_HOST}/` : '';
+  const appendString = DAS_HOST ? `${DAS_HOST}/` : '';
   return `${appendString}${imagePath}`.replace(/^http:\/\//i, 'https://').replace('.org//', '.org/');
 };

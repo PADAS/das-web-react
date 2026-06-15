@@ -200,7 +200,7 @@ export const markSubjectFeaturesWithActivePatrols = mapSubjects => ({
   ...mapSubjects,
   features: mapSubjects.features
     .map(feature => {
-      feature.properties.ticker = !!(getActivePatrolsForLeaderId(feature.properties.id).length) ? 'P' : '';
+      feature.properties.ticker = getActivePatrolsForLeaderId(feature.properties.id).length ? 'P' : '';
       return feature;
     })
 });

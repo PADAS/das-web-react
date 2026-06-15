@@ -1,4 +1,4 @@
-/* eslint-disable no-undef, no-restricted-globals */
+/* eslint-disable no-undef */
 if ('function' === typeof importScripts) {
   importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.3.0/workbox-sw.js');
 

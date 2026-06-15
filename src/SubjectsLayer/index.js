@@ -6,7 +6,7 @@ import { addFeatureCollectionImagesToMap } from '../utils/map';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { selectShouldSubjectsBeClustered } from '../selectors/clusters';
 import { DEFAULT_SYMBOL_LAYOUT, LAYER_IDS, SOURCE_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
 import useMapSources from '../hooks/useMapSources';
 
@@ -48,7 +48,7 @@ const SubjectsLayer = ({ mapImages = {}, onSubjectClick }) => {
   ]), []);
 
   useEffect(() => {
-    if (!!subjectFeatureCollection?.features?.length) {
+    if (subjectFeatureCollection?.features?.length) {
       addFeatureCollectionImagesToMap(subjectFeatureCollection);
     }
   }, [subjectFeatureCollection]);

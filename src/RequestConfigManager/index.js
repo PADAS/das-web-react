@@ -62,7 +62,7 @@ const RequestConfigManager = ({
   const navigate = useNavigate();
 
   const handle401Errors = useCallback((error) => {
-    if (error && error.toString().includes('401')) {
+    if (error && error.toString().includes('401') && !error.config?.skipAuth) {
       resetMasterCancelToken();
       clearAuth().then(() => {
         navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search: location.search });

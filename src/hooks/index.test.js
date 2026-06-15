@@ -4,7 +4,7 @@ import { renderHook } from '../test-utils';
 
 import { FEATURE_FLAG_LABELS } from '../constants';
 
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 
 import { createMapMock } from '../__test-helpers/mocks';
 import { mockStore } from '../__test-helpers/MockStore';
@@ -24,7 +24,7 @@ describe('#useMapEventBinding', () => {
   beforeEach(() => {
     map = createMapMock();
     handler = jest.fn();
-    wrapper = ({ children }) => <MapContext.Provider value={map}>{children}</MapContext.Provider>; // eslint-disable-line react/display-name
+    wrapper = ({ children }) => <MapContext.Provider value={map}>{children}</MapContext.Provider>;
   });
 
   test('binding a handler function', () => {
@@ -99,7 +99,7 @@ describe('#useFeatureFlag', () => {
         experimentalFeatures: {}
       },
     });
-    wrapper = ({ children }) => <Provider store={store}>{children}</Provider>;  // eslint-disable-line react/display-name
+    wrapper = ({ children }) => <Provider store={store}>{children}</Provider>;
   });
 
   test('throwing an error if no matching feature flag has been set in the environment file', async () => {

@@ -75,7 +75,7 @@ const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }
       in={isOpen}
     >
       <div>
-        {!!reportFromEventStore
+        {reportFromEventStore
           ? <ReportFormSummary report={reportFromEventStore} />
           : <div className={styles.loaderWrapper}>
             <MoonLoader color={LOADER_COLOR} size={LOADER_SIZE} />

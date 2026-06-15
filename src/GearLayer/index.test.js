@@ -2,7 +2,7 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { useSelector } from 'react-redux';
 
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { LAYER_IDS, SOURCE_IDS } from '../constants';
 
 import GearLayer from './';
@@ -91,7 +91,7 @@ describe('GearLayer', () => {
     const onGearClick = jest.fn();
     const hit = { properties: { id: 'g1' } };
     map.queryRenderedFeatures.mockImplementation((_point, opts) => {
-      if (opts?.layers?.includes(LAYER_IDS.GEAR_LINE)) return [hit];
+      if (opts?.layers?.includes(LAYER_IDS.GEAR_LINE_HIT)) return [hit];
       return [hit];
     });
 
@@ -102,7 +102,7 @@ describe('GearLayer', () => {
     );
 
     const lineRegistration = map.on.mock.calls.find(
-      (c) => c[0] === 'click' && c[1] === LAYER_IDS.GEAR_LINE,
+      (c) => c[0] === 'click' && c[1] === LAYER_IDS.GEAR_LINE_HIT,
     );
     expect(lineRegistration).toBeTruthy();
     const handler = lineRegistration[2];

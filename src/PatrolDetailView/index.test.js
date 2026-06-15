@@ -12,7 +12,7 @@ import { executeSaveActions } from '../utils/save';
 import { EVENT_API_URL } from '../ducks/events';
 import { PATROLS_API_URL } from '../ducks/patrols';
 import { GPS_FORMATS } from '../utils/location';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { mockStore } from '../__test-helpers/MockStore';
 import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import { patrolDefaultStoreData, scheduledPatrol } from '../__test-helpers/fixtures/patrols';

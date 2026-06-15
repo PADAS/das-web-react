@@ -8,7 +8,7 @@ import { addMapImage } from '../utils/map';
 import { extractSubjectFromMessage } from '../utils/messaging';
 import { getBboxParamsFromMap } from '../utils/query';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import {
   fetchAllMessages,
   fetchMessagesSuccess,
@@ -81,7 +81,7 @@ const MessageBadgeLayer = ({ onBadgeClick }) => {
   const [state, dispatch] = useReducer(messageListReducer, INITIAL_MESSAGE_LIST_STATE);
 
   useEffect(() => {
-    if (!!hasMessagesReadPermission) {
+    if (hasMessagesReadPermission) {
       const handleRealtimeMessage = ({ data: msg }) => {
         if (!!lastRequestedSubjectIdList.current &&
           lastRequestedSubjectIdList.current.includes(extractSubjectFromMessage(msg)?.id)

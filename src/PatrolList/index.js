@@ -4,7 +4,7 @@ import MoonLoader from 'react-spinners/MoonLoader';
 import { useTranslation } from 'react-i18next';
 
 import { TAB_KEYS } from '../constants';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { ScrollRestoration } from '../SidebarScrollContext';
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
 

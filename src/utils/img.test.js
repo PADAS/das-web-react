@@ -23,11 +23,30 @@ describe('img utility functions', () => {
       expect(calcUrlForImage(url)).toBe(url);
     });
 
-    it('returns the original URL if it is from static media', () => {
-      const url = '/static/media/image.jpg';
+    it('returns the original URL if it is a bundled app asset', () => {
+      const url = '/assets/location-dot-blue-abc123.png';
       const cleaned = calcUrlForImage(url);
 
       expect(cleaned).toBe(url);
+    });
+
+    it('returns the original URL if it is a bundled app asset in dev mode', () => {
+      const url = '/src/common/images/icons/location-dot-blue.png';
+      const cleaned = calcUrlForImage(url);
+
+      expect(cleaned).toBe(url);
+    });
+
+    it('prepends host to /src/ paths when not in dev', () => {
+      const prevDev = process.env.DEV;
+      process.env.DEV = '';
+      try {
+        const url = '/src/common/images/icons/photo.png';
+        const cleaned = calcUrlForImage(url);
+        expect(cleaned).toBe(`https://localhost/${url}`);
+      } finally {
+        process.env.DEV = prevDev;
+      }
     });
 
     it('appends host to URL that needs it', () => {

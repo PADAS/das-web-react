@@ -37,7 +37,7 @@
     display: block;
 
     @media (min-width: $md-layout-width-min) {
-      align-items: flex-end;
+      align-items: flex-start;
       display: flex;
 
       > :not(:first-child) {
@@ -77,6 +77,13 @@
     button {
       background-color: $secondary-medium-light-gray;
       border-color: $secondary-medium-light-gray;
+    }
+  }
+
+  &.review {
+    button {
+      background-color: $mustard-yellow;
+      border-color: $mustard-yellow;
     }
   }
 

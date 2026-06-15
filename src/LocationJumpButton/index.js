@@ -9,7 +9,7 @@ import useJumpToLocation from '../hooks/useJumpToLocation';
 import useNavigate from '../hooks/useNavigate';
 import { validateLngLat } from '../utils/location';
 
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 
 import * as styles from './styles.module.scss';
 
@@ -35,7 +35,7 @@ const LocationJumpButton = ({
       return true;
     }
 
-    if (!!coordinates) {
+    if (coordinates) {
       if (Array.isArray(coordinates[0])) {
         return coordinates.every((coords) => {
           if (Array.isArray(coords[0])) {

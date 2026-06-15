@@ -5,13 +5,20 @@
     "authenticationFailed": "Authentification échouée : Veuillez vérifier vos identifiants et réessayer.",
     "authenticationError": "Erreur d'authentification : {{errorDescription}}",
     "invalidCredentialsMessage": "Identifiants fournis incorrectes. Veuillez réessayez.",
-    "missingOrg": "L'organisation du fournisseur d'identité n'est pas configurée.",
     "signInFailed": "Échec de la connexion. Veuillez réessayer.",
     "unknownErrorMessage": "Une erreur s'est produite. Veuillez réessayez."
   },
+  "errors": {
+    "passwordRequired": "Le mot de passe est obligatoire.",
+    "usernameRequired": "Le nom d'utilisateur est obligatoire."
+  },
   "eulaLink": "Contrat de License d'Utilisateur Final EarthRanger",
+  "eulaLinkLabel": "EULA EarthRanger (s'ouvre dans un nouvel onglet)",
   "loginButton": "Se Connecter",
+  "loginButtonEmail": "Se connecter avec un e-mail",
   "loginButtonIdp": "Se Connecter",
+  "loginButtonLoadingLabel": "Chargement",
   "passwordLabel": "Mot de passe",
+  "title": "Connexion",
   "usernameLabel": "Nom d'utilisateur"
 }

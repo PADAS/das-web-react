@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { render, screen, within } from '../test-utils';
 import { createMapMock } from '../__test-helpers/mocks';
 import { hideSideBar, showSideBar } from '../ducks/side-bar';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { mockStore } from '../__test-helpers/MockStore';
 import { setIsPickingLocation } from '../ducks/map-ui';
 import { setModalVisibilityState } from '../ducks/modals';

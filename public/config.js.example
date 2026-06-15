@@ -1,0 +1,12 @@
+// Copy this file to public/config.js for local development.
+// public/config.js is gitignored and will not be committed.
+//
+// Without this file, the app uses production values
+// from src/config.js.
+window.__APP_CONFIG__ = {
+  auth0: {
+    audience: 'https://dev.pamdas.org/api',
+    clientId: 'hLoPCTgBCrlLAVzqg74YSmOftaSfb5Uf',
+    domain: 'auth-dev.pamdas.org',
+  },
+};

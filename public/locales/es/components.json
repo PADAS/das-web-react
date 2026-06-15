@@ -18,6 +18,11 @@
       "noOptionsMessage": "No hay opciones para mostrar"
     }
   },
+  "communityPage": {
+    "formSubmitted": "Formulario enviado",
+    "invalidCommunityUrl": "URL de comunidad no válida",
+    "searchPlaceholder": "Buscar tipos de evento..."
+  },
   "datePicker": {
     "calendarPopper": {
       "menuButtonLabel": "Abrir calendario",
@@ -348,13 +353,17 @@
     "periodInputLabel": "Parte del día"
   },
   "timeSlider": {
+    "closeButtonLabel": "Cerrar control de tiempo",
+    "dateRangeButtonLabel": "Cambiar rango de fechas",
+    "endDateNowSliderLabel": "Ahora",
     "popoverHeader": "Rango de fechas",
     "popoverResetButton": "Reiniciar",
-    "slider": "Control de tiempo",
+    "sliderLabel": "Control de tiempo",
     "timeSliderMapControl": {
       "iconTitle": "Control de tiempo"
     },
-    "untilNowButton": "Ahora"
+    "playButtonLabel": "Reproducir control de tiempo",
+    "stopButtonLabel": "Detener control de tiempo"
   },
   "toastBody": {
     "defaultLinkTitle": "Haga clic aquí",

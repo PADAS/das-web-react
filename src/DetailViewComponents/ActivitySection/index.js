@@ -28,6 +28,7 @@ const ActivitySection = ({
   attachmentsToAdd,
   containedReports,
   endTime = null,
+  isCommunity = false,
   notes,
   notesToAdd,
   onDeleteAttachment,
@@ -199,7 +200,7 @@ const ActivitySection = ({
   }, [notes, notesToAdd, onExpandCard]);
 
   return <div data-testid="detailView-activitySection" ref={ref}>
-    <div className={styles.sectionHeader}>
+    {!isCommunity && <div className={styles.sectionHeader}>
       <div className={styles.title}>
         <BulletListIcon />
 
@@ -221,7 +222,7 @@ const ActivitySection = ({
           {t(areAllItemsExpanded ? 'collapseAllButton' : 'expandAllButton')}
         </Button>
       </div>}
-    </div>
+    </div>}
 
     {!!sortableList.length && <ul className={styles.list}>
       {sortedItemsRendered}

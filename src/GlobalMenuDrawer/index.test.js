@@ -127,7 +127,7 @@ describe('GlobalMenuDrawer', () => {
     expect(screen.queryByRole('button', { name: 'Tableau' })).toBeNull();
   });
 
-  test('opens a window to the tableau dashboard when clicking the Tableau button ', async () => {
+  test('opens a window to the tableau dashboard when clicking the Tableau button', async () => {
     global.open = jest.fn();
     renderGlobalMenuDrawer();
 
@@ -148,7 +148,7 @@ describe('GlobalMenuDrawer', () => {
     expect(screen.queryByRole('button', { name: 'Alerts' })).toBeNull();
   });
 
-  test('opens the alerts modal when clicking the Alerts button ', async () => {
+  test('opens the alerts modal when clicking the Alerts button', async () => {
     renderGlobalMenuDrawer();
 
     expect(addModal).toHaveBeenCalledTimes(0);

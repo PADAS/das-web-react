@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
 import { POST_AUTH_SUCCESS } from '../ducks/auth';
 import useNavigate from '../hooks/useNavigate';
+import appConfig from '../config';
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
 import { hasAuth0CallbackParams } from '../utils/auth0';
 import {
@@ -40,7 +41,7 @@ const Auth0TokenManager = () => {
           // Auth0Provider has processed the callback, now get the token
           const token = await getAccessTokenSilently({
             authorizationParams: {
-              audience: import.meta.env.REACT_APP_AUTH0_AUDIENCE,
+              audience: appConfig.auth0.audience,
             },
           });
 

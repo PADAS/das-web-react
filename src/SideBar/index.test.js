@@ -23,7 +23,7 @@ import { render, screen, waitFor } from '../test-utils';
 import SideBar from '.';
 import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { report } from '../__test-helpers/fixtures/reports';
 
 jest.mock('react-router', () => ({
@@ -122,7 +122,6 @@ describe('SideBar', () => {
         systemConfig: {
           [SYSTEM_CONFIG_FLAGS.ANALYZERS]: true,
           [SYSTEM_CONFIG_FLAGS.EVENTS]: true,
-          [SYSTEM_CONFIG_FLAGS.GEAR]: true,
           [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true,
           [SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]: true,
           [SYSTEM_CONFIG_FLAGS.SUBJECTS]: true,
@@ -712,8 +711,8 @@ describe('SideBar', () => {
     expect(navigate).not.toHaveBeenCalled();
   });
 
-  test('redirects from /gear to home when gear is disabled in system config', async () => {
-    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.GEAR] = false;
+  test('redirects from /gear to home when the gear endpoint is unavailable', async () => {
+    store.data.gear = { ...INITIAL_GEAR_STATE, gearEndpointUnavailable: true };
     useLocationMock = jest.fn((() => ({ pathname: '/gear' })));
     useLocation.mockImplementation(useLocationMock);
 

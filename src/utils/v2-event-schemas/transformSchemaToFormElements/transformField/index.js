@@ -9,40 +9,70 @@ import transformLocationField from './transformLocationField';
 import transformNumericField from './transformNumericField';
 import transformTextField from './transformTextField';
 
-const transformField = (fieldId, jsonSchema, uiSchema, formElements) => {
-  const fieldJSONSchema = jsonSchema.properties[fieldId];
-  const fieldUISchema = uiSchema.fields[fieldId];
+const transformField = (
+  fieldName,
+  parentCollectionFieldId,
+  jsonSchema,
+  uiSchema,
+  formElements,
+) => {
+  const fieldId = parentCollectionFieldId
+    ? `${parentCollectionFieldId}.${fieldName}`
+    : fieldName;
+  const fieldJSONSchema = jsonSchema.properties[fieldName];
+  // Backwards compatibility: uiSchema.fields keys used to be the field names.
+  const fieldUISchema = uiSchema.fields[fieldId] ?? uiSchema.fields[fieldName];
 
   // Add the field form element common properties.
   formElements[fieldId] = {
     details: {
       isRequired: jsonSchema.required.some(
-        (requiredField) => requiredField === fieldId,
+        (requiredFieldName) => requiredFieldName === fieldName,
       ),
       label: fieldJSONSchema.title ?? '',
-      value: fieldId,
+      value: fieldName,
     },
-    parentId: fieldUISchema.parent,
+    id: fieldId,
+    parentId: parentCollectionFieldId ?? fieldUISchema.parent,
     type: fieldUISchema.type,
   };
 
   // Add the field form element type-specific properties.
   switch (fieldUISchema.type) {
   case FORM_ELEMENT_TYPES.ATTACHMENT:
-    transformAttachmentField(fieldId, jsonSchema, uiSchema, formElements);
+    transformAttachmentField(
+      fieldId,
+      fieldName,
+      jsonSchema,
+      uiSchema,
+      formElements,
+    );
     break;
 
   case FORM_ELEMENT_TYPES.BOOLEAN:
-    transformBooleanField(fieldId, jsonSchema, uiSchema, formElements);
+    transformBooleanField(
+      fieldId,
+      fieldName,
+      jsonSchema,
+      uiSchema,
+      formElements,
+    );
     break;
 
   case FORM_ELEMENT_TYPES.CHOICE_LIST:
-    transformChoiceListField(fieldId, jsonSchema, uiSchema, formElements);
+    transformChoiceListField(
+      fieldId,
+      fieldName,
+      jsonSchema,
+      uiSchema,
+      formElements,
+    );
     break;
 
   case FORM_ELEMENT_TYPES.COLLECTION:
     transformCollectionField(
       fieldId,
+      fieldName,
       jsonSchema,
       uiSchema,
       formElements,
@@ -51,19 +81,43 @@ const transformField = (fieldId, jsonSchema, uiSchema, formElements) => {
     break;
 
   case FORM_ELEMENT_TYPES.DATE_TIME:
-    transformDateTimeField(fieldId, jsonSchema, uiSchema, formElements);
+    transformDateTimeField(
+      fieldId,
+      fieldName,
+      jsonSchema,
+      uiSchema,
+      formElements,
+    );
     break;
 
   case FORM_ELEMENT_TYPES.LOCATION:
-    transformLocationField(fieldId, jsonSchema, uiSchema, formElements);
+    transformLocationField(
+      fieldId,
+      fieldName,
+      jsonSchema,
+      uiSchema,
+      formElements,
+    );
     break;
 
   case FORM_ELEMENT_TYPES.NUMERIC:
-    transformNumericField(fieldId, jsonSchema, uiSchema, formElements);
+    transformNumericField(
+      fieldId,
+      fieldName,
+      jsonSchema,
+      uiSchema,
+      formElements,
+    );
     break;
 
   case FORM_ELEMENT_TYPES.TEXT:
-    transformTextField(fieldId, jsonSchema, uiSchema, formElements);
+    transformTextField(
+      fieldId,
+      fieldName,
+      jsonSchema,
+      uiSchema,
+      formElements,
+    );
     break;
 
   default:

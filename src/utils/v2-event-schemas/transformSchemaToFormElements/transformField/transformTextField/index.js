@@ -12,12 +12,15 @@ const TEXT_JSON_SCHEMA_FORMAT_TO_FORMAT_VALIDATION = {
 
 const transformTextField = (
   textFieldId,
+  textFieldName,
   jsonSchema,
   uiSchema,
   formElements,
 ) => {
-  const textFieldJSONSchema = jsonSchema.properties[textFieldId];
-  const textFieldUISchema = uiSchema.fields[textFieldId];
+  const textFieldJSONSchema = jsonSchema.properties[textFieldName];
+  // Backwards compatibility: uiSchema.fields keys used to be the field names.
+  const textFieldUISchema =
+    uiSchema.fields[textFieldId] ?? uiSchema.fields[textFieldName];
 
   // Get the text field format validation.
   let formatValidation = '';

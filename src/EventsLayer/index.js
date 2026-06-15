@@ -15,7 +15,7 @@ import {
 } from '../constants';
 import { getMapEventSymbolPointsWithVirtualDate } from '../selectors/events';
 import { selectShouldEventsBeClustered } from '../selectors/clusters';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import MapImageFromSvgSpriteRenderer, { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
 import useMapSources from '../hooks/useMapSources';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';

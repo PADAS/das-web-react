@@ -6,7 +6,7 @@ import LocationDotGrayPNG from '../../../../../common/images/icons/location-dot-
 
 import { addMapImage } from '../../../../../utils/map';
 import { LAYER_IDS, SOURCE_IDS } from '../../../../../constants';
-import { MapContext } from '../../../../../App';
+import { MapContext } from '../../../../../MapContext';
 
 const MARKERS_SOURCE_ID = SOURCE_IDS.EVENT_LOCATION_MARKERS;
 const MARKER_CONNECTING_LINES_SOURCE_ID = `${SOURCE_IDS.EVENT_LOCATION_MARKERS}-lines`;
@@ -45,14 +45,16 @@ const useMapLocationMarkers = (eventId, eventLocation, onMarkerClick = null, hid
 
   // The data for the marker connecting lines source is a feature collection of two-coordinates line strings connecting
   // each marker to the event location, if it is available.
+  const eventLocationLatitude = eventLocation?.latitude;
+  const eventLocationLongitude = eventLocation?.longitude;
   const markerConnectingLinesSourceData = useMemo(() => featureCollection(
-    eventLocation?.latitude && eventLocation?.longitude
+    eventLocationLatitude != null && eventLocationLongitude != null
       ? Object.values(markers).map((markerLocation) => lineString([
         [markerLocation.longitude, markerLocation.latitude],
-        [eventLocation.longitude, eventLocation.latitude],
+        [eventLocationLongitude, eventLocationLatitude],
       ]))
       : []
-  ), [eventLocation?.latitude, eventLocation?.longitude, markers]);
+  ), [eventLocationLatitude, eventLocationLongitude, markers]);
 
   useEffect(() => {
     if (map) {

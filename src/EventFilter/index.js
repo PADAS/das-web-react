@@ -100,7 +100,7 @@ const EventFilter = ({
 
   useEffect(() => {
     if (!caseInsensitiveCompare(filterText, text)) {
-      if (!!filterText.length) {
+      if (filterText.length) {
         updateEventFilterDebounced.current({
           filter: { text: filterText },
         });

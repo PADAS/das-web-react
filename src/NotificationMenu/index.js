@@ -144,7 +144,7 @@ const NotificationMenu = (props) => {
 
     if (!isOpen) {
       const unreadNews = (news || []).filter(i => !i.read);
-      if (!!unreadNews.length) {
+      if (unreadNews.length) {
         readNews(unreadNews)
           .then(() => {
             const newNews = news.map((n) => n.read ? n : { ...n, read: true });
@@ -182,7 +182,7 @@ const NotificationMenu = (props) => {
       data-testid="notification-toggle"
       ref={toggleBtnRef} title={t('toggleTitle')}
     >
-      <BellIcon className={`${styles.icon} ${!!notifications.length ? styles.activeIcon : ''}`} />
+      <BellIcon className={`${styles.icon} ${notifications.length ? styles.activeIcon : ''}`} />
 
       {!!unreadCount && <BadgeIcon className={styles.badge} count={unreadCount} data-testid="unread-count" />}
     </Dropdown.Toggle>
@@ -198,7 +198,7 @@ const NotificationMenu = (props) => {
     </Popover>}
 
     <Dropdown.Menu className={styles.menu} ref={menuRef}>
-      {!!notifications.length
+      {notifications.length
         ? notifications.map((item, index) => <NotificationItem item={item} key={index} />)
         : <h6 className={styles.noItems}>{t('noNewNotificationsHeader')}</h6>}
 

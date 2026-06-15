@@ -1,7 +1,7 @@
 import React, { memo, useContext, useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { LAYER_IDS, SOURCE_IDS } from '../constants';
 import { safeRemoveMapLayer, safeRemoveMapSource } from '../utils/map';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
@@ -30,8 +30,11 @@ const GearLayer = ({ onGearClick }) => {
     const pointLayerId = LAYER_IDS.GEAR_POINT;
     const beforeId = LAYER_IDS.SKY_LAYER;
 
+    const lineHitLayerId = LAYER_IDS.GEAR_LINE_HIT;
+
     const tearDown = () => {
       if (map.getLayer(pointLayerId)) safeRemoveMapLayer(map, pointLayerId);
+      if (map.getLayer(lineHitLayerId)) safeRemoveMapLayer(map, lineHitLayerId);
       if (map.getLayer(lineLayerId)) safeRemoveMapLayer(map, lineLayerId);
       if (map.getSource(sourceId)) safeRemoveMapSource(map, sourceId);
     };
@@ -60,6 +63,19 @@ const GearLayer = ({ onGearClick }) => {
         layout: {
           'line-cap': 'round',
           'line-join': 'round',
+        },
+      }, beforeId);
+    }
+
+    if (!map.getLayer(lineHitLayerId)) {
+      map.addLayer({
+        id: lineHitLayerId,
+        type: 'line',
+        source: sourceId,
+        filter: ['==', ['geometry-type'], 'LineString'],
+        paint: {
+          'line-opacity': 0,
+          'line-width': 16,
         },
       }, beforeId);
     }
@@ -111,11 +127,11 @@ const GearLayer = ({ onGearClick }) => {
   useEffect(() => {
     if (!map || !shouldRender || !onGearClick) return undefined;
 
-    const lineLayerId = LAYER_IDS.GEAR_LINE;
+    const lineHitLayerId = LAYER_IDS.GEAR_LINE_HIT;
     const pointLayerId = LAYER_IDS.GEAR_POINT;
 
     const handleLineClick = withMultiLayerHandlerAwareness(map, (e) => {
-      const hit = map.queryRenderedFeatures(e.point, { layers: [lineLayerId] })[0];
+      const hit = map.queryRenderedFeatures(e.point, { layers: [lineHitLayerId] })[0];
       if (hit) onGearClick({ event: e, layer: hit });
     });
 
@@ -124,11 +140,11 @@ const GearLayer = ({ onGearClick }) => {
       if (hit) onGearClick({ event: e, layer: hit });
     });
 
-    map.on('click', lineLayerId, handleLineClick);
+    map.on('click', lineHitLayerId, handleLineClick);
     map.on('click', pointLayerId, handlePointClick);
 
     return () => {
-      map.off('click', lineLayerId, handleLineClick);
+      map.off('click', lineHitLayerId, handleLineClick);
       map.off('click', pointLayerId, handlePointClick);
     };
   }, [map, shouldRender, onGearClick]);

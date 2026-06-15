@@ -9,7 +9,7 @@ import { eventSchemas } from '../__test-helpers/fixtures/event-schemas';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { eventWithPoint } from '../__test-helpers/fixtures/events';
 import { EVENT_API_URL } from '../ducks/events';
-import { EVENT_TYPE_SCHEMA_API_URL } from '../ducks/event-schemas';
+import { EVENT_TYPE_SCHEMA_V1_URL } from '../ducks/event-schemas';
 import { GPS_FORMATS } from '../utils/location';
 import { mockStore } from '../__test-helpers/MockStore';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
@@ -29,7 +29,7 @@ jest.mock('../AddItemButton', () => jest.fn());
 jest.mock('../hooks/useNavigate', () => jest.fn());
 
 const server = setupServer(
-  http.get(`${EVENT_TYPE_SCHEMA_API_URL}:name`, () => HttpResponse.json( { data: { results: {} } })),
+  http.get(EVENT_TYPE_SCHEMA_V1_URL(':name'), () => HttpResponse.json( { data: { results: {} } })),
   http.get(`${EVENT_API_URL}:id`, () => HttpResponse.json({ data: eventWithPoint }))
 );
 
