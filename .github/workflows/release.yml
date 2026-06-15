@@ -1,0 +1,267 @@
+name: Release Deploy das-web-react
+on:
+  push:
+    branches:
+      - 'release-**'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions:
+  actions: read
+  contents: read
+  id-token: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+      - name: Install dependencies
+        run: yarn install --immutable
+      - name: Run tests
+        run: yarn test-ci
+
+  config:
+    runs-on: ubuntu-latest
+    outputs:
+      build-args: ${{ steps.env-vars.outputs.build-args }}
+      image-tag: ${{ steps.tag.outputs.value }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+      - run: |
+          npm pkg set "buildbranch"="${{ github.ref_name }}"
+          npm pkg set "buildnum"="${{ github.run_number }}"
+
+      - name: Select env file for build
+        id: env-vars
+        run: echo "build-args=ENV_FILE=.env.production" >> $GITHUB_OUTPUT
+
+      - name: Generate image tag
+        id: tag
+        run: |
+          SHORT_SHA="${GITHUB_SHA:0:7}"
+          BRANCH_SAFE=$(echo "${GITHUB_REF_NAME}" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
+          echo "value=${BRANCH_SAFE}-${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: npm-config
+          path: package.json
+
+  build:
+    needs: config
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: npm-config
+          path: .
+
+      - name: GCP Auth
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          token_format: 'access_token'
+          workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.SERVICE_ACCOUNT }}
+
+      - name: Login to serca-artifact-registry
+        uses: docker/login-action@v3
+        with:
+          registry: europe-west3-docker.pkg.dev/serca-artifact-registry
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
+
+      - name: Login to padas-app
+        uses: docker/login-action@v3
+        with:
+          registry: europe-west3-docker.pkg.dev/padas-app
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
+
+      - uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: |
+            image=europe-west3-docker.pkg.dev/serca-artifact-registry/virtual-docker/moby/buildkit:buildx-stable-1
+
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react
+            europe-west3-docker.pkg.dev/padas-app/er-mt/das-web-react
+          tags: |
+            type=raw,value=${{ needs.config.outputs.image-tag }}
+
+      - name: Read node version
+        id: node-ver
+        run: echo "value=$(cat .node-version)" >> $GITHUB_OUTPUT
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          context: .
+          file: Dockerfile.mt
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            ${{ needs.config.outputs.build-args }}
+            NODE_VERSION=${{ steps.node-ver.outputs.value }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy-stage:
+    needs: [config, build, test]
+    uses: ./.github/workflows/_update-argo.yml
+    with:
+      app-name: das-web-react
+      app-subdir: earthranger
+      environment: er-stage
+      image-tag: ${{ needs.config.outputs.image-tag }}
+    secrets:
+      ARGOCD_APPS_SSH_KEY: ${{ secrets.ARGOCD_APPS_SSH_KEY }}
+
+  sync-stage:
+    needs: [config, deploy-stage]
+    uses: ./.github/workflows/_sync-argo.yml
+    with:
+      app-name: das-web-react-er-stage
+    secrets:
+      ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+
+  approve-prod-me:
+    needs: [sync-stage]
+    runs-on: ubuntu-latest
+    timeout-minutes: 4320
+    environment: production-me
+    steps:
+      - run: echo "Production ME deployment approved"
+
+  approve-prod-us:
+    needs: [sync-stage]
+    runs-on: ubuntu-latest
+    timeout-minutes: 4320
+    environment: production-us
+    steps:
+      - run: echo "Production US deployment approved"
+
+  deploy-prod-me:
+    needs: [config, build, approve-prod-me]
+    uses: ./.github/workflows/_update-argo.yml
+    with:
+      app-name: das-web-react
+      app-subdir: earthranger
+      environment: er-prod-me
+      image-tag: ${{ needs.config.outputs.image-tag }}
+    secrets:
+      ARGOCD_APPS_SSH_KEY: ${{ secrets.ARGOCD_APPS_SSH_KEY }}
+
+  sync-prod-me:
+    needs: [config, deploy-prod-me]
+    uses: ./.github/workflows/_sync-argo.yml
+    with:
+      app-name: das-web-react-er-prod-me
+    secrets:
+      ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+
+  deploy-prod-us:
+    needs: [config, build, approve-prod-us]
+    uses: ./.github/workflows/_update-argo.yml
+    with:
+      app-name: das-web-react
+      app-subdir: earthranger
+      environment: er-prod-us
+      image-tag: ${{ needs.config.outputs.image-tag }}
+    secrets:
+      ARGOCD_APPS_SSH_KEY: ${{ secrets.ARGOCD_APPS_SSH_KEY }}
+
+  sync-prod-us:
+    needs: [config, deploy-prod-us]
+    uses: ./.github/workflows/_sync-argo.yml
+    with:
+      app-name: das-web-react-er-prod-us
+    secrets:
+      ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+
+  approve-prod:
+    needs: [sync-stage]
+    runs-on: ubuntu-latest
+    timeout-minutes: 4320
+    environment: production
+    steps:
+      - run: echo "Production EU deployment approved"
+
+  deploy-prod:
+    needs: [config, build, approve-prod]
+    uses: ./.github/workflows/_update-argo.yml
+    with:
+      app-name: das-web-react
+      app-subdir: earthranger
+      environment: er-prod
+      image-tag: ${{ needs.config.outputs.image-tag }}
+    secrets:
+      ARGOCD_APPS_SSH_KEY: ${{ secrets.ARGOCD_APPS_SSH_KEY }}
+
+  sync-prod:
+    needs: [config, deploy-prod]
+    uses: ./.github/workflows/_sync-argo.yml
+    with:
+      app-name: das-web-react-er-prod
+    secrets:
+      ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+
+  # Legacy kubectl deployments.
+  # Constant infra (project_id, bastion_host/instance/zone) is defaulted in the
+  # reusable workflow. Deployment set lives in the LEGACY_DEPLOYMENTS repo var.
+  deploy-dev-legacy:
+    needs: [config, build, sync-stage]
+    uses: ./.github/workflows/_deploy_legacy_kubectl.yml
+    with:
+      environment: "legacy"
+      image_repository: "europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react"
+      image_tag: ${{ needs.config.outputs.image-tag }}
+      deployments: ${{ vars.LEGACY_DEPLOYMENTS }}
+      cluster_name: "das-dev"
+      cluster_zone: "us-west1-a"
+      tenants: ${{ vars.LEGACY_TENANTS_DEV }}
+      service_account: ${{ vars.LEGACY_DEPLOY_SERVICE_ACCOUNT }}
+
+  # Split the single LEGACY_TENANTS_PROD list into parallel chunks.
+  legacy-prod-split:
+    needs: [config, deploy-dev-legacy]
+    uses: ./.github/workflows/_split-list.yml
+    with:
+      list: ${{ vars.LEGACY_TENANTS_PROD }}
+      groups: 3
+
+  deploy-prod-legacy:
+    needs: [config, legacy-prod-split]
+    strategy:
+      max-parallel: 3
+      fail-fast: false
+      matrix:
+        chunk: ${{ fromJson(needs.legacy-prod-split.outputs.chunks) }}
+    uses: ./.github/workflows/_deploy_legacy_kubectl.yml
+    with:
+      environment: "legacy"
+      image_repository: "europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react"
+      image_tag: ${{ needs.config.outputs.image-tag }}
+      deployments: ${{ vars.LEGACY_DEPLOYMENTS }}
+      cluster_name: "das-prod1"
+      cluster_zone: "europe-west3-a"
+      tenants: ${{ matrix.chunk }}
+      service_account: ${{ vars.LEGACY_DEPLOY_SERVICE_ACCOUNT }}

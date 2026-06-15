@@ -7,9 +7,10 @@ import { ReactComponent as ArrowLeftIcon } from '../common/images/icons/arrow-le
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
 import { ReactComponent as ERLogo } from '../common/images/icons/er-logo.svg';
-import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
-import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
+import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
+import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
+import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
 
 import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
 import { FEED_CATEGORY } from '../utils/analytics';
@@ -27,6 +28,7 @@ import PatrolDetailView from '../PatrolDetailView';
 import ReportManager from '../ReportManager';
 import SoundNotificationsPlayer from '../SoundNotificationsPlayer';
 
+import GearTab from './GearTab';
 import MapLayersTab from './MapLayersTab';
 import PatrolsFeedTab from './PatrolsFeedTab';
 import ReportsFeedTab from './ReportsFeedTab';
@@ -36,6 +38,7 @@ import * as styles from './styles.module.scss';
 
 const CLOSE_BUTTON_LABEL_KEY = {
   [TAB_KEYS.EVENTS]: 'closeEventFeedButtonLabel',
+  [TAB_KEYS.GEAR]: 'closeGearTabButtonLabel',
   [TAB_KEYS.LAYERS]: 'closeMapLayersButtonLabel',
   [TAB_KEYS.PATROLS]: 'closePatrolFeedButtonLabel',
   [TAB_KEYS.SETTINGS]: 'closeSettingsButtonLabel',
@@ -56,6 +59,12 @@ const SideBar = () => {
   const analyzersEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.ANALYZERS]);
   const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
   const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
+  const {
+    gearEndpointUnavailable,
+    hasGear,
+    initialLoadInProgress,
+    loading: gearLoading,
+  } = useSelector((state) => state.data.gear);
   const patrolManagementEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]);
   const sideBar = useSelector((state) => state.view.sideBar);
   const spatialFeaturesEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]);
@@ -82,12 +91,19 @@ const SideBar = () => {
   const isReportDetailsViewActive = eventsEnabled
     && !!matchPath(`/${TAB_KEYS.EVENTS}/:id`, location.pathname);
 
+
+  const showGearTab = hasGear;
+
+  const gearStillResolving = !gearEndpointUnavailable
+    && (initialLoadInProgress || (gearLoading && !hasGear));
+
   const enabledTabKeys = useMemo(() => ({
     ...TAB_KEYS,
     EVENTS: eventsEnabled ? TAB_KEYS.EVENTS : undefined,
+    GEAR: showGearTab ? TAB_KEYS.GEAR : undefined,
     LAYERS: showLayersTab ? TAB_KEYS.LAYERS : undefined,
     PATROLS: canReadPatrols ? TAB_KEYS.PATROLS : undefined,
-  }), [canReadPatrols, eventsEnabled, showLayersTab]);
+  }), [canReadPatrols, eventsEnabled, showGearTab, showLayersTab]);
 
   // If there is a current tab and it is in the enabled tab keys, the side bar
   // is open.
@@ -132,10 +148,11 @@ const SideBar = () => {
   useEffect(() => {
     if (currentTab
       && !Object.values(enabledTabKeys).includes(currentTab.toLowerCase())
-      && !isLegacyEventURL) {
+      && !isLegacyEventURL
+      && !(currentTab === TAB_KEYS.GEAR && gearStillResolving)) {
       navigate('/', { replace: true });
     }
-  }, [currentTab, enabledTabKeys, isLegacyEventURL, navigate]);
+  }, [currentTab, enabledTabKeys, gearStillResolving, isLegacyEventURL, navigate]);
 
   useEffect(() => {
     if (showEventsBadge && currentTab === TAB_KEYS.EVENTS && !isReportDetailsViewActive) {
@@ -210,6 +227,15 @@ const SideBar = () => {
         <span>{t('patrolsLink')}</span>
       </Link>}
 
+      {showGearTab && <Link
+        className={`${styles.navItem} ${currentTab === TAB_KEYS.GEAR ? styles.active : ''}`}
+        to={`/${TAB_KEYS.GEAR}`}
+      >
+        <MarkerFeedIcon />
+
+        <span>{t('gearLink')}</span>
+      </Link>}
+
       {showLayersTab && <Link
         className={`${styles.navItem} ${currentTab === TAB_KEYS.LAYERS ? styles.active : ''}`}
         to={`/${TAB_KEYS.LAYERS}`}
@@ -238,7 +264,7 @@ const SideBar = () => {
         <div className={styles.header}>
           <div className={styles.title}>
             {(currentTab === TAB_KEYS.EVENTS || currentTab === TAB_KEYS.PATROLS) && <div>
-              {!!itemId
+              {itemId
                 ? <button
                   aria-label={t('backButtonLabel')}
                   className={styles.backButton}
@@ -296,6 +322,10 @@ const SideBar = () => {
 
               <Route path=":id/*" element={<PatrolDetailView />} />
             </Route>}
+
+            {showGearTab && <Route path={TAB_KEYS.GEAR} element={<div className={styles.gearRouteBody}>
+              <GearTab />
+            </div>} />}
 
             {showLayersTab && <Route path={TAB_KEYS.LAYERS} element={<MapLayersTab />} />}
 

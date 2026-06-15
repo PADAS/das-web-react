@@ -7,7 +7,7 @@ import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon
 
 import useStringifyCoordinates from '../hooks/useStringifyCoordinates';
 
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import MenuPopover from './MenuPopover';
 
 import * as styles from './styles.module.scss';

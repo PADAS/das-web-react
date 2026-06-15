@@ -7,7 +7,7 @@ import { createMapMock } from '../../../__test-helpers/mocks';
 import { epsg3857, epsg5367 } from '../../../__test-helpers/fixtures/location';
 import { GPS_FORMATS } from '../../../utils/location';
 import { hidePopup, showPopup } from '../../../ducks/popup';
-import { MapContext } from '../../../App';
+import { MapContext } from '../../../MapContext';
 import { mockStore } from '../../../__test-helpers/MockStore';
 
 import useCrsBoundingBoxLayer from './';

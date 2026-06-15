@@ -30,7 +30,7 @@ const AddPatrolTab = ({ onHideModal }) => {
   const onClickPatrolType = useCallback((patrolType) => {
     onHideModal();
 
-    if (!!onAddPatrol) {
+    if (onAddPatrol) {
       onAddPatrol(formProps, patrolData, patrolType.id);
     } else {
       navigate(

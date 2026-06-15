@@ -64,8 +64,8 @@ export const getClusterIconFeatures = (clusterFeatures) => {
   const clusterIconFeatures = [];
   let featureIndex = 0;
   while (clusterIconFeatures.length < Math.min(clusterFeatures.length, CLUSTER_ICON_DISPLAY_LENGTH)) {
-    if (!!subjectFeatures?.[featureIndex]) clusterIconFeatures.push(subjectFeatures[featureIndex]);
-    if (!!eventFeatures?.[featureIndex]) clusterIconFeatures.push(eventFeatures[featureIndex]);
+    if (subjectFeatures?.[featureIndex]) clusterIconFeatures.push(subjectFeatures[featureIndex]);
+    if (eventFeatures?.[featureIndex]) clusterIconFeatures.push(eventFeatures[featureIndex]);
     featureIndex++;
   }
 

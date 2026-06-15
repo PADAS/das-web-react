@@ -234,11 +234,24 @@ export const buildGeoSpanFilter = (geoSpan) => {
     return null;
   }
 
-  const minLon = Math.min(lon1, lon2);
-  const maxLon = Math.max(lon1, lon2);
   const minLat = Math.min(lat1, lat2);
   const maxLat = Math.max(lat1, lat2);
-  return [minLon, minLat, maxLon, maxLat];
+  const crossesAntimeridian = Math.abs(lon1 - lon2) > 180;
+  // For an antimeridian-crossing bbox the GeoJSON convention is west > east; otherwise normalize.
+  const west = crossesAntimeridian ? Math.max(lon1, lon2) : Math.min(lon1, lon2);
+  const east = crossesAntimeridian ? Math.min(lon1, lon2) : Math.max(lon1, lon2);
+  return [west, minLat, east, maxLat];
 };
 
+export const safeRemoveMapLayer = (map, layerId) => {
+  if (map?.getLayer?.(layerId)) {
+    map.removeLayer(layerId);
+  }
+};
+
+export const safeRemoveMapSource = (map, sourceId) => {
+  if (map?.getSource?.(sourceId)) {
+    map.removeSource(sourceId);
+  }
+};
 

@@ -4,7 +4,7 @@ import mapboxgl from 'mapbox-gl';
 import xor from 'lodash/xor';
 
 
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { validateLngLat } from '../utils/location';
 
 const Popup = ({ className = '', trackPointer = false, offset, coordinates, anchor, children }) => {

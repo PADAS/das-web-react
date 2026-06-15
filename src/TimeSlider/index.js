@@ -1,223 +1,278 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import debounce from 'lodash/debounce';
 import isEqual from 'react-fast-compare';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
+import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
+import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
+import { ReactComponent as PauseIcon } from '../common/images/icons/pause.svg';
+import { ReactComponent as PlayIcon } from '../common/images/icons/play.svg';
 
-import { clearVirtualDate, setVirtualDate } from '../ducks/timeslider';
 import {
-  generateCurrentTimeZoneTitle,
-  generateWeeksAgoDate,
+  clearVirtualDate,
+  setVirtualDate,
+  setTimeSliderState,
+} from '../ducks/timeslider';
+import dateLocales from '../utils/locales';
+import {
+  format,
+  SHORT_TIME_FORMAT,
   SHORTENED_DATE_FORMAT,
   STANDARD_DATE_FORMAT,
-  format
 } from '../utils/datetime';
-import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
-import { resetGlobalDateRange } from '../ducks/global-date-range';
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
+import {
+  MAP_INTERACTION_CATEGORY,
+  trackEventFactory,
+} from '../utils/analytics';
+import { resetGlobalDateRange } from '../ducks/global-date-range';
 
-import EventFilterDateRangeSelector from '../EventFilter/DateRange';
-import TimeAgo from '../TimeAgo';
-import dateLocales from '../utils/locales';
+import EventFilterDateRange from '../EventFilter/DateRange';
 
 import * as styles from './styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
-const WINDOW_RESIZE_HANDLER_DEBOUNCE_DELAY = 300;
+const PLAYBACK_DURATION_MS = 30_000;
+export const FRAME_INTERVAL_MS = 33; // ~30fps
+const FRAME_STEP_FRACTION = FRAME_INTERVAL_MS / PLAYBACK_DURATION_MS;
 
-const TimeSlider = ({ className }) => {
+const trackDateChange = () => mapInteractionTracker.track('Update Time Slider Date Range');
+
+const isAtEnd = (value) => value >= 0.99999;
+
+const TimeSlider = () => {
   const dispatch = useDispatch();
   const { i18n, t } = useTranslation('components', { keyPrefix: 'timeSlider' });
-  const sidebarOpen = useSelector((state) => state.view.userPreferences.sidebarOpen);
-  const since = useSelector((state) => state.data.eventFilter.filter.date_range.lower);
-  const timeSliderState = useSelector((state) => state.view.timeSliderState);
-  const until = useSelector((state) => state.data.eventFilter.filter.date_range.upper);
 
-  const debouncedRangeChangeAnalytics = useRef(mapInteractionTracker.debouncedTrack(300));
-  const handleTextRef = useRef(null);
-  const leftPopoverTrigger = useRef(null);
-  const rightPopoverTrigger = useRef(null);
+  const eventFilterLowerDateRange = useSelector((state) => state.data.eventFilter.filter.date_range.lower);
+  const eventFilterUpperDateRange = useSelector((state) => state.data.eventFilter.filter.date_range.upper);
+  const virtualDate = useSelector((state) => state.view.timeSliderState.virtualDate);
 
-  const [sliderPositionValue, setSliderPositionValue] = useState(100);
+  const [isPlaying, setIsPlaying] = useState(false);
 
-  const { virtualDate } = timeSliderState;
+  const debouncedRangeChangeAnalytics = useMemo(() => mapInteractionTracker.debouncedTrack(300), []);
 
-  const startDate = useMemo(() => new Date(since), [since]);
-  const endDate = useMemo(() => until ? new Date(until) : new Date(), [until]);
+  const endDate = useMemo(
+    () => eventFilterUpperDateRange
+      ? new Date(eventFilterUpperDateRange)
+      : new Date(),
+    [eventFilterUpperDateRange],
+  );
+  const startDate = useMemo(() => new Date(eventFilterLowerDateRange), [eventFilterLowerDateRange]);
+
+  const endDateFormatted = format(new Date(endDate), STANDARD_DATE_FORMAT, { locale: dateLocales[i18n.language] });
+  const startDateFormatted = format(
+    new Date(startDate),
+    STANDARD_DATE_FORMAT,
+    { locale: dateLocales[i18n.language] },
+  );
 
   const currentDate = virtualDate ? new Date(virtualDate) : endDate;
 
-  const startDateModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range.lower, since);
-  const endDateModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range.upper, until);
+  const sliderValue = (currentDate - startDate) / (endDate - startDate);
 
-  const dateRangeModified = startDateModified || endDateModified;
+  // Copy of the current slider value to be used in the playback interval
+  // callback to avoid the useEffect unmounting on every frame.
+  const sliderValueRef = useRef();
+  // eslint-disable-next-line react-hooks/refs
+  sliderValueRef.current = sliderValue;
 
-  const value = (currentDate - startDate) / (endDate - startDate);
-  const handleOffset = ((handleTextRef && handleTextRef.current && handleTextRef.current.offsetWidth) || 0) * value;
+  const isEventFilterLowerDateRangeDateModified = !isEqual(
+    INITIAL_FILTER_STATE.filter.date_range.lower,
+    eventFilterLowerDateRange,
+  );
+  const isEventFilterUpperDateRangeDateModified = !isEqual(
+    INITIAL_FILTER_STATE.filter.date_range.upper,
+    eventFilterUpperDateRange,
+  );
+  const isEventFilterDateRangeModified = isEventFilterLowerDateRangeDateModified
+    || isEventFilterUpperDateRangeDateModified;
 
-  const onDateChange = () => mapInteractionTracker.track('Update Time Slider Date Range');
-
-  const clearDateRange = (event) => {
-    event.stopPropagation();
-
-    dispatch(resetGlobalDateRange());
-    onDateChange();
-  };
-
-  const onHandleClick = (direction) => mapInteractionTracker.track(`Click '${direction} Time Slider Anchor'`);
-
-  const onRangeChange = useCallback((event) => {
-    // slight 'snap' at upper limit
-    if (event.target.value >= .99999) {
-      if (until) {
-        dispatch(setVirtualDate(until));
+  const setVirtualDateFromSliderValue = useCallback((sliderValue) => {
+    if (isAtEnd(sliderValue)) {
+      if (eventFilterUpperDateRange) {
+        dispatch(setVirtualDate(eventFilterUpperDateRange));
       } else {
         dispatch(clearVirtualDate());
       }
-
-      setSliderPositionValue(100);
     } else {
-      setSliderPositionValue(event.target.value * 100);
-
-      const dateValue = new Date(startDate);
-      dateValue.setMilliseconds(dateValue.getMilliseconds() + ((endDate - startDate) * event.target.value));
-      dispatch(setVirtualDate(dateValue.toISOString()));
+      const sliderValueOffsetTime = (endDate - startDate) * sliderValue;
+      const nextVirtualDateTime = startDate.getTime() + sliderValueOffsetTime;
+      const nextVirtualDate = new Date(nextVirtualDateTime);
+      dispatch(setVirtualDate(nextVirtualDate.toISOString()));
     }
-  }, [dispatch, endDate, startDate, until]);
+  }, [dispatch, endDate, eventFilterUpperDateRange, startDate]);
 
-  const onSliderChange = (event) => {
-    onRangeChange(event);
+  const onClickPlayStop = () => {
+    if (isPlaying) {
+      setIsPlaying(false);
+    } else {
+      if (isAtEnd(sliderValue)) {
+        // The range value is at the end of the range, place it at the first
+        // frame.
+        const frameStepFractionTime = (endDate - startDate) * FRAME_STEP_FRACTION;
+        const firstFrameTime = startDate.getTime() + frameStepFractionTime;
+        const firstFrameDate = new Date(firstFrameTime);
+        dispatch(setVirtualDate(firstFrameDate.toISOString()));
+      }
 
-    debouncedRangeChangeAnalytics.current('Changed \'Time Slider\'');
+      setIsPlaying(true);
+    }
   };
 
-  const setDateFormat = (dateTime) => {
-    const twoWeekAgo = new Date(generateWeeksAgoDate(2));
-    const DateTime = new Date(dateTime);
-    if (DateTime >= twoWeekAgo){
-      return format(DateTime, STANDARD_DATE_FORMAT, { locale: dateLocales[i18n.language] });
-    }
-    return format(DateTime, SHORTENED_DATE_FORMAT, { locale: dateLocales[i18n.language] });
+  const onChangeSlider = (event) => {
+    setVirtualDateFromSliderValue(event.target.value);
+    setIsPlaying(false);
+
+    debouncedRangeChangeAnalytics('Changed \'Time Slider\'');
+  };
+
+  const onClickReset = (event) => {
+    event.stopPropagation();
+
+    dispatch(resetGlobalDateRange());
+    trackDateChange();
   };
 
   useEffect(() => {
-    onRangeChange({ target: { value: 1 } });
-  }, [since, until]); // eslint-disable-line react-hooks/exhaustive-deps
+    // Reset the virtual date to the end of the range when the event filter
+    // date range is changed.
+    setVirtualDateFromSliderValue(1);
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsPlaying(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [eventFilterLowerDateRange, eventFilterUpperDateRange]);
 
   useEffect(() => {
-    const handleResize = () => onRangeChange({ target: { value } });
+    if (isPlaying) {
+      // Playing mode is active, automatically advance the virtual date by
+      // intervals.
+      const intervalId = setInterval(() => {
+        const nextValue = sliderValueRef.current + FRAME_STEP_FRACTION;
 
-    const debouncedHandler = debounce(handleResize, WINDOW_RESIZE_HANDLER_DEBOUNCE_DELAY);
+        setVirtualDateFromSliderValue(nextValue);
 
-    window.addEventListener('resize', debouncedHandler);
+        if (isAtEnd(nextValue)) {
+          setIsPlaying(false);
+        }
+      }, FRAME_INTERVAL_MS);
 
-    return () => window.removeEventListener('resize', debouncedHandler);
-  }, [onRangeChange, value]);
+      return () => clearInterval(intervalId);
+    }
+  }, [isPlaying, setVirtualDateFromSliderValue]);
 
-  const PopoverContent = ({ popoverClassName, ...rest }) => <Popover
-      {...rest}
-      className={`${styles.popover} ${className}`}
+  useEffect(() => () => debouncedRangeChangeAnalytics.cancel(), [debouncedRangeChangeAnalytics]);
+
+  return <div className={styles.wrapper}>
+    <button
+      aria-label={isPlaying ? t('stopButtonLabel') : t('playButtonLabel')}
+      className={styles.playStopButton}
+      onClick={onClickPlayStop}
+      title={isPlaying ? t('stopButtonLabel') : t('playButtonLabel')}
+      type="button"
     >
-    <Popover.Header className={styles.popoverTitle}>
-      <ClockIcon />
+      {isPlaying ? <PauseIcon aria-hidden="true" /> : <PlayIcon aria-hidden="true" />}
+    </button>
 
-      {t('popoverHeader')}
+    <time className={styles.virtualDateWrapper} dateTime={currentDate.toISOString()}>
+      <span className={styles.virtualTime}>
+        {format(currentDate, SHORT_TIME_FORMAT, { locale: dateLocales[i18n.language] })}
+      </span>
 
-      <Button
-        disabled={!dateRangeModified}
-        onClick={clearDateRange}
-        size="sm"
-        type="button"
-        variant="light"
-      >
-        {t('popoverResetButton')}
-      </Button>
-    </Popover.Header>
+      <span className={styles.virtualDate}>
+        {format(currentDate, SHORTENED_DATE_FORMAT, { locale: dateLocales[i18n.language] })}
+      </span>
+    </time>
 
-    <Popover.Body className={styles.popoverBody}>
-      <EventFilterDateRangeSelector
-        onStartChange={onDateChange}
-        onEndChange={onDateChange}
-        endDateLabel=""
-        startDateLabel=""
-        popoverClassName={`${styles.dateRangePopover} ${popoverClassName || ''} ${sidebarOpen ? '' : styles.sidebarClosed}`}
-        placement="top"
-      />
-    </Popover.Body>
-  </Popover>;
+    <div aria-hidden="true" className={styles.separator} />
 
-  const RightPopoverContent = (props) => PopoverContent({ ...props, popoverClassName: styles.rightPopover });
-
-  return <div className={`${styles.wrapper} ${sidebarOpen ? styles.sidebarOpen : styles.sidebarClosed}`}>
-    <OverlayTrigger
-      flip
-      overlay={PopoverContent}
-      placement="top"
-      rootClose
-      shouldUpdatePosition
-      target={leftPopoverTrigger.current}
-      trigger="click"
-    >
-      <div
-        className={`${styles.handle} ${styles.left} ${startDateModified ? styles.modified : ''}`}
-        onClick={() => onHandleClick('Left')}
-        ref={leftPopoverTrigger}
-      >
-        <span className={styles.handleDate} title={generateCurrentTimeZoneTitle()}>{setDateFormat(startDate)}</span>
-
-        <TimeAgo date={startDate}/>
-      </div>
-    </OverlayTrigger>
-
-    <div className={styles.wrapper_slider}>
+    <div className={styles.track}>
       <input
+        aria-label={t('sliderLabel')}
+        aria-valuetext={format(
+          currentDate,
+          STANDARD_DATE_FORMAT,
+          { locale: dateLocales[i18n.language] },
+        )}
         className={styles.slider}
         max="1"
         min="0"
-        onChange={onSliderChange}
+        onChange={onChangeSlider}
         step="any"
         type="range"
-        value={value}
+        value={sliderValue}
       />
 
-      <span
-        className={styles.handleText}
-        ref={handleTextRef}
-        style={{ left: `calc(${sliderPositionValue}% - ${handleOffset}px)` }}
-      >
-        <ClockIcon className={`${styles.icon} ${virtualDate ? styles.activeIcon : ''}`} />
+      <div aria-hidden="true" className={styles.sliderLabels}>
+        <span data-testid="timeSlider-startDate">{startDateFormatted}</span>
 
-        {(until || virtualDate)
-          ? <span>{format(currentDate, STANDARD_DATE_FORMAT, { locale: dateLocales[i18n.language] })}</span>
-          : <span style={{ color: '#6d6d6d' }}>{t('slider')}</span>}
-      </span>
+        <span className={styles.endDate} data-testid="timeSlider-endDate">
+          {!eventFilterUpperDateRange && <span aria-hidden="true" className={styles.nowDot} />}
+
+          {eventFilterUpperDateRange ? endDateFormatted : t('endDateNowSliderLabel')}
+        </span>
+      </div>
     </div>
 
     <OverlayTrigger
-      flip
-      overlay={RightPopoverContent}
-      placement="top"
+      overlay={
+        <Popover className={styles.popover}>
+          <Popover.Header className={styles.popoverTitle}>
+            <ClockIcon aria-hidden="true" />
+
+            {t('popoverHeader')}
+
+            <Button
+              disabled={!isEventFilterDateRangeModified}
+              onClick={onClickReset}
+              size="sm"
+              type="button"
+              variant="light"
+            >
+              {t('popoverResetButton')}
+            </Button>
+          </Popover.Header>
+
+          <Popover.Body className={styles.popoverBody}>
+            <EventFilterDateRange
+              endDateLabel=""
+              onEndChange={() => trackDateChange()}
+              onStartChange={() => trackDateChange()}
+              placement="top"
+              popoverClassName={styles.dateRangePopover}
+              startDateLabel=""
+            />
+          </Popover.Body>
+        </Popover>
+      }
       rootClose
-      shouldUpdatePosition
-      target={rightPopoverTrigger.current}
       trigger="click"
     >
-      <div
-        className={`${styles.handle} ${styles.right} ${endDateModified ? styles.modified : ''}`}
-        onClick={() => onHandleClick('Right')}
-        ref={rightPopoverTrigger}
+      <button
+        aria-label={t('dateRangeButtonLabel')}
+        className={`${styles.dateRangeButton} ${isEventFilterDateRangeModified ? styles.modified : ''}`}
+        title={t('dateRangeButtonLabel')}
+        type="button"
       >
-        {until && <span className={styles.handleDate} title={generateCurrentTimeZoneTitle()}>{setDateFormat(endDate)}</span>}
-
-        <button type="button"> {until ? <TimeAgo date={until}/> : t('untilNowButton')}</button>
-      </div>
+        <CalendarIcon aria-hidden="true" />
+      </button>
     </OverlayTrigger>
+
+    <button
+      aria-label={t('closeButtonLabel')}
+      className={styles.closeButton}
+      onClick={() => dispatch(setTimeSliderState(false))}
+      title={t('closeButtonLabel')}
+      type="button"
+    >
+      <CrossIcon aria-hidden="true" />
+    </button>
   </div>;
 };
 

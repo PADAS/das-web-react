@@ -233,7 +233,7 @@ export const addPatrolSegmentToEvent = (segment_id, event_id) => {
 };
 
 export const calcDisplayPriorityForReport = (report, eventTypes) => {
-  if (!!report.priority) {
+  if (report.priority) {
     return report.priority;
   }
 
@@ -293,20 +293,20 @@ export const isReportActive = (report) => ['active', 'new'].includes(report?.sta
 export const formValidator = customizeValidator({ AjvClass: AjvDraft04 });
 
 export const REPORT_SAVE_ACTIONS = {
-  create: (data) => ({
-    action: () => store.dispatch(createEvent(data)),
+  create: (data, communityInputValue = null) => ({
+    action: () => store.dispatch(createEvent(data, communityInputValue)),
     priority: 300,
   }),
-  update: (data) => ({
-    action: () => store.dispatch(updateEvent(data)),
+  update: (data, communityInputValue = null) => ({
+    action: () => store.dispatch(updateEvent(data, communityInputValue)),
     priority: 250,
   }),
-  addNote: (note) => ({
-    action: (event_id) => store.dispatch(addNoteToEvent(event_id, note)),
+  addNote: (note, communityInputValue = null) => ({
+    action: (event_id) => store.dispatch(addNoteToEvent(event_id, note, communityInputValue)),
     priority: 200,
   }),
-  addFile: (file) => ({
-    action: (event_id) => store.dispatch(uploadEventFile(event_id, file)),
+  addFile: (file, communityInputValue = null) => ({
+    action: (event_id) => store.dispatch(uploadEventFile(event_id, file, communityInputValue)),
     priority: 200,
   }),
 };

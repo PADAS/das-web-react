@@ -57,10 +57,8 @@ const SubjectPopup = ({ data }) => {
   const showAdditionalProps = hasAdditionalDeviceProps
     && (additionalPropsShouldBeToggleable ? additionalPropsToggledOn : true);
 
-  // Prefer title from store so manufacturer and name/serial are always shown; fallback to layer properties
-  const buoyManufacturer = properties?.additional?.manufacturer;
   const displayName = calcDisplayNameForSubject(properties);
-  const popupTitle = popupTitleFromStore ?? (buoyManufacturer ? `${buoyManufacturer}: ${displayName}` : displayName);
+  const popupTitle = popupTitleFromStore ?? displayName;
 
   const toggleShowAdditionalProperties = useCallback(() => {
     toggleAdditionalPropsVisibility(!additionalPropsToggledOn);

@@ -7,7 +7,7 @@ import { selectPatrolData } from '../selectors/patrols';
 import { DEFAULT_SYMBOL_PAINT, LAYER_IDS } from '../constants';
 import { uuid } from '../utils/string';
 import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import withMapViewConfig from '../WithMapViewConfig';
 import useMapSources from '../hooks/useMapSources';
 import useMapLayers from '../hooks/useMapLayers';

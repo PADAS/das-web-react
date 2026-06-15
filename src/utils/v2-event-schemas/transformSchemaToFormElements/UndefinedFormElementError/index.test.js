@@ -13,7 +13,7 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - UndefinedFo
     }
 
     expect(thrownError.message).toBe(
-      'Form element "field-1" referenced in "section-1" is not defined in the UI schema.',
+      'Form element "field-1" referenced in "section-1" is not defined in the schema.',
     );
     expect(thrownError.name).toBe('UndefinedFormElementError');
     expect(thrownError.formElementId).toBe(formElementId);

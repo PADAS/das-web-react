@@ -1,4 +1,4 @@
-import { hasAuth0CallbackParams } from './auth0';
+import { buildAuth0AuthorizationParams, hasAuth0CallbackParams } from './auth0';
 
 describe('auth0 utils', () => {
   describe('hasAuth0CallbackParams', () => {
@@ -45,6 +45,42 @@ describe('auth0 utils', () => {
 
     test('returns false when mixed params lack state/error with code', () => {
       expect(hasAuth0CallbackParams('?foo=bar&code=abc123&baz=qux')).toBe(false);
+    });
+  });
+
+  describe('buildAuth0AuthorizationParams', () => {
+    const AUDIENCE = 'https://example.org/api';
+
+    test('forwards the organization when an idp org id is provided', () => {
+      expect(buildAuth0AuthorizationParams(AUDIENCE, 'org_abc')).toEqual({
+        audience: AUDIENCE,
+        organization: 'org_abc',
+      });
+    });
+
+    test('omits the organization entirely when the idp org id is null', () => {
+      const params = buildAuth0AuthorizationParams(AUDIENCE, null);
+      expect(params).toEqual({ audience: AUDIENCE });
+      expect(params).not.toHaveProperty('organization');
+    });
+
+    test('omits the organization entirely when the idp org id is an empty string', () => {
+      const params = buildAuth0AuthorizationParams(AUDIENCE, '');
+      expect(params).toEqual({ audience: AUDIENCE });
+      expect(params).not.toHaveProperty('organization');
+    });
+
+    test('omits the organization entirely when the idp org id is only whitespace', () => {
+      const params = buildAuth0AuthorizationParams(AUDIENCE, '   ');
+      expect(params).toEqual({ audience: AUDIENCE });
+      expect(params).not.toHaveProperty('organization');
+    });
+
+    test('forwards a trimmed organization when the idp org id has surrounding whitespace', () => {
+      expect(buildAuth0AuthorizationParams(AUDIENCE, '  org_abc  ')).toEqual({
+        audience: AUDIENCE,
+        organization: 'org_abc',
+      });
     });
   });
 });

@@ -2,7 +2,7 @@ import React from 'react';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 
-import { EVENT_TYPE_SCHEMA_API_URL } from '../ducks/event-schemas';
+import { EVENT_TYPE_SCHEMA_V1_URL } from '../ducks/event-schemas';
 import { GPS_FORMATS } from '../utils/location';
 import ReportFormSummary from './index';
 import { report as mockedReport } from '../__test-helpers/fixtures/reports';
@@ -14,7 +14,7 @@ import { render, screen } from '../test-utils';
 
 const server = setupServer(
   http.get(
-    `${EVENT_TYPE_SCHEMA_API_URL}/:name`,
+    EVENT_TYPE_SCHEMA_V1_URL(':name'),
     () => HttpResponse.json( { data: eventSchemas.wildlife_sighting_rep['a78576a5-3c5b-40df-b374-12db53fbfdd6'] })
   )
 );

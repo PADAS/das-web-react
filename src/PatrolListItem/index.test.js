@@ -8,7 +8,7 @@ import { PATROL_API_STATES, PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS, SYST
 
 import { mockStore } from '../__test-helpers/MockStore';
 
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import * as trackUtils from '../utils/tracks';
 import { UPDATE_SUBJECT_TRACK_STATE } from '../ducks/map-ui';
 import * as patrolUtils from '../utils/patrols';

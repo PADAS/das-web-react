@@ -160,9 +160,9 @@ const FiltersPopover = ({ ref, ...rest }) => {
   const statusFilterModified = !isEqual(INITIAL_FILTER_STATE.status, patrolFilter.status);
   const filtersModified = leadersFilterModified || patrolTypesFilterModified || statusFilterModified;
 
-  const patrolTypesCheckboxListValues = !!selectedPatrolTypeIds.length
+  const patrolTypesCheckboxListValues = selectedPatrolTypeIds.length
     ? selectedPatrolTypeIds : [CHECKBOX_LIST_ALL_OPTION_ID];
-  const statusCheckboxListValues = !!selectedStatusIds.length ? selectedStatusIds : [CHECKBOX_LIST_ALL_OPTION_ID];
+  const statusCheckboxListValues = selectedStatusIds.length ? selectedStatusIds : [CHECKBOX_LIST_ALL_OPTION_ID];
 
   return <Popover
       {...rest}

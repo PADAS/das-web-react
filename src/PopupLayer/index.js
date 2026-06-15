@@ -1,7 +1,7 @@
 import React, { memo, useContext, useEffect, useState } from 'react';
 
 import { calculatePopoverPlacement } from '../utils/map';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 
 import AnalyzerConfigPopup from '../AnalyzerConfigPopup';
 import DroppedMarkerPopup from '../DroppedMarkerPopup';
@@ -12,6 +12,7 @@ import Popup from '../Popup';
 import SubjectPopup from '../SubjectPopup';
 import SubjectMessagePopup from '../SubjectMessagePopup';
 import SubjectMessagesPopup from '../SubjectMessagesPopup';
+import GearPopup from '../GearPopup';
 import TimepointPopup from '../TimepointPopup';
 import UserCurrentLocationPopup from '../UserCurrentLocationPopup';
 
@@ -24,6 +25,10 @@ import * as userCurrentLocationPopupStyles from '../UserCurrentLocationPopup/sty
 const TEMPLATES = {
   subject: {
     Component: SubjectPopup,
+    popupAttrs: { anchor: 'bottom', offset: [0, -16] },
+  },
+  gear: {
+    Component: GearPopup,
     popupAttrs: { anchor: 'bottom', offset: [0, -16] },
   },
   'subject-messages': {

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import DOMPurify from 'dompurify';
 import { API_V2_URL, DAS_HOST } from '../constants';
 
@@ -164,6 +165,8 @@ const InlineSvg = ({ src, fallbackSrc, className, style, ...rest }) => {
 };
 
 const SvgIcon = ({ type, iconId, imageUrl, className, color, style, ...rest }) => {
+  const communityValue = useSelector((state) => state.data.community?.value);
+
   const onImgError = (event) => {
     event.currentTarget.style.display = 'none';
   };
@@ -175,10 +178,14 @@ const SvgIcon = ({ type, iconId, imageUrl, className, color, style, ...rest }) =
   const effectiveIconId = iconId || GENERIC_ICON_ID;
   const isGeneric = effectiveIconId.includes('generic');
 
-  const communityMatch = window.location.pathname.match(/^\/community\/([^/]+)/);
-  const iconBase = communityMatch
-    ? `${API_V2_URL}community/${communityMatch[1]}/static/sprite-src`
-    : `${DAS_HOST}/static/sprite-src`;
+  let iconSrc;
+  if (communityValue && type === 'events') {
+    iconSrc = `${API_V2_URL}community/${communityValue}/activity/events/eventtypes/icons/${effectiveIconId}`;
+  } else if (communityValue) {
+    iconSrc = `${API_V2_URL}community/${communityValue}/static/sprite-src/${effectiveIconId}.svg`;
+  } else {
+    iconSrc = `${DAS_HOST}/static/sprite-src/${effectiveIconId}.svg`;
+  }
 
   // Map legacy color prop and style.fill to CSS color so fill:currentColor in the SVG inherits it.
   const { fill: styleFill, ...restStyle } = style || {};
@@ -189,7 +196,7 @@ const SvgIcon = ({ type, iconId, imageUrl, className, color, style, ...rest }) =
     <InlineSvg
       className={`${className || ''} ${isGeneric ? 'generic' : ''}`.trim()}
       fallbackSrc={`${DAS_HOST}/static/sprite-src/${GENERIC_ICON_ID}.svg`}
-      src={`${iconBase}/${effectiveIconId}.svg`}
+      src={iconSrc}
       style={svgStyle}
       {...rest}
     />

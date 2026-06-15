@@ -7,7 +7,7 @@ import { CLUSTERS_MAX_ZOOM, CLUSTERS_RADIUS, LAYER_IDS, SOURCE_IDS } from '../co
 import { getMapEventSymbolPointsWithVirtualDate } from '../selectors/events';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { selectShouldEventsBeClustered, selectShouldSubjectsBeClustered } from '../selectors/clusters';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import useClusterPolygon from '../hooks/useClusterPolygon';
 import { useMapEventBinding } from '../hooks';
 import useMapSources from '../hooks/useMapSources';

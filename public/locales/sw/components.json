@@ -213,6 +213,20 @@
     "closeMapLayersButtonLabel": "Funga Safu za Ramani",
     "closePatrolFeedButtonLabel": "Funga Onyesha Doria",
     "closeSettingsButtonLabel": "Funga Mipangilio",
+    "closeGearTabButtonLabel": "Funga vifaa",
+    "gearLink": "Vifaa",
+    "gearTab": {
+      "loadErrorFallback": "Ombi halikufaulu",
+      "loadErrorIntro": "Haikuweza kupakia vifaa kutoka kwa seva.",
+      "loading": "Inasasishwa…",
+      "loadingInitial": "Inapakia vifaa…",
+      "loadingList": "Bado inapakia orodha kamili…",
+      "noSearchResults": "Hakuna seti inayolingana na utafutaji.",
+      "retryButton": "Jaribu tena",
+      "searchFormAriaLabel": "Tafuta vifaa",
+      "searchPlaceholder": "Tafuta kwa jina",
+      "unknownManufacturer": "Nyingine"
+    },
     "layersLink": "Safu za Ramani",
     "mapLayersTab": {
       "analyzersTabTitle": "Wachambuzi",
@@ -357,13 +371,17 @@
     "periodInputLabel": "Sehemu ya siku"
   },
   "timeSlider": {
+    "closeButtonLabel": "Funga kishikilia muda",
+    "dateRangeButtonLabel": "Badilisha masafa ya tarehe",
+    "endDateNowSliderLabel": "Sasa",
     "popoverHeader": "Upeo wa Tarehe",
     "popoverResetButton": "Rudisha",
-    "slider": "Kishikilia Muda",
+    "sliderLabel": "Kishikilia Muda",
     "timeSliderMapControl": {
       "iconTitle": "Kishikilia Muda"
     },
-    "untilNowButton": "Sasa"
+    "playButtonLabel": "Cheza kishikilia muda",
+    "stopButtonLabel": "Simama kishikilia muda"
   },
   "toastBody": {
     "defaultLinkTitle": "Bonyeza hapa",

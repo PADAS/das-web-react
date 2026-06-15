@@ -14,6 +14,11 @@
     "defaultLabel": "Create Event or Patrol",
     "defaultTitle": "Create"
   },
+  "communityPage": {
+    "formSubmitted": "Form Submitted",
+    "invalidCommunityUrl": "Invalid Community URL",
+    "searchPlaceholder": "Search event types..."
+  },
   "checkMark": {
     "fullyCheckedTitle": "Visible",
     "partiallyCheckedTitle": "Partially visible",
@@ -210,9 +215,23 @@
     "backButtonTitle": "Back",
     "closeButtonTitle": "Close",
     "closeEventFeedButtonLabel": "Close Event Feed",
+    "closeGearTabButtonLabel": "Close Gear",
     "closeMapLayersButtonLabel": "Close Map Layers",
     "closePatrolFeedButtonLabel": "Close Patrol Feed",
     "closeSettingsButtonLabel": "Close Settings",
+    "gearLink": "Gear",
+    "gearTab": {
+      "loadErrorFallback": "Request failed",
+      "loadErrorIntro": "Could not load gear from the server.",
+      "loading": "Updating…",
+      "loadingInitial": "Loading gear…",
+      "loadingList": "Still loading the full list…",
+      "noSearchResults": "No gear sets match your search.",
+      "retryButton": "Try again",
+      "searchFormAriaLabel": "Search gear",
+      "searchPlaceholder": "Search by name",
+      "unknownManufacturer": "Other"
+    },
     "layersLink": "Map Layers",
     "mapLayersTab": {
       "analyzersTabTitle": "Analyzers",
@@ -357,13 +376,17 @@
     "periodInputLabel": "Time period"
   },
   "timeSlider": {
+    "closeButtonLabel": "Close timeslider",
+    "dateRangeButtonLabel": "Change date range",
+    "endDateNowSliderLabel": "Now",
     "popoverHeader": "Date Range",
     "popoverResetButton": "Reset",
-    "slider": "Timeslider",
+    "sliderLabel": "Timeslider",
     "timeSliderMapControl": {
       "iconTitle": "Timeslider"
     },
-    "untilNowButton": "Now"
+    "playButtonLabel": "Play timeslider",
+    "stopButtonLabel": "Stop timeslider"
   },
   "toastBody": {
     "defaultLinkTitle": "Click here",

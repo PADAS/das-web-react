@@ -1,5 +1,7 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import { render, screen, waitFor } from '../test-utils';
+import { mockStore } from '../__test-helpers/MockStore';
 import SvgIcon, { svgCache } from './';
 
 const mockFetch = (contentType, body) =>
@@ -10,11 +12,14 @@ const mockFetch = (contentType, body) =>
   });
 
 describe('SvgIcon', () => {
-  let fetchSpy;
+  let fetchSpy, store;
+
+  const renderWithStore = (ui) => render(<Provider store={store}>{ui}</Provider>);
 
   beforeEach(() => {
     svgCache.clear();
     fetchSpy = jest.spyOn(global, 'fetch');
+    store = mockStore({ data: { community: null } });
   });
 
   afterEach(() => {
@@ -25,7 +30,7 @@ describe('SvgIcon', () => {
     test('renders inline SVG when the server returns an SVG content-type', async () => {
       fetchSpy.mockImplementation(mockFetch('image/svg+xml', '<svg><path d="M0 0"/></svg>'));
 
-      render(<SvgIcon type="events" iconId="fire_rep" />);
+      renderWithStore(<SvgIcon type="events" iconId="fire_rep" />);
 
       await waitFor(() => {
         expect(document.querySelector('svg')).toBeInTheDocument();
@@ -35,7 +40,7 @@ describe('SvgIcon', () => {
     test('renders an img when the server returns a non-SVG content-type (e.g. PNG)', async () => {
       fetchSpy.mockImplementation(mockFetch('image/png', ''));
 
-      const { container } = render(<SvgIcon type="events" iconId="confiscation_rep" />);
+      const { container } = renderWithStore(<SvgIcon type="events" iconId="confiscation_rep" />);
 
       await waitFor(() => {
         expect(container.querySelector('img')).toBeInTheDocument();
@@ -46,7 +51,7 @@ describe('SvgIcon', () => {
 
   describe('subject icons', () => {
     test('renders an img for SVG subject image URLs', () => {
-      render(<SvgIcon type="subjects" imageUrl="https://example.com/subject.svg" />);
+      renderWithStore(<SvgIcon type="subjects" imageUrl="https://example.com/subject.svg" />);
 
       const img = screen.getByRole('img');
       expect(img).toBeInTheDocument();
@@ -54,7 +59,7 @@ describe('SvgIcon', () => {
     });
 
     test('renders an img for PNG subject image URLs', () => {
-      render(<SvgIcon type="subjects" imageUrl="https://example.com/subject.png" />);
+      renderWithStore(<SvgIcon type="subjects" imageUrl="https://example.com/subject.png" />);
 
       const img = screen.getByRole('img');
       expect(img).toBeInTheDocument();

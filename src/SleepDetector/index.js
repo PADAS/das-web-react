@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, memo } from 'react'; /* eslint-disable-line no-unused-vars */
+import React, { useEffect, useRef, memo } from 'react';
 
 const DEFAULT_INTERVAL = 240000;
 const DEFAULT_TOLERANCE = 2000;

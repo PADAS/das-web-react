@@ -18,6 +18,11 @@
       "noOptionsMessage": "No hay opciones para mostrar"
     }
   },
+  "communityPage": {
+    "formSubmitted": "Formulario enviado",
+    "invalidCommunityUrl": "URL de comunidad no válida",
+    "searchPlaceholder": "Buscar tipos de evento..."
+  },
   "datePicker": {
     "calendarPopper": {
       "menuButtonLabel": "Abrir calendario",
@@ -196,6 +201,20 @@
     "newVersionAvailableNotification": "Una nueva versión de EarthRanger está disponible. Se cargará la siguiente vez que recargue su navegador."
   },
   "sideBar": {
+    "closeGearTabButtonLabel": "Cerrar aparejos",
+    "gearLink": "Aparejos",
+    "gearTab": {
+      "loadErrorFallback": "Error en la solicitud",
+      "loadErrorIntro": "No se pudo cargar el aparejo desde el servidor.",
+      "loading": "Actualizando…",
+      "loadingInitial": "Cargando aparejos…",
+      "loadingList": "Aún cargando la lista completa…",
+      "noSearchResults": "Ningún conjunto coincide con la búsqueda.",
+      "retryButton": "Reintentar",
+      "searchFormAriaLabel": "Buscar aparejos",
+      "searchPlaceholder": "Buscar por nombre",
+      "unknownManufacturer": "Otro"
+    },
     "layersLink": "Capas de mapa",
     "mapLayersTab": {
       "analyzersTabTitle": "Analizadores",
@@ -334,13 +353,17 @@
     "periodInputLabel": "Parte del día"
   },
   "timeSlider": {
+    "closeButtonLabel": "Cerrar control de tiempo",
+    "dateRangeButtonLabel": "Cambiar rango de fechas",
+    "endDateNowSliderLabel": "Ahora",
     "popoverHeader": "Rango de fechas",
     "popoverResetButton": "Reiniciar",
-    "slider": "Control de tiempo",
+    "sliderLabel": "Control de tiempo",
     "timeSliderMapControl": {
       "iconTitle": "Control de tiempo"
     },
-    "untilNowButton": "Ahora"
+    "playButtonLabel": "Reproducir control de tiempo",
+    "stopButtonLabel": "Detener control de tiempo"
   },
   "toastBody": {
     "defaultLinkTitle": "Haga clic aquí",

@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import { createMapMock } from '../../__test-helpers/mocks';
 import { GPS_FORMATS } from '../../utils/location';
-import { MapContext } from '../../App';
+import { MapContext } from '../../MapContext';
 import MapDrawingToolsContextProvider from '../../MapDrawingTools/ContextProvider';
 import { newPatrol, overduePatrol,  patrolDefaultStoreData } from '../../__test-helpers/fixtures/patrols';
 import { render, screen, within } from '../../test-utils';
@@ -300,7 +300,7 @@ describe('PatrolDetailView - PlanSection', () => {
     expect(await screen.findByTestId('patrol-is-auto-end')).toBeDisabled();
   });
 
-  test('allows the user to check auto-end checkbox when the end date is the same as the start date ', async () => {
+  test('allows the user to check auto-end checkbox when the end date is the same as the start date', async () => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
 

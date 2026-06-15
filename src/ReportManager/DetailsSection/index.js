@@ -47,6 +47,13 @@ const DetailsSection = ({
   eventId,
   eventSchema = null,
   formValidator,
+  // hidePriority / hideReportedBy are intentionally generic visibility props expressed in this
+  // component's own vocabulary, rather than gating these fields on isCommunity (the caller's reason).
+  // This lets a future caller hide these fields for some other reason without adding yet another
+  // context flag here — the component stays agnostic of *why* a field is hidden.
+  hidePriority = false,
+  hideReportedBy = false,
+  isCommunity = false,
   isBehindAddedEvent,
   isCollection,
   isNewEvent,
@@ -79,7 +86,7 @@ const DetailsSection = ({
 
   const eventState = reportForm.state === EVENT_FORM_STATES.NEW_LEGACY ? EVENT_FORM_STATES.ACTIVE : reportForm.state;
   const geometryType = eventType?.geometry_type;
-  const jsonSchema = eventType?.version === 1 ? eventSchema?.schema : eventSchema?.json;
+  const jsonSchema = eventSchema?.schema ?? eventSchema?.json;
   const isReadOnly = eventType?.version === 1 ? jsonSchema?.readonly : eventType?.readonly;
 
   const onStateDropdownKeyDown = useCallback((event) => {
@@ -127,13 +134,13 @@ const DetailsSection = ({
   return <div ref={ref}>
     <div className={styles.globalDetails}>
       <div className={styles.sectionHeader}>
-        <div className={styles.title}>
+        {!isCommunity && <div className={styles.title}>
           <PencilWritingIcon />
 
           <h2>{t('detailsHeader')}</h2>
-        </div>
+        </div>}
 
-        <div>
+        {!isCommunity && <div>
           <Dropdown
             className={`${styles.stateDropdown} ${styles[reportForm.state]}`}
             onKeyDown={onStateDropdownKeyDown}
@@ -160,12 +167,12 @@ const DetailsSection = ({
                 </Dropdown.Item>)}
             </Dropdown.Menu>
           </Dropdown>
-        </div>
+        </div>}
       </div>
 
       <div className={styles.container}>
         <div className={styles.row}>
-          {!isCollection && <label className={styles.fieldLabel} data-testid="reportManager-reportedBySelect">
+          {!isCollection && !hideReportedBy && <label className={styles.fieldLabel} data-testid="reportManager-reportedBySelect">
             {t('reportedByLabel')}
 
             <ReportedBySelect
@@ -175,7 +182,7 @@ const DetailsSection = ({
             />
           </label>}
 
-          <label className={styles.fieldLabel}>
+          {!hidePriority && <label className={styles.fieldLabel}>
             {t('priorityLabel')}
 
             <PrioritySelect
@@ -183,7 +190,7 @@ const DetailsSection = ({
               onChange={onPriorityChange}
               priority={reportForm?.priority}
             />
-          </label>
+          </label>}
         </div>
 
         {!isCollection && <div className={styles.row}>
@@ -246,7 +253,10 @@ const DetailsSection = ({
     </div>
 
     {/* Legacy form renderer */}
-    {eventType?.version === 1 && !!jsonSchema && <Form
+    {/* Gate by schema shape, not eventType.version: community event types are forced to version 2
+       client-side, yet the backend can still return a v1-format schema (a top-level `schema`),
+       so the actual shape is the reliable signal for which renderer to use. */}
+    {!!eventSchema?.schema && !!jsonSchema && <Form
       className={`${styles.form} ${reportForm.is_collection ? styles.hidden : ''}`}
       disabled={isReadOnly}
       fields={{ externalLink: ExternalLinkField }}
@@ -270,7 +280,7 @@ const DetailsSection = ({
       <button ref={submitFormButtonRef} type="submit" />
     </Form>}
 
-    {eventType?.version === 2 && eventSchema && <SchemaForm
+    {eventType?.version === 2 && eventSchema?.json && !eventSchema?.error && <SchemaForm
       eventId={eventId}
       eventLocation={reportForm.location}
       formData={reportForm.event_details}
@@ -295,7 +305,7 @@ const DetailsSection = ({
       />
     </div>}
 
-    {eventSchema instanceof Error && <div
+    {eventSchema?.error && <div
       aria-live="polite"
       className={styles.errorMessageWrapper}
       role="alert"
@@ -303,8 +313,8 @@ const DetailsSection = ({
       <p className={styles.errorMessage}>
         <strong>{t('errorLoadingSchema')}</strong>
 
-        {eventSchema?.response?.data?.status?.detail && <span>
-          {eventSchema.response.data.status.detail}
+        {eventSchema?.error?.response?.data?.status?.detail && <span>
+          {eventSchema.error.response.data.status.detail}
         </span>}
       </p>
     </div>}

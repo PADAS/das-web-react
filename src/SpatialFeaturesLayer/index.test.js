@@ -3,7 +3,7 @@ import { render } from '@testing-library/react';
 import { useSelector } from 'react-redux';
 import { buildGeoSpanFilter } from '../utils/map';
 import SpatialFeaturesLayer, { SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID, POLYGONS_OUTLINE_LAYER_ID } from './';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { createMapMock, createMockInteractionEvent } from '../__test-helpers/mocks';
 
 // Mock the App module to provide MapContext

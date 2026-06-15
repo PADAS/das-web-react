@@ -15,6 +15,7 @@ import './index.scss';
 
 import { EXTERNAL_SAME_DOMAIN_ROUTES, REACT_APP_GA4_TRACKING_ID, REACT_APP_ROUTE_PREFIX } from './constants';
 import registerServiceWorker from './registerServiceWorker';
+import appConfig from './config';
 import { setClientReleaseIdentifier } from './utils/analytics';
 import { isSystemConfigLoaded } from './utils/auth';
 import store from './store';
@@ -34,6 +35,7 @@ import RequireEulaConfirmation from './RequireEulaConfirmation';
 import useWebVitals from './hooks/useWebVitals';
 
 const App = lazy(() => import('./App'));
+const CommunityPage = lazy(() => import('./CommunityPage'));
 const EulaPage = lazy(() => import('./views/EULA'));
 const Login = lazy(() => import('./Login'));
 
@@ -107,6 +109,11 @@ const RootApp = () => {
         />
 
         <Route
+          path={`${REACT_APP_ROUTE_PREFIX}community/:value/*`}
+          element={<CommunityPage />}
+        />
+
+        <Route
           path={`${REACT_APP_ROUTE_PREFIX}*`}
           element={<RequireAccessToken>
             <RequireEulaConfirmation>
@@ -126,10 +133,10 @@ root.render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistStore(store)} >
       <Auth0Provider
-        domain={import.meta.env.REACT_APP_AUTH0_DOMAIN}
-        clientId={import.meta.env.REACT_APP_AUTH0_CLIENT_ID}
+        domain={appConfig.auth0.domain}
+        clientId={appConfig.auth0.clientId}
         authorizationParams={{
-          audience: import.meta.env.REACT_APP_AUTH0_AUDIENCE,
+          audience: appConfig.auth0.audience,
           redirect_uri: `${window.location.origin}${REACT_APP_ROUTE_PREFIX}`,
         }}
         cacheLocation="localstorage"

@@ -1,6 +1,12 @@
 import { createMapMock } from '../__test-helpers/mocks';
 
-import { buildGeoSpanFilter, calculatePopoverPlacement, waitForMapBounds } from './map';
+import {
+  buildGeoSpanFilter,
+  calculatePopoverPlacement,
+  safeRemoveMapLayer,
+  safeRemoveMapSource,
+  waitForMapBounds,
+} from './map';
 
 let map;
 const errorObj = new Error('invalid LngLat');
@@ -174,5 +180,41 @@ describe('buildGeoSpanFilter', () => {
   test('handles a geoSpan that spans the antimeridian', () => {
     const geoSpan = { lon: [170, -170], lat: [-10, 10] };
     expect(buildGeoSpanFilter(geoSpan)).toEqual([170, -10, -170, 10]);
+  });
+
+  test('normalizes a reverse-order non-antimeridian span', () => {
+    const geoSpan = { lon: [10, -10], lat: [-5, 5] };
+    expect(buildGeoSpanFilter(geoSpan)).toEqual([-10, -5, 10, 5]);
+  });
+
+  test('preserves an antimeridian span drawn in the other direction', () => {
+    const geoSpan = { lon: [-170, 170], lat: [-10, 10] };
+    expect(buildGeoSpanFilter(geoSpan)).toEqual([170, -10, -170, 10]);
+  });
+});
+
+describe('safeRemoveMapLayer / safeRemoveMapSource', () => {
+  test('removeLayer is only called when getLayer finds the id', () => {
+    const map = {
+      getLayer: jest.fn(() => undefined),
+      removeLayer: jest.fn(),
+    };
+    safeRemoveMapLayer(map, 'layer-a');
+    expect(map.removeLayer).not.toHaveBeenCalled();
+    map.getLayer.mockReturnValue({});
+    safeRemoveMapLayer(map, 'layer-a');
+    expect(map.removeLayer).toHaveBeenCalledWith('layer-a');
+  });
+
+  test('removeSource is only called when getSource finds the id', () => {
+    const map = {
+      getSource: jest.fn(() => undefined),
+      removeSource: jest.fn(),
+    };
+    safeRemoveMapSource(map, 'source-a');
+    expect(map.removeSource).not.toHaveBeenCalled();
+    map.getSource.mockReturnValue({});
+    safeRemoveMapSource(map, 'source-a');
+    expect(map.removeSource).toHaveBeenCalledWith('source-a');
   });
 });

@@ -75,7 +75,7 @@ const EditableItemHeader = ({
     afterMenuToggle && afterMenuToggle(!headerPopoverOpen);
     !!analyticsMetadata && trackEvent(
       analyticsMetadata.category,
-      `${headerPopoverOpen?'Close':'Open'} Hamburger Menu${!!analyticsMetadata.location ? ` for ${analyticsMetadata.location}` : ''}`
+      `${headerPopoverOpen?'Close':'Open'} Hamburger Menu${analyticsMetadata.location ? ` for ${analyticsMetadata.location}` : ''}`
     );
   };
 
@@ -83,7 +83,7 @@ const EditableItemHeader = ({
     setHistoryPopoverState(!historyPopoverOpen);
     !!analyticsMetadata && trackEvent(
       analyticsMetadata.category,
-      `${historyPopoverOpen?'Close':'Open'} History${!!analyticsMetadata.location ? ` for ${analyticsMetadata.location}` : ''}`
+      `${historyPopoverOpen?'Close':'Open'} History${analyticsMetadata.location ? ` for ${analyticsMetadata.location}` : ''}`
     );
   };
 
@@ -168,8 +168,8 @@ const EditableItemHeader = ({
           <HistoryPopover />
         </Overlay>
 
-        {data.state === 'resolved' && <small>
-          {t('resolvedLabel')}
+        {(data.state === 'resolved' || data.state === 'review') && <small>
+          {t(`${data.state}Label`)}
         </small>}
       </div>
     </h4>

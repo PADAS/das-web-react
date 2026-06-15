@@ -4,7 +4,10 @@ import evaluateIsEmptyCondition from './evaluateIsEmptyCondition';
 import evaluateIsExactlyCondition from './evaluateIsExactlyCondition';
 import evaluateIsNotContainedByCondition from './evaluateIsNotContainedByCondition';
 import evaluateIsNotEmptyCondition from './evaluateIsNotEmptyCondition';
-import { FORM_ELEMENT_LOGIC_CONDITION_OPERATORS } from '../../../../../utils/v2-event-schemas/constants';
+import {
+  FORM_ELEMENT_LOGIC_CONDITION_OPERATORS,
+  SECTION_ELEMENT_CONDITIONS_LOGICAL_OPERATORS,
+} from '../../../../../utils/v2-event-schemas/constants';
 
 import evaluateSectionConditions from './';
 
@@ -86,8 +89,21 @@ describe('ReportManager - DetailsSection - SchemaForm - utils - evaluateSectionC
     jest.resetAllMocks();
   });
 
-  test('evaluates a section with a CONTAINS condition', () => {
-    expect(evaluateSectionConditions(sectionConditions, formData)).toBe(true);
+  test('passes the evaluation of a section if there are no conditions', () => {
+    expect(evaluateSectionConditions([], SECTION_ELEMENT_CONDITIONS_LOGICAL_OPERATORS.AND, formData)).toBe(true);
+    expect(evaluateSectionConditions([], SECTION_ELEMENT_CONDITIONS_LOGICAL_OPERATORS.OR, formData)).toBe(true);
+    expect(evaluateContainsCondition).not.toHaveBeenCalled();
+    expect(evaluateIsContainedByCondition).not.toHaveBeenCalled();
+    expect(evaluateIsEmptyCondition).not.toHaveBeenCalled();
+    expect(evaluateIsExactlyCondition).not.toHaveBeenCalled();
+    expect(evaluateIsNotContainedByCondition).not.toHaveBeenCalled();
+    expect(evaluateIsNotEmptyCondition).not.toHaveBeenCalled();
+  });
+
+  test('evaluates a section with a CONTAINS condition operator', () => {
+    expect(
+      evaluateSectionConditions(sectionConditions, SECTION_ELEMENT_CONDITIONS_LOGICAL_OPERATORS.AND, formData)
+    ).toBe(true);
     expect(evaluateContainsCondition).toHaveBeenCalledTimes(1);
     expect(evaluateContainsCondition).toHaveBeenCalledWith(formData.name, sectionConditions[0].value);
     expect(evaluateIsContainedByCondition).not.toHaveBeenCalled();
@@ -97,11 +113,13 @@ describe('ReportManager - DetailsSection - SchemaForm - utils - evaluateSectionC
     expect(evaluateIsNotEmptyCondition).not.toHaveBeenCalled();
   });
 
-  test('evaluates a section with a IS_CONTAINED_BY condition', () => {
+  test('evaluates a section with a IS_CONTAINED_BY condition operator', () => {
     sectionConditions[0].operator = FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_CONTAINED_BY;
     sectionConditions[0].value = ['Ranger 1', 'Ranger 2', 'Ranger 3'];
 
-    expect(evaluateSectionConditions(sectionConditions, formData)).toBe(true);
+    expect(
+      evaluateSectionConditions(sectionConditions, SECTION_ELEMENT_CONDITIONS_LOGICAL_OPERATORS.AND, formData)
+    ).toBe(true);
     expect(evaluateContainsCondition).not.toHaveBeenCalled();
     expect(evaluateIsContainedByCondition).toHaveBeenCalledTimes(1);
     expect(evaluateIsContainedByCondition).toHaveBeenCalledWith(formData.name, sectionConditions[0].value);
@@ -111,10 +129,12 @@ describe('ReportManager - DetailsSection - SchemaForm - utils - evaluateSectionC
     expect(evaluateIsNotEmptyCondition).not.toHaveBeenCalled();
   });
 
-  test('evaluates a section with a IS_EMPTY condition', () => {
+  test('evaluates a section with a IS_EMPTY condition operator', () => {
     sectionConditions[0].operator = FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_EMPTY;
 
-    expect(evaluateSectionConditions(sectionConditions, formData)).toBe(true);
+    expect(
+      evaluateSectionConditions(sectionConditions, SECTION_ELEMENT_CONDITIONS_LOGICAL_OPERATORS.AND, formData)
+    ).toBe(true);
     expect(evaluateContainsCondition).not.toHaveBeenCalled();
     expect(evaluateIsContainedByCondition).not.toHaveBeenCalled();
     expect(evaluateIsEmptyCondition).toHaveBeenCalledTimes(1);
@@ -124,10 +144,12 @@ describe('ReportManager - DetailsSection - SchemaForm - utils - evaluateSectionC
     expect(evaluateIsNotEmptyCondition).not.toHaveBeenCalled();
   });
 
-  test('evaluates a section with a IS_EXACTLY condition', () => {
+  test('evaluates a section with a IS_EXACTLY condition operator', () => {
     sectionConditions[0].operator = FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_EXACTLY;
 
-    expect(evaluateSectionConditions(sectionConditions, formData)).toBe(true);
+    expect(
+      evaluateSectionConditions(sectionConditions, SECTION_ELEMENT_CONDITIONS_LOGICAL_OPERATORS.AND, formData)
+    ).toBe(true);
     expect(evaluateContainsCondition).not.toHaveBeenCalled();
     expect(evaluateIsContainedByCondition).not.toHaveBeenCalled();
     expect(evaluateIsEmptyCondition).not.toHaveBeenCalled();
@@ -137,11 +159,13 @@ describe('ReportManager - DetailsSection - SchemaForm - utils - evaluateSectionC
     expect(evaluateIsNotEmptyCondition).not.toHaveBeenCalled();
   });
 
-  test('evaluates a section with a IS_NOT_CONTAINED_BY condition', () => {
+  test('evaluates a section with a IS_NOT_CONTAINED_BY condition operator', () => {
     sectionConditions[0].operator = FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_NOT_CONTAINED_BY;
     sectionConditions[0].value = ['Ranger 4', 'Ranger 5', 'Ranger 6'];
 
-    expect(evaluateSectionConditions(sectionConditions, formData)).toBe(true);
+    expect(
+      evaluateSectionConditions(sectionConditions, SECTION_ELEMENT_CONDITIONS_LOGICAL_OPERATORS.AND, formData)
+    ).toBe(true);
     expect(evaluateContainsCondition).not.toHaveBeenCalled();
     expect(evaluateIsContainedByCondition).not.toHaveBeenCalled();
     expect(evaluateIsEmptyCondition).not.toHaveBeenCalled();
@@ -151,10 +175,12 @@ describe('ReportManager - DetailsSection - SchemaForm - utils - evaluateSectionC
     expect(evaluateIsNotEmptyCondition).not.toHaveBeenCalled();
   });
 
-  test('evaluates a section with a IS_NOT_EMPTY condition', () => {
+  test('evaluates a section with a IS_NOT_EMPTY condition operator', () => {
     sectionConditions[0].operator = FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_NOT_EMPTY;
 
-    expect(evaluateSectionConditions(sectionConditions, formData)).toBe(true);
+    expect(
+      evaluateSectionConditions(sectionConditions, SECTION_ELEMENT_CONDITIONS_LOGICAL_OPERATORS.AND, formData)
+    ).toBe(true);
     expect(evaluateContainsCondition).not.toHaveBeenCalled();
     expect(evaluateIsContainedByCondition).not.toHaveBeenCalled();
     expect(evaluateIsEmptyCondition).not.toHaveBeenCalled();
@@ -164,72 +190,112 @@ describe('ReportManager - DetailsSection - SchemaForm - utils - evaluateSectionC
     expect(evaluateIsNotEmptyCondition).toHaveBeenCalledWith(formData.name);
   });
 
-  test('passes the evaluate of a section with multiple conditions if all conditions pass', () => {
-    sectionConditions = [
-      {
-        field: 'name',
-        operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.CONTAINS,
-        value: 'Ranger',
-      },
-      {
-        field: 'age',
-        operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_NOT_EMPTY,
-      },
-      {
-        field: 'nationality',
-        operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_EXACTLY,
-        value: 'Mexican',
-      },
-    ];
-
-    expect(evaluateSectionConditions(sectionConditions, formData)).toBe(true);
-    expect(evaluateContainsCondition).toHaveBeenCalledTimes(1);
-    expect(evaluateContainsCondition).toHaveBeenCalledWith(formData.name, sectionConditions[0].value);
-    expect(evaluateIsContainedByCondition).not.toHaveBeenCalled();
-    expect(evaluateIsEmptyCondition).not.toHaveBeenCalled();
-    expect(evaluateIsExactlyCondition).toHaveBeenCalledTimes(1);
-    expect(evaluateIsExactlyCondition).toHaveBeenCalledWith(formData.nationality, sectionConditions[2].value);
-    expect(evaluateIsNotContainedByCondition).not.toHaveBeenCalled();
-    expect(evaluateIsNotEmptyCondition).toHaveBeenCalledTimes(1);
-    expect(evaluateIsNotEmptyCondition).toHaveBeenCalledWith(formData.age);
-  });
-
-  test('fails the evaluate of a section with multiple conditions if any condition fails', () => {
-    evaluateIsExactlyCondition.mockImplementation(() => false);
-
-    sectionConditions = [
-      {
-        field: 'name',
-        operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.CONTAINS,
-        value: 'Ranger',
-      },
-      {
-        field: 'age',
-        operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_NOT_EMPTY,
-      },
-      {
-        field: 'nationality',
-        operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_EXACTLY,
-        value: 'Mexican',
-      },
-    ];
-
-    expect(evaluateSectionConditions(sectionConditions, formData)).toBe(false);
-    expect(evaluateContainsCondition).toHaveBeenCalledTimes(1);
-    expect(evaluateContainsCondition).toHaveBeenCalledWith(formData.name, sectionConditions[0].value);
-    expect(evaluateIsContainedByCondition).not.toHaveBeenCalled();
-    expect(evaluateIsEmptyCondition).not.toHaveBeenCalled();
-    expect(evaluateIsExactlyCondition).toHaveBeenCalledTimes(1);
-    expect(evaluateIsExactlyCondition).toHaveBeenCalledWith(formData.nationality, sectionConditions[2].value);
-    expect(evaluateIsNotContainedByCondition).not.toHaveBeenCalled();
-    expect(evaluateIsNotEmptyCondition).toHaveBeenCalledTimes(1);
-    expect(evaluateIsNotEmptyCondition).toHaveBeenCalledWith(formData.age);
-  });
-
-  test('evaluates a section with an invalid operator', () => {
+  it('evaluates a section with an invalid condition operator', () => {
     sectionConditions[0].operator = 'INVALID_OPERATOR';
 
-    expect(evaluateSectionConditions(sectionConditions, formData)).toBe(false);
+    expect(
+      evaluateSectionConditions(sectionConditions, SECTION_ELEMENT_CONDITIONS_LOGICAL_OPERATORS.AND, formData)
+    ).toBe(false);
+    expect(evaluateContainsCondition).not.toHaveBeenCalled();
+    expect(evaluateIsContainedByCondition).not.toHaveBeenCalled();
+    expect(evaluateIsEmptyCondition).not.toHaveBeenCalled();
+    expect(evaluateIsExactlyCondition).not.toHaveBeenCalled();
+    expect(evaluateIsNotContainedByCondition).not.toHaveBeenCalled();
+    expect(evaluateIsNotEmptyCondition).not.toHaveBeenCalled();
+  });
+
+  test('passes the evaluation of a section with multiple conditions and AND operator if all conditions pass', () => {
+    const multipleConditions = [
+      { field: 'name', operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.CONTAINS, value: 'Ranger' },
+      { field: 'nationality', operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.CONTAINS, value: 'Mexican' },
+    ];
+
+    expect(
+      evaluateSectionConditions(multipleConditions, SECTION_ELEMENT_CONDITIONS_LOGICAL_OPERATORS.AND, formData)
+    ).toBe(true);
+    expect(evaluateContainsCondition).toHaveBeenCalledTimes(2);
+    expect(evaluateContainsCondition).toHaveBeenCalledWith(formData.name, multipleConditions[0].value);
+    expect(evaluateContainsCondition).toHaveBeenCalledWith(formData.nationality, multipleConditions[1].value);
+  });
+
+  test('fails the evaluation of a section with multiple conditions and AND operator if some conditions fail and some pass', () => {
+    evaluateIsExactlyCondition.mockImplementation(() => false);
+    const multipleConditions = [
+      { field: 'name', operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.CONTAINS, value: 'Ranger' },
+      { field: 'age', operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_EXACTLY, value: 99 },
+    ];
+
+    expect(
+      evaluateSectionConditions(multipleConditions, SECTION_ELEMENT_CONDITIONS_LOGICAL_OPERATORS.AND, formData)
+    ).toBe(false);
+    expect(evaluateContainsCondition).toHaveBeenCalledTimes(1);
+    expect(evaluateContainsCondition).toHaveBeenCalledWith(formData.name, multipleConditions[0].value);
+    expect(evaluateIsExactlyCondition).toHaveBeenCalledTimes(1);
+    expect(evaluateIsExactlyCondition).toHaveBeenCalledWith(formData.age, multipleConditions[1].value);
+  });
+
+  test('fails the evaluation of a section with multiple conditions and AND operator if all conditions fail', () => {
+    evaluateContainsCondition.mockImplementation(() => false);
+    const multipleConditions = [
+      { field: 'name', operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.CONTAINS, value: 'something' },
+      { field: 'nationality', operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.CONTAINS, value: 'else' },
+    ];
+
+    expect(
+      evaluateSectionConditions(multipleConditions, SECTION_ELEMENT_CONDITIONS_LOGICAL_OPERATORS.AND, formData)
+    ).toBe(false);
+    // Array.every short-circuits on first false
+    expect(evaluateContainsCondition).toHaveBeenCalledTimes(1);
+    expect(evaluateContainsCondition).toHaveBeenCalledWith(formData.name, multipleConditions[0].value);
+  });
+
+  test('passes the evaluation of a section with multiple conditions and OR operator if all conditions pass', () => {
+    const multipleConditions = [
+      { field: 'name', operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.CONTAINS, value: 'Ranger' },
+      { field: 'nationality', operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.CONTAINS, value: 'Mexican' },
+    ];
+
+    expect(
+      evaluateSectionConditions(multipleConditions, SECTION_ELEMENT_CONDITIONS_LOGICAL_OPERATORS.OR, formData)
+    ).toBe(true);
+    // Array.some short-circuits on first true
+    expect(evaluateContainsCondition).toHaveBeenCalledTimes(1);
+    expect(evaluateContainsCondition).toHaveBeenCalledWith(formData.name, multipleConditions[0].value);
+  });
+
+  test('passes the evaluation of a section with multiple conditions and OR operator if some conditions fail and some pass', () => {
+    evaluateIsExactlyCondition.mockImplementation(() => false);
+    const multipleConditions = [
+      { field: 'age', operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.IS_EXACTLY, value: 99 },
+      { field: 'name', operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.CONTAINS, value: 'Ranger' },
+    ];
+
+    expect(
+      evaluateSectionConditions(multipleConditions, SECTION_ELEMENT_CONDITIONS_LOGICAL_OPERATORS.OR, formData)
+    ).toBe(true);
+    expect(evaluateIsExactlyCondition).toHaveBeenCalledTimes(1);
+    expect(evaluateIsExactlyCondition).toHaveBeenCalledWith(formData.age, multipleConditions[0].value);
+    expect(evaluateContainsCondition).toHaveBeenCalledTimes(1);
+    expect(evaluateContainsCondition).toHaveBeenCalledWith(formData.name, multipleConditions[1].value);
+  });
+
+  test('fails the evaluation of a section with multiple conditions and OR operator if all conditions fail', () => {
+    evaluateContainsCondition.mockImplementation(() => false);
+    const multipleConditions = [
+      { field: 'name', operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.CONTAINS, value: 'something' },
+      { field: 'nationality', operator: FORM_ELEMENT_LOGIC_CONDITION_OPERATORS.CONTAINS, value: 'else' },
+    ];
+
+    expect(
+      evaluateSectionConditions(multipleConditions, SECTION_ELEMENT_CONDITIONS_LOGICAL_OPERATORS.OR, formData)
+    ).toBe(false);
+    expect(evaluateContainsCondition).toHaveBeenCalledTimes(2);
+    expect(evaluateContainsCondition).toHaveBeenCalledWith(formData.name, multipleConditions[0].value);
+    expect(evaluateContainsCondition).toHaveBeenCalledWith(formData.nationality, multipleConditions[1].value);
+  });
+
+  test('passes the evaluation of a section if the conditions logical operator is not valid', () => {
+    expect(evaluateSectionConditions(sectionConditions, 'INVALID_LOGICAL_OPERATOR', formData)).toBe(false);
     expect(evaluateContainsCondition).not.toHaveBeenCalled();
     expect(evaluateIsContainedByCondition).not.toHaveBeenCalled();
     expect(evaluateIsEmptyCondition).not.toHaveBeenCalled();

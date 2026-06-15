@@ -28,6 +28,7 @@
     background: transparent;
     border-radius: 50%;
     display: flex;
+    flex-shrink: 0;
     justify-content: center;
     height: 2rem;
     margin-right: 0.25rem;
@@ -50,6 +51,9 @@
 
   .label {
     color: colors.$off-black;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
     width: fit-content;
 
     &:hover {
@@ -58,6 +62,23 @@
 
     &.error {
       color: colors.$bright-red;
+    }
+
+    .display {
+      line-height: 1.375;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .description {
+      color: colors.$alt-light-gray;
+      font-size: 0.875rem;
+      font-weight: 400;
+      line-height: 1.25;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   }
 }

@@ -15,7 +15,7 @@ import {
 } from '../../constants';
 import { FEED_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import { fetchNextEventFeedPage } from '../../ducks/events';
-import { MapContext } from '../../App';
+import { MapContext } from '../../MapContext';
 import useNavigate from '../../hooks/useNavigate';
 
 import ColumnSort from '../../ColumnSort';

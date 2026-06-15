@@ -36,12 +36,15 @@
     "cancelButton": "Cancel",
     "saveButton": "Save",
     "stateResolveButton": "Save and resolve",
-    "stateReopenButton": "Save and reopen"
+    "stateReviewButton": "Save and review",
+    "stateReopenButton": "Save and reopen",
+    "stateActivateButton": "Save and activate"
   },
   "header": {
     "historyLinkCreated": "Created",
     "historyLinkUpdated": "Updated",
     "resolvedLabel": "resolved",
+    "reviewLabel": "review",
     "sectionTitle": "History"
   },
   "historySection": {

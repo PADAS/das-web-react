@@ -8,11 +8,12 @@ const DATE_JSON_SCHEMA_FORMAT_TO_INPUT_TYPE = {
 
 const transformDateTimeField = (
   dateTimeFieldId,
+  dateTimeFieldName,
   jsonSchema,
   _uiSchema,
   formElements,
 ) => {
-  const dateTimeFieldJSONSchema = jsonSchema.properties[dateTimeFieldId];
+  const dateTimeFieldJSONSchema = jsonSchema.properties[dateTimeFieldName];
 
   // Add the date-time field form element specific properties.
   formElements[dateTimeFieldId].details = {

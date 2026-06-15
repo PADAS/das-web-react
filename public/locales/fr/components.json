@@ -18,6 +18,11 @@
       "noOptionsMessage": "Aucune option à afficher"
     }
   },
+  "communityPage": {
+    "formSubmitted": "Formulaire envoyé",
+    "invalidCommunityUrl": "URL de communauté non valide",
+    "searchPlaceholder": "Rechercher des types d'événement..."
+  },
   "datePicker": {
     "calendarPopper": {
       "menuButtonLabel": "Ouvrir le calendrier",
@@ -196,6 +201,20 @@
     "newVersionAvailableNotification": "Une nouvelle version de EarthRanger est disponible. Elle sera appliquée la prochaine fois que vous actualiserez votre navigateur. "
   },
   "sideBar": {
+    "closeGearTabButtonLabel": "Fermer les engins",
+    "gearLink": "Engins",
+    "gearTab": {
+      "loadErrorFallback": "Échec de la requête",
+      "loadErrorIntro": "Impossible de charger les engins depuis le serveur.",
+      "loading": "Mise à jour…",
+      "loadingInitial": "Chargement des engins…",
+      "loadingList": "Chargement de la liste complète…",
+      "noSearchResults": "Aucun ensemble ne correspond à la recherche.",
+      "retryButton": "Réessayer",
+      "searchFormAriaLabel": "Rechercher des engins",
+      "searchPlaceholder": "Rechercher par nom",
+      "unknownManufacturer": "Autre"
+    },
     "layersLink": "Calques",
     "mapLayersTab": {
       "analyzersTabTitle": "Barriere Virtuelle",
@@ -334,13 +353,17 @@
     "periodInputLabel": "Partie de la journée"
   },
   "timeSlider": {
+    "closeButtonLabel": "Fermer le curseur temporel",
+    "dateRangeButtonLabel": "Modifier la plage de dates",
+    "endDateNowSliderLabel": "Maintenant",
     "popoverHeader": "Intervalle de Dates",
     "popoverResetButton": "Réinitialiser",
-    "slider": "Curseur Temporel",
+    "sliderLabel": "Curseur Temporel",
     "timeSliderMapControl": {
       "iconTitle": "Curseur Temporel"
     },
-    "untilNowButton": "Maintenant"
+    "playButtonLabel": "Lancer le curseur temporel",
+    "stopButtonLabel": "Arrêter le curseur temporel"
   },
   "toastBody": {
     "defaultLinkTitle": "Cliquez ici  ",

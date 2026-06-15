@@ -82,20 +82,23 @@
     @include priority0;
   }
 
-  svg {
-    fill: currentColor;
-  }
-
-  svg {
+  svg,
+  img {
     width: 2rem;
     height: 2rem;
+    fill: white;
+    color: white;
+
+    &[class*=newPatrol] {
+      fill: $dark-gray;
+    }
 
     @media (min-width: $md-layout-width-min) {
-      width: 2rem;
-      height: 2rem;
+      width: 2.75rem;
+      height: 2.75rem;
     }
   }
-  
+
   @media (min-width: $md-layout-width-min) {
     min-width: 4.5rem;
     width: 4.5rem;

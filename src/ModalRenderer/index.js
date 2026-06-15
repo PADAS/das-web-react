@@ -3,7 +3,7 @@ import Modal from 'react-bootstrap/Modal';
 import { useDispatch, useSelector } from 'react-redux';
 
 import ImageModal from '../ImageModal';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { removeModal } from '../ducks/modals';
 
 import * as styles from './styles.module.scss';

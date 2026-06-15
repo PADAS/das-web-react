@@ -9,7 +9,7 @@ import { GPS_FORMATS } from '../utils/location';
 import useJumpToLocation from '../hooks/useJumpToLocation';
 import { mockStore } from '../__test-helpers/MockStore';
 
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 
 import LocationPicker from './';
 

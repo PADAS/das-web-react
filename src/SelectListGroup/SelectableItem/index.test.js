@@ -1,229 +1,192 @@
 import React from 'react';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen } from '../../test-utils';
+import { render, screen, within } from '../../test-utils';
 
 import SelectableItem from './';
 
 describe('SelectListGroup - SelectableItem', () => {
+  const onClick = jest.fn();
 
-  const defaultProps = {
-    disabled: false,
-    isChecked: true,
-    id: 'item-123',
-    label: 'This is a checkbox',
-    onClick: () => {},
-    readOnly: false,
-    value: 110,
-    isMulti: true,
-    invalid: false,
-    groupId: 'selectable-group-id',
-  };
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
 
-  const renderSelectableItem = (props = defaultProps) => render(
-    <SelectableItem {...props} />
+  const renderSelectableItem = (props) => render(
+    <SelectableItem
+      groupId="species-field"
+      id="buffalo_african"
+      invalid={false}
+      isChecked={false}
+      label="Buffalo"
+      onClick={onClick}
+      readOnly={false}
+      ref={null}
+      value="buffalo_african"
+      {...props}
+    />,
   );
 
-  const testSelectableItemHasChangedWithClick = async (queryClickableElement, expectedIsChecked, props = {}) => {
-    const onClick = jest.fn();
-
-    renderSelectableItem({
-      ...defaultProps,
-      ...props,
-      onClick,
-    });
-
-    expect(onClick).not.toHaveBeenCalled();
-
-    await userEvent.click(queryClickableElement());
-
-    expect(onClick).toHaveBeenCalledTimes(1);
-    expect(onClick).toHaveBeenCalledWith(110, expectedIsChecked);
-  };
-
-  const testSelectableItemHasChangedUsingKeyboard = async (keyboardKey, expectedIsChecked, props = {}) => {
-    const onClick = jest.fn();
-    const itemProps = {
-      ...defaultProps,
-      ...props
-    };
-    const role = itemProps.isMulti ? 'checkbox' : 'radio';
-
-    renderSelectableItem({
-      ...itemProps,
-      onClick
-    });
-
-    expect(onClick).not.toHaveBeenCalled();
-
-    const input = screen.getByRole(role);
-
-    input.focus();
-    await userEvent.keyboard(keyboardKey);
-
-    expect(onClick).toHaveBeenCalledTimes(1);
-    expect(onClick).toHaveBeenCalledWith(110, expectedIsChecked);
-  };
-
-  test('shows a proper label', async () => {
+  test('shows a multi-select selectable item', () => {
     renderSelectableItem();
 
-    expect( screen.getByText('This is a checkbox') ).toBeVisible();
+    const wrapper = screen.getByTestId('selectable-item-buffalo_african');
+    const input = screen.getByRole('checkbox', { name: 'Buffalo' });
+    const label = screen.getByText('Buffalo').closest('label');
+
+    expect(input).toBeVisible();
+    expect(input).toHaveAttribute('type', 'checkbox');
+    expect(input).toHaveAttribute('id', 'buffalo_african');
+    expect(input).toHaveAttribute('name', 'buffalo_african');
+    expect(input).not.toHaveAttribute('value');
+    expect(input).not.toBeChecked();
+    expect(input).toBe(screen.getByTestId('input-for-Buffalo'));
+
+    expect(label).toHaveAttribute('for', 'buffalo_african');
+    expect(label).not.toHaveClass('error');
+
+    expect(wrapper).toHaveClass('selectableItem');
+    expect(wrapper).not.toHaveClass('inactive');
+    expect(wrapper.firstElementChild).toHaveClass('ripple');
+    expect(within(wrapper).getByRole('checkbox')).toBe(input);
+
+    expect(screen.queryByTitle('African')).not.toBeInTheDocument();
   });
 
-  describe('Checkbox item', () => {
+  test('shows a single-select selectable item', () => {
+    renderSelectableItem({ isMulti: false });
 
-    test('shows a checked checkbox', async () => {
-      renderSelectableItem();
+    const wrapper = screen.getByTestId('selectable-item-buffalo_african');
+    const input = screen.getByRole('radio', { name: 'Buffalo' });
+    const label = screen.getByText('Buffalo').closest('label');
 
-      const checkbox = screen.getByRole('checkbox');
+    expect(input).toBeVisible();
+    expect(input).toHaveAttribute('type', 'radio');
+    expect(input).toHaveAttribute('id', 'buffalo_african');
+    expect(input).toHaveAttribute('name', 'species-field-option');
+    expect(input).toHaveAttribute('value', 'buffalo_african');
+    expect(input).not.toBeChecked();
+    expect(input).toBe(screen.getByTestId('input-for-Buffalo'));
 
-      expect( checkbox ).toBeChecked();
-    });
+    expect(label).toHaveAttribute('for', 'buffalo_african');
+    expect(label).not.toHaveClass('error');
 
-    test('shows an unchecked checkbox', async () => {
-      renderSelectableItem({
-        ...defaultProps,
-        isChecked: false
-      });
-
-      const checkbox = screen.getByRole('checkbox');
-
-      expect( checkbox ).not.toBeChecked();
-    });
-
-    test('the checkbox is unchecked when user clicks on label', async () => {
-      await testSelectableItemHasChangedWithClick(
-        () => screen.getByText('This is a checkbox'),
-        false
-      );
-    });
-
-    test('the checkbox is checked when user clicks on label', async () => {
-      await testSelectableItemHasChangedWithClick(
-        () => screen.getByText('This is a checkbox'),
-        true,
-        {
-          isChecked: false
-        }
-      );
-    });
-
-    test('the checkbox is unchecked when user focus item and hits space bar', async () => {
-      await testSelectableItemHasChangedUsingKeyboard(
-        '[Space]',
-        false
-      );
-    });
-
-    test('the checkbox is checked when user focus item and types  space bar', async () => {
-      await testSelectableItemHasChangedUsingKeyboard(
-        '[Space]',
-        true,
-        {
-          isChecked: false
-        }
-      );
-    });
-
-    test('checkbox is disabled', async () => {
-      const onClick = jest.fn();
-      renderSelectableItem({
-        ...defaultProps,
-        onClick,
-        disabled: true,
-      });
-
-      expect(onClick).not.toHaveBeenCalled();
-
-      const input = screen.getByRole('checkbox');
-
-      await userEvent.click(input);
-
-      expect(input).toBeDisabled();
-      expect(onClick).not.toHaveBeenCalled();
-    });
-
-    test('checkbox is readOnly', async () => {
-      const onClick = jest.fn();
-      renderSelectableItem({
-        ...defaultProps,
-        onClick,
-        readOnly: true,
-      });
-
-      const input = screen.getByRole('checkbox');
-
-      expect(input).toHaveAttribute('readonly');
-
-      await userEvent.click(input);
-
-      expect(onClick).not.toHaveBeenCalled();
-    });
+    expect(wrapper).toHaveClass('selectableItem');
+    expect(wrapper.firstElementChild).toHaveClass('ripple');
   });
 
-  describe('Radio item', () => {
+  test('shows a disabled selectable item', async () => {
+    const user = userEvent.setup();
+    renderSelectableItem({ disabled: true });
 
-    test('shows a checked radio', async () => {
-      renderSelectableItem({
-        ...defaultProps,
-        label: 'This is a radio',
-        isMulti: false
-      });
+    const input = screen.getByRole('checkbox', { name: 'Buffalo' });
+    const wrapper = screen.getByTestId('selectable-item-buffalo_african');
 
-      const radio = screen.getByRole('radio');
+    expect(input).toBeDisabled();
+    expect(input).not.toHaveAttribute('readonly');
+    expect(wrapper).toHaveClass('inactive');
 
-      expect( radio ).toBeChecked();
-    });
+    await user.click(input);
 
-    test('shows an unchecked radio', async () => {
-      renderSelectableItem({
-        ...defaultProps,
-        label: 'This is a radio',
-        isChecked: false,
-        isMulti: false
-      });
+    expect(onClick).not.toHaveBeenCalled();
+  });
 
-      const radio = screen.getByRole('radio');
+  test('shows a read-only selectable item', async () => {
+    const user = userEvent.setup();
+    renderSelectableItem({ readOnly: true });
 
-      expect( radio ).not.toBeChecked();
-    });
+    const input = screen.getByRole('checkbox', { name: 'Buffalo' });
+    const wrapper = screen.getByTestId('selectable-item-buffalo_african');
 
-    test('radio is disabled', async () => {
-      const onClick = jest.fn();
-      renderSelectableItem({
-        ...defaultProps,
-        onClick,
-        disabled: true,
-        isMulti: false
-      });
+    expect(input).not.toBeDisabled();
+    expect(input).toHaveAttribute('readonly');
+    expect(wrapper).toHaveClass('inactive');
 
-      expect(onClick).not.toHaveBeenCalled();
+    await user.click(input);
 
-      const input = screen.getByRole('radio');
+    expect(onClick).not.toHaveBeenCalled();
+  });
 
-      await userEvent.click(input);
+  test('shows a checked selectable item', () => {
+    renderSelectableItem({ isChecked: true });
 
-      expect(input).toBeDisabled();
-      expect(onClick).not.toHaveBeenCalled();
-    });
+    const input = screen.getByRole('checkbox', { name: 'Buffalo' });
 
-    test('radio is readOnly', async () => {
-      const onClick = jest.fn();
-      renderSelectableItem({
-        ...defaultProps,
-        onClick,
-        readOnly: true,
-        isMulti: false
-      });
+    expect(input).toHaveAttribute('type', 'checkbox');
+    expect(input).toBeChecked();
+  });
 
-      const input = screen.getByRole('radio');
+  test('shows an invalid selectable item', () => {
+    renderSelectableItem({ invalid: true });
 
-      expect(input).toHaveAttribute('readonly');
+    expect(screen.getByText('Buffalo').closest('label')).toHaveClass('error');
+  });
 
-      await userEvent.click(input);
+  test('shows the label of the selectable item', () => {
+    renderSelectableItem();
 
-      expect(onClick).not.toHaveBeenCalled();
-    });
+    const input = screen.getByRole('checkbox', { name: 'Buffalo' });
+    const display = screen.getByTitle('Buffalo');
+
+    expect(input).toBeInTheDocument();
+    expect(display).toHaveTextContent('Buffalo');
+    expect(display).toHaveClass('display');
+  });
+
+  test('shows a description of the selectable item', () => {
+    renderSelectableItem({ description: 'African' });
+
+    const input = screen.getByRole('checkbox', { name: /Buffalo.*African/i });
+    const description = screen.getByTitle('African');
+
+    expect(input).toBeInTheDocument();
+    expect(description).toHaveTextContent('African');
+    expect(description).toHaveClass('description');
+  });
+
+  test('does not render a description span when description is omitted', () => {
+    renderSelectableItem();
+
+    expect(screen.queryByRole('checkbox', { name: /Buffalo.*African/i })).not.toBeInTheDocument();
+    expect(document.querySelector('.description')).toBeNull();
+  });
+
+  test('merges className onto the wrapper', () => {
+    renderSelectableItem({ className: 'custom-row' });
+
+    expect(screen.getByTestId('selectable-item-buffalo_african')).toHaveClass('selectableItem', 'custom-row');
+  });
+
+  test('forwards ref to the input element', () => {
+    const ref = React.createRef();
+    renderSelectableItem({ ref });
+
+    expect(ref.current).toBe(screen.getByRole('checkbox', { name: 'Buffalo' }));
+  });
+
+  test('spreads additional props onto the input', () => {
+    renderSelectableItem({ 'aria-required': 'true' });
+
+    expect(screen.getByRole('checkbox', { name: 'Buffalo' })).toHaveAttribute('aria-required', 'true');
+  });
+
+  test('calls the onClick callback when the user selects an unchecked item', async () => {
+    const user = userEvent.setup();
+    renderSelectableItem();
+
+    await user.click(screen.getByRole('checkbox', { name: 'Buffalo' }));
+
+    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(onClick).toHaveBeenCalledWith('buffalo_african', true);
+  });
+
+  test('calls the onClick callback when the user clears a checked item', async () => {
+    const user = userEvent.setup();
+    renderSelectableItem({ isChecked: true });
+
+    await user.click(screen.getByRole('checkbox', { name: 'Buffalo' }));
+
+    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(onClick).toHaveBeenCalledWith('buffalo_african', false);
   });
 });

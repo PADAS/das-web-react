@@ -7,6 +7,7 @@ import { generateStorageConfig } from './storage-config';
 import coordinateReferenceSystemsReducer from '../ducks/coordinate-reference-systems';
 import tokenReducer, { masterRequestTokenReducer } from '../ducks/auth';
 import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedReducer } from '../ducks/events';
+import communityReducer from '../ducks/community';
 import eventCategoriesReducer from '../ducks/event-categories';
 import eventTypesReducer from '../ducks/event-types';
 import observationsReducer from '../ducks/observations';
@@ -17,6 +18,7 @@ import mapsReducer, { homeMapReducer } from '../ducks/maps';
 import mapPositionReducer, { persistenceConfig as mapPositionPersistenceConfig } from '../ducks/map-position';
 import tracksReducer, { trackSettingsReducer } from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer, subjectStoreReducer } from '../ducks/subjects';
+import gearReducer from '../ducks/gear';
 import systemConfigReducer from '../ducks/system-config';
 import systemStatusReducer from '../ducks/system-status';
 import {
@@ -86,6 +88,7 @@ const rootReducer = combineReducers({
     patrolStore: patrolStoreReducer,
     feedEvents: eventFeedReducer,
     feedIncidents: incidentFeedReducer,
+    community: communityReducer,
     locallyEditedEvent: locallyEditedEventReducer,
     mapEvents: mapEventsReducer,
     eula: eulaReducer,
@@ -95,6 +98,7 @@ const rootReducer = combineReducers({
     eventCategories: eventCategoriesReducer,
     eventTypes: eventTypesReducer,
     featureSets: persistReducer(featureSetsPersistenceConfig, featuresReducer),
+    gear: gearReducer,
     mapLayerFilter: persistReducer(
       mapLayerFilterPersistenceConfig,
       mapLayerFilterReducer,

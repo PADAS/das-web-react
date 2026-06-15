@@ -539,6 +539,105 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - useSchemaValidat
     });
   });
 
+  it('returns the default keyword validation error for unhandled AJV keywords', () => {
+    schema.json.properties.text = {
+      default: '',
+      deprecated: false,
+      description: '',
+      title: 'Text field',
+      type: 'string',
+    };
+    schema.json.required = ['text'];
+    schema.ui.fields.text = {
+      inputType: 'SHORT_TEXT',
+      placeholder: '',
+      type: 'TEXT',
+      parent: 'section-_PdgePvPWyACfu9sgN_F6',
+    };
+    schema.ui.sections['section-_PdgePvPWyACfu9sgN_F6'].leftColumn = [
+      {
+        name: 'text',
+        type: 'field',
+      },
+    ];
+    const formData = { text: ['Invalid text value'] };
+
+    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+
+    const runValidations = result.current;
+
+    expect(runValidations(formData)).toEqual({
+      text: {
+        message: 'Invalid value.',
+      },
+    });
+  });
+
+  it('returns the default keyword validation error for unhandled AJV keywords when the error params include additionalProperty', () => {
+    schema.json.properties.knownField = {
+      default: '',
+      deprecated: false,
+      description: '',
+      title: 'Known field',
+      type: 'string',
+    };
+    schema.json.additionalProperties = false;
+    schema.ui.fields.knownField = {
+      inputType: 'SHORT_TEXT',
+      placeholder: '',
+      type: 'TEXT',
+      parent: 'section-_PdgePvPWyACfu9sgN_F6',
+    };
+    schema.ui.sections['section-_PdgePvPWyACfu9sgN_F6'].leftColumn = [
+      {
+        name: 'knownField',
+        type: 'field',
+      },
+    ];
+    const formData = { knownField: 'ok', unexpectedKey: 1 };
+
+    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+
+    const runValidations = result.current;
+
+    expect(runValidations(formData)).toEqual({
+      unexpectedKey: {
+        message: 'Invalid value.',
+      },
+    });
+  });
+
+  it('returns the default keyword validation error for unhandled AJV keywords when the error params include unevaluatedProperty', () => {
+    const formData = { rogueField: 123 };
+
+    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+
+    const runValidations = result.current;
+
+    expect(runValidations(formData)).toEqual({
+      rogueField: {
+        message: 'Invalid value.',
+      },
+    });
+  });
+
+  it('returns the default keyword validation error for unhandled AJV keywords when the error params include propertyName', () => {
+    schema.json.unevaluatedProperties = true;
+    schema.json.propertyNames = { pattern: '^[a-z]+$' };
+    schema.json.additionalProperties = true;
+    const formData = { BadKey: 1 };
+
+    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+
+    const runValidations = result.current;
+
+    expect(runValidations(formData)).toEqual(expect.objectContaining({
+      BadKey: {
+        message: 'Invalid value.',
+      },
+    }));
+  });
+
   it('injects nested errors in collection item forms', () => {
     schema.json.properties.collection_1 = {
       deprecated: false,
@@ -590,34 +689,34 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - useSchemaValidat
       buttonText: '',
       columns: 1,
       itemIdentifier: '',
-      leftColumn: ['collection_2'],
+      leftColumn: ['collection_1.collection_2'],
       parent: 'section-_PdgePvPWyACfu9sgN_F6',
       rightColumn: [],
       type: 'COLLECTION',
     };
-    schema.ui.fields.collection_2 = {
+    schema.ui.fields['collection_1.collection_2'] = {
       buttonText: '',
       columns: 1,
       itemIdentifier: '',
-      leftColumn: ['collection_3'],
+      leftColumn: ['collection_1.collection_2.collection_3'],
       parent: 'collection_1',
       rightColumn: [],
       type: 'COLLECTION',
     };
-    schema.ui.fields.collection_3 = {
+    schema.ui.fields['collection_1.collection_2.collection_3'] = {
       buttonText: '',
       columns: 1,
       itemIdentifier: '',
-      leftColumn: ['text_1'],
-      parent: 'collection_2',
+      leftColumn: ['collection_1.collection_2.collection_3.text_1'],
+      parent: 'collection_1.collection_2',
       rightColumn: [],
       type: 'COLLECTION',
     };
-    schema.ui.fields.text_1 = {
+    schema.ui.fields['collection_1.collection_2.collection_3.text_1'] = {
       inputType: 'SHORT_TEXT',
       placeholder: '',
       type: 'TEXT',
-      parent: 'collection_3',
+      parent: 'collection_1.collection_2.collection_3',
     };
     schema.ui.sections['section-_PdgePvPWyACfu9sgN_F6'].leftColumn = [
       {
