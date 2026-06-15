@@ -69,20 +69,29 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
 
   // Use refs so the callback doesn't need to be recreated when these frequently-changing
   // values update — their respective effects (and sourcedata) drive the marker refresh,
-  // and the callback reads the latest values from the refs at call time.
+  // and the callback reads the latest values from the refs at call time. These refs are read
+  // ONLY inside the async updateClusterMarkersCallback and the effects below, never during
+  // render output; the synchronous render-phase assignment guarantees they hold the latest
+  // value before any effect/callback runs, so the react-hooks/refs warning is intentionally
+  // disabled here.
   const mapImagesRef = useRef(mapImages);
+  // eslint-disable-next-line react-hooks/refs
   mapImagesRef.current = mapImages;
 
   const locallyEditedEventRef = useRef(locallyEditedEvent);
+  // eslint-disable-next-line react-hooks/refs
   locallyEditedEventRef.current = locallyEditedEvent;
 
   const addClusterPolygonRef = useRef(addClusterPolygon);
+  // eslint-disable-next-line react-hooks/refs
   addClusterPolygonRef.current = addClusterPolygon;
 
   const removeClusterPolygonRef = useRef(removeClusterPolygon);
+  // eslint-disable-next-line react-hooks/refs
   removeClusterPolygonRef.current = removeClusterPolygon;
 
   const onShowClusterSelectPopupRef = useRef(onShowClusterSelectPopup);
+  // eslint-disable-next-line react-hooks/refs
   onShowClusterSelectPopupRef.current = onShowClusterSelectPopup;
 
   // The callback intentionally reads these values from refs so its identity stays stable
