@@ -39,6 +39,9 @@ const manufacturerStateKey = (manufacturerKey) => (manufacturerKey === '' ? '__o
 const gearGroupTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 const GEAR_JUMP_ZOOM = 14;
+// Approximate downward screen-space offset (px) applied when jumping, so the bottom-anchored gear
+// popup has room to open below the gear without clipping the top of the viewport. The value is
+// approximate; tall popups (many devices) may still clip.
 const GEAR_POPUP_CENTER_OFFSET = [0, 175];
 
 const GearListItem = memo(({ ...gear }) => {

@@ -13,8 +13,7 @@ const sortByLastDeployed = (a, b) => {
   if (!a.last_deployed && !b.last_deployed) return 0;
   if (!a.last_deployed) return 1;
   if (!b.last_deployed) return -1;
-  if (a.last_deployed === b.last_deployed) return 0;
-  return a.last_deployed > b.last_deployed ? 1 : -1;
+  return new Date(a.last_deployed) - new Date(b.last_deployed);
 };
 
 const GearPopup = ({ data }) => {
@@ -25,7 +24,7 @@ const GearPopup = ({ data }) => {
   const mostRecentDate = useMemo(() => {
     const lastDeployedDeviceDate = (gear?.devices || []).reduce((best, device) => {
       if (!device.last_deployed) return best;
-      return !best || device.last_deployed > best ? device.last_deployed : best;
+      return !best || new Date(device.last_deployed) > new Date(best) ? device.last_deployed : best;
     }, null);
     return lastDeployedDeviceDate || gear?.last_updated;
   }, [gear]);
