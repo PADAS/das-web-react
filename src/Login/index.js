@@ -143,6 +143,16 @@ const LoginPage = () => {
     }
   }, [dispatch, location.search, t]);
 
+  // Surface a retryable error when the post-Auth0 account-linking gate could
+  // not complete — a transient gate failure, or a missing link URL on the
+  // unlinked branch. Auth0TokenManager routes those cases here via router state.
+  useEffect(() => {
+    if (location.state?.authLinkingError) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setAlertMessage(t('errorAlert.signInIncomplete'));
+    }
+  }, [location.state, t]);
+
   return <div className={styles.container}>
     <EarthRangerLogo aria-label="EarthRanger" className={styles.logo} role="img" />
 

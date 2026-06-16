@@ -6,6 +6,7 @@
     "authenticationError": "प्रमाणीकरण त्रुटि: {{errorDescription}}",
     "invalidCredentialsMessage": "गलत प्रमाणहरु दिइयो । कृपया पुनः प्रयास गर्नुहोस् ।",
     "signInFailed": "साइन इन असफल भयो। कृपया पुनः प्रयास गर्नुहोस्।",
+    "signInIncomplete": "हामी तपाईंको साइन इन पूरा गर्न सकेनौं। कृपया पुनः प्रयास गर्नुहोस्।",
     "unknownErrorMessage": "केही त्रुटी भएको छ । कृपया पुनः प्रयास गर्नुहोस् ।"
   },
   "errors": {
