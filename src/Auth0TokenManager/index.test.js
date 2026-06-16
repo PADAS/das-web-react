@@ -7,6 +7,9 @@ import Auth0TokenManager from './';
 import { hasAuth0CallbackParams } from '../utils/auth0';
 import { isValidTokenFormat } from '../utils/auth';
 import useNavigate from '../hooks/useNavigate';
+import { GATE_RESULT, SET_AUTH0_CALLBACK_IN_PROGRESS, checkAccountLinked } from '../ducks/account-linking';
+import { POST_AUTH_SUCCESS } from '../ducks/auth';
+import { redirectToExternalUrl } from '../utils/navigation';
 
 jest.mock('@auth0/auth0-react');
 jest.mock('react-redux');
@@ -14,16 +17,26 @@ jest.mock('react-router');
 jest.mock('../utils/auth0');
 jest.mock('../utils/auth');
 jest.mock('../hooks/useNavigate');
+jest.mock('../ducks/account-linking', () => {
+  const actual = jest.requireActual('../ducks/account-linking');
+  return { __esModule: true, ...actual, checkAccountLinked: jest.fn() };
+});
+jest.mock('../utils/navigation', () => ({
+  ...jest.requireActual('../utils/navigation'),
+  redirectToExternalUrl: jest.fn(),
+}));
 
 describe('Auth0TokenManager', () => {
   let mockDispatch;
   let mockNavigate;
   let mockGetAccessTokenSilently;
+  let mockLogout;
 
   beforeEach(() => {
     mockDispatch = jest.fn();
     mockNavigate = jest.fn();
     mockGetAccessTokenSilently = jest.fn();
+    mockLogout = jest.fn().mockResolvedValue();
 
     useDispatch.mockReturnValue(mockDispatch);
     useNavigate.mockReturnValue(mockNavigate);
@@ -31,16 +44,19 @@ describe('Auth0TokenManager', () => {
     useSelector.mockImplementation((selector) => {
       const state = {
         data: { token: { access_token: null } },
-        view: { systemConfig: { require_idp: true } }
+        view: { systemConfig: { require_idp: true, idp_org_id: null } }
       };
       return selector(state);
     });
     useAuth0.mockReturnValue({
       isAuthenticated: false,
       getAccessTokenSilently: mockGetAccessTokenSilently,
+      logout: mockLogout,
     });
     hasAuth0CallbackParams.mockReturnValue(false);
     isValidTokenFormat.mockReturnValue(true);
+    // Default the gate to "linked" so the existing pre-gate tests proceed.
+    checkAccountLinked.mockResolvedValue({ result: GATE_RESULT.LINKED });
   });
 
   afterEach(() => {
@@ -142,6 +158,129 @@ describe('Auth0TokenManager', () => {
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledWith(expect.stringContaining('login'), { replace: true });
       });
+    });
+  });
+
+  describe('account-linking gate', () => {
+    const VALID_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test.signature';
+
+    const renderAfterCallback = () => {
+      hasAuth0CallbackParams.mockReturnValue(true);
+      useLocation.mockReturnValue({ search: '?code=abc&state=xyz' });
+      useAuth0.mockReturnValue({
+        isAuthenticated: true,
+        getAccessTokenSilently: mockGetAccessTokenSilently,
+        logout: mockLogout,
+      });
+      return renderHook(() => Auth0TokenManager());
+    };
+
+    beforeEach(() => {
+      mockGetAccessTokenSilently.mockResolvedValue(VALID_TOKEN);
+    });
+
+    test('204 (linked): enters the authenticated state', async () => {
+      checkAccountLinked.mockResolvedValue({ result: GATE_RESULT.LINKED });
+
+      renderAfterCallback();
+
+      await waitFor(() => {
+        expect(mockDispatch).toHaveBeenCalledWith(expect.objectContaining({ type: POST_AUTH_SUCCESS }));
+      });
+      expect(checkAccountLinked).toHaveBeenCalledWith(VALID_TOKEN);
+    });
+
+    test('200 (unlinked): hands off to the link page and keeps the finalizing flag set', async () => {
+      checkAccountLinked.mockResolvedValue({
+        result: GATE_RESULT.UNLINKED,
+        linkUrl: 'https://site.example/auth/link-accounts/',
+      });
+
+      renderAfterCallback();
+
+      await waitFor(() => {
+        expect(redirectToExternalUrl).toHaveBeenCalledWith('https://site.example/auth/link-accounts/');
+      });
+      // The flag must stay set through the async full-page navigation so the
+      // route guard holds the overlay instead of bouncing to /login.
+      expect(mockDispatch).toHaveBeenCalledWith({ type: SET_AUTH0_CALLBACK_IN_PROGRESS, payload: true });
+      expect(mockDispatch).not.toHaveBeenCalledWith({ type: SET_AUTH0_CALLBACK_IN_PROGRESS, payload: false });
+      // No authenticated-state transition, no SPA navigation, no token teardown.
+      expect(mockDispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: POST_AUTH_SUCCESS }));
+      expect(mockNavigate).not.toHaveBeenCalled();
+      expect(mockLogout).not.toHaveBeenCalled();
+    });
+
+    test('200 (unlinked) with a missing URL: routes to login with a retryable error', async () => {
+      checkAccountLinked.mockResolvedValue({ result: GATE_RESULT.UNLINKED, linkUrl: '' });
+
+      renderAfterCallback();
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith(
+          expect.stringContaining('login'),
+          { replace: true, state: { authLinkingError: true } }
+        );
+      });
+      expect(redirectToExternalUrl).not.toHaveBeenCalled();
+      // Not a hand-off, so the flag IS cleared (contrast with the linkUrl path).
+      expect(mockDispatch).toHaveBeenCalledWith({ type: SET_AUTH0_CALLBACK_IN_PROGRESS, payload: false });
+    });
+
+    test('400 (invalid): clears the SDK and SPA token state, returns to login, does not authenticate', async () => {
+      checkAccountLinked.mockResolvedValue({ result: GATE_RESULT.INVALID });
+
+      renderAfterCallback();
+
+      await waitFor(() => {
+        expect(mockLogout).toHaveBeenCalledWith({ openUrl: false });
+      });
+      expect(mockNavigate).toHaveBeenCalledWith(expect.stringContaining('login'), { replace: true });
+      expect(mockDispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: POST_AUTH_SUCCESS }));
+    });
+
+    test('transient failure: leaves the user at login with a retryable error and no token teardown', async () => {
+      checkAccountLinked.mockResolvedValue({ result: GATE_RESULT.TRANSIENT });
+
+      renderAfterCallback();
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith(
+          expect.stringContaining('login'),
+          { replace: true, state: { authLinkingError: true } }
+        );
+      });
+      expect(mockLogout).not.toHaveBeenCalled();
+      expect(mockDispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: POST_AUTH_SUCCESS }));
+    });
+
+    test('org-scoped (idp_org_id set): skips the gate and authenticates', async () => {
+      useSelector.mockImplementation((selector) => selector({
+        data: { token: { access_token: null } },
+        view: { systemConfig: { require_idp: true, idp_org_id: 'org_abc' } },
+      }));
+
+      renderAfterCallback();
+
+      await waitFor(() => {
+        expect(mockDispatch).toHaveBeenCalledWith(expect.objectContaining({ type: POST_AUTH_SUCCESS }));
+      });
+      expect(checkAccountLinked).not.toHaveBeenCalled();
+    });
+
+    test('sets the finalizing flag and always clears it', async () => {
+      checkAccountLinked.mockResolvedValue({ result: GATE_RESULT.LINKED });
+
+      renderAfterCallback();
+
+      await waitFor(() => {
+        expect(mockDispatch).toHaveBeenCalledWith(
+          expect.objectContaining({ type: SET_AUTH0_CALLBACK_IN_PROGRESS, payload: false })
+        );
+      });
+      expect(mockDispatch).toHaveBeenCalledWith(
+        expect.objectContaining({ type: SET_AUTH0_CALLBACK_IN_PROGRESS, payload: true })
+      );
     });
   });
 });
