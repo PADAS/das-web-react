@@ -77,6 +77,25 @@ describe('RequireAccessToken', () => {
       expect(screen.getByTestId('loading')).toBeInTheDocument();
       expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
     });
+
+    test('shows loading overlay while the account-linking gate is in flight', () => {
+      store = mockStore({
+        data: { token: { access_token: null } },
+        view: { systemConfig: { require_idp: true }, auth0CallbackInProgress: true },
+      });
+
+      render(
+        <Provider store={store}>
+          <RequireAccessToken>
+            <div>Protected Content</div>
+          </RequireAccessToken>
+        </Provider>
+      );
+
+      expect(screen.getByTestId('loading')).toBeInTheDocument();
+      expect(screen.queryByTestId('navigate')).not.toBeInTheDocument();
+      expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
+    });
   });
 
   describe('authentication checks', () => {
