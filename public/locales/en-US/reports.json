@@ -173,6 +173,23 @@
           "uuidFormat": "Invalid UUID format."
         },
         "fields": {
+          "attachment": {
+            "chooseFile": "Choose File",
+            "disallowedTypeAlert": "{{fileName}} can't be added because its file type isn't allowed.",
+            "dropzoneText": "Drag and drop files here",
+            "maxItemsAlert_one": "You can only add up to {{count}} file.",
+            "maxItemsAlert_other": "You can only add up to {{count}} files.",
+            "removeButtonLabel": "Remove {{fileName}}",
+            "requiredLabel": "(required)",
+            "savedAttachment": "Attachment",
+            "uploadErrorLabel": "Upload failed",
+            "uploadFailedAnnouncement_one": "{{fileName}} couldn't be uploaded",
+            "uploadFailedAnnouncement_other": "{{count}} files couldn't be uploaded",
+            "uploadStartedAnnouncement": "Uploading {{fileName}}",
+            "uploadSucceededAnnouncement_one": "{{fileName}} uploaded",
+            "uploadSucceededAnnouncement_other": "{{count}} files uploaded",
+            "uploadingLabel": "Uploading… {{progress}}%"
+          },
           "collection": {
             "addButtonLabel": "Add {{itemName}}",
             "defaultAddButton": "Add",

@@ -162,6 +162,23 @@
           "uuidFormat": "Formato de UUID inválido."
         },
         "fields": {
+          "attachment": {
+            "chooseFile": "Escolher arquivo",
+            "disallowedTypeAlert": "{{fileName}} não pode ser adicionado porque seu tipo de arquivo não é permitido.",
+            "dropzoneText": "Arraste e solte arquivos aqui",
+            "maxItemsAlert_one": "Você só pode adicionar até {{count}} arquivo.",
+            "maxItemsAlert_other": "Você só pode adicionar até {{count}} arquivos.",
+            "removeButtonLabel": "Remover {{fileName}}",
+            "requiredLabel": "(obrigatório)",
+            "savedAttachment": "Anexo",
+            "uploadErrorLabel": "Falha no envio",
+            "uploadFailedAnnouncement_one": "Não foi possível enviar {{fileName}}",
+            "uploadFailedAnnouncement_other": "Não foi possível enviar {{count}} arquivos",
+            "uploadStartedAnnouncement": "Enviando {{fileName}}",
+            "uploadSucceededAnnouncement_one": "{{fileName}} enviado",
+            "uploadSucceededAnnouncement_other": "{{count}} arquivos enviados",
+            "uploadingLabel": "Enviando… {{progress}}%"
+          },
           "collection": {
             "addButtonLabel": "Adicionar {{itemName}}",
             "defaultAddButton": "Adicionar",

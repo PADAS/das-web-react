@@ -63,6 +63,7 @@ import sideBarReducer from '../ducks/side-bar';
 import locallyEditedEventReducer from '../ducks/locally-edited-event';
 import recentEventDataReceivedReducer from '../ducks/recent-event-data-received';
 import experimentalFeaturesReducer from '../ducks/experimental-features';
+import userContentReducer from '../ducks/user-content';
 
 const tokenPersistenceConfig = generateStorageConfig('token');
 const homeMapPersistenceConfig = generateStorageConfig('homeMap');
@@ -118,6 +119,7 @@ const rootReducer = combineReducers({
     token: persistReducer(tokenPersistenceConfig, tokenReducer),
     tracks: tracksReducer,
     user: userReducer,
+    userContent: userContentReducer,
     userProfiles: userProfilesReducer,
     selectedUserProfile: persistReducer(userProfilePersistenceConfig, selectedUserProfileReducer),
     socketUpdates: socketActivityReducer,

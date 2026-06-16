@@ -342,6 +342,23 @@
           "uuidFormat": "अमान्य UUID ढाँचा।"
         },
         "fields": {
+          "attachment": {
+            "chooseFile": "फाइल छान्नुहोस्",
+            "disallowedTypeAlert": "{{fileName}} थप्न सकिँदैन किनभने यसको फाइल प्रकार अनुमति छैन।",
+            "dropzoneText": "फाइलहरू यहाँ तान्नुहोस् र छोड्नुहोस्",
+            "maxItemsAlert_one": "तपाईं बढीमा {{count}} फाइल मात्र थप्न सक्नुहुन्छ।",
+            "maxItemsAlert_other": "तपाईं बढीमा {{count}} फाइलहरू मात्र थप्न सक्नुहुन्छ।",
+            "removeButtonLabel": "{{fileName}} हटाउनुहोस्",
+            "requiredLabel": "(आवश्यक)",
+            "savedAttachment": "संलग्नक",
+            "uploadErrorLabel": "अपलोड असफल भयो",
+            "uploadFailedAnnouncement_one": "{{fileName}} अपलोड गर्न सकिएन",
+            "uploadFailedAnnouncement_other": "{{count}} फाइलहरू अपलोड गर्न सकिएन",
+            "uploadStartedAnnouncement": "{{fileName}} अपलोड हुँदै",
+            "uploadSucceededAnnouncement_one": "{{fileName}} अपलोड भयो",
+            "uploadSucceededAnnouncement_other": "{{count}} फाइलहरू अपलोड भए",
+            "uploadingLabel": "अपलोड हुँदै… {{progress}}%"
+          },
           "collection": {
             "addButtonLabel": "{{itemName}} थप्नुहोस्",
             "defaultAddButton": "थप्नुहोस्",

@@ -10,6 +10,7 @@ import transformSchemaToFormElements from '../../../utils/v2-event-schemas/trans
 import useMapLocationMarkers from './utils/useMapLocationMarkers';
 import useSchemaValidations from './utils/useSchemaValidations';
 
+import Attachment from './formElements/Attachment';
 import Boolean from './formElements/Boolean';
 import ChoiceList from './formElements/ChoiceList';
 import Collection from './formElements/Collection';
@@ -21,6 +22,7 @@ import Section from './formElements/Section';
 import Text from './formElements/Text';
 
 export const FIELDS = {
+  [FORM_ELEMENT_TYPES.ATTACHMENT]: Attachment,
   [FORM_ELEMENT_TYPES.BOOLEAN]: Boolean,
   [FORM_ELEMENT_TYPES.CHOICE_LIST]: ChoiceList,
   [FORM_ELEMENT_TYPES.DATE_TIME]: DateTime,

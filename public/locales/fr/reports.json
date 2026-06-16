@@ -162,6 +162,23 @@
           "uuidFormat": "Format d'UUID invalide."
         },
         "fields": {
+          "attachment": {
+            "chooseFile": "Choisir un fichier",
+            "disallowedTypeAlert": "Impossible d'ajouter {{fileName}} car son type de fichier n'est pas autorisé.",
+            "dropzoneText": "Glissez-déposez des fichiers ici",
+            "maxItemsAlert_one": "Vous ne pouvez ajouter que {{count}} fichier au maximum.",
+            "maxItemsAlert_other": "Vous ne pouvez ajouter que {{count}} fichiers au maximum.",
+            "removeButtonLabel": "Supprimer {{fileName}}",
+            "requiredLabel": "(obligatoire)",
+            "savedAttachment": "Pièce jointe",
+            "uploadErrorLabel": "Échec du téléversement",
+            "uploadFailedAnnouncement_one": "Impossible de téléverser {{fileName}}",
+            "uploadFailedAnnouncement_other": "Impossible de téléverser {{count}} fichiers",
+            "uploadStartedAnnouncement": "Téléversement de {{fileName}}",
+            "uploadSucceededAnnouncement_one": "{{fileName}} téléversé",
+            "uploadSucceededAnnouncement_other": "{{count}} fichiers téléversés",
+            "uploadingLabel": "Téléversement… {{progress}} %"
+          },
           "collection": {
             "addButtonLabel": "Ajouter {{itemName}}",
             "defaultAddButton": "Ajouter",

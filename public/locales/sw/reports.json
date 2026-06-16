@@ -167,6 +167,23 @@
           "uuidFormat": "Muundo wa UUID haukubaliwi."
         },
         "fields": {
+          "attachment": {
+            "chooseFile": "Chagua faili",
+            "disallowedTypeAlert": "{{fileName}} haiwezi kuongezwa kwa sababu aina yake ya faili hairuhusiwi.",
+            "dropzoneText": "Buruta na udondoshe faili hapa",
+            "maxItemsAlert_one": "Unaweza kuongeza faili {{count}} pekee.",
+            "maxItemsAlert_other": "Unaweza kuongeza faili {{count}} pekee.",
+            "removeButtonLabel": "Ondoa {{fileName}}",
+            "requiredLabel": "(inahitajika)",
+            "savedAttachment": "Kiambatisho",
+            "uploadErrorLabel": "Upakiaji umeshindwa",
+            "uploadFailedAnnouncement_one": "{{fileName}} haikuweza kupakiwa",
+            "uploadFailedAnnouncement_other": "Faili {{count}} hazikuweza kupakiwa",
+            "uploadStartedAnnouncement": "Inapakia {{fileName}}",
+            "uploadSucceededAnnouncement_one": "{{fileName}} imepakiwa",
+            "uploadSucceededAnnouncement_other": "Faili {{count}} zimepakiwa",
+            "uploadingLabel": "Inapakia… {{progress}}%"
+          },
           "collection": {
             "addButtonLabel": "Ongeza {{itemName}}",
             "defaultAddButton": "Ongeza",
