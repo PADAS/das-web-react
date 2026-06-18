@@ -1,11 +1,6 @@
 import axios from 'axios';
 
-import auth0CallbackInProgressReducer, {
-  GATE_RESULT,
-  SET_AUTH0_CALLBACK_IN_PROGRESS,
-  checkAccountLinked,
-  setAuth0CallbackInProgress,
-} from './account-linking';
+import { GATE_RESULT, checkAccountLinked } from './account-linking';
 
 jest.mock('axios');
 
@@ -77,21 +72,5 @@ describe('checkAccountLinked', () => {
         skipAuth: true,
       }),
     );
-  });
-});
-
-describe('auth0CallbackInProgress reducer', () => {
-  test('defaults to false', () => {
-    expect(auth0CallbackInProgressReducer(undefined, {})).toBe(false);
-  });
-
-  test('setAuth0CallbackInProgress toggles the flag', () => {
-    expect(auth0CallbackInProgressReducer(false, setAuth0CallbackInProgress(true))).toBe(true);
-    expect(auth0CallbackInProgressReducer(true, setAuth0CallbackInProgress(false))).toBe(false);
-  });
-
-  test('coerces the payload to a boolean', () => {
-    expect(setAuth0CallbackInProgress('truthy'))
-      .toEqual({ type: SET_AUTH0_CALLBACK_IN_PROGRESS, payload: true });
   });
 });

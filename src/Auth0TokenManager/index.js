@@ -3,7 +3,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
 import { clearAuth, POST_AUTH_SUCCESS } from '../ducks/auth';
-import { GATE_RESULT, checkAccountLinked, setAuth0CallbackInProgress } from '../ducks/account-linking';
+import { GATE_RESULT, checkAccountLinked } from '../ducks/account-linking';
 import useNavigate from '../hooks/useNavigate';
 import { redirectToExternalUrl } from '../utils/navigation';
 import appConfig from '../config';
@@ -39,13 +39,6 @@ const Auth0TokenManager = () => {
       // Auth0 callback path: process when we saw params AND user is now authenticated
       if (sawAuth0Params.current && isAuthenticated && !hasHandledCallback.current) {
         hasHandledCallback.current = true;
-        // Cover the whole post-callback window (token acquisition + gate
-        // round-trip) so RequireAccessToken shows a loading overlay rather than
-        // redirecting to /login before we enter the authenticated state.
-        dispatch(setAuth0CallbackInProgress(true));
-        // The unlinked full-page hand-off deliberately leaves the flag set (see
-        // below), so the finally needs to know not to clear it.
-        let handingOff = false;
 
         try {
           // Auth0Provider has processed the callback, now get the token
@@ -71,11 +64,6 @@ const Auth0TokenManager = () => {
               // No active user yet — hand off to the server-owned link page.
               // Persist nothing; never enter the authenticated state.
               if (linkUrl) {
-                // Full-page navigation commits asynchronously, so keep the
-                // finalizing flag set (handingOff): clearing it now would let
-                // RequireAccessToken bounce to /login (and clobber the deep
-                // link) in the pre-navigation window.
-                handingOff = true;
                 redirectToExternalUrl(linkUrl);
               } else {
                 navigate(`${REACT_APP_ROUTE_PREFIX}login`, { replace: true, state: { authLinkingError: true } });
@@ -118,15 +106,6 @@ const Auth0TokenManager = () => {
         } catch (e) {
           console.error('Auth0 callback failed:', e);
           navigate(`${REACT_APP_ROUTE_PREFIX}login`, { replace: true });
-        } finally {
-          // Clears on every in-SPA exit — token-acquisition rejection, format
-          // failure, LINKED / INVALID / TRANSIENT, any unanticipated throw — so
-          // the flag can never stick and hang the SPA on the loading overlay.
-          // The exception is the unlinked full-page hand-off, which keeps the
-          // overlay up until the browser tears the page down.
-          if (!handingOff) {
-            dispatch(setAuth0CallbackInProgress(false));
-          }
         }
         return;
       }

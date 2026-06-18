@@ -64,30 +64,3 @@ export const checkAccountLinked = async (accessToken) => {
     return { result: GATE_RESULT.TRANSIENT };
   }
 };
-
-// view.auth0CallbackInProgress — a short-lived flag covering the post-Auth0
-// callback window (token acquisition + gate round-trip) so RequireAccessToken
-// shows a loading overlay instead of redirecting to /login mid-finalization.
-// Intentionally NOT persisted (see reducers/index.js) so a missed clear
-// self-heals on reload.
-
-// actions
-export const SET_AUTH0_CALLBACK_IN_PROGRESS = 'AUTH0_CALLBACK.SET_IN_PROGRESS';
-
-// action creators
-export const setAuth0CallbackInProgress = (inProgress) => ({
-  type: SET_AUTH0_CALLBACK_IN_PROGRESS,
-  payload: !!inProgress,
-});
-
-// reducer
-const auth0CallbackInProgressReducer = (state = false, action = {}) => {
-  switch (action.type) {
-  case SET_AUTH0_CALLBACK_IN_PROGRESS:
-    return action.payload;
-  default:
-    return state;
-  }
-};
-
-export default auth0CallbackInProgressReducer;

@@ -58,7 +58,6 @@ import baseLayersReducer, { currentBaseLayerReducer } from '../ducks/layers';
 import analyzersReducer from '../ducks/analyzers';
 import timeSliderReducer from '../ducks/timeslider';
 import externalReportingReducer from '../ducks/external-reporting';
-import auth0CallbackInProgressReducer from '../ducks/account-linking';
 import patrolTrackedBySchemaReducer from '../ducks/trackedby';
 import sideBarReducer from '../ducks/side-bar';
 import locallyEditedEventReducer from '../ducks/locally-edited-event';
@@ -158,7 +157,6 @@ const rootReducer = combineReducers({
     showInactiveRadios: displayInactiveRadiosReducer,
     openMapFeatureTypeNames: openMapFeatureTypesReducer,
     sideBar: sideBarReducer,
-    auth0CallbackInProgress: auth0CallbackInProgressReducer,
   }),
 });
 

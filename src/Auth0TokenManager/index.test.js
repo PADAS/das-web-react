@@ -7,7 +7,7 @@ import Auth0TokenManager from './';
 import { hasAuth0CallbackParams } from '../utils/auth0';
 import { isValidTokenFormat } from '../utils/auth';
 import useNavigate from '../hooks/useNavigate';
-import { GATE_RESULT, SET_AUTH0_CALLBACK_IN_PROGRESS, checkAccountLinked } from '../ducks/account-linking';
+import { GATE_RESULT, checkAccountLinked } from '../ducks/account-linking';
 import { POST_AUTH_SUCCESS } from '../ducks/auth';
 import { redirectToExternalUrl } from '../utils/navigation';
 
@@ -190,7 +190,7 @@ describe('Auth0TokenManager', () => {
       expect(checkAccountLinked).toHaveBeenCalledWith(VALID_TOKEN);
     });
 
-    test('200 (unlinked): hands off to the link page and keeps the finalizing flag set', async () => {
+    test('200 (unlinked): hands off to the link page and does not authenticate', async () => {
       checkAccountLinked.mockResolvedValue({
         result: GATE_RESULT.UNLINKED,
         linkUrl: 'https://site.example/auth/link-accounts/',
@@ -201,10 +201,6 @@ describe('Auth0TokenManager', () => {
       await waitFor(() => {
         expect(redirectToExternalUrl).toHaveBeenCalledWith('https://site.example/auth/link-accounts/');
       });
-      // The flag must stay set through the async full-page navigation so the
-      // route guard holds the overlay instead of bouncing to /login.
-      expect(mockDispatch).toHaveBeenCalledWith({ type: SET_AUTH0_CALLBACK_IN_PROGRESS, payload: true });
-      expect(mockDispatch).not.toHaveBeenCalledWith({ type: SET_AUTH0_CALLBACK_IN_PROGRESS, payload: false });
       // No authenticated-state transition, no SPA navigation, no token teardown.
       expect(mockDispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: POST_AUTH_SUCCESS }));
       expect(mockNavigate).not.toHaveBeenCalled();
@@ -223,8 +219,6 @@ describe('Auth0TokenManager', () => {
         );
       });
       expect(redirectToExternalUrl).not.toHaveBeenCalled();
-      // Not a hand-off, so the flag IS cleared (contrast with the linkUrl path).
-      expect(mockDispatch).toHaveBeenCalledWith({ type: SET_AUTH0_CALLBACK_IN_PROGRESS, payload: false });
     });
 
     test('400 (invalid): clears the SDK and SPA token state, returns to login, does not authenticate', async () => {
@@ -266,21 +260,6 @@ describe('Auth0TokenManager', () => {
         expect(mockDispatch).toHaveBeenCalledWith(expect.objectContaining({ type: POST_AUTH_SUCCESS }));
       });
       expect(checkAccountLinked).not.toHaveBeenCalled();
-    });
-
-    test('sets the finalizing flag and always clears it', async () => {
-      checkAccountLinked.mockResolvedValue({ result: GATE_RESULT.LINKED });
-
-      renderAfterCallback();
-
-      await waitFor(() => {
-        expect(mockDispatch).toHaveBeenCalledWith(
-          expect.objectContaining({ type: SET_AUTH0_CALLBACK_IN_PROGRESS, payload: false })
-        );
-      });
-      expect(mockDispatch).toHaveBeenCalledWith(
-        expect.objectContaining({ type: SET_AUTH0_CALLBACK_IN_PROGRESS, payload: true })
-      );
     });
   });
 });
