@@ -11,7 +11,7 @@ import Auth0TokenManager from './';
 import RequireAccessToken from '../RequireAccessToken';
 import tokenReducer from '../ducks/auth';
 import systemConfigReducer from '../ducks/system-config';
-import { GATE_RESULT, checkAccountLinked } from '../ducks/account-linking';
+import { GATE_RESULT, checkAccountLinked } from '../utils/account-linking';
 import useNavigate from '../hooks/useNavigate';
 
 // Real router, real store, real react-redux. Mock only the genuine externals:
@@ -19,9 +19,9 @@ import useNavigate from '../hooks/useNavigate';
 // NavigationContextProvider), and the presentational LoadingOverlay.
 jest.mock('@auth0/auth0-react');
 jest.mock('../hooks/useNavigate');
-jest.mock('../ducks/account-linking', () => ({
+jest.mock('../utils/account-linking', () => ({
   __esModule: true,
-  ...jest.requireActual('../ducks/account-linking'),
+  ...jest.requireActual('../utils/account-linking'),
   checkAccountLinked: jest.fn(),
 }));
 /* eslint-disable-next-line react/display-name */

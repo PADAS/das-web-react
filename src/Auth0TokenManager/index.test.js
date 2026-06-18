@@ -7,7 +7,7 @@ import Auth0TokenManager from './';
 import { hasAuth0CallbackParams } from '../utils/auth0';
 import { isValidTokenFormat } from '../utils/auth';
 import useNavigate from '../hooks/useNavigate';
-import { GATE_RESULT, checkAccountLinked } from '../ducks/account-linking';
+import { GATE_RESULT, checkAccountLinked } from '../utils/account-linking';
 import { POST_AUTH_SUCCESS } from '../ducks/auth';
 import { redirectToExternalUrl } from '../utils/navigation';
 
@@ -17,8 +17,8 @@ jest.mock('react-router');
 jest.mock('../utils/auth0');
 jest.mock('../utils/auth');
 jest.mock('../hooks/useNavigate');
-jest.mock('../ducks/account-linking', () => {
-  const actual = jest.requireActual('../ducks/account-linking');
+jest.mock('../utils/account-linking', () => {
+  const actual = jest.requireActual('../utils/account-linking');
   return { __esModule: true, ...actual, checkAccountLinked: jest.fn() };
 });
 jest.mock('../utils/navigation', () => ({

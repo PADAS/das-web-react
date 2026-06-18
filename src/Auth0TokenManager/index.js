@@ -3,7 +3,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
 import { clearAuth, POST_AUTH_SUCCESS } from '../ducks/auth';
-import { GATE_RESULT, checkAccountLinked } from '../ducks/account-linking';
+import { GATE_RESULT, checkAccountLinked } from '../utils/account-linking';
 import useNavigate from '../hooks/useNavigate';
 import { redirectToExternalUrl } from '../utils/navigation';
 import appConfig from '../config';
