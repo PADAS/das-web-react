@@ -6,6 +6,7 @@
     "authenticationError": "Erro de autenticação: {{errorDescription}}",
     "invalidCredentialsMessage": "As credenciais fornecidas são inválidas. Por favor\ntente novamente.",
     "signInFailed": "Falha ao entrar. Por favor, tente novamente.",
+    "signInIncomplete": "Não foi possível concluir o seu login. Por favor, tente novamente.",
     "unknownErrorMessage": "Ocorreu um erro. Por favor, tente\nde novo."
   },
   "errors": {

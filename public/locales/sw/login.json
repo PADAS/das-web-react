@@ -6,6 +6,7 @@
     "authenticationError": "Kosa la uthibitishaji: {{errorDescription}}",
     "invalidCredentialsMessage": "Maelezo yasiyo sahihi yametolewa. Tafadhali jaribu tena.",
     "signInFailed": "Kuingia kumeshindwa. Tafadhali jaribu tena.",
+    "signInIncomplete": "Hatukuweza kukamilisha kuingia kwako. Tafadhali jaribu tena.",
     "unknownErrorMessage": "Kumetokea kosa. Tafadhali jaribu tena."
   },
   "errors": {

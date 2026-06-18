@@ -36,7 +36,12 @@ const LoginPage = () => {
   const passwordInputRef = useRef(null);
   const usernameInputRef = useRef(null);
 
-  const [alertMessage, setAlertMessage] = useState(null);
+  // Initialized from router state (no effect/flicker): Auth0TokenManager routes
+  // here with authLinkingError when the post-Auth0 account-linking gate fails
+  // transiently.
+  const [alertMessage, setAlertMessage] = useState(
+    () => (location.state?.authLinkingError ? t('errorAlert.signInIncomplete') : null)
+  );
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [formErrors, setFormErrors] = useState({ username: null, password: null });
   const [isLoading, setIsLoading] = useState(false);
