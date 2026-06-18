@@ -61,13 +61,10 @@ const Auth0TokenManager = () => {
             const { result, linkUrl } = await checkAccountLinked(safe);
 
             if (result === GATE_RESULT.UNLINKED) {
-              // No active user yet — hand off to the server-owned link page.
-              // Persist nothing; never enter the authenticated state.
-              if (linkUrl) {
-                redirectToExternalUrl(linkUrl);
-              } else {
-                navigate(`${REACT_APP_ROUTE_PREFIX}login`, { replace: true, state: { authLinkingError: true } });
-              }
+              // No active user yet — hand off to the server-owned link page
+              // (checkAccountLinked only returns UNLINKED with a validated
+              // http(s) URL). Persist nothing; never enter the authenticated state.
+              redirectToExternalUrl(linkUrl);
               return;
             }
 

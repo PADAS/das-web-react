@@ -207,20 +207,6 @@ describe('Auth0TokenManager', () => {
       expect(mockLogout).not.toHaveBeenCalled();
     });
 
-    test('200 (unlinked) with a missing URL: routes to login with a retryable error', async () => {
-      checkAccountLinked.mockResolvedValue({ result: GATE_RESULT.UNLINKED, linkUrl: '' });
-
-      renderAfterCallback();
-
-      await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith(
-          expect.stringContaining('login'),
-          { replace: true, state: { authLinkingError: true } }
-        );
-      });
-      expect(redirectToExternalUrl).not.toHaveBeenCalled();
-    });
-
     test('400 (invalid): clears the SDK and SPA token state, returns to login, does not authenticate', async () => {
       checkAccountLinked.mockResolvedValue({ result: GATE_RESULT.INVALID });
 
