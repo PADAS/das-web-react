@@ -1,16 +1,28 @@
-import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { v4 as uuidv4 } from 'uuid';
 
 import { ReactComponent as AttachmentIcon } from '../../../../../common/images/icons/attachment.svg';
 import { ReactComponent as CloudUploadIcon } from '../../../../../common/images/icons/cloud-upload.svg';
+import { ReactComponent as DownloadArrowIcon } from '../../../../../common/images/icons/download-arrow.svg';
+import { ReactComponent as ExpandArrowIcon } from '../../../../../common/images/icons/expand-arrow.svg';
 import { ReactComponent as TrashCanIcon } from '../../../../../common/images/icons/trash-can.svg';
+import { ReactComponent as VideoIcon } from '../../../../../common/images/icons/video.svg';
+import { ReactComponent as VolumeIcon } from '../../../../../common/images/icons/volume.svg';
 
-import { convertFileListToArray, filterDuplicateUploadFilenames } from '../../../../../utils/file';
-import { showToast } from '../../../../../utils/toast';
-import { uploadFile } from '../../../../../ducks/user-content';
+import { addModal } from '../../../../../ducks/modals';
+import {
+  convertFileListToArray,
+  fetchImageAsBase64FromUrl,
+  filterDuplicateUploadFilenames,
+} from '../../../../../utils/file';
+import { downloadFileFromUrl } from '../../../../../utils/download';
+import { removeFile, uploadFile } from '../../../../../ducks/user-content';
 import { selectUploadStatesByIds } from '../../../../../selectors/user-content';
+import { showToast } from '../../../../../utils/toast';
+import { TrackerContext } from '../../../../../utils/analytics';
+
+import ImageModal from '../../../../../ImageModal';
 
 import * as styles from './styles.module.scss';
 
@@ -20,6 +32,9 @@ const ATTACHMENT_FIELD_ALLOWABLE_FILE_TYPE_SPECIFIERS = {
     '.csv',
     '.doc',
     '.docx',
+    '.odp',
+    '.ods',
+    '.odt',
     '.pdf',
     '.ppt',
     '.pptx',
@@ -30,6 +45,9 @@ const ATTACHMENT_FIELD_ALLOWABLE_FILE_TYPE_SPECIFIERS = {
     'application/pdf',
     'application/vnd.ms-excel',
     'application/vnd.ms-powerpoint',
+    'application/vnd.oasis.opendocument.presentation',
+    'application/vnd.oasis.opendocument.spreadsheet',
+    'application/vnd.oasis.opendocument.text',
     'application/vnd.openxmlformats-officedocument.presentationml.presentation',
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -40,14 +58,20 @@ const ATTACHMENT_FIELD_ALLOWABLE_FILE_TYPE_SPECIFIERS = {
   video: ['video/*'],
 };
 
-const getAcceptAttributeForFileTypes = (allowableFileTypes) => {
-  if (allowableFileTypes.length === 0) {
-    return undefined;
+const getFileCategoryFromMimeType = (mimeType) => {
+  if ((mimeType).startsWith('image/')) {
+    return 'image';
   }
 
-  return allowableFileTypes
-    .flatMap((fileType) => ATTACHMENT_FIELD_ALLOWABLE_FILE_TYPE_SPECIFIERS[fileType] ?? [])
-    .join(',');
+  if ((mimeType).startsWith('audio/')) {
+    return 'audio';
+  }
+
+  if ((mimeType).startsWith('video/')) {
+    return 'video';
+  }
+
+  return 'document';
 };
 
 const isFileTypeAllowed = (file, allowableFileTypes) => {
@@ -72,144 +96,179 @@ const isFileTypeAllowed = (file, allowableFileTypes) => {
   });
 };
 
-const Attachment = ({ details, error, id, onFieldChange, readOnly, value = [] }) => {
+const AttachmentListItem = ({ attachment, onRemove, readOnly, removeButtonRef }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection.schemaForm.fields.attachment' });
 
-  const announcedUploadIdsRef = useRef(new Set());
-  const chooseFileButtonRef = useRef();
-  const fileInputRef = useRef();
-  const nextFocusTargetRef = useRef();
-  const removeButtonRefs = useRef(new Map());
-  // Keep a ref to the latest uploads so the unmount cleanup effect can read the
-  // current value without a stale closure.
-  const uploadsRef = useRef([]);
+  const tracker = useContext(TrackerContext);
 
-  const [announcement, setAnnouncement] = useState('');
-  const [draggingOver, setDraggingOver] = useState(false);
-  const [uploads, setUploads] = useState([]);
+  let icon = <AttachmentIcon />;
+  if (attachment.status === 'pending' || attachment.status === 'uploading') {
+    icon = <span
+      className={`${styles.uploadProgress} ${attachment.status === 'pending' ? styles.pending : ''}`}
+      data-testid={`upload-progress-${attachment.uploadId}`}
+      style={{ '--upload-progress': `${Math.round(attachment.progress * 100)}%` }}
+    />;
+  } else if (attachment.thumbnailImageSource) {
+    icon = <img alt="" className={styles.thumbnail} src={attachment.thumbnailImageSource}/>;
+  } else if (attachment.fileType === 'audio') {
+    icon = <VolumeIcon />;
+  } else if (attachment.fileType === 'video') {
+    icon = <VideoIcon />;
+  }
+
+  let actionButton = null;
+  if (attachment.status === 'saved') {
+    if (attachment.fileType === 'image') {
+      actionButton = <button
+        aria-label={t('expandButtonLabel', { fileName: attachment.name })}
+        className={styles.actionButton}
+        onClick={() => dispatch(addModal({
+          content: ImageModal,
+          src: attachment.originalImageSource ?? attachment.thumbnailImageSource,
+          title: attachment.name,
+          tracker,
+          url: attachment.originalUrl,
+        }))}
+        title={t('expandButtonLabel', { fileName: attachment.name })}
+        type="button"
+        >
+        <ExpandArrowIcon aria-hidden="true" />
+      </button>;
+    } else {
+      actionButton = <button
+        aria-label={t('downloadButtonLabel', { fileName: attachment.name })}
+        className={styles.actionButton}
+        onClick={() => downloadFileFromUrl(attachment.originalUrl, { filename: attachment.name })}
+        title={t('downloadButtonLabel', { fileName: attachment.name })}
+        type="button"
+        >
+        <DownloadArrowIcon aria-hidden="true" />
+      </button>;
+    }
+  } else if (!readOnly) {
+    actionButton = <button
+        aria-label={t('removeButtonLabel', { fileName: attachment.name })}
+        className={styles.actionButton}
+        onClick={() => onRemove()}
+        ref={removeButtonRef}
+        title={t('removeButtonLabel', { fileName: attachment.name })}
+        type="button"
+      >
+      <TrashCanIcon aria-hidden="true" />
+    </button>;
+  }
+
+  return <li className={styles.attachmentListItem}>
+    <span aria-hidden="true" className={styles.icon}>{icon}</span>
+
+    <span className={styles.name}>{attachment.name}</span>
+
+    {attachment.status === 'failed' && <span className={styles.error}>{t('uploadErrorLabel')}</span>}
+
+    {actionButton}
+  </li>;
+};
+
+const Attachment = ({ attachmentsMetadata, details, error, id, onFieldChange, readOnly, value = [] }) => {
+  const dispatch = useDispatch();
+  const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection.schemaForm.fields.attachment' });
 
   const uploadIds = useMemo(
-    () => uploads.map((upload) => upload.uploadId).filter(Boolean),
-    [uploads]
+    () => value.map((attachment) => attachment?.uploadId).filter(Boolean),
+    [value]
   );
 
-  const uploadStatesByIds = useSelector(
+  const uploads = useSelector(
     (state) => selectUploadStatesByIds(state, uploadIds),
     shallowEqual
   );
 
+  const fetchedImageDataRef = useRef(new Set());
+
+  const chooseFileButtonRef = useRef();
+  const fileInputRef = useRef();
+  const nextFocusTargetRef = useRef();
+  const prevUploadsRef = useRef(null);
+  const removeButtonRefs = useRef(new Map());
+
+  const [announcement, setAnnouncement] = useState('');
+  const [draggingOver, setDraggingOver] = useState(false);
+  const [metadataImageSources, setMetadataImageSources] = useState({});
+
   const hasError = !!error?.message;
 
-  const files = useMemo(() => [
-    ...uploads,
-    ...value.map((attachment, index) => ({
-      // TODO: Get file metadata (name, previewUrl) for existing uploads.
-      localId: attachment.uploadId,
-      name: attachment.name ?? `${t('savedAttachment')} ${index + 1}`,
-      uploadId: attachment.uploadId,
-    })),
-  ], [t, uploads, value]);
+  const attachments = useMemo(() => value.map((attachment) => {
+    const attachmentMetadata = attachmentsMetadata?.[attachment?.uploadId] ?? {};
+    const attachmentImageSources = metadataImageSources[attachment?.uploadId] ?? {};
+    const upload = uploads[attachment?.uploadId];
 
-  const isMaxItemsReached = details.maxItems !== null && files.length >= details.maxItems;
+    return {
+      fileType: attachmentMetadata?.file_type ?? getFileCategoryFromMimeType(upload?.fileType ?? ''),
+      name: attachmentMetadata?.filename?.split('/').pop() ?? upload?.filename,
+      originalImageSource: attachmentImageSources.original ?? upload?.objectUrl,
+      originalUrl: attachmentMetadata?.files?.original,
+      progress: upload?.progress,
+      status: upload?.status ?? 'saved',
+      thumbnailImageSource: attachmentImageSources.thumbnail ?? upload?.objectUrl,
+      uploadId: attachment?.uploadId,
+    };
+  }), [attachmentsMetadata, metadataImageSources, uploads, value]);
+
+  const isMaxItemsReached = details.maxItems !== null && attachments.length >= details.maxItems;
 
   const isInteractive = !readOnly && !isMaxItemsReached;
 
-  // Method to update uploads state and keep uploadsRef in sync.
-  const updateUploads = (updater) => setUploads((prevUploads) => {
-    const nextUploads = typeof updater === 'function' ? updater(prevUploads) : updater;
-    uploadsRef.current = nextUploads;
-
-    return nextUploads;
-  });
-
-  const startUpload = async (file) => {
-    const controller = new AbortController();
-    const localId = uuidv4();
-    const previewUrl = file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined;
-
-    // Add immediately so the user sees the entry before the server responds.
-    updateUploads((prevUploads) => [
-      ...prevUploads,
-      {
-        controller,
-        localId,
-        name: file.name,
-        previewUrl,
-        uploadId: null,
-      },
-    ]);
-    setAnnouncement(t('uploadStartedAnnouncement', { fileName: file.name }));
-
-    try {
-      const uploadId = await dispatch(uploadFile(file, controller.signal));
-
-      updateUploads((prevUploads) => prevUploads.map((upload) =>
-        upload.localId === localId ? { ...upload, uploadId } : upload
-      ));
-    } catch {
-      if (!controller.signal.aborted) {
-        // Unexpected failure. Revoke the object URL, remove the entry, and
-        // notify the user.
-        if (previewUrl) {
-          URL.revokeObjectURL(previewUrl);
-        }
-        updateUploads((prevUploads) => prevUploads.filter((prevUpload) => prevUpload.localId !== localId));
-
-        showToast({ message: t('uploadFailedAnnouncement', { count: 1, fileName: file.name }) });
-      }
-    }
-  };
-
-  const onAddFiles = (newFiles) => {
-    let filesToUpload = [];
+  const onAddAttachments = (newFiles) => {
+    let newAttachments = [];
     newFiles.forEach((file) => {
       if (isFileTypeAllowed(file, details.allowableFileTypes)) {
-        filesToUpload.push(file);
+        newAttachments.push(file);
       } else {
         showToast({ message: t('disallowedTypeAlert', { fileName: file.name }) });
       }
     });
 
-    filesToUpload = filterDuplicateUploadFilenames(
-      files.map((entry) => ({ name: entry.name })),
-      filesToUpload
+    newAttachments = filterDuplicateUploadFilenames(
+      attachments.map((attachment) => ({ name: attachment.name })),
+      newAttachments
     );
 
-    const availableSlots = details.maxItems === null ? filesToUpload.length : details.maxItems - files.length;
-    if (filesToUpload.length > availableSlots) {
-      // Maximum number of attachments reached. Slice the files to the
-      // available slots and show a toast.
-      filesToUpload = filesToUpload.slice(0, Math.max(0, availableSlots));
+    const availableSlots = details.maxItems === null
+      ? newAttachments.length
+      : details.maxItems - attachments.length;
+    if (newAttachments.length > availableSlots) {
+      newAttachments = newAttachments.slice(0, Math.max(0, availableSlots));
 
       showToast({ message: t('maxItemsAlert', { count: details.maxItems }) });
     }
 
-    filesToUpload.forEach((file) => startUpload(file));
+    const newUploadIds = newAttachments.map((file) => dispatch(uploadFile(file)));
+
+    if (newUploadIds.length > 0) {
+      setAnnouncement(t('uploadStartedAnnouncement', {
+        count: newAttachments.length,
+        fileName: newAttachments[0].name,
+      }));
+
+      onFieldChange(id, [...value, ...newUploadIds.map((uploadId) => ({ uploadId }))]);
+    }
   };
 
-  const onClickRemove = (fileIndex) => () => {
-    const file = files[fileIndex];
-    const nextFile = files[fileIndex + 1] ?? files[fileIndex - 1];
-    nextFocusTargetRef.current = nextFile
-      ? removeButtonRefs.current.get(nextFile.localId)
+  const onClickRemove = (attachment) => {
+    const attachmentIndex = attachments.indexOf(attachment);
+    const nextAttachment = attachments[attachmentIndex + 1] ?? attachments[attachmentIndex - 1];
+    nextFocusTargetRef.current = nextAttachment
+      ? removeButtonRefs.current.get(nextAttachment.uploadId)
       : chooseFileButtonRef.current;
 
-    file.controller?.abort();
-    if (file.previewUrl) {
-      URL.revokeObjectURL(file.previewUrl);
-    }
+    onFieldChange(id, [...value.slice(0, attachmentIndex), ...value.slice(attachmentIndex + 1)]);
 
-    updateUploads((prevUploads) => prevUploads.filter((prevUpload) => prevUpload.localId !== file.localId));
-
-    const newValue = value.filter((attachment) => attachment.uploadId !== file.uploadId);
-    if (newValue.length !== value.length) {
-      onFieldChange(id, newValue);
-    }
+    dispatch(removeFile(attachment.uploadId));
   };
 
   const onChangeFileInput = (event) => {
-    onAddFiles(convertFileListToArray(event.currentTarget.files));
+    onAddAttachments(convertFileListToArray(event.currentTarget.files));
 
     // Reset so selecting the same file again still fires onChange.
     event.currentTarget.value = '';
@@ -218,6 +277,7 @@ const Attachment = ({ details, error, id, onFieldChange, readOnly, value = [] })
   const onDragEnter = (event) => {
     if (isInteractive) {
       event.preventDefault();
+
       setDraggingOver(true);
     }
   };
@@ -226,7 +286,7 @@ const Attachment = ({ details, error, id, onFieldChange, readOnly, value = [] })
     event.preventDefault();
 
     if (isInteractive) {
-      onAddFiles(convertFileListToArray(event.dataTransfer.files));
+      onAddAttachments(convertFileListToArray(event.dataTransfer.files));
     }
 
     setDraggingOver(false);
@@ -238,72 +298,70 @@ const Attachment = ({ details, error, id, onFieldChange, readOnly, value = [] })
       nextFocusTargetRef.current = null;
       target.focus();
     }
-  }, [files]);
+  }, [attachments]);
 
   useEffect(() => {
-    // Calculate the newly completed and failed uploads.
-    const newlyCompletedUploads = [];
-    const newlyFailedUploads = [];
-    uploads.forEach((upload) => {
-      if (upload.uploadId && !announcedUploadIdsRef.current.has(upload.uploadId)) {
-        const uploadState = uploadStatesByIds[upload.uploadId];
+    const prevUploads = prevUploadsRef.current;
+    prevUploadsRef.current = uploads;
 
-        if (uploadState?.status === 'complete') {
-          newlyCompletedUploads.push(upload);
-          announcedUploadIdsRef.current.add(upload.uploadId);
-        } else if (uploadState?.status === 'failed') {
-          newlyFailedUploads.push(upload);
-          announcedUploadIdsRef.current.add(upload.uploadId);
-        }
+    if (prevUploads !== null) {
+      // Uploads changed. Announce status transitions.
+      const newlyCompletedUploads = Object.values(uploads).filter(
+        (upload) => upload?.status === 'completed' && prevUploads[upload.uploadId]?.status !== 'completed'
+      );
+      const newlyFailedUploads = Object.values(uploads).filter(
+        (upload) => upload?.status === 'failed' && prevUploads[upload.uploadId]?.status !== 'failed'
+      );
+
+      const announcementParts = [];
+      if (newlyCompletedUploads.length > 0) {
+        announcementParts.push(t('uploadSucceededAnnouncement', { count: newlyCompletedUploads.length, fileName: newlyCompletedUploads[0].filename }));
+      }
+
+      if (newlyFailedUploads.length > 0) {
+        announcementParts.push(t('uploadFailedAnnouncement', { count: newlyFailedUploads.length, fileName: newlyFailedUploads[0].filename }));
+      }
+
+      if (announcementParts.length > 0) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setAnnouncement(announcementParts.join(' '));
+      }
+    }
+  }, [t, uploads]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    value.forEach((attachment) => {
+      const attachmentMetadata = attachmentsMetadata?.[attachment.uploadId];
+
+      if (attachmentMetadata
+        && attachmentMetadata.file_type === 'image'
+        && !fetchedImageDataRef.current.has(attachment.uploadId)) {
+        // There are saved images that haven't been fetched yet. Fetch them
+        // them and store their image sources.
+        fetchedImageDataRef.current.add(attachment.uploadId);
+
+        const downloadAndSetImageData = async () => {
+          const [original, thumbnail] = await Promise.all([
+            fetchImageAsBase64FromUrl(attachmentMetadata.files.original),
+            fetchImageAsBase64FromUrl(attachmentMetadata.files.thumbnail),
+          ]);
+
+          if (!cancelled) {
+            setMetadataImageSources((prevMetadataImageSources) => ({
+              ...prevMetadataImageSources,
+              [attachment.uploadId]: { original, thumbnail },
+            }));
+          }
+        };
+
+        downloadAndSetImageData();
       }
     });
 
-    // Build one announcement covering all outcomes.
-    const announcementParts = [];
-    if (newlyCompletedUploads.length > 0) {
-      announcementParts.push(t('uploadSucceededAnnouncement', { count: newlyCompletedUploads.length, fileName: newlyCompletedUploads[0].name }));
-    }
-
-    if (newlyFailedUploads.length > 0) {
-      announcementParts.push(t('uploadFailedAnnouncement', { count: newlyFailedUploads.length, fileName: newlyFailedUploads[0].name }));
-    }
-
-    if (announcementParts.length > 0) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setAnnouncement(announcementParts.join(' '));
-    }
-
-    if (newlyCompletedUploads.length > 0) {
-      // Remove the newly completed uploads from the upload queue and commit
-      // them to the field value.
-      const newlyCompletedUploadsLocalIds = new Set(newlyCompletedUploads.map((upload) => upload.localId));
-      updateUploads((prevUploads) => prevUploads.filter(
-        (prevUpload) => !newlyCompletedUploadsLocalIds.has(prevUpload.localId))
-      );
-
-      newlyCompletedUploads.forEach(
-        (newlyCompletedUpload) => newlyCompletedUpload.previewUrl
-          && URL.revokeObjectURL(newlyCompletedUpload.previewUrl)
-      );
-
-      onFieldChange(
-        id,
-        [
-          ...value,
-          ...newlyCompletedUploads.map(
-            (newlyCompletedUpload) => ({ name: newlyCompletedUpload.name, uploadId: newlyCompletedUpload.uploadId })
-          ),
-        ]
-      );
-    }
-  }, [id, onFieldChange, t, uploads, uploadStatesByIds, value]);
-
-  useEffect(() => () => uploadsRef.current.forEach((upload) => {
-    upload.controller?.abort();
-    if (upload.previewUrl) {
-      URL.revokeObjectURL(upload.previewUrl);
-    }
-  }), []);
+    return () => { cancelled = true; };
+  }, [attachmentsMetadata, value]);
 
   return <div
       aria-describedby={`${id}-description`}
@@ -332,51 +390,29 @@ const Attachment = ({ details, error, id, onFieldChange, readOnly, value = [] })
 
     <div aria-live="polite" className="sr-only" role="status">{announcement}</div>
 
-    {files.length === 0
-      ? <div className={`${styles.dropzone} ${draggingOver ? styles.draggingOver : ''}`} data-testid={`schema-form-attachment-field-${id}-dropzone`}>
-        <CloudUploadIcon aria-hidden="true" className={styles.dropzoneIcon} />
+    {attachments.length === 0
+      ? <div
+        className={`${styles.dropzone} ${draggingOver ? styles.draggingOver : ''}`}
+        data-testid={`schema-form-attachment-field-${id}-dropzone`}
+      >
+        <CloudUploadIcon aria-hidden="true" className={styles.icon} />
 
-        <p className={styles.dropzoneText}>{t('dropzoneText')}</p>
+        <p className={styles.text}>{t('dropzoneText')}</p>
       </div>
-      : <ul className={`${styles.fileList} ${draggingOver ? styles.draggingOver : ''}`} role="list">
-        {files.map((file, fileIndex) => {
-          const uploadState = uploadStatesByIds[file.uploadId] ?? {};
-
-          return <li className={styles.fileRow} key={file.localId}>
-            <span aria-hidden="true" className={styles.fileIcon}>
-              {file.previewUrl
-                ? <img alt="" className={styles.thumbnail} src={file.previewUrl}/>
-                : <AttachmentIcon />}
-            </span>
-
-            <span className={styles.fileName}>{file.name}</span>
-
-            {uploadState.status === 'in_progress' && <span className={styles.status}>
-              {t('uploadingLabel', { progress: Math.round(uploadState.progress * 100) })}
-            </span>}
-
-            {uploadState.status === 'failed' && <span className={`${styles.status} ${styles.statusError}`}>
-              {t('uploadErrorLabel')}
-            </span>}
-
-            {!readOnly && <button
-              aria-label={t('removeButtonLabel', { fileName: file.name })}
-              className={styles.removeButton}
-              onClick={onClickRemove(fileIndex)}
-              ref={(element) => {
-                if (element) {
-                  removeButtonRefs.current.set(file.localId, element);
-                } else {
-                  removeButtonRefs.current.delete(file.localId);
-                }
-              }}
-              title={t('removeButtonLabel', { fileName: file.name })}
-              type="button"
-            >
-              <TrashCanIcon aria-hidden="true" />
-            </button>}
-          </li>;
-        })}
+      : <ul className={`${styles.attachmentsList} ${draggingOver ? styles.draggingOver : ''}`} role="list">
+        {attachments.map((attachment) => <AttachmentListItem
+          attachment={attachment}
+          key={attachment.uploadId}
+          onRemove={() => onClickRemove(attachment)}
+          readOnly={readOnly}
+          removeButtonRef={(element) => {
+            if (element) {
+              removeButtonRefs.current.set(attachment.uploadId, element);
+            } else {
+              removeButtonRefs.current.delete(attachment.uploadId);
+            }
+          }}
+        />)}
       </ul>}
 
     <p
@@ -388,7 +424,9 @@ const Attachment = ({ details, error, id, onFieldChange, readOnly, value = [] })
 
     {!readOnly && <>
       <input
-        accept={getAcceptAttributeForFileTypes(details.allowableFileTypes)}
+        accept={details.allowableFileTypes.length === 0 ? undefined : details.allowableFileTypes
+          .flatMap((fileType) => ATTACHMENT_FIELD_ALLOWABLE_FILE_TYPE_SPECIFIERS[fileType] ?? [])
+          .join(',')}
         className={styles.fileInput}
         data-testid={`schema-form-attachment-field-${id}-file-input`}
         multiple

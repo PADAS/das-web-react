@@ -2,6 +2,16 @@
 
 @use '../../../../../common/styles/vars/colors';
 
+@property --upload-progress {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 0%;
+}
+
+@keyframes uploadProgressSpin {
+  to { transform: rotate(360deg); }
+}
+
 .attachment {
   .label {
     color: colors.$secondary-medium-gray;
@@ -29,18 +39,18 @@
       border-color: colors.$bright-blue;
     }
 
-    .dropzoneIcon {
+    .icon {
       color: colors.$secondary-medium-gray;
       height: 1.5rem;
       width: 1.5rem;
     }
 
-    .dropzoneText {
+    .text {
       margin: 0;
     }
   }
 
-  .fileList {
+  .attachmentsList {
     border: 1px solid colors.$light-gray-border;
     border-radius: 0.25rem;
     list-style: none;
@@ -54,7 +64,7 @@
       border-color: colors.$bright-blue;
     }
 
-    .fileRow {
+    .attachmentListItem {
       align-items: center;
       border-bottom: 1px solid colors.$light-gray-lines;
       display: flex;
@@ -65,7 +75,7 @@
         border-bottom: none;
       }
 
-      .fileIcon {
+      .icon {
         align-items: center;
         background: colors.$light-gray-background;
         color: colors.$secondary-medium-gray;
@@ -81,9 +91,27 @@
           object-fit: cover;
           width: 2.5rem;
         }
+
+        .uploadProgress {
+          background: conic-gradient(
+            colors.$light-gray-border calc(100% - var(--upload-progress)),
+            colors.$bright-blue calc(100% - var(--upload-progress))
+          );
+          border-radius: 50%;
+          height: 1.75rem;
+          mask: radial-gradient(farthest-side, transparent 70%, black 71%);
+          transition: --upload-progress 200ms ease;
+          width: 1.75rem;
+
+          &.pending {
+            animation: uploadProgressSpin 0.8s linear infinite;
+            animation-direction: reverse;
+            background: conic-gradient(colors.$light-gray-border 25%, colors.$bright-blue 25%);
+          }
+        }
       }
 
-      .fileName {
+      .name {
         color: colors.$off-black;
         flex: 1;
         overflow: hidden;
@@ -91,27 +119,20 @@
         white-space: nowrap;
       }
 
-      .status {
-        color: colors.$alt-light-gray;
+      .error {
+        color: colors.$bright-red;
         flex-shrink: 0;
         font-size: 0.875rem;
-
-        &.statusError {
-          color: colors.$bright-red;
-        }
       }
 
-      .removeButton {
-        align-items: center;
+      .actionButton {
         background: none;
         border: none;
         border-radius: 0.1875rem;
         color: colors.$secondary-medium-gray;
-        display: flex;
         flex-shrink: 0;
         justify-content: center;
-        margin: 0 1rem;
-        padding: 0.25rem;
+        margin-right: 0.5rem;
 
         &:hover {
           background: colors.$light-gray-background;
@@ -120,12 +141,6 @@
         &:focus-visible {
           color: colors.$bright-blue;
           outline: 2px solid colors.$bright-blue;
-          outline-offset: 1px;
-        }
-
-        svg {
-          height: 1.25rem;
-          width: 1.25rem;
         }
       }
     }
@@ -158,8 +173,8 @@
     color: colors.$off-black;
     display: flex;
     font-weight: 500;
-    margin-top: 0.5rem;
-    padding: 0.375rem;
+    margin-top: 1rem;
+    padding: 0.25rem;
     padding-right: 0.5rem;
 
     &:disabled {
@@ -177,7 +192,7 @@
 
     .chooseFileIcon {
       height: 1rem;
-      margin-right: 0.5rem;
+      margin: 0 0.25rem 0 0.125rem;
       width: 1rem;
     }
   }

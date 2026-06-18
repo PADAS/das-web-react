@@ -13,6 +13,7 @@ import SchemaForm from './';
 
 jest.mock('./utils/useMapLocationMarkers', () => jest.fn());
 jest.mock('./utils/normalizeDateTimeFieldValue', () => jest.fn((value) => value));
+jest.mock('../../../ducks/user-content', () => ({ removeFile: jest.fn(), uploadFile: jest.fn() }));
 
 describe('ReportManager - DetailsSection - SchemaForm', () => {
   const onFormDataChange = jest.fn();
@@ -321,6 +322,9 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
     };
 
     store = {
+      data: {
+        userContent: {},
+      },
       view: {
         coordinateReferenceSystems: {
           storedSystems: [],
@@ -500,7 +504,7 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
     expect(screen.getByTestId('schema-form-text-field-text_field_3')).not.toBeVisible();
   });
 
-  test('shows validation errors if there are any when the user submits the form', async () => {
+  test('shows schema  errors if there are any when the user submits the form', async () => {
     renderSchemaForm({ formData: { text_field: undefined } });
 
     const alert = screen.getByRole('alert');
@@ -521,7 +525,48 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
     expect(inputField).toHaveFocus();
   });
 
-  test('submits the form when there are no validation errors', async () => {
+  test('shows upload errors if there are any when the user submits the form', async () => {
+    schema.json.properties.attachment_field = {
+      description: '',
+      title: 'Attachment Field',
+      type: 'array',
+      items: { properties: { uploadId: { type: 'string' } }, type: 'object' },
+      unevaluatedItems: false,
+    };
+    schema.ui.fields.attachment_field = {
+      allowableFileTypes: [],
+      conditionalDependents: [],
+      isRequired: false,
+      maxItems: null,
+      type: 'ATTACHMENT',
+      parent: 'section-3',
+    };
+    schema.ui.sections['section-3'].leftColumn.push({ name: 'attachment_field', type: 'field' });
+
+    renderSchemaForm(
+      { formData: { text_field: 'a text value', attachment_field: [{ uploadId: 'pending-upload-id' }] } },
+      { data: { userContent: { 'pending-upload-id': { uploadId: 'pending-upload-id', filename: 'test.pdf', progress: 0, status: 'pending' } } } }
+    );
+
+    const alert = screen.getByRole('alert');
+    const attachmentField = screen.getByRole('group', { name: 'Attachment Field' });
+
+    expect(alert).not.toHaveTextContent('There are validation errors in the following fields:');
+    expect(attachmentField).not.toBeInvalid();
+    expect(attachmentField).not.toHaveAccessibleErrorMessage();
+    expect(attachmentField).not.toHaveFocus();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+    expect(onFormSubmit).not.toHaveBeenCalled();
+    expect(alert).toHaveTextContent('There are validation errors in the following fields:');
+    expect(alert).toHaveTextContent('Attachment Field');
+    expect(attachmentField).toBeInvalid();
+    expect(attachmentField).toHaveAccessibleErrorMessage('Please wait for files to finish uploading.');
+    expect(attachmentField).toHaveFocus();
+  });
+
+  test('submits the form when there are no field errors', async () => {
     renderSchemaForm();
 
     expect(onFormSubmit).not.toHaveBeenCalled();

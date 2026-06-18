@@ -8,8 +8,9 @@ export const convertFileListToArray = (list) => Array.from(list ?? []);
 
 export const fetchImageAsBase64FromUrl = async (url) => {
   const response = await axios.get(url, { responseType: 'arraybuffer' });
+  const contentType = response.headers['content-type'] ?? 'image/png';
 
-  return `data:image/png;base64, ${new Buffer.from(response.data, 'binary').toString('base64')}`;
+  return `data:${contentType};base64,${Buffer.from(response.data).toString('base64')}`;
 };
 
 export const filterDuplicateUploadFilenames = (currentFiles, newFilesToUpload) => {

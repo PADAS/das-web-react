@@ -9,6 +9,7 @@ import normalizeDateTimeFieldValue from './utils/normalizeDateTimeFieldValue';
 import transformSchemaToFormElements from '../../../utils/v2-event-schemas/transformSchemaToFormElements';
 import useMapLocationMarkers from './utils/useMapLocationMarkers';
 import useSchemaValidations from './utils/useSchemaValidations';
+import useUploadValidations from './utils/useUploadValidations';
 
 import Attachment from './formElements/Attachment';
 import Boolean from './formElements/Boolean';
@@ -22,7 +23,6 @@ import Section from './formElements/Section';
 import Text from './formElements/Text';
 
 export const FIELDS = {
-  [FORM_ELEMENT_TYPES.ATTACHMENT]: Attachment,
   [FORM_ELEMENT_TYPES.BOOLEAN]: Boolean,
   [FORM_ELEMENT_TYPES.CHOICE_LIST]: ChoiceList,
   [FORM_ELEMENT_TYPES.DATE_TIME]: DateTime,
@@ -38,12 +38,31 @@ const getVisibleSectionIds = (formElements, formData) =>
       formData,
     ));
 
+const mergeFieldErrors = (schemaErrors, uploadErrors) => {
+  const fieldErrors = { ...schemaErrors };
+
+  Object.entries(uploadErrors).forEach(([key, uploadError]) => {
+    const schemaError = fieldErrors[key];
+    if (schemaError
+      && typeof schemaError === 'object'
+      && uploadError
+      && typeof uploadError === 'object') {
+      fieldErrors[key] = mergeFieldErrors(schemaError, uploadError);
+    } else {
+      fieldErrors[key] = uploadError;
+    }
+  });
+
+  return fieldErrors;
+};
+
 const SchemaForm = ({
   eventId,
   eventLocation,
   formData,
   hideMapLocationMarkers,
   isNewEvent,
+  metadata,
   onFormDataChange,
   onFormSubmit,
   readOnly,
@@ -51,8 +70,6 @@ const SchemaForm = ({
   schema,
 }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection.schemaForm' });
-
-  const runValidations = useSchemaValidations(schema);
 
   const onLocationMarkerClick = useCallback((markerId) => {
     const locationField = document.getElementById(markerId);
@@ -80,6 +97,9 @@ const SchemaForm = ({
 
   const formElements = useMemo(() => transformSchemaToFormElements(schema), [schema]);
 
+  const runSchemaValidations = useSchemaValidations(schema);
+  const runUploadValidations = useUploadValidations(formElements);
+
   const visibleSectionIds = useMemo(
     () => getVisibleSectionIds(formElements, formData),
     [formData, formElements]
@@ -88,16 +108,18 @@ const SchemaForm = ({
   const onSubmit = (event) => {
     event.preventDefault();
 
-    const fieldErrors = runValidations(formData);
-    if (fieldErrors) {
+    const schemaErrors = runSchemaValidations(formData) || {};
+    const uploadErrors = runUploadValidations(formData);
+    const fieldErrors = mergeFieldErrors(schemaErrors, uploadErrors);
+    if (Object.keys(fieldErrors).length > 0) {
+      const erroneousFields = Object.keys(fieldErrors);
+
       setFieldErrors(fieldErrors);
-      setLastSubmissionErroneousFields(Object.keys(fieldErrors));
+      setLastSubmissionErroneousFields(erroneousFields);
 
       // Focus the first erroneous field if possible (it may be inside a
       // collection).
-      const idOfFirstErroneousField = Object.keys(fieldErrors)[0];
-      const elementWithError = document.getElementById(idOfFirstErroneousField);
-      elementWithError?.focus();
+      document.getElementById(erroneousFields[0])?.focus();
     } else {
       setFieldErrors({});
       setLastSubmissionErroneousFields([]);
@@ -142,6 +164,18 @@ const SchemaForm = ({
   // This method is designed to render form elements inside sections and collections.
   const renderFormElement = (id, value, onChange, error, focusLocationMarker, breadcrumbs = []) => {
     switch (formElements[id].type) {
+    case FORM_ELEMENT_TYPES.ATTACHMENT:
+      return <Attachment
+        attachmentsMetadata={metadata?.attachments}
+        details={formElements[id].details}
+        error={error}
+        id={id}
+        key={id}
+        onFieldChange={onChange}
+        readOnly={readOnly}
+        value={value}
+      />;
+
     case FORM_ELEMENT_TYPES.HEADER:
       return <Header details={formElements[id].details} id={id} key={id} />;
 

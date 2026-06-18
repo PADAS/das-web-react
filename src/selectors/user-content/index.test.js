@@ -19,10 +19,9 @@ describe('Selectors - User content', () => {
       });
     });
 
-    test('returns undefined for ids not present in userContent', () => {
+    test('omits ids not present in userContent', () => {
       expect(selectUploadStatesByIds(state, ['upload-id-1', 'non-existent-id'])).toEqual({
         'upload-id-1': { status: 'uploading', progress: 50 },
-        'non-existent-id': undefined,
       });
     });
 
