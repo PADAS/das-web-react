@@ -44,6 +44,24 @@ describe('Utils - File', () => {
       expect(axios.get).toHaveBeenCalledWith('https://example.com/image.png', { responseType: 'arraybuffer' });
       expect(result).toMatch(/^data:image\/png;base64,/);
     });
+
+    test('uses the content-type from the response header when present', async () => {
+      const fakeData = Buffer.from('fake-image-data');
+      axios.get.mockResolvedValue({ data: fakeData, headers: { 'content-type': 'image/jpeg' } });
+
+      const result = await fetchImageAsBase64FromUrl('https://example.com/image.jpg');
+
+      expect(result).toMatch(/^data:image\/jpeg;base64,/);
+    });
+
+    test('falls back to image/png when the response has no headers', async () => {
+      const fakeData = Buffer.from('fake-image-data');
+      axios.get.mockResolvedValue({ data: fakeData, headers: undefined });
+
+      const result = await fetchImageAsBase64FromUrl('https://example.com/image.png');
+
+      expect(result).toMatch(/^data:image\/png;base64,/);
+    });
   });
 
   describe('filterDuplicateUploadFilenames', () => {

@@ -1,7 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import isEqual from 'react-fast-compare';
+import { merge } from 'lodash-es';
+import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
+import { clearUserContent } from '../../../ducks/user-content';
 import evaluateSectionConditions from './utils/evaluateSectionConditions';
 import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from '../../../utils/v2-event-schemas/constants';
 import getDefaultFormData from './utils/getDefaultFormData';
@@ -38,24 +41,6 @@ const getVisibleSectionIds = (formElements, formData) =>
       formData,
     ));
 
-const mergeFieldErrors = (schemaErrors, uploadErrors) => {
-  const fieldErrors = { ...schemaErrors };
-
-  Object.entries(uploadErrors).forEach(([key, uploadError]) => {
-    const schemaError = fieldErrors[key];
-    if (schemaError
-      && typeof schemaError === 'object'
-      && uploadError
-      && typeof uploadError === 'object') {
-      fieldErrors[key] = mergeFieldErrors(schemaError, uploadError);
-    } else {
-      fieldErrors[key] = uploadError;
-    }
-  });
-
-  return fieldErrors;
-};
-
 const SchemaForm = ({
   eventId,
   eventLocation,
@@ -69,6 +54,7 @@ const SchemaForm = ({
   renderSubmitButton,
   schema,
 }) => {
+  const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection.schemaForm' });
 
   const onLocationMarkerClick = useCallback((markerId) => {
@@ -110,7 +96,7 @@ const SchemaForm = ({
 
     const schemaErrors = runSchemaValidations(formData) || {};
     const uploadErrors = runUploadValidations(formData);
-    const fieldErrors = mergeFieldErrors(schemaErrors, uploadErrors);
+    const fieldErrors = merge({}, schemaErrors, uploadErrors);
     if (Object.keys(fieldErrors).length > 0) {
       const erroneousFields = Object.keys(fieldErrors);
 
@@ -285,6 +271,8 @@ const SchemaForm = ({
 
     setLocationMarkers(locationMarkers);
   }, [formData, formElements, setLocationMarkers]);
+
+  useEffect(() => () => dispatch(clearUserContent()), [dispatch]);
 
   return <form onSubmit={onSubmit}>
     <div className="sr-only" role="alert">

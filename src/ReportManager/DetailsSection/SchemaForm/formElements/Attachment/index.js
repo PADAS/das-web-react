@@ -96,11 +96,19 @@ const isFileTypeAllowed = (file, allowableFileTypes) => {
   });
 };
 
-const AttachmentListItem = ({ attachment, onRemove, readOnly, removeButtonRef }) => {
+const AttachmentListItem = ({ actionButtonRefs, attachment, onRemove, readOnly }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection.schemaForm.fields.attachment' });
 
   const tracker = useContext(TrackerContext);
+
+  const actionButtonRef = (node) => {
+    if (node) {
+      actionButtonRefs.current.set(attachment.uploadId, node);
+    } else {
+      actionButtonRefs.current.delete(attachment.uploadId);
+    }
+  };
 
   let icon = <AttachmentIcon />;
   if (attachment.status === 'pending' || attachment.status === 'uploading') {
@@ -123,6 +131,7 @@ const AttachmentListItem = ({ attachment, onRemove, readOnly, removeButtonRef })
       actionButton = <button
         aria-label={t('expandButtonLabel', { fileName: attachment.name })}
         className={styles.actionButton}
+        disabled={!attachment.originalImageSource && !attachment.thumbnailImageSource}
         onClick={() => dispatch(addModal({
           content: ImageModal,
           src: attachment.originalImageSource ?? attachment.thumbnailImageSource,
@@ -130,6 +139,7 @@ const AttachmentListItem = ({ attachment, onRemove, readOnly, removeButtonRef })
           tracker,
           url: attachment.originalUrl,
         }))}
+        ref={actionButtonRef}
         title={t('expandButtonLabel', { fileName: attachment.name })}
         type="button"
         >
@@ -140,6 +150,7 @@ const AttachmentListItem = ({ attachment, onRemove, readOnly, removeButtonRef })
         aria-label={t('downloadButtonLabel', { fileName: attachment.name })}
         className={styles.actionButton}
         onClick={() => downloadFileFromUrl(attachment.originalUrl, { filename: attachment.name })}
+        ref={actionButtonRef}
         title={t('downloadButtonLabel', { fileName: attachment.name })}
         type="button"
         >
@@ -151,7 +162,7 @@ const AttachmentListItem = ({ attachment, onRemove, readOnly, removeButtonRef })
         aria-label={t('removeButtonLabel', { fileName: attachment.name })}
         className={styles.actionButton}
         onClick={() => onRemove()}
-        ref={removeButtonRef}
+        ref={actionButtonRef}
         title={t('removeButtonLabel', { fileName: attachment.name })}
         type="button"
       >
@@ -186,11 +197,11 @@ const Attachment = ({ attachmentsMetadata, details, error, id, onFieldChange, re
 
   const fetchedImageDataRef = useRef(new Set());
 
+  const actionButtonRefs = useRef(new Map());
   const chooseFileButtonRef = useRef();
   const fileInputRef = useRef();
   const nextFocusTargetRef = useRef();
   const prevUploadsRef = useRef(null);
-  const removeButtonRefs = useRef(new Map());
 
   const [announcement, setAnnouncement] = useState('');
   const [draggingOver, setDraggingOver] = useState(false);
@@ -259,7 +270,7 @@ const Attachment = ({ attachmentsMetadata, details, error, id, onFieldChange, re
     const attachmentIndex = attachments.indexOf(attachment);
     const nextAttachment = attachments[attachmentIndex + 1] ?? attachments[attachmentIndex - 1];
     nextFocusTargetRef.current = nextAttachment
-      ? removeButtonRefs.current.get(nextAttachment.uploadId)
+      ? actionButtonRefs.current.get(nextAttachment.uploadId)
       : chooseFileButtonRef.current;
 
     onFieldChange(id, [...value.slice(0, attachmentIndex), ...value.slice(attachmentIndex + 1)]);
@@ -332,6 +343,14 @@ const Attachment = ({ attachmentsMetadata, details, error, id, onFieldChange, re
   useEffect(() => {
     let cancelled = false;
 
+    const uploadIdsSet = new Set(value.map((attachment) => attachment.uploadId));
+    fetchedImageDataRef.current.forEach((id) => {
+      if (!uploadIdsSet.has(id)) {
+        // A removed upload still has fetched image data. Delete it.
+        fetchedImageDataRef.current.delete(id);
+      }
+    });
+
     value.forEach((attachment) => {
       const attachmentMetadata = attachmentsMetadata?.[attachment.uploadId];
 
@@ -343,16 +362,21 @@ const Attachment = ({ attachmentsMetadata, details, error, id, onFieldChange, re
         fetchedImageDataRef.current.add(attachment.uploadId);
 
         const downloadAndSetImageData = async () => {
-          const [original, thumbnail] = await Promise.all([
-            fetchImageAsBase64FromUrl(attachmentMetadata.files.original),
-            fetchImageAsBase64FromUrl(attachmentMetadata.files.thumbnail),
-          ]);
+          try {
+            const [original, thumbnail] = await Promise.all([
+              fetchImageAsBase64FromUrl(attachmentMetadata.files.original),
+              fetchImageAsBase64FromUrl(attachmentMetadata.files.thumbnail),
+            ]);
 
-          if (!cancelled) {
-            setMetadataImageSources((prevMetadataImageSources) => ({
-              ...prevMetadataImageSources,
-              [attachment.uploadId]: { original, thumbnail },
-            }));
+            if (!cancelled) {
+              setMetadataImageSources((prevMetadataImageSources) => ({
+                ...prevMetadataImageSources,
+                [attachment.uploadId]: { original, thumbnail },
+              }));
+            }
+          } catch {
+            // Image fetch failed; swallow the error. The thumbnail will not be
+            // shown.
           }
         };
 
@@ -401,17 +425,11 @@ const Attachment = ({ attachmentsMetadata, details, error, id, onFieldChange, re
       </div>
       : <ul className={`${styles.attachmentsList} ${draggingOver ? styles.draggingOver : ''}`} role="list">
         {attachments.map((attachment) => <AttachmentListItem
+          actionButtonRefs={actionButtonRefs}
           attachment={attachment}
           key={attachment.uploadId}
           onRemove={() => onClickRemove(attachment)}
           readOnly={readOnly}
-          removeButtonRef={(element) => {
-            if (element) {
-              removeButtonRefs.current.set(attachment.uploadId, element);
-            } else {
-              removeButtonRefs.current.delete(attachment.uploadId);
-            }
-          }}
         />)}
       </ul>}
 
@@ -437,7 +455,6 @@ const Attachment = ({ attachmentsMetadata, details, error, id, onFieldChange, re
       />
 
       <button
-        aria-required={details.isRequired}
         className={styles.chooseFileButton}
         disabled={isMaxItemsReached}
         onClick={() => fileInputRef.current?.click()}

@@ -83,7 +83,6 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Attachmen
     renderAttachmentField();
 
     expect(screen.getByText('(required)')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Choose File' })).toHaveAttribute('aria-required', 'true');
   });
 
   test('does not show an error state in the label when there are no errors', () => {
@@ -185,7 +184,6 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Attachmen
 
     expect(chooseFileButton).toBeVisible();
     expect(chooseFileButton).toHaveAttribute('type', 'button');
-    expect(chooseFileButton).toHaveAttribute('aria-required', 'false');
     expect(chooseFileButton).not.toBeDisabled();
   });
 
@@ -370,6 +368,32 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Attachmen
     expect(expandButton).toHaveAttribute('type', 'button');
     expect(expandButton).toHaveAttribute('aria-label', 'Expand photo.png');
     expect(expandButton).toHaveAttribute('title', 'Expand photo.png');
+  });
+
+  test('disables the expand button for a saved image attachment while the image source is loading', () => {
+    fetchImageAsBase64FromUrl.mockImplementation(() => new Promise(() => {}));
+
+    renderAttachmentField({
+      attachmentsMetadata: {
+        'saved-1': { filename: 'photo.png', file_type: 'image', files: { original: 'https://example.com/photo.png', thumbnail: 'https://example.com/photo_thumb.png' } },
+      },
+      value: [{ uploadId: 'saved-1' }],
+    });
+
+    expect(screen.getByRole('button', { name: 'Expand photo.png' })).toBeDisabled();
+  });
+
+  test('enables the expand button for a saved image attachment once the image source has loaded', async () => {
+    renderAttachmentField({
+      attachmentsMetadata: {
+        'saved-1': { filename: 'photo.png', file_type: 'image', files: { original: 'https://example.com/photo.png', thumbnail: 'https://example.com/photo_thumb.png' } },
+      },
+      value: [{ uploadId: 'saved-1' }],
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Expand photo.png' })).not.toBeDisabled();
+    });
   });
 
   test('shows the download button for a saved non-image attachment', () => {

@@ -12,10 +12,25 @@ export const ABORT_CONTROLLERS = new Map();
 export const SUGGESTED_CHUNK_SIZE = 1024 * 1024; // 1 MiB
 
 // Actions
+export const CLEAR = 'USER_CONTENT.CLEAR';
 export const REMOVE_UPLOAD = 'USER_CONTENT.REMOVE_UPLOAD';
 export const SET_CHUNKED_UPLOAD_STATUS = 'USER_CONTENT.SET_CHUNKED_UPLOAD_STATUS';
 
 // Action creators
+export const clearUserContent = () => (dispatch, getState) => {
+  ABORT_CONTROLLERS.forEach((controller) => controller.abort());
+  ABORT_CONTROLLERS.clear();
+
+  const userContent = getState().data.userContent ?? {};
+  Object.values(userContent).forEach((upload) => {
+    if (upload.objectUrl) {
+      URL.revokeObjectURL(upload.objectUrl);
+    }
+  });
+
+  dispatch({ type: CLEAR });
+};
+
 export const removeFile = (uploadId) => (dispatch, getState) => {
   ABORT_CONTROLLERS.get(uploadId)?.abort();
   ABORT_CONTROLLERS.delete(uploadId);
@@ -98,6 +113,9 @@ export const INITIAL_STATE = {};
 
 const userContentReducer = (state, action) => {
   switch (action.type) {
+  case CLEAR:
+    return INITIAL_STATE;
+
   case REMOVE_UPLOAD: {
     const { [action.payload.uploadId]: _, ...rest } = state;
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
+import { clearUserContent } from '../../../ducks/user-content';
 import { fireEvent, render, screen } from '../../../test-utils';
 import { DATE_TIME_ELEMENT_INPUT_TYPES } from '../../../utils/v2-event-schemas/constants';
 import { GPS_FORMATS } from '../../../utils/location';
@@ -13,7 +14,10 @@ import SchemaForm from './';
 
 jest.mock('./utils/useMapLocationMarkers', () => jest.fn());
 jest.mock('./utils/normalizeDateTimeFieldValue', () => jest.fn((value) => value));
-jest.mock('../../../ducks/user-content', () => ({ removeFile: jest.fn(), uploadFile: jest.fn() }));
+jest.mock(
+  '../../../ducks/user-content',
+  () => ({ clearUserContent: jest.fn(), removeFile: jest.fn(), uploadFile: jest.fn() })
+);
 
 describe('ReportManager - DetailsSection - SchemaForm', () => {
   const onFormDataChange = jest.fn();
@@ -25,6 +29,7 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
 
   let schema, store;
   beforeEach(() => {
+    clearUserContent.mockReturnValue({ type: 'USER_CONTENT.CLEAR' });
     useMapLocationMarkers.mockImplementation(() => ({ blurLocationMarker, focusLocationMarker, setLocationMarkers }));
 
     schema = {
@@ -504,7 +509,7 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
     expect(screen.getByTestId('schema-form-text-field-text_field_3')).not.toBeVisible();
   });
 
-  test('shows schema  errors if there are any when the user submits the form', async () => {
+  test('shows schema errors if there are any when the user submits the form', async () => {
     renderSchemaForm({ formData: { text_field: undefined } });
 
     const alert = screen.getByRole('alert');
@@ -724,5 +729,15 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
       rawTimeValue,
       DATE_TIME_ELEMENT_INPUT_TYPES.TIME,
     );
+  });
+
+  test('dispatches clearUserContent when the component unmounts', () => {
+    const { unmount } = renderSchemaForm({});
+
+    expect(clearUserContent).not.toHaveBeenCalled();
+
+    unmount();
+
+    expect(clearUserContent).toHaveBeenCalledTimes(1);
   });
 });

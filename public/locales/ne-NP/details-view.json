@@ -73,6 +73,8 @@
     "reportTypeLabel": "घटनाका प्रकार",
     "reportedByLabel": "द्वारा रिपोर्ट गरिएको",
     "v2SchemaFormSummary": {
+      "attachmentHumanizedValue_one": "1 फाइल",
+      "attachmentHumanizedValue_other": "{{count}} फाइलहरू",
       "collectionHumanizedValue": "{{collectionLength}} वस्तुहरू"
     }
   },
