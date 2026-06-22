@@ -1,10 +1,11 @@
 const transformAttachmentField = (
   attachmentFieldId,
   attachmentFieldName,
-  _jsonSchema,
+  jsonSchema,
   uiSchema,
   formElements,
 ) => {
+  const attachmentFieldJSONSchema = jsonSchema.properties[attachmentFieldName];
   // Backwards compatibility: uiSchema.fields keys used to be the field names.
   const attachmentFieldUISchema =
     uiSchema.fields[attachmentFieldId] ?? uiSchema.fields[attachmentFieldName];
@@ -13,6 +14,9 @@ const transformAttachmentField = (
   formElements[attachmentFieldId].details = {
     ...formElements[attachmentFieldId].details,
     allowableFileTypes: attachmentFieldUISchema.allowableFileTypes ?? [],
+    description: attachmentFieldJSONSchema.description ?? '',
+    maxItems: attachmentFieldJSONSchema.maxItems ?? null,
+    minItems: attachmentFieldJSONSchema.minItems ?? null,
   };
 };
 

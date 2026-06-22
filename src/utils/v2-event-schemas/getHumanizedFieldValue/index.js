@@ -27,6 +27,11 @@ const getHumanizedFieldValue = (field, value, defaultHumanizedValue, language, c
   const use12HourFormat = shouldUse12HourFormat(language);
 
   switch (field.type) {
+  case FORM_ELEMENT_TYPES.ATTACHMENT:
+    return value.length === 0
+      ? defaultHumanizedValue
+      : t('attachmentHumanizedValue', { count: value.length });
+
   case FORM_ELEMENT_TYPES.CHOICE_LIST:
     if (field.details.multiple) {
       return value.map((choiceValue) => getChoiceListOptionHumanizedValue(choiceValue, field)).join(', ');

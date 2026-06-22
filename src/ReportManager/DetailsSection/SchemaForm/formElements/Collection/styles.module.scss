@@ -72,7 +72,6 @@
       display: flex;
       font-weight: 500;
       margin-top: 1rem;
-      outline: none;
       padding: 0.25rem;
       padding-right: 0.75rem;
   
@@ -82,7 +81,7 @@
       }
   
       &:focus-visible:not(:disabled) {
-        border: 2px solid colors.$bright-blue;
+        outline: 2px solid colors.$bright-blue;
       }
   
       &:hover:not(:disabled) {

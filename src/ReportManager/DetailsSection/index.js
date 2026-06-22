@@ -286,6 +286,7 @@ const DetailsSection = ({
       formData={reportForm.event_details}
       hideMapLocationMarkers={isBehindAddedEvent}
       isNewEvent={isNewEvent}
+      metadata={reportForm.metadata ?? {}}
       onFormDataChange={onFormDataChange}
       onFormSubmit={onFormSubmit}
       readOnly={isReadOnly}

@@ -161,18 +161,38 @@
           "defaultKeyword": "Invalid value.",
           "defaultPattern": "Invalid pattern.",
           "emailFormat": "Invalid email format.",
-          "maximum": "This value should be less than or equal to {{maximum}}.",
           "maxItems_one": "This collection must have at most {{count}} item.",
           "maxItems_other": "This collection must have at most {{count}} items.",
-          "minimum": "This value should be greater than or equal to {{minimum}}.",
+          "maximum": "This value should be less than or equal to {{maximum}}.",
           "minItems_one": "This collection must have at least {{count}} item.",
           "minItems_other": "This collection must have at least {{count}} items.",
+          "minimum": "This value should be greater than or equal to {{minimum}}.",
           "required": "This is a required field.",
           "timeFormat": "Invalid time format.",
+          "uploadFailedError": "One or more file uploads failed. Remove the failed files before submitting.",
+          "uploadInProgressError": "Please wait for files to finish uploading.",
           "uriFormat": "Invalid URL format.",
           "uuidFormat": "Invalid UUID format."
         },
         "fields": {
+          "attachment": {
+            "chooseFile": "Choose File",
+            "disallowedTypeAlert": "{{fileName}} can't be added because its file type isn't allowed.",
+            "dropzoneText": "Drag and drop files here",
+            "maxItemsAlert_one": "You can only add up to {{count}} file.",
+            "maxItemsAlert_other": "You can only add up to {{count}} files.",
+            "downloadButtonLabel": "Download {{fileName}}",
+            "expandButtonLabel": "Expand {{fileName}}",
+            "removeButtonLabel": "Remove {{fileName}}",
+            "requiredLabel": "(required)",
+            "uploadErrorLabel": "Upload failed",
+            "uploadFailedAnnouncement_one": "{{fileName}} couldn't be uploaded",
+            "uploadFailedAnnouncement_other": "{{count}} files couldn't be uploaded",
+            "uploadStartedAnnouncement_one": "Uploading {{fileName}}",
+            "uploadStartedAnnouncement_other": "Uploading {{count}} files",
+            "uploadSucceededAnnouncement_one": "{{fileName}} uploaded",
+            "uploadSucceededAnnouncement_other": "{{count}} files uploaded"
+          },
           "collection": {
             "addButtonLabel": "Add {{itemName}}",
             "defaultAddButton": "Add",
@@ -187,6 +207,8 @@
               "dragOverAnnouncement": "{{activeItemTitle}} was moved into position {{overItemPosition}} of {{itemsLength}}.",
               "dragStartAnnouncement": "Picked up {{activeItemTitle}}. {{activeItemTitle}} is in position {{activeItemPosition}} of {{itemsLength}}.",
               "item": {
+                "attachmentHumanizedValue_one": "1 file",
+                "attachmentHumanizedValue_other": "{{count}} files",
                 "collectionHumanizedValue": "{{collectionLength}} items",
                 "deleteButtonLabel": "Delete {{itemTitle}}",
                 "editButtonLabel": "Edit {{itemTitle}}",
@@ -196,6 +218,8 @@
                   "doneButton": "Done"
                 },
                 "formPreview": {
+                  "attachmentHumanizedValue_one": "1 file",
+                  "attachmentHumanizedValue_other": "{{count}} files",
                   "collectionHumanizedValue": "{{collectionLength}} items",
                   "jumpToLocationButtonLabel": "Jump to {{field}} location"
                 },
