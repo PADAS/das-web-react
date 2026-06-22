@@ -5,8 +5,8 @@
     "authenticationFailed": "प्रमाणीकरण असफल भयो: कृपया आफ्नो प्रमाणहरू जाँच गर्नुहोस् र पुनः प्रयास गर्नुहोस्।",
     "authenticationError": "प्रमाणीकरण त्रुटि: {{errorDescription}}",
     "invalidCredentialsMessage": "गलत प्रमाणहरु दिइयो । कृपया पुनः प्रयास गर्नुहोस् ।",
-    "missingOrg": "पहिचान प्रदायक संस्था कन्फिगर गरिएको छैन।",
     "signInFailed": "साइन इन असफल भयो। कृपया पुनः प्रयास गर्नुहोस्।",
+    "signInIncomplete": "हामी तपाईंको साइन इन पूरा गर्न सकेनौं। कृपया पुनः प्रयास गर्नुहोस्।",
     "unknownErrorMessage": "केही त्रुटी भएको छ । कृपया पुनः प्रयास गर्नुहोस् ।"
   },
   "errors": {
@@ -16,6 +16,7 @@
   "eulaLink": "अर्थरेन्जर EULA",
   "eulaLinkLabel": "अर्थरेन्जर EULA (नयाँ ट्याबमा खुल्छ)",
   "loginButton": "लग इन",
+  "loginButtonEmail": "इमेलबाट साइन इन",
   "loginButtonIdp": "साइन इन",
   "loginButtonLoadingLabel": "लोड हुँदैछ",
   "passwordLabel": "पासवर्ड",

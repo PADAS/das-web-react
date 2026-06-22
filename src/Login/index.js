@@ -13,6 +13,7 @@ import appConfig from '../config';
 import { clearAuth, postAuth } from '../ducks/auth';
 import { fetchEula } from '../ducks/eula';
 import { REACT_APP_ROUTE_PREFIX, SYSTEM_CONFIG_FLAGS } from '../constants';
+import { buildAuth0AuthorizationParams } from '../utils/auth0';
 import useNavigate from '../hooks/useNavigate';
 
 import * as styles from './styles.module.scss';
@@ -35,7 +36,12 @@ const LoginPage = () => {
   const passwordInputRef = useRef(null);
   const usernameInputRef = useRef(null);
 
-  const [alertMessage, setAlertMessage] = useState(null);
+  // Initialized from router state (no effect/flicker): Auth0TokenManager routes
+  // here with authLinkingError when the post-Auth0 account-linking gate fails
+  // transiently.
+  const [alertMessage, setAlertMessage] = useState(
+    () => (location.state?.authLinkingError ? t('errorAlert.signInIncomplete') : null)
+  );
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [formErrors, setFormErrors] = useState({ username: null, password: null });
   const [isLoading, setIsLoading] = useState(false);
@@ -47,10 +53,7 @@ const LoginPage = () => {
   const onAuth0Login = useCallback(async () => {
     try {
       await auth0LoginWithRedirect({
-        authorizationParams: {
-          audience: appConfig.auth0.audience,
-          organization: idpOrgId,
-        },
+        authorizationParams: buildAuth0AuthorizationParams(appConfig.auth0.audience, idpOrgId),
       });
     } catch (_error) {
       setAlertMessage(t('errorAlert.signInFailed'));
@@ -145,13 +148,6 @@ const LoginPage = () => {
     }
   }, [dispatch, location.search, t]);
 
-  useEffect(() => {
-    if (requireIdp && !idpOrgId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setAlertMessage(t('errorAlert.missingOrg'));
-    }
-  }, [requireIdp, idpOrgId, t]);
-
   return <div className={styles.container}>
     <EarthRangerLogo aria-label="EarthRanger" className={styles.logo} role="img" />
 
@@ -159,7 +155,7 @@ const LoginPage = () => {
 
     {requireIdp ? (
       <div className={styles.form}>
-        {idpOrgId && <button
+        <button
           aria-busy={isAuth0Loading}
           aria-label={isAuth0Loading ? t('loginButtonLoadingLabel') : undefined}
           className={styles.loginButton}
@@ -169,8 +165,8 @@ const LoginPage = () => {
         >
           {isAuth0Loading
             ? <MoonLoader aria-hidden color="white" size={SUBMIT_LOADER_SIZE} />
-            : t('loginButtonIdp')}
-        </button>}
+            : t(idpOrgId?.trim() ? 'loginButtonIdp' : 'loginButtonEmail')}
+        </button>
       </div>
     ) : (
       <form className={styles.form} noValidate onSubmit={onFormSubmit}>

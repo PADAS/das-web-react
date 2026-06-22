@@ -5,8 +5,8 @@
     "authenticationFailed": "Autenticación fallida: Por favor verifique sus credenciales e intente de nuevo.",
     "authenticationError": "Error de autenticación: {{errorDescription}}",
     "invalidCredentialsMessage": "Las credenciales son inválidas. Por favor intente de nuevo.",
-    "missingOrg": "La organización del proveedor de identidad no está configurada.",
     "signInFailed": "Error al iniciar sesión. Por favor intente de nuevo.",
+    "signInIncomplete": "No pudimos completar su inicio de sesión. Por favor intente de nuevo.",
     "unknownErrorMessage": "Ha ocurrido un error. Por favor intente de nuevo."
   },
   "errors": {
@@ -16,6 +16,7 @@
   "eulaLink": "EULA de EarthRanger",
   "eulaLinkLabel": "EULA de EarthRanger (se abre en una nueva pestaña)",
   "loginButton": "Iniciar sesión",
+  "loginButtonEmail": "Iniciar sesión con correo electrónico",
   "loginButtonIdp": "Iniciar sesión",
   "loginButtonLoadingLabel": "Cargando",
   "passwordLabel": "Contraseña",
