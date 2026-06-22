@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as CheckIcon } from '../../../../../common/images/icons/check-light.svg';
 
+import { BOOTSTRAP_DEFAULTS } from '../../../../../constants';
+
 import * as styles from './styles.module.scss';
 
 const IndicatorSeparator = () => null;
@@ -85,6 +87,9 @@ const Dropdown = ({ details, disabled, id, invalid, onChange, readOnly, value, .
     isMulti={details.multiple}
     isSearchable={!readOnly}
     menuIsOpen={readOnly ? false : undefined}
+    menuPlacement="auto"
+    menuPortalTarget={document.body}
+    menuShouldScrollIntoView
     noOptionsMessage={() => t('select.noOptionsMessage')}
     onChange={readOnly ? undefined : onSelectChange}
     onKeyDown={(event) => event.key === 'Escape' && isMenuOpen && event.stopPropagation()}
@@ -92,6 +97,7 @@ const Dropdown = ({ details, disabled, id, invalid, onChange, readOnly, value, .
     onMenuOpen={() => setMenuOpen(true)}
     options={options}
     placeholder={details.hint}
+    styles={{ menuPortal: (base) => ({ ...base, zIndex: BOOTSTRAP_DEFAULTS.MODAL_ZINDEX + 1 }) }}
     value={selectedValue}
     {...otherProps}
   />;

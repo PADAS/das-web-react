@@ -316,7 +316,10 @@ describe('LocationPicker', () => {
 
     await userEvent.click(setLocationButton);
 
-    expect(screen.getByRole('dialog')).toBeVisible();
+    const locationDialog = screen.getByRole('dialog', { name: 'Location' });
+
+    expect(locationDialog).toBeVisible();
+    expect(locationDialog).toHaveStyle({ position: 'fixed' });
     expect(setLocationButton).toHaveAttribute('aria-expanded', 'true');
   });
 
@@ -325,9 +328,9 @@ describe('LocationPicker', () => {
 
     const setLocationButton = screen.getByLabelText('Open the location picker menu to set a value');
     await userEvent.click(setLocationButton);
-    const menuPopover = screen.getByRole('dialog');
+    const locationDialog = screen.getByRole('dialog', { name: 'Location' });
 
-    expect(menuPopover).toBeVisible();
+    expect(locationDialog).toBeVisible();
     expect(setLocationButton).toHaveAttribute('aria-expanded', 'true');
 
     await userEvent.click(setLocationButton);
@@ -335,7 +338,7 @@ describe('LocationPicker', () => {
     expect(setLocationButton).toHaveAttribute('aria-expanded', 'false');
 
     await waitFor(() => {
-      expect(menuPopover).not.toBeVisible();
+      expect(locationDialog).not.toBeVisible();
     });
   });
 });

@@ -142,7 +142,14 @@ const LocationPicker = ({
       />
     </div>
 
-    <Overlay container={innerRef} placement="bottom-start" show={isMenuPopoverOpen} target={innerRef}>
+    <Overlay
+      container={innerRef}
+      flip
+      placement="bottom-start"
+      popperConfig={{ strategy: 'fixed' }}
+      show={isMenuPopoverOpen}
+      target={innerRef}
+      >
       <MenuPopover
         id={menuPopoverId}
         onChange={onChange}
