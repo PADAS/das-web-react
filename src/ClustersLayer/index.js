@@ -3,13 +3,13 @@ import { featureCollection } from '@turf/turf';
 import { useSelector } from 'react-redux';
 
 import { addNewClusterMarkers, getRenderedClustersData, removeOldClusterMarkers } from './utils';
-import { CLUSTERS_MAX_ZOOM, CLUSTERS_RADIUS, LAYER_IDS, SOURCE_IDS } from '../constants';
+import { CLUSTERS_MAX_ZOOM, CLUSTERS_RADIUS, FEATURE_FLAGS, LAYER_IDS, SOURCE_IDS } from '../constants';
 import { getMapEventSymbolPointsWithVirtualDate } from '../selectors/events';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { selectShouldEventsBeClustered, selectShouldSubjectsBeClustered } from '../selectors/clusters';
 import { MapContext } from '../MapContext';
 import useClusterPolygon from '../hooks/useClusterPolygon';
-import { useMapEventBinding } from '../hooks';
+import { useFeatureFlag, useMapEventBinding } from '../hooks';
 import useMapSources from '../hooks/useMapSources';
 import useMapLayers from '../hooks/useMapLayers';
 
@@ -41,9 +41,12 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
   const shouldSubjectsBeClustered = useSelector(selectShouldSubjectsBeClustered);
   const subjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);
 
+  // Events render as individual points from the tile so they are excluded from clustering.
+  const useEventVectorTiles = useFeatureFlag(FEATURE_FLAGS.EVENTS_VECTOR_TILES);
+
   const clustersSourceData = useMemo(() => featureCollection(
     [
-      ...(shouldEventsBeClustered ? eventPointFeatureCollection.features : []),
+      ...(shouldEventsBeClustered && !useEventVectorTiles ? eventPointFeatureCollection.features : []),
       ...(shouldSubjectsBeClustered ? subjectFeatureCollection.features : []),
     ]
   ), [
@@ -51,6 +54,7 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
     shouldEventsBeClustered,
     shouldSubjectsBeClustered,
     subjectFeatureCollection.features,
+    useEventVectorTiles,
   ]);
 
   useMapSources([{ id: CLUSTERS_SOURCE_ID, data: clustersSourceData }], CLUSTER_SOURCE_CONFIG);

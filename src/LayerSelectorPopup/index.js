@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { calcImgIdFromUrlForMapImages, calcUrlForImage } from '../utils/img';
+import { createFeatureCollectionFromEvents } from '../utils/map';
 import { hidePopup } from '../ducks/popup';
 import { GEAR_FEATURE_CONTENT_TYPE, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { subjectIsStatic } from '../utils/subjects';
@@ -17,11 +18,25 @@ const LayerSelectorPopup = ({ data, id }) => {
   const { t } = useTranslation('map-popups', { keyPrefix: 'layerSelectorPopup' });
 
   const mapImages = useSelector((state) => state.view.mapImages);
+  const eventStore = useSelector((state) => state.data?.eventStore);
+  const eventTypes = useSelector((state) => state.data?.eventTypes);
 
   const [filter, setFilter] = useState('');
 
   const { layers: layerList, onSelectEvent, onSelectGear, onSelectSubject } = data;
   const showFilterInput = layerList.length > 5;
+
+  // Event features from the vector tile lack the flattened props this popup
+  // needs, so hydrate them from the event store.
+  const hydratedLayerList = useMemo(() => layerList.map((layer) => {
+    const eventId = layer.properties?.id;
+    const storeEvent = eventId && eventStore?.[eventId];
+    if (!layer.properties?.display_title && storeEvent) {
+      const [hydrated] = createFeatureCollectionFromEvents([storeEvent], eventTypes ?? []).features;
+      return hydrated ?? layer;
+    }
+    return layer;
+  }), [layerList, eventStore, eventTypes]);
 
   const handleClick = useCallback((event, feature) => {
     dispatch(hidePopup(id));
@@ -45,7 +60,7 @@ const LayerSelectorPopup = ({ data, id }) => {
   }, [dispatch, id, onSelectEvent, onSelectGear, onSelectSubject]);
 
   const renderedLayerListItems = useMemo(() => {
-    const sortedLayerList = layerList.sort((a, b) => {
+    const sortedLayerList = hydratedLayerList.sort((a, b) => {
       const first = (a.properties.display_title || a.properties.name || '').toLowerCase();
       const second = (b.properties.display_title || b.properties.name || '').toLowerCase();
 
@@ -55,7 +70,7 @@ const LayerSelectorPopup = ({ data, id }) => {
     const filteredLayerList = !filter
       ? sortedLayerList
       : sortedLayerList.filter((layer) => {
-        const displayName = layer.properties.display_title || layer.properties.name || layer.properties.title;
+        const displayName = layer.properties.display_title || layer.properties.name || layer.properties.title || '';
         return displayName.toLowerCase().includes(filter.toLowerCase());
       });
 
@@ -82,7 +97,7 @@ const LayerSelectorPopup = ({ data, id }) => {
         <span>{listLabel}</span>
       </li>;
     });
-  }, [filter, handleClick, layerList, mapImages]);
+  }, [filter, handleClick, hydratedLayerList, mapImages]);
 
   const onFilterChange = useCallback((value) => setFilter(value), []);
 

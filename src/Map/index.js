@@ -35,14 +35,15 @@ import {
 import { MapContext } from '../MapContext';
 import { updatePatrolTrackState } from '../ducks/patrols';
 import useCrsBoundingBoxLayer from './layers/useCrsBoundingBoxLayer';
-import { useMapEventBinding } from '../hooks';
+import { useFeatureFlag, useMapEventBinding } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
-import { LAYER_IDS, SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../constants';
+import { FEATURE_FLAGS, LAYER_IDS, SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../constants';
 
 import DelayedUnmount from '../DelayedUnmount';
 import EarthRangerMap from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
+import EventsTileLayers from '../EventsTileLayers';
 import GearLayer from '../GearLayer';
 import SubjectsLayer from '../SubjectsLayer';
 import StaticSensorsLayer from '../StaticSensorsLayer';
@@ -143,6 +144,7 @@ const Map = ({ children, onMapLoad, socket }) => {
   const timeSliderState = useSelector(state => state.view.timeSliderState);
   const trackLength = useSelector(state => state.view.trackSettings.length);
   const trackLengthOrigin = useSelector(state => state.view.trackSettings.origin);
+  const useEventVectorTiles = useFeatureFlag(FEATURE_FLAGS.EVENTS_VECTOR_TILES);
 
   const messageableMapSubjects = mapSubjectFeatureCollection.features.filter(({ properties }) => !!properties?.messaging?.length);
 
@@ -706,11 +708,13 @@ const Map = ({ children, onMapLoad, socket }) => {
 
       <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
 
-      {eventsEnabled && <EventsLayer
-        mapImages={mapImages}
-        onEventClick={onSelectEvent}
-        bounceEventIDs={bounceEventIDs}
-      />}
+      {eventsEnabled && (useEventVectorTiles
+        ? <EventsTileLayers onEventClick={onSelectEvent} />
+        : <EventsLayer
+          mapImages={mapImages}
+          onEventClick={onSelectEvent}
+          bounceEventIDs={bounceEventIDs}
+        />)}
 
       {subjectsEnabled && <SubjectsLayer mapImages={mapImages} onSubjectClick={onSelectSubject} />}
 

@@ -89,6 +89,7 @@ export const LAYER_IDS = {
   EVENT_GEOMETRY_LAYER: 'event-geometry-layer',
   EVENT_LOCATION_MARKERS: 'event-location-markers-layer',
   EVENT_SYMBOLS: 'event_symbols',
+  EVENTS_VECTOR_SYMBOLS: 'events-vector-symbols',
   GEAR_LINE: 'gear-line-layer',
   GEAR_LINE_HIT: 'gear-line-hit-layer',
   GEAR_POINT: 'gear-point-layer',
@@ -118,6 +119,7 @@ export const SOURCE_IDS = {
   CURRENT_USER_LOCATION_SOURCE: 'current-user-location-source',
   EVENT_GEOMETRY: 'event-geometry-source',
   EVENT_LOCATION_MARKERS: 'event-location-markers-source',
+  EVENTS_VECTOR_SOURCE: 'events-vector-source',
   MAP_FEATURES_LINES_SOURCE: 'feature-line-source',
   MAP_FEATURES_POLYGONS_SOURCE: 'feature-polygon-source',
   MAP_FEATURES_SYMBOLS_SOURCE: 'feature-symbol-source',
@@ -325,9 +327,13 @@ export const SUPPORTED_LANGUAGES = {
   sw: 'Swahili',
 };
 
-export const FEATURE_FLAG_LABELS = {};
+export const FEATURE_FLAGS = {
+  EVENTS_VECTOR_TILES: 'EVENTS_VECTOR_TILES',
+};
 
-export const DEVELOPMENT_FEATURE_FLAGS = {};
+export const DEVELOPMENT_FEATURE_FLAGS = {
+  [FEATURE_FLAGS.EVENTS_VECTOR_TILES]: false,
+};
 
 export const LINK_TYPES = { PATROL: 'patrol', EVENT: 'event' };
 

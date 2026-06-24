@@ -244,6 +244,7 @@
         },
         "experimentalFeaturesFieldSet": {
           "CUSTOM_COORDINATE_SYSTEMS_ENABLED": "Sistemas de referencia de coordenadas",
+          "EVENTS_VECTOR_TILES": "Teselas vectoriales de eventos",
           "legend": "Funcionalidades experimentales"
         },
         "languageSelect": {

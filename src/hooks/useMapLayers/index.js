@@ -35,6 +35,10 @@ const useMapLayers = (layerConfigsBatch = []) => {
           && assertLayerCondition(layerConfig)
           && !map.getLayer(layerConfig.id)
         ){
+          const beforeId = layerConfig?.options?.before;
+          const before = layerConfig?.options?.beforeOptional && beforeId && !map.getLayer(beforeId)
+            ? undefined
+            : beforeId;
           map.addLayer(
             {
               id: layerConfig.id,
@@ -48,7 +52,7 @@ const useMapLayers = (layerConfigsBatch = []) => {
                   : {}
               )
             },
-            layerConfig?.options?.before
+            before
           );
 
           layerIdsRef.current.push(layerConfig.id);

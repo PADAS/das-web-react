@@ -1,4 +1,4 @@
-import { memo, useMemo, useRef } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { centroid } from '@turf/turf';
 import { useSelector } from 'react-redux';
 
@@ -10,10 +10,11 @@ import useMapLayers from '../hooks/useMapLayers';
 
 const { HEATMAP_LAYER, EVENT_SYMBOLS } = LAYER_IDS;
 
-const HeatLayer = ({ points }) => {
+const HeatLayer = ({ beforeLayerId = EVENT_SYMBOLS, points }) => {
   const heatmapStyles = useSelector((state) => state.view.heatmapStyles);
 
-  const idRef = useRef(uuid());
+  // Stable per-instance id for this heatmap's source/layer.
+  const [instanceId] = useState(uuid);
 
   const paint = useMemo(() => {
     const centroidPoint = centroid(points);
@@ -30,14 +31,15 @@ const HeatLayer = ({ points }) => {
     };
   }, [heatmapStyles.intensity, heatmapStyles.radiusInMeters, points]);
 
-  useMapSources([{ id: `heatmap-source-${idRef.current}`, data: points }]);
+  useMapSources([{ id: `heatmap-source-${instanceId}`, data: points }]);
   useMapLayers([{
-    id: `${HEATMAP_LAYER}-${idRef.current}`,
+    id: `${HEATMAP_LAYER}-${instanceId}`,
     type: 'heatmap',
-    sourceId: `heatmap-source-${idRef.current}`,
+    sourceId: `heatmap-source-${instanceId}`,
     paint,
     options: {
-      before: EVENT_SYMBOLS,
+      before: beforeLayerId,
+      beforeOptional: true,
     }
   }]);
 
