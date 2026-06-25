@@ -5,6 +5,11 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { addRealtimeOverlayEvent, pruneRealtimeOverlayEvents } from '../ducks/events-realtime-overlay';
 import {
+  buildEventTimeSliderFadeColor,
+  buildEventTimeSliderHideFilter,
+  resolveEventTimeSliderParameters,
+} from '../utils/event-vector-tiles';
+import {
   DEFAULT_SYMBOL_LAYOUT,
   IF_IS_GENERIC,
   LAYER_IDS,
@@ -62,14 +67,40 @@ const EventsRealtimeOverlayLayer = ({ onEventClick }) => {
 
   const map = useContext(MapContext);
 
+  const eventFilterDateRange = useSelector((state) => state.data.eventFilter?.filter?.date_range);
   const locallyEditedEventId = useSelector((state) => state.data.locallyEditedEvent?.id);
   const realtimeOverlayFeatureCollection = useSelector(selectRealtimeOverlayFeatureCollection);
   const showReportsOnMap = useSelector((state) => state.data.mapLayerFilter.showReportsOnMap);
+  const timeSliderState = useSelector((state) => state.view?.timeSliderState);
 
   // Guards against the click firing twice when the icon and label layers overlap.
   const clicking = useRef(false);
 
   const sourceData = showReportsOnMap ? realtimeOverlayFeatureCollection : EMPTY_FEATURE_COLLECTION;
+
+  const eventTimeSliderParameters = useMemo(
+    () => resolveEventTimeSliderParameters(timeSliderState, eventFilterDateRange),
+    [timeSliderState, eventFilterDateRange]
+  );
+
+  const textPaint = useMemo(
+    () => ({
+      'icon-color': buildEventTimeSliderFadeColor(
+        eventTimeSliderParameters.active,
+        eventTimeSliderParameters.totalRangeDistance,
+        eventTimeSliderParameters.virtualDateMs
+      )
+    }),
+    [eventTimeSliderParameters]
+  );
+
+  const hideFilter = useMemo(
+    () => buildEventTimeSliderHideFilter(
+      eventTimeSliderParameters.active,
+      eventTimeSliderParameters.virtualDateIso
+    ) ?? ['all'],
+    [eventTimeSliderParameters]
+  );
 
   useEffect(() => {
     if (map && !map.getSource(SOURCE_IDS.EVENTS_REALTIME_OVERLAY_SOURCE)) {
@@ -131,11 +162,13 @@ const EventsRealtimeOverlayLayer = ({ onEventClick }) => {
 
   return <LabeledSymbolLayer
     before={before}
+    filter={hideFilter}
     id={LAYER_IDS.EVENTS_REALTIME_OVERLAY_SYMBOLS}
     layout={ICON_LAYOUT}
     onClick={handleEventClick}
     sourceId={SOURCE_IDS.EVENTS_REALTIME_OVERLAY_SOURCE}
     textLayout={LABEL_LAYOUT}
+    textPaint={textPaint}
     type="symbol"
   />;
 };

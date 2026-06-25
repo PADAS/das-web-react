@@ -1,5 +1,6 @@
 import { featureCollection, point, polygon } from '@turf/turf';
 
+import { formatEventSymbolDate } from '../../utils/datetime';
 import { selectRealtimeOverlayFeatureIds, selectRealtimeOverlayFeatureCollection } from './';
 
 describe('Selectors - Events realtime overlay', () => {
@@ -12,6 +13,10 @@ describe('Selectors - Events realtime overlay', () => {
     poly1: {
       id: 'poly1', state: 'active', event_type: 'type1', priority: 0,
       geojson: polygon([[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]]),
+    },
+    p4: {
+      id: 'p4', state: 'active', event_type: 'type1', priority: 0,
+      geojson: point([40, 40]), time: '2026-06-20T12:30:00.000Z',
     },
   };
 
@@ -76,6 +81,25 @@ describe('Selectors - Events realtime overlay', () => {
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [10, 10] },
         properties: { id: 'p1', state: 'active', event_type: 'type1', priority: 0, display_title: 'Type 1' },
+      }]));
+    });
+
+    test('includes event_time_iso and event_time_ms on the rendered features for the time slider', () => {
+      const state = buildState({ overlayEventIds: { p4: 1 } });
+
+      expect(selectRealtimeOverlayFeatureCollection(state)).toEqual(featureCollection([{
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [40, 40] },
+        properties: {
+          id: 'p4',
+          state: 'active',
+          event_type: 'type1',
+          priority: 0,
+          time: '2026-06-20T12:30:00.000Z',
+          display_title: `Type 1\n${formatEventSymbolDate('2026-06-20T12:30:00.000Z')}`,
+          event_time_iso: '2026-06-20T12:30:00.000Z',
+          event_time_ms: new Date('2026-06-20T12:30:00.000Z').getTime(),
+        },
       }]));
     });
   });

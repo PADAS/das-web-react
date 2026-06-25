@@ -11,6 +11,12 @@ import {
   MAP_ICON_SCALE,
   SOURCE_IDS,
 } from '../constants';
+import {
+  buildEventTimeSliderFadeColor,
+  buildEventTimeSliderHideFilter,
+  resolveEventTimeSliderParameters,
+  TIME_SLIDER_DEFAULT_LABEL_COLOR,
+} from '../utils/event-vector-tiles';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { MapContext } from '../MapContext';
 import { objectToParamString } from '../utils/query';
@@ -26,6 +32,19 @@ const MIN_TILE_ZOOM = 3;
 const SOURCE_LAYER = 'events';
 const SOURCE_REBUILD_DEBOUNCE_MS = 400;
 const VECTOR_TILE_BASE = `${API_URL}activity/events/tiles/{z}/{x}/{y}.pbf`;
+
+const combineLayerFilters = (...filters) => {
+  const applied = filters.filter(Boolean);
+  if (!applied.length) {
+    return null;
+  }
+
+  if (applied.length === 1) {
+    return applied[0];
+  }
+
+  return ['all', ...applied];
+};
 
 // Build the tile source URL with the active event filter baked in.
 // sort_by/bbox are dropped: tile order is irrelevant and z/x/y is the bbox.
@@ -46,13 +65,13 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
   const eventTypes = useSelector((state) => state.data.eventTypes);
   const realtimeOverlayFeatureIds = useSelector(selectRealtimeOverlayFeatureIds);
   const showReportsOnMap = useSelector((state) => state.data.mapLayerFilter.showReportsOnMap);
+  const timeSliderState = useSelector((state) => state.view?.timeSliderState);
 
   // Guards against the click firing twice when the icon and label layers overlap.
   const clicking = useRef(false);
 
   // Mirror eventStore in a ref so the click handler can hydrate from it without listing eventStore
-  // as a dependency. Otherwise, with the flag ON, every socket event replaces eventStore, rebuilding
-  // the handler and rebinding the click listeners on both layers on a hot path.
+  // as a dependency.
   const eventStoreRef = useRef(eventStore);
   useEffect(() => {
     eventStoreRef.current = eventStore;
@@ -156,8 +175,33 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
   const labelPaint = useMemo(() => ({
     ...DEFAULT_SYMBOL_PAINT,
     'icon-opacity': 0.5,
-    'icon-color': '#ffffff',
+    'icon-color': TIME_SLIDER_DEFAULT_LABEL_COLOR,
   }), []);
+
+  const eventFilterDateRange = eventFilter?.filter?.date_range;
+  const eventTimeSliderParameters = useMemo(
+    () => resolveEventTimeSliderParameters(timeSliderState, eventFilterDateRange),
+    [timeSliderState, eventFilterDateRange]
+  );
+
+  const fadeColor = useMemo(
+    () => buildEventTimeSliderFadeColor(
+      eventTimeSliderParameters.active,
+      eventTimeSliderParameters.totalRangeDistance,
+      eventTimeSliderParameters.virtualDateMs
+    ),
+    [eventTimeSliderParameters]
+  );
+
+  const layerFilter = useMemo(() => combineLayerFilters(
+    realtimeOverlayFeatureIds.length
+      ? ['!', ['in', ['get', 'id'], ['literal', realtimeOverlayFeatureIds]]]
+      : null,
+    buildEventTimeSliderHideFilter(
+      eventTimeSliderParameters.active,
+      eventTimeSliderParameters.virtualDateIso
+    ),
+  ), [realtimeOverlayFeatureIds, eventTimeSliderParameters]);
 
   useEffect(() => {
     // Rebuild the tile source URL (debounced) whenever the event filter
@@ -251,17 +295,21 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
 
   useEffect(() => {
     if (map) {
-      // Exclude overlay-owned ids.
-      const filter = realtimeOverlayFeatureIds.length
-        ? ['!', ['in', ['get', 'id'], ['literal', realtimeOverlayFeatureIds]]]
-        : null;
+      // Apply the composed overlay-exclusion + time-slider-hide filter to both layers.
       [LAYER_IDS.EVENTS_VECTOR_SYMBOLS, LABELS_LAYER_ID].forEach((layerId) => {
         if (map.getLayer(layerId)) {
-          map.setFilter(layerId, filter);
+          map.setFilter(layerId, layerFilter);
         }
       });
     }
-  }, [map, realtimeOverlayFeatureIds]);
+  }, [map, layerFilter]);
+
+  useEffect(() => {
+    if (map && map.getLayer(LABELS_LAYER_ID)) {
+      // Time-slider fade.
+      map.setPaintProperty(LABELS_LAYER_ID, 'icon-color', fadeColor);
+    }
+  }, [map, fadeColor]);
 
   // Click -> open the event, hydrating from eventStore.
   /* eslint-disable react-hooks/refs */

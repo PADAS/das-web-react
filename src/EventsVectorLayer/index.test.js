@@ -53,6 +53,10 @@ const buildState = (overrides = {}) => ({
     realtimeOverlayEvents: { ids: {} },
     ...overrides.data,
   },
+  view: {
+    timeSliderState: { active: false, virtualDate: null },
+    ...overrides.view,
+  },
 });
 
 const renderLayer = (props = {}) => render(
@@ -155,6 +159,74 @@ describe('EventsVectorLayer', () => {
 
       const filterCall = mockMap.setFilter.mock.calls.find(([layerId]) => layerId === 'events-vector-symbols');
       expect(filterCall[1]).toBeNull();
+    });
+  });
+
+  describe('time slider', () => {
+    const activeSliderState = {
+      data: {
+        eventFilter: {
+          state: ['active'],
+          filter: {
+            date_range: { lower: '2026-06-01T00:00:00.000Z', upper: '2026-06-25T00:00:00.000Z' },
+            event_type: [], priority: [], reported_by: [], text: '',
+          },
+        },
+      },
+      view: { timeSliderState: { active: true, virtualDate: '2026-06-20T00:00:00.000Z' } },
+    };
+
+    test('hides events after the virtual date via setFilter on both layers', () => {
+      mockMap.getLayer.mockReturnValue({ id: 'exists' });
+      useSelector.mockImplementation((selector) => selector(buildState(activeSliderState)));
+
+      renderLayer({ map: mockMap, onEventClick: jest.fn() });
+
+      const hide = ['<=', ['coalesce', ['get', 'event_time_iso'], ''], '2026-06-20T00:00:00.000Z'];
+      expect(mockMap.setFilter).toHaveBeenCalledWith('events-vector-symbols', hide);
+      expect(mockMap.setFilter).toHaveBeenCalledWith('events-vector-symbols-labels', hide);
+    });
+
+    test('composes the overlay exclusion with the time-slider hide', () => {
+      mockMap.getLayer.mockReturnValue({ id: 'exists' });
+      selectRealtimeOverlayFeatureIds.mockReturnValue(['evt-9']);
+      useSelector.mockImplementation((selector) => selector(buildState(activeSliderState)));
+
+      renderLayer({ map: mockMap, onEventClick: jest.fn() });
+
+      const filterCall = mockMap.setFilter.mock.calls.find(([layerId]) => layerId === 'events-vector-symbols');
+      expect(filterCall[1]).toEqual([
+        'all',
+        ['!', ['in', ['get', 'id'], ['literal', ['evt-9']]]],
+        ['<=', ['coalesce', ['get', 'event_time_iso'], ''], '2026-06-20T00:00:00.000Z'],
+      ]);
+    });
+
+    test('fades the label pill via an interpolation when the slider is active', () => {
+      mockMap.getLayer.mockReturnValue({ id: 'exists' });
+      useSelector.mockImplementation((selector) => selector(buildState(activeSliderState)));
+
+      renderLayer({ map: mockMap, onEventClick: jest.fn() });
+
+      const paintCall = mockMap.setPaintProperty.mock.calls.find(
+        ([layerId, prop]) => layerId === 'events-vector-symbols-labels' && prop === 'icon-color'
+      );
+      expect(paintCall).toBeDefined();
+      expect(Array.isArray(paintCall[2])).toBe(true);
+      // Guarded interpolate: ['case', ['has','event_time_ms'], <interpolate>, default].
+      expect(paintCall[2][0]).toBe('case');
+      expect(paintCall[2][2][0]).toBe('interpolate');
+    });
+
+    test('uses the default label color when the slider is off', () => {
+      mockMap.getLayer.mockReturnValue({ id: 'exists' });
+
+      renderLayer({ map: mockMap, onEventClick: jest.fn() });
+
+      const paintCall = mockMap.setPaintProperty.mock.calls.find(
+        ([layerId, prop]) => layerId === 'events-vector-symbols-labels' && prop === 'icon-color'
+      );
+      expect(paintCall[2]).toBe('rgba(255, 255, 255, 0.7)');
     });
   });
 

@@ -164,6 +164,43 @@ describe('EventsRealtimeOverlayLayer', () => {
     }));
   });
 
+  describe('time slider', () => {
+    test('passes an all-pass filter and the default label color when the slider is off', () => {
+      renderOverlay(mockMap, true);
+
+      expect(labeledSymbolLayerProps.filter).toEqual(['all']);
+      expect(labeledSymbolLayerProps.textPaint).toEqual({ 'icon-color': 'rgba(255, 255, 255, 0.7)' });
+    });
+
+    test('passes the hide filter and a fade interpolation when the slider is active', () => {
+      useSelector.mockImplementation((selector) => (
+        selector === selectRealtimeOverlayFeatureCollection
+          ? OVERLAY_FC
+          : selector({
+            data: {
+              mapLayerFilter: { showReportsOnMap: true },
+              locallyEditedEvent: null,
+              eventFilter: { filter: { date_range: { lower: '2026-06-01T00:00:00.000Z', upper: '2026-06-25T00:00:00.000Z' } } },
+            },
+            view: { timeSliderState: { active: true, virtualDate: '2026-06-20T00:00:00.000Z' } },
+          })
+      ));
+
+      render(
+        <MapContext.Provider value={mockMap}>
+          <EventsRealtimeOverlayLayer onEventClick={jest.fn()} />
+        </MapContext.Provider>
+      );
+
+      expect(labeledSymbolLayerProps.filter).toEqual(
+        ['<=', ['coalesce', ['get', 'event_time_iso'], ''], '2026-06-20T00:00:00.000Z']
+      );
+      // Guarded interpolate: ['case', ['has','event_time_ms'], <interpolate>, default].
+      expect(labeledSymbolLayerProps.textPaint['icon-color'][0]).toBe('case');
+      expect(labeledSymbolLayerProps.textPaint['icon-color'][2][0]).toBe('interpolate');
+    });
+  });
+
   describe('click handling', () => {
     const renderWithClick = (onEventClick) => {
       useSelector.mockImplementation((selector) => (

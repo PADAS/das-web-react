@@ -7,6 +7,23 @@ import { createFeatureCollectionFromEvents } from '../../utils/map';
 import { selectLocallyEditedEventFromStore } from '../locally-edited-event';
 import { validateReportAgainstCurrentEventFilter } from '../../utils/events';
 
+const addEventTimeFieldsToFeature = (feature) => {
+  const time = feature?.properties?.time;
+  const date = time ? new Date(time) : null;
+
+  if (!date || Number.isNaN(date.getTime())) {
+    return feature;
+  }
+  return {
+    ...feature,
+    properties: {
+      ...feature.properties,
+      event_time_iso: date.toISOString(),
+      event_time_ms: date.getTime(),
+    },
+  };
+};
+
 const selectEventFilter = (state) => state.data.eventFilter;
 const selectEventStore = (state) => state.data.eventStore;
 const selectEventTypes = (state) => state.data.eventTypes;
@@ -41,6 +58,7 @@ export const selectRealtimeOverlayFeatureCollection = createSelector(
     return featureCollection(
       createFeatureCollectionFromEvents(events, eventTypes).features
         .filter((feature) => feature.geometry?.type === 'Point')
+        .map(addEventTimeFieldsToFeature)
     );
   }
 );
