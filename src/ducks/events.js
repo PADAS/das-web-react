@@ -1,8 +1,10 @@
 import axios, { CancelToken, isCancel } from 'axios';
 import union from 'lodash/union';
 
-import { API_URL, API_V2_URL, TAB_KEYS } from '../constants';
+import { API_URL, API_V2_URL, FEATURE_FLAGS, TAB_KEYS } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
+import { addRealtimeOverlayEvent, removeRealtimeOverlayEvent } from './events-realtime-overlay';
+import { getFeatureFlagValue } from '../utils/feature-flags';
 import { getBboxParamsFromMap } from '../utils/query';
 import { generateErrorMessageForRequest } from '../utils/request';
 import { addNormalizingPropertiesToEventDataFromAPI, eventBelongsToCollection,
@@ -44,7 +46,7 @@ const SET_EVENT_STATE_ERROR = 'SET_EVENT_STATE_ERROR';
 export const UPDATE_EVENT_START = 'UPDATE_EVENT_START';
 const UPDATE_EVENT_SUCCESS = 'UPDATE_EVENT_SUCCESS';
 const UPDATE_EVENT_ERROR = 'UPDATE_EVENT_ERROR';
-const REMOVE_EVENT_BY_ID = 'REMOVE_EVENT_BY_ID';
+export const REMOVE_EVENT_BY_ID = 'REMOVE_EVENT_BY_ID';
 
 const UPLOAD_EVENT_FILES_START = 'UPLOAD_EVENT_FILES_START';
 const UPLOAD_EVENT_FILES_SUCCESS = 'UPLOAD_EVENT_FILES_SUCCESS';
@@ -69,7 +71,7 @@ const FETCH_MAP_EVENTS_PAGE_SUCCESS = 'FETCH_MAP_EVENTS_PAGE_SUCCESS';
 
 const NEW_EVENT_TYPE = 'new_event';
 export const SOCKET_EVENT_DATA = 'SOCKET_EVENT_DATA';
-const UPDATE_EVENT_STORE = 'UPDATE_EVENT_STORE';
+export const UPDATE_EVENT_STORE = 'UPDATE_EVENT_STORE';
 
 const shouldAppendLocationToRequest = (state) => {
   const currentUser = state?.data?.selectedUserProfile?.username
@@ -87,7 +89,7 @@ const excludeOpenEventIfAlreadyInEventStore = (events, eventStore) => {
   return events;
 };
 
-export const socketEventData = (payload) => (dispatch) => {
+export const socketEventData = (payload) => (dispatch, getState) => {
   const { count, event_id, event_data, matches_current_filter, type } = payload;
 
   if (!matches_current_filter) {
@@ -115,6 +117,13 @@ export const socketEventData = (payload) => (dispatch) => {
     type: UPDATE_EVENT_STORE,
     payload: [event_data],
   });
+
+  // Track overlay membership so the realtime overlay renders this event over the
+  // possibly stale vector tile.
+  const useEventVectorTiles = getFeatureFlagValue(getState(), FEATURE_FLAGS.EVENTS_VECTOR_TILES);
+  if (useEventVectorTiles) {
+    dispatch(matches_current_filter ? addRealtimeOverlayEvent(event_id) : removeRealtimeOverlayEvent(event_id));
+  }
 };
 
 

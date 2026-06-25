@@ -3,22 +3,10 @@ import isEqual from 'react-fast-compare';
 import { useSelector } from 'react-redux';
 import noop from 'lodash/noop';
 
-
+import { getFeatureFlagValue } from '../utils/feature-flags';
 import { MapContext } from '../MapContext';
 
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
-
-export const useFeatureFlag = (flagName) => {
-  const experimentalFeatures = useSelector((state) => state.view.experimentalFeatures) || {};
-
-  if (!DEVELOPMENT_FEATURE_FLAGS.hasOwnProperty(flagName)) {
-    throw new Error('no feature flag with that name exists');
-  }
-
-  // Experimental features reducer properties override the systems development
-  // feature flags.
-  return flagName in experimentalFeatures ? experimentalFeatures[flagName] : DEVELOPMENT_FEATURE_FLAGS[flagName];
-};
+export const useFeatureFlag = (flagName) => useSelector((state) => getFeatureFlagValue(state, flagName));
 
 export const useMatchMedia = (matchMediaDef) => {
   const isClient = typeof window === 'object';

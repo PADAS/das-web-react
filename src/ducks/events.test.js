@@ -14,9 +14,15 @@ import {
   EVENT_API_URL,
   EVENTS_API_URL,
   fetchMapEvents,
+  REMOVE_EVENT_BY_ID,
+  SOCKET_EVENT_DATA,
+  socketEventData,
+  UPDATE_EVENT_STORE,
   updateEvent,
   uploadEventFile,
 } from './events';
+import { addRealtimeOverlayEvent, removeRealtimeOverlayEvent } from './events-realtime-overlay';
+import { FEATURE_FLAGS } from '../constants';
 
 jest.mock('../utils/events', () => ({
   ...jest.requireActual('../utils/events'),
@@ -219,5 +225,60 @@ describe('community-capable write actions', () => {
       const [url] = axios.patch.mock.calls[0];
       expect(url).toBe(`${EVENT_API_URL}${EVENT.id}`);
     });
+  });
+});
+
+describe('socketEventData', () => {
+  const EVENT_ID = 'event-1';
+  const EVENT_DATA = { id: EVENT_ID, geojson: { geometry: { type: 'Point', coordinates: [0, 0] } } };
+
+  const buildPayload = (matches_current_filter) => ({
+    count: 5,
+    event_id: EVENT_ID,
+    event_data: EVENT_DATA,
+    matches_current_filter,
+    type: 'update_event',
+  });
+
+  // The overlay-membership dispatch only happens with the vector tiles flag ON.
+  const buildStore = () => mockStore({
+    data: {},
+    view: { experimentalFeatures: { [FEATURE_FLAGS.EVENTS_VECTOR_TILES]: true } },
+  });
+
+  test('removes the event if it does not match the current filter and updates the event store', () => {
+    const store = buildStore();
+
+    store.dispatch(socketEventData(buildPayload(false)));
+
+    const actions = store.getActions();
+    expect(actions).toContainEqual({ type: REMOVE_EVENT_BY_ID, payload: EVENT_ID });
+    expect(actions).not.toContainEqual(expect.objectContaining({ type: SOCKET_EVENT_DATA }));
+    expect(actions).toContainEqual({ type: UPDATE_EVENT_STORE, payload: [EVENT_DATA] });
+    expect(actions).toContainEqual(removeRealtimeOverlayEvent(EVENT_ID));
+  });
+
+  test('adds the event if it matches the current filter and updates the event store', () => {
+    const store = buildStore();
+
+    store.dispatch(socketEventData(buildPayload(true)));
+
+    const actions = store.getActions();
+    expect(actions).toContainEqual({ type: SOCKET_EVENT_DATA, payload: { count: 5, event_data: EVENT_DATA } });
+    expect(actions).not.toContainEqual(expect.objectContaining({ type: REMOVE_EVENT_BY_ID }));
+    expect(actions).toContainEqual({ type: UPDATE_EVENT_STORE, payload: [EVENT_DATA] });
+    expect(actions).toContainEqual(
+      expect.objectContaining({ type: addRealtimeOverlayEvent(EVENT_ID).type, payload: { id: EVENT_ID, addedAt: expect.any(Number) } })
+    );
+  });
+
+  test('does not touch overlay membership when the vector tiles flag is off', () => {
+    const store = mockStore({ data: {}, view: { experimentalFeatures: {} } });
+
+    store.dispatch(socketEventData(buildPayload(true)));
+
+    const types = store.getActions().map((action) => action.type);
+    expect(types).not.toContain(addRealtimeOverlayEvent(EVENT_ID).type);
+    expect(types).not.toContain(removeRealtimeOverlayEvent(EVENT_ID).type);
   });
 });

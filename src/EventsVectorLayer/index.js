@@ -15,6 +15,7 @@ import { calcEventFilterForRequest } from '../utils/event-filter';
 import { MapContext } from '../MapContext';
 import { objectToParamString } from '../utils/query';
 import { safeRemoveMapLayer, safeRemoveMapSource } from '../utils/map';
+import { selectRealtimeOverlayFeatureIds } from '../selectors/events-realtime-overlay';
 import { useMapEventBinding, useMemoCompare } from '../hooks';
 import withMapViewConfig from '../WithMapViewConfig';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
@@ -43,10 +44,19 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
   const eventFilter = useSelector((state) => state.data.eventFilter);
   const eventStore = useSelector((state) => state.data.eventStore);
   const eventTypes = useSelector((state) => state.data.eventTypes);
+  const realtimeOverlayFeatureIds = useSelector(selectRealtimeOverlayFeatureIds);
   const showReportsOnMap = useSelector((state) => state.data.mapLayerFilter.showReportsOnMap);
 
   // Guards against the click firing twice when the icon and label layers overlap.
   const clicking = useRef(false);
+
+  // Mirror eventStore in a ref so the click handler can hydrate from it without listing eventStore
+  // as a dependency. Otherwise, with the flag ON, every socket event replaces eventStore, rebuilding
+  // the handler and rebinding the click listeners on both layers on a hot path.
+  const eventStoreRef = useRef(eventStore);
+  useEffect(() => {
+    eventStoreRef.current = eventStore;
+  }, [eventStore]);
 
   const [tileUrl, setTileUrl] = useState(buildEventTileUrl);
   const appliedTileUrl = useRef(tileUrl);
@@ -239,6 +249,20 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
     }
   }, [map, showReportsOnMap]);
 
+  useEffect(() => {
+    if (map) {
+      // Exclude overlay-owned ids.
+      const filter = realtimeOverlayFeatureIds.length
+        ? ['!', ['in', ['get', 'id'], ['literal', realtimeOverlayFeatureIds]]]
+        : null;
+      [LAYER_IDS.EVENTS_VECTOR_SYMBOLS, LABELS_LAYER_ID].forEach((layerId) => {
+        if (map.getLayer(layerId)) {
+          map.setFilter(layerId, filter);
+        }
+      });
+    }
+  }, [map, realtimeOverlayFeatureIds]);
+
   // Click -> open the event, hydrating from eventStore.
   /* eslint-disable react-hooks/refs */
   const handleEventClick = useMemo(() => (map ? withMultiLayerHandlerAwareness(
@@ -258,7 +282,7 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
         )[0];
         if (clickedFeature && onEventClick){
           const eventId = clickedFeature.properties.id;
-          const storeEvent = eventStore[eventId];
+          const storeEvent = eventStoreRef.current[eventId];
           if (storeEvent) {
             onEventClick({ event, layer: { properties: storeEvent } });
           } else {
@@ -275,7 +299,7 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
         }
       };
     }
-  ) : noop), [map, onEventClick, eventStore]);
+  ) : noop), [map, onEventClick]);
   /* eslint-enable react-hooks/refs */
 
   const onMouseEnter = useCallback(() => {

@@ -7,9 +7,14 @@ import { MapContext } from '../MapContext';
 import { createMapMock } from '../__test-helpers/mocks';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { objectToParamString } from '../utils/query';
+import { selectRealtimeOverlayFeatureIds } from '../selectors/events-realtime-overlay';
 
 jest.mock('react-redux', () => ({
   useSelector: jest.fn(),
+}));
+
+jest.mock('../selectors/events-realtime-overlay', () => ({
+  selectRealtimeOverlayFeatureIds: jest.fn(() => []),
 }));
 
 // Identity HOC so we don't need a redux Provider for the connect() wrapper.
@@ -38,10 +43,14 @@ jest.mock('../utils/query', () => ({
 const buildState = (overrides = {}) => ({
   data: {
     token: { access_token: 'mock-token' },
-    eventFilter: { state: ['active'], filter: {} },
+    eventFilter: {
+      state: ['active'],
+      filter: { date_range: {}, event_type: [], priority: [], reported_by: [], text: '' },
+    },
     eventTypes: [{ value: 'fire', icon_id: 'fire' }],
     eventStore: { 'evt-1': { id: 'evt-1', event_type: 'fire', title: 'Fire' } },
     mapLayerFilter: { showReportsOnMap: true },
+    realtimeOverlayEvents: { ids: {} },
     ...overrides.data,
   },
 });
@@ -64,6 +73,7 @@ describe('EventsVectorLayer', () => {
 
     calcEventFilterForRequest.mockReturnValue({ state: ['active'], filter: {}, sort_by: '-updated_at' });
     objectToParamString.mockReturnValue('state=active&filter=%7B%7D');
+    selectRealtimeOverlayFeatureIds.mockReturnValue([]);
 
     useSelector.mockImplementation((selector) => selector(buildState()));
   });
@@ -123,6 +133,28 @@ describe('EventsVectorLayer', () => {
       expect(safeRemoveMapLayer).toHaveBeenCalledWith(mockMap, 'events-vector-symbols');
       expect(safeRemoveMapLayer).toHaveBeenCalledWith(mockMap, 'events-vector-symbols-labels');
       expect(safeRemoveMapSource).toHaveBeenCalledWith(mockMap, 'events-vector-source');
+    });
+  });
+
+  describe('overlay exclusion', () => {
+    test('excludes overlay-owned ids from the tile layers', () => {
+      mockMap.getLayer.mockReturnValue({ id: 'exists' });
+      selectRealtimeOverlayFeatureIds.mockReturnValue(['evt-9']);
+
+      renderLayer({ map: mockMap, onEventClick: jest.fn() });
+
+      const filterCall = mockMap.setFilter.mock.calls.find(([layerId]) => layerId === 'events-vector-symbols');
+      expect(filterCall).toBeDefined();
+      expect(filterCall[1]).toEqual(['!', ['in', ['get', 'id'], ['literal', ['evt-9']]]]);
+    });
+
+    test('clears the tile filter when there are no overlay ids', () => {
+      mockMap.getLayer.mockReturnValue({ id: 'exists' });
+
+      renderLayer({ map: mockMap, onEventClick: jest.fn() });
+
+      const filterCall = mockMap.setFilter.mock.calls.find(([layerId]) => layerId === 'events-vector-symbols');
+      expect(filterCall[1]).toBeNull();
     });
   });
 

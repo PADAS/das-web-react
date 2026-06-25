@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import { getMapEventFeatureCollection } from '../selectors';
 
 import EventsVectorLayer from '../EventsVectorLayer';
+import EventsRealtimeOverlayLayer from '../EventsRealtimeOverlayLayer';
 import MapImageFromSvgSpriteRenderer from '../MapImageFromSvgSpriteRenderer';
 
 const EventsTileLayers = ({ onEventClick }) => {
@@ -13,6 +14,8 @@ const EventsTileLayers = ({ onEventClick }) => {
 
   return <>
     <EventsVectorLayer onEventClick={onEventClick} />
+
+    <EventsRealtimeOverlayLayer onEventClick={onEventClick} />
 
     {!!eventFeatureCollection?.features?.length && <MapImageFromSvgSpriteRenderer
       reportFeatureCollection={eventFeatureCollection}
