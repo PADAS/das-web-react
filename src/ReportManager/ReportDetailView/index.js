@@ -131,8 +131,12 @@ const ReportDetailView = ({
   const reportTracker = useContext(TrackerContext);
   const { setScrollPosition } = useContext(SidebarScrollContext);
 
+  // Remove this flag and the conditional rendering below once community input
+  // is enabled for all tenants.
+  const communityInputEnabled = useSelector(
+    (state) => !!state.view.systemConfig.previewFeatures?.community_input_admin_enabled
+  );
   const eventStore = useSelector((state) => state.data.eventStore);
-  const patrolStore = useSelector((state) => state.data.patrolStore);
   const eventType = useSelector((state) => {
     if (isNewReport) {
       return selectEventTypeById(state, newReportTypeId);
@@ -141,6 +145,7 @@ const ReportDetailView = ({
       return selectEventTypeByValue(state, eventTypeValue);
     }
   });
+  const patrolStore = useSelector((state) => state.data.patrolStore);
 
   const newAttachmentRef = useRef(null);
   const newNoteRef = useRef(null);
@@ -921,7 +926,7 @@ const ReportDetailView = ({
                       {t('reportDetailView.saveSplitButton.saveAndResolveItem')}
                     </Button>
                   </Dropdown.Item>}
-                  {isActive && <Dropdown.Item className={styles.saveSplitButtonItem}>
+                  {isActive && communityInputEnabled && <Dropdown.Item className={styles.saveSplitButtonItem}>
                     <Button onClick={() => onClickSaveAndSetState(EVENT_FORM_STATES.REVIEW)} type="button" variant="primary">
                       {t('reportDetailView.saveSplitButton.saveAndReviewItem')}
                     </Button>

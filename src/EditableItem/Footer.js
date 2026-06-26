@@ -1,4 +1,5 @@
 import React, { memo } from 'react';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import Button from 'react-bootstrap/Button';
@@ -27,6 +28,13 @@ const Footer = ({
 }) => {
   const { t } = useTranslation('details-view', { keyPrefix: 'footer' });
   const { cancelTitle = t('cancelButton') } = restProps;
+
+  // Remove this flag and the conditional rendering below once community input
+  // is enabled for all tenants.
+  const communityInputEnabled = useSelector(
+    (state) => !!state.view.systemConfig.previewFeatures?.community_input_admin_enabled
+  );
+
   const isActive = isReportActive(data);
   const isInReview = data?.state === EVENT_FORM_STATES.REVIEW;
   const SaveButtonComponent = onStateToggle ? SplitButton : Button;
@@ -43,7 +51,7 @@ const Footer = ({
             label={t('stateResolveButton')}
           />
         </Dropdown.Item>}
-        {isActive && <Dropdown.Item>
+        {isActive && communityInputEnabled && <Dropdown.Item>
           <StateButton
             targetState={EVENT_FORM_STATES.REVIEW}
             onStateToggle={onStateToggle}
