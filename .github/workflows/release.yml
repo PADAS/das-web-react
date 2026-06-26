@@ -89,7 +89,6 @@ jobs:
         with:
           images: |
             europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react
-            europe-west3-docker.pkg.dev/padas-app/er-mt/das-web-react
           tags: |
             type=raw,value=${{ needs.config.outputs.image-tag }}
 
