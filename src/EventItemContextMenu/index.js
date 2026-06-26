@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import MoonLoader from 'react-spinners/MoonLoader';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as LinkIcon } from '../common/images/icons/link.svg';
@@ -49,6 +49,12 @@ const EventItemContextMenu = ({ children, className = '', report }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'eventItemContextMenu' });
 
   const [isLoading, setIsLoading] = useState(false);
+
+  // Remove this flag and the conditional rendering below once community input
+  // is enabled for all tenants.
+  const communityInputEnabled = useSelector(
+    (state) => !!state.view.systemConfig.previewFeatures?.community_input_admin_enabled
+  );
 
   const isActive = isReportActive(report);
   const isInReview = report?.state === EVENT_FORM_STATES.REVIEW;
@@ -125,7 +131,7 @@ const EventItemContextMenu = ({ children, className = '', report }) => {
       {(isActive || isInReview) && <Dropdown.Item className={styles.option} onClick={() => updateReportState(EVENT_FORM_STATES.RESOLVED)}>
         {t('updateReportStateItem.resolve')} #{report.serial_number}
       </Dropdown.Item>}
-      {isActive && <Dropdown.Item className={styles.option} onClick={() => updateReportState(EVENT_FORM_STATES.REVIEW)}>
+      {isActive && communityInputEnabled && <Dropdown.Item className={styles.option} onClick={() => updateReportState(EVENT_FORM_STATES.REVIEW)}>
         {t('updateReportStateItem.review')} #{report.serial_number}
       </Dropdown.Item>}
       {isInReview && <Dropdown.Item className={styles.option} onClick={() => updateReportState(EVENT_FORM_STATES.ACTIVE)}>

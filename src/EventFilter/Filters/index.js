@@ -3,6 +3,7 @@ import Button from 'react-bootstrap/Button';
 import isEqual from 'react-fast-compare';
 import Popover from 'react-bootstrap/Popover';
 import uniq from 'lodash-es/uniq';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as UserIcon } from '../../common/images/icons/user-profile.svg';
@@ -20,20 +21,28 @@ import * as styles from '../styles.module.scss';
 const StateSelector = ({ onStateSelect, state }) => {
   const { t } = useTranslation('filters', { keyPrefix: 'filters' });
 
+  // Remove this flag and the `.filter` below once community input is enabled
+  // for all tenants.
+  const communityInputEnabled = useSelector(
+    (state) => !!state.view.systemConfig.previewFeatures?.community_input_admin_enabled
+  );
+
   return <ul
       className={styles.stateList}
       data-testid="state-filter-options"
     >
-    {EVENT_STATE_CHOICES.map((choice) =>
-      <li key={choice.value}>
-        <Button
-          className={isEqual(choice.value, state) ? styles.activeState : ''}
-          onClick={() => onStateSelect(choice)}
-          variant="link"
-        >
-          {t(`stateSelector.${choice.key}`)}
-        </Button>
-      </li>)}
+    {EVENT_STATE_CHOICES
+      .filter((choice) => communityInputEnabled || choice.key !== 'review')
+      .map((choice) =>
+        <li key={choice.value}>
+          <Button
+            className={isEqual(choice.value, state) ? styles.activeState : ''}
+            onClick={() => onStateSelect(choice)}
+            variant="link"
+          >
+            {t(`stateSelector.${choice.key}`)}
+          </Button>
+        </li>)}
   </ul>;
 };
 
