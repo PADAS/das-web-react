@@ -14,6 +14,7 @@ import {
   EVENT_API_URL,
   EVENTS_API_URL,
   fetchMapEvents,
+  fetchRecentEventsIntoRealtimeOverlay,
   REMOVE_EVENT_BY_ID,
   SOCKET_EVENT_DATA,
   socketEventData,
@@ -21,7 +22,7 @@ import {
   updateEvent,
   uploadEventFile,
 } from './events';
-import { addRealtimeOverlayEvent, removeRealtimeOverlayEvent } from './events-realtime-overlay';
+import { ADD_EVENT, addRealtimeOverlayEvent, removeRealtimeOverlayEvent } from './events-realtime-overlay';
 import { FEATURE_FLAGS } from '../constants';
 
 jest.mock('../utils/events', () => ({
@@ -115,6 +116,81 @@ describe('fetchMapEvents', () => {
 
 
     server.close();
+  });
+});
+
+describe('fetchRecentEventsIntoRealtimeOverlay', () => {
+  let map, store;
+
+  beforeEach(() => {
+    map = createMapMock();
+    store = mockStore({ data: { eventStore: {} }, view: {} });
+  });
+
+  test('resolves without fetching when there is no map', async () => {
+    jest.spyOn(axios, 'get');
+
+    await store.dispatch(fetchRecentEventsIntoRealtimeOverlay());
+
+    expect(axios.get).not.toHaveBeenCalled();
+  });
+
+  test('queries the recent window within the viewport and seeds eventStore + overlay membership', async () => {
+    jest.spyOn(axios, 'get').mockImplementationOnce(() => Promise.resolve({
+      status: 200,
+      data: { data: { results: [{ id: 'evt-1' }, { id: 'evt-2' }], count: 2 } },
+    }));
+
+    await store.dispatch(fetchRecentEventsIntoRealtimeOverlay(map));
+
+    const requestedUrl = axios.get.mock.calls[0][0];
+    expect(requestedUrl).toContain('bbox');
+    expect(requestedUrl).toContain('updated_since');
+
+    const actions = store.getActions();
+    expect(actions).toContainEqual(expect.objectContaining({ type: UPDATE_EVENT_STORE }));
+    expect(actions).toContainEqual(expect.objectContaining({ type: ADD_EVENT, payload: expect.objectContaining({ id: 'evt-1' }) }));
+    expect(actions).toContainEqual(expect.objectContaining({ type: ADD_EVENT, payload: expect.objectContaining({ id: 'evt-2' }) }));
+  });
+
+  test('does not seed anything when the recent window is empty', async () => {
+    jest.spyOn(axios, 'get').mockImplementationOnce(() => Promise.resolve({
+      status: 200,
+      data: { data: { results: [], count: 0 } },
+    }));
+
+    await store.dispatch(fetchRecentEventsIntoRealtimeOverlay(map));
+
+    const actions = store.getActions();
+    expect(actions.some((action) => action.type === UPDATE_EVENT_STORE)).toBe(false);
+    expect(actions.some((action) => action.type === ADD_EVENT)).toBe(false);
+  });
+
+  test('attaches a cancel token to the request', async () => {
+    let requestConfig;
+    jest.spyOn(axios, 'get').mockImplementation((_url, config) => {
+      requestConfig = config;
+      return Promise.resolve({ status: 200, data: { data: { results: [], count: 0 } } });
+    });
+
+    await store.dispatch(fetchRecentEventsIntoRealtimeOverlay(map));
+
+    expect(requestConfig?.cancelToken).toBeDefined();
+  });
+
+  test('cancels the previous in-flight fetch when called again (prevents stale out-of-viewport pins)', async () => {
+    const configs = [];
+    jest.spyOn(axios, 'get').mockImplementation((_url, config) => {
+      configs.push(config);
+      return Promise.resolve({ status: 200, data: { data: { results: [], count: 0 } } });
+    });
+
+    await store.dispatch(fetchRecentEventsIntoRealtimeOverlay(map));
+    await store.dispatch(fetchRecentEventsIntoRealtimeOverlay(map));
+
+    // The first request's token was cancelled by the second dispatch; the second's was not.
+    expect(configs[0].cancelToken.reason).toBeDefined();
+    expect(configs[1].cancelToken.reason).toBeUndefined();
   });
 });
 

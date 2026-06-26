@@ -1,4 +1,5 @@
 import { memo, useContext, useEffect, useMemo, useRef } from 'react';
+import debounce from 'lodash/debounce';
 import { featureCollection } from '@turf/turf';
 import noop from 'lodash/noop';
 import { useDispatch, useSelector } from 'react-redux';
@@ -14,20 +15,21 @@ import {
   IF_IS_GENERIC,
   LAYER_IDS,
   MAP_ICON_SCALE,
+  REALTIME_OVERLAY_WINDOW_MS,
   SOURCE_IDS,
 } from '../constants';
+import { fetchRecentEventsIntoRealtimeOverlay } from '../ducks/events';
 import { selectRealtimeOverlayFeatureCollection } from '../selectors/events-realtime-overlay';
+import { selectShouldEventsBeClustered } from '../selectors/clusters';
 import LabeledSymbolLayer from '../LabeledSymbolLayer';
 import { MapContext } from '../MapContext';
-import { safeRemoveMapSource } from '../utils/map';
+import { safeRemoveMapLayer, safeRemoveMapSource } from '../utils/map';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
 
 const EMPTY_FEATURE_COLLECTION = featureCollection([]);
+const FETCH_RECENT_EVENTS_DEBOUNCE_MS = 400;
 const LABELS_LAYER_ID = `${LAYER_IDS.EVENTS_REALTIME_OVERLAY_SYMBOLS}-labels`;
 const PRUNE_INTERVAL_MS = 60 * 1000;
-// Events stay in the overlay 10 minutes to cover the vector tile's staleness
-// (server TTL 300s / client SWR). Then they are pruned.
-const REALTIME_OVERLAY_WINDOW_MS = 10 * 60 * 1000;
 
 const ICON_LAYOUT = {
   ...DEFAULT_SYMBOL_LAYOUT,
@@ -70,13 +72,23 @@ const EventsRealtimeOverlayLayer = ({ onEventClick }) => {
   const eventFilterDateRange = useSelector((state) => state.data.eventFilter?.filter?.date_range);
   const locallyEditedEventId = useSelector((state) => state.data.locallyEditedEvent?.id);
   const realtimeOverlayFeatureCollection = useSelector(selectRealtimeOverlayFeatureCollection);
+  const shouldEventsBeClustered = useSelector(selectShouldEventsBeClustered);
   const showReportsOnMap = useSelector((state) => state.data.mapLayerFilter.showReportsOnMap);
   const timeSliderState = useSelector((state) => state.view?.timeSliderState);
 
   // Guards against the click firing twice when the icon and label layers overlap.
   const clicking = useRef(false);
 
+  const overlayVisibility = shouldEventsBeClustered ? 'none' : 'visible';
   const sourceData = showReportsOnMap ? realtimeOverlayFeatureCollection : EMPTY_FEATURE_COLLECTION;
+
+  const iconLayout = useMemo(() => ({ ...ICON_LAYOUT, visibility: overlayVisibility }), [overlayVisibility]);
+  const labelLayout = useMemo(() => ({ ...LABEL_LAYOUT, visibility: overlayVisibility }), [overlayVisibility]);
+
+  const fetchRecentEvents = useMemo(
+    () => debounce(() => dispatch(fetchRecentEventsIntoRealtimeOverlay(map)), FETCH_RECENT_EVENTS_DEBOUNCE_MS),
+    [dispatch, map]
+  );
 
   const eventTimeSliderParameters = useMemo(
     () => resolveEventTimeSliderParameters(timeSliderState, eventFilterDateRange),
@@ -110,7 +122,11 @@ const EventsRealtimeOverlayLayer = ({ onEventClick }) => {
       });
     }
 
-    return () => safeRemoveMapSource(map, SOURCE_IDS.EVENTS_REALTIME_OVERLAY_SOURCE);
+    return () => {
+      safeRemoveMapLayer(map, LABELS_LAYER_ID);
+      safeRemoveMapLayer(map, LAYER_IDS.EVENTS_REALTIME_OVERLAY_SYMBOLS);
+      safeRemoveMapSource(map, SOURCE_IDS.EVENTS_REALTIME_OVERLAY_SOURCE);
+    };
   }, [map]);
 
   useEffect(() => {
@@ -135,6 +151,18 @@ const EventsRealtimeOverlayLayer = ({ onEventClick }) => {
 
     return () => clearInterval(interval);
   }, [dispatch]);
+
+  useEffect(() => {
+    if (map) {
+      fetchRecentEvents();
+      map.on('moveend', fetchRecentEvents);
+
+      return () => {
+        map.off('moveend', fetchRecentEvents);
+        fetchRecentEvents.cancel();
+      };
+    }
+  }, [map, fetchRecentEvents]);
 
   // Overlay features are full flattened events, so no eventStore hydration is needed.
   /* eslint-disable react-hooks/refs */
@@ -164,10 +192,10 @@ const EventsRealtimeOverlayLayer = ({ onEventClick }) => {
     before={before}
     filter={hideFilter}
     id={LAYER_IDS.EVENTS_REALTIME_OVERLAY_SYMBOLS}
-    layout={ICON_LAYOUT}
+    layout={iconLayout}
     onClick={handleEventClick}
     sourceId={SOURCE_IDS.EVENTS_REALTIME_OVERLAY_SOURCE}
-    textLayout={LABEL_LAYOUT}
+    textLayout={labelLayout}
     textPaint={textPaint}
     type="symbol"
   />;

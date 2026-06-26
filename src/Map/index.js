@@ -57,6 +57,7 @@ import SubjectHeatmapLegend from '../SubjectHeatmapLegend';
 import SubjectTrackLegend from '../SubjectTrackLegend';
 import PatrolTrackLegend from '../PatrolTrackLegend';
 import EventFilter from '../EventFilter';
+import TileEventFeaturesProvider from '../TileEventFeaturesProvider';
 import TimeSlider from '../TimeSlider';
 import TimeSliderMapControl from '../TimeSliderMapControl';
 import ReportsHeatLayer from '../ReportsHeatLayer';
@@ -194,10 +195,13 @@ const Map = ({ children, onMapLoad, socket }) => {
   }, []);
 
   const mapEventsFetch = useCallback(() => {
+    if (useEventVectorTiles) {
+      return Promise.resolve();
+    }
     return dispatch(fetchMapEvents(map))
       .catch((e) => console.warn('error fetching map events', e));
   }
-  , [dispatch, map]);
+  , [dispatch, map, useEventVectorTiles]);
 
   const resetTrackRequestCancelToken = useCallback(() => {
     trackRequestCancelToken.current.cancel();
@@ -703,7 +707,7 @@ const Map = ({ children, onMapLoad, socket }) => {
     </>}
     onMapLoaded={setMap}
     >
-    {map && <>
+    {map && <TileEventFeaturesProvider>
       {children}
 
       <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
@@ -779,7 +783,7 @@ const Map = ({ children, onMapLoad, socket }) => {
       />}
 
       {!!popup && <PopupLayer popup={popup} />}
-    </>}
+    </TileEventFeaturesProvider>}
 
     {timeSliderActive && <TimeSlider />}
 

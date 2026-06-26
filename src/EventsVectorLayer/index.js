@@ -22,6 +22,7 @@ import { MapContext } from '../MapContext';
 import { objectToParamString } from '../utils/query';
 import { safeRemoveMapLayer, safeRemoveMapSource } from '../utils/map';
 import { selectRealtimeOverlayFeatureIds } from '../selectors/events-realtime-overlay';
+import { selectShouldEventsBeClustered } from '../selectors/clusters';
 import { useMapEventBinding, useMemoCompare } from '../hooks';
 import withMapViewConfig from '../WithMapViewConfig';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
@@ -29,6 +30,7 @@ import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
 const LABELS_LAYER_ID = `${LAYER_IDS.EVENTS_VECTOR_SYMBOLS}-labels`;
 const MAX_TILE_ZOOM = 24;
 const MIN_TILE_ZOOM = 3;
+const MATCH_NOTHING_FILTER = ['in', ['get', 'id'], ['literal', []]];
 const SOURCE_LAYER = 'events';
 const SOURCE_REBUILD_DEBOUNCE_MS = 400;
 const VECTOR_TILE_BASE = `${API_URL}activity/events/tiles/{z}/{x}/{y}.pbf`;
@@ -64,6 +66,7 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
   const eventStore = useSelector((state) => state.data.eventStore);
   const eventTypes = useSelector((state) => state.data.eventTypes);
   const realtimeOverlayFeatureIds = useSelector(selectRealtimeOverlayFeatureIds);
+  const shouldEventsBeClustered = useSelector(selectShouldEventsBeClustered);
   const showReportsOnMap = useSelector((state) => state.data.mapLayerFilter.showReportsOnMap);
   const timeSliderState = useSelector((state) => state.view?.timeSliderState);
 
@@ -193,15 +196,21 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
     [eventTimeSliderParameters]
   );
 
-  const layerFilter = useMemo(() => combineLayerFilters(
-    realtimeOverlayFeatureIds.length
-      ? ['!', ['in', ['get', 'id'], ['literal', realtimeOverlayFeatureIds]]]
-      : null,
-    buildEventTimeSliderHideFilter(
-      eventTimeSliderParameters.active,
-      eventTimeSliderParameters.virtualDateIso
-    ),
-  ), [realtimeOverlayFeatureIds, eventTimeSliderParameters]);
+  const layerFilter = useMemo(() => {
+    if (shouldEventsBeClustered || !showReportsOnMap) {
+      return MATCH_NOTHING_FILTER;
+    }
+
+    return combineLayerFilters(
+      realtimeOverlayFeatureIds.length
+        ? ['!', ['in', ['get', 'id'], ['literal', realtimeOverlayFeatureIds]]]
+        : null,
+      buildEventTimeSliderHideFilter(
+        eventTimeSliderParameters.active,
+        eventTimeSliderParameters.virtualDateIso
+      ),
+    );
+  }, [eventTimeSliderParameters, realtimeOverlayFeatureIds, shouldEventsBeClustered, showReportsOnMap]);
 
   useEffect(() => {
     // Rebuild the tile source URL (debounced) whenever the event filter
@@ -280,18 +289,6 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
       }
     }
   }, [map, stableIconLayout, stableLabelLayout]);
-
-  useEffect(() => {
-    if (map) {
-      // Toggle visibility with "show reports on map".
-      const visibility = showReportsOnMap ? 'visible' : 'none';
-      [LAYER_IDS.EVENTS_VECTOR_SYMBOLS, LABELS_LAYER_ID].forEach((layerId) => {
-        if (map.getLayer(layerId)) {
-          map.setLayoutProperty(layerId, 'visibility', visibility);
-        }
-      });
-    }
-  }, [map, showReportsOnMap]);
 
   useEffect(() => {
     if (map) {

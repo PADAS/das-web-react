@@ -6,12 +6,14 @@ import { addNewClusterMarkers, getRenderedClustersData, removeOldClusterMarkers 
 import { CLUSTERS_MAX_ZOOM, CLUSTERS_RADIUS, FEATURE_FLAGS, LAYER_IDS, SOURCE_IDS } from '../constants';
 import { getMapEventSymbolPointsWithVirtualDate } from '../selectors/events';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
-import { selectShouldEventsBeClustered, selectShouldSubjectsBeClustered } from '../selectors/clusters';
 import { MapContext } from '../MapContext';
+import { selectRealtimeOverlayFeatureCollection } from '../selectors/events-realtime-overlay';
+import { selectShouldEventsBeClustered, selectShouldSubjectsBeClustered } from '../selectors/clusters';
 import useClusterPolygon from '../hooks/useClusterPolygon';
 import { useFeatureFlag, useMapEventBinding } from '../hooks';
-import useMapSources from '../hooks/useMapSources';
 import useMapLayers from '../hooks/useMapLayers';
+import useMapSources from '../hooks/useMapSources';
+import useTileEventFeatures from '../hooks/useTileEventFeatures';
 
 const {
   CLUSTERS_LAYER_ID,
@@ -37,23 +39,31 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
   const clusterMarkerHashMapRef = useRef({});
 
   const eventPointFeatureCollection = useSelector(getMapEventSymbolPointsWithVirtualDate);
+  const realtimeOverlayFeatureCollection = useSelector(selectRealtimeOverlayFeatureCollection);
   const shouldEventsBeClustered = useSelector(selectShouldEventsBeClustered);
   const shouldSubjectsBeClustered = useSelector(selectShouldSubjectsBeClustered);
   const subjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);
 
-  // Events render as individual points from the tile so they are excluded from clustering.
   const useEventVectorTiles = useFeatureFlag(FEATURE_FLAGS.EVENTS_VECTOR_TILES);
+  // Tile event points read back from the rendered vector tiles (normalized to the GeoJSON shape).
+  const tileEventFeatures = useTileEventFeatures();
 
-  const clustersSourceData = useMemo(() => featureCollection(
-    [
-      ...(shouldEventsBeClustered && !useEventVectorTiles ? eventPointFeatureCollection.features : []),
+  const clustersSourceData = useMemo(() => {
+    const eventFeatures = useEventVectorTiles
+      ? [...tileEventFeatures.features, ...realtimeOverlayFeatureCollection.features]
+      : eventPointFeatureCollection.features;
+
+    return featureCollection([
+      ...(shouldEventsBeClustered ? eventFeatures : []),
       ...(shouldSubjectsBeClustered ? subjectFeatureCollection.features : []),
-    ]
-  ), [
+    ]);
+  }, [
     eventPointFeatureCollection,
+    realtimeOverlayFeatureCollection,
     shouldEventsBeClustered,
     shouldSubjectsBeClustered,
     subjectFeatureCollection.features,
+    tileEventFeatures,
     useEventVectorTiles,
   ]);
 

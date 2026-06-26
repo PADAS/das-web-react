@@ -1,24 +1,34 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
+import { featureCollection } from '@turf/turf';
 import { useSelector } from 'react-redux';
 
-import { getMapEventFeatureCollection } from '../selectors';
+import { selectRealtimeOverlayFeatureCollection } from '../selectors/events-realtime-overlay';
+import useTileEventFeatures from '../hooks/useTileEventFeatures';
 
+import EventsClusterSymbolsLayer from '../EventsClusterSymbolsLayer';
 import EventsVectorLayer from '../EventsVectorLayer';
 import EventsRealtimeOverlayLayer from '../EventsRealtimeOverlayLayer';
 import MapImageFromSvgSpriteRenderer from '../MapImageFromSvgSpriteRenderer';
 
 const EventsTileLayers = ({ onEventClick }) => {
-  // Reused only to preload the sprite images the tile symbols reference. Uses the full
-  // (non-virtual-date-filtered) collection so every icon the tile shows is registered.
-  const eventFeatureCollection = useSelector(getMapEventFeatureCollection);
+  const realtimeOverlayFeatureCollection = useSelector(selectRealtimeOverlayFeatureCollection);
+
+  const tileEventFeatures = useTileEventFeatures();
+
+  const spriteFeatureCollection = useMemo(
+    () => featureCollection([...tileEventFeatures.features, ...realtimeOverlayFeatureCollection.features]),
+    [tileEventFeatures, realtimeOverlayFeatureCollection]
+  );
 
   return <>
     <EventsVectorLayer onEventClick={onEventClick} />
 
     <EventsRealtimeOverlayLayer onEventClick={onEventClick} />
 
-    {!!eventFeatureCollection?.features?.length && <MapImageFromSvgSpriteRenderer
-      reportFeatureCollection={eventFeatureCollection}
+    <EventsClusterSymbolsLayer onEventClick={onEventClick} />
+
+    {!!spriteFeatureCollection.features.length && <MapImageFromSvgSpriteRenderer
+      reportFeatureCollection={spriteFeatureCollection}
     />}
   </>;
 };

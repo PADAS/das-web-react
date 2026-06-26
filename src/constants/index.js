@@ -25,6 +25,10 @@ export const CLUSTER_CLICK_ZOOM_THRESHOLD = 13;
 export const CLUSTERS_MAX_ZOOM = MAX_ZOOM - 1;
 export const CLUSTERS_RADIUS = 40;
 
+// How long socket/seed-loaded events are owned by the realtime overlay before
+// being pruned, by which point the vector tile has refreshed to include them.
+export const REALTIME_OVERLAY_WINDOW_MS = 10 * 60 * 1000;
+
 export const API_URL = `${DAS_HOST}${REACT_APP_DAS_API_URL}`;
 export const API_V2_URL = `${DAS_HOST}${REACT_APP_DAS_API_V2_URL}`;
 
@@ -90,6 +94,7 @@ export const LAYER_IDS = {
   EVENT_LOCATION_MARKERS: 'event-location-markers-layer',
   EVENT_SYMBOLS: 'event_symbols',
   EVENTS_REALTIME_OVERLAY_SYMBOLS: 'event_symbols-realtime-overlay',
+  EVENTS_VECTOR_CLUSTER_SYMBOLS: 'event_symbols-vector-cluster',
   EVENTS_VECTOR_SYMBOLS: 'events-vector-symbols',
   GEAR_LINE: 'gear-line-layer',
   GEAR_LINE_HIT: 'gear-line-hit-layer',

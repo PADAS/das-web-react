@@ -54,6 +54,7 @@ const buildState = (overrides = {}) => ({
     ...overrides.data,
   },
   view: {
+    mapClusterConfig: { data: { events: false, subjects: false } },
     timeSliderState: { active: false, virtualDate: null },
     ...overrides.view,
   },
@@ -231,7 +232,9 @@ describe('EventsVectorLayer', () => {
   });
 
   describe('visibility', () => {
-    test('hides both layers when showReportsOnMap is off', () => {
+    const matchNothing = ['in', ['get', 'id'], ['literal', []]];
+
+    test('renders nothing via a match-nothing filter when "show events on map" is off', () => {
       mockMap.getLayer.mockReturnValue({ id: 'exists' });
       useSelector.mockImplementation((selector) => selector(
         buildState({ data: { mapLayerFilter: { showReportsOnMap: false } } })
@@ -239,8 +242,30 @@ describe('EventsVectorLayer', () => {
 
       renderLayer({ map: mockMap, onEventClick: jest.fn() });
 
-      expect(mockMap.setLayoutProperty).toHaveBeenCalledWith('events-vector-symbols', 'visibility', 'none');
-      expect(mockMap.setLayoutProperty).toHaveBeenCalledWith('events-vector-symbols-labels', 'visibility', 'none');
+      expect(mockMap.setFilter).toHaveBeenCalledWith('events-vector-symbols', matchNothing);
+      expect(mockMap.setFilter).toHaveBeenCalledWith('events-vector-symbols-labels', matchNothing);
+    });
+
+    test('renders nothing via a match-nothing filter while clustering', () => {
+      mockMap.getLayer.mockReturnValue({ id: 'exists' });
+      useSelector.mockImplementation((selector) => selector(
+        buildState({ view: { mapClusterConfig: { data: { events: true, subjects: false } }, timeSliderState: { active: false, virtualDate: null } } })
+      ));
+
+      renderLayer({ map: mockMap, onEventClick: jest.fn() });
+
+      expect(mockMap.setFilter).toHaveBeenCalledWith('events-vector-symbols', matchNothing);
+      expect(mockMap.setFilter).toHaveBeenCalledWith('events-vector-symbols-labels', matchNothing);
+    });
+
+    test('applies the real overlay-exclusion filter (not match-nothing) when reports are on and not clustering', () => {
+      mockMap.getLayer.mockReturnValue({ id: 'exists' });
+
+      renderLayer({ map: mockMap, onEventClick: jest.fn() });
+
+      const symbolsFilterCalls = mockMap.setFilter.mock.calls.filter(([id]) => id === 'events-vector-symbols');
+      const lastFilter = symbolsFilterCalls.at(-1)?.[1];
+      expect(lastFilter).not.toEqual(matchNothing);
     });
   });
 

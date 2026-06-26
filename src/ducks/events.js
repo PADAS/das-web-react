@@ -1,7 +1,7 @@
 import axios, { CancelToken, isCancel } from 'axios';
 import union from 'lodash/union';
 
-import { API_URL, API_V2_URL, FEATURE_FLAGS, TAB_KEYS } from '../constants';
+import { API_URL, API_V2_URL, FEATURE_FLAGS, REALTIME_OVERLAY_WINDOW_MS, TAB_KEYS } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
 import { addRealtimeOverlayEvent, removeRealtimeOverlayEvent } from './events-realtime-overlay';
 import { getFeatureFlagValue } from '../utils/feature-flags';
@@ -503,6 +503,51 @@ export const fetchMapEvents = (map, parameters) => async (dispatch, getState) =>
 
       return Promise.reject(error);
     });
+};
+
+let fetchRecentEventsIntoRealtimeOverlayCancelFn;
+
+export const cancelFetchRecentEventsIntoRealtimeOverlay = () => {
+  if (fetchRecentEventsIntoRealtimeOverlayCancelFn) {
+    fetchRecentEventsIntoRealtimeOverlayCancelFn();
+  }
+};
+
+export const fetchRecentEventsIntoRealtimeOverlay = (map) => async (dispatch, getState) => {
+  if (!map) {
+    return Promise.resolve();
+  }
+
+  const params = {
+    bbox: await getBboxParamsFromMap(map),
+    updated_since: new Date(Date.now() - REALTIME_OVERLAY_WINDOW_MS).toISOString(),
+    include_updates: false,
+    include_notes: false,
+    include_details: false,
+    include_related_events: false,
+  };
+
+  const state = getState();
+  if (shouldAppendLocationToRequest(state)) {
+    params.location = calcLocationParamStringForUserLocationCoords(state.view.userLocation.coords);
+  }
+
+  cancelFetchRecentEventsIntoRealtimeOverlay();
+
+  const eventFilterParamString = calcEventFilterForRequest({ params });
+  const cancelToken = new CancelToken((cancelFn) => { fetchRecentEventsIntoRealtimeOverlayCancelFn = cancelFn; });
+  try {
+    const results = await parallelPaginatedQuery(`${EVENTS_API_URL}?${eventFilterParamString}`, { cancelToken }, {});
+
+    if (results?.length) {
+      dispatch(updateEventStore(...excludeOpenEventIfAlreadyInEventStore(results, getState().data.eventStore)));
+      results.forEach((event) => dispatch(addRealtimeOverlayEvent(event.id)));
+    }
+  } catch (error) {
+    if (!cancelToken.reason && !isCancel(error)) {
+      console.warn('error fetching recent events into realtime overlay', error);
+    }
+  }
 };
 
 const fetchMapEventsComplete = results => (dispatch, getState) => {

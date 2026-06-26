@@ -5,15 +5,23 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { ADD_EVENT, PRUNE_EVENTS } from '../ducks/events-realtime-overlay';
 import { createMapMock } from '../__test-helpers/mocks';
+import { fetchRecentEventsIntoRealtimeOverlay } from '../ducks/events';
 import { selectRealtimeOverlayFeatureCollection } from '../selectors/events-realtime-overlay';
+import { selectShouldEventsBeClustered } from '../selectors/clusters';
+import { LAYER_IDS, SOURCE_IDS } from '../constants';
 import { MapContext } from '../MapContext';
-import { SOURCE_IDS } from '../constants';
 
 import EventsRealtimeOverlayLayer from './';
+
+jest.mock('../ducks/events', () => ({ fetchRecentEventsIntoRealtimeOverlay: jest.fn() }));
 
 jest.mock('react-redux', () => ({
   useDispatch: jest.fn(),
   useSelector: jest.fn(),
+}));
+
+jest.mock('../selectors/clusters', () => ({
+  selectShouldEventsBeClustered: jest.fn(() => false),
 }));
 
 // Capture the props the overlay hands to the shared label component.
@@ -131,13 +139,23 @@ describe('EventsRealtimeOverlayLayer', () => {
     expect(setData).toHaveBeenCalledWith(OVERLAY_FC);
   });
 
-  test('removes the overlay source on unmount', () => {
+  test('removes the overlay layers before the source on unmount', () => {
     mockMap.getSource.mockReturnValue({ setData: jest.fn() });
+    mockMap.getLayer.mockReturnValue({ id: 'exists' });
+
+    const removalOrder = [];
+    mockMap.removeLayer.mockImplementation((id) => removalOrder.push(`layer:${id}`));
+    mockMap.removeSource.mockImplementation((id) => removalOrder.push(`source:${id}`));
 
     const { unmount } = renderOverlay(mockMap, true);
     unmount();
 
     expect(mockMap.removeSource).toHaveBeenCalledWith(SOURCE_IDS.EVENTS_REALTIME_OVERLAY_SOURCE);
+    expect(removalOrder).toEqual([
+      `layer:${LAYER_IDS.EVENTS_REALTIME_OVERLAY_SYMBOLS}-labels`,
+      `layer:${LAYER_IDS.EVENTS_REALTIME_OVERLAY_SYMBOLS}`,
+      `source:${SOURCE_IDS.EVENTS_REALTIME_OVERLAY_SOURCE}`,
+    ]);
   });
 
   test('renders the labeled symbol layer on the overlay source', () => {
@@ -198,6 +216,41 @@ describe('EventsRealtimeOverlayLayer', () => {
       // Guarded interpolate: ['case', ['has','event_time_ms'], <interpolate>, default].
       expect(labeledSymbolLayerProps.textPaint['icon-color'][0]).toBe('case');
       expect(labeledSymbolLayerProps.textPaint['icon-color'][2][0]).toBe('interpolate');
+    });
+  });
+
+  describe('recent events fetching into realtime overlay', () => {
+    test('fetches the recent window on mount (debounced) and on moveend', () => {
+      fetchRecentEventsIntoRealtimeOverlay.mockReturnValue({ type: 'FETCH_RECENT_OVERLAY_EVENTS' });
+
+      renderOverlay(mockMap, true);
+      jest.advanceTimersByTime(400);
+      expect(dispatch).toHaveBeenCalledWith({ type: 'FETCH_RECENT_OVERLAY_EVENTS' });
+
+      dispatch.mockClear();
+      mockMap.__test__.fireHandlers('moveend', {});
+      jest.advanceTimersByTime(400);
+      expect(dispatch).toHaveBeenCalledWith({ type: 'FETCH_RECENT_OVERLAY_EVENTS' });
+    });
+  });
+
+  describe('overlay symbol visibility while clustering', () => {
+    test('hides the overlay symbol layers (via layout) when clustering is active', () => {
+      selectShouldEventsBeClustered.mockReturnValue(true);
+
+      renderOverlay(mockMap, true);
+
+      expect(labeledSymbolLayerProps.layout.visibility).toBe('none');
+      expect(labeledSymbolLayerProps.textLayout.visibility).toBe('none');
+    });
+
+    test('shows the overlay symbol layers (via layout) when clustering is off', () => {
+      selectShouldEventsBeClustered.mockReturnValue(false);
+
+      renderOverlay(mockMap, true);
+
+      expect(labeledSymbolLayerProps.layout.visibility).toBe('visible');
+      expect(labeledSymbolLayerProps.textLayout.visibility).toBe('visible');
     });
   });
 
