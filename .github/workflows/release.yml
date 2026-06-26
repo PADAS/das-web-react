@@ -73,7 +73,7 @@ jobs:
         id: auth
         uses: google-github-actions/auth@v3
         with:
-          workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+          workload_identity_provider: projects/563316706574/locations/global/workloadIdentityPools/github-actions/providers/github-oidc  # pragma: allowlist secret
 
       - name: Configure Docker
         run: gcloud auth configure-docker europe-west3-docker.pkg.dev
