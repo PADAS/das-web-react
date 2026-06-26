@@ -58,6 +58,9 @@ describe('EventFilter', () => {
         },
         feedEvents: { results: [] },
       },
+      view: {
+        systemConfig: { previewFeatures: {} },
+      },
     };
   });
 
