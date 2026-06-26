@@ -74,7 +74,6 @@ jobs:
         with:
           token_format: 'access_token'
           workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ vars.SERVICE_ACCOUNT }}
 
       - name: Login to serca-artifact-registry
         uses: docker/login-action@v3
