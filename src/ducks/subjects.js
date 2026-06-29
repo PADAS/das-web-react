@@ -145,14 +145,20 @@ export default globallyResettableReducer((state = INITIAL_MAP_SUBJECT_STATE, act
 
   if (action.type === SOCKET_NEW_SUBJECT) {
     const { subject_id } = action.payload;
+    if (state.subjects.includes(subject_id)) {
+      return state;
+    }
     lastKnownMapSubjectValue = {
       ...state,
-      subjects: union([subject_id], state.subjects),
+      subjects: [...state.subjects, subject_id],
     };
   }
 
   if (action.type === SOCKET_DELETE_SUBJECT) {
     const { subject_id } = action.payload;
+    if (!state.subjects.includes(subject_id)) {
+      return state;
+    }
     lastKnownMapSubjectValue = {
       ...state,
       subjects: state.subjects.filter((id) => id !== subject_id),
@@ -181,17 +187,25 @@ const removeSubjectIdFromGroups = (groups, subjectId) => {
 
 // Recursively appends subjectId to the subjects array of any group node whose
 // id is in targetGroupIds. Idempotent: skips if already present. Group ids not
-// found in the tree are silently ignored.
-const addSubjectIdToGroups = (groups, subjectId, targetGroupIds) => groups.map((group) => {
-  const updatedSubgroups = addSubjectIdToGroups(group.subgroups, subjectId, targetGroupIds);
-  if (!targetGroupIds.includes(group.id)) {
-    return { ...group, subgroups: updatedSubgroups };
-  }
-  const subjects = group.subjects.includes(subjectId)
-    ? group.subjects
-    : [...group.subjects, subjectId];
-  return { ...group, subgroups: updatedSubgroups, subjects };
-});
+// found in the tree are silently ignored. Returns the original array/group
+// reference when nothing changed, to preserve referential equality for
+// memoized selectors (mirrors removeSubjectIdFromGroups).
+const addSubjectIdToGroups = (groups, subjectId, targetGroupIds) => {
+  let changed = false;
+  const next = groups.map((group) => {
+    const nextSubgroups = addSubjectIdToGroups(group.subgroups, subjectId, targetGroupIds);
+    const isTarget = targetGroupIds.includes(group.id);
+    const alreadyPresent = group.subjects.includes(subjectId);
+    const willAppend = isTarget && !alreadyPresent;
+    if (nextSubgroups === group.subgroups && !willAppend) {
+      return group;
+    }
+    changed = true;
+    const subjects = willAppend ? [...group.subjects, subjectId] : group.subjects;
+    return { ...group, subgroups: nextSubgroups, subjects };
+  });
+  return changed ? next : groups;
+};
 
 export const subjectGroupsReducer = globallyResettableReducer((state, action = {}) => {
   const { type, payload } = action;
@@ -279,6 +293,9 @@ export const subjectStoreReducer = globallyResettableReducer((state = SUBJECT_ST
 
   if (type === SOCKET_DELETE_SUBJECT) {
     const { subject_id } = payload;
+    if (!Object.prototype.hasOwnProperty.call(state, subject_id)) {
+      return state;
+    }
     const { [subject_id]: _removed, ...rest } = state;
     return rest;
   }

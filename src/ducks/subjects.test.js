@@ -150,6 +150,13 @@ describe('subjectStoreReducer', () => {
       expect(state).toEqual(initial);
     });
 
+    test('returns the same state reference when subject_id is not in the store', () => {
+      const initial = { [SUBJECT_B_ID]: subjectB };
+      const action = socketDeleteSubject({ subject_id: SUBJECT_C_ID, subject_data: null });
+      const state = subjectStoreReducer(initial, action);
+      expect(state).toBe(initial);
+    });
+
     test('returns an empty store when the only subject is removed', () => {
       const initial = { [SUBJECT_A_ID]: subjectA };
       const action = socketDeleteSubject({ subject_id: SUBJECT_A_ID, subject_data: null });
@@ -199,6 +206,22 @@ describe('mapSubjectsReducer (default export)', () => {
       const action = socketDeleteSubject({ subject_id: SUBJECT_C_ID, subject_data: null });
       const state = mapSubjectsReducer(initial, action);
       expect(state.subjects).toEqual([SUBJECT_B_ID]);
+    });
+
+    test('returns the same state reference when subject_id is not in subjects', () => {
+      const initial = { bbox: null, subjects: [SUBJECT_B_ID] };
+      const action = socketDeleteSubject({ subject_id: SUBJECT_C_ID, subject_data: null });
+      const state = mapSubjectsReducer(initial, action);
+      expect(state).toBe(initial);
+    });
+  });
+
+  describe('SOCKET_NEW_SUBJECT no-op reference equality', () => {
+    test('returns the same state reference when subject_id is already present', () => {
+      const initial = { bbox: null, subjects: [SUBJECT_A_ID, SUBJECT_B_ID] };
+      const action = socketNewSubject({ subject_id: SUBJECT_A_ID, subject_data: subjectA });
+      const state = mapSubjectsReducer(initial, action);
+      expect(state).toBe(initial);
     });
   });
 });
@@ -294,6 +317,29 @@ describe('subjectGroupsReducer', () => {
       });
       expect(() => subjectGroupsReducer([], action)).not.toThrow();
       expect(subjectGroupsReducer([], action)).toEqual([]);
+    });
+
+    test('returns the same tree reference when no group id matches', () => {
+      const initial = makeGroupTree();
+      const action = socketNewSubject({
+        subject_id: SUBJECT_C_ID,
+        subject_data: makeSubject(SUBJECT_C_ID),
+        subject_group_ids: ['nonexistent-group'],
+      });
+      const state = subjectGroupsReducer(initial, action);
+      expect(state).toBe(initial);
+    });
+
+    test('preserves the reference of sibling subtrees that were not modified', () => {
+      const initial = makeGroupTree();
+      // Only group-1 is targeted; group-2 should keep its reference.
+      const action = socketNewSubject({
+        subject_id: SUBJECT_C_ID,
+        subject_data: makeSubject(SUBJECT_C_ID),
+        subject_group_ids: ['group-1'],
+      });
+      const state = subjectGroupsReducer(initial, action);
+      expect(state[1]).toBe(initial[1]);
     });
   });
 
