@@ -8,10 +8,10 @@ import {
   DEFAULT_SYMBOL_LAYOUT,
   DEFAULT_SYMBOL_PAINT,
   LAYER_IDS,
-  MAP_ICON_SCALE,
   SOURCE_IDS,
 } from '../constants';
 import {
+  buildEventIconLayout,
   buildEventTimeSliderFadeColor,
   buildEventTimeSliderHideFilter,
   EVENT_GEOMETRY_FILL_PAINT,
@@ -22,7 +22,7 @@ import { calcEventFilterForRequest } from '../utils/event-filter';
 import { MapContext } from '../MapContext';
 import { objectToParamString } from '../utils/query';
 import { safeRemoveMapLayer, safeRemoveMapSource } from '../utils/map';
-import { selectRealtimeOverlayFeatureIds } from '../selectors/events-realtime-overlay';
+import { selectTileExcludedEventIds } from '../selectors/events-realtime-overlay';
 import { selectShouldEventsBeClustered } from '../selectors/clusters';
 import { useMapEventBinding, useMemoCompare } from '../hooks';
 import withMapViewConfig from '../WithMapViewConfig';
@@ -78,9 +78,9 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
   const eventFilter = useSelector((state) => state.data.eventFilter);
   const eventStore = useSelector((state) => state.data.eventStore);
   const eventTypes = useSelector((state) => state.data.eventTypes);
-  const realtimeOverlayFeatureIds = useSelector(selectRealtimeOverlayFeatureIds);
   const shouldEventsBeClustered = useSelector(selectShouldEventsBeClustered);
   const showReportsOnMap = useSelector((state) => state.data.mapLayerFilter.showReportsOnMap);
+  const tileExcludedEventIds = useSelector(selectTileExcludedEventIds);
   const timeSliderState = useSelector((state) => state.view?.timeSliderState);
 
   // Guards against the click firing twice when the icon and label layers overlap.
@@ -113,15 +113,6 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
       : 'generic';
   }, [eventTypes]);
 
-  // icon-image: `{icon_id}-{priority}` (+ width/height when present).
-  const iconImageExpression = useMemo(() => ['concat',
-    iconIdExpression,
-    '-',
-    ['get', 'priority'],
-    ['case', ['has', 'width'], ['concat', '-', ['get', 'width']], ''],
-    ['case', ['has', 'height'], ['concat', '-', ['get', 'height']], ''],
-  ], [iconIdExpression]);
-
   // Generic events render smaller (mirroring IF_IS_GENERIC on the GeoJSON path). Tile
   // features have no `image` prop, so detect generic from the resolved icon id instead.
   const ifIsGeneric = useCallback(
@@ -153,19 +144,9 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
   }, [eventTypes]);
 
   const iconLayout = useMemo(() => ({
-    ...DEFAULT_SYMBOL_LAYOUT,
-    'icon-allow-overlap': true,
-    'text-allow-overlap': true,
-    'icon-image': iconImageExpression,
-    'icon-size': [
-      'interpolate', ['exponential', 0.5], ['zoom'],
-      0, ifIsGeneric(0.125 / MAP_ICON_SCALE, 0.25 / MAP_ICON_SCALE),
-      12, ifIsGeneric(0.5 / MAP_ICON_SCALE, 1 / MAP_ICON_SCALE),
-    ],
-    'text-field': '',
-    'text-size': 0,
+    ...buildEventIconLayout({ iconIdExpression, ifIsGeneric }),
     ...mapUserLayoutConfig,
-  }), [iconImageExpression, ifIsGeneric, mapUserLayoutConfig]);
+  }), [iconIdExpression, ifIsGeneric, mapUserLayoutConfig]);
 
   const stableIconLayout = useMemoCompare(iconLayout);
 
@@ -223,12 +204,12 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
     }
 
     return combineLayerFilters(
-      realtimeOverlayFeatureIds.length
-        ? ['!', ['in', ['get', 'id'], ['literal', realtimeOverlayFeatureIds]]]
+      tileExcludedEventIds.length
+        ? ['!', ['in', ['get', 'id'], ['literal', tileExcludedEventIds]]]
         : null,
       hideFilter,
     );
-  }, [hideFilter, realtimeOverlayFeatureIds, shouldEventsBeClustered, showReportsOnMap]);
+  }, [hideFilter, tileExcludedEventIds, shouldEventsBeClustered, showReportsOnMap]);
 
   const centroidLayerFilter = useMemo(() => {
     if (shouldEventsBeClustered || !showReportsOnMap) {
@@ -236,12 +217,12 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
     }
 
     return combineLayerFilters(
-      realtimeOverlayFeatureIds.length
-        ? ['!', ['in', ['get', 'event_id'], ['literal', realtimeOverlayFeatureIds]]]
+      tileExcludedEventIds.length
+        ? ['!', ['in', ['get', 'event_id'], ['literal', tileExcludedEventIds]]]
         : null,
       hideFilter,
     );
-  }, [hideFilter, realtimeOverlayFeatureIds, shouldEventsBeClustered, showReportsOnMap]);
+  }, [hideFilter, tileExcludedEventIds, shouldEventsBeClustered, showReportsOnMap]);
 
   const fillLayerFilter = useMemo(() => {
     if (!showReportsOnMap) {
@@ -249,12 +230,12 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
     }
 
     return combineLayerFilters(
-      realtimeOverlayFeatureIds.length
-        ? ['!', ['in', ['get', 'event_id'], ['literal', realtimeOverlayFeatureIds]]]
+      tileExcludedEventIds.length
+        ? ['!', ['in', ['get', 'event_id'], ['literal', tileExcludedEventIds]]]
         : null,
       hideFilter,
     );
-  }, [hideFilter, realtimeOverlayFeatureIds, showReportsOnMap]);
+  }, [hideFilter, tileExcludedEventIds, showReportsOnMap]);
 
   useEffect(() => {
     // Rebuild the tile source URL (debounced) whenever the event filter

@@ -4,18 +4,21 @@ import { featureCollection } from '@turf/turf';
 import noop from 'lodash/noop';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { addRealtimeOverlayEvent, pruneRealtimeOverlayEvents } from '../ducks/events-realtime-overlay';
 import {
+  addRealtimeOverlayEvent,
+  clearHiddenRealtimeOverlayEvents,
+  pruneRealtimeOverlayEvents,
+} from '../ducks/events-realtime-overlay';
+import {
+  buildEventIconLayout,
   buildEventTimeSliderFadeColor,
   buildEventTimeSliderHideFilter,
   EVENT_GEOMETRY_FILL_PAINT,
   resolveEventTimeSliderParameters,
 } from '../utils/event-vector-tiles';
 import {
-  DEFAULT_SYMBOL_LAYOUT,
   IF_IS_GENERIC,
   LAYER_IDS,
-  MAP_ICON_SCALE,
   REALTIME_OVERLAY_WINDOW_MS,
   SOURCE_IDS,
 } from '../constants';
@@ -45,25 +48,7 @@ const POINTER_LAYER_IDS = [
   LAYER_IDS.EVENTS_REALTIME_OVERLAY_GEOMETRY,
 ];
 
-const ICON_LAYOUT = {
-  ...DEFAULT_SYMBOL_LAYOUT,
-  'icon-allow-overlap': true,
-  'text-allow-overlap': true,
-  'icon-image': ['concat',
-    ['get', 'icon_id'],
-    '-',
-    ['get', 'priority'],
-    ['case', ['has', 'width'], ['concat', '-', ['get', 'width']], ''],
-    ['case', ['has', 'height'], ['concat', '-', ['get', 'height']], ''],
-  ],
-  'icon-size': [
-    'interpolate', ['exponential', 0.5], ['zoom'],
-    0, IF_IS_GENERIC(0.125 / MAP_ICON_SCALE, 0.25 / MAP_ICON_SCALE),
-    12, IF_IS_GENERIC(0.5 / MAP_ICON_SCALE, 1 / MAP_ICON_SCALE),
-  ],
-  'text-field': '',
-  'text-size': 0,
-};
+const ICON_LAYOUT = buildEventIconLayout({ iconIdExpression: ['get', 'icon_id'], ifIsGeneric: IF_IS_GENERIC });
 
 const LABEL_LAYOUT = {
   'text-field': '{display_title}',
@@ -90,7 +75,8 @@ const EventsRealtimeOverlayLayer = ({ onEventClick }) => {
 
     return isDrawingEventGeometry ? (mapLocationSelection.event?.id ?? '') : '';
   });
-  const eventFilterDateRange = useSelector((state) => state.data.eventFilter?.filter?.date_range);
+  const eventFilter = useSelector((state) => state.data.eventFilter);
+  const eventFilterDateRange = eventFilter?.filter?.date_range;
   const locallyEditedEventId = useSelector((state) => state.data.locallyEditedEvent?.id);
   const realtimeOverlayFeatureCollection = useSelector(selectRealtimeOverlayFeatureCollection);
   const realtimeOverlayPolygonFeatureCollection = useSelector(selectRealtimeOverlayPolygonFeatureCollection);
@@ -217,8 +203,8 @@ const EventsRealtimeOverlayLayer = ({ onEventClick }) => {
   }, [locallyEditedEventId, dispatch]);
 
   useEffect(() => {
-    // Periodically drop members older than the window; by then the tile has
-    // refreshed.
+    // Periodically drop overlay members older than the window; by then the tile
+    // has refreshed. (Hidden ids are cleared on filter change, not here — see the duck.)
     const interval = setInterval(
       () => dispatch(pruneRealtimeOverlayEvents(Date.now() - REALTIME_OVERLAY_WINDOW_MS)),
       PRUNE_INTERVAL_MS
@@ -226,6 +212,12 @@ const EventsRealtimeOverlayLayer = ({ onEventClick }) => {
 
     return () => clearInterval(interval);
   }, [dispatch]);
+
+  useEffect(() => {
+    // A filter change refetches the tile fresh, so the delete-instant "hidden from the stale tile"
+    // ids are no longer needed.
+    dispatch(clearHiddenRealtimeOverlayEvents());
+  }, [eventFilter, dispatch]);
 
   useEffect(() => {
     if (map) {

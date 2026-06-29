@@ -7,14 +7,14 @@ import { MapContext } from '../MapContext';
 import { createMapMock } from '../__test-helpers/mocks';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { objectToParamString } from '../utils/query';
-import { selectRealtimeOverlayFeatureIds } from '../selectors/events-realtime-overlay';
+import { selectTileExcludedEventIds } from '../selectors/events-realtime-overlay';
 
 jest.mock('react-redux', () => ({
   useSelector: jest.fn(),
 }));
 
 jest.mock('../selectors/events-realtime-overlay', () => ({
-  selectRealtimeOverlayFeatureIds: jest.fn(() => []),
+  selectTileExcludedEventIds: jest.fn(() => []),
 }));
 
 // Identity HOC so we don't need a redux Provider for the connect() wrapper.
@@ -78,7 +78,7 @@ describe('EventsVectorLayer', () => {
 
     calcEventFilterForRequest.mockReturnValue({ state: ['active'], filter: {}, sort_by: '-updated_at' });
     objectToParamString.mockReturnValue('state=active&filter=%7B%7D');
-    selectRealtimeOverlayFeatureIds.mockReturnValue([]);
+    selectTileExcludedEventIds.mockReturnValue([]);
 
     useSelector.mockImplementation((selector) => selector(buildState()));
   });
@@ -188,7 +188,7 @@ describe('EventsVectorLayer', () => {
 
     test('excludes overlay-owned events from the fill + centroid layers by event_id', () => {
       mockMap.getLayer.mockReturnValue({ id: 'exists' });
-      selectRealtimeOverlayFeatureIds.mockReturnValue(['poly-9']);
+      selectTileExcludedEventIds.mockReturnValue(['poly-9']);
       useSelector.mockImplementation((selector) => selector(buildState()));
 
       renderLayer({ map: mockMap, onEventClick: jest.fn() });
@@ -205,7 +205,7 @@ describe('EventsVectorLayer', () => {
   describe('overlay exclusion', () => {
     test('excludes overlay-owned ids from the tile layers', () => {
       mockMap.getLayer.mockReturnValue({ id: 'exists' });
-      selectRealtimeOverlayFeatureIds.mockReturnValue(['evt-9']);
+      selectTileExcludedEventIds.mockReturnValue(['evt-9']);
 
       renderLayer({ map: mockMap, onEventClick: jest.fn() });
 
@@ -251,7 +251,7 @@ describe('EventsVectorLayer', () => {
 
     test('composes the overlay exclusion with the time-slider hide', () => {
       mockMap.getLayer.mockReturnValue({ id: 'exists' });
-      selectRealtimeOverlayFeatureIds.mockReturnValue(['evt-9']);
+      selectTileExcludedEventIds.mockReturnValue(['evt-9']);
       useSelector.mockImplementation((selector) => selector(buildState(activeSliderState)));
 
       renderLayer({ map: mockMap, onEventClick: jest.fn() });

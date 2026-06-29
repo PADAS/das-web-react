@@ -1,6 +1,7 @@
 import { booleanPointInPolygon, point, polygon } from '@turf/turf';
 
 import {
+  buildEventIconLayout,
   buildEventTimeSliderFadeColor,
   buildEventTimeSliderHideFilter,
   buildEventTypeValueMap,
@@ -10,8 +11,49 @@ import {
   resolveEventTimeSliderParameters,
   TIME_SLIDER_DEFAULT_LABEL_COLOR,
 } from './event-vector-tiles';
+import { MAP_ICON_SCALE } from '../constants';
 
 describe('utils - Event vector tiles', () => {
+  describe('buildEventIconLayout', () => {
+    // Sentinel that records the size args, so the assertions verify the shared ramp without
+    // re-implementing the generic-test expression.
+    const ifIsGeneric = (generic, nonGeneric) => ({ generic, nonGeneric });
+
+    test('builds icon-image from the injected icon-id expression (+ priority/width/height suffix)', () => {
+      const layout = buildEventIconLayout({ iconIdExpression: ['get', 'icon_id'], ifIsGeneric });
+
+      expect(layout['icon-image']).toEqual([
+        'concat',
+        ['get', 'icon_id'],
+        '-',
+        ['get', 'priority'],
+        ['case', ['has', 'width'], ['concat', '-', ['get', 'width']], ''],
+        ['case', ['has', 'height'], ['concat', '-', ['get', 'height']], ''],
+      ]);
+    });
+
+    test('builds the shared icon-size ramp, wrapping each size in the injected generic test', () => {
+      const layout = buildEventIconLayout({ iconIdExpression: ['get', 'icon_id'], ifIsGeneric });
+
+      expect(layout['icon-size']).toEqual([
+        'interpolate', ['exponential', 0.5], ['zoom'],
+        0, { generic: 0.125 / MAP_ICON_SCALE, nonGeneric: 0.25 / MAP_ICON_SCALE },
+        12, { generic: 0.5 / MAP_ICON_SCALE, nonGeneric: 1 / MAP_ICON_SCALE },
+      ]);
+    });
+
+    test('sets the shared marker boilerplate (overlap + empty text)', () => {
+      const layout = buildEventIconLayout({ iconIdExpression: ['get', 'icon_id'], ifIsGeneric });
+
+      expect(layout).toMatchObject({
+        'icon-allow-overlap': true,
+        'text-allow-overlap': true,
+        'text-field': '',
+        'text-size': 0,
+      });
+    });
+  });
+
   describe('resolveEventTimeSliderParameters', () => {
     const dateRange = { lower: '2026-06-01T00:00:00.000Z', upper: '2026-06-25T00:00:00.000Z' };
 

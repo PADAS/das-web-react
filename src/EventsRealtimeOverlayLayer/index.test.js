@@ -3,7 +3,7 @@ import { featureCollection, point, polygon } from '@turf/turf';
 import { render } from '@testing-library/react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { ADD_EVENT, PRUNE_EVENTS } from '../ducks/events-realtime-overlay';
+import { ADD_EVENT, CLEAR_HIDDEN_EVENTS, PRUNE_EVENTS } from '../ducks/events-realtime-overlay';
 import { createMapMock } from '../__test-helpers/mocks';
 import { fetchRecentEventsIntoRealtimeOverlay } from '../ducks/events';
 import {
@@ -182,6 +182,28 @@ describe('EventsRealtimeOverlayLayer', () => {
     jest.advanceTimersByTime(60 * 1000);
 
     expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ type: PRUNE_EVENTS }));
+  });
+
+  test('clears hidden (delete-instant) ids when the event filter changes', () => {
+    const setSelector = (eventFilter) => useSelector.mockImplementation((selector) => {
+      if (selector === selectRealtimeOverlayFeatureCollection) return OVERLAY_FC;
+      if (selector === selectRealtimeOverlayPolygonFeatureCollection) return OVERLAY_POLYGON_FC;
+      return selector({ data: { eventFilter, mapLayerFilter: { showReportsOnMap: true }, locallyEditedEvent: null } });
+    });
+
+    setSelector({ state: ['active'] });
+    const { rerender } = render(
+      <MapContext.Provider value={mockMap}><EventsRealtimeOverlayLayer onEventClick={jest.fn()} /></MapContext.Provider>
+    );
+    // Fires on mount (harmless — nothing hidden yet).
+    expect(dispatch).toHaveBeenCalledWith({ type: CLEAR_HIDDEN_EVENTS });
+
+    dispatch.mockClear();
+    setSelector({ state: ['active', 'resolved'] }); // a new filter reference
+    rerender(
+      <MapContext.Provider value={mockMap}><EventsRealtimeOverlayLayer onEventClick={jest.fn()} /></MapContext.Provider>
+    );
+    expect(dispatch).toHaveBeenCalledWith({ type: CLEAR_HIDDEN_EVENTS });
   });
 
   test('keeps the locally edited event in overlay membership so it does not hand back to the tile', () => {

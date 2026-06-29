@@ -11,7 +11,7 @@ import {
 import { EMPTY_TILE_EVENT_FEATURES, TileEventFeaturesContext } from '../hooks/useTileEventFeatures';
 import { FEATURE_FLAGS, SOURCE_IDS } from '../constants';
 import { MapContext } from '../MapContext';
-import { selectRealtimeOverlayFeatureIds } from '../selectors/events-realtime-overlay';
+import { selectTileExcludedEventIds } from '../selectors/events-realtime-overlay';
 import { useFeatureFlag } from '../hooks';
 
 const CENTROID_SOURCE_LAYER = 'event_centroids';
@@ -24,7 +24,7 @@ const TileEventFeaturesProvider = ({ children }) => {
 
   const eventFilterDateRange = useSelector((state) => state.data.eventFilter?.filter?.date_range);
   const eventTypes = useSelector((state) => state.data.eventTypes);
-  const realtimeOverlayFeatureIds = useSelector(selectRealtimeOverlayFeatureIds);
+  const tileExcludedEventIds = useSelector(selectTileExcludedEventIds);
   const timeSliderState = useSelector((state) => state.view.timeSliderState);
 
   const eventTypeValueMap = useMemo(() => buildEventTypeValueMap(eventTypes), [eventTypes]);
@@ -38,7 +38,7 @@ const TileEventFeaturesProvider = ({ children }) => {
   const eventTypeValueMapRef = useRef(eventTypeValueMap);
   const inputsVersionRef = useRef(0);
   const lastSignatureRef = useRef(null);
-  const overlayIdsRef = useRef(new Set(realtimeOverlayFeatureIds));
+  const excludedIdsRef = useRef(new Set(tileExcludedEventIds));
   const timeSliderRef = useRef(timeSliderParameters);
 
   const [tileFeatures, setTileFeatures] = useState(EMPTY_TILE_EVENT_FEATURES);
@@ -56,7 +56,7 @@ const TileEventFeaturesProvider = ({ children }) => {
 
     const rawPoints = map.querySourceFeatures(SOURCE_IDS.EVENTS_VECTOR_SOURCE, { sourceLayer: POINT_SOURCE_LAYER });
     const rawCentroids = map.querySourceFeatures(SOURCE_IDS.EVENTS_VECTOR_SOURCE, { sourceLayer: CENTROID_SOURCE_LAYER });
-    const overlayIds = overlayIdsRef.current;
+    const excludedIds = excludedIdsRef.current;
     const timeSliderParams = timeSliderRef.current;
 
     const seen = new Set();
@@ -71,7 +71,7 @@ const TileEventFeaturesProvider = ({ children }) => {
 
         seen.add(id);
 
-        if (overlayIds.has(id) || !isFeatureVisibleAtVirtualDate(feature, timeSliderParams)) {
+        if (excludedIds.has(id) || !isFeatureVisibleAtVirtualDate(feature, timeSliderParams)) {
           continue;
         }
 
@@ -104,12 +104,12 @@ const TileEventFeaturesProvider = ({ children }) => {
     enabledRef.current = useEventVectorTiles;
     eventTypeValueMapRef.current = eventTypeValueMap;
     inputsVersionRef.current += 1;
-    overlayIdsRef.current = new Set(realtimeOverlayFeatureIds);
+    excludedIdsRef.current = new Set(tileExcludedEventIds);
     timeSliderRef.current = timeSliderParameters;
 
     // eslint-disable-next-line react-hooks/set-state-in-effect
     recompute();
-  }, [useEventVectorTiles, realtimeOverlayFeatureIds, timeSliderParameters, eventTypeValueMap, recompute]);
+  }, [useEventVectorTiles, tileExcludedEventIds, timeSliderParameters, eventTypeValueMap, recompute]);
 
   useEffect(() => {
     if (map && useEventVectorTiles) {

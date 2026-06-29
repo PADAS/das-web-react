@@ -5,6 +5,7 @@ import {
   selectRealtimeOverlayFeatureCollection,
   selectRealtimeOverlayFeatureIds,
   selectRealtimeOverlayPolygonFeatureCollection,
+  selectTileExcludedEventIds,
 } from './';
 
 describe('Selectors - Events realtime overlay', () => {
@@ -33,13 +34,15 @@ describe('Selectors - Events realtime overlay', () => {
     filter: { date_range: {}, event_type: [], priority: [], reported_by: [], text: '' },
   };
 
-  const buildState = ({ overlayEventIds = {}, locallyEditedEvent = null, eventFilter = activeFilter } = {}) => ({
+  const buildState = ({
+    overlayEventIds = {}, hiddenEventIds = {}, locallyEditedEvent = null, eventFilter = activeFilter,
+  } = {}) => ({
     data: {
       eventFilter,
       eventStore,
       eventTypes,
       locallyEditedEvent,
-      realtimeOverlayEvents: { ids: overlayEventIds },
+      realtimeOverlayEvents: { ids: overlayEventIds, hiddenIds: hiddenEventIds },
     },
   });
 
@@ -149,6 +152,26 @@ describe('Selectors - Events realtime overlay', () => {
       const state = buildState({ overlayEventIds: { p1: 1, poly1: 1 } });
 
       expect(selectRealtimeOverlayFeatureIds(state)).toEqual(expect.arrayContaining(['p1', 'poly1']));
+    });
+  });
+
+  describe('selectTileExcludedEventIds', () => {
+    test('unions the overlay-rendered ids with the hidden (deleted/edited-away) ids', () => {
+      const state = buildState({ overlayEventIds: { p1: 1 }, hiddenEventIds: { p3: 1000, gone: 2000 } });
+
+      expect(selectTileExcludedEventIds(state).sort()).toEqual(['gone', 'p1', 'p3']);
+    });
+
+    test('dedupes an id that is both overlay-rendered and hidden', () => {
+      const state = buildState({ overlayEventIds: { p1: 1 }, hiddenEventIds: { p1: 1000 } });
+
+      expect(selectTileExcludedEventIds(state)).toEqual(['p1']);
+    });
+
+    test('falls back to just the overlay ids when there are no hidden ids', () => {
+      const state = buildState({ overlayEventIds: { p1: 1, p3: 1 } });
+
+      expect(selectTileExcludedEventIds(state).sort()).toEqual(['p1', 'p3']);
     });
   });
 });

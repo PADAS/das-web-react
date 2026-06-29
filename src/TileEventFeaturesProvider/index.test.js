@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 
 import { createMapMock } from '../__test-helpers/mocks';
 import { MapContext } from '../MapContext';
-import { selectRealtimeOverlayFeatureIds } from '../selectors/events-realtime-overlay';
+import { selectTileExcludedEventIds } from '../selectors/events-realtime-overlay';
 import { SOURCE_IDS } from '../constants';
 import { useFeatureFlag } from '../hooks';
 import useTileEventFeatures from '../hooks/useTileEventFeatures';
@@ -15,7 +15,7 @@ import TileEventFeaturesProvider from './';
 jest.mock('react-redux', () => ({ useSelector: jest.fn() }));
 jest.mock('../hooks', () => ({ useFeatureFlag: jest.fn() }));
 jest.mock('../selectors/events-realtime-overlay', () => ({
-  selectRealtimeOverlayFeatureIds: jest.fn(),
+  selectTileExcludedEventIds: jest.fn(),
 }));
 
 const EVENT_TYPES = [{ value: 'fire', icon_id: 'fire-icon', display: 'Fire' }];
@@ -62,9 +62,9 @@ const Capture = ({ onCapture }) => {
 };
 
 const renderProvider = ({ map, overlayIds = [], state = buildState(), onCapture = () => {} } = {}) => {
-  selectRealtimeOverlayFeatureIds.mockReturnValue(overlayIds);
+  selectTileExcludedEventIds.mockReturnValue(overlayIds);
   useSelector.mockImplementation((selector) =>
-    (selector === selectRealtimeOverlayFeatureIds ? overlayIds : selector(state)));
+    (selector === selectTileExcludedEventIds ? overlayIds : selector(state)));
 
   return render(
     <MapContext.Provider value={map}>

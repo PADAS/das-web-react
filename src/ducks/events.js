@@ -5,7 +5,7 @@ import { API_URL, API_V2_URL, FEATURE_FLAGS, REALTIME_OVERLAY_WINDOW_MS, TAB_KEY
 import globallyResettableReducer from '../reducers/global-resettable';
 import { addRealtimeOverlayEvent, removeRealtimeOverlayEvent } from './events-realtime-overlay';
 import { getFeatureFlagValue } from '../utils/feature-flags';
-import { getBboxParamsFromMap } from '../utils/query';
+import { getBboxParamsFromMap, objectToParamString } from '../utils/query';
 import { generateErrorMessageForRequest } from '../utils/request';
 import { addNormalizingPropertiesToEventDataFromAPI, eventBelongsToCollection,
   uniqueEventIds, validateReportAgainstCurrentEventFilter } from '../utils/events';
@@ -534,14 +534,23 @@ export const fetchRecentEventsIntoRealtimeOverlay = (map) => async (dispatch, ge
 
   cancelFetchRecentEventsIntoRealtimeOverlay();
 
-  const eventFilterParamString = calcEventFilterForRequest({ params });
+  const requestFilter = calcEventFilterForRequest({ params, format: 'object' });
+  delete requestFilter.state;
+  const eventFilterParamString = objectToParamString(requestFilter);
+
   const cancelToken = new CancelToken((cancelFn) => { fetchRecentEventsIntoRealtimeOverlayCancelFn = cancelFn; });
   try {
     const results = await parallelPaginatedQuery(`${EVENTS_API_URL}?${eventFilterParamString}`, { cancelToken }, {});
 
     if (results?.length) {
-      dispatch(updateEventStore(...excludeOpenEventIfAlreadyInEventStore(results, getState().data.eventStore)));
-      results.forEach((event) => dispatch(addRealtimeOverlayEvent(event.id)));
+      const recentEvents = excludeOpenEventIfAlreadyInEventStore(results, getState().data.eventStore);
+      dispatch(updateEventStore(...recentEvents));
+
+      const stateFilter = getState().data.eventFilter?.state;
+      recentEvents.forEach((event) => {
+        const matchesStateFilter = !stateFilter || stateFilter.includes(event.state);
+        dispatch(matchesStateFilter ? addRealtimeOverlayEvent(event.id) : removeRealtimeOverlayEvent(event.id));
+      });
     }
   } catch (error) {
     if (!cancelToken.reason && !isCancel(error)) {

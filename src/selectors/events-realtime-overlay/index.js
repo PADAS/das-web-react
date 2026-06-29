@@ -30,6 +30,7 @@ const selectEventStore = (state) => state.data.eventStore;
 const selectEventTypes = (state) => state.data.eventTypes;
 const selectLocallyEditedEvent = (state) => state.data.locallyEditedEvent;
 const selectRealtimeOverlayEventIds = (state) => state.data.realtimeOverlayEvents.ids;
+const selectRealtimeOverlayHiddenEventIds = (state) => state.data.realtimeOverlayEvents.hiddenIds;
 
 const selectRealtimeOverlayEvents = createSelector(
   [selectRealtimeOverlayEventIds, selectEventStore],
@@ -88,5 +89,17 @@ export const selectRealtimeOverlayFeatureIds = createSelector(
   [selectRealtimeOverlayFeatureCollection],
   (realtimeOverlayFeatureCollection) => realtimeOverlayFeatureCollection.features
     .map((feature) => feature.properties.id),
+  { memoizeOptions: { resultEqualityCheck: shallowEqual } }
+);
+
+export const selectTileExcludedEventIds = createSelector(
+  [selectRealtimeOverlayFeatureIds, selectRealtimeOverlayHiddenEventIds],
+  (overlayFeatureIds, realtimeOverlayHiddenEventIds) => {
+    const hiddenIdKeys = Object.keys(realtimeOverlayHiddenEventIds ?? {});
+    if (!hiddenIdKeys.length) {
+      return overlayFeatureIds;
+    }
+    return Array.from(new Set([...overlayFeatureIds, ...hiddenIdKeys]));
+  },
   { memoizeOptions: { resultEqualityCheck: shallowEqual } }
 );

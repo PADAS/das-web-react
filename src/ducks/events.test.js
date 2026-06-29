@@ -22,7 +22,7 @@ import {
   updateEvent,
   uploadEventFile,
 } from './events';
-import { ADD_EVENT, addRealtimeOverlayEvent, removeRealtimeOverlayEvent } from './events-realtime-overlay';
+import { ADD_EVENT, addRealtimeOverlayEvent, REMOVE_EVENT, removeRealtimeOverlayEvent } from './events-realtime-overlay';
 import { FEATURE_FLAGS } from '../constants';
 
 jest.mock('../utils/events', () => ({
@@ -151,6 +151,21 @@ describe('fetchRecentEventsIntoRealtimeOverlay', () => {
     expect(actions).toContainEqual(expect.objectContaining({ type: UPDATE_EVENT_STORE }));
     expect(actions).toContainEqual(expect.objectContaining({ type: ADD_EVENT, payload: expect.objectContaining({ id: 'evt-1' }) }));
     expect(actions).toContainEqual(expect.objectContaining({ type: ADD_EVENT, payload: expect.objectContaining({ id: 'evt-2' }) }));
+  });
+
+  test('hides recent events whose state no longer matches the filter, and seeds the rest', async () => {
+    store = mockStore({ data: { eventStore: {}, eventFilter: { state: ['active', 'new'] } }, view: {} });
+    jest.spyOn(axios, 'get').mockImplementationOnce(() => Promise.resolve({
+      status: 200,
+      data: { data: { results: [{ id: 'active-1', state: 'active' }, { id: 'resolved-1', state: 'resolved' }], count: 2 } },
+    }));
+
+    await store.dispatch(fetchRecentEventsIntoRealtimeOverlay(map));
+
+    const actions = store.getActions();
+    expect(actions).toContainEqual(expect.objectContaining({ type: ADD_EVENT, payload: expect.objectContaining({ id: 'active-1' }) }));
+    expect(actions).toContainEqual({ type: REMOVE_EVENT, payload: 'resolved-1' });
+    expect(actions).not.toContainEqual(expect.objectContaining({ type: ADD_EVENT, payload: expect.objectContaining({ id: 'resolved-1' }) }));
   });
 
   test('does not seed anything when the recent window is empty', async () => {

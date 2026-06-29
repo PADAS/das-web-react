@@ -1,5 +1,6 @@
 import { point } from '@turf/turf';
 
+import { DEFAULT_SYMBOL_LAYOUT, MAP_ICON_SCALE } from '../constants';
 import { PRIORITY_COLOR_MAP } from './events';
 
 export const TIME_SLIDER_DEFAULT_LABEL_COLOR = 'rgba(255, 255, 255, 0.7)';
@@ -20,6 +21,27 @@ export const EVENT_GEOMETRY_FILL_PAINT = {
   'fill-outline-color': PRIORITY_FILL_COLOR_EXPRESSION,
   'fill-opacity': 0.4,
 };
+
+export const buildEventIconLayout = ({ iconIdExpression, ifIsGeneric }) => ({
+  ...DEFAULT_SYMBOL_LAYOUT,
+  'icon-allow-overlap': true,
+  'text-allow-overlap': true,
+  'icon-image': [
+    'concat',
+    iconIdExpression,
+    '-',
+    ['get', 'priority'],
+    ['case', ['has', 'width'], ['concat', '-', ['get', 'width']], ''],
+    ['case', ['has', 'height'], ['concat', '-', ['get', 'height']], ''],
+  ],
+  'icon-size': [
+    'interpolate', ['exponential', 0.5], ['zoom'],
+    0, ifIsGeneric(0.125 / MAP_ICON_SCALE, 0.25 / MAP_ICON_SCALE),
+    12, ifIsGeneric(0.5 / MAP_ICON_SCALE, 1 / MAP_ICON_SCALE),
+  ],
+  'text-field': '',
+  'text-size': 0,
+});
 
 const midpoint = (a, b) => (a + b) / 2;
 
