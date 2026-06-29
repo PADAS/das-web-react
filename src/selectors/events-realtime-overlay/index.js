@@ -1,9 +1,10 @@
-import { createSelector } from 'reselect';
 import { featureCollection } from '@turf/turf';
+import { createSelector } from 'reselect';
 import { shallowEqual } from 'react-redux';
 
 import { applyLocalEditsToEvent } from '../../utils/locally-edited-event';
 import { createFeatureCollectionFromEvents } from '../../utils/map';
+import { interiorPointOnSurface } from '../../utils/event-vector-tiles';
 import { selectLocallyEditedEventFromStore } from '../locally-edited-event';
 import { validateReportAgainstCurrentEventFilter } from '../../utils/events';
 
@@ -37,7 +38,7 @@ const selectRealtimeOverlayEvents = createSelector(
   { memoizeOptions: { resultEqualityCheck: shallowEqual } }
 );
 
-export const selectRealtimeOverlayFeatureCollection = createSelector(
+const selectRealtimeOverlayFeatures = createSelector(
   [
     selectRealtimeOverlayEvents,
     selectLocallyEditedEventFromStore,
@@ -55,12 +56,32 @@ export const selectRealtimeOverlayFeatureCollection = createSelector(
       events.push(applyLocalEditsToEvent(locallyEditedEventFromStore, locallyEditedEvent));
     }
 
-    return featureCollection(
-      createFeatureCollectionFromEvents(events, eventTypes).features
-        .filter((feature) => feature.geometry?.type === 'Point')
-        .map(addEventTimeFieldsToFeature)
-    );
+    return createFeatureCollectionFromEvents(events, eventTypes).features.map(addEventTimeFieldsToFeature);
   }
+);
+
+export const selectRealtimeOverlayFeatureCollection = createSelector(
+  [selectRealtimeOverlayFeatures],
+  (features) => featureCollection(
+    features.flatMap((feature) => {
+      if (feature.geometry?.type === 'Point') {
+        return [feature];
+      }
+      if (feature.geometry?.type === 'Polygon') {
+        const anchor = interiorPointOnSurface(feature);
+        if (!anchor) {
+          return [];
+        }
+        return [{ ...anchor, properties: feature.properties }];
+      }
+      return [];
+    })
+  )
+);
+
+export const selectRealtimeOverlayPolygonFeatureCollection = createSelector(
+  [selectRealtimeOverlayFeatures],
+  (features) => featureCollection(features.filter((feature) => feature.geometry?.type === 'Polygon'))
 );
 
 export const selectRealtimeOverlayFeatureIds = createSelector(

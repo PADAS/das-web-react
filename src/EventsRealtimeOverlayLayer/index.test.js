@@ -1,12 +1,15 @@
 import React from 'react';
-import { featureCollection, point } from '@turf/turf';
+import { featureCollection, point, polygon } from '@turf/turf';
 import { render } from '@testing-library/react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { ADD_EVENT, PRUNE_EVENTS } from '../ducks/events-realtime-overlay';
 import { createMapMock } from '../__test-helpers/mocks';
 import { fetchRecentEventsIntoRealtimeOverlay } from '../ducks/events';
-import { selectRealtimeOverlayFeatureCollection } from '../selectors/events-realtime-overlay';
+import {
+  selectRealtimeOverlayFeatureCollection,
+  selectRealtimeOverlayPolygonFeatureCollection,
+} from '../selectors/events-realtime-overlay';
 import { selectShouldEventsBeClustered } from '../selectors/clusters';
 import { LAYER_IDS, SOURCE_IDS } from '../constants';
 import { MapContext } from '../MapContext';
@@ -33,6 +36,7 @@ jest.mock('../LabeledSymbolLayer', () => (props) => {
 
 jest.mock('../selectors/events-realtime-overlay', () => ({
   selectRealtimeOverlayFeatureCollection: jest.fn(),
+  selectRealtimeOverlayPolygonFeatureCollection: jest.fn(),
 }));
 
 // Bypass the multi-layer guard so the inner click handler always fires.
@@ -41,18 +45,19 @@ jest.mock('../utils/map-handlers', () => ({
 }));
 
 const OVERLAY_FC = featureCollection([point([0, 0], { id: 'evt-1' })]);
+const OVERLAY_POLYGON_FC = featureCollection([]);
 
 const renderOverlay = (map, showReportsOnMap = true, locallyEditedEventId) => {
-  useSelector.mockImplementation((selector) => (
-    selector === selectRealtimeOverlayFeatureCollection
-      ? OVERLAY_FC
-      : selector({
-        data: {
-          mapLayerFilter: { showReportsOnMap },
-          locallyEditedEvent: locallyEditedEventId ? { id: locallyEditedEventId } : null,
-        },
-      })
-  ));
+  useSelector.mockImplementation((selector) => {
+    if (selector === selectRealtimeOverlayFeatureCollection) return OVERLAY_FC;
+    if (selector === selectRealtimeOverlayPolygonFeatureCollection) return OVERLAY_POLYGON_FC;
+    return selector({
+      data: {
+        mapLayerFilter: { showReportsOnMap },
+        locallyEditedEvent: locallyEditedEventId ? { id: locallyEditedEventId } : null,
+      },
+    });
+  });
 
   return render(
     <MapContext.Provider value={map}>
@@ -150,12 +155,18 @@ describe('EventsRealtimeOverlayLayer', () => {
     const { unmount } = renderOverlay(mockMap, true);
     unmount();
 
+    // Each source must be removed only after the layers that reference it.
+    const order = (entry) => removalOrder.indexOf(entry);
+
     expect(mockMap.removeSource).toHaveBeenCalledWith(SOURCE_IDS.EVENTS_REALTIME_OVERLAY_SOURCE);
-    expect(removalOrder).toEqual([
-      `layer:${LAYER_IDS.EVENTS_REALTIME_OVERLAY_SYMBOLS}-labels`,
-      `layer:${LAYER_IDS.EVENTS_REALTIME_OVERLAY_SYMBOLS}`,
-      `source:${SOURCE_IDS.EVENTS_REALTIME_OVERLAY_SOURCE}`,
-    ]);
+    expect(order(`layer:${LAYER_IDS.EVENTS_REALTIME_OVERLAY_SYMBOLS}-labels`))
+      .toBeLessThan(order(`source:${SOURCE_IDS.EVENTS_REALTIME_OVERLAY_SOURCE}`));
+    expect(order(`layer:${LAYER_IDS.EVENTS_REALTIME_OVERLAY_SYMBOLS}`))
+      .toBeLessThan(order(`source:${SOURCE_IDS.EVENTS_REALTIME_OVERLAY_SOURCE}`));
+
+    expect(mockMap.removeSource).toHaveBeenCalledWith(SOURCE_IDS.EVENTS_REALTIME_OVERLAY_POLYGON_SOURCE);
+    expect(order(`layer:${LAYER_IDS.EVENTS_REALTIME_OVERLAY_GEOMETRY}`))
+      .toBeLessThan(order(`source:${SOURCE_IDS.EVENTS_REALTIME_OVERLAY_POLYGON_SOURCE}`));
   });
 
   test('renders the labeled symbol layer on the overlay source', () => {
@@ -251,6 +262,145 @@ describe('EventsRealtimeOverlayLayer', () => {
 
       expect(labeledSymbolLayerProps.layout.visibility).toBe('visible');
       expect(labeledSymbolLayerProps.textLayout.visibility).toBe('visible');
+    });
+  });
+
+  describe('overlay polygon fill', () => {
+    test('creates the polygon source + fill layer and pushes polygon data via setData', () => {
+      const polygonSetData = jest.fn();
+      const polygonFC = featureCollection([polygon([[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]], { id: 'poly-1' })]);
+
+      mockMap.getLayer.mockReturnValue(null);
+      mockMap.getSource.mockImplementation((id) => (
+        id === SOURCE_IDS.EVENTS_REALTIME_OVERLAY_POLYGON_SOURCE
+          ? { setData: polygonSetData }
+          : { setData: jest.fn() }
+      ));
+
+      useSelector.mockImplementation((selector) => {
+        if (selector === selectRealtimeOverlayFeatureCollection) return OVERLAY_FC;
+        if (selector === selectRealtimeOverlayPolygonFeatureCollection) return polygonFC;
+        return selector({ data: { mapLayerFilter: { showReportsOnMap: true }, locallyEditedEvent: null } });
+      });
+
+      render(
+        <MapContext.Provider value={mockMap}>
+          <EventsRealtimeOverlayLayer onEventClick={jest.fn()} />
+        </MapContext.Provider>
+      );
+
+      const fillAddCall = mockMap.addLayer.mock.calls.find((c) => c[0].id === LAYER_IDS.EVENTS_REALTIME_OVERLAY_GEOMETRY);
+      expect(fillAddCall[0]).toEqual(expect.objectContaining({
+        type: 'fill',
+        source: SOURCE_IDS.EVENTS_REALTIME_OVERLAY_POLYGON_SOURCE,
+      }));
+      expect(polygonSetData).toHaveBeenCalledWith(polygonFC);
+    });
+
+    test('pushes an empty polygon collection when reports are hidden', () => {
+      const polygonSetData = jest.fn();
+      const polygonFC = featureCollection([polygon([[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]], { id: 'poly-1' })]);
+
+      mockMap.getSource.mockImplementation((id) => (
+        id === SOURCE_IDS.EVENTS_REALTIME_OVERLAY_POLYGON_SOURCE
+          ? { setData: polygonSetData }
+          : { setData: jest.fn() }
+      ));
+
+      useSelector.mockImplementation((selector) => {
+        if (selector === selectRealtimeOverlayFeatureCollection) return OVERLAY_FC;
+        if (selector === selectRealtimeOverlayPolygonFeatureCollection) return polygonFC;
+        return selector({ data: { mapLayerFilter: { showReportsOnMap: false }, locallyEditedEvent: null } });
+      });
+
+      render(
+        <MapContext.Provider value={mockMap}>
+          <EventsRealtimeOverlayLayer onEventClick={jest.fn()} />
+        </MapContext.Provider>
+      );
+
+      expect(polygonSetData.mock.calls.at(-1)[0].features).toHaveLength(0);
+    });
+
+    test('hides the fill of the polygon being drawn (parity with EventGeometryLayer)', () => {
+      const polygonSetData = jest.fn();
+      const polygonFC = featureCollection([
+        polygon([[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]], { id: 'drawing' }),
+        polygon([[[5, 5], [5, 6], [6, 6], [6, 5], [5, 5]]], { id: 'other' }),
+      ]);
+
+      mockMap.getSource.mockImplementation((id) => (
+        id === SOURCE_IDS.EVENTS_REALTIME_OVERLAY_POLYGON_SOURCE
+          ? { setData: polygonSetData }
+          : { setData: jest.fn() }
+      ));
+
+      useSelector.mockImplementation((selector) => {
+        if (selector === selectRealtimeOverlayFeatureCollection) return OVERLAY_FC;
+        if (selector === selectRealtimeOverlayPolygonFeatureCollection) return polygonFC;
+        return selector({
+          data: { mapLayerFilter: { showReportsOnMap: true }, locallyEditedEvent: null },
+          view: {
+            mapLocationSelection: {
+              isPickingLocation: true,
+              mode: 'eventGeometry',
+              event: { id: 'drawing' },
+            },
+          },
+        });
+      });
+
+      render(
+        <MapContext.Provider value={mockMap}>
+          <EventsRealtimeOverlayLayer onEventClick={jest.fn()} />
+        </MapContext.Provider>
+      );
+
+      const pushed = polygonSetData.mock.calls.at(-1)[0];
+      expect(pushed.features.map((feature) => feature.properties.id)).toEqual(['other']);
+    });
+
+    test('binds a hover cursor on the overlay fill layer', () => {
+      renderOverlay(mockMap, true);
+
+      const fillCursorBindings = mockMap.on.mock.calls.filter(
+        ([type, layerId]) => (type === 'mouseenter' || type === 'mouseleave')
+          && layerId === LAYER_IDS.EVENTS_REALTIME_OVERLAY_GEOMETRY
+      );
+      expect(fillCursorBindings.map(([type]) => type).sort()).toEqual(['mouseenter', 'mouseleave']);
+    });
+
+    test('mouseenter on the fill sets a pointer cursor', () => {
+      const setCursor = jest.fn();
+      mockMap.getCanvas.mockReturnValue({ style: { set cursor(value) { setCursor(value); } } });
+      renderOverlay(mockMap, true);
+
+      const enter = mockMap.on.mock.calls.find(
+        ([type, layerId]) => type === 'mouseenter' && layerId === LAYER_IDS.EVENTS_REALTIME_OVERLAY_GEOMETRY
+      )[2];
+      enter({ point: { x: 1, y: 1 } });
+
+      expect(setCursor).toHaveBeenCalledWith('pointer');
+    });
+
+    test('mouseleave on the fill clears the cursor only when no overlay event layer is still under the pointer', () => {
+      const setCursor = jest.fn();
+      mockMap.getCanvas.mockReturnValue({ style: { set cursor(value) { setCursor(value); } } });
+      renderOverlay(mockMap, true);
+
+      const leave = mockMap.on.mock.calls.find(
+        ([type, layerId]) => type === 'mouseleave' && layerId === LAYER_IDS.EVENTS_REALTIME_OVERLAY_GEOMETRY
+      )[2];
+
+      // Still over an overlay layer (e.g. an overlapping icon) → do NOT clear the cursor.
+      mockMap.queryRenderedFeatures.mockReturnValue([{ properties: { id: 'evt-1' } }]);
+      leave({ point: { x: 1, y: 1 } });
+      expect(setCursor).not.toHaveBeenCalled();
+
+      // No overlay layer under the pointer → clear the cursor.
+      mockMap.queryRenderedFeatures.mockReturnValue([]);
+      leave({ point: { x: 2, y: 2 } });
+      expect(setCursor).toHaveBeenCalledWith('');
     });
   });
 

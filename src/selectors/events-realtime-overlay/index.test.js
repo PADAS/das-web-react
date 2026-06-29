@@ -1,7 +1,11 @@
 import { featureCollection, point, polygon } from '@turf/turf';
 
 import { formatEventSymbolDate } from '../../utils/datetime';
-import { selectRealtimeOverlayFeatureIds, selectRealtimeOverlayFeatureCollection } from './';
+import {
+  selectRealtimeOverlayFeatureCollection,
+  selectRealtimeOverlayFeatureIds,
+  selectRealtimeOverlayPolygonFeatureCollection,
+} from './';
 
 describe('Selectors - Events realtime overlay', () => {
   const eventTypes = [{ display: 'Type 1', value: 'type1' }];
@@ -13,6 +17,10 @@ describe('Selectors - Events realtime overlay', () => {
     poly1: {
       id: 'poly1', state: 'active', event_type: 'type1', priority: 0,
       geojson: polygon([[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]]),
+    },
+    polyEmpty: {
+      id: 'polyEmpty', state: 'active', event_type: 'type1', priority: 0,
+      geojson: { type: 'Feature', properties: {}, geometry: { type: 'Polygon', coordinates: [] } },
     },
     p4: {
       id: 'p4', state: 'active', event_type: 'type1', priority: 0,
@@ -74,14 +82,23 @@ describe('Selectors - Events realtime overlay', () => {
       expect(selectRealtimeOverlayFeatureCollection(state)).toEqual(featureCollection([]));
     });
 
-    test('excludes polygon events', () => {
+    test('represents polygon events as their centroid (a Point) so they render an icon + cluster', () => {
       const state = buildState({ overlayEventIds: { p1: 1, poly1: 1 } });
 
-      expect(selectRealtimeOverlayFeatureCollection(state)).toEqual(featureCollection([{
-        type: 'Feature',
-        geometry: { type: 'Point', coordinates: [10, 10] },
-        properties: { id: 'p1', state: 'active', event_type: 'type1', priority: 0, display_title: 'Type 1' },
-      }]));
+      const { features } = selectRealtimeOverlayFeatureCollection(state);
+      expect(features).toHaveLength(2);
+      features.forEach((feature) => expect(feature.geometry.type).toBe('Point'));
+
+      const centroid = features.find((feature) => feature.properties.id === 'poly1');
+      expect(centroid.geometry.coordinates).toEqual([0.5, 0.5]);
+      expect(centroid.properties).toMatchObject({ id: 'poly1', event_type: 'type1', display_title: 'Type 1' });
+    });
+
+    test('skips a polygon with no usable interior point instead of anchoring it at [0,0]', () => {
+      const state = buildState({ overlayEventIds: { p1: 1, polyEmpty: 1 } });
+
+      const { features } = selectRealtimeOverlayFeatureCollection(state);
+      expect(features.map((feature) => feature.properties.id)).toEqual(['p1']);
     });
 
     test('includes event_time_iso and event_time_ms on the rendered features for the time slider', () => {
@@ -104,11 +121,34 @@ describe('Selectors - Events realtime overlay', () => {
     });
   });
 
+  describe('selectRealtimeOverlayPolygonFeatureCollection', () => {
+    test('includes only the polygon features (for the fill layer)', () => {
+      const state = buildState({ overlayEventIds: { p1: 1, poly1: 1 } });
+
+      const { features } = selectRealtimeOverlayPolygonFeatureCollection(state);
+      expect(features).toHaveLength(1);
+      expect(features[0].geometry.type).toBe('Polygon');
+      expect(features[0].properties.id).toBe('poly1');
+    });
+
+    test('is empty when there are no polygon overlay events', () => {
+      const state = buildState({ overlayEventIds: { p1: 1, p3: 1 } });
+
+      expect(selectRealtimeOverlayPolygonFeatureCollection(state)).toEqual(featureCollection([]));
+    });
+  });
+
   describe('selectRealtimeOverlayFeatureIds', () => {
     test('maps the feature collection to the ids of the features', () => {
       const state = buildState({ overlayEventIds: { p1: 1, p3: 1 } });
 
       expect(selectRealtimeOverlayFeatureIds(state)).toEqual(['p1', 'p3']);
+    });
+
+    test('includes polygon event ids (carried by their centroid) so the tile excludes them', () => {
+      const state = buildState({ overlayEventIds: { p1: 1, poly1: 1 } });
+
+      expect(selectRealtimeOverlayFeatureIds(state)).toEqual(expect.arrayContaining(['p1', 'poly1']));
     });
   });
 });

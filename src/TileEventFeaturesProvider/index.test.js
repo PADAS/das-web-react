@@ -40,6 +40,22 @@ const tileFeature = (id, properties = {}) => point([0, 0], {
   ...properties,
 });
 
+const centroidFeature = (eventId, properties = {}) => point([1, 1], {
+  id: `geom-${eventId}`,
+  event_id: eventId,
+  event_type_value: 'fire',
+  priority: 300,
+  title: `Polygon ${eventId}`,
+  event_time_iso: '2026-06-10T00:00:00.000Z',
+  event_time_display: 'Jun 10, 00:00 UTC',
+  updated_at_iso: '2026-06-10T00:00:00.000Z',
+  ...properties,
+});
+
+const querySourceFeaturesByLayer = ({ events = [], centroids = [] }) => jest.fn(
+  (_sourceId, { sourceLayer }) => (sourceLayer === 'event_centroids' ? centroids : events)
+);
+
 const Capture = ({ onCapture }) => {
   onCapture(useTileEventFeatures());
   return null;
@@ -87,6 +103,35 @@ describe('TileEventFeaturesProvider', () => {
     expect(feature.properties.event_type).toBe('fire');
     expect(feature.properties.display_title).toBe('Event a\nJun 10, 00:00 UTC');
     expect(feature.geometry.type).toBe('Point');
+  });
+
+  it('includes polygon centroids (keyed by event_id) alongside point events', () => {
+    let value;
+    const map = createMapMock({
+      querySourceFeatures: querySourceFeaturesByLayer({
+        events: [tileFeature('a')],
+        centroids: [centroidFeature('poly-1')],
+      }),
+    });
+
+    renderProvider({ map, onCapture: (collection) => { value = collection; } });
+
+    const byId = Object.fromEntries(value.features.map((feature) => [feature.properties.id, feature]));
+    expect(Object.keys(byId).sort()).toEqual(['a', 'poly-1']);
+    expect(byId['poly-1'].properties.icon_id).toBe('fire-icon');
+    expect(byId['poly-1'].properties.event_type).toBe('fire');
+    expect(byId['poly-1'].geometry.type).toBe('Point');
+  });
+
+  it('excludes overlay-owned polygon events from the centroids by event_id', () => {
+    let value;
+    const map = createMapMock({
+      querySourceFeatures: querySourceFeaturesByLayer({ centroids: [centroidFeature('poly-1')] }),
+    });
+
+    renderProvider({ map, overlayIds: ['poly-1'], onCapture: (collection) => { value = collection; } });
+
+    expect(value.features).toHaveLength(0);
   });
 
   it('falls back to the generic icon when the event type is unknown', () => {

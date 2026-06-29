@@ -129,15 +129,76 @@ describe('EventsVectorLayer', () => {
       expect(labelsCall[0]['source-layer']).toBe('events');
     });
 
+    test('adds the polygon fill on event_geometries and the centroid icon/labels on event_centroids', () => {
+      renderLayer({ map: mockMap, onEventClick: jest.fn() });
+
+      const fillCall = mockMap.addLayer.mock.calls.find((c) => c[0].id === 'events-vector-geometry');
+      expect(fillCall[0]).toEqual(expect.objectContaining({
+        type: 'fill',
+        source: 'events-vector-source',
+        'source-layer': 'event_geometries',
+      }));
+
+      const centroidCall = mockMap.addLayer.mock.calls.find((c) => c[0].id === 'event_symbols-vector-centroid');
+      expect(centroidCall[0]).toEqual(expect.objectContaining({
+        type: 'symbol',
+        source: 'events-vector-source',
+        'source-layer': 'event_centroids',
+      }));
+
+      const centroidLabelsCall = mockMap.addLayer.mock.calls.find((c) => c[0].id === 'event_symbols-vector-centroid-labels');
+      expect(centroidLabelsCall[0]['source-layer']).toBe('event_centroids');
+    });
+
     test('removes its layers and source on unmount', () => {
       const { safeRemoveMapLayer, safeRemoveMapSource } = require('../utils/map');
       const { unmount } = renderLayer({ map: mockMap, onEventClick: jest.fn() });
 
       unmount();
 
-      expect(safeRemoveMapLayer).toHaveBeenCalledWith(mockMap, 'events-vector-symbols');
-      expect(safeRemoveMapLayer).toHaveBeenCalledWith(mockMap, 'events-vector-symbols-labels');
+      [
+        'events-vector-symbols',
+        'events-vector-symbols-labels',
+        'events-vector-geometry',
+        'event_symbols-vector-centroid',
+        'event_symbols-vector-centroid-labels',
+      ].forEach((layerId) => expect(safeRemoveMapLayer).toHaveBeenCalledWith(mockMap, layerId));
       expect(safeRemoveMapSource).toHaveBeenCalledWith(mockMap, 'events-vector-source');
+    });
+  });
+
+  describe('polygon fill + centroid filtering', () => {
+    test('the fill stays rendered while clustering (only the centroid icon is match-nothinged)', () => {
+      mockMap.getLayer.mockReturnValue({ id: 'exists' });
+      useSelector.mockImplementation((selector) => selector(
+        buildState({ view: { mapClusterConfig: { data: { events: true, subjects: false } }, timeSliderState: { active: false, virtualDate: null } } })
+      ));
+
+      renderLayer({ map: mockMap, onEventClick: jest.fn() });
+
+      const matchNothing = ['in', ['get', 'id'], ['literal', []]];
+      const fillFilter = mockMap.setFilter.mock.calls.filter(([id]) => id === 'events-vector-geometry').at(-1)?.[1];
+      const centroidFilter = mockMap.setFilter.mock.calls.filter(([id]) => id === 'event_symbols-vector-centroid').at(-1)?.[1];
+
+      // Areas aren't clustered, so the fill keeps rendering; the centroid icon is suppressed (it
+      // renders from the cluster source instead).
+      expect(fillFilter).not.toEqual(matchNothing);
+      expect(centroidFilter).toEqual(matchNothing);
+    });
+
+    test('excludes overlay-owned events from the fill + centroid layers by event_id', () => {
+      mockMap.getLayer.mockReturnValue({ id: 'exists' });
+      selectRealtimeOverlayFeatureIds.mockReturnValue(['poly-9']);
+      useSelector.mockImplementation((selector) => selector(buildState()));
+
+      renderLayer({ map: mockMap, onEventClick: jest.fn() });
+
+      const exclusion = ['!', ['in', ['get', 'event_id'], ['literal', ['poly-9']]]];
+      const fillFilter = mockMap.setFilter.mock.calls.filter(([id]) => id === 'events-vector-geometry').at(-1)?.[1];
+      const centroidFilter = mockMap.setFilter.mock.calls.filter(([id]) => id === 'event_symbols-vector-centroid').at(-1)?.[1];
+
+      expect(fillFilter).toEqual(exclusion);
+      expect(centroidFilter).toEqual(exclusion);
     });
   });
 

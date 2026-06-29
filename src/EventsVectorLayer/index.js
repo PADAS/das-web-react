@@ -14,6 +14,7 @@ import {
 import {
   buildEventTimeSliderFadeColor,
   buildEventTimeSliderHideFilter,
+  EVENT_GEOMETRY_FILL_PAINT,
   resolveEventTimeSliderParameters,
   TIME_SLIDER_DEFAULT_LABEL_COLOR,
 } from '../utils/event-vector-tiles';
@@ -28,10 +29,22 @@ import withMapViewConfig from '../WithMapViewConfig';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
 
 const LABELS_LAYER_ID = `${LAYER_IDS.EVENTS_VECTOR_SYMBOLS}-labels`;
+const CENTROID_LABELS_LAYER_ID = `${LAYER_IDS.EVENTS_VECTOR_CENTROID_SYMBOLS}-labels`;
+// Every interactive event layer on the tile source — points, polygon centroids, and the fill.
+const EVENT_LAYER_IDS = [
+  LAYER_IDS.EVENTS_VECTOR_SYMBOLS,
+  LABELS_LAYER_ID,
+  LAYER_IDS.EVENTS_VECTOR_CENTROID_SYMBOLS,
+  CENTROID_LABELS_LAYER_ID,
+  LAYER_IDS.EVENTS_VECTOR_GEOMETRY,
+];
 const MAX_TILE_ZOOM = 24;
 const MIN_TILE_ZOOM = 3;
 const MATCH_NOTHING_FILTER = ['in', ['get', 'id'], ['literal', []]];
-const SOURCE_LAYER = 'events';
+const POINT_SOURCE_LAYER = 'events';
+// Polygon events (null Event.location) are served as a fill + an icon-anchor centroid.
+const GEOMETRY_SOURCE_LAYER = 'event_geometries';
+const CENTROID_SOURCE_LAYER = 'event_centroids';
 const SOURCE_REBUILD_DEBOUNCE_MS = 400;
 const VECTOR_TILE_BASE = `${API_URL}activity/events/tiles/{z}/{x}/{y}.pbf`;
 
@@ -196,6 +209,14 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
     [eventTimeSliderParameters]
   );
 
+  const hideFilter = useMemo(
+    () => buildEventTimeSliderHideFilter(
+      eventTimeSliderParameters.active,
+      eventTimeSliderParameters.virtualDateIso
+    ),
+    [eventTimeSliderParameters]
+  );
+
   const layerFilter = useMemo(() => {
     if (shouldEventsBeClustered || !showReportsOnMap) {
       return MATCH_NOTHING_FILTER;
@@ -205,12 +226,35 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
       realtimeOverlayFeatureIds.length
         ? ['!', ['in', ['get', 'id'], ['literal', realtimeOverlayFeatureIds]]]
         : null,
-      buildEventTimeSliderHideFilter(
-        eventTimeSliderParameters.active,
-        eventTimeSliderParameters.virtualDateIso
-      ),
+      hideFilter,
     );
-  }, [eventTimeSliderParameters, realtimeOverlayFeatureIds, shouldEventsBeClustered, showReportsOnMap]);
+  }, [hideFilter, realtimeOverlayFeatureIds, shouldEventsBeClustered, showReportsOnMap]);
+
+  const centroidLayerFilter = useMemo(() => {
+    if (shouldEventsBeClustered || !showReportsOnMap) {
+      return MATCH_NOTHING_FILTER;
+    }
+
+    return combineLayerFilters(
+      realtimeOverlayFeatureIds.length
+        ? ['!', ['in', ['get', 'event_id'], ['literal', realtimeOverlayFeatureIds]]]
+        : null,
+      hideFilter,
+    );
+  }, [hideFilter, realtimeOverlayFeatureIds, shouldEventsBeClustered, showReportsOnMap]);
+
+  const fillLayerFilter = useMemo(() => {
+    if (!showReportsOnMap) {
+      return MATCH_NOTHING_FILTER;
+    }
+
+    return combineLayerFilters(
+      realtimeOverlayFeatureIds.length
+        ? ['!', ['in', ['get', 'event_id'], ['literal', realtimeOverlayFeatureIds]]]
+        : null,
+      hideFilter,
+    );
+  }, [hideFilter, realtimeOverlayFeatureIds, showReportsOnMap]);
 
   useEffect(() => {
     // Rebuild the tile source URL (debounced) whenever the event filter
@@ -234,12 +278,23 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
 
       const before = map.getLayer(LAYER_IDS.SUBJECT_SYMBOLS) ? LAYER_IDS.SUBJECT_SYMBOLS : undefined;
 
+      if (!map.getLayer(LAYER_IDS.EVENTS_VECTOR_GEOMETRY)) {
+        map.addLayer({
+          id: LAYER_IDS.EVENTS_VECTOR_GEOMETRY,
+          type: 'fill',
+          source: SOURCE_IDS.EVENTS_VECTOR_SOURCE,
+          'source-layer': GEOMETRY_SOURCE_LAYER,
+          layout: {},
+          paint: EVENT_GEOMETRY_FILL_PAINT,
+        }, before);
+      }
+
       if (!map.getLayer(LAYER_IDS.EVENTS_VECTOR_SYMBOLS)) {
         map.addLayer({
           id: LAYER_IDS.EVENTS_VECTOR_SYMBOLS,
           type: 'symbol',
           source: SOURCE_IDS.EVENTS_VECTOR_SOURCE,
-          'source-layer': SOURCE_LAYER,
+          'source-layer': POINT_SOURCE_LAYER,
           layout: stableIconLayout,
           paint: {},
         }, before);
@@ -250,15 +305,42 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
           id: LABELS_LAYER_ID,
           type: 'symbol',
           source: SOURCE_IDS.EVENTS_VECTOR_SOURCE,
-          'source-layer': SOURCE_LAYER,
+          'source-layer': POINT_SOURCE_LAYER,
+          layout: stableLabelLayout,
+          paint: labelPaint,
+        }, before);
+      }
+
+      if (!map.getLayer(LAYER_IDS.EVENTS_VECTOR_CENTROID_SYMBOLS)) {
+        map.addLayer({
+          id: LAYER_IDS.EVENTS_VECTOR_CENTROID_SYMBOLS,
+          type: 'symbol',
+          source: SOURCE_IDS.EVENTS_VECTOR_SOURCE,
+          'source-layer': CENTROID_SOURCE_LAYER,
+          layout: stableIconLayout,
+          paint: {},
+        }, before);
+      }
+
+      if (!map.getLayer(CENTROID_LABELS_LAYER_ID)) {
+        map.addLayer({
+          id: CENTROID_LABELS_LAYER_ID,
+          type: 'symbol',
+          source: SOURCE_IDS.EVENTS_VECTOR_SOURCE,
+          'source-layer': CENTROID_SOURCE_LAYER,
           layout: stableLabelLayout,
           paint: labelPaint,
         }, before);
       }
 
       return () => {
-        safeRemoveMapLayer(map, LABELS_LAYER_ID);
-        safeRemoveMapLayer(map, LAYER_IDS.EVENTS_VECTOR_SYMBOLS);
+        [
+          CENTROID_LABELS_LAYER_ID,
+          LAYER_IDS.EVENTS_VECTOR_CENTROID_SYMBOLS,
+          LABELS_LAYER_ID,
+          LAYER_IDS.EVENTS_VECTOR_SYMBOLS,
+          LAYER_IDS.EVENTS_VECTOR_GEOMETRY,
+        ].forEach((layerId) => safeRemoveMapLayer(map, layerId));
         safeRemoveMapSource(map, SOURCE_IDS.EVENTS_VECTOR_SOURCE);
       };
     }
@@ -276,35 +358,47 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
     if (map) {
       // Keep layouts in sync without rebuilding the source (icon-image once event types
       // load, the show-names toggle, etc.).
-      if (map.getLayer(LAYER_IDS.EVENTS_VECTOR_SYMBOLS)) {
-        Object.entries(stableIconLayout).forEach(
-          ([key, value]) => map.setLayoutProperty(LAYER_IDS.EVENTS_VECTOR_SYMBOLS, key, value)
-        );
-      }
+      [LAYER_IDS.EVENTS_VECTOR_SYMBOLS, LAYER_IDS.EVENTS_VECTOR_CENTROID_SYMBOLS].forEach((layerId) => {
+        if (map.getLayer(layerId)) {
+          Object.entries(stableIconLayout).forEach(([key, value]) => map.setLayoutProperty(layerId, key, value));
+        }
+      });
 
-      if (map.getLayer(LABELS_LAYER_ID)) {
-        Object.entries(stableLabelLayout).forEach(
-          ([key, value]) => map.setLayoutProperty(LABELS_LAYER_ID, key, value)
-        );
-      }
+      [LABELS_LAYER_ID, CENTROID_LABELS_LAYER_ID].forEach((layerId) => {
+        if (map.getLayer(layerId)) {
+          Object.entries(stableLabelLayout).forEach(([key, value]) => map.setLayoutProperty(layerId, key, value));
+        }
+      });
     }
   }, [map, stableIconLayout, stableLabelLayout]);
 
   useEffect(() => {
     if (map) {
-      // Apply the composed overlay-exclusion + time-slider-hide filter to both layers.
       [LAYER_IDS.EVENTS_VECTOR_SYMBOLS, LABELS_LAYER_ID].forEach((layerId) => {
         if (map.getLayer(layerId)) {
           map.setFilter(layerId, layerFilter);
         }
       });
+
+      [LAYER_IDS.EVENTS_VECTOR_CENTROID_SYMBOLS, CENTROID_LABELS_LAYER_ID].forEach((layerId) => {
+        if (map.getLayer(layerId)) {
+          map.setFilter(layerId, centroidLayerFilter);
+        }
+      });
+
+      if (map.getLayer(LAYER_IDS.EVENTS_VECTOR_GEOMETRY)) {
+        map.setFilter(LAYER_IDS.EVENTS_VECTOR_GEOMETRY, fillLayerFilter);
+      }
     }
-  }, [map, layerFilter]);
+  }, [map, layerFilter, centroidLayerFilter, fillLayerFilter]);
 
   useEffect(() => {
-    if (map && map.getLayer(LABELS_LAYER_ID)) {
-      // Time-slider fade.
-      map.setPaintProperty(LABELS_LAYER_ID, 'icon-color', fadeColor);
+    if (map) {
+      [LABELS_LAYER_ID, CENTROID_LABELS_LAYER_ID].forEach((layerId) => {
+        if (map.getLayer(layerId)) {
+          map.setPaintProperty(layerId, 'icon-color', fadeColor);
+        }
+      });
     }
   }, [map, fadeColor]);
 
@@ -321,12 +415,10 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
 
         const clickedFeature = map.queryRenderedFeatures(
           event.point,
-          {
-            layers: [LAYER_IDS.EVENTS_VECTOR_SYMBOLS, LABELS_LAYER_ID].filter((id) => map.getLayer(id)),
-          }
+          { layers: EVENT_LAYER_IDS.filter((id) => map.getLayer(id)) }
         )[0];
         if (clickedFeature && onEventClick){
-          const eventId = clickedFeature.properties.id;
+          const eventId = clickedFeature.properties.event_id ?? clickedFeature.properties.id;
           const storeEvent = eventStoreRef.current[eventId];
           if (storeEvent) {
             onEventClick({ event, layer: { properties: storeEvent } });
@@ -336,6 +428,7 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
               layer: {
                 properties: {
                   ...clickedFeature.properties,
+                  id: eventId,
                   event_type: clickedFeature.properties.event_type_value
                 },
               },
@@ -355,7 +448,7 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
 
   const onMouseLeave = useCallback((event) => {
     if (map) {
-      const layers = [LAYER_IDS.EVENTS_VECTOR_SYMBOLS, LABELS_LAYER_ID].filter((id) => map.getLayer(id));
+      const layers = EVENT_LAYER_IDS.filter((id) => map.getLayer(id));
       if (!map.queryRenderedFeatures(event.point, { layers }).length) {
         map.getCanvas().style.cursor = '';
       }
@@ -364,11 +457,20 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
 
   useMapEventBinding('click', handleEventClick, LAYER_IDS.EVENTS_VECTOR_SYMBOLS, !!onEventClick);
   useMapEventBinding('click', handleEventClick, LABELS_LAYER_ID, !!onEventClick);
+  useMapEventBinding('click', handleEventClick, LAYER_IDS.EVENTS_VECTOR_CENTROID_SYMBOLS, !!onEventClick);
+  useMapEventBinding('click', handleEventClick, CENTROID_LABELS_LAYER_ID, !!onEventClick);
+  useMapEventBinding('click', handleEventClick, LAYER_IDS.EVENTS_VECTOR_GEOMETRY, !!onEventClick);
 
   useMapEventBinding('mouseenter', onMouseEnter, LAYER_IDS.EVENTS_VECTOR_SYMBOLS);
   useMapEventBinding('mouseenter', onMouseEnter, LABELS_LAYER_ID);
+  useMapEventBinding('mouseenter', onMouseEnter, LAYER_IDS.EVENTS_VECTOR_CENTROID_SYMBOLS);
+  useMapEventBinding('mouseenter', onMouseEnter, CENTROID_LABELS_LAYER_ID);
+  useMapEventBinding('mouseenter', onMouseEnter, LAYER_IDS.EVENTS_VECTOR_GEOMETRY);
   useMapEventBinding('mouseleave', onMouseLeave, LAYER_IDS.EVENTS_VECTOR_SYMBOLS);
   useMapEventBinding('mouseleave', onMouseLeave, LABELS_LAYER_ID);
+  useMapEventBinding('mouseleave', onMouseLeave, LAYER_IDS.EVENTS_VECTOR_CENTROID_SYMBOLS);
+  useMapEventBinding('mouseleave', onMouseLeave, CENTROID_LABELS_LAYER_ID);
+  useMapEventBinding('mouseleave', onMouseLeave, LAYER_IDS.EVENTS_VECTOR_GEOMETRY);
 
   return null;
 };

@@ -14,7 +14,8 @@ import { MapContext } from '../MapContext';
 import { selectRealtimeOverlayFeatureIds } from '../selectors/events-realtime-overlay';
 import { useFeatureFlag } from '../hooks';
 
-const SOURCE_LAYER = 'events';
+const CENTROID_SOURCE_LAYER = 'event_centroids';
+const POINT_SOURCE_LAYER = 'events';
 
 const TileEventFeaturesProvider = ({ children }) => {
   const map = useContext(MapContext);
@@ -53,36 +54,39 @@ const TileEventFeaturesProvider = ({ children }) => {
       return;
     }
 
-    const raw = map.querySourceFeatures(SOURCE_IDS.EVENTS_VECTOR_SOURCE, { sourceLayer: SOURCE_LAYER });
+    const rawPoints = map.querySourceFeatures(SOURCE_IDS.EVENTS_VECTOR_SOURCE, { sourceLayer: POINT_SOURCE_LAYER });
+    const rawCentroids = map.querySourceFeatures(SOURCE_IDS.EVENTS_VECTOR_SOURCE, { sourceLayer: CENTROID_SOURCE_LAYER });
     const overlayIds = overlayIdsRef.current;
     const timeSliderParams = timeSliderRef.current;
 
-    // First pass: dedupe by id + apply the overlay-id exclusion and the time-slider hide WITHOUT
-    // normalizing yet, so we can short-circuit before the normalize + setState when nothing changed.
     const seen = new Set();
     const survivors = [];
-    for (const feature of raw) {
-      const id = feature.properties?.id;
+    const collect = (features, idField) => {
+      for (const feature of features) {
+        const id = feature.properties?.[idField];
 
-      if (!id || seen.has(id)) {
-        continue;
+        if (!id || seen.has(id)) {
+          continue;
+        }
+
+        seen.add(id);
+
+        if (overlayIds.has(id) || !isFeatureVisibleAtVirtualDate(feature, timeSliderParams)) {
+          continue;
+        }
+
+        survivors.push({ feature, id, idField });
       }
-
-      seen.add(id);
-
-      if (overlayIds.has(id) || !isFeatureVisibleAtVirtualDate(feature, timeSliderParams)) {
-        continue;
-      }
-
-      survivors.push(feature);
-    }
+    };
+    collect(rawPoints, 'id');
+    collect(rawCentroids, 'event_id');
 
     if (!survivors.length) {
       publishEmpty();
       return;
     }
 
-    const signature = `${inputsVersionRef.current}|${survivors.map((feature) => feature.properties.id).sort().join(',')}`;
+    const signature = `${inputsVersionRef.current}|${survivors.map((survivor) => survivor.id).sort().join(',')}`;
     if (signature === lastSignatureRef.current) {
       // Same events as last publish.
       return;
@@ -91,7 +95,9 @@ const TileEventFeaturesProvider = ({ children }) => {
     lastSignatureRef.current = signature;
 
     const valueMap = eventTypeValueMapRef.current;
-    setTileFeatures(featureCollection(survivors.map((feature) => normalizeTileEventFeature(feature, valueMap))));
+    setTileFeatures(featureCollection(
+      survivors.map(({ feature, idField }) => normalizeTileEventFeature(feature, valueMap, { idField }))
+    ));
   }, [map, publishEmpty]);
 
   useEffect(() => {

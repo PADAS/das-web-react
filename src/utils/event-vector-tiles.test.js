@@ -1,9 +1,10 @@
-import { point } from '@turf/turf';
+import { booleanPointInPolygon, point, polygon } from '@turf/turf';
 
 import {
   buildEventTimeSliderFadeColor,
   buildEventTimeSliderHideFilter,
   buildEventTypeValueMap,
+  interiorPointOnSurface,
   isFeatureVisibleAtVirtualDate,
   normalizeTileEventFeature,
   resolveEventTimeSliderParameters,
@@ -70,6 +71,20 @@ describe('utils - Event vector tiles', () => {
   describe('normalizeTileEventFeature', () => {
     const valueMap = buildEventTypeValueMap([{ value: 'fire', icon_id: 'fire-icon', display: 'Fire' }]);
 
+    test('keys on `id` by default (point events)', () => {
+      const feature = point([0, 0], { id: 'point-id', event_id: 'should-be-ignored', event_type_value: 'fire' });
+
+      expect(normalizeTileEventFeature(feature, valueMap).properties.id).toBe('point-id');
+    });
+
+    test('keys on `event_id` when idField is event_id (polygon centroids/geometries)', () => {
+      // On the centroid layer `id` is the EventGeometry id; the normalized feature must carry the
+      // real event id so clustering/click/exclusion treat it like the underlying event.
+      const feature = point([0, 0], { id: 'geometry-id', event_id: 'evt-id', event_type_value: 'fire' });
+
+      expect(normalizeTileEventFeature(feature, valueMap, { idField: 'event_id' }).properties.id).toBe('evt-id');
+    });
+
     test('resolves icon_id/display_title/event_type/updated_at from tile fields', () => {
       const feature = point([0, 0], {
         id: 'a',
@@ -132,6 +147,56 @@ describe('utils - Event vector tiles', () => {
 
       expect(normalized.geometry).toEqual(geometry);
       expect(Object.prototype.hasOwnProperty.call(normalized, 'geometry')).toBe(true);
+    });
+  });
+
+  describe('interiorPointOnSurface', () => {
+    test('returns the centre for a convex polygon (matches centerOfMass there)', () => {
+      const square = polygon([[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]]);
+
+      expect(interiorPointOnSurface(square).geometry.coordinates).toEqual([0.5, 0.5]);
+    });
+
+    test('returns a point INSIDE a concave (U-shaped) polygon, unlike centerOfMass', () => {
+      // centerOfMass lands in the notch (outside); the interior point must be inside an arm.
+      const u = polygon([[[0, 0], [3, 0], [3, 3], [2, 3], [2, 1], [1, 1], [1, 3], [0, 3], [0, 0]]]);
+
+      const result = interiorPointOnSurface(u);
+      expect(booleanPointInPolygon(result, u)).toBe(true);
+    });
+
+    test('returns a point INSIDE the ring of a donut polygon (not in the hole)', () => {
+      const donut = polygon([
+        [[0, 0], [4, 0], [4, 4], [0, 4], [0, 0]],
+        [[1, 1], [3, 1], [3, 3], [1, 3], [1, 1]],
+      ]);
+
+      const result = interiorPointOnSurface(donut);
+      expect(booleanPointInPolygon(result, donut)).toBe(true);
+    });
+
+    test('accepts a bare geometry as well as a Feature', () => {
+      const geometry = { type: 'Polygon', coordinates: [[[0, 0], [0, 2], [2, 2], [2, 0], [0, 0]]] };
+
+      expect(interiorPointOnSurface(geometry).geometry.coordinates).toEqual([1, 1]);
+    });
+
+    test('falls back to the first vertex for a degenerate (zero-area) ring', () => {
+      const degenerate = { type: 'Polygon', coordinates: [[[5, 7], [5, 7], [5, 7]]] };
+
+      expect(interiorPointOnSurface(degenerate).geometry.coordinates).toEqual([5, 7]);
+    });
+
+    test('returns null (not a [0,0] anchor) for missing/empty geometry', () => {
+      expect(interiorPointOnSurface(undefined)).toBeNull();
+      expect(interiorPointOnSurface({ type: 'Polygon', coordinates: [] })).toBeNull();
+      expect(interiorPointOnSurface({ geometry: { type: 'Polygon', coordinates: [[]] } })).toBeNull();
+    });
+
+    test('returns null for a non-Polygon geometry (e.g. MultiPolygon) rather than misreading it', () => {
+      const multi = { type: 'MultiPolygon', coordinates: [[[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]]] };
+
+      expect(interiorPointOnSurface(multi)).toBeNull();
     });
   });
 

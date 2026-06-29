@@ -10,10 +10,14 @@ const LAYER_PICKER_IDS = [
   LAYER_IDS.EVENT_GEOMETRY_LAYER,
   LAYER_IDS.EVENT_SYMBOLS,
   `${LAYER_IDS.EVENT_SYMBOLS}-labels`,
+  LAYER_IDS.EVENTS_REALTIME_OVERLAY_GEOMETRY,
   LAYER_IDS.EVENTS_REALTIME_OVERLAY_SYMBOLS,
   `${LAYER_IDS.EVENTS_REALTIME_OVERLAY_SYMBOLS}-labels`,
+  LAYER_IDS.EVENTS_VECTOR_CENTROID_SYMBOLS,
+  `${LAYER_IDS.EVENTS_VECTOR_CENTROID_SYMBOLS}-labels`,
   LAYER_IDS.EVENTS_VECTOR_CLUSTER_SYMBOLS,
   `${LAYER_IDS.EVENTS_VECTOR_CLUSTER_SYMBOLS}-labels`,
+  LAYER_IDS.EVENTS_VECTOR_GEOMETRY,
   LAYER_IDS.EVENTS_VECTOR_SYMBOLS,
   `${LAYER_IDS.EVENTS_VECTOR_SYMBOLS}-labels`,
   LAYER_IDS.GEAR_LINE_HIT,
@@ -22,11 +26,33 @@ const LAYER_PICKER_IDS = [
   `${LAYER_IDS.SUBJECT_SYMBOLS}-labels`,
 ];
 
+const POLYGON_TILE_LAYER_IDS = new Set([
+  LAYER_IDS.EVENTS_VECTOR_CENTROID_SYMBOLS,
+  `${LAYER_IDS.EVENTS_VECTOR_CENTROID_SYMBOLS}-labels`,
+  LAYER_IDS.EVENTS_VECTOR_GEOMETRY,
+]);
+
+const normalizeClickFeatureId = (feature) => {
+  const eventId = feature.properties?.event_id;
+  if (eventId == null || !POLYGON_TILE_LAYER_IDS.has(feature.layer?.id)) {
+    return feature;
+  }
+  return {
+    ...feature,
+    geometry: feature.geometry,
+    properties: {
+      ...feature.properties,
+      id: eventId,
+      event_type: feature.properties.event_type ?? feature.properties.event_type_value,
+    },
+  };
+};
+
 export const queryMultiLayerClickFeatures = (map, event) => uniqBy(
   map.queryRenderedFeatures(
     event.point,
     { layers: LAYER_PICKER_IDS.filter((id) => !!map.getLayer(id)) }
-  ),
+  ).map(normalizeClickFeatureId),
   (layer) => layer.properties.id
 );
 
