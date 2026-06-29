@@ -489,3 +489,38 @@ describe('subjectGroupsReducer', () => {
     });
   });
 });
+
+describe('subjectStoreReducer — SOCKET_SUBJECT_STATUS after SOCKET_NEW_SUBJECT', () => {
+  // Regression test: a subject inserted via SOCKET_NEW_SUBJECT has last_position: null.
+  // When its first subject_status arrives, the store should be populated (not crash).
+  test('populates last_position in the store when subject started with null position', () => {
+    const subjectWithNoPosition = makeSubject(SUBJECT_A_ID); // last_position: null
+
+    // Step 1: insert via new_subject
+    const insertAction = { type: SOCKET_NEW_SUBJECT, payload: { subject_id: SUBJECT_A_ID, subject_data: subjectWithNoPosition } };
+    const storeAfterInsert = subjectStoreReducer({}, insertAction);
+    expect(storeAfterInsert[SUBJECT_A_ID].last_position).toBeNull();
+
+    // Step 2: first position update arrives via subject_status
+    const statusUpdate = {
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [-122.38, 47.52] },
+      properties: {
+        id: SUBJECT_A_ID,
+        title: 'Subject A',
+        state: 'online',
+        last_voice_call_start_at: null,
+        radio_state_at: '2024-01-01T10:00:00Z',
+        image: '/static/dugong-male.svg',
+        coordinateProperties: { time: '2024-01-01T10:00:00Z' },
+      },
+    };
+    const statusAction = { type: 'SOCKET_SUBJECT_STATUS', payload: statusUpdate };
+    expect(() => subjectStoreReducer(storeAfterInsert, statusAction)).not.toThrow();
+    const storeAfterStatus = subjectStoreReducer(storeAfterInsert, statusAction);
+
+    expect(storeAfterStatus[SUBJECT_A_ID].last_position).not.toBeNull();
+    expect(storeAfterStatus[SUBJECT_A_ID].last_position.geometry.coordinates).toEqual([-122.38, 47.52]);
+    expect(storeAfterStatus[SUBJECT_A_ID].last_position_date).toBe('2024-01-01T10:00:00Z');
+  });
+});
