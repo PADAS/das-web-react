@@ -1,3 +1,7 @@
+import axios from 'axios';
+
+import { mockStore } from '../__test-helpers/MockStore';
+
 import mapSubjectsReducer, {
   SOCKET_DELETE_SUBJECT,
   SOCKET_NEW_SUBJECT,
@@ -6,6 +10,9 @@ import mapSubjectsReducer, {
   subjectGroupsReducer,
   subjectStoreReducer,
 } from './subjects';
+
+// Plain action constructor for use in reducer tests (bypasses the thunk).
+const makeNewSubjectAction = (payload) => ({ type: SOCKET_NEW_SUBJECT, payload });
 
 // Minimal subject fixture matching the shape returned by GET /subjects
 const makeSubject = (id, overrides = {}) => ({
@@ -52,10 +59,66 @@ const makeGroupTree = () => ([
   },
 ]);
 
-describe('socketNewSubject action creator', () => {
-  test('returns a SOCKET_NEW_SUBJECT action with the payload', () => {
+describe('socketNewSubject thunk', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  test('dispatches SOCKET_NEW_SUBJECT with the payload', () => {
+    const store = mockStore({ data: { subjectGroups: [] } });
     const payload = { subject_id: SUBJECT_A_ID, subject_data: subjectA, mid: '1', trace_id: 't1' };
-    expect(socketNewSubject(payload)).toEqual({ type: SOCKET_NEW_SUBJECT, payload });
+    store.dispatch(socketNewSubject(payload));
+    const actions = store.getActions();
+    expect(actions[0]).toEqual({ type: SOCKET_NEW_SUBJECT, payload });
+  });
+
+  test('dispatches a subject-groups refetch when subject_group_ids contains an unknown group id', async () => {
+    jest.spyOn(axios, 'get').mockResolvedValueOnce({
+      data: { data: [] },
+    });
+    const store = mockStore({ data: { subjectGroups: makeGroupTree() } });
+    const payload = {
+      subject_id: SUBJECT_C_ID,
+      subject_data: makeSubject(SUBJECT_C_ID),
+      subject_group_ids: ['group-1', 'unknown-group-999'],
+    };
+    await store.dispatch(socketNewSubject(payload));
+    const actionTypes = store.getActions().map((a) => a.type);
+    expect(actionTypes).toContain(SOCKET_NEW_SUBJECT);
+    expect(actionTypes).toContain('FETCH_SUBJECT_GROUPS_SUCCESS');
+  });
+
+  test('does NOT refetch when all subject_group_ids are already in the loaded tree', () => {
+    const store = mockStore({ data: { subjectGroups: makeGroupTree() } });
+    const payload = {
+      subject_id: SUBJECT_C_ID,
+      subject_data: makeSubject(SUBJECT_C_ID),
+      // group-1 and subgroup-1a are both present in makeGroupTree()
+      subject_group_ids: ['group-1', 'subgroup-1a'],
+    };
+    store.dispatch(socketNewSubject(payload));
+    const dispatchedFunctions = store.getActions().filter((a) => typeof a === 'function');
+    expect(dispatchedFunctions).toHaveLength(0);
+  });
+
+  test('does NOT refetch when subject_group_ids is empty', () => {
+    const store = mockStore({ data: { subjectGroups: makeGroupTree() } });
+    const payload = {
+      subject_id: SUBJECT_C_ID,
+      subject_data: makeSubject(SUBJECT_C_ID),
+      subject_group_ids: [],
+    };
+    store.dispatch(socketNewSubject(payload));
+    const dispatchedFunctions = store.getActions().filter((a) => typeof a === 'function');
+    expect(dispatchedFunctions).toHaveLength(0);
+  });
+
+  test('does NOT refetch when subject_group_ids is missing', () => {
+    const store = mockStore({ data: { subjectGroups: makeGroupTree() } });
+    const payload = { subject_id: SUBJECT_C_ID, subject_data: makeSubject(SUBJECT_C_ID) };
+    store.dispatch(socketNewSubject(payload));
+    const dispatchedFunctions = store.getActions().filter((a) => typeof a === 'function');
+    expect(dispatchedFunctions).toHaveLength(0);
   });
 });
 
@@ -81,14 +144,14 @@ const makeSubjectWithPosition = (id, titleOverride) => makeSubject(id, {
 describe('subjectStoreReducer', () => {
   describe('SOCKET_NEW_SUBJECT', () => {
     test('inserts a new subject into an empty store', () => {
-      const action = socketNewSubject({ subject_id: SUBJECT_A_ID, subject_data: subjectA });
+      const action = makeNewSubjectAction({ subject_id: SUBJECT_A_ID, subject_data: subjectA });
       const state = subjectStoreReducer({}, action);
       expect(state[SUBJECT_A_ID]).toEqual(subjectA);
     });
 
     test('inserts alongside existing subjects', () => {
       const initial = { [SUBJECT_B_ID]: subjectB };
-      const action = socketNewSubject({ subject_id: SUBJECT_A_ID, subject_data: subjectA });
+      const action = makeNewSubjectAction({ subject_id: SUBJECT_A_ID, subject_data: subjectA });
       const state = subjectStoreReducer(initial, action);
       expect(state[SUBJECT_A_ID]).toEqual(subjectA);
       expect(state[SUBJECT_B_ID]).toEqual(subjectB);
@@ -97,28 +160,28 @@ describe('subjectStoreReducer', () => {
     test('overwrites an existing subject entry (idempotent update)', () => {
       const initial = { [SUBJECT_A_ID]: subjectA };
       const updated = makeSubject(SUBJECT_A_ID, { name: 'Updated Name' });
-      const action = socketNewSubject({ subject_id: SUBJECT_A_ID, subject_data: updated });
+      const action = makeNewSubjectAction({ subject_id: SUBJECT_A_ID, subject_data: updated });
       const state = subjectStoreReducer(initial, action);
       expect(state[SUBJECT_A_ID].name).toBe('Updated Name');
     });
 
     test('normalizes last_position.properties.name from title when title is present', () => {
       const subject = makeSubjectWithPosition(SUBJECT_A_ID, 'Preferred Title');
-      const action = socketNewSubject({ subject_id: SUBJECT_A_ID, subject_data: subject });
+      const action = makeNewSubjectAction({ subject_id: SUBJECT_A_ID, subject_data: subject });
       const state = subjectStoreReducer({}, action);
       expect(state[SUBJECT_A_ID].last_position.properties.name).toBe('Preferred Title');
     });
 
     test('keeps existing name when title is absent/falsy', () => {
       const subject = makeSubjectWithPosition(SUBJECT_A_ID, '');
-      const action = socketNewSubject({ subject_id: SUBJECT_A_ID, subject_data: subject });
+      const action = makeNewSubjectAction({ subject_id: SUBJECT_A_ID, subject_data: subject });
       const state = subjectStoreReducer({}, action);
       expect(state[SUBJECT_A_ID].last_position.properties.name).toBe(`Name for ${SUBJECT_A_ID}`);
     });
 
     test('does not crash when last_position is null (brand-new positionless subject)', () => {
       const subject = makeSubject(SUBJECT_A_ID); // last_position: null
-      const action = socketNewSubject({ subject_id: SUBJECT_A_ID, subject_data: subject });
+      const action = makeNewSubjectAction({ subject_id: SUBJECT_A_ID, subject_data: subject });
       expect(() => subjectStoreReducer({}, action)).not.toThrow();
       const state = subjectStoreReducer({}, action);
       expect(state[SUBJECT_A_ID].last_position).toBeNull();
@@ -127,7 +190,7 @@ describe('subjectStoreReducer', () => {
     test('does not mutate input state', () => {
       const initial = { [SUBJECT_B_ID]: subjectB };
       const frozenInitial = Object.freeze(initial);
-      const action = socketNewSubject({ subject_id: SUBJECT_A_ID, subject_data: subjectA });
+      const action = makeNewSubjectAction({ subject_id: SUBJECT_A_ID, subject_data: subjectA });
       expect(() => subjectStoreReducer(frozenInitial, action)).not.toThrow();
       const state = subjectStoreReducer(initial, action);
       expect(state).not.toBe(initial);
@@ -171,21 +234,21 @@ describe('mapSubjectsReducer (default export)', () => {
 
   describe('SOCKET_NEW_SUBJECT', () => {
     test('appends the subject_id to mapSubjects.subjects when not present', () => {
-      const action = socketNewSubject({ subject_id: SUBJECT_A_ID, subject_data: subjectA });
+      const action = makeNewSubjectAction({ subject_id: SUBJECT_A_ID, subject_data: subjectA });
       const state = mapSubjectsReducer(INITIAL, action);
       expect(state.subjects).toContain(SUBJECT_A_ID);
     });
 
     test('does not duplicate the subject_id when already present (idempotent)', () => {
       const initial = { bbox: null, subjects: [SUBJECT_A_ID] };
-      const action = socketNewSubject({ subject_id: SUBJECT_A_ID, subject_data: subjectA });
+      const action = makeNewSubjectAction({ subject_id: SUBJECT_A_ID, subject_data: subjectA });
       const state = mapSubjectsReducer(initial, action);
       expect(state.subjects.filter((id) => id === SUBJECT_A_ID)).toHaveLength(1);
     });
 
     test('preserves existing subject IDs', () => {
       const initial = { bbox: null, subjects: [SUBJECT_B_ID] };
-      const action = socketNewSubject({ subject_id: SUBJECT_A_ID, subject_data: subjectA });
+      const action = makeNewSubjectAction({ subject_id: SUBJECT_A_ID, subject_data: subjectA });
       const state = mapSubjectsReducer(initial, action);
       expect(state.subjects).toContain(SUBJECT_A_ID);
       expect(state.subjects).toContain(SUBJECT_B_ID);
@@ -219,7 +282,7 @@ describe('mapSubjectsReducer (default export)', () => {
   describe('SOCKET_NEW_SUBJECT no-op reference equality', () => {
     test('returns the same state reference when subject_id is already present', () => {
       const initial = { bbox: null, subjects: [SUBJECT_A_ID, SUBJECT_B_ID] };
-      const action = socketNewSubject({ subject_id: SUBJECT_A_ID, subject_data: subjectA });
+      const action = makeNewSubjectAction({ subject_id: SUBJECT_A_ID, subject_data: subjectA });
       const state = mapSubjectsReducer(initial, action);
       expect(state).toBe(initial);
     });
@@ -230,7 +293,7 @@ describe('subjectGroupsReducer', () => {
   describe('SOCKET_NEW_SUBJECT', () => {
     test('inserts subject_id into the matching top-level group node', () => {
       const initial = makeGroupTree();
-      const action = socketNewSubject({
+      const action = makeNewSubjectAction({
         subject_id: SUBJECT_C_ID,
         subject_data: makeSubject(SUBJECT_C_ID),
         subject_group_ids: ['group-1'],
@@ -241,7 +304,7 @@ describe('subjectGroupsReducer', () => {
 
     test('inserts subject_id into a nested subgroup when its id is listed', () => {
       const initial = makeGroupTree();
-      const action = socketNewSubject({
+      const action = makeNewSubjectAction({
         subject_id: SUBJECT_C_ID,
         subject_data: makeSubject(SUBJECT_C_ID),
         subject_group_ids: ['subgroup-1a'],
@@ -254,7 +317,7 @@ describe('subjectGroupsReducer', () => {
 
     test('inserts into multiple groups when subject_group_ids lists more than one', () => {
       const initial = makeGroupTree();
-      const action = socketNewSubject({
+      const action = makeNewSubjectAction({
         subject_id: SUBJECT_C_ID,
         subject_data: makeSubject(SUBJECT_C_ID),
         subject_group_ids: ['group-1', 'group-2'],
@@ -266,7 +329,7 @@ describe('subjectGroupsReducer', () => {
 
     test('is idempotent when subject_id is already present in the group', () => {
       const initial = makeGroupTree(); // group-1 already has SUBJECT_B_ID
-      const action = socketNewSubject({
+      const action = makeNewSubjectAction({
         subject_id: SUBJECT_B_ID,
         subject_data: makeSubject(SUBJECT_B_ID),
         subject_group_ids: ['group-1'],
@@ -278,7 +341,7 @@ describe('subjectGroupsReducer', () => {
 
     test('skips unknown group ids without crashing', () => {
       const initial = makeGroupTree();
-      const action = socketNewSubject({
+      const action = makeNewSubjectAction({
         subject_id: SUBJECT_C_ID,
         subject_data: makeSubject(SUBJECT_C_ID),
         subject_group_ids: ['nonexistent-group'],
@@ -290,7 +353,7 @@ describe('subjectGroupsReducer', () => {
 
     test('is a no-op when subject_group_ids is an empty array', () => {
       const initial = makeGroupTree();
-      const action = socketNewSubject({
+      const action = makeNewSubjectAction({
         subject_id: SUBJECT_C_ID,
         subject_data: makeSubject(SUBJECT_C_ID),
         subject_group_ids: [],
@@ -301,7 +364,7 @@ describe('subjectGroupsReducer', () => {
 
     test('is a no-op when subject_group_ids is missing from payload', () => {
       const initial = makeGroupTree();
-      const action = socketNewSubject({
+      const action = makeNewSubjectAction({
         subject_id: SUBJECT_C_ID,
         subject_data: makeSubject(SUBJECT_C_ID),
       });
@@ -310,7 +373,7 @@ describe('subjectGroupsReducer', () => {
     });
 
     test('does not crash on an empty group tree', () => {
-      const action = socketNewSubject({
+      const action = makeNewSubjectAction({
         subject_id: SUBJECT_C_ID,
         subject_data: makeSubject(SUBJECT_C_ID),
         subject_group_ids: ['group-1'],
@@ -321,7 +384,7 @@ describe('subjectGroupsReducer', () => {
 
     test('returns the same tree reference when no group id matches', () => {
       const initial = makeGroupTree();
-      const action = socketNewSubject({
+      const action = makeNewSubjectAction({
         subject_id: SUBJECT_C_ID,
         subject_data: makeSubject(SUBJECT_C_ID),
         subject_group_ids: ['nonexistent-group'],
@@ -333,7 +396,7 @@ describe('subjectGroupsReducer', () => {
     test('preserves the reference of sibling subtrees that were not modified', () => {
       const initial = makeGroupTree();
       // Only group-1 is targeted; group-2 should keep its reference.
-      const action = socketNewSubject({
+      const action = makeNewSubjectAction({
         subject_id: SUBJECT_C_ID,
         subject_data: makeSubject(SUBJECT_C_ID),
         subject_group_ids: ['group-1'],
@@ -389,7 +452,7 @@ describe('subjectGroupsReducer', () => {
     test('SOCKET_NEW_SUBJECT does not mutate the input tree', () => {
       const initial = makeGroupTree();
       const originalSubjects = [...initial[0].subjects];
-      const action = socketNewSubject({
+      const action = makeNewSubjectAction({
         subject_id: SUBJECT_C_ID,
         subject_data: makeSubject(SUBJECT_C_ID),
         subject_group_ids: ['group-1'],

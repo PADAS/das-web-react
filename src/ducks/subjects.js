@@ -81,10 +81,27 @@ export const clearSubjectData = () => ({
   type: CLEAR_SUBJECT_DATA,
 });
 
-export const socketNewSubject = (payload) => ({
-  type: SOCKET_NEW_SUBJECT,
-  payload,
-});
+// Returns true if groupId exists anywhere in the loaded subjectGroups tree.
+const isGroupIdInTree = (groups, groupId) => groups.some(
+  (group) => group.id === groupId || isGroupIdInTree(group.subgroups, groupId)
+);
+
+const socketNewSubjectAction = (payload) => ({ type: SOCKET_NEW_SUBJECT, payload });
+
+export const socketNewSubject = (payload) => (dispatch, getState) => {
+  dispatch(socketNewSubjectAction(payload));
+
+  const { subject_group_ids } = payload;
+  if (!subject_group_ids || subject_group_ids.length === 0) return;
+
+  const loadedGroups = getState()?.data?.subjectGroups ?? [];
+  const hasUnknownGroup = subject_group_ids.some(
+    (id) => !isGroupIdInTree(loadedGroups, id)
+  );
+  if (hasUnknownGroup) {
+    dispatch(fetchSubjectGroups());
+  }
+};
 
 export const socketDeleteSubject = (payload) => ({
   type: SOCKET_DELETE_SUBJECT,
