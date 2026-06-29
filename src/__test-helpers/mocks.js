@@ -54,6 +54,15 @@ export const createMapMock = (override = {}) => {
     }),
     setLayerZoomRange: jest.fn(),
     getLayer: jest.fn(),
+    getLayoutProperty: jest.fn(function (layerId, property) {
+      // Mapbox GL throws for layers that don't exist; mirror that so tests can't pass
+      // where production would crash calling getLayoutProperty on a missing layer.
+      if (!this.getLayer(layerId)) {
+        throw new Error(`The layer '${layerId}' does not exist in the map's style and cannot be queried for layout properties.`);
+      }
+      return property === 'visibility' ? 'visible' : undefined;
+    }),
+    isSourceLoaded: jest.fn(() => true),
     getZoom: jest.fn(() => 12.333),
     addImage: jest.fn(),
     loadImage: jest.fn(),
