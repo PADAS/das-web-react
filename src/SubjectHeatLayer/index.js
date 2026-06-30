@@ -20,8 +20,7 @@ const SubjectHeatLayer = () => {
     setPoints(featureCollection(pointFeatures));
   }, [trackData]);
 
-  // On the flag-ON path the GeoJSON EVENT_SYMBOLS layer is never mounted, so the heatmap must
-  // anchor beneath the vector-tile event symbols instead to keep its z-order (mirrors ReportsHeatLayer).
+  // Sit the heatmap just beneath whichever event symbol layer is mounted.
   const beforeLayerId = useEventVectorTiles ? LAYER_IDS.EVENTS_VECTOR_SYMBOLS : LAYER_IDS.EVENT_SYMBOLS;
 
   return points.features.length > 0 ? <HeatLayer points={points} beforeLayerId={beforeLayerId} /> : null;

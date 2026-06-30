@@ -118,10 +118,11 @@ export const socketEventData = (payload) => (dispatch, getState) => {
     payload: [event_data],
   });
 
-  // Track overlay membership so the realtime overlay renders this event over the
-  // possibly stale vector tile.
   const useEventVectorTiles = getFeatureFlagValue(getState(), FEATURE_FLAGS.EVENTS_VECTOR_TILES);
   if (useEventVectorTiles) {
+    // Add or remove the event from the events realtime overlay depending on
+    // whether it matches the current filter since the tile won't be updated
+    // yet.
     dispatch(matches_current_filter ? addRealtimeOverlayEvent(event_id) : removeRealtimeOverlayEvent(event_id));
   }
 };
@@ -505,6 +506,8 @@ export const fetchMapEvents = (map, parameters) => async (dispatch, getState) =>
     });
 };
 
+// Only one of these fetches runs at a time; a new call cancels the previous
+// one's request.
 let fetchRecentEventsIntoRealtimeOverlayCancelFn;
 
 export const cancelFetchRecentEventsIntoRealtimeOverlay = () => {
@@ -513,6 +516,9 @@ export const cancelFetchRecentEventsIntoRealtimeOverlay = () => {
   }
 };
 
+// Fetches recently-updated events in the current viewport and reconciles each
+// with the overlay: events still matching the filter are shown, events that no
+// longer match are hidden.
 export const fetchRecentEventsIntoRealtimeOverlay = (map) => async (dispatch, getState) => {
   if (!map) {
     return Promise.resolve();
@@ -520,6 +526,8 @@ export const fetchRecentEventsIntoRealtimeOverlay = (map) => async (dispatch, ge
 
   const params = {
     bbox: await getBboxParamsFromMap(map),
+    // Limit to events changed within the overlay's retention window; bodies
+    // aren't needed here.
     updated_since: new Date(Date.now() - REALTIME_OVERLAY_WINDOW_MS).toISOString(),
     include_updates: false,
     include_notes: false,
@@ -534,6 +542,8 @@ export const fetchRecentEventsIntoRealtimeOverlay = (map) => async (dispatch, ge
 
   cancelFetchRecentEventsIntoRealtimeOverlay();
 
+  // Drop the state filter so resolved events come back too, they're needed
+  // below to decide which events to hide versus show.
   const requestFilter = calcEventFilterForRequest({ params, format: 'object' });
   delete requestFilter.state;
   const eventFilterParamString = objectToParamString(requestFilter);
@@ -546,6 +556,8 @@ export const fetchRecentEventsIntoRealtimeOverlay = (map) => async (dispatch, ge
       const recentEvents = excludeOpenEventIfAlreadyInEventStore(results, getState().data.eventStore);
       dispatch(updateEventStore(...recentEvents));
 
+      // Decide show-vs-hide on state alone: it's always present on the event,
+      // so this avoids needing the notes/details we deliberately didn't fetch.
       const stateFilter = getState().data.eventFilter?.state;
       recentEvents.forEach((event) => {
         const matchesStateFilter = !stateFilter || stateFilter.includes(event.state);

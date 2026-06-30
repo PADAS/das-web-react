@@ -45,14 +45,16 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
   const subjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);
 
   const useEventVectorTiles = useFeatureFlag(FEATURE_FLAGS.EVENTS_VECTOR_TILES);
-  // Tile event points read back from the rendered vector tiles (normalized to the GeoJSON shape).
   const tileEventFeatures = useTileEventFeatures();
 
   const clustersSourceData = useMemo(() => {
+    // Cluster the event features from both the tiles and realtime overlay.
     const eventFeatures = useEventVectorTiles
       ? [...tileEventFeatures.features, ...realtimeOverlayFeatureCollection.features]
       : eventPointFeatureCollection.features;
 
+    // Combine the event features and subject features to cluster them
+    // together.
     return featureCollection([
       ...(shouldEventsBeClustered ? eventFeatures : []),
       ...(shouldSubjectsBeClustered ? subjectFeatureCollection.features : []),

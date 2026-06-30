@@ -16,7 +16,10 @@ export const removeRealtimeOverlayEvent = (id) => ({ payload: id, type: REMOVE_E
 export const pruneRealtimeOverlayEvents = (cutoff) => ({ payload: cutoff, type: PRUNE_EVENTS });
 
 // Reducer
-export const INITIAL_STATE = { ids: {}, hiddenIds: {} };
+// Tile data could be outdated while cached. The realtime overlay renders
+// keeps the map data updated by augmenting the tiles with events (ids) or
+// suppressing them (hiddenIds).
+export const INITIAL_STATE = { hiddenIds: {}, ids: {} };
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -46,6 +49,7 @@ const reducer = (state, action) => {
     return Object.keys(state.hiddenIds).length ? { ...state, hiddenIds: {} } : state;
 
   case PRUNE_EVENTS: {
+    // Keep only events added on or after the cutoff.
     const entries = Object.entries(state.ids);
     const retained = entries.filter(([, addedAt]) => addedAt >= action.payload);
     if (retained.length === entries.length) {

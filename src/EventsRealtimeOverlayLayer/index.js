@@ -39,9 +39,8 @@ const EMPTY_FEATURE_COLLECTION = featureCollection([]);
 const FETCH_RECENT_EVENTS_DEBOUNCE_MS = 400;
 const LABELS_LAYER_ID = `${LAYER_IDS.EVENTS_REALTIME_OVERLAY_SYMBOLS}-labels`;
 const PRUNE_INTERVAL_MS = 60 * 1000;
-// Overlay layers that show a pointer cursor. The fill's mouseleave checks all of them (mirroring
-// EventsVectorLayer) so a fast move onto an adjacent overlay feature — where Mapbox may fire the
-// leave after the next layer's enter — doesn't wrongly clear the cursor.
+
+// Overlay layers that show a pointer cursor.
 const POINTER_LAYER_IDS = [
   LAYER_IDS.EVENTS_REALTIME_OVERLAY_SYMBOLS,
   LABELS_LAYER_ID,
@@ -61,8 +60,9 @@ const LABEL_LAYOUT = {
   ],
 };
 
-// Renders the events realtime overlay layered above the vector tile so
-// creates/edits appear instantly.
+// Renders recent and locally-changed events as a GeoJSON layer above the
+// tiles, so creates and edits show immediately instead of waiting for the
+// next tile refresh.
 const EventsRealtimeOverlayLayer = ({ onEventClick }) => {
   const dispatch = useDispatch();
 
@@ -84,9 +84,12 @@ const EventsRealtimeOverlayLayer = ({ onEventClick }) => {
   const showReportsOnMap = useSelector((state) => state.data.mapLayerFilter.showReportsOnMap);
   const timeSliderState = useSelector((state) => state.view?.timeSliderState);
 
-  // Guards against the click firing twice when the icon and label layers overlap.
+  // Guards against the click firing twice when the icon and label layers
+  // overlap.
   const clicking = useRef(false);
 
+  // While clustering, the symbols hand off to the cluster source, so hide the
+  // overlay's own symbols.
   const overlayVisibility = shouldEventsBeClustered ? 'none' : 'visible';
   const sourceData = showReportsOnMap ? realtimeOverlayFeatureCollection : EMPTY_FEATURE_COLLECTION;
   const polygonSourceData = useMemo(() => {
@@ -95,6 +98,8 @@ const EventsRealtimeOverlayLayer = ({ onEventClick }) => {
     }
 
     if (!drawingEventId) {
+      // Drop the fill for the polygon being drawn so it doesn't sit on top of
+      // the live draw geometry.
       return realtimeOverlayPolygonFeatureCollection;
     }
 
@@ -136,6 +141,8 @@ const EventsRealtimeOverlayLayer = ({ onEventClick }) => {
   );
 
   useEffect(() => {
+    // Create the point source once; the symbol layers on it are added by the
+    // LabeledSymbolLayer below.
     if (map && !map.getSource(SOURCE_IDS.EVENTS_REALTIME_OVERLAY_SOURCE)) {
       map.addSource(SOURCE_IDS.EVENTS_REALTIME_OVERLAY_SOURCE, {
         type: 'geojson',
@@ -155,6 +162,7 @@ const EventsRealtimeOverlayLayer = ({ onEventClick }) => {
   }, [map, sourceData]);
 
   useEffect(() => {
+    // Polygons need their own source + fill layer.
     if (map) {
       if (!map.getSource(SOURCE_IDS.EVENTS_REALTIME_OVERLAY_POLYGON_SOURCE)) {
         map.addSource(SOURCE_IDS.EVENTS_REALTIME_OVERLAY_POLYGON_SOURCE, {
@@ -164,6 +172,7 @@ const EventsRealtimeOverlayLayer = ({ onEventClick }) => {
       }
 
       if (!map.getLayer(LAYER_IDS.EVENTS_REALTIME_OVERLAY_GEOMETRY)) {
+        // Place the fill below the overlay symbols so icons stay on top.
         const before = map.getLayer(LAYER_IDS.EVENTS_REALTIME_OVERLAY_SYMBOLS)
           ? LAYER_IDS.EVENTS_REALTIME_OVERLAY_SYMBOLS
           : (map.getLayer(LAYER_IDS.SUBJECT_SYMBOLS) ? LAYER_IDS.SUBJECT_SYMBOLS : undefined);
@@ -188,23 +197,23 @@ const EventsRealtimeOverlayLayer = ({ onEventClick }) => {
   }, [map, polygonSourceData]);
 
   useEffect(() => {
-    // Time-slider hide on the overlay fill.
+    // Apply the time-slider hide to the fill.
     if (map?.getLayer?.(LAYER_IDS.EVENTS_REALTIME_OVERLAY_GEOMETRY)) {
       map.setFilter(LAYER_IDS.EVENTS_REALTIME_OVERLAY_GEOMETRY, hideFilter);
     }
   }, [map, hideFilter]);
 
   useEffect(() => {
-    // While an event is being edited, render it in the overlay instead of the
-    // tile.
+    // Keep the event being edited in the overlay so its unsaved changes are
+    // visible right away.
     if (locallyEditedEventId) {
       dispatch(addRealtimeOverlayEvent(locallyEditedEventId));
     }
   }, [locallyEditedEventId, dispatch]);
 
   useEffect(() => {
-    // Periodically drop overlay members older than the window; by then the tile
-    // has refreshed. (Hidden ids are cleared on filter change, not here — see the duck.)
+    // Periodically drop overlay members once they're past the retention
+    // window.
     const interval = setInterval(
       () => dispatch(pruneRealtimeOverlayEvents(Date.now() - REALTIME_OVERLAY_WINDOW_MS)),
       PRUNE_INTERVAL_MS
@@ -214,12 +223,13 @@ const EventsRealtimeOverlayLayer = ({ onEventClick }) => {
   }, [dispatch]);
 
   useEffect(() => {
-    // A filter change refetches the tile fresh, so the delete-instant "hidden from the stale tile"
-    // ids are no longer needed.
+    // A new filter loads its own fresh data, so any events being hidden no
+    // longer need to be.
     dispatch(clearHiddenRealtimeOverlayEvents());
   }, [eventFilter, dispatch]);
 
   useEffect(() => {
+    // Reconcile against the backend now and after every map move.
     if (map) {
       fetchRecentEvents();
       map.on('moveend', fetchRecentEvents);
@@ -231,29 +241,31 @@ const EventsRealtimeOverlayLayer = ({ onEventClick }) => {
     }
   }, [map, fetchRecentEvents]);
 
-  // Overlay features are full flattened events, so no eventStore hydration is needed.
+  // Overlay features are full flattened events, so no eventStore hydration is
+  // needed.
   /* eslint-disable react-hooks/refs */
   const handleEventClick = useMemo(() => (map ? withMultiLayerHandlerAwareness(
     map,
     (event) => {
-      // Bound to both the icon and label layers; guard against the overlapping single click
-      // invoking it twice (read/written at click time, not during render).
-      if (clicking.current) return;
-      clicking.current = true;
-      setTimeout(() => { clicking.current = false; });
+      if (!clicking.current) {
+        clicking.current = true;
+        setTimeout(() => {
+          clicking.current = false;
+        });
 
-      const clickedFeature = map.queryRenderedFeatures(
-        event.point,
-        {
-          layers: [
-            LAYER_IDS.EVENTS_REALTIME_OVERLAY_SYMBOLS,
-            LABELS_LAYER_ID,
-            LAYER_IDS.EVENTS_REALTIME_OVERLAY_GEOMETRY,
-          ].filter((id) => map.getLayer(id)),
+        const clickedFeature = map.queryRenderedFeatures(
+          event.point,
+          {
+            layers: [
+              LAYER_IDS.EVENTS_REALTIME_OVERLAY_SYMBOLS,
+              LABELS_LAYER_ID,
+              LAYER_IDS.EVENTS_REALTIME_OVERLAY_GEOMETRY,
+            ].filter((id) => map.getLayer(id)),
+          }
+        )[0];
+        if (clickedFeature && onEventClick) {
+          onEventClick({ event, layer: clickedFeature });
         }
-      )[0];
-      if (clickedFeature && onEventClick) {
-        onEventClick({ event, layer: clickedFeature });
       }
     }
   ) : noop), [map, onEventClick]);

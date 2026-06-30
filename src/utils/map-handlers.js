@@ -32,6 +32,8 @@ const POLYGON_TILE_LAYER_IDS = new Set([
   LAYER_IDS.EVENTS_VECTOR_GEOMETRY,
 ]);
 
+// Rekey a clicked polygon feature to its event id. Scoped to the polygon
+// layers so it never touches other features.
 const normalizeClickFeatureId = (feature) => {
   const eventId = feature.properties?.event_id;
   if (eventId == null || !POLYGON_TILE_LAYER_IDS.has(feature.layer?.id)) {

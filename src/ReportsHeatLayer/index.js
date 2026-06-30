@@ -28,6 +28,7 @@ const ReportsHeatLayer = () => {
 
   const reports = useMemo(() => {
     if (useEventVectorTiles) {
+      // Heat points come from the tile features plus the overlay features.
       const overlayFeatures = realtimeOverlayFeatureCollection.features
         .filter((feature) => isFeatureVisibleAtVirtualDate(feature, timeSliderParameters));
 
@@ -37,6 +38,7 @@ const ReportsHeatLayer = () => {
     }
   }, [useEventVectorTiles, mapEventSymbolPointsWithVirtualDate, realtimeOverlayFeatureCollection, tileEventFeatures, timeSliderParameters]);
 
+  // Sit the heatmap just beneath whichever event symbol layer is mounted.
   const beforeLayerId = useEventVectorTiles ? LAYER_IDS.EVENTS_VECTOR_SYMBOLS : LAYER_IDS.EVENT_SYMBOLS;
 
   return reports?.features?.length ? <HeatLayer points={reports} beforeLayerId={beforeLayerId} /> : null;

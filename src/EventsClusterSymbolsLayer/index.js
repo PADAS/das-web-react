@@ -45,6 +45,8 @@ const LABEL_LAYOUT = {
   ],
 };
 
+// Matches lone event points on the cluster source: an event (`event_type`)
+// that isn't a cluster group (no `point_count`) and is a Point.
 const SINGLETON_EVENT_FILTER = [
   'all',
   ['has', 'event_type'],
@@ -52,27 +54,33 @@ const SINGLETON_EVENT_FILTER = [
   ['==', ['geometry-type'], 'Point'],
 ];
 
+// Draws icons for the event points that didn't get grouped into a cluster.
 const EventsClusterSymbolsLayer = ({ onEventClick }) => {
   const map = useContext(MapContext);
 
-  // Guards against the click firing twice when the icon and label layers overlap.
+  // Guards against the click firing twice when the icon and label layers
+  // overlap.
   const clicking = useRef(false);
 
   /* eslint-disable react-hooks/refs */
   const handleEventClick = useMemo(() => (map ? withMultiLayerHandlerAwareness(
     map,
     (event) => {
-      if (clicking.current) return;
-      clicking.current = true;
-      setTimeout(() => { clicking.current = false; });
+      if (!clicking.current) {
+        clicking.current = true;
+        setTimeout(() => {
+          clicking.current = false;
+        });
 
-      const clickedFeature = map.queryRenderedFeatures(
-        event.point,
-        { layers: [LAYER_IDS.EVENTS_VECTOR_CLUSTER_SYMBOLS, LABELS_LAYER_ID].filter((id) => map.getLayer(id)) }
-      )[0];
-      // Normalized features already carry `id` + `event_type`, which is all onSelectEvent needs.
-      if (clickedFeature && onEventClick) {
-        onEventClick({ event, layer: clickedFeature });
+        const clickedFeature = map.queryRenderedFeatures(
+          event.point,
+          { layers: [LAYER_IDS.EVENTS_VECTOR_CLUSTER_SYMBOLS, LABELS_LAYER_ID].filter((id) => map.getLayer(id)) }
+        )[0];
+        // Normalized features carry `id` and `event_type`, which are needed by
+        // onSelectEvent.
+        if (clickedFeature && onEventClick) {
+          onEventClick({ event, layer: clickedFeature });
+        }
       }
     }
   ) : noop), [map, onEventClick]);

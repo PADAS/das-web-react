@@ -38,14 +38,20 @@ const EVENT_LAYER_IDS = [
   CENTROID_LABELS_LAYER_ID,
   LAYER_IDS.EVENTS_VECTOR_GEOMETRY,
 ];
+
 const MAX_TILE_ZOOM = 24;
 const MIN_TILE_ZOOM = 3;
+
+// Hides every feature via a filter rather than visibility:none, which would
+// stop the source from loading tiles.
 const MATCH_NOTHING_FILTER = ['in', ['get', 'id'], ['literal', []]];
-const POINT_SOURCE_LAYER = 'events';
-// Polygon events (null Event.location) are served as a fill + an icon-anchor centroid.
-const GEOMETRY_SOURCE_LAYER = 'event_geometries';
+
 const CENTROID_SOURCE_LAYER = 'event_centroids';
+const GEOMETRY_SOURCE_LAYER = 'event_geometries';
+const POINT_SOURCE_LAYER = 'events';
+
 const SOURCE_REBUILD_DEBOUNCE_MS = 400;
+
 const VECTOR_TILE_BASE = `${API_URL}activity/events/tiles/{z}/{x}/{y}.pbf`;
 
 const combineLayerFilters = (...filters) => {
@@ -101,8 +107,8 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
     []
   );
 
-  // Resolve the icon id from the event types store (the tile only carries
-  // event_type_value); 'generic' is the fallback, matching the GeoJSON path.
+  // Map each event type's value to its icon id, the tile only carries the
+  // value.
   const iconIdExpression = useMemo(() => {
     const matchPairs = (eventTypes || [])
       .filter((eventType) => eventType.value && eventType.icon_id)
@@ -113,8 +119,8 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
       : 'generic';
   }, [eventTypes]);
 
-  // Generic events render smaller (mirroring IF_IS_GENERIC on the GeoJSON path). Tile
-  // features have no `image` prop, so detect generic from the resolved icon id instead.
+  // Generic events render smaller. Tile features carry no image to test, so
+  // detect "generic" from the resolved icon id instead.
   const ifIsGeneric = useCallback(
     (ifGeneric, ifNonGeneric) => ['case', ['==', iconIdExpression, 'generic'], ifGeneric, ifNonGeneric],
     [iconIdExpression]
@@ -198,6 +204,12 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
     [eventTimeSliderParameters]
   );
 
+  // Three filters, each combining the excluded-id list with the time-slider
+  // hide, differing in:
+  // - key field: points use `id`, polygon centroid/fill use `event_id`.
+  // - clustering: points and centroids render nothing while clustering (the
+  //   cluster source draws them instead); the fill only disappears when
+  //   reports are off, since areas aren't clustered.
   const layerFilter = useMemo(() => {
     if (shouldEventsBeClustered || !showReportsOnMap) {
       return MATCH_NOTHING_FILTER;
@@ -246,8 +258,7 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
 
   useEffect(() => {
     if (map) {
-      // Create the source + icon/label layers once. The bearer token is added by the
-      // map-wide transformRequest (EarthRangerMap), so no per-source auth is needed.
+      // Create the source and its icon/label layers once.
       if (!map.getSource(SOURCE_IDS.EVENTS_VECTOR_SOURCE)) {
         map.addSource(SOURCE_IDS.EVENTS_VECTOR_SOURCE, {
           type: 'vector',
@@ -354,6 +365,8 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
   }, [map, stableIconLayout, stableLabelLayout]);
 
   useEffect(() => {
+    // Apply each layer's filter: points and their labels, centroids and their
+    // labels, and the fill.
     if (map) {
       [LAYER_IDS.EVENTS_VECTOR_SYMBOLS, LABELS_LAYER_ID].forEach((layerId) => {
         if (map.getLayer(layerId)) {
@@ -374,6 +387,7 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
   }, [map, layerFilter, centroidLayerFilter, fillLayerFilter]);
 
   useEffect(() => {
+    // Retint the label pills as the time slider moves.
     if (map) {
       [LABELS_LAYER_ID, CENTROID_LABELS_LAYER_ID].forEach((layerId) => {
         if (map.getLayer(layerId)) {
@@ -388,11 +402,11 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
   const handleEventClick = useMemo(() => (map ? withMultiLayerHandlerAwareness(
     map,
     (event) => {
-      // Bound to both the icon and label layers, so guard against the overlapping
-      // single click invoking it twice.
       if (!clicking.current) {
         clicking.current = true;
-        setTimeout(() => { clicking.current = false; });
+        setTimeout(() => {
+          clicking.current = false;
+        });
 
         const clickedFeature = map.queryRenderedFeatures(
           event.point,

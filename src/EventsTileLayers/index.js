@@ -10,11 +10,14 @@ import EventsVectorLayer from '../EventsVectorLayer';
 import EventsRealtimeOverlayLayer from '../EventsRealtimeOverlayLayer';
 import MapImageFromSvgSpriteRenderer from '../MapImageFromSvgSpriteRenderer';
 
+// Groups the event map layers that render from vector tiles.
 const EventsTileLayers = ({ onEventClick }) => {
   const realtimeOverlayFeatureCollection = useSelector(selectRealtimeOverlayFeatureCollection);
 
   const tileEventFeatures = useTileEventFeatures();
 
+  // Every event currently on screen. Used to preload their sprites so the
+  // icons exist before the symbol layers reference them.
   const spriteFeatureCollection = useMemo(
     () => featureCollection([...tileEventFeatures.features, ...realtimeOverlayFeatureCollection.features]),
     [tileEventFeatures, realtimeOverlayFeatureCollection]

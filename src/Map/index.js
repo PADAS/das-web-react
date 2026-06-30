@@ -196,6 +196,7 @@ const Map = ({ children, onMapLoad, socket }) => {
 
   const mapEventsFetch = useCallback(() => {
     if (useEventVectorTiles) {
+      // Vector tiles supply the map events.
       return Promise.resolve();
     }
     return dispatch(fetchMapEvents(map))

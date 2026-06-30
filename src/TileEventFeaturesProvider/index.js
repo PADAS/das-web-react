@@ -17,6 +17,8 @@ import { useFeatureFlag } from '../hooks';
 const CENTROID_SOURCE_LAYER = 'event_centroids';
 const POINT_SOURCE_LAYER = 'events';
 
+// Reads the events currently rendered in the vector tiles, normalizes them to
+// plain event features, and provides them through context.
 const TileEventFeaturesProvider = ({ children }) => {
   const map = useContext(MapContext);
 
@@ -34,8 +36,13 @@ const TileEventFeaturesProvider = ({ children }) => {
     [timeSliderState, eventFilterDateRange]
   );
 
+  // recompute() is bound to long-lived map listeners, so it reads its inputs
+  // from refs rather than closing over them, that keeps it stable and avoids
+  // re-binding the listeners on every change.
   const enabledRef = useRef(useEventVectorTiles);
   const eventTypeValueMapRef = useRef(eventTypeValueMap);
+  // Bumped on every input change so the republish signature differs even when
+  // the id set is the same.
   const inputsVersionRef = useRef(0);
   const lastSignatureRef = useRef(null);
   const excludedIdsRef = useRef(new Set(tileExcludedEventIds));
@@ -43,6 +50,8 @@ const TileEventFeaturesProvider = ({ children }) => {
 
   const [tileFeatures, setTileFeatures] = useState(EMPTY_TILE_EVENT_FEATURES);
 
+  // Reset to empty and clear the signature so the next non-empty result always
+  // republishes.
   const publishEmpty = useCallback(() => {
     lastSignatureRef.current = null;
     setTileFeatures(EMPTY_TILE_EVENT_FEATURES);
@@ -54,11 +63,16 @@ const TileEventFeaturesProvider = ({ children }) => {
       return;
     }
 
+    // Point events come from the point source-layer; polygon events come from
+    // their centroid source-layer.
     const rawPoints = map.querySourceFeatures(SOURCE_IDS.EVENTS_VECTOR_SOURCE, { sourceLayer: POINT_SOURCE_LAYER });
     const rawCentroids = map.querySourceFeatures(SOURCE_IDS.EVENTS_VECTOR_SOURCE, { sourceLayer: CENTROID_SOURCE_LAYER });
     const excludedIds = excludedIdsRef.current;
     const timeSliderParams = timeSliderRef.current;
 
+    // Collect one feature per event id, skipping excluded ids and anything the
+    // time slider hides. The same event repeats across tiles, so dedupe;
+    // points key on `id`, centroids on `event_id`.
     const seen = new Set();
     const survivors = [];
     const collect = (features, idField) => {
@@ -86,9 +100,11 @@ const TileEventFeaturesProvider = ({ children }) => {
       return;
     }
 
+    // The listeners fire far more often than the result changes, so skip
+    // republishing when neither the inputs nor the visible id set has changed
+    // since last time.
     const signature = `${inputsVersionRef.current}|${survivors.map((survivor) => survivor.id).sort().join(',')}`;
     if (signature === lastSignatureRef.current) {
-      // Same events as last publish.
       return;
     }
 
@@ -101,17 +117,19 @@ const TileEventFeaturesProvider = ({ children }) => {
   }, [map, publishEmpty]);
 
   useEffect(() => {
+    // Keep the refs current as inputs change, then recompute against the fresh
+    // values.
     enabledRef.current = useEventVectorTiles;
     eventTypeValueMapRef.current = eventTypeValueMap;
     inputsVersionRef.current += 1;
     excludedIdsRef.current = new Set(tileExcludedEventIds);
     timeSliderRef.current = timeSliderParameters;
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     recompute();
   }, [useEventVectorTiles, tileExcludedEventIds, timeSliderParameters, eventTypeValueMap, recompute]);
 
   useEffect(() => {
+    // Recompute when the rendered tiles change.
     if (map && useEventVectorTiles) {
       const onSourceData = (event) => {
         if (event.sourceId === SOURCE_IDS.EVENTS_VECTOR_SOURCE) {
@@ -122,7 +140,6 @@ const TileEventFeaturesProvider = ({ children }) => {
       map.on('sourcedata', onSourceData);
       map.on('moveend', recompute);
 
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       recompute();
 
       return () => {
