@@ -157,13 +157,15 @@ const SubjectHistoricalDataModal = ({ subjectId, subjectIsStatic, title }) => {
 
     const newObservation = buildObservationFromSubject(subject);
     const newTime = new Date(newObservation.recorded_at).getTime();
-    const existingIndex = subjectObservations.findIndex(
+    const isExisting = subjectObservations.some(
       (observation) => new Date(observation.recorded_at).getTime() === newTime
     );
 
-    if (existingIndex !== -1) {
-      setSubjectObservations((current) => current.map((observation, index) =>
-        index === existingIndex ? { ...newObservation, id: observation.id } : observation));
+    if (isExisting) {
+      setSubjectObservations((current) => current.map((observation) =>
+        new Date(observation.recorded_at).getTime() === newTime
+          ? { ...newObservation, id: observation.id }
+          : observation));
       return;
     }
 
