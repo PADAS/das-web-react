@@ -430,7 +430,7 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
             });
           }
         }
-      };
+      }
     }
   ) : noop), [map, onEventClick]);
   /* eslint-enable react-hooks/refs */
