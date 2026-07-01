@@ -285,7 +285,7 @@ const TimeSlider = () => {
       aria-haspopup="menu"
       aria-label={t('speedButtonLabel')}
       className={styles.speedButton}
-      onClick={() => setIsSpeedMenuOpen(true)}
+      onClick={() => setIsSpeedMenuOpen((isOpen) => !isOpen)}
       ref={setSpeedMenuAnchorEl}
       title={t('speedButtonLabel')}
       type="button"
