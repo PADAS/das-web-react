@@ -1,13 +1,13 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import Button from 'react-bootstrap/Button';
 
 import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 import { format, STANDARD_DATE_FORMAT } from '../utils/datetime';
 import { calcDisplayNameForSubject, getDeviceStatusPropertiesForSubject, subjectIsARadioWithRecentVoiceActivity, subjectIsStatic } from '../utils/subjects';
 
 import AddItemButton from '../AddItemButton';
+import AdditionalDeviceProperties from '../AdditionalDeviceProperties';
 import DateTime from '../DateTime';
 import GpsFormatToggle from '../GpsFormatToggle';
 import SubjectControls from '../SubjectControls';
@@ -15,10 +15,6 @@ import TimeAgo from '../TimeAgo';
 import TrackLength from '../TrackLength';
 
 import * as styles from './styles.module.scss';
-
-const STORAGE_KEY = 'showSubjectDetailsByDefault';
-
-
 
 const SubjectPopup = ({ data }) => {
   const { t } = useTranslation('subjects', { keyPrefix: 'subjectPopup' });
@@ -32,10 +28,6 @@ const SubjectPopup = ({ data }) => {
     const name = calcDisplayNameForSubject(subject);
     return manufacturer ? `${manufacturer}: ${name}` : name;
   });
-
-  const [additionalPropsToggledOn, toggleAdditionalPropsVisibility] = useState(
-    window.localStorage.getItem(STORAGE_KEY) === 'true'
-  );
 
   const { geometry, properties } = data;
   const isStatic = subjectIsStatic(data);
@@ -51,20 +43,8 @@ const SubjectPopup = ({ data }) => {
 
   const hasAdditionalDeviceProps = !!device_status_properties?.length;
 
-  const additionalPropsShouldBeToggleable = hasAdditionalDeviceProps
-    && device_status_properties.length > 2
-    && !isStatic;
-  const showAdditionalProps = hasAdditionalDeviceProps
-    && (additionalPropsShouldBeToggleable ? additionalPropsToggledOn : true);
-
   const displayName = calcDisplayNameForSubject(properties);
   const popupTitle = popupTitleFromStore ?? displayName;
-
-  const toggleShowAdditionalProperties = useCallback(() => {
-    toggleAdditionalPropsVisibility(!additionalPropsToggledOn);
-
-    window.localStorage.setItem(STORAGE_KEY, !additionalPropsToggledOn);
-  }, [additionalPropsToggledOn]);
 
   return <>
     <div className={styles.header}>
@@ -133,35 +113,11 @@ const SubjectPopup = ({ data }) => {
 
     {tracks_available && <TrackLength className={styles.trackLength} trackId={properties.id} />}
 
-    {hasAdditionalDeviceProps && showAdditionalProps && <ul
-      className={`${styles.additionalProperties} ${isTimeSliderActive ? styles.disabled : ''}`}
-      data-testid="additional-props"
-      >
-      {device_status_properties.map((deviceStatusProperty, index) => <li
-        key={`${deviceStatusProperty.label}-${index}`}
-      >
-        <strong>{deviceStatusProperty.label}</strong>
-
-        {isTimeSliderActive ? <span>{t('noHistoricalDataSpan')}</span> : <span data-testid="additional-props-value">
-          {deviceStatusProperty.value.toString()}
-
-          <span> {deviceStatusProperty.units}</span>
-        </span>}
-      </li>)}
-    </ul>}
-
-    {hasAdditionalDeviceProps && <>
-      {additionalPropsShouldBeToggleable && <Button
-        className={styles.toggleAdditionalProps}
-        data-testid="additional-props-toggle-btn"
-        onClick={toggleShowAdditionalProperties}
-        size="sm"
-        type="button"
-        variant="link"
-        >
-        {t(`additionalPropsButton.${additionalPropsToggledOn ? 'fewer' : 'more'}`)}
-      </Button>}
-    </>}
+    <AdditionalDeviceProperties
+      deviceStatusProperties={device_status_properties}
+      staticSubject={isStatic}
+      timeSliderActive={isTimeSliderActive}
+    />
 
     <SubjectControls
       className={styles.controls}

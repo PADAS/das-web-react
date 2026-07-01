@@ -1,35 +1,102 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 
+import { fetchObservationsForSubject } from '../ducks/observations';
 import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
 import AddItemButton from '../AddItemButton';
+import AdditionalDeviceProperties from '../AdditionalDeviceProperties';
 import DateTime from '../DateTime';
 import GpsFormatToggle from '../GpsFormatToggle';
 
-const TimepointPopup = ({ data }) => <>
-  <h4>{data.properties.title || data.properties.name}</h4>
+import * as styles from './styles.module.scss';
 
-  {data.properties.time && <DateTime date={data.properties.time} />}
+// The track point's timestamp and the observation's `recorded_at` describe the same
+// instant but are serialized with different UTC offsets, so they must be compared as
+// instants, never as strings. The backend also returns nothing for a zero-width
+// since==until query, so we bracket the point with a small window.
+const TIME_WINDOW_MS = 1000;
 
-  <GpsFormatToggle
-    lngLat={{ latitude: data.geometry.coordinates[1], longitude: data.geometry.coordinates[0] }}
-    name="timepointPopup-gpsFormatToggle"
-  />
+const TimepointPopup = ({ data }) => {
+  const dispatch = useDispatch();
 
-  <hr />
+  const subjectId = data.properties.id;
+  const time = data.properties.time;
 
-  <AddItemButton
-    analyticsMetadata={{ category: MAP_INTERACTION_CATEGORY, location: 'track timepoint' }}
-    reportData={{
-      location: {
-        latitude: data.geometry.coordinates[1],
-        longitude: data.geometry.coordinates[0],
-      },
-      reportedById: data.properties.id,
-      time: data.properties.time,
-    }}
-    showLabel={false}
-  />
-</>;
+  const [deviceStatusProperties, setDeviceStatusProperties] = useState([]);
+
+  useEffect(() => {
+    if (!subjectId || !time) return undefined;
+
+    const targetTime = new Date(time).getTime();
+    if (Number.isNaN(targetTime)) return undefined;
+
+    let ignore = false;
+
+    (async () => {
+      try {
+        const { results } = await dispatch(fetchObservationsForSubject({
+          subject_id: subjectId,
+          since: new Date(targetTime - TIME_WINDOW_MS).toISOString(),
+          until: new Date(targetTime + TIME_WINDOW_MS).toISOString(),
+          include_empty_location: true,
+          page_size: 10,
+        }));
+
+        if (ignore) return;
+
+        const observations = results ?? [];
+        const exactMatch = observations.find(
+          (observation) => new Date(observation.recorded_at).getTime() === targetTime
+        );
+        const closestMatch = observations.reduce((closest, observation) => {
+          const distance = Math.abs(new Date(observation.recorded_at).getTime() - targetTime);
+          if (!closest || distance < closest.distance) return { observation, distance };
+          return closest;
+        }, null);
+
+        const matchedObservation = exactMatch ?? closestMatch?.observation;
+        setDeviceStatusProperties(matchedObservation?.device_status_properties ?? []);
+      } catch {
+        if (!ignore) setDeviceStatusProperties([]);
+      }
+    })();
+
+    return () => {
+      ignore = true;
+    };
+  }, [dispatch, subjectId, time]);
+
+  return <>
+    <h4>{data.properties.title || data.properties.name}</h4>
+
+    {time && <DateTime date={time} />}
+
+    <GpsFormatToggle
+      lngLat={{ latitude: data.geometry.coordinates[1], longitude: data.geometry.coordinates[0] }}
+      name="timepointPopup-gpsFormatToggle"
+    />
+
+    <AdditionalDeviceProperties
+      className={styles.additionalProperties}
+      deviceStatusProperties={deviceStatusProperties}
+    />
+
+    <hr />
+
+    <AddItemButton
+      analyticsMetadata={{ category: MAP_INTERACTION_CATEGORY, location: 'track timepoint' }}
+      reportData={{
+        location: {
+          latitude: data.geometry.coordinates[1],
+          longitude: data.geometry.coordinates[0],
+        },
+        reportedById: subjectId,
+        time,
+      }}
+      showLabel={false}
+    />
+  </>;
+};
 
 export default TimepointPopup;
