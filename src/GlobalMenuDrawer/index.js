@@ -48,7 +48,7 @@ export const COMMUNITY_SITE_URL = 'https://Community.EarthRanger.com';
 export const CONTACT_SUPPORT_EMAIL_ADDRESS = 'support@pamdas.org';
 export const DATA_PRIVACY_POLICY_URL = 'https://assets-global.website-files.com/61a93c4da07e4e6975c3f2b2/61eaeb2ccd0b65595bd4d387_EarthRanger_PP_ver2021-10-01.pdf';
 export const ECOSCOPE_ANALYSIS_URL = 'https://app.ecoscope.io/login';
-export const ECOSCOPE_DOWNLOADER_URL = 'https://ecoscope.io/en/latest/ecoscope_gui.html#downloads';
+export const ECOSCOPE_DOWNLOADER_MIGRATION_GUIDE_URL = 'https://support.earthranger.com/en_US/ecoscope-getting-help/ecoscope-migration-guide';
 export const EULA_URL = 'https://assets.website-files.com/61a93c4da07e4e6975c3f2b2/61d7274b9ba24a5d8bac44b2_EarthRanger_EULA_ver2021-10-01.pdf';
 export const HELP_CENTER_SITE_URL = 'https://support.earthranger.com/';
 export const USERS_GUIDE_SITE_URL = 'https://support.earthranger.com/en_US/earthranger-web';
@@ -345,7 +345,7 @@ const GlobalMenuDrawer = () => {
           <li>
             <a
               aria-label={t('ecoscopeDownloaderLinkAriaLabel')}
-              href={ECOSCOPE_DOWNLOADER_URL}
+              href={ECOSCOPE_DOWNLOADER_MIGRATION_GUIDE_URL}
               onClick={() => mainToolbarTracker.track('Click \'Ecoscope Downloader\' menu item')}
               rel="noopener noreferrer"
               target="_blank"
