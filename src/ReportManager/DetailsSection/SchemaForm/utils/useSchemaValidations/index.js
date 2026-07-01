@@ -40,8 +40,12 @@ const useSchemaValidations = (schema) => {
 
   const runValidations = useCallback((formData) => {
     if (!validate(formData)) {
+      // The "if" keyword only reports that an if/then combinator failed to match, but carries no field-level
+      // information of its own.
+      const fieldErrors = validate.errors.filter(({ keyword }) => keyword !== 'if');
+
       // If the validation returned errors we iterate them.
-      return validate.errors.reduce((accumulator, error) => {
+      return fieldErrors.reduce((accumulator, error) => {
         // First we calculate the error path, the field id and the message. The error path tells us if the erroneus
         // field is nested in a collection and in which of its items.
         const errorPath = error.instancePath.split('/').slice(1);

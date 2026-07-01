@@ -73,6 +73,11 @@ const DetailsSection = ({
 }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection' });
 
+  // Remove this flag and the `.filter` below once community input is enabled
+  // for all tenants.
+  const communityInputEnabled = useSelector(
+    (state) => !!state.view.systemConfig.previewFeatures?.community_input_admin_enabled
+  );
   const eventType = useSelector((state) => reportForm?.event_type ? selectEventTypeByValue(state, reportForm.event_type) : null);
   const loadingEventSchemas = useSelector((state) => state.data.eventSchemas.loading);
 
@@ -158,6 +163,7 @@ const DetailsSection = ({
             >
               {Object.values(EVENT_FORM_STATES)
                 .filter((eventState) => eventState !== EVENT_FORM_STATES.NEW_LEGACY)
+                .filter((eventState) => communityInputEnabled || eventState !== EVENT_FORM_STATES.REVIEW)
                 .map((eventState) => <Dropdown.Item
                   className={styles.stateItem}
                   eventKey={eventState}

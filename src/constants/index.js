@@ -32,6 +32,10 @@ export const REALTIME_OVERLAY_WINDOW_MS = 10 * 60 * 1000;
 export const API_URL = `${DAS_HOST}${REACT_APP_DAS_API_URL}`;
 export const API_V2_URL = `${DAS_HOST}${REACT_APP_DAS_API_V2_URL}`;
 
+// Server-owned (Django) account-linker page for the EarthRanger Identity (Auth0)
+// migration. Reachable before auth.
+export const ACCOUNT_LINKER_URL = `${DAS_HOST}/auth/link-accounts/`;
+
 export const STATUSES = {
   HEALTHY_STATUS: 'HEALTHY',
   WARNING_STATUS: 'WARNING',
