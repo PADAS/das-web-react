@@ -359,6 +359,10 @@
     "popoverHeader": "Rango de fechas",
     "popoverResetButton": "Reiniciar",
     "sliderLabel": "Control de tiempo",
+    "speedButtonLabel": "Abrir opciones de velocidad de reproducción",
+    "speedMenuHeader": "Velocidad de Reproducción",
+    "speedMenuLabel": "Opciones de velocidad de reproducción",
+    "speedMenuOptionLabel": "Establecer la velocidad de reproducción en {{speed}}",
     "timeSliderMapControl": {
       "iconTitle": "Control de tiempo"
     },

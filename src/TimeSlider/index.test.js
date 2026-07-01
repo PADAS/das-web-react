@@ -108,6 +108,161 @@ describe('TimeSlider', () => {
     expect(screen.queryByRole('button', { name: 'Stop timeslider' })).toBeNull();
   });
 
+  test('shows the speed button', async () => {
+    renderTimeSlider();
+
+    const speedButton = screen.getByRole('button', { name: 'Open playback speed options' });
+
+    expect(speedButton).toBeVisible();
+    expect(speedButton).toHaveAttribute('title', 'Open playback speed options');
+    expect(speedButton).toHaveTextContent('1x');
+  });
+
+  test('opens the speed menu when the user clicks the speed button', async () => {
+    renderTimeSlider();
+
+    expect(screen.queryByRole('menu', { name: 'Playback speed options' })).toBeNull();
+
+    const speedButton = screen.getByRole('button', { name: 'Open playback speed options' });
+
+    expect(speedButton).toHaveAttribute('aria-expanded', 'false');
+
+    await userEvent.click(speedButton);
+
+    expect(screen.getByRole('menu', { name: 'Playback speed options' })).toBeVisible();
+    expect(speedButton).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  test('closes the speed menu', async () => {
+    renderTimeSlider();
+
+    const speedButton = screen.getByRole('button', { name: 'Open playback speed options' });
+
+    await userEvent.click(speedButton);
+
+    expect(screen.getByRole('menu', { name: 'Playback speed options' })).toBeVisible();
+
+    await userEvent.keyboard('{Escape}');
+
+    expect(screen.queryByRole('menu', { name: 'Playback speed options' })).toBeNull();
+    expect(speedButton).toHaveFocus();
+  });
+
+  test('shows the speed menu header', async () => {
+    renderTimeSlider();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Open playback speed options' }));
+
+    expect(screen.getByText('Playback Speed')).toBeVisible();
+  });
+
+  test('shows the speed menu options', async () => {
+    renderTimeSlider();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Open playback speed options' }));
+
+    const options = screen.getAllByRole('menuitemradio');
+
+    expect(options).toHaveLength(6);
+
+    ['0.5x', '0.75x', '1x', '1.25x', '1.5x', '2x'].forEach((speedLabel) => {
+      const option = screen.getByRole('menuitemradio', { name: `Set playback speed to ${speedLabel}` });
+
+      expect(option).toBeVisible();
+      expect(option).toHaveAttribute('title', `Set playback speed to ${speedLabel}`);
+    });
+  });
+
+  test('navigates the speed menu options when the user uses the keyboard', async () => {
+    renderTimeSlider();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Open playback speed options' }));
+
+    expect(screen.getByRole('menuitemradio', { name: 'Set playback speed to 1x' })).toHaveFocus();
+
+    await userEvent.keyboard('{ArrowDown}');
+
+    expect(screen.getByRole('menuitemradio', { name: 'Set playback speed to 1.25x' })).toHaveFocus();
+
+    await userEvent.keyboard('{ArrowUp}');
+
+    expect(screen.getByRole('menuitemradio', { name: 'Set playback speed to 1x' })).toHaveFocus();
+
+    await userEvent.keyboard('{Home}');
+
+    expect(screen.getByRole('menuitemradio', { name: 'Set playback speed to 0.5x' })).toHaveFocus();
+
+    await userEvent.keyboard('{End}');
+
+    expect(screen.getByRole('menuitemradio', { name: 'Set playback speed to 2x' })).toHaveFocus();
+  });
+
+  test('selects the speed menu option when the user clicks it', async () => {
+    renderTimeSlider();
+
+    const speedButton = screen.getByRole('button', { name: 'Open playback speed options' });
+
+    await userEvent.click(speedButton);
+
+    await userEvent.click(screen.getByRole('menuitemradio', { name: 'Set playback speed to 2x' }));
+
+    expect(screen.queryByRole('menu', { name: 'Playback speed options' })).toBeNull();
+    expect(speedButton).toHaveTextContent('2x');
+    expect(speedButton).toHaveFocus();
+  });
+
+  test('selects the speed menu option when the user presses the Enter key', async () => {
+    renderTimeSlider();
+
+    const speedButton = screen.getByRole('button', { name: 'Open playback speed options' });
+
+    await userEvent.click(speedButton);
+
+    await userEvent.keyboard('{End}');
+
+    expect(screen.getByRole('menuitemradio', { name: 'Set playback speed to 2x' })).toHaveFocus();
+
+    await userEvent.keyboard('{Enter}');
+
+    expect(screen.queryByRole('menu', { name: 'Playback speed options' })).toBeNull();
+    expect(speedButton).toHaveTextContent('2x');
+    expect(speedButton).toHaveFocus();
+  });
+
+  test('selects the speed menu option when the user presses the Space key', async () => {
+    renderTimeSlider();
+
+    const speedButton = screen.getByRole('button', { name: 'Open playback speed options' });
+
+    await userEvent.click(speedButton);
+
+    await userEvent.keyboard('{End}');
+
+    expect(screen.getByRole('menuitemradio', { name: 'Set playback speed to 2x' })).toHaveFocus();
+
+    await userEvent.keyboard(' ');
+
+    expect(screen.queryByRole('menu', { name: 'Playback speed options' })).toBeNull();
+    expect(speedButton).toHaveTextContent('2x');
+    expect(speedButton).toHaveFocus();
+  });
+
+  test('shows a check icon in the selected speed menu option', async () => {
+    renderTimeSlider();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Open playback speed options' }));
+
+    const selectedOption = screen.getByRole('menuitemradio', { name: 'Set playback speed to 1x' });
+
+    expect(selectedOption).toHaveAttribute('aria-checked', 'true');
+    expect(selectedOption.querySelector('svg')).toBeInTheDocument();
+
+    const unselectedOption = screen.getByRole('menuitemradio', { name: 'Set playback speed to 0.5x' });
+
+    expect(unselectedOption).toHaveAttribute('aria-checked', 'false');
+    expect(unselectedOption.querySelector('svg')).toBeNull();
+  });
+
   test('shows the virtual date and time', async () => {
     store.view.timeSliderState.virtualDate = '2020-06-15T12:00:00.000Z';
 
