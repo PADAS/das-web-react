@@ -7,6 +7,7 @@ import {
   API_URL,
   DEFAULT_SYMBOL_LAYOUT,
   DEFAULT_SYMBOL_PAINT,
+  EVENT_TILE_FILTER_DEBOUNCE_MS,
   LAYER_IDS,
   SOURCE_IDS,
 } from '../constants';
@@ -49,8 +50,6 @@ const MATCH_NOTHING_FILTER = ['in', ['get', 'id'], ['literal', []]];
 const CENTROID_SOURCE_LAYER = 'event_centroids';
 const GEOMETRY_SOURCE_LAYER = 'event_geometries';
 const POINT_SOURCE_LAYER = 'events';
-
-const SOURCE_REBUILD_DEBOUNCE_MS = 400;
 
 const VECTOR_TILE_BASE = `${API_URL}activity/events/tiles/{z}/{x}/{y}.pbf`;
 
@@ -103,7 +102,7 @@ const EventsVectorLayer = ({ mapUserLayoutConfig, mapUserLayoutConfigByLayerId, 
   const appliedTileUrl = useRef(tileUrl);
 
   const debouncedRebuildUrl = useMemo(
-    () => debounce(() => setTileUrl(buildEventTileUrl()), SOURCE_REBUILD_DEBOUNCE_MS),
+    () => debounce(() => setTileUrl(buildEventTileUrl()), EVENT_TILE_FILTER_DEBOUNCE_MS),
     []
   );
 

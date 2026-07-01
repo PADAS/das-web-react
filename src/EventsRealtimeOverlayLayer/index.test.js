@@ -184,7 +184,7 @@ describe('EventsRealtimeOverlayLayer', () => {
     expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ type: PRUNE_EVENTS }));
   });
 
-  test('clears hidden (delete-instant) ids when the event filter changes', () => {
+  test('clears hidden (delete-instant) ids only once the tile has reloaded under the new filter', () => {
     const setSelector = (eventFilter) => useSelector.mockImplementation((selector) => {
       if (selector === selectRealtimeOverlayFeatureCollection) return OVERLAY_FC;
       if (selector === selectRealtimeOverlayPolygonFeatureCollection) return OVERLAY_POLYGON_FC;
@@ -195,14 +195,22 @@ describe('EventsRealtimeOverlayLayer', () => {
     const { rerender } = render(
       <MapContext.Provider value={mockMap}><EventsRealtimeOverlayLayer onEventClick={jest.fn()} /></MapContext.Provider>
     );
-    // Fires on mount (harmless — nothing hidden yet).
-    expect(dispatch).toHaveBeenCalledWith({ type: CLEAR_HIDDEN_EVENTS });
 
     dispatch.mockClear();
     setSelector({ state: ['active', 'resolved'] }); // a new filter reference
     rerender(
       <MapContext.Provider value={mockMap}><EventsRealtimeOverlayLayer onEventClick={jest.fn()} /></MapContext.Provider>
     );
+
+    mockMap.__test__.fireHandlers('sourcedata', { sourceId: SOURCE_IDS.EVENTS_VECTOR_SOURCE });
+    expect(dispatch).not.toHaveBeenCalledWith({ type: CLEAR_HIDDEN_EVENTS });
+
+    jest.advanceTimersByTime(400);
+
+    mockMap.__test__.fireHandlers('sourcedata', { sourceId: 'some-other-source' });
+    expect(dispatch).not.toHaveBeenCalledWith({ type: CLEAR_HIDDEN_EVENTS });
+
+    mockMap.__test__.fireHandlers('sourcedata', { sourceId: SOURCE_IDS.EVENTS_VECTOR_SOURCE });
     expect(dispatch).toHaveBeenCalledWith({ type: CLEAR_HIDDEN_EVENTS });
   });
 

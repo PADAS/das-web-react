@@ -60,7 +60,7 @@ const LayerSelectorPopup = ({ data, id }) => {
   }, [dispatch, id, onSelectEvent, onSelectGear, onSelectSubject]);
 
   const renderedLayerListItems = useMemo(() => {
-    const sortedLayerList = hydratedLayerList.sort((a, b) => {
+    const sortedLayerList = [...hydratedLayerList].sort((a, b) => {
       const first = (a.properties.display_title || a.properties.name || '').toLowerCase();
       const second = (b.properties.display_title || b.properties.name || '').toLowerCase();
 

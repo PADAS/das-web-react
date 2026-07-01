@@ -17,6 +17,7 @@ import {
   resolveEventTimeSliderParameters,
 } from '../utils/event-vector-tiles';
 import {
+  EVENT_TILE_FILTER_DEBOUNCE_MS,
   IF_IS_GENERIC,
   LAYER_IDS,
   REALTIME_OVERLAY_WINDOW_MS,
@@ -225,8 +226,26 @@ const EventsRealtimeOverlayLayer = ({ onEventClick }) => {
   useEffect(() => {
     // A new filter loads its own fresh data, so any events being hidden no
     // longer need to be.
-    dispatch(clearHiddenRealtimeOverlayEvents());
-  }, [eventFilter, dispatch]);
+    if (map) {
+      let isWaitingForTileReload = false;
+
+      const handleSourceData = (event) => {
+        if (isWaitingForTileReload && event.sourceId === SOURCE_IDS.EVENTS_VECTOR_SOURCE) {
+          isWaitingForTileReload = false;
+          dispatch(clearHiddenRealtimeOverlayEvents());
+        }
+      };
+      map.on('sourcedata', handleSourceData);
+
+      const startWaitingForTileReload = setTimeout(() => {
+        isWaitingForTileReload = true;
+      }, EVENT_TILE_FILTER_DEBOUNCE_MS);
+      return () => {
+        map.off('sourcedata', handleSourceData);
+        clearTimeout(startWaitingForTileReload);
+      };
+    }
+  }, [eventFilter, map, dispatch]);
 
   useEffect(() => {
     // Reconcile against the backend now and after every map move.

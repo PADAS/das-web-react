@@ -29,6 +29,8 @@ export const CLUSTERS_RADIUS = 40;
 // being pruned, by which point the vector tile has refreshed to include them.
 export const REALTIME_OVERLAY_WINDOW_MS = 10 * 60 * 1000;
 
+export const EVENT_TILE_FILTER_DEBOUNCE_MS = 400;
+
 export const API_URL = `${DAS_HOST}${REACT_APP_DAS_API_URL}`;
 export const API_V2_URL = `${DAS_HOST}${REACT_APP_DAS_API_V2_URL}`;
 
