@@ -243,7 +243,10 @@ describe('Map', () => {
     test('does not fetch map events when the flag is ON, but still fetches subjects', () => {
       const flagStore = {
         ...store,
-        view: { ...store.view, experimentalFeatures: { EVENTS_VECTOR_TILES: true } },
+        view: {
+          ...store.view,
+          systemConfig: { ...store.view.systemConfig, previewFeatures: { events_vector_tiles: true } },
+        },
       };
 
       renderMap(undefined, mockStore(flagStore));

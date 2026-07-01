@@ -255,8 +255,6 @@
           "patrolFiltersCheckboxLabel": "Vichuja vya Doria"
         },
         "experimentalFeaturesFieldSet": {
-          "CUSTOM_COORDINATE_SYSTEMS_ENABLED": "Mifumo ya Marejeo ya Koordinati",
-          "EVENTS_VECTOR_TILES": "Vigae vya Vekta vya Matukio",
           "legend": "Vipengele vya Majaribio"
         },
         "languageSelect": {

@@ -9,10 +9,10 @@ import {
   resolveEventTimeSliderParameters,
 } from '../utils/event-vector-tiles';
 import { EMPTY_TILE_EVENT_FEATURES, TileEventFeaturesContext } from '../hooks/useTileEventFeatures';
-import { FEATURE_FLAGS, SOURCE_IDS } from '../constants';
 import { MapContext } from '../MapContext';
+import { PREVIEW_FEATURES, SOURCE_IDS } from '../constants';
 import { selectTileExcludedEventIds } from '../selectors/events-realtime-overlay';
-import { useFeatureFlag } from '../hooks';
+import { usePreviewFeature } from '../hooks';
 
 const CENTROID_SOURCE_LAYER = 'event_centroids';
 const POINT_SOURCE_LAYER = 'events';
@@ -22,7 +22,7 @@ const POINT_SOURCE_LAYER = 'events';
 const TileEventFeaturesProvider = ({ children }) => {
   const map = useContext(MapContext);
 
-  const useEventVectorTiles = useFeatureFlag(FEATURE_FLAGS.EVENTS_VECTOR_TILES);
+  const eventVectorTilesEnabled = usePreviewFeature(PREVIEW_FEATURES.EVENTS_VECTOR_TILES);
 
   const eventFilterDateRange = useSelector((state) => state.data.eventFilter?.filter?.date_range);
   const eventTypes = useSelector((state) => state.data.eventTypes);
@@ -39,7 +39,7 @@ const TileEventFeaturesProvider = ({ children }) => {
   // recompute() is bound to long-lived map listeners, so it reads its inputs
   // from refs rather than closing over them, that keeps it stable and avoids
   // re-binding the listeners on every change.
-  const enabledRef = useRef(useEventVectorTiles);
+  const enabledRef = useRef(eventVectorTilesEnabled);
   const eventTypeValueMapRef = useRef(eventTypeValueMap);
   // Bumped on every input change so the republish signature differs even when
   // the id set is the same.
@@ -119,18 +119,18 @@ const TileEventFeaturesProvider = ({ children }) => {
   useEffect(() => {
     // Keep the refs current as inputs change, then recompute against the fresh
     // values.
-    enabledRef.current = useEventVectorTiles;
+    enabledRef.current = eventVectorTilesEnabled;
     eventTypeValueMapRef.current = eventTypeValueMap;
     inputsVersionRef.current += 1;
     excludedIdsRef.current = new Set(tileExcludedEventIds);
     timeSliderRef.current = timeSliderParameters;
 
     recompute();
-  }, [useEventVectorTiles, tileExcludedEventIds, timeSliderParameters, eventTypeValueMap, recompute]);
+  }, [eventVectorTilesEnabled, tileExcludedEventIds, timeSliderParameters, eventTypeValueMap, recompute]);
 
   useEffect(() => {
     // Recompute when the rendered tiles change.
-    if (map && useEventVectorTiles) {
+    if (map && eventVectorTilesEnabled) {
       const onSourceData = (event) => {
         if (event.sourceId === SOURCE_IDS.EVENTS_VECTOR_SOURCE) {
           recompute();
@@ -147,7 +147,7 @@ const TileEventFeaturesProvider = ({ children }) => {
         map.off('moveend', recompute);
       };
     }
-  }, [map, useEventVectorTiles, recompute]);
+  }, [eventVectorTilesEnabled, map, recompute]);
 
   return (
     <TileEventFeaturesContext.Provider value={tileFeatures}>

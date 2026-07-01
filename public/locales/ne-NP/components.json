@@ -239,8 +239,6 @@
           "patrolFiltersCheckboxLabel": "गस्ती फिल्टर"
         },
         "experimentalFeaturesFieldSet": {
-          "CUSTOM_COORDINATE_SYSTEMS_ENABLED": "समन्वय सन्दर्भ प्रणालीहरू",
-          "EVENTS_VECTOR_TILES": "घटना भेक्टर टाइलहरू",
           "legend": "प्रयोगात्मक सुविधाहरु"
         },
         "languageSelect": {

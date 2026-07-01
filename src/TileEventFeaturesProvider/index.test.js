@@ -7,13 +7,13 @@ import { createMapMock } from '../__test-helpers/mocks';
 import { MapContext } from '../MapContext';
 import { selectTileExcludedEventIds } from '../selectors/events-realtime-overlay';
 import { SOURCE_IDS } from '../constants';
-import { useFeatureFlag } from '../hooks';
+import { usePreviewFeature } from '../hooks';
 import useTileEventFeatures from '../hooks/useTileEventFeatures';
 
 import TileEventFeaturesProvider from './';
 
 jest.mock('react-redux', () => ({ useSelector: jest.fn() }));
-jest.mock('../hooks', () => ({ useFeatureFlag: jest.fn() }));
+jest.mock('../hooks', () => ({ usePreviewFeature: jest.fn() }));
 jest.mock('../selectors/events-realtime-overlay', () => ({
   selectTileExcludedEventIds: jest.fn(),
 }));
@@ -77,7 +77,7 @@ const renderProvider = ({ map, overlayIds = [], state = buildState(), onCapture 
 
 describe('TileEventFeaturesProvider', () => {
   beforeEach(() => {
-    useFeatureFlag.mockReturnValue(true);
+    usePreviewFeature.mockReturnValue(true);
   });
 
   afterEach(() => {
@@ -241,7 +241,7 @@ describe('TileEventFeaturesProvider', () => {
 
   describe('when the flag is OFF', () => {
     beforeEach(() => {
-      useFeatureFlag.mockReturnValue(false);
+      usePreviewFeature.mockReturnValue(false);
     });
 
     it('yields the empty collection and binds no map listeners', () => {

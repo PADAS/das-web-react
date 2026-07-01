@@ -3,10 +3,12 @@ import isEqual from 'react-fast-compare';
 import { useSelector } from 'react-redux';
 import noop from 'lodash/noop';
 
-import { getFeatureFlagValue } from '../utils/feature-flags';
+import { getFeatureFlagValue, getPreviewFeatureValue } from '../utils/feature-flags';
 import { MapContext } from '../MapContext';
 
 export const useFeatureFlag = (flagName) => useSelector((state) => getFeatureFlagValue(state, flagName));
+
+export const usePreviewFeature = (featureKey) => useSelector((state) => getPreviewFeatureValue(state, featureKey));
 
 export const useMatchMedia = (matchMediaDef) => {
   const isClient = typeof window === 'object';

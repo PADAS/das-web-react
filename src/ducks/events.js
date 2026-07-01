@@ -1,12 +1,12 @@
 import axios, { CancelToken, isCancel } from 'axios';
 import union from 'lodash/union';
 
-import { API_URL, API_V2_URL, FEATURE_FLAGS, REALTIME_OVERLAY_WINDOW_MS, TAB_KEYS } from '../constants';
+import { API_URL, API_V2_URL, PREVIEW_FEATURES, REALTIME_OVERLAY_WINDOW_MS, TAB_KEYS } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
 import { addRealtimeOverlayEvent, removeRealtimeOverlayEvent } from './events-realtime-overlay';
-import { getFeatureFlagValue } from '../utils/feature-flags';
-import { getBboxParamsFromMap, objectToParamString } from '../utils/query';
 import { generateErrorMessageForRequest } from '../utils/request';
+import { getBboxParamsFromMap, objectToParamString } from '../utils/query';
+import { getPreviewFeatureValue } from '../utils/feature-flags';
 import { addNormalizingPropertiesToEventDataFromAPI, eventBelongsToCollection,
   uniqueEventIds, validateReportAgainstCurrentEventFilter } from '../utils/events';
 import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
@@ -118,8 +118,8 @@ export const socketEventData = (payload) => (dispatch, getState) => {
     payload: [event_data],
   });
 
-  const useEventVectorTiles = getFeatureFlagValue(getState(), FEATURE_FLAGS.EVENTS_VECTOR_TILES);
-  if (useEventVectorTiles) {
+  const eventVectorTilesEnabled = getPreviewFeatureValue(getState(), PREVIEW_FEATURES.EVENTS_VECTOR_TILES);
+  if (eventVectorTilesEnabled) {
     // Add or remove the event from the events realtime overlay depending on
     // whether it matches the current filter since the tile won't be updated
     // yet.

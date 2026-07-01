@@ -23,7 +23,7 @@ import {
   uploadEventFile,
 } from './events';
 import { ADD_EVENT, addRealtimeOverlayEvent, REMOVE_EVENT, removeRealtimeOverlayEvent } from './events-realtime-overlay';
-import { FEATURE_FLAGS } from '../constants';
+import { PREVIEW_FEATURES } from '../constants';
 
 jest.mock('../utils/events', () => ({
   ...jest.requireActual('../utils/events'),
@@ -334,7 +334,7 @@ describe('socketEventData', () => {
   // The overlay-membership dispatch only happens with the vector tiles flag ON.
   const buildStore = () => mockStore({
     data: {},
-    view: { experimentalFeatures: { [FEATURE_FLAGS.EVENTS_VECTOR_TILES]: true } },
+    view: { systemConfig: { previewFeatures: { [PREVIEW_FEATURES.EVENTS_VECTOR_TILES]: true } } },
   });
 
   test('removes the event if it does not match the current filter and updates the event store', () => {
@@ -364,7 +364,7 @@ describe('socketEventData', () => {
   });
 
   test('does not touch overlay membership when the vector tiles flag is off', () => {
-    const store = mockStore({ data: {}, view: { experimentalFeatures: {} } });
+    const store = mockStore({ data: {}, view: {} });
 
     store.dispatch(socketEventData(buildPayload(true)));
 

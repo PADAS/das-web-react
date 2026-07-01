@@ -591,7 +591,7 @@ describe('ClustersLayer', () => {
           mapImages: [],
           timeSliderState: { active: false },
           mapClusterConfig: { data: { events: true, subjects: false } },
-          experimentalFeatures: { EVENTS_VECTOR_TILES: true },
+          systemConfig: { previewFeatures: { events_vector_tiles: true } },
         },
       })}>
         <MapContext.Provider value={map}>
@@ -638,7 +638,7 @@ describe('ClustersLayer', () => {
             timeSliderState: { active: false },
             // Events clustering off (subjects off too) -> no event features in the cluster source.
             mapClusterConfig: { data: { events: false, subjects: false } },
-            experimentalFeatures: { EVENTS_VECTOR_TILES: true },
+            systemConfig: { previewFeatures: { events_vector_tiles: true } },
           },
         })}>
           <MapContext.Provider value={map}>

@@ -35,10 +35,10 @@ import {
 import { MapContext } from '../MapContext';
 import { updatePatrolTrackState } from '../ducks/patrols';
 import useCrsBoundingBoxLayer from './layers/useCrsBoundingBoxLayer';
-import { useFeatureFlag, useMapEventBinding } from '../hooks';
+import { useMapEventBinding, usePreviewFeature } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
-import { FEATURE_FLAGS, LAYER_IDS, SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../constants';
+import { LAYER_IDS, PREVIEW_FEATURES, SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../constants';
 
 import DelayedUnmount from '../DelayedUnmount';
 import EarthRangerMap from '../EarthRangerMap';
@@ -115,6 +115,8 @@ const Map = ({ children, onMapLoad, socket }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const eventVectorTilesEnabled = usePreviewFeature(PREVIEW_FEATURES.EVENTS_VECTOR_TILES);
+
   useCrsBoundingBoxLayer();
 
   const map = useContext(MapContext);
@@ -145,7 +147,6 @@ const Map = ({ children, onMapLoad, socket }) => {
   const timeSliderState = useSelector(state => state.view.timeSliderState);
   const trackLength = useSelector(state => state.view.trackSettings.length);
   const trackLengthOrigin = useSelector(state => state.view.trackSettings.origin);
-  const useEventVectorTiles = useFeatureFlag(FEATURE_FLAGS.EVENTS_VECTOR_TILES);
 
   const messageableMapSubjects = mapSubjectFeatureCollection.features.filter(({ properties }) => !!properties?.messaging?.length);
 
@@ -195,14 +196,14 @@ const Map = ({ children, onMapLoad, socket }) => {
   }, []);
 
   const mapEventsFetch = useCallback(() => {
-    if (useEventVectorTiles) {
+    if (eventVectorTilesEnabled) {
       // Vector tiles supply the map events.
       return Promise.resolve();
     }
     return dispatch(fetchMapEvents(map))
       .catch((e) => console.warn('error fetching map events', e));
   }
-  , [dispatch, map, useEventVectorTiles]);
+  , [eventVectorTilesEnabled, dispatch, map]);
 
   const resetTrackRequestCancelToken = useCallback(() => {
     trackRequestCancelToken.current.cancel();
@@ -713,7 +714,7 @@ const Map = ({ children, onMapLoad, socket }) => {
 
       <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
 
-      {eventsEnabled && (useEventVectorTiles
+      {eventsEnabled && (eventVectorTilesEnabled
         ? <EventsTileLayers onEventClick={onSelectEvent} />
         : <EventsLayer
           mapImages={mapImages}

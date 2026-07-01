@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 
-import { EVENT_FORM_STATES, VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
+import { EVENT_FORM_STATES, PREVIEW_FEATURES, VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 import {
   filterOutErrorsForHiddenProperties,
   filterOutRequiredValueOnSchemaPropErrors,
@@ -17,6 +17,7 @@ import {
 import { getHoursAndMinutesString } from '../../utils/datetime';
 import { selectEventTypeByValue } from '../../selectors/event-types';
 import { TrackerContext } from '../../utils/analytics';
+import { usePreviewFeature } from '../../hooks';
 
 import {
   AddButton,
@@ -75,9 +76,7 @@ const DetailsSection = ({
 
   // Remove this flag and the `.filter` below once community input is enabled
   // for all tenants.
-  const communityInputEnabled = useSelector(
-    (state) => !!state.view.systemConfig.previewFeatures?.community_input_admin_enabled
-  );
+  const communityInputEnabled = usePreviewFeature(PREVIEW_FEATURES.COMMUNITY_INPUT_ADMIN);
   const eventType = useSelector((state) => reportForm?.event_type ? selectEventTypeByValue(state, reportForm.event_type) : null);
   const loadingEventSchemas = useSelector((state) => state.data.eventSchemas.loading);
 

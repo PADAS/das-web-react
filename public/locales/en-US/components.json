@@ -260,8 +260,6 @@
           "patrolFiltersCheckboxLabel": "Patrol Filters"
         },
         "experimentalFeaturesFieldSet": {
-          "CUSTOM_COORDINATE_SYSTEMS_ENABLED": "Coordinate Reference Systems",
-          "EVENTS_VECTOR_TILES": "Events Vector Tiles",
           "legend": "Experimental Features"
         },
         "languageSelect": {

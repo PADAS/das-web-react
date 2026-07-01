@@ -243,8 +243,6 @@
           "patrolFiltersCheckboxLabel": "Filtres de patrouilles"
         },
         "experimentalFeaturesFieldSet": {
-          "CUSTOM_COORDINATE_SYSTEMS_ENABLED": "Systèmes de référence de coordonnées",
-          "EVENTS_VECTOR_TILES": "Tuiles vectorielles d'événements",
           "legend": "Fonctionnalités expérimentales"
         },
         "languageSelect": {

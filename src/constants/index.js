@@ -168,6 +168,10 @@ export const SYSTEM_CONFIG_FLAGS = {
   GEO_SPAN: 'geo_span',
 };
 
+export const PREVIEW_FEATURES = {
+  COMMUNITY_INPUT_ADMIN: 'community_input_admin_enabled',
+  EVENTS_VECTOR_TILES: 'events_vector_tiles',
+};
 
 export const IF_IS_GENERIC = (ifGeneric, ifNonGeneric) => ['case',
   ['in', 'generic', ['get', 'image']], ifGeneric,
@@ -342,13 +346,9 @@ export const SUPPORTED_LANGUAGES = {
   sw: 'Swahili',
 };
 
-export const FEATURE_FLAGS = {
-  EVENTS_VECTOR_TILES: 'EVENTS_VECTOR_TILES',
-};
+export const FEATURE_FLAGS = {};
 
-export const DEVELOPMENT_FEATURE_FLAGS = {
-  [FEATURE_FLAGS.EVENTS_VECTOR_TILES]: false,
-};
+export const DEVELOPMENT_FEATURE_FLAGS = {};
 
 export const LINK_TYPES = { PATROL: 'patrol', EVENT: 'event' };
 

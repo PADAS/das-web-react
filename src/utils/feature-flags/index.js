@@ -10,3 +10,6 @@ export const getFeatureFlagValue = (state, flagName) => {
     ? experimentalFeatures[flagName]
     : DEVELOPMENT_FEATURE_FLAGS[flagName];
 };
+
+export const getPreviewFeatureValue = (state, featureKey) =>
+  !!state?.view?.systemConfig?.previewFeatures?.[featureKey];

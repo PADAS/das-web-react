@@ -6,13 +6,13 @@ import { useSelector } from 'react-redux';
 import { getMapEventSymbolPointsWithVirtualDate } from '../selectors/events';
 import { LAYER_IDS } from '../constants';
 import { selectRealtimeOverlayFeatureCollection } from '../selectors/events-realtime-overlay';
-import { useFeatureFlag } from '../hooks';
+import { usePreviewFeature } from '../hooks';
 import useTileEventFeatures from '../hooks/useTileEventFeatures';
 
 import ReportsHeatLayer from './';
 
 jest.mock('react-redux', () => ({ useSelector: jest.fn() }));
-jest.mock('../hooks', () => ({ useFeatureFlag: jest.fn() }));
+jest.mock('../hooks', () => ({ usePreviewFeature: jest.fn() }));
 jest.mock('../hooks/useTileEventFeatures', () => jest.fn());
 jest.mock('../selectors/events', () => ({ getMapEventSymbolPointsWithVirtualDate: jest.fn() }));
 jest.mock('../selectors/events-realtime-overlay', () => ({ selectRealtimeOverlayFeatureCollection: jest.fn() }));
@@ -31,7 +31,7 @@ const setup = ({
   overlayFC = featureCollection([]),
   timeSliderState = { active: false },
 } = {}) => {
-  useFeatureFlag.mockReturnValue(flagOn);
+  usePreviewFeature.mockReturnValue(flagOn);
   useTileEventFeatures.mockReturnValue(tileFC);
 
   const state = {

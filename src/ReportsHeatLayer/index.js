@@ -2,17 +2,17 @@ import React, { memo, useMemo } from 'react';
 import { featureCollection } from '@turf/turf';
 import { useSelector } from 'react-redux';
 
-import { FEATURE_FLAGS, LAYER_IDS } from '../constants';
+import { LAYER_IDS, PREVIEW_FEATURES } from '../constants';
 import { getMapEventSymbolPointsWithVirtualDate } from '../selectors/events';
 import { isFeatureVisibleAtVirtualDate, resolveEventTimeSliderParameters } from '../utils/event-vector-tiles';
 import { selectRealtimeOverlayFeatureCollection } from '../selectors/events-realtime-overlay';
-import { useFeatureFlag } from '../hooks';
+import { usePreviewFeature } from '../hooks';
 import useTileEventFeatures from '../hooks/useTileEventFeatures';
 
 import HeatLayer from '../HeatLayer';
 
 const ReportsHeatLayer = () => {
-  const useEventVectorTiles = useFeatureFlag(FEATURE_FLAGS.EVENTS_VECTOR_TILES);
+  const eventVectorTilesEnabled = usePreviewFeature(PREVIEW_FEATURES.EVENTS_VECTOR_TILES);
 
   const eventFilterDateRange = useSelector((state) => state.data.eventFilter?.filter?.date_range);
   const mapEventSymbolPointsWithVirtualDate = useSelector(getMapEventSymbolPointsWithVirtualDate);
@@ -27,7 +27,7 @@ const ReportsHeatLayer = () => {
   );
 
   const reports = useMemo(() => {
-    if (useEventVectorTiles) {
+    if (eventVectorTilesEnabled) {
       // Heat points come from the tile features plus the overlay features.
       const overlayFeatures = realtimeOverlayFeatureCollection.features
         .filter((feature) => isFeatureVisibleAtVirtualDate(feature, timeSliderParameters));
@@ -36,10 +36,10 @@ const ReportsHeatLayer = () => {
     } else {
       return mapEventSymbolPointsWithVirtualDate;
     }
-  }, [useEventVectorTiles, mapEventSymbolPointsWithVirtualDate, realtimeOverlayFeatureCollection, tileEventFeatures, timeSliderParameters]);
+  }, [eventVectorTilesEnabled, mapEventSymbolPointsWithVirtualDate, realtimeOverlayFeatureCollection, tileEventFeatures, timeSliderParameters]);
 
   // Sit the heatmap just beneath whichever event symbol layer is mounted.
-  const beforeLayerId = useEventVectorTiles ? LAYER_IDS.EVENTS_VECTOR_SYMBOLS : LAYER_IDS.EVENT_SYMBOLS;
+  const beforeLayerId = eventVectorTilesEnabled ? LAYER_IDS.EVENTS_VECTOR_SYMBOLS : LAYER_IDS.EVENT_SYMBOLS;
 
   return reports?.features?.length ? <HeatLayer points={reports} beforeLayerId={beforeLayerId} /> : null;
 };
