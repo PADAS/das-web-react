@@ -1,6 +1,7 @@
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { featureCollection, point } from '@turf/turf';
 import { Provider } from 'react-redux';
+import { render, waitFor } from '@testing-library/react';
 
 import {
   addNewClusterMarkers,
@@ -21,7 +22,9 @@ import {
   mockEventFeatureCollection,
   mockSubjectFeatureCollection,
 } from '../__test-helpers/fixtures/clusters';
+import { selectRealtimeOverlayFeatureCollection } from '../selectors/events-realtime-overlay';
 import useClusterPolygon from '../hooks/useClusterPolygon';
+import useTileEventFeaturesMock from '../hooks/useTileEventFeatures';
 
 const { CLUSTERS_SOURCE_ID } = SOURCE_IDS;
 
@@ -45,6 +48,10 @@ jest.mock('../selectors/subjects', () => ({
   getMapSubjectFeatureCollectionWithVirtualPositioning: () => mockSubjectFeatureCollection,
 }));
 jest.mock('../hooks/useClusterPolygon', () => jest.fn());
+jest.mock('../hooks/useTileEventFeatures', () => jest.fn());
+jest.mock('../selectors/events-realtime-overlay', () => ({
+  selectRealtimeOverlayFeatureCollection: jest.fn(),
+}));
 
 
 describe('ClustersLayer', () => {
@@ -53,6 +60,9 @@ describe('ClustersLayer', () => {
   beforeEach(() => {
     getClusterExpansionZoomMock = jest.fn((clusterId, callback) => callback(null, CLUSTER_CLICK_ZOOM_THRESHOLD + 1));
     removeClusterPolygon = jest.fn();
+
+    selectRealtimeOverlayFeatureCollection.mockReturnValue(featureCollection([]));
+    useTileEventFeaturesMock.mockReturnValue(featureCollection([]));
   });
 
   describe('the map layer', () => {
@@ -545,6 +555,102 @@ describe('ClustersLayer', () => {
       );
 
       expect(renderedClusterMarkersHashMap['2'].id).toBe('efgh');
+    });
+  });
+
+  describe('event vector tiles clustering', () => {
+    const mockTileFeature = point([1, 1], { id: 'tile-evt-1' });
+    const mockOverlayFeature = point([2, 2], { id: 'overlay-evt-1' });
+
+    let setData, map;
+    beforeEach(() => {
+      setData = jest.fn();
+      map = createMapMock();
+      map.getSource.mockReturnValue({ setData, getClusterExpansionZoom: jest.fn(), getClusterLeaves: jest.fn() });
+      map.queryRenderedFeatures.mockReturnValue([]);
+
+      const useTileEventFeaturesMock = require('../hooks/useTileEventFeatures');
+      const { selectRealtimeOverlayFeatureCollection } = require('../selectors/events-realtime-overlay');
+      useTileEventFeaturesMock.mockReturnValue(featureCollection([mockTileFeature]));
+      selectRealtimeOverlayFeatureCollection.mockReturnValue(featureCollection([mockOverlayFeature]));
+
+      useClusterPolygon.mockImplementation(() => ({ addClusterPolygon: jest.fn(), removeClusterPolygon: jest.fn() }));
+    });
+
+    const renderClustersLayerWithFlagOn = () => render(
+      <Provider store={mockStore({
+        data: {
+          mapLayerFilter: { showReportsOnMap: true },
+          mapEvents: { events: [] },
+          eventFilter: { filter: { date_range: {} } },
+          eventTypes: [],
+          realtimeOverlayEvents: { ids: {} },
+          eventStore: {},
+        },
+        view: {
+          mapImages: [],
+          timeSliderState: { active: false },
+          mapClusterConfig: { data: { events: true, subjects: false } },
+          systemConfig: { previewFeatures: { events_vector_tiles: true } },
+        },
+      })}>
+        <MapContext.Provider value={map}>
+          <ClustersLayer onShowClusterSelectPopup={jest.fn()} />
+        </MapContext.Provider>
+      </Provider>
+    );
+
+    test('feeds tile features + overlay features into the cluster source', () => {
+      renderClustersLayerWithFlagOn();
+
+      const lastSetData = setData.mock.calls.at(-1)?.[0];
+      expect(lastSetData).toBeDefined();
+      expect(lastSetData.features).toEqual(expect.arrayContaining([
+        expect.objectContaining({ properties: expect.objectContaining({ id: 'tile-evt-1' }) }),
+        expect.objectContaining({ properties: expect.objectContaining({ id: 'overlay-evt-1' }) }),
+      ]));
+    });
+
+    test('does not include the GeoJSON event collection while the flag is ON', () => {
+      renderClustersLayerWithFlagOn();
+
+      const lastSetData = setData.mock.calls.at(-1)?.[0];
+      const ids = lastSetData.features.map((feature) => feature.properties?.id);
+      // The GeoJSON path features (mocked, non-empty) must not leak in when the flag is ON.
+      mockEventFeatureCollection.features.forEach((feature) => {
+        expect(ids).not.toContain(feature.properties?.id);
+      });
+    });
+
+    test('excludes event features from the cluster source when events clustering is disabled', () => {
+      render(
+        <Provider store={mockStore({
+          data: {
+            mapLayerFilter: { showReportsOnMap: true },
+            mapEvents: { events: [] },
+            eventFilter: { filter: { date_range: {} } },
+            eventTypes: [],
+            realtimeOverlayEvents: { ids: {} },
+            eventStore: {},
+          },
+          view: {
+            mapImages: [],
+            timeSliderState: { active: false },
+            // Events clustering off (subjects off too) -> no event features in the cluster source.
+            mapClusterConfig: { data: { events: false, subjects: false } },
+            systemConfig: { previewFeatures: { events_vector_tiles: true } },
+          },
+        })}>
+          <MapContext.Provider value={map}>
+            <ClustersLayer onShowClusterSelectPopup={jest.fn()} />
+          </MapContext.Provider>
+        </Provider>
+      );
+
+      const lastSetData = setData.mock.calls.at(-1)?.[0];
+      const ids = lastSetData.features.map((feature) => feature.properties?.id);
+      expect(ids).not.toContain('tile-evt-1');
+      expect(ids).not.toContain('overlay-evt-1');
     });
   });
 });

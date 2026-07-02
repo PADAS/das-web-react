@@ -243,7 +243,6 @@
           "patrolFiltersCheckboxLabel": "Filtres de patrouilles"
         },
         "experimentalFeaturesFieldSet": {
-          "CUSTOM_COORDINATE_SYSTEMS_ENABLED": "Systèmes de référence de coordonnées",
           "legend": "Fonctionnalités expérimentales"
         },
         "languageSelect": {

@@ -260,7 +260,6 @@
           "patrolFiltersCheckboxLabel": "Patrol Filters"
         },
         "experimentalFeaturesFieldSet": {
-          "CUSTOM_COORDINATE_SYSTEMS_ENABLED": "Coordinate Reference Systems",
           "legend": "Experimental Features"
         },
         "languageSelect": {

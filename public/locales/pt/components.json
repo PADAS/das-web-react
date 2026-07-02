@@ -243,7 +243,6 @@
           "patrolFiltersCheckboxLabel": "Filtros de patrulhas"
         },
         "experimentalFeaturesFieldSet": {
-          "CUSTOM_COORDINATE_SYSTEMS_ENABLED": "Sistemas de referência de coordenadas",
           "legend": "Funções experimentais"
         },
         "languageSelect": {

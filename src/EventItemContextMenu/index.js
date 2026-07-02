@@ -1,15 +1,16 @@
 import React, { memo, useCallback, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import MoonLoader from 'react-spinners/MoonLoader';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as LinkIcon } from '../common/images/icons/link.svg';
 
-import { EVENT_FORM_STATES } from '../constants';
+import { EVENT_FORM_STATES, PREVIEW_FEATURES } from '../constants';
 import { getReportLink, isReportActive } from '../utils/events';
 import { setEventState, updateEvent } from '../ducks/events';
 import { showToast } from '../utils/toast';
+import { usePreviewFeature } from '../hooks';
 
 import ContextMenu from '../ContextMenu';
 import TextCopyBtn from '../TextCopyBtn';
@@ -52,9 +53,7 @@ const EventItemContextMenu = ({ children, className = '', report }) => {
 
   // Remove this flag and the conditional rendering below once community input
   // is enabled for all tenants.
-  const communityInputEnabled = useSelector(
-    (state) => !!state.view.systemConfig.previewFeatures?.community_input_admin_enabled
-  );
+  const communityInputEnabled = usePreviewFeature(PREVIEW_FEATURES.COMMUNITY_INPUT_ADMIN);
 
   const isActive = isReportActive(report);
   const isInReview = report?.state === EVENT_FORM_STATES.REVIEW;
