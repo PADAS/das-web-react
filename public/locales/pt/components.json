@@ -364,6 +364,10 @@
     "popoverHeader": "Intervalo de datas",
     "popoverResetButton": "Redefinir",
     "sliderLabel": "Deslizador de tempo",
+    "speedButtonLabel": "Abrir opções de velocidade de reprodução",
+    "speedMenuHeader": "Velocidade de Reprodução",
+    "speedMenuLabel": "Opções de velocidade de reprodução",
+    "speedMenuOptionLabel": "Definir a velocidade de reprodução para {{speed}}",
     "timeSliderMapControl": {
       "iconTitle": "Deslizador de tempo"
     },

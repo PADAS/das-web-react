@@ -371,6 +371,10 @@
     "popoverHeader": "मितिको दायरा",
     "popoverResetButton": "रिसेट गर्नुहोस्",
     "sliderLabel": "समय स्लाइडर",
+    "speedButtonLabel": "प्लेब्याक गति विकल्पहरू खोल्नुहोस्",
+    "speedMenuHeader": "प्लेब्याक गति",
+    "speedMenuLabel": "प्लेब्याक गति विकल्पहरू",
+    "speedMenuOptionLabel": "प्लेब्याक गति {{speed}} मा सेट गर्नुहोस्",
     "timeSliderMapControl": {
       "iconTitle": "समय स्लाइडर"
     },

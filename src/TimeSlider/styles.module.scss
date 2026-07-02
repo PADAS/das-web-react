@@ -1,6 +1,7 @@
 @use 'sass:color';
 
 @use '../common/styles/vars/colors';
+@use '../common/styles/inputs';
 @use '../common/styles/layout';
 
 @keyframes pulse {
@@ -54,6 +55,34 @@
     &:focus-visible {
       outline: 2px solid colors.$bright-blue;
       outline-offset: 3px;
+    }
+  }
+
+  .speedButton {
+    align-items: center;
+    background-color: colors.$light-gray-background;
+    border: none;
+    border-radius: 0.25rem;
+    color: colors.$secondary-medium-gray;
+    display: none;
+    flex-shrink: 0;
+    font-size: 0.875rem;
+    font-weight: 500;
+    height: 2.25rem;
+    justify-content: center;
+    padding: 0 0.75rem;
+    width: 4.25rem;
+
+    &:hover {
+      background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+    }
+
+    &:focus-visible {
+      outline: 2px solid colors.$bright-blue;
+    }
+
+    @media (min-width: layout.$md-layout-width-min) {
+      display: flex;
     }
   }
 
@@ -266,9 +295,80 @@
   .popoverBody {
     overflow: visible;
     padding: 1rem 0 0;
-  
+
     .dateRangePopover {
       top: -16rem;
+    }
+  }
+}
+
+.speedMenuPopover {
+  @include inputs.boxShadow;
+  border: none !important;
+  border-radius: 0.25rem !important;
+  min-width: 9rem;
+
+  [class*=popover-arrow] {
+    display: none;
+  }
+
+  .speedMenuHeader {
+    color: colors.$light-font-color;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 0.75rem 0.75rem 0.25rem;
+    text-transform: uppercase;
+  }
+
+  .speedMenu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    .speedMenuItem {
+      &:last-child {
+        .speedMenuItemOption {
+          border-bottom-left-radius: 0.25rem;
+          border-bottom-right-radius: 0.25rem;
+        }
+      }
+
+      .speedMenuItemOption {
+        background-color: white;
+        border: none;
+        outline: none;
+        padding: 0.5rem 0.75rem;
+        text-align: left;
+        width: 100%;
+
+        &:hover {
+          background-color: color.adjust(colors.$light-gray-background, $lightness: 5%);
+        }
+
+        &:focus {
+          background-color: colors.$light-gray-background;
+        }
+
+        &[aria-checked="true"] {
+          background-color: colors.$blue-highlight;
+
+          &:hover, &:focus {
+            background-color: color.adjust(colors.$blue-highlight, $lightness: -5%);
+          }
+        }
+
+        &[aria-checked="false"] {
+          padding-left: 2rem;
+        }
+
+        .checkIcon {
+          color: colors.$bright-blue;
+          height: 0.75rem;
+          margin-right: 0.5rem;
+          width: 0.75rem;
+        }
+      }
     }
   }
 }

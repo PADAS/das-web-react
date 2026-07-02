@@ -358,6 +358,10 @@
     "popoverHeader": "Intervalle de Dates",
     "popoverResetButton": "Réinitialiser",
     "sliderLabel": "Curseur Temporel",
+    "speedButtonLabel": "Ouvrir les options de vitesse de lecture",
+    "speedMenuHeader": "Vitesse de Lecture",
+    "speedMenuLabel": "Options de vitesse de lecture",
+    "speedMenuOptionLabel": "Définir la vitesse de lecture sur {{speed}}",
     "timeSliderMapControl": {
       "iconTitle": "Curseur Temporel"
     },
