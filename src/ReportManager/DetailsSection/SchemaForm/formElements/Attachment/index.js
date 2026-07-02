@@ -164,6 +164,7 @@ const AttachmentListItem = ({ actionButtonRefs, attachment, onRemove, readOnly }
       actionButton = <button
         aria-label={t('downloadButtonLabel', { fileName: attachment.name })}
         className={styles.actionButton}
+        disabled={!attachment.originalUrl}
         onClick={() => downloadFileFromUrl(attachment.originalUrl, { filename: attachment.name })}
         ref={actionButtonRef}
         title={t('downloadButtonLabel', { fileName: attachment.name })}

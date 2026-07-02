@@ -427,6 +427,17 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Attachmen
     expect(downloadButton).toHaveAttribute('title', 'Download file1.pdf');
   });
 
+  test('disables the download button for a saved non-image attachment with no original URL', () => {
+    renderAttachmentField({
+      attachmentsMetadata: {
+        'saved-1': { filename: 'file1.pdf', file_type: 'document' },
+      },
+      value: [{ uploadId: 'saved-1' }],
+    });
+
+    expect(screen.getByRole('button', { name: 'Download file1.pdf' })).toBeDisabled();
+  });
+
   test('does not show a remove button for a saved attachment', () => {
     renderAttachmentField({
       attachmentsMetadata: {
