@@ -33,8 +33,8 @@
     },
     "ecoscopeAnalysisLinkAriaLabel": "Ecoscope सँग विश्लेषण",
     "ecoscopeAnalysisLink": "विश्लेषण",
-    "ecoscopeDownloaderLinkAriaLabel": "Ecoscope डाउनलोडर",
-    "ecoscopeDownloaderLink": "डाउनलोड",
+    "ecoscopeDownloaderMigrationGuideLinkAriaLabel": "Ecoscope डाउनलोडर",
+    "ecoscopeDownloaderMigrationGuideLink": "डाउनलोड",
     "ecoscopeHeading": "ECOSCOPE",
     "footer": {
       "clientVersion": "वेब ग्राहक संस्करण: {{version}}",

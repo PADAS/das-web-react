@@ -344,13 +344,13 @@ const GlobalMenuDrawer = () => {
         <ul>
           <li>
             <a
-              aria-label={t('ecoscopeDownloaderLinkAriaLabel')}
+              aria-label={t('ecoscopeDownloaderMigrationGuideLinkAriaLabel')}
               href={ECOSCOPE_DOWNLOADER_MIGRATION_GUIDE_URL}
               onClick={() => mainToolbarTracker.track('Click \'Ecoscope Downloader\' menu item')}
               rel="noopener noreferrer"
               target="_blank"
             >
-              {t('ecoscopeDownloaderLink')}
+              {t('ecoscopeDownloaderMigrationGuideLink')}
             </a>
           </li>
 
