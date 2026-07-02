@@ -111,12 +111,14 @@ const AttachmentListItem = ({ actionButtonRefs, attachment, onRemove, readOnly }
   };
 
   let icon = <AttachmentIcon />;
-  if (attachment.status === 'pending' || attachment.status === 'uploading') {
+  if (attachment.status === 'in_progress') {
     icon = <span
-      className={`${styles.uploadProgress} ${attachment.status === 'pending' ? styles.pending : ''}`}
+      className={`${styles.uploadProgress} ${attachment.progress === null ? styles.indeterminate : ''}`}
       data-testid={`upload-progress-${attachment.uploadId}`}
-      style={{ '--upload-progress': `${Math.round(attachment.progress * 100)}%` }}
+      style={{ '--upload-progress': `${Math.round((attachment.progress ?? 0) * 100)}%` }}
     />;
+  } else if (attachment.status === 'unknown') {
+    icon = <CloudUploadIcon />;
   } else if (attachment.thumbnailImageSource) {
     icon = <img alt="" className={styles.thumbnail} src={attachment.thumbnailImageSource}/>;
   } else if (attachment.fileType === 'audio') {
@@ -126,7 +128,20 @@ const AttachmentListItem = ({ actionButtonRefs, attachment, onRemove, readOnly }
   }
 
   let actionButton = null;
-  if (attachment.status === 'saved') {
+  if (attachment.isLocalUpload) {
+    if (!readOnly) {
+      actionButton = <button
+          aria-label={t('removeButtonLabel', { fileName: attachment.name })}
+          className={styles.actionButton}
+          onClick={() => onRemove()}
+          ref={actionButtonRef}
+          title={t('removeButtonLabel', { fileName: attachment.name })}
+          type="button"
+        >
+        <TrashCanIcon aria-hidden="true" />
+      </button>;
+    }
+  } else if (attachment.status === 'complete') {
     if (attachment.fileType === 'image') {
       actionButton = <button
         aria-label={t('expandButtonLabel', { fileName: attachment.name })}
@@ -157,23 +172,14 @@ const AttachmentListItem = ({ actionButtonRefs, attachment, onRemove, readOnly }
         <DownloadArrowIcon aria-hidden="true" />
       </button>;
     }
-  } else if (!readOnly) {
-    actionButton = <button
-        aria-label={t('removeButtonLabel', { fileName: attachment.name })}
-        className={styles.actionButton}
-        onClick={() => onRemove()}
-        ref={actionButtonRef}
-        title={t('removeButtonLabel', { fileName: attachment.name })}
-        type="button"
-      >
-      <TrashCanIcon aria-hidden="true" />
-    </button>;
   }
 
   return <li className={styles.attachmentListItem}>
     <span aria-hidden="true" className={styles.icon}>{icon}</span>
 
     <span className={styles.name}>{attachment.name}</span>
+
+    {attachment.status === 'unknown' && <span className={styles.pendingLabel}>{t('pendingLabel')}</span>}
 
     {attachment.status === 'failed' && <span className={styles.error}>{t('uploadErrorLabel')}</span>}
 
@@ -216,11 +222,12 @@ const Attachment = ({ attachmentsMetadata, details, error, id, onFieldChange, re
 
     return {
       fileType: attachmentMetadata?.file_type ?? getFileCategoryFromMimeType(upload?.fileType ?? ''),
+      isLocalUpload: !!upload,
       name: attachmentMetadata?.filename?.split('/').pop() ?? upload?.filename,
       originalImageSource: attachmentImageSources.original ?? upload?.objectUrl,
       originalUrl: attachmentMetadata?.files?.original,
-      progress: upload?.progress,
-      status: upload?.status ?? 'saved',
+      progress: upload?.progress ?? null,
+      status: upload?.status ?? attachmentMetadata.status ?? 'complete',
       thumbnailImageSource: attachmentImageSources.thumbnail ?? upload?.objectUrl,
       uploadId: attachment?.uploadId,
     };
@@ -268,9 +275,17 @@ const Attachment = ({ attachmentsMetadata, details, error, id, onFieldChange, re
 
   const onClickRemove = (attachment) => {
     const attachmentIndex = attachments.indexOf(attachment);
-    const nextAttachment = attachments[attachmentIndex + 1] ?? attachments[attachmentIndex - 1];
-    nextFocusTargetRef.current = nextAttachment
-      ? actionButtonRefs.current.get(nextAttachment.uploadId)
+
+    // Focus the next attachment that has an action button.
+    const remainingAttachmentsFocusOrder = [
+      ...attachments.slice(attachmentIndex + 1),
+      ...attachments.slice(0, attachmentIndex).reverse(),
+    ];
+    const attachmentToFocus = remainingAttachmentsFocusOrder.find(
+      (attachment) => actionButtonRefs.current.has(attachment.uploadId)
+    );
+    nextFocusTargetRef.current = attachmentToFocus
+      ? actionButtonRefs.current.get(attachmentToFocus.uploadId)
       : chooseFileButtonRef.current;
 
     onFieldChange(id, [...value.slice(0, attachmentIndex), ...value.slice(attachmentIndex + 1)]);
@@ -318,7 +333,7 @@ const Attachment = ({ attachmentsMetadata, details, error, id, onFieldChange, re
     if (prevUploads !== null) {
       // Uploads changed. Announce status transitions.
       const newlyCompletedUploads = Object.values(uploads).filter(
-        (upload) => upload?.status === 'completed' && prevUploads[upload.uploadId]?.status !== 'completed'
+        (upload) => upload?.status === 'complete' && prevUploads[upload.uploadId]?.status !== 'complete'
       );
       const newlyFailedUploads = Object.values(uploads).filter(
         (upload) => upload?.status === 'failed' && prevUploads[upload.uploadId]?.status !== 'failed'

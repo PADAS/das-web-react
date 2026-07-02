@@ -13,10 +13,7 @@ const computeUploadErrors = (formData, formElements, userContent, t, parentColle
     if (formElements[fieldId]?.type === FORM_ELEMENT_TYPES.ATTACHMENT) {
       if (Array.isArray(fieldValue) && fieldValue.length > 0) {
         // The field is an attachment with uploads.
-        const hasPending = fieldValue.some(
-          ({ uploadId }) => userContent[uploadId]?.status === 'pending'
-            || userContent[uploadId]?.status === 'uploading'
-        );
+        const hasPending = fieldValue.some(({ uploadId }) => userContent[uploadId]?.status === 'in_progress');
         const hasFailed = fieldValue.some(({ uploadId }) => userContent[uploadId]?.status === 'failed');
         if (hasPending) {
           // The attachment has pending uploads.

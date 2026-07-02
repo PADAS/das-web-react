@@ -172,6 +172,7 @@
             "maxItemsAlert_other": "Você só pode adicionar até {{count}} arquivos.",
             "downloadButtonLabel": "Baixar {{fileName}}",
             "expandButtonLabel": "Expandir {{fileName}}",
+            "pendingLabel": "Pendente",
             "removeButtonLabel": "Remover {{fileName}}",
             "requiredLabel": "(obrigatório)",
             "uploadErrorLabel": "Falha no envio",

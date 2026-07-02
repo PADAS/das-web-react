@@ -45,7 +45,7 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - useUploadValidat
 
   it('returns the upload in progress error', () => {
     store.data.userContent = {
-      'upload-1': { status: 'pending' },
+      'upload-1': { status: 'in_progress' },
       'upload-2': { status: 'success' },
     };
     const formData = {
@@ -81,28 +81,9 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - useUploadValidat
     });
   });
 
-  it('returns the upload in progress error when the upload status is uploading', () => {
-    store.data.userContent = {
-      'upload-1': { status: 'uploading' },
-      'upload-2': { status: 'success' },
-    };
-    const formData = {
-      textField: 'some text',
-      attachmentField: [{ uploadId: 'upload-1' }],
-      collectionField: [{ attachmentField: [{ uploadId: 'upload-2' }] }],
-    };
-
-    const { result } = renderHook(() => useUploadValidations(formElements), { wrapper: Wrapper });
-    const runValidations = result.current;
-
-    expect(runValidations(formData)).toEqual({
-      attachmentField: { message: 'Please wait for files to finish uploading.' },
-    });
-  });
-
   it('prioritizes the upload in progress error over the upload failed error', () => {
     store.data.userContent = {
-      'upload-1': { status: 'pending' },
+      'upload-1': { status: 'in_progress' },
       'upload-1b': { status: 'failed' },
       'upload-2': { status: 'success' },
     };
@@ -139,7 +120,7 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - useUploadValidat
   it('nests errors in collection item forms', () => {
     store.data.userContent = {
       'upload-1': { status: 'success' },
-      'upload-2': { status: 'pending' },
+      'upload-2': { status: 'in_progress' },
     };
     const formData = {
       textField: 'some text',

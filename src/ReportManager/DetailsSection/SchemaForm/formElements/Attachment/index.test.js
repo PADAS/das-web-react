@@ -276,30 +276,45 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Attachmen
     expect(screen.getByRole('status')).toHaveTextContent('Uploading test.pdf');
   });
 
-  test('shows the pending upload progress indicator when a file is being prepared', () => {
+  test('shows an indeterminate progress indicator when a file is being prepared', () => {
     const uploadStore = mockStore({
-      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', fileType: 'application/pdf', progress: 0, status: 'pending' } } },
+      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', fileType: 'application/pdf', progress: null, status: 'in_progress' } } },
     });
     renderAttachmentField({ value: [{ uploadId: 'test-upload-id' }] }, uploadStore);
 
     const progressIndicator = screen.getByTestId('upload-progress-test-upload-id');
 
     expect(progressIndicator).toBeInTheDocument();
-    expect(progressIndicator).toHaveClass('pending');
+    expect(progressIndicator).toHaveClass('indeterminate');
     expect(progressIndicator).toHaveStyle({ '--upload-progress': '0%' });
   });
 
-  test('shows the uploading progress indicator with its current progress', () => {
+  test('shows the in-progress upload progress indicator with its current progress', () => {
     const uploadStore = mockStore({
-      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', fileType: 'application/pdf', progress: 0.6, status: 'uploading' } } },
+      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', fileType: 'application/pdf', progress: 0.6, status: 'in_progress' } } },
     });
     renderAttachmentField({ value: [{ uploadId: 'test-upload-id' }] }, uploadStore);
 
     const progressIndicator = screen.getByTestId('upload-progress-test-upload-id');
 
     expect(progressIndicator).toBeInTheDocument();
-    expect(progressIndicator).not.toHaveClass('pending');
+    expect(progressIndicator).not.toHaveClass('indeterminate');
     expect(progressIndicator).toHaveStyle({ '--upload-progress': '60%' });
+  });
+
+  test('shows an indeterminate progress indicator for a remote in-progress upload', () => {
+    renderAttachmentField({
+      attachmentsMetadata: {
+        'saved-1': { filename: 'file1.pdf', file_type: 'document', status: 'in_progress' },
+      },
+      value: [{ uploadId: 'saved-1' }],
+    });
+
+    const progressIndicator = screen.getByTestId('upload-progress-saved-1');
+
+    expect(progressIndicator).toBeInTheDocument();
+    expect(progressIndicator).toHaveClass('indeterminate');
+    expect(progressIndicator).toHaveStyle({ '--upload-progress': '0%' });
   });
 
   test('shows a thumbnail image for a saved image attachment after fetching its data', async () => {
@@ -423,9 +438,9 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Attachmen
     expect(screen.queryByRole('button', { name: 'Remove file1.pdf' })).not.toBeInTheDocument();
   });
 
-  test('shows the remove button for a pending upload', () => {
+  test('shows the remove button for an local in-progress upload', () => {
     const uploadStore = mockStore({
-      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', fileType: 'application/pdf', progress: 0, status: 'pending' } } },
+      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', fileType: 'application/pdf', progress: 0, status: 'in_progress' } } },
     });
     renderAttachmentField({ value: [{ uploadId: 'test-upload-id' }] }, uploadStore);
 
@@ -437,13 +452,41 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Attachmen
     expect(removeButton).toHaveAttribute('title', 'Remove test.pdf');
   });
 
-  test('does not show the remove button for a pending upload in read-only mode', () => {
+  test('does not show the remove button for an local in-progress upload in read-only mode', () => {
     const uploadStore = mockStore({
-      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', fileType: 'application/pdf', progress: 0, status: 'pending' } } },
+      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', fileType: 'application/pdf', progress: 0, status: 'in_progress' } } },
     });
     renderAttachmentField({ readOnly: true, value: [{ uploadId: 'test-upload-id' }] }, uploadStore);
 
     expect(screen.queryByRole('button', { name: 'Remove test.pdf' })).not.toBeInTheDocument();
+  });
+
+  test('does not show an action button for a remote in-progress upload', () => {
+    renderAttachmentField({
+      attachmentsMetadata: {
+        'saved-1': { filename: 'file1.pdf', file_type: 'document', status: 'in_progress' },
+      },
+      value: [{ uploadId: 'saved-1' }],
+    });
+
+    expect(screen.queryByRole('button', { name: 'Remove file1.pdf' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Download file1.pdf' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Expand file1.pdf' })).not.toBeInTheDocument();
+  });
+
+  test('shows a pending label for a remote upload with unknown status and does not show an action button', () => {
+    renderAttachmentField({
+      attachmentsMetadata: {
+        'saved-1': { filename: 'file1.pdf', file_type: 'document', status: 'unknown' },
+      },
+      value: [{ uploadId: 'saved-1' }],
+    });
+
+    expect(screen.getByText('file1.pdf')).toBeVisible();
+    expect(screen.getByText('Pending')).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Remove file1.pdf' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Download file1.pdf' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Expand file1.pdf' })).not.toBeInTheDocument();
   });
 
   test('shows the upload error text for a failed upload', () => {
@@ -541,7 +584,7 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Attachmen
 
   test('dispatches removeFile when the remove button is clicked', async () => {
     const uploadStore = mockStore({
-      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', fileType: 'application/pdf', progress: 0, status: 'pending' } } },
+      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', fileType: 'application/pdf', progress: 0, status: 'in_progress' } } },
     });
     renderAttachmentField({ value: [{ uploadId: 'test-upload-id' }] }, uploadStore);
 
@@ -553,7 +596,7 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Attachmen
 
   test('calls onFieldChange when the remove button is clicked', async () => {
     const uploadStore = mockStore({
-      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', fileType: 'application/pdf', progress: 0, status: 'pending' } } },
+      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', fileType: 'application/pdf', progress: 0, status: 'in_progress' } } },
     });
     renderAttachmentField({ value: [{ uploadId: 'test-upload-id' }] }, uploadStore);
 
@@ -564,12 +607,12 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Attachmen
 
   test('announces completed uploads to screen readers', () => {
     const pendingStore = mockStore({
-      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', progress: 0, status: 'pending' } } },
+      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', progress: 0, status: 'in_progress' } } },
     });
     const { rerender } = renderAttachmentField({ value: [{ uploadId: 'test-upload-id' }] }, pendingStore);
 
     const completedStore = mockStore({
-      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', progress: 1, status: 'completed' } } },
+      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', progress: 1, status: 'complete' } } },
     });
     rerender(
       <Provider store={completedStore}>
@@ -590,7 +633,7 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Attachmen
 
   test('announces failed uploads to screen readers', () => {
     const pendingStore = mockStore({
-      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', progress: 0, status: 'pending' } } },
+      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', progress: 0, status: 'in_progress' } } },
     });
     const { rerender } = renderAttachmentField({ value: [{ uploadId: 'test-upload-id' }] }, pendingStore);
 
@@ -617,8 +660,8 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Attachmen
   test('announces multiple completed uploads to screen readers', () => {
     const pendingStore = mockStore({
       data: { userContent: {
-        'upload-1': { uploadId: 'upload-1', filename: 'file1.pdf', progress: 0, status: 'pending' },
-        'upload-2': { uploadId: 'upload-2', filename: 'file2.pdf', progress: 0, status: 'pending' },
+        'upload-1': { uploadId: 'upload-1', filename: 'file1.pdf', progress: 0, status: 'in_progress' },
+        'upload-2': { uploadId: 'upload-2', filename: 'file2.pdf', progress: 0, status: 'in_progress' },
       } },
     });
     const { rerender } = renderAttachmentField({
@@ -627,8 +670,8 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Attachmen
 
     const completedStore = mockStore({
       data: { userContent: {
-        'upload-1': { uploadId: 'upload-1', filename: 'file1.pdf', progress: 1, status: 'completed' },
-        'upload-2': { uploadId: 'upload-2', filename: 'file2.pdf', progress: 1, status: 'completed' },
+        'upload-1': { uploadId: 'upload-1', filename: 'file1.pdf', progress: 1, status: 'complete' },
+        'upload-2': { uploadId: 'upload-2', filename: 'file2.pdf', progress: 1, status: 'complete' },
       } },
     });
     rerender(
@@ -651,8 +694,8 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Attachmen
   test('announces multiple failed uploads to screen readers', () => {
     const pendingStore = mockStore({
       data: { userContent: {
-        'upload-1': { uploadId: 'upload-1', filename: 'file1.pdf', progress: 0, status: 'pending' },
-        'upload-2': { uploadId: 'upload-2', filename: 'file2.pdf', progress: 0, status: 'pending' },
+        'upload-1': { uploadId: 'upload-1', filename: 'file1.pdf', progress: 0, status: 'in_progress' },
+        'upload-2': { uploadId: 'upload-2', filename: 'file2.pdf', progress: 0, status: 'in_progress' },
       } },
     });
     const { rerender } = renderAttachmentField({
@@ -685,8 +728,8 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Attachmen
   test('announces both completed and failed uploads when they occur in the same update', () => {
     const pendingStore = mockStore({
       data: { userContent: {
-        'upload-1': { uploadId: 'upload-1', filename: 'file1.pdf', progress: 0, status: 'pending' },
-        'upload-2': { uploadId: 'upload-2', filename: 'file2.pdf', progress: 0, status: 'pending' },
+        'upload-1': { uploadId: 'upload-1', filename: 'file1.pdf', progress: 0, status: 'in_progress' },
+        'upload-2': { uploadId: 'upload-2', filename: 'file2.pdf', progress: 0, status: 'in_progress' },
       } },
     });
     const { rerender } = renderAttachmentField({
@@ -695,7 +738,7 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Attachmen
 
     const mixedStore = mockStore({
       data: { userContent: {
-        'upload-1': { uploadId: 'upload-1', filename: 'file1.pdf', progress: 1, status: 'completed' },
+        'upload-1': { uploadId: 'upload-1', filename: 'file1.pdf', progress: 1, status: 'complete' },
         'upload-2': { uploadId: 'upload-2', filename: 'file2.pdf', progress: 0, status: 'failed' },
       } },
     });
@@ -714,52 +757,22 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Attachmen
     );
 
     expect(screen.getByRole('status')).toHaveTextContent('file1.pdf uploaded');
-    expect(screen.getByRole('status')).toHaveTextContent("file2.pdf couldn't be uploaded");
+    expect(screen.getByRole('status')).toHaveTextContent('file2.pdf couldn\'t be uploaded');
   });
 
-  test('moves focus to the next remove button when removing an item', async () => {
+  test('moves focus to the closest action button when removing an attachment', async () => {
     const uploadStore = mockStore({
       data: { userContent: {
-        'upload-1': { uploadId: 'upload-1', filename: 'file1.pdf', fileType: 'application/pdf', progress: 0, status: 'pending' },
-        'upload-2': { uploadId: 'upload-2', filename: 'file2.pdf', fileType: 'application/pdf', progress: 0, status: 'pending' },
+        'upload-1': { uploadId: 'upload-1', filename: 'file1.pdf', fileType: 'application/pdf', progress: 0, status: 'in_progress' },
       } },
     });
+    const attachmentsMetadata = {
+      'saved-1': { filename: 'file2.pdf', file_type: 'document', status: 'unknown' },
+      'saved-2': { filename: 'file3.pdf', file_type: 'document', files: { original: 'https://example.com/file3.pdf' } },
+    };
     const { rerender } = renderAttachmentField({
-      value: [{ uploadId: 'upload-1' }, { uploadId: 'upload-2' }],
-    }, uploadStore);
-
-    await userEvent.click(screen.getByRole('button', { name: 'Remove file1.pdf' }));
-
-    const uploadStoreAfterRemove = mockStore({
-      data: { userContent: {
-        'upload-2': { uploadId: 'upload-2', filename: 'file2.pdf', fileType: 'application/pdf', progress: 0, status: 'pending' },
-      } },
-    });
-    rerender(
-      <Provider store={uploadStoreAfterRemove}>
-        <TrackerContext.Provider value={null}>
-          <Attachment
-            details={details}
-            error={undefined}
-            id="attachment-1"
-            onFieldChange={onFieldChange}
-            value={[{ uploadId: 'upload-2' }]}
-          />
-        </TrackerContext.Provider>
-      </Provider>
-    );
-
-    expect(screen.getByRole('button', { name: 'Remove file2.pdf' })).toHaveFocus();
-  });
-
-  test('moves focus to the choose file button when removing the last item', async () => {
-    const uploadStore = mockStore({
-      data: { userContent: {
-        'upload-1': { uploadId: 'upload-1', filename: 'file1.pdf', fileType: 'application/pdf', progress: 0, status: 'pending' },
-      } },
-    });
-    const { rerender } = renderAttachmentField({
-      value: [{ uploadId: 'upload-1' }],
+      attachmentsMetadata,
+      value: [{ uploadId: 'upload-1' }, { uploadId: 'saved-1' }, { uploadId: 'saved-2' }],
     }, uploadStore);
 
     await userEvent.click(screen.getByRole('button', { name: 'Remove file1.pdf' }));
@@ -768,11 +781,46 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Attachmen
       <Provider store={store}>
         <TrackerContext.Provider value={null}>
           <Attachment
+            attachmentsMetadata={attachmentsMetadata}
             details={details}
             error={undefined}
             id="attachment-1"
             onFieldChange={onFieldChange}
-            value={[]}
+            value={[{ uploadId: 'saved-1' }, { uploadId: 'saved-2' }]}
+          />
+        </TrackerContext.Provider>
+      </Provider>
+    );
+
+    expect(screen.getByRole('button', { name: 'Download file3.pdf' })).toHaveFocus();
+  });
+
+  test('moves focus to the choose file button when there are no attachments with action buttons remaining', async () => {
+    const uploadStore = mockStore({
+      data: { userContent: {
+        'upload-1': { uploadId: 'upload-1', filename: 'file1.pdf', fileType: 'application/pdf', progress: 0, status: 'in_progress' },
+      } },
+    });
+    const attachmentsMetadata = {
+      'saved-1': { filename: 'file2.pdf', file_type: 'document', status: 'unknown' },
+    };
+    const { rerender } = renderAttachmentField({
+      attachmentsMetadata,
+      value: [{ uploadId: 'upload-1' }, { uploadId: 'saved-1' }],
+    }, uploadStore);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Remove file1.pdf' }));
+
+    rerender(
+      <Provider store={store}>
+        <TrackerContext.Provider value={null}>
+          <Attachment
+            attachmentsMetadata={attachmentsMetadata}
+            details={details}
+            error={undefined}
+            id="attachment-1"
+            onFieldChange={onFieldChange}
+            value={[{ uploadId: 'saved-1' }]}
           />
         </TrackerContext.Provider>
       </Provider>
