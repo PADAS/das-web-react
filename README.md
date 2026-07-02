@@ -1,6 +1,7 @@
 # EarthRanger Web
 This is the web interface for EarthRanger. It is built with React (whose bootstrapping documentation is kept inline at the end of this document), using Redux for state management and Mapbox GL for map rendering. For an exhaustive list of 3rd-party dependencies, please review the package.json file at the root of this project.
 
+
 ### Licensing
 This repository is open-sourced under the Apache 2.0 license. However, Mapbox GL, a required dependency, is closed-source. It is provided here in a "bring your own token" capacity; you may use and modify all EarthRanger-authored code herein, but will need to provide your own Mapbox access token, tied to your own Mapbox account.
 
