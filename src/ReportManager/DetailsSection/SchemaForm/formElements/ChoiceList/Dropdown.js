@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as CheckIcon } from '../../../../../common/images/icons/check-light.svg';
 
 import { BOOTSTRAP_DEFAULTS } from '../../../../../constants';
+import getDisplayableChoiceListOptions from '../../../../../utils/v2-event-schemas/getDisplayableChoiceListOptions';
 
 import * as styles from './styles.module.scss';
 
@@ -34,17 +35,18 @@ const Option = ({ className = '', data, innerProps, isSelected, isMulti, ...rest
 </components.Option>;
 
 const Dropdown = ({ details, disabled, id, invalid, onChange, readOnly, value, ...otherProps }) => {
-  const { t } = useTranslation('components', { keyPrefix: 'choiceList' });
+  const { i18n, t } = useTranslation('components', { keyPrefix: 'choiceList' });
 
   const [isMenuOpen, setMenuOpen] = useState(false);
 
   const options = useMemo(
-    () => details.options.map((option) => ({
-      description: option.description,
-      label: option.display,
-      value: option.value,
-    })),
-    [details.options]
+    () => getDisplayableChoiceListOptions(details.options, i18n.language)
+      .map((option) => ({
+        description: option.description,
+        label: option.display,
+        value: option.value,
+      })),
+    [details.options, i18n.language]
   );
 
   const selectedValue = useMemo(

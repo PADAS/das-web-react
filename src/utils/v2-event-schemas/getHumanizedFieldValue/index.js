@@ -7,13 +7,7 @@ import { shouldUse12HourFormat } from '../../datetime';
 const getChoiceListOptionHumanizedValue = (value, field) => {
   const option = field.details.options.find((option) => option.value === value) ?? {};
 
-  if (!option.display) {
-    return value;
-  }
-  if (!option.description) {
-    return option.display;
-  }
-  return `${option.display} (${option.description})`;
+  return option.display ?? value;
 };
 
 // Utility to calculate a human readable version of the field values. For
@@ -32,16 +26,18 @@ const getHumanizedFieldValue = (field, value, defaultHumanizedValue, language, c
       ? defaultHumanizedValue
       : t('attachmentHumanizedValue', { count: value.length });
 
-  case FORM_ELEMENT_TYPES.CHOICE_LIST:
+  case FORM_ELEMENT_TYPES.CHOICE_LIST: {
     if (field.details.multiple) {
       return value.map((choiceValue) => getChoiceListOptionHumanizedValue(choiceValue, field)).join(', ');
     }
     return getChoiceListOptionHumanizedValue(value, field);
+  }
 
-  case FORM_ELEMENT_TYPES.COLLECTION:
+  case FORM_ELEMENT_TYPES.COLLECTION: {
     return t('collectionHumanizedValue', { collectionLength: value.length });
+  }
 
-  case FORM_ELEMENT_TYPES.DATE_TIME:
+  case FORM_ELEMENT_TYPES.DATE_TIME: {
     let parsedDate;
     let formatStr;
     switch (field.details.inputType) {
@@ -64,13 +60,16 @@ const getHumanizedFieldValue = (field, value, defaultHumanizedValue, language, c
       return defaultHumanizedValue;
     }
     return isValid(parsedDate) ? format(parsedDate, formatStr) : defaultHumanizedValue;
+  }
 
-  case FORM_ELEMENT_TYPES.LOCATION:
+  case FORM_ELEMENT_TYPES.LOCATION: {
     const coordinatesString = stringifyCoordinates(value, coordinatesRepresentation);
     return coordinatesString === OUTSIDE_BBOX ? defaultHumanizedValue : coordinatesString;
+  }
 
-  default:
+  default: {
     return value;
+  }
   };
 };
 
