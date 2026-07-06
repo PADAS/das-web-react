@@ -37,8 +37,8 @@ describe('calcSvgImageIconId', () => {
     expect(calcSvgImageIconId({ icon_id: 'fire', priority: 0 })).toBe('fire-0');
   });
 
-  it('appends height and width when provided, alongside priority', () => {
-    expect(calcSvgImageIconId({ icon_id: 'fire', priority: 200, height: 32, width: 24 })).toBe('fire-200-32-24');
+  it('appends width and height when provided, alongside priority, matching the icon-image expression order', () => {
+    expect(calcSvgImageIconId({ icon_id: 'fire', priority: 200, height: 32, width: 24 })).toBe('fire-200-24-32');
   });
 });
 

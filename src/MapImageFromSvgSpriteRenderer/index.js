@@ -11,9 +11,10 @@ const EMPTY_FEATURE_COLLECTION = { features: [] };
 
 const isClientError = (status) => typeof status === 'number' && status >= 400 && status < 500;
 
-// Builds the map-image cache key for an event's icon.
-export const calcSvgImageIconId = ({ icon_id, priority, height, width }) => {
-  const variantSuffixParts = [priority, height, width].filter((value) => value === 0 || Boolean(value));
+// Builds the map-image cache key for an event's icon. Must match the suffix order
+// used by the Mapbox icon-image expressions (icon_id-priority-width-height).
+export const calcSvgImageIconId = ({ icon_id, priority, width, height }) => {
+  const variantSuffixParts = [priority, width, height].filter((value) => value === 0 || Boolean(value));
   return [icon_id, ...variantSuffixParts].join('-');
 };
 
