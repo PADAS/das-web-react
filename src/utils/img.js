@@ -176,6 +176,8 @@ export const calcImgIdFromUrlForMapImages = (src, width = null, height = null) =
   return `${path}-${width ? width : 'x'}-${height ? height : 'x'}`;
 };
 
+export const calcSpriteSvgUrl = (iconId) => `${DAS_HOST}/static/sprite-src/${iconId}.svg`;
+
 export const calcUrlForImage = imagePath => {
   if (!imagePath) {
     return null;
