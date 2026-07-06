@@ -4,8 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { addImageToMapIfNecessary } from '../ducks/map-images';
 import { calcIconColorByPriority } from '../utils/event-types';
-import { calcUrlForImage, imgElFromSrc } from '../utils/img';
-import { DAS_HOST, MAP_ICON_SIZE, MAP_ICON_SCALE } from '../constants';
+import { calcSpriteSvgUrl, calcUrlForImage, imgElFromSrc } from '../utils/img';
+import { MAP_ICON_SIZE, MAP_ICON_SCALE } from '../constants';
 
 const EMPTY_FEATURE_COLLECTION = { features: [] };
 
@@ -19,7 +19,7 @@ export const calcSvgImageIconId = ({ icon_id, priority, width, height }) => {
 };
 
 const fetchSpriteSvgMarkup = async (spriteIconId) => {
-  const response = await axios.get(`${DAS_HOST}/static/sprite-src/${spriteIconId}.svg`, {
+  const response = await axios.get(calcSpriteSvgUrl(spriteIconId), {
     headers: {
       Accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
     },

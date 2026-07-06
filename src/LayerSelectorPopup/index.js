@@ -3,10 +3,11 @@ import { center } from '@turf/turf';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { calcImgIdFromUrlForMapImages, calcUrlForImage } from '../utils/img';
+import { calcImgIdFromUrlForMapImages, calcSpriteSvgUrl, calcUrlForImage } from '../utils/img';
+import { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
 import { createFeatureCollectionFromEvents } from '../utils/map';
-import { hidePopup } from '../ducks/popup';
 import { GEAR_FEATURE_CONTENT_TYPE, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
+import { hidePopup } from '../ducks/popup';
 import { subjectIsStatic } from '../utils/subjects';
 
 import SearchBar from '../SearchBar';
@@ -26,14 +27,24 @@ const LayerSelectorPopup = ({ data, id }) => {
   const { layers: layerList, onSelectEvent, onSelectGear, onSelectSubject } = data;
   const showFilterInput = layerList.length > 5;
 
-  // Event features from the vector tile lack the flattened props this popup
-  // needs, so hydrate them from the event store.
+  // Event features from the vector tile carry an unreliable image/image_url,
+  // so always prefer the event store's flattened props when the event is
+  // loaded there.
   const hydratedLayerList = useMemo(() => layerList.map((layer) => {
     const eventId = layer.properties?.id;
     const storeEvent = eventId && eventStore?.[eventId];
-    if (!layer.properties?.display_title && storeEvent) {
-      const [hydrated] = createFeatureCollectionFromEvents([storeEvent], eventTypes ?? []).features;
-      return hydrated ?? layer;
+    const [hydrated] = storeEvent
+      ? createFeatureCollectionFromEvents([storeEvent], eventTypes ?? []).features
+      : [];
+    if (hydrated) {
+      return hydrated;
+    }
+
+    if (layer.properties?.icon_id && layer.properties?.event_type) {
+      return {
+        ...layer,
+        properties: { ...layer.properties, image: calcSpriteSvgUrl(layer.properties.icon_id) },
+      };
     }
     return layer;
   }), [layerList, eventStore, eventTypes]);
@@ -76,9 +87,12 @@ const LayerSelectorPopup = ({ data, id }) => {
 
     return filteredLayerList.map((layer) => {
       const isGearLayerItem = layer.properties?.content_type === GEAR_FEATURE_CONTENT_TYPE;
-      const imageinStore = !isGearLayerItem && mapImages[
-        calcImgIdFromUrlForMapImages(layer.properties.image, layer.properties.height, layer.properties.width)
-      ];
+      const isEventLayerItem = !!layer.properties?.icon_id && !!layer.properties?.event_type;
+
+      const mapImagesKey = isEventLayerItem
+        ? calcSvgImageIconId(layer.properties)
+        : calcImgIdFromUrlForMapImages(layer.properties.image, layer.properties.height, layer.properties.width);
+      const imageinStore = !isGearLayerItem && mapImages[mapImagesKey];
       const imgSrc = imageinStore
         ? imageinStore.image.src
         : calcUrlForImage(layer.properties.image || layer.properties.image_url);
