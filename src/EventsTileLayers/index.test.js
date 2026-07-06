@@ -42,7 +42,7 @@ describe('EventsTileLayers', () => {
       overlayFC: featureCollection([point([2, 2], { id: 'overlay-1', icon_id: 'snare', priority: 300 })]),
     });
 
-    const ids = spriteProps.reportFeatureCollection.features.map((f) => f.properties.id);
+    const ids = spriteProps.eventFeatureCollection.features.map((f) => f.properties.id);
     expect(ids).toEqual(expect.arrayContaining(['tile-1', 'overlay-1']));
   });
 

@@ -31,7 +31,7 @@ const EventsTileLayers = ({ onEventClick }) => {
     <EventsClusterSymbolsLayer onEventClick={onEventClick} />
 
     {!!spriteFeatureCollection.features.length && <MapImageFromSvgSpriteRenderer
-      reportFeatureCollection={spriteFeatureCollection}
+      eventFeatureCollection={spriteFeatureCollection}
     />}
   </>;
 };
