@@ -1,7 +1,9 @@
 import { centroid, featureCollection } from '@turf/turf';
 import mapboxgl from 'mapbox-gl';
 
+import { calcGenericFallbackImageUrl, calcSpriteSvgUrl } from '../utils/img';
 import { CLUSTER_CLICK_ZOOM_THRESHOLD, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
+import { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
 import { subjectIsStatic } from '../utils/subjects';
 import { injectStylesToElement } from '../utils/styles';
 import { hashCode } from '../utils/string';
@@ -24,7 +26,7 @@ const FEATURE_SS_ICON_HTML_STYLES = { filter: 'brightness(0)' };
 const FEATURE_COUNT_HTML_STYLES = { fontSize: '16px', fontWeight: '500', paddingLeft: '4px', margin: '0' };
 
 const getFeatureIcon = (feature, mapImages) =>
-  mapImages[`${feature.properties.icon_id}-${feature.properties.priority}`]?.image;
+  mapImages[calcSvgImageIconId(feature.properties)]?.image;
 
 export const getClusterIconFeatures = (clusterFeatures) => {
   const { eventFeatures, subjectFeatures } = clusterFeatures.reduce((accumulator, feature) => {
@@ -67,6 +69,44 @@ export const getClusterIconFeatures = (clusterFeatures) => {
   return clusterIconFeatures.slice(0, CLUSTER_ICON_DISPLAY_LENGTH);
 };
 
+const populateClusterIconChildren = (clusterHTMLMarkerContainer, clusterIconFeatures, totalFeatureCount, mapImages) => {
+  while (clusterHTMLMarkerContainer.firstChild) {
+    clusterHTMLMarkerContainer.removeChild(clusterHTMLMarkerContainer.firstChild);
+  }
+
+  clusterIconFeatures.forEach((feature) => {
+    let featureImageHTML = getFeatureIcon(feature, mapImages)?.cloneNode(true);
+    if (!featureImageHTML) {
+      featureImageHTML = document.createElement('img');
+      // Event features' own image/image_url from the vector tile is unreliable
+      // so fall back to the uncolored sprite master until mapImages resolves.
+      // That master doesn't exist for every icon_id either, so if it also
+      // fails to load, drop to the generic per-color icon.
+      if (feature.properties.icon_id) {
+        featureImageHTML.src = calcSpriteSvgUrl(feature.properties.icon_id);
+        featureImageHTML.onerror = () => {
+          featureImageHTML.onerror = null;
+          featureImageHTML.src = calcGenericFallbackImageUrl(feature.properties);
+        };
+      } else {
+        featureImageHTML.src = feature.properties.image || feature.properties.image_url;
+      }
+    }
+    injectStylesToElement(featureImageHTML, FEATURE_ICON_HTML_STYLES);
+    if (subjectIsStatic(feature)) {
+      injectStylesToElement(featureImageHTML, FEATURE_SS_ICON_HTML_STYLES);
+    }
+    clusterHTMLMarkerContainer.appendChild(featureImageHTML);
+  });
+
+  if (totalFeatureCount > CLUSTER_ICON_DISPLAY_LENGTH) {
+    const featuresCountHTML = document.createElement('p');
+    featuresCountHTML.innerHTML = `+${totalFeatureCount - CLUSTER_ICON_DISPLAY_LENGTH}`;
+    injectStylesToElement(featuresCountHTML, FEATURE_COUNT_HTML_STYLES);
+    clusterHTMLMarkerContainer.appendChild(featuresCountHTML);
+  }
+};
+
 export const createClusterHTMLMarker = (
   clusterFeatures,
   mapImages,
@@ -80,25 +120,12 @@ export const createClusterHTMLMarker = (
   clusterHTMLMarkerContainer.onmouseleave = onMouseLeaveCluster;
   injectStylesToElement(clusterHTMLMarkerContainer, CLUSTER_HTML_MARKER_CONTAINER_STYLES);
 
-  getClusterIconFeatures(clusterFeatures).forEach((feature) => {
-    let featureImageHTML = getFeatureIcon(feature, mapImages)?.cloneNode(true);
-    if (!featureImageHTML) {
-      featureImageHTML = document.createElement('img');
-      featureImageHTML.src = feature.properties.image || feature.properties.image_url;
-    }
-    injectStylesToElement(featureImageHTML, FEATURE_ICON_HTML_STYLES);
-    if (subjectIsStatic(feature)) {
-      injectStylesToElement(featureImageHTML, FEATURE_SS_ICON_HTML_STYLES);
-    }
-    clusterHTMLMarkerContainer.appendChild(featureImageHTML);
-  });
-
-  if (clusterFeatures.length > CLUSTER_ICON_DISPLAY_LENGTH) {
-    const featuresCountHTML = document.createElement('p');
-    featuresCountHTML.innerHTML = `+${clusterFeatures.length - CLUSTER_ICON_DISPLAY_LENGTH}`;
-    injectStylesToElement(featuresCountHTML, FEATURE_COUNT_HTML_STYLES);
-    clusterHTMLMarkerContainer.appendChild(featuresCountHTML);
-  }
+  populateClusterIconChildren(
+    clusterHTMLMarkerContainer,
+    getClusterIconFeatures(clusterFeatures),
+    clusterFeatures.length,
+    mapImages
+  );
 
   return clusterHTMLMarkerContainer;
 };
@@ -181,8 +208,14 @@ export const addNewClusterMarkers = (
     const clusterHash = renderedClusterHashes[index];
     const clusterId = renderedClusterIds[index];
 
-    let marker = clusterMarkerHashMapRef.current[clusterHash]?.marker
-      || renderedClusterMarkersHashMap[clusterHash]?.marker;
+    const cachedEntry = clusterMarkerHashMapRef.current[clusterHash] || renderedClusterMarkersHashMap[clusterHash];
+    let marker = cachedEntry?.marker;
+    const wasReady = cachedEntry?.iconsReady;
+
+    const clusterIconFeatures = wasReady ? null : getClusterIconFeatures(clusterFeatures);
+    const iconsReady = wasReady || clusterIconFeatures
+      .every((feature) => !feature.properties.icon_id || !!getFeatureIcon(feature, mapImages));
+
     if (!marker) {
       const clusterFeatureCollection = featureCollection(clusterFeatures);
       const clusterPoint = centroid(clusterFeatureCollection);
@@ -198,7 +231,7 @@ export const addNewClusterMarkers = (
       const onMouseOver = () => addClusterPolygon(clusterFeatureCollection);
       const onMouseLeave = () => removeClusterPolygon();
 
-      let newClusterHTMLMarkerContainer = createClusterHTMLMarker(
+      const newClusterHTMLMarkerContainer = createClusterHTMLMarker(
         clusterFeatures,
         mapImages,
         onClick,
@@ -209,9 +242,11 @@ export const addNewClusterMarkers = (
       marker = new mapboxgl.Marker(newClusterHTMLMarkerContainer)
         .setLngLat(clusterPoint.geometry.coordinates)
         .addTo(map);
+    } else if (!wasReady && iconsReady) {
+      populateClusterIconChildren(marker.getElement(), clusterIconFeatures, clusterFeatures.length, mapImages);
     }
 
-    renderedClusterMarkersHashMap[clusterHash] = { id: clusterId, marker };
+    renderedClusterMarkersHashMap[clusterHash] = { iconsReady, id: clusterId, marker };
   });
 
   return renderedClusterMarkersHashMap;

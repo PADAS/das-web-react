@@ -3,8 +3,8 @@ import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { addImageToMapIfNecessary } from '../ducks/map-images';
+import { calcGenericFallbackImageUrl, calcSpriteSvgUrl, calcUrlForImage, imgElFromSrc } from '../utils/img';
 import { calcIconColorByPriority } from '../utils/event-types';
-import { calcSpriteSvgUrl, calcUrlForImage, imgElFromSrc } from '../utils/img';
 import { MAP_ICON_SIZE, MAP_ICON_SCALE } from '../constants';
 
 const EMPTY_FEATURE_COLLECTION = { features: [] };
@@ -33,6 +33,9 @@ const calcScaledIconDimensions = ({ height, width = MAP_ICON_SIZE }) => [
   width * MAP_ICON_SCALE,
   height ? height * MAP_ICON_SCALE : undefined,
 ];
+
+const renderGenericColorFallbackImage = (event) =>
+  imgElFromSrc(calcGenericFallbackImageUrl(event), ...calcScaledIconDimensions(event));
 
 // Recolors an event icon's SVG markup for the event's priority and rasterizes
 // it into an <img> element via a data URI.
@@ -95,16 +98,25 @@ const MapImageFromSvgSpriteRenderer = ({ eventFeatureCollection = EMPTY_FEATURE_
         dispatch(addImageToMapIfNecessary({ icon_id: iconVariantId, image }));
       } catch (error) {
         if (isClientError(error?.response?.status)) {
+          // A 4xx failure is permanent (the sprite won't appear on retry), so
+          // lock in a usable fallback: the event's own image, then a generic
+          // per-color icon, so the event never renders without any icon.
           try {
             const image = await renderFallbackEventImage(event);
             dispatch(addImageToMapIfNecessary({ icon_id: iconVariantId, image }));
-          } catch (fallbackError) {
-            console.warn('map icon fallback image failed to load', fallbackError);
+          } catch {
+            try {
+              const image = await renderGenericColorFallbackImage(event);
+              dispatch(addImageToMapIfNecessary({ icon_id: iconVariantId, image }));
+            } catch (genericError) {
+              console.warn('map icon fallback image failed to load', genericError);
+            }
           }
         } else {
-          // the fetched markup itself may be what's causing generation to
-          // fail. Drop it so the next attempt re-fetches from the server
-          // instead of repeating the same failure.
+          // A transient (5xx/network) or generation failure may succeed later.
+          // The cached markup itself may be the culprit, so drop it, and leave
+          // the icon unregistered so a later pass re-fetches instead of pinning
+          // a degraded fallback the write-once store would never replace.
           delete spriteMarkupCache.current[spriteIconId];
           console.warn('failed to generate map icon from sprite', error);
         }
