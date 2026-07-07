@@ -1,5 +1,6 @@
 import React from 'react';
 import { featureCollection, point } from '@turf/turf';
+import mapboxgl from 'mapbox-gl';
 import { Provider } from 'react-redux';
 import { render, waitFor } from '@testing-library/react';
 
@@ -11,7 +12,7 @@ import {
   onClusterClick,
   removeOldClusterMarkers,
 } from './utils';
-import { CLUSTER_CLICK_ZOOM_THRESHOLD, SOURCE_IDS } from '../constants';
+import { CLUSTER_CLICK_ZOOM_THRESHOLD, CLUSTER_ICON_UPDATE_DEBOUNCE_MS, SOURCE_IDS } from '../constants';
 import ClustersLayer from '.';
 import { createMapMock, createMockInteractionEvent } from '../__test-helpers/mocks';
 import { mockStore } from '../__test-helpers/MockStore';
@@ -211,6 +212,79 @@ describe('ClustersLayer', () => {
         expect(mapMarkers).toHaveLength(2);
         expect(mapMarkers[1]).toBe(notReadyClusterMarker);
       });
+    });
+
+    test('debounces a burst of mapImages updates into a single requery instead of one per icon', async () => {
+      unmount();
+      mapMarkers.length = 0;
+
+      const fullMapImages = buildMapImagesForFeatures([...mockClusterLeaves[0], ...mockClusterLeaves[1]]);
+      const { 'jenaeonefield-200': omitted, ...incompleteMapImages } = fullMapImages;
+      expect(omitted).toBeDefined();
+
+      ({ rerender } = render(
+        <Provider store={buildStore(incompleteMapImages)}>
+          <MapContext.Provider value={map}>
+            <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
+          </MapContext.Provider>
+        </Provider>
+      ));
+      map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
+
+      await waitFor(() => {
+        expect(mapMarkers).toHaveLength(2);
+      });
+
+      const queryCallsBeforeBurst = map.queryRenderedFeatures.mock.calls.length;
+
+      // Several icon resolutions land in quick succession, as they would
+      // during initial load, each re-rendering with one more resolved key.
+      renderWithMapImages({ ...incompleteMapImages, icon_a: { image: document.createElement('img') } });
+      renderWithMapImages({
+        ...incompleteMapImages,
+        icon_a: { image: document.createElement('img') },
+        icon_b: { image: document.createElement('img') },
+      });
+      renderWithMapImages(fullMapImages);
+
+      // Still within the debounce window: no requery yet.
+      jest.advanceTimersByTime(CLUSTER_ICON_UPDATE_DEBOUNCE_MS - 50);
+      expect(map.queryRenderedFeatures.mock.calls.length).toBe(queryCallsBeforeBurst);
+
+      await waitFor(() => {
+        // A single requery for the whole burst, not one per intermediate update.
+        expect(map.queryRenderedFeatures.mock.calls.length).toBe(queryCallsBeforeBurst + 1);
+      });
+    });
+
+    test('skips the requery entirely once every tracked cluster already has its icons', async () => {
+      unmount();
+      mapMarkers.length = 0;
+
+      const fullMapImages = buildMapImagesForFeatures([...mockClusterLeaves[0], ...mockClusterLeaves[1]]);
+
+      ({ rerender } = render(
+        <Provider store={buildStore(fullMapImages)}>
+          <MapContext.Provider value={map}>
+            <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
+          </MapContext.Provider>
+        </Provider>
+      ));
+      map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
+
+      await waitFor(() => {
+        expect(mapMarkers).toHaveLength(2);
+      });
+
+      const queryCallsWhileReady = map.queryRenderedFeatures.mock.calls.length;
+
+      // An icon resolves for something else on the map entirely — both
+      // clusters already have every icon they need, so there's nothing to
+      // requery for.
+      renderWithMapImages({ ...fullMapImages, 'unrelated_icon-100': { image: document.createElement('img') } });
+      jest.advanceTimersByTime(CLUSTER_ICON_UPDATE_DEBOUNCE_MS * 2);
+
+      expect(map.queryRenderedFeatures.mock.calls.length).toBe(queryCallsWhileReady);
     });
 
     test('each marker has three icons and a number indicating how many features it has', async () => {
@@ -705,6 +779,39 @@ describe('ClustersLayer', () => {
       expect(staleMarker.remove).toHaveBeenCalledTimes(1);
       expect(renderedClusterMarkersHashMap.pending.marker).not.toBe(staleMarker);
       expect(renderedClusterMarkersHashMap.pending.iconsReady).toBe(true);
+    });
+
+    test('does not remove the old marker if building its replacement throws', () => {
+      const staleMarker = { remove: jest.fn() };
+      const upgradingClusterMarkerHashMapRef = {
+        current: { pending: { marker: staleMarker, iconsReady: false } },
+      };
+      const pendingClusterFeatures = [[{
+        geometry: { type: 'Point', coordinates: [0, 0] },
+        properties: { id: '10', icon_id: 'snare_rep', priority: 200 },
+        type: 'Feature',
+      }]];
+
+      const addToSpy = jest.spyOn(mapboxgl.Marker.prototype, 'addTo').mockImplementationOnce(() => {
+        throw new Error('addTo failed');
+      });
+
+      expect(() => addNewClusterMarkers(
+        onClusterMouseEnter,
+        upgradingClusterMarkerHashMapRef,
+        clustersSource,
+        map,
+        { 'snare_rep-200': { image: document.createElement('img') } },
+        onClusterMouseLeave,
+        pendingClusterFeatures,
+        ['pending'],
+        ['ijkl'],
+        onShowClusterSelectPopup
+      )).toThrow('addTo failed');
+
+      expect(staleMarker.remove).not.toHaveBeenCalled();
+
+      addToSpy.mockRestore();
     });
   });
 

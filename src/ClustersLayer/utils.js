@@ -203,10 +203,10 @@ export const addNewClusterMarkers = (
 
     const cachedEntry = clusterMarkerHashMapRef.current[clusterHash] || renderedClusterMarkersHashMap[clusterHash];
     let marker = cachedEntry?.marker;
-    let iconsReady = cachedEntry?.iconsReady;
-    if (!marker || (!iconsReady && clusterIconsAreReady(clusterFeatures, mapImages))) {
-      marker?.remove();
+    const wasReady = cachedEntry?.iconsReady;
+    const iconsReady = wasReady || clusterIconsAreReady(clusterFeatures, mapImages);
 
+    if (!marker || (!wasReady && iconsReady)) {
       const clusterFeatureCollection = featureCollection(clusterFeatures);
       const clusterPoint = centroid(clusterFeatureCollection);
       const onClick = onClusterClick(
@@ -229,10 +229,12 @@ export const addNewClusterMarkers = (
         onMouseLeave,
       );
 
-      marker = new mapboxgl.Marker(newClusterHTMLMarkerContainer)
+      const newMarker = new mapboxgl.Marker(newClusterHTMLMarkerContainer)
         .setLngLat(clusterPoint.geometry.coordinates)
         .addTo(map);
-      iconsReady = clusterIconsAreReady(clusterFeatures, mapImages);
+
+      marker?.remove();
+      marker = newMarker;
     }
 
     renderedClusterMarkersHashMap[clusterHash] = { iconsReady, id: clusterId, marker };

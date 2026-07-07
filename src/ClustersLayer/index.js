@@ -3,7 +3,14 @@ import { featureCollection } from '@turf/turf';
 import { useSelector } from 'react-redux';
 
 import { addNewClusterMarkers, getRenderedClustersData, removeOldClusterMarkers } from './utils';
-import { CLUSTERS_MAX_ZOOM, CLUSTERS_RADIUS, LAYER_IDS, PREVIEW_FEATURES, SOURCE_IDS } from '../constants';
+import {
+  CLUSTER_ICON_UPDATE_DEBOUNCE_MS,
+  CLUSTERS_MAX_ZOOM,
+  CLUSTERS_RADIUS,
+  LAYER_IDS,
+  PREVIEW_FEATURES,
+  SOURCE_IDS,
+} from '../constants';
 import { getMapEventSymbolPointsWithVirtualDate } from '../selectors/events';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { MapContext } from '../MapContext';
@@ -47,6 +54,7 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
 
   const clusterMarkerHashMapRef = useRef({});
   const latestClusterUpdateRunIdRef = useRef(0);
+  const mapImagesUpdateTimeoutRef = useRef(null);
 
   const clustersSourceData = useMemo(() => {
     // Cluster the event features from both the tiles and realtime overlay.
@@ -121,8 +129,19 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
 
   useEffect(() => {
     // Re-run the update pass whenever it changes so clusters built with
-    // missing icons pick up the real ones when mapImages resolves.
-    updateClusterMarkersCallback();
+    // missing icons pick up the real ones when mapImages resolves. Skip the
+    // requery entirely once no tracked cluster needs one.
+    const hasClusterAwaitingIcons = Object.values(clusterMarkerHashMapRef.current)
+      .some((entry) => !entry.iconsReady);
+
+    if (!hasClusterAwaitingIcons) {
+      return undefined;
+    }
+
+    clearTimeout(mapImagesUpdateTimeoutRef.current);
+    mapImagesUpdateTimeoutRef.current = setTimeout(updateClusterMarkersCallback, CLUSTER_ICON_UPDATE_DEBOUNCE_MS);
+
+    return () => clearTimeout(mapImagesUpdateTimeoutRef.current);
   }, [updateClusterMarkersCallback]);
 
   const onSourceData = useMemo(() => (event) => {

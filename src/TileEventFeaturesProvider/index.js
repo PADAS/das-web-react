@@ -17,6 +17,8 @@ import { usePreviewFeature } from '../hooks';
 const CENTROID_SOURCE_LAYER = 'event_centroids';
 const POINT_SOURCE_LAYER = 'events';
 
+const EVENT_TYPES_WAIT_TIMEOUT_MS = 10000;
+
 // Reads the events currently rendered in the vector tiles, normalizes them to
 // plain event features, and provides them through context.
 const TileEventFeaturesProvider = ({ children }) => {
@@ -40,12 +42,13 @@ const TileEventFeaturesProvider = ({ children }) => {
   // from refs rather than closing over them, that keeps it stable and avoids
   // re-binding the listeners on every change.
   const enabledRef = useRef(eventVectorTilesEnabled);
+  const eventTypesWaitTimedOutRef = useRef(false);
   const eventTypeValueMapRef = useRef(eventTypeValueMap);
+  const excludedIdsRef = useRef(new Set(tileExcludedEventIds));
   // Bumped on every input change so the republish signature differs even when
   // the id set is the same.
   const inputsVersionRef = useRef(0);
   const lastSignatureRef = useRef(null);
-  const excludedIdsRef = useRef(new Set(tileExcludedEventIds));
   const timeSliderRef = useRef(timeSliderParameters);
 
   const [tileFeatures, setTileFeatures] = useState(EMPTY_TILE_EVENT_FEATURES);
@@ -64,8 +67,9 @@ const TileEventFeaturesProvider = ({ children }) => {
     }
 
     // Event types haven't loaded yet, every feature would normalize to the
-    // 'generic' icon fallback.
-    if (!eventTypeValueMapRef.current.size) {
+    // 'generic' icon fallback. Wait, unless a failed/empty event-types fetch
+    // would otherwise hide every event on the map forever.
+    if (!eventTypeValueMapRef.current.size && !eventTypesWaitTimedOutRef.current) {
       publishEmpty();
       return;
     }
@@ -134,6 +138,19 @@ const TileEventFeaturesProvider = ({ children }) => {
 
     recompute();
   }, [eventVectorTilesEnabled, tileExcludedEventIds, timeSliderParameters, eventTypeValueMap, recompute]);
+
+  useEffect(() => {
+    if (eventTypeValueMap.size) {
+      return undefined;
+    }
+
+    const timeoutId = setTimeout(() => {
+      eventTypesWaitTimedOutRef.current = true;
+      recompute();
+    }, EVENT_TYPES_WAIT_TIMEOUT_MS);
+
+    return () => clearTimeout(timeoutId);
+  }, [eventTypeValueMap, recompute]);
 
   useEffect(() => {
     // Recompute when the rendered tiles change.

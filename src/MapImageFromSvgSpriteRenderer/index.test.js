@@ -304,6 +304,43 @@ describe('MapImageFromSvgSpriteRenderer', () => {
     expect(dispatchedIconIdsFrom(store)).toEqual([calcSvgImageIconId(event)]);
   });
 
+  it('drops the cached sprite markup when recoloring it fails, so a later variant retries the fetch', async () => {
+    const firstEvent = { icon_id: 'fire', priority: 200 };
+    const secondEvent = { icon_id: 'fire', priority: 300 };
+    const store = mockStore({ view: { mapImages: {} } });
+
+    const { rerender } = render(
+      <Provider store={store}>
+        <MapImageFromSvgSpriteRenderer eventFeatureCollection={featureCollectionFromEvents([firstEvent])} />
+      </Provider>
+    );
+
+    await act(async () => {
+      await flushPromises();
+    });
+
+    expect(axios.get).toHaveBeenCalledTimes(1);
+
+    // the sprite fetch succeeded (markup cached), but recoloring it into an image failed
+    await act(async () => {
+      const [coloredImage] = global.Image.mock.results.map((result) => result.value);
+      coloredImage.onerror(new Error('recolor failed'));
+      await flushPromises();
+    });
+
+    await act(async () => {
+      rerender(
+        <Provider store={store}>
+          <MapImageFromSvgSpriteRenderer eventFeatureCollection={featureCollectionFromEvents([secondEvent])} />
+        </Provider>
+      );
+      await flushPromises();
+    });
+
+    // a fresh fetch means the bad cache entry was dropped rather than reused for the new priority variant
+    expect(axios.get).toHaveBeenCalledTimes(2);
+  });
+
   it('uses the vector-tile image path as-is for the fallback, without guessing at a different path', async () => {
     axios.get.mockRejectedValueOnce({ response: { status: 404 } });
 

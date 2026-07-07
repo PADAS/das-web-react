@@ -117,8 +117,9 @@ const MapImageFromSvgSpriteRenderer = ({ eventFeatureCollection = EMPTY_FEATURE_
         const image = await renderColoredIconImage(svgMarkup, event);
         dispatch(addImageToMapIfNecessary({ icon_id: iconVariantId, image }));
       } catch (error) {
+        delete spriteMarkupCache.current[spriteIconId];
+
         if (isRetryableServerError(error?.response?.status)) {
-          delete spriteMarkupCache.current[spriteIconId];
           console.warn('failed to generate map icon from sprite', error);
         } else {
           try {
