@@ -58,8 +58,7 @@ const renderColoredIconImage = (svgMarkup, event) => {
   return imgElFromSrc(dataUri, ...calcScaledIconDimensions(event));
 };
 
-const renderFallbackEventImage = (event) =>
-  imgElFromSrc(calcUrlForImage(event.image), ...calcScaledIconDimensions(event));
+const renderFallbackEventImage = (event) => imgElFromSrc(calcUrlForImage(event.image), ...calcScaledIconDimensions(event));
 
 const MapImageFromSvgSpriteRenderer = ({ eventFeatureCollection = EMPTY_FEATURE_COLLECTION }) => {
   const dispatch = useDispatch();
