@@ -228,8 +228,59 @@ describe('MapImageFromSvgSpriteRenderer', () => {
     expect(axios.get).toHaveBeenCalledWith(expect.stringContaining('/generic.svg'), expect.anything());
   });
 
+  it('retries with a "_rep" suffix when the bare icon_id has no sprite entry, rendering the real icon ' +
+    'instead of falling back to generic (mirrors DasIcon\'s header/sidebar icon resolution)', async () => {
+    axios.get
+      .mockRejectedValueOnce({ response: { status: 404 } })
+      .mockResolvedValueOnce({ data: SVG_MARKUP });
+
+    const event = { icon_id: 'geofence_break', priority: 200 };
+    const store = mockStore({ view: { mapImages: {} } });
+
+    await act(async () => {
+      render(
+        <Provider store={store}>
+          <MapImageFromSvgSpriteRenderer eventFeatureCollection={featureCollectionFromEvents([event])} />
+        </Provider>
+      );
+      await flushPromises();
+    });
+
+    expect(axios.get).toHaveBeenCalledTimes(2);
+    expect(axios.get).toHaveBeenNthCalledWith(1, expect.stringContaining('/geofence_break.svg'), expect.anything());
+    expect(axios.get).toHaveBeenNthCalledWith(2, expect.stringContaining('/geofence_break_rep.svg'), expect.anything());
+
+    await act(async () => {
+      loadCallbacks.forEach((callback) => callback());
+      await flushPromises();
+    });
+
+    expect(global.Image.mock.results[0].value.src).toMatch(/^data:image\/svg\+xml/);
+    expect(dispatchedIconIdsFrom(store)).toEqual([calcSvgImageIconId(event)]);
+  });
+
+  it('does not retry with a doubled "_rep" suffix when the icon_id already ends in "_rep"', async () => {
+    axios.get.mockRejectedValue({ response: { status: 404 } });
+
+    const event = { icon_id: 'snare_rep', priority: 200, image: 'snare.png' };
+    const store = mockStore({ view: { mapImages: {} } });
+
+    await act(async () => {
+      render(
+        <Provider store={store}>
+          <MapImageFromSvgSpriteRenderer eventFeatureCollection={featureCollectionFromEvents([event])} />
+        </Provider>
+      );
+      await flushPromises();
+    });
+
+    expect(axios.get).toHaveBeenCalledTimes(1);
+  });
+
   it('falls back to the event\'s own image when the event type has no sprite entry', async () => {
-    axios.get.mockRejectedValueOnce({ response: { status: 404 } });
+    // Rejects both the bare icon_id attempt and the "_rep" suffix retry, simulating an icon_id with
+    // no sprite entry under either name.
+    axios.get.mockRejectedValue({ response: { status: 404 } });
 
     const event = { icon_id: 'custom-marker', priority: 100, image: 'custom-marker.png' };
     const store = mockStore({ view: { mapImages: {} } });
@@ -317,7 +368,9 @@ describe('MapImageFromSvgSpriteRenderer', () => {
   });
 
   it('uses the vector-tile image path as-is for the fallback, without guessing at a different path', async () => {
-    axios.get.mockRejectedValueOnce({ response: { status: 404 } });
+    // Rejects both the bare icon_id attempt and the "_rep" suffix retry, simulating an icon_id with
+    // no sprite entry under either name.
+    axios.get.mockRejectedValue({ response: { status: 404 } });
 
     const event = {
       icon_id: 'hydrophone_detection',
@@ -340,7 +393,9 @@ describe('MapImageFromSvgSpriteRenderer', () => {
   });
 
   it('falls back to the generic per-color icon when the event\'s own fallback image also fails to load, so the map is never left with a permanently broken icon', async () => {
-    axios.get.mockRejectedValueOnce({ response: { status: 404 } });
+    // Rejects both the bare icon_id attempt and the "_rep" suffix retry, simulating an icon_id with
+    // no sprite entry under either name.
+    axios.get.mockRejectedValue({ response: { status: 404 } });
 
     const event = { icon_id: 'custom-marker', priority: 100, image: 'custom-marker.png' };
     const store = mockStore({ view: { mapImages: {} } });
@@ -373,7 +428,9 @@ describe('MapImageFromSvgSpriteRenderer', () => {
   });
 
   it('uses the tile-provided color for the generic fallback when the event carries one', async () => {
-    axios.get.mockRejectedValueOnce({ response: { status: 404 } });
+    // Rejects both the bare icon_id attempt and the "_rep" suffix retry, simulating an icon_id with
+    // no sprite entry under either name.
+    axios.get.mockRejectedValue({ response: { status: 404 } });
 
     const event = { icon_id: 'custom-marker', priority: 100, color: 'lt_gray', image: 'custom-marker.png' };
     const store = mockStore({ view: { mapImages: {} } });
@@ -397,7 +454,9 @@ describe('MapImageFromSvgSpriteRenderer', () => {
   });
 
   it('logs a warning when the event\'s own fallback image and the generic per-color fallback both fail to load', async () => {
-    axios.get.mockRejectedValueOnce({ response: { status: 404 } });
+    // Rejects both the bare icon_id attempt and the "_rep" suffix retry, simulating an icon_id with
+    // no sprite entry under either name.
+    axios.get.mockRejectedValue({ response: { status: 404 } });
 
     const event = { icon_id: 'custom-marker', priority: 100, image: 'custom-marker.png' };
     const store = mockStore({ view: { mapImages: {} } });

@@ -184,7 +184,7 @@ export const removeOldClusterMarkers = (clusterMarkerHashMapRef, removeClusterPo
   const prevClusterHashes = Object.keys(clusterMarkerHashMapRef.current).map((clusterHash) => parseInt(clusterHash));
   prevClusterHashes.forEach((prevClusterHash) => {
     if (!renderedClusterHashesSet.has(prevClusterHash)) {
-      clusterMarkerHashMapRef.current[prevClusterHash].marker.remove();
+      clusterMarkerHashMapRef.current[prevClusterHash].marker?.remove();
       removeClusterPolygon();
     }
   });
@@ -216,7 +216,8 @@ export const addNewClusterMarkers = (
     const iconsReady = wasReady || clusterIconFeatures
       .every((feature) => !feature.properties.icon_id || !!getFeatureIcon(feature, mapImages));
 
-    if (!marker) {
+    // Wait for every displayed icon to resolve before creating the marker.
+    if (!marker && iconsReady) {
       const clusterFeatureCollection = featureCollection(clusterFeatures);
       const clusterPoint = centroid(clusterFeatureCollection);
       const onClick = onClusterClick(

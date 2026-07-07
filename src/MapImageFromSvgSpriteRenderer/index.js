@@ -11,6 +11,8 @@ const EMPTY_FEATURE_COLLECTION = { features: [] };
 
 const isClientError = (status) => typeof status === 'number' && status >= 400 && status < 500;
 
+const REP_SUFFIX = '_rep';
+
 // Builds the map-image cache key for an event's icon. Must match the suffix order
 // used by the Mapbox icon-image expressions (icon_id-priority-width-height).
 export const calcSvgImageIconId = ({ icon_id, priority, width, height }) => {
@@ -27,6 +29,17 @@ const fetchSpriteSvgMarkup = async (spriteIconId) => {
   });
 
   return response.data;
+};
+
+const fetchSpriteSvgMarkupWithRepFallback = async (spriteIconId) => {
+  try {
+    return await fetchSpriteSvgMarkup(spriteIconId);
+  } catch (error) {
+    if (isClientError(error?.response?.status) && !spriteIconId.endsWith(REP_SUFFIX)) {
+      return fetchSpriteSvgMarkup(`${spriteIconId}${REP_SUFFIX}`);
+    }
+    throw error;
+  }
 };
 
 const calcScaledIconDimensions = ({ height, width = MAP_ICON_SIZE }) => [
@@ -79,7 +92,7 @@ const MapImageFromSvgSpriteRenderer = ({ eventFeatureCollection = EMPTY_FEATURE_
       if (!spriteFetchesInFlight.current[spriteIconId]) {
         spriteFetchesInFlight.current[spriteIconId] = (async () => {
           try {
-            const svgMarkup = await fetchSpriteSvgMarkup(spriteIconId);
+            const svgMarkup = await fetchSpriteSvgMarkupWithRepFallback(spriteIconId);
             spriteMarkupCache.current[spriteIconId] = svgMarkup;
             return svgMarkup;
           } finally {
