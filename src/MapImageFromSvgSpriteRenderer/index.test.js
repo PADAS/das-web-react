@@ -253,7 +253,7 @@ describe('MapImageFromSvgSpriteRenderer', () => {
     expect(dispatchedIconIdsFrom(store)).toEqual([calcSvgImageIconId(event)]);
   });
 
-  it('logs a warning and drops the sprite cache entry when the sprite fetch fails with a 5xx', async () => {
+  it('schedules a retry instead of falling back when the sprite fetch fails with a 5xx', async () => {
     axios.get.mockRejectedValueOnce({ response: { status: 503 } });
 
     const event = { icon_id: 'fire', priority: 200 };
@@ -268,9 +268,49 @@ describe('MapImageFromSvgSpriteRenderer', () => {
       await flushPromises();
     });
 
-    expect(console.warn).toHaveBeenCalledWith('failed to generate map icon from sprite', expect.any(Object));
+    // A transient (retryable) failure must not lock in a fallback image, so a
+    // later successful fetch can still win once the backend recovers.
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining('retrying'),
+      expect.any(Object)
+    );
     expect(global.Image).not.toHaveBeenCalled();
     expect(dispatchedIconIdsFrom(store)).toEqual([]);
+  });
+
+  it('falls back to the event image once a persistently-failing 5xx sprite fetch exhausts its retries', async () => {
+    jest.useFakeTimers();
+    axios.get.mockRejectedValue({ response: { status: 503 } });
+
+    const event = { icon_id: 'custom-marker', priority: 100, image: 'custom-marker.png' };
+    const store = mockStore({ view: { mapImages: {} } });
+
+    render(
+      <Provider store={store}>
+        <MapImageFromSvgSpriteRenderer eventFeatureCollection={featureCollectionFromEvents([event])} />
+      </Provider>
+    );
+
+    await act(async () => {
+      // First attempt fails immediately; the remaining attempts are each
+      // gated behind a retry delay.
+      for (let attempt = 0; attempt < 4; attempt += 1) {
+        await jest.advanceTimersByTimeAsync(5000);
+      }
+    });
+
+    expect(axios.get).toHaveBeenCalledTimes(5);
+    expect(global.Image).toHaveBeenCalledTimes(1);
+    expect(global.Image.mock.results[0].value.src).toBe(calcUrlForImage(event.image));
+
+    await act(async () => {
+      loadCallbacks.forEach((callback) => callback());
+      await jest.runOnlyPendingTimersAsync();
+    });
+
+    expect(dispatchedIconIdsFrom(store)).toEqual([calcSvgImageIconId(event)]);
+
+    jest.useRealTimers();
   });
 
   it('falls back when the sprite fetch fails with no readable response', async () => {

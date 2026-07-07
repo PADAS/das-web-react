@@ -3,15 +3,16 @@ import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { addImageToMapIfNecessary } from '../ducks/map-images';
+import { calcGenericFallbackImageUrl, calcSpriteSvgUrl, calcUrlForImage, imgElFromSrc } from '../utils/img';
 import { calcIconColorByPriority } from '../utils/event-types';
-import { calcSpriteSvgUrl, calcUrlForImage, imgElFromSrc } from '../utils/img';
 import { MAP_ICON_SIZE, MAP_ICON_SCALE } from '../constants';
 
 const EMPTY_FEATURE_COLLECTION = { features: [] };
-const PRIORITY_TO_BACKEND_ICON_COLOR = { 0: 'gray', 100: 'med_green', 200: 'amber', 300: 'red' };
-const RESOLVED_EVENT_ICON_COLOR = 'lt_gray';
 
 const isRetryableServerError = (status) => typeof status === 'number' && status >= 500;
+
+const MAX_SPRITE_RETRY_ATTEMPTS = 5;
+const SPRITE_RETRY_DELAY_MS = 5000;
 
 // Builds the map-image cache key for an event's icon. Must match the suffix order
 // used by the Mapbox icon-image expressions (icon_id-priority-width-height).
@@ -35,23 +36,6 @@ const calcScaledIconDimensions = ({ height, width = MAP_ICON_SIZE }) => [
   width * MAP_ICON_SCALE,
   height ? height * MAP_ICON_SCALE : undefined,
 ];
-
-// Mirrors the backend's priority/state -> icon-color-name mapping for events
-// that don't already carry a tile-resolved `color` property.
-const calcBackendIconColorName = (event) => {
-  if (event.color) {
-    return event.color;
-  }
-
-  if (event.state === 'resolved') {
-    return RESOLVED_EVENT_ICON_COLOR;
-  }
-
-  return PRIORITY_TO_BACKEND_ICON_COLOR[event.priority] ?? 'black';
-};
-
-export const calcGenericFallbackImageUrl = (event) =>
-  calcUrlForImage(`/static/generic-${calcBackendIconColorName(event)}.svg`);
 
 const renderGenericColorFallbackImage = (event) =>
   imgElFromSrc(calcGenericFallbackImageUrl(event), ...calcScaledIconDimensions(event));
@@ -89,6 +73,11 @@ const MapImageFromSvgSpriteRenderer = ({ eventFeatureCollection = EMPTY_FEATURE_
   const spriteMarkupCache = useRef({});
   const spriteFetchesInFlight = useRef({});
   const iconsBeingGenerated = useRef(new Set());
+  const spriteRetryTimeouts = useRef({});
+
+  useEffect(() => () => {
+    Object.values(spriteRetryTimeouts.current).forEach(clearTimeout);
+  }, []);
 
   useEffect(() => {
     const getSpriteSvgMarkup = (spriteIconId) => {
@@ -111,7 +100,7 @@ const MapImageFromSvgSpriteRenderer = ({ eventFeatureCollection = EMPTY_FEATURE_
       return spriteFetchesInFlight.current[spriteIconId];
     };
 
-    const resolveAndRegisterIcon = async ({ event, iconVariantId, spriteIconId }) => {
+    const resolveAndRegisterIcon = async ({ event, iconVariantId, spriteIconId }, attempt = 1) => {
       try {
         const svgMarkup = await getSpriteSvgMarkup(spriteIconId);
         const image = await renderColoredIconImage(svgMarkup, event);
@@ -119,19 +108,30 @@ const MapImageFromSvgSpriteRenderer = ({ eventFeatureCollection = EMPTY_FEATURE_
       } catch (error) {
         delete spriteMarkupCache.current[spriteIconId];
 
+        if (isRetryableServerError(error?.response?.status) && attempt < MAX_SPRITE_RETRY_ATTEMPTS) {
+          console.warn(`failed to generate map icon from sprite, retrying (attempt ${attempt})`, error);
+
+          spriteRetryTimeouts.current[iconVariantId] = setTimeout(() => {
+            delete spriteRetryTimeouts.current[iconVariantId];
+            resolveAndRegisterIcon({ event, iconVariantId, spriteIconId }, attempt + 1);
+          }, SPRITE_RETRY_DELAY_MS);
+
+          return;
+        }
+
         if (isRetryableServerError(error?.response?.status)) {
-          console.warn('failed to generate map icon from sprite', error);
-        } else {
+          console.warn('map icon sprite fetch kept failing, falling back', error);
+        }
+
+        try {
+          const image = await renderFallbackEventImage(event);
+          dispatch(addImageToMapIfNecessary({ icon_id: iconVariantId, image }));
+        } catch {
           try {
-            const image = await renderFallbackEventImage(event);
+            const image = await renderGenericColorFallbackImage(event);
             dispatch(addImageToMapIfNecessary({ icon_id: iconVariantId, image }));
-          } catch {
-            try {
-              const image = await renderGenericColorFallbackImage(event);
-              dispatch(addImageToMapIfNecessary({ icon_id: iconVariantId, image }));
-            } catch (genericError) {
-              console.warn('map icon fallback image failed to load', genericError);
-            }
+          } catch (genericError) {
+            console.warn('map icon fallback image failed to load', genericError);
           }
         }
       } finally {
@@ -147,6 +147,7 @@ const MapImageFromSvgSpriteRenderer = ({ eventFeatureCollection = EMPTY_FEATURE_
       const iconVariantId = calcSvgImageIconId(event);
       const alreadyHandled = mapImages[iconVariantId]
         || iconsBeingGenerated.current.has(iconVariantId)
+        || Boolean(spriteRetryTimeouts.current[iconVariantId])
         || iconTasksByVariantId.has(iconVariantId);
 
       if (!alreadyHandled) {

@@ -140,7 +140,8 @@ const TileEventFeaturesProvider = ({ children }) => {
   }, [eventVectorTilesEnabled, tileExcludedEventIds, timeSliderParameters, eventTypeValueMap, recompute]);
 
   useEffect(() => {
-    if (eventTypeValueMap.size) {
+    if (!eventVectorTilesEnabled || eventTypeValueMap.size) {
+      eventTypesWaitTimedOutRef.current = false;
       return undefined;
     }
 
@@ -150,7 +151,7 @@ const TileEventFeaturesProvider = ({ children }) => {
     }, EVENT_TYPES_WAIT_TIMEOUT_MS);
 
     return () => clearTimeout(timeoutId);
-  }, [eventTypeValueMap, recompute]);
+  }, [eventVectorTilesEnabled, eventTypeValueMap, recompute]);
 
   useEffect(() => {
     // Recompute when the rendered tiles change.

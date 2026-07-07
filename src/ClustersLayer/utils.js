@@ -1,8 +1,7 @@
 import { centroid, featureCollection } from '@turf/turf';
 import mapboxgl from 'mapbox-gl';
 
-import { calcGenericFallbackImageUrl } from '../MapImageFromSvgSpriteRenderer';
-import { calcSpriteSvgUrl } from '../utils/img';
+import { calcGenericFallbackImageUrl, calcSpriteSvgUrl } from '../utils/img';
 import { CLUSTER_CLICK_ZOOM_THRESHOLD, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { subjectIsStatic } from '../utils/subjects';
 import { injectStylesToElement } from '../utils/styles';
@@ -69,26 +68,12 @@ export const getClusterIconFeatures = (clusterFeatures) => {
   return clusterIconFeatures.slice(0, CLUSTER_ICON_DISPLAY_LENGTH);
 };
 
-// Whether every event icon this marker would display is already registered in
-// mapImages.
-export const clusterIconsAreReady = (clusterFeatures, mapImages) =>
-  getClusterIconFeatures(clusterFeatures)
-    .every((feature) => !feature.properties.icon_id || !!getFeatureIcon(feature, mapImages));
+const populateClusterIconChildren = (clusterHTMLMarkerContainer, clusterIconFeatures, totalFeatureCount, mapImages) => {
+  while (clusterHTMLMarkerContainer.firstChild) {
+    clusterHTMLMarkerContainer.removeChild(clusterHTMLMarkerContainer.firstChild);
+  }
 
-export const createClusterHTMLMarker = (
-  clusterFeatures,
-  mapImages,
-  onClusterClick,
-  onMouseOverCluster,
-  onMouseLeaveCluster
-) => {
-  const clusterHTMLMarkerContainer = document.createElement('div');
-  clusterHTMLMarkerContainer.onclick = onClusterClick;
-  clusterHTMLMarkerContainer.onmouseover = onMouseOverCluster;
-  clusterHTMLMarkerContainer.onmouseleave = onMouseLeaveCluster;
-  injectStylesToElement(clusterHTMLMarkerContainer, CLUSTER_HTML_MARKER_CONTAINER_STYLES);
-
-  getClusterIconFeatures(clusterFeatures).forEach((feature) => {
+  clusterIconFeatures.forEach((feature) => {
     let featureImageHTML = getFeatureIcon(feature, mapImages)?.cloneNode(true);
     if (!featureImageHTML) {
       featureImageHTML = document.createElement('img');
@@ -113,12 +98,33 @@ export const createClusterHTMLMarker = (
     clusterHTMLMarkerContainer.appendChild(featureImageHTML);
   });
 
-  if (clusterFeatures.length > CLUSTER_ICON_DISPLAY_LENGTH) {
+  if (totalFeatureCount > CLUSTER_ICON_DISPLAY_LENGTH) {
     const featuresCountHTML = document.createElement('p');
-    featuresCountHTML.innerHTML = `+${clusterFeatures.length - CLUSTER_ICON_DISPLAY_LENGTH}`;
+    featuresCountHTML.innerHTML = `+${totalFeatureCount - CLUSTER_ICON_DISPLAY_LENGTH}`;
     injectStylesToElement(featuresCountHTML, FEATURE_COUNT_HTML_STYLES);
     clusterHTMLMarkerContainer.appendChild(featuresCountHTML);
   }
+};
+
+export const createClusterHTMLMarker = (
+  clusterFeatures,
+  mapImages,
+  onClusterClick,
+  onMouseOverCluster,
+  onMouseLeaveCluster
+) => {
+  const clusterHTMLMarkerContainer = document.createElement('div');
+  clusterHTMLMarkerContainer.onclick = onClusterClick;
+  clusterHTMLMarkerContainer.onmouseover = onMouseOverCluster;
+  clusterHTMLMarkerContainer.onmouseleave = onMouseLeaveCluster;
+  injectStylesToElement(clusterHTMLMarkerContainer, CLUSTER_HTML_MARKER_CONTAINER_STYLES);
+
+  populateClusterIconChildren(
+    clusterHTMLMarkerContainer,
+    getClusterIconFeatures(clusterFeatures),
+    clusterFeatures.length,
+    mapImages
+  );
 
   return clusterHTMLMarkerContainer;
 };
@@ -204,9 +210,12 @@ export const addNewClusterMarkers = (
     const cachedEntry = clusterMarkerHashMapRef.current[clusterHash] || renderedClusterMarkersHashMap[clusterHash];
     let marker = cachedEntry?.marker;
     const wasReady = cachedEntry?.iconsReady;
-    const iconsReady = wasReady || clusterIconsAreReady(clusterFeatures, mapImages);
 
-    if (!marker || (!wasReady && iconsReady)) {
+    const clusterIconFeatures = wasReady ? null : getClusterIconFeatures(clusterFeatures);
+    const iconsReady = wasReady || clusterIconFeatures
+      .every((feature) => !feature.properties.icon_id || !!getFeatureIcon(feature, mapImages));
+
+    if (!marker) {
       const clusterFeatureCollection = featureCollection(clusterFeatures);
       const clusterPoint = centroid(clusterFeatureCollection);
       const onClick = onClusterClick(
@@ -221,20 +230,18 @@ export const addNewClusterMarkers = (
       const onMouseOver = () => addClusterPolygon(clusterFeatureCollection);
       const onMouseLeave = () => removeClusterPolygon();
 
-      let newClusterHTMLMarkerContainer = createClusterHTMLMarker(
-        clusterFeatures,
-        mapImages,
-        onClick,
-        onMouseOver,
-        onMouseLeave,
-      );
+      const newClusterHTMLMarkerContainer = document.createElement('div');
+      newClusterHTMLMarkerContainer.onclick = onClick;
+      newClusterHTMLMarkerContainer.onmouseover = onMouseOver;
+      newClusterHTMLMarkerContainer.onmouseleave = onMouseLeave;
+      injectStylesToElement(newClusterHTMLMarkerContainer, CLUSTER_HTML_MARKER_CONTAINER_STYLES);
+      populateClusterIconChildren(newClusterHTMLMarkerContainer, clusterIconFeatures, clusterFeatures.length, mapImages);
 
-      const newMarker = new mapboxgl.Marker(newClusterHTMLMarkerContainer)
+      marker = new mapboxgl.Marker(newClusterHTMLMarkerContainer)
         .setLngLat(clusterPoint.geometry.coordinates)
         .addTo(map);
-
-      marker?.remove();
-      marker = newMarker;
+    } else if (!wasReady && iconsReady) {
+      populateClusterIconChildren(marker.getElement(), clusterIconFeatures, clusterFeatures.length, mapImages);
     }
 
     renderedClusterMarkersHashMap[clusterHash] = { iconsReady, id: clusterId, marker };

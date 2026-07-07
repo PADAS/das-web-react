@@ -1,6 +1,5 @@
 import React from 'react';
 import { featureCollection, point } from '@turf/turf';
-import mapboxgl from 'mapbox-gl';
 import { Provider } from 'react-redux';
 import { render, waitFor } from '@testing-library/react';
 
@@ -12,6 +11,7 @@ import {
   onClusterClick,
   removeOldClusterMarkers,
 } from './utils';
+import { calcSpriteSvgUrl } from '../utils/img';
 import { CLUSTER_CLICK_ZOOM_THRESHOLD, CLUSTER_ICON_UPDATE_DEBOUNCE_MS, SOURCE_IDS } from '../constants';
 import ClustersLayer from '.';
 import { createMapMock, createMockInteractionEvent } from '../__test-helpers/mocks';
@@ -38,6 +38,7 @@ jest.mock('mapbox-gl', () => ({
     addTo() { mapMarkers.push(this.marker); return this; }
     setLngLat() { return this; }
     remove() { mapMarkers.splice(mapMarkers.indexOf(this.marker), 1); return this; }
+    getElement() { return this.marker; }
   },
 }));
 
@@ -146,7 +147,7 @@ describe('ClustersLayer', () => {
       });
     });
 
-    test('rebuilds a cluster marker once a missing member icon becomes available in mapImages, with no new sourcedata event', async () => {
+    test('refreshes a cluster marker\'s icon in place once a missing member icon becomes available in mapImages, with no new sourcedata event', async () => {
       unmount();
       mapMarkers.length = 0;
 
@@ -174,8 +175,12 @@ describe('ClustersLayer', () => {
       renderWithMapImages(fullMapImages);
 
       await waitFor(() => {
+        // The marker is refreshed in place rather than torn down and rebuilt —
+        // rebuilding would drop any hover listener bound to the old element
+        // and could leave a cluster highlight polygon stuck on the map.
         expect(mapMarkers).toHaveLength(2);
-        expect(mapMarkers[1]).not.toBe(clusterMarkerBuiltWhileIncomplete);
+        expect(mapMarkers[1]).toBe(clusterMarkerBuiltWhileIncomplete);
+        expect(mapMarkers[1].innerHTML).not.toContain(calcSpriteSvgUrl('jenaeonefield'));
       });
     });
 
@@ -752,8 +757,9 @@ describe('ClustersLayer', () => {
       expect(renderedClusterMarkersHashMap.pending.iconsReady).toBe(false);
     });
 
-    test('rebuilds a cached marker once its icons become ready', () => {
-      const staleMarker = { remove: jest.fn() };
+    test('refreshes a cached marker\'s icons in place once they become ready, without rebuilding it', () => {
+      const staleMarkerElement = document.createElement('div');
+      const staleMarker = { getElement: () => staleMarkerElement, remove: jest.fn() };
       const upgradingClusterMarkerHashMapRef = {
         current: { pending: { marker: staleMarker, iconsReady: false } },
       };
@@ -776,42 +782,12 @@ describe('ClustersLayer', () => {
         onShowClusterSelectPopup
       );
 
-      expect(staleMarker.remove).toHaveBeenCalledTimes(1);
-      expect(renderedClusterMarkersHashMap.pending.marker).not.toBe(staleMarker);
-      expect(renderedClusterMarkersHashMap.pending.iconsReady).toBe(true);
-    });
-
-    test('does not remove the old marker if building its replacement throws', () => {
-      const staleMarker = { remove: jest.fn() };
-      const upgradingClusterMarkerHashMapRef = {
-        current: { pending: { marker: staleMarker, iconsReady: false } },
-      };
-      const pendingClusterFeatures = [[{
-        geometry: { type: 'Point', coordinates: [0, 0] },
-        properties: { id: '10', icon_id: 'snare_rep', priority: 200 },
-        type: 'Feature',
-      }]];
-
-      const addToSpy = jest.spyOn(mapboxgl.Marker.prototype, 'addTo').mockImplementationOnce(() => {
-        throw new Error('addTo failed');
-      });
-
-      expect(() => addNewClusterMarkers(
-        onClusterMouseEnter,
-        upgradingClusterMarkerHashMapRef,
-        clustersSource,
-        map,
-        { 'snare_rep-200': { image: document.createElement('img') } },
-        onClusterMouseLeave,
-        pendingClusterFeatures,
-        ['pending'],
-        ['ijkl'],
-        onShowClusterSelectPopup
-      )).toThrow('addTo failed');
-
+      // The marker instance is kept as-is; only its rendered icon content is
+      // refreshed.
       expect(staleMarker.remove).not.toHaveBeenCalled();
-
-      addToSpy.mockRestore();
+      expect(renderedClusterMarkersHashMap.pending.marker).toBe(staleMarker);
+      expect(renderedClusterMarkersHashMap.pending.iconsReady).toBe(true);
+      expect(staleMarkerElement.querySelector('img')).toBeTruthy();
     });
   });
 
