@@ -152,7 +152,7 @@ describe('ClustersLayer', () => {
       });
     });
 
-    test('refreshes a cluster marker\'s icon in place once a missing member icon becomes available in mapImages, with no new sourcedata event', async () => {
+    test('withholds a cluster marker until all its displayed icons resolve in mapImages, rather than showing a guessed placeholder', async () => {
       unmount();
       mapMarkers.length = 0;
 
@@ -170,26 +170,21 @@ describe('ClustersLayer', () => {
       ));
       map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
 
-      let clusterMarkerBuiltWhileIncomplete;
+      // Only the cluster whose icons are already resolved gets a marker.
       await waitFor(() => {
-        expect(mapMarkers).toHaveLength(2);
-        clusterMarkerBuiltWhileIncomplete = mapMarkers[1];
+        expect(mapMarkers).toHaveLength(1);
       });
 
-      // The icon resolves and mapImages updates.
+      // The missing icon resolves and mapImages updates.
       renderWithMapImages(fullMapImages);
 
       await waitFor(() => {
-        // The marker is refreshed in place rather than torn down and rebuilt —
-        // rebuilding would drop any hover listener bound to the old element
-        // and could leave a cluster highlight polygon stuck on the map.
         expect(mapMarkers).toHaveLength(2);
-        expect(mapMarkers[1]).toBe(clusterMarkerBuiltWhileIncomplete);
         expect(mapMarkers[1].innerHTML).not.toContain(calcSpriteSvgUrl('jenaeonefield'));
       });
     });
 
-    test('does not rebuild a not-yet-ready cluster marker on unrelated mapImages updates', async () => {
+    test('does not create a marker for a still-not-ready cluster on unrelated mapImages updates', async () => {
       unmount();
       mapMarkers.length = 0;
 
@@ -207,20 +202,17 @@ describe('ClustersLayer', () => {
       ));
       map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
 
-      let notReadyClusterMarker;
       await waitFor(() => {
-        expect(mapMarkers).toHaveLength(2);
-        notReadyClusterMarker = mapMarkers[1];
+        expect(mapMarkers).toHaveLength(1);
       });
 
       // An unrelated icon resolves elsewhere on the map — the cluster's own
-      // missing icon ('jenaeonefield-200') is still not present, so its
-      // marker must not be torn down and rebuilt on this change.
+      // missing icon ('jenaeonefield-200') is still not present, so no marker
+      // should be created for it yet.
       renderWithMapImages({ ...incompleteMapImages, 'unrelated_icon-100': { image: document.createElement('img') } });
 
       await waitFor(() => {
-        expect(mapMarkers).toHaveLength(2);
-        expect(mapMarkers[1]).toBe(notReadyClusterMarker);
+        expect(mapMarkers).toHaveLength(1);
       });
     });
 
