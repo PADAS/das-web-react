@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useMemo, useRef } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { featureCollection } from '@turf/turf';
 import { useSelector } from 'react-redux';
 
@@ -46,6 +46,7 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
   const subjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);
 
   const clusterMarkerHashMapRef = useRef({});
+  const latestClusterUpdateRunIdRef = useRef(0);
 
   const clustersSourceData = useMemo(() => {
     // Cluster the event features from both the tiles and realtime overlay.
@@ -83,12 +84,25 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
   const mapImages = useSelector((state) => state.view.mapImages);
 
   const updateClusterMarkersCallback = useCallback(async () => {
+    const clustersSource = map?.getSource(CLUSTERS_SOURCE_ID);
+    if (!clustersSource) {
+      return;
+    }
+
+    // mapImages re-triggers this on every icon resolved, so overlapping calls
+    // are expected. If an older call's async work finishes after a newer one,
+    // discard it.
+    const runId = ++latestClusterUpdateRunIdRef.current;
 
     const {
       renderedClusterHashes,
       renderedClusterFeatures,
       renderedClusterIds,
-    } = await getRenderedClustersData(map.getSource(CLUSTERS_SOURCE_ID), map);
+    } = await getRenderedClustersData(clustersSource, map);
+
+    if (runId !== latestClusterUpdateRunIdRef.current) {
+      return;
+    }
 
     removeOldClusterMarkers(clusterMarkerHashMapRef, removeClusterPolygon, renderedClusterHashes);
 
@@ -104,6 +118,12 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
       renderedClusterIds,
       onShowClusterSelectPopup);
   }, [addClusterPolygon, map, mapImages,  onShowClusterSelectPopup, removeClusterPolygon]);
+
+  useEffect(() => {
+    // Re-run the update pass when mapImages changes so clusters built with
+    // missing icons pick up the real ones once they resolve.
+    updateClusterMarkersCallback();
+  }, [updateClusterMarkersCallback]);
 
   const onSourceData = useMemo(() => (event) => {
     if (event.sourceId === CLUSTERS_SOURCE_ID) {
