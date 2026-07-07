@@ -9,6 +9,8 @@ import { MAP_ICON_SIZE, MAP_ICON_SCALE } from '../constants';
 
 const EMPTY_FEATURE_COLLECTION = { features: [] };
 
+const isClientError = (status) => typeof status === 'number' && status >= 400 && status < 500;
+
 // Builds the map-image cache key for an event's icon. Must match the suffix order
 // used by the Mapbox icon-image expressions (icon_id-priority-width-height).
 export const calcSvgImageIconId = ({ icon_id, priority, width, height }) => {
@@ -94,23 +96,29 @@ const MapImageFromSvgSpriteRenderer = ({ eventFeatureCollection = EMPTY_FEATURE_
         const svgMarkup = await getSpriteSvgMarkup(spriteIconId);
         const image = await renderColoredIconImage(svgMarkup, event);
         dispatch(addImageToMapIfNecessary({ icon_id: iconVariantId, image }));
-      } catch {
-        // The fetch or generation failed; the cached markup itself may be the
-        // culprit, so drop it to force a re-fetch on the next pass. Fall back
-        // to the event's own image, then to a generic per-color icon, so the
-        // event never renders without any icon at all.
-        delete spriteMarkupCache.current[spriteIconId];
-
-        try {
-          const image = await renderFallbackEventImage(event);
-          dispatch(addImageToMapIfNecessary({ icon_id: iconVariantId, image }));
-        } catch {
+      } catch (error) {
+        if (isClientError(error?.response?.status)) {
+          // A 4xx failure is permanent (the sprite won't appear on retry), so
+          // lock in a usable fallback: the event's own image, then a generic
+          // per-color icon, so the event never renders without any icon.
           try {
-            const image = await renderGenericColorFallbackImage(event);
+            const image = await renderFallbackEventImage(event);
             dispatch(addImageToMapIfNecessary({ icon_id: iconVariantId, image }));
-          } catch (genericError) {
-            console.warn('map icon fallback image failed to load', genericError);
+          } catch {
+            try {
+              const image = await renderGenericColorFallbackImage(event);
+              dispatch(addImageToMapIfNecessary({ icon_id: iconVariantId, image }));
+            } catch (genericError) {
+              console.warn('map icon fallback image failed to load', genericError);
+            }
           }
+        } else {
+          // A transient (5xx/network) or generation failure may succeed later.
+          // The cached markup itself may be the culprit, so drop it, and leave
+          // the icon unregistered so a later pass re-fetches instead of pinning
+          // a degraded fallback the write-once store would never replace.
+          delete spriteMarkupCache.current[spriteIconId];
+          console.warn('failed to generate map icon from sprite', error);
         }
       } finally {
         iconsBeingGenerated.current.delete(iconVariantId);

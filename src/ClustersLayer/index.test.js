@@ -12,6 +12,7 @@ import {
   removeOldClusterMarkers,
 } from './utils';
 import { calcSpriteSvgUrl } from '../utils/img';
+import { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
 import { CLUSTER_CLICK_ZOOM_THRESHOLD, SOURCE_IDS } from '../constants';
 import ClustersLayer from '.';
 import { createMapMock, createMockInteractionEvent } from '../__test-helpers/mocks';
@@ -37,7 +38,11 @@ jest.mock('mapbox-gl', () => ({
     constructor(marker) { this.marker = marker; }
     addTo() { mapMarkers.push(this.marker); return this; }
     setLngLat() { return this; }
-    remove() { mapMarkers.splice(mapMarkers.indexOf(this.marker), 1); return this; }
+    remove() {
+      const markerIndex = mapMarkers.indexOf(this.marker);
+      if (markerIndex !== -1) mapMarkers.splice(markerIndex, 1);
+      return this;
+    }
     getElement() { return this.marker; }
   },
 }));
@@ -45,7 +50,7 @@ jest.mock('mapbox-gl', () => ({
 // Gives every event feature in the fixtures a resolved mapImages.
 const buildMapImagesForFeatures = (features) => features.reduce((mapImages, { properties }) => (
   properties.icon_id
-    ? { ...mapImages, [`${properties.icon_id}-${properties.priority}`]: { image: document.createElement('img') } }
+    ? { ...mapImages, [calcSvgImageIconId(properties)]: { image: document.createElement('img') } }
     : mapImages
 ), {});
 

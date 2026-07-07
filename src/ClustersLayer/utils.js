@@ -231,12 +231,13 @@ export const addNewClusterMarkers = (
       const onMouseOver = () => addClusterPolygon(clusterFeatureCollection);
       const onMouseLeave = () => removeClusterPolygon();
 
-      const newClusterHTMLMarkerContainer = document.createElement('div');
-      newClusterHTMLMarkerContainer.onclick = onClick;
-      newClusterHTMLMarkerContainer.onmouseover = onMouseOver;
-      newClusterHTMLMarkerContainer.onmouseleave = onMouseLeave;
-      injectStylesToElement(newClusterHTMLMarkerContainer, CLUSTER_HTML_MARKER_CONTAINER_STYLES);
-      populateClusterIconChildren(newClusterHTMLMarkerContainer, clusterIconFeatures, clusterFeatures.length, mapImages);
+      const newClusterHTMLMarkerContainer = createClusterHTMLMarker(
+        clusterFeatures,
+        mapImages,
+        onClick,
+        onMouseOver,
+        onMouseLeave,
+      );
 
       marker = new mapboxgl.Marker(newClusterHTMLMarkerContainer)
         .setLngLat(clusterPoint.geometry.coordinates)

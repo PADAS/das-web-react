@@ -253,7 +253,7 @@ describe('MapImageFromSvgSpriteRenderer', () => {
     expect(dispatchedIconIdsFrom(store)).toEqual([calcSvgImageIconId(event)]);
   });
 
-  it('falls back when the sprite fetch fails with no readable response', async () => {
+  it('does not pin a fallback for a transient failure with no readable response, leaving the icon to resolve later', async () => {
     axios.get.mockRejectedValueOnce(new Error('network error'));
 
     const event = { icon_id: 'custom-marker', priority: 100, image: 'custom-marker.png' };
@@ -268,20 +268,15 @@ describe('MapImageFromSvgSpriteRenderer', () => {
       await flushPromises();
     });
 
-    await act(async () => {
-      const [fallbackImage] = global.Image.mock.results.map((result) => result.value);
-      fallbackImage.onerror(new Error('fallback image failed'));
-      await flushPromises();
-    });
-
-    expect(global.Image.mock.results[1].value.src).toBe(calcUrlForImage('/static/generic-med_green.svg'));
-
-    await act(async () => {
-      loadCallbacks.forEach((callback) => callback());
-      await flushPromises();
-    });
-
-    expect(dispatchedIconIdsFrom(store)).toEqual([calcSvgImageIconId(event)]);
+    // A transient failure (no 4xx status) must not lock in a fallback the
+    // write-once store would never replace. Nothing is registered, so a later
+    // render pass re-fetches once the sprite endpoint recovers.
+    expect(global.Image).not.toHaveBeenCalled();
+    expect(dispatchedIconIdsFrom(store)).toEqual([]);
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining('failed to generate map icon from sprite'),
+      expect.any(Error)
+    );
   });
 
   it('drops the cached sprite markup when recoloring it fails, so a later variant retries the fetch', async () => {
