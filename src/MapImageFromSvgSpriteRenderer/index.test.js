@@ -273,7 +273,30 @@ describe('MapImageFromSvgSpriteRenderer', () => {
     expect(dispatchedIconIdsFrom(store)).toEqual([]);
   });
 
-  it('logs a warning when the fallback event image also fails to load', async () => {
+  it('corrects the vector-tile image path (sprite-src -> static) before using it as the fallback', async () => {
+    axios.get.mockRejectedValueOnce({ response: { status: 404 } });
+
+    const event = {
+      icon_id: 'hydrophone_detection',
+      priority: 300,
+      color: 'red',
+      image: '/static/sprite-src/hydrophone_detection-red.svg',
+    };
+    const store = mockStore({ view: { mapImages: {} } });
+
+    await act(async () => {
+      render(
+        <Provider store={store}>
+          <MapImageFromSvgSpriteRenderer eventFeatureCollection={featureCollectionFromEvents([event])} />
+        </Provider>
+      );
+      await flushPromises();
+    });
+
+    expect(global.Image.mock.results[0].value.src).toBe(calcUrlForImage('/static/hydrophone_detection-red.svg'));
+  });
+
+  it('falls back to the generic per-color icon when the event\'s own fallback image also fails to load, so the map is never left with a permanently broken icon', async () => {
     axios.get.mockRejectedValueOnce({ response: { status: 404 } });
 
     const event = { icon_id: 'custom-marker', priority: 100, image: 'custom-marker.png' };
@@ -291,6 +314,69 @@ describe('MapImageFromSvgSpriteRenderer', () => {
     await act(async () => {
       const [fallbackImage] = global.Image.mock.results.map((result) => result.value);
       fallbackImage.onerror(new Error('fallback image failed'));
+      await flushPromises();
+    });
+
+    expect(global.Image).toHaveBeenCalledTimes(2);
+    // priority 100 with no explicit `color` maps to the backend's "med_green" name
+    expect(global.Image.mock.results[1].value.src).toBe(calcUrlForImage('/static/generic-med_green.svg'));
+
+    await act(async () => {
+      loadCallbacks.forEach((callback) => callback());
+      await flushPromises();
+    });
+
+    expect(dispatchedIconIdsFrom(store)).toEqual([calcSvgImageIconId(event)]);
+  });
+
+  it('uses the tile-provided color for the generic fallback when the event carries one', async () => {
+    axios.get.mockRejectedValueOnce({ response: { status: 404 } });
+
+    const event = { icon_id: 'custom-marker', priority: 100, color: 'lt_gray', image: 'custom-marker.png' };
+    const store = mockStore({ view: { mapImages: {} } });
+
+    await act(async () => {
+      render(
+        <Provider store={store}>
+          <MapImageFromSvgSpriteRenderer eventFeatureCollection={featureCollectionFromEvents([event])} />
+        </Provider>
+      );
+      await flushPromises();
+    });
+
+    await act(async () => {
+      const [fallbackImage] = global.Image.mock.results.map((result) => result.value);
+      fallbackImage.onerror(new Error('fallback image failed'));
+      await flushPromises();
+    });
+
+    expect(global.Image.mock.results[1].value.src).toBe(calcUrlForImage('/static/generic-lt_gray.svg'));
+  });
+
+  it('logs a warning when the event\'s own fallback image and the generic per-color fallback both fail to load', async () => {
+    axios.get.mockRejectedValueOnce({ response: { status: 404 } });
+
+    const event = { icon_id: 'custom-marker', priority: 100, image: 'custom-marker.png' };
+    const store = mockStore({ view: { mapImages: {} } });
+
+    await act(async () => {
+      render(
+        <Provider store={store}>
+          <MapImageFromSvgSpriteRenderer eventFeatureCollection={featureCollectionFromEvents([event])} />
+        </Provider>
+      );
+      await flushPromises();
+    });
+
+    await act(async () => {
+      const [fallbackImage] = global.Image.mock.results.map((result) => result.value);
+      fallbackImage.onerror(new Error('fallback image failed'));
+      await flushPromises();
+    });
+
+    await act(async () => {
+      const [, genericFallbackImage] = global.Image.mock.results.map((result) => result.value);
+      genericFallbackImage.onerror(new Error('generic fallback image failed'));
       await flushPromises();
     });
 

@@ -645,6 +645,13 @@ const Map = ({ children, onMapLoad, socket }) => {
   useEffect(() => {
     const handleMapStyleImageMissing = async (event) => {
       const { id } = event;
+
+      // Event icon ids have no path segment and are owned by
+      // MapImageFromSvgSpriteRenderer.
+      if (!id.includes('/')) {
+        return;
+      }
+
       // querying from the root /static/ dir of the host means this is one of our static assets, let's get it
       // if the map says it's missing.
       // Parse filepath to extract path and dimensions

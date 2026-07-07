@@ -67,6 +67,12 @@ export const getClusterIconFeatures = (clusterFeatures) => {
   return clusterIconFeatures.slice(0, CLUSTER_ICON_DISPLAY_LENGTH);
 };
 
+// Whether every event icon this marker would display is already registered in
+// mapImages.
+export const clusterIconsAreReady = (clusterFeatures, mapImages) =>
+  getClusterIconFeatures(clusterFeatures)
+    .every((feature) => !feature.properties.icon_id || !!getFeatureIcon(feature, mapImages));
+
 export const createClusterHTMLMarker = (
   clusterFeatures,
   mapImages,
@@ -181,9 +187,12 @@ export const addNewClusterMarkers = (
     const clusterHash = renderedClusterHashes[index];
     const clusterId = renderedClusterIds[index];
 
-    let marker = clusterMarkerHashMapRef.current[clusterHash]?.marker
-      || renderedClusterMarkersHashMap[clusterHash]?.marker;
-    if (!marker) {
+    const cachedEntry = clusterMarkerHashMapRef.current[clusterHash] || renderedClusterMarkersHashMap[clusterHash];
+    let marker = cachedEntry?.marker;
+    let iconsReady = cachedEntry?.iconsReady;
+    if (!marker || (!iconsReady && clusterIconsAreReady(clusterFeatures, mapImages))) {
+      marker?.remove();
+
       const clusterFeatureCollection = featureCollection(clusterFeatures);
       const clusterPoint = centroid(clusterFeatureCollection);
       const onClick = onClusterClick(
@@ -209,9 +218,10 @@ export const addNewClusterMarkers = (
       marker = new mapboxgl.Marker(newClusterHTMLMarkerContainer)
         .setLngLat(clusterPoint.geometry.coordinates)
         .addTo(map);
+      iconsReady = clusterIconsAreReady(clusterFeatures, mapImages);
     }
 
-    renderedClusterMarkersHashMap[clusterHash] = { id: clusterId, marker };
+    renderedClusterMarkersHashMap[clusterHash] = { iconsReady, id: clusterId, marker };
   });
 
   return renderedClusterMarkersHashMap;

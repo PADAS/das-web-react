@@ -8,6 +8,8 @@ import { calcSpriteSvgUrl, calcUrlForImage, imgElFromSrc } from '../utils/img';
 import { MAP_ICON_SIZE, MAP_ICON_SCALE } from '../constants';
 
 const EMPTY_FEATURE_COLLECTION = { features: [] };
+const PRIORITY_TO_BACKEND_ICON_COLOR = { 0: 'gray', 100: 'med_green', 200: 'amber', 300: 'red' };
+const RESOLVED_EVENT_ICON_COLOR = 'lt_gray';
 
 const isClientError = (status) => typeof status === 'number' && status >= 400 && status < 500;
 
@@ -34,6 +36,25 @@ const calcScaledIconDimensions = ({ height, width = MAP_ICON_SIZE }) => [
   height ? height * MAP_ICON_SCALE : undefined,
 ];
 
+// Mirrors the backend's priority/state -> icon-color-name mapping for events
+// that don't already carry a tile-resolved `color` property.
+const calcBackendIconColorName = (event) => {
+  if (event.color) {
+    return event.color;
+  }
+
+  if (event.state === 'resolved') {
+    return RESOLVED_EVENT_ICON_COLOR;
+  }
+
+  return PRIORITY_TO_BACKEND_ICON_COLOR[event.priority] ?? 'black';
+};
+
+const renderGenericColorFallbackImage = (event) =>
+  imgElFromSrc(
+    calcUrlForImage(`/static/generic-${calcBackendIconColorName(event)}.svg`), ...calcScaledIconDimensions(event)
+  );
+
 // Recolors an event icon's SVG markup for the event's priority and rasterizes
 // it into an <img> element via a data URI.
 const renderColoredIconImage = (svgMarkup, event) => {
@@ -57,7 +78,17 @@ const renderColoredIconImage = (svgMarkup, event) => {
   return imgElFromSrc(dataUri, ...calcScaledIconDimensions(event));
 };
 
-const renderFallbackEventImage = (event) => imgElFromSrc(calcUrlForImage(event.image), ...calcScaledIconDimensions(event));
+// Vector-tile events carry an `image` property built server-side as
+// `/static/sprite-src/{basename}-{color}.svg`, but sprite-src only holds
+// uncolored master icons. The real, pre-colored asset lives one level up, at
+// `/static/{basename}-{color}.svg`.
+const renderFallbackEventImage = (event) => {
+  const correctedImagePath = typeof event.image === 'string'
+    ? event.image.replace(/^\/static\/sprite-src\//, '/static/')
+    : event.image;
+
+  return imgElFromSrc(calcUrlForImage(correctedImagePath), ...calcScaledIconDimensions(event));
+};
 
 const MapImageFromSvgSpriteRenderer = ({ eventFeatureCollection = EMPTY_FEATURE_COLLECTION }) => {
   const dispatch = useDispatch();
@@ -98,8 +129,13 @@ const MapImageFromSvgSpriteRenderer = ({ eventFeatureCollection = EMPTY_FEATURE_
           try {
             const image = await renderFallbackEventImage(event);
             dispatch(addImageToMapIfNecessary({ icon_id: iconVariantId, image }));
-          } catch (fallbackError) {
-            console.warn('map icon fallback image failed to load', fallbackError);
+          } catch {
+            try {
+              const image = await renderGenericColorFallbackImage(event);
+              dispatch(addImageToMapIfNecessary({ icon_id: iconVariantId, image }));
+            } catch (genericError) {
+              console.warn('map icon fallback image failed to load', genericError);
+            }
           }
         } else {
           // the fetched markup itself may be what's causing generation to

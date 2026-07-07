@@ -34,10 +34,18 @@ jest.mock('mapbox-gl', () => ({
   ...jest.requireActual('mapbox-gl'),
   Marker: class {
     constructor(marker) { this.marker = marker; }
-    addTo() { mapMarkers.push(this.marker); }
+    addTo() { mapMarkers.push(this.marker); return this; }
     setLngLat() { return this; }
+    remove() { mapMarkers.splice(mapMarkers.indexOf(this.marker), 1); return this; }
   },
 }));
+
+// Gives every event feature in the fixtures a resolved mapImages.
+const buildMapImagesForFeatures = (features) => features.reduce((mapImages, { properties }) => (
+  properties.icon_id
+    ? { ...mapImages, [`${properties.icon_id}-${properties.priority}`]: { image: document.createElement('img') } }
+    : mapImages
+), {});
 
 jest.mock('../selectors/events', () => ({
   ...jest.requireActual('../selectors/events'),
@@ -68,7 +76,21 @@ describe('ClustersLayer', () => {
   describe('the map layer', () => {
     const onShowClusterSelectPopup = jest.fn(), addClusterPolygon = jest.fn(),
       setData = jest.fn();
-    let map, useClusterPolygonMock;
+    let map, useClusterPolygonMock, rerender, unmount;
+
+    const buildStore = (mapImages) => mockStore({
+      data: { mapLayerFilter: { showReportsOnMap: true }, mapEvents: { events: [] }, eventFilter: { filter: { date_range: {} } } },
+      view: { mapImages, timeSliderState: {}, mapClusterConfig: { data: { events: true, subjects: true } } },
+    });
+
+    const renderWithMapImages = (mapImages) => rerender(
+      <Provider store={buildStore(mapImages)}>
+        <MapContext.Provider value={map}>
+          <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
+        </MapContext.Provider>
+      </Provider>
+    );
+
     beforeEach(() => {
       jest.useFakeTimers();
 
@@ -96,13 +118,15 @@ describe('ClustersLayer', () => {
       }));
       map.getZoom.mockImplementation(() => CLUSTER_CLICK_ZOOM_THRESHOLD - 1);
 
-      render(
-        <Provider store={mockStore({ data: { mapLayerFilter: { showReportsOnMap: true }, mapEvents: { events: [] }, eventFilter: { filter: { date_range: {} } } }, view: { mapImages: [], timeSliderState: {}, mapClusterConfig: { data: { events: true, subjects: true } } } })}>
+      const mapImages = buildMapImagesForFeatures([...mockClusterLeaves[0], ...mockClusterLeaves[1]]);
+
+      ({ rerender, unmount } = render(
+        <Provider store={buildStore(mapImages)}>
           <MapContext.Provider value={map}>
             <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
           </MapContext.Provider>
         </Provider>
-      );
+      ));
     });
 
     afterEach(() => {
@@ -118,6 +142,74 @@ describe('ClustersLayer', () => {
 
       await waitFor(() => {
         expect(mapMarkers).toHaveLength(2);
+      });
+    });
+
+    test('rebuilds a cluster marker once a missing member icon becomes available in mapImages, with no new sourcedata event', async () => {
+      unmount();
+      mapMarkers.length = 0;
+
+      const fullMapImages = buildMapImagesForFeatures([...mockClusterLeaves[0], ...mockClusterLeaves[1]]);
+      // Simulates the initial-page-load race.
+      const { 'jenaeonefield-200': omitted, ...incompleteMapImages } = fullMapImages;
+      expect(omitted).toBeDefined();
+
+      ({ rerender } = render(
+        <Provider store={buildStore(incompleteMapImages)}>
+          <MapContext.Provider value={map}>
+            <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
+          </MapContext.Provider>
+        </Provider>
+      ));
+      map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
+
+      let clusterMarkerBuiltWhileIncomplete;
+      await waitFor(() => {
+        expect(mapMarkers).toHaveLength(2);
+        clusterMarkerBuiltWhileIncomplete = mapMarkers[1];
+      });
+
+      // The icon resolves and mapImages updates.
+      renderWithMapImages(fullMapImages);
+
+      await waitFor(() => {
+        expect(mapMarkers).toHaveLength(2);
+        expect(mapMarkers[1]).not.toBe(clusterMarkerBuiltWhileIncomplete);
+      });
+    });
+
+    test('does not rebuild a not-yet-ready cluster marker on unrelated mapImages updates', async () => {
+      unmount();
+      mapMarkers.length = 0;
+
+      const fullMapImages = buildMapImagesForFeatures([...mockClusterLeaves[0], ...mockClusterLeaves[1]]);
+      // Simulates the initial-page-load race, same as the previous test.
+      const { 'jenaeonefield-200': omitted, ...incompleteMapImages } = fullMapImages;
+      expect(omitted).toBeDefined();
+
+      ({ rerender } = render(
+        <Provider store={buildStore(incompleteMapImages)}>
+          <MapContext.Provider value={map}>
+            <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
+          </MapContext.Provider>
+        </Provider>
+      ));
+      map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
+
+      let notReadyClusterMarker;
+      await waitFor(() => {
+        expect(mapMarkers).toHaveLength(2);
+        notReadyClusterMarker = mapMarkers[1];
+      });
+
+      // An unrelated icon resolves elsewhere on the map — the cluster's own
+      // missing icon ('jenaeonefield-200') is still not present, so its
+      // marker must not be torn down and rebuilt on this change.
+      renderWithMapImages({ ...incompleteMapImages, 'unrelated_icon-100': { image: document.createElement('img') } });
+
+      await waitFor(() => {
+        expect(mapMarkers).toHaveLength(2);
+        expect(mapMarkers[1]).toBe(notReadyClusterMarker);
       });
     });
 
@@ -477,7 +569,7 @@ describe('ClustersLayer', () => {
   });
 
   describe('addNewClusterMarkers', () => {
-    const clusterMarkerHashMapRef = { current: { '1': { marker: {} } } };
+    const clusterMarkerHashMapRef = { current: { '1': { marker: { remove: jest.fn() }, iconsReady: true } } };
     const clustersSource = {};
     const map = {};
     const onClusterMouseEnter = jest.fn();
@@ -555,6 +647,64 @@ describe('ClustersLayer', () => {
       );
 
       expect(renderedClusterMarkersHashMap['2'].id).toBe('efgh');
+    });
+
+    test('keeps a cached marker as-is while its icons are still not ready', () => {
+      const staleMarker = { remove: jest.fn() };
+      const notReadyClusterMarkerHashMapRef = {
+        current: { pending: { marker: staleMarker, iconsReady: false } },
+      };
+      const pendingClusterFeatures = [[{
+        geometry: { type: 'Point', coordinates: [0, 0] },
+        properties: { id: '10', icon_id: 'snare_rep', priority: 200 },
+        type: 'Feature',
+      }]];
+
+      const renderedClusterMarkersHashMap = addNewClusterMarkers(
+        onClusterMouseEnter,
+        notReadyClusterMarkerHashMapRef,
+        clustersSource,
+        map,
+        {},
+        onClusterMouseLeave,
+        pendingClusterFeatures,
+        ['pending'],
+        ['ijkl'],
+        onShowClusterSelectPopup
+      );
+
+      expect(staleMarker.remove).not.toHaveBeenCalled();
+      expect(renderedClusterMarkersHashMap.pending.marker).toBe(staleMarker);
+      expect(renderedClusterMarkersHashMap.pending.iconsReady).toBe(false);
+    });
+
+    test('rebuilds a cached marker once its icons become ready', () => {
+      const staleMarker = { remove: jest.fn() };
+      const upgradingClusterMarkerHashMapRef = {
+        current: { pending: { marker: staleMarker, iconsReady: false } },
+      };
+      const pendingClusterFeatures = [[{
+        geometry: { type: 'Point', coordinates: [0, 0] },
+        properties: { id: '10', icon_id: 'snare_rep', priority: 200 },
+        type: 'Feature',
+      }]];
+
+      const renderedClusterMarkersHashMap = addNewClusterMarkers(
+        onClusterMouseEnter,
+        upgradingClusterMarkerHashMapRef,
+        clustersSource,
+        map,
+        { 'snare_rep-200': { image: document.createElement('img') } },
+        onClusterMouseLeave,
+        pendingClusterFeatures,
+        ['pending'],
+        ['ijkl'],
+        onShowClusterSelectPopup
+      );
+
+      expect(staleMarker.remove).toHaveBeenCalledTimes(1);
+      expect(renderedClusterMarkersHashMap.pending.marker).not.toBe(staleMarker);
+      expect(renderedClusterMarkersHashMap.pending.iconsReady).toBe(true);
     });
   });
 
