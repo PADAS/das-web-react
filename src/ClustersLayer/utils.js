@@ -3,6 +3,7 @@ import mapboxgl from 'mapbox-gl';
 
 import { calcGenericFallbackImageUrl, calcSpriteSvgUrl } from '../utils/img';
 import { CLUSTER_CLICK_ZOOM_THRESHOLD, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
+import { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
 import { subjectIsStatic } from '../utils/subjects';
 import { injectStylesToElement } from '../utils/styles';
 import { hashCode } from '../utils/string';
@@ -25,7 +26,7 @@ const FEATURE_SS_ICON_HTML_STYLES = { filter: 'brightness(0)' };
 const FEATURE_COUNT_HTML_STYLES = { fontSize: '16px', fontWeight: '500', paddingLeft: '4px', margin: '0' };
 
 const getFeatureIcon = (feature, mapImages) =>
-  mapImages[`${feature.properties.icon_id}-${feature.properties.priority}`]?.image;
+  mapImages[calcSvgImageIconId(feature.properties)]?.image;
 
 export const getClusterIconFeatures = (clusterFeatures) => {
   const { eventFeatures, subjectFeatures } = clusterFeatures.reduce((accumulator, feature) => {

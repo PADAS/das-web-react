@@ -9,11 +9,6 @@ import { MAP_ICON_SIZE, MAP_ICON_SCALE } from '../constants';
 
 const EMPTY_FEATURE_COLLECTION = { features: [] };
 
-const isRetryableServerError = (status) => typeof status === 'number' && status >= 500;
-
-const MAX_SPRITE_RETRY_ATTEMPTS = 5;
-const SPRITE_RETRY_DELAY_MS = 5000;
-
 // Builds the map-image cache key for an event's icon. Must match the suffix order
 // used by the Mapbox icon-image expressions (icon_id-priority-width-height).
 export const calcSvgImageIconId = ({ icon_id, priority, width, height }) => {
@@ -73,11 +68,6 @@ const MapImageFromSvgSpriteRenderer = ({ eventFeatureCollection = EMPTY_FEATURE_
   const spriteMarkupCache = useRef({});
   const spriteFetchesInFlight = useRef({});
   const iconsBeingGenerated = useRef(new Set());
-  const spriteRetryTimeouts = useRef({});
-
-  useEffect(() => () => {
-    Object.values(spriteRetryTimeouts.current).forEach(clearTimeout);
-  }, []);
 
   useEffect(() => {
     const getSpriteSvgMarkup = (spriteIconId) => {
@@ -100,28 +90,17 @@ const MapImageFromSvgSpriteRenderer = ({ eventFeatureCollection = EMPTY_FEATURE_
       return spriteFetchesInFlight.current[spriteIconId];
     };
 
-    const resolveAndRegisterIcon = async ({ event, iconVariantId, spriteIconId }, attempt = 1) => {
+    const resolveAndRegisterIcon = async ({ event, iconVariantId, spriteIconId }) => {
       try {
         const svgMarkup = await getSpriteSvgMarkup(spriteIconId);
         const image = await renderColoredIconImage(svgMarkup, event);
         dispatch(addImageToMapIfNecessary({ icon_id: iconVariantId, image }));
-      } catch (error) {
+      } catch {
+        // The fetch or generation failed; the cached markup itself may be the
+        // culprit, so drop it to force a re-fetch on the next pass. Fall back
+        // to the event's own image, then to a generic per-color icon, so the
+        // event never renders without any icon at all.
         delete spriteMarkupCache.current[spriteIconId];
-
-        if (isRetryableServerError(error?.response?.status) && attempt < MAX_SPRITE_RETRY_ATTEMPTS) {
-          console.warn(`failed to generate map icon from sprite, retrying (attempt ${attempt})`, error);
-
-          spriteRetryTimeouts.current[iconVariantId] = setTimeout(() => {
-            delete spriteRetryTimeouts.current[iconVariantId];
-            resolveAndRegisterIcon({ event, iconVariantId, spriteIconId }, attempt + 1);
-          }, SPRITE_RETRY_DELAY_MS);
-
-          return;
-        }
-
-        if (isRetryableServerError(error?.response?.status)) {
-          console.warn('map icon sprite fetch kept failing, falling back', error);
-        }
 
         try {
           const image = await renderFallbackEventImage(event);
@@ -147,7 +126,6 @@ const MapImageFromSvgSpriteRenderer = ({ eventFeatureCollection = EMPTY_FEATURE_
       const iconVariantId = calcSvgImageIconId(event);
       const alreadyHandled = mapImages[iconVariantId]
         || iconsBeingGenerated.current.has(iconVariantId)
-        || Boolean(spriteRetryTimeouts.current[iconVariantId])
         || iconTasksByVariantId.has(iconVariantId);
 
       if (!alreadyHandled) {

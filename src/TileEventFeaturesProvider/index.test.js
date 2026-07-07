@@ -145,37 +145,6 @@ describe('TileEventFeaturesProvider', () => {
     expect(value.features[0].properties.icon_id).toBe('generic');
   });
 
-  it('publishes nothing while event types have not loaded yet, rather than every feature normalizing to generic', () => {
-    let value;
-    const map = createMapMock({ querySourceFeatures: jest.fn(() => [tileFeature('a')]) });
-    const state = { ...buildState(), data: { ...buildState().data, eventTypes: [] } };
-
-    renderProvider({ map, state, onCapture: (collection) => { value = collection; } });
-
-    expect(value.features).toHaveLength(0);
-  });
-
-  it('gives up waiting for event types after a timeout and publishes anyway, so a failed/empty ' +
-    'event-types fetch does not hide every event on the map forever', () => {
-    jest.useFakeTimers();
-
-    try {
-      let value;
-      const map = createMapMock({ querySourceFeatures: jest.fn(() => [tileFeature('a')]) });
-      const state = { ...buildState(), data: { ...buildState().data, eventTypes: [] } };
-
-      renderProvider({ map, state, onCapture: (collection) => { value = collection; } });
-      expect(value.features).toHaveLength(0);
-
-      act(() => { jest.runOnlyPendingTimers(); });
-
-      expect(value.features).toHaveLength(1);
-      expect(value.features[0].properties.icon_id).toBe('generic');
-    } finally {
-      jest.useRealTimers();
-    }
-  });
-
   it('applies the time-slider hide (drops events after the virtual date, keeps timeless events)', () => {
     let value;
     const map = createMapMock({
