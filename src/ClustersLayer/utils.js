@@ -1,6 +1,8 @@
 import { centroid, featureCollection } from '@turf/turf';
 import mapboxgl from 'mapbox-gl';
 
+import { calcGenericFallbackImageUrl } from '../MapImageFromSvgSpriteRenderer';
+import { calcSpriteSvgUrl } from '../utils/img';
 import { CLUSTER_CLICK_ZOOM_THRESHOLD, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { subjectIsStatic } from '../utils/subjects';
 import { injectStylesToElement } from '../utils/styles';
@@ -90,7 +92,19 @@ export const createClusterHTMLMarker = (
     let featureImageHTML = getFeatureIcon(feature, mapImages)?.cloneNode(true);
     if (!featureImageHTML) {
       featureImageHTML = document.createElement('img');
-      featureImageHTML.src = feature.properties.image || feature.properties.image_url;
+      // Event features' own image/image_url from the vector tile is unreliable
+      // so fall back to the uncolored sprite master until mapImages resolves.
+      // That master doesn't exist for every icon_id either, so if it also
+      // fails to load, drop to the generic per-color icon.
+      if (feature.properties.icon_id) {
+        featureImageHTML.src = calcSpriteSvgUrl(feature.properties.icon_id);
+        featureImageHTML.onerror = () => {
+          featureImageHTML.onerror = null;
+          featureImageHTML.src = calcGenericFallbackImageUrl(feature.properties);
+        };
+      } else {
+        featureImageHTML.src = feature.properties.image || feature.properties.image_url;
+      }
     }
     injectStylesToElement(featureImageHTML, FEATURE_ICON_HTML_STYLES);
     if (subjectIsStatic(feature)) {

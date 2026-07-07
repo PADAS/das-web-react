@@ -63,6 +63,13 @@ const TileEventFeaturesProvider = ({ children }) => {
       return;
     }
 
+    // Event types haven't loaded yet, every feature would normalize to the
+    // 'generic' icon fallback.
+    if (!eventTypeValueMapRef.current.size) {
+      publishEmpty();
+      return;
+    }
+
     // Point events come from the point source-layer; polygon events come from
     // their centroid source-layer.
     const rawPoints = map.querySourceFeatures(SOURCE_IDS.EVENTS_VECTOR_SOURCE, { sourceLayer: POINT_SOURCE_LAYER });

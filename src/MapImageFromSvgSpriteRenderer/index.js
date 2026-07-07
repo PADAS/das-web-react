@@ -11,7 +11,7 @@ const EMPTY_FEATURE_COLLECTION = { features: [] };
 const PRIORITY_TO_BACKEND_ICON_COLOR = { 0: 'gray', 100: 'med_green', 200: 'amber', 300: 'red' };
 const RESOLVED_EVENT_ICON_COLOR = 'lt_gray';
 
-const isClientError = (status) => typeof status === 'number' && status >= 400 && status < 500;
+const isRetryableServerError = (status) => typeof status === 'number' && status >= 500;
 
 // Builds the map-image cache key for an event's icon. Must match the suffix order
 // used by the Mapbox icon-image expressions (icon_id-priority-width-height).
@@ -50,10 +50,11 @@ const calcBackendIconColorName = (event) => {
   return PRIORITY_TO_BACKEND_ICON_COLOR[event.priority] ?? 'black';
 };
 
+export const calcGenericFallbackImageUrl = (event) =>
+  calcUrlForImage(`/static/generic-${calcBackendIconColorName(event)}.svg`);
+
 const renderGenericColorFallbackImage = (event) =>
-  imgElFromSrc(
-    calcUrlForImage(`/static/generic-${calcBackendIconColorName(event)}.svg`), ...calcScaledIconDimensions(event)
-  );
+  imgElFromSrc(calcGenericFallbackImageUrl(event), ...calcScaledIconDimensions(event));
 
 // Recolors an event icon's SVG markup for the event's priority and rasterizes
 // it into an <img> element via a data URI.
@@ -78,17 +79,8 @@ const renderColoredIconImage = (svgMarkup, event) => {
   return imgElFromSrc(dataUri, ...calcScaledIconDimensions(event));
 };
 
-// Vector-tile events carry an `image` property built server-side as
-// `/static/sprite-src/{basename}-{color}.svg`, but sprite-src only holds
-// uncolored master icons. The real, pre-colored asset lives one level up, at
-// `/static/{basename}-{color}.svg`.
-const renderFallbackEventImage = (event) => {
-  const correctedImagePath = typeof event.image === 'string'
-    ? event.image.replace(/^\/static\/sprite-src\//, '/static/')
-    : event.image;
-
-  return imgElFromSrc(calcUrlForImage(correctedImagePath), ...calcScaledIconDimensions(event));
-};
+const renderFallbackEventImage = (event) =>
+  imgElFromSrc(calcUrlForImage(event.image), ...calcScaledIconDimensions(event));
 
 const MapImageFromSvgSpriteRenderer = ({ eventFeatureCollection = EMPTY_FEATURE_COLLECTION }) => {
   const dispatch = useDispatch();
@@ -125,7 +117,10 @@ const MapImageFromSvgSpriteRenderer = ({ eventFeatureCollection = EMPTY_FEATURE_
         const image = await renderColoredIconImage(svgMarkup, event);
         dispatch(addImageToMapIfNecessary({ icon_id: iconVariantId, image }));
       } catch (error) {
-        if (isClientError(error?.response?.status)) {
+        if (isRetryableServerError(error?.response?.status)) {
+          delete spriteMarkupCache.current[spriteIconId];
+          console.warn('failed to generate map icon from sprite', error);
+        } else {
           try {
             const image = await renderFallbackEventImage(event);
             dispatch(addImageToMapIfNecessary({ icon_id: iconVariantId, image }));
@@ -137,12 +132,6 @@ const MapImageFromSvgSpriteRenderer = ({ eventFeatureCollection = EMPTY_FEATURE_
               console.warn('map icon fallback image failed to load', genericError);
             }
           }
-        } else {
-          // the fetched markup itself may be what's causing generation to
-          // fail. Drop it so the next attempt re-fetches from the server
-          // instead of repeating the same failure.
-          delete spriteMarkupCache.current[spriteIconId];
-          console.warn('failed to generate map icon from sprite', error);
         }
       } finally {
         iconsBeingGenerated.current.delete(iconVariantId);

@@ -253,8 +253,8 @@ describe('MapImageFromSvgSpriteRenderer', () => {
     expect(dispatchedIconIdsFrom(store)).toEqual([calcSvgImageIconId(event)]);
   });
 
-  it('logs a warning and drops the sprite cache entry when the sprite fetch fails for a non-4xx reason', async () => {
-    axios.get.mockRejectedValueOnce(new Error('network error'));
+  it('logs a warning and drops the sprite cache entry when the sprite fetch fails with a 5xx', async () => {
+    axios.get.mockRejectedValueOnce({ response: { status: 503 } });
 
     const event = { icon_id: 'fire', priority: 200 };
     const store = mockStore({ view: { mapImages: {} } });
@@ -268,19 +268,50 @@ describe('MapImageFromSvgSpriteRenderer', () => {
       await flushPromises();
     });
 
-    expect(console.warn).toHaveBeenCalledWith('failed to generate map icon from sprite', expect.any(Error));
+    expect(console.warn).toHaveBeenCalledWith('failed to generate map icon from sprite', expect.any(Object));
     expect(global.Image).not.toHaveBeenCalled();
     expect(dispatchedIconIdsFrom(store)).toEqual([]);
   });
 
-  it('corrects the vector-tile image path (sprite-src -> static) before using it as the fallback', async () => {
+  it('falls back when the sprite fetch fails with no readable response', async () => {
+    axios.get.mockRejectedValueOnce(new Error('network error'));
+
+    const event = { icon_id: 'custom-marker', priority: 100, image: 'custom-marker.png' };
+    const store = mockStore({ view: { mapImages: {} } });
+
+    await act(async () => {
+      render(
+        <Provider store={store}>
+          <MapImageFromSvgSpriteRenderer eventFeatureCollection={featureCollectionFromEvents([event])} />
+        </Provider>
+      );
+      await flushPromises();
+    });
+
+    await act(async () => {
+      const [fallbackImage] = global.Image.mock.results.map((result) => result.value);
+      fallbackImage.onerror(new Error('fallback image failed'));
+      await flushPromises();
+    });
+
+    expect(global.Image.mock.results[1].value.src).toBe(calcUrlForImage('/static/generic-med_green.svg'));
+
+    await act(async () => {
+      loadCallbacks.forEach((callback) => callback());
+      await flushPromises();
+    });
+
+    expect(dispatchedIconIdsFrom(store)).toEqual([calcSvgImageIconId(event)]);
+  });
+
+  it('uses the vector-tile image path as-is for the fallback, without guessing at a different path', async () => {
     axios.get.mockRejectedValueOnce({ response: { status: 404 } });
 
     const event = {
       icon_id: 'hydrophone_detection',
       priority: 300,
       color: 'red',
-      image: '/static/sprite-src/hydrophone_detection-red.svg',
+      image: '/static/hydrophone_detection-red.svg',
     };
     const store = mockStore({ view: { mapImages: {} } });
 
@@ -293,7 +324,7 @@ describe('MapImageFromSvgSpriteRenderer', () => {
       await flushPromises();
     });
 
-    expect(global.Image.mock.results[0].value.src).toBe(calcUrlForImage('/static/hydrophone_detection-red.svg'));
+    expect(global.Image.mock.results[0].value.src).toBe(calcUrlForImage(event.image));
   });
 
   it('falls back to the generic per-color icon when the event\'s own fallback image also fails to load, so the map is never left with a permanently broken icon', async () => {
