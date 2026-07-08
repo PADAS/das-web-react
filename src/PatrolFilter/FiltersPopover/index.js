@@ -130,7 +130,7 @@ const FiltersPopover = ({ ref, ...rest }) => {
   const statusFilterOptions = PATROL_FILTERS_STATUS_OPTIONS.map(status => ({
     id: status.id,
     value: <div className='statusItem'>
-      {<SvgIcon color={status.color} iconId='generic_rep' type='events' />}
+      {<SvgIcon color={status.color} iconId='generic_rep' type='patrols' />}
       {(t(`patrolStatuses.${status.id}`))}
     </div>,
   }));
@@ -145,7 +145,7 @@ const FiltersPopover = ({ ref, ...rest }) => {
     return {
       id: patrolType.id,
       value: <div className='patrolTypeItem'>
-        {patrolIconId && <SvgIcon color='black' iconId={patrolIconId} type='events' />}
+        {patrolIconId && <SvgIcon color='black' iconId={patrolIconId} type='patrols' />}
         {patrolType.display}
       </div>,
     };

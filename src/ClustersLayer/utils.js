@@ -90,10 +90,7 @@ const populateClusterIconChildren = (
     let featureImageHTML = getFeatureIcon(feature, mapImages, locallyEditedEvent)?.cloneNode(true);
     if (!featureImageHTML) {
       featureImageHTML = document.createElement('img');
-      // Event features' own image/image_url from the vector tile is unreliable
-      // so fall back to the uncolored sprite master until mapImages resolves.
-      // That master doesn't exist for every icon_id either, so if it also
-      // fails to load, drop to the generic per-color icon.
+      // Tile image/image_url is unreliable: try the sprite master, then the generic per-color icon.
       if (feature.properties.icon_id) {
         featureImageHTML.src = calcSpriteSvgUrl(feature.properties.icon_id);
         featureImageHTML.onerror = () => {
@@ -170,23 +167,33 @@ export const onClusterClick = (
 };
 
 export const getRenderedClustersData = async (clustersSource, map, locallyEditedEvent = null) => {
-  const renderedClusterIds = map.queryRenderedFeatures({ layers: [CLUSTERS_LAYER_ID] })
+  const clusterIds = map.queryRenderedFeatures({ layers: [CLUSTERS_LAYER_ID] })
     .map((cluster) => cluster.properties.cluster_id);
 
-  const getAllClusterLeavesPromises = renderedClusterIds.map((clusterId) => new Promise((resolve) => {
+  // Resolve empty on error so one failing cluster doesn't hang Promise.all forever.
+  const getAllClusterLeavesPromises = clusterIds.map((clusterId) => new Promise((resolve) => {
     clustersSource.getClusterLeaves(
       clusterId,
       Number.MAX_SAFE_INTEGER,
       0,
-      (error, features) => !error && resolve(features)
+      (error, features) => resolve(error ? [] : features)
     );
   }));
-  const renderedClusterFeatures = await Promise.all(getAllClusterLeavesPromises);
+  const clusterFeatures = await Promise.all(getAllClusterLeavesPromises);
+
+  // Drop empty clusters — centroid(featureCollection([])) would throw downstream. Keep the
+  // three parallel arrays index-aligned by filtering ids and features together.
+  const renderedClusterIds = [];
+  const renderedClusterFeatures = [];
+  clusterIds.forEach((clusterId, index) => {
+    if (!clusterFeatures[index]?.length) return;
+    renderedClusterIds.push(clusterId);
+    renderedClusterFeatures.push(clusterFeatures[index]);
+  });
 
   const renderedClusterHashes = renderedClusterFeatures.map(
-    (clusterFeatures) => hashCode(clusterFeatures.map((clusterFeature) => {
-      // For the locally-edited event, key the hash off its unsaved priority so the
-      // marker is recreated when the edit changes (and again when it is cleared).
+    (features) => hashCode(features.map((clusterFeature) => {
+      // For the locally-edited event, key the hash off its unsaved priority so the marker recreates.
       const isLocallyEdited = locallyEditedEvent?.id === clusterFeature.properties.id;
       const suffix = isLocallyEdited
         ? `local-${locallyEditedEvent.priority ?? 0}`

@@ -210,7 +210,7 @@ const PatrolListItem = ({
       title={displayTitle}
       type="button"
     >
-    <SvgIcon iconId={patrolIconId} style={{ fill: theme.fontColor ? theme.fontColor : 'white' }} type="events" />
+    <SvgIcon iconId={patrolIconId} style={{ fill: theme.fontColor ? theme.fontColor : 'white' }} type="patrols" />
   </button>;
 
   const renderedTitleComponent = <>

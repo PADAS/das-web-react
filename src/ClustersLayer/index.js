@@ -84,44 +84,36 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
   const mapImages = useSelector((state) => state.view.mapImages);
   const locallyEditedEvent = useSelector((state) => state.data.locallyEditedEvent);
 
-  // Use refs so the callback doesn't need to be recreated when these frequently-changing
-  // values update — their respective effects (and sourcedata) drive the marker refresh,
-  // and the callback reads the latest values from the refs at call time. These refs are read
-  // ONLY inside the async updateClusterMarkersCallback and the effects below, never during
-  // render output; the synchronous render-phase assignment guarantees they hold the latest
-  // value before any effect/callback runs, so the react-hooks/refs warning is intentionally
-  // disabled here.
+  // Mirror frequently-changing values into refs so the callback stays stable; only read
+  // inside the async callback/effects, never during render.
   const mapImagesRef = useRef(mapImages);
-  // eslint-disable-next-line react-hooks/refs
+  // eslint-disable-next-line react-hooks/refs -- render-phase write is safe; only read in async callback
   mapImagesRef.current = mapImages;
 
   const locallyEditedEventRef = useRef(locallyEditedEvent);
-  // eslint-disable-next-line react-hooks/refs
+  // eslint-disable-next-line react-hooks/refs -- render-phase write is safe; only read in async callback
   locallyEditedEventRef.current = locallyEditedEvent;
 
   const addClusterPolygonRef = useRef(addClusterPolygon);
-  // eslint-disable-next-line react-hooks/refs
+  // eslint-disable-next-line react-hooks/refs -- render-phase write is safe; only read in async callback
   addClusterPolygonRef.current = addClusterPolygon;
 
   const removeClusterPolygonRef = useRef(removeClusterPolygon);
-  // eslint-disable-next-line react-hooks/refs
+  // eslint-disable-next-line react-hooks/refs -- render-phase write is safe; only read in async callback
   removeClusterPolygonRef.current = removeClusterPolygon;
 
   const onShowClusterSelectPopupRef = useRef(onShowClusterSelectPopup);
-  // eslint-disable-next-line react-hooks/refs
+  // eslint-disable-next-line react-hooks/refs -- render-phase write is safe; only read in async callback
   onShowClusterSelectPopupRef.current = onShowClusterSelectPopup;
 
-  // The callback intentionally reads these values from refs so its identity stays stable
-  // across frequent locallyEditedEvent/mapImages/etc. changes; only `map` is a real dep.
+  // Reads values from refs so its identity stays stable; only `map` is a real dep.
   const updateClusterMarkersCallback = useCallback(async () => {
     const clustersSource = map?.getSource(CLUSTERS_SOURCE_ID);
     if (!clustersSource) {
       return;
     }
 
-    // mapImages re-triggers this on every icon resolved, so overlapping calls
-    // are expected. If an older call's async work finishes after a newer one,
-    // discard it.
+    // Overlapping calls are expected; discard an older call that finishes after a newer one.
     const runId = ++latestClusterUpdateRunIdRef.current;
 
     const {
@@ -158,21 +150,17 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
 
   useMapEventBinding('sourcedata', onSourceData);
 
-  // updateClusterMarkersCallback is stable (reads current values from refs), so it is
-  // intentionally omitted from the deps to avoid re-firing on its identity churn.
   useEffect(() => {
     if (locallyEditedEvent) {
       updateClusterMarkersCallback();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- callback is stable via refs
   }, [locallyEditedEvent]);
 
-  // Trigger a marker refresh when mapImages changes so clusters show the correct icon
-  // as soon as the image is available (sourcedata doesn't fire on mapImages updates).
-  // updateClusterMarkersCallback is stable, so it is intentionally omitted from the deps.
+  // sourcedata doesn't fire on mapImages updates, so refresh markers when icons resolve.
   useEffect(() => {
     updateClusterMarkersCallback();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- callback is stable via refs
   }, [mapImages]);
 
   return null;

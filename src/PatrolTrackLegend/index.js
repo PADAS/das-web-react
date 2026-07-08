@@ -44,7 +44,7 @@ const PatrolTrackLegend = () => {
         className={styles.itemIcon}
         iconId={iconId}
         title={t('icon', { patrolTitle })}
-        type="events"
+        type="patrols"
       />,
       id: patrolData.patrol.id,
       title: t('itemTitle', { patrolTitle }),

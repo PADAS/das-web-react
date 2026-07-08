@@ -1,15 +1,15 @@
 import React from 'react';
+import axios from 'axios';
 import { Provider } from 'react-redux';
 import { mockStore } from '../__test-helpers/MockStore';
 import { render, waitFor } from '../test-utils';
 import { svgCache } from '../SvgIcon';
 import EventIcon from './';
 
-const mockSvgFetch = () =>
+const mockSvgAxios = () =>
   jest.fn().mockResolvedValue({
-    ok: true,
-    headers: { get: () => 'image/svg+xml' },
-    text: () => Promise.resolve('<svg><path/></svg>'),
+    data: '<svg><path/></svg>',
+    headers: { 'content-type': 'image/svg+xml' },
   });
 
 // Two event types with different priorities
@@ -30,15 +30,15 @@ const makeCollection = (containedEvents) => ({
 });
 
 describe('EventIcon collection badge icon', () => {
-  let fetchSpy;
+  let axiosSpy;
 
   beforeEach(() => {
     svgCache.clear();
-    fetchSpy = jest.spyOn(global, 'fetch').mockImplementation(mockSvgFetch());
+    axiosSpy = jest.spyOn(axios, 'get').mockImplementation(mockSvgAxios());
   });
 
   afterEach(() => {
-    fetchSpy.mockRestore();
+    axiosSpy.mockRestore();
   });
 
   test('shows the highest-priority contained event icon as the badge — not just the first', async () => {
@@ -56,7 +56,7 @@ describe('EventIcon collection badge icon', () => {
     );
 
     await waitFor(() => {
-      const fetchedUrls = fetchSpy.mock.calls.map(([url]) => url);
+      const fetchedUrls = axiosSpy.mock.calls.map(([url]) => url);
       expect(fetchedUrls.some((url) => url.includes('high_icon'))).toBe(true);
       expect(fetchedUrls.some((url) => url.includes('low_icon'))).toBe(false);
     });

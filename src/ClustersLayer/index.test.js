@@ -540,6 +540,24 @@ describe('ClustersLayer', () => {
 
       expect(renderedClusterHashes).toHaveLength(2);
     });
+
+    test('resolves (does not hang) and drops clusters that error, keeping the arrays aligned', async () => {
+      const erroringSource = {
+        getClusterLeaves: (clusterId, limit, offset, callback) => (clusterId === cluster1Id
+          ? callback(new Error('boom'))
+          : callback(null, cluster2Features)),
+      };
+
+      const {
+        renderedClusterIds,
+        renderedClusterFeatures,
+        renderedClusterHashes,
+      } = await getRenderedClustersData(erroringSource, map);
+
+      expect(renderedClusterIds).toEqual([cluster2Id]);
+      expect(renderedClusterFeatures).toEqual([cluster2Features]);
+      expect(renderedClusterHashes).toHaveLength(1);
+    });
   });
 
   describe('removeOldClusterMarkers', () => {
