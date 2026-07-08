@@ -1,11 +1,11 @@
 import { memo, useCallback, useEffect } from 'react';
 import axios from 'axios';
-import { connect, useDispatch } from 'react-redux';
+import { connect } from 'react-redux';
 import { useLocation } from 'react-router';
 import { useAuth0 } from '@auth0/auth0-react';
 import { toast } from 'react-toastify';
 
-import { clearAuth, POST_AUTH_SUCCESS, resetMasterCancelToken } from '../ducks/auth';
+import { applyAccessToken, clearAuth, resetMasterCancelToken } from '../ducks/auth';
 
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
 import { showToast } from '../utils/toast';
@@ -51,6 +51,7 @@ const handleGeoPermWarningHeader = (response, userLocationAccessGranted) => {
 
 
 const RequestConfigManager = ({
+  applyAccessToken,
   clearAuth,
   userLocationAccessGranted,
   masterRequestCancelToken,
@@ -61,7 +62,6 @@ const RequestConfigManager = ({
 }) => {
   const { search } = useLocation();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const { getAccessTokenSilently } = useAuth0();
 
   const handle401Errors = useCallback(async (error) => {
@@ -71,8 +71,7 @@ const RequestConfigManager = ({
     if (isAuthError && request && !request.retriedAfterRefresh) {
       try {
         const accessToken = await getAccessTokenSilently();
-        document.cookie = `token=${accessToken};path=/`;
-        dispatch({ type: POST_AUTH_SUCCESS, payload: { data: { access_token: accessToken } } });
+        applyAccessToken(accessToken);
         return axios({
           ...request,
           retriedAfterRefresh: true,
@@ -90,7 +89,7 @@ const RequestConfigManager = ({
       });
     }
     return Promise.reject(error);
-  }, [clearAuth, dispatch, getAccessTokenSilently, navigate, resetMasterCancelToken, search]);
+  }, [applyAccessToken, clearAuth, getAccessTokenSilently, navigate, resetMasterCancelToken, search]);
 
   const addMasterCancelTokenToRequests = useCallback((config) => {
     config.cancelToken = config.cancelToken || (masterRequestCancelToken && masterRequestCancelToken.token);
@@ -181,4 +180,4 @@ const mapStateToProps = ({ data: { selectedUserProfile, user, masterRequestCance
 });
 
 
-export default connect(mapStateToProps, { clearAuth, resetMasterCancelToken })(memo(RequestConfigManager));
+export default connect(mapStateToProps, { applyAccessToken, clearAuth, resetMasterCancelToken })(memo(RequestConfigManager));
