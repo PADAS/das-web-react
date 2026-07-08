@@ -2,9 +2,10 @@ import { memo, useCallback, useEffect } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import { useLocation } from 'react-router';
+import { useAuth0 } from '@auth0/auth0-react';
 import { toast } from 'react-toastify';
 
-import { clearAuth, resetMasterCancelToken } from '../ducks/auth';
+import { applyAccessToken, clearAuth, resetMasterCancelToken } from '../ducks/auth';
 
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
 import { showToast } from '../utils/toast';
@@ -50,6 +51,7 @@ const handleGeoPermWarningHeader = (response, userLocationAccessGranted) => {
 
 
 const RequestConfigManager = ({
+  applyAccessToken,
   clearAuth,
   userLocationAccessGranted,
   masterRequestCancelToken,
@@ -58,17 +60,36 @@ const RequestConfigManager = ({
   token,
   user,
 }) => {
-  const location = useLocation();
+  const { search } = useLocation();
   const navigate = useNavigate();
+  const { getAccessTokenSilently } = useAuth0();
 
-  const handle401Errors = useCallback((error) => {
-    if (error && error.toString().includes('401') && !error.config?.skipAuth) {
+  const handle401Errors = useCallback(async (error) => {
+    const isAuthError = error?.response?.status === 401 && !error.config?.skipAuth;
+    const request = error?.config;
+
+    if (isAuthError && request && !request.retriedAfterRefresh) {
+      try {
+        const accessToken = await getAccessTokenSilently();
+        applyAccessToken(accessToken);
+        return axios({
+          ...request,
+          retriedAfterRefresh: true,
+          headers: { ...request.headers, Authorization: `Bearer ${accessToken}` },
+        });
+      } catch (renewalError) {
+        console.warn('Token renewal failed; signing out', renewalError);
+      }
+    }
+
+    if (isAuthError) {
       resetMasterCancelToken();
       clearAuth().then(() => {
-        navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search: location.search });
+        navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search });
       });
     }
-  }, [clearAuth, location?.search, navigate, resetMasterCancelToken]);
+    return Promise.reject(error);
+  }, [applyAccessToken, clearAuth, getAccessTokenSilently, navigate, resetMasterCancelToken, search]);
 
   const addMasterCancelTokenToRequests = useCallback((config) => {
     config.cancelToken = config.cancelToken || (masterRequestCancelToken && masterRequestCancelToken.token);
@@ -114,10 +135,7 @@ const RequestConfigManager = ({
         handleGeoPermWarningHeader(response, userLocationAccessGranted);
         return response;
       },
-      (error) => {
-        handle401Errors(error);
-        return Promise.reject(error);
-      }
+      (error) => handle401Errors(error)
     ];
 
     const interceptorId = axios.interceptors.response.use(...interceptorConfig);
@@ -162,4 +180,4 @@ const mapStateToProps = ({ data: { selectedUserProfile, user, masterRequestCance
 });
 
 
-export default connect(mapStateToProps, { clearAuth, resetMasterCancelToken })(memo(RequestConfigManager));
+export default connect(mapStateToProps, { applyAccessToken, clearAuth, resetMasterCancelToken })(memo(RequestConfigManager));

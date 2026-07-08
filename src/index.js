@@ -140,6 +140,7 @@ root.render(
           redirect_uri: `${window.location.origin}${REACT_APP_ROUTE_PREFIX}`,
         }}
         cacheLocation="localstorage"
+        useRefreshTokens={true}
       >
         <BrowserRouter>
           <NavigationContextProvider>
