@@ -35,8 +35,8 @@
     },
     "ecoscopeAnalysisLinkAriaLabel": "Ecoscope Analysis",
     "ecoscopeAnalysisLink": "Analysis",
-    "ecoscopeDownloaderLinkAriaLabel": "Ecoscope Downloader",
-    "ecoscopeDownloaderLink": "Downloader",
+    "ecoscopeDownloaderMigrationGuideLinkAriaLabel": "Ecoscope Downloader",
+    "ecoscopeDownloaderMigrationGuideLink": "Downloader",
     "ecoscopeHeading": "ECOSCOPE",
     "footer": {
       "clientVersion": "Web client version: {{version}}",

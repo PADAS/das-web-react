@@ -3,15 +3,17 @@ import { featureCollection } from '@turf/turf';
 import { useSelector } from 'react-redux';
 
 import { addNewClusterMarkers, getRenderedClustersData, removeOldClusterMarkers } from './utils';
-import { CLUSTERS_MAX_ZOOM, CLUSTERS_RADIUS, LAYER_IDS, SOURCE_IDS } from '../constants';
+import { CLUSTERS_MAX_ZOOM, CLUSTERS_RADIUS, LAYER_IDS, PREVIEW_FEATURES, SOURCE_IDS } from '../constants';
 import { getMapEventSymbolPointsWithVirtualDate } from '../selectors/events';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
-import { selectShouldEventsBeClustered, selectShouldSubjectsBeClustered } from '../selectors/clusters';
 import { MapContext } from '../MapContext';
+import { selectRealtimeOverlayFeatureCollection } from '../selectors/events-realtime-overlay';
+import { selectShouldEventsBeClustered, selectShouldSubjectsBeClustered } from '../selectors/clusters';
 import useClusterPolygon from '../hooks/useClusterPolygon';
-import { useMapEventBinding } from '../hooks';
-import useMapSources from '../hooks/useMapSources';
+import { useMapEventBinding, usePreviewFeature } from '../hooks';
 import useMapLayers from '../hooks/useMapLayers';
+import useMapSources from '../hooks/useMapSources';
+import useTileEventFeatures from '../hooks/useTileEventFeatures';
 
 const {
   CLUSTERS_LAYER_ID,
@@ -33,24 +35,39 @@ const CLUSTER_LAYER_CONFIG = {
 
 const ClustersLayer = ({ onShowClusterSelectPopup }) => {
   const map = useContext(MapContext);
+  const tileEventFeatures = useTileEventFeatures();
 
-  const clusterMarkerHashMapRef = useRef({});
+  const eventVectorTilesEnabled = usePreviewFeature(PREVIEW_FEATURES.EVENTS_VECTOR_TILES);
 
   const eventPointFeatureCollection = useSelector(getMapEventSymbolPointsWithVirtualDate);
+  const realtimeOverlayFeatureCollection = useSelector(selectRealtimeOverlayFeatureCollection);
   const shouldEventsBeClustered = useSelector(selectShouldEventsBeClustered);
   const shouldSubjectsBeClustered = useSelector(selectShouldSubjectsBeClustered);
   const subjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);
 
-  const clustersSourceData = useMemo(() => featureCollection(
-    [
-      ...(shouldEventsBeClustered ? eventPointFeatureCollection.features : []),
+  const clusterMarkerHashMapRef = useRef({});
+  const latestClusterUpdateRunIdRef = useRef(0);
+
+  const clustersSourceData = useMemo(() => {
+    // Cluster the event features from both the tiles and realtime overlay.
+    const eventFeatures = eventVectorTilesEnabled
+      ? [...tileEventFeatures.features, ...realtimeOverlayFeatureCollection.features]
+      : eventPointFeatureCollection.features;
+
+    // Combine the event features and subject features to cluster them
+    // together.
+    return featureCollection([
+      ...(shouldEventsBeClustered ? eventFeatures : []),
       ...(shouldSubjectsBeClustered ? subjectFeatureCollection.features : []),
-    ]
-  ), [
+    ]);
+  }, [
     eventPointFeatureCollection,
+    eventVectorTilesEnabled,
+    realtimeOverlayFeatureCollection,
     shouldEventsBeClustered,
     shouldSubjectsBeClustered,
     subjectFeatureCollection.features,
+    tileEventFeatures,
   ]);
 
   useMapSources([{ id: CLUSTERS_SOURCE_ID, data: clustersSourceData }], CLUSTER_SOURCE_CONFIG);
@@ -97,11 +114,25 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
   // The callback intentionally reads these values from refs so its identity stays stable
   // across frequent locallyEditedEvent/mapImages/etc. changes; only `map` is a real dep.
   const updateClusterMarkersCallback = useCallback(async () => {
+    const clustersSource = map?.getSource(CLUSTERS_SOURCE_ID);
+    if (!clustersSource) {
+      return;
+    }
+
+    // mapImages re-triggers this on every icon resolved, so overlapping calls
+    // are expected. If an older call's async work finishes after a newer one,
+    // discard it.
+    const runId = ++latestClusterUpdateRunIdRef.current;
+
     const {
       renderedClusterHashes,
       renderedClusterFeatures,
       renderedClusterIds,
-    } = await getRenderedClustersData(map.getSource(CLUSTERS_SOURCE_ID), map, locallyEditedEventRef.current, mapImagesRef.current);
+    } = await getRenderedClustersData(clustersSource, map, locallyEditedEventRef.current);
+
+    if (runId !== latestClusterUpdateRunIdRef.current) {
+      return;
+    }
 
     removeOldClusterMarkers(clusterMarkerHashMapRef, removeClusterPolygonRef.current, renderedClusterHashes);
 

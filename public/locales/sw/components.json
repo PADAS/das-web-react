@@ -255,7 +255,6 @@
           "patrolFiltersCheckboxLabel": "Vichuja vya Doria"
         },
         "experimentalFeaturesFieldSet": {
-          "CUSTOM_COORDINATE_SYSTEMS_ENABLED": "Mifumo ya Marejeo ya Koordinati",
           "legend": "Vipengele vya Majaribio"
         },
         "languageSelect": {
@@ -377,6 +376,10 @@
     "popoverHeader": "Upeo wa Tarehe",
     "popoverResetButton": "Rudisha",
     "sliderLabel": "Kishikilia Muda",
+    "speedButtonLabel": "Fungua chaguo za kasi ya uchezaji",
+    "speedMenuHeader": "Kasi ya Uchezaji",
+    "speedMenuLabel": "Chaguo za kasi ya uchezaji",
+    "speedMenuOptionLabel": "Weka kasi ya uchezaji kuwa {{speed}}",
     "timeSliderMapControl": {
       "iconTitle": "Kishikilia Muda"
     },

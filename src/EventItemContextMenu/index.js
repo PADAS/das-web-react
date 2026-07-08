@@ -6,10 +6,11 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as LinkIcon } from '../common/images/icons/link.svg';
 
-import { EVENT_FORM_STATES } from '../constants';
+import { EVENT_FORM_STATES, PREVIEW_FEATURES } from '../constants';
 import { getReportLink, isReportActive } from '../utils/events';
 import { setEventState, updateEvent } from '../ducks/events';
 import { showToast } from '../utils/toast';
+import { usePreviewFeature } from '../hooks';
 
 import ContextMenu from '../ContextMenu';
 import TextCopyBtn from '../TextCopyBtn';
@@ -49,6 +50,10 @@ const EventItemContextMenu = ({ children, className = '', report }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'eventItemContextMenu' });
 
   const [isLoading, setIsLoading] = useState(false);
+
+  // Remove this flag and the conditional rendering below once community input
+  // is enabled for all tenants.
+  const communityInputEnabled = usePreviewFeature(PREVIEW_FEATURES.COMMUNITY_INPUT_ADMIN);
 
   const isActive = isReportActive(report);
   const isInReview = report?.state === EVENT_FORM_STATES.REVIEW;
@@ -125,7 +130,7 @@ const EventItemContextMenu = ({ children, className = '', report }) => {
       {(isActive || isInReview) && <Dropdown.Item className={styles.option} onClick={() => updateReportState(EVENT_FORM_STATES.RESOLVED)}>
         {t('updateReportStateItem.resolve')} #{report.serial_number}
       </Dropdown.Item>}
-      {isActive && <Dropdown.Item className={styles.option} onClick={() => updateReportState(EVENT_FORM_STATES.REVIEW)}>
+      {isActive && communityInputEnabled && <Dropdown.Item className={styles.option} onClick={() => updateReportState(EVENT_FORM_STATES.REVIEW)}>
         {t('updateReportStateItem.review')} #{report.serial_number}
       </Dropdown.Item>}
       {isInReview && <Dropdown.Item className={styles.option} onClick={() => updateReportState(EVENT_FORM_STATES.ACTIVE)}>

@@ -1,4 +1,12 @@
 {
+  "auth0Info": {
+    "title": "Set up EarthRanger Identity",
+    "intro": "EarthRanger is moving to a simpler, more secure way to sign in, called EarthRanger Identity.",
+    "signInPrompt": "If you already have EarthRanger Identity, select Sign in with email below.",
+    "convertPrompt": "First time using EarthRanger Identity? You'll first need to convert your existing account using the username and password you use today.",
+    "convertLink": "Convert your account",
+    "helpText": "Questions? Reach out to your site admin."
+  },
   "errorAlert": {
     "accessDeniedNotAuthorized": "Access denied: Your account is not authorized for this organization. Please contact your administrator.",
     "accessDeniedNoPermission": "Access denied: You do not have permission to access this application.",
@@ -6,6 +14,7 @@
     "authenticationError": "Authentication error: {{errorDescription}}",
     "invalidCredentialsMessage": "Invalid credentials given. Please try again.",
     "signInFailed": "Sign-in failed. Please try again.",
+    "signInIncomplete": "We couldn't finish signing you in. Please try again.",
     "unknownErrorMessage": "An error has occurred. Please try again."
   },
   "errors": {

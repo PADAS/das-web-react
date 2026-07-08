@@ -638,6 +638,59 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - useSchemaValidat
     }));
   });
 
+  it('returns only the inner field error for a failing if/then conditional', () => {
+    schema.json.properties.trigger = {
+      default: '',
+      deprecated: false,
+      description: '',
+      title: 'Trigger field',
+      type: 'string',
+    };
+    schema.json.properties.attachment_1 = {
+      default: '',
+      deprecated: false,
+      description: '',
+      title: 'Attachment field',
+      type: 'string',
+    };
+    schema.json.allOf = [
+      {
+        if: {
+          properties: { trigger: { const: 'yes' } },
+          required: ['trigger'],
+        },
+        then: { required: ['attachment_1'] },
+      },
+    ];
+    schema.ui.fields.trigger = {
+      inputType: 'SHORT_TEXT',
+      placeholder: '',
+      type: 'TEXT',
+      parent: 'section-_PdgePvPWyACfu9sgN_F6',
+    };
+    schema.ui.fields.attachment_1 = {
+      inputType: 'SHORT_TEXT',
+      placeholder: '',
+      type: 'TEXT',
+      parent: 'section-_PdgePvPWyACfu9sgN_F6',
+    };
+    schema.ui.sections['section-_PdgePvPWyACfu9sgN_F6'].leftColumn = [
+      { name: 'trigger', type: 'field' },
+      { name: 'attachment_1', type: 'field' },
+    ];
+    const formData = { trigger: 'yes' };
+
+    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+
+    const runValidations = result.current;
+
+    expect(runValidations(formData)).toEqual({
+      attachment_1: {
+        message: 'This is a required field.',
+      },
+    });
+  });
+
   it('injects nested errors in collection item forms', () => {
     schema.json.properties.collection_1 = {
       deprecated: false,

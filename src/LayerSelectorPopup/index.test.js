@@ -153,4 +153,221 @@ describe('LayerSelectorPopup', () => {
     expect(onSelectEvent).toHaveBeenCalledTimes(1);
     expect(onSelectEvent.mock.calls[0][0].layer.properties.id).toBe('60e98094-4f5d-4e91-8b7c-1cef1775109d');
   });
+
+  test('hydrates the icon for vector-tile event features from the event store, overriding the tile\'s own bogus image', async () => {
+    const eventId = 'tile-event-id';
+    const imageUrl = 'https://develop.pamdas.org/static/sprite-src/jenaeonefield.svg';
+
+    const tileEventLayer = {
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [0, 0] },
+      properties: {
+        id: eventId,
+        display_title: 'k6_event_24231\nJul 03, 08:59 UTC',
+        event_type: 'jenaeonefield',
+        icon_id: 'jenaeonefield',
+        // The vector tile's own image/image_url is not a fetchable icon URL
+        // (e.g. a bogus "icon-rep-amber.svg" slug) and must not be trusted.
+        image: 'https://develop.pamdas.org/static/sprite-src/jenaeonefield-rep-amber.svg',
+      },
+    };
+
+    const storeEvent = {
+      id: eventId,
+      title: 'k6_event_24231',
+      event_type: 'jenaeonefield',
+      geojson: {
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [0, 0] },
+        properties: { image: imageUrl },
+      },
+    };
+
+    const tileStore = mockStore({
+      view: { mapImages: [] },
+      data: { eventStore: { [eventId]: storeEvent }, eventTypes: [] },
+    });
+
+    const data = {
+      layers: [tileEventLayer],
+      onSelectSubject,
+      onSelectEvent,
+      onSelectPoint,
+    };
+    render(
+      <Provider store={tileStore}>
+        <LayerSelectorPopup data={data} id={uuid()} />
+      </Provider>
+    );
+
+    const image = await screen.findByRole('img');
+    expect(image.getAttribute('src')).toBe(imageUrl);
+  });
+
+  test('falls back to the icon sprite source URL for vector-tile event features not yet in the event store', async () => {
+    const eventId = 'tile-only-event-id';
+
+    const tileEventLayer = {
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [0, 0] },
+      properties: {
+        id: eventId,
+        display_title: 'k6_event_99999\nJul 03, 08:59 UTC',
+        event_type: 'jenaeonefield',
+        icon_id: 'jenaeonefield',
+        image: 'https://develop.pamdas.org/static/sprite-src/jenaeonefield-rep-amber.svg',
+      },
+    };
+
+    const tileStore = mockStore({
+      view: { mapImages: [] },
+      data: { eventStore: {}, eventTypes: [] },
+    });
+
+    const data = {
+      layers: [tileEventLayer],
+      onSelectSubject,
+      onSelectEvent,
+      onSelectPoint,
+    };
+    render(
+      <Provider store={tileStore}>
+        <LayerSelectorPopup data={data} id={uuid()} />
+      </Provider>
+    );
+
+    const image = await screen.findByRole('img');
+    expect(image.getAttribute('src')).toContain('/static/sprite-src/jenaeonefield.svg');
+  });
+
+  test('uses the priority-colored icon already cached by MapImageFromSvgSpriteRenderer, when available', async () => {
+    const eventId = 'tile-only-event-id';
+    const coloredIconSrc = 'data:image/svg+xml;charset=utf-8,colored-icon';
+
+    const tileEventLayer = {
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [0, 0] },
+      properties: {
+        id: eventId,
+        display_title: 'k6_event_99999\nJul 03, 08:59 UTC',
+        event_type: 'jenaeonefield',
+        icon_id: 'jenaeonefield',
+        priority: 200,
+        image: 'https://develop.pamdas.org/static/sprite-src/jenaeonefield-rep-amber.svg',
+      },
+    };
+
+    const tileStore = mockStore({
+      view: { mapImages: { 'jenaeonefield-200': { image: { src: coloredIconSrc } } } },
+      data: { eventStore: {}, eventTypes: [] },
+    });
+
+    const data = {
+      layers: [tileEventLayer],
+      onSelectSubject,
+      onSelectEvent,
+      onSelectPoint,
+    };
+    render(
+      <Provider store={tileStore}>
+        <LayerSelectorPopup data={data} id={uuid()} />
+      </Provider>
+    );
+
+    const image = await screen.findByRole('img');
+    expect(image.getAttribute('src')).toBe(coloredIconSrc);
+  });
+
+  test('falls back to the icon sprite source URL when the matching store event has no geojson yet', async () => {
+    const eventId = 'store-event-without-geojson';
+
+    const tileEventLayer = {
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [0, 0] },
+      properties: {
+        id: eventId,
+        display_title: 'k6_event_11111\nJul 03, 08:59 UTC',
+        event_type: 'jenaeonefield',
+        icon_id: 'jenaeonefield',
+        image: 'https://develop.pamdas.org/static/sprite-src/jenaeonefield-rep-amber.svg',
+      },
+    };
+
+    // A store event without a `geojson` property is filtered out by
+    // createFeatureCollectionFromEvents, so hydration yields nothing here.
+    const storeEvent = { id: eventId, title: 'k6_event_11111', event_type: 'jenaeonefield' };
+
+    const tileStore = mockStore({
+      view: { mapImages: [] },
+      data: { eventStore: { [eventId]: storeEvent }, eventTypes: [] },
+    });
+
+    const data = {
+      layers: [tileEventLayer],
+      onSelectSubject,
+      onSelectEvent,
+      onSelectPoint,
+    };
+    render(
+      <Provider store={tileStore}>
+        <LayerSelectorPopup data={data} id={uuid()} />
+      </Provider>
+    );
+
+    const image = await screen.findByRole('img');
+    expect(image.getAttribute('src')).toContain('/static/sprite-src/jenaeonefield.svg');
+  });
+
+  test('uses the cached colored icon for a hydrated store event that carries icon_id/event_type', async () => {
+    const eventId = 'hydrated-event-with-icon-id';
+    const coloredIconSrc = 'data:image/svg+xml;charset=utf-8,colored-icon';
+
+    const tileEventLayer = {
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [0, 0] },
+      properties: {
+        id: eventId,
+        display_title: 'k6_event_22222\nJul 03, 08:59 UTC',
+        event_type: 'jenaeonefield',
+        icon_id: 'jenaeonefield',
+        image: 'https://develop.pamdas.org/static/sprite-src/jenaeonefield-rep-amber.svg',
+      },
+    };
+
+    // Real events returned by the API carry icon_id/priority at the top
+    // level, which addPropsToGeoJsonByKey flattens onto the hydrated
+    // feature's properties alongside event_type.
+    const storeEvent = {
+      id: eventId,
+      title: 'k6_event_22222',
+      event_type: 'jenaeonefield',
+      icon_id: 'jenaeonefield',
+      priority: 200,
+      geojson: {
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [0, 0] },
+        properties: {},
+      },
+    };
+
+    const tileStore = mockStore({
+      view: { mapImages: { 'jenaeonefield-200': { image: { src: coloredIconSrc } } } },
+      data: { eventStore: { [eventId]: storeEvent }, eventTypes: [] },
+    });
+
+    const data = {
+      layers: [tileEventLayer],
+      onSelectSubject,
+      onSelectEvent,
+      onSelectPoint,
+    };
+    render(
+      <Provider store={tileStore}>
+        <LayerSelectorPopup data={data} id={uuid()} />
+      </Provider>
+    );
+
+    const image = await screen.findByRole('img');
+    expect(image.getAttribute('src')).toBe(coloredIconSrc);
+  });
 });

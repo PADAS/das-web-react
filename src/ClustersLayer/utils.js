@@ -1,6 +1,7 @@
 import { centroid, featureCollection } from '@turf/turf';
 import mapboxgl from 'mapbox-gl';
 
+import { calcGenericFallbackImageUrl, calcSpriteSvgUrl } from '../utils/img';
 import { CLUSTER_CLICK_ZOOM_THRESHOLD, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { calcSvgImageIconId } from '../utils/mapImages';
 import { subjectIsStatic } from '../utils/subjects';
@@ -25,10 +26,12 @@ const FEATURE_SS_ICON_HTML_STYLES = { filter: 'brightness(0)' };
 const FEATURE_COUNT_HTML_STYLES = { fontSize: '16px', fontWeight: '500', paddingLeft: '4px', margin: '0' };
 
 const getFeatureIcon = (feature, mapImages, locallyEditedEvent) => {
+  // When the feature is the event being edited locally, reflect its unsaved
+  // priority so the icon variant matches the edit in progress.
   const priority = locallyEditedEvent?.id === feature.properties.id
     ? locallyEditedEvent.priority
     : feature.properties.priority;
-  return mapImages[calcSvgImageIconId({ icon_id: feature.properties.icon_id, priority })]?.image;
+  return mapImages[calcSvgImageIconId({ ...feature.properties, priority })]?.image;
 };
 
 export const getClusterIconFeatures = (clusterFeatures) => {
@@ -72,6 +75,50 @@ export const getClusterIconFeatures = (clusterFeatures) => {
   return clusterIconFeatures.slice(0, CLUSTER_ICON_DISPLAY_LENGTH);
 };
 
+const populateClusterIconChildren = (
+  clusterHTMLMarkerContainer,
+  clusterIconFeatures,
+  totalFeatureCount,
+  mapImages,
+  locallyEditedEvent = null
+) => {
+  while (clusterHTMLMarkerContainer.firstChild) {
+    clusterHTMLMarkerContainer.removeChild(clusterHTMLMarkerContainer.firstChild);
+  }
+
+  clusterIconFeatures.forEach((feature) => {
+    let featureImageHTML = getFeatureIcon(feature, mapImages, locallyEditedEvent)?.cloneNode(true);
+    if (!featureImageHTML) {
+      featureImageHTML = document.createElement('img');
+      // Event features' own image/image_url from the vector tile is unreliable
+      // so fall back to the uncolored sprite master until mapImages resolves.
+      // That master doesn't exist for every icon_id either, so if it also
+      // fails to load, drop to the generic per-color icon.
+      if (feature.properties.icon_id) {
+        featureImageHTML.src = calcSpriteSvgUrl(feature.properties.icon_id);
+        featureImageHTML.onerror = () => {
+          featureImageHTML.onerror = null;
+          featureImageHTML.src = calcGenericFallbackImageUrl(feature.properties);
+        };
+      } else {
+        featureImageHTML.src = feature.properties.image || feature.properties.image_url;
+      }
+    }
+    injectStylesToElement(featureImageHTML, FEATURE_ICON_HTML_STYLES);
+    if (subjectIsStatic(feature)) {
+      injectStylesToElement(featureImageHTML, FEATURE_SS_ICON_HTML_STYLES);
+    }
+    clusterHTMLMarkerContainer.appendChild(featureImageHTML);
+  });
+
+  if (totalFeatureCount > CLUSTER_ICON_DISPLAY_LENGTH) {
+    const featuresCountHTML = document.createElement('p');
+    featuresCountHTML.innerHTML = `+${totalFeatureCount - CLUSTER_ICON_DISPLAY_LENGTH}`;
+    injectStylesToElement(featuresCountHTML, FEATURE_COUNT_HTML_STYLES);
+    clusterHTMLMarkerContainer.appendChild(featuresCountHTML);
+  }
+};
+
 export const createClusterHTMLMarker = (
   clusterFeatures,
   mapImages,
@@ -86,25 +133,13 @@ export const createClusterHTMLMarker = (
   clusterHTMLMarkerContainer.onmouseleave = onMouseLeaveCluster;
   injectStylesToElement(clusterHTMLMarkerContainer, CLUSTER_HTML_MARKER_CONTAINER_STYLES);
 
-  getClusterIconFeatures(clusterFeatures).forEach((feature) => {
-    let featureImageHTML = getFeatureIcon(feature, mapImages, locallyEditedEvent)?.cloneNode(true);
-    if (!featureImageHTML) {
-      featureImageHTML = document.createElement('img');
-      featureImageHTML.src = feature.properties.image || feature.properties.image_url;
-    }
-    injectStylesToElement(featureImageHTML, FEATURE_ICON_HTML_STYLES);
-    if (subjectIsStatic(feature)) {
-      injectStylesToElement(featureImageHTML, FEATURE_SS_ICON_HTML_STYLES);
-    }
-    clusterHTMLMarkerContainer.appendChild(featureImageHTML);
-  });
-
-  if (clusterFeatures.length > CLUSTER_ICON_DISPLAY_LENGTH) {
-    const featuresCountHTML = document.createElement('p');
-    featuresCountHTML.innerHTML = `+${clusterFeatures.length - CLUSTER_ICON_DISPLAY_LENGTH}`;
-    injectStylesToElement(featuresCountHTML, FEATURE_COUNT_HTML_STYLES);
-    clusterHTMLMarkerContainer.appendChild(featuresCountHTML);
-  }
+  populateClusterIconChildren(
+    clusterHTMLMarkerContainer,
+    getClusterIconFeatures(clusterFeatures),
+    clusterFeatures.length,
+    mapImages,
+    locallyEditedEvent
+  );
 
   return clusterHTMLMarkerContainer;
 };
@@ -134,7 +169,7 @@ export const onClusterClick = (
   }
 };
 
-export const getRenderedClustersData = async (clustersSource, map, locallyEditedEvent = null, mapImages = null) => {
+export const getRenderedClustersData = async (clustersSource, map, locallyEditedEvent = null) => {
   const renderedClusterIds = map.queryRenderedFeatures({ layers: [CLUSTERS_LAYER_ID] })
     .map((cluster) => cluster.properties.cluster_id);
 
@@ -150,22 +185,12 @@ export const getRenderedClustersData = async (clustersSource, map, locallyEdited
 
   const renderedClusterHashes = renderedClusterFeatures.map(
     (clusterFeatures) => hashCode(clusterFeatures.map((clusterFeature) => {
+      // For the locally-edited event, key the hash off its unsaved priority so the
+      // marker is recreated when the edit changes (and again when it is cleared).
       const isLocallyEdited = locallyEditedEvent?.id === clusterFeature.properties.id;
-      const priority = clusterFeature.properties.priority ?? 0;
-      // Include whether the icon image is loaded so the hash changes when mapImages gains the entry,
-      // forcing the marker to be recreated with the correct icon.
-      const iconKey = calcSvgImageIconId({
-        icon_id: clusterFeature.properties.icon_id,
-        priority: clusterFeature.properties.priority,
-      });
-      // For a locally-edited feature, imageLoaded is computed from the feature's ORIGINAL
-      // priority icon key (not the locally-edited priority). That is intentional and harmless
-      // because addNewClusterMarkers unconditionally recreates any marker containing the
-      // locally-edited feature, so its icon is always refreshed regardless of this bit.
-      const imageLoaded = mapImages?.[iconKey] ? '1' : '0';
       const suffix = isLocallyEdited
         ? `local-${locallyEditedEvent.priority ?? 0}`
-        : `${clusterFeature.properties.updated_at}-${priority}-${imageLoaded}`;
+        : `${clusterFeature.properties.updated_at}`;
       return `${clusterFeature.properties.id} ${suffix}`;
     }).join(''))
   );
@@ -178,7 +203,7 @@ export const removeOldClusterMarkers = (clusterMarkerHashMapRef, removeClusterPo
   const prevClusterHashes = Object.keys(clusterMarkerHashMapRef.current).map((clusterHash) => parseInt(clusterHash));
   prevClusterHashes.forEach((prevClusterHash) => {
     if (!renderedClusterHashesSet.has(prevClusterHash)) {
-      clusterMarkerHashMapRef.current[prevClusterHash].marker.remove();
+      clusterMarkerHashMapRef.current[prevClusterHash].marker?.remove();
       removeClusterPolygon();
     }
   });
@@ -203,21 +228,16 @@ export const addNewClusterMarkers = (
     const clusterHash = renderedClusterHashes[index];
     const clusterId = renderedClusterIds[index];
 
-    // If the cluster contains the locally-edited event, always recreate the marker
-    // so it reflects the latest mapImages (which may now have the new-priority image).
-    const hasLocallyEditedFeature = locallyEditedEvent
-      && clusterFeatures.some((f) => f.properties.id === locallyEditedEvent.id);
+    const cachedEntry = clusterMarkerHashMapRef.current[clusterHash] || renderedClusterMarkersHashMap[clusterHash];
+    let marker = cachedEntry?.marker;
+    const wasReady = cachedEntry?.iconsReady;
 
-    let marker = !hasLocallyEditedFeature && (
-      clusterMarkerHashMapRef.current[clusterHash]?.marker
-      || renderedClusterMarkersHashMap[clusterHash]?.marker
-    );
+    const clusterIconFeatures = wasReady ? null : getClusterIconFeatures(clusterFeatures);
+    const iconsReady = wasReady || clusterIconFeatures
+      .every((feature) => !feature.properties.icon_id || !!getFeatureIcon(feature, mapImages, locallyEditedEvent));
 
-    if (!marker) {
-      if (hasLocallyEditedFeature) {
-        clusterMarkerHashMapRef.current[clusterHash]?.marker?.remove();
-      }
-
+    // Wait for every displayed icon to resolve before creating the marker.
+    if (!marker && iconsReady) {
       const clusterFeatureCollection = featureCollection(clusterFeatures);
       const clusterPoint = centroid(clusterFeatureCollection);
       const onClick = onClusterClick(
@@ -232,7 +252,7 @@ export const addNewClusterMarkers = (
       const onMouseOver = () => addClusterPolygon(clusterFeatureCollection);
       const onMouseLeave = () => removeClusterPolygon();
 
-      let newClusterHTMLMarkerContainer = createClusterHTMLMarker(
+      const newClusterHTMLMarkerContainer = createClusterHTMLMarker(
         clusterFeatures,
         mapImages,
         onClick,
@@ -244,11 +264,18 @@ export const addNewClusterMarkers = (
       marker = new mapboxgl.Marker(newClusterHTMLMarkerContainer)
         .setLngLat(clusterPoint.geometry.coordinates)
         .addTo(map);
+    } else if (!wasReady && iconsReady) {
+      populateClusterIconChildren(
+        marker.getElement(),
+        clusterIconFeatures,
+        clusterFeatures.length,
+        mapImages,
+        locallyEditedEvent
+      );
     }
 
-    renderedClusterMarkersHashMap[clusterHash] = { id: clusterId, marker };
+    renderedClusterMarkersHashMap[clusterHash] = { iconsReady, id: clusterId, marker };
   });
 
   return renderedClusterMarkersHashMap;
 };
-

@@ -12,7 +12,7 @@ import {
   updateHeatmapSubjects,
   updateTrackState
 } from '../ducks/map-ui';
-import { render, screen, waitFor } from '../test-utils';
+import { act, render, screen, waitFor } from '../test-utils';
 import { setTrackLength } from '../ducks/tracks';
 import { updatePatrolTrackState } from '../ducks/patrols';
 
@@ -45,6 +45,10 @@ jest.mock('../ducks/events', () => ({
   clearEventData: jest.fn(),
   fetchMapEvents: jest.fn(),
 }));
+
+jest.mock('../EventsTileLayers', () => () => null);
+
+jest.mock('../TileEventFeaturesProvider', () => ({ children }) => children);
 
 jest.mock('../ducks/subjects', () => ({
   ...jest.requireActual('../ducks/subjects'),
@@ -216,6 +220,45 @@ describe('Map', () => {
       ]);
     });
 
+  });
+
+  describe('map events fetch gating (vector tiles flag)', () => {
+    beforeEach(() => jest.useFakeTimers());
+    afterEach(() => {
+      act(() => jest.runOnlyPendingTimers());
+      jest.useRealTimers();
+    });
+
+    test('fetches map events on the legacy path', () => {
+      renderMap(undefined, mockStore(store));
+
+      act(() => {
+        map.__test__.fireHandlers('moveend');
+        jest.runOnlyPendingTimers();
+      });
+
+      expect(fetchMapEventsMock).toHaveBeenCalled();
+    });
+
+    test('does not fetch map events when the flag is ON, but still fetches subjects', () => {
+      const flagStore = {
+        ...store,
+        view: {
+          ...store.view,
+          systemConfig: { ...store.view.systemConfig, previewFeatures: { events_vector_tiles: true } },
+        },
+      };
+
+      renderMap(undefined, mockStore(flagStore));
+
+      act(() => {
+        map.__test__.fireHandlers('moveend');
+        jest.runOnlyPendingTimers();
+      });
+
+      expect(fetchMapSubjectsMock).toHaveBeenCalled();
+      expect(fetchMapEventsMock).not.toHaveBeenCalled();
+    });
   });
 
   test('translates the map text layers when i18n language changes', async () => {

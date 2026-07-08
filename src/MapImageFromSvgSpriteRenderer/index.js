@@ -1,145 +1,163 @@
-import React, { memo, useRef } from 'react';
+import React, { memo, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { connect } from 'react-redux';
-import { calcIconColorByPriority } from '../utils/event-types';
-import { calcUrlForImage, imgElFromSrc } from '../utils/img';
-import { calcSvgImageIconId } from '../utils/mapImages';
+import { useDispatch, useSelector } from 'react-redux';
+
 import { addImageToMapIfNecessary } from '../ducks/map-images';
+import { calcGenericFallbackImageUrl, calcSpriteSvgUrl, calcUrlForImage, imgElFromSrc } from '../utils/img';
+import { calcIconColorByPriority } from '../utils/event-types';
+import { calcSvgImageIconId } from '../utils/mapImages';
+import { MAP_ICON_SIZE, MAP_ICON_SCALE } from '../constants';
 
-import { DAS_HOST, MAP_ICON_SIZE, MAP_ICON_SCALE } from '../constants';
+const EMPTY_FEATURE_COLLECTION = { features: [] };
 
-const fetchSpriteImage = (icon_id) => axios.get(`${DAS_HOST}/static/sprite-src/${icon_id}.svg`,
-  {
+const isClientError = (status) => typeof status === 'number' && status >= 400 && status < 500;
+
+const REP_SUFFIX = '_rep';
+
+const fetchSpriteSvgMarkup = async (spriteIconId) => {
+  const response = await axios.get(calcSpriteSvgUrl(spriteIconId), {
     headers: {
       Accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
     },
     responseType: 'text',
+  });
+
+  return response.data;
+};
+
+const fetchSpriteSvgMarkupWithRepFallback = async (spriteIconId) => {
+  try {
+    return await fetchSpriteSvgMarkup(spriteIconId);
+  } catch (error) {
+    if (isClientError(error?.response?.status) && !spriteIconId.endsWith(REP_SUFFIX)) {
+      return fetchSpriteSvgMarkup(`${spriteIconId}${REP_SUFFIX}`);
+    }
+    throw error;
   }
-);
+};
 
-const imageElFromSvgString = (svgString, report) => {
+const calcScaledIconDimensions = ({ height, width = MAP_ICON_SIZE }) => [
+  width * MAP_ICON_SCALE,
+  height ? height * MAP_ICON_SCALE : undefined,
+];
 
-  const { height, priority, width = MAP_ICON_SIZE } = report;
-  const color = calcIconColorByPriority(priority);
+const renderGenericColorFallbackImage = (event) =>
+  imgElFromSrc(calcGenericFallbackImageUrl(event), ...calcScaledIconDimensions(event));
 
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(svgString, 'image/svg+xml');
-  const svgEl = doc.documentElement;
+// Recolors an event icon's SVG markup for the event's priority and rasterizes
+// it into an <img> element via a data URI.
+const renderColoredIconImage = (svgMarkup, event) => {
+  const color = calcIconColorByPriority(event.priority);
+
+  const svgEl = new DOMParser().parseFromString(svgMarkup, 'image/svg+xml').documentElement;
 
   svgEl.style.fill = `${color} !important`;
   svgEl.setAttribute('fill', color);
 
-  const svgContent = svgEl.querySelectorAll('*');
-
-  svgContent.forEach((item) => {
-    const attributesToRemove = ['class', 'style', 'fill', 'stroke'];
-    attributesToRemove.forEach(attr => item.removeAttribute(attr));
+  svgEl.querySelectorAll('*').forEach((node) => {
+    ['class', 'style', 'fill', 'stroke'].forEach((attribute) => node.removeAttribute(attribute));
   });
 
-  var xml = (new XMLSerializer()).serializeToString(svgEl);
-  const withStyleElRemoved = xml.replace(/<style>.*?<\/style>/g, '');
+  const serializedSvg = new XMLSerializer()
+    .serializeToString(svgEl)
+    .replace(/<style>.*?<\/style>/g, '');
 
-  const blob = new Blob([withStyleElRemoved], { type: 'image/svg+xml' });
-  const url = URL.createObjectURL(blob);
+  const dataUri = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(serializedSvg)}`;
 
-  return imgElFromSrc(
-    url,
-    width * MAP_ICON_SCALE,
-    (height ? (height * MAP_ICON_SCALE) : undefined),
-  );
+  return imgElFromSrc(dataUri, ...calcScaledIconDimensions(event));
 };
 
-const getImageAssemblyDataFromReport = (report) => {
-  const reportTypeIconId = report.icon_id || 'generic';
-  const icon_id = calcSvgImageIconId(report);
-  const color = calcIconColorByPriority(report.priority);
+const renderFallbackEventImage = (event) => imgElFromSrc(calcUrlForImage(event.image), ...calcScaledIconDimensions(event));
 
-  return { color, report, icon_id, reportTypeIconId };
-};
+const MapImageFromSvgSpriteRenderer = ({ eventFeatureCollection = EMPTY_FEATURE_COLLECTION }) => {
+  const dispatch = useDispatch();
+  const mapImages = useSelector((state) => state.view.mapImages);
 
-const MapImageFromSvgSpriteRenderer = (props) => {
-  const { addImageToMapIfNecessary, mapImages, reportFeatureCollection = { features: [] } } = props;
+  const spriteMarkupCache = useRef({});
+  const spriteFetchesInFlight = useRef({});
+  const iconsBeingGenerated = useRef(new Set());
 
-  const reports = reportFeatureCollection.features.map(({ properties }) => properties);
-  const spriteCache = useRef({});
-  const ongoingRequests = useRef({});
+  useEffect(() => {
+    const getSpriteSvgMarkup = (spriteIconId) => {
+      if (spriteMarkupCache.current[spriteIconId]) {
+        return Promise.resolve(spriteMarkupCache.current[spriteIconId]);
+      }
 
-  const reportImageAssemblyData = reports
-    .map(getImageAssemblyDataFromReport)
-    .filter(({ icon_id }) => !mapImages[icon_id]);
+      if (!spriteFetchesInFlight.current[spriteIconId]) {
+        spriteFetchesInFlight.current[spriteIconId] = (async () => {
+          try {
+            const svgMarkup = await fetchSpriteSvgMarkupWithRepFallback(spriteIconId);
+            spriteMarkupCache.current[spriteIconId] = svgMarkup;
+            return svgMarkup;
+          } finally {
+            delete spriteFetchesInFlight.current[spriteIconId];
+          }
+        })();
+      }
 
-  const toRequest = reportImageAssemblyData
-    .filter(({ reportTypeIconId }) =>
-      !spriteCache.current[reportTypeIconId]
-    );
+      return spriteFetchesInFlight.current[spriteIconId];
+    };
 
-  const toGenerateFromCache = reportImageAssemblyData
-    .filter(({ reportTypeIconId }) =>
-      !!spriteCache.current[reportTypeIconId]
-    );
-
-  toRequest.forEach(({ report, icon_id, reportTypeIconId }) => {
-    if (!ongoingRequests.current[reportTypeIconId]) {
-      ongoingRequests.current[reportTypeIconId] = fetchSpriteImage(reportTypeIconId);
-    }
-
-    ongoingRequests.current[reportTypeIconId]
-      .then((response) => {
-        spriteCache.current[reportTypeIconId] = response.data;
-
-        return imageElFromSvgString(response.data, report);
-      })
-      .then((image) => {
-        addImageToMapIfNecessary({ icon_id, image });
-      })
-      .catch((error) => {
-        if (/4[0-9][0-9]/.test(error?.response?.status)) {
-          /* not in the sprite, fetch from the url instead */
-          const iconSrc = calcUrlForImage(report.image);
-
-          const { height, width = MAP_ICON_SIZE } = report;
-
-          imgElFromSrc(
-            iconSrc,
-            width * MAP_ICON_SCALE,
-            (height ? (height * MAP_ICON_SCALE) : undefined),
-          )
-            .then((image) => {
-              addImageToMapIfNecessary({ icon_id, image });
-            })
-            .catch((error) => {
-              console.warn('imgElFromSrc error', error);
-            });
-
-
+    const resolveAndRegisterIcon = async ({ event, iconVariantId, spriteIconId }) => {
+      try {
+        const svgMarkup = await getSpriteSvgMarkup(spriteIconId);
+        const image = await renderColoredIconImage(svgMarkup, event);
+        dispatch(addImageToMapIfNecessary({ icon_id: iconVariantId, image }));
+      } catch (error) {
+        if (isClientError(error?.response?.status)) {
+          // A 4xx failure is permanent (the sprite won't appear on retry), so
+          // lock in a usable fallback: the event's own image, then a generic
+          // per-color icon, so the event never renders without any icon.
+          try {
+            const image = await renderFallbackEventImage(event);
+            dispatch(addImageToMapIfNecessary({ icon_id: iconVariantId, image }));
+          } catch {
+            try {
+              const image = await renderGenericColorFallbackImage(event);
+              dispatch(addImageToMapIfNecessary({ icon_id: iconVariantId, image }));
+            } catch (genericError) {
+              console.warn('map icon fallback image failed to load', genericError);
+            }
+          }
         } else {
-          delete spriteCache.current[reportTypeIconId];
-          console.warn('error generating image for report', error);
+          // A transient (5xx/network) or generation failure may succeed later.
+          // The cached markup itself may be the culprit, so drop it, and leave
+          // the icon unregistered so a later pass re-fetches instead of pinning
+          // a degraded fallback the write-once store would never replace.
+          delete spriteMarkupCache.current[spriteIconId];
+          console.warn('failed to generate map icon from sprite', error);
         }
-      })
-      .finally(() => {
-        delete ongoingRequests.current[reportTypeIconId];
-      });
+      } finally {
+        iconsBeingGenerated.current.delete(iconVariantId);
+      }
+    };
 
-  });
+    // Many events share the same icon variant (event type + priority + size),
+    // so only one generation task is queued per distinct variant.
+    const iconTasksByVariantId = new Map();
 
-  toGenerateFromCache.forEach(({ icon_id, reportTypeIconId, report }) => {
-    imageElFromSvgString(spriteCache.current[reportTypeIconId], report)
-      .then((image) => {
-        addImageToMapIfNecessary({ icon_id, image });
-      })
-      .catch((error) => {
-        console.warn('error generating image from cache', error);
-      });
-  });
+    eventFeatureCollection.features.forEach(({ properties: event }) => {
+      const iconVariantId = calcSvgImageIconId(event);
+      const alreadyHandled = mapImages[iconVariantId]
+        || iconsBeingGenerated.current.has(iconVariantId)
+        || iconTasksByVariantId.has(iconVariantId);
+
+      if (!alreadyHandled) {
+        iconTasksByVariantId.set(iconVariantId, {
+          event,
+          iconVariantId,
+          spriteIconId: event.icon_id || 'generic',
+        });
+      }
+    });
+
+    iconTasksByVariantId.forEach((task) => {
+      iconsBeingGenerated.current.add(task.iconVariantId);
+      resolveAndRegisterIcon(task);
+    });
+  }, [eventFeatureCollection, mapImages, dispatch]);
 
   return null;
-
 };
 
-const mapStateToProps = ({ view: { mapImages } }) => ({
-  mapImages,
-});
-
-
-export default connect(mapStateToProps, { addImageToMapIfNecessary })(memo(MapImageFromSvgSpriteRenderer));
+export default memo(MapImageFromSvgSpriteRenderer);

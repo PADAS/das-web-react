@@ -25,8 +25,18 @@ export const CLUSTER_CLICK_ZOOM_THRESHOLD = 13;
 export const CLUSTERS_MAX_ZOOM = MAX_ZOOM - 1;
 export const CLUSTERS_RADIUS = 40;
 
+// How long socket/seed-loaded events are owned by the realtime overlay before
+// being pruned, by which point the vector tile has refreshed to include them.
+export const REALTIME_OVERLAY_WINDOW_MS = 10 * 60 * 1000;
+
+export const EVENT_TILE_FILTER_DEBOUNCE_MS = 400;
+
 export const API_URL = `${DAS_HOST}${REACT_APP_DAS_API_URL}`;
 export const API_V2_URL = `${DAS_HOST}${REACT_APP_DAS_API_V2_URL}`;
+
+// Server-owned (Django) account-linker page for the EarthRanger Identity (Auth0)
+// migration. Reachable before auth.
+export const ACCOUNT_LINKER_URL = `${DAS_HOST}/auth/link-accounts/`;
 
 export const STATUSES = {
   HEALTHY_STATUS: 'HEALTHY',
@@ -89,6 +99,12 @@ export const LAYER_IDS = {
   EVENT_GEOMETRY_LAYER: 'event-geometry-layer',
   EVENT_LOCATION_MARKERS: 'event-location-markers-layer',
   EVENT_SYMBOLS: 'event_symbols',
+  EVENTS_REALTIME_OVERLAY_GEOMETRY: 'events-realtime-overlay-geometry',
+  EVENTS_REALTIME_OVERLAY_SYMBOLS: 'event_symbols-realtime-overlay',
+  EVENTS_VECTOR_CENTROID_SYMBOLS: 'event_symbols-vector-centroid',
+  EVENTS_VECTOR_CLUSTER_SYMBOLS: 'event_symbols-vector-cluster',
+  EVENTS_VECTOR_GEOMETRY: 'events-vector-geometry',
+  EVENTS_VECTOR_SYMBOLS: 'events-vector-symbols',
   GEAR_LINE: 'gear-line-layer',
   GEAR_LINE_HIT: 'gear-line-hit-layer',
   GEAR_POINT: 'gear-point-layer',
@@ -118,6 +134,9 @@ export const SOURCE_IDS = {
   CURRENT_USER_LOCATION_SOURCE: 'current-user-location-source',
   EVENT_GEOMETRY: 'event-geometry-source',
   EVENT_LOCATION_MARKERS: 'event-location-markers-source',
+  EVENTS_REALTIME_OVERLAY_POLYGON_SOURCE: 'events-realtime-overlay-polygon-source',
+  EVENTS_REALTIME_OVERLAY_SOURCE: 'events-realtime-overlay-source',
+  EVENTS_VECTOR_SOURCE: 'events-vector-source',
   MAP_FEATURES_LINES_SOURCE: 'feature-line-source',
   MAP_FEATURES_POLYGONS_SOURCE: 'feature-polygon-source',
   MAP_FEATURES_SYMBOLS_SOURCE: 'feature-symbol-source',
@@ -151,6 +170,10 @@ export const SYSTEM_CONFIG_FLAGS = {
   GEO_SPAN: 'geo_span',
 };
 
+export const PREVIEW_FEATURES = {
+  COMMUNITY_INPUT_ADMIN: 'community_input_admin_enabled',
+  EVENTS_VECTOR_TILES: 'events_vector_tiles',
+};
 
 export const IF_IS_GENERIC = (ifGeneric, ifNonGeneric) => ['case',
   ['in', 'generic', ['get', 'image']], ifGeneric,
@@ -325,7 +348,7 @@ export const SUPPORTED_LANGUAGES = {
   sw: 'Swahili',
 };
 
-export const FEATURE_FLAG_LABELS = {};
+export const FEATURE_FLAGS = {};
 
 export const DEVELOPMENT_FEATURE_FLAGS = {};
 

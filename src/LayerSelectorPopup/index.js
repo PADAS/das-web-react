@@ -3,10 +3,11 @@ import { center } from '@turf/turf';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { calcImgIdFromUrlForMapImages, calcUrlForImage } from '../utils/img';
+import { calcImgIdFromUrlForMapImages, calcSpriteSvgUrl, calcUrlForImage } from '../utils/img';
 import { calcSvgImageIconId } from '../utils/mapImages';
-import { hidePopup } from '../ducks/popup';
+import { createFeatureCollectionFromEvents } from '../utils/map';
 import { GEAR_FEATURE_CONTENT_TYPE, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
+import { hidePopup } from '../ducks/popup';
 import { subjectIsStatic } from '../utils/subjects';
 
 import SearchBar from '../SearchBar';
@@ -18,13 +19,36 @@ const LayerSelectorPopup = ({ data, id }) => {
   const { t } = useTranslation('map-popups', { keyPrefix: 'layerSelectorPopup' });
 
   const mapImages = useSelector((state) => state.view.mapImages);
-  const eventStore = useSelector((state) => state.data.eventStore);
+  const eventStore = useSelector((state) => state.data?.eventStore);
+  const eventTypes = useSelector((state) => state.data?.eventTypes);
   const locallyEditedEvent = useSelector((state) => state.data.locallyEditedEvent);
 
   const [filter, setFilter] = useState('');
 
   const { layers: layerList, onSelectEvent, onSelectGear, onSelectSubject } = data;
   const showFilterInput = layerList.length > 5;
+
+  // Event features from the vector tile carry an unreliable image/image_url,
+  // so always prefer the event store's flattened props when the event is
+  // loaded there.
+  const hydratedLayerList = useMemo(() => layerList.map((layer) => {
+    const eventId = layer.properties?.id;
+    const storeEvent = eventId && eventStore?.[eventId];
+    const [hydrated] = storeEvent
+      ? createFeatureCollectionFromEvents([storeEvent], eventTypes ?? []).features
+      : [];
+    if (hydrated) {
+      return hydrated;
+    }
+
+    if (layer.properties?.icon_id && layer.properties?.event_type) {
+      return {
+        ...layer,
+        properties: { ...layer.properties, image: calcSpriteSvgUrl(layer.properties.icon_id) },
+      };
+    }
+    return layer;
+  }), [layerList, eventStore, eventTypes]);
 
   const handleClick = useCallback((event, feature) => {
     dispatch(hidePopup(id));
@@ -48,7 +72,7 @@ const LayerSelectorPopup = ({ data, id }) => {
   }, [dispatch, id, onSelectEvent, onSelectGear, onSelectSubject]);
 
   const renderedLayerListItems = useMemo(() => {
-    const sortedLayerList = layerList.sort((a, b) => {
+    const sortedLayerList = [...hydratedLayerList].sort((a, b) => {
       const first = (a.properties.display_title || a.properties.name || '').toLowerCase();
       const second = (b.properties.display_title || b.properties.name || '').toLowerCase();
 
@@ -58,38 +82,47 @@ const LayerSelectorPopup = ({ data, id }) => {
     const filteredLayerList = !filter
       ? sortedLayerList
       : sortedLayerList.filter((layer) => {
-        const displayName = layer.properties.display_title || layer.properties.name || layer.properties.title;
+        const displayName = layer.properties.display_title || layer.properties.name || layer.properties.title || '';
         return displayName.toLowerCase().includes(filter.toLowerCase());
       });
 
     return filteredLayerList.map((layer) => {
       const isGearLayerItem = layer.properties?.content_type === GEAR_FEATURE_CONTENT_TYPE;
-      const isEvent = !isGearLayerItem && layer.properties?.content_type !== SUBJECT_FEATURE_CONTENT_TYPE;
-      const isLocallyEdited = isEvent && locallyEditedEvent?.id === layer.properties.id;
-      const liveEvent = isLocallyEdited ? locallyEditedEvent : (isEvent ? eventStore[layer.properties.id] : null);
-      const eventIconKey = isEvent && (liveEvent?.icon_id || layer.properties.icon_id)
-        ? calcSvgImageIconId({ icon_id: liveEvent?.icon_id ?? layer.properties.icon_id, priority: liveEvent?.priority ?? layer.properties.priority })
-        : null;
-      const imageinStore = !isGearLayerItem && (
-        (eventIconKey && mapImages[eventIconKey])
-        || mapImages[calcImgIdFromUrlForMapImages(layer.properties.image, layer.properties.height, layer.properties.width)]
-      );
-      const imgSrc = imageinStore ? imageinStore.image.src : calcUrlForImage(layer.properties.image || layer.properties.image_url);
-      const displayTitle = layer.properties.display_title || layer.properties.name || layer.properties.title;
-      const title = isLocallyEdited ? `* ${displayTitle}` : displayTitle;
+      const isEventLayerItem = !!layer.properties?.icon_id && !!layer.properties?.event_type;
+      const isLocallyEdited = isEventLayerItem && locallyEditedEvent?.id === layer.properties.id;
+
+      // For the locally-edited event, resolve the icon variant from its unsaved
+      // icon_id/priority so the popup mirrors the edit in progress.
+      const mapImagesKey = isEventLayerItem
+        ? calcSvgImageIconId(isLocallyEdited
+          ? {
+            ...layer.properties,
+            icon_id: locallyEditedEvent.icon_id ?? layer.properties.icon_id,
+            priority: locallyEditedEvent.priority ?? layer.properties.priority,
+          }
+          : layer.properties)
+        : calcImgIdFromUrlForMapImages(layer.properties.image, layer.properties.height, layer.properties.width);
+      const imageinStore = !isGearLayerItem && mapImages[mapImagesKey];
+      const imgSrc = imageinStore
+        ? imageinStore.image.src
+        : calcUrlForImage(layer.properties.image || layer.properties.image_url);
+
+      const listLabel = layer.properties.display_title || layer.properties.name || layer.properties.title;
+      const title = isLocallyEdited ? `* ${listLabel}` : listLabel;
 
       return <li className={styles.listItem} key={layer.properties.id} onClick={(e) => handleClick(e, layer)}>
         {isGearLayerItem
           ? <span className={styles.listItemGearIcon} />
           : <img
-            alt={displayTitle}
+            alt={listLabel}
             src={imgSrc}
             style={subjectIsStatic(layer) ? { filter: 'brightness(0) opacity(60%)' } : {}}
           />}
+
         <span>{title}</span>
       </li>;
     });
-  }, [eventStore, filter, handleClick, layerList, locallyEditedEvent, mapImages]);
+  }, [filter, handleClick, hydratedLayerList, locallyEditedEvent, mapImages]);
 
   const onFilterChange = useCallback((value) => setFilter(value), []);
 

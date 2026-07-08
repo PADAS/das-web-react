@@ -8,10 +8,35 @@ import { GPS_FORMATS } from '../../location';
 import getHumanizedFieldValue from '.';
 
 describe('getHumanizedFieldValue', () => {
-  const t = (_, { collectionLength }) => `${collectionLength} items`;
+  const t = (key, params = {}) => {
+    if (key === 'attachmentHumanizedValue') return `${params.count} attachments`;
+    return `${params.collectionLength} items`;
+  };
 
   test('returns the default value if no value is provided', () => {
     expect(getHumanizedFieldValue({ type: FORM_ELEMENT_TYPES.TEXT }, undefined, 'default', 'en-US', GPS_FORMATS.DEG, t)).toBe('default');
+  });
+
+  test('returns the default value if the attachment array is empty', () => {
+    expect(getHumanizedFieldValue(
+      { type: FORM_ELEMENT_TYPES.ATTACHMENT },
+      [],
+      'default',
+      'en-US',
+      GPS_FORMATS.DEG,
+      t
+    )).toBe('default');
+  });
+
+  test('returns the count of attachments', () => {
+    expect(getHumanizedFieldValue(
+      { type: FORM_ELEMENT_TYPES.ATTACHMENT },
+      [{}, {}, {}],
+      'default',
+      'en-US',
+      GPS_FORMATS.DEG,
+      t
+    )).toBe('3 attachments');
   });
 
   test('returns the length of a collection', () => {

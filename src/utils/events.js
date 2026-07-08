@@ -163,8 +163,16 @@ export const addBounceToEventMapFeatures = (features, bounceIDs) => {
 export const validateReportAgainstCurrentEventFilter = (report, storeFromProps) => {
   const { data: { eventFilter, eventTypes } } = (storeFromProps || store).getState();
 
+  const { state: filterState, filter = {} } = eventFilter || {};
+  const {
+    date_range: { lower, upper } = {},
+    event_type: eventTypeFilterIds = [],
+    text = '',
+    priority = [],
+    reported_by: reportedByFilter = [],
+  } = filter;
+
   const reportMatchesDateFilter = () => {
-    const { filter: { date_range: { lower, upper } } } = eventFilter;
     const { updated_at } = report;
 
     const updateDate = new Date(updated_at);
@@ -178,22 +186,21 @@ export const validateReportAgainstCurrentEventFilter = (report, storeFromProps) 
     return true;
   };
 
-  const reportMatchesStateFilter = () => !eventFilter.state || eventFilter.state.includes(report.state);
+  const reportMatchesStateFilter = () => !filterState || filterState.includes(report.state);
 
   const reportMatchesEventTypeFilter = () => {
-    if (!eventFilter.filter.event_type.length) {
+    if (!eventTypeFilterIds.length) {
       return true;
     }
 
-    const eventTypeValuesFromFilterIds = eventFilter.filter.event_type
-      .map((id) => eventTypes.find((type) => type.id === id))
+    const eventTypeValuesFromFilterIds = eventTypeFilterIds
+      .map((id) => (eventTypes || []).find((type) => type.id === id))
       .filter((item) => !!item)
       .map(({ value }) => value);
     return eventTypeValuesFromFilterIds.includes(report.event_type);
   };
 
   const reportMatchesTextFiter = () => {
-    const { filter: { text } } = eventFilter;
     if (!text || !text.length) {
       return true;
     }
@@ -204,17 +211,17 @@ export const validateReportAgainstCurrentEventFilter = (report, storeFromProps) 
     return toTest.includes(text.toLowerCase());
   };
 
-  const reportMatchesPriorityFilter = () => !eventFilter.filter.priority.length
-    || eventFilter.filter.priority.includes(report.priority);
+  const reportMatchesPriorityFilter = () => !priority.length
+    || priority.includes(report.priority);
 
   const reportMatchesReportedByFilter = () => {
-    if (!eventFilter.filter.reported_by.length) {
+    if (!reportedByFilter.length) {
       return true;
     }
-    if (!!eventFilter.filter.reported_by.length && !report.reported_by) {
+    if (!!reportedByFilter.length && !report.reported_by) {
       return false;
     }
-    return eventFilter.filter.reported_by.includes(report.reported_by.id);
+    return reportedByFilter.includes(report.reported_by.id);
   };
 
   return reportMatchesStateFilter()

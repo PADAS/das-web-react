@@ -1,6 +1,7 @@
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { featureCollection, point } from '@turf/turf';
 import { Provider } from 'react-redux';
+import { render, waitFor } from '@testing-library/react';
 
 import {
   addNewClusterMarkers,
@@ -10,6 +11,8 @@ import {
   onClusterClick,
   removeOldClusterMarkers,
 } from './utils';
+import { calcSpriteSvgUrl } from '../utils/img';
+import { calcSvgImageIconId } from '../utils/mapImages';
 import { CLUSTER_CLICK_ZOOM_THRESHOLD, SOURCE_IDS } from '../constants';
 import ClustersLayer from '.';
 import { createMapMock, createMockInteractionEvent } from '../__test-helpers/mocks';
@@ -21,7 +24,9 @@ import {
   mockEventFeatureCollection,
   mockSubjectFeatureCollection,
 } from '../__test-helpers/fixtures/clusters';
+import { selectRealtimeOverlayFeatureCollection } from '../selectors/events-realtime-overlay';
 import useClusterPolygon from '../hooks/useClusterPolygon';
+import useTileEventFeaturesMock from '../hooks/useTileEventFeatures';
 
 const { CLUSTERS_SOURCE_ID } = SOURCE_IDS;
 
@@ -31,10 +36,23 @@ jest.mock('mapbox-gl', () => ({
   ...jest.requireActual('mapbox-gl'),
   Marker: class {
     constructor(marker) { this.marker = marker; }
-    addTo() { mapMarkers.push(this.marker); }
+    addTo() { mapMarkers.push(this.marker); return this; }
     setLngLat() { return this; }
+    remove() {
+      const markerIndex = mapMarkers.indexOf(this.marker);
+      if (markerIndex !== -1) mapMarkers.splice(markerIndex, 1);
+      return this;
+    }
+    getElement() { return this.marker; }
   },
 }));
+
+// Gives every event feature in the fixtures a resolved mapImages.
+const buildMapImagesForFeatures = (features) => features.reduce((mapImages, { properties }) => (
+  properties.icon_id
+    ? { ...mapImages, [calcSvgImageIconId(properties)]: { image: document.createElement('img') } }
+    : mapImages
+), {});
 
 jest.mock('../selectors/events', () => ({
   ...jest.requireActual('../selectors/events'),
@@ -45,6 +63,10 @@ jest.mock('../selectors/subjects', () => ({
   getMapSubjectFeatureCollectionWithVirtualPositioning: () => mockSubjectFeatureCollection,
 }));
 jest.mock('../hooks/useClusterPolygon', () => jest.fn());
+jest.mock('../hooks/useTileEventFeatures', () => jest.fn());
+jest.mock('../selectors/events-realtime-overlay', () => ({
+  selectRealtimeOverlayFeatureCollection: jest.fn(),
+}));
 
 
 describe('ClustersLayer', () => {
@@ -53,12 +75,29 @@ describe('ClustersLayer', () => {
   beforeEach(() => {
     getClusterExpansionZoomMock = jest.fn((clusterId, callback) => callback(null, CLUSTER_CLICK_ZOOM_THRESHOLD + 1));
     removeClusterPolygon = jest.fn();
+
+    selectRealtimeOverlayFeatureCollection.mockReturnValue(featureCollection([]));
+    useTileEventFeaturesMock.mockReturnValue(featureCollection([]));
   });
 
   describe('the map layer', () => {
     const onShowClusterSelectPopup = jest.fn(), addClusterPolygon = jest.fn(),
       setData = jest.fn();
-    let map, useClusterPolygonMock;
+    let map, useClusterPolygonMock, rerender, unmount;
+
+    const buildStore = (mapImages) => mockStore({
+      data: { mapLayerFilter: { showReportsOnMap: true }, mapEvents: { events: [] }, eventFilter: { filter: { date_range: {} } } },
+      view: { mapImages, timeSliderState: {}, mapClusterConfig: { data: { events: true, subjects: true } } },
+    });
+
+    const renderWithMapImages = (mapImages) => rerender(
+      <Provider store={buildStore(mapImages)}>
+        <MapContext.Provider value={map}>
+          <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
+        </MapContext.Provider>
+      </Provider>
+    );
+
     beforeEach(() => {
       jest.useFakeTimers();
 
@@ -86,13 +125,15 @@ describe('ClustersLayer', () => {
       }));
       map.getZoom.mockImplementation(() => CLUSTER_CLICK_ZOOM_THRESHOLD - 1);
 
-      render(
-        <Provider store={mockStore({ data: { mapLayerFilter: { showReportsOnMap: true }, mapEvents: { events: [] }, eventFilter: { filter: { date_range: {} } } }, view: { mapImages: [], timeSliderState: {}, mapClusterConfig: { data: { events: true, subjects: true } } } })}>
+      const mapImages = buildMapImagesForFeatures([...mockClusterLeaves[0], ...mockClusterLeaves[1]]);
+
+      ({ rerender, unmount } = render(
+        <Provider store={buildStore(mapImages)}>
           <MapContext.Provider value={map}>
             <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
           </MapContext.Provider>
         </Provider>
-      );
+      ));
     });
 
     afterEach(() => {
@@ -108,6 +149,70 @@ describe('ClustersLayer', () => {
 
       await waitFor(() => {
         expect(mapMarkers).toHaveLength(2);
+      });
+    });
+
+    test('withholds a cluster marker until all its displayed icons resolve in mapImages, rather than showing a guessed placeholder', async () => {
+      unmount();
+      mapMarkers.length = 0;
+
+      const fullMapImages = buildMapImagesForFeatures([...mockClusterLeaves[0], ...mockClusterLeaves[1]]);
+      // Simulates the initial-page-load race.
+      const { 'jenaeonefield-200': omitted, ...incompleteMapImages } = fullMapImages;
+      expect(omitted).toBeDefined();
+
+      ({ rerender } = render(
+        <Provider store={buildStore(incompleteMapImages)}>
+          <MapContext.Provider value={map}>
+            <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
+          </MapContext.Provider>
+        </Provider>
+      ));
+      map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
+
+      // Only the cluster whose icons are already resolved gets a marker.
+      await waitFor(() => {
+        expect(mapMarkers).toHaveLength(1);
+      });
+
+      // The missing icon resolves and mapImages updates.
+      renderWithMapImages(fullMapImages);
+
+      await waitFor(() => {
+        expect(mapMarkers).toHaveLength(2);
+        expect(mapMarkers[1].innerHTML).not.toContain(calcSpriteSvgUrl('jenaeonefield'));
+      });
+    });
+
+    test('does not create a marker for a still-not-ready cluster on unrelated mapImages updates', async () => {
+      unmount();
+      mapMarkers.length = 0;
+
+      const fullMapImages = buildMapImagesForFeatures([...mockClusterLeaves[0], ...mockClusterLeaves[1]]);
+      // Simulates the initial-page-load race, same as the previous test.
+      const { 'jenaeonefield-200': omitted, ...incompleteMapImages } = fullMapImages;
+      expect(omitted).toBeDefined();
+
+      ({ rerender } = render(
+        <Provider store={buildStore(incompleteMapImages)}>
+          <MapContext.Provider value={map}>
+            <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
+          </MapContext.Provider>
+        </Provider>
+      ));
+      map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
+
+      await waitFor(() => {
+        expect(mapMarkers).toHaveLength(1);
+      });
+
+      // An unrelated icon resolves elsewhere on the map — the cluster's own
+      // missing icon ('jenaeonefield-200') is still not present, so no marker
+      // should be created for it yet.
+      renderWithMapImages({ ...incompleteMapImages, 'unrelated_icon-100': { image: document.createElement('img') } });
+
+      await waitFor(() => {
+        expect(mapMarkers).toHaveLength(1);
       });
     });
 
@@ -467,7 +572,7 @@ describe('ClustersLayer', () => {
   });
 
   describe('addNewClusterMarkers', () => {
-    const clusterMarkerHashMapRef = { current: { '1': { marker: {} } } };
+    const clusterMarkerHashMapRef = { current: { '1': { marker: { remove: jest.fn() }, iconsReady: true } } };
     const clustersSource = {};
     const map = {};
     const onClusterMouseEnter = jest.fn();
@@ -545,6 +650,164 @@ describe('ClustersLayer', () => {
       );
 
       expect(renderedClusterMarkersHashMap['2'].id).toBe('efgh');
+    });
+
+    test('keeps a cached marker as-is while its icons are still not ready', () => {
+      const staleMarker = { remove: jest.fn() };
+      const notReadyClusterMarkerHashMapRef = {
+        current: { pending: { marker: staleMarker, iconsReady: false } },
+      };
+      const pendingClusterFeatures = [[{
+        geometry: { type: 'Point', coordinates: [0, 0] },
+        properties: { id: '10', icon_id: 'snare_rep', priority: 200 },
+        type: 'Feature',
+      }]];
+
+      const renderedClusterMarkersHashMap = addNewClusterMarkers(
+        onClusterMouseEnter,
+        notReadyClusterMarkerHashMapRef,
+        clustersSource,
+        map,
+        {},
+        onClusterMouseLeave,
+        pendingClusterFeatures,
+        ['pending'],
+        ['ijkl'],
+        onShowClusterSelectPopup
+      );
+
+      expect(staleMarker.remove).not.toHaveBeenCalled();
+      expect(renderedClusterMarkersHashMap.pending.marker).toBe(staleMarker);
+      expect(renderedClusterMarkersHashMap.pending.iconsReady).toBe(false);
+    });
+
+    test('refreshes a cached marker\'s icons in place once they become ready, without rebuilding it', () => {
+      const staleMarkerElement = document.createElement('div');
+      const staleMarker = { getElement: () => staleMarkerElement, remove: jest.fn() };
+      const upgradingClusterMarkerHashMapRef = {
+        current: { pending: { marker: staleMarker, iconsReady: false } },
+      };
+      const pendingClusterFeatures = [[{
+        geometry: { type: 'Point', coordinates: [0, 0] },
+        properties: { id: '10', icon_id: 'snare_rep', priority: 200 },
+        type: 'Feature',
+      }]];
+
+      const renderedClusterMarkersHashMap = addNewClusterMarkers(
+        onClusterMouseEnter,
+        upgradingClusterMarkerHashMapRef,
+        clustersSource,
+        map,
+        { 'snare_rep-200': { image: document.createElement('img') } },
+        onClusterMouseLeave,
+        pendingClusterFeatures,
+        ['pending'],
+        ['ijkl'],
+        onShowClusterSelectPopup
+      );
+
+      // The marker instance is kept as-is; only its rendered icon content is
+      // refreshed.
+      expect(staleMarker.remove).not.toHaveBeenCalled();
+      expect(renderedClusterMarkersHashMap.pending.marker).toBe(staleMarker);
+      expect(renderedClusterMarkersHashMap.pending.iconsReady).toBe(true);
+      expect(staleMarkerElement.querySelector('img')).toBeTruthy();
+    });
+  });
+
+  describe('event vector tiles clustering', () => {
+    const mockTileFeature = point([1, 1], { id: 'tile-evt-1' });
+    const mockOverlayFeature = point([2, 2], { id: 'overlay-evt-1' });
+
+    let setData, map;
+    beforeEach(() => {
+      setData = jest.fn();
+      map = createMapMock();
+      map.getSource.mockReturnValue({ setData, getClusterExpansionZoom: jest.fn(), getClusterLeaves: jest.fn() });
+      map.queryRenderedFeatures.mockReturnValue([]);
+
+      const useTileEventFeaturesMock = require('../hooks/useTileEventFeatures');
+      const { selectRealtimeOverlayFeatureCollection } = require('../selectors/events-realtime-overlay');
+      useTileEventFeaturesMock.mockReturnValue(featureCollection([mockTileFeature]));
+      selectRealtimeOverlayFeatureCollection.mockReturnValue(featureCollection([mockOverlayFeature]));
+
+      useClusterPolygon.mockImplementation(() => ({ addClusterPolygon: jest.fn(), removeClusterPolygon: jest.fn() }));
+    });
+
+    const renderClustersLayerWithFlagOn = () => render(
+      <Provider store={mockStore({
+        data: {
+          mapLayerFilter: { showReportsOnMap: true },
+          mapEvents: { events: [] },
+          eventFilter: { filter: { date_range: {} } },
+          eventTypes: [],
+          realtimeOverlayEvents: { ids: {} },
+          eventStore: {},
+        },
+        view: {
+          mapImages: [],
+          timeSliderState: { active: false },
+          mapClusterConfig: { data: { events: true, subjects: false } },
+          systemConfig: { previewFeatures: { events_vector_tiles: true } },
+        },
+      })}>
+        <MapContext.Provider value={map}>
+          <ClustersLayer onShowClusterSelectPopup={jest.fn()} />
+        </MapContext.Provider>
+      </Provider>
+    );
+
+    test('feeds tile features + overlay features into the cluster source', () => {
+      renderClustersLayerWithFlagOn();
+
+      const lastSetData = setData.mock.calls.at(-1)?.[0];
+      expect(lastSetData).toBeDefined();
+      expect(lastSetData.features).toEqual(expect.arrayContaining([
+        expect.objectContaining({ properties: expect.objectContaining({ id: 'tile-evt-1' }) }),
+        expect.objectContaining({ properties: expect.objectContaining({ id: 'overlay-evt-1' }) }),
+      ]));
+    });
+
+    test('does not include the GeoJSON event collection while the flag is ON', () => {
+      renderClustersLayerWithFlagOn();
+
+      const lastSetData = setData.mock.calls.at(-1)?.[0];
+      const ids = lastSetData.features.map((feature) => feature.properties?.id);
+      // The GeoJSON path features (mocked, non-empty) must not leak in when the flag is ON.
+      mockEventFeatureCollection.features.forEach((feature) => {
+        expect(ids).not.toContain(feature.properties?.id);
+      });
+    });
+
+    test('excludes event features from the cluster source when events clustering is disabled', () => {
+      render(
+        <Provider store={mockStore({
+          data: {
+            mapLayerFilter: { showReportsOnMap: true },
+            mapEvents: { events: [] },
+            eventFilter: { filter: { date_range: {} } },
+            eventTypes: [],
+            realtimeOverlayEvents: { ids: {} },
+            eventStore: {},
+          },
+          view: {
+            mapImages: [],
+            timeSliderState: { active: false },
+            // Events clustering off (subjects off too) -> no event features in the cluster source.
+            mapClusterConfig: { data: { events: false, subjects: false } },
+            systemConfig: { previewFeatures: { events_vector_tiles: true } },
+          },
+        })}>
+          <MapContext.Provider value={map}>
+            <ClustersLayer onShowClusterSelectPopup={jest.fn()} />
+          </MapContext.Provider>
+        </Provider>
+      );
+
+      const lastSetData = setData.mock.calls.at(-1)?.[0];
+      const ids = lastSetData.features.map((feature) => feature.properties?.id);
+      expect(ids).not.toContain('tile-evt-1');
+      expect(ids).not.toContain('overlay-evt-1');
     });
   });
 });

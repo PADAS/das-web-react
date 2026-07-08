@@ -281,7 +281,7 @@ const EventsLayer = ({
     </>}
 
     {!!eventPointFeatureCollection?.features?.length && <MapImageFromSvgSpriteRenderer
-      reportFeatureCollection={eventPointFeatureCollection}
+      eventFeatureCollection={eventPointFeatureCollection}
     />}
   </>;
 };
