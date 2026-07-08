@@ -26,10 +26,12 @@
   }
 
   &.error {
-    border-color: colors.$bright-red;
-
     legend {
       color: colors.$bright-red;
+    }
+
+    .container {
+      border-color: colors.$bright-red;
     }
   }
 }
