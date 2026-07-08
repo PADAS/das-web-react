@@ -1,10 +1,6 @@
 @use '../common/styles/vars/colors';
 
 .fieldset {
-  &.readOnly .container {
-    background-color: colors.$off-white;
-  }
-
   legend {
     width: 100%;
     color: colors.$secondary-medium-gray;
@@ -20,9 +16,12 @@
     flex-direction: column;
     gap: 0.25rem;
     max-height: 15.625rem;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden auto;
     padding: 0.5rem;
+  }
+
+  &.readOnly .container {
+    background-color: colors.$off-white;
   }
 
   &.error {
