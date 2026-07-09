@@ -37,6 +37,22 @@ describe('SvgIcon', () => {
       });
     });
 
+    test('colors the fill-stripped inline SVG via the color prop (fill:currentColor on the wrapper)', async () => {
+      axiosSpy.mockResolvedValue(mockAxiosResponse('image/svg+xml', '<svg><path fill="#123456" d="M0 0"/></svg>'));
+
+      const { container } = renderWithStore(<SvgIcon type="events" iconId="fire_rep" color="rgb(4, 5, 6)" />);
+
+      await waitFor(() => {
+        expect(container.querySelector('svg')).toBeInTheDocument();
+      });
+
+      const wrapper = container.querySelector('span');
+      // The wrapper drives the color: text color + fill:currentColor, so the (fill-stripped) paths inherit it.
+      expect(wrapper).toHaveStyle({ color: 'rgb(4, 5, 6)', fill: 'currentColor' });
+      // The hardcoded fill is stripped so nothing overrides the inherited color.
+      expect(container.querySelector('path')).not.toHaveAttribute('fill');
+    });
+
     test('renders an img when the server returns a non-SVG content-type (e.g. PNG)', async () => {
       axiosSpy.mockResolvedValue(mockAxiosResponse('image/png', ''));
 

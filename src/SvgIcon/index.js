@@ -205,10 +205,14 @@ const SvgIcon = ({ type, iconId, imageUrl, className, color, style, title, ...re
     iconSrc = buildSpriteSvgUrl(effectiveIconId, communityValue);
   }
 
-  // Map legacy color prop and style.fill to CSS color so fill:currentColor in the SVG inherits it.
+  // Map the legacy color prop / style.fill to CSS color, and set fill:currentColor so the
+  // fill-stripped inline SVG follows it — consumers pass a color without a fill:currentColor
+  // CSS rule (e.g. the add-event popup), matching the old DasIcon fill={color} behavior.
   const { fill: styleFill, ...restStyle } = style || {};
   const effectiveColor = color || styleFill;
-  const svgStyle = effectiveColor ? { ...restStyle, color: effectiveColor } : restStyle;
+  const svgStyle = effectiveColor
+    ? { ...restStyle, color: effectiveColor, fill: 'currentColor' }
+    : restStyle;
 
   return (
     <InlineSvg
