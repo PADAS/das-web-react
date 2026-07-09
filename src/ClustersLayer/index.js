@@ -9,6 +9,7 @@ import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selecto
 import { MapContext } from '../MapContext';
 import { selectRealtimeOverlayFeatureCollection } from '../selectors/events-realtime-overlay';
 import { selectShouldEventsBeClustered, selectShouldSubjectsBeClustered } from '../selectors/clusters';
+import { subscribeEventIcons } from '../utils/eventMapIcons';
 import useClusterPolygon from '../hooks/useClusterPolygon';
 import { useMapEventBinding, usePreviewFeature } from '../hooks';
 import useMapLayers from '../hooks/useMapLayers';
@@ -81,15 +82,10 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
 
   const { addClusterPolygon, removeClusterPolygon } = useClusterPolygon();
 
-  const mapImages = useSelector((state) => state.view.mapImages);
   const locallyEditedEvent = useSelector((state) => state.data.locallyEditedEvent);
 
   // Mirror frequently-changing values into refs so the callback stays stable; only read
   // inside the async callback/effects, never during render.
-  const mapImagesRef = useRef(mapImages);
-  // eslint-disable-next-line react-hooks/refs -- render-phase write is safe; only read in async callback
-  mapImagesRef.current = mapImages;
-
   const locallyEditedEventRef = useRef(locallyEditedEvent);
   // eslint-disable-next-line react-hooks/refs -- render-phase write is safe; only read in async callback
   locallyEditedEventRef.current = locallyEditedEvent;
@@ -133,7 +129,6 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
       clusterMarkerHashMapRef,
       CLUSTERS_SOURCE_ID,
       map,
-      mapImagesRef.current,
       removeClusterPolygonRef.current,
       renderedClusterFeatures,
       renderedClusterHashes,
@@ -157,11 +152,9 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- callback is stable via refs
   }, [locallyEditedEvent]);
 
-  // sourcedata doesn't fire on mapImages updates, so refresh markers when icons resolve.
-  useEffect(() => {
-    updateClusterMarkersCallback();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- callback is stable via refs
-  }, [mapImages]);
+  // sourcedata doesn't fire when an icon resolves, so refresh markers when the
+  // event icon registry notifies that a new icon is available.
+  useEffect(() => subscribeEventIcons(updateClusterMarkersCallback), [updateClusterMarkersCallback]);
 
   return null;
 };

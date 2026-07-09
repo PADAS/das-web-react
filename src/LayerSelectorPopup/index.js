@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { calcImgIdFromUrlForMapImages, calcSpriteSvgUrl, calcUrlForImage } from '../utils/img';
 import { calcSvgImageIconId } from '../utils/mapImages';
 import { createFeatureCollectionFromEvents } from '../utils/map';
+import { getEventIcon, useEventMapIconsVersion } from '../utils/eventMapIcons';
 import { GEAR_FEATURE_CONTENT_TYPE, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { hidePopup } from '../ducks/popup';
 import { subjectIsStatic } from '../utils/subjects';
@@ -22,6 +23,9 @@ const LayerSelectorPopup = ({ data, id }) => {
   const eventStore = useSelector((state) => state.data?.eventStore);
   const eventTypes = useSelector((state) => state.data?.eventTypes);
   const locallyEditedEvent = useSelector((state) => state.data.locallyEditedEvent);
+
+  // Re-render when the event icon registry resolves a new icon.
+  const eventIconsVersion = useEventMapIconsVersion();
 
   const [filter, setFilter] = useState('');
 
@@ -91,21 +95,31 @@ const LayerSelectorPopup = ({ data, id }) => {
       const isEventLayerItem = !!layer.properties?.icon_id && !!layer.properties?.event_type;
       const isLocallyEdited = isEventLayerItem && locallyEditedEvent?.id === layer.properties.id;
 
-      // For the locally-edited event, resolve the icon variant from its unsaved
-      // icon_id/priority so the popup mirrors the edit in progress.
-      const mapImagesKey = isEventLayerItem
-        ? calcSvgImageIconId(isLocallyEdited
-          ? {
-            ...layer.properties,
-            icon_id: locallyEditedEvent.icon_id ?? layer.properties.icon_id,
-            priority: locallyEditedEvent.priority ?? layer.properties.priority,
-          }
-          : layer.properties)
-        : calcImgIdFromUrlForMapImages(layer.properties.image, layer.properties.height, layer.properties.width);
-      const imageinStore = !isGearLayerItem && mapImages[mapImagesKey];
-      const imgSrc = imageinStore
-        ? imageinStore.image.src
-        : calcUrlForImage(layer.properties.image || layer.properties.image_url);
+      // Event icons come from the event icon registry; subject/other icons come
+      // from state.view.mapImages, keyed by their source URL.
+      let cachedImageSrc = null;
+      if (!isGearLayerItem) {
+        if (isEventLayerItem) {
+          // For the locally-edited event, resolve the icon variant from its
+          // unsaved icon_id/priority so the popup mirrors the edit in progress.
+          const eventIconKey = calcSvgImageIconId(isLocallyEdited
+            ? {
+              ...layer.properties,
+              icon_id: locallyEditedEvent.icon_id ?? layer.properties.icon_id,
+              priority: locallyEditedEvent.priority ?? layer.properties.priority,
+            }
+            : layer.properties);
+          cachedImageSrc = getEventIcon(eventIconKey)?.src ?? null;
+        } else {
+          const mapImagesKey = calcImgIdFromUrlForMapImages(
+            layer.properties.image,
+            layer.properties.height,
+            layer.properties.width
+          );
+          cachedImageSrc = mapImages[mapImagesKey]?.image?.src ?? null;
+        }
+      }
+      const imgSrc = cachedImageSrc ?? calcUrlForImage(layer.properties.image || layer.properties.image_url);
 
       const listLabel = layer.properties.display_title || layer.properties.name || layer.properties.title;
       const title = isLocallyEdited ? `* ${listLabel}` : listLabel;
@@ -122,7 +136,8 @@ const LayerSelectorPopup = ({ data, id }) => {
         <span>{title}</span>
       </li>;
     });
-  }, [filter, handleClick, hydratedLayerList, locallyEditedEvent, mapImages]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- eventIconsVersion is read only to recompute when the event icon registry resolves a new icon
+  }, [eventIconsVersion, filter, handleClick, hydratedLayerList, locallyEditedEvent, mapImages]);
 
   const onFilterChange = useCallback((value) => setFilter(value), []);
 

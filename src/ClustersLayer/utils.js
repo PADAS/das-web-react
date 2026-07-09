@@ -4,6 +4,7 @@ import mapboxgl from 'mapbox-gl';
 import { calcGenericFallbackImageUrl, calcSpriteSvgUrl } from '../utils/img';
 import { CLUSTER_CLICK_ZOOM_THRESHOLD, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { calcSvgImageIconId } from '../utils/mapImages';
+import { ensureEventIcon, getEventIcon } from '../utils/eventMapIcons';
 import { subjectIsStatic } from '../utils/subjects';
 import { injectStylesToElement } from '../utils/styles';
 import { hashCode } from '../utils/string';
@@ -25,13 +26,24 @@ const FEATURE_ICON_HTML_STYLES = { maxWidth: '24px', minWidth: '18px', height: '
 const FEATURE_SS_ICON_HTML_STYLES = { filter: 'brightness(0)' };
 const FEATURE_COUNT_HTML_STYLES = { fontSize: '16px', fontWeight: '500', paddingLeft: '4px', margin: '0' };
 
-const getFeatureIcon = (feature, mapImages, locallyEditedEvent) => {
-  // When the feature is the event being edited locally, reflect its unsaved
-  // priority so the icon variant matches the edit in progress.
+// When the feature is the event being edited locally, reflect its unsaved
+// priority so the icon variant matches the edit in progress.
+const eventIconParamsFor = (feature, locallyEditedEvent) => {
   const priority = locallyEditedEvent?.id === feature.properties.id
     ? locallyEditedEvent.priority
     : feature.properties.priority;
-  return mapImages[calcSvgImageIconId({ ...feature.properties, priority })]?.image;
+  return { ...feature.properties, priority };
+};
+
+const getFeatureIcon = (feature, locallyEditedEvent) =>
+  getEventIcon(calcSvgImageIconId(eventIconParamsFor(feature, locallyEditedEvent)));
+
+// Kicks off generation of an event feature's icon so DOM markers trigger their
+// own registry lookups. Subjects have no icon_id and use the fallback img path.
+const ensureFeatureIcon = (feature, locallyEditedEvent) => {
+  if (feature.properties.icon_id) {
+    ensureEventIcon(eventIconParamsFor(feature, locallyEditedEvent));
+  }
 };
 
 export const getClusterIconFeatures = (clusterFeatures) => {
@@ -79,7 +91,6 @@ const populateClusterIconChildren = (
   clusterHTMLMarkerContainer,
   clusterIconFeatures,
   totalFeatureCount,
-  mapImages,
   locallyEditedEvent = null
 ) => {
   while (clusterHTMLMarkerContainer.firstChild) {
@@ -87,7 +98,7 @@ const populateClusterIconChildren = (
   }
 
   clusterIconFeatures.forEach((feature) => {
-    let featureImageHTML = getFeatureIcon(feature, mapImages, locallyEditedEvent)?.cloneNode(true);
+    let featureImageHTML = getFeatureIcon(feature, locallyEditedEvent)?.cloneNode(true);
     if (!featureImageHTML) {
       featureImageHTML = document.createElement('img');
       // Tile image/image_url is unreliable: try the sprite master, then the generic per-color icon.
@@ -118,7 +129,6 @@ const populateClusterIconChildren = (
 
 export const createClusterHTMLMarker = (
   clusterFeatures,
-  mapImages,
   onClusterClick,
   onMouseOverCluster,
   onMouseLeaveCluster,
@@ -134,7 +144,6 @@ export const createClusterHTMLMarker = (
     clusterHTMLMarkerContainer,
     getClusterIconFeatures(clusterFeatures),
     clusterFeatures.length,
-    mapImages,
     locallyEditedEvent
   );
 
@@ -221,7 +230,6 @@ export const addNewClusterMarkers = (
   clusterMarkerHashMapRef,
   sourceId,
   map,
-  mapImages,
   removeClusterPolygon,
   renderedClusterFeatures,
   renderedClusterHashes,
@@ -240,8 +248,13 @@ export const addNewClusterMarkers = (
     const wasReady = cachedEntry?.iconsReady;
 
     const clusterIconFeatures = wasReady ? null : getClusterIconFeatures(clusterFeatures);
+
+    // Trigger icon generation for the features this marker will display; the
+    // registry notifies once they resolve, prompting another update pass.
+    clusterIconFeatures?.forEach((feature) => ensureFeatureIcon(feature, locallyEditedEvent));
+
     const iconsReady = wasReady || clusterIconFeatures
-      .every((feature) => !feature.properties.icon_id || !!getFeatureIcon(feature, mapImages, locallyEditedEvent));
+      .every((feature) => !feature.properties.icon_id || !!getFeatureIcon(feature, locallyEditedEvent));
 
     // Wait for every displayed icon to resolve before creating the marker.
     if (!marker && iconsReady) {
@@ -261,7 +274,6 @@ export const addNewClusterMarkers = (
 
       const newClusterHTMLMarkerContainer = createClusterHTMLMarker(
         clusterFeatures,
-        mapImages,
         onClick,
         onMouseOver,
         onMouseLeave,
@@ -276,7 +288,6 @@ export const addNewClusterMarkers = (
         marker.getElement(),
         clusterIconFeatures,
         clusterFeatures.length,
-        mapImages,
         locallyEditedEvent
       );
     }

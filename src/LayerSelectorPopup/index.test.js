@@ -2,6 +2,8 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
+import { __resetEventIconsForTesting, __setEventIconForTesting } from '../utils/eventMapIcons';
+import { calcSvgImageIconId } from '../utils/mapImages';
 import { mockClusterLeaves } from '../__test-helpers/fixtures/clusters';
 import { hidePopup } from '../ducks/popup';
 import { mockStore } from '../__test-helpers/MockStore';
@@ -27,6 +29,7 @@ describe('LayerSelectorPopup', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
+    __resetEventIconsForTesting();
   });
 
   test('does not show the search bar if there are 5 or less features', async () => {
@@ -240,9 +243,11 @@ describe('LayerSelectorPopup', () => {
     expect(image.getAttribute('src')).toContain('/static/sprite-src/jenaeonefield.svg');
   });
 
-  test('uses the priority-colored icon already cached by MapImageFromSvgSpriteRenderer, when available', async () => {
+  test('uses the priority-colored icon already cached in the event icon registry, when available', async () => {
     const eventId = 'tile-only-event-id';
     const coloredIconSrc = 'data:image/svg+xml;charset=utf-8,colored-icon';
+
+    __setEventIconForTesting(calcSvgImageIconId({ icon_id: 'jenaeonefield', priority: 200 }), { src: coloredIconSrc });
 
     const tileEventLayer = {
       type: 'Feature',
@@ -258,7 +263,7 @@ describe('LayerSelectorPopup', () => {
     };
 
     const tileStore = mockStore({
-      view: { mapImages: { 'jenaeonefield-200': { image: { src: coloredIconSrc } } } },
+      view: { mapImages: [] },
       data: { eventStore: {}, eventTypes: [] },
     });
 
@@ -322,6 +327,8 @@ describe('LayerSelectorPopup', () => {
     const eventId = 'hydrated-event-with-icon-id';
     const coloredIconSrc = 'data:image/svg+xml;charset=utf-8,colored-icon';
 
+    __setEventIconForTesting(calcSvgImageIconId({ icon_id: 'jenaeonefield', priority: 200 }), { src: coloredIconSrc });
+
     const tileEventLayer = {
       type: 'Feature',
       geometry: { type: 'Point', coordinates: [0, 0] },
@@ -351,7 +358,7 @@ describe('LayerSelectorPopup', () => {
     };
 
     const tileStore = mockStore({
-      view: { mapImages: { 'jenaeonefield-200': { image: { src: coloredIconSrc } } } },
+      view: { mapImages: [] },
       data: { eventStore: { [eventId]: storeEvent }, eventTypes: [] },
     });
 

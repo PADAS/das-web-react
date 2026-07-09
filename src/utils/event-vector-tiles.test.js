@@ -24,11 +24,12 @@ describe('utils - Event vector tiles', () => {
 
       expect(layout['icon-image']).toEqual([
         'concat',
+        'event-icon|',
         ['get', 'icon_id'],
-        '-',
+        '|',
         ['get', 'priority'],
-        ['case', ['has', 'width'], ['concat', '-', ['get', 'width']], ''],
-        ['case', ['has', 'height'], ['concat', '-', ['get', 'height']], ''],
+        ['case', ['has', 'width'], ['concat', '|', ['get', 'width']], ''],
+        ['case', ['has', 'height'], ['concat', '|', ['get', 'height']], ''],
       ]);
     });
 

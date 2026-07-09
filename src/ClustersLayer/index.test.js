@@ -13,6 +13,7 @@ import {
 } from './utils';
 import { calcSpriteSvgUrl } from '../utils/img';
 import { calcSvgImageIconId } from '../utils/mapImages';
+import * as eventMapIcons from '../utils/eventMapIcons';
 import { CLUSTER_CLICK_ZOOM_THRESHOLD, SOURCE_IDS } from '../constants';
 import ClustersLayer from '.';
 import { createMapMock, createMockInteractionEvent } from '../__test-helpers/mocks';
@@ -47,12 +48,43 @@ jest.mock('mapbox-gl', () => ({
   },
 }));
 
-// Gives every event feature in the fixtures a resolved mapImages.
-const buildMapImagesForFeatures = (features) => features.reduce((mapImages, { properties }) => (
-  properties.icon_id
-    ? { ...mapImages, [calcSvgImageIconId(properties)]: { image: document.createElement('img') } }
-    : mapImages
-), {});
+// Backs the event icon registry with an in-memory map so tests can seed
+// resolved icons and trigger the "an icon resolved" notification directly,
+// instead of round-tripping through the redux store.
+jest.mock('../utils/eventMapIcons', () => {
+  const icons = new Map();
+  let iconListeners = new Set();
+  return {
+    getEventIcon: (key) => icons.get(key),
+    ensureEventIcon: jest.fn(),
+    subscribeEventIcons: (listener) => {
+      iconListeners.add(listener);
+      return () => iconListeners.delete(listener);
+    },
+    __seed: (key, image) => icons.set(key, image),
+    __notify: () => iconListeners.forEach((listener) => listener()),
+    __clear: () => {
+      icons.clear();
+      iconListeners = new Set();
+    },
+  };
+});
+
+const JENAE_ICON_KEY = calcSvgImageIconId({ icon_id: 'jenaeonefield', priority: 200 });
+
+// Seeds a resolved icon in the registry for every event feature, optionally
+// omitting specific variant keys to simulate an icon that hasn't resolved yet.
+const seedIconsForFeatures = (features, { omitKeys = [] } = {}) => {
+  const omitted = new Set(omitKeys);
+  features.forEach(({ properties }) => {
+    if (properties.icon_id) {
+      const key = calcSvgImageIconId(properties);
+      if (!omitted.has(key)) {
+        eventMapIcons.__seed(key, document.createElement('img'));
+      }
+    }
+  });
+};
 
 jest.mock('../selectors/events', () => ({
   ...jest.requireActual('../selectors/events'),
@@ -83,20 +115,12 @@ describe('ClustersLayer', () => {
   describe('the map layer', () => {
     const onShowClusterSelectPopup = jest.fn(), addClusterPolygon = jest.fn(),
       setData = jest.fn();
-    let map, useClusterPolygonMock, rerender, unmount;
+    let map, useClusterPolygonMock, unmount;
 
-    const buildStore = (mapImages) => mockStore({
+    const buildStore = () => mockStore({
       data: { mapLayerFilter: { showReportsOnMap: true }, mapEvents: { events: [] }, eventFilter: { filter: { date_range: {} } } },
-      view: { mapImages, timeSliderState: {}, mapClusterConfig: { data: { events: true, subjects: true } } },
+      view: { mapImages: [], timeSliderState: {}, mapClusterConfig: { data: { events: true, subjects: true } } },
     });
-
-    const renderWithMapImages = (mapImages) => rerender(
-      <Provider store={buildStore(mapImages)}>
-        <MapContext.Provider value={map}>
-          <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
-        </MapContext.Provider>
-      </Provider>
-    );
 
     beforeEach(() => {
       jest.useFakeTimers();
@@ -125,10 +149,10 @@ describe('ClustersLayer', () => {
       }));
       map.getZoom.mockImplementation(() => CLUSTER_CLICK_ZOOM_THRESHOLD - 1);
 
-      const mapImages = buildMapImagesForFeatures([...mockClusterLeaves[0], ...mockClusterLeaves[1]]);
+      seedIconsForFeatures([...mockClusterLeaves[0], ...mockClusterLeaves[1]]);
 
-      ({ rerender, unmount } = render(
-        <Provider store={buildStore(mapImages)}>
+      ({ unmount } = render(
+        <Provider store={buildStore()}>
           <MapContext.Provider value={map}>
             <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
           </MapContext.Provider>
@@ -141,6 +165,7 @@ describe('ClustersLayer', () => {
       jest.useRealTimers();
       jest.restoreAllMocks();
 
+      eventMapIcons.__clear();
       mapMarkers.length = 0;
     });
 
@@ -152,22 +177,21 @@ describe('ClustersLayer', () => {
       });
     });
 
-    test('withholds a cluster marker until all its displayed icons resolve in mapImages, rather than showing a guessed placeholder', async () => {
+    test('withholds a cluster marker until all its displayed icons resolve in the registry, rather than showing a guessed placeholder', async () => {
       unmount();
       mapMarkers.length = 0;
 
-      const fullMapImages = buildMapImagesForFeatures([...mockClusterLeaves[0], ...mockClusterLeaves[1]]);
-      // Simulates the initial-page-load race.
-      const { 'jenaeonefield-200': omitted, ...incompleteMapImages } = fullMapImages;
-      expect(omitted).toBeDefined();
+      // Simulates the initial-page-load race: every icon is resolved except one.
+      eventMapIcons.__clear();
+      seedIconsForFeatures([...mockClusterLeaves[0], ...mockClusterLeaves[1]], { omitKeys: [JENAE_ICON_KEY] });
 
-      ({ rerender } = render(
-        <Provider store={buildStore(incompleteMapImages)}>
+      render(
+        <Provider store={buildStore()}>
           <MapContext.Provider value={map}>
             <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
           </MapContext.Provider>
         </Provider>
-      ));
+      );
       map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
 
       // Only the cluster whose icons are already resolved gets a marker.
@@ -175,8 +199,9 @@ describe('ClustersLayer', () => {
         expect(mapMarkers).toHaveLength(1);
       });
 
-      // The missing icon resolves and mapImages updates.
-      renderWithMapImages(fullMapImages);
+      // The missing icon resolves and the registry notifies its subscribers.
+      eventMapIcons.__seed(JENAE_ICON_KEY, document.createElement('img'));
+      eventMapIcons.__notify();
 
       await waitFor(() => {
         expect(mapMarkers).toHaveLength(2);
@@ -184,22 +209,21 @@ describe('ClustersLayer', () => {
       });
     });
 
-    test('does not create a marker for a still-not-ready cluster on unrelated mapImages updates', async () => {
+    test('does not create a marker for a still-not-ready cluster on unrelated icon updates', async () => {
       unmount();
       mapMarkers.length = 0;
 
-      const fullMapImages = buildMapImagesForFeatures([...mockClusterLeaves[0], ...mockClusterLeaves[1]]);
       // Simulates the initial-page-load race, same as the previous test.
-      const { 'jenaeonefield-200': omitted, ...incompleteMapImages } = fullMapImages;
-      expect(omitted).toBeDefined();
+      eventMapIcons.__clear();
+      seedIconsForFeatures([...mockClusterLeaves[0], ...mockClusterLeaves[1]], { omitKeys: [JENAE_ICON_KEY] });
 
-      ({ rerender } = render(
-        <Provider store={buildStore(incompleteMapImages)}>
+      render(
+        <Provider store={buildStore()}>
           <MapContext.Provider value={map}>
             <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
           </MapContext.Provider>
         </Provider>
-      ));
+      );
       map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
 
       await waitFor(() => {
@@ -207,9 +231,10 @@ describe('ClustersLayer', () => {
       });
 
       // An unrelated icon resolves elsewhere on the map — the cluster's own
-      // missing icon ('jenaeonefield-200') is still not present, so no marker
-      // should be created for it yet.
-      renderWithMapImages({ ...incompleteMapImages, 'unrelated_icon-100': { image: document.createElement('img') } });
+      // missing icon is still not present, so no marker should be created for it
+      // yet even though the registry notified.
+      eventMapIcons.__seed(calcSvgImageIconId({ icon_id: 'unrelated_icon', priority: 100 }), document.createElement('img'));
+      eventMapIcons.__notify();
 
       await waitFor(() => {
         expect(mapMarkers).toHaveLength(1);
@@ -399,7 +424,6 @@ describe('ClustersLayer', () => {
       ];
       clusterHTMLMarker = createClusterHTMLMarker(
         clusterFeatures,
-        [],
         onClusterClick,
         onClusterMouseEnter,
         onClusterMouseLeave
@@ -590,6 +614,8 @@ describe('ClustersLayer', () => {
   });
 
   describe('addNewClusterMarkers', () => {
+    afterEach(() => eventMapIcons.__clear());
+
     const clusterMarkerHashMapRef = { current: { '1': { marker: { remove: jest.fn() }, iconsReady: true } } };
     const clustersSource = {};
     const map = {};
@@ -641,7 +667,6 @@ describe('ClustersLayer', () => {
         clusterMarkerHashMapRef,
         clustersSource,
         map,
-        [],
         onClusterMouseLeave,
         renderedClusterFeatures,
         renderedClusterHashes,
@@ -659,7 +684,6 @@ describe('ClustersLayer', () => {
         clusterMarkerHashMapRef,
         clustersSource,
         map,
-        [],
         onClusterMouseLeave,
         renderedClusterFeatures,
         renderedClusterHashes,
@@ -686,7 +710,6 @@ describe('ClustersLayer', () => {
         notReadyClusterMarkerHashMapRef,
         clustersSource,
         map,
-        {},
         onClusterMouseLeave,
         pendingClusterFeatures,
         ['pending'],
@@ -710,13 +733,16 @@ describe('ClustersLayer', () => {
         properties: { id: '10', icon_id: 'snare_rep', priority: 200 },
         type: 'Feature',
       }]];
+      eventMapIcons.__seed(
+        calcSvgImageIconId({ icon_id: 'snare_rep', priority: 200 }),
+        document.createElement('img')
+      );
 
       const renderedClusterMarkersHashMap = addNewClusterMarkers(
         onClusterMouseEnter,
         upgradingClusterMarkerHashMapRef,
         clustersSource,
         map,
-        { 'snare_rep-200': { image: document.createElement('img') } },
         onClusterMouseLeave,
         pendingClusterFeatures,
         ['pending'],
