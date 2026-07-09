@@ -92,13 +92,13 @@ const renderColoredIconImage = (svgMarkup, event) => {
   svgEl.style.fill = `${color} !important`;
   svgEl.setAttribute('fill', color);
 
+  svgEl.querySelectorAll('style').forEach((el) => el.remove());
+
   svgEl.querySelectorAll('*').forEach((node) => {
     ['class', 'style', 'fill', 'stroke'].forEach((attribute) => node.removeAttribute(attribute));
   });
 
-  const serializedSvg = new XMLSerializer()
-    .serializeToString(svgEl)
-    .replace(/<style>.*?<\/style>/g, '');
+  const serializedSvg = new XMLSerializer().serializeToString(svgEl);
 
   const dataUri = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(serializedSvg)}`;
 

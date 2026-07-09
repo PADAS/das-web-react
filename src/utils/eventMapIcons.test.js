@@ -72,6 +72,28 @@ describe('eventMapIcons registry', () => {
     expect(listener).toHaveBeenCalled();
   });
 
+  it('strips multi-line <style> blocks from the recolored data-uri image', async () => {
+    const svgWithStyle = [
+      '<svg xmlns="http://www.w3.org/2000/svg">',
+      '<style type="text/css">',
+      '  path {',
+      '    fill: #000;',
+      '  }',
+      '</style>',
+      '<path d="M0 0"/>',
+      '</svg>',
+    ].join('\n');
+    axios.get.mockResolvedValue({ data: svgWithStyle });
+
+    const promise = ensureEventIcon({ icon_id: 'fire', priority: 200 });
+    await flushPromises();
+    fireLoads();
+    const image = await promise;
+
+    expect(image.src).toMatch(/^data:image\/svg\+xml/);
+    expect(decodeURIComponent(image.src)).not.toContain('<style');
+  });
+
   it('returns the cached image without refetching when the variant is already generated', async () => {
     const first = ensureEventIcon({ icon_id: 'fire', priority: 200 });
     await flushPromises();
