@@ -152,12 +152,12 @@ describe('ClustersLayer', () => {
       });
     });
 
-    test('withholds a cluster marker until all its displayed icons resolve in mapImages, rather than showing a guessed placeholder', async () => {
+    test('renders every cluster marker immediately even before its icons resolve, then upgrades to the resolved sprite', async () => {
       unmount();
       mapMarkers.length = 0;
 
       const fullMapImages = buildMapImagesForFeatures([...mockClusterLeaves[0], ...mockClusterLeaves[1]]);
-      // Simulates the initial-page-load race.
+      // Simulates the initial-page-load race where an icon hasn't been generated yet.
       const { 'jenaeonefield-200': omitted, ...incompleteMapImages } = fullMapImages;
       expect(omitted).toBeDefined();
 
@@ -170,12 +170,14 @@ describe('ClustersLayer', () => {
       ));
       map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
 
-      // Only the cluster whose icons are already resolved gets a marker.
+      // Both clusters render immediately — the not-yet-generated icon falls back
+      // to the feature's own image rather than the marker being withheld.
       await waitFor(() => {
-        expect(mapMarkers).toHaveLength(1);
+        expect(mapMarkers).toHaveLength(2);
       });
 
-      // The missing icon resolves and mapImages updates.
+      // Once the missing icon resolves, the marker upgrades to the resolved
+      // sprite (a data URI).
       renderWithMapImages(fullMapImages);
 
       await waitFor(() => {
@@ -184,17 +186,14 @@ describe('ClustersLayer', () => {
       });
     });
 
-    test('does not create a marker for a still-not-ready cluster on unrelated mapImages updates', async () => {
+    test('does not duplicate markers on unrelated mapImages updates', async () => {
       unmount();
       mapMarkers.length = 0;
 
       const fullMapImages = buildMapImagesForFeatures([...mockClusterLeaves[0], ...mockClusterLeaves[1]]);
-      // Simulates the initial-page-load race, same as the previous test.
-      const { 'jenaeonefield-200': omitted, ...incompleteMapImages } = fullMapImages;
-      expect(omitted).toBeDefined();
 
       ({ rerender } = render(
-        <Provider store={buildStore(incompleteMapImages)}>
+        <Provider store={buildStore(fullMapImages)}>
           <MapContext.Provider value={map}>
             <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
           </MapContext.Provider>
@@ -203,16 +202,14 @@ describe('ClustersLayer', () => {
       map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
 
       await waitFor(() => {
-        expect(mapMarkers).toHaveLength(1);
+        expect(mapMarkers).toHaveLength(2);
       });
 
-      // An unrelated icon resolves elsewhere on the map — the cluster's own
-      // missing icon ('jenaeonefield-200') is still not present, so no marker
-      // should be created for it yet.
-      renderWithMapImages({ ...incompleteMapImages, 'unrelated_icon-100': { image: document.createElement('img') } });
+      // An unrelated icon resolves elsewhere on the map.
+      renderWithMapImages({ ...fullMapImages, 'unrelated_icon-100': { image: document.createElement('img') } });
 
       await waitFor(() => {
-        expect(mapMarkers).toHaveLength(1);
+        expect(mapMarkers).toHaveLength(2);
       });
     });
 
@@ -390,12 +387,12 @@ describe('ClustersLayer', () => {
     let clusterHTMLMarker;
     beforeEach(() => {
       const clusterFeatures = [
-        { properties: { id: '1', content_type: 'observations.subject', is_static: true, subject_type: 'stationary-subject' } },
-        { properties: { id: '2', event_type: 'jenaeonefield' } },
-        { properties: { id: '3' } },
-        { properties: { id: '4', content_type: 'observations.subject' } },
-        { properties: { id: '5', event_type: 'jenaeonefield' } },
-        { properties: { id: '6' } },
+        { properties: { id: '1', content_type: 'observations.subject', is_static: true, subject_type: 'stationary-subject', image_url: 'https://develop.pamdas.org/static/ranger-black.svg' } },
+        { properties: { id: '2', event_type: 'jenaeonefield', image: 'https://develop.pamdas.org/static/fire_rep.svg' } },
+        { properties: { id: '3', image: 'https://develop.pamdas.org/static/fire_rep.svg' } },
+        { properties: { id: '4', content_type: 'observations.subject', image_url: 'https://develop.pamdas.org/static/ranger-black.svg' } },
+        { properties: { id: '5', event_type: 'jenaeonefield', image: 'https://develop.pamdas.org/static/fire_rep.svg' } },
+        { properties: { id: '6', image: 'https://develop.pamdas.org/static/fire_rep.svg' } },
       ];
       clusterHTMLMarker = createClusterHTMLMarker(
         clusterFeatures,
@@ -434,6 +431,72 @@ describe('ClustersLayer', () => {
       expect(clusterHTMLMarker.childNodes[1].tagName).toBe('IMG');
       expect(clusterHTMLMarker.childNodes[2].tagName).toBe('IMG');
       expect(clusterHTMLMarker.childNodes[3].tagName).toBe('P');
+    });
+  });
+
+  describe('createClusterHTMLMarker icon resolution', () => {
+    const noop = jest.fn();
+    const buildMarker = (feature, mapImages = {}) => createClusterHTMLMarker([feature], mapImages, noop, noop, noop);
+
+    const imgWithSrc = (src) => {
+      const image = document.createElement('img');
+      image.src = src;
+      return image;
+    };
+
+    test('resolves an event icon from its generated sprite in mapImages', () => {
+      const feature = { properties: { id: 'e1', event_type: 'fire', icon_id: 'fire_rep', priority: 200 } };
+      const spriteSrc = 'data:image/svg+xml,recolored-sprite';
+      const mapImages = { [calcSvgImageIconId(feature.properties)]: { image: imgWithSrc(spriteSrc) } };
+
+      const marker = buildMarker(feature, mapImages);
+
+      expect(marker.childNodes[0].getAttribute('src')).toBe(spriteSrc);
+    });
+
+    test('falls back to an event\'s own pre-colored image URL when its sprite is not yet generated', () => {
+      const image = 'https://develop.pamdas.org/static/generic-amber.svg';
+      const feature = { properties: { id: 'e1', event_type: 'fire', icon_id: 'fire_rep', priority: 200, image } };
+
+      const marker = buildMarker(feature, {});
+
+      expect(marker.childNodes[0].getAttribute('src')).toBe(image);
+    });
+
+    test('skips a raw sprite-src fallback (rather than flashing a broken image) until the recolored sprite resolves', () => {
+      // Vector-tile events carry the raw, uncolored sprite template, which is
+      // not display-ready and 404s for generic icons. It must be omitted, not
+      // rendered as a broken <img>, until MapImageFromSvgSpriteRenderer registers
+      // the recolored sprite and the repaint fills the slot.
+      const image = 'https://develop.pamdas.org/static/sprite-src/generic.svg';
+      const feature = { properties: { id: 'e1', event_type: 'fire', icon_id: 'generic', priority: 200, image } };
+
+      const marker = buildMarker(feature, {});
+
+      expect(marker.childNodes).toHaveLength(0);
+    });
+
+    test('skips the icon (rather than rendering a broken image) when a vector-tile event has no sprite yet and no image URL', () => {
+      // Vector-tile events carry an icon_id but may have no image/image_url;
+      // before the sprite resolves there is nothing valid to show, so the slot
+      // must be omitted instead of rendering an <img> with a null src.
+      const feature = { properties: { id: 'e1', event_type: 'fire', icon_id: 'fire_rep', priority: 200 } };
+
+      const marker = buildMarker(feature, {});
+
+      expect(marker.childNodes).toHaveLength(0);
+    });
+
+    test('renders a subject from its own image URL and never resolves it from the shared generic key', () => {
+      const imageUrl = 'https://develop.pamdas.org/static/ranger-black.svg';
+      const subject = { properties: { id: 's1', content_type: 'observations.subject', image_url: imageUrl } };
+      // A generic icon sitting under the empty-icon_id key ('generic') must not
+      // leak into subjects, which is what caused clustered subjects to show generic.
+      const mapImages = { [calcSvgImageIconId(subject.properties)]: { image: imgWithSrc('GENERIC-LEAK') } };
+
+      const marker = buildMarker(subject, mapImages);
+
+      expect(marker.childNodes[0].getAttribute('src')).toBe(imageUrl);
     });
   });
 

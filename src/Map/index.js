@@ -724,7 +724,6 @@ const Map = ({ children, onMapLoad, socket }) => {
       {eventsEnabled && (eventVectorTilesEnabled
         ? <EventsTileLayers onEventClick={onSelectEvent} />
         : <EventsLayer
-          mapImages={mapImages}
           onEventClick={onSelectEvent}
           bounceEventIDs={bounceEventIDs}
         />)}
