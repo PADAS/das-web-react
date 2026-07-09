@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import { fireEvent, render, waitFor } from '../test-utils';
 import { mockStore } from '../__test-helpers/MockStore';
 import { DAS_HOST } from '../constants';
-import SvgIcon, { svgCache } from './';
+import SvgIcon, { InlineSvg, svgCache } from './';
 
 const mockAxiosResponse = (contentType, body) => ({
   data: body,
@@ -126,6 +126,63 @@ describe('SvgIcon', () => {
         expect(document.querySelector('svg')).toBeInTheDocument();
       });
       expect(axiosSpy).toHaveBeenCalledWith(failingSrc, expect.anything());
+    });
+
+    test('syncs cached state when a concurrent mount populates the cache after render but before the effect runs', async () => {
+      const src = `${DAS_HOST}/static/sprite-src/fire_rep.svg`;
+      // Initial mount with an empty cache and a transient fetch failure: `cached` stays null, so
+      // this reproduces a mount whose useState captured a then-empty cache.
+      axiosSpy.mockRejectedValue(new Error('network down'));
+
+      const { container, rerender } = render(<InlineSvg src={src} repSrc={null} fallbackSrc="fallback" />);
+      await waitFor(() => {
+        expect(axiosSpy).toHaveBeenCalled();
+      });
+      expect(container.querySelector('svg')).not.toBeInTheDocument();
+
+      // A concurrent mount's shared fetch resolves and populates the cache under the same src.
+      svgCache.set(src, { svg: '<svg><path d="M0 0"/></svg>' });
+      axiosSpy.mockClear();
+
+      // The effect re-runs (a dependency changed) with the same src, so the render-phase reset does
+      // not fire and `cached` is still null. The cache-hit branch must sync state from the cache
+      // instead of leaving the icon blank forever.
+      rerender(<InlineSvg src={src} repSrc={null} fallbackSrc="fallback2" />);
+
+      await waitFor(() => {
+        expect(container.querySelector('svg')).toBeInTheDocument();
+      });
+      // It reused the cached entry rather than issuing another request.
+      expect(axiosSpy).not.toHaveBeenCalled();
+    });
+
+    test('falls back to the _rep icon when the primary returns 200 but unsanitizable content, and pins it under src', async () => {
+      axiosSpy
+        .mockResolvedValueOnce(mockAxiosResponse('image/svg+xml', '<script>alert(1)</script>'))
+        .mockResolvedValueOnce(mockAxiosResponse('image/svg+xml', '<svg><path d="M0 0"/></svg>'));
+
+      const { unmount } = renderWithStore(<SvgIcon type="events" iconId="fire" />);
+
+      await waitFor(() => {
+        expect(document.querySelector('svg')).toBeInTheDocument();
+      });
+      // A 200 with unsanitizable content is a permanent failure: try the primary, then _rep.
+      expect(axiosSpy.mock.calls[0][0]).toBe(`${DAS_HOST}/static/sprite-src/fire.svg`);
+      expect(axiosSpy.mock.calls[1][0]).toBe(`${DAS_HOST}/static/sprite-src/fire_rep.svg`);
+
+      const failingSrc = `${DAS_HOST}/static/sprite-src/fire.svg`;
+      expect(svgCache.has(failingSrc)).toBe(true);
+
+      unmount();
+      axiosSpy.mockClear();
+
+      renderWithStore(<SvgIcon type="events" iconId="fire" />);
+
+      await waitFor(() => {
+        expect(document.querySelector('svg')).toBeInTheDocument();
+      });
+      // The _rep entry is pinned under the failing src, so a later mount skips the dead URL.
+      expect(axiosSpy).not.toHaveBeenCalled();
     });
 
     test('resets the rendered icon when src changes so the previous icon does not persist', async () => {
@@ -250,7 +307,7 @@ describe('SvgIcon', () => {
   });
 
   describe('sanitization', () => {
-    test('strips scripts, event handlers, links, foreignObject, and focusable nodes from crafted icons', async () => {
+    test('strips scripts, event handlers, links, foreignObject, focusable nodes, and external image loads from crafted icons', async () => {
       const malicious = `<svg xmlns="http://www.w3.org/2000/svg">
         <script>window.__pwned = true;</script>
         <rect width="10" height="10" onload="window.__pwned = true;" />
@@ -258,6 +315,7 @@ describe('SvgIcon', () => {
         <a href="https://evil.example.com"><rect width="5" height="5" /></a>
         <rect width="3" height="3" tabindex="0" />
         <image href="https://evil.example.com/x.png" />
+        <filter id="f"><feGaussianBlur stdDeviation="2" /><feImage href="https://evil.example.com/x.png" /></filter>
       </svg>`;
       axiosSpy.mockResolvedValue(mockAxiosResponse('image/svg+xml', malicious));
 
@@ -275,6 +333,10 @@ describe('SvgIcon', () => {
       expect(container.querySelector('[tabindex]')).not.toBeInTheDocument();
       expect(html).not.toMatch(/onload/i);
       expect(html).not.toMatch(/href/i);
+      // <feImage> loads external resources like <image>, so it must be stripped too, while a
+      // legitimate filter primitive survives.
+      expect(html).not.toMatch(/feImage/i);
+      expect(html).toMatch(/feGaussianBlur/i);
     });
   });
 });

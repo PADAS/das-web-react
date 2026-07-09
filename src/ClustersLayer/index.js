@@ -155,15 +155,13 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
   // event icon registry notifies that a new icon is available.
   useEffect(() => subscribeEventIcons(updateClusterMarkersCallback), [updateClusterMarkersCallback]);
 
-  // Rebuild markers on mount so a remount doesn't wait for the next sourcedata.
   // On unmount, bump the run id so any in-flight async pass is discarded and
-  // can't add markers after the component is gone.
-  useEffect(() => {
-    updateClusterMarkersCallback();
-    return () => {
-      latestClusterUpdateRunIdRef.current += 1;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount; callback is stable via refs
+  // can't add markers after the component is gone. The mount-time rebuild is
+  // already covered by the locallyEditedEvent effect above, which runs on mount
+  // regardless of value, so this effect stays cleanup-only to avoid a redundant
+  // duplicate pass.
+  useEffect(() => () => {
+    latestClusterUpdateRunIdRef.current += 1;
   }, []);
 
   return null;

@@ -33,6 +33,9 @@
     "noMoreReportsItem": "Aucun autre événement à afficher.",
     "noReportsItem": "Aucun événement à afficher."
   },
+  "eventIcon": {
+    "collectionTitle": "Collection"
+  },
   "eventItemContextMenu": {
     "errorToastMessage": "#{{serialNumber}} est toujours {{state}}, une erreur s'est produite",
     "notificationDetails": {

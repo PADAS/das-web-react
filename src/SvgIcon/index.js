@@ -13,6 +13,10 @@ const inFlightFetches = new Map();
 
 const isClientError = (status) => typeof status === 'number' && status >= 400 && status < 500;
 
+// A sanitization failure is a permanent defect in the icon, not a transient network
+// problem — treat it like a 4xx so the fallback chain runs and the result is pinned.
+const isPermanentFailure = (error) => error?.permanent === true || isClientError(error?.response?.status);
+
 const CONTAINER_SELECTOR = 'svg,g,defs,symbol,marker,clipPath,mask,pattern';
 
 const buildSpriteSvgUrl = (iconId, communityValue) => (communityValue
@@ -83,8 +87,9 @@ const removeContainerDefaultFills = (doc, containers) => {
 const sanitizeSvg = (text) => {
   const sanitized = DOMPurify.sanitize(text, {
     USE_PROFILES: { svg: true, svgFilters: true },
-    // Block clickable links, external image loads, and focusable nodes in crafted icons.
-    FORBID_TAGS: ['a', 'image'],
+    // Block clickable links, external image loads (both raster <image> and filter-primitive
+    // <feImage>, which svgFilters would otherwise allow), and focusable nodes in crafted icons.
+    FORBID_TAGS: ['a', 'image', 'feImage'],
     FORBID_ATTR: ['tabindex'],
   });
   if (!sanitized) return null;
@@ -126,8 +131,9 @@ const injectClass = (markup, className) => {
 // share one request. Uses the app's axios instance so the auth interceptors attach
 // the bearer token; skipAuth exempts icon fetches from the 401 logout handling, and
 // the fetch adapter is forced because the default XHR adapter is unreliable under jsdom.
-// Resolves a cache entry ({ svg } | { imgSrc }); rejects with a 4xx-bearing error for
-// permanent failures and any other error for transient ones.
+// Resolves a cache entry ({ svg } | { imgSrc }); rejects with a permanent failure (a
+// 4xx-bearing error, or a { permanent: true } error when the icon fails sanitization)
+// and any other error for transient ones.
 const fetchRawIcon = (url) => {
   if (inFlightFetches.has(url)) return inFlightFetches.get(url);
 
@@ -140,7 +146,9 @@ const fetchRawIcon = (url) => {
     const contentType = response.headers['content-type'] || '';
     if (contentType.includes('svg')) {
       const clean = sanitizeSvg(response.data);
-      if (!clean) throw new Error('icon SVG failed sanitization');
+      // Flag as permanent so callers degrade like a 4xx (walk the fallback chain, pin the
+      // result) instead of refetching this unsanitizable icon on every mount.
+      if (!clean) throw Object.assign(new Error('icon SVG failed sanitization'), { permanent: true });
       return { svg: clean };
     }
     return { imgSrc: url };
@@ -153,18 +161,19 @@ const fetchRawIcon = (url) => {
 };
 
 // Resolves the cache entry to render, applying the registry's fetch policy: try the
-// primary URL, then (only on a 4xx) the _rep retry and the generic fallback. Successful
-// entries are cached under their URL; on a permanent 4xx the resolved fallback is pinned
-// under the failing src so later mounts skip the dead URL (until reload). Transient
-// failures (network error, cancellation — anything without a 4xx status) cache nothing,
-// so a later mount retries. Returns null when nothing resolves.
+// primary URL, then (only on a permanent failure) the _rep retry and the generic fallback.
+// Successful entries are cached under their URL; on a permanent failure the resolved fallback
+// is pinned under the failing src so later mounts skip the dead URL (until reload). A permanent
+// failure is a 4xx or an unsanitizable icon. Transient failures (network error, cancellation —
+// anything without a 4xx status) cache nothing, so a later mount retries. Returns null when
+// nothing resolves.
 const resolveIconEntry = async ({ src, repSrc, fallbackSrc }) => {
   try {
     const entry = await fetchRawIcon(src);
     svgCache.set(src, entry);
     return entry;
   } catch (error) {
-    if (!isClientError(error?.response?.status)) return null;
+    if (!isPermanentFailure(error)) return null;
   }
 
   const fallbackChain = [repSrc, fallbackSrc].filter((url) => url && url !== src);
@@ -175,7 +184,7 @@ const resolveIconEntry = async ({ src, repSrc, fallbackSrc }) => {
       svgCache.set(src, entry);
       return entry;
     } catch (error) {
-      if (!isClientError(error?.response?.status)) return null;
+      if (!isPermanentFailure(error)) return null;
     }
   }
 
@@ -183,7 +192,7 @@ const resolveIconEntry = async ({ src, repSrc, fallbackSrc }) => {
 };
 
 // Cache entries are either { svg: string } or { imgSrc: string }
-const InlineSvg = ({ src, repSrc, fallbackSrc, className, style, title, ...rest }) => {
+export const InlineSvg = ({ src, repSrc, fallbackSrc, className, style, title, ...rest }) => {
   const [cached, setCached] = useState(() => svgCache.get(src) ?? null);
   const [imgFailed, setImgFailed] = useState(false);
   const [renderedSrc, setRenderedSrc] = useState(src);
@@ -197,7 +206,15 @@ const InlineSvg = ({ src, repSrc, fallbackSrc, className, style, title, ...rest 
 
   useEffect(() => {
     let current = true;
-    if (svgCache.has(src)) return () => { current = false; };
+    // A concurrent mount's shared fetch may have populated the module-level svgCache after this
+    // component's render initialized `cached` from a then-empty cache. Reconciling from that
+    // external store is legitimate effect work (not derived state the lint heuristic assumes),
+    // and the functional update is a no-op when `cached` is already set.
+    if (svgCache.has(src)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- external-store sync, see comment above
+      setCached((prev) => prev ?? svgCache.get(src));
+      return () => { current = false; };
+    }
 
     resolveIconEntry({ src, repSrc, fallbackSrc })
       .then((entry) => { if (current && entry) setCached(entry); });

@@ -329,6 +329,42 @@ describe('eventMapIcons registry', () => {
       expect(image.src).toBe(calcUrlForImage('snare.png'));
     });
 
+    it('regenerates a contextless generic fallback with the event\'s own image once priming supplies it', async () => {
+      axios.get.mockRejectedValue({ response: { status: 404 } });
+
+      const map = createMapMock({ updateImage: jest.fn() });
+      map.hasImage.mockReturnValue(false);
+      attachEventIconsToMap(map);
+
+      // The vector tile requests the icon before priming publishes its params.
+      // With no event context, both the bare and _rep sprite fetches 404 and a
+      // generic per-color fallback is cached/registered under the requested id.
+      map.__test__.fireHandlers('styleimagemissing', { id: 'event-icon|snare|100' });
+      await flushPromises();
+      fireLoads();
+      await flushPromises();
+
+      const genericFallback = getEventIcon('event-icon|snare|100');
+      // priority 100 with no explicit color maps to the backend's "med_green" name.
+      expect(genericFallback.src).toBe(calcUrlForImage('/static/generic-med_green.svg'));
+      expect(map.addImage).toHaveBeenCalledWith('event-icon|snare|100', genericFallback);
+
+      // The generic image is already registered, so regeneration must replace it
+      // in place rather than adding a second registration.
+      map.hasImage.mockReturnValue(true);
+
+      // Priming now carries the event's own image; the contextless fallback is
+      // dropped and regenerated with context, so the event's own image wins.
+      primeEventIconParams([{ properties: { icon_id: 'snare', priority: 100, image: 'snare.png' } }]);
+      await flushPromises();
+      fireLoads();
+      await flushPromises();
+
+      const regenerated = getEventIcon('event-icon|snare|100');
+      expect(regenerated.src).toBe(calcUrlForImage('snare.png'));
+      expect(map.updateImage).toHaveBeenCalledWith('event-icon|snare|100', regenerated);
+    });
+
     it('ignores ids that are not event icons', async () => {
       const map = createMapMock();
 

@@ -27,12 +27,16 @@ const FEATURE_SS_ICON_HTML_STYLES = { filter: 'brightness(0)' };
 const FEATURE_COUNT_HTML_STYLES = { fontSize: '16px', fontWeight: '500', paddingLeft: '4px', margin: '0' };
 
 // When the feature is the event being edited locally, reflect its unsaved
-// priority so the icon variant matches the edit in progress.
+// icon_id/priority so the icon variant matches the edit in progress.
 const eventIconParamsFor = (feature, locallyEditedEvent) => {
-  const priority = locallyEditedEvent?.id === feature.properties.id
+  const isLocallyEdited = locallyEditedEvent?.id === feature.properties.id;
+  const priority = isLocallyEdited
     ? locallyEditedEvent.priority ?? feature.properties.priority
     : feature.properties.priority;
-  return { ...feature.properties, priority };
+  const icon_id = isLocallyEdited
+    ? locallyEditedEvent.icon_id ?? feature.properties.icon_id
+    : feature.properties.icon_id;
+  return { ...feature.properties, priority, icon_id };
 };
 
 const getFeatureIcon = (feature, locallyEditedEvent) =>
@@ -202,10 +206,12 @@ export const getRenderedClustersData = async (clustersSource, map, locallyEdited
 
   const renderedClusterHashes = renderedClusterFeatures.map(
     (features) => hashCode(features.map((clusterFeature) => {
-      // For the locally-edited event, key the hash off its unsaved priority so the marker recreates.
+      // For the locally-edited event, key the hash off its unsaved priority and
+      // icon_id so an icon-only (or priority) edit recreates the marker.
       const isLocallyEdited = locallyEditedEvent?.id === clusterFeature.properties.id;
+      const editedIconId = locallyEditedEvent?.icon_id ?? clusterFeature.properties.icon_id ?? '';
       const suffix = isLocallyEdited
-        ? `local-${locallyEditedEvent.priority ?? 0}`
+        ? `local-${locallyEditedEvent.priority ?? 0}-${editedIconId}`
         : `${clusterFeature.properties.updated_at}`;
       return `${clusterFeature.properties.id} ${suffix}`;
     }).join(''))

@@ -1,6 +1,6 @@
-@import '../common/styles/vars/colors';
+@use '../common/styles/vars/colors';
 
 .icon {
-  background-color: $transparent-dark-gray;
+  background-color: colors.$transparent-dark-gray;
   border-radius: 0.125rem;
 }

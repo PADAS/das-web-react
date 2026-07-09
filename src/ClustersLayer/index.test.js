@@ -565,7 +565,7 @@ describe('ClustersLayer', () => {
       expect(renderedClusterHashes).toHaveLength(2);
     });
 
-    test('keys the hash off the locally edited event\'s unsaved priority (local-<priority> suffix)', async () => {
+    test('keys the hash off the locally edited event\'s unsaved priority and icon_id (local-<priority>-<icon_id> suffix)', async () => {
       const { renderedClusterHashes: baseHashes } = await getRenderedClustersData(clustersSource, map);
 
       // Event id '2' lives in cluster 1; editing it should change only that cluster's hash.
@@ -584,6 +584,15 @@ describe('ClustersLayer', () => {
         { id: '2', priority: 100 }
       );
       expect(rehashedHashes[0]).not.toBe(editedHashes[0]);
+
+      // An icon-only edit (same priority) still forces a rehash for that cluster.
+      const { renderedClusterHashes: iconEditedHashes } = await getRenderedClustersData(
+        clustersSource,
+        map,
+        { id: '2', priority: 300, icon_id: 'different_icon' }
+      );
+      expect(iconEditedHashes[0]).not.toBe(editedHashes[0]);
+      expect(iconEditedHashes[1]).toBe(baseHashes[1]);
     });
 
     test('resolves (does not hang) and drops clusters that error, keeping the arrays aligned', async () => {
