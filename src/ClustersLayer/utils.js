@@ -1,7 +1,7 @@
 import { centroid, featureCollection } from '@turf/turf';
 import mapboxgl from 'mapbox-gl';
 
-import { calcGenericFallbackImageUrl, calcSpriteSvgUrl } from '../utils/img';
+import { calcUrlForImage } from '../utils/img';
 import { CLUSTER_CLICK_ZOOM_THRESHOLD, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
 import { subjectIsStatic } from '../utils/subjects';
@@ -26,7 +26,7 @@ const FEATURE_SS_ICON_HTML_STYLES = { filter: 'brightness(0)' };
 const FEATURE_COUNT_HTML_STYLES = { fontSize: '16px', fontWeight: '500', paddingLeft: '4px', margin: '0' };
 
 const getFeatureIcon = (feature, mapImages) =>
-  mapImages[calcSvgImageIconId(feature.properties)]?.image;
+  feature.properties.icon_id ? mapImages[calcSvgImageIconId(feature.properties)]?.image : undefined;
 
 export const getClusterIconFeatures = (clusterFeatures) => {
   const { eventFeatures, subjectFeatures } = clusterFeatures.reduce((accumulator, feature) => {
@@ -77,20 +77,15 @@ const populateClusterIconChildren = (clusterHTMLMarkerContainer, clusterIconFeat
   clusterIconFeatures.forEach((feature) => {
     let featureImageHTML = getFeatureIcon(feature, mapImages)?.cloneNode(true);
     if (!featureImageHTML) {
-      featureImageHTML = document.createElement('img');
-      // Event features' own image/image_url from the vector tile is unreliable
-      // so fall back to the uncolored sprite master until mapImages resolves.
-      // That master doesn't exist for every icon_id either, so if it also
-      // fails to load, drop to the generic per-color icon.
-      if (feature.properties.icon_id) {
-        featureImageHTML.src = calcSpriteSvgUrl(feature.properties.icon_id);
-        featureImageHTML.onerror = () => {
-          featureImageHTML.onerror = null;
-          featureImageHTML.src = calcGenericFallbackImageUrl(feature.properties);
-        };
-      } else {
-        featureImageHTML.src = feature.properties.image || feature.properties.image_url;
+      // The recolored sprite isn't in mapImages yet. Fall back to the feature's
+      // own icon URL only when it's a display-ready image.
+      const fallbackSrc = calcUrlForImage(feature.properties.image || feature.properties.image_url);
+      if (!fallbackSrc || fallbackSrc.includes('/sprite-src/')) {
+        return;
       }
+
+      featureImageHTML = document.createElement('img');
+      featureImageHTML.src = fallbackSrc;
     }
     injectStylesToElement(featureImageHTML, FEATURE_ICON_HTML_STYLES);
     if (subjectIsStatic(feature)) {
@@ -215,9 +210,7 @@ export const addNewClusterMarkers = (
     const clusterIconFeatures = wasReady ? null : getClusterIconFeatures(clusterFeatures);
     const iconsReady = wasReady || clusterIconFeatures
       .every((feature) => !feature.properties.icon_id || !!getFeatureIcon(feature, mapImages));
-
-    // Wait for every displayed icon to resolve before creating the marker.
-    if (!marker && iconsReady) {
+    if (!marker) {
       const clusterFeatureCollection = featureCollection(clusterFeatures);
       const clusterPoint = centroid(clusterFeatureCollection);
       const onClick = onClusterClick(
@@ -244,6 +237,8 @@ export const addNewClusterMarkers = (
         .setLngLat(clusterPoint.geometry.coordinates)
         .addTo(map);
     } else if (!wasReady && iconsReady) {
+      // Marker already exists but was built with image-URL fallbacks; repaint
+      // its icons in place.
       populateClusterIconChildren(marker.getElement(), clusterIconFeatures, clusterFeatures.length, mapImages);
     }
 
@@ -252,4 +247,3 @@ export const addNewClusterMarkers = (
 
   return renderedClusterMarkersHashMap;
 };
-

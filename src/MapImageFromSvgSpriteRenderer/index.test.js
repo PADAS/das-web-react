@@ -40,6 +40,11 @@ describe('calcSvgImageIconId', () => {
   it('appends width and height when provided, alongside priority, matching the icon-image expression order', () => {
     expect(calcSvgImageIconId({ icon_id: 'fire', priority: 200, height: 32, width: 24 })).toBe('fire-200-24-32');
   });
+
+  it('falls back to the "generic" key when icon_id is absent, so the map-image id is never empty', () => {
+    expect(calcSvgImageIconId({})).toBe('generic');
+    expect(calcSvgImageIconId({ priority: 200 })).toBe('generic-200');
+  });
 });
 
 describe('MapImageFromSvgSpriteRenderer', () => {

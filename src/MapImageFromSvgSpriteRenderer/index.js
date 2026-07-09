@@ -17,7 +17,7 @@ const REP_SUFFIX = '_rep';
 // used by the Mapbox icon-image expressions (icon_id-priority-width-height).
 export const calcSvgImageIconId = ({ icon_id, priority, width, height }) => {
   const variantSuffixParts = [priority, width, height].filter((value) => value === 0 || Boolean(value));
-  return [icon_id, ...variantSuffixParts].join('-');
+  return [icon_id || 'generic', ...variantSuffixParts].join('-');
 };
 
 const fetchSpriteSvgMarkup = async (spriteIconId) => {
