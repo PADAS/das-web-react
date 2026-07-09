@@ -2,9 +2,30 @@ import { featureCollection } from '@turf/turf';
 
 import store from '../store';
 import { addImageToMapIfNecessary } from '../ducks/map-images';
-import { MAP_ICON_SIZE, MAP_ICON_SCALE } from '../constants';
+import { MAP_ICON_SIZE, MAP_ICON_SCALE, SIDEBAR_DETAIL_VIEW_WIDTH_PIXELS, SIDEBAR_WIDTH_PIXELS } from '../constants';
 import { format, formatEventSymbolDate } from './datetime';
+import { getCurrentIdFromURL, getCurrentTabFromURL } from './navigation';
 import { imgElFromSrc, calcUrlForImage, calcImgIdFromUrlForMapImages } from './img';
+
+// Extra allowance for the fixed vertical icon nav rail that sits between the
+// sidebar panel and the map.
+const VERTICAL_NAV_RAIL_WIDTH_PIXELS = 80;
+const POLYGON_PADDING_REDUCTION_PIXELS = 350;
+
+export const calcSidebarPaddingLeft = ({ pathname, isMediumLayoutOrLarger, isPolygon = false }) => {
+  if (isMediumLayoutOrLarger) {
+    const currentTab = getCurrentTabFromURL(pathname);
+    const itemId = getCurrentIdFromURL(pathname);
+
+    if (currentTab || itemId) {
+      return itemId
+        ? SIDEBAR_DETAIL_VIEW_WIDTH_PIXELS - (isPolygon ? POLYGON_PADDING_REDUCTION_PIXELS : 0)
+        : SIDEBAR_WIDTH_PIXELS + (isPolygon ? -POLYGON_PADDING_REDUCTION_PIXELS : VERTICAL_NAV_RAIL_WIDTH_PIXELS);
+    }
+  }
+
+  return undefined;
+};
 
 const addItemPropsToFeatureByKey = (item, feature, key) => {
   const toDelete = ['geojson', 'location', 'geometry', key];

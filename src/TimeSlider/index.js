@@ -5,6 +5,7 @@ import Overlay from 'react-bootstrap/Overlay';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import { useDispatch, useSelector } from 'react-redux';
+import { useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
@@ -14,6 +15,8 @@ import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as PauseIcon } from '../common/images/icons/pause.svg';
 import { ReactComponent as PlayIcon } from '../common/images/icons/play.svg';
 
+import { BREAKPOINTS } from '../constants';
+import { calcSidebarPaddingLeft } from '../utils/map';
 import {
   clearVirtualDate,
   setVirtualDate,
@@ -32,6 +35,7 @@ import {
   trackEventFactory,
 } from '../utils/analytics';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
+import { useMatchMedia } from '../hooks';
 
 import EventFilterDateRange from '../EventFilter/DateRange';
 
@@ -60,6 +64,9 @@ const isAtEnd = (value) => value >= 0.99999;
 const TimeSlider = () => {
   const dispatch = useDispatch();
   const { i18n, t } = useTranslation('components', { keyPrefix: 'timeSlider' });
+  const location = useLocation();
+
+  const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
   const eventFilterLowerDateRange = useSelector((state) => state.data.eventFilter.filter.date_range.lower);
   const eventFilterUpperDateRange = useSelector((state) => state.data.eventFilter.filter.date_range.upper);
@@ -73,6 +80,13 @@ const TimeSlider = () => {
   const [isSpeedMenuOpen, setIsSpeedMenuOpen] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(DEFAULT_PLAYBACK_SPEED);
   const [speedMenuAnchorEl, setSpeedMenuAnchorEl] = useState();
+
+  const sidebarOffsetPixels = calcSidebarPaddingLeft({
+    isMediumLayoutOrLarger,
+    pathname: location.pathname,
+  }) ?? 0;
+
+  const isCompact = sidebarOffsetPixels > 0;
 
   const debouncedRangeChangeAnalytics = useMemo(() => mapInteractionTracker.debouncedTrack(300), []);
 
@@ -268,7 +282,11 @@ const TimeSlider = () => {
 
   useEffect(() => () => debouncedRangeChangeAnalytics.cancel(), [debouncedRangeChangeAnalytics]);
 
-  return <div className={styles.wrapper}>
+  return <div
+      className={`${styles.wrapper} ${isCompact ? styles.compact : ''}`}
+      data-testid="timeSlider-wrapper"
+      style={{ '--sidebar-offset': `${sidebarOffsetPixels}px` }}
+    >
     <button
       aria-label={isPlaying ? t('stopButtonLabel') : t('playButtonLabel')}
       className={styles.playStopButton}
@@ -279,74 +297,76 @@ const TimeSlider = () => {
       {isPlaying ? <PauseIcon aria-hidden="true" /> : <PlayIcon aria-hidden="true" />}
     </button>
 
-    <button
-      aria-controls={speedMenuPopoverId}
-      aria-expanded={isSpeedMenuOpen}
-      aria-haspopup="menu"
-      aria-label={t('speedButtonLabel')}
-      className={styles.speedButton}
-      onClick={() => setIsSpeedMenuOpen((isOpen) => !isOpen)}
-      ref={setSpeedMenuAnchorEl}
-      title={t('speedButtonLabel')}
-      type="button"
-    >
-      {playbackSpeedOption.label}
-    </button>
+    {!isCompact && <>
+      <button
+        aria-controls={speedMenuPopoverId}
+        aria-expanded={isSpeedMenuOpen}
+        aria-haspopup="menu"
+        aria-label={t('speedButtonLabel')}
+        className={styles.speedButton}
+        onClick={() => setIsSpeedMenuOpen((isOpen) => !isOpen)}
+        ref={setSpeedMenuAnchorEl}
+        title={t('speedButtonLabel')}
+        type="button"
+      >
+        {playbackSpeedOption.label}
+      </button>
 
-    <Overlay
-      onHide={() => setIsSpeedMenuOpen(false)}
-      rootClose
-      show={isSpeedMenuOpen}
-      target={speedMenuAnchorEl}
-    >
-      <Popover className={styles.speedMenuPopover} role="presentation">
-        <div aria-hidden="true" className={styles.speedMenuHeader}>{t('speedMenuHeader')}</div>
+      <Overlay
+        onHide={() => setIsSpeedMenuOpen(false)}
+        rootClose
+        show={isSpeedMenuOpen}
+        target={speedMenuAnchorEl}
+      >
+        <Popover className={styles.speedMenuPopover} role="presentation">
+          <div aria-hidden="true" className={styles.speedMenuHeader}>{t('speedMenuHeader')}</div>
 
-        <ul
-          aria-label={t('speedMenuLabel')}
-          className={styles.speedMenu}
-          id={speedMenuPopoverId}
-          onKeyDown={onSpeedMenuKeyDown}
-          role="menu"
-        >
-          {PLAYBACK_SPEED_OPTIONS.map((option, index) => <li
-            className={styles.speedMenuItem}
-            key={option.value}
-            role="none"
+          <ul
+            aria-label={t('speedMenuLabel')}
+            className={styles.speedMenu}
+            id={speedMenuPopoverId}
+            onKeyDown={onSpeedMenuKeyDown}
+            role="menu"
           >
-            <button
-              aria-checked={playbackSpeed === option.value}
-              aria-label={t('speedMenuOptionLabel', { speed: option.label })}
-              className={styles.speedMenuItemOption}
-              onClick={() => onSpeedMenuOptionClick(option.value)}
-              ref={(element) => {
-                speedMenuItemOptionRefs.current[index] = element;
-              }}
-              role="menuitemradio"
-              tabIndex={-1}
-              title={t('speedMenuOptionLabel', { speed: option.label })}
-              type="button"
+            {PLAYBACK_SPEED_OPTIONS.map((option, index) => <li
+              className={styles.speedMenuItem}
+              key={option.value}
+              role="none"
             >
-              {playbackSpeed === option.value && <CheckIcon className={styles.checkIcon} />}
+              <button
+                aria-checked={playbackSpeed === option.value}
+                aria-label={t('speedMenuOptionLabel', { speed: option.label })}
+                className={styles.speedMenuItemOption}
+                onClick={() => onSpeedMenuOptionClick(option.value)}
+                ref={(element) => {
+                  speedMenuItemOptionRefs.current[index] = element;
+                }}
+                role="menuitemradio"
+                tabIndex={-1}
+                title={t('speedMenuOptionLabel', { speed: option.label })}
+                type="button"
+              >
+                {playbackSpeed === option.value && <CheckIcon className={styles.checkIcon} />}
 
-              {option.label}
-            </button>
-          </li>)}
-        </ul>
-      </Popover>
-    </Overlay>
+                {option.label}
+              </button>
+            </li>)}
+          </ul>
+        </Popover>
+      </Overlay>
 
-    <time className={styles.virtualDateWrapper} dateTime={currentDate.toISOString()}>
-      <span className={styles.virtualTime}>
-        {format(currentDate, SHORT_TIME_FORMAT, { locale: dateLocales[i18n.language] })}
-      </span>
+      <time className={styles.virtualDateWrapper} dateTime={currentDate.toISOString()}>
+        <span className={styles.virtualTime}>
+          {format(currentDate, SHORT_TIME_FORMAT, { locale: dateLocales[i18n.language] })}
+        </span>
 
-      <span className={styles.virtualDate}>
-        {format(currentDate, SHORTENED_DATE_FORMAT, { locale: dateLocales[i18n.language] })}
-      </span>
-    </time>
+        <span className={styles.virtualDate}>
+          {format(currentDate, SHORTENED_DATE_FORMAT, { locale: dateLocales[i18n.language] })}
+        </span>
+      </time>
 
-    <div aria-hidden="true" className={styles.separator} />
+      <div aria-hidden="true" className={styles.separator} />
+    </>}
 
     <div className={styles.track}>
       <input
@@ -376,59 +396,61 @@ const TimeSlider = () => {
       </div>
     </div>
 
-    <OverlayTrigger
-      overlay={
-        <Popover className={styles.popover}>
-          <Popover.Header className={styles.popoverTitle}>
-            <ClockIcon aria-hidden="true" />
+    {!isCompact && <>
+      <OverlayTrigger
+        overlay={
+          <Popover className={styles.popover}>
+            <Popover.Header className={styles.popoverTitle}>
+              <ClockIcon aria-hidden="true" />
 
-            {t('popoverHeader')}
+              {t('popoverHeader')}
 
-            <Button
-              disabled={!isEventFilterDateRangeModified}
-              onClick={onClickReset}
-              size="sm"
-              type="button"
-              variant="light"
-            >
-              {t('popoverResetButton')}
-            </Button>
-          </Popover.Header>
+              <Button
+                disabled={!isEventFilterDateRangeModified}
+                onClick={onClickReset}
+                size="sm"
+                type="button"
+                variant="light"
+              >
+                {t('popoverResetButton')}
+              </Button>
+            </Popover.Header>
 
-          <Popover.Body className={styles.popoverBody}>
-            <EventFilterDateRange
-              endDateLabel=""
-              onEndChange={() => trackDateChange()}
-              onStartChange={() => trackDateChange()}
-              placement="top"
-              popoverClassName={styles.dateRangePopover}
-              startDateLabel=""
-            />
-          </Popover.Body>
-        </Popover>
-      }
-      rootClose
-      trigger="click"
-    >
+            <Popover.Body className={styles.popoverBody}>
+              <EventFilterDateRange
+                endDateLabel=""
+                onEndChange={() => trackDateChange()}
+                onStartChange={() => trackDateChange()}
+                placement="top"
+                popoverClassName={styles.dateRangePopover}
+                startDateLabel=""
+              />
+            </Popover.Body>
+          </Popover>
+        }
+        rootClose
+        trigger="click"
+      >
+        <button
+          aria-label={t('dateRangeButtonLabel')}
+          className={`${styles.dateRangeButton} ${isEventFilterDateRangeModified ? styles.modified : ''}`}
+          title={t('dateRangeButtonLabel')}
+          type="button"
+        >
+          <CalendarIcon aria-hidden="true" />
+        </button>
+      </OverlayTrigger>
+
       <button
-        aria-label={t('dateRangeButtonLabel')}
-        className={`${styles.dateRangeButton} ${isEventFilterDateRangeModified ? styles.modified : ''}`}
-        title={t('dateRangeButtonLabel')}
+        aria-label={t('closeButtonLabel')}
+        className={styles.closeButton}
+        onClick={() => dispatch(setTimeSliderState(false))}
+        title={t('closeButtonLabel')}
         type="button"
       >
-        <CalendarIcon aria-hidden="true" />
+        <CrossIcon aria-hidden="true" />
       </button>
-    </OverlayTrigger>
-
-    <button
-      aria-label={t('closeButtonLabel')}
-      className={styles.closeButton}
-      onClick={() => dispatch(setTimeSliderState(false))}
-      title={t('closeButtonLabel')}
-      type="button"
-    >
-      <CrossIcon aria-hidden="true" />
-    </button>
+    </>}
   </div>;
 };
 

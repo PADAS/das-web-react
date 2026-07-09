@@ -5,17 +5,19 @@ import { render, waitFor } from '@testing-library/react';
 
 import {
   addNewClusterMarkers,
+  calcClusterZoomPadding,
   createClusterHTMLMarker,
   getClusterIconFeatures,
   getRenderedClustersData,
   onClusterClick,
   removeOldClusterMarkers,
 } from './utils';
+import { BREAKPOINTS, CLUSTER_CLICK_ZOOM_THRESHOLD, SOURCE_IDS } from '../constants';
 import { calcSpriteSvgUrl } from '../utils/img';
 import { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
-import { CLUSTER_CLICK_ZOOM_THRESHOLD, SOURCE_IDS } from '../constants';
 import ClustersLayer from '.';
 import { createMapMock, createMockInteractionEvent } from '../__test-helpers/mocks';
+import getWindowLocation from '../utils/getWindowLocation';
 import { mockStore } from '../__test-helpers/MockStore';
 import { MapContext } from '../MapContext';
 import {
@@ -67,6 +69,7 @@ jest.mock('../hooks/useTileEventFeatures', () => jest.fn());
 jest.mock('../selectors/events-realtime-overlay', () => ({
   selectRealtimeOverlayFeatureCollection: jest.fn(),
 }));
+jest.mock('../utils/getWindowLocation', () => jest.fn());
 
 
 describe('ClustersLayer', () => {
@@ -78,6 +81,8 @@ describe('ClustersLayer', () => {
 
     selectRealtimeOverlayFeatureCollection.mockReturnValue(featureCollection([]));
     useTileEventFeaturesMock.mockReturnValue(featureCollection([]));
+    getWindowLocation.mockReturnValue({ pathname: '/' });
+    BREAKPOINTS.screenIsMediumLayoutOrLarger.matches = true;
   });
 
   describe('the map layer', () => {
@@ -285,6 +290,7 @@ describe('ClustersLayer', () => {
       expect(map.easeTo).toHaveBeenCalledWith({
         center: [-103.38315141, 20.677884013333337],
         zoom: CLUSTER_CLICK_ZOOM_THRESHOLD + 1.1,
+        padding: { left: 0, right: 90, top: 12, bottom: 12 },
       });
     });
 
@@ -474,7 +480,33 @@ describe('ClustersLayer', () => {
       )(clickEvent);
 
       expect(map.easeTo).toHaveBeenCalledTimes(1);
-      expect(map.easeTo).toHaveBeenCalledWith({ center: clusterCoordinates, zoom: CLUSTER_CLICK_ZOOM_THRESHOLD + 1.1 });
+      expect(map.easeTo).toHaveBeenCalledWith({
+        center: clusterCoordinates,
+        zoom: CLUSTER_CLICK_ZOOM_THRESHOLD + 1.1,
+        padding: { left: 0, right: 90, top: 12, bottom: 12 },
+      });
+    });
+
+    test('centers the zoom on the visible map area, accounting for the sidebar, when it is open', () => {
+      getWindowLocation.mockReturnValue({ pathname: '/events' });
+      map.getSource.mockReturnValue({ getClusterExpansionZoom: getClusterExpansionZoomMock });
+      map.getZoom.mockReturnValue(CLUSTER_CLICK_ZOOM_THRESHOLD - 1);
+
+      onClusterClick(
+        clusterCoordinates,
+        clusterFeatures,
+        clusterHash,
+        clusterMarkerHashMapRef,
+        map,
+        onShowClusterSelectPopup,
+        CLUSTERS_SOURCE_ID
+      )(clickEvent);
+
+      expect(map.easeTo).toHaveBeenCalledWith({
+        center: clusterCoordinates,
+        zoom: CLUSTER_CLICK_ZOOM_THRESHOLD + 1.1,
+        padding: { left: 592, right: 90, top: 12, bottom: 12 },
+      });
     });
 
     test('triggers onShowClusterSelectPopup if the current zoom is equal or greater than the threshold', () => {
@@ -492,6 +524,33 @@ describe('ClustersLayer', () => {
 
       expect(onShowClusterSelectPopup).toHaveBeenCalledTimes(1);
       expect(onShowClusterSelectPopup).toHaveBeenCalledWith(clusterFeatures, clusterCoordinates);
+    });
+  });
+
+  describe('calcClusterZoomPadding', () => {
+    test('pads with a zero left offset when no sidebar tab is open, so a stale padding value never lingers on the map camera', () => {
+      getWindowLocation.mockReturnValue({ pathname: '/' });
+
+      expect(calcClusterZoomPadding()).toEqual({ left: 0, right: 90, top: 12, bottom: 12 });
+    });
+
+    test('pads for the sidebar width when a tab is open', () => {
+      getWindowLocation.mockReturnValue({ pathname: '/events' });
+
+      expect(calcClusterZoomPadding()).toEqual({ left: 592, right: 90, top: 12, bottom: 12 });
+    });
+
+    test('pads for the wider detail view when an item is open', () => {
+      getWindowLocation.mockReturnValue({ pathname: '/events/some-event-id' });
+
+      expect(calcClusterZoomPadding()).toEqual({ left: 736, right: 90, top: 12, bottom: 12 });
+    });
+
+    test('pads with a zero left offset and a narrower right offset below the medium layout breakpoint, since the sidebar covers the full viewport', () => {
+      getWindowLocation.mockReturnValue({ pathname: '/events' });
+      BREAKPOINTS.screenIsMediumLayoutOrLarger.matches = false;
+
+      expect(calcClusterZoomPadding()).toEqual({ left: 0, right: 12, top: 12, bottom: 12 });
     });
   });
 

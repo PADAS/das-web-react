@@ -2,6 +2,7 @@ import { createMapMock } from '../__test-helpers/mocks';
 
 import {
   buildGeoSpanFilter,
+  calcSidebarPaddingLeft,
   calculatePopoverPlacement,
   safeRemoveMapLayer,
   safeRemoveMapSource,
@@ -216,5 +217,40 @@ describe('safeRemoveMapLayer / safeRemoveMapSource', () => {
     map.getSource.mockReturnValue({});
     safeRemoveMapSource(map, 'source-a');
     expect(map.removeSource).toHaveBeenCalledWith('source-a');
+  });
+});
+
+describe('calcSidebarPaddingLeft', () => {
+  test('returns undefined below the medium layout breakpoint, regardless of the URL', () => {
+    expect(calcSidebarPaddingLeft({ pathname: '/events', isMediumLayoutOrLarger: false })).toBeUndefined();
+    expect(calcSidebarPaddingLeft({ pathname: '/events/some-id', isMediumLayoutOrLarger: false })).toBeUndefined();
+  });
+
+  test('returns undefined when no sidebar tab is open', () => {
+    expect(calcSidebarPaddingLeft({ pathname: '/', isMediumLayoutOrLarger: true })).toBeUndefined();
+  });
+
+  test('pads for the sidebar width, plus the vertical nav rail, when a tab is open', () => {
+    expect(calcSidebarPaddingLeft({ pathname: '/events', isMediumLayoutOrLarger: true })).toBe(592);
+  });
+
+  test('pads for the wider detail view when an item is open', () => {
+    expect(calcSidebarPaddingLeft({ pathname: '/events/some-event-id', isMediumLayoutOrLarger: true })).toBe(736);
+  });
+
+  test('reduces the sidebar padding for a polygon/bounds fit, since it already hugs its own shape', () => {
+    expect(calcSidebarPaddingLeft({
+      pathname: '/events', isMediumLayoutOrLarger: true, isPolygon: true,
+    })).toBe(162);
+  });
+
+  test('reduces the detail-view padding for a polygon/bounds fit', () => {
+    expect(calcSidebarPaddingLeft({
+      pathname: '/events/some-event-id', isMediumLayoutOrLarger: true, isPolygon: true,
+    })).toBe(386);
+  });
+
+  test('prioritizes the detail-view width over the tab width when both are present', () => {
+    expect(calcSidebarPaddingLeft({ pathname: '/patrols/some-patrol-id', isMediumLayoutOrLarger: true })).toBe(736);
   });
 });

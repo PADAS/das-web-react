@@ -2,8 +2,10 @@ import { centroid, featureCollection } from '@turf/turf';
 import mapboxgl from 'mapbox-gl';
 
 import { calcGenericFallbackImageUrl, calcSpriteSvgUrl } from '../utils/img';
-import { CLUSTER_CLICK_ZOOM_THRESHOLD, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
+import { BREAKPOINTS, CLUSTER_CLICK_ZOOM_THRESHOLD, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
+import { calcSidebarPaddingLeft } from '../utils/map';
 import { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
+import getWindowLocation from '../utils/getWindowLocation';
 import { subjectIsStatic } from '../utils/subjects';
 import { injectStylesToElement } from '../utils/styles';
 import { hashCode } from '../utils/string';
@@ -130,6 +132,16 @@ export const createClusterHTMLMarker = (
   return clusterHTMLMarkerContainer;
 };
 
+export const calcClusterZoomPadding = () => {
+  const isMediumLayoutOrLarger = BREAKPOINTS.screenIsMediumLayoutOrLarger.matches;
+  const left = calcSidebarPaddingLeft({
+    isMediumLayoutOrLarger,
+    pathname: getWindowLocation().pathname,
+  }) ?? 0;
+
+  return { left, right: isMediumLayoutOrLarger ? 90 : 12, top: 12, bottom: 12 };
+};
+
 export const onClusterClick = (
   clusterCoordinates,
   clusterFeatures,
@@ -148,7 +160,12 @@ export const onClusterClick = (
   if (mapZoom < CLUSTER_CLICK_ZOOM_THRESHOLD) {
     map.getSource(sourceId).getClusterExpansionZoom(
       clusterMarkerHashMapRef.current[clusterHash].id,
-      (error, zoom) => !error && map.easeTo({ center: clusterCoordinates, zoom: zoom + 0.1 })
+      (error, zoom) => {
+        if (!error) {
+          const padding = calcClusterZoomPadding();
+          map.easeTo({ center: clusterCoordinates, zoom: zoom + 0.1, padding });
+        }
+      }
     );
   } else {
     onShowClusterSelectPopup(clusterFeatures, clusterCoordinates);

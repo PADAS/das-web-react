@@ -3,6 +3,7 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { act, fireEvent, render, screen, waitFor } from '../test-utils';
+import { BREAKPOINTS } from '../constants';
 import {
   clearVirtualDate,
   setVirtualDate,
@@ -39,6 +40,8 @@ describe('TimeSlider', () => {
     setVirtualDate.mockImplementation(() => () => {});
     resetGlobalDateRange.mockImplementation(() => () => {});
 
+    BREAKPOINTS.screenIsMediumLayoutOrLarger.matches = true;
+
     store = {
       data: {
         eventFilter: {
@@ -63,11 +66,73 @@ describe('TimeSlider', () => {
     jest.useRealTimers();
   });
 
-  const renderTimeSlider = (props) => render(
+  const renderTimeSlider = (props, { initialEntries } = {}) => render(
     <Provider store={mockStore(store)}>
       <TimeSlider {...props} />
-    </Provider>
+    </Provider>,
+    { initialEntries }
   );
+
+  test('has no sidebar offset when no sidebar tab is open', () => {
+    renderTimeSlider(undefined, { initialEntries: ['/'] });
+
+    expect(screen.getByTestId('timeSlider-wrapper')).toHaveStyle({ '--sidebar-offset': '0px' });
+  });
+
+  test('offsets for the sidebar width when a tab is open', () => {
+    renderTimeSlider(undefined, { initialEntries: ['/events'] });
+
+    expect(screen.getByTestId('timeSlider-wrapper')).toHaveStyle({ '--sidebar-offset': '592px' });
+  });
+
+  test('offsets for the wider detail view width when an item is open', () => {
+    renderTimeSlider(undefined, { initialEntries: ['/events/some-event-id'] });
+
+    expect(screen.getByTestId('timeSlider-wrapper')).toHaveStyle({ '--sidebar-offset': '736px' });
+  });
+
+  test('has no sidebar offset below the medium layout breakpoint, regardless of the URL', () => {
+    BREAKPOINTS.screenIsMediumLayoutOrLarger.matches = false;
+
+    renderTimeSlider(undefined, { initialEntries: ['/events/some-event-id'] });
+
+    expect(screen.getByTestId('timeSlider-wrapper')).toHaveStyle({ '--sidebar-offset': '0px' });
+  });
+
+  test('hides the other controls, leaving only the slider and the play button, when a sidebar tab is open', () => {
+    renderTimeSlider(undefined, { initialEntries: ['/events'] });
+
+    expect(screen.getByRole('slider', { name: 'Timeslider' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Play timeslider' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Open playback speed options' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Change date range' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Close timeslider' })).toBeNull();
+    expect(screen.queryByRole('time')).toBeNull();
+  });
+
+  test('hides the other controls when a sidebar detail view is open, but keeps the play button', () => {
+    renderTimeSlider(undefined, { initialEntries: ['/events/some-event-id'] });
+
+    expect(screen.getByRole('slider', { name: 'Timeslider' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Play timeslider' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Open playback speed options' })).toBeNull();
+  });
+
+  test('keeps showing the other controls when no sidebar tab is open', () => {
+    renderTimeSlider(undefined, { initialEntries: ['/'] });
+
+    expect(screen.getByRole('button', { name: 'Play timeslider' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Close timeslider' })).toBeVisible();
+  });
+
+  test('keeps showing the other controls when a sidebar tab is open below the medium layout breakpoint, since the CSS media queries already hide them there', () => {
+    BREAKPOINTS.screenIsMediumLayoutOrLarger.matches = false;
+
+    renderTimeSlider(undefined, { initialEntries: ['/events'] });
+
+    expect(screen.getByRole('button', { name: 'Play timeslider' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Close timeslider' })).toBeVisible();
+  });
 
   test('shows the play button', async () => {
     renderTimeSlider();
