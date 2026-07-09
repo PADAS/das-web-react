@@ -5,13 +5,26 @@ import DOMPurify from 'dompurify';
 import { API_V2_URL, DAS_HOST } from '../constants';
 
 const GENERIC_ICON_ID = 'generic_rep';
+const REP_SUFFIX = '_rep';
 export const svgCache = new Map();
+
+// In-flight raw GETs keyed by URL, so N concurrent mounts of the same icon share one request.
+const inFlightFetches = new Map();
+
+const isClientError = (status) => typeof status === 'number' && status >= 400 && status < 500;
 
 const CONTAINER_SELECTOR = 'svg,g,defs,symbol,marker,clipPath,mask,pattern';
 
 const buildSpriteSvgUrl = (iconId, communityValue) => (communityValue
-  ? `${API_V2_URL}community/${communityValue}/static/sprite-src/${iconId}.svg`
-  : `${DAS_HOST}/static/sprite-src/${iconId}.svg`);
+  ? `${API_V2_URL}community/${encodeURIComponent(communityValue)}/static/sprite-src/${encodeURIComponent(iconId)}.svg`
+  : `${DAS_HOST}/static/sprite-src/${encodeURIComponent(iconId)}.svg`);
+
+const buildEventCommunityUrl = (iconId, communityValue) =>
+  `${API_V2_URL}community/${encodeURIComponent(communityValue)}/activity/events/eventtypes/icons/${encodeURIComponent(iconId)}`;
+
+const buildIconUrl = (iconId, communityValue, type) => (communityValue && type === 'events'
+  ? buildEventCommunityUrl(iconId, communityValue)
+  : buildSpriteSvgUrl(iconId, communityValue));
 
 // A container's fill="none" is a default only if children can override it — via explicit fills
 // or class-driven fills. Removing it unconditionally breaks intentionally stroke-only icons.
@@ -58,6 +71,11 @@ const stripInlineFillAndStroke = (doc) => {
   });
 };
 
+// The color presentation attribute resolves currentColor, defeating the wrapper's recoloring.
+const stripColorAttributes = (doc) => {
+  doc.querySelectorAll('[color]').forEach((el) => el.removeAttribute('color'));
+};
+
 const removeContainerDefaultFills = (doc, containers) => {
   containers.forEach((container) => container.removeAttribute('fill'));
 };
@@ -65,8 +83,9 @@ const removeContainerDefaultFills = (doc, containers) => {
 const sanitizeSvg = (text) => {
   const sanitized = DOMPurify.sanitize(text, {
     USE_PROFILES: { svg: true, svgFilters: true },
-    RETURN_DOM_IMPORT: false,
-    RETURN_DOM: false,
+    // Block clickable links, external image loads, and focusable nodes in crafted icons.
+    FORBID_TAGS: ['a', 'image'],
+    FORBID_ATTR: ['tabindex'],
   });
   if (!sanitized) return null;
 
@@ -81,6 +100,7 @@ const sanitizeSvg = (text) => {
   stripHardcodedFills(doc);
   rewriteStrokesToCurrentColor(doc);
   stripInlineFillAndStroke(doc);
+  stripColorAttributes(doc);
   removeContainerDefaultFills(doc, containersToUnfill);
 
   return new XMLSerializer().serializeToString(doc.documentElement) || null;
@@ -102,71 +122,100 @@ const injectClass = (markup, className) => {
   return markup.slice(0, svgStart) + newRootTag + markup.slice(tagEnd + 1);
 };
 
+// Fetches raw icon markup, deduping concurrent GETs for the same URL so N mounts
+// share one request. Uses the app's axios instance so the auth interceptors attach
+// the bearer token; skipAuth exempts icon fetches from the 401 logout handling, and
+// the fetch adapter is forced because the default XHR adapter is unreliable under jsdom.
+// Resolves a cache entry ({ svg } | { imgSrc }); rejects with a 4xx-bearing error for
+// permanent failures and any other error for transient ones.
+const fetchRawIcon = (url) => {
+  if (inFlightFetches.has(url)) return inFlightFetches.get(url);
+
+  const request = axios.get(url, {
+    skipAuth: true,
+    adapter: 'fetch',
+    responseType: 'text',
+    headers: { Accept: 'image/svg+xml,image/*,*/*;q=0.8' },
+  }).then((response) => {
+    const contentType = response.headers['content-type'] || '';
+    if (contentType.includes('svg')) {
+      const clean = sanitizeSvg(response.data);
+      if (!clean) throw new Error('icon SVG failed sanitization');
+      return { svg: clean };
+    }
+    return { imgSrc: url };
+  }).finally(() => {
+    inFlightFetches.delete(url);
+  });
+
+  inFlightFetches.set(url, request);
+  return request;
+};
+
+// Resolves the cache entry to render, applying the registry's fetch policy: try the
+// primary URL, then (only on a 4xx) the _rep retry and the generic fallback. Successful
+// entries are cached under their URL; on a permanent 4xx the resolved fallback is pinned
+// under the failing src so later mounts skip the dead URL (until reload). Transient
+// failures (network error, cancellation — anything without a 4xx status) cache nothing,
+// so a later mount retries. Returns null when nothing resolves.
+const resolveIconEntry = async ({ src, repSrc, fallbackSrc }) => {
+  try {
+    const entry = await fetchRawIcon(src);
+    svgCache.set(src, entry);
+    return entry;
+  } catch (error) {
+    if (!isClientError(error?.response?.status)) return null;
+  }
+
+  const fallbackChain = [repSrc, fallbackSrc].filter((url) => url && url !== src);
+  for (const url of fallbackChain) {
+    try {
+      const entry = svgCache.get(url) ?? await fetchRawIcon(url);
+      svgCache.set(url, entry);
+      svgCache.set(src, entry);
+      return entry;
+    } catch (error) {
+      if (!isClientError(error?.response?.status)) return null;
+    }
+  }
+
+  return null;
+};
+
 // Cache entries are either { svg: string } or { imgSrc: string }
-const InlineSvg = ({ src, fallbackSrc, className, style, title, ...rest }) => {
+const InlineSvg = ({ src, repSrc, fallbackSrc, className, style, title, ...rest }) => {
   const [cached, setCached] = useState(() => svgCache.get(src) ?? null);
+  const [imgFailed, setImgFailed] = useState(false);
+  const [renderedSrc, setRenderedSrc] = useState(src);
+
+  // Reset from the cache (or null) when src changes, so a stale icon never keeps rendering.
+  if (renderedSrc !== src) {
+    setRenderedSrc(src);
+    setCached(svgCache.get(src) ?? null);
+    setImgFailed(false);
+  }
 
   useEffect(() => {
     let current = true;
+    if (svgCache.has(src)) return () => { current = false; };
 
-    if (svgCache.has(src)) {
-      const entry = svgCache.get(src);
-      Promise.resolve().then(() => { if (current) setCached(entry); });
-      return () => { current = false; };
-    }
+    resolveIconEntry({ src, repSrc, fallbackSrc })
+      .then((entry) => { if (current && entry) setCached(entry); });
 
-    const controller = new AbortController();
-    const { signal } = controller;
+    return () => { current = false; };
+  }, [src, repSrc, fallbackSrc]);
 
-    // Use the app's axios instance so the auth interceptors attach the bearer token.
-    // Force the fetch adapter — the default XHR adapter is unreliable under jsdom.
-    const fetchIcon = (url) => axios.get(url, {
-      signal,
-      adapter: 'fetch',
-      responseType: 'text',
-      headers: { Accept: 'image/svg+xml,image/*,*/*;q=0.8' },
-    }).then((response) => {
-      const contentType = response.headers['content-type'] || '';
-      if (contentType.includes('svg')) {
-        const clean = sanitizeSvg(response.data);
-        return clean ? { svg: clean } : Promise.reject();
-      }
-      return { imgSrc: url };
-    });
+  const onImgError = (event) => {
+    event.currentTarget.style.display = 'none';
+    // Drop the entry so a later mount retries instead of pinning a broken glyph.
+    svgCache.delete(src);
+    setImgFailed(true);
+  };
 
-    fetchIcon(src)
-      .then((entry) => {
-        svgCache.set(src, entry);
-        if (current) setCached(entry);
-      })
-      .catch(() => {
-        if (!current || !fallbackSrc || src === fallbackSrc) return;
-        if (svgCache.has(fallbackSrc)) {
-          const entry = svgCache.get(fallbackSrc);
-          // Pin the fallback under the failing src so later mounts skip the dead URL (until reload).
-          svgCache.set(src, entry);
-          setCached(entry);
-          return;
-        }
-        fetchIcon(fallbackSrc)
-          .then((entry) => {
-            svgCache.set(fallbackSrc, entry);
-            svgCache.set(src, entry);
-            if (current) setCached(entry);
-          })
-          .catch(() => {});
-      });
-
-    return () => {
-      current = false;
-      controller.abort();
-    };
-  }, [src, fallbackSrc]);
-
-  if (!cached) return null;
+  if (!cached || imgFailed) return null;
 
   if (cached.imgSrc) {
-    return <img alt={title || ''} className={className} src={cached.imgSrc} style={style} {...rest} />;
+    return <img alt={title || ''} className={className} onError={onImgError} src={cached.imgSrc} style={style} {...rest} />;
   }
 
   // display:contents needs explicit role/label to be announced; aria-hidden when decorative.
@@ -198,12 +247,11 @@ const SvgIcon = ({ type, iconId, imageUrl, className, color, style, title, ...re
   const effectiveIconId = iconId || GENERIC_ICON_ID;
   const isGeneric = effectiveIconId.includes('generic');
 
-  let iconSrc;
-  if (communityValue && type === 'events') {
-    iconSrc = `${API_V2_URL}community/${communityValue}/activity/events/eventtypes/icons/${effectiveIconId}`;
-  } else {
-    iconSrc = buildSpriteSvgUrl(effectiveIconId, communityValue);
-  }
+  const iconSrc = buildIconUrl(effectiveIconId, communityValue, type);
+  // On a 4xx for {iconId}, retry the {iconId}_rep variant before the generic fallback.
+  const repSrc = effectiveIconId.endsWith(REP_SUFFIX)
+    ? null
+    : buildIconUrl(`${effectiveIconId}${REP_SUFFIX}`, communityValue, type);
 
   // Map the legacy color prop / style.fill to CSS color, and set fill:currentColor so the
   // fill-stripped inline SVG follows it — consumers pass a color without a fill:currentColor
@@ -218,6 +266,7 @@ const SvgIcon = ({ type, iconId, imageUrl, className, color, style, title, ...re
     <InlineSvg
       className={`${className || ''} ${isGeneric ? 'generic' : ''}`.trim()}
       fallbackSrc={buildSpriteSvgUrl(GENERIC_ICON_ID, communityValue)}
+      repSrc={repSrc}
       src={iconSrc}
       style={svgStyle}
       title={title}

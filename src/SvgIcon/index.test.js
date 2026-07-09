@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import { Provider } from 'react-redux';
-import { render, waitFor } from '../test-utils';
+import { fireEvent, render, waitFor } from '../test-utils';
 import { mockStore } from '../__test-helpers/MockStore';
 import { DAS_HOST } from '../constants';
 import SvgIcon, { svgCache } from './';
@@ -10,6 +10,10 @@ const mockAxiosResponse = (contentType, body) => ({
   data: body,
   headers: { 'content-type': contentType },
 });
+
+// A permanent client error carries a 4xx response status; transient failures (network
+// error, cancellation) have no response status.
+const clientError = (status = 404) => Object.assign(new Error(`${status}`), { response: { status } });
 
 describe('SvgIcon', () => {
   let axiosSpy, store;
@@ -64,9 +68,20 @@ describe('SvgIcon', () => {
       expect(container.querySelector('img').src).toContain('confiscation_rep');
     });
 
-    test('caches the fallback entry under the failing src so later mounts skip the dead URL', async () => {
+    test('sends icon fetches with skipAuth so a 401 never triggers the logout redirect', async () => {
+      axiosSpy.mockResolvedValue(mockAxiosResponse('image/svg+xml', '<svg><path d="M0 0"/></svg>'));
+
+      renderWithStore(<SvgIcon type="events" iconId="fire_rep" />);
+
+      await waitFor(() => {
+        expect(document.querySelector('svg')).toBeInTheDocument();
+      });
+      expect(axiosSpy.mock.calls[0][1]).toEqual(expect.objectContaining({ skipAuth: true }));
+    });
+
+    test('caches the fallback entry under the failing src on a 4xx so later mounts skip the dead URL', async () => {
       axiosSpy
-        .mockRejectedValueOnce(new Error('404'))
+        .mockRejectedValueOnce(clientError(404))
         .mockResolvedValueOnce(mockAxiosResponse('image/svg+xml', '<svg><path d="M0 0"/></svg>'));
 
       const { unmount } = renderWithStore(<SvgIcon type="events" iconId="fire_rep" />);
@@ -87,6 +102,76 @@ describe('SvgIcon', () => {
         expect(document.querySelector('svg')).toBeInTheDocument();
       });
       expect(axiosSpy).not.toHaveBeenCalled();
+    });
+
+    test('does not cache anything on a transient failure so a later mount retries', async () => {
+      // A rejection with no response status is transient (network error / cancellation).
+      axiosSpy.mockRejectedValue(new Error('network down'));
+
+      const { unmount } = renderWithStore(<SvgIcon type="events" iconId="fire_rep" />);
+
+      const failingSrc = `${DAS_HOST}/static/sprite-src/fire_rep.svg`;
+      await waitFor(() => {
+        expect(axiosSpy).toHaveBeenCalled();
+      });
+      expect(svgCache.has(failingSrc)).toBe(false);
+
+      unmount();
+      axiosSpy.mockClear();
+      axiosSpy.mockResolvedValue(mockAxiosResponse('image/svg+xml', '<svg><path d="M0 0"/></svg>'));
+
+      renderWithStore(<SvgIcon type="events" iconId="fire_rep" />);
+
+      await waitFor(() => {
+        expect(document.querySelector('svg')).toBeInTheDocument();
+      });
+      expect(axiosSpy).toHaveBeenCalledWith(failingSrc, expect.anything());
+    });
+
+    test('resets the rendered icon when src changes so the previous icon does not persist', async () => {
+      axiosSpy.mockImplementation((url) => (url.includes('first_rep')
+        ? Promise.resolve(mockAxiosResponse('image/svg+xml', '<svg><path d="M0 0"/></svg>'))
+        : Promise.reject(new Error('network down'))));
+
+      const { rerender } = renderWithStore(<SvgIcon type="events" iconId="first_rep" />);
+      await waitFor(() => {
+        expect(document.querySelector('svg')).toBeInTheDocument();
+      });
+
+      rerender(<Provider store={store}><SvgIcon type="events" iconId="second_rep" /></Provider>);
+
+      await waitFor(() => {
+        expect(document.querySelector('svg')).not.toBeInTheDocument();
+      });
+    });
+
+    test('hides a broken img and drops its cache entry so a later mount retries', async () => {
+      axiosSpy.mockResolvedValue(mockAxiosResponse('image/png', ''));
+
+      const { container } = renderWithStore(<SvgIcon type="events" iconId="png_rep" />);
+      await waitFor(() => {
+        expect(container.querySelector('img')).toBeInTheDocument();
+      });
+
+      fireEvent.error(container.querySelector('img'));
+
+      const src = `${DAS_HOST}/static/sprite-src/png_rep.svg`;
+      expect(svgCache.has(src)).toBe(false);
+      expect(container.querySelector('img')).not.toBeInTheDocument();
+    });
+
+    test('retries the _rep variant on a 4xx before the generic fallback', async () => {
+      axiosSpy
+        .mockRejectedValueOnce(clientError(404))
+        .mockResolvedValueOnce(mockAxiosResponse('image/svg+xml', '<svg><path d="M0 0"/></svg>'));
+
+      renderWithStore(<SvgIcon type="events" iconId="fire" />);
+
+      await waitFor(() => {
+        expect(document.querySelector('svg')).toBeInTheDocument();
+      });
+      expect(axiosSpy.mock.calls[0][0]).toBe(`${DAS_HOST}/static/sprite-src/fire.svg`);
+      expect(axiosSpy.mock.calls[1][0]).toBe(`${DAS_HOST}/static/sprite-src/fire_rep.svg`);
     });
   });
 
@@ -120,9 +205,9 @@ describe('SvgIcon', () => {
       );
     });
 
-    test('falls back to the community sprite-src generic icon when the primary fetch fails', async () => {
+    test('falls back to the community sprite-src generic icon when the primary fetch 4xxs', async () => {
       axiosSpy
-        .mockRejectedValueOnce(new Error('404'))
+        .mockRejectedValueOnce(clientError(404))
         .mockResolvedValueOnce(mockAxiosResponse('image/svg+xml', '<svg><path d="M0 0"/></svg>'));
       store = mockStore({ data: { community: { value: 'my-community' } } });
 
@@ -161,6 +246,35 @@ describe('SvgIcon', () => {
 
       const img = container.querySelector('img');
       expect(img).toHaveAttribute('alt', 'Elephant 01');
+    });
+  });
+
+  describe('sanitization', () => {
+    test('strips scripts, event handlers, links, foreignObject, and focusable nodes from crafted icons', async () => {
+      const malicious = `<svg xmlns="http://www.w3.org/2000/svg">
+        <script>window.__pwned = true;</script>
+        <rect width="10" height="10" onload="window.__pwned = true;" />
+        <foreignObject><div xmlns="http://www.w3.org/1999/xhtml">hi<script>window.__pwned = true;</script></div></foreignObject>
+        <a href="https://evil.example.com"><rect width="5" height="5" /></a>
+        <rect width="3" height="3" tabindex="0" />
+        <image href="https://evil.example.com/x.png" />
+      </svg>`;
+      axiosSpy.mockResolvedValue(mockAxiosResponse('image/svg+xml', malicious));
+
+      const { container } = renderWithStore(<SvgIcon type="events" iconId="fire_rep" />);
+
+      await waitFor(() => {
+        expect(container.querySelector('svg')).toBeInTheDocument();
+      });
+
+      const html = container.innerHTML;
+      expect(container.querySelector('script')).not.toBeInTheDocument();
+      expect(container.querySelector('a')).not.toBeInTheDocument();
+      expect(container.querySelector('foreignObject')).not.toBeInTheDocument();
+      expect(container.querySelector('image')).not.toBeInTheDocument();
+      expect(container.querySelector('[tabindex]')).not.toBeInTheDocument();
+      expect(html).not.toMatch(/onload/i);
+      expect(html).not.toMatch(/href/i);
     });
   });
 });

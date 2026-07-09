@@ -30,7 +30,7 @@ const FEATURE_COUNT_HTML_STYLES = { fontSize: '16px', fontWeight: '500', padding
 // priority so the icon variant matches the edit in progress.
 const eventIconParamsFor = (feature, locallyEditedEvent) => {
   const priority = locallyEditedEvent?.id === feature.properties.id
-    ? locallyEditedEvent.priority
+    ? locallyEditedEvent.priority ?? feature.properties.priority
     : feature.properties.priority;
   return { ...feature.properties, priority };
 };

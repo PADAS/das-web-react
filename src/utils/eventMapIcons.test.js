@@ -7,9 +7,11 @@ import {
   attachEventIconsToMap,
   ensureEventIcon,
   getEventIcon,
+  primeEventIconParams,
   subscribeEventIcons,
 } from './eventMapIcons';
 import { calcSvgImageIconId } from './mapImages';
+import { MAP_ICON_SCALE } from '../constants';
 
 jest.mock('axios');
 
@@ -269,6 +271,62 @@ describe('eventMapIcons registry', () => {
 
       expect(axios.get).toHaveBeenCalledTimes(1);
       expect(map.addImage).toHaveBeenCalledWith('event-icon|fire|200', expect.anything());
+    });
+
+    it('registers the generated image under the exact requested id when the priority slot is empty', async () => {
+      const map = createMapMock();
+      map.hasImage.mockReturnValue(false);
+
+      attachEventIconsToMap(map);
+      // A trailing pipe with no priority: the requested id differs from the
+      // canonical cache key, so the image must register under the requested id.
+      map.__test__.fireHandlers('styleimagemissing', { id: 'event-icon|fire|' });
+      await flushPromises();
+      fireLoads();
+      await flushPromises();
+
+      expect(map.addImage).toHaveBeenCalledWith('event-icon|fire|', expect.anything());
+    });
+
+    it('parses the priority, width, and height slots of a size-variant id as numbers', async () => {
+      const map = createMapMock();
+      map.hasImage.mockReturnValue(false);
+
+      attachEventIconsToMap(map);
+      map.__test__.fireHandlers('styleimagemissing', { id: 'event-icon|x|200|24|32' });
+      await flushPromises();
+      fireLoads();
+      await flushPromises();
+
+      expect(map.addImage).toHaveBeenCalledWith('event-icon|x|200|24|32', expect.anything());
+      // The width slot resolved to the number 24 (scaled), not the default size
+      // and not NaN — proving the slot was parsed as a Number.
+      const image = getEventIcon('event-icon|x|200|24|32');
+      expect(image.width).toBe(24 * MAP_ICON_SCALE);
+    });
+
+    it('uses primed event context so a permanent 4xx falls back to the event\'s own image', async () => {
+      axios.get.mockRejectedValue({ response: { status: 404 } });
+
+      const map = createMapMock();
+      map.hasImage.mockReturnValue(false);
+      attachEventIconsToMap(map);
+
+      // Prime the full params (including the event's own image) before the map
+      // requests the icon; the requested id alone couldn't carry the image.
+      primeEventIconParams([{ properties: { icon_id: 'snare', priority: 100, image: 'snare.png' } }]);
+
+      map.__test__.fireHandlers('styleimagemissing', { id: 'event-icon|snare|100' });
+      await flushPromises();
+      fireLoads();
+      await flushPromises();
+
+      // Both the bare and the _rep sprite fetch 404.
+      expect(axios.get).toHaveBeenNthCalledWith(1, expect.stringContaining('/snare.svg'), expect.anything());
+      expect(axios.get).toHaveBeenNthCalledWith(2, expect.stringContaining('/snare_rep.svg'), expect.anything());
+
+      const image = getEventIcon('event-icon|snare|100');
+      expect(image.src).toBe(calcUrlForImage('snare.png'));
     });
 
     it('ignores ids that are not event icons', async () => {

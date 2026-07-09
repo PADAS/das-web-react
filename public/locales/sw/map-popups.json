@@ -17,7 +17,8 @@
     }
   },
   "layerSelectorPopup": {
-    "searchBarPlaceholder": "Tafuta"
+    "searchBarPlaceholder": "Tafuta",
+    "unsavedChangesLabel": "Mabadiliko ambayo hayajahifadhiwa"
   },
   "mouseMarkerPopup": {
     "coordinatesStringOutsideBbox": "H/P",

@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { calcImgIdFromUrlForMapImages, calcSpriteSvgUrl, calcUrlForImage } from '../utils/img';
 import { calcSvgImageIconId } from '../utils/mapImages';
 import { createFeatureCollectionFromEvents } from '../utils/map';
-import { getEventIcon, useEventMapIconsVersion } from '../utils/eventMapIcons';
+import { ensureEventIcon, getEventIcon, useEventMapIconsVersion } from '../utils/eventMapIcons';
 import { GEAR_FEATURE_CONTENT_TYPE, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { hidePopup } from '../ducks/popup';
 import { subjectIsStatic } from '../utils/subjects';
@@ -14,6 +14,20 @@ import { subjectIsStatic } from '../utils/subjects';
 import SearchBar from '../SearchBar';
 
 import * as styles from './styles.module.scss';
+
+// Resolves the icon variant params for an event layer item. For the
+// locally-edited event, reflect its unsaved icon_id/priority so the popup
+// mirrors the edit in progress.
+const eventIconParamsForLayer = (layerProperties, locallyEditedEvent) => {
+  const isLocallyEdited = locallyEditedEvent?.id === layerProperties.id;
+  return isLocallyEdited
+    ? {
+      ...layerProperties,
+      icon_id: locallyEditedEvent.icon_id ?? layerProperties.icon_id,
+      priority: locallyEditedEvent.priority ?? layerProperties.priority,
+    }
+    : layerProperties;
+};
 
 const LayerSelectorPopup = ({ data, id }) => {
   const dispatch = useDispatch();
@@ -53,6 +67,24 @@ const LayerSelectorPopup = ({ data, id }) => {
     }
     return layer;
   }), [layerList, eventStore, eventTypes]);
+
+  // Cluster-hidden events may never reach a GL symbol layer, so their icons are
+  // never requested. Proactively generate any missing ones here; the
+  // useEventMapIconsVersion() subscription re-renders once they resolve. Runs
+  // over the hydrated list (not on every filter keystroke, which lives in state).
+  useEffect(() => {
+    hydratedLayerList.forEach((layer) => {
+      const isEventLayerItem = !!layer.properties?.icon_id && !!layer.properties?.event_type;
+      if (!isEventLayerItem) {
+        return;
+      }
+
+      const iconParams = eventIconParamsForLayer(layer.properties, locallyEditedEvent);
+      if (!getEventIcon(calcSvgImageIconId(iconParams))) {
+        ensureEventIcon(iconParams);
+      }
+    });
+  }, [hydratedLayerList, locallyEditedEvent]);
 
   const handleClick = useCallback((event, feature) => {
     dispatch(hidePopup(id));
@@ -100,15 +132,7 @@ const LayerSelectorPopup = ({ data, id }) => {
       let cachedImageSrc = null;
       if (!isGearLayerItem) {
         if (isEventLayerItem) {
-          // For the locally-edited event, resolve the icon variant from its
-          // unsaved icon_id/priority so the popup mirrors the edit in progress.
-          const eventIconKey = calcSvgImageIconId(isLocallyEdited
-            ? {
-              ...layer.properties,
-              icon_id: locallyEditedEvent.icon_id ?? layer.properties.icon_id,
-              priority: locallyEditedEvent.priority ?? layer.properties.priority,
-            }
-            : layer.properties);
+          const eventIconKey = calcSvgImageIconId(eventIconParamsForLayer(layer.properties, locallyEditedEvent));
           cachedImageSrc = getEventIcon(eventIconKey)?.src ?? null;
         } else {
           const mapImagesKey = calcImgIdFromUrlForMapImages(
@@ -122,7 +146,6 @@ const LayerSelectorPopup = ({ data, id }) => {
       const imgSrc = cachedImageSrc ?? calcUrlForImage(layer.properties.image || layer.properties.image_url);
 
       const listLabel = layer.properties.display_title || layer.properties.name || layer.properties.title;
-      const title = isLocallyEdited ? `* ${listLabel}` : listLabel;
 
       return <li className={styles.listItem} key={layer.properties.id} onClick={(e) => handleClick(e, layer)}>
         {isGearLayerItem
@@ -133,11 +156,16 @@ const LayerSelectorPopup = ({ data, id }) => {
             style={subjectIsStatic(layer) ? { filter: 'brightness(0) opacity(60%)' } : {}}
           />}
 
-        <span>{title}</span>
+        <span>
+          {/* Visual `*` marks unsaved changes; role="img" + aria-label makes
+              screen readers announce the meaning instead of reading "star". */}
+          {isLocallyEdited && <span role="img" aria-label={t('unsavedChangesLabel')}>{'* '}</span>}
+          {listLabel}
+        </span>
       </li>;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- eventIconsVersion is read only to recompute when the event icon registry resolves a new icon
-  }, [eventIconsVersion, filter, handleClick, hydratedLayerList, locallyEditedEvent, mapImages]);
+  }, [eventIconsVersion, filter, handleClick, hydratedLayerList, locallyEditedEvent, mapImages, t]);
 
   const onFilterChange = useCallback((value) => setFilter(value), []);
 

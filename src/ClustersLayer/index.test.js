@@ -565,6 +565,27 @@ describe('ClustersLayer', () => {
       expect(renderedClusterHashes).toHaveLength(2);
     });
 
+    test('keys the hash off the locally edited event\'s unsaved priority (local-<priority> suffix)', async () => {
+      const { renderedClusterHashes: baseHashes } = await getRenderedClustersData(clustersSource, map);
+
+      // Event id '2' lives in cluster 1; editing it should change only that cluster's hash.
+      const { renderedClusterHashes: editedHashes } = await getRenderedClustersData(
+        clustersSource,
+        map,
+        { id: '2', priority: 300 }
+      );
+      expect(editedHashes[0]).not.toBe(baseHashes[0]);
+      expect(editedHashes[1]).toBe(baseHashes[1]);
+
+      // A different unsaved priority produces a different local-<priority> suffix, and hash.
+      const { renderedClusterHashes: rehashedHashes } = await getRenderedClustersData(
+        clustersSource,
+        map,
+        { id: '2', priority: 100 }
+      );
+      expect(rehashedHashes[0]).not.toBe(editedHashes[0]);
+    });
+
     test('resolves (does not hang) and drops clusters that error, keeping the arrays aligned', async () => {
       const erroringSource = {
         getClusterLeaves: (clusterId, limit, offset, callback) => (clusterId === cluster1Id

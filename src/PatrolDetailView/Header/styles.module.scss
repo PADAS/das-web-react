@@ -33,12 +33,13 @@
   height: 100%;
 
   svg {
-    fill: currentColor;
-  }
-
-  svg {
     width: 1.5rem;
     height: 1.5rem;
+    fill: currentcolor;
+
+    &[class*=newPatrol] {
+      fill: $dark-gray;
+    }
 
     @media (min-width: $md-layout-width-min) {
       width: 2rem;

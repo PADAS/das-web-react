@@ -14,6 +14,7 @@ import {
   SOURCE_IDS,
 } from '../constants';
 import { getMapEventSymbolPointsWithVirtualDate } from '../selectors/events';
+import { primeEventIconParams } from '../utils/eventMapIcons';
 import { selectShouldEventsBeClustered } from '../selectors/clusters';
 import { MapContext } from '../MapContext';
 import useMapSources from '../hooks/useMapSources';
@@ -216,6 +217,12 @@ const EventsLayer = ({
     setBounceIDs(bounceEventIDs);
     setAnimationState({ frame: 1, isRendering: (bounceEventIDs.length > 0), scale: 0.0 });
   }, [bounceEventIDs]);
+
+  // Prime icon params for these features so the map's styleimagemissing handler
+  // can recover full event context (color/state/image) when it generates icons.
+  useEffect(() => {
+    primeEventIconParams(eventPointFeatureCollection.features);
+  }, [eventPointFeatureCollection]);
 
   useEffect(() => {
     const addClusterIconToMap = () => {

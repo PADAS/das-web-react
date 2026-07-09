@@ -26,3 +26,24 @@ describe('calcSvgImageIconId', () => {
     expect(calcSvgImageIconId({ icon_id: 'custom-marker', priority: 300 })).toBe('event-icon|custom-marker|300');
   });
 });
+
+describe('calcSvgImageIconId round-trip', () => {
+  // Mirrors the reverse-parse the styleimagemissing handler performs on the id.
+  const parse = (id) => {
+    const [, icon_id, priority, width, height] = id.split('|');
+    const parseSlot = (value) => (value === undefined || value === '' ? undefined : Number(value));
+    return { icon_id, priority: parseSlot(priority), width: parseSlot(width), height: parseSlot(height) };
+  };
+
+  const shapes = [
+    { icon_id: 'fire', priority: undefined, width: undefined, height: undefined },
+    { icon_id: 'fire', priority: 200, width: undefined, height: undefined },
+    { icon_id: 'fire', priority: 0, width: undefined, height: undefined },
+    { icon_id: 'custom-marker', priority: 300, width: undefined, height: undefined },
+    { icon_id: 'x', priority: 200, width: 24, height: 32 },
+  ];
+
+  it.each(shapes)('parse(build(%o)) recovers the icon_id and numeric slots', (shape) => {
+    expect(parse(calcSvgImageIconId(shape))).toEqual(shape);
+  });
+});

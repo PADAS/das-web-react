@@ -26,6 +26,15 @@ let version = 0;
 // The map an attached listener registers icons into. Only one map is attached
 // at a time (the app owns a single map instance).
 let attachedMap = null;
+let warnedAboutRemovedMap = false;
+
+// Full icon params primed by the GL feature owners (EventsLayer / EventsTileLayers)
+// so the styleimagemissing handler can recover event context (color/state/image)
+// that the parsed id alone can't carry. Keyed by the canonical variant id and
+// bounded with FIFO eviction — feature collections can be large, and this holds
+// only metadata (no images, no fetching).
+const PRIMED_EVENT_ICON_PARAMS_MAX = 5000;
+const primedEventIconParams = new Map();
 
 const notify = () => {
   version += 1;
@@ -137,36 +146,67 @@ const generateEventIconImage = async (event) => {
     // A transient (5xx/network) or generation failure may succeed later. The
     // cached markup itself may be the culprit, so drop it and resolve without an
     // image so a later pass re-fetches instead of pinning a degraded fallback.
+    // Retry is passive — the next styleimagemissing or marker pass re-attempts
+    // — an accepted trade-off vs develop's store-driven retries.
     delete spriteMarkupCache[spriteIconId];
     console.warn('failed to generate map icon from sprite', error);
     return undefined;
   }
 };
 
-const registerIconOnMap = (iconVariantId, image) => {
-  if (attachedMap && !attachedMap.hasImage(iconVariantId)) {
-    attachedMap.addImage(iconVariantId, image);
+const registerIconOnMap = (mapImageId, image) => {
+  if (!attachedMap) {
+    return;
+  }
+
+  // Map teardown can precede detach (children unmount before the parent's
+  // cleanup runs), so hasImage/addImage on a removed map throws. Guard so a late
+  // registration can't surface as an unhandled rejection.
+  try {
+    if (!attachedMap.hasImage(mapImageId)) {
+      attachedMap.addImage(mapImageId, image);
+    }
+  } catch (error) {
+    if (!warnedAboutRemovedMap) {
+      warnedAboutRemovedMap = true;
+      console.warn('failed to register map icon; the map may have been removed', error);
+    }
   }
 };
 
-const ensureEventIconForParams = (event) => {
+// `registerId`, when passed, is the exact id Mapbox requested. Its empty slots
+// can make it differ from the canonical cache key (e.g. "event-icon|fire|" vs
+// "event-icon|fire"), so the image must register under the requested id or the
+// waiting symbol never resolves; the cache stays keyed canonically.
+const ensureEventIconForParams = (event, registerId) => {
   const iconVariantId = calcSvgImageIconId(event);
+  const mapImageId = registerId ?? iconVariantId;
 
   const cached = iconImageCache.get(iconVariantId);
   if (cached) {
-    registerIconOnMap(iconVariantId, cached);
+    registerIconOnMap(mapImageId, cached);
     return Promise.resolve(cached);
   }
 
   if (iconGenerationsInFlight.has(iconVariantId)) {
-    return iconGenerationsInFlight.get(iconVariantId);
+    const inFlight = iconGenerationsInFlight.get(iconVariantId);
+    // A concurrent caller may be generating the canonical variant without this
+    // caller's requested id; register under it once the shared work resolves.
+    return registerId
+      ? inFlight.then((image) => {
+        if (image) {
+          registerIconOnMap(mapImageId, image);
+        }
+        return image;
+      })
+      : inFlight;
   }
 
   const generation = generateEventIconImage(event)
     .then((image) => {
       if (image) {
         iconImageCache.set(iconVariantId, image);
-        registerIconOnMap(iconVariantId, image);
+        registerIconOnMap(mapImageId, image);
         notify();
       }
       return image;
@@ -178,6 +218,41 @@ const ensureEventIconForParams = (event) => {
   iconGenerationsInFlight.set(iconVariantId, generation);
 
   return generation;
+};
+
+// An id slot is absent when undefined (fewer segments) or empty (a trailing
+// pipe with nothing after it, e.g. "event-icon|fire|"); both mean "no value".
+const parseNumericIdSlot = (value) => (value === undefined || value === '' ? undefined : Number(value));
+
+// Stores full icon params for later styleimagemissing recovery. Metadata only —
+// no image objects, no fetching. Keyed by the canonical variant id, capped with
+// FIFO eviction so large feature collections can't grow the map unbounded.
+export const primeEventIconParams = (features = []) => {
+  features.forEach((feature) => {
+    const properties = feature?.properties;
+    if (!properties?.icon_id) {
+      return;
+    }
+
+    const iconVariantId = calcSvgImageIconId(properties);
+    if (primedEventIconParams.has(iconVariantId)) {
+      return;
+    }
+
+    if (primedEventIconParams.size >= PRIMED_EVENT_ICON_PARAMS_MAX) {
+      primedEventIconParams.delete(primedEventIconParams.keys().next().value);
+    }
+
+    primedEventIconParams.set(iconVariantId, {
+      icon_id: properties.icon_id,
+      priority: properties.priority,
+      width: properties.width,
+      height: properties.height,
+      image: properties.image,
+      color: properties.color,
+      state: properties.state,
+    });
+  });
 };
 
 // Attaches a `styleimagemissing` listener that lazily generates event icons the
@@ -192,12 +267,20 @@ export const attachEventIconsToMap = (map) => {
     }
 
     const [, icon_id, priority, width, height] = id.split('|');
-    ensureEventIconForParams({
+    const parsedParams = {
       icon_id,
-      priority: priority === undefined ? undefined : Number(priority),
-      width: width === undefined ? undefined : Number(width),
-      height: height === undefined ? undefined : Number(height),
-    });
+      priority: parseNumericIdSlot(priority),
+      width: parseNumericIdSlot(width),
+      height: parseNumericIdSlot(height),
+    };
+
+    // The parsed id can't carry color/state/image, so merge any primed params
+    // (keyed by the canonical variant id) over it — this lets the permanent-4xx
+    // fallback chain reach the event's own image and per-color generic icon.
+    const primed = primedEventIconParams.get(calcSvgImageIconId(parsedParams));
+    const params = primed ? { ...parsedParams, ...primed } : parsedParams;
+
+    ensureEventIconForParams(params, id);
   };
 
   map.on('styleimagemissing', handleStyleImageMissing);
@@ -232,8 +315,10 @@ export const __resetEventIconsForTesting = () => {
   spriteFetchesInFlight = {};
   iconImageCache.clear();
   iconGenerationsInFlight.clear();
+  primedEventIconParams.clear();
   listeners.clear();
   attachedMap = null;
+  warnedAboutRemovedMap = false;
   version = 0;
 };
 

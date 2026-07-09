@@ -25,7 +25,7 @@ const store = mockStore({
 
 const makeCollection = (containedEvents) => ({
   is_collection: true,
-  event_type: 'incident_collection_rep',
+  event_type: 'incident_collection',
   contains: containedEvents.map((event) => ({ related_event: event })),
 });
 
@@ -78,5 +78,58 @@ describe('EventIcon collection badge icon', () => {
     await waitFor(() => {
       expect(container.querySelectorAll('svg').length).toBe(2);
     });
+  });
+
+  test('gives the collection wrapper the translated collection tooltip', async () => {
+    const collection = makeCollection([
+      { event_type: 'low_event', priority: 0 },
+      { event_type: 'high_event', priority: 300 },
+    ]);
+
+    const { container } = render(
+      <Provider store={store}>
+        <EventIcon report={collection} />
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(container.querySelectorAll('svg').length).toBe(2);
+    });
+    expect(container.querySelector('span[title="Collection"]')).toBeInTheDocument();
+  });
+});
+
+describe('EventIcon accessible name', () => {
+  let axiosSpy;
+
+  beforeEach(() => {
+    svgCache.clear();
+    axiosSpy = jest.spyOn(axios, 'get').mockImplementation(mockSvgAxios());
+  });
+
+  afterEach(() => {
+    axiosSpy.mockRestore();
+  });
+
+  test('exposes the event type display title, not the raw slug', async () => {
+    const displayStore = mockStore({
+      data: {
+        eventTypes: [{ value: 'carcass_rep', icon_id: 'carcass_icon', display: 'Carcass' }],
+        patrolTypes: [],
+      },
+    });
+
+    const { container } = render(
+      <Provider store={displayStore}>
+        <EventIcon report={{ event_type: 'carcass_rep' }} />
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(container.querySelector('[role="img"]')).toBeInTheDocument();
+    });
+    const icon = container.querySelector('[role="img"]');
+    expect(icon).toHaveAttribute('aria-label', 'Carcass');
+    expect(icon).not.toHaveAttribute('aria-label', 'carcass_rep');
   });
 });

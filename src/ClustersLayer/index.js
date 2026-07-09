@@ -87,20 +87,19 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
   // Mirror frequently-changing values into refs so the callback stays stable; only read
   // inside the async callback/effects, never during render.
   const locallyEditedEventRef = useRef(locallyEditedEvent);
-  // eslint-disable-next-line react-hooks/refs -- render-phase write is safe; only read in async callback
-  locallyEditedEventRef.current = locallyEditedEvent;
-
   const addClusterPolygonRef = useRef(addClusterPolygon);
-  // eslint-disable-next-line react-hooks/refs -- render-phase write is safe; only read in async callback
-  addClusterPolygonRef.current = addClusterPolygon;
-
   const removeClusterPolygonRef = useRef(removeClusterPolygon);
-  // eslint-disable-next-line react-hooks/refs -- render-phase write is safe; only read in async callback
-  removeClusterPolygonRef.current = removeClusterPolygon;
-
   const onShowClusterSelectPopupRef = useRef(onShowClusterSelectPopup);
-  // eslint-disable-next-line react-hooks/refs -- render-phase write is safe; only read in async callback
-  onShowClusterSelectPopupRef.current = onShowClusterSelectPopup;
+
+  // Sync the refs after commit (never during render). This effect is declared
+  // before the effects that invoke updateClusterMarkersCallback, so the refs
+  // hold current values by the time those callbacks read them.
+  useEffect(() => {
+    locallyEditedEventRef.current = locallyEditedEvent;
+    addClusterPolygonRef.current = addClusterPolygon;
+    removeClusterPolygonRef.current = removeClusterPolygon;
+    onShowClusterSelectPopupRef.current = onShowClusterSelectPopup;
+  }, [addClusterPolygon, locallyEditedEvent, onShowClusterSelectPopup, removeClusterPolygon]);
 
   // Reads values from refs so its identity stays stable; only `map` is a real dep.
   const updateClusterMarkersCallback = useCallback(async () => {
@@ -145,16 +144,27 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
 
   useMapEventBinding('sourcedata', onSourceData);
 
+  // Refresh markers when the locally edited event changes, including when it
+  // transitions to null (a discarded edit) so the stale marker is rebuilt.
   useEffect(() => {
-    if (locallyEditedEvent) {
-      updateClusterMarkersCallback();
-    }
+    updateClusterMarkersCallback();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- callback is stable via refs
   }, [locallyEditedEvent]);
 
   // sourcedata doesn't fire when an icon resolves, so refresh markers when the
   // event icon registry notifies that a new icon is available.
   useEffect(() => subscribeEventIcons(updateClusterMarkersCallback), [updateClusterMarkersCallback]);
+
+  // Rebuild markers on mount so a remount doesn't wait for the next sourcedata.
+  // On unmount, bump the run id so any in-flight async pass is discarded and
+  // can't add markers after the component is gone.
+  useEffect(() => {
+    updateClusterMarkersCallback();
+    return () => {
+      latestClusterUpdateRunIdRef.current += 1;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount; callback is stable via refs
+  }, []);
 
   return null;
 };

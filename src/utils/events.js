@@ -104,9 +104,9 @@ export const createNewReportForEventType = (reportType, data) => {
 
 export const createNewIncidentCollection = (attributes) => createNewReportForEventType({
   contains: [],
-  icon_id: 'incident_collection_rep',
+  icon_id: 'incident_collection',
   is_collection: true,
-  value: 'incident_collection_rep',
+  value: 'incident_collection',
   ...attributes,
 });
 
