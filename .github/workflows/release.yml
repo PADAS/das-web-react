@@ -18,8 +18,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
         with:
           node-version-file: '.node-version'
       - name: Install dependencies
@@ -33,9 +33,9 @@ jobs:
       build-args: ${{ steps.env-vars.outputs.build-args }}
       image-tag: ${{ steps.tag.outputs.value }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: '.node-version'
       - run: |
@@ -53,7 +53,7 @@ jobs:
           BRANCH_SAFE=$(echo "${GITHUB_REF_NAME}" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
           echo "value=${BRANCH_SAFE}-${SHORT_SHA}" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: npm-config
           path: package.json
@@ -62,9 +62,9 @@ jobs:
     needs: config
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: npm-config
           path: .
@@ -85,7 +85,7 @@ jobs:
 
       - name: Docker metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: |
             europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react
@@ -97,7 +97,7 @@ jobs:
         run: echo "value=$(cat .node-version)" >> $GITHUB_OUTPUT
 
       - name: Build and push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           push: true
           context: .
