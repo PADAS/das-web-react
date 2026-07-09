@@ -82,7 +82,7 @@ describe('TimeSlider', () => {
   test('offsets for the sidebar width when a tab is open', () => {
     renderTimeSlider(undefined, { initialEntries: ['/events'] });
 
-    expect(screen.getByTestId('timeSlider-wrapper')).toHaveStyle({ '--sidebar-offset': '592px' });
+    expect(screen.getByTestId('timeSlider-wrapper')).toHaveStyle({ '--sidebar-offset': '582px' });
   });
 
   test('offsets for the wider detail view width when an item is open', () => {
@@ -211,6 +211,27 @@ describe('TimeSlider', () => {
 
     expect(screen.queryByRole('menu', { name: 'Playback speed options' })).toBeNull();
     expect(speedButton).toHaveFocus();
+  });
+
+  test('closes the speed menu when compact mode is entered, so it cannot reappear open once compact mode ends', async () => {
+    BREAKPOINTS.screenIsMediumLayoutOrLarger.matches = false;
+
+    renderTimeSlider(undefined, { initialEntries: ['/events'] });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Open playback speed options' }));
+
+    expect(screen.getByRole('menu', { name: 'Playback speed options' })).toBeVisible();
+
+    BREAKPOINTS.screenIsMediumLayoutOrLarger.matches = true;
+    fireEvent(window, new Event('resize'));
+
+    expect(screen.queryByRole('button', { name: 'Open playback speed options' })).toBeNull();
+
+    BREAKPOINTS.screenIsMediumLayoutOrLarger.matches = false;
+    fireEvent(window, new Event('resize'));
+
+    expect(screen.getByRole('button', { name: 'Open playback speed options' })).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('menu', { name: 'Playback speed options' })).toBeNull();
   });
 
   test('shows the speed menu header', async () => {

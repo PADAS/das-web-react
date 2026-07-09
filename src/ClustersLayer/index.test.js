@@ -505,7 +505,7 @@ describe('ClustersLayer', () => {
       expect(map.easeTo).toHaveBeenCalledWith({
         center: clusterCoordinates,
         zoom: CLUSTER_CLICK_ZOOM_THRESHOLD + 1.1,
-        padding: { left: 592, right: 90, top: 12, bottom: 12 },
+        padding: { left: 582, right: 90, top: 12, bottom: 12 },
       });
     });
 
@@ -537,7 +537,7 @@ describe('ClustersLayer', () => {
     test('pads for the sidebar width when a tab is open', () => {
       getWindowLocation.mockReturnValue({ pathname: '/events' });
 
-      expect(calcClusterZoomPadding()).toEqual({ left: 592, right: 90, top: 12, bottom: 12 });
+      expect(calcClusterZoomPadding()).toEqual({ left: 582, right: 90, top: 12, bottom: 12 });
     });
 
     test('pads for the wider detail view when an item is open', () => {

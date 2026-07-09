@@ -253,6 +253,14 @@ const TimeSlider = () => {
   }, [isSpeedMenuOpen, playbackSpeed]);
 
   useEffect(() => {
+    if (isCompact) {
+      // The time slider is in compact mode. Close the speed menu.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setIsSpeedMenuOpen(false);
+    }
+  }, [isCompact]);
+
+  useEffect(() => {
     // Reset the virtual date to the end of the range when the event filter
     // date range is changed.
     setVirtualDateFromSliderValue(1);

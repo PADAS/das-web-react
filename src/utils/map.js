@@ -8,8 +8,8 @@ import { getCurrentIdFromURL, getCurrentTabFromURL } from './navigation';
 import { imgElFromSrc, calcUrlForImage, calcImgIdFromUrlForMapImages } from './img';
 
 // Extra allowance for the fixed vertical icon nav rail that sits between the
-// sidebar panel and the map.
-const VERTICAL_NAV_RAIL_WIDTH_PIXELS = 80;
+// sidebar panel and the map. Keep in sync with --vertical-nav-width.
+const VERTICAL_NAV_RAIL_WIDTH_PIXELS = 70;
 const POLYGON_PADDING_REDUCTION_PIXELS = 350;
 
 export const calcSidebarPaddingLeft = ({ pathname, isMediumLayoutOrLarger, isPolygon = false }) => {
