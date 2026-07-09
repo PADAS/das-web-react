@@ -25,8 +25,18 @@ const FEATURE_ICON_HTML_STYLES = { maxWidth: '24px', minWidth: '18px', height: '
 const FEATURE_SS_ICON_HTML_STYLES = { filter: 'brightness(0)' };
 const FEATURE_COUNT_HTML_STYLES = { fontSize: '16px', fontWeight: '500', paddingLeft: '4px', margin: '0' };
 
+// Subject icons are served as ready-to-use image URLs and are never registered
+// in `mapImages` under a sprite/icon_id key, nor do they live in the event
+// sprite sheet. Only event features go through the sprite -> generic fallback
+// chain; subjects keep using their own image source directly.
+const featureIsSubject = (feature) => feature.properties?.content_type === SUBJECT_FEATURE_CONTENT_TYPE;
+
+// Only resolve event features from the sprite `mapImages` cache. Subjects have
+// no `icon_id`, so their event-shaped key can collapse to an empty/generic
+// entry and resolve to a grey dot; return undefined so they fall through to
+// their own `image` URL instead.
 const getFeatureIcon = (feature, mapImages) =>
-  mapImages[calcSvgImageIconId(feature.properties)]?.image;
+  featureIsSubject(feature) ? undefined : mapImages[calcSvgImageIconId(feature.properties)]?.image;
 
 export const getClusterIconFeatures = (clusterFeatures) => {
   const { eventFeatures, subjectFeatures } = clusterFeatures.reduce((accumulator, feature) => {
@@ -81,8 +91,9 @@ const populateClusterIconChildren = (clusterHTMLMarkerContainer, clusterIconFeat
       // Event features' own image/image_url from the vector tile is unreliable
       // so fall back to the uncolored sprite master until mapImages resolves.
       // That master doesn't exist for every icon_id either, so if it also
-      // fails to load, drop to the generic per-color icon.
-      if (feature.properties.icon_id) {
+      // fails to load, drop to the generic per-color icon. Subjects aren't in
+      // the event sprite sheet and carry a reliable image, so they skip this.
+      if (feature.properties.icon_id && !featureIsSubject(feature)) {
         featureImageHTML.src = calcSpriteSvgUrl(feature.properties.icon_id);
         featureImageHTML.onerror = () => {
           featureImageHTML.onerror = null;
@@ -214,7 +225,7 @@ export const addNewClusterMarkers = (
 
     const clusterIconFeatures = wasReady ? null : getClusterIconFeatures(clusterFeatures);
     const iconsReady = wasReady || clusterIconFeatures
-      .every((feature) => !feature.properties.icon_id || !!getFeatureIcon(feature, mapImages));
+      .every((feature) => featureIsSubject(feature) || !feature.properties.icon_id || !!getFeatureIcon(feature, mapImages));
 
     // Wait for every displayed icon to resolve before creating the marker.
     if (!marker && iconsReady) {

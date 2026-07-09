@@ -435,6 +435,23 @@ describe('ClustersLayer', () => {
       expect(clusterHTMLMarker.childNodes[2].tagName).toBe('IMG');
       expect(clusterHTMLMarker.childNodes[3].tagName).toBe('P');
     });
+
+    test('renders a subject\'s own image rather than the event sprite/generic fallback, even when it carries an icon_id', () => {
+      const subjectImage = 'https://example.com/ranger.svg';
+      const marker = createClusterHTMLMarker(
+        [{ properties: { id: '1', content_type: 'observations.subject', icon_id: 'ranger', image: subjectImage } }],
+        {},
+        onClusterClick,
+        onClusterMouseEnter,
+        onClusterMouseLeave
+      );
+
+      const subjectIcon = marker.querySelector('img');
+      expect(subjectIcon.src).toBe(subjectImage);
+      expect(subjectIcon.src).not.toContain('sprite-src');
+      expect(subjectIcon.src).not.toContain('generic-');
+      expect(subjectIcon.onerror).toBeNull();
+    });
   });
 
   describe('onClusterClick', () => {
@@ -712,6 +729,29 @@ describe('ClustersLayer', () => {
       expect(renderedClusterMarkersHashMap.pending.marker).toBe(staleMarker);
       expect(renderedClusterMarkersHashMap.pending.iconsReady).toBe(true);
       expect(staleMarkerElement.querySelector('img')).toBeTruthy();
+    });
+
+    test('treats a subject cluster as icons-ready even though the subject icon_id is never in mapImages', () => {
+      const subjectClusterFeatures = [[{
+        geometry: { type: 'Point', coordinates: [0, 0] },
+        properties: { id: '20', content_type: 'observations.subject', icon_id: 'ranger', image: 'https://example.com/ranger.svg' },
+        type: 'Feature',
+      }]];
+
+      const renderedClusterMarkersHashMap = addNewClusterMarkers(
+        onClusterMouseEnter,
+        { current: {} },
+        clustersSource,
+        map,
+        {},
+        onClusterMouseLeave,
+        subjectClusterFeatures,
+        ['subject-cluster'],
+        ['mnop'],
+        onShowClusterSelectPopup
+      );
+
+      expect(renderedClusterMarkersHashMap['subject-cluster'].iconsReady).toBe(true);
     });
   });
 

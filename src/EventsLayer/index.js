@@ -222,7 +222,7 @@ const EventsLayer = ({
   useEffect(() => {
     setMapEventFeatures({
       ...eventsWithBounce,
-      features: eventsWithBounce.features.filter(feature => !map.hasImage(calcSvgImageIconId(feature))),
+      features: eventsWithBounce.features.filter(feature => !map.hasImage(calcSvgImageIconId(feature.properties))),
     });
   }, [eventsWithBounce, map, mapImages]);
 
