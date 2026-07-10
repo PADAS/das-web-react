@@ -9,6 +9,7 @@ import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selecto
 import { MapContext } from '../MapContext';
 import { selectRealtimeOverlayFeatureCollection } from '../selectors/events-realtime-overlay';
 import { selectShouldEventsBeClustered, selectShouldSubjectsBeClustered } from '../selectors/clusters';
+import { subscribeEventIcons } from '../utils/eventMapIcons';
 import useClusterPolygon from '../hooks/useClusterPolygon';
 import { useMapEventBinding, usePreviewFeature } from '../hooks';
 import useMapLayers from '../hooks/useMapLayers';
@@ -81,49 +82,59 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
 
   const { addClusterPolygon, removeClusterPolygon } = useClusterPolygon();
 
-  const mapImages = useSelector((state) => state.view.mapImages);
+  const locallyEditedEvent = useSelector((state) => state.data.locallyEditedEvent);
 
+  // Mirror frequently-changing values into refs so the callback stays stable; only read
+  // inside the async callback/effects, never during render.
+  const locallyEditedEventRef = useRef(locallyEditedEvent);
+  const addClusterPolygonRef = useRef(addClusterPolygon);
+  const removeClusterPolygonRef = useRef(removeClusterPolygon);
+  const onShowClusterSelectPopupRef = useRef(onShowClusterSelectPopup);
+
+  // Sync the refs after commit (never during render). This effect is declared
+  // before the effects that invoke updateClusterMarkersCallback, so the refs
+  // hold current values by the time those callbacks read them.
+  useEffect(() => {
+    locallyEditedEventRef.current = locallyEditedEvent;
+    addClusterPolygonRef.current = addClusterPolygon;
+    removeClusterPolygonRef.current = removeClusterPolygon;
+    onShowClusterSelectPopupRef.current = onShowClusterSelectPopup;
+  }, [addClusterPolygon, locallyEditedEvent, onShowClusterSelectPopup, removeClusterPolygon]);
+
+  // Reads values from refs so its identity stays stable; only `map` is a real dep.
   const updateClusterMarkersCallback = useCallback(async () => {
     const clustersSource = map?.getSource(CLUSTERS_SOURCE_ID);
     if (!clustersSource) {
       return;
     }
 
-    // mapImages re-triggers this on every icon resolved, so overlapping calls
-    // are expected. If an older call's async work finishes after a newer one,
-    // discard it.
+    // Overlapping calls are expected; discard an older call that finishes after a newer one.
     const runId = ++latestClusterUpdateRunIdRef.current;
 
     const {
       renderedClusterHashes,
       renderedClusterFeatures,
       renderedClusterIds,
-    } = await getRenderedClustersData(clustersSource, map);
+    } = await getRenderedClustersData(clustersSource, map, locallyEditedEventRef.current);
 
     if (runId !== latestClusterUpdateRunIdRef.current) {
       return;
     }
 
-    removeOldClusterMarkers(clusterMarkerHashMapRef, removeClusterPolygon, renderedClusterHashes);
+    removeOldClusterMarkers(clusterMarkerHashMapRef, removeClusterPolygonRef.current, renderedClusterHashes);
 
     clusterMarkerHashMapRef.current = addNewClusterMarkers(
-      addClusterPolygon,
+      addClusterPolygonRef.current,
       clusterMarkerHashMapRef,
       CLUSTERS_SOURCE_ID,
       map,
-      mapImages,
-      removeClusterPolygon,
+      removeClusterPolygonRef.current,
       renderedClusterFeatures,
       renderedClusterHashes,
       renderedClusterIds,
-      onShowClusterSelectPopup);
-  }, [addClusterPolygon, map, mapImages,  onShowClusterSelectPopup, removeClusterPolygon]);
-
-  useEffect(() => {
-    // Re-run the update pass when mapImages changes so clusters built with
-    // missing icons pick up the real ones once they resolve.
-    updateClusterMarkersCallback();
-  }, [updateClusterMarkersCallback]);
+      onShowClusterSelectPopupRef.current,
+      locallyEditedEventRef.current);
+  }, [map]);
 
   const onSourceData = useMemo(() => (event) => {
     if (event.sourceId === CLUSTERS_SOURCE_ID) {
@@ -132,6 +143,26 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
   }, [updateClusterMarkersCallback]);
 
   useMapEventBinding('sourcedata', onSourceData);
+
+  // Refresh markers when the locally edited event changes, including when it
+  // transitions to null (a discarded edit) so the stale marker is rebuilt.
+  useEffect(() => {
+    updateClusterMarkersCallback();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- callback is stable via refs
+  }, [locallyEditedEvent]);
+
+  // sourcedata doesn't fire when an icon resolves, so refresh markers when the
+  // event icon registry notifies that a new icon is available.
+  useEffect(() => subscribeEventIcons(updateClusterMarkersCallback), [updateClusterMarkersCallback]);
+
+  // On unmount, bump the run id so any in-flight async pass is discarded and
+  // can't add markers after the component is gone. The mount-time rebuild is
+  // already covered by the locallyEditedEvent effect above, which runs on mount
+  // regardless of value, so this effect stays cleanup-only to avoid a redundant
+  // duplicate pass.
+  useEffect(() => () => {
+    latestClusterUpdateRunIdRef.current += 1;
+  }, []);
 
   return null;
 };

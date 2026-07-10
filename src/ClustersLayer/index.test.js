@@ -14,7 +14,8 @@ import {
 } from './utils';
 import { BREAKPOINTS, CLUSTER_CLICK_ZOOM_THRESHOLD, SOURCE_IDS } from '../constants';
 import { calcSpriteSvgUrl } from '../utils/img';
-import { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
+import { calcSvgImageIconId } from '../utils/mapImages';
+import * as eventMapIcons from '../utils/eventMapIcons';
 import ClustersLayer from '.';
 import { createMapMock, createMockInteractionEvent } from '../__test-helpers/mocks';
 import getWindowLocation from '../utils/getWindowLocation';
@@ -49,12 +50,43 @@ jest.mock('mapbox-gl', () => ({
   },
 }));
 
-// Gives every event feature in the fixtures a resolved mapImages.
-const buildMapImagesForFeatures = (features) => features.reduce((mapImages, { properties }) => (
-  properties.icon_id
-    ? { ...mapImages, [calcSvgImageIconId(properties)]: { image: document.createElement('img') } }
-    : mapImages
-), {});
+// Backs the event icon registry with an in-memory map so tests can seed
+// resolved icons and trigger the "an icon resolved" notification directly,
+// instead of round-tripping through the redux store.
+jest.mock('../utils/eventMapIcons', () => {
+  const icons = new Map();
+  let iconListeners = new Set();
+  return {
+    getEventIcon: (key) => icons.get(key),
+    ensureEventIcon: jest.fn(),
+    subscribeEventIcons: (listener) => {
+      iconListeners.add(listener);
+      return () => iconListeners.delete(listener);
+    },
+    __seed: (key, image) => icons.set(key, image),
+    __notify: () => iconListeners.forEach((listener) => listener()),
+    __clear: () => {
+      icons.clear();
+      iconListeners = new Set();
+    },
+  };
+});
+
+const JENAE_ICON_KEY = calcSvgImageIconId({ icon_id: 'jenaeonefield', priority: 200 });
+
+// Seeds a resolved icon in the registry for every event feature, optionally
+// omitting specific variant keys to simulate an icon that hasn't resolved yet.
+const seedIconsForFeatures = (features, { omitKeys = [] } = {}) => {
+  const omitted = new Set(omitKeys);
+  features.forEach(({ properties }) => {
+    if (properties.icon_id) {
+      const key = calcSvgImageIconId(properties);
+      if (!omitted.has(key)) {
+        eventMapIcons.__seed(key, document.createElement('img'));
+      }
+    }
+  });
+};
 
 jest.mock('../selectors/events', () => ({
   ...jest.requireActual('../selectors/events'),
@@ -88,20 +120,12 @@ describe('ClustersLayer', () => {
   describe('the map layer', () => {
     const onShowClusterSelectPopup = jest.fn(), addClusterPolygon = jest.fn(),
       setData = jest.fn();
-    let map, useClusterPolygonMock, rerender, unmount;
+    let map, useClusterPolygonMock, unmount;
 
-    const buildStore = (mapImages) => mockStore({
+    const buildStore = () => mockStore({
       data: { mapLayerFilter: { showReportsOnMap: true }, mapEvents: { events: [] }, eventFilter: { filter: { date_range: {} } } },
-      view: { mapImages, timeSliderState: {}, mapClusterConfig: { data: { events: true, subjects: true } } },
+      view: { mapImages: [], timeSliderState: {}, mapClusterConfig: { data: { events: true, subjects: true } } },
     });
-
-    const renderWithMapImages = (mapImages) => rerender(
-      <Provider store={buildStore(mapImages)}>
-        <MapContext.Provider value={map}>
-          <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
-        </MapContext.Provider>
-      </Provider>
-    );
 
     beforeEach(() => {
       jest.useFakeTimers();
@@ -130,10 +154,10 @@ describe('ClustersLayer', () => {
       }));
       map.getZoom.mockImplementation(() => CLUSTER_CLICK_ZOOM_THRESHOLD - 1);
 
-      const mapImages = buildMapImagesForFeatures([...mockClusterLeaves[0], ...mockClusterLeaves[1]]);
+      seedIconsForFeatures([...mockClusterLeaves[0], ...mockClusterLeaves[1]]);
 
-      ({ rerender, unmount } = render(
-        <Provider store={buildStore(mapImages)}>
+      ({ unmount } = render(
+        <Provider store={buildStore()}>
           <MapContext.Provider value={map}>
             <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
           </MapContext.Provider>
@@ -146,6 +170,7 @@ describe('ClustersLayer', () => {
       jest.useRealTimers();
       jest.restoreAllMocks();
 
+      eventMapIcons.__clear();
       mapMarkers.length = 0;
     });
 
@@ -157,33 +182,31 @@ describe('ClustersLayer', () => {
       });
     });
 
-    test('renders every cluster marker immediately even before its icons resolve, then upgrades to the resolved sprite', async () => {
+    test('withholds a cluster marker until all its displayed icons resolve in the registry, rather than showing a guessed placeholder', async () => {
       unmount();
       mapMarkers.length = 0;
 
-      const fullMapImages = buildMapImagesForFeatures([...mockClusterLeaves[0], ...mockClusterLeaves[1]]);
-      // Simulates the initial-page-load race where an icon hasn't been generated yet.
-      const { 'jenaeonefield-200': omitted, ...incompleteMapImages } = fullMapImages;
-      expect(omitted).toBeDefined();
+      // Simulates the initial-page-load race: every icon is resolved except one.
+      eventMapIcons.__clear();
+      seedIconsForFeatures([...mockClusterLeaves[0], ...mockClusterLeaves[1]], { omitKeys: [JENAE_ICON_KEY] });
 
-      ({ rerender } = render(
-        <Provider store={buildStore(incompleteMapImages)}>
+      render(
+        <Provider store={buildStore()}>
           <MapContext.Provider value={map}>
             <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
           </MapContext.Provider>
         </Provider>
-      ));
+      );
       map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
 
-      // Both clusters render immediately — the not-yet-generated icon falls back
-      // to the feature's own image rather than the marker being withheld.
+      // Only the cluster whose icons are already resolved gets a marker.
       await waitFor(() => {
-        expect(mapMarkers).toHaveLength(2);
+        expect(mapMarkers).toHaveLength(1);
       });
 
-      // Once the missing icon resolves, the marker upgrades to the resolved
-      // sprite (a data URI).
-      renderWithMapImages(fullMapImages);
+      // The missing icon resolves and the registry notifies its subscribers.
+      eventMapIcons.__seed(JENAE_ICON_KEY, document.createElement('img'));
+      eventMapIcons.__notify();
 
       await waitFor(() => {
         expect(mapMarkers).toHaveLength(2);
@@ -191,30 +214,35 @@ describe('ClustersLayer', () => {
       });
     });
 
-    test('does not duplicate markers on unrelated mapImages updates', async () => {
+    test('does not create a marker for a still-not-ready cluster on unrelated icon updates', async () => {
       unmount();
       mapMarkers.length = 0;
 
-      const fullMapImages = buildMapImagesForFeatures([...mockClusterLeaves[0], ...mockClusterLeaves[1]]);
+      // Simulates the initial-page-load race, same as the previous test.
+      eventMapIcons.__clear();
+      seedIconsForFeatures([...mockClusterLeaves[0], ...mockClusterLeaves[1]], { omitKeys: [JENAE_ICON_KEY] });
 
-      ({ rerender } = render(
-        <Provider store={buildStore(fullMapImages)}>
+      render(
+        <Provider store={buildStore()}>
           <MapContext.Provider value={map}>
             <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
           </MapContext.Provider>
         </Provider>
-      ));
+      );
       map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
 
       await waitFor(() => {
-        expect(mapMarkers).toHaveLength(2);
+        expect(mapMarkers).toHaveLength(1);
       });
 
-      // An unrelated icon resolves elsewhere on the map.
-      renderWithMapImages({ ...fullMapImages, 'unrelated_icon-100': { image: document.createElement('img') } });
+      // An unrelated icon resolves elsewhere on the map — the cluster's own
+      // missing icon is still not present, so no marker should be created for it
+      // yet even though the registry notified.
+      eventMapIcons.__seed(calcSvgImageIconId({ icon_id: 'unrelated_icon', priority: 100 }), document.createElement('img'));
+      eventMapIcons.__notify();
 
       await waitFor(() => {
-        expect(mapMarkers).toHaveLength(2);
+        expect(mapMarkers).toHaveLength(1);
       });
     });
 
@@ -402,7 +430,6 @@ describe('ClustersLayer', () => {
       ];
       clusterHTMLMarker = createClusterHTMLMarker(
         clusterFeatures,
-        [],
         onClusterClick,
         onClusterMouseEnter,
         onClusterMouseLeave
@@ -437,72 +464,6 @@ describe('ClustersLayer', () => {
       expect(clusterHTMLMarker.childNodes[1].tagName).toBe('IMG');
       expect(clusterHTMLMarker.childNodes[2].tagName).toBe('IMG');
       expect(clusterHTMLMarker.childNodes[3].tagName).toBe('P');
-    });
-  });
-
-  describe('createClusterHTMLMarker icon resolution', () => {
-    const noop = jest.fn();
-    const buildMarker = (feature, mapImages = {}) => createClusterHTMLMarker([feature], mapImages, noop, noop, noop);
-
-    const imgWithSrc = (src) => {
-      const image = document.createElement('img');
-      image.src = src;
-      return image;
-    };
-
-    test('resolves an event icon from its generated sprite in mapImages', () => {
-      const feature = { properties: { id: 'e1', event_type: 'fire', icon_id: 'fire_rep', priority: 200 } };
-      const spriteSrc = 'data:image/svg+xml,recolored-sprite';
-      const mapImages = { [calcSvgImageIconId(feature.properties)]: { image: imgWithSrc(spriteSrc) } };
-
-      const marker = buildMarker(feature, mapImages);
-
-      expect(marker.childNodes[0].getAttribute('src')).toBe(spriteSrc);
-    });
-
-    test('falls back to an event\'s own pre-colored image URL when its sprite is not yet generated', () => {
-      const image = 'https://develop.pamdas.org/static/generic-amber.svg';
-      const feature = { properties: { id: 'e1', event_type: 'fire', icon_id: 'fire_rep', priority: 200, image } };
-
-      const marker = buildMarker(feature, {});
-
-      expect(marker.childNodes[0].getAttribute('src')).toBe(image);
-    });
-
-    test('skips a raw sprite-src fallback (rather than flashing a broken image) until the recolored sprite resolves', () => {
-      // Vector-tile events carry the raw, uncolored sprite template, which is
-      // not display-ready and 404s for generic icons. It must be omitted, not
-      // rendered as a broken <img>, until MapImageFromSvgSpriteRenderer registers
-      // the recolored sprite and the repaint fills the slot.
-      const image = 'https://develop.pamdas.org/static/sprite-src/generic.svg';
-      const feature = { properties: { id: 'e1', event_type: 'fire', icon_id: 'generic', priority: 200, image } };
-
-      const marker = buildMarker(feature, {});
-
-      expect(marker.childNodes).toHaveLength(0);
-    });
-
-    test('skips the icon (rather than rendering a broken image) when a vector-tile event has no sprite yet and no image URL', () => {
-      // Vector-tile events carry an icon_id but may have no image/image_url;
-      // before the sprite resolves there is nothing valid to show, so the slot
-      // must be omitted instead of rendering an <img> with a null src.
-      const feature = { properties: { id: 'e1', event_type: 'fire', icon_id: 'fire_rep', priority: 200 } };
-
-      const marker = buildMarker(feature, {});
-
-      expect(marker.childNodes).toHaveLength(0);
-    });
-
-    test('renders a subject from its own image URL and never resolves it from the shared generic key', () => {
-      const imageUrl = 'https://develop.pamdas.org/static/ranger-black.svg';
-      const subject = { properties: { id: 's1', content_type: 'observations.subject', image_url: imageUrl } };
-      // A generic icon sitting under the empty-icon_id key ('generic') must not
-      // leak into subjects, which is what caused clustered subjects to show generic.
-      const mapImages = { [calcSvgImageIconId(subject.properties)]: { image: imgWithSrc('GENERIC-LEAK') } };
-
-      const marker = buildMarker(subject, mapImages);
-
-      expect(marker.childNodes[0].getAttribute('src')).toBe(imageUrl);
     });
   });
 
@@ -662,6 +623,54 @@ describe('ClustersLayer', () => {
 
       expect(renderedClusterHashes).toHaveLength(2);
     });
+
+    test('keys the hash off the locally edited event\'s unsaved priority and icon_id (local-<priority>-<icon_id> suffix)', async () => {
+      const { renderedClusterHashes: baseHashes } = await getRenderedClustersData(clustersSource, map);
+
+      // Event id '2' lives in cluster 1; editing it should change only that cluster's hash.
+      const { renderedClusterHashes: editedHashes } = await getRenderedClustersData(
+        clustersSource,
+        map,
+        { id: '2', priority: 300 }
+      );
+      expect(editedHashes[0]).not.toBe(baseHashes[0]);
+      expect(editedHashes[1]).toBe(baseHashes[1]);
+
+      // A different unsaved priority produces a different local-<priority> suffix, and hash.
+      const { renderedClusterHashes: rehashedHashes } = await getRenderedClustersData(
+        clustersSource,
+        map,
+        { id: '2', priority: 100 }
+      );
+      expect(rehashedHashes[0]).not.toBe(editedHashes[0]);
+
+      // An icon-only edit (same priority) still forces a rehash for that cluster.
+      const { renderedClusterHashes: iconEditedHashes } = await getRenderedClustersData(
+        clustersSource,
+        map,
+        { id: '2', priority: 300, icon_id: 'different_icon' }
+      );
+      expect(iconEditedHashes[0]).not.toBe(editedHashes[0]);
+      expect(iconEditedHashes[1]).toBe(baseHashes[1]);
+    });
+
+    test('resolves (does not hang) and drops clusters that error, keeping the arrays aligned', async () => {
+      const erroringSource = {
+        getClusterLeaves: (clusterId, limit, offset, callback) => (clusterId === cluster1Id
+          ? callback(new Error('boom'))
+          : callback(null, cluster2Features)),
+      };
+
+      const {
+        renderedClusterIds,
+        renderedClusterFeatures,
+        renderedClusterHashes,
+      } = await getRenderedClustersData(erroringSource, map);
+
+      expect(renderedClusterIds).toEqual([cluster2Id]);
+      expect(renderedClusterFeatures).toEqual([cluster2Features]);
+      expect(renderedClusterHashes).toHaveLength(1);
+    });
   });
 
   describe('removeOldClusterMarkers', () => {
@@ -694,6 +703,8 @@ describe('ClustersLayer', () => {
   });
 
   describe('addNewClusterMarkers', () => {
+    afterEach(() => eventMapIcons.__clear());
+
     const clusterMarkerHashMapRef = { current: { '1': { marker: { remove: jest.fn() }, iconsReady: true } } };
     const clustersSource = {};
     const map = {};
@@ -745,7 +756,6 @@ describe('ClustersLayer', () => {
         clusterMarkerHashMapRef,
         clustersSource,
         map,
-        [],
         onClusterMouseLeave,
         renderedClusterFeatures,
         renderedClusterHashes,
@@ -763,7 +773,6 @@ describe('ClustersLayer', () => {
         clusterMarkerHashMapRef,
         clustersSource,
         map,
-        [],
         onClusterMouseLeave,
         renderedClusterFeatures,
         renderedClusterHashes,
@@ -790,7 +799,6 @@ describe('ClustersLayer', () => {
         notReadyClusterMarkerHashMapRef,
         clustersSource,
         map,
-        {},
         onClusterMouseLeave,
         pendingClusterFeatures,
         ['pending'],
@@ -814,13 +822,16 @@ describe('ClustersLayer', () => {
         properties: { id: '10', icon_id: 'snare_rep', priority: 200 },
         type: 'Feature',
       }]];
+      eventMapIcons.__seed(
+        calcSvgImageIconId({ icon_id: 'snare_rep', priority: 200 }),
+        document.createElement('img')
+      );
 
       const renderedClusterMarkersHashMap = addNewClusterMarkers(
         onClusterMouseEnter,
         upgradingClusterMarkerHashMapRef,
         clustersSource,
         map,
-        { 'snare_rep-200': { image: document.createElement('img') } },
         onClusterMouseLeave,
         pendingClusterFeatures,
         ['pending'],

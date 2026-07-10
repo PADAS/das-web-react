@@ -87,6 +87,7 @@ import MapLocationSelectionOverview from '../MapLocationSelectionOverview';
 
 import './Map.scss';
 import { addMapImage } from '../utils/map';
+import { attachEventIconsToMap } from '../utils/eventMapIcons';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -646,8 +647,8 @@ const Map = ({ children, onMapLoad, socket }) => {
     const handleMapStyleImageMissing = async (event) => {
       const { id } = event;
 
-      // Event icon ids have no path segment and are owned by
-      // MapImageFromSvgSpriteRenderer.
+      // Event icon ids have no path segment and are owned by the event icon
+      // registry (utils/eventMapIcons, attached separately below).
       if (!id.includes('/')) {
         return;
       }
@@ -689,6 +690,12 @@ const Map = ({ children, onMapLoad, socket }) => {
       return () => {
         map.off('styleimagemissing', handleMapStyleImageMissing);
       };
+    }
+  }, [map]);
+
+  useEffect(() => {
+    if (map) {
+      return attachEventIconsToMap(map);
     }
   }, [map]);
 

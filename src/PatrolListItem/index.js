@@ -6,7 +6,7 @@ import { fetchTracksIfNecessary } from '../utils/tracks';
 import { PATROL_LIST_ITEM_CATEGORY, trackEventFactory } from '../utils/analytics';
 import usePatrol from '../hooks/usePatrol';
 
-import DasIcon from '../DasIcon';
+import SvgIcon from '../SvgIcon';
 import FeedListItem from '../FeedListItem';
 import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 import PatrolMenu from '../PatrolMenu';
@@ -78,8 +78,7 @@ const PatrolListItem = ({
   const TitleDetailsComponent = useMemo(() => {
     if (isPatrolActiveOrDone) {
       return <span className={styles.titleDetails}>
-        <span>{patrolElapsedTime}</span> |
-        <span>
+        <span>{patrolElapsedTime}</span> | <span>
           <PatrolDistanceCovered patrolsData={patrolsData} suffix=' km' />
         </span>
       </span>;
@@ -211,7 +210,7 @@ const PatrolListItem = ({
       title={displayTitle}
       type="button"
     >
-    <DasIcon iconId={patrolIconId} style={{ fill: theme.fontColor ? theme.fontColor : 'white' }} type="events" />
+    <SvgIcon iconId={patrolIconId} style={{ fill: theme.fontColor ? theme.fontColor : 'white' }} type="patrols" />
   </button>;
 
   const renderedTitleComponent = <>

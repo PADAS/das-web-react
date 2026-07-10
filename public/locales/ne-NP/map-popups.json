@@ -17,7 +17,8 @@
         }
     },
     "layerSelectorPopup": {
-        "searchBarPlaceholder": "खोज्नुहोस्"
+        "searchBarPlaceholder": "खोज्नुहोस्",
+        "unsavedChangesLabel": "बचत नगरिएका परिवर्तनहरू"
     },
     "mouseMarkerPopup": {
         "coordinatesStringOutsideBbox": "उ/ल",
