@@ -1,7 +1,7 @@
 import { centroid, featureCollection } from '@turf/turf';
 import mapboxgl from 'mapbox-gl';
 
-import { calcGenericFallbackImageUrl, calcSpriteSvgUrl } from '../utils/img';
+import { calcGenericFallbackImageUrl, calcSpriteSvgUrl, calcUrlForImage } from '../utils/img';
 import { BREAKPOINTS, CLUSTER_CLICK_ZOOM_THRESHOLD, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { calcSidebarPaddingLeft } from '../utils/map';
 import { calcSvgImageIconId } from '../utils/mapImages';
@@ -115,7 +115,7 @@ const populateClusterIconChildren = (
           featureImageHTML.src = calcGenericFallbackImageUrl(feature.properties);
         };
       } else {
-        featureImageHTML.src = feature.properties.image || feature.properties.image_url;
+        featureImageHTML.src = calcUrlForImage(feature.properties.image || feature.properties.image_url);
       }
     }
     injectStylesToElement(featureImageHTML, FEATURE_ICON_HTML_STYLES);
