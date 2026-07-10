@@ -13,7 +13,7 @@ import {
   removeOldClusterMarkers,
 } from './utils';
 import { BREAKPOINTS, CLUSTER_CLICK_ZOOM_THRESHOLD, SOURCE_IDS } from '../constants';
-import { calcSpriteSvgUrl } from '../utils/img';
+import { calcSpriteSvgUrl, calcUrlForImage } from '../utils/img';
 import { calcSvgImageIconId } from '../utils/mapImages';
 import * as eventMapIcons from '../utils/eventMapIcons';
 import ClustersLayer from '.';
@@ -464,6 +464,21 @@ describe('ClustersLayer', () => {
       expect(clusterHTMLMarker.childNodes[1].tagName).toBe('IMG');
       expect(clusterHTMLMarker.childNodes[2].tagName).toBe('IMG');
       expect(clusterHTMLMarker.childNodes[3].tagName).toBe('P');
+    });
+
+    test('resolves a subject feature\'s backend-relative image against DAS_HOST via calcUrlForImage', () => {
+      const relativeImage = '/static/ranger-black.svg';
+      const subjectMarker = createClusterHTMLMarker(
+        [{ properties: { id: '1', content_type: 'observations.subject', image_url: relativeImage } }],
+        onClusterClick,
+        onClusterMouseEnter,
+        onClusterMouseLeave
+      );
+
+      const img = subjectMarker.querySelector('img');
+      expect(img.getAttribute('src')).toBe(calcUrlForImage(relativeImage));
+      // The raw backend-relative path must not be used unresolved.
+      expect(img.getAttribute('src')).not.toBe(relativeImage);
     });
   });
 
