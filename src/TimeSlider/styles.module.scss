@@ -29,6 +29,14 @@
   padding: 0 0.5rem;
   position: absolute;
 
+  &.compact {
+    padding-right: 1.5rem;
+
+    .track {
+      margin-left: 0.5rem;
+    }
+  }
+
   .playStopButton {
     align-items: center;
     background: colors.$bright-blue;
@@ -250,10 +258,10 @@
   }
 
   @media (min-width: layout.$md-layout-width-min) {
-    left: 50%;
+    left: calc(50vw + (var(--sidebar-offset, 0px) / 2));
     transform: translateX(-50%);
-    transition: left 0.3s ease-in-out;
-    width: 66%;
+    transition: left 0.3s ease-in-out, width 0.3s ease-in-out;
+    width: calc((100vw - var(--sidebar-offset, 0px)) * 0.66);
   }
 
   @media print {

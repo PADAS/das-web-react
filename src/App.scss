@@ -43,10 +43,11 @@ $map-canvas: '.mapboxgl-canvas';
 
 :root {
   --nav-height: 2.75rem;
+
+  // Keep in sync with VERTICAL_NAV_RAIL_WIDTH_PIXELS.
   --vertical-nav-width: 4.375rem;
 
-  // Make sure to update the SIDEBAR_WIDTH_PIXELS variable in the JS too to add the right padding
-  // when centering something in the map
+  // Keep in sync with SIDEBAR_WIDTH_PIXELS.
   --sidebar-width: calc(100vw);
 
   @media (min-width: $md-layout-width-min) {
