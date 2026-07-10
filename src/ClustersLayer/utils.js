@@ -4,7 +4,6 @@ import mapboxgl from 'mapbox-gl';
 import { BREAKPOINTS, CLUSTER_CLICK_ZOOM_THRESHOLD, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { calcSidebarPaddingLeft } from '../utils/map';
 import { calcUrlForImage } from '../utils/img';
-import { CLUSTER_CLICK_ZOOM_THRESHOLD, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
 import getWindowLocation from '../utils/getWindowLocation';
 import { subjectIsStatic } from '../utils/subjects';
