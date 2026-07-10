@@ -13,6 +13,10 @@ describe('calcSvgImageIconId', () => {
     expect(calcSvgImageIconId({ icon_id: 'fire', priority: 200 })).toBe('event-icon|fire|200');
   });
 
+  it('defaults the icon_id slot to "generic" when absent so the leading slot stays present and reversible', () => {
+    expect(calcSvgImageIconId({ priority: 200 })).toBe('event-icon|generic|200');
+  });
+
   it('treats a priority of 0 as a meaningful value rather than omitting it', () => {
     expect(calcSvgImageIconId({ icon_id: 'fire', priority: 0 })).toBe('event-icon|fire|0');
   });
