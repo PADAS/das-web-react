@@ -3,9 +3,7 @@ import i18next from 'i18next';
 export const generateErrorMessageForRequest = (error) => {
   const t = i18next.getFixedT(null, 'utils', 'generateErrorMessageForRequest');
 
-  const statusCode = error.response?.data?.status?.code
-    ?? error.response?.status?.code
-    ?? error.response?.status;
+  const statusCode = error.response?.data?.status?.code ?? error.response?.status;
 
   if (statusCode) {
     switch (statusCode) {

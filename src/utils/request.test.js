@@ -10,10 +10,6 @@ describe('generateErrorMessageForRequest', () => {
     expect(generateErrorMessageForRequest({ response: { status: 429 } })).toBe(messages.tooManyRequests);
   });
 
-  test('returns the tooManyRequests message for an object 429 response with status.code', () => {
-    expect(generateErrorMessageForRequest({ response: { status: { code: 429 } } })).toBe(messages.tooManyRequests);
-  });
-
   test('returns the tooManyRequests message for a body 429 response with data.status.code', () => {
     expect(generateErrorMessageForRequest({ response: { data: { status: { code: 429 } } } })).toBe(messages.tooManyRequests);
   });
@@ -28,10 +24,6 @@ describe('generateErrorMessageForRequest', () => {
 
   test('returns the internalServerError message for a numeric 500 response', () => {
     expect(generateErrorMessageForRequest({ response: { status: 500 } })).toBe(messages.internalServerError);
-  });
-
-  test('returns the internalServerError message for an object 500 response with status.code', () => {
-    expect(generateErrorMessageForRequest({ response: { status: { code: 500 } } })).toBe(messages.internalServerError);
   });
 
   test('returns the tooManyRequests message when the body status.code takes precedence over a numeric status', () => {
