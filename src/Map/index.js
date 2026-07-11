@@ -35,14 +35,15 @@ import {
 import { MapContext } from '../MapContext';
 import { updatePatrolTrackState } from '../ducks/patrols';
 import useCrsBoundingBoxLayer from './layers/useCrsBoundingBoxLayer';
-import { useMapEventBinding } from '../hooks';
+import { useMapEventBinding, usePreviewFeature } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
-import { LAYER_IDS, SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../constants';
+import { LAYER_IDS, PREVIEW_FEATURES, SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../constants';
 
 import DelayedUnmount from '../DelayedUnmount';
 import EarthRangerMap from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
+import EventsTileLayers from '../EventsTileLayers';
 import GearLayer from '../GearLayer';
 import SubjectsLayer from '../SubjectsLayer';
 import StaticSensorsLayer from '../StaticSensorsLayer';
@@ -56,6 +57,7 @@ import SubjectHeatmapLegend from '../SubjectHeatmapLegend';
 import SubjectTrackLegend from '../SubjectTrackLegend';
 import PatrolTrackLegend from '../PatrolTrackLegend';
 import EventFilter from '../EventFilter';
+import TileEventFeaturesProvider from '../TileEventFeaturesProvider';
 import TimeSlider from '../TimeSlider';
 import TimeSliderMapControl from '../TimeSliderMapControl';
 import ReportsHeatLayer from '../ReportsHeatLayer';
@@ -85,6 +87,7 @@ import MapLocationSelectionOverview from '../MapLocationSelectionOverview';
 
 import './Map.scss';
 import { addMapImage } from '../utils/map';
+import { attachEventIconsToMap } from '../utils/eventMapIcons';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -112,6 +115,8 @@ const Map = ({ children, onMapLoad, socket }) => {
   const { i18n } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const eventVectorTilesEnabled = usePreviewFeature(PREVIEW_FEATURES.EVENTS_VECTOR_TILES);
 
   useCrsBoundingBoxLayer();
 
@@ -192,10 +197,14 @@ const Map = ({ children, onMapLoad, socket }) => {
   }, []);
 
   const mapEventsFetch = useCallback(() => {
+    if (eventVectorTilesEnabled) {
+      // Vector tiles supply the map events.
+      return Promise.resolve();
+    }
     return dispatch(fetchMapEvents(map))
       .catch((e) => console.warn('error fetching map events', e));
   }
-  , [dispatch, map]);
+  , [eventVectorTilesEnabled, dispatch, map]);
 
   const resetTrackRequestCancelToken = useCallback(() => {
     trackRequestCancelToken.current.cancel();
@@ -637,6 +646,13 @@ const Map = ({ children, onMapLoad, socket }) => {
   useEffect(() => {
     const handleMapStyleImageMissing = async (event) => {
       const { id } = event;
+
+      // Event icon ids have no path segment and are owned by the event icon
+      // registry (utils/eventMapIcons, attached separately below).
+      if (!id.includes('/')) {
+        return;
+      }
+
       // querying from the root /static/ dir of the host means this is one of our static assets, let's get it
       // if the map says it's missing.
       // Parse filepath to extract path and dimensions
@@ -677,6 +693,12 @@ const Map = ({ children, onMapLoad, socket }) => {
     }
   }, [map]);
 
+  useEffect(() => {
+    if (map) {
+      return attachEventIconsToMap(map);
+    }
+  }, [map]);
+
   useMapEventBinding('movestart', cancelMapDataRequests);
   useMapEventBinding('moveend', fetchMapData);
   useMapEventBinding('moveend', debounce(saveMapPosition));
@@ -701,16 +723,17 @@ const Map = ({ children, onMapLoad, socket }) => {
     </>}
     onMapLoaded={setMap}
     >
-    {map && <>
+    {map && <TileEventFeaturesProvider>
       {children}
 
       <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
 
-      {eventsEnabled && <EventsLayer
-        mapImages={mapImages}
-        onEventClick={onSelectEvent}
-        bounceEventIDs={bounceEventIDs}
-      />}
+      {eventsEnabled && (eventVectorTilesEnabled
+        ? <EventsTileLayers onEventClick={onSelectEvent} />
+        : <EventsLayer
+          onEventClick={onSelectEvent}
+          bounceEventIDs={bounceEventIDs}
+        />)}
 
       {subjectsEnabled && <SubjectsLayer mapImages={mapImages} onSubjectClick={onSelectSubject} />}
 
@@ -775,7 +798,7 @@ const Map = ({ children, onMapLoad, socket }) => {
       />}
 
       {!!popup && <PopupLayer popup={popup} />}
-    </>}
+    </TileEventFeaturesProvider>}
 
     {timeSliderActive && <TimeSlider />}
 

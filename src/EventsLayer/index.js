@@ -14,9 +14,9 @@ import {
   SOURCE_IDS,
 } from '../constants';
 import { getMapEventSymbolPointsWithVirtualDate } from '../selectors/events';
+import { primeEventIconParams } from '../utils/eventMapIcons';
 import { selectShouldEventsBeClustered } from '../selectors/clusters';
 import { MapContext } from '../MapContext';
-import MapImageFromSvgSpriteRenderer, { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
 import useMapSources from '../hooks/useMapSources';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
 
@@ -61,7 +61,6 @@ const SYMBOL_LAYER_FILTER = [
 
 const EventsLayer = ({
   bounceEventIDs = [],
-  mapImages = {},
   mapUserLayoutConfig,
   mapUserLayoutConfigByLayerId,
   minZoom,
@@ -80,7 +79,6 @@ const EventsLayer = ({
   const [bounceIDs, setBounceIDs] = useState([]);
   const [eventLayerIds, setEventLayerIds] = useState([]);
   const [eventsWithBounce, setEventsWithBounce] = useState(featureCollection([]));
-  const [mapEventFeatures, setMapEventFeatures] = useState(featureCollection([]));
 
   const onLayerInit = useCallback(() => setEventLayerIds([
     EVENT_SYMBOLS,
@@ -145,20 +143,21 @@ const EventsLayer = ({
         SCALE_ICON_IF_BOUNCED(1 / MAP_ICON_SCALE, ICON_SCALE_RATE)),
     ],
     'icon-image': ['concat',
+      'event-icon|',
       ['get', 'icon_id'],
-      '-',
+      '|',
       ['get', 'priority'],
       ['case',
         ['has', 'width'], [
           'concat',
-          '-',
+          '|',
           ['get', 'width'],
         ],
         ''],
       ['case',
         ['has', 'height'],
         ['concat',
-          '-',
+          '|',
           ['get', 'height'],
         ],
         ''],
@@ -219,12 +218,11 @@ const EventsLayer = ({
     setAnimationState({ frame: 1, isRendering: (bounceEventIDs.length > 0), scale: 0.0 });
   }, [bounceEventIDs]);
 
+  // Prime icon params for these features so the map's styleimagemissing handler
+  // can recover full event context (color/state/image) when it generates icons.
   useEffect(() => {
-    setMapEventFeatures({
-      ...eventsWithBounce,
-      features: eventsWithBounce.features.filter(feature => !map.hasImage(calcSvgImageIconId(feature))),
-    });
-  }, [eventsWithBounce, map, mapImages]);
+    primeEventIconParams(eventPointFeatureCollection.features);
+  }, [eventPointFeatureCollection]);
 
   useEffect(() => {
     const addClusterIconToMap = () => {
@@ -237,8 +235,8 @@ const EventsLayer = ({
   }, [map]);
 
   const geoJson = {
-    ...mapEventFeatures,
-    features: !shouldEventsBeClustered && !!showReportsOnMap ? mapEventFeatures.features : [],
+    ...eventsWithBounce,
+    features: !shouldEventsBeClustered && !!showReportsOnMap ? eventsWithBounce.features : [],
   };
   useMapSources([{ id: UNCLUSTERED_EVENTS_SOURCE, data: geoJson }]);
 
@@ -278,10 +276,6 @@ const EventsLayer = ({
 
       {isEventsLayerReady && <EventGeometryLayer onClick={onEventSymbolClick} />}
     </>}
-
-    {!!eventPointFeatureCollection?.features?.length && <MapImageFromSvgSpriteRenderer
-      reportFeatureCollection={eventPointFeatureCollection}
-    />}
   </>;
 };
 

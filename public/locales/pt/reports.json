@@ -33,6 +33,9 @@
     "noMoreReportsItem": "Não há mais eventos para mostrar",
     "noReportsItem": "Não há eventos para mostrar"
   },
+  "eventIcon": {
+    "collectionTitle": "Coleção"
+  },
   "eventItemContextMenu": {
     "errorToastMessage": "#{{serialNumber}} continua {{state}}, algo está errado",
     "notificationDetails": {

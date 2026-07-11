@@ -1,10 +1,12 @@
 import axios, { CancelToken, isCancel } from 'axios';
 import union from 'lodash/union';
 
-import { API_URL, API_V2_URL, TAB_KEYS } from '../constants';
+import { API_URL, API_V2_URL, PREVIEW_FEATURES, REALTIME_OVERLAY_WINDOW_MS, TAB_KEYS } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
-import { getBboxParamsFromMap } from '../utils/query';
+import { addRealtimeOverlayEvent, removeRealtimeOverlayEvent } from './events-realtime-overlay';
 import { generateErrorMessageForRequest } from '../utils/request';
+import { getBboxParamsFromMap, objectToParamString } from '../utils/query';
+import { getPreviewFeatureValue } from '../utils/feature-flags';
 import { addNormalizingPropertiesToEventDataFromAPI, eventBelongsToCollection,
   uniqueEventIds, validateReportAgainstCurrentEventFilter } from '../utils/events';
 import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
@@ -44,7 +46,7 @@ const SET_EVENT_STATE_ERROR = 'SET_EVENT_STATE_ERROR';
 export const UPDATE_EVENT_START = 'UPDATE_EVENT_START';
 const UPDATE_EVENT_SUCCESS = 'UPDATE_EVENT_SUCCESS';
 const UPDATE_EVENT_ERROR = 'UPDATE_EVENT_ERROR';
-const REMOVE_EVENT_BY_ID = 'REMOVE_EVENT_BY_ID';
+export const REMOVE_EVENT_BY_ID = 'REMOVE_EVENT_BY_ID';
 
 const UPLOAD_EVENT_FILES_START = 'UPLOAD_EVENT_FILES_START';
 const UPLOAD_EVENT_FILES_SUCCESS = 'UPLOAD_EVENT_FILES_SUCCESS';
@@ -69,7 +71,7 @@ const FETCH_MAP_EVENTS_PAGE_SUCCESS = 'FETCH_MAP_EVENTS_PAGE_SUCCESS';
 
 const NEW_EVENT_TYPE = 'new_event';
 export const SOCKET_EVENT_DATA = 'SOCKET_EVENT_DATA';
-const UPDATE_EVENT_STORE = 'UPDATE_EVENT_STORE';
+export const UPDATE_EVENT_STORE = 'UPDATE_EVENT_STORE';
 
 const shouldAppendLocationToRequest = (state) => {
   const currentUser = state?.data?.selectedUserProfile?.username
@@ -87,7 +89,7 @@ const excludeOpenEventIfAlreadyInEventStore = (events, eventStore) => {
   return events;
 };
 
-export const socketEventData = (payload) => (dispatch) => {
+export const socketEventData = (payload) => (dispatch, getState) => {
   const { count, event_id, event_data, matches_current_filter, type } = payload;
 
   if (!matches_current_filter) {
@@ -115,6 +117,14 @@ export const socketEventData = (payload) => (dispatch) => {
     type: UPDATE_EVENT_STORE,
     payload: [event_data],
   });
+
+  const eventVectorTilesEnabled = getPreviewFeatureValue(getState(), PREVIEW_FEATURES.EVENTS_VECTOR_TILES);
+  if (eventVectorTilesEnabled) {
+    // Add or remove the event from the events realtime overlay depending on
+    // whether it matches the current filter since the tile won't be updated
+    // yet.
+    dispatch(matches_current_filter ? addRealtimeOverlayEvent(event_id) : removeRealtimeOverlayEvent(event_id));
+  }
 };
 
 
@@ -494,6 +504,71 @@ export const fetchMapEvents = (map, parameters) => async (dispatch, getState) =>
 
       return Promise.reject(error);
     });
+};
+
+// Only one of these fetches runs at a time; a new call cancels the previous
+// one's request.
+let fetchRecentEventsIntoRealtimeOverlayCancelFn;
+
+export const cancelFetchRecentEventsIntoRealtimeOverlay = () => {
+  if (fetchRecentEventsIntoRealtimeOverlayCancelFn) {
+    fetchRecentEventsIntoRealtimeOverlayCancelFn();
+  }
+};
+
+// Fetches recently-updated events in the current viewport and reconciles each
+// with the overlay: events still matching the filter are shown, events that no
+// longer match are hidden.
+export const fetchRecentEventsIntoRealtimeOverlay = (map) => async (dispatch, getState) => {
+  if (!map) {
+    return Promise.resolve();
+  }
+
+  const params = {
+    bbox: await getBboxParamsFromMap(map),
+    // Limit to events changed within the overlay's retention window; bodies
+    // aren't needed here.
+    updated_since: new Date(Date.now() - REALTIME_OVERLAY_WINDOW_MS).toISOString(),
+    include_updates: false,
+    include_notes: false,
+    include_details: false,
+    include_related_events: false,
+  };
+
+  const state = getState();
+  if (shouldAppendLocationToRequest(state)) {
+    params.location = calcLocationParamStringForUserLocationCoords(state.view.userLocation.coords);
+  }
+
+  cancelFetchRecentEventsIntoRealtimeOverlay();
+
+  // Drop the state filter so resolved events come back too, they're needed
+  // below to decide which events to hide versus show.
+  const requestFilter = calcEventFilterForRequest({ params, format: 'object' });
+  delete requestFilter.state;
+  const eventFilterParamString = objectToParamString(requestFilter);
+
+  const cancelToken = new CancelToken((cancelFn) => { fetchRecentEventsIntoRealtimeOverlayCancelFn = cancelFn; });
+  try {
+    const results = await parallelPaginatedQuery(`${EVENTS_API_URL}?${eventFilterParamString}`, { cancelToken }, {});
+
+    if (results?.length) {
+      const recentEvents = excludeOpenEventIfAlreadyInEventStore(results, getState().data.eventStore);
+      dispatch(updateEventStore(...recentEvents));
+
+      // Decide show-vs-hide on state alone: it's always present on the event,
+      // so this avoids needing the notes/details we deliberately didn't fetch.
+      const stateFilter = getState().data.eventFilter?.state;
+      recentEvents.forEach((event) => {
+        const matchesStateFilter = !stateFilter || stateFilter.includes(event.state);
+        dispatch(matchesStateFilter ? addRealtimeOverlayEvent(event.id) : removeRealtimeOverlayEvent(event.id));
+      });
+    }
+  } catch (error) {
+    if (!cancelToken.reason && !isCancel(error)) {
+      console.warn('error fetching recent events into realtime overlay', error);
+    }
+  }
 };
 
 const fetchMapEventsComplete = results => (dispatch, getState) => {

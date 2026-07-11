@@ -176,6 +176,28 @@ export const calcImgIdFromUrlForMapImages = (src, width = null, height = null) =
   return `${path}-${width ? width : 'x'}-${height ? height : 'x'}`;
 };
 
+export const calcSpriteSvgUrl = (iconId) => `${DAS_HOST}/static/sprite-src/${iconId}.svg`;
+
+const PRIORITY_TO_BACKEND_ICON_COLOR = { 0: 'gray', 100: 'med_green', 200: 'amber', 300: 'red' };
+const RESOLVED_EVENT_ICON_COLOR = 'lt_gray';
+
+// Mirrors the backend's priority/state -> icon-color-name mapping for events
+// that don't already carry a tile-resolved `color` property.
+const calcBackendIconColorName = (event) => {
+  if (event.color) {
+    return event.color;
+  }
+
+  if (event.state === 'resolved') {
+    return RESOLVED_EVENT_ICON_COLOR;
+  }
+
+  return PRIORITY_TO_BACKEND_ICON_COLOR[event.priority] ?? 'black';
+};
+
+export const calcGenericFallbackImageUrl = (event) =>
+  calcUrlForImage(`/static/generic-${calcBackendIconColorName(event)}.svg`);
+
 export const calcUrlForImage = imagePath => {
   if (!imagePath) {
     return null;
