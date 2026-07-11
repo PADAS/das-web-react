@@ -5,7 +5,7 @@ import { useLocation } from 'react-router';
 
 import appConfig from '../config';
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
-import { clearAuth, POST_AUTH_SUCCESS } from '../ducks/auth';
+import { applyAccessToken, clearAuth } from '../ducks/auth';
 import useNavigate from '../hooks/useNavigate';
 import { checkAccountLinked, GATE_RESULT } from '../utils/account-linking';
 import {
@@ -81,8 +81,7 @@ const Auth0TokenManager = () => {
             // A LINKED result returns no early exit and falls through to the sign-in below.
           }
 
-          document.cookie = `token=${safe};path=/`;
-          dispatch({ type: POST_AUTH_SUCCESS, payload: { data: { access_token: safe } } });
+          dispatch(applyAccessToken(safe));
 
           // Return route survives the Auth0 redirect in localStorage.
           const intendedRoute = getIntendedPostAuth0SuccessRoute();

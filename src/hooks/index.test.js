@@ -2,8 +2,6 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { renderHook } from '../test-utils';
 
-import { FEATURE_FLAG_LABELS } from '../constants';
-
 import { MapContext } from '../MapContext';
 
 import { createMapMock } from '../__test-helpers/mocks';
@@ -14,7 +12,6 @@ import { useFeatureFlag, useMemoCompare, useMapEventBinding } from './';
 jest.mock('../constants', () => ({
   ...jest.requireActual('../constants'),
   DEVELOPMENT_FEATURE_FLAGS: { DUMMY_FF_FOR_TESTING: true },
-  FEATURE_FLAG_LABELS: { DUMMY_FF_FOR_TESTING: 'DUMMY_FF_FOR_TESTING' },
 }));
 
 describe('#useMapEventBinding', () => {
