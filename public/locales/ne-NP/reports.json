@@ -338,10 +338,30 @@
           "minItems_other": "यो सङ्कलनमा कम्तीमा {{count}} वस्तुहरू हुनुपर्छ।",
           "required": "यो आवश्यक फिल्ड हो।",
           "timeFormat": "अमान्य समय ढांचा।",
+          "uploadFailedError": "एक वा बढी फाइल अपलोड असफल भयो। पेश गर्नुभन्दा पहिले असफल फाइलहरू हटाउनुहोस्।",
+          "uploadInProgressError": "कृपया फाइलहरू अपलोड पूरा नभएसम्म प्रतीक्षा गर्नुहोस्।",
           "uriFormat": "अमान्य URL ढाँचा।",
           "uuidFormat": "अमान्य UUID ढाँचा।"
         },
         "fields": {
+          "attachment": {
+            "chooseFile": "फाइल छान्नुहोस्",
+            "disallowedTypeAlert": "{{fileName}} थप्न सकिँदैन किनभने यसको फाइल प्रकार अनुमति छैन।",
+            "dropzoneText": "फाइलहरू यहाँ तान्नुहोस् र छोड्नुहोस्",
+            "maxItemsAlert_one": "तपाईं बढीमा {{count}} फाइल मात्र थप्न सक्नुहुन्छ।",
+            "maxItemsAlert_other": "तपाईं बढीमा {{count}} फाइलहरू मात्र थप्न सक्नुहुन्छ।",
+            "downloadButtonLabel": "{{fileName}} डाउनलोड गर्नुहोस्",
+            "expandButtonLabel": "{{fileName}} विस्तार गर्नुहोस्",
+            "removeButtonLabel": "{{fileName}} हटाउनुहोस्",
+            "requiredLabel": "(आवश्यक)",
+            "uploadErrorLabel": "अपलोड असफल भयो",
+            "uploadFailedAnnouncement_one": "{{fileName}} अपलोड गर्न सकिएन",
+            "uploadFailedAnnouncement_other": "{{count}} फाइलहरू अपलोड गर्न सकिएन",
+            "uploadStartedAnnouncement_one": "{{fileName}} अपलोड हुँदै",
+            "uploadStartedAnnouncement_other": "{{count}} फाइलहरू अपलोड हुँदै",
+            "uploadSucceededAnnouncement_one": "{{fileName}} अपलोड भयो",
+            "uploadSucceededAnnouncement_other": "{{count}} फाइलहरू अपलोड भए"
+          },
           "collection": {
             "addButtonLabel": "{{itemName}} थप्नुहोस्",
             "defaultAddButton": "थप्नुहोस्",
@@ -356,6 +376,8 @@
               "dragOverAnnouncement": "{{activeItemTitle}} लाई {{itemsLength}} को स्थान {{overItemPosition}} मा सारिएको छ।",
               "dragStartAnnouncement": "{{activeItemTitle}} उचालिएको छ। {{activeItemTitle}} {{itemsLength}} मध्ये स्थान {{activeItemPosition}} मा छ।",
               "item": {
+                "attachmentHumanizedValue_one": "1 फाइल",
+                "attachmentHumanizedValue_other": "{{count}} फाइलहरू",
                 "collectionHumanizedValue": "{{collectionLength}} वस्तुहरू",
                 "deleteButtonLabel": "{{itemTitle}} मेट्नुहोस्",
                 "editButtonLabel": "{{itemTitle}} सम्पादन गर्नुहोस्",
@@ -365,6 +387,8 @@
                   "doneButton": "सम्पन्न"
                 },
                 "formPreview": {
+                  "attachmentHumanizedValue_one": "1 फाइल",
+                  "attachmentHumanizedValue_other": "{{count}} फाइलहरू",
                   "collectionHumanizedValue": "{{collectionLength}} वस्तुहरू",
                   "jumpToLocationButtonLabel": "{{field}} स्थानमा जानुहोस्"
                 },

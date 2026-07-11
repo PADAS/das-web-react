@@ -64,6 +64,8 @@
     "reportedByLabel": "Reportado por"
   },
   "v2SchemaFormSummary": {
+    "attachmentHumanizedValue_one": "1 arquivo",
+    "attachmentHumanizedValue_other": "{{count}} arquivos",
     "collectionHumanizedValue": "{{collectionLength}} itens"
   }
 }

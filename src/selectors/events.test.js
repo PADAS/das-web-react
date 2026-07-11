@@ -65,7 +65,7 @@ describe('#getMapEventFeatureCollectionByTypeWithVirtualDate', () => {
       featureCollection([
         centerOfMass(
           polygonFeature,
-          polygonFeature.properties,
+          { properties: polygonFeature.properties },
         ),
       ])
     );

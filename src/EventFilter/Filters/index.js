@@ -7,8 +7,9 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as UserIcon } from '../../common/images/icons/user-profile.svg';
 
-import { EVENT_STATE_CHOICES } from '../../constants';
+import { EVENT_STATE_CHOICES, PREVIEW_FEATURES } from '../../constants';
 import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
+import { usePreviewFeature } from '../../hooks';
 
 import CheckMark from '../../Checkmark';
 import PriorityPicker from '../../PriorityPicker';
@@ -20,20 +21,26 @@ import * as styles from '../styles.module.scss';
 const StateSelector = ({ onStateSelect, state }) => {
   const { t } = useTranslation('filters', { keyPrefix: 'filters' });
 
+  // Remove this flag and the `.filter` below once community input is enabled
+  // for all tenants.
+  const communityInputEnabled = usePreviewFeature(PREVIEW_FEATURES.COMMUNITY_INPUT_ADMIN);
+
   return <ul
       className={styles.stateList}
       data-testid="state-filter-options"
     >
-    {EVENT_STATE_CHOICES.map((choice) =>
-      <li key={choice.value}>
-        <Button
-          className={isEqual(choice.value, state) ? styles.activeState : ''}
-          onClick={() => onStateSelect(choice)}
-          variant="link"
-        >
-          {t(`stateSelector.${choice.key}`)}
-        </Button>
-      </li>)}
+    {EVENT_STATE_CHOICES
+      .filter((choice) => communityInputEnabled || choice.key !== 'review')
+      .map((choice) =>
+        <li key={choice.value}>
+          <Button
+            className={isEqual(choice.value, state) ? styles.activeState : ''}
+            onClick={() => onStateSelect(choice)}
+            variant="link"
+          >
+            {t(`stateSelector.${choice.key}`)}
+          </Button>
+        </li>)}
   </ul>;
 };
 

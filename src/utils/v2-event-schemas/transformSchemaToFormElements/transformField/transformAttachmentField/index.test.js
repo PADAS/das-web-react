@@ -21,7 +21,11 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
     };
     jsonSchema = {
       properties: {
-        [attachmentFieldName]: {},
+        [attachmentFieldName]: {
+          description: 'Illegal items carried by the arrestee.',
+          maxItems: 5,
+          minItems: 1,
+        },
       },
     };
     uiSchema = {
@@ -46,8 +50,11 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
       [attachmentFieldId]: {
         details: {
           allowableFileTypes: ['image', 'video'],
+          description: 'Illegal items carried by the arrestee.',
           isRequired: true,
           label: 'Evidence of confiscated items',
+          maxItems: 5,
+          minItems: 1,
           value: attachmentFieldName,
         },
         parentId,
@@ -91,8 +98,11 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
       [attachmentFieldId]: {
         details: {
           allowableFileTypes: ['image', 'video'],
+          description: 'Illegal items carried by the arrestee.',
           isRequired: true,
           label: 'Evidence of confiscated items',
+          maxItems: 5,
+          minItems: 1,
           value: attachmentFieldName,
         },
         parentId,
@@ -103,6 +113,9 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
 
   it('transforms an attachment field with missing properties', () => {
     delete uiSchema.fields[attachmentFieldId].allowableFileTypes;
+    delete jsonSchema.properties[attachmentFieldName].description;
+    delete jsonSchema.properties[attachmentFieldName].maxItems;
+    delete jsonSchema.properties[attachmentFieldName].minItems;
 
     transformAttachmentField(
       attachmentFieldId,
@@ -116,8 +129,11 @@ describe('Utils - v2-event-schemas - transformSchemaToFormElements - transformFi
       [attachmentFieldId]: {
         details: {
           allowableFileTypes: [],
+          description: '',
           isRequired: true,
           label: 'Evidence of confiscated items',
+          maxItems: null,
+          minItems: null,
           value: attachmentFieldName,
         },
         parentId,

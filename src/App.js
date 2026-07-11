@@ -11,7 +11,6 @@ import ReactGA4 from 'react-ga4';
 import { createUserAnalyticsData } from './utils/analytics';
 
 import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
-import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/event-svg-sprite.svg';
 
 import { fetchAnalyzers } from './ducks/analyzers';
 import { fetchEventCategories } from './ducks/event-categories';
@@ -235,8 +234,6 @@ export const App = () => {
         </div>
 
         <div style={{ display: 'none', height: 0, width: 0 }}>
-          <ReportTypeIconSprite id="reportTypeIconSprite" />
-
           <EarthRangerLogoSprite />
         </div>
 

@@ -24,6 +24,7 @@
 }
 
 .icon {
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -34,7 +35,7 @@
   svg {
     width: 1.5rem;
     height: 1.5rem;
-    fill: white;
+    fill: currentcolor;
 
     &[class*=newPatrol] {
       fill: $dark-gray;

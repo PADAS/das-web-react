@@ -33,7 +33,7 @@ afterAll(() => server.close());
 describe('EventItemContextMenu', () => {
   let store;
   beforeEach(() => {
-    store = { data: {}, view: {} };
+    store = { data: {}, view: { systemConfig: {} } };
   });
 
   test('shows a message after updating a report status', async () => {

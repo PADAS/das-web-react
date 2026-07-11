@@ -47,7 +47,7 @@ export const getMapEventFeatureCollectionByTypeWithVirtualDate = createSelector(
     if (mappedByType[VALID_EVENT_GEOMETRY_TYPES.POLYGON]) {
       mappedByType.PolygonCentersOfMass = featureCollection(
         mappedByType[VALID_EVENT_GEOMETRY_TYPES.POLYGON].features
-          .map(feature => centerOfMass(feature, feature.properties ))
+          .map(feature => centerOfMass(feature, { properties: feature.properties }))
       );
     }
     return mappedByType;

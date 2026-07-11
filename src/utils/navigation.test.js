@@ -1,4 +1,4 @@
-import { getCurrentIdFromURL, getCurrentTabFromURL } from './navigation';
+import { getCurrentIdFromURL, getCurrentTabFromURL, redirectToExternalUrl } from './navigation';
 
 describe('Navigation utils', () => {
   describe('getCurrentIdFromURL', () => {
@@ -28,6 +28,21 @@ describe('Navigation utils', () => {
 
     test('returns undefined if there is not a tab', () => {
       expect(getCurrentTabFromURL('/')).toBeUndefined();
+    });
+  });
+
+  describe('redirectToExternalUrl', () => {
+    afterEach(() => {
+      window.history.replaceState({}, '', '/');
+    });
+
+    test('assigns the given url to window.location', () => {
+      // jsdom only applies same-document (hash) navigations observably — a full
+      // cross-origin navigation logs "not implemented" without updating
+      // location — so assert the href assignment via a hash fragment.
+      redirectToExternalUrl('#linked');
+
+      expect(window.location.hash).toBe('#linked');
     });
   });
 });

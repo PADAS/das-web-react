@@ -14,8 +14,10 @@ import cloneDeep from 'lodash/cloneDeep';
 import isUndefined from 'lodash/isUndefined';
 import isNil from 'lodash/isNil';
 
-import { DAS_HOST, PATROL_UI_STATES, PATROL_API_STATES } from '../constants';
+import { calcSpriteSvgUrl } from './img';
 import { format, getCurrentLocale, SHORT_TIME_FORMAT } from './datetime';
+import { PATROL_UI_STATES, PATROL_API_STATES } from '../constants';
+
 import TimeAgo from '../TimeAgo';
 
 import store from '../store';
@@ -495,7 +497,7 @@ export const makePatrolPointFromFeature = (label, coordinates, icon_id, stroke, 
 
   const properties = {
     stroke,
-    image: `${DAS_HOST}/static/sprite-src/${icon_id}.svg`,
+    image: calcSpriteSvgUrl(icon_id),
     name: label,
     title: label,
     time: time,
