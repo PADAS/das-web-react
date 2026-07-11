@@ -820,7 +820,10 @@ describe('TimePicker', () => {
 
     await userEvent.click(openTimeOptionsButton);
 
-    expect(screen.getByRole('presentation')).toBeVisible();
+    const timeOptions = screen.getByRole('presentation');
+
+    expect(timeOptions).toBeVisible();
+    expect(timeOptions).toHaveStyle({ position: 'fixed' });
     expect(openTimeOptionsButton).toHaveAttribute('aria-expanded', 'true');
   });
 

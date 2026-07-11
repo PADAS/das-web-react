@@ -168,6 +168,75 @@ describe('Login', () => {
     });
   });
 
+  describe('Auth0 sign-in info box', () => {
+    test('renders the info box on a common-DB Auth0 site (require_idp without an organization ID)', () => {
+      store = mockStore({
+        data: { eula: { eula_url: '' } },
+        view: { systemConfig: { require_idp: true } },
+      });
+
+      renderLogin();
+
+      const infoBoxTitle = screen.getByRole('heading', { level: 2 });
+      expect(infoBoxTitle).toBeVisible();
+
+      const infoBox = infoBoxTitle.closest('section');
+      expect(infoBox).toHaveClass(loginStyles.infoBox);
+      expect(infoBox).toHaveAttribute('aria-labelledby', infoBoxTitle.id);
+
+      // Links out to the DAS-server account linker for users who have not converted.
+      const linkerLink = screen.getByRole('link', { name: 'Convert your account' });
+      expect(linkerLink).toHaveAttribute('href', expect.stringContaining('/auth/link-accounts/'));
+
+      // Additive: the Auth0 sign-in button still renders alongside the info box.
+      expect(screen.getByRole('button', { name: 'Sign in with email' })).toBeVisible();
+
+      // Helper text below the button.
+      expect(screen.getByText('Questions? Reach out to your site admin.')).toBeVisible();
+    });
+
+    test('treats a whitespace-only organization ID as common-DB and still renders the info box', () => {
+      store = mockStore({
+        data: { eula: { eula_url: '' } },
+        view: { systemConfig: { require_idp: true, idp_org_id: '   ' } },
+      });
+
+      renderLogin();
+
+      expect(screen.getByRole('heading', { level: 2 })).toBeVisible();
+      expect(screen.getByRole('link', { name: 'Convert your account' })).toBeVisible();
+      // Whitespace-only org id is treated as no org -> common-DB "Sign in with email".
+      expect(screen.getByRole('button', { name: 'Sign in with email' })).toBeVisible();
+    });
+
+    test('does not render the info box on an org-scoped Auth0 site (require_idp with an organization ID)', () => {
+      store = mockStore({
+        data: { eula: { eula_url: '' } },
+        view: { systemConfig: { require_idp: true, idp_org_id: 'org_abc' } },
+      });
+
+      renderLogin();
+
+      expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'Convert your account' })).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Sign in' })).toBeVisible();
+    });
+
+    test('does not render the info box on a site without Auth0 configured', () => {
+      store = mockStore({
+        data: { eula: { eula_url: '' } },
+        view: { systemConfig: { require_idp: false } },
+      });
+
+      renderLogin();
+
+      expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'Convert your account' })).not.toBeInTheDocument();
+      // The legacy username-and-password form is unchanged.
+      expect(screen.getByLabelText('Username')).toBeVisible();
+    });
+  });
+
   test('shows a sign-in failure alert when loginWithRedirect rejects', async () => {
     store = mockStore({
       data: { eula: { eula_url: '' } },

@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 
-import { EVENT_FORM_STATES, VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
+import { EVENT_FORM_STATES, PREVIEW_FEATURES, VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 import {
   filterOutErrorsForHiddenProperties,
   filterOutRequiredValueOnSchemaPropErrors,
@@ -17,6 +17,7 @@ import {
 import { getHoursAndMinutesString } from '../../utils/datetime';
 import { selectEventTypeByValue } from '../../selectors/event-types';
 import { TrackerContext } from '../../utils/analytics';
+import { usePreviewFeature } from '../../hooks';
 
 import {
   AddButton,
@@ -73,6 +74,9 @@ const DetailsSection = ({
 }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection' });
 
+  // Remove this flag and the `.filter` below once community input is enabled
+  // for all tenants.
+  const communityInputEnabled = usePreviewFeature(PREVIEW_FEATURES.COMMUNITY_INPUT_ADMIN);
   const eventType = useSelector((state) => reportForm?.event_type ? selectEventTypeByValue(state, reportForm.event_type) : null);
   const loadingEventSchemas = useSelector((state) => state.data.eventSchemas.loading);
 
@@ -158,6 +162,7 @@ const DetailsSection = ({
             >
               {Object.values(EVENT_FORM_STATES)
                 .filter((eventState) => eventState !== EVENT_FORM_STATES.NEW_LEGACY)
+                .filter((eventState) => communityInputEnabled || eventState !== EVENT_FORM_STATES.REVIEW)
                 .map((eventState) => <Dropdown.Item
                   className={styles.stateItem}
                   eventKey={eventState}
@@ -286,6 +291,7 @@ const DetailsSection = ({
       formData={reportForm.event_details}
       hideMapLocationMarkers={isBehindAddedEvent}
       isNewEvent={isNewEvent}
+      metadata={reportForm.metadata ?? {}}
       onFormDataChange={onFormDataChange}
       onFormSubmit={onFormSubmit}
       readOnly={isReadOnly}

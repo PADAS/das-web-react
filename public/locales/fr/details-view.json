@@ -63,6 +63,8 @@
     "reportTypeLabel": "Type d'Évenement",
     "reportedByLabel": "Complété Par",
     "v2SchemaFormSummary": {
+      "attachmentHumanizedValue_one": "1 fichier",
+      "attachmentHumanizedValue_other": "{{count}} fichiers",
       "collectionHumanizedValue": "{{collectionLength}} éléments"
     }
   }

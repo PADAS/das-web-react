@@ -1,7 +1,12 @@
 import { centroid, featureCollection } from '@turf/turf';
 import mapboxgl from 'mapbox-gl';
 
-import { CLUSTER_CLICK_ZOOM_THRESHOLD, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
+import { calcGenericFallbackImageUrl, calcSpriteSvgUrl, calcUrlForImage } from '../utils/img';
+import { BREAKPOINTS, CLUSTER_CLICK_ZOOM_THRESHOLD, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
+import { calcSidebarPaddingLeft } from '../utils/map';
+import { calcSvgImageIconId } from '../utils/mapImages';
+import { ensureEventIcon, getEventIcon } from '../utils/eventMapIcons';
+import getWindowLocation from '../utils/getWindowLocation';
 import { subjectIsStatic } from '../utils/subjects';
 import { injectStylesToElement } from '../utils/styles';
 import { hashCode } from '../utils/string';
@@ -23,8 +28,29 @@ const FEATURE_ICON_HTML_STYLES = { maxWidth: '24px', minWidth: '18px', height: '
 const FEATURE_SS_ICON_HTML_STYLES = { filter: 'brightness(0)' };
 const FEATURE_COUNT_HTML_STYLES = { fontSize: '16px', fontWeight: '500', paddingLeft: '4px', margin: '0' };
 
-const getFeatureIcon = (feature, mapImages) =>
-  mapImages[`${feature.properties.icon_id}-${feature.properties.priority}`]?.image;
+// When the feature is the event being edited locally, reflect its unsaved
+// icon_id/priority so the icon variant matches the edit in progress.
+const eventIconParamsFor = (feature, locallyEditedEvent) => {
+  const isLocallyEdited = locallyEditedEvent?.id === feature.properties.id;
+  const priority = isLocallyEdited
+    ? locallyEditedEvent.priority ?? feature.properties.priority
+    : feature.properties.priority;
+  const icon_id = isLocallyEdited
+    ? locallyEditedEvent.icon_id ?? feature.properties.icon_id
+    : feature.properties.icon_id;
+  return { ...feature.properties, priority, icon_id };
+};
+
+const getFeatureIcon = (feature, locallyEditedEvent) =>
+  getEventIcon(calcSvgImageIconId(eventIconParamsFor(feature, locallyEditedEvent)));
+
+// Kicks off generation of an event feature's icon so DOM markers trigger their
+// own registry lookups. Subjects have no icon_id and use the fallback img path.
+const ensureFeatureIcon = (feature, locallyEditedEvent) => {
+  if (feature.properties.icon_id) {
+    ensureEventIcon(eventIconParamsFor(feature, locallyEditedEvent));
+  }
+};
 
 export const getClusterIconFeatures = (clusterFeatures) => {
   const { eventFeatures, subjectFeatures } = clusterFeatures.reduce((accumulator, feature) => {
@@ -67,24 +93,30 @@ export const getClusterIconFeatures = (clusterFeatures) => {
   return clusterIconFeatures.slice(0, CLUSTER_ICON_DISPLAY_LENGTH);
 };
 
-export const createClusterHTMLMarker = (
-  clusterFeatures,
-  mapImages,
-  onClusterClick,
-  onMouseOverCluster,
-  onMouseLeaveCluster
+const populateClusterIconChildren = (
+  clusterHTMLMarkerContainer,
+  clusterIconFeatures,
+  totalFeatureCount,
+  locallyEditedEvent = null
 ) => {
-  const clusterHTMLMarkerContainer = document.createElement('div');
-  clusterHTMLMarkerContainer.onclick = onClusterClick;
-  clusterHTMLMarkerContainer.onmouseover = onMouseOverCluster;
-  clusterHTMLMarkerContainer.onmouseleave = onMouseLeaveCluster;
-  injectStylesToElement(clusterHTMLMarkerContainer, CLUSTER_HTML_MARKER_CONTAINER_STYLES);
+  while (clusterHTMLMarkerContainer.firstChild) {
+    clusterHTMLMarkerContainer.removeChild(clusterHTMLMarkerContainer.firstChild);
+  }
 
-  getClusterIconFeatures(clusterFeatures).forEach((feature) => {
-    let featureImageHTML = getFeatureIcon(feature, mapImages)?.cloneNode(true);
+  clusterIconFeatures.forEach((feature) => {
+    let featureImageHTML = getFeatureIcon(feature, locallyEditedEvent)?.cloneNode(true);
     if (!featureImageHTML) {
       featureImageHTML = document.createElement('img');
-      featureImageHTML.src = feature.properties.image || feature.properties.image_url;
+      // Tile image/image_url is unreliable: try the sprite master, then the generic per-color icon.
+      if (feature.properties.icon_id) {
+        featureImageHTML.src = calcSpriteSvgUrl(feature.properties.icon_id);
+        featureImageHTML.onerror = () => {
+          featureImageHTML.onerror = null;
+          featureImageHTML.src = calcGenericFallbackImageUrl(feature.properties);
+        };
+      } else {
+        featureImageHTML.src = calcUrlForImage(feature.properties.image || feature.properties.image_url);
+      }
     }
     injectStylesToElement(featureImageHTML, FEATURE_ICON_HTML_STYLES);
     if (subjectIsStatic(feature)) {
@@ -93,14 +125,45 @@ export const createClusterHTMLMarker = (
     clusterHTMLMarkerContainer.appendChild(featureImageHTML);
   });
 
-  if (clusterFeatures.length > CLUSTER_ICON_DISPLAY_LENGTH) {
+  if (totalFeatureCount > CLUSTER_ICON_DISPLAY_LENGTH) {
     const featuresCountHTML = document.createElement('p');
-    featuresCountHTML.innerHTML = `+${clusterFeatures.length - CLUSTER_ICON_DISPLAY_LENGTH}`;
+    featuresCountHTML.innerHTML = `+${totalFeatureCount - CLUSTER_ICON_DISPLAY_LENGTH}`;
     injectStylesToElement(featuresCountHTML, FEATURE_COUNT_HTML_STYLES);
     clusterHTMLMarkerContainer.appendChild(featuresCountHTML);
   }
+};
+
+export const createClusterHTMLMarker = (
+  clusterFeatures,
+  onClusterClick,
+  onMouseOverCluster,
+  onMouseLeaveCluster,
+  locallyEditedEvent = null
+) => {
+  const clusterHTMLMarkerContainer = document.createElement('div');
+  clusterHTMLMarkerContainer.onclick = onClusterClick;
+  clusterHTMLMarkerContainer.onmouseover = onMouseOverCluster;
+  clusterHTMLMarkerContainer.onmouseleave = onMouseLeaveCluster;
+  injectStylesToElement(clusterHTMLMarkerContainer, CLUSTER_HTML_MARKER_CONTAINER_STYLES);
+
+  populateClusterIconChildren(
+    clusterHTMLMarkerContainer,
+    getClusterIconFeatures(clusterFeatures),
+    clusterFeatures.length,
+    locallyEditedEvent
+  );
 
   return clusterHTMLMarkerContainer;
+};
+
+export const calcClusterZoomPadding = () => {
+  const isMediumLayoutOrLarger = BREAKPOINTS.screenIsMediumLayoutOrLarger.matches;
+  const left = calcSidebarPaddingLeft({
+    isMediumLayoutOrLarger,
+    pathname: getWindowLocation().pathname,
+  }) ?? 0;
+
+  return { left, right: isMediumLayoutOrLarger ? 90 : 12, top: 12, bottom: 12 };
 };
 
 export const onClusterClick = (
@@ -121,32 +184,54 @@ export const onClusterClick = (
   if (mapZoom < CLUSTER_CLICK_ZOOM_THRESHOLD) {
     map.getSource(sourceId).getClusterExpansionZoom(
       clusterMarkerHashMapRef.current[clusterHash].id,
-      (error, zoom) => !error && map.easeTo({ center: clusterCoordinates, zoom: zoom + 0.1 })
+      (error, zoom) => {
+        if (!error) {
+          const padding = calcClusterZoomPadding();
+          map.easeTo({ center: clusterCoordinates, zoom: zoom + 0.1, padding });
+        }
+      }
     );
   } else {
     onShowClusterSelectPopup(clusterFeatures, clusterCoordinates);
   }
 };
 
-export const getRenderedClustersData = async (clustersSource, map) => {
-  const renderedClusterIds = map.queryRenderedFeatures({ layers: [CLUSTERS_LAYER_ID] })
+export const getRenderedClustersData = async (clustersSource, map, locallyEditedEvent = null) => {
+  const clusterIds = map.queryRenderedFeatures({ layers: [CLUSTERS_LAYER_ID] })
     .map((cluster) => cluster.properties.cluster_id);
 
-  const getAllClusterLeavesPromises = renderedClusterIds.map((clusterId) => new Promise((resolve) => {
+  // Resolve empty on error so one failing cluster doesn't hang Promise.all forever.
+  const getAllClusterLeavesPromises = clusterIds.map((clusterId) => new Promise((resolve) => {
     clustersSource.getClusterLeaves(
       clusterId,
       Number.MAX_SAFE_INTEGER,
       0,
-      (error, features) => !error && resolve(features)
+      (error, features) => resolve(error ? [] : features)
     );
   }));
-  const renderedClusterFeatures = await Promise.all(getAllClusterLeavesPromises);
+  const clusterFeatures = await Promise.all(getAllClusterLeavesPromises);
 
-  // const renderedClusterHashes = renderedClusterIds;
+  // Drop empty clusters — centroid(featureCollection([])) would throw downstream. Keep the
+  // three parallel arrays index-aligned by filtering ids and features together.
+  const renderedClusterIds = [];
+  const renderedClusterFeatures = [];
+  clusterIds.forEach((clusterId, index) => {
+    if (!clusterFeatures[index]?.length) return;
+    renderedClusterIds.push(clusterId);
+    renderedClusterFeatures.push(clusterFeatures[index]);
+  });
+
   const renderedClusterHashes = renderedClusterFeatures.map(
-    (clusterFeatures) => hashCode(clusterFeatures.map(
-      clusterFeature => `${clusterFeature.properties.id} ${clusterFeature.properties.updated_at}`).join('')
-    )
+    (features) => hashCode(features.map((clusterFeature) => {
+      // For the locally-edited event, key the hash off its unsaved priority and
+      // icon_id so an icon-only (or priority) edit recreates the marker.
+      const isLocallyEdited = locallyEditedEvent?.id === clusterFeature.properties.id;
+      const editedIconId = locallyEditedEvent?.icon_id ?? clusterFeature.properties.icon_id ?? '';
+      const suffix = isLocallyEdited
+        ? `local-${locallyEditedEvent.priority ?? 0}-${editedIconId}`
+        : `${clusterFeature.properties.updated_at}`;
+      return `${clusterFeature.properties.id} ${suffix}`;
+    }).join(''))
   );
 
   return { renderedClusterFeatures, renderedClusterHashes, renderedClusterIds };
@@ -157,7 +242,7 @@ export const removeOldClusterMarkers = (clusterMarkerHashMapRef, removeClusterPo
   const prevClusterHashes = Object.keys(clusterMarkerHashMapRef.current).map((clusterHash) => parseInt(clusterHash));
   prevClusterHashes.forEach((prevClusterHash) => {
     if (!renderedClusterHashesSet.has(prevClusterHash)) {
-      clusterMarkerHashMapRef.current[prevClusterHash].marker.remove();
+      clusterMarkerHashMapRef.current[prevClusterHash].marker?.remove();
       removeClusterPolygon();
     }
   });
@@ -168,12 +253,12 @@ export const addNewClusterMarkers = (
   clusterMarkerHashMapRef,
   sourceId,
   map,
-  mapImages,
   removeClusterPolygon,
   renderedClusterFeatures,
   renderedClusterHashes,
   renderedClusterIds,
-  onShowClusterSelectPopup
+  onShowClusterSelectPopup,
+  locallyEditedEvent = null
 ) => {
   const renderedClusterMarkersHashMap = {};
 
@@ -181,9 +266,21 @@ export const addNewClusterMarkers = (
     const clusterHash = renderedClusterHashes[index];
     const clusterId = renderedClusterIds[index];
 
-    let marker = clusterMarkerHashMapRef.current[clusterHash]?.marker
-      || renderedClusterMarkersHashMap[clusterHash]?.marker;
-    if (!marker) {
+    const cachedEntry = clusterMarkerHashMapRef.current[clusterHash] || renderedClusterMarkersHashMap[clusterHash];
+    let marker = cachedEntry?.marker;
+    const wasReady = cachedEntry?.iconsReady;
+
+    const clusterIconFeatures = wasReady ? null : getClusterIconFeatures(clusterFeatures);
+
+    // Trigger icon generation for the features this marker will display; the
+    // registry notifies once they resolve, prompting another update pass.
+    clusterIconFeatures?.forEach((feature) => ensureFeatureIcon(feature, locallyEditedEvent));
+
+    const iconsReady = wasReady || clusterIconFeatures
+      .every((feature) => !feature.properties.icon_id || !!getFeatureIcon(feature, locallyEditedEvent));
+
+    // Wait for every displayed icon to resolve before creating the marker.
+    if (!marker && iconsReady) {
       const clusterFeatureCollection = featureCollection(clusterFeatures);
       const clusterPoint = centroid(clusterFeatureCollection);
       const onClick = onClusterClick(
@@ -198,22 +295,28 @@ export const addNewClusterMarkers = (
       const onMouseOver = () => addClusterPolygon(clusterFeatureCollection);
       const onMouseLeave = () => removeClusterPolygon();
 
-      let newClusterHTMLMarkerContainer = createClusterHTMLMarker(
+      const newClusterHTMLMarkerContainer = createClusterHTMLMarker(
         clusterFeatures,
-        mapImages,
         onClick,
         onMouseOver,
         onMouseLeave,
+        locallyEditedEvent,
       );
 
       marker = new mapboxgl.Marker(newClusterHTMLMarkerContainer)
         .setLngLat(clusterPoint.geometry.coordinates)
         .addTo(map);
+    } else if (!wasReady && iconsReady) {
+      populateClusterIconChildren(
+        marker.getElement(),
+        clusterIconFeatures,
+        clusterFeatures.length,
+        locallyEditedEvent
+      );
     }
 
-    renderedClusterMarkersHashMap[clusterHash] = { id: clusterId, marker };
+    renderedClusterMarkersHashMap[clusterHash] = { iconsReady, id: clusterId, marker };
   });
 
   return renderedClusterMarkersHashMap;
 };
-

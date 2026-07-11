@@ -13,7 +13,7 @@ import { ReactComponent as LinkIcon } from '../../common/images/icons/link.svg';
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 
 import * as activitySectionStyles from '../../DetailViewComponents/ActivitySection/styles.module.scss';
-import { EVENT_FORM_STATES } from '../../constants';
+import { EVENT_FORM_STATES, PREVIEW_FEATURES } from '../../constants';
 import { addEventToIncident, createEvent, fetchEvent, setEventState } from '../../ducks/events';
 import { areCardsEquals as areNotesEqual } from '../../DetailViewComponents/utils';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../../utils/file';
@@ -27,6 +27,7 @@ import {
 } from '../../utils/events';
 import { createNewReportForEventType } from '../../utils/events';
 import { executeSaveActions, generateSaveActionsForReportLikeObject } from '../../utils/save';
+import { generateErrorMessageForRequest } from '../../utils/request';
 import { extractObjectDifference } from '../../utils/objects';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
 import { fetchPatrol } from '../../ducks/patrols';
@@ -37,6 +38,7 @@ import { SidebarScrollContext } from '../../SidebarScrollContext';
 import { TAB_KEYS } from '../../constants';
 import { TrackerContext } from '../../utils/analytics';
 import useNavigate from '../../hooks/useNavigate';
+import { usePreviewFeature } from '../../hooks';
 import { uuid } from '../../utils/string';
 
 import ActivitySection from '../../DetailViewComponents/ActivitySection';
@@ -101,8 +103,10 @@ const generateErrorListForApiResponseDetails = (response, t) => {
         [{ label: key, message: value }, ...accumulator],
       []);
   } catch (e) {
+    const label = (response != null && generateErrorMessageForRequest(response))
+      || t('reportDetailView.unknownErrorLabel');
     const message = response?.response?.data?.status?.message;
-    return [{ label: t('reportDetailView.unknownErrorLabel'), message }];
+    return [{ label, message }];
   }
 };
 
@@ -131,8 +135,10 @@ const ReportDetailView = ({
   const reportTracker = useContext(TrackerContext);
   const { setScrollPosition } = useContext(SidebarScrollContext);
 
+  // Remove this flag and the conditional rendering below once community input
+  // is enabled for all tenants.
+  const communityInputEnabled = usePreviewFeature(PREVIEW_FEATURES.COMMUNITY_INPUT_ADMIN);
   const eventStore = useSelector((state) => state.data.eventStore);
-  const patrolStore = useSelector((state) => state.data.patrolStore);
   const eventType = useSelector((state) => {
     if (isNewReport) {
       return selectEventTypeById(state, newReportTypeId);
@@ -141,6 +147,7 @@ const ReportDetailView = ({
       return selectEventTypeByValue(state, eventTypeValue);
     }
   });
+  const patrolStore = useSelector((state) => state.data.patrolStore);
 
   const newAttachmentRef = useRef(null);
   const newNoteRef = useRef(null);
@@ -708,7 +715,7 @@ const ReportDetailView = ({
   useEffect(() => {
     const shouldUpdateMapEvent = reportChanges?.geometry ||
       reportChanges?.location ||
-      reportChanges?.priority ||
+      reportChanges?.priority !== undefined ||
       reportChanges?.time ||
       reportChanges?.title;
     if (!isNewReport && shouldUpdateMapEvent) {
@@ -921,7 +928,7 @@ const ReportDetailView = ({
                       {t('reportDetailView.saveSplitButton.saveAndResolveItem')}
                     </Button>
                   </Dropdown.Item>}
-                  {isActive && <Dropdown.Item className={styles.saveSplitButtonItem}>
+                  {isActive && communityInputEnabled && <Dropdown.Item className={styles.saveSplitButtonItem}>
                     <Button onClick={() => onClickSaveAndSetState(EVENT_FORM_STATES.REVIEW)} type="button" variant="primary">
                       {t('reportDetailView.saveSplitButton.saveAndReviewItem')}
                     </Button>

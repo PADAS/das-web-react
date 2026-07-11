@@ -29,13 +29,15 @@ export const postAuth = (userData) => (dispatch) => {
     });
 };
 
-const postAuthSuccess = response => (dispatch) => {
-  document.cookie = `token=${response.data.access_token};path=/`;
+export const applyAccessToken = accessToken => (dispatch) => {
+  document.cookie = `token=${accessToken};path=/`;
   dispatch({
     type: POST_AUTH_SUCCESS,
-    payload: response,
+    payload: { data: { access_token: accessToken } },
   });
 };
+
+const postAuthSuccess = response => applyAccessToken(response.data.access_token);
 
 export const clearAuth = () => (dispatch) => {
 

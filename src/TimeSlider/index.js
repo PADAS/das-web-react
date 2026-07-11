@@ -1,17 +1,22 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import isEqual from 'react-fast-compare';
+import Overlay from 'react-bootstrap/Overlay';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import { useDispatch, useSelector } from 'react-redux';
+import { useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
+import { ReactComponent as CheckIcon } from '../common/images/icons/check-light.svg';
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as PauseIcon } from '../common/images/icons/pause.svg';
 import { ReactComponent as PlayIcon } from '../common/images/icons/play.svg';
 
+import { BREAKPOINTS } from '../constants';
+import { calcSidebarPaddingLeft } from '../utils/map';
 import {
   clearVirtualDate,
   setVirtualDate,
@@ -30,6 +35,7 @@ import {
   trackEventFactory,
 } from '../utils/analytics';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
+import { useMatchMedia } from '../hooks';
 
 import EventFilterDateRange from '../EventFilter/DateRange';
 
@@ -41,6 +47,16 @@ const PLAYBACK_DURATION_MS = 30_000;
 export const FRAME_INTERVAL_MS = 33; // ~30fps
 const FRAME_STEP_FRACTION = FRAME_INTERVAL_MS / PLAYBACK_DURATION_MS;
 
+const DEFAULT_PLAYBACK_SPEED = 1;
+const PLAYBACK_SPEED_OPTIONS = [
+  { value: 0.5, label: '0.5x' },
+  { value: 0.75, label: '0.75x' },
+  { value: 1, label: '1x' },
+  { value: 1.25, label: '1.25x' },
+  { value: 1.5, label: '1.5x' },
+  { value: 2, label: '2x' },
+];
+
 const trackDateChange = () => mapInteractionTracker.track('Update Time Slider Date Range');
 
 const isAtEnd = (value) => value >= 0.99999;
@@ -48,12 +64,29 @@ const isAtEnd = (value) => value >= 0.99999;
 const TimeSlider = () => {
   const dispatch = useDispatch();
   const { i18n, t } = useTranslation('components', { keyPrefix: 'timeSlider' });
+  const location = useLocation();
+
+  const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
   const eventFilterLowerDateRange = useSelector((state) => state.data.eventFilter.filter.date_range.lower);
   const eventFilterUpperDateRange = useSelector((state) => state.data.eventFilter.filter.date_range.upper);
   const virtualDate = useSelector((state) => state.view.timeSliderState.virtualDate);
 
+  const speedMenuItemOptionRefs = useRef([]);
+
+  const speedMenuPopoverId = useId();
+
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isSpeedMenuOpen, setIsSpeedMenuOpen] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState(DEFAULT_PLAYBACK_SPEED);
+  const [speedMenuAnchorEl, setSpeedMenuAnchorEl] = useState();
+
+  const sidebarOffsetPixels = calcSidebarPaddingLeft({
+    isMediumLayoutOrLarger,
+    pathname: location.pathname,
+  }) ?? 0;
+
+  const isCompact = sidebarOffsetPixels > 0;
 
   const debouncedRangeChangeAnalytics = useMemo(() => mapInteractionTracker.debouncedTrack(300), []);
 
@@ -74,13 +107,20 @@ const TimeSlider = () => {
 
   const currentDate = virtualDate ? new Date(virtualDate) : endDate;
 
+  const playbackSpeedOption = PLAYBACK_SPEED_OPTIONS.find(
+    (option) => option.value === playbackSpeed
+  );
+
   const sliderValue = (currentDate - startDate) / (endDate - startDate);
 
-  // Copy of the current slider value to be used in the playback interval
-  // callback to avoid the useEffect unmounting on every frame.
+  // Copies of the current slider value and playback speed to avoid the
+  // useEffect unmounting on every frame or speed change.
   const sliderValueRef = useRef();
-  // eslint-disable-next-line react-hooks/refs
+  const playbackSpeedRef = useRef();
+  /* eslint-disable react-hooks/refs */
   sliderValueRef.current = sliderValue;
+  playbackSpeedRef.current = playbackSpeed;
+  /* eslint-enable react-hooks/refs */
 
   const isEventFilterLowerDateRangeDateModified = !isEqual(
     INITIAL_FILTER_STATE.filter.date_range.lower,
@@ -115,7 +155,7 @@ const TimeSlider = () => {
       if (isAtEnd(sliderValue)) {
         // The range value is at the end of the range, place it at the first
         // frame.
-        const frameStepFractionTime = (endDate - startDate) * FRAME_STEP_FRACTION;
+        const frameStepFractionTime = (endDate - startDate) * FRAME_STEP_FRACTION * playbackSpeed;
         const firstFrameTime = startDate.getTime() + frameStepFractionTime;
         const firstFrameDate = new Date(firstFrameTime);
         dispatch(setVirtualDate(firstFrameDate.toISOString()));
@@ -123,6 +163,69 @@ const TimeSlider = () => {
 
       setIsPlaying(true);
     }
+  };
+
+  const onSpeedMenuClose = () => {
+    setIsSpeedMenuOpen(false);
+
+    speedMenuAnchorEl?.focus();
+  };
+
+  const onSpeedMenuKeyDown = (event) => {
+    const currentOptionIndex = speedMenuItemOptionRefs.current.findIndex(
+      (ref) => ref === document.activeElement
+    );
+
+    switch (event.key) {
+    case 'ArrowDown': {
+      event.preventDefault();
+
+      const nextOptionIndex = (currentOptionIndex + 1) % speedMenuItemOptionRefs.current.length;
+      speedMenuItemOptionRefs.current[nextOptionIndex]?.focus();
+
+      break;
+    }
+
+    case 'ArrowUp': {
+      event.preventDefault();
+
+      const previousOptionIndex = (currentOptionIndex - 1 + speedMenuItemOptionRefs.current.length)
+        % speedMenuItemOptionRefs.current.length;
+      speedMenuItemOptionRefs.current[previousOptionIndex]?.focus();
+
+      break;
+    }
+
+    case 'End':
+      event.preventDefault();
+
+      speedMenuItemOptionRefs.current[speedMenuItemOptionRefs.current.length - 1]?.focus();
+
+      break;
+
+    case 'Home':
+      event.preventDefault();
+
+      speedMenuItemOptionRefs.current[0]?.focus();
+
+      break;
+
+    case 'Tab':
+    case 'Escape':
+      event.preventDefault();
+
+      onSpeedMenuClose();
+
+      break;
+
+    default:
+    }
+  };
+
+  const onSpeedMenuOptionClick = (speed) => {
+    setPlaybackSpeed(speed);
+
+    onSpeedMenuClose();
   };
 
   const onChangeSlider = (event) => {
@@ -140,6 +243,24 @@ const TimeSlider = () => {
   };
 
   useEffect(() => {
+    if (isSpeedMenuOpen) {
+      // The speed menu is open. Focus the selected speed menu item option.
+      const selectedSpeedMenuItemOptionIndex = PLAYBACK_SPEED_OPTIONS.findIndex(
+        (option) => option.value === playbackSpeed
+      );
+      speedMenuItemOptionRefs.current[selectedSpeedMenuItemOptionIndex]?.focus();
+    }
+  }, [isSpeedMenuOpen, playbackSpeed]);
+
+  useEffect(() => {
+    if (isCompact) {
+      // The time slider is in compact mode. Close the speed menu.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setIsSpeedMenuOpen(false);
+    }
+  }, [isCompact]);
+
+  useEffect(() => {
     // Reset the virtual date to the end of the range when the event filter
     // date range is changed.
     setVirtualDateFromSliderValue(1);
@@ -154,7 +275,7 @@ const TimeSlider = () => {
       // Playing mode is active, automatically advance the virtual date by
       // intervals.
       const intervalId = setInterval(() => {
-        const nextValue = sliderValueRef.current + FRAME_STEP_FRACTION;
+        const nextValue = sliderValueRef.current + (FRAME_STEP_FRACTION * playbackSpeedRef.current);
 
         setVirtualDateFromSliderValue(nextValue);
 
@@ -169,7 +290,11 @@ const TimeSlider = () => {
 
   useEffect(() => () => debouncedRangeChangeAnalytics.cancel(), [debouncedRangeChangeAnalytics]);
 
-  return <div className={styles.wrapper}>
+  return <div
+      className={`${styles.wrapper} ${isCompact ? styles.compact : ''}`}
+      data-testid="timeSlider-wrapper"
+      style={{ '--sidebar-offset': `${sidebarOffsetPixels}px` }}
+    >
     <button
       aria-label={isPlaying ? t('stopButtonLabel') : t('playButtonLabel')}
       className={styles.playStopButton}
@@ -180,17 +305,76 @@ const TimeSlider = () => {
       {isPlaying ? <PauseIcon aria-hidden="true" /> : <PlayIcon aria-hidden="true" />}
     </button>
 
-    <time className={styles.virtualDateWrapper} dateTime={currentDate.toISOString()}>
-      <span className={styles.virtualTime}>
-        {format(currentDate, SHORT_TIME_FORMAT, { locale: dateLocales[i18n.language] })}
-      </span>
+    {!isCompact && <>
+      <button
+        aria-controls={speedMenuPopoverId}
+        aria-expanded={isSpeedMenuOpen}
+        aria-haspopup="menu"
+        aria-label={t('speedButtonLabel')}
+        className={styles.speedButton}
+        onClick={() => setIsSpeedMenuOpen((isOpen) => !isOpen)}
+        ref={setSpeedMenuAnchorEl}
+        title={t('speedButtonLabel')}
+        type="button"
+      >
+        {playbackSpeedOption.label}
+      </button>
 
-      <span className={styles.virtualDate}>
-        {format(currentDate, SHORTENED_DATE_FORMAT, { locale: dateLocales[i18n.language] })}
-      </span>
-    </time>
+      <Overlay
+        onHide={() => setIsSpeedMenuOpen(false)}
+        rootClose
+        show={isSpeedMenuOpen}
+        target={speedMenuAnchorEl}
+      >
+        <Popover className={styles.speedMenuPopover} role="presentation">
+          <div aria-hidden="true" className={styles.speedMenuHeader}>{t('speedMenuHeader')}</div>
 
-    <div aria-hidden="true" className={styles.separator} />
+          <ul
+            aria-label={t('speedMenuLabel')}
+            className={styles.speedMenu}
+            id={speedMenuPopoverId}
+            onKeyDown={onSpeedMenuKeyDown}
+            role="menu"
+          >
+            {PLAYBACK_SPEED_OPTIONS.map((option, index) => <li
+              className={styles.speedMenuItem}
+              key={option.value}
+              role="none"
+            >
+              <button
+                aria-checked={playbackSpeed === option.value}
+                aria-label={t('speedMenuOptionLabel', { speed: option.label })}
+                className={styles.speedMenuItemOption}
+                onClick={() => onSpeedMenuOptionClick(option.value)}
+                ref={(element) => {
+                  speedMenuItemOptionRefs.current[index] = element;
+                }}
+                role="menuitemradio"
+                tabIndex={-1}
+                title={t('speedMenuOptionLabel', { speed: option.label })}
+                type="button"
+              >
+                {playbackSpeed === option.value && <CheckIcon className={styles.checkIcon} />}
+
+                {option.label}
+              </button>
+            </li>)}
+          </ul>
+        </Popover>
+      </Overlay>
+
+      <time className={styles.virtualDateWrapper} dateTime={currentDate.toISOString()}>
+        <span className={styles.virtualTime}>
+          {format(currentDate, SHORT_TIME_FORMAT, { locale: dateLocales[i18n.language] })}
+        </span>
+
+        <span className={styles.virtualDate}>
+          {format(currentDate, SHORTENED_DATE_FORMAT, { locale: dateLocales[i18n.language] })}
+        </span>
+      </time>
+
+      <div aria-hidden="true" className={styles.separator} />
+    </>}
 
     <div className={styles.track}>
       <input
@@ -220,59 +404,61 @@ const TimeSlider = () => {
       </div>
     </div>
 
-    <OverlayTrigger
-      overlay={
-        <Popover className={styles.popover}>
-          <Popover.Header className={styles.popoverTitle}>
-            <ClockIcon aria-hidden="true" />
+    {!isCompact && <>
+      <OverlayTrigger
+        overlay={
+          <Popover className={styles.popover}>
+            <Popover.Header className={styles.popoverTitle}>
+              <ClockIcon aria-hidden="true" />
 
-            {t('popoverHeader')}
+              {t('popoverHeader')}
 
-            <Button
-              disabled={!isEventFilterDateRangeModified}
-              onClick={onClickReset}
-              size="sm"
-              type="button"
-              variant="light"
-            >
-              {t('popoverResetButton')}
-            </Button>
-          </Popover.Header>
+              <Button
+                disabled={!isEventFilterDateRangeModified}
+                onClick={onClickReset}
+                size="sm"
+                type="button"
+                variant="light"
+              >
+                {t('popoverResetButton')}
+              </Button>
+            </Popover.Header>
 
-          <Popover.Body className={styles.popoverBody}>
-            <EventFilterDateRange
-              endDateLabel=""
-              onEndChange={() => trackDateChange()}
-              onStartChange={() => trackDateChange()}
-              placement="top"
-              popoverClassName={styles.dateRangePopover}
-              startDateLabel=""
-            />
-          </Popover.Body>
-        </Popover>
-      }
-      rootClose
-      trigger="click"
-    >
+            <Popover.Body className={styles.popoverBody}>
+              <EventFilterDateRange
+                endDateLabel=""
+                onEndChange={() => trackDateChange()}
+                onStartChange={() => trackDateChange()}
+                placement="top"
+                popoverClassName={styles.dateRangePopover}
+                startDateLabel=""
+              />
+            </Popover.Body>
+          </Popover>
+        }
+        rootClose
+        trigger="click"
+      >
+        <button
+          aria-label={t('dateRangeButtonLabel')}
+          className={`${styles.dateRangeButton} ${isEventFilterDateRangeModified ? styles.modified : ''}`}
+          title={t('dateRangeButtonLabel')}
+          type="button"
+        >
+          <CalendarIcon aria-hidden="true" />
+        </button>
+      </OverlayTrigger>
+
       <button
-        aria-label={t('dateRangeButtonLabel')}
-        className={`${styles.dateRangeButton} ${isEventFilterDateRangeModified ? styles.modified : ''}`}
-        title={t('dateRangeButtonLabel')}
+        aria-label={t('closeButtonLabel')}
+        className={styles.closeButton}
+        onClick={() => dispatch(setTimeSliderState(false))}
+        title={t('closeButtonLabel')}
         type="button"
       >
-        <CalendarIcon aria-hidden="true" />
+        <CrossIcon aria-hidden="true" />
       </button>
-    </OverlayTrigger>
-
-    <button
-      aria-label={t('closeButtonLabel')}
-      className={styles.closeButton}
-      onClick={() => dispatch(setTimeSliderState(false))}
-      title={t('closeButtonLabel')}
-      type="button"
-    >
-      <CrossIcon aria-hidden="true" />
-    </button>
+    </>}
   </div>;
 };
 

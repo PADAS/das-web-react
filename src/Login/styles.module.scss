@@ -98,6 +98,47 @@
     }
   }
 
+  /* Info variant of the .alertMessage callout below (blue instead of red),
+     used for the Auth0 migration guidance box. */
+  .infoBox {
+    background-color: color.adjust(colors.$bright-blue, $lightness: 52%);
+    border: 1px solid colors.$bright-blue;
+    border-radius: 0.25rem;
+    margin-bottom: 1.5rem;
+    max-width: 20rem;
+    padding: 0.75rem;
+    width: 100%;
+
+    /* Tame the global Bootstrap heading sizes inside the compact box. */
+    .infoBoxTitle {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .infoBoxLink {
+      display: inline-block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
+    .infoBoxBody {
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    .helperText {
+      color: colors.$secondary-medium-gray;
+      font-size: 0.875rem;
+      margin-bottom: 0;
+    }
+  }
+
   .alertMessage {
     color: colors.$bright-red;
     background-color: color.adjust(colors.$bright-red, $lightness: 56%);
