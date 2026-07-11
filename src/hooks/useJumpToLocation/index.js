@@ -29,7 +29,7 @@ const useJumpToLocation = () => {
   const map = useContext(MapContext);
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
-  return (coords, zoom = 15) => {
+  return (coords, zoom = 15, options = {}) => {
     const isArrayCoords = Array.isArray(coords[0]);
 
     const sidebarPaddingLeft = calcSidebarPaddingLeft({
@@ -46,9 +46,9 @@ const useJumpToLocation = () => {
 
     if (isArrayCoords && coords.length > 1) {
       const mapBoundaries = coords.reduce(buildLocationJumpBounds, new LngLatBounds());
-      map.fitBounds(mapBoundaries, { linear: true, speed: 200, padding });
+      map.fitBounds(mapBoundaries, { linear: true, speed: 200, padding, ...options });
     } else {
-      map.easeTo({ center: isArrayCoords ? coords[0] : coords, zoom, padding, speed: 200 });
+      map.easeTo({ center: isArrayCoords ? coords[0] : coords, zoom, padding, speed: 200, ...options });
     }
   };
 };
