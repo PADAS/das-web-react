@@ -15,12 +15,14 @@ import {
   sortGearGroupsForSidebar,
   sortGearListForSidebar,
 } from '../../utils/gear';
-import { MAP_LAYERS_CATEGORY, trackEventFactory } from '../../utils/analytics';
+import { MAP_LAYERS_CATEGORY, trackEvent, trackEventFactory } from '../../utils/analytics';
+import { BREAKPOINTS } from '../../constants';
 
 import CheckMark from '../../Checkmark';
 import CheckableList from '../../CheckableList';
 import DateTime from '../../DateTime';
 import useJumpToLocation from '../../hooks/useJumpToLocation';
+import useNavigate from '../../hooks/useNavigate';
 import LocationJumpButton from '../../LocationJumpButton';
 import SearchBar from '../../SearchBar';
 import SidebarListSortingControls from '../SidebarListSortingControls';
@@ -40,13 +42,14 @@ const gearGroupTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 const GEAR_JUMP_ZOOM = 14;
 // Approximate downward screen-space offset (px) applied when jumping, so the bottom-anchored gear
-// popup has room to open below the gear without clipping the top of the viewport. The value is
+// popup has room to open above the gear without clipping the top of the viewport. The value is
 // approximate; tall popups (many devices) may still clip.
 const GEAR_POPUP_CENTER_OFFSET = [0, 175];
 
 const GearListItem = memo(({ ...gear }) => {
   const dispatch = useDispatch();
   const jumpToLocation = useJumpToLocation();
+  const navigate = useNavigate();
   const coordinates = getGearRepresentativeCoordinates(gear);
   const rowTitle = gearHumanReadableLabel(gear) || '—';
 
@@ -62,14 +65,22 @@ const GearListItem = memo(({ ...gear }) => {
     }, 0);
   }, [coordinates, dispatch, gear.id, jumpToLocation]);
 
+  const onNameClick = useCallback(() => {
+    trackEvent(MAP_LAYERS_CATEGORY, 'Click Jump To Gear Location', `Gear:${gear.type || 'unknown'}`);
+    onJumpClick();
+    if (!BREAKPOINTS.screenIsMediumLayoutOrLarger.matches) {
+      navigate('/');
+    }
+  }, [gear.type, navigate, onJumpClick]);
+
   return <>
     {coordinates ? (
       <button
         className={`${mapLayersStyles.itemTitle} ${styles.displayId} ${styles.displayIdClickable}`}
         data-testid="gear-item-name"
-        onClick={onJumpClick}
+        onClick={onNameClick}
         type="button"
-      >
+        >
         {rowTitle}
       </button>
     ) : (

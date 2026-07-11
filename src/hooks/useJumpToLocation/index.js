@@ -29,13 +29,6 @@ const useJumpToLocation = () => {
   const map = useContext(MapContext);
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
-  /**
-   * @param {Array} coords - Coordinate(s) to jump to.
-   * @param {number} [zoom=15] - Target zoom level.
-   * @param {Object} [options={}] - Spread into the underlying mapbox `fitBounds`/`easeTo` call,
-   *   so accepted keys are any mapbox camera/animation options (e.g. `offset`). Keys that collide
-   *   with the computed `padding`/`speed`/`linear`/`zoom` will override them.
-   */
   return (coords, zoom = 15, options = {}) => {
     const isArrayCoords = Array.isArray(coords[0]);
 
