@@ -57,14 +57,14 @@ describe('DateTimeWidget', () => {
     expect((await screen.findByText('Date Time Widget'))).toBeDefined();
   });
 
-  test.skip('triggers the onChange callback when changing the date', async () => {
+  test('triggers the onChange callback when changing the date', async () => {
     render(<DateTimeWidget {...props} />);
 
     expect(props.onChange).toHaveBeenCalledTimes(0);
 
     const datePickerOpenCalendarButton = await screen.findByLabelText('Open calendar');
     await userEvent.click(datePickerOpenCalendarButton);
-    await userEvent.click(screen.getAllByRole('gridcell')[10]);
+    await userEvent.click(await screen.findByRole('gridcell', { name: 'Choose Wednesday, January 8th, 2020' }));
 
     expect(props.onChange).toHaveBeenCalled();
   });
