@@ -1,8 +1,18 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import getDisplayableChoiceListOptions from '../../../../../utils/v2-event-schemas/getDisplayableChoiceListOptions';
 
 import SelectListGroup from '../../../../../SelectListGroup';
 
 const List = ({ details, onChange, ...otherProps }) => {
+  const { i18n } = useTranslation();
+
+  const options = useMemo(
+    () => getDisplayableChoiceListOptions(details.options, i18n.language),
+    [details.options, i18n.language]
+  );
+
   const onSelectListGroupChange = (newValue) => {
     const isValueEmpty = details.multiple ? newValue.length === 0 : !newValue;
 
@@ -14,7 +24,7 @@ const List = ({ details, onChange, ...otherProps }) => {
     getOptionValue={(option) => option.value}
     isMulti={details.multiple}
     onChange={onSelectListGroupChange}
-    options={details.options}
+    options={options}
     {...otherProps}
   />;
 };

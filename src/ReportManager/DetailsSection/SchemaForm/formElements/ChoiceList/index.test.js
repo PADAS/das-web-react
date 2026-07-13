@@ -144,6 +144,31 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - ChoiceLis
       expect(description).toHaveClass('error');
     });
 
+    test('shows the displayable options in the dropdown menu', async () => {
+      renderChoiceList({
+        ...defaultProps,
+        details: {
+          ...defaultProps.details,
+          options: [
+            { description: 'wallaby', display: 'Roo', value: 'v-roo-1' },
+            { description: 'insect', display: 'Ant', value: 'v-ant' },
+            { description: 'kangaroo', display: 'Roo', value: 'v-roo-2' },
+            { description: 'reptile', display: 'Boa', value: 'v-boa' },
+          ]
+        }
+      });
+
+      await userEvent.type(screen.getByRole('combobox'), '{arrowdown}');
+
+      const options = screen.getAllByRole('option');
+
+      expect(options).toHaveLength(4);
+      expect(options[0]).toHaveAccessibleName('Ant');
+      expect(options[1]).toHaveAccessibleName('Boa');
+      expect(options[2]).toHaveAccessibleName('Roo wallaby');
+      expect(options[3]).toHaveAccessibleName('Roo kangaroo');
+    });
+
     test('allow to select single option when the choice list is set to single selection', async () => {
       const onFieldChange = jest.fn();
 
@@ -221,9 +246,9 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - ChoiceLis
         }
       });
 
-      expect(screen.getByRole('checkbox', { name: 'DumboAlfonso ranger' })).not.toHaveAttribute('readonly');
-      expect(screen.getByRole('checkbox', { name: 'EarthRanger System system' })).not.toHaveAttribute('readonly');
-      expect(screen.getByRole('checkbox', { name: 'frank manager' })).not.toHaveAttribute('readonly');
+      expect(screen.getByRole('checkbox', { name: 'DumboAlfonso' })).not.toHaveAttribute('readonly');
+      expect(screen.getByRole('checkbox', { name: 'EarthRanger System' })).not.toHaveAttribute('readonly');
+      expect(screen.getByRole('checkbox', { name: 'frank' })).not.toHaveAttribute('readonly');
     });
 
     test('shows a read only choice-list field as a List', () => {
@@ -236,9 +261,9 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - ChoiceLis
         readOnly: true
       });
 
-      expect(screen.getByRole('checkbox', { name: 'DumboAlfonso ranger' })).toHaveAttribute('readonly');
-      expect(screen.getByRole('checkbox', { name: 'EarthRanger System system' })).toHaveAttribute('readonly');
-      expect(screen.getByRole('checkbox', { name: 'frank manager' })).toHaveAttribute('readonly');
+      expect(screen.getByRole('checkbox', { name: 'DumboAlfonso' })).toHaveAttribute('readonly');
+      expect(screen.getByRole('checkbox', { name: 'EarthRanger System' })).toHaveAttribute('readonly');
+      expect(screen.getByRole('checkbox', { name: 'frank' })).toHaveAttribute('readonly');
     });
 
     test('shows a non required choice-list field as a List', () => {
@@ -250,7 +275,7 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - ChoiceLis
         }
       });
 
-      expect(screen.getByRole('checkbox', { name: 'DumboAlfonso ranger' })).not.toBeRequired();
+      expect(screen.getByRole('checkbox', { name: 'DumboAlfonso' })).not.toBeRequired();
     });
 
     test('shows a required choice-list field as a List', () => {
@@ -263,7 +288,7 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - ChoiceLis
         }
       });
 
-      expect(screen.getByRole('checkbox', { name: 'DumboAlfonso ranger' })).toBeRequired();
+      expect(screen.getByRole('checkbox', { name: 'DumboAlfonso' })).toBeRequired();
     });
 
     test('does not show an error state in the label if the value is valid', () => {
@@ -305,7 +330,7 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - ChoiceLis
         }
       });
 
-      expect(screen.getByRole('checkbox', { name: 'DumboAlfonso ranger' })).not.toHaveAccessibleDescription();
+      expect(screen.getByRole('checkbox', { name: 'DumboAlfonso' })).not.toHaveAccessibleDescription();
     });
 
     test('shows the description', () => {
@@ -357,6 +382,30 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - ChoiceLis
       expect(fieldset).toBeInvalid();
       expect(fieldset).toHaveAccessibleErrorMessage('A incredible error message');
       expect(description).toHaveClass('error');
+    });
+
+    test('shows the displayable options in the list', () => {
+      renderChoiceList({
+        ...defaultProps,
+        details: {
+          ...defaultProps.details,
+          inputType: CHOICE_LIST_ELEMENT_INPUT_TYPES.LIST,
+          options: [
+            { description: 'wallaby', display: 'Roo', value: 'v-roo-1' },
+            { description: 'insect', display: 'Ant', value: 'v-ant' },
+            { description: 'kangaroo', display: 'Roo', value: 'v-roo-2' },
+            { description: 'reptile', display: 'Boa', value: 'v-boa' },
+          ]
+        }
+      });
+
+      const checkboxes = screen.getAllByRole('checkbox');
+
+      expect(checkboxes).toHaveLength(4);
+      expect(checkboxes[0]).toHaveAccessibleName('Ant');
+      expect(checkboxes[1]).toHaveAccessibleName('Boa');
+      expect(checkboxes[2]).toHaveAccessibleName('Roo wallaby');
+      expect(checkboxes[3]).toHaveAccessibleName('Roo kangaroo');
     });
 
     test('allow to select single option when the choice list is set to single selection', async () => {
