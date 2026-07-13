@@ -10,7 +10,7 @@ const MapImagesLayer = () => {
 
   useEffect(() => {
     Object.entries(mapImages).forEach(([mapImageId, mapImageData]) => {
-      if (!map.hasImage(mapImageId)) {
+      if (mapImageId && !map.hasImage(mapImageId)) {
         map.addImage(mapImageId, mapImageData.image, mapImageData.options);
       }
     });

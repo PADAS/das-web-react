@@ -17,6 +17,7 @@ import TimepointPopup from '../TimepointPopup';
 import UserCurrentLocationPopup from '../UserCurrentLocationPopup';
 
 import * as droppedMarkerPopupStyles from '../DroppedMarkerPopup/styles.module.scss';
+import * as gearPopupStyles from '../GearPopup/styles.module.scss';
 import * as gpsFormatTogglePopupStyles from '../GpsFormatTogglePopup/styles.module.scss';
 import * as layerSelectorPopupStyles from '../LayerSelectorPopup/styles.module.scss';
 import * as subjectMessagesPopupStyles from '../SubjectMessagesPopup/styles.module.scss';
@@ -29,7 +30,7 @@ const TEMPLATES = {
   },
   gear: {
     Component: GearPopup,
-    popupAttrs: { anchor: 'bottom', offset: [0, -16] },
+    popupAttrs: { anchor: 'bottom', className: gearPopupStyles.popup, offset: [0, -16] },
   },
   'subject-messages': {
     Component: SubjectMessagesPopup,

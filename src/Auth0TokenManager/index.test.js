@@ -8,7 +8,7 @@ import { hasAuth0CallbackParams } from '../utils/auth0';
 import { isValidTokenFormat } from '../utils/auth';
 import useNavigate from '../hooks/useNavigate';
 import { GATE_RESULT, checkAccountLinked } from '../utils/account-linking';
-import { POST_AUTH_SUCCESS } from '../ducks/auth';
+import { applyAccessToken } from '../ducks/auth';
 import { redirectToExternalUrl } from '../utils/navigation';
 
 jest.mock('@auth0/auth0-react');
@@ -24,6 +24,11 @@ jest.mock('../utils/account-linking', () => {
 jest.mock('../utils/navigation', () => ({
   ...jest.requireActual('../utils/navigation'),
   redirectToExternalUrl: jest.fn(),
+}));
+jest.mock('../ducks/auth', () => ({
+  __esModule: true,
+  ...jest.requireActual('../ducks/auth'),
+  applyAccessToken: jest.fn(() => ({ type: 'APPLY_ACCESS_TOKEN' })),
 }));
 
 describe('Auth0TokenManager', () => {
@@ -185,7 +190,7 @@ describe('Auth0TokenManager', () => {
       renderAfterCallback();
 
       await waitFor(() => {
-        expect(mockDispatch).toHaveBeenCalledWith(expect.objectContaining({ type: POST_AUTH_SUCCESS }));
+        expect(applyAccessToken).toHaveBeenCalledWith(VALID_TOKEN);
       });
       expect(checkAccountLinked).toHaveBeenCalledWith(VALID_TOKEN);
     });
@@ -202,7 +207,7 @@ describe('Auth0TokenManager', () => {
         expect(redirectToExternalUrl).toHaveBeenCalledWith('https://site.example/auth/link-accounts/');
       });
       // No authenticated-state transition, no SPA navigation, no token teardown.
-      expect(mockDispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: POST_AUTH_SUCCESS }));
+      expect(applyAccessToken).not.toHaveBeenCalled();
       expect(mockNavigate).not.toHaveBeenCalled();
       expect(mockLogout).not.toHaveBeenCalled();
     });
@@ -216,7 +221,7 @@ describe('Auth0TokenManager', () => {
         expect(mockLogout).toHaveBeenCalledWith({ openUrl: false });
       });
       expect(mockNavigate).toHaveBeenCalledWith(expect.stringContaining('login'), { replace: true });
-      expect(mockDispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: POST_AUTH_SUCCESS }));
+      expect(applyAccessToken).not.toHaveBeenCalled();
     });
 
     test('transient failure: leaves the user at login with a retryable error and no token teardown', async () => {
@@ -231,7 +236,7 @@ describe('Auth0TokenManager', () => {
         );
       });
       expect(mockLogout).not.toHaveBeenCalled();
-      expect(mockDispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: POST_AUTH_SUCCESS }));
+      expect(applyAccessToken).not.toHaveBeenCalled();
     });
 
     test('org-scoped (idp_org_id set): skips the gate and authenticates', async () => {
@@ -243,7 +248,7 @@ describe('Auth0TokenManager', () => {
       renderAfterCallback();
 
       await waitFor(() => {
-        expect(mockDispatch).toHaveBeenCalledWith(expect.objectContaining({ type: POST_AUTH_SUCCESS }));
+        expect(applyAccessToken).toHaveBeenCalledWith(VALID_TOKEN);
       });
       expect(checkAccountLinked).not.toHaveBeenCalled();
     });

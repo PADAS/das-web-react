@@ -87,6 +87,7 @@ import MapLocationSelectionOverview from '../MapLocationSelectionOverview';
 
 import './Map.scss';
 import { addMapImage } from '../utils/map';
+import { attachEventIconsToMap } from '../utils/eventMapIcons';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -645,6 +646,13 @@ const Map = ({ children, onMapLoad, socket }) => {
   useEffect(() => {
     const handleMapStyleImageMissing = async (event) => {
       const { id } = event;
+
+      // Event icon ids have no path segment and are owned by the event icon
+      // registry (utils/eventMapIcons, attached separately below).
+      if (!id.includes('/')) {
+        return;
+      }
+
       // querying from the root /static/ dir of the host means this is one of our static assets, let's get it
       // if the map says it's missing.
       // Parse filepath to extract path and dimensions
@@ -685,6 +693,12 @@ const Map = ({ children, onMapLoad, socket }) => {
     }
   }, [map]);
 
+  useEffect(() => {
+    if (map) {
+      return attachEventIconsToMap(map);
+    }
+  }, [map]);
+
   useMapEventBinding('movestart', cancelMapDataRequests);
   useMapEventBinding('moveend', fetchMapData);
   useMapEventBinding('moveend', debounce(saveMapPosition));
@@ -717,7 +731,6 @@ const Map = ({ children, onMapLoad, socket }) => {
       {eventsEnabled && (eventVectorTilesEnabled
         ? <EventsTileLayers onEventClick={onSelectEvent} />
         : <EventsLayer
-          mapImages={mapImages}
           onEventClick={onSelectEvent}
           bounceEventIDs={bounceEventIDs}
         />)}
