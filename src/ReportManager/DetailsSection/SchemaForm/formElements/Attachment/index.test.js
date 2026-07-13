@@ -840,6 +840,43 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Attachmen
     expect(screen.getByRole('button', { name: 'Choose File' })).toHaveFocus();
   });
 
+  test('skips a disabled action button and moves focus to the choose file button', async () => {
+    const uploadStore = mockStore({
+      data: { userContent: {
+        'upload-1': { uploadId: 'upload-1', filename: 'file1.pdf', fileType: 'application/pdf', progress: 0, status: 'in_progress' },
+      } },
+    });
+    const attachmentsMetadata = {
+      'saved-1': { filename: 'file2.pdf', file_type: 'document' },
+    };
+    const { rerender } = renderAttachmentField({
+      attachmentsMetadata,
+      value: [{ uploadId: 'upload-1' }, { uploadId: 'saved-1' }],
+    }, uploadStore);
+
+    const downloadButton = screen.getByRole('button', { name: 'Download file2.pdf' });
+    expect(downloadButton).toBeDisabled();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Remove file1.pdf' }));
+
+    rerender(
+      <Provider store={store}>
+        <TrackerContext.Provider value={null}>
+          <Attachment
+            attachmentsMetadata={attachmentsMetadata}
+            details={details}
+            error={undefined}
+            id="attachment-1"
+            onFieldChange={onFieldChange}
+            value={[{ uploadId: 'saved-1' }]}
+          />
+        </TrackerContext.Provider>
+      </Provider>
+    );
+
+    expect(screen.getByRole('button', { name: 'Choose File' })).toHaveFocus();
+  });
+
   test('applies the dragging-over style when dragging a file over the component', () => {
     renderAttachmentField();
 

@@ -282,9 +282,11 @@ const Attachment = ({ attachmentsMetadata, details, error, id, onFieldChange, re
       ...attachments.slice(attachmentIndex + 1),
       ...attachments.slice(0, attachmentIndex).reverse(),
     ];
-    const attachmentToFocus = remainingAttachmentsFocusOrder.find(
-      (attachment) => actionButtonRefs.current.has(attachment.uploadId)
-    );
+    const attachmentToFocus = remainingAttachmentsFocusOrder.find((attachment) => {
+      const node = actionButtonRefs.current.get(attachment.uploadId);
+
+      return node && !node.disabled;
+    });
     nextFocusTargetRef.current = attachmentToFocus
       ? actionButtonRefs.current.get(attachmentToFocus.uploadId)
       : chooseFileButtonRef.current;
