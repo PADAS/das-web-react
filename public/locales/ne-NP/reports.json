@@ -352,6 +352,7 @@
             "maxItemsAlert_other": "तपाईं बढीमा {{count}} फाइलहरू मात्र थप्न सक्नुहुन्छ।",
             "downloadButtonLabel": "{{fileName}} डाउनलोड गर्नुहोस्",
             "expandButtonLabel": "{{fileName}} विस्तार गर्नुहोस्",
+            "pendingLabel": "बाँकी",
             "removeButtonLabel": "{{fileName}} हटाउनुहोस्",
             "requiredLabel": "(आवश्यक)",
             "uploadErrorLabel": "अपलोड असफल भयो",

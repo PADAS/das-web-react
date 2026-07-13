@@ -550,7 +550,7 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
 
     renderSchemaForm(
       { formData: { text_field: 'a text value', attachment_field: [{ uploadId: 'pending-upload-id' }] } },
-      { data: { userContent: { 'pending-upload-id': { uploadId: 'pending-upload-id', filename: 'test.pdf', progress: 0, status: 'pending' } } } }
+      { data: { userContent: { 'pending-upload-id': { uploadId: 'pending-upload-id', filename: 'test.pdf', progress: null, status: 'in_progress' } } } }
     );
 
     const alert = screen.getByRole('alert');

@@ -103,7 +103,7 @@
           transition: --upload-progress 200ms ease;
           width: 1.75rem;
 
-          &.pending {
+          &.indeterminate {
             animation: uploadProgressSpin 0.8s linear infinite;
             animation-direction: reverse;
             background: conic-gradient(colors.$light-gray-border 25%, colors.$bright-blue 25%);
@@ -117,6 +117,12 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+      }
+
+      .pendingLabel {
+        flex-shrink: 0;
+        font-weight: 700;
+        margin-right: 0.75rem;
       }
 
       .error {

@@ -183,6 +183,7 @@
             "maxItemsAlert_other": "You can only add up to {{count}} files.",
             "downloadButtonLabel": "Download {{fileName}}",
             "expandButtonLabel": "Expand {{fileName}}",
+            "pendingLabel": "Pending",
             "removeButtonLabel": "Remove {{fileName}}",
             "requiredLabel": "(required)",
             "uploadErrorLabel": "Upload failed",
