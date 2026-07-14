@@ -463,6 +463,58 @@ describe('ReportManager - DetailsSection', () => {
     expect(onLegacyFormChange).toHaveBeenCalled();
   });
 
+  const legacyEventSchemaWithDropdown = {
+    ...eventSchemas.accident_rep.base,
+    schema: {
+      ...eventSchemas.accident_rep.base.schema,
+      properties: {
+        ...eventSchemas.accident_rep.base.schema.properties,
+        severity: {
+          type: 'string',
+          title: 'Severity',
+          enum: ['minor', 'major'],
+          enumNames: ['Minor', 'Major'],
+          key: 'severity',
+        },
+      },
+    },
+    uiSchema: {
+      ...eventSchemas.accident_rep.base.uiSchema,
+      'ui:groups': [{
+        origin: 'inferred',
+        items: ['type_accident', 'number_people_involved', 'animals_involved', 'severity'],
+      }],
+    },
+  };
+
+  test('drops the key of a cleared dropdown from the legacy form change data', async () => {
+    renderDetailsSection({
+      eventSchema: legacyEventSchemaWithDropdown,
+      reportForm: { ...report, event_details: { severity: 'minor', type_accident: 'Truck crash' } },
+    });
+
+    await userEvent.selectOptions(screen.getByLabelText('Severity'), '');
+
+    const { formData } = onLegacyFormChange.mock.calls.at(-1)[0];
+    expect(formData.severity).toBeUndefined();
+    expect(formData.type_accident).toBe('Truck crash');
+  });
+
+  test('keeps event details keys that are not in the schema in the legacy form change data', async () => {
+    renderDetailsSection({
+      eventSchema: legacyEventSchemaWithDropdown,
+      reportForm: {
+        ...report,
+        event_details: { severity: 'minor', stashed_hidden_field: 'stashed value', type_accident: 'Truck crash' },
+      },
+    });
+
+    await userEvent.selectOptions(screen.getByLabelText('Severity'), '');
+
+    const { formData } = onLegacyFormChange.mock.calls.at(-1)[0];
+    expect(formData.stashed_hidden_field).toBe('stashed value');
+  });
+
   test('submits the form for legacy schemas', async () => {
     renderDetailsSection();
 
