@@ -443,13 +443,16 @@ const ReportDetailView = ({
   }, [reportForm, reportTracker]);
 
   const onLegacyFormChange = useCallback((event) => {
-    const formData = Object.entries(event.formData).reduce((acc, [formKey, formData]) => ({
-      ...acc,
-      [formKey]: formData === undefined ? '' : formData
+    const eventDetails = reportForm.event_details ?? {};
+    const eventDetailsKeys = new Set([...Object.keys(eventDetails), ...Object.keys(event.formData)]);
+    // rjsf unsets (deletes) or sets to undefined a cleared leaf field's key,
+    // so a missing or undefined value in event.formData means the field was cleared.
+    const nextEventDetails = [...eventDetailsKeys].reduce((accumulator, eventDetailKey) => ({
+      ...accumulator,
+      [eventDetailKey]: event.formData[eventDetailKey] === undefined ? '' : event.formData[eventDetailKey]
     }), {});
 
-    setReportForm({ ...reportForm, event_details: { ...reportForm.event_details, ...formData } });
-
+    setReportForm({ ...reportForm, event_details: nextEventDetails });
   }, [reportForm]);
 
   const onFormError = useCallback((errors) => {

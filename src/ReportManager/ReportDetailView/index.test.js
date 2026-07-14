@@ -318,6 +318,63 @@ describe('ReportManager - ReportDetailView', () => {
     expect((await screen.findByDisplayValue('Truck crash'))).toBeDefined();
   });
 
+  test('sends an empty value for a cleared legacy dropdown and keeps out-of-schema event details when saving', async () => {
+    const accidentSchema = eventSchemas.accident_rep.base;
+    state.data.eventSchemas = {
+      ...eventSchemas,
+      accident_rep: {
+        ...eventSchemas.accident_rep,
+        789: {
+          ...accidentSchema,
+          schema: {
+            ...accidentSchema.schema,
+            properties: {
+              ...accidentSchema.schema.properties,
+              severity: {
+                type: 'string',
+                title: 'Severity',
+                enum: ['minor', 'major'],
+                enumNames: ['Minor', 'Major'],
+                key: 'severity',
+              },
+            },
+          },
+          uiSchema: {
+            ...accidentSchema.uiSchema,
+            'ui:groups': [{
+              origin: 'inferred',
+              items: ['type_accident', 'number_people_involved', 'animals_involved', 'severity'],
+            }],
+          },
+        },
+      },
+    };
+    state.data.eventStore = {
+      ...state.data.eventStore,
+      789: {
+        ...mockReport,
+        event_type: 'accident_rep',
+        event_details: { severity: 'minor', stashed_hidden_field: 'stashed value', type_accident: 'Truck crash' },
+        id: '789',
+      },
+    };
+
+    renderWithWrapper(<ReportDetailView isNewReport={false} reportId="789" />);
+
+    await userEvent.selectOptions(await screen.findByLabelText('Severity'), '');
+
+    await userEvent.click(await screen.findByText('Save'));
+
+    await waitFor(() => {
+      expect(generateSaveActionsForReportLikeObject).toHaveBeenCalledTimes(1);
+    });
+    expect(generateSaveActionsForReportLikeObject.mock.calls[0][0].event_details).toEqual({
+      severity: '',
+      stashed_hidden_field: 'stashed value',
+      type_accident: 'Truck crash',
+    });
+  });
+
   test('sets the state when user changes it', async () => {
     renderWithWrapper(
       <ReportDetailView
