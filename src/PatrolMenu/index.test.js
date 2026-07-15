@@ -8,6 +8,7 @@ import userEvent from '@testing-library/user-event';
 import { useReactToPrint } from 'react-to-print';
 
 import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../constants';
+import { PATROLS_API_URL } from '../ducks/patrols';
 import { render, screen } from '../test-utils';
 import { downloadFileFromUrl } from '../utils/download';
 
@@ -17,10 +18,6 @@ jest.mock('react-to-print', () => ({
 }));
 
 jest.mock('../store', () => ({}));
-
-jest.mock('../ducks/tracks', () => ({
-  TRACKS_API_URL: (id) => `/api/v1.0/subject/${id}/tracks/`,
-}));
 
 jest.mock('../utils/download', () => ({
   downloadFileFromUrl: jest.fn(() => Promise.resolve()),
@@ -145,128 +142,66 @@ describe('PatrolMenu', () => {
     });
   });
 
-  describe('Download Patrol Track button', () => {
+  describe('Export Patrol options', () => {
     beforeEach(() => {
       downloadFileFromUrl.mockImplementation(() => Promise.resolve());
-    });
-
-    // patrols[1] has a leader and a start_time, making it suitable for track tests
-    const patrolWithLeader = patrols[1];
-    const leaderId = patrolWithLeader.patrol_segments[0].leader.id;
-    const patrolStartTime = patrolWithLeader.patrol_segments[0].time_range.start_time;
-
-    const makeTrackStore = (times) => ({
-      ...minimumNecessaryStoreStructure,
-      data: {
-        ...minimumNecessaryStoreStructure.data,
-        tracks: {
-          [leaderId]: {
-            track: {
-              features: [{
-                properties: { coordinateProperties: { times } },
-              }],
-            },
-          },
-        },
-      },
     });
 
     const openMenu = async () => {
       await userEvent.click(screen.getByRole('button'));
     };
 
-    const getDownloadOption = () =>
-      screen.getByText('Download Patrol Track').closest('a');
+    const getExportGeoJsonOption = () =>
+      screen.getByText('Export Patrol GeoJson').closest('a');
 
-    test('is disabled when patrol has no leader', async () => {
-      renderPatrolMenu({ ...initialProps, patrol: patrols[0] });
+    const getExportCsvOption = () =>
+      screen.getByText('Export Patrol CSV').closest('a');
+
+    test('both options are disabled when the patrol has no id', async () => {
+      renderPatrolMenu({ ...initialProps, patrol: { ...testPatrol, id: undefined } });
       await openMenu();
-      expect(getDownloadOption()).toHaveClass('disabled');
+      expect(getExportGeoJsonOption()).toHaveClass('disabled');
+      expect(getExportCsvOption()).toHaveClass('disabled');
     });
 
-    test('is disabled when leader has no track in the store', async () => {
-      renderPatrolMenu({ ...initialProps, patrol: patrolWithLeader });
+    test('both options are enabled when the patrol has an id', async () => {
+      renderPatrolMenu({ ...initialProps, patrol: testPatrol });
       await openMenu();
-      expect(getDownloadOption()).toHaveClass('disabled');
+      expect(getExportGeoJsonOption()).not.toHaveClass('disabled');
+      expect(getExportCsvOption()).not.toHaveClass('disabled');
     });
 
-    test('is disabled when track has no points within the patrol time range', async () => {
-      // All times are before the patrol start_time
-      const beforeStart = new Date(new Date(patrolStartTime).getTime() - 60000).toISOString();
-      const store = makeTrackStore([beforeStart]);
-      renderPatrolMenu({ ...initialProps, patrol: patrolWithLeader }, store);
-      await openMenu();
-      expect(getDownloadOption()).toHaveClass('disabled');
-    });
-
-    test('is enabled when track has points within the patrol time range', async () => {
-      // Time is after the patrol start_time
-      const afterStart = new Date(new Date(patrolStartTime).getTime() + 60000).toISOString();
-      const store = makeTrackStore([afterStart]);
-      renderPatrolMenu({ ...initialProps, patrol: patrolWithLeader }, store);
-      await openMenu();
-      expect(getDownloadOption()).not.toHaveClass('disabled');
-    });
-
-    test('calls downloadFileFromUrl with correct url, params, and filename when clicked', async () => {
-      const afterStart = new Date(new Date(patrolStartTime).getTime() + 60000).toISOString();
-      const store = makeTrackStore([afterStart]);
-      renderPatrolMenu({ ...initialProps, patrol: patrolWithLeader }, store);
+    test('GeoJson option calls downloadFileFromUrl with the geojson url, params, and filename when clicked', async () => {
+      renderPatrolMenu({ ...initialProps, patrol: testPatrol });
       await openMenu();
 
-      await userEvent.click(screen.getByText('Download Patrol Track'));
+      await userEvent.click(screen.getByText('Export Patrol GeoJson'));
 
       expect(downloadFileFromUrl).toHaveBeenCalledWith(
-        `/api/v1.0/subject/${leaderId}/tracks/`,
+        `${PATROLS_API_URL}${testPatrol.id}`,
         expect.objectContaining({
-          params: expect.objectContaining({ since: patrolStartTime }),
-          filename: `Patrol_${patrolWithLeader.serial_number}_${patrolWithLeader.patrol_segments[0].leader.name}.geojson`,
+          params: expect.objectContaining({
+            format: 'geojson',
+            include_events: true,
+            include_tracks: true,
+          }),
+          filename: `Patrol_${testPatrol.serial_number}.geojson`,
         })
       );
     });
 
-    test('passes until param when patrol has an end_time', async () => {
-      const patrolEndTime = new Date(new Date(patrolStartTime).getTime() + 3600000).toISOString();
-      const trackTime = new Date(new Date(patrolStartTime).getTime() + 1800000).toISOString();
-      const patrolWithEndTime = {
-        ...patrolWithLeader,
-        patrol_segments: [{
-          ...patrolWithLeader.patrol_segments[0],
-          time_range: { start_time: patrolStartTime, end_time: patrolEndTime },
-        }],
-      };
-      const store = makeTrackStore([trackTime]);
-      renderPatrolMenu({ ...initialProps, patrol: patrolWithEndTime }, store);
+    test('CSV option calls downloadFileFromUrl with the csv url, params, and filename when clicked', async () => {
+      renderPatrolMenu({ ...initialProps, patrol: testPatrol });
       await openMenu();
 
-      await userEvent.click(screen.getByText('Download Patrol Track'));
+      await userEvent.click(screen.getByText('Export Patrol CSV'));
 
       expect(downloadFileFromUrl).toHaveBeenCalledWith(
-        expect.any(String),
+        `${PATROLS_API_URL}${testPatrol.id}`,
         expect.objectContaining({
-          params: expect.objectContaining({ since: patrolStartTime, until: patrolEndTime }),
+          params: { format: 'csv' },
+          filename: `Patrol_${testPatrol.serial_number}.csv`,
         })
-      );
-    });
-
-    test('sanitizes invalid characters in leader name for the filename', async () => {
-      const afterStart = new Date(new Date(patrolStartTime).getTime() + 60000).toISOString();
-      const patrolWithSpecialName = {
-        ...patrolWithLeader,
-        patrol_segments: [{
-          ...patrolWithLeader.patrol_segments[0],
-          leader: { ...patrolWithLeader.patrol_segments[0].leader, name: 'John/Doe:Test' },
-        }],
-      };
-      const store = makeTrackStore([afterStart]);
-      renderPatrolMenu({ ...initialProps, patrol: patrolWithSpecialName }, store);
-      await openMenu();
-
-      await userEvent.click(screen.getByText('Download Patrol Track'));
-
-      expect(downloadFileFromUrl).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.objectContaining({ filename: expect.stringContaining('John_Doe_Test') })
       );
     });
   });

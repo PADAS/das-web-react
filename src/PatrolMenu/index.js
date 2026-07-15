@@ -1,5 +1,4 @@
 import React, { memo, useMemo, useCallback } from 'react';
-import { useSelector } from 'react-redux';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 import { useReactToPrint } from 'react-to-print';
@@ -14,7 +13,7 @@ import { ReactComponent as CloseIcon } from '../common/images/icons/close-icon.s
 import { ReactComponent as RestoreIcon } from '../common/images/icons/restore.svg';
 
 import { DAS_HOST, PATROL_UI_STATES, PATROL_API_STATES } from '../constants';
-import { TRACKS_API_URL } from '../ducks/tracks';
+import { PATROLS_API_URL } from '../ducks/patrols';
 import { usePatrolsPermissions } from '../hooks/usePermissions';
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
 import { canEndPatrol, calcPatrolState } from '../utils/patrols';
@@ -44,32 +43,6 @@ const PatrolMenu = ({
   const patrolState = calcPatrolState(patrol);
 
   const { hasPatrolsUpdatePermission } = usePatrolsPermissions();
-  const patrolLeader = patrol.patrol_segments[0]?.leader;
-  const patrolTimeRange = patrol.patrol_segments[0]?.time_range;
-
-  const patrolLeaderTrackTimes = useSelector((state) =>
-    state.data.tracks[patrolLeader?.id]?.track?.features?.[0]?.properties?.coordinateProperties?.times
-  );
-
-  const doesPatrolLeaderHaveTracksWithinPatrolTimeRange = useMemo(() => {
-    if (!patrolLeaderTrackTimes?.length) return false;
-
-    const patrolStartTimestamp = patrolTimeRange?.start_time
-      ? new Date(patrolTimeRange.start_time).getTime()
-      : null;
-    const patrolEndTimestamp = patrolTimeRange?.end_time
-      ? new Date(patrolTimeRange.end_time).getTime()
-      : null;
-
-    if (!patrolStartTimestamp && !patrolEndTimestamp) return true;
-
-    // Track times are sorted newest-first; check range overlap using only the first/last entries
-    const trackNewest = new Date(patrolLeaderTrackTimes[0]).getTime();
-    const trackOldest = new Date(patrolLeaderTrackTimes[patrolLeaderTrackTimes.length - 1]).getTime();
-
-    return (!patrolStartTimestamp || trackNewest >= patrolStartTimestamp)
-      && (!patrolEndTimestamp || trackOldest <= patrolEndTimestamp);
-  }, [patrolLeaderTrackTimes, patrolTimeRange]);
 
   const patrolIsDone = useMemo(() => {
     return patrolState === PATROL_UI_STATES.DONE;
@@ -132,23 +105,31 @@ const PatrolMenu = ({
     }
   }, [canEnd, onPatrolChange, patrolStartStopTitle]);
 
-  const handleDownloadTrack = useCallback(() => {
-    if (!patrolLeader) return;
+  const handleExportPatrolGeoJson = useCallback(() => {
+    patrolListItemTracker.track('Export patrol GeoJSON from patrol list item kebab menu');
 
-    patrolListItemTracker.track('Download patrol track from patrol list item kebab menu');
-
-    const params = {};
-    if (patrolTimeRange?.start_time) params.since = patrolTimeRange.start_time;
-    if (patrolTimeRange?.end_time) params.until = patrolTimeRange.end_time;
-
-    const sanitizedLeaderName = patrolLeader.name.replace(/[/\\:*?"<>|]/g, '_').trim();
-    void downloadFileFromUrl(TRACKS_API_URL(patrolLeader.id), { params, filename: `Patrol_${patrol.serial_number}_${sanitizedLeaderName}.geojson` })
+    void downloadFileFromUrl(`${PATROLS_API_URL}${patrol.id}`, {
+      params: { format: 'geojson', include_events: true, include_tracks: true },
+      filename: `Patrol_${patrol.serial_number}.geojson`,
+    })
       .catch((error) => {
-        console.error('Failed to download patrol track', error);
+        console.error('Failed to export patrol GeoJSON', error);
       });
-  }, [patrol.serial_number, patrolLeader, patrolTimeRange]);
+  }, [patrol.id, patrol.serial_number]);
 
-  const isDownloadDisabled = !patrolLeader || !doesPatrolLeaderHaveTracksWithinPatrolTimeRange;
+  const handleExportPatrolCsv = useCallback(() => {
+    patrolListItemTracker.track('Export patrol CSV from patrol list item kebab menu');
+
+    void downloadFileFromUrl(`${PATROLS_API_URL}${patrol.id}`, {
+      params: { format: 'csv' },
+      filename: `Patrol_${patrol.serial_number}.csv`,
+    })
+      .catch((error) => {
+        console.error('Failed to export patrol CSV', error);
+      });
+  }, [patrol.id, patrol.serial_number]);
+
+  const isExportDisabled = !patrol.id;
 
   const handlePrint = useReactToPrint({
     contentRef: printableContentRef,
@@ -196,21 +177,39 @@ const PatrolMenu = ({
       </KebabMenu.Option>
     }
 
-    {isDownloadDisabled
+    {isExportDisabled
       ? <OverlayTrigger
           placement="top"
-          overlay={<Tooltip id={`download-track-tooltip-${patrol.id}`}>{t('noTrackDataTooltip')}</Tooltip>}
+          overlay={<Tooltip id={`export-patrol-geojson-tooltip-${patrol.id}`}>{t('noDataToExportTooltip')}</Tooltip>}
         >
         <span>
-          <KebabMenu.Option disabled onClick={handleDownloadTrack}>
+          <KebabMenu.Option disabled onClick={handleExportPatrolGeoJson}>
             <DownloadArrowIcon data-testid="download-arrow-icon" />
-            {t('downloadTrackButton')}
+            {t('exportPatrolGeoJsonButton')}
           </KebabMenu.Option>
         </span>
       </OverlayTrigger>
-      : <KebabMenu.Option onClick={handleDownloadTrack}>
+      : <KebabMenu.Option onClick={handleExportPatrolGeoJson}>
         <DownloadArrowIcon data-testid="download-arrow-icon" />
-        {t('downloadTrackButton')}
+        {t('exportPatrolGeoJsonButton')}
+      </KebabMenu.Option>
+    }
+
+    {isExportDisabled
+      ? <OverlayTrigger
+          placement="top"
+          overlay={<Tooltip id={`export-patrol-csv-tooltip-${patrol.id}`}>{t('noDataToExportTooltip')}</Tooltip>}
+        >
+        <span>
+          <KebabMenu.Option disabled onClick={handleExportPatrolCsv}>
+            <DownloadArrowIcon data-testid="download-arrow-icon" />
+            {t('exportPatrolCsvButton')}
+          </KebabMenu.Option>
+        </span>
+      </OverlayTrigger>
+      : <KebabMenu.Option onClick={handleExportPatrolCsv}>
+        <DownloadArrowIcon data-testid="download-arrow-icon" />
+        {t('exportPatrolCsvButton')}
       </KebabMenu.Option>
     }
   </KebabMenu>;
