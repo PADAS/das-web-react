@@ -67,7 +67,8 @@
     "printPatrolButton": "Imprimir patrulha",
     "restorePatrol": "Restaurar patrulha",
     "startPatrol": "Iniciar patrulha",
-    "noDataToExportTooltip": "Nenhum dado para exportar"
+    "noDataToExportTooltip": "Nenhum dado para exportar",
+    "exportErrorToast": "Não foi possível exportar os dados da patrulha"
   },
   "patrolList": {
     "emptyPatrolList": "Não há patrulhas para mostrar"

@@ -19,6 +19,7 @@ import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics
 import { canEndPatrol, calcPatrolState } from '../utils/patrols';
 import { basePrintingStyles } from '../utils/styles';
 import { downloadFileFromUrl } from '../utils/download';
+import { showToast } from '../utils/toast';
 
 import TextCopyBtn from '../TextCopyBtn';
 import KebabMenu from '../KebabMenu';
@@ -106,28 +107,34 @@ const PatrolMenu = ({
   }, [canEnd, onPatrolChange, patrolStartStopTitle]);
 
   const handleExportPatrolGeoJson = useCallback(() => {
+    if (!patrol.id) return;
+
     patrolListItemTracker.track('Export patrol GeoJSON from patrol list item kebab menu');
 
-    void downloadFileFromUrl(`${PATROLS_API_URL}${patrol.id}`, {
+    downloadFileFromUrl(`${PATROLS_API_URL}${patrol.id}`, {
       params: { format: 'geojson', include_events: true, include_tracks: true },
       filename: `Patrol_${patrol.serial_number}.geojson`,
     })
       .catch((error) => {
         console.error('Failed to export patrol GeoJSON', error);
+        showToast({ message: t('exportErrorToast') });
       });
-  }, [patrol.id, patrol.serial_number]);
+  }, [patrol.id, patrol.serial_number, t]);
 
   const handleExportPatrolCsv = useCallback(() => {
+    if (!patrol.id) return;
+
     patrolListItemTracker.track('Export patrol CSV from patrol list item kebab menu');
 
-    void downloadFileFromUrl(`${PATROLS_API_URL}${patrol.id}`, {
+    downloadFileFromUrl(`${PATROLS_API_URL}${patrol.id}`, {
       params: { format: 'csv' },
       filename: `Patrol_${patrol.serial_number}.csv`,
     })
       .catch((error) => {
         console.error('Failed to export patrol CSV', error);
+        showToast({ message: t('exportErrorToast') });
       });
-  }, [patrol.id, patrol.serial_number]);
+  }, [patrol.id, patrol.serial_number, t]);
 
   const isExportDisabled = !patrol.id;
 
@@ -180,9 +187,9 @@ const PatrolMenu = ({
     {isExportDisabled
       ? <OverlayTrigger
           placement="top"
-          overlay={<Tooltip id={`export-patrol-geojson-tooltip-${patrol.id}`}>{t('noDataToExportTooltip')}</Tooltip>}
+          overlay={<Tooltip id="export-patrol-geojson-tooltip">{t('noDataToExportTooltip')}</Tooltip>}
         >
-        <span>
+        <span tabIndex={0}>
           <KebabMenu.Option disabled onClick={handleExportPatrolGeoJson}>
             <DownloadArrowIcon data-testid="download-arrow-icon" />
             {t('exportPatrolGeoJsonButton')}
@@ -198,9 +205,9 @@ const PatrolMenu = ({
     {isExportDisabled
       ? <OverlayTrigger
           placement="top"
-          overlay={<Tooltip id={`export-patrol-csv-tooltip-${patrol.id}`}>{t('noDataToExportTooltip')}</Tooltip>}
+          overlay={<Tooltip id="export-patrol-csv-tooltip">{t('noDataToExportTooltip')}</Tooltip>}
         >
-        <span>
+        <span tabIndex={0}>
           <KebabMenu.Option disabled onClick={handleExportPatrolCsv}>
             <DownloadArrowIcon data-testid="download-arrow-icon" />
             {t('exportPatrolCsvButton')}

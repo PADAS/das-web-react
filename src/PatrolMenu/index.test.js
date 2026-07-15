@@ -9,8 +9,9 @@ import { useReactToPrint } from 'react-to-print';
 
 import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../constants';
 import { PATROLS_API_URL } from '../ducks/patrols';
-import { render, screen } from '../test-utils';
+import { render, screen, waitFor } from '../test-utils';
 import { downloadFileFromUrl } from '../utils/download';
+import { showToast } from '../utils/toast';
 
 jest.mock('react-to-print', () => ({
   ...jest.requireActual('react-to-print'),
@@ -21,6 +22,10 @@ jest.mock('../store', () => ({}));
 
 jest.mock('../utils/download', () => ({
   downloadFileFromUrl: jest.fn(() => Promise.resolve()),
+}));
+
+jest.mock('../utils/toast', () => ({
+  showToast: jest.fn(),
 }));
 
 describe('PatrolMenu', () => {
@@ -41,7 +46,6 @@ describe('PatrolMenu', () => {
     data: {
       patrolTypes,
       patrolStore: patrols.reduce((acc, p) => ({ ...acc, [p.id]: p }), {}),
-      tracks: {},
     },
     view: {
       systemConfig: {
@@ -145,6 +149,7 @@ describe('PatrolMenu', () => {
   describe('Export Patrol options', () => {
     beforeEach(() => {
       downloadFileFromUrl.mockImplementation(() => Promise.resolve());
+      showToast.mockClear();
     });
 
     const openMenu = async () => {
@@ -203,6 +208,28 @@ describe('PatrolMenu', () => {
           filename: `Patrol_${testPatrol.serial_number}.csv`,
         })
       );
+    });
+
+    test('clicking a disabled export option does not call downloadFileFromUrl', async () => {
+      renderPatrolMenu({ ...initialProps, patrol: { ...testPatrol, id: undefined } });
+      await openMenu();
+
+      await userEvent.click(screen.getByText('Export Patrol GeoJson'));
+      await userEvent.click(screen.getByText('Export Patrol CSV'));
+
+      expect(downloadFileFromUrl).not.toHaveBeenCalled();
+    });
+
+    test('shows an error toast when the export download fails', async () => {
+      downloadFileFromUrl.mockImplementation(() => Promise.reject(new Error('boom')));
+      renderPatrolMenu({ ...initialProps, patrol: testPatrol });
+      await openMenu();
+
+      await userEvent.click(screen.getByText('Export Patrol GeoJson'));
+
+      await waitFor(() => {
+        expect(showToast).toHaveBeenCalledWith({ message: 'Unable to export patrol data' });
+      });
     });
   });
 

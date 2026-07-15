@@ -69,7 +69,8 @@
     "startPatrol": "गस्ती सुरु गर्नुहोस्",
     "label": "गस्तीका विकल्पहरु हेर्नुहोस्",
     "title": "गस्तीका विकल्पहरु",
-    "noDataToExportTooltip": "निर्यात गर्न कुनै डेटा छैन"
+    "noDataToExportTooltip": "निर्यात गर्न कुनै डेटा छैन",
+    "exportErrorToast": "गस्तीको डेटा निर्यात गर्न सकिएन"
   },
   "patrolList": {
     "emptyPatrolList": "प्रदर्शनीका लागि कुनै गस्ती छैन ।"

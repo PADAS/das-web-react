@@ -64,12 +64,13 @@
     "endPatrol": "Maliza Doria",
     "label": "Angalia Chaguzi za Doria",
     "title": "Chaguzi za Doria",
-    "exportPatrolGeoJsonButton": "Nakili Doria kama GeoJson",
-    "exportPatrolCsvButton": "Nakili Doria kama CSV",
+    "exportPatrolGeoJsonButton": "Hamisha GeoJson ya Doria",
+    "exportPatrolCsvButton": "Hamisha CSV ya Doria",
     "printPatrolButton": "Chapisha Doria",
     "restorePatrol": "Rejesha Doria",
     "startPatrol": "Anza Doria",
-    "noDataToExportTooltip": "Hakuna data ya kunakili"
+    "noDataToExportTooltip": "Hakuna data ya kuhamisha",
+    "exportErrorToast": "Imeshindwa kuhamisha data ya doria"
   },
   "patrolList": {
     "emptyPatrolList": "Hakuna doria za kuonyesha."
