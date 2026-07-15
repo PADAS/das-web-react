@@ -8,6 +8,23 @@ import { applyAccessToken } from '../ducks/auth';
  * not imported.
  */
 
+// A stalled silent renewal (e.g. a network black-hole) must not hang recovery for both
+// transports, so it is time-boxed. Interactive step-up is deliberately NOT bounded — it
+// waits on the user completing MFA, which can take far longer than any network timeout.
+const SILENT_RENEW_TIMEOUT_MS = 30_000;
+
+const withTimeout = async (promise, ms) => {
+  let timeoutId;
+  const timeout = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error('auth-recovery: renewal timed out')), ms);
+  });
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    clearTimeout(timeoutId);
+  }
+};
+
 let primitives = { silentRenew: null, stepUp: null };
 
 // The one shared in-flight recovery promise (null when idle).
@@ -26,7 +43,9 @@ export const recoverAuth = ({ stepUp = false, challenge = null } = {}) => {
         throw new Error(`auth-recovery: no ${stepUp ? 'stepUp' : 'silentRenew'} primitive registered`);
       }
 
-      const accessToken = await recover(challenge);
+      const accessToken = stepUp
+        ? await recover(challenge)
+        : await withTimeout(recover(challenge), SILENT_RENEW_TIMEOUT_MS);
       if (!accessToken) {
         throw new Error('auth-recovery: renewal returned no token');
       }

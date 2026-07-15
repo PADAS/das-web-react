@@ -89,4 +89,41 @@ describe('auth-recovery', () => {
     expect(silentRenew).not.toHaveBeenCalled();
     expect(token).toBe('stepped.token');
   });
+
+  test('times out a stalled silent renewal and clears in-flight so a later call retries', async () => {
+    jest.useFakeTimers();
+    try {
+      const silentRenew = jest.fn(() => new Promise(() => {}));
+      registerAuthRecovery({ silentRenew });
+
+      const rejection = expect(recoverAuth()).rejects.toThrow(/timed out/);
+      await jest.advanceTimersByTimeAsync(30_000);
+      await rejection;
+
+      expect(store.dispatch).not.toHaveBeenCalled();
+
+      silentRenew.mockImplementationOnce(() => Promise.resolve('fresh.token'));
+      await expect(recoverAuth()).resolves.toBe('fresh.token');
+      expect(silentRenew).toHaveBeenCalledTimes(2);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  test('does not time out an interactive step-up (it waits on the user)', async () => {
+    jest.useFakeTimers();
+    try {
+      const stepUp = jest.fn(() => new Promise((resolve) => {
+        setTimeout(() => resolve('stepped.token'), 90_000); // past the 30s silent-renewal timeout
+      }));
+      registerAuthRecovery({ stepUp });
+
+      const pending = recoverAuth({ stepUp: true });
+      await jest.advanceTimersByTimeAsync(60_000);
+      await jest.advanceTimersByTimeAsync(30_000);
+      await expect(pending).resolves.toBe('stepped.token');
+    } finally {
+      jest.useRealTimers();
+    }
+  });
 });
