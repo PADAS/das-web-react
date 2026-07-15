@@ -1,0 +1,46 @@
+import store from '../store';
+import { applyAccessToken } from '../ducks/auth';
+
+/**
+ * Shared, single-flight auth recovery. Concurrent 401s collapse into one in-flight
+ * token renewal that every caller awaits, and the renewed token is applied once.
+ * Auth0 primitives are injected via `registerAuthRecovery` (they are React-hook-bound),
+ * not imported.
+ */
+
+let primitives = { silentRenew: null, stepUp: null };
+
+// The one shared in-flight recovery promise (null when idle).
+let inFlight = null;
+
+export const registerAuthRecovery = (next) => {
+  primitives = { ...primitives, ...next };
+};
+
+export const recoverAuth = ({ stepUp = false, challenge = null } = {}) => {
+  if (!inFlight) {
+    inFlight = (async () => {
+      // Only silent renewal is wired; the stepUp branch is a reserved seam for MFA step-up.
+      const recover = stepUp ? primitives.stepUp : primitives.silentRenew;
+      if (typeof recover !== 'function') {
+        throw new Error(`auth-recovery: no ${stepUp ? 'stepUp' : 'silentRenew'} primitive registered`);
+      }
+
+      const accessToken = await recover(challenge);
+      if (!accessToken) {
+        throw new Error('auth-recovery: renewal returned no token');
+      }
+      store.dispatch(applyAccessToken(accessToken));
+      return accessToken;
+    })().finally(() => {
+      inFlight = null;
+    });
+  }
+  return inFlight;
+};
+
+// Test-only: reset module singletons between cases.
+export const __resetAuthRecoveryForTests = () => {
+  primitives = { silentRenew: null, stepUp: null };
+  inFlight = null;
+};
