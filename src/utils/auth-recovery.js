@@ -2,10 +2,12 @@ import store from '../store';
 import { applyAccessToken } from '../ducks/auth';
 
 /**
- * Shared, single-flight auth recovery. Concurrent 401s collapse into one in-flight
- * token renewal that every caller awaits, and the renewed token is applied once.
- * Auth0 primitives are injected via `registerAuthRecovery` (they are React-hook-bound),
- * not imported.
+ * Shared, single-flight auth recovery, keyed by mode (silent renewal vs interactive
+ * step-up). Concurrent same-mode 401s collapse into one in-flight renewal that every
+ * caller awaits, and its token is applied once. The two modes run independently, so a
+ * step-up never collapses into an in-flight silent renewal (a same-ACR silent token can't
+ * satisfy an MFA challenge). Auth0 primitives are injected via `registerAuthRecovery`
+ * (they are React-hook-bound), not imported.
  */
 
 const STEP_UP_ERROR = 'insufficient_user_authentication';
@@ -44,17 +46,20 @@ const withTimeout = async (promise, ms) => {
 
 let primitives = { silentRenew: null, stepUp: null };
 
-// The one shared in-flight recovery promise (null when idle).
-let inFlight = null;
+// In-flight recovery, keyed by mode: a step-up must never collapse into an in-flight
+// silent renewal (a silent token is same-ACR and can't satisfy the MFA challenge).
+let inFlight = { silent: null, stepUp: null };
 
 export const registerAuthRecovery = (next) => {
   primitives = { ...primitives, ...next };
 };
 
 export const recoverAuth = ({ stepUp = false, challenge = null } = {}) => {
-  if (!inFlight) {
-    inFlight = (async () => {
-      // Only silent renewal is wired; the stepUp branch is a reserved seam for MFA step-up.
+  const mode = stepUp ? 'stepUp' : 'silent';
+  if (!inFlight[mode]) {
+    // Same-mode callers coalesce onto this flight, so the first caller's challenge is used
+    // (challenges are identical for a given requirement).
+    inFlight[mode] = (async () => {
       const recover = stepUp ? primitives.stepUp : primitives.silentRenew;
       if (typeof recover !== 'function') {
         throw new Error(`auth-recovery: no ${stepUp ? 'stepUp' : 'silentRenew'} primitive registered`);
@@ -69,14 +74,14 @@ export const recoverAuth = ({ stepUp = false, challenge = null } = {}) => {
       store.dispatch(applyAccessToken(accessToken));
       return accessToken;
     })().finally(() => {
-      inFlight = null;
+      inFlight[mode] = null;
     });
   }
-  return inFlight;
+  return inFlight[mode];
 };
 
 // Test-only: reset module singletons between cases.
 export const __resetAuthRecoveryForTests = () => {
   primitives = { silentRenew: null, stepUp: null };
-  inFlight = null;
+  inFlight = { silent: null, stepUp: null };
 };

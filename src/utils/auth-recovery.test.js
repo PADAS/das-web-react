@@ -128,6 +128,60 @@ describe('auth-recovery', () => {
       jest.useRealTimers();
     }
   });
+
+  test('a step-up request does not collapse into an in-flight silent renewal', async () => {
+    jest.useFakeTimers();
+    try {
+      let resolveSilent;
+      const silentRenew = jest.fn(() => new Promise((resolve) => { resolveSilent = resolve; }));
+      const stepUp = jest.fn().mockResolvedValue('stepped.token');
+      registerAuthRecovery({ silentRenew, stepUp });
+
+      const silentPending = recoverAuth();
+      const stepUpPending = recoverAuth({ stepUp: true, challenge: {} });
+
+      // The step-up must run its own primitive, not join the in-flight silent renewal.
+      expect(stepUp).toHaveBeenCalledTimes(1);
+      await expect(stepUpPending).resolves.toBe('stepped.token');
+
+      resolveSilent('silent.token');
+      await expect(silentPending).resolves.toBe('silent.token');
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  test('a silent renewal does not collapse into an in-flight step-up', async () => {
+    let resolveStepUp;
+    const stepUp = jest.fn(() => new Promise((resolve) => { resolveStepUp = resolve; }));
+    const silentRenew = jest.fn().mockResolvedValue('silent.token');
+    registerAuthRecovery({ silentRenew, stepUp });
+
+    const stepUpPending = recoverAuth({ stepUp: true, challenge: {} });
+    const silentPending = recoverAuth();
+
+    // The silent renewal runs its own primitive, not the in-flight step-up.
+    expect(silentRenew).toHaveBeenCalledTimes(1);
+    await expect(silentPending).resolves.toBe('silent.token');
+
+    resolveStepUp('stepped.token');
+    await expect(stepUpPending).resolves.toBe('stepped.token');
+  });
+
+  test('concurrent step-up requests coalesce into a single step-up', async () => {
+    let resolveStepUp;
+    const stepUp = jest.fn(() => new Promise((resolve) => { resolveStepUp = resolve; }));
+    registerAuthRecovery({ stepUp });
+
+    const first = recoverAuth({ stepUp: true, challenge: {} });
+    const second = recoverAuth({ stepUp: true, challenge: {} });
+
+    expect(stepUp).toHaveBeenCalledTimes(1);
+
+    resolveStepUp('stepped.token');
+    await expect(first).resolves.toBe('stepped.token');
+    await expect(second).resolves.toBe('stepped.token');
+  });
 });
 
 describe('auth-recovery challenge parsing', () => {
