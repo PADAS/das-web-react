@@ -8,6 +8,23 @@ import { applyAccessToken } from '../ducks/auth';
  * not imported.
  */
 
+const STEP_UP_ERROR = 'insufficient_user_authentication';
+
+// Parse an RFC 9470 Bearer challenge (the WWW-Authenticate header). Assumes a single
+// Bearer challenge, which is what ER Server emits.
+export const parseAuthChallenge = (challenge) => {
+  if (typeof challenge !== 'string') return null;
+  const read = (pattern) => challenge.match(pattern)?.[1];
+  return {
+    error: read(/error="([^"]*)"/),
+    acrValues: read(/acr_values="([^"]*)"/),
+    maxAge: read(/max_age="([^"]*)"/),
+  };
+};
+
+export const isStepUpChallenge = (challenge) =>
+  parseAuthChallenge(challenge)?.error === STEP_UP_ERROR;
+
 // A stalled silent renewal (e.g. a network black-hole) must not hang recovery for both
 // transports, so it is time-boxed. Interactive step-up is deliberately NOT bounded — it
 // waits on the user completing MFA, which can take far longer than any network timeout.
