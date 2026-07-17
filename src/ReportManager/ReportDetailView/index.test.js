@@ -375,6 +375,185 @@ describe('ReportManager - ReportDetailView', () => {
     });
   });
 
+  test('allows saving when a cleared legacy dropdown would otherwise fail enum validation', async () => {
+    const accidentSchema = eventSchemas.accident_rep.base;
+    // Drop the fixture's `required: []`: an empty array fails ajv's own meta-schema
+    // validation.
+    const { required: _unusedRequired, ...baseSchemaWithoutRequired } = accidentSchema.schema;
+    state.data.eventSchemas = {
+      ...eventSchemas,
+      accident_rep: {
+        ...eventSchemas.accident_rep,
+        790: {
+          ...accidentSchema,
+          schema: {
+            ...baseSchemaWithoutRequired,
+            id: 'https://era-7995.pamdas.org/api/v1.0/activity/events/schema/eventtype/accident_rep_enum_clear_test',
+            properties: {
+              ...accidentSchema.schema.properties,
+              severity: {
+                type: 'string',
+                title: 'Severity',
+                enum: ['minor', 'major'],
+                enumNames: ['Minor', 'Major'],
+                key: 'severity',
+              },
+            },
+          },
+          uiSchema: {
+            ...accidentSchema.uiSchema,
+            'ui:groups': [{
+              origin: 'inferred',
+              items: ['type_accident', 'number_people_involved', 'animals_involved', 'severity'],
+            }],
+          },
+        },
+      },
+    };
+    state.data.eventStore = {
+      ...state.data.eventStore,
+      790: {
+        ...mockReport,
+        event_type: 'accident_rep',
+        event_details: { severity: 'minor', type_accident: 'Truck crash' },
+        id: '790',
+      },
+    };
+
+    renderWithWrapper(<ReportDetailView isNewReport={false} reportId="790" />);
+
+    await userEvent.selectOptions(await screen.findByLabelText('Severity'), '');
+
+    // Also edits an unrelated field, confirming the cleared value coexists with
+    // other, unrelated changes in the saved payload.
+    await userEvent.type(await screen.findByLabelText('Type of accident'), '!');
+
+    await userEvent.click(await screen.findByText('Save'));
+
+    await waitFor(() => {
+      expect(generateSaveActionsForReportLikeObject).toHaveBeenCalledTimes(1);
+    });
+    expect(generateSaveActionsForReportLikeObject.mock.calls[0][0].event_details).toEqual({
+      severity: '',
+      type_accident: 'Truck crash!',
+    });
+  });
+
+  test('allows saving without further changes when reopening an event whose stored event_details already has an empty enum value', async () => {
+    const accidentSchema = eventSchemas.accident_rep.base;
+    // Drop the fixture's `required: []`: an empty array fails ajv's own meta-schema
+    // validation.
+    const { required: _unusedRequired, ...baseSchemaWithoutRequired } = accidentSchema.schema;
+    state.data.eventSchemas = {
+      ...eventSchemas,
+      accident_rep: {
+        ...eventSchemas.accident_rep,
+        791: {
+          ...accidentSchema,
+          schema: {
+            ...baseSchemaWithoutRequired,
+            id: 'https://era-7995.pamdas.org/api/v1.0/activity/events/schema/eventtype/accident_rep_reopen_enum_test',
+            properties: {
+              ...accidentSchema.schema.properties,
+              severity: {
+                type: 'string',
+                title: 'Severity',
+                enum: ['minor', 'major'],
+                enumNames: ['Minor', 'Major'],
+                key: 'severity',
+              },
+            },
+          },
+          uiSchema: {
+            ...accidentSchema.uiSchema,
+            'ui:groups': [{
+              origin: 'inferred',
+              items: ['type_accident', 'number_people_involved', 'animals_involved', 'severity'],
+            }],
+          },
+        },
+      },
+    };
+    state.data.eventStore = {
+      ...state.data.eventStore,
+      791: {
+        ...mockReport,
+        event_type: 'accident_rep',
+        event_details: { severity: '', type_accident: 'Truck crash' },
+        id: '791',
+      },
+    };
+
+    renderWithWrapper(<ReportDetailView isNewReport={false} reportId="791" />);
+
+    await screen.findByLabelText('Severity');
+
+    await userEvent.click(await screen.findByText('Save'));
+
+    await waitFor(() => {
+      expect(generateSaveActionsForReportLikeObject).toHaveBeenCalledTimes(1);
+    });
+    expect(generateSaveActionsForReportLikeObject.mock.calls[0][0].event_details).toEqual({
+      severity: '',
+      type_accident: 'Truck crash',
+    });
+  });
+
+  test('still blocks saving when a cleared legacy dropdown is required by the schema', async () => {
+    const accidentSchema = eventSchemas.accident_rep.base;
+    state.data.eventSchemas = {
+      ...eventSchemas,
+      accident_rep: {
+        ...eventSchemas.accident_rep,
+        790: {
+          ...accidentSchema,
+          schema: {
+            ...accidentSchema.schema,
+            id: 'https://era-7995.pamdas.org/api/v1.0/activity/events/schema/eventtype/accident_rep_required_enum_test',
+            properties: {
+              ...accidentSchema.schema.properties,
+              severity: {
+                type: 'string',
+                title: 'Severity',
+                enum: ['minor', 'major'],
+                enumNames: ['Minor', 'Major'],
+                key: 'severity',
+              },
+            },
+            required: ['severity'],
+          },
+          uiSchema: {
+            ...accidentSchema.uiSchema,
+            'ui:groups': [{
+              origin: 'inferred',
+              items: ['type_accident', 'number_people_involved', 'animals_involved', 'severity'],
+            }],
+          },
+        },
+      },
+    };
+    state.data.eventStore = {
+      ...state.data.eventStore,
+      790: {
+        ...mockReport,
+        event_type: 'accident_rep',
+        event_details: { severity: 'minor', type_accident: 'Truck crash' },
+        id: '790',
+      },
+    };
+
+    renderWithWrapper(<ReportDetailView isNewReport={false} reportId="790" />);
+
+    await userEvent.selectOptions(await screen.findByLabelText(/Severity/), '');
+    await userEvent.type(await screen.findByLabelText('Type of accident'), '!');
+
+    document.querySelector('form').noValidate = true;
+    await userEvent.click(await screen.findByText('Save'));
+
+    expect(await screen.findAllByTestId('error-message')).not.toHaveLength(0);
+    expect(generateSaveActionsForReportLikeObject).not.toHaveBeenCalled();
+  });
+
   test('sets the state when user changes it', async () => {
     renderWithWrapper(
       <ReportDetailView
