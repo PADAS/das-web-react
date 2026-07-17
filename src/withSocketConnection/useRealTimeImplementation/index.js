@@ -4,7 +4,7 @@ import { DAS_HOST } from '../../constants';
 import { resetSocketStateTracking } from './helpers';
 import { SOCKET_HEALTHY_STATUS } from '../../ducks/system-status';
 import { clearAuth } from '../../ducks/auth';
-import { recoverAuth } from '../../utils/auth-recovery';
+import { isStepUpChallenge, parseAuthChallenge, recoverAuth } from '../../utils/auth-recovery';
 import { events } from './config';
 import { calcEventFilterForRequest } from '../../utils/event-filter';
 import { calcPatrolFilterForRequest } from '../../utils/patrol-filter';
@@ -73,10 +73,13 @@ const useRealTimeImplementation = () => {
     socket.on('resp_authorization', async (msg) => {
       const { status } = msg;
       if (status.code === 401) {
-        if (!authRetried) {
+        // Step-up bypasses the once-per-cycle guard: it redirects rather than looping.
+        const challenge = status.www_authenticate;
+        const stepUp = isStepUpChallenge(challenge);
+        if (stepUp || !authRetried) {
           authRetried = true;
           try {
-            await recoverAuth();
+            await recoverAuth(stepUp ? { stepUp: true, challenge: parseAuthChallenge(challenge) } : undefined);
             console.log('realtime: token renewed; re-authorizing');
             return authorize();
           } catch (renewalError) {
