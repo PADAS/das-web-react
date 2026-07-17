@@ -98,7 +98,7 @@ describe('auth-recovery', () => {
       const silentRenew = jest.fn(() => new Promise(() => {}));
       registerAuthRecovery({ silentRenew });
 
-      const rejection = expect(recoverAuth()).rejects.toThrow(/timed out/);
+      const rejection = expect(recoverAuth()).rejects.toThrow(/silent renewal timed out/);
       await jest.advanceTimersByTimeAsync(30_000);
       await rejection;
 
@@ -112,18 +112,22 @@ describe('auth-recovery', () => {
     }
   });
 
-  test('does not time out an interactive step-up (it waits on the user)', async () => {
+  test('times out a step-up whose redirect never navigates, clearing in-flight so a later step-up retries', async () => {
     jest.useFakeTimers();
     try {
-      const stepUp = jest.fn(() => new Promise((resolve) => {
-        setTimeout(() => resolve('stepped.token'), 90_000); // past the 30s silent-renewal timeout
-      }));
+      // A redirect that resolves but never navigates: pending forever.
+      const stepUp = jest.fn(() => new Promise(() => {}));
       registerAuthRecovery({ stepUp });
 
-      const pending = recoverAuth({ stepUp: true });
+      const rejection = expect(recoverAuth({ stepUp: true, challenge: {} })).rejects.toThrow(/step-up redirect timed out/);
       await jest.advanceTimersByTimeAsync(60_000);
-      await jest.advanceTimersByTimeAsync(30_000);
-      await expect(pending).resolves.toBe('stepped.token');
+      await rejection;
+
+      expect(store.dispatch).not.toHaveBeenCalled();
+
+      stepUp.mockImplementationOnce(() => Promise.resolve('stepped.token'));
+      await expect(recoverAuth({ stepUp: true, challenge: {} })).resolves.toBe('stepped.token');
+      expect(stepUp).toHaveBeenCalledTimes(2);
     } finally {
       jest.useRealTimers();
     }

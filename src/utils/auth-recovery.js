@@ -27,15 +27,15 @@ export const parseAuthChallenge = (challenge) => {
 export const isStepUpChallenge = (challenge) =>
   parseAuthChallenge(challenge)?.error === STEP_UP_ERROR;
 
-// A stalled silent renewal (e.g. a network black-hole) must not hang recovery for both
-// transports, so it is time-boxed. Interactive step-up is deliberately NOT bounded — it
-// waits on the user completing MFA, which can take far longer than any network timeout.
+// Time-boxed so a stalled recovery can't hang forever. Step-up's longer bound only trips
+// if the redirect never navigated (a real redirect unloads the page first).
 const SILENT_RENEW_TIMEOUT_MS = 30_000;
+const STEP_UP_REDIRECT_TIMEOUT_MS = 60_000;
 
-const withTimeout = async (promise, ms) => {
+const withTimeout = async (promise, ms, label = 'recovery') => {
   let timeoutId;
   const timeout = new Promise((_, reject) => {
-    timeoutId = setTimeout(() => reject(new Error('auth-recovery: renewal timed out')), ms);
+    timeoutId = setTimeout(() => reject(new Error(`auth-recovery: ${label} timed out`)), ms);
   });
   try {
     return await Promise.race([promise, timeout]);
@@ -65,9 +65,11 @@ export const recoverAuth = ({ stepUp = false, challenge = null } = {}) => {
         throw new Error(`auth-recovery: no ${stepUp ? 'stepUp' : 'silentRenew'} primitive registered`);
       }
 
-      const accessToken = stepUp
-        ? await recover(challenge)
-        : await withTimeout(recover(challenge), SILENT_RENEW_TIMEOUT_MS);
+      const accessToken = await withTimeout(
+        recover(challenge),
+        stepUp ? STEP_UP_REDIRECT_TIMEOUT_MS : SILENT_RENEW_TIMEOUT_MS,
+        stepUp ? 'step-up redirect' : 'silent renewal',
+      );
       if (!accessToken) {
         throw new Error('auth-recovery: renewal returned no token');
       }
