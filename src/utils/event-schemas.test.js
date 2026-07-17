@@ -279,4 +279,14 @@ describe('filterOutEnumErrorsForClearedFields', () => {
 
     expect(arrayFiltered).toEqual(expect.arrayContaining([arrayItemRequiredFieldError]));
   });
+
+  test('not throwing and removing the "enum" error when the schema\'s "required" is malformed (not an array)', () => {
+    const schema = { type: 'object', properties: { single_select: {} }, required: true };
+
+    expect(() => filterOutEnumErrorsForClearedFields([clearedFieldError], eventDetails, schema)).not.toThrow();
+
+    const malformedFiltered = filterOutEnumErrorsForClearedFields([clearedFieldError], eventDetails, schema);
+
+    expect(malformedFiltered).not.toEqual(expect.arrayContaining([clearedFieldError]));
+  });
 });

@@ -19,7 +19,7 @@ const isFieldRequired = (schema, propPath) => {
   for (let index = 0; index < propPath.length; index += 1) {
     const key = propPath[index];
     if (index === propPath.length - 1) {
-      return !!currentSchema?.required?.includes(key);
+      return Array.isArray(currentSchema?.required) && currentSchema.required.includes(key);
     }
 
     currentSchema = typeof key === 'number' ? currentSchema?.items : currentSchema?.properties?.[key];
