@@ -10,6 +10,7 @@ import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/p
 
 import { EVENT_FORM_STATES, PREVIEW_FEATURES, VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 import {
+  filterOutEnumErrorsForClearedFields,
   filterOutErrorsForHiddenProperties,
   filterOutRequiredValueOnSchemaPropErrors,
   getLinearErrorPropTree,
@@ -126,14 +127,19 @@ const DetailsSection = ({
     eventTracker.track('Change Report Time');
   };
 
+  const eventUISchema = eventSchema?.uiSchema;
   const transformErrors = useCallback((errors) => {
     const filteredErrors = filterOutErrorsForHiddenProperties(
-      filterOutRequiredValueOnSchemaPropErrors(errors),
-      eventSchema.uiSchema
+      filterOutEnumErrorsForClearedFields(
+        filterOutRequiredValueOnSchemaPropErrors(errors),
+        reportForm.event_details,
+        jsonSchema
+      ),
+      eventUISchema
     );
 
     return filteredErrors.map((error) => ({ ...error, linearProperty: getLinearErrorPropTree(error.property) }));
-  }, [eventSchema?.uiSchema]);
+  }, [eventUISchema, jsonSchema, reportForm.event_details]);
 
   return <div ref={ref}>
     <div className={styles.globalDetails}>
@@ -279,7 +285,7 @@ const DetailsSection = ({
         ObjectFieldTemplate,
       }}
       transformErrors={transformErrors}
-      uiSchema={eventSchema?.uiSchema}
+      uiSchema={eventUISchema}
       validator={formValidator}
     >
       <button ref={submitFormButtonRef} type="submit" />
