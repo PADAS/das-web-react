@@ -14,7 +14,6 @@ import cloneDeep from 'lodash/cloneDeep';
 import isUndefined from 'lodash/isUndefined';
 import isNil from 'lodash/isNil';
 
-import { calcSpriteSvgUrl } from './img';
 import { format, getCurrentLocale, SHORT_TIME_FORMAT } from './datetime';
 import { PATROL_UI_STATES, PATROL_API_STATES } from '../constants';
 
@@ -26,6 +25,9 @@ import { createPatrol, updatePatrol, addNoteToPatrol, uploadPatrolFile } from '.
 import { getReporterById } from './events';
 
 import * as colorVariables from '../common/styles/vars/colors.module.scss';
+
+import patrolStartPin from '../common/images/icons/patrol-start-pin.svg?url';
+import patrolEndPin from '../common/images/icons/patrol-end-pin.svg?url';
 
 const DEFAULT_STROKE = '#FF0080';
 export const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
@@ -493,11 +495,11 @@ export const sortPatrolList = (patrols) => {
   return orderBy(patrols, [sortFunc, patrolGetLastUpdateTime], ['asc', 'desc']);
 };
 
-export const makePatrolPointFromFeature = (label, coordinates, icon_id, stroke, time) => {
+export const makePatrolPointFromFeature = (label, coordinates, image, stroke, time) => {
 
   const properties = {
     stroke,
-    image: calcSpriteSvgUrl(icon_id),
+    image,
     name: label,
     title: label,
     time: time,
@@ -509,7 +511,7 @@ export const makePatrolPointFromFeature = (label, coordinates, icon_id, stroke, 
 
 export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, rawTrack) => {
   const { patrol_segments: [firstLeg] } = patrol;
-  const { icon_id, start_location, end_location, time_range: { start_time, end_time } = {} } = firstLeg;
+  const { start_location, end_location, time_range: { start_time, end_time } = {} } = firstLeg;
 
   const hasFeatures = !!trackData?.points?.features?.length;
   const features = hasFeatures && trackData.points.features;
@@ -521,6 +523,17 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
     || (!!leader && !!leader.additional && !!leader.additional.rgb && `rgb(${leader.additional.rgb})`)
     || DEFAULT_STROKE;
 
+  // Label the start/end markers with the patrol's name (title, else patrol type
+  // display name), falling back to the generic "Patrol Start"/"Patrol End".
+  const patrolType = firstLeg?.patrol_type;
+  const { data: { patrolTypes } } = store.getState();
+  const matchingPatrolType = patrolType
+    ? (patrolTypes || []).find(({ value, id }) => value === patrolType || id === patrolType)
+    : null;
+  const patrolName = patrol.title || matchingPatrolType?.display || null;
+  const startLabel = patrolName || 'Patrol Start';
+  const endLabel = patrolName || 'Patrol End';
+
   let patrol_points = {
     start_location: null,
     end_location: null,
@@ -530,7 +543,7 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
   const startTime = new Date(start_time);
 
   if (start_location) {
-    patrol_points.start_location = makePatrolPointFromFeature('Patrol Start', [start_location.longitude, start_location.latitude], icon_id, stroke, start_time);
+    patrol_points.start_location = makePatrolPointFromFeature(startLabel, [start_location.longitude, start_location.latitude], patrolStartPin, stroke, start_time);
 
   } else if (hasFeatures) {
     const firstTrackPoint = features[features.length - 1];
@@ -538,12 +551,12 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
 
     const { geometry: { coordinates: [longitude, latitude] } } = firstTrackPoint;
 
-    patrol_points.start_location = makePatrolPointFromFeature(`Patrol Start${firstTrackPointMatchesStartTime ? '' : ' (Est)'}`, [longitude, latitude], icon_id, stroke, firstTrackPoint.properties.time);
+    patrol_points.start_location = makePatrolPointFromFeature(`${startLabel}${firstTrackPointMatchesStartTime ? '' : ' (Est)'}`, [longitude, latitude], patrolStartPin, stroke, firstTrackPoint.properties.time);
   }
 
   if (!isPatrolActive) {
     if (end_location) {
-      patrol_points.end_location = makePatrolPointFromFeature('Patrol End', [end_location.longitude, end_location.latitude], icon_id, stroke, end_time);
+      patrol_points.end_location = makePatrolPointFromFeature(endLabel, [end_location.longitude, end_location.latitude], patrolEndPin, stroke, end_time);
 
     } else if (hasFeatures) {
       let lastTrackPoint = features[0];
@@ -571,14 +584,16 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
 
       const { geometry: { coordinates: [longitude, latitude] } } = lastTrackPoint;
 
-      patrol_points.end_location = makePatrolPointFromFeature(`Patrol End${lastTrackPointMatchesEndTime ? '' : ' (Est)'}`, [longitude, latitude], icon_id, stroke, lastTrackPoint.properties.time);
+      patrol_points.end_location = makePatrolPointFromFeature(`${endLabel}${lastTrackPointMatchesEndTime ? '' : ' (Est)'}`, [longitude, latitude], patrolEndPin, stroke, lastTrackPoint.properties.time);
     }
   }
 
   if (!!patrol_points.start_location && !patrol_points.end_location &&
   isPatrolDone) {
     patrol_points.end_location = cloneDeep(patrol_points.start_location);
-    patrol_points.end_location.properties.title = 'Patrol End (Est)';
+    patrol_points.end_location.properties.image = patrolEndPin;
+    patrol_points.end_location.properties.name = `${endLabel} (Est)`;
+    patrol_points.end_location.properties.title = `${endLabel} (Est)`;
   }
 
   if (!!patrol_points.end_location && !!patrol_points.start_location
@@ -586,7 +601,9 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
       point(patrol_points.end_location.geometry.coordinates),
       point(patrol_points.start_location.geometry.coordinates),
     )) {
-    patrol_points.start_location.properties.title += ` & ${patrol_points.end_location.properties.title}`;
+    if (patrol_points.start_location.properties.title !== patrol_points.end_location.properties.title) {
+      patrol_points.start_location.properties.title += ` & ${patrol_points.end_location.properties.title}`;
+    }
     delete patrol_points.end_location;
   }
 
