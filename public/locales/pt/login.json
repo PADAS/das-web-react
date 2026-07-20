@@ -1,4 +1,12 @@
 {
+  "auth0Info": {
+    "title": "Configurar o EarthRanger Identity",
+    "intro": "O EarthRanger está migrando para uma forma de entrar mais simples e segura, chamada EarthRanger Identity.",
+    "signInPrompt": "Se você já tem o EarthRanger Identity, selecione Conecte-se com e-mail abaixo.",
+    "convertPrompt": "É a primeira vez que usa o EarthRanger Identity? Primeiro, você precisará converter sua conta existente usando o nome de usuário e a senha que usa hoje.",
+    "convertLink": "Converter sua conta",
+    "helpText": "Dúvidas? Entre em contato com o administrador do seu site."
+  },
   "errorAlert": {
     "accessDeniedNotAuthorized": "Acesso negado: Sua conta não está autorizada para esta organização. Entre em contato com o administrador.",
     "accessDeniedNoPermission": "Acesso negado: Você não tem permissão para acessar esta aplicação.",
