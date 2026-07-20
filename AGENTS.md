@@ -268,6 +268,14 @@ The server stores a canonical **JSON Schema** per event type. Client-side editin
 - Functional components with hooks; props destructured in function signature.
 - No PropTypes.
 
+#### Comments
+
+- Do not add new comments unless they are genuinely necessary. Assume the reader knows the language and the codebase; well-named functions and variables should carry the meaning instead.
+- A comment earns its place only when the code cannot: a non-obvious *why* (a workaround, a subtle constraint, an intentional deviation), a caveat, or a link to an external reference. Comments that restate *what* the code does are noise — delete them from your own output before finishing.
+- Never narrate the change or your reasoning in a comment (e.g. `// added this`, `// now using X instead of Y`, `// this fixes the bug`). Comments describe the code as it stands, not how it got there — the diff and commit message are for that.
+- The same rules apply to test files: describe intent through `describe`/`it` names, not inline commentary.
+- Leave existing comments alone unless they are wrong or you are changing the code they document.
+
 #### Accessibility
 
 - **WCAG 2.1 AA** compliance.
