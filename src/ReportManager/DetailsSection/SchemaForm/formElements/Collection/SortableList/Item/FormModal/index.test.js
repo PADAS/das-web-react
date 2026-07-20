@@ -72,10 +72,18 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Collectio
     expect(screen.getByLabelText('Item')).not.toHaveClass('hide');
   });
 
+  test('dims its own background if it is not nested', async () => {
+    renderFormModal({ breadcrumbs: [] });
+
+    expect(screen.getByLabelText('Item')).toHaveClass('dimmedBackground');
+    expect(screen.getByLabelText('Item')).not.toHaveClass('noBackground');
+  });
+
   test('does not show the modal background if it is nested', async () => {
     renderFormModal();
 
     expect(screen.getByLabelText('Item')).toHaveClass('noBackground');
+    expect(screen.getByLabelText('Item')).not.toHaveClass('dimmedBackground');
   });
 
   test('hides the modal if they are disabled by the modals reducer', async () => {

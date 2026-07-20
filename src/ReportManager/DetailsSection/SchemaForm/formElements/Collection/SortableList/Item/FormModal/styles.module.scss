@@ -3,6 +3,10 @@
 @use '../../../../../../../../common/styles/vars/colors';
 @use '../../../../../../../../common/styles/inputs';
 
+.dimmedBackground {
+  background: rgba(0, 0, 0, 0.5);
+}
+
 .noBackground {
   background: none !important;
 }

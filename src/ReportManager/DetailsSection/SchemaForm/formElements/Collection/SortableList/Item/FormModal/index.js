@@ -43,7 +43,7 @@ const FormModal = ({
       aria-labelledby="formModal-title"
       backdrop={false}
       centered
-      className={`${isNestedModal ? styles.noBackground : ''} ${!canShowModals ? styles.hide : ''}`}
+      className={`${isNestedModal ? styles.noBackground : styles.dimmedBackground} ${!canShowModals ? styles.hide : ''}`}
       // It's a good practice to add a focus trap in modals but since some widgets like selects or time pickers use
       // popovers to render their menus, they get impossible to access.
       enforceFocus={false}
