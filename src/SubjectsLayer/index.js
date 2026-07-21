@@ -57,20 +57,14 @@ const SubjectsLayer = ({ mapImages = {}, onSubjectClick }) => {
     setMapSubjectFeatures({ ...subjectFeatureCollection });
   }, [mapImages, subjectFeatureCollection]);
 
-  // When an unclustered symbol source's data shrinks (e.g. "Clear All" or clearing a
-  // subject group), Mapbox keeps the previously rendered symbol bucket on screen — the
-  // removed icons linger until something forces the layer to re-lay-out, which is why a
-  // pan/zoom makes them disappear. Updating the source data, repainting, and forcing a
-  // placement pass all fail to rebuild the bucket; toggling the layer's visibility does.
-  // So, once the source has finished reloading the smaller dataset, briefly toggle the
-  // unclustered subject layers' visibility to force the rebuild without moving the camera.
-  // Clustered subjects render as DOM markers, which update immediately, so this only
-  // applies when clustering is off.
+  // When an unclustered symbol source's data shrinks Mapbox keeps the
+  // previously rendered symbol bucket on screen. Toggling the layer's
+  // visibility rebuilds the bucket.
   const previousSubjectCountRef = useRef(0);
+  const currentSubjectCount = mapSubjectFeatures.features?.length ?? 0;
   useEffect(() => {
-    const currentCount = mapSubjectFeatures.features?.length ?? 0;
-    const didShrink = currentCount < previousSubjectCountRef.current;
-    previousSubjectCountRef.current = currentCount;
+    const didShrink = currentSubjectCount < previousSubjectCountRef.current;
+    previousSubjectCountRef.current = currentSubjectCount;
 
     if (!didShrink || !map || shouldSubjectsBeClustered) return;
 
@@ -91,7 +85,7 @@ const SubjectsLayer = ({ mapImages = {}, onSubjectClick }) => {
     };
     map.on('sourcedata', onSourceData);
     return () => map.off('sourcedata', onSourceData);
-  }, [map, mapSubjectFeatures, shouldSubjectsBeClustered]);
+  }, [currentSubjectCount, map, shouldSubjectsBeClustered]);
 
   const onSubjectSymbolClick = useMemo(() => withMultiLayerHandlerAwareness(
     map,
