@@ -17,8 +17,14 @@ let featureLayerIdentifier = 1000;
 
 export const fetchAnalyzers = () => async (dispatch) => {
   // fetch the active analyzers, only processing the non-null spatial group urls
-  const { default: buffer } = await import('@turf/buffer');
   const { data: { data } } = await axios.get(ANALYZERS_API_URL, { params: { active: true } });
+
+  // buffer (and its heavy @turf/jsts dependency) is only needed to render proximity
+  // analyzer radii; load it lazily and only when a proximity analyzer is present.
+  let buffer;
+  if (data.some((analyzer) => analyzer.analyzer_category === 'proximity')) {
+    ({ default: buffer } = await import('@turf/buffer'));
+  }
 
   const analyzers = await Promise.all(data.map(async (analyzer) => {
     const spatialEntries = Object.entries(analyzer.spatial_groups);
