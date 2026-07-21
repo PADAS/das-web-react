@@ -86,10 +86,8 @@ const isGroupIdInTree = (groups, groupId) => groups.some(
   (group) => group.id === groupId || isGroupIdInTree(group.subgroups, groupId)
 );
 
-const socketNewSubjectAction = (payload) => ({ type: SOCKET_NEW_SUBJECT, payload });
-
 export const socketNewSubject = (payload) => (dispatch, getState) => {
-  dispatch(socketNewSubjectAction(payload));
+  dispatch({ type: SOCKET_NEW_SUBJECT, payload });
 
   const { subject_group_ids } = payload;
   if (!subject_group_ids || subject_group_ids.length === 0) return;
@@ -186,8 +184,7 @@ export default globallyResettableReducer((state = INITIAL_MAP_SUBJECT_STATE, act
 }, INITIAL_MAP_SUBJECT_STATE);
 
 // Recursively removes a subject ID from every node in the groups tree.
-// Returns the original array/group reference when nothing changed, to preserve
-// referential equality for memoized selectors (e.g. reselect).
+// Returns the original array/group reference when nothing changed.
 const removeSubjectIdFromGroups = (groups, subjectId) => {
   let changed = false;
   const next = groups.map((group) => {
@@ -203,10 +200,8 @@ const removeSubjectIdFromGroups = (groups, subjectId) => {
 };
 
 // Recursively appends subjectId to the subjects array of any group node whose
-// id is in targetGroupIds. Idempotent: skips if already present. Group ids not
-// found in the tree are silently ignored. Returns the original array/group
-// reference when nothing changed, to preserve referential equality for
-// memoized selectors (mirrors removeSubjectIdFromGroups).
+// id is in targetGroupIds. Idempotent. Returns the original array/group
+// reference when nothing changed.
 const addSubjectIdToGroups = (groups, subjectId, targetGroupIds) => {
   let changed = false;
   const next = groups.map((group) => {
