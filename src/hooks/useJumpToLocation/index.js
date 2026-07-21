@@ -1,5 +1,4 @@
 import { useContext } from 'react';
-import { LngLatBounds } from 'mapbox-gl';
 import { useLocation as useRouterLocation } from 'react-router';
 
 import { BREAKPOINTS } from '../../constants';
@@ -14,15 +13,7 @@ const DEFAULT_LOCATION_JUMP_PADDING = {
   right: 12,
 };
 
-const extendBoundsForMultiDimensionalCoords = (coords, mapBounds) => {
-  coords.forEach(coord => mapBounds.extend(coord));
-  return mapBounds;
-};
-
-const buildLocationJumpBounds = (bounds, coords) => {
-  const isMultiDimensionalCoords = Array.isArray(coords[0]);
-  return isMultiDimensionalCoords ? extendBoundsForMultiDimensionalCoords(coords, bounds) : bounds.extend(coords);
-};
+const toLeafCoords = (coords) => (Array.isArray(coords[0]) ? coords.flatMap(toLeafCoords) : [coords]);
 
 const useJumpToLocation = () => {
   const routerLocation = useRouterLocation();
@@ -45,7 +36,13 @@ const useJumpToLocation = () => {
     };
 
     if (isArrayCoords && coords.length > 1) {
-      const mapBoundaries = coords.reduce(buildLocationJumpBounds, new LngLatBounds());
+      const points = coords.flatMap(toLeafCoords);
+      const lngs = points.map((point) => point[0]);
+      const lats = points.map((point) => point[1]);
+      const mapBoundaries = [
+        [Math.min(...lngs), Math.min(...lats)],
+        [Math.max(...lngs), Math.max(...lats)],
+      ];
       map.fitBounds(mapBoundaries, { linear: true, speed: 200, padding, ...options });
     } else {
       map.easeTo({ center: isArrayCoords ? coords[0] : coords, zoom, padding, speed: 200, ...options });
