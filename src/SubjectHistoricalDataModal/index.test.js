@@ -14,10 +14,7 @@ import { epsg5367 } from '../__test-helpers/fixtures/location';
 import SubjectHistoricalDataModal, { ITEMS_PER_PAGE, getObservationUniqProperties, SORT_BY } from './';
 
 // A store whose state can be mutated in place without swapping the store
-// instance. Swapping instances changes `dispatch`, which retriggers the
-// fetch effect and clobbers the realtime prepend - an artifact of the test
-// harness, not production. Mutating in place keeps `dispatch` stable and
-// notifies subscribers so `useSelector` re-reads.
+// instance. Keeps dispatch stable and useSelector re-reads.
 const mutableStore = (initialState) => {
   let state = initialState;
   const baseStore = mockStore(state);

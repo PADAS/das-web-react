@@ -117,13 +117,14 @@ const SubjectHistoricalDataModal = ({ subjectId, subjectIsStatic, title }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('subjects', { keyPrefix: 'subjectHistoricalDataModal' });
 
+  const subject = useSelector((state) => state.data?.subjectStore?.[subjectId]);
+
   const [activePage, setActivePage] = useState(1);
   const [loading, setLoadState] = useState(true);
   const [observationsCount, setObservationsCount] = useState(1);
   const [observationProperties, setObservationProperties] = useState([]);
   const [subjectObservations, setSubjectObservations] = useState([]);
 
-  const subject = useSelector((state) => state.data?.subjectStore?.[subjectId]);
   const subjectLastPositionDate = subject?.last_position_date;
 
   const lastProcessedPositionDate = useRef(subjectLastPositionDate);
