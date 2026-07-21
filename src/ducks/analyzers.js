@@ -1,6 +1,6 @@
 import { API_URL } from '../constants';
 import axios from 'axios';
-import { buffer, featureCollection } from '@turf/turf';
+import { featureCollection } from '@turf/turf';
 
 import globallyResettableReducer from '../reducers/global-resettable';
 
@@ -17,6 +17,7 @@ let featureLayerIdentifier = 1000;
 
 export const fetchAnalyzers = () => async (dispatch) => {
   // fetch the active analyzers, only processing the non-null spatial group urls
+  const { default: buffer } = await import('@turf/buffer');
   const { data: { data } } = await axios.get(ANALYZERS_API_URL, { params: { active: true } });
 
   const analyzers = await Promise.all(data.map(async (analyzer) => {
