@@ -1,4 +1,12 @@
 {
+  "auth0Info": {
+    "title": "Sanidi EarthRanger Identity",
+    "intro": "EarthRanger inahamia kwenye njia rahisi na salama zaidi ya kuingia, inayoitwa EarthRanger Identity.",
+    "signInPrompt": "Ikiwa tayari una EarthRanger Identity, chagua Ingia kwa barua pepe hapa chini.",
+    "convertPrompt": "Ni mara yako ya kwanza kutumia EarthRanger Identity? Kwanza utahitaji kubadilisha akaunti yako iliyopo ukitumia jina la mtumiaji na nenosiri unalotumia sasa.",
+    "convertLink": "Badilisha akaunti yako",
+    "helpText": "Una maswali? Wasiliana na msimamizi wa tovuti yako."
+  },
   "errorAlert": {
     "accessDeniedNotAuthorized": "Ufikiaji umekataliwa: Akaunti yako haijaruhusiwa kwa shirika hili. Tafadhali wasiliana na msimamizi wako.",
     "accessDeniedNoPermission": "Ufikiaji umekataliwa: Huna ruhusa ya kufikia programu hii.",
