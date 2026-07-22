@@ -196,6 +196,12 @@ const MenuPopover = ({
             {t('getUserLocationButton')}
           </>}
         />}
+
+        {!map && !showUserLocation && (
+          // No action buttons render in this context (e.g. the map-less community form),
+          // but the focus trap still needs a defined "last focusable" element to wrap to.
+          <span ref={lastFocusableElementRef} tabIndex={-1} aria-hidden="true" className={styles.focusSentinel} />
+        )}
       </div>
     </div>
   </Popover>;
