@@ -419,13 +419,6 @@ div.mapboxgl-popup-tip {
 }
 
 .modal[role=dialog] {
-  @include fade-in;
-
-  align-items: center;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex !important;
-  justify-content: center;
-
   &[style*='opacity: 0'],
   &[style*='opacity:0'] {
     z-index: -1;
