@@ -104,11 +104,11 @@ const MenuPopover = ({
           if (event.shiftKey && document.activeElement === gpsFormatToggleRef.current) {
             event.preventDefault();
 
-            lastFocusableElementRef.current.focus();
+            lastFocusableElementRef.current?.focus();
           } else if (!event.shiftKey && document.activeElement === lastFocusableElementRef.current) {
             event.preventDefault();
 
-            gpsFormatToggleRef.current.focus();
+            gpsFormatToggleRef.current?.focus();
           }
         }
       };
