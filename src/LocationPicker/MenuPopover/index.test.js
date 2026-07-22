@@ -200,6 +200,18 @@ describe('LocationPicker - MenuPopover', () => {
     expect(setLocationButtonRefFocus).toHaveBeenCalledTimes(1);
   });
 
+  test('renders the pick map location button when a map is available', async () => {
+    renderMenuPopover();
+
+    expect(screen.getByLabelText('Pick a location on the map')).toBeVisible();
+  });
+
+  test('does not render the pick map location button when there is no map', async () => {
+    renderMenuPopover({}, undefined, null);
+
+    expect(screen.queryByLabelText('Pick a location on the map')).toBeNull();
+  });
+
   test('does not show the get user location button if the user location is not active', async () => {
     renderMenuPopover();
 

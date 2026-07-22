@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef } from 'react';
+import { lazy, Suspense, useContext, useEffect, useRef } from 'react';
 import Popover from 'react-bootstrap/Popover';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +7,8 @@ import { ReactComponent as GpsLocationIcon } from '../../common/images/icons/gps
 import { ReactComponent as MarkerFeedIcon } from '../../common/images/icons/marker-feed.svg';
 
 import { EVENT_REPORT_CATEGORY, trackEventFactory } from '../../utils/analytics';
+
+import { MapContext } from '../../MapContext';
 
 import GetUserLocationButton from '../../GetUserLocationButton';
 import GpsInput from '../../GpsInput';
@@ -34,6 +36,8 @@ const MenuPopover = ({
   ...otherProps
 }) => {
   const { t } = useTranslation('components', { keyPrefix: 'locationPicker.menuPopover' });
+
+  const map = useContext(MapContext);
 
   const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
   const showUserLocation = useSelector((state) => state.view.showUserLocation);
@@ -167,18 +171,20 @@ const MenuPopover = ({
       />
 
       <div className={styles.buttons}>
-        <Suspense fallback={null}>
-          <PickMapLocationButton
-            onClick={() => eventReportTracker.track('Click \'Set on map\'')}
-            onPick={onMapLocationPick}
-            ref={!showUserLocation ? lastFocusableElementRef : undefined}
-            renderContent={() => <>
-              <MarkerFeedIcon />
+        {map && (
+          <Suspense fallback={null}>
+            <PickMapLocationButton
+              onClick={() => eventReportTracker.track('Click \'Set on map\'')}
+              onPick={onMapLocationPick}
+              ref={!showUserLocation ? lastFocusableElementRef : undefined}
+              renderContent={() => <>
+                <MarkerFeedIcon />
 
-              {t('pickMapLocationButton')}
-            </>}
-          />
-        </Suspense>
+                {t('pickMapLocationButton')}
+              </>}
+            />
+          </Suspense>
+        )}
 
         {showUserLocation && <GetUserLocationButton
           onClick={() => eventReportTracker.track('Click \'Use my location\'')}
