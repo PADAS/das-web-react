@@ -14,11 +14,9 @@ const buildSW = () => {
       globIgnores: [
         '**/*service-worker*.js',
         '**/*precache-manifest*.js',
-        // Heavy, dynamically-imported chunks: exclude from eager precache so a first
-        // visit (e.g. the public community form) doesn't download the whole app.
-        // They are still runtime-cached on demand by the JS/CSS route in sw-custom.js.
-        '**/all-*.js', // epsg-index/all.json (~7.4 MB), only for custom-CRS coordinate features
-        '**/PickMapLocationButton-*.js', // mapbox-gl (~1.76 MB), only when opening the map-location picker
+        // Heavy on-demand chunks; runtime-cached instead (see sw-custom.js).
+        '**/all-*.js', // epsg-index/all.json, ~7.4 MB
+        '**/PickMapLocationButton-*.js', // mapbox-gl, ~1.76 MB
       ],
       maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3 MB
     })

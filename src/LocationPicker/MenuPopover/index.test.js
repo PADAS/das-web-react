@@ -321,20 +321,19 @@ describe('LocationPicker - MenuPopover', () => {
     expect(onBlur).not.toHaveBeenCalled();
   });
 
-  test('does not throw and keeps focus trapped on shift+tab from the GPS format toggle when there is no map and no user location', async () => {
+  test('wraps focus to the GPS input on shift+tab from the GPS format toggle when there is no map and no user location', async () => {
     renderMenuPopover({}, undefined, null);
 
     expect(screen.queryByLabelText('Pick a location on the map')).toBeNull();
     expect(screen.queryByLabelText('Get current position')).toBeNull();
 
+    const gpsInput = screen.getByRole('searchbox', { name: 'Search location in DEG format' });
     const degToggle = screen.getByRole('radio', { name: 'DEG' });
     degToggle.focus();
 
     await userEvent.tab({ shift: true });
 
-    // Focus wraps to the non-interactive sentinel instead of throwing.
-    expect(document.activeElement).toBeInstanceOf(HTMLSpanElement);
-    expect(document.activeElement).toHaveAttribute('aria-hidden', 'true');
+    expect(document.activeElement).toBe(gpsInput);
   });
 
   test('wraps focus to the pick map location button on shift+tab from the GPS format toggle when a map is available', async () => {

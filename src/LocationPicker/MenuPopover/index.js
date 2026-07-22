@@ -101,14 +101,15 @@ const MenuPopover = ({
     if (!isPickingLocation) {
       const onKeyDown = (event) => {
         if (event.key === 'Tab') {
+          const lastFocusableElement = lastFocusableElementRef.current || gpsInputRef.current;
           if (event.shiftKey && document.activeElement === gpsFormatToggleRef.current) {
             event.preventDefault();
 
-            lastFocusableElementRef.current?.focus();
-          } else if (!event.shiftKey && document.activeElement === lastFocusableElementRef.current) {
+            lastFocusableElement.focus();
+          } else if (!event.shiftKey && document.activeElement === lastFocusableElement) {
             event.preventDefault();
 
-            gpsFormatToggleRef.current?.focus();
+            gpsFormatToggleRef.current.focus();
           }
         }
       };
@@ -196,12 +197,6 @@ const MenuPopover = ({
             {t('getUserLocationButton')}
           </>}
         />}
-
-        {!map && !showUserLocation && (
-          // No action buttons render in this context (e.g. the map-less community form),
-          // but the focus trap still needs a defined "last focusable" element to wrap to.
-          <span ref={lastFocusableElementRef} tabIndex={-1} aria-hidden="true" className={styles.focusSentinel} />
-        )}
       </div>
     </div>
   </Popover>;

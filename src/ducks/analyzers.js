@@ -19,8 +19,7 @@ export const fetchAnalyzers = () => async (dispatch) => {
   // fetch the active analyzers, only processing the non-null spatial group urls
   const { data: { data } } = await axios.get(ANALYZERS_API_URL, { params: { active: true } });
 
-  // buffer (and its heavy @turf/jsts dependency) is only needed to render proximity
-  // analyzer radii; load it lazily and only when a proximity analyzer is present.
+  // Lazy-load buffer (pulls in @turf/jsts) only when a proximity analyzer needs it.
   let buffer;
   if (data.some((analyzer) => analyzer.analyzer_category === 'proximity')) {
     ({ default: buffer } = await import('@turf/buffer'));

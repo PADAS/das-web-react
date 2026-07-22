@@ -13,7 +13,7 @@ const DEFAULT_LOCATION_JUMP_PADDING = {
   right: 12,
 };
 
-const toLeafCoords = (coords) => (Array.isArray(coords[0]) ? coords.flatMap(toLeafCoords) : [coords]);
+const flattenToCoordinatePairs = (coords) => (Array.isArray(coords[0]) ? coords.flatMap(flattenToCoordinatePairs) : [coords]);
 
 const useJumpToLocation = () => {
   const routerLocation = useRouterLocation();
@@ -36,7 +36,7 @@ const useJumpToLocation = () => {
     };
 
     if (isArrayCoords && coords.length > 1) {
-      const points = coords.flatMap(toLeafCoords);
+      const points = coords.flatMap(flattenToCoordinatePairs);
       let west = Infinity, south = Infinity, east = -Infinity, north = -Infinity;
       points.forEach(([lng, lat]) => {
         if (lng < west) west = lng;
