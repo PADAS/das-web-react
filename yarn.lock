@@ -4841,7 +4841,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@turf/buffer@npm:7.3.5":
+"@turf/buffer@npm:7.3.5, @turf/buffer@npm:^7.3.5":
   version: 7.3.5
   resolution: "@turf/buffer@npm:7.3.5"
   dependencies:
@@ -7978,6 +7978,7 @@ __metadata:
     "@testing-library/jest-dom": "npm:^6.9.1"
     "@testing-library/react": "npm:^16.3.2"
     "@testing-library/user-event": "npm:^14.6.1"
+    "@turf/buffer": "npm:^7.3.5"
     "@turf/turf": "npm:^7.3.5"
     "@vitejs/plugin-react": "npm:^6.0.3"
     ajv: "npm:^8.20.0"

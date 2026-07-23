@@ -13,6 +13,7 @@
     "@rjsf/react-bootstrap": "^6.6.2",
     "@rjsf/utils": "^6.6.2",
     "@rjsf/validator-ajv8": "^6.6.2",
+    "@turf/buffer": "^7.3.5",
     "@turf/turf": "^7.3.5",
     "ajv": "^8.20.0",
     "ajv-draft-04": "^1.0.0",

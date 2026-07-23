@@ -1,5 +1,4 @@
 import { useContext } from 'react';
-import { LngLatBounds } from 'mapbox-gl';
 import { useLocation as useRouterLocation } from 'react-router';
 
 import { BREAKPOINTS } from '../../constants';
@@ -14,15 +13,7 @@ const DEFAULT_LOCATION_JUMP_PADDING = {
   right: 12,
 };
 
-const extendBoundsForMultiDimensionalCoords = (coords, mapBounds) => {
-  coords.forEach(coord => mapBounds.extend(coord));
-  return mapBounds;
-};
-
-const buildLocationJumpBounds = (bounds, coords) => {
-  const isMultiDimensionalCoords = Array.isArray(coords[0]);
-  return isMultiDimensionalCoords ? extendBoundsForMultiDimensionalCoords(coords, bounds) : bounds.extend(coords);
-};
+const flattenToCoordinatePairs = (coords) => (Array.isArray(coords[0]) ? coords.flatMap(flattenToCoordinatePairs) : [coords]);
 
 const useJumpToLocation = () => {
   const routerLocation = useRouterLocation();
@@ -45,7 +36,15 @@ const useJumpToLocation = () => {
     };
 
     if (isArrayCoords && coords.length > 1) {
-      const mapBoundaries = coords.reduce(buildLocationJumpBounds, new LngLatBounds());
+      const points = coords.flatMap(flattenToCoordinatePairs);
+      let west = Infinity, south = Infinity, east = -Infinity, north = -Infinity;
+      points.forEach(([lng, lat]) => {
+        if (lng < west) west = lng;
+        if (lng > east) east = lng;
+        if (lat < south) south = lat;
+        if (lat > north) north = lat;
+      });
+      const mapBoundaries = [[west, south], [east, north]];
       map.fitBounds(mapBoundaries, { linear: true, speed: 200, padding, ...options });
     } else {
       map.easeTo({ center: isArrayCoords ? coords[0] : coords, zoom, padding, speed: 200, ...options });

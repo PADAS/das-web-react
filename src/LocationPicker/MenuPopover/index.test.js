@@ -200,6 +200,18 @@ describe('LocationPicker - MenuPopover', () => {
     expect(setLocationButtonRefFocus).toHaveBeenCalledTimes(1);
   });
 
+  test('renders the pick map location button when a map is available', async () => {
+    renderMenuPopover();
+
+    expect(screen.getByLabelText('Pick a location on the map')).toBeVisible();
+  });
+
+  test('does not render the pick map location button when there is no map', async () => {
+    renderMenuPopover({}, undefined, null);
+
+    expect(screen.queryByLabelText('Pick a location on the map')).toBeNull();
+  });
+
   test('does not show the get user location button if the user location is not active', async () => {
     renderMenuPopover();
 
@@ -307,6 +319,34 @@ describe('LocationPicker - MenuPopover', () => {
 
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(onBlur).not.toHaveBeenCalled();
+  });
+
+  test('wraps focus to the GPS input on shift+tab from the GPS format toggle when there is no map and no user location', async () => {
+    renderMenuPopover({}, undefined, null);
+
+    expect(screen.queryByLabelText('Pick a location on the map')).toBeNull();
+    expect(screen.queryByLabelText('Get current position')).toBeNull();
+
+    const gpsInput = screen.getByRole('searchbox', { name: 'Search location in DEG format' });
+    const degToggle = screen.getByRole('radio', { name: 'DEG' });
+    degToggle.focus();
+
+    await userEvent.tab({ shift: true });
+
+    expect(document.activeElement).toBe(gpsInput);
+  });
+
+  test('wraps focus to the pick map location button on shift+tab from the GPS format toggle when a map is available', async () => {
+    renderMenuPopover();
+
+    const pickMapLocationButton = await screen.findByLabelText('Pick a location on the map');
+
+    const degToggle = screen.getByRole('radio', { name: 'DEG' });
+    degToggle.focus();
+
+    await userEvent.tab({ shift: true });
+
+    expect(document.activeElement).toBe(pickMapLocationButton);
   });
 
   test('does not close the menu if the user clicks outside while picking a location', async () => {
