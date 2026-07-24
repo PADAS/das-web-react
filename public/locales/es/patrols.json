@@ -62,11 +62,13 @@
     "copyButton": "Copiar link del patrulla",
     "copyButtonMessage": "Link copiado",
     "endPatrol": "Finalizar Patrullaje",
-    "downloadTrackButton": "Descargar ruta de patrulla",
+    "exportPatrolGeoJsonButton": "Exportar patrulla en GeoJson",
+    "exportPatrolCsvButton": "Exportar patrulla en CSV",
     "printPatrolButton": "Imprimir patrulla",
     "restorePatrol": "Restaurar Patrulla",
     "startPatrol": "Iniciar Patrullaje",
-    "noTrackDataTooltip": "No hay datos para descargar"
+    "noDataToExportTooltip": "No hay datos para exportar",
+    "exportErrorToast": "No se pudo exportar los datos de la patrulla"
   },
   "patrolList": {
     "emptyPatrolList": "No hay más patrullas que mostrar."

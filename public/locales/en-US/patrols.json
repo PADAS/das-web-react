@@ -64,8 +64,10 @@
     "endPatrol": "End Patrol",
     "label": "View Patrol Options",
     "title": "Patrol Options",
-    "downloadTrackButton": "Download Patrol Track",
-    "noTrackDataTooltip": "No data to download",
+    "exportPatrolGeoJsonButton": "Export Patrol GeoJson",
+    "exportPatrolCsvButton": "Export Patrol CSV",
+    "noDataToExportTooltip": "No data to export",
+    "exportErrorToast": "Unable to export patrol data",
     "printPatrolButton": "Print Patrol",
     "restorePatrol": "Restore Patrol",
     "startPatrol": "Start Patrol"

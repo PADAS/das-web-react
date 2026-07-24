@@ -62,11 +62,13 @@
     "copyButton": "Copier le lien de la patrouille",
     "copyButtonMessage": "Lien copié avec succès",
     "endPatrol": "Terminer la Patrouille",
-    "downloadTrackButton": "Télécharger la Piste de la Patrouille",
+    "exportPatrolGeoJsonButton": "Exporter la patrouille en GeoJson",
+    "exportPatrolCsvButton": "Exporter la patrouille en CSV",
     "printPatrolButton": "Imprimer la Patrouille",
     "restorePatrol": "Restaurer la Patrouille",
     "startPatrol": "Commencer la Patrouille",
-    "noTrackDataTooltip": "Aucune donnée à télécharger"
+    "noDataToExportTooltip": "Aucune donnée à exporter",
+    "exportErrorToast": "Impossible d'exporter les données de la patrouille"
   },
   "patrolList": {
     "emptyPatrolList": "Aucune patrouille à afficher."

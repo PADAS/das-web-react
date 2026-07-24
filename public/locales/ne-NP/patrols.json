@@ -62,13 +62,15 @@
     "copyButton": "गस्तीको लिकं कपि गर्नुहोस्",
     "copyButtonMessage": "लिकं कपि भयो",
     "endPatrol": "गस्ती अन्त्य गर्नुहोस्",
-    "downloadTrackButton": "गस्तीको ट्र्याक डाउनलोड गर्नुहोस्",
+    "exportPatrolGeoJsonButton": "गस्ती GeoJson निर्यात गर्नुहोस्",
+    "exportPatrolCsvButton": "गस्ती CSV निर्यात गर्नुहोस्",
     "printPatrolButton": "गस्ती प्रिन्ट गर्नुहोस्",
     "restorePatrol": "गस्ती पुर्नस्थापना गर्नुहोस्",
     "startPatrol": "गस्ती सुरु गर्नुहोस्",
     "label": "गस्तीका विकल्पहरु हेर्नुहोस्",
     "title": "गस्तीका विकल्पहरु",
-    "noTrackDataTooltip": "डाउनलोड गर्न कुनै डेटा छैन"
+    "noDataToExportTooltip": "निर्यात गर्न कुनै डेटा छैन",
+    "exportErrorToast": "गस्तीको डेटा निर्यात गर्न सकिएन"
   },
   "patrolList": {
     "emptyPatrolList": "प्रदर्शनीका लागि कुनै गस्ती छैन ।"

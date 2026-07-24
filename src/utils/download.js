@@ -11,6 +11,7 @@ export const downloadFileFromUrl = async (url, { params = {}, filename = null },
   })
     .catch((error) => {
       console.log('error downloading file', error);
+      throw error;
     });
   const link = document.createElement('a');
 
