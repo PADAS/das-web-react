@@ -19,6 +19,7 @@
     "imagePreviewAlt": "{{fileName}} vista previa",
     "videoPreviewAlt": "{{fileName}} vista previa de video",
     "audioPreviewAlt": "{{fileName}} vista previa de audio",
+    "mediaLoadErrorMessage": "No se pudo cargar este archivo.",
     "downloadButtonTooltip": "Descargar",
     "deleteButtonTooltip": "Borrar",
     "fullViewButtonTooltip": "Vista completa"

@@ -53,6 +53,13 @@ describe('ImageModal', () => {
     expect(screen.getByText('Error loading image.')).toBeInTheDocument();
   });
 
+  test('shows an error message when the fetchError prop is set', () => {
+    renderModal({ fetchError: true, mediaType: 'video', src: null });
+
+    expect(screen.getByText('Error loading image.')).toBeInTheDocument();
+    expect(document.querySelector('video')).not.toBeInTheDocument();
+  });
+
   test('downloads the file using the provided url and title when clicking download', async () => {
     const { container } = renderModal({ mediaType: 'video', src: 'https://example.com/clip.mp4', url: 'https://example.com/original/clip.mp4' });
 

@@ -19,6 +19,7 @@
     "imagePreviewAlt": "{{fileName}} aperçu",
     "videoPreviewAlt": "{{fileName}} aperçu vidéo",
     "audioPreviewAlt": "{{fileName}} aperçu audio",
+    "mediaLoadErrorMessage": "Impossible de charger ce fichier.",
     "downloadButtonTooltip": "Télécharger",
     "deleteButtonTooltip": "Supprimer",
     "fullViewButtonTooltip": "Vue d'Ensemble"

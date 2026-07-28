@@ -626,6 +626,43 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Attachmen
     expect(screen.getByRole('button', { name: 'Close player for video.mp4' })).toBeVisible();
   });
 
+  test('shows an error message instead of the player if the media fetch fails', async () => {
+    fetchFileAsObjectUrlFromUrl.mockRejectedValue(new Error('network error'));
+
+    renderAttachmentField({
+      attachmentsMetadata: {
+        'saved-1': { filename: 'audio.mp3', file_type: 'audio', files: { original: 'https://example.com/audio.mp3' } },
+      },
+      value: [{ uploadId: 'saved-1' }],
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Play audio.mp3' }));
+
+    expect(await screen.findByText('Unable to load this file.')).toBeVisible();
+    expect(document.querySelector('audio')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('player-loading-saved-1')).not.toBeInTheDocument();
+  });
+
+  test('retries the fetch when the player is reopened after a failure', async () => {
+    fetchFileAsObjectUrlFromUrl.mockRejectedValueOnce(new Error('network error'));
+
+    renderAttachmentField({
+      attachmentsMetadata: {
+        'saved-1': { filename: 'audio.mp3', file_type: 'audio', files: { original: 'https://example.com/audio.mp3' } },
+      },
+      value: [{ uploadId: 'saved-1' }],
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Play audio.mp3' }));
+    await screen.findByText('Unable to load this file.');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Close player for audio.mp3' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Play audio.mp3' }));
+
+    await waitFor(() => expect(document.querySelector('audio')).toBeInTheDocument());
+    expect(fetchFileAsObjectUrlFromUrl).toHaveBeenCalledTimes(2);
+  });
+
   test('hides the inline player after clicking the close player button again', async () => {
     renderAttachmentField({
       attachmentsMetadata: {

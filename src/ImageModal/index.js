@@ -14,7 +14,7 @@ import * as styles from './styles.module.scss';
 
 const { Header, Title, Body } = Modal;
 
-const ImageModal = ({ id, mediaType = 'image', src, title, url, tracker }) => {
+const ImageModal = ({ fetchError = false, id, mediaType = 'image', src, title, url, tracker }) => {
   const dispatch = useDispatch();
 
   const imageRef = useRef();
@@ -33,6 +33,8 @@ const ImageModal = ({ id, mediaType = 'image', src, title, url, tracker }) => {
     setErrorState(true);
     setImageLoaded();
   }, [mediaType, setImageLoaded, tracker]);
+
+  const showError = error || fetchError;
 
   const onClickDownload = useCallback(() => {
     tracker?.track('Click image download button');
@@ -72,9 +74,9 @@ const ImageModal = ({ id, mediaType = 'image', src, title, url, tracker }) => {
     </Header>
 
     <Body className={styles.body}>
-      {!loaded && <LoadingOverlay />}
+      {!loaded && !fetchError && <LoadingOverlay />}
 
-      {!error && mediaType === 'video' && <video
+      {!showError && mediaType === 'video' && <video
         aria-label={title}
         controls
         onError={setImageError}
@@ -84,7 +86,7 @@ const ImageModal = ({ id, mediaType = 'image', src, title, url, tracker }) => {
         style={{ display: loaded ? 'block' : 'none' }}
       />}
 
-      {!error && mediaType === 'image' && <img
+      {!showError && mediaType === 'image' && <img
         alt={title}
         onError={setImageError}
         onLoad={setImageLoaded}
@@ -93,7 +95,7 @@ const ImageModal = ({ id, mediaType = 'image', src, title, url, tracker }) => {
         style={{ display: loaded ? 'block' : 'none' }}
       />}
 
-      {error && <>
+      {showError && <>
         <h5>{t('errorTitle')}</h5>
         <h6>{t('errorMessage')}</h6>
       </>}

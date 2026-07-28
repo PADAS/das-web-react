@@ -187,6 +187,7 @@
             "closePlayerButtonLabel": "Close player for {{fileName}}",
             "audioPlayerLabel": "{{fileName}} audio player",
             "videoPlayerLabel": "{{fileName}} video player",
+            "playerErrorLabel": "Unable to load this file.",
             "pendingLabel": "Pending",
             "removeButtonLabel": "Remove {{fileName}}",
             "requiredLabel": "(required)",

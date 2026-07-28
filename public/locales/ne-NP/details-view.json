@@ -18,6 +18,7 @@
     "imagePreviewAlt": "{{filename}} पुर्वावलोकन",
     "videoPreviewAlt": "{{fileName}} भिडियो पुर्वावलोकन",
     "audioPreviewAlt": "{{fileName}} अडियो पुर्वावलोकन",
+    "mediaLoadErrorMessage": "यो फाइल लोड गर्न सकिएन।",
     "downloadButtonTooltip": "डाउनलोड गर्नुहोस्",
     "deleteButtonTooltip": "मेट्नुहोस्",
     "fullViewButtonTooltip": "पुरा हेर्नुहोस्",

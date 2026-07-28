@@ -356,6 +356,7 @@
             "closePlayerButtonLabel": "{{fileName}} को प्लेयर बन्द गर्नुहोस्",
             "audioPlayerLabel": "{{fileName}} अडियो प्लेयर",
             "videoPlayerLabel": "{{fileName}} भिडियो प्लेयर",
+            "playerErrorLabel": "यो फाइल लोड गर्न सकिएन।",
             "pendingLabel": "बाँकी",
             "removeButtonLabel": "{{fileName}} हटाउनुहोस्",
             "requiredLabel": "(आवश्यक)",

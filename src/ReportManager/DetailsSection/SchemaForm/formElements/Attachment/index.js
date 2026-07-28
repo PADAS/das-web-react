@@ -108,15 +108,22 @@ const AttachmentListItem = ({ actionButtonRefs, attachment, onRemove, readOnly }
   const isMedia = attachment.fileType === 'audio' || attachment.fileType === 'video';
 
   const [isPlayerOpen, setIsPlayerOpen] = useState(false);
+  const [mediaError, setMediaError] = useState(false);
   const [mediaObjectUrl, setMediaObjectUrl] = useState(null);
 
   const mediaFetchPromiseRef = useRef(null);
 
   useEffect(() => {
     if (isPlayerOpen && isMedia && attachment.originalUrl && !mediaFetchPromiseRef.current) {
-      mediaFetchPromiseRef.current = fetchFileAsObjectUrlFromUrl(attachment.originalUrl).then((objectUrl) => {
-        setMediaObjectUrl(objectUrl);
-      });
+      setMediaError(false);
+      mediaFetchPromiseRef.current = fetchFileAsObjectUrlFromUrl(attachment.originalUrl)
+        .then((objectUrl) => {
+          setMediaObjectUrl(objectUrl);
+        })
+        .catch(() => {
+          mediaFetchPromiseRef.current = null;
+          setMediaError(true);
+        });
     }
   }, [attachment.originalUrl, isMedia, isPlayerOpen]);
 
@@ -225,19 +232,21 @@ const AttachmentListItem = ({ actionButtonRefs, attachment, onRemove, readOnly }
     </div>
 
     {isMedia && isPlayerOpen && attachment.status === 'complete' && <div className={styles.player}>
-      {mediaObjectUrl
-        ? (attachment.fileType === 'audio'
-          ? <audio
-            aria-label={t('audioPlayerLabel', { fileName: attachment.name })}
-            controls
-            src={mediaObjectUrl}
-          />
-          : <video
-            aria-label={t('videoPlayerLabel', { fileName: attachment.name })}
-            controls
-            src={mediaObjectUrl}
-          />)
-        : <span className={styles.playerLoadingSpinner} data-testid={`player-loading-${attachment.uploadId}`} />}
+      {mediaError
+        ? <span className={styles.error}>{t('playerErrorLabel')}</span>
+        : mediaObjectUrl
+          ? (attachment.fileType === 'audio'
+            ? <audio
+              aria-label={t('audioPlayerLabel', { fileName: attachment.name })}
+              controls
+              src={mediaObjectUrl}
+            />
+            : <video
+              aria-label={t('videoPlayerLabel', { fileName: attachment.name })}
+              controls
+              src={mediaObjectUrl}
+            />)
+          : <span className={styles.playerLoadingSpinner} data-testid={`player-loading-${attachment.uploadId}`} />}
     </div>}
   </li>;
 };

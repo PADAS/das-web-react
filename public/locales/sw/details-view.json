@@ -23,6 +23,7 @@
     "imagePreviewAlt": "{{fileName}} muhtasari",
     "videoPreviewAlt": "{{fileName}} muhtasari wa video",
     "audioPreviewAlt": "{{fileName}} muhtasari wa sauti",
+    "mediaLoadErrorMessage": "Imeshindwa kupakia faili hii.",
     "downloadButtonTooltip": "Pakua",
     "deleteButtonTooltip": "Futa",
     "fullViewButtonTooltip": "Tazama Kamili"

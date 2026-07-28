@@ -47,6 +47,7 @@ const AttachmentListItem = ({
   const [imageIconSource, setImageIconSource] = useState(null);
   const [imageOriginalSource, setImageOriginalSource] = useState(null);
   const [mediaObjectUrl, setMediaObjectUrl] = useState(null);
+  const [mediaError, setMediaError] = useState(false);
 
   const currentImageSource = useMemo(() => imageOriginalSource || imageThumbnailSource, [imageOriginalSource, imageThumbnailSource]);
 
@@ -55,11 +56,19 @@ const AttachmentListItem = ({
 
   const ensureMediaObjectUrl = useCallback(() => {
     if (!mediaFetchPromiseRef.current) {
-      mediaFetchPromiseRef.current = fetchFileAsObjectUrlFromUrl(attachment.url).then((objectUrl) => {
-        setMediaObjectUrl(objectUrl);
+      setMediaError(false);
+      mediaFetchPromiseRef.current = fetchFileAsObjectUrlFromUrl(attachment.url)
+        .then((objectUrl) => {
+          setMediaObjectUrl(objectUrl);
 
-        return objectUrl;
-      });
+          return objectUrl;
+        })
+        .catch(() => {
+          mediaFetchPromiseRef.current = null;
+          setMediaError(true);
+
+          return null;
+        });
     }
 
     return mediaFetchPromiseRef.current;
@@ -138,6 +147,13 @@ const AttachmentListItem = ({
     }
   }, [dispatch, mediaObjectUrl]);
 
+  useEffect(() => {
+    if (mediaError && pendingModalIdRef.current) {
+      dispatch(updateModal({ id: pendingModalIdRef.current, fetchError: true }));
+      pendingModalIdRef.current = null;
+    }
+  }, [dispatch, mediaError]);
+
   useEffect(() => () => {
     if (mediaObjectUrl) {
       URL.revokeObjectURL(mediaObjectUrl);
@@ -209,7 +225,14 @@ const AttachmentListItem = ({
             src={currentImageSource}
           />}
 
-          {isVideo && (mediaObjectUrl
+          {(isVideo || isAudio) && mediaError && <p
+            className={styles.mediaLoadError}
+            data-testid={`activitySection-mediaError-${attachment.id}`}
+          >
+            {t('mediaLoadErrorMessage')}
+          </p>}
+
+          {isVideo && !mediaError && (mediaObjectUrl
             ? <video
               aria-label={t('videoPreviewAlt', { fileName: attachment.filename })}
               className={styles.attachmentVideoPreview}
@@ -219,7 +242,7 @@ const AttachmentListItem = ({
             />
             : <div className={styles.mediaLoadingSpinner} data-testid={`activitySection-mediaLoading-${attachment.id}`} />)}
 
-          {isAudio && (mediaObjectUrl
+          {isAudio && !mediaError && (mediaObjectUrl
             ? <audio
               aria-label={t('audioPreviewAlt', { fileName: attachment.filename })}
               className={styles.attachmentAudioPreview}

@@ -351,6 +351,38 @@ describe('ActivitySection - AttachmentListItem', () => {
       expect(screen.queryByTestId('activitySection-video-5678')).not.toBeInTheDocument();
     });
 
+    test('shows an error message instead of the player if the media fetch fails', async () => {
+      fetchFileAsObjectUrlFromUrlMock.mockRejectedValue(new Error('network error'));
+
+      renderWithWrapper(
+        <AttachmentListItem attachment={savedVideoAttachment} cardsExpanded={[savedVideoAttachment]} onCollapse={onCollapse} onExpand={onExpand} />
+      );
+
+      expect(await screen.findByTestId('activitySection-mediaError-5678')).toHaveTextContent('Unable to load this file.');
+      expect(screen.queryByTestId('activitySection-video-5678')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('activitySection-mediaLoading-5678')).not.toBeInTheDocument();
+    });
+
+    test('refetches the media file when re-expanded after a failure', async () => {
+      fetchFileAsObjectUrlFromUrlMock.mockRejectedValueOnce(new Error('network error'));
+
+      const { rerender } = renderWithWrapper(
+        <AttachmentListItem attachment={savedVideoAttachment} cardsExpanded={[savedVideoAttachment]} onCollapse={onCollapse} onExpand={onExpand} />
+      );
+
+      await screen.findByTestId('activitySection-mediaError-5678');
+
+      rerender(
+        <AttachmentListItem attachment={savedVideoAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
+      );
+      rerender(
+        <AttachmentListItem attachment={savedVideoAttachment} cardsExpanded={[savedVideoAttachment]} onCollapse={onCollapse} onExpand={onExpand} />
+      );
+
+      expect(await screen.findByTestId('activitySection-video-5678')).toBeInTheDocument();
+      expect(fetchFileAsObjectUrlFromUrlMock).toHaveBeenCalledTimes(2);
+    });
+
     test('fetches the media file as an authenticated blob and renders a native video player with the resulting object url', async () => {
       renderWithWrapper(
         <AttachmentListItem attachment={savedVideoAttachment} cardsExpanded={[savedVideoAttachment]} onCollapse={onCollapse} onExpand={onExpand} />
@@ -383,6 +415,23 @@ describe('ActivitySection - AttachmentListItem', () => {
       await waitFor(() => {
         expect(mockStoreInstance.getActions()[1].type).toEqual('UPDATE_MODAL');
         expect(mockStoreInstance.getActions()[1].payload.src).toEqual('blob:fake-object-url');
+        expect(mockStoreInstance.getActions()[1].payload.id).toEqual(mockStoreInstance.getActions()[0].payload.id);
+      });
+    });
+
+    test('patches the fullscreen modal with a fetch error if the media fetch fails', async () => {
+      fetchFileAsObjectUrlFromUrlMock.mockRejectedValue(new Error('network error'));
+
+      renderWithWrapper(
+        <AttachmentListItem attachment={savedVideoAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
+      );
+
+      const expandArrowIcon = await screen.findByTestId('expand-arrow-icon');
+      await userEvent.click(expandArrowIcon);
+
+      await waitFor(() => {
+        expect(mockStoreInstance.getActions()[1].type).toEqual('UPDATE_MODAL');
+        expect(mockStoreInstance.getActions()[1].payload.fetchError).toBe(true);
         expect(mockStoreInstance.getActions()[1].payload.id).toEqual(mockStoreInstance.getActions()[0].payload.id);
       });
     });
@@ -437,6 +486,18 @@ describe('ActivitySection - AttachmentListItem', () => {
       await screen.findByText('interview.m4a');
 
       expect(screen.queryByTestId('expand-arrow-icon')).not.toBeInTheDocument();
+    });
+
+    test('shows an error message instead of the player if the media fetch fails', async () => {
+      fetchFileAsObjectUrlFromUrlMock.mockRejectedValue(new Error('network error'));
+
+      renderWithWrapper(
+        <AttachmentListItem attachment={savedAudioAttachment} cardsExpanded={[savedAudioAttachment]} onCollapse={onCollapse} onExpand={onExpand} />
+      );
+
+      expect(await screen.findByTestId('activitySection-mediaError-9012')).toHaveTextContent('Unable to load this file.');
+      expect(screen.queryByTestId('activitySection-audio-9012')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('activitySection-mediaLoading-9012')).not.toBeInTheDocument();
     });
   });
 });

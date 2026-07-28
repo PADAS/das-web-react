@@ -179,6 +179,7 @@
             "closePlayerButtonLabel": "Fermer le lecteur de {{fileName}}",
             "audioPlayerLabel": "Lecteur audio de {{fileName}}",
             "videoPlayerLabel": "Lecteur vidéo de {{fileName}}",
+            "playerErrorLabel": "Impossible de charger ce fichier.",
             "pendingLabel": "En attente",
             "removeButtonLabel": "Supprimer {{fileName}}",
             "requiredLabel": "(obligatoire)",

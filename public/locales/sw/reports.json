@@ -181,6 +181,7 @@
             "closePlayerButtonLabel": "Funga kicheza cha {{fileName}}",
             "audioPlayerLabel": "Kicheza sauti cha {{fileName}}",
             "videoPlayerLabel": "Kicheza video cha {{fileName}}",
+            "playerErrorLabel": "Imeshindwa kupakia faili hii.",
             "pendingLabel": "Inasubiri",
             "removeButtonLabel": "Ondoa {{fileName}}",
             "requiredLabel": "(inahitajika)",

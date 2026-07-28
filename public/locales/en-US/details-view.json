@@ -23,6 +23,7 @@
     "imagePreviewAlt": "{{fileName}} preview",
     "videoPreviewAlt": "{{fileName}} video preview",
     "audioPreviewAlt": "{{fileName}} audio preview",
+    "mediaLoadErrorMessage": "Unable to load this file.",
     "downloadButtonTooltip": "Download",
     "deleteButtonTooltip": "Delete",
     "fullViewButtonTooltip": "Full View"
