@@ -3,6 +3,7 @@ import axios from 'axios';
 import { showToast } from '../toast';
 import {
   convertFileListToArray,
+  fetchFileAsObjectUrlFromUrl,
   fetchImageAsBase64FromUrl,
   filterDuplicateUploadFilenames,
 } from './';
@@ -61,6 +62,23 @@ describe('Utils - File', () => {
       const result = await fetchImageAsBase64FromUrl('https://example.com/image.png');
 
       expect(result).toMatch(/^data:image\/png;base64,/);
+    });
+  });
+
+  describe('fetchFileAsObjectUrlFromUrl', () => {
+    test('fetches the file as a blob and returns an object url created from it', async () => {
+      const fakeBlob = new Blob(['fake-media-data']);
+      axios.get.mockResolvedValue({ data: fakeBlob });
+
+      const createObjectURLSpy = jest.spyOn(URL, 'createObjectURL').mockReturnValue('blob:fake-object-url');
+
+      const result = await fetchFileAsObjectUrlFromUrl('https://example.com/clip.mp4');
+
+      expect(axios.get).toHaveBeenCalledWith('https://example.com/clip.mp4', { responseType: 'blob' });
+      expect(createObjectURLSpy).toHaveBeenCalledWith(fakeBlob);
+      expect(result).toBe('blob:fake-object-url');
+
+      createObjectURLSpy.mockRestore();
     });
   });
 

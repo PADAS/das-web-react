@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { fireEvent, render, screen, waitFor } from '../../../../../test-utils';
 import { TrackerContext } from '../../../../../utils/analytics';
 import { downloadFileFromUrl } from '../../../../../utils/download';
-import { fetchImageAsBase64FromUrl } from '../../../../../utils/file';
+import { fetchFileAsObjectUrlFromUrl, fetchImageAsBase64FromUrl } from '../../../../../utils/file';
 import { mockStore } from '../../../../../__test-helpers/MockStore';
 import { removeFile, uploadFile } from '../../../../../ducks/user-content';
 import { showToast } from '../../../../../utils/toast';
@@ -24,6 +24,7 @@ jest.mock('../../../../../utils/download', () => ({
 
 jest.mock('../../../../../utils/file', () => ({
   ...jest.requireActual('../../../../../utils/file'),
+  fetchFileAsObjectUrlFromUrl: jest.fn(),
   fetchImageAsBase64FromUrl: jest.fn(),
 }));
 
@@ -50,6 +51,7 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Attachmen
     uploadFile.mockImplementation(() => () => 'test-upload-id');
     removeFile.mockImplementation(() => () => {});
     fetchImageAsBase64FromUrl.mockResolvedValue('data:image/png;base64,test');
+    fetchFileAsObjectUrlFromUrl.mockResolvedValue('blob:fake-object-url');
     downloadFileFromUrl.mockImplementation(() => {});
   });
 
@@ -529,7 +531,7 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Attachmen
     expect(actions[0].payload.url).toBe('https://example.com/photo.png');
   });
 
-  test('shows the download button and no thumbnail for a saved audio attachment', () => {
+  test('shows a play button and no thumbnail for a saved audio attachment', () => {
     renderAttachmentField({
       attachmentsMetadata: {
         'saved-1': { filename: 'audio.mp3', file_type: 'audio', files: { original: 'https://example.com/audio.mp3' } },
@@ -538,11 +540,12 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Attachmen
     });
 
     expect(screen.getByText('audio.mp3')).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Download audio.mp3' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Play audio.mp3' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Download audio.mp3' })).not.toBeInTheDocument();
     expect(document.querySelector('img')).not.toBeInTheDocument();
   });
 
-  test('shows the download button and no thumbnail for a saved video attachment', () => {
+  test('shows a play button and no thumbnail for a saved video attachment', () => {
     renderAttachmentField({
       attachmentsMetadata: {
         'saved-1': { filename: 'video.mp4', file_type: 'video', files: { original: 'https://example.com/video.mp4' } },
@@ -551,8 +554,114 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Attachmen
     });
 
     expect(screen.getByText('video.mp4')).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Download video.mp4' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Play video.mp4' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Download video.mp4' })).not.toBeInTheDocument();
     expect(document.querySelector('img')).not.toBeInTheDocument();
+  });
+
+  test('does not show a player until the play button is clicked for a saved audio attachment', () => {
+    renderAttachmentField({
+      attachmentsMetadata: {
+        'saved-1': { filename: 'audio.mp3', file_type: 'audio', files: { original: 'https://example.com/audio.mp3' } },
+      },
+      value: [{ uploadId: 'saved-1' }],
+    });
+
+    expect(document.querySelector('audio')).not.toBeInTheDocument();
+  });
+
+  test('shows a loading spinner while the media file is being fetched', () => {
+    fetchFileAsObjectUrlFromUrl.mockImplementation(() => new Promise(() => {}));
+
+    renderAttachmentField({
+      attachmentsMetadata: {
+        'saved-1': { filename: 'audio.mp3', file_type: 'audio', files: { original: 'https://example.com/audio.mp3' } },
+      },
+      value: [{ uploadId: 'saved-1' }],
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Play audio.mp3' }));
+
+    expect(screen.getByTestId('player-loading-saved-1')).toBeInTheDocument();
+    expect(document.querySelector('audio')).not.toBeInTheDocument();
+  });
+
+  test('fetches the file as an authenticated blob and shows an inline audio player with the resulting object url after clicking the play button', async () => {
+    renderAttachmentField({
+      attachmentsMetadata: {
+        'saved-1': { filename: 'audio.mp3', file_type: 'audio', files: { original: 'https://example.com/audio.mp3' } },
+      },
+      value: [{ uploadId: 'saved-1' }],
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Play audio.mp3' }));
+
+    expect(fetchFileAsObjectUrlFromUrl).toHaveBeenCalledWith('https://example.com/audio.mp3');
+
+    await waitFor(() => expect(document.querySelector('audio')).toBeInTheDocument());
+    const audio = document.querySelector('audio');
+
+    expect(audio).toHaveAttribute('src', 'blob:fake-object-url');
+    expect(audio).toHaveAttribute('controls');
+    expect(screen.getByRole('button', { name: 'Close player for audio.mp3' })).toBeVisible();
+  });
+
+  test('fetches the file as an authenticated blob and shows an inline video player with the resulting object url after clicking the play button', async () => {
+    renderAttachmentField({
+      attachmentsMetadata: {
+        'saved-1': { filename: 'video.mp4', file_type: 'video', files: { original: 'https://example.com/video.mp4' } },
+      },
+      value: [{ uploadId: 'saved-1' }],
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Play video.mp4' }));
+
+    expect(fetchFileAsObjectUrlFromUrl).toHaveBeenCalledWith('https://example.com/video.mp4');
+
+    await waitFor(() => expect(document.querySelector('video')).toBeInTheDocument());
+    const video = document.querySelector('video');
+
+    expect(video).toHaveAttribute('src', 'blob:fake-object-url');
+    expect(video).toHaveAttribute('controls');
+    expect(screen.getByRole('button', { name: 'Close player for video.mp4' })).toBeVisible();
+  });
+
+  test('hides the inline player after clicking the close player button again', async () => {
+    renderAttachmentField({
+      attachmentsMetadata: {
+        'saved-1': { filename: 'audio.mp3', file_type: 'audio', files: { original: 'https://example.com/audio.mp3' } },
+      },
+      value: [{ uploadId: 'saved-1' }],
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Play audio.mp3' }));
+    await waitFor(() => expect(document.querySelector('audio')).toBeInTheDocument());
+
+    await userEvent.click(screen.getByRole('button', { name: 'Close player for audio.mp3' }));
+    expect(document.querySelector('audio')).not.toBeInTheDocument();
+  });
+
+  test('disables the play button for a saved media attachment with no original URL', () => {
+    renderAttachmentField({
+      attachmentsMetadata: {
+        'saved-1': { filename: 'audio.mp3', file_type: 'audio' },
+      },
+      value: [{ uploadId: 'saved-1' }],
+    });
+
+    expect(screen.getByRole('button', { name: 'Play audio.mp3' })).toBeDisabled();
+  });
+
+  test('shows the play button for a saved media attachment in read-only mode', () => {
+    renderAttachmentField({
+      attachmentsMetadata: {
+        'saved-1': { filename: 'video.mp4', file_type: 'video', files: { original: 'https://example.com/video.mp4' } },
+      },
+      readOnly: true,
+      value: [{ uploadId: 'saved-1' }],
+    });
+
+    expect(screen.getByRole('button', { name: 'Play video.mp4' })).toBeVisible();
   });
 
   test('shows the expand button for a saved image attachment in read-only mode', () => {

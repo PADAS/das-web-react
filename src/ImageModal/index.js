@@ -14,7 +14,7 @@ import * as styles from './styles.module.scss';
 
 const { Header, Title, Body } = Modal;
 
-const ImageModal = ({ id, src, title, url, tracker }) => {
+const ImageModal = ({ id, mediaType = 'image', src, title, url, tracker }) => {
   const dispatch = useDispatch();
 
   const imageRef = useRef();
@@ -28,11 +28,11 @@ const ImageModal = ({ id, src, title, url, tracker }) => {
   const setImageLoaded = useCallback(() => setLoadState(true), []);
 
   const setImageError = useCallback(() => {
-    tracker?.track('Error loading image');
+    tracker?.track(`Error loading ${mediaType}`);
 
     setErrorState(true);
     setImageLoaded();
-  }, [setImageLoaded, tracker]);
+  }, [mediaType, setImageLoaded, tracker]);
 
   const onClickDownload = useCallback(() => {
     tracker?.track('Click image download button');
@@ -74,7 +74,17 @@ const ImageModal = ({ id, src, title, url, tracker }) => {
     <Body className={styles.body}>
       {!loaded && <LoadingOverlay />}
 
-      {!error && <img
+      {!error && mediaType === 'video' && <video
+        aria-label={title}
+        controls
+        onError={setImageError}
+        onLoadedData={setImageLoaded}
+        ref={imageRef}
+        src={src}
+        style={{ display: loaded ? 'block' : 'none' }}
+      />}
+
+      {!error && mediaType === 'image' && <img
         alt={title}
         onError={setImageError}
         onLoad={setImageLoaded}

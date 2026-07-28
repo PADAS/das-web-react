@@ -21,6 +21,8 @@
     "collapseOpenButtonLabel": "Collapse",
     "collapseOpenButtonTitle": "Expanded",
     "imagePreviewAlt": "{{fileName}} preview",
+    "videoPreviewAlt": "{{fileName}} video preview",
+    "audioPreviewAlt": "{{fileName}} audio preview",
     "downloadButtonTooltip": "Download",
     "deleteButtonTooltip": "Delete",
     "fullViewButtonTooltip": "Full View"

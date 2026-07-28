@@ -2,6 +2,8 @@ import React, { memo, useContext, useEffect, useMemo, useRef, useState } from 'r
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
+import { ReactComponent as ArrowDownSimpleIcon } from '../../../../../common/images/icons/arrow-down-simple.svg';
+import { ReactComponent as ArrowUpSimpleIcon } from '../../../../../common/images/icons/arrow-up-simple.svg';
 import { ReactComponent as AttachmentIcon } from '../../../../../common/images/icons/attachment.svg';
 import { ReactComponent as CloudUploadIcon } from '../../../../../common/images/icons/cloud-upload.svg';
 import { ReactComponent as DownloadArrowIcon } from '../../../../../common/images/icons/download-arrow.svg';
@@ -13,6 +15,7 @@ import { ReactComponent as VolumeIcon } from '../../../../../common/images/icons
 import { addModal } from '../../../../../ducks/modals';
 import {
   convertFileListToArray,
+  fetchFileAsObjectUrlFromUrl,
   fetchImageAsBase64FromUrl,
   filterDuplicateUploadFilenames,
 } from '../../../../../utils/file';
@@ -102,6 +105,27 @@ const AttachmentListItem = ({ actionButtonRefs, attachment, onRemove, readOnly }
 
   const tracker = useContext(TrackerContext);
 
+  const isMedia = attachment.fileType === 'audio' || attachment.fileType === 'video';
+
+  const [isPlayerOpen, setIsPlayerOpen] = useState(false);
+  const [mediaObjectUrl, setMediaObjectUrl] = useState(null);
+
+  const mediaFetchPromiseRef = useRef(null);
+
+  useEffect(() => {
+    if (isPlayerOpen && isMedia && attachment.originalUrl && !mediaFetchPromiseRef.current) {
+      mediaFetchPromiseRef.current = fetchFileAsObjectUrlFromUrl(attachment.originalUrl).then((objectUrl) => {
+        setMediaObjectUrl(objectUrl);
+      });
+    }
+  }, [attachment.originalUrl, isMedia, isPlayerOpen]);
+
+  useEffect(() => () => {
+    if (mediaObjectUrl) {
+      URL.revokeObjectURL(mediaObjectUrl);
+    }
+  }, [mediaObjectUrl]);
+
   const actionButtonRef = (node) => {
     if (node) {
       actionButtonRefs.current.set(attachment.uploadId, node);
@@ -160,6 +184,18 @@ const AttachmentListItem = ({ actionButtonRefs, attachment, onRemove, readOnly }
         >
         <ExpandArrowIcon aria-hidden="true" />
       </button>;
+    } else if (isMedia) {
+      actionButton = <button
+        aria-label={t(isPlayerOpen ? 'closePlayerButtonLabel' : 'playButtonLabel', { fileName: attachment.name })}
+        className={styles.actionButton}
+        disabled={!attachment.originalUrl}
+        onClick={() => setIsPlayerOpen((open) => !open)}
+        ref={actionButtonRef}
+        title={t(isPlayerOpen ? 'closePlayerButtonLabel' : 'playButtonLabel', { fileName: attachment.name })}
+        type="button"
+        >
+        {isPlayerOpen ? <ArrowUpSimpleIcon aria-hidden="true" /> : <ArrowDownSimpleIcon aria-hidden="true" />}
+      </button>;
     } else {
       actionButton = <button
         aria-label={t('downloadButtonLabel', { fileName: attachment.name })}
@@ -176,15 +212,33 @@ const AttachmentListItem = ({ actionButtonRefs, attachment, onRemove, readOnly }
   }
 
   return <li className={styles.attachmentListItem}>
-    <span aria-hidden="true" className={styles.icon}>{icon}</span>
+    <div className={styles.row}>
+      <span aria-hidden="true" className={styles.icon}>{icon}</span>
 
-    <span className={styles.name}>{attachment.name}</span>
+      <span className={styles.name}>{attachment.name}</span>
 
-    {attachment.status === 'unknown' && <span className={styles.pendingLabel}>{t('pendingLabel')}</span>}
+      {attachment.status === 'unknown' && <span className={styles.pendingLabel}>{t('pendingLabel')}</span>}
 
-    {attachment.status === 'failed' && <span className={styles.error}>{t('uploadErrorLabel')}</span>}
+      {attachment.status === 'failed' && <span className={styles.error}>{t('uploadErrorLabel')}</span>}
 
-    {actionButton}
+      {actionButton}
+    </div>
+
+    {isMedia && isPlayerOpen && attachment.status === 'complete' && <div className={styles.player}>
+      {mediaObjectUrl
+        ? (attachment.fileType === 'audio'
+          ? <audio
+            aria-label={t('audioPlayerLabel', { fileName: attachment.name })}
+            controls
+            src={mediaObjectUrl}
+          />
+          : <video
+            aria-label={t('videoPlayerLabel', { fileName: attachment.name })}
+            controls
+            src={mediaObjectUrl}
+          />)
+        : <span className={styles.playerLoadingSpinner} data-testid={`player-loading-${attachment.uploadId}`} />}
+    </div>}
   </li>;
 };
 

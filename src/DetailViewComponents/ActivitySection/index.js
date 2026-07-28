@@ -174,25 +174,25 @@ const ActivitySection = ({
 
   const [SortButton, sortedItemsRendered] = useSortedNodesWithToggleBtn(sortableList, onSort);
 
-  const imageAttachments = useMemo(
-    () => attachments.filter((attachment) => attachment.file_type === 'image'),
+  const collapsibleAttachments = useMemo(
+    () => attachments.filter((attachment) => ['audio', 'image', 'video'].includes(attachment.file_type)),
     [attachments]
   );
 
   const areAllItemsExpanded = useMemo(
     () => cardsExpanded.length === (
       containedReportsRendered.length +
-      imageAttachments.length +
+      collapsibleAttachments.length +
       notes.length +
       notesToAdd.length),
-    [cardsExpanded.length, containedReportsRendered.length, imageAttachments.length, notes.length, notesToAdd.length],
+    [cardsExpanded.length, containedReportsRendered.length, collapsibleAttachments.length, notes.length, notesToAdd.length],
   );
 
   const onClickExpandCollapseButton = useCallback(() => {
     tracker.track(`${areAllItemsExpanded ? 'Collapse' : 'Expand'} All`);
 
-    setCardsExpanded(areAllItemsExpanded ? [] : [...containedReports, ...imageAttachments, ...notes, ...notesToAdd]);
-  }, [areAllItemsExpanded, containedReports, imageAttachments, notes, notesToAdd, tracker]);
+    setCardsExpanded(areAllItemsExpanded ? [] : [...containedReports, ...collapsibleAttachments, ...notes, ...notesToAdd]);
+  }, [areAllItemsExpanded, collapsibleAttachments, containedReports, notes, notesToAdd, tracker]);
 
   useEffect(() => {
     notes.filter((note) => !note.id && !note.text).forEach((note) => onExpandCard(note));

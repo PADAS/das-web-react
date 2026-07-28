@@ -21,6 +21,8 @@
     "collapseOpenButtonLabel": "Funga",
     "collapseOpenButtonTitle": "Imefunguliwa",
     "imagePreviewAlt": "{{fileName}} muhtasari",
+    "videoPreviewAlt": "{{fileName}} muhtasari wa video",
+    "audioPreviewAlt": "{{fileName}} muhtasari wa sauti",
     "downloadButtonTooltip": "Pakua",
     "deleteButtonTooltip": "Futa",
     "fullViewButtonTooltip": "Tazama Kamili"

@@ -17,6 +17,8 @@
   },
   "attachmentListItem": {
     "imagePreviewAlt": "{{fileName}} aperçu",
+    "videoPreviewAlt": "{{fileName}} aperçu vidéo",
+    "audioPreviewAlt": "{{fileName}} aperçu audio",
     "downloadButtonTooltip": "Télécharger",
     "deleteButtonTooltip": "Supprimer",
     "fullViewButtonTooltip": "Vue d'Ensemble"
