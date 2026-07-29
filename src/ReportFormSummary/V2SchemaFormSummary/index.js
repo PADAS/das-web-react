@@ -2,10 +2,10 @@ import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from '../../utils/v2-event-schemas/constants';
-import getHumanizedFieldValue from '../../utils/v2-event-schemas/getHumanizedFieldValue';
+import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from '../../utils/form-schemas/constants';
+import getHumanizedFieldValue from '../../utils/form-schemas/getHumanizedFieldValue';
 import { selectCoordinatesRepresentation } from '../../selectors/location';
-import transformSchemaToFormElements from '../../utils/v2-event-schemas/transformSchemaToFormElements';
+import transformSchemaToFormElements from '../../utils/form-schemas/transformSchemaToFormElements';
 
 import * as styles from './styles.module.scss';
 

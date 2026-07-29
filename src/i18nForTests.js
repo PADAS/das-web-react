@@ -13,6 +13,7 @@ import mapPopupsEnUS from '../public/locales/en-US/map-popups.json';
 import menuDrawerEnUS from '../public/locales/en-US/menu-drawer.json';
 import patrolsEnUS from '../public/locales/en-US/patrols.json';
 import reportsEnUS from '../public/locales/en-US/reports.json';
+import schemaFormEnUS from '../public/locales/en-US/schema-form.json';
 import subjectsEnUS from '../public/locales/en-US/subjects.json';
 import topBarEnUS from '../public/locales/en-US/top-bar.json';
 import tracksEnUS from '../public/locales/en-US/tracks.json';
@@ -42,6 +43,7 @@ i18n
         'menu-drawer': menuDrawerEnUS,
         'patrols': patrolsEnUS,
         'reports': reportsEnUS,
+        'schema-form': schemaFormEnUS,
         'subjects': subjectsEnUS,
         'top-bar': topBarEnUS,
         'tracks': tracksEnUS,

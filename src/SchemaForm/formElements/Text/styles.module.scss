@@ -1,0 +1,97 @@
+@use 'sass:color';
+
+@use '../../../common/styles/vars/colors';
+
+.text {
+  .label {
+    color: colors.$secondary-medium-gray;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 0.125rem;
+
+    &.error {
+      color: colors.$bright-red;
+    }
+  }
+
+  .textInput {
+    align-items: center;
+    background: white;
+    border: 1px solid colors.$light-gray-border;
+    border-radius: 0.25rem;
+    display: flex;
+
+    &.error {
+      border-color: colors.$bright-red;
+
+      ::placeholder {
+        color: color.adjust(colors.$bright-red, $lightness: 33%);
+      }
+    }
+
+    &.readOnly {
+      background-color: colors.$off-white;
+    }
+
+    &:focus-within {
+      border: 1px solid colors.$bright-blue;
+      outline: 1px solid colors.$bright-blue;
+    }
+
+    .shortTextInput {
+      background-color: transparent;
+      border: none;
+      flex: 1;
+      height: 2.5rem;
+      min-width: 0;
+      outline: none;
+      padding: 0.25rem 0.5rem;
+    }
+    
+    .longTextInput {
+      background-color: transparent;
+      border: none;
+      flex: 1;
+      max-height: 10rem;
+      min-height: 3.5rem;
+      min-width: 0;
+      outline: none;
+      padding: 0.25rem 0.5rem;
+
+      &:read-only {
+        resize: none;
+      }
+
+      + .urlLink {
+        align-self: flex-start;
+      }
+    }
+
+    .urlLink {
+      align-items: center;
+      color: colors.$light-blue;
+      display: flex;
+      outline: none;
+      padding: 0.5rem;
+
+      &:focus, &:hover {
+        color: colors.$bright-blue;
+      }
+    }
+  }
+
+  .description {
+    color: colors.$alt-light-gray;
+    font-size: 0.875rem;
+    font-weight: 400;
+    margin: 0.125rem 0 0;
+
+    &.error {
+      color: colors.$bright-red;
+    }
+
+    &:empty {
+      margin: 0;
+    }
+  }
+}
