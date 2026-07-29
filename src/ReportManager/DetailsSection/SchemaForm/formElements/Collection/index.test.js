@@ -208,7 +208,7 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Collectio
     renderCollectionField({ value: [{}] });
 
     const collectionItem = screen.getByTestId('schema-form-collection-item');
-    const itemChevronButton = screen.getAllByLabelText('Open the Item 1 form preview')[1];
+    const itemChevronButton = screen.getByLabelText('Open the Item 1 form preview');
 
     expect(collectionItem).not.toHaveClass('open');
 

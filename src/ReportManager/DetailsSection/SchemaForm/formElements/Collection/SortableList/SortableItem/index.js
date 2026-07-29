@@ -1,34 +1,27 @@
 import React from 'react';
-import { CSS } from '@dnd-kit/utilities';
-import { useSortable } from '@dnd-kit/sortable';
-
-import { BOOTSTRAP_DEFAULTS } from '../../../../../../../constants';
+import { directionBiased } from '@dnd-kit/collision';
+import { useSortable } from '@dnd-kit/react/sortable';
 
 import Item from '../Item';
 
-const SortableItem = ({ id, isFormModalOpen = false, ...otherProps }) => {
-  const {
-    attributes,
-    isDragging,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({ id });
+const SortableItem = ({ id, index, isFormModalOpen = false, readOnly, ...otherProps }) => {
+  const { handleRef, isDragging, ref } = useSortable({
+    // Known issue: dragging over a taller item makes the list flicker.
+    // https://github.com/clauderic/dnd-kit/issues/1950
+    collisionDetector: directionBiased,
+    disabled: isFormModalOpen || readOnly,
+    id,
+    index,
+  });
 
   return <Item
+    handleRef={handleRef}
     id={id}
+    index={index}
     isDragging={isDragging}
     isFormModalOpen={isFormModalOpen}
-    ref={setNodeRef}
-    style={{
-      transform: CSS.Translate.toString(transform),
-      transition: `${transition}, margin ${BOOTSTRAP_DEFAULTS.COLLAPSE_TRANSITION_TIME}ms`,
-    }}
-    {...attributes}
-    // If the form modal is open we ignore the drag and drop listeners since they may interfere with actions inside the
-    // modal.
-    {...(isFormModalOpen ? {} : listeners)}
+    readOnly={readOnly}
+    ref={ref}
     {...otherProps}
   />;
 };

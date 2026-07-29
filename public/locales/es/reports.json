@@ -194,16 +194,19 @@
               "open": "Cerrar la lista de {{collectionLabel}}"
             },
             "sortableList": {
-              "dragCancelAnnouncement": "Arrastre cancelado. {{activeItemTitle}} se soltó.",
+              "dragCancelAnnouncement": "Arrastre cancelado. {{activeItemTitle}} volvió a la posición {{activeItemPosition}} de {{itemsLength}}.",
               "dragEndAnnouncement": "{{activeItemTitle}} se soltó en la posición {{overItemPosition}} de {{itemsLength}}.",
-              "draggableScreenReaderInstructions": "Para agarrar un {{itemName}}, presione la barra espaciadora o Enter. Mientras arrastra, use las teclas de flecha arriba y abajo para mover el {{itemName}} y actualizar su posición. Presione la barra espaciadora o Enter nuevamente para soltar el {{itemName}} en su nueva posición.",
+              "dragEndOutsideAnnouncement": "{{activeItemTitle}} se soltó y volvió a la posición {{activeItemPosition}} de {{itemsLength}}.",
+              "draggableScreenReaderInstructions": "Para agarrar un {{itemName}}, presione la barra espaciadora. Mientras arrastra, use las teclas de flecha arriba y abajo para mover el {{itemName}} en una dirección determinada. Presione la barra espaciadora nuevamente para soltar el {{itemName}} en su nueva posición, o presione escape para cancelar.",
               "dragOverAnnouncement": "{{activeItemTitle}} se movió a la posición {{overItemPosition}} de {{itemsLength}}.",
-              "dragStartAnnouncement": "{{activeItemTitle}} seleccionado. {{activeItemTitle}} está en la posición {{activeItemPosition}} de {{itemsLength}}.",
+              "dragStartAnnouncement": "{{activeItemTitle}} seleccionado. Posición {{activeItemPosition}} de {{itemsLength}}.",
               "item": {
                 "attachmentHumanizedValue_one": "1 archivo",
                 "attachmentHumanizedValue_other": "{{count}} archivos",
                 "collectionHumanizedValue": "{{collectionLength}} elementos",
                 "deleteButtonLabel": "Eliminar {{itemTitle}}",
+                "dragHandleButtonLabel": "Reordenar {{itemTitle}}",
+                "dragHandleButtonRoleDescription": "arrastrable",
                 "editButtonLabel": "Editar {{itemTitle}}",
                 "formModal": {
                   "cancelButton": "Cancelar",

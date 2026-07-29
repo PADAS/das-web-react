@@ -22,6 +22,7 @@ const Item = ({
   blurLocationMarker = null,
   breadcrumbs = null,
   collectionDetails,
+  handleRef = null,
   errors,
   focusLocationMarker = null,
   formData,
@@ -54,6 +55,7 @@ const Item = ({
   const formDataBeforeEditingRef = useRef(null);
   const shouldDeleteOnCancelRef = useRef(wasItemRecentlyAdded);
 
+  const formPreviewId = isDragOverlay ? undefined : `collectionForm-${collectionDetails.value}-${id}`;
   const hasError = !!errors;
   const itemIdentifierFieldName = collectionDetails.itemIdentifier
     ? formElements[collectionDetails.itemIdentifier].details.value
@@ -67,15 +69,6 @@ const Item = ({
     coordinatesRepresentation,
     t
   );
-
-  const onTitleButtonKeyDown = (event) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      event.stopPropagation();
-
-      setIsFormPreviewOpen(!isFormPreviewOpen);
-    }
-  };
 
   const onEditButtonClick = (event) => {
     event.stopPropagation();
@@ -133,15 +126,6 @@ const Item = ({
   }, []);
 
   useEffect(() => {
-    if (isDragging) {
-      document.body.style.cursor = 'grabbing';
-      return () => {
-        document.body.style.cursor = '';
-      };
-    }
-  }, [isDragging]);
-
-  useEffect(() => {
     if (isFormModalOpen) {
       formDataBeforeEditingRef.current = structuredClone(formData);
       errorsBeforeEditingRef.current = structuredClone(errors);
@@ -166,17 +150,21 @@ const Item = ({
     >
     <div className={styles.header}>
       <div
-        aria-controls={`collectionForm-${title}`}
-        aria-expanded={isFormPreviewOpen}
-        // This wrapper behaves just like the chevron button so we reuse the label.
-        aria-label={t(`chevronButtonLabel.${isFormPreviewOpen ? 'open' : 'closed'}`, { itemTitle: title })}
-        className={styles.titleButton}
+        className={styles.titleWrapper}
         onClick={isDragOverlay ? undefined : () => setIsFormPreviewOpen(!isFormPreviewOpen)}
-        onKeyDown={onTitleButtonKeyDown}
-        role="button"
-        tabIndex={0}
       >
-        <GripDotsVerticalIcon className={styles.dragHandle} />
+        <button
+          aria-label={t('dragHandleButtonLabel', { itemTitle: title })}
+          aria-roledescription={t('dragHandleButtonRoleDescription')}
+          className={styles.dragHandleButton}
+          disabled={readOnly}
+          onClick={(event) => event.stopPropagation()}
+          ref={handleRef}
+          title={t('dragHandleButtonLabel', { itemTitle: title })}
+          type="button"
+        >
+          <GripDotsVerticalIcon className={styles.dragHandle} />
+        </button>
 
         <p className={styles.title} title={title}>{title}</p>
       </div>
@@ -187,7 +175,6 @@ const Item = ({
           className={styles.actionButton}
           disabled={readOnly}
           onClick={isDragOverlay ? undefined : onDelete}
-          onKeyDown={(event) => (event.key === 'Enter' || event.key === ' ') && event.stopPropagation()}
           title={t('deleteButtonLabel', { itemTitle: title } )}
           type="button"
         >
@@ -198,7 +185,6 @@ const Item = ({
           aria-label={t('editButtonLabel', { itemTitle: title })}
           className={styles.actionButton}
           onClick={isDragOverlay ? undefined : onEditButtonClick}
-          onKeyDown={(event) => (event.key === 'Enter' || event.key === ' ') && event.stopPropagation()}
           title={t('editButtonLabel', { itemTitle: title })}
           type="button"
         >
@@ -206,12 +192,11 @@ const Item = ({
         </button>
 
         <button
-          aria-controls={`collectionForm-${title}`}
+          aria-controls={formPreviewId}
           aria-expanded={isFormPreviewOpen}
           aria-label={t(`chevronButtonLabel.${isFormPreviewOpen ? 'open' : 'closed'}`, { itemTitle: title })}
           className={styles.actionButton}
           onClick={isDragOverlay ? undefined : () => setIsFormPreviewOpen(!isFormPreviewOpen)}
-          onKeyDown={(event) => (event.key === 'Enter' || event.key === ' ') && event.stopPropagation()}
           title={t(`chevronButtonLabel.${isFormPreviewOpen ? 'open' : 'closed'}`, { itemTitle: title })}
           type="button"
         >
@@ -221,7 +206,7 @@ const Item = ({
     </div>
 
     <Collapse in={isFormPreviewOpen}>
-      <div id={`collectionForm-${title}`}>
+      <div id={formPreviewId}>
         <FormPreview
           blurLocationMarker={blurLocationMarker}
           errors={errors}

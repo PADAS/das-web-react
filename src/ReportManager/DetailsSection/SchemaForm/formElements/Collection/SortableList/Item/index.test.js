@@ -142,13 +142,13 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Collectio
     renderItem({ isDragging: true });
 
     expect(screen.getByTestId('schema-form-collection-item')).toHaveClass('isDragging');
-    expect(document.body.style.cursor).toBe('grabbing');
   });
 
   test('shows the item as a drag overlay', async () => {
     renderItem({ isDragOverlay: true });
 
     expect(screen.getByTestId('schema-form-collection-item')).toHaveClass('dragOverlay');
+    expect(screen.getByLabelText('Open the Value 1 form preview')).not.toHaveAttribute('aria-controls');
 
     await userEvent.click(screen.getByLabelText('Delete Value 1'));
 
@@ -158,7 +158,7 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Collectio
 
     expect(setIsFormModalOpen).not.toHaveBeenCalled();
 
-    await userEvent.click(screen.getAllByLabelText('Open the Value 1 form preview')[1]);
+    await userEvent.click(screen.getByLabelText('Open the Value 1 form preview'));
 
     expect(setIsFormPreviewOpen).not.toHaveBeenCalled();
   });
@@ -174,6 +174,7 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Collectio
 
     expect(screen.getByTestId('schema-form-collection-item')).toHaveClass('readOnly');
     expect(screen.getByRole('button', { name: 'Delete Value 1' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Reorder Value 1' })).toBeDisabled();
   });
 
   test('shows the item normally', async () => {
@@ -184,7 +185,6 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Collectio
     expect(screen.getByTestId('schema-form-collection-item')).not.toHaveClass('dragOverlay');
     expect(screen.getByTestId('schema-form-collection-item')).not.toHaveClass('error');
     expect(screen.getByTestId('schema-form-collection-item')).not.toHaveClass('readOnly');
-    expect(document.body.style.cursor).not.toBe('grabbing');
     expect(onDelete).not.toHaveBeenCalled();
 
     await userEvent.click(screen.getByLabelText('Delete Value 1'));
@@ -197,7 +197,7 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Collectio
     expect(setIsFormModalOpen).toHaveBeenCalledTimes(1);
     expect(setIsFormPreviewOpen).not.toHaveBeenCalled();
 
-    await userEvent.click(screen.getAllByLabelText('Open the Value 1 form preview')[1]);
+    await userEvent.click(screen.getByLabelText('Open the Value 1 form preview'));
 
     expect(setIsFormPreviewOpen).toHaveBeenCalledTimes(1);
   });
@@ -214,14 +214,24 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Collectio
     expect(screen.getByTestId('schema-form-collection-item')).not.toHaveAttribute('id');
   });
 
+  test('shows the drag handle button', async () => {
+    renderItem();
+
+    const dragHandleButton = screen.getByRole('button', { name: 'Reorder Value 1' });
+
+    expect(dragHandleButton).toHaveAttribute('aria-roledescription', 'draggable');
+    expect(dragHandleButton).toBeEnabled();
+    expect(dragHandleButton).toHaveAttribute('title', 'Reorder Value 1');
+  });
+
   test('opens the form preview when the user clicks the title', async () => {
     renderItem();
 
-    const titleButton = screen.getAllByLabelText('Open the Value 1 form preview')[0];
+    const title = screen.getByTitle('Value 1');
 
     expect(setIsFormPreviewOpen).not.toHaveBeenCalled();
 
-    await userEvent.click(titleButton);
+    await userEvent.click(title);
 
     expect(setIsFormPreviewOpen).toHaveBeenCalledTimes(1);
     expect(setIsFormPreviewOpen).toHaveBeenCalledWith(true);
@@ -230,11 +240,11 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Collectio
   test('closes the form preview when user clicks the title again', async () => {
     renderItem({ isFormPreviewOpen: true });
 
-    const titleButton = screen.getAllByLabelText('Close the Value 1 form preview')[0];
+    const title = screen.getByTitle('Value 1');
 
     expect(setIsFormPreviewOpen).not.toHaveBeenCalled();
 
-    await userEvent.click(titleButton);
+    await userEvent.click(title);
 
     expect(setIsFormPreviewOpen).toHaveBeenCalledTimes(1);
     expect(setIsFormPreviewOpen).toHaveBeenCalledWith(false);
@@ -287,7 +297,7 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Collectio
   test('opens the form preview when user clicks the chevron', async () => {
     renderItem();
 
-    const chevronButton = screen.getAllByLabelText('Open the Value 1 form preview')[1];
+    const chevronButton = screen.getByLabelText('Open the Value 1 form preview');
 
     expect(setIsFormPreviewOpen).not.toHaveBeenCalled();
 
@@ -300,7 +310,7 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Collectio
   test('closes the form preview when user clicks the chevron again', async () => {
     renderItem({ isFormPreviewOpen: true });
 
-    const chevronButton = screen.getAllByLabelText('Close the Value 1 form preview')[1];
+    const chevronButton = screen.getByLabelText('Close the Value 1 form preview');
 
     expect(setIsFormPreviewOpen).not.toHaveBeenCalled();
 

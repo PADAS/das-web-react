@@ -202,16 +202,19 @@
               "open": "Close the {{collectionLabel}} list"
             },
             "sortableList": {
-              "dragCancelAnnouncement": "Dragging was cancelled. {{activeItemTitle}} was dropped.",
+              "dragCancelAnnouncement": "Dragging was cancelled. {{activeItemTitle}} was returned to position {{activeItemPosition}} of {{itemsLength}}.",
               "dragEndAnnouncement": "{{activeItemTitle}} was dropped at position {{overItemPosition}} of {{itemsLength}}.",
-              "draggableScreenReaderInstructions": "To pick up a {{itemName}}, press space or enter. While dragging, use the up and down arrow keys to move the {{itemName}} and update its position. Press space or enter again to drop the {{itemName}} in its new position.",
+              "dragEndOutsideAnnouncement": "{{activeItemTitle}} was dropped and returned to position {{activeItemPosition}} of {{itemsLength}}.",
+              "draggableScreenReaderInstructions": "To pick up a {{itemName}}, press the space bar. While dragging, use the up and down arrow keys to move the {{itemName}} in a given direction. Press space again to drop the {{itemName}} in its new position, or press escape to cancel.",
               "dragOverAnnouncement": "{{activeItemTitle}} was moved into position {{overItemPosition}} of {{itemsLength}}.",
-              "dragStartAnnouncement": "Picked up {{activeItemTitle}}. {{activeItemTitle}} is in position {{activeItemPosition}} of {{itemsLength}}.",
+              "dragStartAnnouncement": "Picked up {{activeItemTitle}}. Position {{activeItemPosition}} of {{itemsLength}}.",
               "item": {
                 "attachmentHumanizedValue_one": "1 file",
                 "attachmentHumanizedValue_other": "{{count}} files",
                 "collectionHumanizedValue": "{{collectionLength}} items",
                 "deleteButtonLabel": "Delete {{itemTitle}}",
+                "dragHandleButtonLabel": "Reorder {{itemTitle}}",
+                "dragHandleButtonRoleDescription": "draggable",
                 "editButtonLabel": "Edit {{itemTitle}}",
                 "formModal": {
                   "cancelButton": "Cancel",

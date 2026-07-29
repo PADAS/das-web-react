@@ -194,16 +194,19 @@
               "open": "Fermer la liste de {{collectionLabel}}"
             },
             "sortableList": {
-              "dragCancelAnnouncement": "Glissement annulé. {{activeItemTitle}} a été déposé.",
+              "dragCancelAnnouncement": "Glissement annulé. {{activeItemTitle}} est revenu à la position {{activeItemPosition}} sur {{itemsLength}}.",
               "dragEndAnnouncement": "{{activeItemTitle}} a été déposé à la position {{overItemPosition}} sur {{itemsLength}}.",
-              "draggableScreenReaderInstructions": "Pour saisir un {{itemName}}, appuyez sur la barre d’espace ou Entrée. Pendant le déplacement, utilisez les touches fléchées haut et bas pour déplacer le {{itemName}} et mettre à jour sa position. Appuyez à nouveau sur la barre d’espace ou Entrée pour déposer le {{itemName}} à sa nouvelle position.",
+              "dragEndOutsideAnnouncement": "{{activeItemTitle}} a été déposé et est revenu à la position {{activeItemPosition}} sur {{itemsLength}}.",
+              "draggableScreenReaderInstructions": "Pour saisir un {{itemName}}, appuyez sur la barre d’espace. Pendant le déplacement, utilisez les touches fléchées haut et bas pour déplacer le {{itemName}} dans une direction donnée. Appuyez à nouveau sur la barre d’espace pour déposer le {{itemName}} à sa nouvelle position, ou appuyez sur Échap pour annuler.",
               "dragOverAnnouncement": "{{activeItemTitle}} a été déplacé à la position {{overItemPosition}} sur {{itemsLength}}.",
-              "dragStartAnnouncement": "{{activeItemTitle}} a été saisi. {{activeItemTitle}} est à la position {{activeItemPosition}} sur {{itemsLength}}.",
+              "dragStartAnnouncement": "{{activeItemTitle}} a été saisi. Position {{activeItemPosition}} sur {{itemsLength}}.",
               "item": {
                 "attachmentHumanizedValue_one": "1 fichier",
                 "attachmentHumanizedValue_other": "{{count}} fichiers",
                 "collectionHumanizedValue": "{{collectionLength}} éléments",
                 "deleteButtonLabel": "Supprimer {{itemTitle}}",
+                "dragHandleButtonLabel": "Réorganiser {{itemTitle}}",
+                "dragHandleButtonRoleDescription": "déplaçable",
                 "editButtonLabel": "Modifier {{itemTitle}}",
                 "formModal": {
                   "cancelButton": "Annuler",

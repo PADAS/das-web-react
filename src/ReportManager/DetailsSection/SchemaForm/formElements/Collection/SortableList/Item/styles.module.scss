@@ -5,7 +5,6 @@
 .item {
   border-radius: 0.25rem;
   cursor: grab;
-  outline: none;
   touch-action: manipulation;
 
   &:hover:not(.readOnly) {
@@ -13,20 +12,12 @@
     position: relative;
 
     .header {
-      .titleButton {
-        .dragHandle {
+      .titleWrapper {
+        .dragHandleButton:not(:focus-visible) {
           color: colors.$secondary-medium-gray;
         }
       }
     }
-  }
-
-  &:focus:not(.isDragging) {
-    outline: colors.$bright-blue auto 1px;
-  }
-
-  &:focus:not(.isDragging):not(.readOnly) .header .titleButton .dragHandle {
-    color: colors.$secondary-medium-gray;
   }
 
   &.open {
@@ -50,29 +41,25 @@
   &.dragOverlay {
     cursor: grabbing;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+    margin: 0;
 
     .header {
       border: 2px solid colors.$bright-blue;
 
-      .titleButton {
+      .dragHandleButton,
+      .actionButton {
         cursor: grabbing;
 
-        .dragHandle {
-          color: colors.$secondary-medium-gray;
-
-          &:hover {
-            cursor: grabbing;
-          }
+        &:hover {
+          background: unset;
         }
       }
 
-      .actionButtons {
-        .actionButton {
-          cursor: grabbing;
+      .titleWrapper {
+        cursor: grabbing;
 
-          &:hover {
-            background: unset;
-          }
+        .dragHandleButton {
+          color: colors.$secondary-medium-gray;
         }
       }
     }
@@ -83,8 +70,8 @@
       border-color: colors.$bright-red;
       margin-bottom: 1px;
 
-      .titleButton {
-        .dragHandle {
+      .titleWrapper {
+        .dragHandleButton {
           color: colors.$bright-red;
         }
 
@@ -105,10 +92,9 @@
     cursor: unset;
 
     .header {
-      .titleButton {
-        .dragHandle {
-          cursor: pointer;
-          opacity: 0.66;
+      .titleWrapper {
+        .dragHandleButton {
+          cursor: unset;
         }
       }
     }
@@ -146,28 +132,57 @@
     height: 2.5rem;
     width: 100%;
 
-    .titleButton {
+    .dragHandleButton,
+    .actionButton {
+      align-items: center;
+      background: none;
+      border: none;
+      border-radius: 0.1875rem;
+      color: colors.$secondary-medium-gray;
+      display: flex;
+      height: 1.75rem;
+      justify-content: center;
+      outline: none;
+      padding: 0;
+      width: 1.75rem;
+
+      &:disabled {
+        opacity: 0.66;
+      }
+
+      &:hover:not(:disabled) {
+        background: colors.$light-gray-background;
+      }
+
+      &:focus-visible {
+        color: colors.$bright-blue;
+        outline: 2px solid colors.$bright-blue;
+      }
+    }
+
+    .titleWrapper {
       align-items: center;
       border: 1px solid transparent;
       border-bottom-left-radius: 0.25rem;
       border-top-left-radius: 0.25rem;
+      cursor: pointer;
       display: flex;
       flex: 1;
       height: 2.5rem;
       overflow: hidden;
-      outline: none;
-      padding: 0.25rem 0.5rem;
+      padding: 0.25rem 0.5rem 0.25rem 0.25rem;
 
-      &:focus-visible {
-        border: 1px solid colors.$bright-blue;
-        outline: 1px solid colors.$bright-blue;
-      }
-
-      .dragHandle {
-        color: colors.$secondary-light-gray;
+      .dragHandleButton {
         cursor: grab;
-        height: 1.25rem;
-        width: 1.25rem;
+
+        &:not(:focus-visible) {
+          color: colors.$secondary-light-gray;
+        }
+
+        .dragHandle {
+          height: 1.25rem;
+          width: 1.25rem;
+        }
       }
 
       .title {
@@ -186,28 +201,10 @@
       margin-right: 0.5rem;
 
       .actionButton {
-        background: none;
-        border: none;
-        border-radius: 0.1875rem;
-        color: colors.$secondary-medium-gray;
         margin-right: 0.25rem;
-        outline: none;
 
         &:last-child {
           margin-right: 0;
-        }
-
-        &:disabled {
-          opacity: 0.66;
-        }
-
-        &:hover:not(:disabled) {
-          background: colors.$light-gray-background;
-        }
-
-        &:focus-visible {
-          color: colors.$bright-blue;
-          outline: 2px solid colors.$bright-blue;
         }
       }
     }

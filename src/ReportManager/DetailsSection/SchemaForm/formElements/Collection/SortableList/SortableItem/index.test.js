@@ -1,7 +1,7 @@
 import React from 'react';
+import { directionBiased } from '@dnd-kit/collision';
 import { Provider } from 'react-redux';
-import userEvent from '@testing-library/user-event';
-import { useSortable } from '@dnd-kit/sortable';
+import { useSortable } from '@dnd-kit/react/sortable';
 
 import { render, screen } from '../../../../../../../test-utils';
 import { GPS_FORMATS } from '../../../../../../../utils/location';
@@ -10,28 +10,19 @@ import { FORM_ELEMENT_TYPES } from '../../../../../../../utils/v2-event-schemas/
 
 import SortableItem from './';
 
-jest.mock('@dnd-kit/sortable', () => ({
-  ...jest.requireActual('@dnd-kit/sortable'),
+jest.mock('@dnd-kit/react/sortable', () => ({
+  ...jest.requireActual('@dnd-kit/react/sortable'),
   useSortable: jest.fn(),
 }));
 
 describe('ReportManager - DetailsSection - SchemaForm - formElements - Collection - SortableList - SortableItem', () => {
   const renderFormElement = jest.fn();
 
-  let attributes, collectionDetails, listeners, store, transform, transition;
+  let collectionDetails, handleRef, ref, store;
   beforeEach(() => {
-    attributes = { tabIndex: 0 };
-    listeners = { onKeyDown: jest.fn() };
-    transform = {};
-    transition = 'transition 1s';
-    useSortable.mockImplementation(() => ({
-      attributes,
-      isDragging: true,
-      listeners,
-      setNodeRef: () => {},
-      transform,
-      transition,
-    }));
+    handleRef = jest.fn();
+    ref = jest.fn();
+    useSortable.mockImplementation(() => ({ handleRef, isDragging: true, ref }));
     collectionDetails = {
       columns: 1,
       itemIdentifier: 'field-1',
@@ -77,9 +68,11 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Collectio
           },
         }}
         id={1}
+        index={2}
         isDragOverlay={false}
         isFormModalOpen={false}
         isFormPreviewOpen={false}
+        readOnly={false}
         renderFormElement={renderFormElement}
         {...props}
       />
@@ -92,26 +85,43 @@ describe('ReportManager - DetailsSection - SchemaForm - formElements - Collectio
     const item = screen.getByTestId('schema-form-collection-item');
 
     expect(useSortable).toHaveBeenCalledTimes(1);
-    expect(useSortable).toHaveBeenCalledWith({ id: 1 });
+    expect(useSortable).toHaveBeenCalledWith({
+      collisionDetector: directionBiased,
+      disabled: false,
+      id: 1,
+      index: 2,
+    });
     expect(item).toHaveClass('isDragging');
-    expect(item).toHaveAttribute('tabindex', '0');
-    expect(item).toHaveAttribute('style', 'transform: translate3d(0px, 0px, 0); transition: transition 1s, margin 300ms;');
-
-    await userEvent.type(item, 'a');
-
-    expect(listeners.onKeyDown).toHaveBeenCalledTimes(1);
+    expect(ref).toHaveBeenCalledWith(item);
   });
 
-  test('does not inject the listeners if the form modal is open', async () => {
+  test('connects the sortable handle to the item drag handle button', async () => {
+    renderSortableItem();
+
+    expect(handleRef).toHaveBeenCalledWith(screen.getByRole('button', { name: 'Reorder Collection 1 2' }));
+  });
+
+  test('disables the sortable if the form modal is open', async () => {
     renderSortableItem({ isFormModalOpen: true });
 
-    const item = screen.getByTestId('schema-form-collection-item');
+    expect(useSortable).toHaveBeenCalledTimes(1);
+    expect(useSortable).toHaveBeenCalledWith({
+      collisionDetector: directionBiased,
+      disabled: true,
+      id: 1,
+      index: 2,
+    });
+  });
+
+  test('disables the sortable if the collection is read only', async () => {
+    renderSortableItem({ readOnly: true });
 
     expect(useSortable).toHaveBeenCalledTimes(1);
-    expect(useSortable).toHaveBeenCalledWith({ id: 1 });
-
-    await userEvent.type(item, 'a');
-
-    expect(listeners.onKeyDown).not.toHaveBeenCalled();
+    expect(useSortable).toHaveBeenCalledWith({
+      collisionDetector: directionBiased,
+      disabled: true,
+      id: 1,
+      index: 2,
+    });
   });
 });

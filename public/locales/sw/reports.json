@@ -196,16 +196,19 @@
               "open": "Funga orodha ya {{collectionLabel}}"
             },
             "sortableList": {
-              "dragCancelAnnouncement": "Kuburuta kulisitishwa. {{activeItemTitle}} imeangushwa.",
+              "dragCancelAnnouncement": "Kuburuta kulisitishwa. {{activeItemTitle}} imerejeshwa kwenye nafasi ya {{activeItemPosition}} kati ya {{itemsLength}}.",
               "dragEndAnnouncement": "{{activeItemTitle}} imeangushwa kwenye nafasi ya {{overItemPosition}} kati ya {{itemsLength}}.",
-              "draggableScreenReaderInstructions": "Kuchukua {{itemName}}, bonyeza space au Enter. Wakati wa kuburuta, tumia vibonyo vya mshale juu na chini kusogeza {{itemName}} na kusasisha msimamo wake. Bonyeza space au Enter tena kuacha {{itemName}} kwenye msimamo wake mpya.",
+              "dragEndOutsideAnnouncement": "{{activeItemTitle}} imeangushwa na imerejeshwa kwenye nafasi ya {{activeItemPosition}} kati ya {{itemsLength}}.",
+              "draggableScreenReaderInstructions": "Kuchukua {{itemName}}, bonyeza space. Wakati wa kuburuta, tumia vibonyo vya mshale juu na chini kusogeza {{itemName}} katika mwelekeo unaotaka. Bonyeza space tena kuacha {{itemName}} kwenye msimamo wake mpya, au bonyeza escape kughairi.",
               "dragOverAnnouncement": "{{activeItemTitle}} imehamishwa kwenye nafasi ya {{overItemPosition}} kati ya {{itemsLength}}.",
-              "dragStartAnnouncement": "{{activeItemTitle}} imechukuliwa. {{activeItemTitle}} iko kwenye nafasi ya {{activeItemPosition}} kati ya {{itemsLength}}.",
+              "dragStartAnnouncement": "{{activeItemTitle}} imechukuliwa. Nafasi ya {{activeItemPosition}} kati ya {{itemsLength}}.",
               "item": {
                 "attachmentHumanizedValue_one": "faili 1",
                 "attachmentHumanizedValue_other": "faili {{count}}",
                 "collectionHumanizedValue": "{{collectionLength}} vitu",
                 "deleteButtonLabel": "Futa {{itemTitle}}",
+                "dragHandleButtonLabel": "Panga upya {{itemTitle}}",
+                "dragHandleButtonRoleDescription": "inaburutika",
                 "editButtonLabel": "Hariri {{itemTitle}}",
                 "formModal": {
                   "cancelButton": "Ghairi",
