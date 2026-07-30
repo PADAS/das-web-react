@@ -13,6 +13,7 @@ import { setIsPickingLocation } from '../ducks/map-ui';
 import { useMapEventBinding } from '../hooks';
 
 import MapDrawingTools, { DefaultCursorPopup, DRAWING_MODES } from '../MapDrawingTools';
+import MapDrawingToolsContextProvider from '../MapDrawingTools/ContextProvider';
 import PointPopup from './PointPopup';
 
 import { calcCursorPolygonAreaDisplayString } from './utils';
@@ -196,14 +197,17 @@ const MapRulerControl = ({ setIsPickingLocation }) => {
       {drawing && <PointPopup map={map} points={points} pointIndex={points.length - 1} drawing={drawing} onClickFinish={onFinish} />}
       {!drawing && popupPointSelected && <PointPopup map={map} points={points} pointIndex={selectedPointIndex} drawing={drawing} />}
     </>}
-    {active && <MapDrawingTools
-      drawing={drawing}
-      drawingMode={DRAWING_MODES.LINE}
-      points={points}
-      onChange={onDrawChange}
-      onClickPoint={onClickPoint}
-      renderCursorPopup={renderCursorPopup}
-    />}
+    {active && <MapDrawingToolsContextProvider>
+      <MapDrawingTools
+        drawing={drawing}
+        drawingMode={DRAWING_MODES.LINE}
+        points={points}
+        onChange={onDrawChange}
+        onClickPoint={onClickPoint}
+        renderCursorPopup={renderCursorPopup}
+        showLineFill
+      />
+    </MapDrawingToolsContextProvider>}
   </>;
 };
 

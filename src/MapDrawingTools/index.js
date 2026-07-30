@@ -35,6 +35,7 @@ const MapDrawingTools = ({
   onClickPoint = noop,
   points,
   renderCursorPopup = defaultCursorPopupRenderFn,
+  showLineFill = false,
 }) => {
   const map = useContext(MapContext);
 
@@ -60,7 +61,8 @@ const MapDrawingTools = ({
     drawingMode,
     isHoveringGeometry,
     draggedPoint,
-    isMediumLayoutOrLarger
+    isMediumLayoutOrLarger,
+    showLineFill
   );
 
   const showLayer = pointerLocation || points.length;
@@ -190,6 +192,7 @@ const MapDrawingTools = ({
       isHoveringGeometry={isHoveringGeometry}
       setIsHoveringGeometry={setIsHoveringGeometry}
       setIsHoveringMidpoint={setIsHoveringMidpoint}
+      showLineFill={showLineFill}
     />
     {children}
   </>;

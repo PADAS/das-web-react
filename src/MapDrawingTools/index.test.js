@@ -260,6 +260,93 @@ describe('MapDrawingTools', () => {
     });
   });
 
+  describe('the line fill', () => {
+    const renderLineDrawingTools = (setMapDrawingData, props) => render(
+      <MapContext.Provider value={map}>
+        <MapDrawingToolsContext.Provider value={{ setMapDrawingData }}>
+          <MapDrawingTools
+            drawing={drawing}
+            drawingMode={DRAWING_MODES.LINE}
+            points={[[1, 2], [2, 3], [4, 1]]}
+            {...props}
+          />
+        </MapDrawingToolsContext.Provider>
+      </MapContext.Provider>
+    );
+
+    const getLastDrawingData = (setMapDrawingData) =>
+      setMapDrawingData.mock.calls[setMapDrawingData.mock.calls.length - 1][0];
+
+    test('fills the closed ring of the drawn line when enabled', async () => {
+      const setMapDrawingData = jest.fn();
+
+      renderLineDrawingTools(setMapDrawingData, { showLineFill: true });
+
+      await waitFor(() => {
+        const { fillPolygon } = getLastDrawingData(setMapDrawingData);
+
+        expect(fillPolygon.geometry.type).toBe('Polygon');
+        expect(fillPolygon.geometry.coordinates[0]).toEqual([[1, 2], [2, 3], [4, 1], [1, 2]]);
+      });
+    });
+
+    test('does not label the filled area on the map', async () => {
+      const setMapDrawingData = jest.fn();
+
+      renderLineDrawingTools(setMapDrawingData, { showLineFill: true });
+
+      await waitFor(() => {
+        expect(getLastDrawingData(setMapDrawingData).fillLabelPoint.features).toHaveLength(0);
+      });
+    });
+
+    test('does not fill when disabled', async () => {
+      const setMapDrawingData = jest.fn();
+
+      renderLineDrawingTools(setMapDrawingData);
+
+      await waitFor(() => {
+        expect(getLastDrawingData(setMapDrawingData).fillPolygon.features).toHaveLength(0);
+      });
+    });
+
+    test('does not fill with fewer than three distinct vertices', async () => {
+      const setMapDrawingData = jest.fn();
+
+      renderLineDrawingTools(setMapDrawingData, { points: [[1, 2], [2, 3]], showLineFill: true });
+
+      await waitFor(() => {
+        expect(getLastDrawingData(setMapDrawingData).fillPolygon.features).toHaveLength(0);
+      });
+    });
+
+    test('counts the cursor location as a vertex while drawing', async () => {
+      const setMapDrawingData = jest.fn();
+
+      renderLineDrawingTools(setMapDrawingData, { points: [[1, 2], [2, 3]], showLineFill: true });
+
+      map.__test__.fireHandlers('mousemove', { lngLat: { lng: 4, lat: 1 } });
+
+      await waitFor(() => {
+        const { fillPolygon } = getLastDrawingData(setMapDrawingData);
+
+        expect(fillPolygon.geometry.coordinates[0]).toEqual([[1, 2], [2, 3], [4, 1], [1, 2]]);
+      });
+    });
+
+    test('ignores a cursor location identical to the last point', async () => {
+      const setMapDrawingData = jest.fn();
+
+      renderLineDrawingTools(setMapDrawingData, { points: [[1, 2], [2, 3]], showLineFill: true });
+
+      map.__test__.fireHandlers('mousemove', { lngLat: { lng: 2, lat: 3 } });
+
+      await waitFor(() => {
+        expect(getLastDrawingData(setMapDrawingData).fillPolygon.features).toHaveLength(0);
+      });
+    });
+  });
+
   describe('the cursor popup', () => {
     test('rendering a cursor popup with point details when drawing and the mouse is moved', async () => {
       const points = [[1, 2], [2, 3], [4, 5]];
