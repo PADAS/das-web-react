@@ -2,7 +2,7 @@ import React from 'react';
 import { createMapMock } from '../__test-helpers/mocks';
 
 import { MapContext } from '../MapContext';
-import MapDrawingTools, { DRAWING_MODES } from './';
+import MapDrawingTools, { DefaultCursorPopup, DRAWING_MODES } from './';
 import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from './ContextProvider';
 import { useMatchMedia } from '../hooks';
 import { render, waitFor } from '../test-utils';
@@ -319,6 +319,42 @@ describe('MapDrawingTools', () => {
 
       await waitFor(() => {
         expect(container).not.toHaveTextContent('Cursor popup rendering stuff');
+      });
+    });
+
+    describe('DefaultCursorPopup', () => {
+      const renderCursorPopup = (props) => {
+        render(
+          <MapContext.Provider value={map}>
+            <DefaultCursorPopup
+              coords={[2, 2]}
+              drawing
+              lineLength="1.23km"
+              points={[[1, 2], [2, 3]]}
+              {...props}
+            />
+          </MapContext.Provider>
+        );
+
+        return popupDomContent[popupDomContent.length - 1];
+      };
+
+      test('shows only the bearing and the distance without an area', () => {
+        const popup = renderCursorPopup();
+
+        expect(popup).toHaveTextContent('Bearing:');
+        expect(popup).toHaveTextContent('Distance: 1.23km');
+        expect(popup).not.toHaveTextContent('Area:');
+      });
+
+      test('shows the area between the bearing and the distance', () => {
+        const popup = renderCursorPopup({ area: '6181.86km²' });
+
+        const paragraphs = [...popup.querySelectorAll('p')].map((paragraph) => paragraph.textContent);
+
+        expect(paragraphs[0]).toContain('Bearing:');
+        expect(paragraphs[1]).toBe('Area: 6181.86km²');
+        expect(paragraphs[2]).toBe('Distance: 1.23km');
       });
     });
   });

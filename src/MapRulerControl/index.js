@@ -12,8 +12,10 @@ import { MapContext } from '../MapContext';
 import { setIsPickingLocation } from '../ducks/map-ui';
 import { useMapEventBinding } from '../hooks';
 
-import MapDrawingTools, { DRAWING_MODES } from '../MapDrawingTools';
+import MapDrawingTools, { DefaultCursorPopup, DRAWING_MODES } from '../MapDrawingTools';
 import PointPopup from './PointPopup';
+
+import { calcCursorPolygonAreaDisplayString } from './utils';
 
 import * as styles from './styles.module.scss';
 
@@ -72,6 +74,11 @@ const MapRulerControl = ({ setIsPickingLocation }) => {
   const onFinish = useCallback(() => { // KEEP
     setDrawingState(false);
   }, []);
+
+  const renderCursorPopup = useCallback((cursorPopupProps) => <DefaultCursorPopup
+    {...cursorPopupProps}
+    area={calcCursorPolygonAreaDisplayString(cursorPopupProps.points, cursorPopupProps.coords)}
+  />, []);
 
   const popupPointSelected = (selectedPointIndex > -1) && !!points[selectedPointIndex];
 
@@ -195,6 +202,7 @@ const MapRulerControl = ({ setIsPickingLocation }) => {
       points={points}
       onChange={onDrawChange}
       onClickPoint={onClickPoint}
+      renderCursorPopup={renderCursorPopup}
     />}
   </>;
 };
