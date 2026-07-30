@@ -3,9 +3,9 @@ import { connect } from 'react-redux';
 import { Navigate, useLocation } from 'react-router';
 import { useAuth0 } from '@auth0/auth0-react';
 
+import { APP_ROUTES } from '../constants/routes';
 import { getTemporaryAccessTokenFromCookies, setIntendedPostAuth0SuccessRoute } from '../utils/auth';
 import { hasAuth0CallbackParams } from '../utils/auth0';
-import { REACT_APP_ROUTE_PREFIX } from '../constants';
 import LoadingOverlay from '../LoadingOverlay';
 
 const RequireAccessToken = ({ children, token, systemConfig }) => {
@@ -37,7 +37,7 @@ const RequireAccessToken = ({ children, token, systemConfig }) => {
   return <Navigate
     replace
     state={{ from: location }}
-    to={`${REACT_APP_ROUTE_PREFIX}login`}
+    to={APP_ROUTES.LOGIN}
   />;
 };
 

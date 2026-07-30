@@ -12,13 +12,14 @@ import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg'
 import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
 
-import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
+import { detailViewPattern, getCurrentIdFromURL, getCurrentTabFromURL, tabPath } from '../utils/navigation';
 import { FEED_CATEGORY } from '../utils/analytics';
+import { PREVIEW_FEATURES, SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../constants';
 import { SocketContext } from '../withSocketConnection';
-import { SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../constants';
-import { usePatrolsPermissions } from '../hooks/usePermissions';
 import useFetchPatrolsFeed from './useFetchPatrolsFeed';
 import useNavigate from '../hooks/useNavigate';
+import { usePatrolsPermissions } from '../hooks/usePermissions';
+import { usePreviewFeature } from '../hooks';
 import useReportsFeed from './useReportsFeed';
 
 import AddItemButton from '../AddItemButton';
@@ -50,6 +51,8 @@ const SideBar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation('components', { keyPrefix: 'sideBar' });
+
+  const patrolSchemasEnabled = usePreviewFeature(PREVIEW_FEATURES.PATROL_SCHEMAS);
 
   const socket = useContext(SocketContext);
 
@@ -87,9 +90,9 @@ const SideBar = () => {
   const showLayersTab = analyzersEnabled || spatialFeaturesEnabled || subjectsEnabled || eventsEnabled;
 
   const isPatrolDetailsViewActive = canReadPatrols
-    && !!matchPath(`/${TAB_KEYS.PATROLS}/:id`, location.pathname);
+    && !!matchPath(detailViewPattern(TAB_KEYS.PATROLS), location.pathname);
   const isReportDetailsViewActive = eventsEnabled
-    && !!matchPath(`/${TAB_KEYS.EVENTS}/:id`, location.pathname);
+    && !!matchPath(detailViewPattern(TAB_KEYS.EVENTS), location.pathname);
 
 
   const showGearTab = hasGear;
@@ -115,13 +118,13 @@ const SideBar = () => {
     }
 
     if (eventsEnabled && location.state?.relatedEvent) {
-      return navigate(`/${TAB_KEYS.EVENTS}/${location.state.relatedEvent}`, {
+      return navigate(`${tabPath(TAB_KEYS.EVENTS)}/${location.state.relatedEvent}`, {
         replace: true
       });
     }
 
     if (location.key === 'default' || location.state?.comesFromLogin || location.state?.comesFromLngLatRedirection) {
-      return navigate(`/${getCurrentTabFromURL(location.pathname)}`, {});
+      return navigate(tabPath(getCurrentTabFromURL(location.pathname)), {});
     }
 
     return navigate(-1, {});
@@ -186,7 +189,7 @@ const SideBar = () => {
       const isDetailsViewActive = isReportDetailsViewActive || isPatrolDetailsViewActive;
       const isSideBarFocused = sideBarRef.current.contains(document.activeElement);
       if (wasEscapePressed && isDetailsViewActive && isSideBarFocused && !isPickingLocation) {
-        navigate(`/${getCurrentTabFromURL(location.pathname)}`);
+        navigate(tabPath(getCurrentTabFromURL(location.pathname)));
       }
     };
 
@@ -207,7 +210,7 @@ const SideBar = () => {
     <div className={`${styles.verticalNav} ${isSideBarOpen ? 'open' : ''}`}>
       {eventsEnabled && <Link
         className={`${styles.navItem} ${currentTab === TAB_KEYS.EVENTS ? styles.active : ''}`}
-        to={`/${TAB_KEYS.EVENTS}`}
+        to={tabPath(TAB_KEYS.EVENTS)}
       >
         <DocumentIcon />
 
@@ -220,7 +223,7 @@ const SideBar = () => {
 
       {canReadPatrols && <Link
         className={`${styles.navItem} ${currentTab === TAB_KEYS.PATROLS ? styles.active : ''}`}
-        to={`/${TAB_KEYS.PATROLS}`}
+        to={tabPath(TAB_KEYS.PATROLS)}
       >
         <PatrolIcon />
 
@@ -229,7 +232,7 @@ const SideBar = () => {
 
       {showGearTab && <Link
         className={`${styles.navItem} ${currentTab === TAB_KEYS.GEAR ? styles.active : ''}`}
-        to={`/${TAB_KEYS.GEAR}`}
+        to={tabPath(TAB_KEYS.GEAR)}
       >
         <MarkerFeedIcon />
 
@@ -238,7 +241,7 @@ const SideBar = () => {
 
       {showLayersTab && <Link
         className={`${styles.navItem} ${currentTab === TAB_KEYS.LAYERS ? styles.active : ''}`}
-        to={`/${TAB_KEYS.LAYERS}`}
+        to={tabPath(TAB_KEYS.LAYERS)}
       >
         <LayersIcon />
 
@@ -247,7 +250,7 @@ const SideBar = () => {
 
       <Link
         className={`${styles.navItem} ${currentTab === TAB_KEYS.SETTINGS ? styles.active : ''}`}
-        to={`/${TAB_KEYS.SETTINGS}`}
+        to={tabPath(TAB_KEYS.SETTINGS)}
       >
         <GearIcon />
 
@@ -320,7 +323,7 @@ const SideBar = () => {
             {canReadPatrols && <Route path={TAB_KEYS.PATROLS}>
               <Route index element={<PatrolsFeedTab loadingPatrolsFeed={patrolsFeed.loadingPatrolsFeed} />} />
 
-              <Route path=":id/*" element={<PatrolDetailView />} />
+              <Route path=":id/*" element={patrolSchemasEnabled ? <div /> : <PatrolDetailView />} />
             </Route>}
 
             {showGearTab && <Route path={TAB_KEYS.GEAR} element={<div className={styles.gearRouteBody}>

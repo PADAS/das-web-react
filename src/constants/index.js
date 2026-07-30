@@ -176,6 +176,7 @@ export const SYSTEM_CONFIG_FLAGS = {
 export const PREVIEW_FEATURES = {
   COMMUNITY_INPUT_ADMIN: 'community_input_admin_enabled',
   EVENTS_VECTOR_TILES: 'events_vector_tiles',
+  PATROL_SCHEMAS: 'patrol_schemas',
 };
 
 export const IF_IS_GENERIC = (ifGeneric, ifNonGeneric) => ['case',

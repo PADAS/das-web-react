@@ -9,11 +9,12 @@ import {
   ReactComponent as EarthRangerLogo,
 } from '../common/images/earth-ranger-logo.svg';
 
+import { ACCOUNT_LINKER_URL, SYSTEM_CONFIG_FLAGS } from '../constants';
+import { APP_ROUTES } from '../constants/routes';
 import appConfig from '../config';
+import { buildAuth0AuthorizationParams } from '../utils/auth0';
 import { clearAuth, postAuth } from '../ducks/auth';
 import { fetchEula } from '../ducks/eula';
-import { ACCOUNT_LINKER_URL, REACT_APP_ROUTE_PREFIX, SYSTEM_CONFIG_FLAGS } from '../constants';
-import { buildAuth0AuthorizationParams } from '../utils/auth0';
 import useNavigate from '../hooks/useNavigate';
 
 import * as styles from './styles.module.scss';
@@ -91,7 +92,7 @@ const LoginPage = () => {
         : {};
       navigate(
         location.state?.from
-          || { pathname: REACT_APP_ROUTE_PREFIX, search: location.search },
+          || { pathname: APP_ROUTES.ROOT, search: location.search },
         options
       );
     } catch (error) {

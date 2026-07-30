@@ -338,6 +338,16 @@ describe('SideBar', () => {
     expect(screen.getByRole('button', { name: 'Go Back' })).toBeVisible();
   });
 
+  test('shows the back button in a nested patrol detail view', async () => {
+    useLocationMock = jest.fn((() => ({ pathname: '/patrols/abc/legs/def' })));
+    useLocation.mockImplementation(useLocationMock);
+
+    renderSideBar();
+
+    expect(screen.queryByRole('button', { name: 'Create Patrol' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Go Back' })).toBeVisible();
+  });
+
   test('does not show add or back buttons in the map layers tab', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/layers' })));
     useLocation.mockImplementation(useLocationMock);
