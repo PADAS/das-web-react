@@ -17,6 +17,9 @@
   },
   "attachmentListItem": {
     "imagePreviewAlt": "{{fileName}} vista previa",
+    "videoPreviewAlt": "{{fileName}} vista previa de video",
+    "audioPreviewAlt": "{{fileName}} vista previa de audio",
+    "mediaLoadErrorMessage": "No se pudo cargar este archivo.",
     "downloadButtonTooltip": "Descargar",
     "deleteButtonTooltip": "Borrar",
     "fullViewButtonTooltip": "Vista completa"
@@ -42,8 +45,8 @@
     "timeLabel": "Tiempo"
   },
   "imageModal": {
-    "errorTitle": "Error al cargar la imagen.",
-    "errorMessage": "Si subió esta imagen recientemente, espere un minuto y vuelva a intentarlo, por favor."
+    "errorTitle": "Error al cargar el archivo.",
+    "errorMessage": "Si subió este archivo recientemente, espere un minuto y vuelva a intentarlo, por favor."
   },
   "navigationPromptModal": {
     "cancelNavigationButtonText": "Regresar",

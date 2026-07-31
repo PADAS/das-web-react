@@ -13,9 +13,11 @@ import patrols from '../../__test-helpers/fixtures/patrols';
 import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../constants';
 import { render, screen, waitFor, within } from '../../test-utils';
 import { TrackerContext } from '../../utils/analytics';
+import { fetchFileAsObjectUrlFromUrl } from '../../utils/file';
 
 jest.mock('../../utils/file', () => ({
   ...jest.requireActual('../../utils/file'),
+  fetchFileAsObjectUrlFromUrl: jest.fn(),
   fetchImageAsBase64FromUrl: jest.fn(),
 }));
 
@@ -36,6 +38,8 @@ describe('DetailViewComponents - ActivitySection', () => {
 
   let store;
   beforeEach(() => {
+    fetchFileAsObjectUrlFromUrl.mockResolvedValue('blob:fake-object-url');
+
     store = {
       data: {
         eventSchemas: {},
@@ -366,6 +370,36 @@ describe('DetailViewComponents - ActivitySection', () => {
 
     await waitFor(() => {
       collapses.forEach((collapse) => expect(collapse).toHaveClass('collapse'));
+    });
+  });
+
+  test('expands audio and video attachments when clicking the button Expand All', async () => {
+    const videoAttachment = {
+      created_at: '2022-06-09T14:58:48.242658-07:00',
+      file_type: 'video',
+      filename: 'clip.mp4',
+      id: 'b1a3951e-20b7-4516-b0a2-df6f3e4bde22',
+      updated_at: '2022-06-09T14:58:48.242658-07:00',
+      updates: [{ time: '2022-06-09T21:58:48.248635+00:00' }],
+      url: 'https://das-7915.pamdas.org/clip.mp4',
+    };
+    const audioAttachment = {
+      created_at: '2022-06-10T14:58:48.242658-07:00',
+      file_type: 'audio',
+      filename: 'interview.m4a',
+      id: 'b1a3951e-20b7-4516-b0a2-df6f3e4bde23',
+      updated_at: '2022-06-10T14:58:48.242658-07:00',
+      updates: [{ time: '2022-06-10T21:58:48.248635+00:00' }],
+      url: 'https://das-7915.pamdas.org/interview.m4a',
+    };
+    renderActivitySection({ ...defaultProps, attachments: [...files, videoAttachment, audioAttachment] });
+
+    const expandCollapseButton = await screen.findByTestId('detailView-activitySection-expandCollapseButton');
+    await userEvent.click(expandCollapseButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId(`activitySection-collapse-${videoAttachment.id}`)).toHaveClass('show');
+      expect(screen.getByTestId(`activitySection-collapse-${audioAttachment.id}`)).toHaveClass('show');
     });
   });
 

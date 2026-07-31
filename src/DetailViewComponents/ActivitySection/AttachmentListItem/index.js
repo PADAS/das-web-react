@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -12,10 +12,12 @@ import { ReactComponent as DownloadArrowIcon } from '../../../common/images/icon
 import { ReactComponent as ExpandArrowIcon } from '../../../common/images/icons/expand-arrow.svg';
 import { ReactComponent as ImageIcon } from '../../../common/images/icons/image.svg';
 import { ReactComponent as TrashCanIcon } from '../../../common/images/icons/trash-can.svg';
+import { ReactComponent as VideoIcon } from '../../../common/images/icons/video.svg';
+import { ReactComponent as VolumeIcon } from '../../../common/images/icons/volume.svg';
 
-import { addModal } from '../../../ducks/modals';
+import { addModal, updateModal } from '../../../ducks/modals';
 import { downloadFileFromUrl } from '../../../utils/download';
-import { fetchImageAsBase64FromUrl } from '../../../utils/file';
+import { fetchFileAsObjectUrlFromUrl, fetchImageAsBase64FromUrl } from '../../../utils/file';
 
 import DateTime from '../../../DateTime';
 import ImageModal from '../../../ImageModal';
@@ -37,26 +39,61 @@ const AttachmentListItem = ({
   const { t } = useTranslation('details-view', { keyPrefix: 'attachmentListItem' });
   const isNew = useMemo(() => !attachment.id, [attachment.id]);
   const isOpen = useMemo(() => cardsExpanded?.includes(attachment), [attachment, cardsExpanded]);
+  const isImage = attachment.file_type === 'image';
+  const isVideo = attachment.file_type === 'video';
+  const isAudio = attachment.file_type === 'audio';
 
   const [imageThumbnailSource, setImageThumbnailSource] = useState(null);
   const [imageIconSource, setImageIconSource] = useState(null);
   const [imageOriginalSource, setImageOriginalSource] = useState(null);
+  const [mediaObjectUrl, setMediaObjectUrl] = useState(null);
+  const [mediaError, setMediaError] = useState(false);
 
   const currentImageSource = useMemo(() => imageOriginalSource || imageThumbnailSource, [imageOriginalSource, imageThumbnailSource]);
 
-  const onShowImageFullScreen = useCallback((event) => {
+  const mediaFetchPromiseRef = useRef(null);
+  const pendingModalIdRef = useRef(null);
+
+  const ensureMediaObjectUrl = useCallback(() => {
+    if (!mediaFetchPromiseRef.current) {
+      setMediaError(false);
+      mediaFetchPromiseRef.current = fetchFileAsObjectUrlFromUrl(attachment.url)
+        .then((objectUrl) => {
+          setMediaObjectUrl(objectUrl);
+
+          return objectUrl;
+        })
+        .catch(() => {
+          mediaFetchPromiseRef.current = null;
+          setMediaError(true);
+
+          return null;
+        });
+    }
+
+    return mediaFetchPromiseRef.current;
+  }, [attachment.url]);
+
+  const onShowFullScreen = useCallback((event) => {
     event.stopPropagation();
 
-    tracker.track('View fullscreen image from activity section');
+    tracker.track(`View fullscreen ${attachment.file_type} from activity section`);
 
-    dispatch(addModal({
+    const modal = dispatch(addModal({
       content: ImageModal,
-      src: currentImageSource,
+      mediaType: isVideo ? 'video' : 'image',
+      src: isVideo ? mediaObjectUrl : currentImageSource,
       title: attachment.filename,
       tracker,
       url: attachment.url,
     }));
-  }, [attachment.filename, attachment.url, currentImageSource, dispatch, tracker]);
+
+    if (isVideo && !mediaObjectUrl) {
+      pendingModalIdRef.current = modal.id;
+
+      ensureMediaObjectUrl();
+    }
+  }, [attachment.file_type, attachment.filename, attachment.url, currentImageSource, dispatch, ensureMediaObjectUrl, isVideo, mediaObjectUrl, tracker]);
 
   const onClickDownloadIcon = useCallback(() => {
     downloadFileFromUrl(attachment.url, { filename: attachment.filename });
@@ -65,7 +102,7 @@ const AttachmentListItem = ({
   }, [attachment.filename, attachment.url, tracker]);
 
   useEffect(() => {
-    if (attachment.file_type === 'image') {
+    if (isImage) {
       const downloadAndSetThumbnail = async () => {
         const source = await fetchImageAsBase64FromUrl(attachment.images.thumbnail);
         setImageThumbnailSource(source);
@@ -73,10 +110,10 @@ const AttachmentListItem = ({
 
       downloadAndSetThumbnail();
     }
-  }, [attachment.file_type, attachment.images?.thumbnail]);
+  }, [isImage, attachment.images?.thumbnail]);
 
   useEffect(() => {
-    if (attachment.file_type === 'image') {
+    if (isImage) {
       const downloadAndSetIcon = async () => {
         const source = await fetchImageAsBase64FromUrl(attachment.images.icon);
         setImageIconSource(source);
@@ -84,10 +121,10 @@ const AttachmentListItem = ({
 
       downloadAndSetIcon();
     }
-  }, [attachment.file_type, attachment.images?.icon]);
+  }, [isImage, attachment.images?.icon]);
 
   useEffect(() => {
-    if (attachment.file_type === 'image') {
+    if (isImage) {
       const downloadAndSetOriginal = async () => {
         const source = await fetchImageAsBase64FromUrl(attachment.images.original);
         setImageOriginalSource(source);
@@ -95,12 +132,38 @@ const AttachmentListItem = ({
 
       downloadAndSetOriginal();
     }
-  }, [attachment.file_type, attachment.images?.original]);
+  }, [isImage, attachment.images?.original]);
 
-  if (attachment.file_type === 'image') {
+  useEffect(() => {
+    if (isOpen && (isVideo || isAudio)) {
+      ensureMediaObjectUrl();
+    }
+  }, [isOpen, isVideo, isAudio, ensureMediaObjectUrl]);
+
+  useEffect(() => {
+    if (mediaObjectUrl && pendingModalIdRef.current) {
+      dispatch(updateModal({ id: pendingModalIdRef.current, src: mediaObjectUrl }));
+      pendingModalIdRef.current = null;
+    }
+  }, [dispatch, mediaObjectUrl]);
+
+  useEffect(() => {
+    if (mediaError && pendingModalIdRef.current) {
+      dispatch(updateModal({ id: pendingModalIdRef.current, fetchError: true }));
+      pendingModalIdRef.current = null;
+    }
+  }, [dispatch, mediaError]);
+
+  useEffect(() => () => {
+    if (mediaObjectUrl) {
+      URL.revokeObjectURL(mediaObjectUrl);
+    }
+  }, [mediaObjectUrl]);
+
+  if (isImage || isVideo || isAudio) {
     return <li className={isOpen ? styles.openItem : ''} ref={ref}>
       <div className={`${styles.itemRow} ${styles.collapseRow}`} onClick={isOpen ? onCollapse : onExpand}>
-        {imageIconSource
+        {isImage && (imageIconSource
           ? <img
             alt={`${attachment.filename} thumbnail`}
             className={styles.attachmentThumbnail}
@@ -108,7 +171,15 @@ const AttachmentListItem = ({
           />
           : <div className={styles.itemIcon}>
             <ImageIcon />
-          </div>}
+          </div>)}
+
+        {isVideo && <div className={styles.itemIcon}>
+          <VideoIcon />
+        </div>}
+
+        {isAudio && <div className={styles.itemIcon}>
+          <VolumeIcon />
+        </div>}
 
         <div className={styles.itemDetails}>
           <p className={styles.itemTitle}>{attachment.filename}</p>
@@ -122,9 +193,9 @@ const AttachmentListItem = ({
         </div>
 
         <div className={styles.itemActionButtonContainer}>
-          <ItemActionButton onClick={onShowImageFullScreen} tooltip={t('fullViewButtonTooltip')}>
+          {!isAudio && <ItemActionButton onClick={onShowFullScreen} tooltip={t('fullViewButtonTooltip')}>
             <ExpandArrowIcon data-testid="expand-arrow-icon" />
-          </ItemActionButton>
+          </ItemActionButton>}
         </div>
 
         <div className={styles.itemActionButtonContainer}>
@@ -145,14 +216,41 @@ const AttachmentListItem = ({
         in={isOpen}
       >
         <div>
-          <img
+          {isImage && <img
             alt={t('imagePreviewAlt', {
               fileName: attachment.filename
             })}
             className={styles.attachmentImagePreview}
-            onClick={onShowImageFullScreen}
+            onClick={onShowFullScreen}
             src={currentImageSource}
-          />
+          />}
+
+          {(isVideo || isAudio) && mediaError && <p
+            className={styles.mediaLoadError}
+            data-testid={`activitySection-mediaError-${attachment.id}`}
+          >
+            {t('mediaLoadErrorMessage')}
+          </p>}
+
+          {isVideo && !mediaError && (mediaObjectUrl
+            ? <video
+              aria-label={t('videoPreviewAlt', { fileName: attachment.filename })}
+              className={styles.attachmentVideoPreview}
+              controls
+              data-testid={`activitySection-video-${attachment.id}`}
+              src={mediaObjectUrl}
+            />
+            : <div className={styles.mediaLoadingSpinner} data-testid={`activitySection-mediaLoading-${attachment.id}`} />)}
+
+          {isAudio && !mediaError && (mediaObjectUrl
+            ? <audio
+              aria-label={t('audioPreviewAlt', { fileName: attachment.filename })}
+              className={styles.attachmentAudioPreview}
+              controls
+              data-testid={`activitySection-audio-${attachment.id}`}
+              src={mediaObjectUrl}
+            />
+            : <div className={styles.mediaLoadingSpinner} data-testid={`activitySection-mediaLoading-${attachment.id}`} />)}
         </div>
       </Collapse>
     </li>;

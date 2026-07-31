@@ -4,6 +4,10 @@
 
 $cardExpansionTransitionTime: 300ms;
 
+@keyframes mediaLoadingSpin {
+  to { transform: rotate(360deg); }
+}
+
 .sectionHeader {
   display: flex;
   justify-content: space-between;
@@ -208,6 +212,33 @@ $cardExpansionTransitionTime: 300ms;
   margin-left: auto;
   margin-right: auto;
   cursor: pointer;
+}
+
+.attachmentVideoPreview {
+  width: 100%;
+  max-height: 26rem;
+  display: block;
+}
+
+.attachmentAudioPreview {
+  width: 100%;
+}
+
+.mediaLoadError {
+  color: $bright-red;
+  margin: 0;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.mediaLoadingSpinner {
+  animation: mediaLoadingSpin 0.8s linear infinite;
+  border: 0.1875rem solid $light-gray-border;
+  border-top-color: $bright-blue;
+  border-radius: 50%;
+  height: 2rem;
+  margin: 0 auto;
+  width: 2rem;
 }
 
 .noteTextArea {

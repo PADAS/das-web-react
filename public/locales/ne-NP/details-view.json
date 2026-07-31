@@ -15,7 +15,10 @@
     "addAttachmentTitle": "संलग्नक थप्नुहोस्"
   },
   "attachmentListItem": {
-    "imagePreviewAlt": "{{filename}} पुर्वावलोकन",
+    "imagePreviewAlt": "{{fileName}} पुर्वावलोकन",
+    "videoPreviewAlt": "{{fileName}} भिडियो पुर्वावलोकन",
+    "audioPreviewAlt": "{{fileName}} अडियो पुर्वावलोकन",
+    "mediaLoadErrorMessage": "यो फाइल लोड गर्न सकिएन।",
     "downloadButtonTooltip": "डाउनलोड गर्नुहोस्",
     "deleteButtonTooltip": "मेट्नुहोस्",
     "fullViewButtonTooltip": "पुरा हेर्नुहोस्",
@@ -48,7 +51,7 @@
     "timeLabel": "समय"
   },
   "imageModal": {
-    "errorTitle": "फोटो लोड गर्न समस्या भइरहेको छ ।",
+    "errorTitle": "फाईल लोड गर्न समस्या भइरहेको छ ।",
     "errorMessage": "यो फाईल भर्खरै अपलोड गर्नुभएको हो भने कृपया केही समय पर्खेर फेरी प्रयास गर्नुहोस् ।"
   },
   "navigationPromptModal": {

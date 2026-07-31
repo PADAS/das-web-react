@@ -65,14 +65,40 @@
     }
 
     .attachmentListItem {
-      align-items: center;
       border-bottom: 1px solid colors.$light-gray-lines;
-      display: flex;
-      gap: 0.5rem;
-      height: 2.5rem;
 
       &:last-child {
         border-bottom: none;
+      }
+
+      .row {
+        align-items: center;
+        display: flex;
+        gap: 0.5rem;
+        height: 2.5rem;
+      }
+
+      .player {
+        padding: 0 0.5rem 0.5rem;
+
+        audio {
+          width: 100%;
+        }
+
+        video {
+          max-height: 12rem;
+          width: 100%;
+        }
+
+        .playerLoadingSpinner {
+          animation: uploadProgressSpin 0.8s linear infinite;
+          border: 0.1875rem solid colors.$light-gray-border;
+          border-top-color: colors.$bright-blue;
+          border-radius: 50%;
+          display: block;
+          height: 1.5rem;
+          width: 1.5rem;
+        }
       }
 
       .icon {

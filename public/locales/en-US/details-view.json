@@ -21,6 +21,9 @@
     "collapseOpenButtonLabel": "Collapse",
     "collapseOpenButtonTitle": "Expanded",
     "imagePreviewAlt": "{{fileName}} preview",
+    "videoPreviewAlt": "{{fileName}} video preview",
+    "audioPreviewAlt": "{{fileName}} audio preview",
+    "mediaLoadErrorMessage": "Unable to load this file.",
     "downloadButtonTooltip": "Download",
     "deleteButtonTooltip": "Delete",
     "fullViewButtonTooltip": "Full View"
@@ -52,7 +55,7 @@
     "timeLabel": "Time"
   },
   "imageModal": {
-    "errorTitle": "Error loading image.",
+    "errorTitle": "Error loading file.",
     "errorMessage": "If you uploaded this file recently, please wait a minute and try again."
   },
   "navigationPromptModal": {

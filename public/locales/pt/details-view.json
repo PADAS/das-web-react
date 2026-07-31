@@ -17,6 +17,9 @@
   },
   "attachmentListItem": {
     "imagePreviewAlt": "{{fileName}} pré-visualização",
+    "videoPreviewAlt": "{{fileName}} pré-visualização de vídeo",
+    "audioPreviewAlt": "{{fileName}} pré-visualização de áudio",
+    "mediaLoadErrorMessage": "Não foi possível carregar este arquivo.",
     "downloadButtonTooltip": "Baixar",
     "deleteButtonTooltip": "Apagar",
     "fullViewButtonTooltip": "Visão geral"
@@ -42,7 +45,7 @@
     "timeLabel": "Hora"
   },
   "imageModal": {
-    "errorTitle": "Erro ao carregar a imagem.",
+    "errorTitle": "Erro ao carregar o arquivo.",
     "errorMessage": "Se você carregou este arquivo recentemente, espere um minuto e tente novamente."
   },
   "navigationPromptModal": {
