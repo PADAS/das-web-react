@@ -50,13 +50,13 @@ describe('ImageModal', () => {
 
     fireEvent.error(document.querySelector('video'));
 
-    expect(screen.getByText('Error loading image.')).toBeInTheDocument();
+    expect(screen.getByText('Error loading file.')).toBeInTheDocument();
   });
 
   test('shows an error message when the fetchError prop is set', () => {
     renderModal({ fetchError: true, mediaType: 'video', src: null });
 
-    expect(screen.getByText('Error loading image.')).toBeInTheDocument();
+    expect(screen.getByText('Error loading file.')).toBeInTheDocument();
     expect(document.querySelector('video')).not.toBeInTheDocument();
   });
 

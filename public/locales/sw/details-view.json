@@ -52,7 +52,7 @@
     "timeLabel": "Wakati"
   },
   "imageModal": {
-    "errorTitle": "Kosa kwenye kupakia picha.",
+    "errorTitle": "Kosa kwenye kupakia faili.",
     "errorMessage": "Ikiwa uliweka faili hii hivi karibuni, tafadhali subiri dakika na ujaribu tena."
   },
   "navigationPromptModal": {

@@ -45,8 +45,8 @@
     "timeLabel": "Tiempo"
   },
   "imageModal": {
-    "errorTitle": "Error al cargar la imagen.",
-    "errorMessage": "Si subió esta imagen recientemente, espere un minuto y vuelva a intentarlo, por favor."
+    "errorTitle": "Error al cargar el archivo.",
+    "errorMessage": "Si subió este archivo recientemente, espere un minuto y vuelva a intentarlo, por favor."
   },
   "navigationPromptModal": {
     "cancelNavigationButtonText": "Regresar",

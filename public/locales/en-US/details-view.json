@@ -55,7 +55,7 @@
     "timeLabel": "Time"
   },
   "imageModal": {
-    "errorTitle": "Error loading image.",
+    "errorTitle": "Error loading file.",
     "errorMessage": "If you uploaded this file recently, please wait a minute and try again."
   },
   "navigationPromptModal": {

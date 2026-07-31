@@ -45,7 +45,7 @@
     "timeLabel": "Heure"
   },
   "imageModal": {
-    "errorTitle": "Erreur de chargement de l'image",
+    "errorTitle": "Erreur de chargement du fichier",
     "errorMessage": "Si vous avez télécharger ce fichier récemment, veuillez patientez quelques minutes et réessayer."
   },
   "navigationPromptModal": {
