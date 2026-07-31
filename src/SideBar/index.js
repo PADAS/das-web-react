@@ -16,7 +16,6 @@ import { detailViewPattern, getCurrentIdFromURL, getCurrentTabFromURL, tabPath }
 import { FEED_CATEGORY } from '../utils/analytics';
 import { PREVIEW_FEATURES, SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../constants';
 import { SocketContext } from '../withSocketConnection';
-import useFetchPatrolsFeed from './useFetchPatrolsFeed';
 import useNavigate from '../hooks/useNavigate';
 import { usePatrolsPermissions } from '../hooks/usePermissions';
 import { usePreviewFeature } from '../hooks';
@@ -31,7 +30,8 @@ import SoundNotificationsPlayer from '../SoundNotificationsPlayer';
 
 import GearTab from './GearTab';
 import MapLayersTab from './MapLayersTab';
-import PatrolsFeedTab from './PatrolsFeedTab';
+import PatrolsFeed from './PatrolsFeed';
+import PatrolsManager from './PatrolsManager';
 import ReportsFeedTab from './ReportsFeedTab';
 import SettingsPane from './SettingsPane';
 
@@ -56,7 +56,6 @@ const SideBar = () => {
 
   const socket = useContext(SocketContext);
 
-  const patrolsFeed = useFetchPatrolsFeed();
   const reportsFeed = useReportsFeed();
 
   const analyzersEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.ANALYZERS]);
@@ -320,11 +319,18 @@ const SideBar = () => {
               <Route path=":id/*" element={<ReportManager onReportBeingAdded={setReportIsBeingAdded} />} />
             </Route>}
 
-            {canReadPatrols && <Route path={TAB_KEYS.PATROLS}>
-              <Route index element={<PatrolsFeedTab loadingPatrolsFeed={patrolsFeed.loadingPatrolsFeed} />} />
+            {/* Legacy patrol routes */}
+            {canReadPatrols && !patrolSchemasEnabled && <Route path={TAB_KEYS.PATROLS}>
+              <Route index element={<PatrolsFeed />} />
 
-              <Route path=":id/*" element={patrolSchemasEnabled ? <div /> : <PatrolDetailView />} />
+              <Route path=":id/*" element={<PatrolDetailView />} />
             </Route>}
+
+            {/* New patrol routes */}
+            {canReadPatrols && patrolSchemasEnabled && <Route
+              element={<PatrolsManager />}
+              path={`${TAB_KEYS.PATROLS}/*`}
+            />}
 
             {showGearTab && <Route path={TAB_KEYS.GEAR} element={<div className={styles.gearRouteBody}>
               <GearTab />

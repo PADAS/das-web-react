@@ -1,15 +1,18 @@
 import React, { memo, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
-import useNavigate from '../../hooks/useNavigate';
 import { selectPatrolsFeedMappedFromStore } from '../../selectors/patrols';
 import { sortPatrolList } from '../../utils/patrols';
+import useFetchPatrolsFeed from '../useFetchPatrolsFeed';
+import useNavigate from '../../hooks/useNavigate';
 
 import PatrolFilter from '../../PatrolFilter';
 import PatrolList from '../../PatrolList';
 
-const PatrolsFeedTab = ({ loadingPatrolsFeed }) => {
+const PatrolsFeed = () => {
   const navigate= useNavigate();
+
+  const { loadingPatrolsFeed } = useFetchPatrolsFeed();
 
   const patrolsFeedMappedFromStore = useSelector(selectPatrolsFeedMappedFromStore);
 
@@ -22,4 +25,4 @@ const PatrolsFeedTab = ({ loadingPatrolsFeed }) => {
   </>;
 };
 
-export default memo(PatrolsFeedTab);
+export default memo(PatrolsFeed);
