@@ -2,21 +2,24 @@
 
 ## Business
 
-**Project:** EarthRanger Web Client (`das-web-react`)
-**Domain:** Conservation field operations management
+**Project:** EarthRanger Web Client
+**Organization:** EarthRanger
+**Domain:** Wildlife Conservation Technology
 
 ### Core Concepts
 
 - **EarthRanger:** Real-time operational platform for monitoring wildlife, assets, and field activities within protected areas.
 - **DAS (Domain Awareness System):** Legacy product name. EarthRanger is the official name today. The repository (`das-web-react`) and some API references still use the `das` prefix.
-- **Tenant:** Each EarthRanger deployment serves a single conservation site or organization. The web client connects to exactly one tenant's backend. Multi-tenancy is server-side.
+- **Tenant:** Each deployment serves a single conservation site or organization. The web client talks to exactly one tenant's backend. Multi-tenancy is server-side.
 - **Companion products:**
   - **Ecoscope:** advanced analytics layer.
   - **Gundi:** middleware aggregation layer connecting external data sources to EarthRanger.
 
-### Events
+#### Events
 
-**Events** are time-stamped incident reports. Each event has a **state** (`active` / `resolved`), a **priority** (`0` - none / `100` - low / `200` - medium / `300` - high), a **reporter**, optional **notes** and **files**, and an `event_details` object that holds the data the user entered in the event's detail form. They can be Points or Polygons on the map.
+**Events** are time-stamped incident reports. Each event has a **state**, a **priority**, a **reporter**, optional **notes** and **files**, and an `event_details` object holding what the user entered in the event's form. Geometry is a Point (`location`) or a Polygon (`geometry`).
+
+States are `active`, `new` (legacy alias for active), `review` (community submissions awaiting moderation), and `resolved`. Priorities are `300` high / `200` medium / `100` low / `0` none; code and styles key off the color names `red` / `amber` / `green` / `none`.
 
 > The codebase historically called events "reports". "Event" is the preferred term.
 
@@ -29,10 +32,11 @@
 **UI**
 - **Events Sidebar** (`/events`): text search, filters (state, priority, event type, reporter, date range), and sorting.
 - **Event Detail View** (`/events/:id` or `/events/new`): **Details** section (state, reported-by, priority, location, date/time, and schema-driven form fields), **Activity** section (notes, files, and contained events for incident collections), **Links** section (linked events and patrols), and **History** section (audit trail from `updates`).
-- **Map:** Point events render as clustered icon markers; polygon events as priority-colored fills.
+- **Map:** Fetched from a vector tile endpoint and updated in realtime through a socket using a GeoJSON overlay. Point events render as clustered icon markers; polygon events as priority-colored fills.
 - A heatmap overlay can be toggled from Map Layers → Events.
+- **Community input** (`/community/:value/*`): The public page reuses the event stack, letting unauthenticated users submit events.
 
-### Subjects, Observations, and Tracks
+#### Subjects, Observations, and Tracks
 
 **Subjects** are monitored entities: collared animals, vehicles, aircraft, personnel, and fixed sensors. Each subject has a `subject_type` (e.g., `wildlife`, `person`, `vehicle`, `static_sensor`) and a `subject_subtype` that further classifies it (e.g., `ranger`, `dugong`, `stationary-radio`). Key fields include `is_active`, `tracks_available`, `last_position` (a GeoJSON Point Feature), and `device_status_properties`, an array of telemetry readings (`label`/`units`/`value`). Real-time position updates arrive via WebSocket.
 
@@ -40,79 +44,96 @@ Subjects are organized into **subject groups**, a named hierarchy with nested su
 
 A **source** is a telemetry device (GPS collar, radio, acoustic sensor). Sources generate **observations**, discrete timestamped position records that each carry a `source` UUID and their own `device_status_properties`. The backend assigns sources to subjects for defined time windows, but the client always queries by subject ID.
 
-**Tracks** are the ordered sequence of a subject's positions as a GeoJSON `LineString`:
+**Tracks** are a subject's ordered positions:
 - `track`: `FeatureCollection` of `LineString` features with `coordinateProperties.times` (one timestamp per coordinate)
 - `points`: `FeatureCollection` of `Point` features derived from the line, each with a computed `bearing` for directional arrows
 - `fetchedDateRange`: the `{ since, until }` window already loaded
 
-Tracks are lazy-loaded and cached. Track history depth is user-configurable (default 7 days) and can be locked to the active event filter's date range. When time-of-day coloring is enabled, a `trackSegments` `FeatureCollection` is added that segments the line into time-range buckets, each with a distinct color.
+Tracks are lazy-loaded and cached, socket status updates prepend new positions onto them. Track history depth is user-configurable (default 21 days) and can be locked to the active event filter's date range. When time-of-day coloring is enabled, a `trackSegments` `FeatureCollection` is added that segments the line into time-range buckets, each with a distinct color.
 
 **Track visibility** cycles through three states: **hidden** (default), **visible** (line at lower opacity), and **pinned** (full opacity, higher render priority). Subjects can be included to the **subject heatmap**, a density surface overlay on the map.
 
 **UI**
 - **Map Subjects Layer:** renders subject icon markers from `last_position`, clustered at lower zoom levels.
-- **Map Tracks Layer:** draws the line string as a colored line plus a symbol layer of rotated arrows at each timepoint. Default color is deterministic and seeded by subject ID; with time-of-day coloring, each segment uses a period-specific color.
-- **Map Layers Sidebar Tab** (`/layers`): searchable, sortable subject list (grouped hierarchy or flat). Controls: toggle map visibility, cycle track state (hidden → visible → pinned), toggle heatmap membership, jump to location, view history.
+- **Map Tracks Layer:** draws the line string as a colored line plus a symbol layer of rotated arrows at each timepoint. Color comes from the track's server-supplied `stroke`, falling back to a deterministic color seeded by subject ID; with time-of-day coloring, each segment uses a period-specific color.
+- **Map Layers Sidebar Tab** (`/layers`): searchable, sortable subject list (grouped hierarchy or flat). Controls: toggle map visibility, cycle track state (hidden → visible → pinned), toggle heatmap membership, jump to location, view history, and open messages (if available).
 
-### Patrols
+#### Patrols
 
-Patrols are timed field activities (foot, vehicle, aerial, etc.). **Patrol types** define the activity category and supply a default icon and priority.A patrol has a top-level `state` (API: `open` / `done` / `cancelled`), and optional `objective`, `title`, `priority`, `notes`, and `files`. It always contains a **patrol segment**, which holds:
+**Patrols** are timed field activities (foot, vehicle, aerial, etc.) carried out by a team. A patrol has a ticker number, a title, an optional priority, notes and files, and is made up of one or more **legs**.
 
-- `patrol_type`: type identifier referencing a patrol type object
-- `leader`: a subject reference (ranger, vehicle, aircraft) whose observation track becomes the patrol track
-- `time_range`: `{ start_time, end_time }`, actual start/end timestamps
-- `scheduled_start` / `scheduled_end`: planned times before the patrol is started
-- `start_location` / `end_location`: explicit `{ latitude, longitude }` overrides for start/stop map markers
-- `events`: events linked to this segment
+**Patrol Legs** hold the actual plan and data: a patrol type, scheduled and actual start/end times, start/end locations, an objective, the team and tracking assignments, and the values entered for the patrol type's form. Creating a patrol means creating its first leg; a running patrol is continued with a new leg, which ends the previous one. Legs may differ in type.
 
-**UI states** are derived client-side from the API state and segment times, the API only knows `open`, `done`, `cancelled`:
+> The API and older code call legs "patrol segments". "Leg" is the preferred term.
+
+**Patrol Types** are the templates legs belong to (e.g., "Vehicle Patrol", "Foot Patrol"). They define the display name, icon, default priority, and a **form schema** that drives the leg's type-specific fields.
+
+**Team & Tracking** covers who is on a leg and what reports its position: a team, a team lead, individual team members, and assets (vehicles, radios, GPS devices). The tracked subjects' observations are what produce the patrol track.
+
+**UI states** are derived client-side; the API only knows `open`, `done`, and `cancelled`:
 
 | UI state | Condition |
 |---|---|
-| `scheduled` | `scheduled_start` is more than 1 hour in the future |
-| `ready_to_start` | `scheduled_start` is within the next hour |
-| `start_overdue` | `scheduled_start` is 30+ min past but patrol not yet started |
-| `active` | `start_time` set and in the past, no `end_time` |
-| `done` | `end_time` is in the past, or API `state: 'done'` |
-| `cancelled` | API `state: 'cancelled'` |
-| `invalid` | No `patrol_segments`, or no pending segment matches any known state |
+| `scheduled` | scheduled start is more than an hour away |
+| `ready_to_start` | scheduled start is within the next hour |
+| `start_overdue` | scheduled start passed 30+ min ago and the patrol has not started |
+| `active` | started and not yet ended |
+| `paused` | paused and not yet resumed |
+| `done` | ended |
+| `cancelled` | cancelled |
+| `invalid` | no legs, or no leg matching any known state |
 
-**Tracks.** The patrol track is the leader subject's track, trimmed to the segment's `time_range`. Only `active` and `done` patrols can display tracks. Track visibility follows the same three-state cycle as subjects (hidden → visible → pinned).
+**Tracks.** The patrol track is the track of the leg's tracked subjects, trimmed to the leg's time range. Only patrols that have started can display tracks. Visibility follows the same three-state cycle as subjects (hidden → visible → pinned).
 
 **UI**
-- **Patrols Sidebar** (`/patrols`): Feed sorted ready_to_start → start_overdue → active → scheduled → done → cancelled. Filters: text search, date range, patrol type, tracked-by, and status.
-- **Patrol Detail View** (`/patrols/:id` or `/patrols/new`): **Plan** section (leader/tracked-by, objective, start/end datetime and location, with auto-start/auto-end scheduling toggles), **Activity** section (linked events, notes, files), and **History** section (audit trail from `updates`).
-- **Map**: Active and done patrols with visible/pinned tracks show the leader's route as a colored line with start and stop icon markers at each endpoint. Patrol symbols are labeled with a ticker.
+- **Patrols Feed** (`/patrols`): the patrol list, ordered start_overdue → ready_to_start → paused → active → scheduled → done → cancelled, with inline actions per row (start, resume, restore). Filters: text search, date range, patrol type, tracked-by, and status.
+- **New Patrol** (`/patrols/new`): the leg form. Creating a patrol means creating its first leg, so this is the same form the leg routes use, with the patrol's title and type set here.
+- **Patrol Overview** (`/patrols/:patrolId`): header with the patrol's title, status and action buttons; two tabs — **Overview** (the leg table plus the activity timeline) and **History** (audit trail from `updates`); footer actions to add notes, attachments and events, start a new leg, or update the status (pause, cancel, end).
+- **New Leg** (`/patrols/:patrolId/legs/new`): the leg form, adding a leg to an existing patrol. Saving it ends the current leg and starts this one.
+- **Leg Overview** (`/patrols/:patrolId/legs/:legId`): header with the leg's title, status and action buttons; the leg's saved plan (times, locations, objective, team and tracking, and the patrol type's fields); its activity timeline with duration, distance and event totals; footer actions to add notes, attachments and events, or edit the leg.
+- **Edit Leg** (`/patrols/:patrolId/legs/:legId/edit`): the leg form, pre-filled with the leg's current values.
+- **Map**: started patrols with visible or pinned tracks draw the route as a colored line with start and stop markers. Patrol symbols are labeled with the ticker.
 
-### Spatial Features
+#### Gear
+
+**Gear** is ropeless fishing equipment: buoy gearsets whose acoustic release devices report their position instead of being marked by a surface line. Each gear item has a manufacturer and one or more **devices**, each with its own hardware id and status readings (serial number, battery, depth).
+
+Gear with a single device draws as one point on the map. Gear with several devices is a **trawl**, drawn as a line between its device positions with a marker at each end.
+
+The same equipment also appears as a subject (`subject_subtype: ropeless_buoy_gearset`) when it reports telemetry, so a gearset can show up both in the gear list and on the subjects layer.
+
+**UI**
+- **Gear Sidebar** (`/gear`): searchable list, grouped by manufacturer or flat, with map visibility toggles per item and per group. Paginated on first load, then refreshed by a background poll.
+- Clicking gear on the map opens a popup with its label, last report time, coordinates, type, and one entry per device showing its hardware id and last deployment date.
+
+#### Spatial Features
 
 **Spatial features** are static geographic data layers displayed on the map alongside live operational data: zones, boundaries, infrastructure, habitat areas, and reference cartography. They are organized into **featuresets**, named collections grouped by **feature type**.
 
 Feature geometry can be Point, LineString, or Polygon. Per-feature styling properties (`fill`, `stroke`, `fill_opacity`, `stroke_opacity`) are stored on the feature and applied via vector tiles (`GET /spatialfeatures/tiles/{z}/{x}/{y}.pbf`). Features may carry an `analyzer_type` (`geofence` or `proximity`) linking them to an analyzer definition.
 
 **UI**
-- **Map Layers Sidebar - Features tab**: featuresets listed hierarchically (featureset → type → individual feature). Per-feature visibility toggle and jump-to-bounds.
-- Clicking a feature on the map opens a popup with its name and type.
+- **Map Layers Sidebar - Features tab**: featuresets listed hierarchically (featureset → type → individual feature), with visibility toggles at every level and jump-to-bounds per feature.
+- Clicking a feature on the map opens a popup with its name, its coordinates, and a button to report an event at that location.
 
-### Analyzers and Alerts
+#### Analyzers and Alerts
 
 **Analyzers** are server-side algorithms that evaluate streaming or recent data against configured rules. For example:
 - **Geofence**: polygon boundary, triggers when a subject enters or exits.
 - **Proximity**: point with a radius, triggers when a subject comes within range.
 
-Some analyzers have one or more **spatial groups**, named GeoJSON feature collections. The web client renders these as dashed polygon and line overlays on the map (yellow for warning severity, red for critical). The client does not execute analyzers; it only displays their geographic boundaries.
+Some analyzers have one or more **spatial groups**, named GeoJSON feature collections. The web client renders these as dashed polygon and line overlays on the map (yellow for warning severity, red for critical); proximity analyzers are drawn as a circle buffered to their threshold radius. Only active analyzers are fetched. The client does not execute analyzers; it only displays their geographic boundaries.
 
-**Alerts:** the notifications raised when an analyzer fires, are managed entirely server-side. The client provides a modal iframe in global the menu modal and in Settings → Alerts.
+**Alerts:** the notifications raised when an analyzer fires, are managed entirely server-side. The client only embeds the tenant's alert management page in an iframe, from the global menu and from Settings → Alerts.
 
 **UI**
 - **Map Layers Sidebar — Analyzers tab**: list of analyzers with visibility toggles. Selecting an analyzer zooms the map to its bounds and shows a popup linking to its admin configuration page.
-- **Alerts modal**: opened from the global menu; embeds the tenant's alert management page in an iframe.
 
-### Time Slider
+#### Time Slider
 
 The **time slider** is a map control that sets a virtual date, a specific historical moment, shifting the map's display to reflect subject positions and event states at that time.
 
-### Coordinate Systems
+#### Coordinate Systems
 
 EarthRanger works in **WGS84** but the client supports multiple display and input formats (DEG, DMS, DDM, UTM, MGRS).
 
@@ -122,7 +143,7 @@ Users can add custom **CRS** definitions by EPSG code. DEG is always included as
 - **Settings → Map**: manage stored CRS definitions and configure a bounding-box overlay for the active CRS.
 - All fields or UI widgets that capture or display coordinates render values in the currently selected format.
 
-### Map Settings
+#### Map Settings
 
 **Settings → Map** organizes display controls in three groups:
 
@@ -130,7 +151,7 @@ Users can add custom **CRS** definitions by EPSG code. DEG is always included as
 - **Display**: Show track timepoints along subject lines, show inactive radios, per-class **clustering** toggles with an optional cluster footprint polygon overlay.
 - **Map Markers**: Show/hide name labels independently for subjects, stationary sensors, events, and patrols; toggle the user's own GPS location marker.
 
-### Messaging
+#### Messaging
 
 **Messaging** lets authorized users send and receive **two-way messages** with subjects that carry messaging-capable devices (e.g., inReach satellite communicators, supported radio integrations).
 
@@ -138,7 +159,20 @@ Messages are grouped by date and sender, support infinite-scroll pagination, and
 
 Sound notifications for new inReach messages are configurable in Settings → General.
 
-### Sidebar and Settings
+#### Authentication
+
+A tenant's system config decides how users sign in. The login page offers one method, not both. Either path ends with an access token, kept in a cookie and in Redux and sent as a `Bearer` header.
+
+- **Username and password** (`require_idp` off): posted to the DAS OAuth token endpoint.
+- **Auth0 redirect** (`require_idp` on): to the organization's identity provider when `idp_org_id` is set, otherwise to EarthRanger Identity. The latter sites are mid-migration, so accounts that aren't linked yet are sent to the server's account linker.
+
+Two guards wrap the app: one redirects to `/login` without a token, preserving the intended route across the Auth0 round trip; the other, only where the `EULA` flag is on, redirects to `/eula` until the user accepts it.
+
+A 401 first tries a silent token renewal and replays the request, or restarts the Auth0 redirect for MFA if the response carries a step-up challenge. Only when that fails is the session cleared. Signing out drops the token cookies, the selected profile, and all Redux state.
+
+**Profiles.** A user account can have profiles: alternate identities the signed-in user can operate as, listed beside the main user in the top-bar user menu and PIN-protected when the profile has one. While a profile is active, requests carry a `User-Profile` header so data is scoped to it.
+
+#### Sidebar and Settings
 
 The sidebar is a vertical panel with tabs shown conditionally by system config flags and user permissions:
 
@@ -150,20 +184,23 @@ The sidebar is a vertical panel with tabs shown conditionally by system config f
 | **Map Layers** | `ANALYZERS`, `SPATIAL_FEATURES`, `SUBJECTS`, or `EVENTS` flag |
 | **Settings** | Always |
 
+**Map Layers** has four sub-tabs: Subjects, Features, Analyzers, Events. Each shown only when its flag is on.
+
 **Settings** has three sub-tabs:
 
 - **General**
   - **App Refresh**: Which UI state survives a page reload.
   - **Language**: UI language.
   - **Sounds**: Independent toggles for new event sounds, new inReach message sounds, and radio red-state transition sounds.
-  - **Experimental Features**: Toggles for in-development feature flags (only shown when flags are present in the store or query string).
+  - **Experimental Features**: Per-user overrides for the development feature flags (only shown when flags are present in the store or query string).
 - **Map**
 - **Alerts**
 
-### Global Menu
+#### Global Menu
 
 The hamburger menu opens a left-side drawer. Items are visibility-gated by system config flags and user permissions:
 
+- **Navigation:** on small layouts the drawer lists the sidebar tabs, since the icon rail is hidden.
 - **Alerts:** modal iframe of the tenant's alerts page.
 - **Contact Support:** uses the embedded JIRA help widget when available.
 - **Help Center, Community, Users Guide:** external links opening in a new tab.
@@ -182,7 +219,7 @@ The hamburger menu opens a left-side drawer. Items are visibility-gated by syste
 - **Runtime:** Node.js 24
 - **Package manager:** Yarn 4
 - **UI:** React 19, `react-dom`; component library via `react-bootstrap` (Bootstrap 5)
-- **Routing:** React Router 7 (client-only SPA with `BrowserRouter`)
+- **Routing:** React Router 8 declarative mode; SPA with `BrowserRouter`
 - **Build:** Vite 8
 - **State:** Redux 5 + `redux-thunk`, `redux-promise`; persistence via `redux-persist`
 - **Map:** Mapbox GL
@@ -200,7 +237,7 @@ The hamburger menu opens a left-side drawer. Items are visibility-gated by syste
 
 - `src/index.js`: bootstrap
 - `src/App.js`: authenticated shell
-- `src/config.js`: runtime auth config
+- `src/config.js`: deployment config; production defaults are hard-coded, other environments override via `window.__APP_CONFIG__` from `/config.js`
 - `src/store.js`: Redux store: `thunk` + `promiseMiddleware` + Redux DevTools extension hook
 - `src/{ComponentName}/`: mostly flat component folders; component-specific styles in co-located `styles.module.scss`
 - `src/common/`: shared assets and global SCSS partials
@@ -209,7 +246,7 @@ The hamburger menu opens a left-side drawer. Items are visibility-gated by syste
 - `src/selectors/`: reselect selectors
 - `src/hooks/`: shared hooks
 - `src/withSocketConnection/`: Socket.IO context provider and real-time event binding
-- `src/constants/index.js`: shared constants and all Vite env exports
+- `src/constants/`: shared constants and all Vite env exports
 - `src/utils/`: general utilities
 - `src/__test-helpers/`: fixtures and mocks
 - `jest-config/`: Jest transformers and asset mocks
@@ -220,9 +257,9 @@ The hamburger menu opens a left-side drawer. Items are visibility-gated by syste
 #### Routing and URL shape
 
 - **Prefix:** `REACT_APP_ROUTE_PREFIX`
-- **Top-level routes:** `login`, `eula`, `*` → main `App`
+- **Top-level routes:** `login`, `eula`, `community/:value/*`, `*` → main `App`
 - **In-app navigation:** Path segments drive UI state via `getCurrentTabFromURL` / `getCurrentIdFromURL` in `utils/navigation.js`. Patterns `/:tab/*` and `/:tab/:id/*`.
-  - **Sidebar tabs:** `events`, `layers`, `patrols`, `settings`
+  - **Sidebar tabs:** `events`, `patrols`, `gear`, `layers`, `settings`
 
 #### Redux and data loading
 
@@ -237,7 +274,7 @@ Central `map` instance shared via `MapContext`.
 
 #### API layer
 
-`API_URL` and `API_V2_URL` are assembled from `DAS_HOST` + path env vars in `src/constants/index.js` and imported directly in duck files. `RequestConfigManager` installs Axios interceptors that attach the auth `Bearer` token, add a `USER-PROFILE` header when a profile is active, attach a cancellation token, and redirect to login on 401.
+`API_URL` and `API_V2_URL` are assembled from `DAS_HOST` + path env vars in `src/constants/index.js` and imported directly in duck files. `RequestConfigManager` installs Axios interceptors that attach the auth `Bearer` token, add a `USER-PROFILE` header when a profile is active, attach a cancellation token, and run the 401 recovery described under **Authentication**. Requests can opt out of auth with `skipAuth`.
 
 #### Styling
 
@@ -247,9 +284,16 @@ Component-specific styles use co-located `styles.module.scss`. Global partials i
 
 Translation files live under `public/locales/{locale}/`. Each locale directory contains one JSON file per UI namespace. All new user-facing strings must be added to every locale file, properly translated into each locale's language.
 
-#### Event form schema
+#### Form schemas
 
-The server stores a canonical **JSON Schema** per event type. Client-side editing and rendering use a flat **formElements** structure derived from it. Transformation utilities live in `utils/v2-event-schemas/`.
+The server stores a canonical **JSON Schema** per type. Client-side editing and rendering use a flat **formElements** structure derived from it; transformation utilities live in `utils/form-schemas/`. `SchemaForm` renders that structure.
+
+#### Feature flags
+
+Two separate systems.
+
+- **Preview features** are server-driven — they arrive in the system config and are read with `usePreviewFeature(PREVIEW_FEATURES.X)`.
+- **Development feature flags** are client-side defaults in `DEVELOPMENT_FEATURE_FLAGS`, read with `useFeatureFlag`, and overridable per user from Settings → General → Experimental Features.
 
 ### Key Commands
 
@@ -263,6 +307,14 @@ The server stores a canonical **JSON Schema** per event type. Client-side editin
 
 ### Development Preferences
 
+#### Workflow
+
+After making code changes:
+
+- Run `yarn lint`, and `yarn stylelint` if you touched SCSS. Fix every problem you introduced.
+- Run `yarn test <path-or-pattern>` over the areas you changed and make sure they pass.
+- Check whether `AGENTS.md` needs updating to reflect the change and update it if so.
+
 #### Component Structure
 
 - Functional components with hooks; props destructured in function signature.
@@ -270,11 +322,11 @@ The server stores a canonical **JSON Schema** per event type. Client-side editin
 
 #### Comments
 
-- Do not add new comments unless they are genuinely necessary. Assume the reader knows the language and the codebase; well-named functions and variables should carry the meaning instead.
-- A comment earns its place only when the code cannot: a non-obvious *why* (a workaround, a subtle constraint, an intentional deviation), a caveat, or a link to an external reference. Comments that restate *what* the code does are noise — delete them from your own output before finishing.
-- Never narrate the change or your reasoning in a comment (e.g. `// added this`, `// now using X instead of Y`, `// this fixes the bug`). Comments describe the code as it stands, not how it got there — the diff and commit message are for that.
-- The same rules apply to test files: describe intent through `describe`/`it` names, not inline commentary.
-- Leave existing comments alone unless they are wrong or you are changing the code they document.
+Comment only what the code cannot say: a non-obvious *why*, a caveat, or a link to an external reference. Anything that restates what the code does is noise — naming should carry that.
+
+Never leave working notes behind. No narrating the change (`// now using X instead of Y`, `// this fixes the bug`), no ticket numbers, and no references to plans or conversations that exist only on your machine. The diff and the commit message are for that.
+
+Same rules in tests — intent goes in the `describe` / `it` names.
 
 #### Accessibility
 
@@ -304,4 +356,6 @@ The server stores a canonical **JSON Schema** per event type. Client-side editin
 ### Testing Patterns
 
 - Co-located `*.test.*` files.
-- Use a local `renderComponent` helper; prefer `getByRole` queries.
+- Use a local render helper (e.g. `renderHeader`, `renderFilters`)
+- Supply Redux state with `MockStore` from `src/__test-helpers`.
+- Prefer `getByRole` queries.
