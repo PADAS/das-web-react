@@ -123,6 +123,14 @@ describe('SchemaForm - formElements - Collection - SortableList', () => {
     expect(onItemMove).toHaveBeenCalledWith(2, 0);
   });
 
+  test('does not update the items when the dragged item id cannot be found', async () => {
+    render(sortableList());
+
+    getProviderProp('onDragEnd')(dragEvent({ source: sortable('unknown', 2, 0), target: sortable(1, 1) }));
+
+    expect(onItemMove).not.toHaveBeenCalled();
+  });
+
   test('does not update the items when moving a dragged item to the same position', async () => {
     render(sortableList());
 

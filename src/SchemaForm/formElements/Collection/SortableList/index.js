@@ -61,7 +61,9 @@ const SortableList = ({
     const movedItems = move(items, event);
     if (movedItems !== items) {
       const movedItem = items.find((item) => item.id === event.operation.source.id);
-      onItemMove(items.indexOf(movedItem), movedItems.indexOf(movedItem));
+      if (movedItem) {
+        onItemMove(items.indexOf(movedItem), movedItems.indexOf(movedItem));
+      }
     }
   };
 
