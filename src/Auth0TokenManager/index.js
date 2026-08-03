@@ -23,7 +23,6 @@ const Auth0TokenManager = () => {
   const navigate = useNavigate();
 
   const existingToken = useSelector((state) => state.data.token?.access_token);
-  const idpOrgId = useSelector((state) => state.view.systemConfig?.idp_org_id);
   const requireIdp = useSelector((state) => !!state.view.systemConfig?.require_idp);
 
   const { isAuthenticated, getAccessTokenSilently, logout } = useAuth0();
@@ -54,8 +53,7 @@ const Auth0TokenManager = () => {
             return;
           }
 
-          // Account-linking gate — common-DB path only; org-scoped (rcuksa) sites skip it.
-          if (requireIdp && !idpOrgId?.trim()) {
+          if (requireIdp) {
             const { result, linkUrl } = await checkAccountLinked(safe);
 
             // Unlinked: hand off to the server-owned link page (always a validated URL).
@@ -103,7 +101,7 @@ const Auth0TokenManager = () => {
       }
     };
     ensureIdpToken();
-  }, [dispatch, existingToken, getAccessTokenSilently, idpOrgId, isAuthenticated, logout, requireIdp, navigate, location.search]);
+  }, [dispatch, existingToken, getAccessTokenSilently, isAuthenticated, logout, requireIdp, navigate, location.search]);
 
   return null;
 };

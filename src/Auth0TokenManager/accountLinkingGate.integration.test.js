@@ -100,7 +100,7 @@ describe('post-callback account-linking gate', () => {
       }),
       {
         data: { token: { access_token: null } },
-        view: { systemConfig: { require_idp: true, idp_org_id: null } }, // common-DB site
+        view: { systemConfig: { require_idp: true } },
       },
       applyMiddleware(thunk, promiseMiddleware),
     );

@@ -49,7 +49,7 @@ describe('Auth0TokenManager', () => {
     useSelector.mockImplementation((selector) => {
       const state = {
         data: { token: { access_token: null } },
-        view: { systemConfig: { require_idp: true, idp_org_id: null } }
+        view: { systemConfig: { require_idp: true } }
       };
       return selector(state);
     });
@@ -239,7 +239,7 @@ describe('Auth0TokenManager', () => {
       expect(applyAccessToken).not.toHaveBeenCalled();
     });
 
-    test('org-scoped (idp_org_id set): skips the gate and authenticates', async () => {
+    test('runs the gate on a site whose status response still reports an organization ID', async () => {
       useSelector.mockImplementation((selector) => selector({
         data: { token: { access_token: null } },
         view: { systemConfig: { require_idp: true, idp_org_id: 'org_abc' } },
@@ -248,9 +248,9 @@ describe('Auth0TokenManager', () => {
       renderAfterCallback();
 
       await waitFor(() => {
-        expect(applyAccessToken).toHaveBeenCalledWith(VALID_TOKEN);
+        expect(checkAccountLinked).toHaveBeenCalledWith(VALID_TOKEN);
       });
-      expect(checkAccountLinked).not.toHaveBeenCalled();
+      expect(applyAccessToken).toHaveBeenCalledWith(VALID_TOKEN);
     });
   });
 });
