@@ -1,0 +1,70 @@
+@use '../../../../../../common/styles/vars/colors';
+
+.formPreview {
+  background-color: white;
+  border: 1px solid colors.$light-gray-border;
+  border-bottom-left-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+  border-top: 0;
+  padding: 1rem 0.5rem;
+
+  &.dragOverlay {
+    border: 2px solid colors.$bright-blue;
+    border-top: 0;
+  }
+
+  &.error {
+    border-color: colors.$bright-red;
+  }
+
+  .fieldSummary {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+
+    .label {
+      font-size: 0.875rem;
+      color: colors.$secondary-medium-gray;
+      margin: 0;
+  
+      &.error {
+        color: colors.$bright-red;
+      }
+    }
+  
+    .value {
+      color: black;
+      margin: 0;
+  
+      &.error {
+        color: colors.$bright-red;
+      }
+    }
+  
+    .jumpToLocationButton {
+      background: none;
+      border: none;
+      border-radius: 0.1875rem;
+      color: colors.$secondary-medium-gray;
+      outline: none;
+  
+      &:hover {
+        background: colors.$light-gray-background;
+      }
+  
+      &:focus-visible {
+        border: 2px solid colors.$bright-blue;
+        color: colors.$bright-blue;
+      }
+
+      &.dragOverlay {
+        cursor: grabbing;
+
+        &:hover {
+          background: unset;
+        }
+      }
+    }
+  }
+}

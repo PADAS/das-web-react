@@ -37,7 +37,7 @@ import { GeometryPreview } from './AreaPicker/MenuPopover';
 import LocationPicker from '../../LocationPicker';
 import PrioritySelect from '../../PrioritySelect';
 import ReportedBySelect from '../../ReportedBySelect';
-import SchemaForm from './SchemaForm';
+import SchemaForm from '../../SchemaForm';
 import TimePicker, { EMPTY_TIME_VALUE, isValidTime } from '../../TimePicker';
 
 import * as styles from './styles.module.scss';
@@ -46,7 +46,6 @@ const LOADER_COLOR = '#006cd9'; // Bright blue
 const LOADER_SIZE = 50;
 
 const DetailsSection = ({
-  eventId,
   eventSchema = null,
   formValidator,
   // hidePriority / hideReportedBy are intentionally generic visibility props expressed in this
@@ -292,11 +291,9 @@ const DetailsSection = ({
     </Form>}
 
     {eventType?.version === 2 && eventSchema?.json && !eventSchema?.error && <SchemaForm
-      eventId={eventId}
-      eventLocation={reportForm.location}
+      anchorLocation={reportForm.location}
       formData={reportForm.event_details}
       hideMapLocationMarkers={isBehindAddedEvent}
-      isNewEvent={isNewEvent}
       metadata={reportForm.metadata ?? {}}
       onFormDataChange={onFormDataChange}
       onFormSubmit={onFormSubmit}
@@ -307,6 +304,7 @@ const DetailsSection = ({
         type="submit"
       />}
       schema={eventSchema}
+      shouldPopulateDefaultData={isNewEvent}
     />}
 
     {!eventSchema && !reportForm.is_collection && loadingEventSchemas && <div className={styles.loaderWrapper}>

@@ -25,188 +25,9 @@
       "ascending": "घट्दो क्रम अनुसार मिलाउनुहोस",
       "descending": "बढ्दो क्रम अनुसार मिलाउनुहोस"
     },
-    "prioritySelect": {
-      "labels": {
-        "amber": "पहेँलो",
-        "green": "हरियो",
-        "none": "कुनै होइन",
-        "red": "रातो"
-      },
-      "placeholder": "छान्नुहोस्"
-    },
-    "reportGeometryDrawer": {
-      "cancelationConfirmationModal": {
-        "continueEditingButton": "सम्पादन जारी राख्नुहोस्",
-        "discardButton": "खारेज गर्नुहोस्",
-        "modalBody": "सुरक्षित नगरी रद्द गर्दा घटनाका क्षेत्रमा गरिएका परिवर्तन खारेज हुनेछन् । के तपाईं यी परिवर्तनहरु खारेज गर्न निश्चित हुनुहुन्छ ?",
-        "modalTitle": "परिवर्तनहरु खारेज गर्नुहोस्"
-      },
-      "footer": {
-        "cancelButton": "रद्द गर्नुहोस्",
-        "saveButton": "सुरक्षित गर्नुहोस्",
-        "saveButtonTooltip": {
-          "drawing": "बन्द आकारहरु मात्रै सुरक्षित गर्न सकिन्छ",
-          "invalidGeometry": "आकारका खण्डरु आपसमा काटिन सक्दैनन्"
-        }
-      },
-      "informationModal": {
-        "addingPointsHeader": "विन्दु थपिदैछ",
-        "addingPointsContent": "नक्सामा जहाँसुकै क्लिक गरि घटनाको क्षेत्रमा नयाँ विन्दु थप्न सक्नुहुन्छ ।",
-        "addingPointsToExistingAreaHeader": "अवस्थित क्षेत्रमा विन्दु थपिदैछ",
-        "addingPointsToExistingAreaContent": "घटना क्षेत्रको खण्डमा रहि क्लिक गरि तान्नुहोस् र चाहेको स्थानमा नयाँ विन्दु थप्नुहोस् ।",
-        "closingAreaHeader": "क्षेत्र बन्द हुँदैछ",
-        "closingAreaContent": "पहिलो विन्दुमा क्लिक गरि अथवा तपाईंको किबोर्डमा ‘enter’ थिचि आकार बन्द गर्नुहोस्",
-        "deletingPointsHeader": "विन्दुहरु हटाइँदैछ",
-        "deletingPointsContent": "तपाईंले मेट्न चाहेको बिन्दु क्लिक गर्नुहोस् र किबोर्डमा ‘delete’ अथवा ‘backspace’ थिच्नुहोस्",
-        "modalTitle": "घटना क्षेत्र सिर्जना हुँदैछ",
-        "reportAreaHeader": "घटना क्षेत्र",
-        "reportAreaContent": "तीन वा सो भन्दा बढी बिन्दु र आपसमा नकाटिने धर्का भएको एउटा बन्द आकार । क्षेत्र र दुरीको मापन औसतमा गरिएको छ, भूभाग र उचाइमा हुने परिवर्तनमा तिनको कुनै सम्बन्ध हुँदैन ।"
-      }
-    },
-    "reportListItem": {
-      "dateTimeSuffix": "अघि",
-      "resolvedState": "समाधान गरिएको"
-    },
-    "reportManager": {
-      "detailsSection": {
-        "areaPicker": {
-          "defaultPlaceholder": "कार्यक्रम क्षेत्र सेट गर्नुहोस्",
-          "displayString": "{{areaDisplayString}} क्षेत्र, {{perimeterDisplayString}} परिधि",
-          "inputDescription": "बटन क्लिक गरेर क्षेत्र चयन मेनुबाट मान सेट गर्नुहोस्।",
-          "inputLabel": "क्षेत्र",
-          "menuPopover": {
-            "area": "क्षेत्र:",
-            "deleteAreaButton": "क्षेत्र मेटाउनुहोस्",
-            "dialogLabel": "क्षेत्र",
-            "editAreaButton": "क्षेत्र सम्पादन गर्नुहोस्",
-            "editAreaButtonLabel": "नक्सामा क्षेत्र सम्पादन गर्नुहोस्",
-            "perimeter": "परिधि:",
-            "provenanceLabel": "अर्थरेन्जरमा बनाइएको {{provenance}}",
-            "staticMapImageAlt": "ज्यामिति सहितको स्थिर नक्सा"
-          },
-          "setAreaButtonLabel": {
-            "closed": "क्षेत्र चयन मेनु खोल्नुहोस्",
-            "create": "नक्सामा क्षेत्र सिर्जना गर्नुहोस्",
-            "open": "क्षेत्र चयन मेनु बन्द गर्नुहोस्"
-          },
-          "textCopyButtonLabel": "क्षेत्र GeoJSON क्लिपबोर्डमा प्रतिलिपि गर्नुहोस्"
-        },
-        "dateLabel": "घटनाको मिति",
-        "detailsHeader": "विवरण",
-        "errorLoadingSchema": "स्किमा लोड गर्दा त्रुटि",
-        "locationLabel": "घटनाको लोकेसन",
-        "priorityLabel": "प्राथमिकता",
-        "reportedByLabel": "द्वारा रिपार्ट गरिएको",
-        "schemaForm": {
-          "errors": {
-            "collectionItems": "यस संग्रहका केही वस्तुहरूमा तिनीहरूको आन्तरिक फारमहरूमा त्रुटिहरू छन्।",
-            "alphanumericPattern": "अक्षर र नम्बरहरू मात्र अनुमति छ।",
-            "dateFormat": "अमान्य मिति ढांचा वा अमान्य मिति। दिन, महिना र वर्षको पुन: जाँच गर्नुहोस्।",
-            "dateTimeFormat": "अमान्य मिति र समय ढांचा वा अमान्य मिति। दिन, महिना र वर्षको पुन: जाँच गर्नुहोस्।",
-            "defaultFormat": "अमान्य ढाँचा।",
-            "defaultKeyword": "अमान्य मान।",
-            "defaultPattern": "मान आवश्यक ढाँचासँग मेल खाँदैन।",
-            "emailFormat": "अमान्य इमेल ढाँचा।",
-            "maximum": "यो मान भन्दा कम वा बराबर हुनुपर्छ {{maximum}}।",
-            "maxItems_one": "यो सङ्कलनमा धेरैमा {{count}} वस्तु मात्र हुन सक्छ।",
-            "maxItems_other": "यो सङ्कलनमा धेरैमा {{count}} वस्तुहरू मात्र हुन सक्छन्।",
-            "minimum": "यो मान भन्दा ठूलो वा बराबर हुनुपर्छ {{minimum}}।",
-            "minItems_one": "यो सङ्कलनमा कम्तीमा {{count}} वस्तु हुनुपर्छ।",
-            "minItems_other": "यो सङ्कलनमा कम्तीमा {{count}} वस्तुहरू हुनुपर्छ।",
-            "required": "यो आवश्यक फिल्ड हो।",
-            "timeFormat": "अमान्य समय ढांचा।",
-            "uriFormat": "अमान्य URL ढाँचा।",
-            "uuidFormat": "अमान्य UUID ढाँचा।"
-          },
-          "fields": {
-            "collection": {
-              "addButtonLabel": "{{itemName}} थप्नुहोस्",
-              "defaultAddButton": "थप्नुहोस्",
-              "chevronButtonLabel": {
-                "closed": "{{collectionLabel}} सूची खोल्नुहोस्",
-                "open": "{{collectionLabel}} सूची बन्द गर्नुहोस्"
-              },
-              "sortableList": {
-                "dragCancelAnnouncement": "तान्ने कार्य रद्द गरिएको छ। {{activeItemTitle}} खसालिएको छ।",
-                "dragEndAnnouncement": "{{activeItemTitle}} लाई {{itemsLength}} को स्थान {{overItemPosition}} मा खसालिएको छ।",
-                "draggableScreenReaderInstructions": "{{itemName}} उचाल्न, space वा enter थिच्नुहोस्। तान्दै गर्दा, माथि र तलको एरो कुञ्जी प्रयोग गरेर {{itemName}} सार्न र यसको स्थान अद्यावधिक गर्नुहोस्। {{itemName}} लाई नयाँ स्थानमा छोड्न space वा enter फेरि थिच्नुहोस्।",
-                "dragOverAnnouncement": "{{activeItemTitle}} लाई {{itemsLength}} को स्थान {{overItemPosition}} मा सारिएको छ।",
-                "dragStartAnnouncement": "{{activeItemTitle}} उचालिएको छ। {{activeItemTitle}} {{itemsLength}} मध्ये स्थान {{activeItemPosition}} मा छ।",
-                "item": {
-                  "collectionHumanizedValue": "{{collectionLength}} वस्तुहरू",
-                  "deleteButtonLabel": "{{itemTitle}} मेट्नुहोस्",
-                  "editButtonLabel": "{{itemTitle}} सम्पादन गर्नुहोस्",
-                  "formModal": {
-                    "cancelButton": "रद्द गर्नुहोस्",
-                    "deleteButton": "{{itemTitle}} मेटाउनुहोस्",
-                    "doneButton": "सम्पन्न"
-                  },
-                  "formPreview": {
-                    "collectionHumanizedValue": "{{collectionLength}} वस्तुहरू",
-                    "jumpToLocationButtonLabel": "{{field}} स्थानमा जानुहोस्"
-                  },
-                  "chevronButtonLabel": {
-                    "closed": "{{itemTitle}} फारमको पूर्वावलोकन खोल्नुहोस्",
-                    "open": "{{itemTitle}} फारमको पूर्वावलोकन बन्द गर्नुहोस्"
-                  }
-                }
-              }
-            },
-            "text": {
-              "urlLinkLabel": "URL नयाँ ट्याबमा खोल्नुहोस्"
-            }
-          },
-          "validationErrorsAnnouncement": "निम्न फिल्डहरूमा सत्यापन त्रुटिहरू छन्:"
-        },
-        "stateDropdown": {
-          "active": "सक्रिय",
-          "resolved": "समाधान गरिएको"
-        },
-        "timeLabel": "घटनाको समय"
-      },
-      "header": {
-        "priority": {
-          "amber": "पहेँलो",
-          "green": "हरियो",
-          "none": "कुनै पनि होइन",
-          "red": "रातो"
-        },
-        "reportMenu": {
-          "addToIncidentItem": "घटनामा थप्नुहोस्",
-          "addToPatrolItem": "गस्तिमा थप्नुहोस्",
-          "printReportItem": "घटना प्रिन्ट गर्नुहोस्",
-          "textCopyButtonLabel": "घटनाको लिकं कपि गर्नुहोस्",
-          "textCopyButtonSuccessMessage": "लिकं कपि गरियो",
-          "label": "घटनाका विकल्पहरु हेर्नुहोस्",
-          "title": "घटनाका विकल्पहरु"
-        }
-      },
-      "linksSection": {
-        "linksHeader": "लिकंहरु"
-      },
-      "reportDetailView": {
-        "cancelButton": "रद्द गर्नुहोस्",
-        "cantAddNoteAlert": "नयाँ नोट थप गर्न सकिएनः त्यहाँ एउटा खालि नोट सुरक्षित गर्न बाँकी छ",
-        "loadingMessage": "सुरक्षित हुँदैछ…",
-        "quickLinks": {
-          "activityAnchor": "गतिविधि",
-          "detailsAnchor": "विवरण",
-          "historyAnchor": "इतिहास",
-          "linksAnchor": "लिकं"
-        },
-        "saveErrorMessage": "घटनाहरु सुरक्षित गर्दा त्रुटि भयो ।",
-        "saveSplitButton": {
-          "saveAndReopenItem": "सुरक्षित गरि फेरी खोल्नुहोस्",
-          "saveAndResolveItem": "सुरक्षित गरि समाधान गर्नुहोस्",
-          "title": "सुरक्षित गर्नुहोस्"
-        },
-        "unknownErrorLabel": "अज्ञात त्रुटि"
-      }
-    },
-    "unknownEventTitle": "अज्ञात घटनाको शिर्षक",
-    "unknownEventType": "अज्ञात घटनाको किसिम",
-    "eventIcon": {
-      "collectionTitle": "सकंलन"
+    "sortDirectionToggleTitle": {
+      "ascending": "बढ्दो क्रम",
+      "descending": "घट्दो क्रम"
     }
   },
   "errorMessages": {
@@ -227,12 +48,14 @@
       "processedReports": {
         "activated": "सक्रिय बनाईयो",
         "resolved": "समाधान गरियो",
-        "title": "यी सम्बन्धित घटनाहरु पनि {{newState}} थिएः"
+        "title": "यी सम्बन्धित घटनाहरु पनि {{newState}} थिएः",
+        "review": "समीक्षामा पठाइयो"
       }
     },
     "state": {
       "active": "सक्रिय",
-      "resolved": "समाधान गरियो"
+      "resolved": "समाधान गरियो",
+      "review": "समीक्षा"
     },
     "textCopyButtonItem": {
       "label": "घटनाको लिकं कपि गर्नुहोस्",
@@ -241,12 +64,15 @@
     "updatedCollectionInfoToast": {
       "activated": "सक्रिय बनाईयो",
       "message": "संग्रह #{{collectionSerialNumber}} सफलताका साथ {{newState}} भयो",
-      "resolved": "समाधान गरियो"
+      "resolved": "समाधान गरियो",
+      "review": "समीक्षामा पठाइयो"
     },
     "updatedReportInfoToastMessage": "#{{reportSerialNumber}} {{newState}}",
     "updateReportStateItem": {
+      "activate": "सक्रिय बनाउनुहोस्",
       "reopen": "फेरी खोल्नुहोस्",
-      "resolve": "समाधान गर्नुहोस्"
+      "resolve": "समाधान गर्नुहोस्",
+      "review": "समीक्षामा पठाउनुहोस्"
     }
   },
   "prioritySelect": {
@@ -289,7 +115,8 @@
   },
   "reportListItem": {
     "dateTimeSuffix": "अघि",
-    "resolvedState": "समाधान गरिएको"
+    "resolvedState": "समाधान गरिएको",
+    "reviewState": "समीक्षामा"
   },
   "reportManager": {
     "detailsSection": {
@@ -321,94 +148,10 @@
       "locationLabel": "घटनाको लोकेसन",
       "priorityLabel": "प्राथमिकता",
       "reportedByLabel": "द्वारा रिपार्ट गरिएको",
-      "schemaForm": {
-        "errors": {
-          "collectionItems": "यस संग्रहका केही वस्तुहरूमा तिनीहरूको आन्तरिक फारमहरूमा त्रुटिहरू छन्।",
-          "alphanumericPattern": "अक्षर र नम्बरहरू मात्र अनुमति छ।",
-          "dateFormat": "अमान्य मिति ढांचा वा अमान्य मिति। दिन, महिना र वर्षको पुन: जाँच गर्नुहोस्।",
-          "dateTimeFormat": "अमान्य मिति र समय ढांचा वा अमान्य मिति। दिन, महिना र वर्षको पुन: जाँच गर्नुहोस्।",
-          "defaultFormat": "अमान्य ढाँचा।",
-          "defaultPattern": "मान आवश्यक ढाँचासँग मेल खाँदैन।",
-          "emailFormat": "अमान्य इमेल ढाँचा।",
-          "maximum": "यो मान भन्दा कम वा बराबर हुनुपर्छ {{maximum}}।",
-          "maxItems_one": "यो सङ्कलनमा धेरैमा {{count}} वस्तु मात्र हुन सक्छ।",
-          "maxItems_other": "यो सङ्कलनमा धेरैमा {{count}} वस्तुहरू मात्र हुन सक्छन्।",
-          "minimum": "यो मान भन्दा ठूलो वा बराबर हुनुपर्छ {{minimum}}।",
-          "minItems_one": "यो सङ्कलनमा कम्तीमा {{count}} वस्तु हुनुपर्छ।",
-          "minItems_other": "यो सङ्कलनमा कम्तीमा {{count}} वस्तुहरू हुनुपर्छ।",
-          "required": "यो आवश्यक फिल्ड हो।",
-          "timeFormat": "अमान्य समय ढांचा।",
-          "uploadFailedError": "एक वा बढी फाइल अपलोड असफल भयो। पेश गर्नुभन्दा पहिले असफल फाइलहरू हटाउनुहोस्।",
-          "uploadInProgressError": "कृपया फाइलहरू अपलोड पूरा नभएसम्म प्रतीक्षा गर्नुहोस्।",
-          "uriFormat": "अमान्य URL ढाँचा।",
-          "uuidFormat": "अमान्य UUID ढाँचा।"
-        },
-        "fields": {
-          "attachment": {
-            "chooseFile": "फाइल छान्नुहोस्",
-            "disallowedTypeAlert": "{{fileName}} थप्न सकिँदैन किनभने यसको फाइल प्रकार अनुमति छैन।",
-            "dropzoneText": "फाइलहरू यहाँ तान्नुहोस् र छोड्नुहोस्",
-            "maxItemsAlert_one": "तपाईं बढीमा {{count}} फाइल मात्र थप्न सक्नुहुन्छ।",
-            "maxItemsAlert_other": "तपाईं बढीमा {{count}} फाइलहरू मात्र थप्न सक्नुहुन्छ।",
-            "downloadButtonLabel": "{{fileName}} डाउनलोड गर्नुहोस्",
-            "expandButtonLabel": "{{fileName}} विस्तार गर्नुहोस्",
-            "pendingLabel": "बाँकी",
-            "removeButtonLabel": "{{fileName}} हटाउनुहोस्",
-            "requiredLabel": "(आवश्यक)",
-            "uploadErrorLabel": "अपलोड असफल भयो",
-            "uploadFailedAnnouncement_one": "{{fileName}} अपलोड गर्न सकिएन",
-            "uploadFailedAnnouncement_other": "{{count}} फाइलहरू अपलोड गर्न सकिएन",
-            "uploadStartedAnnouncement_one": "{{fileName}} अपलोड हुँदै",
-            "uploadStartedAnnouncement_other": "{{count}} फाइलहरू अपलोड हुँदै",
-            "uploadSucceededAnnouncement_one": "{{fileName}} अपलोड भयो",
-            "uploadSucceededAnnouncement_other": "{{count}} फाइलहरू अपलोड भए"
-          },
-          "collection": {
-            "addButtonLabel": "{{itemName}} थप्नुहोस्",
-            "defaultAddButton": "थप्नुहोस्",
-            "chevronButtonLabel": {
-              "closed": "{{collectionLabel}} सूची खोल्नुहोस्",
-              "open": "{{collectionLabel}} सूची बन्द गर्नुहोस्"
-            },
-            "sortableList": {
-              "dragCancelAnnouncement": "तान्ने कार्य रद्द गरिएको छ। {{activeItemTitle}} खसालिएको छ।",
-              "dragEndAnnouncement": "{{activeItemTitle}} लाई {{itemsLength}} को स्थान {{overItemPosition}} मा खसालिएको छ।",
-              "draggableScreenReaderInstructions": "{{itemName}} उचाल्न, space वा enter थिच्नुहोस्। तान्दै गर्दा, माथि र तलको एरो कुञ्जी प्रयोग गरेर {{itemName}} सार्न र यसको स्थान अद्यावधिक गर्नुहोस्। {{itemName}} लाई नयाँ स्थानमा छोड्न space वा enter फेरि थिच्नुहोस्।",
-              "dragOverAnnouncement": "{{activeItemTitle}} लाई {{itemsLength}} को स्थान {{overItemPosition}} मा सारिएको छ।",
-              "dragStartAnnouncement": "{{activeItemTitle}} उचालिएको छ। {{activeItemTitle}} {{itemsLength}} मध्ये स्थान {{activeItemPosition}} मा छ।",
-              "item": {
-                "attachmentHumanizedValue_one": "1 फाइल",
-                "attachmentHumanizedValue_other": "{{count}} फाइलहरू",
-                "collectionHumanizedValue": "{{collectionLength}} वस्तुहरू",
-                "deleteButtonLabel": "{{itemTitle}} मेट्नुहोस्",
-                "editButtonLabel": "{{itemTitle}} सम्पादन गर्नुहोस्",
-                "formModal": {
-                  "cancelButton": "रद्द गर्नुहोस्",
-                  "deleteButton": "{{itemTitle}} मेटाउनुहोस्",
-                  "doneButton": "सम्पन्न"
-                },
-                "formPreview": {
-                  "attachmentHumanizedValue_one": "1 फाइल",
-                  "attachmentHumanizedValue_other": "{{count}} फाइलहरू",
-                  "collectionHumanizedValue": "{{collectionLength}} वस्तुहरू",
-                  "jumpToLocationButtonLabel": "{{field}} स्थानमा जानुहोस्"
-                },
-                "chevronButtonLabel": {
-                  "closed": "{{itemTitle}} फारमको पूर्वावलोकन खोल्नुहोस्",
-                  "open": "{{itemTitle}} फारमको पूर्वावलोकन बन्द गर्नुहोस्"
-                }
-              }
-            }
-          },
-          "text": {
-            "urlLinkLabel": "URL नयाँ ट्याबमा खोल्नुहोस्"
-          }
-        },
-        "validationErrorsAnnouncement": "निम्न फिल्डहरूमा सत्यापन त्रुटिहरू छन्:"
-      },
       "stateDropdown": {
         "active": "सक्रिय",
-        "resolved": "समाधान गरिएको"
+        "resolved": "समाधान गरिएको",
+        "review": "समीक्षा"
       },
       "timeLabel": "घटनाको समय"
     },
@@ -446,7 +189,9 @@
       "saveSplitButton": {
         "saveAndReopenItem": "सुरक्षित गरि फेरी खोल्नुहोस्",
         "saveAndResolveItem": "सुरक्षित गरि समाधान गर्नुहोस्",
-        "title": "सुरक्षित गर्नुहोस्"
+        "saveAndReviewItem": "सुरक्षित गरि समीक्षामा पठाउनुहोस्",
+        "title": "सुरक्षित गर्नुहोस्",
+        "saveAndActivateItem": "सुरक्षित गरि सक्रिय बनाउनुहोस्"
       },
       "unknownErrorLabel": "अज्ञात त्रुटि"
     }

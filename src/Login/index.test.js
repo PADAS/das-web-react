@@ -3,12 +3,13 @@ import { Provider } from 'react-redux';
 import { useAuth0 } from '@auth0/auth0-react';
 import userEvent from '@testing-library/user-event';
 
+import { APP_ROUTES } from '../constants/routes';
 import appConfig from '../config';
 import { clearAuth, postAuth } from '../ducks/auth';
 import { fetchEula } from '../ducks/eula';
 import { mockStore } from '../__test-helpers/MockStore';
-import { REACT_APP_ROUTE_PREFIX, SYSTEM_CONFIG_FLAGS } from '../constants';
 import { render, screen, waitFor } from '../test-utils';
+import { SYSTEM_CONFIG_FLAGS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
 
 import Login from './';
@@ -468,7 +469,7 @@ describe('Login', () => {
 
     await waitFor(() => {
       expect(navigate).toHaveBeenCalledWith(
-        { pathname: REACT_APP_ROUTE_PREFIX, search: '?next=1' },
+        { pathname: APP_ROUTES.ROOT, search: '?next=1' },
         {},
       );
     });

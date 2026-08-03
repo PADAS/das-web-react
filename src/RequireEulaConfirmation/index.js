@@ -2,8 +2,9 @@ import React, { memo, useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { SYSTEM_CONFIG_FLAGS, REACT_APP_ROUTE_PREFIX } from '../constants';
+import { APP_ROUTES } from '../constants/routes';
 import { fetchCurrentUser } from '../ducks/user';
+import { SYSTEM_CONFIG_FLAGS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
 
 const RequireEulaConfirmation = ({ children }) => {
@@ -19,7 +20,7 @@ const RequireEulaConfirmation = ({ children }) => {
   useEffect(() => {
     dispatch(fetchCurrentUser())
       .catch(() => {
-        navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search: location.search });
+        navigate({ pathname: APP_ROUTES.LOGIN, search: location.search });
       });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -38,7 +39,7 @@ const RequireEulaConfirmation = ({ children }) => {
     return <Navigate
       replace
       state={{ from: { ...location } }}
-      to={{ pathname: `${REACT_APP_ROUTE_PREFIX}eula`, search: location.search }}
+      to={{ pathname: APP_ROUTES.EULA, search: location.search }}
     />;
   }
   return eulaAccepted === 'unknown' ? null : children;

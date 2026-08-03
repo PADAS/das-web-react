@@ -98,7 +98,6 @@ describe('ReportManager - DetailsSection', () => {
         <MapDrawingToolsContext.Provider value={{ ...mapDrawingToolsContextValue }}>
           <TrackerContext.Provider value={{ track: jest.fn() }}>
             <DetailsSection
-              eventId="event-id"
               eventSchema={eventSchemas.accident_rep.base}
               formValidator={formValidator}
               isBehindAddedEvent={false}
