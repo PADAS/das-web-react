@@ -88,58 +88,6 @@ describe('Login', () => {
   test('shows the Auth0 sign-in button and hides local credentials when IDP login is required', () => {
     store = mockStore({
       data: { eula: { eula_url: '' } },
-      view: { systemConfig: { require_idp: true, idp_org_id: 'org_abc' } },
-    });
-
-    renderLogin();
-
-    const signIn = screen.getByRole('button', { name: 'Sign in' });
-    expect(signIn).toBeVisible();
-    expect(signIn).toHaveAttribute('type', 'button');
-    expect(signIn).toBeEnabled();
-    expect(signIn).toHaveAttribute('aria-busy', 'false');
-    expect(signIn).not.toHaveAttribute('aria-label');
-    expect(screen.queryByLabelText('Username')).not.toBeInTheDocument();
-  });
-
-  test('calls loginWithRedirect with audience and organization when the user clicks Sign in', async () => {
-    store = mockStore({
-      data: { eula: { eula_url: '' } },
-      view: { systemConfig: { require_idp: true, idp_org_id: 'org_abc' } },
-    });
-    loginWithRedirect.mockResolvedValue(undefined);
-
-    renderLogin();
-
-    await userEvent.click(screen.getByRole('button', { name: 'Sign in' }));
-
-    expect(loginWithRedirect).toHaveBeenCalledWith({
-      authorizationParams: {
-        audience: appConfig.auth0.audience,
-        organization: 'org_abc',
-      },
-    });
-  });
-
-  test('disables the Auth0 sign-in button and shows a loading state while Auth0 reports loading', () => {
-    store = mockStore({
-      data: { eula: { eula_url: '' } },
-      view: { systemConfig: { require_idp: true, idp_org_id: 'org_abc' } },
-    });
-    useAuth0.mockReturnValue({ loginWithRedirect, isLoading: true });
-
-    renderLogin();
-
-    const button = screen.getByRole('button', { name: 'Loading' });
-    expect(button).toHaveAttribute('type', 'button');
-    expect(button).toHaveAttribute('aria-busy', 'true');
-    expect(button).toHaveAttribute('aria-label', 'Loading');
-    expect(button).toBeDisabled();
-  });
-
-  test('shows the common-DB "Sign in with email" button and no configuration error when IDP is required without an organization ID', () => {
-    store = mockStore({
-      data: { eula: { eula_url: '' } },
       view: { systemConfig: { require_idp: true } },
     });
 
@@ -149,11 +97,12 @@ describe('Login', () => {
     expect(signIn).toBeVisible();
     expect(signIn).toHaveAttribute('type', 'button');
     expect(signIn).toBeEnabled();
-    expect(screen.queryByText('Identity provider organization is not configured.')).not.toBeInTheDocument();
+    expect(signIn).toHaveAttribute('aria-busy', 'false');
+    expect(signIn).not.toHaveAttribute('aria-label');
     expect(screen.queryByLabelText('Username')).not.toBeInTheDocument();
   });
 
-  test('calls loginWithRedirect with audience and no organization when the user clicks Sign in with email', async () => {
+  test('calls loginWithRedirect with the audience when the user clicks Sign in with email', async () => {
     store = mockStore({
       data: { eula: { eula_url: '' } },
       view: { systemConfig: { require_idp: true } },
@@ -169,8 +118,40 @@ describe('Login', () => {
     });
   });
 
+  test('sends no organization param on a site whose status response still reports an organization ID', async () => {
+    store = mockStore({
+      data: { eula: { eula_url: '' } },
+      view: { systemConfig: { require_idp: true, idp_org_id: 'org_abc' } },
+    });
+    loginWithRedirect.mockResolvedValue(undefined);
+
+    renderLogin();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Sign in with email' }));
+
+    expect(loginWithRedirect).toHaveBeenCalledWith({
+      authorizationParams: { audience: appConfig.auth0.audience },
+    });
+  });
+
+  test('disables the Auth0 sign-in button and shows a loading state while Auth0 reports loading', () => {
+    store = mockStore({
+      data: { eula: { eula_url: '' } },
+      view: { systemConfig: { require_idp: true } },
+    });
+    useAuth0.mockReturnValue({ loginWithRedirect, isLoading: true });
+
+    renderLogin();
+
+    const button = screen.getByRole('button', { name: 'Loading' });
+    expect(button).toHaveAttribute('type', 'button');
+    expect(button).toHaveAttribute('aria-busy', 'true');
+    expect(button).toHaveAttribute('aria-label', 'Loading');
+    expect(button).toBeDisabled();
+  });
+
   describe('Auth0 sign-in info box', () => {
-    test('renders the info box on a common-DB Auth0 site (require_idp without an organization ID)', () => {
+    test('renders the info box on an Auth0 site', () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
         view: { systemConfig: { require_idp: true } },
@@ -196,21 +177,7 @@ describe('Login', () => {
       expect(screen.getByText('Questions? Reach out to your site admin.')).toBeVisible();
     });
 
-    test('treats a whitespace-only organization ID as common-DB and still renders the info box', () => {
-      store = mockStore({
-        data: { eula: { eula_url: '' } },
-        view: { systemConfig: { require_idp: true, idp_org_id: '   ' } },
-      });
-
-      renderLogin();
-
-      expect(screen.getByRole('heading', { level: 2 })).toBeVisible();
-      expect(screen.getByRole('link', { name: 'Convert your account' })).toBeVisible();
-      // Whitespace-only org id is treated as no org -> common-DB "Sign in with email".
-      expect(screen.getByRole('button', { name: 'Sign in with email' })).toBeVisible();
-    });
-
-    test('does not render the info box on an org-scoped Auth0 site (require_idp with an organization ID)', () => {
+    test('renders the info box on a site whose status response still reports an organization ID', () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
         view: { systemConfig: { require_idp: true, idp_org_id: 'org_abc' } },
@@ -218,9 +185,9 @@ describe('Login', () => {
 
       renderLogin();
 
-      expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument();
-      expect(screen.queryByRole('link', { name: 'Convert your account' })).not.toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Sign in' })).toBeVisible();
+      expect(screen.getByRole('heading', { level: 2 })).toBeVisible();
+      expect(screen.getByRole('link', { name: 'Convert your account' })).toBeVisible();
+      expect(screen.getByRole('button', { name: 'Sign in with email' })).toBeVisible();
     });
 
     test('does not render the info box on a site without Auth0 configured', () => {
@@ -241,13 +208,13 @@ describe('Login', () => {
   test('shows a sign-in failure alert when loginWithRedirect rejects', async () => {
     store = mockStore({
       data: { eula: { eula_url: '' } },
-      view: { systemConfig: { require_idp: true, idp_org_id: 'org_abc' } },
+      view: { systemConfig: { require_idp: true } },
     });
     loginWithRedirect.mockRejectedValue(new Error('Auth0 failed'));
 
     renderLogin();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Sign in with email' }));
 
     await waitFor(() => {
       const alert = screen.getByText('Sign-in failed. Please try again.');
