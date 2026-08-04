@@ -163,10 +163,10 @@ describe('SchemaForm - formElements - ChoiceList', () => {
       const options = screen.getAllByRole('option');
 
       expect(options).toHaveLength(4);
-      expect(options[0]).toHaveAccessibleName('Ant');
-      expect(options[1]).toHaveAccessibleName('Boa');
-      expect(options[2]).toHaveAccessibleName('Roo wallaby');
-      expect(options[3]).toHaveAccessibleName('Roo kangaroo');
+      expect(options[0]).toHaveAccessibleName('Roo wallaby');
+      expect(options[1]).toHaveAccessibleName('Ant');
+      expect(options[2]).toHaveAccessibleName('Roo kangaroo');
+      expect(options[3]).toHaveAccessibleName('Boa');
     });
 
     test('allow to select single option when the choice list is set to single selection', async () => {
@@ -402,10 +402,10 @@ describe('SchemaForm - formElements - ChoiceList', () => {
       const checkboxes = screen.getAllByRole('checkbox');
 
       expect(checkboxes).toHaveLength(4);
-      expect(checkboxes[0]).toHaveAccessibleName('Ant');
-      expect(checkboxes[1]).toHaveAccessibleName('Boa');
-      expect(checkboxes[2]).toHaveAccessibleName('Roo wallaby');
-      expect(checkboxes[3]).toHaveAccessibleName('Roo kangaroo');
+      expect(checkboxes[0]).toHaveAccessibleName('Roo wallaby');
+      expect(checkboxes[1]).toHaveAccessibleName('Ant');
+      expect(checkboxes[2]).toHaveAccessibleName('Roo kangaroo');
+      expect(checkboxes[3]).toHaveAccessibleName('Boa');
     });
 
     test('allow to select single option when the choice list is set to single selection', async () => {
