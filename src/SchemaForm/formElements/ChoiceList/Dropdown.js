@@ -35,18 +35,18 @@ const Option = ({ className = '', data, innerProps, isSelected, isMulti, ...rest
 </components.Option>;
 
 const Dropdown = ({ details, disabled, id, invalid, onChange, readOnly, value, ...otherProps }) => {
-  const { i18n, t } = useTranslation('components', { keyPrefix: 'choiceList' });
+  const { t } = useTranslation('components', { keyPrefix: 'choiceList' });
 
   const [isMenuOpen, setMenuOpen] = useState(false);
 
   const options = useMemo(
-    () => getDisplayableChoiceListOptions(details.options, i18n.language)
+    () => getDisplayableChoiceListOptions(details.options)
       .map((option) => ({
         description: option.description,
         label: option.display,
         value: option.value,
       })),
-    [details.options, i18n.language]
+    [details.options]
   );
 
   const selectedValue = useMemo(
