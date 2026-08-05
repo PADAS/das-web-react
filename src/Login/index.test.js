@@ -40,6 +40,23 @@ jest.mock('../hooks/useNavigate', () => jest.fn());
 
 const ISSUED_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.issued.signature';
 
+const REDIRECT_GRANT = {
+  discovery: {
+    ok: true,
+    grant: 'authorization_code',
+    audience: 'https://discovered.example/api',
+    clientId: 'discoveredClient',
+    issuer: 'https://auth.discovered.example/',
+    skipped: [],
+  },
+  settled: true,
+};
+
+const PASSWORD_GRANT = {
+  discovery: { ok: true, grant: 'password', clientId: 'das_web_client', issuer: 'http://localhost/oauth2', skipped: [] },
+  settled: true,
+};
+
 describe('Login', () => {
   let loginWithRedirect, navigate, store;
   beforeEach(() => {
@@ -61,6 +78,7 @@ describe('Login', () => {
         },
       },
       view: {
+        authDiscovery: PASSWORD_GRANT,
         systemConfig: {},
       },
     });
@@ -98,7 +116,7 @@ describe('Login', () => {
   test('shows the Auth0 sign-in button and hides local credentials when IDP login is required', () => {
     store = mockStore({
       data: { eula: { eula_url: '' } },
-      view: { systemConfig: { require_idp: true } },
+      view: { authDiscovery: REDIRECT_GRANT, systemConfig: {} },
     });
 
     renderLogin();
@@ -115,7 +133,7 @@ describe('Login', () => {
   test('calls loginWithRedirect with the audience when the user clicks Sign in with email', async () => {
     store = mockStore({
       data: { eula: { eula_url: '' } },
-      view: { systemConfig: { require_idp: true } },
+      view: { authDiscovery: REDIRECT_GRANT, systemConfig: {} },
     });
     loginWithRedirect.mockResolvedValue(undefined);
 
@@ -124,14 +142,14 @@ describe('Login', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Sign in with email' }));
 
     expect(loginWithRedirect).toHaveBeenCalledWith({
-      authorizationParams: { audience: 'https://pamdas.org/api' },
+      authorizationParams: { audience: 'https://discovered.example/api' },
     });
   });
 
   test('sends no organization param on a site whose status response still reports an organization ID', async () => {
     store = mockStore({
       data: { eula: { eula_url: '' } },
-      view: { systemConfig: { require_idp: true, idp_org_id: 'org_abc' } },
+      view: { authDiscovery: REDIRECT_GRANT, systemConfig: {} },
     });
     loginWithRedirect.mockResolvedValue(undefined);
 
@@ -140,14 +158,14 @@ describe('Login', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Sign in with email' }));
 
     expect(loginWithRedirect).toHaveBeenCalledWith({
-      authorizationParams: { audience: 'https://pamdas.org/api' },
+      authorizationParams: { audience: 'https://discovered.example/api' },
     });
   });
 
   test('disables the Auth0 sign-in button and shows a loading state while Auth0 reports loading', () => {
     store = mockStore({
       data: { eula: { eula_url: '' } },
-      view: { systemConfig: { require_idp: true } },
+      view: { authDiscovery: REDIRECT_GRANT, systemConfig: {} },
     });
     useAuth0.mockReturnValue({ loginWithRedirect, isLoading: true });
 
@@ -164,7 +182,7 @@ describe('Login', () => {
     test('renders the info box on an Auth0 site', () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: { require_idp: true } },
+        view: { authDiscovery: REDIRECT_GRANT, systemConfig: {} },
       });
 
       renderLogin();
@@ -190,7 +208,7 @@ describe('Login', () => {
     test('renders the info box on a site whose status response still reports an organization ID', () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: { require_idp: true, idp_org_id: 'org_abc' } },
+        view: { authDiscovery: REDIRECT_GRANT, systemConfig: {} },
       });
 
       renderLogin();
@@ -203,7 +221,7 @@ describe('Login', () => {
     test('does not render the info box on a site without Auth0 configured', () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: { require_idp: false } },
+        view: { authDiscovery: PASSWORD_GRANT, systemConfig: {} },
       });
 
       renderLogin();
@@ -218,7 +236,7 @@ describe('Login', () => {
   test('shows a sign-in failure alert when loginWithRedirect rejects', async () => {
     store = mockStore({
       data: { eula: { eula_url: '' } },
-      view: { systemConfig: { require_idp: true } },
+      view: { authDiscovery: REDIRECT_GRANT, systemConfig: {} },
     });
     loginWithRedirect.mockRejectedValue(new Error('Auth0 failed'));
 
@@ -649,6 +667,7 @@ describe('Login', () => {
     store = mockStore({
       data: { eula: { eula_url: 'https://example.com/eula' } },
       view: {
+        authDiscovery: PASSWORD_GRANT,
         systemConfig: { [SYSTEM_CONFIG_FLAGS.EULA]: true },
       },
     });
@@ -666,6 +685,7 @@ describe('Login', () => {
     store = mockStore({
       data: { eula: { eula_url: 'https://example.com/eula' } },
       view: {
+        authDiscovery: PASSWORD_GRANT,
         systemConfig: { [SYSTEM_CONFIG_FLAGS.EULA]: false },
       },
     });

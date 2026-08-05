@@ -1,5 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { useAuth0 } from '@auth0/auth0-react';
+import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
 
 import useAuthRecovery from './useAuthRecovery';
@@ -7,10 +8,11 @@ import { registerAuthRecovery } from '../utils/auth-recovery';
 import { setIntendedPostAuth0SuccessRoute } from '../utils/auth';
 
 jest.mock('@auth0/auth0-react');
+jest.mock('react-redux', () => ({ useSelector: jest.fn() }));
 jest.mock('react-router', () => ({ __esModule: true, useLocation: jest.fn() }));
 jest.mock('../utils/auth-recovery', () => ({ registerAuthRecovery: jest.fn() }));
 jest.mock('../utils/auth', () => ({ setIntendedPostAuth0SuccessRoute: jest.fn() }));
-jest.mock('../config', () => ({ __esModule: true, default: { auth0: { audience: 'https://api.example' } } }));
+
 
 const getRegistered = () => registerAuthRecovery.mock.calls.at(-1)[0];
 
@@ -22,6 +24,7 @@ describe('useAuthRecovery', () => {
     getAccessTokenSilently = jest.fn();
     loginWithRedirect = jest.fn().mockResolvedValue(undefined);
     useAuth0.mockReturnValue({ getAccessTokenSilently, loginWithRedirect });
+    useSelector.mockReturnValue({ ok: true, grant: 'authorization_code', audience: 'https://api.example' });
     useLocation.mockReturnValue({ pathname: '/events/123', search: '?foo=bar' });
   });
 

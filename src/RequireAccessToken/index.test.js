@@ -21,13 +21,14 @@ jest.mock('../LoadingOverlay', () => () => <div data-testid="loading">Loading...
 
 describe('RequireAccessToken', () => {
   const mockToken = { access_token: 'test_token' };
-  const mockSystemConfig = { require_idp: false };
+  const PASSWORD_GRANT = { discovery: { ok: true, grant: 'password' }, settled: true };
+  const REDIRECT_GRANT = { discovery: { ok: true, grant: 'authorization_code' }, settled: true };
   let store;
 
-  const renderWithProvider = (component, token = { access_token: null }, systemConfig = mockSystemConfig) => {
+  const renderWithProvider = (component, token = { access_token: null }, authDiscovery = PASSWORD_GRANT) => {
     store = mockStore({
       data: { token },
-      view: { systemConfig }
+      view: { authDiscovery }
     });
 
     return render(
@@ -71,7 +72,7 @@ describe('RequireAccessToken', () => {
           <div>Protected Content</div>
         </RequireAccessToken>,
         { access_token: null },
-        { require_idp: true }
+        REDIRECT_GRANT
       );
 
       expect(screen.getByTestId('loading')).toBeInTheDocument();

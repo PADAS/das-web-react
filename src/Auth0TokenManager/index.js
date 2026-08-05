@@ -4,8 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
 
 import { APP_ROUTES } from '../constants/routes';
-import appConfig from '../config';
 import { applyAccessToken, clearAuth } from '../ducks/auth';
+import { GRANT, selectResolution } from '../ducks/auth-discovery';
 import { checkAccountLinked, GATE_RESULT } from '../utils/account-linking';
 import {
   clearIntendedPostAuth0SuccessRoute,
@@ -23,7 +23,8 @@ const Auth0TokenManager = () => {
   const navigate = useNavigate();
 
   const existingToken = useSelector((state) => state.data.token?.access_token);
-  const requireIdp = useSelector((state) => !!state.view.systemConfig?.require_idp);
+  const { audience, grant } = useSelector(selectResolution);
+  const usesRedirectGrant = grant === GRANT.AUTHORIZATION_CODE;
 
   const { isAuthenticated, getAccessTokenSilently, logout } = useAuth0();
 
@@ -43,7 +44,7 @@ const Auth0TokenManager = () => {
 
         try {
           const token = await getAccessTokenSilently({
-            authorizationParams: { audience: appConfig.auth0.audience },
+            authorizationParams: { audience },
           });
 
           const safe = String(token).trim();
@@ -53,7 +54,7 @@ const Auth0TokenManager = () => {
             return;
           }
 
-          if (requireIdp) {
+          if (usesRedirectGrant) {
             const { result, linkUrl } = await checkAccountLinked(safe);
 
             // Unlinked: hand off to the server-owned link page (always a validated URL).
@@ -96,12 +97,12 @@ const Auth0TokenManager = () => {
         return;
       }
 
-      if (!requireIdp || !isAuthenticated || existingToken) {
+      if (!usesRedirectGrant || !isAuthenticated || existingToken) {
         return;
       }
     };
     ensureIdpToken();
-  }, [dispatch, existingToken, getAccessTokenSilently, isAuthenticated, logout, requireIdp, navigate, location.search]);
+  }, [audience, dispatch, existingToken, getAccessTokenSilently, isAuthenticated, logout, usesRedirectGrant, navigate, location.search]);
 
   return null;
 };

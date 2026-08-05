@@ -11,8 +11,8 @@ import {
 
 import { ACCOUNT_LINKER_URL, SYSTEM_CONFIG_FLAGS } from '../constants';
 import { APP_ROUTES } from '../constants/routes';
-import appConfig from '../config';
 import { applyAccessToken, clearAuth, postAuth } from '../ducks/auth';
+import { GRANT, selectResolution } from '../ducks/auth-discovery';
 import { fetchEula } from '../ducks/eula';
 import { checkTokenUsable, TOKEN_RESULT } from '../utils/token-usability';
 import useNavigate from '../hooks/useNavigate';
@@ -47,18 +47,20 @@ const LoginPage = () => {
   const [formErrors, setFormErrors] = useState({ username: null, password: null });
   const [isLoading, setIsLoading] = useState(false);
 
+  const { audience, grant } = useSelector(selectResolution);
+
   const isEULAEnabled = !!systemConfig?.[SYSTEM_CONFIG_FLAGS.EULA];
-  const requireIdp = !!systemConfig?.require_idp;
+  const usesRedirectGrant = grant === GRANT.AUTHORIZATION_CODE;
 
   const onAuth0Login = useCallback(async () => {
     try {
       await auth0LoginWithRedirect({
-        authorizationParams: { audience: appConfig.auth0.audience },
+        authorizationParams: { audience },
       });
     } catch (_error) {
       setAlertMessage(t('errorAlert.signInFailed'));
     }
-  }, [auth0LoginWithRedirect, t]);
+  }, [audience, auth0LoginWithRedirect, t]);
 
   const onFormSubmit = useCallback(async (event) => {
     event.preventDefault();
@@ -167,7 +169,7 @@ const LoginPage = () => {
     {/* Auth0 migration guidance: "Sign in with email" below drives EarthRanger
         Identity; users who have not converted their account yet are linked to
         the server account linker. */}
-    {requireIdp && (
+    {usesRedirectGrant && (
       <section className={styles.infoBox} aria-labelledby="auth0-info-title">
         <h2 className={styles.infoBoxTitle} id="auth0-info-title">
           {t('auth0Info.title')}
@@ -185,7 +187,7 @@ const LoginPage = () => {
       </section>
     )}
 
-    {requireIdp ? (
+    {usesRedirectGrant ? (
       <div className={styles.form}>
         <button
           aria-busy={isAuth0Loading}

@@ -8,6 +8,7 @@ import { addModal } from '../ducks/modals';
 import { APP_ROUTES } from '../constants/routes';
 import { BREAKPOINTS, MAX_ZOOM, REACT_APP_ROUTE_PREFIX } from '../constants';
 import { clearAuth } from '../ducks/auth';
+import { selectUsesRedirectGrant } from '../ducks/auth-discovery';
 import { clearUserProfile, fetchCurrentUser, fetchCurrentUserProfiles, setUserProfile } from '../ducks/user';
 import getWindowLocation from '../utils/getWindowLocation';
 import { globalMenuDrawerId } from '../Drawer';
@@ -61,8 +62,7 @@ const Nav = () => {
   const user = useSelector((state) => state.data.user);
   const userProfiles = useSelector((state) => state.data.userProfiles);
   const selectedUserProfile = useSelector((state) => state.data.selectedUserProfile);
-  const systemConfig = useSelector((state) => state.view.systemConfig);
-  const requireIdp = !!systemConfig?.require_idp;
+  const usesRedirectGrant = useSelector(selectUsesRedirectGrant);
 
   const onHomeMapSelect = (chosenMap) => {
     dispatch(setHomeMap(chosenMap));
@@ -111,7 +111,7 @@ const Nav = () => {
       await dispatch(clearAuth());
 
       // Log out of IDP if enabled
-      if (requireIdp) {
+      if (usesRedirectGrant) {
         auth0Logout({
           logoutParams: {
             returnTo: window.location.origin + REACT_APP_ROUTE_PREFIX,
@@ -127,7 +127,7 @@ const Nav = () => {
       await dispatch(clearAuth());
       navigate({ pathname: APP_ROUTES.LOGIN }, { replace: true });
     }
-  }, [dispatch, navigate, requireIdp, auth0Logout]);
+  }, [dispatch, navigate, usesRedirectGrant, auth0Logout]);
 
   useEffect(() => {
     dispatch(fetchCurrentUser())
