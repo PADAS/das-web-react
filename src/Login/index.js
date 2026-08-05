@@ -48,7 +48,7 @@ const LoginPage = () => {
   const [formErrors, setFormErrors] = useState({ username: null, password: null });
   const [isLoading, setIsLoading] = useState(false);
 
-  const { audience, grant, issuer } = useSelector(selectResolution);
+  const { audience, clientId, grant, issuer } = useSelector(selectResolution);
 
   const isEULAEnabled = !!systemConfig?.[SYSTEM_CONFIG_FLAGS.EULA];
   const usesRedirectGrant = grant === GRANT.AUTHORIZATION_CODE;
@@ -90,7 +90,7 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      const accessToken = await dispatch(postAuth({ username, password }));
+      const accessToken = await dispatch(postAuth({ username, password }, clientId));
 
       // The site issues a token whenever the credentials are right, but whether this
       // application may present it is enforced per request. Adopting an unusable one enters
@@ -124,7 +124,7 @@ const LoginPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [dispatch, formData, location, navigate, t]);
+  }, [clientId, dispatch, formData, location, navigate, t]);
 
   const onInputChange = useCallback((event) => {
     setFormData((prevFormData) => ({ ...prevFormData, [event.target.name]: event.target.value }));

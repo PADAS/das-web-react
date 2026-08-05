@@ -514,6 +514,17 @@ describe('Login', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Log in' }));
     };
 
+    test('signs in with the client ID discovery resolved', async () => {
+      renderLogin();
+
+      await submitCredentials();
+
+      await waitFor(() => expect(postAuth).toHaveBeenCalledWith(
+        { username: 'alice', password: 'secret' },
+        PASSWORD_GRANT.discovery.clientId,
+      ));
+    });
+
     test('checks the issued token against the API before entering the app', async () => {
       renderLogin();
 
@@ -570,7 +581,10 @@ describe('Login', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Log in' }));
 
     await waitFor(() => {
-      expect(postAuth).toHaveBeenCalledWith({ username: 'alice', password: 'secret' });
+      expect(postAuth).toHaveBeenCalledWith(
+        { username: 'alice', password: 'secret' },
+        PASSWORD_GRANT.discovery.clientId,
+      );
     });
   });
 

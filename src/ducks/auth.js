@@ -5,7 +5,7 @@ import { clearUserProfile } from './user';
 import { resetGlobalState } from '../reducers/global-resettable';
 import { deleteAuthTokenCookie, deleteTemporaryAccessTokenCookie, getAuthTokenFromCookies } from '../utils/auth';
 
-const AUTH_URL = `${DAS_HOST}${REACT_APP_DAS_AUTH_TOKEN_URL}`;
+export const AUTH_URL = `${DAS_HOST}${REACT_APP_DAS_AUTH_TOKEN_URL}`;
 
 // actions
 export const POST_AUTH_SUCCESS = 'POST_AUTH_SUCCESS';
@@ -15,10 +15,13 @@ export const CLEAR_AUTH = 'CLEAR_AUTH';
 const RESET_MASTER_CANCEL_TOKEN = 'RESET_MASTER_CANCEL_TOKEN';
 
 // action creators
-export const postAuth = (userData) => () => {
+// The client ID comes from the registration discovery resolved for this site, not from here:
+// the registry is the one place a client is described, and a build whose registry names a
+// different one has to send that one.
+export const postAuth = (userData, clientId) => () => {
   const formData = new FormData();
   formData.set('grant_type', 'password');
-  formData.set('client_id', 'das_web_client');
+  formData.set('client_id', clientId);
   Object.keys(userData).forEach(item => {
     formData.set(item, userData[item]);
   });
