@@ -4,6 +4,9 @@ import {
   getIntendedPostAuth0SuccessRoute,
   setIntendedPostAuth0SuccessRoute,
   clearIntendedPostAuth0SuccessRoute,
+  setResolvedIssuer,
+  getResolvedIssuer,
+  clearResolvedIssuer,
   stripAuth0Params,
   getAuthTokenFromCookies,
   getTemporaryAccessTokenFromCookies,
@@ -15,18 +18,15 @@ import {
 describe('auth utils', () => {
   describe('isSystemConfigLoaded', () => {
     test('returns false when require_idp is null (not loaded)', () => {
-      const systemConfig = { require_idp: null, sitename: '' };
-      expect(isSystemConfigLoaded(systemConfig)).toBe(false);
+      expect(isSystemConfigLoaded({ require_idp: null, sitename: '' })).toBe(false);
     });
 
     test('returns true when require_idp is false (loaded)', () => {
-      const systemConfig = { require_idp: false, sitename: 'Test Site' };
-      expect(isSystemConfigLoaded(systemConfig)).toBe(true);
+      expect(isSystemConfigLoaded({ require_idp: false, sitename: 'Test Site' })).toBe(true);
     });
 
     test('returns true when require_idp is true (loaded)', () => {
-      const systemConfig = { require_idp: true, sitename: 'Test Site' };
-      expect(isSystemConfigLoaded(systemConfig)).toBe(true);
+      expect(isSystemConfigLoaded({ require_idp: true, sitename: 'Test Site' })).toBe(true);
     });
   });
 
@@ -167,6 +167,44 @@ describe('auth utils', () => {
         expect(() => clearIntendedPostAuth0SuccessRoute()).not.toThrow();
         mockRemoveItem.mockRestore();
       });
+    });
+  });
+
+  describe('sessionStorage resolved issuer', () => {
+    beforeEach(() => sessionStorage.clear());
+    afterEach(() => sessionStorage.clear());
+
+    test('round-trips the issuer across a redirect', () => {
+      setResolvedIssuer('https://auth.example.org/');
+
+      expect(getResolvedIssuer()).toBe('https://auth.example.org/');
+    });
+
+    test('returns null when nothing was stashed', () => {
+      expect(getResolvedIssuer()).toBeNull();
+    });
+
+    test('clears the stash', () => {
+      setResolvedIssuer('https://auth.example.org/');
+      clearResolvedIssuer();
+
+      expect(getResolvedIssuer()).toBeNull();
+    });
+
+    // sessionStorage rather than localStorage: one tab, one login attempt.
+    test('does not write to localStorage', () => {
+      setResolvedIssuer('https://auth.example.org/');
+
+      expect(localStorage.getItem('er:resolved_issuer')).toBeNull();
+    });
+
+    test('survives storage being unavailable', () => {
+      const setItem = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+        throw new Error('storage unavailable');
+      });
+
+      expect(() => setResolvedIssuer('https://auth.example.org/')).not.toThrow();
+      setItem.mockRestore();
     });
   });
 

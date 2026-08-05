@@ -42,6 +42,36 @@ export const setIntendedPostAuth0SuccessRoute = (route) => {
   }
 };
 
+// The authorization server resolved for the login attempt now in flight, carried across the
+// Auth0 redirect the same way the intended route is. sessionStorage rather than localStorage
+// scopes it to one tab and one attempt; the redirect is a same-tab top-level navigation, so it
+// survives. Only the issuer is stored -- never the client registration it resolves to.
+const RESOLVED_ISSUER_KEY = 'er:resolved_issuer';
+
+export const setResolvedIssuer = (issuer) => {
+  try {
+    sessionStorage.setItem(RESOLVED_ISSUER_KEY, issuer);
+  } catch (_) {
+    // Ignore errors
+  }
+};
+
+export const getResolvedIssuer = () => {
+  try {
+    return sessionStorage.getItem(RESOLVED_ISSUER_KEY);
+  } catch (_) {
+    return null;
+  }
+};
+
+export const clearResolvedIssuer = () => {
+  try {
+    sessionStorage.removeItem(RESOLVED_ISSUER_KEY);
+  } catch (_) {
+    // Ignore errors
+  }
+};
+
 export const stripAuth0Params = (url) => {
   const [pathname, searchString] = url.split('?');
   if (!searchString) return pathname;
