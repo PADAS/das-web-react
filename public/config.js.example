@@ -1,12 +1,35 @@
 // Copy this file to public/config.js for local development.
 // public/config.js is gitignored and will not be committed.
 //
-// Without this file, the app uses production values
-// from src/config.js.
+// Without this file, the app uses production values from src/config.js — including the
+// production Auth0 tenant and client ID, so a local build pointed at a dev site needs
+// this override to sign in at all.
+//
+// authorizationServers is the client registry, keyed by the issuer identifier a site
+// advertises at /.well-known/oauth-protected-resource. A site naming an issuer that is
+// not a key here holds no registration and is not trusted; this map replaces the
+// production one outright rather than merging into it. $self is the reserved key for the
+// site's own authorization server (django-oauth-toolkit at /oauth2/token) — its issuer is
+// the site origin, so it is matched by predicate rather than written out.
+//
+// The auth0 block below is still read directly by the Auth0 provider and the login paths.
+// It goes away once those read the registration that discovery resolves; until then both
+// have to be supplied and kept in step.
 window.__APP_CONFIG__ = {
   auth0: {
     audience: 'https://dev.pamdas.org/api',
     clientId: 'hLoPCTgBCrlLAVzqg74YSmOftaSfb5Uf',
     domain: 'auth-dev.pamdas.org',
+  },
+  authorizationServers: {
+    'https://auth-dev.pamdas.org/': {
+      audience: 'https://dev.pamdas.org/api',
+      clientId: 'hLoPCTgBCrlLAVzqg74YSmOftaSfb5Uf',
+      grant: 'authorization_code',
+    },
+    $self: {
+      clientId: 'das_web_client',
+      grant: 'password',
+    },
   },
 };
