@@ -15,6 +15,7 @@
     "invalidCredentialsMessage": "Invalid credentials given. Please try again.",
     "signInFailed": "Sign-in failed. Please try again.",
     "signInIncomplete": "We couldn't finish signing you in. Please try again.",
+    "signInNotAcceptedHere": "This site did not accept the sign-in. Your username and password were correct, so ask an administrator to check that this application is permitted to sign in here.",
     "unknownErrorMessage": "An error has occurred. Please try again."
   },
   "errors": {

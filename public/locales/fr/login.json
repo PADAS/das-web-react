@@ -15,6 +15,7 @@
     "invalidCredentialsMessage": "Identifiants fournis incorrectes. Veuillez réessayez.",
     "signInFailed": "Échec de la connexion. Veuillez réessayer.",
     "signInIncomplete": "Nous n'avons pas pu terminer votre connexion. Veuillez réessayer.",
+    "signInNotAcceptedHere": "Ce site n'a pas accepté la connexion. Votre nom d'utilisateur et votre mot de passe étaient corrects ; demandez à un administrateur de vérifier que cette application est autorisée à se connecter ici.",
     "unknownErrorMessage": "Une erreur s'est produite. Veuillez réessayez."
   },
   "errors": {

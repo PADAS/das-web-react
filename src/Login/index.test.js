@@ -4,8 +4,8 @@ import { useAuth0 } from '@auth0/auth0-react';
 import userEvent from '@testing-library/user-event';
 
 import { APP_ROUTES } from '../constants/routes';
-import appConfig from '../config';
-import { clearAuth, postAuth } from '../ducks/auth';
+import { applyAccessToken, clearAuth, postAuth } from '../ducks/auth';
+import { checkTokenUsable, TOKEN_RESULT } from '../utils/token-usability';
 import { fetchEula } from '../ducks/eula';
 import { mockStore } from '../__test-helpers/MockStore';
 import { render, screen, waitFor } from '../test-utils';
@@ -26,11 +26,19 @@ jest.mock('../ducks/eula', () => ({
 
 jest.mock('../ducks/auth', () => ({
   ...jest.requireActual('../ducks/auth'),
+  applyAccessToken: jest.fn(),
   postAuth: jest.fn(),
   clearAuth: jest.fn(),
 }));
 
+jest.mock('../utils/token-usability', () => ({
+  ...jest.requireActual('../utils/token-usability'),
+  checkTokenUsable: jest.fn(),
+}));
+
 jest.mock('../hooks/useNavigate', () => jest.fn());
+
+const ISSUED_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.issued.signature';
 
 describe('Login', () => {
   let loginWithRedirect, navigate, store;
@@ -40,7 +48,9 @@ describe('Login', () => {
 
     clearAuth.mockImplementation(() => () => Promise.resolve());
     fetchEula.mockImplementation(() => () => Promise.resolve());
-    postAuth.mockImplementation(() => () => Promise.resolve());
+    applyAccessToken.mockImplementation(() => () => Promise.resolve());
+    postAuth.mockImplementation(() => () => Promise.resolve(ISSUED_TOKEN));
+    checkTokenUsable.mockResolvedValue(TOKEN_RESULT.USABLE);
     useAuth0.mockReturnValue({ loginWithRedirect, isLoading: false });
     useNavigate.mockImplementation(() => navigate);
 
@@ -114,7 +124,7 @@ describe('Login', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Sign in with email' }));
 
     expect(loginWithRedirect).toHaveBeenCalledWith({
-      authorizationParams: { audience: appConfig.auth0.audience },
+      authorizationParams: { audience: 'https://pamdas.org/api' },
     });
   });
 
@@ -130,7 +140,7 @@ describe('Login', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Sign in with email' }));
 
     expect(loginWithRedirect).toHaveBeenCalledWith({
-      authorizationParams: { audience: appConfig.auth0.audience },
+      authorizationParams: { audience: 'https://pamdas.org/api' },
     });
   });
 
@@ -461,6 +471,61 @@ describe('Login', () => {
         { pathname: '/events', search: '?id=42' },
         { state: { comesFromLogin: true } },
       );
+    });
+  });
+
+  describe('adopting a password-grant token', () => {
+    const submitCredentials = async () => {
+      await userEvent.type(screen.getByLabelText('Username'), 'alice');
+      await userEvent.type(screen.getByLabelText('Password'), 'secret');
+      await userEvent.click(screen.getByRole('button', { name: 'Log in' }));
+    };
+
+    test('checks the issued token against the API before entering the app', async () => {
+      renderLogin();
+
+      await submitCredentials();
+
+      await waitFor(() => expect(checkTokenUsable).toHaveBeenCalledWith(ISSUED_TOKEN));
+      expect(applyAccessToken).toHaveBeenCalledWith(ISSUED_TOKEN);
+      expect(navigate).toHaveBeenCalled();
+    });
+
+    test('does not enter the app when the API refuses the issued token', async () => {
+      checkTokenUsable.mockResolvedValue(TOKEN_RESULT.REFUSED);
+
+      renderLogin();
+
+      await submitCredentials();
+
+      await waitFor(() => expect(checkTokenUsable).toHaveBeenCalled());
+      expect(applyAccessToken).not.toHaveBeenCalled();
+      expect(navigate).not.toHaveBeenCalled();
+    });
+
+    test('says the site refused the sign-in rather than blaming the credentials', async () => {
+      checkTokenUsable.mockResolvedValue(TOKEN_RESULT.REFUSED);
+
+      renderLogin();
+
+      await submitCredentials();
+
+      await waitFor(() => {
+        expect(screen.getByText(/this site did not accept/i)).toBeVisible();
+      });
+      expect(screen.queryByText(/invalid credentials/i)).not.toBeInTheDocument();
+    });
+
+    test('enters the app when the check itself could not reach the API', async () => {
+      // Nothing was learned, so refusing here would invent a failure the server never gave.
+      checkTokenUsable.mockResolvedValue(TOKEN_RESULT.TRANSIENT);
+
+      renderLogin();
+
+      await submitCredentials();
+
+      await waitFor(() => expect(applyAccessToken).toHaveBeenCalledWith(ISSUED_TOKEN));
+      expect(navigate).toHaveBeenCalled();
     });
   });
 

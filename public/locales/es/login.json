@@ -15,6 +15,7 @@
     "invalidCredentialsMessage": "Las credenciales son inválidas. Por favor intente de nuevo.",
     "signInFailed": "Error al iniciar sesión. Por favor intente de nuevo.",
     "signInIncomplete": "No pudimos completar su inicio de sesión. Por favor intente de nuevo.",
+    "signInNotAcceptedHere": "Este sitio no aceptó el inicio de sesión. Su usuario y contraseña eran correctos, así que pida a un administrador que compruebe que esta aplicación tiene permiso para iniciar sesión aquí.",
     "unknownErrorMessage": "Ha ocurrido un error. Por favor intente de nuevo."
   },
   "errors": {

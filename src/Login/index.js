@@ -12,8 +12,9 @@ import {
 import { ACCOUNT_LINKER_URL, SYSTEM_CONFIG_FLAGS } from '../constants';
 import { APP_ROUTES } from '../constants/routes';
 import appConfig from '../config';
-import { clearAuth, postAuth } from '../ducks/auth';
+import { applyAccessToken, clearAuth, postAuth } from '../ducks/auth';
 import { fetchEula } from '../ducks/eula';
+import { checkTokenUsable, TOKEN_RESULT } from '../utils/token-usability';
 import useNavigate from '../hooks/useNavigate';
 
 import * as styles from './styles.module.scss';
@@ -84,7 +85,18 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      await dispatch(postAuth({ username, password }));
+      const accessToken = await dispatch(postAuth({ username, password }));
+
+      // The site issues a token whenever the credentials are right, but whether this
+      // application may present it is enforced per request. Adopting an unusable one enters
+      // the app and bounces straight back here, reporting nothing.
+      if (await checkTokenUsable(accessToken) === TOKEN_RESULT.REFUSED) {
+        setAlertMessage(t('errorAlert.signInNotAcceptedHere'));
+        return;
+      }
+
+      dispatch(applyAccessToken(accessToken));
+
       const options = location.state?.from
         ? { state: { comesFromLogin: true } }
         : {};

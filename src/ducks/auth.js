@@ -15,7 +15,7 @@ export const CLEAR_AUTH = 'CLEAR_AUTH';
 const RESET_MASTER_CANCEL_TOKEN = 'RESET_MASTER_CANCEL_TOKEN';
 
 // action creators
-export const postAuth = (userData) => (dispatch) => {
+export const postAuth = (userData) => () => {
   const formData = new FormData();
   formData.set('grant_type', 'password');
   formData.set('client_id', 'das_web_client');
@@ -23,10 +23,10 @@ export const postAuth = (userData) => (dispatch) => {
     formData.set(item, userData[item]);
   });
 
+  // Returns the token rather than adopting it: a token being issued is not the same fact as
+  // a token being usable, so the caller checks before entering the app.
   return axios.post(AUTH_URL, formData)
-    .then(response => {
-      dispatch(postAuthSuccess(response));
-    });
+    .then(({ data }) => data.access_token);
 };
 
 export const applyAccessToken = accessToken => (dispatch) => {
@@ -36,8 +36,6 @@ export const applyAccessToken = accessToken => (dispatch) => {
     payload: { data: { access_token: accessToken } },
   });
 };
-
-const postAuthSuccess = response => applyAccessToken(response.data.access_token);
 
 export const clearAuth = () => (dispatch) => {
 
