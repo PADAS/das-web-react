@@ -32,7 +32,6 @@ export const setSystemConfigFromSystemStatus = (systemStatus) => (dispatch) => {
       [SYSTEM_CONFIG_FLAGS.GEO_SPAN]: systemStatus[SYSTEM_CONFIG_FLAGS.GEO_SPAN] ?? null,
       loaded: true,
       previewFeatures: systemStatus.preview_features || {},
-      require_idp: !!systemStatus.require_idp,
       sitename,
       showTrackDays: systemStatus.show_track_days,
     },
@@ -77,7 +76,6 @@ export const INITIAL_STATE = {
   [SYSTEM_CONFIG_FLAGS.GEO_SPAN]: null,
   loaded: false,
   previewFeatures: {},
-  require_idp: null,
   sitename: '',
   showTrackDays: DEFAULT_SHOW_TRACK_DAYS,
 };
