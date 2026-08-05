@@ -77,6 +77,7 @@ describe('Ducks - System config', () => {
         [SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]: true,
         [SYSTEM_CONFIG_FLAGS.SUBJECTS]: true,
         [SYSTEM_CONFIG_FLAGS.TABLEAU]: true,
+        loaded: true,
         previewFeatures: {
           community_input_admin_enabled: true,
         },
@@ -202,6 +203,7 @@ describe('Ducks - System config', () => {
         [SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]: true,
         [SYSTEM_CONFIG_FLAGS.SUBJECTS]: true,
         [SYSTEM_CONFIG_FLAGS.TABLEAU]: true,
+        loaded: false,
         previewFeatures: { community_input_admin_enabled: true },
         require_idp: null,
         showTrackDays: true,

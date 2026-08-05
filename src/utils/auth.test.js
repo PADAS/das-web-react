@@ -17,16 +17,19 @@ import {
 
 describe('auth utils', () => {
   describe('isSystemConfigLoaded', () => {
-    test('returns false when require_idp is null (not loaded)', () => {
-      expect(isSystemConfigLoaded({ require_idp: null, sitename: '' })).toBe(false);
+    test('returns false before a status response has been ingested', () => {
+      expect(isSystemConfigLoaded({ loaded: false, sitename: '' })).toBe(false);
     });
 
-    test('returns true when require_idp is false (loaded)', () => {
-      expect(isSystemConfigLoaded({ require_idp: false, sitename: 'Test Site' })).toBe(true);
+    test('returns true once a status response has been ingested', () => {
+      expect(isSystemConfigLoaded({ loaded: true, sitename: 'Test Site' })).toBe(true);
     });
 
-    test('returns true when require_idp is true (loaded)', () => {
-      expect(isSystemConfigLoaded({ require_idp: true, sitename: 'Test Site' })).toBe(true);
+    // require_idp used to double as the readiness sentinel, which made removing it from the
+    // payload a silent break of the startup gate.
+    test('does not depend on require_idp', () => {
+      expect(isSystemConfigLoaded({ loaded: true, require_idp: null })).toBe(true);
+      expect(isSystemConfigLoaded({ loaded: false, require_idp: true })).toBe(false);
     });
   });
 

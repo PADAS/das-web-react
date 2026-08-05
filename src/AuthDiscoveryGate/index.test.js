@@ -79,7 +79,7 @@ const PROTECTED_APP = 'the protected app';
 // production no longer has.
 const LOADED_SYSTEM_CONFIG = systemConfigReducer(undefined, {
   type: SET_SYSTEM_CONFIG,
-  payload: { require_idp: false },
+  payload: { loaded: true },
 });
 const UNLOADED_SYSTEM_CONFIG = systemConfigReducer(undefined, {});
 

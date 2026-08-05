@@ -86,6 +86,6 @@ export const stripAuth0Params = (url) => {
   return remaining ? `${pathname}?${remaining}` : pathname;
 };
 
-export const isSystemConfigLoaded = (systemConfig) => {
-  return systemConfig.require_idp !== null;
-};
+// Set once a status response has been ingested. This used to be inferred from require_idp
+// being non-null, which quietly coupled the startup gate to a field that is on its way out.
+export const isSystemConfigLoaded = (systemConfig) => !!systemConfig.loaded;
