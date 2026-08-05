@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 import { APP_ROUTES } from '../constants/routes';
 import { applyAccessToken, clearAuth, postAuth } from '../ducks/auth';
 import { checkTokenUsable, TOKEN_RESULT } from '../utils/token-usability';
+import { getResolvedIssuer } from '../utils/auth';
 import { fetchEula } from '../ducks/eula';
 import { mockStore } from '../__test-helpers/MockStore';
 import { render, screen, waitFor } from '../test-utils';
@@ -144,6 +145,20 @@ describe('Login', () => {
     expect(loginWithRedirect).toHaveBeenCalledWith({
       authorizationParams: { audience: 'https://discovered.example/api' },
     });
+  });
+
+  test('stashes the resolved issuer so the callback leg need not probe again', async () => {
+    store = mockStore({
+      data: { eula: { eula_url: '' } },
+      view: { authDiscovery: REDIRECT_GRANT, systemConfig: {} },
+    });
+    loginWithRedirect.mockResolvedValue(undefined);
+
+    renderLogin();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Sign in with email' }));
+
+    expect(getResolvedIssuer()).toBe(REDIRECT_GRANT.discovery.issuer);
   });
 
   test('sends no organization param on a site whose status response still reports an organization ID', async () => {

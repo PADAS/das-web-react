@@ -15,6 +15,7 @@ import { applyAccessToken, clearAuth, postAuth } from '../ducks/auth';
 import { GRANT, selectResolution } from '../ducks/auth-discovery';
 import { fetchEula } from '../ducks/eula';
 import { checkTokenUsable, TOKEN_RESULT } from '../utils/token-usability';
+import { setResolvedIssuer } from '../utils/auth';
 import useNavigate from '../hooks/useNavigate';
 
 import * as styles from './styles.module.scss';
@@ -47,20 +48,22 @@ const LoginPage = () => {
   const [formErrors, setFormErrors] = useState({ username: null, password: null });
   const [isLoading, setIsLoading] = useState(false);
 
-  const { audience, grant } = useSelector(selectResolution);
+  const { audience, grant, issuer } = useSelector(selectResolution);
 
   const isEULAEnabled = !!systemConfig?.[SYSTEM_CONFIG_FLAGS.EULA];
   const usesRedirectGrant = grant === GRANT.AUTHORIZATION_CODE;
 
   const onAuth0Login = useCallback(async () => {
     try {
+      // Carried across the redirect so the callback leg does not have to probe again.
+      setResolvedIssuer(issuer);
       await auth0LoginWithRedirect({
         authorizationParams: { audience },
       });
     } catch (_error) {
       setAlertMessage(t('errorAlert.signInFailed'));
     }
-  }, [audience, auth0LoginWithRedirect, t]);
+  }, [audience, auth0LoginWithRedirect, issuer, t]);
 
   const onFormSubmit = useCallback(async (event) => {
     event.preventDefault();

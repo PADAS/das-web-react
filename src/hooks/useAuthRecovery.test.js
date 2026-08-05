@@ -5,13 +5,16 @@ import { useLocation } from 'react-router';
 
 import useAuthRecovery from './useAuthRecovery';
 import { registerAuthRecovery } from '../utils/auth-recovery';
-import { setIntendedPostAuth0SuccessRoute } from '../utils/auth';
+import { setIntendedPostAuth0SuccessRoute, setResolvedIssuer } from '../utils/auth';
 
 jest.mock('@auth0/auth0-react');
 jest.mock('react-redux', () => ({ useSelector: jest.fn() }));
 jest.mock('react-router', () => ({ __esModule: true, useLocation: jest.fn() }));
 jest.mock('../utils/auth-recovery', () => ({ registerAuthRecovery: jest.fn() }));
-jest.mock('../utils/auth', () => ({ setIntendedPostAuth0SuccessRoute: jest.fn() }));
+jest.mock('../utils/auth', () => ({
+  setIntendedPostAuth0SuccessRoute: jest.fn(),
+  setResolvedIssuer: jest.fn(),
+}));
 
 
 const getRegistered = () => registerAuthRecovery.mock.calls.at(-1)[0];
@@ -24,7 +27,12 @@ describe('useAuthRecovery', () => {
     getAccessTokenSilently = jest.fn();
     loginWithRedirect = jest.fn().mockResolvedValue(undefined);
     useAuth0.mockReturnValue({ getAccessTokenSilently, loginWithRedirect });
-    useSelector.mockReturnValue({ ok: true, grant: 'authorization_code', audience: 'https://api.example' });
+    useSelector.mockReturnValue({
+      ok: true,
+      grant: 'authorization_code',
+      audience: 'https://api.example',
+      issuer: 'https://auth.example.org/',
+    });
     useLocation.mockReturnValue({ pathname: '/events/123', search: '?foo=bar' });
   });
 
@@ -49,6 +57,14 @@ describe('useAuthRecovery', () => {
         max_age: '3600',
       },
     });
+  });
+
+  test('stashes the resolved issuer so the step-up callback leg need not probe again', () => {
+    renderHook(() => useAuthRecovery());
+
+    getRegistered().stepUp({ acrValues: 'urn:mfa' });
+
+    expect(setResolvedIssuer).toHaveBeenCalledWith('https://auth.example.org/');
   });
 
   test('stepUp omits acr_values / max_age when the challenge lacks them', () => {
