@@ -604,6 +604,45 @@ describe('Selectors - Patrols', () => {
       expect(startStopGeometries.points.start_location.geometry.coordinates).toEqual([1, 1]);
       expect(startStopGeometries.points.end_location.geometry.coordinates).toEqual([9, 9]);
     });
+
+    test('does not recompute the trimmed track when an unrelated subject\'s track updates', () => {
+      const patrolLeaderTrack = {
+        fetchedDateRange: { since: '2020-01-01T00:00:00.000Z' },
+        points: { features: [] },
+        track: {
+          features: [{
+            geometry: { coordinates: [[0, 0], [0, 1]] },
+            properties: {
+              coordinateProperties: {
+                times: ['2020-01-01T00:00:00.000Z', '2020-01-09T00:00:00.000Z'],
+              },
+            },
+          }],
+        },
+      };
+      state.data.tracks = { subject123: patrolLeaderTrack };
+
+      const patrol = {
+        patrol_segments: [{
+          leader: { id: 'subject123' },
+          time_range: { end_time: '2020-01-15T00:00:00.000Z', start_time: '2020-01-01T00:00:00.000Z' },
+        }],
+      };
+
+      const firstResult = selectPatrolTrackData(state, patrol);
+
+      state = {
+        ...state,
+        data: {
+          ...state.data,
+          tracks: { subject123: patrolLeaderTrack, subject999: { unrelated: true } },
+        },
+      };
+
+      const secondResult = selectPatrolTrackData(state, patrol);
+
+      expect(secondResult.trackData).toBe(firstResult.trackData);
+    });
   });
 
   describe('selectPatrolLeadersWithLastPosition', () => {

@@ -1,4 +1,5 @@
 import { createSelector } from 'reselect';
+import { shallowEqual } from 'react-redux';
 import { isAfter } from 'date-fns';
 import uniq from 'lodash/uniq';
 
@@ -6,8 +7,7 @@ import {
   drawLinesBetweenPatrolTrackAndPatrolPoints,
   extractLegPatrolPoints,
   finalizeCombinedPatrolPoints,
-  isPatrolDone,
-  isSegmentActive,
+  isSegmentActiveForPatrol,
   patrolStateAllowsTrackDisplay,
 } from '../../utils/patrols';
 import { selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod } from '../tracks';
@@ -69,7 +69,7 @@ const buildPatrolData = (patrol, timeSliderState, tracks) => {
   if (patrolData.trackData) {
     // If the patrol has track data, we now calculate its start and stop geometries.
     const legsPoints = legsData.map(({ leader: legLeader, rawTrackData, segment, trackData: legTrackData }) => (legTrackData
-      ? extractLegPatrolPoints(segment, legLeader, legTrackData, rawTrackData, !isPatrolDone(patrol) && isSegmentActive(segment))
+      ? extractLegPatrolPoints(segment, legLeader, legTrackData, rawTrackData, isSegmentActiveForPatrol(patrol, segment))
       : null));
 
     const patrolPoints = {
@@ -135,8 +135,22 @@ const selectVisibleAndPinnedPatrolTracks = createSelector(
   (patrolTrackState) => uniq([...patrolTrackState.visible, ...patrolTrackState.pinned])
 );
 
+// Only the tracks belonging to this patrol's own segment leaders, so a socket update to some
+// other subject's track elsewhere in the app doesn't invalidate this patrol's (comparatively
+// expensive) segment-trimming work below.
+const selectPatrolSegmentLeaderTracks = createSelector(
+  [selectTracks, (_, patrol) => patrol],
+  (tracks, patrol) => patrol.patrol_segments.reduce((segmentLeaderTracks, { leader }) => {
+    if (tracks[leader?.id]) {
+      segmentLeaderTracks[leader.id] = tracks[leader.id];
+    }
+    return segmentLeaderTracks;
+  }, {}),
+  { memoizeOptions: { resultEqualityCheck: shallowEqual } }
+);
+
 export const selectPatrolTrackData = createSelector(
-  [selectTimeSliderState, selectTracks, (_, patrol) => patrol],
+  [selectTimeSliderState, selectPatrolSegmentLeaderTracks, (_, patrol) => patrol],
   (timeSliderState, tracks, patrol) => buildPatrolData(patrol, timeSliderState, tracks)
 );
 

@@ -177,7 +177,7 @@ const PatrolMenu = ({
     }
 
     { !!patrol.id &&
-      <KebabMenu.Option className={styles.copyBtn}>
+      <KebabMenu.Option as="div" className={styles.copyBtn}>
         <TextCopyBtn
           label={t('copyButton')}
           text={`${DAS_HOST}/patrols/${patrol.id}`}

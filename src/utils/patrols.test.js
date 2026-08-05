@@ -25,6 +25,7 @@ import {
   overduePatrol,
   donePatrol,
   cancelledPatrol,
+  multiLegPatrol,
 } from '../__test-helpers/fixtures/patrols';
 import patrolTypes, { dogPatrol, routinePatrol } from '../__test-helpers/fixtures/patrol-types';
 
@@ -66,6 +67,10 @@ describe('Patrols utils', () => {
     test('returns invalid for patrols without segments', () => {
       const patrolWithoutSegments = { ...newPatrol, ...{ patrol_segments: [] } };
       expect(calcPatrolState(patrolWithoutSegments)).toBe(INVALID);
+    });
+
+    test('returns active for a multi-leg patrol whose earlier leg has ended but whose latest leg is still active', () => {
+      expect(calcPatrolState(multiLegPatrol)).toBe(ACTIVE);
     });
   });
 
@@ -219,6 +224,24 @@ describe('Patrols utils', () => {
     test('excludes the leader live position once the patrol is marked done, even when its leg has no end time', () => {
       const patrol = {
         state: 'done',
+        patrol_segments: [{
+          events: [],
+          leader: { last_position: { type: 'Feature', geometry: { type: 'Point', coordinates: [50, 50] } } },
+          time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' },
+        }],
+      };
+
+      const bounds = getBoundsForPatrol(patrol, {
+        startStopGeometries: null,
+        trackData: trackDataWithLine([[0, 0], [1, 1]]),
+      });
+
+      expect(bounds).toEqual([0, 0, 1, 1]);
+    });
+
+    test('excludes the leader live position once the patrol is marked cancelled, even when its leg has no end time', () => {
+      const patrol = {
+        state: 'cancelled',
         patrol_segments: [{
           events: [],
           leader: { last_position: { type: 'Feature', geometry: { type: 'Point', coordinates: [50, 50] } } },

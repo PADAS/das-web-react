@@ -393,6 +393,11 @@ export const isSegmentActive = (patrolSegment) => {
   return false;
 };
 
+// A segment only counts as still running when the patrol as a whole hasn't been cancelled or
+// marked done, on top of the segment itself being time-wise active.
+export const isSegmentActiveForPatrol = (patrol, segment) =>
+  !isPatrolCancelled(patrol) && !isPatrolDone(patrol) && isSegmentActive(segment);
+
 export const isSegmentPending = (patrolSegment) => {
   const { time_range: { start_time } = {} } = patrolSegment;
 
@@ -454,7 +459,7 @@ export const calcPatrolState = (patrol) => {
     return INVALID;
   }
 
-  const [segment] = patrol.patrol_segments;
+  const segment = patrol.patrol_segments[patrol.patrol_segments.length - 1];
 
   if (isSegmentFinished(segment)) {
     return DONE;
@@ -683,16 +688,16 @@ export const getBoundsForPatrol = ((patrol, patrolTrackData) => {
 
   if (!hasSegments || !hasGeoData) return null;
 
-  // The live position of a past leg's leader isn't relevant once that leg is over, so only the
-  // currently active leg's leader (if any) contributes its current position to the bounds. A
-  // segment's own time_range can still look open-ended even once the patrol has explicitly been
-  // marked done, so that alone can't be trusted to mean the leg is active.
-  const lastLeg = patrol.patrol_segments[patrol.patrol_segments.length - 1];
-  const activeLegLeader = (!isPatrolDone(patrol) && isSegmentActive(lastLeg)) ? lastLeg.leader : null;
+  // The live position of a past segment's leader isn't relevant once that segment is over, so
+  // only the currently active segment's leader (if any) contributes its current position to the
+  // bounds. A segment's own time_range can still look open-ended even once the patrol has
+  // explicitly been marked done or cancelled, so that alone can't be trusted to mean it's active.
+  const lastSegment = patrol.patrol_segments[patrol.patrol_segments.length - 1];
+  const activeSegmentLeader = isSegmentActiveForPatrol(patrol, lastSegment) ? lastSegment.leader : null;
 
   const { start_location: patrolStartPoint, end_location: patrolEndPoint } = startStopGeometries?.points || {};
   const patrolEvents = patrol.patrol_segments.flatMap(({ events }) => (events || []).map(({ geojson }) => geojson));
-  const patrolLeaderPosition = !!activeLegLeader?.last_position && activeLegLeader.last_position;
+  const patrolLeaderPosition = !!activeSegmentLeader?.last_position && activeSegmentLeader.last_position;
   const patrolTrack = !!trackData && trackData.track;
 
 

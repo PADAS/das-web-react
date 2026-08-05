@@ -11,16 +11,17 @@ const DateTime = ({ className = '', date, showElapsed = true, suffix, ...otherPr
     return null;
   }
 
+  const dateText = format(new Date(date), STANDARD_DATE_FORMAT);
   const timeZoneTitle = generateCurrentTimeZoneTitle();
 
   return <div className={`${styles.dateTime} ${className}`} data-testid="date-time" {...otherProps}>
     <time
-      aria-label={timeZoneTitle}
+      aria-label={`${dateText}, ${timeZoneTitle}`}
       className={styles.date}
       dateTime={new Date(date).toISOString()}
       title={timeZoneTitle}
     >
-      {format(new Date(date), STANDARD_DATE_FORMAT)}
+      {dateText}
     </time>
 
     {showElapsed && <TimeAgo className={styles.timeAgo} date={date} suffix={suffix} />}

@@ -146,7 +146,7 @@ const KebabMenu = ({
   );
 
   const focusLastOption = useCallback(
-    () => enabledOptions().toReversed().some((option) => focusItemNode(option.nodeRef.current)),
+    () => enabledOptions().reverse().some((option) => focusItemNode(option.nodeRef.current)),
     [enabledOptions],
   );
 
@@ -174,7 +174,7 @@ const KebabMenu = ({
 
     // Options before the current one, then wrap around to the options after
     // (and including) it, both walked backwards.
-    [...options.slice(0, currentIndex).toReversed(), ...options.slice(currentIndex).toReversed()]
+    [...options.slice(0, currentIndex).reverse(), ...options.slice(currentIndex).reverse()]
       .some((option) => focusItemNode(option.nodeRef.current));
   }, [enabledOptions]);
 
@@ -209,8 +209,15 @@ const KebabMenu = ({
       break;
 
     case 'Tab':
+      event.preventDefault();
+
+      closeMenu();
+
+      break;
+
     case 'Escape':
       event.preventDefault();
+      event.stopPropagation();
 
       closeMenu();
 

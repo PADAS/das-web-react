@@ -49,16 +49,17 @@ const TimeAgo = ({ className, date, prefix = null, suffix = null }) => {
     return () => window.clearInterval(updateInterval);
   }, [date, olderThanAMinute]);
 
+  const elapsedTimeText = `${prefix ? `${prefix} ` : ''}${durationStringGenerator(timeDistance)}${suffix ? ` ${suffix}` : ''}`;
   const timeZoneTitle = generateCurrentTimeZoneTitle();
 
   return <time
-    aria-label={timeZoneTitle}
+    aria-label={`${elapsedTimeText}, ${timeZoneTitle}`}
     className={className}
     data-testid="time-ago"
     dateTime={new Date(date).toISOString()}
     title={timeZoneTitle}
     >
-    {prefix ? `${prefix} ` : ''}{durationStringGenerator(timeDistance)}{suffix ? ` ${suffix}` : ''}
+    {elapsedTimeText}
   </time>;
 };
 

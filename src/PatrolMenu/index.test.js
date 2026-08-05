@@ -101,6 +101,15 @@ describe('PatrolMenu', () => {
     testMinimumOptionsMenu();
   });
 
+  test('reaches the copy button with the keyboard', async () => {
+    renderPatrolMenu(undefined, storeWithUpdatePermissions);
+    await userEvent.click(screen.getByRole('button'));
+
+    await userEvent.keyboard('{ArrowDown}{ArrowDown}');
+
+    expect(screen.getByRole('button', { name: 'Copy to clipboard' })).toHaveFocus();
+  });
+
   test('prints the patrol details', async () => {
     renderPatrolMenu();
     await userEvent.click(screen.getByRole('button'));
