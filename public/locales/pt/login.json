@@ -27,6 +27,7 @@
   "loginButtonEmail": "Conecte-se com e-mail",
   "loginButtonLoadingLabel": "Carregando",
   "passwordLabel": "Senha",
+  "signInUnavailable": "O EarthRanger não conseguiu determinar como iniciar a sua sessão em {{site}}. Atualize a página para tentar novamente e contacte o seu administrador se o problema persistir.",
   "title": "Entrar",
   "usernameLabel": "Nome de usuário"
 }

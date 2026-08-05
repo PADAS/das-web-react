@@ -27,6 +27,7 @@
   "loginButtonEmail": "Sign in with email",
   "loginButtonLoadingLabel": "Loading",
   "passwordLabel": "Password",
+  "signInUnavailable": "EarthRanger could not work out how to sign you in to {{site}}. Refresh to try again, and contact your administrator if it keeps happening.",
   "title": "Log In",
   "usernameLabel": "Username"
 }

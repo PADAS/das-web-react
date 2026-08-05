@@ -27,6 +27,7 @@
   "loginButtonEmail": "Ingia kwa barua pepe",
   "loginButtonLoadingLabel": "Inapakia",
   "passwordLabel": "Nenosiri",
+  "signInUnavailable": "EarthRanger haikuweza kubaini jinsi ya kukuingiza katika {{site}}. Onyesha upya ukurasa ili kujaribu tena, na wasiliana na msimamizi wako ikiwa hali inaendelea.",
   "title": "Ingia",
   "usernameLabel": "Jina la Mtumiaji"
 }

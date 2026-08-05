@@ -27,6 +27,7 @@
   "loginButtonEmail": "Se connecter avec un e-mail",
   "loginButtonLoadingLabel": "Chargement",
   "passwordLabel": "Mot de passe",
+  "signInUnavailable": "EarthRanger n'a pas pu déterminer comment vous connecter à {{site}}. Actualisez la page pour réessayer, et contactez votre administrateur si le problème persiste.",
   "title": "Connexion",
   "usernameLabel": "Nom d'utilisateur"
 }

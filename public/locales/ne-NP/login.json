@@ -27,6 +27,7 @@
   "loginButtonEmail": "इमेलबाट साइन इन",
   "loginButtonLoadingLabel": "लोड हुँदैछ",
   "passwordLabel": "पासवर्ड",
+  "signInUnavailable": "EarthRanger ले {{site}} मा तपाईंलाई कसरी साइन इन गराउने निर्धारण गर्न सकेन। पुनः प्रयास गर्न पृष्ठ रिफ्रेस गर्नुहोस्, र समस्या जारी रहे प्रशासकलाई सम्पर्क गर्नुहोस्।",
   "title": "लग इन",
   "usernameLabel": "युजरनेम"
 }
