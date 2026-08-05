@@ -19,18 +19,18 @@ import {
   patrolStateDetailsStartTime,
 } from '../../utils/patrols';
 
-import { selectPatrolData } from '../../selectors/patrols';
+import { selectPatrolTrackData } from '../../selectors/patrols';
 import { PATROL_API_STATES, PATROL_UI_STATES } from '../../constants';
 import { updatePatrol } from '../../ducks/patrols';
 
 const usePatrol = (patrol) => {
   const dispatch = useDispatch();
 
-  const patrolData = useSelector((state) => selectPatrolData(state, patrol));
+  const patrolTrackData = useSelector((state) => selectPatrolTrackData(state, patrol));
   const patrolTrackState = useSelector(state =>  state?.view?.patrolTrackState);
   const trackState = useSelector(state => state?.view?.subjectTrackState);
 
-  const [patrolState, setPatrolState] = useState(calcPatrolState(patrolData.patrol));
+  const [patrolState, setPatrolState] = useState(calcPatrolState(patrol));
 
   const isPatrolActive = patrolState === PATROL_UI_STATES.ACTIVE;
   const isPatrolCancelled = patrolState === PATROL_UI_STATES.CANCELLED;
@@ -40,43 +40,43 @@ const usePatrol = (patrol) => {
     || patrolState === PATROL_UI_STATES.SCHEDULED
     || patrolState === PATROL_UI_STATES.START_OVERDUE;
 
-  const actualEndTime = useMemo(() => actualEndTimeForPatrol(patrolData.patrol), [patrolData.patrol]);
-  const actualStartTime = useMemo(() => actualStartTimeForPatrol(patrolData.patrol), [patrolData.patrol]);
+  const actualEndTime = useMemo(() => actualEndTimeForPatrol(patrol), [patrol]);
+  const actualStartTime = useMemo(() => actualStartTimeForPatrol(patrol), [patrol]);
   const canShowTrack = useMemo(
-    () => patrolHasGeoDataToDisplay(patrolData.trackData, patrolData.startStopGeometries),
-    [patrolData.startStopGeometries, patrolData.trackData]
+    () => patrolHasGeoDataToDisplay(patrolTrackData.trackData, patrolTrackData.startStopGeometries),
+    [patrolTrackData.startStopGeometries, patrolTrackData.trackData]
   );
   const displayTitle = useMemo(
-    () => displayTitleForPatrol(patrolData.patrol, patrolData.leader),
-    [patrolData.leader, patrolData.patrol]
+    () => displayTitleForPatrol(patrol, patrolTrackData.leader),
+    [patrol, patrolTrackData.leader]
   );
-  const patrolBounds = useMemo(() => getBoundsForPatrol(patrolData), [patrolData]);
+  const patrolBounds = useMemo(() => getBoundsForPatrol(patrol, patrolTrackData), [patrol, patrolTrackData]);
   const patrolElapsedTime = useMemo(
-    () => !!patrolState && displayDurationForPatrol(patrolData.patrol),
-    [patrolData.patrol, patrolState]
+    () => !!patrolState && displayDurationForPatrol(patrol),
+    [patrol, patrolState]
   );
-  const patrolIconId = useMemo(() => iconTypeForPatrol(patrolData.patrol), [patrolData.patrol]);
-  const scheduledStartTime = useMemo(() => patrolStateDetailsStartTime(patrolData.patrol), [patrolData.patrol]);
+  const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
+  const scheduledStartTime = useMemo(() => patrolStateDetailsStartTime(patrol), [patrol]);
   const theme = useMemo(() => calcColorThemeForPatrolState(patrolState), [patrolState]);
 
   const patrolCancellationTime = useMemo(() => {
     if (!isPatrolCancelled) return null;
 
-    const cancellation = patrolData.patrol?.updates
+    const cancellation = patrol?.updates
       ?.find(update => update.type === 'update_patrol_state' && update.message.includes('cancelled'))
       ?? null;
     if (!cancellation) return null;
 
     return formatPatrolStateTitleDate(new Date(cancellation.time));
 
-  }, [isPatrolCancelled, patrolData.patrol.updates]);
+  }, [isPatrolCancelled, patrol.updates]);
 
   const dateComponentDateString = useMemo(() => {
     if (isPatrolCancelled) return patrolCancellationTime;
-    if (isPatrolDone) return patrolStateDetailsEndTime(patrolData.patrol);
-    if (isPatrolOverdue) return patrolStateDetailsOverdueStartTime(patrolData.patrol);
+    if (isPatrolDone) return patrolStateDetailsEndTime(patrol);
+    if (isPatrolOverdue) return patrolStateDetailsOverdueStartTime(patrol);
     if (isPatrolActive || isPatrolScheduled) {
-      return formatPatrolStateTitleDate(displayStartTimeForPatrol(patrolData.patrol));
+      return formatPatrolStateTitleDate(displayStartTimeForPatrol(patrol));
     }
 
     return null;
@@ -87,13 +87,13 @@ const usePatrol = (patrol) => {
     isPatrolDone,
     isPatrolOverdue,
     isPatrolScheduled,
-    patrolData.patrol,
+    patrol,
     patrolCancellationTime,
   ]);
 
   useEffect(() => {
-    setPatrolState(calcPatrolState(patrolData.patrol));
-  }, [patrolData.patrol]);
+    setPatrolState(calcPatrolState(patrol));
+  }, [patrol]);
 
   const onPatrolChange = useCallback((value) => {
     const merged = merge(patrol, value);
@@ -115,7 +115,7 @@ const usePatrol = (patrol) => {
   }, [onPatrolChange]);
 
   return {
-    patrolData,
+    patrolTrackData,
     patrolTrackState,
     trackState,
 

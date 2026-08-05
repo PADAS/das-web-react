@@ -98,7 +98,7 @@ describe('auth-recovery', () => {
       const silentRenew = jest.fn(() => new Promise(() => {}));
       registerAuthRecovery({ silentRenew });
 
-      const rejection = expect(recoverAuth()).rejects.toThrow(/silent renewal timed out/);
+      const rejection = await expect(recoverAuth()).rejects.toThrow(/silent renewal timed out/);
       await jest.advanceTimersByTimeAsync(30_000);
       await rejection;
 
@@ -119,7 +119,7 @@ describe('auth-recovery', () => {
       const stepUp = jest.fn(() => new Promise(() => {}));
       registerAuthRecovery({ stepUp });
 
-      const rejection = expect(recoverAuth({ stepUp: true, challenge: {} })).rejects.toThrow(/step-up redirect timed out/);
+      const rejection = await expect(recoverAuth({ stepUp: true, challenge: {} })).rejects.toThrow(/step-up redirect timed out/);
       await jest.advanceTimersByTimeAsync(60_000);
       await rejection;
 

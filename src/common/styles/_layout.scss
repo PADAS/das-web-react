@@ -8,6 +8,12 @@ $md-layout-width-max: calc(#{$lg-layout-width-min} - 1px);
 
 $sm-layout-width-max: calc(#{$md-layout-width-min} - 1px);
 
+$sidebar-detail-view-width: 46rem;
+
+@mixin sidebar-detail-view-width {
+  width: min($sidebar-detail-view-width, calc(100vw - var(--vertical-nav-width)));
+}
+
 $sm-height-max: 31.25rem;
 $md-height-min: 31.3125rem;
 $md-height-max: 48.8125rem;

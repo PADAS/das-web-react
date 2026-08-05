@@ -1,7 +1,9 @@
 import React, { useCallback, useContext, useRef } from 'react';
 
+import { PREVIEW_FEATURES } from '../constants';
 import { fitMapBoundsForAnalyzer } from '../utils/analyzers';
 import { MapContext } from '../MapContext';
+import { usePreviewFeature } from '../hooks';
 import usePatrol from '../hooks/usePatrol';
 
 import LocationJumpButton from '../LocationJumpButton';
@@ -10,8 +12,10 @@ import PatrolAwareTrackToggleButton from '../TrackToggleButton/PatrolAwareTrackT
 import * as styles from './styles.module.scss';
 
 const PatrolTrackControls = ({ className = '', onLocationClick, patrol }) => {
+  const patrolSchemasEnabled = usePreviewFeature(PREVIEW_FEATURES.PATROL_SCHEMAS);
+
   const {
-    patrolData,
+    patrolTrackData,
     patrolTrackState,
     trackState,
 
@@ -23,11 +27,12 @@ const PatrolTrackControls = ({ className = '', onLocationClick, patrol }) => {
 
   const trackToggleButtonRef = useRef(null);
 
-  const { leader } = patrolData;
+  const { leader } = patrolTrackData;
 
   const handleLocationClick = useCallback((event) => {
     const patrolTrackIsVisible = [...patrolTrackState.pinned, ...patrolTrackState.visible].includes(patrol.id);
-    const leaderTrackIsVisible = !!leader && [...trackState.pinned, ...trackState.visible].includes(leader.id);
+    const leaderTrackIsVisible = patrolSchemasEnabled
+      || (!!leader && [...trackState.pinned, ...trackState.visible].includes(leader.id));
 
     if (!patrolTrackIsVisible || (!!leader && !leaderTrackIsVisible)) {
       trackToggleButtonRef?.current?.click();
@@ -35,13 +40,14 @@ const PatrolTrackControls = ({ className = '', onLocationClick, patrol }) => {
 
     fitMapBoundsForAnalyzer(map, patrolBounds);
     onLocationClick(event);
-  }, [leader, map, onLocationClick, patrol.id, patrolBounds, patrolTrackState, trackState]);
+  }, [leader, map, onLocationClick, patrol.id, patrolBounds, patrolSchemasEnabled, patrolTrackState, trackState]);
 
   return <div className={`${styles.patrolTrackControls} ${className}`}>
     {!!canShowTrack && !!leader && <PatrolAwareTrackToggleButton
       buttonRef={trackToggleButtonRef}
       data-testid={`patrol-list-item-track-btn-${patrol.id}`}
-      patrolData={patrolData}
+      patrol={patrol}
+      patrolData={patrolTrackData}
       showLabel={false}
     />}
 

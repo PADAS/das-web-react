@@ -1,0 +1,124 @@
+@use 'sass:color';
+
+@use '../../../../../common/styles/vars/colors';
+@use '../../../../../common/styles/inputs';
+@use '../../../../../common/styles/layout';
+@use '../../_shared' as shared;
+
+.legTable {
+  @include shared.white-card;
+
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.875rem;
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+  width: 100%;
+
+  th, td {
+    border-bottom: 1px solid colors.$light-gray-lines;
+    padding: 0.5rem;
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  thead th {
+    color: colors.$secondary-medium-gray;
+    font-weight: 400;
+    padding: 0.375rem 0.5rem;
+  }
+
+  .legRow {
+    cursor: pointer;
+
+    &:hover:not(:has(.zoomToLegBoundsButton:hover)) {
+      background: colors.$blue-highlight;
+    }
+
+    &:last-child {
+      td {
+        border-bottom: none;
+      }
+    }
+
+    .fullDate {
+      @media (max-width: layout.$sm-layout-width-max) {
+        display: none;
+      }
+    }
+
+    .legActionsColumn {
+      display: flex;
+      gap: 0.25rem;
+      white-space: nowrap;
+
+      @media (max-width: layout.$sm-layout-width-max) {
+        display: none;
+      }
+
+      .viewLegButton {
+        @include shared.icon-button;
+
+        svg {
+          height: 0.75rem;
+          width: 0.75rem;
+        }
+
+        &:hover {
+          background: none;
+        }
+      }
+
+      .zoomToLegBoundsButton {
+        @include shared.icon-button;
+      }
+    }
+
+    .simplifiedDate {
+      display: none;
+
+      @media (max-width: layout.$sm-layout-width-max) {
+        display: inline;
+      }
+    }
+
+    .teamColumn {
+      align-items: center;
+      display: flex;
+      gap: 0.375rem;
+
+      .teamCaret {
+        @include inputs.dropdown-caret;
+      }
+    }
+  }
+}
+
+.newLegButton {
+  align-items: center;
+  background-color: colors.$very-light-blue;
+  border: none;
+  border-radius: 0.25rem;
+  color: colors.$bright-blue;
+  display: inline-flex;
+  font-size: 0.875rem;
+  font-weight: 500;
+  gap: 0.375rem;
+  height: 2.25rem;
+  margin-bottom: 1rem;
+  padding: 0 0.75rem;
+  text-decoration: none;
+
+  svg {
+    height: 1rem;
+    width: 1rem;
+  }
+
+  &:hover {
+    background-color: color.adjust(colors.$very-light-blue, $lightness: -5%);
+  }
+
+  &:focus-visible {
+    outline: 2px solid colors.$bright-blue;
+  }
+}

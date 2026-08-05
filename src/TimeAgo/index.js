@@ -1,18 +1,17 @@
-import React, { useMemo, useEffect, useState, memo } from 'react';
-import { generateCurrentTimeZoneTitle, durationHumanizer, HUMANIZED_DURATION_CONFIGS } from '../utils/datetime';
+import React, { useMemo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-const title = generateCurrentTimeZoneTitle();
+import { durationHumanizer, generateCurrentTimeZoneTitle, HUMANIZED_DURATION_CONFIGS } from '../utils/datetime';
 
 const ONE_SECOND = 1000;
 const ONE_MINUTE = ONE_SECOND * 60;
 const ONE_HOUR = ONE_MINUTE * 60;
 
-const TimeAgo = (props) => {
-  const { date, prefix = null, suffix = null, ...rest } = props;
+const TimeAgo = ({ className, date, prefix = null, suffix = null }) => {
+  const { t, i18n: { language } } = useTranslation('dates');
 
   const [timeDistance, setTimeDistance] = useState(new Date() - new Date(date));
-  const { t, i18n: { language } } = useTranslation('dates');
+
   const olderThanAMinute = timeDistance > ONE_MINUTE;
   const olderThanAnHour = timeDistance > ONE_HOUR;
 
@@ -26,36 +25,41 @@ const TimeAgo = (props) => {
         h: () => t('timeUnitAbbreviations.hour'),
         m: () => t('timeUnitAbbreviations.minute'),
       };
+
       return durationHumanizer(HUMANIZED_DURATION_CONFIGS.LONG_TERM_ABRREVIATED(abbreviations));
     }
 
-    if (olderThanAMinute) return durationHumanizer(HUMANIZED_DURATION_CONFIGS.MINUTES_ONLY(t('minutesLabel')));
+    if (olderThanAMinute) {
+      return durationHumanizer(HUMANIZED_DURATION_CONFIGS.MINUTES_ONLY(t('minutesLabel')));
+    }
 
     const notSupportedLangKeys = {
       'en-US': 'en'
     };
-    return durationHumanizer(HUMANIZED_DURATION_CONFIGS.FULL_FORMAT( notSupportedLangKeys[language] ?? language ));
+    return durationHumanizer(HUMANIZED_DURATION_CONFIGS.FULL_FORMAT(notSupportedLangKeys[language] ?? language));
   }, [olderThanAMinute, olderThanAnHour, t, language]);
 
-  const durationString = durationStringGenerator(timeDistance);
-
   useEffect(() => {
-    let updateInterval;
-    const intervalLength = olderThanAMinute ? ONE_MINUTE : ONE_SECOND;
-
-    const updateFn = () => {
-      setTimeDistance(new Date() - new Date(date));
-    };
+    const updateFn = () => setTimeDistance(new Date() - new Date(date));
 
     updateFn();
-    updateInterval = window.setInterval(updateFn, intervalLength);
 
-    return () => {
-      window.clearInterval(updateInterval);
-    };
+    const updateInterval = window.setInterval(updateFn, olderThanAMinute ? ONE_MINUTE : ONE_SECOND);
+
+    return () => window.clearInterval(updateInterval);
   }, [date, olderThanAMinute]);
 
-  return <span data-testid='time-ago' title={title} {...rest}>{prefix ? `${prefix} ` : ''}{durationString}{suffix ? ` ${suffix}` : ''}</span>;
+  const timeZoneTitle = generateCurrentTimeZoneTitle();
+
+  return <time
+    aria-label={timeZoneTitle}
+    className={className}
+    data-testid="time-ago"
+    dateTime={new Date(date).toISOString()}
+    title={timeZoneTitle}
+    >
+    {prefix ? `${prefix} ` : ''}{durationStringGenerator(timeDistance)}{suffix ? ` ${suffix}` : ''}
+  </time>;
 };
 
-export default memo(TimeAgo);
+export default TimeAgo;

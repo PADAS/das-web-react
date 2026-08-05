@@ -31,7 +31,6 @@ const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 const PatrolMenu = ({
   patrol,
   onPatrolChange,
-  menuRef,
   printableContentRef,
   patrolTitle = '',
   isPatrolCancelled = false,
@@ -160,7 +159,6 @@ const PatrolMenu = ({
       aria-label={t('label')}
       align='end'
       className={className}
-      ref={menuRef}
       title={t('title')}
       {...rest}
     >

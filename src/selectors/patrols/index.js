@@ -4,34 +4,80 @@ import uniq from 'lodash/uniq';
 
 import {
   drawLinesBetweenPatrolTrackAndPatrolPoints,
-  extractPatrolPointsFromTrackData,
+  extractLegPatrolPoints,
+  finalizeCombinedPatrolPoints,
+  isPatrolDone,
+  isSegmentActive,
   patrolStateAllowsTrackDisplay,
 } from '../../utils/patrols';
 import { selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod } from '../tracks';
 import { trackHasDataWithinTimeRange, trimTrackDataToTimeRange } from '../../utils/tracks';
 
-const buildPatrolData = (patrol, timeSliderState, tracks) => {
-  // Get the patrol leader from the first patrol segment and its tracks.
-  const patrolLeader = patrol.patrol_segments[0].leader || null;
-  const patrolLeaderTracks = tracks[patrolLeader?.id] || null;
+// A leg's track is its own leader's track, bounded to that leg's own start/end
+// times.
+const buildLegTrackData = (segment, tracks) => {
+  const leader = segment.leader || null;
+  const rawTrackData = leader ? (tracks[leader.id] || null) : null;
+  const { start_time, end_time } = segment.time_range || {};
 
-  // Then calculate the tracks by trimming the patrol leader tracks to the patrol time range.
-  const timeRange = patrol.patrol_segments[0].time_range;
-  const patrolLeaderTracksTrimmedToPatrolTimeRange = !!patrolLeaderTracks
-    && patrolStateAllowsTrackDisplay(patrol)
-    && trackHasDataWithinTimeRange(patrolLeaderTracks, timeRange.start_time, timeRange.end_time)
-    && trimTrackDataToTimeRange(patrolLeaderTracks, timeRange.start_time, timeRange.end_time);
-  const patrolTrackData = patrolLeaderTracksTrimmedToPatrolTimeRange || null;
+  const trackData = (!!rawTrackData
+    && !!start_time
+    && trackHasDataWithinTimeRange(rawTrackData, start_time, end_time)
+    && trimTrackDataToTimeRange(rawTrackData, start_time, end_time)) || null;
+
+  return { leader, rawTrackData, segment, trackData };
+};
+
+// Combines every leg's own track into the patrol's overall track.
+const combineLegsTrackData = (legsData) => {
+  const legsWithTrackData = [...legsData].reverse().filter(({ trackData }) => !!trackData);
+
+  if (legsWithTrackData.length) {
+    return {
+      points: {
+        type: 'FeatureCollection',
+        features: legsWithTrackData.flatMap(({ trackData }) => trackData.points?.features ?? []),
+      },
+      track: {
+        type: 'FeatureCollection',
+        features: legsWithTrackData.flatMap(({ trackData }) => trackData.track?.features ?? []),
+      },
+    };
+  }
+  return null;
+};
+
+const buildPatrolData = (patrol, timeSliderState, tracks) => {
+  // The last leg's leader is used for title/display purposes, since it's the
+  // most recent one.
+  const patrolLeader = patrol.patrol_segments[patrol.patrol_segments.length - 1]?.leader || null;
+
+  if (!patrolStateAllowsTrackDisplay(patrol)) {
+    return { leader: patrolLeader, legsTrackData: [], trackData: null };
+  }
+
+  const legsData = patrol.patrol_segments.map((segment) => buildLegTrackData(segment, tracks));
+  const trackData = combineLegsTrackData(legsData);
 
   // Create the patrol data object with what we have so far.
-  const patrolData = { leader: patrolLeader, patrol, trackData: patrolTrackData };
+  const patrolData = {
+    leader: patrolLeader,
+    legsTrackData: legsData.map(({ trackData: legTrackData }) => legTrackData),
+    trackData,
+  };
 
   if (patrolData.trackData) {
-    // If the patrol has track data, we now calculate its start and stop geometries. First we extract the patrol
-    // points.
-    const patrolPoints = extractPatrolPointsFromTrackData(patrolData, patrolLeaderTracks);
+    // If the patrol has track data, we now calculate its start and stop geometries.
+    const legsPoints = legsData.map(({ leader: legLeader, rawTrackData, segment, trackData: legTrackData }) => (legTrackData
+      ? extractLegPatrolPoints(segment, legLeader, legTrackData, rawTrackData, !isPatrolDone(patrol) && isSegmentActive(segment))
+      : null));
 
-    if (patrolPoints) {
+    const patrolPoints = {
+      start_location: legsPoints.find((legPoints) => !!legPoints?.start_location)?.start_location ?? null,
+      end_location: [...legsPoints].reverse().find((legPoints) => !!legPoints?.end_location)?.end_location ?? null,
+    };
+
+    if (patrolPoints.start_location || patrolPoints.end_location) {
       const isTimeSliderActiveWithAVirtualDate = timeSliderState.active && timeSliderState.virtualDate;
       if (isTimeSliderActiveWithAVirtualDate) {
         // Adjust the patrol points to the time slider virtual date.
@@ -40,14 +86,14 @@ const buildPatrolData = (patrol, timeSliderState, tracks) => {
         if (patrolPoints.start_location?.properties?.time) {
           const patrolStartDate = new Date(patrolPoints.start_location.properties.time);
           if (isAfter(patrolStartDate, timeSliderVirtualDate)) {
-            delete patrolPoints.start_location;
+            patrolPoints.start_location = null;
           }
         }
 
         if (patrolPoints.end_location?.properties?.time) {
           const patrolEndDate = new Date(patrolPoints.end_location.properties.time);
           if (isTimeSliderActiveWithAVirtualDate && isAfter(patrolEndDate, timeSliderVirtualDate)) {
-            delete patrolPoints.end_location;
+            patrolPoints.end_location = null;
           }
         }
       }
@@ -55,9 +101,11 @@ const buildPatrolData = (patrol, timeSliderState, tracks) => {
       if (patrolPoints.start_location || patrolPoints.end_location) {
         // If there are either a start or an end location, we calculate the lines and add the start and stop geometries
         // to the patrol data object.
+        const finalizedPatrolPoints = finalizeCombinedPatrolPoints(patrol, patrolPoints);
+
         patrolData.startStopGeometries = {
-          points: patrolPoints,
-          lines: drawLinesBetweenPatrolTrackAndPatrolPoints(patrolPoints, patrolData.trackData),
+          points: finalizedPatrolPoints,
+          lines: drawLinesBetweenPatrolTrackAndPatrolPoints(finalizedPatrolPoints, patrolData.trackData),
         };
       }
     }
@@ -87,7 +135,7 @@ const selectVisibleAndPinnedPatrolTracks = createSelector(
   (patrolTrackState) => uniq([...patrolTrackState.visible, ...patrolTrackState.pinned])
 );
 
-export const selectPatrolData = createSelector(
+export const selectPatrolTrackData = createSelector(
   [selectTimeSliderState, selectTracks, (_, patrol) => patrol],
   (timeSliderState, tracks, patrol) => buildPatrolData(patrol, timeSliderState, tracks)
 );
@@ -147,7 +195,7 @@ export const selectPatrolsWithTracksData = createSelector(
   [selectPatrolsWithTracks, selectTimeSliderState, selectTracks],
   (patrolsWithTracks, timeSliderState, tracks) => patrolsWithTracks.map(
     // Build the patrol data for each patrol with tracks.
-    (patrol) => buildPatrolData(patrol, timeSliderState, tracks)
+    (patrol) => ({ patrol, ...buildPatrolData(patrol, timeSliderState, tracks) })
   )
 );
 
@@ -157,7 +205,7 @@ export const selectSubjectTracksWithPatrolTrackShownFlag = createSelector(
     subjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod.map((subjectTracks) => {
       const subjectId = subjectTracks.track.features[0].properties.id;
       const isSubjectLeaderOfSomePatrol = patrolsWithTracks.some(
-        (patrol) => patrol.patrol_segments?.[0]?.leader?.id && patrol.patrol_segments[0].leader.id === subjectId
+        (patrol) => patrol.patrol_segments?.some((segment) => segment.leader?.id === subjectId)
       );
 
       // Map each subject tracks and add the patrolTrackShown flag.

@@ -4,6 +4,16 @@ import {
   calcPatrolState,
   createNewPatrolForPatrolType,
   DELTA_FOR_OVERDUE,
+  displayEndTimeForPatrol,
+  displayEndTimeForPatrolSegment,
+  displayNameForPatrolType,
+  displayStartTimeForPatrol,
+  displayStartTimeForPatrolSegment,
+  extractLegPatrolPoints,
+  finalizeCombinedPatrolPoints,
+  getBoundsForPatrol,
+  iconIdForPatrolSegment,
+  iconIdForPatrolType,
   sortPatrolList
 } from './patrols';
 import { PATROL_UI_STATES } from '../constants';
@@ -16,7 +26,7 @@ import {
   donePatrol,
   cancelledPatrol,
 } from '../__test-helpers/fixtures/patrols';
-import patrolTypes from '../__test-helpers/fixtures/patrol-types';
+import patrolTypes, { dogPatrol, routinePatrol } from '../__test-helpers/fixtures/patrol-types';
 
 const { SCHEDULED, READY_TO_START, ACTIVE, START_OVERDUE, DONE, CANCELLED, INVALID } = PATROL_UI_STATES;
 
@@ -149,6 +159,446 @@ describe('Patrols utils', () => {
       expect(mostRecentScheduledPatrol.patrol_segments[0].updates[0].time).toBe(scheduledPatrolUpdateTime);
       expect(mostRecentDonePatrol.patrol_segments[0].updates[0].time).toBe(donePatrolUpdateTime);
       expect(mostRecentCancelledPatrol.patrol_segments[0].updates[0].time).toBe(cancelledPatrolUpdateTime);
+    });
+  });
+
+  describe('getBoundsForPatrol', () => {
+    const trackDataWithLine = (coordinates) => ({
+      track: {
+        type: 'FeatureCollection',
+        features: [{ type: 'Feature', geometry: { type: 'LineString', coordinates }, properties: {} }],
+      },
+    });
+
+    test('returns null when the patrol has no segments', () => {
+      const patrol = { patrol_segments: [] };
+
+      expect(getBoundsForPatrol(patrol, { startStopGeometries: null, trackData: null })).toBeNull();
+    });
+
+    test('returns null when there is no geo data to display', () => {
+      const patrol = { patrol_segments: [{ time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' } }] };
+
+      expect(getBoundsForPatrol(patrol, { startStopGeometries: null, trackData: null })).toBeNull();
+    });
+
+    test('includes the leader live position while its leg is still active', () => {
+      const patrol = {
+        patrol_segments: [{
+          events: [],
+          leader: { last_position: { type: 'Feature', geometry: { type: 'Point', coordinates: [50, 50] } } },
+          time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' },
+        }],
+      };
+
+      const bounds = getBoundsForPatrol(patrol, {
+        startStopGeometries: null,
+        trackData: trackDataWithLine([[0, 0], [1, 1]]),
+      });
+
+      expect(bounds).toEqual([0, 0, 50, 50]);
+    });
+
+    test('excludes the leader live position once its leg has finished', () => {
+      const patrol = {
+        patrol_segments: [{
+          events: [],
+          leader: { last_position: { type: 'Feature', geometry: { type: 'Point', coordinates: [50, 50] } } },
+          time_range: { end_time: '2022-06-15T11:00:00.000Z', start_time: '2022-06-15T10:00:00.000Z' },
+        }],
+      };
+
+      const bounds = getBoundsForPatrol(patrol, {
+        startStopGeometries: null,
+        trackData: trackDataWithLine([[0, 0], [1, 1]]),
+      });
+
+      expect(bounds).toEqual([0, 0, 1, 1]);
+    });
+
+    test('excludes the leader live position once the patrol is marked done, even when its leg has no end time', () => {
+      const patrol = {
+        state: 'done',
+        patrol_segments: [{
+          events: [],
+          leader: { last_position: { type: 'Feature', geometry: { type: 'Point', coordinates: [50, 50] } } },
+          time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' },
+        }],
+      };
+
+      const bounds = getBoundsForPatrol(patrol, {
+        startStopGeometries: null,
+        trackData: trackDataWithLine([[0, 0], [1, 1]]),
+      });
+
+      expect(bounds).toEqual([0, 0, 1, 1]);
+    });
+
+    test('combines events from every leg, and only the last (currently active) leg leader contributes its position', () => {
+      const finishedLegLeader = { last_position: { type: 'Feature', geometry: { type: 'Point', coordinates: [90, 90] } } };
+      const activeLegLeader = { last_position: { type: 'Feature', geometry: { type: 'Point', coordinates: [5, 5] } } };
+
+      const patrol = {
+        patrol_segments: [
+          {
+            events: [{ geojson: { type: 'Feature', geometry: { type: 'Point', coordinates: [-10, -10] } } }],
+            leader: finishedLegLeader,
+            time_range: { end_time: '2022-06-15T09:00:00.000Z', start_time: '2022-06-15T08:00:00.000Z' },
+          },
+          {
+            events: [{ geojson: { type: 'Feature', geometry: { type: 'Point', coordinates: [10, 10] } } }],
+            leader: activeLegLeader,
+            time_range: { end_time: null, start_time: '2022-06-15T09:00:00.000Z' },
+          },
+        ],
+      };
+
+      const bounds = getBoundsForPatrol(patrol, {
+        startStopGeometries: null,
+        trackData: trackDataWithLine([[0, 0], [1, 1]]),
+      });
+
+      // The finished leg's leader position at [90, 90] must not stretch the bounds.
+      expect(bounds).toEqual([-10, -10, 10, 10]);
+    });
+  });
+
+  describe('extractLegPatrolPoints', () => {
+    test('returns null when the leg has neither an explicit location nor track data', () => {
+      const segment = {
+        end_location: null,
+        icon_id: 'icon',
+        start_location: null,
+        time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' },
+      };
+
+      expect(extractLegPatrolPoints(segment, null, null, null, true)).toBeNull();
+    });
+
+    test('uses the segment start_location for the start marker when set', () => {
+      const segment = {
+        end_location: null,
+        icon_id: 'icon',
+        start_location: { latitude: 1, longitude: 2 },
+        time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' },
+      };
+
+      const points = extractLegPatrolPoints(segment, null, null, null, true);
+
+      expect(points.start_location.geometry.coordinates).toEqual([2, 1]);
+      expect(points.start_location.properties.title).toBe('Patrol Start');
+      expect(points.end_location).toBeNull();
+    });
+
+    test('does not compute an end marker while the leg is still active', () => {
+      const segment = {
+        end_location: { latitude: 3, longitude: 4 },
+        icon_id: 'icon',
+        start_location: { latitude: 1, longitude: 2 },
+        time_range: { end_time: '2022-06-15T11:00:00.000Z', start_time: '2022-06-15T10:00:00.000Z' },
+      };
+
+      const points = extractLegPatrolPoints(segment, null, null, null, true);
+
+      expect(points.end_location).toBeNull();
+    });
+
+    test('uses the segment end_location for the end marker once the leg is no longer active', () => {
+      const segment = {
+        end_location: { latitude: 3, longitude: 4 },
+        icon_id: 'icon',
+        start_location: { latitude: 1, longitude: 2 },
+        time_range: { end_time: '2022-06-15T11:00:00.000Z', start_time: '2022-06-15T10:00:00.000Z' },
+      };
+
+      const points = extractLegPatrolPoints(segment, null, null, null, false);
+
+      expect(points.end_location.geometry.coordinates).toEqual([4, 3]);
+      expect(points.end_location.properties.title).toBe('Patrol End');
+    });
+
+    test('infers the start marker from the earliest track point and uses its stroke', () => {
+      const segment = {
+        end_location: null,
+        icon_id: 'icon',
+        start_location: null,
+        time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' },
+      };
+      const legTrackData = {
+        points: {
+          features: [
+            { geometry: { coordinates: [9, 9] }, properties: { stroke: '#123456', time: '2022-06-15T11:00:00.000Z' } },
+            { geometry: { coordinates: [1, 1] }, properties: { time: '2022-06-15T10:00:00.000Z' } },
+          ],
+        },
+      };
+
+      const points = extractLegPatrolPoints(segment, null, legTrackData, null, true);
+
+      expect(points.start_location.geometry.coordinates).toEqual([1, 1]);
+      expect(points.start_location.properties.title).toBe('Patrol Start');
+      expect(points.start_location.properties.stroke).toBe('#123456');
+    });
+
+    test('marks the inferred start marker as estimated when the earliest track point does not match the segment start time', () => {
+      const segment = {
+        end_location: null,
+        icon_id: 'icon',
+        start_location: null,
+        time_range: { end_time: null, start_time: '2022-06-15T09:00:00.000Z' },
+      };
+      const legTrackData = {
+        points: {
+          features: [
+            { geometry: { coordinates: [9, 9] }, properties: { time: '2022-06-15T11:00:00.000Z' } },
+            { geometry: { coordinates: [1, 1] }, properties: { time: '2022-06-15T10:00:00.000Z' } },
+          ],
+        },
+      };
+
+      const points = extractLegPatrolPoints(segment, null, legTrackData, null, true);
+
+      expect(points.start_location.properties.title).toBe('Patrol Start (Est)');
+    });
+
+    test('infers the end marker from the latest track point once the leg is no longer active', () => {
+      const segment = {
+        end_location: null,
+        icon_id: 'icon',
+        start_location: null,
+        time_range: { end_time: '2022-06-15T11:00:00.000Z', start_time: '2022-06-15T10:00:00.000Z' },
+      };
+      const legTrackData = {
+        points: {
+          features: [
+            { geometry: { coordinates: [9, 9] }, properties: { time: '2022-06-15T11:00:00.000Z' } },
+            { geometry: { coordinates: [1, 1] }, properties: { time: '2022-06-15T10:00:00.000Z' } },
+          ],
+        },
+      };
+
+      const points = extractLegPatrolPoints(segment, null, legTrackData, null, false);
+
+      expect(points.end_location.geometry.coordinates).toEqual([9, 9]);
+      expect(points.end_location.properties.title).toBe('Patrol End');
+    });
+
+    test('uses a later raw track point instead of the trimmed data\'s own last point when it lines up closer to the segment end time', () => {
+      const segment = {
+        end_location: null,
+        icon_id: 'icon',
+        start_location: null,
+        time_range: { end_time: '2022-06-15T11:50:00.000Z', start_time: '2022-06-15T10:00:00.000Z' },
+      };
+      const legTrackData = {
+        indices: { until: 2 },
+        points: {
+          features: [
+            { geometry: { coordinates: [9, 9] }, properties: { time: '2022-06-15T11:00:00.000Z' } },
+            { geometry: { coordinates: [1, 1] }, properties: { time: '2022-06-15T10:00:00.000Z' } },
+          ],
+        },
+      };
+      const rawLegTrackData = {
+        points: {
+          features: [
+            { geometry: { coordinates: [20, 20] }, properties: { time: '2022-06-15T12:30:00.000Z' } },
+            { geometry: { coordinates: [15, 15] }, properties: { time: '2022-06-15T12:00:00.000Z' } },
+            { geometry: { coordinates: [9, 9] }, properties: { time: '2022-06-15T11:00:00.000Z' } },
+            { geometry: { coordinates: [1, 1] }, properties: { time: '2022-06-15T10:00:00.000Z' } },
+          ],
+        },
+      };
+
+      const points = extractLegPatrolPoints(segment, null, legTrackData, rawLegTrackData, false);
+
+      expect(points.end_location.geometry.coordinates).toEqual([15, 15]);
+      expect(points.end_location.properties.title).toBe('Patrol End (Est)');
+    });
+
+    test('falls back to the leader\'s last known stroke when the track has no stroke of its own', () => {
+      const segment = {
+        end_location: null,
+        icon_id: 'icon',
+        start_location: { latitude: 1, longitude: 2 },
+        time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' },
+      };
+      const leader = { last_position: { properties: { stroke: '#654321' } } };
+      const legTrackData = { points: { features: [] } };
+
+      const points = extractLegPatrolPoints(segment, leader, legTrackData, null, true);
+
+      expect(points.start_location.properties.stroke).toBe('#654321');
+    });
+
+    test('falls back to the leader\'s additional rgb color when there is no other stroke source', () => {
+      const segment = {
+        end_location: null,
+        icon_id: 'icon',
+        start_location: { latitude: 1, longitude: 2 },
+        time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' },
+      };
+      const leader = { additional: { rgb: '10,20,30' } };
+      const legTrackData = { points: { features: [] } };
+
+      const points = extractLegPatrolPoints(segment, leader, legTrackData, null, true);
+
+      expect(points.start_location.properties.stroke).toBe('rgb(10,20,30)');
+    });
+
+    test('falls back to the default stroke when no stroke source is available', () => {
+      const segment = {
+        end_location: null,
+        icon_id: 'icon',
+        start_location: { latitude: 1, longitude: 2 },
+        time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' },
+      };
+
+      const points = extractLegPatrolPoints(segment, null, null, null, true);
+
+      expect(points.start_location.properties.stroke).toBe('#FF0080');
+    });
+  });
+
+  describe('finalizeCombinedPatrolPoints', () => {
+    const patrolDone = { patrol_segments: [{ time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' } }], state: 'done' };
+    const patrolOpen = { patrol_segments: [{ time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' } }], state: 'open' };
+    const startLocation = () => ({ geometry: { coordinates: [1, 2], type: 'Point' }, properties: { title: 'Patrol Start' }, type: 'Feature' });
+
+    test('folds an estimated end marker into the start marker when the patrol is done but has no end marker', () => {
+      // The estimated end is cloned from the start, so it's always at the same coordinates -
+      // the very next check merges same-spot markers, collapsing this into a single marker.
+      const result = finalizeCombinedPatrolPoints(patrolDone, { end_location: null, start_location: startLocation() });
+
+      expect(result.end_location).toBeUndefined();
+      expect(result.start_location.properties.title).toBe('Patrol Start & Patrol End (Est)');
+    });
+
+    test('does not invent an end marker for a patrol that is not done', () => {
+      const result = finalizeCombinedPatrolPoints(patrolOpen, { end_location: null, start_location: startLocation() });
+
+      expect(result.end_location).toBeNull();
+    });
+
+    test('merges start and end into a single marker when they land on the same spot', () => {
+      const endLocation = { geometry: { coordinates: [1, 2], type: 'Point' }, properties: { title: 'Patrol End' }, type: 'Feature' };
+
+      const result = finalizeCombinedPatrolPoints(patrolDone, { end_location: endLocation, start_location: startLocation() });
+
+      expect(result.end_location).toBeUndefined();
+      expect(result.start_location.properties.title).toBe('Patrol Start & Patrol End');
+    });
+  });
+
+  describe('displayNameForPatrolType', () => {
+    test('returns the display name for a type matched by value', () => {
+      expect(displayNameForPatrolType(patrolTypes, routinePatrol.value)).toBe('Routine Patrol');
+    });
+
+    test('returns the display name for a type matched by id', () => {
+      expect(displayNameForPatrolType(patrolTypes, dogPatrol.id)).toBe('Dog Patrol');
+    });
+
+    test('returns null when no type matches', () => {
+      expect(displayNameForPatrolType(patrolTypes, 'unknown_type')).toBeNull();
+    });
+
+    test('returns null when there are no patrol types', () => {
+      expect(displayNameForPatrolType(undefined, routinePatrol.value)).toBeNull();
+    });
+  });
+
+  describe('iconIdForPatrolType', () => {
+    test('returns the icon id for a matching type', () => {
+      expect(iconIdForPatrolType(patrolTypes, dogPatrol.value)).toBe('dog-patrol-icon');
+    });
+
+    test('returns null when no type matches', () => {
+      expect(iconIdForPatrolType(patrolTypes, 'unknown_type')).toBeNull();
+    });
+  });
+
+  describe('iconIdForPatrolSegment', () => {
+    test('uses the icon id from the matching patrol type over the segment\'s own icon id', () => {
+      const segment = { patrol_type: routinePatrol.value, icon_id: 'segment-icon' };
+
+      expect(iconIdForPatrolSegment(patrolTypes, segment)).toBe('routine-patrol-icon');
+    });
+
+    test('falls back to the segment\'s own icon id when no type matches', () => {
+      const segment = { patrol_type: 'unknown_type', icon_id: 'segment-icon' };
+
+      expect(iconIdForPatrolSegment(patrolTypes, segment)).toBe('segment-icon');
+    });
+
+    test('returns null when neither the type nor the segment has an icon id', () => {
+      const segment = { patrol_type: 'unknown_type', icon_id: null };
+
+      expect(iconIdForPatrolSegment(patrolTypes, segment)).toBeNull();
+    });
+  });
+
+  describe('displayStartTimeForPatrolSegment', () => {
+    test('returns the time_range start_time when set', () => {
+      const segment = { scheduled_start: '2022-06-01T00:00:00.000Z', time_range: { start_time: '2022-06-15T10:00:00.000Z' } };
+
+      expect(displayStartTimeForPatrolSegment(segment)).toEqual(new Date('2022-06-15T10:00:00.000Z'));
+    });
+
+    test('falls back to scheduled_start when there is no start_time', () => {
+      const segment = { scheduled_start: '2022-06-01T00:00:00.000Z', time_range: {} };
+
+      expect(displayStartTimeForPatrolSegment(segment)).toEqual(new Date('2022-06-01T00:00:00.000Z'));
+    });
+
+    test('returns null when neither start_time nor scheduled_start is set', () => {
+      const segment = { time_range: {} };
+
+      expect(displayStartTimeForPatrolSegment(segment)).toBeNull();
+    });
+  });
+
+  describe('displayStartTimeForPatrol', () => {
+    test('returns null when the patrol has no segments', () => {
+      expect(displayStartTimeForPatrol({ patrol_segments: [] })).toBeNull();
+    });
+
+    test('uses the first segment\'s start time', () => {
+      const patrol = { patrol_segments: [{ time_range: { start_time: '2022-06-15T10:00:00.000Z' } }] };
+
+      expect(displayStartTimeForPatrol(patrol)).toEqual(new Date('2022-06-15T10:00:00.000Z'));
+    });
+  });
+
+  describe('displayEndTimeForPatrolSegment', () => {
+    test('returns the time_range end_time when set', () => {
+      const segment = { scheduled_end: '2022-06-01T00:00:00.000Z', time_range: { end_time: '2022-06-15T11:00:00.000Z' } };
+
+      expect(displayEndTimeForPatrolSegment(segment)).toEqual(new Date('2022-06-15T11:00:00.000Z'));
+    });
+
+    test('falls back to scheduled_end when there is no end_time', () => {
+      const segment = { scheduled_end: '2022-06-01T00:00:00.000Z', time_range: {} };
+
+      expect(displayEndTimeForPatrolSegment(segment)).toEqual(new Date('2022-06-01T00:00:00.000Z'));
+    });
+
+    test('returns null when neither end_time nor scheduled_end is set', () => {
+      const segment = { time_range: {} };
+
+      expect(displayEndTimeForPatrolSegment(segment)).toBeNull();
+    });
+  });
+
+  describe('displayEndTimeForPatrol', () => {
+    test('returns null when the patrol has no segments', () => {
+      expect(displayEndTimeForPatrol({ patrol_segments: [] })).toBeNull();
+    });
+
+    test('uses the first segment\'s end time', () => {
+      const patrol = { patrol_segments: [{ time_range: { end_time: '2022-06-15T11:00:00.000Z' } }] };
+
+      expect(displayEndTimeForPatrol(patrol)).toEqual(new Date('2022-06-15T11:00:00.000Z'));
     });
   });
 });

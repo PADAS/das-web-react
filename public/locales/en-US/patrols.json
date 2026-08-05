@@ -57,6 +57,77 @@
     "okButton": "OK",
     "title": "Invalid Patrol Times"
   },
+  "patrolOverview": {
+    "footer": {
+      "addEventButton": "Add Event",
+      "cancelOption": "Cancel Patrol",
+      "endOption": "End Patrol",
+      "pauseOption": "Pause Patrol",
+      "saveButton": "Save Patrol",
+      "updateStatusButton": "Update Status"
+    },
+    "header": {
+      "breadcrumbNavLabel": "Patrol navigation",
+      "breadcrumbPatrolsLabel": "Patrols",
+      "closeButtonLabel": "Close sidebar",
+      "downloadTrackOption": "Download Patrol Track",
+      "editTitleButtonLabel": "Edit title",
+      "fitToBoundsButtonLabel": "Zoom to patrol bounds",
+      "jumpToLocationButtonLabel": "Jump to location",
+      "moreOptionsButtonLabel": "More options",
+      "printOption": "Print Patrol",
+      "titleInputLabel": "Patrol title",
+      "toggleTrackButtonLabel": {
+        "hidden": "Show patrol track",
+        "pinned": "Hide patrol track",
+        "visible": "Pin patrol track"
+      },
+      "uiStateTitles": {
+        "active": "Active",
+        "cancelled": "Cancelled",
+        "done": "Done",
+        "invalid": "Invalid Configuration",
+        "readyToStart": "Ready to Start",
+        "scheduled": "Scheduled",
+        "startOverdue": "Start Overdue"
+      }
+    },
+    "history": {
+      "sortDirectionButtonLabel": {
+        "down": "Sort history in ascending order",
+        "up": "Sort history in descending order"
+      }
+    },
+    "historyTabTitle": "History",
+    "overview": {
+      "activity": {
+        "activeTimeLabel": "Active Time",
+        "activitySectionTitle": "Activity",
+        "distanceLabel": "Distance",
+        "durationLabel": "Duration",
+        "eventsLabel": "Events",
+        "expandAllButtonLabel": "Expand all",
+        "jumpToLocationButtonLabel": "Jump to location",
+        "pausedTimeLabel": "Paused Time",
+        "sortButtonLabel": "Sort activity",
+        "viewButtonLabel": "View"
+      },
+      "legs": {
+        "endColumnHeader": "End Date",
+        "legActionsColumnHeader": "Actions",
+        "legColumnHeader": "Leg",
+        "legTableCaption": "Patrol legs",
+        "newLegButton": "New Patrol Leg",
+        "patrolTypeColumnHeader": "Patrol Type",
+        "startColumnHeader": "Start Date",
+        "teamColumnHeader": "Team & Tracking",
+        "viewLegButtonLabel": "View leg {{legNumber}}",
+        "zoomToLegBoundsButtonLabel": "Zoom to leg {{legNumber}} bounds"
+      }
+    },
+    "overviewTabTitle": "Overview",
+    "tabsLabel": "Patrol overview tabs"
+  },
   "patrolMenu": {
     "cancelPatrol": "Cancel Patrol",
     "copyButton": "Copy patrol link",

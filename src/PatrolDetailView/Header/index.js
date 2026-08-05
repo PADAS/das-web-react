@@ -21,7 +21,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
   const { t } = useTranslation('patrols', { keyPrefix: 'detailView.header' });
 
   const {
-    patrolData,
+    patrolTrackData,
 
     isPatrolActive,
     isPatrolCancelled,
@@ -53,7 +53,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
       return <span data-testid="patrol-drawer-header-details" className={`${styles.headerDetails} ${styles.overflowedEllipsisText}`}>
         {patrolElapsedTime}
         <span className={styles.distanceCovered}>
-          <PatrolDistanceCovered patrolsData={[patrolData]} suffix=' km' />
+          <PatrolDistanceCovered patrolsData={[{ patrol, ...patrolTrackData }]} suffix=' km' />
         </span>
       </span>;
     }
@@ -68,7 +68,8 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
     isPatrolDone,
     isPatrolCancelled,
     isPatrolScheduled,
-    patrolData,
+    patrol,
+    patrolTrackData,
     patrolElapsedTime,
     scheduledStartTime,
     t,
@@ -163,6 +164,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
     </Button>}
 
     {!isNewPatrol && <PatrolMenu
+      className={styles.patrolMenu}
       isPatrolCancelled={isPatrolCancelled}
       onPatrolChange={onPatrolChange}
       patrol={patrol}

@@ -25,7 +25,7 @@ const PatrolListItem = ({
   dispatch: _dispatch,
   onClick = null,
   onSelfManagedStateChange,
-  patrol: patrolFromProps,
+  patrol,
   ref,
   showControls = true,
   showStateTitle = true,
@@ -33,7 +33,7 @@ const PatrolListItem = ({
   ...rest
 }) => {
   const {
-    patrolData,
+    patrolTrackData,
 
     isPatrolActive,
     isPatrolCancelled,
@@ -56,13 +56,12 @@ const PatrolListItem = ({
     onPatrolChange,
     restorePatrol,
     startPatrol,
-  } = usePatrol(patrolFromProps);
+  } = usePatrol(patrol);
 
-  const { patrol, leader } = patrolData;
+  const { leader } = patrolTrackData;
 
   const debouncedTrackFetch = useRef(null);
   const intervalRef = useRef(null);
-  const menuRef = useRef(null);
   const { t } = useTranslation('patrols');
   const isPatrolActiveOrDone = isPatrolActive || isPatrolDone;
 
@@ -74,7 +73,7 @@ const PatrolListItem = ({
     onClick?.(patrol);
   }, [onClick, patrol]);
 
-  const patrolsData = useMemo(() => [patrolData], [patrolData]);
+  const patrolsData = useMemo(() => [{ patrol, ...patrolTrackData }], [patrol, patrolTrackData]);
   const TitleDetailsComponent = useMemo(() => {
     if (isPatrolActiveOrDone) {
       return <span className={styles.titleDetails}>
@@ -176,7 +175,6 @@ const PatrolListItem = ({
       <StateDependentControls />
       <PatrolMenu
         data-testid={`patrol-list-item-kebab-menu-${patrol.id}`}
-        menuRef={menuRef}
         onPatrolChange={onPatrolChange}
         patrol={patrol}
         showPatrolPrintOption={false}
@@ -186,12 +184,6 @@ const PatrolListItem = ({
       />
     </div>
     : null;
-
-  useEffect(() => {
-    const preventPatrolMenuOverlapping = () => menuRef?.current?.classList.remove('show');
-    window.addEventListener('click', preventPatrolMenuOverlapping, true);
-    return () => window.removeEventListener('click', preventPatrolMenuOverlapping);
-  }, []);
 
   const renderedDateComponent = <div
       className={styles.statusInfo}

@@ -1,23 +1,29 @@
 import React from 'react';
 
+import { format, generateCurrentTimeZoneTitle, STANDARD_DATE_FORMAT } from '../utils/datetime';
+
 import TimeAgo from '../TimeAgo';
-import { STANDARD_DATE_FORMAT, generateCurrentTimeZoneTitle, format } from '../utils/datetime';
 
 import * as styles from './styles.module.scss';
 
-const DateTime = ({ date, showElapsed = true, className = '', ...rest }) => {
-
-  if (!date){
+const DateTime = ({ className = '', date, showElapsed = true, suffix, ...otherProps }) => {
+  if (!date) {
     return null;
   }
 
-  return <div className={`${styles.container} ${className}`} data-testid="date-time" title={generateCurrentTimeZoneTitle()} {...rest}>
-    <span className={styles.date}>
-      {
-        format(new Date(date), STANDARD_DATE_FORMAT)
-      }
-    </span>
-    {showElapsed && <TimeAgo className={styles.elapsed} date={date} {...rest} />}
+  const timeZoneTitle = generateCurrentTimeZoneTitle();
+
+  return <div className={`${styles.dateTime} ${className}`} data-testid="date-time" {...otherProps}>
+    <time
+      aria-label={timeZoneTitle}
+      className={styles.date}
+      dateTime={new Date(date).toISOString()}
+      title={timeZoneTitle}
+    >
+      {format(new Date(date), STANDARD_DATE_FORMAT)}
+    </time>
+
+    {showElapsed && <TimeAgo className={styles.timeAgo} date={date} suffix={suffix} />}
   </div>;
 };
 

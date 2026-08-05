@@ -57,6 +57,77 @@
     "okButton": "Ok",
     "title": "Datas de patrulha inválidas."
   },
+  "patrolOverview": {
+    "footer": {
+      "addEventButton": "Adicionar evento",
+      "cancelOption": "Cancelar Patrulha",
+      "endOption": "Finalizar patrulha",
+      "pauseOption": "Pausar patrulha",
+      "saveButton": "Salvar patrulha",
+      "updateStatusButton": "Atualizar status"
+    },
+    "header": {
+      "breadcrumbNavLabel": "Navegação da patrulha",
+      "breadcrumbPatrolsLabel": "Patrulhas",
+      "closeButtonLabel": "Fechar barra lateral",
+      "downloadTrackOption": "Baixar trilha da patrulha",
+      "editTitleButtonLabel": "Editar título",
+      "fitToBoundsButtonLabel": "Ajustar aos limites da patrulha",
+      "jumpToLocationButtonLabel": "Ir para a localização",
+      "moreOptionsButtonLabel": "Mais opções",
+      "printOption": "Imprimir patrulha",
+      "titleInputLabel": "Título da patrulha",
+      "toggleTrackButtonLabel": {
+        "hidden": "Mostrar trilha da patrulha",
+        "pinned": "Ocultar trilha da patrulha",
+        "visible": "Fixar trilha da patrulha"
+      },
+      "uiStateTitles": {
+        "active": "Ativa",
+        "cancelled": "Cancelada",
+        "done": "Finalizada",
+        "invalid": "Configuração inválida",
+        "readyToStart": "Pronta para começar",
+        "scheduled": "Programada",
+        "startOverdue": "Início atrasado"
+      }
+    },
+    "history": {
+      "sortDirectionButtonLabel": {
+        "down": "Ordenar histórico em ordem crescente",
+        "up": "Ordenar histórico em ordem decrescente"
+      }
+    },
+    "historyTabTitle": "Histórico",
+    "overview": {
+      "activity": {
+        "activeTimeLabel": "Tempo ativo",
+        "activitySectionTitle": "Atividade",
+        "distanceLabel": "Distância",
+        "durationLabel": "Duração",
+        "eventsLabel": "Eventos",
+        "expandAllButtonLabel": "Expandir tudo",
+        "jumpToLocationButtonLabel": "Ir para a localização",
+        "pausedTimeLabel": "Tempo pausado",
+        "sortButtonLabel": "Ordenar atividade",
+        "viewButtonLabel": "Ver"
+      },
+      "legs": {
+        "endColumnHeader": "Data da finalização",
+        "legActionsColumnHeader": "Ações",
+        "legColumnHeader": "Etapa",
+        "legTableCaption": "Etapas da patrulha",
+        "newLegButton": "Nova etapa de patrulha",
+        "patrolTypeColumnHeader": "Tipo de patrulha",
+        "startColumnHeader": "Data de início",
+        "teamColumnHeader": "Equipe e rastreamento",
+        "viewLegButtonLabel": "Ver etapa {{legNumber}}",
+        "zoomToLegBoundsButtonLabel": "Ajustar aos limites da etapa {{legNumber}}"
+      }
+    },
+    "overviewTabTitle": "Visão geral",
+    "tabsLabel": "Guias de visão geral da patrulha"
+  },
   "patrolMenu": {
     "cancelPatrol": "Cancelar Patrulha",
     "copyButton": "Copiar link de patrulha",

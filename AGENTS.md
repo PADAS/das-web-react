@@ -278,11 +278,13 @@ Central `map` instance shared via `MapContext`.
 
 #### Styling
 
-Component-specific styles use co-located `styles.module.scss`. Global partials in `src/common/styles/` are imported where needed. SVGs are imported as React components via `{ ReactComponent as XIcon } from '*.svg'`.
+Component-specific styles use co-located `styles.module.scss`. Nest selectors to mirror the component's own DOM structure. Global partials in `src/common/styles/` are imported where needed. SVGs are imported as React components via `{ ReactComponent as XIcon } from '*.svg'`.
 
 #### Internationalization
 
 Translation files live under `public/locales/{locale}/`. Each locale directory contains one JSON file per UI namespace. All new user-facing strings must be added to every locale file, properly translated into each locale's language.
+
+Within a namespace file, give each top-level component its own key, named after the component. Nest a child component's key under its parent's only when that child is a subcomponent with its own file below the parent folder.
 
 #### Form schemas
 

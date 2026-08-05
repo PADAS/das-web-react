@@ -7,6 +7,8 @@ import PatrolsManager from './';
 jest.mock('../../hooks/useNavigate', () => jest.fn());
 /* eslint-disable-next-line react/display-name */
 jest.mock('../PatrolsFeed', () => () => <div>Patrols Feed</div>);
+/* eslint-disable-next-line react/display-name */
+jest.mock('./PatrolOverview', () => () => <div>Patrol Overview</div>);
 
 describe('SideBar - PatrolsManager', () => {
   const renderPatrolsManager = (initialEntries) => render(<PatrolsManager />, { initialEntries });
