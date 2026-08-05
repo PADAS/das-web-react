@@ -17,11 +17,6 @@
 // cannot be written as a literal; it is matched by predicate instead. Omitting it builds
 // a client that holds no password registration at all.
 const PRODUCTION_DEFAULTS = {
-  auth0: {
-    audience: 'https://pamdas.org/api',
-    clientId: 'FHoeQpdko5EMFU8JjjCzjPWT7k1sqm20',
-    domain: 'auth.pamdas.org',
-  },
   authorizationServers: {
     'https://auth.pamdas.org/': {
       audience: 'https://pamdas.org/api',
@@ -38,11 +33,6 @@ const PRODUCTION_DEFAULTS = {
 const overrides = window.__APP_CONFIG__ ?? {};
 
 const appConfig = {
-  auth0: {
-    audience: overrides.auth0?.audience ?? PRODUCTION_DEFAULTS.auth0.audience,
-    clientId: overrides.auth0?.clientId ?? PRODUCTION_DEFAULTS.auth0.clientId,
-    domain: overrides.auth0?.domain ?? PRODUCTION_DEFAULTS.auth0.domain,
-  },
   authorizationServers: overrides.authorizationServers ?? PRODUCTION_DEFAULTS.authorizationServers,
 };
 

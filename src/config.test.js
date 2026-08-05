@@ -2,13 +2,6 @@ describe('appConfig', () => {
   const PRODUCTION_AUTHORIZATION_SERVER = 'https://auth.pamdas.org/';
 
   const PRODUCTION_DEFAULTS = {
-    // The scalar audience/clientId/domain are still read by the Auth0 provider and the
-    // login paths, and remain until those read the registration discovery resolves.
-    auth0: {
-      audience: 'https://pamdas.org/api',
-      clientId: 'FHoeQpdko5EMFU8JjjCzjPWT7k1sqm20',
-      domain: 'auth.pamdas.org',
-    },
     authorizationServers: {
       [PRODUCTION_AUTHORIZATION_SERVER]: {
         audience: 'https://pamdas.org/api',
@@ -41,8 +34,16 @@ describe('appConfig', () => {
     expect(appConfig).toEqual(PRODUCTION_DEFAULTS);
   });
 
-  test('returns production defaults when nested group is empty', () => {
-    window.__APP_CONFIG__ = { auth0: {} };
+  // The Auth0 tenant used to be named twice: once as a flat audience/clientId/domain triple
+  // and once as a registry entry. Only the registry survives.
+  test('holds no auth0 block at all', () => {
+    const { default: appConfig } = require('./config');
+
+    expect(appConfig).not.toHaveProperty('auth0');
+  });
+
+  test('ignores an auth0 block in an override', () => {
+    window.__APP_CONFIG__ = { auth0: { domain: 'auth-dev.pamdas.org' } };
 
     const { default: appConfig } = require('./config');
 
@@ -123,13 +124,15 @@ describe('appConfig', () => {
     expect(appConfig).not.toHaveProperty('unknownSection');
   });
 
-  test('ignores unrecognized keys within a known group', () => {
+  test('ignores unrecognized keys alongside a known one', () => {
     window.__APP_CONFIG__ = {
-      auth0: { domain: 'auth-dev.pamdas.org', unknownKey: 'value' },
+      authorizationServers: { $self: { clientId: 'das_web_client', grant: 'password' } },
+      unknownKey: 'value',
     };
 
     const { default: appConfig } = require('./config');
 
-    expect(appConfig.auth0).not.toHaveProperty('unknownKey');
+    expect(appConfig).not.toHaveProperty('unknownKey');
+    expect(Object.keys(appConfig)).toEqual(['authorizationServers']);
   });
 });

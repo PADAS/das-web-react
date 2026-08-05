@@ -11,16 +11,7 @@
 // production one outright rather than merging into it. $self is the reserved key for the
 // site's own authorization server (django-oauth-toolkit at /oauth2/token) — its issuer is
 // the site origin, so it is matched by predicate rather than written out.
-//
-// The auth0 block below is still read directly by the Auth0 provider and the login paths.
-// It goes away once those read the registration that discovery resolves; until then both
-// have to be supplied and kept in step.
 window.__APP_CONFIG__ = {
-  auth0: {
-    audience: 'https://dev.pamdas.org/api',
-    clientId: 'hLoPCTgBCrlLAVzqg74YSmOftaSfb5Uf',
-    domain: 'auth-dev.pamdas.org',
-  },
   authorizationServers: {
     'https://auth-dev.pamdas.org/': {
       audience: 'https://dev.pamdas.org/api',
