@@ -95,12 +95,6 @@ const Header = ({ patrol, printableContentRef }) => {
     pageStyle: basePrintingStyles,
   });
 
-  const onDownloadTrackClick = () => {
-    if (hasTrack) {
-      downloadJsonAsFile(patrolTrackData.trackData.track, `Patrol_${patrol.serial_number}.geojson`);
-    }
-  };
-
   const onEditTitleButtonClick = () => {
     titleInputRef.current?.focus();
     titleInputRef.current?.select();
@@ -208,7 +202,13 @@ const Header = ({ patrol, printableContentRef }) => {
 
           <KebabMenu.Option onClick={onPrint}>{t('printOption')}</KebabMenu.Option>
 
-          <KebabMenu.Option disabled={!hasTrack} onClick={onDownloadTrackClick}>
+          <KebabMenu.Option
+            disabled={!hasTrack}
+            onClick={() => hasTrack && downloadJsonAsFile(
+              patrolTrackData.trackData.track,
+              `Patrol_${patrol.serial_number}.geojson`
+            )}
+          >
             {t('downloadTrackOption')}
           </KebabMenu.Option>
         </KebabMenu>

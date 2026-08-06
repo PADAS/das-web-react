@@ -1,5 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
+import { useParams } from 'react-router';
 
 import { fetchPatrol } from '../../../ducks/patrols';
 import { mockStore } from '../../../__test-helpers/MockStore';
@@ -13,6 +14,11 @@ import PatrolOverview from './';
 jest.mock('../../../ducks/patrols', () => ({
   ...jest.requireActual('../../../ducks/patrols'),
   fetchPatrol: jest.fn(),
+}));
+
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useParams: jest.fn(),
 }));
 
 describe('SideBar - PatrolsManager - PatrolOverview', () => {
@@ -45,12 +51,16 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     };
   });
 
-  const renderPatrolOverview = (patrolId) => render(
-    <Provider store={mockStore(store)}>
-      <PatrolOverview />
-    </Provider>,
-    { initialEntries: [`/patrols/${patrolId}`] }
-  );
+  const renderPatrolOverview = (patrolId) => {
+    useParams.mockReturnValue({ patrolId });
+
+    return render(
+      <Provider store={mockStore(store)}>
+        <PatrolOverview />
+      </Provider>,
+      { initialEntries: [`/patrols/${patrolId}`] }
+    );
+  };
 
   test('fetches the patrol if it is not in the store', () => {
     renderPatrolOverview(patrolWithoutLeader.id);
