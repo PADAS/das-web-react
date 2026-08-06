@@ -99,15 +99,15 @@ describe('TimeSlider', () => {
     expect(screen.getByTestId('timeSlider-wrapper')).toHaveStyle({ '--sidebar-offset': '0px' });
   });
 
-  test('hides the other controls, leaving only the slider and the play button, when a sidebar tab is open', () => {
+  test('hides the speed and close controls, but keeps the slider, play button, date range button and time, when a sidebar tab is open', () => {
     renderTimeSlider(undefined, { initialEntries: ['/events'] });
 
     expect(screen.getByRole('slider', { name: 'Timeslider' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Play timeslider' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Change date range' })).toBeVisible();
+    expect(screen.getByRole('time')).toBeVisible();
     expect(screen.queryByRole('button', { name: 'Open playback speed options' })).toBeNull();
-    expect(screen.queryByRole('button', { name: 'Change date range' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Close timeslider' })).toBeNull();
-    expect(screen.queryByRole('time')).toBeNull();
   });
 
   test('hides the other controls when a sidebar detail view is open, but keeps the play button', () => {
