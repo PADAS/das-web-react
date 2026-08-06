@@ -4,13 +4,13 @@ import { useLocation } from 'react-router';
 import userEvent from '@testing-library/user-event';
 import { useReactToPrint } from 'react-to-print';
 
+import { createMapMock } from '../../../../__test-helpers/mocks';
+import { downloadJsonAsFile } from '../../../../utils/download';
 import { MapContext } from '../../../../MapContext';
 import { mockStore } from '../../../../__test-helpers/MockStore';
-import { createMapMock } from '../../../../__test-helpers/mocks';
 import patrols from '../../../../__test-helpers/fixtures/patrols';
 import { render, screen, within } from '../../../../test-utils';
 import { UPDATE_PATROL_TRACK_STATE } from '../../../../ducks/patrols';
-import { downloadFileFromUrl } from '../../../../utils/download';
 import * as patrolUtils from '../../../../utils/patrols';
 
 import Header from './';
@@ -20,12 +20,8 @@ jest.mock('react-to-print', () => ({
   useReactToPrint: jest.fn(),
 }));
 
-jest.mock('../../../../ducks/tracks', () => ({
-  TRACKS_API_URL: (id) => `/api/v1.0/subject/${id}/tracks/`,
-}));
-
 jest.mock('../../../../utils/download', () => ({
-  downloadFileFromUrl: jest.fn(() => Promise.resolve()),
+  downloadJsonAsFile: jest.fn(),
 }));
 
 const LocationDisplay = () => {
@@ -45,7 +41,6 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
   let reduxStore;
   beforeEach(() => {
     useReactToPrint.mockImplementation(() => handlePrint);
-    downloadFileFromUrl.mockImplementation(() => Promise.resolve());
 
     store = {
       data: {
@@ -56,6 +51,9 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
         patrolTrackState: {
           pinned: [],
           visible: [],
+        },
+        timeSliderState: {
+          active: false,
         },
       },
     };
@@ -272,8 +270,28 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
     expect(await screen.findByRole('menuitem', { name: 'Download Patrol Track' })).toBeInTheDocument();
   });
 
-  test('downloads the patrol track when the download track button in the kebab menu is clicked', async () => {
-    jest.spyOn(patrolUtils, 'patrolHasGeoDataToDisplay').mockReturnValue(true);
+  test('downloads the combined patrol track (all legs) when the download track button in the kebab menu is clicked', async () => {
+    const track = {
+      type: 'FeatureCollection',
+      // Both points fall after the leg's own start_time (2021-11-01T18:50:00.724Z), so none of
+      // them get trimmed off by the leg's own time range.
+      features: [{
+        type: 'Feature',
+        properties: { coordinateProperties: { times: ['2021-11-03T00:00:00.000Z', '2021-11-02T00:00:00.000Z'] }, stroke: '#FF0080' },
+        geometry: { type: 'LineString', coordinates: [[37.482, 0.232], [37.480, 0.230]] },
+      }],
+    };
+    store.data.tracks[leaderId] = {
+      fetchedDateRange: { since: '2021-01-01T00:00:00.000Z', until: '2022-01-01T00:00:00.000Z' },
+      track,
+      points: {
+        type: 'FeatureCollection',
+        features: [
+          { type: 'Feature', properties: { time: '2021-11-03T00:00:00.000Z', bearing: 0 }, geometry: { type: 'Point', coordinates: [37.482, 0.232] } },
+          { type: 'Feature', properties: { time: '2021-11-02T00:00:00.000Z', bearing: 0 }, geometry: { type: 'Point', coordinates: [37.480, 0.230] } },
+        ],
+      },
+    };
 
     renderHeader();
     await openKebabMenu();
@@ -281,13 +299,17 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
     const menuItem = await screen.findByRole('menuitem', { name: 'Download Patrol Track' });
     await userEvent.click(menuItem);
 
-    expect(downloadFileFromUrl).toHaveBeenCalledWith(
-      `/api/v1.0/subject/${leaderId}/tracks/`,
-      expect.objectContaining({
-        filename: `Patrol_${patrolWithLeader.serial_number}_6p-test.geojson`,
-        params: { since: patrolWithLeader.patrol_segments[0].time_range.start_time },
-      })
+    expect(downloadJsonAsFile).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'FeatureCollection', features: track.features }),
+      `Patrol_${patrolWithLeader.serial_number}.geojson`
     );
+  });
+
+  test('disables the download track button in the kebab menu when the patrol has no track data', async () => {
+    renderHeader();
+    await openKebabMenu();
+
+    expect(await screen.findByRole('menuitem', { name: 'Download Patrol Track' })).toBeDisabled();
   });
 
   test('shows the close button', () => {
@@ -332,6 +354,24 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
     await userEvent.type(input, 'New Patrol Title');
 
     expect(input).toHaveValue('New Patrol Title');
+  });
+
+  test('resyncs the title when the patrol changes without the component unmounting', () => {
+    const otherPatrol = patrols[0];
+
+    const { rerender } = renderHeader();
+
+    expect(screen.getByTestId('patrolOverview-title')).toHaveValue('6p-test');
+
+    rerender(
+      <Provider store={reduxStore}>
+        <MapContext.Provider value={map}>
+          <Header patrol={otherPatrol} printableContentRef={{ current: <div>Printable patrol</div> }} />
+        </MapContext.Provider>
+      </Provider>
+    );
+
+    expect(screen.getByTestId('patrolOverview-title')).toHaveValue(otherPatrol.title);
   });
 
   test('shows the edit title button', () => {

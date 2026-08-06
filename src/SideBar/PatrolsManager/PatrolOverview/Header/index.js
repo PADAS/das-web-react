@@ -18,11 +18,10 @@ import {
   iconIdForPatrolSegment,
   patrolHasGeoDataToDisplay,
 } from '../../../../utils/patrols';
-import { downloadFileFromUrl } from '../../../../utils/download';
+import { downloadJsonAsFile } from '../../../../utils/download';
 import { selectPatrolTrackData } from '../../../../selectors/patrols';
 import { TAB_KEYS } from '../../../../constants';
 import { togglePatrolTrackState } from '../../../../ducks/patrols';
-import { TRACKS_API_URL } from '../../../../ducks/tracks';
 import useJumpToLocation from '../../../../hooks/useJumpToLocation';
 
 import KebabMenu from '../../../../KebabMenu';
@@ -53,8 +52,16 @@ const Header = ({ patrol, printableContentRef }) => {
   const titleInputRef = useRef();
   const titleMeasureRef = useRef();
 
+  // Tracks which patrol the state synced to, since the patrolId route param
+  // can change without this component unmounting.
+  const [syncedPatrolId, setSyncedPatrolId] = useState(patrol.id);
   const [title, setTitle] = useState(displayTitle);
   const [titleInputWidth, setTitleInputWidth] = useState(null);
+
+  if (patrol.id !== syncedPatrolId) {
+    setSyncedPatrolId(patrol.id);
+    setTitle(displayTitle);
+  }
 
   const patrolIconId = lastSegment ? iconIdForPatrolSegment(patrolTypes, lastSegment) : null;
 
@@ -63,10 +70,10 @@ const Header = ({ patrol, printableContentRef }) => {
 
   const trackToggleState = isPatrolTrackPinned ? 'pinned' : isPatrolTrackVisible ? 'visible' : 'hidden';
 
-  // TODO: The patrol track toggle only shows the leg leader's track. Once team members and
+  // TODO: The patrol track toggle only shows each leg leader's track. Once team members and
   // assets are available from the endpoint, it should also include their tracks bounded to
   // the leg's time range.
-  const hasTrack = !!lastSegmentLeader && patrolHasGeoDataToDisplay(
+  const hasTrack = patrolHasGeoDataToDisplay(
     patrolTrackData.trackData,
     patrolTrackData.startStopGeometries
   );
@@ -88,25 +95,9 @@ const Header = ({ patrol, printableContentRef }) => {
     pageStyle: basePrintingStyles,
   });
 
-  const onDownloadTrackClick = async () => {
-    if (lastSegmentLeader) {
-      const params = {};
-      if (lastSegment?.time_range?.start_time) {
-        params.since = lastSegment.time_range.start_time;
-      }
-      if (lastSegment?.time_range?.end_time) {
-        params.until = lastSegment.time_range.end_time;
-      }
-
-      const sanitizedLeaderName = lastSegmentLeader.name.replace(/[/\\:*?"<>|]/g, '_').trim();
-      try {
-        await downloadFileFromUrl(
-          TRACKS_API_URL(lastSegmentLeader.id),
-          { filename: `Patrol_${patrol.serial_number}_${sanitizedLeaderName}.geojson`, params }
-        );
-      } catch (error) {
-        console.error('Failed to download patrol track', error);
-      }
+  const onDownloadTrackClick = () => {
+    if (hasTrack) {
+      downloadJsonAsFile(patrolTrackData.trackData.track, `Patrol_${patrol.serial_number}.geojson`);
     }
   };
 
