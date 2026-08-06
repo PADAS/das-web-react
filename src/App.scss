@@ -51,7 +51,7 @@ $map-canvas: '.mapboxgl-canvas';
   --sidebar-width: calc(100vw);
 
   @media (min-width: $md-layout-width-min) {
-    --sidebar-width: 32rem;
+    --sidebar-width: #{$sidebar-width-base};
   }
 }
 

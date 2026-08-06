@@ -15,7 +15,7 @@
   height: 100%;
 
   @media (min-width: layout.$md-layout-width-min) {
-    @include layout.sidebar-detail-view-width;
+    @include layout.sidebar-width-detail;
   }
 
   .tabsContainer {
