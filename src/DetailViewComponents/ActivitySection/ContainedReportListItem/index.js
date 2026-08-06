@@ -9,6 +9,7 @@ import { ReactComponent as ArrowIntoIcon } from '../../../common/images/icons/ar
 import { ReactComponent as ArrowUpSimpleIcon } from '../../../common/images/icons/arrow-up-simple.svg';
 
 import { fetchEvent } from '../../../ducks/events';
+import { getIsEventFullyLoaded } from '../../../utils/events';
 import { TAB_KEYS } from '../../../constants';
 import useNavigate from '../../../hooks/useNavigate';
 
@@ -29,15 +30,17 @@ const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }
 
   const reportFromEventStore = useSelector((state) => state.data.eventStore[report.id]);
 
+  const isEventFullyLoaded = getIsEventFullyLoaded(reportFromEventStore);
+
   const isOpen = useMemo(() => cardsExpanded.includes(report), [cardsExpanded, report]);
 
   const onClickArrowIntoIcon = useCallback(() => navigate(`/${TAB_KEYS.EVENTS}/${report.id}`), [navigate, report]);
 
   useEffect(() => {
-    if (!reportFromEventStore) {
+    if (!isEventFullyLoaded) {
       dispatch(fetchEvent(report.id));
     }
-  }, [dispatch, report.id, reportFromEventStore]);
+  }, [dispatch, isEventFullyLoaded, report.id]);
 
   return <li>
     <div
@@ -75,7 +78,7 @@ const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }
       in={isOpen}
     >
       <div>
-        {reportFromEventStore
+        {isEventFullyLoaded
           ? <ReportFormSummary report={reportFromEventStore} />
           : <div className={styles.loaderWrapper}>
             <MoonLoader color={LOADER_COLOR} size={LOADER_SIZE} />
