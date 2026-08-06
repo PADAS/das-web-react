@@ -10,20 +10,33 @@ import {
   isSegmentActiveForPatrol,
   patrolStateAllowsTrackDisplay,
 } from '../../utils/patrols';
-import { selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod } from '../tracks';
+import { selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod, selectTrackTimeEnvelope } from '../tracks';
 import { trackHasDataWithinTimeRange, trimTrackDataToTimeRange } from '../../utils/tracks';
+
+const clampLegEndTime = (endTime, envelopeUntil) => {
+  if (!envelopeUntil) {
+    return endTime;
+  }
+
+  if (!endTime) {
+    return envelopeUntil;
+  }
+
+  return new Date(envelopeUntil).getTime() < new Date(endTime).getTime() ? envelopeUntil : endTime;
+};
 
 // A leg's track is its own leader's track, bounded to that leg's own start/end
 // times.
-const buildLegTrackData = (segment, tracks) => {
+const buildLegTrackData = (segment, tracks, trackTimeEnvelopeUntil) => {
   const leader = segment.leader || null;
   const rawTrackData = leader ? (tracks[leader.id] || null) : null;
   const { start_time, end_time } = segment.time_range || {};
+  const clampedEndTime = clampLegEndTime(end_time, trackTimeEnvelopeUntil);
 
   const trackData = (!!rawTrackData
     && !!start_time
-    && trackHasDataWithinTimeRange(rawTrackData, start_time, end_time)
-    && trimTrackDataToTimeRange(rawTrackData, start_time, end_time)) || null;
+    && trackHasDataWithinTimeRange(rawTrackData, start_time, clampedEndTime)
+    && trimTrackDataToTimeRange(rawTrackData, start_time, clampedEndTime)) || null;
 
   return { leader, rawTrackData, segment, trackData };
 };
@@ -47,7 +60,7 @@ const combineLegsTrackData = (legsData) => {
   return null;
 };
 
-const buildPatrolData = (patrol, timeSliderState, tracks) => {
+const buildPatrolData = (patrol, timeSliderState, trackTimeEnvelopeUntil, tracks) => {
   // The last leg's leader is used for title/display purposes, since it's the
   // most recent one.
   const patrolLeader = patrol.patrol_segments[patrol.patrol_segments.length - 1]?.leader || null;
@@ -56,7 +69,7 @@ const buildPatrolData = (patrol, timeSliderState, tracks) => {
     return { leader: patrolLeader, legsTrackData: [], trackData: null };
   }
 
-  const legsData = patrol.patrol_segments.map((segment) => buildLegTrackData(segment, tracks));
+  const legsData = patrol.patrol_segments.map((segment) => buildLegTrackData(segment, tracks, trackTimeEnvelopeUntil));
   const trackData = combineLegsTrackData(legsData);
 
   // Create the patrol data object with what we have so far.
@@ -92,7 +105,7 @@ const buildPatrolData = (patrol, timeSliderState, tracks) => {
 
         if (patrolPoints.end_location?.properties?.time) {
           const patrolEndDate = new Date(patrolPoints.end_location.properties.time);
-          if (isTimeSliderActiveWithAVirtualDate && isAfter(patrolEndDate, timeSliderVirtualDate)) {
+          if (isAfter(patrolEndDate, timeSliderVirtualDate)) {
             patrolPoints.end_location = null;
           }
         }
@@ -150,8 +163,9 @@ const selectPatrolSegmentLeaderTracks = createSelector(
 );
 
 export const selectPatrolTrackData = createSelector(
-  [selectTimeSliderState, selectPatrolSegmentLeaderTracks, (_, patrol) => patrol],
-  (timeSliderState, tracks, patrol) => buildPatrolData(patrol, timeSliderState, tracks)
+  [selectTimeSliderState, selectTrackTimeEnvelope, selectPatrolSegmentLeaderTracks, (_, patrol) => patrol],
+  (timeSliderState, trackTimeEnvelope, tracks, patrol) =>
+    buildPatrolData(patrol, timeSliderState, trackTimeEnvelope.until, tracks)
 );
 
 export const selectPatrolLeadersWithLastPosition = createSelector(
@@ -205,11 +219,24 @@ export const selectPatrolsWithTracks = createSelector(
   }
 );
 
+const selectPatrolsWithTracksSegmentLeaderTracks = createSelector(
+  [selectTracks, selectPatrolsWithTracks],
+  (tracks, patrolsWithTracks) => patrolsWithTracks.reduce((leaderTracks, patrol) => {
+    patrol.patrol_segments.forEach(({ leader }) => {
+      if (tracks[leader?.id]) {
+        leaderTracks[leader.id] = tracks[leader.id];
+      }
+    });
+    return leaderTracks;
+  }, {}),
+  { memoizeOptions: { resultEqualityCheck: shallowEqual } }
+);
+
 export const selectPatrolsWithTracksData = createSelector(
-  [selectPatrolsWithTracks, selectTimeSliderState, selectTracks],
-  (patrolsWithTracks, timeSliderState, tracks) => patrolsWithTracks.map(
+  [selectPatrolsWithTracks, selectTimeSliderState, selectTrackTimeEnvelope, selectPatrolsWithTracksSegmentLeaderTracks],
+  (patrolsWithTracks, timeSliderState, trackTimeEnvelope, tracks) => patrolsWithTracks.map(
     // Build the patrol data for each patrol with tracks.
-    (patrol) => ({ patrol, ...buildPatrolData(patrol, timeSliderState, tracks) })
+    (patrol) => ({ patrol, ...buildPatrolData(patrol, timeSliderState, trackTimeEnvelope.until, tracks) })
   )
 );
 

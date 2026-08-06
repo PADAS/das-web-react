@@ -38,7 +38,23 @@ beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-const defaultStoreValue = { view: { patrolTrackState: { pinned: [], visible: [] }, trackState: { pinned: [], visible: [] } }, data: { eventTypes, patrolTypes: mockPatrolTypeData, patrolStore: { }, subjectStore: {}, patrols: { ...INITIAL_PATROLS_STATE }, tracks: {} } };
+const defaultStoreValue = {
+  view: {
+    patrolTrackState: { pinned: [], visible: [] },
+    timeSliderState: { active: false },
+    trackSettings: { length: 21, origin: 'CUSTOM_LENGTH' },
+    trackState: { pinned: [], visible: [] },
+  },
+  data: {
+    eventFilter: { filter: { date_range: { lower: '2020-01-01T06:00:00.000Z' } } },
+    eventTypes,
+    patrolTypes: mockPatrolTypeData,
+    patrolStore: { },
+    subjectStore: {},
+    patrols: { ...INITIAL_PATROLS_STATE },
+    tracks: {},
+  },
+};
 
 const onAddToPatrol = jest.fn();
 

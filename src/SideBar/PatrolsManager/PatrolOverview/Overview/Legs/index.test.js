@@ -9,6 +9,7 @@ import patrolTypes from '../../../../../__test-helpers/fixtures/patrol-types';
 import { multiLegPatrol } from '../../../../../__test-helpers/fixtures/patrols';
 import { render, screen, within } from '../../../../../test-utils';
 import { format, STANDARD_DATE_FORMAT } from '../../../../../utils/datetime';
+import { TRACK_LENGTH_ORIGINS } from '../../../../../ducks/tracks';
 import useNavigate from '../../../../../hooks/useNavigate';
 
 import Legs from './';
@@ -31,6 +32,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
 
     store = {
       data: {
+        eventFilter: { filter: { date_range: { lower: '2020-01-01T06:00:00.000Z' } } },
         patrolTypes,
         tracks: {
           // Only the 2nd leg's leader has track data, so only its leg has bounds to zoom to.
@@ -56,6 +58,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
       },
       view: {
         timeSliderState: {},
+        trackSettings: { length: 21, origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH },
       },
     };
   });

@@ -17,6 +17,7 @@ import { UPDATE_PATROL_TRACK_STATE, updatePatrol } from '../ducks/patrols';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
 import patrols from '../__test-helpers/fixtures/patrols';
 import { render, screen } from '../test-utils';
+import { TRACK_LENGTH_ORIGINS } from '../ducks/tracks';
 
 import PatrolListItem from './';
 
@@ -41,8 +42,13 @@ const minimumNecessaryStoreStructure = {
     systemConfig: {
       [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true,
     },
+    trackSettings: {
+      length: 21,
+      origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH,
+    },
   },
   data: {
+    eventFilter: { filter: { date_range: { lower: '2020-01-01T06:00:00.000Z' } } },
     subjectStore: {},
     tracks: {},
     patrolTypes,

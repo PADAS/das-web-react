@@ -92,20 +92,17 @@ const PatrolListItem = ({
     return null;
   }, [isPatrolActiveOrDone, isPatrolScheduled, isPatrolCancelled, patrolElapsedTime, patrolsData, scheduledStartTime, t]);
 
-  const onLocationClick = useCallback((event) => {
-    event.stopPropagation();
+  const onLocationClick = useCallback(() => {
     patrolListItemTracker.track('Click "jump to location" from patrol list item');
   }, []);
 
-  const restorePatrolAndTrack = useCallback((event) => {
-    event.stopPropagation();
+  const restorePatrolAndTrack = useCallback(() => {
     patrolListItemTracker.track('Restore patrol from patrol list item');
 
     restorePatrol();
   }, [restorePatrol]);
 
-  const startPatrolAndTrack = useCallback((event) => {
-    event.stopPropagation();
+  const startPatrolAndTrack = useCallback(() => {
     patrolListItemTracker.track('Start patrol from patrol list item');
 
     startPatrol();
@@ -168,8 +165,6 @@ const PatrolListItem = ({
     return () => window.clearInterval(intervalRef.current);
   }, [onSelfManagedStateChange, patrol, patrolState, setPatrolState]);
 
-  const onDropdownClick = useCallback((event) => event.stopPropagation(), []);
-
   const renderedControlsComponent = showControls
     ? <div className={styles.controls}>
       <StateDependentControls />
@@ -179,7 +174,6 @@ const PatrolListItem = ({
         patrol={patrol}
         showPatrolPrintOption={false}
         className={styles.patrolMenu}
-        onClick={onDropdownClick}
         isPatrolCancelled={isPatrolCancelled}
       />
     </div>

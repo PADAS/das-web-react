@@ -15,8 +15,9 @@ import {
   calcPatrolState,
   displayTitleForPatrol,
   getBoundsForPatrol,
+  getPatrolLocationCoordinates,
   iconIdForPatrolSegment,
-  patrolHasGeoDataToDisplay,
+  patrolHasTrackData,
 } from '../../../../utils/patrols';
 import { downloadJsonAsFile } from '../../../../utils/download';
 import { selectPatrolTrackData } from '../../../../selectors/patrols';
@@ -42,9 +43,6 @@ const Header = ({ patrol, printableContentRef }) => {
   const lastSegmentLeader = lastSegment?.leader ?? null;
   const displayTitle = displayTitleForPatrol(patrol, lastSegmentLeader);
 
-  const lastSegmentLeaderSubject = useSelector(
-    (state) => lastSegmentLeader?.id ? state.data.subjectStore[lastSegmentLeader.id] : null
-  );
   const patrolTrackData = useSelector((state) => selectPatrolTrackData(state, patrol));
   const patrolTrackState = useSelector((state) => state.view.patrolTrackState);
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
@@ -73,14 +71,9 @@ const Header = ({ patrol, printableContentRef }) => {
   // TODO: The patrol track toggle only shows each leg leader's track. Once team members and
   // assets are available from the endpoint, it should also include their tracks bounded to
   // the leg's time range.
-  const hasTrack = patrolHasGeoDataToDisplay(
-    patrolTrackData.trackData,
-    patrolTrackData.startStopGeometries
-  );
+  const hasTrack = patrolHasTrackData(patrolTrackData);
 
-  const leaderCoordinates = lastSegmentLeaderSubject?.last_position?.geometry?.coordinates
-    ?? lastSegmentLeader?.last_position?.geometry?.coordinates
-    ?? null;
+  const jumpToLocationCoordinates = getPatrolLocationCoordinates(patrolTrackData);
 
   // TODO: Zoom to patrol bounds only accounts for the leg leader's track/position. Once team
   // members and assets are available from the endpoint, their tracks bounded to the leg's
@@ -141,8 +134,8 @@ const Header = ({ patrol, printableContentRef }) => {
           <button
             aria-label={t('jumpToLocationButtonLabel')}
             className={styles.iconButton}
-            disabled={!leaderCoordinates}
-            onClick={() => leaderCoordinates && jumpToLocation(leaderCoordinates)}
+            disabled={!jumpToLocationCoordinates}
+            onClick={() => jumpToLocation(jumpToLocationCoordinates)}
             title={t('jumpToLocationButtonLabel')}
             type="button"
           >
@@ -180,8 +173,8 @@ const Header = ({ patrol, printableContentRef }) => {
 
           <KebabMenu.Option
             className={styles.mobileOnlyOption}
-            disabled={!leaderCoordinates}
-            onClick={() => leaderCoordinates && jumpToLocation(leaderCoordinates)}
+            disabled={!jumpToLocationCoordinates}
+            onClick={() => jumpToLocation(jumpToLocationCoordinates)}
           >
             {t('jumpToLocationButtonLabel')}
           </KebabMenu.Option>

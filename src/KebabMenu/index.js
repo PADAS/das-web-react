@@ -15,7 +15,13 @@ import * as styles from './styles.module.scss';
 
 const MenuContext = createContext(null);
 
-const FOCUSABLE_SELECTOR = 'button:not(:disabled), a[href]';
+const FOCUSABLE_SELECTOR = [
+  'button:not(:disabled)',
+  'a[href]',
+  'input:not(:disabled)',
+  '[role="button"]:not([aria-disabled="true"])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(', ');
 
 const focusItemNode = (node) => {
   const focusable = node?.matches(FOCUSABLE_SELECTOR) ? node : node?.querySelector(FOCUSABLE_SELECTOR);
@@ -39,19 +45,17 @@ const Option = ({
 
   const nodeRef = useRef(null);
 
+  const isButton = Component === 'button';
+
   const onClickOption = (event) => {
-    if (!disabled) {
+    if (disabled) {
+      event.preventDefault();
+    } else {
       onClick?.(event);
 
       closeMenu(event);
     }
   };
-
-  const onMouseEnter = useCallback(() => {
-    if (!disabled) {
-      focusItemNode(nodeRef.current);
-    }
-  }, [disabled]);
 
   const setNode = useCallback((node) => {
     nodeRef.current = node;
@@ -70,29 +74,19 @@ const Option = ({
   }, [disabled, registerOption]);
 
   return <li className={styles.item} role="none">
-    {Component === 'button'
-      ? <button
-          className={`${styles.itemBtn} ${className}`}
-          disabled={disabled}
-          onClick={onClickOption}
-          onMouseEnter={onMouseEnter}
-          ref={setNode}
-          role="menuitem"
-          tabIndex={-1}
-          type="button"
-          {...rest}
-        >
-        {children}
-      </button>
-      : <div
-          className={`${styles.itemBtn} ${className}`}
-          onClick={onClickOption}
-          onMouseEnter={onMouseEnter}
-          ref={setNode}
-          {...rest}
-        >
-        {children}
-      </div>}
+    <Component
+      aria-disabled={!isButton && disabled ? true : undefined}
+      className={`${styles.itemBtn} ${className}`}
+      disabled={isButton ? disabled : undefined}
+      onClick={onClickOption}
+      ref={setNode}
+      role="menuitem"
+      tabIndex={-1}
+      type={isButton ? 'button' : undefined}
+      {...rest}
+    >
+      {children}
+    </Component>
   </li>;
 };
 
@@ -235,11 +229,11 @@ const KebabMenu = ({
 
   const menuContextValue = useMemo(() => ({ closeMenu, registerOption }), [closeMenu, registerOption]);
 
-  const toggleStyle = {
+  const toggleStyle = useMemo(() => ({
     ...(backgroundColor ? { '--kebab-menu-background-color': backgroundColor } : null),
     ...(dotColor ? { '--kebab-menu-dot-color': dotColor } : null),
     ...(size ? { '--kebab-menu-size': size } : null),
-  };
+  }), [backgroundColor, dotColor, size]);
 
   return (
     <div className={`${styles.kebabMenu} ${className}`} {...rest}>
@@ -265,11 +259,12 @@ const KebabMenu = ({
         show={show}
         target={buttonRef}
       >
-        <Popover className={styles.menuPopover} id={menuId} ref={ref}>
+        <Popover className={styles.menuPopover} ref={ref}>
           <MenuContext.Provider value={menuContextValue}>
             <ul
               aria-label={ariaLabel}
               className={styles.menu}
+              id={menuId}
               onKeyDown={onMenuKeyDown}
               role="menu"
             >

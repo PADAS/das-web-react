@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 import { format, generateCurrentTimeZoneTitle, STANDARD_DATE_FORMAT } from '../utils/datetime';
 
@@ -11,15 +11,16 @@ const DateTime = ({ className = '', date, showElapsed = true, suffix, ...otherPr
     return null;
   }
 
-  const dateText = format(new Date(date), STANDARD_DATE_FORMAT);
-  const timeZoneTitle = generateCurrentTimeZoneTitle();
+  const parsedDate = new Date(date);
+  const dateText = format(parsedDate, STANDARD_DATE_FORMAT);
+  const label = `${dateText}, ${generateCurrentTimeZoneTitle()}`;
 
   return <div className={`${styles.dateTime} ${className}`} data-testid="date-time" {...otherProps}>
     <time
-      aria-label={`${dateText}, ${timeZoneTitle}`}
+      aria-label={label}
       className={styles.date}
-      dateTime={new Date(date).toISOString()}
-      title={timeZoneTitle}
+      dateTime={parsedDate.toISOString()}
+      title={label}
     >
       {dateText}
     </time>
@@ -28,4 +29,4 @@ const DateTime = ({ className = '', date, showElapsed = true, suffix, ...otherPr
   </div>;
 };
 
-export default DateTime;
+export default memo(DateTime);

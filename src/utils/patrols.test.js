@@ -1,6 +1,7 @@
 import { addMinutes } from 'date-fns';
 
 import {
+  actualEndTimeForPatrol,
   calcPatrolState,
   createNewPatrolForPatrolType,
   DELTA_FOR_OVERDUE,
@@ -9,11 +10,16 @@ import {
   displayNameForPatrolType,
   displayStartTimeForPatrol,
   displayStartTimeForPatrolSegment,
+  displayTitleForPatrol,
   extractLegPatrolPoints,
   finalizeCombinedPatrolPoints,
+  getActivePatrolsForLeaderId,
   getBoundsForPatrol,
+  getPatrolLocationCoordinates,
+  getPatrolsForLeaderId,
   iconIdForPatrolSegment,
   iconIdForPatrolType,
+  iconTypeForPatrol,
   sortPatrolList
 } from './patrols';
 import { PATROL_UI_STATES } from '../constants';
@@ -28,10 +34,28 @@ import {
   multiLegPatrol,
 } from '../__test-helpers/fixtures/patrols';
 import patrolTypes, { dogPatrol, routinePatrol } from '../__test-helpers/fixtures/patrol-types';
+import store from '../store';
+
+jest.mock('../store', () => ({ getState: jest.fn() }));
 
 const { SCHEDULED, READY_TO_START, ACTIVE, START_OVERDUE, DONE, CANCELLED, INVALID } = PATROL_UI_STATES;
 
 describe('Patrols utils', () => {
+  beforeEach(() => {
+    store.getState.mockReturnValue({
+      data: {
+        eventSchemas: { globalSchema: null },
+        patrolStore: {},
+        patrolTypes: [],
+      },
+    });
+  });
+
+  afterEach(() => {
+    store.getState.mockReset();
+  });
+
+
   describe('calcPatrolState', () => {
     test('returns scheduled for a patrol that has scheduled_start but no value in time_range properties', () => {
       expect(calcPatrolState(scheduledPatrol)).toBe(SCHEDULED);
@@ -164,6 +188,23 @@ describe('Patrols utils', () => {
       expect(mostRecentScheduledPatrol.patrol_segments[0].updates[0].time).toBe(scheduledPatrolUpdateTime);
       expect(mostRecentDonePatrol.patrol_segments[0].updates[0].time).toBe(donePatrolUpdateTime);
       expect(mostRecentCancelledPatrol.patrol_segments[0].updates[0].time).toBe(cancelledPatrolUpdateTime);
+    });
+
+    test('uses the most recent update across every leg, not only the first, to break ties', async () => {
+      const [firstLeg] = donePatrol.patrol_segments;
+
+      const recentlyContinuedDonePatrol = {
+        ...donePatrol,
+        patrol_segments: [
+          { ...firstLeg, updates: [{ ...firstLeg.updates[0], time: '2023-01-01T00:00:00.000Z' }] },
+          { ...firstLeg, updates: [{ ...firstLeg.updates[0], time: '2023-06-25T00:00:00.000Z' }] },
+        ],
+      };
+      const staleDonePatrol = modifyPatrolUpdatesTime(donePatrol, '2023-06-18T22:12:24.207505+00:00');
+
+      const [mostRecent] = await sortPatrolList([staleDonePatrol, recentlyContinuedDonePatrol]);
+
+      expect(mostRecent).toBe(recentlyContinuedDonePatrol);
     });
   });
 
@@ -513,6 +554,40 @@ describe('Patrols utils', () => {
     });
   });
 
+  describe('getPatrolLocationCoordinates', () => {
+    test('returns the last patrol track coordinates when there is track data', () => {
+      const patrolTrackData = {
+        trackData: {
+          points: {
+            type: 'FeatureCollection',
+            features: [{ type: 'Feature', geometry: { type: 'Point', coordinates: [37.482, 0.232] } }],
+          },
+        },
+        startStopGeometries: {
+          points: { start_location: { type: 'Feature', geometry: { type: 'Point', coordinates: [37.472, 0.226] } } },
+        },
+      };
+
+      expect(getPatrolLocationCoordinates(patrolTrackData)).toEqual([37.482, 0.232]);
+    });
+
+    test('falls back to the patrol start location when there is no track data', () => {
+      const patrolTrackData = {
+        trackData: null,
+        startStopGeometries: {
+          points: { start_location: { type: 'Feature', geometry: { type: 'Point', coordinates: [37.472, 0.226] } } },
+        },
+      };
+
+      expect(getPatrolLocationCoordinates(patrolTrackData)).toEqual([37.472, 0.226]);
+    });
+
+    test('returns null when there is neither track data nor a start location', () => {
+      expect(getPatrolLocationCoordinates({ trackData: null, startStopGeometries: null })).toBeNull();
+      expect(getPatrolLocationCoordinates()).toBeNull();
+    });
+  });
+
   describe('displayNameForPatrolType', () => {
     test('returns the display name for a type matched by value', () => {
       expect(displayNameForPatrolType(patrolTypes, routinePatrol.value)).toBe('Routine Patrol');
@@ -618,10 +693,121 @@ describe('Patrols utils', () => {
       expect(displayEndTimeForPatrol({ patrol_segments: [] })).toBeNull();
     });
 
-    test('uses the first segment\'s end time', () => {
+    test('uses the last segment\'s end time', () => {
       const patrol = { patrol_segments: [{ time_range: { end_time: '2022-06-15T11:00:00.000Z' } }] };
 
       expect(displayEndTimeForPatrol(patrol)).toEqual(new Date('2022-06-15T11:00:00.000Z'));
+    });
+
+    test('uses the last segment\'s end time for a multi-leg patrol, not the first', () => {
+      const patrol = {
+        patrol_segments: [
+          { time_range: { end_time: '2022-06-15T11:00:00.000Z' } },
+          { time_range: { end_time: null } },
+        ],
+      };
+
+      expect(displayEndTimeForPatrol(patrol)).toBeNull();
+    });
+  });
+
+  describe('actualEndTimeForPatrol', () => {
+    test('returns null when the patrol has no segments', () => {
+      expect(actualEndTimeForPatrol({ patrol_segments: [] })).toBeNull();
+    });
+
+    test('returns null for a multi-leg patrol whose last leg is still ongoing, even though an earlier leg has ended', () => {
+      const patrol = {
+        patrol_segments: [
+          { time_range: { end_time: '2022-06-15T11:00:00.000Z', start_time: '2022-06-15T10:00:00.000Z' } },
+          { time_range: { end_time: null, start_time: '2022-06-15T11:00:00.000Z' } },
+        ],
+      };
+
+      expect(actualEndTimeForPatrol(patrol)).toBeNull();
+    });
+
+    test('uses the last leg\'s end time for a multi-leg patrol that has fully ended', () => {
+      const patrol = {
+        patrol_segments: [
+          { time_range: { end_time: '2022-06-15T11:00:00.000Z', start_time: '2022-06-15T10:00:00.000Z' } },
+          { time_range: { end_time: '2022-06-15T12:00:00.000Z', start_time: '2022-06-15T11:00:00.000Z' } },
+        ],
+      };
+
+      expect(actualEndTimeForPatrol(patrol)).toEqual(new Date('2022-06-15T12:00:00.000Z'));
+    });
+  });
+
+  describe('iconTypeForPatrol', () => {
+    test('returns the patrol-level icon_id when set', () => {
+      const patrol = { icon_id: 'custom-icon', patrol_segments: [{ icon_id: 'first-leg-icon' }] };
+
+      expect(iconTypeForPatrol(patrol)).toBe('custom-icon');
+    });
+
+    test('falls back to the last leg\'s icon_id for a multi-leg patrol, not the first', () => {
+      const patrol = {
+        patrol_segments: [
+          { icon_id: 'first-leg-icon' },
+          { icon_id: 'second-leg-icon' },
+        ],
+      };
+
+      expect(iconTypeForPatrol(patrol)).toBe('second-leg-icon');
+    });
+
+    test('returns an empty string when there is no icon anywhere', () => {
+      expect(iconTypeForPatrol({ patrol_segments: [{}] })).toBe('');
+    });
+  });
+
+  describe('displayTitleForPatrol', () => {
+    test('falls back to the last leg\'s patrol type name, not the first, when there is no title or leader name', () => {
+      store.getState.mockReturnValue({ data: { patrolTypes: [dogPatrol, routinePatrol] } });
+
+      const patrol = {
+        title: null,
+        patrol_segments: [
+          { patrol_type: routinePatrol.value },
+          { patrol_type: dogPatrol.value },
+        ],
+      };
+
+      expect(displayTitleForPatrol(patrol, null)).toBe(dogPatrol.display);
+    });
+  });
+
+  describe('getPatrolsForLeaderId', () => {
+    test('matches the last leg\'s leader for a multi-leg patrol, not the first', () => {
+      const patrol = {
+        id: 'patrol-1',
+        patrol_segments: [
+          { leader: { id: 'leader-a' } },
+          { leader: { id: 'leader-b' } },
+        ],
+      };
+      store.getState.mockReturnValue({ data: { patrolStore: { 'patrol-1': patrol } } });
+
+      expect(getPatrolsForLeaderId('leader-b')).toEqual([patrol]);
+      expect(getPatrolsForLeaderId('leader-a')).toEqual([]);
+    });
+  });
+
+  describe('getActivePatrolsForLeaderId', () => {
+    test('matches the last leg\'s leader and requires the patrol to currently be active', () => {
+      const activeLastLegPatrol = {
+        ...activePatrol,
+        id: 'patrol-active',
+        patrol_segments: [
+          { ...activePatrol.patrol_segments[0], leader: { id: 'leader-a' } },
+          { ...activePatrol.patrol_segments[0], leader: { id: 'leader-b' } },
+        ],
+      };
+      store.getState.mockReturnValue({ data: { patrolStore: { 'patrol-active': activeLastLegPatrol } } });
+
+      expect(getActivePatrolsForLeaderId('leader-b')).toEqual([activeLastLegPatrol]);
+      expect(getActivePatrolsForLeaderId('leader-a')).toEqual([]);
     });
   });
 });

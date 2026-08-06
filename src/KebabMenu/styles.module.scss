@@ -76,12 +76,16 @@
         text-transform: capitalize;
         width: 100%;
 
-        &:focus, &:focus-within {
-          @include inputs.dropdown-options-hover;
+        &:hover:not(:disabled, [aria-disabled="true"]) {
+          cursor: pointer;
         }
 
-        &:hover:not(:disabled) {
-          cursor: pointer;
+        &:hover:not(:disabled, [aria-disabled="true"], :focus, :focus-within) {
+          background-color: color.adjust(colors.$light-gray-background, $lightness: 5%);
+        }
+
+        &:focus, &:focus-within {
+          background-color: colors.$light-gray-background;
         }
 
         img, svg {
@@ -95,7 +99,7 @@
           width: 1.125rem;
         }
 
-        &:disabled {
+        &:disabled, &[aria-disabled="true"] {
           color: colors.$secondary-medium-light-gray;
           cursor: default;
 

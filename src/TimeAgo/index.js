@@ -1,7 +1,12 @@
-import React, { useMemo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { durationHumanizer, generateCurrentTimeZoneTitle, HUMANIZED_DURATION_CONFIGS } from '../utils/datetime';
+import {
+  durationHumanizer,
+  generateCurrentTimeZoneTitle,
+  HUMANIZED_DURATION_CONFIGS,
+  resolveDurationHumanizerLanguage,
+} from '../utils/datetime';
 
 const ONE_SECOND = 1000;
 const ONE_MINUTE = ONE_SECOND * 60;
@@ -33,10 +38,7 @@ const TimeAgo = ({ className, date, prefix = null, suffix = null }) => {
       return durationHumanizer(HUMANIZED_DURATION_CONFIGS.MINUTES_ONLY(t('minutesLabel')));
     }
 
-    const notSupportedLangKeys = {
-      'en-US': 'en'
-    };
-    return durationHumanizer(HUMANIZED_DURATION_CONFIGS.FULL_FORMAT(notSupportedLangKeys[language] ?? language));
+    return durationHumanizer(HUMANIZED_DURATION_CONFIGS.FULL_FORMAT(resolveDurationHumanizerLanguage(language)));
   }, [olderThanAMinute, olderThanAnHour, t, language]);
 
   useEffect(() => {
@@ -63,4 +65,4 @@ const TimeAgo = ({ className, date, prefix = null, suffix = null }) => {
   </time>;
 };
 
-export default TimeAgo;
+export default memo(TimeAgo);

@@ -11,6 +11,8 @@ import { mockStore } from '../../../../__test-helpers/MockStore';
 import patrols from '../../../../__test-helpers/fixtures/patrols';
 import { render, screen, within } from '../../../../test-utils';
 import { UPDATE_PATROL_TRACK_STATE } from '../../../../ducks/patrols';
+import { TRACK_LENGTH_ORIGINS } from '../../../../ducks/tracks';
+import * as patrolSelectors from '../../../../selectors/patrols';
 import * as patrolUtils from '../../../../utils/patrols';
 
 import Header from './';
@@ -44,6 +46,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
 
     store = {
       data: {
+        eventFilter: { filter: { date_range: { lower: '2020-01-01T06:00:00.000Z' } } },
         subjectStore: {},
         tracks: {},
       },
@@ -55,6 +58,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
         timeSliderState: {
           active: false,
         },
+        trackSettings: { length: 21, origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH },
       },
     };
   });
@@ -124,7 +128,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
   });
 
   test('toggles the patrol tracks when the toggle track button is clicked', async () => {
-    jest.spyOn(patrolUtils, 'patrolHasGeoDataToDisplay').mockReturnValue(true);
+    jest.spyOn(patrolUtils, 'patrolHasTrackData').mockReturnValue(true);
 
     renderHeader();
 
@@ -142,14 +146,49 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
     expect(screen.getByRole('button', { name: 'Jump to location' })).toBeInTheDocument();
   });
 
-  test('shows the jump to location button disabled when the patrol leader has no coordinates', () => {
+  test('shows the jump to location button disabled when the patrol has no track or start location data', () => {
     renderHeader();
 
     expect(screen.getByRole('button', { name: 'Jump to location' })).toBeDisabled();
   });
 
-  test('jumps to the patrol leader location when the jump to location button is clicked', async () => {
-    store.data.subjectStore[leaderId] = { last_position: { geometry: { coordinates: [37.472, 0.226] } } };
+  test('jumps to the last patrol track coordinates when the jump to location button is clicked', async () => {
+    store.data.tracks[leaderId] = {
+      fetchedDateRange: { since: '2021-01-01T00:00:00.000Z', until: '2022-01-01T00:00:00.000Z' },
+      track: {
+        type: 'FeatureCollection',
+        features: [{
+          type: 'Feature',
+          properties: { coordinateProperties: { times: ['2021-11-03T00:00:00.000Z', '2021-11-02T00:00:00.000Z'] }, stroke: '#FF0080' },
+          geometry: { type: 'LineString', coordinates: [[37.482, 0.232], [37.480, 0.230]] },
+        }],
+      },
+      points: {
+        type: 'FeatureCollection',
+        features: [
+          { type: 'Feature', properties: { time: '2021-11-03T00:00:00.000Z', bearing: 0 }, geometry: { type: 'Point', coordinates: [37.482, 0.232] } },
+          { type: 'Feature', properties: { time: '2021-11-02T00:00:00.000Z', bearing: 0 }, geometry: { type: 'Point', coordinates: [37.480, 0.230] } },
+        ],
+      },
+    };
+
+    renderHeader();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Jump to location' }));
+
+    expect(map.easeTo).toHaveBeenCalledWith(expect.objectContaining({ center: [37.482, 0.232], zoom: 15 }));
+  });
+
+  test('falls back to the patrol start location when the jump to location button is clicked and there is no track data', async () => {
+    jest.spyOn(patrolSelectors, 'selectPatrolTrackData').mockReturnValue({
+      leader: patrolWithLeader.patrol_segments[0].leader,
+      trackData: null,
+      startStopGeometries: {
+        points: {
+          start_location: { type: 'Feature', geometry: { type: 'Point', coordinates: [37.472, 0.226] } },
+        },
+      },
+    });
 
     renderHeader();
 
@@ -194,7 +233,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
   });
 
   test('toggles the patrol tracks when the toggle track button in the kebab menu is clicked', async () => {
-    jest.spyOn(patrolUtils, 'patrolHasGeoDataToDisplay').mockReturnValue(true);
+    jest.spyOn(patrolUtils, 'patrolHasTrackData').mockReturnValue(true);
 
     renderHeader();
     await openKebabMenu();
@@ -215,8 +254,25 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
     expect(await screen.findByRole('menuitem', { name: 'Jump to location' })).toBeInTheDocument();
   });
 
-  test('jumps to the patrol leader location when the jump to location button in the kebab menu is clicked', async () => {
-    store.data.subjectStore[leaderId] = { last_position: { geometry: { coordinates: [37.472, 0.226] } } };
+  test('jumps to the last patrol track coordinates when the jump to location button in the kebab menu is clicked', async () => {
+    store.data.tracks[leaderId] = {
+      fetchedDateRange: { since: '2021-01-01T00:00:00.000Z', until: '2022-01-01T00:00:00.000Z' },
+      track: {
+        type: 'FeatureCollection',
+        features: [{
+          type: 'Feature',
+          properties: { coordinateProperties: { times: ['2021-11-03T00:00:00.000Z', '2021-11-02T00:00:00.000Z'] }, stroke: '#FF0080' },
+          geometry: { type: 'LineString', coordinates: [[37.482, 0.232], [37.480, 0.230]] },
+        }],
+      },
+      points: {
+        type: 'FeatureCollection',
+        features: [
+          { type: 'Feature', properties: { time: '2021-11-03T00:00:00.000Z', bearing: 0 }, geometry: { type: 'Point', coordinates: [37.482, 0.232] } },
+          { type: 'Feature', properties: { time: '2021-11-02T00:00:00.000Z', bearing: 0 }, geometry: { type: 'Point', coordinates: [37.480, 0.230] } },
+        ],
+      },
+    };
 
     renderHeader();
     await openKebabMenu();
@@ -224,7 +280,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
     const menuItem = await screen.findByRole('menuitem', { name: 'Jump to location' });
     await userEvent.click(menuItem);
 
-    expect(map.easeTo).toHaveBeenCalledWith(expect.objectContaining({ center: [37.472, 0.226], zoom: 15 }));
+    expect(map.easeTo).toHaveBeenCalledWith(expect.objectContaining({ center: [37.482, 0.232], zoom: 15 }));
   });
 
   test('shows the fit to bounds button in the kebab menu for mobile devices', async () => {

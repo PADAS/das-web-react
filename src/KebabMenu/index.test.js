@@ -264,23 +264,13 @@ describe('KebabMenu', () => {
     expect(onRef).toHaveBeenCalledWith(option);
   });
 
-  test('moves focus to an option when the mouse hovers over it', async () => {
-    renderKebabMenu();
-
-    await openMenu();
-    await userEvent.hover(await screen.findByText('Third option'));
-
-    expect(screen.getByText('Third option')).toHaveFocus();
-  });
-
-  test('does not move focus to a disabled option when the mouse hovers over it', async () => {
+  test('does not move focus to an option when the mouse hovers over it', async () => {
     renderKebabMenu();
 
     await openMenu();
     const firstOption = await screen.findByText('First option');
-    firstOption.focus();
 
-    await userEvent.hover(screen.getByText('Second option'));
+    await userEvent.hover(screen.getByText('Third option'));
 
     expect(firstOption).toHaveFocus();
   });

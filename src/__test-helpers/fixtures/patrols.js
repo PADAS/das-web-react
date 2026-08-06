@@ -1762,6 +1762,13 @@ export const multiLegPatrol = {
 export const patrolDefaultStoreData = {
   data: {
     tracks: {},
+    eventFilter: {
+      filter: {
+        date_range: {
+          lower: '2020-01-01T06:00:00.000Z',
+        },
+      },
+    },
     eventSchemas: {
       globalSchema: {
         properties: {
@@ -1812,5 +1819,11 @@ export const patrolDefaultStoreData = {
       pinned: [], visible: []
     },
     systemConfig: {},
+    trackSettings: {
+      isTimeOfDayColoringActive: false,
+      length: 21,
+      origin: 'CUSTOM_LENGTH',
+      timeOfDayTimeZone: null,
+    },
   },
 };

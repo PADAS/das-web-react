@@ -8,6 +8,7 @@ import patrolTypes from '../../../__test-helpers/fixtures/patrol-types';
 import patrols from '../../../__test-helpers/fixtures/patrols';
 import { render, screen } from '../../../test-utils';
 import * as trackUtils from '../../../utils/tracks';
+import { TRACK_LENGTH_ORIGINS } from '../../../ducks/tracks';
 
 import PatrolOverview from './';
 
@@ -34,6 +35,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
 
     store = {
       data: {
+        eventFilter: { filter: { date_range: { lower: '2020-01-01T06:00:00.000Z' } } },
         patrolStore: {},
         patrolTypes,
         subjectStore: {},
@@ -47,6 +49,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
         timeSliderState: {
           active: false,
         },
+        trackSettings: { length: 21, origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH },
       },
     };
   });
