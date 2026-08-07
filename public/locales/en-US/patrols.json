@@ -96,7 +96,8 @@
       "sortDirectionButtonLabel": {
         "down": "Sort history in ascending order",
         "up": "Sort history in descending order"
-      }
+      },
+      "timeLabel": "Time"
     },
     "historyTabTitle": "History",
     "overview": {

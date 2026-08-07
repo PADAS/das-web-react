@@ -96,7 +96,8 @@
       "sortDirectionButtonLabel": {
         "down": "Panga historia kwa mpangilio wa kupanda",
         "up": "Panga historia kwa mpangilio wa kushuka"
-      }
+      },
+      "timeLabel": "Wakati"
     },
     "historyTabTitle": "Historia",
     "overview": {

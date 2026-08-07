@@ -40,6 +40,8 @@ const History = ({ patrol }) => {
   return <div className={styles.history}>
     <div className={styles.header}>
       <div className={styles.actions}>
+        <span className={styles.timeLabel}>{t('timeLabel')}</span>
+
         <button
           aria-label={t(`sortDirectionButtonLabel.${sortDirection}`)}
           aria-pressed={sortDirection === SORT_DIRECTION.up}

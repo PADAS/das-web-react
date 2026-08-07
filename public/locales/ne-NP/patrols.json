@@ -96,7 +96,8 @@
       "sortDirectionButtonLabel": {
         "down": "इतिहास आरोही क्रममा क्रमबद्ध गर्नुहोस्",
         "up": "इतिहास अवरोही क्रममा क्रमबद्ध गर्नुहोस्"
-      }
+      },
+      "timeLabel": "समय"
     },
     "historyTabTitle": "इतिहास",
     "overview": {

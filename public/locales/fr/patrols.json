@@ -96,7 +96,8 @@
       "sortDirectionButtonLabel": {
         "down": "Trier l'historique par ordre croissant",
         "up": "Trier l'historique par ordre décroissant"
-      }
+      },
+      "timeLabel": "Heure"
     },
     "historyTabTitle": "Historique",
     "overview": {
