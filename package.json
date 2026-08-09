@@ -25,7 +25,7 @@
     "bootstrap": "5.3.8",
     "buffer": "^6.0.3",
     "date-fns": "^4.4.0",
-    "dompurify": "^3.4.12",
+    "dompurify": "^3.4.13",
     "epsg-index": "^2.0.0",
     "eslint": "^10.8.0",
     "geodesy": "^2.4.0",
