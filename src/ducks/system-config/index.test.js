@@ -53,6 +53,7 @@ describe('Ducks - System config', () => {
       geoPermissionsEnabled: true,
       idp_org_id: 'org_abc',
       preview_features: { community_input_admin_enabled: true },
+      require_idp: true,
       show_track_days: true,
       site_name: 'Site name',
     };
@@ -77,10 +78,10 @@ describe('Ducks - System config', () => {
         [SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]: true,
         [SYSTEM_CONFIG_FLAGS.SUBJECTS]: true,
         [SYSTEM_CONFIG_FLAGS.TABLEAU]: true,
+        loaded: true,
         previewFeatures: {
           community_input_admin_enabled: true,
         },
-        require_idp: false,
         sitename: 'Site name',
         showTrackDays: true,
       },
@@ -202,8 +203,8 @@ describe('Ducks - System config', () => {
         [SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]: true,
         [SYSTEM_CONFIG_FLAGS.SUBJECTS]: true,
         [SYSTEM_CONFIG_FLAGS.TABLEAU]: true,
+        loaded: false,
         previewFeatures: { community_input_admin_enabled: true },
-        require_idp: null,
         showTrackDays: true,
         sitename: 'Site name',
       };

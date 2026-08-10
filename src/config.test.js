@@ -1,9 +1,17 @@
 describe('appConfig', () => {
+  const PRODUCTION_AUTHORIZATION_SERVER = 'https://auth.pamdas.org/';
+
   const PRODUCTION_DEFAULTS = {
-    auth0: {
-      audience: 'https://pamdas.org/api',
-      clientId: 'FHoeQpdko5EMFU8JjjCzjPWT7k1sqm20',
-      domain: 'auth.pamdas.org',
+    authorizationServers: {
+      [PRODUCTION_AUTHORIZATION_SERVER]: {
+        audience: 'https://pamdas.org/api',
+        clientId: 'FHoeQpdko5EMFU8JjjCzjPWT7k1sqm20',
+        grant: 'authorization_code',
+      },
+      $self: {
+        clientId: 'das_web_client',
+        grant: 'password',
+      },
     },
   };
 
@@ -26,57 +34,85 @@ describe('appConfig', () => {
     expect(appConfig).toEqual(PRODUCTION_DEFAULTS);
   });
 
-  test('returns production defaults when nested group is empty', () => {
-    window.__APP_CONFIG__ = { auth0: {} };
+  // The Auth0 tenant used to be named twice: once as a flat audience/clientId/domain triple
+  // and once as a registry entry. Only the registry survives.
+  test('holds no auth0 block at all', () => {
+    const { default: appConfig } = require('./config');
+
+    expect(appConfig).not.toHaveProperty('auth0');
+  });
+
+  test('ignores an auth0 block in an override', () => {
+    window.__APP_CONFIG__ = { auth0: { domain: 'auth-dev.pamdas.org' } };
 
     const { default: appConfig } = require('./config');
 
     expect(appConfig).toEqual(PRODUCTION_DEFAULTS);
   });
 
-  test('overrides all properties when full override is provided', () => {
+  test('carries a grant type on every registration, and no audience on the DAS one', () => {
+    const { default: appConfig } = require('./config');
+
+    const { authorizationServers } = appConfig;
+    expect(authorizationServers[PRODUCTION_AUTHORIZATION_SERVER].grant).toBe('authorization_code');
+    expect(authorizationServers.$self).toEqual({ clientId: 'das_web_client', grant: 'password' });
+    // django-oauth-toolkit does not accept an audience, so the DAS entry must not carry one.
+    expect(authorizationServers.$self).not.toHaveProperty('audience');
+  });
+
+  test('replaces the trusted authorization servers rather than merging them, so a non-production build does not keep trusting the production tenant', () => {
     const override = {
-      auth0: {
-        audience: 'https://dev.pamdas.org/api',
-        clientId: 'devClientId123',
-        domain: 'auth-dev.pamdas.org',
+      authorizationServers: {
+        'https://auth-dev.pamdas.org/': {
+          audience: 'https://dev.pamdas.org/api',
+          clientId: 'devClientId123',
+          grant: 'authorization_code',
+        },
+        $self: { clientId: 'das_web_client', grant: 'password' },
       },
     };
     window.__APP_CONFIG__ = override;
 
     const { default: appConfig } = require('./config');
 
-    expect(appConfig).toEqual(override);
+    expect(appConfig.authorizationServers).toEqual(override.authorizationServers);
+    expect(appConfig.authorizationServers).not.toHaveProperty(PRODUCTION_AUTHORIZATION_SERVER);
   });
 
-  test('overrides a single nested property while preserving other defaults', () => {
-    window.__APP_CONFIG__ = { auth0: { domain: 'auth-staging.pamdas.org' } };
-
-    const { default: appConfig } = require('./config');
-
-    expect(appConfig).toEqual({
-      auth0: {
-        audience: PRODUCTION_DEFAULTS.auth0.audience,
-        clientId: PRODUCTION_DEFAULTS.auth0.clientId,
-        domain: 'auth-staging.pamdas.org',
+  test('accepts several trusted authorization servers, each with its own client registration', () => {
+    window.__APP_CONFIG__ = {
+      authorizationServers: {
+        'https://auth.pamdas.org/': { audience: 'https://pamdas.org/api', clientId: 'prodClient', grant: 'authorization_code' },
+        'https://auth-us.pamdas.org/': { audience: 'https://us.pamdas.org/api', clientId: 'usClient', grant: 'authorization_code' },
       },
-    });
-  });
-
-  test('preserves empty string overrides instead of falling back to defaults', () => {
-    window.__APP_CONFIG__ = { auth0: { audience: '', clientId: 'devClientId', domain: 'auth-dev.pamdas.org' } };
+    };
 
     const { default: appConfig } = require('./config');
 
-    expect(appConfig.auth0.audience).toBe('');
+    expect(Object.keys(appConfig.authorizationServers)).toEqual([
+      'https://auth.pamdas.org/',
+      'https://auth-us.pamdas.org/',
+    ]);
   });
 
-  test('falls back to defaults for null override values', () => {
-    window.__APP_CONFIG__ = { auth0: { audience: null } };
+  test('lets an override omit $self, building a client that holds no password registration', () => {
+    window.__APP_CONFIG__ = {
+      authorizationServers: {
+        'https://auth-dev.pamdas.org/': { audience: 'a', clientId: 'c', grant: 'authorization_code' },
+      },
+    };
 
     const { default: appConfig } = require('./config');
 
-    expect(appConfig.auth0.audience).toBe(PRODUCTION_DEFAULTS.auth0.audience);
+    expect(appConfig.authorizationServers).not.toHaveProperty('$self');
+  });
+
+  test('falls back to defaults when the override supplies no authorization servers', () => {
+    window.__APP_CONFIG__ = { authorizationServers: null };
+
+    const { default: appConfig } = require('./config');
+
+    expect(appConfig.authorizationServers).toEqual(PRODUCTION_DEFAULTS.authorizationServers);
   });
 
   test('ignores unrecognized top-level keys', () => {
@@ -88,12 +124,15 @@ describe('appConfig', () => {
     expect(appConfig).not.toHaveProperty('unknownSection');
   });
 
-  test('ignores unrecognized keys within a known group', () => {
-    window.__APP_CONFIG__ = { auth0: { domain: 'auth-dev.pamdas.org', unknownKey: 'value' } };
+  test('ignores unrecognized keys alongside a known one', () => {
+    window.__APP_CONFIG__ = {
+      authorizationServers: { $self: { clientId: 'das_web_client', grant: 'password' } },
+      unknownKey: 'value',
+    };
 
     const { default: appConfig } = require('./config');
 
-    expect(appConfig.auth0.domain).toBe('auth-dev.pamdas.org');
-    expect(appConfig.auth0).not.toHaveProperty('unknownKey');
+    expect(appConfig).not.toHaveProperty('unknownKey');
+    expect(Object.keys(appConfig)).toEqual(['authorizationServers']);
   });
 });

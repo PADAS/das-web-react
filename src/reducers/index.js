@@ -19,6 +19,7 @@ import mapPositionReducer, { persistenceConfig as mapPositionPersistenceConfig }
 import tracksReducer, { trackSettingsReducer } from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer, subjectStoreReducer } from '../ducks/subjects';
 import gearReducer from '../ducks/gear';
+import authDiscoveryReducer from '../ducks/auth-discovery';
 import systemConfigReducer from '../ducks/system-config';
 import systemStatusReducer from '../ducks/system-status';
 import {
@@ -153,6 +154,7 @@ const rootReducer = combineReducers({
     showReportHeatmap: reportHeatmapStateReducer,
     trackSettings: persistReducer(trackSettingsPersistenceConfig, trackSettingsReducer),
     userNotifications: userNotificationReducer,
+    authDiscovery: authDiscoveryReducer,
     systemConfig: systemConfigReducer,
     timeSliderState: timeSliderReducer,
     printTitle: printTitleReducer,

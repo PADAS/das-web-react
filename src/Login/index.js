@@ -11,9 +11,11 @@ import {
 
 import { ACCOUNT_LINKER_URL, SYSTEM_CONFIG_FLAGS } from '../constants';
 import { APP_ROUTES } from '../constants/routes';
-import appConfig from '../config';
-import { clearAuth, postAuth } from '../ducks/auth';
+import { applyAccessToken, clearAuth, postAuth } from '../ducks/auth';
+import { GRANT, selectResolution } from '../ducks/auth-discovery';
 import { fetchEula } from '../ducks/eula';
+import { checkTokenUsable, TOKEN_RESULT } from '../utils/token-usability';
+import { setResolvedIssuer } from '../utils/auth';
 import useNavigate from '../hooks/useNavigate';
 
 import * as styles from './styles.module.scss';
@@ -46,18 +48,22 @@ const LoginPage = () => {
   const [formErrors, setFormErrors] = useState({ username: null, password: null });
   const [isLoading, setIsLoading] = useState(false);
 
+  const { audience, clientId, grant, issuer } = useSelector(selectResolution);
+
   const isEULAEnabled = !!systemConfig?.[SYSTEM_CONFIG_FLAGS.EULA];
-  const requireIdp = !!systemConfig?.require_idp;
+  const usesRedirectGrant = grant === GRANT.AUTHORIZATION_CODE;
 
   const onAuth0Login = useCallback(async () => {
     try {
+      // Carried across the redirect so the callback leg does not have to probe again.
+      setResolvedIssuer(issuer);
       await auth0LoginWithRedirect({
-        authorizationParams: { audience: appConfig.auth0.audience },
+        authorizationParams: { audience },
       });
     } catch (_error) {
       setAlertMessage(t('errorAlert.signInFailed'));
     }
-  }, [auth0LoginWithRedirect, t]);
+  }, [audience, auth0LoginWithRedirect, issuer, t]);
 
   const onFormSubmit = useCallback(async (event) => {
     event.preventDefault();
@@ -84,7 +90,18 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      await dispatch(postAuth({ username, password }));
+      const accessToken = await dispatch(postAuth({ username, password }, clientId));
+
+      // The site issues a token whenever the credentials are right, but whether this
+      // application may present it is enforced per request. Adopting an unusable one enters
+      // the app and bounces straight back here, reporting nothing.
+      if (await checkTokenUsable(accessToken) === TOKEN_RESULT.REFUSED) {
+        setAlertMessage(t('errorAlert.signInNotAcceptedHere'));
+        return;
+      }
+
+      dispatch(applyAccessToken(accessToken));
+
       const options = location.state?.from
         ? { state: { comesFromLogin: true } }
         : {};
@@ -107,7 +124,7 @@ const LoginPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [dispatch, formData, location, navigate, t]);
+  }, [clientId, dispatch, formData, location, navigate, t]);
 
   const onInputChange = useCallback((event) => {
     setFormData((prevFormData) => ({ ...prevFormData, [event.target.name]: event.target.value }));
@@ -155,7 +172,7 @@ const LoginPage = () => {
     {/* Auth0 migration guidance: "Sign in with email" below drives EarthRanger
         Identity; users who have not converted their account yet are linked to
         the server account linker. */}
-    {requireIdp && (
+    {usesRedirectGrant && (
       <section className={styles.infoBox} aria-labelledby="auth0-info-title">
         <h2 className={styles.infoBoxTitle} id="auth0-info-title">
           {t('auth0Info.title')}
@@ -173,7 +190,7 @@ const LoginPage = () => {
       </section>
     )}
 
-    {requireIdp ? (
+    {usesRedirectGrant ? (
       <div className={styles.form}>
         <button
           aria-busy={isAuth0Loading}

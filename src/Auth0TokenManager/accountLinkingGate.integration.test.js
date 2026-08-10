@@ -10,6 +10,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import Auth0TokenManager from './';
 import RequireAccessToken from '../RequireAccessToken';
 import tokenReducer from '../ducks/auth';
+import authDiscoveryReducer, { SET_AUTH_DISCOVERY } from '../ducks/auth-discovery';
 import systemConfigReducer from '../ducks/system-config';
 import { GATE_RESULT, checkAccountLinked } from '../utils/account-linking';
 import useNavigate from '../hooks/useNavigate';
@@ -96,11 +97,27 @@ describe('post-callback account-linking gate', () => {
     store = createStore(
       combineReducers({
         data: combineReducers({ token: tokenReducer }),
-        view: combineReducers({ systemConfig: systemConfigReducer }),
+        view: combineReducers({
+          authDiscovery: authDiscoveryReducer,
+          systemConfig: systemConfigReducer,
+        }),
       }),
       {
         data: { token: { access_token: null } },
-        view: { systemConfig: { require_idp: true } },
+        view: {
+          authDiscovery: authDiscoveryReducer(undefined, {
+            type: SET_AUTH_DISCOVERY,
+            payload: {
+              ok: true,
+              grant: 'authorization_code',
+              audience: 'https://discovered.example/api',
+              clientId: 'discoveredClient',
+              issuer: 'https://auth.discovered.example/',
+              skipped: [],
+            },
+          }),
+          systemConfig: { loaded: true },
+        },
       },
       applyMiddleware(thunk, promiseMiddleware),
     );

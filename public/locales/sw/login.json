@@ -15,6 +15,7 @@
     "invalidCredentialsMessage": "Maelezo yasiyo sahihi yametolewa. Tafadhali jaribu tena.",
     "signInFailed": "Kuingia kumeshindwa. Tafadhali jaribu tena.",
     "signInIncomplete": "Hatukuweza kukamilisha kuingia kwako. Tafadhali jaribu tena.",
+    "signInNotAcceptedHere": "Tovuti hii haikukubali kuingia. Jina lako la mtumiaji na neno la siri yalikuwa sahihi, kwa hivyo muombe msimamizi kuhakikisha kwamba programu hii inaruhusiwa kuingia hapa.",
     "unknownErrorMessage": "Kumetokea kosa. Tafadhali jaribu tena."
   },
   "errors": {
@@ -27,6 +28,7 @@
   "loginButtonEmail": "Ingia kwa barua pepe",
   "loginButtonLoadingLabel": "Inapakia",
   "passwordLabel": "Nenosiri",
+  "signInUnavailable": "EarthRanger haikuweza kubaini jinsi ya kukuingiza katika {{site}}. Onyesha upya ukurasa ili kujaribu tena, na wasiliana na msimamizi wako ikiwa hali inaendelea.",
   "title": "Ingia",
   "usernameLabel": "Jina la Mtumiaji"
 }

@@ -2,7 +2,6 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
-import appConfig from '../config';
 import Auth0TokenManager from './';
 import { hasAuth0CallbackParams } from '../utils/auth0';
 import { isValidTokenFormat } from '../utils/auth';
@@ -49,7 +48,19 @@ describe('Auth0TokenManager', () => {
     useSelector.mockImplementation((selector) => {
       const state = {
         data: { token: { access_token: null } },
-        view: { systemConfig: { require_idp: true } }
+        view: {
+          authDiscovery: {
+            discovery: {
+              ok: true,
+              grant: 'authorization_code',
+              audience: 'https://discovered.example/api',
+              clientId: 'discoveredClient',
+              issuer: 'https://auth.discovered.example/',
+              skipped: [],
+            },
+            settled: true,
+          },
+        }
       };
       return selector(state);
     });
@@ -96,7 +107,7 @@ describe('Auth0TokenManager', () => {
       await waitFor(() => {
         expect(mockGetAccessTokenSilently).toHaveBeenCalledWith({
           authorizationParams: {
-            audience: appConfig.auth0.audience,
+            audience: 'https://discovered.example/api',
           },
         });
       });
@@ -239,18 +250,21 @@ describe('Auth0TokenManager', () => {
       expect(applyAccessToken).not.toHaveBeenCalled();
     });
 
-    test('runs the gate on a site whose status response still reports an organization ID', async () => {
+    test('does not run on a site resolving to the password grant', async () => {
       useSelector.mockImplementation((selector) => selector({
         data: { token: { access_token: null } },
-        view: { systemConfig: { require_idp: true, idp_org_id: 'org_abc' } },
+        view: {
+          authDiscovery: {
+            discovery: { ok: true, grant: 'password', clientId: 'das_web_client', issuer: 'http://localhost/oauth2', skipped: [] },
+            settled: true,
+          },
+        },
       }));
 
       renderAfterCallback();
 
-      await waitFor(() => {
-        expect(checkAccountLinked).toHaveBeenCalledWith(VALID_TOKEN);
-      });
-      expect(applyAccessToken).toHaveBeenCalledWith(VALID_TOKEN);
+      await waitFor(() => expect(mockGetAccessTokenSilently).toHaveBeenCalled());
+      expect(checkAccountLinked).not.toHaveBeenCalled();
     });
   });
 });
