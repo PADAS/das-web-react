@@ -25,7 +25,7 @@ describe('auth utils', () => {
     });
 
     test('returns true when require_idp is true (loaded)', () => {
-      const systemConfig = { require_idp: true, sitename: 'Test Site', idp_org_id: 'org_123' };
+      const systemConfig = { require_idp: true, sitename: 'Test Site' };
       expect(isSystemConfigLoaded(systemConfig)).toBe(true);
     });
   });

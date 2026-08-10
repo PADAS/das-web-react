@@ -1,6 +1,5 @@
 import { renderHook } from '@testing-library/react';
 import { useAuth0 } from '@auth0/auth0-react';
-import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
 
 import useAuthRecovery from './useAuthRecovery';
@@ -8,7 +7,6 @@ import { registerAuthRecovery } from '../utils/auth-recovery';
 import { setIntendedPostAuth0SuccessRoute } from '../utils/auth';
 
 jest.mock('@auth0/auth0-react');
-jest.mock('react-redux', () => ({ useSelector: jest.fn() }));
 jest.mock('react-router', () => ({ __esModule: true, useLocation: jest.fn() }));
 jest.mock('../utils/auth-recovery', () => ({ registerAuthRecovery: jest.fn() }));
 jest.mock('../utils/auth', () => ({ setIntendedPostAuth0SuccessRoute: jest.fn() }));
@@ -24,7 +22,6 @@ describe('useAuthRecovery', () => {
     getAccessTokenSilently = jest.fn();
     loginWithRedirect = jest.fn().mockResolvedValue(undefined);
     useAuth0.mockReturnValue({ getAccessTokenSilently, loginWithRedirect });
-    useSelector.mockReturnValue(null); // idp_org_id (common-DB site)
     useLocation.mockReturnValue({ pathname: '/events/123', search: '?foo=bar' });
   });
 
@@ -43,11 +40,11 @@ describe('useAuthRecovery', () => {
 
     expect(setIntendedPostAuth0SuccessRoute).toHaveBeenCalledWith('/events/123?foo=bar');
     expect(loginWithRedirect).toHaveBeenCalledWith({
-      authorizationParams: expect.objectContaining({
+      authorizationParams: {
         audience: 'https://api.example',
         acr_values: 'urn:mfa',
         max_age: '3600',
-      }),
+      },
     });
   });
 

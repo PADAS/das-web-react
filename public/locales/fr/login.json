@@ -25,7 +25,6 @@
   "eulaLinkLabel": "EULA EarthRanger (s'ouvre dans un nouvel onglet)",
   "loginButton": "Se Connecter",
   "loginButtonEmail": "Se connecter avec un e-mail",
-  "loginButtonIdp": "Se Connecter",
   "loginButtonLoadingLabel": "Chargement",
   "passwordLabel": "Mot de passe",
   "title": "Connexion",
