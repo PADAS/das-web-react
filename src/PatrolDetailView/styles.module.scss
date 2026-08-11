@@ -1,6 +1,5 @@
 @import '../common/styles/layout';
 @import '../common/styles/vars/colors';
-@import '../common/styles/buttons';
 
 .patrolDetailView {
   display: flex;
@@ -72,10 +71,7 @@
 
 .footerActionButtonsContainer {
   display: flex;
-}
-
-.footerActionButton {
-  @include footerActionButton;
+  gap: 0.5rem;
 }
 
 .cancelButton {

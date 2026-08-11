@@ -883,15 +883,13 @@ const ReportDetailView = ({
           <div className={styles.footer}>
             <div className={styles.footerActionButtonsContainer}>
               <AddNoteButton
-                className={styles.footerActionButton}
                 data-testid={`reportDetailView-addNoteButton-${isAddedReport ? 'added' : 'original'}`}
                 onAddNote={onAddNote}
               />
 
-              <AddAttachmentButton className={styles.footerActionButton} onAddAttachments={onAddAttachments} />
+              <AddAttachmentButton onAddAttachments={onAddAttachments} />
 
               {showAddReportButton && <AddReportButton
-                className={styles.footerActionButton}
                 formProps={{ onSaveSuccess: onSaveAddedReport, relationshipButtonDisabled: true }}
                 onAddReport={onAddReport}
               />}

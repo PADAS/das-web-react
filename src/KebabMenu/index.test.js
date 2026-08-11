@@ -25,6 +25,12 @@ describe('KebabMenu', () => {
 
   const openMenu = () => userEvent.click(screen.getByRole('button', { name: 'Options menu' }));
 
+  const openMenuWithKeyboard = async () => {
+    screen.getByRole('button', { name: 'Options menu' }).focus();
+
+    await userEvent.keyboard('{Enter}');
+  };
+
   test('shows the toggle button', () => {
     renderKebabMenu();
 
@@ -50,12 +56,39 @@ describe('KebabMenu', () => {
     expect(screen.getByRole('button', { name: 'Options menu' })).toHaveAttribute('aria-expanded', 'true');
   });
 
-  test('focuses the first option when the menu is opened', async () => {
+  test('does not focus an option when the menu is opened by clicking the toggle button', async () => {
     renderKebabMenu();
 
     await openMenu();
+    await screen.findByRole('menu');
+
+    expect(screen.getByRole('button', { name: 'Options menu' })).toHaveFocus();
+  });
+
+  test('focuses the first option when the menu is opened with the keyboard', async () => {
+    renderKebabMenu();
+
+    await openMenuWithKeyboard();
 
     expect(await screen.findByText('First option')).toHaveFocus();
+  });
+
+  test('opens the menu and focuses the first option when ArrowDown is pressed on the toggle button', async () => {
+    renderKebabMenu();
+
+    screen.getByRole('button', { name: 'Options menu' }).focus();
+    await userEvent.keyboard('{ArrowDown}');
+
+    expect(await screen.findByText('First option')).toHaveFocus();
+  });
+
+  test('opens the menu and focuses the last option when ArrowUp is pressed on the toggle button', async () => {
+    renderKebabMenu();
+
+    screen.getByRole('button', { name: 'Options menu' }).focus();
+    await userEvent.keyboard('{ArrowUp}');
+
+    expect(await screen.findByText('Third option')).toHaveFocus();
   });
 
   test('hides the menu when the toggle button is clicked again', async () => {
@@ -210,7 +243,7 @@ describe('KebabMenu', () => {
       </>,
     });
 
-    await openMenu();
+    await openMenuWithKeyboard();
     await screen.findByText('First option');
 
     await userEvent.keyboard('{ArrowDown}');
@@ -231,7 +264,7 @@ describe('KebabMenu', () => {
   test('ignores key presses that are not used for menu navigation', async () => {
     renderKebabMenu();
 
-    await openMenu();
+    await openMenuWithKeyboard();
     const firstOption = await screen.findByText('First option');
 
     await userEvent.keyboard('a');
@@ -267,7 +300,7 @@ describe('KebabMenu', () => {
   test('does not move focus to an option when the mouse hovers over it', async () => {
     renderKebabMenu();
 
-    await openMenu();
+    await openMenuWithKeyboard();
     const firstOption = await screen.findByText('First option');
 
     await userEvent.hover(screen.getByText('Third option'));
@@ -279,7 +312,10 @@ describe('KebabMenu', () => {
     renderKebabMenu();
 
     await openMenu();
-    await screen.findByText('First option');
+    await screen.findByRole('menu');
+
+    await userEvent.keyboard('{ArrowDown}');
+    expect(screen.getByText('First option')).toHaveFocus();
 
     await userEvent.keyboard('{ArrowDown}');
     expect(screen.getByText('Third option')).toHaveFocus();

@@ -60,16 +60,21 @@
   "patrolOverview": {
     "footer": {
       "addEventButton": "घटना थप्नुहोस्",
+      "addEventButtonLabel": "घटना थप्नुहोस्",
+      "addEventButtonText": "घटना",
       "cancelOption": "गस्ती रद्द गर्नुहोस्",
       "endOption": "गस्ती अन्त्य गर्नुहोस्",
       "pauseOption": "गस्ती रोक्नुहोस्",
-      "saveButton": "गस्ती सुरक्षित गर्नुहोस्",
+      "saveButton": "सुरक्षित गर्नुहोस्",
+      "saveButtonLoadingLabel": "लोड हुँदैछ",
       "updateStatusButton": "स्थिति अपडेट गर्नुहोस्"
     },
     "header": {
       "breadcrumbNavLabel": "गस्ती नेभिगेशन",
       "breadcrumbPatrolsLabel": "गस्तीहरू",
       "closeButtonLabel": "साइडबार बन्द गर्नुहोस्",
+      "copyLinkMessage": "लिकं कपि भयो",
+      "copyLinkOption": "गस्तीको लिकं कपि गर्नुहोस्",
       "downloadTrackOption": "गस्तीको ट्र्याक डाउनलोड गर्नुहोस्",
       "editTitleButtonLabel": "शीर्षक सम्पादन गर्नुहोस्",
       "fitToBoundsButtonLabel": "गस्तीको सीमामा मिलाउनुहोस्",
@@ -100,18 +105,25 @@
       "timeLabel": "समय"
     },
     "historyTabTitle": "इतिहास",
+    "navigationPromptModalDescription": "यहाँ सुरक्षित नगरिएका परिवर्तनहरू छन्। तपाईं पछि जान वा यी परिवर्तनहरू खारेज गर्न चाहनुहुन्छ?",
     "overview": {
       "activity": {
         "activeTimeLabel": "सक्रिय समय",
         "activitySectionTitle": "गतिविधि",
+        "collapseAllButtonLabel": "सबै बन्द गर्नुहोस्",
         "distanceLabel": "दूरी",
         "durationLabel": "अवधि",
+        "emptyStateMessage": "गस्ती गतिविधि यहाँ देखा पर्नेछ",
         "eventsLabel": "घटनाहरू",
         "expandAllButtonLabel": "सबै विस्तार गर्नुहोस्",
         "jumpToLocationButtonLabel": "स्थानमा जानुहोस्",
         "pausedTimeLabel": "रोकिएको समय",
-        "sortButtonLabel": "गतिविधि क्रमबद्ध गर्नुहोस्",
-        "viewButtonLabel": "हेर्नुहोस्"
+        "sortDirectionButtonLabel": {
+          "down": "गतिविधि आरोही क्रममा क्रमबद्ध गर्नुहोस्",
+          "up": "गतिविधि अवरोही क्रममा क्रमबद्ध गर्नुहोस्"
+        },
+        "startPatrolButton": "गस्ती सुरु गर्नुहोस्",
+        "timeLabel": "समय"
       },
       "legs": {
         "endColumnHeader": "अन्त्य मिति",

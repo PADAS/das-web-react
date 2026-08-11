@@ -60,16 +60,21 @@
   "patrolOverview": {
     "footer": {
       "addEventButton": "Agregar evento",
+      "addEventButtonLabel": "Agregar evento",
+      "addEventButtonText": "Evento",
       "cancelOption": "Cancelar patrulla",
       "endOption": "Finalizar patrulla",
       "pauseOption": "Pausar patrulla",
-      "saveButton": "Guardar patrulla",
+      "saveButton": "Guardar",
+      "saveButtonLoadingLabel": "Cargando",
       "updateStatusButton": "Actualizar estado"
     },
     "header": {
       "breadcrumbNavLabel": "Navegación de patrullaje",
       "breadcrumbPatrolsLabel": "Patrullas",
       "closeButtonLabel": "Cerrar barra lateral",
+      "copyLinkMessage": "Link copiado",
+      "copyLinkOption": "Copiar link de la patrulla",
       "downloadTrackOption": "Descargar ruta de patrulla",
       "editTitleButtonLabel": "Editar título",
       "fitToBoundsButtonLabel": "Ajustar a los límites de la patrulla",
@@ -100,18 +105,25 @@
       "timeLabel": "Hora"
     },
     "historyTabTitle": "Historial",
+    "navigationPromptModalDescription": "Hay cambios sin guardar. ¿Desea regresar o descartar los cambios?",
     "overview": {
       "activity": {
         "activeTimeLabel": "Tiempo activo",
         "activitySectionTitle": "Actividad",
+        "collapseAllButtonLabel": "Colapsar todo",
         "distanceLabel": "Distancia",
         "durationLabel": "Duración",
+        "emptyStateMessage": "La actividad de la patrulla aparecerá aquí",
         "eventsLabel": "Eventos",
         "expandAllButtonLabel": "Expandir todo",
         "jumpToLocationButtonLabel": "Ir a la ubicación",
         "pausedTimeLabel": "Tiempo en pausa",
-        "sortButtonLabel": "Ordenar actividad",
-        "viewButtonLabel": "Ver"
+        "sortDirectionButtonLabel": {
+          "down": "Ordenar actividad de forma ascendente",
+          "up": "Ordenar actividad de forma descendente"
+        },
+        "startPatrolButton": "Iniciar Patrullaje",
+        "timeLabel": "Hora"
       },
       "legs": {
         "endColumnHeader": "Fecha de finalización",

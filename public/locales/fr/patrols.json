@@ -60,16 +60,21 @@
   "patrolOverview": {
     "footer": {
       "addEventButton": "Ajouter un événement",
+      "addEventButtonLabel": "Ajouter un événement",
+      "addEventButtonText": "Événement",
       "cancelOption": "Annuler la Patrouille",
       "endOption": "Terminer la Patrouille",
       "pauseOption": "Mettre la patrouille en pause",
-      "saveButton": "Enregistrer la patrouille",
+      "saveButton": "Sauvegarder",
+      "saveButtonLoadingLabel": "Chargement",
       "updateStatusButton": "Mettre à jour le statut"
     },
     "header": {
       "breadcrumbNavLabel": "Navigation de la patrouille",
       "breadcrumbPatrolsLabel": "Patrouilles",
       "closeButtonLabel": "Fermer la barre latérale",
+      "copyLinkMessage": "Lien copié avec succès",
+      "copyLinkOption": "Copier le lien de la patrouille",
       "downloadTrackOption": "Télécharger la Piste de la Patrouille",
       "editTitleButtonLabel": "Modifier le titre",
       "fitToBoundsButtonLabel": "Ajuster aux limites de la patrouille",
@@ -100,18 +105,25 @@
       "timeLabel": "Heure"
     },
     "historyTabTitle": "Historique",
+    "navigationPromptModalDescription": "Il y a des changements non sauvegardés. Souhaitez-vous retourner en arrière ou annuler les modifications ?",
     "overview": {
       "activity": {
         "activeTimeLabel": "Temps actif",
         "activitySectionTitle": "Activité",
+        "collapseAllButtonLabel": "Tout réduire",
         "distanceLabel": "Distance",
         "durationLabel": "Durée",
+        "emptyStateMessage": "L'activité de la patrouille apparaîtra ici",
         "eventsLabel": "Événements",
         "expandAllButtonLabel": "Tout développer",
         "jumpToLocationButtonLabel": "Aller à l'emplacement",
         "pausedTimeLabel": "Temps en pause",
-        "sortButtonLabel": "Trier l'activité",
-        "viewButtonLabel": "Voir"
+        "sortDirectionButtonLabel": {
+          "down": "Trier l'activité par ordre croissant",
+          "up": "Trier l'activité par ordre décroissant"
+        },
+        "startPatrolButton": "Commencer la Patrouille",
+        "timeLabel": "Heure"
       },
       "legs": {
         "endColumnHeader": "Date de Fin",

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { memo, useContext, useMemo } from 'react';
 import { bbox, featureCollection } from '@turf/turf';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -15,16 +15,13 @@ import {
 import { format, STANDARD_DATE_FORMAT } from '../../../../../utils/datetime';
 import { selectPatrolTrackData } from '../../../../../selectors/patrols';
 import { TAB_KEYS } from '../../../../../constants';
+import { TrackerContext } from '../../../../../utils/analytics';
 import useJumpToLocation from '../../../../../hooks/useJumpToLocation';
 import useNavigate from '../../../../../hooks/useNavigate';
 
 import Link from '../../../../../Link';
 
 import * as styles from './styles.module.scss';
-
-// TODO: Team and tracking assignments aren't part of the patrol segment data
-// model yet.
-const TEAM_PLACEHOLDER = 'Maya Chen +1';
 
 const SIMPLIFIED_DATE_FORMAT = 'MM/dd/yyyy HH:mm';
 
@@ -33,6 +30,8 @@ const formatLegDate = (date, dateFormat) => date ? format(date, dateFormat) : nu
 const Legs = ({ patrol }) => {
   const navigate = useNavigate();
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolOverview.overview.legs' });
+
+  const tracker = useContext(TrackerContext);
 
   const jumpToLocation = useJumpToLocation();
 
@@ -49,6 +48,7 @@ const Legs = ({ patrol }) => {
       bbox: legTrackFeatures.length ? bbox(featureCollection(legTrackFeatures)) : null,
       end: displayEndTimeForPatrolSegment(segment),
       id: segment.id,
+      leaderName: segment.leader?.name ?? null,
       number: index + 1,
       overviewPath: `/${TAB_KEYS.PATROLS}/${patrol.id}/legs/${segment.id}`,
       patrolTypeDisplay: displayNameForPatrolType(patrolTypes, segment.patrol_type),
@@ -56,96 +56,111 @@ const Legs = ({ patrol }) => {
     };
   }), [patrol, patrolTrackData, patrolTypes]);
 
-  const onClickZoomToLegBounds = (leg) => (event) => {
+  const onZoomToLegBounds = (leg) => (event) => {
     event.stopPropagation();
 
-    if (leg.bbox) {
-      jumpToLocation([[leg.bbox[0], leg.bbox[1]], [leg.bbox[2], leg.bbox[3]]], undefined, { maxZoom: 17 });
-    }
+    jumpToLocation([[leg.bbox[0], leg.bbox[1]], [leg.bbox[2], leg.bbox[3]]], undefined, { maxZoom: 17 });
+
+    tracker.track('Click "zoom to leg bounds" from patrol overview');
+  };
+
+  const onNavigateToLeg = (leg) => () => {
+    navigate(leg.overviewPath);
+
+    tracker.track('View leg from patrol overview');
+  };
+
+  const onViewLeg = (leg) => (event) => {
+    event.stopPropagation();
+
+    onNavigateToLeg(leg)();
   };
 
   return <>
-    <table className={styles.legTable}>
-      <caption className="sr-only">{t('legTableCaption')}</caption>
+    <div className={styles.legTableWrapper}>
+      <table className={styles.legTable}>
+        <caption className="sr-only">{t('legTableCaption')}</caption>
 
-      <thead>
-        <tr>
-          <th scope="col">{t('legColumnHeader')}</th>
+        <thead>
+          <tr>
+            <th scope="col">{t('legColumnHeader')}</th>
 
-          <th scope="col">{t('patrolTypeColumnHeader')}</th>
+            <th scope="col">{t('patrolTypeColumnHeader')}</th>
 
-          <th scope="col">{t('startColumnHeader')}</th>
+            <th scope="col">{t('startColumnHeader')}</th>
 
-          <th scope="col">{t('endColumnHeader')}</th>
+            <th scope="col">{t('endColumnHeader')}</th>
 
-          <th scope="col">{t('teamColumnHeader')}</th>
+            <th scope="col">{t('teamColumnHeader')}</th>
 
-          <th scope="col">
-            <span className="sr-only">{t('legActionsColumnHeader')}</span>
-          </th>
-        </tr>
-      </thead>
+            <th scope="col">
+              <span className="sr-only">{t('legActionsColumnHeader')}</span>
+            </th>
+          </tr>
+        </thead>
 
-      <tbody>
-        {legs.map((leg) => <tr className={styles.legRow} key={leg.id} onClick={() => navigate(leg.overviewPath)}>
-          <td>{leg.number}</td>
+        <tbody>
+          {legs.map((leg) => <tr className={styles.legRow} key={leg.id} onClick={onNavigateToLeg(leg)}>
+            <td>{leg.number}</td>
 
-          <td>{leg.patrolTypeDisplay}</td>
+            <td>{leg.patrolTypeDisplay}</td>
 
-          <td>
-            <time dateTime={leg.start?.toISOString()}>
-              <span className={styles.fullDate}>{formatLegDate(leg.start, STANDARD_DATE_FORMAT)}</span>
+            <td>
+              <time dateTime={leg.start?.toISOString()}>
+                <span className={styles.fullDate}>{formatLegDate(leg.start, STANDARD_DATE_FORMAT)}</span>
 
-              <span className={styles.simplifiedDate}>{formatLegDate(leg.start, SIMPLIFIED_DATE_FORMAT)}</span>
-            </time>
-          </td>
+                <span className={styles.simplifiedDate}>{formatLegDate(leg.start, SIMPLIFIED_DATE_FORMAT)}</span>
+              </time>
+            </td>
 
-          <td>
-            <time dateTime={leg.end?.toISOString()}>
-              <span className={styles.fullDate}>{formatLegDate(leg.end, STANDARD_DATE_FORMAT)}</span>
+            <td>
+              <time dateTime={leg.end?.toISOString()}>
+                <span className={styles.fullDate}>{formatLegDate(leg.end, STANDARD_DATE_FORMAT)}</span>
 
-              <span className={styles.simplifiedDate}>{formatLegDate(leg.end, SIMPLIFIED_DATE_FORMAT)}</span>
-            </time>
-          </td>
+                <span className={styles.simplifiedDate}>{formatLegDate(leg.end, SIMPLIFIED_DATE_FORMAT)}</span>
+              </time>
+            </td>
 
-          <td>
-            {/* TODO: This cell should be a dropdown listing the leg's team and assets. */}
-            <span className={styles.teamColumn}>
-              {TEAM_PLACEHOLDER}
+            <td>
+              {/* TODO: Also list the leg's team members and tracked assets
+              once they're part of the data model. */}
+              <span className={styles.teamColumn}>{leg.leaderName}</span>
+            </td>
 
-              <span aria-hidden="true" className={styles.teamCaret} />
-            </span>
-          </td>
+            <td>
+              <div className={styles.legActionsColumn}>
+                <button
+                  aria-label={t('zoomToLegBoundsButtonLabel', { legNumber: leg.number })}
+                  className={styles.zoomToLegBoundsButton}
+                  disabled={!leg.bbox}
+                  onClick={onZoomToLegBounds(leg)}
+                  title={t('zoomToLegBoundsButtonLabel', { legNumber: leg.number })}
+                  type="button"
+                >
+                  <FitScreenIcon aria-hidden="true" />
+                </button>
 
-          <td>
-            <div className={styles.legActionsColumn}>
-              <button
-                aria-label={t('zoomToLegBoundsButtonLabel', { legNumber: leg.number })}
-                className={styles.zoomToLegBoundsButton}
-                disabled={!leg.bbox}
-                onClick={onClickZoomToLegBounds(leg)}
-                title={t('zoomToLegBoundsButtonLabel', { legNumber: leg.number })}
-                type="button"
-              >
-                <FitScreenIcon aria-hidden="true" />
-              </button>
+                <Link
+                  aria-label={t('viewLegButtonLabel', { legNumber: leg.number })}
+                  className={styles.viewLegButton}
+                  onClick={onViewLeg(leg)}
+                  title={t('viewLegButtonLabel', { legNumber: leg.number })}
+                  to={leg.overviewPath}
+                >
+                  <ChevronRightIcon aria-hidden="true" />
+                </Link>
+              </div>
+            </td>
+          </tr>)}
+        </tbody>
+      </table>
+    </div>
 
-              <Link
-                aria-label={t('viewLegButtonLabel', { legNumber: leg.number })}
-                className={styles.viewLegButton}
-                onClick={(event) => event.stopPropagation()}
-                title={t('viewLegButtonLabel', { legNumber: leg.number })}
-                to={leg.overviewPath}
-              >
-                <ChevronRightIcon aria-hidden="true" />
-              </Link>
-            </div>
-          </td>
-        </tr>)}
-      </tbody>
-    </table>
-
-    <Link className={styles.newLegButton} to={`/${TAB_KEYS.PATROLS}/${patrol.id}/legs/new`}>
+    <Link
+        className={styles.newLegButton}
+        onClick={() => tracker.track('Click "add new leg" from patrol overview')}
+        to={`/${TAB_KEYS.PATROLS}/${patrol.id}/legs/new`}
+      >
       <ArrowRightFromLineIcon aria-hidden="true" />
 
       {t('newLegButton')}
@@ -153,4 +168,4 @@ const Legs = ({ patrol }) => {
   </>;
 };
 
-export default Legs;
+export default memo(Legs);

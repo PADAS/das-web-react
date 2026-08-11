@@ -31,14 +31,14 @@
       width: 0.25rem;
     }
 
-    &:focus-visible {
-      border-color: colors.$bright-blue;
-      outline: 1px solid colors.$bright-blue;
-    }
-
     &:hover {
       background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
       border-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+    }
+
+    &:focus-visible {
+      border-color: colors.$bright-blue;
+      outline: 1px solid colors.$bright-blue;
     }
   }
 }
@@ -71,7 +71,7 @@
         color: colors.$off-black;
         display: flex;
         outline: none;
-        padding: 0.4rem 1rem;
+        padding: 0.5rem 1rem;
         text-align: left;
         text-transform: capitalize;
         width: 100%;
@@ -80,17 +80,17 @@
           cursor: pointer;
         }
 
-        &:hover:not(:disabled, [aria-disabled="true"], :focus, :focus-within) {
+        &:hover:not(:disabled, [aria-disabled="true"], :focus-visible, :has(:focus-visible)) {
           background-color: color.adjust(colors.$light-gray-background, $lightness: 5%);
         }
 
-        &:focus, &:focus-within {
+        &:focus-visible, &:has(:focus-visible) {
           background-color: colors.$light-gray-background;
         }
 
         img, svg {
           flex-shrink: 0;
-          margin-right: 0.5rem;
+          margin-right: 1rem;
         }
 
         svg {

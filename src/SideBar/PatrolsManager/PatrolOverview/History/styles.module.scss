@@ -4,7 +4,7 @@
 @use '../_shared' as shared;
 
 .history {
-  background: colors.$off-white;
+  background: white;
   margin: 0 -1rem;
   padding: 1rem;
 
@@ -55,7 +55,6 @@
   }
 
   .updatesList {
-    border-top: 1px solid colors.$light-gray-lines;
     list-style: none;
     margin: 0;
     padding: 0;
@@ -68,8 +67,8 @@
       justify-content: space-between;
       padding: 0.625rem 0;
 
-      &:last-child {
-        border-bottom: none;
+      &:first-child {
+        border-top: 1px solid colors.$light-gray-lines;
       }
 
       .updateContent {

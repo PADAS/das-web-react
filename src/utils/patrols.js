@@ -214,7 +214,7 @@ export const actualStartTimeForPatrol = (patrol) => {
     : null;
 };
 
-export const getReportsForPatrol = (patrol) => patrol?.patrol_segments?.[0]?.events ?? [];
+export const getReportsForPatrol = (patrol) => patrol?.patrol_segments?.flatMap((segment) => segment.events ?? []) ?? [];
 
 export const displayEndTimeForPatrolSegment = (patrolSegment) => {
   const { scheduled_end, time_range: { end_time } = {} } = patrolSegment;

@@ -8,9 +8,11 @@
     "timeLabel": "Wakati"
   },
   "addAttachmentButton": "Kiambatisho",
+  "addAttachmentButtonLabel": "Ongeza kiambatisho",
   "addReportButtonLabel": "Unda Tukio",
   "addReportButtonTitle": "Tukio",
   "addNoteButton": "Maelezo",
+  "addNoteButtonLabel": "Ongeza maelezo",
   "attachmentControls": {
     "addNoteTitle": "Ongeza Maelezo",
     "addAttachmentTitle": "Ongeza Kiambatisho"

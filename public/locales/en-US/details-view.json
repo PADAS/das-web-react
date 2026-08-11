@@ -8,9 +8,11 @@
     "timeLabel": "Time"
   },
   "addAttachmentButton": "Attachment",
+  "addAttachmentButtonLabel": "Add an attachment",
   "addReportButtonLabel": "Create Event",
   "addReportButtonTitle": "Event",
   "addNoteButton": "Note",
+  "addNoteButtonLabel": "Add a note",
   "attachmentControls": {
     "addNoteTitle": "Add Note",
     "addAttachmentTitle": "Add Attachment"

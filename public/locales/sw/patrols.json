@@ -60,16 +60,21 @@
   "patrolOverview": {
     "footer": {
       "addEventButton": "Ongeza tukio",
+      "addEventButtonLabel": "Ongeza tukio",
+      "addEventButtonText": "Tukio",
       "cancelOption": "Ghairi Doria",
       "endOption": "Maliza Doria",
       "pauseOption": "Sitisha doria",
-      "saveButton": "Hifadhi Doria",
+      "saveButton": "Hifadhi",
+      "saveButtonLoadingLabel": "Inapakia",
       "updateStatusButton": "Sasisha hali"
     },
     "header": {
       "breadcrumbNavLabel": "Urambazaji wa doria",
       "breadcrumbPatrolsLabel": "Doria",
       "closeButtonLabel": "Funga upau wa pembeni",
+      "copyLinkMessage": "Kiungo kimekopwa",
+      "copyLinkOption": "Nakili kiungo cha doria",
       "downloadTrackOption": "Pakua Njia ya Doria",
       "editTitleButtonLabel": "Hariri kichwa",
       "fitToBoundsButtonLabel": "Rekebisha kwenye mipaka ya doria",
@@ -100,18 +105,25 @@
       "timeLabel": "Wakati"
     },
     "historyTabTitle": "Historia",
+    "navigationPromptModalDescription": "Kuna mabadiliko ambayo hayajahifadhiwa. Ungependa kurudi nyuma au kutupilia mbali mabadiliko?",
     "overview": {
       "activity": {
         "activeTimeLabel": "Muda Inatekelezwa",
         "activitySectionTitle": "Shughuli",
+        "collapseAllButtonLabel": "Ficha yote",
         "distanceLabel": "Umbali",
         "durationLabel": "Muda",
+        "emptyStateMessage": "Shughuli za doria zitaonekana hapa",
         "eventsLabel": "Matukio",
         "expandAllButtonLabel": "Panua yote",
         "jumpToLocationButtonLabel": "Enda mahali",
         "pausedTimeLabel": "Muda wa Kusitisha",
-        "sortButtonLabel": "Panga shughuli",
-        "viewButtonLabel": "Angalia"
+        "sortDirectionButtonLabel": {
+          "down": "Panga shughuli kwa mpangilio wa kupanda",
+          "up": "Panga shughuli kwa mpangilio wa kushuka"
+        },
+        "startPatrolButton": "Anza Doria",
+        "timeLabel": "Wakati"
       },
       "legs": {
         "endColumnHeader": "Tarehe ya Mwisho",

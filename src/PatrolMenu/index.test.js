@@ -105,7 +105,7 @@ describe('PatrolMenu', () => {
     renderPatrolMenu(undefined, storeWithUpdatePermissions);
     await userEvent.click(screen.getByRole('button'));
 
-    await userEvent.keyboard('{ArrowDown}{ArrowDown}');
+    await userEvent.keyboard('{ArrowDown}{ArrowDown}{ArrowDown}');
 
     expect(screen.getByRole('button', { name: 'Copy to clipboard' })).toHaveFocus();
   });
