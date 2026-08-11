@@ -115,35 +115,27 @@ const PatrolOverview = () => {
   }, []);
 
   const onAddAttachments = useCallback((files) => {
-    let attachmentsAdded = false;
+    const filesToAdd = filterDuplicateUploadFilenames(
+      [...existingAttachments, ...newAttachments.map((attachmentToAdd) => attachmentToAdd.file)],
+      convertFileListToArray(files)
+    );
 
-    setNewAttachments((prevNewAttachments) => {
-      const filesToAdd = filterDuplicateUploadFilenames(
-        [...existingAttachments, ...prevNewAttachments.map((attachmentToAdd) => attachmentToAdd.file)],
-        convertFileListToArray(files)
-      );
-
-      if (filesToAdd.length === 0) {
-        return prevNewAttachments;
-      }
-
-      attachmentsAdded = true;
-
-      return [
-        ...prevNewAttachments,
-        ...filesToAdd.map((file) => ({ creationDate: new Date().toISOString(), file, ref: newAttachmentRef })),
-      ];
-    });
-
-    if (attachmentsAdded) {
-      setTimeout(
-        () => newAttachmentRef.current?.scrollIntoView?.({ behavior: 'smooth' }),
-        NEW_ACTIVITY_SECTION_ITEM_SCROLL_DELAY
-      );
-
-      patrolOverviewTracker.track('Added Attachment');
+    if (filesToAdd.length === 0) {
+      return;
     }
-  }, [existingAttachments]);
+
+    setNewAttachments([
+      ...newAttachments,
+      ...filesToAdd.map((file) => ({ creationDate: new Date().toISOString(), file, ref: newAttachmentRef })),
+    ]);
+
+    setTimeout(
+      () => newAttachmentRef.current?.scrollIntoView?.({ behavior: 'smooth' }),
+      NEW_ACTIVITY_SECTION_ITEM_SCROLL_DELAY
+    );
+
+    patrolOverviewTracker.track('Added Attachment');
+  }, [existingAttachments, newAttachments]);
 
   const onDeleteAttachment = useCallback((fileToDelete) => {
     setNewAttachments(

@@ -38,28 +38,11 @@
 
       .sortDirectionButton {
         @include shared.chip-icon-button;
+        @include shared.chip-icon-button-active-state;
 
         svg {
           height: 1rem;
           width: 1rem;
-        }
-
-        &.active {
-          background-color: colors.$bright-blue;
-          border-color: colors.$bright-blue;
-          color: white;
-
-          &:hover {
-            background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
-            border-color: color.adjust(colors.$bright-blue, $lightness: -5%);
-          }
-
-          &:focus-visible {
-            background-color: white;
-            border-color: colors.$bright-blue;
-            color: colors.$bright-blue;
-            outline: 1px solid colors.$bright-blue;
-          }
         }
       }
 
