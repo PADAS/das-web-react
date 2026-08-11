@@ -57,6 +57,77 @@
     "okButton": "SAWA",
     "title": "Muda wa Doria Usiofaa"
   },
+  "patrolOverview": {
+    "footer": {
+      "addEventButton": "Ongeza tukio",
+      "cancelOption": "Ghairi Doria",
+      "endOption": "Maliza Doria",
+      "pauseOption": "Sitisha doria",
+      "saveButton": "Hifadhi Doria",
+      "updateStatusButton": "Sasisha hali"
+    },
+    "header": {
+      "breadcrumbNavLabel": "Urambazaji wa doria",
+      "breadcrumbPatrolsLabel": "Doria",
+      "closeButtonLabel": "Funga upau wa pembeni",
+      "downloadTrackOption": "Pakua Njia ya Doria",
+      "editTitleButtonLabel": "Hariri kichwa",
+      "fitToBoundsButtonLabel": "Rekebisha kwenye mipaka ya doria",
+      "jumpToLocationButtonLabel": "Enda mahali",
+      "moreOptionsButtonLabel": "Chaguo zaidi",
+      "printOption": "Chapisha Doria",
+      "titleInputLabel": "Kichwa cha doria",
+      "toggleTrackButtonLabel": {
+        "hidden": "Onyesha njia ya doria",
+        "pinned": "Ficha njia ya doria",
+        "visible": "Bandika njia ya doria"
+      },
+      "uiStateTitles": {
+        "active": "Inatekelezwa",
+        "cancelled": "Imefutwa",
+        "done": "Imekamilika",
+        "invalid": "Usanidi Batili",
+        "readyToStart": "Tayari kuanza",
+        "scheduled": "Imepangwa",
+        "startOverdue": "Kuanza Kuchelewa"
+      }
+    },
+    "history": {
+      "sortDirectionButtonLabel": {
+        "down": "Panga historia kwa mpangilio wa kupanda",
+        "up": "Panga historia kwa mpangilio wa kushuka"
+      }
+    },
+    "historyTabTitle": "Historia",
+    "overview": {
+      "activity": {
+        "activeTimeLabel": "Muda Inatekelezwa",
+        "activitySectionTitle": "Shughuli",
+        "distanceLabel": "Umbali",
+        "durationLabel": "Muda",
+        "eventsLabel": "Matukio",
+        "expandAllButtonLabel": "Panua yote",
+        "jumpToLocationButtonLabel": "Enda mahali",
+        "pausedTimeLabel": "Muda wa Kusitisha",
+        "sortButtonLabel": "Panga shughuli",
+        "viewButtonLabel": "Angalia"
+      },
+      "legs": {
+        "endColumnHeader": "Tarehe ya Mwisho",
+        "legActionsColumnHeader": "Vitendo",
+        "legColumnHeader": "Kipande",
+        "legTableCaption": "Vipande vya doria",
+        "newLegButton": "Kipande Kipya cha Doria",
+        "patrolTypeColumnHeader": "Aina ya doria",
+        "startColumnHeader": "Tarehe ya Kuanza",
+        "teamColumnHeader": "Timu na Ufuatiliaji",
+        "viewLegButtonLabel": "Angalia kipande {{legNumber}}",
+        "zoomToLegBoundsButtonLabel": "Rekebisha kwenye mipaka ya kipande {{legNumber}}"
+      }
+    },
+    "overviewTabTitle": "Muhtasari",
+    "tabsLabel": "Vichupo vya muhtasari wa doria"
+  },
   "patrolMenu": {
     "cancelPatrol": "Ghairi Doria",
     "copyButton": "Nakili kiungo cha doria",

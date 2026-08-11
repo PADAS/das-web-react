@@ -21,7 +21,7 @@ import patrols from '../__test-helpers/fixtures/patrols';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
 import { render, screen, waitFor } from '../test-utils';
 import SideBar from '.';
-import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../constants';
+import { PERMISSION_KEYS, PERMISSIONS, PREVIEW_FEATURES, SYSTEM_CONFIG_FLAGS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
 import { MapContext } from '../MapContext';
 import { report } from '../__test-helpers/fixtures/reports';
@@ -346,6 +346,18 @@ describe('SideBar', () => {
 
     expect(screen.queryByRole('button', { name: 'Create Patrol' })).toBeNull();
     expect(screen.getByRole('button', { name: 'Go Back' })).toBeVisible();
+  });
+
+  test('does not show the default header if a patrol item is active', async () => {
+    store.view.systemConfig.previewFeatures = { [PREVIEW_FEATURES.PATROL_SCHEMAS]: true };
+    useLocationMock = jest.fn((() => ({ pathname: '/patrols/123' })));
+    useLocation.mockImplementation(useLocationMock);
+
+    renderSideBar();
+
+    expect(screen.queryByRole('button', { name: 'Create Patrol' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Go Back' })).toBeNull();
+    expect(screen.queryByRole('heading', { name: 'Patrols' })).toBeNull();
   });
 
   test('does not show add or back buttons in the map layers tab', async () => {

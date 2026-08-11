@@ -171,6 +171,7 @@ describe('ReportManager - ReportDetailView', () => {
     state = {
       data: {
         subjectStore: {},
+        eventFilter: { filter: { date_range: { lower: '2020-01-01T06:00:00.000Z' } } },
         eventStore: { 456: mockReportWithNotes, 123: mockReport },
         eventTypes,
         patrolTypes,
@@ -186,6 +187,8 @@ describe('ReportManager - ReportDetailView', () => {
         mapLocationSelection: { isPickingLocation: false },
         sideBar: {},
         systemConfig: {},
+        timeSliderState: { active: false },
+        trackSettings: { length: 21, origin: 'CUSTOM_LENGTH' },
         userPreferences: { gpsFormat: GPS_FORMATS.DEG },
       },
     };

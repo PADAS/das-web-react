@@ -1,0 +1,53 @@
+@use 'sass:color';
+
+@use '../../../../common/styles/buttons';
+@use '../../../../common/styles/vars/colors';
+
+.footer {
+  align-items: center;
+  background: colors.$off-white;
+  border-top: 1px solid colors.$very-light-gray-alt;
+  display: flex;
+  flex-shrink: 0;
+  justify-content: space-between;
+  padding: 1rem;
+
+  .footerActions {
+    align-items: center;
+    display: flex;
+
+    .footerActionButton {
+      @include buttons.footerActionButton;
+
+      height: 2.25rem;
+    }
+  }
+
+  .footerStatusActions {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+
+    .updateStatusButton, .saveButton {
+      align-items: center;
+      display: flex;
+      height: 2.25rem;
+    }
+
+    .updateStatusButton {
+      background-color: colors.$blue-highlight;
+      border-color: colors.$blue-highlight;
+      color: colors.$bright-blue;
+
+      &:hover, &:focus, &:active {
+        background-color: color.adjust(colors.$blue-highlight, $lightness: -5%);
+        border-color: color.adjust(colors.$blue-highlight, $lightness: -5%);
+        color: colors.$bright-blue;
+      }
+
+      &:focus-visible {
+        outline: 2px solid colors.$bright-blue;
+      }
+    }
+  }
+}

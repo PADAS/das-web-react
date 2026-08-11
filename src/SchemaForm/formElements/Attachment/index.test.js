@@ -665,7 +665,7 @@ describe('SchemaForm - formElements - Attachment', () => {
       </Provider>
     );
 
-    expect(screen.getByRole('status')).toHaveTextContent("test.pdf couldn't be uploaded");
+    expect(screen.getByRole('status')).toHaveTextContent('test.pdf couldn\'t be uploaded');
   });
 
   test('announces multiple completed uploads to screen readers', () => {
@@ -733,7 +733,7 @@ describe('SchemaForm - formElements - Attachment', () => {
       </Provider>
     );
 
-    expect(screen.getByRole('status')).toHaveTextContent("2 files couldn't be uploaded");
+    expect(screen.getByRole('status')).toHaveTextContent('2 files couldn\'t be uploaded');
   });
 
   test('announces both completed and failed uploads when they occur in the same update', () => {
@@ -971,7 +971,7 @@ describe('SchemaForm - formElements - Attachment', () => {
     });
 
     expect(showToast).toHaveBeenCalledWith({
-      message: "test.pdf can't be added because its file type isn't allowed.",
+      message: 'test.pdf can\'t be added because its file type isn\'t allowed.',
     });
   });
 
@@ -999,7 +999,7 @@ describe('SchemaForm - formElements - Attachment', () => {
 
     expect(onFieldChange).toHaveBeenCalledWith('attachment-1', [{ uploadId: 'test-upload-id' }]);
     expect(showToast).toHaveBeenCalledWith({
-      message: "test.pdf can't be added because its file type isn't allowed.",
+      message: 'test.pdf can\'t be added because its file type isn\'t allowed.',
     });
   });
 

@@ -1,80 +1,127 @@
-@import '../common/styles/inputs';
-@import '../common/styles/vars/colors';
+@use 'sass:color';
+
+@use '../common/styles/inputs';
+@use '../common/styles/vars/colors';
 
 .kebabMenu {
-  display: flex;
-  --hamburger-menu-color: #1a2026;
-  background-color: rgba(108,117,125, 0.1);
-  border: none;
-  border-radius: 0.25rem;
-  height: 2.7rem;
-  min-width: 2.25rem;
-  padding: 0;
-  margin-right: 0.5rem;
-
-  &:active {
-    background: rgba(0,0,0,0.17);
-  }
-
-  &:hover {
-    background: $hover-button-background;
-  }
-
-  > button {
-    border: none;
-    outline: none;
-    background: none;
-    width: 100%;
-    padding: 0 !important;
-
-    > div {
-      align-items: center;
-      display: flex;
-      justify-content: center;
-      width: 100%;
-    }
-
-    &::after {
-      display: none;
-    }
-  }
+  display: inline-flex;
 
   @media print {
     opacity: 0;
   }
 
+  .toggle {
+    align-items: center;
+    background-color: var(--kebab-menu-background-color, #{colors.$light-gray-background});
+    border: 1px solid var(--kebab-menu-background-color, #{colors.$light-gray-background});
+    border-radius: 0.25rem;
+    display: flex;
+    height: var(--kebab-menu-size, 2.25rem);
+    justify-content: center;
+    padding: 0;
+    width: var(--kebab-menu-size, 2.25rem);
+
+    .dots {
+      background-color: var(--kebab-menu-dot-color, #{colors.$secondary-medium-gray});
+      border-radius: 50%;
+      box-shadow:
+        0 -0.5rem 0 var(--kebab-menu-dot-color, #{colors.$secondary-medium-gray}),
+        0 0.5rem 0 var(--kebab-menu-dot-color, #{colors.$secondary-medium-gray});
+      height: 0.25rem;
+      width: 0.25rem;
+    }
+
+    &:focus-visible {
+      border-color: colors.$bright-blue;
+      outline: 1px solid colors.$bright-blue;
+    }
+
+    &:hover {
+      background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+      border-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+    }
+  }
 }
 
-.menuDropdown {
-  padding: 0.312rem 0;
+.menuPopover {
+  @include inputs.boxShadow;
+  border: none !important;
+  border-radius: 0.25rem !important;
   min-width: 8.56rem;
-  @include boxShadow;
+
+  [class*=popover-arrow] {
+    display: none;
+  }
+
+  .menu {
+    margin: 0;
+
+    .divider {
+      background-color: colors.$light-gray-lines;
+      height: 1px;
+      margin: 0.312rem 0;
+      padding: 0;
+    }
+
+    .item {
+      .itemBtn {
+        align-items: center;
+        background-color: white;
+        border: none;
+        color: colors.$off-black;
+        display: flex;
+        outline: none;
+        padding: 0.4rem 1rem;
+        text-align: left;
+        text-transform: capitalize;
+        width: 100%;
+
+        &:hover:not(:disabled, [aria-disabled="true"]) {
+          cursor: pointer;
+        }
+
+        &:hover:not(:disabled, [aria-disabled="true"], :focus, :focus-within) {
+          background-color: color.adjust(colors.$light-gray-background, $lightness: 5%);
+        }
+
+        &:focus, &:focus-within {
+          background-color: colors.$light-gray-background;
+        }
+
+        img, svg {
+          flex-shrink: 0;
+          margin-right: 0.5rem;
+        }
+
+        svg {
+          color: colors.$secondary-medium-light-gray;
+          height: 1.125rem;
+          width: 1.125rem;
+        }
+
+        &:disabled, &[aria-disabled="true"] {
+          color: colors.$secondary-medium-light-gray;
+          cursor: default;
+
+          svg {
+            color: colors.$secondary-medium-light-gray;
+          }
+        }
+      }
+
+      &:first-child .itemBtn {
+        border-top-left-radius: 0.25rem;
+        border-top-right-radius: 0.25rem;
+      }
+
+      &:last-child .itemBtn {
+        border-bottom-left-radius: 0.25rem;
+        border-bottom-right-radius: 0.25rem;
+      }
+    }
+  }
 
   @media print {
     display: none !important;
-  }
-}
-
-.itemBtn {
-  text-transform: capitalize;
-
-  &:hover{
-    @include dropdown-options-hover;
-  }
-
-  img, svg {
-    margin-left: 0.1rem;
-    margin-right: 0.5rem;
-  }
-
-  svg {
-    height: 1.125rem;
-    width: 1.125rem;
-    color: $secondary-medium-light-gray;
-  }
-
-  button {
-    padding: 0 0.4rem 0 0;
-    color: var(--bs-dropdown-link-color);
   }
 }

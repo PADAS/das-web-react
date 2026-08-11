@@ -88,11 +88,12 @@ const SideBar = () => {
   // Hide the layers tab if all map features are disabled.
   const showLayersTab = analyzersEnabled || spatialFeaturesEnabled || subjectsEnabled || eventsEnabled;
 
-  const isPatrolDetailsViewActive = canReadPatrols
+  const isPatrolItemActive = canReadPatrols
     && !!matchPath(detailViewPattern(TAB_KEYS.PATROLS), location.pathname);
   const isReportDetailsViewActive = eventsEnabled
     && !!matchPath(detailViewPattern(TAB_KEYS.EVENTS), location.pathname);
 
+  const hideDefaultHeader = patrolSchemasEnabled && isPatrolItemActive;
 
   const showGearTab = hasGear;
 
@@ -185,9 +186,9 @@ const SideBar = () => {
   useEffect(() => {
     const onKeydown = (event) => {
       const wasEscapePressed = event.key === 'Escape';
-      const isDetailsViewActive = isReportDetailsViewActive || isPatrolDetailsViewActive;
+      const isItemViewActive = isReportDetailsViewActive || isPatrolItemActive;
       const isSideBarFocused = sideBarRef.current.contains(document.activeElement);
-      if (wasEscapePressed && isDetailsViewActive && isSideBarFocused && !isPickingLocation) {
+      if (wasEscapePressed && isItemViewActive && isSideBarFocused && !isPickingLocation) {
         navigate(tabPath(getCurrentTabFromURL(location.pathname)));
       }
     };
@@ -195,7 +196,7 @@ const SideBar = () => {
     document.addEventListener('keydown', onKeydown, false);
 
     return () => document.removeEventListener('keydown', onKeydown, false);
-  }, [isPatrolDetailsViewActive, isPickingLocation, isReportDetailsViewActive, location.pathname, navigate]);
+  }, [isPatrolItemActive, isPickingLocation, isReportDetailsViewActive, location.pathname, navigate]);
 
   useEffect(() => {
     sideBarRef.current.focus();
@@ -263,7 +264,7 @@ const SideBar = () => {
           <ERLogo />
         </div>
 
-        <div className={styles.header}>
+        {!hideDefaultHeader && <div className={styles.header}>
           <div className={styles.title}>
             {(currentTab === TAB_KEYS.EVENTS || currentTab === TAB_KEYS.PATROLS) && <div>
               {itemId
@@ -299,9 +300,9 @@ const SideBar = () => {
           >
             <CrossIcon />
           </button>
-        </div>
+        </div>}
 
-        <div className={styles.tabBody}>
+        <div className={`${styles.tabBody} ${hideDefaultHeader ? styles.noHeader : ''}`}>
           <Routes>
             {/* Gets rid of warning */}
             <Route path="/" element={null} />

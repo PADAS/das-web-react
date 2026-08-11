@@ -10,7 +10,7 @@
   position: relative;
 
   @media (min-width: $md-layout-width-min) {
-    width: 46rem;
+    @include sidebar-width-detail;
   }
 }
 

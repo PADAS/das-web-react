@@ -22,7 +22,7 @@
         "invalid": "स्वरुप मिलेन",
         "readyToStart": "सुरु गर्न तयार अवस्थामा",
         "scheduled": "निर्धारित",
-        "startOverdue": "बाँकी रहेको काम सुरु गर्नुहोस्"
+        "startOverdue": "सुरु हुन ढिलो भएको"
       }
     },
     "loadingMessage": "सुरक्षित हुँदैछ…",
@@ -56,6 +56,77 @@
     "body": "यो गस्ती सुरक्षित गर्न सकिएन । गस्तीको अन्त्य समय सुरुवाती समय भन्दा पछि हुनुपर्छ । कृपया गस्तीको सुरुवाती समय अथवा अन्त्य समय सच्याउनुहोस्",
     "okButton": "ठीक छ",
     "title": "गस्ती समय मिलेन"
+  },
+  "patrolOverview": {
+    "footer": {
+      "addEventButton": "घटना थप्नुहोस्",
+      "cancelOption": "गस्ती रद्द गर्नुहोस्",
+      "endOption": "गस्ती अन्त्य गर्नुहोस्",
+      "pauseOption": "गस्ती रोक्नुहोस्",
+      "saveButton": "गस्ती सुरक्षित गर्नुहोस्",
+      "updateStatusButton": "स्थिति अपडेट गर्नुहोस्"
+    },
+    "header": {
+      "breadcrumbNavLabel": "गस्ती नेभिगेशन",
+      "breadcrumbPatrolsLabel": "गस्तीहरू",
+      "closeButtonLabel": "साइडबार बन्द गर्नुहोस्",
+      "downloadTrackOption": "गस्तीको ट्र्याक डाउनलोड गर्नुहोस्",
+      "editTitleButtonLabel": "शीर्षक सम्पादन गर्नुहोस्",
+      "fitToBoundsButtonLabel": "गस्तीको सीमामा मिलाउनुहोस्",
+      "jumpToLocationButtonLabel": "स्थानमा जानुहोस्",
+      "moreOptionsButtonLabel": "थप विकल्पहरू",
+      "printOption": "गस्ती प्रिन्ट गर्नुहोस्",
+      "titleInputLabel": "गस्तीको शीर्षक",
+      "toggleTrackButtonLabel": {
+        "hidden": "गस्तीको ट्र्याक देखाउनुहोस्",
+        "pinned": "गस्तीको ट्र्याक लुकाउनुहोस्",
+        "visible": "गस्तीको ट्र्याक पिन गर्नुहोस्"
+      },
+      "uiStateTitles": {
+        "active": "सकृय",
+        "cancelled": "रद्द गरियो",
+        "done": "भयो",
+        "invalid": "स्वरुप मिलेन",
+        "readyToStart": "सुरु गर्न तयार अवस्थामा",
+        "scheduled": "निर्धारित",
+        "startOverdue": "सुरु हुन ढिलो भएको"
+      }
+    },
+    "history": {
+      "sortDirectionButtonLabel": {
+        "down": "इतिहास आरोही क्रममा क्रमबद्ध गर्नुहोस्",
+        "up": "इतिहास अवरोही क्रममा क्रमबद्ध गर्नुहोस्"
+      }
+    },
+    "historyTabTitle": "इतिहास",
+    "overview": {
+      "activity": {
+        "activeTimeLabel": "सक्रिय समय",
+        "activitySectionTitle": "गतिविधि",
+        "distanceLabel": "दूरी",
+        "durationLabel": "अवधि",
+        "eventsLabel": "घटनाहरू",
+        "expandAllButtonLabel": "सबै विस्तार गर्नुहोस्",
+        "jumpToLocationButtonLabel": "स्थानमा जानुहोस्",
+        "pausedTimeLabel": "रोकिएको समय",
+        "sortButtonLabel": "गतिविधि क्रमबद्ध गर्नुहोस्",
+        "viewButtonLabel": "हेर्नुहोस्"
+      },
+      "legs": {
+        "endColumnHeader": "अन्त्य मिति",
+        "legActionsColumnHeader": "कार्यहरू",
+        "legColumnHeader": "खण्ड",
+        "legTableCaption": "गस्ती खण्डहरू",
+        "newLegButton": "नयाँ गस्ती खण्ड",
+        "patrolTypeColumnHeader": "गस्ती प्रकार",
+        "startColumnHeader": "सुरु मिति",
+        "teamColumnHeader": "टोली र ट्र्याकिङ",
+        "viewLegButtonLabel": "खण्ड {{legNumber}} हेर्नुहोस्",
+        "zoomToLegBoundsButtonLabel": "खण्ड {{legNumber}} को सीमामा मिलाउनुहोस्"
+      }
+    },
+    "overviewTabTitle": "सारांश",
+    "tabsLabel": "गस्ती सारांश ट्याबहरू"
   },
   "patrolMenu": {
     "cancelPatrol": "गस्ती रद्द गर्नुहोस्",

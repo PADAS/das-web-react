@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { Route, Routes } from 'react-router';
 
+import PatrolOverview from './PatrolOverview';
 import PatrolsFeed from '../PatrolsFeed';
 
 const PatrolsManager = () => <Routes>
@@ -8,7 +9,7 @@ const PatrolsManager = () => <Routes>
 
   <Route path="new" element={<div>New Patrol</div>} />
 
-  <Route path=":patrolId" element={<div>Patrol Overview</div>} />
+  <Route path=":patrolId" element={<PatrolOverview />} />
 
   <Route path=":patrolId/legs/*" element={<div>Leg Manager</div>} />
 </Routes>;

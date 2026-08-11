@@ -1,17 +1,17 @@
-@import '../common/styles/vars/colors';
+@use '../common/styles/vars/colors';
 
-.container {
+.dateTime {
+  color: colors.$secondary-medium-gray;
   display: flex;
   flex-flow: column;
   line-height: normal;
   white-space: nowrap;
-  color: $secondary-medium-gray;
-}
 
-.date {
-  font-size: .75rem;
-}
+  .date {
+    font-size: .75rem;
+  }
 
-.elapsed {
-  font-size: .75rem;
+  .timeAgo {
+    font-size: .75rem;
+  }
 }

@@ -1,10 +1,10 @@
 import { TRACK_LENGTH_ORIGINS } from '../../ducks/tracks';
 
 import {
-  selectPatrolData,
   selectPatrolLeadersWithLastPosition,
   selectPatrolsWithTracks,
   selectPatrolsWithTracksData,
+  selectPatrolTrackData,
   selectSubjectTracksWithPatrolTrackShownFlag,
 } from './';
 
@@ -50,7 +50,7 @@ describe('Selectors - Patrols', () => {
     };
   });
 
-  describe('selectPatrolData', () => {
+  describe('selectPatrolTrackData', () => {
     beforeAll(() => {
       jest.useFakeTimers().setSystemTime(new Date('2020-01-10'));
     });
@@ -105,24 +105,43 @@ describe('Selectors - Patrols', () => {
           },
         ],
       };
-      expect(selectPatrolData(state, patrol)).toEqual({
+      expect(selectPatrolTrackData(state, patrol)).toEqual({
         leader: { id: 'subject123' },
-        patrol: {
-          patrol_segments: [
-            {
-              leader: { id: 'subject123' },
-              time_range: {
-                end_time: '2020-01-15T00:00:00.000Z',
-                start_time: '2020-01-01T00:00:00.000Z',
-              },
+        legsTrackData: [
+          {
+            fetchedDateRange: { since: '2020-01-01T00:00:00.000Z' },
+            indices: { from: 4, until: 1 },
+            points: { features: [] },
+            track: {
+              features: [
+                {
+                  geometry: {
+                    coordinates: [
+                      [0, 1],
+                      [0, 2],
+                      [0, 3],
+                      [0, 4],
+                    ],
+                  },
+                  properties: {
+                    coordinateProperties: {
+                      times: [
+                        '2020-01-03T00:00:00.000Z',
+                        '2020-01-05T00:00:00.000Z',
+                        '2020-01-07T00:00:00.000Z',
+                        '2020-01-09T00:00:00.000Z',
+                      ],
+                    },
+                  },
+                },
+              ],
             },
-          ],
-        },
+          },
+        ],
         trackData: {
-          fetchedDateRange: { since: '2020-01-01T00:00:00.000Z' },
-          indices: { from: 4, until: 1 },
-          points: { features: [] },
+          points: { type: 'FeatureCollection', features: [] },
           track: {
+            type: 'FeatureCollection',
             features: [
               {
                 geometry: {
@@ -148,6 +167,481 @@ describe('Selectors - Patrols', () => {
           },
         },
       });
+    });
+
+    test('resolves the patrol leader from the last leg', () => {
+      const patrol = {
+        state: 'done',
+        patrol_segments: [
+          {
+            leader: { id: 'subject111' },
+            time_range: {
+              end_time: '2020-01-03T00:00:00.000Z',
+              start_time: '2020-01-01T00:00:00.000Z',
+            },
+          },
+          {
+            leader: { id: 'subject222' },
+            time_range: {
+              end_time: '2020-01-07T00:00:00.000Z',
+              start_time: '2020-01-05T00:00:00.000Z',
+            },
+          },
+        ],
+      };
+
+      expect(selectPatrolTrackData(state, patrol)).toEqual({
+        leader: { id: 'subject222' },
+        legsTrackData: [null, null],
+        trackData: null,
+      });
+    });
+
+    test('excludes a leg from the combined track when its time range has no start time', () => {
+      state.data.tracks = {
+        subjectA: {
+          fetchedDateRange: { since: '2019-11-01T00:00:00.000Z' },
+          points: { features: [] },
+          track: {
+            features: [
+              {
+                geometry: { coordinates: [[9, 9], [9, 10]] },
+                properties: {
+                  coordinateProperties: {
+                    times: ['2019-11-01T00:00:00.000Z', '2019-11-02T00:00:00.000Z'],
+                  },
+                },
+              },
+            ],
+          },
+        },
+        subjectB: {
+          fetchedDateRange: { since: '2020-01-01T00:00:00.000Z' },
+          points: { features: [] },
+          track: {
+            features: [
+              {
+                geometry: {
+                  coordinates: [
+                    [0, 0],
+                    [0, 1],
+                    [0, 2],
+                    [0, 3],
+                    [0, 4],
+                  ],
+                },
+                properties: {
+                  coordinateProperties: {
+                    times: [
+                      '2020-01-01T00:00:00.000Z',
+                      '2020-01-03T00:00:00.000Z',
+                      '2020-01-05T00:00:00.000Z',
+                      '2020-01-07T00:00:00.000Z',
+                      '2020-01-09T00:00:00.000Z',
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      };
+      const patrol = {
+        state: 'done',
+        patrol_segments: [
+          {
+            leader: { id: 'subjectA' },
+            time_range: {
+              end_time: '2019-11-02T00:00:00.000Z',
+            },
+          },
+          {
+            leader: { id: 'subjectB' },
+            time_range: {
+              end_time: '2020-01-15T00:00:00.000Z',
+              start_time: '2020-01-01T00:00:00.000Z',
+            },
+          },
+        ],
+      };
+
+      expect(selectPatrolTrackData(state, patrol)).toEqual({
+        leader: { id: 'subjectB' },
+        legsTrackData: [
+          null,
+          {
+            fetchedDateRange: { since: '2020-01-01T00:00:00.000Z' },
+            indices: { from: 4, until: 1 },
+            points: { features: [] },
+            track: {
+              features: [
+                {
+                  geometry: {
+                    coordinates: [
+                      [0, 1],
+                      [0, 2],
+                      [0, 3],
+                      [0, 4],
+                    ],
+                  },
+                  properties: {
+                    coordinateProperties: {
+                      times: [
+                        '2020-01-03T00:00:00.000Z',
+                        '2020-01-05T00:00:00.000Z',
+                        '2020-01-07T00:00:00.000Z',
+                        '2020-01-09T00:00:00.000Z',
+                      ],
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        ],
+        trackData: {
+          points: { type: 'FeatureCollection', features: [] },
+          track: {
+            type: 'FeatureCollection',
+            features: [
+              {
+                geometry: {
+                  coordinates: [
+                    [0, 1],
+                    [0, 2],
+                    [0, 3],
+                    [0, 4],
+                  ],
+                },
+                properties: {
+                  coordinateProperties: {
+                    times: [
+                      '2020-01-03T00:00:00.000Z',
+                      '2020-01-05T00:00:00.000Z',
+                      '2020-01-07T00:00:00.000Z',
+                      '2020-01-09T00:00:00.000Z',
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      });
+    });
+
+    test('combines each leg\'s own track into the overall track, most recent leg first', () => {
+      state.data.tracks = {
+        subjectEarly: {
+          fetchedDateRange: { since: '2020-01-01T00:00:00.000Z' },
+          points: { features: [] },
+          track: {
+            features: [
+              {
+                geometry: {
+                  coordinates: [
+                    [0, 0],
+                    [0, 1],
+                    [0, 2],
+                    [0, 3],
+                    [0, 4],
+                  ],
+                },
+                properties: {
+                  coordinateProperties: {
+                    times: [
+                      '2020-01-01T00:00:00.000Z',
+                      '2020-01-03T00:00:00.000Z',
+                      '2020-01-05T00:00:00.000Z',
+                      '2020-01-07T00:00:00.000Z',
+                      '2020-01-09T00:00:00.000Z',
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+        subjectLate: {
+          fetchedDateRange: { since: '2020-02-01T00:00:00.000Z' },
+          points: { features: [] },
+          track: {
+            features: [
+              {
+                geometry: {
+                  coordinates: [
+                    [1, 0],
+                    [1, 1],
+                    [1, 2],
+                    [1, 3],
+                    [1, 4],
+                  ],
+                },
+                properties: {
+                  coordinateProperties: {
+                    times: [
+                      '2020-02-01T00:00:00.000Z',
+                      '2020-02-03T00:00:00.000Z',
+                      '2020-02-05T00:00:00.000Z',
+                      '2020-02-07T00:00:00.000Z',
+                      '2020-02-09T00:00:00.000Z',
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      };
+      const patrol = {
+        state: 'done',
+        patrol_segments: [
+          {
+            leader: { id: 'subjectEarly' },
+            time_range: {
+              end_time: '2020-01-15T00:00:00.000Z',
+              start_time: '2020-01-01T00:00:00.000Z',
+            },
+          },
+          {
+            leader: { id: 'subjectLate' },
+            time_range: {
+              end_time: '2020-02-15T00:00:00.000Z',
+              start_time: '2020-02-01T00:00:00.000Z',
+            },
+          },
+        ],
+      };
+
+      const { legsTrackData, trackData } = selectPatrolTrackData(state, patrol);
+
+      expect(legsTrackData.map(({ track }) => track.features[0].geometry.coordinates)).toEqual([
+        [[0, 1], [0, 2], [0, 3], [0, 4]],
+        [[1, 1], [1, 2], [1, 3], [1, 4]],
+      ]);
+      expect(trackData.track.features.map(({ geometry }) => geometry.coordinates)).toEqual([
+        [[1, 1], [1, 2], [1, 3], [1, 4]],
+        [[0, 1], [0, 2], [0, 3], [0, 4]],
+      ]);
+    });
+
+    test('derives the overall start and end location from the first and last legs that have one', () => {
+      state.data.tracks = {
+        subject111: {
+          fetchedDateRange: { since: '2019-11-01T00:00:00.000Z' },
+          points: { features: [] },
+          track: {
+            features: [
+              {
+                geometry: {
+                  coordinates: [
+                    [0, 0],
+                    [0, 1],
+                    [0, 2],
+                    [0, 3],
+                    [0, 4],
+                  ],
+                },
+                properties: {
+                  coordinateProperties: {
+                    times: [
+                      '2019-11-01T00:00:00.000Z',
+                      '2019-11-03T00:00:00.000Z',
+                      '2019-11-05T00:00:00.000Z',
+                      '2019-11-07T00:00:00.000Z',
+                      '2019-11-09T00:00:00.000Z',
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+        subject222: {
+          fetchedDateRange: { since: '2019-12-01T00:00:00.000Z' },
+          points: { features: [] },
+          track: {
+            features: [
+              {
+                geometry: {
+                  coordinates: [
+                    [1, 0],
+                    [1, 1],
+                    [1, 2],
+                    [1, 3],
+                    [1, 4],
+                  ],
+                },
+                properties: {
+                  coordinateProperties: {
+                    times: [
+                      '2019-12-01T00:00:00.000Z',
+                      '2019-12-03T00:00:00.000Z',
+                      '2019-12-05T00:00:00.000Z',
+                      '2019-12-07T00:00:00.000Z',
+                      '2019-12-09T00:00:00.000Z',
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      };
+      const patrol = {
+        state: 'done',
+        patrol_segments: [
+          {
+            end_location: { latitude: 1.1, longitude: 1.1 },
+            leader: { id: 'subject111' },
+            start_location: { latitude: 1, longitude: 1 },
+            time_range: {
+              end_time: '2019-11-15T00:00:00.000Z',
+              start_time: '2019-11-01T00:00:00.000Z',
+            },
+          },
+          {
+            end_location: { latitude: 2.2, longitude: 2.2 },
+            leader: { id: 'subject222' },
+            start_location: { latitude: 2, longitude: 2 },
+            time_range: {
+              end_time: '2019-12-15T00:00:00.000Z',
+              start_time: '2019-12-01T00:00:00.000Z',
+            },
+          },
+        ],
+      };
+
+      const { startStopGeometries } = selectPatrolTrackData(state, patrol);
+
+      expect(startStopGeometries.points.start_location.geometry.coordinates).toEqual([1, 1]);
+      expect(startStopGeometries.points.end_location.geometry.coordinates).toEqual([2.2, 2.2]);
+    });
+
+    test('does not compute any track or geometry data when the patrol state does not allow displaying tracks', () => {
+      state.data.tracks = {
+        subject123: {
+          fetchedDateRange: { since: '2020-01-01T00:00:00.000Z' },
+          points: { features: [] },
+          track: {
+            features: [
+              {
+                geometry: { coordinates: [[0, 0], [0, 1]] },
+                properties: {
+                  coordinateProperties: {
+                    times: ['2020-01-01T00:00:00.000Z', '2020-01-02T00:00:00.000Z'],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      };
+      const patrol = {
+        patrol_segments: [
+          {
+            leader: { id: 'subject123' },
+            time_range: {
+              start_time: '2020-03-01T00:00:00.000Z',
+            },
+          },
+        ],
+      };
+
+      expect(selectPatrolTrackData(state, patrol)).toEqual({
+        leader: { id: 'subject123' },
+        legsTrackData: [],
+        trackData: null,
+      });
+    });
+
+    test('derives the end location from the actual track when the patrol is done but its leg has no end time', () => {
+      state.data.tracks = {
+        subject999: {
+          fetchedDateRange: { since: '2020-01-01T00:00:00.000Z' },
+          points: {
+            features: [
+              { type: 'Feature', geometry: { type: 'Point', coordinates: [9, 9] }, properties: { time: '2020-01-05T00:00:00.000Z' } },
+              { type: 'Feature', geometry: { type: 'Point', coordinates: [1, 1] }, properties: { time: '2020-01-01T00:00:00.000Z' } },
+            ],
+          },
+          track: {
+            features: [
+              {
+                geometry: {
+                  coordinates: [
+                    [1, 1],
+                    [9, 9],
+                  ],
+                },
+                properties: {
+                  coordinateProperties: {
+                    times: ['2020-01-01T00:00:00.000Z', '2020-01-05T00:00:00.000Z'],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      };
+      const patrol = {
+        state: 'done',
+        patrol_segments: [
+          {
+            end_location: null,
+            leader: { id: 'subject999' },
+            start_location: { latitude: 1, longitude: 1 },
+            time_range: {
+              end_time: null,
+              start_time: '2020-01-01T00:00:00.000Z',
+            },
+          },
+        ],
+      };
+
+      const { startStopGeometries } = selectPatrolTrackData(state, patrol);
+
+      expect(startStopGeometries.points.start_location.geometry.coordinates).toEqual([1, 1]);
+      expect(startStopGeometries.points.end_location.geometry.coordinates).toEqual([9, 9]);
+    });
+
+    test('does not recompute the trimmed track when an unrelated subject\'s track updates', () => {
+      const patrolLeaderTrack = {
+        fetchedDateRange: { since: '2020-01-01T00:00:00.000Z' },
+        points: { features: [] },
+        track: {
+          features: [{
+            geometry: { coordinates: [[0, 0], [0, 1]] },
+            properties: {
+              coordinateProperties: {
+                times: ['2020-01-01T00:00:00.000Z', '2020-01-09T00:00:00.000Z'],
+              },
+            },
+          }],
+        },
+      };
+      state.data.tracks = { subject123: patrolLeaderTrack };
+
+      const patrol = {
+        patrol_segments: [{
+          leader: { id: 'subject123' },
+          time_range: { end_time: '2020-01-15T00:00:00.000Z', start_time: '2020-01-01T00:00:00.000Z' },
+        }],
+      };
+
+      const firstResult = selectPatrolTrackData(state, patrol);
+
+      state = {
+        ...state,
+        data: {
+          ...state.data,
+          tracks: { subject123: patrolLeaderTrack, subject999: { unrelated: true } },
+        },
+      };
+
+      const secondResult = selectPatrolTrackData(state, patrol);
+
+      expect(secondResult.trackData).toBe(firstResult.trackData);
     });
   });
 
@@ -344,6 +838,33 @@ describe('Selectors - Patrols', () => {
       expect(selectPatrolsWithTracksData(state)).toEqual([
         {
           leader: { id: 'subject456' },
+          legsTrackData: [
+            {
+              fetchedDateRange: { since: '2020-01-01T00:00:00.000Z' },
+              indices: { from: 2, until: 1 },
+              points: { features: [] },
+              track: {
+                features: [
+                  {
+                    geometry: {
+                      coordinates: [
+                        [1, 0],
+                        [2, 0],
+                      ],
+                    },
+                    properties: {
+                      coordinateProperties: {
+                        times: [
+                          '2020-01-13T00:00:00.000Z',
+                          '2020-01-15T00:00:00.000Z',
+                        ],
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          ],
           patrol: {
             patrol_segments: [
               {
@@ -356,10 +877,9 @@ describe('Selectors - Patrols', () => {
             ],
           },
           trackData: {
-            fetchedDateRange: { since: '2020-01-01T00:00:00.000Z' },
-            indices: { from: 2, until: 1 },
-            points: { features: [] },
+            points: { type: 'FeatureCollection', features: [] },
             track: {
+              type: 'FeatureCollection',
               features: [
                 {
                   geometry: {
@@ -383,6 +903,33 @@ describe('Selectors - Patrols', () => {
         },
         {
           leader: { id: 'subject123' },
+          legsTrackData: [
+            {
+              fetchedDateRange: { since: '2020-01-01T00:00:00.000Z' },
+              indices: { from: 2, until: 1 },
+              points: { features: [] },
+              track: {
+                features: [
+                  {
+                    geometry: {
+                      coordinates: [
+                        [0, 1],
+                        [0, 2],
+                      ],
+                    },
+                    properties: {
+                      coordinateProperties: {
+                        times: [
+                          '2020-01-03T00:00:00.000Z',
+                          '2020-01-05T00:00:00.000Z',
+                        ],
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          ],
           patrol: {
             patrol_segments: [
               {
@@ -395,10 +942,9 @@ describe('Selectors - Patrols', () => {
             ],
           },
           trackData: {
-            fetchedDateRange: { since: '2020-01-01T00:00:00.000Z' },
-            indices: { from: 2, until: 1 },
-            points: { features: [] },
+            points: { type: 'FeatureCollection', features: [] },
             track: {
+              type: 'FeatureCollection',
               features: [
                 {
                   geometry: {
@@ -586,6 +1132,73 @@ describe('Selectors - Patrols', () => {
           },
         },
       ]);
+    });
+
+    test('flags a subject as a patrol leader when it leads a leg other than the first', () => {
+      state.view.subjectTrackState.pinned = ['subject789'];
+      state.view.patrolTrackState.pinned = ['patrol789'];
+      state.data.patrolStore = {
+        patrol789: {
+          state: 'done',
+          patrol_segments: [
+            {
+              leader: {
+                id: 'subjectOther',
+              },
+              time_range: {
+                end_time: '2020-01-05T00:00:00.000Z',
+                start_time: '2020-01-01T00:00:00.000Z',
+              },
+            },
+            {
+              leader: {
+                id: 'subject789',
+              },
+              time_range: {
+                end_time: '2020-01-20T00:00:00.000Z',
+                start_time: '2020-01-10T00:00:00.000Z',
+              },
+            },
+          ],
+        },
+      };
+      state.data.tracks = {
+        subject789: {
+          fetchedDateRange: {
+            since: '2020-01-01T00:00:00.000Z',
+          },
+          points: {
+            features: [],
+          },
+          track: {
+            features: [
+              {
+                geometry: {
+                  coordinates: [
+                    [0, 0],
+                    [3, 0],
+                    [6, 0],
+                  ],
+                },
+                properties: {
+                  id: 'subject789',
+                  coordinateProperties: {
+                    times: [
+                      '2020-01-11T00:00:00.000Z',
+                      '2020-01-13T00:00:00.000Z',
+                      '2020-01-15T00:00:00.000Z',
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      };
+
+      const [subjectTracks] = selectSubjectTracksWithPatrolTrackShownFlag(state);
+
+      expect(subjectTracks.patrolTrackShown).toBe(true);
     });
   });
 });
