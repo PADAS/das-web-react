@@ -48,6 +48,12 @@ export const getReporterById = (id) => {
 
 export const displayTitleForEvent = (event, eventTypes) => event.title || eventTypeTitleForEvent(event, eventTypes);
 
+export const getIsEventFullyLoaded = (event) => !!event
+  && !!event.event_details
+  && !!event.files
+  && !!event.notes
+  && !!event.updates;
+
 export const getCoordinatesForEvent = (event) => {
   if (event?.geojson?.geometry?.type === 'Polygon') {
     return event.geojson.geometry.coordinates.reduce((accumulator, shape) => [...accumulator, ...shape], []);
