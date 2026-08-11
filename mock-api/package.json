@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "@faker-js/faker": "^10.5.0",
-    "@turf/turf": "^7.3.5",
+    "@turf/turf": "^7.4.0",
     "express": "^5.2.1",
     "nodemon": "^3.1.14"
   }

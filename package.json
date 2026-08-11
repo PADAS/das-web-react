@@ -5,7 +5,7 @@
   "buildbranch": "generated_by_build",
   "buildnum": "also_generated_by_build",
   "dependencies": {
-    "@auth0/auth0-react": "^2.22.1",
+    "@auth0/auth0-react": "^2.23.0",
     "@dnd-kit/collision": "^0.5.0",
     "@dnd-kit/dom": "^0.5.0",
     "@dnd-kit/helpers": "^0.5.0",
@@ -27,7 +27,7 @@
     "date-fns": "^4.4.0",
     "dompurify": "^3.4.13",
     "epsg-index": "^2.0.0",
-    "eslint": "^10.8.0",
+    "eslint": "^10.8.1",
     "geodesy": "^2.4.0",
     "humanize-duration": "^3.34.0",
     "i18next": "^26.3.6",
@@ -40,7 +40,7 @@
     "legacy-socket.io-client": "npm:socket.io-client@2.2.0",
     "localforage": "^1.10.0",
     "lodash-es": "^4.18.1",
-    "mapbox-gl": "^3.27.0",
+    "mapbox-gl": "^3.28.1",
     "pluralize": "^8.0.0",
     "proj4": "^2.21.0",
     "react": "^19.2.8",
@@ -74,7 +74,7 @@
     "suncalc": "^2.0.1",
     "use-sound": "^5.0.0",
     "uuid": "^14.0.1",
-    "web-vitals": "^6.0.1",
+    "web-vitals": "^6.1.0",
     "workbox-build": "^7.4.1"
   },
   "scripts": {
@@ -92,7 +92,7 @@
     "@babel/preset-react": "^8.0.1",
     "@eslint/js": "^10.0.1",
     "@testing-library/dom": "^10.4.1",
-    "@testing-library/jest-dom": "^7.0.0",
+    "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.3",
     "@vitejs/plugin-react": "^6.0.5",
@@ -114,7 +114,7 @@
     "stylelint-config-css-modules": "^4.6.0",
     "stylelint-config-standard": "^40.0.0",
     "stylelint-scss": "^7.2.0",
-    "vite": "^8.2.0",
+    "vite": "^8.2.1",
     "vite-plugin-svgr": "^5.2.0"
   },
   "jest": {
