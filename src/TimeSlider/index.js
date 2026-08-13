@@ -362,19 +362,19 @@ const TimeSlider = () => {
           </ul>
         </Popover>
       </Overlay>
-
-      <time className={styles.virtualDateWrapper} dateTime={currentDate.toISOString()}>
-        <span className={styles.virtualTime}>
-          {format(currentDate, SHORT_TIME_FORMAT, { locale: dateLocales[i18n.language] })}
-        </span>
-
-        <span className={styles.virtualDate}>
-          {format(currentDate, SHORTENED_DATE_FORMAT, { locale: dateLocales[i18n.language] })}
-        </span>
-      </time>
-
-      <div aria-hidden="true" className={styles.separator} />
     </>}
+
+    <time className={styles.virtualDateWrapper} dateTime={currentDate.toISOString()}>
+      <span className={styles.virtualTime}>
+        {format(currentDate, SHORT_TIME_FORMAT, { locale: dateLocales[i18n.language] })}
+      </span>
+
+      <span className={styles.virtualDate}>
+        {format(currentDate, SHORTENED_DATE_FORMAT, { locale: dateLocales[i18n.language] })}
+      </span>
+    </time>
+
+    <div aria-hidden="true" className={styles.separator} />
 
     <div className={styles.track}>
       <input
@@ -404,61 +404,59 @@ const TimeSlider = () => {
       </div>
     </div>
 
-    {!isCompact && <>
-      <OverlayTrigger
-        overlay={
-          <Popover className={styles.popover}>
-            <Popover.Header className={styles.popoverTitle}>
-              <ClockIcon aria-hidden="true" />
+    <OverlayTrigger
+      overlay={
+        <Popover className={styles.popover}>
+          <Popover.Header className={styles.popoverTitle}>
+            <ClockIcon aria-hidden="true" />
 
-              {t('popoverHeader')}
+            {t('popoverHeader')}
 
-              <Button
-                disabled={!isEventFilterDateRangeModified}
-                onClick={onClickReset}
-                size="sm"
-                type="button"
-                variant="light"
-              >
-                {t('popoverResetButton')}
-              </Button>
-            </Popover.Header>
+            <Button
+              disabled={!isEventFilterDateRangeModified}
+              onClick={onClickReset}
+              size="sm"
+              type="button"
+              variant="light"
+            >
+              {t('popoverResetButton')}
+            </Button>
+          </Popover.Header>
 
-            <Popover.Body className={styles.popoverBody}>
-              <EventFilterDateRange
-                endDateLabel=""
-                onEndChange={() => trackDateChange()}
-                onStartChange={() => trackDateChange()}
-                placement="top"
-                popoverClassName={styles.dateRangePopover}
-                startDateLabel=""
-              />
-            </Popover.Body>
-          </Popover>
-        }
-        rootClose
-        trigger="click"
-      >
-        <button
-          aria-label={t('dateRangeButtonLabel')}
-          className={`${styles.dateRangeButton} ${isEventFilterDateRangeModified ? styles.modified : ''}`}
-          title={t('dateRangeButtonLabel')}
-          type="button"
-        >
-          <CalendarIcon aria-hidden="true" />
-        </button>
-      </OverlayTrigger>
-
+          <Popover.Body className={styles.popoverBody}>
+            <EventFilterDateRange
+              endDateLabel=""
+              onEndChange={() => trackDateChange()}
+              onStartChange={() => trackDateChange()}
+              placement="top"
+              popoverClassName={styles.dateRangePopover}
+              startDateLabel=""
+            />
+          </Popover.Body>
+        </Popover>
+      }
+      rootClose
+      trigger="click"
+    >
       <button
-        aria-label={t('closeButtonLabel')}
-        className={styles.closeButton}
-        onClick={() => dispatch(setTimeSliderState(false))}
-        title={t('closeButtonLabel')}
+        aria-label={t('dateRangeButtonLabel')}
+        className={`${styles.dateRangeButton} ${isEventFilterDateRangeModified ? styles.modified : ''}`}
+        title={t('dateRangeButtonLabel')}
         type="button"
       >
-        <CrossIcon aria-hidden="true" />
+        <CalendarIcon aria-hidden="true" />
       </button>
-    </>}
+    </OverlayTrigger>
+
+    {!isCompact && <button
+      aria-label={t('closeButtonLabel')}
+      className={styles.closeButton}
+      onClick={() => dispatch(setTimeSliderState(false))}
+      title={t('closeButtonLabel')}
+      type="button"
+    >
+      <CrossIcon aria-hidden="true" />
+    </button>}
   </div>;
 };
 
