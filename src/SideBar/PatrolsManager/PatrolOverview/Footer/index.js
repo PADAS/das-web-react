@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import MoonLoader from 'react-spinners/MoonLoader';
 import noop from 'lodash/noop';
@@ -18,11 +18,16 @@ const ADD_EVENT_ANALYTICS_METADATA = { category: PATROL_OVERVIEW_CATEGORY, locat
 
 const SAVE_LOADER_SIZE = 18;
 
-const Footer = ({ addEventFormProps, disableAddNoteButton, onAddAttachments, onAddNote }) => {
+const Footer = ({
+  addEventFormProps,
+  disableAddNoteButton,
+  disableSaveButton,
+  isSaving,
+  onAddAttachments,
+  onAddNote,
+  onSave,
+}) => {
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolOverview.footer' });
-
-  // TODO: Implement saving logic.
-  const [isSaving] = useState(false);
 
   return <footer className={`${styles.footer} ${styles.hideOnPrint}`}>
     <div className={styles.leftActions}>
@@ -63,13 +68,15 @@ const Footer = ({ addEventFormProps, disableAddNoteButton, onAddAttachments, onA
         aria-busy={isSaving}
         aria-label={isSaving ? t('saveButtonLoadingLabel') : undefined}
         className={styles.saveButton}
-        disabled={isSaving}
-        onClick={noop}
+        disabled={disableSaveButton || isSaving}
+        onClick={onSave}
         type="button"
       >
-        {isSaving
-          ? <MoonLoader aria-hidden color="white" size={SAVE_LOADER_SIZE} />
-          : t('saveButton')}
+        <span className={styles.saveButtonLabel}>{t('saveButton')}</span>
+
+        {isSaving && <span className={styles.saveButtonLoader}>
+          <MoonLoader aria-hidden color="white" size={SAVE_LOADER_SIZE} />
+        </span>}
       </button>
     </div>
   </footer>;

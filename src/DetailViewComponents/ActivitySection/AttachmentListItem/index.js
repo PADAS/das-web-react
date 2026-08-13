@@ -25,7 +25,7 @@ import * as styles from './styles.module.scss';
 const ATTACHMENT_ANALYTICS_LABEL = 'attachment';
 
 const useBase64ImageSource = (url) => {
-  const [source, setSource] = useState(null);
+  const [downloadedImage, setDownloadedImage] = useState(null);
 
   useEffect(() => {
     if (!url) {
@@ -36,9 +36,9 @@ const useBase64ImageSource = (url) => {
 
     const downloadSource = async () => {
       try {
-        const result = await fetchImageAsBase64FromUrl(url);
+        const source = await fetchImageAsBase64FromUrl(url);
         if (!isCancelled) {
-          setSource(result);
+          setDownloadedImage({ source, url });
         }
       } catch {
         // Attachment urls are signed and expire, so a rejection is expected.
@@ -52,7 +52,7 @@ const useBase64ImageSource = (url) => {
     };
   }, [url]);
 
-  return source;
+  return downloadedImage?.url === url ? downloadedImage.source : null;
 };
 
 const AttachmentListItem = ({

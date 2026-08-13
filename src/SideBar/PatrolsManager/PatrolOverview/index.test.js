@@ -1,11 +1,12 @@
 import React from 'react';
 import { Provider } from 'react-redux';
+import { toast } from 'react-toastify';
 import { useLocation, useParams } from 'react-router';
 import userEvent from '@testing-library/user-event';
 
 import AddItemButton from '../../../AddItemButton';
 import { addPatrolSegmentToEvent } from '../../../utils/events';
-import { fetchPatrol } from '../../../ducks/patrols';
+import { fetchPatrol, updatePatrol, uploadPatrolFile } from '../../../ducks/patrols';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import patrolTypes from '../../../__test-helpers/fixtures/patrol-types';
 import patrols from '../../../__test-helpers/fixtures/patrols';
@@ -23,6 +24,8 @@ jest.mock('../../../AddItemButton', () => jest.fn());
 jest.mock('../../../ducks/patrols', () => ({
   ...jest.requireActual('../../../ducks/patrols'),
   fetchPatrol: jest.fn(),
+  updatePatrol: jest.fn(),
+  uploadPatrolFile: jest.fn(),
 }));
 
 jest.mock('../../../utils/events', () => ({
@@ -55,6 +58,9 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     AddItemButton.mockImplementation(addItemButtonMock);
 
     fetchPatrol.mockReturnValue({ type: 'FETCH_PATROL' });
+    updatePatrol.mockImplementation(() => () => Promise.resolve());
+    uploadPatrolFile.mockResolvedValue({});
+    jest.spyOn(toast, 'error').mockImplementation(() => {});
     jest.spyOn(trackUtils, 'fetchTracksIfNecessary').mockImplementation(() => Promise.resolve({}));
 
     store = {
@@ -79,6 +85,10 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
         trackSettings: { length: 21, origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH },
       },
     };
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   const renderPatrolOverview = (patrolId, { withLocationDisplay = false } = {}) => {
@@ -523,5 +533,164 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       expect(screen.getByTestId('test-location')).not.toHaveTextContent(patrolWithoutLeader.id);
     });
     expect(screen.getByTestId('test-location')).toHaveTextContent('/patrols');
+  });
+
+  describe('saving', () => {
+    const clickSave = async () => userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    const addNote = async (text) => {
+      await userEvent.click(await screen.findByTestId('addNoteButton'));
+      await userEvent.type(screen.getByTestId('activitySection-noteTextArea-'), text);
+      await userEvent.click(screen.getByTestId(`activitySection-noteDone-${text}`));
+    };
+
+    const uploadAttachment = async (file) => {
+      await userEvent.upload(await screen.findByTestId('addAttachmentButton'), file);
+    };
+
+    test('disables the save button while there is nothing to save', async () => {
+      store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
+
+      renderPatrolOverview(patrolWithoutLeader.id);
+
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
+
+    test('enables the save button once there are changes', async () => {
+      store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
+
+      renderPatrolOverview(patrolWithoutLeader.id);
+
+      await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
+
+      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+    });
+
+    test('keeps the save button disabled when an existing note only gained whitespace', async () => {
+      renderPatrolWithNotes();
+
+      await userEvent.click(await screen.findByTestId('activitySection-editIcon-note1'));
+      await userEvent.type(screen.getByTestId('activitySection-noteTextArea-note1'), '  ');
+
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
+
+    test('keeps the save button disabled when an existing note is emptied', async () => {
+      renderPatrolWithNotes();
+
+      await userEvent.click(await screen.findByTestId('activitySection-editIcon-note1'));
+      await userEvent.clear(screen.getByTestId('activitySection-noteTextArea-note1'));
+
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
+
+    test('keeps the save button disabled while a new note has no text yet', async () => {
+      store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
+
+      renderPatrolOverview(patrolWithoutLeader.id);
+
+      await userEvent.click(await screen.findByTestId('addNoteButton'));
+
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
+
+    test('patches the patrol with the edited title only', async () => {
+      store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
+
+      renderPatrolOverview(patrolWithoutLeader.id);
+
+      await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
+      await clickSave();
+
+      await waitFor(() => {
+        expect(updatePatrol).toHaveBeenCalledWith({
+          id: patrolWithoutLeader.id,
+          title: `${patrolWithoutLeader.title} edited`,
+        });
+      });
+    });
+
+    test('patches the patrol with the whole notes collection when a note is added', async () => {
+      renderPatrolWithNotes();
+
+      await addNote('a new note');
+      await clickSave();
+
+      await waitFor(() => {
+        expect(updatePatrol).toHaveBeenCalledWith({
+          id: patrolWithNotes.id,
+          notes: [...patrolWithNotes.notes, { text: 'a new note' }],
+        });
+      });
+    });
+
+    test('patches the patrol with the whole notes collection when an existing note is edited', async () => {
+      renderPatrolWithNotes();
+
+      await editFirstNote('First note edited');
+      await userEvent.click(screen.getByTestId('activitySection-noteDone-note1'));
+      await clickSave();
+
+      const [firstNote, secondNote] = patrolWithNotes.notes;
+      await waitFor(() => {
+        expect(updatePatrol).toHaveBeenCalledWith({
+          id: patrolWithNotes.id,
+          notes: [{ ...firstNote, text: 'First note edited' }, secondNote],
+        });
+      });
+    });
+
+    test('uploads the new attachments without patching the patrol', async () => {
+      store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
+
+      renderPatrolOverview(patrolWithoutLeader.id);
+
+      const fakeFile = new File(['file contents'], 'file.pdf', { type: 'application/pdf' });
+      await uploadAttachment(fakeFile);
+      await clickSave();
+
+      await waitFor(() => {
+        expect(uploadPatrolFile).toHaveBeenCalledWith(patrolWithoutLeader.id, fakeFile);
+      });
+      expect(updatePatrol).not.toHaveBeenCalled();
+    });
+
+    test('refreshes the patrol and redirects to the feed once the save succeeds', async () => {
+      store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
+
+      renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true });
+
+      await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
+      await uploadAttachment(new File(['file contents'], 'file.pdf', { type: 'application/pdf' }));
+      await clickSave();
+
+      await waitFor(() => {
+        expect(fetchPatrol).toHaveBeenCalledWith(patrolWithoutLeader.id);
+      });
+      await waitFor(() => {
+        expect(screen.getByTestId('test-location')).not.toHaveTextContent(patrolWithoutLeader.id);
+      });
+      expect(screen.getByTestId('test-location')).toHaveTextContent('/patrols');
+      expect(screen.queryByText('Unsaved Changes')).not.toBeInTheDocument();
+    });
+
+    test('keeps the pending changes and reports the error when the save fails', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+      updatePatrol.mockImplementation(() => () => Promise.reject(new Error('Save error')));
+      store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
+
+      renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true });
+
+      await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
+      await clickSave();
+
+      await waitFor(() => {
+        expect(toast.error).toHaveBeenCalledWith('The patrol could not be saved. Please try again.');
+      });
+      expect(fetchPatrol).not.toHaveBeenCalled();
+      expect(screen.getByTestId('test-location')).toHaveTextContent(`/patrols/${patrolWithoutLeader.id}`);
+      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+      expect(screen.getByTestId('patrolOverview-title')).toHaveValue(`${patrolWithoutLeader.title} edited`);
+    });
   });
 });

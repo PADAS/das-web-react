@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Provider } from 'react-redux';
 import { useLocation } from 'react-router';
 import userEvent from '@testing-library/user-event';
@@ -33,6 +33,20 @@ const LocationDisplay = () => {
   return <div data-testid="test-location">{location.pathname}</div>;
 };
 
+// The title input is controlled by PatrolOverview, so the tests own its state too.
+const ControlledHeader = ({ onChangeTitle, patrol, ...restProps }) => {
+  const [title, setTitle] = useState(
+    () => patrolUtils.displayTitleForPatrol(patrol, patrol.patrol_segments.at(-1)?.leader)
+  );
+
+  const onChangeTitleValue = (newTitle) => {
+    setTitle(newTitle);
+    onChangeTitle(newTitle);
+  };
+
+  return <Header {...restProps} onChangeTitle={onChangeTitleValue} patrol={patrol} title={title} />;
+};
+
 describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
   const patrolWithLeader = patrols[1];
   const patrolWithoutLeader = patrols[0];
@@ -41,10 +55,13 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
   const map = createMapMock();
   const handlePrint = jest.fn();
 
+  let onChangeTitle;
   let store;
   let reduxStore;
   beforeEach(() => {
     useReactToPrint.mockImplementation(() => handlePrint);
+
+    onChangeTitle = jest.fn();
 
     store = {
       data: {
@@ -76,10 +93,10 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
       <Provider store={reduxStore}>
         <MapContext.Provider value={map}>
           <TrackerContext.Provider value={{ track: jest.fn() }}>
-            <Header
+            <ControlledHeader
+              onChangeTitle={onChangeTitle}
               patrol={patrolWithLeader}
               printableContentRef={{ current: <div>Printable patrol</div> }}
-              setIsTitleDirty={jest.fn()}
               {...props}
             />
 
@@ -464,23 +481,18 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
     expect(input).toHaveValue('New Patrol Title');
   });
 
-  test('reports the title as dirty when the user edits it, and clean again if reverted', async () => {
-    const setIsTitleDirty = jest.fn();
-
-    renderHeader({ setIsTitleDirty });
+  test('reports every title the user types', async () => {
+    renderHeader();
 
     const input = screen.getByTestId('patrolOverview-title');
 
-    expect(setIsTitleDirty).toHaveBeenLastCalledWith(false);
-
     await userEvent.type(input, ' edited');
 
-    expect(setIsTitleDirty).toHaveBeenLastCalledWith(true);
+    expect(onChangeTitle).toHaveBeenLastCalledWith('6p-test edited');
 
     await userEvent.clear(input);
-    await userEvent.type(input, '6p-test');
 
-    expect(setIsTitleDirty).toHaveBeenLastCalledWith(false);
+    expect(onChangeTitle).toHaveBeenLastCalledWith('');
   });
 
   test('shows the edit title button', () => {

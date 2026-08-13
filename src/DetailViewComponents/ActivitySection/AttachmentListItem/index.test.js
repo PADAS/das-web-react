@@ -416,6 +416,30 @@ describe('ActivitySection - AttachmentListItem', () => {
     expect(expandedImage).not.toHaveAttribute('tabindex');
   });
 
+  test('hides the previous image while the image url changes and the new one is still loading', async () => {
+    fetchImageAsBase64FromUrlMock = jest.fn((url) => url === 'slow-icon'
+      ? new Promise(() => {})
+      : Promise.resolve(url));
+    fetchImageAsBase64FromUrl.mockImplementation(fetchImageAsBase64FromUrlMock);
+
+    const { rerender } = renderWithWrapper(
+      <AttachmentListItem attachment={savedImageAttachment} isOpen={false} onCollapse={onCollapse} onExpand={onExpand} />
+    );
+
+    await waitFor(() => {
+      expect(document.querySelector('.attachmentThumbnail')).toHaveAttribute('src', 'icon');
+    });
+
+    const attachmentWithSlowIcon = { ...savedImageAttachment, images: { ...savedImageAttachment.images, icon: 'slow-icon' } };
+    rerender(
+      <AttachmentListItem attachment={attachmentWithSlowIcon} isOpen={false} onCollapse={onCollapse} onExpand={onExpand} />
+    );
+
+    await waitFor(() => {
+      expect(document.querySelector('.attachmentThumbnail')).toBeNull();
+    });
+  });
+
   test('ignores a stale image response if the image url changes before it resolves', async () => {
     let resolveSlowOriginal;
     fetchImageAsBase64FromUrlMock = jest.fn((url) => {

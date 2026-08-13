@@ -110,7 +110,7 @@ describe('PatrolDetailView - PlanSection', () => {
     const selectionImage = await screen.getByAltText('Radio icon for Alex value');
 
     expect(within(reportedBySelect).queryByText('Select Device...')).toBeNull();
-    expect(selectionImage).toHaveAttribute('src', 'https://localhost//static/ranger-black.svg');
+    expect(selectionImage).toHaveAttribute('src', 'https://localhost/static/ranger-black.svg');
     expect((await within(reportedBySelect).findByText('Alex'))).toBeDefined();
   });
 

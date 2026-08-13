@@ -142,6 +142,7 @@
       }
     },
     "overviewTabTitle": "सारांश",
+    "saveErrorMessage": "गस्ती सुरक्षित गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।",
     "tabsLabel": "गस्ती सारांश ट्याबहरू"
   },
   "patrolMenu": {

@@ -2,16 +2,19 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import MoonLoader from 'react-spinners/MoonLoader';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
+import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
 import { addPatrolSegmentToEvent } from '../../../utils/events';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../../../utils/file';
-import { fetchPatrol } from '../../../ducks/patrols';
+import { displayTitleForPatrol } from '../../../utils/patrols';
+import { fetchPatrol, updatePatrol, uploadPatrolFile } from '../../../ducks/patrols';
 import { fetchTracksIfNecessary } from '../../../utils/tracks';
 import { PATROL_OVERVIEW_CATEGORY, TrackerContext, trackEventFactory } from '../../../utils/analytics';
 import { TAB_KEYS as SIDEBAR_TAB_KEYS } from '../../../constants';
+import useNavigate from '../../../hooks/useNavigate';
 import { uuid } from '../../../utils/string';
 
 import Footer from './Footer';
@@ -32,25 +35,29 @@ const NEW_ACTIVITY_SECTION_ITEM_SCROLL_DELAY = parseFloat(activitySectionStyles.
 const TAB_KEYS = { HISTORY: 'history', OVERVIEW: 'overview' };
 const TAB_LABELS = { [TAB_KEYS.HISTORY]: 'History', [TAB_KEYS.OVERVIEW]: 'Overview' };
 
-const PatrolOverview = () => {
+const PatrolOverviewContent = ({ patrol }) => {
   const dispatch = useDispatch();
-  const { patrolId } = useParams();
+  const navigate = useNavigate();
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolOverview' });
 
-  const patrol = useSelector((state) => state.data.patrolStore[patrolId]);
-
-  const printableContentRef = useRef(null);
   const newAttachmentRef = useRef(null);
   const newNoteRef = useRef(null);
+  const printableContentRef = useRef(null);
+
+  const patrolTitle = displayTitleForPatrol(patrol, patrol.patrol_segments.at(-1)?.leader);
 
   const [editedExistingNotes, setEditedExistingNotes] = useState({});
-  const [isTitleDirty, setIsTitleDirty] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [newAttachments, setNewAttachments] = useState([]);
   const [newNotes, setNewNotes] = useState([]);
+  const [shouldRedirectToFeed, setShouldRedirectToFeed] = useState(false);
+  const [title, setTitle] = useState(patrolTitle);
 
-  const existingAttachments = useMemo(() => Array.isArray(patrol?.files) ? patrol.files : [], [patrol]);
+  const isTitleDirty = title.trim() !== patrolTitle.trim();
 
-  const patrolNotes = useMemo(() => Array.isArray(patrol?.notes) ? patrol.notes : [], [patrol]);
+  const existingAttachments = useMemo(() => Array.isArray(patrol.files) ? patrol.files : [], [patrol]);
+
+  const patrolNotes = useMemo(() => Array.isArray(patrol.notes) ? patrol.notes : [], [patrol]);
 
   const existingNotes = useMemo(() => patrolNotes.map((note) => {
     const edition = editedExistingNotes[note.id];
@@ -62,10 +69,27 @@ const PatrolOverview = () => {
     };
   }), [editedExistingNotes, patrolNotes]);
 
+  const editedExistingNotesToSave = useMemo(() => patrolNotes.map((note) => {
+    const editedText = editedExistingNotes[note.id]?.text.trim();
+
+    return editedText && editedText !== note.text.trim() ? { ...note, text: editedText } : note;
+  }), [editedExistingNotes, patrolNotes]);
+
   const hasEditedExistingNotes = useMemo(
-    () => patrolNotes.some((note) => (editedExistingNotes[note.id]?.text ?? note.text) !== note.text),
-    [editedExistingNotes, patrolNotes]
+    () => editedExistingNotesToSave.some((note, index) => note !== patrolNotes[index]),
+    [editedExistingNotesToSave, patrolNotes]
   );
+
+  const newNotesToSave = useMemo(() => newNotes.flatMap((note) => {
+    const text = note.text.trim();
+
+    return text ? [{ text }] : [];
+  }), [newNotes]);
+
+  const hasUnsavedChanges = isTitleDirty
+    || newAttachments.length > 0
+    || newNotesToSave.length > 0
+    || hasEditedExistingNotes;
 
   const onAddEvent = useCallback(async (saveResults) => {
     const [firstResult] = Array.isArray(saveResults) ? saveResults : [saveResults];
@@ -77,14 +101,14 @@ const PatrolOverview = () => {
 
     patrolOverviewTracker.track('Link new event to patrol');
 
-    await dispatch(fetchPatrol(patrolId));
-  }, [dispatch, patrol, patrolId]);
+    await dispatch(fetchPatrol(patrol.id));
+  }, [dispatch, patrol]);
 
   const addEventFormProps = useMemo(() => ({
     isPatrolReport: true,
     onSaveSuccess: onAddEvent,
-    redirectTo: [{ pathname: `/${SIDEBAR_TAB_KEYS.PATROLS}/${patrolId}` }],
-  }), [onAddEvent, patrolId]);
+    redirectTo: [{ pathname: `/${SIDEBAR_TAB_KEYS.PATROLS}/${patrol.id}` }],
+  }), [onAddEvent, patrol.id]);
 
   const onAddNote = useCallback(() => {
     setNewNotes((prevNewNotes) => [
@@ -208,6 +232,54 @@ const PatrolOverview = () => {
     patrolOverviewTracker.track('Delete new attachment');
   }, []);
 
+  const onSave = useCallback(async () => {
+    patrolOverviewTracker.track('Click the "Save" button in patrol overview');
+
+    setIsSaving(true);
+
+    try {
+      const patrolUpdates = {};
+
+      if (isTitleDirty) {
+        patrolUpdates.title = title.trim();
+      }
+
+      if (hasEditedExistingNotes || newNotesToSave.length > 0) {
+        patrolUpdates.notes = [...editedExistingNotesToSave, ...newNotesToSave];
+      }
+
+      if (Object.keys(patrolUpdates).length > 0) {
+        await dispatch(updatePatrol({ ...patrolUpdates, id: patrol.id }));
+      }
+
+      await Promise.all(newAttachments.map(({ file }) => uploadPatrolFile(patrol.id, file)));
+
+      await dispatch(fetchPatrol(patrol.id));
+
+      setShouldRedirectToFeed(true);
+
+      patrolOverviewTracker.track('Saved patrol from patrol overview');
+    } catch (error) {
+      toast.error(t('saveErrorMessage'));
+
+      setIsSaving(false);
+
+      patrolOverviewTracker.track('Error saving patrol from patrol overview');
+
+      console.warn('Error saving patrol: ', error);
+    }
+  }, [
+    dispatch,
+    editedExistingNotesToSave,
+    hasEditedExistingNotes,
+    isTitleDirty,
+    newAttachments,
+    newNotesToSave,
+    patrol.id,
+    t,
+    title,
+  ]);
+
   const onContinueNavigation = useCallback(() => {
     patrolOverviewTracker.track('Discard unsaved changes and navigate away from patrol overview');
 
@@ -215,15 +287,8 @@ const PatrolOverview = () => {
   }, []);
 
   useEffect(() => {
-    // Fetch the patrol if it is not in the store.
-    if (patrolId && !patrol) {
-      dispatch(fetchPatrol(patrolId));
-    }
-  }, [dispatch, patrol, patrolId]);
-
-  useEffect(() => {
     // Fetches the patrol segment tracks if necessary.
-    patrol?.patrol_segments?.forEach((segment) => {
+    patrol.patrol_segments.forEach((segment) => {
       if (segment.leader?.id) {
         fetchTracksIfNecessary(
           [segment.leader.id],
@@ -238,22 +303,29 @@ const PatrolOverview = () => {
     });
   }, [patrol]);
 
-  if (!patrol) {
-    return <div className={styles.loaderWrapper} data-testid="patrolOverview-loader">
-      <MoonLoader size={LOADER_SIZE} />
-    </div>;
-  }
+  useEffect(() => {
+    // Navigating from an effect instead of the save method to make sure the
+    // navigation blocker is freed after the patrol is saved.
+    if (shouldRedirectToFeed) {
+      navigate(`/${SIDEBAR_TAB_KEYS.PATROLS}`);
+    }
+  }, [navigate, shouldRedirectToFeed]);
 
   return <TrackerContext.Provider value={patrolOverviewTracker}>
     <NavigationPromptModal
       description={t('navigationPromptModalDescription')}
       onContinue={onContinueNavigation}
       showPositiveContinueButton={false}
-      when={isTitleDirty || newAttachments.length > 0 || newNotes.length > 0 || hasEditedExistingNotes}
+      when={hasUnsavedChanges && !isSaving}
     />
 
     <div className={styles.patrolOverview} ref={printableContentRef}>
-      <Header patrol={patrol} printableContentRef={printableContentRef} setIsTitleDirty={setIsTitleDirty} />
+      <Header
+        onChangeTitle={setTitle}
+        patrol={patrol}
+        printableContentRef={printableContentRef}
+        title={title}
+      />
 
       <div className={styles.tabsContainer}>
         <Tabs
@@ -298,11 +370,33 @@ const PatrolOverview = () => {
       <Footer
         addEventFormProps={addEventFormProps}
         disableAddNoteButton={newNotes.some((noteToAdd) => !noteToAdd.originalText)}
+        disableSaveButton={!hasUnsavedChanges}
+        isSaving={isSaving}
         onAddAttachments={onAddAttachments}
         onAddNote={onAddNote}
+        onSave={onSave}
       />
     </div>
   </TrackerContext.Provider>;
+};
+
+const PatrolOverview = () => {
+  const dispatch = useDispatch();
+  const { patrolId } = useParams();
+
+  const patrol = useSelector((state) => state.data.patrolStore[patrolId]);
+
+  useEffect(() => {
+    if (patrolId && !patrol) {
+      dispatch(fetchPatrol(patrolId));
+    }
+  }, [dispatch, patrol, patrolId]);
+
+  return patrol
+    ? <PatrolOverviewContent patrol={patrol} />
+    : <div className={styles.loaderWrapper} data-testid="patrolOverview-loader">
+      <MoonLoader size={LOADER_SIZE} />
+    </div>;
 };
 
 export default PatrolOverview;

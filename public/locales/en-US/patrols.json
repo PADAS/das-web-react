@@ -142,6 +142,7 @@
       }
     },
     "overviewTabTitle": "Overview",
+    "saveErrorMessage": "The patrol could not be saved. Please try again.",
     "tabsLabel": "Patrol overview tabs"
   },
   "patrolMenu": {

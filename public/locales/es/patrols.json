@@ -142,6 +142,7 @@
       }
     },
     "overviewTabTitle": "Resumen",
+    "saveErrorMessage": "No se pudo guardar la patrulla. Vuelva a intentarlo.",
     "tabsLabel": "Pestañas de resumen de la patrulla"
   },
   "patrolMenu": {

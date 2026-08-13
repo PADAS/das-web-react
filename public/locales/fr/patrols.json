@@ -142,6 +142,7 @@
       }
     },
     "overviewTabTitle": "Aperçu",
+    "saveErrorMessage": "La patrouille n'a pas pu être enregistrée. Veuillez réessayer.",
     "tabsLabel": "Onglets de l'aperçu de la patrouille"
   },
   "patrolMenu": {

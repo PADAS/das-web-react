@@ -336,7 +336,7 @@ export const PATROL_SAVE_ACTIONS = {
     return {
       priority: 200,
       action(patrol_id) {
-        return store.dispatch(uploadPatrolFile(patrol_id, file));
+        return uploadPatrolFile(patrol_id, file);
       },
     };
   },

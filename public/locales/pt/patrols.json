@@ -142,6 +142,7 @@
       }
     },
     "overviewTabTitle": "Visão geral",
+    "saveErrorMessage": "Não foi possível salvar a patrulha. Tente novamente.",
     "tabsLabel": "Guias de visão geral da patrulha"
   },
   "patrolMenu": {
