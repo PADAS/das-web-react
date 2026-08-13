@@ -117,6 +117,9 @@
         "eventsLabel": "घटनाहरू",
         "expandAllButtonLabel": "सबै विस्तार गर्नुहोस्",
         "jumpToLocationButtonLabel": "स्थानमा जानुहोस्",
+        "legTransitionTitle": "खण्ड {{endedLeg}} समाप्त भयो, खण्ड {{startedLeg}} सुरु भयो",
+        "patrolEndedTitle": "गस्ती समाप्त भएको",
+        "patrolStartedTitle": "गस्ती सुरु भएको",
         "pausedTimeLabel": "रोकिएको समय",
         "sortDirectionButtonLabel": {
           "down": "गतिविधि आरोही क्रममा क्रमबद्ध गर्नुहोस्",

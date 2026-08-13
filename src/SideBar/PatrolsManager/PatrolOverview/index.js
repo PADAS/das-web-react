@@ -43,11 +43,29 @@ const PatrolOverview = () => {
   const newAttachmentRef = useRef(null);
   const newNoteRef = useRef(null);
 
+  const [editedExistingNotes, setEditedExistingNotes] = useState({});
   const [isTitleDirty, setIsTitleDirty] = useState(false);
   const [newAttachments, setNewAttachments] = useState([]);
   const [newNotes, setNewNotes] = useState([]);
 
   const existingAttachments = useMemo(() => Array.isArray(patrol?.files) ? patrol.files : [], [patrol]);
+
+  const patrolNotes = useMemo(() => Array.isArray(patrol?.notes) ? patrol.notes : [], [patrol]);
+
+  const existingNotes = useMemo(() => patrolNotes.map((note) => {
+    const edition = editedExistingNotes[note.id];
+
+    return {
+      ...note,
+      originalText: edition?.originalText ?? note.text,
+      text: edition?.text ?? note.text,
+    };
+  }), [editedExistingNotes, patrolNotes]);
+
+  const hasEditedExistingNotes = useMemo(
+    () => patrolNotes.some((note) => (editedExistingNotes[note.id]?.text ?? note.text) !== note.text),
+    [editedExistingNotes, patrolNotes]
+  );
 
   const onAddEvent = useCallback(async (saveResults) => {
     const [firstResult] = Array.isArray(saveResults) ? saveResults : [saveResults];
@@ -83,30 +101,65 @@ const PatrolOverview = () => {
   }, []);
 
   const onChangeNote = useCallback((originalNote, event) => {
-    const editedNote = { ...originalNote, text: event.target.value };
-
-    setNewNotes((prevNewNotes) => prevNewNotes.map((note) => note === originalNote ? editedNote : note));
+    if (originalNote.tmpId) {
+      setNewNotes((prevNewNotes) => prevNewNotes.map(
+        (note) => note.tmpId === originalNote.tmpId ? { ...note, text: event.target.value } : note
+      ));
+    } else {
+      setEditedExistingNotes((prevEditedExistingNotes) => ({
+        ...prevEditedExistingNotes,
+        [originalNote.id]: { originalText: originalNote.originalText, text: event.target.value },
+      }));
+    }
   }, []);
 
   const onDoneNote = useCallback((editedNote) => {
-    setNewNotes((prevNewNotes) => prevNewNotes.map((note) => {
-      if (note === editedNote) {
-        // Trim the text of the edited note and set it as the original and
-        // current text.
-        const text = note.text.trim();
-        return { ...note, originalText: text, text };
-      }
-      return note;
-    }));
+    if (editedNote.tmpId) {
+      setNewNotes((prevNewNotes) => prevNewNotes.map((note) => {
+        if (note.tmpId === editedNote.tmpId) {
+          // The trimmed text becomes the original one, so the note no longer
+          // counts as being written.
+          const text = note.text.trim();
+          return { ...note, originalText: text, text };
+        }
+        return note;
+      }));
 
-    patrolOverviewTracker.track('Save new note');
+      patrolOverviewTracker.track('Save new note');
+    } else {
+      setEditedExistingNotes((prevEditedExistingNotes) => {
+        const text = editedNote.text.trim();
+
+        return { ...prevEditedExistingNotes, [editedNote.id]: { originalText: text, text } };
+      });
+
+      patrolOverviewTracker.track('Save existing note');
+    }
   }, []);
 
   const onCancelNote = useCallback((editedNote) => {
-    setNewNotes((prevNewNotes) => prevNewNotes.map(
-      (note) => note === editedNote ? { ...note, text: note.originalText } : note
-    ));
-  }, []);
+    if (editedNote.tmpId) {
+      setNewNotes((prevNewNotes) => prevNewNotes.map(
+        (note) => note.tmpId === editedNote.tmpId ? { ...note, text: note.originalText } : note
+      ));
+    } else {
+      setEditedExistingNotes((prevEditedExistingNotes) => {
+        const edition = prevEditedExistingNotes[editedNote.id];
+
+        if (!edition) {
+          return prevEditedExistingNotes;
+        }
+
+        if (edition.originalText === patrolNotes.find((note) => note.id === editedNote.id)?.text) {
+          const nextEditedExistingNotes = { ...prevEditedExistingNotes };
+          delete nextEditedExistingNotes[editedNote.id];
+          return nextEditedExistingNotes;
+        }
+
+        return { ...prevEditedExistingNotes, [editedNote.id]: { ...edition, text: edition.originalText } };
+      });
+    }
+  }, [patrolNotes]);
 
   const onDeleteNote = useCallback((noteToDelete) => {
     setNewNotes((prevNewNotes) => prevNewNotes.filter((note) => note !== noteToDelete));
@@ -196,7 +249,7 @@ const PatrolOverview = () => {
       description={t('navigationPromptModalDescription')}
       onContinue={onContinueNavigation}
       showPositiveContinueButton={false}
-      when={isTitleDirty || newAttachments.length > 0 || newNotes.length > 0}
+      when={isTitleDirty || newAttachments.length > 0 || newNotes.length > 0 || hasEditedExistingNotes}
     />
 
     <div className={styles.patrolOverview} ref={printableContentRef}>
@@ -218,6 +271,7 @@ const PatrolOverview = () => {
             title={t('overviewTabTitle')}
           >
             <Overview
+              existingNotes={existingNotes}
               newAttachments={newAttachments}
               newNotes={newNotes}
               onCancelNote={onCancelNote}

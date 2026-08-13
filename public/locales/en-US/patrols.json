@@ -117,6 +117,9 @@
         "eventsLabel": "Events",
         "expandAllButtonLabel": "Expand all",
         "jumpToLocationButtonLabel": "Jump to location",
+        "legTransitionTitle": "Leg {{endedLeg}} Ended, Leg {{startedLeg}} Started",
+        "patrolEndedTitle": "Patrol Ended",
+        "patrolStartedTitle": "Patrol Started",
         "pausedTimeLabel": "Paused Time",
         "sortDirectionButtonLabel": {
           "down": "Sort activity in ascending order",

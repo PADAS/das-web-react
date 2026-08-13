@@ -38,6 +38,13 @@ jest.mock('react-router', () => ({
 describe('SideBar - PatrolsManager - PatrolOverview', () => {
   const patrolWithoutLeader = patrols[0];
   const patrolWithLeader = patrols[1];
+  const patrolWithNotes = {
+    ...patrols[0],
+    notes: [
+      { id: 'note1', text: 'First note', updates: [{ time: '2021-10-06T00:39:35.986902+00:00' }] },
+      { id: 'note2', text: 'Second note', updates: [{ time: '2021-10-06T00:39:35.986902+00:00' }] },
+    ],
+  };
 
   let addItemButtonMock;
   let store;
@@ -257,6 +264,135 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
 
     expect(screen.getByTestId('activitySection-noteTitle-first note')).toBeInTheDocument();
     expect(screen.getByTestId('activitySection-noteTitle-second note')).toBeInTheDocument();
+  });
+
+  const renderPatrolWithNotes = () => {
+    store.data.patrolStore[patrolWithNotes.id] = patrolWithNotes;
+
+    return renderPatrolOverview(patrolWithNotes.id, { withLocationDisplay: true });
+  };
+
+  const editFirstNote = async (text) => {
+    await userEvent.click(await screen.findByTestId('activitySection-editIcon-note1'));
+
+    const textarea = screen.getByTestId('activitySection-noteTextArea-note1');
+    await userEvent.clear(textarea);
+    await userEvent.type(textarea, text);
+
+    return textarea;
+  };
+
+  test('shows the notes the patrol was saved with', async () => {
+    renderPatrolWithNotes();
+
+    expect((await screen.findByTestId('activitySection-noteTextArea-note1'))).toHaveValue('First note');
+    expect(screen.getByTestId('activitySection-noteTextArea-note2')).toHaveValue('Second note');
+  });
+
+  test('user can edit an existing note', async () => {
+    renderPatrolWithNotes();
+
+    const textarea = await editFirstNote('First note edited');
+    await userEvent.click(screen.getByTestId('activitySection-noteDone-note1'));
+
+    expect(textarea).toHaveValue('First note edited');
+    expect(screen.getByTestId('activitySection-noteTitle-note1')).toHaveTextContent('First note edited');
+    expect(screen.getByTestId('activitySection-noteTextArea-note2')).toHaveValue('Second note');
+  });
+
+  test('trims the text of an existing note when it is saved', async () => {
+    renderPatrolWithNotes();
+
+    const textarea = await editFirstNote('  First note edited  ');
+    await userEvent.click(screen.getByTestId('activitySection-noteDone-note1'));
+
+    expect(textarea).toHaveValue('First note edited');
+  });
+
+  test('reverts an existing note to its saved text when the edition is cancelled', async () => {
+    renderPatrolWithNotes();
+
+    const textarea = await editFirstNote('First note edited');
+    await userEvent.click(screen.getByTestId('activitySection-noteCancel-note1'));
+
+    expect(textarea).toHaveValue('First note');
+  });
+
+  test('reverts an existing note to its saved text when it is collapsed mid edition', async () => {
+    renderPatrolWithNotes();
+
+    const textarea = await editFirstNote('First note edited');
+    await userEvent.click(screen.getByRole('button', { name: 'Collapse note' }));
+
+    expect(textarea).toHaveValue('First note');
+  });
+
+  test('leaves an existing note untouched when its edition is cancelled without any change', async () => {
+    renderPatrolWithNotes();
+
+    await userEvent.click(await screen.findByTestId('activitySection-editIcon-note1'));
+    await userEvent.click(screen.getByTestId('activitySection-noteCancel-note1'));
+
+    expect(screen.getByTestId('activitySection-noteTextArea-note1')).toHaveValue('First note');
+
+    await userEvent.click(screen.getByRole('link', { name: 'Patrols' }));
+
+    expect(screen.queryByText('Unsaved Changes')).not.toBeInTheDocument();
+  });
+
+  test('keeps an edited existing note when a later edition is cancelled', async () => {
+    renderPatrolWithNotes();
+
+    const textarea = await editFirstNote('First note edited');
+    await userEvent.click(screen.getByTestId('activitySection-noteDone-note1'));
+
+    await editFirstNote('Something else entirely');
+    await userEvent.click(screen.getByTestId('activitySection-noteCancel-note1'));
+
+    expect(textarea).toHaveValue('First note edited');
+  });
+
+  test('does not allow saving an existing note that has not changed since the last edition', async () => {
+    renderPatrolWithNotes();
+
+    await editFirstNote('First note edited');
+    await userEvent.click(screen.getByTestId('activitySection-noteDone-note1'));
+
+    await userEvent.click(screen.getByTestId('activitySection-editIcon-note1'));
+
+    expect(screen.getByTestId('activitySection-noteDone-note1')).toBeDisabled();
+  });
+
+  test('does not allow emptying an existing note', async () => {
+    renderPatrolWithNotes();
+
+    await userEvent.click(await screen.findByTestId('activitySection-editIcon-note1'));
+    await userEvent.clear(screen.getByTestId('activitySection-noteTextArea-note1'));
+
+    expect(screen.getByTestId('activitySection-noteDone-note1')).toBeDisabled();
+  });
+
+  test('warns about unsaved changes when an existing note was edited', async () => {
+    renderPatrolWithNotes();
+
+    await editFirstNote('First note edited');
+    await userEvent.click(screen.getByTestId('activitySection-noteDone-note1'));
+
+    await userEvent.click(screen.getByRole('link', { name: 'Patrols' }));
+
+    expect((await screen.findByText('Unsaved Changes'))).toBeInTheDocument();
+  });
+
+  test('stops warning about unsaved changes once an existing note is typed back to its saved text', async () => {
+    renderPatrolWithNotes();
+
+    await editFirstNote('First note edited');
+    await editFirstNote('First note');
+
+    await userEvent.click(screen.getByRole('link', { name: 'Patrols' }));
+
+    expect(screen.queryByText('Unsaved Changes')).not.toBeInTheDocument();
+    expect(screen.getByTestId('test-location')).toHaveTextContent('/patrols');
   });
 
   test('adds a new attachment when uploading a file through the footer attachment button', async () => {

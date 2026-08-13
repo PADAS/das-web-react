@@ -117,6 +117,9 @@
         "eventsLabel": "Matukio",
         "expandAllButtonLabel": "Panua yote",
         "jumpToLocationButtonLabel": "Enda mahali",
+        "legTransitionTitle": "Kipande {{endedLeg}} kimekamilika, Kipande {{startedLeg}} kimeanza",
+        "patrolEndedTitle": "Doria imekamilika",
+        "patrolStartedTitle": "Doria imeanza",
         "pausedTimeLabel": "Muda wa Kusitisha",
         "sortDirectionButtonLabel": {
           "down": "Panga shughuli kwa mpangilio wa kupanda",

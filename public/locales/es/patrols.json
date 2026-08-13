@@ -117,6 +117,9 @@
         "eventsLabel": "Eventos",
         "expandAllButtonLabel": "Expandir todo",
         "jumpToLocationButtonLabel": "Ir a la ubicación",
+        "legTransitionTitle": "Tramo {{endedLeg}} finalizado, Tramo {{startedLeg}} iniciado",
+        "patrolEndedTitle": "Patrullaje finalizado",
+        "patrolStartedTitle": "Patrullaje iniciado",
         "pausedTimeLabel": "Tiempo en pausa",
         "sortDirectionButtonLabel": {
           "down": "Ordenar actividad de forma ascendente",

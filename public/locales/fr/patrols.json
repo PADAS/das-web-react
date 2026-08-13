@@ -117,6 +117,9 @@
         "eventsLabel": "Événements",
         "expandAllButtonLabel": "Tout développer",
         "jumpToLocationButtonLabel": "Aller à l'emplacement",
+        "legTransitionTitle": "Étape {{endedLeg}} terminée, Étape {{startedLeg}} commencée",
+        "patrolEndedTitle": "Patrouille terminée",
+        "patrolStartedTitle": "Patrouille commencée",
         "pausedTimeLabel": "Temps en pause",
         "sortDirectionButtonLabel": {
           "down": "Trier l'activité par ordre croissant",

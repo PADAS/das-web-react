@@ -58,7 +58,7 @@ export const useSortedNodesWithToggleBtn = (
     onSort?.(newSortOrder);
   }, [onSort, sortOrder]);
 
-  const SortButton = (props) => <ButtonComponent
+  const SortButton = useCallback((props) => <ButtonComponent
     aria-label={t(sortOrder === DESCENDING_SORT_ORDER ? 'labelDescending' : 'labelAscending')}
     disabled={!list.length}
     sortOrder={sortOrder}
@@ -66,7 +66,7 @@ export const useSortedNodesWithToggleBtn = (
     title={t(sortOrder === DESCENDING_SORT_ORDER ? 'titleDescending' : 'titleAscending')}
     toggleSortFn={onClickTimeSortButton}
     {...props}
-  />;
+  />, [ButtonComponent, list.length, onClickTimeSortButton, sortOrder, t]);
 
   const renderedNodes = useSortedNodes(list, sortOrder);
 

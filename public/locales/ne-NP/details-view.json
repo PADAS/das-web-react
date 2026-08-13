@@ -17,27 +17,24 @@
     "addAttachmentTitle": "संलग्नक थप्नुहोस्"
   },
   "attachmentListItem": {
-    "imagePreviewAlt": "{{filename}} पुर्वावलोकन",
-    "downloadButtonTooltip": "डाउनलोड गर्नुहोस्",
-    "deleteButtonTooltip": "मेट्नुहोस्",
-    "fullViewButtonTooltip": "पुरा हेर्नुहोस्",
-    "collapseClosedButtonLabel": "बिस्तार गर्नुहोस्",
-    "collapseClosedButtonTitle": "बन्द गरिएको",
-    "collapseOpenButtonLabel": "बन्द गर्नुहोस्",
-    "collapseOpenButtonTitle": "बिस्तार गरिएको"
+    "collapseClosedButtonLabel": "{{fileName}} विस्तार गर्नुहोस्",
+    "collapseOpenButtonLabel": "{{fileName}} बन्द गर्नुहोस्",
+    "deleteButtonTooltip": "{{fileName}} मेट्नुहोस्",
+    "downloadButtonTooltip": "{{fileName}} डाउनलोड गर्नुहोस्",
+    "fullViewButtonTooltip": "{{fileName}} पूरा स्क्रिनमा देखाउनुहोस्",
+    "imagePreviewAlt": "{{fileName}} पुर्वावलोकन"
+  },
+  "containedReportListItem": {
+    "collapseClosedButtonLabel": "{{title}} विस्तार गर्नुहोस्",
+    "collapseOpenButtonLabel": "{{title}} बन्द गर्नुहोस्",
+    "loadingLabel": "{{title}} लोड हुँदैछ",
+    "viewReportButtonLabel": "घटना {{title}} हेर्नुहोस्"
   },
   "footer": {
     "cancelButton": "रद्द गर्नुहोस्",
     "saveButton": "सुरक्षित गर्नुहोस्",
     "stateResolveButton": "सुरक्षित गरि समाधान गर्नुहोस्",
     "stateReopenButton": "सुरक्षित गरि फेरी खोल्नुहोस्"
-  },
-  "containedReportListItem": {
-    "goToReportButtonTooltip": "घटनामा जानुहोस्",
-    "collapseClosedButtonLabel": "बिस्तार गर्नुहोस्",
-    "collapseClosedButtonTitle": "बन्द गरिएको",
-    "collapseOpenButtonLabel": "बन्द गर्नुहोस्",
-    "collapseOpenButtonTitle": "बिस्तार गरिएको"
   },
   "header": {
     "historyLinkCreated": "सिर्जना गरिएको",
@@ -62,14 +59,13 @@
   },
   "noteListItem": {
     "cancelEditingNoteButton": "रद्द गर्नुहोस्",
-    "deleteNoteButtonTooltip": "मेट्नुहोस्",
+    "collapseClosedButtonLabel": "नोट विस्तार गर्नुहोस्",
+    "collapseOpenButtonLabel": "नोट बन्द गर्नुहोस्",
+    "deleteNoteButtonTooltip": "नोट मेट्नुहोस्",
     "doneEditingNoteButton": "भयो",
-    "editNoteButtonTooltip": "सम्पादन गर्नुहोस्",
-    "noteTitle": "नयाँ नोट",
-    "collapseClosedButtonLabel": "बिस्तार गर्नुहोस्",
-    "collapseClosedButtonTitle": "बन्द गरिएको",
-    "collapseOpenButtonLabel": "बन्द गर्नुहोस्",
-    "collapseOpenButtonTitle": "बिस्तार गरिएको"
+    "editNoteButtonTooltip": "नोट सम्पादन गर्नुहोस्",
+    "noteTextAreaLabel": "नोटको पाठ",
+    "noteTitle": "नयाँ नोट: {{noteText}}"
   },
   "reportFormSummary": {
     "reportTypeLabel": "घटनाका प्रकार",

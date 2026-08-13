@@ -1,0 +1,102 @@
+@use 'sass:color';
+
+@use '../../../common/styles/vars/colors';
+
+.smallItemIcon {
+  svg {
+    height: 1.25rem;
+    width: 1.25rem;
+  }
+}
+
+.deletableNoteDetails {
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.noteTextArea {
+  background-color: transparent;
+  border: none;
+  display: block;
+  font-size: 0.875rem;
+  height: 10rem;
+  padding: 0.25rem 0.5rem;
+  resize: none;
+  width: 100%;
+
+  &:focus-visible {
+    outline: 2px solid colors.$bright-blue;
+    outline-offset: -2px;
+  }
+
+  @media print {
+    display: none;
+  }
+}
+
+.printableNoteText {
+  display: none;
+  padding: 1rem 1.25rem;
+  white-space: pre-wrap;
+
+  @media print {
+    display: block;
+  }
+}
+
+.editingNoteActions {
+  align-items: center;
+  border-top: 0.0625rem solid colors.$light-gray-lines;
+  display: flex;
+  height: 3rem;
+  justify-content: flex-end;
+  padding: 0.5rem 1rem;
+
+  .cancelNoteButton {
+    background-color: transparent;
+    border: none;
+    border-radius: 0.25rem;
+    color: colors.$off-black;
+    font-size: 0.875rem;
+    font-weight: bold;
+    height: 2rem;
+    margin-right: 0.5rem;
+    padding: 0 0.5rem;
+
+    &:focus-visible {
+      color: colors.$bright-blue;
+      outline: 2px solid colors.$bright-blue;
+    }
+
+    &:hover {
+      background-color: colors.$light-gray-background;
+    }
+  }
+
+  .doneNoteButton {
+    background-color: colors.$bright-blue;
+    border: none;
+    border-radius: 0.25rem;
+    color: white;
+    font-size: 0.875rem;
+    font-weight: bold;
+    height: 2rem;
+    outline: none;
+    padding: 0 0.5rem;
+
+    &:disabled {
+      cursor: default;
+      opacity: 0.5;
+    }
+
+    &:focus-visible {
+      background-color: white;
+      color: colors.$bright-blue;
+      outline: 2px solid colors.$bright-blue;
+    }
+
+    &:hover:not(:disabled) {
+      background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+    }
+  }
+}
