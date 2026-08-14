@@ -31,6 +31,7 @@ import { generateErrorMessageForRequest } from '../../utils/request';
 import { extractObjectDifference } from '../../utils/objects';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
 import { fetchPatrol } from '../../ducks/patrols';
+import normalizeChoiceListValues from '../../utils/form-schemas/normalizeChoiceListValues';
 import { selectEventSchema } from '../../selectors/event-schemas';
 import { selectEventTypeById, selectEventTypeByValue } from '../../selectors/event-types';
 import { setLocallyEditedEvent, unsetLocallyEditedEvent } from '../../ducks/locally-edited-event';
@@ -171,6 +172,11 @@ const ReportDetailView = ({
   const eventSchema = useSelector((state) => reportForm
     ? selectEventSchema(state, reportForm.event_type, reportForm.id)
     : null);
+
+  const eventDetails = useMemo(
+    () => normalizeChoiceListValues(reportForm?.event_details, eventSchema?.json),
+    [eventSchema, reportForm?.event_details]
+  );
 
   const {
     onCancelAddedReport,
@@ -329,8 +335,8 @@ const ReportDetailView = ({
     } else {
       reportToSubmit = {
         ...reportChanges,
+        event_details: eventDetails,
         id: reportForm.id,
-        event_details: reportForm.event_details,
         location: originalReport.location,
       };
 
@@ -382,6 +388,7 @@ const ReportDetailView = ({
     attachmentsToAdd,
     communityInputValue,
     dispatch,
+    eventDetails,
     isAddedReport,
     isCommunity,
     isNewReport,
@@ -812,6 +819,7 @@ const ReportDetailView = ({
           <QuickLinks.SectionsWrapper>
             <QuickLinks.Section anchorTitle={t('reportDetailView.quickLinks.detailsAnchor')}>
               <DetailsSection
+                eventDetails={eventDetails}
                 eventSchema={eventSchema}
                 hidePriority={hidePriority}
                 hideReportedBy={hideReportedBy}

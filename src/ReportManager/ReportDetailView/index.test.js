@@ -11,7 +11,7 @@ import { addEventToIncident, createEvent, fetchEvent } from '../../ducks/events'
 import { activePatrol } from '../../__test-helpers/fixtures/patrols';
 import { createMapMock } from '../../__test-helpers/mocks';
 import { eventSchemas } from '../../__test-helpers/fixtures/event-schemas';
-import { eventTypes } from '../../__test-helpers/fixtures/event-types';
+import { eventTypes, snareV2 } from '../../__test-helpers/fixtures/event-types';
 import { executeSaveActions, generateSaveActionsForReportLikeObject } from '../../utils/save';
 import { TrackerContext } from '../../utils/analytics';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
@@ -112,6 +112,66 @@ describe('ReportManager - ReportDetailView', () => {
       user: { first_name: 'First', last_name: 'Last' },
     }],
   };
+  const setUpLegacyChoiceListEvent = () => {
+    state.data.eventTypes = [...eventTypes, snareV2];
+    state.data.eventSchemas = {
+      ...eventSchemas,
+      [snareV2.value]: {
+        792: {
+          json: {
+            $schema: 'https://json-schema.org/draft/2020-12/schema',
+            properties: {
+              team_members: {
+                items: {
+                  anyOf: [{
+                    enum: ['kumoi_njapit', 'sam_kumum'],
+                    'x-enumExtra': {
+                      kumoi_njapit: { display: 'Kumoi Njapit' },
+                      sam_kumum: { display: 'Sam Kumum' },
+                    },
+                  }],
+                },
+                title: 'Team Member',
+                type: 'array',
+              },
+            },
+            required: [],
+            type: 'object',
+            unevaluatedProperties: false,
+          },
+          ui: {
+            fields: { team_members: { inputType: 'LIST', parent: 'section-1', type: 'CHOICE_LIST' } },
+            headers: {},
+            order: ['section-1'],
+            sections: {
+              'section-1': {
+                columns: 1,
+                isActive: true,
+                label: 'Details',
+                leftColumn: [{ name: 'team_members', type: 'field' }],
+                rightColumn: [],
+              },
+            },
+          },
+        },
+      },
+    };
+    state.data.eventStore = {
+      ...state.data.eventStore,
+      792: {
+        ...mockReport,
+        event_type: snareV2.value,
+        event_details: {
+          team_members: [
+            { name: 'Kumoi Njapit', value: 'kumoi_njapit' },
+            { name: 'Sam Kumum', value: 'sam_kumum' },
+          ],
+        },
+        id: '792',
+      },
+    };
+  };
+
   let AddItemButtonMock,
     addEventToIncidentMock,
     createEventMock,
@@ -499,6 +559,24 @@ describe('ReportManager - ReportDetailView', () => {
     expect(generateSaveActionsForReportLikeObject.mock.calls[0][0].event_details).toEqual({
       severity: '',
       type_accident: 'Truck crash',
+    });
+  });
+
+  test('renders and saves the option values of a legacy V2 choice list stored as { name, value } objects', async () => {
+    setUpLegacyChoiceListEvent();
+
+    renderWithWrapper(<ReportDetailView isNewReport={false} reportId="792" />);
+
+    expect(await screen.findByRole('checkbox', { name: 'Kumoi Njapit' })).toBeChecked();
+    expect(await screen.findByRole('checkbox', { name: 'Sam Kumum' })).toBeChecked();
+
+    await userEvent.click(await screen.findByText('Save'));
+
+    await waitFor(() => {
+      expect(generateSaveActionsForReportLikeObject).toHaveBeenCalledTimes(1);
+    });
+    expect(generateSaveActionsForReportLikeObject.mock.calls[0][0].event_details).toEqual({
+      team_members: ['kumoi_njapit', 'sam_kumum'],
     });
   });
 
