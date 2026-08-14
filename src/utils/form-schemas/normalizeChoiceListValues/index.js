@@ -1,15 +1,10 @@
 import { isPlainObject } from 'lodash-es';
 
-// Some events store a choice as the whole option object rather than its value, from a time when
-// the field was a collection. Requiring exactly these two keys keeps collection items that happen
-// to have a `value` field, and the `{ option: true }` maps that section conditions use, untouched.
 const isLegacyChoiceValue = (value) => isPlainObject(value)
   && Object.keys(value).length === 2
   && typeof value.name === 'string'
   && ['boolean', 'number', 'string'].includes(typeof value.value);
 
-// Both helpers return the original container when nothing changed, so untouched form data keeps its
-// identity and does not retrigger memos downstream.
 const normalizeArrayItems = (array, normalizeItem) => {
   const normalizedArray = array.map(normalizeItem);
 

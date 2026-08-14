@@ -330,10 +330,8 @@ const ReportDetailView = ({
     } else {
       reportToSubmit = {
         ...reportChanges,
-        id: reportForm.id,
-        // Repairs legacy choices stored as whole option objects, so the event stops tripping
-        // validation on every later edit.
         event_details: normalizeChoiceListValues(reportForm.event_details),
+        id: reportForm.id,
         location: originalReport.location,
       };
 

@@ -56,7 +56,6 @@ const SectionSummary = ({ formData, formElements, section }) => <div className={
 const V2SchemaFormSummary = ({ eventSchema, formData }) => {
   const formElements = useMemo(() => transformSchemaToFormElements(eventSchema), [eventSchema]);
 
-  // Legacy choices stored as whole option objects would render as "[object Object]".
   const normalizedFormData = useMemo(() => normalizeChoiceListValues(formData), [formData]);
 
   return formElements[ROOT_CANVAS_ID]?.details.sections.map((sectionId) => <SectionSummary

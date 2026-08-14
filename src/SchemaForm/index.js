@@ -44,7 +44,7 @@ const getVisibleSectionIds = (formElements, formData) =>
 
 const SchemaForm = ({
   anchorLocation,
-  formData: rawFormData,
+  formData,
   hideMapLocationMarkers,
   metadata,
   onFormDataChange,
@@ -57,9 +57,7 @@ const SchemaForm = ({
   const dispatch = useDispatch();
   const { t } = useTranslation('schema-form');
 
-  // Events created before a field became a choice list may store its choices as whole option
-  // objects, which no input, validation or section condition here recognizes.
-  const formData = useMemo(() => normalizeChoiceListValues(rawFormData), [rawFormData]);
+  const normalizedFormData = useMemo(() => normalizeChoiceListValues(formData), [formData]);
 
   const onLocationMarkerClick = useCallback((markerId) => {
     const locationField = document.getElementById(markerId);
@@ -91,15 +89,15 @@ const SchemaForm = ({
   const runUploadValidations = useUploadValidations(formElements);
 
   const visibleSectionIds = useMemo(
-    () => getVisibleSectionIds(formElements, formData),
-    [formData, formElements]
+    () => getVisibleSectionIds(formElements, normalizedFormData),
+    [formElements, normalizedFormData]
   );
 
   const onSubmit = (event) => {
     event.preventDefault();
 
-    const schemaErrors = runSchemaValidations(formData) || {};
-    const uploadErrors = runUploadValidations(formData);
+    const schemaErrors = runSchemaValidations(normalizedFormData) || {};
+    const uploadErrors = runUploadValidations(normalizedFormData);
     const fieldErrors = merge({}, schemaErrors, uploadErrors);
     if (Object.keys(fieldErrors).length > 0) {
       const erroneousFields = Object.keys(fieldErrors);
@@ -121,7 +119,7 @@ const SchemaForm = ({
   const onSectionFieldChange = (fieldId, value) => {
     // Section children's ids and names are the same.
     const fieldName = formElements[fieldId].details.value;
-    const newFormData = { ...formData, [fieldName]: value };
+    const newFormData = { ...normalizedFormData, [fieldName]: value };
 
     // Conditional sections can depend on fields in other conditional sections.
     // Remove hidden fields from the form data in a loop until all sections
@@ -237,7 +235,7 @@ const SchemaForm = ({
         ]);
         const initialData = getDefaultFormData(visibleFieldIds, formElements);
 
-        if (!isEqual(initialData, formData)) {
+        if (!isEqual(initialData, normalizedFormData)) {
           onFormDataChange(initialData);
         }
       }
@@ -245,7 +243,7 @@ const SchemaForm = ({
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setShouldCalculateInitialData(false);
     }
-  }, [formData, formElements, onFormDataChange, shouldPopulateDefaultData, shouldCalculateInitialData, visibleSectionIds]);
+  }, [formElements, normalizedFormData, onFormDataChange, shouldPopulateDefaultData, shouldCalculateInitialData, visibleSectionIds]);
 
   useEffect(() => {
     // Update the location markers when there is a change in the form data.
@@ -271,10 +269,10 @@ const SchemaForm = ({
       });
     };
 
-    addLocationMarkersFromFormDataRecursively(formData);
+    addLocationMarkersFromFormDataRecursively(normalizedFormData);
 
     setLocationMarkers(locationMarkers);
-  }, [formData, formElements, setLocationMarkers]);
+  }, [formElements, normalizedFormData, setLocationMarkers]);
 
   useEffect(() => () => dispatch(clearUserContent()), [dispatch]);
 
@@ -295,7 +293,7 @@ const SchemaForm = ({
       details={formElements[sectionId].details}
       fieldErrors={fieldErrors}
       focusLocationMarker={focusLocationMarker}
-      formData={formData}
+      formData={normalizedFormData}
       formElements={formElements}
       hidden={!visibleSectionIds.includes(sectionId)}
       id={sectionId}
@@ -303,7 +301,7 @@ const SchemaForm = ({
       onFieldChange={onSectionFieldChange}
       onFieldErrorsChange={(newFieldErrors) => setFieldErrors(newFieldErrors)}
       renderFormElement={renderFormElement}
-      setDefaultFormData={(defaultFormData) => onFormDataChange({ ...defaultFormData, ...formData })}
+      setDefaultFormData={(defaultFormData) => onFormDataChange({ ...defaultFormData, ...normalizedFormData })}
     />)}
 
     {renderSubmitButton()}
