@@ -8,6 +8,10 @@
   margin-bottom: 0.5rem;
   overflow-x: auto;
 
+  &.withoutNewLegButton {
+    margin-bottom: 1rem;
+  }
+
   .legTable {
     background: white;
     border: 1px solid colors.$light-gray-lines;

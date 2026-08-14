@@ -249,35 +249,49 @@
       }
     }
 
-    .statusPill {
-      border-radius: 999px;
+    .pills {
+      align-items: center;
+      display: flex;
       flex-shrink: 0;
-      font-size: 0.875rem;
-      padding: 0.125rem 0.625rem;
+      gap: 0.5rem;
 
-      &.active {
-        background: map-get(colors.$patrol-active-theme, 'base');
+      .provenancePill, .statusPill {
+        border-radius: 999px;
+        flex-shrink: 0;
+        font-size: 0.875rem;
+        padding: 0.125rem 0.625rem;
+      }
+
+      .provenancePill {
+        background: colors.$off-black;
         color: white;
       }
 
-      &.done {
-        background: map-get(colors.$patrol-done-theme, 'base');
-        color: white;
-      }
+      .statusPill {
+        &.active {
+          background: map-get(colors.$patrol-active-theme, 'base');
+          color: white;
+        }
 
-      &.readyToStart, &.scheduled {
-        background: map-get(colors.$patrol-ready-theme, 'base');
-        color: white;
-      }
+        &.done {
+          background: map-get(colors.$patrol-done-theme, 'base');
+          color: white;
+        }
 
-      &.startOverdue {
-        background: map-get(colors.$patrol-overdue-theme, 'base');
-        color: white;
-      }
+        &.readyToStart, &.scheduled {
+          background: map-get(colors.$patrol-ready-theme, 'base');
+          color: white;
+        }
 
-      &.cancelled {
-        background: map-get(colors.$patrol-cancelled-theme, 'base');
-        color: map-get(colors.$patrol-cancelled-theme, 'fontColor');
+        &.startOverdue {
+          background: map-get(colors.$patrol-overdue-theme, 'base');
+          color: white;
+        }
+
+        &.cancelled {
+          background: map-get(colors.$patrol-cancelled-theme, 'base');
+          color: map-get(colors.$patrol-cancelled-theme, 'fontColor');
+        }
       }
     }
   }

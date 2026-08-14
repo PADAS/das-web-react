@@ -517,4 +517,16 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
 
     expect(screen.getByText('Active')).toBeInTheDocument();
   });
+
+  test('does not show the mobile pill for a patrol without a mobile provenance', () => {
+    renderHeader({ patrol: { ...patrolWithLeader, provenance: 'web' } });
+
+    expect(screen.queryByText('Mobile')).not.toBeInTheDocument();
+  });
+
+  test('shows the mobile pill for a patrol with a mobile provenance', () => {
+    renderHeader({ patrol: { ...patrolWithLeader, provenance: 'mobile' } });
+
+    expect(screen.getByText('Mobile')).toBeInTheDocument();
+  });
 });

@@ -5,6 +5,7 @@ import noop from 'lodash/noop';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as DocumentIcon } from '../../../../common/images/icons/document.svg';
+import { ReactComponent as StopIcon } from '../../../../common/images/icons/stop.svg';
 
 import { PATROL_OVERVIEW_CATEGORY } from '../../../../utils/analytics';
 
@@ -22,6 +23,7 @@ const Footer = ({
   addEventFormProps,
   disableAddNoteButton,
   disableSaveButton,
+  isMobilePatrol,
   isSaving,
   onAddAttachments,
   onAddNote,
@@ -50,19 +52,25 @@ const Footer = ({
     </div>
 
     <div className={styles.rightActions}>
-      <Dropdown>
-        <Dropdown.Toggle className={styles.updateStatusButton} variant="secondary">
-          {t('updateStatusButton')}
-        </Dropdown.Toggle>
+      {isMobilePatrol
+        ? <button className={styles.endPatrolButton} onClick={noop} type="button">
+          <StopIcon aria-hidden="true" />
 
-        <Dropdown.Menu>
-          <Dropdown.Item onClick={noop}>{t('pauseOption')}</Dropdown.Item>
+          {t('endPatrolButton')}
+        </button>
+        : <Dropdown>
+          <Dropdown.Toggle className={styles.updateStatusButton} variant="secondary">
+            {t('updateStatusButton')}
+          </Dropdown.Toggle>
 
-          <Dropdown.Item onClick={noop}>{t('cancelOption')}</Dropdown.Item>
+          <Dropdown.Menu>
+            <Dropdown.Item onClick={noop}>{t('pauseOption')}</Dropdown.Item>
 
-          <Dropdown.Item onClick={noop}>{t('endOption')}</Dropdown.Item>
-        </Dropdown.Menu>
-      </Dropdown>
+            <Dropdown.Item onClick={noop}>{t('cancelOption')}</Dropdown.Item>
+
+            <Dropdown.Item onClick={noop}>{t('endOption')}</Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>}
 
       <button
         aria-busy={isSaving}

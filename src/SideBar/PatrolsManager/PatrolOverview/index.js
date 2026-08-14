@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 
 import { addPatrolSegmentToEvent } from '../../../utils/events';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../../../utils/file';
-import { displayTitleForPatrol } from '../../../utils/patrols';
+import { displayTitleForPatrol, getIsMobilePatrol } from '../../../utils/patrols';
 import { fetchPatrol, updatePatrol, uploadPatrolFile } from '../../../ducks/patrols';
 import { fetchTracksIfNecessary } from '../../../utils/tracks';
 import { PATROL_OVERVIEW_CATEGORY, TrackerContext, trackEventFactory } from '../../../utils/analytics';
@@ -371,6 +371,7 @@ const PatrolOverviewContent = ({ patrol }) => {
         addEventFormProps={addEventFormProps}
         disableAddNoteButton={newNotes.some((noteToAdd) => !noteToAdd.originalText)}
         disableSaveButton={!hasUnsavedChanges}
+        isMobilePatrol={getIsMobilePatrol(patrol)}
         isSaving={isSaving}
         onAddAttachments={onAddAttachments}
         onAddNote={onAddNote}

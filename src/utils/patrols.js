@@ -351,6 +351,8 @@ export const displayPatrolSegmentId = (patrol) => {
   return id || null;
 };
 
+export const getIsMobilePatrol = (patrol) => patrol?.provenance === 'mobile';
+
 export const isPatrolCancelled = (patrol) => patrol.state === 'cancelled';
 
 export const isPatrolDone = (patrol) => patrol.state === 'done';

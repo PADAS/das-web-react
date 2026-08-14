@@ -94,6 +94,13 @@ describe('SideBar - PatrolsManager - PatrolOverview - Footer', () => {
     expect(screen.getByRole('button', { name: 'End Patrol' })).toBeInTheDocument();
   });
 
+  test('shows the end patrol button instead of the update status dropdown for a mobile patrol', () => {
+    renderFooter({ isMobilePatrol: true });
+
+    expect(screen.queryByRole('button', { name: 'Update Status' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'End Patrol' })).toBeInTheDocument();
+  });
+
   test('shows the save button enabled and not busy', () => {
     renderFooter();
 

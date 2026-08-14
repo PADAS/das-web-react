@@ -98,7 +98,7 @@ $cardExpansionTransitionTime: 300ms;
       cursor: pointer;
 
       &:hover:not(:has(.actionButton:not(.collapseToggleButton):hover)) {
-        background: var(--item-row-hover-bg, #{colors.$light-gray-background});
+        background: var(--item-row-hover-bg, #{colors.$light-gray});
       }
     }
 

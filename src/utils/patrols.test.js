@@ -21,6 +21,7 @@ import {
   iconIdForPatrolSegment,
   iconIdForPatrolType,
   iconTypeForPatrol,
+  getIsMobilePatrol,
   PATROL_SAVE_ACTIONS,
   sortPatrolList
 } from './patrols';
@@ -595,6 +596,23 @@ describe('Patrols utils', () => {
     test('returns null when there is neither track data nor a start location', () => {
       expect(getPatrolLocationCoordinates({ trackData: null, startStopGeometries: null })).toBeNull();
       expect(getPatrolLocationCoordinates()).toBeNull();
+    });
+  });
+
+  describe('getIsMobilePatrol', () => {
+    test('returns true when the provenance is "mobile"', () => {
+      expect(getIsMobilePatrol({ provenance: 'mobile' })).toBe(true);
+    });
+
+    test('returns false for any other provenance', () => {
+      expect(getIsMobilePatrol({ provenance: 'web' })).toBe(false);
+      expect(getIsMobilePatrol({ provenance: 'ER Mobile' })).toBe(false);
+      expect(getIsMobilePatrol({ provenance: '' })).toBe(false);
+    });
+
+    test('returns false when the patrol has no provenance', () => {
+      expect(getIsMobilePatrol({})).toBe(false);
+      expect(getIsMobilePatrol(undefined)).toBe(false);
     });
   });
 

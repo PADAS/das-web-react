@@ -18,6 +18,7 @@ import { basePrintingStyles } from '../../../../utils/styles';
 import {
   calcPatrolState,
   getBoundsForPatrol,
+  getIsMobilePatrol,
   getPatrolLocationCoordinates,
   iconIdForPatrolSegment,
   patrolHasTrackData,
@@ -291,11 +292,13 @@ const Header = ({ onChangeTitle, patrol, printableContentRef, title }) => {
         </div>
       </div>
 
-      {/* TODO: Show a "Mobile" provenance pill before the status pill when the patrol was
-        created from a mobile device. Not implemented yet - the API doesn't return that info. */}
-      <span className={`${styles.statusPill} ${styles[patrolState.key] ?? styles.cancelled}`}>
-        {t(`uiStateTitles.${patrolState.key}`)}
-      </span>
+      <div className={styles.pills}>
+        {getIsMobilePatrol(patrol) && <span className={styles.provenancePill}>{t('mobileProvenancePill')}</span>}
+
+        <span className={`${styles.statusPill} ${styles[patrolState.key] ?? styles.cancelled}`}>
+          {t(`uiStateTitles.${patrolState.key}`)}
+        </span>
+      </div>
     </div>
   </header>;
 };
