@@ -29,7 +29,7 @@ const EventFormSummary = ({ report }) => {
   const { eventTypeTitle } = useReport(report);
 
   const formData = useMemo(
-    () => normalizeChoiceListValues(report.event_details, eventSchema?.json) ?? {},
+    () => normalizeChoiceListValues(report.event_details, eventSchema?.schema ?? eventSchema?.json) ?? {},
     [eventSchema, report.event_details]
   );
 
@@ -63,7 +63,7 @@ const EventFormSummary = ({ report }) => {
       </div>}
     </div>
 
-    {eventType.version === 1 && <V1SchemaFormSummary eventSchema={eventSchema} report={report} />}
+    {eventType.version === 1 && <V1SchemaFormSummary eventSchema={eventSchema} formData={formData} />}
 
     {eventType.version === 2 && <V2SchemaFormSummary eventSchema={eventSchema} formData={formData} />}
   </div>;

@@ -1,6 +1,7 @@
 import { isPlainObject } from 'lodash-es';
 
-const isLegacyChoiceListValue = (value) => isPlainObject(value) && typeof value.value === 'string';
+const isLegacyChoiceListValue = (value) => isPlainObject(value)
+  && ['boolean', 'number', 'string'].includes(typeof value.value);
 
 const normalizeChoiceListValue = (value) => isLegacyChoiceListValue(value) ? value.value : value;
 
@@ -12,10 +13,12 @@ const normalizeArrayItems = (array, normalizeItem) => {
   return normalizedArray.some((item, index) => item !== array[index]) ? normalizedArray : array;
 };
 
-// Choice lists are the only fields whose subschema enumerates the values they
-// accept.
-const isChoiceSubschema = (subschema) => (subschema?.anyOf ?? [])
+const isV2ChoiceSubschema = (subschema) => (subschema?.anyOf ?? [])
   .some((choicesSubschema) => Array.isArray(choicesSubschema.enum));
+
+const isV1ChoiceSubschema = (subschema) => Array.isArray(subschema?.enum)
+  && subschema.enum.length > 0
+  && !subschema.enum.some(isPlainObject);
 
 const normalizeFieldValue = (value, jsonSubschema) => {
   if (!isPlainObject(jsonSubschema) || value === null || value === undefined) {
@@ -24,20 +27,21 @@ const normalizeFieldValue = (value, jsonSubschema) => {
 
   const itemsSubschema = jsonSubschema.type === 'array' ? jsonSubschema.items : undefined;
 
-  // Multiple choice list.
-  if (isChoiceSubschema(itemsSubschema)) {
+  if (isV2ChoiceSubschema(itemsSubschema)) {
     if (Array.isArray(value)) {
       return normalizeArrayItems(value, normalizeChoiceListValue);
     }
-
-    const normalizedValue = normalizeChoiceListValue(value);
-
-    return normalizedValue && typeof normalizedValue === 'string' ? [normalizedValue] : value;
+    return value === '' ? [] : [normalizeChoiceListValue(value)];
   }
 
-  // Single choice list.
-  if (isChoiceSubschema(jsonSubschema)) {
-    return normalizeChoiceListValue(Array.isArray(value) && value.length === 1 ? value[0] : value);
+  if (isV2ChoiceSubschema(jsonSubschema)) {
+    return normalizeChoiceListValue(Array.isArray(value) ? value[0] : value);
+  }
+
+  if (isV1ChoiceSubschema(itemsSubschema) || isV1ChoiceSubschema(jsonSubschema)) {
+    return Array.isArray(value)
+      ? normalizeArrayItems(value, normalizeChoiceListValue)
+      : normalizeChoiceListValue(value);
   }
 
   // Collection.
@@ -56,8 +60,7 @@ const getFieldJSONSubschema = (jsonSchema, fieldName) => jsonSchema.properties?.
   .map((conditionalSectionJSONSubschema) => conditionalSectionJSONSubschema.then?.properties?.[fieldName])
   .find(Boolean);
 
-// Repairs v2 form data written while the event type was still a v1 that accepted
-// `{ name, value }` objects as choice list field values.
+// Replaces choice list form data values from { name, value } format to string.
 const normalizeChoiceListValues = (formData, jsonSchema) => {
   if (!isPlainObject(formData) || !isPlainObject(jsonSchema)) {
     return formData;

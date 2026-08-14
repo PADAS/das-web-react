@@ -174,7 +174,7 @@ const ReportDetailView = ({
     : null);
 
   const eventDetails = useMemo(
-    () => normalizeChoiceListValues(reportForm?.event_details, eventSchema?.json),
+    () => normalizeChoiceListValues(reportForm?.event_details, eventSchema?.schema ?? eventSchema?.json),
     [eventSchema, reportForm?.event_details]
   );
 
@@ -450,8 +450,8 @@ const ReportDetailView = ({
   }, [reportForm, reportTracker]);
 
   const onLegacyFormChange = useCallback((event) => {
-    const eventDetails = reportForm.event_details ?? {};
-    const eventDetailsKeys = new Set([...Object.keys(eventDetails), ...Object.keys(event.formData)]);
+    const originalEventDetails = reportForm.event_details ?? {};
+    const eventDetailsKeys = new Set([...Object.keys(originalEventDetails), ...Object.keys(event.formData)]);
     // rjsf unsets (deletes) or sets to undefined a cleared leaf field's key,
     // so a missing or undefined value in event.formData means the field was cleared.
     const nextEventDetails = [...eventDetailsKeys].reduce((accumulator, eventDetailKey) => ({

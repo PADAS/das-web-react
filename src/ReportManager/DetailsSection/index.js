@@ -128,14 +128,14 @@ const DetailsSection = ({
     const filteredErrors = filterOutErrorsForHiddenProperties(
       filterOutEnumErrorsForClearedFields(
         filterOutRequiredValueOnSchemaPropErrors(errors),
-        reportForm.event_details,
+        eventDetails,
         jsonSchema
       ),
       eventUISchema
     );
 
     return filteredErrors.map((error) => ({ ...error, linearProperty: getLinearErrorPropTree(error.property) }));
-  }, [eventUISchema, jsonSchema, reportForm.event_details]);
+  }, [eventDetails, eventUISchema, jsonSchema]);
 
   return <div ref={ref}>
     <div className={styles.globalDetails}>
@@ -267,7 +267,7 @@ const DetailsSection = ({
       className={`${styles.form} ${reportForm.is_collection ? styles.hidden : ''}`}
       disabled={isReadOnly}
       fields={{ externalLink: ExternalLinkField }}
-      formData={reportForm.event_details}
+      formData={eventDetails}
       onChange={onLegacyFormChange}
       onError={onFormError}
       onSubmit={onFormSubmit}
