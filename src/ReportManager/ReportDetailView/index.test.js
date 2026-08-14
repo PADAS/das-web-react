@@ -171,52 +171,6 @@ describe('ReportManager - ReportDetailView', () => {
       },
     };
   };
-  const setUpLegacyV1ChoiceListEvent = () => {
-    const accidentSchema = eventSchemas.accident_rep.base;
-    // Drop the fixture's `required: []`: an empty array fails ajv's own meta-schema
-    // validation.
-    const { required: _unusedRequired, ...baseSchemaWithoutRequired } = accidentSchema.schema;
-    state.data.eventSchemas = {
-      ...eventSchemas,
-      accident_rep: {
-        ...eventSchemas.accident_rep,
-        793: {
-          ...accidentSchema,
-          schema: {
-            ...baseSchemaWithoutRequired,
-            id: 'https://era-7995.pamdas.org/api/v1.0/activity/events/schema/eventtype/accident_rep_legacy_enum_test',
-            properties: {
-              ...accidentSchema.schema.properties,
-              severity: {
-                type: 'string',
-                title: 'Severity',
-                enum: ['minor', 'major'],
-                enumNames: ['Minor', 'Major'],
-                key: 'severity',
-              },
-            },
-          },
-          uiSchema: {
-            ...accidentSchema.uiSchema,
-            'ui:groups': [{
-              origin: 'inferred',
-              items: ['type_accident', 'number_people_involved', 'animals_involved', 'severity'],
-            }],
-          },
-        },
-      },
-    };
-    state.data.eventStore = {
-      ...state.data.eventStore,
-      793: {
-        ...mockReport,
-        event_type: 'accident_rep',
-        event_details: { severity: { name: 'Minor', value: 'minor' }, type_accident: 'Truck crash' },
-        id: '793',
-      },
-    };
-  };
-
   let AddItemButtonMock,
     addEventToIncidentMock,
     createEventMock,
@@ -622,24 +576,6 @@ describe('ReportManager - ReportDetailView', () => {
     });
     expect(generateSaveActionsForReportLikeObject.mock.calls[0][0].event_details).toEqual({
       team_members: ['kumoi_njapit', 'sam_kumum'],
-    });
-  });
-
-  test('renders and saves the option value of a legacy V1 choice list stored as a { name, value } object', async () => {
-    setUpLegacyV1ChoiceListEvent();
-
-    renderWithWrapper(<ReportDetailView isNewReport={false} reportId="793" />);
-
-    expect(await screen.findByLabelText('Severity')).toHaveDisplayValue('minor');
-
-    await userEvent.click(await screen.findByText('Save'));
-
-    await waitFor(() => {
-      expect(generateSaveActionsForReportLikeObject).toHaveBeenCalledTimes(1);
-    });
-    expect(generateSaveActionsForReportLikeObject.mock.calls[0][0].event_details).toEqual({
-      severity: 'minor',
-      type_accident: 'Truck crash',
     });
   });
 

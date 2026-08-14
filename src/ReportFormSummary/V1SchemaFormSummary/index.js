@@ -19,12 +19,12 @@ import * as styles from './styles.module.scss';
 
 // For V1 schemas, we basically hack a rjsf Form so they render all the fields for us and we styled them so they don't
 // look like fields.
-const V1SchemaFormSummary = ({ eventSchema, formData }) => {
+const V1SchemaFormSummary = ({ eventSchema, report }) => {
   const { schema, uiSchema } = eventSchema;
 
   const filteredSchema = useMemo(() => {
     const { properties = {} } = schema ?? {};
-    const eventDetailsKeys = Object.keys(formData ?? {});
+    const eventDetailsKeys = Object.keys(report?.event_details ?? {});
 
     return {
       ...schema,
@@ -32,13 +32,13 @@ const V1SchemaFormSummary = ({ eventSchema, formData }) => {
         return eventDetailsKeys.includes(key) ? { ...acc, [key]: value } : acc;
       }, {})
     };
-  }, [formData, schema]);
+  }, [report, schema]);
 
   return <Form
     className={styles.form}
     disabled
     fields={{ externalLink: ExternalLinkField }}
-    formData={formData}
+    formData={report?.event_details}
     schema={filteredSchema}
     showErrorList={false}
     templates={{

@@ -173,11 +173,6 @@ const ReportDetailView = ({
     ? selectEventSchema(state, reportForm.event_type, reportForm.id)
     : null);
 
-  const eventDetails = useMemo(
-    () => normalizeChoiceListValues(reportForm?.event_details, eventSchema?.schema ?? eventSchema?.json),
-    [eventSchema, reportForm?.event_details]
-  );
-
   const {
     onCancelAddedReport,
     onSaveError: onSaveErrorCallback,
@@ -335,8 +330,10 @@ const ReportDetailView = ({
     } else {
       reportToSubmit = {
         ...reportChanges,
-        event_details: eventDetails,
         id: reportForm.id,
+        // Repairs legacy choices stored as whole option objects, so the event stops tripping
+        // validation on every later edit.
+        event_details: normalizeChoiceListValues(reportForm.event_details),
         location: originalReport.location,
       };
 
@@ -388,7 +385,6 @@ const ReportDetailView = ({
     attachmentsToAdd,
     communityInputValue,
     dispatch,
-    eventDetails,
     isAddedReport,
     isCommunity,
     isNewReport,
@@ -450,8 +446,8 @@ const ReportDetailView = ({
   }, [reportForm, reportTracker]);
 
   const onLegacyFormChange = useCallback((event) => {
-    const originalEventDetails = reportForm.event_details ?? {};
-    const eventDetailsKeys = new Set([...Object.keys(originalEventDetails), ...Object.keys(event.formData)]);
+    const eventDetails = reportForm.event_details ?? {};
+    const eventDetailsKeys = new Set([...Object.keys(eventDetails), ...Object.keys(event.formData)]);
     // rjsf unsets (deletes) or sets to undefined a cleared leaf field's key,
     // so a missing or undefined value in event.formData means the field was cleared.
     const nextEventDetails = [...eventDetailsKeys].reduce((accumulator, eventDetailKey) => ({
@@ -819,7 +815,6 @@ const ReportDetailView = ({
           <QuickLinks.SectionsWrapper>
             <QuickLinks.Section anchorTitle={t('reportDetailView.quickLinks.detailsAnchor')}>
               <DetailsSection
-                eventDetails={eventDetails}
                 eventSchema={eventSchema}
                 hidePriority={hidePriority}
                 hideReportedBy={hideReportedBy}

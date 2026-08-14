@@ -1,80 +1,44 @@
 import { isPlainObject } from 'lodash-es';
 
-const isLegacyChoiceListValue = (value) => isPlainObject(value)
+// Some events store a choice as the whole option object rather than its value, from a time when
+// the field was a collection. Requiring exactly these two keys keeps collection items that happen
+// to have a `value` field, and the `{ option: true }` maps that section conditions use, untouched.
+const isLegacyChoiceValue = (value) => isPlainObject(value)
+  && Object.keys(value).length === 2
+  && typeof value.name === 'string'
   && ['boolean', 'number', 'string'].includes(typeof value.value);
 
-const normalizeChoiceListValue = (value) => isLegacyChoiceListValue(value) ? value.value : value;
-
+// Both helpers return the original container when nothing changed, so untouched form data keeps its
+// identity and does not retrigger memos downstream.
 const normalizeArrayItems = (array, normalizeItem) => {
   const normalizedArray = array.map(normalizeItem);
 
-  // Return the normalized array if there are any changes, otherwise return the
-  // original array.
   return normalizedArray.some((item, index) => item !== array[index]) ? normalizedArray : array;
 };
 
-const isV2ChoiceSubschema = (subschema) => (subschema?.anyOf ?? [])
-  .some((choicesSubschema) => Array.isArray(choicesSubschema.enum));
+const normalizeObjectValues = (object, normalizeValue) => {
+  const normalizedEntries = Object.entries(object).map(([key, value]) => [key, normalizeValue(value)]);
 
-const isV1ChoiceSubschema = (subschema) => Array.isArray(subschema?.enum)
-  && subschema.enum.length > 0
-  && !subschema.enum.some(isPlainObject);
-
-const normalizeFieldValue = (value, jsonSubschema) => {
-  if (!isPlainObject(jsonSubschema) || value === null || value === undefined) {
-    return value;
-  }
-
-  const itemsSubschema = jsonSubschema.type === 'array' ? jsonSubschema.items : undefined;
-
-  if (isV2ChoiceSubschema(itemsSubschema)) {
-    if (Array.isArray(value)) {
-      return normalizeArrayItems(value, normalizeChoiceListValue);
-    }
-    return value === '' ? [] : [normalizeChoiceListValue(value)];
-  }
-
-  if (isV2ChoiceSubschema(jsonSubschema)) {
-    return normalizeChoiceListValue(Array.isArray(value) ? value[0] : value);
-  }
-
-  if (isV1ChoiceSubschema(itemsSubschema) || isV1ChoiceSubschema(jsonSubschema)) {
-    return Array.isArray(value)
-      ? normalizeArrayItems(value, normalizeChoiceListValue)
-      : normalizeChoiceListValue(value);
-  }
-
-  // Collection.
-  if (isPlainObject(itemsSubschema?.properties)) {
-    return Array.isArray(value)
-      ? normalizeArrayItems(value, (item) => normalizeChoiceListValues(item, itemsSubschema))
-      : value;
-  }
-
-  return value;
+  return normalizedEntries.some(([key, value]) => value !== object[key])
+    ? Object.fromEntries(normalizedEntries)
+    : object;
 };
 
-// The field subschema can be at its parent JSON schema properties or in a
-// conditional section's "then" subschema.
-const getFieldJSONSubschema = (jsonSchema, fieldName) => jsonSchema.properties?.[fieldName] ?? (jsonSchema.allOf ?? [])
-  .map((conditionalSectionJSONSubschema) => conditionalSectionJSONSubschema.then?.properties?.[fieldName])
-  .find(Boolean);
-
-// Replaces choice list form data values from { name, value } format to string.
-const normalizeChoiceListValues = (formData, jsonSchema) => {
-  if (!isPlainObject(formData) || !isPlainObject(jsonSchema)) {
-    return formData;
+// Replaces choice list form data values from { name, value } format to their value.
+const normalizeChoiceListValues = (formData) => {
+  if (isLegacyChoiceValue(formData)) {
+    return formData.value;
   }
 
-  const normalizedEntries = Object.entries(formData).map(
-    ([fieldName, fieldValue]) => [fieldName, normalizeFieldValue(fieldValue, getFieldJSONSubschema(jsonSchema, fieldName))]
-  );
+  if (Array.isArray(formData)) {
+    return normalizeArrayItems(formData, normalizeChoiceListValues);
+  }
 
-  // Return the normalized form data if there are any changes, otherwise return
-  // the original form data object.
-  return normalizedEntries.some(([fieldName, fieldValue]) => fieldValue !== formData[fieldName])
-    ? Object.fromEntries(normalizedEntries)
-    : formData;
+  if (isPlainObject(formData)) {
+    return normalizeObjectValues(formData, normalizeChoiceListValues);
+  }
+
+  return formData;
 };
 
 export default normalizeChoiceListValues;

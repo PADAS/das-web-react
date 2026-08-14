@@ -8,6 +8,7 @@ import { clearUserContent } from '../ducks/user-content';
 import evaluateSectionConditions from './utils/evaluateSectionConditions';
 import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from '../utils/form-schemas/constants';
 import getDefaultFormData from './utils/getDefaultFormData';
+import normalizeChoiceListValues from '../utils/form-schemas/normalizeChoiceListValues';
 import normalizeDateTimeFieldValue from './utils/normalizeDateTimeFieldValue';
 import transformSchemaToFormElements from '../utils/form-schemas/transformSchemaToFormElements';
 import useMapLocationMarkers from './utils/useMapLocationMarkers';
@@ -43,7 +44,7 @@ const getVisibleSectionIds = (formElements, formData) =>
 
 const SchemaForm = ({
   anchorLocation,
-  formData,
+  formData: rawFormData,
   hideMapLocationMarkers,
   metadata,
   onFormDataChange,
@@ -55,6 +56,10 @@ const SchemaForm = ({
 }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('schema-form');
+
+  // Events created before a field became a choice list may store its choices as whole option
+  // objects, which no input, validation or section condition here recognizes.
+  const formData = useMemo(() => normalizeChoiceListValues(rawFormData), [rawFormData]);
 
   const onLocationMarkerClick = useCallback((markerId) => {
     const locationField = document.getElementById(markerId);

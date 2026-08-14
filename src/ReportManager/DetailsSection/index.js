@@ -46,9 +46,12 @@ const LOADER_COLOR = '#006cd9'; // Bright blue
 const LOADER_SIZE = 50;
 
 const DetailsSection = ({
-  eventDetails = {},
   eventSchema = null,
   formValidator,
+  // hidePriority / hideReportedBy are intentionally generic visibility props expressed in this
+  // component's own vocabulary, rather than gating these fields on isCommunity (the caller's reason).
+  // This lets a future caller hide these fields for some other reason without adding yet another
+  // context flag here — the component stays agnostic of *why* a field is hidden.
   hidePriority = false,
   hideReportedBy = false,
   isCommunity = false,
@@ -128,14 +131,14 @@ const DetailsSection = ({
     const filteredErrors = filterOutErrorsForHiddenProperties(
       filterOutEnumErrorsForClearedFields(
         filterOutRequiredValueOnSchemaPropErrors(errors),
-        eventDetails,
+        reportForm.event_details,
         jsonSchema
       ),
       eventUISchema
     );
 
     return filteredErrors.map((error) => ({ ...error, linearProperty: getLinearErrorPropTree(error.property) }));
-  }, [eventDetails, eventUISchema, jsonSchema]);
+  }, [eventUISchema, jsonSchema, reportForm.event_details]);
 
   return <div ref={ref}>
     <div className={styles.globalDetails}>
@@ -267,7 +270,7 @@ const DetailsSection = ({
       className={`${styles.form} ${reportForm.is_collection ? styles.hidden : ''}`}
       disabled={isReadOnly}
       fields={{ externalLink: ExternalLinkField }}
-      formData={eventDetails}
+      formData={reportForm.event_details}
       onChange={onLegacyFormChange}
       onError={onFormError}
       onSubmit={onFormSubmit}
@@ -289,7 +292,7 @@ const DetailsSection = ({
 
     {eventType?.version === 2 && eventSchema?.json && !eventSchema?.error && <SchemaForm
       anchorLocation={reportForm.location}
-      formData={eventDetails}
+      formData={reportForm.event_details}
       hideMapLocationMarkers={isBehindAddedEvent}
       metadata={reportForm.metadata ?? {}}
       onFormDataChange={onFormDataChange}

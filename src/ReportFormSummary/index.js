@@ -1,10 +1,9 @@
-import React, { memo, useEffect, useMemo } from 'react';
+import React, { memo, useEffect } from 'react';
 import MoonLoader from 'react-spinners/MoonLoader';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { fetchEventTypeSchema } from '../ducks/event-schemas';
-import normalizeChoiceListValues from '../utils/form-schemas/normalizeChoiceListValues';
 import { selectEventSchema } from '../selectors/event-schemas';
 import { selectEventTypeByValue } from '../selectors/event-types';
 import useReport from '../hooks/useReport';
@@ -27,11 +26,6 @@ const EventFormSummary = ({ report }) => {
   const eventType = useSelector((state) => selectEventTypeByValue(state, report.event_type));
 
   const { eventTypeTitle } = useReport(report);
-
-  const formData = useMemo(
-    () => normalizeChoiceListValues(report.event_details, eventSchema?.schema ?? eventSchema?.json) ?? {},
-    [eventSchema, report.event_details]
-  );
 
   useEffect(() => {
     if (!!eventType && !eventSchema) {
@@ -63,9 +57,12 @@ const EventFormSummary = ({ report }) => {
       </div>}
     </div>
 
-    {eventType.version === 1 && <V1SchemaFormSummary eventSchema={eventSchema} formData={formData} />}
+    {eventType.version === 1 && <V1SchemaFormSummary eventSchema={eventSchema} report={report} />}
 
-    {eventType.version === 2 && <V2SchemaFormSummary eventSchema={eventSchema} formData={formData} />}
+    {eventType.version === 2 && <V2SchemaFormSummary
+      eventSchema={eventSchema}
+      formData={report?.event_details || {}}
+    />}
   </div>;
 };
 
