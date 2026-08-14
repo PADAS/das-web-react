@@ -57,8 +57,6 @@ const SchemaForm = ({
   const dispatch = useDispatch();
   const { t } = useTranslation('schema-form');
 
-  const normalizedFormData = useMemo(() => normalizeChoiceListValues(formData), [formData]);
-
   const onLocationMarkerClick = useCallback((markerId) => {
     const locationField = document.getElementById(markerId);
     if (locationField) {
@@ -84,6 +82,8 @@ const SchemaForm = ({
   const [shouldCalculateInitialData, setShouldCalculateInitialData] = useState(true);
 
   const formElements = useMemo(() => transformSchemaToFormElements(schema), [schema]);
+
+  const normalizedFormData = useMemo(() => normalizeChoiceListValues(formData, formElements), [formData, formElements]);
 
   const runSchemaValidations = useSchemaValidations(schema);
   const runUploadValidations = useUploadValidations(formElements);

@@ -56,7 +56,7 @@ const SectionSummary = ({ formData, formElements, section }) => <div className={
 const V2SchemaFormSummary = ({ eventSchema, formData }) => {
   const formElements = useMemo(() => transformSchemaToFormElements(eventSchema), [eventSchema]);
 
-  const normalizedFormData = useMemo(() => normalizeChoiceListValues(formData), [formData]);
+  const normalizedFormData = useMemo(() => normalizeChoiceListValues(formData, formElements), [formData, formElements]);
 
   return formElements[ROOT_CANVAS_ID]?.details.sections.map((sectionId) => <SectionSummary
     formData={normalizedFormData}

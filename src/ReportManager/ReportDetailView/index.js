@@ -38,6 +38,7 @@ import { setLocallyEditedEvent, unsetLocallyEditedEvent } from '../../ducks/loca
 import { SidebarScrollContext } from '../../SidebarScrollContext';
 import { TAB_KEYS } from '../../constants';
 import { TrackerContext } from '../../utils/analytics';
+import transformSchemaToFormElements from '../../utils/form-schemas/transformSchemaToFormElements';
 import useNavigate from '../../hooks/useNavigate';
 import { usePreviewFeature } from '../../hooks';
 import { uuid } from '../../utils/string';
@@ -172,6 +173,13 @@ const ReportDetailView = ({
   const eventSchema = useSelector((state) => reportForm
     ? selectEventSchema(state, reportForm.event_type, reportForm.id)
     : null);
+
+  const formElements = useMemo(
+    () => eventType?.version === 2 && eventSchema?.json && !eventSchema?.error
+      ? transformSchemaToFormElements(eventSchema)
+      : null,
+    [eventSchema, eventType?.version]
+  );
 
   const {
     onCancelAddedReport,
@@ -330,7 +338,7 @@ const ReportDetailView = ({
     } else {
       reportToSubmit = {
         ...reportChanges,
-        event_details: normalizeChoiceListValues(reportForm.event_details),
+        event_details: normalizeChoiceListValues(reportForm.event_details, formElements),
         id: reportForm.id,
         location: originalReport.location,
       };
@@ -383,6 +391,7 @@ const ReportDetailView = ({
     attachmentsToAdd,
     communityInputValue,
     dispatch,
+    formElements,
     isAddedReport,
     isCommunity,
     isNewReport,
