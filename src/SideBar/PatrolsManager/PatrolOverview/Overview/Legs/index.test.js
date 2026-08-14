@@ -9,6 +9,7 @@ import patrolTypes from '../../../../../__test-helpers/fixtures/patrol-types';
 import { multiLegPatrol } from '../../../../../__test-helpers/fixtures/patrols';
 import { render, screen, within } from '../../../../../test-utils';
 import { format, STANDARD_DATE_FORMAT } from '../../../../../utils/datetime';
+import { TrackerContext } from '../../../../../utils/analytics';
 import { TRACK_LENGTH_ORIGINS } from '../../../../../ducks/tracks';
 import useNavigate from '../../../../../hooks/useNavigate';
 
@@ -63,10 +64,14 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
     };
   });
 
+  const track = jest.fn();
+
   const renderLegs = (props) => render(
     <Provider store={mockStore(store)}>
       <MapContext.Provider value={map}>
-        <Legs patrol={patrol} {...props} />
+        <TrackerContext.Provider value={{ track }}>
+          <Legs patrol={patrol} {...props} />
+        </TrackerContext.Provider>
       </MapContext.Provider>
     </Provider>
   );
@@ -139,10 +144,25 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
     expect(legTwoTimeCells[1]).toHaveTextContent('');
   });
 
-  test('shows the leg team and assets', () => {
+  test('shows the leg leader name', () => {
     renderLegs();
 
-    expect(screen.getAllByText('Maya Chen +1')).toHaveLength(2);
+    const [, legOneRow, legTwoRow] = getRows();
+
+    expect(within(legOneRow).getByText(legOne.leader.name)).toBeInTheDocument();
+    expect(within(legTwoRow).getByText(legTwo.leader.name)).toBeInTheDocument();
+  });
+
+  test('shows nothing in the leader column when the leg has no leader assigned', () => {
+    const legWithoutLeader = { ...legOne, leader: null };
+    const patrolWithoutLeader = { ...patrol, patrol_segments: [legWithoutLeader, legTwo] };
+
+    renderLegs({ patrol: patrolWithoutLeader });
+
+    const [, legOneRow] = getRows();
+    const leaderCell = within(legOneRow).getAllByRole('cell')[4];
+
+    expect(leaderCell).toHaveTextContent('');
   });
 
   test('shows the zoom to leg bounds button', () => {
@@ -177,6 +197,15 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
 
     expect(viewLegOneLink).toHaveAttribute('href', `/patrols/${patrol.id}/legs/${legOne.id}`);
     expect(viewLegTwoLink).toHaveAttribute('href', `/patrols/${patrol.id}/legs/${legTwo.id}`);
+  });
+
+  test('does not trigger the row navigation when the view leg link is clicked', async () => {
+    renderLegs();
+
+    await userEvent.click(screen.getByRole('link', { name: 'View leg 1' }));
+
+    expect(navigate).not.toHaveBeenCalled();
+    expect(track).toHaveBeenCalledWith('View leg from patrol overview');
   });
 
   test('shows the new leg link', () => {

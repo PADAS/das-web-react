@@ -1,9 +1,11 @@
-@use 'sass:color';
-
 @use '../../../../common/styles/vars/colors';
 @use '../_shared' as shared;
 
 .history {
+  background: white;
+  margin: 0 -1rem;
+  padding: 1rem;
+
   .header {
     align-items: center;
     display: flex;
@@ -13,41 +15,27 @@
     .actions {
       align-items: center;
       display: flex;
-      gap: 0.25rem;
+      gap: 0.5rem;
       margin-left: auto;
+
+      .timeLabel {
+        color: colors.$off-black;
+        font-size: 0.875rem;
+      }
 
       .sortDirectionButton {
         @include shared.chip-icon-button;
+        @include shared.chip-icon-button-active-state;
 
         svg {
           height: 1rem;
           width: 1rem;
-        }
-
-        &.active {
-          background-color: colors.$bright-blue;
-          border-color: colors.$bright-blue;
-          color: white;
-
-          &:hover {
-            background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
-            border-color: color.adjust(colors.$bright-blue, $lightness: -5%);
-          }
-
-          &:focus-visible {
-            background-color: white;
-            border-color: colors.$bright-blue;
-            color: colors.$bright-blue;
-            outline: 1px solid colors.$bright-blue;
-          }
         }
       }
     }
   }
 
   .updatesList {
-    @include shared.white-card;
-
     list-style: none;
     margin: 0;
     padding: 0;
@@ -58,10 +46,10 @@
       display: flex;
       gap: 0.75rem;
       justify-content: space-between;
-      padding: 0.625rem 0.75rem;
+      padding: 0.625rem 0;
 
-      &:last-child {
-        border-bottom: none;
+      &:first-child {
+        border-top: 1px solid colors.$light-gray-lines;
       }
 
       .updateContent {

@@ -613,13 +613,12 @@ const PatrolDetailView = () => {
 
             <div className={`${styles.footer} ${styles.hideOnPrint}`}>
               <div className={styles.footerActionButtonsContainer}>
-                <AddNoteButton className={styles.footerActionButton} onAddNote={onAddNote} />
+                <AddNoteButton onAddNote={onAddNote} />
 
-                <AddAttachmentButton className={styles.footerActionButton} onAddAttachments={onAddAttachments} />
+                <AddAttachmentButton onAddAttachments={onAddAttachments} />
 
                 {!isNewPatrol && <AddReportButton
                   analyticsMetadata={{ category: PATROL_DETAIL_VIEW_CATEGORY, location: 'Patrol Detail View' }}
-                  className={styles.footerActionButton}
                   formProps={{
                     isPatrolReport: true,
                     onSaveSuccess: onAddReport,

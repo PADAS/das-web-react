@@ -5,11 +5,18 @@ import { mockStore } from '../../../../__test-helpers/MockStore';
 import patrolTypes from '../../../../__test-helpers/fixtures/patrol-types';
 import { multiLegPatrol } from '../../../../__test-helpers/fixtures/patrols';
 import { render, screen } from '../../../../test-utils';
+import { SYSTEM_CONFIG_FLAGS } from '../../../../constants';
 import { TRACK_LENGTH_ORIGINS } from '../../../../ducks/tracks';
 
 import Overview from './';
 
 describe('SideBar - PatrolsManager - PatrolOverview - Overview', () => {
+  const onCancelNote = jest.fn();
+  const onChangeNote = jest.fn();
+  const onDeleteAttachment = jest.fn();
+  const onDeleteNote = jest.fn();
+  const onDoneNote = jest.fn();
+
   const patrolWithLeader = multiLegPatrol;
 
   let store;
@@ -21,6 +28,9 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview', () => {
         tracks: {},
       },
       view: {
+        systemConfig: {
+          [SYSTEM_CONFIG_FLAGS.EVENTS]: true,
+        },
         timeSliderState: {},
         trackSettings: { length: 21, origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH },
       },
@@ -29,7 +39,17 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview', () => {
 
   const renderOverview = (props) => render(
     <Provider store={mockStore(store)}>
-      <Overview patrol={patrolWithLeader} {...props} />
+      <Overview
+        newAttachments={[]}
+        newNotes={[]}
+        onCancelNote={onCancelNote}
+        onChangeNote={onChangeNote}
+        onDeleteAttachment={onDeleteAttachment}
+        onDeleteNote={onDeleteNote}
+        onDoneNote={onDoneNote}
+        patrol={patrolWithLeader}
+        {...props}
+      />
     </Provider>
   );
 

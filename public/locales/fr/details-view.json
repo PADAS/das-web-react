@@ -8,9 +8,11 @@
     "timeLabel": "Heure"
   },
   "addAttachmentButton": "Pièce jointe",
+  "addAttachmentButtonLabel": "Ajouter une pièce jointe",
   "addReportButtonLabel": "Créer un Évènement",
   "addReportButtonTitle": "Événements",
   "addNoteButton": "Commentaire",
+  "addNoteButtonLabel": "Ajouter un commentaire",
   "attachmentControls": {
     "addNoteTitle": "Ajouter un commentaire",
     "addAttachmentTitle": "Ajouter une pièce jointe"

@@ -15,6 +15,9 @@ import * as styles from './styles.module.scss';
 
 const MenuContext = createContext(null);
 
+const FOCUS_INTENT_FIRST = 'first';
+const FOCUS_INTENT_LAST = 'last';
+
 const FOCUSABLE_SELECTOR = [
   'button:not(:disabled)',
   'a[href]',
@@ -110,6 +113,7 @@ const KebabMenu = ({
   const menuId = useId();
 
   const optionsRef = useRef([]);
+  const pendingFocusIntentRef = useRef(null);
 
   const [show, setShow] = useState(defaultShow);
   const [buttonRef, setButtonRef] = useState(null);
@@ -119,6 +123,12 @@ const KebabMenu = ({
 
     buttonRef?.focus();
   }, [buttonRef]);
+
+  const openMenu = useCallback((focusIntent = null) => {
+    pendingFocusIntentRef.current = focusIntent;
+
+    setShow(true);
+  }, []);
 
   const registerOption = useCallback((nodeRef, disabled) => {
     const option = { nodeRef, disabled };
@@ -153,7 +163,7 @@ const KebabMenu = ({
     );
 
     // Options after the current one, then wrap around to the options before
-    // (and including) it.
+    // (and including) it. When no option is focused start at the first option.
     [...options.slice(currentIndex + 1), ...options.slice(0, currentIndex + 1)]
       .some((option) => focusItemNode(option.nodeRef.current));
   }, [enabledOptions]);
@@ -167,53 +177,70 @@ const KebabMenu = ({
     ));
 
     // Options before the current one, then wrap around to the options after
-    // (and including) it, both walked backwards.
+    // (and including) it, both walked backwards. When no option is focused start
+    // at the last option.
     [...options.slice(0, currentIndex).reverse(), ...options.slice(currentIndex).reverse()]
       .some((option) => focusItemNode(option.nodeRef.current));
   }, [enabledOptions]);
 
-  const onMenuKeyDown = (event) => {
+  const onKeyDown = (event) => {
     switch (event.key) {
     case 'ArrowDown':
       event.preventDefault();
 
-      focusNextOption();
+      if (show) {
+        focusNextOption();
+      } else {
+        openMenu(FOCUS_INTENT_FIRST);
+      }
 
       break;
 
     case 'ArrowUp':
       event.preventDefault();
 
-      focusPreviousOption();
+      if (show) {
+        focusPreviousOption();
+      } else {
+        openMenu(FOCUS_INTENT_LAST);
+      }
 
       break;
 
     case 'End':
-      event.preventDefault();
+      if (show) {
+        event.preventDefault();
 
-      focusLastOption();
+        focusLastOption();
+      }
 
       break;
 
     case 'Home':
-      event.preventDefault();
+      if (show) {
+        event.preventDefault();
 
-      focusFirstOption();
+        focusFirstOption();
+      }
 
       break;
 
     case 'Tab':
-      event.preventDefault();
+      if (show) {
+        event.preventDefault();
 
-      closeMenu();
+        closeMenu();
+      }
 
       break;
 
     case 'Escape':
-      event.preventDefault();
-      event.stopPropagation();
+      if (show) {
+        event.preventDefault();
+        event.stopPropagation();
 
-      closeMenu();
+        closeMenu();
+      }
 
       break;
 
@@ -222,10 +249,26 @@ const KebabMenu = ({
   };
 
   useEffect(() => {
-    if (show) {
-      focusFirstOption();
+    if (show && pendingFocusIntentRef.current) {
+      const focusIntent = pendingFocusIntentRef.current;
+      pendingFocusIntentRef.current = null;
+
+      if (focusIntent === FOCUS_INTENT_FIRST) {
+        focusFirstOption();
+      } else if (focusIntent === FOCUS_INTENT_LAST) {
+        focusLastOption();
+      }
     }
-  }, [focusFirstOption, show]);
+  }, [focusFirstOption, focusLastOption, show]);
+
+  const onToggleClick = (event) => {
+    if (show) {
+      setShow(false);
+    } else {
+      // A click with no detail is keyboard-driven. Focus the first option.
+      openMenu(event.detail === 0 ? FOCUS_INTENT_FIRST : null);
+    }
+  };
 
   const menuContextValue = useMemo(() => ({ closeMenu, registerOption }), [closeMenu, registerOption]);
 
@@ -236,14 +279,14 @@ const KebabMenu = ({
   }), [backgroundColor, dotColor, size]);
 
   return (
-    <div className={`${styles.kebabMenu} ${className}`} {...rest}>
+    <div className={`${styles.kebabMenu} ${className}`} onKeyDown={onKeyDown} {...rest}>
       <button
         aria-controls={menuId}
         aria-expanded={show}
         aria-haspopup="menu"
         aria-label={ariaLabel}
         className={styles.toggle}
-        onClick={() => setShow((currentShow) => !currentShow)}
+        onClick={onToggleClick}
         ref={setButtonRef}
         style={toggleStyle}
         title={title}
@@ -265,7 +308,6 @@ const KebabMenu = ({
               aria-label={ariaLabel}
               className={styles.menu}
               id={menuId}
-              onKeyDown={onMenuKeyDown}
               role="menu"
             >
               {children}

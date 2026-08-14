@@ -1,17 +1,25 @@
 import React, { memo } from 'react';
-import { Route, Routes } from 'react-router';
+import { Route, Routes, useLocation } from 'react-router';
+
+import { getCurrentIdFromURL } from '../../utils/navigation';
 
 import PatrolOverview from './PatrolOverview';
 import PatrolsFeed from '../PatrolsFeed';
 
-const PatrolsManager = () => <Routes>
-  <Route element={<PatrolsFeed />} index />
+const PatrolsManager = () => {
+  const { pathname } = useLocation();
 
-  <Route path="new" element={<div>New Patrol</div>} />
+  const patrolId = getCurrentIdFromURL(pathname);
 
-  <Route path=":patrolId" element={<PatrolOverview />} />
+  return <Routes>
+    <Route element={<PatrolsFeed />} index />
 
-  <Route path=":patrolId/legs/*" element={<div>Leg Manager</div>} />
-</Routes>;
+    <Route path="new" element={<div>New Patrol</div>} />
+
+    <Route path=":patrolId" element={<PatrolOverview key={patrolId} />} />
+
+    <Route path=":patrolId/legs/*" element={<div>Leg Manager</div>} />
+  </Routes>;
+};
 
 export default memo(PatrolsManager);

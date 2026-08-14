@@ -82,7 +82,7 @@
       padding: 0 0.5rem;
       transition: background-color 150ms ease;
 
-      &:hover:not(:disabled) {
+      &:hover:not(:disabled):not(:focus-visible) {
         background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
       }
 

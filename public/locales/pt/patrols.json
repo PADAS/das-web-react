@@ -60,16 +60,21 @@
   "patrolOverview": {
     "footer": {
       "addEventButton": "Adicionar evento",
+      "addEventButtonLabel": "Adicionar evento",
+      "addEventButtonText": "Evento",
       "cancelOption": "Cancelar Patrulha",
       "endOption": "Finalizar patrulha",
       "pauseOption": "Pausar patrulha",
-      "saveButton": "Salvar patrulha",
+      "saveButton": "Salvar",
+      "saveButtonLoadingLabel": "Carregando",
       "updateStatusButton": "Atualizar status"
     },
     "header": {
       "breadcrumbNavLabel": "Navegação da patrulha",
       "breadcrumbPatrolsLabel": "Patrulhas",
       "closeButtonLabel": "Fechar barra lateral",
+      "copyLinkMessage": "Link copiado",
+      "copyLinkOption": "Copiar link de patrulha",
       "downloadTrackOption": "Baixar trilha da patrulha",
       "editTitleButtonLabel": "Editar título",
       "fitToBoundsButtonLabel": "Ajustar aos limites da patrulha",
@@ -96,21 +101,29 @@
       "sortDirectionButtonLabel": {
         "down": "Ordenar histórico em ordem crescente",
         "up": "Ordenar histórico em ordem decrescente"
-      }
+      },
+      "timeLabel": "Hora"
     },
     "historyTabTitle": "Histórico",
+    "navigationPromptModalDescription": "Há alterações não salvas. Você gostaria de voltar ou descartar as alterações?",
     "overview": {
       "activity": {
         "activeTimeLabel": "Tempo ativo",
         "activitySectionTitle": "Atividade",
+        "collapseAllButtonLabel": "Minimizar tudo",
         "distanceLabel": "Distância",
         "durationLabel": "Duração",
+        "emptyStateMessage": "A atividade da patrulha aparecerá aqui",
         "eventsLabel": "Eventos",
         "expandAllButtonLabel": "Expandir tudo",
         "jumpToLocationButtonLabel": "Ir para a localização",
         "pausedTimeLabel": "Tempo pausado",
-        "sortButtonLabel": "Ordenar atividade",
-        "viewButtonLabel": "Ver"
+        "sortDirectionButtonLabel": {
+          "down": "Ordenar atividade em ordem crescente",
+          "up": "Ordenar atividade em ordem decrescente"
+        },
+        "startPatrolButton": "Iniciar patrulha",
+        "timeLabel": "Hora"
       },
       "legs": {
         "endColumnHeader": "Data da finalização",

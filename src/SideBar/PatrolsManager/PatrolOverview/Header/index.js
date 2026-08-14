@@ -1,13 +1,17 @@
-import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { useReactToPrint } from 'react-to-print';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ChevronRightIcon } from '../../../../common/images/icons/chevron-right.svg';
+import { ReactComponent as ClipIcon } from '../../../../common/images/icons/link.svg';
 import { ReactComponent as CrossIcon } from '../../../../common/images/icons/cross.svg';
+import { ReactComponent as DownloadArrowIcon } from '../../../../common/images/icons/download-arrow.svg';
 import { ReactComponent as FitScreenIcon } from '../../../../common/images/icons/fit-screen.svg';
 import { ReactComponent as MarkerFeedIcon } from '../../../../common/images/icons/marker-feed.svg';
 import { ReactComponent as PencilIcon } from '../../../../common/images/icons/pencil.svg';
+import { ReactComponent as PrinterIcon } from '../../../../common/images/icons/printer-outline.svg';
 import { ReactComponent as TrackIcon } from '../../../../common/images/icons/tracks_off.svg';
 
 import { basePrintingStyles } from '../../../../utils/styles';
@@ -19,9 +23,10 @@ import {
   iconIdForPatrolSegment,
   patrolHasTrackData,
 } from '../../../../utils/patrols';
+import { DAS_HOST, TAB_KEYS } from '../../../../constants';
 import { downloadJsonAsFile } from '../../../../utils/download';
+import { TrackerContext } from '../../../../utils/analytics';
 import { selectPatrolTrackData } from '../../../../selectors/patrols';
-import { TAB_KEYS } from '../../../../constants';
 import { togglePatrolTrackState } from '../../../../ducks/patrols';
 import useJumpToLocation from '../../../../hooks/useJumpToLocation';
 
@@ -31,11 +36,14 @@ import SvgIcon from '../../../../SvgIcon';
 
 import * as styles from './styles.module.scss';
 
+const COPY_LINK_TOAST_AUTOCLOSE = 2000;
 const TITLE_INPUT_WIDTH_CARET_BUFFER = 2;
 
-const Header = ({ patrol, printableContentRef }) => {
+const Header = ({ patrol, printableContentRef, setIsTitleDirty }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolOverview.header' });
+
+  const tracker = useContext(TrackerContext);
 
   const jumpToLocation = useJumpToLocation();
 
@@ -50,16 +58,8 @@ const Header = ({ patrol, printableContentRef }) => {
   const titleInputRef = useRef();
   const titleMeasureRef = useRef();
 
-  // Tracks which patrol the state synced to, since the patrolId route param
-  // can change without this component unmounting.
-  const [syncedPatrolId, setSyncedPatrolId] = useState(patrol.id);
   const [title, setTitle] = useState(displayTitle);
   const [titleInputWidth, setTitleInputWidth] = useState(null);
-
-  if (patrol.id !== syncedPatrolId) {
-    setSyncedPatrolId(patrol.id);
-    setTitle(displayTitle);
-  }
 
   const patrolIconId = lastSegment ? iconIdForPatrolSegment(patrolTypes, lastSegment) : null;
 
@@ -67,6 +67,7 @@ const Header = ({ patrol, printableContentRef }) => {
   const isPatrolTrackVisible = !isPatrolTrackPinned && patrolTrackState.visible.includes(patrol.id);
 
   const trackToggleState = isPatrolTrackPinned ? 'pinned' : isPatrolTrackVisible ? 'visible' : 'hidden';
+  const nextTrackToggleStateIfToggled = isPatrolTrackPinned ? 'hidden' : isPatrolTrackVisible ? 'pinned' : 'visible';
 
   // TODO: The patrol track toggle only shows each leg leader's track. Once team members and
   // assets are available from the endpoint, it should also include their tracks bounded to
@@ -82,16 +83,57 @@ const Header = ({ patrol, printableContentRef }) => {
 
   const patrolState = calcPatrolState(patrol);
 
+  const onToggleTrack = () => {
+    dispatch(togglePatrolTrackState(patrol.id));
+
+    tracker.track(`Toggle patrol track state to ${nextTrackToggleStateIfToggled} from patrol overview`);
+  };
+
+  const onJumpToLocation = () => {
+    jumpToLocation(jumpToLocationCoordinates);
+
+    tracker.track('Click "jump to location" from patrol overview');
+  };
+
+  const onFitToBounds = () => {
+    jumpToLocation([[patrolBounds[0], patrolBounds[1]], [patrolBounds[2], patrolBounds[3]]], undefined, { maxZoom: 17 });
+
+    tracker.track('Click "fit to bounds" from patrol overview');
+  };
+
+  const onCopyLink = async () => {
+    try {
+      await window.navigator.clipboard.writeText(`${DAS_HOST}/patrols/${patrol.id}`);
+
+      toast.info(t('copyLinkMessage'), { autoClose: COPY_LINK_TOAST_AUTOCLOSE, hideProgressBar: true });
+
+      tracker.track('Copy patrol link from patrol overview');
+    } catch (error) {
+      console.warn('Error copying patrol link to clipboard: ', error);
+    }
+  };
+
   const onPrint = useReactToPrint({
     contentRef: printableContentRef,
     documentTitle: `${patrol.serial_number ?? ''} ${title}`.trim(),
     pageStyle: basePrintingStyles,
   });
 
-  const onEditTitleButtonClick = () => {
+  const onDownloadTrack = () => {
+    downloadJsonAsFile(patrolTrackData.trackData.track, `Patrol_${patrol.serial_number}.geojson`);
+
+    tracker.track('Download patrol track from patrol overview');
+  };
+
+  const onEditTitleButton = () => {
     titleInputRef.current?.focus();
     titleInputRef.current?.select();
   };
+
+  const isTitleDirty = title !== displayTitle;
+  useEffect(() => {
+    setIsTitleDirty(isTitleDirty);
+  }, [isTitleDirty, setIsTitleDirty]);
 
   useLayoutEffect(() => {
     if (titleMeasureRef.current) {
@@ -124,7 +166,7 @@ const Header = ({ patrol, printableContentRef }) => {
               isPatrolTrackPinned ? styles.pinned : isPatrolTrackVisible ? styles.visible : ''
             }`}
             disabled={!hasTrack}
-            onClick={() => dispatch(togglePatrolTrackState(patrol.id))}
+            onClick={onToggleTrack}
             title={t(`toggleTrackButtonLabel.${trackToggleState}`)}
             type="button"
           >
@@ -135,7 +177,7 @@ const Header = ({ patrol, printableContentRef }) => {
             aria-label={t('jumpToLocationButtonLabel')}
             className={styles.iconButton}
             disabled={!jumpToLocationCoordinates}
-            onClick={() => jumpToLocation(jumpToLocationCoordinates)}
+            onClick={onJumpToLocation}
             title={t('jumpToLocationButtonLabel')}
             type="button"
           >
@@ -146,11 +188,7 @@ const Header = ({ patrol, printableContentRef }) => {
             aria-label={t('fitToBoundsButtonLabel')}
             className={styles.iconButton}
             disabled={!patrolBounds}
-            onClick={() => patrolBounds && jumpToLocation(
-              [[patrolBounds[0], patrolBounds[1]], [patrolBounds[2], patrolBounds[3]]],
-              undefined,
-              { maxZoom: 17 }
-            )}
+            onClick={onFitToBounds}
             title={t('fitToBoundsButtonLabel')}
             type="button"
           >
@@ -166,42 +204,50 @@ const Header = ({ patrol, printableContentRef }) => {
           <KebabMenu.Option
             className={styles.mobileOnlyOption}
             disabled={!hasTrack}
-            onClick={() => dispatch(togglePatrolTrackState(patrol.id))}
+            onClick={onToggleTrack}
           >
+            <TrackIcon aria-hidden="true" />
+
             {t(`toggleTrackButtonLabel.${trackToggleState}`)}
           </KebabMenu.Option>
 
           <KebabMenu.Option
             className={styles.mobileOnlyOption}
             disabled={!jumpToLocationCoordinates}
-            onClick={() => jumpToLocation(jumpToLocationCoordinates)}
+            onClick={onJumpToLocation}
           >
+            <MarkerFeedIcon aria-hidden="true" />
+
             {t('jumpToLocationButtonLabel')}
           </KebabMenu.Option>
 
           <KebabMenu.Option
             className={styles.mobileOnlyOption}
             disabled={!patrolBounds}
-            onClick={() => patrolBounds && jumpToLocation(
-              [[patrolBounds[0], patrolBounds[1]], [patrolBounds[2], patrolBounds[3]]],
-              undefined,
-              { maxZoom: 17 }
-            )}
+            onClick={onFitToBounds}
           >
+            <FitScreenIcon aria-hidden="true" />
+
             {t('fitToBoundsButtonLabel')}
           </KebabMenu.Option>
 
           <KebabMenu.Divider className={styles.mobileOnlyOption} />
 
-          <KebabMenu.Option onClick={onPrint}>{t('printOption')}</KebabMenu.Option>
+          <KebabMenu.Option onClick={onCopyLink}>
+            <ClipIcon aria-hidden="true" />
 
-          <KebabMenu.Option
-            disabled={!hasTrack}
-            onClick={() => hasTrack && downloadJsonAsFile(
-              patrolTrackData.trackData.track,
-              `Patrol_${patrol.serial_number}.geojson`
-            )}
-          >
+            {t('copyLinkOption')}
+          </KebabMenu.Option>
+
+          <KebabMenu.Option onClick={onPrint}>
+            <PrinterIcon aria-hidden="true" />
+
+            {t('printOption')}
+          </KebabMenu.Option>
+
+          <KebabMenu.Option disabled={!hasTrack} onClick={onDownloadTrack}>
+            <DownloadArrowIcon aria-hidden="true" />
+
             {t('downloadTrackOption')}
           </KebabMenu.Option>
         </KebabMenu>
@@ -243,7 +289,7 @@ const Header = ({ patrol, printableContentRef }) => {
           <button
             aria-hidden="true"
             className={`${styles.editButton} ${styles.hideOnPrint}`}
-            onClick={onEditTitleButtonClick}
+            onClick={onEditTitleButton}
             onMouseDown={(event) => event.preventDefault()}
             tabIndex={-1}
             title={t('editTitleButtonLabel')}
@@ -263,4 +309,4 @@ const Header = ({ patrol, printableContentRef }) => {
   </header>;
 };
 
-export default Header;
+export default memo(Header);

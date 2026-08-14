@@ -29,6 +29,7 @@ const AddItemButton = ({
   hideAddPatrolTab = false,
   hideAddEventTab = false,
   iconComponent = <AddButtonIcon />,
+  label = null,
   modalProps = {},
   onAddPatrol = null,
   onAddReport = null,
@@ -89,7 +90,7 @@ const AddItemButton = ({
     >
       {iconComponent}
 
-      {showLabel && <label>{title || t('defaultTitle')}</label>}
+      {showLabel && <span>{label || title || t('defaultTitle')}</span>}
     </button>
   </AddItemContext.Provider> : null;
 };

@@ -376,13 +376,30 @@ describe('DetailViewComponents - ActivitySection', () => {
     expect((await screen.findByTestId('time-sort-btn'))).toBeDefined();
   });
 
+  test('shows the Expand All label when there are items but none are collapsible', async () => {
+    renderActivitySection({
+      ...defaultProps,
+      attachments: [],
+      attachmentsToAdd: [],
+      containedReports: [],
+      notes: [],
+      notesToAdd: [],
+    });
+
+    expect((await screen.findByText('Expand All'))).toBeDefined();
+    expect((await screen.queryByText('Collapse All'))).toBeNull();
+  });
+
   test('hides activity action buttons if items list is empty', async () => {
     renderActivitySection({
       ...defaultProps,
       attachments: [],
+      attachmentsToAdd: [],
       containedReports: [],
+      endTime: null,
       notes: [],
       notesToAdd: [],
+      startTime: null,
     });
 
     expect((await screen.queryByText('Expand All'))).toBeNull();

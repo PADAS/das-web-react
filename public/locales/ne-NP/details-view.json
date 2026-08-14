@@ -8,8 +8,10 @@
     "timeLabel": "समय"
   },
   "addAttachmentButton": "संलग्न गरिएका फाईल",
+  "addAttachmentButtonLabel": "फाइल संलग्न गर्नुहोस्",
   "addReportButtonTitle": "घटना",
   "addNoteButton": "नोट",
+  "addNoteButtonLabel": "नोट थप्नुहोस्",
   "attachmentControls": {
     "addNoteTitle": "नोट थप्नुहोस्",
     "addAttachmentTitle": "संलग्नक थप्नुहोस्"

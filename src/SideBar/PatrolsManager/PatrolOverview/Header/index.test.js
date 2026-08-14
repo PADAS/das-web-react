@@ -9,11 +9,12 @@ import { downloadJsonAsFile } from '../../../../utils/download';
 import { MapContext } from '../../../../MapContext';
 import { mockStore } from '../../../../__test-helpers/MockStore';
 import patrols from '../../../../__test-helpers/fixtures/patrols';
-import { render, screen, within } from '../../../../test-utils';
-import { UPDATE_PATROL_TRACK_STATE } from '../../../../ducks/patrols';
-import { TRACK_LENGTH_ORIGINS } from '../../../../ducks/tracks';
 import * as patrolSelectors from '../../../../selectors/patrols';
 import * as patrolUtils from '../../../../utils/patrols';
+import { render, screen, within } from '../../../../test-utils';
+import { TRACK_LENGTH_ORIGINS } from '../../../../ducks/tracks';
+import { TrackerContext } from '../../../../utils/analytics';
+import { UPDATE_PATROL_TRACK_STATE } from '../../../../ducks/patrols';
 
 import Header from './';
 
@@ -34,6 +35,7 @@ const LocationDisplay = () => {
 
 describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
   const patrolWithLeader = patrols[1];
+  const patrolWithoutLeader = patrols[0];
   const leaderId = patrolWithLeader.patrol_segments[0].leader.id;
 
   const map = createMapMock();
@@ -73,13 +75,16 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
     return render(
       <Provider store={reduxStore}>
         <MapContext.Provider value={map}>
-          <Header
-            patrol={patrolWithLeader}
-            printableContentRef={{ current: <div>Printable patrol</div> }}
-            {...props}
-          />
+          <TrackerContext.Provider value={{ track: jest.fn() }}>
+            <Header
+              patrol={patrolWithLeader}
+              printableContentRef={{ current: <div>Printable patrol</div> }}
+              setIsTitleDirty={jest.fn()}
+              {...props}
+            />
 
-          {withLocationDisplay && <LocationDisplay />}
+            {withLocationDisplay && <LocationDisplay />}
+          </TrackerContext.Provider>
         </MapContext.Provider>
       </Provider>,
       { initialEntries: ['/patrols/some-other-patrol'] }
@@ -97,6 +102,12 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
 
     expect(within(nav).getByRole('link', { name: 'Patrols' })).toBeInTheDocument();
     expect(within(nav).getByText('6p-test')).toHaveAttribute('aria-current', 'page');
+  });
+
+  test('shows the patrol title for a leg with no assigned leader', () => {
+    renderHeader({ patrol: patrolWithoutLeader });
+
+    expect(screen.getByTestId('patrolOverview-title')).toHaveValue(patrolWithoutLeader.title);
   });
 
   test('shows the toggle track button when the patrol tracks are off', () => {
@@ -302,6 +313,39 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
     expect(map.fitBounds).toHaveBeenCalledWith([[1, 2], [3, 4]], expect.objectContaining({ maxZoom: 17 }));
   });
 
+  test('shows the copy patrol link button in the kebab menu', async () => {
+    renderHeader();
+    await openKebabMenu();
+
+    expect(await screen.findByRole('menuitem', { name: 'Copy patrol link' })).toBeInTheDocument();
+  });
+
+  test('copies the patrol link when the copy patrol link button in the kebab menu is clicked', async () => {
+    window.navigator.clipboard = { writeText: jest.fn() };
+
+    renderHeader();
+    await openKebabMenu();
+
+    const menuItem = await screen.findByRole('menuitem', { name: 'Copy patrol link' });
+    await userEvent.click(menuItem);
+
+    expect(window.navigator.clipboard.writeText).toHaveBeenCalledWith(expect.stringContaining(`/patrols/${patrolWithLeader.id}`));
+  });
+
+  test('logs a warning instead of crashing if copying the patrol link fails', async () => {
+    const clipboardError = new Error('Clipboard permission denied');
+    window.navigator.clipboard = { writeText: jest.fn().mockRejectedValue(clipboardError) };
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    renderHeader();
+    await openKebabMenu();
+
+    const menuItem = await screen.findByRole('menuitem', { name: 'Copy patrol link' });
+    await userEvent.click(menuItem);
+
+    expect(warnSpy).toHaveBeenCalledWith('Error copying patrol link to clipboard: ', clipboardError);
+  });
+
   test('shows the print button in the kebab menu', async () => {
     renderHeader();
     await openKebabMenu();
@@ -317,6 +361,14 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
     await userEvent.click(menuItem);
 
     expect(handlePrint).toHaveBeenCalledTimes(1);
+  });
+
+  test('omits the serial number prefix from the print title when the patrol has none', () => {
+    renderHeader({ patrol: { ...patrolWithLeader, serial_number: null } });
+
+    const [{ documentTitle }] = useReactToPrint.mock.calls.at(-1);
+
+    expect(documentTitle).toBe('6p-test');
   });
 
   test('shows the download track button in the kebab menu', async () => {
@@ -412,22 +464,23 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
     expect(input).toHaveValue('New Patrol Title');
   });
 
-  test('resyncs the title when the patrol changes without the component unmounting', () => {
-    const otherPatrol = patrols[0];
+  test('reports the title as dirty when the user edits it, and clean again if reverted', async () => {
+    const setIsTitleDirty = jest.fn();
 
-    const { rerender } = renderHeader();
+    renderHeader({ setIsTitleDirty });
 
-    expect(screen.getByTestId('patrolOverview-title')).toHaveValue('6p-test');
+    const input = screen.getByTestId('patrolOverview-title');
 
-    rerender(
-      <Provider store={reduxStore}>
-        <MapContext.Provider value={map}>
-          <Header patrol={otherPatrol} printableContentRef={{ current: <div>Printable patrol</div> }} />
-        </MapContext.Provider>
-      </Provider>
-    );
+    expect(setIsTitleDirty).toHaveBeenLastCalledWith(false);
 
-    expect(screen.getByTestId('patrolOverview-title')).toHaveValue(otherPatrol.title);
+    await userEvent.type(input, ' edited');
+
+    expect(setIsTitleDirty).toHaveBeenLastCalledWith(true);
+
+    await userEvent.clear(input);
+    await userEvent.type(input, '6p-test');
+
+    expect(setIsTitleDirty).toHaveBeenLastCalledWith(false);
   });
 
   test('shows the edit title button', () => {

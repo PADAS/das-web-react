@@ -4,13 +4,18 @@ import userEvent from '@testing-library/user-event';
 import patrols, { multiLegPatrol } from '../../../../__test-helpers/fixtures/patrols';
 import { render, screen, within } from '../../../../test-utils';
 import { format, STANDARD_DATE_FORMAT } from '../../../../utils/datetime';
+import { TrackerContext } from '../../../../utils/analytics';
 
 import History from './';
 
 describe('SideBar - PatrolsManager - PatrolOverview - History', () => {
   const patrolWithLeader = patrols[1];
 
-  const renderHistory = (props) => render(<History patrol={patrolWithLeader} {...props} />);
+  const renderHistory = (props) => render(
+    <TrackerContext.Provider value={{ track: jest.fn() }}>
+      <History patrol={patrolWithLeader} {...props} />
+    </TrackerContext.Provider>
+  );
 
   test('shows the sort direction button', () => {
     renderHistory();
@@ -42,26 +47,26 @@ describe('SideBar - PatrolsManager - PatrolOverview - History', () => {
     expect(screen.getByRole('button', { name: 'Sort history in ascending order' })).toHaveAttribute('aria-pressed', 'false');
   });
 
-  test('shows the updates list in ascending order when the sort direction is down', () => {
+  test('shows the updates list in descending order when the sort direction is down', () => {
     renderHistory({ patrol: multiLegPatrol });
-
-    const messages = screen.getAllByRole('listitem').map((item) => item.textContent);
-
-    expect(messages[0]).toEqual(expect.stringContaining('Patrol Added'));
-    expect(messages[1]).toEqual(expect.stringContaining('Leg 2 Started'));
-    expect(messages[2]).toEqual(expect.stringContaining('Leg 1 Ended'));
-  });
-
-  test('shows the updates list in descending order when the sort direction is up', async () => {
-    renderHistory({ patrol: multiLegPatrol });
-
-    await userEvent.click(screen.getByRole('button', { name: 'Sort history in ascending order' }));
 
     const messages = screen.getAllByRole('listitem').map((item) => item.textContent);
 
     expect(messages[0]).toEqual(expect.stringContaining('Leg 1 Ended'));
     expect(messages[1]).toEqual(expect.stringContaining('Leg 2 Started'));
     expect(messages[2]).toEqual(expect.stringContaining('Patrol Added'));
+  });
+
+  test('shows the updates list in ascending order when the sort direction is up', async () => {
+    renderHistory({ patrol: multiLegPatrol });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Sort history in ascending order' }));
+
+    const messages = screen.getAllByRole('listitem').map((item) => item.textContent);
+
+    expect(messages[0]).toEqual(expect.stringContaining('Patrol Added'));
+    expect(messages[1]).toEqual(expect.stringContaining('Leg 2 Started'));
+    expect(messages[2]).toEqual(expect.stringContaining('Leg 1 Ended'));
   });
 
   test('shows the user display name in the updates where it is available', () => {
@@ -90,5 +95,30 @@ describe('SideBar - PatrolsManager - PatrolOverview - History', () => {
     const [update] = patrolWithLeader.updates;
 
     expect(screen.getByTestId('date-time')).toHaveTextContent(format(new Date(update.time), STANDARD_DATE_FORMAT));
+  });
+
+  test('does not crash when the patrol is missing files, notes, or segment events', () => {
+    const partiallyLoadedPatrol = {
+      ...patrolWithLeader,
+      files: undefined,
+      notes: undefined,
+      patrol_segments: patrolWithLeader.patrol_segments.map((segment) => ({ ...segment, events: undefined })),
+    };
+
+    renderHistory({ patrol: partiallyLoadedPatrol });
+
+    expect(screen.getByText('Patrol Added')).toBeInTheDocument();
+  });
+
+  test('does not crash when the patrol or its segments are missing updates', () => {
+    const partiallyLoadedPatrol = {
+      ...patrolWithLeader,
+      updates: undefined,
+      patrol_segments: patrolWithLeader.patrol_segments.map((segment) => ({ ...segment, updates: undefined })),
+    };
+
+    renderHistory({ patrol: partiallyLoadedPatrol });
+
+    expect(screen.queryAllByRole('listitem')).toHaveLength(0);
   });
 });

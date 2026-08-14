@@ -60,16 +60,21 @@
   "patrolOverview": {
     "footer": {
       "addEventButton": "Add Event",
+      "addEventButtonLabel": "Add Event",
+      "addEventButtonText": "Event",
       "cancelOption": "Cancel Patrol",
       "endOption": "End Patrol",
       "pauseOption": "Pause Patrol",
-      "saveButton": "Save Patrol",
+      "saveButton": "Save",
+      "saveButtonLoadingLabel": "Loading",
       "updateStatusButton": "Update Status"
     },
     "header": {
       "breadcrumbNavLabel": "Patrol navigation",
       "breadcrumbPatrolsLabel": "Patrols",
       "closeButtonLabel": "Close sidebar",
+      "copyLinkMessage": "Link copied",
+      "copyLinkOption": "Copy patrol link",
       "downloadTrackOption": "Download Patrol Track",
       "editTitleButtonLabel": "Edit title",
       "fitToBoundsButtonLabel": "Zoom to patrol bounds",
@@ -96,21 +101,29 @@
       "sortDirectionButtonLabel": {
         "down": "Sort history in ascending order",
         "up": "Sort history in descending order"
-      }
+      },
+      "timeLabel": "Time"
     },
     "historyTabTitle": "History",
+    "navigationPromptModalDescription": "There are unsaved changes. Would you like to go back or discard the changes?",
     "overview": {
       "activity": {
         "activeTimeLabel": "Active Time",
         "activitySectionTitle": "Activity",
+        "collapseAllButtonLabel": "Collapse all",
         "distanceLabel": "Distance",
         "durationLabel": "Duration",
+        "emptyStateMessage": "Patrol activity will appear here",
         "eventsLabel": "Events",
         "expandAllButtonLabel": "Expand all",
         "jumpToLocationButtonLabel": "Jump to location",
         "pausedTimeLabel": "Paused Time",
-        "sortButtonLabel": "Sort activity",
-        "viewButtonLabel": "View"
+        "sortDirectionButtonLabel": {
+          "down": "Sort activity in ascending order",
+          "up": "Sort activity in descending order"
+        },
+        "startPatrolButton": "Start Patrol",
+        "timeLabel": "Time"
       },
       "legs": {
         "endColumnHeader": "End Date",

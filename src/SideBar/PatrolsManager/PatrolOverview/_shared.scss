@@ -57,14 +57,14 @@
     width: 1.25rem;
   }
 
-  &:focus-visible {
-    border-color: colors.$bright-blue;
-    outline: 1px solid colors.$bright-blue;
-  }
-
   &:hover {
     background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
     border-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+  }
+
+  &:focus-visible {
+    border-color: colors.$bright-blue;
+    outline: 1px solid colors.$bright-blue;
   }
 
   &:disabled {
@@ -78,8 +78,22 @@
   }
 }
 
-@mixin white-card {
-  background: colors.$off-white;
-  border: 1px solid colors.$light-gray-lines;
-  border-radius: 0.25rem;
+@mixin chip-icon-button-active-state {
+  &.active {
+    background-color: colors.$bright-blue;
+    border-color: colors.$bright-blue;
+    color: white;
+
+    &:hover {
+      background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+      border-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+    }
+
+    &:focus-visible {
+      background-color: white;
+      border-color: colors.$bright-blue;
+      color: colors.$bright-blue;
+      outline: 1px solid colors.$bright-blue;
+    }
+  }
 }
