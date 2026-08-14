@@ -26,10 +26,10 @@ const History = ({ patrol }) => {
     const sortMultiplier = sortDirection === SORT_DIRECTION.up ? -1 : 1;
 
     return [
-      ...patrol.updates,
+      ...(patrol.updates ?? []),
       ...extractAttachmentUpdates(patrol.files ?? []),
       ...extractAttachmentUpdates(patrol.notes ?? []),
-      ...segments.flatMap((segment) => segment.updates),
+      ...segments.flatMap((segment) => segment.updates ?? []),
       ...segments.flatMap((segment) => extractAttachmentUpdates(segment.events ?? [])),
     ]
       .filter((update) => !FILTERED_HISTORY_MESSAGES.includes(update.message))

@@ -109,4 +109,16 @@ describe('SideBar - PatrolsManager - PatrolOverview - History', () => {
 
     expect(screen.getByText('Patrol Added')).toBeInTheDocument();
   });
+
+  test('does not crash when the patrol or its segments are missing updates', () => {
+    const partiallyLoadedPatrol = {
+      ...patrolWithLeader,
+      updates: undefined,
+      patrol_segments: patrolWithLeader.patrol_segments.map((segment) => ({ ...segment, updates: undefined })),
+    };
+
+    renderHistory({ patrol: partiallyLoadedPatrol });
+
+    expect(screen.queryAllByRole('listitem')).toHaveLength(0);
+  });
 });

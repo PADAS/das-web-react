@@ -73,10 +73,10 @@ const Legs = ({ patrol }) => {
     tracker.track('View leg from patrol overview');
   };
 
-  const onViewLeg = (leg) => (event) => {
+  const onViewLeg = () => (event) => {
     event.stopPropagation();
 
-    onNavigateToLeg(leg)();
+    tracker.track('View leg from patrol overview');
   };
 
   return <>

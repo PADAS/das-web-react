@@ -64,10 +64,12 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
     };
   });
 
+  const track = jest.fn();
+
   const renderLegs = (props) => render(
     <Provider store={mockStore(store)}>
       <MapContext.Provider value={map}>
-        <TrackerContext.Provider value={{ track: jest.fn() }}>
+        <TrackerContext.Provider value={{ track }}>
           <Legs patrol={patrol} {...props} />
         </TrackerContext.Provider>
       </MapContext.Provider>
@@ -197,13 +199,13 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
     expect(viewLegTwoLink).toHaveAttribute('href', `/patrols/${patrol.id}/legs/${legTwo.id}`);
   });
 
-  test('navigates to the leg overview without navigating twice when the view leg link is clicked', async () => {
+  test('does not trigger the row navigation when the view leg link is clicked', async () => {
     renderLegs();
 
     await userEvent.click(screen.getByRole('link', { name: 'View leg 1' }));
 
-    expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith(`/patrols/${patrol.id}/legs/${legOne.id}`);
+    expect(navigate).not.toHaveBeenCalled();
+    expect(track).toHaveBeenCalledWith('View leg from patrol overview');
   });
 
   test('shows the new leg link', () => {
