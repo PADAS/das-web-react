@@ -57,7 +57,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     addItemButtonMock = jest.fn(() => <button data-testid="addEventButton" type="button" />);
     AddItemButton.mockImplementation(addItemButtonMock);
 
-    fetchPatrol.mockReturnValue({ type: 'FETCH_PATROL' });
+    fetchPatrol.mockImplementation(() => () => Promise.resolve());
     updatePatrol.mockImplementation(() => () => Promise.resolve());
     uploadPatrolFile.mockResolvedValue({});
     jest.spyOn(toast, 'error').mockImplementation(() => {});
@@ -687,10 +687,124 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalledWith('The patrol could not be saved. Please try again.');
       });
-      expect(fetchPatrol).not.toHaveBeenCalled();
+      expect(fetchPatrol).toHaveBeenCalledWith(patrolWithoutLeader.id);
       expect(screen.getByTestId('test-location')).toHaveTextContent(`/patrols/${patrolWithoutLeader.id}`);
       expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
       expect(screen.getByTestId('patrolOverview-title')).toHaveValue(`${patrolWithoutLeader.title} edited`);
+    });
+
+    test('redirects to the feed before the patrol refresh resolves', async () => {
+      fetchPatrol.mockImplementation(() => () => new Promise(() => {}));
+
+      renderPatrolWithNotes();
+
+      await addNote('a new note');
+      await clickSave();
+
+      await waitFor(() => {
+        expect(screen.getByTestId('test-location')).not.toHaveTextContent(patrolWithNotes.id);
+      });
+      expect(screen.getByTestId('test-location')).toHaveTextContent('/patrols');
+    });
+
+    test('does not report an error when only the refresh on the way out fails', async () => {
+      fetchPatrol.mockImplementation(() => () => Promise.reject(new Error('Refresh error')));
+
+      renderPatrolWithNotes();
+
+      await addNote('a new note');
+      await clickSave();
+
+      await waitFor(() => {
+        expect(screen.getByTestId('test-location')).toHaveTextContent('/patrols');
+      });
+      expect(toast.error).not.toHaveBeenCalled();
+    });
+
+    test('does not patch the notes again when retrying a save whose attachment upload failed', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+      uploadPatrolFile.mockRejectedValue(new Error('Upload error'));
+
+      renderPatrolWithNotes();
+
+      await addNote('a new note');
+      await uploadAttachment(new File(['file contents'], 'file.pdf', { type: 'application/pdf' }));
+      await clickSave();
+
+      await waitFor(() => {
+        expect(toast.error).toHaveBeenCalled();
+      });
+      expect(updatePatrol).toHaveBeenCalledTimes(1);
+
+      await clickSave();
+
+      await waitFor(() => {
+        expect(uploadPatrolFile).toHaveBeenCalledTimes(2);
+      });
+      expect(updatePatrol).toHaveBeenCalledTimes(1);
+    });
+
+    test('only retries the attachments whose upload failed', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+      const uploadedFile = new File(['file contents'], 'uploaded.pdf', { type: 'application/pdf' });
+      const rejectedFile = new File(['file contents'], 'rejected.pdf', { type: 'application/pdf' });
+      uploadPatrolFile.mockImplementation((_, file) => file === rejectedFile
+        ? Promise.reject(new Error('Upload error'))
+        : Promise.resolve({}));
+      store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
+
+      renderPatrolOverview(patrolWithoutLeader.id);
+
+      await uploadAttachment([uploadedFile, rejectedFile]);
+      await clickSave();
+
+      await waitFor(() => {
+        expect(toast.error).toHaveBeenCalled();
+      });
+      uploadPatrolFile.mockClear();
+
+      await clickSave();
+
+      await waitFor(() => {
+        expect(uploadPatrolFile).toHaveBeenCalledTimes(1);
+      });
+      expect(uploadPatrolFile).toHaveBeenCalledWith(patrolWithoutLeader.id, rejectedFile);
+    });
+  });
+
+  describe('title', () => {
+    const rerenderWithStore = (rerender) => rerender(
+      <Provider store={mockStore(store)}>
+        <PatrolOverview />
+      </Provider>
+    );
+
+    test('follows the patrol title while the user has not edited it', async () => {
+      store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
+
+      const { rerender } = renderPatrolOverview(patrolWithoutLeader.id);
+
+      expect(screen.getByTestId('patrolOverview-title')).toHaveValue(patrolWithoutLeader.title);
+
+      store.data.patrolStore[patrolWithoutLeader.id] = { ...patrolWithoutLeader, title: 'Renamed patrol' };
+      rerenderWithStore(rerender);
+
+      expect(screen.getByTestId('patrolOverview-title')).toHaveValue('Renamed patrol');
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
+
+    test('keeps the edited title when the patrol changes underneath', async () => {
+      store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
+
+      const { rerender } = renderPatrolOverview(patrolWithoutLeader.id);
+
+      await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
+
+      store.data.patrolStore[patrolWithoutLeader.id] = { ...patrolWithoutLeader, title: 'Renamed patrol' };
+      rerenderWithStore(rerender);
+
+      expect(screen.getByTestId('patrolOverview-title')).toHaveValue(`${patrolWithoutLeader.title} edited`);
+      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
     });
   });
 });

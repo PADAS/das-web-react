@@ -3,15 +3,12 @@
 @use '../../../common/styles/vars/colors';
 
 .smallItemIcon {
-  svg {
-    height: 1.25rem;
-    width: 1.25rem;
-  }
+  --item-icon-size: 1.25rem;
 }
 
 .deletableNoteDetails {
-  flex-direction: row;
-  justify-content: space-between;
+  --item-details-direction: row;
+  --item-details-justify: space-between;
 }
 
 .noteTextArea {

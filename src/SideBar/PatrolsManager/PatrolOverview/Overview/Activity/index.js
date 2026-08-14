@@ -69,6 +69,7 @@ const Activity = ({
     .flatMap((leg, index) => leg.time_range?.end_time
       ? [{
         date: leg.time_range.end_time,
+        id: leg.id,
         title: t('legTransitionTitle', { endedLeg: index + 1, startedLeg: index + 2 }),
       }]
       : []), [patrol.patrol_segments, t]);
@@ -78,7 +79,7 @@ const Activity = ({
     hasCollapsibleItems,
     hasItems,
     onToggleExpandAll,
-    SortButton,
+    sortButton,
     sortedItems,
   } = useActivityFeed({
     attachments,
@@ -106,7 +107,7 @@ const Activity = ({
       <div className={styles.headerActions}>
         <span className={styles.timeLabel}>{t('timeLabel')}</span>
 
-        <SortButton />
+        {sortButton}
 
         <button
           className={styles.collapseExpandAllButton}

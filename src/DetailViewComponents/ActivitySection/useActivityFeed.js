@@ -126,12 +126,12 @@ const useActivityFeed = ({
       });
     }
 
-    milestones.forEach(({ date, title }) => {
+    milestones.forEach(({ date, id, title }) => {
       const milestoneDate = date ? new Date(date) : null;
 
       if (milestoneDate && !isGreaterThan(milestoneDate, now)) {
         datesSortableList.push({
-          node: <DateListItem date={milestoneDate} key={`milestone-${milestoneDate.getTime()}`} title={title} />,
+          node: <DateListItem date={milestoneDate} key={`milestone-${id}`} title={title} />,
           sortDate: milestoneDate,
         });
       }
@@ -197,7 +197,7 @@ const useActivityFeed = ({
     tracker.track(`Sort activity section in ${order} order`);
   }, [tracker]);
 
-  const [SortButton, sortedItems] = useSortedNodesWithToggleBtn(sortableList, onSort, undefined, sortButtonComponent);
+  const [sortButton, sortedItems] = useSortedNodesWithToggleBtn(sortableList, onSort, undefined, sortButtonComponent);
 
   const imageAttachments = useMemo(
     () => attachments.filter((attachment) => attachment.file_type === 'image'),
@@ -241,7 +241,7 @@ const useActivityFeed = ({
     hasCollapsibleItems,
     hasItems: sortableList.length > 0,
     onToggleExpandAll,
-    SortButton,
+    sortButton,
     sortedItems,
   };
 };

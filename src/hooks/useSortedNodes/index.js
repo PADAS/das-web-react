@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { useTranslation } from 'react-i18next';
 
@@ -58,17 +58,16 @@ export const useSortedNodesWithToggleBtn = (
     onSort?.(newSortOrder);
   }, [onSort, sortOrder]);
 
-  const SortButton = useCallback((props) => <ButtonComponent
+  const sortButton = <ButtonComponent
     aria-label={t(sortOrder === DESCENDING_SORT_ORDER ? 'labelDescending' : 'labelAscending')}
     disabled={!list.length}
     sortOrder={sortOrder}
     testId='time-sort-btn'
     title={t(sortOrder === DESCENDING_SORT_ORDER ? 'titleDescending' : 'titleAscending')}
     toggleSortFn={onClickTimeSortButton}
-    {...props}
-  />, [ButtonComponent, list.length, onClickTimeSortButton, sortOrder, t]);
+  />;
 
   const renderedNodes = useSortedNodes(list, sortOrder);
 
-  return [SortButton, renderedNodes];
+  return [sortButton, renderedNodes];
 };

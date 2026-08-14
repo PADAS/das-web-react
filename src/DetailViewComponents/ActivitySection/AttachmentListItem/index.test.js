@@ -207,10 +207,11 @@ describe('ActivitySection - AttachmentListItem', () => {
     expect(fetchImageAsBase64FromUrlMock).toHaveBeenCalledWith('thumbnail');
   });
 
-  test('falls back to the generic icon if the image download fails', async () => {
+  test('falls back to the generic icon and reports the failure if the image download fails', async () => {
     const onUnhandledRejection = jest.fn();
     process.on('unhandledRejection', onUnhandledRejection);
 
+    const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
     fetchImageAsBase64FromUrlMock = jest.fn(() => Promise.reject(new Error('The url expired')));
     fetchImageAsBase64FromUrl.mockImplementation(fetchImageAsBase64FromUrlMock);
 
@@ -222,6 +223,7 @@ describe('ActivitySection - AttachmentListItem', () => {
     process.off('unhandledRejection', onUnhandledRejection);
 
     expect(onUnhandledRejection).toHaveBeenCalledTimes(0);
+    expect(consoleWarn).toHaveBeenCalled();
     expect(document.querySelector('.attachmentThumbnail')).toBeNull();
     expect((await screen.findByRole('img', { name: 'file.txt preview' }))).not.toHaveAttribute('src');
   });

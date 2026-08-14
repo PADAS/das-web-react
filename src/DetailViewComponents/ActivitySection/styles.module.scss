@@ -108,118 +108,124 @@ $cardExpansionTransitionTime: 300ms;
       }
     }
 
-    // The list item components in this folder restyle parts of the row from their own CSS
-    // modules, where they can only target a single class name. Wrapping the row chain in
-    // :where() keeps it out of the specificity budget so those overrides still win.
-    @at-root :where(#{&}) {
-      .attachmentThumbnail {
-        height: 100%;
-        object-fit: cover;
-        width: 3rem;
-      }
+    // List item components tune parts of the row from their own CSS modules.
+    // They can do so through the custom properties: --item-icon-bg,
+    // --item-icon-size, --item-row-bg, --item-row-hover-bg,
+    // --item-details-direction, and --item-details-justify.
+    .attachmentThumbnail {
+      height: 100%;
+      object-fit: cover;
+      width: 3rem;
+    }
 
-      .itemIcon {
+    .itemIcon {
+      align-items: center;
+      background-color: var(--item-icon-bg, #{colors.$very-light-gray});
+      color: black;
+      display: flex;
+      height: 100%;
+      justify-content: center;
+      width: 3rem;
+
+      svg {
+        height: var(--item-icon-size, 1.375rem);
+        width: var(--item-icon-size, 1.375rem);
+      }
+    }
+
+    .itemDetails {
+      align-items: flex-start;
+      display: flex;
+      flex: 6;
+      flex-direction: var(--item-details-direction, column);
+      justify-content: var(--item-details-justify, center);
+      min-width: 0;
+      overflow: hidden;
+      padding: 0 0.5rem;
+
+      @media (min-width: layout.$md-layout-width-min) {
         align-items: center;
-        background-color: var(--item-icon-bg, #{colors.$very-light-gray});
-        color: black;
-        display: flex;
-        height: 100%;
-        justify-content: center;
-        width: 3rem;
-
-        svg {
-          height: 1.375rem;
-          width: 1.375rem;
-        }
+        flex: 10;
+        flex-direction: var(--item-details-direction, row);
+        justify-content: var(--item-details-justify, space-between);
       }
 
-      .itemDetails {
-        align-items: flex-start;
-        display: flex;
-        flex: 6;
-        flex-direction: column;
-        justify-content: center;
+      .itemTitle {
+        font-size: 0.875rem;
+        margin: 0;
         min-width: 0;
         overflow: hidden;
-        padding: 0 0.5rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 100%;
 
         @media (min-width: layout.$md-layout-width-min) {
-          align-items: center;
-          flex: 10;
-          flex-direction: row;
-          justify-content: space-between;
-        }
-
-        .itemTitle {
-          font-size: 0.875rem;
-          margin: 0;
-          min-width: 0;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          width: 100%;
-
-          @media (min-width: layout.$md-layout-width-min) {
-            flex: 1;
-            width: auto;
-          }
-        }
-
-        .itemDate {
-          flex-shrink: 0;
-          font-size: 0.875rem;
-          white-space: nowrap;
-
-          @media (max-width: layout.$sm-layout-width-max) {
-            font-size: 0.75rem;
-          }
+          flex: 1;
+          width: auto;
         }
       }
 
-      .itemActionButtonContainer {
-        align-items: center;
-        display: flex;
+      .itemDate {
         flex-shrink: 0;
-        height: 1.75rem;
-        justify-content: center;
-        width: 1.75rem;
+        font-size: 0.875rem;
+        white-space: nowrap;
 
-        & + & {
-          margin-left: 0.25rem;
+        @media (max-width: layout.$sm-layout-width-max) {
+          font-size: 0.75rem;
         }
       }
+    }
 
-      .actionButton {
-        align-items: center;
-        background: none;
-        border: none;
-        border-radius: 0.25rem;
-        color: colors.$secondary-medium-gray;
-        display: flex;
-        flex-shrink: 0;
-        height: 1.75rem;
-        justify-content: center;
-        padding: 0;
-        width: 1.75rem;
+    .itemActionButtonContainer {
+      align-items: center;
+      display: flex;
+      flex-shrink: 0;
+      height: 1.75rem;
+      justify-content: center;
+      width: 1.75rem;
 
-        &:disabled {
-          color: colors.$secondary-light-gray;
-        }
+      & + & {
+        margin-left: 0.25rem;
+      }
 
-        &:focus-visible {
-          color: colors.$bright-blue;
-          outline: 2px solid colors.$bright-blue;
-        }
+      @media print {
+        display: none;
+      }
+    }
 
-        // The collapse toggle does the same as clicking the row, so the row hover speaks for it.
-        &:hover:not(:disabled, .collapseToggleButton) {
-          background: colors.$light-gray-background;
-        }
+    .actionButton {
+      align-items: center;
+      background: none;
+      border: none;
+      border-radius: 0.25rem;
+      color: colors.$secondary-medium-gray;
+      display: flex;
+      flex-shrink: 0;
+      height: 1.75rem;
+      justify-content: center;
+      padding: 0;
+      width: 1.75rem;
 
-        svg {
-          height: 0.75rem;
-          width: 0.75rem;
-        }
+      &:disabled {
+        color: colors.$secondary-light-gray;
+      }
+
+      &:focus-visible {
+        color: colors.$bright-blue;
+        outline: 2px solid colors.$bright-blue;
+      }
+
+      &:hover:not(:disabled, .collapseToggleButton) {
+        background: colors.$light-gray-background;
+      }
+
+      svg {
+        height: var(--action-icon-size, 0.75rem);
+        width: var(--action-icon-size, 0.75rem);
+      }
+
+      @media print {
+        display: none;
       }
     }
   }

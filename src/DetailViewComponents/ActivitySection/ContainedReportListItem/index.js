@@ -38,8 +38,8 @@ const ContainedReportListItem = ({ isOpen = false, onCollapse, onExpand, report 
 
   const isEventFullyLoaded = getIsEventFullyLoaded(eventFromEventStore);
 
-  const updateTime = report.updated_at || report.time;
-  const updateDate = updateTime ? new Date(updateTime) : null;
+  const reportedTime = report.time || report.updated_at;
+  const reportedDate = reportedTime ? new Date(reportedTime) : null;
 
   const onToggleCollapseRow = () => (isOpen ? onCollapse : onExpand)(report, CONTAINED_REPORT_ANALYTICS_LABEL);
 
@@ -68,12 +68,12 @@ const ContainedReportListItem = ({ isOpen = false, onCollapse, onExpand, report 
       <div className={activitySectionStyles.itemDetails}>
         <p className={activitySectionStyles.itemTitle}>{displayTitle}</p>
 
-        {updateDate && <time
+        {reportedDate && <time
           className={activitySectionStyles.itemDate}
           data-testid={`activitySection-dateTime-${report.id}`}
-          dateTime={updateDate.toISOString()}
+          dateTime={reportedDate.toISOString()}
         >
-          {format(updateDate, STANDARD_DATE_FORMAT)}
+          {format(reportedDate, STANDARD_DATE_FORMAT)}
         </time>}
       </div>
 

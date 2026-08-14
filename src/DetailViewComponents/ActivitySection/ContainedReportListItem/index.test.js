@@ -255,23 +255,23 @@ describe('ActivitySection - ContainedReportListItem', () => {
     expect(collapseToggleButton.tagName).toBe('BUTTON');
   });
 
-  test('shows the date time of the last update of the report', async () => {
+  test('shows the date time the report was reported at', async () => {
     const mockedStore = mockStore(store);
     renderContainedReportListItem(undefined, mockedStore);
-
-    expect((await screen.findByTestId(`activitySection-dateTime-${report.id}`)))
-      .toHaveAttribute('dateTime', new Date(report.updated_at).toISOString());
-  });
-
-  test('falls back to the report time if it has not been updated', async () => {
-    const mockedStore = mockStore(store);
-    renderContainedReportListItem({ report: { ...report, updated_at: undefined } }, mockedStore);
 
     expect((await screen.findByTestId(`activitySection-dateTime-${report.id}`)))
       .toHaveAttribute('dateTime', new Date(report.time).toISOString());
   });
 
-  test('does not show a date time if the report has neither an update nor a report time', async () => {
+  test('falls back to the last update time if the report has no report time', async () => {
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem({ report: { ...report, time: undefined } }, mockedStore);
+
+    expect((await screen.findByTestId(`activitySection-dateTime-${report.id}`)))
+      .toHaveAttribute('dateTime', new Date(report.updated_at).toISOString());
+  });
+
+  test('does not show a date time if the report has neither a report time nor an update', async () => {
     const mockedStore = mockStore(store);
     renderContainedReportListItem({ report: { ...report, time: undefined, updated_at: undefined } }, mockedStore);
 

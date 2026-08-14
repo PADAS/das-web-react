@@ -34,8 +34,5 @@ $rowHoverBlackMix: 4%;
 }
 
 .viewReportIcon {
-  svg {
-    height: 0.875rem;
-    width: 0.875rem;
-  }
+  --action-icon-size: 0.875rem;
 }

@@ -26,7 +26,7 @@ const ActivitySection = ({
 }) => {
   const { t } = useTranslation('details-view', { keyPrefix: 'activitySection' });
 
-  const { areAllItemsExpanded, hasItems, onToggleExpandAll, SortButton, sortedItems } = useActivityFeed({
+  const { areAllItemsExpanded, hasItems, onToggleExpandAll, sortButton, sortedItems } = useActivityFeed({
     attachments,
     containedReports,
     endTime,
@@ -52,7 +52,7 @@ const ActivitySection = ({
       {hasItems && <div className={styles.actions}>
         <label>{t('timeLabel')}</label>
 
-        <SortButton />
+        {sortButton}
 
         <Button
           className={styles.expandCollapseButton}

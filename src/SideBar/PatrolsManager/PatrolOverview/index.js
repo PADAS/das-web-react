@@ -44,16 +44,21 @@ const PatrolOverviewContent = ({ patrol }) => {
   const newNoteRef = useRef(null);
   const printableContentRef = useRef(null);
 
-  const patrolTitle = displayTitleForPatrol(patrol, patrol.patrol_segments.at(-1)?.leader);
+  const patrolTitle = useMemo(
+    () => displayTitleForPatrol(patrol, patrol.patrol_segments.at(-1)?.leader),
+    [patrol]
+  );
 
   const [editedExistingNotes, setEditedExistingNotes] = useState({});
+  const [editedTitle, setEditedTitle] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [newAttachments, setNewAttachments] = useState([]);
   const [newNotes, setNewNotes] = useState([]);
   const [shouldRedirectToFeed, setShouldRedirectToFeed] = useState(false);
-  const [title, setTitle] = useState(patrolTitle);
 
-  const isTitleDirty = title.trim() !== patrolTitle.trim();
+  const title = editedTitle ?? patrolTitle;
+
+  const isTitleDirty = editedTitle !== null && editedTitle.trim() !== patrolTitle.trim();
 
   const existingAttachments = useMemo(() => Array.isArray(patrol.files) ? patrol.files : [], [patrol]);
 
@@ -80,11 +85,7 @@ const PatrolOverviewContent = ({ patrol }) => {
     [editedExistingNotesToSave, patrolNotes]
   );
 
-  const newNotesToSave = useMemo(() => newNotes.flatMap((note) => {
-    const text = note.text.trim();
-
-    return text ? [{ text }] : [];
-  }), [newNotes]);
+  const newNotesToSave = useMemo(() => newNotes.filter((note) => note.text.trim()), [newNotes]);
 
   const hasUnsavedChanges = isTitleDirty
     || newAttachments.length > 0
@@ -237,28 +238,56 @@ const PatrolOverviewContent = ({ patrol }) => {
 
     setIsSaving(true);
 
+    const patrolUpdates = {};
+
+    if (isTitleDirty) {
+      patrolUpdates.title = title.trim();
+    }
+
+    if (hasEditedExistingNotes || newNotesToSave.length > 0) {
+      patrolUpdates.notes = [
+        ...editedExistingNotesToSave,
+        ...newNotesToSave.map(({ text }) => ({ text: text.trim() })),
+      ];
+    }
+
     try {
-      const patrolUpdates = {};
+      // Update the patrol and upload the new attachments in parallel.
+      const requestResults = await Promise.allSettled([
+        Object.keys(patrolUpdates).length > 0
+          ? dispatch(updatePatrol({ ...patrolUpdates, id: patrol.id }))
+          : Promise.resolve(),
+        ...newAttachments.map(({ file }) => uploadPatrolFile(patrol.id, file)),
+      ]);
 
-      if (isTitleDirty) {
-        patrolUpdates.title = title.trim();
+      const failedRequest = requestResults.find(({ status }) => status === 'rejected');
+      if (failedRequest) {
+        // Some of the requests failed.
+        const [patrolUpdateResult, ...attachmentUploadResults] = requestResults;
+
+        if (patrolUpdates.notes && patrolUpdateResult.status === 'fulfilled') {
+          // The patrol update was successful. Clear the notes that were saved.
+          setEditedExistingNotes({});
+          setNewNotes((prevNewNotes) => prevNewNotes.filter((note) => !newNotesToSave.includes(note)));
+        }
+
+        // Remove the sucessfully uploaded attachments from the new attachments
+        // list.
+        const uploadedAttachments = newAttachments.filter((_, index) => attachmentUploadResults[index].status === 'fulfilled');
+        setNewAttachments((prevNewAttachments) => prevNewAttachments.filter(
+          (attachment) => !uploadedAttachments.includes(attachment)
+        ));
+
+        await dispatch(fetchPatrol(patrol.id));
+
+        throw failedRequest.reason;
       }
-
-      if (hasEditedExistingNotes || newNotesToSave.length > 0) {
-        patrolUpdates.notes = [...editedExistingNotesToSave, ...newNotesToSave];
-      }
-
-      if (Object.keys(patrolUpdates).length > 0) {
-        await dispatch(updatePatrol({ ...patrolUpdates, id: patrol.id }));
-      }
-
-      await Promise.all(newAttachments.map(({ file }) => uploadPatrolFile(patrol.id, file)));
-
-      await dispatch(fetchPatrol(patrol.id));
 
       setShouldRedirectToFeed(true);
 
       patrolOverviewTracker.track('Saved patrol from patrol overview');
+
+      dispatch(fetchPatrol(patrol.id)).catch(() => {});
     } catch (error) {
       toast.error(t('saveErrorMessage'));
 
@@ -321,7 +350,7 @@ const PatrolOverviewContent = ({ patrol }) => {
 
     <div className={styles.patrolOverview} ref={printableContentRef}>
       <Header
-        onChangeTitle={setTitle}
+        onChangeTitle={setEditedTitle}
         patrol={patrol}
         printableContentRef={printableContentRef}
         title={title}

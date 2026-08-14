@@ -40,8 +40,9 @@ const useBase64ImageSource = (url) => {
         if (!isCancelled) {
           setDownloadedImage({ source, url });
         }
-      } catch {
+      } catch (error) {
         // Attachment urls are signed and expire, so a rejection is expected.
+        console.warn('Error downloading the attachment image: ', error);
       }
     };
 
