@@ -18,10 +18,18 @@
     "addAttachmentTitle": "Ajouter une pièce jointe"
   },
   "attachmentListItem": {
-    "imagePreviewAlt": "{{fileName}} aperçu",
-    "downloadButtonTooltip": "Télécharger",
-    "deleteButtonTooltip": "Supprimer",
-    "fullViewButtonTooltip": "Vue d'Ensemble"
+    "collapseClosedButtonLabel": "Agrandir {{fileName}}",
+    "collapseOpenButtonLabel": "Réduire {{fileName}}",
+    "deleteButtonTooltip": "Supprimer {{fileName}}",
+    "downloadButtonTooltip": "Télécharger {{fileName}}",
+    "fullViewButtonTooltip": "Afficher {{fileName}} en plein écran",
+    "imagePreviewAlt": "{{fileName}} aperçu"
+  },
+  "containedReportListItem": {
+    "collapseClosedButtonLabel": "Agrandir {{title}}",
+    "collapseOpenButtonLabel": "Réduire {{title}}",
+    "loadingLabel": "Chargement de {{title}}",
+    "viewReportButtonLabel": "Voir l'événement {{title}}"
   },
   "footer": {
     "cancelButton": "Annuler",
@@ -31,7 +39,6 @@
     "stateReopenButton": "Sauvregarder et réouvrir",
     "stateReviewButton": "Sauvegarder et réviser"
   },
-  "goToReportButtonTooltip": "Accéder a l'événement",
   "header": {
     "historyLinkCreated": "Crée",
     "historyLinkUpdated": "Actualisé",
@@ -56,10 +63,13 @@
   },
   "noteListItem": {
     "cancelEditingNoteButton": "Annuler",
-    "deleteNoteButtonTooltip": "Supprimer",
+    "collapseClosedButtonLabel": "Agrandir le commentaire",
+    "collapseOpenButtonLabel": "Réduire le commentaire",
+    "deleteNoteButtonTooltip": "Supprimer le commentaire",
     "doneEditingNoteButton": "Terminer",
-    "editNoteButtonTooltip": "Modifier",
-    "noteTitle": "Nouveau commentaire"
+    "editNoteButtonTooltip": "Modifier le commentaire",
+    "noteTextAreaLabel": "Texte du commentaire",
+    "noteTitle": "Nouveau commentaire : {{noteText}}"
   },
   "reportFormSummary": {
     "reportTypeLabel": "Type d'Évenement",

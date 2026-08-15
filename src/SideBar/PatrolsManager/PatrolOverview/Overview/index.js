@@ -4,6 +4,7 @@ import Activity from './Activity';
 import Legs from './Legs';
 
 const Overview = ({
+  existingNotes,
   newAttachments,
   newNotes,
   onCancelNote,
@@ -16,6 +17,7 @@ const Overview = ({
   <Legs patrol={patrol} />
 
   <Activity
+    existingNotes={existingNotes}
     newAttachments={newAttachments}
     newNotes={newNotes}
     onCancelNote={onCancelNote}

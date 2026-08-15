@@ -20,7 +20,7 @@ jest.mock('../../../../../ducks/events', () => ({
 describe('SideBar - PatrolsManager - PatrolOverview - Overview - Activity', () => {
   let store;
   beforeEach(() => {
-    fetchEvent.mockImplementation(() => ({ type: 'NOOP' }));
+    fetchEvent.mockImplementation(() => () => Promise.resolve());
 
     store = {
       data: {
@@ -36,10 +36,10 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Activity', () =
     };
   });
 
-  const renderActivity = (patrol) => render(
+  const renderActivity = (patrol, props) => render(
     <Provider store={mockStore(store)}>
       <TrackerContext.Provider value={{ track: jest.fn() }}>
-        <Activity patrol={patrol} />
+        <Activity existingNotes={patrol.notes} patrol={patrol} {...props} />
       </TrackerContext.Provider>
     </Provider>
   );
@@ -104,6 +104,77 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Activity', () =
     expect(screen.getByTestId('activitySection-collapse-collection-event')).toBeInTheDocument();
     expect(screen.getByTestId('activitySection-collapse-empty-collection')).toBeInTheDocument();
     expect(screen.queryByTestId('activitySection-collapse-contained-event')).not.toBeInTheDocument();
+  });
+
+  test('shows a leg transition milestone between two legs, and the patrol started milestone, but not the patrol ended milestone while the patrol has not ended', () => {
+    renderActivity(multiLegPatrol);
+
+    expect(screen.getByText('Patrol Started')).toBeInTheDocument();
+    expect(screen.getByText('Leg 1 Ended, Leg 2 Started')).toBeInTheDocument();
+    expect(screen.queryByText('Patrol Ended')).not.toBeInTheDocument();
+  });
+
+  const patrolWithLegTimes = (...timeRanges) => ({
+    ...multiLegPatrol,
+    patrol_segments: timeRanges.map((timeRange, index) => ({
+      ...multiLegPatrol.patrol_segments[0],
+      events: [],
+      id: `leg-${index}`,
+      time_range: timeRange,
+    })),
+  });
+
+  test('numbers a leg transition after the two legs it joins', () => {
+    renderActivity(patrolWithLegTimes(
+      { start_time: '2026-04-13T01:00:00.000-07:00', end_time: '2026-04-13T02:00:00.000-07:00' },
+      { start_time: '2026-04-13T02:00:00.000-07:00', end_time: '2026-04-13T03:00:00.000-07:00' },
+      { start_time: '2026-04-13T03:00:00.000-07:00', end_time: null },
+    ));
+
+    expect(screen.getByText('Leg 1 Ended, Leg 2 Started')).toBeInTheDocument();
+    expect(screen.getByText('Leg 2 Ended, Leg 3 Started')).toBeInTheDocument();
+  });
+
+  test('skips the transition of a leg that never ended without renumbering the remaining ones', () => {
+    renderActivity(patrolWithLegTimes(
+      { start_time: '2026-04-13T01:00:00.000-07:00', end_time: null },
+      { start_time: '2026-04-13T02:00:00.000-07:00', end_time: '2026-04-13T03:00:00.000-07:00' },
+      { start_time: '2026-04-13T03:00:00.000-07:00', end_time: null },
+    ));
+
+    expect(screen.queryByText('Leg 1 Ended, Leg 2 Started')).not.toBeInTheDocument();
+    expect(screen.getByText('Leg 2 Ended, Leg 3 Started')).toBeInTheDocument();
+  });
+
+  test('does not show a leg transition that is still scheduled ahead', () => {
+    renderActivity(patrolWithLegTimes(
+      { start_time: '2026-04-13T01:00:00.000-07:00', end_time: '2099-01-01T00:00:00.000-07:00' },
+      { start_time: '2099-01-01T00:00:00.000-07:00', end_time: null },
+    ));
+
+    expect(screen.queryByText('Leg 1 Ended, Leg 2 Started')).not.toBeInTheDocument();
+  });
+
+  test('shows no transition for a patrol with a single leg', () => {
+    renderActivity(patrolWithLegTimes(
+      { start_time: '2026-04-13T01:00:00.000-07:00', end_time: '2026-04-13T02:00:00.000-07:00' },
+    ));
+
+    expect(screen.queryByText('Leg 1 Ended, Leg 2 Started')).not.toBeInTheDocument();
+    expect(screen.getByText('Patrol Started')).toBeInTheDocument();
+  });
+
+  test('shows the patrol ended milestone once the last leg has ended', () => {
+    const endedMultiLegPatrol = {
+      ...multiLegPatrol,
+      patrol_segments: multiLegPatrol.patrol_segments.map((segment, index) => index === 1
+        ? { ...segment, time_range: { ...segment.time_range, end_time: '2026-04-13T03:00:00.000-07:00' } }
+        : segment),
+    };
+
+    renderActivity(endedMultiLegPatrol);
+
+    expect(screen.getByText('Patrol Ended')).toBeInTheDocument();
   });
 
   test('does not crash when the patrol is missing files or notes', () => {

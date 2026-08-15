@@ -34,6 +34,7 @@ const CustomSortButton = ({ disabled, sortOrder, testId, toggleSortFn }) => {
 };
 
 const Activity = ({
+  existingNotes = [],
   newAttachments,
   newNotes,
   onCancelNote,
@@ -46,8 +47,6 @@ const Activity = ({
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolOverview.overview.activity' });
 
   const attachments = useMemo(() => Array.isArray(patrol.files) ? patrol.files : [], [patrol.files]);
-
-  const notes = useMemo(() => Array.isArray(patrol.notes) ? patrol.notes : [], [patrol.notes]);
 
   const containedEvents = useMemo(() => {
     const patrolEvents = getReportsForPatrol(patrol);
@@ -65,19 +64,31 @@ const Activity = ({
 
   const startTime = useMemo(() => actualStartTimeForPatrol(patrol), [patrol]);
 
+  const legTransitionMilestones = useMemo(() => patrol.patrol_segments
+    .slice(0, -1)
+    .flatMap((leg, index) => leg.time_range?.end_time
+      ? [{
+        date: leg.time_range.end_time,
+        id: leg.id,
+        title: t('legTransitionTitle', { endedLeg: index + 1, startedLeg: index + 2 }),
+      }]
+      : []), [patrol.patrol_segments, t]);
+
   const {
     areAllItemsExpanded,
     hasCollapsibleItems,
     hasItems,
     onToggleExpandAll,
-    SortButton,
+    sortButton,
     sortedItems,
   } = useActivityFeed({
     attachments,
     newAttachments,
     containedReports: containedEvents,
     endTime,
-    notes,
+    endTitle: t('patrolEndedTitle'),
+    milestones: legTransitionMilestones,
+    notes: existingNotes,
     newNotes,
     onCancelNote,
     onChangeNote,
@@ -86,6 +97,7 @@ const Activity = ({
     onDoneNote,
     sortButtonComponent: CustomSortButton,
     startTime,
+    startTitle: t('patrolStartedTitle'),
   });
 
   return <div className={styles.activity}>
@@ -95,7 +107,7 @@ const Activity = ({
       <div className={styles.headerActions}>
         <span className={styles.timeLabel}>{t('timeLabel')}</span>
 
-        <SortButton />
+        {sortButton}
 
         <button
           className={styles.collapseExpandAllButton}

@@ -336,7 +336,7 @@ export const PATROL_SAVE_ACTIONS = {
     return {
       priority: 200,
       action(patrol_id) {
-        return store.dispatch(uploadPatrolFile(patrol_id, file));
+        return uploadPatrolFile(patrol_id, file);
       },
     };
   },
@@ -350,6 +350,8 @@ export const displayPatrolSegmentId = (patrol) => {
   const { id } = firstLeg;
   return id || null;
 };
+
+export const getIsMobilePatrol = (patrol) => patrol?.provenance === 'mobile';
 
 export const isPatrolCancelled = (patrol) => patrol.state === 'cancelled';
 

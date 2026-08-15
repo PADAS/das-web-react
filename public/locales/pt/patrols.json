@@ -58,12 +58,14 @@
     "title": "Datas de patrulha inválidas."
   },
   "patrolOverview": {
+    "attachmentsSaveErrorMessage": "Não foi possível carregar alguns anexos. Tente novamente.",
     "footer": {
       "addEventButton": "Adicionar evento",
       "addEventButtonLabel": "Adicionar evento",
       "addEventButtonText": "Evento",
       "cancelOption": "Cancelar Patrulha",
       "endOption": "Finalizar patrulha",
+      "endPatrolButton": "Finalizar patrulha",
       "pauseOption": "Pausar patrulha",
       "saveButton": "Salvar",
       "saveButtonLoadingLabel": "Carregando",
@@ -79,6 +81,7 @@
       "editTitleButtonLabel": "Editar título",
       "fitToBoundsButtonLabel": "Ajustar aos limites da patrulha",
       "jumpToLocationButtonLabel": "Ir para a localização",
+      "mobileProvenancePill": "Móvel",
       "moreOptionsButtonLabel": "Mais opções",
       "printOption": "Imprimir patrulha",
       "titleInputLabel": "Título da patrulha",
@@ -105,7 +108,6 @@
       "timeLabel": "Hora"
     },
     "historyTabTitle": "Histórico",
-    "navigationPromptModalDescription": "Há alterações não salvas. Você gostaria de voltar ou descartar as alterações?",
     "overview": {
       "activity": {
         "activeTimeLabel": "Tempo ativo",
@@ -117,6 +119,9 @@
         "eventsLabel": "Eventos",
         "expandAllButtonLabel": "Expandir tudo",
         "jumpToLocationButtonLabel": "Ir para a localização",
+        "legTransitionTitle": "Etapa {{endedLeg}} finalizada, Etapa {{startedLeg}} iniciada",
+        "patrolEndedTitle": "Patrulha finalizada",
+        "patrolStartedTitle": "Patrulha iniciada",
         "pausedTimeLabel": "Tempo pausado",
         "sortDirectionButtonLabel": {
           "down": "Ordenar atividade em ordem crescente",
@@ -139,6 +144,7 @@
       }
     },
     "overviewTabTitle": "Visão geral",
+    "saveErrorMessage": "Não foi possível salvar a patrulha. Tente novamente.",
     "tabsLabel": "Guias de visão geral da patrulha"
   },
   "patrolMenu": {

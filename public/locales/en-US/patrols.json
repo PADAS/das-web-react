@@ -58,12 +58,14 @@
     "title": "Invalid Patrol Times"
   },
   "patrolOverview": {
+    "attachmentsSaveErrorMessage": "Some attachments could not be uploaded. Please try again.",
     "footer": {
       "addEventButton": "Add Event",
       "addEventButtonLabel": "Add Event",
       "addEventButtonText": "Event",
       "cancelOption": "Cancel Patrol",
       "endOption": "End Patrol",
+      "endPatrolButton": "End Patrol",
       "pauseOption": "Pause Patrol",
       "saveButton": "Save",
       "saveButtonLoadingLabel": "Loading",
@@ -79,6 +81,7 @@
       "editTitleButtonLabel": "Edit title",
       "fitToBoundsButtonLabel": "Zoom to patrol bounds",
       "jumpToLocationButtonLabel": "Jump to location",
+      "mobileProvenancePill": "Mobile",
       "moreOptionsButtonLabel": "More options",
       "printOption": "Print Patrol",
       "titleInputLabel": "Patrol title",
@@ -105,7 +108,6 @@
       "timeLabel": "Time"
     },
     "historyTabTitle": "History",
-    "navigationPromptModalDescription": "There are unsaved changes. Would you like to go back or discard the changes?",
     "overview": {
       "activity": {
         "activeTimeLabel": "Active Time",
@@ -117,6 +119,9 @@
         "eventsLabel": "Events",
         "expandAllButtonLabel": "Expand all",
         "jumpToLocationButtonLabel": "Jump to location",
+        "legTransitionTitle": "Leg {{endedLeg}} Ended, Leg {{startedLeg}} Started",
+        "patrolEndedTitle": "Patrol Ended",
+        "patrolStartedTitle": "Patrol Started",
         "pausedTimeLabel": "Paused Time",
         "sortDirectionButtonLabel": {
           "down": "Sort activity in ascending order",
@@ -139,6 +144,7 @@
       }
     },
     "overviewTabTitle": "Overview",
+    "saveErrorMessage": "The patrol could not be saved. Please try again.",
     "tabsLabel": "Patrol overview tabs"
   },
   "patrolMenu": {

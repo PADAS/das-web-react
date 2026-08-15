@@ -14,6 +14,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Footer', () => {
   let addItemButtonMock;
   let onAddAttachments;
   let onAddNote;
+  let onSave;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -23,14 +24,18 @@ describe('SideBar - PatrolsManager - PatrolOverview - Footer', () => {
 
     onAddAttachments = jest.fn();
     onAddNote = jest.fn();
+    onSave = jest.fn();
   });
 
   const renderFooter = (props) => render(
     <Footer
       addEventFormProps={addEventFormProps}
       disableAddNoteButton={false}
+      disableSaveButton={false}
+      isSaving={false}
       onAddAttachments={onAddAttachments}
       onAddNote={onAddNote}
+      onSave={onSave}
       {...props}
     />
   );
@@ -89,6 +94,13 @@ describe('SideBar - PatrolsManager - PatrolOverview - Footer', () => {
     expect(screen.getByRole('button', { name: 'End Patrol' })).toBeInTheDocument();
   });
 
+  test('shows the end patrol button instead of the update status dropdown for a mobile patrol', () => {
+    renderFooter({ isMobilePatrol: true });
+
+    expect(screen.queryByRole('button', { name: 'Update Status' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'End Patrol' })).toBeInTheDocument();
+  });
+
   test('shows the save button enabled and not busy', () => {
     renderFooter();
 
@@ -96,5 +108,30 @@ describe('SideBar - PatrolsManager - PatrolOverview - Footer', () => {
 
     expect(saveButton).toBeEnabled();
     expect(saveButton).toHaveAttribute('aria-busy', 'false');
+  });
+
+  test('triggers onSave when the save button is clicked', async () => {
+    renderFooter();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(onSave).toHaveBeenCalledTimes(1);
+  });
+
+  test('disables the save button when there is nothing to save', () => {
+    renderFooter({ disableSaveButton: true });
+
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+  });
+
+  test('shows the save button busy and disabled while saving', () => {
+    renderFooter({ isSaving: true });
+
+    const saveButton = screen.getByRole('button', { name: 'Loading' });
+
+    expect(saveButton).toBeDisabled();
+    expect(saveButton).toHaveAttribute('aria-busy', 'true');
+    // The label stays rendered underneath the loader to hold the button's width.
+    expect(saveButton).toHaveTextContent('Save');
   });
 });

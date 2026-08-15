@@ -11,6 +11,7 @@ import {
   displayEndTimeForPatrolSegment,
   displayNameForPatrolType,
   displayStartTimeForPatrolSegment,
+  getIsMobilePatrol,
 } from '../../../../../utils/patrols';
 import { format, STANDARD_DATE_FORMAT } from '../../../../../utils/datetime';
 import { selectPatrolTrackData } from '../../../../../selectors/patrols';
@@ -37,6 +38,8 @@ const Legs = ({ patrol }) => {
 
   const patrolTrackData = useSelector((state) => selectPatrolTrackData(state, patrol));
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
+
+  const isMobilePatrol = getIsMobilePatrol(patrol);
 
   const legs = useMemo(() => patrol.patrol_segments.map((segment, index) => {
     const legTrackData = patrolTrackData.legsTrackData?.[index] ?? null;
@@ -77,7 +80,7 @@ const Legs = ({ patrol }) => {
   };
 
   return <>
-    <div className={styles.legTableWrapper}>
+    <div className={`${styles.legTableWrapper} ${isMobilePatrol ? styles.withoutNewLegButton: ''}`}>
       <table className={styles.legTable}>
         <caption className="sr-only">{t('legTableCaption')}</caption>
 
@@ -156,7 +159,7 @@ const Legs = ({ patrol }) => {
       </table>
     </div>
 
-    <Link
+    {!isMobilePatrol && <Link
         className={styles.newLegButton}
         onClick={() => tracker.track('Click "add new leg" from patrol overview')}
         to={`/${TAB_KEYS.PATROLS}/${patrol.id}/legs/new`}
@@ -164,7 +167,7 @@ const Legs = ({ patrol }) => {
       <ArrowRightFromLineIcon aria-hidden="true" />
 
       {t('newLegButton')}
-    </Link>
+    </Link>}
   </>;
 };
 

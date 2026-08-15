@@ -58,12 +58,14 @@
     "title": "गस्ती समय मिलेन"
   },
   "patrolOverview": {
+    "attachmentsSaveErrorMessage": "केही संलग्न फाइलहरू अपलोड गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।",
     "footer": {
       "addEventButton": "घटना थप्नुहोस्",
       "addEventButtonLabel": "घटना थप्नुहोस्",
       "addEventButtonText": "घटना",
       "cancelOption": "गस्ती रद्द गर्नुहोस्",
       "endOption": "गस्ती अन्त्य गर्नुहोस्",
+      "endPatrolButton": "गस्ती अन्त्य गर्नुहोस्",
       "pauseOption": "गस्ती रोक्नुहोस्",
       "saveButton": "सुरक्षित गर्नुहोस्",
       "saveButtonLoadingLabel": "लोड हुँदैछ",
@@ -79,6 +81,7 @@
       "editTitleButtonLabel": "शीर्षक सम्पादन गर्नुहोस्",
       "fitToBoundsButtonLabel": "गस्तीको सीमामा मिलाउनुहोस्",
       "jumpToLocationButtonLabel": "स्थानमा जानुहोस्",
+      "mobileProvenancePill": "मोबाइल",
       "moreOptionsButtonLabel": "थप विकल्पहरू",
       "printOption": "गस्ती प्रिन्ट गर्नुहोस्",
       "titleInputLabel": "गस्तीको शीर्षक",
@@ -105,7 +108,6 @@
       "timeLabel": "समय"
     },
     "historyTabTitle": "इतिहास",
-    "navigationPromptModalDescription": "यहाँ सुरक्षित नगरिएका परिवर्तनहरू छन्। तपाईं पछि जान वा यी परिवर्तनहरू खारेज गर्न चाहनुहुन्छ?",
     "overview": {
       "activity": {
         "activeTimeLabel": "सक्रिय समय",
@@ -117,6 +119,9 @@
         "eventsLabel": "घटनाहरू",
         "expandAllButtonLabel": "सबै विस्तार गर्नुहोस्",
         "jumpToLocationButtonLabel": "स्थानमा जानुहोस्",
+        "legTransitionTitle": "खण्ड {{endedLeg}} समाप्त भयो, खण्ड {{startedLeg}} सुरु भयो",
+        "patrolEndedTitle": "गस्ती समाप्त भएको",
+        "patrolStartedTitle": "गस्ती सुरु भएको",
         "pausedTimeLabel": "रोकिएको समय",
         "sortDirectionButtonLabel": {
           "down": "गतिविधि आरोही क्रममा क्रमबद्ध गर्नुहोस्",
@@ -139,6 +144,7 @@
       }
     },
     "overviewTabTitle": "सारांश",
+    "saveErrorMessage": "गस्ती सुरक्षित गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।",
     "tabsLabel": "गस्ती सारांश ट्याबहरू"
   },
   "patrolMenu": {

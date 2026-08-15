@@ -1,5 +1,4 @@
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import Button from 'react-bootstrap/Button';
+import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import { useTranslation } from 'react-i18next';
 
@@ -9,173 +8,235 @@ import { ReactComponent as NoteIcon } from '../../../common/images/icons/note.sv
 import { ReactComponent as PencilIcon } from '../../../common/images/icons/pencil.svg';
 import { ReactComponent as TrashCanIcon } from '../../../common/images/icons/trash-can.svg';
 
+import { format, STANDARD_DATE_FORMAT } from '../../../utils/datetime';
 import { TrackerContext } from '../../../utils/analytics';
 
-import DateTime from '../../../DateTime';
-import ItemActionButton from '../ItemActionButton';
+import * as activitySectionStyles from '../styles.module.scss';
+import * as styles from './styles.module.scss';
 
-import * as styles from '../styles.module.scss';
-import { areCardsEquals } from '../../utils';
+const EXISTING_NOTE_ANALYTICS_LABEL = 'existing note';
+const NEW_NOTE_ANALYTICS_LABEL = 'new note';
+
+const CARD_EXPANSION_TRANSITION_TIME = parseFloat(activitySectionStyles.cardToggleTransitionTime);
 
 const NoteListItem = ({
-  cardsExpanded,
+  isOpen = false,
   note,
-  onCollapse,
-  onChange,
-  onDelete = null,
   onCancel,
+  onChange,
+  onCollapse,
+  onDelete = null,
   onDone,
   onExpand,
   ref,
 }) => {
-  const textareaRef = useRef();
-  const tracker = useContext(TrackerContext);
-  const isNew = useMemo(() => !note.id, [note.id]);
-  const isOpen = useMemo(() => !!cardsExpanded.find((cardExpanded) => areCardsEquals(cardExpanded, note)), [cardsExpanded, note]);
-  const [isEditing, setIsEditing] = useState(isNew);
   const { t } = useTranslation('details-view', { keyPrefix: 'noteListItem' });
 
-  const title = useMemo(() => {
-    if (isNew) {
-      return t('noteTitle', {
-        noteText: note.text || ''
-      });
-    }
-    return note.text;
-  }, [isNew, note.text, t]);
+  const tracker = useContext(TrackerContext);
 
+  const textareaRef = useRef(null);
+  const wasOpenRef = useRef(isOpen);
 
-  const onClickTrashCanIcon = useCallback((event) => {
+  const isNew = !note.id;
+
+  const [isEditing, setIsEditing] = useState(isNew);
+
+  const analyticsLabel = isNew ? NEW_NOTE_ANALYTICS_LABEL : EXISTING_NOTE_ANALYTICS_LABEL;
+
+  const isUnsavedNewNote = !!note.tmpId && !note.originalText && !!onDelete;
+
+  const noteText = note.text ?? '';
+  const trimmedText = noteText.trim();
+
+  const updateDate = note.updates?.[0]?.time ? new Date(note.updates[0].time) : null;
+
+  const showDeleteButton = isNew && !!onDelete;
+
+  const onToggleCollapseRow = () => (isOpen ? onCollapse : onExpand)(note, analyticsLabel);
+
+  const onClickCollapseToggleButton = (event) => {
+    event.preventDefault();
     event.stopPropagation();
-    tracker.track(`Delete ${isNew ? 'new' : 'existing'} note`);
-    onDelete();
-  }, [tracker, onDelete, isNew]);
 
-  const onClickPencilIcon = useCallback((event) => {
+    onToggleCollapseRow();
+  };
+
+  const onClickDeleteButton = (event) => {
     event.stopPropagation();
-    const newEditState = !isOpen || !isEditing;
-    tracker.track(`${newEditState ? 'Start' : 'Stop'} editing ${isNew ? 'new' : 'existing'} note`);
-    onExpand();
-    setIsEditing(newEditState);
-  }, [tracker, isEditing, isNew, isOpen, onExpand]);
 
-  const onChangeTextArea = useCallback((event) => onChange(note, event), [note, onChange]);
+    onDelete(note);
 
-  const onClickCancelButton = useCallback(() => {
-    if (note.tmpId && !note.originalText) {
-      tracker.track('Cancel writing new note');
-      onDelete(note);
-    } else {
-      tracker.track('Cancel editing existing note');
-      onCancel(note);
+    tracker.track(`Delete ${analyticsLabel}`);
+  };
+
+  const onClickEditButton = (event) => {
+    event.stopPropagation();
+
+    if (!isOpen) {
+      onExpand(note, analyticsLabel);
     }
+    setIsEditing(true);
+
+    tracker.track(`Start editing ${analyticsLabel}`);
+  };
+
+  const onDiscardEdition = useCallback(() => {
+    onCancel(note);
     setIsEditing(false);
-  }, [note, tracker, onDelete, onCancel]);
 
-  const onClickDoneButton = useCallback(() => {
+    tracker.track(`Cancel editing ${analyticsLabel}`);
+  }, [analyticsLabel, note, onCancel, tracker]);
+
+  const onClickCancelButton = () => {
+    if (isUnsavedNewNote) {
+      onDelete(note);
+      setIsEditing(false);
+
+      tracker.track('Cancel writing new note');
+    } else {
+      onDiscardEdition();
+    }
+  };
+
+  const onClickDoneButton = () => {
     onDone(note);
     setIsEditing(false);
-    tracker.track(`Save ${isNew ? 'new' : 'existing'} note`);
-  }, [isNew, note, onDone, tracker]);
+
+    tracker.track(`Save ${analyticsLabel}`);
+  };
 
   useEffect(() => {
-    if (isEditing) {
-      setTimeout(() => {
-        if (textareaRef.current) {
-          textareaRef.current.focus();
-          textareaRef.current.selectionStart = textareaRef.current.value.length;
-        }
-      });
-    }
-  }, [isEditing]);
+    const isCollapsing = wasOpenRef.current && !isOpen;
+    wasOpenRef.current = isOpen;
 
-  return <li className={isOpen ? styles.openItem : ''} ref={ref}>
-    <div className={`${styles.itemRow} ${styles.collapseRow}`} onClick={isOpen ? onCollapse: onExpand}>
-      <div className={styles.itemIcon}>
-        <NoteIcon data-testid="note-icon" />
+    if (isCollapsing && isEditing) {
+      onDiscardEdition();
+    }
+  }, [isEditing, isOpen, onDiscardEdition]);
+
+  useEffect(() => {
+    if (isEditing && isOpen) {
+      const timeoutId = setTimeout(() => {
+        textareaRef.current.focus();
+        textareaRef.current.setSelectionRange(textareaRef.current.value.length, textareaRef.current.value.length);
+      }, CARD_EXPANSION_TRANSITION_TIME);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isEditing, isOpen]);
+
+  return <li className={activitySectionStyles.listItem} ref={ref}>
+    <div
+      className={`${activitySectionStyles.itemRow} ${isUnsavedNewNote ? '' : activitySectionStyles.collapseRow}`}
+      onClick={isUnsavedNewNote ? undefined : onToggleCollapseRow}
+    >
+      <div className={`${activitySectionStyles.itemIcon} ${styles.smallItemIcon}`}>
+        <NoteIcon aria-hidden="true" data-testid="note-icon" />
       </div>
 
-      <div className={`${styles.noteTitle} ${styles.itemDetails}`}>
+      <div className={`${activitySectionStyles.itemDetails} ${showDeleteButton ? styles.deletableNoteDetails : ''}`}>
         <p
-          className={styles.itemTitle}
-          data-testid={`activitySection-noteTitle-${note.id || note.text}`}
+          className={activitySectionStyles.itemTitle}
+          data-testid={`activitySection-noteTitle-${note.id || noteText}`}
         >
-          {title}
+          {isNew ? t('noteTitle', { noteText }) : noteText}
         </p>
 
-        {!!note.updates && <DateTime
-          className={styles.itemDate}
-          data-testid={`activitySection-dateTime-${note.id || note.text}`}
-          date={note.updates[0].time}
-          showElapsed={false}
-        />}
+        {updateDate && <time
+          className={activitySectionStyles.itemDate}
+          data-testid={`activitySection-dateTime-${note.id || noteText}`}
+          dateTime={updateDate.toISOString()}
+        >
+          {format(updateDate, STANDARD_DATE_FORMAT)}
+        </time>}
 
-        {isNew && <div>
-          <ItemActionButton onClick={onClickTrashCanIcon} tooltip={t('deleteNoteButtonTooltip')}>
-            <TrashCanIcon data-testid={`activitySection-deleteIcon-${note.id || note.text}`} />
-          </ItemActionButton>
-        </div>}
+        {showDeleteButton && <button
+          aria-label={t('deleteNoteButtonTooltip')}
+          className={activitySectionStyles.actionButton}
+          onClick={onClickDeleteButton}
+          title={t('deleteNoteButtonTooltip')}
+          type="button"
+        >
+          <TrashCanIcon aria-hidden="true" data-testid={`activitySection-deleteIcon-${note.id || noteText}`} />
+        </button>}
       </div>
 
-      <div className={styles.itemActionButtonContainer}>
-        <ItemActionButton onClick={onClickPencilIcon} tooltip={t('editNoteButtonTooltip')}>
-          <PencilIcon
-            className={isEditing ? styles.disabled : ''}
-            data-testid={`activitySection-editIcon-${note.id || note.text}`}
-          />
-        </ItemActionButton>
+      <div className={activitySectionStyles.itemActionButtonContainer}>
+        <button
+          aria-label={t('editNoteButtonTooltip')}
+          className={activitySectionStyles.actionButton}
+          disabled={isOpen && isEditing}
+          onClick={onClickEditButton}
+          title={t('editNoteButtonTooltip')}
+          type="button"
+        >
+          <PencilIcon aria-hidden="true" data-testid={`activitySection-editIcon-${note.id || noteText}`} />
+        </button>
       </div>
 
-      <div className={styles.itemActionButtonContainer}>
-        <ItemActionButton
+      <div className={activitySectionStyles.itemActionButtonContainer}>
+        <button
+          aria-expanded={isOpen}
           aria-label={t(isOpen ? 'collapseOpenButtonLabel' : 'collapseClosedButtonLabel')}
-          title={t(isOpen ? 'collapseOpenButtonTitle' : 'collapseClosedButtonTitle')}
+          className={`${activitySectionStyles.actionButton} ${activitySectionStyles.collapseToggleButton}`}
+          disabled={isUnsavedNewNote}
+          onClick={onClickCollapseToggleButton}
+          title={t(isOpen ? 'collapseOpenButtonLabel' : 'collapseClosedButtonLabel')}
+          type="button"
         >
           {isOpen
-            ? <ArrowUpSimpleIcon data-testid={`activitySection-arrowUp-${note.id || note.text}`} />
-            : <ArrowDownSimpleIcon data-testid={`activitySection-arrowDown-${note.id || note.text}`} />}
-        </ItemActionButton>
+            ? <ArrowUpSimpleIcon aria-hidden="true" data-testid={`activitySection-arrowUp-${note.id || noteText}`} />
+            : <ArrowDownSimpleIcon
+              aria-hidden="true"
+              data-testid={`activitySection-arrowDown-${note.id || noteText}`}
+            />}
+        </button>
       </div>
     </div>
 
     <Collapse
-      className={styles.collapse}
-      data-testid={`activitySection-collapse-${note.id || note.text}`}
+      className={activitySectionStyles.collapse}
+      data-testid={`activitySection-collapse-${note.id || noteText}`}
       in={isOpen}
     >
       <div>
-        <textarea
-          className={styles.noteTextArea}
-          data-testid={`activitySection-noteTextArea-${note.id || note.text}`}
-          onChange={onChangeTextArea}
-          readOnly={!isEditing}
-          ref={textareaRef}
-          value={note.text}
-        />
+        <div inert={!isOpen}>
+          <textarea
+            aria-label={t('noteTextAreaLabel')}
+            className={styles.noteTextArea}
+            data-testid={`activitySection-noteTextArea-${note.id || noteText}`}
+            onChange={(event) => onChange(note, event)}
+            readOnly={!isEditing}
+            ref={textareaRef}
+            value={noteText}
+          />
 
-        <div className={styles.printableNoteText}>{note.text}</div>
+          <div className={styles.printableNoteText}>{noteText}</div>
 
-        {isEditing && <div className={styles.editingNoteActions}>
-          <Button
-            className={styles.cancelNoteButton}
-            onClick={onClickCancelButton}
-            type="button"
-            variant="secondary"
-            data-testid={`activitySection-noteCancel-${note.id || note.text}`}>
-            {t('cancelEditingNoteButton')}
-          </Button>
+          {isEditing && <div className={styles.editingNoteActions}>
+            <button
+              className={styles.cancelNoteButton}
+              data-testid={`activitySection-noteCancel-${note.id || noteText}`}
+              onClick={onClickCancelButton}
+              type="button"
+            >
+              {t('cancelEditingNoteButton')}
+            </button>
 
-          <Button
-              disabled={!note.text || note?.originalText === note.text}
+            <button
+              className={styles.doneNoteButton}
+              data-testid={`activitySection-noteDone-${note.id || noteText}`}
+              disabled={!trimmedText || note.originalText === trimmedText}
               onClick={onClickDoneButton}
               type="button"
-              data-testid={`activitySection-noteDone-${note.id || note.text}`}>
-            {t('doneEditingNoteButton')}
-          </Button>
-        </div>}
+            >
+              {t('doneEditingNoteButton')}
+            </button>
+          </div>}
+        </div>
       </div>
     </Collapse>
   </li>;
 };
 
-export default NoteListItem;
+export default memo(NoteListItem);

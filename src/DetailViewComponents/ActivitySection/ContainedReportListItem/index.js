@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo } from 'react';
+import React, { memo, useEffect } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import MoonLoader from 'react-spinners/MoonLoader';
 import { useDispatch, useSelector } from 'react-redux';
@@ -9,13 +9,14 @@ import { ReactComponent as ArrowIntoIcon } from '../../../common/images/icons/ar
 import { ReactComponent as ArrowUpSimpleIcon } from '../../../common/images/icons/arrow-up-simple.svg';
 
 import { fetchEvent } from '../../../ducks/events';
-import { getIsEventFullyLoaded } from '../../../utils/events';
+import { format, STANDARD_DATE_FORMAT } from '../../../utils/datetime';
+import { getIsEventFullyLoaded, PRIORITY_COLOR_MAP } from '../../../utils/events';
 import { TAB_KEYS } from '../../../constants';
-import useNavigate from '../../../hooks/useNavigate';
+import useReport from '../../../hooks/useReport';
 
-import ItemActionButton from '../ItemActionButton';
+import EventIcon from '../../../EventIcon';
+import Link from '../../../Link';
 import ReportFormSummary from '../../../ReportFormSummary';
-import ReportListItem from '../../../ReportListItem';
 
 import * as activitySectionStyles from '../styles.module.scss';
 import * as styles from './styles.module.scss';
@@ -23,52 +24,89 @@ import * as styles from './styles.module.scss';
 const LOADER_COLOR = '#006cd9'; // Bright blue
 const LOADER_SIZE = 30;
 
-const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }) => {
+const CONTAINED_REPORT_ANALYTICS_LABEL = 'contained report';
+
+const ContainedReportListItem = ({ isOpen = false, onCollapse, onExpand, report }) => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { t } = useTranslation('details-view', { keyPrefix: 'containedReportListItem' });
 
-  const reportFromEventStore = useSelector((state) => state.data.eventStore[report.id]);
+  const { displayPriority, displayTitle } = useReport(report);
 
-  const isEventFullyLoaded = getIsEventFullyLoaded(reportFromEventStore);
+  const eventFromEventStore = useSelector((state) => state.data.eventStore[report.id]);
 
-  const isOpen = useMemo(() => cardsExpanded.includes(report), [cardsExpanded, report]);
+  const { key: priorityKey } = PRIORITY_COLOR_MAP[displayPriority] || PRIORITY_COLOR_MAP['0'];
 
-  const onClickArrowIntoIcon = useCallback(() => navigate(`/${TAB_KEYS.EVENTS}/${report.id}`), [navigate, report]);
+  const isEventFullyLoaded = getIsEventFullyLoaded(eventFromEventStore);
+
+  const reportedTime = report.time || report.updated_at;
+  const reportedDate = reportedTime ? new Date(reportedTime) : null;
+
+  const onToggleCollapseRow = () => (isOpen ? onCollapse : onExpand)(report, CONTAINED_REPORT_ANALYTICS_LABEL);
+
+  const onClickCollapseToggleButton = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    onToggleCollapseRow();
+  };
 
   useEffect(() => {
     if (!isEventFullyLoaded) {
-      dispatch(fetchEvent(report.id));
+      dispatch(fetchEvent(report.id)).catch(() => {});
     }
   }, [dispatch, isEventFullyLoaded, report.id]);
 
-  return <li>
+  return <li className={activitySectionStyles.listItem}>
     <div
-      className={`${activitySectionStyles.itemRow} ${activitySectionStyles.collapseRow}`}
-      onClick={isOpen ? onCollapse: onExpand}
+      className={`${activitySectionStyles.itemRow} ${activitySectionStyles.collapseRow} ${styles[priorityKey]}`}
+      onClick={onToggleCollapseRow}
     >
-      <ReportListItem
-        className={styles.reportListItem}
-        report={report}
-        showElapsedTime={false}
-        showJumpButton={false}
-      />
+      <div className={activitySectionStyles.itemIcon} style={{ color: 'white' }}>
+        <EventIcon color="white" report={report} />
+      </div>
 
-      <div className={activitySectionStyles.itemActionButtonContainer}>
-        {!!reportFromEventStore && <ItemActionButton onClick={onClickArrowIntoIcon} tooltip={t('goToReportButtonTooltip')}>
-          <ArrowIntoIcon data-testid="arrow-into-icon" />
-        </ItemActionButton>}
+      <div className={activitySectionStyles.itemDetails}>
+        <p className={activitySectionStyles.itemTitle}>{displayTitle}</p>
+
+        {reportedDate && <time
+          className={activitySectionStyles.itemDate}
+          data-testid={`activitySection-dateTime-${report.id}`}
+          dateTime={reportedDate.toISOString()}
+        >
+          {format(reportedDate, STANDARD_DATE_FORMAT)}
+        </time>}
+      </div>
+
+      <div className={activitySectionStyles.itemActionButtonContainer} onClick={(event) => event.stopPropagation()}>
+        {!!eventFromEventStore && <Link
+          aria-label={t('viewReportButtonLabel', { title: displayTitle })}
+          className={`${activitySectionStyles.actionButton} ${styles.viewReportIcon}`}
+          title={t('viewReportButtonLabel', { title: displayTitle })}
+          to={`/${TAB_KEYS.EVENTS}/${report.id}`}
+        >
+          <ArrowIntoIcon aria-hidden="true" data-testid="arrow-into-icon" />
+        </Link>}
       </div>
 
       <div className={activitySectionStyles.itemActionButtonContainer}>
-        <ItemActionButton
-          aria-label={t(isOpen ? 'collapseOpenButtonLabel' : 'collapseClosedButtonLabel')}
-          title={t(isOpen ? 'collapseOpenButtonTitle' : 'collapseClosedButtonTitle')}
+        <button
+          aria-expanded={isOpen}
+          aria-label={t(
+            isOpen ? 'collapseOpenButtonLabel' : 'collapseClosedButtonLabel',
+            { title: displayTitle }
+          )}
+          className={`${activitySectionStyles.actionButton} ${activitySectionStyles.collapseToggleButton}`}
+          onClick={onClickCollapseToggleButton}
+          title={t(
+            isOpen ? 'collapseOpenButtonLabel' : 'collapseClosedButtonLabel',
+            { title: displayTitle }
+          )}
+          type="button"
         >
           {isOpen
-            ? <ArrowUpSimpleIcon data-testid={`activitySection-arrowUp-${report.id}`} />
-            : <ArrowDownSimpleIcon data-testid={`activitySection-arrowDown-${report.id}`} />}
-        </ItemActionButton>
+            ? <ArrowUpSimpleIcon aria-hidden="true" data-testid={`activitySection-arrowUp-${report.id}`} />
+            : <ArrowDownSimpleIcon aria-hidden="true" data-testid={`activitySection-arrowDown-${report.id}`} />}
+        </button>
       </div>
     </div>
 
@@ -78,11 +116,17 @@ const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }
       in={isOpen}
     >
       <div>
-        {isEventFullyLoaded
-          ? <ReportFormSummary report={reportFromEventStore} />
-          : <div className={styles.loaderWrapper}>
-            <MoonLoader color={LOADER_COLOR} size={LOADER_SIZE} />
-          </div>}
+        <div className={activitySectionStyles.collapseContent}>
+          {isEventFullyLoaded
+            ? <ReportFormSummary report={eventFromEventStore} />
+            : <div
+              aria-label={t('loadingLabel', { title: displayTitle })}
+              className={styles.loaderWrapper}
+              role="status"
+            >
+              <MoonLoader color={LOADER_COLOR} size={LOADER_SIZE} />
+            </div>}
+        </div>
       </div>
     </Collapse>
   </li>;
