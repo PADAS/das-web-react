@@ -58,6 +58,7 @@
     "title": "Dates de Patrouille Invalides"
   },
   "patrolOverview": {
+    "attachmentsSaveErrorMessage": "Certaines pièces jointes n'ont pas pu être téléversées. Veuillez réessayer.",
     "footer": {
       "addEventButton": "Ajouter un événement",
       "addEventButtonLabel": "Ajouter un événement",

@@ -58,6 +58,7 @@
     "title": "Muda wa Doria Usiofaa"
   },
   "patrolOverview": {
+    "attachmentsSaveErrorMessage": "Baadhi ya viambatisho havikuweza kupakiwa. Tafadhali jaribu tena.",
     "footer": {
       "addEventButton": "Ongeza tukio",
       "addEventButtonLabel": "Ongeza tukio",

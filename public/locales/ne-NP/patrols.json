@@ -58,6 +58,7 @@
     "title": "गस्ती समय मिलेन"
   },
   "patrolOverview": {
+    "attachmentsSaveErrorMessage": "केही संलग्न फाइलहरू अपलोड गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।",
     "footer": {
       "addEventButton": "घटना थप्नुहोस्",
       "addEventButtonLabel": "घटना थप्नुहोस्",

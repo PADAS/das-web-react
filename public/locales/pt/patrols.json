@@ -58,6 +58,7 @@
     "title": "Datas de patrulha inválidas."
   },
   "patrolOverview": {
+    "attachmentsSaveErrorMessage": "Não foi possível carregar alguns anexos. Tente novamente.",
     "footer": {
       "addEventButton": "Adicionar evento",
       "addEventButtonLabel": "Adicionar evento",

@@ -269,7 +269,7 @@ const PatrolOverviewContent = ({ patrol }) => {
       (attachment) => !uploadedAttachments.includes(attachment)
     ));
 
-    toast.error(t('saveErrorMessage'));
+    toast.error(patrolUpdateResult.status === 'fulfilled' ? t('attachmentsSaveErrorMessage') : t('saveErrorMessage'));
 
     patrolOverviewTracker.track('Error saving patrol from patrol overview');
 

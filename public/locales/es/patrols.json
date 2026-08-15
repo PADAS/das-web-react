@@ -58,6 +58,7 @@
     "title": "Fechas de patrullaje no válidas"
   },
   "patrolOverview": {
+    "attachmentsSaveErrorMessage": "No se pudieron subir algunos archivos adjuntos. Vuelva a intentarlo.",
     "footer": {
       "addEventButton": "Agregar evento",
       "addEventButtonLabel": "Agregar evento",

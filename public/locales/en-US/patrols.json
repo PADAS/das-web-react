@@ -58,6 +58,7 @@
     "title": "Invalid Patrol Times"
   },
   "patrolOverview": {
+    "attachmentsSaveErrorMessage": "Some attachments could not be uploaded. Please try again.",
     "footer": {
       "addEventButton": "Add Event",
       "addEventButtonLabel": "Add Event",
