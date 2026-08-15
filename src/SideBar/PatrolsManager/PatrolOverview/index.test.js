@@ -14,10 +14,19 @@ import { render, screen, waitFor } from '../../../test-utils';
 import { SYSTEM_CONFIG_FLAGS } from '../../../constants';
 import * as trackUtils from '../../../utils/tracks';
 import { TRACK_LENGTH_ORIGINS } from '../../../ducks/tracks';
+import useNavigate from '../../../hooks/useNavigate';
 
 import PatrolOverview from './';
 
 const LocationDisplay = () => <div data-testid="test-location">{useLocation().pathname}</div>;
+
+// Navigates the same way the footer add event button does: through a pending
+// navigation held by the navigation context until the blocker lets it through.
+const NavigateAwayButton = () => {
+  const navigate = useNavigate();
+
+  return <button onClick={() => navigate('/events/new')} type="button">Navigate away</button>;
+};
 
 jest.mock('../../../AddItemButton', () => jest.fn());
 
@@ -91,7 +100,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     jest.restoreAllMocks();
   });
 
-  const renderPatrolOverview = (patrolId, { withLocationDisplay = false } = {}) => {
+  const renderPatrolOverview = (patrolId, { withLocationDisplay = false, withNavigateAwayButton = false } = {}) => {
     useParams.mockReturnValue({ patrolId });
 
     return render(
@@ -99,6 +108,8 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
         <PatrolOverview />
 
         {withLocationDisplay && <LocationDisplay />}
+
+        {withNavigateAwayButton && <NavigateAwayButton />}
       </Provider>,
       { initialEntries: [`/patrols/${patrolId}`] }
     );
@@ -518,6 +529,23 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     expect(screen.getByTestId('test-location')).toHaveTextContent('/patrols');
   });
 
+  test('offers to go back, discard or save when navigating away with unsaved changes', async () => {
+    store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
+
+    renderPatrolOverview(patrolWithoutLeader.id);
+
+    await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
+    await userEvent.click(screen.getByRole('link', { name: 'Patrols' }));
+
+    expect(await screen.findByText('Unsaved Changes')).toBeInTheDocument();
+    expect(screen.getByText(
+      'There are unsaved changes. Would you like to go back, discard the changes, or save and continue?'
+    )).toBeInTheDocument();
+    expect(screen.getByText('Go Back')).toBeInTheDocument();
+    expect(screen.getByText('Discard')).toBeInTheDocument();
+    expect(screen.getByTestId('navigation-prompt-positive-continue-btn')).toBeInTheDocument();
+  });
+
   test('discards unsaved changes and navigates away when confirmed', async () => {
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
@@ -533,6 +561,65 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       expect(screen.getByTestId('test-location')).not.toHaveTextContent(patrolWithoutLeader.id);
     });
     expect(screen.getByTestId('test-location')).toHaveTextContent('/patrols');
+    expect(updatePatrol).not.toHaveBeenCalled();
+  });
+
+  test('saves the unsaved changes and navigates away when confirmed', async () => {
+    store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
+
+    renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true });
+
+    await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
+    await userEvent.click(screen.getByRole('link', { name: 'Patrols' }));
+
+    await userEvent.click(await screen.findByTestId('navigation-prompt-positive-continue-btn'));
+
+    expect(screen.queryByText('Unsaved Changes')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('test-location')).not.toHaveTextContent(patrolWithoutLeader.id);
+    });
+    expect(screen.getByTestId('test-location')).toHaveTextContent('/patrols');
+    expect(updatePatrol).toHaveBeenCalledWith({
+      id: patrolWithoutLeader.id,
+      title: `${patrolWithoutLeader.title} edited`,
+    });
+  });
+
+  test('resumes a navigation waiting on the prompt after saving the unsaved changes', async () => {
+    store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
+
+    renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true, withNavigateAwayButton: true });
+
+    await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
+    await userEvent.click(screen.getByRole('button', { name: 'Navigate away' }));
+
+    await userEvent.click(await screen.findByTestId('navigation-prompt-positive-continue-btn'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('test-location')).toHaveTextContent('/events/new');
+    });
+    expect(updatePatrol).toHaveBeenCalledWith({
+      id: patrolWithoutLeader.id,
+      title: `${patrolWithoutLeader.title} edited`,
+    });
+  });
+
+  test('navigates away and reports the error when the save on the way out fails', async () => {
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    updatePatrol.mockImplementation(() => () => Promise.reject(new Error('Save error')));
+    store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
+
+    renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true, withNavigateAwayButton: true });
+
+    await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
+    await userEvent.click(screen.getByRole('button', { name: 'Navigate away' }));
+
+    await userEvent.click(await screen.findByTestId('navigation-prompt-positive-continue-btn'));
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith('The patrol could not be saved. Please try again.');
+    });
+    expect(screen.getByTestId('test-location')).toHaveTextContent('/events/new');
   });
 
   describe('saving', () => {
@@ -735,6 +822,29 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
         expect(toast.error).toHaveBeenCalled();
       });
       expect(updatePatrol).toHaveBeenCalledTimes(1);
+
+      await clickSave();
+
+      await waitFor(() => {
+        expect(uploadPatrolFile).toHaveBeenCalledTimes(2);
+      });
+      expect(updatePatrol).toHaveBeenCalledTimes(1);
+    });
+
+    test('does not patch the notes again when the refresh after a partial failure also fails', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+      uploadPatrolFile.mockRejectedValue(new Error('Upload error'));
+      fetchPatrol.mockImplementation(() => () => Promise.reject(new Error('Refresh error')));
+
+      renderPatrolWithNotes();
+
+      await addNote('a new note');
+      await uploadAttachment(new File(['file contents'], 'file.pdf', { type: 'application/pdf' }));
+      await clickSave();
+
+      await waitFor(() => {
+        expect(toast.error).toHaveBeenCalled();
+      });
 
       await clickSave();
 

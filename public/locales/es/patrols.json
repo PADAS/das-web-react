@@ -107,7 +107,6 @@
       "timeLabel": "Hora"
     },
     "historyTabTitle": "Historial",
-    "navigationPromptModalDescription": "Hay cambios sin guardar. ¿Desea regresar o descartar los cambios?",
     "overview": {
       "activity": {
         "activeTimeLabel": "Tiempo activo",

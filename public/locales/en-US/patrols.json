@@ -107,7 +107,6 @@
       "timeLabel": "Time"
     },
     "historyTabTitle": "History",
-    "navigationPromptModalDescription": "There are unsaved changes. Would you like to go back or discard the changes?",
     "overview": {
       "activity": {
         "activeTimeLabel": "Active Time",

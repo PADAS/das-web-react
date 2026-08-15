@@ -107,7 +107,6 @@
       "timeLabel": "Heure"
     },
     "historyTabTitle": "Historique",
-    "navigationPromptModalDescription": "Il y a des changements non sauvegardés. Souhaitez-vous retourner en arrière ou annuler les modifications ?",
     "overview": {
       "activity": {
         "activeTimeLabel": "Temps actif",
