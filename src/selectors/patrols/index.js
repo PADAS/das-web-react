@@ -1,12 +1,14 @@
 import { createSelector } from 'reselect';
 import { shallowEqual } from 'react-redux';
 import { isAfter } from 'date-fns';
+import { length } from '@turf/turf';
 import uniq from 'lodash/uniq';
 
 import {
   drawLinesBetweenPatrolTrackAndPatrolPoints,
   extractLegPatrolPoints,
   finalizeCombinedPatrolPoints,
+  getTrackedSubjectsForPatrolSegment,
   isSegmentActiveForPatrol,
   patrolStateAllowsTrackDisplay,
 } from '../../utils/patrols';
@@ -166,6 +168,58 @@ export const selectPatrolTrackData = createSelector(
   [selectTimeSliderState, selectTrackTimeEnvelope, selectPatrolSegmentLeaderTracks, (_, patrol) => patrol],
   (timeSliderState, trackTimeEnvelope, tracks, patrol) =>
     buildPatrolData(patrol, timeSliderState, trackTimeEnvelope.until, tracks)
+);
+
+const selectPatrolTrackedSubjectTracks = createSelector(
+  [selectTracks, (_, patrol) => patrol],
+  (tracks, patrol) => patrol.patrol_segments.reduce((patrolTrackedSubjectTracks, segment) => {
+    getTrackedSubjectsForPatrolSegment(segment).forEach((subject) => {
+      if (tracks[subject.id]) {
+        patrolTrackedSubjectTracks[subject.id] = tracks[subject.id];
+      }
+    });
+
+    return patrolTrackedSubjectTracks;
+  }, {}),
+  { memoizeOptions: { resultEqualityCheck: shallowEqual } }
+);
+
+// The kilometers a subject covered during a leg: its own track, bounded to the leg's time range.
+const distanceCoveredInSegment = (segment, subjectTrack) => {
+  if (!subjectTrack
+    || !segment.time_range?.start_time
+    || !trackHasDataWithinTimeRange(subjectTrack, segment.time_range.start_time, segment.time_range.end_time)
+  ) {
+    return 0;
+  }
+
+  return length(
+    trimTrackDataToTimeRange(subjectTrack, segment.time_range.start_time, segment.time_range.end_time).track
+  );
+};
+
+// Every subject the patrol tracks, along with the total distance it covered
+// across the legs it took part in.
+export const selectPatrolTrackedSubjects = createSelector(
+  [selectPatrolTrackedSubjectTracks, (_, patrol) => patrol],
+  (patrolTrackedSubjectTracks, patrol) => {
+    const patrolLeaderId = patrol.patrol_segments[patrol.patrol_segments.length - 1]?.leader?.id ?? null;
+
+    const patrolTrackedSubjectsMap = new Map();
+    patrol.patrol_segments.forEach((segment) => {
+      getTrackedSubjectsForPatrolSegment(segment).forEach((subject) => {
+        const trackedSubject = patrolTrackedSubjectsMap.get(subject.id)
+          ?? { distance: 0, isPatrolLeader: subject.id === patrolLeaderId, subject };
+
+        trackedSubject.distance += distanceCoveredInSegment(segment, patrolTrackedSubjectTracks[subject.id]);
+
+        patrolTrackedSubjectsMap.set(subject.id, trackedSubject);
+      });
+    });
+
+    // The patrol leader comes first.
+    return [...patrolTrackedSubjectsMap.values()].sort((a, b) => b.isPatrolLeader - a.isPatrolLeader);
+  }
 );
 
 export const selectPatrolLeadersWithLastPosition = createSelector(

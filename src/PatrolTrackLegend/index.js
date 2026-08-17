@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { displayTitleForPatrol, iconTypeForPatrol, patrolStateAllowsTrackDisplay } from '../utils/patrols';
+import { formatDistanceInKilometers } from '../utils/distance';
 import { selectPatrolsWithTracksData } from '../selectors/patrols';
 import { updatePatrolTrackState } from '../ducks/patrols';
 
@@ -20,18 +21,15 @@ const PatrolTrackLegend = () => {
   const patrolsWithTrackData = useSelector(selectPatrolsWithTracksData);
 
   // Calculate the total tracks length to show a description in the legend like "3km".
-  const description = useMemo(() => {
-    const totalTracksLength = patrolsWithTrackData
+  const description = useMemo(() => formatDistanceInKilometers(
+    patrolsWithTrackData
       .filter((patrolData) => !!patrolStateAllowsTrackDisplay(patrolData.patrol))
-      .reduce((accumulator, patrolData) => {
-        const lineLength = patrolData.startStopGeometries?.lines ? length(patrolData.startStopGeometries.lines) : 0;
-        const trackLength = patrolData.trackData?.track ? length(patrolData.trackData.track) : 0;
+      .reduce((accumulator, { trackData }) => {
+        const trackLength = trackData ? length(trackData.track) : 0;
 
-        return accumulator + lineLength + trackLength;
-      }, 0);
-
-    return `${totalTracksLength ? totalTracksLength.toFixed(2) : 0}km`;
-  }, [patrolsWithTrackData]);
+        return accumulator + trackLength;
+      }, 0)
+  ), [patrolsWithTrackData]);
 
   // Build the items array with the description, icon, id and title of each tracked patrol.
   const items = useMemo(() => patrolsWithTrackData.map((patrolData) => {
@@ -39,7 +37,7 @@ const PatrolTrackLegend = () => {
     const patrolTitle = displayTitleForPatrol(patrolData.patrol, patrolData.leader);
 
     return {
-      description: `${patrolData.trackData ? length(patrolData.trackData.track).toFixed(2): 0.00}km`,
+      description: formatDistanceInKilometers(patrolData.trackData ? length(patrolData.trackData.track) : 0),
       icon: <SvgIcon
         className={styles.itemIcon}
         iconId={iconId}

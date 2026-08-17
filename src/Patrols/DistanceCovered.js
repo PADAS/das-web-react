@@ -1,26 +1,21 @@
 import { memo, useMemo } from 'react';
 import { length } from '@turf/turf';
 
+import { formatDistanceInKilometers } from '../utils/distance';
 import { patrolStateAllowsTrackDisplay } from '../utils/patrols';
 
-
-const PatrolDistanceCovered = ({ patrolsData  = [], suffix='km' }) => {
-
+const PatrolDistanceCovered = ({ patrolsData = [] }) => {
   const patrolTrackLength = useMemo(() =>
     patrolsData
       .filter(({ patrol }) => !!patrolStateAllowsTrackDisplay(patrol))
-      .reduce((accumulator, patrolData) => {
-        const { trackData, startStopGeometries } = patrolData;
+      .reduce((accumulator, { trackData }) => {
+        const trackLength = trackData ? length(trackData.track) : 0;
 
-        const lineLength = startStopGeometries?.lines ? length(startStopGeometries.lines) : 0;
-        const trackLength = trackData?.track ? length(trackData.track) : 0;
-
-        return accumulator + lineLength + trackLength;
-
+        return accumulator + trackLength;
       }, 0),
   [patrolsData]);
 
-  return `${patrolTrackLength ? patrolTrackLength.toFixed(2) : 0}${suffix}`;
+  return formatDistanceInKilometers(patrolTrackLength);
 };
 
 export default memo(PatrolDistanceCovered);

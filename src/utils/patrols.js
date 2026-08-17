@@ -245,6 +245,45 @@ export const actualEndTimeForPatrol = (patrol) => {
     : null;
 };
 
+// TODO: Include the leg's team members and tracked assets once they're part of the data model.
+export const getTrackedSubjectsForPatrolSegment = (patrolSegment) => patrolSegment.leader ? [patrolSegment.leader] : [];
+
+// TODO: Recognize pause legs by their own flag once the data model supports it.
+const isPatrolSegmentAPause = () => false;
+
+const getElapsedTimeForPatrolSegment = (patrolSegment, fallbackEndTime) => {
+  if (!patrolSegment.time_range?.start_time) {
+    return 0;
+  }
+
+  const startTime = new Date(patrolSegment.time_range.start_time).getTime();
+  const endTime = patrolSegment.time_range.end_time
+    ? new Date(patrolSegment.time_range.end_time).getTime()
+    : fallbackEndTime;
+  return Math.max(0, endTime - startTime);
+};
+
+export const getElapsedTimeForPatrol = (patrol, fallbackEndTime = Date.now()) => {
+  const startDate = actualStartTimeForPatrol(patrol);
+
+  if (!startDate) {
+    return 0;
+  }
+
+  const endDate = actualEndTimeForPatrol(patrol);
+
+  const startTime = startDate.getTime();
+  const endTime = endDate ? endDate.getTime() : fallbackEndTime;
+  return Math.max(0, endTime - startTime);
+};
+
+export const getPausedTimeForPatrol = (patrol, fallbackEndTime = Date.now()) => patrol.patrol_segments.reduce(
+  (totalPausedTime, patrolSegment) => isPatrolSegmentAPause(patrolSegment)
+    ? totalPausedTime + getElapsedTimeForPatrolSegment(patrolSegment, fallbackEndTime)
+    : totalPausedTime,
+  0
+);
+
 export const getPatrolsForLeaderId = (leaderId) => {
   const { data: { patrolStore } } = store.getState();
 

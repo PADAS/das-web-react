@@ -78,7 +78,7 @@ const PatrolListItem = ({
     if (isPatrolActiveOrDone) {
       return <span className={styles.titleDetails}>
         <span>{patrolElapsedTime}</span> | <span>
-          <PatrolDistanceCovered patrolsData={patrolsData} suffix=' km' />
+          <PatrolDistanceCovered patrolsData={patrolsData} />
         </span>
       </span>;
     }

@@ -1,0 +1,152 @@
+@use 'sass:color';
+
+@use '../../../../../../common/styles/inputs';
+@use '../../../../../../common/styles/layout';
+@use '../../../../../../common/styles/vars/colors';
+
+.summaryStats {
+  display: grid;
+  gap: 1rem;
+  grid-auto-rows: 1fr;
+  grid-template-columns: repeat(5, 1fr);
+  margin: 0;
+
+  @media (max-width: layout.$sm-layout-width-max) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .statItem {
+    border: 1px solid colors.$light-gray-lines;
+    border-radius: 0.3125rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 0;
+    padding: 0.25rem 0.5rem;
+
+    .statLabel {
+      align-items: center;
+      color: colors.$secondary-medium-gray;
+      display: flex;
+      font-size: 0.875rem;
+      font-weight: 400;
+      margin: 0;
+
+      .distanceSubjectButton {
+        align-items: center;
+        background: none;
+        border: none;
+        border-radius: 0.25rem;
+        color: inherit;
+        display: flex;
+        gap: 0.5rem;
+        padding: 0;
+
+        &:hover {
+          color: colors.$off-black;
+
+          .statLabelIcon path {
+            fill: currentcolor;
+          }
+        }
+
+        &:focus-visible {
+          outline: 2px solid colors.$bright-blue;
+        }
+
+        .statLabelIcon {
+          flex-shrink: 0;
+          height: 0.3125rem;
+          width: 0.625rem;
+        }
+      }
+    }
+
+    .statValue {
+      font-size: 1rem;
+      font-weight: 500;
+      margin: 0;
+    }
+  }
+}
+
+.distanceSubjectMenuPopover {
+  @include inputs.boxShadow;
+
+  border: none !important;
+  border-radius: 0.25rem !important;
+
+  [class*='popover-arrow'] {
+    display: none;
+  }
+
+  .distanceSubjectMenu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    .distanceSubjectMenuItem {
+      .distanceSubjectMenuItemOption {
+        align-items: center;
+        background-color: white;
+        border: none;
+        display: flex;
+        gap: 0.5rem;
+        outline: none;
+        padding: 0.5rem 0.75rem;
+        text-align: left;
+        width: 100%;
+
+        &:hover {
+          background-color: color.adjust(colors.$light-gray-background, $lightness: 5%);
+        }
+
+        &:focus {
+          background-color: colors.$light-gray-background;
+        }
+
+        &[aria-checked="true"] {
+          background-color: colors.$blue-highlight;
+
+          &:hover, &:focus {
+            background-color: color.adjust(colors.$blue-highlight, $lightness: -5%);
+          }
+        }
+
+        &[aria-checked="false"] {
+          padding-left: 2rem;
+        }
+
+        .checkIcon {
+          color: colors.$bright-blue;
+          flex-shrink: 0;
+          height: 0.75rem;
+          width: 0.75rem;
+        }
+
+        .subjectIcon {
+          flex-shrink: 0;
+          height: 1.25rem;
+          width: 1.25rem;
+        }
+
+        .patrolLeaderIcon {
+          color: colors.$secondary-medium-gray;
+          flex-shrink: 0;
+          height: 0.875rem;
+          width: 0.875rem;
+        }
+      }
+
+      &:first-child .distanceSubjectMenuItemOption {
+        border-top-left-radius: 0.25rem;
+        border-top-right-radius: 0.25rem;
+      }
+
+      &:last-child .distanceSubjectMenuItemOption {
+        border-bottom-left-radius: 0.25rem;
+        border-bottom-right-radius: 0.25rem;
+      }
+    }
+  }
+}

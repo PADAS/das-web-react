@@ -27,6 +27,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Activity', () =
         eventStore: {},
         eventTypes: [],
         patrolTypes: [],
+        tracks: {},
       },
       view: {
         systemConfig: {
