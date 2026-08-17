@@ -17,9 +17,12 @@ import {
   getBoundsForPatrol,
   getPatrolLocationCoordinates,
   getPatrolsForLeaderId,
+  getReportsForPatrol,
   iconIdForPatrolSegment,
   iconIdForPatrolType,
   iconTypeForPatrol,
+  getIsMobilePatrol,
+  PATROL_SAVE_ACTIONS,
   sortPatrolList
 } from './patrols';
 import { PATROL_UI_STATES } from '../constants';
@@ -35,8 +38,16 @@ import {
 } from '../__test-helpers/fixtures/patrols';
 import patrolTypes, { dogPatrol, routinePatrol } from '../__test-helpers/fixtures/patrol-types';
 import store from '../store';
+import { uploadPatrolFile } from '../ducks/patrols';
 
-jest.mock('../store', () => ({ getState: jest.fn() }));
+jest.mock('../store', () => ({ dispatch: jest.fn(), getState: jest.fn() }));
+
+jest.mock('../ducks/patrols', () => ({
+  addNoteToPatrol: jest.fn(),
+  createPatrol: jest.fn(),
+  updatePatrol: jest.fn(),
+  uploadPatrolFile: jest.fn(),
+}));
 
 const { SCHEDULED, READY_TO_START, ACTIVE, START_OVERDUE, DONE, CANCELLED, INVALID } = PATROL_UI_STATES;
 
@@ -588,6 +599,23 @@ describe('Patrols utils', () => {
     });
   });
 
+  describe('getIsMobilePatrol', () => {
+    test('returns true when the provenance is "mobile"', () => {
+      expect(getIsMobilePatrol({ provenance: 'mobile' })).toBe(true);
+    });
+
+    test('returns false for any other provenance', () => {
+      expect(getIsMobilePatrol({ provenance: 'web' })).toBe(false);
+      expect(getIsMobilePatrol({ provenance: 'ER Mobile' })).toBe(false);
+      expect(getIsMobilePatrol({ provenance: '' })).toBe(false);
+    });
+
+    test('returns false when the patrol has no provenance', () => {
+      expect(getIsMobilePatrol({})).toBe(false);
+      expect(getIsMobilePatrol(undefined)).toBe(false);
+    });
+  });
+
   describe('displayNameForPatrolType', () => {
     test('returns the display name for a type matched by value', () => {
       expect(displayNameForPatrolType(patrolTypes, routinePatrol.value)).toBe('Routine Patrol');
@@ -808,6 +836,48 @@ describe('Patrols utils', () => {
 
       expect(getActivePatrolsForLeaderId('leader-b')).toEqual([activeLastLegPatrol]);
       expect(getActivePatrolsForLeaderId('leader-a')).toEqual([]);
+    });
+  });
+
+  describe('getReportsForPatrol', () => {
+    const patrolWithLegEvents = (...eventsPerLeg) => ({
+      ...multiLegPatrol,
+      patrol_segments: multiLegPatrol.patrol_segments.map((leg, index) => ({ ...leg, events: eventsPerLeg[index] })),
+    });
+
+    test('collects the events of every leg in leg order', () => {
+      const firstLegEvent = { id: 'event-1' };
+      const secondLegEvent = { id: 'event-2' };
+
+      expect(getReportsForPatrol(patrolWithLegEvents([firstLegEvent], [secondLegEvent])))
+        .toEqual([firstLegEvent, secondLegEvent]);
+    });
+
+    test('skips the legs that carry no events', () => {
+      const secondLegEvent = { id: 'event-2' };
+
+      expect(getReportsForPatrol(patrolWithLegEvents(undefined, [secondLegEvent]))).toEqual([secondLegEvent]);
+    });
+
+    test('returns an empty list for a patrol without legs', () => {
+      expect(getReportsForPatrol({ patrol_segments: [] })).toEqual([]);
+    });
+
+    test('returns an empty list without a patrol', () => {
+      expect(getReportsForPatrol(undefined)).toEqual([]);
+    });
+  });
+
+  describe('PATROL_SAVE_ACTIONS.addFile', () => {
+    test('uploads the file against the saved patrol without going through the store', () => {
+      const upload = Promise.resolve({ data: {} });
+      uploadPatrolFile.mockReturnValue(upload);
+
+      const file = new File(['content'], 'photo.png');
+
+      expect(PATROL_SAVE_ACTIONS.addFile(file).action('patrol-1')).toBe(upload);
+      expect(uploadPatrolFile).toHaveBeenCalledWith('patrol-1', file);
+      expect(store.dispatch).not.toHaveBeenCalled();
     });
   });
 });

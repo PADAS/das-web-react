@@ -58,12 +58,14 @@
     "title": "Dates de Patrouille Invalides"
   },
   "patrolOverview": {
+    "attachmentsSaveErrorMessage": "Certaines pièces jointes n'ont pas pu être téléversées. Veuillez réessayer.",
     "footer": {
       "addEventButton": "Ajouter un événement",
       "addEventButtonLabel": "Ajouter un événement",
       "addEventButtonText": "Événement",
       "cancelOption": "Annuler la Patrouille",
       "endOption": "Terminer la Patrouille",
+      "endPatrolButton": "Terminer la Patrouille",
       "pauseOption": "Mettre la patrouille en pause",
       "saveButton": "Sauvegarder",
       "saveButtonLoadingLabel": "Chargement",
@@ -79,6 +81,7 @@
       "editTitleButtonLabel": "Modifier le titre",
       "fitToBoundsButtonLabel": "Ajuster aux limites de la patrouille",
       "jumpToLocationButtonLabel": "Aller à l'emplacement",
+      "mobileProvenancePill": "Mobile",
       "moreOptionsButtonLabel": "Plus d'options",
       "printOption": "Imprimer la Patrouille",
       "titleInputLabel": "Titre de la patrouille",
@@ -105,7 +108,6 @@
       "timeLabel": "Heure"
     },
     "historyTabTitle": "Historique",
-    "navigationPromptModalDescription": "Il y a des changements non sauvegardés. Souhaitez-vous retourner en arrière ou annuler les modifications ?",
     "overview": {
       "activity": {
         "activeTimeLabel": "Temps actif",
@@ -117,6 +119,9 @@
         "eventsLabel": "Événements",
         "expandAllButtonLabel": "Tout développer",
         "jumpToLocationButtonLabel": "Aller à l'emplacement",
+        "legTransitionTitle": "Étape {{endedLeg}} terminée, Étape {{startedLeg}} commencée",
+        "patrolEndedTitle": "Patrouille terminée",
+        "patrolStartedTitle": "Patrouille commencée",
         "pausedTimeLabel": "Temps en pause",
         "sortDirectionButtonLabel": {
           "down": "Trier l'activité par ordre croissant",
@@ -139,6 +144,7 @@
       }
     },
     "overviewTabTitle": "Aperçu",
+    "saveErrorMessage": "La patrouille n'a pas pu être enregistrée. Veuillez réessayer.",
     "tabsLabel": "Onglets de l'aperçu de la patrouille"
   },
   "patrolMenu": {

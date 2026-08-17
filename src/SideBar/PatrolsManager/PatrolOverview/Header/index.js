@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { useReactToPrint } from 'react-to-print';
@@ -17,8 +17,8 @@ import { ReactComponent as TrackIcon } from '../../../../common/images/icons/tra
 import { basePrintingStyles } from '../../../../utils/styles';
 import {
   calcPatrolState,
-  displayTitleForPatrol,
   getBoundsForPatrol,
+  getIsMobilePatrol,
   getPatrolLocationCoordinates,
   iconIdForPatrolSegment,
   patrolHasTrackData,
@@ -39,7 +39,7 @@ import * as styles from './styles.module.scss';
 const COPY_LINK_TOAST_AUTOCLOSE = 2000;
 const TITLE_INPUT_WIDTH_CARET_BUFFER = 2;
 
-const Header = ({ patrol, printableContentRef, setIsTitleDirty }) => {
+const Header = ({ onChangeTitle, patrol, printableContentRef, title }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolOverview.header' });
 
@@ -48,8 +48,6 @@ const Header = ({ patrol, printableContentRef, setIsTitleDirty }) => {
   const jumpToLocation = useJumpToLocation();
 
   const lastSegment = patrol.patrol_segments[patrol.patrol_segments.length - 1] ?? null;
-  const lastSegmentLeader = lastSegment?.leader ?? null;
-  const displayTitle = displayTitleForPatrol(patrol, lastSegmentLeader);
 
   const patrolTrackData = useSelector((state) => selectPatrolTrackData(state, patrol));
   const patrolTrackState = useSelector((state) => state.view.patrolTrackState);
@@ -58,7 +56,6 @@ const Header = ({ patrol, printableContentRef, setIsTitleDirty }) => {
   const titleInputRef = useRef();
   const titleMeasureRef = useRef();
 
-  const [title, setTitle] = useState(displayTitle);
   const [titleInputWidth, setTitleInputWidth] = useState(null);
 
   const patrolIconId = lastSegment ? iconIdForPatrolSegment(patrolTypes, lastSegment) : null;
@@ -129,11 +126,6 @@ const Header = ({ patrol, printableContentRef, setIsTitleDirty }) => {
     titleInputRef.current?.focus();
     titleInputRef.current?.select();
   };
-
-  const isTitleDirty = title !== displayTitle;
-  useEffect(() => {
-    setIsTitleDirty(isTitleDirty);
-  }, [isTitleDirty, setIsTitleDirty]);
 
   useLayoutEffect(() => {
     if (titleMeasureRef.current) {
@@ -276,7 +268,7 @@ const Header = ({ patrol, printableContentRef, setIsTitleDirty }) => {
             aria-label={t('titleInputLabel')}
             className={styles.title}
             data-testid="patrolOverview-title"
-            onChange={(event) => setTitle(event.target.value)}
+            onChange={(event) => onChangeTitle(event.target.value)}
             ref={titleInputRef}
             style={titleInputWidth ? { width: titleInputWidth } : undefined}
             type="text"
@@ -300,11 +292,13 @@ const Header = ({ patrol, printableContentRef, setIsTitleDirty }) => {
         </div>
       </div>
 
-      {/* TODO: Show a "Mobile" provenance pill before the status pill when the patrol was
-        created from a mobile device. Not implemented yet - the API doesn't return that info. */}
-      <span className={`${styles.statusPill} ${styles[patrolState.key] ?? styles.cancelled}`}>
-        {t(`uiStateTitles.${patrolState.key}`)}
-      </span>
+      <div className={styles.pills}>
+        {getIsMobilePatrol(patrol) && <span className={styles.provenancePill}>{t('mobileProvenancePill')}</span>}
+
+        <span className={`${styles.statusPill} ${styles[patrolState.key] ?? styles.cancelled}`}>
+          {t(`uiStateTitles.${patrolState.key}`)}
+        </span>
+      </div>
     </div>
   </header>;
 };

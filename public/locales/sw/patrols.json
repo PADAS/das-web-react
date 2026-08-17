@@ -58,12 +58,14 @@
     "title": "Muda wa Doria Usiofaa"
   },
   "patrolOverview": {
+    "attachmentsSaveErrorMessage": "Baadhi ya viambatisho havikuweza kupakiwa. Tafadhali jaribu tena.",
     "footer": {
       "addEventButton": "Ongeza tukio",
       "addEventButtonLabel": "Ongeza tukio",
       "addEventButtonText": "Tukio",
       "cancelOption": "Ghairi Doria",
       "endOption": "Maliza Doria",
+      "endPatrolButton": "Maliza Doria",
       "pauseOption": "Sitisha doria",
       "saveButton": "Hifadhi",
       "saveButtonLoadingLabel": "Inapakia",
@@ -79,6 +81,7 @@
       "editTitleButtonLabel": "Hariri kichwa",
       "fitToBoundsButtonLabel": "Rekebisha kwenye mipaka ya doria",
       "jumpToLocationButtonLabel": "Enda mahali",
+      "mobileProvenancePill": "Simu",
       "moreOptionsButtonLabel": "Chaguo zaidi",
       "printOption": "Chapisha Doria",
       "titleInputLabel": "Kichwa cha doria",
@@ -105,7 +108,6 @@
       "timeLabel": "Wakati"
     },
     "historyTabTitle": "Historia",
-    "navigationPromptModalDescription": "Kuna mabadiliko ambayo hayajahifadhiwa. Ungependa kurudi nyuma au kutupilia mbali mabadiliko?",
     "overview": {
       "activity": {
         "activeTimeLabel": "Muda Inatekelezwa",
@@ -117,6 +119,9 @@
         "eventsLabel": "Matukio",
         "expandAllButtonLabel": "Panua yote",
         "jumpToLocationButtonLabel": "Enda mahali",
+        "legTransitionTitle": "Kipande {{endedLeg}} kimekamilika, Kipande {{startedLeg}} kimeanza",
+        "patrolEndedTitle": "Doria imekamilika",
+        "patrolStartedTitle": "Doria imeanza",
         "pausedTimeLabel": "Muda wa Kusitisha",
         "sortDirectionButtonLabel": {
           "down": "Panga shughuli kwa mpangilio wa kupanda",
@@ -139,6 +144,7 @@
       }
     },
     "overviewTabTitle": "Muhtasari",
+    "saveErrorMessage": "Doria haikuweza kuhifadhiwa. Tafadhali jaribu tena.",
     "tabsLabel": "Vichupo vya muhtasari wa doria"
   },
   "patrolMenu": {

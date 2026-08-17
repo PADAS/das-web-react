@@ -2,7 +2,6 @@ import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { areCardsEquals } from '../utils';
 import { isGreaterThan } from '../../utils/datetime';
 import { SYSTEM_CONFIG_FLAGS } from '../../constants';
 import { TrackerContext } from '../../utils/analytics';
@@ -13,17 +12,22 @@ import ContainedReportListItem from './ContainedReportListItem';
 import DateListItem from './DateListItem';
 import NoteListItem from './NoteListItem';
 
-const ATTACHMENT_ANALYTICS_SUBSTRING = 'attachment';
-const CONTAINED_REPORT_ANALYTICS_SUBSTRING = 'contained report';
-const EXISTING_NOTE_ANALYTICS_SUBSTRING = 'existing note';
-const NEW_NOTE_ANALYTICS_SUBSTRING = 'new note';
+// Shared so that omitting an optional list does not hand the memos a new
+// identity on every render.
+const EMPTY_LIST = [];
+
+const getCardId = (card) => card?.tmpId ?? card?.id;
+
+const isUnsavedNewNote = (note) => !!note.tmpId && !note.originalText;
 
 const useActivityFeed = ({
   attachments,
   containedReports,
   endTime = null,
-  newAttachments = [],
-  newNotes = [],
+  endTitle = null,
+  milestones = EMPTY_LIST,
+  newAttachments = EMPTY_LIST,
+  newNotes = EMPTY_LIST,
   notes,
   onDeleteAttachment,
   onCancelNote,
@@ -32,176 +36,212 @@ const useActivityFeed = ({
   onDoneNote,
   sortButtonComponent,
   startTime = null,
+  startTitle = null,
 }) => {
-  const tracker = useContext(TrackerContext);
   const { t } = useTranslation('details-view', { keyPrefix: 'activitySection' });
+
+  const tracker = useContext(TrackerContext);
 
   const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
 
-  const [cardsExpanded, setCardsExpanded] = useState([]);
+  const [expandedCardIds, setExpandedCardIds] = useState(() => new Set());
+
+  const enabledContainedEvents = useMemo(
+    () => eventsEnabled ? containedReports : [],
+    [containedReports, eventsEnabled]
+  );
 
   const onCollapseCard = useCallback((card, analyticsLabel) => {
-    const isCardExpanded = !!cardsExpanded.find((cardExpanded) => areCardsEquals(cardExpanded, card));
-    if (isCardExpanded) {
-      if (analyticsLabel) {
-        tracker.track(`Collapse ${analyticsLabel} card in the activity section`);
+    setExpandedCardIds((prevExpandedCardIds) => {
+      const cardId = getCardId(card);
+      if (!prevExpandedCardIds.has(cardId)) {
+        return prevExpandedCardIds;
       }
-      const filtered = [...cardsExpanded.filter((cardExpanded) => !areCardsEquals(cardExpanded, card))];
-      setCardsExpanded(filtered);
+
+      const nextExpandedCardIds = new Set(prevExpandedCardIds);
+      nextExpandedCardIds.delete(cardId);
+      return nextExpandedCardIds;
+    });
+
+    if (analyticsLabel) {
+      tracker.track(`Collapse ${analyticsLabel} card in the activity section`);
     }
-  }, [cardsExpanded, tracker]);
+  }, [tracker]);
 
   const onExpandCard = useCallback((card, analyticsLabel) => {
-    const isCardExpanded = !!cardsExpanded.find((cardExpanded) => areCardsEquals(cardExpanded, card));
-    if (!isCardExpanded) {
-      if (analyticsLabel) {
-        tracker.track(`Expand ${analyticsLabel} card in the activity section`);
+    setExpandedCardIds((prevExpandedCardIds) => {
+      const cardId = getCardId(card);
+      if (prevExpandedCardIds.has(cardId)) {
+        return prevExpandedCardIds;
       }
 
-      setCardsExpanded([...cardsExpanded, card]);
-    }
-  }, [cardsExpanded, tracker]);
+      return new Set(prevExpandedCardIds).add(cardId);
+    });
 
-  const attachmentsRendered = useMemo(() => attachments.map((attachment) => ({
-    sortDate: new Date(attachment.updated_at || attachment.created_at || attachment.updates[0].time),
+    if (analyticsLabel) {
+      tracker.track(`Expand ${analyticsLabel} card in the activity section`);
+    }
+  }, [tracker]);
+
+  const attachmentsSortableList = useMemo(() => attachments.map((attachment) => ({
     node: <AttachmentListItem
       attachment={attachment}
-      cardsExpanded={cardsExpanded}
+      isOpen={expandedCardIds.has(getCardId(attachment))}
       key={attachment.id}
-      onCollapse={() => onCollapseCard(attachment, ATTACHMENT_ANALYTICS_SUBSTRING)}
-      onExpand={() => onExpandCard(attachment, ATTACHMENT_ANALYTICS_SUBSTRING)}
+      onCollapse={onCollapseCard}
+      onExpand={onExpandCard}
     />,
-  })), [attachments, cardsExpanded, onCollapseCard, onExpandCard]);
+    sortDate: new Date(attachment.updated_at || attachment.created_at || attachment.updates?.[0]?.time),
+  })), [attachments, expandedCardIds, onCollapseCard, onExpandCard]);
 
-  const newAttachmentsRendered = useMemo(() => newAttachments.map((attachmentToAdd) => ({
-    sortDate: new Date(attachmentToAdd.creationDate),
+  const newAttachmentsSortableList = useMemo(() => newAttachments.map((attachmentToAdd) => ({
     node: <AttachmentListItem
       attachment={attachmentToAdd.file}
       key={attachmentToAdd.file.name}
-      onDelete={() => onDeleteAttachment(attachmentToAdd.file)}
+      onDelete={onDeleteAttachment}
       ref={attachmentToAdd.ref}
     />,
+    sortDate: new Date(attachmentToAdd.creationDate),
   })), [newAttachments, onDeleteAttachment]);
 
-  const containedReportsRendered = useMemo(() => eventsEnabled
-    ? containedReports.map((containedReport) => ({
-      sortDate: new Date(containedReport.time || containedReport.updated_at),
-      node: <ContainedReportListItem
-        cardsExpanded={cardsExpanded}
-        key={containedReport.id}
-        onCollapse={() => onCollapseCard(containedReport, CONTAINED_REPORT_ANALYTICS_SUBSTRING)}
-        onExpand={() => onExpandCard(containedReport, CONTAINED_REPORT_ANALYTICS_SUBSTRING)}
-        report={containedReport}
-      />,
-    }))
-    : [], [cardsExpanded, containedReports, eventsEnabled, onCollapseCard, onExpandCard]);
+  const containedEventsSortableList = useMemo(() => enabledContainedEvents.map((containedEvent) => ({
+    node: <ContainedReportListItem
+      isOpen={expandedCardIds.has(getCardId(containedEvent))}
+      key={containedEvent.id}
+      onCollapse={onCollapseCard}
+      onExpand={onExpandCard}
+      report={containedEvent}
+    />,
+    sortDate: new Date(containedEvent.time || containedEvent.updated_at),
+  })), [enabledContainedEvents, expandedCardIds, onCollapseCard, onExpandCard]);
 
-  const datesRendered = useMemo(() => {
-    const dates = [];
+  const datesSortableList = useMemo(() => {
+    const datesSortableList = [];
+
     const now = new Date();
     if (startTime && isGreaterThan(now, startTime)){
-      dates.push({
-        node: <DateListItem date={startTime} key="startTime" title={t('dateItemStartTitle')} />,
+      datesSortableList.push({
+        node: <DateListItem date={startTime} key="startTime" title={startTitle ?? t('dateItemStartTitle')} />,
         sortDate: new Date(startTime),
       });
     }
 
+    milestones.forEach(({ date, id, title }) => {
+      const milestoneDate = date ? new Date(date) : null;
+
+      if (milestoneDate && !isGreaterThan(milestoneDate, now)) {
+        datesSortableList.push({
+          node: <DateListItem date={milestoneDate} key={`milestone-${id}`} title={title} />,
+          sortDate: milestoneDate,
+        });
+      }
+    });
+
     if (endTime && !isGreaterThan(endTime, now)){
-      dates.push({
-        node: <DateListItem date={endTime} key="endTime" title={t('dateItemEndedTitle')} />,
+      datesSortableList.push({
+        node: <DateListItem date={endTime} key="endTime" title={endTitle ?? t('dateItemEndedTitle')} />,
         sortDate: new Date(endTime),
       });
     }
 
-    return dates;
-  }, [endTime, startTime, t]);
+    return datesSortableList;
+  }, [endTime, endTitle, milestones, startTime, startTitle, t]);
 
-  const notesRendered = useMemo(() => notes.map((note) => ({
-    sortDate: new Date(note.updated_at || note.created_at || note.updates[0].time),
+  const notesSortableList = useMemo(() => notes.map((note) => ({
     node: <NoteListItem
-      cardsExpanded={cardsExpanded}
+      isOpen={expandedCardIds.has(getCardId(note))}
       key={note.id}
       note={note}
-      onCollapse={() => onCollapseCard(note, EXISTING_NOTE_ANALYTICS_SUBSTRING)}
-      onExpand={() => onExpandCard(note, EXISTING_NOTE_ANALYTICS_SUBSTRING)}
       onCancel={onCancelNote}
       onChange={onChangeNote}
+      onCollapse={onCollapseCard}
       onDone={onDoneNote}
+      onExpand={onExpandCard}
     />,
-  })), [cardsExpanded, notes, onCancelNote, onCollapseCard, onDoneNote, onExpandCard, onChangeNote]);
+    sortDate: new Date(note.updated_at || note.created_at || note.updates?.[0]?.time),
+  })), [expandedCardIds, notes, onCancelNote, onChangeNote, onCollapseCard, onDoneNote, onExpandCard]);
 
-  const newNotesRendered = useMemo(() => newNotes.map((noteToAdd) => ({
-    sortDate: new Date(noteToAdd.creationDate),
+  const newNotesSortableList = useMemo(() => newNotes.map((noteToAdd) => ({
     node: <NoteListItem
-      cardsExpanded={cardsExpanded}
+      isOpen={expandedCardIds.has(getCardId(noteToAdd))}
       key={noteToAdd.tmpId}
       note={noteToAdd}
-      onCollapse={() => onCollapseCard(noteToAdd, NEW_NOTE_ANALYTICS_SUBSTRING)}
-      onDelete={() => onDeleteNote(noteToAdd)}
-      onExpand={() => onExpandCard(noteToAdd, NEW_NOTE_ANALYTICS_SUBSTRING)}
-      ref={noteToAdd.ref}
-      onChange={onChangeNote}
       onCancel={onCancelNote}
+      onChange={onChangeNote}
+      onCollapse={onCollapseCard}
+      onDelete={onDeleteNote}
       onDone={onDoneNote}
+      onExpand={onExpandCard}
+      ref={noteToAdd.ref}
     />,
-  })), [newNotes, cardsExpanded, onChangeNote, onCancelNote, onDoneNote, onCollapseCard, onDeleteNote, onExpandCard]);
+    sortDate: new Date(noteToAdd.creationDate),
+  })), [newNotes, expandedCardIds, onChangeNote, onCancelNote, onDoneNote, onCollapseCard, onDeleteNote, onExpandCard]);
 
   const sortableList = useMemo(() => [
-    ...attachmentsRendered,
-    ...newAttachmentsRendered,
-    ...containedReportsRendered,
-    ...datesRendered,
-    ...notesRendered,
-    ...newNotesRendered,
+    ...attachmentsSortableList,
+    ...newAttachmentsSortableList,
+    ...containedEventsSortableList,
+    ...datesSortableList,
+    ...notesSortableList,
+    ...newNotesSortableList,
   ], [
-    attachmentsRendered,
-    containedReportsRendered,
-    datesRendered,
-    newAttachmentsRendered,
-    newNotesRendered,
-    notesRendered,
+    attachmentsSortableList,
+    containedEventsSortableList,
+    datesSortableList,
+    newAttachmentsSortableList,
+    newNotesSortableList,
+    notesSortableList,
   ]);
 
   const onSort = useCallback((order) => {
     tracker.track(`Sort activity section in ${order} order`);
   }, [tracker]);
 
-  const [SortButton, sortedItems] = useSortedNodesWithToggleBtn(sortableList, onSort, undefined, sortButtonComponent);
+  const [sortButton, sortedItems] = useSortedNodesWithToggleBtn(sortableList, onSort, undefined, sortButtonComponent);
 
   const imageAttachments = useMemo(
     () => attachments.filter((attachment) => attachment.file_type === 'image'),
     [attachments]
   );
 
-  const collapsibleItemsCount = containedReportsRendered.length +
-    imageAttachments.length +
-    notes.length +
-    newNotes.length;
-
-  const hasCollapsibleItems = collapsibleItemsCount > 0;
-
-  const areAllItemsExpanded = useMemo(
-    () => hasCollapsibleItems && cardsExpanded.length === collapsibleItemsCount,
-    [cardsExpanded.length, collapsibleItemsCount, hasCollapsibleItems],
+  const unsavedNewNoteIds = useMemo(
+    () => newNotes.filter(isUnsavedNewNote).map(getCardId),
+    [newNotes]
   );
 
-  const onToggleExpandAll = useCallback(() => {
-    tracker.track(`${areAllItemsExpanded ? 'Collapse' : 'Expand'} All`);
+  const collapsibleCardIds = useMemo(() => [
+    ...enabledContainedEvents,
+    ...imageAttachments,
+    ...notes,
+    ...newNotes.filter((note) => !isUnsavedNewNote(note)),
+  ].map(getCardId), [enabledContainedEvents, imageAttachments, newNotes, notes]);
 
-    setCardsExpanded(areAllItemsExpanded ? [] : [...containedReports, ...imageAttachments, ...notes, ...newNotes]);
-  }, [areAllItemsExpanded, containedReports, imageAttachments, notes, newNotes, tracker]);
+  const hasCollapsibleItems = collapsibleCardIds.length > 0;
+  // Cards dropped while expanded leave their id behind, so this asks the cards on screen instead
+  // of comparing counts against the set.
+  const areAllItemsExpanded = hasCollapsibleItems
+    && collapsibleCardIds.every((cardId) => expandedCardIds.has(cardId));
+
+  const onToggleExpandAll = useCallback(() => {
+    if (hasCollapsibleItems) {
+      setExpandedCardIds(new Set(areAllItemsExpanded
+        ? unsavedNewNoteIds
+        : [...unsavedNewNoteIds, ...collapsibleCardIds]));
+
+      tracker.track(`${areAllItemsExpanded ? 'Collapse' : 'Expand'} All`);
+    }
+  }, [areAllItemsExpanded, collapsibleCardIds, hasCollapsibleItems, tracker, unsavedNewNoteIds]);
 
   useEffect(() => {
-    notes.filter((note) => !note.id && !note.text).forEach((note) => onExpandCard(note));
-    newNotes.filter((note) => !note.text).forEach((note) => onExpandCard(note));
-  }, [notes, newNotes, onExpandCard]);
+    newNotes.filter(isUnsavedNewNote).forEach((note) => onExpandCard(note));
+  }, [newNotes, onExpandCard]);
 
   return {
     areAllItemsExpanded,
     hasCollapsibleItems,
     hasItems: sortableList.length > 0,
     onToggleExpandAll,
-    SortButton,
+    sortButton,
     sortedItems,
   };
 };

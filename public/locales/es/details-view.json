@@ -18,10 +18,18 @@
     "addAttachmentTitle": "Adjuntar archivo"
   },
   "attachmentListItem": {
-    "imagePreviewAlt": "{{fileName}} vista previa",
-    "downloadButtonTooltip": "Descargar",
-    "deleteButtonTooltip": "Borrar",
-    "fullViewButtonTooltip": "Vista completa"
+    "collapseClosedButtonLabel": "Expandir {{fileName}}",
+    "collapseOpenButtonLabel": "Colapsar {{fileName}}",
+    "deleteButtonTooltip": "Borrar {{fileName}}",
+    "downloadButtonTooltip": "Descargar {{fileName}}",
+    "fullViewButtonTooltip": "Mostrar {{fileName}} en pantalla completa",
+    "imagePreviewAlt": "{{fileName}} vista previa"
+  },
+  "containedReportListItem": {
+    "collapseClosedButtonLabel": "Expandir {{title}}",
+    "collapseOpenButtonLabel": "Colapsar {{title}}",
+    "loadingLabel": "Cargando {{title}}",
+    "viewReportButtonLabel": "Ver evento {{title}}"
   },
   "footer": {
     "cancelButton": "Cancelar",
@@ -31,7 +39,6 @@
     "stateReopenButton": "Guardar y reabrir",
     "stateReviewButton": "Guardar y revisar"
   },
-  "goToReportButtonTooltip": "Ir a evento",
   "header": {
     "historyLinkCreated": "Creado",
     "historyLinkUpdated": "Actualizado",
@@ -56,9 +63,12 @@
   },
   "noteListItem": {
     "cancelEditingNoteButton": "Cancelar",
-    "deleteNoteButtonTooltip": "Borrar",
+    "collapseClosedButtonLabel": "Expandir nota",
+    "collapseOpenButtonLabel": "Colapsar nota",
+    "deleteNoteButtonTooltip": "Borrar nota",
     "doneEditingNoteButton": "Listo",
-    "editNoteButtonTooltip": "Editar",
+    "editNoteButtonTooltip": "Editar nota",
+    "noteTextAreaLabel": "Texto de la nota",
     "noteTitle": "Nueva nota: {{noteText}}"
   },
   "reportFormSummary": {

@@ -216,4 +216,10 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
       `/patrols/${patrol.id}/legs/new`
     );
   });
+
+  test('hides the new leg link for a patrol with a mobile provenance', () => {
+    renderLegs({ patrol: { ...patrol, provenance: 'mobile' } });
+
+    expect(screen.queryByRole('link', { name: 'New Patrol Leg' })).not.toBeInTheDocument();
+  });
 });
