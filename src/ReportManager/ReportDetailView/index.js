@@ -31,12 +31,14 @@ import { generateErrorMessageForRequest } from '../../utils/request';
 import { extractObjectDifference } from '../../utils/objects';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
 import { fetchPatrol } from '../../ducks/patrols';
+import normalizeChoiceListValues from '../../utils/form-schemas/normalizeChoiceListValues';
 import { selectEventSchema } from '../../selectors/event-schemas';
 import { selectEventTypeById, selectEventTypeByValue } from '../../selectors/event-types';
 import { setLocallyEditedEvent, unsetLocallyEditedEvent } from '../../ducks/locally-edited-event';
 import { SidebarScrollContext } from '../../SidebarScrollContext';
 import { TAB_KEYS } from '../../constants';
 import { TrackerContext } from '../../utils/analytics';
+import transformSchemaToFormElements from '../../utils/form-schemas/transformSchemaToFormElements';
 import useNavigate from '../../hooks/useNavigate';
 import { usePreviewFeature } from '../../hooks';
 import { uuid } from '../../utils/string';
@@ -171,6 +173,13 @@ const ReportDetailView = ({
   const eventSchema = useSelector((state) => reportForm
     ? selectEventSchema(state, reportForm.event_type, reportForm.id)
     : null);
+
+  const formElements = useMemo(
+    () => eventType?.version === 2 && eventSchema?.json && !eventSchema?.error
+      ? transformSchemaToFormElements(eventSchema)
+      : null,
+    [eventSchema, eventType?.version]
+  );
 
   const {
     onCancelAddedReport,
@@ -329,8 +338,8 @@ const ReportDetailView = ({
     } else {
       reportToSubmit = {
         ...reportChanges,
+        event_details: normalizeChoiceListValues(reportForm.event_details, formElements),
         id: reportForm.id,
-        event_details: reportForm.event_details,
         location: originalReport.location,
       };
 
@@ -382,6 +391,7 @@ const ReportDetailView = ({
     attachmentsToAdd,
     communityInputValue,
     dispatch,
+    formElements,
     isAddedReport,
     isCommunity,
     isNewReport,
