@@ -8,6 +8,7 @@ import { clearUserContent } from '../ducks/user-content';
 import evaluateSectionConditions from './utils/evaluateSectionConditions';
 import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from '../utils/form-schemas/constants';
 import getDefaultFormData from './utils/getDefaultFormData';
+import normalizeChoiceListValues from '../utils/form-schemas/normalizeChoiceListValues';
 import normalizeDateTimeFieldValue from './utils/normalizeDateTimeFieldValue';
 import transformSchemaToFormElements from '../utils/form-schemas/transformSchemaToFormElements';
 import useMapLocationMarkers from './utils/useMapLocationMarkers';
@@ -82,19 +83,21 @@ const SchemaForm = ({
 
   const formElements = useMemo(() => transformSchemaToFormElements(schema), [schema]);
 
+  const normalizedFormData = useMemo(() => normalizeChoiceListValues(formData, formElements), [formData, formElements]);
+
   const runSchemaValidations = useSchemaValidations(schema);
   const runUploadValidations = useUploadValidations(formElements);
 
   const visibleSectionIds = useMemo(
-    () => getVisibleSectionIds(formElements, formData),
-    [formData, formElements]
+    () => getVisibleSectionIds(formElements, normalizedFormData),
+    [formElements, normalizedFormData]
   );
 
   const onSubmit = (event) => {
     event.preventDefault();
 
-    const schemaErrors = runSchemaValidations(formData) || {};
-    const uploadErrors = runUploadValidations(formData);
+    const schemaErrors = runSchemaValidations(normalizedFormData) || {};
+    const uploadErrors = runUploadValidations(normalizedFormData);
     const fieldErrors = merge({}, schemaErrors, uploadErrors);
     if (Object.keys(fieldErrors).length > 0) {
       const erroneousFields = Object.keys(fieldErrors);
@@ -116,7 +119,7 @@ const SchemaForm = ({
   const onSectionFieldChange = (fieldId, value) => {
     // Section children's ids and names are the same.
     const fieldName = formElements[fieldId].details.value;
-    const newFormData = { ...formData, [fieldName]: value };
+    const newFormData = { ...normalizedFormData, [fieldName]: value };
 
     // Conditional sections can depend on fields in other conditional sections.
     // Remove hidden fields from the form data in a loop until all sections
@@ -232,7 +235,7 @@ const SchemaForm = ({
         ]);
         const initialData = getDefaultFormData(visibleFieldIds, formElements);
 
-        if (!isEqual(initialData, formData)) {
+        if (!isEqual(initialData, normalizedFormData)) {
           onFormDataChange(initialData);
         }
       }
@@ -240,7 +243,7 @@ const SchemaForm = ({
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setShouldCalculateInitialData(false);
     }
-  }, [formData, formElements, onFormDataChange, shouldPopulateDefaultData, shouldCalculateInitialData, visibleSectionIds]);
+  }, [formElements, normalizedFormData, onFormDataChange, shouldPopulateDefaultData, shouldCalculateInitialData, visibleSectionIds]);
 
   useEffect(() => {
     // Update the location markers when there is a change in the form data.
@@ -266,10 +269,10 @@ const SchemaForm = ({
       });
     };
 
-    addLocationMarkersFromFormDataRecursively(formData);
+    addLocationMarkersFromFormDataRecursively(normalizedFormData);
 
     setLocationMarkers(locationMarkers);
-  }, [formData, formElements, setLocationMarkers]);
+  }, [formElements, normalizedFormData, setLocationMarkers]);
 
   useEffect(() => () => dispatch(clearUserContent()), [dispatch]);
 
@@ -290,7 +293,7 @@ const SchemaForm = ({
       details={formElements[sectionId].details}
       fieldErrors={fieldErrors}
       focusLocationMarker={focusLocationMarker}
-      formData={formData}
+      formData={normalizedFormData}
       formElements={formElements}
       hidden={!visibleSectionIds.includes(sectionId)}
       id={sectionId}
@@ -298,7 +301,7 @@ const SchemaForm = ({
       onFieldChange={onSectionFieldChange}
       onFieldErrorsChange={(newFieldErrors) => setFieldErrors(newFieldErrors)}
       renderFormElement={renderFormElement}
-      setDefaultFormData={(defaultFormData) => onFormDataChange({ ...defaultFormData, ...formData })}
+      setDefaultFormData={(defaultFormData) => onFormDataChange({ ...defaultFormData, ...normalizedFormData })}
     />)}
 
     {renderSubmitButton()}
