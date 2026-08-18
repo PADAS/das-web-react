@@ -11,6 +11,13 @@
   @media (min-width: $md-layout-width-min) {
     @include sidebar-width-detail;
   }
+
+  /* 46rem is the sidebar panel width. The community page has no sidebar, so the panel
+     fills its container instead, capped so fields stay readable on wide screens. */
+  &.community {
+    width: 100%;
+    max-width: 60rem;
+  }
 }
 
 
