@@ -132,6 +132,50 @@ describe('GetUserLocationButton', () => {
     expect(toast.error).not.toHaveBeenCalled();
   });
 
+  test('notifies the caller when the user blocks the location permission', async () => {
+    const onPermissionDenied = jest.fn();
+    window.navigator.geolocation = {
+      getCurrentPosition: jest.fn((_, errorCallback) => {
+        errorCallback({ code: 1, message: 'User denied Geolocation', PERMISSION_DENIED: 1 });
+      }),
+    };
+    renderGetUserLocationButton({ onPermissionDenied });
+
+    await userEvent.click(screen.getByLabelText('Get current position'));
+
+    expect(onPermissionDenied).toHaveBeenCalledTimes(1);
+    expect(toast.error).not.toHaveBeenCalled();
+  });
+
+  test('does not notify a blocked permission for other geolocation failures', async () => {
+    const onPermissionDenied = jest.fn();
+    window.navigator.geolocation = {
+      getCurrentPosition: jest.fn((_, errorCallback) => {
+        errorCallback({ code: 2, message: 'Position unavailable', PERMISSION_DENIED: 1 });
+      }),
+    };
+    renderGetUserLocationButton({ onPermissionDenied });
+
+    await userEvent.click(screen.getByLabelText('Get current position'));
+
+    expect(onPermissionDenied).not.toHaveBeenCalled();
+    expect(toast.error).toHaveBeenCalledTimes(1);
+  });
+
+  test('shows an error toast for an error that carries a code but is not a geolocation denial', async () => {
+    window.navigator.geolocation = {
+      getCurrentPosition: jest.fn(() => {
+        throw new DOMException('Blocked by permissions policy', 'IndexSizeError');
+      }),
+    };
+    renderGetUserLocationButton();
+
+    await userEvent.click(screen.getByLabelText('Get current position'));
+
+    expect(toast.error).toHaveBeenCalledTimes(1);
+    expect(toast.error).toHaveBeenCalledWith('Could not read your current location: Blocked by permissions policy');
+  });
+
   test('still forwards a blocked permission to a custom error handler', async () => {
     const onError = jest.fn();
     const error = { code: 1, message: 'User denied Geolocation', PERMISSION_DENIED: 1 };

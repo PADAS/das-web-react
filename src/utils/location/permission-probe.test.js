@@ -72,19 +72,64 @@ describe('probeGeolocationPermission', () => {
     expect(results).toEqual(Array(3).fill(GEOLOCATION_PERMISSION_PROBE_RESULTS.GRANTED));
   });
 
-  test('keeps returning the first result after it resolved', async () => {
+  test('keeps returning granted without reading the position again', async () => {
     window.navigator.geolocation = {
-      getCurrentPosition: jest.fn((_, errorCallback) => errorCallback({ code: 1, PERMISSION_DENIED: 1 })),
+      getCurrentPosition: jest.fn((successCallback) => successCallback({ coords: {} })),
     };
 
     await probeGeolocationPermission();
 
     window.navigator.geolocation.getCurrentPosition = jest.fn(
+      (_, errorCallback) => errorCallback({ code: 1, PERMISSION_DENIED: 1 })
+    );
+
+    await expect(probeGeolocationPermission()).resolves.toBe(GEOLOCATION_PERMISSION_PROBE_RESULTS.GRANTED);
+    expect(window.navigator.geolocation.getCurrentPosition).not.toHaveBeenCalled();
+  });
+
+  test('probes again after a denial so the user can recover by unblocking the permission', async () => {
+    window.navigator.geolocation = {
+      getCurrentPosition: jest.fn((_, errorCallback) => errorCallback({ code: 1, PERMISSION_DENIED: 1 })),
+    };
+
+    await expect(probeGeolocationPermission()).resolves.toBe(GEOLOCATION_PERMISSION_PROBE_RESULTS.DENIED);
+
+    window.navigator.geolocation.getCurrentPosition = jest.fn(
       (successCallback) => successCallback({ coords: {} })
     );
 
-    await expect(probeGeolocationPermission()).resolves.toBe(GEOLOCATION_PERMISSION_PROBE_RESULTS.DENIED);
-    expect(window.navigator.geolocation.getCurrentPosition).not.toHaveBeenCalled();
+    await expect(probeGeolocationPermission()).resolves.toBe(GEOLOCATION_PERMISSION_PROBE_RESULTS.GRANTED);
+    expect(window.navigator.geolocation.getCurrentPosition).toHaveBeenCalledTimes(1);
+  });
+
+  test('probes again after an unknown result', async () => {
+    window.navigator.geolocation = {
+      getCurrentPosition: jest.fn((_, errorCallback) => errorCallback({ code: 3, PERMISSION_DENIED: 1 })),
+    };
+
+    await expect(probeGeolocationPermission()).resolves.toBe(GEOLOCATION_PERMISSION_PROBE_RESULTS.UNKNOWN);
+
+    await probeGeolocationPermission();
+
+    expect(window.navigator.geolocation.getCurrentPosition).toHaveBeenCalledTimes(2);
+  });
+
+  test('does not read the position again while a probe is still pending', async () => {
+    let resolveRead;
+    window.navigator.geolocation = {
+      getCurrentPosition: jest.fn((successCallback) => {
+        resolveRead = () => successCallback({ coords: {} });
+      }),
+    };
+
+    const firstProbe = probeGeolocationPermission();
+    const secondProbe = probeGeolocationPermission();
+
+    resolveRead();
+
+    await expect(Promise.all([firstProbe, secondProbe]))
+      .resolves.toEqual(Array(2).fill(GEOLOCATION_PERMISSION_PROBE_RESULTS.GRANTED));
+    expect(window.navigator.geolocation.getCurrentPosition).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -93,8 +138,9 @@ describe('isGeolocationPermissionDeniedError', () => {
     expect(isGeolocationPermissionDeniedError({ code: 1, PERMISSION_DENIED: 1 })).toBe(true);
   });
 
-  test('recognizes a denial when the error only carries a code', () => {
-    expect(isGeolocationPermissionDeniedError({ code: 1 })).toBe(true);
+  test('does not treat an error without the denial constant as a denial', () => {
+    expect(isGeolocationPermissionDeniedError({ code: 1 })).toBe(false);
+    expect(isGeolocationPermissionDeniedError(new DOMException('Denied', 'IndexSizeError'))).toBe(false);
   });
 
   test('does not treat other geolocation failures as a denial', () => {

@@ -88,8 +88,7 @@ const CommunityPage = () => {
 
   useEffect(() => {
     // Without the Permissions API a read attempt is the only way to learn the geolocation state, and doing
-    // it at load means the location picker knows the answer by the time it opens. Browsers that do have the
-    // API must not be prompted here.
+    // it at load means the location picker knows the answer by the time it opens.
     if (!window.navigator.permissions?.query) {
       probeGeolocationPermission();
     }

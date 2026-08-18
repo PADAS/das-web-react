@@ -19,6 +19,7 @@ const GetUserLocationButton = ({
   onClick = null,
   onError = null,
   onGet,
+  onPermissionDenied = null,
   ref,
   renderContent = null,
   ...otherProps
@@ -31,10 +32,14 @@ const GetUserLocationButton = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const reportError = (error) => {
+    const isPermissionDenied = isGeolocationPermissionDeniedError(error);
+
+    if (isPermissionDenied) onPermissionDenied?.();
+
     if (onError) return onError(error);
 
     // A blocked permission is already surfaced inline next to the button, a toast would just repeat it.
-    if (isGeolocationPermissionDeniedError(error)) return;
+    if (isPermissionDenied) return;
 
     toast.error(t('errorToastMessage', { errorMessage: error.message }));
   };
@@ -76,8 +81,7 @@ const GetUserLocationButton = ({
 
   return <>
     <button
-        // Not the native disabled attribute: the button takes part in the location picker's focus trap and
-        // must stay focusable while blocked.
+        // The button takes part in the location picker's focus trap, so it must stay focusable while blocked.
         aria-disabled={isDisabled || undefined}
         aria-label={t('userLocationButtonLabel')}
         className={`${className} ${isDisabled ? styles.ghosted : ''}`.trim()}

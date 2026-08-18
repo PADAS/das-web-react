@@ -73,6 +73,12 @@ describe('Navigation utils', () => {
       expect(prefixedRoutePattern('/er', '/community/:value/*')).toBe('/er/community/:value/*');
     });
 
+    test('adds the leading slash a prefix may be missing', () => {
+      expect(prefixedRoutePattern('portal', '/community/:value/*')).toBe('/portal/community/:value/*');
+      expect(prefixedRoutePattern('portal/', '/community/:value/*')).toBe('/portal/community/:value/*');
+      expect(matchPath(prefixedRoutePattern('portal', '/community/:value/*'), '/portal/community/abc')).not.toBeNull();
+    });
+
     test('matches a pathname that includes the prefix', () => {
       expect(matchPath(prefixedRoutePattern('/er/', '/community/:value/*'), '/er/community/abc')).not.toBeNull();
       expect(matchPath(prefixedRoutePattern('/', '/community/:value/*'), '/community/abc')).not.toBeNull();

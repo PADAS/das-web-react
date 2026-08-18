@@ -15,8 +15,13 @@ export const getCurrentTabFromURL = (pathname) => {
 };
 
 // Route patterns are relative to the router's basename, but window.location.pathname includes it, so
-// matching a pattern against a raw pathname needs the prefix composed in first.
-export const prefixedRoutePattern = (prefix, pattern) => `${(prefix || '').replace(/\/+$/, '')}${pattern}`;
+// matching a pattern against a raw pathname needs the prefix composed in first. The basename is accepted
+// by the router with or without slashes around it, the composed pattern needs exactly one leading slash.
+export const prefixedRoutePattern = (prefix, pattern) => {
+  const trimmedPrefix = (prefix || '').replace(/^\/+/, '').replace(/\/+$/, '');
+
+  return `${trimmedPrefix ? `/${trimmedPrefix}` : ''}${pattern}`;
+};
 
 export const tabPath = (tab) => `/${tab}`;
 

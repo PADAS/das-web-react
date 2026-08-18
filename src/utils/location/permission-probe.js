@@ -1,20 +1,27 @@
-import { GEOLOCATOR_OPTIONS } from '../../constants';
-
 export const GEOLOCATION_PERMISSION_PROBE_RESULTS = {
   DENIED: 'denied',
   GRANTED: 'granted',
   UNKNOWN: 'unknown',
 };
 
-// A mock error without a code must not read as a denial, so fall back to the spec's value rather than
-// comparing two undefineds.
+// A read verdict is all the probe needs, so skip the GPS hardware and take any cached fix.
+const PROBE_GEOLOCATOR_OPTIONS = {
+  enableHighAccuracy: false,
+  maximumAge: Infinity,
+  timeout: 5000,
+};
+
+// Only classify as a denial when the error is shaped like a GeolocationPositionError, otherwise any
+// unrelated error carrying code 1 reads as a blocked permission.
 export const isGeolocationPermissionDeniedError = (error) => !!error
-  && error.code === (error.PERMISSION_DENIED ?? 1);
+  && error.PERMISSION_DENIED !== undefined
+  && error.code === error.PERMISSION_DENIED;
 
 let probePromise = null;
 
 // Browsers that don't support the Permissions API for geolocation (legacy Safari) only reveal a blocked
-// permission by attempting a read. Memoized for the page lifetime so repeat callers never re-prompt.
+// permission by attempting a read. Only in-flight and granted results are memoized: re-probing after a
+// denial costs nothing (it errors without prompting) and is the only way to notice the user unblocking it.
 export const probeGeolocationPermission = () => {
   if (!probePromise) {
     probePromise = new Promise((resolve) => {
@@ -28,11 +35,17 @@ export const probeGeolocationPermission = () => {
           (error) => resolve(isGeolocationPermissionDeniedError(error)
             ? GEOLOCATION_PERMISSION_PROBE_RESULTS.DENIED
             : GEOLOCATION_PERMISSION_PROBE_RESULTS.UNKNOWN),
-          GEOLOCATOR_OPTIONS
+          PROBE_GEOLOCATOR_OPTIONS
         );
       } catch {
         resolve(GEOLOCATION_PERMISSION_PROBE_RESULTS.UNKNOWN);
       }
+    }).then((result) => {
+      if (result !== GEOLOCATION_PERMISSION_PROBE_RESULTS.GRANTED) {
+        probePromise = null;
+      }
+
+      return result;
     });
   }
 

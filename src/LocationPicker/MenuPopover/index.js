@@ -18,7 +18,6 @@ const PickMapLocationButton = lazy(() => import('../../PickMapLocationButton'));
 
 import * as styles from './styles.module.scss';
 
-const DENIED_STATE = 'denied';
 const MAX_POPOVER_WIDTH = 380;
 const MIN_POPOVER_WIDTH = 280;
 
@@ -108,7 +107,7 @@ const MenuPopover = ({
     let isListening = true;
 
     // Without the Permissions API there's nothing to subscribe to, so a denial arriving after this
-    // resolves only surfaces on the next page load.
+    // resolves only surfaces when the user clicks the button.
     const probePermission = () => probeGeolocationPermission().then((result) => {
       if (!isListening) return;
 
@@ -118,21 +117,25 @@ const MenuPopover = ({
     if (window.navigator.permissions?.query) {
       let permissionStatus;
 
-      const onPermissionStateChange = (event) => setIsLocationPermissionDenied(event.target.state === DENIED_STATE);
+      const onPermissionStateChange = (event) => setIsLocationPermissionDenied(
+        event.target.state === GEOLOCATION_PERMISSION_PROBE_RESULTS.DENIED
+      );
 
       window.navigator.permissions.query({ name: 'geolocation' })
-        .then((status) => {
-          if (!isListening) return;
+        .then(
+          (status) => {
+            if (!isListening) return;
 
-          permissionStatus = status;
+            setIsLocationPermissionDenied(status.state === GEOLOCATION_PERMISSION_PROBE_RESULTS.DENIED);
 
-          setIsLocationPermissionDenied(status.state === DENIED_STATE);
+            status.addEventListener('change', onPermissionStateChange);
 
-          status.addEventListener('change', onPermissionStateChange);
-        })
-        // Browsers that don't know the geolocation permission name reject the query, leaving the probe as
-        // the only way to tell whether it's blocked.
-        .catch(probePermission);
+            permissionStatus = status;
+          },
+          // Browsers that don't know the geolocation permission name reject the query, leaving the probe as
+          // the only way to tell whether it's blocked.
+          probePermission
+        );
 
       return () => {
         isListening = false;
@@ -224,12 +227,14 @@ const MenuPopover = ({
         value={value}
       />
 
-      {showUserLocation && isLocationPermissionDenied && <p
+      {/* Mounted even while empty: screen readers only announce changes inside a live region that was
+          already present. */}
+      {showUserLocation && <p
         className={styles.permissionBlockedMessage}
         id={permissionBlockedMessageId}
         role="status"
       >
-        {t('permissionBlockedMessage')}
+        {isLocationPermissionDenied && t('permissionBlockedMessage')}
       </p>}
 
       <div className={styles.buttons}>
@@ -249,10 +254,11 @@ const MenuPopover = ({
         )}
 
         {showUserLocation && <GetUserLocationButton
-          aria-describedby={isLocationPermissionDenied ? permissionBlockedMessageId : undefined}
+          aria-describedby={permissionBlockedMessageId}
           isDisabled={isLocationPermissionDenied}
           onClick={() => eventReportTracker.track('Click \'Use my location\'')}
           onGet={onUserLocationGet}
+          onPermissionDenied={() => setIsLocationPermissionDenied(true)}
           ref={lastFocusableElementRef}
           renderContent={() => <>
             <GpsLocationIcon />
