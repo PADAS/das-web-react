@@ -1,5 +1,5 @@
 import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router';
+import { BrowserRouter, matchPath, Navigate, Route, Routes, useLocation } from 'react-router';
 import { createRoot } from 'react-dom/client';
 import { PersistGate } from 'redux-persist/integration/react';
 import { persistStore } from 'redux-persist';
@@ -154,7 +154,10 @@ root.render(
       <DetectOffline />
     </PersistGate>
 
-    <GeoLocationWatcher />
+    {/* The public community page must not request geolocation at load, so the browser prompt is
+        still available when a visitor clicks "use my location". Checking the path once is enough:
+        the community page is a separate entry point with no client-side navigation in or out. */}
+    {!matchPath(APP_ROUTES.COMMUNITY, window.location.pathname) && <GeoLocationWatcher />}
 
     <JiraSupportWidget />
   </Provider>

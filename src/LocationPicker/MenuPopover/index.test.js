@@ -2,11 +2,12 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen } from '../../test-utils';
+import { act, render, screen, waitFor } from '../../test-utils';
 import { createMapMock } from '../../__test-helpers/mocks';
 import { GPS_FORMATS } from '../../utils/location';
 import { MapContext } from '../../MapContext';
 import { mockStore } from '../../__test-helpers/MockStore';
+import { resetGeolocationPermissionProbe } from '../../utils/location/permission-probe';
 
 import MenuPopover from '.';
 
@@ -28,8 +29,12 @@ describe('LocationPicker - MenuPopover', () => {
   const onClose = jest.fn();
   const setLocationButtonRefFocus = jest.fn();
 
-  let map, store;
+  let map, originalGeolocation, store;
   beforeEach(() => {
+    originalGeolocation = window.navigator.geolocation;
+
+    resetGeolocationPermissionProbe();
+
     store = {
       view: {
         coordinateReferenceSystems: {
@@ -80,6 +85,8 @@ describe('LocationPicker - MenuPopover', () => {
   );
 
   afterEach(() => {
+    window.navigator.geolocation = originalGeolocation;
+
     jest.restoreAllMocks();
   });
 
@@ -347,6 +354,192 @@ describe('LocationPicker - MenuPopover', () => {
     await userEvent.tab({ shift: true });
 
     expect(document.activeElement).toBe(pickMapLocationButton);
+  });
+
+  describe('the geolocation permission blocked message', () => {
+    const permissionBlockedMessage = 'Location sharing blocked by browser';
+
+    let permissionStatus;
+    beforeEach(() => {
+      permissionStatus = {
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+        state: 'denied',
+      };
+
+      global.navigator.permissions = { query: jest.fn().mockResolvedValue(permissionStatus) };
+
+      store.view.showUserLocation = true;
+    });
+
+    afterEach(() => {
+      delete global.navigator.permissions;
+    });
+
+    test('shows the message if the permission is denied', async () => {
+      renderMenuPopover();
+
+      expect(await screen.findByRole('status')).toHaveTextContent(permissionBlockedMessage);
+      expect(global.navigator.permissions.query).toHaveBeenCalledWith({ name: 'geolocation' });
+    });
+
+    test('does not show the message if the permission is granted', async () => {
+      permissionStatus.state = 'granted';
+      renderMenuPopover();
+
+      await waitFor(() => expect(permissionStatus.addEventListener).toHaveBeenCalled());
+
+      expect(screen.queryByText(permissionBlockedMessage)).toBeNull();
+    });
+
+    test('does not show the message if the permission has not been requested yet', async () => {
+      permissionStatus.state = 'prompt';
+      renderMenuPopover();
+
+      await waitFor(() => expect(permissionStatus.addEventListener).toHaveBeenCalled());
+
+      expect(screen.queryByText(permissionBlockedMessage)).toBeNull();
+    });
+
+    test('shows the message if the user denies the permission while the menu is open', async () => {
+      permissionStatus.state = 'prompt';
+      renderMenuPopover();
+
+      await waitFor(() => expect(permissionStatus.addEventListener).toHaveBeenCalled());
+
+      expect(screen.queryByText(permissionBlockedMessage)).toBeNull();
+
+      const [, onPermissionStateChange] = permissionStatus.addEventListener.mock.calls[0];
+      act(() => onPermissionStateChange({ target: { state: 'denied' } }));
+
+      expect(await screen.findByRole('status')).toHaveTextContent(permissionBlockedMessage);
+    });
+
+    test('does not check the permission if the user location is not active', async () => {
+      store.view.showUserLocation = false;
+      renderMenuPopover();
+
+      await waitFor(() => expect(screen.getByRole('dialog', { name: 'Location' })).toBeVisible());
+
+      expect(global.navigator.permissions.query).not.toHaveBeenCalled();
+      expect(screen.queryByText(permissionBlockedMessage)).toBeNull();
+    });
+
+    test('stops listening to permission changes on unmount', async () => {
+      const { unmount } = renderMenuPopover();
+
+      await waitFor(() => expect(permissionStatus.addEventListener).toHaveBeenCalled());
+
+      unmount();
+
+      expect(permissionStatus.removeEventListener).toHaveBeenCalledTimes(1);
+    });
+
+    test('ghosts the get user location button while the permission is denied', async () => {
+      renderMenuPopover();
+
+      await screen.findByRole('status');
+
+      const button = screen.getByLabelText('Get current position');
+
+      expect(button).toHaveAttribute('aria-disabled', 'true');
+      expect(button).not.toBeDisabled();
+    });
+
+    test('describes the ghosted button with the blocked message', async () => {
+      renderMenuPopover();
+
+      const message = await screen.findByRole('status');
+      const button = screen.getByLabelText('Get current position');
+
+      expect(button).toHaveAttribute('aria-describedby', message.id);
+    });
+
+    test('does not ghost the get user location button while the permission is granted', async () => {
+      permissionStatus.state = 'granted';
+      renderMenuPopover();
+
+      await waitFor(() => expect(permissionStatus.addEventListener).toHaveBeenCalled());
+
+      const button = screen.getByLabelText('Get current position');
+
+      expect(button).not.toHaveAttribute('aria-disabled');
+      expect(button).not.toHaveAttribute('aria-describedby');
+    });
+
+    test('keeps cycling focus through the ghosted button', async () => {
+      renderMenuPopover();
+
+      await screen.findByRole('status');
+
+      const button = screen.getByLabelText('Get current position');
+      const degToggle = screen.getByRole('radio', { name: 'DEG' });
+      degToggle.focus();
+
+      await userEvent.tab({ shift: true });
+
+      expect(document.activeElement).toBe(button);
+
+      await userEvent.tab();
+
+      expect(document.activeElement).toBe(degToggle);
+    });
+  });
+
+  describe('the geolocation permission blocked message without the permissions API', () => {
+    const permissionBlockedMessage = 'Location sharing blocked by browser';
+
+    beforeEach(() => {
+      store.view.showUserLocation = true;
+    });
+
+    test('shows the message and ghosts the button if the probe reports a denial', async () => {
+      window.navigator.geolocation = {
+        getCurrentPosition: jest.fn((_, errorCallback) => errorCallback({ code: 1, PERMISSION_DENIED: 1 })),
+      };
+      renderMenuPopover();
+
+      expect(await screen.findByRole('status')).toHaveTextContent(permissionBlockedMessage);
+      expect(screen.getByLabelText('Get current position')).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    test('neither shows the message nor ghosts the button if the probe succeeds', async () => {
+      window.navigator.geolocation = {
+        getCurrentPosition: jest.fn((successCallback) => successCallback({ coords: {} })),
+      };
+      renderMenuPopover();
+
+      await waitFor(() => expect(window.navigator.geolocation.getCurrentPosition).toHaveBeenCalled());
+
+      expect(screen.queryByText(permissionBlockedMessage)).toBeNull();
+      expect(screen.getByLabelText('Get current position')).not.toHaveAttribute('aria-disabled');
+    });
+
+    test('reads the position only once across repeated openings', async () => {
+      window.navigator.geolocation = {
+        getCurrentPosition: jest.fn((_, errorCallback) => errorCallback({ code: 1, PERMISSION_DENIED: 1 })),
+      };
+
+      const { unmount } = renderMenuPopover();
+      await screen.findByRole('status');
+      unmount();
+
+      renderMenuPopover();
+      await screen.findByRole('status');
+
+      expect(window.navigator.geolocation.getCurrentPosition).toHaveBeenCalledTimes(1);
+    });
+
+    test('does not probe if the user location is not active', async () => {
+      store.view.showUserLocation = false;
+      window.navigator.geolocation = { getCurrentPosition: jest.fn() };
+      renderMenuPopover();
+
+      await waitFor(() => expect(screen.getByRole('dialog', { name: 'Location' })).toBeVisible());
+
+      expect(window.navigator.geolocation.getCurrentPosition).not.toHaveBeenCalled();
+      expect(screen.queryByText(permissionBlockedMessage)).toBeNull();
+    });
   });
 
   test('does not close the menu if the user clicks outside while picking a location', async () => {

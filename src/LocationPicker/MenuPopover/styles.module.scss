@@ -15,6 +15,13 @@
   .wrapper {
     padding: 0.75rem 0.5rem;
 
+    .permissionBlockedMessage {
+      color: colors.$bright-red;
+      font-size: 0.75rem;
+      font-weight: 400;
+      margin: 0.125rem 0 0;
+    }
+
     .buttons {
       display: flex;
       gap: 0.5rem;
@@ -35,7 +42,7 @@
           outline: 2px solid colors.$bright-blue;
         }
     
-        &:hover {
+        &:not([aria-disabled='true']):hover {
           background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
         }
 

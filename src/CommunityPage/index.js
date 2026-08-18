@@ -9,6 +9,7 @@ import { ReactComponent as EarthRangerLogo } from '../common/images/earth-ranger
 import { fetchCommunityInfo } from '../ducks/community';
 import { fetchEventsSchema } from '../ducks/event-schemas';
 import { fetchEventTypes } from '../ducks/event-types';
+import { probeGeolocationPermission } from '../utils/location/permission-probe';
 import { SidebarScrollProvider } from '../SidebarScrollContext';
 import { uuid } from '../utils/string';
 
@@ -84,6 +85,15 @@ const CommunityPage = () => {
       navigate(`/community/${value}/${creatableEventTypes[0].value}`, { replace: true });
     }
   }, [creatableEventTypes, eventTypeValue, isLoading, isUnauthorized, navigate, value]);
+
+  useEffect(() => {
+    // Without the Permissions API a read attempt is the only way to learn the geolocation state, and doing
+    // it at load means the location picker knows the answer by the time it opens. Browsers that do have the
+    // API must not be prompted here.
+    if (!window.navigator.permissions?.query) {
+      probeGeolocationPermission();
+    }
+  }, []);
 
   useEffect(() => () => clearTimeout(timeoutRef.current), []);
 

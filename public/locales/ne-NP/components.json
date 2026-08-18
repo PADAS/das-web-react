@@ -99,6 +99,7 @@
     "menuPopover": {
       "dialogLabel": "स्थान",
       "getUserLocationButton": "मेरो स्थान प्रयोग गर्नुहोस्",
+      "permissionBlockedMessage": "ब्राउजरले स्थान साझेदारी रोकेको छ",
       "pickMapLocationButton": "नक्सामा सेट गर्नुहोस्"
     },
     "setLocationButtonLabel": {
