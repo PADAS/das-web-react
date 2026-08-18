@@ -186,6 +186,15 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Activity - Summ
     expect(jest.getTimerCount()).toBe(0);
   });
 
+  test('stops measuring a cancelled patrol with no record of when it was cancelled', () => {
+    const cancelledPatrol = { ...activePatrol, state: 'cancelled', updates: [] };
+
+    renderSummaryStats({ patrol: cancelledPatrol });
+
+    expect(readSummaryStats()['Duration']).toBe('0m');
+    expect(jest.getTimerCount()).toBe(0);
+  });
+
   test('shows a dash on every measurement of a patrol that has not started', () => {
     const scheduledPatrol = {
       ...endedPatrol,
@@ -220,8 +229,16 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Activity - Summ
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
-  test('shows no distance covered by a tracked subject whose track is not loaded yet', () => {
+  test('shows a dash as the distance of a tracked subject whose track is not loaded yet', () => {
     store.data.tracks = {};
+
+    renderSummaryStats();
+
+    expect(readSummaryStats()['Distance']).toBe('-');
+  });
+
+  test('shows no distance covered by a tracked subject that did not move during the patrol', () => {
+    store.data.tracks = { [DOG.id]: trackFor([[0, 0], [0, 0]], SECOND_LEG_TIME_RANGE) };
 
     renderSummaryStats();
 

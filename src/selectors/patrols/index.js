@@ -185,8 +185,7 @@ const selectPatrolTrackedSubjectTracks = createSelector(
 
 // The kilometers a subject covered during a leg: its own track, bounded to the leg's time range.
 const distanceCoveredInSegment = (segment, subjectTrack) => {
-  if (!subjectTrack
-    || !segment.time_range?.start_time
+  if (!segment.time_range?.start_time
     || !trackHasDataWithinTimeRange(subjectTrack, segment.time_range.start_time, segment.time_range.end_time)
   ) {
     return 0;
@@ -195,8 +194,8 @@ const distanceCoveredInSegment = (segment, subjectTrack) => {
   return trackLengthWithinTimeRange(subjectTrack, segment.time_range.start_time, segment.time_range.end_time);
 };
 
-// Every subject the patrol tracks, along with the total distance it covered
-// across the legs it took part in.
+// Every subject the patrol tracks, along with the total distance it covered across the legs it
+// took part in, which stays unknown until that subject's track has been loaded.
 export const selectPatrolTrackedSubjects = createSelector(
   [selectPatrolTrackedSubjectTracks, (_, patrol) => patrol],
   (patrolTrackedSubjectTracks, patrol) => {
@@ -205,17 +204,28 @@ export const selectPatrolTrackedSubjects = createSelector(
     const patrolTrackedSubjectsMap = new Map();
     patrol.patrol_segments.forEach((segment) => {
       getTrackedSubjectsForPatrolSegment(segment).forEach((subject) => {
-        const trackedSubject = patrolTrackedSubjectsMap.get(subject.id)
-          ?? { distance: 0, isPatrolLeader: subject.id === patrolLeaderId, subject };
+        const trackedSubject = patrolTrackedSubjectsMap.get(subject.id) ?? { segments: [], subject };
 
-        trackedSubject.distance += distanceCoveredInSegment(segment, patrolTrackedSubjectTracks[subject.id]);
+        trackedSubject.segments.push(segment);
 
         patrolTrackedSubjectsMap.set(subject.id, trackedSubject);
       });
     });
 
-    // The patrol leader comes first.
-    return [...patrolTrackedSubjectsMap.values()].sort((a, b) => b.isPatrolLeader - a.isPatrolLeader);
+    return [...patrolTrackedSubjectsMap.values()]
+      .map(({ segments, subject }) => {
+        const subjectTrack = patrolTrackedSubjectTracks[subject.id];
+
+        return {
+          distance: subjectTrack
+            ? segments.reduce((distance, segment) => distance + distanceCoveredInSegment(segment, subjectTrack), 0)
+            : null,
+          isPatrolLeader: subject.id === patrolLeaderId,
+          subject,
+        };
+      })
+      // The patrol leader comes first.
+      .sort((a, b) => b.isPatrolLeader - a.isPatrolLeader);
   }
 );
 

@@ -740,10 +740,20 @@ describe('Selectors - Patrols', () => {
         .toBeCloseTo(ONE_DEGREE_IN_KILOMETERS, 1);
     });
 
-    test('counts no distance for a subject whose track is not loaded', () => {
+    test('leaves the distance unknown for a subject whose track is not loaded', () => {
       state.data.tracks = {};
 
-      expect(selectPatrolTrackedSubjects(state, twoLeggedPatrol).map(({ distance }) => distance)).toEqual([0, 0]);
+      expect(selectPatrolTrackedSubjects(state, twoLeggedPatrol).map(({ distance }) => distance))
+        .toEqual([null, null]);
+    });
+
+    test('leaves the distance unknown only for the subjects whose track is not loaded', () => {
+      state.data.tracks = { [RANGER.id]: state.data.tracks[RANGER.id] };
+
+      const trackedSubjects = selectPatrolTrackedSubjects(state, twoLeggedPatrol);
+
+      expect(trackedSubjects[0].distance).toBeNull();
+      expect(trackedSubjects[1].distance).toBeCloseTo(ONE_DEGREE_IN_KILOMETERS, 1);
     });
 
     test('counts no distance for a leg without a start time', () => {

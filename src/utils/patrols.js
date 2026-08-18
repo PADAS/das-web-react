@@ -263,27 +263,27 @@ const getElapsedTimeForPatrolSegment = (patrolSegment, fallbackEndTime) => {
   return Math.max(0, endTime - startTime);
 };
 
-const getStateChangeTimeForPatrol = (patrol, state) => {
-  const stateChange = patrol.updates?.find(
-    (update) => update.type === 'update_patrol_state' && update.message?.includes(state)
-  );
+const getLastStateChangeTimeForPatrol = (patrol) => {
+  const stateChangeTimes = (patrol.updates ?? [])
+    .filter((update) => update.type === 'update_patrol_state')
+    .map((update) => new Date(update.time).getTime());
 
-  return stateChange ? new Date(stateChange.time) : null;
+  return stateChangeTimes.length ? new Date(Math.max(...stateChangeTimes)) : null;
 };
 
 export const getCancellationTimeForPatrol = (patrol) => isPatrolCancelled(patrol)
-  ? getStateChangeTimeForPatrol(patrol, 'cancelled')
+  ? getLastStateChangeTimeForPatrol(patrol)
   : null;
 
-const getCompletionTimeForPatrol = (patrol) => isPatrolDone(patrol)
-  ? getStateChangeTimeForPatrol(patrol, 'done')
-  : null;
+export const effectiveEndTimeForPatrol = (patrol) => {
+  const legsEndTime = actualEndTimeForPatrol(patrol);
 
-// A patrol that stopped running without an end time of its own keeps the
-// moment it stopped in the update that moved it to its final state.
-export const effectiveEndTimeForPatrol = (patrol) => actualEndTimeForPatrol(patrol)
-  ?? getCancellationTimeForPatrol(patrol)
-  ?? getCompletionTimeForPatrol(patrol);
+  if (legsEndTime || !(isPatrolCancelled(patrol) || isPatrolDone(patrol))) {
+    return legsEndTime;
+  }
+
+  return getLastStateChangeTimeForPatrol(patrol) ?? actualStartTimeForPatrol(patrol);
+};
 
 const endTimeForPatrolOrFallback = (patrol, fallbackEndTime) =>
   effectiveEndTimeForPatrol(patrol)?.getTime() ?? fallbackEndTime;

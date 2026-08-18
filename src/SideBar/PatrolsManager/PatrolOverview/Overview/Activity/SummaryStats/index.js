@@ -60,7 +60,7 @@ const SummaryStats = ({ eventCount, patrol }) => {
     ?? patrolTrackedSubjects[0]
     ?? null;
 
-  const distance = hasPatrolStarted && distanceSubject
+  const distance = hasPatrolStarted && distanceSubject?.distance != null
     ? formatDistanceInKilometers(tUtils, distanceSubject.distance)
     : EMPTY_VALUE;
 
