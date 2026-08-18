@@ -259,9 +259,7 @@ describe('img utility functions', () => {
 
         mockImage.onerror(new Error('test error'));
 
-        try {
-          await loadPromise;
-        } catch () {}
+        await expect(loadPromise).rejects.toBeDefined();
 
         expect(mapDeleteSpy).toHaveBeenCalled();
 
