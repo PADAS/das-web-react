@@ -72,9 +72,16 @@ const GetUserLocationButton = ({
           (error) => {
             setIsLoading(false);
 
+            // A stale fix beats an error when the device can't produce a fresh one, but a denial must stay visible.
+            if (userLocation?.coords && !isGeolocationPermissionDeniedError(error)) {
+              return onGet(userLocation.coords);
+            }
+
             reportError(error);
           },
-          GEOLOCATOR_OPTIONS
+          // Same freshness window as the store: desktops without a quick high-accuracy source only ever
+          // answer from the browser's cache.
+          { ...GEOLOCATOR_OPTIONS, maximumAge: ONE_MINUTE }
         );
       } catch (error) {
         setIsLoading(false);
