@@ -21,8 +21,8 @@
         "done": "Terminée",
         "invalid": "Configuration Invalide",
         "readyToStart": "Prête à Démarrer",
-        "scheduled": "Planifiée pour le",
-        "startOverdue": "Patrouille Retardée de"
+        "scheduled": "Planifiée",
+        "startOverdue": "Démarrage en Retard"
       }
     },
     "loadingMessage": "Sauvegardement...",
@@ -56,6 +56,96 @@
     "body": "Cette patrouille ne peut pas être sauvegardée. L'heure de fin d'une patrouille doit être postérieure à l'heure de début. Veuillez corriger l'heure de début ou de fin de la patrouille.",
     "okButton": "OK",
     "title": "Dates de Patrouille Invalides"
+  },
+  "patrolOverview": {
+    "attachmentsSaveErrorMessage": "Certaines pièces jointes n'ont pas pu être téléversées. Veuillez réessayer.",
+    "footer": {
+      "addEventButton": "Ajouter un événement",
+      "addEventButtonLabel": "Ajouter un événement",
+      "addEventButtonText": "Événement",
+      "cancelOption": "Annuler la Patrouille",
+      "endOption": "Terminer la Patrouille",
+      "endPatrolButton": "Terminer la Patrouille",
+      "pauseOption": "Mettre la patrouille en pause",
+      "saveButton": "Sauvegarder",
+      "saveButtonLoadingLabel": "Chargement",
+      "updateStatusButton": "Mettre à jour le statut"
+    },
+    "header": {
+      "breadcrumbNavLabel": "Navigation de la patrouille",
+      "breadcrumbPatrolsLabel": "Patrouilles",
+      "closeButtonLabel": "Fermer la barre latérale",
+      "copyLinkMessage": "Lien copié avec succès",
+      "copyLinkOption": "Copier le lien de la patrouille",
+      "downloadTrackOption": "Télécharger la Piste de la Patrouille",
+      "editTitleButtonLabel": "Modifier le titre",
+      "fitToBoundsButtonLabel": "Ajuster aux limites de la patrouille",
+      "jumpToLocationButtonLabel": "Aller à l'emplacement",
+      "mobileProvenancePill": "Mobile",
+      "moreOptionsButtonLabel": "Plus d'options",
+      "printOption": "Imprimer la Patrouille",
+      "titleInputLabel": "Titre de la patrouille",
+      "toggleTrackButtonLabel": {
+        "hidden": "Afficher la piste de la patrouille",
+        "pinned": "Masquer la piste de la patrouille",
+        "visible": "Épingler la piste de la patrouille"
+      },
+      "uiStateTitles": {
+        "active": "Active",
+        "cancelled": "Annulée",
+        "done": "Terminée",
+        "invalid": "Configuration Invalide",
+        "readyToStart": "Prête à Démarrer",
+        "scheduled": "Planifiée",
+        "startOverdue": "Démarrage en Retard"
+      }
+    },
+    "history": {
+      "sortDirectionButtonLabel": {
+        "down": "Trier l'historique par ordre croissant",
+        "up": "Trier l'historique par ordre décroissant"
+      },
+      "timeLabel": "Heure"
+    },
+    "historyTabTitle": "Historique",
+    "overview": {
+      "activity": {
+        "activeTimeLabel": "Temps actif",
+        "activitySectionTitle": "Activité",
+        "collapseAllButtonLabel": "Tout réduire",
+        "distanceLabel": "Distance",
+        "durationLabel": "Durée",
+        "emptyStateMessage": "L'activité de la patrouille apparaîtra ici",
+        "eventsLabel": "Événements",
+        "expandAllButtonLabel": "Tout développer",
+        "jumpToLocationButtonLabel": "Aller à l'emplacement",
+        "legTransitionTitle": "Étape {{endedLeg}} terminée, Étape {{startedLeg}} commencée",
+        "patrolEndedTitle": "Patrouille terminée",
+        "patrolStartedTitle": "Patrouille commencée",
+        "pausedTimeLabel": "Temps en pause",
+        "sortDirectionButtonLabel": {
+          "down": "Trier l'activité par ordre croissant",
+          "up": "Trier l'activité par ordre décroissant"
+        },
+        "startPatrolButton": "Commencer la Patrouille",
+        "timeLabel": "Heure"
+      },
+      "legs": {
+        "endColumnHeader": "Date de Fin",
+        "legActionsColumnHeader": "Actions",
+        "legColumnHeader": "Étape",
+        "legTableCaption": "Étapes de la patrouille",
+        "newLegButton": "Nouvelle étape de patrouille",
+        "patrolTypeColumnHeader": "Type de patrouille",
+        "startColumnHeader": "Date de Début",
+        "teamColumnHeader": "Équipe et suivi",
+        "viewLegButtonLabel": "Voir l'étape {{legNumber}}",
+        "zoomToLegBoundsButtonLabel": "Ajuster aux limites de l'étape {{legNumber}}"
+      }
+    },
+    "overviewTabTitle": "Aperçu",
+    "saveErrorMessage": "La patrouille n'a pas pu être enregistrée. Veuillez réessayer.",
+    "tabsLabel": "Onglets de l'aperçu de la patrouille"
   },
   "patrolMenu": {
     "cancelPatrol": "Annuler la Patrouille",

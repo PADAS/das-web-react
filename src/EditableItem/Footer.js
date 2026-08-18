@@ -1,13 +1,13 @@
 import React, { memo } from 'react';
-import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import Button from 'react-bootstrap/Button';
 import Dropdown from 'react-bootstrap/Dropdown';
 import SplitButton from 'react-bootstrap/SplitButton';
 
-import { EVENT_FORM_STATES } from '../constants';
+import { EVENT_FORM_STATES, PREVIEW_FEATURES } from '../constants';
 import { isReportActive } from '../utils/events';
+import { usePreviewFeature } from '../hooks';
 
 import * as styles from './styles.module.scss';
 
@@ -31,9 +31,7 @@ const Footer = ({
 
   // Remove this flag and the conditional rendering below once community input
   // is enabled for all tenants.
-  const communityInputEnabled = useSelector(
-    (state) => !!state.view.systemConfig.previewFeatures?.community_input_admin_enabled
-  );
+  const communityInputEnabled = usePreviewFeature(PREVIEW_FEATURES.COMMUNITY_INPUT_ADMIN);
 
   const isActive = isReportActive(data);
   const isInReview = data?.state === EVENT_FORM_STATES.REVIEW;

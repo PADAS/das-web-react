@@ -1,0 +1,89 @@
+{
+  "errors": {
+    "alphanumericPattern": "Only letters and numbers are allowed.",
+    "collectionItems": "Some items of this collection have errors in their inner forms.",
+    "dateFormat": "Invalid date format or invalid date. Double-check the day, month and year.",
+    "dateTimeFormat": "Invalid date & time format or invalid date. Double-check the day, month and year.",
+    "defaultFormat": "Invalid format.",
+    "defaultKeyword": "Invalid value.",
+    "defaultPattern": "Invalid pattern.",
+    "emailFormat": "Invalid email format.",
+    "maxItems_one": "This collection must have at most {{count}} item.",
+    "maxItems_other": "This collection must have at most {{count}} items.",
+    "maximum": "This value should be less than or equal to {{maximum}}.",
+    "minItems_one": "This collection must have at least {{count}} item.",
+    "minItems_other": "This collection must have at least {{count}} items.",
+    "minimum": "This value should be greater than or equal to {{minimum}}.",
+    "required": "This is a required field.",
+    "timeFormat": "Invalid time format.",
+    "uploadFailedError": "One or more file uploads failed. Remove the failed files before submitting.",
+    "uploadInProgressError": "Please wait for files to finish uploading.",
+    "uriFormat": "Invalid URL format.",
+    "uuidFormat": "Invalid UUID format."
+  },
+  "fields": {
+    "attachment": {
+      "chooseFile": "Choose File",
+      "disallowedTypeAlert": "{{fileName}} can't be added because its file type isn't allowed.",
+      "downloadButtonLabel": "Download {{fileName}}",
+      "dropzoneText": "Drag and drop files here",
+      "expandButtonLabel": "Expand {{fileName}}",
+      "maxItemsAlert_one": "You can only add up to {{count}} file.",
+      "maxItemsAlert_other": "You can only add up to {{count}} files.",
+      "pendingLabel": "Pending",
+      "removeButtonLabel": "Remove {{fileName}}",
+      "requiredLabel": "(required)",
+      "uploadErrorLabel": "Upload failed",
+      "uploadFailedAnnouncement_one": "{{fileName}} couldn't be uploaded",
+      "uploadFailedAnnouncement_other": "{{count}} files couldn't be uploaded",
+      "uploadStartedAnnouncement_one": "Uploading {{fileName}}",
+      "uploadStartedAnnouncement_other": "Uploading {{count}} files",
+      "uploadSucceededAnnouncement_one": "{{fileName}} uploaded",
+      "uploadSucceededAnnouncement_other": "{{count}} files uploaded"
+    },
+    "collection": {
+      "addButtonLabel": "Add {{itemName}}",
+      "chevronButtonLabel": {
+        "closed": "Open the {{collectionLabel}} list",
+        "open": "Close the {{collectionLabel}} list"
+      },
+      "defaultAddButton": "Add",
+      "sortableList": {
+        "dragCancelAnnouncement": "Dragging was cancelled. {{activeItemTitle}} was returned to position {{activeItemPosition}} of {{itemsLength}}.",
+        "dragEndAnnouncement": "{{activeItemTitle}} was dropped at position {{overItemPosition}} of {{itemsLength}}.",
+        "dragEndOutsideAnnouncement": "{{activeItemTitle}} was dropped and returned to position {{activeItemPosition}} of {{itemsLength}}.",
+        "dragOverAnnouncement": "{{activeItemTitle}} was moved into position {{overItemPosition}} of {{itemsLength}}.",
+        "dragStartAnnouncement": "Picked up {{activeItemTitle}}. Position {{activeItemPosition}} of {{itemsLength}}.",
+        "draggableScreenReaderInstructions": "To pick up a {{itemName}}, press the space bar. While dragging, use the up and down arrow keys to move the {{itemName}} in a given direction. Press space again to drop the {{itemName}} in its new position, or press escape to cancel.",
+        "item": {
+          "attachmentHumanizedValue_one": "1 file",
+          "attachmentHumanizedValue_other": "{{count}} files",
+          "chevronButtonLabel": {
+            "closed": "Open the {{itemTitle}} form preview",
+            "open": "Close the {{itemTitle}} form preview"
+          },
+          "collectionHumanizedValue": "{{collectionLength}} items",
+          "deleteButtonLabel": "Delete {{itemTitle}}",
+          "dragHandleButtonLabel": "Reorder {{itemTitle}}",
+          "dragHandleButtonRoleDescription": "draggable",
+          "editButtonLabel": "Edit {{itemTitle}}",
+          "formModal": {
+            "cancelButton": "Cancel",
+            "deleteButton": "Delete {{itemTitle}}",
+            "doneButton": "Done"
+          },
+          "formPreview": {
+            "attachmentHumanizedValue_one": "1 file",
+            "attachmentHumanizedValue_other": "{{count}} files",
+            "collectionHumanizedValue": "{{collectionLength}} items",
+            "jumpToLocationButtonLabel": "Jump to {{field}} location"
+          }
+        }
+      }
+    },
+    "text": {
+      "urlLinkLabel": "Open URL in new tab"
+    }
+  },
+  "validationErrorsAnnouncement": "There are validation errors in the following fields:"
+}

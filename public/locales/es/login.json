@@ -1,4 +1,12 @@
 {
+  "auth0Info": {
+    "title": "Configurar EarthRanger Identity",
+    "intro": "EarthRanger está migrando a una forma más sencilla y segura de iniciar sesión, llamada EarthRanger Identity.",
+    "signInPrompt": "Si ya tiene EarthRanger Identity, seleccione Iniciar sesión con correo electrónico a continuación.",
+    "convertPrompt": "¿Usa EarthRanger Identity por primera vez? Primero deberá convertir su cuenta existente con el nombre de usuario y la contraseña que usa actualmente.",
+    "convertLink": "Convertir su cuenta",
+    "helpText": "¿Tiene preguntas? Comuníquese con el administrador de su sitio."
+  },
   "errorAlert": {
     "accessDeniedNotAuthorized": "Acceso denegado: Su cuenta no está autorizada para esta organización. Por favor contacte a su administrador.",
     "accessDeniedNoPermission": "Acceso denegado: No tiene permiso para acceder a esta aplicación.",

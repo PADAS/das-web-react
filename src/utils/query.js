@@ -1,5 +1,5 @@
 import axios, { isCancel } from 'axios';
-import { bbox, bboxPolygon, buffer, distance, point } from '@turf/turf';
+import { bbox, bboxPolygon, distance, point } from '@turf/turf';
 import toString from 'lodash/toString';
 import isArrayLike from 'lodash/isArrayLike';
 import isEmpty from 'lodash/isEmpty';
@@ -19,6 +19,7 @@ export const getBboxParamsFromMap = async (map, asString = true) => {
       (distance(asPointArray[0], asPointArray[1]) / 10), 10
     ), 0.333,
   );
+  const { default: buffer } = await import('@turf/buffer');
   const withBuffer = buffer(asPolygon, bufferPadding);
 
   const finalBounds = bbox(withBuffer);

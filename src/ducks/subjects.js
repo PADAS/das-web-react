@@ -20,6 +20,8 @@ const FETCH_MAP_SUBJECTS_SUCCESS = 'FETCH_MAP_SUBJECTS_SUCCESS';
 // const FETCH_MAP_SUBJECTS_ERROR = 'FETCH_MAP_SUBJECTS_ERROR';
 const CLEAR_SUBJECT_DATA = 'CLEAR_SUBJECT_DATA';
 export const SOCKET_SUBJECT_STATUS = 'SOCKET_SUBJECT_STATUS';
+export const SOCKET_NEW_SUBJECT = 'SOCKET_NEW_SUBJECT';
+export const SOCKET_DELETE_SUBJECT = 'SOCKET_DELETE_SUBJECT';
 
 // action creators
 
@@ -79,6 +81,31 @@ export const clearSubjectData = () => ({
   type: CLEAR_SUBJECT_DATA,
 });
 
+// Returns true if groupId exists anywhere in the loaded subjectGroups tree.
+const isGroupIdInTree = (groups, groupId) => groups.some(
+  (group) => group.id === groupId || isGroupIdInTree(group.subgroups, groupId)
+);
+
+export const socketNewSubject = (payload) => (dispatch, getState) => {
+  dispatch({ type: SOCKET_NEW_SUBJECT, payload });
+
+  const { subject_group_ids } = payload;
+  if (!subject_group_ids || subject_group_ids.length === 0) return;
+
+  const loadedGroups = getState()?.data?.subjectGroups ?? [];
+  const hasUnknownGroup = subject_group_ids.some(
+    (id) => !isGroupIdInTree(loadedGroups, id)
+  );
+  if (hasUnknownGroup) {
+    dispatch(fetchSubjectGroups());
+  }
+};
+
+export const socketDeleteSubject = (payload) => ({
+  type: SOCKET_DELETE_SUBJECT,
+  payload,
+});
+
 export const fetchSubjectGroups = () => (dispatch) => axios.get(SUBJECT_GROUPS_API_URL)
   .then(response => {
     dispatch(fetchSubjectGroupsSuccess(response));
@@ -131,8 +158,66 @@ export default globallyResettableReducer((state = INITIAL_MAP_SUBJECT_STATE, act
     };
   }
 
+  if (action.type === SOCKET_NEW_SUBJECT) {
+    const { subject_id } = action.payload;
+    if (state.subjects.includes(subject_id)) {
+      return state;
+    }
+    lastKnownMapSubjectValue = {
+      ...state,
+      subjects: [...state.subjects, subject_id],
+    };
+  }
+
+  if (action.type === SOCKET_DELETE_SUBJECT) {
+    const { subject_id } = action.payload;
+    if (!state.subjects.includes(subject_id)) {
+      return state;
+    }
+    lastKnownMapSubjectValue = {
+      ...state,
+      subjects: state.subjects.filter((id) => id !== subject_id),
+    };
+  }
+
   return lastKnownMapSubjectValue;
 }, INITIAL_MAP_SUBJECT_STATE);
+
+// Recursively removes a subject ID from every node in the groups tree.
+// Returns the original array/group reference when nothing changed.
+const removeSubjectIdFromGroups = (groups, subjectId) => {
+  let changed = false;
+  const next = groups.map((group) => {
+    const nextSubgroups = removeSubjectIdFromGroups(group.subgroups, subjectId);
+    const nextSubjects = group.subjects.filter((id) => id !== subjectId);
+    if (nextSubgroups === group.subgroups && nextSubjects.length === group.subjects.length) {
+      return group;
+    }
+    changed = true;
+    return { ...group, subgroups: nextSubgroups, subjects: nextSubjects };
+  });
+  return changed ? next : groups;
+};
+
+// Recursively appends subjectId to the subjects array of any group node whose
+// id is in targetGroupIds. Idempotent. Returns the original array/group
+// reference when nothing changed.
+const addSubjectIdToGroups = (groups, subjectId, targetGroupIds) => {
+  let changed = false;
+  const next = groups.map((group) => {
+    const nextSubgroups = addSubjectIdToGroups(group.subgroups, subjectId, targetGroupIds);
+    const isTarget = targetGroupIds.includes(group.id);
+    const alreadyPresent = group.subjects.includes(subjectId);
+    const willAppend = isTarget && !alreadyPresent;
+    if (nextSubgroups === group.subgroups && !willAppend) {
+      return group;
+    }
+    changed = true;
+    const subjects = willAppend ? [...group.subjects, subjectId] : group.subjects;
+    return { ...group, subgroups: nextSubgroups, subjects };
+  });
+  return changed ? next : groups;
+};
 
 export const subjectGroupsReducer = globallyResettableReducer((state, action = {}) => {
   const { type, payload } = action;
@@ -151,6 +236,17 @@ export const subjectGroupsReducer = globallyResettableReducer((state, action = {
     });
 
     return replaceGroupSubjectsWithSubjectIDs(...payload);
+  }
+  if (type === SOCKET_NEW_SUBJECT) {
+    const { subject_id, subject_group_ids } = payload;
+    if (!subject_group_ids || subject_group_ids.length === 0) {
+      return state;
+    }
+    return addSubjectIdToGroups(state, subject_id, subject_group_ids);
+  }
+  if (type === SOCKET_DELETE_SUBJECT) {
+    const { subject_id } = payload;
+    return removeSubjectIdFromGroups(state, subject_id);
   }
   return state;
 }, []);
@@ -184,6 +280,36 @@ export const subjectStoreReducer = globallyResettableReducer((state = SUBJECT_ST
     const asObject = subjectGroupSubjects.reduce((accumulator, item) => ({ ...accumulator, [item.id]: item }), {});
 
     return merge({}, state, asObject);
+  }
+
+  if (type === SOCKET_NEW_SUBJECT) {
+    const { subject_id, subject_data } = payload;
+    let normalized = subject_data;
+    if (subject_data.last_position) {
+      normalized = {
+        ...subject_data,
+        last_position: {
+          ...subject_data.last_position,
+          properties: {
+            ...subject_data.last_position.properties,
+            name: subject_data.last_position.properties.title || subject_data.last_position.properties.name,
+          },
+        },
+      };
+    }
+    return {
+      ...state,
+      [subject_id]: normalized,
+    };
+  }
+
+  if (type === SOCKET_DELETE_SUBJECT) {
+    const { subject_id } = payload;
+    if (!Object.prototype.hasOwnProperty.call(state, subject_id)) {
+      return state;
+    }
+    const { [subject_id]: _removed, ...rest } = state;
+    return rest;
   }
 
   if (type === SOCKET_SUBJECT_STATUS) {

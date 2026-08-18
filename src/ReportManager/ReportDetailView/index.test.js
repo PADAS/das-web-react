@@ -171,6 +171,7 @@ describe('ReportManager - ReportDetailView', () => {
     state = {
       data: {
         subjectStore: {},
+        eventFilter: { filter: { date_range: { lower: '2020-01-01T06:00:00.000Z' } } },
         eventStore: { 456: mockReportWithNotes, 123: mockReport },
         eventTypes,
         patrolTypes,
@@ -186,6 +187,8 @@ describe('ReportManager - ReportDetailView', () => {
         mapLocationSelection: { isPickingLocation: false },
         sideBar: {},
         systemConfig: {},
+        timeSliderState: { active: false },
+        trackSettings: { length: 21, origin: 'CUSTOM_LENGTH' },
         userPreferences: { gpsFormat: GPS_FORMATS.DEG },
       },
     };
@@ -316,6 +319,242 @@ describe('ReportManager - ReportDetailView', () => {
     await userEvent.type(typeOfAccidentField, 'Truck crash');
 
     expect((await screen.findByDisplayValue('Truck crash'))).toBeDefined();
+  });
+
+  test('sends an empty value for a cleared legacy dropdown and keeps out-of-schema event details when saving', async () => {
+    const accidentSchema = eventSchemas.accident_rep.base;
+    state.data.eventSchemas = {
+      ...eventSchemas,
+      accident_rep: {
+        ...eventSchemas.accident_rep,
+        789: {
+          ...accidentSchema,
+          schema: {
+            ...accidentSchema.schema,
+            properties: {
+              ...accidentSchema.schema.properties,
+              severity: {
+                type: 'string',
+                title: 'Severity',
+                enum: ['minor', 'major'],
+                enumNames: ['Minor', 'Major'],
+                key: 'severity',
+              },
+            },
+          },
+          uiSchema: {
+            ...accidentSchema.uiSchema,
+            'ui:groups': [{
+              origin: 'inferred',
+              items: ['type_accident', 'number_people_involved', 'animals_involved', 'severity'],
+            }],
+          },
+        },
+      },
+    };
+    state.data.eventStore = {
+      ...state.data.eventStore,
+      789: {
+        ...mockReport,
+        event_type: 'accident_rep',
+        event_details: { severity: 'minor', stashed_hidden_field: 'stashed value', type_accident: 'Truck crash' },
+        id: '789',
+      },
+    };
+
+    renderWithWrapper(<ReportDetailView isNewReport={false} reportId="789" />);
+
+    await userEvent.selectOptions(await screen.findByLabelText('Severity'), '');
+
+    await userEvent.click(await screen.findByText('Save'));
+
+    await waitFor(() => {
+      expect(generateSaveActionsForReportLikeObject).toHaveBeenCalledTimes(1);
+    });
+    expect(generateSaveActionsForReportLikeObject.mock.calls[0][0].event_details).toEqual({
+      severity: '',
+      stashed_hidden_field: 'stashed value',
+      type_accident: 'Truck crash',
+    });
+  });
+
+  test('allows saving when a cleared legacy dropdown would otherwise fail enum validation', async () => {
+    const accidentSchema = eventSchemas.accident_rep.base;
+    // Drop the fixture's `required: []`: an empty array fails ajv's own meta-schema
+    // validation.
+    const { required: _unusedRequired, ...baseSchemaWithoutRequired } = accidentSchema.schema;
+    state.data.eventSchemas = {
+      ...eventSchemas,
+      accident_rep: {
+        ...eventSchemas.accident_rep,
+        790: {
+          ...accidentSchema,
+          schema: {
+            ...baseSchemaWithoutRequired,
+            id: 'https://era-7995.pamdas.org/api/v1.0/activity/events/schema/eventtype/accident_rep_enum_clear_test',
+            properties: {
+              ...accidentSchema.schema.properties,
+              severity: {
+                type: 'string',
+                title: 'Severity',
+                enum: ['minor', 'major'],
+                enumNames: ['Minor', 'Major'],
+                key: 'severity',
+              },
+            },
+          },
+          uiSchema: {
+            ...accidentSchema.uiSchema,
+            'ui:groups': [{
+              origin: 'inferred',
+              items: ['type_accident', 'number_people_involved', 'animals_involved', 'severity'],
+            }],
+          },
+        },
+      },
+    };
+    state.data.eventStore = {
+      ...state.data.eventStore,
+      790: {
+        ...mockReport,
+        event_type: 'accident_rep',
+        event_details: { severity: 'minor', type_accident: 'Truck crash' },
+        id: '790',
+      },
+    };
+
+    renderWithWrapper(<ReportDetailView isNewReport={false} reportId="790" />);
+
+    await userEvent.selectOptions(await screen.findByLabelText('Severity'), '');
+
+    // Also edits an unrelated field, confirming the cleared value coexists with
+    // other, unrelated changes in the saved payload.
+    await userEvent.type(await screen.findByLabelText('Type of accident'), '!');
+
+    await userEvent.click(await screen.findByText('Save'));
+
+    await waitFor(() => {
+      expect(generateSaveActionsForReportLikeObject).toHaveBeenCalledTimes(1);
+    });
+    expect(generateSaveActionsForReportLikeObject.mock.calls[0][0].event_details).toEqual({
+      severity: '',
+      type_accident: 'Truck crash!',
+    });
+  });
+
+  test('allows saving without further changes when reopening an event whose stored event_details already has an empty enum value', async () => {
+    const accidentSchema = eventSchemas.accident_rep.base;
+    // Drop the fixture's `required: []`: an empty array fails ajv's own meta-schema
+    // validation.
+    const { required: _unusedRequired, ...baseSchemaWithoutRequired } = accidentSchema.schema;
+    state.data.eventSchemas = {
+      ...eventSchemas,
+      accident_rep: {
+        ...eventSchemas.accident_rep,
+        791: {
+          ...accidentSchema,
+          schema: {
+            ...baseSchemaWithoutRequired,
+            id: 'https://era-7995.pamdas.org/api/v1.0/activity/events/schema/eventtype/accident_rep_reopen_enum_test',
+            properties: {
+              ...accidentSchema.schema.properties,
+              severity: {
+                type: 'string',
+                title: 'Severity',
+                enum: ['minor', 'major'],
+                enumNames: ['Minor', 'Major'],
+                key: 'severity',
+              },
+            },
+          },
+          uiSchema: {
+            ...accidentSchema.uiSchema,
+            'ui:groups': [{
+              origin: 'inferred',
+              items: ['type_accident', 'number_people_involved', 'animals_involved', 'severity'],
+            }],
+          },
+        },
+      },
+    };
+    state.data.eventStore = {
+      ...state.data.eventStore,
+      791: {
+        ...mockReport,
+        event_type: 'accident_rep',
+        event_details: { severity: '', type_accident: 'Truck crash' },
+        id: '791',
+      },
+    };
+
+    renderWithWrapper(<ReportDetailView isNewReport={false} reportId="791" />);
+
+    await screen.findByLabelText('Severity');
+
+    await userEvent.click(await screen.findByText('Save'));
+
+    await waitFor(() => {
+      expect(generateSaveActionsForReportLikeObject).toHaveBeenCalledTimes(1);
+    });
+    expect(generateSaveActionsForReportLikeObject.mock.calls[0][0].event_details).toEqual({
+      severity: '',
+      type_accident: 'Truck crash',
+    });
+  });
+
+  test('still blocks saving when a cleared legacy dropdown is required by the schema', async () => {
+    const accidentSchema = eventSchemas.accident_rep.base;
+    state.data.eventSchemas = {
+      ...eventSchemas,
+      accident_rep: {
+        ...eventSchemas.accident_rep,
+        790: {
+          ...accidentSchema,
+          schema: {
+            ...accidentSchema.schema,
+            id: 'https://era-7995.pamdas.org/api/v1.0/activity/events/schema/eventtype/accident_rep_required_enum_test',
+            properties: {
+              ...accidentSchema.schema.properties,
+              severity: {
+                type: 'string',
+                title: 'Severity',
+                enum: ['minor', 'major'],
+                enumNames: ['Minor', 'Major'],
+                key: 'severity',
+              },
+            },
+            required: ['severity'],
+          },
+          uiSchema: {
+            ...accidentSchema.uiSchema,
+            'ui:groups': [{
+              origin: 'inferred',
+              items: ['type_accident', 'number_people_involved', 'animals_involved', 'severity'],
+            }],
+          },
+        },
+      },
+    };
+    state.data.eventStore = {
+      ...state.data.eventStore,
+      790: {
+        ...mockReport,
+        event_type: 'accident_rep',
+        event_details: { severity: 'minor', type_accident: 'Truck crash' },
+        id: '790',
+      },
+    };
+
+    renderWithWrapper(<ReportDetailView isNewReport={false} reportId="790" />);
+
+    await userEvent.selectOptions(await screen.findByLabelText(/Severity/), '');
+    await userEvent.type(await screen.findByLabelText('Type of accident'), '!');
+
+    document.querySelector('form').noValidate = true;
+    await userEvent.click(await screen.findByText('Save'));
+
+    expect(await screen.findAllByTestId('error-message')).not.toHaveLength(0);
+    expect(generateSaveActionsForReportLikeObject).not.toHaveBeenCalled();
   });
 
   test('sets the state when user changes it', async () => {
@@ -650,6 +889,32 @@ describe('ReportManager - ReportDetailView', () => {
     await userEvent.click(saveButton);
 
     expect(await screen.findByText('Error saving event.')).toBeDefined();
+  });
+
+  test('shows a human-readable error message for an HTTP error response when saving fails', async () => {
+    const tooManyRequestsError = { request: {}, response: { status: 429 } };
+
+    executeSaveActionsMock = jest.fn(() => Promise.reject(tooManyRequestsError));
+    executeSaveActions.mockImplementation(executeSaveActionsMock);
+
+    renderWithWrapper(
+      <ReportDetailView
+            isNewReport
+            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+            reportId="456"
+          />
+    );
+
+    const titleTextBox = await screen.findByTestId('reportManager-header-title');
+    await userEvent.type(titleTextBox, '2');
+    await userEvent.tab();
+    const saveButton = await screen.findByText('Save');
+    await userEvent.click(saveButton);
+
+    expect(await screen.findByText(
+      'Too many requests. Please try again later, and contact your administrator if this problem persists (429).'
+    )).toBeDefined();
+    expect(screen.queryByText('Unknown error')).toBeNull();
   });
 
   test('omits duplicated attachment files', async () => {

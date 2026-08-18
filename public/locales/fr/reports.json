@@ -33,6 +33,9 @@
     "noMoreReportsItem": "Aucun autre événement à afficher.",
     "noReportsItem": "Aucun événement à afficher."
   },
+  "eventIcon": {
+    "collectionTitle": "Collection"
+  },
   "eventItemContextMenu": {
     "errorToastMessage": "#{{serialNumber}} est toujours {{state}}, une erreur s'est produite",
     "notificationDetails": {
@@ -140,91 +143,6 @@
       "locationLabel": "Emplacement",
       "priorityLabel": "Priorité",
       "reportedByLabel": "Complété Par",
-      "schemaForm": {
-        "errors": {
-          "alphanumericPattern": "Seules les lettres et les chiffres sont autorisés.",
-          "collectionItems": "Certains éléments de cette collection contiennent des erreurs dans leurs formulaires internes.",
-          "dateFormat": "Format de date invalide ou date invalide. Vérifiez le jour, le mois et l'année.",
-          "dateTimeFormat": "Format de date et heure invalide ou date invalide. Vérifiez le jour, le mois et l'année.",
-          "defaultFormat": "Format invalide.",
-          "defaultKeyword": "Valeur invalide.",
-          "defaultPattern": "La valeur ne correspond pas au format requis.",
-          "emailFormat": "Format d'adresse e-mail invalide.",
-          "maxItems_one": "Cette collection doit contenir au maximum {{count}} élément.",
-          "maxItems_other": "Cette collection doit contenir au maximum {{count}} éléments.",
-          "maximum": "Cette valeur doit être inférieure ou égale à {{maximum}}.",
-          "minItems_one": "Cette collection doit contenir au moins {{count}} élément.",
-          "minItems_other": "Cette collection doit contenir au moins {{count}} éléments.",
-          "minimum": "Cette valeur doit être supérieure ou égale à {{minimum}}.",
-          "required": "Ceci est un champ obligatoire.",
-          "timeFormat": "Format d'heure invalide.",
-          "uploadFailedError": "Le téléversement d'un ou plusieurs fichiers a échoué. Supprimez les fichiers en erreur avant de soumettre.",
-          "uploadInProgressError": "Veuillez attendre que les fichiers aient terminé de se téléverser.",
-          "uriFormat": "Format d'URL invalide.",
-          "uuidFormat": "Format d'UUID invalide."
-        },
-        "fields": {
-          "attachment": {
-            "chooseFile": "Choisir un fichier",
-            "disallowedTypeAlert": "Impossible d'ajouter {{fileName}} car son type de fichier n'est pas autorisé.",
-            "dropzoneText": "Glissez-déposez des fichiers ici",
-            "maxItemsAlert_one": "Vous ne pouvez ajouter que {{count}} fichier au maximum.",
-            "maxItemsAlert_other": "Vous ne pouvez ajouter que {{count}} fichiers au maximum.",
-            "downloadButtonLabel": "Télécharger {{fileName}}",
-            "expandButtonLabel": "Agrandir {{fileName}}",
-            "removeButtonLabel": "Supprimer {{fileName}}",
-            "requiredLabel": "(obligatoire)",
-            "uploadErrorLabel": "Échec du téléversement",
-            "uploadFailedAnnouncement_one": "Impossible de téléverser {{fileName}}",
-            "uploadFailedAnnouncement_other": "Impossible de téléverser {{count}} fichiers",
-            "uploadStartedAnnouncement_one": "Téléversement de {{fileName}}",
-            "uploadStartedAnnouncement_other": "Téléversement de {{count}} fichiers",
-            "uploadSucceededAnnouncement_one": "{{fileName}} téléversé",
-            "uploadSucceededAnnouncement_other": "{{count}} fichiers téléversés"
-          },
-          "collection": {
-            "addButtonLabel": "Ajouter {{itemName}}",
-            "defaultAddButton": "Ajouter",
-            "chevronButtonLabel": {
-              "closed": "Ouvrir la liste de {{collectionLabel}}",
-              "open": "Fermer la liste de {{collectionLabel}}"
-            },
-            "sortableList": {
-              "dragCancelAnnouncement": "Glissement annulé. {{activeItemTitle}} a été déposé.",
-              "dragEndAnnouncement": "{{activeItemTitle}} a été déposé à la position {{overItemPosition}} sur {{itemsLength}}.",
-              "draggableScreenReaderInstructions": "Pour saisir un {{itemName}}, appuyez sur la barre d’espace ou Entrée. Pendant le déplacement, utilisez les touches fléchées haut et bas pour déplacer le {{itemName}} et mettre à jour sa position. Appuyez à nouveau sur la barre d’espace ou Entrée pour déposer le {{itemName}} à sa nouvelle position.",
-              "dragOverAnnouncement": "{{activeItemTitle}} a été déplacé à la position {{overItemPosition}} sur {{itemsLength}}.",
-              "dragStartAnnouncement": "{{activeItemTitle}} a été saisi. {{activeItemTitle}} est à la position {{activeItemPosition}} sur {{itemsLength}}.",
-              "item": {
-                "attachmentHumanizedValue_one": "1 fichier",
-                "attachmentHumanizedValue_other": "{{count}} fichiers",
-                "collectionHumanizedValue": "{{collectionLength}} éléments",
-                "deleteButtonLabel": "Supprimer {{itemTitle}}",
-                "editButtonLabel": "Modifier {{itemTitle}}",
-                "formModal": {
-                  "cancelButton": "Annuler",
-                  "deleteButton": "Supprimer {{itemTitle}}",
-                  "doneButton": "Terminé"
-                },
-                "formPreview": {
-                  "attachmentHumanizedValue_one": "1 fichier",
-                  "attachmentHumanizedValue_other": "{{count}} fichiers",
-                  "collectionHumanizedValue": "{{collectionLength}} éléments",
-                  "jumpToLocationButtonLabel": "Aller à l'emplacement de {{field}}"
-                },
-                "chevronButtonLabel": {
-                  "closed": "Ouvrir l'aperçu du formulaire {{itemTitle}}",
-                  "open": "Fermer l'aperçu du formulaire {{itemTitle}}"
-                }
-              }
-            }
-          },
-          "text": {
-            "urlLinkLabel": "Ouvrir l'URL dans un nouvel onglet"
-          }
-        },
-        "validationErrorsAnnouncement": "Il y a des erreurs de validation dans les champs suivants :"
-      },
       "stateDropdown": {
         "active": "Actif",
         "resolved": "Résolu",

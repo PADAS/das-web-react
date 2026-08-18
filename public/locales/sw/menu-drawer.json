@@ -35,8 +35,8 @@
     },
     "ecoscopeAnalysisLinkAriaLabel": "Uchambuzi na Ecoscope",
     "ecoscopeAnalysisLink": "Uchambuzi",
-    "ecoscopeDownloaderLinkAriaLabel": "Upakuaji wa Ecoscope",
-    "ecoscopeDownloaderLink": "Pakua",
+    "ecoscopeDownloaderMigrationGuideLinkAriaLabel": "Upakuaji wa Ecoscope",
+    "ecoscopeDownloaderMigrationGuideLink": "Pakua",
     "ecoscopeHeading": "ECOSCOPE",
     "footer": {
       "clientVersion": "Toleo la Wavuti: {{version}}",

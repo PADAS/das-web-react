@@ -23,6 +23,16 @@ describe('img utility functions', () => {
       expect(calcUrlForImage(url)).toBe(url);
     });
 
+    it('returns the original URL if it is protocol relative', () => {
+      const url = '//cdn.example.com/image.jpg';
+      expect(calcUrlForImage(url)).toBe(url);
+    });
+
+    it('returns the original URL if it is an object URL', () => {
+      const url = 'blob:https://localhost/9a4f0e2c-1b3d-4c5e-8f7a-6b2d0e1c3a5f';
+      expect(calcUrlForImage(url)).toBe(url);
+    });
+
     it('returns the original URL if it is a bundled app asset', () => {
       const url = '/assets/location-dot-blue-abc123.png';
       const cleaned = calcUrlForImage(url);
@@ -43,7 +53,7 @@ describe('img utility functions', () => {
       try {
         const url = '/src/common/images/icons/photo.png';
         const cleaned = calcUrlForImage(url);
-        expect(cleaned).toBe(`https://localhost/${url}`);
+        expect(cleaned).toBe('https://localhost/src/common/images/icons/photo.png');
       } finally {
         process.env.DEV = prevDev;
       }
@@ -53,6 +63,27 @@ describe('img utility functions', () => {
       const url = 'images/test.jpg';
       const cleaned = calcUrlForImage(url);
       expect(cleaned).toBe(`https://localhost/${url}`);
+    });
+
+    it('appends host to an absolute path without doubling the slash', () => {
+      expect(calcUrlForImage('/api/v1.0/activity/event/1234/file/5678/icon/image.png'))
+        .toBe('https://localhost/api/v1.0/activity/event/1234/file/5678/icon/image.png');
+    });
+
+    it('appends host to a path whose filename contains a scheme-like word', () => {
+      expect(calcUrlForImage('/api/v1.0/activity/event/1234/file/5678/icon/http.png'))
+        .toBe('https://localhost/api/v1.0/activity/event/1234/file/5678/icon/http.png');
+    });
+
+    it('appends a host configured with a trailing slash without doubling the slash', () => {
+      jest.isolateModules(() => {
+        jest.doMock('../constants', () => ({ DAS_HOST: 'https://site.pamdas.org/' }));
+
+        const { calcUrlForImage: calcUrlForImageWithTrailingSlashHost } = require('./img');
+
+        expect(calcUrlForImageWithTrailingSlashHost('/static/photo.png'))
+          .toBe('https://site.pamdas.org/static/photo.png');
+      });
     });
   });
 

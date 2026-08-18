@@ -16,10 +16,6 @@ const UPDATE_PATROL_ERROR = 'UPDATE_PATROL_ERROR';
 
 const ADD_PATROL_NOTE_SUCCESS = 'ADD_PATROL_NOTE_SUCCESS';
 
-const UPLOAD_PATROL_FILES_START = 'UPLOAD_PATROL_FILES_START';
-const UPLOAD_PATROL_FILES_SUCCESS = 'UPLOAD_PATROL_FILES_SUCCESS';
-const UPLOAD_PATROL_FILES_ERROR = 'UPLOAD_PATROL_FILES_ERROR';
-
 const CLEAR_PATROL_DATA = 'CLEAR_PATROL_DATA';
 
 const REMOVE_PATROL_BY_ID = 'REMOVE_PATROL_BY_ID';
@@ -186,40 +182,14 @@ export const addNoteToPatrol = (patrol_id, note) => (dispatch) => {
     }); */
 };
 
-
-export const uploadPatrolFile = (event_id, file, onUploadProgress = (event) => console.log('report file upload update', event)) => (dispatch) => {
-  const uploadUrl = `${PATROLS_API_URL}${event_id}/files/`;
-
-  dispatch({
-    type: UPLOAD_PATROL_FILES_START,
-    payload: {
-      event_id,
-      file,
-    },
-  });
-
+// Not a thunk: the uploaded file only reaches the store through the patrol itself.
+export const uploadPatrolFile = (patrolId, file) => {
   const form = new FormData();
   form.append('filecontent.file', file);
 
-  return axios.post(uploadUrl, form, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-    onUploadProgress,
-  }).then((response) => {
-    dispatch({
-      type: UPLOAD_PATROL_FILES_SUCCESS,
-      payload: response.data.data,
-    });
-    return response;
-  })
-    .catch((error) => {
-      dispatch({
-        type: UPLOAD_PATROL_FILES_ERROR,
-        payload: error,
-      });
-      return Promise.reject(error);
-    });
+  return axios.post(`${PATROLS_API_URL}${patrolId}/files/`, form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
 };
 
 // patrol store 

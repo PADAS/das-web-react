@@ -54,6 +54,13 @@ export const createMapMock = (override = {}) => {
     }),
     setLayerZoomRange: jest.fn(),
     getLayer: jest.fn(),
+    getLayoutProperty: jest.fn(function (layerId, property) {
+      if (!this.getLayer(layerId)) {
+        throw new Error(`The layer '${layerId}' does not exist in the map's style and cannot be queried for layout properties.`);
+      }
+      return property === 'visibility' ? 'visible' : undefined;
+    }),
+    isSourceLoaded: jest.fn(() => true),
     getZoom: jest.fn(() => 12.333),
     addImage: jest.fn(),
     loadImage: jest.fn(),

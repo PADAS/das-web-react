@@ -13,7 +13,7 @@ import { ReactComponent as LinkIcon } from '../../common/images/icons/link.svg';
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 
 import * as activitySectionStyles from '../../DetailViewComponents/ActivitySection/styles.module.scss';
-import { EVENT_FORM_STATES } from '../../constants';
+import { EVENT_FORM_STATES, PREVIEW_FEATURES } from '../../constants';
 import { addEventToIncident, createEvent, fetchEvent, setEventState } from '../../ducks/events';
 import { areCardsEquals as areNotesEqual } from '../../DetailViewComponents/utils';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../../utils/file';
@@ -27,6 +27,7 @@ import {
 } from '../../utils/events';
 import { createNewReportForEventType } from '../../utils/events';
 import { executeSaveActions, generateSaveActionsForReportLikeObject } from '../../utils/save';
+import { generateErrorMessageForRequest } from '../../utils/request';
 import { extractObjectDifference } from '../../utils/objects';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
 import { fetchPatrol } from '../../ducks/patrols';
@@ -37,6 +38,7 @@ import { SidebarScrollContext } from '../../SidebarScrollContext';
 import { TAB_KEYS } from '../../constants';
 import { TrackerContext } from '../../utils/analytics';
 import useNavigate from '../../hooks/useNavigate';
+import { usePreviewFeature } from '../../hooks';
 import { uuid } from '../../utils/string';
 
 import ActivitySection from '../../DetailViewComponents/ActivitySection';
@@ -101,8 +103,10 @@ const generateErrorListForApiResponseDetails = (response, t) => {
         [{ label: key, message: value }, ...accumulator],
       []);
   } catch (e) {
+    const label = (response != null && generateErrorMessageForRequest(response))
+      || t('reportDetailView.unknownErrorLabel');
     const message = response?.response?.data?.status?.message;
-    return [{ label: t('reportDetailView.unknownErrorLabel'), message }];
+    return [{ label, message }];
   }
 };
 
@@ -133,9 +137,7 @@ const ReportDetailView = ({
 
   // Remove this flag and the conditional rendering below once community input
   // is enabled for all tenants.
-  const communityInputEnabled = useSelector(
-    (state) => !!state.view.systemConfig.previewFeatures?.community_input_admin_enabled
-  );
+  const communityInputEnabled = usePreviewFeature(PREVIEW_FEATURES.COMMUNITY_INPUT_ADMIN);
   const eventStore = useSelector((state) => state.data.eventStore);
   const eventType = useSelector((state) => {
     if (isNewReport) {
@@ -441,13 +443,16 @@ const ReportDetailView = ({
   }, [reportForm, reportTracker]);
 
   const onLegacyFormChange = useCallback((event) => {
-    const formData = Object.entries(event.formData).reduce((acc, [formKey, formData]) => ({
-      ...acc,
-      [formKey]: formData === undefined ? '' : formData
+    const eventDetails = reportForm.event_details ?? {};
+    const eventDetailsKeys = new Set([...Object.keys(eventDetails), ...Object.keys(event.formData)]);
+    // rjsf unsets (deletes) or sets to undefined a cleared leaf field's key,
+    // so a missing or undefined value in event.formData means the field was cleared.
+    const nextEventDetails = [...eventDetailsKeys].reduce((accumulator, eventDetailKey) => ({
+      ...accumulator,
+      [eventDetailKey]: event.formData[eventDetailKey] === undefined ? '' : event.formData[eventDetailKey]
     }), {});
 
-    setReportForm({ ...reportForm, event_details: { ...reportForm.event_details, ...formData } });
-
+    setReportForm({ ...reportForm, event_details: nextEventDetails });
   }, [reportForm]);
 
   const onFormError = useCallback((errors) => {
@@ -713,7 +718,7 @@ const ReportDetailView = ({
   useEffect(() => {
     const shouldUpdateMapEvent = reportChanges?.geometry ||
       reportChanges?.location ||
-      reportChanges?.priority ||
+      reportChanges?.priority !== undefined ||
       reportChanges?.time ||
       reportChanges?.title;
     if (!isNewReport && shouldUpdateMapEvent) {
@@ -807,7 +812,6 @@ const ReportDetailView = ({
           <QuickLinks.SectionsWrapper>
             <QuickLinks.Section anchorTitle={t('reportDetailView.quickLinks.detailsAnchor')}>
               <DetailsSection
-                eventId={reportId}
                 eventSchema={eventSchema}
                 hidePriority={hidePriority}
                 hideReportedBy={hideReportedBy}
@@ -879,15 +883,13 @@ const ReportDetailView = ({
           <div className={styles.footer}>
             <div className={styles.footerActionButtonsContainer}>
               <AddNoteButton
-                className={styles.footerActionButton}
                 data-testid={`reportDetailView-addNoteButton-${isAddedReport ? 'added' : 'original'}`}
                 onAddNote={onAddNote}
               />
 
-              <AddAttachmentButton className={styles.footerActionButton} onAddAttachments={onAddAttachments} />
+              <AddAttachmentButton onAddAttachments={onAddAttachments} />
 
               {showAddReportButton && <AddReportButton
-                className={styles.footerActionButton}
                 formProps={{ onSaveSuccess: onSaveAddedReport, relationshipButtonDisabled: true }}
                 onAddReport={onAddReport}
               />}

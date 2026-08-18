@@ -104,7 +104,7 @@ describe('Ducks - User content', () => {
     expect(revokeObjectURLSpy).toHaveBeenCalledWith(mockObjectUrl);
   });
 
-  test('uploadFile dispatches the SET_CHUNKED_UPLOAD_STATUS action when the upload state is pending', async () => {
+  test('uploadFile dispatches the SET_CHUNKED_UPLOAD_STATUS action when the upload state is in progress', async () => {
     const dispatch = jest.fn();
     const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
 
@@ -115,15 +115,15 @@ describe('Ducks - User content', () => {
         filename: 'test.pdf',
         fileType: 'application/pdf',
         objectUrl: undefined,
-        progress: 0,
-        status: 'pending',
+        progress: null,
+        status: 'in_progress',
         uploadId: MOCK_UPLOAD_ID,
       },
       type: SET_CHUNKED_UPLOAD_STATUS,
     });
   });
 
-  test('uploadFile includes an object URL in the pending dispatch for image files', async () => {
+  test('uploadFile includes an object URL in the initial dispatch for image files', async () => {
     const mockObjectUrl = 'blob:http://localhost/mock-url';
     jest.spyOn(URL, 'createObjectURL').mockReturnValue(mockObjectUrl);
 
@@ -137,15 +137,15 @@ describe('Ducks - User content', () => {
         filename: 'test.jpg',
         fileType: 'image/jpeg',
         objectUrl: mockObjectUrl,
-        progress: 0,
-        status: 'pending',
+        progress: null,
+        status: 'in_progress',
         uploadId: MOCK_UPLOAD_ID,
       },
       type: SET_CHUNKED_UPLOAD_STATUS,
     });
   });
 
-  test('uploadFile dispatches the SET_CHUNKED_UPLOAD_STATUS action when the upload state is uploading', async () => {
+  test('uploadFile dispatches the SET_CHUNKED_UPLOAD_STATUS action once the upload starts', async () => {
     const dispatch = jest.fn();
     const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
     const abortController = new AbortController();
@@ -154,12 +154,12 @@ describe('Ducks - User content', () => {
     await startChunkedUpload(file, MOCK_UPLOAD_ID, dispatch);
 
     expect(dispatch).toHaveBeenCalledWith({
-      payload: { progress: 0, status: 'uploading', uploadId: MOCK_UPLOAD_ID },
+      payload: { progress: 0, status: 'in_progress', uploadId: MOCK_UPLOAD_ID },
       type: SET_CHUNKED_UPLOAD_STATUS,
     });
   });
 
-  test('uploadFile dispatches the SET_CHUNKED_UPLOAD_STATUS action when the upload state is completed', async () => {
+  test('uploadFile dispatches the SET_CHUNKED_UPLOAD_STATUS action when the upload state is complete', async () => {
     const dispatch = jest.fn();
     const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
     const abortController = new AbortController();
@@ -168,7 +168,7 @@ describe('Ducks - User content', () => {
     await startChunkedUpload(file, MOCK_UPLOAD_ID, dispatch);
 
     expect(dispatch).toHaveBeenCalledWith({
-      payload: { progress: 1, status: 'completed', uploadId: MOCK_UPLOAD_ID },
+      payload: { progress: 1, status: 'complete', uploadId: MOCK_UPLOAD_ID },
       type: SET_CHUNKED_UPLOAD_STATUS,
     });
   });
@@ -189,11 +189,11 @@ describe('Ducks - User content', () => {
     await startChunkedUpload(file, MOCK_UPLOAD_ID, dispatch);
 
     expect(dispatch).toHaveBeenCalledWith({
-      payload: { progress: 0.5, status: 'uploading', uploadId: MOCK_UPLOAD_ID },
+      payload: { progress: 0.5, status: 'in_progress', uploadId: MOCK_UPLOAD_ID },
       type: SET_CHUNKED_UPLOAD_STATUS,
     });
     expect(dispatch).toHaveBeenCalledWith({
-      payload: { progress: 1, status: 'uploading', uploadId: MOCK_UPLOAD_ID },
+      payload: { progress: 1, status: 'in_progress', uploadId: MOCK_UPLOAD_ID },
       type: SET_CHUNKED_UPLOAD_STATUS,
     });
   });
@@ -239,7 +239,7 @@ describe('Ducks - User content', () => {
           filename: 'test.pdf',
           fileType: 'application/pdf',
           progress: 0.5,
-          status: 'uploading',
+          status: 'in_progress',
           uploadId: MOCK_UPLOAD_ID,
         },
       };
@@ -253,7 +253,7 @@ describe('Ducks - User content', () => {
           filename: 'test.pdf',
           fileType: 'application/pdf',
           progress: 1,
-          status: 'completed',
+          status: 'complete',
           uploadId: MOCK_UPLOAD_ID,
         },
       };
@@ -266,8 +266,8 @@ describe('Ducks - User content', () => {
       const payload = {
         filename: 'test.pdf',
         fileType: 'application/pdf',
-        progress: 0,
-        status: 'pending',
+        progress: null,
+        status: 'in_progress',
         uploadId: MOCK_UPLOAD_ID,
       };
       const action = { payload, type: SET_CHUNKED_UPLOAD_STATUS };
@@ -275,8 +275,8 @@ describe('Ducks - User content', () => {
         [MOCK_UPLOAD_ID]: {
           filename: 'test.pdf',
           fileType: 'application/pdf',
-          progress: 0,
-          status: 'pending',
+          progress: null,
+          status: 'in_progress',
           uploadId: MOCK_UPLOAD_ID,
         },
       };
@@ -290,18 +290,18 @@ describe('Ducks - User content', () => {
           filename: 'test.pdf',
           fileType: 'application/pdf',
           progress: 0,
-          status: 'uploading',
+          status: 'in_progress',
           uploadId: MOCK_UPLOAD_ID,
         },
       };
-      const payload = { progress: 0.5, status: 'uploading', uploadId: MOCK_UPLOAD_ID };
+      const payload = { progress: 0.5, status: 'in_progress', uploadId: MOCK_UPLOAD_ID };
       const action = { payload, type: SET_CHUNKED_UPLOAD_STATUS };
       const expectedState = {
         [MOCK_UPLOAD_ID]: {
           filename: 'test.pdf',
           fileType: 'application/pdf',
           progress: 0.5,
-          status: 'uploading',
+          status: 'in_progress',
           uploadId: MOCK_UPLOAD_ID,
         },
       };

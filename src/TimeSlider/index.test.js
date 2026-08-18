@@ -3,6 +3,7 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { act, fireEvent, render, screen, waitFor } from '../test-utils';
+import { BREAKPOINTS } from '../constants';
 import {
   clearVirtualDate,
   setVirtualDate,
@@ -39,6 +40,8 @@ describe('TimeSlider', () => {
     setVirtualDate.mockImplementation(() => () => {});
     resetGlobalDateRange.mockImplementation(() => () => {});
 
+    BREAKPOINTS.screenIsMediumLayoutOrLarger.matches = true;
+
     store = {
       data: {
         eventFilter: {
@@ -63,11 +66,73 @@ describe('TimeSlider', () => {
     jest.useRealTimers();
   });
 
-  const renderTimeSlider = (props) => render(
+  const renderTimeSlider = (props, { initialEntries } = {}) => render(
     <Provider store={mockStore(store)}>
       <TimeSlider {...props} />
-    </Provider>
+    </Provider>,
+    { initialEntries }
   );
+
+  test('has no sidebar offset when no sidebar tab is open', () => {
+    renderTimeSlider(undefined, { initialEntries: ['/'] });
+
+    expect(screen.getByTestId('timeSlider-wrapper')).toHaveStyle({ '--sidebar-offset': '0px' });
+  });
+
+  test('offsets for the sidebar width when a tab is open', () => {
+    renderTimeSlider(undefined, { initialEntries: ['/events'] });
+
+    expect(screen.getByTestId('timeSlider-wrapper')).toHaveStyle({ '--sidebar-offset': '582px' });
+  });
+
+  test('offsets for the wider detail view width when an item is open', () => {
+    renderTimeSlider(undefined, { initialEntries: ['/events/some-event-id'] });
+
+    expect(screen.getByTestId('timeSlider-wrapper')).toHaveStyle({ '--sidebar-offset': '736px' });
+  });
+
+  test('has no sidebar offset below the medium layout breakpoint, regardless of the URL', () => {
+    BREAKPOINTS.screenIsMediumLayoutOrLarger.matches = false;
+
+    renderTimeSlider(undefined, { initialEntries: ['/events/some-event-id'] });
+
+    expect(screen.getByTestId('timeSlider-wrapper')).toHaveStyle({ '--sidebar-offset': '0px' });
+  });
+
+  test('hides the speed and close controls, but keeps the slider, play button, date range button and time, when a sidebar tab is open', () => {
+    renderTimeSlider(undefined, { initialEntries: ['/events'] });
+
+    expect(screen.getByRole('slider', { name: 'Timeslider' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Play timeslider' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Change date range' })).toBeVisible();
+    expect(screen.getByRole('time')).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Open playback speed options' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Close timeslider' })).toBeNull();
+  });
+
+  test('hides the other controls when a sidebar detail view is open, but keeps the play button', () => {
+    renderTimeSlider(undefined, { initialEntries: ['/events/some-event-id'] });
+
+    expect(screen.getByRole('slider', { name: 'Timeslider' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Play timeslider' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Open playback speed options' })).toBeNull();
+  });
+
+  test('keeps showing the other controls when no sidebar tab is open', () => {
+    renderTimeSlider(undefined, { initialEntries: ['/'] });
+
+    expect(screen.getByRole('button', { name: 'Play timeslider' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Close timeslider' })).toBeVisible();
+  });
+
+  test('keeps showing the other controls when a sidebar tab is open below the medium layout breakpoint, since the CSS media queries already hide them there', () => {
+    BREAKPOINTS.screenIsMediumLayoutOrLarger.matches = false;
+
+    renderTimeSlider(undefined, { initialEntries: ['/events'] });
+
+    expect(screen.getByRole('button', { name: 'Play timeslider' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Close timeslider' })).toBeVisible();
+  });
 
   test('shows the play button', async () => {
     renderTimeSlider();
@@ -106,6 +171,182 @@ describe('TimeSlider', () => {
 
     expect(screen.getByRole('button', { name: 'Play timeslider' })).toBeVisible();
     expect(screen.queryByRole('button', { name: 'Stop timeslider' })).toBeNull();
+  });
+
+  test('shows the speed button', async () => {
+    renderTimeSlider();
+
+    const speedButton = screen.getByRole('button', { name: 'Open playback speed options' });
+
+    expect(speedButton).toBeVisible();
+    expect(speedButton).toHaveAttribute('title', 'Open playback speed options');
+    expect(speedButton).toHaveTextContent('1x');
+  });
+
+  test('opens the speed menu when the user clicks the speed button', async () => {
+    renderTimeSlider();
+
+    expect(screen.queryByRole('menu', { name: 'Playback speed options' })).toBeNull();
+
+    const speedButton = screen.getByRole('button', { name: 'Open playback speed options' });
+
+    expect(speedButton).toHaveAttribute('aria-expanded', 'false');
+
+    await userEvent.click(speedButton);
+
+    expect(screen.getByRole('menu', { name: 'Playback speed options' })).toBeVisible();
+    expect(speedButton).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  test('closes the speed menu', async () => {
+    renderTimeSlider();
+
+    const speedButton = screen.getByRole('button', { name: 'Open playback speed options' });
+
+    await userEvent.click(speedButton);
+
+    expect(screen.getByRole('menu', { name: 'Playback speed options' })).toBeVisible();
+
+    await userEvent.keyboard('{Escape}');
+
+    expect(screen.queryByRole('menu', { name: 'Playback speed options' })).toBeNull();
+    expect(speedButton).toHaveFocus();
+  });
+
+  test('closes the speed menu when compact mode is entered, so it cannot reappear open once compact mode ends', async () => {
+    BREAKPOINTS.screenIsMediumLayoutOrLarger.matches = false;
+
+    renderTimeSlider(undefined, { initialEntries: ['/events'] });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Open playback speed options' }));
+
+    expect(screen.getByRole('menu', { name: 'Playback speed options' })).toBeVisible();
+
+    BREAKPOINTS.screenIsMediumLayoutOrLarger.matches = true;
+    fireEvent(window, new Event('resize'));
+
+    expect(screen.queryByRole('button', { name: 'Open playback speed options' })).toBeNull();
+
+    BREAKPOINTS.screenIsMediumLayoutOrLarger.matches = false;
+    fireEvent(window, new Event('resize'));
+
+    expect(screen.getByRole('button', { name: 'Open playback speed options' })).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('menu', { name: 'Playback speed options' })).toBeNull();
+  });
+
+  test('shows the speed menu header', async () => {
+    renderTimeSlider();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Open playback speed options' }));
+
+    expect(screen.getByText('Playback Speed')).toBeVisible();
+  });
+
+  test('shows the speed menu options', async () => {
+    renderTimeSlider();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Open playback speed options' }));
+
+    const options = screen.getAllByRole('menuitemradio');
+
+    expect(options).toHaveLength(6);
+
+    ['0.5x', '0.75x', '1x', '1.25x', '1.5x', '2x'].forEach((speedLabel) => {
+      const option = screen.getByRole('menuitemradio', { name: `Set playback speed to ${speedLabel}` });
+
+      expect(option).toBeVisible();
+      expect(option).toHaveAttribute('title', `Set playback speed to ${speedLabel}`);
+    });
+  });
+
+  test('navigates the speed menu options when the user uses the keyboard', async () => {
+    renderTimeSlider();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Open playback speed options' }));
+
+    expect(screen.getByRole('menuitemradio', { name: 'Set playback speed to 1x' })).toHaveFocus();
+
+    await userEvent.keyboard('{ArrowDown}');
+
+    expect(screen.getByRole('menuitemradio', { name: 'Set playback speed to 1.25x' })).toHaveFocus();
+
+    await userEvent.keyboard('{ArrowUp}');
+
+    expect(screen.getByRole('menuitemradio', { name: 'Set playback speed to 1x' })).toHaveFocus();
+
+    await userEvent.keyboard('{Home}');
+
+    expect(screen.getByRole('menuitemradio', { name: 'Set playback speed to 0.5x' })).toHaveFocus();
+
+    await userEvent.keyboard('{End}');
+
+    expect(screen.getByRole('menuitemradio', { name: 'Set playback speed to 2x' })).toHaveFocus();
+  });
+
+  test('selects the speed menu option when the user clicks it', async () => {
+    renderTimeSlider();
+
+    const speedButton = screen.getByRole('button', { name: 'Open playback speed options' });
+
+    await userEvent.click(speedButton);
+
+    await userEvent.click(screen.getByRole('menuitemradio', { name: 'Set playback speed to 2x' }));
+
+    expect(screen.queryByRole('menu', { name: 'Playback speed options' })).toBeNull();
+    expect(speedButton).toHaveTextContent('2x');
+    expect(speedButton).toHaveFocus();
+  });
+
+  test('selects the speed menu option when the user presses the Enter key', async () => {
+    renderTimeSlider();
+
+    const speedButton = screen.getByRole('button', { name: 'Open playback speed options' });
+
+    await userEvent.click(speedButton);
+
+    await userEvent.keyboard('{End}');
+
+    expect(screen.getByRole('menuitemradio', { name: 'Set playback speed to 2x' })).toHaveFocus();
+
+    await userEvent.keyboard('{Enter}');
+
+    expect(screen.queryByRole('menu', { name: 'Playback speed options' })).toBeNull();
+    expect(speedButton).toHaveTextContent('2x');
+    expect(speedButton).toHaveFocus();
+  });
+
+  test('selects the speed menu option when the user presses the Space key', async () => {
+    renderTimeSlider();
+
+    const speedButton = screen.getByRole('button', { name: 'Open playback speed options' });
+
+    await userEvent.click(speedButton);
+
+    await userEvent.keyboard('{End}');
+
+    expect(screen.getByRole('menuitemradio', { name: 'Set playback speed to 2x' })).toHaveFocus();
+
+    await userEvent.keyboard(' ');
+
+    expect(screen.queryByRole('menu', { name: 'Playback speed options' })).toBeNull();
+    expect(speedButton).toHaveTextContent('2x');
+    expect(speedButton).toHaveFocus();
+  });
+
+  test('shows a check icon in the selected speed menu option', async () => {
+    renderTimeSlider();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Open playback speed options' }));
+
+    const selectedOption = screen.getByRole('menuitemradio', { name: 'Set playback speed to 1x' });
+
+    expect(selectedOption).toHaveAttribute('aria-checked', 'true');
+    expect(selectedOption.querySelector('svg')).toBeInTheDocument();
+
+    const unselectedOption = screen.getByRole('menuitemradio', { name: 'Set playback speed to 0.5x' });
+
+    expect(unselectedOption).toHaveAttribute('aria-checked', 'false');
+    expect(unselectedOption.querySelector('svg')).toBeNull();
   });
 
   test('shows the virtual date and time', async () => {

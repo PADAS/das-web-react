@@ -6,8 +6,10 @@ import { toast } from 'react-toastify';
 
 import { clearAuth, resetMasterCancelToken } from '../ducks/auth';
 
-import { REACT_APP_ROUTE_PREFIX } from '../constants';
+import { APP_ROUTES } from '../constants/routes';
+import { isStepUpChallenge, parseAuthChallenge, recoverAuth } from '../utils/auth-recovery';
 import { showToast } from '../utils/toast';
+import useAuthRecovery from '../hooks/useAuthRecovery';
 import useNavigate from '../hooks/useNavigate';
 
 const STARTUP_TIME = new Date();
@@ -58,17 +60,40 @@ const RequestConfigManager = ({
   token,
   user,
 }) => {
-  const location = useLocation();
+  const { search } = useLocation();
   const navigate = useNavigate();
 
-  const handle401Errors = useCallback((error) => {
-    if (error && error.toString().includes('401') && !error.config?.skipAuth) {
+  useAuthRecovery();
+
+  const handle401Errors = useCallback(async (error) => {
+    const isAuthError = error?.response?.status === 401 && !error.config?.skipAuth;
+    const request = error?.config;
+    // Step-up is allowed even after a silent renew (retriedAfterRefresh): it redirects rather
+    // than looping, and a renewed-but-MFA-stale token surfaces the step-up only on the replay.
+    const challenge = error?.response?.headers?.['www-authenticate'];
+    const stepUp = isStepUpChallenge(challenge);
+
+    if (isAuthError && request && (stepUp || !request.retriedAfterRefresh)) {
+      try {
+        const accessToken = await recoverAuth(stepUp ? { stepUp: true, challenge: parseAuthChallenge(challenge) } : undefined);
+        return axios({
+          ...request,
+          retriedAfterRefresh: true,
+          headers: { ...request.headers, Authorization: `Bearer ${accessToken}` },
+        });
+      } catch (renewalError) {
+        console.warn('Token renewal failed; signing out', renewalError);
+      }
+    }
+
+    if (isAuthError) {
       resetMasterCancelToken();
       clearAuth().then(() => {
-        navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search: location.search });
+        navigate({ pathname: APP_ROUTES.LOGIN, search });
       });
     }
-  }, [clearAuth, location?.search, navigate, resetMasterCancelToken]);
+    return Promise.reject(error);
+  }, [clearAuth, navigate, resetMasterCancelToken, search]);
 
   const addMasterCancelTokenToRequests = useCallback((config) => {
     config.cancelToken = config.cancelToken || (masterRequestCancelToken && masterRequestCancelToken.token);
@@ -114,10 +139,7 @@ const RequestConfigManager = ({
         handleGeoPermWarningHeader(response, userLocationAccessGranted);
         return response;
       },
-      (error) => {
-        handle401Errors(error);
-        return Promise.reject(error);
-      }
+      (error) => handle401Errors(error)
     ];
 
     const interceptorId = axios.interceptors.response.use(...interceptorConfig);
