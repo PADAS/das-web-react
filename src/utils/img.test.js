@@ -10,6 +10,10 @@ global.URL.createObjectURL = jest.fn();
 global.URL.revokeObjectURL = jest.fn();
 
 describe('img utility functions', () => {
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
+
   describe('calcUrlForImage', () => {
     beforeEach(() => {
       jest.resetAllMocks();
@@ -257,9 +261,7 @@ describe('img utility functions', () => {
 
         try {
           await loadPromise;
-        } catch (e) {
-
-        }
+        } catch () {}
 
         expect(mapDeleteSpy).toHaveBeenCalled();
 

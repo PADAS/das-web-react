@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from '../../utils/form-schemas/constants';
 import getHumanizedFieldValue from '../../utils/form-schemas/getHumanizedFieldValue';
+import normalizeChoiceListValues from '../../utils/form-schemas/normalizeChoiceListValues';
 import { selectCoordinatesRepresentation } from '../../selectors/location';
 import transformSchemaToFormElements from '../../utils/form-schemas/transformSchemaToFormElements';
 
@@ -55,8 +56,10 @@ const SectionSummary = ({ formData, formElements, section }) => <div className={
 const V2SchemaFormSummary = ({ eventSchema, formData }) => {
   const formElements = useMemo(() => transformSchemaToFormElements(eventSchema), [eventSchema]);
 
+  const normalizedFormData = useMemo(() => normalizeChoiceListValues(formData, formElements), [formData, formElements]);
+
   return formElements[ROOT_CANVAS_ID]?.details.sections.map((sectionId) => <SectionSummary
-    formData={formData}
+    formData={normalizedFormData}
     formElements={formElements}
     section={formElements[sectionId]}
     key={sectionId}
