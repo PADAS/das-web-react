@@ -1,4 +1,4 @@
-import { bearing, explode, featureCollection } from '@turf/turf';
+import { bearing, explode, featureCollection, length, lineString } from '@turf/turf';
 import isEqual from 'react-fast-compare';
 import { CancelToken } from 'axios';
 import {
@@ -356,6 +356,31 @@ export const trimTrackDataToTimeRange = (trackData, from = null, until = null) =
     ...rest,
   };
 
+};
+
+// The length in kilometers of the stretch of a track within a time range.
+export const trackLengthWithinTimeRange = (trackData, from = null, until = null) => {
+  const [trackFeature] = trackData.track.features;
+
+  if (!trackFeature?.geometry) {
+    return 0;
+  }
+
+  const { coordinates } = trackFeature.geometry;
+
+  const measure = (positions) => positions.length > 1 ? length(lineString(positions)) : 0;
+
+  if (!from && !until) {
+    return measure(coordinates);
+  }
+
+  const indices = findTimeEnvelopeIndices(
+    trackFeature.properties.coordinateProperties.times,
+    from ? new Date(from) : null,
+    until ? new Date(until) : null
+  );
+
+  return measure(trimArrayWithEnvelopeIndices(coordinates, indices));
 };
 
 export const addSocketStatusUpdateToTrack = (tracks, newData) => {

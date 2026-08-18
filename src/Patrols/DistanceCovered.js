@@ -1,10 +1,13 @@
 import { memo, useMemo } from 'react';
 import { length } from '@turf/turf';
+import { useTranslation } from 'react-i18next';
 
 import { formatDistanceInKilometers } from '../utils/distance';
 import { patrolStateAllowsTrackDisplay } from '../utils/patrols';
 
 const PatrolDistanceCovered = ({ patrolsData = [] }) => {
+  const { t } = useTranslation('utils');
+
   const patrolTrackLength = useMemo(() =>
     patrolsData
       .filter(({ patrol }) => !!patrolStateAllowsTrackDisplay(patrol))
@@ -15,7 +18,7 @@ const PatrolDistanceCovered = ({ patrolsData = [] }) => {
       }, 0),
   [patrolsData]);
 
-  return formatDistanceInKilometers(patrolTrackLength);
+  return formatDistanceInKilometers(t, patrolTrackLength);
 };
 
 export default memo(PatrolDistanceCovered);

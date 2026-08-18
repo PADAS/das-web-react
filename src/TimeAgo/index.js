@@ -5,6 +5,7 @@ import {
   durationHumanizer,
   generateCurrentTimeZoneTitle,
   HUMANIZED_DURATION_CONFIGS,
+  longTermAbbreviatedDurationHumanizer,
   resolveDurationHumanizerLanguage,
 } from '../utils/datetime';
 
@@ -22,16 +23,7 @@ const TimeAgo = ({ className, date, prefix = null, suffix = null }) => {
 
   const durationStringGenerator = useMemo(() => {
     if (olderThanAnHour){
-      const abbreviations = {
-        y: () => t('timeUnitAbbreviations.year'),
-        mo: () => t('timeUnitAbbreviations.month'),
-        w: () => t('timeUnitAbbreviations.week'),
-        d: () => t('timeUnitAbbreviations.day'),
-        h: () => t('timeUnitAbbreviations.hour'),
-        m: () => t('timeUnitAbbreviations.minute'),
-      };
-
-      return durationHumanizer(HUMANIZED_DURATION_CONFIGS.LONG_TERM_ABRREVIATED(abbreviations));
+      return longTermAbbreviatedDurationHumanizer(t);
     }
 
     if (olderThanAMinute) {

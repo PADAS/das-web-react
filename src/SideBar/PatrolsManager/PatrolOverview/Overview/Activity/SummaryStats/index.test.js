@@ -20,8 +20,15 @@ const DOG = {
   name: 'K9 Rex',
 };
 
+const PILOT = {
+  id: 'pilot-1',
+  image_url: null,
+  name: 'Pilot Zoe',
+};
+
 const FIRST_LEG_TIME_RANGE = { end_time: '2026-04-13T02:00:00.000Z', start_time: '2026-04-13T01:00:00.000Z' };
 const SECOND_LEG_TIME_RANGE = { end_time: '2026-04-13T03:30:00.000Z', start_time: '2026-04-13T02:00:00.000Z' };
+const THIRD_LEG_TIME_RANGE = { end_time: '2026-04-13T04:00:00.000Z', start_time: '2026-04-13T03:30:00.000Z' };
 
 const REFRESH_INTERVAL = 30_000;
 
@@ -57,7 +64,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Activity - Summ
     ],
   };
 
-  let store, tracker, user;
+  let reduxStore, store, tracker, user;
   beforeEach(() => {
     jest.useFakeTimers().setSystemTime(new Date('2026-04-13T04:00:00.000Z'));
 
@@ -74,19 +81,25 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Activity - Summ
       },
       view: {},
     };
+
+    reduxStore = mockStore(() => store);
   });
 
   afterEach(() => {
     jest.useRealTimers();
   });
 
-  const renderSummaryStats = (props) => render(
-    <Provider store={mockStore(store)}>
-      <TrackerContext.Provider value={tracker}>
-        <SummaryStats eventCount={0} patrol={endedPatrol} {...props} />
-      </TrackerContext.Provider>
-    </Provider>
-  );
+  const summaryStats = (props) => <Provider store={reduxStore}>
+    <TrackerContext.Provider value={tracker}>
+      <SummaryStats eventCount={0} patrol={endedPatrol} {...props} />
+    </TrackerContext.Provider>
+  </Provider>;
+
+  const renderSummaryStats = (props) => {
+    const { rerender } = render(summaryStats(props));
+
+    return { rerenderSummaryStats: (nextProps) => rerender(summaryStats(nextProps)) };
+  };
 
   const readSummaryStats = () => Object.fromEntries(
     [...document.querySelectorAll('dt')].map((label) => [label.textContent, label.nextElementSibling.textContent])
@@ -141,6 +154,58 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Activity - Summ
 
     expect(readSummaryStats()['Duration']).toBe('2h 30m');
     expect(jest.getTimerCount()).toBe(0);
+  });
+
+  test('measures a cancelled patrol up to the moment it was cancelled', () => {
+    const cancelledPatrol = {
+      ...activePatrol,
+      state: 'cancelled',
+      updates: [
+        { message: 'Updated fields: State is cancelled', time: '2026-04-13T03:00:00.000Z', type: 'update_patrol_state' },
+      ],
+    };
+
+    renderSummaryStats({ patrol: cancelledPatrol });
+
+    expect(readSummaryStats()['Duration']).toBe('2h');
+    expect(jest.getTimerCount()).toBe(0);
+  });
+
+  test('measures a done patrol up to the moment it was marked done', () => {
+    const donePatrol = {
+      ...activePatrol,
+      state: 'done',
+      updates: [
+        { message: 'Updated fields: State is done', time: '2026-04-13T03:00:00.000Z', type: 'update_patrol_state' },
+      ],
+    };
+
+    renderSummaryStats({ patrol: donePatrol });
+
+    expect(readSummaryStats()['Duration']).toBe('2h');
+    expect(jest.getTimerCount()).toBe(0);
+  });
+
+  test('shows a dash on every measurement of a patrol that has not started', () => {
+    const scheduledPatrol = {
+      ...endedPatrol,
+      patrol_segments: [{
+        id: 'leg-1',
+        leader: RANGER,
+        scheduled_start: '2026-04-14T01:00:00.000Z',
+        time_range: { end_time: null, start_time: null },
+      }],
+    };
+
+    renderSummaryStats({ eventCount: 2, patrol: scheduledPatrol });
+
+    expect(readSummaryStats()).toEqual({
+      'Active Time': '-',
+      'Distance': '-',
+      'Duration': '-',
+      'Events': '2',
+      'Paused Time': '-',
+    });
   });
 
   test('shows a dash as the distance of a patrol without tracked subjects', () => {
@@ -268,6 +333,29 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Activity - Summ
     expect(tracker.track).toHaveBeenCalledWith('Select the subject of the distance stat in patrol overview');
   });
 
+  test('moves the focus among the tracked subjects that are left after the patrol changes', async () => {
+    const threeLeggedPatrol = {
+      ...endedPatrol,
+      patrol_segments: [
+        ...endedPatrol.patrol_segments,
+        { id: 'leg-3', leader: PILOT, time_range: THIRD_LEG_TIME_RANGE },
+      ],
+    };
+
+    const { rerenderSummaryStats } = renderSummaryStats({ patrol: threeLeggedPatrol });
+
+    await openTrackedSubjectsMenu('Pilot Zoe');
+    await user.keyboard('{End}');
+
+    expect(screen.getByRole('menuitemradio', { name: 'K9 Rex' })).toHaveFocus();
+
+    rerenderSummaryStats({ patrol: endedPatrol });
+
+    await user.keyboard('{End}');
+
+    expect(screen.getByRole('menuitemradio', { name: 'Ranger Amara' })).toHaveFocus();
+  });
+
   describe('with the tracked subjects menu open', () => {
     let distanceSubjectButton;
     beforeEach(async () => {
@@ -357,10 +445,29 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Activity - Summ
       expect(screen.getByRole('menuitemradio', { name: 'K9 Rex Patrol leader' })).toHaveFocus();
     });
 
-    test('closes the menu when clicking outside of it', async () => {
+    test('closes the menu and gives the focus back to its button when clicking outside of it', async () => {
       await user.click(document.body);
 
       await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
+      expect(distanceSubjectButton).toHaveFocus();
+    });
+
+    test('leaves the focus alone when the track of a tracked subject updates', async () => {
+      await user.keyboard('{ArrowDown}');
+
+      store = {
+        ...store,
+        data: {
+          ...store.data,
+          tracks: { ...store.data.tracks, [DOG.id]: trackFor([[0, 1], [0, 0]], SECOND_LEG_TIME_RANGE) },
+        },
+      };
+      act(() => {
+        reduxStore.dispatch({ type: 'SOCKET_STATUS_UPDATE' });
+      });
+
+      expect(readSummaryStats()['Distance']).toBe('111.2km');
+      expect(screen.getByRole('menuitemradio', { name: 'Ranger Amara' })).toHaveFocus();
     });
   });
 });

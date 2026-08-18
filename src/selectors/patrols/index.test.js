@@ -720,6 +720,26 @@ describe('Selectors - Patrols', () => {
       expect(trackedSubjects[0].distance).toBeCloseTo(2 * ONE_DEGREE_IN_KILOMETERS, 1);
     });
 
+    test('counts only the stretch of the track that falls within the leg time range', () => {
+      const patrolWithinALongerTrack = {
+        patrol_segments: [{ leader: RANGER, time_range: FIRST_LEG_TIME_RANGE }],
+      };
+      state.data.tracks = {
+        [RANGER.id]: trackFor(
+          [[3, 0], [2, 0], [1, 0], [0, 0]],
+          [
+            SECOND_LEG_TIME_RANGE.end_time,
+            FIRST_LEG_TIME_RANGE.end_time,
+            FIRST_LEG_TIME_RANGE.start_time,
+            '2019-12-31T00:00:00.000Z',
+          ]
+        ),
+      };
+
+      expect(selectPatrolTrackedSubjects(state, patrolWithinALongerTrack)[0].distance)
+        .toBeCloseTo(ONE_DEGREE_IN_KILOMETERS, 1);
+    });
+
     test('counts no distance for a subject whose track is not loaded', () => {
       state.data.tracks = {};
 

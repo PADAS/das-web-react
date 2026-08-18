@@ -11,10 +11,12 @@ import {
   displayStartTimeForPatrol,
   displayStartTimeForPatrolSegment,
   displayTitleForPatrol,
+  effectiveEndTimeForPatrol,
   extractLegPatrolPoints,
   finalizeCombinedPatrolPoints,
   getActivePatrolsForLeaderId,
   getBoundsForPatrol,
+  getCancellationTimeForPatrol,
   getElapsedTimeForPatrol,
   getPatrolLocationCoordinates,
   getPatrolsForLeaderId,
@@ -782,6 +784,55 @@ describe('Patrols utils', () => {
     });
   });
 
+  describe('effectiveEndTimeForPatrol', () => {
+    test('returns the end time of the last leg', () => {
+      const patrol = {
+        patrol_segments: [{ time_range: { end_time: '2022-06-15T13:00:00.000Z', start_time: '2022-06-15T10:00:00.000Z' } }],
+      };
+
+      expect(effectiveEndTimeForPatrol(patrol)).toEqual(new Date('2022-06-15T13:00:00.000Z'));
+    });
+
+    test('falls back to the moment a cancelled patrol was cancelled', () => {
+      expect(effectiveEndTimeForPatrol(cancelledPatrol)).toEqual(new Date('2022-01-18T22:42:04.843502+00:00'));
+    });
+
+    test('falls back to the moment a done patrol was marked done', () => {
+      const patrol = {
+        ...donePatrol,
+        patrol_segments: [{
+          ...donePatrol.patrol_segments[0],
+          time_range: { ...donePatrol.patrol_segments[0].time_range, end_time: null },
+        }],
+      };
+
+      expect(effectiveEndTimeForPatrol(patrol)).toEqual(new Date('2022-01-18T22:12:24.207505+00:00'));
+    });
+
+    test('returns null for a patrol that has not ended', () => {
+      const patrol = {
+        patrol_segments: [{ time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' } }],
+      };
+
+      expect(effectiveEndTimeForPatrol(patrol)).toBeNull();
+    });
+  });
+
+  describe('getCancellationTimeForPatrol', () => {
+    test('returns the time of the most recent update that cancelled the patrol', () => {
+      expect(getCancellationTimeForPatrol(cancelledPatrol))
+        .toEqual(new Date('2022-01-18T22:42:04.843502+00:00'));
+    });
+
+    test('returns null for a patrol that is not cancelled', () => {
+      expect(getCancellationTimeForPatrol({ ...cancelledPatrol, state: 'open' })).toBeNull();
+    });
+
+    test('returns null for a cancelled patrol without a state update recording it', () => {
+      expect(getCancellationTimeForPatrol({ ...cancelledPatrol, updates: [] })).toBeNull();
+    });
+  });
+
   describe('getElapsedTimeForPatrol', () => {
     const HOUR = 60 * 60 * 1000;
 
@@ -814,6 +865,15 @@ describe('Patrols utils', () => {
       expect(getElapsedTimeForPatrol(patrol)).toBe(2 * HOUR);
 
       jest.useRealTimers();
+    });
+
+    test('measures a cancelled patrol up to the moment it was cancelled, not the fallback end time', () => {
+      const patrol = {
+        ...cancelledPatrol,
+        patrol_segments: [{ time_range: { end_time: null, start_time: '2022-01-18T21:42:04.843502+00:00' } }],
+      };
+
+      expect(getElapsedTimeForPatrol(patrol, new Date('2022-01-20T00:00:00.000Z').getTime())).toBe(HOUR);
     });
 
     test('returns zero for a patrol that has not started', () => {

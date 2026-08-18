@@ -16,12 +16,14 @@ import * as styles from './styles.module.scss';
 const PatrolTrackLegend = () => {
   const dispatch = useDispatch();
   const { t } = useTranslation('tracks', { keyPrefix: 'patrolTrackLegend' });
+  const { t: tUtils } = useTranslation('utils');
 
   const patrolTrackState = useSelector((state) => state.view.patrolTrackState);
   const patrolsWithTrackData = useSelector(selectPatrolsWithTracksData);
 
   // Calculate the total tracks length to show a description in the legend like "3km".
   const description = useMemo(() => formatDistanceInKilometers(
+    tUtils,
     patrolsWithTrackData
       .filter((patrolData) => !!patrolStateAllowsTrackDisplay(patrolData.patrol))
       .reduce((accumulator, { trackData }) => {
@@ -29,7 +31,7 @@ const PatrolTrackLegend = () => {
 
         return accumulator + trackLength;
       }, 0)
-  ), [patrolsWithTrackData]);
+  ), [patrolsWithTrackData, tUtils]);
 
   // Build the items array with the description, icon, id and title of each tracked patrol.
   const items = useMemo(() => patrolsWithTrackData.map((patrolData) => {
@@ -37,7 +39,7 @@ const PatrolTrackLegend = () => {
     const patrolTitle = displayTitleForPatrol(patrolData.patrol, patrolData.leader);
 
     return {
-      description: formatDistanceInKilometers(patrolData.trackData ? length(patrolData.trackData.track) : 0),
+      description: formatDistanceInKilometers(tUtils, patrolData.trackData ? length(patrolData.trackData.track) : 0),
       icon: <SvgIcon
         className={styles.itemIcon}
         iconId={iconId}
@@ -47,7 +49,7 @@ const PatrolTrackLegend = () => {
       id: patrolData.patrol.id,
       title: t('itemTitle', { patrolTitle }),
     };
-  }), [patrolsWithTrackData, t]);
+  }), [patrolsWithTrackData, t, tUtils]);
 
   return <TrackLegend
     description={description}

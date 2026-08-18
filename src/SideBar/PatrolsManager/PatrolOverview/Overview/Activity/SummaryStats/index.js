@@ -8,11 +8,15 @@ import { ReactComponent as ArrowDownSmallIcon } from '../../../../../../common/i
 import { ReactComponent as CheckIcon } from '../../../../../../common/images/icons/check-light.svg';
 import { ReactComponent as StarIcon } from '../../../../../../common/images/icons/star.svg';
 
-import { calcPatrolState, getElapsedTimeForPatrol, getPausedTimeForPatrol } from '../../../../../../utils/patrols';
+import {
+  actualStartTimeForPatrol,
+  effectiveEndTimeForPatrol,
+  getElapsedTimeForPatrol,
+  getPausedTimeForPatrol,
+} from '../../../../../../utils/patrols';
 import { calcUrlForImage } from '../../../../../../utils/img';
-import { durationHumanizer, HUMANIZED_DURATION_CONFIGS } from '../../../../../../utils/datetime';
 import { formatDistanceInKilometers } from '../../../../../../utils/distance';
-import { PATROL_UI_STATES } from '../../../../../../constants';
+import { longTermAbbreviatedDurationHumanizer } from '../../../../../../utils/datetime';
 import { selectPatrolTrackedSubjects } from '../../../../../../selectors/patrols';
 import { TrackerContext } from '../../../../../../utils/analytics';
 import useCurrentTime from '../../../../../../hooks/useCurrentTime';
@@ -31,17 +35,20 @@ const Stat = ({ label, value }) => <div className={styles.statItem}>
 
 const SummaryStats = ({ eventCount, patrol }) => {
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolOverview.overview.activity.summaryStats' });
-  const { t: tDates } = useTranslation('dates', { keyPrefix: 'timeUnitAbbreviations' });
+  const { t: tDates } = useTranslation('dates');
+  const { t: tUtils } = useTranslation('utils');
 
-  const isPatrolActive = useMemo(() => calcPatrolState(patrol) === PATROL_UI_STATES.ACTIVE, [patrol]);
+  const hasPatrolStarted = useMemo(() => !!actualStartTimeForPatrol(patrol), [patrol]);
+  const patrolEndTime = useMemo(() => effectiveEndTimeForPatrol(patrol), [patrol]);
 
-  const currentTime = useCurrentTime(isPatrolActive ? ELAPSED_TIME_REFRESH_INTERVAL : null);
+  const currentTime = useCurrentTime(hasPatrolStarted && !patrolEndTime ? ELAPSED_TIME_REFRESH_INTERVAL : null);
 
   const tracker = useContext(TrackerContext);
 
   const patrolTrackedSubjects = useSelector((state) => selectPatrolTrackedSubjects(state, patrol));
 
   const distanceSubjectMenuItemOptionRefs = useRef([]);
+  const wasDistanceSubjectMenuOpen = useRef(false);
 
   const distanceSubjectMenuPopoverId = useId();
 
@@ -53,18 +60,11 @@ const SummaryStats = ({ eventCount, patrol }) => {
     ?? patrolTrackedSubjects[0]
     ?? null;
 
-  const distance = distanceSubject
-    ? formatDistanceInKilometers(distanceSubject.distance)
+  const distance = hasPatrolStarted && distanceSubject
+    ? formatDistanceInKilometers(tUtils, distanceSubject.distance)
     : EMPTY_VALUE;
 
-  const humanizeDuration = useMemo(() => durationHumanizer(HUMANIZED_DURATION_CONFIGS.LONG_TERM_ABRREVIATED({
-    d: () => tDates('day'),
-    h: () => tDates('hour'),
-    m: () => tDates('minute'),
-    mo: () => tDates('month'),
-    w: () => tDates('week'),
-    y: () => tDates('year'),
-  })), [tDates]);
+  const humanizeDuration = useMemo(() => longTermAbbreviatedDurationHumanizer(tDates), [tDates]);
 
   const { activeTime, duration, pausedTime } = useMemo(() => {
     const duration = getElapsedTimeForPatrol(patrol, currentTime);
@@ -73,48 +73,54 @@ const SummaryStats = ({ eventCount, patrol }) => {
     return { activeTime: duration - pausedTime, duration, pausedTime };
   }, [currentTime, patrol]);
 
+  const formatElapsedTime = (elapsedTime) => hasPatrolStarted ? humanizeDuration(elapsedTime) : EMPTY_VALUE;
+
   const onDistanceSubjectMenuClose = () => {
     setIsDistanceSubjectMenuOpen(false);
 
     distanceSubjectMenuAnchorEl?.focus();
   };
 
+  const onDistanceSubjectMenuHide = () => {
+    setIsDistanceSubjectMenuOpen(false);
+
+    if (document.activeElement === document.body) {
+      distanceSubjectMenuAnchorEl?.focus();
+    }
+  };
+
   const onDistanceSubjectMenuKeyDown = (event) => {
-    const currentOptionIndex = distanceSubjectMenuItemOptionRefs.current.findIndex(
-      (ref) => ref === document.activeElement
-    );
+    // React leaves the slots of unmounted options behind, so only the mounted
+    // ones can take focus.
+    const menuItemOptions = distanceSubjectMenuItemOptionRefs.current.filter(Boolean);
+    const currentOptionIndex = menuItemOptions.findIndex((option) => option === document.activeElement);
 
     switch (event.key) {
-    case 'ArrowDown': {
+    case 'ArrowDown':
       event.preventDefault();
 
-      const nextOptionIndex = (currentOptionIndex + 1) % distanceSubjectMenuItemOptionRefs.current.length;
-      distanceSubjectMenuItemOptionRefs.current[nextOptionIndex]?.focus();
+      menuItemOptions[(currentOptionIndex + 1) % menuItemOptions.length]?.focus();
 
       break;
-    }
 
-    case 'ArrowUp': {
+    case 'ArrowUp':
       event.preventDefault();
 
-      const previousOptionIndex = (currentOptionIndex - 1 + distanceSubjectMenuItemOptionRefs.current.length)
-        % distanceSubjectMenuItemOptionRefs.current.length;
-      distanceSubjectMenuItemOptionRefs.current[previousOptionIndex]?.focus();
+      menuItemOptions[(currentOptionIndex - 1 + menuItemOptions.length) % menuItemOptions.length]?.focus();
 
       break;
-    }
 
     case 'End':
       event.preventDefault();
 
-      distanceSubjectMenuItemOptionRefs.current[distanceSubjectMenuItemOptionRefs.current.length - 1]?.focus();
+      menuItemOptions[menuItemOptions.length - 1]?.focus();
 
       break;
 
     case 'Home':
       event.preventDefault();
 
-      distanceSubjectMenuItemOptionRefs.current[0]?.focus();
+      menuItemOptions[0]?.focus();
 
       break;
 
@@ -139,13 +145,15 @@ const SummaryStats = ({ eventCount, patrol }) => {
   };
 
   useEffect(() => {
-    if (isDistanceSubjectMenuOpen) {
-      // The distance subject menu is open. Focus the selected subject menu
-      // item option.
-      const selectedDistanceSubjectMenuItemOptionIndex = patrolTrackedSubjects.findIndex(
+    const isDistanceSubjectMenuOpening = isDistanceSubjectMenuOpen && !wasDistanceSubjectMenuOpen.current;
+    wasDistanceSubjectMenuOpen.current = isDistanceSubjectMenuOpen;
+
+    if (isDistanceSubjectMenuOpening) {
+      // Opening the menu focuses the checked subject menu item option.
+      const checkedDistanceSubjectMenuItemOptionIndex = patrolTrackedSubjects.findIndex(
         ({ subject }) => subject.id === distanceSubject?.subject.id
       );
-      distanceSubjectMenuItemOptionRefs.current[selectedDistanceSubjectMenuItemOptionIndex]?.focus();
+      distanceSubjectMenuItemOptionRefs.current[checkedDistanceSubjectMenuItemOptionIndex]?.focus();
     }
   }, [isDistanceSubjectMenuOpen, patrolTrackedSubjects, distanceSubject]);
 
@@ -168,7 +176,7 @@ const SummaryStats = ({ eventCount, patrol }) => {
       </button>
 
       <Overlay
-        onHide={() => setIsDistanceSubjectMenuOpen(false)}
+        onHide={onDistanceSubjectMenuHide}
         placement="bottom-start"
         rootClose
         show={isDistanceSubjectMenuOpen}
@@ -219,11 +227,11 @@ const SummaryStats = ({ eventCount, patrol }) => {
     : t('distanceLabel');
 
   return <dl className={styles.summaryStats}>
-    <Stat label={t('durationLabel')} value={humanizeDuration(duration)} />
+    <Stat label={t('durationLabel')} value={formatElapsedTime(duration)} />
 
-    <Stat label={t('pausedTimeLabel')} value={humanizeDuration(pausedTime)} />
+    <Stat label={t('pausedTimeLabel')} value={formatElapsedTime(pausedTime)} />
 
-    <Stat label={t('activeTimeLabel')} value={humanizeDuration(activeTime)} />
+    <Stat label={t('activeTimeLabel')} value={formatElapsedTime(activeTime)} />
 
     <Stat label={distanceLabel} value={distance} />
 

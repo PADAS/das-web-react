@@ -1,7 +1,6 @@
 import { createSelector } from 'reselect';
 import { shallowEqual } from 'react-redux';
 import { isAfter } from 'date-fns';
-import { length } from '@turf/turf';
 import uniq from 'lodash/uniq';
 
 import {
@@ -13,7 +12,7 @@ import {
   patrolStateAllowsTrackDisplay,
 } from '../../utils/patrols';
 import { selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod, selectTrackTimeEnvelope } from '../tracks';
-import { trackHasDataWithinTimeRange, trimTrackDataToTimeRange } from '../../utils/tracks';
+import { trackHasDataWithinTimeRange, trackLengthWithinTimeRange, trimTrackDataToTimeRange } from '../../utils/tracks';
 
 const clampLegEndTime = (endTime, envelopeUntil) => {
   if (!envelopeUntil) {
@@ -193,9 +192,7 @@ const distanceCoveredInSegment = (segment, subjectTrack) => {
     return 0;
   }
 
-  return length(
-    trimTrackDataToTimeRange(subjectTrack, segment.time_range.start_time, segment.time_range.end_time).track
-  );
+  return trackLengthWithinTimeRange(subjectTrack, segment.time_range.start_time, segment.time_range.end_time);
 };
 
 // Every subject the patrol tracks, along with the total distance it covered
