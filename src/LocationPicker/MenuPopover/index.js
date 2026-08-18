@@ -1,4 +1,4 @@
-import { lazy, Suspense, useContext, useEffect, useRef } from 'react';
+import { lazy, Suspense, useContext, useEffect, useId, useRef, useState } from 'react';
 import Popover from 'react-bootstrap/Popover';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +7,7 @@ import { ReactComponent as GpsLocationIcon } from '../../common/images/icons/gps
 import { ReactComponent as MarkerFeedIcon } from '../../common/images/icons/marker-feed.svg';
 
 import { EVENT_REPORT_CATEGORY, trackEventFactory } from '../../utils/analytics';
+import { GEOLOCATION_PERMISSION_PROBE_RESULTS, probeGeolocationPermission } from '../../utils/location/permission-probe';
 
 import { MapContext } from '../../MapContext';
 
@@ -52,6 +53,10 @@ const MenuPopover = ({
   );
   const wrapperRef = useRef();
 
+  const permissionBlockedMessageId = useId();
+
+  const [isLocationPermissionDenied, setIsLocationPermissionDenied] = useState(false);
+
   const onWrapperKeyDown = (event) => {
     if (event.key === 'Escape') {
       event.preventDefault();
@@ -94,6 +99,57 @@ const MenuPopover = ({
     // Select the GPS input on mount so user can type away or navigate.
     gpsInputRef.current.select();
   }, []);
+
+  useEffect(() => {
+    // The message explains why the "use my location" button won't work, so it's pointless without that button.
+    if (!showUserLocation) return;
+
+    let isListening = true;
+
+    // Without the Permissions API there's nothing to subscribe to, so a denial arriving after this
+    // resolves only surfaces when the user clicks the button.
+    const probePermission = () => probeGeolocationPermission().then((result) => {
+      if (!isListening) return;
+
+      setIsLocationPermissionDenied(result === GEOLOCATION_PERMISSION_PROBE_RESULTS.DENIED);
+    });
+
+    if (window.navigator.permissions?.query) {
+      let permissionStatus;
+
+      const onPermissionStateChange = (event) => setIsLocationPermissionDenied(
+        event.target.state === GEOLOCATION_PERMISSION_PROBE_RESULTS.DENIED
+      );
+
+      window.navigator.permissions.query({ name: 'geolocation' })
+        .then(
+          (status) => {
+            if (!isListening) return;
+
+            setIsLocationPermissionDenied(status.state === GEOLOCATION_PERMISSION_PROBE_RESULTS.DENIED);
+
+            status.addEventListener('change', onPermissionStateChange);
+
+            permissionStatus = status;
+          },
+          // Browsers that don't know the geolocation permission name reject the query, leaving the probe as
+          // the only way to tell whether it's blocked.
+          probePermission
+        );
+
+      return () => {
+        isListening = false;
+
+        permissionStatus?.removeEventListener('change', onPermissionStateChange);
+      };
+    }
+
+    probePermission();
+
+    return () => {
+      isListening = false;
+    };
+  }, [showUserLocation]);
 
   useEffect(() => {
     // Create a focus trap while the component is mounted so only internal elements are focused when pressing tab only
@@ -171,6 +227,16 @@ const MenuPopover = ({
         value={value}
       />
 
+      {/* Mounted even while empty: screen readers only announce changes inside a live region that was
+          already present. */}
+      {showUserLocation && <p
+        className={styles.permissionBlockedMessage}
+        id={permissionBlockedMessageId}
+        role="status"
+      >
+        {isLocationPermissionDenied && t('permissionBlockedMessage')}
+      </p>}
+
       <div className={styles.buttons}>
         {map && (
           <Suspense fallback={null}>
@@ -188,8 +254,11 @@ const MenuPopover = ({
         )}
 
         {showUserLocation && <GetUserLocationButton
+          aria-describedby={permissionBlockedMessageId}
+          isDisabled={isLocationPermissionDenied}
           onClick={() => eventReportTracker.track('Click \'Use my location\'')}
           onGet={onUserLocationGet}
+          onPermissionDenied={() => setIsLocationPermissionDenied(true)}
           ref={lastFocusableElementRef}
           renderContent={() => <>
             <GpsLocationIcon />

@@ -104,6 +104,7 @@
     "menuPopover": {
       "dialogLabel": "Eneo",
       "getUserLocationButton": "Tumia eneo langu",
+      "permissionBlockedMessage": "Kushiriki eneo kumezuiwa na kivinjari",
       "pickMapLocationButton": "Weka kwenye ramani"
     },
     "setLocationButtonLabel": {

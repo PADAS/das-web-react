@@ -6,13 +6,30 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as GpsLocationIcon } from '../common/images/icons/gps-location-icon.svg';
 
 import { GEOLOCATOR_OPTIONS } from '../constants';
+import { isGeolocationPermissionDeniedError } from '../utils/location/permission-probe';
 import { setCurrentUserLocation } from '../ducks/location';
 
 import LoadingOverlay from '../LoadingOverlay';
 
 import * as styles from './styles.module.scss';
 
-const GetUserLocationButton = ({ onClick = null, onError = null, onGet, ref, renderContent = null, ...otherProps }) => {
+// Matches GeoLocationWatcher's refresh cadence. Nothing refreshes the store on the community page,
+// so an older fix could otherwise follow a reporter from site to site.
+const ONE_MINUTE = 1000 * 60;
+
+const isFreshPosition = (position) => !!position?.timestamp && (Date.now() - position.timestamp) < ONE_MINUTE;
+
+const GetUserLocationButton = ({
+  className = '',
+  isDisabled = false,
+  onClick = null,
+  onError = null,
+  onGet,
+  onPermissionDenied = null,
+  ref,
+  renderContent = null,
+  ...otherProps
+}) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('components', { keyPrefix: 'getUserLocationButton' });
 
@@ -20,15 +37,25 @@ const GetUserLocationButton = ({ onClick = null, onError = null, onGet, ref, ren
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const reportError = (error) => (onError
-    ? onError(error)
-    : toast.error(t('errorToastMessage', { errorMessage: error.message })));
+  const reportError = (error) => {
+    const isPermissionDenied = isGeolocationPermissionDeniedError(error);
+
+    if (isPermissionDenied) onPermissionDenied?.();
+
+    if (onError) return onError(error);
+
+    // A blocked permission is already surfaced inline next to the button, a toast would just repeat it.
+    if (isPermissionDenied) return;
+
+    toast.error(t('errorToastMessage', { errorMessage: error.message }));
+  };
 
   const onButtonClick = () => {
+    if (isDisabled) return;
+
     onClick?.();
 
-    if (userLocation) {
-      // If the user location is already available in the store we just return it.
+    if (isFreshPosition(userLocation)) {
       onGet(userLocation.coords);
     } else {
       setIsLoading(true);
@@ -45,9 +72,16 @@ const GetUserLocationButton = ({ onClick = null, onError = null, onGet, ref, ren
           (error) => {
             setIsLoading(false);
 
+            // A stale fix beats an error when the device can't produce a fresh one, but a denial must stay visible.
+            if (userLocation?.coords && !isGeolocationPermissionDeniedError(error)) {
+              return onGet(userLocation.coords);
+            }
+
             reportError(error);
           },
-          GEOLOCATOR_OPTIONS
+          // Same freshness window as the store: desktops without a quick high-accuracy source only ever
+          // answer from the browser's cache.
+          { ...GEOLOCATOR_OPTIONS, maximumAge: ONE_MINUTE }
         );
       } catch (error) {
         setIsLoading(false);
@@ -59,7 +93,10 @@ const GetUserLocationButton = ({ onClick = null, onError = null, onGet, ref, ren
 
   return <>
     <button
+        // The button takes part in the location picker's focus trap, so it must stay focusable while blocked.
+        aria-disabled={isDisabled || undefined}
         aria-label={t('userLocationButtonLabel')}
+        className={`${className} ${isDisabled ? styles.ghosted : ''}`.trim()}
         onClick={onButtonClick}
         ref={ref}
         title={t('userLocationButtonLabel')}

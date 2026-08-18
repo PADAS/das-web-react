@@ -19,6 +19,9 @@ jest.mock('../ducks/location', () => ({
   setCurrentUserLocation: jest.fn(),
 }));
 
+const NOW = 1700000000000;
+const ONE_MINUTE = 1000 * 60;
+
 describe('GetUserLocationButton', () => {
   const onGet = jest.fn();
 
@@ -50,8 +53,10 @@ describe('GetUserLocationButton', () => {
     expect(screen.getByLabelText('Get current position')).toHaveClass('className');
   });
 
-  test('returns the user position from the store if it is available', async () => {
-    store.view.userLocation = { coords: { latitude: 10, longitude: 10 } };
+  test('returns the user position from the store if it is fresh', async () => {
+    jest.spyOn(Date, 'now').mockReturnValue(NOW);
+    window.navigator.geolocation = { getCurrentPosition: jest.fn() };
+    store.view.userLocation = { coords: { latitude: 10, longitude: 10 }, timestamp: NOW - ONE_MINUTE + 1 };
     const onClick = jest.fn();
     renderGetUserLocationButton({ onClick });
 
@@ -63,6 +68,53 @@ describe('GetUserLocationButton', () => {
     expect(onClick).toHaveBeenCalledTimes(1);
     expect(onGet).toHaveBeenCalledTimes(1);
     expect(onGet).toHaveBeenCalledWith({ latitude: 10, longitude: 10 });
+    expect(window.navigator.geolocation.getCurrentPosition).not.toHaveBeenCalled();
+  });
+
+  test('reads a new position when the one in the store is stale', async () => {
+    jest.spyOn(Date, 'now').mockReturnValue(NOW);
+    window.navigator.geolocation = {
+      getCurrentPosition: jest.fn((successCallback) => {
+        successCallback({ coords: { latitude: 15, longitude: 15 }, timestamp: NOW });
+      }),
+    };
+    store.view.userLocation = { coords: { latitude: 10, longitude: 10 }, timestamp: NOW - ONE_MINUTE };
+    renderGetUserLocationButton();
+
+    await userEvent.click(screen.getByLabelText('Get current position'));
+
+    expect(window.navigator.geolocation.getCurrentPosition).toHaveBeenCalledTimes(1);
+    expect(onGet).toHaveBeenCalledTimes(1);
+    expect(onGet).toHaveBeenCalledWith({ latitude: 15, longitude: 15 });
+    expect(setCurrentUserLocationMock).toHaveBeenCalledWith({ coords: { latitude: 15, longitude: 15 }, timestamp: NOW });
+  });
+
+  test('lets the device answer the read with a fix cached within the freshness window', async () => {
+    window.navigator.geolocation = { getCurrentPosition: jest.fn() };
+    renderGetUserLocationButton();
+
+    await userEvent.click(screen.getByLabelText('Get current position'));
+
+    expect(window.navigator.geolocation.getCurrentPosition).toHaveBeenCalledWith(
+      expect.any(Function),
+      expect.any(Function),
+      expect.objectContaining({ maximumAge: ONE_MINUTE })
+    );
+  });
+
+  test('reads a new position when the one in the store has no timestamp', async () => {
+    window.navigator.geolocation = {
+      getCurrentPosition: jest.fn((successCallback) => {
+        successCallback({ coords: { latitude: 15, longitude: 15 } });
+      }),
+    };
+    store.view.userLocation = { coords: { latitude: 10, longitude: 10 } };
+    renderGetUserLocationButton();
+
+    await userEvent.click(screen.getByLabelText('Get current position'));
+
+    expect(window.navigator.geolocation.getCurrentPosition).toHaveBeenCalledTimes(1);
+    expect(onGet).toHaveBeenCalledWith({ latitude: 15, longitude: 15 });
   });
 
   test('requests the user position from the window.navigator.geolocation API and returns it', async () => {
@@ -102,6 +154,178 @@ describe('GetUserLocationButton', () => {
     expect(onClick).toHaveBeenCalledTimes(1);
     expect(toast.error).toHaveBeenCalledTimes(1);
     expect(toast.error).toHaveBeenCalledWith('Could not read your current location: Error');
+  });
+
+  test('shows an error if the position is unavailable and the store holds no position', async () => {
+    window.navigator.geolocation = {
+      getCurrentPosition: jest.fn((_, errorCallback) => {
+        errorCallback({ code: 2, message: 'Position unavailable', PERMISSION_DENIED: 1 });
+      }),
+    };
+    renderGetUserLocationButton();
+
+    await userEvent.click(screen.getByLabelText('Get current position'));
+
+    expect(onGet).not.toHaveBeenCalled();
+    expect(toast.error).toHaveBeenCalledTimes(1);
+    expect(toast.error).toHaveBeenCalledWith('Could not read your current location: Position unavailable');
+  });
+
+  test('falls back to the stale position in the store when the read fails without a denial', async () => {
+    jest.spyOn(Date, 'now').mockReturnValue(NOW);
+    window.navigator.geolocation = {
+      getCurrentPosition: jest.fn((_, errorCallback) => {
+        errorCallback({ code: 3, message: 'Timeout expired', PERMISSION_DENIED: 1 });
+      }),
+    };
+    store.view.userLocation = { coords: { latitude: 10, longitude: 10 }, timestamp: NOW - ONE_MINUTE * 30 };
+    renderGetUserLocationButton();
+
+    await userEvent.click(screen.getByLabelText('Get current position'));
+
+    expect(onGet).toHaveBeenCalledTimes(1);
+    expect(onGet).toHaveBeenCalledWith({ latitude: 10, longitude: 10 });
+    expect(toast.error).not.toHaveBeenCalled();
+    expect(screen.queryByText('Trying to read your location...')).toBeNull();
+  });
+
+  test('does not fall back to the stale position in the store when the user blocked the location permission', async () => {
+    jest.spyOn(Date, 'now').mockReturnValue(NOW);
+    const onPermissionDenied = jest.fn();
+    window.navigator.geolocation = {
+      getCurrentPosition: jest.fn((_, errorCallback) => {
+        errorCallback({ code: 1, message: 'User denied Geolocation', PERMISSION_DENIED: 1 });
+      }),
+    };
+    store.view.userLocation = { coords: { latitude: 10, longitude: 10 }, timestamp: NOW - ONE_MINUTE * 30 };
+    renderGetUserLocationButton({ onPermissionDenied });
+
+    await userEvent.click(screen.getByLabelText('Get current position'));
+
+    expect(onPermissionDenied).toHaveBeenCalledTimes(1);
+    expect(onGet).not.toHaveBeenCalled();
+    expect(toast.error).not.toHaveBeenCalled();
+  });
+
+  test('does not show an error toast if the user blocked the location permission', async () => {
+    window.navigator.geolocation = {
+      getCurrentPosition: jest.fn((_, errorCallback) => {
+        errorCallback({ code: 1, message: 'User denied Geolocation', PERMISSION_DENIED: 1 });
+      }),
+    };
+    renderGetUserLocationButton();
+
+    await userEvent.click(screen.getByLabelText('Get current position'));
+
+    expect(onGet).not.toHaveBeenCalled();
+    expect(toast.error).not.toHaveBeenCalled();
+  });
+
+  test('notifies the caller when the user blocks the location permission', async () => {
+    const onPermissionDenied = jest.fn();
+    window.navigator.geolocation = {
+      getCurrentPosition: jest.fn((_, errorCallback) => {
+        errorCallback({ code: 1, message: 'User denied Geolocation', PERMISSION_DENIED: 1 });
+      }),
+    };
+    renderGetUserLocationButton({ onPermissionDenied });
+
+    await userEvent.click(screen.getByLabelText('Get current position'));
+
+    expect(onPermissionDenied).toHaveBeenCalledTimes(1);
+    expect(toast.error).not.toHaveBeenCalled();
+  });
+
+  test('does not notify a blocked permission for other geolocation failures', async () => {
+    const onPermissionDenied = jest.fn();
+    window.navigator.geolocation = {
+      getCurrentPosition: jest.fn((_, errorCallback) => {
+        errorCallback({ code: 2, message: 'Position unavailable', PERMISSION_DENIED: 1 });
+      }),
+    };
+    renderGetUserLocationButton({ onPermissionDenied });
+
+    await userEvent.click(screen.getByLabelText('Get current position'));
+
+    expect(onPermissionDenied).not.toHaveBeenCalled();
+    expect(toast.error).toHaveBeenCalledTimes(1);
+  });
+
+  test('shows an error toast for an error that carries a code but is not a geolocation denial', async () => {
+    window.navigator.geolocation = {
+      getCurrentPosition: jest.fn(() => {
+        throw new DOMException('Blocked by permissions policy', 'IndexSizeError');
+      }),
+    };
+    renderGetUserLocationButton();
+
+    await userEvent.click(screen.getByLabelText('Get current position'));
+
+    expect(toast.error).toHaveBeenCalledTimes(1);
+    expect(toast.error).toHaveBeenCalledWith('Could not read your current location: Blocked by permissions policy');
+  });
+
+  test('still forwards a blocked permission to a custom error handler', async () => {
+    const onError = jest.fn();
+    const error = { code: 1, message: 'User denied Geolocation', PERMISSION_DENIED: 1 };
+    window.navigator.geolocation = {
+      getCurrentPosition: jest.fn((_, errorCallback) => errorCallback(error)),
+    };
+    renderGetUserLocationButton({ onError });
+
+    await userEvent.click(screen.getByLabelText('Get current position'));
+
+    expect(onError).toHaveBeenCalledTimes(1);
+    expect(onError).toHaveBeenCalledWith(error);
+    expect(toast.error).not.toHaveBeenCalled();
+  });
+
+  describe('when it is disabled', () => {
+    test('marks the button as disabled to assistive technology without removing it from the tab order', async () => {
+      renderGetUserLocationButton({ isDisabled: true });
+
+      const button = screen.getByLabelText('Get current position');
+
+      expect(button).toHaveAttribute('aria-disabled', 'true');
+      expect(button).not.toBeDisabled();
+
+      button.focus();
+
+      expect(document.activeElement).toBe(button);
+    });
+
+    test('does not request the location when clicked', async () => {
+      const onClick = jest.fn();
+      window.navigator.geolocation = { getCurrentPosition: jest.fn() };
+      renderGetUserLocationButton({ isDisabled: true, onClick });
+
+      await userEvent.click(screen.getByLabelText('Get current position'));
+
+      expect(onClick).not.toHaveBeenCalled();
+      expect(onGet).not.toHaveBeenCalled();
+      expect(window.navigator.geolocation.getCurrentPosition).not.toHaveBeenCalled();
+    });
+
+    test('does not return a location already held in the store when clicked', async () => {
+      store.view.userLocation = { coords: { latitude: 10, longitude: 10 } };
+      renderGetUserLocationButton({ isDisabled: true });
+
+      await userEvent.click(screen.getByLabelText('Get current position'));
+
+      expect(onGet).not.toHaveBeenCalled();
+    });
+
+    test('keeps the class names given by the caller', async () => {
+      renderGetUserLocationButton({ className: 'className', isDisabled: true });
+
+      expect(screen.getByLabelText('Get current position')).toHaveClass('className');
+    });
+  });
+
+  test('is not marked as disabled by default', async () => {
+    renderGetUserLocationButton();
+
+    expect(screen.getByLabelText('Get current position')).not.toHaveAttribute('aria-disabled');
   });
 
   test('shows a loading overlay while fetching the user location', async () => {

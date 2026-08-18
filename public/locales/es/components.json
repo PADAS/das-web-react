@@ -103,6 +103,7 @@
     "menuPopover": {
       "dialogLabel": "Ubicación",
       "getUserLocationButton": "Usar mi ubicación",
+      "permissionBlockedMessage": "El navegador bloqueó el uso compartido de la ubicación",
       "pickMapLocationButton": "Establecer en el mapa"
     },
     "setLocationButtonLabel": {

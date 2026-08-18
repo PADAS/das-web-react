@@ -1,6 +1,13 @@
 import { matchPath } from 'react-router';
 
-import { detailViewPattern, getCurrentIdFromURL, getCurrentTabFromURL, redirectToExternalUrl, tabPath } from './navigation';
+import {
+  detailViewPattern,
+  getCurrentIdFromURL,
+  getCurrentTabFromURL,
+  prefixedRoutePattern,
+  redirectToExternalUrl,
+  tabPath,
+} from './navigation';
 
 describe('Navigation utils', () => {
   describe('getCurrentIdFromURL', () => {
@@ -53,6 +60,32 @@ describe('Navigation utils', () => {
     test('does not match a different tab or the bare tab path', () => {
       expect(matchPath(detailViewPattern('patrols'), '/events/reportId-1234')).toBeNull();
       expect(matchPath(detailViewPattern('patrols'), '/patrols')).toBeNull();
+    });
+  });
+
+  describe('prefixedRoutePattern', () => {
+    test('leaves the pattern untouched for the root prefix', () => {
+      expect(prefixedRoutePattern('/', '/community/:value/*')).toBe('/community/:value/*');
+    });
+
+    test('composes a non-root prefix into the pattern', () => {
+      expect(prefixedRoutePattern('/er/', '/community/:value/*')).toBe('/er/community/:value/*');
+      expect(prefixedRoutePattern('/er', '/community/:value/*')).toBe('/er/community/:value/*');
+    });
+
+    test('adds the leading slash a prefix may be missing', () => {
+      expect(prefixedRoutePattern('portal', '/community/:value/*')).toBe('/portal/community/:value/*');
+      expect(prefixedRoutePattern('portal/', '/community/:value/*')).toBe('/portal/community/:value/*');
+      expect(matchPath(prefixedRoutePattern('portal', '/community/:value/*'), '/portal/community/abc')).not.toBeNull();
+    });
+
+    test('matches a pathname that includes the prefix', () => {
+      expect(matchPath(prefixedRoutePattern('/er/', '/community/:value/*'), '/er/community/abc')).not.toBeNull();
+      expect(matchPath(prefixedRoutePattern('/', '/community/:value/*'), '/community/abc')).not.toBeNull();
+    });
+
+    test('does not match a prefixed pathname when the prefix is left out', () => {
+      expect(matchPath('/community/:value/*', '/er/community/abc')).toBeNull();
     });
   });
 

@@ -10,6 +10,7 @@ import ReportManager from '../ReportManager';
 import { fetchCommunityInfo } from '../ducks/community';
 import { fetchEventTypes } from '../ducks/event-types';
 import { fetchEventsSchema } from '../ducks/event-schemas';
+import { resetGeolocationPermissionProbe } from '../utils/location/permission-probe';
 
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
@@ -379,6 +380,47 @@ describe('CommunityPage', () => {
       const secondCallId = ReportManager.mock.calls.at(-1)[0].reportId;
       expect(secondCallId).not.toBe(firstCallId);
       expect(navigate).not.toHaveBeenCalledWith(`/community/${COMMUNITY_VALUE}`);
+    });
+  });
+
+  describe('geolocation permission probe', () => {
+    let originalGeolocation;
+    beforeEach(() => {
+      originalGeolocation = window.navigator.geolocation;
+      window.navigator.geolocation = { getCurrentPosition: jest.fn() };
+
+      resetGeolocationPermissionProbe();
+    });
+
+    afterEach(() => {
+      window.navigator.geolocation = originalGeolocation;
+
+      delete window.navigator.permissions;
+    });
+
+    test('probes the permission once the community info has loaded when the permissions API is unavailable', async () => {
+      renderPage();
+
+      await waitFor(() => expect(window.navigator.geolocation.getCurrentPosition).toHaveBeenCalledTimes(1));
+    });
+
+    test('does not probe the permission when the permissions API is available', async () => {
+      window.navigator.permissions = { query: jest.fn() };
+      renderPage();
+
+      await screen.findByRole('heading', { level: 2 });
+
+      expect(window.navigator.geolocation.getCurrentPosition).not.toHaveBeenCalled();
+      expect(window.navigator.permissions.query).not.toHaveBeenCalled();
+    });
+
+    test('does not probe the permission when the community info fails to load', async () => {
+      fetchCommunityInfo.mockReturnValue(() => Promise.reject(new Error('Unauthorized')));
+      renderPage();
+
+      await screen.findByText('Invalid Community URL');
+
+      expect(window.navigator.geolocation.getCurrentPosition).not.toHaveBeenCalled();
     });
   });
 

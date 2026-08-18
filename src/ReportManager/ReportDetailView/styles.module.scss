@@ -11,6 +11,12 @@
   @media (min-width: $md-layout-width-min) {
     @include sidebar-width-detail;
   }
+
+  /* Capped so fields stay readable on wide screens. */
+  &.community {
+    width: 100%;
+    max-width: 60rem;
+  }
 }
 
 

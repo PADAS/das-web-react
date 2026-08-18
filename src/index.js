@@ -1,5 +1,5 @@
 import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router';
+import { BrowserRouter, matchPath, Navigate, Route, Routes, useLocation } from 'react-router';
 import { createRoot } from 'react-dom/client';
 import { PersistGate } from 'redux-persist/integration/react';
 import { persistStore } from 'redux-persist';
@@ -19,6 +19,7 @@ import { Auth0Provider } from '@auth0/auth0-react';
 import { EXTERNAL_SAME_DOMAIN_ROUTES, REACT_APP_GA4_TRACKING_ID, REACT_APP_ROUTE_PREFIX } from './constants';
 import { fetchSystemStatus } from './ducks/system-status';
 import { isSystemConfigLoaded } from './utils/auth';
+import { prefixedRoutePattern } from './utils/navigation';
 import registerServiceWorker from './registerServiceWorker';
 import { setClientReleaseIdentifier } from './utils/analytics';
 import store from './store';
@@ -154,7 +155,13 @@ root.render(
       <DetectOffline />
     </PersistGate>
 
-    <GeoLocationWatcher />
+    {/* The public community page must not request geolocation at load, so the browser prompt is
+        still available when a visitor clicks "use my location". Checking the path once is enough:
+        the community page is a separate entry point with no client-side navigation in or out. */}
+    {!matchPath(
+      prefixedRoutePattern(REACT_APP_ROUTE_PREFIX, APP_ROUTES.COMMUNITY),
+      window.location.pathname
+    ) && <GeoLocationWatcher />}
 
     <JiraSupportWidget />
   </Provider>
