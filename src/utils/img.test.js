@@ -1,5 +1,11 @@
 import { imgElFromSrc, calcImgIdFromUrlForMapImages, calcUrlForImage, ImageCache } from './img';
 
+const { createObjectURL, revokeObjectURL } = URL;
+
+afterAll(() => {
+  Object.assign(URL, { createObjectURL, revokeObjectURL });
+});
+
 global.URL.createObjectURL = jest.fn();
 global.URL.revokeObjectURL = jest.fn();
 

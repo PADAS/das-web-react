@@ -124,6 +124,7 @@
       "\\.svg": "<rootDir>/jest-config/mocks/svg.js"
     },
     "resetMocks": true,
+    "restoreMocks": true,
     "setupFilesAfterEnv": [
       "<rootDir>/src/setupTests.js"
     ],

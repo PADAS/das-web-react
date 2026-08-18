@@ -15,9 +15,12 @@ import {
   finalizeCombinedPatrolPoints,
   getActivePatrolsForLeaderId,
   getBoundsForPatrol,
+  getElapsedTimeForPatrol,
   getPatrolLocationCoordinates,
   getPatrolsForLeaderId,
+  getPausedTimeForPatrol,
   getReportsForPatrol,
+  getTrackedSubjectsForPatrolSegment,
   iconIdForPatrolSegment,
   iconIdForPatrolType,
   iconTypeForPatrol,
@@ -764,6 +767,88 @@ describe('Patrols utils', () => {
       };
 
       expect(actualEndTimeForPatrol(patrol)).toEqual(new Date('2022-06-15T12:00:00.000Z'));
+    });
+  });
+
+  describe('getTrackedSubjectsForPatrolSegment', () => {
+    test('returns the leg\'s leader', () => {
+      const leader = { id: 'leader-a', name: 'Ranger Amara' };
+
+      expect(getTrackedSubjectsForPatrolSegment({ leader })).toEqual([leader]);
+    });
+
+    test('returns an empty list for a leg without a leader', () => {
+      expect(getTrackedSubjectsForPatrolSegment({ leader: null })).toEqual([]);
+    });
+  });
+
+  describe('getElapsedTimeForPatrol', () => {
+    const HOUR = 60 * 60 * 1000;
+
+    test('measures from the first leg\'s start time to the last leg\'s end time', () => {
+      const patrol = {
+        patrol_segments: [
+          { time_range: { end_time: '2022-06-15T11:00:00.000Z', start_time: '2022-06-15T10:00:00.000Z' } },
+          { time_range: { end_time: '2022-06-15T13:00:00.000Z', start_time: '2022-06-15T11:00:00.000Z' } },
+        ],
+      };
+
+      expect(getElapsedTimeForPatrol(patrol)).toBe(3 * HOUR);
+    });
+
+    test('measures up to the given fallback end time while the patrol has not ended', () => {
+      const patrol = {
+        patrol_segments: [{ time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' } }],
+      };
+
+      expect(getElapsedTimeForPatrol(patrol, new Date('2022-06-15T12:00:00.000Z').getTime())).toBe(2 * HOUR);
+    });
+
+    test('measures an ongoing patrol up to now by default', () => {
+      jest.useFakeTimers().setSystemTime(new Date('2022-06-15T12:00:00.000Z'));
+
+      const patrol = {
+        patrol_segments: [{ time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' } }],
+      };
+
+      expect(getElapsedTimeForPatrol(patrol)).toBe(2 * HOUR);
+
+      jest.useRealTimers();
+    });
+
+    test('returns zero for a patrol that has not started', () => {
+      const patrol = { patrol_segments: [{ time_range: { end_time: null, start_time: null } }] };
+
+      expect(getElapsedTimeForPatrol(patrol)).toBe(0);
+    });
+
+    test('returns zero for a patrol without legs', () => {
+      expect(getElapsedTimeForPatrol({ patrol_segments: [] })).toBe(0);
+    });
+
+    test('never returns a negative elapsed time', () => {
+      const patrol = {
+        patrol_segments: [{ time_range: { end_time: '2022-06-15T09:00:00.000Z', start_time: '2022-06-15T10:00:00.000Z' } }],
+      };
+
+      expect(getElapsedTimeForPatrol(patrol)).toBe(0);
+    });
+  });
+
+  describe('getPausedTimeForPatrol', () => {
+    test('returns zero while no leg can be recognized as a pause', () => {
+      const patrol = {
+        patrol_segments: [
+          { time_range: { end_time: '2022-06-15T11:00:00.000Z', start_time: '2022-06-15T10:00:00.000Z' } },
+          { time_range: { end_time: null, start_time: '2022-06-15T11:00:00.000Z' } },
+        ],
+      };
+
+      expect(getPausedTimeForPatrol(patrol)).toBe(0);
+    });
+
+    test('returns zero for a patrol without legs', () => {
+      expect(getPausedTimeForPatrol({ patrol_segments: [] })).toBe(0);
     });
   });
 

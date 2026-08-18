@@ -619,7 +619,9 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith('The patrol could not be saved. Please try again.');
     });
-    expect(screen.getByTestId('test-location')).toHaveTextContent('/events/new');
+    await waitFor(() => {
+      expect(screen.getByTestId('test-location')).toHaveTextContent('/events/new');
+    });
   });
 
   describe('saving', () => {
