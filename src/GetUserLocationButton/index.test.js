@@ -19,6 +19,9 @@ jest.mock('../ducks/location', () => ({
   setCurrentUserLocation: jest.fn(),
 }));
 
+const NOW = 1700000000000;
+const ONE_MINUTE = 1000 * 60;
+
 describe('GetUserLocationButton', () => {
   const onGet = jest.fn();
 
@@ -50,8 +53,10 @@ describe('GetUserLocationButton', () => {
     expect(screen.getByLabelText('Get current position')).toHaveClass('className');
   });
 
-  test('returns the user position from the store if it is available', async () => {
-    store.view.userLocation = { coords: { latitude: 10, longitude: 10 } };
+  test('returns the user position from the store if it is fresh', async () => {
+    jest.spyOn(Date, 'now').mockReturnValue(NOW);
+    window.navigator.geolocation = { getCurrentPosition: jest.fn() };
+    store.view.userLocation = { coords: { latitude: 10, longitude: 10 }, timestamp: NOW - ONE_MINUTE + 1 };
     const onClick = jest.fn();
     renderGetUserLocationButton({ onClick });
 
@@ -63,6 +68,39 @@ describe('GetUserLocationButton', () => {
     expect(onClick).toHaveBeenCalledTimes(1);
     expect(onGet).toHaveBeenCalledTimes(1);
     expect(onGet).toHaveBeenCalledWith({ latitude: 10, longitude: 10 });
+    expect(window.navigator.geolocation.getCurrentPosition).not.toHaveBeenCalled();
+  });
+
+  test('reads a new position when the one in the store is stale', async () => {
+    jest.spyOn(Date, 'now').mockReturnValue(NOW);
+    window.navigator.geolocation = {
+      getCurrentPosition: jest.fn((successCallback) => {
+        successCallback({ coords: { latitude: 15, longitude: 15 }, timestamp: NOW });
+      }),
+    };
+    store.view.userLocation = { coords: { latitude: 10, longitude: 10 }, timestamp: NOW - ONE_MINUTE };
+    renderGetUserLocationButton();
+
+    await userEvent.click(screen.getByLabelText('Get current position'));
+
+    expect(window.navigator.geolocation.getCurrentPosition).toHaveBeenCalledTimes(1);
+    expect(onGet).toHaveBeenCalledTimes(1);
+    expect(onGet).toHaveBeenCalledWith({ latitude: 15, longitude: 15 });
+  });
+
+  test('reads a new position when the one in the store has no timestamp', async () => {
+    window.navigator.geolocation = {
+      getCurrentPosition: jest.fn((successCallback) => {
+        successCallback({ coords: { latitude: 15, longitude: 15 } });
+      }),
+    };
+    store.view.userLocation = { coords: { latitude: 10, longitude: 10 } };
+    renderGetUserLocationButton();
+
+    await userEvent.click(screen.getByLabelText('Get current position'));
+
+    expect(window.navigator.geolocation.getCurrentPosition).toHaveBeenCalledTimes(1);
+    expect(onGet).toHaveBeenCalledWith({ latitude: 15, longitude: 15 });
   });
 
   test('requests the user position from the window.navigator.geolocation API and returns it', async () => {

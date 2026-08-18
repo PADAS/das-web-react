@@ -87,12 +87,14 @@ const CommunityPage = () => {
   }, [creatableEventTypes, eventTypeValue, isLoading, isUnauthorized, navigate, value]);
 
   useEffect(() => {
-    // Without the Permissions API a read attempt is the only way to learn the geolocation state, and doing
-    // it at load means the location picker knows the answer by the time it opens.
+    // Without the Permissions API a read attempt is the only way to learn the geolocation state. Waiting for
+    // the community info keeps the prompt off invalid URLs while still resolving before the picker opens.
+    if (isLoading || isUnauthorized) return;
+
     if (!window.navigator.permissions?.query) {
       probeGeolocationPermission();
     }
-  }, []);
+  }, [isLoading, isUnauthorized]);
 
   useEffect(() => () => clearTimeout(timeoutRef.current), []);
 

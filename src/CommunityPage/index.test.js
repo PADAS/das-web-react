@@ -398,13 +398,13 @@ describe('CommunityPage', () => {
       delete window.navigator.permissions;
     });
 
-    test('probes the permission on mount when the permissions API is unavailable', async () => {
+    test('probes the permission once the community info has loaded when the permissions API is unavailable', async () => {
       renderPage();
 
       await waitFor(() => expect(window.navigator.geolocation.getCurrentPosition).toHaveBeenCalledTimes(1));
     });
 
-    test('does not probe the permission on mount when the permissions API is available', async () => {
+    test('does not probe the permission when the permissions API is available', async () => {
       window.navigator.permissions = { query: jest.fn() };
       renderPage();
 
@@ -412,6 +412,15 @@ describe('CommunityPage', () => {
 
       expect(window.navigator.geolocation.getCurrentPosition).not.toHaveBeenCalled();
       expect(window.navigator.permissions.query).not.toHaveBeenCalled();
+    });
+
+    test('does not probe the permission when the community info fails to load', async () => {
+      fetchCommunityInfo.mockReturnValue(() => Promise.reject(new Error('Unauthorized')));
+      renderPage();
+
+      await screen.findByText('Invalid Community URL');
+
+      expect(window.navigator.geolocation.getCurrentPosition).not.toHaveBeenCalled();
     });
   });
 

@@ -13,6 +13,12 @@ import LoadingOverlay from '../LoadingOverlay';
 
 import * as styles from './styles.module.scss';
 
+// Matches GeoLocationWatcher's refresh cadence. Nothing refreshes the store on the community page,
+// so an older fix could otherwise follow a reporter from site to site.
+const ONE_MINUTE = 1000 * 60;
+
+const isFreshPosition = (position) => !!position?.timestamp && (Date.now() - position.timestamp) < ONE_MINUTE;
+
 const GetUserLocationButton = ({
   className = '',
   isDisabled = false,
@@ -49,8 +55,7 @@ const GetUserLocationButton = ({
 
     onClick?.();
 
-    if (userLocation) {
-      // If the user location is already available in the store we just return it.
+    if (isFreshPosition(userLocation)) {
       onGet(userLocation.coords);
     } else {
       setIsLoading(true);
