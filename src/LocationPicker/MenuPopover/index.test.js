@@ -415,6 +415,17 @@ describe('LocationPicker - MenuPopover', () => {
       expect(await screen.findByRole('status')).toHaveTextContent(permissionBlockedMessage);
     });
 
+    test('falls back to the probe if the query is rejected', async () => {
+      global.navigator.permissions.query.mockRejectedValue(new TypeError('unknown permission name'));
+      window.navigator.geolocation = {
+        getCurrentPosition: jest.fn((_, errorCallback) => errorCallback({ code: 1, PERMISSION_DENIED: 1 })),
+      };
+      renderMenuPopover();
+
+      expect(await screen.findByRole('status')).toHaveTextContent(permissionBlockedMessage);
+      expect(screen.getByLabelText('Get current position')).toHaveAttribute('aria-disabled', 'true');
+    });
+
     test('does not check the permission if the user location is not active', async () => {
       store.view.showUserLocation = false;
       renderMenuPopover();

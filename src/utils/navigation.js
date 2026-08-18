@@ -14,6 +14,10 @@ export const getCurrentTabFromURL = (pathname) => {
   return match?.params?.tab;
 };
 
+// Route patterns are relative to the router's basename, but window.location.pathname includes it, so
+// matching a pattern against a raw pathname needs the prefix composed in first.
+export const prefixedRoutePattern = (prefix, pattern) => `${(prefix || '').replace(/\/+$/, '')}${pattern}`;
+
 export const tabPath = (tab) => `/${tab}`;
 
 export const detailViewPattern = (tab) => `/${tab}/:id/*`;

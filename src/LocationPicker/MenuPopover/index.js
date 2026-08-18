@@ -107,6 +107,14 @@ const MenuPopover = ({
 
     let isListening = true;
 
+    // Without the Permissions API there's nothing to subscribe to, so a denial arriving after this
+    // resolves only surfaces on the next page load.
+    const probePermission = () => probeGeolocationPermission().then((result) => {
+      if (!isListening) return;
+
+      setIsLocationPermissionDenied(result === GEOLOCATION_PERMISSION_PROBE_RESULTS.DENIED);
+    });
+
     if (window.navigator.permissions?.query) {
       let permissionStatus;
 
@@ -122,8 +130,9 @@ const MenuPopover = ({
 
           status.addEventListener('change', onPermissionStateChange);
         })
-        // Browsers that don't know the geolocation permission name reject the query, we can't tell if it's blocked.
-        .catch(() => setIsLocationPermissionDenied(false));
+        // Browsers that don't know the geolocation permission name reject the query, leaving the probe as
+        // the only way to tell whether it's blocked.
+        .catch(probePermission);
 
       return () => {
         isListening = false;
@@ -132,13 +141,7 @@ const MenuPopover = ({
       };
     }
 
-    // Without the Permissions API there's nothing to subscribe to, so a denial arriving after this
-    // resolves only surfaces on the next page load.
-    probeGeolocationPermission().then((result) => {
-      if (!isListening) return;
-
-      setIsLocationPermissionDenied(result === GEOLOCATION_PERMISSION_PROBE_RESULTS.DENIED);
-    });
+    probePermission();
 
     return () => {
       isListening = false;
