@@ -20,7 +20,7 @@
     "coolOffTimeRemaining": "Time remaining: {{timeRemaining}}",
     "coolOffTitle": "Please wait before submitting again",
     "coolOffTypeUnavailable": "Available in {{timeRemaining}}",
-    "formSubmitted": "Form Submitted",
+    "formSubmitted": "Successfully Submitted",
     "invalidCommunityUrl": "Invalid Community URL",
     "searchPlaceholder": "Search event types..."
   },

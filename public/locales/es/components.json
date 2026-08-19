@@ -24,7 +24,7 @@
     "coolOffTimeRemaining": "Tiempo restante: {{timeRemaining}}",
     "coolOffTitle": "Espere antes de volver a enviar",
     "coolOffTypeUnavailable": "Disponible en {{timeRemaining}}",
-    "formSubmitted": "Formulario enviado",
+    "formSubmitted": "Enviado correctamente",
     "invalidCommunityUrl": "URL de comunidad no válida",
     "searchPlaceholder": "Buscar tipos de evento..."
   },

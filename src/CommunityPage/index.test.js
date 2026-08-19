@@ -321,24 +321,24 @@ describe('CommunityPage', () => {
       expect(navigate).toHaveBeenCalledWith(`/community/${COMMUNITY_VALUE}`);
     });
 
-    test('shows the "Form Submitted" modal on form submission', async () => {
+    test('shows the "Successfully Submitted" modal on form submission', async () => {
       renderPage();
       await waitFor(() => expect(captureOnBack).toBeDefined());
       await act(async () => captureOnBack());
-      expect(await screen.findByText('Form Submitted')).toBeInTheDocument();
+      expect(await screen.findByText('Successfully Submitted')).toBeInTheDocument();
     });
 
-    test('hides the "Form Submitted" modal after 3 seconds', async () => {
+    test('hides the "Successfully Submitted" modal after 3 seconds', async () => {
       jest.useFakeTimers();
       renderPage();
 
       await waitFor(() => expect(captureOnBack).toBeDefined());
       await act(async () => captureOnBack());
-      expect(await screen.findByText('Form Submitted')).toBeInTheDocument();
+      expect(await screen.findByText('Successfully Submitted')).toBeInTheDocument();
 
       await act(async () => jest.advanceTimersByTime(3000));
       await act(async () => jest.runAllTimers());
-      expect(screen.queryByText('Form Submitted')).not.toBeInTheDocument();
+      expect(screen.queryByText('Successfully Submitted')).not.toBeInTheDocument();
     });
 
     test('modal remains visible before the 3-second timeout elapses', async () => {
@@ -349,20 +349,20 @@ describe('CommunityPage', () => {
       await act(async () => captureOnBack());
 
       await act(async () => jest.advanceTimersByTime(2999));
-      expect(await screen.findByText('Form Submitted')).toBeInTheDocument();
+      expect(await screen.findByText('Successfully Submitted')).toBeInTheDocument();
     });
 
     test('modal can be dismissed early by closing it', async () => {
       renderPage();
       await waitFor(() => expect(captureOnBack).toBeDefined());
       await act(async () => captureOnBack());
-      expect(await screen.findByText('Form Submitted')).toBeInTheDocument();
+      expect(await screen.findByText('Successfully Submitted')).toBeInTheDocument();
 
       const closeButton = screen.getByRole('button', { name: /close/i });
       await userEvent.click(closeButton);
 
       await waitFor(() =>
-        expect(screen.queryByText('Form Submitted')).not.toBeInTheDocument()
+        expect(screen.queryByText('Successfully Submitted')).not.toBeInTheDocument()
       );
     });
   });
@@ -704,7 +704,7 @@ describe('CommunityPage', () => {
         await waitFor(() => expect(captureOnBack).toBeDefined());
         await act(async () => captureOnBack());
 
-        expect(await screen.findByText('Form Submitted')).toBeInTheDocument();
+        expect(await screen.findByText('Successfully Submitted')).toBeInTheDocument();
         expect(await screen.findByText('Please wait before submitting again')).toBeInTheDocument();
       });
     });
