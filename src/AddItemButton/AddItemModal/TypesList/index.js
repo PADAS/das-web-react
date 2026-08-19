@@ -4,19 +4,38 @@ import EventTypeListItem from '../../../EventTypeListItem';
 
 import * as styles from './styles.module.scss';
 
-const CategoryList = ({ category, onClickType, showTitle }) => <div>
+const CategoryList = ({ category, getTypeUnavailableReason, onClickType, showTitle }) => <div>
   {showTitle && <h4 className={styles.categoryTitle} id={`${category.value}-quick-select`}>{category.display}</h4>}
 
   <ul key={category.value} className={styles.typesList}>
-    {category.types.map((type) => <li className={styles.typeListItem} key={type.id}>
-      <button data-testid={`categoryList-button-${type.id}`} onClick={() => onClickType(type)} type="button">
-        <EventTypeListItem {...type} />
-      </button>
-    </li>)}
+    {category.types.map((type) => {
+      const unavailableReason = getTypeUnavailableReason?.(type);
+
+      // aria-disabled rather than disabled: the control stays focusable, so a screen reader user
+      // can reach it and hear why it is unavailable.
+      return <li className={styles.typeListItem} key={type.id}>
+        <button
+          aria-describedby={unavailableReason ? `${type.id}-unavailable-reason` : undefined}
+          aria-disabled={unavailableReason ? true : undefined}
+          data-testid={`categoryList-button-${type.id}`}
+          onClick={unavailableReason ? undefined : () => onClickType(type)}
+          type="button"
+        >
+          <EventTypeListItem {...type} />
+        </button>
+
+        {!!unavailableReason && <span
+          className={styles.typeUnavailableReason}
+          id={`${type.id}-unavailable-reason`}
+        >
+          {unavailableReason}
+        </span>}
+      </li>;
+    })}
   </ul>
 </div>;
 
-const TypesList = ({ filterText, onClickType, ref, typesByCategory }) => {
+const TypesList = ({ filterText, getTypeUnavailableReason, onClickType, ref, typesByCategory }) => {
   const filterTextLowerCase = filterText.toLowerCase();
 
   const filteredCategories = typesByCategory.reduce((accumulator, category) => {
@@ -38,6 +57,7 @@ const TypesList = ({ filterText, onClickType, ref, typesByCategory }) => {
   return <div className={styles.typesContainer} ref={ref}>
     {filteredCategories.map((category) => <CategoryList
       category={category}
+      getTypeUnavailableReason={getTypeUnavailableReason}
       key={`${category.id}${category.value}`}
       onClickType={onClickType}
       showTitle={typesByCategory.length > 1}

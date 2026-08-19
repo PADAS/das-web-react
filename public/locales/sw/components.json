@@ -24,6 +24,13 @@
       "noOptionsMessage": "Hakuna chaguo za kuonyesha"
     }
   },
+  "communityPage": {
+    "coolOffChooseAnotherType": "Chagua aina nyingine ya tukio",
+    "coolOffMessage": "Umetuma fomu ya {{eventType}} hivi karibuni. Unaweza kutuma nyingine baada ya {{timeRemaining}}.",
+    "coolOffTimeRemaining": "Muda uliobaki: {{timeRemaining}}",
+    "coolOffTitle": "Tafadhali subiri kabla ya kutuma tena",
+    "coolOffTypeUnavailable": "Itapatikana baada ya {{timeRemaining}}"
+  },
   "datePicker": {
     "calendarPopper": {
       "menuButtonLabel": "Fungua kalenda",

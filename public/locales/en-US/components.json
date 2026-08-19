@@ -15,6 +15,11 @@
     "defaultTitle": "Create"
   },
   "communityPage": {
+    "coolOffChooseAnotherType": "Choose a different event type",
+    "coolOffMessage": "You recently submitted a {{eventType}} form. You can submit another one in {{timeRemaining}}.",
+    "coolOffTimeRemaining": "Time remaining: {{timeRemaining}}",
+    "coolOffTitle": "Please wait before submitting again",
+    "coolOffTypeUnavailable": "Available in {{timeRemaining}}",
     "formSubmitted": "Form Submitted",
     "invalidCommunityUrl": "Invalid Community URL",
     "searchPlaceholder": "Search event types..."
