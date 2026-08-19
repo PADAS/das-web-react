@@ -59,6 +59,14 @@ const COLLECTION_TYPE = {
   readonly: false,
 };
 
+const extraCreatableTypes = (count) => Array.from({ length: count }, (_, index) => ({
+  id: `extra-type-${index}`,
+  value: `extra_type_${index}`,
+  display: `Extra Type ${index}`,
+  is_collection: false,
+  readonly: false,
+}));
+
 const COOL_OFF_STORAGE_KEY = 'er-community-cooloff';
 
 const setCoolOffEntries = (entries) =>
@@ -159,8 +167,10 @@ describe('CommunityPage', () => {
   });
 
   describe('search', () => {
+    const typesAboveSearchThreshold = [TYPE_A, TYPE_B, ...extraCreatableTypes(6)];
+
     test('filters types by display name as the user types', async () => {
-      renderPage();
+      renderPage(typesAboveSearchThreshold);
       const searchInput = await screen.findByPlaceholderText('Search event types...');
 
       await userEvent.type(searchInput, 'Auto Resolve');
@@ -170,7 +180,7 @@ describe('CommunityPage', () => {
     });
 
     test('restores the full list after clearing the search', async () => {
-      renderPage();
+      renderPage(typesAboveSearchThreshold);
       const searchInput = await screen.findByPlaceholderText('Search event types...');
 
       await userEvent.type(searchInput, 'Auto Resolve');
@@ -183,7 +193,7 @@ describe('CommunityPage', () => {
     });
 
     test('shows no types when the search term matches nothing', async () => {
-      renderPage();
+      renderPage(typesAboveSearchThreshold);
       const searchInput = await screen.findByPlaceholderText('Search event types...');
 
       await userEvent.type(searchInput, 'zzznomatch');
@@ -193,12 +203,65 @@ describe('CommunityPage', () => {
     });
 
     test('search is case-insensitive', async () => {
-      renderPage();
+      renderPage(typesAboveSearchThreshold);
       const searchInput = await screen.findByPlaceholderText('Search event types...');
 
       await userEvent.type(searchInput, 'auto resolve');
 
       expect(screen.getByTestId(`categoryList-button-${TYPE_A.id}`)).toBeInTheDocument();
+    });
+  });
+
+  describe('search bar visibility', () => {
+    const SEARCH_PLACEHOLDER = 'Search event types...';
+
+    test('hides the search bar when there are fewer than eight creatable types', async () => {
+      renderPage(extraCreatableTypes(7));
+
+      await screen.findByTestId('categoryList-button-extra-type-0');
+      expect(screen.queryByPlaceholderText(SEARCH_PLACEHOLDER)).not.toBeInTheDocument();
+    });
+
+    test('shows the search bar at eight creatable types', async () => {
+      renderPage(extraCreatableTypes(8));
+
+      expect(await screen.findByPlaceholderText(SEARCH_PLACEHOLDER)).toBeInTheDocument();
+    });
+
+    test('shows a working search bar well above the threshold', async () => {
+      renderPage([TYPE_A, ...extraCreatableTypes(20)]);
+      const searchInput = await screen.findByPlaceholderText(SEARCH_PLACEHOLDER);
+
+      await userEvent.type(searchInput, 'Auto Resolve');
+
+      expect(screen.getByTestId(`categoryList-button-${TYPE_A.id}`)).toBeInTheDocument();
+      expect(screen.queryByTestId('categoryList-button-extra-type-0')).not.toBeInTheDocument();
+    });
+
+    test('does not count collection or readonly types toward the threshold', async () => {
+      const readonlyTypes = eventTypes.filter((type) => type.readonly).slice(0, 3);
+      renderPage([...extraCreatableTypes(7), COLLECTION_TYPE, ...readonlyTypes]);
+
+      await screen.findByTestId('categoryList-button-extra-type-0');
+      expect(screen.queryByPlaceholderText(SEARCH_PLACEHOLDER)).not.toBeInTheDocument();
+      expect(screen.getAllByTestId(/^categoryList-button-/)).toHaveLength(7);
+    });
+
+    test('drops an active filter and shows every remaining type when the list falls below the threshold', async () => {
+      const { rerender } = renderPage([TYPE_A, ...extraCreatableTypes(7)]);
+      const searchInput = await screen.findByPlaceholderText(SEARCH_PLACEHOLDER);
+
+      await userEvent.type(searchInput, 'Auto Resolve');
+      expect(screen.queryByTestId('categoryList-button-extra-type-0')).not.toBeInTheDocument();
+
+      rerender(
+        <Provider store={buildStore(extraCreatableTypes(7))}>
+          <CommunityPage />
+        </Provider>
+      );
+
+      expect(await screen.findAllByTestId(/^categoryList-button-/)).toHaveLength(7);
+      expect(screen.queryByPlaceholderText(SEARCH_PLACEHOLDER)).not.toBeInTheDocument();
     });
   });
 

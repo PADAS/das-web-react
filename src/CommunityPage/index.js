@@ -34,6 +34,7 @@ import * as styles from './styles.module.scss';
 const SUBMITTED_MODAL_TIMEOUT = 3000;
 const COOL_OFF_TICK_INTERVAL = 1000;
 const ONE_MINUTE_IN_MS = 60 * 1000;
+const MIN_EVENT_TYPES_FOR_SEARCH = 8;
 // A longer delay overflows setTimeout's signed 32 bit field and fires immediately.
 const MAX_TIMEOUT_MS = (2 ** 31) - 1;
 
@@ -269,6 +270,12 @@ const CommunityPage = () => {
 
   const isRedirectingToOnlyType = !eventTypeValue && !isUnauthorized && eventsByCategory[0]?.types.length === 1;
 
+  const showSearchBar = creatableEventTypes.length >= MIN_EVENT_TYPES_FOR_SEARCH;
+
+  // A refetch can shrink the list past the threshold while a search is active; left as is, the
+  // hidden bar would keep filtering the list with no control left to clear it.
+  if (!showSearchBar && searchText) setSearchText('');
+
   let content;
   if (isUnauthorized) {
     content = (
@@ -328,14 +335,14 @@ const CommunityPage = () => {
       <div className={styles.communityPage}>
         <h2 className={styles.heading}>{community?.name}</h2>
 
-        <div className={styles.searchControls}>
+        {showSearchBar && <div className={styles.searchControls}>
           <SearchBar
             onChange={(e) => setSearchText(e.target.value)}
             onClear={() => setSearchText('')}
             placeholder={t('searchPlaceholder')}
             value={searchText}
           />
-        </div>
+        </div>}
 
         <TypesList
           filterText={searchText}
