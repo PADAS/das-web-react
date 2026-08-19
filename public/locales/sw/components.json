@@ -29,7 +29,10 @@
     "coolOffMessage": "Umetuma fomu ya {{eventType}} hivi karibuni. Unaweza kutuma nyingine baada ya {{timeRemaining}}.",
     "coolOffTimeRemaining": "Muda uliobaki: {{timeRemaining}}",
     "coolOffTitle": "Tafadhali subiri kabla ya kutuma tena",
-    "coolOffTypeUnavailable": "Itapatikana baada ya {{timeRemaining}}"
+    "coolOffTypeUnavailable": "Itapatikana baada ya {{timeRemaining}}",
+    "formSubmitted": "Imetumwa kwa mafanikio",
+    "invalidCommunityUrl": "URL ya jumuiya si sahihi",
+    "searchPlaceholder": "Tafuta aina za matukio..."
   },
   "datePicker": {
     "calendarPopper": {
