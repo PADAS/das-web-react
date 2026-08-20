@@ -13,9 +13,7 @@ import { render, screen, waitFor } from '../test-utils';
 
 import TimepointPopup from './';
 
-// Track point time is serialized in UTC; the observation's recorded_at is the SAME
-// INSTANT but serialized with the tenant's local offset. A naive string comparison
-// would never match (BUG 1 regression guard).
+// Same instant, serialized in UTC and with a tenant offset.
 const TIMEPOINT_TIME = '2021-01-27T09:04:25+00:00';
 const OBSERVATION_TIME = '2021-01-27T02:04:25-07:00';
 const SUBJECT_ID = '172df632-3fd4-4e5d-8366-925b92fcf025';
@@ -137,6 +135,29 @@ describe('TimepointPopup', () => {
     expect(new Date(until).getTime()).toBeGreaterThan(targetInstant);
   });
 
+  test('requests only located observations, with a page size large enough for chatty devices', async () => {
+    renderPopup();
+
+    await screen.findByTestId('additional-props-toggle-btn');
+
+    expect(capturedRequestUrl.searchParams.get('include_empty_location')).toBeNull();
+    expect(Number(capturedRequestUrl.searchParams.get('page_size'))).toBeGreaterThanOrEqual(100);
+  });
+
+  test('does not attribute an observation outside the match tolerance to the point', async () => {
+    observationsHandler = () => observationResponse([{
+      ...matchingObservation,
+      recorded_at: new Date(new Date(TIMEPOINT_TIME).getTime() + 5000).toISOString(),
+    }]);
+
+    renderPopup();
+
+    await waitFor(() => expect(capturedRequestUrl).toBeDefined());
+
+    await expect(screen.findByTestId('additional-props-toggle-btn')).rejects.toThrow();
+    expect(screen.queryByText(/Gidr1000/)).not.toBeInTheDocument();
+  });
+
   test('does not render the toggle or props when no observation is returned', async () => {
     observationsHandler = () => observationResponse([]);
 
@@ -150,16 +171,18 @@ describe('TimepointPopup', () => {
     expect(screen.queryByTestId('additional-props')).not.toBeInTheDocument();
   });
 
-  test('renders nothing extra on fetch error', async () => {
+  test('reports the failure and renders nothing extra on fetch error', async () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
     observationsHandler = () => new HttpResponse(null, { status: 500 });
 
     renderPopup();
 
     expect(await screen.findByText('RD-001')).toBeInTheDocument();
 
-    await waitFor(() => {
-      expect(screen.queryByTestId('additional-props-toggle-btn')).not.toBeInTheDocument();
-    });
+    await waitFor(() => expect(warn).toHaveBeenCalled());
+    expect(screen.queryByTestId('additional-props-toggle-btn')).not.toBeInTheDocument();
+
+    warn.mockRestore();
   });
 
   test('shows props by default when localStorage preference is set', async () => {

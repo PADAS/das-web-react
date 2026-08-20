@@ -11,11 +11,10 @@ import GpsFormatToggle from '../GpsFormatToggle';
 
 import * as styles from './styles.module.scss';
 
-// The track point's timestamp and the observation's `recorded_at` describe the same
-// instant but are serialized with different UTC offsets, so they must be compared as
-// instants, never as strings. The backend also returns nothing for a zero-width
-// since==until query, so we bracket the point with a small window.
+// Track times serialize as UTC and `recorded_at` with the tenant's offset, so the same
+// instant differs as a string; a zero-width since==until query also returns nothing.
 const TIME_WINDOW_MS = 1000;
+const CLOSEST_MATCH_TOLERANCE_MS = 1000;
 
 const TimepointPopup = ({ data }) => {
   const dispatch = useDispatch();
@@ -39,8 +38,7 @@ const TimepointPopup = ({ data }) => {
           subject_id: subjectId,
           since: new Date(targetTime - TIME_WINDOW_MS).toISOString(),
           until: new Date(targetTime + TIME_WINDOW_MS).toISOString(),
-          include_empty_location: true,
-          page_size: 10,
+          page_size: 100,
         }));
 
         if (ignore) return;
@@ -55,9 +53,15 @@ const TimepointPopup = ({ data }) => {
           return closest;
         }, null);
 
-        const matchedObservation = exactMatch ?? closestMatch?.observation;
+        const closestMatchWithinTolerance = closestMatch?.distance <= CLOSEST_MATCH_TOLERANCE_MS
+          ? closestMatch.observation
+          : undefined;
+
+        const matchedObservation = exactMatch ?? closestMatchWithinTolerance;
         setDeviceStatusProperties(matchedObservation?.device_status_properties ?? []);
-      } catch {
+      } catch (error) {
+        console.warn('error fetching observation for track timepoint', error);
+
         if (!ignore) setDeviceStatusProperties([]);
       }
     })();

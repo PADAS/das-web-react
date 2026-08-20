@@ -115,8 +115,8 @@ const SubjectPopup = ({ data }) => {
 
     <AdditionalDeviceProperties
       deviceStatusProperties={device_status_properties}
-      staticSubject={isStatic}
-      timeSliderActive={isTimeSliderActive}
+      isStaticSubject={isStatic}
+      isTimeSliderActive={isTimeSliderActive}
     />
 
     <SubjectControls
