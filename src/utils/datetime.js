@@ -138,6 +138,14 @@ export const HUMANIZED_DURATION_CONFIGS = {
 export const durationHumanizer = (config = HUMANIZED_DURATION_CONFIGS.FULL_FORMAT()) =>
   humanizeDuration.humanizer(config);
 
+const SUPPORTED_DURATION_HUMANIZER_LANGUAGES = humanizeDuration.getSupportedLanguages();
+
+export const resolveDurationHumanizerLanguage = (i18nLanguage) => {
+  const baseLanguage = i18nLanguage?.split('-')[0];
+
+  return SUPPORTED_DURATION_HUMANIZER_LANGUAGES.includes(baseLanguage) ? baseLanguage : 'en';
+};
+
 export const getUserLocaleTime = (date = new Date()) => date.toLocaleTimeString(
   i18next.language,
   { hour: '2-digit', minute: '2-digit' }

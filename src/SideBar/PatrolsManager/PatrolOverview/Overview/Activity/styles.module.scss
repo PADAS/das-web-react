@@ -1,0 +1,170 @@
+@use 'sass:color';
+
+@use '../../../../../common/styles/vars/colors';
+@use '../../_shared' as shared;
+
+.activity {
+  background: white;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 0 -1rem;
+  padding: 1rem;
+
+  .header {
+    align-items: center;
+    border-bottom: 1px solid colors.$light-gray-lines;
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 0.5rem;
+
+    h2 {
+      color: colors.$off-black;
+      font-size: 1.125rem;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    .headerActions {
+      align-items: center;
+      display: flex;
+      gap: 0.5rem;
+      margin-left: auto;
+
+      .timeLabel {
+        color: colors.$off-black;
+        font-size: 0.875rem;
+      }
+
+      .sortDirectionButton {
+        @include shared.chip-icon-button;
+        @include shared.chip-icon-button-active-state;
+
+        svg {
+          height: 1rem;
+          width: 1rem;
+        }
+      }
+
+      .collapseExpandAllButton {
+        align-items: center;
+        background-color: colors.$light-gray-background;
+        border: 1px solid colors.$light-gray-background;
+        border-radius: 0.25rem;
+        color: colors.$secondary-medium-gray;
+        display: flex;
+        font-size: 0.875rem;
+        font-weight: 700;
+        height: 2.25rem;
+        padding: 0 0.75rem;
+
+        &:hover {
+          background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+          border-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+        }
+
+        &:focus-visible {
+          border-color: colors.$bright-blue;
+          outline: 1px solid colors.$bright-blue;
+        }
+
+        &:disabled {
+          cursor: default;
+          opacity: 0.5;
+
+          &:hover {
+            background-color: colors.$light-gray-background;
+            border-color: colors.$light-gray-background;
+          }
+        }
+      }
+    }
+  }
+
+  .statsRow {
+    display: flex;
+    gap: 1rem;
+    margin: 0;
+
+    .statItem {
+      border: 1px solid colors.$light-gray-lines;
+      border-radius: 0.3125rem;
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      gap: 0.125rem;
+      min-width: 0;
+      padding: 0.25rem 0.5rem;
+
+      .statLabel {
+        align-items: center;
+        color: colors.$secondary-medium-gray;
+        display: flex;
+        font-size: 0.875rem;
+        gap: 0.125rem;
+        margin: 0;
+
+        .statLabelIcon {
+          flex-shrink: 0;
+          height: 0.3125rem;
+          width: 0.625rem;
+        }
+      }
+
+      .statValue {
+        font-size: 1rem;
+        font-weight: 500;
+        margin: 0;
+      }
+    }
+  }
+
+  .activityList {
+    background: white;
+    border: 1px solid colors.$light-gray-lines;
+    border-radius: 0.25rem;
+    display: flex;
+    flex-flow: column;
+    list-style: none;
+    margin-bottom: 0;
+    overflow: hidden;
+    padding-left: 0;
+
+    @media print {
+      li {
+        margin: 0.5rem 0;
+      }
+    }
+  }
+
+  .emptyState {
+    align-items: center;
+    border: 1px solid colors.$light-gray-lines;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    height: 12.5rem;
+    justify-content: center;
+    width: 100%;
+
+    .emptyStateMessage {
+      color: colors.$off-black;
+      font-size: 1rem;
+      font-weight: 500;
+      margin: 0;
+      max-width: 30rem;
+      text-align: center;
+    }
+
+    .startPatrolButton {
+      align-items: center;
+      display: flex;
+      gap: 0.25rem;
+
+      svg {
+        height: 1rem;
+        width: 1rem;
+      }
+    }
+  }
+}

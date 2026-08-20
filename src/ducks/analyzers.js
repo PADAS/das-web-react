@@ -1,6 +1,6 @@
 import { API_URL } from '../constants';
 import axios, { isCancel } from 'axios';
-import { buffer, featureCollection } from '@turf/turf';
+import { featureCollection } from '@turf/turf';
 
 import globallyResettableReducer from '../reducers/global-resettable';
 
@@ -27,7 +27,7 @@ const warnAnalyzerFailure = (analyzer, error, spatialGroupName) => {
  * input it cannot buffer — a negative distance over a line, for instance — so
  * make that an explicit failure rather than a downstream TypeError.
  */
-const proximityFootprintGeometry = (feature, thresholdDistMeters) => {
+const proximityFootprintGeometry = (feature, thresholdDistMeters, buffer) => {
   const radiusMeters = thresholdDistMeters ?? DEFAULT_PROXIMITY_ANALYZER_DISPLAY_RADIUS;
   const footprint = buffer(feature, radiusMeters / METERS_PER_KILOMETER, {
     steps: PROXIMITY_BUFFER_STEPS,
@@ -41,11 +41,11 @@ const proximityFootprintGeometry = (feature, thresholdDistMeters) => {
   return footprint.geometry;
 };
 
-const toAnalyzerLayerFeature = (feature, analyzer, spatialGroupName) => {
+const toAnalyzerLayerFeature = (feature, analyzer, buffer, spatialGroupName) => {
   feature.id = featureLayerIdentifier++;
 
   if (analyzer.analyzer_category === 'proximity') {
-    feature.geometry = proximityFootprintGeometry(feature, analyzer?.threshold_dist_meters);
+    feature.geometry = proximityFootprintGeometry(feature, analyzer?.threshold_dist_meters, buffer);
   }
 
   feature.properties.admin_href = analyzer.admin_href;
@@ -58,12 +58,12 @@ const toAnalyzerLayerFeature = (feature, analyzer, spatialGroupName) => {
 };
 
 // one unusable feature shouldn't discard the rest of its spatial group
-const fetchSpatialGroupFeatures = async (analyzer, [spatialGroupName, url]) => {
+const fetchSpatialGroupFeatures = async (analyzer, buffer, [spatialGroupName, url]) => {
   const { data: { data: { features: spatialGroupFeatures } } } = await axios.get(url);
 
   return spatialGroupFeatures.reduce((accumulator, { features: [feature] }) => {
     try {
-      accumulator.push(toAnalyzerLayerFeature(feature, analyzer, spatialGroupName));
+      accumulator.push(toAnalyzerLayerFeature(feature, analyzer, buffer, spatialGroupName));
     } catch (error) {
       warnAnalyzerFailure(analyzer, error, spatialGroupName);
     }
@@ -73,9 +73,11 @@ const fetchSpatialGroupFeatures = async (analyzer, [spatialGroupName, url]) => {
 };
 
 // ...and one unusable spatial group shouldn't discard its sibling groups
-const fetchAnalyzerFeatures = async (analyzer) => {
+const fetchAnalyzerFeatures = async (analyzer, buffer) => {
   const spatialGroupLinks = Object.entries(analyzer.spatial_groups).filter(([, url]) => url !== null);
-  const settled = await Promise.allSettled(spatialGroupLinks.map((link) => fetchSpatialGroupFeatures(analyzer, link)));
+  const settled = await Promise.allSettled(
+    spatialGroupLinks.map((link) => fetchSpatialGroupFeatures(analyzer, buffer, link))
+  );
 
   return settled.reduce((accumulator, result, index) => {
     if (result.status === 'fulfilled') {
@@ -98,12 +100,18 @@ export const fetchAnalyzers = () => async (dispatch) => {
   // fetch the active analyzers, only processing the non-null spatial group urls
   const { data: { data: activeAnalyzers } } = await axios.get(ANALYZERS_API_URL, { params: { active: true } });
 
+  // Lazy-load buffer (pulls in @turf/jsts) only when a proximity analyzer needs it.
+  let buffer;
+  if (activeAnalyzers.some((analyzer) => analyzer.analyzer_category === 'proximity')) {
+    ({ default: buffer } = await import('@turf/buffer'));
+  }
+
   // ...and one unusable analyzer shouldn't discard the rest of the list
   const settled = await Promise.allSettled(activeAnalyzers.map(async (analyzer) => ({
     id: analyzer.id,
     name: analyzer.name,
     type: analyzer.analyzer_category,
-    geojson: featureCollection(await fetchAnalyzerFeatures(analyzer)),
+    geojson: featureCollection(await fetchAnalyzerFeatures(analyzer, buffer)),
   })));
 
   // a cancelled request means the app is tearing this fetch down, not that the

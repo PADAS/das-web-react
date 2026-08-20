@@ -15,7 +15,12 @@
     "defaultTitle": "Create"
   },
   "communityPage": {
-    "formSubmitted": "Form Submitted",
+    "coolOffChooseAnotherType": "Choose a different event type",
+    "coolOffMessage": "You recently submitted a {{eventType}} form. You can submit another one in {{timeRemaining}}.",
+    "coolOffTimeRemaining": "Time remaining: {{timeRemaining}}",
+    "coolOffTitle": "Please wait before submitting again",
+    "coolOffTypeUnavailable": "Available in {{timeRemaining}}",
+    "formSubmitted": "Successfully Submitted",
     "invalidCommunityUrl": "Invalid Community URL",
     "searchPlaceholder": "Search event types..."
   },
@@ -260,7 +265,6 @@
           "patrolFiltersCheckboxLabel": "Patrol Filters"
         },
         "experimentalFeaturesFieldSet": {
-          "CUSTOM_COORDINATE_SYSTEMS_ENABLED": "Coordinate Reference Systems",
           "legend": "Experimental Features"
         },
         "languageSelect": {
@@ -382,6 +386,10 @@
     "popoverHeader": "Date Range",
     "popoverResetButton": "Reset",
     "sliderLabel": "Timeslider",
+    "speedButtonLabel": "Open playback speed options",
+    "speedMenuHeader": "Playback Speed",
+    "speedMenuLabel": "Playback speed options",
+    "speedMenuOptionLabel": "Set playback speed to {{speed}}",
     "timeSliderMapControl": {
       "iconTitle": "Timeslider"
     },

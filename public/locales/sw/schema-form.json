@@ -1,0 +1,89 @@
+{
+  "errors": {
+    "alphanumericPattern": "Herufi na nambari tu ndizo zinazoruhusiwa.",
+    "collectionItems": "Baadhi ya vitu vya mkusanyiko huu vina makosa katika fomu zao za ndani.",
+    "dateFormat": "Muundo wa tarehe haukubaliwi au tarehe isiyo sahihi. Angalia tena siku, mwezi na mwaka.",
+    "dateTimeFormat": "Muundo wa tarehe na muda haukubaliwi au tarehe isiyo sahihi. Angalia tena siku, mwezi na mwaka.",
+    "defaultFormat": "Muundo si sahihi.",
+    "defaultKeyword": "Thamani si sahihi.",
+    "defaultPattern": "Thamani hailingani na muundo unaotakiwa.",
+    "emailFormat": "Muundo wa barua pepe haukubaliwi.",
+    "maxItems_one": "Mkusanyiko huu unapaswa kuwa na vitu si zaidi ya {{count}}.",
+    "maxItems_other": "Mkusanyiko huu unapaswa kuwa na vitu si zaidi ya {{count}}.",
+    "maximum": "Thamani hii inapaswa kuwa chini ya au sawa na {{maximum}}.",
+    "minItems_one": "Mkusanyiko huu unapaswa kuwa na angalau {{count}} kitu.",
+    "minItems_other": "Mkusanyiko huu unapaswa kuwa na angalau {{count}} vitu.",
+    "minimum": "Thamani hii inapaswa kuwa kubwa kuliko au sawa na {{minimum}}.",
+    "required": "Hili ni shamba la lazima.",
+    "timeFormat": "Muundo wa muda haukubaliwi.",
+    "uploadFailedError": "Upakiaji wa faili moja au zaidi umeshindwa. Ondoa faili zilizoshindwa kabla ya kutuma.",
+    "uploadInProgressError": "Tafadhali subiri faili ziishe kupakiwa.",
+    "uriFormat": "Muundo wa URL haukubaliwi.",
+    "uuidFormat": "Muundo wa UUID haukubaliwi."
+  },
+  "fields": {
+    "attachment": {
+      "chooseFile": "Chagua faili",
+      "disallowedTypeAlert": "{{fileName}} haiwezi kuongezwa kwa sababu aina yake ya faili hairuhusiwi.",
+      "downloadButtonLabel": "Pakua {{fileName}}",
+      "dropzoneText": "Buruta na udondoshe faili hapa",
+      "expandButtonLabel": "Panua {{fileName}}",
+      "maxItemsAlert_one": "Unaweza kuongeza faili {{count}} pekee.",
+      "maxItemsAlert_other": "Unaweza kuongeza faili {{count}} pekee.",
+      "pendingLabel": "Inasubiri",
+      "removeButtonLabel": "Ondoa {{fileName}}",
+      "requiredLabel": "(inahitajika)",
+      "uploadErrorLabel": "Upakiaji umeshindwa",
+      "uploadFailedAnnouncement_one": "{{fileName}} haikuweza kupakiwa",
+      "uploadFailedAnnouncement_other": "Faili {{count}} hazikuweza kupakiwa",
+      "uploadStartedAnnouncement_one": "Inapakia {{fileName}}",
+      "uploadStartedAnnouncement_other": "Inapakia faili {{count}}",
+      "uploadSucceededAnnouncement_one": "{{fileName}} imepakiwa",
+      "uploadSucceededAnnouncement_other": "Faili {{count}} zimepakiwa"
+    },
+    "collection": {
+      "addButtonLabel": "Ongeza {{itemName}}",
+      "chevronButtonLabel": {
+        "closed": "Fungua orodha ya {{collectionLabel}}",
+        "open": "Funga orodha ya {{collectionLabel}}"
+      },
+      "defaultAddButton": "Ongeza",
+      "sortableList": {
+        "dragCancelAnnouncement": "Kuburuta kulisitishwa. {{activeItemTitle}} imerejeshwa kwenye nafasi ya {{activeItemPosition}} kati ya {{itemsLength}}.",
+        "dragEndAnnouncement": "{{activeItemTitle}} imeangushwa kwenye nafasi ya {{overItemPosition}} kati ya {{itemsLength}}.",
+        "dragEndOutsideAnnouncement": "{{activeItemTitle}} imeangushwa na imerejeshwa kwenye nafasi ya {{activeItemPosition}} kati ya {{itemsLength}}.",
+        "dragOverAnnouncement": "{{activeItemTitle}} imehamishwa kwenye nafasi ya {{overItemPosition}} kati ya {{itemsLength}}.",
+        "dragStartAnnouncement": "{{activeItemTitle}} imechukuliwa. Nafasi ya {{activeItemPosition}} kati ya {{itemsLength}}.",
+        "draggableScreenReaderInstructions": "Kuchukua {{itemName}}, bonyeza space. Wakati wa kuburuta, tumia vibonyo vya mshale juu na chini kusogeza {{itemName}} katika mwelekeo unaotaka. Bonyeza space tena kuacha {{itemName}} kwenye msimamo wake mpya, au bonyeza escape kughairi.",
+        "item": {
+          "attachmentHumanizedValue_one": "faili 1",
+          "attachmentHumanizedValue_other": "faili {{count}}",
+          "chevronButtonLabel": {
+            "closed": "Fungua muhtasari wa fomu ya {{itemTitle}}",
+            "open": "Funga muhtasari wa fomu ya {{itemTitle}}"
+          },
+          "collectionHumanizedValue": "{{collectionLength}} vitu",
+          "deleteButtonLabel": "Futa {{itemTitle}}",
+          "dragHandleButtonLabel": "Panga upya {{itemTitle}}",
+          "dragHandleButtonRoleDescription": "inaburutika",
+          "editButtonLabel": "Hariri {{itemTitle}}",
+          "formModal": {
+            "cancelButton": "Ghairi",
+            "deleteButton": "Futa {{itemTitle}}",
+            "doneButton": "Imekamilika"
+          },
+          "formPreview": {
+            "attachmentHumanizedValue_one": "faili 1",
+            "attachmentHumanizedValue_other": "faili {{count}}",
+            "collectionHumanizedValue": "{{collectionLength}} vitu",
+            "jumpToLocationButtonLabel": "Ruka kwenye eneo la {{field}}"
+          }
+        }
+      }
+    },
+    "text": {
+      "urlLinkLabel": "Fungua URL kwenye kichupo kipya"
+    }
+  },
+  "validationErrorsAnnouncement": "Kuna makosa ya uthibitishaji katika sehemu zifuatazo:"
+}

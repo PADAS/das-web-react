@@ -8,29 +8,28 @@
     "timeLabel": "Time"
   },
   "addAttachmentButton": "Attachment",
+  "addAttachmentButtonLabel": "Add an attachment",
   "addReportButtonLabel": "Create Event",
   "addReportButtonTitle": "Event",
   "addNoteButton": "Note",
+  "addNoteButtonLabel": "Add a note",
   "attachmentControls": {
     "addNoteTitle": "Add Note",
     "addAttachmentTitle": "Add Attachment"
   },
   "attachmentListItem": {
-    "collapseClosedButtonLabel": "Expand",
-    "collapseClosedButtonTitle": "Collapsed",
-    "collapseOpenButtonLabel": "Collapse",
-    "collapseOpenButtonTitle": "Expanded",
-    "imagePreviewAlt": "{{fileName}} preview",
-    "downloadButtonTooltip": "Download",
-    "deleteButtonTooltip": "Delete",
-    "fullViewButtonTooltip": "Full View"
+    "collapseClosedButtonLabel": "Expand {{fileName}}",
+    "collapseOpenButtonLabel": "Collapse {{fileName}}",
+    "deleteButtonTooltip": "Delete {{fileName}}",
+    "downloadButtonTooltip": "Download {{fileName}}",
+    "fullViewButtonTooltip": "Show {{fileName}} in full screen",
+    "imagePreviewAlt": "{{fileName}} preview"
   },
   "containedReportListItem": {
-    "collapseClosedButtonLabel": "Expand",
-    "collapseClosedButtonTitle": "Collapsed",
-    "collapseOpenButtonLabel": "Collapse",
-    "collapseOpenButtonTitle": "Expanded",
-    "goToReportButtonTooltip": "Go to event"
+    "collapseClosedButtonLabel": "Expand {{title}}",
+    "collapseOpenButtonLabel": "Collapse {{title}}",
+    "loadingLabel": "Loading {{title}}",
+    "viewReportButtonLabel": "View event {{title}}"
   },
   "footer": {
     "cancelButton": "Cancel",
@@ -64,13 +63,12 @@
   },
   "noteListItem": {
     "cancelEditingNoteButton": "Cancel",
-    "collapseClosedButtonLabel": "Expand",
-    "collapseClosedButtonTitle": "Collapsed",
-    "collapseOpenButtonLabel": "Collapse",
-    "collapseOpenButtonTitle": "Expanded",
-    "deleteNoteButtonTooltip": "Delete",
+    "collapseClosedButtonLabel": "Expand note",
+    "collapseOpenButtonLabel": "Collapse note",
+    "deleteNoteButtonTooltip": "Delete note",
     "doneEditingNoteButton": "Done",
-    "editNoteButtonTooltip": "Edit",
+    "editNoteButtonTooltip": "Edit note",
+    "noteTextAreaLabel": "Note text",
     "noteTitle": "New note: {{noteText}}"
   },
   "reportFormSummary": {

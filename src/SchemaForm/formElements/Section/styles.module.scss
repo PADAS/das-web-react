@@ -1,0 +1,42 @@
+@use '../../../common/styles/vars/colors';
+
+.section {
+  background-color: white;
+  border-bottom: 1px solid colors.$very-light-gray-alt;
+  border-top: 1px solid colors.$very-light-gray-alt;
+  margin-top: 0.5rem;
+  padding: 1.5rem 1rem;
+
+  .header {
+    border-bottom: 1px solid #DDD;
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    font-weight: 500;
+    line-height: 1.375rem;
+  }
+
+  .columns {
+    display: flex;
+
+    .column {
+      &.fullWidth {
+        width: 100%;
+      }
+    
+      &.halfWidthLeft {
+        padding-right: 0.5rem;
+        width: 50%;
+      }
+    
+      &.halfWidthRight {
+        padding-left: 0.5rem;
+        width: 50%;
+      }
+
+      > *:not(:last-child) {
+        margin-bottom: 1rem;
+      }
+    }
+  }
+}

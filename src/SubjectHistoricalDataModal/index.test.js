@@ -8,10 +8,26 @@ import { fetchObservationsForSubject } from '../ducks/observations';
 import { mockStore } from '../__test-helpers/MockStore';
 import { GPS_FORMATS } from '../utils/location';
 import mockedObservationsData from '../__test-helpers/fixtures/observations';
-import { render, waitFor, screen } from '../test-utils';
+import { render, waitFor, screen, act } from '../test-utils';
 import { epsg5367 } from '../__test-helpers/fixtures/location';
 
 import SubjectHistoricalDataModal, { ITEMS_PER_PAGE, getObservationUniqProperties, SORT_BY } from './';
+
+// A store whose state can be mutated in place without swapping the store
+// instance. Keeps dispatch stable and useSelector re-reads.
+const mutableStore = (initialState) => {
+  let state = initialState;
+  const baseStore = mockStore(state);
+
+  return {
+    ...baseStore,
+    getState: () => state,
+    setState: (nextState) => {
+      state = nextState;
+      baseStore.dispatch({ type: 'TEST_STATE_UPDATE' });
+    },
+  };
+};
 
 jest.mock('../ducks/observations', () => ({
   ...jest.requireActual('../ducks/observations'),
@@ -28,7 +44,20 @@ describe('SubjectHistoricalDataModal', () => {
     fetchObservationsForSubject.mockImplementation(fetchObservationsForSubjectMock);
 
     store = {
-      data: {},
+      data: {
+        subjectStore: {
+          'fake-id': {
+            last_position_date: '2026-06-30T00:00:00.000Z',
+            last_position: {
+              geometry: { coordinates: [-103.572941, 20.701133] },
+              properties: { coordinateProperties: { time: '2026-06-30T00:00:00.000Z' } },
+            },
+            device_status_properties: [
+              { label: 'speed', units: 'km', value: 42 },
+            ],
+          },
+        },
+      },
       view: {
         coordinateReferenceSystems: {
           storedSystems: [],
@@ -156,6 +185,383 @@ describe('SubjectHistoricalDataModal', () => {
         subject_id: 'fake-id',
         sort_by: SORT_BY,
       });
+    });
+  });
+
+  describe('realtime prepend', () => {
+    const updatedSubjectStore = (lastPositionDate, deviceValue, time = lastPositionDate) => ({
+      'fake-id': {
+        last_position_date: lastPositionDate,
+        last_position: {
+          geometry: { coordinates: [-103.572941, 20.701133] },
+          properties: { coordinateProperties: { time } },
+        },
+        device_status_properties: [
+          { label: 'speed', units: 'km', value: deviceValue },
+        ],
+      },
+    });
+
+    test('prepends a new observation row when last_position_date changes while on page 1', async () => {
+      const dynamicStore = mutableStore(store);
+
+      render(<Provider store={dynamicStore}>
+        <SubjectHistoricalDataModal title='Historical data' subjectId='fake-id' fetchObservationsForSubject/>
+      </Provider>);
+
+      await waitFor(() => {
+        const bodyRows = within(screen.getByRole('table')).getAllByRole('row').slice(1);
+        expect(bodyRows.length).toBe(ITEMS_PER_PAGE);
+      });
+
+      expect(screen.queryByText('777 km')).not.toBeInTheDocument();
+
+      act(() => {
+        dynamicStore.setState({
+          ...store,
+          data: {
+            ...store.data,
+            subjectStore: updatedSubjectStore('2026-06-30T01:00:00.000Z', 777),
+          },
+        });
+      });
+
+      // The new observation is prepended to the top of the page. The page is
+      // capped at ITEMS_PER_PAGE rows, so the row count stays put while the
+      // bottom row is dropped; the new row appears first.
+      await waitFor(() => {
+        const rows = within(screen.getByRole('table')).getAllByRole('row').slice(1);
+        expect(rows.length).toBe(ITEMS_PER_PAGE);
+        expect(within(rows[0]).getByText('777 km')).toBeInTheDocument();
+      });
+    });
+
+    test('updates the existing row in place without bumping the count when the observation instant matches', async () => {
+      fetchObservationsForSubjectMock = jest.fn(() => () => Promise.resolve({
+        count: 0,
+        results: [],
+      }));
+      fetchObservationsForSubject.mockImplementation(fetchObservationsForSubjectMock);
+
+      const dynamicStore = mutableStore(store);
+
+      render(<Provider store={dynamicStore}>
+        <SubjectHistoricalDataModal title='Historical data' subjectId='fake-id' fetchObservationsForSubject/>
+      </Provider>);
+
+      await waitFor(() => {
+        const rows = within(screen.getByRole('table')).getAllByRole('row').slice(1);
+        expect(rows.length).toBe(0);
+      });
+
+      // First update prepends a row recorded at the observation instant.
+      act(() => {
+        dynamicStore.setState({
+          ...store,
+          data: {
+            ...store.data,
+            subjectStore: updatedSubjectStore('2026-06-30T01:00:00.000Z', 777),
+          },
+        });
+      });
+
+      await waitFor(() => {
+        const rows = within(screen.getByRole('table')).getAllByRole('row').slice(1);
+        expect(rows.length).toBe(1);
+        expect(within(rows[0]).getByText('777 km')).toBeInTheDocument();
+      });
+
+      // Second update has a new last_position_date (so the effect runs) but the
+      // same observation instant, so it matches the existing row. The row's
+      // values are updated in place, the count is not bumped, and no duplicate
+      // row is added.
+      act(() => {
+        dynamicStore.setState({
+          ...store,
+          data: {
+            ...store.data,
+            subjectStore: updatedSubjectStore('2026-06-30T02:00:00.000Z', 999, '2026-06-30T01:00:00.000Z'),
+          },
+        });
+      });
+
+      await waitFor(() => {
+        const rows = within(screen.getByRole('table')).getAllByRole('row').slice(1);
+        expect(rows.length).toBe(1);
+        expect(within(rows[0]).getByText('999 km')).toBeInTheDocument();
+      });
+
+      const rows = within(screen.getByRole('table')).getAllByRole('row').slice(1);
+      expect(rows.length).toBe(1);
+      expect(screen.queryByText('777 km')).not.toBeInTheDocument();
+      // Count was not bumped, so it stays at 1 and no pagination control renders.
+      expect(screen.queryByRole('list')).not.toBeInTheDocument();
+    });
+
+    test('a re-delivered fetched observation replaces in place and leaves the count unchanged', async () => {
+      // API row carries a UUID id distinct from its recorded_at; the socket
+      // update arrives with the same instant in a different string format/offset.
+      const fetchedRecordedAt = '2022-02-22T07:22:05-08:00';
+      const socketTime = new Date(fetchedRecordedAt).toISOString();
+      fetchObservationsForSubjectMock = jest.fn(() => () => Promise.resolve({
+        count: 1,
+        results: [{
+          id: 'fetched-uuid-0001',
+          recorded_at: fetchedRecordedAt,
+          location: { latitude: '20.701133', longitude: '-103.572941' },
+          device_status_properties: [{ label: 'speed', units: 'km', value: 42 }],
+        }],
+      }));
+      fetchObservationsForSubject.mockImplementation(fetchObservationsForSubjectMock);
+
+      const dynamicStore = mutableStore(store);
+
+      render(<Provider store={dynamicStore}>
+        <SubjectHistoricalDataModal title='Historical data' subjectId='fake-id' fetchObservationsForSubject/>
+      </Provider>);
+
+      await waitFor(() => {
+        const rows = within(screen.getByRole('table')).getAllByRole('row').slice(1);
+        expect(rows.length).toBe(1);
+        expect(within(rows[0]).getByText('42 km')).toBeInTheDocument();
+      });
+
+      act(() => {
+        dynamicStore.setState({
+          ...store,
+          data: {
+            ...store.data,
+            subjectStore: updatedSubjectStore('2026-06-30T01:00:00.000Z', 999, socketTime),
+          },
+        });
+      });
+
+      await waitFor(() => {
+        const rows = within(screen.getByRole('table')).getAllByRole('row').slice(1);
+        expect(rows.length).toBe(1);
+        expect(within(rows[0]).getByText('999 km')).toBeInTheDocument();
+      });
+
+      // The fetched row's values are replaced in place: no duplicate row, the
+      // stale value is gone, and the count is not bumped (no extra page).
+      const rows = within(screen.getByRole('table')).getAllByRole('row').slice(1);
+      expect(rows.length).toBe(1);
+      expect(screen.queryByText('42 km')).not.toBeInTheDocument();
+      expect(screen.queryByRole('list')).not.toBeInTheDocument();
+    });
+
+    test('a position-only update with object-shaped device_status_properties does not crash and derives columns', async () => {
+      fetchObservationsForSubjectMock = jest.fn(() => () => Promise.resolve({
+        count: 0,
+        results: [],
+      }));
+      fetchObservationsForSubject.mockImplementation(fetchObservationsForSubjectMock);
+
+      const dynamicStore = mutableStore(store);
+
+      render(<Provider store={dynamicStore}>
+        <SubjectHistoricalDataModal title='Historical data' subjectId='fake-id' fetchObservationsForSubject/>
+      </Provider>);
+
+      await waitFor(() => {
+        const rows = within(screen.getByRole('table')).getAllByRole('row').slice(1);
+        expect(rows.length).toBe(0);
+      });
+
+      // Simulates the post-reducer state where a position-only socket frame
+      // leaves device_status_properties as a numeric-keyed object instead of an
+      // array.
+      act(() => {
+        dynamicStore.setState({
+          ...store,
+          data: {
+            ...store.data,
+            subjectStore: {
+              'fake-id': {
+                last_position_date: '2026-06-30T01:00:00.000Z',
+                last_position: {
+                  geometry: { coordinates: [-103.572941, 20.701133] },
+                  properties: { coordinateProperties: { time: '2026-06-30T01:00:00.000Z' } },
+                },
+                device_status_properties: {
+                  0: { label: 'speed', units: 'km', value: 777 },
+                  1: { label: 'temperature', units: 'c', value: 12 },
+                },
+              },
+            },
+          },
+        });
+      });
+
+      await waitFor(() => {
+        const rows = within(screen.getByRole('table')).getAllByRole('row').slice(1);
+        expect(rows.length).toBe(1);
+        expect(within(rows[0]).getByText('777 km')).toBeInTheDocument();
+        expect(within(rows[0]).getByText('12 c')).toBeInTheDocument();
+      });
+
+      // Columns are derived from the coerced array (real labels, not [undefined]).
+      const headers = within(screen.getByRole('table')).getAllByRole('columnheader');
+      expect(headers.some((header) => header.textContent === 'Speed')).toBe(true);
+      expect(headers.some((header) => header.textContent === 'Temperature')).toBe(true);
+    });
+
+    test('a position-only update with no last_position builds a null location and does not crash', async () => {
+      fetchObservationsForSubjectMock = jest.fn(() => () => Promise.resolve({
+        count: 0,
+        results: [],
+      }));
+      fetchObservationsForSubject.mockImplementation(fetchObservationsForSubjectMock);
+
+      const dynamicStore = mutableStore(store);
+
+      render(<Provider store={dynamicStore}>
+        <SubjectHistoricalDataModal title='Historical data' subjectId='fake-id' fetchObservationsForSubject/>
+      </Provider>);
+
+      await waitFor(() => {
+        const rows = within(screen.getByRole('table')).getAllByRole('row').slice(1);
+        expect(rows.length).toBe(0);
+      });
+
+      act(() => {
+        dynamicStore.setState({
+          ...store,
+          data: {
+            ...store.data,
+            subjectStore: {
+              'fake-id': {
+                last_position_date: '2026-06-30T01:00:00.000Z',
+                device_status_properties: [{ label: 'speed', units: 'km', value: 777 }],
+              },
+            },
+          },
+        });
+      });
+
+      await waitFor(() => {
+        const rows = within(screen.getByRole('table')).getAllByRole('row').slice(1);
+        expect(rows.length).toBe(1);
+        expect(within(rows[0]).getByText('777 km')).toBeInTheDocument();
+      });
+
+      // No location cell is rendered for the location-less row (date + speed).
+      const rows = within(screen.getByRole('table')).getAllByRole('row').slice(1);
+      expect(within(rows[0]).getAllByRole('cell')).toHaveLength(2);
+    });
+
+    test('a static subject renders no location column', async () => {
+      fetchObservationsForSubjectMock = jest.fn(() => () => Promise.resolve({
+        count: 0,
+        results: [],
+      }));
+      fetchObservationsForSubject.mockImplementation(fetchObservationsForSubjectMock);
+
+      const dynamicStore = mutableStore(store);
+
+      render(<Provider store={dynamicStore}>
+        <SubjectHistoricalDataModal title='Historical data' subjectId='fake-id' subjectIsStatic fetchObservationsForSubject/>
+      </Provider>);
+
+      act(() => {
+        dynamicStore.setState({
+          ...store,
+          data: {
+            ...store.data,
+            subjectStore: updatedSubjectStore('2026-06-30T01:00:00.000Z', 777),
+          },
+        });
+      });
+
+      await waitFor(() => {
+        const rows = within(screen.getByRole('table')).getAllByRole('row').slice(1);
+        expect(rows.length).toBe(1);
+        expect(within(rows[0]).getByText('777 km')).toBeInTheDocument();
+      });
+
+      const headers = within(screen.getByRole('table')).getAllByRole('columnheader');
+      expect(headers.some((header) => header.textContent === 'Location')).toBe(false);
+    });
+
+    test('does not prepend a new observation row when last_position_date changes while on page > 1', async () => {
+      const dynamicStore = mutableStore(store);
+      let paginationListItems, pageLink;
+
+      render(<Provider store={dynamicStore}>
+        <SubjectHistoricalDataModal title='Historical data' subjectId='fake-id' fetchObservationsForSubject/>
+      </Provider>);
+
+      await waitFor(() => {
+        paginationListItems = screen.getAllByRole('listitem');
+        pageLink = within(paginationListItems[3]).getByRole('button');
+      });
+
+      expect(pageLink).toHaveTextContent('2');
+      await userEvent.click(pageLink);
+
+      let bodyRows;
+      await waitFor(() => {
+        bodyRows = within(screen.getByRole('table')).getAllByRole('row').slice(1);
+        expect(bodyRows.length).toBe(ITEMS_PER_PAGE);
+      });
+      const rowCountBeforeUpdate = bodyRows.length;
+
+      act(() => {
+        dynamicStore.setState({
+          ...store,
+          data: {
+            ...store.data,
+            subjectStore: updatedSubjectStore('2026-06-30T01:00:00.000Z', 777),
+          },
+        });
+      });
+
+      // Give any erroneous effect a chance to fire before asserting no prepend.
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      });
+
+      const rowsAfterUpdate = within(screen.getByRole('table')).getAllByRole('row').slice(1);
+      expect(rowsAfterUpdate.length).toBe(rowCountBeforeUpdate);
+      expect(screen.queryByText('777 km')).not.toBeInTheDocument();
+    });
+
+    test('uses the update device properties for columns when the table is empty', async () => {
+      fetchObservationsForSubjectMock = jest.fn(() => () => Promise.resolve({
+        count: 0,
+        results: [],
+      }));
+      fetchObservationsForSubject.mockImplementation(fetchObservationsForSubjectMock);
+
+      const dynamicStore = mutableStore(store);
+
+      render(<Provider store={dynamicStore}>
+        <SubjectHistoricalDataModal title='Historical data' subjectId='fake-id' fetchObservationsForSubject/>
+      </Provider>);
+
+      await waitFor(() => {
+        const rows = within(screen.getByRole('table')).getAllByRole('row').slice(1);
+        expect(rows.length).toBe(0);
+      });
+
+      act(() => {
+        dynamicStore.setState({
+          ...store,
+          data: {
+            ...store.data,
+            subjectStore: updatedSubjectStore('2026-06-30T01:00:00.000Z', 777),
+          },
+        });
+      });
+
+      await waitFor(() => {
+        const rows = within(screen.getByRole('table')).getAllByRole('row').slice(1);
+        expect(rows.length).toBe(1);
+        expect(within(rows[0]).getByText('777 km')).toBeInTheDocument();
+      });
+
+      const headers = within(screen.getByRole('table')).getAllByRole('columnheader');
+      expect(headers.some((header) => header.textContent === 'Speed')).toBe(true);
     });
   });
 });

@@ -19,7 +19,12 @@
     }
   },
   "communityPage": {
-    "formSubmitted": "Formulário enviado",
+    "coolOffChooseAnotherType": "Escolher outro tipo de evento",
+    "coolOffMessage": "Você enviou recentemente um formulário de {{eventType}}. Poderá enviar outro em {{timeRemaining}}.",
+    "coolOffTimeRemaining": "Tempo restante: {{timeRemaining}}",
+    "coolOffTitle": "Aguarde antes de enviar novamente",
+    "coolOffTypeUnavailable": "Disponível em {{timeRemaining}}",
+    "formSubmitted": "Enviado com sucesso",
     "invalidCommunityUrl": "URL da comunidade inválida",
     "searchPlaceholder": "Pesquisar tipos de evento..."
   },
@@ -243,7 +248,6 @@
           "patrolFiltersCheckboxLabel": "Filtros de patrulhas"
         },
         "experimentalFeaturesFieldSet": {
-          "CUSTOM_COORDINATE_SYSTEMS_ENABLED": "Sistemas de referência de coordenadas",
           "legend": "Funções experimentais"
         },
         "languageSelect": {
@@ -365,6 +369,10 @@
     "popoverHeader": "Intervalo de datas",
     "popoverResetButton": "Redefinir",
     "sliderLabel": "Deslizador de tempo",
+    "speedButtonLabel": "Abrir opções de velocidade de reprodução",
+    "speedMenuHeader": "Velocidade de Reprodução",
+    "speedMenuLabel": "Opções de velocidade de reprodução",
+    "speedMenuOptionLabel": "Definir a velocidade de reprodução para {{speed}}",
     "timeSliderMapControl": {
       "iconTitle": "Deslizador de tempo"
     },

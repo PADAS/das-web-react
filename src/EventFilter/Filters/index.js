@@ -3,13 +3,13 @@ import Button from 'react-bootstrap/Button';
 import isEqual from 'react-fast-compare';
 import Popover from 'react-bootstrap/Popover';
 import uniq from 'lodash-es/uniq';
-import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as UserIcon } from '../../common/images/icons/user-profile.svg';
 
-import { EVENT_STATE_CHOICES } from '../../constants';
+import { EVENT_STATE_CHOICES, PREVIEW_FEATURES } from '../../constants';
 import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
+import { usePreviewFeature } from '../../hooks';
 
 import CheckMark from '../../Checkmark';
 import PriorityPicker from '../../PriorityPicker';
@@ -23,9 +23,7 @@ const StateSelector = ({ onStateSelect, state }) => {
 
   // Remove this flag and the `.filter` below once community input is enabled
   // for all tenants.
-  const communityInputEnabled = useSelector(
-    (state) => !!state.view.systemConfig.previewFeatures?.community_input_admin_enabled
-  );
+  const communityInputEnabled = usePreviewFeature(PREVIEW_FEATURES.COMMUNITY_INPUT_ADMIN);
 
   return <ul
       className={styles.stateList}

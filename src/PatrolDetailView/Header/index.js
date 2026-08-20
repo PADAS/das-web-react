@@ -8,7 +8,7 @@ import { PATROL_DETAIL_VIEW_CATEGORY, trackEventFactory } from '../../utils/anal
 import { TAB_KEYS } from '../../constants';
 import usePatrol from '../../hooks/usePatrol';
 
-import DasIcon from '../../DasIcon';
+import SvgIcon from '../../SvgIcon';
 import PatrolTrackControls from '../../PatrolTrackControls';
 import PatrolDistanceCovered from '../../Patrols/DistanceCovered';
 import PatrolMenu from '../../PatrolMenu';
@@ -21,7 +21,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
   const { t } = useTranslation('patrols', { keyPrefix: 'detailView.header' });
 
   const {
-    patrolData,
+    patrolTrackData,
 
     isPatrolActive,
     isPatrolCancelled,
@@ -53,7 +53,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
       return <span data-testid="patrol-drawer-header-details" className={`${styles.headerDetails} ${styles.overflowedEllipsisText}`}>
         {patrolElapsedTime}
         <span className={styles.distanceCovered}>
-          <PatrolDistanceCovered patrolsData={[patrolData]} suffix=' km' />
+          <PatrolDistanceCovered patrolsData={[{ patrol, ...patrolTrackData }]} suffix=' km' />
         </span>
       </span>;
     }
@@ -68,7 +68,8 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
     isPatrolDone,
     isPatrolCancelled,
     isPatrolScheduled,
-    patrolData,
+    patrol,
+    patrolTrackData,
     patrolElapsedTime,
     scheduledStartTime,
     t,
@@ -112,7 +113,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
 
   return <div className={styles.header} style={{ backgroundColor: !isNewPatrol ? theme.background : undefined }}>
     <div className={styles.icon} style={{ backgroundColor: !isNewPatrol ? theme.base : undefined }}>
-      <DasIcon className={!isNewPatrol ? '' : 'newPatrol'} style={{ fill: theme.fontColor ? theme.fontColor : 'white' }} type='events' iconId={patrolIconId}  />
+      <SvgIcon className={!isNewPatrol ? '' : 'newPatrol'} style={{ fill: theme.fontColor ? theme.fontColor : 'white' }} type='patrols' iconId={patrolIconId}  />
     </div>
 
     <p className={styles.serialNumber}>{patrol.serial_number}</p>
@@ -163,6 +164,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
     </Button>}
 
     {!isNewPatrol && <PatrolMenu
+      className={styles.patrolMenu}
       isPatrolCancelled={isPatrolCancelled}
       onPatrolChange={onPatrolChange}
       patrol={patrol}

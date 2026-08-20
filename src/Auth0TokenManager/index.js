@@ -3,10 +3,9 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
 
+import { APP_ROUTES } from '../constants/routes';
 import appConfig from '../config';
-import { REACT_APP_ROUTE_PREFIX } from '../constants';
-import { clearAuth, POST_AUTH_SUCCESS } from '../ducks/auth';
-import useNavigate from '../hooks/useNavigate';
+import { applyAccessToken, clearAuth } from '../ducks/auth';
 import { checkAccountLinked, GATE_RESULT } from '../utils/account-linking';
 import {
   clearIntendedPostAuth0SuccessRoute,
@@ -16,6 +15,7 @@ import {
 } from '../utils/auth';
 import { hasAuth0CallbackParams } from '../utils/auth0';
 import { redirectToExternalUrl } from '../utils/navigation';
+import useNavigate from '../hooks/useNavigate';
 
 const Auth0TokenManager = () => {
   const dispatch = useDispatch();
@@ -50,7 +50,7 @@ const Auth0TokenManager = () => {
           const safe = String(token).trim();
           if (!isValidTokenFormat(safe)) {
             console.warn('Auth token format rejected');
-            navigate(`${REACT_APP_ROUTE_PREFIX}login`, { replace: true });
+            navigate(APP_ROUTES.LOGIN, { replace: true });
             return;
           }
 
@@ -68,33 +68,32 @@ const Auth0TokenManager = () => {
             if (result === GATE_RESULT.INVALID) {
               logout({ openUrl: false }).catch(() => {});
               dispatch(clearAuth());
-              navigate(`${REACT_APP_ROUTE_PREFIX}login`, { replace: true });
+              navigate(APP_ROUTES.LOGIN, { replace: true });
               return;
             }
 
             // Transient: keep the SDK session (unlike INVALID) for retry, surface an error.
             if (result === GATE_RESULT.TRANSIENT) {
-              navigate(`${REACT_APP_ROUTE_PREFIX}login`, { replace: true, state: { authLinkingError: true } });
+              navigate(APP_ROUTES.LOGIN, { replace: true, state: { authLinkingError: true } });
               return;
             }
 
             // A LINKED result returns no early exit and falls through to the sign-in below.
           }
 
-          document.cookie = `token=${safe};path=/`;
-          dispatch({ type: POST_AUTH_SUCCESS, payload: { data: { access_token: safe } } });
+          dispatch(applyAccessToken(safe));
 
           // Return route survives the Auth0 redirect in localStorage.
           const intendedRoute = getIntendedPostAuth0SuccessRoute();
           const returnTo = intendedRoute && !/\/login\b/.test(intendedRoute)
             ? intendedRoute
-            : REACT_APP_ROUTE_PREFIX;
+            : APP_ROUTES.ROOT;
           clearIntendedPostAuth0SuccessRoute();
 
           navigate(stripAuth0Params(returnTo), { replace: true, state: { comesFromLogin: true } });
         } catch (e) {
           console.error('Auth0 callback failed:', e);
-          navigate(`${REACT_APP_ROUTE_PREFIX}login`, { replace: true });
+          navigate(APP_ROUTES.LOGIN, { replace: true });
         }
         return;
       }

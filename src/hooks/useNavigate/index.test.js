@@ -4,7 +4,7 @@ import { render, waitFor } from '@testing-library/react';
 import { useNavigate as useRouterNavigate } from 'react-router';
 
 import { mockStore } from '../../__test-helpers/MockStore';
-import { BLOCKER_STATES, NavigationContext } from '../../NavigationContextProvider';
+import { NavigationContext } from '../../NavigationContextProvider';
 import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import useNavigate from './';
 
@@ -14,28 +14,22 @@ jest.mock('react-router', () => ({
 }));
 
 describe('useNavigate', () => {
-  let mockStoreInstance = mockStore({});
+  const mockStoreInstance = mockStore({});
   const routerNavigate = jest.fn(),
-    onNavigationAttemptBlocked = jest.fn(),
-    reset = jest.fn(),
+    attemptNavigation = jest.fn(),
     setNavigationData = jest.fn();
 
-  const navigationContextValue = {
-    blocker: { reset, state: BLOCKER_STATES.UNBLOCKED },
-    isNavigationBlocked: false,
-    onNavigationAttemptBlocked,
-    setNavigationData,
-  };
+  const navigationContextValue = { attemptNavigation, setNavigationData };
 
-  let useRouterNavigateMock;
   beforeEach(() => {
-    useRouterNavigateMock = jest.fn(() => routerNavigate);
-    useRouterNavigate.mockImplementation(useRouterNavigateMock);
+    useRouterNavigate.mockImplementation(() => routerNavigate);
   });
 
   afterEach(() => {
     jest.restoreAllMocks();
   });
+
+  const runAttemptedNavigation = () => attemptNavigation.mock.calls[0][0]();
 
   test('Uses React Router navigate cleaning context and showing the sidebar by default', async () => {
     const Component = () => {
@@ -54,12 +48,65 @@ describe('useNavigate', () => {
       </Provider>
     );
 
-    await waitFor(() => {
-      expect(routerNavigate).toHaveBeenCalledTimes(1);
-      expect(routerNavigate).toHaveBeenCalledWith('/', { state: 'stateee' });
-      expect(setNavigationData).toHaveBeenCalledWith({});
-      expect(mockStoreInstance.getActions()[0].type).toEqual('SET_SHOW_SIDE_BAR');
-    });
+    await waitFor(() => expect(attemptNavigation).toHaveBeenCalledTimes(1));
+
+    runAttemptedNavigation();
+
+    expect(routerNavigate).toHaveBeenCalledWith('/', { state: 'stateee' });
+    expect(setNavigationData).toHaveBeenCalledWith({});
+    expect(mockStoreInstance.getActions()[0].type).toEqual('SET_SHOW_SIDE_BAR');
+  });
+
+  test('Passes along the provided navigation context data', async () => {
+    const navigationContextData = { fromMap: true };
+
+    const Component = () => {
+      const navigate = useNavigate();
+      useEffect(() => { navigate('/', undefined, navigationContextData); }, [navigate]);
+      return null;
+    };
+
+    render(
+      <Provider store={mockStoreInstance}>
+        <NavigationWrapper>
+          <NavigationContext.Provider value={navigationContextValue}>
+            <Component />
+          </NavigationContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    await waitFor(() => expect(attemptNavigation).toHaveBeenCalledTimes(1));
+
+    runAttemptedNavigation();
+
+    expect(setNavigationData).toHaveBeenCalledWith(navigationContextData);
+  });
+
+  test('Passes along the provided navigation context data even when not clearing the context', async () => {
+    const navigationContextData = { fromMap: true };
+
+    const Component = () => {
+      const navigate = useNavigate({ clearContext: false });
+      useEffect(() => { navigate('/', undefined, navigationContextData); }, [navigate]);
+      return null;
+    };
+
+    render(
+      <Provider store={mockStoreInstance}>
+        <NavigationWrapper>
+          <NavigationContext.Provider value={navigationContextValue}>
+            <Component />
+          </NavigationContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    await waitFor(() => expect(attemptNavigation).toHaveBeenCalledTimes(1));
+
+    runAttemptedNavigation();
+
+    expect(setNavigationData).toHaveBeenCalledWith(navigationContextData);
   });
 
   test('Uses React Router navigate without cleaning the navigation context', async () => {
@@ -79,22 +126,23 @@ describe('useNavigate', () => {
       </Provider>
     );
 
-    await waitFor(() => {
-      expect(routerNavigate).toHaveBeenCalledTimes(1);
-      expect(routerNavigate).toHaveBeenCalledWith('/', undefined);
-      expect(setNavigationData).not.toHaveBeenCalled();
-      expect(mockStoreInstance.getActions()[0].type).toEqual('SET_SHOW_SIDE_BAR');
-    });
+    await waitFor(() => expect(attemptNavigation).toHaveBeenCalledTimes(1));
+
+    runAttemptedNavigation();
+
+    expect(routerNavigate).toHaveBeenCalledWith('/', undefined);
+    expect(setNavigationData).not.toHaveBeenCalled();
   });
 
   test('Uses React Router navigate without showing the side bar', async () => {
+    const mockStoreInstance = mockStore({});
+
     const Component = () => {
       const navigate = useNavigate({ dispatchShowSideBar: false });
       useEffect(() => { navigate('/'); }, [navigate]);
       return null;
     };
 
-    mockStoreInstance = mockStore({});
     render(
       <Provider store={mockStoreInstance}>
         <NavigationWrapper>
@@ -105,95 +153,12 @@ describe('useNavigate', () => {
       </Provider>
     );
 
-    await waitFor(() => {
-      expect(routerNavigate).toHaveBeenCalledTimes(1);
-      expect(routerNavigate).toHaveBeenCalledWith('/', undefined);
-      expect(setNavigationData).toHaveBeenCalledWith({});
-      expect(mockStoreInstance.getActions()).toHaveLength(0);
-    });
-  });
+    await waitFor(() => expect(attemptNavigation).toHaveBeenCalledTimes(1));
 
-  test('blocks a navigation attempt', async () => {
-    navigationContextValue.isNavigationBlocked = true;
+    runAttemptedNavigation();
 
-    const Component = () => {
-      const navigate = useNavigate();
-      useEffect(() => { navigate('/'); }, [navigate]);
-      return null;
-    };
-
-    render(
-      <Provider store={mockStoreInstance}>
-        <NavigationWrapper>
-          <NavigationContext.Provider value={navigationContextValue}>
-            <Component />
-          </NavigationContext.Provider>
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    await waitFor(() => {
-      expect(routerNavigate).toHaveBeenCalledTimes(0);
-      expect(onNavigationAttemptBlocked).toHaveBeenCalledTimes(1);
-    });
-
-    navigationContextValue.isNavigationBlocked = false;
-  });
-
-  test('unblocks a cancelled navigation attempt', async () => {
-    navigationContextValue.isNavigationBlocked = true;
-
-    const Component = () => {
-      const navigate = useNavigate();
-      useEffect(() => { navigate('/'); }, [navigate]);
-      return null;
-    };
-
-    render(
-      <Provider store={mockStoreInstance}>
-        <NavigationWrapper>
-          <NavigationContext.Provider value={navigationContextValue}>
-            <Component />
-          </NavigationContext.Provider>
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    await waitFor(() => {
-      expect(routerNavigate).toHaveBeenCalledTimes(0);
-      expect(onNavigationAttemptBlocked).toHaveBeenCalledTimes(1);
-    });
-
-    navigationContextValue.isNavigationBlocked = false;
-  });
-
-  test('resets the blocker on a continued navigation attempt', async () => {
-    navigationContextValue.isNavigationBlocked = true;
-    navigationContextValue.blocker.state = BLOCKER_STATES.PROCEEDING;
-
-    const Component = () => {
-      const navigate = useNavigate();
-      useEffect(() => { navigate('/'); }, [navigate]);
-      return null;
-    };
-
-    render(
-      <Provider store={mockStoreInstance}>
-        <NavigationWrapper>
-          <NavigationContext.Provider value={navigationContextValue}>
-            <Component />
-          </NavigationContext.Provider>
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    await waitFor(() => {
-      expect(routerNavigate).toHaveBeenCalledTimes(1);
-      expect(onNavigationAttemptBlocked).toHaveBeenCalledTimes(1);
-      expect(reset).toHaveBeenCalledTimes(1);
-    });
-
-    navigationContextValue.isNavigationBlocked = false;
-    navigationContextValue.blocker.state = BLOCKER_STATES.UNBLOCKED;
+    expect(routerNavigate).toHaveBeenCalledWith('/', undefined);
+    expect(setNavigationData).toHaveBeenCalledWith({});
+    expect(mockStoreInstance.getActions()).toHaveLength(0);
   });
 });

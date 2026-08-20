@@ -8,10 +8,15 @@ const useFetchPatrolsFeed = () => {
   const dispatch = useDispatch();
 
   const patrolFilter = useSelector((state) => state.data.patrolFilter);
+  const patrolsFeed = useSelector((state) => state.data.patrolsFeed);
 
-  const patrolFetchRef = useRef(null);
+  const isPatrolsFeedPopulated = patrolsFeed?.length > 0;
 
-  const [loadingPatrolsFeed, setLoadingPatrolsFeed] = useState(true);
+  // Only fetch patrols feed if it is not populated or if the patrol filter has
+  // changed.
+  const shouldFetchPatrolsFeedRef = useRef(!isPatrolsFeedPopulated);
+
+  const [loadingPatrolsFeed, setLoadingPatrolsFeed] = useState(!isPatrolsFeedPopulated);
 
   const patrolFilterParams = useMemo(() => {
     const filterParams = cloneDeep(patrolFilter);
@@ -21,22 +26,28 @@ const useFetchPatrolsFeed = () => {
   }, [patrolFilter]);
 
   useEffect(() => {
-    setLoadingPatrolsFeed(true);
+    if (shouldFetchPatrolsFeedRef.current) {
+      // Flag to prevent setting loadingPatrolsFeed to false if a fetch is
+      // cancelled and a new one started.
+      let isLatestFetch = true;
 
-    patrolFetchRef.current = dispatch(fetchPatrolsFeed());
+      setLoadingPatrolsFeed(true);
 
-    patrolFetchRef.current.request.finally(() => {
-      setLoadingPatrolsFeed(false);
-      patrolFetchRef.current = null;
-    });
+      const patrolFetch = dispatch(fetchPatrolsFeed());
 
-    return () => {
-      const priorRequestCancelToken = patrolFetchRef?.current?.cancelToken;
+      patrolFetch.request.finally(() => {
+        if (isLatestFetch) {
+          setLoadingPatrolsFeed(false);
+        }
+      });
 
-      if (priorRequestCancelToken) {
-        priorRequestCancelToken.cancel();
-      }
-    };
+      return () => {
+        patrolFetch.cancelToken.cancel();
+        isLatestFetch = false;
+      };
+    } else {
+      shouldFetchPatrolsFeedRef.current = true;
+    }
   }, [dispatch, patrolFilterParams]);
 
   return { loadingPatrolsFeed };

@@ -22,7 +22,7 @@
         "invalid": "स्वरुप मिलेन",
         "readyToStart": "सुरु गर्न तयार अवस्थामा",
         "scheduled": "निर्धारित",
-        "startOverdue": "बाँकी रहेको काम सुरु गर्नुहोस्"
+        "startOverdue": "सुरु हुन ढिलो भएको"
       }
     },
     "loadingMessage": "सुरक्षित हुँदैछ…",
@@ -56,6 +56,96 @@
     "body": "यो गस्ती सुरक्षित गर्न सकिएन । गस्तीको अन्त्य समय सुरुवाती समय भन्दा पछि हुनुपर्छ । कृपया गस्तीको सुरुवाती समय अथवा अन्त्य समय सच्याउनुहोस्",
     "okButton": "ठीक छ",
     "title": "गस्ती समय मिलेन"
+  },
+  "patrolOverview": {
+    "attachmentsSaveErrorMessage": "केही संलग्न फाइलहरू अपलोड गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।",
+    "footer": {
+      "addEventButton": "घटना थप्नुहोस्",
+      "addEventButtonLabel": "घटना थप्नुहोस्",
+      "addEventButtonText": "घटना",
+      "cancelOption": "गस्ती रद्द गर्नुहोस्",
+      "endOption": "गस्ती अन्त्य गर्नुहोस्",
+      "endPatrolButton": "गस्ती अन्त्य गर्नुहोस्",
+      "pauseOption": "गस्ती रोक्नुहोस्",
+      "saveButton": "सुरक्षित गर्नुहोस्",
+      "saveButtonLoadingLabel": "लोड हुँदैछ",
+      "updateStatusButton": "स्थिति अपडेट गर्नुहोस्"
+    },
+    "header": {
+      "breadcrumbNavLabel": "गस्ती नेभिगेशन",
+      "breadcrumbPatrolsLabel": "गस्तीहरू",
+      "closeButtonLabel": "साइडबार बन्द गर्नुहोस्",
+      "copyLinkMessage": "लिकं कपि भयो",
+      "copyLinkOption": "गस्तीको लिकं कपि गर्नुहोस्",
+      "downloadTrackOption": "गस्तीको ट्र्याक डाउनलोड गर्नुहोस्",
+      "editTitleButtonLabel": "शीर्षक सम्पादन गर्नुहोस्",
+      "fitToBoundsButtonLabel": "गस्तीको सीमामा मिलाउनुहोस्",
+      "jumpToLocationButtonLabel": "स्थानमा जानुहोस्",
+      "mobileProvenancePill": "मोबाइल",
+      "moreOptionsButtonLabel": "थप विकल्पहरू",
+      "printOption": "गस्ती प्रिन्ट गर्नुहोस्",
+      "titleInputLabel": "गस्तीको शीर्षक",
+      "toggleTrackButtonLabel": {
+        "hidden": "गस्तीको ट्र्याक देखाउनुहोस्",
+        "pinned": "गस्तीको ट्र्याक लुकाउनुहोस्",
+        "visible": "गस्तीको ट्र्याक पिन गर्नुहोस्"
+      },
+      "uiStateTitles": {
+        "active": "सकृय",
+        "cancelled": "रद्द गरियो",
+        "done": "भयो",
+        "invalid": "स्वरुप मिलेन",
+        "readyToStart": "सुरु गर्न तयार अवस्थामा",
+        "scheduled": "निर्धारित",
+        "startOverdue": "सुरु हुन ढिलो भएको"
+      }
+    },
+    "history": {
+      "sortDirectionButtonLabel": {
+        "down": "इतिहास आरोही क्रममा क्रमबद्ध गर्नुहोस्",
+        "up": "इतिहास अवरोही क्रममा क्रमबद्ध गर्नुहोस्"
+      },
+      "timeLabel": "समय"
+    },
+    "historyTabTitle": "इतिहास",
+    "overview": {
+      "activity": {
+        "activeTimeLabel": "सक्रिय समय",
+        "activitySectionTitle": "गतिविधि",
+        "collapseAllButtonLabel": "सबै बन्द गर्नुहोस्",
+        "distanceLabel": "दूरी",
+        "durationLabel": "अवधि",
+        "emptyStateMessage": "गस्ती गतिविधि यहाँ देखा पर्नेछ",
+        "eventsLabel": "घटनाहरू",
+        "expandAllButtonLabel": "सबै विस्तार गर्नुहोस्",
+        "jumpToLocationButtonLabel": "स्थानमा जानुहोस्",
+        "legTransitionTitle": "खण्ड {{endedLeg}} समाप्त भयो, खण्ड {{startedLeg}} सुरु भयो",
+        "patrolEndedTitle": "गस्ती समाप्त भएको",
+        "patrolStartedTitle": "गस्ती सुरु भएको",
+        "pausedTimeLabel": "रोकिएको समय",
+        "sortDirectionButtonLabel": {
+          "down": "गतिविधि आरोही क्रममा क्रमबद्ध गर्नुहोस्",
+          "up": "गतिविधि अवरोही क्रममा क्रमबद्ध गर्नुहोस्"
+        },
+        "startPatrolButton": "गस्ती सुरु गर्नुहोस्",
+        "timeLabel": "समय"
+      },
+      "legs": {
+        "endColumnHeader": "अन्त्य मिति",
+        "legActionsColumnHeader": "कार्यहरू",
+        "legColumnHeader": "खण्ड",
+        "legTableCaption": "गस्ती खण्डहरू",
+        "newLegButton": "नयाँ गस्ती खण्ड",
+        "patrolTypeColumnHeader": "गस्ती प्रकार",
+        "startColumnHeader": "सुरु मिति",
+        "teamColumnHeader": "टोली र ट्र्याकिङ",
+        "viewLegButtonLabel": "खण्ड {{legNumber}} हेर्नुहोस्",
+        "zoomToLegBoundsButtonLabel": "खण्ड {{legNumber}} को सीमामा मिलाउनुहोस्"
+      }
+    },
+    "overviewTabTitle": "सारांश",
+    "saveErrorMessage": "गस्ती सुरक्षित गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।",
+    "tabsLabel": "गस्ती सारांश ट्याबहरू"
   },
   "patrolMenu": {
     "cancelPatrol": "गस्ती रद्द गर्नुहोस्",

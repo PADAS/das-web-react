@@ -168,8 +168,8 @@
     }
   }
 
-  @media (width: $md-layout-width-min) {
-    transform: translateX(calc(calc(46rem + var(--vertical-nav-width)) * -1));
+  @media (min-width: $md-layout-width-min) {
+    transform: translateX(calc(calc(#{$sidebar-width-detail} + var(--vertical-nav-width)) * -1));
   }
 }
 
@@ -185,6 +185,11 @@
   &:hover,
   &:focus {
     border: none;
+  }
+
+  &.noHeader {
+    height: 100%;
+    min-height: 100% !important;
   }
 }
 
