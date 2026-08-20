@@ -19,6 +19,16 @@
       "noOptionsMessage": "प्रदर्शन गर्न कुनै विकल्प छैन"
     }
   },
+  "communityPage": {
+    "coolOffChooseAnotherType": "फरक घटनाको प्रकार छान्नुहोस्",
+    "coolOffMessage": "तपाईंले भर्खरै {{eventType}} फारम पेश गर्नुभयो। {{timeRemaining}} पछि तपाईंले अर्को पेश गर्न सक्नुहुन्छ।",
+    "coolOffTimeRemaining": "बाँकी समय: {{timeRemaining}}",
+    "coolOffTitle": "कृपया फेरि पेश गर्नुअघि प्रतीक्षा गर्नुहोस्",
+    "coolOffTypeUnavailable": "{{timeRemaining}} पछि उपलब्ध हुनेछ",
+    "formSubmitted": "सफलताका साथ पेश गरियो",
+    "invalidCommunityUrl": "अमान्य समुदाय URL",
+    "searchPlaceholder": "घटनाका प्रकारहरु खोज्नुहोस्..."
+  },
   "datePicker": {
     "calendarPopper": {
       "menuButtonLabel": "क्यालेन्डर खोल्नुहोस्",
