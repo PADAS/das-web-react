@@ -89,11 +89,43 @@
       &:focus-visible {
         background-color: white;
         border: 2px solid colors.$bright-blue;
+
+        /* The inversion below is also the resting look of the secondary variant, so
+           on its own it cannot say which of the two buttons has focus. The ring is
+           what carries that, for both of them. */
+        box-shadow: 0 0 0 2px white, 0 0 0 4px colors.$bright-blue;
         color: colors.$bright-blue;
+
+        /* Box shadows are dropped in forced-colors mode, which would leave the
+           1px-to-2px border as the only remaining focus cue. */
+        @media (forced-colors: active) {
+          outline: 2px solid;
+          outline-offset: 2px;
+        }
       }
 
       &:disabled {
         opacity: 0.75;
+      }
+
+      &:has(+ .secondaryButton) {
+        margin-bottom: 0.75rem;
+      }
+
+      /* Compounded onto .loginButton rather than written as a sibling rule, so it
+         outranks the primary's own states on specificity instead of tying with them
+         and winning on source order — a tie any later rule would quietly break. */
+      &.secondaryButton {
+        background-color: white;
+        border: 1px solid colors.$bright-blue;
+        color: colors.$bright-blue;
+
+        &:hover:not(:disabled):not(:focus-visible) {
+          background-color: color.adjust(colors.$bright-blue, $lightness: 52%);
+
+          /* The resting blue reads 4.41:1 on this tint, under the 4.5:1 AA floor. */
+          color: color.adjust(colors.$bright-blue, $lightness: -5%);
+        }
       }
     }
   }

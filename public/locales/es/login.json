@@ -3,6 +3,7 @@
     "title": "Configurar EarthRanger Identity",
     "intro": "EarthRanger está migrando a una forma más sencilla y segura de iniciar sesión, llamada EarthRanger Identity.",
     "signInPrompt": "Si ya tiene EarthRanger Identity, seleccione Iniciar sesión con correo electrónico a continuación.",
+    "localUserPrompt": "Si el administrador de su sitio le dio un nombre de usuario y una contraseña solo para este sitio, seleccione Iniciar sesión como usuario local.",
     "convertPrompt": "¿Usa EarthRanger Identity por primera vez? Primero deberá convertir su cuenta existente con el nombre de usuario y la contraseña que usa actualmente.",
     "convertLink": "Convertir su cuenta",
     "helpText": "¿Tiene preguntas? Comuníquese con el administrador de su sitio."
@@ -13,6 +14,8 @@
     "authenticationFailed": "Autenticación fallida: Por favor verifique sus credenciales e intente de nuevo.",
     "authenticationError": "Error de autenticación: {{errorDescription}}",
     "invalidCredentialsMessage": "Las credenciales son inválidas. Por favor intente de nuevo.",
+    "localUserNotProvisioned": "Su cuenta local no está configurada en este sitio. Comuníquese con el administrador de su sitio.",
+    "localUserSignInFailed": "No pudimos iniciar su sesión como usuario local. Puede que el inicio de sesión local aún no esté listo en este sitio. Vuelva a intentarlo en unos momentos o comuníquese con el administrador de su sitio.",
     "signInFailed": "Error al iniciar sesión. Por favor intente de nuevo.",
     "signInIncomplete": "No pudimos completar su inicio de sesión. Por favor intente de nuevo.",
     "unknownErrorMessage": "Ha ocurrido un error. Por favor intente de nuevo."
@@ -27,6 +30,7 @@
   "loginButtonEmail": "Iniciar sesión con correo electrónico",
   "loginButtonIdp": "Iniciar sesión",
   "loginButtonLoadingLabel": "Cargando",
+  "loginButtonLocalUser": "Iniciar sesión como usuario local",
   "passwordLabel": "Contraseña",
   "title": "Iniciar sesión",
   "usernameLabel": "Usuario"

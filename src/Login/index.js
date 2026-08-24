@@ -15,6 +15,12 @@ import appConfig from '../config';
 import { buildAuth0AuthorizationParams } from '../utils/auth0';
 import { clearAuth, postAuth } from '../ducks/auth';
 import { fetchEula } from '../ducks/eula';
+import {
+  markLocalUserLoginAttempt,
+  stripAuth0Params,
+  takeLocalUserLoginAttempt,
+  takeLocalUserNotProvisioned,
+} from '../utils/auth';
 import useNavigate from '../hooks/useNavigate';
 
 import * as styles from './styles.module.scss';
@@ -37,12 +43,19 @@ const LoginPage = () => {
   const passwordInputRef = useRef(null);
   const usernameInputRef = useRef(null);
 
+  // Holds a translation key, not a translated string: the namespace may still be
+  // loading at mount, and a stored string would keep whatever `t` returned then —
+  // the raw key — for the life of the page, and would not follow a language change.
+  //
   // Initialized from router state (no effect/flicker): Auth0TokenManager routes
-  // here with authLinkingError when the post-Auth0 account-linking gate fails
-  // transiently.
-  const [alertMessage, setAlertMessage] = useState(
-    () => (location.state?.authLinkingError ? t('errorAlert.signInIncomplete') : null)
-  );
+  // here when the post-Auth0 handling fails, saying whether a local-user attempt
+  // was behind it so the message can name that path rather than hide it.
+  const [alert, setAlert] = useState(() => {
+    if (location.state?.localUserSignInFailed) {
+      return { key: 'errorAlert.localUserSignInFailed' };
+    }
+    return location.state?.authLinkingError ? { key: 'errorAlert.signInIncomplete' } : null;
+  });
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [formErrors, setFormErrors] = useState({ username: null, password: null });
   const [isLoading, setIsLoading] = useState(false);
@@ -50,6 +63,15 @@ const LoginPage = () => {
   const idpOrgId = systemConfig?.idp_org_id?.trim() || null;
   const isEULAEnabled = !!systemConfig?.[SYSTEM_CONFIG_FLAGS.EULA];
   const requireIdp = !!systemConfig?.require_idp;
+  const siteSlug = systemConfig?.site_slug?.trim() || null;
+
+  // Without the slug the redirect would omit the connection and sign the user
+  // into the common database instead — a wrong account, not a visible error. The
+  // org check keeps the offer to sites where Auth0TokenManager's account-linking
+  // gate runs, which is what catches a local user with no ER account behind it.
+  const canSignInAsLocalUser = !!systemConfig?.support_managed_users
+    && !!siteSlug
+    && !idpOrgId;
 
   const onAuth0Login = useCallback(async () => {
     try {
@@ -57,9 +79,28 @@ const LoginPage = () => {
         authorizationParams: buildAuth0AuthorizationParams(appConfig.auth0.audience, idpOrgId),
       });
     } catch (_error) {
-      setAlertMessage(t('errorAlert.signInFailed'));
+      setAlert({ key: 'errorAlert.signInFailed' });
     }
-  }, [auth0LoginWithRedirect, idpOrgId, t]);
+  }, [auth0LoginWithRedirect, idpOrgId]);
+
+  const onLocalUserLogin = useCallback(async () => {
+    markLocalUserLoginAttempt();
+
+    try {
+      await auth0LoginWithRedirect({
+        authorizationParams: buildAuth0AuthorizationParams(
+          appConfig.auth0.audience,
+          idpOrgId,
+          siteSlug,
+        ),
+      });
+    } catch (_error) {
+      // The page never left, so there is no attempt in flight for a later failure
+      // to be attributed to.
+      takeLocalUserLoginAttempt();
+      setAlert({ key: 'errorAlert.signInFailed' });
+    }
+  }, [auth0LoginWithRedirect, idpOrgId, siteSlug]);
 
   const onFormSubmit = useCallback(async (event) => {
     event.preventDefault();
@@ -103,9 +144,11 @@ const LoginPage = () => {
         usernameInputRef.current?.select();
       }
 
-      setAlertMessage(invalidCredentials
-        ? t('errorAlert.invalidCredentialsMessage')
-        : t('errorAlert.unknownErrorMessage'));
+      setAlert({
+        key: invalidCredentials
+          ? 'errorAlert.invalidCredentialsMessage'
+          : 'errorAlert.unknownErrorMessage',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -116,38 +159,79 @@ const LoginPage = () => {
     setFormErrors((prevFormErrors) => (prevFormErrors[event.target.name]
       ? { ...prevFormErrors, [event.target.name]: null }
       : prevFormErrors));
-    setAlertMessage(null);
+    setAlert(null);
   }, []);
 
+  // Mount work, kept apart from the effect below: that one re-runs when the Auth0
+  // params are stripped from the URL, which would otherwise refetch the EULA and
+  // clear auth a second time.
   useEffect(() => {
     dispatch(clearAuth());
     dispatch(fetchEula());
+  }, [dispatch]);
 
+  useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const auth0Error = urlParams.get('error');
     const auth0ErrorDescription = urlParams.get('error_description');
-    if (auth0Error && auth0ErrorDescription) {
-      // There are Auth0 errors in URL parameters. Display an error message
-      // based on the error type.
-      if (auth0Error === 'access_denied') {
-        if (auth0ErrorDescription.includes('not part of the')) {
-          // eslint-disable-next-line react-hooks/set-state-in-effect
-          setAlertMessage(t('errorAlert.accessDeniedNotAuthorized'));
-        } else {
-          setAlertMessage(t('errorAlert.accessDeniedNoPermission'));
+    // Consumed on every visit rather than only on failures, so a marker left
+    // behind by an earlier attempt cannot mislabel a later common-path failure.
+    // Safe to read plainly: stripping the params below re-runs this effect, but
+    // with no error left to attribute, so a spent marker is never consulted again.
+    const attemptedLocalUserLogin = takeLocalUserLoginAttempt();
+
+    // Set before Auth0TokenManager signed this local user out of Auth0, because
+    // that redirect leaves the app and takes router state with it. Consuming it
+    // on a later run is harmless: an unset flag simply leaves the alert alone.
+    const localUserNotProvisioned = takeLocalUserNotProvisioned();
+
+    // Keyed off the error code alone: a description is optional in OAuth 2.0, and
+    // requiring one would silently drop the whole message for a bare `error=…`.
+    if (localUserNotProvisioned || auth0Error) {
+      // Pick the message from how the user arrived, in one place so the effect
+      // performs a single state update.
+      const alertForArrival = () => {
+        if (localUserNotProvisioned) {
+          return { key: 'errorAlert.localUserNotProvisioned' };
         }
-      } else if (auth0Error === 'unauthorized') {
-        setAlertMessage(t('errorAlert.authenticationFailed'));
-      } else {
-        setAlertMessage(
-          t(
-            'errorAlert.authenticationError',
-            { errorDescription: auth0ErrorDescription },
-          )
+        // Auth0's error text is not a contract, so a local-user failure names the
+        // path that failed rather than claiming a cause.
+        if (attemptedLocalUserLogin) {
+          return { key: 'errorAlert.localUserSignInFailed' };
+        }
+        if (auth0Error === 'access_denied') {
+          return auth0ErrorDescription?.includes('not part of the')
+            ? { key: 'errorAlert.accessDeniedNotAuthorized' }
+            : { key: 'errorAlert.accessDeniedNoPermission' };
+        }
+        if (auth0Error === 'unauthorized') {
+          return { key: 'errorAlert.authenticationFailed' };
+        }
+        return auth0ErrorDescription
+          ? {
+            key: 'errorAlert.authenticationError',
+            values: { errorDescription: auth0ErrorDescription },
+          }
+          : { key: 'errorAlert.unknownErrorMessage' };
+      };
+
+      // Derived from the URL and from storage, neither of which React can observe,
+      // so this is the one place the message can be set.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setAlert(alertForArrival());
+
+      if (auth0Error) {
+        // Drop the params now that the message is chosen. The marker behind it is
+        // single-use, so reloading this URL would fall through to a generic message
+        // asserting a cause we have no way to know. Uses the shared helper so only
+        // the Auth0 params go, matching how the token manager strips them.
+        navigate(
+          stripAuth0Params(`${location.pathname}${location.search}`),
+          { replace: true, state: location.state },
         );
       }
     }
-  }, [dispatch, location.search, t]);
+  }, [dispatch, location.pathname, location.search, location.state, navigate]);
 
   return <div className={styles.container}>
     <EarthRangerLogo aria-label="EarthRanger" className={styles.logo} role="img" />
@@ -166,6 +250,10 @@ const LoginPage = () => {
 
         <p className={styles.infoBoxBody}>{t('auth0Info.intro')}</p>
         <p className={styles.infoBoxBody}>{t('auth0Info.signInPrompt')}</p>
+
+        {canSignInAsLocalUser && (
+          <p className={styles.infoBoxBody}>{t('auth0Info.localUserPrompt')}</p>
+        )}
 
         <p className={styles.infoBoxBody}>{t('auth0Info.convertPrompt')}</p>
         <a className={styles.infoBoxLink} href={ACCOUNT_LINKER_URL}>
@@ -190,6 +278,18 @@ const LoginPage = () => {
             ? <MoonLoader aria-hidden color="white" size={SUBMIT_LOADER_SIZE} />
             : t(idpOrgId ? 'loginButtonIdp' : 'loginButtonEmail')}
         </button>
+
+        {canSignInAsLocalUser && (
+          <button
+            aria-busy={isAuth0Loading}
+            className={`${styles.loginButton} ${styles.secondaryButton}`}
+            disabled={isAuth0Loading}
+            onClick={onLocalUserLogin}
+            type="button"
+          >
+            {t('loginButtonLocalUser')}
+          </button>
+        )}
       </div>
     ) : (
       <form className={styles.form} noValidate onSubmit={onFormSubmit}>
@@ -253,7 +353,7 @@ const LoginPage = () => {
       </form>
     )}
 
-    {!!alertMessage && <div role="alert" className={styles.alertMessage}>{alertMessage}</div>}
+    {!!alert && <div role="alert" className={styles.alertMessage}>{t(alert.key, alert.values)}</div>}
 
     {isEULAEnabled && <a
       aria-label={t('eulaLinkLabel')}
