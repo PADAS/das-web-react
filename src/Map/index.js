@@ -1,14 +1,13 @@
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import uniq from 'lodash/uniq';
 import xor from 'lodash/xor';
 import debounce from 'lodash/debounce';
-import { CancelToken } from 'axios';
 import { differenceInCalendarDays } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
-import { clearSubjectData, fetchMapSubjects, mapSubjectsFetchCancelToken } from '../ducks/subjects';
+import { cancelMapSubjectsFetch, clearSubjectData, fetchMapSubjects } from '../ducks/subjects';
 import { clearEventData, fetchMapEvents, cancelMapEventsFetch } from '../ducks/events';
 import { fetchBaseLayers } from '../ducks/layers';
 import { setMapPosition } from '../ducks/map-position';
@@ -166,8 +165,6 @@ const Map = ({ children, onMapLoad, socket }) => {
     hidePopupActionCreator(popupId)
   ), [dispatch]);
 
-  const trackRequestCancelToken = useRef(CancelToken.source());
-
   const timeSliderActive = timeSliderState.active;
 
   const hasScrubbedIntoPast = !!timeSliderState.hasScrubbedIntoPast;
@@ -199,7 +196,7 @@ const Map = ({ children, onMapLoad, socket }) => {
   }, [showPopup]);
 
   const cancelMapDataRequests = useCallback(() => {
-    mapSubjectsFetchCancelToken.cancel();
+    cancelMapSubjectsFetch();
     cancelMapEventsFetch();
   }, []);
 
@@ -213,19 +210,13 @@ const Map = ({ children, onMapLoad, socket }) => {
   }
   , [eventVectorTilesEnabled, dispatch, map]);
 
-  const resetTrackRequestCancelToken = useCallback(() => {
-    trackRequestCancelToken.current.cancel();
-    trackRequestCancelToken.current = CancelToken.source();
-  }, []);
-
   const fetchMapSubjectTracksForTimeslider = useCallback((subjects) => {
-    resetTrackRequestCancelToken();
     return fetchTracksIfNecessary(subjects
       .filter(canShowTrackForSubject)
       .filter(({ last_position_date }) =>
         (new Date(last_position_date) - new Date(eventFilter.filter.date_range.lower) >= 0))
       .map(({ id }) => id));
-  }, [eventFilter.filter.date_range.lower, resetTrackRequestCancelToken]);
+  }, [eventFilter.filter.date_range.lower]);
 
 
   const fetchMapSubjectsFromTimeslider = useCallback(() => {
@@ -545,9 +536,8 @@ const Map = ({ children, onMapLoad, socket }) => {
   }, [dispatch, eventFilter.filter.date_range.lower]);
 
   const onTrackLengthChange = useCallback(() => {
-    resetTrackRequestCancelToken();
     fetchTracksIfNecessary(uniq([...subjectTrackState.visible, ...subjectTrackState.pinned, ...heatmapSubjectIDs]));
-  }, [heatmapSubjectIDs, resetTrackRequestCancelToken, subjectTrackState.pinned, subjectTrackState.visible]);
+  }, [heatmapSubjectIDs, subjectTrackState.pinned, subjectTrackState.visible]);
 
   useEffect(() => {
     dispatch(

@@ -28,6 +28,7 @@ export const SOCKET_DELETE_SUBJECT = 'SOCKET_DELETE_SUBJECT';
 
 const cancelableMapSubjectsFetch = () => {
   let cancelToken = CancelToken.source();
+  const cancelFn = () => cancelToken.cancel();
   const fetchFn = (map, params) => async (dispatch, getState) => {
     try {
 
@@ -84,10 +85,10 @@ const cancelableMapSubjectsFetch = () => {
       return Promise.reject(e);
     }
   };
-  return [fetchFn, cancelToken];
+  return [fetchFn, cancelFn];
 };
 
-export const [fetchMapSubjects, mapSubjectsFetchCancelToken] = cancelableMapSubjectsFetch();
+export const [fetchMapSubjects, cancelMapSubjectsFetch] = cancelableMapSubjectsFetch();
 
 export const clearSubjectData = () => ({
   type: CLEAR_SUBJECT_DATA,

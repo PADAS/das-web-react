@@ -3,6 +3,7 @@ import axios from 'axios';
 import { mockStore } from '../__test-helpers/MockStore';
 
 import mapSubjectsReducer, {
+  cancelMapSubjectsFetch,
   fetchMapSubjects,
   SOCKET_DELETE_SUBJECT,
   SOCKET_NEW_SUBJECT,
@@ -567,6 +568,19 @@ describe('fetchMapSubjects thunk', () => {
     await dispatchFetch(SCRUBBED_INTO_PAST);
 
     expect(getRequestParams().use_lkl).toBe(false);
+  });
+
+  test('cancels the request that is in flight, not the one it was exported beside', async () => {
+    // Two fetches, so the request in flight is no longer using the original cancel token source.
+    await dispatchFetch(SLIDER_CLOSED);
+    await dispatchFetch(SLIDER_CLOSED);
+
+    const { cancelToken } = axios.get.mock.calls[axios.get.mock.calls.length - 1][1];
+    expect(cancelToken.reason).toBeUndefined();
+
+    cancelMapSubjectsFetch();
+
+    expect(cancelToken.reason).toBeDefined();
   });
 
   test('skips the observation scan for a viewport already covered by one', async () => {

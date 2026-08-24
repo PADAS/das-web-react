@@ -14,6 +14,7 @@ const SleepDetector = (props) => {
       const timeToSet = new Date().getTime();
       if ((timeToSet - currentTime.current)
         > (interval + tolerance)
+        && !document.hidden
       ) {
         onSleepDetected();
       }
