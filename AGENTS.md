@@ -163,10 +163,14 @@ Sound notifications for new inReach messages are configurable in Settings → Ge
 
 #### Authentication
 
-A tenant's system config decides how users sign in. The login page offers one method, not both. Either path ends with an access token, kept in a cookie and in Redux and sent as a `Bearer` header.
+A tenant's system config decides how users sign in: local credentials or Auth0, never both. Either path ends with an access token, kept in a cookie and in Redux and sent as a `Bearer` header.
 
 - **Username and password** (`require_idp` off): posted to the DAS OAuth token endpoint.
 - **Auth0 redirect** (`require_idp` on): to the organization's identity provider when `idp_org_id` is set, otherwise to EarthRanger Identity. The latter sites are mid-migration, so accounts that aren't linked yet are sent to the server's account linker.
+
+On the Auth0 path a site may also offer a second button, for **local users** — accounts that exist only in that site's Auth0 database, with a username instead of an email and no self-service password reset. It redirects with `connection` set to the site's slug, and appears only where `support_managed_users` and `site_slug` both arrive in the system config and the site is not org-scoped: without the slug the redirect would sign the user into the common database instead, and on an org-scoped site the account-linking gate below never runs, so nothing would catch a local user who has no account here. A failure coming back from Auth0 is attributed to this path through a stored attempt marker rather than by reading Auth0's error text, which carries no contract.
+
+When that gate finds no account for a local user, the user is signed out of Auth0 — the session itself, not merely the cached token — and told on the login page that their local account is not set up here. Ending the session is what makes the state safe: the tenant cookie outlives the page, so anything less would let the next sign-in silently reuse the same unusable identity and reach the account linker, whose legacy username-and-password form cannot serve an account that has no local password. The explanation travels across that logout redirect in session storage, since it leaves the app and takes router state with it.
 
 Two guards wrap the app: one redirects to `/login` without a token, preserving the intended route across the Auth0 round trip; the other, only where the `EULA` flag is on, redirects to `/eula` until the user accepts it.
 

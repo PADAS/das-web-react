@@ -5,13 +5,16 @@ import { useLocation } from 'react-router';
 
 import { APP_ROUTES } from '../constants/routes';
 import appConfig from '../config';
+import { REACT_APP_ROUTE_PREFIX } from '../constants';
 import { applyAccessToken, clearAuth } from '../ducks/auth';
 import { checkAccountLinked, GATE_RESULT } from '../utils/account-linking';
 import {
   clearIntendedPostAuth0SuccessRoute,
   getIntendedPostAuth0SuccessRoute,
   isValidTokenFormat,
+  markLocalUserNotProvisioned,
   stripAuth0Params,
+  takeLocalUserLoginAttempt,
 } from '../utils/auth';
 import { hasAuth0CallbackParams } from '../utils/auth0';
 import { redirectToExternalUrl } from '../utils/navigation';
@@ -42,6 +45,14 @@ const Auth0TokenManager = () => {
       if (sawAuth0Params.current && isAuthenticated && !hasHandledCallback.current) {
         hasHandledCallback.current = true;
 
+        // Consumed once per processed callback so a marker cannot outlive its
+        // attempt. Read before the try so every failure below can say which path
+        // the user was on, rather than leaving them a message that hides it.
+        const attemptedLocalUserLogin = takeLocalUserLoginAttempt();
+        const failedLoginOptions = attemptedLocalUserLogin
+          ? { replace: true, state: { localUserSignInFailed: true } }
+          : { replace: true };
+
         try {
           const token = await getAccessTokenSilently({
             authorizationParams: { audience: appConfig.auth0.audience },
@@ -50,7 +61,7 @@ const Auth0TokenManager = () => {
           const safe = String(token).trim();
           if (!isValidTokenFormat(safe)) {
             console.warn('Auth token format rejected');
-            navigate(APP_ROUTES.LOGIN, { replace: true });
+            navigate(APP_ROUTES.LOGIN, failedLoginOptions);
             return;
           }
 
@@ -58,8 +69,34 @@ const Auth0TokenManager = () => {
           if (requireIdp && !idpOrgId?.trim()) {
             const { result, linkUrl } = await checkAccountLinked(safe);
 
-            // Unlinked: hand off to the server-owned link page (always a validated URL).
             if (result === GATE_RESULT.UNLINKED) {
+              // The link page's on-ramp is a legacy username and password, which a
+              // local user does not have, so sending them there is a dead end. Stop
+              // here instead: the Auth0 session is fine, the ER mapping is missing.
+              if (attemptedLocalUserLogin) {
+                // End the Auth0 session itself, not just the local cache. The
+                // tenant cookie outlives this page, so anything less lets the next
+                // sign-in — from a bookmark, a new tab, either button — silently
+                // reuse this unusable identity and reach the link page after all.
+                // The redirect leaves the app, so the reason travels in session
+                // storage rather than router state.
+                //
+                // Awaited so a failure lands in the catch below rather than as an
+                // unhandled rejection: the SDK clears its local session before
+                // redirecting, so a half-completed logout leaves the tenant session
+                // alive, and returning here would strand the user on the callback
+                // URL, where the token guard holds its overlay indefinitely.
+                markLocalUserNotProvisioned();
+                dispatch(clearAuth());
+                await logout({
+                  logoutParams: {
+                    returnTo: `${window.location.origin}${REACT_APP_ROUTE_PREFIX}`,
+                  },
+                });
+                return;
+              }
+
+              // Unlinked: hand off to the server-owned link page (always a validated URL).
               redirectToExternalUrl(linkUrl);
               return;
             }
@@ -68,13 +105,18 @@ const Auth0TokenManager = () => {
             if (result === GATE_RESULT.INVALID) {
               logout({ openUrl: false }).catch(() => {});
               dispatch(clearAuth());
-              navigate(APP_ROUTES.LOGIN, { replace: true });
+              navigate(APP_ROUTES.LOGIN, failedLoginOptions);
               return;
             }
 
             // Transient: keep the SDK session (unlike INVALID) for retry, surface an error.
             if (result === GATE_RESULT.TRANSIENT) {
-              navigate(APP_ROUTES.LOGIN, { replace: true, state: { authLinkingError: true } });
+              navigate(APP_ROUTES.LOGIN, {
+                replace: true,
+                state: attemptedLocalUserLogin
+                  ? { localUserSignInFailed: true }
+                  : { authLinkingError: true },
+              });
               return;
             }
 
@@ -93,7 +135,7 @@ const Auth0TokenManager = () => {
           navigate(stripAuth0Params(returnTo), { replace: true, state: { comesFromLogin: true } });
         } catch (e) {
           console.error('Auth0 callback failed:', e);
-          navigate(APP_ROUTES.LOGIN, { replace: true });
+          navigate(APP_ROUTES.LOGIN, failedLoginOptions);
         }
         return;
       }
