@@ -133,9 +133,6 @@ describe('RequireAccessToken', () => {
     });
 
     test('does not carry unrelated query params to login', () => {
-      // The login page reads only the Auth0 error params. Anything else copied
-      // over is noise at best, and the error_description it renders verbatim is
-      // not worth making reachable from every protected URL.
       useLocation.mockReturnValue({ pathname: '/events', search: '?reportType=carcass_rep' });
 
       renderWithProvider(
@@ -150,9 +147,6 @@ describe('RequireAccessToken', () => {
     });
 
     test('carries an Auth0 error query string through to login', () => {
-      // An Auth0 error redirect returns error and state but no code, so it is not
-      // a callback and lands on the app root. This redirect is the only thing that
-      // can hand those params to the login page, which is where they are explained.
       useLocation.mockReturnValue({
         pathname: '/',
         search: '?error=access_denied&error_description=Something+Auth0+said',

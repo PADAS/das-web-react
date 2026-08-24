@@ -44,10 +44,8 @@ export const setIntendedPostAuth0SuccessRoute = (route) => {
 
 const LOCAL_USER_LOGIN_ATTEMPT_KEY = 'er:local_user_login_attempt';
 
-// A rejected connection comes back from Auth0 as URL params after a full
-// redirect, by which point nothing on the page says which button started the
-// login. Marking the attempt is what lets the callback attribute a failure to
-// the local-user path instead of blaming the common one.
+// Auth0 reports failures after a full redirect, by which point nothing on the page
+// says which button started the login. This is how the callback knows.
 export const markLocalUserLoginAttempt = () => {
   try {
     sessionStorage.setItem(LOCAL_USER_LOGIN_ATTEMPT_KEY, 'true');
@@ -56,8 +54,7 @@ export const markLocalUserLoginAttempt = () => {
   }
 };
 
-// Reads and clears together: the marker describes a single attempt, so leaving
-// it behind would misattribute the next failure on the common path.
+// Reads and clears together — the marker describes one attempt.
 export const takeLocalUserLoginAttempt = () => {
   try {
     const attempted = sessionStorage.getItem(LOCAL_USER_LOGIN_ATTEMPT_KEY) === 'true';
@@ -70,10 +67,8 @@ export const takeLocalUserLoginAttempt = () => {
 
 const LOCAL_USER_NOT_PROVISIONED_KEY = 'er:local_user_not_provisioned';
 
-// Set when a local user authenticates but this site has no account mapped to
-// them. Signing them out of Auth0 is what makes that state safe, and the logout
-// redirect leaves the app — so the reason for it has to survive the round trip
-// somewhere other than the router.
+// Set when a local user has no ER account here. The logout redirect that follows
+// leaves the app, so the reason cannot ride router state.
 export const markLocalUserNotProvisioned = () => {
   try {
     sessionStorage.setItem(LOCAL_USER_NOT_PROVISIONED_KEY, 'true');
@@ -82,8 +77,7 @@ export const markLocalUserNotProvisioned = () => {
   }
 };
 
-// Carries only the message, never the protection: losing this flag costs the
-// user an explanation, not their sign-out.
+// Carries the message, not the protection: losing it costs an explanation.
 export const takeLocalUserNotProvisioned = () => {
   try {
     const notProvisioned = sessionStorage.getItem(LOCAL_USER_NOT_PROVISIONED_KEY) === 'true';

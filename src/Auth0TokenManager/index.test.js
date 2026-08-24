@@ -259,23 +259,15 @@ describe('Auth0TokenManager', () => {
 
         renderAfterCallback();
 
-        // Ending the tenant session, not just the local cache, is the protection:
-        // the Auth0 cookie would otherwise re-authenticate this unusable identity
-        // on the next sign-in from any entry point.
         await waitFor(() => {
           expect(mockLogout).toHaveBeenCalledWith({
             logoutParams: { returnTo: `${window.location.origin}${REACT_APP_ROUTE_PREFIX}` },
           });
         });
-        // The flag carries the message home across the logout redirect; it is not
-        // what makes the state safe.
         expect(markLocalUserNotProvisioned).toHaveBeenCalled();
         expect(clearAuth).toHaveBeenCalled();
-        // The linker asks for a legacy password a local user does not have.
         expect(redirectToExternalUrl).not.toHaveBeenCalled();
-        // The mapping is missing, so no token reaches the app to 401 on every call.
         expect(applyAccessToken).not.toHaveBeenCalled();
-        // The logout redirect navigates; an SPA navigation would race it.
         expect(mockNavigate).not.toHaveBeenCalled();
       });
 
@@ -285,10 +277,6 @@ describe('Auth0TokenManager', () => {
 
         renderAfterCallback();
 
-        // The SDK clears its local session before redirecting, so a failure here
-        // leaves the Auth0 session alive — nothing the client can undo. What it must
-        // not do is strand the user on the callback URL, where the guard holds the
-        // overlay forever. The flag is already set, so the login page explains.
         await waitFor(() => {
           expect(mockNavigate).toHaveBeenCalledWith(
             expect.stringContaining('login'),
@@ -304,8 +292,6 @@ describe('Auth0TokenManager', () => {
 
         renderAfterCallback();
 
-        // Without this the user gets the generic "couldn't finish signing you in",
-        // with nothing to say the local-user path was involved.
         await waitFor(() => {
           expect(mockNavigate).toHaveBeenCalledWith(
             expect.stringContaining('login'),
@@ -339,8 +325,6 @@ describe('Auth0TokenManager', () => {
 
         renderAfterCallback();
 
-        // Marking after the redirect starts would be a race the comment claims we
-        // avoid; nothing pinned the order until now.
         await waitFor(() => expect(order).toEqual(['mark', 'logout']));
       });
 

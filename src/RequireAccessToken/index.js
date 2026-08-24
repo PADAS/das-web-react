@@ -34,10 +34,8 @@ const RequireAccessToken = ({ children, token, systemConfig }) => {
     return children;
   }
 
-  // A failed Auth0 redirect lands here rather than on the callback path, because an
-  // error response carries no `code` and so is never treated as a callback. Its
-  // params are the only ones the login page reads, and the only ones worth
-  // forwarding — an ordinary protected URL's query string is none of its business.
+  // An Auth0 error response has no `code`, so it is not a callback and lands here.
+  // Its params are the only ones the login page reads.
   const auth0ErrorSearch = new URLSearchParams(location.search).has('error')
     ? location.search
     : '';

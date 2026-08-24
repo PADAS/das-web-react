@@ -59,10 +59,6 @@ describe('react-router ignores the Auth0 SDK raw history.replaceState', () => {
   });
 });
 
-// --- An Auth0 *error* redirect carries error and state but no `code`, so it is
-// never treated as a callback. It lands on the app root, and the guard's redirect
-// is the only thing that can hand those params to the login page — which is where
-// a failed sign-in is explained. ---
 describe('Auth0 error redirect reaches the login page', () => {
   const ERROR_ENTRY = '/?error=access_denied&error_description=Something+Auth0+said&state=xyz';
 
@@ -112,8 +108,6 @@ describe('Auth0 error redirect reaches the login page', () => {
       </Provider>
     );
 
-    // No overlay and no app: without a `code` this is not a callback, so the
-    // guard redirects instead of holding.
     expect(screen.queryByTestId('loading')).not.toBeInTheDocument();
     expect(screen.queryByText('PROTECTED APP')).not.toBeInTheDocument();
 

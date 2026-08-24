@@ -45,9 +45,8 @@ const Auth0TokenManager = () => {
       if (sawAuth0Params.current && isAuthenticated && !hasHandledCallback.current) {
         hasHandledCallback.current = true;
 
-        // Consumed once per processed callback so a marker cannot outlive its
-        // attempt. Read before the try so every failure below can say which path
-        // the user was on, rather than leaving them a message that hides it.
+        // Read once per callback, before the try, so every failure below can name
+        // the path the user was on.
         const attemptedLocalUserLogin = takeLocalUserLoginAttempt();
         const failedLoginOptions = attemptedLocalUserLogin
           ? { replace: true, state: { localUserSignInFailed: true } }
@@ -70,22 +69,12 @@ const Auth0TokenManager = () => {
             const { result, linkUrl } = await checkAccountLinked(safe);
 
             if (result === GATE_RESULT.UNLINKED) {
-              // The link page's on-ramp is a legacy username and password, which a
-              // local user does not have, so sending them there is a dead end. Stop
-              // here instead: the Auth0 session is fine, the ER mapping is missing.
+              // The link page asks for a legacy password a local user does not have.
+              // End the Auth0 session instead — the tenant cookie outlives this page,
+              // so clearing only the local cache lets the next sign-in reuse this
+              // unusable identity. Awaited so a failed redirect reaches the catch
+              // rather than stranding the user on the callback URL.
               if (attemptedLocalUserLogin) {
-                // End the Auth0 session itself, not just the local cache. The
-                // tenant cookie outlives this page, so anything less lets the next
-                // sign-in — from a bookmark, a new tab, either button — silently
-                // reuse this unusable identity and reach the link page after all.
-                // The redirect leaves the app, so the reason travels in session
-                // storage rather than router state.
-                //
-                // Awaited so a failure lands in the catch below rather than as an
-                // unhandled rejection: the SDK clears its local session before
-                // redirecting, so a half-completed logout leaves the tenant session
-                // alive, and returning here would strand the user on the callback
-                // URL, where the token guard holds its overlay indefinitely.
                 markLocalUserNotProvisioned();
                 dispatch(clearAuth());
                 await logout({

@@ -43,13 +43,8 @@ const LoginPage = () => {
   const passwordInputRef = useRef(null);
   const usernameInputRef = useRef(null);
 
-  // Holds a translation key, not a translated string: the namespace may still be
-  // loading at mount, and a stored string would keep whatever `t` returned then —
-  // the raw key — for the life of the page, and would not follow a language change.
-  //
-  // Initialized from router state (no effect/flicker): Auth0TokenManager routes
-  // here when the post-Auth0 handling fails, saying whether a local-user attempt
-  // was behind it so the message can name that path rather than hide it.
+  // A key, not a translated string: the namespace may not have loaded yet, and a
+  // stored string would never re-translate.
   const [alert, setAlert] = useState(() => {
     if (location.state?.localUserSignInFailed) {
       return { key: 'errorAlert.localUserSignInFailed' };
@@ -65,10 +60,8 @@ const LoginPage = () => {
   const requireIdp = !!systemConfig?.require_idp;
   const siteSlug = systemConfig?.site_slug?.trim() || null;
 
-  // Without the slug the redirect would omit the connection and sign the user
-  // into the common database instead — a wrong account, not a visible error. The
-  // org check keeps the offer to sites where Auth0TokenManager's account-linking
-  // gate runs, which is what catches a local user with no ER account behind it.
+  // No slug means no connection on the redirect, which would sign the user into the
+  // common database. Org-scoped sites skip the gate that catches an unmapped one.
   const canSignInAsLocalUser = !!systemConfig?.support_managed_users
     && !!siteSlug
     && !idpOrgId;
@@ -95,8 +88,7 @@ const LoginPage = () => {
         ),
       });
     } catch (_error) {
-      // The page never left, so there is no attempt in flight for a later failure
-      // to be attributed to.
+      // No redirect happened, so there is no attempt left to attribute.
       takeLocalUserLoginAttempt();
       setAlert({ key: 'errorAlert.signInFailed' });
     }
@@ -162,9 +154,7 @@ const LoginPage = () => {
     setAlert(null);
   }, []);
 
-  // Mount work, kept apart from the effect below: that one re-runs when the Auth0
-  // params are stripped from the URL, which would otherwise refetch the EULA and
-  // clear auth a second time.
+  // Separate from the effect below, which re-runs when the URL is stripped.
   useEffect(() => {
     dispatch(clearAuth());
     dispatch(fetchEula());
@@ -174,28 +164,19 @@ const LoginPage = () => {
     const urlParams = new URLSearchParams(location.search);
     const auth0Error = urlParams.get('error');
     const auth0ErrorDescription = urlParams.get('error_description');
-    // Consumed on every visit rather than only on failures, so a marker left
-    // behind by an earlier attempt cannot mislabel a later common-path failure.
-    // Safe to read plainly: stripping the params below re-runs this effect, but
-    // with no error left to attribute, so a spent marker is never consulted again.
+    // Consumed on every visit, so a stale marker cannot mislabel a later failure.
     const attemptedLocalUserLogin = takeLocalUserLoginAttempt();
 
-    // Set before Auth0TokenManager signed this local user out of Auth0, because
-    // that redirect leaves the app and takes router state with it. Consuming it
-    // on a later run is harmless: an unset flag simply leaves the alert alone.
+    // Set before the logout redirect, which leaves the app and drops router state.
     const localUserNotProvisioned = takeLocalUserNotProvisioned();
 
-    // Keyed off the error code alone: a description is optional in OAuth 2.0, and
-    // requiring one would silently drop the whole message for a bare `error=…`.
+    // Code alone: a description is optional in OAuth 2.0.
     if (localUserNotProvisioned || auth0Error) {
-      // Pick the message from how the user arrived, in one place so the effect
-      // performs a single state update.
       const alertForArrival = () => {
         if (localUserNotProvisioned) {
           return { key: 'errorAlert.localUserNotProvisioned' };
         }
-        // Auth0's error text is not a contract, so a local-user failure names the
-        // path that failed rather than claiming a cause.
+        // Auth0's error text is not a contract, so name the path, not the cause.
         if (attemptedLocalUserLogin) {
           return { key: 'errorAlert.localUserSignInFailed' };
         }
@@ -215,23 +196,19 @@ const LoginPage = () => {
           : { key: 'errorAlert.unknownErrorMessage' };
       };
 
-      // Derived from the URL and from storage, neither of which React can observe,
-      // so this is the one place the message can be set.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setAlert(alertForArrival());
 
       if (auth0Error) {
-        // Drop the params now that the message is chosen. The marker behind it is
-        // single-use, so reloading this URL would fall through to a generic message
-        // asserting a cause we have no way to know. Uses the shared helper so only
-        // the Auth0 params go, matching how the token manager strips them.
+        // The marker is single-use, so a reload would re-derive a different reason.
+        // The shared helper drops only the Auth0 params.
         navigate(
           stripAuth0Params(`${location.pathname}${location.search}`),
           { replace: true, state: location.state },
         );
       }
     }
-  }, [dispatch, location.pathname, location.search, location.state, navigate]);
+  }, [location.pathname, location.search, location.state, navigate]);
 
   return <div className={styles.container}>
     <EarthRangerLogo aria-label="EarthRanger" className={styles.logo} role="img" />
