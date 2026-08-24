@@ -59,6 +59,70 @@ describe('react-router ignores the Auth0 SDK raw history.replaceState', () => {
   });
 });
 
+// --- An Auth0 *error* redirect carries error and state but no `code`, so it is
+// never treated as a callback. It lands on the app root, and the guard's redirect
+// is the only thing that can hand those params to the login page — which is where
+// a failed sign-in is explained. ---
+describe('Auth0 error redirect reaches the login page', () => {
+  const ERROR_ENTRY = '/?error=access_denied&error_description=Something+Auth0+said&state=xyz';
+
+  const LoginProbe = () => <div data-testid="login-search">{useLocation().search}</div>;
+
+  let store;
+
+  beforeEach(() => {
+    store = createStore(
+      combineReducers({
+        data: combineReducers({ token: tokenReducer }),
+        view: combineReducers({ systemConfig: systemConfigReducer }),
+      }),
+      {
+        data: { token: { access_token: null } },
+        view: { systemConfig: { require_idp: true, idp_org_id: null } },
+      },
+      applyMiddleware(thunk, promiseMiddleware),
+    );
+
+    useNavigate.mockReturnValue(jest.fn());
+    useAuth0.mockReturnValue({
+      isLoading: false,
+      isAuthenticated: false,
+      getAccessTokenSilently: jest.fn(),
+      logout: jest.fn().mockResolvedValue(),
+    });
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('the error params survive the hop to /login and are not mistaken for a callback', () => {
+    render(
+      <Provider store={store}>
+        <MemoryRouter initialEntries={[ERROR_ENTRY]}>
+          <Auth0TokenManager />
+          <Routes>
+            <Route path="/login" element={<LoginProbe />} />
+            <Route
+              path="/*"
+              element={<RequireAccessToken><div>PROTECTED APP</div></RequireAccessToken>}
+            />
+          </Routes>
+        </MemoryRouter>
+      </Provider>
+    );
+
+    // No overlay and no app: without a `code` this is not a callback, so the
+    // guard redirects instead of holding.
+    expect(screen.queryByTestId('loading')).not.toBeInTheDocument();
+    expect(screen.queryByText('PROTECTED APP')).not.toBeInTheDocument();
+
+    const search = new URLSearchParams(screen.getByTestId('login-search').textContent);
+    expect(search.get('error')).toBe('access_denied');
+    expect(search.get('error_description')).toBe('Something Auth0 said');
+  });
+});
+
 // --- The integration the reviewer flagged: does the post-callback window bounce
 // the user to /login (and clobber the deep link) before the gate resolves? ---
 describe('post-callback account-linking gate', () => {

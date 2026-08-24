@@ -12,7 +12,9 @@ jest.mock('@auth0/auth0-react');
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
   useLocation: jest.fn(),
-  Navigate: ({ to }) => <div data-testid="navigate">{`Navigating to ${to}`}</div>,
+  Navigate: ({ to }) => <div data-testid="navigate">
+    {`Navigating to ${typeof to === 'string' ? to : `${to.pathname}${to.search || ''}`}`}
+  </div>,
 }));
 jest.mock('../utils/auth');
 jest.mock('../utils/auth0');
@@ -114,6 +116,57 @@ describe('RequireAccessToken', () => {
 
       expect(screen.getByTestId('navigate')).toHaveTextContent('Navigating to');
       expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
+    });
+
+    test('forwards an error that arrives without a description, which Auth0 need not send', () => {
+      useLocation.mockReturnValue({ pathname: '/', search: '?error=invalid_request' });
+
+      renderWithProvider(
+        <RequireAccessToken>
+          <div>Protected Content</div>
+        </RequireAccessToken>
+      );
+
+      expect(screen.getByTestId('navigate')).toHaveTextContent(
+        'Navigating to /login?error=invalid_request'
+      );
+    });
+
+    test('does not carry unrelated query params to login', () => {
+      // The login page reads only the Auth0 error params. Anything else copied
+      // over is noise at best, and the error_description it renders verbatim is
+      // not worth making reachable from every protected URL.
+      useLocation.mockReturnValue({ pathname: '/events', search: '?reportType=carcass_rep' });
+
+      renderWithProvider(
+        <RequireAccessToken>
+          <div>Protected Content</div>
+        </RequireAccessToken>
+      );
+
+      const target = screen.getByTestId('navigate');
+      expect(target).toHaveTextContent('Navigating to /login');
+      expect(target).not.toHaveTextContent('reportType');
+    });
+
+    test('carries an Auth0 error query string through to login', () => {
+      // An Auth0 error redirect returns error and state but no code, so it is not
+      // a callback and lands on the app root. This redirect is the only thing that
+      // can hand those params to the login page, which is where they are explained.
+      useLocation.mockReturnValue({
+        pathname: '/',
+        search: '?error=access_denied&error_description=Something+Auth0+said',
+      });
+
+      renderWithProvider(
+        <RequireAccessToken>
+          <div>Protected Content</div>
+        </RequireAccessToken>
+      );
+
+      expect(screen.getByTestId('navigate')).toHaveTextContent(
+        'Navigating to /login?error=access_denied&error_description=Something+Auth0+said'
+      );
     });
   });
 
