@@ -13,6 +13,7 @@ import {
   updateTrackState
 } from '../ducks/map-ui';
 import { act, render, screen, waitFor } from '../test-utils';
+import { fetchTracksIfNecessary } from '../utils/tracks';
 import { setTrackLength } from '../ducks/tracks';
 import { updatePatrolTrackState } from '../ducks/patrols';
 
@@ -79,6 +80,11 @@ jest.mock('../ducks/tracks', () => ({
   setTrackLength: jest.fn(),
 }));
 
+jest.mock('../utils/tracks', () => ({
+  ...jest.requireActual('../utils/tracks'),
+  fetchTracksIfNecessary: jest.fn(),
+}));
+
 jest.mock('../ducks/patrols', () => ({
   ...jest.requireActual('../ducks/patrols'),
   updatePatrolTrackState: jest.fn(),
@@ -127,6 +133,7 @@ describe('Map', () => {
     updateTrackState.mockImplementation(updateTrackStateMock);
     useTranslationMock = jest.fn(() => ({ i18n: { language: 'en-US' }, t: (key) => key }));
     useTranslation.mockImplementation(useTranslationMock);
+    fetchTracksIfNecessary.mockReset();
 
     map = createMapMock();
     map.getStyle.mockImplementation(() => ({ layers: [] }));
@@ -258,6 +265,119 @@ describe('Map', () => {
 
       expect(fetchMapSubjectsMock).toHaveBeenCalled();
       expect(fetchMapEventsMock).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('time slider data fetching', () => {
+    const EVENT_FILTER_LOWER = '2026-08-01T00:00:00.000Z';
+    const SCRUBBED = { active: true, hasScrubbedIntoPast: true, virtualDate: '2026-08-10T00:00:00.000Z' };
+    const AT_RANGE_END = { active: true, hasScrubbedIntoPast: false, virtualDate: null };
+
+    const makeSubject = (id, overrides) => ({
+      id,
+      last_position_date: '2026-08-20T00:00:00.000Z',
+      subject_subtype: 'ranger',
+      subject_type: 'person',
+      tracks_available: true,
+      ...overrides,
+    });
+
+    let timeSliderStore;
+
+    beforeEach(() => {
+      jest.useFakeTimers();
+
+      const data = {
+        ...store.data,
+        eventFilter: {
+          filter: { date_range: { lower: EVENT_FILTER_LOWER, upper: null }, event_type: [], text: '' },
+        },
+      };
+
+      /* redux-mock-store never reduces, so the state is swapped behind a getState function and a
+         no-op dispatch is used to make react-redux re-read it. Keeping one store instance keeps
+         the dispatch identity — and therefore the fetch callbacks — stable across updates. */
+      let state = { data, view: { ...store.view, timeSliderState: AT_RANGE_END } };
+
+      timeSliderStore = mockStore(() => state);
+      timeSliderStore.setTimeSliderState = (timeSliderState) => {
+        state = { data, view: { ...store.view, timeSliderState } };
+
+        // Two acts: the re-render and its effect must flush before the debounce timer is run.
+        act(() => {
+          timeSliderStore.dispatch({ type: 'TEST_STORE_NOTIFY' });
+        });
+
+        act(() => jest.runOnlyPendingTimers());
+      };
+    });
+
+    afterEach(() => {
+      act(() => jest.runOnlyPendingTimers());
+      jest.useRealTimers();
+    });
+
+    const renderTimeSliderMap = () => {
+      const rendered = renderMap(undefined, timeSliderStore);
+
+      act(() => jest.runOnlyPendingTimers());
+
+      return rendered;
+    };
+
+    test('refetches the map data when the slider is first scrubbed into the past', () => {
+      renderTimeSliderMap();
+
+      expect(fetchMapSubjectsMock).toHaveBeenCalledTimes(1);
+
+      timeSliderStore.setTimeSliderState(SCRUBBED);
+
+      expect(fetchMapSubjectsMock).toHaveBeenCalledTimes(2);
+    });
+
+    test('does not refetch the map data while the virtual date keeps moving', () => {
+      renderTimeSliderMap();
+
+      timeSliderStore.setTimeSliderState(SCRUBBED);
+      timeSliderStore.setTimeSliderState({ ...SCRUBBED, virtualDate: '2026-08-12T00:00:00.000Z' });
+
+      expect(fetchMapSubjectsMock).toHaveBeenCalledTimes(2);
+    });
+
+    test('does not refetch the map data when the handle returns to the end of the range', () => {
+      renderTimeSliderMap();
+
+      timeSliderStore.setTimeSliderState(SCRUBBED);
+
+      // Playback ends by clearing the virtual date, but history stays requested.
+      timeSliderStore.setTimeSliderState({ ...SCRUBBED, virtualDate: null });
+
+      expect(fetchMapSubjectsMock).toHaveBeenCalledTimes(2);
+    });
+
+    test('refetches the map data once when the time slider is closed while scrubbed into the past', () => {
+      renderTimeSliderMap();
+
+      timeSliderStore.setTimeSliderState(SCRUBBED);
+
+      // Closing the slider resets both fetch triggers at once.
+      timeSliderStore.setTimeSliderState({ active: false, hasScrubbedIntoPast: false, virtualDate: null });
+
+      expect(fetchMapSubjectsMock).toHaveBeenCalledTimes(3);
+    });
+
+    test('only requests tracks for subjects that can show one', async () => {
+      const trackableSubject = makeSubject('trackable');
+      fetchMapSubjectsMock.mockImplementation(() => () => Promise.resolve([
+        trackableSubject,
+        makeSubject('no-track-data', { tracks_available: false }),
+        makeSubject('fixed-position-radio', { subject_subtype: 'stationary-radio' }),
+        makeSubject('reported-before-the-filter', { last_position_date: '2026-07-01T00:00:00.000Z' }),
+      ]));
+
+      renderTimeSliderMap();
+
+      await waitFor(() => expect(fetchTracksIfNecessary).toHaveBeenCalledWith([trackableSubject.id]));
     });
   });
 

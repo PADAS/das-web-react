@@ -19,7 +19,7 @@ import { getPatrolsForLeaderId } from '../utils/patrols';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 import { fetchTracksIfNecessary } from '../utils/tracks';
-import { subjectIsStatic } from '../utils/subjects';
+import { canShowTrackForSubject } from '../utils/subjects';
 import { withMultiLayerHandlerAwareness, queryMultiLayerClickFeatures } from '../utils/map-handlers';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
@@ -165,6 +165,8 @@ const Map = ({ children, onMapLoad, socket }) => {
 
   const timeSliderActive = timeSliderState.active;
 
+  const hasScrubbedIntoPast = !!timeSliderState.hasScrubbedIntoPast;
+
   const isDrawingEventGeometry = mapLocationSelection.isPickingLocation
     && mapLocationSelection.mode === MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
 
@@ -214,7 +216,7 @@ const Map = ({ children, onMapLoad, socket }) => {
   const fetchMapSubjectTracksForTimeslider = useCallback((subjects) => {
     resetTrackRequestCancelToken();
     return fetchTracksIfNecessary(subjects
-      .filter(subject => !subjectIsStatic(subject))
+      .filter(canShowTrackForSubject)
       .filter(({ last_position_date }) =>
         (new Date(last_position_date) - new Date(eventFilter.filter.date_range.lower) >= 0))
       .map(({ id }) => id));
@@ -582,7 +584,8 @@ const Map = ({ children, onMapLoad, socket }) => {
     if (map) {
       fetchMapData();
     }
-  }, [fetchMapData, map, timeSliderState.active]);
+    // hasScrubbedIntoPast decides the use_lkl parameter of the subjects query.
+  }, [fetchMapData, hasScrubbedIntoPast, map, timeSliderState.active]);
 
   useEffect(() => {
     if (!!map && heatmapSubjectIDs.length && showReportHeatmap) {

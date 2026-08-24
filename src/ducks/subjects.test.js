@@ -3,6 +3,7 @@ import axios from 'axios';
 import { mockStore } from '../__test-helpers/MockStore';
 
 import mapSubjectsReducer, {
+  fetchMapSubjects,
   SOCKET_DELETE_SUBJECT,
   SOCKET_NEW_SUBJECT,
   socketDeleteSubject,
@@ -522,5 +523,49 @@ describe('subjectStoreReducer — SOCKET_SUBJECT_STATUS after SOCKET_NEW_SUBJECT
     expect(storeAfterStatus[SUBJECT_A_ID].last_position).not.toBeNull();
     expect(storeAfterStatus[SUBJECT_A_ID].last_position.geometry.coordinates).toEqual([-122.38, 47.52]);
     expect(storeAfterStatus[SUBJECT_A_ID].last_position_date).toBe('2024-01-01T10:00:00Z');
+  });
+});
+
+describe('fetchMapSubjects thunk', () => {
+  const LAST_KNOWN_BBOX = '-1,-1,1,1';
+
+  // A null map makes the thunk reuse the stored bbox, so the map itself needs no mocking.
+  const dispatchFetch = (timeSliderState) => mockStore({
+    data: { mapSubjects: { bbox: LAST_KNOWN_BBOX, subjects: [] } },
+    view: { timeSliderState },
+  }).dispatch(fetchMapSubjects(null));
+
+  const getRequestParams = () => axios.get.mock.calls[0][1].params;
+
+  beforeEach(() => {
+    jest.spyOn(axios, 'get').mockResolvedValue({ data: { data: [] } });
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  test('asks for last known locations when the time slider is inactive', async () => {
+    await dispatchFetch({ active: false, hasScrubbedIntoPast: false });
+
+    expect(getRequestParams().use_lkl).toBe(true);
+  });
+
+  test('asks for last known locations while the time slider sits at the end of its range', async () => {
+    await dispatchFetch({ active: true, hasScrubbedIntoPast: false });
+
+    expect(getRequestParams().use_lkl).toBe(true);
+  });
+
+  test('matches the bbox against observations once the slider has been scrubbed into the past', async () => {
+    await dispatchFetch({ active: true, hasScrubbedIntoPast: true });
+
+    expect(getRequestParams().use_lkl).toBe(false);
+  });
+
+  test('asks for last known locations when there is no time slider state at all', async () => {
+    await dispatchFetch(undefined);
+
+    expect(getRequestParams().use_lkl).toBe(true);
   });
 });

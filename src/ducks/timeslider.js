@@ -18,6 +18,7 @@ export const setTimeSliderState = state => ({
 
 const INITIAL_STATE = {
   active: false,
+  hasScrubbedIntoPast: false,
   virtualDate: null,
 };
 
@@ -25,6 +26,7 @@ const timeSliderReducer = (state = INITIAL_STATE, { type, payload }) => {
   if (type === SET_VIRTUAL_DATE) {
     return {
       ...state,
+      hasScrubbedIntoPast: true,
       virtualDate: payload,
     };
   }
