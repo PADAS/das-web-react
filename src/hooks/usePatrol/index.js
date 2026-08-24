@@ -12,6 +12,7 @@ import {
   displayTitleForPatrol,
   formatPatrolStateTitleDate,
   getBoundsForPatrol,
+  getCancellationTimeForPatrol,
   iconTypeForPatrol,
   patrolHasGeoDataToDisplay,
   patrolStateDetailsEndTime,
@@ -60,16 +61,10 @@ const usePatrol = (patrol) => {
   const theme = useMemo(() => calcColorThemeForPatrolState(patrolState), [patrolState]);
 
   const patrolCancellationTime = useMemo(() => {
-    if (!isPatrolCancelled) return null;
+    const cancellationTimeForPatrol = getCancellationTimeForPatrol(patrol);
 
-    const cancellation = patrol?.updates
-      ?.find(update => update.type === 'update_patrol_state' && update.message.includes('cancelled'))
-      ?? null;
-    if (!cancellation) return null;
-
-    return formatPatrolStateTitleDate(new Date(cancellation.time));
-
-  }, [isPatrolCancelled, patrol.updates]);
+    return cancellationTimeForPatrol ? formatPatrolStateTitleDate(cancellationTimeForPatrol) : null;
+  }, [patrol]);
 
   const dateComponentDateString = useMemo(() => {
     if (isPatrolCancelled) return patrolCancellationTime;

@@ -110,24 +110,29 @@
     "historyTabTitle": "Historique",
     "overview": {
       "activity": {
-        "activeTimeLabel": "Temps actif",
         "activitySectionTitle": "Activité",
         "collapseAllButtonLabel": "Tout réduire",
-        "distanceLabel": "Distance",
-        "durationLabel": "Durée",
         "emptyStateMessage": "L'activité de la patrouille apparaîtra ici",
-        "eventsLabel": "Événements",
         "expandAllButtonLabel": "Tout développer",
         "jumpToLocationButtonLabel": "Aller à l'emplacement",
         "legTransitionTitle": "Étape {{endedLeg}} terminée, Étape {{startedLeg}} commencée",
         "patrolEndedTitle": "Patrouille terminée",
         "patrolStartedTitle": "Patrouille commencée",
-        "pausedTimeLabel": "Temps en pause",
         "sortDirectionButtonLabel": {
           "down": "Trier l'activité par ordre croissant",
           "up": "Trier l'activité par ordre décroissant"
         },
         "startPatrolButton": "Commencer la Patrouille",
+        "summaryStats": {
+          "activeTimeLabel": "Temps actif",
+          "distanceLabel": "Distance",
+          "distanceSubjectButtonLabel": "Distance parcourue par {{subject}}. Changer le sujet suivi",
+          "distanceSubjectMenuLabel": "Sujets suivis",
+          "durationLabel": "Durée",
+          "eventsLabel": "Événements",
+          "patrolLeaderIndicator": "Chef de la patrouille",
+          "pausedTimeLabel": "Temps en pause"
+        },
         "timeLabel": "Heure"
       },
       "legs": {

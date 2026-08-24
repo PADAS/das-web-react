@@ -110,24 +110,29 @@
     "historyTabTitle": "History",
     "overview": {
       "activity": {
-        "activeTimeLabel": "Active Time",
         "activitySectionTitle": "Activity",
         "collapseAllButtonLabel": "Collapse all",
-        "distanceLabel": "Distance",
-        "durationLabel": "Duration",
         "emptyStateMessage": "Patrol activity will appear here",
-        "eventsLabel": "Events",
         "expandAllButtonLabel": "Expand all",
         "jumpToLocationButtonLabel": "Jump to location",
         "legTransitionTitle": "Leg {{endedLeg}} Ended, Leg {{startedLeg}} Started",
         "patrolEndedTitle": "Patrol Ended",
         "patrolStartedTitle": "Patrol Started",
-        "pausedTimeLabel": "Paused Time",
         "sortDirectionButtonLabel": {
           "down": "Sort activity in ascending order",
           "up": "Sort activity in descending order"
         },
         "startPatrolButton": "Start Patrol",
+        "summaryStats": {
+          "activeTimeLabel": "Active Time",
+          "distanceLabel": "Distance",
+          "distanceSubjectButtonLabel": "Distance covered by {{subject}}. Change the tracked subject",
+          "distanceSubjectMenuLabel": "Tracked subjects",
+          "durationLabel": "Duration",
+          "eventsLabel": "Events",
+          "patrolLeaderIndicator": "Patrol leader",
+          "pausedTimeLabel": "Paused Time"
+        },
         "timeLabel": "Time"
       },
       "legs": {

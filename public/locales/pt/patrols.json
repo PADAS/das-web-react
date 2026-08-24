@@ -110,24 +110,29 @@
     "historyTabTitle": "Histórico",
     "overview": {
       "activity": {
-        "activeTimeLabel": "Tempo ativo",
         "activitySectionTitle": "Atividade",
         "collapseAllButtonLabel": "Minimizar tudo",
-        "distanceLabel": "Distância",
-        "durationLabel": "Duração",
         "emptyStateMessage": "A atividade da patrulha aparecerá aqui",
-        "eventsLabel": "Eventos",
         "expandAllButtonLabel": "Expandir tudo",
         "jumpToLocationButtonLabel": "Ir para a localização",
         "legTransitionTitle": "Etapa {{endedLeg}} finalizada, Etapa {{startedLeg}} iniciada",
         "patrolEndedTitle": "Patrulha finalizada",
         "patrolStartedTitle": "Patrulha iniciada",
-        "pausedTimeLabel": "Tempo pausado",
         "sortDirectionButtonLabel": {
           "down": "Ordenar atividade em ordem crescente",
           "up": "Ordenar atividade em ordem decrescente"
         },
         "startPatrolButton": "Iniciar patrulha",
+        "summaryStats": {
+          "activeTimeLabel": "Tempo ativo",
+          "distanceLabel": "Distância",
+          "distanceSubjectButtonLabel": "Distância percorrida por {{subject}}. Alterar o sujeito rastreado",
+          "distanceSubjectMenuLabel": "Sujeitos rastreados",
+          "durationLabel": "Duração",
+          "eventsLabel": "Eventos",
+          "patrolLeaderIndicator": "Líder da patrulha",
+          "pausedTimeLabel": "Tempo pausado"
+        },
         "timeLabel": "Hora"
       },
       "legs": {

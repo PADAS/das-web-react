@@ -3,7 +3,6 @@ import Button from 'react-bootstrap/Button';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowDownIcon } from '../../../../../common/images/icons/arrow-down.svg';
-import { ReactComponent as ArrowDownSmallIcon } from '../../../../../common/images/icons/arrow-down-small.svg';
 import { ReactComponent as ArrowUpIcon } from '../../../../../common/images/icons/arrow-up.svg';
 import { ReactComponent as PlayIcon } from '../../../../../common/images/icons/play.svg';
 
@@ -11,6 +10,8 @@ import { actualEndTimeForPatrol, actualStartTimeForPatrol, getReportsForPatrol }
 import { DESCENDING_SORT_ORDER } from '../../../../../constants';
 import { getEventIdsForCollection } from '../../../../../utils/events';
 import useActivityFeed from '../../../../../DetailViewComponents/ActivitySection/useActivityFeed';
+
+import SummaryStats from './SummaryStats';
 
 import * as styles from './styles.module.scss';
 
@@ -120,41 +121,7 @@ const Activity = ({
       </div>
     </div>
 
-    <dl className={styles.statsRow}>
-      <div className={styles.statItem}>
-        <dt className={styles.statLabel}>{t('durationLabel')}</dt>
-
-        <dd className={styles.statValue}>-</dd>
-      </div>
-
-      <div className={styles.statItem}>
-        <dt className={styles.statLabel}>{t('pausedTimeLabel')}</dt>
-
-        <dd className={styles.statValue}>-</dd>
-      </div>
-
-      <div className={styles.statItem}>
-        <dt className={styles.statLabel}>{t('activeTimeLabel')}</dt>
-
-        <dd className={styles.statValue}>-</dd>
-      </div>
-
-      <div className={styles.statItem}>
-        <dt className={styles.statLabel}>
-          {t('distanceLabel')}
-
-          <ArrowDownSmallIcon aria-hidden="true" className={styles.statLabelIcon} />
-        </dt>
-
-        <dd className={styles.statValue}>-</dd>
-      </div>
-
-      <div className={styles.statItem}>
-        <dt className={styles.statLabel}>{t('eventsLabel')}</dt>
-
-        <dd className={styles.statValue}>-</dd>
-      </div>
-    </dl>
+    <SummaryStats eventCount={containedEvents.length} patrol={patrol} />
 
     {hasItems
       ? <ul className={styles.activityList}>
