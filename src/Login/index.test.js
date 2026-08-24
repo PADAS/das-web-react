@@ -208,6 +208,22 @@ describe('Login', () => {
       expect(screen.getByRole('button', { name: 'Sign in with email' })).toBeVisible();
     });
 
+    test('the email path never opts into the site database, even where local users exist', async () => {
+      store = mockStore({
+        data: { eula: { eula_url: '' } },
+        view: { systemConfig: localUserSystemConfig },
+      });
+      loginWithRedirect.mockResolvedValue(undefined);
+
+      renderLogin();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Sign in with email' }));
+
+      expect(loginWithRedirect).toHaveBeenCalledWith({
+        authorizationParams: { audience: appConfig.auth0.audience },
+      });
+    });
+
     test('hides the local-user path on a site without local users', () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
@@ -373,8 +389,6 @@ describe('Login', () => {
       await waitFor(() => {
         expect(screen.getByText('Sign-in failed. Please try again.')).toBeVisible();
       });
-      // The redirect never left the page, so there is no attempt in flight to
-      // attribute a later failure to.
       expect(takeLocalUserLoginAttempt()).toBe(false);
     });
 
@@ -399,8 +413,6 @@ describe('Login', () => {
       try {
         await act(() => i18n.changeLanguage('es'));
 
-        // Re-translated, and still the local-user key rather than the generic
-        // access-denied one: the marker is spent, so a re-run must not re-derive it.
         expect(screen.getByText('FALLO DE USUARIO LOCAL')).toBeVisible();
       } finally {
         await act(() => i18n.changeLanguage('en-US'));
@@ -421,8 +433,6 @@ describe('Login', () => {
 
       expect(screen.getByText(/We couldn't sign you in as a local user/)).toBeVisible();
 
-      // The marker is single-use, so reloading this URL would fall through to the
-      // generic access-denied message — a claim about cause we decline to make.
       await waitFor(() => {
         expect(navigate).toHaveBeenCalledWith('/login', { replace: true, state: null });
       });
@@ -439,8 +449,6 @@ describe('Login', () => {
         initialEntries: ['/login?error=access_denied&error_description=Nope&foo=bar'],
       });
 
-      // onFormSubmit forwards location.search onward, so query params on /login are
-      // meaningful in general — dropping the whole string would discard them.
       await waitFor(() => {
         expect(navigate).toHaveBeenCalledWith('/login?foo=bar', { replace: true, state: null });
       });
@@ -453,12 +461,9 @@ describe('Login', () => {
       });
       markLocalUserLoginAttempt();
 
-      // First visit: the user backed out to the login page. There is nothing to
-      // explain, but the attempt is over and the marker belongs to it.
       const { unmount } = renderLogin();
       unmount();
 
-      // Second visit: a common-path failure must not inherit the stale marker.
       renderLogin({
         initialEntries: ['/login?error=access_denied&error_description=User+cancelled+login'],
       });
@@ -473,7 +478,6 @@ describe('Login', () => {
         data: { eula: { eula_url: '' } },
         view: { systemConfig: localUserSystemConfig },
       });
-      // The logout redirect leaves the app, so router state cannot carry this.
       markLocalUserNotProvisioned();
 
       renderLogin();
@@ -483,7 +487,6 @@ describe('Login', () => {
       );
       expect(alert).toBeVisible();
       expect(alert).toHaveAttribute('role', 'alert');
-      // Nothing to strip on this arrival — the logout returnTo carries no params.
       expect(navigate).not.toHaveBeenCalled();
     });
 
@@ -522,8 +525,6 @@ describe('Login', () => {
       });
       markLocalUserLoginAttempt();
 
-      // error_description is optional in OAuth 2.0, and requiring it would make the
-      // attribution silently no-op on exactly the failures we cannot predict.
       renderLogin({ initialEntries: ['/login?error=access_denied'] });
 
       expect(screen.getByText(/We couldn't sign you in as a local user/)).toBeVisible();
@@ -554,15 +555,11 @@ describe('Login', () => {
         initialEntries: ['/login?error=access_denied&error_description=Something+Auth0+said'],
       });
 
-      // Survives the re-render: the marker is spent by then, so a second pass must
-      // not fall through to the generic access-denied message.
       await waitFor(() => {
         expect(screen.getByText(/We couldn't sign you in as a local user/)).toBeVisible();
       });
       expect(screen.queryByText(/Access denied/)).not.toBeInTheDocument();
 
-      // Mount work stays mount work when the strip changes location.search. Stable
-      // counts are also what rule out a strip/re-run loop.
       expect(clearAuth).toHaveBeenCalledTimes(1);
       expect(fetchEula).toHaveBeenCalledTimes(1);
     });
