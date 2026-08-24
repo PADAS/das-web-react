@@ -5,10 +5,15 @@ import { useLocation } from 'react-router';
 import appConfig from '../config';
 import Auth0TokenManager from './';
 import { hasAuth0CallbackParams } from '../utils/auth0';
-import { isValidTokenFormat } from '../utils/auth';
+import {
+  isValidTokenFormat,
+  markLocalUserNotProvisioned,
+  takeLocalUserLoginAttempt,
+} from '../utils/auth';
+import { REACT_APP_ROUTE_PREFIX } from '../constants';
 import useNavigate from '../hooks/useNavigate';
 import { GATE_RESULT, checkAccountLinked } from '../utils/account-linking';
-import { applyAccessToken } from '../ducks/auth';
+import { applyAccessToken, clearAuth } from '../ducks/auth';
 import { redirectToExternalUrl } from '../utils/navigation';
 
 jest.mock('@auth0/auth0-react');
@@ -29,6 +34,7 @@ jest.mock('../ducks/auth', () => ({
   __esModule: true,
   ...jest.requireActual('../ducks/auth'),
   applyAccessToken: jest.fn(() => ({ type: 'APPLY_ACCESS_TOKEN' })),
+  clearAuth: jest.fn(() => ({ type: 'CLEAR_AUTH' })),
 }));
 
 describe('Auth0TokenManager', () => {
@@ -237,6 +243,111 @@ describe('Auth0TokenManager', () => {
       });
       expect(mockLogout).not.toHaveBeenCalled();
       expect(applyAccessToken).not.toHaveBeenCalled();
+    });
+
+    describe('local-user sign-in', () => {
+      beforeEach(() => {
+        takeLocalUserLoginAttempt.mockReturnValue(false);
+        checkAccountLinked.mockResolvedValue({
+          result: GATE_RESULT.UNLINKED,
+          linkUrl: 'https://site.example/auth/link-accounts/',
+        });
+      });
+
+      test('an unlinked local user is signed out of Auth0 rather than sent to the account linker', async () => {
+        takeLocalUserLoginAttempt.mockReturnValue(true);
+
+        renderAfterCallback();
+
+        await waitFor(() => {
+          expect(mockLogout).toHaveBeenCalledWith({
+            logoutParams: { returnTo: `${window.location.origin}${REACT_APP_ROUTE_PREFIX}` },
+          });
+        });
+        expect(markLocalUserNotProvisioned).toHaveBeenCalled();
+        expect(clearAuth).toHaveBeenCalled();
+        expect(redirectToExternalUrl).not.toHaveBeenCalled();
+        expect(applyAccessToken).not.toHaveBeenCalled();
+        expect(mockNavigate).not.toHaveBeenCalled();
+      });
+
+      test('a logout that fails still lands the user on the login page instead of a stuck overlay', async () => {
+        takeLocalUserLoginAttempt.mockReturnValue(true);
+        mockLogout.mockRejectedValue(new Error('logout failed'));
+
+        renderAfterCallback();
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledWith(
+            expect.stringContaining('login'),
+            { replace: true, state: { localUserSignInFailed: true } }
+          );
+        });
+        expect(applyAccessToken).not.toHaveBeenCalled();
+      });
+
+      test('a transient gate failure after a local-user attempt still names that path', async () => {
+        takeLocalUserLoginAttempt.mockReturnValue(true);
+        checkAccountLinked.mockResolvedValue({ result: GATE_RESULT.TRANSIENT });
+
+        renderAfterCallback();
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledWith(
+            expect.stringContaining('login'),
+            { replace: true, state: { localUserSignInFailed: true } }
+          );
+        });
+      });
+
+      test('an unusable token after a local-user attempt still names that path', async () => {
+        takeLocalUserLoginAttempt.mockReturnValue(true);
+        checkAccountLinked.mockResolvedValue({ result: GATE_RESULT.INVALID });
+
+        renderAfterCallback();
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledWith(
+            expect.stringContaining('login'),
+            { replace: true, state: { localUserSignInFailed: true } }
+          );
+        });
+      });
+
+      test('the flag is set before the logout that carries it home', async () => {
+        takeLocalUserLoginAttempt.mockReturnValue(true);
+        const order = [];
+        markLocalUserNotProvisioned.mockImplementation(() => order.push('mark'));
+        mockLogout.mockImplementation(() => {
+          order.push('logout');
+          return Promise.resolve();
+        });
+
+        renderAfterCallback();
+
+        await waitFor(() => expect(order).toEqual(['mark', 'logout']));
+      });
+
+      test('an unlinked common-DB user still reaches the account linker', async () => {
+        renderAfterCallback();
+
+        await waitFor(() => {
+          expect(redirectToExternalUrl).toHaveBeenCalledWith('https://site.example/auth/link-accounts/');
+        });
+        expect(mockNavigate).not.toHaveBeenCalled();
+      });
+
+      test('a linked local user authenticates without any linking hand-off', async () => {
+        takeLocalUserLoginAttempt.mockReturnValue(true);
+        checkAccountLinked.mockResolvedValue({ result: GATE_RESULT.LINKED });
+
+        renderAfterCallback();
+
+        await waitFor(() => {
+          expect(applyAccessToken).toHaveBeenCalledWith(VALID_TOKEN);
+        });
+        expect(redirectToExternalUrl).not.toHaveBeenCalled();
+      });
     });
 
     test('org-scoped (idp_org_id set): skips the gate and authenticates', async () => {

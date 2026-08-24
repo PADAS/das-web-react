@@ -4,6 +4,10 @@ import {
   getIntendedPostAuth0SuccessRoute,
   setIntendedPostAuth0SuccessRoute,
   clearIntendedPostAuth0SuccessRoute,
+  markLocalUserLoginAttempt,
+  takeLocalUserLoginAttempt,
+  markLocalUserNotProvisioned,
+  takeLocalUserNotProvisioned,
   stripAuth0Params,
   getAuthTokenFromCookies,
   getTemporaryAccessTokenFromCookies,
@@ -167,6 +171,110 @@ describe('auth utils', () => {
         expect(() => clearIntendedPostAuth0SuccessRoute()).not.toThrow();
         mockRemoveItem.mockRestore();
       });
+    });
+  });
+
+  describe('sessionStorage local-user login attempt', () => {
+    beforeEach(() => {
+      sessionStorage.clear();
+    });
+
+    afterEach(() => {
+      sessionStorage.clear();
+    });
+
+    describe('markLocalUserLoginAttempt', () => {
+      test('records that the local-user path started the login', () => {
+        markLocalUserLoginAttempt();
+        expect(sessionStorage.getItem('er:local_user_login_attempt')).toBe('true');
+      });
+
+      test('handles sessionStorage errors gracefully', () => {
+        const mockSetItem = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+          throw new Error('sessionStorage unavailable');
+        });
+
+        expect(() => markLocalUserLoginAttempt()).not.toThrow();
+        mockSetItem.mockRestore();
+      });
+    });
+
+    describe('takeLocalUserLoginAttempt', () => {
+      test('reports a marked attempt', () => {
+        markLocalUserLoginAttempt();
+        expect(takeLocalUserLoginAttempt()).toBe(true);
+      });
+
+      test('consumes the marker so a later common-path failure is not misattributed', () => {
+        markLocalUserLoginAttempt();
+
+        expect(takeLocalUserLoginAttempt()).toBe(true);
+        expect(takeLocalUserLoginAttempt()).toBe(false);
+        expect(sessionStorage.getItem('er:local_user_login_attempt')).toBeNull();
+      });
+
+      test('reports no attempt when nothing was marked', () => {
+        expect(takeLocalUserLoginAttempt()).toBe(false);
+      });
+
+      test('reports no attempt when sessionStorage errors', () => {
+        const mockGetItem = jest.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+          throw new Error('sessionStorage unavailable');
+        });
+
+        expect(takeLocalUserLoginAttempt()).toBe(false);
+        mockGetItem.mockRestore();
+      });
+    });
+  });
+
+  describe('sessionStorage local-user not-provisioned flag', () => {
+    beforeEach(() => {
+      sessionStorage.clear();
+    });
+
+    afterEach(() => {
+      sessionStorage.clear();
+    });
+
+    test('records that this site has no account for the local user who just signed in', () => {
+      markLocalUserNotProvisioned();
+      expect(sessionStorage.getItem('er:local_user_not_provisioned')).toBe('true');
+    });
+
+    test('survives the Auth0 logout round trip, which is what carries the message home', () => {
+      markLocalUserNotProvisioned();
+
+      // The logout redirect leaves and re-enters the app; sessionStorage is
+      // scoped to the tab, so the flag is still here when the login page mounts.
+      expect(takeLocalUserNotProvisioned()).toBe(true);
+    });
+
+    test('consumes the flag so a later visit does not repeat the message', () => {
+      markLocalUserNotProvisioned();
+
+      expect(takeLocalUserNotProvisioned()).toBe(true);
+      expect(takeLocalUserNotProvisioned()).toBe(false);
+      expect(sessionStorage.getItem('er:local_user_not_provisioned')).toBeNull();
+    });
+
+    test('reports nothing when the flag was never set', () => {
+      expect(takeLocalUserNotProvisioned()).toBe(false);
+    });
+
+    test('handles sessionStorage errors gracefully in both directions', () => {
+      const mockSetItem = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+        throw new Error('sessionStorage unavailable');
+      });
+      const mockGetItem = jest.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+        throw new Error('sessionStorage unavailable');
+      });
+
+      expect(() => markLocalUserNotProvisioned()).not.toThrow();
+      expect(takeLocalUserNotProvisioned()).toBe(false);
+
+      mockSetItem.mockRestore();
+      mockGetItem.mockRestore();
     });
   });
 

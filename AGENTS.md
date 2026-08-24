@@ -163,10 +163,12 @@ Sound notifications for new inReach messages are configurable in Settings → Ge
 
 #### Authentication
 
-A tenant's system config decides how users sign in. The login page offers one method, not both. Either path ends with an access token, kept in a cookie and in Redux and sent as a `Bearer` header.
+A tenant's system config decides how users sign in: local credentials or Auth0, never both. Either path ends with an access token, kept in a cookie and in Redux and sent as a `Bearer` header.
 
 - **Username and password** (`require_idp` off): posted to the DAS OAuth token endpoint.
 - **Auth0 redirect** (`require_idp` on): to the organization's identity provider when `idp_org_id` is set, otherwise to EarthRanger Identity. The latter sites are mid-migration, so accounts that aren't linked yet are sent to the server's account linker.
+
+On the Auth0 path a site may also offer a **local user** button — an account that exists only in that site's Auth0 database, with a username and no self-service reset. It redirects with `connection` set to the site slug, and appears only where `support_managed_users` and `site_slug` are both present and the site is not org-scoped. Failures returning from Auth0 are attributed by a stored attempt marker, never by reading Auth0's error text. If the account-linking gate finds no ER account for one, the user is signed out of Auth0 — the session, not just the cached token — and told so on the login page, rather than sent to the linker, whose password form cannot serve them.
 
 Two guards wrap the app: one redirects to `/login` without a token, preserving the intended route across the Auth0 round trip; the other, only where the `EULA` flag is on, redirects to `/eula` until the user accepts it.
 
