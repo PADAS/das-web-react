@@ -25,7 +25,7 @@ import { mockStore } from '../__test-helpers/MockStore';
 import { INITIAL_GEAR_STATE } from '../ducks/gear';
 import { LAYER_IDS, PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../constants';
 
-import Map from './';
+import Map, { MAP_DATA_FETCH_DEBOUNCE_MS, TIME_SLIDER_HISTORY_MAP_DATA_FETCH_DEBOUNCE_MS } from './';
 
 const { TRACK_TIMEPOINTS } = LAYER_IDS;
 
@@ -364,6 +364,55 @@ describe('Map', () => {
       timeSliderStore.setTimeSliderState({ active: false, hasScrubbedIntoPast: false, virtualDate: null });
 
       expect(fetchMapSubjectsMock).toHaveBeenCalledTimes(3);
+    });
+
+    test('coalesces map moves for longer once the slider has been scrubbed into the past', () => {
+      renderTimeSliderMap();
+
+      timeSliderStore.setTimeSliderState(SCRUBBED);
+      fetchMapSubjectsMock.mockClear();
+
+      act(() => {
+        map.__test__.fireHandlers('moveend');
+        jest.advanceTimersByTime(MAP_DATA_FETCH_DEBOUNCE_MS);
+      });
+
+      expect(fetchMapSubjectsMock).not.toHaveBeenCalled();
+
+      act(() => jest.advanceTimersByTime(TIME_SLIDER_HISTORY_MAP_DATA_FETCH_DEBOUNCE_MS));
+
+      expect(fetchMapSubjectsMock).toHaveBeenCalledTimes(1);
+    });
+
+    test('keeps map moves responsive while the slider sits at the end of its range', () => {
+      renderTimeSliderMap();
+
+      fetchMapSubjectsMock.mockClear();
+
+      act(() => {
+        map.__test__.fireHandlers('moveend');
+        jest.advanceTimersByTime(MAP_DATA_FETCH_DEBOUNCE_MS);
+      });
+
+      expect(fetchMapSubjectsMock).toHaveBeenCalledTimes(1);
+    });
+
+    test('does not fire a stale fetch when a map move is followed by the first scrub', () => {
+      renderTimeSliderMap();
+
+      fetchMapSubjectsMock.mockClear();
+
+      // The move is still inside the short debounce window when the scrub lengthens it.
+      act(() => {
+        map.__test__.fireHandlers('moveend');
+        jest.advanceTimersByTime(MAP_DATA_FETCH_DEBOUNCE_MS / 5);
+      });
+
+      timeSliderStore.setTimeSliderState(SCRUBBED);
+
+      act(() => jest.advanceTimersByTime(TIME_SLIDER_HISTORY_MAP_DATA_FETCH_DEBOUNCE_MS));
+
+      expect(fetchMapSubjectsMock).toHaveBeenCalledTimes(1);
     });
 
     test('only requests tracks for subjects that can show one', async () => {

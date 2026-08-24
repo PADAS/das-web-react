@@ -528,14 +528,20 @@ describe('subjectStoreReducer — SOCKET_SUBJECT_STATUS after SOCKET_NEW_SUBJECT
 
 describe('fetchMapSubjects thunk', () => {
   const LAST_KNOWN_BBOX = '-1,-1,1,1';
+  const COVERING_BBOX = '-10,-10,10,10';
+  const SCRUBBED_INTO_PAST = { active: true, hasScrubbedIntoPast: true };
+  const SLIDER_CLOSED = { active: false, hasScrubbedIntoPast: false };
 
   // A null map makes the thunk reuse the stored bbox, so the map itself needs no mocking.
-  const dispatchFetch = (timeSliderState) => mockStore({
-    data: { mapSubjects: { bbox: LAST_KNOWN_BBOX, subjects: [] } },
+  const dispatchFetch = (timeSliderState, { fetchedQuery, params } = {}) => mockStore({
+    data: { mapSubjects: { bbox: LAST_KNOWN_BBOX, fetchedQuery, subjects: [] } },
     view: { timeSliderState },
-  }).dispatch(fetchMapSubjects(null));
+  }).dispatch(fetchMapSubjects(null, params));
 
   const getRequestParams = () => axios.get.mock.calls[0][1].params;
+
+  // The query the thunk builds for an observation scan carrying no extra parameters.
+  const SCAN_PARAMS = { include_inactive: false, use_lkl: false };
 
   beforeEach(() => {
     jest.spyOn(axios, 'get').mockResolvedValue({ data: { data: [] } });
@@ -546,7 +552,7 @@ describe('fetchMapSubjects thunk', () => {
   });
 
   test('asks for last known locations when the time slider is inactive', async () => {
-    await dispatchFetch({ active: false, hasScrubbedIntoPast: false });
+    await dispatchFetch(SLIDER_CLOSED);
 
     expect(getRequestParams().use_lkl).toBe(true);
   });
@@ -558,9 +564,54 @@ describe('fetchMapSubjects thunk', () => {
   });
 
   test('matches the bbox against observations once the slider has been scrubbed into the past', async () => {
-    await dispatchFetch({ active: true, hasScrubbedIntoPast: true });
+    await dispatchFetch(SCRUBBED_INTO_PAST);
 
     expect(getRequestParams().use_lkl).toBe(false);
+  });
+
+  test('skips the observation scan for a viewport already covered by one', async () => {
+    await dispatchFetch(SCRUBBED_INTO_PAST, {
+      fetchedQuery: { bbox: COVERING_BBOX, params: SCAN_PARAMS },
+    });
+
+    expect(axios.get).not.toHaveBeenCalled();
+  });
+
+  test('runs the observation scan when the viewport reaches outside the covered one', async () => {
+    await dispatchFetch(SCRUBBED_INTO_PAST, {
+      fetchedQuery: { bbox: '-0.5,-0.5,0.5,0.5', params: SCAN_PARAMS },
+    });
+
+    expect(axios.get).toHaveBeenCalled();
+  });
+
+  test('runs the observation scan when the covered result answered a different query', async () => {
+    await dispatchFetch(SCRUBBED_INTO_PAST, {
+      fetchedQuery: { bbox: COVERING_BBOX, params: SCAN_PARAMS },
+      params: { updated_since: '2026-07-01T00:00:00.000Z' },
+    });
+
+    expect(axios.get).toHaveBeenCalled();
+  });
+
+  test('still asks for last known locations for a covered viewport, so subjects moving in appear', async () => {
+    await dispatchFetch(SLIDER_CLOSED, {
+      fetchedQuery: { bbox: COVERING_BBOX, params: { include_inactive: false, use_lkl: true } },
+    });
+
+    expect(axios.get).toHaveBeenCalled();
+  });
+
+  test('records the query it ran so a later fetch can be skipped', async () => {
+    const store = mockStore({
+      data: { mapSubjects: { bbox: LAST_KNOWN_BBOX, fetchedQuery: null, subjects: [] } },
+      view: { timeSliderState: SCRUBBED_INTO_PAST },
+    });
+
+    await store.dispatch(fetchMapSubjects(null));
+
+    const successAction = store.getActions().find(({ type }) => type === 'FETCH_MAP_SUBJECTS_SUCCESS');
+    expect(successAction.payload.fetchedQuery).toEqual({ bbox: LAST_KNOWN_BBOX, params: SCAN_PARAMS });
   });
 
   test('asks for last known locations when there is no time slider state at all', async () => {

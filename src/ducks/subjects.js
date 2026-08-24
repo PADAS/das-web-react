@@ -1,12 +1,13 @@
 import axios, { CancelToken } from 'axios';
+import isEqual from 'react-fast-compare';
 import union from 'lodash/union';
 import merge from 'lodash/merge';
 
 import { API_URL } from '../constants';
-import globallyResettableReducer from '../reducers/global-resettable';
-import { getBboxParamsFromMap } from '../utils/query';
 import { calcUrlForImage } from '../utils/img';
+import { getBboxParamsFromMap, isBboxContainedBy } from '../utils/query';
 import { getUniqueSubjectGroupSubjects, updateDeviceStatusProperties, updateSubjectLastPositionFromSocketStatusUpdate } from '../utils/subjects';
+import globallyResettableReducer from '../reducers/global-resettable';
 const SUBJECTS_API_URL = `${API_URL}subjects`;
 export const SUBJECT_GROUPS_API_URL = `${API_URL}subjectgroups`;
 
@@ -44,6 +45,19 @@ const cancelableMapSubjectsFetch = () => {
       const bbox = map ? await getBboxParamsFromMap(map) : lastKnownBbox;
       const useLastKnownLocations = !timeSliderActive || !hasScrubbedIntoPast;
 
+      const queryParams = {
+        use_lkl: useLastKnownLocations,
+        ...params,
+        include_inactive: false,
+      };
+      const { fetchedQuery } = state?.data?.mapSubjects ?? {};
+      if (!useLastKnownLocations
+        && isEqual(fetchedQuery?.params, queryParams)
+        && isBboxContainedBy(bbox, fetchedQuery.bbox)) {
+        // This viewport's subjects are already in the store.
+        return [];
+      }
+
       dispatch({
         type: FETCH_MAP_SUBJECTS_START,
         payload: { bbox },
@@ -56,14 +70,12 @@ const cancelableMapSubjectsFetch = () => {
         cancelToken: cancelToken.token,
         params: {
           bbox,
-          use_lkl: useLastKnownLocations,
-          ...params,
-          include_inactive: false,
+          ...queryParams,
         }
       })
         .then((response) => {
           if (response) {
-            dispatch(fetchMapSubjectsSuccess(response));
+            dispatch(fetchMapSubjectsSuccess(response, { bbox, params: queryParams }));
             return response.data.data;
           }
           return [];
@@ -113,9 +125,9 @@ export const fetchSubjectGroups = () => (dispatch) => axios.get(SUBJECT_GROUPS_A
   })
   .catch(_error => dispatch(fetchSubjectGroupsError())); // Fallback to empty array on error
 
-const fetchMapSubjectsSuccess = response => ({
+const fetchMapSubjectsSuccess = (response, fetchedQuery) => ({
   type: FETCH_MAP_SUBJECTS_SUCCESS,
-  payload: response.data,
+  payload: { ...response.data, fetchedQuery },
 });
 
 const fetchSubjectGroupsSuccess = response => ({
@@ -127,6 +139,7 @@ const fetchSubjectGroupsError = _error => fetchSubjectGroupsSuccess([]);
 
 const INITIAL_MAP_SUBJECT_STATE = {
   bbox: null,
+  fetchedQuery: null,
   subjects: [],
 };
 
@@ -148,12 +161,13 @@ export default globallyResettableReducer((state = INITIAL_MAP_SUBJECT_STATE, act
   }
 
   if (action.type === FETCH_MAP_SUBJECTS_SUCCESS) {
-    const { payload: { data: subjects } } = action;
+    const { payload: { data: subjects, fetchedQuery } } = action;
 
     const mapSubjectIDs = subjects.map(({ id }) => id);
 
     lastKnownMapSubjectValue = {
       ...state,
+      fetchedQuery,
       subjects: union(mapSubjectIDs, state.subjects),
     };
   }

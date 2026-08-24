@@ -94,6 +94,11 @@ const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 const CLUSTER_APPROX_WIDTH = 40;
 const CLUSTER_APPROX_HEIGHT = 25;
 
+export const MAP_DATA_FETCH_DEBOUNCE_MS = 100;
+/* Showing history makes the subjects query scan observations instead of reading cached
+   locations, so map interaction is coalesced harder while the time slider is scrubbed. */
+export const TIME_SLIDER_HISTORY_MAP_DATA_FETCH_DEBOUNCE_MS = 400;
+
 const { SUBJECT_SYMBOLS } = LAYER_IDS;
 
 const MAP_SUPPORTED_TEXT_FIELD_LANGUAGES = ['ar', 'en', 'es', 'fr', 'de', 'it', 'pt', 'ru', 'ha', 'ko', 'vi'];
@@ -253,8 +258,9 @@ const Map = ({ children, onMapLoad, socket }) => {
       )
         .catch((e) =>
           console.warn('error loading map data', e)
-        ), 100)
-  , [mapEventsFetch, fetchMapSubjectsFromTimeslider]);
+        ),
+    hasScrubbedIntoPast ? TIME_SLIDER_HISTORY_MAP_DATA_FETCH_DEBOUNCE_MS : MAP_DATA_FETCH_DEBOUNCE_MS)
+  , [hasScrubbedIntoPast, mapEventsFetch, fetchMapSubjectsFromTimeslider]);
 
   const fetchMapData = useCallback(() => {
     cancelMapDataRequests();
@@ -586,6 +592,10 @@ const Map = ({ children, onMapLoad, socket }) => {
     }
     // hasScrubbedIntoPast decides the use_lkl parameter of the subjects query.
   }, [fetchMapData, hasScrubbedIntoPast, map, timeSliderState.active]);
+
+  /* Changing the debounce interval builds a new debounced function, so the pending call on the
+     outgoing one is dropped rather than fired alongside the refetch the change itself triggers. */
+  useEffect(() => () => debouncedFetchEventsAndSubjects.cancel(), [debouncedFetchEventsAndSubjects]);
 
   useEffect(() => {
     if (!!map && heatmapSubjectIDs.length && showReportHeatmap) {
