@@ -1,7 +1,7 @@
 import React from 'react';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen } from '../test-utils';
+import { createEvent, fireEvent, render, screen, waitFor } from '../test-utils';
 
 import KebabMenu from './index';
 
@@ -115,16 +115,19 @@ describe('KebabMenu', () => {
     expect(toggle).toHaveFocus();
   });
 
-  test('hides the menu and refocuses the toggle button when Tab is pressed', async () => {
+  test('hides the menu and refocuses the toggle button, without trapping the focus, when Tab is pressed', async () => {
     renderKebabMenu();
 
     const toggle = screen.getByRole('button', { name: 'Options menu' });
     await openMenu();
-    await screen.findByRole('menu');
+    const menu = await screen.findByRole('menu');
 
-    await userEvent.keyboard('{Tab}');
+    const tabKeyDown = createEvent.keyDown(menu, { key: 'Tab' });
 
-    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    fireEvent(menu, tabKeyDown);
+
+    expect(tabKeyDown.defaultPrevented).toBe(false);
+    await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
     expect(toggle).toHaveFocus();
   });
 

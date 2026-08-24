@@ -211,6 +211,10 @@ const TimeSlider = () => {
       break;
 
     case 'Tab':
+      onSpeedMenuClose();
+
+      break;
+
     case 'Escape':
       event.preventDefault();
 

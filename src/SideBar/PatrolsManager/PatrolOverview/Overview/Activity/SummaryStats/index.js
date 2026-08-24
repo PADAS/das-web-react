@@ -125,6 +125,10 @@ const SummaryStats = ({ eventCount, patrol }) => {
       break;
 
     case 'Tab':
+      onDistanceSubjectMenuClose();
+
+      break;
+
     case 'Escape':
       event.preventDefault();
 
