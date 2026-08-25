@@ -421,6 +421,7 @@ describe('Map', () => {
         trackableSubject,
         makeSubject('no-track-data', { tracks_available: false }),
         makeSubject('fixed-position-radio', { subject_subtype: 'stationary-radio' }),
+        makeSubject('stationary-sensor', { subject_type: 'stationary-object' }),
         makeSubject('reported-before-the-filter', { last_position_date: '2026-07-01T00:00:00.000Z' }),
       ]));
 

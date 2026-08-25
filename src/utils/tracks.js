@@ -304,7 +304,7 @@ export const fetchTracksIfNecessary = (ids, config) => {
         return buildRequest();
       }
 
-
+      return ongoingRequest.request;
     };
 
     if (!trackData

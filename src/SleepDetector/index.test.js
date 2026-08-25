@@ -22,8 +22,8 @@ describe('SleepDetector', () => {
     act(() => jest.advanceTimersByTime(INTERVAL));
   };
 
-  const renderSleepDetector = () => render(
-    <SleepDetector interval={INTERVAL} onSleepDetected={onSleepDetected} tolerance={TOLERANCE} />
+  const renderSleepDetector = (props) => render(
+    <SleepDetector interval={INTERVAL} onSleepDetected={onSleepDetected} tolerance={TOLERANCE} {...props} />
   );
 
   beforeEach(() => {
@@ -34,6 +34,8 @@ describe('SleepDetector', () => {
 
   afterEach(() => {
     jest.useRealTimers();
+
+    delete document.hidden;
   });
 
   test('reports a sleep when a tick arrives later than the tolerance allows', () => {
@@ -61,15 +63,39 @@ describe('SleepDetector', () => {
     expect(onSleepDetected).not.toHaveBeenCalled();
   });
 
-  test('reports a sleep again once the tab is shown', () => {
+  test('reports the sleep it observed while hidden as soon as the tab is shown', () => {
     renderSleepDetector();
     setTabHidden(true);
 
     sleepFor(60 * INTERVAL);
     setTabHidden(false);
-    sleepFor(60 * INTERVAL);
+    act(() => document.dispatchEvent(new Event('visibilitychange')));
 
     expect(onSleepDetected).toHaveBeenCalledTimes(1);
+  });
+
+  test('reports the sleep it observed while hidden only once', () => {
+    renderSleepDetector();
+    setTabHidden(true);
+
+    sleepFor(60 * INTERVAL);
+    setTabHidden(false);
+    act(() => document.dispatchEvent(new Event('visibilitychange')));
+    sleepFor(0);
+
+    expect(onSleepDetected).toHaveBeenCalledTimes(1);
+  });
+
+  test('does not report a sleep when its props change between ticks', () => {
+    const { rerender } = renderSleepDetector();
+
+    act(() => jest.advanceTimersByTime(INTERVAL / 2));
+    rerender(
+      <SleepDetector interval={INTERVAL} onSleepDetected={onSleepDetected} tolerance={TOLERANCE * 2} />
+    );
+    act(() => jest.advanceTimersByTime(INTERVAL));
+
+    expect(onSleepDetected).not.toHaveBeenCalled();
   });
 
   test('stops polling once unmounted', () => {

@@ -2,9 +2,9 @@ const SET_VIRTUAL_DATE = 'SET_VIRTUAL_DATE';
 const CLEAR_VIRTUAL_DATE = 'CLEAR_VIRTUAL_DATE';
 const SET_ACTIVE_STATE = 'SET_ACTIVE_STATE';
 
-export const setVirtualDate = (date) => ({
+export const setVirtualDate = (date, { isAtRangeEnd = false } = {}) => ({
   type: SET_VIRTUAL_DATE,
-  payload: date,
+  payload: { date, isAtRangeEnd },
 });
 
 export const clearVirtualDate = () => ({
@@ -26,8 +26,8 @@ const timeSliderReducer = (state = INITIAL_STATE, { type, payload }) => {
   if (type === SET_VIRTUAL_DATE) {
     return {
       ...state,
-      hasScrubbedIntoPast: true,
-      virtualDate: payload,
+      hasScrubbedIntoPast: state.hasScrubbedIntoPast || !payload.isAtRangeEnd,
+      virtualDate: payload.date,
     };
   }
   if (type === CLEAR_VIRTUAL_DATE) {

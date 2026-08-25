@@ -1,8 +1,9 @@
 import axios from 'axios';
+import { startOfDay, subDays } from 'date-fns';
 
-import { TRACK_LENGTH_ORIGINS, TRACKS_API_URL } from '../ducks/tracks';
 import store from '../store';
 import { TIME_OF_DAY_PERIODS } from '../constants';
+import { TRACK_LENGTH_ORIGINS, TRACKS_API_URL } from '../ducks/tracks';
 
 import {
   buildTrackSegments,
@@ -657,6 +658,8 @@ describe('utils - tracks', () => {
 
   describe('fetchTracksIfNecessary', () => {
     const EVENT_FILTER_LOWER = '2026-08-01T00:00:00.000Z';
+    // A virtual date is in play throughout, so a request narrowed to it would be visible.
+    const VIRTUAL_DATE = '2026-08-15T00:00:00.000Z';
 
     // Resolves once every pending microtask and timer callback has run.
     const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -688,7 +691,7 @@ describe('utils - tracks', () => {
           tracks: {},
         },
         view: {
-          timeSliderState: { active: true },
+          timeSliderState: { active: true, virtualDate: VIRTUAL_DATE },
           trackSettings: { length: 21, origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH },
         },
       });
@@ -715,6 +718,29 @@ describe('utils - tracks', () => {
       );
     });
 
+    test('asks for the configured track length while the time slider is closed', async () => {
+      jest.spyOn(axios, 'get').mockResolvedValue({ data: { data: { features: [] } } });
+      // Runs the real fetchTracks thunk so the request window itself can be asserted.
+      store.dispatch.mockImplementation((thunk) => thunk(jest.fn()));
+      store.getState.mockReturnValue({
+        data: {
+          eventFilter: { filter: { date_range: { lower: EVENT_FILTER_LOWER, upper: null } } },
+          tracks: {},
+        },
+        view: {
+          timeSliderState: { active: false },
+          trackSettings: { length: 21, origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH },
+        },
+      });
+
+      await fetchTracksIfNecessary(['subject-1']);
+
+      expect(axios.get).toHaveBeenCalledWith(
+        TRACKS_API_URL('subject-1'),
+        expect.objectContaining({ params: { since: startOfDay(subDays(new Date(), 21)) } }),
+      );
+    });
+
     test('keeps deduplicating an id whose earlier request was superseded and cancelled', async () => {
       const trackedId = 'subject-1';
 
@@ -727,7 +753,7 @@ describe('utils - tracks', () => {
           tracks: {},
         },
         view: {
-          timeSliderState: { active: true },
+          timeSliderState: { active: true, virtualDate: VIRTUAL_DATE },
           trackSettings: { length: 21, origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH },
         },
       });
@@ -751,6 +777,23 @@ describe('utils - tracks', () => {
       await settle();
 
       expect(store.dispatch).toHaveBeenCalledTimes(2);
+    });
+
+    test('waits for the request already in flight rather than resolving before it lands', async () => {
+      let hasResolved = false;
+
+      fetchTracksIfNecessary(['subject-1']);
+      fetchTracksIfNecessary(['subject-1']).then(() => {
+        hasResolved = true;
+      });
+
+      await settle();
+
+      expect(hasResolved).toBe(false);
+
+      await releaseOneRequest();
+
+      expect(hasResolved).toBe(true);
     });
   });
 });

@@ -11,13 +11,15 @@ import globallyResettableReducer from '../reducers/global-resettable';
 const SUBJECTS_API_URL = `${API_URL}subjects`;
 export const SUBJECT_GROUPS_API_URL = `${API_URL}subjectgroups`;
 
+export const COVERED_SCAN_MAX_AGE_MS = 5 * 60 * 1000;
+
 // actions
 
 const FETCH_SUBJECT_GROUPS_SUCCESS = 'FETCH_SUBJECT_GROUPS_SUCCESS';
 // const FETCH_SUBJECT_GROUPS_ERROR = 'FETCH_SUBJECT_GROUPS_ERROR';
 
 const FETCH_MAP_SUBJECTS_START = 'FETCH_MAP_SUBJECTS_START';
-const FETCH_MAP_SUBJECTS_SUCCESS = 'FETCH_MAP_SUBJECTS_SUCCESS';
+export const FETCH_MAP_SUBJECTS_SUCCESS = 'FETCH_MAP_SUBJECTS_SUCCESS';
 // const FETCH_MAP_SUBJECTS_ERROR = 'FETCH_MAP_SUBJECTS_ERROR';
 const CLEAR_SUBJECT_DATA = 'CLEAR_SUBJECT_DATA';
 export const SOCKET_SUBJECT_STATUS = 'SOCKET_SUBJECT_STATUS';
@@ -32,18 +34,21 @@ const cancelableMapSubjectsFetch = () => {
   const fetchFn = (map, params) => async (dispatch, getState) => {
     try {
 
-      const state = getState();
       let lastKnownBbox;
 
       if (!map) {
-        lastKnownBbox = state?.data?.mapSubjects?.bbox;
+        lastKnownBbox = getState()?.data?.mapSubjects?.bbox;
       }
 
       if (!map && !lastKnownBbox) return Promise.reject();
 
-      const { active: timeSliderActive, hasScrubbedIntoPast } = state?.view?.timeSliderState ?? {};
-
       const bbox = map ? await getBboxParamsFromMap(map) : lastKnownBbox;
+
+      const state = getState();
+      const { active: timeSliderActive, hasScrubbedIntoPast } = state?.view?.timeSliderState ?? {};
+      const { mapSubjects, subjectStore } = state?.data ?? {};
+      const { fetchedQuery } = mapSubjects ?? {};
+
       const useLastKnownLocations = !timeSliderActive || !hasScrubbedIntoPast;
 
       const queryParams = {
@@ -51,12 +56,14 @@ const cancelableMapSubjectsFetch = () => {
         ...params,
         include_inactive: false,
       };
-      const { fetchedQuery } = state?.data?.mapSubjects ?? {};
+
       if (!useLastKnownLocations
         && isEqual(fetchedQuery?.params, queryParams)
+        && (Date.now() - fetchedQuery.fetchedAt) < COVERED_SCAN_MAX_AGE_MS
         && isBboxContainedBy(bbox, fetchedQuery.bbox)) {
-        // This viewport's subjects are already in the store.
-        return [];
+        // The covering fetch already put this viewport's subjects in the
+        // store.
+        return fetchedQuery.subjectIds.map((id) => subjectStore[id]).filter(Boolean);
       }
 
       dispatch({
@@ -76,7 +83,7 @@ const cancelableMapSubjectsFetch = () => {
       })
         .then((response) => {
           if (response) {
-            dispatch(fetchMapSubjectsSuccess(response, { bbox, params: queryParams }));
+            dispatch(fetchMapSubjectsSuccess(response, { bbox, fetchedAt: Date.now(), params: queryParams }));
             return response.data.data;
           }
           return [];
@@ -138,7 +145,7 @@ const fetchSubjectGroupsSuccess = response => ({
 
 const fetchSubjectGroupsError = _error => fetchSubjectGroupsSuccess([]);
 
-const INITIAL_MAP_SUBJECT_STATE = {
+export const INITIAL_MAP_SUBJECT_STATE = {
   bbox: null,
   fetchedQuery: null,
   subjects: [],
@@ -168,7 +175,7 @@ export default globallyResettableReducer((state = INITIAL_MAP_SUBJECT_STATE, act
 
     lastKnownMapSubjectValue = {
       ...state,
-      fetchedQuery,
+      fetchedQuery: { ...fetchedQuery, subjectIds: mapSubjectIDs },
       subjects: union(mapSubjectIDs, state.subjects),
     };
   }

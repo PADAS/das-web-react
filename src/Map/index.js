@@ -18,7 +18,7 @@ import { getPatrolsForLeaderId } from '../utils/patrols';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 import { fetchTracksIfNecessary } from '../utils/tracks';
-import { canShowTrackForSubject } from '../utils/subjects';
+import { canShowTrackForSubject, subjectIsStatic } from '../utils/subjects';
 import { withMultiLayerHandlerAwareness, queryMultiLayerClickFeatures } from '../utils/map-handlers';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
@@ -212,7 +212,7 @@ const Map = ({ children, onMapLoad, socket }) => {
 
   const fetchMapSubjectTracksForTimeslider = useCallback((subjects) => {
     return fetchTracksIfNecessary(subjects
-      .filter(canShowTrackForSubject)
+      .filter((subject) => canShowTrackForSubject(subject) && !subjectIsStatic(subject))
       .filter(({ last_position_date }) =>
         (new Date(last_position_date) - new Date(eventFilter.filter.date_range.lower) >= 0))
       .map(({ id }) => id));
