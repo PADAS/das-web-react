@@ -49,7 +49,7 @@ const Auth0TokenManager = () => {
         // the path the user was on.
         const attemptedManagedUserLogin = takeManagedUserLoginAttempt();
         const failedLoginOptions = attemptedManagedUserLogin
-          ? { replace: true, state: { localUserSignInFailed: true } }
+          ? { replace: true, state: { managedUserSignInFailed: true } }
           : { replace: true };
 
         try {
@@ -69,7 +69,7 @@ const Auth0TokenManager = () => {
             const { result, linkUrl } = await checkAccountLinked(safe);
 
             if (result === GATE_RESULT.UNLINKED) {
-              // The link page asks for a legacy password a local user does not have.
+              // The link page asks for a legacy password a managed user does not have.
               // End the Auth0 session instead — the tenant cookie outlives this page,
               // so clearing only the local cache lets the next sign-in reuse this
               // unusable identity. Awaited so a failed redirect reaches the catch
@@ -103,7 +103,7 @@ const Auth0TokenManager = () => {
               navigate(APP_ROUTES.LOGIN, {
                 replace: true,
                 state: attemptedManagedUserLogin
-                  ? { localUserSignInFailed: true }
+                  ? { managedUserSignInFailed: true }
                   : { authLinkingError: true },
               });
               return;

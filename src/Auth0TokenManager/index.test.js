@@ -245,7 +245,7 @@ describe('Auth0TokenManager', () => {
       expect(applyAccessToken).not.toHaveBeenCalled();
     });
 
-    describe('local-user sign-in', () => {
+    describe('managed-user sign-in', () => {
       beforeEach(() => {
         takeManagedUserLoginAttempt.mockReturnValue(false);
         checkAccountLinked.mockResolvedValue({
@@ -254,7 +254,7 @@ describe('Auth0TokenManager', () => {
         });
       });
 
-      test('an unlinked local user is signed out of Auth0 rather than sent to the account linker', async () => {
+      test('an unlinked managed user is signed out of Auth0 rather than sent to the account linker', async () => {
         takeManagedUserLoginAttempt.mockReturnValue(true);
 
         renderAfterCallback();
@@ -280,13 +280,13 @@ describe('Auth0TokenManager', () => {
         await waitFor(() => {
           expect(mockNavigate).toHaveBeenCalledWith(
             expect.stringContaining('login'),
-            { replace: true, state: { localUserSignInFailed: true } }
+            { replace: true, state: { managedUserSignInFailed: true } }
           );
         });
         expect(applyAccessToken).not.toHaveBeenCalled();
       });
 
-      test('a transient gate failure after a local-user attempt still names that path', async () => {
+      test('a transient gate failure after a managed-user attempt still names that path', async () => {
         takeManagedUserLoginAttempt.mockReturnValue(true);
         checkAccountLinked.mockResolvedValue({ result: GATE_RESULT.TRANSIENT });
 
@@ -295,12 +295,12 @@ describe('Auth0TokenManager', () => {
         await waitFor(() => {
           expect(mockNavigate).toHaveBeenCalledWith(
             expect.stringContaining('login'),
-            { replace: true, state: { localUserSignInFailed: true } }
+            { replace: true, state: { managedUserSignInFailed: true } }
           );
         });
       });
 
-      test('an unusable token after a local-user attempt still names that path', async () => {
+      test('an unusable token after a managed-user attempt still names that path', async () => {
         takeManagedUserLoginAttempt.mockReturnValue(true);
         checkAccountLinked.mockResolvedValue({ result: GATE_RESULT.INVALID });
 
@@ -309,7 +309,7 @@ describe('Auth0TokenManager', () => {
         await waitFor(() => {
           expect(mockNavigate).toHaveBeenCalledWith(
             expect.stringContaining('login'),
-            { replace: true, state: { localUserSignInFailed: true } }
+            { replace: true, state: { managedUserSignInFailed: true } }
           );
         });
       });
@@ -337,7 +337,7 @@ describe('Auth0TokenManager', () => {
         expect(mockNavigate).not.toHaveBeenCalled();
       });
 
-      test('a linked local user authenticates without any linking hand-off', async () => {
+      test('a linked managed user authenticates without any linking hand-off', async () => {
         takeManagedUserLoginAttempt.mockReturnValue(true);
         checkAccountLinked.mockResolvedValue({ result: GATE_RESULT.LINKED });
 
