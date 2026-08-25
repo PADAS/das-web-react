@@ -136,7 +136,7 @@ const TimeSlider = () => {
   const setVirtualDateFromSliderValue = useCallback((sliderValue) => {
     if (isAtEnd(sliderValue)) {
       if (eventFilterUpperDateRange) {
-        dispatch(setVirtualDate(eventFilterUpperDateRange, { isAtRangeEnd: true }));
+        dispatch(setVirtualDate(eventFilterUpperDateRange));
       } else {
         dispatch(clearVirtualDate());
       }

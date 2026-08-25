@@ -658,6 +658,7 @@ describe('utils - tracks', () => {
 
   describe('fetchTracksIfNecessary', () => {
     const EVENT_FILTER_LOWER = '2026-08-01T00:00:00.000Z';
+    const EVENT_FILTER_UPPER = '2026-08-20T00:00:00.000Z';
     // A virtual date is in play throughout, so a request narrowed to it would be visible.
     const VIRTUAL_DATE = '2026-08-15T00:00:00.000Z';
 
@@ -715,6 +716,52 @@ describe('utils - tracks', () => {
       expect(axios.get).toHaveBeenCalledWith(
         TRACKS_API_URL('subject-1'),
         expect.objectContaining({ params: { since: EVENT_FILTER_LOWER } }),
+      );
+    });
+
+    test('bounds the request by the event filter end date while the time slider is active', async () => {
+      jest.spyOn(axios, 'get').mockResolvedValue({ data: { data: { features: [] } } });
+      // Runs the real fetchTracks thunk so the request window itself can be asserted.
+      store.dispatch.mockImplementation((thunk) => thunk(jest.fn()));
+      store.getState.mockReturnValue({
+        data: {
+          eventFilter: { filter: { date_range: { lower: EVENT_FILTER_LOWER, upper: EVENT_FILTER_UPPER } } },
+          tracks: {},
+        },
+        view: {
+          timeSliderState: { active: true, virtualDate: VIRTUAL_DATE },
+          trackSettings: { length: 21, origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH },
+        },
+      });
+
+      await fetchTracksIfNecessary(['subject-1']);
+
+      expect(axios.get).toHaveBeenCalledWith(
+        TRACKS_API_URL('subject-1'),
+        expect.objectContaining({ params: { since: EVENT_FILTER_LOWER, until: EVENT_FILTER_UPPER } }),
+      );
+    });
+
+    test('leaves the upper bound open on an event filter end date while the time slider is closed', async () => {
+      jest.spyOn(axios, 'get').mockResolvedValue({ data: { data: { features: [] } } });
+      // Runs the real fetchTracks thunk so the request window itself can be asserted.
+      store.dispatch.mockImplementation((thunk) => thunk(jest.fn()));
+      store.getState.mockReturnValue({
+        data: {
+          eventFilter: { filter: { date_range: { lower: EVENT_FILTER_LOWER, upper: EVENT_FILTER_UPPER } } },
+          tracks: {},
+        },
+        view: {
+          timeSliderState: { active: false },
+          trackSettings: { length: 21, origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH },
+        },
+      });
+
+      await fetchTracksIfNecessary(['subject-1']);
+
+      expect(axios.get).toHaveBeenCalledWith(
+        TRACKS_API_URL('subject-1'),
+        expect.objectContaining({ params: { since: startOfDay(subDays(new Date(), 21)) } }),
       );
     });
 

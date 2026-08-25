@@ -2,9 +2,9 @@ const SET_VIRTUAL_DATE = 'SET_VIRTUAL_DATE';
 const CLEAR_VIRTUAL_DATE = 'CLEAR_VIRTUAL_DATE';
 const SET_ACTIVE_STATE = 'SET_ACTIVE_STATE';
 
-export const setVirtualDate = (date, { isAtRangeEnd = false } = {}) => ({
+export const setVirtualDate = (date) => ({
   type: SET_VIRTUAL_DATE,
-  payload: { date, isAtRangeEnd },
+  payload: date,
 });
 
 export const clearVirtualDate = () => ({
@@ -26,8 +26,11 @@ const timeSliderReducer = (state = INITIAL_STATE, { type, payload }) => {
   if (type === SET_VIRTUAL_DATE) {
     return {
       ...state,
-      hasScrubbedIntoPast: state.hasScrubbedIntoPast || !payload.isAtRangeEnd,
-      virtualDate: payload.date,
+      /* A virtual date means a moment other than the present is on screen, so viewport membership
+         can only be answered by scanning observations. Last known locations answer for the present
+         alone. */
+      hasScrubbedIntoPast: true,
+      virtualDate: payload,
     };
   }
   if (type === CLEAR_VIRTUAL_DATE) {

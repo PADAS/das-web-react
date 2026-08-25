@@ -243,6 +243,10 @@ export const fetchTracksIfNecessary = (ids, config) => {
     } else if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH) {
       dateRange = removeNullAndUndefinedValuesFromObject({
         since: timeSliderActive ? eventFilterSince : startOfDay(subDays(new Date(), length)),
+        // The map never draws past the filter's end, so fetching beyond it is
+        // wasted. Bounding by the virtual date instead would refetch on every
+        // scrub, since it moves with the handle.
+        until: timeSliderActive ? eventFilterUntil : undefined,
       });
     }
 
