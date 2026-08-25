@@ -8,9 +8,9 @@ import appConfig from '../config';
 import { clearAuth, postAuth } from '../ducks/auth';
 import { fetchEula } from '../ducks/eula';
 import {
-  markLocalUserLoginAttempt,
-  markLocalUserNotProvisioned,
-  takeLocalUserLoginAttempt,
+  markManagedUserLoginAttempt,
+  markManagedUserNotProvisioned,
+  takeManagedUserLoginAttempt,
 } from '../utils/auth';
 import { mockStore } from '../__test-helpers/MockStore';
 import i18n from '../i18nForTests';
@@ -324,7 +324,7 @@ describe('Login', () => {
 
       await userEvent.click(screen.getByRole('button', { name: 'Sign in as a local user' }));
 
-      expect(takeLocalUserLoginAttempt()).toBe(true);
+      expect(takeManagedUserLoginAttempt()).toBe(true);
     });
 
     test('disables the local-user path while Auth0 is loading, keeping its label readable', () => {
@@ -362,7 +362,7 @@ describe('Login', () => {
         data: { eula: { eula_url: '' } },
         view: { systemConfig: localUserSystemConfig },
       });
-      markLocalUserLoginAttempt();
+      markManagedUserLoginAttempt();
 
       renderLogin({
         initialEntries: ['/login?error=access_denied&error_description=Something+Auth0+said'],
@@ -389,7 +389,7 @@ describe('Login', () => {
       await waitFor(() => {
         expect(screen.getByText('Sign-in failed. Please try again.')).toBeVisible();
       });
-      expect(takeLocalUserLoginAttempt()).toBe(false);
+      expect(takeManagedUserLoginAttempt()).toBe(false);
     });
 
     test('keeps the local-user explanation, translated, when the language changes', async () => {
@@ -397,7 +397,7 @@ describe('Login', () => {
         data: { eula: { eula_url: '' } },
         view: { systemConfig: localUserSystemConfig },
       });
-      markLocalUserLoginAttempt();
+      markManagedUserLoginAttempt();
 
       renderLogin({
         initialEntries: ['/login?error=access_denied&error_description=Something+Auth0+said'],
@@ -425,7 +425,7 @@ describe('Login', () => {
         data: { eula: { eula_url: '' } },
         view: { systemConfig: localUserSystemConfig },
       });
-      markLocalUserLoginAttempt();
+      markManagedUserLoginAttempt();
 
       renderLogin({
         initialEntries: ['/login?error=access_denied&error_description=Something+Auth0+said'],
@@ -443,7 +443,7 @@ describe('Login', () => {
         data: { eula: { eula_url: '' } },
         view: { systemConfig: localUserSystemConfig },
       });
-      markLocalUserLoginAttempt();
+      markManagedUserLoginAttempt();
 
       renderLogin({
         initialEntries: ['/login?error=access_denied&error_description=Nope&foo=bar'],
@@ -459,7 +459,7 @@ describe('Login', () => {
         data: { eula: { eula_url: '' } },
         view: { systemConfig: localUserSystemConfig },
       });
-      markLocalUserLoginAttempt();
+      markManagedUserLoginAttempt();
 
       const { unmount } = renderLogin();
       unmount();
@@ -478,7 +478,7 @@ describe('Login', () => {
         data: { eula: { eula_url: '' } },
         view: { systemConfig: localUserSystemConfig },
       });
-      markLocalUserNotProvisioned();
+      markManagedUserNotProvisioned();
 
       renderLogin();
 
@@ -523,7 +523,7 @@ describe('Login', () => {
         data: { eula: { eula_url: '' } },
         view: { systemConfig: localUserSystemConfig },
       });
-      markLocalUserLoginAttempt();
+      markManagedUserLoginAttempt();
 
       renderLogin({ initialEntries: ['/login?error=access_denied'] });
 
@@ -549,7 +549,7 @@ describe('Login', () => {
       // The real hook, so the strip actually changes the URL and the effect re-runs
       // — which a jest.fn() navigate can never exercise.
       useNavigate.mockImplementation(jest.requireActual('../hooks/useNavigate').default);
-      markLocalUserLoginAttempt();
+      markManagedUserLoginAttempt();
 
       renderLogin({
         initialEntries: ['/login?error=access_denied&error_description=Something+Auth0+said'],

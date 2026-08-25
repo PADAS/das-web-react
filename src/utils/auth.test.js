@@ -4,10 +4,10 @@ import {
   getIntendedPostAuth0SuccessRoute,
   setIntendedPostAuth0SuccessRoute,
   clearIntendedPostAuth0SuccessRoute,
-  markLocalUserLoginAttempt,
-  takeLocalUserLoginAttempt,
-  markLocalUserNotProvisioned,
-  takeLocalUserNotProvisioned,
+  markManagedUserLoginAttempt,
+  takeManagedUserLoginAttempt,
+  markManagedUserNotProvisioned,
+  takeManagedUserNotProvisioned,
   stripAuth0Params,
   getAuthTokenFromCookies,
   getTemporaryAccessTokenFromCookies,
@@ -174,7 +174,7 @@ describe('auth utils', () => {
     });
   });
 
-  describe('sessionStorage local-user login attempt', () => {
+  describe('sessionStorage managed-user login attempt', () => {
     beforeEach(() => {
       sessionStorage.clear();
     });
@@ -183,10 +183,10 @@ describe('auth utils', () => {
       sessionStorage.clear();
     });
 
-    describe('markLocalUserLoginAttempt', () => {
-      test('records that the local-user path started the login', () => {
-        markLocalUserLoginAttempt();
-        expect(sessionStorage.getItem('er:local_user_login_attempt')).toBe('true');
+    describe('markManagedUserLoginAttempt', () => {
+      test('records that the managed-user path started the login', () => {
+        markManagedUserLoginAttempt();
+        expect(sessionStorage.getItem('er:managed_user_login_attempt')).toBe('true');
       });
 
       test('handles sessionStorage errors gracefully', () => {
@@ -194,27 +194,27 @@ describe('auth utils', () => {
           throw new Error('sessionStorage unavailable');
         });
 
-        expect(() => markLocalUserLoginAttempt()).not.toThrow();
+        expect(() => markManagedUserLoginAttempt()).not.toThrow();
         mockSetItem.mockRestore();
       });
     });
 
-    describe('takeLocalUserLoginAttempt', () => {
+    describe('takeManagedUserLoginAttempt', () => {
       test('reports a marked attempt', () => {
-        markLocalUserLoginAttempt();
-        expect(takeLocalUserLoginAttempt()).toBe(true);
+        markManagedUserLoginAttempt();
+        expect(takeManagedUserLoginAttempt()).toBe(true);
       });
 
       test('consumes the marker so a later common-path failure is not misattributed', () => {
-        markLocalUserLoginAttempt();
+        markManagedUserLoginAttempt();
 
-        expect(takeLocalUserLoginAttempt()).toBe(true);
-        expect(takeLocalUserLoginAttempt()).toBe(false);
-        expect(sessionStorage.getItem('er:local_user_login_attempt')).toBeNull();
+        expect(takeManagedUserLoginAttempt()).toBe(true);
+        expect(takeManagedUserLoginAttempt()).toBe(false);
+        expect(sessionStorage.getItem('er:managed_user_login_attempt')).toBeNull();
       });
 
       test('reports no attempt when nothing was marked', () => {
-        expect(takeLocalUserLoginAttempt()).toBe(false);
+        expect(takeManagedUserLoginAttempt()).toBe(false);
       });
 
       test('reports no attempt when sessionStorage errors', () => {
@@ -222,13 +222,13 @@ describe('auth utils', () => {
           throw new Error('sessionStorage unavailable');
         });
 
-        expect(takeLocalUserLoginAttempt()).toBe(false);
+        expect(takeManagedUserLoginAttempt()).toBe(false);
         mockGetItem.mockRestore();
       });
     });
   });
 
-  describe('sessionStorage local-user not-provisioned flag', () => {
+  describe('sessionStorage managed-user not-provisioned flag', () => {
     beforeEach(() => {
       sessionStorage.clear();
     });
@@ -237,29 +237,29 @@ describe('auth utils', () => {
       sessionStorage.clear();
     });
 
-    test('records that this site has no account for the local user who just signed in', () => {
-      markLocalUserNotProvisioned();
-      expect(sessionStorage.getItem('er:local_user_not_provisioned')).toBe('true');
+    test('records that this site has no account for the managed user who just signed in', () => {
+      markManagedUserNotProvisioned();
+      expect(sessionStorage.getItem('er:managed_user_not_provisioned')).toBe('true');
     });
 
     test('survives the Auth0 logout round trip, which is what carries the message home', () => {
-      markLocalUserNotProvisioned();
+      markManagedUserNotProvisioned();
 
       // The logout redirect leaves and re-enters the app; sessionStorage is
       // scoped to the tab, so the flag is still here when the login page mounts.
-      expect(takeLocalUserNotProvisioned()).toBe(true);
+      expect(takeManagedUserNotProvisioned()).toBe(true);
     });
 
     test('consumes the flag so a later visit does not repeat the message', () => {
-      markLocalUserNotProvisioned();
+      markManagedUserNotProvisioned();
 
-      expect(takeLocalUserNotProvisioned()).toBe(true);
-      expect(takeLocalUserNotProvisioned()).toBe(false);
-      expect(sessionStorage.getItem('er:local_user_not_provisioned')).toBeNull();
+      expect(takeManagedUserNotProvisioned()).toBe(true);
+      expect(takeManagedUserNotProvisioned()).toBe(false);
+      expect(sessionStorage.getItem('er:managed_user_not_provisioned')).toBeNull();
     });
 
     test('reports nothing when the flag was never set', () => {
-      expect(takeLocalUserNotProvisioned()).toBe(false);
+      expect(takeManagedUserNotProvisioned()).toBe(false);
     });
 
     test('handles sessionStorage errors gracefully in both directions', () => {
@@ -270,8 +270,8 @@ describe('auth utils', () => {
         throw new Error('sessionStorage unavailable');
       });
 
-      expect(() => markLocalUserNotProvisioned()).not.toThrow();
-      expect(takeLocalUserNotProvisioned()).toBe(false);
+      expect(() => markManagedUserNotProvisioned()).not.toThrow();
+      expect(takeManagedUserNotProvisioned()).toBe(false);
 
       mockSetItem.mockRestore();
       mockGetItem.mockRestore();

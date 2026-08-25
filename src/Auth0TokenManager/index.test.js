@@ -7,8 +7,8 @@ import Auth0TokenManager from './';
 import { hasAuth0CallbackParams } from '../utils/auth0';
 import {
   isValidTokenFormat,
-  markLocalUserNotProvisioned,
-  takeLocalUserLoginAttempt,
+  markManagedUserNotProvisioned,
+  takeManagedUserLoginAttempt,
 } from '../utils/auth';
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
 import useNavigate from '../hooks/useNavigate';
@@ -247,7 +247,7 @@ describe('Auth0TokenManager', () => {
 
     describe('local-user sign-in', () => {
       beforeEach(() => {
-        takeLocalUserLoginAttempt.mockReturnValue(false);
+        takeManagedUserLoginAttempt.mockReturnValue(false);
         checkAccountLinked.mockResolvedValue({
           result: GATE_RESULT.UNLINKED,
           linkUrl: 'https://site.example/auth/link-accounts/',
@@ -255,7 +255,7 @@ describe('Auth0TokenManager', () => {
       });
 
       test('an unlinked local user is signed out of Auth0 rather than sent to the account linker', async () => {
-        takeLocalUserLoginAttempt.mockReturnValue(true);
+        takeManagedUserLoginAttempt.mockReturnValue(true);
 
         renderAfterCallback();
 
@@ -264,7 +264,7 @@ describe('Auth0TokenManager', () => {
             logoutParams: { returnTo: `${window.location.origin}${REACT_APP_ROUTE_PREFIX}` },
           });
         });
-        expect(markLocalUserNotProvisioned).toHaveBeenCalled();
+        expect(markManagedUserNotProvisioned).toHaveBeenCalled();
         expect(clearAuth).toHaveBeenCalled();
         expect(redirectToExternalUrl).not.toHaveBeenCalled();
         expect(applyAccessToken).not.toHaveBeenCalled();
@@ -272,7 +272,7 @@ describe('Auth0TokenManager', () => {
       });
 
       test('a logout that fails still lands the user on the login page instead of a stuck overlay', async () => {
-        takeLocalUserLoginAttempt.mockReturnValue(true);
+        takeManagedUserLoginAttempt.mockReturnValue(true);
         mockLogout.mockRejectedValue(new Error('logout failed'));
 
         renderAfterCallback();
@@ -287,7 +287,7 @@ describe('Auth0TokenManager', () => {
       });
 
       test('a transient gate failure after a local-user attempt still names that path', async () => {
-        takeLocalUserLoginAttempt.mockReturnValue(true);
+        takeManagedUserLoginAttempt.mockReturnValue(true);
         checkAccountLinked.mockResolvedValue({ result: GATE_RESULT.TRANSIENT });
 
         renderAfterCallback();
@@ -301,7 +301,7 @@ describe('Auth0TokenManager', () => {
       });
 
       test('an unusable token after a local-user attempt still names that path', async () => {
-        takeLocalUserLoginAttempt.mockReturnValue(true);
+        takeManagedUserLoginAttempt.mockReturnValue(true);
         checkAccountLinked.mockResolvedValue({ result: GATE_RESULT.INVALID });
 
         renderAfterCallback();
@@ -315,9 +315,9 @@ describe('Auth0TokenManager', () => {
       });
 
       test('the flag is set before the logout that carries it home', async () => {
-        takeLocalUserLoginAttempt.mockReturnValue(true);
+        takeManagedUserLoginAttempt.mockReturnValue(true);
         const order = [];
-        markLocalUserNotProvisioned.mockImplementation(() => order.push('mark'));
+        markManagedUserNotProvisioned.mockImplementation(() => order.push('mark'));
         mockLogout.mockImplementation(() => {
           order.push('logout');
           return Promise.resolve();
@@ -338,7 +338,7 @@ describe('Auth0TokenManager', () => {
       });
 
       test('a linked local user authenticates without any linking hand-off', async () => {
-        takeLocalUserLoginAttempt.mockReturnValue(true);
+        takeManagedUserLoginAttempt.mockReturnValue(true);
         checkAccountLinked.mockResolvedValue({ result: GATE_RESULT.LINKED });
 
         renderAfterCallback();

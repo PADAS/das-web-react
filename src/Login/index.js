@@ -16,10 +16,10 @@ import { buildAuth0AuthorizationParams } from '../utils/auth0';
 import { clearAuth, postAuth } from '../ducks/auth';
 import { fetchEula } from '../ducks/eula';
 import {
-  markLocalUserLoginAttempt,
+  markManagedUserLoginAttempt,
   stripAuth0Params,
-  takeLocalUserLoginAttempt,
-  takeLocalUserNotProvisioned,
+  takeManagedUserLoginAttempt,
+  takeManagedUserNotProvisioned,
 } from '../utils/auth';
 import useNavigate from '../hooks/useNavigate';
 
@@ -77,7 +77,7 @@ const LoginPage = () => {
   }, [auth0LoginWithRedirect, idpOrgId]);
 
   const onLocalUserLogin = useCallback(async () => {
-    markLocalUserLoginAttempt();
+    markManagedUserLoginAttempt();
 
     try {
       await auth0LoginWithRedirect({
@@ -89,7 +89,7 @@ const LoginPage = () => {
       });
     } catch (_error) {
       // No redirect happened, so there is no attempt left to attribute.
-      takeLocalUserLoginAttempt();
+      takeManagedUserLoginAttempt();
       setAlert({ key: 'errorAlert.signInFailed' });
     }
   }, [auth0LoginWithRedirect, idpOrgId, siteSlug]);
@@ -165,19 +165,19 @@ const LoginPage = () => {
     const auth0Error = urlParams.get('error');
     const auth0ErrorDescription = urlParams.get('error_description');
     // Consumed on every visit, so a stale marker cannot mislabel a later failure.
-    const attemptedLocalUserLogin = takeLocalUserLoginAttempt();
+    const attemptedManagedUserLogin = takeManagedUserLoginAttempt();
 
     // Set before the logout redirect, which leaves the app and drops router state.
-    const localUserNotProvisioned = takeLocalUserNotProvisioned();
+    const managedUserNotProvisioned = takeManagedUserNotProvisioned();
 
     // Code alone: a description is optional in OAuth 2.0.
-    if (localUserNotProvisioned || auth0Error) {
+    if (managedUserNotProvisioned || auth0Error) {
       const alertForArrival = () => {
-        if (localUserNotProvisioned) {
+        if (managedUserNotProvisioned) {
           return { key: 'errorAlert.localUserNotProvisioned' };
         }
         // Auth0's error text is not a contract, so name the path, not the cause.
-        if (attemptedLocalUserLogin) {
+        if (attemptedManagedUserLogin) {
           return { key: 'errorAlert.localUserSignInFailed' };
         }
         if (auth0Error === 'access_denied') {

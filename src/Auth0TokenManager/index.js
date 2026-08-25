@@ -12,9 +12,9 @@ import {
   clearIntendedPostAuth0SuccessRoute,
   getIntendedPostAuth0SuccessRoute,
   isValidTokenFormat,
-  markLocalUserNotProvisioned,
+  markManagedUserNotProvisioned,
   stripAuth0Params,
-  takeLocalUserLoginAttempt,
+  takeManagedUserLoginAttempt,
 } from '../utils/auth';
 import { hasAuth0CallbackParams } from '../utils/auth0';
 import { redirectToExternalUrl } from '../utils/navigation';
@@ -47,8 +47,8 @@ const Auth0TokenManager = () => {
 
         // Read once per callback, before the try, so every failure below can name
         // the path the user was on.
-        const attemptedLocalUserLogin = takeLocalUserLoginAttempt();
-        const failedLoginOptions = attemptedLocalUserLogin
+        const attemptedManagedUserLogin = takeManagedUserLoginAttempt();
+        const failedLoginOptions = attemptedManagedUserLogin
           ? { replace: true, state: { localUserSignInFailed: true } }
           : { replace: true };
 
@@ -74,8 +74,8 @@ const Auth0TokenManager = () => {
               // so clearing only the local cache lets the next sign-in reuse this
               // unusable identity. Awaited so a failed redirect reaches the catch
               // rather than stranding the user on the callback URL.
-              if (attemptedLocalUserLogin) {
-                markLocalUserNotProvisioned();
+              if (attemptedManagedUserLogin) {
+                markManagedUserNotProvisioned();
                 dispatch(clearAuth());
                 await logout({
                   logoutParams: {
@@ -102,7 +102,7 @@ const Auth0TokenManager = () => {
             if (result === GATE_RESULT.TRANSIENT) {
               navigate(APP_ROUTES.LOGIN, {
                 replace: true,
-                state: attemptedLocalUserLogin
+                state: attemptedManagedUserLogin
                   ? { localUserSignInFailed: true }
                   : { authLinkingError: true },
               });
