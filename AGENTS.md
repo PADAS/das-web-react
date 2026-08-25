@@ -319,6 +319,7 @@ After making code changes:
 
 - Run `yarn lint`, and `yarn stylelint` if you touched SCSS. Fix every problem you introduced.
 - Run `yarn test <path-or-pattern>` over the areas you changed and make sure they pass.
+- If you changed anything under `public/locales/`, bump `I18N_FILES_VERSION` in `src/i18n.js`. The pull request workflow fails if you don't.
 - Check whether `AGENTS.md` needs updating to reflect the change and update it if so.
 
 #### File and Folder Layout
@@ -388,6 +389,7 @@ Function parameters follow the call's own logic, not the alphabet.
 - Read strings with `useTranslation('<namespace>', { keyPrefix: '<path>' })`, where the key prefix mirrors the component's position in the folder tree (`sideBar.settingsPane.mapTab.mainMapSettingsView.generalFieldSet`). Outside components, use `i18next.getFixedT(null, '<namespace>', '<keyPrefix>')`.
 - Key names describe the element and its role: `closeButtonLabel`, `resultsTableCaption`, `speedMenuOptionLabel`.
 - Every user-facing string, including `aria-label` and `title` text, goes through i18n and is added to **every** locale under `public/locales/`, properly translated — never copied from English.
+- Every change under `public/locales/` — added, renamed, or reworded keys — is paired with a bump of `I18N_FILES_VERSION` in `src/i18n.js`: once per pull request, to a value above the base branch's. Browsers cache each namespace under that version for a week, so an unbumped change renders raw keys for returning users.
 
 #### Comments
 
