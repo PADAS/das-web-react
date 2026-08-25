@@ -30,6 +30,51 @@ jobs:
       - name: Run tests
         run: yarn test-ci
 
+  i18n-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Require an i18n files version bump when locale files change
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          set -euo pipefail
+
+          # This reads two blobs, so fetch the base branch tip on its own
+          # rather than cloning all history to get origin/* populated.
+          git fetch --depth=1 origin "${BASE_REF}"
+          BASE_SHA=$(git rev-parse FETCH_HEAD)
+
+          if git diff --quiet "${BASE_SHA}" HEAD -- public/locales; then
+            echo "No locale file changes on this branch."
+            exit 0
+          fi
+
+          read_version() {
+            git show "$1:src/i18n.js" \
+              | sed -n "s/^const I18N_FILES_VERSION = '\(.*\)';$/\1/p"
+          }
+
+          BASE_VERSION=$(read_version "${BASE_SHA}") || BASE_VERSION=''
+          HEAD_VERSION=$(read_version HEAD) || HEAD_VERSION=''
+
+          if [ -z "${BASE_VERSION}" ] || [ -z "${HEAD_VERSION}" ]; then
+            echo "::error file=src/i18n.js::Could not read I18N_FILES_VERSION. Its declaration changed shape, so this check needs updating too."
+            exit 1
+          fi
+
+          OLDER=$(printf '%s\n%s\n' "${BASE_VERSION}" "${HEAD_VERSION}" | sort --version-sort | head -1)
+
+          if [ "${HEAD_VERSION}" = "${BASE_VERSION}" ] || [ "${OLDER}" != "${BASE_VERSION}" ]; then
+            echo "::error file=src/i18n.js::This branch changes public/locales but leaves I18N_FILES_VERSION at ${HEAD_VERSION}, while origin/${BASE_REF} is at ${BASE_VERSION}. Browsers cache each namespace under this version for seven days, so returning users would keep serving the stale bundle. Bump it above ${BASE_VERSION}."
+            exit 1
+          fi
+
+          echo "I18N_FILES_VERSION ${BASE_VERSION} -> ${HEAD_VERSION}."
+
   prepare:
     runs-on: ubuntu-latest
     outputs:
