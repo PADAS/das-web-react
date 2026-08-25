@@ -3,7 +3,7 @@
     "title": "Configurer EarthRanger Identity",
     "intro": "EarthRanger adopte une méthode de connexion plus simple et plus sécurisée, appelée EarthRanger Identity.",
     "signInPrompt": "Si vous disposez déjà d'EarthRanger Identity, sélectionnez Se connecter avec un e-mail ci-dessous.",
-    "localUserPrompt": "Si l'administrateur de votre site vous a attribué un nom d'utilisateur et un mot de passe valables uniquement sur ce site, sélectionnez Se connecter en tant qu'utilisateur local.",
+    "managedUserPrompt": "Si l'administrateur de votre site vous a attribué un nom d'utilisateur et un mot de passe valables uniquement sur ce site, sélectionnez Se connecter en tant qu'utilisateur géré.",
     "convertPrompt": "Vous utilisez EarthRanger Identity pour la première fois ? Vous devrez d'abord convertir votre compte existant à l'aide du nom d'utilisateur et du mot de passe que vous utilisez aujourd'hui.",
     "convertLink": "Convertir votre compte",
     "helpText": "Des questions ? Contactez l'administrateur de votre site."
@@ -14,8 +14,8 @@
     "authenticationFailed": "Authentification échouée : Veuillez vérifier vos identifiants et réessayer.",
     "authenticationError": "Erreur d'authentification : {{errorDescription}}",
     "invalidCredentialsMessage": "Identifiants fournis incorrectes. Veuillez réessayez.",
-    "localUserNotProvisioned": "Votre compte local n'est pas configuré sur ce site. Contactez l'administrateur de votre site.",
-    "localUserSignInFailed": "Nous n'avons pas pu vous connecter en tant qu'utilisateur local. La connexion locale n'est peut-être pas encore prête sur ce site. Réessayez dans quelques instants ou contactez l'administrateur de votre site.",
+    "managedUserNotProvisioned": "Votre compte géré n'est pas configuré sur ce site. Contactez l'administrateur de votre site.",
+    "managedUserSignInFailed": "Nous n'avons pas pu vous connecter en tant qu'utilisateur géré. La connexion pour les utilisateurs gérés n'est peut-être pas encore prête sur ce site. Réessayez dans quelques instants ou contactez l'administrateur de votre site.",
     "signInFailed": "Échec de la connexion. Veuillez réessayer.",
     "signInIncomplete": "Nous n'avons pas pu terminer votre connexion. Veuillez réessayer.",
     "unknownErrorMessage": "Une erreur s'est produite. Veuillez réessayez."
@@ -30,7 +30,7 @@
   "loginButtonEmail": "Se connecter avec un e-mail",
   "loginButtonIdp": "Se Connecter",
   "loginButtonLoadingLabel": "Chargement",
-  "loginButtonLocalUser": "Se connecter en tant qu'utilisateur local",
+  "loginButtonManagedUser": "Se connecter en tant qu'utilisateur géré",
   "passwordLabel": "Mot de passe",
   "title": "Connexion",
   "usernameLabel": "Nom d'utilisateur"

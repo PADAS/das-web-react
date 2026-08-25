@@ -46,8 +46,8 @@ const LoginPage = () => {
   // A key, not a translated string: the namespace may not have loaded yet, and a
   // stored string would never re-translate.
   const [alert, setAlert] = useState(() => {
-    if (location.state?.localUserSignInFailed) {
-      return { key: 'errorAlert.localUserSignInFailed' };
+    if (location.state?.managedUserSignInFailed) {
+      return { key: 'errorAlert.managedUserSignInFailed' };
     }
     return location.state?.authLinkingError ? { key: 'errorAlert.signInIncomplete' } : null;
   });
@@ -62,7 +62,7 @@ const LoginPage = () => {
 
   // No slug means no connection on the redirect, which would sign the user into the
   // common database. Org-scoped sites skip the gate that catches an unmapped one.
-  const canSignInAsLocalUser = !!systemConfig?.support_managed_users
+  const canSignInAsManagedUser = !!systemConfig?.support_managed_users
     && !!siteSlug
     && !idpOrgId;
 
@@ -76,7 +76,7 @@ const LoginPage = () => {
     }
   }, [auth0LoginWithRedirect, idpOrgId]);
 
-  const onLocalUserLogin = useCallback(async () => {
+  const onManagedUserLogin = useCallback(async () => {
     markManagedUserLoginAttempt();
 
     try {
@@ -174,11 +174,11 @@ const LoginPage = () => {
     if (managedUserNotProvisioned || auth0Error) {
       const alertForArrival = () => {
         if (managedUserNotProvisioned) {
-          return { key: 'errorAlert.localUserNotProvisioned' };
+          return { key: 'errorAlert.managedUserNotProvisioned' };
         }
         // Auth0's error text is not a contract, so name the path, not the cause.
         if (attemptedManagedUserLogin) {
-          return { key: 'errorAlert.localUserSignInFailed' };
+          return { key: 'errorAlert.managedUserSignInFailed' };
         }
         if (auth0Error === 'access_denied') {
           return auth0ErrorDescription?.includes('not part of the')
@@ -228,8 +228,8 @@ const LoginPage = () => {
         <p className={styles.infoBoxBody}>{t('auth0Info.intro')}</p>
         <p className={styles.infoBoxBody}>{t('auth0Info.signInPrompt')}</p>
 
-        {canSignInAsLocalUser && (
-          <p className={styles.infoBoxBody}>{t('auth0Info.localUserPrompt')}</p>
+        {canSignInAsManagedUser && (
+          <p className={styles.infoBoxBody}>{t('auth0Info.managedUserPrompt')}</p>
         )}
 
         <p className={styles.infoBoxBody}>{t('auth0Info.convertPrompt')}</p>
@@ -256,15 +256,15 @@ const LoginPage = () => {
             : t(idpOrgId ? 'loginButtonIdp' : 'loginButtonEmail')}
         </button>
 
-        {canSignInAsLocalUser && (
+        {canSignInAsManagedUser && (
           <button
             aria-busy={isAuth0Loading}
             className={`${styles.loginButton} ${styles.secondaryButton}`}
             disabled={isAuth0Loading}
-            onClick={onLocalUserLogin}
+            onClick={onManagedUserLogin}
             type="button"
           >
-            {t('loginButtonLocalUser')}
+            {t('loginButtonManagedUser')}
           </button>
         )}
       </div>
