@@ -90,7 +90,7 @@ describe('Ducks - System config', () => {
     });
   });
 
-  test('setSystemConfigFromSystemStatus forwards the site slug that names the local-user connection', async () => {
+  test('setSystemConfigFromSystemStatus forwards the site slug that names the managed-user connection', async () => {
     const dispatch = jest.fn();
 
     setSystemConfigFromSystemStatus({ site_name: 'Site name', site_slug: 'gdl-zoo' })(dispatch);
@@ -112,7 +112,7 @@ describe('Ducks - System config', () => {
     }));
   });
 
-  test('setSystemConfigFromSystemStatus forwards that the site supports local users', async () => {
+  test('setSystemConfigFromSystemStatus forwards that the site supports managed users', async () => {
     const dispatch = jest.fn();
 
     setSystemConfigFromSystemStatus({ site_name: 'Site name', support_managed_users: true })(dispatch);
@@ -123,7 +123,7 @@ describe('Ducks - System config', () => {
     }));
   });
 
-  test('setSystemConfigFromSystemStatus treats a server that does not send the flag as not supporting local users', async () => {
+  test('setSystemConfigFromSystemStatus treats a server that does not send the flag as not supporting managed users', async () => {
     const dispatch = jest.fn();
 
     setSystemConfigFromSystemStatus({ site_name: 'Site name' })(dispatch);

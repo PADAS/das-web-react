@@ -8,9 +8,9 @@ import appConfig from '../config';
 import { clearAuth, postAuth } from '../ducks/auth';
 import { fetchEula } from '../ducks/eula';
 import {
-  markLocalUserLoginAttempt,
-  markLocalUserNotProvisioned,
-  takeLocalUserLoginAttempt,
+  markManagedUserLoginAttempt,
+  markManagedUserNotProvisioned,
+  takeManagedUserLoginAttempt,
 } from '../utils/auth';
 import { mockStore } from '../__test-helpers/MockStore';
 import i18n from '../i18nForTests';
@@ -175,8 +175,8 @@ describe('Login', () => {
     });
   });
 
-  describe('local-user sign-in', () => {
-    const localUserSystemConfig = {
+  describe('managed-user sign-in', () => {
+    const managedUserSystemConfig = {
       require_idp: true,
       site_slug: 'gdl-zoo',
       support_managed_users: true,
@@ -190,28 +190,28 @@ describe('Login', () => {
       sessionStorage.clear();
     });
 
-    test('offers the local-user path when the site has local users and the server named its connection', () => {
+    test('offers the managed-user path when the site has managed users and the server named its connection', () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: localUserSystemConfig },
+        view: { systemConfig: managedUserSystemConfig },
       });
 
       renderLogin();
 
-      const localUser = screen.getByRole('button', { name: 'Sign in as a local user' });
-      expect(localUser).toBeVisible();
-      expect(localUser).toHaveAttribute('type', 'button');
-      expect(localUser).toBeEnabled();
+      const managedUser = screen.getByRole('button', { name: 'Sign in as a managed user' });
+      expect(managedUser).toBeVisible();
+      expect(managedUser).toHaveAttribute('type', 'button');
+      expect(managedUser).toBeEnabled();
       // Both classes, because every style rule for this button is written as a
       // modifier on .loginButton and reasons about the two co-occurring.
-      expect(localUser).toHaveClass(loginStyles.loginButton, loginStyles.secondaryButton);
+      expect(managedUser).toHaveClass(loginStyles.loginButton, loginStyles.secondaryButton);
       expect(screen.getByRole('button', { name: 'Sign in with email' })).toBeVisible();
     });
 
-    test('the email path never opts into the site database, even where local users exist', async () => {
+    test('the email path never opts into the site database, even where managed users exist', async () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: localUserSystemConfig },
+        view: { systemConfig: managedUserSystemConfig },
       });
       loginWithRedirect.mockResolvedValue(undefined);
 
@@ -224,57 +224,57 @@ describe('Login', () => {
       });
     });
 
-    test('hides the local-user path on a site without local users', () => {
+    test('hides the managed-user path on a site without managed users', () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: { ...localUserSystemConfig, support_managed_users: false } },
+        view: { systemConfig: { ...managedUserSystemConfig, support_managed_users: false } },
       });
 
       renderLogin();
 
-      expect(screen.queryByRole('button', { name: 'Sign in as a local user' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Sign in as a managed user' })).not.toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Sign in with email' })).toBeVisible();
     });
 
-    test('hides the local-user path when the server has not named the site connection', () => {
+    test('hides the managed-user path when the server has not named the site connection', () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: { ...localUserSystemConfig, site_slug: null } },
+        view: { systemConfig: { ...managedUserSystemConfig, site_slug: null } },
       });
 
       renderLogin();
 
-      expect(screen.queryByRole('button', { name: 'Sign in as a local user' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Sign in as a managed user' })).not.toBeInTheDocument();
     });
 
-    test('hides the local-user path on an org-scoped site, where the unmapped-user guard does not run', () => {
+    test('hides the managed-user path on an org-scoped site, where the unmapped-user guard does not run', () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: { ...localUserSystemConfig, idp_org_id: 'org_abc' } },
+        view: { systemConfig: { ...managedUserSystemConfig, idp_org_id: 'org_abc' } },
       });
 
       renderLogin();
 
-      expect(screen.queryByRole('button', { name: 'Sign in as a local user' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Sign in as a managed user' })).not.toBeInTheDocument();
     });
 
-    test('points at the local-user option from the migration guidance when it is offered', () => {
+    test('points at the managed-user option from the migration guidance when it is offered', () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: localUserSystemConfig },
+        view: { systemConfig: managedUserSystemConfig },
       });
 
       renderLogin();
 
       expect(screen.getByText(
-        'If your site admin gave you a username and password for this site only, select Sign in as a local user.'
+        'If your site admin gave you a username and password for this site only, select Sign in as a managed user.'
       )).toBeVisible();
     });
 
-    test('leaves the migration guidance alone on a site without local users', () => {
+    test('leaves the migration guidance alone on a site without managed users', () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: { ...localUserSystemConfig, support_managed_users: false } },
+        view: { systemConfig: { ...managedUserSystemConfig, support_managed_users: false } },
       });
 
       renderLogin();
@@ -282,28 +282,28 @@ describe('Login', () => {
       expect(screen.queryByText(/for this site only/)).not.toBeInTheDocument();
     });
 
-    test('hides the local-user path on a site that does not use Auth0', () => {
+    test('hides the managed-user path on a site that does not use Auth0', () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: { ...localUserSystemConfig, require_idp: false } },
+        view: { systemConfig: { ...managedUserSystemConfig, require_idp: false } },
       });
 
       renderLogin();
 
-      expect(screen.queryByRole('button', { name: 'Sign in as a local user' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Sign in as a managed user' })).not.toBeInTheDocument();
       expect(screen.getByLabelText('Username')).toBeVisible();
     });
 
-    test('redirects with the site connection so Auth0 uses the local-user database', async () => {
+    test('redirects with the site connection so Auth0 uses the managed-user database', async () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: localUserSystemConfig },
+        view: { systemConfig: managedUserSystemConfig },
       });
       loginWithRedirect.mockResolvedValue(undefined);
 
       renderLogin();
 
-      await userEvent.click(screen.getByRole('button', { name: 'Sign in as a local user' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Sign in as a managed user' }));
 
       expect(loginWithRedirect).toHaveBeenCalledWith({
         authorizationParams: {
@@ -316,104 +316,104 @@ describe('Login', () => {
     test('records the attempt so a failure returning from Auth0 can be attributed to this path', async () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: localUserSystemConfig },
+        view: { systemConfig: managedUserSystemConfig },
       });
       loginWithRedirect.mockResolvedValue(undefined);
 
       renderLogin();
 
-      await userEvent.click(screen.getByRole('button', { name: 'Sign in as a local user' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Sign in as a managed user' }));
 
-      expect(takeLocalUserLoginAttempt()).toBe(true);
+      expect(takeManagedUserLoginAttempt()).toBe(true);
     });
 
-    test('disables the local-user path while Auth0 is loading, keeping its label readable', () => {
+    test('disables the managed-user path while Auth0 is loading, keeping its label readable', () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: localUserSystemConfig },
+        view: { systemConfig: managedUserSystemConfig },
       });
       useAuth0.mockReturnValue({ loginWithRedirect, isLoading: true });
 
       renderLogin();
 
-      const localUser = screen.getByRole('button', { name: 'Sign in as a local user' });
-      expect(localUser).toBeDisabled();
-      expect(localUser).toHaveAttribute('aria-busy', 'true');
+      const managedUser = screen.getByRole('button', { name: 'Sign in as a managed user' });
+      expect(managedUser).toBeDisabled();
+      expect(managedUser).toHaveAttribute('aria-busy', 'true');
     });
 
-    test('shows a sign-in failure alert when the local-user redirect rejects', async () => {
+    test('shows a sign-in failure alert when the managed-user redirect rejects', async () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: localUserSystemConfig },
+        view: { systemConfig: managedUserSystemConfig },
       });
       loginWithRedirect.mockRejectedValue(new Error('nope'));
 
       renderLogin();
 
-      await userEvent.click(screen.getByRole('button', { name: 'Sign in as a local user' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Sign in as a managed user' }));
 
       await waitFor(() => {
         expect(screen.getByText('Sign-in failed. Please try again.')).toBeVisible();
       });
     });
 
-    test('explains a callback failure that followed a local-user attempt', () => {
+    test('explains a callback failure that followed a managed-user attempt', () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: localUserSystemConfig },
+        view: { systemConfig: managedUserSystemConfig },
       });
-      markLocalUserLoginAttempt();
+      markManagedUserLoginAttempt();
 
       renderLogin({
         initialEntries: ['/login?error=access_denied&error_description=Something+Auth0+said'],
       });
 
       const alert = screen.getByText(
-        'We couldn\'t sign you in as a local user. Local sign-in may not be ready on this site yet. Try again shortly, or contact your site admin.',
+        'We couldn\'t sign you in as a managed user. Managed user sign-in may not be ready on this site yet. Try again shortly, or contact your site admin.',
       );
       expect(alert).toBeVisible();
       expect(alert).toHaveAttribute('role', 'alert');
     });
 
-    test('clears the attempt marker when the local-user redirect fails, so a later failure is not misattributed', async () => {
+    test('clears the attempt marker when the managed-user redirect fails, so a later failure is not misattributed', async () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: localUserSystemConfig },
+        view: { systemConfig: managedUserSystemConfig },
       });
       loginWithRedirect.mockRejectedValue(new Error('nope'));
 
       renderLogin();
 
-      await userEvent.click(screen.getByRole('button', { name: 'Sign in as a local user' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Sign in as a managed user' }));
 
       await waitFor(() => {
         expect(screen.getByText('Sign-in failed. Please try again.')).toBeVisible();
       });
-      expect(takeLocalUserLoginAttempt()).toBe(false);
+      expect(takeManagedUserLoginAttempt()).toBe(false);
     });
 
-    test('keeps the local-user explanation, translated, when the language changes', async () => {
+    test('keeps the managed-user explanation, translated, when the language changes', async () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: localUserSystemConfig },
+        view: { systemConfig: managedUserSystemConfig },
       });
-      markLocalUserLoginAttempt();
+      markManagedUserLoginAttempt();
 
       renderLogin({
         initialEntries: ['/login?error=access_denied&error_description=Something+Auth0+said'],
       });
 
-      expect(screen.getByText(/We couldn't sign you in as a local user/)).toBeVisible();
+      expect(screen.getByText(/We couldn't sign you in as a managed user/)).toBeVisible();
 
       // Only en-US is bundled for tests, so register just the key under test.
       i18n.addResourceBundle('es', 'login', {
-        errorAlert: { localUserSignInFailed: 'FALLO DE USUARIO LOCAL' },
+        errorAlert: { managedUserSignInFailed: 'FALLO DE USUARIO GESTIONADO' },
       });
 
       try {
         await act(() => i18n.changeLanguage('es'));
 
-        expect(screen.getByText('FALLO DE USUARIO LOCAL')).toBeVisible();
+        expect(screen.getByText('FALLO DE USUARIO GESTIONADO')).toBeVisible();
       } finally {
         await act(() => i18n.changeLanguage('en-US'));
         i18n.removeResourceBundle('es', 'login');
@@ -423,15 +423,15 @@ describe('Login', () => {
     test('clears the Auth0 error from the URL so a reload cannot re-derive a different reason', async () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: localUserSystemConfig },
+        view: { systemConfig: managedUserSystemConfig },
       });
-      markLocalUserLoginAttempt();
+      markManagedUserLoginAttempt();
 
       renderLogin({
         initialEntries: ['/login?error=access_denied&error_description=Something+Auth0+said'],
       });
 
-      expect(screen.getByText(/We couldn't sign you in as a local user/)).toBeVisible();
+      expect(screen.getByText(/We couldn't sign you in as a managed user/)).toBeVisible();
 
       await waitFor(() => {
         expect(navigate).toHaveBeenCalledWith('/login', { replace: true, state: null });
@@ -441,9 +441,9 @@ describe('Login', () => {
     test('strips only the Auth0 params, leaving anything else in the URL', async () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: localUserSystemConfig },
+        view: { systemConfig: managedUserSystemConfig },
       });
-      markLocalUserLoginAttempt();
+      markManagedUserLoginAttempt();
 
       renderLogin({
         initialEntries: ['/login?error=access_denied&error_description=Nope&foo=bar'],
@@ -457,9 +457,9 @@ describe('Login', () => {
     test('spends the attempt marker on a visit with nothing to explain, so a later failure is not mislabeled', () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: localUserSystemConfig },
+        view: { systemConfig: managedUserSystemConfig },
       });
-      markLocalUserLoginAttempt();
+      markManagedUserLoginAttempt();
 
       const { unmount } = renderLogin();
       unmount();
@@ -473,40 +473,40 @@ describe('Login', () => {
       )).toBeVisible();
     });
 
-    test('explains an unprovisioned local account after the Auth0 logout brings the user back', () => {
+    test('explains an unprovisioned managed account after the Auth0 logout brings the user back', () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: localUserSystemConfig },
+        view: { systemConfig: managedUserSystemConfig },
       });
-      markLocalUserNotProvisioned();
+      markManagedUserNotProvisioned();
 
       renderLogin();
 
       const alert = screen.getByText(
-        'Your local account isn\'t set up on this site. Contact your site admin.'
+        'Your managed account isn\'t set up on this site. Contact your site admin.'
       );
       expect(alert).toBeVisible();
       expect(alert).toHaveAttribute('role', 'alert');
       expect(navigate).not.toHaveBeenCalled();
     });
 
-    test('names the local-user path when the token manager routes here after one', () => {
+    test('names the managed-user path when the token manager routes here after one', () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: localUserSystemConfig },
+        view: { systemConfig: managedUserSystemConfig },
       });
 
       renderLogin({
-        initialEntries: [{ pathname: '/login', state: { localUserSignInFailed: true } }],
+        initialEntries: [{ pathname: '/login', state: { managedUserSignInFailed: true } }],
       });
 
-      expect(screen.getByText(/We couldn't sign you in as a local user/)).toBeVisible();
+      expect(screen.getByText(/We couldn't sign you in as a managed user/)).toBeVisible();
     });
 
     test('keeps the incomplete-sign-in message for a linking error', () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: localUserSystemConfig },
+        view: { systemConfig: managedUserSystemConfig },
       });
 
       renderLogin({
@@ -518,22 +518,22 @@ describe('Login', () => {
       )).toBeVisible();
     });
 
-    test('attributes a local-user failure that arrives without a description', () => {
+    test('attributes a managed-user failure that arrives without a description', () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: localUserSystemConfig },
+        view: { systemConfig: managedUserSystemConfig },
       });
-      markLocalUserLoginAttempt();
+      markManagedUserLoginAttempt();
 
       renderLogin({ initialEntries: ['/login?error=access_denied'] });
 
-      expect(screen.getByText(/We couldn't sign you in as a local user/)).toBeVisible();
+      expect(screen.getByText(/We couldn't sign you in as a managed user/)).toBeVisible();
     });
 
     test('falls back to a generic message when Auth0 sends no description to quote', () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: localUserSystemConfig },
+        view: { systemConfig: managedUserSystemConfig },
       });
 
       renderLogin({ initialEntries: ['/login?error=invalid_request'] });
@@ -544,19 +544,19 @@ describe('Login', () => {
     test('strips the URL once, keeping the message and not repeating its mount work', async () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: localUserSystemConfig },
+        view: { systemConfig: managedUserSystemConfig },
       });
       // The real hook, so the strip actually changes the URL and the effect re-runs
       // — which a jest.fn() navigate can never exercise.
       useNavigate.mockImplementation(jest.requireActual('../hooks/useNavigate').default);
-      markLocalUserLoginAttempt();
+      markManagedUserLoginAttempt();
 
       renderLogin({
         initialEntries: ['/login?error=access_denied&error_description=Something+Auth0+said'],
       });
 
       await waitFor(() => {
-        expect(screen.getByText(/We couldn't sign you in as a local user/)).toBeVisible();
+        expect(screen.getByText(/We couldn't sign you in as a managed user/)).toBeVisible();
       });
       expect(screen.queryByText(/Access denied/)).not.toBeInTheDocument();
 
@@ -564,10 +564,10 @@ describe('Login', () => {
       expect(fetchEula).toHaveBeenCalledTimes(1);
     });
 
-    test('leaves a callback failure with no local-user attempt to the common-path message', () => {
+    test('leaves a callback failure with no managed-user attempt to the common-path message', () => {
       store = mockStore({
         data: { eula: { eula_url: '' } },
-        view: { systemConfig: localUserSystemConfig },
+        view: { systemConfig: managedUserSystemConfig },
       });
 
       renderLogin({

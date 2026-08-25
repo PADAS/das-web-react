@@ -42,46 +42,46 @@ export const setIntendedPostAuth0SuccessRoute = (route) => {
   }
 };
 
-const LOCAL_USER_LOGIN_ATTEMPT_KEY = 'er:local_user_login_attempt';
+const MANAGED_USER_LOGIN_ATTEMPT_KEY = 'er:managed_user_login_attempt';
 
 // Auth0 reports failures after a full redirect, by which point nothing on the page
 // says which button started the login. This is how the callback knows.
-export const markLocalUserLoginAttempt = () => {
+export const markManagedUserLoginAttempt = () => {
   try {
-    sessionStorage.setItem(LOCAL_USER_LOGIN_ATTEMPT_KEY, 'true');
+    sessionStorage.setItem(MANAGED_USER_LOGIN_ATTEMPT_KEY, 'true');
   } catch (_) {
     // Ignore errors
   }
 };
 
 // Reads and clears together — the marker describes one attempt.
-export const takeLocalUserLoginAttempt = () => {
+export const takeManagedUserLoginAttempt = () => {
   try {
-    const attempted = sessionStorage.getItem(LOCAL_USER_LOGIN_ATTEMPT_KEY) === 'true';
-    sessionStorage.removeItem(LOCAL_USER_LOGIN_ATTEMPT_KEY);
+    const attempted = sessionStorage.getItem(MANAGED_USER_LOGIN_ATTEMPT_KEY) === 'true';
+    sessionStorage.removeItem(MANAGED_USER_LOGIN_ATTEMPT_KEY);
     return attempted;
   } catch (_) {
     return false;
   }
 };
 
-const LOCAL_USER_NOT_PROVISIONED_KEY = 'er:local_user_not_provisioned';
+const MANAGED_USER_NOT_PROVISIONED_KEY = 'er:managed_user_not_provisioned';
 
-// Set when a local user has no ER account here. The logout redirect that follows
+// Set when a managed user has no ER account here. The logout redirect that follows
 // leaves the app, so the reason cannot ride router state.
-export const markLocalUserNotProvisioned = () => {
+export const markManagedUserNotProvisioned = () => {
   try {
-    sessionStorage.setItem(LOCAL_USER_NOT_PROVISIONED_KEY, 'true');
+    sessionStorage.setItem(MANAGED_USER_NOT_PROVISIONED_KEY, 'true');
   } catch (_) {
     // Ignore errors
   }
 };
 
 // Carries the message, not the protection: losing it costs an explanation.
-export const takeLocalUserNotProvisioned = () => {
+export const takeManagedUserNotProvisioned = () => {
   try {
-    const notProvisioned = sessionStorage.getItem(LOCAL_USER_NOT_PROVISIONED_KEY) === 'true';
-    sessionStorage.removeItem(LOCAL_USER_NOT_PROVISIONED_KEY);
+    const notProvisioned = sessionStorage.getItem(MANAGED_USER_NOT_PROVISIONED_KEY) === 'true';
+    sessionStorage.removeItem(MANAGED_USER_NOT_PROVISIONED_KEY);
     return notProvisioned;
   } catch (_) {
     return false;

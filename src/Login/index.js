@@ -16,10 +16,10 @@ import { buildAuth0AuthorizationParams } from '../utils/auth0';
 import { clearAuth, postAuth } from '../ducks/auth';
 import { fetchEula } from '../ducks/eula';
 import {
-  markLocalUserLoginAttempt,
+  markManagedUserLoginAttempt,
   stripAuth0Params,
-  takeLocalUserLoginAttempt,
-  takeLocalUserNotProvisioned,
+  takeManagedUserLoginAttempt,
+  takeManagedUserNotProvisioned,
 } from '../utils/auth';
 import useNavigate from '../hooks/useNavigate';
 
@@ -46,8 +46,8 @@ const LoginPage = () => {
   // A key, not a translated string: the namespace may not have loaded yet, and a
   // stored string would never re-translate.
   const [alert, setAlert] = useState(() => {
-    if (location.state?.localUserSignInFailed) {
-      return { key: 'errorAlert.localUserSignInFailed' };
+    if (location.state?.managedUserSignInFailed) {
+      return { key: 'errorAlert.managedUserSignInFailed' };
     }
     return location.state?.authLinkingError ? { key: 'errorAlert.signInIncomplete' } : null;
   });
@@ -62,7 +62,7 @@ const LoginPage = () => {
 
   // No slug means no connection on the redirect, which would sign the user into the
   // common database. Org-scoped sites skip the gate that catches an unmapped one.
-  const canSignInAsLocalUser = !!systemConfig?.support_managed_users
+  const canSignInAsManagedUser = !!systemConfig?.support_managed_users
     && !!siteSlug
     && !idpOrgId;
 
@@ -76,8 +76,8 @@ const LoginPage = () => {
     }
   }, [auth0LoginWithRedirect, idpOrgId]);
 
-  const onLocalUserLogin = useCallback(async () => {
-    markLocalUserLoginAttempt();
+  const onManagedUserLogin = useCallback(async () => {
+    markManagedUserLoginAttempt();
 
     try {
       await auth0LoginWithRedirect({
@@ -89,7 +89,7 @@ const LoginPage = () => {
       });
     } catch (_error) {
       // No redirect happened, so there is no attempt left to attribute.
-      takeLocalUserLoginAttempt();
+      takeManagedUserLoginAttempt();
       setAlert({ key: 'errorAlert.signInFailed' });
     }
   }, [auth0LoginWithRedirect, idpOrgId, siteSlug]);
@@ -165,20 +165,20 @@ const LoginPage = () => {
     const auth0Error = urlParams.get('error');
     const auth0ErrorDescription = urlParams.get('error_description');
     // Consumed on every visit, so a stale marker cannot mislabel a later failure.
-    const attemptedLocalUserLogin = takeLocalUserLoginAttempt();
+    const attemptedManagedUserLogin = takeManagedUserLoginAttempt();
 
     // Set before the logout redirect, which leaves the app and drops router state.
-    const localUserNotProvisioned = takeLocalUserNotProvisioned();
+    const managedUserNotProvisioned = takeManagedUserNotProvisioned();
 
     // Code alone: a description is optional in OAuth 2.0.
-    if (localUserNotProvisioned || auth0Error) {
+    if (managedUserNotProvisioned || auth0Error) {
       const alertForArrival = () => {
-        if (localUserNotProvisioned) {
-          return { key: 'errorAlert.localUserNotProvisioned' };
+        if (managedUserNotProvisioned) {
+          return { key: 'errorAlert.managedUserNotProvisioned' };
         }
         // Auth0's error text is not a contract, so name the path, not the cause.
-        if (attemptedLocalUserLogin) {
-          return { key: 'errorAlert.localUserSignInFailed' };
+        if (attemptedManagedUserLogin) {
+          return { key: 'errorAlert.managedUserSignInFailed' };
         }
         if (auth0Error === 'access_denied') {
           return auth0ErrorDescription?.includes('not part of the')
@@ -228,8 +228,8 @@ const LoginPage = () => {
         <p className={styles.infoBoxBody}>{t('auth0Info.intro')}</p>
         <p className={styles.infoBoxBody}>{t('auth0Info.signInPrompt')}</p>
 
-        {canSignInAsLocalUser && (
-          <p className={styles.infoBoxBody}>{t('auth0Info.localUserPrompt')}</p>
+        {canSignInAsManagedUser && (
+          <p className={styles.infoBoxBody}>{t('auth0Info.managedUserPrompt')}</p>
         )}
 
         <p className={styles.infoBoxBody}>{t('auth0Info.convertPrompt')}</p>
@@ -256,15 +256,15 @@ const LoginPage = () => {
             : t(idpOrgId ? 'loginButtonIdp' : 'loginButtonEmail')}
         </button>
 
-        {canSignInAsLocalUser && (
+        {canSignInAsManagedUser && (
           <button
             aria-busy={isAuth0Loading}
             className={`${styles.loginButton} ${styles.secondaryButton}`}
             disabled={isAuth0Loading}
-            onClick={onLocalUserLogin}
+            onClick={onManagedUserLogin}
             type="button"
           >
-            {t('loginButtonLocalUser')}
+            {t('loginButtonManagedUser')}
           </button>
         )}
       </div>
