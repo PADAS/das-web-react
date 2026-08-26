@@ -15,8 +15,8 @@ const buildPatrolStatusUpdate = (patrol, state) => {
     return buildPatrolEndUpdate(patrol);
 
   case PATROL_UI_STATES.ACTIVE: {
-    // A patrol that turns active on its own once its end time is cleared was already running, so
-    // reopening it is enough. One that lands anywhere else has yet to be started.
+    // A patrol that turns active on its own once its end time is cleared was
+    // already running, so reopening it is enough.
     const reopenUpdate = buildPatrolReopenUpdate(patrol);
 
     return calcPatrolState({ ...patrol, ...reopenUpdate }) === PATROL_UI_STATES.ACTIVE
