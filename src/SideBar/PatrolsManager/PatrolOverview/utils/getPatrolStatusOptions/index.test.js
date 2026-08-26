@@ -71,6 +71,19 @@ describe('SideBar - PatrolsManager - PatrolOverview - utils - getPatrolStatusOpt
     expect(getPatrolStatusOptions(cancelledPatrol, CANCELLED)).toEqual([CANCELLED, SCHEDULED]);
   });
 
+  test('offers nothing to a patrol that is over and has no leg to reopen', () => {
+    expect(getPatrolStatusOptions({ state: 'done', patrol_segments: [] }, DONE)).toEqual([DONE]);
+  });
+
+  test('offers nothing to a patrol that is over whose last leg never recorded a start', () => {
+    const endedPatrolWithoutStart = {
+      state: 'done',
+      patrol_segments: [{ time_range: { start_time: null, end_time: atOffset(-HOUR) } }],
+    };
+
+    expect(getPatrolStatusOptions(endedPatrolWithoutStart, DONE)).toEqual([DONE]);
+  });
+
   test('offers nothing to a patrol without a valid state', () => {
     expect(getPatrolStatusOptions({ ...startedPatrol, patrol_segments: [] }, INVALID)).toEqual([INVALID]);
   });

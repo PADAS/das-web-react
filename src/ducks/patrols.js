@@ -7,14 +7,14 @@ import globallyResettableReducer from '../reducers/global-resettable';
 export const PATROLS_API_URL = `${API_URL}activity/patrols/`;
 
 // actions
-const ADD_PATROL_NOTE_SUCCESS = 'ADD_PATROL_NOTE_SUCCESS';
+export const ADD_PATROL_NOTE_SUCCESS = 'ADD_PATROL_NOTE_SUCCESS';
 
-const CREATE_PATROL_SUCCESS = 'CREATE_PATROL_SUCCESS';
+export const CREATE_PATROL_SUCCESS = 'CREATE_PATROL_SUCCESS';
 
-const FETCH_PATROLS_FEED_SUCCESS = 'FETCH_PATROLS_FEED_SUCCESS';
+export const FETCH_PATROLS_FEED_SUCCESS = 'FETCH_PATROLS_FEED_SUCCESS';
 
-const UPDATE_PATROL_SUCCESS = 'UPDATE_PATROL_SUCCESS';
-const UPDATE_PATROL_ERROR = 'UPDATE_PATROL_ERROR';
+export const UPDATE_PATROL_SUCCESS = 'UPDATE_PATROL_SUCCESS';
+export const UPDATE_PATROL_ERROR = 'UPDATE_PATROL_ERROR';
 
 export const UPDATE_PATROL_STORE = 'UPDATE_PATROL_STORE';
 export const UPDATE_PATROL_TRACK_STATE = 'UPDATE_PATROL_TRACK_STATE';
@@ -31,14 +31,14 @@ export const DELETE_PATROL_BY_ID = 'DELETE_PATROL_BY_ID';
 // socket action creators
 
 const patrolFeedMembership = (patrolId, matchesCurrentFilter) => ({
-  type: matchesCurrentFilter ? ADD_PATROL_TO_FEED : REMOVE_PATROL_FROM_FEED,
   payload: patrolId,
+  type: matchesCurrentFilter ? ADD_PATROL_TO_FEED : REMOVE_PATROL_FROM_FEED,
 });
 
 export const socketCreatePatrol = ({ patrol_data, matches_current_filter }) => (dispatch) => {
   dispatch({
-    type: CREATE_PATROL_REALTIME,
     payload: patrol_data,
+    type: CREATE_PATROL_REALTIME,
   });
 
   dispatch(patrolFeedMembership(patrol_data.id, matches_current_filter));
@@ -46,34 +46,34 @@ export const socketCreatePatrol = ({ patrol_data, matches_current_filter }) => (
 
 export const socketUpdatePatrol = ({ patrol_data, matches_current_filter }) => (dispatch) => {
   dispatch({
-    type: UPDATE_PATROL_REALTIME,
     payload: patrol_data,
+    type: UPDATE_PATROL_REALTIME,
   });
 
   dispatch(patrolFeedMembership(patrol_data.id, matches_current_filter));
 };
 
 export const socketDeletePatrol = ({ patrol_id }) => ({
-  type: DELETE_PATROL_BY_ID,
   payload: patrol_id,
+  type: DELETE_PATROL_BY_ID,
 });
 
 // action creators
 export const updatePatrolStore = (patrols) => ({
-  type: UPDATE_PATROL_STORE,
   payload: patrols,
+  type: UPDATE_PATROL_STORE,
 });
 
 export const updatePatrolTrackState = (payload) => ({
-  type: UPDATE_PATROL_TRACK_STATE,
   payload,
+  type: UPDATE_PATROL_TRACK_STATE,
 });
 
 export const fetchPatrol = (id) => (dispatch) => axios.get(`${PATROLS_API_URL}${id}`)
   .then((response) => {
     dispatch({
-      type: UPDATE_PATROL_SUCCESS,
       payload: response.data.data,
+      type: UPDATE_PATROL_SUCCESS,
     });
 
     return response;
@@ -97,8 +97,8 @@ export const fetchPatrolsFeed = () => (dispatch) => {
       dispatch(updatePatrolStore(response.data.data));
 
       dispatch({
-        type: FETCH_PATROLS_FEED_SUCCESS,
         payload: response.data.data.results.map((patrol) => patrol.id),
+        type: FETCH_PATROLS_FEED_SUCCESS,
       });
     })
     .catch((error) => {
@@ -113,8 +113,8 @@ export const fetchPatrolsFeed = () => (dispatch) => {
 export const createPatrol = (patrol) => (dispatch) => axios.post(PATROLS_API_URL, patrol)
   .then((response) => {
     dispatch({
-      type: CREATE_PATROL_SUCCESS,
       payload: response.data.data,
+      type: CREATE_PATROL_SUCCESS,
     });
 
     return response;
@@ -123,16 +123,16 @@ export const createPatrol = (patrol) => (dispatch) => axios.post(PATROLS_API_URL
 export const updatePatrol = (patrol) => (dispatch) => axios.patch(`${PATROLS_API_URL}${patrol.id}`, patrol)
   .then((response) => {
     dispatch({
-      type: UPDATE_PATROL_SUCCESS,
       payload: response.data.data,
+      type: UPDATE_PATROL_SUCCESS,
     });
 
     return response;
   })
   .catch((error) => {
     dispatch({
-      type: UPDATE_PATROL_ERROR,
       payload: error,
+      type: UPDATE_PATROL_ERROR,
     });
 
     return Promise.reject(error);
@@ -142,8 +142,8 @@ export const addNoteToPatrol = (patrol_id, note) => (dispatch) =>
   axios.post(`${PATROLS_API_URL}${patrol_id}/notes/`, note)
     .then((response) => {
       dispatch({
-        type: ADD_PATROL_NOTE_SUCCESS,
         payload: response.data.data,
+        type: ADD_PATROL_NOTE_SUCCESS,
       });
 
       return response;
@@ -179,7 +179,7 @@ export const togglePatrolTrackState = (id) => (dispatch, getState) => {
 };
 
 // reducers
-const INITIAL_STORE_STATE = {};
+export const INITIAL_STORE_STATE = {};
 
 export const patrolStoreReducer = globallyResettableReducer((state, { type, payload }) => {
   if (type === UPDATE_PATROL_STORE) {
@@ -232,7 +232,7 @@ export const patrolsFeedReducer = globallyResettableReducer((state, { type, payl
   }
 }, INITIAL_PATROLS_FEED_STATE);
 
-const INITIAL_PATROL_TRACKS_STATE = {
+export const INITIAL_PATROL_TRACKS_STATE = {
   pinned: [],
   visible: [],
 };

@@ -7,11 +7,14 @@ import { ReactComponent as CheckIcon } from '../../../../../common/images/icons/
 
 import getPatrolStatusOptions from '../../utils/getPatrolStatusOptions';
 import { TrackerContext } from '../../../../../utils/analytics';
+import { usePatrolsPermissions } from '../../../../../hooks/usePermissions';
 
 import * as styles from './styles.module.scss';
 
 const StatusSelect = ({ isDirty, onSelect, patrol, patrolState, state }) => {
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolOverview.header' });
+
+  const { hasPatrolsUpdatePermission } = usePatrolsPermissions();
 
   const tracker = useContext(TrackerContext);
 
@@ -107,13 +110,13 @@ const StatusSelect = ({ isDirty, onSelect, patrol, patrolState, state }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMenuOpen]);
 
-  if (options.length < 2) {
+  if (!hasPatrolsUpdatePermission || options.length < 2) {
     return <span className={`${styles.statusPill} ${styles[state.key]}`}>{label}</span>;
   }
 
   return <>
     <button
-      aria-controls={menuId}
+      aria-controls={isMenuOpen ? menuId : undefined}
       aria-expanded={isMenuOpen}
       aria-haspopup="menu"
       aria-label={`${t(`uiStateTitles.${state.key}`)}, ${t('statusSelectLabel')}`}
@@ -126,17 +129,17 @@ const StatusSelect = ({ isDirty, onSelect, patrol, patrolState, state }) => {
       >
       {label}
 
-      <div aria-hidden="true" className={`${styles.caret} ${isMenuOpen ? styles.open : ''}`} />
+      <span aria-hidden="true" className={`${styles.caret} ${isMenuOpen ? styles.open : ''}`} />
     </button>
 
     <Overlay
-      onHide={() => setIsMenuOpen(false)}
+      onHide={closeMenu}
       placement="bottom-end"
       rootClose
       show={isMenuOpen}
       target={anchorEl}
       >
-      <Popover className={styles.menuPopover}>
+      <Popover className={styles.menuPopover} role="presentation">
         <ul
           aria-label={t('statusMenuLabel')}
           className={styles.menu}

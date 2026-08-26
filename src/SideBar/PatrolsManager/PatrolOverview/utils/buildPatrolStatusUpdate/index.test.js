@@ -61,6 +61,18 @@ describe('SideBar - PatrolsManager - PatrolOverview - utils - buildPatrolStatusU
       .toEqual({ start_time: lastLeg.time_range.start_time, end_time: null });
   });
 
+  test('starts a patrol whose start time is still ahead by restamping it, rather than only reopening it', () => {
+    const patrolStartingLater = {
+      state: 'open',
+      patrol_segments: [{ id: 'leg-1', time_range: { start_time: '2026-04-13T15:00:00.000Z', end_time: null } }],
+    };
+
+    const update = buildPatrolStatusUpdate(patrolStartingLater, PATROL_UI_STATES.ACTIVE);
+
+    expect(update.state).toBe('open');
+    expect(update.patrol_segments.at(-1).time_range).toEqual({ start_time: NOW, end_time: null });
+  });
+
   test.each([PATROL_UI_STATES.SCHEDULED, PATROL_UI_STATES.READY_TO_START, PATROL_UI_STATES.START_OVERDUE])(
     'reopens a cancelled patrol that never started, leaving it $key',
     (state) => {

@@ -67,7 +67,7 @@ const PatrolOverviewContent = ({ patrol }) => {
 
   const state = editedState ?? patrolState;
 
-  const isStateDirty = state !== patrolState;
+  const isStateDirty = editedState !== null;
 
   const patrolAttachments = useMemo(() => Array.isArray(patrol.files) ? patrol.files : [], [patrol]);
 
@@ -147,6 +147,10 @@ const PatrolOverviewContent = ({ patrol }) => {
 
     patrolOverviewTracker.track('Added Note');
   }, []);
+
+  const onChangeState = useCallback((pickedState) => {
+    setEditedState(pickedState === patrolState ? null : pickedState);
+  }, [patrolState]);
 
   const onChangeNote = useCallback((originalNote, event) => {
     if (originalNote.tmpId) {
@@ -263,6 +267,14 @@ const PatrolOverviewContent = ({ patrol }) => {
 
     const refetchPatrol = dispatch(fetchPatrol(patrol.id)).catch(() => {});
 
+    if (patrolUpdateResult.status === 'fulfilled') {
+      // The patrol update went through. Clear what it saved.
+      setEditedExistingNotes({});
+      setEditedState(null);
+      setEditedTitle(null);
+      setNewNotes((prevNewNotes) => prevNewNotes.filter((note) => !newNotesWithText.includes(note)));
+    }
+
     const failedRequest = [patrolUpdateResult, ...attachmentResults].find(({ status }) => status === 'rejected');
     if (!failedRequest) {
       patrolOverviewTracker.track('Saved patrol from patrol overview');
@@ -271,14 +283,6 @@ const PatrolOverviewContent = ({ patrol }) => {
     }
 
     await refetchPatrol;
-
-    if (patrolUpdateResult.status === 'fulfilled') {
-      // The patrol update was successful. Clear the notes that were saved.
-      setEditedTitle(null);
-      setEditedState(null);
-      setEditedExistingNotes({});
-      setNewNotes((prevNewNotes) => prevNewNotes.filter((note) => !newNotesWithText.includes(note)));
-    }
 
     // Remove the sucessfully uploaded attachments from the new attachments
     // list.
@@ -352,7 +356,7 @@ const PatrolOverviewContent = ({ patrol }) => {
       <Header
         isStateDirty={isStateDirty}
         isTitleDirty={isTitleDirty}
-        onChangeState={setEditedState}
+        onChangeState={onChangeState}
         onChangeTitle={setEditedTitle}
         patrol={patrol}
         patrolState={patrolState}
@@ -422,15 +426,16 @@ const PatrolOverview = () => {
 
   const patrol = useSelector((state) => state.data.patrolStore[patrolId]);
 
+  const fetchedPatrolIdRef = useRef(null);
+
   useEffect(() => {
-    if (patrolId && !patrol) {
-      dispatch(fetchPatrol(patrolId)).catch((error) => {
-        if (error?.response?.status === 404) {
-          navigate(`/${SIDEBAR_TAB_KEYS.PATROLS}`);
-        }
-      });
+    if (patrolId && fetchedPatrolIdRef.current !== patrolId) {
+      fetchedPatrolIdRef.current = patrolId;
+
+      dispatch(fetchPatrol(patrolId))
+        .catch(() => navigate(`/${SIDEBAR_TAB_KEYS.PATROLS}`, { replace: true }));
     }
-  }, [dispatch, navigate, patrol, patrolId]);
+  }, [dispatch, navigate, patrolId]);
 
   return patrol
     ? <PatrolOverviewContent patrol={patrol} />

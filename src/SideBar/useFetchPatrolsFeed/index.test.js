@@ -104,6 +104,21 @@ describe('SideBar - useFetchPatrolsFeed', () => {
     });
   });
 
+  test('keeps listing the patrols it has when a filter update leaves the filter unchanged', async () => {
+    store.data.patrolsFeed = [patrols[0].id];
+
+    const { rerender, result } = renderHook(() => useFetchPatrolsFeed(), { wrapper });
+
+    // A filter update that resolves to the same values still hands down a new filter object.
+    builtStore = mockStore({
+      ...store,
+      data: { ...store.data, patrolFilter: { ...INITIAL_PATROL_FILTER_STATE } },
+    });
+    rerender();
+
+    expect(result.current.loadingPatrolsFeed).toBe(false);
+  });
+
   test('fetches the patrols feed again if the patrol filter changes', async () => {
     const { rerender } = renderHook(() => useFetchPatrolsFeed(), { wrapper });
 

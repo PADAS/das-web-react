@@ -49,7 +49,8 @@ const usePatrolState = (patrol) => {
     // recheckCount re-arms the timeout at the next transition time.
     const nextTransitionTime = getNextPatrolStateTransitionTime(patrol);
     const delay = nextTransitionTime
-      // Add 1ms to ensure the timeout the transition settles.
+      // The extra millisecond keeps the timeout from firing before the
+      // transition time is past.
       ? nextTransitionTime.getTime() - Date.now() + 1
       : MAX_TIMEOUT_DELAY;
 

@@ -1,7 +1,10 @@
+import {
+  buildPatrolEndUpdate,
+  buildPatrolReopenUpdate,
+  buildPatrolStartUpdate,
+  calcPatrolState,
+} from '../../../../../utils/patrols';
 import { PATROL_API_STATES, PATROL_UI_STATES } from '../../../../../constants';
-
-import buildPatrolReopenUpdate from '../buildPatrolReopenUpdate';
-import withLastSegmentTimeRange from '../withLastSegmentTimeRange';
 
 const buildPatrolStatusUpdate = (patrol, state) => {
   switch (state) {
@@ -9,23 +12,17 @@ const buildPatrolStatusUpdate = (patrol, state) => {
     return { state: PATROL_API_STATES.CANCELLED };
 
   case PATROL_UI_STATES.DONE:
-    return {
-      state: PATROL_API_STATES.DONE,
-      patrol_segments: withLastSegmentTimeRange(patrol, { end_time: new Date().toISOString() }),
-    };
+    return buildPatrolEndUpdate(patrol);
 
-  case PATROL_UI_STATES.ACTIVE:
-    // A patrol that already has a start time is coming back from being ended, so reopening it is
-    // enough to make it active again.
-    return patrol.patrol_segments.at(-1)?.time_range?.start_time
-      ? buildPatrolReopenUpdate(patrol)
-      : {
-        state: PATROL_API_STATES.OPEN,
-        patrol_segments: withLastSegmentTimeRange(
-          patrol,
-          { start_time: new Date().toISOString(), end_time: null }
-        ),
-      };
+  case PATROL_UI_STATES.ACTIVE: {
+    // A patrol that turns active on its own once its end time is cleared was already running, so
+    // reopening it is enough. One that lands anywhere else has yet to be started.
+    const reopenUpdate = buildPatrolReopenUpdate(patrol);
+
+    return calcPatrolState({ ...patrol, ...reopenUpdate }) === PATROL_UI_STATES.ACTIVE
+      ? reopenUpdate
+      : buildPatrolStartUpdate(patrol);
+  }
 
   // TODO: Build the paused update once the API models paused patrols. Coming back from it has to
   // copy the paused leg, so neither side can be expressed as a time range change on the last leg.

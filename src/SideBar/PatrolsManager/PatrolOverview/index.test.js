@@ -11,7 +11,7 @@ import { mockStore } from '../../../__test-helpers/MockStore';
 import patrolTypes from '../../../__test-helpers/fixtures/patrol-types';
 import patrols from '../../../__test-helpers/fixtures/patrols';
 import { act, render, screen, waitFor } from '../../../test-utils';
-import { SYSTEM_CONFIG_FLAGS } from '../../../constants';
+import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../../constants';
 import * as trackUtils from '../../../utils/tracks';
 import { TRACK_LENGTH_ORIGINS } from '../../../ducks/tracks';
 import useNavigate from '../../../hooks/useNavigate';
@@ -79,6 +79,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
         patrolTypes,
         subjectStore: {},
         tracks: {},
+        user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.UPDATE] } },
       },
       view: {
         patrolTrackState: {
@@ -133,27 +134,22 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     });
   });
 
-  test('keeps waiting on the patrol when the fetch fails for any other reason', async () => {
+  test('sends the user back to the feed when the patrol fetch fails for any other reason', async () => {
     fetchPatrol.mockImplementation(() => () => Promise.reject(new Error('Network error')));
 
     renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true });
 
     await waitFor(() => {
-      expect(fetchPatrol).toHaveBeenCalled();
+      expect(screen.getByTestId('test-location')).toHaveTextContent('/patrols');
     });
-    // Lets the failed fetch settle, so a redirect would have happened by now.
-    await act(async () => {});
-
-    expect(screen.getByTestId('patrolOverview-loader')).toBeInTheDocument();
-    expect(screen.getByTestId('test-location')).toHaveTextContent(`/patrols/${patrolWithoutLeader.id}`);
   });
 
-  test('does not fetch the patrol if it is in the store', () => {
+  test('fetches the patrol even when the store already lists it, since the feed leaves out its detail', () => {
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
     renderPatrolOverview(patrolWithoutLeader.id);
 
-    expect(fetchPatrol).not.toHaveBeenCalled();
+    expect(fetchPatrol).toHaveBeenCalledWith(patrolWithoutLeader.id);
   });
 
   test('fetches the patrol leg tracks if necessary', () => {
@@ -1072,6 +1068,29 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
 
       expect(screen.getByRole('button', { name: 'Active, Change patrol status' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
+
+    test('does not turn picking the status the patrol is already in into a change when it later moves on', async () => {
+      const { rerender } = renderPatrolInStore(patrolWithLeader);
+
+      await selectStatus('Active');
+
+      store.data.patrolStore[patrolWithLeader.id] = { ...patrolWithLeader, state: 'done' };
+      rerenderWithStore(rerender);
+
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
+
+    test('still sends the picked status when the patrol reaches it on its own before saving', async () => {
+      const { rerender } = renderPatrolInStore(patrolWithLeader);
+
+      await selectStatus('Done');
+
+      store.data.patrolStore[patrolWithLeader.id] = { ...patrolWithLeader, state: 'done' };
+      rerenderWithStore(rerender);
+
+      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+      expect((await savedPayload()).state).toBe('done');
     });
 
     test('sends the status picked last when another one replaces it', async () => {

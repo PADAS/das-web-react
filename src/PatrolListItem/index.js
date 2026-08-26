@@ -48,7 +48,6 @@ const PatrolListItem = ({
 
     dateComponentDateString,
 
-
     onPatrolChange,
     restorePatrol,
     startPatrol,

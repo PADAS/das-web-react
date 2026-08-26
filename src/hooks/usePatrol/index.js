@@ -5,6 +5,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   actualEndTimeForPatrol,
   actualStartTimeForPatrol,
+  buildPatrolReopenUpdate,
+  buildPatrolStartUpdate,
   calcColorThemeForPatrolState,
   displayDurationForPatrol,
   displayStartTimeForPatrol,
@@ -20,7 +22,7 @@ import {
 } from '../../utils/patrols';
 
 import { selectPatrolTrackData } from '../../selectors/patrols';
-import { PATROL_API_STATES, PATROL_UI_STATES } from '../../constants';
+import { PATROL_UI_STATES } from '../../constants';
 import { updatePatrol } from '../../ducks/patrols';
 import usePatrolState from '../usePatrolState';
 
@@ -95,15 +97,12 @@ const usePatrol = (patrol) => {
   }, [dispatch, patrol]);
 
   const restorePatrol = useCallback(() => {
-    onPatrolChange({ state: PATROL_API_STATES.OPEN, patrol_segments: [{ time_range: { end_time: null } }] });
-  }, [onPatrolChange]);
+    onPatrolChange(buildPatrolReopenUpdate(patrol));
+  }, [onPatrolChange, patrol]);
 
   const startPatrol = useCallback(() => {
-    onPatrolChange({
-      state: PATROL_API_STATES.OPEN,
-      patrol_segments: [{ time_range: { start_time: new Date().toISOString(), end_time: null } }],
-    });
-  }, [onPatrolChange]);
+    onPatrolChange(buildPatrolStartUpdate(patrol));
+  }, [onPatrolChange, patrol]);
 
   return {
     patrolTrackData,

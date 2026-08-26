@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import cloneDeep from 'lodash/cloneDeep';
+import { useEffect, useRef, useState } from 'react';
+import isEqual from 'react-fast-compare';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { fetchPatrolsFeed } from '../../ducks/patrols';
@@ -10,14 +10,7 @@ const useFetchPatrolsFeed = () => {
   const patrolFilter = useSelector((state) => state.data.patrolFilter);
   const patrolsFeed = useSelector((state) => state.data.patrolsFeed);
 
-  const patrolFilterParams = useMemo(() => {
-    const filterParams = cloneDeep(patrolFilter);
-    delete filterParams.filter.overlap;
-
-    return filterParams;
-  }, [patrolFilter]);
-
-  const fetchedFilterParamsRef = useRef(patrolFilterParams);
+  const fetchedFilterRef = useRef(patrolFilter);
 
   const [loadingPatrolsFeed, setLoadingPatrolsFeed] = useState(!(patrolsFeed?.length > 0));
 
@@ -29,10 +22,10 @@ const useFetchPatrolsFeed = () => {
     // Mounting refreshes the feed behind whatever is already listed. A filter
     // change invalidates that list, so the feed waits for the new results
     // instead.
-    if (fetchedFilterParamsRef.current !== patrolFilterParams) {
+    if (!isEqual(fetchedFilterRef.current, patrolFilter)) {
       setLoadingPatrolsFeed(true);
     }
-    fetchedFilterParamsRef.current = patrolFilterParams;
+    fetchedFilterRef.current = patrolFilter;
 
     const patrolFetch = dispatch(fetchPatrolsFeed());
 
@@ -46,7 +39,7 @@ const useFetchPatrolsFeed = () => {
       patrolFetch.cancelToken.cancel();
       isLatestFetch = false;
     };
-  }, [dispatch, patrolFilterParams]);
+  }, [dispatch, patrolFilter]);
 
   return { loadingPatrolsFeed };
 };

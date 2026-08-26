@@ -1,7 +1,9 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { PATROL_UI_STATES } from '../../../../../constants';
+import { mockStore } from '../../../../../__test-helpers/MockStore';
+import { PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS } from '../../../../../constants';
 import { render, screen } from '../../../../../test-utils';
 import { TrackerContext } from '../../../../../utils/analytics';
 
@@ -19,6 +21,11 @@ const activePatrol = {
 
 const patrolWithoutLegs = { state: 'open', patrol_segments: [] };
 
+const storeWithPermissions = (patrolsPermissions) => ({
+  data: { user: { permissions: { [PERMISSION_KEYS.PATROLS]: patrolsPermissions } } },
+  view: {},
+});
+
 describe('SideBar - PatrolsManager - PatrolOverview - Header - StatusSelect', () => {
   let onSelect;
   let track;
@@ -28,17 +35,19 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header - StatusSelect', ()
     track = jest.fn();
   });
 
-  const renderStatusSelect = (props) => render(
-    <TrackerContext.Provider value={{ track }}>
-      <StatusSelect
-        isDirty={false}
-        onSelect={onSelect}
-        patrol={activePatrol}
-        patrolState={ACTIVE}
-        state={ACTIVE}
-        {...props}
-      />
-    </TrackerContext.Provider>
+  const renderStatusSelect = ({ store = storeWithPermissions([PERMISSIONS.UPDATE]), ...props } = {}) => render(
+    <Provider store={mockStore(store)}>
+      <TrackerContext.Provider value={{ track }}>
+        <StatusSelect
+          isDirty={false}
+          onSelect={onSelect}
+          patrol={activePatrol}
+          patrolState={ACTIVE}
+          state={ACTIVE}
+          {...props}
+        />
+      </TrackerContext.Provider>
+    </Provider>
   );
 
   const getToggle = () => screen.getByRole('button', { name: /Change patrol status/ });
@@ -196,13 +205,13 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header - StatusSelect', ()
 
   test('hides the menu and carries focus on to the next element when Tab is pressed', async () => {
     render(
-      <>
+      <Provider store={mockStore(storeWithPermissions([PERMISSIONS.UPDATE]))}>
         <TrackerContext.Provider value={{ track }}>
           <StatusSelect isDirty={false} onSelect={onSelect} patrol={activePatrol} patrolState={ACTIVE} state={ACTIVE} />
         </TrackerContext.Provider>
 
         <button type="button">Next</button>
-      </>
+      </Provider>
     );
 
     await openMenu();
@@ -282,5 +291,12 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header - StatusSelect', ()
 
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
     expect(screen.getByText('Invalid Configuration')).toBeInTheDocument();
+  });
+
+  test('shows a plain pill with no menu to a user without patrol update permission', () => {
+    renderStatusSelect({ store: storeWithPermissions([PERMISSIONS.READ]) });
+
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    expect(screen.getByText('Active')).toBeInTheDocument();
   });
 });

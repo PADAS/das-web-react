@@ -7,7 +7,9 @@ import { resetGlobalState } from '../reducers/global-resettable';
 import {
   ADD_PATROL_TO_FEED,
   CREATE_PATROL_REALTIME,
+  CREATE_PATROL_SUCCESS,
   DELETE_PATROL_BY_ID,
+  FETCH_PATROLS_FEED_SUCCESS,
   fetchPatrolsFeed,
   patrolsFeedReducer,
   patrolStoreReducer,
@@ -17,8 +19,10 @@ import {
   socketDeletePatrol,
   socketUpdatePatrol,
   updatePatrol,
+  UPDATE_PATROL_ERROR,
   UPDATE_PATROL_REALTIME,
   UPDATE_PATROL_STORE,
+  UPDATE_PATROL_SUCCESS,
 } from './patrols';
 
 const PATROL_A_ID = 'aaaaaaaa-0000-0000-0000-000000000001';
@@ -53,7 +57,7 @@ const dispatchAndGetActions = (action) => {
   return store.getActions();
 };
 
-describe('patrols duck', () => {
+describe('Ducks - Patrols', () => {
   describe('socketUpdatePatrol', () => {
     test('stores the new patrol data and puts it back in the feed when it matches again', () => {
       expect(dispatchAndGetActions(socketUpdatePatrol({ patrol_data: patrolA, matches_current_filter: true })))
@@ -117,7 +121,7 @@ describe('patrols duck', () => {
 
       expect(store.getActions()).toEqual([
         { type: UPDATE_PATROL_STORE, payload: feedResponse },
-        { type: 'FETCH_PATROLS_FEED_SUCCESS', payload: [PATROL_A_ID, PATROL_B_ID] },
+        { payload: [PATROL_A_ID, PATROL_B_ID], type: FETCH_PATROLS_FEED_SUCCESS },
       ]);
     });
 
@@ -155,7 +159,7 @@ describe('patrols duck', () => {
       const store = mockStore({ data: {}, view: {} });
       const response = await store.dispatch(updatePatrol({ id: PATROL_A_ID, state: 'done' }));
 
-      expect(store.getActions()).toEqual([{ type: 'UPDATE_PATROL_SUCCESS', payload: updatedPatrol }]);
+      expect(store.getActions()).toEqual([{ payload: updatedPatrol, type: UPDATE_PATROL_SUCCESS }]);
       expect(response.data.data).toEqual(updatedPatrol);
     });
 
@@ -165,7 +169,7 @@ describe('patrols duck', () => {
       const store = mockStore({ data: {}, view: {} });
 
       await expect(store.dispatch(updatePatrol({ id: PATROL_A_ID }))).rejects.toBeDefined();
-      expect(store.getActions()).toEqual([expect.objectContaining({ type: 'UPDATE_PATROL_ERROR' })]);
+      expect(store.getActions()).toEqual([expect.objectContaining({ type: UPDATE_PATROL_ERROR })]);
     });
   });
 
@@ -204,7 +208,7 @@ describe('patrols duck', () => {
     });
 
     test('stores a patrol created through the API', () => {
-      const state = patrolStoreReducer({}, { type: 'CREATE_PATROL_SUCCESS', payload: patrolA });
+      const state = patrolStoreReducer({}, { payload: patrolA, type: CREATE_PATROL_SUCCESS });
 
       expect(state[PATROL_A_ID]).toEqual(patrolA);
     });

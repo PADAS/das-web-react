@@ -559,6 +559,29 @@ export const canEndPatrol = (patrol) => {
   return patrolState === PATROL_UI_STATES.ACTIVE;
 };
 
+export const withLastSegmentTimeRange = (patrol, timeRange) => {
+  const lastSegmentIndex = patrol.patrol_segments.length - 1;
+
+  return patrol.patrol_segments.map((segment, index) => index === lastSegmentIndex
+    ? { ...segment, time_range: { ...segment.time_range, ...timeRange } }
+    : segment);
+};
+
+export const buildPatrolEndUpdate = (patrol) => ({
+  patrol_segments: withLastSegmentTimeRange(patrol, { end_time: new Date().toISOString() }),
+  state: PATROL_API_STATES.DONE,
+});
+
+export const buildPatrolReopenUpdate = (patrol) => ({
+  patrol_segments: withLastSegmentTimeRange(patrol, { end_time: null }),
+  state: PATROL_API_STATES.OPEN,
+});
+
+export const buildPatrolStartUpdate = (patrol) => ({
+  patrol_segments: withLastSegmentTimeRange(patrol, { end_time: null, start_time: new Date().toISOString() }),
+  state: PATROL_API_STATES.OPEN,
+});
+
 export const sortPatrolList = (patrols) => {
   const { READY_TO_START, SCHEDULED, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_UI_STATES;
 

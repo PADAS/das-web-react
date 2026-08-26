@@ -11,7 +11,7 @@ import { mockStore } from '../../../../__test-helpers/MockStore';
 import patrols from '../../../../__test-helpers/fixtures/patrols';
 import * as patrolSelectors from '../../../../selectors/patrols';
 import * as patrolUtils from '../../../../utils/patrols';
-import { PATROL_UI_STATES } from '../../../../constants';
+import { PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS } from '../../../../constants';
 import { render, screen, within } from '../../../../test-utils';
 import { TRACK_LENGTH_ORIGINS } from '../../../../ducks/tracks';
 import { TrackerContext } from '../../../../utils/analytics';
@@ -90,6 +90,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
         eventFilter: { filter: { date_range: { lower: '2020-01-01T06:00:00.000Z' } } },
         subjectStore: {},
         tracks: {},
+        user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.UPDATE] } },
       },
       view: {
         patrolTrackState: {
