@@ -1,9 +1,9 @@
 import React from 'react';
 import {
+  addHours,
   addMinutes,
   isToday,
   isThisYear,
-  isWithinInterval,
   formatDistance,
 } from 'date-fns';
 import { bbox, booleanEqual, featureCollection, point, multiLineString } from '@turf/turf';
@@ -29,6 +29,7 @@ import * as colorVariables from '../common/styles/vars/colors.module.scss';
 
 const DEFAULT_STROKE = '#FF0080';
 export const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
+export const READY_TO_START_WINDOW_HOURS = 1; // hours before its start a patrol counts as ready to start
 
 const PATROL_STATUS_THEME_COLOR_MAP = {
   [PATROL_UI_STATES.SCHEDULED.status]: {
@@ -42,6 +43,10 @@ const PATROL_STATUS_THEME_COLOR_MAP = {
   [PATROL_UI_STATES.ACTIVE.status]: {
     base: colorVariables.patrolActiveThemeColor,
     background: colorVariables.patrolActiveThemeBgColor,
+  },
+  [PATROL_UI_STATES.PAUSED.status]: {
+    base: colorVariables.patrolPausedThemeColor,
+    background: colorVariables.patrolPausedThemeBgColor,
   },
   [PATROL_UI_STATES.DONE.status]: {
     base: colorVariables.patrolDoneThemeColor,
@@ -539,14 +544,11 @@ export const calcPatrolState = (patrol) => {
     return ACTIVE;
   }
   if (isSegmentPending(segment)) {
-    const now = new Date();
-    const nextHour = now.setHours(now.getHours() + 1);
     const patrolStartDate = displayStartTimeForPatrol(patrol);
     if (patrolStartDate) {
-      const happensTheNextHour = isWithinInterval(patrolStartDate, now, nextHour);
-      const isPatrolInOverdueDelta = patrolStartDate.getTime() < now.getTime();
+      const readyToStartThreshold = addHours(new Date(), READY_TO_START_WINDOW_HOURS);
 
-      return happensTheNextHour || isPatrolInOverdueDelta ? READY_TO_START : SCHEDULED;
+      return patrolStartDate.getTime() < readyToStartThreshold.getTime() ? READY_TO_START : SCHEDULED;
     }
   }
   return INVALID;

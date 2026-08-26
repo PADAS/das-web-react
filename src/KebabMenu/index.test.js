@@ -131,23 +131,6 @@ describe('KebabMenu', () => {
     expect(toggle).toHaveFocus();
   });
 
-  test('does not let a parent Escape listener see the keypress used to close the menu', async () => {
-    const onParentKeyDown = jest.fn();
-
-    render(
-      <div onKeyDown={onParentKeyDown}>
-        <KebabMenu aria-label="Options menu" title="Options">{defaultOptions}</KebabMenu>
-      </div>
-    );
-
-    await openMenu();
-    await screen.findByRole('menu');
-
-    await userEvent.keyboard('{Escape}');
-
-    expect(onParentKeyDown).not.toHaveBeenCalled();
-  });
-
   test('hides the menu and refocuses the toggle button when clicking outside of it', async () => {
     renderKebabMenu();
 

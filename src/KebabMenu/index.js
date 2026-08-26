@@ -235,7 +235,6 @@ const KebabMenu = ({
     case 'Escape':
       if (show) {
         event.preventDefault();
-        event.stopPropagation();
 
         closeMenu();
       }

@@ -20,6 +20,7 @@
         "cancelled": "Annulée",
         "done": "Terminée",
         "invalid": "Configuration Invalide",
+        "paused": "En pause",
         "readyToStart": "Prête à Démarrer",
         "scheduled": "Planifiée",
         "startOverdue": "Démarrage en Retard"
@@ -63,13 +64,8 @@
       "addEventButton": "Ajouter un événement",
       "addEventButtonLabel": "Ajouter un événement",
       "addEventButtonText": "Événement",
-      "cancelOption": "Annuler la Patrouille",
-      "endOption": "Terminer la Patrouille",
-      "endPatrolButton": "Terminer la Patrouille",
-      "pauseOption": "Mettre la patrouille en pause",
       "saveButton": "Sauvegarder",
-      "saveButtonLoadingLabel": "Chargement",
-      "updateStatusButton": "Mettre à jour le statut"
+      "saveButtonLoadingLabel": "Chargement"
     },
     "header": {
       "breadcrumbNavLabel": "Navigation de la patrouille",
@@ -84,6 +80,8 @@
       "mobileProvenancePill": "Mobile",
       "moreOptionsButtonLabel": "Plus d'options",
       "printOption": "Imprimer la Patrouille",
+      "statusMenuLabel": "Actions sur le statut de la patrouille",
+      "statusSelectLabel": "Modifier le statut de la patrouille",
       "titleInputLabel": "Titre de la patrouille",
       "toggleTrackButtonLabel": {
         "hidden": "Afficher la piste de la patrouille",
@@ -95,6 +93,7 @@
         "cancelled": "Annulée",
         "done": "Terminée",
         "invalid": "Configuration Invalide",
+        "paused": "En pause",
         "readyToStart": "Prête à Démarrer",
         "scheduled": "Planifiée",
         "startOverdue": "Démarrage en Retard"
@@ -114,7 +113,6 @@
         "collapseAllButtonLabel": "Tout réduire",
         "emptyStateMessage": "L'activité de la patrouille apparaîtra ici",
         "expandAllButtonLabel": "Tout développer",
-        "jumpToLocationButtonLabel": "Aller à l'emplacement",
         "legTransitionTitle": "Étape {{endedLeg}} terminée, Étape {{startedLeg}} commencée",
         "patrolEndedTitle": "Patrouille terminée",
         "patrolStartedTitle": "Patrouille commencée",
@@ -122,7 +120,6 @@
           "down": "Trier l'activité par ordre croissant",
           "up": "Trier l'activité par ordre décroissant"
         },
-        "startPatrolButton": "Commencer la Patrouille",
         "summaryStats": {
           "activeTimeLabel": "Temps actif",
           "distanceLabel": "Distance",

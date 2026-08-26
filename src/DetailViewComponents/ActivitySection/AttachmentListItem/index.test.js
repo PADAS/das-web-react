@@ -87,6 +87,24 @@ describe('ActivitySection - AttachmentListItem', () => {
     expect(title).toHaveClass('itemTitle');
   });
 
+  test('italicizes the title of an attachment that is not saved yet', async () => {
+    renderWithWrapper(
+      <AttachmentListItem attachment={{ name: 'file.txt' }} onDelete={onDelete} />
+    );
+
+    const title = await screen.findByText('file.txt');
+
+    expect(title).toHaveClass('unsaved');
+  });
+
+  test('does not italicize the title of a saved attachment', async () => {
+    renderWithWrapper(
+      <AttachmentListItem attachment={{ filename: 'file.txt', id: '1234', url: '/file.txt' }} />
+    );
+
+    expect(await screen.findByText('file.txt')).not.toHaveClass('unsaved');
+  });
+
   test('shows the last update time if it is an existing attachment', async () => {
     renderWithWrapper(
       <AttachmentListItem

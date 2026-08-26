@@ -64,7 +64,6 @@ const minimumNecessaryStoreStructure = {
 let store = mockStore(minimumNecessaryStoreStructure);
 
 const onClick = jest.fn();
-const onPatrolSelfManagedStateChange = jest.fn();
 const map = createMapMock({ fitBounds: jest.fn() });
 
 jest.spyOn(trackUtils, 'fetchTracksIfNecessary').mockImplementation(() => Promise.resolve({}));
@@ -79,7 +78,6 @@ beforeEach(() => {
 
 const initialProps = {
   onClick,
-  onPatrolSelfManagedStateChange,
   patrol: testPatrol,
   showStateTitle: true,
   showTitleDetails: true,
@@ -87,12 +85,11 @@ const initialProps = {
   map
 };
 
-const getPatrolListItemComponent = ({ onClick, onPatrolSelfManagedStateChange, patrol, map, showStateTitle, showTitleDetails, ...otherProps }, storeObject = store) => (
+const getPatrolListItemComponent = ({ onClick, patrol, map, showStateTitle, showTitleDetails, ...otherProps }, storeObject = store) => (
   <Provider store={storeObject}>
     <MapContext.Provider value={map}>
       <PatrolListItem
               onClick={onClick}
-              onSelfManagedStateChange={onPatrolSelfManagedStateChange}
               patrol={patrol}
               map={map}
               showStateTitle={showStateTitle}
@@ -155,7 +152,7 @@ describe('the patrol list item', () => {
   test('showing the patrol\'s current state', async () => {
     const state = await screen.findByTestId(`patrol-list-item-state-title-${testPatrol.id}`);
 
-    expect(state).toHaveTextContent(PATROL_UI_STATES.ACTIVE.title);
+    expect(state).toHaveTextContent('Active');
   });
 
   test('showing a kebab menu for additional actions', async () => {
@@ -313,7 +310,7 @@ describe('for overdue patrols', () => {
   test('showing an overdue indicator', async () => {
     const stateIndicator = await screen.findByTestId(`patrol-list-item-state-title-${testPatrol.id}`);
 
-    expect(stateIndicator).toHaveTextContent(PATROL_UI_STATES.START_OVERDUE.title);
+    expect(stateIndicator).toHaveTextContent('Start Overdue');
   });
 });
 

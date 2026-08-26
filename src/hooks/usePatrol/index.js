@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import merge from 'lodash/merge';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -6,7 +6,6 @@ import {
   actualEndTimeForPatrol,
   actualStartTimeForPatrol,
   calcColorThemeForPatrolState,
-  calcPatrolState,
   displayDurationForPatrol,
   displayStartTimeForPatrol,
   displayTitleForPatrol,
@@ -23,6 +22,7 @@ import {
 import { selectPatrolTrackData } from '../../selectors/patrols';
 import { PATROL_API_STATES, PATROL_UI_STATES } from '../../constants';
 import { updatePatrol } from '../../ducks/patrols';
+import usePatrolState from '../usePatrolState';
 
 const usePatrol = (patrol) => {
   const dispatch = useDispatch();
@@ -31,7 +31,7 @@ const usePatrol = (patrol) => {
   const patrolTrackState = useSelector(state =>  state?.view?.patrolTrackState);
   const trackState = useSelector(state => state?.view?.subjectTrackState);
 
-  const [patrolState, setPatrolState] = useState(calcPatrolState(patrol));
+  const patrolState = usePatrolState(patrol);
 
   const isPatrolActive = patrolState === PATROL_UI_STATES.ACTIVE;
   const isPatrolCancelled = patrolState === PATROL_UI_STATES.CANCELLED;
@@ -86,10 +86,6 @@ const usePatrol = (patrol) => {
     patrolCancellationTime,
   ]);
 
-  useEffect(() => {
-    setPatrolState(calcPatrolState(patrol));
-  }, [patrol]);
-
   const onPatrolChange = useCallback((value) => {
     const merged = merge(patrol, value);
     const payload = { ...merged };
@@ -132,8 +128,6 @@ const usePatrol = (patrol) => {
     theme,
 
     dateComponentDateString,
-
-    setPatrolState,
 
     onPatrolChange,
     restorePatrol,

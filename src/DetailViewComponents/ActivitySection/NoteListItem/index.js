@@ -136,7 +136,7 @@ const NoteListItem = ({
 
       <div className={`${activitySectionStyles.itemDetails} ${showDeleteButton ? styles.deletableNoteDetails : ''}`}>
         <p
-          className={activitySectionStyles.itemTitle}
+          className={`${activitySectionStyles.itemTitle} ${isNew || !!note.isUnsaved ? activitySectionStyles.unsaved : ''}`}
           data-testid={`activitySection-noteTitle-${note.id || noteText}`}
         >
           {isNew ? t('noteTitle', { noteText }) : noteText}

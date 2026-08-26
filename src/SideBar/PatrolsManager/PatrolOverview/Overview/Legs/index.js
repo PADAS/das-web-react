@@ -14,8 +14,8 @@ import {
   getIsMobilePatrol,
 } from '../../../../../utils/patrols';
 import { format, STANDARD_DATE_FORMAT } from '../../../../../utils/datetime';
+import { PATROL_UI_STATES, TAB_KEYS } from '../../../../../constants';
 import { selectPatrolTrackData } from '../../../../../selectors/patrols';
-import { TAB_KEYS } from '../../../../../constants';
 import { TrackerContext } from '../../../../../utils/analytics';
 import useJumpToLocation from '../../../../../hooks/useJumpToLocation';
 import useNavigate from '../../../../../hooks/useNavigate';
@@ -28,7 +28,7 @@ const SIMPLIFIED_DATE_FORMAT = 'MM/dd/yyyy HH:mm';
 
 const formatLegDate = (date, dateFormat) => date ? format(date, dateFormat) : null;
 
-const Legs = ({ patrol }) => {
+const Legs = ({ patrol, patrolState }) => {
   const navigate = useNavigate();
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolOverview.overview.legs' });
 
@@ -39,7 +39,7 @@ const Legs = ({ patrol }) => {
   const patrolTrackData = useSelector((state) => selectPatrolTrackData(state, patrol));
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
-  const isMobilePatrol = getIsMobilePatrol(patrol);
+  const isActiveMobilePatrol = getIsMobilePatrol(patrol) && patrolState === PATROL_UI_STATES.ACTIVE;
 
   const legs = useMemo(() => patrol.patrol_segments.map((segment, index) => {
     const legTrackData = patrolTrackData.legsTrackData?.[index] ?? null;
@@ -80,7 +80,7 @@ const Legs = ({ patrol }) => {
   };
 
   return <>
-    <div className={`${styles.legTableWrapper} ${isMobilePatrol ? styles.withoutNewLegButton: ''}`}>
+    <div className={`${styles.legTableWrapper} ${isActiveMobilePatrol ? styles.withoutNewLegButton: ''}`}>
       <table className={styles.legTable}>
         <caption className="sr-only">{t('legTableCaption')}</caption>
 
@@ -159,7 +159,7 @@ const Legs = ({ patrol }) => {
       </table>
     </div>
 
-    {!isMobilePatrol && <Link
+    {!isActiveMobilePatrol && <Link
         className={styles.newLegButton}
         onClick={() => tracker.track('Click "add new leg" from patrol overview')}
         to={`/${TAB_KEYS.PATROLS}/${patrol.id}/legs/new`}

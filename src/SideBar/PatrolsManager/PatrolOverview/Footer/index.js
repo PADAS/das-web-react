@@ -1,11 +1,8 @@
 import React, { memo } from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
 import MoonLoader from 'react-spinners/MoonLoader';
-import noop from 'lodash/noop';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as DocumentIcon } from '../../../../common/images/icons/document.svg';
-import { ReactComponent as StopIcon } from '../../../../common/images/icons/stop.svg';
 
 import { PATROL_OVERVIEW_CATEGORY } from '../../../../utils/analytics';
 
@@ -23,7 +20,6 @@ const Footer = ({
   addEventFormProps,
   disableAddNoteButton,
   disableSaveButton,
-  isMobilePatrol,
   isSaving,
   onAddAttachments,
   onAddNote,
@@ -52,26 +48,6 @@ const Footer = ({
     </div>
 
     <div className={styles.rightActions}>
-      {isMobilePatrol
-        ? <button className={styles.endPatrolButton} onClick={noop} type="button">
-          <StopIcon aria-hidden="true" />
-
-          {t('endPatrolButton')}
-        </button>
-        : <Dropdown>
-          <Dropdown.Toggle className={styles.updateStatusButton} variant="secondary">
-            {t('updateStatusButton')}
-          </Dropdown.Toggle>
-
-          <Dropdown.Menu>
-            <Dropdown.Item onClick={noop}>{t('pauseOption')}</Dropdown.Item>
-
-            <Dropdown.Item onClick={noop}>{t('cancelOption')}</Dropdown.Item>
-
-            <Dropdown.Item onClick={noop}>{t('endOption')}</Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>}
-
       <button
         aria-busy={isSaving}
         aria-label={isSaving ? t('saveButtonLoadingLabel') : undefined}

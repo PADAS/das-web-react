@@ -163,6 +163,10 @@ $cardExpansionTransitionTime: 300ms;
           flex: 1;
           width: auto;
         }
+
+        &.unsaved {
+          font-style: italic;
+        }
       }
 
       .itemDate {

@@ -1,7 +1,6 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import Button from 'react-bootstrap/Button';
 
-import { calcPatrolState } from '../utils/patrols';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { PATROL_LIST_ITEM_CATEGORY, trackEventFactory } from '../utils/analytics';
 import usePatrol from '../hooks/usePatrol';
@@ -17,14 +16,12 @@ import { useTranslation } from 'react-i18next';
 
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
-const STATE_CHANGE_POLLING_INTERVAL = 3000;
 const TRACK_FETCH_DEBOUNCE_DELAY = 150;
 
 const PatrolListItem = ({
   className,
   dispatch: _dispatch,
   onClick = null,
-  onSelfManagedStateChange,
   patrol,
   ref,
   showControls = true,
@@ -51,7 +48,6 @@ const PatrolListItem = ({
 
     dateComponentDateString,
 
-    setPatrolState,
 
     onPatrolChange,
     restorePatrol,
@@ -61,7 +57,6 @@ const PatrolListItem = ({
   const { leader } = patrolTrackData;
 
   const debouncedTrackFetch = useRef(null);
-  const intervalRef = useRef(null);
   const { t } = useTranslation('patrols');
   const isPatrolActiveOrDone = isPatrolActive || isPatrolDone;
 
@@ -152,18 +147,6 @@ const PatrolListItem = ({
       return () => window.clearTimeout(debouncedTrackFetch.current);
     }
   }, [actualEndTime, actualStartTime, leader]);
-
-  useEffect(() => {
-    intervalRef.current = window.setInterval(() => {
-      const currentState = calcPatrolState(patrol);
-      if (currentState !== patrolState) {
-        setPatrolState(currentState);
-        onSelfManagedStateChange && onSelfManagedStateChange(patrol);
-      }
-    }, STATE_CHANGE_POLLING_INTERVAL);
-
-    return () => window.clearInterval(intervalRef.current);
-  }, [onSelfManagedStateChange, patrol, patrolState, setPatrolState]);
 
   const renderedControlsComponent = showControls
     ? <div className={styles.controls}>

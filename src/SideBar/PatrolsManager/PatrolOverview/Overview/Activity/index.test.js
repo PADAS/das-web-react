@@ -49,7 +49,6 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Activity', () =
     renderActivity(patrols[0]);
 
     expect(screen.getByText('Patrol activity will appear here')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Start Patrol' })).toBeInTheDocument();
   });
 
   test('does not show the empty state when the patrol has activity', () => {
@@ -202,11 +201,4 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Activity', () =
     expect(screen.queryByText('Patrol activity will appear here')).not.toBeInTheDocument();
   });
 
-  test('does not trigger the start patrol action yet', async () => {
-    renderActivity(patrols[0]);
-
-    await userEvent.click(screen.getByRole('button', { name: 'Start Patrol' }));
-
-    expect(screen.getByRole('button', { name: 'Start Patrol' })).toBeInTheDocument();
-  });
 });

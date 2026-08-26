@@ -81,6 +81,23 @@ describe('Patrols utils', () => {
       expect(calcPatrolState(readyToStartPatrol)).toBe(READY_TO_START);
     });
 
+    const patrolStartingIn = (minutes) => ({
+      ...scheduledPatrol,
+      patrol_segments: [{
+        ...scheduledPatrol.patrol_segments[0],
+        scheduled_start: addMinutes(new Date(), minutes).toISOString(),
+        time_range: { start_time: null, end_time: null },
+      }],
+    });
+
+    test('returns ready to start for a patrol starting within the ready to start window', () => {
+      expect(calcPatrolState(patrolStartingIn(59))).toBe(READY_TO_START);
+    });
+
+    test('returns scheduled for a patrol starting past the ready to start window', () => {
+      expect(calcPatrolState(patrolStartingIn(61))).toBe(SCHEDULED);
+    });
+
     test('returns ready to start for patrols with scheduled start in the past, before overdue delta', () => {
       const now = new Date();
       readyToStartPatrol.patrol_segments[0].scheduled_start = addMinutes(now, DELTA_FOR_OVERDUE - 1);

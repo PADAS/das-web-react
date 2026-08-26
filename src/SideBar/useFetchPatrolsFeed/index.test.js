@@ -66,14 +66,14 @@ describe('SideBar - useFetchPatrolsFeed', () => {
     await waitFor(() => {
       const actions = builtStore.getActions();
       expect(actions).toHaveLength(2);
-      expect(actions[0].type).toBe('FETCH_PATROLS_FEED_SUCCESS');
-      expect(actions[1].type).toBe('UPDATE_PATROL_STORE');
+      expect(actions[0].type).toBe('UPDATE_PATROL_STORE');
+      expect(actions[1].type).toBe('FETCH_PATROLS_FEED_SUCCESS');
     });
 
     expect(result.current.loadingPatrolsFeed).toBe(false);
   });
 
-  test('does not fetch the patrols feed if the store is already populated', async () => {
+  test('refreshes the feed behind the patrols it already lists, without a loading state', async () => {
     store.data.patrolsFeed = [patrols[0].id];
 
     const { result } = renderHook(() => useFetchPatrolsFeed(), { wrapper });
@@ -81,7 +81,26 @@ describe('SideBar - useFetchPatrolsFeed', () => {
     expect(result.current.loadingPatrolsFeed).toBe(false);
 
     await waitFor(() => {
-      expect(builtStore.getActions()).toHaveLength(0);
+      expect(builtStore.getActions()).toContainEqual(
+        expect.objectContaining({ type: 'FETCH_PATROLS_FEED_SUCCESS' })
+      );
+    });
+
+    expect(result.current.loadingPatrolsFeed).toBe(false);
+  });
+
+  test('waits for the new results when the patrol filter changes', async () => {
+    store.data.patrolsFeed = [patrols[0].id];
+
+    const { rerender, result } = renderHook(() => useFetchPatrolsFeed(), { wrapper });
+
+    changePatrolFilterText('lion');
+    rerender();
+
+    expect(result.current.loadingPatrolsFeed).toBe(true);
+
+    await waitFor(() => {
+      expect(result.current.loadingPatrolsFeed).toBe(false);
     });
   });
 
