@@ -4526,12 +4526,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/user-event@npm:^14.6.5":
-  version: 14.6.5
-  resolution: "@testing-library/user-event@npm:14.6.5"
+"@testing-library/user-event@npm:^14.6.6":
+  version: 14.6.6
+  resolution: "@testing-library/user-event@npm:14.6.6"
   peerDependencies:
     "@testing-library/dom": ">=7.21.4"
-  checksum: 10c0/874ad9548fb286bf1b42d9bdc7080b5b9e82cf975608b5e082cc5bbb506816291b6117305477c0a30670914279c2b35039cd07e7559ee993c5f5211722a95660
+  checksum: 10c0/2cb82d3a364a2a29da19bb5d2a614aedaa474ac6f599a42fc28c1926056f7b91f5cec37b33452bafcb3f6b37a950024da289dea88ead3c2056c6005c91c7f942
   languageName: node
   linkType: hard
 
@@ -8003,7 +8003,7 @@ __metadata:
     "@testing-library/dom": "npm:^10.4.1"
     "@testing-library/jest-dom": "npm:^7.0.1"
     "@testing-library/react": "npm:^16.3.2"
-    "@testing-library/user-event": "npm:^14.6.5"
+    "@testing-library/user-event": "npm:^14.6.6"
     "@turf/buffer": "npm:^7.4.0"
     "@turf/turf": "npm:^7.4.0"
     "@vitejs/plugin-react": "npm:^6.1.0"
@@ -8019,9 +8019,9 @@ __metadata:
     dompurify: "npm:^3.4.14"
     dotenv: "npm:^17.4.2"
     epsg-index: "npm:^2.0.0"
-    eslint: "npm:^10.8.1"
+    eslint: "npm:^10.9.1"
     eslint-config-airbnb: "npm:^19.0.4"
-    eslint-plugin-jest: "npm:^29.16.1"
+    eslint-plugin-jest: "npm:^29.16.2"
     eslint-plugin-react: "npm:^7.37.5"
     eslint-plugin-react-hooks: "npm:^7.1.1"
     geodesy: "npm:^2.4.0"
@@ -8071,9 +8071,9 @@ __metadata:
     redux-persist: "npm:^5.10.0"
     redux-promise: "npm:^0.6.0"
     redux-thunk: "npm:^3.1.0"
-    reselect: "npm:^5.2.0"
+    reselect: "npm:^5.3.0"
     resize-observer-polyfill: "npm:^1.5.1"
-    sass: "npm:^1.103.0"
+    sass: "npm:^1.103.1"
     socket.io-client: "npm:^4.8.3"
     socket.io-mock: "npm:^1.3.2"
     stylelint: "npm:^17.14.1"
@@ -8085,7 +8085,7 @@ __metadata:
     uuid: "npm:^14.0.2"
     vite: "npm:^8.2.2"
     vite-plugin-svgr: "npm:^5.2.0"
-    web-vitals: "npm:^6.1.1"
+    web-vitals: "npm:^6.2.0"
     workbox-build: "npm:^7.4.1"
   languageName: unknown
   linkType: soft
@@ -8696,9 +8696,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jest@npm:^29.16.1":
-  version: 29.16.1
-  resolution: "eslint-plugin-jest@npm:29.16.1"
+"eslint-plugin-jest@npm:^29.16.2":
+  version: 29.16.2
+  resolution: "eslint-plugin-jest@npm:29.16.2"
   dependencies:
     "@typescript-eslint/utils": "npm:^8.0.0"
   peerDependencies:
@@ -8713,7 +8713,7 @@ __metadata:
       optional: true
     typescript:
       optional: true
-  checksum: 10c0/6aca236a8db9e9e736322f991ad6f33d776b9fabd9c3ddb1bb24515191a4438b2908ec88c5768dcfbb2323f48e6105fab91ee41d35574fa0bdd7631d53986506
+  checksum: 10c0/63ea90ef291ea3b742ba2b63bd468a096841e8b02b6b65cf86b4b552a2a3ac80251676c7c6d3d5d218d312483540b6690c8948726884310fafc146c1b0fb8046
   languageName: node
   linkType: hard
 
@@ -8786,9 +8786,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^10.8.1":
-  version: 10.8.1
-  resolution: "eslint@npm:10.8.1"
+"eslint@npm:^10.9.1":
+  version: 10.9.1
+  resolution: "eslint@npm:10.9.1"
   dependencies:
     "@eslint-community/eslint-utils": "npm:^4.8.0"
     "@eslint-community/regexpp": "npm:^4.12.2"
@@ -8827,7 +8827,7 @@ __metadata:
       optional: true
   bin:
     eslint: bin/eslint.js
-  checksum: 10c0/0c4720a43ef2052829db18e37aa79adb5f0a62137bdf4a4f8e9507bbbbf888ba0669fc03e4b7139d8f27b59b051bbbcd0a3988b068c30fa934a766d60a81f599
+  checksum: 10c0/11cfd118dced911d506dc752086a641b45c95996af1f7b2a1914f992bbcdca78bb56cd4dd281595c7a792e1562a49047aa65ce763e3ed809cbde84fe4a08924f
   languageName: node
   linkType: hard
 
@@ -12961,10 +12961,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"reselect@npm:^5.2.0":
-  version: 5.2.0
-  resolution: "reselect@npm:5.2.0"
-  checksum: 10c0/d0a8497e404b25a769fe792eacae88b9b576c30870450cd243d76ec9427d91a59c4a2cc00d824d283448b444c4c698a8f961d771c8ae39c759313afb31950e2e
+"reselect@npm:^5.3.0":
+  version: 5.3.0
+  resolution: "reselect@npm:5.3.0"
+  checksum: 10c0/c79728e4f315152bfb2d82456d35075b705392d9e72c485d7d9b1061bd80af628416216d80f02a42f24dbb24d738aec7fec45806930aaa1d17c32e9875fa1bd6
   languageName: node
   linkType: hard
 
@@ -13305,9 +13305,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass@npm:^1.103.0":
-  version: 1.103.0
-  resolution: "sass@npm:1.103.0"
+"sass@npm:^1.103.1":
+  version: 1.103.1
+  resolution: "sass@npm:1.103.1"
   dependencies:
     "@parcel/watcher": "npm:^2.4.1"
     chokidar: "npm:^5.0.0"
@@ -13318,7 +13318,7 @@ __metadata:
       optional: true
   bin:
     sass: sass.js
-  checksum: 10c0/5d335ea249a564950fc138ecd97eb0ef0748d31b2dc3746287290fc3fa6afb4652c6a93f5acd87d02482dbb08988082873eff2ae07b26ddaae2f9f51428e4a41
+  checksum: 10c0/8c786a201d9484e9968784d672372fabb342f3b4d1c4629ffdcfba92e4f2c00e659f4e32244c870850f7c2d254ce773da3fc1ec40b4282ccd113c0c086fa36bd
   languageName: node
   linkType: hard
 
@@ -14746,10 +14746,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"web-vitals@npm:^6.1.1":
-  version: 6.1.1
-  resolution: "web-vitals@npm:6.1.1"
-  checksum: 10c0/46a65d39d7c73bc06f90b7a6b6ab20a72f1635294ed81a6e0d3bfa32557012005f7abf319bdd128e5bde5185b3e2c9121f7c62d51aebf97d730a56042296bace
+"web-vitals@npm:^6.2.0":
+  version: 6.2.0
+  resolution: "web-vitals@npm:6.2.0"
+  checksum: 10c0/b628d25494c18e4500d6ee01c9dff3dec0156f240fca2771c17789f29092fe1b5a81b2364a08f35e77532148894bc8eec53933012c747b29bdb33daa9b5d0423
   languageName: node
   linkType: hard
 
