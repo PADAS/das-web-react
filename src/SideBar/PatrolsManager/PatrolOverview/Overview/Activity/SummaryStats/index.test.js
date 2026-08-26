@@ -2,7 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { act, render, screen, waitFor } from '../../../../../../test-utils';
+import { act, createEvent, fireEvent, render, screen, waitFor } from '../../../../../../test-utils';
 import { mockStore } from '../../../../../../__test-helpers/MockStore';
 import { TrackerContext } from '../../../../../../utils/analytics';
 
@@ -448,9 +448,12 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Activity - Summ
       expect(distanceSubjectButton).toHaveFocus();
     });
 
-    test('closes the menu and gives the focus back to its button with the tab key', async () => {
-      await user.keyboard('{Tab}');
+    test('closes the menu with the tab key, giving the focus back to its button without trapping it', async () => {
+      const tabKeyDown = createEvent.keyDown(screen.getByRole('menu'), { key: 'Tab' });
 
+      fireEvent(screen.getByRole('menu'), tabKeyDown);
+
+      expect(tabKeyDown.defaultPrevented).toBe(false);
       await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
       expect(distanceSubjectButton).toHaveFocus();
     });

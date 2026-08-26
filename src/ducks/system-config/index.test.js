@@ -81,11 +81,57 @@ describe('Ducks - System config', () => {
           community_input_admin_enabled: true,
         },
         require_idp: false,
+        site_slug: null,
         sitename: 'Site name',
+        support_managed_users: false,
         showTrackDays: true,
       },
       type: SET_SYSTEM_CONFIG,
     });
+  });
+
+  test('setSystemConfigFromSystemStatus forwards the site slug that names the managed-user connection', async () => {
+    const dispatch = jest.fn();
+
+    setSystemConfigFromSystemStatus({ site_name: 'Site name', site_slug: 'gdl-zoo' })(dispatch);
+
+    expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
+      payload: expect.objectContaining({ site_slug: 'gdl-zoo' }),
+      type: SET_SYSTEM_CONFIG,
+    }));
+  });
+
+  test('setSystemConfigFromSystemStatus reports a null site slug on a server that does not send one', async () => {
+    const dispatch = jest.fn();
+
+    setSystemConfigFromSystemStatus({ site_name: 'Site name' })(dispatch);
+
+    expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
+      payload: expect.objectContaining({ site_slug: null }),
+      type: SET_SYSTEM_CONFIG,
+    }));
+  });
+
+  test('setSystemConfigFromSystemStatus forwards that the site supports managed users', async () => {
+    const dispatch = jest.fn();
+
+    setSystemConfigFromSystemStatus({ site_name: 'Site name', support_managed_users: true })(dispatch);
+
+    expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
+      payload: expect.objectContaining({ support_managed_users: true }),
+      type: SET_SYSTEM_CONFIG,
+    }));
+  });
+
+  test('setSystemConfigFromSystemStatus treats a server that does not send the flag as not supporting managed users', async () => {
+    const dispatch = jest.fn();
+
+    setSystemConfigFromSystemStatus({ site_name: 'Site name' })(dispatch);
+
+    expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
+      payload: expect.objectContaining({ support_managed_users: false }),
+      type: SET_SYSTEM_CONFIG,
+    }));
   });
 
   test('setSystemConfigFromSystemStatus sets the default event date range if the event filter is not saved locally', async () => {
@@ -206,7 +252,9 @@ describe('Ducks - System config', () => {
         previewFeatures: { community_input_admin_enabled: true },
         require_idp: null,
         showTrackDays: true,
+        site_slug: null,
         sitename: 'Site name',
+        support_managed_users: false,
       };
 
       expect(systemConfigReducer(INITIAL_STATE, action)).toEqual(expectedState);

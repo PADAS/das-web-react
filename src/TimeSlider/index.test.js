@@ -2,7 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { act, fireEvent, render, screen, waitFor } from '../test-utils';
+import { act, createEvent, fireEvent, render, screen, waitFor } from '../test-utils';
 import { BREAKPOINTS } from '../constants';
 import {
   clearVirtualDate,
@@ -210,6 +210,23 @@ describe('TimeSlider', () => {
     await userEvent.keyboard('{Escape}');
 
     expect(screen.queryByRole('menu', { name: 'Playback speed options' })).toBeNull();
+    expect(speedButton).toHaveFocus();
+  });
+
+  test('closes the speed menu with the tab key, giving the focus back to its button without trapping it', async () => {
+    renderTimeSlider();
+
+    const speedButton = screen.getByRole('button', { name: 'Open playback speed options' });
+
+    await userEvent.click(speedButton);
+
+    const speedMenu = screen.getByRole('menu', { name: 'Playback speed options' });
+    const tabKeyDown = createEvent.keyDown(speedMenu, { key: 'Tab' });
+
+    fireEvent(speedMenu, tabKeyDown);
+
+    expect(tabKeyDown.defaultPrevented).toBe(false);
+    await waitFor(() => expect(screen.queryByRole('menu', { name: 'Playback speed options' })).toBeNull());
     expect(speedButton).toHaveFocus();
   });
 
