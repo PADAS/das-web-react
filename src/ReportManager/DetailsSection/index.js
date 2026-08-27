@@ -10,6 +10,7 @@ import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/p
 
 import { EVENT_FORM_STATES, PREVIEW_FEATURES, VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 import {
+  filterOutEnumErrorsForClearedFields,
   filterOutErrorsForHiddenProperties,
   filterOutRequiredValueOnSchemaPropErrors,
   getLinearErrorPropTree,
@@ -36,7 +37,7 @@ import { GeometryPreview } from './AreaPicker/MenuPopover';
 import LocationPicker from '../../LocationPicker';
 import PrioritySelect from '../../PrioritySelect';
 import ReportedBySelect from '../../ReportedBySelect';
-import SchemaForm from './SchemaForm';
+import SchemaForm from '../../SchemaForm';
 import TimePicker, { EMPTY_TIME_VALUE, isValidTime } from '../../TimePicker';
 
 import * as styles from './styles.module.scss';
@@ -45,7 +46,6 @@ const LOADER_COLOR = '#006cd9'; // Bright blue
 const LOADER_SIZE = 50;
 
 const DetailsSection = ({
-  eventId,
   eventSchema = null,
   formValidator,
   // hidePriority / hideReportedBy are intentionally generic visibility props expressed in this
@@ -126,14 +126,19 @@ const DetailsSection = ({
     eventTracker.track('Change Report Time');
   };
 
+  const eventUISchema = eventSchema?.uiSchema;
   const transformErrors = useCallback((errors) => {
     const filteredErrors = filterOutErrorsForHiddenProperties(
-      filterOutRequiredValueOnSchemaPropErrors(errors),
-      eventSchema.uiSchema
+      filterOutEnumErrorsForClearedFields(
+        filterOutRequiredValueOnSchemaPropErrors(errors),
+        reportForm.event_details,
+        jsonSchema
+      ),
+      eventUISchema
     );
 
     return filteredErrors.map((error) => ({ ...error, linearProperty: getLinearErrorPropTree(error.property) }));
-  }, [eventSchema?.uiSchema]);
+  }, [eventUISchema, jsonSchema, reportForm.event_details]);
 
   return <div ref={ref}>
     <div className={styles.globalDetails}>
@@ -279,18 +284,16 @@ const DetailsSection = ({
         ObjectFieldTemplate,
       }}
       transformErrors={transformErrors}
-      uiSchema={eventSchema?.uiSchema}
+      uiSchema={eventUISchema}
       validator={formValidator}
     >
       <button ref={submitFormButtonRef} type="submit" />
     </Form>}
 
     {eventType?.version === 2 && eventSchema?.json && !eventSchema?.error && <SchemaForm
-      eventId={eventId}
-      eventLocation={reportForm.location}
+      anchorLocation={reportForm.location}
       formData={reportForm.event_details}
       hideMapLocationMarkers={isBehindAddedEvent}
-      isNewEvent={isNewEvent}
       metadata={reportForm.metadata ?? {}}
       onFormDataChange={onFormDataChange}
       onFormSubmit={onFormSubmit}
@@ -301,6 +304,7 @@ const DetailsSection = ({
         type="submit"
       />}
       schema={eventSchema}
+      shouldPopulateDefaultData={isNewEvent}
     />}
 
     {!eventSchema && !reportForm.is_collection && loadingEventSchemas && <div className={styles.loaderWrapper}>

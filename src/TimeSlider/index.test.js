@@ -2,7 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { act, fireEvent, render, screen, waitFor } from '../test-utils';
+import { act, createEvent, fireEvent, render, screen, waitFor } from '../test-utils';
 import { BREAKPOINTS } from '../constants';
 import {
   clearVirtualDate,
@@ -99,15 +99,15 @@ describe('TimeSlider', () => {
     expect(screen.getByTestId('timeSlider-wrapper')).toHaveStyle({ '--sidebar-offset': '0px' });
   });
 
-  test('hides the other controls, leaving only the slider and the play button, when a sidebar tab is open', () => {
+  test('hides the speed and close controls, but keeps the slider, play button, date range button and time, when a sidebar tab is open', () => {
     renderTimeSlider(undefined, { initialEntries: ['/events'] });
 
     expect(screen.getByRole('slider', { name: 'Timeslider' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Play timeslider' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Change date range' })).toBeVisible();
+    expect(screen.getByRole('time')).toBeVisible();
     expect(screen.queryByRole('button', { name: 'Open playback speed options' })).toBeNull();
-    expect(screen.queryByRole('button', { name: 'Change date range' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Close timeslider' })).toBeNull();
-    expect(screen.queryByRole('time')).toBeNull();
   });
 
   test('hides the other controls when a sidebar detail view is open, but keeps the play button', () => {
@@ -210,6 +210,23 @@ describe('TimeSlider', () => {
     await userEvent.keyboard('{Escape}');
 
     expect(screen.queryByRole('menu', { name: 'Playback speed options' })).toBeNull();
+    expect(speedButton).toHaveFocus();
+  });
+
+  test('closes the speed menu with the tab key, giving the focus back to its button without trapping it', async () => {
+    renderTimeSlider();
+
+    const speedButton = screen.getByRole('button', { name: 'Open playback speed options' });
+
+    await userEvent.click(speedButton);
+
+    const speedMenu = screen.getByRole('menu', { name: 'Playback speed options' });
+    const tabKeyDown = createEvent.keyDown(speedMenu, { key: 'Tab' });
+
+    fireEvent(speedMenu, tabKeyDown);
+
+    expect(tabKeyDown.defaultPrevented).toBe(false);
+    await waitFor(() => expect(screen.queryByRole('menu', { name: 'Playback speed options' })).toBeNull());
     expect(speedButton).toHaveFocus();
   });
 

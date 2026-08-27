@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 import { addMapImage } from '../utils/map';
 import { calcImgIdFromUrlForMapImages } from '../utils/img';
-import { selectPatrolData } from '../selectors/patrols';
+import { selectPatrolTrackData } from '../selectors/patrols';
 import { DEFAULT_SYMBOL_PAINT, LAYER_IDS } from '../constants';
 import { uuid } from '../utils/string';
 import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
@@ -46,17 +46,17 @@ const textLayout = {
 const symbolFilter = ['==', ['geometry-type'], 'Point'];
 
 
-const StartStopLayer = ({ patrolData, ...rest }) => {
+const StartStopLayer = ({ patrolTrackData, ...rest }) => {
   const map = useContext(MapContext);
 
   const [instanceId] = useState(uuid());
   const layerId = `${PATROL_SYMBOLS}-${instanceId}`;
 
-  const points = patrolData?.startStopGeometries?.points;
-  const lines = patrolData?.startStopGeometries?.lines;
+  const points = patrolTrackData?.startStopGeometries?.points;
+  const lines = patrolTrackData?.startStopGeometries?.lines;
 
   useEffect(() => {
-    const start_location = patrolData?.startStopGeometries?.points?.start_location;
+    const start_location = patrolTrackData?.startStopGeometries?.points?.start_location;
 
     if (start_location) {
 
@@ -71,7 +71,7 @@ const StartStopLayer = ({ patrolData, ...rest }) => {
       }
 
     }
-  }, [map, patrolData]);
+  }, [map, patrolTrackData]);
 
   const sourceId = `patrol-symbol-source-${instanceId}`;
 
@@ -109,7 +109,7 @@ const StartStopLayer = ({ patrolData, ...rest }) => {
 const makeMapStateToProps = () => {
   const mapStateToProps = (state, props) => {
     return {
-      patrolData: selectPatrolData(state, props.patrol),
+      patrolTrackData: selectPatrolTrackData(state, props.patrol),
     };
   };
   return mapStateToProps;

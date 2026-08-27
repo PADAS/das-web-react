@@ -19,7 +19,12 @@
     }
   },
   "communityPage": {
-    "formSubmitted": "Formulário enviado",
+    "coolOffChooseAnotherType": "Escolher outro tipo de evento",
+    "coolOffMessage": "Você enviou recentemente um formulário de {{eventType}}. Poderá enviar outro em {{timeRemaining}}.",
+    "coolOffTimeRemaining": "Tempo restante: {{timeRemaining}}",
+    "coolOffTitle": "Aguarde antes de enviar novamente",
+    "coolOffTypeUnavailable": "Disponível em {{timeRemaining}}",
+    "formSubmitted": "Enviado com sucesso",
     "invalidCommunityUrl": "URL da comunidade inválida",
     "searchPlaceholder": "Pesquisar tipos de evento..."
   },

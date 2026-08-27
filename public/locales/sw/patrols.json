@@ -57,6 +57,101 @@
     "okButton": "SAWA",
     "title": "Muda wa Doria Usiofaa"
   },
+  "patrolOverview": {
+    "attachmentsSaveErrorMessage": "Baadhi ya viambatisho havikuweza kupakiwa. Tafadhali jaribu tena.",
+    "footer": {
+      "addEventButton": "Ongeza tukio",
+      "addEventButtonLabel": "Ongeza tukio",
+      "addEventButtonText": "Tukio",
+      "cancelOption": "Ghairi Doria",
+      "endOption": "Maliza Doria",
+      "endPatrolButton": "Maliza Doria",
+      "pauseOption": "Sitisha doria",
+      "saveButton": "Hifadhi",
+      "saveButtonLoadingLabel": "Inapakia",
+      "updateStatusButton": "Sasisha hali"
+    },
+    "header": {
+      "breadcrumbNavLabel": "Urambazaji wa doria",
+      "breadcrumbPatrolsLabel": "Doria",
+      "closeButtonLabel": "Funga upau wa pembeni",
+      "copyLinkMessage": "Kiungo kimekopwa",
+      "copyLinkOption": "Nakili kiungo cha doria",
+      "downloadTrackOption": "Pakua Njia ya Doria",
+      "editTitleButtonLabel": "Hariri kichwa",
+      "fitToBoundsButtonLabel": "Rekebisha kwenye mipaka ya doria",
+      "jumpToLocationButtonLabel": "Enda mahali",
+      "mobileProvenancePill": "Simu",
+      "moreOptionsButtonLabel": "Chaguo zaidi",
+      "printOption": "Chapisha Doria",
+      "titleInputLabel": "Kichwa cha doria",
+      "toggleTrackButtonLabel": {
+        "hidden": "Onyesha njia ya doria",
+        "pinned": "Ficha njia ya doria",
+        "visible": "Bandika njia ya doria"
+      },
+      "uiStateTitles": {
+        "active": "Inatekelezwa",
+        "cancelled": "Imefutwa",
+        "done": "Imekamilika",
+        "invalid": "Usanidi Batili",
+        "readyToStart": "Tayari kuanza",
+        "scheduled": "Imepangwa",
+        "startOverdue": "Kuanza Kuchelewa"
+      }
+    },
+    "history": {
+      "sortDirectionButtonLabel": {
+        "down": "Panga historia kwa mpangilio wa kupanda",
+        "up": "Panga historia kwa mpangilio wa kushuka"
+      },
+      "timeLabel": "Wakati"
+    },
+    "historyTabTitle": "Historia",
+    "overview": {
+      "activity": {
+        "activitySectionTitle": "Shughuli",
+        "collapseAllButtonLabel": "Ficha yote",
+        "emptyStateMessage": "Shughuli za doria zitaonekana hapa",
+        "expandAllButtonLabel": "Panua yote",
+        "jumpToLocationButtonLabel": "Enda mahali",
+        "legTransitionTitle": "Kipande {{endedLeg}} kimekamilika, Kipande {{startedLeg}} kimeanza",
+        "patrolEndedTitle": "Doria imekamilika",
+        "patrolStartedTitle": "Doria imeanza",
+        "sortDirectionButtonLabel": {
+          "down": "Panga shughuli kwa mpangilio wa kupanda",
+          "up": "Panga shughuli kwa mpangilio wa kushuka"
+        },
+        "startPatrolButton": "Anza Doria",
+        "summaryStats": {
+          "activeTimeLabel": "Muda Inatekelezwa",
+          "distanceLabel": "Umbali",
+          "distanceSubjectButtonLabel": "Umbali uliofikiwa na {{subject}}. Badilisha mhusika anayefuatiliwa",
+          "distanceSubjectMenuLabel": "Wahusika wanaofuatiliwa",
+          "durationLabel": "Muda",
+          "eventsLabel": "Matukio",
+          "patrolLeaderIndicator": "Kiongozi wa doria",
+          "pausedTimeLabel": "Muda wa Kusitisha"
+        },
+        "timeLabel": "Wakati"
+      },
+      "legs": {
+        "endColumnHeader": "Tarehe ya Mwisho",
+        "legActionsColumnHeader": "Vitendo",
+        "legColumnHeader": "Kipande",
+        "legTableCaption": "Vipande vya doria",
+        "newLegButton": "Kipande Kipya cha Doria",
+        "patrolTypeColumnHeader": "Aina ya doria",
+        "startColumnHeader": "Tarehe ya Kuanza",
+        "teamColumnHeader": "Timu na Ufuatiliaji",
+        "viewLegButtonLabel": "Angalia kipande {{legNumber}}",
+        "zoomToLegBoundsButtonLabel": "Rekebisha kwenye mipaka ya kipande {{legNumber}}"
+      }
+    },
+    "overviewTabTitle": "Muhtasari",
+    "saveErrorMessage": "Doria haikuweza kuhifadhiwa. Tafadhali jaribu tena.",
+    "tabsLabel": "Vichupo vya muhtasari wa doria"
+  },
   "patrolMenu": {
     "cancelPatrol": "Ghairi Doria",
     "copyButton": "Nakili kiungo cha doria",

@@ -1,0 +1,246 @@
+import React, { useEffect, useRef } from 'react';
+import Collapse from 'react-bootstrap/Collapse';
+import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+
+import { ReactComponent as ArrowDownSimpleIcon } from '../../../../../common/images/icons/arrow-down-simple.svg';
+import { ReactComponent as ArrowUpSimpleIcon } from '../../../../../common/images/icons/arrow-up-simple.svg';
+import { ReactComponent as GripDotsVerticalIcon } from '../../../../../common/images/icons/grip-dots-vertical.svg';
+import { ReactComponent as PencilIcon } from '../../../../../common/images/icons/pencil.svg';
+import { ReactComponent as TrashCanIcon } from '../../../../../common/images/icons/trash-can.svg';
+
+import getDefaultFormData from '../../../../utils/getDefaultFormData';
+import { getItemTitle } from './utils';
+import { selectCoordinatesRepresentation } from '../../../../../selectors/location';
+
+import FormModal from './FormModal';
+import FormPreview from './FormPreview';
+
+import * as styles from './styles.module.scss';
+
+const Item = ({
+  blurLocationMarker = null,
+  breadcrumbs = null,
+  collectionDetails,
+  handleRef = null,
+  errors,
+  focusLocationMarker = null,
+  formData,
+  formElements,
+  id,
+  index = null,
+  isDragging = false,
+  isDragOverlay = false,
+  isFormModalOpen = false,
+  wasItemRecentlyAdded = false,
+  isFormPreviewOpen,
+  onChange = null,
+  onDelete = null,
+  readOnly,
+  ref,
+  renderFormElement = null,
+  setIsFormModalOpen = null,
+  setIsFormPreviewOpen = null,
+  ...otherProps
+}) => {
+  const { i18n, t } = useTranslation('schema-form', {
+    keyPrefix: 'fields.collection.sortableList.item',
+  });
+
+  const coordinatesRepresentation = useSelector(selectCoordinatesRepresentation);
+
+  // We use these variables to store the initial errors and form data so we can restore those values if the user does
+  // changes and then clicks the cancel button.
+  const errorsBeforeEditingRef = useRef(null);
+  const formDataBeforeEditingRef = useRef(null);
+  const shouldDeleteOnCancelRef = useRef(wasItemRecentlyAdded);
+
+  const formPreviewId = isDragOverlay ? undefined : `collectionForm-${collectionDetails.value}-${id}`;
+  const hasError = !!errors;
+  const itemIdentifierFieldName = collectionDetails.itemIdentifier
+    ? formElements[collectionDetails.itemIdentifier].details.value
+    : null;
+  const title = getItemTitle(
+    formData,
+    itemIdentifierFieldName,
+    `${collectionDetails.itemName} ${id + 1}`,
+    formElements[collectionDetails.itemIdentifier],
+    i18n.language,
+    coordinatesRepresentation,
+    t
+  );
+
+  const onEditButtonClick = (event) => {
+    event.stopPropagation();
+
+    setIsFormModalOpen(true);
+  };
+
+  const onFieldChange = (fieldId, value, error) => {
+    const fieldName = formElements[fieldId].details.value;
+
+    // We update the field error in the errors object.
+    let updatedErrors = { ...errors };
+    if (error) {
+      updatedErrors[fieldName] = error;
+    } else {
+      delete updatedErrors[fieldName];
+      if (Object.keys(updatedErrors).length === 0) {
+        updatedErrors = undefined;
+      }
+    }
+
+    onChange({ ...formData, [fieldName]: value }, updatedErrors);
+  };
+
+  const onDeleteItem = () => {
+    onDelete();
+    setIsFormModalOpen(false);
+  };
+
+  const onFormModalCancel = () => {
+    if (shouldDeleteOnCancelRef.current) {
+      onDeleteItem();
+    } else {
+      onChange(formDataBeforeEditingRef.current, errorsBeforeEditingRef.current);
+      setIsFormModalOpen(false);
+    }
+  };
+
+  const onFormModalDone = () => {
+    setIsFormModalOpen(false);
+    shouldDeleteOnCancelRef.current = false;
+  };
+
+  useEffect(() => {
+    if (wasItemRecentlyAdded && !isDragOverlay) {
+      // This is a new item and it's not a drag overlay. Set the item's default
+      // form data from the item's children.
+      const collectionChildrenIds = [...collectionDetails.leftColumn, ...collectionDetails.rightColumn];
+      const defaultFormData = getDefaultFormData(collectionChildrenIds, formElements);
+      if (Object.keys(defaultFormData).length > 0) {
+        onChange({ ...defaultFormData, ...formData }, errors);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (isFormModalOpen) {
+      formDataBeforeEditingRef.current = structuredClone(formData);
+      errorsBeforeEditingRef.current = structuredClone(errors);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFormModalOpen]);
+
+  const itemClassName = styles.item
+    + (isFormPreviewOpen ? ` ${styles.open}` : '')
+    + (isDragging ? ` ${styles.isDragging}` : '')
+    + (isDragOverlay ? ` ${styles.dragOverlay}` : '')
+    + (hasError ? ` ${styles.error}` : '')
+    + (readOnly ? ` ${styles.readOnly}` : '');
+  return <li
+      className={itemClassName}
+      data-testid="schema-form-collection-item"
+      // We use the index and not the item id because the id is internal for having a constant default title, while the
+      // index corresponds directly to the position of the item in the form data object.
+      id={index !== null ? `${collectionDetails.value}[${index}]` : undefined}
+      ref={ref}
+      {...otherProps}
+    >
+    <div className={styles.header}>
+      <div
+        className={styles.titleWrapper}
+        onClick={isDragOverlay ? undefined : () => setIsFormPreviewOpen(!isFormPreviewOpen)}
+      >
+        <button
+          aria-label={t('dragHandleButtonLabel', { itemTitle: title })}
+          aria-roledescription={t('dragHandleButtonRoleDescription')}
+          className={styles.dragHandleButton}
+          disabled={readOnly}
+          onClick={(event) => event.stopPropagation()}
+          ref={handleRef}
+          title={t('dragHandleButtonLabel', { itemTitle: title })}
+          type="button"
+        >
+          <GripDotsVerticalIcon className={styles.dragHandle} />
+        </button>
+
+        <p className={styles.title} title={title}>{title}</p>
+      </div>
+
+      <div className={styles.actionButtons}>
+        <button
+          aria-label={t('deleteButtonLabel', { itemTitle: title } )}
+          className={styles.actionButton}
+          disabled={readOnly}
+          onClick={isDragOverlay ? undefined : onDelete}
+          title={t('deleteButtonLabel', { itemTitle: title } )}
+          type="button"
+        >
+          <TrashCanIcon />
+        </button>
+
+        <button
+          aria-label={t('editButtonLabel', { itemTitle: title })}
+          className={styles.actionButton}
+          onClick={isDragOverlay ? undefined : onEditButtonClick}
+          title={t('editButtonLabel', { itemTitle: title })}
+          type="button"
+        >
+          <PencilIcon />
+        </button>
+
+        <button
+          aria-controls={formPreviewId}
+          aria-expanded={isFormPreviewOpen}
+          aria-label={t(`chevronButtonLabel.${isFormPreviewOpen ? 'open' : 'closed'}`, { itemTitle: title })}
+          className={styles.actionButton}
+          onClick={isDragOverlay ? undefined : () => setIsFormPreviewOpen(!isFormPreviewOpen)}
+          title={t(`chevronButtonLabel.${isFormPreviewOpen ? 'open' : 'closed'}`, { itemTitle: title })}
+          type="button"
+        >
+          {isFormPreviewOpen ? <ArrowUpSimpleIcon /> : <ArrowDownSimpleIcon />}
+        </button>
+      </div>
+    </div>
+
+    <Collapse in={isFormPreviewOpen}>
+      <div id={formPreviewId}>
+        <FormPreview
+          blurLocationMarker={blurLocationMarker}
+          errors={errors}
+          fieldIds={[...collectionDetails.leftColumn, ...collectionDetails.rightColumn]}
+          focusLocationMarker={focusLocationMarker}
+          formData={formData}
+          formElements={formElements}
+          isDragOverlay={isDragOverlay}
+        />
+      </div>
+    </Collapse>
+
+    {!isDragOverlay && <FormModal
+      breadcrumbs={breadcrumbs}
+      columns={collectionDetails.columns}
+      errors={errors}
+      focusLocationMarker={focusLocationMarker}
+      formData={formData}
+      formElements={formElements}
+      // eslint-disable-next-line react-hooks/refs
+      hideDeleteButton={shouldDeleteOnCancelRef.current}
+      isOpen={isFormModalOpen}
+      itemName={collectionDetails.itemName}
+      leftColumn={collectionDetails.leftColumn}
+      onCancel={onFormModalCancel}
+      onDeleteItem={onDeleteItem}
+      onDone={onFormModalDone}
+      onFieldChange={onFieldChange}
+      readOnly={readOnly}
+      renderFormElement={renderFormElement}
+      rightColumn={collectionDetails.rightColumn}
+      title={title}
+    />}
+  </li>;
+};
+
+export default Item;

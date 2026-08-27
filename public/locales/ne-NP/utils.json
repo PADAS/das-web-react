@@ -13,6 +13,7 @@
     "displayTitleForPatrol": {
         "unknown": "अज्ञात गस्ती"
     },
+    "distanceInKilometers": "{{distance}}km",
     "filterDuplicateUploadFilenames": {
         "duplicationAlert": "थप गर्न सकिँदैन । {{fileName}}: नामको फाइल पहिले नै अवस्थित छ"
     },

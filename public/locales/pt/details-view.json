@@ -8,18 +8,28 @@
     "timeLabel": "Hora"
   },
   "addAttachmentButton": "Arquivo anexo",
+  "addAttachmentButtonLabel": "Adicionar arquivo anexo",
   "addReportButtonLabel": "Criar Evento",
   "addReportButtonTitle": "Evento",
   "addNoteButton": "Anotação",
+  "addNoteButtonLabel": "Adicionar anotação",
   "attachmentControls": {
     "addNoteTitle": "Adicionar anotação",
     "addAttachmentTitle": "Anexar arquivo"
   },
   "attachmentListItem": {
-    "imagePreviewAlt": "{{fileName}} pré-visualização",
-    "downloadButtonTooltip": "Baixar",
-    "deleteButtonTooltip": "Apagar",
-    "fullViewButtonTooltip": "Visão geral"
+    "collapseClosedButtonLabel": "Expandir {{fileName}}",
+    "collapseOpenButtonLabel": "Minimizar {{fileName}}",
+    "deleteButtonTooltip": "Apagar {{fileName}}",
+    "downloadButtonTooltip": "Baixar {{fileName}}",
+    "fullViewButtonTooltip": "Mostrar {{fileName}} em tela cheia",
+    "imagePreviewAlt": "{{fileName}} pré-visualização"
+  },
+  "containedReportListItem": {
+    "collapseClosedButtonLabel": "Expandir {{title}}",
+    "collapseOpenButtonLabel": "Minimizar {{title}}",
+    "loadingLabel": "Carregando {{title}}",
+    "viewReportButtonLabel": "Ver evento {{title}}"
   },
   "footer": {
     "cancelButton": "Cancelar",
@@ -29,7 +39,6 @@
     "stateReopenButton": "Salvar e reabrir",
     "stateReviewButton": "Salvar e revisar"
   },
-  "goToReportButtonTooltip": "Ir a Evento",
   "header": {
     "historyLinkCreated": "Criado",
     "historyLinkUpdated": "Atualizado",
@@ -54,10 +63,13 @@
   },
   "noteListItem": {
     "cancelEditingNoteButton": "Cancelar",
-    "deleteNoteButtonTooltip": "Apagar",
+    "collapseClosedButtonLabel": "Expandir anotação",
+    "collapseOpenButtonLabel": "Minimizar anotação",
+    "deleteNoteButtonTooltip": "Apagar anotação",
     "doneEditingNoteButton": "Finalizar",
-    "editNoteButtonTooltip": "Editar",
-    "noteTitle": "Nova anotação"
+    "editNoteButtonTooltip": "Editar anotação",
+    "noteTextAreaLabel": "Texto da anotação",
+    "noteTitle": "Nova anotação: {{noteText}}"
   },
   "reportFormSummary": {
     "reportTypeLabel": "Tipo de evento",

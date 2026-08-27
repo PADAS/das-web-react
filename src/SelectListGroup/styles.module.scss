@@ -1,10 +1,6 @@
 @use '../common/styles/vars/colors';
 
 .fieldset {
-  &.readOnly .container {
-    background-color: colors.$off-white;
-  }
-
   legend {
     width: 100%;
     color: colors.$secondary-medium-gray;
@@ -15,18 +11,26 @@
 
   .container {
     border: 1px solid colors.$light-gray-border;
-    border-radius: 0.15rem;
+    border-radius: 0.25rem;
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    max-height: 15.625rem;
+    overflow: hidden auto;
     padding: 0.5rem;
   }
 
-  &.error {
-    border-color: colors.$bright-red;
+  &.readOnly .container {
+    background-color: colors.$off-white;
+  }
 
+  &.error {
     legend {
       color: colors.$bright-red;
+    }
+
+    .container {
+      border-color: colors.$bright-red;
     }
   }
 }

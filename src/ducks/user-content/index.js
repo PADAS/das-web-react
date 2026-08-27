@@ -55,7 +55,7 @@ export const startChunkedUpload = async (file, uploadId, dispatch) => {
 
     const { chunk_size: chunkSize, num_chunks: numChunks } = initiateChunkedUploadResponse.data.data;
 
-    dispatch({ payload: { progress: 0, status: 'uploading', uploadId }, type: SET_CHUNKED_UPLOAD_STATUS });
+    dispatch({ payload: { progress: 0, status: 'in_progress', uploadId }, type: SET_CHUNKED_UPLOAD_STATUS });
 
     for (let chunkIndex = 0; chunkIndex < numChunks; chunkIndex++) {
       const chunkOffset = chunkIndex * chunkSize;
@@ -68,14 +68,14 @@ export const startChunkedUpload = async (file, uploadId, dispatch) => {
       );
 
       dispatch({
-        payload: { progress: (chunkIndex + 1) / numChunks, status: 'uploading', uploadId },
+        payload: { progress: (chunkIndex + 1) / numChunks, status: 'in_progress', uploadId },
         type: SET_CHUNKED_UPLOAD_STATUS,
       });
     }
 
     await axios.post(COMPLETE_CHUNKED_UPLOAD_API_URL(uploadId), {}, { signal: abortController.signal });
 
-    dispatch({ payload: { progress: 1, status: 'completed', uploadId }, type: SET_CHUNKED_UPLOAD_STATUS });
+    dispatch({ payload: { progress: 1, status: 'complete', uploadId }, type: SET_CHUNKED_UPLOAD_STATUS });
   } catch {
     if (!abortController.signal.aborted) {
       dispatch({ payload: { status: 'failed', uploadId }, type: SET_CHUNKED_UPLOAD_STATUS });
@@ -93,8 +93,8 @@ export const uploadFile = (file) => (dispatch) => {
       filename: file.name,
       fileType: file.type,
       objectUrl: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined,
-      progress: 0,
-      status: 'pending',
+      progress: null,
+      status: 'in_progress',
       uploadId,
     },
     type: SET_CHUNKED_UPLOAD_STATUS,

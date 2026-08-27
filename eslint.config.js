@@ -10,7 +10,6 @@ export default defineConfig([
     '.github/',
     '.yarn/',
     'build/',
-    'ci-helpers/',
     'jest-config/',
     'mock-api/',
     'nginx/',
