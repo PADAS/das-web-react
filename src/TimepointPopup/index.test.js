@@ -1,10 +1,13 @@
 import React from 'react';
+import axios from 'axios';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
+import { fetchObservationsForSubject } from '../ducks/observations';
 import { GPS_FORMATS } from '../utils/location';
+import { SYSTEM_CONFIG_FLAGS } from '../constants';
 
 import eventCategories from '../__test-helpers/fixtures/event-categories';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
@@ -13,10 +16,22 @@ import { render, screen, waitFor } from '../test-utils';
 
 import TimepointPopup from './';
 
+jest.mock('../ducks/observations', () => {
+  const actual = jest.requireActual('../ducks/observations');
+
+  return { ...actual, fetchObservationsForSubject: jest.fn(actual.fetchObservationsForSubject) };
+});
+
+jest.mock('../AddItemButton', () => ({
+  __esModule: true,
+  default: ({ reportData }) => <div data-testid="add-item-button" data-report={JSON.stringify(reportData)} />,
+}));
+
 // Same instant, serialized in UTC and with a tenant offset.
 const TIMEPOINT_TIME = '2021-01-27T09:04:25+00:00';
 const OBSERVATION_TIME = '2021-01-27T02:04:25-07:00';
 const SUBJECT_ID = '172df632-3fd4-4e5d-8366-925b92fcf025';
+const TOLERATED_MATCH_DISTANCE_MS = 1000;
 
 const timepointData = {
   type: 'Feature',
@@ -65,12 +80,15 @@ const state = {
       selectedCoordinateRepresentations: Object.values(GPS_FORMATS),
       storedSystems: [],
     },
-    systemConfig: {},
+    systemConfig: { [SYSTEM_CONFIG_FLAGS.EVENTS]: true },
     userPreferences: {
       gpsFormat: GPS_FORMATS.DEG,
     },
   },
 };
+
+const { fetchObservationsForSubject: unmockedFetchObservationsForSubject } =
+  jest.requireActual('../ducks/observations');
 
 const Wrapper = ({ children }) => <Provider store={mockStore(state)}>{children}</Provider>;
 
@@ -85,6 +103,7 @@ beforeEach(() => {
   window.localStorage.clear();
   capturedRequestUrl = undefined;
   observationsHandler = () => observationResponse([matchingObservation]);
+  fetchObservationsForSubject.mockImplementation(unmockedFetchObservationsForSubject);
 });
 
 afterEach(() => {
@@ -115,7 +134,7 @@ describe('TimepointPopup', () => {
     });
 
     await userEvent.click(toggleButton);
-    expect(screen.queryByTestId('additional-props')).not.toBeInTheDocument();
+    expect(screen.getByTestId('additional-props')).not.toBeVisible();
   });
 
   test('queries a non-zero time window bracketing the point (since != until)', async () => {
@@ -135,13 +154,81 @@ describe('TimepointPopup', () => {
     expect(new Date(until).getTime()).toBeGreaterThan(targetInstant);
   });
 
-  test('requests only located observations, with a page size large enough for chatty devices', async () => {
+  test('does not opt status-only pings into the match, and pages large enough for chatty devices', async () => {
     renderPopup();
 
     await screen.findByTestId('additional-props-toggle-btn');
 
     expect(capturedRequestUrl.searchParams.get('include_empty_location')).toBeNull();
     expect(Number(capturedRequestUrl.searchParams.get('page_size'))).toBeGreaterThanOrEqual(100);
+  });
+
+  test('brackets the point with a window wider than the tolerance a match must fall inside', async () => {
+    renderPopup();
+
+    await screen.findByTestId('additional-props-toggle-btn');
+
+    const targetInstant = new Date(TIMEPOINT_TIME).getTime();
+    const since = new Date(capturedRequestUrl.searchParams.get('since')).getTime();
+    const until = new Date(capturedRequestUrl.searchParams.get('until')).getTime();
+
+    expect(targetInstant - since).toBeGreaterThan(TOLERATED_MATCH_DISTANCE_MS);
+    expect(until - targetInstant).toBeGreaterThan(TOLERATED_MATCH_DISTANCE_MS);
+  });
+
+  test('carries the point subject and time into a report started from the popup', async () => {
+    renderPopup();
+
+    const reportData = JSON.parse(screen.getByTestId('add-item-button').dataset.report);
+
+    expect(reportData).toEqual({
+      location: { latitude: 0.22316, longitude: 37.37617 },
+      reportedById: SUBJECT_ID,
+      time: TIMEPOINT_TIME,
+    });
+  });
+
+  test('ignores an observation whose recorded_at cannot be parsed', async () => {
+    observationsHandler = () => observationResponse([
+      { ...matchingObservation, id: 'unparseable', recorded_at: 'not-a-date' },
+      matchingObservation,
+    ]);
+
+    renderPopup();
+
+    const additionalProps = await screen.findByTestId('additional-props');
+    expect(additionalProps).toHaveTextContent('Gidr1000');
+  });
+
+  test('attributes nothing when two observations sit equally close to the point', async () => {
+    const targetInstant = new Date(TIMEPOINT_TIME).getTime();
+    observationsHandler = () => observationResponse([
+      { ...matchingObservation, id: 'before', recorded_at: new Date(targetInstant - 400).toISOString() },
+      { ...matchingObservation, id: 'after', recorded_at: new Date(targetInstant + 400).toISOString() },
+    ]);
+
+    renderPopup();
+
+    await waitFor(() => expect(capturedRequestUrl).toBeDefined());
+
+    await expect(screen.findByTestId('additional-props-toggle-btn')).rejects.toThrow();
+  });
+
+  test('does not report a cancelled request as a failure', async () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    fetchObservationsForSubject.mockImplementation(
+      () => () => Promise.reject(new axios.CanceledError('canceled'))
+    );
+
+    renderPopup();
+
+    expect(await screen.findByText('RD-001')).toBeInTheDocument();
+
+    await waitFor(() => expect(fetchObservationsForSubject).toHaveBeenCalled());
+    expect(warn).not.toHaveBeenCalled();
+    expect(screen.queryByTestId('additional-props-toggle-btn')).not.toBeInTheDocument();
+
+    warn.mockRestore();
   });
 
   test('does not attribute an observation outside the match tolerance to the point', async () => {

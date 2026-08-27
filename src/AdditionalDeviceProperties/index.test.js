@@ -83,10 +83,48 @@ describe('AdditionalDeviceProperties', () => {
     expect(window.localStorage.getItem(STORAGE_KEY)).toBe('false');
   });
 
-  test('renders a property whose value is missing', () => {
+  test('renders a placeholder rather than a bare unit for a property with no value', () => {
     renderProperties({ deviceStatusProperties: [{ label: 'Battery', units: '%', value: null }] });
 
-    expect(screen.getByRole('list')).toHaveTextContent('Battery');
+    expect(screen.getByTestId('additional-props-value')).toHaveTextContent('—');
+    expect(screen.getByRole('list')).not.toHaveTextContent('%');
+  });
+
+  test('renders a zero value rather than treating it as missing', () => {
+    renderProperties({ deviceStatusProperties: [{ label: 'Battery', units: '%', value: 0 }] });
+
+    expect(screen.getByTestId('additional-props-value')).toHaveTextContent('0 %');
+  });
+
+  test.each([
+    ['null', null],
+    ['a decoded JSON null', JSON.parse(JSON.stringify(null))],
+    ['a non-array', 'not-an-array'],
+  ])('renders nothing when the properties are %s', (_, deviceStatusProperties) => {
+    const { container } = renderProperties({ deviceStatusProperties });
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  test('keeps the collapsed list in the document but out of the accessibility tree', async () => {
+    renderProperties();
+
+    expect(screen.getByTestId('additional-props')).not.toBeVisible();
+    expect(document.getElementById(screen.getByRole('button').getAttribute('aria-controls')))
+      .toBe(screen.getByTestId('additional-props'));
+
+    await userEvent.click(screen.getByRole('button'));
+
+    expect(screen.getByTestId('additional-props')).toBeVisible();
+  });
+
+  test('places the toggle before the list it controls', () => {
+    renderProperties();
+
+    const toggleButton = screen.getByRole('button');
+    const list = screen.getByTestId('additional-props');
+
+    expect(toggleButton.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   test('exposes the expanded state and the list controlled by the toggle', async () => {

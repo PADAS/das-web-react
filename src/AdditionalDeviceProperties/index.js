@@ -1,9 +1,13 @@
-import React, { useCallback, useId, useState } from 'react';
+import React, { useCallback, useId } from 'react';
 import { useTranslation } from 'react-i18next';
+
+import useLocalStorage from '../hooks/useLocalStorage';
 
 import * as styles from './styles.module.scss';
 
 const STORAGE_KEY = 'showSubjectDetailsByDefault';
+const NO_VALUE_PLACEHOLDER = '—';
+const TOGGLEABLE_PROPERTY_COUNT = 2;
 
 const AdditionalDeviceProperties = ({
   className = '',
@@ -15,44 +19,40 @@ const AdditionalDeviceProperties = ({
 
   const additionalPropsListId = useId();
 
-  const [additionalPropsToggledOn, toggleAdditionalPropsVisibility] = useState(
-    window.localStorage.getItem(STORAGE_KEY) === 'true'
-  );
+  const [additionalPropsToggledOn, setAdditionalPropsToggledOn] = useLocalStorage(STORAGE_KEY, false);
 
-  const hasAdditionalDeviceProps = !!deviceStatusProperties.length;
+  // A subject's properties reach the popup as a JSON string that can decode to null.
+  const properties = Array.isArray(deviceStatusProperties) ? deviceStatusProperties : [];
+
+  const hasAdditionalDeviceProps = !!properties.length;
   const additionalPropsShouldBeToggleable = hasAdditionalDeviceProps
-    && deviceStatusProperties.length > 2
+    && properties.length > TOGGLEABLE_PROPERTY_COUNT
     && !isStaticSubject;
   const showAdditionalProps = hasAdditionalDeviceProps
     && (additionalPropsShouldBeToggleable ? additionalPropsToggledOn : true);
 
-  const toggleShowAdditionalProperties = useCallback(() => {
-    toggleAdditionalPropsVisibility(!additionalPropsToggledOn);
+  const toggleShowAdditionalProperties = useCallback(
+    () => setAdditionalPropsToggledOn((toggledOn) => !toggledOn),
+    [setAdditionalPropsToggledOn]
+  );
 
-    window.localStorage.setItem(STORAGE_KEY, !additionalPropsToggledOn);
-  }, [additionalPropsToggledOn]);
+  const renderPropertyValue = ({ units, value }) => {
+    if (isTimeSliderActive) return <span>{t('noHistoricalDataSpan')}</span>;
+
+    if (value === null || value === undefined) {
+      return <span data-testid="additional-props-value">{NO_VALUE_PLACEHOLDER}</span>;
+    }
+
+    return <span data-testid="additional-props-value">
+      {value.toString()}
+
+      <span> {units}</span>
+    </span>;
+  };
 
   if (!hasAdditionalDeviceProps) return null;
 
   return <div className={className}>
-    {showAdditionalProps && <ul
-      className={`${styles.additionalProperties} ${isTimeSliderActive ? styles.disabled : ''}`}
-      data-testid="additional-props"
-      id={additionalPropsListId}
-      >
-      {deviceStatusProperties.map((deviceStatusProperty, index) => <li
-        key={`${deviceStatusProperty.label}-${index}`}
-      >
-        <strong>{deviceStatusProperty.label}</strong>
-
-        {isTimeSliderActive ? <span>{t('noHistoricalDataSpan')}</span> : <span data-testid="additional-props-value">
-          {deviceStatusProperty.value?.toString()}
-
-          <span> {deviceStatusProperty.units}</span>
-        </span>}
-      </li>)}
-    </ul>}
-
     {additionalPropsShouldBeToggleable && <button
       aria-controls={additionalPropsListId}
       aria-expanded={additionalPropsToggledOn}
@@ -63,6 +63,21 @@ const AdditionalDeviceProperties = ({
       >
       {t(`additionalPropsButton.${additionalPropsToggledOn ? 'fewer' : 'more'}`)}
     </button>}
+
+    <ul
+      className={`${styles.additionalProperties} ${isTimeSliderActive ? styles.disabled : ''}`}
+      data-testid="additional-props"
+      hidden={!showAdditionalProps}
+      id={additionalPropsListId}
+      >
+      {properties.map((deviceStatusProperty, index) => <li
+        key={`${deviceStatusProperty.label}-${index}`}
+      >
+        <strong>{deviceStatusProperty.label}</strong>
+
+        {renderPropertyValue(deviceStatusProperty)}
+      </li>)}
+    </ul>
   </div>;
 };
 
