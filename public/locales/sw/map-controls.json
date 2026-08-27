@@ -24,6 +24,7 @@
   },
   "mapDrawingTools": {
     "addPointLabel": "Bonyeza ili kuongeza alama. \n Bonyeza 'enter' au 'return' kumaliza.",
+    "areaLabel": "Eneo: {{area}}",
     "bearingLabel": "Mwelekeo: {{bearing}}°",
     "distanceLabel": "Umbali: {{distance}}",
     "instructionsLabel": "Bonyeza & buruta ili kuongeza alama",
@@ -41,6 +42,7 @@
     "title": "Pima ramani"
   },
   "pointPopup": {
+    "areaLabel": "Eneo:",
     "bearingLabel": "Mwelekeo:",
     "distanceLabel": "Umbali kutoka mwanzo:",
     "finishButton": "bonyeza hapa kumaliza"
