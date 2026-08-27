@@ -10,7 +10,7 @@ import { subjectFeatureWithMultipleDeviceProps, subjectFeatureWithOneDeviceProp,
 import eventCategories from '../__test-helpers/fixtures/event-categories';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { getSubjectDefaultDeviceProperty } from '../utils/subjects';
-import { render, screen } from '../test-utils';
+import { render, screen, within } from '../test-utils';
 import { mockStore } from '../__test-helpers/MockStore';
 
 import SubjectPopup from './';
@@ -104,14 +104,14 @@ describe('SubjectPopup', () => {
       });
 
       await userEvent.click(additionalPropsToggleBtn);
-      expect(additionalProps).not.toBeInTheDocument();
+      expect(additionalProps).not.toBeVisible();
     });
 
     test('listing individual device properties', async () => {
-      renderWithWrapper(<SubjectPopup data={subjectFeatureWithOneDeviceProp} />);
+      const { container } = renderWithWrapper(<SubjectPopup data={subjectFeatureWithOneDeviceProp} />);
 
       const [statusProp] = subjectFeatureWithOneDeviceProp.properties.device_status_properties;
-      const additionalProps = await screen.getByTestId('additional-props');
+      const additionalProps = within(container).getByTestId('additional-props');
 
       expect(additionalProps).toHaveTextContent(statusProp.label);
       expect(additionalProps).toHaveTextContent(statusProp.units);
@@ -119,9 +119,9 @@ describe('SubjectPopup', () => {
     });
 
     test('render additional props with boolean values', async () => {
-      renderWithWrapper(<SubjectPopup data={subjectFeatureWithOneDeviceProp} />);
+      const { container } = renderWithWrapper(<SubjectPopup data={subjectFeatureWithOneDeviceProp} />);
 
-      const additionalPropsValues = await screen.findAllByTestId('additional-props-value');
+      const additionalPropsValues = within(container).getAllByTestId('additional-props-value');
       expect(additionalPropsValues[1]).toHaveTextContent('false');
     });
   });
