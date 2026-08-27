@@ -1,4 +1,9 @@
-import { buildTrackSegments, getTimeOfDayPeriodBasedOnTime, fixAntimeridianCrossing } from './tracks';
+import {
+  buildTrackSegments,
+  fixAntimeridianCrossing,
+  getTimeOfDayPeriodBasedOnTime,
+  trackLengthWithinTimeRange,
+} from './tracks';
 
 import { TIME_OF_DAY_PERIODS } from '../constants';
 
@@ -193,6 +198,65 @@ describe('utils - tracks', () => {
     });
 
 
+  });
+
+  describe('trackLengthWithinTimeRange', () => {
+    // A degree of longitude at the equator.
+    const ONE_DEGREE_IN_KILOMETERS = 111.19;
+
+    // Tracks are stored most recent position first.
+    const trackData = {
+      track: {
+        features: [{
+          geometry: { coordinates: [[3, 0], [2, 0], [1, 0], [0, 0]], type: 'LineString' },
+          properties: {
+            coordinateProperties: {
+              times: [
+                '2026-04-13T04:00:00.000Z',
+                '2026-04-13T03:00:00.000Z',
+                '2026-04-13T02:00:00.000Z',
+                '2026-04-13T01:00:00.000Z',
+              ],
+            },
+          },
+          type: 'Feature',
+        }],
+        type: 'FeatureCollection',
+      },
+    };
+
+    test('measures only the positions within the time range', () => {
+      expect(trackLengthWithinTimeRange(trackData, '2026-04-13T02:00:00.000Z', '2026-04-13T03:00:00.000Z'))
+        .toBeCloseTo(ONE_DEGREE_IN_KILOMETERS, 1);
+    });
+
+    test('measures up to the most recent position when there is no end of the range', () => {
+      expect(trackLengthWithinTimeRange(trackData, '2026-04-13T02:00:00.000Z'))
+        .toBeCloseTo(2 * ONE_DEGREE_IN_KILOMETERS, 1);
+    });
+
+    test('measures the whole track when there is no time range', () => {
+      expect(trackLengthWithinTimeRange(trackData)).toBeCloseTo(3 * ONE_DEGREE_IN_KILOMETERS, 1);
+    });
+
+    test('leaves the track untouched', () => {
+      const originalTrackData = JSON.parse(JSON.stringify(trackData));
+
+      trackLengthWithinTimeRange(trackData, '2026-04-13T02:00:00.000Z', '2026-04-13T03:00:00.000Z');
+
+      expect(trackData).toEqual(originalTrackData);
+    });
+
+    test('measures no length for a time range holding a single position', () => {
+      expect(trackLengthWithinTimeRange(trackData, '2026-04-13T02:00:00.000Z', '2026-04-13T02:00:00.000Z')).toBe(0);
+    });
+
+    test('measures no length for a track without geometry', () => {
+      const trackWithoutGeometry = { track: { features: [{ properties: {}, type: 'Feature' }] } };
+
+      expect(trackLengthWithinTimeRange(trackWithoutGeometry)).toBe(0);
+      expect(trackLengthWithinTimeRange(trackWithoutGeometry, '2026-04-13T02:00:00.000Z')).toBe(0);
+    });
   });
 
   describe('fixAntimeridianCrossing', () => {

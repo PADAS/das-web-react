@@ -47,15 +47,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@auth0/auth0-react@npm:^2.23.0":
-  version: 2.23.0
-  resolution: "@auth0/auth0-react@npm:2.23.0"
+"@auth0/auth0-react@npm:^2.24.0":
+  version: 2.24.0
+  resolution: "@auth0/auth0-react@npm:2.24.0"
   dependencies:
     "@auth0/auth0-spa-js": "npm:^2.24.1"
   peerDependencies:
     react: ^16.11.0 || ^17 || ^18 || ~19.0.1 || ~19.1.2 || ^19.2.1
     react-dom: ^16.11.0 || ^17 || ^18 || ~19.0.1 || ~19.1.2 || ^19.2.1
-  checksum: 10c0/4f23ff39deb2ad451ceea6f931697601a7058ef497ebfe3051d8355e9c7d88786f4c327781be3a0df76bc48c62ce5949bede0dce8657e9bac55238dcbac64a25
+  checksum: 10c0/f096271ed279f8b63c8b82e4acc666392cfd891a2a8e47302b39170bad5fab41cd192d664602fbae066a4e5ad8793dffb8fa2fdd166793ed90937b7802135dff
   languageName: node
   linkType: hard
 
@@ -4519,12 +4519,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/user-event@npm:^14.6.3":
-  version: 14.6.3
-  resolution: "@testing-library/user-event@npm:14.6.3"
+"@testing-library/user-event@npm:^14.6.4":
+  version: 14.6.4
+  resolution: "@testing-library/user-event@npm:14.6.4"
   peerDependencies:
     "@testing-library/dom": ">=7.21.4"
-  checksum: 10c0/60c401edcc1b39f98aefd0e236af69c1a0454e3a7b91b92d62e2d654b044c51d39abc4a7ee0f5675566e7246dc5fc5e91af872a49da7e30a5f0e9e52f5a83a82
+  checksum: 10c0/2460efb88c16ce6e56f64e403cc3e1905d8378a95003933924f31e3c724f5a42dd28d6fe51a9881ecd2e3b5b2e0b12363f3c7a816df90845553180b2a219b647
   languageName: node
   linkType: hard
 
@@ -7977,7 +7977,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "das-web-react@workspace:."
   dependencies:
-    "@auth0/auth0-react": "npm:^2.23.0"
+    "@auth0/auth0-react": "npm:^2.24.0"
     "@babel/core": "npm:^8.0.1"
     "@babel/preset-env": "npm:^8.0.2"
     "@babel/preset-react": "npm:^8.0.1"
@@ -7993,7 +7993,7 @@ __metadata:
     "@testing-library/dom": "npm:^10.4.1"
     "@testing-library/jest-dom": "npm:^7.0.1"
     "@testing-library/react": "npm:^16.3.2"
-    "@testing-library/user-event": "npm:^14.6.3"
+    "@testing-library/user-event": "npm:^14.6.4"
     "@turf/buffer": "npm:^7.4.0"
     "@turf/turf": "npm:^7.4.0"
     "@vitejs/plugin-react": "npm:^6.0.5"
@@ -8011,11 +8011,11 @@ __metadata:
     epsg-index: "npm:^2.0.0"
     eslint: "npm:^10.8.1"
     eslint-config-airbnb: "npm:^19.0.4"
-    eslint-plugin-jest: "npm:^29.16.0"
+    eslint-plugin-jest: "npm:^29.16.1"
     eslint-plugin-react: "npm:^7.37.5"
     eslint-plugin-react-hooks: "npm:^7.1.1"
     geodesy: "npm:^2.4.0"
-    globals: "npm:^17.9.0"
+    globals: "npm:^17.11.0"
     humanize-duration: "npm:^3.34.0"
     i18next: "npm:^26.3.6"
     i18next-browser-languagedetector: "npm:^8.2.1"
@@ -8686,9 +8686,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jest@npm:^29.16.0":
-  version: 29.16.0
-  resolution: "eslint-plugin-jest@npm:29.16.0"
+"eslint-plugin-jest@npm:^29.16.1":
+  version: 29.16.1
+  resolution: "eslint-plugin-jest@npm:29.16.1"
   dependencies:
     "@typescript-eslint/utils": "npm:^8.0.0"
   peerDependencies:
@@ -8703,7 +8703,7 @@ __metadata:
       optional: true
     typescript:
       optional: true
-  checksum: 10c0/ac3b0b0502c48285063a968219852979b0526f814bee90c65ef417e495b270a5aee437961ab51941caa1d0ae4ae5387a55374946165c17cf5e4f001972e0de44
+  checksum: 10c0/6aca236a8db9e9e736322f991ad6f33d776b9fabd9c3ddb1bb24515191a4438b2908ec88c5768dcfbb2323f48e6105fab91ee41d35574fa0bdd7631d53986506
   languageName: node
   linkType: hard
 
@@ -9483,10 +9483,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"globals@npm:^17.9.0":
-  version: 17.9.0
-  resolution: "globals@npm:17.9.0"
-  checksum: 10c0/776116bffb916e462d548c26a44c9a5d8f4e551935a883991e9f5d68cbcb21b63e4c688e36bbc564f97d3025e304d8b2bb0a611ecf944825aeee164898dcfbdd
+"globals@npm:^17.11.0":
+  version: 17.11.0
+  resolution: "globals@npm:17.11.0"
+  checksum: 10c0/5e1be3d816e04d4d0d01b1cdd40e46b5fb6b5e9f15aece9a5919b060e0fb1b3f1b9e7327dce97ef19e05513a6d65872e0834999ddea251557556dddd0f5fde30
   languageName: node
   linkType: hard
 

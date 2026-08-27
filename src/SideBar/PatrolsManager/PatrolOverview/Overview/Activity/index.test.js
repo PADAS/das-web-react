@@ -27,6 +27,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Activity', () =
         eventStore: {},
         eventTypes: [],
         patrolTypes: [],
+        tracks: {},
       },
       view: {
         systemConfig: {
@@ -104,6 +105,22 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Activity', () =
     expect(screen.getByTestId('activitySection-collapse-collection-event')).toBeInTheDocument();
     expect(screen.getByTestId('activitySection-collapse-empty-collection')).toBeInTheDocument();
     expect(screen.queryByTestId('activitySection-collapse-contained-event')).not.toBeInTheDocument();
+  });
+
+  test('leaves the events already contained in an incident collection out of the summary stats event count', () => {
+    const containedEvent = { ...events[1], id: 'contained-event' };
+    const collectionEvent = { ...events[0], id: 'collection-event', is_collection: true, contains: [{ related_event: { id: 'contained-event' } }] };
+
+    const patrolWithCollection = {
+      ...patrols[0],
+      patrol_segments: patrols[0].patrol_segments.map(
+        (segment) => ({ ...segment, events: [collectionEvent, containedEvent] })
+      ),
+    };
+
+    renderActivity(patrolWithCollection);
+
+    expect(screen.getByText('Events').nextElementSibling).toHaveTextContent('1');
   });
 
   test('shows a leg transition milestone between two legs, and the patrol started milestone, but not the patrol ended milestone while the patrol has not ended', () => {

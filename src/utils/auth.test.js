@@ -4,6 +4,10 @@ import {
   getIntendedPostAuth0SuccessRoute,
   setIntendedPostAuth0SuccessRoute,
   clearIntendedPostAuth0SuccessRoute,
+  markManagedUserLoginAttempt,
+  takeManagedUserLoginAttempt,
+  markManagedUserNotProvisioned,
+  takeManagedUserNotProvisioned,
   stripAuth0Params,
   getAuthTokenFromCookies,
   getTemporaryAccessTokenFromCookies,
@@ -167,6 +171,110 @@ describe('auth utils', () => {
         expect(() => clearIntendedPostAuth0SuccessRoute()).not.toThrow();
         mockRemoveItem.mockRestore();
       });
+    });
+  });
+
+  describe('sessionStorage managed-user login attempt', () => {
+    beforeEach(() => {
+      sessionStorage.clear();
+    });
+
+    afterEach(() => {
+      sessionStorage.clear();
+    });
+
+    describe('markManagedUserLoginAttempt', () => {
+      test('records that the managed-user path started the login', () => {
+        markManagedUserLoginAttempt();
+        expect(sessionStorage.getItem('er:managed_user_login_attempt')).toBe('true');
+      });
+
+      test('handles sessionStorage errors gracefully', () => {
+        const mockSetItem = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+          throw new Error('sessionStorage unavailable');
+        });
+
+        expect(() => markManagedUserLoginAttempt()).not.toThrow();
+        mockSetItem.mockRestore();
+      });
+    });
+
+    describe('takeManagedUserLoginAttempt', () => {
+      test('reports a marked attempt', () => {
+        markManagedUserLoginAttempt();
+        expect(takeManagedUserLoginAttempt()).toBe(true);
+      });
+
+      test('consumes the marker so a later common-path failure is not misattributed', () => {
+        markManagedUserLoginAttempt();
+
+        expect(takeManagedUserLoginAttempt()).toBe(true);
+        expect(takeManagedUserLoginAttempt()).toBe(false);
+        expect(sessionStorage.getItem('er:managed_user_login_attempt')).toBeNull();
+      });
+
+      test('reports no attempt when nothing was marked', () => {
+        expect(takeManagedUserLoginAttempt()).toBe(false);
+      });
+
+      test('reports no attempt when sessionStorage errors', () => {
+        const mockGetItem = jest.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+          throw new Error('sessionStorage unavailable');
+        });
+
+        expect(takeManagedUserLoginAttempt()).toBe(false);
+        mockGetItem.mockRestore();
+      });
+    });
+  });
+
+  describe('sessionStorage managed-user not-provisioned flag', () => {
+    beforeEach(() => {
+      sessionStorage.clear();
+    });
+
+    afterEach(() => {
+      sessionStorage.clear();
+    });
+
+    test('records that this site has no account for the managed user who just signed in', () => {
+      markManagedUserNotProvisioned();
+      expect(sessionStorage.getItem('er:managed_user_not_provisioned')).toBe('true');
+    });
+
+    test('survives the Auth0 logout round trip, which is what carries the message home', () => {
+      markManagedUserNotProvisioned();
+
+      // The logout redirect leaves and re-enters the app; sessionStorage is
+      // scoped to the tab, so the flag is still here when the login page mounts.
+      expect(takeManagedUserNotProvisioned()).toBe(true);
+    });
+
+    test('consumes the flag so a later visit does not repeat the message', () => {
+      markManagedUserNotProvisioned();
+
+      expect(takeManagedUserNotProvisioned()).toBe(true);
+      expect(takeManagedUserNotProvisioned()).toBe(false);
+      expect(sessionStorage.getItem('er:managed_user_not_provisioned')).toBeNull();
+    });
+
+    test('reports nothing when the flag was never set', () => {
+      expect(takeManagedUserNotProvisioned()).toBe(false);
+    });
+
+    test('handles sessionStorage errors gracefully in both directions', () => {
+      const mockSetItem = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+        throw new Error('sessionStorage unavailable');
+      });
+      const mockGetItem = jest.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+        throw new Error('sessionStorage unavailable');
+      });
+
+      expect(() => markManagedUserNotProvisioned()).not.toThrow();
+      expect(takeManagedUserNotProvisioned()).toBe(false);
+
+      mockSetItem.mockRestore();
+      mockGetItem.mockRestore();
     });
   });
 

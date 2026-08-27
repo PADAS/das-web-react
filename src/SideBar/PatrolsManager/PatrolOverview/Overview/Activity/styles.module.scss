@@ -81,44 +81,6 @@
     }
   }
 
-  .statsRow {
-    display: flex;
-    gap: 1rem;
-    margin: 0;
-
-    .statItem {
-      border: 1px solid colors.$light-gray-lines;
-      border-radius: 0.3125rem;
-      display: flex;
-      flex: 1;
-      flex-direction: column;
-      gap: 0.125rem;
-      min-width: 0;
-      padding: 0.25rem 0.5rem;
-
-      .statLabel {
-        align-items: center;
-        color: colors.$secondary-medium-gray;
-        display: flex;
-        font-size: 0.875rem;
-        gap: 0.125rem;
-        margin: 0;
-
-        .statLabelIcon {
-          flex-shrink: 0;
-          height: 0.3125rem;
-          width: 0.625rem;
-        }
-      }
-
-      .statValue {
-        font-size: 1rem;
-        font-weight: 500;
-        margin: 0;
-      }
-    }
-  }
-
   .activityList {
     background: white;
     border: 1px solid colors.$light-gray-lines;

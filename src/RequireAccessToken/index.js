@@ -34,10 +34,16 @@ const RequireAccessToken = ({ children, token, systemConfig }) => {
     return children;
   }
 
+  // An Auth0 error response has no `code`, so it is not a callback and lands here.
+  // Its params are the only ones the login page reads.
+  const auth0ErrorSearch = new URLSearchParams(location.search).has('error')
+    ? location.search
+    : '';
+
   return <Navigate
     replace
     state={{ from: location }}
-    to={APP_ROUTES.LOGIN}
+    to={{ pathname: APP_ROUTES.LOGIN, search: auth0ErrorSearch }}
   />;
 };
 

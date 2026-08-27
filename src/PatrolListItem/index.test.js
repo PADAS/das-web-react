@@ -228,6 +228,10 @@ describe('for active patrols', () => {
     await screen.findByTestId(`patrol-list-item-track-btn-${testPatrol.id}`);
   });
 
+  test('showing the distance the patrol has covered', async () => {
+    expect(await screen.findByText('0km')).toBeInTheDocument();
+  });
+
   test('canceling the patrol from the kebab menu', async () => {
     const kebabMenu = await screen.findByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`);
     const kebabButton = kebabMenu.querySelector('button');

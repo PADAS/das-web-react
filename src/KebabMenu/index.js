@@ -227,8 +227,6 @@ const KebabMenu = ({
 
     case 'Tab':
       if (show) {
-        event.preventDefault();
-
         closeMenu();
       }
 

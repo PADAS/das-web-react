@@ -110,24 +110,29 @@
     "historyTabTitle": "इतिहास",
     "overview": {
       "activity": {
-        "activeTimeLabel": "सक्रिय समय",
         "activitySectionTitle": "गतिविधि",
         "collapseAllButtonLabel": "सबै बन्द गर्नुहोस्",
-        "distanceLabel": "दूरी",
-        "durationLabel": "अवधि",
         "emptyStateMessage": "गस्ती गतिविधि यहाँ देखा पर्नेछ",
-        "eventsLabel": "घटनाहरू",
         "expandAllButtonLabel": "सबै विस्तार गर्नुहोस्",
         "jumpToLocationButtonLabel": "स्थानमा जानुहोस्",
         "legTransitionTitle": "खण्ड {{endedLeg}} समाप्त भयो, खण्ड {{startedLeg}} सुरु भयो",
         "patrolEndedTitle": "गस्ती समाप्त भएको",
         "patrolStartedTitle": "गस्ती सुरु भएको",
-        "pausedTimeLabel": "रोकिएको समय",
         "sortDirectionButtonLabel": {
           "down": "गतिविधि आरोही क्रममा क्रमबद्ध गर्नुहोस्",
           "up": "गतिविधि अवरोही क्रममा क्रमबद्ध गर्नुहोस्"
         },
         "startPatrolButton": "गस्ती सुरु गर्नुहोस्",
+        "summaryStats": {
+          "activeTimeLabel": "सक्रिय समय",
+          "distanceLabel": "दूरी",
+          "distanceSubjectButtonLabel": "{{subject}} ले तय गरेको दूरी। ट्र्याक गरिएको विषय परिवर्तन गर्नुहोस्",
+          "distanceSubjectMenuLabel": "ट्र्याक गरिएका विषयहरू",
+          "durationLabel": "अवधि",
+          "eventsLabel": "घटनाहरू",
+          "patrolLeaderIndicator": "गस्ती नेता",
+          "pausedTimeLabel": "रोकिएको समय"
+        },
         "timeLabel": "समय"
       },
       "legs": {
