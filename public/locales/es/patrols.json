@@ -57,6 +57,101 @@
     "okButton": "Entendido",
     "title": "Fechas de patrullaje no válidas"
   },
+  "patrolOverview": {
+    "attachmentsSaveErrorMessage": "No se pudieron subir algunos archivos adjuntos. Vuelva a intentarlo.",
+    "footer": {
+      "addEventButton": "Agregar evento",
+      "addEventButtonLabel": "Agregar evento",
+      "addEventButtonText": "Evento",
+      "cancelOption": "Cancelar patrulla",
+      "endOption": "Finalizar patrulla",
+      "endPatrolButton": "Finalizar patrulla",
+      "pauseOption": "Pausar patrulla",
+      "saveButton": "Guardar",
+      "saveButtonLoadingLabel": "Cargando",
+      "updateStatusButton": "Actualizar estado"
+    },
+    "header": {
+      "breadcrumbNavLabel": "Navegación de patrullaje",
+      "breadcrumbPatrolsLabel": "Patrullas",
+      "closeButtonLabel": "Cerrar barra lateral",
+      "copyLinkMessage": "Link copiado",
+      "copyLinkOption": "Copiar link de la patrulla",
+      "downloadTrackOption": "Descargar ruta de patrulla",
+      "editTitleButtonLabel": "Editar título",
+      "fitToBoundsButtonLabel": "Ajustar a los límites de la patrulla",
+      "jumpToLocationButtonLabel": "Ir a la ubicación",
+      "mobileProvenancePill": "Móvil",
+      "moreOptionsButtonLabel": "Más opciones",
+      "printOption": "Imprimir patrulla",
+      "titleInputLabel": "Título de la patrulla",
+      "toggleTrackButtonLabel": {
+        "hidden": "Mostrar ruta de la patrulla",
+        "pinned": "Ocultar ruta de la patrulla",
+        "visible": "Fijar ruta de la patrulla"
+      },
+      "uiStateTitles": {
+        "active": "Activo",
+        "cancelled": "Cancelado",
+        "done": "Finalizado",
+        "invalid": "Configuración no válida",
+        "readyToStart": "Listo para iniciar",
+        "scheduled": "Agendado",
+        "startOverdue": "Inicio atrasado"
+      }
+    },
+    "history": {
+      "sortDirectionButtonLabel": {
+        "down": "Ordenar historial de forma ascendente",
+        "up": "Ordenar historial de forma descendente"
+      },
+      "timeLabel": "Hora"
+    },
+    "historyTabTitle": "Historial",
+    "overview": {
+      "activity": {
+        "activitySectionTitle": "Actividad",
+        "collapseAllButtonLabel": "Colapsar todo",
+        "emptyStateMessage": "La actividad de la patrulla aparecerá aquí",
+        "expandAllButtonLabel": "Expandir todo",
+        "jumpToLocationButtonLabel": "Ir a la ubicación",
+        "legTransitionTitle": "Tramo {{endedLeg}} finalizado, Tramo {{startedLeg}} iniciado",
+        "patrolEndedTitle": "Patrullaje finalizado",
+        "patrolStartedTitle": "Patrullaje iniciado",
+        "sortDirectionButtonLabel": {
+          "down": "Ordenar actividad de forma ascendente",
+          "up": "Ordenar actividad de forma descendente"
+        },
+        "startPatrolButton": "Iniciar Patrullaje",
+        "summaryStats": {
+          "activeTimeLabel": "Tiempo activo",
+          "distanceLabel": "Distancia",
+          "distanceSubjectButtonLabel": "Distancia recorrida por {{subject}}. Cambiar el sujeto rastreado",
+          "distanceSubjectMenuLabel": "Sujetos rastreados",
+          "durationLabel": "Duración",
+          "eventsLabel": "Eventos",
+          "patrolLeaderIndicator": "Líder del patrullaje",
+          "pausedTimeLabel": "Tiempo en pausa"
+        },
+        "timeLabel": "Hora"
+      },
+      "legs": {
+        "endColumnHeader": "Fecha de finalización",
+        "legActionsColumnHeader": "Acciones",
+        "legColumnHeader": "Tramo",
+        "legTableCaption": "Tramos de la patrulla",
+        "newLegButton": "Nuevo tramo de patrulla",
+        "patrolTypeColumnHeader": "Tipo de patrulla",
+        "startColumnHeader": "Fecha de inicio",
+        "teamColumnHeader": "Equipo y rastreo",
+        "viewLegButtonLabel": "Ver tramo {{legNumber}}",
+        "zoomToLegBoundsButtonLabel": "Ajustar a los límites del tramo {{legNumber}}"
+      }
+    },
+    "overviewTabTitle": "Resumen",
+    "saveErrorMessage": "No se pudo guardar la patrulla. Vuelva a intentarlo.",
+    "tabsLabel": "Pestañas de resumen de la patrulla"
+  },
   "patrolMenu": {
     "cancelPatrol": "Cancelar Patrulla",
     "copyButton": "Copiar link del patrulla",

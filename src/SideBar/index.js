@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { matchPath, Route, Routes, useLocation } from 'react-router';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -12,13 +12,13 @@ import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg'
 import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
 
-import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
+import { detailViewPattern, getCurrentIdFromURL, getCurrentTabFromURL, tabPath } from '../utils/navigation';
 import { FEED_CATEGORY } from '../utils/analytics';
+import { PREVIEW_FEATURES, SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../constants';
 import { SocketContext } from '../withSocketConnection';
-import { SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../constants';
-import { usePatrolsPermissions } from '../hooks/usePermissions';
-import useFetchPatrolsFeed from './useFetchPatrolsFeed';
 import useNavigate from '../hooks/useNavigate';
+import { usePatrolsPermissions } from '../hooks/usePermissions';
+import { usePreviewFeature } from '../hooks';
 import useReportsFeed from './useReportsFeed';
 
 import AddItemButton from '../AddItemButton';
@@ -30,7 +30,8 @@ import SoundNotificationsPlayer from '../SoundNotificationsPlayer';
 
 import GearTab from './GearTab';
 import MapLayersTab from './MapLayersTab';
-import PatrolsFeedTab from './PatrolsFeedTab';
+import PatrolsFeed from './PatrolsFeed';
+import PatrolsManager from './PatrolsManager';
 import ReportsFeedTab from './ReportsFeedTab';
 import SettingsPane from './SettingsPane';
 
@@ -51,14 +52,14 @@ const SideBar = () => {
   const navigate = useNavigate();
   const { t } = useTranslation('components', { keyPrefix: 'sideBar' });
 
+  const patrolSchemasEnabled = usePreviewFeature(PREVIEW_FEATURES.PATROL_SCHEMAS);
+
   const socket = useContext(SocketContext);
 
-  const patrolsFeed = useFetchPatrolsFeed();
   const reportsFeed = useReportsFeed();
 
   const analyzersEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.ANALYZERS]);
   const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
-  const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
   const {
     gearEndpointUnavailable,
     hasGear,
@@ -72,8 +73,6 @@ const SideBar = () => {
 
   const { hasPatrolsReadPermission } = usePatrolsPermissions();
 
-  const sideBarRef = useRef();
-
   const [showEventsBadge, setShowEventsBadge] = useState(false);
   const [reportIsBeingAdded, setReportIsBeingAdded] = useState(false);
 
@@ -86,11 +85,12 @@ const SideBar = () => {
   // Hide the layers tab if all map features are disabled.
   const showLayersTab = analyzersEnabled || spatialFeaturesEnabled || subjectsEnabled || eventsEnabled;
 
-  const isPatrolDetailsViewActive = canReadPatrols
-    && !!matchPath(`/${TAB_KEYS.PATROLS}/:id`, location.pathname);
+  const isPatrolItemActive = canReadPatrols
+    && !!matchPath(detailViewPattern(TAB_KEYS.PATROLS), location.pathname);
   const isReportDetailsViewActive = eventsEnabled
-    && !!matchPath(`/${TAB_KEYS.EVENTS}/:id`, location.pathname);
+    && !!matchPath(detailViewPattern(TAB_KEYS.EVENTS), location.pathname);
 
+  const hideDefaultHeader = patrolSchemasEnabled && isPatrolItemActive;
 
   const showGearTab = hasGear;
 
@@ -115,13 +115,13 @@ const SideBar = () => {
     }
 
     if (eventsEnabled && location.state?.relatedEvent) {
-      return navigate(`/${TAB_KEYS.EVENTS}/${location.state.relatedEvent}`, {
+      return navigate(`${tabPath(TAB_KEYS.EVENTS)}/${location.state.relatedEvent}`, {
         replace: true
       });
     }
 
     if (location.key === 'default' || location.state?.comesFromLogin || location.state?.comesFromLngLatRedirection) {
-      return navigate(`/${getCurrentTabFromURL(location.pathname)}`, {});
+      return navigate(tabPath(getCurrentTabFromURL(location.pathname)), {});
     }
 
     return navigate(-1, {});
@@ -179,35 +179,11 @@ const SideBar = () => {
     }
   }, [currentTab, isReportDetailsViewActive, isSideBarOpen, socket]);
 
-  // NOTE: This is getting unmaintainable. Is it really a good practice to use escape like a navigation key?
-  useEffect(() => {
-    const onKeydown = (event) => {
-      const wasEscapePressed = event.key === 'Escape';
-      const isDetailsViewActive = isReportDetailsViewActive || isPatrolDetailsViewActive;
-      const isSideBarFocused = sideBarRef.current.contains(document.activeElement);
-      if (wasEscapePressed && isDetailsViewActive && isSideBarFocused && !isPickingLocation) {
-        navigate(`/${getCurrentTabFromURL(location.pathname)}`);
-      }
-    };
-
-    document.addEventListener('keydown', onKeydown, false);
-
-    return () => document.removeEventListener('keydown', onKeydown, false);
-  }, [isPatrolDetailsViewActive, isPickingLocation, isReportDetailsViewActive, location.pathname, navigate]);
-
-  useEffect(() => {
-    sideBarRef.current.focus();
-  }, [itemId]);
-
-  return <nav
-      className={`${styles.sideBar} ${sideBar.showSideBar ? '' : 'hidden'}`}
-      ref={sideBarRef}
-      tabIndex={0}
-    >
+  return <nav className={`${styles.sideBar} ${sideBar.showSideBar ? '' : 'hidden'}`}>
     <div className={`${styles.verticalNav} ${isSideBarOpen ? 'open' : ''}`}>
       {eventsEnabled && <Link
         className={`${styles.navItem} ${currentTab === TAB_KEYS.EVENTS ? styles.active : ''}`}
-        to={`/${TAB_KEYS.EVENTS}`}
+        to={tabPath(TAB_KEYS.EVENTS)}
       >
         <DocumentIcon />
 
@@ -220,7 +196,7 @@ const SideBar = () => {
 
       {canReadPatrols && <Link
         className={`${styles.navItem} ${currentTab === TAB_KEYS.PATROLS ? styles.active : ''}`}
-        to={`/${TAB_KEYS.PATROLS}`}
+        to={tabPath(TAB_KEYS.PATROLS)}
       >
         <PatrolIcon />
 
@@ -229,7 +205,7 @@ const SideBar = () => {
 
       {showGearTab && <Link
         className={`${styles.navItem} ${currentTab === TAB_KEYS.GEAR ? styles.active : ''}`}
-        to={`/${TAB_KEYS.GEAR}`}
+        to={tabPath(TAB_KEYS.GEAR)}
       >
         <MarkerFeedIcon />
 
@@ -238,7 +214,7 @@ const SideBar = () => {
 
       {showLayersTab && <Link
         className={`${styles.navItem} ${currentTab === TAB_KEYS.LAYERS ? styles.active : ''}`}
-        to={`/${TAB_KEYS.LAYERS}`}
+        to={tabPath(TAB_KEYS.LAYERS)}
       >
         <LayersIcon />
 
@@ -247,7 +223,7 @@ const SideBar = () => {
 
       <Link
         className={`${styles.navItem} ${currentTab === TAB_KEYS.SETTINGS ? styles.active : ''}`}
-        to={`/${TAB_KEYS.SETTINGS}`}
+        to={tabPath(TAB_KEYS.SETTINGS)}
       >
         <GearIcon />
 
@@ -261,7 +237,7 @@ const SideBar = () => {
           <ERLogo />
         </div>
 
-        <div className={styles.header}>
+        {!hideDefaultHeader && <div className={styles.header}>
           <div className={styles.title}>
             {(currentTab === TAB_KEYS.EVENTS || currentTab === TAB_KEYS.PATROLS) && <div>
               {itemId
@@ -297,9 +273,9 @@ const SideBar = () => {
           >
             <CrossIcon />
           </button>
-        </div>
+        </div>}
 
-        <div className={styles.tabBody}>
+        <div className={`${styles.tabBody} ${hideDefaultHeader ? styles.noHeader : ''}`}>
           <Routes>
             {/* Gets rid of warning */}
             <Route path="/" element={null} />
@@ -317,11 +293,18 @@ const SideBar = () => {
               <Route path=":id/*" element={<ReportManager onReportBeingAdded={setReportIsBeingAdded} />} />
             </Route>}
 
-            {canReadPatrols && <Route path={TAB_KEYS.PATROLS}>
-              <Route index element={<PatrolsFeedTab loadingPatrolsFeed={patrolsFeed.loadingPatrolsFeed} />} />
+            {/* Legacy patrol routes */}
+            {canReadPatrols && !patrolSchemasEnabled && <Route path={TAB_KEYS.PATROLS}>
+              <Route index element={<PatrolsFeed />} />
 
               <Route path=":id/*" element={<PatrolDetailView />} />
             </Route>}
+
+            {/* New patrol routes */}
+            {canReadPatrols && patrolSchemasEnabled && <Route
+              element={<PatrolsManager />}
+              path={`${TAB_KEYS.PATROLS}/*`}
+            />}
 
             {showGearTab && <Route path={TAB_KEYS.GEAR} element={<div className={styles.gearRouteBody}>
               <GearTab />

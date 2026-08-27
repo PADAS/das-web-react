@@ -1,5 +1,4 @@
 import React, { memo, useCallback, useContext, useRef, useState } from 'react';
-import Button from 'react-bootstrap/Button';
 import { useTranslation } from 'react-i18next';
 
 import { TrackerContext } from '../utils/analytics';
@@ -33,9 +32,9 @@ const ATTACHMENT_FILE_TYPES_ACCEPTED = [
   '.webm',
   '.mkv',
   '.wmv'
-];
+].join(', ');
 
-const AddAttachmentButton = ({ className = '', onAddAttachments }) => {
+const AddAttachmentButton = ({ onAddAttachments }) => {
   const fileInputRef = useRef();
   const { t } = useTranslation('details-view');
 
@@ -43,18 +42,16 @@ const AddAttachmentButton = ({ className = '', onAddAttachments }) => {
 
   const [draggingOver, setDraggingOver] = useState(false);
 
-  const onAttachmentButtonClick = useCallback((event) => {
-    event.preventDefault();
-
+  const onAttachmentButtonClick = useCallback(() => {
     analytics?.track('Start adding attachment');
 
     fileInputRef.current.click();
   }, [analytics]);
 
   const onAttachmentButtonDragLeave = useCallback((event) => {
-    event.preventDefault();
-
-    setDraggingOver(false);
+    if (!event.currentTarget.contains(event.relatedTarget)) {
+      setDraggingOver(false);
+    }
   }, []);
 
   const onAttachmentButtonDragOver = useCallback((event) => {
@@ -75,9 +72,7 @@ const AddAttachmentButton = ({ className = '', onAddAttachments }) => {
     fileInputRef.current.value = '';
   }, [analytics, onAddAttachments]);
 
-  const onChangeFileInput = useCallback((event) => {
-    event.preventDefault();
-
+  const onChangeFileInput = useCallback(() => {
     analytics?.track('Add attachment');
 
     onAddAttachments(fileInputRef.current.files);
@@ -86,7 +81,7 @@ const AddAttachmentButton = ({ className = '', onAddAttachments }) => {
 
   return <>
     <input
-      accept={ATTACHMENT_FILE_TYPES_ACCEPTED.join(', ')}
+      accept={ATTACHMENT_FILE_TYPES_ACCEPTED}
       data-testid="addAttachmentButton"
       multiple
       onChange={onChangeFileInput}
@@ -95,18 +90,20 @@ const AddAttachmentButton = ({ className = '', onAddAttachments }) => {
       type="file"
     />
 
-    <Button
-      className={`${className} ${draggingOver ? styles.draggingOver : ''} `}
+    <button
+      aria-label={t('addAttachmentButtonLabel')}
+      className={`${styles.addAttachmentButton} ${draggingOver ? styles.draggingOver : ''}`}
       onClick={onAttachmentButtonClick}
       onDragLeave={onAttachmentButtonDragLeave}
       onDragOver={onAttachmentButtonDragOver}
       onDrop={onAttachmentButtonDrop}
+      title={t('addAttachmentButtonLabel')}
       type="button"
-      variant="secondary"
       >
-      <AttachmentIcon />
-      <label>{t('addAttachmentButton')}</label>
-    </Button>
+      <AttachmentIcon aria-hidden="true" />
+
+      <span>{t('addAttachmentButton')}</span>
+    </button>
   </>;
 };
 

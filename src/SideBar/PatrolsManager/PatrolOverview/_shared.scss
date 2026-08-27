@@ -1,0 +1,99 @@
+@use 'sass:color';
+
+@use '../../../common/styles/vars/colors';
+
+@mixin icon-button {
+  align-items: center;
+  background: none;
+  border: none;
+  border-radius: 0.25rem;
+  color: colors.$secondary-medium-gray;
+  display: flex;
+  height: 2.25rem;
+  justify-content: center;
+  outline: none;
+  padding: 0;
+  text-decoration: none;
+  width: 2.25rem;
+
+  svg {
+    height: 1.25rem;
+    width: 1.25rem;
+  }
+
+  &:focus-visible {
+    color: colors.$bright-blue;
+    outline: 2px solid colors.$bright-blue;
+  }
+
+  &:hover {
+    background: colors.$light-gray-background;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+
+    &:hover {
+      background: none;
+    }
+  }
+}
+
+@mixin chip-icon-button {
+  align-items: center;
+  background-color: colors.$light-gray-background;
+  border: 1px solid colors.$light-gray-background;
+  border-radius: 0.25rem;
+  color: colors.$secondary-medium-gray;
+  display: flex;
+  height: 2.25rem;
+  justify-content: center;
+  padding: 0;
+  width: 2.25rem;
+
+  svg {
+    height: 1.25rem;
+    width: 1.25rem;
+  }
+
+  &:hover {
+    background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+    border-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+  }
+
+  &:focus-visible {
+    border-color: colors.$bright-blue;
+    outline: 1px solid colors.$bright-blue;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+
+    &:hover {
+      background-color: colors.$light-gray-background;
+      border-color: colors.$light-gray-background;
+    }
+  }
+}
+
+@mixin chip-icon-button-active-state {
+  &.active {
+    background-color: colors.$bright-blue;
+    border-color: colors.$bright-blue;
+    color: white;
+
+    &:hover {
+      background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+      border-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+    }
+
+    &:focus-visible {
+      background-color: white;
+      border-color: colors.$bright-blue;
+      color: colors.$bright-blue;
+      outline: 1px solid colors.$bright-blue;
+    }
+  }
+}

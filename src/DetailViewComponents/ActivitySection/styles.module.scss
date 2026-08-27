@@ -1,260 +1,254 @@
-@import '../../common/styles/layout';
-@import '../../common/styles/priorities';
-@import '../../common/styles/vars/colors';
+@use '../../common/styles/layout';
+@use '../../common/styles/vars/colors';
 
 $cardExpansionTransitionTime: 300ms;
 
 .sectionHeader {
+  align-items: center;
   display: flex;
   justify-content: space-between;
-  align-items: center;
   margin-bottom: 1rem;
 
   @media print {
     margin-top: 2rem;
   }
-}
 
-.title {
-  display: flex;
-  align-items: center;
+  .title {
+    align-items: center;
+    display: flex;
 
-  h2 {
-    font-size: 1.125rem;
-    font-weight: 500;
-    margin: 0;
-    line-height: 1.375rem;
+    svg {
+      color: colors.$secondary-medium-gray;
+      margin-right: 0.5rem;
+      width: 1.5rem;
+    }
+
+    h2 {
+      font-size: 1.125rem;
+      font-weight: 500;
+      line-height: 1.375rem;
+      margin: 0;
+    }
   }
 
-  svg {
-    color: $secondary-medium-gray;
-    width: 1.5rem;
-    margin-right: 0.5rem;
+  .actions {
+    align-items: center;
+    display: flex;
+
+    @media print {
+      display: none;
+    }
+
+    label {
+      font-size: 0.875rem;
+      margin: 0;
+    }
+
+    button {
+      font-size: 0.875rem;
+      height: 2.25rem;
+      margin-left: 0.5rem;
+      min-width: 2.25rem;
+    }
+
+    .expandCollapseButton {
+      background-color: colors.$light-gray;
+      border-color: colors.$light-gray;
+      color: colors.$secondary-medium-gray;
+    }
   }
-}
-
-.actions {
-  display: flex;
-  align-items: center;
-
-  label {
-    margin: 0;
-    font-size: 0.875rem;
-  }
-
-  button {
-    height: 2.25rem;
-    min-width: 2.25rem;
-    font-size: 0.875rem;
-    margin-left: 0.5rem;
-  }
-
-  @media print {
-    display: none;
-  }
-}
-
-.expandCollapseButton {
-  background-color: $light-gray;
-  border-color: $light-gray;
-  color: $secondary-medium-gray;
 }
 
 .list {
+  background: white;
+  border: 0.0625rem solid colors.$light-gray-lines;
+  border-radius: 0.25rem;
   display: flex;
   flex-flow: column;
+  font-size: 0.875rem;
   list-style: none;
   margin-bottom: 0;
+  overflow: hidden;
   padding-left: 0;
 
-  li {
-    transition: margin $cardExpansionTransitionTime;
-
-    @media print {
+  @media print {
+    li {
       margin: 0.5rem 0;
     }
   }
 }
 
-.openItem {
-  margin: 0.5rem 0;
-}
+.listItem {
+  border-bottom: 0.0625rem solid colors.$light-gray-lines;
 
-.itemRow {
-  border: 0.0625rem solid $light-gray-border;
-  border-radius: 0.1875rem;
-  margin-top: -0.0625rem;
-  display: flex;
-  align-items: center;
-  height: 3.5rem;
-
-  &.collapseRow {
-    cursor: pointer;
+  &:last-child {
+    border-bottom: none;
   }
 
-  .noteTitle {
-    flex-direction: row;
-    justify-content: space-between;
-  }
-}
-
-.nonImageAttachment {
-  @media print {
-    display: none;
-  }
-}
-
-.collapse {
-  border: 0.0625rem solid $light-gray-border;
-  border-top: none;
-  border-radius: 0.1875rem;
-  padding: 1rem 1.5rem;
-  
-  @media print {
-    display: block !important;
-  }
-}
-
-.itemIcon {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  width: 3.5rem;
-  background-color: $very-light-gray;
-
-  svg {
-    height: 1.375rem;
-    width: 1.375rem;
-  }
-  
-  &.priority-300 {
-    @include priority300;
-  }
-
-  &.priority-200 {
-    @include priority200;
-  }
-
-  &.priority-100 {
-    @include priority100;
-  }
-
-  &.priority-0 {
-    @include priority0;
-  }
-}
-
-.itemDetails {
-  flex: 6;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 0 0.5rem;
-  overflow: hidden;
-
-  @media (min-width: $md-layout-width-min) {
-    flex: 10;
-    flex-direction: row;
-    justify-content: space-between;
+  // Items that cannot expand have no separate row element, the list item is the row itself.
+  &.itemRow,
+  .itemRow {
     align-items: center;
+    display: flex;
+    height: 3rem;
+    padding-right: 0.5rem;
+
+    &.collapseRow {
+      background: var(--item-row-bg, transparent);
+      cursor: pointer;
+
+      &:hover:not(:has(.actionButton:not(.collapseToggleButton):hover)) {
+        background: var(--item-row-hover-bg, #{colors.$light-gray});
+      }
+    }
+
+    &.nonImageAttachment {
+      @media print {
+        display: none;
+      }
+    }
+
+    // List item components tune parts of the row from their own CSS modules.
+    // They can do so through the custom properties: --item-icon-bg,
+    // --item-icon-size, --item-row-bg, --item-row-hover-bg,
+    // --item-details-direction, and --item-details-justify.
+    .attachmentThumbnail {
+      height: 100%;
+      object-fit: cover;
+      width: 3rem;
+    }
+
+    .itemIcon {
+      align-items: center;
+      background-color: var(--item-icon-bg, #{colors.$very-light-gray});
+      color: black;
+      display: flex;
+      height: 100%;
+      justify-content: center;
+      width: 3rem;
+
+      svg {
+        height: var(--item-icon-size, 1.375rem);
+        width: var(--item-icon-size, 1.375rem);
+      }
+    }
+
+    .itemDetails {
+      align-items: flex-start;
+      display: flex;
+      flex: 6;
+      flex-direction: var(--item-details-direction, column);
+      justify-content: var(--item-details-justify, center);
+      min-width: 0;
+      overflow: hidden;
+      padding: 0 0.5rem;
+
+      @media (min-width: layout.$md-layout-width-min) {
+        align-items: center;
+        flex: 10;
+        flex-direction: var(--item-details-direction, row);
+        justify-content: var(--item-details-justify, space-between);
+      }
+
+      .itemTitle {
+        font-size: 0.875rem;
+        margin: 0;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 100%;
+
+        @media (min-width: layout.$md-layout-width-min) {
+          flex: 1;
+          width: auto;
+        }
+      }
+
+      .itemDate {
+        flex-shrink: 0;
+        font-size: 0.875rem;
+        white-space: nowrap;
+
+        @media (max-width: layout.$sm-layout-width-max) {
+          font-size: 0.75rem;
+        }
+      }
+    }
+
+    .itemActionButtonContainer {
+      align-items: center;
+      display: flex;
+      flex-shrink: 0;
+      height: 1.75rem;
+      justify-content: center;
+      width: 1.75rem;
+
+      & + & {
+        margin-left: 0.25rem;
+      }
+
+      @media print {
+        display: none;
+      }
+    }
+
+    .actionButton {
+      align-items: center;
+      background: none;
+      border: none;
+      border-radius: 0.25rem;
+      color: colors.$secondary-medium-gray;
+      display: flex;
+      flex-shrink: 0;
+      height: 1.75rem;
+      justify-content: center;
+      padding: 0;
+      width: 1.75rem;
+
+      &:disabled {
+        color: colors.$secondary-light-gray;
+      }
+
+      &:focus-visible {
+        color: colors.$bright-blue;
+        outline: 2px solid colors.$bright-blue;
+      }
+
+      &:hover:not(:disabled, .collapseToggleButton) {
+        background: colors.$light-gray-background;
+      }
+
+      svg {
+        height: var(--action-icon-size, 0.75rem);
+        width: var(--action-icon-size, 0.75rem);
+      }
+
+      @media print {
+        display: none;
+      }
+    }
   }
-}
 
-.reportDetail {
-  display: flex;
-  width: 100%;
-  align-items: center;
+  .collapse {
+    border-top: 0.0625rem solid colors.$light-gray-lines;
 
-  .serialNumber {
-    margin: 0 0.5rem 0 0;
+    @media print {
+      display: block !important;
+    }
+
+    .collapseContent {
+      padding: 1rem;
+    }
+
+    .attachmentImagePreview {
+      cursor: pointer;
+      display: block;
+      height: 100%;
+      object-fit: cover;
+      width: 100%;
+    }
   }
-}
-
-.itemTitle {
-  margin: 0;
-  max-width: 9.5rem;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-
-  @media (min-width: $md-layout-width-min) {
-    max-width: 21rem;
-  }
-}
-
-.itemDate {
-  span {
-    font-size: 0.875rem;
-  }
-}
-
-.itemActionButtonContainer {
-  flex: 1;
-}
-
-.attachmentThumbnail {
-  height: 100%;
-  width: 3.5rem;
-  object-fit: cover;
-}
-
-.attachmentImagePreview {
-  height: 100%;
-  max-width: 100%;
-  object-fit: cover;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  cursor: pointer;
-}
-
-.noteTextArea {
-  border: none;
-  resize: none;
-  padding: 1rem 1.25rem;
-  width: 100%;
-  height: 10rem;
-  outline: none;
-  border-top: 0.0625rem solid $light-gray;
-
-  @media print {
-    display: none;
-  }
-}
-
-.printableNoteText {
-  display: none;
-  padding: 1rem 1.25rem;
-  white-space: pre-wrap;
-
-  @media print {
-    display: block;
-  }
-}
-
-.editingNoteActions {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  height: 3.5rem;
-  padding: 0.5rem;
-  border-top: 0.0625rem solid $light-gray;
-}
-
-.cancelNoteButton {
-  background-color: transparent !important;
-  border-color: transparent !important;
-  color: $secondary-medium-gray !important;
-  font-weight: bold;
-  width: 5rem;
-  margin-right: 0.5rem;
-}
-
-.disabled {
-  color: $secondary-light-gray;
-  pointer-events: none;
 }
 
 :export {

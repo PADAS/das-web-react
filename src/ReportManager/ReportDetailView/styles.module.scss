@@ -1,6 +1,5 @@
 @import '../../common/styles/layout';
 @import '../../common/styles/vars/colors';
-@import '../../common/styles/buttons';
 
 .reportDetailView {
   display: flex;
@@ -10,7 +9,7 @@
   position: relative;
 
   @media (min-width: $md-layout-width-min) {
-    width: 46rem;
+    @include sidebar-width-detail;
   }
 }
 
@@ -99,10 +98,7 @@
 
 .footerActionButtonsContainer {
   display: flex;
-}
-
-.footerActionButton {
-  @include footerActionButton;
+  gap: 0.5rem;
 }
 
 .actionButtons{

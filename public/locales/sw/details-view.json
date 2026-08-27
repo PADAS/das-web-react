@@ -3,34 +3,33 @@
     "collapseAllButton": "Ficha Yote",
     "dateItemStartTitle": "Imeanza",
     "dateItemEndedTitle": "Imekamilika",
-    "expandAllButton": "Fungua Yote",
+    "expandAllButton": "Panua Yote",
     "sectionTitle": "Shughuli",
     "timeLabel": "Wakati"
   },
   "addAttachmentButton": "Kiambatisho",
+  "addAttachmentButtonLabel": "Ongeza kiambatisho",
   "addReportButtonLabel": "Unda Tukio",
   "addReportButtonTitle": "Tukio",
   "addNoteButton": "Maelezo",
+  "addNoteButtonLabel": "Ongeza maelezo",
   "attachmentControls": {
     "addNoteTitle": "Ongeza Maelezo",
     "addAttachmentTitle": "Ongeza Kiambatisho"
   },
   "attachmentListItem": {
-    "collapseClosedButtonLabel": "Fungua",
-    "collapseClosedButtonTitle": "Imefungwa",
-    "collapseOpenButtonLabel": "Funga",
-    "collapseOpenButtonTitle": "Imefunguliwa",
-    "imagePreviewAlt": "{{fileName}} muhtasari",
-    "downloadButtonTooltip": "Pakua",
-    "deleteButtonTooltip": "Futa",
-    "fullViewButtonTooltip": "Tazama Kamili"
+    "collapseClosedButtonLabel": "Panua {{fileName}}",
+    "collapseOpenButtonLabel": "Ficha {{fileName}}",
+    "deleteButtonTooltip": "Futa {{fileName}}",
+    "downloadButtonTooltip": "Pakua {{fileName}}",
+    "fullViewButtonTooltip": "Onyesha {{fileName}} kwenye skrini nzima",
+    "imagePreviewAlt": "{{fileName}} muhtasari"
   },
   "containedReportListItem": {
-    "collapseClosedButtonLabel": "Fungua",
-    "collapseClosedButtonTitle": "Imefungwa",
-    "collapseOpenButtonLabel": "Funga",
-    "collapseOpenButtonTitle": "Imefunguliwa",
-    "goToReportButtonTooltip": "Nenda kwenye tukio"
+    "collapseClosedButtonLabel": "Panua {{title}}",
+    "collapseOpenButtonLabel": "Ficha {{title}}",
+    "loadingLabel": "Inapakia {{title}}",
+    "viewReportButtonLabel": "Angalia tukio {{title}}"
   },
   "footer": {
     "cancelButton": "Ghairi",
@@ -61,13 +60,12 @@
   },
   "noteListItem": {
     "cancelEditingNoteButton": "Ghairi",
-    "collapseClosedButtonLabel": "Fungua",
-    "collapseClosedButtonTitle": "Imefungwa",
-    "collapseOpenButtonLabel": "Funga",
-    "collapseOpenButtonTitle": "Imefunguliwa",
-    "deleteNoteButtonTooltip": "Futa",
+    "collapseClosedButtonLabel": "Panua maelezo",
+    "collapseOpenButtonLabel": "Ficha maelezo",
+    "deleteNoteButtonTooltip": "Futa maelezo",
     "doneEditingNoteButton": "Imekamilika",
-    "editNoteButtonTooltip": "Hariri",
+    "editNoteButtonTooltip": "Hariri maelezo",
+    "noteTextAreaLabel": "Maandishi ya maelezo",
     "noteTitle": "Maelezo mapya: {{noteText}}"
   },
   "reportFormSummary": {

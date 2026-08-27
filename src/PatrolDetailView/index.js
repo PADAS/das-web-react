@@ -9,7 +9,7 @@ import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.
 import { ReactComponent as HistoryIcon } from '../common/images/icons/history.svg';
 
 import { addPatrolSegmentToEvent, getEventIdsForCollection, setOriginalTextToEventNotes } from '../utils/events';
-import { selectPatrolData } from '../selectors/patrols';
+import { selectPatrolTrackData } from '../selectors/patrols';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../utils/file';
 import {
   actualEndTimeForPatrol,
@@ -87,13 +87,15 @@ const PatrolDetailView = () => {
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingPatrol, setIsLoadingPatrol] = useState(true);
-  const [patrolDataSelector, setPatrolDataSelector] = useState(null);
+  // Snapshot of the patrol data from the store.
+  const [patrol, setPatrol] = useState(null);
+  const [patrolTrackData, setPatrolTrackData] = useState(null);
   const [patrolForm, setPatrolForm] = useState();
   const [redirectTo, setRedirectTo] = useState(null);
   const [notesToAdd, setNotesToAdd] = useState([]);
   const [showInvalidDatesModal, setShowInvalidDatesModal] = useState(false);
 
-  const { patrol, leader } = patrolDataSelector || {};
+  const { leader } = patrolTrackData || {};
 
   const isNewPatrol = patrolId === 'new';
   const patrolData = location.state?.patrolData;
@@ -489,9 +491,10 @@ const PatrolDetailView = () => {
   useEffect(() => {
     if (!isLoadingPatrol) {
       const navigationPatrolId = isNewPatrol ? newPatrolTemporalId : patrolId;
-      const memoryPatrolId = isNewPatrol ? temporalIdRef.current : patrolDataSelector?.patrol?.id;
+      const memoryPatrolId = isNewPatrol ? temporalIdRef.current : patrol?.id;
       if (navigationPatrolId !== memoryPatrolId) {
-        setPatrolDataSelector(originalPatrol ? selectPatrolData(state, originalPatrol) : {});
+        setPatrol(originalPatrol ?? null);
+        setPatrolTrackData(originalPatrol ? selectPatrolTrackData(state, originalPatrol) : {});
         temporalIdRef.current = isNewPatrol ? newPatrolTemporalId : null;
       }
     }
@@ -500,7 +503,7 @@ const PatrolDetailView = () => {
     isNewPatrol,
     newPatrolTemporalId,
     originalPatrol,
-    patrolDataSelector?.patrol?.id,
+    patrol?.id,
     patrolId,
     state,
   ]);
@@ -610,13 +613,12 @@ const PatrolDetailView = () => {
 
             <div className={`${styles.footer} ${styles.hideOnPrint}`}>
               <div className={styles.footerActionButtonsContainer}>
-                <AddNoteButton className={styles.footerActionButton} onAddNote={onAddNote} />
+                <AddNoteButton onAddNote={onAddNote} />
 
-                <AddAttachmentButton className={styles.footerActionButton} onAddAttachments={onAddAttachments} />
+                <AddAttachmentButton onAddAttachments={onAddAttachments} />
 
                 {!isNewPatrol && <AddReportButton
                   analyticsMetadata={{ category: PATROL_DETAIL_VIEW_CATEGORY, location: 'Patrol Detail View' }}
-                  className={styles.footerActionButton}
                   formProps={{
                     isPatrolReport: true,
                     onSaveSuccess: onAddReport,

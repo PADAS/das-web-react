@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 
 import { clearAuth, resetMasterCancelToken } from '../ducks/auth';
 
-import { REACT_APP_ROUTE_PREFIX } from '../constants';
+import { APP_ROUTES } from '../constants/routes';
 import { isStepUpChallenge, parseAuthChallenge, recoverAuth } from '../utils/auth-recovery';
 import { showToast } from '../utils/toast';
 import useAuthRecovery from '../hooks/useAuthRecovery';
@@ -89,7 +89,7 @@ const RequestConfigManager = ({
     if (isAuthError) {
       resetMasterCancelToken();
       clearAuth().then(() => {
-        navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search });
+        navigate({ pathname: APP_ROUTES.LOGIN, search });
       });
     }
     return Promise.reject(error);

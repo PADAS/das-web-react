@@ -54,6 +54,15 @@ describe('Utils - File', () => {
       expect(result).toMatch(/^data:image\/jpeg;base64,/);
     });
 
+    test('drops the parameters of the content-type', async () => {
+      const fakeData = Buffer.from('fake-image-data');
+      axios.get.mockResolvedValue({ data: fakeData, headers: { 'content-type': 'image/svg+xml; charset=utf-8' } });
+
+      const result = await fetchImageAsBase64FromUrl('https://example.com/image.svg');
+
+      expect(result).toMatch(/^data:image\/svg\+xml;base64,/);
+    });
+
     test('falls back to image/png when the response has no headers', async () => {
       const fakeData = Buffer.from('fake-image-data');
       axios.get.mockResolvedValue({ data: fakeData, headers: undefined });
@@ -61,6 +70,25 @@ describe('Utils - File', () => {
       const result = await fetchImageAsBase64FromUrl('https://example.com/image.png');
 
       expect(result).toMatch(/^data:image\/png;base64,/);
+    });
+
+    test('appends the API host to relative urls', async () => {
+      const fakeData = Buffer.from('fake-image-data');
+      axios.get.mockResolvedValue({ data: fakeData, headers: { 'content-type': 'image/png' } });
+
+      await fetchImageAsBase64FromUrl('/api/v1.0/activity/event/1234/file/5678/icon/image.png');
+
+      expect(axios.get).toHaveBeenCalledWith(
+        'https://localhost/api/v1.0/activity/event/1234/file/5678/icon/image.png',
+        { responseType: 'arraybuffer' }
+      );
+    });
+
+    test('rejects when the response is not an image', async () => {
+      const fakeData = Buffer.from('<!DOCTYPE html>');
+      axios.get.mockResolvedValue({ data: fakeData, headers: { 'content-type': 'text/html' } });
+
+      await expect(fetchImageAsBase64FromUrl('https://example.com/image.png')).rejects.toThrow();
     });
   });
 

@@ -1,0 +1,33 @@
+@use '../../../common/styles/vars/colors';
+
+.boolean {
+  .label {
+    color: colors.$secondary-medium-gray;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 0.125rem;
+
+    &.error {
+      color: colors.$bright-red;
+    }
+  }
+
+  .switchField {
+    display: flex;
+  }
+
+  .description {
+    color: colors.$alt-light-gray;
+    font-size: 0.875rem;
+    font-weight: 400;
+    margin: 0.125rem 0 0;
+
+    &.error {
+      color: colors.$bright-red;
+    }
+
+    &:empty {
+      margin: 0;
+    }
+  }
+}

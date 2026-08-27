@@ -1,37 +1,97 @@
 import { createSelector } from 'reselect';
+import { shallowEqual } from 'react-redux';
 import { isAfter } from 'date-fns';
 import uniq from 'lodash/uniq';
 
 import {
   drawLinesBetweenPatrolTrackAndPatrolPoints,
-  extractPatrolPointsFromTrackData,
+  extractLegPatrolPoints,
+  finalizeCombinedPatrolPoints,
+  getTrackedSubjectsForPatrolSegment,
+  isSegmentActiveForPatrol,
   patrolStateAllowsTrackDisplay,
 } from '../../utils/patrols';
-import { selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod } from '../tracks';
-import { trackHasDataWithinTimeRange, trimTrackDataToTimeRange } from '../../utils/tracks';
+import { selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod, selectTrackTimeEnvelope } from '../tracks';
+import { trackHasDataWithinTimeRange, trackLengthWithinTimeRange, trimTrackDataToTimeRange } from '../../utils/tracks';
 
-const buildPatrolData = (patrol, timeSliderState, tracks) => {
-  // Get the patrol leader from the first patrol segment and its tracks.
-  const patrolLeader = patrol.patrol_segments[0].leader || null;
-  const patrolLeaderTracks = tracks[patrolLeader?.id] || null;
+const clampLegEndTime = (endTime, envelopeUntil) => {
+  if (!envelopeUntil) {
+    return endTime;
+  }
 
-  // Then calculate the tracks by trimming the patrol leader tracks to the patrol time range.
-  const timeRange = patrol.patrol_segments[0].time_range;
-  const patrolLeaderTracksTrimmedToPatrolTimeRange = !!patrolLeaderTracks
-    && patrolStateAllowsTrackDisplay(patrol)
-    && trackHasDataWithinTimeRange(patrolLeaderTracks, timeRange.start_time, timeRange.end_time)
-    && trimTrackDataToTimeRange(patrolLeaderTracks, timeRange.start_time, timeRange.end_time);
-  const patrolTrackData = patrolLeaderTracksTrimmedToPatrolTimeRange || null;
+  if (!endTime) {
+    return envelopeUntil;
+  }
+
+  return new Date(envelopeUntil).getTime() < new Date(endTime).getTime() ? envelopeUntil : endTime;
+};
+
+// A leg's track is its own leader's track, bounded to that leg's own start/end
+// times.
+const buildLegTrackData = (segment, tracks, trackTimeEnvelopeUntil) => {
+  const leader = segment.leader || null;
+  const rawTrackData = leader ? (tracks[leader.id] || null) : null;
+  const { start_time, end_time } = segment.time_range || {};
+  const clampedEndTime = clampLegEndTime(end_time, trackTimeEnvelopeUntil);
+
+  const trackData = (!!rawTrackData
+    && !!start_time
+    && trackHasDataWithinTimeRange(rawTrackData, start_time, clampedEndTime)
+    && trimTrackDataToTimeRange(rawTrackData, start_time, clampedEndTime)) || null;
+
+  return { leader, rawTrackData, segment, trackData };
+};
+
+// Combines every leg's own track into the patrol's overall track.
+const combineLegsTrackData = (legsData) => {
+  const legsWithTrackData = [...legsData].reverse().filter(({ trackData }) => !!trackData);
+
+  if (legsWithTrackData.length) {
+    return {
+      points: {
+        type: 'FeatureCollection',
+        features: legsWithTrackData.flatMap(({ trackData }) => trackData.points?.features ?? []),
+      },
+      track: {
+        type: 'FeatureCollection',
+        features: legsWithTrackData.flatMap(({ trackData }) => trackData.track?.features ?? []),
+      },
+    };
+  }
+  return null;
+};
+
+const buildPatrolData = (patrol, timeSliderState, trackTimeEnvelopeUntil, tracks) => {
+  // The last leg's leader is used for title/display purposes, since it's the
+  // most recent one.
+  const patrolLeader = patrol.patrol_segments[patrol.patrol_segments.length - 1]?.leader || null;
+
+  if (!patrolStateAllowsTrackDisplay(patrol)) {
+    return { leader: patrolLeader, legsTrackData: [], trackData: null };
+  }
+
+  const legsData = patrol.patrol_segments.map((segment) => buildLegTrackData(segment, tracks, trackTimeEnvelopeUntil));
+  const trackData = combineLegsTrackData(legsData);
 
   // Create the patrol data object with what we have so far.
-  const patrolData = { leader: patrolLeader, patrol, trackData: patrolTrackData };
+  const patrolData = {
+    leader: patrolLeader,
+    legsTrackData: legsData.map(({ trackData: legTrackData }) => legTrackData),
+    trackData,
+  };
 
   if (patrolData.trackData) {
-    // If the patrol has track data, we now calculate its start and stop geometries. First we extract the patrol
-    // points.
-    const patrolPoints = extractPatrolPointsFromTrackData(patrolData, patrolLeaderTracks);
+    // If the patrol has track data, we now calculate its start and stop geometries.
+    const legsPoints = legsData.map(({ leader: legLeader, rawTrackData, segment, trackData: legTrackData }) => (legTrackData
+      ? extractLegPatrolPoints(segment, legLeader, legTrackData, rawTrackData, isSegmentActiveForPatrol(patrol, segment))
+      : null));
 
-    if (patrolPoints) {
+    const patrolPoints = {
+      start_location: legsPoints.find((legPoints) => !!legPoints?.start_location)?.start_location ?? null,
+      end_location: [...legsPoints].reverse().find((legPoints) => !!legPoints?.end_location)?.end_location ?? null,
+    };
+
+    if (patrolPoints.start_location || patrolPoints.end_location) {
       const isTimeSliderActiveWithAVirtualDate = timeSliderState.active && timeSliderState.virtualDate;
       if (isTimeSliderActiveWithAVirtualDate) {
         // Adjust the patrol points to the time slider virtual date.
@@ -40,14 +100,14 @@ const buildPatrolData = (patrol, timeSliderState, tracks) => {
         if (patrolPoints.start_location?.properties?.time) {
           const patrolStartDate = new Date(patrolPoints.start_location.properties.time);
           if (isAfter(patrolStartDate, timeSliderVirtualDate)) {
-            delete patrolPoints.start_location;
+            patrolPoints.start_location = null;
           }
         }
 
         if (patrolPoints.end_location?.properties?.time) {
           const patrolEndDate = new Date(patrolPoints.end_location.properties.time);
-          if (isTimeSliderActiveWithAVirtualDate && isAfter(patrolEndDate, timeSliderVirtualDate)) {
-            delete patrolPoints.end_location;
+          if (isAfter(patrolEndDate, timeSliderVirtualDate)) {
+            patrolPoints.end_location = null;
           }
         }
       }
@@ -55,9 +115,11 @@ const buildPatrolData = (patrol, timeSliderState, tracks) => {
       if (patrolPoints.start_location || patrolPoints.end_location) {
         // If there are either a start or an end location, we calculate the lines and add the start and stop geometries
         // to the patrol data object.
+        const finalizedPatrolPoints = finalizeCombinedPatrolPoints(patrol, patrolPoints);
+
         patrolData.startStopGeometries = {
-          points: patrolPoints,
-          lines: drawLinesBetweenPatrolTrackAndPatrolPoints(patrolPoints, patrolData.trackData),
+          points: finalizedPatrolPoints,
+          lines: drawLinesBetweenPatrolTrackAndPatrolPoints(finalizedPatrolPoints, patrolData.trackData),
         };
       }
     }
@@ -87,9 +149,84 @@ const selectVisibleAndPinnedPatrolTracks = createSelector(
   (patrolTrackState) => uniq([...patrolTrackState.visible, ...patrolTrackState.pinned])
 );
 
-export const selectPatrolData = createSelector(
-  [selectTimeSliderState, selectTracks, (_, patrol) => patrol],
-  (timeSliderState, tracks, patrol) => buildPatrolData(patrol, timeSliderState, tracks)
+// Only the tracks belonging to this patrol's own segment leaders, so a socket update to some
+// other subject's track elsewhere in the app doesn't invalidate this patrol's (comparatively
+// expensive) segment-trimming work below.
+const selectPatrolSegmentLeaderTracks = createSelector(
+  [selectTracks, (_, patrol) => patrol],
+  (tracks, patrol) => patrol.patrol_segments.reduce((segmentLeaderTracks, { leader }) => {
+    if (tracks[leader?.id]) {
+      segmentLeaderTracks[leader.id] = tracks[leader.id];
+    }
+    return segmentLeaderTracks;
+  }, {}),
+  { memoizeOptions: { resultEqualityCheck: shallowEqual } }
+);
+
+export const selectPatrolTrackData = createSelector(
+  [selectTimeSliderState, selectTrackTimeEnvelope, selectPatrolSegmentLeaderTracks, (_, patrol) => patrol],
+  (timeSliderState, trackTimeEnvelope, tracks, patrol) =>
+    buildPatrolData(patrol, timeSliderState, trackTimeEnvelope.until, tracks)
+);
+
+const selectPatrolTrackedSubjectTracks = createSelector(
+  [selectTracks, (_, patrol) => patrol],
+  (tracks, patrol) => patrol.patrol_segments.reduce((patrolTrackedSubjectTracks, segment) => {
+    getTrackedSubjectsForPatrolSegment(segment).forEach((subject) => {
+      if (tracks[subject.id]) {
+        patrolTrackedSubjectTracks[subject.id] = tracks[subject.id];
+      }
+    });
+
+    return patrolTrackedSubjectTracks;
+  }, {}),
+  { memoizeOptions: { resultEqualityCheck: shallowEqual } }
+);
+
+// The kilometers a subject covered during a leg: its own track, bounded to the leg's time range.
+const distanceCoveredInSegment = (segment, subjectTrack) => {
+  if (!segment.time_range?.start_time
+    || !trackHasDataWithinTimeRange(subjectTrack, segment.time_range.start_time, segment.time_range.end_time)
+  ) {
+    return 0;
+  }
+
+  return trackLengthWithinTimeRange(subjectTrack, segment.time_range.start_time, segment.time_range.end_time);
+};
+
+// Every subject the patrol tracks, along with the total distance it covered across the legs it
+// took part in, which stays unknown until that subject's track has been loaded.
+export const selectPatrolTrackedSubjects = createSelector(
+  [selectPatrolTrackedSubjectTracks, (_, patrol) => patrol],
+  (patrolTrackedSubjectTracks, patrol) => {
+    const patrolLeaderId = patrol.patrol_segments[patrol.patrol_segments.length - 1]?.leader?.id ?? null;
+
+    const patrolTrackedSubjectsMap = new Map();
+    patrol.patrol_segments.forEach((segment) => {
+      getTrackedSubjectsForPatrolSegment(segment).forEach((subject) => {
+        const trackedSubject = patrolTrackedSubjectsMap.get(subject.id) ?? { segments: [], subject };
+
+        trackedSubject.segments.push(segment);
+
+        patrolTrackedSubjectsMap.set(subject.id, trackedSubject);
+      });
+    });
+
+    return [...patrolTrackedSubjectsMap.values()]
+      .map(({ segments, subject }) => {
+        const subjectTrack = patrolTrackedSubjectTracks[subject.id];
+
+        return {
+          distance: subjectTrack
+            ? segments.reduce((distance, segment) => distance + distanceCoveredInSegment(segment, subjectTrack), 0)
+            : null,
+          isPatrolLeader: subject.id === patrolLeaderId,
+          subject,
+        };
+      })
+      // The patrol leader comes first.
+      .sort((a, b) => b.isPatrolLeader - a.isPatrolLeader);
+  }
 );
 
 export const selectPatrolLeadersWithLastPosition = createSelector(
@@ -143,11 +280,24 @@ export const selectPatrolsWithTracks = createSelector(
   }
 );
 
+const selectPatrolsWithTracksSegmentLeaderTracks = createSelector(
+  [selectTracks, selectPatrolsWithTracks],
+  (tracks, patrolsWithTracks) => patrolsWithTracks.reduce((leaderTracks, patrol) => {
+    patrol.patrol_segments.forEach(({ leader }) => {
+      if (tracks[leader?.id]) {
+        leaderTracks[leader.id] = tracks[leader.id];
+      }
+    });
+    return leaderTracks;
+  }, {}),
+  { memoizeOptions: { resultEqualityCheck: shallowEqual } }
+);
+
 export const selectPatrolsWithTracksData = createSelector(
-  [selectPatrolsWithTracks, selectTimeSliderState, selectTracks],
-  (patrolsWithTracks, timeSliderState, tracks) => patrolsWithTracks.map(
+  [selectPatrolsWithTracks, selectTimeSliderState, selectTrackTimeEnvelope, selectPatrolsWithTracksSegmentLeaderTracks],
+  (patrolsWithTracks, timeSliderState, trackTimeEnvelope, tracks) => patrolsWithTracks.map(
     // Build the patrol data for each patrol with tracks.
-    (patrol) => buildPatrolData(patrol, timeSliderState, tracks)
+    (patrol) => ({ patrol, ...buildPatrolData(patrol, timeSliderState, trackTimeEnvelope.until, tracks) })
   )
 );
 
@@ -157,7 +307,7 @@ export const selectSubjectTracksWithPatrolTrackShownFlag = createSelector(
     subjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod.map((subjectTracks) => {
       const subjectId = subjectTracks.track.features[0].properties.id;
       const isSubjectLeaderOfSomePatrol = patrolsWithTracks.some(
-        (patrol) => patrol.patrol_segments?.[0]?.leader?.id && patrol.patrol_segments[0].leader.id === subjectId
+        (patrol) => patrol.patrol_segments?.some((segment) => segment.leader?.id === subjectId)
       );
 
       // Map each subject tracks and add the patrolTrackShown flag.
