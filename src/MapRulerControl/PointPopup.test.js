@@ -66,6 +66,19 @@ describe('MapRulerControl - PointPopup', () => {
     expect(popup).toHaveTextContent('Area: 6181.86km²');
   });
 
+  test('shows a small area in square meters', () => {
+    const popup = renderComponent([[0, 0], [0.00063, 0], [0.00063, 0.00063], [0, 0.00063]]);
+
+    expect(popup).toHaveTextContent('Area: 4907.41m²');
+  });
+
+  test('does not show the area of a self-crossing ring', () => {
+    const popup = renderComponent([[0, 0], [1, 1], [1, 0], [0, 1]]);
+
+    expect(popup).toHaveTextContent('Distance from start:');
+    expect(popup).not.toHaveTextContent('Area:');
+  });
+
   test('shows the area on a popup for a point other than the last one', () => {
     const popup = renderComponent([[0, 0], [1, 0], [1, 1]], { pointIndex: 1 });
 

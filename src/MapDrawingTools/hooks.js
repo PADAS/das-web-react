@@ -9,6 +9,7 @@ import {
   createLineSegmentGeoJsonForCoords,
   createMidpointsGeoJsonForCoords,
   createPointsGeoJsonForCoords,
+  getClosedRingCoords,
 } from './utils';
 import { DRAWING_MODES } from '.';
 import { MapDrawingToolsContext } from './ContextProvider';
@@ -56,11 +57,6 @@ export const useDrawToolGeoJson = (
     return vertexCoordinates;
   }, [cursorCoords, draggedPoint, drawMode, isDrawing, isMediumLayoutOrLarger, points]);
 
-  const distinctVertexCoordinates = useMemo(
-    () => vertexCoordinates.filter((coordinates, index) => index === 0 || !isEqual(coordinates, vertexCoordinates[index - 1])),
-    [vertexCoordinates]
-  );
-
   const geoJson = useMemo(() => {
     const data = {
       drawnLinePoints: featureCollection([]),
@@ -73,9 +69,9 @@ export const useDrawToolGeoJson = (
     const shouldCalculatePolygonData = drawMode === DRAWING_MODES.POLYGON
       && vertexCoordinates.length > POINTS_IN_A_LINE;
     const shouldCalculateMidpointsData = shouldCalculatePolygonData && !isDrawing && !draggedPoint && polygonHover;
-    const shouldCalculateLineFillData = showLineFill
-      && !shouldCalculatePolygonData
-      && distinctVertexCoordinates.length > POINTS_IN_A_LINE;
+    const lineFillRing = showLineFill && !shouldCalculatePolygonData
+      ? getClosedRingCoords(vertexCoordinates)
+      : null;
 
     const isPolygonClosed = shouldCalculatePolygonData
       && isEqual(vertexCoordinates[0], vertexCoordinates[vertexCoordinates.length - 1]);
@@ -101,11 +97,8 @@ export const useDrawToolGeoJson = (
       data.fillLabelPoint = createLabelPointGeoJsonForPolygonThrottled(data.fillPolygon);
     }
 
-    if (shouldCalculateLineFillData) {
-      data.fillPolygon = createFillPolygonGeoJsonForCoords([
-        ...distinctVertexCoordinates,
-        distinctVertexCoordinates[0],
-      ]);
+    if (lineFillRing) {
+      data.fillPolygon = createFillPolygonGeoJsonForCoords(lineFillRing);
     }
 
     if (shouldCalculateMidpointsData) {
@@ -116,7 +109,7 @@ export const useDrawToolGeoJson = (
     }
 
     return data;
-  }, [vertexCoordinates, distinctVertexCoordinates, drawMode, isDrawing, draggedPoint, polygonHover, isMediumLayoutOrLarger, showLineFill]);
+  }, [vertexCoordinates, drawMode, isDrawing, draggedPoint, polygonHover, isMediumLayoutOrLarger, showLineFill]);
 
   const setMapDrawingDataThrottledRef = useRef(throttle((newGeoJson) => {
     setMapDrawingData(newGeoJson);

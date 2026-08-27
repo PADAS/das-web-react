@@ -88,7 +88,9 @@ const MapDrawingLayers = ({
     type: 'fill',
     sourceId: SOURCE_IDS.FILL_SOURCE,
     paint: showLineFill ? lightFillPaint : fillPaint,
-    layout: fillLayout
+    layout: fillLayout,
+    // the line fill is a backdrop for the drawn line, unlike the polygon fill which sits on top of it
+    options: showLineFill ? { before: LAYER_IDS.LINE_LABELS, beforeOptional: true } : undefined
   }]);
 
   const [pointsLayer] = useMapLayers([{

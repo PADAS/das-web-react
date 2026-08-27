@@ -22,6 +22,8 @@ import * as styles from './styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
+const MEASUREMENT_LAYER_IDS = [LAYER_IDS.POINTS, LAYER_IDS.LINES, LAYER_IDS.FILL];
+
 const MapRulerControl = ({ setIsPickingLocation }) => {
   const { t } = useTranslation('map-controls', { keyPrefix: 'mapRuler' });
 
@@ -163,11 +165,11 @@ const MapRulerControl = ({ setIsPickingLocation }) => {
   useEffect(() => {
     if (map && nextClickResetsState) {
       const onMapClickToReset = (e) => {
-        const isPointClick = !!map.queryRenderedFeatures(e.point, {
-          layers: [LAYER_IDS.POINTS],
+        const isMeasurementClick = !!map.queryRenderedFeatures(e.point, {
+          layers: MEASUREMENT_LAYER_IDS.filter((layerId) => !!map.getLayer(layerId)),
         }).length;
 
-        if (!isPointClick) {
+        if (!isMeasurementClick) {
           setActiveState(false);
           map.off('click', onMapClickToReset);
         }

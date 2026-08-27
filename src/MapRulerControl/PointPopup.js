@@ -60,7 +60,7 @@ const PointPopup = (props) => {
         <p>
           <strong>{t('bearingLabel')}</strong> {bearingFromPrev}&deg; <br />
           <strong>{t('distanceLabel')}</strong> {distanceFromStart}
-          {points.length >= 3 && <>
+          {!!polygonArea && <>
             <br />
             <strong>{t('areaLabel')}</strong> {polygonArea}
           </>}

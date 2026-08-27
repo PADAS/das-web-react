@@ -334,6 +334,36 @@ describe('MapDrawingTools', () => {
       });
     });
 
+    test('draws underneath the line and its labels', async () => {
+      map.getLayer.mockImplementation((layerId) => layerId === LAYER_IDS.LINE_LABELS ? { id: layerId } : undefined);
+
+      renderLineDrawingTools(jest.fn(), { showLineFill: true });
+
+      await waitFor(() => {
+        const [, before] = map.addLayer.mock.calls.find(([layer]) => layer.id === LAYER_IDS.FILL);
+
+        expect(before).toBe(LAYER_IDS.LINE_LABELS);
+      });
+    });
+
+    test('draws the polygon fill on top of the line, as before', async () => {
+      map.getLayer.mockImplementation((layerId) => layerId === LAYER_IDS.LINE_LABELS ? { id: layerId } : undefined);
+
+      render(
+        <MapContext.Provider value={map}>
+          <MapDrawingToolsContextProvider>
+            <MapDrawingTools drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={[[1, 2], [2, 3], [4, 1]]} />
+          </MapDrawingToolsContextProvider>
+        </MapContext.Provider>
+      );
+
+      await waitFor(() => {
+        const [, before] = map.addLayer.mock.calls.find(([layer]) => layer.id === LAYER_IDS.FILL);
+
+        expect(before).toBeUndefined();
+      });
+    });
+
     test('ignores a cursor location identical to the last point', async () => {
       const setMapDrawingData = jest.fn();
 
