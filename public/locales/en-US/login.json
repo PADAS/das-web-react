@@ -33,5 +33,6 @@
   "loginButtonManagedUser": "Sign in as a managed user",
   "passwordLabel": "Password",
   "title": "Log In",
-  "usernameLabel": "Username"
+  "usernameLabel": "Username",
+  "__ciProbe": "throwaway: proves the i18n-version job passes once the version is bumped"
 }
