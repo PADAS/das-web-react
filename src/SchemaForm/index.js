@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useId, useImperativeHandle, useMemo, useState } from 'react';
 import isEqual from 'react-fast-compare';
 import { merge } from 'lodash-es';
 import { useDispatch } from 'react-redux';
@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { clearUserContent } from '../ducks/user-content';
 import evaluateSectionConditions from './utils/evaluateSectionConditions';
 import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from '../utils/form-schemas/constants';
+import { FormInstanceContext } from './utils/useFormElementDomId';
 import getDefaultFormData from './utils/getDefaultFormData';
 import normalizeChoiceListValues from '../utils/form-schemas/normalizeChoiceListValues';
 import normalizeDateTimeFieldValue from './utils/normalizeDateTimeFieldValue';
@@ -44,21 +45,33 @@ const getVisibleSectionIds = (formElements, formData) =>
 
 const SchemaForm = ({
   anchorLocation,
+  as = 'form',
+  className = '',
   formData,
   hideMapLocationMarkers,
   metadata,
   onFormDataChange,
-  onFormSubmit,
+  onFormSubmit = null,
   readOnly,
-  renderSubmitButton,
+  renderSubmitButton = () => null,
   schema,
   shouldPopulateDefaultData,
+  validateRef,
 }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('schema-form');
 
+  const formInstanceId = useId();
+
+  const isFormOwner = as === 'form';
+
+  const getDomId = useCallback(
+    (formElementId) => formInstanceId ? `${formInstanceId}-${formElementId}` : formElementId,
+    [formInstanceId]
+  );
+
   const onLocationMarkerClick = useCallback((markerId) => {
-    const locationField = document.getElementById(markerId);
+    const locationField = document.getElementById(getDomId(markerId));
     if (locationField) {
       // The location field is in the document, focus it.
       locationField.focus();
@@ -67,9 +80,9 @@ const SchemaForm = ({
       // collection item. Calculate the collection item id to focus it.
       const markerIdPathParts = markerId.split('.');
       const collectionItemId = `${markerIdPathParts[0]}`;
-      document.getElementById(collectionItemId)?.focus();
+      document.getElementById(getDomId(collectionItemId))?.focus();
     }
-  }, []);
+  }, [getDomId]);
 
   const {
     blurLocationMarker,
@@ -88,14 +101,7 @@ const SchemaForm = ({
   const runSchemaValidations = useSchemaValidations(schema);
   const runUploadValidations = useUploadValidations(formElements);
 
-  const visibleSectionIds = useMemo(
-    () => getVisibleSectionIds(formElements, normalizedFormData),
-    [formElements, normalizedFormData]
-  );
-
-  const onSubmit = (event) => {
-    event.preventDefault();
-
+  const validate = ({ shouldFocusFirstError = true } = {}) => {
     const schemaErrors = runSchemaValidations(normalizedFormData) || {};
     const uploadErrors = runUploadValidations(normalizedFormData);
     const fieldErrors = merge({}, schemaErrors, uploadErrors);
@@ -105,13 +111,30 @@ const SchemaForm = ({
       setFieldErrors(fieldErrors);
       setLastSubmissionErroneousFields(erroneousFields);
 
-      // Focus the first erroneous field if possible (it may be inside a
-      // collection).
-      document.getElementById(erroneousFields[0])?.focus();
-    } else {
-      setFieldErrors({});
-      setLastSubmissionErroneousFields([]);
+      if (shouldFocusFirstError) {
+        document.getElementById(getDomId(erroneousFields[0]))?.focus();
+      }
 
+      return false;
+    }
+
+    setFieldErrors({});
+    setLastSubmissionErroneousFields([]);
+
+    return true;
+  };
+
+  useImperativeHandle(validateRef, () => ({ validate }));
+
+  const visibleSectionIds = useMemo(
+    () => getVisibleSectionIds(formElements, normalizedFormData),
+    [formElements, normalizedFormData]
+  );
+
+  const onSubmit = (event) => {
+    event.preventDefault();
+
+    if (validate()) {
       onFormSubmit();
     }
   };
@@ -157,7 +180,7 @@ const SchemaForm = ({
         attachmentsMetadata={metadata?.attachments}
         details={formElements[id].details}
         error={error}
-        id={id}
+        formElementId={id}
         key={id}
         onFieldChange={onChange}
         readOnly={readOnly}
@@ -165,7 +188,7 @@ const SchemaForm = ({
       />;
 
     case FORM_ELEMENT_TYPES.HEADER:
-      return <Header details={formElements[id].details} id={id} key={id} />;
+      return <Header details={formElements[id].details} formElementId={id} key={id} />;
 
     case FORM_ELEMENT_TYPES.COLLECTION:
       return <Collection
@@ -174,8 +197,8 @@ const SchemaForm = ({
         details={formElements[id].details}
         error={error}
         focusLocationMarker={focusLocationMarker}
+        formElementId={id}
         formElements={formElements}
-        id={id}
         key={id}
         onFieldChange={onChange}
         readOnly={readOnly}
@@ -187,7 +210,7 @@ const SchemaForm = ({
       return <DateTime
         details={formElements[id].details}
         error={error}
-        id={id}
+        formElementId={id}
         key={id}
         onFieldChange={onChange}
         readOnly={readOnly}
@@ -203,7 +226,7 @@ const SchemaForm = ({
         details={formElements[id].details}
         error={error}
         focusLocationMarker={focusLocationMarker}
-        id={id}
+        formElementId={id}
         key={id}
         onFieldChange={onChange}
         readOnly={readOnly}
@@ -215,7 +238,7 @@ const SchemaForm = ({
       return <Field
         details={formElements[id].details}
         error={error}
-        id={id}
+        formElementId={id}
         key={id}
         onFieldChange={onChange}
         readOnly={readOnly}
@@ -274,9 +297,15 @@ const SchemaForm = ({
     setLocationMarkers(locationMarkers);
   }, [formElements, normalizedFormData, setLocationMarkers]);
 
-  useEffect(() => () => dispatch(clearUserContent()), [dispatch]);
+  useEffect(() => {
+    // The user content is shared across forms, so only the one that owns the
+    // form element clears it.
+    if (isFormOwner) {
+      return () => dispatch(clearUserContent());
+    }
+  }, [dispatch, isFormOwner]);
 
-  return <form onSubmit={onSubmit}>
+  const formContent = <>
     <div className="sr-only" role="alert">
       {lastSubmissionErroneousFields.length > 0 && <>
         <p>{t('validationErrorsAnnouncement')}</p>
@@ -294,18 +323,26 @@ const SchemaForm = ({
       fieldErrors={fieldErrors}
       focusLocationMarker={focusLocationMarker}
       formData={normalizedFormData}
+      formElementId={sectionId}
       formElements={formElements}
       hidden={!visibleSectionIds.includes(sectionId)}
-      id={sectionId}
       key={sectionId}
       onFieldChange={onSectionFieldChange}
       onFieldErrorsChange={(newFieldErrors) => setFieldErrors(newFieldErrors)}
       renderFormElement={renderFormElement}
       setDefaultFormData={(defaultFormData) => onFormDataChange({ ...defaultFormData, ...normalizedFormData })}
     />)}
+  </>;
 
-    {renderSubmitButton()}
-  </form>;
+  return <FormInstanceContext.Provider value={formInstanceId}>
+    {isFormOwner
+      ? <form className={className} onSubmit={onSubmit}>
+        {formContent}
+
+        {renderSubmitButton()}
+      </form>
+      : <div className={className}>{formContent}</div>}
+  </FormInstanceContext.Provider>;
 };
 
 export default SchemaForm;

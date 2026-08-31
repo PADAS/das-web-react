@@ -1,0 +1,38 @@
+@use '../../../../common/styles/layout';
+@use '../../../../common/styles/vars/colors';
+
+.titleBarMain {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  gap: 0.5rem;
+  min-width: 0;
+
+  .icon {
+    align-items: center;
+    color: colors.$secondary-medium-gray;
+    display: flex;
+    justify-content: center;
+
+    svg {
+      fill: currentcolor;
+      height: 1.75rem;
+      width: 1.75rem;
+    }
+  }
+
+  @media (max-width: layout.$sm-layout-width-max) {
+    flex-basis: 100%;
+  }
+}
+
+.statePill {
+  align-items: center;
+  background-color: map-get(colors.$patrol-ready-theme, 'base');
+  border-radius: 999px;
+  color: white;
+  display: flex;
+  flex-shrink: 0;
+  font-size: 0.875rem;
+  padding: 0.125rem 0.625rem;
+}

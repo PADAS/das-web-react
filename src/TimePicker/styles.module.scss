@@ -14,7 +14,7 @@
   padding: 0.25rem 0.5rem;
   width: 7rem;
 
-  &:focus-within:not(.disabled) {
+  &:not(.disabled):has(input:focus-visible, button[aria-expanded="true"]) {
     border: 1px solid colors.$bright-blue;
     outline: 1px solid colors.$bright-blue;
   }
@@ -94,17 +94,33 @@
   }
 
   .optionsPopoverButton {
+    align-items: center;
     background: none;
     border: none;
-    height: 1rem;
+    display: flex;
+    height: 1.5rem;
+    justify-content: center;
     outline: none;
     padding: 0;
+    position: relative;
     width: 0.5rem;
 
     &:focus {
       .caret {
         border-top-color: colors.$bright-blue;
       }
+    }
+
+    &:focus-visible:not([aria-expanded="true"])::after {
+      border: 2px solid colors.$bright-blue;
+      border-radius: 0.25rem;
+      content: '';
+      height: 1.25rem;
+      left: 50%;
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 1.25rem;
     }
 
     .caret {

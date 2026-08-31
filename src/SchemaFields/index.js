@@ -17,7 +17,7 @@ import { getElementPositionDataWithinScrollContainer } from '../utils/layout';
 import { uuid } from '../utils/string';
 
 import DateTimePicker, { EMPTY_DATE_TIME_VALUE } from '../DateTimePicker';
-import Select from '../Select';
+import LegacySelect from '../LegacySelect';
 
 import * as styles from './styles.module.scss';
 
@@ -278,7 +278,7 @@ export const SelectWidget = ({
     });
   }, [registry.formContext]);
 
-  return <Select
+  return <LegacySelect
     autoFocus={autofocus}
     className={`${rawErrors.length > 0 ? 'is-invalid' : ''} ${styles.selectWidget}`}
     getOptionLabel={getOptionLabel}

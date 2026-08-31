@@ -3,7 +3,7 @@
     "cancel": "Ghairi",
     "loading": "Inapakia...",
     "noMorePatrols": "Hakuna doria zaidi za kuonyesha.",
-    "title": "Ongeza kwenye Doria"
+    "title": "Ongeza kwenye doria"
   },
   "detailView": {
     "addEmptyNoteAlert": "Haiwezi kuongeza hati mpya: kuna hati tupu ambayo haijasimbwa bado",
@@ -12,40 +12,40 @@
       "save": "Hifadhi"
     },
     "header": {
+      "patrolRestoreButton": "Rejesha",
       "patrolSchedule": "Imepangwa {{scheduledStartTime}}",
       "patrolStartButton": "Anza",
-      "patrolRestoreButton": "Rejesha",
       "uiStateTitles": {
         "active": "Inatekelezwa",
         "cancelled": "Imefutwa",
         "done": "Imekamilika",
-        "invalid": "Usanidi Batili",
+        "invalid": "Usanidi batili",
         "paused": "Imesitishwa",
         "readyToStart": "Tayari kuanza",
         "scheduled": "Imepangwa",
-        "startOverdue": "Kuanza Kuchelewa"
+        "startOverdue": "Kuanza kuchelewa"
       }
     },
     "loadingMessage": "Inahifadhi...",
     "planSection": {
-      "autoStartCheckboxLargeLabel": "Anza doria moja kwa moja kwenye EarthRanger wakati huu",
-      "autoStartCheckboxSmallLabel": "Anza doria moja kwa moja kwenye EarthRanger",
       "autoEndCheckboxLargeLabel": "Maliza doria moja kwa moja kwenye EarthRanger wakati huu",
       "autoEndCheckboxSmallLabel": "Maliza doria moja kwa moja kwenye EarthRanger",
-      "endDateLabel": "Tarehe ya Mwisho",
-      "endTimeLabel": "Muda wa Mwisho",
-      "endLocationLargeLabel": "Mahali pa Mwisho",
+      "autoStartCheckboxLargeLabel": "Anza doria moja kwa moja kwenye EarthRanger wakati huu",
+      "autoStartCheckboxSmallLabel": "Anza doria moja kwa moja kwenye EarthRanger",
+      "endDateLabel": "Tarehe ya mwisho",
+      "endLocationLargeLabel": "Mahali pa mwisho",
       "endLocationSmallLabel": "Mahali",
-      "locationSelectorPlaceholder": "Weka Mahali",
+      "endTimeLabel": "Muda wa mwisho",
+      "locationSelectorPlaceholder": "Weka mahali",
       "objectiveLabel": "Lengo",
       "objectivePlaceholder": "Eleza kusudio la doria...",
-      "startDateLabel": "Tarehe ya Kuanza",
-      "startTimeLabel": "Muda wa Kuanza",
-      "startLocationLargeLabel": "Mahali pa Kuanzia",
+      "startDateLabel": "Tarehe ya kuanza",
+      "startLocationLargeLabel": "Mahali pa kuanzia",
       "startLocationSmallLabel": "Mahali",
+      "startTimeLabel": "Muda wa kuanza",
       "title": "Panga",
       "trackedByLabel": "Kufuatilia na",
-      "trackedByPlaceholder": "Chagua Kifaa..."
+      "trackedByPlaceholder": "Chagua kifaa..."
     },
     "quickLinksTitles": {
       "activity": "Shughuli",
@@ -53,10 +53,74 @@
       "plan": "Panga"
     }
   },
+  "header": {
+    "breadcrumbNavLabel": "Urambazaji wa doria",
+    "closeButtonLabel": "Funga upau wa pembeni"
+  },
   "invalidDatesModal": {
     "body": "Doria hii haiwezi kuhifadhiwa. Muda wa mwisho wa doria lazima uwe baadaye kuliko muda wa kuanza. Tafadhali sahihisha wakati wa kuanza au wa mwisho wa doria.",
     "okButton": "SAWA",
-    "title": "Muda wa Doria Usiofaa"
+    "title": "Muda wa doria usiofaa"
+  },
+  "legForm": {
+    "patrolTypeField": {
+      "label": "Aina ya doria",
+      "placeholder": "Chagua aina ya doria"
+    },
+    "patrolTypeSchemaErrorMessage": "Sehemu za aina hii ya doria hazikuweza kupakiwa.",
+    "staticFields": {
+      "assetsLabel": "Vifaa",
+      "autoEndCheckboxLabel": "Maliza doria moja kwa moja wakati huu",
+      "autoStartCheckboxLabel": "Anza doria moja kwa moja wakati huu",
+      "endDateBeforeStartDateError": "Mwisho wa doria lazima uwe baadaye kuliko kuanza kwake.",
+      "endDateInputLabel": "Tarehe ya mwisho",
+      "endLocationLabel": "Mahali pa mwisho",
+      "endTimeInputLabel": "Muda wa mwisho",
+      "endTimeLabel": "Muda wa mwisho",
+      "startDateInputLabel": "Tarehe ya kuanza",
+      "startDateRequiredError": "Doria inahitaji tarehe ya kuanza.",
+      "startLocationLabel": "Mahali pa kuanzia",
+      "startTimeInputLabel": "Muda wa kuanza",
+      "startTimeLabel": "Muda wa kuanza",
+      "teamLabel": "Timu",
+      "teamLeadLabel": "Kiongozi wa timu",
+      "teamMembersLabel": "Wanachama wa timu"
+    }
+  },
+  "newPatrol": {
+    "footer": {
+      "cancelButton": "Ghairi",
+      "saveButton": "Hifadhi",
+      "saveButtonLoadingLabel": "Inapakia"
+    },
+    "header": {
+      "breadcrumbNewPatrolLabel": "Doria mpya",
+      "breadcrumbPatrolsLabel": "Doria",
+      "statePill": "Mpya",
+      "titleInputLabel": "Kichwa cha doria"
+    },
+    "saveErrorMessage": "Doria haikuweza kuundwa. Tafadhali jaribu tena."
+  },
+  "patrolList": {
+    "emptyPatrolList": "Hakuna doria za kuonyesha."
+  },
+  "patrolListItem": {
+    "restoreButton": "Rejesha",
+    "scheduledTitle": "Imepangwa:",
+    "startButton": "Anza"
+  },
+  "patrolMenu": {
+    "cancelPatrol": "Ghairi doria",
+    "copyButton": "Nakili kiungo cha doria",
+    "copyButtonMessage": "Kiungo kimekopwa",
+    "downloadTrackButton": "Pakua njia ya doria",
+    "endPatrol": "Maliza doria",
+    "label": "Angalia chaguzi za doria",
+    "noTrackDataTooltip": "Hakuna data ya kupakua",
+    "printPatrolButton": "Chapisha doria",
+    "restorePatrol": "Rejesha doria",
+    "startPatrol": "Anza doria",
+    "title": "Chaguzi za doria"
   },
   "patrolOverview": {
     "attachmentsSaveErrorMessage": "Baadhi ya viambatisho havikuweza kupakiwa. Tafadhali jaribu tena.",
@@ -68,18 +132,15 @@
       "saveButtonLoadingLabel": "Inapakia"
     },
     "header": {
-      "breadcrumbNavLabel": "Urambazaji wa doria",
       "breadcrumbPatrolsLabel": "Doria",
-      "closeButtonLabel": "Funga upau wa pembeni",
       "copyLinkMessage": "Kiungo kimekopwa",
       "copyLinkOption": "Nakili kiungo cha doria",
-      "downloadTrackOption": "Pakua Njia ya Doria",
-      "editTitleButtonLabel": "Hariri kichwa",
+      "downloadTrackOption": "Pakua njia ya doria",
       "fitToBoundsButtonLabel": "Rekebisha kwenye mipaka ya doria",
       "jumpToLocationButtonLabel": "Enda mahali",
       "mobileProvenancePill": "Simu",
       "moreOptionsButtonLabel": "Chaguo zaidi",
-      "printOption": "Chapisha Doria",
+      "printOption": "Chapisha doria",
       "statusMenuLabel": "Vitendo vya hali ya doria",
       "statusSelectLabel": "Badilisha hali ya doria",
       "titleInputLabel": "Kichwa cha doria",
@@ -92,11 +153,11 @@
         "active": "Inatekelezwa",
         "cancelled": "Imefutwa",
         "done": "Imekamilika",
-        "invalid": "Usanidi Batili",
+        "invalid": "Usanidi batili",
         "paused": "Imesitishwa",
         "readyToStart": "Tayari kuanza",
         "scheduled": "Imepangwa",
-        "startOverdue": "Kuanza Kuchelewa"
+        "startOverdue": "Kuanza kuchelewa"
       }
     },
     "history": {
@@ -113,7 +174,7 @@
         "collapseAllButtonLabel": "Ficha yote",
         "emptyStateMessage": "Shughuli za doria zitaonekana hapa",
         "expandAllButtonLabel": "Panua yote",
-        "legTransitionTitle": "Kipande {{endedLeg}} kimekamilika, Kipande {{startedLeg}} kimeanza",
+        "legTransitionTitle": "Kipande {{endedLeg}} kimekamilika, kipande {{startedLeg}} kimeanza",
         "patrolEndedTitle": "Doria imekamilika",
         "patrolStartedTitle": "Doria imeanza",
         "sortDirectionButtonLabel": {
@@ -121,26 +182,26 @@
           "up": "Panga shughuli kwa mpangilio wa kushuka"
         },
         "summaryStats": {
-          "activeTimeLabel": "Muda Inatekelezwa",
+          "activeTimeLabel": "Muda inatekelezwa",
           "distanceLabel": "Umbali",
           "distanceSubjectButtonLabel": "Umbali uliofikiwa na {{subject}}. Badilisha mhusika anayefuatiliwa",
           "distanceSubjectMenuLabel": "Wahusika wanaofuatiliwa",
           "durationLabel": "Muda",
           "eventsLabel": "Matukio",
           "patrolLeaderIndicator": "Kiongozi wa doria",
-          "pausedTimeLabel": "Muda wa Kusitisha"
+          "pausedTimeLabel": "Muda wa kusitisha"
         },
         "timeLabel": "Wakati"
       },
       "legs": {
-        "endColumnHeader": "Tarehe ya Mwisho",
+        "endColumnHeader": "Tarehe ya mwisho",
         "legActionsColumnHeader": "Vitendo",
         "legColumnHeader": "Kipande",
         "legTableCaption": "Vipande vya doria",
-        "newLegButton": "Kipande Kipya cha Doria",
+        "newLegButton": "Kipande kipya cha doria",
         "patrolTypeColumnHeader": "Aina ya doria",
-        "startColumnHeader": "Tarehe ya Kuanza",
-        "teamColumnHeader": "Timu na Ufuatiliaji",
+        "startColumnHeader": "Tarehe ya kuanza",
+        "teamColumnHeader": "Timu na ufuatiliaji",
         "viewLegButtonLabel": "Angalia kipande {{legNumber}}",
         "zoomToLegBoundsButtonLabel": "Rekebisha kwenye mipaka ya kipande {{legNumber}}"
       }
@@ -149,30 +210,12 @@
     "saveErrorMessage": "Doria haikuweza kuhifadhiwa. Tafadhali jaribu tena.",
     "tabsLabel": "Vichupo vya muhtasari wa doria"
   },
-  "patrolMenu": {
-    "cancelPatrol": "Ghairi Doria",
-    "copyButton": "Nakili kiungo cha doria",
-    "copyButtonMessage": "Kiungo kimekopwa",
-    "endPatrol": "Maliza Doria",
-    "label": "Angalia Chaguzi za Doria",
-    "title": "Chaguzi za Doria",
-    "downloadTrackButton": "Pakua Njia ya Doria",
-    "printPatrolButton": "Chapisha Doria",
-    "restorePatrol": "Rejesha Doria",
-    "startPatrol": "Anza Doria",
-    "noTrackDataTooltip": "Hakuna data ya kupakua"
-  },
-  "patrolList": {
-    "emptyPatrolList": "Hakuna doria za kuonyesha."
-  },
-  "patrolListItem": {
-    "restoreButton": "Rejesha",
-    "scheduledTitle": "Imepangwa:",
-    "startButton": "Anza"
+  "titleInput": {
+    "editButtonLabel": "Hariri kichwa"
   },
   "trackToggleButton": {
-    "tracksPinned": "Vidokezo vimefungwa",
+    "tracksOff": "Vidokezo vimezimwa",
     "tracksOn": "Vidokezo vimefunguliwa",
-    "tracksOff": "Vidokezo vimezimwa"
+    "tracksPinned": "Vidokezo vimefungwa"
   }
 }

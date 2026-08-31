@@ -12,9 +12,9 @@
       "save": "Guardar"
     },
     "header": {
+      "patrolRestoreButton": "Restaurar",
       "patrolSchedule": "Agendado {{scheduledStartTime}}",
       "patrolStartButton": "Iniciar",
-      "patrolRestoreButton": "Restaurar",
       "uiStateTitles": {
         "active": "Activo",
         "cancelled": "Cancelado",
@@ -28,21 +28,21 @@
     },
     "loadingMessage": "Guardando...",
     "planSection": {
-      "autoStartCheckboxLargeLabel": "Iniciar la patrulla automaticamente en EarthRanger en esta fecha",
-      "autoStartCheckboxSmallLabel": "Iniciar la patrulla automaticamente en EarthRanger",
       "autoEndCheckboxLargeLabel": "Finalizar la patrulla automaticamente en EarthRanger en esta fecha",
       "autoEndCheckboxSmallLabel": "Finalizar la patrulla automaticamente en EarthRanger",
+      "autoStartCheckboxLargeLabel": "Iniciar la patrulla automaticamente en EarthRanger en esta fecha",
+      "autoStartCheckboxSmallLabel": "Iniciar la patrulla automaticamente en EarthRanger",
       "endDateLabel": "Fecha de finalización",
-      "endTimeLabel": "Hora de finalización",
       "endLocationLargeLabel": "Ubicación final",
       "endLocationSmallLabel": "Ubicación",
+      "endTimeLabel": "Hora de finalización",
       "locationSelectorPlaceholder": "Seleccione una ubicación",
       "objectiveLabel": "Objetivo",
       "objectivePlaceholder": "Describa el propósito del patrullaje...",
       "startDateLabel": "Fecha de inicio",
-      "startTimeLabel": "Hora de inicio",
       "startLocationLargeLabel": "Ubicación inicial",
       "startLocationSmallLabel": "Ubicación",
+      "startTimeLabel": "Hora de inicio",
       "title": "Plan",
       "trackedByLabel": "Rastreador",
       "trackedByPlaceholder": "Selecciona un dispositivo..."
@@ -53,10 +53,74 @@
       "plan": "Plan"
     }
   },
+  "header": {
+    "breadcrumbNavLabel": "Navegación de patrullas",
+    "closeButtonLabel": "Cerrar barra lateral"
+  },
   "invalidDatesModal": {
     "body": "No es posible guardar esta patrulla. La fecha de finalización de una patrulla debe ser posterior a la fecha de inicio. Por favor, corrija la fecha de finalización.",
     "okButton": "Entendido",
     "title": "Fechas de patrullaje no válidas"
+  },
+  "legForm": {
+    "patrolTypeField": {
+      "label": "Tipo de patrulla",
+      "placeholder": "Seleccione un tipo de patrulla"
+    },
+    "patrolTypeSchemaErrorMessage": "No se pudieron cargar los campos de este tipo de patrulla.",
+    "staticFields": {
+      "assetsLabel": "Recursos",
+      "autoEndCheckboxLabel": "Finalizar la patrulla automáticamente a esta hora",
+      "autoStartCheckboxLabel": "Iniciar la patrulla automáticamente a esta hora",
+      "endDateBeforeStartDateError": "La finalización de la patrulla debe ser posterior a su inicio.",
+      "endDateInputLabel": "Fecha de finalización",
+      "endLocationLabel": "Ubicación final",
+      "endTimeInputLabel": "Hora de finalización",
+      "endTimeLabel": "Hora de finalización",
+      "startDateInputLabel": "Fecha de inicio",
+      "startDateRequiredError": "Una patrulla necesita una fecha de inicio.",
+      "startLocationLabel": "Ubicación inicial",
+      "startTimeInputLabel": "Hora de inicio",
+      "startTimeLabel": "Hora de inicio",
+      "teamLabel": "Equipo",
+      "teamLeadLabel": "Líder del equipo",
+      "teamMembersLabel": "Miembros del equipo"
+    }
+  },
+  "newPatrol": {
+    "footer": {
+      "cancelButton": "Cancelar",
+      "saveButton": "Guardar",
+      "saveButtonLoadingLabel": "Cargando"
+    },
+    "header": {
+      "breadcrumbNewPatrolLabel": "Nueva patrulla",
+      "breadcrumbPatrolsLabel": "Patrullas",
+      "statePill": "Nueva",
+      "titleInputLabel": "Título de la patrulla"
+    },
+    "saveErrorMessage": "No se pudo crear la patrulla. Vuelva a intentarlo."
+  },
+  "patrolList": {
+    "emptyPatrolList": "No hay más patrullas que mostrar."
+  },
+  "patrolListItem": {
+    "restoreButton": "Restaurar",
+    "scheduledTitle": "Agendado:",
+    "startButton": "Iniciar"
+  },
+  "patrolMenu": {
+    "cancelPatrol": "Cancelar patrulla",
+    "copyButton": "Copiar link de la patrulla",
+    "copyButtonMessage": "Link copiado",
+    "downloadTrackButton": "Descargar ruta de patrulla",
+    "endPatrol": "Finalizar patrulla",
+    "label": "Ver opciones de patrulla",
+    "noTrackDataTooltip": "No hay datos para descargar",
+    "printPatrolButton": "Imprimir patrulla",
+    "restorePatrol": "Restaurar patrulla",
+    "startPatrol": "Iniciar patrulla",
+    "title": "Opciones de patrulla"
   },
   "patrolOverview": {
     "attachmentsSaveErrorMessage": "No se pudieron subir algunos archivos adjuntos. Vuelva a intentarlo.",
@@ -68,13 +132,10 @@
       "saveButtonLoadingLabel": "Cargando"
     },
     "header": {
-      "breadcrumbNavLabel": "Navegación de patrullaje",
       "breadcrumbPatrolsLabel": "Patrullas",
-      "closeButtonLabel": "Cerrar barra lateral",
       "copyLinkMessage": "Link copiado",
       "copyLinkOption": "Copiar link de la patrulla",
       "downloadTrackOption": "Descargar ruta de patrulla",
-      "editTitleButtonLabel": "Editar título",
       "fitToBoundsButtonLabel": "Ajustar a los límites de la patrulla",
       "jumpToLocationButtonLabel": "Ir a la ubicación",
       "mobileProvenancePill": "Móvil",
@@ -113,7 +174,7 @@
         "collapseAllButtonLabel": "Colapsar todo",
         "emptyStateMessage": "La actividad de la patrulla aparecerá aquí",
         "expandAllButtonLabel": "Expandir todo",
-        "legTransitionTitle": "Tramo {{endedLeg}} finalizado, Tramo {{startedLeg}} iniciado",
+        "legTransitionTitle": "Tramo {{endedLeg}} finalizado, tramo {{startedLeg}} iniciado",
         "patrolEndedTitle": "Patrullaje finalizado",
         "patrolStartedTitle": "Patrullaje iniciado",
         "sortDirectionButtonLabel": {
@@ -149,28 +210,12 @@
     "saveErrorMessage": "No se pudo guardar la patrulla. Vuelva a intentarlo.",
     "tabsLabel": "Pestañas de resumen de la patrulla"
   },
-  "patrolMenu": {
-    "cancelPatrol": "Cancelar Patrulla",
-    "copyButton": "Copiar link del patrulla",
-    "copyButtonMessage": "Link copiado",
-    "endPatrol": "Finalizar Patrullaje",
-    "downloadTrackButton": "Descargar ruta de patrulla",
-    "printPatrolButton": "Imprimir patrulla",
-    "restorePatrol": "Restaurar Patrulla",
-    "startPatrol": "Iniciar Patrullaje",
-    "noTrackDataTooltip": "No hay datos para descargar"
-  },
-  "patrolList": {
-    "emptyPatrolList": "No hay más patrullas que mostrar."
-  },
-  "patrolListItem": {
-    "restoreButton": "Restaurar",
-    "scheduledTitle": "Agendado:",
-    "startButton": "Iniciar"
+  "titleInput": {
+    "editButtonLabel": "Editar título"
   },
   "trackToggleButton": {
-    "tracksPinned": "Rutas fijadas",
+    "tracksOff": "Rutas ocultas",
     "tracksOn": "Rutas visibles",
-    "tracksOff": "Rutas ocultas"
+    "tracksPinned": "Rutas fijadas"
   }
 }

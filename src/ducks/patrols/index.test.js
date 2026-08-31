@@ -1,18 +1,22 @@
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 
-import { mockStore } from '../__test-helpers/MockStore';
-import { resetGlobalState } from '../reducers/global-resettable';
+import { mockStore } from '../../__test-helpers/MockStore';
+import { resetGlobalState } from '../../reducers/global-resettable';
 
 import {
   ADD_PATROL_TO_FEED,
   CREATE_PATROL_REALTIME,
   CREATE_PATROL_SUCCESS,
   DELETE_PATROL_BY_ID,
+  FETCH_PATROL_TEAM_AND_TRACKING_OPTIONS_SUCCESS,
   FETCH_PATROLS_FEED_SUCCESS,
   fetchPatrolsFeed,
+  fetchPatrolTeamAndTrackingOptions,
+  PATROL_LEADERS_API_URL,
   patrolsFeedReducer,
   patrolStoreReducer,
+  patrolTeamAndTrackingOptionsReducer,
   PATROLS_API_URL,
   REMOVE_PATROL_FROM_FEED,
   socketCreatePatrol,
@@ -23,7 +27,7 @@ import {
   UPDATE_PATROL_REALTIME,
   UPDATE_PATROL_STORE,
   UPDATE_PATROL_SUCCESS,
-} from './patrols';
+} from './';
 
 const PATROL_A_ID = 'aaaaaaaa-0000-0000-0000-000000000001';
 const PATROL_B_ID = 'bbbbbbbb-0000-0000-0000-000000000002';
@@ -151,6 +155,46 @@ describe('Ducks - Patrols', () => {
     });
   });
 
+  describe('fetchPatrolTeamAndTrackingOptions', () => {
+    const leaders = [{ id: PATROL_A_ID, name: 'Alex' }, { id: PATROL_B_ID, name: 'Priya' }];
+
+    const respondWithLeadersSchema = (properties) => server.use(
+      http.get(PATROL_LEADERS_API_URL, () => HttpResponse.json({ data: { properties } }))
+    );
+
+    test('unwraps the leaders out of the schema the endpoint answers with', async () => {
+      respondWithLeadersSchema({ leader: { enum_ext: leaders.map((value) => ({ value })) } });
+
+      const store = mockStore({ data: {}, view: {} });
+      const options = await store.dispatch(fetchPatrolTeamAndTrackingOptions());
+
+      expect(options.leaders).toEqual(leaders);
+      expect(store.getActions())
+        .toEqual([{ payload: options, type: FETCH_PATROL_TEAM_AND_TRACKING_OPTIONS_SUCCESS }]);
+    });
+
+    test('reports no leaders when the schema does not describe any', async () => {
+      respondWithLeadersSchema({});
+
+      const store = mockStore({ data: {}, view: {} });
+
+      expect((await store.dispatch(fetchPatrolTeamAndTrackingOptions())).leaders).toEqual([]);
+    });
+
+    // The endpoints behind these are not deployed yet, so the creator answers with its own mocks.
+    test.each(['assets', 'teamMembers', 'teams'])('stores the named %s a leg can pick from', async (key) => {
+      respondWithLeadersSchema({});
+
+      const store = mockStore({ data: {}, view: {} });
+      const options = await store.dispatch(fetchPatrolTeamAndTrackingOptions());
+
+      expect(options[key].length).toBeGreaterThan(0);
+      options[key].forEach((option) => {
+        expect(option).toEqual({ id: expect.any(String), name: expect.any(String) });
+      });
+    });
+  });
+
   describe('updatePatrol', () => {
     test('stores the patrol the server returns and hands the response back', async () => {
       const updatedPatrol = { ...patrolA, state: 'done' };
@@ -266,6 +310,29 @@ describe('Ducks - Patrols', () => {
 
     test('empties the feed on a global reset', () => {
       expect(patrolsFeedReducer(loadedFeed, resetGlobalState())).toEqual([]);
+    });
+  });
+
+  describe('patrolTeamAndTrackingOptionsReducer', () => {
+    const loadedOptions = {
+      assets: [{ id: 'asset-1', name: 'Radio 7' }],
+      leaders: [{ id: 'leader-1', name: 'Alex' }],
+      teamMembers: [{ id: 'member-1', name: 'Maya Chen' }],
+      teams: [{ id: 'team-1', name: 'Alpha' }],
+    };
+
+    test('replaces the options it has with the ones the site serves', () => {
+      const newOptions = { assets: [], leaders: [{ id: 'leader-2', name: 'Priya' }], teamMembers: [], teams: [] };
+
+      expect(patrolTeamAndTrackingOptionsReducer(
+        loadedOptions,
+        { payload: newOptions, type: FETCH_PATROL_TEAM_AND_TRACKING_OPTIONS_SUCCESS }
+      )).toEqual(newOptions);
+    });
+
+    test('empties the options on a global reset', () => {
+      expect(patrolTeamAndTrackingOptionsReducer(loadedOptions, resetGlobalState()))
+        .toEqual({ assets: [], leaders: [], teamMembers: [], teams: [] });
     });
   });
 });

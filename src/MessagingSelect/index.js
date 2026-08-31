@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { allSubjects } from '../selectors/subjects';
 
-import Select from '../Select';
+import LegacySelect from '../LegacySelect';
 
 const getOptionLabel = (t) => (option) => {
   if (option.hidden) {
@@ -40,7 +40,7 @@ const MessagingSelect = ({ onChange }) => {
     selectRef.current?.focus?.();
   }, []);
 
-  return <Select
+  return <LegacySelect
     components={{ Option }}
     getOptionLabel={getOptionLabel(t)}
     getOptionValue={(option) => option.hidden ? t('hiddenValue') : option.id}

@@ -9,8 +9,8 @@ import { calcRecentRadiosFromSubjects, isRadioWithImage } from '../utils/subject
 import { calcUrlForImage } from '../utils/img';
 import { getGlobalSchemaReportedBy } from '../selectors';
 
+import LegacySelect from '../LegacySelect';
 import TimeAgo from '../TimeAgo';
-import Select from '../Select';
 
 import * as styles from './styles.module.scss';
 
@@ -216,7 +216,7 @@ const ReportedBySelect = ({
     selectStyles.menuPortal = base => ({ ...base, fontSize: '0.9rem', zIndex: 9999 });
   }
 
-  return <Select
+  return <LegacySelect
     className={className}
     components={{ Control, MenuList, MultiValueLabel, Option, SingleValue }}
     getOptionLabel={getOptionLabel(t)}

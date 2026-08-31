@@ -2,6 +2,7 @@ import React, { memo } from 'react';
 import { format } from 'date-fns';
 
 import { DATE_TIME_ELEMENT_INPUT_TYPES } from '../../../utils/form-schemas/constants';
+import useFormElementDomId from '../../utils/useFormElementDomId';
 
 import DatePicker, { isValidDate, EMPTY_DATE_VALUE } from '../../../DatePicker';
 import DateTimePicker, { EMPTY_DATE_TIME_VALUE } from '../../../DateTimePicker';
@@ -66,36 +67,41 @@ const INPUTS = {
   [DATE_TIME_ELEMENT_INPUT_TYPES.TIME]: TimeInput,
 };
 
-const DateTime = ({ details, error, id, onFieldChange, readOnly, value = '' }) => {
+const DateTime = ({ details, error, formElementId, onFieldChange, readOnly, value = '' }) => {
+  const domId = useFormElementDomId(formElementId);
+
   const Input = INPUTS[details.inputType];
 
   const hasError = !!error;
 
   return <div
       className={styles.dateTime}
-      data-testid={`schema-form-date-time-field-${id}`}
+      data-testid={`schema-form-date-time-field-${formElementId}`}
     >
-    <label className={`${styles.label} ${hasError ? styles.error : ''}`}>
-      {details.label}
+    <div className={`${styles.label} ${hasError ? styles.error : ''}`}>
+      <span className={styles.labelText} id={`${domId}-label`}>
+        {details.label}
 
-      {details.isRequired && <span aria-hidden="true"> *</span>}
+        {details.isRequired && <span aria-hidden="true"> *</span>}
+      </span>
 
       <Input
-        aria-describedby={`${id}-description`}
-        aria-errormessage={hasError ? `${id}-description` : undefined}
+        aria-describedby={`${domId}-description`}
+        aria-errormessage={hasError ? `${domId}-description` : undefined}
         aria-invalid={hasError ? 'true' : 'false'}
+        aria-labelledby={`${domId}-label`}
         aria-required={details.isRequired}
-        data-testid={`schemaForm-field-dateTime-${id}`}
-        id={id}
-        onChange={(value) => onFieldChange(id, value)}
+        data-testid={`schemaForm-field-dateTime-${formElementId}`}
+        id={domId}
+        onChange={(value) => onFieldChange(formElementId, value)}
         readOnly={readOnly}
         value={value}
       />
-    </label>
+    </div>
 
     <p
       className={`${styles.description} ${hasError ? styles.error : ''}`}
-      id={`${id}-description`}
+      id={`${domId}-description`}
     >
       {error?.message || details.description}
     </p>

@@ -1,20 +1,20 @@
 {
   "addToPatrolModal": {
-    "title": "गस्तीमा थप्नुहोस्",
     "cancel": "रद्द गर्नुहोस्",
+    "loading": "लोड हुँदैछ…",
     "noMorePatrols": "प्रदर्शनीका लागि कुनै गस्ती छैन ।",
-    "loading": "लोड हुँदैछ…"
+    "title": "गस्तीमा थप्नुहोस्"
   },
   "detailView": {
     "addEmptyNoteAlert": "नयाँ नोट सुरक्षित गर्न सकिएन: पुरानै नोट सुरक्षित हुन बाँकी छ",
     "formButtons": {
-      "save": "सुरक्षित गर्नुहोस्",
-      "cancel": "रद्द गर्नुहोस्"
+      "cancel": "रद्द गर्नुहोस्",
+      "save": "सुरक्षित गर्नुहोस्"
     },
     "header": {
+      "patrolRestoreButton": "पुर्नस्थापना",
       "patrolSchedule": "{{scheduledStartTime}} निर्धारण गरिएको",
       "patrolStartButton": "सुरु",
-      "patrolRestoreButton": "पुर्नस्थापना",
       "uiStateTitles": {
         "active": "सकृय",
         "cancelled": "रद्द गरियो",
@@ -28,21 +28,21 @@
     },
     "loadingMessage": "सुरक्षित हुँदैछ…",
     "planSection": {
-      "autoStartCheckboxLargeLabel": "यसै समय अर्थरेन्जरमा स्वतः गस्ती सुरु गर्नुहोस्",
-      "autoStartCheckboxSmallLabel": "अर्थरेन्जरमा स्वतः गस्ती सुरु गर्नुहोस्",
       "autoEndCheckboxLargeLabel": "यसै समय अर्थरेन्जरमा स्वतः गस्ती अन्त्य गर्नुहोस्",
       "autoEndCheckboxSmallLabel": "अर्थरेन्जरमा स्वतः गस्ती अन्त्य गर्नुहोस्",
+      "autoStartCheckboxLargeLabel": "यसै समय अर्थरेन्जरमा स्वतः गस्ती सुरु गर्नुहोस्",
+      "autoStartCheckboxSmallLabel": "अर्थरेन्जरमा स्वतः गस्ती सुरु गर्नुहोस्",
       "endDateLabel": "अन्त्य मिति",
-      "endTimeLabel": "अन्त्य समय",
       "endLocationLargeLabel": "अन्त्य स्थान",
       "endLocationSmallLabel": "स्थान",
+      "endTimeLabel": "अन्त्य समय",
       "locationSelectorPlaceholder": "स्थान सेट गर्नुहोस्",
       "objectiveLabel": "उद्देश्य",
       "objectivePlaceholder": "गस्तीको उद्देश्य वर्णन गर्नुहोस्…",
       "startDateLabel": "सुरु मिति",
-      "startTimeLabel": "सुरु समय",
       "startLocationLargeLabel": "सुरु स्थान",
       "startLocationSmallLabel": "स्थान",
+      "startTimeLabel": "सुरु समय",
       "title": "योजना",
       "trackedByLabel": "द्वारा ट्रयाक गरिएको",
       "trackedByPlaceholder": "उपकरण छान्नुहोस्…"
@@ -53,10 +53,74 @@
       "plan": "योजना"
     }
   },
+  "header": {
+    "breadcrumbNavLabel": "गस्ती नेभिगेशन",
+    "closeButtonLabel": "साइडबार बन्द गर्नुहोस्"
+  },
   "invalidDatesModal": {
     "body": "यो गस्ती सुरक्षित गर्न सकिएन । गस्तीको अन्त्य समय सुरुवाती समय भन्दा पछि हुनुपर्छ । कृपया गस्तीको सुरुवाती समय अथवा अन्त्य समय सच्याउनुहोस्",
     "okButton": "ठीक छ",
     "title": "गस्ती समय मिलेन"
+  },
+  "legForm": {
+    "patrolTypeField": {
+      "label": "गस्ती प्रकार",
+      "placeholder": "गस्ती प्रकार छान्नुहोस्"
+    },
+    "patrolTypeSchemaErrorMessage": "यो गस्ती प्रकारका फिल्डहरू लोड गर्न सकिएन।",
+    "staticFields": {
+      "assetsLabel": "उपकरणहरू",
+      "autoEndCheckboxLabel": "यसै समयमा गस्ती स्वतः अन्त्य गर्नुहोस्",
+      "autoStartCheckboxLabel": "यसै समयमा गस्ती स्वतः सुरु गर्नुहोस्",
+      "endDateBeforeStartDateError": "गस्तीको अन्त्य समय सुरुवाती समय भन्दा पछि हुनुपर्छ।",
+      "endDateInputLabel": "अन्त्य मिति",
+      "endLocationLabel": "अन्त्य स्थान",
+      "endTimeInputLabel": "अन्त्य समय",
+      "endTimeLabel": "अन्त्य समय",
+      "startDateInputLabel": "सुरु मिति",
+      "startDateRequiredError": "गस्तीलाई सुरु मिति आवश्यक छ।",
+      "startLocationLabel": "सुरु स्थान",
+      "startTimeInputLabel": "सुरु समय",
+      "startTimeLabel": "सुरु समय",
+      "teamLabel": "टोली",
+      "teamLeadLabel": "टोली नेता",
+      "teamMembersLabel": "टोली सदस्यहरू"
+    }
+  },
+  "newPatrol": {
+    "footer": {
+      "cancelButton": "रद्द गर्नुहोस्",
+      "saveButton": "सुरक्षित गर्नुहोस्",
+      "saveButtonLoadingLabel": "लोड हुँदैछ"
+    },
+    "header": {
+      "breadcrumbNewPatrolLabel": "नयाँ गस्ती",
+      "breadcrumbPatrolsLabel": "गस्तीहरू",
+      "statePill": "नयाँ",
+      "titleInputLabel": "गस्तीको शीर्षक"
+    },
+    "saveErrorMessage": "गस्ती सिर्जना गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।"
+  },
+  "patrolList": {
+    "emptyPatrolList": "प्रदर्शनीका लागि कुनै गस्ती छैन ।"
+  },
+  "patrolListItem": {
+    "restoreButton": "पुर्नस्थापना गर्नुहोस्",
+    "scheduledTitle": "निर्धारण गरियो:",
+    "startButton": "सुरु गर्नुहोस्"
+  },
+  "patrolMenu": {
+    "cancelPatrol": "गस्ती रद्द गर्नुहोस्",
+    "copyButton": "गस्तीको लिकं कपि गर्नुहोस्",
+    "copyButtonMessage": "लिकं कपि भयो",
+    "downloadTrackButton": "गस्तीको ट्र्याक डाउनलोड गर्नुहोस्",
+    "endPatrol": "गस्ती अन्त्य गर्नुहोस्",
+    "label": "गस्तीका विकल्पहरु हेर्नुहोस्",
+    "noTrackDataTooltip": "डाउनलोड गर्न कुनै डेटा छैन",
+    "printPatrolButton": "गस्ती प्रिन्ट गर्नुहोस्",
+    "restorePatrol": "गस्ती पुर्नस्थापना गर्नुहोस्",
+    "startPatrol": "गस्ती सुरु गर्नुहोस्",
+    "title": "गस्तीका विकल्पहरु"
   },
   "patrolOverview": {
     "attachmentsSaveErrorMessage": "केही संलग्न फाइलहरू अपलोड गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।",
@@ -68,13 +132,10 @@
       "saveButtonLoadingLabel": "लोड हुँदैछ"
     },
     "header": {
-      "breadcrumbNavLabel": "गस्ती नेभिगेशन",
       "breadcrumbPatrolsLabel": "गस्तीहरू",
-      "closeButtonLabel": "साइडबार बन्द गर्नुहोस्",
       "copyLinkMessage": "लिकं कपि भयो",
       "copyLinkOption": "गस्तीको लिकं कपि गर्नुहोस्",
       "downloadTrackOption": "गस्तीको ट्र्याक डाउनलोड गर्नुहोस्",
-      "editTitleButtonLabel": "शीर्षक सम्पादन गर्नुहोस्",
       "fitToBoundsButtonLabel": "गस्तीको सीमामा मिलाउनुहोस्",
       "jumpToLocationButtonLabel": "स्थानमा जानुहोस्",
       "mobileProvenancePill": "मोबाइल",
@@ -149,30 +210,12 @@
     "saveErrorMessage": "गस्ती सुरक्षित गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।",
     "tabsLabel": "गस्ती सारांश ट्याबहरू"
   },
-  "patrolMenu": {
-    "cancelPatrol": "गस्ती रद्द गर्नुहोस्",
-    "copyButton": "गस्तीको लिकं कपि गर्नुहोस्",
-    "copyButtonMessage": "लिकं कपि भयो",
-    "endPatrol": "गस्ती अन्त्य गर्नुहोस्",
-    "downloadTrackButton": "गस्तीको ट्र्याक डाउनलोड गर्नुहोस्",
-    "printPatrolButton": "गस्ती प्रिन्ट गर्नुहोस्",
-    "restorePatrol": "गस्ती पुर्नस्थापना गर्नुहोस्",
-    "startPatrol": "गस्ती सुरु गर्नुहोस्",
-    "label": "गस्तीका विकल्पहरु हेर्नुहोस्",
-    "title": "गस्तीका विकल्पहरु",
-    "noTrackDataTooltip": "डाउनलोड गर्न कुनै डेटा छैन"
-  },
-  "patrolList": {
-    "emptyPatrolList": "प्रदर्शनीका लागि कुनै गस्ती छैन ।"
-  },
-  "patrolListItem": {
-    "restoreButton": "पुर्नस्थापना गर्नुहोस्",
-    "scheduledTitle": "निर्धारण गरियो:",
-    "startButton": "सुरु गर्नुहोस्"
+  "titleInput": {
+    "editButtonLabel": "शीर्षक सम्पादन गर्नुहोस्"
   },
   "trackToggleButton": {
-    "tracksPinned": "ट्रयाकहरु पिन गरियो",
+    "tracksOff": "ट्रयाक अफ गर्नुहोस्",
     "tracksOn": "ट्रयाक अन गर्नुहोस्",
-    "tracksOff": "ट्रयाक अफ गर्नुहोस्"
+    "tracksPinned": "ट्रयाकहरु पिन गरियो"
   }
 }

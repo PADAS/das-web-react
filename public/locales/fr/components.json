@@ -201,6 +201,9 @@
     "clearButtonLabel": "Effacer la barre de recherche",
     "defaultPlaceholder": "Recherche...."
   },
+  "select": {
+    "noOptionsMessage": "Aucune option à afficher"
+  },
   "serviceWorkerWatcher": {
     "confirmNotification": "Recharger",
     "newVersionAvailableNotification": "Une nouvelle version de EarthRanger est disponible. Elle sera appliquée la prochaine fois que vous actualiserez votre navigateur. "

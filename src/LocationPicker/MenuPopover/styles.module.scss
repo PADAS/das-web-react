@@ -5,10 +5,11 @@
 
 .menuPopover {
   @include inputs.boxShadow;
+
   border: none !important;
   border-radius: 0.25rem !important;
 
-  [class*=popover-arrow] {
+  [class*="popover-arrow"] {
     display: none;
   }
 
@@ -28,20 +29,19 @@
         color: colors.$off-black;
         display: flex;
         font-weight: 500;
-        padding: 0.375rem;
-        padding-right: 0.5rem;
-    
+        padding: 0.375rem 0.5rem 0.375rem 0.375rem;
+
         &:focus-visible {
           outline: 2px solid colors.$bright-blue;
         }
-    
+
         &:hover {
           background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
         }
 
         svg {
           height: 1rem;
-          margin-right: 0.25rem
+          margin-right: 0.25rem;
         }
       }
     }

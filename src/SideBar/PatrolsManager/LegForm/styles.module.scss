@@ -1,0 +1,33 @@
+@use '../../../common/styles/vars/colors';
+
+.legForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  .schemaForm {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .section {
+    background: white;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+
+    .patrolTypeSchemaLoader {
+      display: flex;
+      justify-content: center;
+      margin: 1rem 0;
+    }
+
+    .patrolTypeSchemaError {
+      color: colors.$bright-red;
+      font-size: 0.875rem;
+      margin: 0;
+    }
+  }
+}

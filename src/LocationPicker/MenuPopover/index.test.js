@@ -159,6 +159,18 @@ describe('LocationPicker - MenuPopover', () => {
     expect(setLocationButtonRefFocus).not.toHaveBeenCalled();
   });
 
+  test('moves the focus to the search input without closing the menu if the user presses enter while focusing the GPS format toggle', async () => {
+    renderMenuPopover();
+
+    screen.getByRole('radio', { name: 'DEG' }).focus();
+
+    await userEvent.keyboard('{Enter}');
+
+    expect(onClose).not.toHaveBeenCalled();
+    expect(setLocationButtonRefFocus).not.toHaveBeenCalled();
+    expect(screen.getByRole('searchbox', { name: 'Search location in DEG format' })).toHaveFocus();
+  });
+
   test('closes the menu and focuses the set location button if the user presses escape', async () => {
     renderMenuPopover();
 

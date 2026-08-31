@@ -202,6 +202,9 @@
     "clearButtonLabel": "सर्च बार खालि गर्नुहोस्",
     "defaultPlaceholder": "खोज्नुहोस्....."
   },
+  "select": {
+    "noOptionsMessage": "प्रदर्शन गर्न कुनै विकल्प छैन"
+  },
   "serviceWorkerWatcher": {
     "confirmNotification": "फेरी लोड गर्नुहोस्",
     "newVersionAvailableNotification": "अर्थरेन्जरको नयाँ संस्करण उपलब्ध छ । तपाईंले अर्को पटक आफ्नो ब्राउजर रिफ्रेस गर्दा त्यो लोड हुनेछ ।"

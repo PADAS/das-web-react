@@ -144,8 +144,8 @@ describe('SvgIcon', () => {
       svgCache.set(src, { svg: '<svg><path d="M0 0"/></svg>' });
       axiosSpy.mockClear();
 
-      // The effect re-runs (a dependency changed) with the same src, so the render-phase reset does
-      // not fire and `cached` is still null. The cache-hit branch must sync state from the cache
+      // The effect re-runs (a dependency changed) but the src is the same, so the component is not
+      // remounted and `cached` is still null. The cache-hit branch must sync state from the cache
       // instead of leaving the icon blank forever.
       rerender(<InlineSvg src={src} repSrc={null} fallbackSrc="fallback2" />);
 
@@ -200,6 +200,27 @@ describe('SvgIcon', () => {
       await waitFor(() => {
         expect(document.querySelector('svg')).not.toBeInTheDocument();
       });
+    });
+
+    test('shows the new icon every time src changes, cached ones included', async () => {
+      axiosSpy.mockImplementation((url) => Promise.resolve(
+        mockAxiosResponse('image/svg+xml', `<svg><path d="${url.includes('boat') ? 'boat' : 'foot'}"/></svg>`)
+      ));
+
+      const { container, rerender } = renderWithStore(<SvgIcon type="patrols" iconId="boat_rep" />);
+      await waitFor(() => expect(container.querySelector('path')).toHaveAttribute('d', 'boat'));
+
+      // Both icons are cached from the second swap on, which is where a state reset that outlives
+      // its src shows up as the previous icon staying on screen.
+      const swapTo = async (iconId, expected) => {
+        rerender(<Provider store={store}><SvgIcon type="patrols" iconId={iconId} /></Provider>);
+
+        await waitFor(() => expect(container.querySelector('path')).toHaveAttribute('d', expected));
+      };
+
+      await swapTo('foot_rep', 'foot');
+      await swapTo('boat_rep', 'boat');
+      await swapTo('foot_rep', 'foot');
     });
 
     test('hides a broken img and drops its cache entry so a later mount retries', async () => {

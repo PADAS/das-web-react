@@ -1,0 +1,19 @@
+@use '../../../../common/styles/layout';
+@use '../../../../common/styles/vars/colors';
+
+.patrolTypeField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  max-width: 100%;
+
+  .label {
+    color: colors.$secondary-medium-gray;
+    font-size: 0.875rem;
+    margin: 0;
+  }
+
+  @media (min-width: layout.$md-layout-width-min) {
+    max-width: calc(50% - 0.5rem);
+  }
+}

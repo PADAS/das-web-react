@@ -36,7 +36,7 @@ describe('SchemaForm - formElements - Section', () => {
       },
     }}
     hidden={false}
-    id="section-1"
+    formElementId="section-1"
     onFieldChange={onFieldChange}
     onFieldErrorsChange={onFieldErrorsChange}
     renderFormElement={renderFormElement}
@@ -63,7 +63,7 @@ describe('SchemaForm - formElements - Section', () => {
         },
       }}
       hidden={false}
-      id="section-1"
+      formElementId="section-1"
       onFieldChange={onFieldChange}
       onFieldErrorsChange={onFieldErrorsChange}
       renderFormElement={renderFormElement}
@@ -92,7 +92,7 @@ describe('SchemaForm - formElements - Section', () => {
         },
       }}
       hidden={true}
-      id="section-1"
+      formElementId="section-1"
       onFieldChange={onFieldChange}
       onFieldErrorsChange={onFieldErrorsChange}
       renderFormElement={renderFormElement}
@@ -130,7 +130,7 @@ describe('SchemaForm - formElements - Section', () => {
         },
       }}
       hidden={false}
-      id="section-1"
+      formElementId="section-1"
       onFieldChange={onFieldChange}
       onFieldErrorsChange={onFieldErrorsChange}
       renderFormElement={renderFormElement}
@@ -159,7 +159,7 @@ describe('SchemaForm - formElements - Section', () => {
         },
       }}
       hidden={false}
-      id="section-1"
+      formElementId="section-1"
       onFieldChange={onFieldChange}
       onFieldErrorsChange={onFieldErrorsChange}
       renderFormElement={renderFormElement}

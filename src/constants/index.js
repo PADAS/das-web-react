@@ -62,6 +62,8 @@ export const PATROL_API_STATES = {
   CANCELLED: 'cancelled',
 };
 
+export const PATROL_TYPE_QUERY_PARAMETER = 'patrol-type';
+
 export const TAB_KEYS = {
   EVENTS: 'events',
   GEAR: 'gear',

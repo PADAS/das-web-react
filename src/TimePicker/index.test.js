@@ -827,6 +827,16 @@ describe('TimePicker', () => {
     expect(openTimeOptionsButton).toHaveAttribute('aria-expanded', 'true');
   });
 
+  test('points the time options button at the popover it opens', async () => {
+    renderTimePicker();
+
+    const openTimeOptionsButton = screen.getByLabelText('Open time options');
+    await userEvent.click(openTimeOptionsButton);
+
+    expect(openTimeOptionsButton.getAttribute('aria-controls'))
+      .toBe(screen.getByRole('presentation').id);
+  });
+
   test('closes the time options', async () => {
     renderTimePicker();
 

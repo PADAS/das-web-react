@@ -9,8 +9,8 @@ import { trackEvent } from '../../../utils/analytics';
 import useNavigate from '../../../hooks/useNavigate';
 import { uuid } from '../../../utils/string';
 
+import LegacySelect from '../../../LegacySelect';
 import SearchBar from '../../../SearchBar';
-import Select from '../../../Select';
 import TypesList from '../TypesList';
 
 import * as styles from '../styles.module.scss';
@@ -78,7 +78,7 @@ const AddReportTab = ({ onHideModal }) => {
         value={searchText}
       />
 
-      <Select
+      <LegacySelect
         className={styles.quickJumpSelect}
         data-testid="addItemButton-addItemModal-addReportTab-quickJumpSelect"
         getOptionLabel={(option) => option.display}

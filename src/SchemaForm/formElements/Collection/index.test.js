@@ -71,7 +71,7 @@ describe('SchemaForm - formElements - Collection', () => {
             type: FORM_ELEMENT_TYPES.TEXT,
           },
         }}
-        id="collection-1"
+        formElementId="collection-1"
         onFieldChange={onFieldChange}
         renderFormElement={renderFormElement}
         value={undefined}
@@ -350,7 +350,7 @@ describe('SchemaForm - formElements - Collection', () => {
               type: FORM_ELEMENT_TYPES.TEXT,
             },
           }}
-          id="collection-1"
+          formElementId="collection-1"
           onFieldChange={onFieldChange}
           renderFormElement={renderFormElement}
           value={[{}, {}, {}]}

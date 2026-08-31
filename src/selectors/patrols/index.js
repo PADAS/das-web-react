@@ -129,20 +129,12 @@ const buildPatrolData = (patrol, timeSliderState, trackTimeEnvelopeUntil, tracks
 };
 
 const selectPatrolsFeed = (state) => state.data.patrolsFeed;
-const selectPatrolLeaderSchema = (state) => state.data.patrolLeaderSchema;
+const selectPatrolLeaders = (state) => state.data.patrolTeamAndTrackingOptions.leaders;
 const selectPatrolStore = (state) => state.data.patrolStore;
 const selectPatrolTrackState = (state) => state.view.patrolTrackState;
 const selectSubjectStore = (state) => state.data.subjectStore;
 const selectTimeSliderState = (state) => state.view.timeSliderState;
 const selectTracks = (state) => state.data.tracks;
-
-const selectPatrolLeaders = createSelector(
-  [selectPatrolLeaderSchema],
-  (patrolLeaderSchema) => patrolLeaderSchema?.trackedbySchema?.properties?.leader?.enum_ext?.map(
-    // Map the patrol leaders from the patrol leader schema.
-    (leader) => leader.value
-  ) || null
-);
 
 const selectVisibleAndPinnedPatrolTracks = createSelector(
   [selectPatrolTrackState],
@@ -231,22 +223,30 @@ export const selectPatrolTrackedSubjects = createSelector(
 
 export const selectPatrolLeadersWithLastPosition = createSelector(
   [selectPatrolLeaders, selectSubjectStore],
-  (patrolLeaders, subjectStore) => patrolLeaders ? patrolLeaders.map((patrolLeader) => {
-    // Map each patrol leader to its subject.
-    const patrolLeaderSubject = subjectStore[patrolLeader.id];
-    if (!patrolLeader.last_position
-      && !patrolLeader.last_position_status
-      && patrolLeaderSubject?.last_position
-      && patrolLeaderSubject?.last_position_status) {
-      // If the patrol leader misses the last position properties, fill them from the subject object.
-      return {
-        ...patrolLeader,
-        last_position: patrolLeaderSubject.last_position,
-        last_position_status: patrolLeaderSubject.last_position_status,
-      };
-    }
-    return patrolLeader;
-  }) : null
+  (patrolLeaders, subjectStore) => {
+    const patrolLeadersWithLastPosition = patrolLeaders.map((patrolLeader) => {
+      const patrolLeaderSubject = subjectStore[patrolLeader.id];
+
+      if (!patrolLeader.last_position
+        && !patrolLeader.last_position_status
+        && patrolLeaderSubject?.last_position
+        && patrolLeaderSubject?.last_position_status) {
+        return {
+          ...patrolLeader,
+          last_position: patrolLeaderSubject.last_position,
+          last_position_status: patrolLeaderSubject.last_position_status,
+        };
+      }
+
+      return patrolLeader;
+    });
+
+    // Every position a socket update brings in changes the subject store, so the list keeps its
+    // identity unless this recalculation actually filled something in.
+    return patrolLeadersWithLastPosition.every(
+      (patrolLeader, index) => patrolLeader === patrolLeaders[index]
+    ) ? patrolLeaders : patrolLeadersWithLastPosition;
+  }
 );
 
 export const selectPatrolsFeedMappedFromStore = createSelector(
