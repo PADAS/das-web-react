@@ -307,6 +307,7 @@ After making code changes:
 
 - Run `yarn lint`, and `yarn stylelint` if you touched SCSS. Fix every problem you introduced.
 - Run `yarn test <path-or-pattern>` over the areas you changed and make sure they pass.
+- If you changed anything under `public/locales/`, bump `I18N_FILES_VERSION` in `src/i18n.js`. Verify with `yarn check-i18n-files-version`.
 - Update `AGENTS.md` only under the terms in **Maintaining This File**.
 
 #### File and Folder Layout

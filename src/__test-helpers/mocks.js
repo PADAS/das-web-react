@@ -31,6 +31,7 @@ export const createMapMock = (override = {}) => {
     moveLayer: jest.fn(),
     removeLayer: jest.fn(),
     removeFeatureState: jest.fn(),
+    setFeatureState: jest.fn(),
     transform: {
       center: {},
       renderWorldCopies: jest.fn(),
