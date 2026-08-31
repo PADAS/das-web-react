@@ -5,10 +5,8 @@ import { calcPatrolFilterForRequest } from '../../utils/patrol-filter';
 import globallyResettableReducer from '../../reducers/global-resettable';
 
 export const PATROLS_API_URL = `${API_URL}activity/patrols/`;
-export const PATROL_ASSETS_API_URL = `${PATROLS_API_URL}assets`;
+export const PATROL_CONFIG_API_URL = `${PATROLS_API_URL}config/default/resolved/`;
 export const PATROL_LEADERS_API_URL = `${PATROLS_API_URL}trackedby`;
-export const PATROL_TEAMS_API_URL = `${PATROLS_API_URL}teams`;
-export const PATROL_TEAM_MEMBERS_API_URL = `${PATROL_TEAMS_API_URL}/members`;
 
 const PATROLS_FEED_PAGE_SIZE = 200;
 
@@ -116,32 +114,18 @@ export const fetchPatrolsFeed = () => (dispatch) => {
 };
 
 export const fetchPatrolTeamAndTrackingOptions = () => async (dispatch) => {
-  // The leaders endpoint answers with a fragment of the patrol schema instead
-  // of a plain list.
-  const { data: { data: leadersSchema } } = await axios.get(PATROL_LEADERS_API_URL);
-  const leaders = leadersSchema?.properties?.leader?.enum_ext?.map(({ value }) => value) ?? [];
+  const [{ data: { data: config } }, { data: { data: leadersSchema } }] = await Promise.all([
+    axios.get(PATROL_CONFIG_API_URL),
+    axios.get(PATROL_LEADERS_API_URL),
+  ]);
 
-  // TODO: The assets, teams and team members endpoints are not deployed yet, so their responses
-  // are mocked here. Request them beside the leaders once they are.
   const options = {
-    assets: [
-      { id: 'a55e7000-0000-4000-8000-000000000001', name: 'KTN-123' },
-      { id: 'a55e7000-0000-4000-8000-000000000002', name: 'Priya Garmin' },
-      { id: 'a55e7000-0000-4000-8000-000000000003', name: 'Radio 7' },
-    ],
-    leaders,
-    teamMembers: [
-      { id: 'b3a70000-0000-4000-8000-000000000001', name: 'Amara Osei' },
-      { id: 'b3a70000-0000-4000-8000-000000000002', name: 'Jordan Reeves' },
-      { id: 'b3a70000-0000-4000-8000-000000000003', name: 'Leo Nakamura' },
-      { id: 'b3a70000-0000-4000-8000-000000000004', name: 'Maya Chen' },
-      { id: 'b3a70000-0000-4000-8000-000000000005', name: 'Priya Sharma' },
-    ],
-    teams: [
-      { id: 'e0d1a3f4-0000-4000-8000-000000000001', name: 'Alpha' },
-      { id: 'e0d1a3f4-0000-4000-8000-000000000002', name: 'Bravo' },
-      { id: 'e0d1a3f4-0000-4000-8000-000000000003', name: 'Delta' },
-    ],
+    assets: config?.assets ?? [],
+    // The leaders endpoint answers with a fragment of the patrol schema
+    // instead of a plain list.
+    leaders: leadersSchema?.properties?.leader?.enum_ext?.map(({ value }) => value) ?? [],
+    teamMembers: config?.members ?? [],
+    teams: config?.teams ?? [],
   };
 
   dispatch({

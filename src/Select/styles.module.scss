@@ -94,6 +94,7 @@ $option-icon-gap: 0.5rem;
   color: inherit !important;
   display: flex !important;
   gap: 0.5rem;
+  overflow-wrap: anywhere;
 
   &.optionFocused,
   &:active {
@@ -101,10 +102,7 @@ $option-icon-gap: 0.5rem;
   }
 
   .checkMark, .checkMarkPlaceholder {
-    color: colors.$bright-blue;
-    flex-shrink: 0;
-    height: 0.8rem;
-    width: 0.8rem;
+    @include inputs.dropdownOptionCheckMark;
   }
 }
 

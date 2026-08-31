@@ -18,8 +18,9 @@ const TIME_OPTIONS_INTERVAL_IN_MINUTES = 15;
 
 const getOptionLabel = ({ name }) => name;
 const getOptionValue = ({ id }) => id;
+const getTeamOptionLabel = ({ display }) => display;
 
-const renderTeamLeadOptionIcon = ({ image_url }) => !!image_url
+const renderSubjectOptionIcon = ({ image_url }) => !!image_url
   && <SvgIcon imageUrl={calcUrlForImage(image_url)} type="subjects" />;
 
 const StaticFields = ({ errors, leg, onChangeLeg, ref }) => {
@@ -198,6 +199,7 @@ const StaticFields = ({ errors, leg, onChangeLeg, ref }) => {
     <div className={styles.columns}>
       <div className={styles.column}>
         {renderSelect({
+          getOptionLabel: getTeamOptionLabel,
           id: teamSelectId,
           label: t('teamLabel'),
           onChange: (team) => onChangeLeg({ team }),
@@ -211,6 +213,7 @@ const StaticFields = ({ errors, leg, onChangeLeg, ref }) => {
           label: t('teamMembersLabel'),
           onChange: (teamMembers) => onChangeLeg({ teamMembers: [...teamMembers] }),
           options: teamAndTrackingOptions.teamMembers,
+          renderOptionIcon: renderSubjectOptionIcon,
           value: leg.teamMembers,
         })}
       </div>
@@ -221,7 +224,7 @@ const StaticFields = ({ errors, leg, onChangeLeg, ref }) => {
           label: t('teamLeadLabel'),
           onChange: (teamLead) => onChangeLeg({ teamLead }),
           options: teamAndTrackingOptions.leaders,
-          renderOptionIcon: renderTeamLeadOptionIcon,
+          renderOptionIcon: renderSubjectOptionIcon,
           value: leg.teamLead,
         })}
 
@@ -231,6 +234,7 @@ const StaticFields = ({ errors, leg, onChangeLeg, ref }) => {
           label: t('assetsLabel'),
           onChange: (assets) => onChangeLeg({ assets: [...assets] }),
           options: teamAndTrackingOptions.assets,
+          renderOptionIcon: renderSubjectOptionIcon,
           value: leg.assets,
         })}
       </div>

@@ -3,6 +3,8 @@ import { addMinutes, differenceInMilliseconds } from 'date-fns';
 import Popover from 'react-bootstrap/Popover';
 import { useTranslation } from 'react-i18next';
 
+import { ReactComponent as CheckIcon } from '../../common/images/icons/check-light.svg';
+
 import { AM_PERIOD, getMinutesDifference, isValidTime, PM_PERIOD } from '../utils';
 import {
   durationHumanizer,
@@ -254,9 +256,15 @@ const OptionsPopover = ({
           onClick={getOnOptionClick(option)}
           role="option"
         >
-        <span>{option.display}</span>
+        {option.value === value
+          ? <CheckIcon aria-hidden="true" className={styles.checkMark} />
+          : <span aria-hidden="true" className={styles.checkMarkPlaceholder} />}
 
-        {option.durationFromMin && <span className={styles.duration}>{option.durationFromMin}</span>}
+        <span className={styles.optionLabel}>
+          <span>{option.display}</span>
+
+          {option.durationFromMin && <span className={styles.duration}>{option.durationFromMin}</span>}
+        </span>
       </li>)}
     </ul>
   </Popover>;

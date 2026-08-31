@@ -43,13 +43,16 @@ const Select = ({
 
   const getOptionLabel = otherProps.getOptionLabel ?? getDefaultOptionLabel;
 
+  const shouldRenderOptionIcon = (context) => !!renderOptionIcon
+    && (context === 'menu' || !otherProps.isMulti);
+
   return <ReactSelect
     classNames={{
       clearIndicator: () => styles.cursorPointer,
       control: (state) => `${styles.control} ${state.isFocused ? styles.controlFocused : ''}`,
       dropdownIndicator: () => styles.cursorPointer,
       indicatorsContainer: () => styles.indicatorsContainer,
-      input: () => renderOptionIcon ? styles.inputWithOptionIcon : '',
+      input: () => shouldRenderOptionIcon('value') ? styles.inputWithOptionIcon : '',
       multiValue: () => styles.multiValue,
       multiValueRemove: () => styles.multiValueRemove,
       noOptionsMessage: () => styles.noOptionsMessage,
@@ -58,7 +61,9 @@ const Select = ({
     }}
     components={{ IndicatorSeparator, Option, ...customComponents }}
     formatOptionLabel={renderOptionIcon
-      ? (option) => renderOptionLabel(option, renderOptionIcon, getOptionLabel)
+      ? (option, { context }) => (shouldRenderOptionIcon(context)
+        ? renderOptionLabel(option, renderOptionIcon, getOptionLabel)
+        : getOptionLabel(option))
       : undefined}
     isClearable
     menuPlacement="auto"
