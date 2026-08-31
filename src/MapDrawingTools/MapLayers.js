@@ -10,6 +10,7 @@ import {
   circlePaint,
   fillLayout,
   fillPaint,
+  lightFillPaint,
   symbolPaint,
   lineSymbolLayout,
   polygonSymbolLayout,
@@ -41,6 +42,7 @@ const MapDrawingLayers = ({
   isHoveringGeometry,
   setIsHoveringGeometry,
   setIsHoveringMidpoint,
+  showLineFill,
 }) => {
   const map = useContext(MapContext);
 
@@ -85,8 +87,10 @@ const MapDrawingLayers = ({
     id: LAYER_IDS.FILL,
     type: 'fill',
     sourceId: SOURCE_IDS.FILL_SOURCE,
-    paint: fillPaint,
-    layout: fillLayout
+    paint: showLineFill ? lightFillPaint : fillPaint,
+    layout: fillLayout,
+    // the line fill is a backdrop for the drawn line, unlike the polygon fill which sits on top of it
+    options: showLineFill ? { before: LAYER_IDS.LINE_LABELS, beforeOptional: true } : undefined
   }]);
 
   const [pointsLayer] = useMapLayers([{
@@ -132,8 +136,8 @@ const MapDrawingLayers = ({
 
   useMapEventBinding('mouseenter', onCircleMouseEnter, LAYER_IDS.POINTS, !!pointsLayer);
   useMapEventBinding('mouseleave', onCircleMouseLeave, LAYER_IDS.POINTS, !!pointsLayer);
-  useMapEventBinding('mouseenter', onFillMouseEnter, LAYER_IDS.FILL, !!fillLayer);
-  useMapEventBinding('mouseleave', onFillMouseLeave, LAYER_IDS.FILL, !!fillLayer);
+  useMapEventBinding('mouseenter', onFillMouseEnter, LAYER_IDS.FILL, !!fillLayer && !showLineFill);
+  useMapEventBinding('mouseleave', onFillMouseLeave, LAYER_IDS.FILL, !!fillLayer && !showLineFill);
 
   useEffect(() => {
     setIsHoveringGeometry(isHoveringCircle || isHoveringPolygonFill);

@@ -104,37 +104,6 @@ $background_image_url: '../common/images/icons/';
   }
 }
 
-.additionalProperties { 
-  margin: -0.25rem 0 0;
-  padding: 0;
-
-  &.disabled {
-    opacity: 0.6;
-    pointer-events: none;
-  }
-
-  li {
-    display: flex;
-    justify-content: space-between;
-    
-    &:not(:last-child){
-      border-bottom: 0.06px solid $gray-border;
-    }
-
-    strong {
-      text-align: left;
-    }
-
-    span {
-      text-align: right;
-    }
-  }
-}
-
-.toggleAdditionalProps {
-  margin-bottom: 0.5rem;
-}
-
 .historicalDataButton {
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
