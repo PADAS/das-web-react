@@ -8,10 +8,12 @@ import { createMapMock } from '../../../__test-helpers/mocks';
 import { createPatrol } from '../../../ducks/patrols';
 import { DEFAULT_PATROL_SEGMENT_TYPE } from '../../../ducks/patrol-schemas';
 import { defaultPatrolSegmentTypeSchema, patrolTypeFieldsSchema } from '../../../__test-helpers/fixtures/patrol-schemas';
+import { fetchPatrolTypes } from '../../../ducks/patrol-types';
 import { GPS_FORMATS } from '../../../utils/location';
 import { MapContext } from '../../../MapContext';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import patrolTypes, { dogPatrol, routinePatrol } from '../../../__test-helpers/fixtures/patrol-types';
+import { PERMISSION_KEYS, PERMISSIONS } from '../../../constants';
 import { render, screen, waitFor, within } from '../../../test-utils';
 
 import NewPatrol from './';
@@ -19,6 +21,11 @@ import NewPatrol from './';
 jest.mock('../../../ducks/patrols', () => ({
   ...jest.requireActual('../../../ducks/patrols'),
   createPatrol: jest.fn(),
+}));
+
+jest.mock('../../../ducks/patrol-types', () => ({
+  ...jest.requireActual('../../../ducks/patrol-types'),
+  fetchPatrolTypes: jest.fn(),
 }));
 
 const LocationDisplay = () => <div data-testid="test-location">{useLocation().pathname}</div>;
@@ -42,6 +49,7 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
     createPatrol.mockImplementation(
       () => () => Promise.resolve({ data: { data: { id: 'a-new-patrol-id' } } })
     );
+    fetchPatrolTypes.mockImplementation(() => () => Promise.resolve());
 
     map = createMapMock();
 
@@ -54,6 +62,7 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
         },
         patrolTeamAndTrackingOptions: { assets: [], leaders: [], teamMembers: [], teams: [] },
         patrolTypes,
+        user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.CREATE, PERMISSIONS.READ] } },
         userContent: {},
       },
       view: {
@@ -171,17 +180,51 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
     expect(getStartDateInput('Day')).toHaveValue('13');
   });
 
-  test('shows the loader while the patrol types are not in the store', () => {
+  test('shows the loader while the patrol types are on their way', () => {
     store.data.patrolTypes = [];
+    fetchPatrolTypes.mockImplementation(() => () => new Promise(() => {}));
+
     renderNewPatrol();
 
     expect(screen.getByTestId('newPatrol-loader')).toBeVisible();
+  });
+
+  test('fetches the patrol types when the store holds none', async () => {
+    store.data.patrolTypes = [];
+
+    renderNewPatrol();
+
+    await waitFor(() => expect(fetchPatrolTypes).toHaveBeenCalled());
+  });
+
+  test('does not fetch the patrol types when the store already holds them', () => {
+    renderNewPatrol();
+
+    expect(fetchPatrolTypes).not.toHaveBeenCalled();
   });
 
   test('redirects to the patrols feed when the patrol type is unknown', async () => {
     renderNewPatrol({ patrolTypeId: 'not-a-patrol-type' });
 
     await waitFor(() => expect(screen.getByTestId('test-location')).toHaveTextContent('/patrols'));
+  });
+
+  test('redirects to the patrols feed when the patrol types cannot be loaded', async () => {
+    store.data.patrolTypes = [];
+    fetchPatrolTypes.mockImplementation(() => () => Promise.reject(new Error('Server error')));
+
+    renderNewPatrol();
+
+    await waitFor(() => expect(screen.getByTestId('test-location')).toHaveTextContent('/patrols'));
+  });
+
+  test('redirects to the patrols feed when the user may not create patrols', async () => {
+    store.data.user.permissions[PERMISSION_KEYS.PATROLS] = [PERMISSIONS.READ];
+
+    renderNewPatrol();
+
+    await waitFor(() => expect(screen.getByTestId('test-location')).toHaveTextContent('/patrols'));
+    expect(screen.queryByRole('group', { name: 'Start Time' })).toBeNull();
   });
 
   describe('saving', () => {

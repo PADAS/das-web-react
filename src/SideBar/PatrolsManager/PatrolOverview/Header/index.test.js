@@ -570,6 +570,15 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
     expect(screen.getByTitle('Edit title')).toBeInTheDocument();
   });
 
+  test('shows the patrol title read only when the user may not update patrols', () => {
+    store.data.user.permissions[PERMISSION_KEYS.PATROLS] = [PERMISSIONS.READ];
+
+    renderHeader();
+
+    expect(screen.getByTestId('patrolOverview-title')).toHaveAttribute('readonly');
+    expect(screen.queryByTitle('Edit title')).not.toBeInTheDocument();
+  });
+
   test('focuses and selects the title input when the edit title button is clicked', async () => {
     const selectSpy = jest.spyOn(HTMLInputElement.prototype, 'select');
 

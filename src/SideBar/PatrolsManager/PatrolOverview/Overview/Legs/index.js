@@ -21,6 +21,7 @@ import { selectPatrolTrackData } from '../../../../../selectors/patrols';
 import { TrackerContext } from '../../../../../utils/analytics';
 import useJumpToLocation from '../../../../../hooks/useJumpToLocation';
 import useNavigate from '../../../../../hooks/useNavigate';
+import { usePatrolsPermissions } from '../../../../../hooks/usePermissions';
 
 import Link from '../../../../../Link';
 
@@ -36,12 +37,13 @@ const Legs = ({ patrol, patrolState }) => {
 
   const tracker = useContext(TrackerContext);
 
+  const { hasPatrolsUpdatePermission } = usePatrolsPermissions();
   const jumpToLocation = useJumpToLocation();
 
   const patrolTrackData = useSelector((state) => selectPatrolTrackData(state, patrol));
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
-  const canTakeNewLegs = canPatrolTakeNewLegs(patrol, patrolState);
+  const canAddLeg = hasPatrolsUpdatePermission && canPatrolTakeNewLegs(patrol, patrolState);
   const isPatrolOver = patrolState === PATROL_UI_STATES.CANCELLED || patrolState === PATROL_UI_STATES.DONE;
 
   const legs = useMemo(() => patrol.patrol_segments.map((segment, index) => {
@@ -86,7 +88,7 @@ const Legs = ({ patrol, patrolState }) => {
   };
 
   return <>
-    <div className={`${styles.legTableWrapper} ${canTakeNewLegs ? '' : styles.withoutNewLegButton}`}>
+    <div className={`${styles.legTableWrapper} ${canAddLeg ? '' : styles.withoutNewLegButton}`}>
       <table className={styles.legTable}>
         <caption className="sr-only">{t('legTableCaption')}</caption>
 
@@ -169,7 +171,7 @@ const Legs = ({ patrol, patrolState }) => {
       </table>
     </div>
 
-    {!!canTakeNewLegs && <Link
+    {!!canAddLeg && <Link
         className={styles.newLegButton}
         onClick={() => tracker.track('Click "add new leg" from patrol overview')}
         to={`/${TAB_KEYS.PATROLS}/${patrol.id}/legs/new`}

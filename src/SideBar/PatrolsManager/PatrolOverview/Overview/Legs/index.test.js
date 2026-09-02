@@ -7,7 +7,7 @@ import { mockStore } from '../../../../../__test-helpers/MockStore';
 import { createMapMock } from '../../../../../__test-helpers/mocks';
 import patrolTypes from '../../../../../__test-helpers/fixtures/patrol-types';
 import { multiLegPatrol } from '../../../../../__test-helpers/fixtures/patrols';
-import { PATROL_UI_STATES } from '../../../../../constants';
+import { PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS } from '../../../../../constants';
 import { render, screen, within } from '../../../../../test-utils';
 import { format, STANDARD_DATE_FORMAT } from '../../../../../utils/datetime';
 import { TrackerContext } from '../../../../../utils/analytics';
@@ -40,6 +40,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
       data: {
         eventFilter: { filter: { date_range: { lower: '2020-01-01T06:00:00.000Z' } } },
         patrolTypes,
+        user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ, PERMISSIONS.UPDATE] } },
         tracks: {
           // Only the 2nd leg's leader has track data, so only its leg has bounds to zoom to.
           [legTwoLeaderId]: {
@@ -295,4 +296,12 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
       expect(screen.queryByRole('link', { name: 'New Patrol Leg' })).not.toBeInTheDocument();
     }
   );
+
+  test('hides the new leg link when the user may not update patrols', () => {
+    store.data.user.permissions[PERMISSION_KEYS.PATROLS] = [PERMISSIONS.READ];
+
+    renderLegs();
+
+    expect(screen.queryByRole('link', { name: 'New Patrol Leg' })).not.toBeInTheDocument();
+  });
 });

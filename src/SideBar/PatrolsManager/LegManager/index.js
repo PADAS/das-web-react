@@ -1,9 +1,10 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import MoonLoader from 'react-spinners/MoonLoader';
 import { Route, Routes, useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { fetchPatrol } from '../../../ducks/patrols';
+import { fetchPatrolTypes } from '../../../ducks/patrol-types';
 import { TAB_KEYS } from '../../../constants';
 import useNavigate from '../../../hooks/useNavigate';
 
@@ -21,20 +22,32 @@ const LegManager = () => {
   const patrol = useSelector((state) => state.data.patrolStore[patrolId]);
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
-  const fetchedPatrolIdRef = useRef(null);
+  const requestedPatrolIdRef = useRef(null);
 
-  // Every leg route reads the patrol types, to show or to prefill the type of
-  // a leg.
-  const isPatrolDataReady = !!patrol && patrolTypes.length > 0;
+  const [hasFetchedPatrolData, setHasFetchedPatrolData] = useState(false);
+
+  const isPatrolDataReady = hasFetchedPatrolData && !!patrol && patrolTypes.length > 0;
 
   useEffect(() => {
-    if (patrolId && fetchedPatrolIdRef.current !== patrolId) {
-      fetchedPatrolIdRef.current = patrolId;
+    if (patrolId && requestedPatrolIdRef.current !== patrolId) {
+      requestedPatrolIdRef.current = patrolId;
 
-      dispatch(fetchPatrol(patrolId))
+      Promise.all([
+        dispatch(fetchPatrol(patrolId)),
+        patrolTypes.length === 0 ? dispatch(fetchPatrolTypes()) : null,
+      ])
+        .then(() => setHasFetchedPatrolData(true))
         .catch(() => navigate(`/${TAB_KEYS.PATROLS}`, { replace: true }));
     }
-  }, [dispatch, navigate, patrolId]);
+  }, [dispatch, navigate, patrolId, patrolTypes.length]);
+
+  useEffect(() => {
+    // There is no leg to show without the patrol it belongs to, and none to
+    // give a type to on a site serving none.
+    if (hasFetchedPatrolData && (!patrol || patrolTypes.length === 0)) {
+      navigate(`/${TAB_KEYS.PATROLS}`, { replace: true });
+    }
+  }, [hasFetchedPatrolData, navigate, patrol, patrolTypes.length]);
 
   return isPatrolDataReady
     ? <Routes>

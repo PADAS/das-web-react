@@ -3,6 +3,7 @@ import { Provider } from 'react-redux';
 import { Route, Routes, useLocation } from 'react-router';
 
 import { fetchPatrol } from '../../../ducks/patrols';
+import { fetchPatrolTypes } from '../../../ducks/patrol-types';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import patrols from '../../../__test-helpers/fixtures/patrols';
 import patrolTypes from '../../../__test-helpers/fixtures/patrol-types';
@@ -13,6 +14,11 @@ import LegManager from './';
 jest.mock('../../../ducks/patrols', () => ({
   ...jest.requireActual('../../../ducks/patrols'),
   fetchPatrol: jest.fn(),
+}));
+
+jest.mock('../../../ducks/patrol-types', () => ({
+  ...jest.requireActual('../../../ducks/patrol-types'),
+  fetchPatrolTypes: jest.fn(),
 }));
 
 /* eslint-disable-next-line react/display-name */
@@ -28,8 +34,9 @@ describe('SideBar - PatrolsManager - LegManager', () => {
     jest.clearAllMocks();
 
     fetchPatrol.mockImplementation(() => () => Promise.resolve());
+    fetchPatrolTypes.mockImplementation(() => () => Promise.resolve());
 
-    store = { data: { patrolStore: {}, patrolTypes } };
+    store = { data: { patrolStore: { [patrol.id]: patrol }, patrolTypes } };
   });
 
   const renderLegManager = (legPath = 'new') => render(
@@ -46,25 +53,48 @@ describe('SideBar - PatrolsManager - LegManager', () => {
     { initialEntries: [`/patrols/${patrol.id}/legs/${legPath}`] }
   );
 
-  test('fetches the patrol if it is not in the store', () => {
+  test('fetches the patrol', () => {
     renderLegManager();
 
     expect(fetchPatrol).toHaveBeenCalledWith(patrol.id);
   });
 
   test('shows the loader while the patrol is on its way', () => {
+    fetchPatrol.mockImplementation(() => () => new Promise(() => {}));
+
     renderLegManager();
 
     expect(screen.getByTestId('legManager-loader')).toBeVisible();
   });
 
-  test('shows the loader while the patrol types are not in the store', () => {
-    store.data.patrolStore = { [patrol.id]: patrol };
-    store.data.patrolTypes = [];
+  test('shows the loader until the patrol it already holds has been fetched again', async () => {
+    let resolveFetchPatrol;
+    fetchPatrol.mockImplementation(() => () => new Promise((resolve) => {
+      resolveFetchPatrol = resolve;
+    }));
 
     renderLegManager();
 
     expect(screen.getByTestId('legManager-loader')).toBeVisible();
+
+    resolveFetchPatrol();
+
+    expect(await screen.findByText('New Leg')).toBeVisible();
+  });
+
+  test('fetches the patrol types when the store holds none', async () => {
+    store.data.patrolTypes = [];
+
+    renderLegManager();
+
+    await waitFor(() => expect(fetchPatrolTypes).toHaveBeenCalled());
+  });
+
+  test('does not fetch the patrol types when the store already holds them', async () => {
+    renderLegManager();
+
+    expect(await screen.findByText('New Leg')).toBeVisible();
+    expect(fetchPatrolTypes).not.toHaveBeenCalled();
   });
 
   test('sends the user back to the feed when the patrol it is asked for is gone', async () => {
@@ -75,19 +105,32 @@ describe('SideBar - PatrolsManager - LegManager', () => {
     await waitFor(() => expect(screen.getByTestId('test-location')).toHaveTextContent('/patrols'));
   });
 
-  test('renders the new leg when the path is /patrols/:patrolId/legs/new', () => {
-    store.data.patrolStore = { [patrol.id]: patrol };
+  test('sends the user back to the feed when the patrol types cannot be loaded', async () => {
+    store.data.patrolTypes = [];
+    fetchPatrolTypes.mockImplementation(() => () => Promise.reject(new Error('Server error')));
 
     renderLegManager();
 
-    expect(screen.getByText('New Leg')).toBeVisible();
+    await waitFor(() => expect(screen.getByTestId('test-location')).toHaveTextContent('/patrols'));
   });
 
-  test('renders the leg manager placeholder when the path points at an existing leg', () => {
-    store.data.patrolStore = { [patrol.id]: patrol };
+  test('sends the user back to the feed when the site serves no patrol type', async () => {
+    store.data.patrolTypes = [];
 
+    renderLegManager();
+
+    await waitFor(() => expect(screen.getByTestId('test-location')).toHaveTextContent('/patrols'));
+  });
+
+  test('renders the new leg when the path is /patrols/:patrolId/legs/new', async () => {
+    renderLegManager();
+
+    expect(await screen.findByText('New Leg')).toBeVisible();
+  });
+
+  test('renders the leg manager placeholder when the path points at an existing leg', async () => {
     renderLegManager(patrol.patrol_segments[0].id);
 
-    expect(screen.getByText('Leg Manager')).toBeVisible();
+    expect(await screen.findByText('Leg Manager')).toBeVisible();
   });
 });

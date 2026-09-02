@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as DocumentIcon } from '../../../../common/images/icons/document.svg';
 
 import { PATROL_OVERVIEW_CATEGORY } from '../../../../utils/analytics';
+import { usePatrolsPermissions } from '../../../../hooks/usePermissions';
 
 import AddAttachmentButton from '../../../../AddAttachmentButton';
 import AddItemButton from '../../../../AddItemButton';
@@ -27,11 +28,13 @@ const Footer = ({
 }) => {
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolOverview.footer' });
 
+  const { hasPatrolsUpdatePermission } = usePatrolsPermissions();
+
   return <footer className={`${styles.footer} ${styles.hideOnPrint}`}>
     <div className={styles.leftActions}>
-      <AddNoteButton disabled={disableAddNoteButton} onAddNote={onAddNote} />
+      {!!hasPatrolsUpdatePermission && <AddNoteButton disabled={disableAddNoteButton} onAddNote={onAddNote} />}
 
-      <AddAttachmentButton onAddAttachments={onAddAttachments} />
+      {!!hasPatrolsUpdatePermission && <AddAttachmentButton onAddAttachments={onAddAttachments} />}
 
       <AddItemButton
         analyticsMetadata={ADD_EVENT_ANALYTICS_METADATA}
@@ -48,7 +51,7 @@ const Footer = ({
     </div>
 
     <div className={styles.rightActions}>
-      <button
+      {!!hasPatrolsUpdatePermission && <button
         aria-busy={isSaving}
         aria-label={t('saveButton')}
         className={styles.saveButton}
@@ -61,7 +64,7 @@ const Footer = ({
         {isSaving && <span className={styles.saveButtonLoader}>
           <MoonLoader aria-hidden color="white" size={SAVE_LOADER_SIZE} />
         </span>}
-      </button>
+      </button>}
     </div>
   </footer>;
 };

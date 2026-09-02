@@ -1,7 +1,10 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import AddItemButton from '../../../../AddItemButton';
+import { mockStore } from '../../../../__test-helpers/MockStore';
+import { PERMISSION_KEYS, PERMISSIONS } from '../../../../constants';
 import { render, screen } from '../../../../test-utils';
 
 import Footer from './';
@@ -15,6 +18,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Footer', () => {
   let onAddAttachments;
   let onAddNote;
   let onSave;
+  let store;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -25,19 +29,26 @@ describe('SideBar - PatrolsManager - PatrolOverview - Footer', () => {
     onAddAttachments = jest.fn();
     onAddNote = jest.fn();
     onSave = jest.fn();
+
+    store = {
+      data: { user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ, PERMISSIONS.UPDATE] } } },
+      view: {},
+    };
   });
 
   const renderFooter = (props) => render(
-    <Footer
-      addEventFormProps={addEventFormProps}
-      disableAddNoteButton={false}
-      disableSaveButton={false}
-      isSaving={false}
-      onAddAttachments={onAddAttachments}
-      onAddNote={onAddNote}
-      onSave={onSave}
-      {...props}
-    />
+    <Provider store={mockStore(store)}>
+      <Footer
+        addEventFormProps={addEventFormProps}
+        disableAddNoteButton={false}
+        disableSaveButton={false}
+        isSaving={false}
+        onAddAttachments={onAddAttachments}
+        onAddNote={onAddNote}
+        onSave={onSave}
+        {...props}
+      />
+    </Provider>
   );
 
   test('triggers onAddNote when the add note button is clicked', async () => {
@@ -114,5 +125,35 @@ describe('SideBar - PatrolsManager - PatrolOverview - Footer', () => {
     expect(saveButton).toHaveAttribute('aria-busy', 'true');
     // The label stays rendered underneath the loader to hold the button's width.
     expect(saveButton).toHaveTextContent('Save');
+  });
+
+  describe('a user who may not update patrols', () => {
+    beforeEach(() => {
+      store.data.user.permissions[PERMISSION_KEYS.PATROLS] = [PERMISSIONS.READ];
+    });
+
+    test('does not get the save button', () => {
+      renderFooter();
+
+      expect(screen.queryByRole('button', { name: 'Save' })).not.toBeInTheDocument();
+    });
+
+    test('does not get the add note button', () => {
+      renderFooter();
+
+      expect(screen.queryByTestId('addNoteButton')).not.toBeInTheDocument();
+    });
+
+    test('does not get the add attachment button', () => {
+      renderFooter();
+
+      expect(screen.queryByTestId('addAttachmentButton')).not.toBeInTheDocument();
+    });
+
+    test('still gets the add event button', () => {
+      renderFooter();
+
+      expect(screen.getByTestId('addEventButton')).toBeVisible();
+    });
   });
 });

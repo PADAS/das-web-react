@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useId, useState } from 'react';
+import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import isEqual from 'react-fast-compare';
 import MoonLoader from 'react-spinners/MoonLoader';
 import { toast } from 'react-toastify';
@@ -9,10 +9,12 @@ import { useTranslation } from 'react-i18next';
 import buildLegSegment from '../LegForm/utils/buildLegSegment';
 import buildNewPatrolLegDraft from './utils/buildNewPatrolLegDraft';
 import { createPatrol } from '../../../ducks/patrols';
+import { fetchPatrolTypes } from '../../../ducks/patrol-types';
 import { NEW_PATROL_CATEGORY, TrackerContext, trackEventFactory } from '../../../utils/analytics';
 import { PATROL_TYPE_QUERY_PARAMETER, TAB_KEYS } from '../../../constants';
 import { updateUserPreferences } from '../../../ducks/user-preferences';
 import useNavigate from '../../../hooks/useNavigate';
+import { usePatrolsPermissions } from '../../../hooks/usePermissions';
 
 import Footer from './Footer';
 import Header from './Header';
@@ -134,25 +136,43 @@ const NewPatrolContent = ({ initialPatrolType }) => {
 };
 
 const NewPatrol = () => {
+  const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+  const { hasPatrolsCreatePermission } = usePatrolsPermissions();
+
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
+  const hasRequestedPatrolTypesRef = useRef(false);
+
+  const [hasFetchedPatrolTypes, setHasFetchedPatrolTypes] = useState(false);
+
   const patrolTypeId = searchParams.get(PATROL_TYPE_QUERY_PARAMETER);
+
+  const arePatrolTypesReady = patrolTypes.length > 0 || hasFetchedPatrolTypes;
 
   const patrolType = patrolTypes.find(({ id }) => id === patrolTypeId) ?? null;
 
   useEffect(() => {
-    // A patrol needs a type to be created, and the types are in the store by
-    // the time the feed can offer this route.
-    if (patrolTypes.length > 0 && !patrolType) {
+    if (patrolTypes.length === 0 && !hasRequestedPatrolTypesRef.current) {
+      hasRequestedPatrolTypesRef.current = true;
+
+      dispatch(fetchPatrolTypes())
+        .then(() => setHasFetchedPatrolTypes(true))
+        .catch(() => navigate(`/${TAB_KEYS.PATROLS}`, { replace: true }));
+    }
+  }, [dispatch, navigate, patrolTypes.length]);
+
+  useEffect(() => {
+    // A patrol needs a type to be created, and a user allowed to create one.
+    if (!hasPatrolsCreatePermission || (arePatrolTypesReady && !patrolType)) {
       navigate(`/${TAB_KEYS.PATROLS}`, { replace: true });
     }
-  }, [navigate, patrolType, patrolTypes.length]);
+  }, [arePatrolTypesReady, hasPatrolsCreatePermission, navigate, patrolType]);
 
-  return patrolType
+  return patrolType && hasPatrolsCreatePermission
     // Reaching this route again, with another type or start data, must begin a
     // brand new patrol instead of reusing the draft already in the form.
     ? <NewPatrolContent initialPatrolType={patrolType} key={location.state?.temporalId} />

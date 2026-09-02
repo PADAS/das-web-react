@@ -14,6 +14,7 @@ import { GPS_FORMATS } from '../../../../utils/location';
 import { MapContext } from '../../../../MapContext';
 import { mockStore } from '../../../../__test-helpers/MockStore';
 import patrolTypes, { dogPatrol, routinePatrol } from '../../../../__test-helpers/fixtures/patrol-types';
+import { PERMISSION_KEYS, PERMISSIONS } from '../../../../constants';
 import { render, screen, waitFor, within } from '../../../../test-utils';
 import { updatePatrol } from '../../../../ducks/patrols';
 
@@ -66,6 +67,7 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
         },
         patrolTeamAndTrackingOptions: { assets: [], leaders: [teamLead], teamMembers: [], teams: [] },
         patrolTypes,
+        user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ, PERMISSIONS.UPDATE] } },
         userContent: {},
       },
       view: {
@@ -315,6 +317,15 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
 
   test('sends the user back to the patrol overview when the last leg of the patrol has ended', async () => {
     patrol.patrol_segments[0].time_range.end_time = new Date(2026, 3, 13, 10, 0).toISOString();
+
+    renderNewLeg();
+
+    await waitFor(() => expect(screen.getByTestId('test-location')).toHaveTextContent(`/patrols/${patrol.id}`));
+    expect(screen.queryByRole('group', { name: 'Start Time' })).toBeNull();
+  });
+
+  test('sends the user back to the patrol overview when they may not update patrols', async () => {
+    store.data.user.permissions[PERMISSION_KEYS.PATROLS] = [PERMISSIONS.READ];
 
     renderNewLeg();
 

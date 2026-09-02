@@ -17,6 +17,7 @@ import { TAB_KEYS } from '../../../../constants';
 import { updatePatrol } from '../../../../ducks/patrols';
 import { updateUserPreferences } from '../../../../ducks/user-preferences';
 import useNavigate from '../../../../hooks/useNavigate';
+import { usePatrolsPermissions } from '../../../../hooks/usePermissions';
 import usePatrolState from '../../../../hooks/usePatrolState';
 
 import Footer from './Footer';
@@ -33,6 +34,7 @@ const NewLeg = ({ patrol }) => {
   const navigate = useNavigate();
   const { t } = useTranslation('patrols', { keyPrefix: 'newLeg' });
 
+  const { hasPatrolsUpdatePermission } = usePatrolsPermissions();
   const patrolState = usePatrolState(patrol);
 
   const autoEndPatrols = useSelector((state) => state.view.userPreferences.autoEndPatrols);
@@ -41,23 +43,23 @@ const NewLeg = ({ patrol }) => {
 
   const legFormId = useId();
 
+  const previousLeg = patrol.patrol_segments.at(-1) ?? null;
+
   const [hasAddedLeg, setHasAddedLeg] = useState(false);
   const [initialLeg] = useState(() => buildNewLegDraft({
     isAutoEnd: autoEndPatrols,
     isAutoStart: autoStartPatrols,
     patrolTypes,
-    previousLeg: patrol.patrol_segments.at(-1) ?? null,
+    previousLeg,
   }));
   const [isSaving, setIsSaving] = useState(false);
   const [leg, setLeg] = useState(initialLeg);
 
-  const canTakeNewLegs = canPatrolTakeNewLegs(patrol, patrolState);
+  const canAddLeg = hasPatrolsUpdatePermission && canPatrolTakeNewLegs(patrol, patrolState);
 
   const hasUnsavedChanges = !isEqual(leg, initialLeg);
 
-  const earliestStartDateTime = patrol.patrol_segments.at(-1)
-    ? earliestStartAfterPatrolSegment(patrol.patrol_segments.at(-1))
-    : null;
+  const earliestStartDateTime = previousLeg ? earliestStartAfterPatrolSegment(previousLeg) : null;
 
   const patrolTitle = displayTitleForPatrol(patrol, governingPatrolSegment(patrol)?.leader);
 
@@ -104,10 +106,10 @@ const NewLeg = ({ patrol }) => {
 
   useEffect(() => {
     // This route is reachable by its url alone.
-    if (!canTakeNewLegs) {
+    if (!canAddLeg) {
       navigate(`/${TAB_KEYS.PATROLS}/${patrol.id}`, { replace: true });
     }
-  }, [canTakeNewLegs, navigate, patrol.id]);
+  }, [canAddLeg, navigate, patrol.id]);
 
   useEffect(() => {
     // Navigating from an effect instead of the save method to make sure the

@@ -26,6 +26,7 @@ import { selectPatrolTrackData } from '../../../../selectors/patrols';
 import { togglePatrolTrackState } from '../../../../ducks/patrols';
 import { TrackerContext } from '../../../../utils/analytics';
 import useJumpToLocation from '../../../../hooks/useJumpToLocation';
+import { usePatrolsPermissions } from '../../../../hooks/usePermissions';
 
 import KebabMenu from '../../../../KebabMenu';
 import PatrolsManagerHeader from '../../Header';
@@ -53,6 +54,7 @@ const Header = ({
 
   const tracker = useContext(TrackerContext);
 
+  const { hasPatrolsUpdatePermission } = usePatrolsPermissions();
   const jumpToLocation = useJumpToLocation();
 
   const governingSegment = governingPatrolSegment(patrol);
@@ -235,6 +237,7 @@ const Header = ({
         aria-label={t('titleInputLabel')}
         data-testid="patrolOverview-title"
         isDirty={isTitleDirty}
+        isReadOnly={!hasPatrolsUpdatePermission}
         onChange={onChangeTitle}
         value={title}
       />
