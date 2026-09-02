@@ -94,7 +94,6 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
           <Routes>
             <Route element={<NewPatrol />} path="/patrols/new" />
 
-            {/* The routes the form leaves for are out of the scope of these tests. */}
             <Route element={null} path="/patrols/*" />
           </Routes>
         </MapContext.Provider>
@@ -298,6 +297,69 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
         () => expect(toast.error).toHaveBeenCalledWith('The patrol could not be created. Please try again.')
       );
       expect(screen.getByTestId('test-location')).toHaveTextContent('/patrols/new');
+    });
+  });
+
+  describe('leaving the form', () => {
+    const withDefaultObjective = {
+      ...defaultPatrolSegmentTypeSchema,
+      json: {
+        ...defaultPatrolSegmentTypeSchema.json,
+        properties: {
+          ...defaultPatrolSegmentTypeSchema.json.properties,
+          objective: { ...defaultPatrolSegmentTypeSchema.json.properties.objective, default: 'Routine sweep' },
+        },
+      },
+    };
+
+    const getPathname = () => screen.getByTestId('test-location').textContent;
+
+    test('goes back to the patrols feed from a form the user has not touched', async () => {
+      const { user } = renderNewPatrol();
+
+      await user.click(screen.getByRole('link', { name: 'Cancel' }));
+
+      expect(screen.queryByRole('dialog')).toBeNull();
+      expect(getPathname()).toBe('/patrols');
+    });
+
+    test('goes back without warning when the schema filled fields in by itself', async () => {
+      store.data.patrolSchemas[DEFAULT_PATROL_SEGMENT_TYPE] = { isLoading: false, schema: withDefaultObjective };
+
+      const { user } = renderNewPatrol();
+
+      expect(screen.getByRole('textbox', { name: 'Objective' })).toHaveValue('Routine sweep');
+
+      await user.click(screen.getByRole('link', { name: 'Cancel' }));
+
+      expect(screen.queryByRole('dialog')).toBeNull();
+      expect(getPathname()).toBe('/patrols');
+    });
+
+    test('warns about unsaved changes once the user edits a schema filled field', async () => {
+      store.data.patrolSchemas[DEFAULT_PATROL_SEGMENT_TYPE] = { isLoading: false, schema: withDefaultObjective };
+
+      const { user } = renderNewPatrol();
+
+      await user.type(screen.getByRole('textbox', { name: 'Objective' }), ' and count');
+      await user.click(screen.getByRole('link', { name: 'Cancel' }));
+
+      expect(await screen.findByRole('dialog')).toBeVisible();
+      expect(getPathname()).toBe('/patrols/new');
+    });
+
+    test('does not warn about unsaved changes while the patrol is being created', async () => {
+      createPatrol.mockImplementation(() => () => new Promise(() => {}));
+
+      const { user } = renderNewPatrol();
+
+      await user.type(screen.getByRole('textbox', { name: 'Objective' }), 'Count the herd');
+      await clickSave(user);
+
+      await user.click(screen.getByRole('link', { name: 'Cancel' }));
+
+      expect(screen.queryByRole('dialog')).toBeNull();
+      expect(getPathname()).toBe('/patrols');
     });
   });
 });

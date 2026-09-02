@@ -13,6 +13,7 @@ import {
   FETCH_PATROLS_FEED_SUCCESS,
   fetchPatrolsFeed,
   fetchPatrolTeamAndTrackingOptions,
+  PATROL_CONFIG_API_URL,
   PATROL_LEADERS_API_URL,
   PATROLS_API_URL,
   patrolsFeedReducer,
@@ -156,15 +157,25 @@ describe('Ducks - Patrols', () => {
   });
 
   describe('fetchPatrolTeamAndTrackingOptions', () => {
+    const assets = [{ id: 'asset-1', name: 'Land Cruiser' }];
     const leaders = [{ id: PATROL_A_ID, name: 'Alex' }, { id: PATROL_B_ID, name: 'Priya' }];
+    const members = [{ id: 'member-1', name: 'Ranger Sam' }];
+    const teams = [{ display: 'Alpha', id: 'team-1' }];
+
+    const respondWithConfig = (config) => server.use(
+      http.get(PATROL_CONFIG_API_URL, () => HttpResponse.json({ data: config }))
+    );
 
     const respondWithLeadersSchema = (properties) => server.use(
       http.get(PATROL_LEADERS_API_URL, () => HttpResponse.json({ data: { properties } }))
     );
 
-    test('unwraps the leaders out of the schema the endpoint answers with', async () => {
+    beforeEach(() => {
+      respondWithConfig({ assets, members, teams });
       respondWithLeadersSchema({ leader: { enum_ext: leaders.map((value) => ({ value })) } });
+    });
 
+    test('unwraps the leaders out of the schema the endpoint answers with', async () => {
       const store = mockStore({ data: {}, view: {} });
       const options = await store.dispatch(fetchPatrolTeamAndTrackingOptions());
 
@@ -181,16 +192,44 @@ describe('Ducks - Patrols', () => {
       expect((await store.dispatch(fetchPatrolTeamAndTrackingOptions())).leaders).toEqual([]);
     });
 
-    test.each(['assets', 'teamMembers', 'teams'])('stores the named %s a leg can pick from', async (key) => {
-      respondWithLeadersSchema({});
+    test('stores the team and tracking lists the config answers with', async () => {
+      const store = mockStore({ data: {}, view: {} });
+      const options = await store.dispatch(fetchPatrolTeamAndTrackingOptions());
+
+      expect(options.assets).toEqual(assets);
+      expect(options.teamMembers).toEqual(members);
+      expect(options.teams).toEqual(teams);
+    });
+
+    test('reports empty lists when the config answers with none of them', async () => {
+      respondWithConfig({});
 
       const store = mockStore({ data: {}, view: {} });
       const options = await store.dispatch(fetchPatrolTeamAndTrackingOptions());
 
-      expect(options[key].length).toBeGreaterThan(0);
-      options[key].forEach((option) => {
-        expect(option).toEqual({ id: expect.any(String), name: expect.any(String) });
-      });
+      expect(options).toEqual({ assets: [], leaders, teamMembers: [], teams: [] });
+    });
+
+    test('keeps the leaders when the config request fails', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+      server.use(http.get(PATROL_CONFIG_API_URL, () => new HttpResponse(null, { status: 404 })));
+
+      const store = mockStore({ data: {}, view: {} });
+      const options = await store.dispatch(fetchPatrolTeamAndTrackingOptions());
+
+      expect(options).toEqual({ assets: [], leaders, teamMembers: [], teams: [] });
+      expect(store.getActions())
+        .toEqual([{ payload: options, type: FETCH_PATROL_TEAM_AND_TRACKING_OPTIONS_SUCCESS }]);
+    });
+
+    test('keeps the config lists when the leaders request fails', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+      server.use(http.get(PATROL_LEADERS_API_URL, () => new HttpResponse(null, { status: 500 })));
+
+      const store = mockStore({ data: {}, view: {} });
+      const options = await store.dispatch(fetchPatrolTeamAndTrackingOptions());
+
+      expect(options).toEqual({ assets, leaders: [], teamMembers: members, teams });
     });
   });
 

@@ -114,10 +114,22 @@ export const fetchPatrolsFeed = () => (dispatch) => {
 };
 
 export const fetchPatrolTeamAndTrackingOptions = () => async (dispatch) => {
-  const [{ data: { data: config } }, { data: { data: leadersSchema } }] = await Promise.all([
+  // Each endpoint backs lists of its own, so one of them answering is worth
+  // keeping whatever the other one does.
+  const [configResult, leadersResult] = await Promise.allSettled([
     axios.get(PATROL_CONFIG_API_URL),
     axios.get(PATROL_LEADERS_API_URL),
   ]);
+
+  if (configResult.status === 'rejected') {
+    console.warn('error fetching the patrol config', configResult.reason);
+  }
+  if (leadersResult.status === 'rejected') {
+    console.warn('error fetching the patrol leaders', leadersResult.reason);
+  }
+
+  const config = configResult.value?.data?.data;
+  const leadersSchema = leadersResult.value?.data?.data;
 
   const options = {
     assets: config?.assets ?? [],

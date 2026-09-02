@@ -50,7 +50,7 @@ const MenuList = ({ innerRef, maxHeight, selectProps, ...otherProps }) => {
 
 const Option = ({ children, className = '', innerProps, isMulti, isSelected, ...otherProps }) => <components.Option
     className={`${className} ${styles.option}`}
-    innerProps={{ ...innerProps, 'aria-selected': isSelected }}
+    innerProps={innerProps}
     isMulti={isMulti}
     isSelected={isSelected}
     {...otherProps}

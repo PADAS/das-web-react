@@ -5,7 +5,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { clearUserContent } from '../../../ducks/user-content';
-import { DEFAULT_PATROL_SEGMENT_TYPE, fetchPatrolTypeSchema } from '../../../ducks/patrol-schemas';
+import {
+  DEFAULT_PATROL_SEGMENT_TYPE,
+  fetchDefaultPatrolSegmentTypeSchema,
+  fetchPatrolTypeSchema,
+} from '../../../ducks/patrol-schemas';
 import getStaticFieldErrors from './utils/getStaticFieldErrors';
 
 import PatrolTypeField from './PatrolTypeField';
@@ -18,14 +22,14 @@ import * as styles from './styles.module.scss';
 // schema driven fields live.
 const EMPTY_METADATA = {};
 
-const PATROL_TYPE_SCHEMA_LOADER_SIZE = 40;
+const SCHEMA_LOADER_SIZE = 40;
 
 const ERRORS_CLEARED_BY_LEG_DRAFT_FIELD = {
-  endDate: ['endDate'],
-  endTime: ['endDate'],
+  endDate: ['endDate', 'endTime'],
+  endTime: ['endDate', 'endTime'],
   patrolType: ['patrolType'],
   startDate: ['endDate', 'startDate'],
-  startTime: ['endDate', 'startDate'],
+  startTime: ['endDate', 'startTime'],
 };
 
 const LegForm = ({ earliestStartDateTime = null, formId, leg, onChangeLeg, onSubmit }) => {
@@ -44,7 +48,9 @@ const LegForm = ({ earliestStartDateTime = null, formId, leg, onChangeLeg, onSub
 
   const [staticFieldErrors, setStaticFieldErrors] = useState({});
 
-  const onChangeLegField = (legChanges) => {
+  // The schema forms and the patrol type select are memoized and expensive to
+  // redraw, so their handlers are the one thing here worth holding still.
+  const onChangeLegField = useCallback((legChanges) => {
     const clearedErrors = Object.keys(legChanges)
       .flatMap((field) => ERRORS_CLEARED_BY_LEG_DRAFT_FIELD[field] ?? []);
 
@@ -53,14 +59,20 @@ const LegForm = ({ earliestStartDateTime = null, formId, leg, onChangeLeg, onSub
     }
 
     onChangeLeg(legChanges);
-  };
+  }, [onChangeLeg]);
 
-  // The two schema forms are memoized and expensive to redraw, so their
-  // handlers are the one thing here worth holding still.
-  const onChangeTypeDetails = useCallback((typeDetails) => onChangeLeg({ typeDetails }), [onChangeLeg]);
+  const onChangePatrolType = useCallback(
+    (patrolType) => onChangeLegField({ patrolType, typeDetails: {} }),
+    [onChangeLegField]
+  );
+
+  const onChangeTypeDetails = useCallback(
+    (typeDetails, options) => onChangeLeg({ typeDetails }, options),
+    [onChangeLeg]
+  );
 
   const onChangeUniversalDetails = useCallback(
-    (universalDetails) => onChangeLeg({ universalDetails }),
+    (universalDetails, options) => onChangeLeg({ universalDetails }, options),
     [onChangeLeg]
   );
 
@@ -90,6 +102,12 @@ const LegForm = ({ earliestStartDateTime = null, formId, leg, onChangeLeg, onSub
       onSubmit();
     }
   };
+
+  useEffect(() => {
+    if (!defaultPatrolSegmentTypeSchemaState) {
+      dispatch(fetchDefaultPatrolSegmentTypeSchema());
+    }
+  }, [defaultPatrolSegmentTypeSchemaState, dispatch]);
 
   useEffect(() => {
     if (leg.patrolType && !patrolTypeSchemaState) {
@@ -127,19 +145,38 @@ const LegForm = ({ earliestStartDateTime = null, formId, leg, onChangeLeg, onSub
       validateRef={defaultPatrolSegmentTypeFormRef}
     />}
 
+    {(!defaultPatrolSegmentTypeSchemaState || !!defaultPatrolSegmentTypeSchemaState.isLoading)
+      && <div className={styles.section}>
+        <div className={styles.schemaLoader} data-testid="legForm-universalFieldsSchemaLoader" role="status">
+          <MoonLoader size={SCHEMA_LOADER_SIZE} />
+
+          <span className="sr-only">{t('universalFieldsSchemaLoadingLabel')}</span>
+        </div>
+      </div>}
+
+    {!!defaultPatrolSegmentTypeSchemaState?.error && <div className={styles.section}>
+      <p className={styles.schemaErrorMessage} role="alert">{t('universalFieldsSchemaErrorMessage')}</p>
+    </div>}
+
     <div className={styles.section}>
       <PatrolTypeField
         error={staticFieldErrors.patrolType}
-        onChange={(patrolType) => onChangeLegField({ patrolType, typeDetails: {} })}
+        onChange={onChangePatrolType}
         patrolType={leg.patrolType}
         ref={patrolTypeFieldRef}
       />
 
-      {!!patrolTypeSchemaState?.isLoading && <div className={styles.patrolTypeSchemaLoader}>
-        <MoonLoader data-testid="legForm-patrolTypeSchemaLoader" size={PATROL_TYPE_SCHEMA_LOADER_SIZE} />
+      {!!patrolTypeSchemaState?.isLoading && <div
+          className={styles.schemaLoader}
+          data-testid="legForm-patrolTypeSchemaLoader"
+          role="status"
+        >
+        <MoonLoader size={SCHEMA_LOADER_SIZE} />
+
+        <span className="sr-only">{t('patrolTypeSchemaLoadingLabel')}</span>
       </div>}
 
-      {!!patrolTypeSchemaState?.error && <p className={styles.patrolTypeSchemaError} role="alert">
+      {!!patrolTypeSchemaState?.error && <p className={styles.schemaErrorMessage} role="alert">
         {t('patrolTypeSchemaErrorMessage')}
       </p>}
     </div>

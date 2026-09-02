@@ -507,6 +507,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
           id: 'planned-leg-id',
           patrol_type: 'unknown_patrol_type',
           scheduled_start: '2100-01-01T00:00:00Z',
+          time_range: { end_time: null, start_time: null },
         },
       ],
     };

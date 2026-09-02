@@ -40,7 +40,7 @@ const NewPatrolContent = ({ initialPatrolType }) => {
 
   const [createdPatrolId, setCreatedPatrolId] = useState(null);
   const [editedTitle, setEditedTitle] = useState(null);
-  const [initialLeg] = useState(() => buildNewPatrolLegDraft({
+  const [initialLeg, setInitialLeg] = useState(() => buildNewPatrolLegDraft({
     isAutoEnd: autoEndPatrols,
     isAutoStart: autoStartPatrols,
     patrolData: location.state?.patrolData,
@@ -55,13 +55,19 @@ const NewPatrolContent = ({ initialPatrolType }) => {
 
   const hasUnsavedChanges = isTitleDirty || !isEqual(leg, initialLeg);
 
-  const onChangeLeg = useCallback((legChanges) => {
+  const onChangeLeg = useCallback((legChanges, { isDefaultData = false } = {}) => {
     // Starting and ending by itself is a preference the next patrol inherits.
     if ('isAutoEnd' in legChanges) {
       dispatch(updateUserPreferences({ autoEndPatrols: legChanges.isAutoEnd }));
     }
     if ('isAutoStart' in legChanges) {
       dispatch(updateUserPreferences({ autoStartPatrols: legChanges.isAutoStart }));
+    }
+
+    // A schema form populates its defaults before the user can touch it, so
+    // they belong to the draft handed over rather than to an edit of it.
+    if (isDefaultData) {
+      setInitialLeg((prevInitialLeg) => ({ ...prevInitialLeg, ...legChanges }));
     }
 
     setLeg((prevLeg) => ({ ...prevLeg, ...legChanges }));

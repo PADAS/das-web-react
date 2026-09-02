@@ -1,6 +1,7 @@
 import { format } from 'date-fns';
 
 import { EMPTY_DATE_VALUE } from '../../../../../DatePicker';
+import { findMatchingPatrolType } from '../../../../../utils/patrols';
 import { getHoursAndMinutesString } from '../../../../../utils/datetime';
 
 const buildLegDraft = (leg = null, patrolTypes = []) => {
@@ -12,6 +13,8 @@ const buildLegDraft = (leg = null, patrolTypes = []) => {
   const endDate = endTime ? new Date(endTime) : null;
   const startDate = startTime ? new Date(startTime) : null;
 
+  const activePatrolTypes = patrolTypes.filter(({ is_active }) => is_active);
+
   return {
     assets: [],
     endDate: endDate ? format(endDate, 'yyyy-MM-dd') : EMPTY_DATE_VALUE,
@@ -19,7 +22,7 @@ const buildLegDraft = (leg = null, patrolTypes = []) => {
     endTime: getHoursAndMinutesString(endDate),
     isAutoEnd: !!actualEndTime,
     isAutoStart: !!actualStartTime,
-    patrolType: patrolTypes.find(({ value }) => value === leg?.patrol_type) ?? null,
+    patrolType: findMatchingPatrolType(activePatrolTypes, leg?.patrol_type) ?? null,
     startDate: startDate ? format(startDate, 'yyyy-MM-dd') : EMPTY_DATE_VALUE,
     startLocation: leg?.start_location ?? null,
     startTime: getHoursAndMinutesString(startDate),

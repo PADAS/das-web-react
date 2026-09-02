@@ -259,7 +259,9 @@ const SchemaForm = ({
         const initialData = getDefaultFormData(visibleFieldIds, formElements);
 
         if (!isEqual(initialData, normalizedFormData)) {
-          onFormDataChange(initialData);
+          // The defaults are part of the form the user is handed, not an edit
+          // they made, so a consumer tracking changes can tell the two apart.
+          onFormDataChange(initialData, { isDefaultData: true });
         }
       }
 

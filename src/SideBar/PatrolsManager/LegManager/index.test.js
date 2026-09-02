@@ -44,7 +44,6 @@ describe('SideBar - PatrolsManager - LegManager', () => {
       <Routes>
         <Route element={<LegManager />} path="/patrols/:patrolId/legs/*" />
 
-        {/* The route the manager leaves for is out of the scope of these tests. */}
         <Route element={null} path="/patrols/*" />
       </Routes>
 
@@ -103,6 +102,15 @@ describe('SideBar - PatrolsManager - LegManager', () => {
     renderLegManager();
 
     await waitFor(() => expect(screen.getByTestId('test-location')).toHaveTextContent('/patrols'));
+  });
+
+  test('sends the user back to the feed when the fetch leaves no patrol behind', async () => {
+    store.data.patrolStore = {};
+
+    renderLegManager();
+
+    await waitFor(() => expect(screen.getByTestId('test-location')).toHaveTextContent('/patrols'));
+    expect(screen.queryByText('New Leg')).toBeNull();
   });
 
   test('sends the user back to the feed when the patrol types cannot be loaded', async () => {

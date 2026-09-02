@@ -48,7 +48,7 @@
 
       &.notRunLeg {
         background: colors.$very-light-gray;
-        opacity: 0.66;
+        color: colors.$secondary-medium-gray;
       }
 
       &:hover:not(:has(.zoomToLegBoundsButton:hover)) {

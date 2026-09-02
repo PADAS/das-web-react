@@ -219,11 +219,22 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
     expect(screen.getByRole('group', { name: 'End date' })).toHaveAttribute('aria-invalid', 'true');
   });
 
-  test('shows the errors of the start and end dates on their times too', () => {
+  test('marks only the dates invalid for an error about them', () => {
     renderStaticFields({ errors: { endDate: 'The end is too early.', startDate: 'A date is needed.' } });
 
+    expect(screen.getByRole('group', { name: 'Start time' })).toHaveAttribute('aria-invalid', 'false');
+    expect(screen.getByRole('group', { name: 'End time' })).toHaveAttribute('aria-invalid', 'false');
+  });
+
+  test('shows the errors of the start and end times on the times themselves', () => {
+    renderStaticFields({ errors: { endTime: 'An end time is needed.', startTime: 'A start time is needed.' } });
+
+    expect(screen.getByText('A start time is needed.')).toBeVisible();
+    expect(screen.getByText('An end time is needed.')).toBeVisible();
     expect(screen.getByRole('group', { name: 'Start time' })).toHaveAttribute('aria-invalid', 'true');
     expect(screen.getByRole('group', { name: 'End time' })).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByRole('group', { name: 'Start date' })).toHaveAttribute('aria-invalid', 'false');
+    expect(screen.getByRole('group', { name: 'End date' })).toHaveAttribute('aria-invalid', 'false');
   });
 
   test('does not mark the times invalid when there are no errors', () => {

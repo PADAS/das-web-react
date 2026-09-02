@@ -33,13 +33,13 @@ describe('SideBar - PatrolsManager - LegForm - utils - getStaticFieldErrors', ()
 
   test('reports a missing start time', () => {
     expect(getStaticFieldErrors({ ...leg, startTime: ':' })).toEqual({
-      startDate: 'A leg needs a start time.',
+      startTime: 'A leg needs a start time.',
     });
   });
 
   test('reports a half typed start time', () => {
     expect(getStaticFieldErrors({ ...leg, startTime: '08:' })).toEqual({
-      startDate: 'A leg needs a start time.',
+      startTime: 'A leg needs a start time.',
     });
   });
 
@@ -61,7 +61,7 @@ describe('SideBar - PatrolsManager - LegForm - utils - getStaticFieldErrors', ()
 
   test('reports a missing end time when the leg has an end date', () => {
     expect(getStaticFieldErrors({ ...leg, endDate: '2026-04-20', endTime: ':' })).toEqual({
-      endDate: 'A leg with an end date needs an end time.',
+      endTime: 'A leg with an end date needs an end time.',
     });
   });
 
@@ -116,7 +116,7 @@ describe('SideBar - PatrolsManager - LegForm - utils - getStaticFieldErrors', ()
 
     test('reports the missing start time before comparing it with the previous leg', () => {
       expect(getStaticFieldErrors({ ...leg, startTime: ':' }, new Date(2026, 3, 14, 8, 0))).toEqual({
-        startDate: 'A leg needs a start time.',
+        startTime: 'A leg needs a start time.',
       });
     });
   });

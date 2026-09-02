@@ -374,7 +374,17 @@ describe('SchemaForm', () => {
     renderSchemaForm({ shouldPopulateDefaultData: true });
 
     expect(onFormDataChange).toHaveBeenCalledTimes(1);
-    expect(onFormDataChange).toHaveBeenCalledWith({ text_field: 'Default Value 1' });
+    expect(onFormDataChange).toHaveBeenCalledWith({ text_field: 'Default Value 1' }, { isDefaultData: true });
+  });
+
+  test('tells the default inputs apart from an edit the user made', async () => {
+    renderSchemaForm({ shouldPopulateDefaultData: true });
+
+    expect(onFormDataChange).toHaveBeenCalledWith(expect.anything(), { isDefaultData: true });
+
+    await userEvent.type(screen.getByRole('textbox', { name: 'Text Field' }), '!');
+
+    expect(onFormDataChange).toHaveBeenLastCalledWith(expect.anything());
   });
 
   test('does not set the initial form data if there are no default inputs', async () => {

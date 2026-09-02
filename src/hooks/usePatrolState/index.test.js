@@ -146,7 +146,7 @@ describe('usePatrolState', () => {
       expect(recheckDelayFor(patrol)).toBe(afterMinutes(5 + DELTA_FOR_OVERDUE));
     });
 
-    test('reads the last leg of a multi leg patrol', () => {
+    test('takes the end of a multi leg patrol from its last leg', () => {
       const patrol = {
         state: 'open',
         patrol_segments: [
@@ -156,6 +156,37 @@ describe('usePatrolState', () => {
       };
 
       expect(recheckDelayFor(patrol)).toBe(afterMinutes(90));
+    });
+
+    test('waits for a leg other than the first one to begin', () => {
+      const patrol = {
+        state: 'open',
+        patrol_segments: [
+          { scheduled_start: atOffset(-120).toISOString(), time_range: { start_time: null, end_time: null } },
+          { time_range: { start_time: atOffset(45).toISOString(), end_time: null } },
+        ],
+      };
+
+      expect(recheckDelayFor(patrol)).toBe(afterMinutes(45));
+    });
+
+    test('turns active once a leg other than the first one begins', () => {
+      const patrol = {
+        state: 'open',
+        patrol_segments: [
+          { scheduled_start: atOffset(-120).toISOString(), time_range: { start_time: null, end_time: null } },
+          { time_range: { start_time: atOffset(45).toISOString(), end_time: null } },
+        ],
+      };
+      const { result } = renderHook(() => usePatrolState(patrol));
+
+      expect(result.current).toBe(PATROL_UI_STATES.START_OVERDUE);
+
+      act(() => {
+        jest.advanceTimersByTime(45 * 60_000 + 1);
+      });
+
+      expect(result.current).toBe(PATROL_UI_STATES.ACTIVE);
     });
 
     test('caps the delay so a far off transition does not overflow the timer', () => {

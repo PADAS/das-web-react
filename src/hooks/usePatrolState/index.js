@@ -29,14 +29,18 @@ const getNextPatrolStateTransitionTime = (patrol) => {
   const readyToStartTransitionTime = displayStartTime
     ? subHours(displayStartTime, READY_TO_START_WINDOW_HOURS)
     : null;
-  const activeTransitionTime = firstSegmentStartTime ? new Date(firstSegmentStartTime) : null;
+  // Any leg beginning turns the patrol active, so every one of them is worth
+  // waiting for.
+  const activeTransitionTimes = patrol.patrol_segments
+    .filter((patrolSegment) => patrolSegment.time_range?.start_time)
+    .map((patrolSegment) => new Date(patrolSegment.time_range.start_time));
   const startOverdueTransitionTime = !firstSegmentStartTime && firstSegment.scheduled_start
     ? addMinutes(new Date(firstSegment.scheduled_start), DELTA_FOR_OVERDUE)
     : null;
   const doneTransitionTime = lastSegmentEndTime ? new Date(lastSegmentEndTime) : null;
 
   const now = Date.now();
-  return [readyToStartTransitionTime, activeTransitionTime, startOverdueTransitionTime, doneTransitionTime]
+  return [readyToStartTransitionTime, ...activeTransitionTimes, startOverdueTransitionTime, doneTransitionTime]
     .filter((transitionTime) => transitionTime && transitionTime.getTime() > now)
     .sort((a, b) => a.getTime() - b.getTime())[0] ?? null;
 };

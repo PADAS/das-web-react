@@ -69,6 +69,7 @@
       "requiredError": "Une étape doit avoir un type de patrouille."
     },
     "patrolTypeSchemaErrorMessage": "Les champs de ce type de patrouille n'ont pas pu être chargés.",
+    "patrolTypeSchemaLoadingLabel": "Chargement des champs de ce type de patrouille",
     "staticFields": {
       "assetsLabel": "Équipements",
       "autoEndCheckboxLabel": "Terminer automatiquement l'étape à cette heure",
@@ -89,7 +90,9 @@
       "teamLabel": "Équipe",
       "teamLeadLabel": "Chef d'équipe",
       "teamMembersLabel": "Membres de l'équipe"
-    }
+    },
+    "universalFieldsSchemaErrorMessage": "Les champs universels de patrouille n'ont pas pu être chargés.",
+    "universalFieldsSchemaLoadingLabel": "Chargement des champs universels de patrouille"
   },
   "newLeg": {
     "footer": {
@@ -211,6 +214,7 @@
         "endColumnHeader": "Date de fin",
         "legActionsColumnHeader": "Actions",
         "legColumnHeader": "Étape",
+        "legDidNotRunLabel": "Ce tronçon n'a jamais eu lieu",
         "legTableCaption": "Étapes de la patrouille",
         "newLegButton": "Nouvelle étape de patrouille",
         "patrolTypeColumnHeader": "Type de patrouille",

@@ -227,10 +227,13 @@ describe('Patrols utils', () => {
       expect(governingPatrolSegment({ patrol_segments: [plannedLeg] })).toBe(plannedLeg);
     });
 
-    test('is the first leg that runs when legs overlap', () => {
-      const otherRunningLeg = { id: 'otherRunning', time_range: { end_time: null, start_time: '2026-04-13T08:30:00.000Z' } };
+    test('is the most recent leg that runs when legs overlap', () => {
+      const otherRunningLeg = {
+        id: 'otherRunning',
+        time_range: { end_time: null, start_time: '2026-04-13T08:30:00.000Z' },
+      };
 
-      expect(governingPatrolSegment({ patrol_segments: [runningLeg, otherRunningLeg] })).toBe(runningLeg);
+      expect(governingPatrolSegment({ patrol_segments: [runningLeg, otherRunningLeg] })).toBe(otherRunningLeg);
     });
 
     test('is null for a patrol without legs', () => {
@@ -327,6 +330,45 @@ describe('Patrols utils', () => {
 
       expect(update.patrol_segments[0].time_range.end_time)
         .toBe(multiLegPatrol.patrol_segments[0].time_range.end_time);
+    });
+
+    test('reopens every leg the patrol end closed at once, not the last one alone', () => {
+      const closedAt = '2026-04-13T12:00:00.000Z';
+      const endedLeg = {
+        id: 'leg-1',
+        time_range: { end_time: '2026-04-13T09:00:00.000Z', start_time: '2026-04-13T08:00:00.000Z' },
+      };
+      const closedRunningLeg = { id: 'leg-2', time_range: { end_time: closedAt, start_time: '2026-04-13T09:00:00.000Z' } };
+      const closedPlannedLeg = { id: 'leg-3', time_range: { end_time: closedAt, start_time: null } };
+
+      const update = buildPatrolReopenUpdate({
+        patrol_segments: [endedLeg, closedRunningLeg, closedPlannedLeg],
+        state: 'done',
+      });
+
+      expect(update.patrol_segments[0]).toBe(endedLeg);
+      expect(update.patrol_segments[1].time_range.end_time).toBeNull();
+      expect(update.patrol_segments[2].time_range.end_time).toBeNull();
+    });
+
+    test('ends and reopens a patrol back into the legs it started with', () => {
+      jest.useFakeTimers().setSystemTime(new Date('2026-04-13T12:00:00.000Z'));
+
+      const patrol = {
+        patrol_segments: [
+          { id: 'leg-1', time_range: { end_time: null, start_time: '2026-04-13T08:00:00.000Z' } },
+          { id: 'leg-2', scheduled_end: null, scheduled_start: null, time_range: { end_time: null, start_time: null } },
+        ],
+        state: 'open',
+      };
+
+      const update = buildPatrolReopenUpdate(buildPatrolEndUpdate(patrol));
+
+      expect(update.state).toBe('open');
+      expect(update.patrol_segments.map(({ time_range }) => time_range))
+        .toEqual([{ end_time: null, start_time: '2026-04-13T08:00:00.000Z' }, { end_time: null, start_time: null }]);
+
+      jest.useRealTimers();
     });
   });
 

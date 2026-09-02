@@ -8,6 +8,8 @@ import { resetGlobalState } from '../../reducers/global-resettable';
 import patrolSchemasReducer, {
   DEFAULT_PATROL_SEGMENT_TYPE,
   DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_API_URL,
+  FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA,
+  FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_FAILURE,
   FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_SUCCESS,
   FETCH_PATROL_TYPE_SCHEMA,
   FETCH_PATROL_TYPE_SCHEMA_FAILURE,
@@ -99,8 +101,24 @@ describe('Ducks - Patrol schemas', () => {
       const schema = await store.dispatch(fetchDefaultPatrolSegmentTypeSchema());
 
       expect(schema).toEqual(defaultPatrolSegmentTypeSchema);
-      expect(store.getActions())
-        .toEqual([{ payload: defaultPatrolSegmentTypeSchema, type: FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_SUCCESS }]);
+      expect(store.getActions()).toEqual([
+        { type: FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA },
+        { payload: defaultPatrolSegmentTypeSchema, type: FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_SUCCESS },
+      ]);
+    });
+
+    test('reports the error of a schema that could not be fetched', async () => {
+      const store = mockStore({ data: {}, view: {} });
+      server.use(http.get(
+        DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_API_URL,
+        () => new HttpResponse(null, { status: 500 })
+      ));
+
+      expect(await store.dispatch(fetchDefaultPatrolSegmentTypeSchema())).toBeNull();
+      expect(store.getActions()).toEqual([
+        { type: FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA },
+        { payload: expect.any(Error), type: FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_FAILURE },
+      ]);
     });
 
     test('reads the schema out of an answer that does not wrap it', async () => {
@@ -176,6 +194,23 @@ describe('Ducks - Patrol schemas', () => {
       );
 
       expect(state).toEqual({ dog_patrol: { error, isLoading: false } });
+    });
+
+    test('marks the schema of the fields every leg renders as on its way while it is fetched', () => {
+      const state = patrolSchemasReducer(INITIAL_STATE, { type: FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA });
+
+      expect(state).toEqual({ [DEFAULT_PATROL_SEGMENT_TYPE]: { isLoading: true } });
+    });
+
+    test('stores the error of the fields every leg renders when they could not be fetched', () => {
+      const error = new Error('Oops');
+
+      const state = patrolSchemasReducer(
+        { [DEFAULT_PATROL_SEGMENT_TYPE]: { isLoading: true } },
+        { payload: error, type: FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_FAILURE }
+      );
+
+      expect(state).toEqual({ [DEFAULT_PATROL_SEGMENT_TYPE]: { error, isLoading: false } });
     });
 
     test('stores the schema of the fields every leg renders beside the patrol type ones', () => {

@@ -1,4 +1,4 @@
-import React, { useContext, useId, useImperativeHandle, useRef } from 'react';
+import React, { useCallback, useContext, useId, useImperativeHandle, useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -30,13 +30,13 @@ const PatrolTypeField = ({ error, onChange, patrolType, ref }) => {
   const errorId = useId();
   const selectId = useId();
 
-  const options = patrolTypes.filter(({ is_active }) => is_active);
+  const options = useMemo(() => patrolTypes.filter(({ is_active }) => is_active), [patrolTypes]);
 
-  const onSelectChange = (newPatrolType) => {
+  const onSelectChange = useCallback((newPatrolType) => {
     onChange(newPatrolType);
 
     tracker.track('Pick a patrol type from the leg form');
-  };
+  }, [onChange, tracker]);
 
   return <div className={styles.patrolTypeField} ref={fieldRef}>
     <label className={styles.label} htmlFor={selectId}>{t('label')}</label>

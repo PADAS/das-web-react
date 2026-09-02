@@ -180,6 +180,15 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
     expect(legTwoRow).toHaveClass('notRunLeg');
   });
 
+  test('says in words which legs the patrol never ran, not in colour alone', () => {
+    renderLegs({ patrol: patrolWithPlannedLeg, patrolState: PATROL_UI_STATES.DONE });
+
+    const [, legOneRow, legTwoRow] = getRows();
+
+    expect(within(legTwoRow).getByText('This leg never ran')).toBeInTheDocument();
+    expect(within(legOneRow).queryByText('This leg never ran')).toBeNull();
+  });
+
   test('shows the planned end of a leg the patrol never ran, not the end that closed it', () => {
     const closedUnrunLeg = {
       ...legTwo,

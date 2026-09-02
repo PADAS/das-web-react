@@ -16,7 +16,7 @@ const getStaticFieldErrors = (leg, earliestStartDateTime = null) => {
   // A date whose time is left incomplete would be read as midnight, an hour the
   // user never picked.
   if (!isValidTime(leg.startTime)) {
-    return { startDate: t('staticFields.startTimeRequiredError') };
+    return { startTime: t('staticFields.startTimeRequiredError') };
   }
 
   const startDateTime = parseLegDraftDateTime(leg.startDate, leg.startTime);
@@ -28,7 +28,7 @@ const getStaticFieldErrors = (leg, earliestStartDateTime = null) => {
   }
 
   if (isValidDate(leg.endDate) && !isValidTime(leg.endTime)) {
-    return { endDate: t('staticFields.endTimeRequiredError') };
+    return { endTime: t('staticFields.endTimeRequiredError') };
   }
 
   const endDateTime = parseLegDraftDateTime(leg.endDate, leg.endTime);

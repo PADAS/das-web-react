@@ -164,7 +164,7 @@ export const iconTypeForPatrol = (patrol) => {
   return UNKNOWN_TYPE;
 };
 
-const findMatchingPatrolType = (patrolTypes, patrolType) => (patrolTypes || []).find(type =>
+export const findMatchingPatrolType = (patrolTypes, patrolType) => (patrolTypes || []).find(type =>
   (type.value === patrolType) || (type.id === patrolType)
 );
 
@@ -515,7 +515,7 @@ export const hasPatrolBegun = (patrol) => (patrol.patrol_segments ?? [])
 export const governingPatrolSegment = (patrol) => {
   const patrolSegments = patrol.patrol_segments ?? [];
 
-  return patrolSegments.find(isSegmentActive)
+  return patrolSegments.findLast(isSegmentActive)
     ?? patrolSegments.findLast((patrolSegment) => !isSegmentPending(patrolSegment))
     ?? patrolSegments[0]
     ?? null;
@@ -629,12 +629,16 @@ export const buildPatrolEndUpdate = (patrol) => {
 };
 
 export const buildPatrolReopenUpdate = (patrol) => {
-  const lastSegment = patrol.patrol_segments.at(-1);
+  // Ending the patrol closed every leg still running or waiting to at one
+  // instant, and that instant is what tells them from the legs that had
+  // really ended by themselves.
+  const closingEndTime = patrol.patrol_segments.at(-1)?.time_range?.end_time ?? null;
 
   return {
-    patrol_segments: patrol.patrol_segments.map((patrolSegment) => patrolSegment === lastSegment
-      ? withPatrolSegmentTimeRange(patrolSegment, { end_time: null })
-      : patrolSegment),
+    patrol_segments: patrol.patrol_segments.map((patrolSegment) =>
+      closingEndTime && patrolSegment.time_range?.end_time === closingEndTime
+        ? withPatrolSegmentTimeRange(patrolSegment, { end_time: null })
+        : patrolSegment),
     state: PATROL_API_STATES.OPEN,
   };
 };

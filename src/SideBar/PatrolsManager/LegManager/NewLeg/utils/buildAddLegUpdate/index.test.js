@@ -62,7 +62,19 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg - utils - buildAddLegUp
     expect(buildAddLegUpdate(patrol, leg).patrol_segments[0]).toBe(patrol.patrol_segments[0]);
   });
 
-  test('leaves the previous leg alone when it is only scheduled to end', () => {
+  test('really ends a previous leg that began and was only scheduled to end', () => {
+    patrol.patrol_segments[0].scheduled_end = new Date(2026, 3, 13, 10, 0).toISOString();
+
+    const patrolUpdate = buildAddLegUpdate(patrol, leg);
+
+    expect(patrolUpdate.patrol_segments[0].time_range.end_time)
+      .toBe(new Date(2026, 3, 13, 11, 0).toISOString());
+    expect(patrolUpdate.patrol_segments[0].scheduled_end).toBe(patrol.patrol_segments[0].scheduled_end);
+  });
+
+  test('leaves the plan of a previous leg that never began and is already scheduled to end', () => {
+    patrol.patrol_segments[0].time_range.start_time = null;
+    patrol.patrol_segments[0].scheduled_start = new Date(2026, 3, 13, 6, 0).toISOString();
     patrol.patrol_segments[0].scheduled_end = new Date(2026, 3, 13, 10, 0).toISOString();
 
     expect(buildAddLegUpdate(patrol, leg).patrol_segments[0]).toBe(patrol.patrol_segments[0]);

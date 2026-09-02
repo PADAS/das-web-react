@@ -17,6 +17,7 @@ import patrolTypes, { dogPatrol, routinePatrol } from '../../../../__test-helper
 import { PERMISSION_KEYS, PERMISSIONS } from '../../../../constants';
 import { render, screen, waitFor, within } from '../../../../test-utils';
 import { updatePatrol } from '../../../../ducks/patrols';
+import { updateUserPreferences } from '../../../../ducks/user-preferences';
 
 import NewLeg from './';
 
@@ -24,18 +25,23 @@ jest.mock('../../../../ducks/patrols', () => ({
   ...jest.requireActual('../../../../ducks/patrols'),
   updatePatrol: jest.fn(),
 }));
+jest.mock('../../../../ducks/user-preferences', () => ({
+  ...jest.requireActual('../../../../ducks/user-preferences'),
+  updateUserPreferences: jest.fn(),
+}));
 
 const LocationDisplay = () => <div data-testid="test-location">{useLocation().pathname}</div>;
 
 describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
   const teamLead = { id: 'leader-1', name: 'Alex' };
 
-  let map, patrol, store;
+  let map, patrol, reduxStore, store;
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers().setSystemTime(new Date(2026, 3, 13, 12, 0));
 
     updatePatrol.mockImplementation(() => () => Promise.resolve());
+    updateUserPreferences.mockImplementation(() => () => {});
 
     map = createMapMock();
 
@@ -89,13 +95,14 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
   const renderNewLeg = () => {
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
+    reduxStore = mockStore(store);
+
     const renderResult = render(
-      <Provider store={mockStore(store)}>
+      <Provider store={reduxStore}>
         <MapContext.Provider value={map}>
           <Routes>
             <Route element={<NewLeg patrol={patrol} />} path="/patrols/:patrolId/legs/new" />
 
-            {/* The routes the form leaves for are out of the scope of these tests. */}
             <Route element={null} path="/patrols/*" />
           </Routes>
         </MapContext.Provider>
@@ -112,6 +119,8 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
 
   const getDateInput = (groupName, inputName) =>
     within(screen.getByRole('group', { name: groupName })).getByRole('textbox', { name: inputName });
+
+  const getPathname = () => screen.getByTestId('test-location').textContent;
 
   const getStartDateTime = () => [
     getDateInput('Start date', 'Year').value,
@@ -203,7 +212,9 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
 
       expect(patrolUpdate.id).toBe(patrol.id);
       expect(patrolUpdate.patrol_segments).toHaveLength(2);
-      expect(patrolUpdate.patrol_segments[0]).toBe(patrol.patrol_segments[0]);
+      expect(patrolUpdate.patrol_segments[0].id).toBe(patrol.patrol_segments[0].id);
+      expect(patrolUpdate.patrol_segments[0].time_range.end_time)
+        .toBe(new Date(2026, 3, 13, 10, 0).toISOString());
       expect(patrolUpdate.patrol_segments[1].patrol_type).toBe(dogPatrol.value);
       expect(patrolUpdate.patrol_segments[1].leader).toBe(teamLead);
       expect(patrolUpdate.patrol_segments[1].time_range.start_time)
@@ -229,7 +240,7 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
 
       expect(updatePatrol).not.toHaveBeenCalled();
       expect(screen.getByText('A leg needs a start time.')).toBeVisible();
-      expect(screen.getByRole('group', { name: 'Start date' })).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.getByRole('group', { name: 'Start time' })).toHaveAttribute('aria-invalid', 'true');
     });
 
     test('does not add the leg when a start typed on another day lands before the previous end', async () => {
@@ -331,5 +342,110 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
 
     await waitFor(() => expect(screen.getByTestId('test-location')).toHaveTextContent(`/patrols/${patrol.id}`));
     expect(screen.queryByRole('group', { name: 'Start Time' })).toBeNull();
+  });
+
+  describe('remembering whether a leg starts and ends by itself', () => {
+    test('stores the choice of starting by itself', async () => {
+      patrol.patrol_segments[0].scheduled_end = new Date(2026, 3, 13, 14, 0).toISOString();
+
+      const { user } = renderNewLeg();
+
+      await user.click(screen.getByRole('checkbox', { name: 'Automatically start the leg at this time' }));
+
+      expect(updateUserPreferences).toHaveBeenCalledWith({ autoStartPatrols: true });
+    });
+
+    test('stores the choice of ending by itself', async () => {
+      const { user } = renderNewLeg();
+
+      await user.type(getDateInput('End date', 'Year'), '2026');
+      await user.type(getDateInput('End date', 'Month'), '04');
+      await user.type(getDateInput('End date', 'Day'), '20');
+      await user.type(getDateInput('End time', 'Hour'), '08');
+      await user.type(getDateInput('End time', 'Minute'), '00');
+      await user.click(screen.getByRole('checkbox', { name: 'Automatically end the leg at this time' }));
+
+      expect(updateUserPreferences).toHaveBeenCalledWith({ autoEndPatrols: true });
+    });
+
+    test('opens the form with the choices the user made last', () => {
+      patrol.patrol_segments[0].scheduled_end = new Date(2026, 3, 13, 14, 0).toISOString();
+      store.view.userPreferences.autoStartPatrols = true;
+
+      renderNewLeg();
+
+      expect(screen.getByRole('checkbox', { name: 'Automatically start the leg at this time' })).toBeChecked();
+    });
+  });
+
+  describe('leaving the form', () => {
+    const withDefaultObjective = {
+      ...defaultPatrolSegmentTypeSchema,
+      json: {
+        ...defaultPatrolSegmentTypeSchema.json,
+        properties: {
+          ...defaultPatrolSegmentTypeSchema.json.properties,
+          objective: { ...defaultPatrolSegmentTypeSchema.json.properties.objective, default: 'Routine sweep' },
+        },
+      },
+    };
+
+    test('goes back to the patrol overview from a form the user has not touched', async () => {
+      const { user } = renderNewLeg();
+
+      await user.click(screen.getByRole('link', { name: 'Cancel' }));
+
+      expect(screen.queryByRole('dialog')).toBeNull();
+      expect(getPathname()).toBe(`/patrols/${patrol.id}`);
+    });
+
+    test('goes back without warning when the schema filled fields in by itself', async () => {
+      store.data.patrolSchemas[DEFAULT_PATROL_SEGMENT_TYPE] = { isLoading: false, schema: withDefaultObjective };
+
+      const { user } = renderNewLeg();
+
+      expect(screen.getByRole('textbox', { name: 'Objective' })).toHaveValue('Routine sweep');
+
+      await user.click(screen.getByRole('link', { name: 'Cancel' }));
+
+      expect(screen.queryByRole('dialog')).toBeNull();
+      expect(getPathname()).toBe(`/patrols/${patrol.id}`);
+    });
+
+    test('warns about unsaved changes once the user edits a schema filled field', async () => {
+      store.data.patrolSchemas[DEFAULT_PATROL_SEGMENT_TYPE] = { isLoading: false, schema: withDefaultObjective };
+
+      const { user } = renderNewLeg();
+
+      await user.type(screen.getByRole('textbox', { name: 'Objective' }), ' and count');
+      await user.click(screen.getByRole('link', { name: 'Cancel' }));
+
+      expect(await screen.findByRole('dialog')).toBeVisible();
+      expect(getPathname()).toBe(`/patrols/${patrol.id}/legs/new`);
+    });
+
+    test('warns about unsaved changes when the user edits the form', async () => {
+      const { user } = renderNewLeg();
+
+      await user.type(screen.getByRole('textbox', { name: 'Objective' }), 'Count the herd');
+      await user.click(screen.getByRole('link', { name: 'Cancel' }));
+
+      expect(await screen.findByRole('dialog')).toBeVisible();
+      expect(getPathname()).toBe(`/patrols/${patrol.id}/legs/new`);
+    });
+
+    test('does not warn about unsaved changes while the leg is being saved', async () => {
+      updatePatrol.mockImplementation(() => () => new Promise(() => {}));
+
+      const { user } = renderNewLeg();
+
+      await user.type(screen.getByRole('textbox', { name: 'Objective' }), 'Count the herd');
+      await clickSave(user);
+
+      await user.click(screen.getByRole('link', { name: 'Cancel' }));
+
+      expect(screen.queryByRole('dialog')).toBeNull();
+      expect(getPathname()).toBe(`/patrols/${patrol.id}`);
+    });
   });
 });

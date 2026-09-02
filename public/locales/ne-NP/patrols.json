@@ -69,6 +69,7 @@
       "requiredError": "खण्डलाई गस्ती प्रकार आवश्यक छ।"
     },
     "patrolTypeSchemaErrorMessage": "यो गस्ती प्रकारका फिल्डहरू लोड गर्न सकिएन।",
+    "patrolTypeSchemaLoadingLabel": "यो गस्ती प्रकारका फिल्डहरू लोड हुँदैछन्",
     "staticFields": {
       "assetsLabel": "उपकरणहरू",
       "autoEndCheckboxLabel": "यसै समयमा खण्ड स्वतः अन्त्य गर्नुहोस्",
@@ -89,7 +90,9 @@
       "teamLabel": "टोली",
       "teamLeadLabel": "टोली नेता",
       "teamMembersLabel": "टोली सदस्यहरू"
-    }
+    },
+    "universalFieldsSchemaErrorMessage": "विश्वव्यापी गस्ती फिल्डहरू लोड गर्न सकिएन।",
+    "universalFieldsSchemaLoadingLabel": "विश्वव्यापी गस्ती फिल्डहरू लोड हुँदैछन्"
   },
   "newLeg": {
     "footer": {
@@ -211,6 +214,7 @@
         "endColumnHeader": "अन्त्य मिति",
         "legActionsColumnHeader": "कार्यहरू",
         "legColumnHeader": "खण्ड",
+        "legDidNotRunLabel": "यो चरण कहिल्यै चलेन",
         "legTableCaption": "गस्ती खण्डहरू",
         "newLegButton": "नयाँ गस्ती खण्ड",
         "patrolTypeColumnHeader": "गस्ती प्रकार",

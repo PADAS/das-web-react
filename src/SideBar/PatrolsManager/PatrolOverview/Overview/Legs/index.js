@@ -116,7 +116,11 @@ const Legs = ({ patrol, patrolState }) => {
               key={leg.id}
               onClick={onNavigateToLeg(leg)}
             >
-            <td>{leg.number}</td>
+            <td>
+              {leg.number}
+
+              {!!leg.hasNotRun && <span className="sr-only">{t('legDidNotRunLabel')}</span>}
+            </td>
 
             <td>{leg.patrolTypeDisplay}</td>
 

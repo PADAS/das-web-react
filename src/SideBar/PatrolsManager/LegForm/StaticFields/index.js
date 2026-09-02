@@ -30,24 +30,31 @@ const StaticFields = ({ earliestStartDateTime = null, errors, leg, onChangeLeg, 
   const teamAndTrackingOptions = useSelector((state) => state.data.patrolTeamAndTrackingOptions);
 
   const endDatePickerRef = useRef();
+  const endTimePickerRef = useRef();
   const startDatePickerRef = useRef();
+  const startTimePickerRef = useRef();
 
   useImperativeHandle(ref, () => ({
     focusField: (field) => {
-      const datePickerRef = field === 'endDate' ? endDatePickerRef : startDatePickerRef;
+      const fieldRefs = {
+        endDate: endDatePickerRef,
+        endTime: endTimePickerRef,
+        startDate: startDatePickerRef,
+        startTime: startTimePickerRef,
+      };
 
-      // Each picker is a group of inputs, the first one begins the date.
-      datePickerRef.current?.querySelector('input')?.focus();
+      // Each picker is a group of inputs, the first one begins the value.
+      fieldRefs[field]?.current?.querySelector('input')?.focus();
     },
   }));
 
   const assetsSelectId = useId();
   const autoEndCheckboxId = useId();
   const autoStartCheckboxId = useId();
-  const endDateErrorId = useId();
+  const endDateTimeErrorId = useId();
   const endLocationId = useId();
   const endTimeLabelId = useId();
-  const startDateErrorId = useId();
+  const startDateTimeErrorId = useId();
   const startLocationId = useId();
   const startTimeLabelId = useId();
   const teamLeadSelectId = useId();
@@ -71,6 +78,10 @@ const StaticFields = ({ earliestStartDateTime = null, errors, leg, onChangeLeg, 
   const startTimeMin = startDateMin === leg.startDate
     ? getHoursAndMinutesString(earliestStartDateTime)
     : undefined;
+
+  // A group shows a single message, wherever within it the error belongs.
+  const endDateTimeError = errors.endDate ?? errors.endTime;
+  const startDateTimeError = errors.startDate ?? errors.startTime;
 
   const renderCheckbox = ({ id, isChecked, isDisabled, label, onChange }) => <div className={styles.checkboxWrapper}>
     <input
@@ -104,7 +115,7 @@ const StaticFields = ({ earliestStartDateTime = null, errors, leg, onChangeLeg, 
 
           <div className={styles.dateTimeInputs}>
             <DatePicker
-              aria-errormessage={errors.startDate ? startDateErrorId : undefined}
+              aria-errormessage={errors.startDate ? startDateTimeErrorId : undefined}
               aria-invalid={errors.startDate ? 'true' : 'false'}
               aria-label={t('startDateInputLabel')}
               className={styles.datePicker}
@@ -116,18 +127,19 @@ const StaticFields = ({ earliestStartDateTime = null, errors, leg, onChangeLeg, 
             />
 
             <TimePicker
-              aria-errormessage={errors.startDate ? startDateErrorId : undefined}
-              aria-invalid={errors.startDate ? 'true' : 'false'}
+              aria-errormessage={errors.startTime ? startDateTimeErrorId : undefined}
+              aria-invalid={errors.startTime ? 'true' : 'false'}
               aria-label={t('startTimeInputLabel')}
               min={startTimeMin}
               minutesInterval={TIME_OPTIONS_INTERVAL_IN_MINUTES}
               onChange={(startTime) => onChangeLeg({ startTime })}
+              ref={startTimePickerRef}
               value={leg.startTime}
             />
           </div>
 
-          {!!errors.startDate && <p className={styles.errorMessage} id={startDateErrorId} role="alert">
-            {errors.startDate}
+          {!!startDateTimeError && <p className={styles.errorMessage} id={startDateTimeErrorId} role="alert">
+            {startDateTimeError}
           </p>}
         </div>
 
@@ -157,7 +169,7 @@ const StaticFields = ({ earliestStartDateTime = null, errors, leg, onChangeLeg, 
 
           <div className={styles.dateTimeInputs}>
             <DatePicker
-              aria-errormessage={errors.endDate ? endDateErrorId : undefined}
+              aria-errormessage={errors.endDate ? endDateTimeErrorId : undefined}
               aria-invalid={errors.endDate ? 'true' : 'false'}
               aria-label={t('endDateInputLabel')}
               className={styles.datePicker}
@@ -169,20 +181,21 @@ const StaticFields = ({ earliestStartDateTime = null, errors, leg, onChangeLeg, 
             />
 
             <TimePicker
-              aria-errormessage={errors.endDate ? endDateErrorId : undefined}
-              aria-invalid={errors.endDate ? 'true' : 'false'}
+              aria-errormessage={errors.endTime ? endDateTimeErrorId : undefined}
+              aria-invalid={errors.endTime ? 'true' : 'false'}
               aria-label={t('endTimeInputLabel')}
               disabled={!isValidDate(leg.endDate)}
               min={endTimeMin}
               minutesInterval={TIME_OPTIONS_INTERVAL_IN_MINUTES}
               onChange={(endTime) => onChangeLeg({ endTime })}
+              ref={endTimePickerRef}
               showDurationFromMin={!!endTimeMin}
               value={leg.endTime}
             />
           </div>
 
-          {!!errors.endDate && <p className={styles.errorMessage} id={endDateErrorId} role="alert">
-            {errors.endDate}
+          {!!endDateTimeError && <p className={styles.errorMessage} id={endDateTimeErrorId} role="alert">
+            {endDateTimeError}
           </p>}
         </div>
 

@@ -46,7 +46,7 @@ const NewLeg = ({ patrol }) => {
   const previousLeg = patrol.patrol_segments.at(-1) ?? null;
 
   const [hasAddedLeg, setHasAddedLeg] = useState(false);
-  const [initialLeg] = useState(() => buildNewLegDraft({
+  const [initialLeg, setInitialLeg] = useState(() => buildNewLegDraft({
     isAutoEnd: autoEndPatrols,
     isAutoStart: autoStartPatrols,
     patrolTypes,
@@ -63,7 +63,7 @@ const NewLeg = ({ patrol }) => {
 
   const patrolTitle = displayTitleForPatrol(patrol, governingPatrolSegment(patrol)?.leader);
 
-  const onChangeLeg = useCallback((legChanges) => {
+  const onChangeLeg = useCallback((legChanges, { isDefaultData = false } = {}) => {
     // Whether a patrol starts and ends by itself is a preference the next
     // leg the user plans inherits.
     if ('isAutoEnd' in legChanges) {
@@ -71,6 +71,12 @@ const NewLeg = ({ patrol }) => {
     }
     if ('isAutoStart' in legChanges) {
       dispatch(updateUserPreferences({ autoStartPatrols: legChanges.isAutoStart }));
+    }
+
+    // A schema form populates its defaults before the user can touch it, so
+    // they belong to the draft handed over rather than to an edit of it.
+    if (isDefaultData) {
+      setInitialLeg((prevInitialLeg) => ({ ...prevInitialLeg, ...legChanges }));
     }
 
     setLeg((prevLeg) => ({ ...prevLeg, ...legChanges }));

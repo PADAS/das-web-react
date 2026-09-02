@@ -69,6 +69,7 @@
       "requiredError": "Un tramo necesita un tipo de patrulla."
     },
     "patrolTypeSchemaErrorMessage": "No se pudieron cargar los campos de este tipo de patrulla.",
+    "patrolTypeSchemaLoadingLabel": "Cargando los campos de este tipo de patrulla",
     "staticFields": {
       "assetsLabel": "Recursos",
       "autoEndCheckboxLabel": "Finalizar el tramo automáticamente a esta hora",
@@ -89,7 +90,9 @@
       "teamLabel": "Equipo",
       "teamLeadLabel": "Líder del equipo",
       "teamMembersLabel": "Miembros del equipo"
-    }
+    },
+    "universalFieldsSchemaErrorMessage": "No se pudieron cargar los campos universales de patrulla.",
+    "universalFieldsSchemaLoadingLabel": "Cargando los campos universales de patrulla"
   },
   "newLeg": {
     "footer": {
@@ -211,6 +214,7 @@
         "endColumnHeader": "Fecha de finalización",
         "legActionsColumnHeader": "Acciones",
         "legColumnHeader": "Tramo",
+        "legDidNotRunLabel": "Este tramo nunca se realizó",
         "legTableCaption": "Tramos de la patrulla",
         "newLegButton": "Nuevo tramo de patrulla",
         "patrolTypeColumnHeader": "Tipo de patrulla",

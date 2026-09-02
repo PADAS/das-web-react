@@ -69,6 +69,7 @@
       "requiredError": "Uma etapa precisa de um tipo de patrulha."
     },
     "patrolTypeSchemaErrorMessage": "Não foi possível carregar os campos deste tipo de patrulha.",
+    "patrolTypeSchemaLoadingLabel": "A carregar os campos deste tipo de patrulha",
     "staticFields": {
       "assetsLabel": "Recursos",
       "autoEndCheckboxLabel": "Finalizar automaticamente a etapa neste horário",
@@ -89,7 +90,9 @@
       "teamLabel": "Equipe",
       "teamLeadLabel": "Líder da equipe",
       "teamMembersLabel": "Membros da equipe"
-    }
+    },
+    "universalFieldsSchemaErrorMessage": "Não foi possível carregar os campos universais de patrulha.",
+    "universalFieldsSchemaLoadingLabel": "A carregar os campos universais de patrulha"
   },
   "newLeg": {
     "footer": {
@@ -211,6 +214,7 @@
         "endColumnHeader": "Data da finalização",
         "legActionsColumnHeader": "Ações",
         "legColumnHeader": "Etapa",
+        "legDidNotRunLabel": "Este troço nunca decorreu",
         "legTableCaption": "Etapas da patrulha",
         "newLegButton": "Nova etapa de patrulha",
         "patrolTypeColumnHeader": "Tipo de patrulha",

@@ -69,6 +69,7 @@
       "requiredError": "A leg needs a patrol type."
     },
     "patrolTypeSchemaErrorMessage": "The fields of this patrol type could not be loaded.",
+    "patrolTypeSchemaLoadingLabel": "Loading the fields of this patrol type",
     "staticFields": {
       "assetsLabel": "Assets",
       "autoEndCheckboxLabel": "Automatically end the leg at this time",
@@ -89,7 +90,9 @@
       "teamLabel": "Team",
       "teamLeadLabel": "Team Lead",
       "teamMembersLabel": "Team Members"
-    }
+    },
+    "universalFieldsSchemaErrorMessage": "The universal patrol fields could not be loaded.",
+    "universalFieldsSchemaLoadingLabel": "Loading the universal patrol fields"
   },
   "newLeg": {
     "footer": {
@@ -211,6 +214,7 @@
         "endColumnHeader": "End Date",
         "legActionsColumnHeader": "Actions",
         "legColumnHeader": "Leg",
+        "legDidNotRunLabel": "This leg never ran",
         "legTableCaption": "Patrol legs",
         "newLegButton": "New Patrol Leg",
         "patrolTypeColumnHeader": "Patrol Type",

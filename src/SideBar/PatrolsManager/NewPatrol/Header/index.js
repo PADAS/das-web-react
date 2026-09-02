@@ -18,7 +18,7 @@ const Header = ({ isTitleDirty, onChangeTitle, patrolType, title }) => {
   ];
 
   const renderTitleBar = () => <>
-    {/* The title is an input, so the view needs a heading of its own to be navigable. */}
+    {/* The title is an input, so the view needs a heading of its own. */}
     <h2 className="sr-only">{title}</h2>
 
     <div className={styles.titleBarMain}>
