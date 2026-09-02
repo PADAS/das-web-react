@@ -403,6 +403,12 @@ export const addSocketStatusUpdateToTrack = (tracks, newData) => {
 
   update.properties = merge({}, points.features[0].properties, update.properties);
 
+  // The merge seeds this point from the previously newest one, whose `time` belongs to that
+  // point; the incoming position carries its own under coordinateProperties.
+  if (update.properties.coordinateProperties?.time) {
+    update.properties.time = update.properties.coordinateProperties.time;
+  }
+
   const [trackFeature] = track.features;
 
   if (update.geometry

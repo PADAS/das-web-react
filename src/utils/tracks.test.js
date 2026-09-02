@@ -6,6 +6,7 @@ import { TIME_OF_DAY_PERIODS } from '../constants';
 import { TRACK_LENGTH_ORIGINS, TRACKS_API_URL } from '../ducks/tracks';
 
 import {
+  addSocketStatusUpdateToTrack,
   buildTrackSegments,
   fetchTracksIfNecessary,
   fixAntimeridianCrossing,
@@ -655,6 +656,48 @@ describe('utils - tracks', () => {
 
   });
 
+  describe('addSocketStatusUpdateToTrack', () => {
+    const EARLIER_TIME = '2021-01-27T09:04:25+00:00';
+    const LATEST_TIME = '2021-01-27T09:09:30+00:00';
+
+    const trackWithOnePoint = () => ({
+      points: {
+        features: [{
+          geometry: { coordinates: [1, 1], type: 'Point' },
+          properties: { coordinateProperties: { time: EARLIER_TIME }, id: 'subject-id', time: EARLIER_TIME },
+        }],
+      },
+      track: {
+        features: [{
+          geometry: { coordinates: [[1, 1]], type: 'LineString' },
+          properties: { coordinateProperties: { times: [EARLIER_TIME] } },
+        }],
+      },
+    });
+
+    const statusUpdate = {
+      geometry: { coordinates: [2, 2], type: 'Point' },
+      properties: { coordinateProperties: { time: LATEST_TIME } },
+    };
+
+    test('times the appended point by the incoming position, not the point it was merged from', () => {
+      const updated = addSocketStatusUpdateToTrack(trackWithOnePoint(), statusUpdate);
+
+      expect(updated.points.features[0].properties.time).toBe(LATEST_TIME);
+    });
+
+    test('leaves the point it was merged from at its own time', () => {
+      const updated = addSocketStatusUpdateToTrack(trackWithOnePoint(), statusUpdate);
+
+      expect(updated.points.features[1].properties.time).toBe(EARLIER_TIME);
+    });
+
+    test('carries over properties the update does not supply', () => {
+      const updated = addSocketStatusUpdateToTrack(trackWithOnePoint(), statusUpdate);
+
+      expect(updated.points.features[0].properties.id).toBe('subject-id');
+    });
+  });
 
   describe('fetchTracksIfNecessary', () => {
     const EVENT_FILTER_LOWER = '2026-08-01T00:00:00.000Z';
