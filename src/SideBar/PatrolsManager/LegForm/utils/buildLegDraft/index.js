@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import { EMPTY_DATE_VALUE } from '../../../../../DatePicker';
 import { getHoursAndMinutesString } from '../../../../../utils/datetime';
 
-const buildLegDraft = (leg = null) => {
+const buildLegDraft = (leg = null, patrolTypes = []) => {
   const actualEndTime = leg?.time_range?.end_time ?? null;
   const actualStartTime = leg?.time_range?.start_time ?? null;
   const endTime = actualEndTime ?? leg?.scheduled_end ?? null;
@@ -19,7 +19,7 @@ const buildLegDraft = (leg = null) => {
     endTime: getHoursAndMinutesString(endDate),
     isAutoEnd: !!actualEndTime,
     isAutoStart: !!actualStartTime,
-    patrolType: null,
+    patrolType: patrolTypes.find(({ value }) => value === leg?.patrol_type) ?? null,
     startDate: startDate ? format(startDate, 'yyyy-MM-dd') : EMPTY_DATE_VALUE,
     startLocation: leg?.start_location ?? null,
     startTime: getHoursAndMinutesString(startDate),

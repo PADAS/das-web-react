@@ -38,8 +38,8 @@ const SummaryStats = ({ eventCount, patrol }) => {
   const { t: tDates } = useTranslation('dates');
   const { t: tUtils } = useTranslation('utils');
 
-  const hasPatrolStarted = useMemo(() => !!actualStartTimeForPatrol(patrol), [patrol]);
-  const patrolEndTime = useMemo(() => effectiveEndTimeForPatrol(patrol), [patrol]);
+  const hasPatrolStarted = !!actualStartTimeForPatrol(patrol);
+  const patrolEndTime = effectiveEndTimeForPatrol(patrol);
 
   const currentTime = useCurrentTime(hasPatrolStarted && !patrolEndTime ? ELAPSED_TIME_REFRESH_INTERVAL : null);
 

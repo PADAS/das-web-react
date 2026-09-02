@@ -8,6 +8,8 @@ jest.mock('../../hooks/useNavigate', () => jest.fn());
 /* eslint-disable-next-line react/display-name */
 jest.mock('../PatrolsFeed', () => () => <div>Patrols Feed</div>);
 /* eslint-disable-next-line react/display-name */
+jest.mock('./LegManager', () => () => <div>Leg Manager</div>);
+/* eslint-disable-next-line react/display-name */
 jest.mock('./NewPatrol', () => () => <div>New Patrol</div>);
 /* eslint-disable-next-line react/display-name */
 jest.mock('./PatrolOverview', () => () => <div>Patrol Overview</div>);

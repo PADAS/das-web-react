@@ -14,15 +14,15 @@
   flex-direction: column;
   height: 100%;
 
-  @media (min-width: layout.$md-layout-width-min) {
-    @include layout.sidebar-width-detail;
-  }
-
   .body {
     background: colors.$light-gray-background;
     flex: 1;
     min-height: 0;
     overflow-y: auto;
     padding: 1rem 0;
+  }
+
+  @media (min-width: layout.$md-layout-width-min) {
+    @include layout.sidebar-width-detail;
   }
 }

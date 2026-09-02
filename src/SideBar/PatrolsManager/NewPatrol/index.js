@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useId, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useId, useState } from 'react';
 import isEqual from 'react-fast-compare';
 import MoonLoader from 'react-spinners/MoonLoader';
 import { toast } from 'react-toastify';
@@ -54,7 +54,7 @@ const NewPatrolContent = ({ initialPatrolType }) => {
   const hasUnsavedChanges = isTitleDirty || !isEqual(leg, initialLeg);
 
   const onChangeLeg = useCallback((legChanges) => {
-    // Whether a patrol starts and ends by itself is a preference the next new patrol inherits.
+    // Starting and ending by itself is a preference the next patrol inherits.
     if ('isAutoEnd' in legChanges) {
       dispatch(updateUserPreferences({ autoEndPatrols: legChanges.isAutoEnd }));
     }
@@ -65,7 +65,7 @@ const NewPatrolContent = ({ initialPatrolType }) => {
     setLeg((prevLeg) => ({ ...prevLeg, ...legChanges }));
   }, [dispatch]);
 
-  const onSubmit = useCallback(async () => {
+  const onSubmit = async () => {
     newPatrolTracker.track('Click the "Save Patrol" button in new patrol');
 
     setIsSaving(true);
@@ -93,7 +93,7 @@ const NewPatrolContent = ({ initialPatrolType }) => {
 
       setIsSaving(false);
     }
-  }, [dispatch, leg, t, title]);
+  };
 
   const onContinueNavigation = useCallback(() => {
     newPatrolTracker.track('Discard unsaved changes and navigate away from new patrol');
@@ -142,15 +142,11 @@ const NewPatrol = () => {
 
   const patrolTypeId = searchParams.get(PATROL_TYPE_QUERY_PARAMETER);
 
-  const patrolType = useMemo(
-    () => patrolTypes.find(({ id }) => id === patrolTypeId) ?? null,
-    [patrolTypeId, patrolTypes]
-  );
+  const patrolType = patrolTypes.find(({ id }) => id === patrolTypeId) ?? null;
 
   useEffect(() => {
-    // A patrol cannot be created without knowing its type, and the patrol
-    // types are already in the store by the time the feed can offer this
-    // route.
+    // A patrol needs a type to be created, and the types are in the store by
+    // the time the feed can offer this route.
     if (patrolTypes.length > 0 && !patrolType) {
       navigate(`/${TAB_KEYS.PATROLS}`, { replace: true });
     }

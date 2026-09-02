@@ -39,7 +39,7 @@ const patrolFeedMembership = (patrolId, matchesCurrentFilter) => ({
   type: matchesCurrentFilter ? ADD_PATROL_TO_FEED : REMOVE_PATROL_FROM_FEED,
 });
 
-export const socketCreatePatrol = ({ patrol_data, matches_current_filter }) => (dispatch) => {
+export const socketCreatePatrol = ({ matches_current_filter, patrol_data }) => (dispatch) => {
   dispatch({
     payload: patrol_data,
     type: CREATE_PATROL_REALTIME,
@@ -48,7 +48,7 @@ export const socketCreatePatrol = ({ patrol_data, matches_current_filter }) => (
   dispatch(patrolFeedMembership(patrol_data.id, matches_current_filter));
 };
 
-export const socketUpdatePatrol = ({ patrol_data, matches_current_filter }) => (dispatch) => {
+export const socketUpdatePatrol = ({ matches_current_filter, patrol_data }) => (dispatch) => {
   dispatch({
     payload: patrol_data,
     type: UPDATE_PATROL_REALTIME,
@@ -204,14 +204,42 @@ export const togglePatrolTrackState = (id) => (dispatch, getState) => {
   return dispatch(updatePatrolTrackState({ visible: [...visible, id] }));
 };
 
-// Reducers
+// Reducer
+
+// Every consumer takes the first leg for the earliest and the last for the most
+// recent, and the API promises no order.
+const patrolSegmentStartTime = (patrolSegment) =>
+  patrolSegment.time_range?.start_time ?? patrolSegment.scheduled_start ?? null;
+
+const withSortedPatrolSegments = (patrol) => {
+  if (!Array.isArray(patrol.patrol_segments) || patrol.patrol_segments.length < 2) {
+    return patrol;
+  }
+
+  const sortedPatrolSegments = [...patrol.patrol_segments].sort((a, b) => {
+    const aStartTime = patrolSegmentStartTime(a);
+    const bStartTime = patrolSegmentStartTime(b);
+
+    // A leg that has no start of its own goes last, in the order it came in.
+    if (!aStartTime || !bStartTime) {
+      return (aStartTime ? 0 : 1) - (bStartTime ? 0 : 1);
+    }
+
+    return new Date(aStartTime).getTime() - new Date(bStartTime).getTime();
+  });
+
+  return sortedPatrolSegments.every((patrolSegment, index) => patrolSegment === patrol.patrol_segments[index])
+    ? patrol
+    : { ...patrol, patrol_segments: sortedPatrolSegments };
+};
+
 export const INITIAL_STORE_STATE = {};
 
 export const patrolStoreReducer = globallyResettableReducer((state, { type, payload }) => {
   switch (type) {
   case UPDATE_PATROL_STORE:
     return payload.results.reduce((accumulator, patrol) => {
-      accumulator[patrol.id] = { ...state[patrol.id], ...patrol };
+      accumulator[patrol.id] = withSortedPatrolSegments({ ...state[patrol.id], ...patrol });
 
       return accumulator;
     }, { ...state });
@@ -222,10 +250,10 @@ export const patrolStoreReducer = globallyResettableReducer((state, { type, payl
   case UPDATE_PATROL_SUCCESS:
     return {
       ...state,
-      [payload.id]: {
+      [payload.id]: withSortedPatrolSegments({
         ...state[payload.id],
         ...payload,
-      },
+      }),
     };
 
   case DELETE_PATROL_BY_ID: {

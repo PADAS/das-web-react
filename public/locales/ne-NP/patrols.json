@@ -65,33 +65,48 @@
   "legForm": {
     "patrolTypeField": {
       "label": "गस्ती प्रकार",
-      "placeholder": "गस्ती प्रकार छान्नुहोस्"
+      "placeholder": "गस्ती प्रकार छान्नुहोस्",
+      "requiredError": "खण्डलाई गस्ती प्रकार आवश्यक छ।"
     },
     "patrolTypeSchemaErrorMessage": "यो गस्ती प्रकारका फिल्डहरू लोड गर्न सकिएन।",
     "staticFields": {
       "assetsLabel": "उपकरणहरू",
-      "autoEndCheckboxLabel": "यसै समयमा गस्ती स्वतः अन्त्य गर्नुहोस्",
-      "autoStartCheckboxLabel": "यसै समयमा गस्ती स्वतः सुरु गर्नुहोस्",
-      "endDateBeforeStartDateError": "गस्तीको अन्त्य समय सुरुवाती समय भन्दा पछि हुनुपर्छ।",
+      "autoEndCheckboxLabel": "यसै समयमा खण्ड स्वतः अन्त्य गर्नुहोस्",
+      "autoStartCheckboxLabel": "यसै समयमा खण्ड स्वतः सुरु गर्नुहोस्",
+      "endDateBeforeStartDateError": "खण्डको अन्त्य समय सुरुवाती समय भन्दा पछि हुनुपर्छ।",
       "endDateInputLabel": "अन्त्य मिति",
       "endLocationLabel": "अन्त्य स्थान",
       "endTimeInputLabel": "अन्त्य समय",
       "endTimeLabel": "अन्त्य समय",
+      "endTimeRequiredError": "अन्त्य मिति भएको खण्डलाई अन्त्य समय आवश्यक छ।",
       "startDateInputLabel": "सुरु मिति",
-      "startDateRequiredError": "गस्तीलाई सुरु मिति आवश्यक छ।",
+      "startDateOverlapsPreviousLegError": "यो खण्ड अघिल्लो खण्डसँग खप्टिन सक्दैन।",
+      "startDateRequiredError": "खण्डलाई सुरु मिति आवश्यक छ।",
       "startLocationLabel": "सुरु स्थान",
       "startTimeInputLabel": "सुरु समय",
       "startTimeLabel": "सुरु समय",
+      "startTimeRequiredError": "खण्डलाई सुरु समय आवश्यक छ।",
       "teamLabel": "टोली",
       "teamLeadLabel": "टोली नेता",
       "teamMembersLabel": "टोली सदस्यहरू"
     }
   },
+  "newLeg": {
+    "footer": {
+      "cancelButton": "रद्द गर्नुहोस्",
+      "saveButton": "सुरक्षित गर्नुहोस्"
+    },
+    "header": {
+      "breadcrumbNewLegLabel": "नयाँ गस्ती खण्ड",
+      "breadcrumbPatrolsLabel": "गस्तीहरू",
+      "title": "नयाँ गस्ती खण्ड"
+    },
+    "saveErrorMessage": "गस्ती खण्ड सिर्जना गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।"
+  },
   "newPatrol": {
     "footer": {
       "cancelButton": "रद्द गर्नुहोस्",
-      "saveButton": "सुरक्षित गर्नुहोस्",
-      "saveButtonLoadingLabel": "लोड हुँदैछ"
+      "saveButton": "सुरक्षित गर्नुहोस्"
     },
     "header": {
       "breadcrumbNewPatrolLabel": "नयाँ गस्ती",
@@ -128,8 +143,7 @@
       "addEventButton": "घटना थप्नुहोस्",
       "addEventButtonLabel": "घटना थप्नुहोस्",
       "addEventButtonText": "घटना",
-      "saveButton": "सुरक्षित गर्नुहोस्",
-      "saveButtonLoadingLabel": "लोड हुँदैछ"
+      "saveButton": "सुरक्षित गर्नुहोस्"
     },
     "header": {
       "breadcrumbPatrolsLabel": "गस्तीहरू",

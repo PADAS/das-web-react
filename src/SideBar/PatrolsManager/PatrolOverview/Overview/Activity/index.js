@@ -4,7 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as ArrowDownIcon } from '../../../../../common/images/icons/arrow-down.svg';
 import { ReactComponent as ArrowUpIcon } from '../../../../../common/images/icons/arrow-up.svg';
 
-import { actualEndTimeForPatrol, actualStartTimeForPatrol, getReportsForPatrol } from '../../../../../utils/patrols';
+import {
+  actualEndTimeForPatrol,
+  actualStartTimeForPatrol,
+  getReportsForPatrol,
+  isSegmentPending,
+} from '../../../../../utils/patrols';
 import { DESCENDING_SORT_ORDER } from '../../../../../constants';
 import { getEventIdsForCollection } from '../../../../../utils/events';
 import useActivityFeed from '../../../../../DetailViewComponents/ActivitySection/useActivityFeed';
@@ -63,9 +68,10 @@ const Activity = ({
 
   const startTime = useMemo(() => actualStartTimeForPatrol(patrol), [patrol]);
 
+  // Only legs that really ran hand over to one another.
   const legTransitionMilestones = useMemo(() => patrol.patrol_segments
     .slice(0, -1)
-    .flatMap((leg, index) => leg.time_range?.end_time
+    .flatMap((leg, index) => leg.time_range?.end_time && !isSegmentPending(patrol.patrol_segments[index + 1])
       ? [{
         date: leg.time_range.end_time,
         id: leg.id,

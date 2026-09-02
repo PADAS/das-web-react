@@ -25,7 +25,7 @@ describe('SideBar - PatrolsManager - NewPatrol - Footer', () => {
   test('shows the save button as busy while the patrol is being created', () => {
     renderFooter({ isSaving: true });
 
-    const saveButton = screen.getByRole('button', { name: 'Loading' });
+    const saveButton = screen.getByRole('button', { name: 'Save' });
 
     expect(saveButton).toHaveAttribute('aria-busy', 'true');
     expect(saveButton).toBeDisabled();

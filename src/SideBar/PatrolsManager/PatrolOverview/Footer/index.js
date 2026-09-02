@@ -50,7 +50,7 @@ const Footer = ({
     <div className={styles.rightActions}>
       <button
         aria-busy={isSaving}
-        aria-label={isSaving ? t('saveButtonLoadingLabel') : undefined}
+        aria-label={t('saveButton')}
         className={styles.saveButton}
         disabled={disableSaveButton || isSaving}
         onClick={onSave}

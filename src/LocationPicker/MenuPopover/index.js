@@ -47,9 +47,8 @@ const MenuPopover = ({
   const lastFocusableElementRef = useRef();
   const wrapperRef = useRef();
 
-  // The popover takes the width of the location picker within the min and max
-  // boundaries, and keeps the one it opened with however the picker is resized
-  // while the menu is open.
+  // The popover opens at the width of the picker, clamped, and keeps it however
+  // the picker is resized while open.
   const [popoverWidth] = useState(
     () => Math.min(MAX_POPOVER_WIDTH, Math.max(MIN_POPOVER_WIDTH, target.current?.offsetWidth))
   );

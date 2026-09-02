@@ -46,6 +46,11 @@
     .legRow {
       cursor: pointer;
 
+      &.notRunLeg {
+        background: colors.$very-light-gray;
+        opacity: 0.66;
+      }
+
       &:hover:not(:has(.zoomToLegBoundsButton:hover)) {
         background: colors.$blue-highlight;
       }

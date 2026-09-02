@@ -1,4 +1,4 @@
-import React, { memo, useLayoutEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as PencilIcon } from '../../../common/images/icons/pencil.svg';
@@ -59,4 +59,4 @@ const TitleInput = ({ isDirty, onChange, value, ...otherProps }) => {
   </div>;
 };
 
-export default memo(TitleInput);
+export default TitleInput;

@@ -56,7 +56,6 @@ describe('usePatrolState', () => {
   });
 
   test('walks a scheduled patrol through each of its transitions', () => {
-    // Starts in 3 hours: scheduled, then ready to start an hour out, then active.
     const patrol = makePatrol({ time_range: { start_time: atOffset(180).toISOString(), end_time: null } });
     const { result } = renderHook(() => usePatrolState(patrol));
 
@@ -144,7 +143,6 @@ describe('usePatrolState', () => {
         time_range: { start_time: null, end_time: atOffset(600).toISOString() },
       });
 
-      // The overdue threshold lands before the end time.
       expect(recheckDelayFor(patrol)).toBe(afterMinutes(5 + DELTA_FOR_OVERDUE));
     });
 
@@ -161,7 +159,6 @@ describe('usePatrolState', () => {
     });
 
     test('caps the delay so a far off transition does not overflow the timer', () => {
-      // A patrol scheduled a year out would overflow setTimeout's 32 bit delay.
       const patrol = makePatrol({ time_range: { start_time: atOffset(525_600).toISOString(), end_time: null } });
 
       expect(recheckDelayFor(patrol)).toBe(MAX_TIMEOUT_DELAY);

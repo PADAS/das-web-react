@@ -90,8 +90,6 @@
   .serialNumber {
     color: colors.$secondary-medium-gray;
     font-size: 1.375rem;
-
-    /* Matches the height of the title input so the serial number cannot make the title bar taller. */
     line-height: 2rem;
     margin: 0;
   }

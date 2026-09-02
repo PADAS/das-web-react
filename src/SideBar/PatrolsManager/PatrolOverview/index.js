@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { addPatrolSegmentToEvent } from '../../../utils/events';
 import buildPatrolStatusUpdate from './utils/buildPatrolStatusUpdate';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../../../utils/file';
-import { displayTitleForPatrol } from '../../../utils/patrols';
+import { displayTitleForPatrol, governingPatrolSegment } from '../../../utils/patrols';
 import { fetchPatrol, updatePatrol, uploadPatrolFile } from '../../../ducks/patrols';
 import { fetchTracksIfNecessary } from '../../../utils/tracks';
 import { PATROL_OVERVIEW_CATEGORY, TrackerContext, trackEventFactory } from '../../../utils/analytics';
@@ -54,10 +54,7 @@ const PatrolOverviewContent = ({ patrol }) => {
   const [newNotes, setNewNotes] = useState([]);
   const [shouldRedirectToFeed, setShouldRedirectToFeed] = useState(false);
 
-  const patrolTitle = useMemo(
-    () => displayTitleForPatrol(patrol, patrol.patrol_segments.at(-1)?.leader),
-    [patrol]
-  );
+  const patrolTitle = displayTitleForPatrol(patrol, governingPatrolSegment(patrol)?.leader);
 
   const title = editedTitle ?? patrolTitle;
 
@@ -119,9 +116,7 @@ const PatrolOverviewContent = ({ patrol }) => {
     const [firstResult] = Array.isArray(saveResults) ? saveResults : [saveResults];
     const newEventId = firstResult.data.data.id;
 
-    const lastSegment = patrol.patrol_segments[patrol.patrol_segments.length - 1];
-
-    await addPatrolSegmentToEvent(lastSegment.id, newEventId);
+    await addPatrolSegmentToEvent(governingPatrolSegment(patrol).id, newEventId);
 
     patrolOverviewTracker.track('Link new event to patrol');
 

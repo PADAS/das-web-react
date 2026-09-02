@@ -210,8 +210,6 @@ describe('SvgIcon', () => {
       const { container, rerender } = renderWithStore(<SvgIcon type="patrols" iconId="boat_rep" />);
       await waitFor(() => expect(container.querySelector('path')).toHaveAttribute('d', 'boat'));
 
-      // Both icons are cached from the second swap on, which is where a state reset that outlives
-      // its src shows up as the previous icon staying on screen.
       const swapTo = async (iconId, expected) => {
         rerender(<Provider store={store}><SvgIcon type="patrols" iconId={iconId} /></Provider>);
 

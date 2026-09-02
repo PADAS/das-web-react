@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useId, useImperativeHandle, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useId, useImperativeHandle, useMemo, useState } from 'react';
 import isEqual from 'react-fast-compare';
 import { merge } from 'lodash-es';
 import { useDispatch } from 'react-redux';
@@ -345,4 +345,4 @@ const SchemaForm = ({
   </FormInstanceContext.Provider>;
 };
 
-export default SchemaForm;
+export default memo(SchemaForm);

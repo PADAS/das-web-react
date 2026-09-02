@@ -16,6 +16,7 @@ import {
   getBoundsForPatrol,
   getIsMobilePatrol,
   getPatrolLocationCoordinates,
+  governingPatrolSegment,
   iconIdForPatrolSegment,
   patrolHasTrackData,
 } from '../../../../utils/patrols';
@@ -54,18 +55,15 @@ const Header = ({
 
   const jumpToLocation = useJumpToLocation();
 
-  const lastSegment = patrol.patrol_segments[patrol.patrol_segments.length - 1] ?? null;
+  const governingSegment = governingPatrolSegment(patrol);
 
   const patrolTrackData = useSelector((state) => selectPatrolTrackData(state, patrol));
   const patrolTrackState = useSelector((state) => state.view.patrolTrackState);
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
-  const crumbs = useMemo(
-    () => [{ label: t('breadcrumbPatrolsLabel'), to: `/${TAB_KEYS.PATROLS}` }, { label: title }],
-    [t, title]
-  );
+  const crumbs = [{ label: t('breadcrumbPatrolsLabel'), to: `/${TAB_KEYS.PATROLS}` }, { label: title }];
 
-  const patrolIconId = lastSegment ? iconIdForPatrolSegment(patrolTypes, lastSegment) : null;
+  const patrolIconId = governingSegment ? iconIdForPatrolSegment(patrolTypes, governingSegment) : null;
 
   const isPatrolTrackPinned = patrolTrackState.pinned.includes(patrol.id);
   const isPatrolTrackVisible = !isPatrolTrackPinned && patrolTrackState.visible.includes(patrol.id);
@@ -167,9 +165,9 @@ const Header = ({
     </div>
 
     <KebabMenu
-        aria-label={t('moreOptionsButtonLabel')}
-        align="end"
-        title={t('moreOptionsButtonLabel')}
+      align="end"
+      aria-label={t('moreOptionsButtonLabel')}
+      title={t('moreOptionsButtonLabel')}
       >
       <KebabMenu.Option
         className={styles.mobileOnlyOption}
@@ -224,6 +222,8 @@ const Header = ({
   </>;
 
   const renderTitleBar = () => <>
+    <h2 className="sr-only">{title}</h2>
+
     <div className={styles.titleBarMain}>
       <div className={styles.icon}>
         <SvgIcon iconId={patrolIconId} type="patrols" />

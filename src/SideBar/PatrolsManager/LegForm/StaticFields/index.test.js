@@ -23,7 +23,7 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
             { id: 'leader-2', image_url: '/static/ranger-black.svg', name: 'Priya' },
           ],
           teamMembers: [{ id: 'member-1', name: 'Maya Chen' }],
-          teams: [{ id: 'team-1', name: 'Alpha' }],
+          teams: [{ display: 'Alpha', id: 'team-1' }],
         },
       },
       view: {
@@ -36,11 +36,11 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
     };
   });
 
-  // The fields are controlled by LegForm, so the tests own the leg draft too.
-  const ControlledStaticFields = ({ errors, initialLeg }) => {
+  const ControlledStaticFields = ({ earliestStartDateTime, errors, initialLeg }) => {
     const [leg, setLeg] = useState(initialLeg);
 
     return <StaticFields
+      earliestStartDateTime={earliestStartDateTime}
       errors={errors}
       leg={leg}
       onChangeLeg={(legChanges) => {
@@ -50,9 +50,10 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
     />;
   };
 
-  const renderStaticFields = ({ errors = {}, leg } = {}) => render(
+  const renderStaticFields = ({ earliestStartDateTime = null, errors = {}, leg } = {}) => render(
     <Provider store={mockStore(store)}>
       <ControlledStaticFields
+        earliestStartDateTime={earliestStartDateTime}
         errors={errors}
         initialLeg={{ ...buildLegDraft(), startDate: '2026-04-13', startTime: '08:00', ...leg }}
       />
@@ -83,7 +84,6 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
 
     await userEvent.click(screen.getByLabelText('Team Lead'));
 
-    // The icon repeats the name beside it, so it is decorative and has no accessible role to query.
     const optionIcon = (await screen.findByText('Alex')).querySelector('img');
 
     expect(optionIcon).toHaveAttribute('src', expect.stringContaining('/static/ranger-black.svg'));
@@ -132,7 +132,7 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
   test('reports the automatic start the user asks for', async () => {
     renderStaticFields({ leg: { startDate: '2099-01-01' } });
 
-    await userEvent.click(screen.getByRole('checkbox', { name: 'Automatically start the patrol at this time' }));
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Automatically start the leg at this time' }));
 
     expect(onChangeLeg).toHaveBeenCalledWith({ isAutoStart: true });
   });
@@ -140,13 +140,13 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
   test('does not offer an automatic start for a leg that already started', () => {
     renderStaticFields({ leg: { startDate: '2020-01-01' } });
 
-    expect(screen.getByRole('checkbox', { name: 'Automatically start the patrol at this time' })).toBeDisabled();
+    expect(screen.getByRole('checkbox', { name: 'Automatically start the leg at this time' })).toBeDisabled();
   });
 
   test('does not offer an automatic end for a leg with no end date', () => {
     renderStaticFields();
 
-    expect(screen.getByRole('checkbox', { name: 'Automatically end the patrol at this time' })).toBeDisabled();
+    expect(screen.getByRole('checkbox', { name: 'Automatically end the leg at this time' })).toBeDisabled();
   });
 
   test('offers every end time option while the start time is still incomplete', async () => {
@@ -172,6 +172,42 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
 
     expect(within(screen.getByRole('group', { name: 'End time' })).getByLabelText('Open time options'))
       .toBeDisabled();
+  });
+
+  test('offers every start time option when the leg follows no other one', async () => {
+    renderStaticFields();
+
+    const startTime = screen.getByRole('group', { name: 'Start time' });
+    await userEvent.click(within(startTime).getByLabelText('Open time options'));
+
+    expect(within(startTime).getAllByRole('option')).toHaveLength(96);
+  });
+
+  test('measures the start time options from the earliest start of the leg on its same day', async () => {
+    renderStaticFields({ earliestStartDateTime: new Date(2026, 3, 13, 8, 0) });
+
+    const startTime = screen.getByRole('group', { name: 'Start time' });
+    await userEvent.click(within(startTime).getByLabelText('Open time options'));
+
+    expect(within(startTime).getAllByRole('option')).toHaveLength(64);
+  });
+
+  test('offers every start time option on a day later than the earliest start of the leg', async () => {
+    renderStaticFields({ earliestStartDateTime: new Date(2026, 3, 12, 8, 0) });
+
+    const startTime = screen.getByRole('group', { name: 'Start time' });
+    await userEvent.click(within(startTime).getByLabelText('Open time options'));
+
+    expect(within(startTime).getAllByRole('option')).toHaveLength(96);
+  });
+
+  test('holds the start date at the earliest start of the leg when the user types an earlier one', async () => {
+    renderStaticFields({ earliestStartDateTime: new Date(2026, 3, 13, 8, 0) });
+
+    await userEvent.clear(getDateInput('Start date', 'Day'));
+    await userEvent.type(getDateInput('Start date', 'Day'), '10');
+
+    expect(getDateInput('Start date', 'Day')).toHaveValue('13');
   });
 
   test('shows the errors of the start and end dates', () => {

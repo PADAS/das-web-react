@@ -222,8 +222,6 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
       expect(createdPatrol.patrol_segments[0].patrol_type).toBe(routinePatrol.value);
     });
 
-    // The save button lives in the footer, outside the form. It reaches the form through its form
-    // attribute, which is also what lets a keyboard user submit by pressing enter in any field.
     test('associates the save button with the leg form', () => {
       const { container } = renderNewPatrol();
 
@@ -241,7 +239,7 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
       await clickSave(user);
 
       expect(createPatrol).not.toHaveBeenCalled();
-      expect(screen.getByText('A patrol needs a start date.')).toBeVisible();
+      expect(screen.getByText('A leg needs a start date.')).toBeVisible();
     });
 
     test('shows an error message when the patrol cannot be created', async () => {

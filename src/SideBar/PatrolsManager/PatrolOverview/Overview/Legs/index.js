@@ -8,10 +8,12 @@ import { ReactComponent as ChevronRightIcon } from '../../../../../common/images
 import { ReactComponent as FitScreenIcon } from '../../../../../common/images/icons/fit-screen.svg';
 
 import {
+  canPatrolTakeNewLegs,
   displayEndTimeForPatrolSegment,
   displayNameForPatrolType,
   displayStartTimeForPatrolSegment,
-  getIsMobilePatrol,
+  isSegmentPending,
+  scheduledEndTimeForPatrolSegment,
 } from '../../../../../utils/patrols';
 import { format, STANDARD_DATE_FORMAT } from '../../../../../utils/datetime';
 import { PATROL_UI_STATES, TAB_KEYS } from '../../../../../constants';
@@ -39,7 +41,8 @@ const Legs = ({ patrol, patrolState }) => {
   const patrolTrackData = useSelector((state) => selectPatrolTrackData(state, patrol));
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
-  const isActiveMobilePatrol = getIsMobilePatrol(patrol) && patrolState === PATROL_UI_STATES.ACTIVE;
+  const canTakeNewLegs = canPatrolTakeNewLegs(patrol, patrolState);
+  const isPatrolOver = patrolState === PATROL_UI_STATES.CANCELLED || patrolState === PATROL_UI_STATES.DONE;
 
   const legs = useMemo(() => patrol.patrol_segments.map((segment, index) => {
     const legTrackData = patrolTrackData.legsTrackData?.[index] ?? null;
@@ -47,9 +50,12 @@ const Legs = ({ patrol, patrolState }) => {
       (feature) => feature.geometry?.coordinates?.length
     );
 
+    const hasNotRun = isPatrolOver && isSegmentPending(segment);
+
     return {
       bbox: legTrackFeatures.length ? bbox(featureCollection(legTrackFeatures)) : null,
-      end: displayEndTimeForPatrolSegment(segment),
+      end: hasNotRun ? scheduledEndTimeForPatrolSegment(segment) : displayEndTimeForPatrolSegment(segment),
+      hasNotRun,
       id: segment.id,
       leaderName: segment.leader?.name ?? null,
       number: index + 1,
@@ -57,7 +63,7 @@ const Legs = ({ patrol, patrolState }) => {
       patrolTypeDisplay: displayNameForPatrolType(patrolTypes, segment.patrol_type),
       start: displayStartTimeForPatrolSegment(segment),
     };
-  }), [patrol, patrolTrackData, patrolTypes]);
+  }), [isPatrolOver, patrol, patrolTrackData, patrolTypes]);
 
   const onZoomToLegBounds = (leg) => (event) => {
     event.stopPropagation();
@@ -80,7 +86,7 @@ const Legs = ({ patrol, patrolState }) => {
   };
 
   return <>
-    <div className={`${styles.legTableWrapper} ${isActiveMobilePatrol ? styles.withoutNewLegButton: ''}`}>
+    <div className={`${styles.legTableWrapper} ${canTakeNewLegs ? '' : styles.withoutNewLegButton}`}>
       <table className={styles.legTable}>
         <caption className="sr-only">{t('legTableCaption')}</caption>
 
@@ -103,7 +109,11 @@ const Legs = ({ patrol, patrolState }) => {
         </thead>
 
         <tbody>
-          {legs.map((leg) => <tr className={styles.legRow} key={leg.id} onClick={onNavigateToLeg(leg)}>
+          {legs.map((leg) => <tr
+              className={`${styles.legRow} ${leg.hasNotRun ? styles.notRunLeg : ''}`}
+              key={leg.id}
+              onClick={onNavigateToLeg(leg)}
+            >
             <td>{leg.number}</td>
 
             <td>{leg.patrolTypeDisplay}</td>
@@ -159,7 +169,7 @@ const Legs = ({ patrol, patrolState }) => {
       </table>
     </div>
 
-    {!isActiveMobilePatrol && <Link
+    {!!canTakeNewLegs && <Link
         className={styles.newLegButton}
         onClick={() => tracker.track('Click "add new leg" from patrol overview')}
         to={`/${TAB_KEYS.PATROLS}/${patrol.id}/legs/new`}

@@ -14,19 +14,19 @@ import {
   fetchPatrolsFeed,
   fetchPatrolTeamAndTrackingOptions,
   PATROL_LEADERS_API_URL,
+  PATROLS_API_URL,
   patrolsFeedReducer,
   patrolStoreReducer,
   patrolTeamAndTrackingOptionsReducer,
-  PATROLS_API_URL,
   REMOVE_PATROL_FROM_FEED,
   socketCreatePatrol,
   socketDeletePatrol,
   socketUpdatePatrol,
-  updatePatrol,
   UPDATE_PATROL_ERROR,
   UPDATE_PATROL_REALTIME,
   UPDATE_PATROL_STORE,
   UPDATE_PATROL_SUCCESS,
+  updatePatrol,
 } from './';
 
 const PATROL_A_ID = 'aaaaaaaa-0000-0000-0000-000000000001';
@@ -181,7 +181,6 @@ describe('Ducks - Patrols', () => {
       expect((await store.dispatch(fetchPatrolTeamAndTrackingOptions())).leaders).toEqual([]);
     });
 
-    // The endpoints behind these are not deployed yet, so the creator answers with its own mocks.
     test.each(['assets', 'teamMembers', 'teams'])('stores the named %s a leg can pick from', async (key) => {
       respondWithLeadersSchema({});
 
@@ -278,6 +277,76 @@ describe('Ducks - Patrols', () => {
 
     test('empties the store on a global reset', () => {
       expect(patrolStoreReducer(loadedStore, resetGlobalState())).toEqual({});
+    });
+
+    describe('ordering the legs of a patrol', () => {
+      const leg = (id, startTime, overrides) => ({
+        id,
+        time_range: { end_time: null, start_time: startTime },
+        ...overrides,
+      });
+
+      const storeLegs = (patrolSegments) => patrolStoreReducer({}, {
+        payload: { results: [makePatrol(PATROL_A_ID, { patrol_segments: patrolSegments })] },
+        type: UPDATE_PATROL_STORE,
+      })[PATROL_A_ID].patrol_segments.map(({ id }) => id);
+
+      test('sorts them by the time they start', () => {
+        expect(storeLegs([
+          leg('leg-2', '2026-04-13T10:00:00.000Z'),
+          leg('leg-1', '2026-04-13T06:00:00.000Z'),
+        ])).toEqual(['leg-1', 'leg-2']);
+      });
+
+      test('reads the scheduled start of a leg that has not started', () => {
+        expect(storeLegs([
+          leg('leg-2', null, { scheduled_start: '2026-04-13T10:00:00.000Z' }),
+          leg('leg-1', '2026-04-13T06:00:00.000Z'),
+        ])).toEqual(['leg-1', 'leg-2']);
+      });
+
+      test('leaves the legs that carry no start of their own at the end', () => {
+        expect(storeLegs([
+          leg('leg-3', null),
+          leg('leg-2', '2026-04-13T10:00:00.000Z'),
+          leg('leg-1', '2026-04-13T06:00:00.000Z'),
+        ])).toEqual(['leg-1', 'leg-2', 'leg-3']);
+      });
+
+      test('keeps the order legs that start at the same time came in', () => {
+        expect(storeLegs([
+          leg('leg-1', '2026-04-13T06:00:00.000Z'),
+          leg('leg-2', '2026-04-13T06:00:00.000Z'),
+        ])).toEqual(['leg-1', 'leg-2']);
+      });
+
+      test('hands back the very array a patrol whose legs are in order came with', () => {
+        const patrolSegments = [
+          leg('leg-1', '2026-04-13T06:00:00.000Z'),
+          leg('leg-2', '2026-04-13T10:00:00.000Z'),
+        ];
+
+        const state = patrolStoreReducer({}, {
+          payload: { results: [makePatrol(PATROL_A_ID, { patrol_segments: patrolSegments })] },
+          type: UPDATE_PATROL_STORE,
+        });
+
+        expect(state[PATROL_A_ID].patrol_segments).toBe(patrolSegments);
+      });
+
+      test('sorts the legs a realtime update brings in too', () => {
+        const state = patrolStoreReducer({}, {
+          payload: makePatrol(PATROL_A_ID, {
+            patrol_segments: [
+              leg('leg-2', '2026-04-13T10:00:00.000Z'),
+              leg('leg-1', '2026-04-13T06:00:00.000Z'),
+            ],
+          }),
+          type: UPDATE_PATROL_REALTIME,
+        });
+
+        expect(state[PATROL_A_ID].patrol_segments.map(({ id }) => id)).toEqual(['leg-1', 'leg-2']);
+      });
     });
   });
 

@@ -86,11 +86,11 @@ Tracks are lazy-loaded and cached, socket status updates prepend new positions o
 | `scheduled` | scheduled start is more than an hour away |
 | `ready_to_start` | scheduled start is within the next hour |
 | `start_overdue` | scheduled start passed 30+ min ago and the patrol has not started |
-| `active` | started and not yet ended |
+| `active` | a leg has begun and the last leg has not ended |
 | `paused` | paused and not yet resumed |
 | `done` | ended |
 | `cancelled` | cancelled |
-| `invalid` | no legs, or no leg matching any known state |
+| `invalid` | no legs, or a first leg with no start of any kind |
 
 **Tracks.** The patrol track is the track of the leg's tracked subjects, trimmed to the leg's time range. Only patrols that have started can display tracks. Visibility follows the same three-state cycle as subjects (hidden → visible → pinned).
 
@@ -357,7 +357,7 @@ Function parameters follow the call's own logic, not the alphabet.
 - Functional components with hooks. No PropTypes.
 - Props destructured in the signature with defaults inline, alphabetically. `ref` is a plain prop. A component that wraps a DOM element collects the rest into `...otherProps` and spreads it last onto the root element.
 - Body order, each group sorted alphabetically and separated by a blank line: library hooks (`useDispatch`, `useTranslation`, router hooks), app hooks, `useSelector` calls, `useContext`, `useRef`, `useId`, `useState`, derived variables, `useMemo`, handlers, `useEffect`, then the returned JSX.
-- Memoize only when it pays: `useMemo`/`useCallback` for values that cross a `memo` boundary or feed a dependency array, and for genuinely expensive computations; `memo()` for components rendered repeatedly or re-rendered often by their parent.
+- Memoize only when it pays: for a dependency array, for a genuinely expensive computation, or for the props of a `memo` boundary you checked actually bails — one unmemoized sibling prop wastes every other one. Never to spare a field or two a re-render. `memo()` only where a parent re-renders often with the child's props unchanged; a memoized parent already spares its whole subtree.
 - JSX: a blank line between sibling elements at the same indentation level, one-line inline arrows for trivial handlers, a local `render*` helper for JSX rendered in more than one place, and `type="button"` on every button.
 - `data-testid` only where no accessible query can reach the element, named `<componentName>-<element>` (`timeSlider-wrapper`).
 
@@ -383,12 +383,13 @@ Function parameters follow the call's own logic, not the alphabet.
 
 #### Comments
 
-The bar is high: comment only what the code cannot say — a non-obvious *why*, a caveat, an external reference. If naming and structure can carry it, they should, and no comment is written. Anything that restates what the code does is noise.
+Comment only what the code cannot say — a non-obvious *why*, a caveat, an external reference. If naming and structure can carry it, no comment is written. Anything that restates what the code does is noise.
 
-- `//` only, never block or JSDoc comments. Put them directly above the code they explain, as full sentences ending in a period, wrapped at 80 columns. Keep them to a line or two.
+- Hard limits: `//` only, at most two lines, each at most 80 columns — wider code nearby is no licence. Past two lines, cut it rather than wrap again.
+- Directly above the code they explain, full sentences ending in a period.
 - An `eslint-disable` line always carries the reason it is there.
 - Never leave working notes behind: no narrating the change (`// now using X instead of Y`, `// this fixes the bug`), no ticket numbers, no references to plans or conversations that exist only on your machine. The diff and the commit message are for that.
-- In `styles.module.scss` and test files, do not comment at all. Styling decisions go unexplained; in tests intent goes in the `describe` / `test` names. For both, only a genuinely counterintuitive rule that guards a regression earns a short comment.
+- None at all in `styles.module.scss` or test files — no exception for the subtle case. Test intent goes in the `describe` / `test` names: rename or split instead. Why production code is surprising belongs in the production file, not in its tests.
 
 #### Accessibility
 

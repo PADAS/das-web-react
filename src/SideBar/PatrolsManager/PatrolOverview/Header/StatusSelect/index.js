@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useId, useMemo, useRef, useState } from 'react';
+import React, { memo, useContext, useEffect, useId, useRef, useState } from 'react';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 import { useTranslation } from 'react-i18next';
@@ -27,7 +27,7 @@ const StatusSelect = ({ isDirty, onSelect, patrol, patrolState, state }) => {
 
   const label = <span className={isDirty ? styles.unsavedLabel : undefined}>{t(`uiStateTitles.${state.key}`)}</span>;
 
-  const options = useMemo(() => getPatrolStatusOptions(patrol, patrolState), [patrol, patrolState]);
+  const options = getPatrolStatusOptions(patrol, patrolState);
 
   const closeMenu = () => {
     setIsMenuOpen(false);
@@ -75,8 +75,8 @@ const StatusSelect = ({ isDirty, onSelect, patrol, patrolState, state }) => {
 
       break;
 
-    // The default action is left alone so focus carries on to the next element. Focus goes back to
-    // the toggle first, otherwise the menu unmounting would drop it to the top of the document.
+    // The default action is left alone so focus moves on, but it returns to the
+    // toggle first: the menu unmounting would drop it to the document top.
     case 'Tab':
       closeMenu();
 

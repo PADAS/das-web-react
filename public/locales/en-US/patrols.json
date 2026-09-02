@@ -65,33 +65,48 @@
   "legForm": {
     "patrolTypeField": {
       "label": "Patrol Type",
-      "placeholder": "Select a patrol type"
+      "placeholder": "Select a patrol type",
+      "requiredError": "A leg needs a patrol type."
     },
     "patrolTypeSchemaErrorMessage": "The fields of this patrol type could not be loaded.",
     "staticFields": {
       "assetsLabel": "Assets",
-      "autoEndCheckboxLabel": "Automatically end the patrol at this time",
-      "autoStartCheckboxLabel": "Automatically start the patrol at this time",
-      "endDateBeforeStartDateError": "The end of the patrol must be later than its start.",
+      "autoEndCheckboxLabel": "Automatically end the leg at this time",
+      "autoStartCheckboxLabel": "Automatically start the leg at this time",
+      "endDateBeforeStartDateError": "The end of the leg must be later than its start.",
       "endDateInputLabel": "End date",
       "endLocationLabel": "End Location",
       "endTimeInputLabel": "End time",
       "endTimeLabel": "End Time",
+      "endTimeRequiredError": "A leg with an end date needs an end time.",
       "startDateInputLabel": "Start date",
-      "startDateRequiredError": "A patrol needs a start date.",
+      "startDateOverlapsPreviousLegError": "This leg cannot overlap the previous one.",
+      "startDateRequiredError": "A leg needs a start date.",
       "startLocationLabel": "Start Location",
       "startTimeInputLabel": "Start time",
       "startTimeLabel": "Start Time",
+      "startTimeRequiredError": "A leg needs a start time.",
       "teamLabel": "Team",
       "teamLeadLabel": "Team Lead",
       "teamMembersLabel": "Team Members"
     }
   },
+  "newLeg": {
+    "footer": {
+      "cancelButton": "Cancel",
+      "saveButton": "Save"
+    },
+    "header": {
+      "breadcrumbNewLegLabel": "New Patrol Leg",
+      "breadcrumbPatrolsLabel": "Patrols",
+      "title": "New Patrol Leg"
+    },
+    "saveErrorMessage": "The patrol leg could not be created. Please try again."
+  },
   "newPatrol": {
     "footer": {
       "cancelButton": "Cancel",
-      "saveButton": "Save",
-      "saveButtonLoadingLabel": "Loading"
+      "saveButton": "Save"
     },
     "header": {
       "breadcrumbNewPatrolLabel": "New Patrol",
@@ -128,8 +143,7 @@
       "addEventButton": "Add Event",
       "addEventButtonLabel": "Add Event",
       "addEventButtonText": "Event",
-      "saveButton": "Save",
-      "saveButtonLoadingLabel": "Loading"
+      "saveButton": "Save"
     },
     "header": {
       "breadcrumbPatrolsLabel": "Patrols",

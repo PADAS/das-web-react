@@ -1,9 +1,10 @@
-import React, { memo, useId, useImperativeHandle, useRef } from 'react';
-import { isFuture } from 'date-fns';
+import React, { useId, useImperativeHandle, useRef } from 'react';
+import { format, isFuture } from 'date-fns';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { calcUrlForImage } from '../../../../utils/img';
+import { getHoursAndMinutesString } from '../../../../utils/datetime';
 import parseLegDraftDateTime from '../utils/parseLegDraftDateTime';
 
 import DatePicker, { isValidDate } from '../../../../DatePicker';
@@ -23,7 +24,7 @@ const getTeamOptionLabel = ({ display }) => display;
 const renderSubjectOptionIcon = ({ image_url }) => !!image_url
   && <SvgIcon imageUrl={calcUrlForImage(image_url)} type="subjects" />;
 
-const StaticFields = ({ errors, leg, onChangeLeg, ref }) => {
+const StaticFields = ({ earliestStartDateTime = null, errors, leg, onChangeLeg, ref }) => {
   const { t } = useTranslation('patrols', { keyPrefix: 'legForm.staticFields' });
 
   const teamAndTrackingOptions = useSelector((state) => state.data.patrolTeamAndTrackingOptions);
@@ -56,14 +57,22 @@ const StaticFields = ({ errors, leg, onChangeLeg, ref }) => {
   const endDateTime = parseLegDraftDateTime(leg.endDate, leg.endTime);
   const startDateTime = parseLegDraftDateTime(leg.startDate, leg.startTime);
 
-  // The end time is bounded by the start one only when both happen on the
-  // same day, and only once the start time is complete: a partial one
-  // discards every option of the picker.
+  // An empty start date would reach the picker's calendar as an invalid bound.
+  const endDateMin = isValidDate(leg.startDate) ? leg.startDate : undefined;
+
+  // The end time is bounded by the start only on the same day, and only once
+  // the start time is complete: a partial one discards every option.
   const endTimeMin = isValidDate(leg.endDate) && leg.endDate === leg.startDate && isValidTime(leg.startTime)
     ? leg.startTime
     : undefined;
 
-  const renderCheckbox = ({ id, isDisabled, isChecked, label, onChange }) => <div className={styles.checkboxWrapper}>
+  const startDateMin = earliestStartDateTime ? format(earliestStartDateTime, 'yyyy-MM-dd') : undefined;
+
+  const startTimeMin = startDateMin === leg.startDate
+    ? getHoursAndMinutesString(earliestStartDateTime)
+    : undefined;
+
+  const renderCheckbox = ({ id, isChecked, isDisabled, label, onChange }) => <div className={styles.checkboxWrapper}>
     <input
       checked={isChecked}
       className={styles.checkbox}
@@ -99,6 +108,7 @@ const StaticFields = ({ errors, leg, onChangeLeg, ref }) => {
               aria-invalid={errors.startDate ? 'true' : 'false'}
               aria-label={t('startDateInputLabel')}
               className={styles.datePicker}
+              min={startDateMin}
               onChange={(startDate) => onChangeLeg({ startDate })}
               reactDatePickerProps={{ endDate: endDateTime, selectsStart: true, startDate: startDateTime }}
               ref={startDatePickerRef}
@@ -109,6 +119,7 @@ const StaticFields = ({ errors, leg, onChangeLeg, ref }) => {
               aria-errormessage={errors.startDate ? startDateErrorId : undefined}
               aria-invalid={errors.startDate ? 'true' : 'false'}
               aria-label={t('startTimeInputLabel')}
+              min={startTimeMin}
               minutesInterval={TIME_OPTIONS_INTERVAL_IN_MINUTES}
               onChange={(startTime) => onChangeLeg({ startTime })}
               value={leg.startTime}
@@ -150,7 +161,7 @@ const StaticFields = ({ errors, leg, onChangeLeg, ref }) => {
               aria-invalid={errors.endDate ? 'true' : 'false'}
               aria-label={t('endDateInputLabel')}
               className={styles.datePicker}
-              min={leg.startDate}
+              min={endDateMin}
               onChange={(endDate) => onChangeLeg({ endDate })}
               reactDatePickerProps={{ endDate: endDateTime, selectsEnd: true, startDate: startDateTime }}
               ref={endDatePickerRef}
@@ -242,4 +253,4 @@ const StaticFields = ({ errors, leg, onChangeLeg, ref }) => {
   </div>;
 };
 
-export default memo(StaticFields);
+export default StaticFields;

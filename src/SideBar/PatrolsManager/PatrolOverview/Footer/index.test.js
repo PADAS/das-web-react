@@ -108,7 +108,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Footer', () => {
   test('shows the save button busy and disabled while saving', () => {
     renderFooter({ isSaving: true });
 
-    const saveButton = screen.getByRole('button', { name: 'Loading' });
+    const saveButton = screen.getByRole('button', { name: 'Save' });
 
     expect(saveButton).toBeDisabled();
     expect(saveButton).toHaveAttribute('aria-busy', 'true');

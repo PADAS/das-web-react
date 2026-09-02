@@ -81,4 +81,39 @@ describe('SideBar - PatrolsManager - LegForm - PatrolTypeField', () => {
 
     expect(onChange).not.toHaveBeenCalled();
   });
+
+  test('shows the error of the patrol type', () => {
+    renderPatrolTypeField({ error: 'A type is needed.', patrolType: null });
+
+    expect(screen.getByText('A type is needed.')).toBeVisible();
+    expect(screen.getByRole('combobox', { name: 'Patrol Type' })).toHaveAttribute('aria-invalid', 'true');
+  });
+
+  test('points the patrol type at its error message', () => {
+    renderPatrolTypeField({ error: 'A type is needed.', patrolType: null });
+
+    expect(screen.getByRole('combobox', { name: 'Patrol Type' }))
+      .toHaveAccessibleErrorMessage('A type is needed.');
+  });
+
+  test('announces the error of the patrol type as it appears', () => {
+    renderPatrolTypeField({ error: 'A type is needed.', patrolType: null });
+
+    expect(screen.getByRole('alert')).toBeVisible();
+  });
+
+  test('does not mark the patrol type invalid when there is no error', () => {
+    renderPatrolTypeField();
+
+    expect(screen.getByRole('combobox', { name: 'Patrol Type' })).toHaveAttribute('aria-invalid', 'false');
+  });
+
+  test('focuses the patrol type when its field is asked to', () => {
+    const ref = { current: null };
+    renderPatrolTypeField({ ref });
+
+    ref.current.focus();
+
+    expect(screen.getByRole('combobox', { name: 'Patrol Type' })).toHaveFocus();
+  });
 });

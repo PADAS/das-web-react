@@ -146,8 +146,8 @@ const Collection = ({
     ]);
   };
 
-  // If a location field from an item requests to focus its location marker,
-  // prefix the marker formElementId with the collection formElementId and the item index.
+  // A marker an item asks to focus is namespaced with the collection's own
+  // formElementId and the index of the item.
   const focusLocationMarkerFromItem = (itemIndex) => (locationFieldName) =>
     focusLocationMarker(`${details.value}[${itemIndex}].${locationFieldName}`);
 
