@@ -23,7 +23,7 @@ describe('Selectors - Patrols', () => {
             },
           },
         },
-        patrolLeaderSchema: {},
+        patrolTeamAndTrackingOptions: { leaders: [] },
         patrolStore: {},
         subjectStore: {},
         tracks: {},
@@ -802,28 +802,10 @@ describe('Selectors - Patrols', () => {
 
   describe('selectPatrolLeadersWithLastPosition', () => {
     test('gets the patrol leaders and their last positions', () => {
-      state.data.patrolLeaderSchema = {
-        trackedbySchema: {
-          properties: {
-            leader: {
-              enum_ext: [
-                {
-                  value: {
-                    id: 'subject123',
-                    last_position: {},
-                    last_position_status: {},
-                  },
-                },
-                {
-                  value: {
-                    id: 'subject456',
-                  },
-                },
-              ],
-            },
-          },
-        },
-      };
+      state.data.patrolTeamAndTrackingOptions = { leaders: [
+        { id: 'subject123', last_position: {}, last_position_status: {} },
+        { id: 'subject456' },
+      ] };
       state.data.subjectStore = {
         subject456: {
           last_position: {},
@@ -834,6 +816,18 @@ describe('Selectors - Patrols', () => {
         { id: 'subject123', last_position: {}, last_position_status: {} },
         { id: 'subject456', last_position: {}, last_position_status: {} },
       ]);
+    });
+
+    test('keeps the list it has when a subject store change fills nothing in', () => {
+      state.data.patrolTeamAndTrackingOptions = {
+        leaders: [{ id: 'subject123', last_position: {}, last_position_status: {} }],
+      };
+
+      const firstResult = selectPatrolLeadersWithLastPosition(state);
+
+      state.data.subjectStore = { ...state.data.subjectStore, subject999: { last_position: {} } };
+
+      expect(selectPatrolLeadersWithLastPosition(state)).toBe(firstResult);
     });
   });
 

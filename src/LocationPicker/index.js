@@ -1,10 +1,11 @@
-import React, { memo, useId, useImperativeHandle, useRef, useState, useContext } from 'react';
+import React, { memo, useContext, useId, useImperativeHandle, useRef, useState } from 'react';
 import Overlay from 'react-bootstrap/Overlay';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
 
+import { MapContext } from '../MapContext';
 import { selectCoordinatesRepresentation } from '../selectors/location';
 import useJumpToLocation from '../hooks/useJumpToLocation';
 import useStringifyCoordinates from '../hooks/useStringifyCoordinates';
@@ -14,7 +15,6 @@ import MenuPopover from './MenuPopover';
 import TextCopyBtn from '../TextCopyBtn';
 
 import * as styles from './styles.module.scss';
-import { MapContext } from '../MapContext';
 
 const LocationPicker = ({
   className = '',
@@ -84,7 +84,6 @@ const LocationPicker = ({
         type="button"
       >
         <input
-          aria-describedby={`${inputDescriptionId} ${valueOutsideBboxTooltipId}`}
           aria-label={t('inputLabel')}
           className={styles.input}
           disabled={disabled}
@@ -97,6 +96,11 @@ const LocationPicker = ({
           type="text"
           value={valueCoordinatesString}
           {...inputProps}
+          aria-describedby={[
+            inputDescriptionId,
+            valueOutsideRepresentationBbox ? valueOutsideBboxTooltipId : null,
+            inputProps['aria-describedby'],
+          ].filter(Boolean).join(' ')}
         />
 
         <p className={styles.inputDescription} id={inputDescriptionId}>
@@ -152,8 +156,8 @@ const LocationPicker = ({
       >
       <MenuPopover
         id={menuPopoverId}
-        onChange={onChange}
         onBlur={onBlur}
+        onChange={onChange}
         onClose={() => setIsMenuPopoverOpen(false)}
         setLocationButtonRef={setLocationButtonRef}
         target={innerRef}

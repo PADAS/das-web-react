@@ -2,13 +2,7 @@
 
 @use '../../../../common/styles/layout';
 @use '../../../../common/styles/vars/colors';
-@use '../_shared' as shared;
-
-.hideOnPrint {
-  @media print {
-    display: none !important;
-  }
-}
+@use '../../_shared' as shared;
 
 .mobileOnlyOption {
   @media (min-width: layout.$md-layout-width-min) {
@@ -16,261 +10,111 @@
   }
 }
 
-.header {
-  background: white;
-  flex-shrink: 0;
-  margin-bottom: 0.25rem;
+.desktopActions {
+  align-items: center;
+  display: none;
+  gap: 0.5rem;
 
-  .topBar {
-    align-items: center;
+  @media (min-width: layout.$md-layout-width-min) {
     display: flex;
-    gap: 1rem;
-    justify-content: space-between;
-    padding: 1rem 1rem 0.5rem;
+  }
 
-    .breadcrumbs {
-      min-width: 0;
+  .iconButton {
+    @include shared.chip-icon-button;
+  }
 
-      ol {
-        align-items: center;
-        display: flex;
-        gap: 0.5rem;
-        list-style: none;
-        margin: 0;
-        padding: 0;
+  .toggleTrackButton {
+    svg {
+      height: 2.5rem;
+      width: 2.5rem;
+    }
 
-        li {
-          align-items: center;
-          display: flex;
-          gap: 0.5rem;
+    &.visible {
+      background-color: colors.$bright-blue;
+      border-color: colors.$bright-blue;
+      color: white;
 
-          &:first-child {
-            flex-shrink: 0;
-          }
+      &:hover {
+        background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+        border-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+      }
 
-          &:last-child {
-            min-width: 0;
-          }
-
-          a {
-            border-radius: 0.25rem;
-            color: colors.$secondary-medium-gray;
-            text-decoration: none;
-            white-space: nowrap;
-
-            &:focus-visible {
-              outline: 2px solid colors.$light-blue;
-            }
-
-            &:hover {
-              text-decoration: underline;
-            }
-          }
-
-          svg {
-            color: colors.$secondary-medium-gray;
-            height: 0.75rem;
-            width: 0.75rem;
-          }
-
-          .currentBreadcrumb {
-            color: colors.$bright-blue;
-            min-width: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-          }
-        }
+      &:focus-visible {
+        background-color: white;
+        border-color: colors.$bright-blue;
+        color: colors.$bright-blue;
+        outline: 1px solid colors.$bright-blue;
       }
     }
 
-    .topActions {
-      align-items: center;
-      display: flex;
-      flex-shrink: 0;
-      gap: 0.5rem;
+    &.pinned {
+      background-color: colors.$green;
+      border-color: colors.$green;
+      color: white;
 
-      .desktopActions {
-        align-items: center;
-        display: none;
-        gap: 0.5rem;
-
-        @media (min-width: layout.$md-layout-width-min) {
-          display: flex;
-        }
-
-        .iconButton {
-          @include shared.chip-icon-button;
-        }
-
-        .toggleTrackButton {
-          svg {
-            height: 2.5rem;
-            width: 2.5rem;
-          }
-
-          &.visible {
-            background-color: colors.$bright-blue;
-            border-color: colors.$bright-blue;
-            color: white;
-
-            &:hover {
-              background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
-              border-color: color.adjust(colors.$bright-blue, $lightness: -5%);
-            }
-
-            &:focus-visible {
-              background-color: white;
-              border-color: colors.$bright-blue;
-              color: colors.$bright-blue;
-              outline: 1px solid colors.$bright-blue;
-            }
-          }
-
-          &.pinned {
-            background-color: colors.$green;
-            border-color: colors.$green;
-            color: white;
-
-            &:hover {
-              background-color: color.adjust(colors.$green, $lightness: -5%);
-              border-color: color.adjust(colors.$green, $lightness: -5%);
-            }
-
-            &:focus-visible {
-              background-color: white;
-              border-color: colors.$green;
-              color: colors.$green;
-              outline: 1px solid colors.$green;
-            }
-          }
-        }
+      &:hover {
+        background-color: color.adjust(colors.$green, $lightness: -5%);
+        border-color: color.adjust(colors.$green, $lightness: -5%);
       }
 
-      .closeButton {
-        @include shared.icon-button;
-
-        .closeButtonIcon {
-          height: 1rem;
-          width: 1rem;
-        }
+      &:focus-visible {
+        background-color: white;
+        border-color: colors.$green;
+        color: colors.$green;
+        outline: 1px solid colors.$green;
       }
     }
   }
+}
 
-  .header {
+.titleBarMain {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  gap: 0.5rem;
+  min-width: 0;
+
+  .icon {
     align-items: center;
-    border-bottom: 1px solid colors.$light-gray-lines;
+    color: colors.$secondary-medium-gray;
     display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    padding: 0.5rem 1rem;
+    justify-content: center;
 
-    .headerMain {
-      align-items: center;
-      display: flex;
-      flex: 1;
-      gap: 0.5rem;
-      min-width: 0;
-
-      @media (max-width: layout.$sm-layout-width-max) {
-        flex-basis: 100%;
-      }
+    svg {
+      fill: currentcolor;
+      height: 1.75rem;
+      width: 1.75rem;
     }
+  }
 
-    .icon {
-      align-items: center;
-      color: colors.$secondary-medium-gray;
-      display: flex;
-      justify-content: center;
+  .serialNumber {
+    color: colors.$secondary-medium-gray;
+    font-size: 1.375rem;
 
-      svg {
-        fill: currentcolor;
-        height: 1.75rem;
-        width: 1.75rem;
-      }
-    }
+    /* Matches the height of the title input so the serial number cannot make the title bar taller. */
+    line-height: 2rem;
+    margin: 0;
+  }
 
-    .serialNumber {
-      color: colors.$secondary-medium-gray;
-      font-size: 1.375rem;
-      margin: 0;
-    }
+  @media (max-width: layout.$sm-layout-width-max) {
+    flex-basis: 100%;
+  }
+}
 
-    .titleWrapper {
-      align-items: center;
-      display: flex;
-      flex: 1;
-      gap: 0.375rem;
-      min-width: 0;
-      position: relative;
+.pills {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.5rem;
 
-      .title {
-        background: none;
-        border: none;
-        color: colors.$off-black;
-        font-size: 1.375rem;
-        font-weight: 500;
-        height: 2rem;
-        max-width: 100%;
-        overflow: hidden;
-        padding: 0 0.125rem;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-
-        &:focus {
-          border-radius: 0.125rem;
-          outline: 2px solid colors.$bright-blue;
-        }
-
-        &.unsaved {
-          font-style: italic;
-        }
-      }
-
-      .titleMeasure {
-        font-size: 1.375rem;
-        font-weight: 500;
-        left: 0;
-        padding: 0 0.125rem;
-        position: absolute;
-        top: 0;
-        visibility: hidden;
-        white-space: pre;
-
-        &.unsaved {
-          font-style: italic;
-        }
-      }
-
-      .editButton {
-        @include shared.icon-button;
-
-        flex-shrink: 0;
-        height: 2rem;
-        width: 2rem;
-
-        svg {
-          height: 1rem;
-          width: 1rem;
-        }
-      }
-    }
-
-    .pills {
-      align-items: center;
-      display: flex;
-      flex-shrink: 0;
-      gap: 0.5rem;
-
-      .provenancePill {
-        background: colors.$off-black;
-        border-radius: 999px;
-        color: white;
-        flex-shrink: 0;
-        font-size: 0.875rem;
-        padding: 0.125rem 0.625rem;
-      }
-    }
+  .provenancePill {
+    align-items: center;
+    background: colors.$off-black;
+    border-radius: 999px;
+    color: white;
+    display: flex;
+    flex-shrink: 0;
+    font-size: 0.875rem;
+    padding: 0.125rem 0.625rem;
   }
 }

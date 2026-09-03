@@ -12,9 +12,9 @@
       "save": "Save"
     },
     "header": {
+      "patrolRestoreButton": "Restore",
       "patrolSchedule": "Scheduled {{scheduledStartTime}}",
       "patrolStartButton": "Start",
-      "patrolRestoreButton": "Restore",
       "uiStateTitles": {
         "active": "Active",
         "cancelled": "Cancelled",
@@ -28,21 +28,21 @@
     },
     "loadingMessage": "Saving...",
     "planSection": {
-      "autoStartCheckboxLargeLabel": "Automatically start the patrol in EarthRanger at this time",
-      "autoStartCheckboxSmallLabel": "Automatically start the patrol in EarthRanger",
       "autoEndCheckboxLargeLabel": "Automatically end the patrol in EarthRanger at this time",
       "autoEndCheckboxSmallLabel": "Automatically end the patrol in EarthRanger",
+      "autoStartCheckboxLargeLabel": "Automatically start the patrol in EarthRanger at this time",
+      "autoStartCheckboxSmallLabel": "Automatically start the patrol in EarthRanger",
       "endDateLabel": "End Date",
-      "endTimeLabel": "End Time",
       "endLocationLargeLabel": "End Location",
       "endLocationSmallLabel": "Location",
+      "endTimeLabel": "End Time",
       "locationSelectorPlaceholder": "Set Location",
       "objectiveLabel": "Objective",
       "objectivePlaceholder": "Describe the purpose of the patrol...",
       "startDateLabel": "Start Date",
-      "startTimeLabel": "Start Time",
       "startLocationLargeLabel": "Start Location",
       "startLocationSmallLabel": "Location",
+      "startTimeLabel": "Start Time",
       "title": "Plan",
       "trackedByLabel": "Tracked by",
       "trackedByPlaceholder": "Select Device..."
@@ -53,10 +53,74 @@
       "plan": "Plan"
     }
   },
+  "header": {
+    "breadcrumbNavLabel": "Patrol navigation",
+    "closeButtonLabel": "Close sidebar"
+  },
   "invalidDatesModal": {
     "body": "This patrol can not be saved. The end time of a patrol must be later than the start time. Please correct the start or end patrol time.",
     "okButton": "OK",
     "title": "Invalid Patrol Times"
+  },
+  "legForm": {
+    "patrolTypeField": {
+      "label": "Patrol Type",
+      "placeholder": "Select a patrol type"
+    },
+    "patrolTypeSchemaErrorMessage": "The fields of this patrol type could not be loaded.",
+    "staticFields": {
+      "assetsLabel": "Assets",
+      "autoEndCheckboxLabel": "Automatically end the patrol at this time",
+      "autoStartCheckboxLabel": "Automatically start the patrol at this time",
+      "endDateBeforeStartDateError": "The end of the patrol must be later than its start.",
+      "endDateInputLabel": "End date",
+      "endLocationLabel": "End Location",
+      "endTimeInputLabel": "End time",
+      "endTimeLabel": "End Time",
+      "startDateInputLabel": "Start date",
+      "startDateRequiredError": "A patrol needs a start date.",
+      "startLocationLabel": "Start Location",
+      "startTimeInputLabel": "Start time",
+      "startTimeLabel": "Start Time",
+      "teamLabel": "Team",
+      "teamLeadLabel": "Team Lead",
+      "teamMembersLabel": "Team Members"
+    }
+  },
+  "newPatrol": {
+    "footer": {
+      "cancelButton": "Cancel",
+      "saveButton": "Save",
+      "saveButtonLoadingLabel": "Loading"
+    },
+    "header": {
+      "breadcrumbNewPatrolLabel": "New Patrol",
+      "breadcrumbPatrolsLabel": "Patrols",
+      "statePill": "New",
+      "titleInputLabel": "Patrol title"
+    },
+    "saveErrorMessage": "The patrol could not be created. Please try again."
+  },
+  "patrolList": {
+    "emptyPatrolList": "No patrols to display."
+  },
+  "patrolListItem": {
+    "restoreButton": "Restore",
+    "scheduledTitle": "Scheduled:",
+    "startButton": "Start"
+  },
+  "patrolMenu": {
+    "cancelPatrol": "Cancel Patrol",
+    "copyButton": "Copy patrol link",
+    "copyButtonMessage": "Link copied",
+    "downloadTrackButton": "Download Patrol Track",
+    "endPatrol": "End Patrol",
+    "label": "View Patrol Options",
+    "noTrackDataTooltip": "No data to download",
+    "printPatrolButton": "Print Patrol",
+    "restorePatrol": "Restore Patrol",
+    "startPatrol": "Start Patrol",
+    "title": "Patrol Options"
   },
   "patrolOverview": {
     "attachmentsSaveErrorMessage": "Some attachments could not be uploaded. Please try again.",
@@ -68,13 +132,10 @@
       "saveButtonLoadingLabel": "Loading"
     },
     "header": {
-      "breadcrumbNavLabel": "Patrol navigation",
       "breadcrumbPatrolsLabel": "Patrols",
-      "closeButtonLabel": "Close sidebar",
       "copyLinkMessage": "Link copied",
       "copyLinkOption": "Copy patrol link",
       "downloadTrackOption": "Download Patrol Track",
-      "editTitleButtonLabel": "Edit title",
       "fitToBoundsButtonLabel": "Zoom to patrol bounds",
       "jumpToLocationButtonLabel": "Jump to location",
       "mobileProvenancePill": "Mobile",
@@ -149,30 +210,12 @@
     "saveErrorMessage": "The patrol could not be saved. Please try again.",
     "tabsLabel": "Patrol overview tabs"
   },
-  "patrolMenu": {
-    "cancelPatrol": "Cancel Patrol",
-    "copyButton": "Copy patrol link",
-    "copyButtonMessage": "Link copied",
-    "endPatrol": "End Patrol",
-    "label": "View Patrol Options",
-    "title": "Patrol Options",
-    "downloadTrackButton": "Download Patrol Track",
-    "noTrackDataTooltip": "No data to download",
-    "printPatrolButton": "Print Patrol",
-    "restorePatrol": "Restore Patrol",
-    "startPatrol": "Start Patrol"
-  },
-  "patrolList": {
-    "emptyPatrolList": "No patrols to display."
-  },
-  "patrolListItem": {
-    "restoreButton": "Restore",
-    "scheduledTitle": "Scheduled:",
-    "startButton": "Start"
+  "titleInput": {
+    "editButtonLabel": "Edit title"
   },
   "trackToggleButton": {
-    "tracksPinned": "Tracks pinned",
+    "tracksOff": "Tracks off",
     "tracksOn": "Tracks on",
-    "tracksOff": "Tracks off"
+    "tracksPinned": "Tracks pinned"
   }
 }

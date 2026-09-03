@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import Breadcrumb from 'react-bootstrap/Breadcrumb';
 import Modal from 'react-bootstrap/Modal';
 import { useSelector } from 'react-redux';
@@ -34,13 +34,15 @@ const FormModal = ({
 
   const canShowModals = useSelector((state) => state.view.modals.canShowModals);
 
+  const titleId = useId();
+
   // If there are breadcrumbs, we know that we are in a nested modal (nested collection) so we disable modal animations
   // and remove the background opacity.
   const isNestedModal = breadcrumbs.length > 0;
 
   return <Modal
       animation={!isNestedModal}
-      aria-labelledby="formModal-title"
+      aria-labelledby={titleId}
       backdrop={false}
       centered
       className={`${isNestedModal ? styles.noBackground : styles.dimmedBackground} ${!canShowModals ? styles.hide : ''}`}
@@ -64,7 +66,7 @@ const FormModal = ({
         <Breadcrumb.Item className={`${styles.breadcrumb} ${styles.current}`} linkAs="span">{title}</Breadcrumb.Item>
       </Breadcrumb>
 
-      <Modal.Title className={styles.title} id="formModal-title">{itemName}</Modal.Title>
+      <Modal.Title className={styles.title} id={titleId}>{itemName}</Modal.Title>
     </Modal.Header>
 
     <Modal.Body className={styles.body}>

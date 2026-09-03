@@ -207,6 +207,9 @@
     "clearButtonLabel": "Clear search",
     "defaultPlaceholder": "Search..."
   },
+  "select": {
+    "noOptionsMessage": "No options to display"
+  },
   "serviceWorkerWatcher": {
     "confirmNotification": "Reload",
     "newVersionAvailableNotification": "A new version of EarthRanger is available. It will be loaded the next time you refresh your browser."

@@ -9,7 +9,7 @@ import {
   REPORT_PRIORITY_MEDIUM,
 } from '../constants';
 
-import Select from '../Select';
+import LegacySelect from '../LegacySelect';
 
 import * as styles from './styles.module.scss';
 
@@ -44,7 +44,7 @@ const PrioritySelect = ({ className = '', isDisabled = false, onChange, placehol
 
   const priorityValue = REPORT_PRIORITIES.find((reportPriority) => reportPriority.value === priority);
 
-  return <Select
+  return <LegacySelect
     className={`${styles.select} ${className}`}
     components={{ Option, SingleValue }}
     getOptionLabel={(option) => t(`labels.${option.key}`)}

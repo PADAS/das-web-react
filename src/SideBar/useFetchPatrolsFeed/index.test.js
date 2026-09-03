@@ -4,10 +4,10 @@ import { http, HttpResponse } from 'msw';
 import { Provider } from 'react-redux';
 import { setupServer } from 'msw/node';
 
+import { FETCH_PATROLS_FEED_SUCCESS, PATROLS_API_URL, UPDATE_PATROL_STORE } from '../../ducks/patrols';
 import { INITIAL_FILTER_STATE as INITIAL_PATROL_FILTER_STATE } from '../../ducks/patrol-filter';
 import { mockStore } from '../../__test-helpers/MockStore';
 import patrols from '../../__test-helpers/fixtures/patrols';
-import { PATROLS_API_URL } from '../../ducks/patrols';
 import { renderHook, waitFor } from '../../test-utils';
 import useFetchPatrolsFeed from '.';
 
@@ -66,8 +66,8 @@ describe('SideBar - useFetchPatrolsFeed', () => {
     await waitFor(() => {
       const actions = builtStore.getActions();
       expect(actions).toHaveLength(2);
-      expect(actions[0].type).toBe('UPDATE_PATROL_STORE');
-      expect(actions[1].type).toBe('FETCH_PATROLS_FEED_SUCCESS');
+      expect(actions[0].type).toBe(UPDATE_PATROL_STORE);
+      expect(actions[1].type).toBe(FETCH_PATROLS_FEED_SUCCESS);
     });
 
     expect(result.current.loadingPatrolsFeed).toBe(false);
@@ -82,7 +82,7 @@ describe('SideBar - useFetchPatrolsFeed', () => {
 
     await waitFor(() => {
       expect(builtStore.getActions()).toContainEqual(
-        expect.objectContaining({ type: 'FETCH_PATROLS_FEED_SUCCESS' })
+        expect.objectContaining({ type: FETCH_PATROLS_FEED_SUCCESS })
       );
     });
 
@@ -123,14 +123,14 @@ describe('SideBar - useFetchPatrolsFeed', () => {
     const { rerender } = renderHook(() => useFetchPatrolsFeed(), { wrapper });
 
     await waitFor(() => {
-      expect(builtStore.getActions()).toContainEqual(expect.objectContaining({ type: 'FETCH_PATROLS_FEED_SUCCESS' }));
+      expect(builtStore.getActions()).toContainEqual(expect.objectContaining({ type: FETCH_PATROLS_FEED_SUCCESS }));
     });
 
     changePatrolFilterText('lion');
     rerender();
 
     await waitFor(() => {
-      expect(builtStore.getActions()).toContainEqual(expect.objectContaining({ type: 'FETCH_PATROLS_FEED_SUCCESS' }));
+      expect(builtStore.getActions()).toContainEqual(expect.objectContaining({ type: FETCH_PATROLS_FEED_SUCCESS }));
     });
   });
 
@@ -155,7 +155,7 @@ describe('SideBar - useFetchPatrolsFeed', () => {
     expect(cancelFns[1]).not.toHaveBeenCalled();
 
     await waitFor(() => {
-      expect(builtStore.getActions()).toContainEqual(expect.objectContaining({ type: 'FETCH_PATROLS_FEED_SUCCESS' }));
+      expect(builtStore.getActions()).toContainEqual(expect.objectContaining({ type: FETCH_PATROLS_FEED_SUCCESS }));
     });
   });
 

@@ -29,7 +29,7 @@
         stroke: colors.$bright-red;
       }
   
-      button div[role="img"] {
+      button > div {
         border-top-color: colors.$bright-red;
       }
   

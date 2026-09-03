@@ -66,7 +66,6 @@ const Dropdown = ({ details, disabled, id, invalid, onChange, readOnly, value, .
   return <Select
     classNames={{
       clearIndicator: () => styles.clearIndicator,
-      container: () => styles.container,
       control: (state) => styles.control
         + (invalid ? ` ${styles.dropdownError}` : '')
         + (state.isFocused ? ` ${styles.controlFocused}` : '')
@@ -77,6 +76,7 @@ const Dropdown = ({ details, disabled, id, invalid, onChange, readOnly, value, .
         + (readOnly ? ` ${styles.readOnly}` : ''),
       multiValue: () => styles.multiValue,
       multiValueRemove: () => `${styles.multiValueRemove} ${readOnly ? styles.readOnly : ''}`,
+      noOptionsMessage: () => styles.noOptionsMessage,
       option: readOnly ? undefined : () => styles.cursorPointer,
       placeholder: () => invalid && styles.error,
     }}

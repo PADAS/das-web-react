@@ -50,7 +50,7 @@ const Input = ({
     >
     {`${date.toLocaleString(i18n.language, { month: 'short' })} ${getYear(date)}`}
 
-    <div className={`${styles.caret} ${isMonthCalendarOpen ? styles.open : ''}`} role="img" />
+    <div aria-hidden="true" className={`${styles.caret} ${isMonthCalendarOpen ? styles.open : ''}`} />
   </button>;
 };
 
@@ -80,7 +80,7 @@ const Header = ({
       <ChevronLeft />
     </button>
 
-    <p className={`${styles.year}`}>{getYear(date)}</p>
+    <p className={styles.year}>{getYear(date)}</p>
 
     <button
       aria-label={t('nextYearButtonLabel')}
@@ -94,22 +94,6 @@ const Header = ({
     </button>
   </div>;
 };
-
-// eslint-disable-next-line react/display-name
-const getRenderCustomHeader = (onDatePickerKeyDown) => ({
-  date,
-  decreaseYear,
-  increaseYear,
-  nextYearButtonDisabled,
-  prevYearButtonDisabled,
-}) => <Header
-  date={date}
-  decreaseYear={decreaseYear}
-  increaseYear={increaseYear}
-  nextYearButtonDisabled={nextYearButtonDisabled}
-  onKeyDown={onDatePickerKeyDown}
-  prevYearButtonDisabled={prevYearButtonDisabled}
-/>;
 
 const MonthPicker = ({
   changeMonth,
@@ -135,9 +119,9 @@ const MonthPicker = ({
 
   const dateLocale = getCurrentLocale(i18n.language);
 
-  const onChange = (date) => {
-    changeMonth(getMonth(date));
-    changeYear(getYear(date));
+  const onChange = (newDate) => {
+    changeMonth(getMonth(newDate));
+    changeYear(getYear(newDate));
     setIsMonthCalendarOpen(false);
   };
 
@@ -188,12 +172,13 @@ const MonthPicker = ({
       minDate={minDate}
       onChange={onChange}
       // If there is a click outside of the month calendar that is not in the date picker input, we close it.
-      onClickOutside={(event) => !innerRef.current.input.contains(event.target) && setIsMonthCalendarOpen(false)}
+      onClickOutside={(event) => !innerRef.current?.input?.contains(event.target)
+        && setIsMonthCalendarOpen(false)}
       onKeyDown={onDatePickerKeyDown}
       open={isMonthCalendarOpen}
       popperPlacement="bottom"
       ref={innerRef}
-      renderCustomHeader={getRenderCustomHeader(onDatePickerKeyDown)}
+      renderCustomHeader={(headerProps) => <Header onKeyDown={onDatePickerKeyDown} {...headerProps} />}
       selected={date}
       showMonthYearPicker
       showPopperArrow={false}

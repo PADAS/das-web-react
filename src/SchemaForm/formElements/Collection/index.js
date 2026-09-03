@@ -7,6 +7,8 @@ import { ReactComponent as AddButtonIcon } from '../../../common/images/icons/ad
 import { ReactComponent as ArrowDownSimpleIcon } from '../../../common/images/icons/arrow-down-simple.svg';
 import { ReactComponent as ArrowUpSimpleIcon } from '../../../common/images/icons/arrow-up-simple.svg';
 
+import useFormElementDomId from '../../utils/useFormElementDomId';
+
 import SortableList from './SortableList';
 
 import * as styles from './styles.module.scss';
@@ -17,14 +19,16 @@ const Collection = ({
   details,
   error,
   focusLocationMarker,
+  formElementId,
   formElements,
-  id,
   onFieldChange,
   readOnly,
   renderFormElement,
   value = [],
 }) => {
   const { t } = useTranslation('schema-form', { keyPrefix: 'fields.collection' });
+
+  const domId = useFormElementDomId(formElementId);
 
   const [isOpen, setIsOpen] = useState(true);
   // Items is an internal state variable to assign temporal ids to each
@@ -54,7 +58,7 @@ const Collection = ({
     }
 
     onFieldChange(
-      id,
+      formElementId,
       [...value.slice(0, itemIndex), itemValue, ...value.slice(itemIndex + 1)],
       updatedError
     );
@@ -78,7 +82,7 @@ const Collection = ({
       });
     }
 
-    onFieldChange(id, value.filter((_, index) => itemIndex !== index), updatedError);
+    onFieldChange(formElementId, value.filter((_, index) => itemIndex !== index), updatedError);
     setItems(items.filter((_, index) => itemIndex !== index));
   };
 
@@ -98,7 +102,7 @@ const Collection = ({
       });
     }
 
-    onFieldChange(id, arrayMove(value, originalItemIndex, newItemIndex), updatedError);
+    onFieldChange(formElementId, arrayMove(value, originalItemIndex, newItemIndex), updatedError);
     setItems(arrayMove(items, originalItemIndex, newItemIndex));
   };
 
@@ -130,7 +134,7 @@ const Collection = ({
     }
 
     const highestExistingItemId = items.reduce((highestItemId, item) => Math.max(highestItemId, item.id), -1);
-    onFieldChange(id, [...value, {}], updatedError);
+    onFieldChange(formElementId, [...value, {}], updatedError);
     setItems([
       ...items,
       {
@@ -143,30 +147,30 @@ const Collection = ({
   };
 
   // If a location field from an item requests to focus its location marker,
-  // prefix the marker id with the collection id and the item index.
+  // prefix the marker formElementId with the collection formElementId and the item index.
   const focusLocationMarkerFromItem = (itemIndex) => (locationFieldName) =>
     focusLocationMarker(`${details.value}[${itemIndex}].${locationFieldName}`);
 
   return <div
-      aria-errormessage={hasError ? `${id}-description` : undefined}
-      aria-labelledby={`${id}-label`}
+      aria-errormessage={hasError ? `${domId}-description` : undefined}
+      aria-labelledby={`${domId}-label`}
       aria-invalid={hasError ? 'true' : 'false'}
       className={styles.collection}
-      data-testid={`schema-form-collection-${id}`}
-      id={id}
+      data-testid={`schema-form-collection-${formElementId}`}
+      id={domId}
     >
     <div
       className={`${styles.header} ${hasError || doesChildrenHaveErrors ? styles.error : '' }`}
-      data-testid={`schema-form-collection-header-${id}`}
+      data-testid={`schema-form-collection-header-${formElementId}`}
     >
-      <label className={styles.label} id={`${id}-label`}>
+      <label className={styles.label} id={`${domId}-label`}>
         {`${details.label} (${value.length})`}
 
         {details.isRequired && <span aria-hidden="true"> *</span>}
       </label>
 
       <button
-        aria-controls={`collectionList-${id}`}
+        aria-controls={`collectionList-${domId}`}
         aria-expanded={isOpen}
         aria-label={t(`chevronButtonLabel.${isOpen ? 'open' : 'closed'}`, { collectionLabel: details.label })}
         className={styles.chevronButton}
@@ -179,7 +183,7 @@ const Collection = ({
     </div>
 
     <Collapse in={isOpen}>
-      <div className={styles.collapse} id={`collectionList-${id}`}>
+      <div className={styles.collapse} id={`collectionList-${domId}`}>
         {value.length === 0
           ? <div className={styles.emptyState} data-testid="schema-form-collection-list-empty-state" />
           : <SortableList
@@ -219,7 +223,7 @@ const Collection = ({
 
     <p
       className={`${styles.description} ${hasError ? styles.error : ''}`}
-      id={`${id}-description`}
+      id={`${domId}-description`}
     >
       {error?.message || details.description}
     </p>

@@ -1,4 +1,4 @@
-const MILLISECONDS_IN_AN_HOUR = 60000;
+const MILLISECONDS_IN_A_MINUTE = 60000;
 
 export const EMPTY_TIME_VALUE = ':';
 
@@ -48,10 +48,10 @@ export const getInternationalizedTimePeriods = (locale) => {
     .formatToParts(midnight)
     .find((part) => part.type === 'dayPeriod')?.value;
 
-  const middaay = new Date();
-  middaay.setHours(12, 0, 0);
+  const midday = new Date();
+  midday.setHours(12, 0, 0);
   const pmPeriod = dateTimeFormatter
-    .formatToParts(middaay)
+    .formatToParts(midday)
     .find((part) => part.type === 'dayPeriod')?.value;
 
   return { [AM_PERIOD]: amPeriod || AM_PERIOD, [PM_PERIOD]: pmPeriod || PM_PERIOD };
@@ -106,7 +106,7 @@ export const getMinuteWithinValidRange = (minute, hour, max, min) => {
 };
 
 export const getMinutesDifference = (startDate, endDate) => Math.round(
-  Math.abs(endDate.getTime() - startDate.getTime()) / MILLISECONDS_IN_AN_HOUR
+  Math.abs(endDate.getTime() - startDate.getTime()) / MILLISECONDS_IN_A_MINUTE
 );
 
 export const isSecondHourDigitPossible = (hour, is12HourFormat) => is12HourFormat
@@ -122,7 +122,7 @@ export const shouldCompleteFirstHourDigitWithZero = (hour, is12HourFormat) => is
   : /^[0-2]$/.test(hour);
 
 export const isHourInputComplete = (hour, is12HourFormat) => is12HourFormat
-  ? /^(0[0-9]|1[0-2])$/.test(hour)
+  ? /^(0[1-9]|1[0-2])$/.test(hour)
   : /^([01][0-9]|2[0-3])$/.test(hour);
 
 export const isSecondMinuteDigitPossible = (minute) => !/^[6-9]$/.test(minute);

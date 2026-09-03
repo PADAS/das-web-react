@@ -1,35 +1,41 @@
 import axios, { CancelToken, isCancel } from 'axios';
 
-import { API_URL } from '../constants';
-import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
-import globallyResettableReducer from '../reducers/global-resettable';
+import { API_URL } from '../../constants';
+import { calcPatrolFilterForRequest } from '../../utils/patrol-filter';
+import globallyResettableReducer from '../../reducers/global-resettable';
 
 export const PATROLS_API_URL = `${API_URL}activity/patrols/`;
+export const PATROL_ASSETS_API_URL = `${PATROLS_API_URL}assets`;
+export const PATROL_LEADERS_API_URL = `${PATROLS_API_URL}trackedby`;
+export const PATROL_TEAMS_API_URL = `${PATROLS_API_URL}teams`;
+export const PATROL_TEAM_MEMBERS_API_URL = `${PATROL_TEAMS_API_URL}/members`;
 
-// actions
-export const ADD_PATROL_NOTE_SUCCESS = 'ADD_PATROL_NOTE_SUCCESS';
+const PATROLS_FEED_PAGE_SIZE = 200;
 
-export const CREATE_PATROL_SUCCESS = 'CREATE_PATROL_SUCCESS';
+// Actions
+export const ADD_PATROL_NOTE_SUCCESS = 'PATROLS.ADD_PATROL_NOTE_SUCCESS';
 
-export const FETCH_PATROLS_FEED_SUCCESS = 'FETCH_PATROLS_FEED_SUCCESS';
+export const CREATE_PATROL_SUCCESS = 'PATROLS.CREATE_PATROL_SUCCESS';
 
-export const UPDATE_PATROL_SUCCESS = 'UPDATE_PATROL_SUCCESS';
-export const UPDATE_PATROL_ERROR = 'UPDATE_PATROL_ERROR';
+export const FETCH_PATROLS_FEED_SUCCESS = 'PATROLS.FETCH_PATROLS_FEED_SUCCESS';
 
-export const UPDATE_PATROL_STORE = 'UPDATE_PATROL_STORE';
-export const UPDATE_PATROL_TRACK_STATE = 'UPDATE_PATROL_TRACK_STATE';
+export const FETCH_PATROL_TEAM_AND_TRACKING_OPTIONS_SUCCESS
+  = 'PATROLS.FETCH_PATROL_TEAM_AND_TRACKING_OPTIONS_SUCCESS';
 
-export const CREATE_PATROL_REALTIME = 'CREATE_PATROL_REALTIME';
-export const UPDATE_PATROL_REALTIME = 'UPDATE_PATROL_REALTIME';
+export const UPDATE_PATROL_SUCCESS = 'PATROLS.UPDATE_PATROL_SUCCESS';
+export const UPDATE_PATROL_ERROR = 'PATROLS.UPDATE_PATROL_ERROR';
 
-// A patrol that stops matching the filter only leaves the feed, it stays in the store so an open
-// one does not vanish under the user. Only a server-side deletion takes it out of the store.
-export const ADD_PATROL_TO_FEED = 'ADD_PATROL_TO_FEED';
-export const REMOVE_PATROL_FROM_FEED = 'REMOVE_PATROL_FROM_FEED';
-export const DELETE_PATROL_BY_ID = 'DELETE_PATROL_BY_ID';
+export const UPDATE_PATROL_STORE = 'PATROLS.UPDATE_PATROL_STORE';
+export const UPDATE_PATROL_TRACK_STATE = 'PATROLS.UPDATE_PATROL_TRACK_STATE';
 
-// socket action creators
+export const CREATE_PATROL_REALTIME = 'PATROLS.CREATE_PATROL_REALTIME';
+export const UPDATE_PATROL_REALTIME = 'PATROLS.UPDATE_PATROL_REALTIME';
 
+export const ADD_PATROL_TO_FEED = 'PATROLS.ADD_PATROL_TO_FEED';
+export const REMOVE_PATROL_FROM_FEED = 'PATROLS.REMOVE_PATROL_FROM_FEED';
+export const DELETE_PATROL_BY_ID = 'PATROLS.DELETE_PATROL_BY_ID';
+
+// Action creators
 const patrolFeedMembership = (patrolId, matchesCurrentFilter) => ({
   payload: patrolId,
   type: matchesCurrentFilter ? ADD_PATROL_TO_FEED : REMOVE_PATROL_FROM_FEED,
@@ -58,7 +64,6 @@ export const socketDeletePatrol = ({ patrol_id }) => ({
   type: DELETE_PATROL_BY_ID,
 });
 
-// action creators
 export const updatePatrolStore = (patrols) => ({
   payload: patrols,
   type: UPDATE_PATROL_STORE,
@@ -88,7 +93,7 @@ export const fetchPatrolsFeed = () => (dispatch) => {
   const cancelToken = CancelToken.source();
 
   const request = axios.get(
-    `${PATROLS_API_URL}?${calcPatrolFilterForRequest({ params: { page_size: 200 } })}`,
+    `${PATROLS_API_URL}?${calcPatrolFilterForRequest({ params: { page_size: PATROLS_FEED_PAGE_SIZE } })}`,
     { cancelToken: cancelToken.token }
   )
     .then((response) => {
@@ -108,6 +113,43 @@ export const fetchPatrolsFeed = () => (dispatch) => {
     });
 
   return { cancelToken, request };
+};
+
+export const fetchPatrolTeamAndTrackingOptions = () => async (dispatch) => {
+  // The leaders endpoint answers with a fragment of the patrol schema instead
+  // of a plain list.
+  const { data: { data: leadersSchema } } = await axios.get(PATROL_LEADERS_API_URL);
+  const leaders = leadersSchema?.properties?.leader?.enum_ext?.map(({ value }) => value) ?? [];
+
+  // TODO: The assets, teams and team members endpoints are not deployed yet, so their responses
+  // are mocked here. Request them beside the leaders once they are.
+  const options = {
+    assets: [
+      { id: 'a55e7000-0000-4000-8000-000000000001', name: 'KTN-123' },
+      { id: 'a55e7000-0000-4000-8000-000000000002', name: 'Priya Garmin' },
+      { id: 'a55e7000-0000-4000-8000-000000000003', name: 'Radio 7' },
+    ],
+    leaders,
+    teamMembers: [
+      { id: 'b3a70000-0000-4000-8000-000000000001', name: 'Amara Osei' },
+      { id: 'b3a70000-0000-4000-8000-000000000002', name: 'Jordan Reeves' },
+      { id: 'b3a70000-0000-4000-8000-000000000003', name: 'Leo Nakamura' },
+      { id: 'b3a70000-0000-4000-8000-000000000004', name: 'Maya Chen' },
+      { id: 'b3a70000-0000-4000-8000-000000000005', name: 'Priya Sharma' },
+    ],
+    teams: [
+      { id: 'e0d1a3f4-0000-4000-8000-000000000001', name: 'Alpha' },
+      { id: 'e0d1a3f4-0000-4000-8000-000000000002', name: 'Bravo' },
+      { id: 'e0d1a3f4-0000-4000-8000-000000000003', name: 'Delta' },
+    ],
+  };
+
+  dispatch({
+    payload: options,
+    type: FETCH_PATROL_TEAM_AND_TRACKING_OPTIONS_SUCCESS,
+  });
+
+  return options;
 };
 
 export const createPatrol = (patrol) => (dispatch) => axios.post(PATROLS_API_URL, patrol)
@@ -138,8 +180,8 @@ export const updatePatrol = (patrol) => (dispatch) => axios.patch(`${PATROLS_API
     return Promise.reject(error);
   });
 
-export const addNoteToPatrol = (patrol_id, note) => (dispatch) =>
-  axios.post(`${PATROLS_API_URL}${patrol_id}/notes/`, note)
+export const addNoteToPatrol = (patrolId, note) => (dispatch) =>
+  axios.post(`${PATROLS_API_URL}${patrolId}/notes/`, note)
     .then((response) => {
       dispatch({
         payload: response.data.data,
@@ -178,22 +220,22 @@ export const togglePatrolTrackState = (id) => (dispatch, getState) => {
   return dispatch(updatePatrolTrackState({ visible: [...visible, id] }));
 };
 
-// reducers
+// Reducers
 export const INITIAL_STORE_STATE = {};
 
 export const patrolStoreReducer = globallyResettableReducer((state, { type, payload }) => {
-  if (type === UPDATE_PATROL_STORE) {
+  switch (type) {
+  case UPDATE_PATROL_STORE:
     return payload.results.reduce((accumulator, patrol) => {
       accumulator[patrol.id] = { ...state[patrol.id], ...patrol };
 
       return accumulator;
     }, { ...state });
-  }
 
-  if (type === CREATE_PATROL_SUCCESS
-    || type === UPDATE_PATROL_SUCCESS
-    || type === CREATE_PATROL_REALTIME
-    || type === UPDATE_PATROL_REALTIME) {
+  case CREATE_PATROL_REALTIME:
+  case CREATE_PATROL_SUCCESS:
+  case UPDATE_PATROL_REALTIME:
+  case UPDATE_PATROL_SUCCESS:
     return {
       ...state,
       [payload.id]: {
@@ -201,16 +243,17 @@ export const patrolStoreReducer = globallyResettableReducer((state, { type, payl
         ...payload,
       },
     };
-  }
 
-  if (type === DELETE_PATROL_BY_ID) {
+  case DELETE_PATROL_BY_ID: {
     const newState = { ...state };
     delete newState[payload];
 
     return newState;
   }
 
-  return state;
+  default:
+    return state;
+  }
 }, INITIAL_STORE_STATE);
 
 export const INITIAL_PATROLS_FEED_STATE = [];
@@ -232,18 +275,37 @@ export const patrolsFeedReducer = globallyResettableReducer((state, { type, payl
   }
 }, INITIAL_PATROLS_FEED_STATE);
 
+export const INITIAL_PATROL_TEAM_AND_TRACKING_OPTIONS_STATE = {
+  assets: [],
+  leaders: [],
+  teamMembers: [],
+  teams: [],
+};
+
+export const patrolTeamAndTrackingOptionsReducer = globallyResettableReducer((state, { type, payload }) => {
+  switch (type) {
+  case FETCH_PATROL_TEAM_AND_TRACKING_OPTIONS_SUCCESS:
+    return payload;
+
+  default:
+    return state;
+  }
+}, INITIAL_PATROL_TEAM_AND_TRACKING_OPTIONS_STATE);
+
 export const INITIAL_PATROL_TRACKS_STATE = {
   pinned: [],
   visible: [],
 };
 
 export const patrolTracksReducer = globallyResettableReducer((state, { type, payload }) => {
-  if (type === UPDATE_PATROL_TRACK_STATE) {
+  switch (type) {
+  case UPDATE_PATROL_TRACK_STATE:
     return {
       ...state,
       ...payload,
     };
-  }
 
-  return state;
+  default:
+    return state;
+  }
 }, INITIAL_PATROL_TRACKS_STATE);

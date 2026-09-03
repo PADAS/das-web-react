@@ -207,6 +207,9 @@
     "clearButtonLabel": "Futa kisanduku cha utafutaji",
     "defaultPlaceholder": "Tafuta..."
   },
+  "select": {
+    "noOptionsMessage": "Hakuna chaguo za kuonyesha"
+  },
   "serviceWorkerWatcher": {
     "confirmNotification": "Pakia tena",
     "newVersionAvailableNotification": "Toleo jipya la EarthRanger linapatikana. Itapakia mara ya mwisho unapochakaza tena kivinjari chako."

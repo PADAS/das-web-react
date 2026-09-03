@@ -1,15 +1,115 @@
-@import '../common/styles/inputs';
+@use '../common/styles/inputs';
+@use '../common/styles/vars/colors';
 
-.indicatorsContainer {
-  @media print {
-    display: none !important;
+.control {
+  border-color: colors.$light-gray-border !important;
+  font-weight: normal;
+  min-height: 2.5rem !important;
+
+  &:hover {
+    cursor: text;
+  }
+
+  &.controlFocused {
+    border-color: colors.$bright-blue !important;
+    box-shadow: 0 0 0 1px colors.$bright-blue !important;
   }
 }
 
-.caret{
-  @include dropdown-caret;
+.indicatorsContainer {
+  > div {
+    @include inputs.boxedFieldTrailingControl;
+
+    align-items: center;
+    border-radius: 0.25rem;
+    color: colors.$secondary-medium-gray;
+    justify-content: center;
+    padding: 0;
+
+    &:hover {
+      background-color: colors.$semi-light-gray;
+      color: colors.$secondary-medium-gray;
+    }
+  }
 }
 
-.disabled{
-  display: none;
+$option-icon-size: 1.25rem;
+$option-icon-gap: 0.5rem;
+
+.inputWithOptionIcon {
+  padding-left: calc(#{$option-icon-size} + #{$option-icon-gap});
+}
+
+.optionLabel {
+  align-items: center;
+  display: flex;
+  gap: $option-icon-gap;
+  min-width: 0;
+
+  .optionIcon {
+    align-items: center;
+    color: colors.$secondary-medium-gray;
+    display: flex;
+    flex-shrink: 0;
+    height: $option-icon-size;
+    justify-content: center;
+    width: $option-icon-size;
+
+    img, svg {
+      height: 100%;
+      object-fit: contain;
+      width: 100%;
+    }
+
+    svg {
+      fill: currentcolor;
+    }
+  }
+}
+
+.noOptionsMessage {
+  @include inputs.selectNoOptionsMessage;
+}
+
+.multiValue {
+  background: colors.$semi-light-gray !important;
+  border-radius: 1rem !important;
+  font-weight: normal;
+  padding: 0 0.0625rem;
+}
+
+.multiValueRemove {
+  background: rgb(0 0 0 / 10%);
+  border-radius: 50% !important;
+  color: colors.$secondary-medium-gray;
+  height: 1.2rem;
+  margin-right: 0.2rem;
+  margin-top: 0.2rem;
+  width: 1.2rem;
+}
+
+.option {
+  align-items: center;
+  background-color: transparent !important;
+  color: inherit !important;
+  display: flex !important;
+  gap: 0.5rem;
+
+  &.optionFocused,
+  &:active {
+    background-color: colors.$blue-highlight !important;
+  }
+
+  .checkMark, .checkMarkPlaceholder {
+    color: colors.$bright-blue;
+    flex-shrink: 0;
+    height: 0.8rem;
+    width: 0.8rem;
+  }
+}
+
+.cursorPointer {
+  &:hover {
+    cursor: pointer;
+  }
 }

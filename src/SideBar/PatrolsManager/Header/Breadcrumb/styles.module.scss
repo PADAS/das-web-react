@@ -1,0 +1,57 @@
+@use '../../../../common/styles/vars/colors';
+
+.breadcrumb {
+  min-width: 0;
+
+  ol {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      align-items: center;
+      display: flex;
+      gap: 0.5rem;
+
+      &:not(:last-child) {
+        flex-shrink: 0;
+      }
+
+      &:last-child {
+        min-width: 0;
+      }
+
+      a {
+        border-radius: 0.25rem;
+        color: colors.$secondary-medium-gray;
+        text-decoration: none;
+        white-space: nowrap;
+
+        &:focus-visible {
+          outline: 2px solid colors.$light-blue;
+        }
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+
+      svg {
+        color: colors.$secondary-medium-gray;
+        height: 0.75rem;
+        width: 0.75rem;
+      }
+
+      .currentCrumb {
+        color: colors.$bright-blue;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+  }
+}

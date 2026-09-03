@@ -319,6 +319,7 @@ const DatePicker = ({
 
     <input
       aria-label={t('yearInputLabel')}
+      autoComplete="off"
       className={styles.yearInput}
       disabled={disabled}
       inputMode="numeric"
@@ -338,6 +339,7 @@ const DatePicker = ({
 
     <input
       aria-label={t('monthInputLabel')}
+      autoComplete="off"
       className={styles.monthInput}
       disabled={disabled}
       inputMode="numeric"
@@ -358,6 +360,7 @@ const DatePicker = ({
 
     <input
       aria-label={t('dayInputLabel')}
+      autoComplete="off"
       className={styles.dayInput}
       disabled={disabled}
       inputMode="numeric"

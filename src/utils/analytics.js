@@ -22,6 +22,7 @@ export const PATROL_LIST_ITEM_CATEGORY = 'Patrol List Item';
 export const PATROL_DETAIL_VIEW_CATEGORY = 'Patrol Detail View';
 export const PATROL_OVERVIEW_CATEGORY = 'Patrol Overview';
 export const PATROL_FILTER_CATEGORY = 'Patrol Filter';
+export const NEW_PATROL_CATEGORY = 'New Patrol';
 export const ADD_TO_PATROL_CATEGORY = 'Add To Patrol';
 export const REPORTS_CATEGORY = 'Reports';
 export const REPORT_NOTE_CATEGORY = 'Report Note';

@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { clearUserContent } from '../ducks/user-content';
-import { fireEvent, render, screen } from '../test-utils';
+import { act, fireEvent, render, screen, within } from '../test-utils';
 import { DATE_TIME_ELEMENT_INPUT_TYPES } from '../utils/form-schemas/constants';
 import { GPS_FORMATS } from '../utils/location';
 import { mockStore } from '../__test-helpers/MockStore';
@@ -440,8 +440,9 @@ describe('SchemaForm', () => {
 
     const locationFieldElement = { focus: jest.fn() };
     const originalGetElementById = document.getElementById;
+    // The dom id is namespaced with the form instance id, which React generates.
     document.getElementById = jest.fn((id) => {
-      if (id === 'location_field') {
+      if (id.endsWith('-location_field')) {
         return locationFieldElement;
       }
       return undefined;
@@ -468,9 +469,10 @@ describe('SchemaForm', () => {
 
     const collectionItemElement = { focus: jest.fn() };
     const originalGetElementById = document.getElementById;
+    // The collection item is in the document, and its dom id is namespaced with the form instance
+    // id, which React generates.
     document.getElementById = jest.fn((id) => {
-      // The collection item is in the document
-      if (id === 'collection_field[0]') {
+      if (id.endsWith('-collection_field[0]')) {
         return collectionItemElement;
       }
       return undefined;
@@ -636,7 +638,7 @@ describe('SchemaForm', () => {
 
     expect(focusLocationMarker).not.toHaveBeenCalled();
 
-    fireEvent.focus(screen.getByRole('textbox', { name: 'Location' }));
+    fireEvent.focus(screen.getByRole('textbox', { name: 'Location Field' }));
 
     expect(focusLocationMarker).toHaveBeenCalled();
     expect(focusLocationMarker).toHaveBeenCalledWith('location_field');
@@ -737,5 +739,181 @@ describe('SchemaForm', () => {
     unmount();
 
     expect(clearUserContent).toHaveBeenCalledTimes(1);
+  });
+
+  describe('rendered more than once in the same document', () => {
+    const addChoiceListFieldToSchema = () => {
+      schema.json.properties.choice_field = {
+        anyOf: [{
+          enum: ['option-1'],
+          'x-enumExtra': { 'option-1': { description: '', display: 'Option 1' } },
+        }, {
+          enum: ['option-2'],
+          'x-enumExtra': { 'option-2': { description: '', display: 'Option 2' } },
+        }],
+        deprecated: false,
+        description: '',
+        title: 'Choice Field',
+        type: 'string',
+      };
+      schema.ui.fields.choice_field = {
+        conditionalDependents: [],
+        inputType: 'LIST',
+        parent: 'section-3',
+        placeholder: '',
+        type: 'CHOICE_LIST',
+      };
+      schema.ui.sections['section-3'].leftColumn.push({ name: 'choice_field', type: 'field' });
+    };
+
+    // Both forms are controlled, so the tests own their form data to tell a selection in one apart
+    // from a selection in the other.
+    const ControlledSchemaForms = () => {
+      const [firstFormData, setFirstFormData] = useState({});
+      const [secondFormData, setSecondFormData] = useState({});
+
+      const renderSchemaFormInWrapper = (testId, formData, onFormDataChange) => <div data-testid={testId}>
+        <SchemaForm
+          anchorLocation={null}
+          formData={formData}
+          hideMapLocationMarkers={false}
+          onFormDataChange={onFormDataChange}
+          onFormSubmit={onFormSubmit}
+          readOnly={false}
+          renderSubmitButton={() => null}
+          schema={schema}
+          shouldPopulateDefaultData={false}
+        />
+      </div>;
+
+      return <>
+        {renderSchemaFormInWrapper('firstForm', firstFormData, setFirstFormData)}
+
+        {renderSchemaFormInWrapper('secondForm', secondFormData, setSecondFormData)}
+      </>;
+    };
+
+    const renderTwoSchemaForms = () => render(
+      <Provider store={mockStore(store)}>
+        <ControlledSchemaForms />
+      </Provider>
+    );
+
+    test('gives each instance its own dom ids', () => {
+      renderTwoSchemaForms();
+
+      const firstForm = screen.getByTestId('firstForm');
+      const secondForm = screen.getByTestId('secondForm');
+
+      // Each label reaches its own control, otherwise these queries would find nothing.
+      const firstTextField = within(firstForm).getByRole('textbox', { name: 'Text Field' });
+      const secondTextField = within(secondForm).getByRole('textbox', { name: 'Text Field' });
+
+      expect(firstTextField.id).not.toBe(secondTextField.id);
+
+      const firstDescriptionId = firstTextField.getAttribute('aria-describedby');
+      const secondDescriptionId = secondTextField.getAttribute('aria-describedby');
+
+      expect(firstDescriptionId).not.toBe(secondDescriptionId);
+      expect(firstForm).toContainElement(document.getElementById(firstDescriptionId));
+      expect(secondForm).toContainElement(document.getElementById(secondDescriptionId));
+    });
+
+    test('keeps the choice lists of each instance in separate radio groups', async () => {
+      addChoiceListFieldToSchema();
+      renderTwoSchemaForms();
+
+      const firstChoiceField = within(screen.getByTestId('firstForm')).getByRole('radio', { name: 'Option 1' });
+      const secondChoiceField = within(screen.getByTestId('secondForm')).getByRole('radio', { name: 'Option 2' });
+
+      expect(firstChoiceField.name).not.toBe(secondChoiceField.name);
+
+      await userEvent.click(firstChoiceField);
+      await userEvent.click(secondChoiceField);
+
+      expect(firstChoiceField).toBeChecked();
+      expect(secondChoiceField).toBeChecked();
+    });
+  });
+
+  describe('rendered without owning a form element', () => {
+    const renderSchemaFormWithoutFormElement = (props) => {
+      const validateRef = { current: null };
+
+      const renderResult = renderSchemaForm({ as: 'div', validateRef, ...props });
+
+      return { ...renderResult, validateRef };
+    };
+
+    test('does not render a form element', () => {
+      const { container } = renderSchemaFormWithoutFormElement();
+
+      expect(container.querySelector('form')).toBeNull();
+    });
+
+    test('shows the schema errors and reports the failure when its validate method is called', () => {
+      const { validateRef } = renderSchemaFormWithoutFormElement({ formData: { text_field: undefined } });
+
+      const inputField = screen.getByRole('textbox', { name: 'Text Field' });
+
+      expect(inputField).toBeValid();
+
+      let isValid;
+      act(() => {
+        isValid = validateRef.current.validate();
+      });
+
+      expect(isValid).toBe(false);
+      expect(inputField).toBeInvalid();
+      expect(inputField).toHaveAccessibleErrorMessage('This is a required field.');
+      expect(screen.getByRole('alert')).toHaveTextContent('There are validation errors in the following fields:');
+    });
+
+    test('does not focus the first erroneous field when its validate method is told not to', () => {
+      const { validateRef } = renderSchemaFormWithoutFormElement({ formData: { text_field: undefined } });
+
+      const inputField = screen.getByRole('textbox', { name: 'Text Field' });
+
+      let isValid;
+      act(() => {
+        isValid = validateRef.current.validate({ shouldFocusFirstError: false });
+      });
+
+      expect(isValid).toBe(false);
+      expect(inputField).toBeInvalid();
+      expect(inputField).not.toHaveFocus();
+    });
+
+    test('reports the success when its validate method is called and there are no errors', () => {
+      const { validateRef } = renderSchemaFormWithoutFormElement();
+
+      let isValid;
+      act(() => {
+        isValid = validateRef.current.validate();
+      });
+
+      expect(isValid).toBe(true);
+      expect(screen.getByRole('alert')).not.toHaveTextContent('There are validation errors in the following fields:');
+    });
+
+    test('does not dispatch clearUserContent when the component unmounts', () => {
+      const { unmount } = renderSchemaFormWithoutFormElement();
+
+      unmount();
+
+      expect(clearUserContent).not.toHaveBeenCalled();
+    });
+
+    test('applies the class name it is given to the element it renders in place of the form', () => {
+      const { container } = renderSchemaFormWithoutFormElement({ className: 'aClassName' });
+
+      expect(container.querySelector('.aClassName')).toBeInTheDocument();
+    });
+  });
+
+  test('applies the class name it is given to the form element it owns', () => {
+    const { container } = renderSchemaForm({ className: 'aClassName' });
+
+    expect(container.querySelector('form.aClassName')).toBeInTheDocument();
   });
 });

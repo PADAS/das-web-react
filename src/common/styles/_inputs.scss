@@ -3,6 +3,22 @@
 @import 'layout';
 
 
+$boxed-field-height: 2.5rem;
+$boxed-field-border-width: 1px;
+
+@mixin boxedFieldTrailingControl {
+  align-self: center;
+  flex-shrink: 0;
+  height: calc(#{$boxed-field-height} - #{$boxed-field-border-width} * 2);
+  width: calc(#{$boxed-field-height} - #{$boxed-field-border-width} * 2);
+}
+
+@mixin selectNoOptionsMessage {
+  color: $secondary-medium-light-gray !important;
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
 @mixin defaultTextInput {
   background: white;
   border: 1px solid $light-gray-border;

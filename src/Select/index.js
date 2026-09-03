@@ -1,53 +1,73 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import ReactSelect, { components } from 'react-select';
+import { useTranslation } from 'react-i18next';
 
-import * as colorVars from '../common/styles/vars/colors.module.scss';
-import * as controlsVars from '../common/styles/vars/controls.module.scss';
+import { ReactComponent as CheckIcon } from '../common/images/icons/check-light.svg';
+
+import { BOOTSTRAP_DEFAULTS } from '../constants';
 
 import * as styles from './styles.module.scss';
 
-const DropdownIndicator = ({ isDisabled, ...restProps }) => <components.DropdownIndicator isDisabled={isDisabled} {...restProps}>
-  <div className={ !isDisabled ? styles.caret : styles.disabled } />
-</components.DropdownIndicator>;
+const IndicatorSeparator = () => null;
 
-const IndicatorsContainer = ({ className, ...rest }) => <components.IndicatorsContainer
-  className={`${styles.indicatorsContainer} ${className}`}
-  {...rest}
-/>;
+const Option = ({ children, className = '', innerProps, isMulti, isSelected, ...otherProps }) => <components.Option
+    className={`${className} ${styles.option}`}
+    innerProps={innerProps}
+    isMulti={isMulti}
+    isSelected={isSelected}
+    {...otherProps}
+  >
+  {!isMulti && (isSelected
+    ? <CheckIcon aria-hidden="true" className={styles.checkMark} />
+    : <span aria-hidden="true" className={styles.checkMarkPlaceholder} />)}
 
-const Select = ({ styles: customStyles, components, ref, ...rest }) => {
-  const selectStyles = useMemo(() => ({
-    ...customStyles,
-    option: (styles, state) => {
-      const { isDisabled, isFocused } = state;
-      return {
-        ...styles,
-        backgroundColor: isFocused ? colorVars.optionHighlight : 'white',
-        color: 'inherit',
-        display: isDisabled ? 'none' : 'block',
-        cursor: isFocused ? 'pointer' : 'inherit',
-      };
-    },
-    menu: (styles) => {
-      return {
-        ...styles,
-        zIndex: 10,
-        boxShadow: controlsVars.baseBoxShadow,
-      };
-    },
-    placeholder: (styles) => {
-      return {
-        ...styles,
-        fontWeight: 'normal'
-      };
-    }
-  }), [customStyles]);
+  {children}
+</components.Option>;
+
+const getDefaultOptionLabel = ({ label }) => label;
+
+const renderOptionLabel = (option, renderOptionIcon, getOptionLabel) => <span className={styles.optionLabel}>
+  <span className={styles.optionIcon}>{renderOptionIcon(option)}</span>
+
+  {getOptionLabel(option)}
+</span>;
+
+const Select = ({
+  classNames: customClassNames,
+  components: customComponents,
+  renderOptionIcon,
+  styles: customStyles,
+  ...otherProps
+}) => {
+  const { t } = useTranslation('components', { keyPrefix: 'select' });
+
+  const getOptionLabel = otherProps.getOptionLabel ?? getDefaultOptionLabel;
 
   return <ReactSelect
-      components={{ DropdownIndicator, IndicatorsContainer, ...components }}
-      ref={ref}
-      styles={selectStyles}
-      {...rest}
+    classNames={{
+      clearIndicator: () => styles.cursorPointer,
+      control: (state) => `${styles.control} ${state.isFocused ? styles.controlFocused : ''}`,
+      dropdownIndicator: () => styles.cursorPointer,
+      indicatorsContainer: () => styles.indicatorsContainer,
+      input: () => renderOptionIcon ? styles.inputWithOptionIcon : '',
+      multiValue: () => styles.multiValue,
+      multiValueRemove: () => styles.multiValueRemove,
+      noOptionsMessage: () => styles.noOptionsMessage,
+      option: (state) => `${styles.cursorPointer} ${state.isFocused ? styles.optionFocused : ''}`,
+      ...customClassNames,
+    }}
+    components={{ IndicatorSeparator, Option, ...customComponents }}
+    formatOptionLabel={renderOptionIcon
+      ? (option) => renderOptionLabel(option, renderOptionIcon, getOptionLabel)
+      : undefined}
+    isClearable
+    menuPlacement="auto"
+    menuPortalTarget={document.body}
+    menuShouldScrollIntoView
+    noOptionsMessage={() => t('noOptionsMessage')}
+    placeholder=""
+    styles={{ menuPortal: (base) => ({ ...base, zIndex: BOOTSTRAP_DEFAULTS.MODAL_ZINDEX + 1 }), ...customStyles }}
+    {...otherProps}
   />;
 };
 

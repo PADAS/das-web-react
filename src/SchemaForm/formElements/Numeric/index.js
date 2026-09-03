@@ -1,14 +1,18 @@
 import React, { memo } from 'react';
 
+import useFormElementDomId from '../../utils/useFormElementDomId';
+
 import NumericInput from '../../../NumericInput';
 
 import * as styles from './styles.module.scss';
 
-const Numeric = ({ details, error, id, onFieldChange, readOnly, value = '' }) => {
+const Numeric = ({ details, error, formElementId, onFieldChange, readOnly, value = '' }) => {
+  const domId = useFormElementDomId(formElementId);
+
   const hasError = !!error;
 
-  return <div data-testid={`schema-form-numeric-field-${id}`} className={styles.numeric}>
-    <label className={`${styles.label} ${hasError ? styles.error : ''}`} htmlFor={id}>
+  return <div data-testid={`schema-form-numeric-field-${formElementId}`} className={styles.numeric}>
+    <label className={`${styles.label} ${hasError ? styles.error : ''}`} htmlFor={domId}>
       {details.label}
 
       {details.isRequired && <span aria-hidden="true"> *</span>}
@@ -16,16 +20,16 @@ const Numeric = ({ details, error, id, onFieldChange, readOnly, value = '' }) =>
 
     <NumericInput
       blockOutOfRangeValues={false}
-      id={id}
+      id={domId}
       inputProps={{
-        'aria-describedby': `${id}-description`,
-        'aria-errormessage': hasError ? `${id}-description` : undefined,
+        'aria-describedby': `${domId}-description`,
+        'aria-errormessage': hasError ? `${domId}-description` : undefined,
         'aria-invalid': hasError ? 'true' : 'false',
         'aria-required': details.isRequired
       }}
       max={details.maxInput}
       min={details.minInput}
-      onChange={(number) => onFieldChange(id, number || number === 0 ? number : undefined)}
+      onChange={(number) => onFieldChange(formElementId, number || number === 0 ? number : undefined)}
       placeholder={details.hint}
       readOnly={readOnly}
       value={value}
@@ -33,7 +37,7 @@ const Numeric = ({ details, error, id, onFieldChange, readOnly, value = '' }) =>
 
     <p
       className={`${styles.description} ${hasError ? styles.error : ''}`}
-      id={`${id}-description`}
+      id={`${domId}-description`}
     >
       {error?.message || details.description}
     </p>

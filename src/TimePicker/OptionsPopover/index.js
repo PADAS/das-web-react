@@ -18,6 +18,7 @@ const HOURS_IN_A_DAY = 24;
 
 const OptionsPopover = ({
   className,
+  id,
   internationalizedTimePeriods,
   max,
   min,
@@ -78,15 +79,14 @@ const OptionsPopover = ({
           .replace('AM', internationalizedTimePeriods[AM_PERIOD])
           .replace('PM', internationalizedTimePeriods[PM_PERIOD]);
 
-        // Update the index of the option closes to the current input value.
+        // Update the index of the option closest to the current input value.
         const currentOptionMinutesDifferenceToInputTime = getMinutesDifference(
           dateWithCurrentOptionTime,
           dateWithInputTimeValue
         );
-        if (currentOptionMinutesDifferenceToInputTime >= 0
-          && currentOptionMinutesDifferenceToInputTime < closestMinutesDifferenceToInputTime){
+        if (currentOptionMinutesDifferenceToInputTime < closestMinutesDifferenceToInputTime) {
           closestMinutesDifferenceToInputTime = currentOptionMinutesDifferenceToInputTime;
-          indexOfOptionClosestToInputTime = currentOptionIndex;
+          indexOfOptionClosestToInputTime = options.length;
         }
 
         // Finally, add the humanized duration from the minimum allowed value if it was requested.
@@ -129,6 +129,8 @@ const OptionsPopover = ({
     value,
   ]);
 
+  const getOptionDomId = (optionValue) => `${id}-${optionValue}`;
+
   const onItemSelection = (time) => {
     onChange(time);
     onClose();
@@ -155,11 +157,17 @@ const OptionsPopover = ({
         : options.length - 1));
       break;
 
+    case 'End':
+      event.preventDefault();
+
+      setSelectedOptionIndex(options.length - 1);
+      break;
+
     case 'Enter':
     case ' ':
       event.preventDefault();
 
-      if (selectedOptionIndex) {
+      if (options[selectedOptionIndex]) {
         onItemSelection(options[selectedOptionIndex].value);
       }
       break;
@@ -168,6 +176,18 @@ const OptionsPopover = ({
       event.preventDefault();
       event.stopPropagation();
 
+      onClose();
+
+      optionsPopoverButtonRef.current.focus();
+      break;
+
+    case 'Home':
+      event.preventDefault();
+
+      setSelectedOptionIndex(0);
+      break;
+
+    case 'Tab':
       onClose();
 
       optionsPopoverButtonRef.current.focus();
@@ -187,13 +207,6 @@ const OptionsPopover = ({
   useEffect(() => {
     // Set the focus to the list on mount so keyboard navigation is enabled.
     listRef.current.focus();
-
-    // Create a focus trap while the component is mounted.
-    const onKeyDown = (event) => event.key === 'Tab' && event.preventDefault();
-
-    document.addEventListener('keydown', onKeyDown);
-
-    return () => document.removeEventListener('keydown', onKeyDown);
   }, []);
 
   useEffect(() => {
@@ -201,11 +214,9 @@ const OptionsPopover = ({
   }, [indexOfOptionClosestToInputTime]);
 
   useEffect(() => {
-    const selectedOption = options[selectedOptionIndex];
-    if (selectedOption) {
-      document.getElementById(selectedOption.value).scrollIntoView?.({ behavior: 'smooth', block: 'nearest' });
-    }
-  }, [options, selectedOptionIndex]);
+    listRef.current.children[selectedOptionIndex]
+      ?.scrollIntoView?.({ behavior: 'instant', block: 'nearest' });
+  }, [selectedOptionIndex]);
 
   useEffect(() => {
     const onPointerDown = (event) => !listRef.current.contains(event.target)
@@ -219,25 +230,26 @@ const OptionsPopover = ({
 
   return <Popover
       className={`${className} ${styles.optionsPopover}`}
-      id="timePicker-optionsPopover"
+      id={id}
       ref={ref}
       role="presentation"
       style={{ ...style, width: target.current?.offsetWidth }}
+      tabIndex="-1"
       {...otherProps}
     >
     <ul
-      aria-activedescendant={options[selectedOptionIndex]?.value}
+      aria-activedescendant={options[selectedOptionIndex] && getOptionDomId(options[selectedOptionIndex].value)}
       className={styles.list}
-      data-testid="timePicker-OptionsList"
+      data-testid="timePicker-optionsList"
       onKeyDown={onListKeyDown}
       ref={listRef}
       role="listbox"
-      tabIndex="0"
+      tabIndex="-1"
     >
       {options.map((option, index) => <li
           aria-selected={selectedOptionIndex === index}
           className={`${styles.option} ${selectedOptionIndex === index ? styles.selected : ''}`}
-          id={option.value}
+          id={getOptionDomId(option.value)}
           key={option.value}
           onClick={getOnOptionClick(option)}
           role="option"

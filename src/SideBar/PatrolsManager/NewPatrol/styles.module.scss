@@ -1,0 +1,28 @@
+@use '../../../common/styles/layout';
+@use '../../../common/styles/vars/colors';
+
+.loaderWrapper {
+  align-items: center;
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  width: 100%;
+}
+
+.newPatrol {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  @media (min-width: layout.$md-layout-width-min) {
+    @include layout.sidebar-width-detail;
+  }
+
+  .body {
+    background: colors.$light-gray-background;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 1rem 0;
+  }
+}
