@@ -600,7 +600,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     };
     store.data.patrolStore[patrolWithPlannedLeg.id] = patrolWithPlannedLeg;
 
-    renderPatrolOverview(patrolWithPlannedLeg.id);
+    await renderPatrolOverview(patrolWithPlannedLeg.id);
 
     const [props] = addItemButtonMock.mock.calls.at(-1);
 
