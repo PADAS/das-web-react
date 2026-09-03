@@ -73,6 +73,24 @@ describe('TimeSlider', () => {
     { initialEntries }
   );
 
+  test('sets the virtual date to the event filter end date when the range ends at a date', () => {
+    const upper = '2020-02-01T06:00:00.000Z';
+    store.data.eventFilter.filter.date_range.upper = upper;
+
+    renderTimeSlider();
+
+    expect(setVirtualDate).toHaveBeenCalledWith(upper);
+  });
+
+  test('does not set a virtual date when the range ends at the present', () => {
+    store.data.eventFilter.filter.date_range.upper = null;
+
+    renderTimeSlider();
+
+    expect(setVirtualDate).not.toHaveBeenCalled();
+    expect(clearVirtualDate).toHaveBeenCalled();
+  });
+
   test('has no sidebar offset when no sidebar tab is open', () => {
     renderTimeSlider(undefined, { initialEntries: ['/'] });
 
@@ -550,7 +568,16 @@ describe('TimeSlider', () => {
     store.view.timeSliderState.virtualDate = '2020-06-15T12:00:00.000Z';
     renderTimeSlider();
 
+    // Mounting parks the handle at the range end; playback is what moves it from there.
+    setVirtualDate.mockClear();
+
     fireEvent.click(screen.getByRole('button', { name: 'Play timeslider' }));
+
+    expect(setVirtualDate).not.toHaveBeenCalled();
+
+    act(() => {
+      jest.advanceTimersByTime(FRAME_INTERVAL_MS);
+    });
 
     expect(setVirtualDate).toHaveBeenCalledTimes(1);
 
@@ -559,11 +586,5 @@ describe('TimeSlider', () => {
     });
 
     expect(setVirtualDate).toHaveBeenCalledTimes(2);
-
-    act(() => {
-      jest.advanceTimersByTime(FRAME_INTERVAL_MS);
-    });
-
-    expect(setVirtualDate).toHaveBeenCalledTimes(3);
   });
 });

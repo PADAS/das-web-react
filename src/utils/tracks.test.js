@@ -1,12 +1,23 @@
+import axios from 'axios';
+import { startOfDay, subDays } from 'date-fns';
+
+import store from '../store';
+import { TIME_OF_DAY_PERIODS } from '../constants';
+import { TRACK_LENGTH_ORIGINS, TRACKS_API_URL } from '../ducks/tracks';
+
 import {
   addSocketStatusUpdateToTrack,
   buildTrackSegments,
+  fetchTracksIfNecessary,
   fixAntimeridianCrossing,
   getTimeOfDayPeriodBasedOnTime,
   trackLengthWithinTimeRange,
 } from './tracks';
 
-import { TIME_OF_DAY_PERIODS } from '../constants';
+jest.mock('../store', () => ({
+  __esModule: true,
+  default: { dispatch: jest.fn(), getState: jest.fn() },
+}));
 
 describe('utils - tracks', () => {
   describe('getTimeOfDayPeriodBasedOnTime', () => {
@@ -685,6 +696,194 @@ describe('utils - tracks', () => {
       const updated = addSocketStatusUpdateToTrack(trackWithOnePoint(), statusUpdate);
 
       expect(updated.points.features[0].properties.id).toBe('subject-id');
+    });
+  });
+
+  describe('fetchTracksIfNecessary', () => {
+    const EVENT_FILTER_LOWER = '2026-08-01T00:00:00.000Z';
+    const EVENT_FILTER_UPPER = '2026-08-20T00:00:00.000Z';
+    // A virtual date is in play throughout, so a request narrowed to it would be visible.
+    const VIRTUAL_DATE = '2026-08-15T00:00:00.000Z';
+
+    // Resolves once every pending microtask and timer callback has run.
+    const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+    let pendingRequestResolvers;
+
+    // Dispatched requests stay pending until released.
+    const releaseOneRequest = async () => {
+      pendingRequestResolvers.shift()?.();
+
+      await settle();
+    };
+
+    const releaseAllRequests = async () => {
+      while (pendingRequestResolvers.length) {
+        await releaseOneRequest();
+      }
+    };
+
+    beforeEach(() => {
+      pendingRequestResolvers = [];
+
+      store.dispatch.mockImplementation(
+        () => new Promise((resolve) => pendingRequestResolvers.push(resolve))
+      );
+      store.getState.mockReturnValue({
+        data: {
+          eventFilter: { filter: { date_range: { lower: EVENT_FILTER_LOWER, upper: null } } },
+          tracks: {},
+        },
+        view: {
+          timeSliderState: { active: true, virtualDate: VIRTUAL_DATE },
+          trackSettings: { length: 21, origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH },
+        },
+      });
+    });
+
+    afterEach(async () => {
+      // Settles outstanding requests so no pending work leaks into the next test.
+      await releaseAllRequests();
+
+      jest.restoreAllMocks();
+      jest.clearAllMocks();
+    });
+
+    test('leaves the upper bound open while the time slider is active', async () => {
+      jest.spyOn(axios, 'get').mockResolvedValue({ data: { data: { features: [] } } });
+      // Runs the real fetchTracks thunk so the request window itself can be asserted.
+      store.dispatch.mockImplementation((thunk) => thunk(jest.fn()));
+
+      await fetchTracksIfNecessary(['subject-1']);
+
+      expect(axios.get).toHaveBeenCalledWith(
+        TRACKS_API_URL('subject-1'),
+        expect.objectContaining({ params: { since: EVENT_FILTER_LOWER } }),
+      );
+    });
+
+    test('bounds the request by the event filter end date while the time slider is active', async () => {
+      jest.spyOn(axios, 'get').mockResolvedValue({ data: { data: { features: [] } } });
+      // Runs the real fetchTracks thunk so the request window itself can be asserted.
+      store.dispatch.mockImplementation((thunk) => thunk(jest.fn()));
+      store.getState.mockReturnValue({
+        data: {
+          eventFilter: { filter: { date_range: { lower: EVENT_FILTER_LOWER, upper: EVENT_FILTER_UPPER } } },
+          tracks: {},
+        },
+        view: {
+          timeSliderState: { active: true, virtualDate: VIRTUAL_DATE },
+          trackSettings: { length: 21, origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH },
+        },
+      });
+
+      await fetchTracksIfNecessary(['subject-1']);
+
+      expect(axios.get).toHaveBeenCalledWith(
+        TRACKS_API_URL('subject-1'),
+        expect.objectContaining({ params: { since: EVENT_FILTER_LOWER, until: EVENT_FILTER_UPPER } }),
+      );
+    });
+
+    test('leaves the upper bound open on an event filter end date while the time slider is closed', async () => {
+      jest.spyOn(axios, 'get').mockResolvedValue({ data: { data: { features: [] } } });
+      // Runs the real fetchTracks thunk so the request window itself can be asserted.
+      store.dispatch.mockImplementation((thunk) => thunk(jest.fn()));
+      store.getState.mockReturnValue({
+        data: {
+          eventFilter: { filter: { date_range: { lower: EVENT_FILTER_LOWER, upper: EVENT_FILTER_UPPER } } },
+          tracks: {},
+        },
+        view: {
+          timeSliderState: { active: false },
+          trackSettings: { length: 21, origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH },
+        },
+      });
+
+      await fetchTracksIfNecessary(['subject-1']);
+
+      expect(axios.get).toHaveBeenCalledWith(
+        TRACKS_API_URL('subject-1'),
+        expect.objectContaining({ params: { since: startOfDay(subDays(new Date(), 21)) } }),
+      );
+    });
+
+    test('asks for the configured track length while the time slider is closed', async () => {
+      jest.spyOn(axios, 'get').mockResolvedValue({ data: { data: { features: [] } } });
+      // Runs the real fetchTracks thunk so the request window itself can be asserted.
+      store.dispatch.mockImplementation((thunk) => thunk(jest.fn()));
+      store.getState.mockReturnValue({
+        data: {
+          eventFilter: { filter: { date_range: { lower: EVENT_FILTER_LOWER, upper: null } } },
+          tracks: {},
+        },
+        view: {
+          timeSliderState: { active: false },
+          trackSettings: { length: 21, origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH },
+        },
+      });
+
+      await fetchTracksIfNecessary(['subject-1']);
+
+      expect(axios.get).toHaveBeenCalledWith(
+        TRACKS_API_URL('subject-1'),
+        expect.objectContaining({ params: { since: startOfDay(subDays(new Date(), 21)) } }),
+      );
+    });
+
+    test('keeps deduplicating an id whose earlier request was superseded and cancelled', async () => {
+      const trackedId = 'subject-1';
+
+      fetchTracksIfNecessary([trackedId]);
+
+      // A wider window supersedes the first request, cancelling it.
+      store.getState.mockReturnValue({
+        data: {
+          eventFilter: { filter: { date_range: { lower: '2026-07-01T00:00:00.000Z', upper: null } } },
+          tracks: {},
+        },
+        view: {
+          timeSliderState: { active: true, virtualDate: VIRTUAL_DATE },
+          trackSettings: { length: 21, origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH },
+        },
+      });
+      fetchTracksIfNecessary([trackedId]);
+
+      await settle();
+      // Settling the superseded request must not clear the replacement's entry.
+      await releaseOneRequest();
+
+      fetchTracksIfNecessary([trackedId]);
+
+      await settle();
+
+      expect(store.dispatch).toHaveBeenCalledTimes(2);
+    });
+
+    test('does not start a second request for an id that is already in flight', async () => {
+      fetchTracksIfNecessary(['subject-1', 'subject-2']);
+      fetchTracksIfNecessary(['subject-1', 'subject-2']);
+
+      await settle();
+
+      expect(store.dispatch).toHaveBeenCalledTimes(2);
+    });
+
+    test('waits for the request already in flight rather than resolving before it lands', async () => {
+      let hasResolved = false;
+
+      fetchTracksIfNecessary(['subject-1']);
+      fetchTracksIfNecessary(['subject-1']).then(() => {
+        hasResolved = true;
+      });
+
+      await settle();
+
+      expect(hasResolved).toBe(false);
+
+      await releaseOneRequest();
+
+      expect(hasResolved).toBe(true);
     });
   });
 });

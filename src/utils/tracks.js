@@ -227,7 +227,7 @@ export const trackHasDataWithinTimeRange = (trackData, since = null, until = nul
 const trackFetchState = {};
 export const fetchTracksIfNecessary = (ids, config) => {
   const optionalDateBoundaries = config?.optionalDateBoundaries;
-  const { data: { tracks, virtualDate, eventFilter }, view: { trackSettings, timeSliderState } } = store.getState();
+  const { data: { tracks, eventFilter }, view: { trackSettings, timeSliderState } } = store.getState();
 
 
   const { active: timeSliderActive } = timeSliderState;
@@ -241,7 +241,13 @@ export const fetchTracksIfNecessary = (ids, config) => {
     if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.EVENT_FILTER) {
       dateRange = removeNullAndUndefinedValuesFromObject({ since: eventFilterSince, until: eventFilterUntil });
     } else if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH) {
-      dateRange = removeNullAndUndefinedValuesFromObject({ since: timeSliderActive ? eventFilterSince : startOfDay(subDays(virtualDate || new Date(), length)), until: virtualDate });
+      dateRange = removeNullAndUndefinedValuesFromObject({
+        since: timeSliderActive ? eventFilterSince : startOfDay(subDays(new Date(), length)),
+        // The map never draws past the filter's end, so fetching beyond it is
+        // wasted. Bounding by the virtual date instead would refetch on every
+        // scrub, since it moves with the handle.
+        until: timeSliderActive ? eventFilterUntil : undefined,
+      });
     }
 
     /* use optional date boundaries to further expand the lower and upper limits of the track request, if necessary, to have maximum necessary data coverage */
@@ -261,7 +267,11 @@ export const fetchTracksIfNecessary = (ids, config) => {
       const cancelToken = CancelToken.source();
 
       const request = store.dispatch(fetchTracks(dateRange, cancelToken, id))
-        .finally(() => delete trackFetchState[id]);
+        .finally(() => {
+          if (trackFetchState[id]?.cancelToken === cancelToken) {
+            delete trackFetchState[id];
+          }
+        });
 
       trackFetchState[id] = {
         cancelToken,
@@ -298,7 +308,7 @@ export const fetchTracksIfNecessary = (ids, config) => {
         return buildRequest();
       }
 
-
+      return ongoingRequest.request;
     };
 
     if (!trackData

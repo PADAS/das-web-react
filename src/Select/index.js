@@ -10,12 +10,10 @@ import * as styles from './styles.module.scss';
 
 const IndicatorSeparator = () => null;
 
-// This list scrolls itself and hands back the scroll react-select is still
-// holding.
-const MenuList = ({ innerRef, maxHeight, selectProps, ...otherProps }) => {
+// React Select scrolls the focused option into view before the menu has been
+// measured, so this centers it again once the settled height comes in.
+const MenuList = ({ innerRef, maxHeight, ...otherProps }) => {
   const menuListRef = useRef(null);
-
-  const onFocusedOptionScrolled = selectProps.onFocusedOptionScrolled;
 
   const setMenuListRef = useCallback((menuList) => {
     menuListRef.current = menuList;
@@ -23,7 +21,6 @@ const MenuList = ({ innerRef, maxHeight, selectProps, ...otherProps }) => {
     innerRef?.(menuList);
   }, [innerRef]);
 
-  // The height the menu settles on comes from measuring where it fits.
   useLayoutEffect(() => {
     const menuList = menuListRef.current;
     const focusedOption = menuList?.querySelector(`.${styles.optionFocused}`);
@@ -36,14 +33,11 @@ const MenuList = ({ innerRef, maxHeight, selectProps, ...otherProps }) => {
         menuList.scrollTop = focusedOption.offsetTop - (menuList.clientHeight - focusedOption.offsetHeight) / 2;
       }
     }
-
-    onFocusedOptionScrolled();
-  }, [maxHeight, onFocusedOptionScrolled]);
+  }, [maxHeight]);
 
   return <components.MenuList
     innerRef={setMenuListRef}
     maxHeight={maxHeight}
-    selectProps={selectProps}
     {...otherProps}
   />;
 };
@@ -102,8 +96,6 @@ const Select = ({
 }) => {
   const { t } = useTranslation('components', { keyPrefix: 'select' });
 
-  const selectRef = useRef(null);
-
   const getOptionLabel = otherProps.getOptionLabel ?? getDefaultOptionLabel;
   const getOptionValue = otherProps.getOptionValue ?? getDefaultOptionValue;
 
@@ -111,12 +103,6 @@ const Select = ({
     () => resolveValueFromOptions(value, options, getOptionValue),
     [getOptionValue, options, value]
   );
-
-  const onFocusedOptionScrolled = useCallback(() => {
-    if (selectRef.current) {
-      selectRef.current.scrollToFocusedOptionOnUpdate = false;
-    }
-  }, []);
 
   const shouldRenderOptionIcon = (context) => !!renderOptionIcon
     && (context === 'menu' || !otherProps.isMulti);
@@ -143,11 +129,10 @@ const Select = ({
     isClearable
     menuPlacement="auto"
     menuPortalTarget={document.body}
+    menuShouldScrollIntoView
     noOptionsMessage={() => t('noOptionsMessage')}
-    onFocusedOptionScrolled={onFocusedOptionScrolled}
     options={options}
     placeholder=""
-    ref={selectRef}
     styles={{ menuPortal: (base) => ({ ...base, zIndex: BOOTSTRAP_DEFAULTS.MODAL_ZINDEX + 1 }), ...customStyles }}
     value={resolvedValue}
     {...otherProps}
