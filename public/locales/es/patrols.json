@@ -20,6 +20,7 @@
         "cancelled": "Cancelado",
         "done": "Finalizado",
         "invalid": "Configuración no válida",
+        "paused": "En pausa",
         "readyToStart": "Listo para iniciar",
         "scheduled": "Agendado",
         "startOverdue": "Inicio atrasado"
@@ -63,13 +64,8 @@
       "addEventButton": "Agregar evento",
       "addEventButtonLabel": "Agregar evento",
       "addEventButtonText": "Evento",
-      "cancelOption": "Cancelar patrulla",
-      "endOption": "Finalizar patrulla",
-      "endPatrolButton": "Finalizar patrulla",
-      "pauseOption": "Pausar patrulla",
       "saveButton": "Guardar",
-      "saveButtonLoadingLabel": "Cargando",
-      "updateStatusButton": "Actualizar estado"
+      "saveButtonLoadingLabel": "Cargando"
     },
     "header": {
       "breadcrumbNavLabel": "Navegación de patrullaje",
@@ -84,6 +80,8 @@
       "mobileProvenancePill": "Móvil",
       "moreOptionsButtonLabel": "Más opciones",
       "printOption": "Imprimir patrulla",
+      "statusMenuLabel": "Acciones de estado de la patrulla",
+      "statusSelectLabel": "Cambiar el estado de la patrulla",
       "titleInputLabel": "Título de la patrulla",
       "toggleTrackButtonLabel": {
         "hidden": "Mostrar ruta de la patrulla",
@@ -95,6 +93,7 @@
         "cancelled": "Cancelado",
         "done": "Finalizado",
         "invalid": "Configuración no válida",
+        "paused": "En pausa",
         "readyToStart": "Listo para iniciar",
         "scheduled": "Agendado",
         "startOverdue": "Inicio atrasado"
@@ -114,7 +113,6 @@
         "collapseAllButtonLabel": "Colapsar todo",
         "emptyStateMessage": "La actividad de la patrulla aparecerá aquí",
         "expandAllButtonLabel": "Expandir todo",
-        "jumpToLocationButtonLabel": "Ir a la ubicación",
         "legTransitionTitle": "Tramo {{endedLeg}} finalizado, Tramo {{startedLeg}} iniciado",
         "patrolEndedTitle": "Patrullaje finalizado",
         "patrolStartedTitle": "Patrullaje iniciado",
@@ -122,7 +120,6 @@
           "down": "Ordenar actividad de forma ascendente",
           "up": "Ordenar actividad de forma descendente"
         },
-        "startPatrolButton": "Iniciar Patrullaje",
         "summaryStats": {
           "activeTimeLabel": "Tiempo activo",
           "distanceLabel": "Distancia",

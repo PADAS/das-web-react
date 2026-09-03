@@ -2,6 +2,9 @@ import { addMinutes } from 'date-fns';
 
 import {
   actualEndTimeForPatrol,
+  buildPatrolEndUpdate,
+  buildPatrolReopenUpdate,
+  buildPatrolStartUpdate,
   calcPatrolState,
   createNewPatrolForPatrolType,
   DELTA_FOR_OVERDUE,
@@ -28,7 +31,8 @@ import {
   iconTypeForPatrol,
   getIsMobilePatrol,
   PATROL_SAVE_ACTIONS,
-  sortPatrolList
+  sortPatrolList,
+  withLastSegmentTimeRange,
 } from './patrols';
 import { PATROL_UI_STATES } from '../constants';
 import {
@@ -81,6 +85,23 @@ describe('Patrols utils', () => {
       expect(calcPatrolState(readyToStartPatrol)).toBe(READY_TO_START);
     });
 
+    const patrolStartingIn = (minutes) => ({
+      ...scheduledPatrol,
+      patrol_segments: [{
+        ...scheduledPatrol.patrol_segments[0],
+        scheduled_start: addMinutes(new Date(), minutes).toISOString(),
+        time_range: { start_time: null, end_time: null },
+      }],
+    });
+
+    test('returns ready to start for a patrol starting within the ready to start window', () => {
+      expect(calcPatrolState(patrolStartingIn(59))).toBe(READY_TO_START);
+    });
+
+    test('returns scheduled for a patrol starting past the ready to start window', () => {
+      expect(calcPatrolState(patrolStartingIn(61))).toBe(SCHEDULED);
+    });
+
     test('returns ready to start for patrols with scheduled start in the past, before overdue delta', () => {
       const now = new Date();
       readyToStartPatrol.patrol_segments[0].scheduled_start = addMinutes(now, DELTA_FOR_OVERDUE - 1);
@@ -111,6 +132,114 @@ describe('Patrols utils', () => {
 
     test('returns active for a multi-leg patrol whose earlier leg has ended but whose latest leg is still active', () => {
       expect(calcPatrolState(multiLegPatrol)).toBe(ACTIVE);
+    });
+  });
+
+  describe('withLastSegmentTimeRange', () => {
+    const firstLeg = {
+      id: 'leg-1',
+      time_range: { start_time: '2026-04-13T08:00:00.000Z', end_time: '2026-04-13T09:00:00.000Z' },
+    };
+    const lastLeg = { id: 'leg-2', time_range: { start_time: '2026-04-13T10:00:00.000Z', end_time: null } };
+    const patrol = { patrol_segments: [firstLeg, lastLeg] };
+
+    test('merges the given times into the last leg time range', () => {
+      expect(withLastSegmentTimeRange(patrol, { end_time: '2026-04-13T12:00:00.000Z' }).at(-1)).toEqual({
+        id: 'leg-2',
+        time_range: { start_time: '2026-04-13T10:00:00.000Z', end_time: '2026-04-13T12:00:00.000Z' },
+      });
+    });
+
+    test('hands back the legs it does not touch', () => {
+      expect(withLastSegmentTimeRange(patrol, { end_time: null })[0]).toBe(firstLeg);
+    });
+
+    test('does not mutate the patrol', () => {
+      withLastSegmentTimeRange(patrol, { end_time: '2026-04-13T12:00:00.000Z' });
+
+      expect(lastLeg.time_range.end_time).toBeNull();
+    });
+
+    test('has no leg to change in a patrol without legs', () => {
+      expect(withLastSegmentTimeRange({ patrol_segments: [] }, { end_time: null })).toEqual([]);
+    });
+  });
+
+  describe('buildPatrolEndUpdate', () => {
+    const NOW = '2026-04-13T12:00:00.000Z';
+
+    beforeEach(() => {
+      jest.useFakeTimers().setSystemTime(new Date(NOW));
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    test('ends the patrol by stamping the last leg end time', () => {
+      const update = buildPatrolEndUpdate(multiLegPatrol);
+
+      expect(update.state).toBe('done');
+      expect(update.patrol_segments.at(-1).time_range.end_time).toBe(NOW);
+    });
+
+    test('leaves the legs before the last one alone', () => {
+      const update = buildPatrolEndUpdate(multiLegPatrol);
+
+      expect(update.patrol_segments[0]).toBe(multiLegPatrol.patrol_segments[0]);
+    });
+
+    test('sends every leg the patrol has', () => {
+      expect(buildPatrolEndUpdate(multiLegPatrol).patrol_segments)
+        .toHaveLength(multiLegPatrol.patrol_segments.length);
+    });
+  });
+
+  describe('buildPatrolReopenUpdate', () => {
+    test('opens the patrol back up and clears the last leg end time', () => {
+      const update = buildPatrolReopenUpdate({ ...multiLegPatrol, state: 'done' });
+
+      expect(update.state).toBe('open');
+      expect(update.patrol_segments.at(-1).time_range.end_time).toBeNull();
+    });
+
+    test('leaves the last leg start time alone, so the patrol lands wherever its own times put it', () => {
+      expect(buildPatrolReopenUpdate({
+        state: 'cancelled',
+        patrol_segments: [{ scheduled_start: '2026-04-13T10:00:00.000Z', time_range: { start_time: null, end_time: null } }],
+      }).patrol_segments.at(-1).time_range.start_time).toBeNull();
+    });
+
+    test('does not end an earlier leg of a multi-leg patrol', () => {
+      const update = buildPatrolReopenUpdate({ ...multiLegPatrol, state: 'done' });
+
+      expect(update.patrol_segments[0].time_range.end_time)
+        .toBe(multiLegPatrol.patrol_segments[0].time_range.end_time);
+    });
+  });
+
+  describe('buildPatrolStartUpdate', () => {
+    const NOW = '2026-04-13T12:00:00.000Z';
+
+    beforeEach(() => {
+      jest.useFakeTimers().setSystemTime(new Date(NOW));
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    test('starts the patrol by stamping the last leg start time and clearing its end time', () => {
+      const update = buildPatrolStartUpdate(multiLegPatrol);
+
+      expect(update.state).toBe('open');
+      expect(update.patrol_segments.at(-1).time_range)
+        .toEqual(expect.objectContaining({ end_time: null, start_time: NOW }));
+    });
+
+    test('does not restamp an earlier leg of a multi-leg patrol', () => {
+      expect(buildPatrolStartUpdate(multiLegPatrol).patrol_segments[0])
+        .toBe(multiLegPatrol.patrol_segments[0]);
     });
   });
 

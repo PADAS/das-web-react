@@ -17,7 +17,13 @@ import { DAS_HOST, PATROL_UI_STATES, PATROL_API_STATES } from '../constants';
 import { TRACKS_API_URL } from '../ducks/tracks';
 import { usePatrolsPermissions } from '../hooks/usePermissions';
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
-import { canEndPatrol, calcPatrolState } from '../utils/patrols';
+import {
+  buildPatrolEndUpdate,
+  buildPatrolReopenUpdate,
+  buildPatrolStartUpdate,
+  calcPatrolState,
+  canEndPatrol,
+} from '../utils/patrols';
 import { basePrintingStyles } from '../utils/styles';
 import { downloadFileFromUrl } from '../utils/download';
 
@@ -115,21 +121,21 @@ const PatrolMenu = ({
     patrolListItemTracker.track(`${canRestorePatrol ? 'Restore' : 'Cancel'} patrol from patrol list item kebab menu`);
 
     if (canRestorePatrol) {
-      onPatrolChange({ state: PATROL_API_STATES.OPEN, patrol_segments: [{ time_range: { end_time: null } }] });
+      onPatrolChange(buildPatrolReopenUpdate(patrol));
     } else {
       onPatrolChange({ state: PATROL_API_STATES.CANCELLED });
     }
-  }, [canRestorePatrol, onPatrolChange]);
+  }, [canRestorePatrol, onPatrolChange, patrol]);
 
   const togglePatrolStartStopState = useCallback(() => {
     patrolListItemTracker.track(`${patrolStartStopTitle} from patrol list item kebab menu`);
 
     if (canEnd) {
-      onPatrolChange({ state: PATROL_API_STATES.DONE, patrol_segments: [{ time_range: { end_time: new Date().toISOString() } }] });
+      onPatrolChange(buildPatrolEndUpdate(patrol));
     } else {
-      onPatrolChange({ state: PATROL_API_STATES.OPEN, patrol_segments: [{ time_range: { start_time: new Date().toISOString(), end_time: null } }] });
+      onPatrolChange(buildPatrolStartUpdate(patrol));
     }
-  }, [canEnd, onPatrolChange, patrolStartStopTitle]);
+  }, [canEnd, onPatrolChange, patrol, patrolStartStopTitle]);
 
   const handleDownloadTrack = useCallback(() => {
     if (!patrolLeader) return;

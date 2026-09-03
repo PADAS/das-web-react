@@ -222,6 +222,10 @@
           border-radius: 0.125rem;
           outline: 2px solid colors.$bright-blue;
         }
+
+        &.unsaved {
+          font-style: italic;
+        }
       }
 
       .titleMeasure {
@@ -233,6 +237,10 @@
         top: 0;
         visibility: hidden;
         white-space: pre;
+
+        &.unsaved {
+          font-style: italic;
+        }
       }
 
       .editButton {
@@ -255,43 +263,13 @@
       flex-shrink: 0;
       gap: 0.5rem;
 
-      .provenancePill, .statusPill {
+      .provenancePill {
+        background: colors.$off-black;
         border-radius: 999px;
+        color: white;
         flex-shrink: 0;
         font-size: 0.875rem;
         padding: 0.125rem 0.625rem;
-      }
-
-      .provenancePill {
-        background: colors.$off-black;
-        color: white;
-      }
-
-      .statusPill {
-        &.active {
-          background: map-get(colors.$patrol-active-theme, 'base');
-          color: white;
-        }
-
-        &.done {
-          background: map-get(colors.$patrol-done-theme, 'base');
-          color: white;
-        }
-
-        &.readyToStart, &.scheduled {
-          background: map-get(colors.$patrol-ready-theme, 'base');
-          color: white;
-        }
-
-        &.startOverdue {
-          background: map-get(colors.$patrol-overdue-theme, 'base');
-          color: white;
-        }
-
-        &.cancelled {
-          background: map-get(colors.$patrol-cancelled-theme, 'base');
-          color: map-get(colors.$patrol-cancelled-theme, 'fontColor');
-        }
       }
     }
   }

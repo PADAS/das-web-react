@@ -1,6 +1,3 @@
-/* webpack export statement exposes these variables to our JS files
-we have to do this in a separate *.module.scss file because of this bug https://github.com/facebook/create-react-app/issues/10047 */
-
 @import './colors';
  
 :export {
@@ -19,6 +16,8 @@ we have to do this in a separate *.module.scss file because of this bug https://
   patrolActiveThemeBgColor: map-get($patrol-active-theme, 'background');
   patrolReadyThemeColor: map-get($patrol-ready-theme, 'base');
   patrolReadyThemeBgColor: map-get($patrol-ready-theme, 'background');
+  patrolPausedThemeColor: map-get($patrol-paused-theme, 'base');
+  patrolPausedThemeBgColor: map-get($patrol-paused-theme, 'background');
   patrolDoneThemeColor: map-get($patrol-done-theme, 'base');
   patrolDoneThemeBgColor: map-get($patrol-done-theme, 'background');
   patrolCancelledThemeColor: map-get($patrol-cancelled-theme, 'base');

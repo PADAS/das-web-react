@@ -1,10 +1,8 @@
 import React, { memo, useMemo } from 'react';
-import Button from 'react-bootstrap/Button';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowDownIcon } from '../../../../../common/images/icons/arrow-down.svg';
 import { ReactComponent as ArrowUpIcon } from '../../../../../common/images/icons/arrow-up.svg';
-import { ReactComponent as PlayIcon } from '../../../../../common/images/icons/play.svg';
 
 import { actualEndTimeForPatrol, actualStartTimeForPatrol, getReportsForPatrol } from '../../../../../utils/patrols';
 import { DESCENDING_SORT_ORDER } from '../../../../../constants';
@@ -129,13 +127,6 @@ const Activity = ({
       </ul>
       : <div className={styles.emptyState}>
         <p className={styles.emptyStateMessage}>{t('emptyStateMessage')}</p>
-
-        {/* TODO: Implement start patrol button. */}
-        <Button className={styles.startPatrolButton} onClick={() => {}} type="button">
-          <PlayIcon aria-hidden="true" />
-
-          {t('startPatrolButton')}
-        </Button>
       </div>}
   </div>;
 };

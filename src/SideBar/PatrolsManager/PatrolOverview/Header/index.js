@@ -16,7 +16,6 @@ import { ReactComponent as TrackIcon } from '../../../../common/images/icons/tra
 
 import { basePrintingStyles } from '../../../../utils/styles';
 import {
-  calcPatrolState,
   getBoundsForPatrol,
   getIsMobilePatrol,
   getPatrolLocationCoordinates,
@@ -25,13 +24,14 @@ import {
 } from '../../../../utils/patrols';
 import { DAS_HOST, TAB_KEYS } from '../../../../constants';
 import { downloadJsonAsFile } from '../../../../utils/download';
-import { TrackerContext } from '../../../../utils/analytics';
 import { selectPatrolTrackData } from '../../../../selectors/patrols';
 import { togglePatrolTrackState } from '../../../../ducks/patrols';
+import { TrackerContext } from '../../../../utils/analytics';
 import useJumpToLocation from '../../../../hooks/useJumpToLocation';
 
 import KebabMenu from '../../../../KebabMenu';
 import Link from '../../../../Link';
+import StatusSelect from './StatusSelect';
 import SvgIcon from '../../../../SvgIcon';
 
 import * as styles from './styles.module.scss';
@@ -39,7 +39,17 @@ import * as styles from './styles.module.scss';
 const COPY_LINK_TOAST_AUTOCLOSE = 2000;
 const TITLE_INPUT_WIDTH_CARET_BUFFER = 2;
 
-const Header = ({ onChangeTitle, patrol, printableContentRef, title }) => {
+const Header = ({
+  isStateDirty,
+  isTitleDirty,
+  onChangeState,
+  onChangeTitle,
+  patrol,
+  patrolState,
+  printableContentRef,
+  state,
+  title,
+}) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolOverview.header' });
 
@@ -77,8 +87,6 @@ const Header = ({ onChangeTitle, patrol, printableContentRef, title }) => {
   // members and assets are available from the endpoint, their tracks bounded to the leg's
   // time range should also be included in the bounds.
   const patrolBounds = useMemo(() => getBoundsForPatrol(patrol, patrolTrackData), [patrol, patrolTrackData]);
-
-  const patrolState = calcPatrolState(patrol);
 
   const onToggleTrack = () => {
     dispatch(togglePatrolTrackState(patrol.id));
@@ -131,7 +139,8 @@ const Header = ({ onChangeTitle, patrol, printableContentRef, title }) => {
     if (titleMeasureRef.current) {
       setTitleInputWidth(titleMeasureRef.current.offsetWidth + TITLE_INPUT_WIDTH_CARET_BUFFER);
     }
-  }, [title]);
+  // Dirty titles render in italics, which changes the text metrics.
+  }, [isTitleDirty, title]);
 
   return <header className={styles.header}>
     <div className={styles.topBar}>
@@ -266,7 +275,7 @@ const Header = ({ onChangeTitle, patrol, printableContentRef, title }) => {
         <div className={styles.titleWrapper}>
           <input
             aria-label={t('titleInputLabel')}
-            className={styles.title}
+            className={`${styles.title} ${isTitleDirty ? styles.unsaved : ''}`}
             data-testid="patrolOverview-title"
             onChange={(event) => onChangeTitle(event.target.value)}
             ref={titleInputRef}
@@ -275,7 +284,13 @@ const Header = ({ onChangeTitle, patrol, printableContentRef, title }) => {
             value={title}
           />
 
-          <span aria-hidden="true" className={styles.titleMeasure} ref={titleMeasureRef}>{title}</span>
+          <span
+            aria-hidden="true"
+            className={`${styles.titleMeasure} ${isTitleDirty ? styles.unsaved : ''}`}
+            ref={titleMeasureRef}
+          >
+            {title}
+          </span>
 
           {/* Mouse-only. The input is already focusable/editable. */}
           <button
@@ -295,9 +310,13 @@ const Header = ({ onChangeTitle, patrol, printableContentRef, title }) => {
       <div className={styles.pills}>
         {getIsMobilePatrol(patrol) && <span className={styles.provenancePill}>{t('mobileProvenancePill')}</span>}
 
-        <span className={`${styles.statusPill} ${styles[patrolState.key] ?? styles.cancelled}`}>
-          {t(`uiStateTitles.${patrolState.key}`)}
-        </span>
+        <StatusSelect
+          isDirty={isStateDirty}
+          onSelect={onChangeState}
+          patrol={patrol}
+          patrolState={patrolState}
+          state={state}
+        />
       </div>
     </div>
   </header>;

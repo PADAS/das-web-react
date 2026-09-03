@@ -7,6 +7,7 @@ import { mockStore } from '../../../../../__test-helpers/MockStore';
 import { createMapMock } from '../../../../../__test-helpers/mocks';
 import patrolTypes from '../../../../../__test-helpers/fixtures/patrol-types';
 import { multiLegPatrol } from '../../../../../__test-helpers/fixtures/patrols';
+import { PATROL_UI_STATES } from '../../../../../constants';
 import { render, screen, within } from '../../../../../test-utils';
 import { format, STANDARD_DATE_FORMAT } from '../../../../../utils/datetime';
 import { TrackerContext } from '../../../../../utils/analytics';
@@ -70,7 +71,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
     <Provider store={mockStore(store)}>
       <MapContext.Provider value={map}>
         <TrackerContext.Provider value={{ track }}>
-          <Legs patrol={patrol} {...props} />
+          <Legs patrol={patrol} patrolState={PATROL_UI_STATES.ACTIVE} {...props} />
         </TrackerContext.Provider>
       </MapContext.Provider>
     </Provider>
@@ -217,9 +218,18 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
     );
   });
 
-  test('hides the new leg link for a patrol with a mobile provenance', () => {
+  test('hides the new leg link while a patrol with a mobile provenance is active', () => {
     renderLegs({ patrol: { ...patrol, provenance: 'mobile' } });
 
     expect(screen.queryByRole('link', { name: 'New Patrol Leg' })).not.toBeInTheDocument();
   });
+
+  test.each([PATROL_UI_STATES.DONE, PATROL_UI_STATES.CANCELLED, PATROL_UI_STATES.SCHEDULED])(
+    'shows the new leg link for a patrol with a mobile provenance that is not active',
+    (patrolState) => {
+      renderLegs({ patrol: { ...patrol, provenance: 'mobile' }, patrolState });
+
+      expect(screen.getByRole('link', { name: 'New Patrol Leg' })).toBeInTheDocument();
+    }
+  );
 });

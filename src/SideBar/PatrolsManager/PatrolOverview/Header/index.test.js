@@ -11,6 +11,7 @@ import { mockStore } from '../../../../__test-helpers/MockStore';
 import patrols from '../../../../__test-helpers/fixtures/patrols';
 import * as patrolSelectors from '../../../../selectors/patrols';
 import * as patrolUtils from '../../../../utils/patrols';
+import { PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS } from '../../../../constants';
 import { render, screen, within } from '../../../../test-utils';
 import { TRACK_LENGTH_ORIGINS } from '../../../../ducks/tracks';
 import { TrackerContext } from '../../../../utils/analytics';
@@ -33,18 +34,37 @@ const LocationDisplay = () => {
   return <div data-testid="test-location">{location.pathname}</div>;
 };
 
-// The title input is controlled by PatrolOverview, so the tests own its state too.
-const ControlledHeader = ({ onChangeTitle, patrol, ...restProps }) => {
+// The title input and the status select are controlled by PatrolOverview, so the tests own their
+// state too.
+const ControlledHeader = ({ onChangeState, onChangeTitle, patrol, ...restProps }) => {
+  const [editedState, setEditedState] = useState(null);
   const [title, setTitle] = useState(
     () => patrolUtils.displayTitleForPatrol(patrol, patrol.patrol_segments.at(-1)?.leader)
   );
+
+  const patrolState = patrolUtils.calcPatrolState(patrol);
+  const state = editedState ?? patrolState;
+
+  const onChangeStateValue = (newState) => {
+    setEditedState(newState);
+    onChangeState(newState);
+  };
 
   const onChangeTitleValue = (newTitle) => {
     setTitle(newTitle);
     onChangeTitle(newTitle);
   };
 
-  return <Header {...restProps} onChangeTitle={onChangeTitleValue} patrol={patrol} title={title} />;
+  return <Header
+    {...restProps}
+    isStateDirty={state !== patrolState}
+    onChangeState={onChangeStateValue}
+    onChangeTitle={onChangeTitleValue}
+    patrol={patrol}
+    patrolState={patrolState}
+    state={state}
+    title={title}
+  />;
 };
 
 describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
@@ -56,18 +76,21 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
   const handlePrint = jest.fn();
 
   let onChangeTitle;
+  let onChangeState;
   let store;
   let reduxStore;
   beforeEach(() => {
     useReactToPrint.mockImplementation(() => handlePrint);
 
     onChangeTitle = jest.fn();
+    onChangeState = jest.fn();
 
     store = {
       data: {
         eventFilter: { filter: { date_range: { lower: '2020-01-01T06:00:00.000Z' } } },
         subjectStore: {},
         tracks: {},
+        user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.UPDATE] } },
       },
       view: {
         patrolTrackState: {
@@ -95,6 +118,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
           <TrackerContext.Provider value={{ track: jest.fn() }}>
             <ControlledHeader
               onChangeTitle={onChangeTitle}
+              onChangeState={onChangeState}
               patrol={patrolWithLeader}
               printableContentRef={{ current: <div>Printable patrol</div> }}
               {...props}
@@ -110,6 +134,10 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
 
   const openKebabMenu = async () => {
     await userEvent.click(screen.getByRole('button', { name: 'More options' }));
+  };
+
+  const openStatusSelect = async () => {
+    await userEvent.click(screen.getByRole('button', { name: /Change patrol status/ }));
   };
 
   test('shows the breadcrumbs', () => {
@@ -495,6 +523,18 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
     expect(onChangeTitle).toHaveBeenLastCalledWith('');
   });
 
+  test('italicizes the patrol title while the edit is staged', () => {
+    renderHeader({ isTitleDirty: true });
+
+    expect(screen.getByRole('textbox', { name: 'Patrol title' })).toHaveClass('unsaved');
+  });
+
+  test('does not italicize the patrol title when it matches the saved one', () => {
+    renderHeader();
+
+    expect(screen.getByRole('textbox', { name: 'Patrol title' })).not.toHaveClass('unsaved');
+  });
+
   test('shows the edit title button', () => {
     renderHeader();
 
@@ -512,12 +552,6 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
     expect(selectSpy).toHaveBeenCalled();
   });
 
-  test('shows the status pill', () => {
-    renderHeader();
-
-    expect(screen.getByText('Active')).toBeInTheDocument();
-  });
-
   test('does not show the mobile pill for a patrol without a mobile provenance', () => {
     renderHeader({ patrol: { ...patrolWithLeader, provenance: 'web' } });
 
@@ -528,5 +562,34 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
     renderHeader({ patrol: { ...patrolWithLeader, provenance: 'mobile' } });
 
     expect(screen.getByText('Mobile')).toBeInTheDocument();
+  });
+
+  describe('patrol status', () => {
+    const selectStatus = async (name) => {
+      await openStatusSelect();
+      await userEvent.click(await screen.findByRole('menuitemradio', { name }));
+    };
+
+    test('shows the patrol state in the status pill', () => {
+      renderHeader();
+
+      expect(screen.getByText('Active')).toBeInTheDocument();
+    });
+
+    test('reports the picked status', async () => {
+      renderHeader();
+
+      await selectStatus('Done');
+
+      expect(onChangeState).toHaveBeenCalledWith(PATROL_UI_STATES.DONE);
+    });
+
+    test('shows the picked status instead of the one the patrol is saved with', async () => {
+      renderHeader();
+
+      await selectStatus('Paused');
+
+      expect(screen.getByRole('button', { name: 'Paused, Change patrol status' })).toBeInTheDocument();
+    });
   });
 });

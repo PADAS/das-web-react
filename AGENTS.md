@@ -85,12 +85,12 @@ Tracks are lazy-loaded and cached, socket status updates prepend new positions o
 
 **Tracks.** The patrol track is the track of the leg's tracked subjects, trimmed to the leg's time range. Only patrols that have started can display tracks. Visibility follows the same three-state cycle as subjects (hidden → visible → pinned).
 
-**Provenance.** A patrol's `provenance` records where it was created. Patrols with `provenance: 'mobile'` can't be fully managed from the web client: they can't take new legs, and ending the patrol is the only status change offered.
+**Provenance.** A patrol's `provenance` records where it was created. An active patrol with `provenance: 'mobile'` can't be fully managed from the web client: it can't take new legs, and ending the patrol is the only status change offered.
 
 **UI**
 - **Patrols Feed** (`/patrols`): the patrol list, ordered start_overdue → ready_to_start → paused → active → scheduled → done → cancelled, with inline actions per row (start, resume, restore). Filters: text search, date range, patrol type, tracked-by, and status.
 - **New Patrol** (`/patrols/new`): the leg form. Creating a patrol means creating its first leg, so this is the same form the leg routes use, with the patrol's title and type set here.
-- **Patrol Overview** (`/patrols/:patrolId`): header with the patrol's editable title, state, track/location/bounds actions and a kebab menu (copy link, print, download track); two tabs — **Overview** (the leg table, a new leg link under it, and the activity timeline headed by the patrol's stats) and **History** (audit trail from `updates`); footer actions to add notes, attachments and events, update the status (pause, cancel, end), or save. Mobile-provenance patrols hide the new leg link, and replace the status dropdown with a single end-patrol action.
+- **Patrol Overview** (`/patrols/:patrolId`): header with the patrol's editable title, track/location/bounds actions, a kebab menu (copy link, print, download track), and the patrol status select; two tabs — **Overview** (the leg table, a new leg link under it, and the activity timeline headed by the patrol's stats) and **History** (audit trail from `updates`); footer actions to add notes, attachments and events, or save. Active mobile-provenance patrols hide the new leg link, and offer ending the patrol as their only status change.
 - **New Leg** (`/patrols/:patrolId/legs/new`): the leg form, adding a leg to an existing patrol. Saving it ends the current leg and starts this one.
 - **Leg Overview** (`/patrols/:patrolId/legs/:legId`): header with the leg's title, status and action buttons; the leg's saved plan (times, locations, objective, team and tracking, and the patrol type's fields); its activity timeline with duration, distance and event totals; footer actions to add notes, attachments and events, or edit the leg.
 - **Edit Leg** (`/patrols/:patrolId/legs/:legId/edit`): the leg form, pre-filled with the leg's current values.

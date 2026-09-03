@@ -20,6 +20,7 @@
         "cancelled": "Cancelled",
         "done": "Done",
         "invalid": "Invalid Configuration",
+        "paused": "Paused",
         "readyToStart": "Ready to Start",
         "scheduled": "Scheduled",
         "startOverdue": "Start Overdue"
@@ -63,13 +64,8 @@
       "addEventButton": "Add Event",
       "addEventButtonLabel": "Add Event",
       "addEventButtonText": "Event",
-      "cancelOption": "Cancel Patrol",
-      "endOption": "End Patrol",
-      "endPatrolButton": "End Patrol",
-      "pauseOption": "Pause Patrol",
       "saveButton": "Save",
-      "saveButtonLoadingLabel": "Loading",
-      "updateStatusButton": "Update Status"
+      "saveButtonLoadingLabel": "Loading"
     },
     "header": {
       "breadcrumbNavLabel": "Patrol navigation",
@@ -84,6 +80,8 @@
       "mobileProvenancePill": "Mobile",
       "moreOptionsButtonLabel": "More options",
       "printOption": "Print Patrol",
+      "statusMenuLabel": "Patrol status actions",
+      "statusSelectLabel": "Change patrol status",
       "titleInputLabel": "Patrol title",
       "toggleTrackButtonLabel": {
         "hidden": "Show patrol track",
@@ -95,6 +93,7 @@
         "cancelled": "Cancelled",
         "done": "Done",
         "invalid": "Invalid Configuration",
+        "paused": "Paused",
         "readyToStart": "Ready to Start",
         "scheduled": "Scheduled",
         "startOverdue": "Start Overdue"
@@ -114,7 +113,6 @@
         "collapseAllButtonLabel": "Collapse all",
         "emptyStateMessage": "Patrol activity will appear here",
         "expandAllButtonLabel": "Expand all",
-        "jumpToLocationButtonLabel": "Jump to location",
         "legTransitionTitle": "Leg {{endedLeg}} Ended, Leg {{startedLeg}} Started",
         "patrolEndedTitle": "Patrol Ended",
         "patrolStartedTitle": "Patrol Started",
@@ -122,7 +120,6 @@
           "down": "Sort activity in ascending order",
           "up": "Sort activity in descending order"
         },
-        "startPatrolButton": "Start Patrol",
         "summaryStats": {
           "activeTimeLabel": "Active Time",
           "distanceLabel": "Distance",

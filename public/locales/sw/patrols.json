@@ -20,6 +20,7 @@
         "cancelled": "Imefutwa",
         "done": "Imekamilika",
         "invalid": "Usanidi Batili",
+        "paused": "Imesitishwa",
         "readyToStart": "Tayari kuanza",
         "scheduled": "Imepangwa",
         "startOverdue": "Kuanza Kuchelewa"
@@ -63,13 +64,8 @@
       "addEventButton": "Ongeza tukio",
       "addEventButtonLabel": "Ongeza tukio",
       "addEventButtonText": "Tukio",
-      "cancelOption": "Ghairi Doria",
-      "endOption": "Maliza Doria",
-      "endPatrolButton": "Maliza Doria",
-      "pauseOption": "Sitisha doria",
       "saveButton": "Hifadhi",
-      "saveButtonLoadingLabel": "Inapakia",
-      "updateStatusButton": "Sasisha hali"
+      "saveButtonLoadingLabel": "Inapakia"
     },
     "header": {
       "breadcrumbNavLabel": "Urambazaji wa doria",
@@ -84,6 +80,8 @@
       "mobileProvenancePill": "Simu",
       "moreOptionsButtonLabel": "Chaguo zaidi",
       "printOption": "Chapisha Doria",
+      "statusMenuLabel": "Vitendo vya hali ya doria",
+      "statusSelectLabel": "Badilisha hali ya doria",
       "titleInputLabel": "Kichwa cha doria",
       "toggleTrackButtonLabel": {
         "hidden": "Onyesha njia ya doria",
@@ -95,6 +93,7 @@
         "cancelled": "Imefutwa",
         "done": "Imekamilika",
         "invalid": "Usanidi Batili",
+        "paused": "Imesitishwa",
         "readyToStart": "Tayari kuanza",
         "scheduled": "Imepangwa",
         "startOverdue": "Kuanza Kuchelewa"
@@ -114,7 +113,6 @@
         "collapseAllButtonLabel": "Ficha yote",
         "emptyStateMessage": "Shughuli za doria zitaonekana hapa",
         "expandAllButtonLabel": "Panua yote",
-        "jumpToLocationButtonLabel": "Enda mahali",
         "legTransitionTitle": "Kipande {{endedLeg}} kimekamilika, Kipande {{startedLeg}} kimeanza",
         "patrolEndedTitle": "Doria imekamilika",
         "patrolStartedTitle": "Doria imeanza",
@@ -122,7 +120,6 @@
           "down": "Panga shughuli kwa mpangilio wa kupanda",
           "up": "Panga shughuli kwa mpangilio wa kushuka"
         },
-        "startPatrolButton": "Anza Doria",
         "summaryStats": {
           "activeTimeLabel": "Muda Inatekelezwa",
           "distanceLabel": "Umbali",

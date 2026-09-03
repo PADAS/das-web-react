@@ -45,15 +45,15 @@ export const STATUSES = {
   UNKNOWN_STATUS: 'UNKNOWN',
 };
 
-/** ToDo: remove title once all translations related with this const are done */
 export const PATROL_UI_STATES = {
-  SCHEDULED: { key: 'scheduled', title: 'Scheduled', status: 'scheduled' },
-  READY_TO_START: { key: 'readyToStart', title: 'Ready to start', status: 'ready' },
-  ACTIVE: { key: 'active', title: 'Active', status: 'open' },
-  DONE: { key: 'done', title: 'Done', status: 'done' },
-  START_OVERDUE: { key: 'startOverdue', title: 'Start Overdue', status: 'start-overdue' },
-  CANCELLED: { key: 'cancelled', title: 'Cancelled', status: 'cancelled' },
-  INVALID: { key: 'invalid', title: 'Invalid Configuration', status: 'cancelled' },
+  ACTIVE: { key: 'active', status: 'open' },
+  CANCELLED: { key: 'cancelled', status: 'cancelled' },
+  DONE: { key: 'done', status: 'done' },
+  INVALID: { key: 'invalid', status: 'cancelled' },
+  PAUSED: { key: 'paused', status: 'paused' },
+  READY_TO_START: { key: 'readyToStart', status: 'ready' },
+  SCHEDULED: { key: 'scheduled', status: 'scheduled' },
+  START_OVERDUE: { key: 'startOverdue', status: 'start-overdue' },
 };
 
 export const PATROL_API_STATES = {
