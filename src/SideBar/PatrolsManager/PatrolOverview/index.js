@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { isCancel } from 'axios';
 import MoonLoader from 'react-spinners/MoonLoader';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
@@ -427,21 +428,35 @@ const PatrolOverview = () => {
   const patrol = useSelector((state) => state.data.patrolStore[patrolId]);
 
   const fetchedPatrolIdRef = useRef(null);
+  const isMountedRef = useRef(true);
+
+  const [isLoadingPatrol, setIsLoadingPatrol] = useState(true);
+
+  useEffect(() => () => {
+    isMountedRef.current = false;
+  }, []);
 
   useEffect(() => {
     if (patrolId && fetchedPatrolIdRef.current !== patrolId) {
       fetchedPatrolIdRef.current = patrolId;
 
       dispatch(fetchPatrol(patrolId))
-        .catch(() => navigate(`/${SIDEBAR_TAB_KEYS.PATROLS}`, { replace: true }));
+        .then(() => setIsLoadingPatrol(false))
+        .catch((error) => {
+          // A cancelled request means the session is being torn down. Redirect
+          // if the component has not been unmounted yet.
+          if (isMountedRef.current && !isCancel(error)) {
+            navigate(`/${SIDEBAR_TAB_KEYS.PATROLS}`, { replace: true });
+          }
+        });
     }
   }, [dispatch, navigate, patrolId]);
 
-  return patrol
-    ? <PatrolOverviewContent patrol={patrol} />
-    : <div className={styles.loaderWrapper} data-testid="patrolOverview-loader">
+  return isLoadingPatrol || !patrol
+    ? <div className={styles.loaderWrapper} data-testid="patrolOverview-loader">
       <MoonLoader size={LOADER_SIZE} />
-    </div>;
+    </div>
+    : <PatrolOverviewContent patrol={patrol} />;
 };
 
 export default PatrolOverview;
