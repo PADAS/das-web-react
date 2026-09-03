@@ -1,14 +1,17 @@
 import axios, { CancelToken } from 'axios';
+import isEqual from 'react-fast-compare';
 import union from 'lodash/union';
 import merge from 'lodash/merge';
 
 import { API_URL } from '../constants';
-import globallyResettableReducer from '../reducers/global-resettable';
-import { getBboxParamsFromMap } from '../utils/query';
 import { calcUrlForImage } from '../utils/img';
+import { getBboxParamsFromMap, isBboxContainedBy } from '../utils/query';
 import { getUniqueSubjectGroupSubjects, updateDeviceStatusProperties, updateSubjectLastPositionFromSocketStatusUpdate } from '../utils/subjects';
+import globallyResettableReducer from '../reducers/global-resettable';
 const SUBJECTS_API_URL = `${API_URL}subjects`;
 export const SUBJECT_GROUPS_API_URL = `${API_URL}subjectgroups`;
+
+export const COVERED_SCAN_MAX_AGE_MS = 5 * 60 * 1000;
 
 // actions
 
@@ -16,7 +19,7 @@ const FETCH_SUBJECT_GROUPS_SUCCESS = 'FETCH_SUBJECT_GROUPS_SUCCESS';
 // const FETCH_SUBJECT_GROUPS_ERROR = 'FETCH_SUBJECT_GROUPS_ERROR';
 
 const FETCH_MAP_SUBJECTS_START = 'FETCH_MAP_SUBJECTS_START';
-const FETCH_MAP_SUBJECTS_SUCCESS = 'FETCH_MAP_SUBJECTS_SUCCESS';
+export const FETCH_MAP_SUBJECTS_SUCCESS = 'FETCH_MAP_SUBJECTS_SUCCESS';
 // const FETCH_MAP_SUBJECTS_ERROR = 'FETCH_MAP_SUBJECTS_ERROR';
 const CLEAR_SUBJECT_DATA = 'CLEAR_SUBJECT_DATA';
 export const SOCKET_SUBJECT_STATUS = 'SOCKET_SUBJECT_STATUS';
@@ -27,22 +30,41 @@ export const SOCKET_DELETE_SUBJECT = 'SOCKET_DELETE_SUBJECT';
 
 const cancelableMapSubjectsFetch = () => {
   let cancelToken = CancelToken.source();
+  const cancelFn = () => cancelToken.cancel();
   const fetchFn = (map, params) => async (dispatch, getState) => {
     try {
 
-      const state = getState();
       let lastKnownBbox;
 
       if (!map) {
-        lastKnownBbox = state?.data?.mapSubjects?.bbox;
+        lastKnownBbox = getState()?.data?.mapSubjects?.bbox;
       }
 
       if (!map && !lastKnownBbox) return Promise.reject();
 
-      const timeSliderActive = state?.view?.timeSliderState?.active;
-
       const bbox = map ? await getBboxParamsFromMap(map) : lastKnownBbox;
-      const use_lkl = !timeSliderActive;
+
+      const state = getState();
+      const { active: timeSliderActive, hasScrubbedIntoPast } = state?.view?.timeSliderState ?? {};
+      const { mapSubjects, subjectStore } = state?.data ?? {};
+      const { fetchedQuery } = mapSubjects ?? {};
+
+      const useLastKnownLocations = !timeSliderActive || !hasScrubbedIntoPast;
+
+      const queryParams = {
+        use_lkl: useLastKnownLocations,
+        ...params,
+        include_inactive: false,
+      };
+
+      if (!useLastKnownLocations
+        && isEqual(fetchedQuery?.params, queryParams)
+        && (Date.now() - fetchedQuery.fetchedAt) < COVERED_SCAN_MAX_AGE_MS
+        && isBboxContainedBy(bbox, fetchedQuery.bbox)) {
+        // The covering fetch already put this viewport's subjects in the
+        // store.
+        return fetchedQuery.subjectIds.map((id) => subjectStore[id]).filter(Boolean);
+      }
 
       dispatch({
         type: FETCH_MAP_SUBJECTS_START,
@@ -56,14 +78,12 @@ const cancelableMapSubjectsFetch = () => {
         cancelToken: cancelToken.token,
         params: {
           bbox,
-          use_lkl,
-          ...params,
-          include_inactive: false,
+          ...queryParams,
         }
       })
         .then((response) => {
           if (response) {
-            dispatch(fetchMapSubjectsSuccess(response));
+            dispatch(fetchMapSubjectsSuccess(response, { bbox, fetchedAt: Date.now(), params: queryParams }));
             return response.data.data;
           }
           return [];
@@ -72,10 +92,10 @@ const cancelableMapSubjectsFetch = () => {
       return Promise.reject(e);
     }
   };
-  return [fetchFn, cancelToken];
+  return [fetchFn, cancelFn];
 };
 
-export const [fetchMapSubjects, mapSubjectsFetchCancelToken] = cancelableMapSubjectsFetch();
+export const [fetchMapSubjects, cancelMapSubjectsFetch] = cancelableMapSubjectsFetch();
 
 export const clearSubjectData = () => ({
   type: CLEAR_SUBJECT_DATA,
@@ -113,9 +133,9 @@ export const fetchSubjectGroups = () => (dispatch) => axios.get(SUBJECT_GROUPS_A
   })
   .catch(_error => dispatch(fetchSubjectGroupsError())); // Fallback to empty array on error
 
-const fetchMapSubjectsSuccess = response => ({
+const fetchMapSubjectsSuccess = (response, fetchedQuery) => ({
   type: FETCH_MAP_SUBJECTS_SUCCESS,
-  payload: response.data,
+  payload: { ...response.data, fetchedQuery },
 });
 
 const fetchSubjectGroupsSuccess = response => ({
@@ -125,8 +145,9 @@ const fetchSubjectGroupsSuccess = response => ({
 
 const fetchSubjectGroupsError = _error => fetchSubjectGroupsSuccess([]);
 
-const INITIAL_MAP_SUBJECT_STATE = {
+export const INITIAL_MAP_SUBJECT_STATE = {
   bbox: null,
+  fetchedQuery: null,
   subjects: [],
 };
 
@@ -148,12 +169,13 @@ export default globallyResettableReducer((state = INITIAL_MAP_SUBJECT_STATE, act
   }
 
   if (action.type === FETCH_MAP_SUBJECTS_SUCCESS) {
-    const { payload: { data: subjects } } = action;
+    const { payload: { data: subjects, fetchedQuery } } = action;
 
     const mapSubjectIDs = subjects.map(({ id }) => id);
 
     lastKnownMapSubjectValue = {
       ...state,
+      fetchedQuery: { ...fetchedQuery, subjectIds: mapSubjectIDs },
       subjects: union(mapSubjectIDs, state.subjects),
     };
   }
