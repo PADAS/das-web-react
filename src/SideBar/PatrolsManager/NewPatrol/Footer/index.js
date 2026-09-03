@@ -18,7 +18,7 @@ const Footer = ({ formId, isSaving }) => {
 
     <button
       aria-busy={isSaving}
-      aria-label={isSaving ? t('saveButtonLoadingLabel') : undefined}
+      aria-label={t('saveButton')}
       className={styles.saveButton}
       disabled={isSaving}
       form={formId}

@@ -30,10 +30,10 @@ describe('SideBar - PatrolsManager - LegForm - utils - buildLegSegment', () => {
   });
 
   test('sets a past start as the time the leg ran', () => {
-    const segment = buildLegSegment({ ...leg, startDate: '2026-04-13', startTime: '08:00' });
+    const segment = buildLegSegment({ ...leg, startDate: '2026-04-12', startTime: '08:00' });
 
     expect(segment.scheduled_start).toBeNull();
-    expect(segment.time_range.start_time).toBe(new Date('2026-04-13T08:00').toISOString());
+    expect(segment.time_range.start_time).toBe(new Date('2026-04-12T08:00').toISOString());
   });
 
   test('schedules a future start the user did not ask to start automatically', () => {

@@ -13,7 +13,6 @@ const { ACTIVE, DONE, INVALID, PAUSED } = PATROL_UI_STATES;
 
 const TWO_HOURS_AGO = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
 
-// An active patrol can move to cancelled, paused or done, so it covers every menu behavior.
 const activePatrol = {
   state: 'open',
   patrol_segments: [{ time_range: { start_time: TWO_HOURS_AGO, end_time: null } }],

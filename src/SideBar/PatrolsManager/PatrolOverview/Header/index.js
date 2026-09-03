@@ -16,6 +16,7 @@ import {
   getBoundsForPatrol,
   getIsMobilePatrol,
   getPatrolLocationCoordinates,
+  governingPatrolSegment,
   iconIdForPatrolSegment,
   patrolHasTrackData,
 } from '../../../../utils/patrols';
@@ -25,6 +26,7 @@ import { selectPatrolTrackData } from '../../../../selectors/patrols';
 import { togglePatrolTrackState } from '../../../../ducks/patrols';
 import { TrackerContext } from '../../../../utils/analytics';
 import useJumpToLocation from '../../../../hooks/useJumpToLocation';
+import { usePatrolsPermissions } from '../../../../hooks/usePermissions';
 
 import KebabMenu from '../../../../KebabMenu';
 import PatrolsManagerHeader from '../../Header';
@@ -52,20 +54,18 @@ const Header = ({
 
   const tracker = useContext(TrackerContext);
 
+  const { hasPatrolsUpdatePermission } = usePatrolsPermissions();
   const jumpToLocation = useJumpToLocation();
 
-  const lastSegment = patrol.patrol_segments[patrol.patrol_segments.length - 1] ?? null;
+  const governingSegment = governingPatrolSegment(patrol);
 
   const patrolTrackData = useSelector((state) => selectPatrolTrackData(state, patrol));
   const patrolTrackState = useSelector((state) => state.view.patrolTrackState);
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
-  const crumbs = useMemo(
-    () => [{ label: t('breadcrumbPatrolsLabel'), to: `/${TAB_KEYS.PATROLS}` }, { label: title }],
-    [t, title]
-  );
+  const crumbs = [{ label: t('breadcrumbPatrolsLabel'), to: `/${TAB_KEYS.PATROLS}` }, { label: title }];
 
-  const patrolIconId = lastSegment ? iconIdForPatrolSegment(patrolTypes, lastSegment) : null;
+  const patrolIconId = governingSegment ? iconIdForPatrolSegment(patrolTypes, governingSegment) : null;
 
   const isPatrolTrackPinned = patrolTrackState.pinned.includes(patrol.id);
   const isPatrolTrackVisible = !isPatrolTrackPinned && patrolTrackState.visible.includes(patrol.id);
@@ -167,9 +167,9 @@ const Header = ({
     </div>
 
     <KebabMenu
-        aria-label={t('moreOptionsButtonLabel')}
-        align="end"
-        title={t('moreOptionsButtonLabel')}
+      align="end"
+      aria-label={t('moreOptionsButtonLabel')}
+      title={t('moreOptionsButtonLabel')}
       >
       <KebabMenu.Option
         className={styles.mobileOnlyOption}
@@ -224,6 +224,8 @@ const Header = ({
   </>;
 
   const renderTitleBar = () => <>
+    <h2 className="sr-only">{title}</h2>
+
     <div className={styles.titleBarMain}>
       <div className={styles.icon}>
         <SvgIcon iconId={patrolIconId} type="patrols" />
@@ -235,6 +237,7 @@ const Header = ({
         aria-label={t('titleInputLabel')}
         data-testid="patrolOverview-title"
         isDirty={isTitleDirty}
+        isReadOnly={!hasPatrolsUpdatePermission}
         onChange={onChangeTitle}
         value={title}
       />

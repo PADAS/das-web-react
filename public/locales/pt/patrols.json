@@ -65,33 +65,51 @@
   "legForm": {
     "patrolTypeField": {
       "label": "Tipo de patrulha",
-      "placeholder": "Selecione um tipo de patrulha"
+      "placeholder": "Selecione um tipo de patrulha",
+      "requiredError": "Uma etapa precisa de um tipo de patrulha."
     },
     "patrolTypeSchemaErrorMessage": "Não foi possível carregar os campos deste tipo de patrulha.",
+    "patrolTypeSchemaLoadingLabel": "A carregar os campos deste tipo de patrulha",
     "staticFields": {
       "assetsLabel": "Recursos",
-      "autoEndCheckboxLabel": "Finalizar automaticamente a patrulha neste horário",
-      "autoStartCheckboxLabel": "Iniciar automaticamente a patrulha neste horário",
-      "endDateBeforeStartDateError": "A finalização da patrulha deve ser posterior ao seu início.",
+      "autoEndCheckboxLabel": "Finalizar automaticamente a etapa neste horário",
+      "autoStartCheckboxLabel": "Iniciar automaticamente a etapa neste horário",
+      "endDateBeforeStartDateError": "A finalização da etapa deve ser posterior ao seu início.",
       "endDateInputLabel": "Data de finalização",
       "endLocationLabel": "Localização da finalização",
       "endTimeInputLabel": "Hora da finalização",
       "endTimeLabel": "Hora da finalização",
+      "endTimeRequiredError": "Uma etapa com data de finalização precisa de uma hora de finalização.",
       "startDateInputLabel": "Data de início",
-      "startDateRequiredError": "Uma patrulha precisa de uma data de início.",
+      "startDateOverlapsPreviousLegError": "Esta etapa não pode se sobrepor à anterior.",
+      "startDateRequiredError": "Uma etapa precisa de uma data de início.",
       "startLocationLabel": "Localização de início",
       "startTimeInputLabel": "Hora de início",
       "startTimeLabel": "Hora de início",
+      "startTimeRequiredError": "Uma etapa precisa de uma hora de início.",
       "teamLabel": "Equipe",
       "teamLeadLabel": "Líder da equipe",
       "teamMembersLabel": "Membros da equipe"
-    }
+    },
+    "universalFieldsSchemaErrorMessage": "Não foi possível carregar os campos universais de patrulha.",
+    "universalFieldsSchemaLoadingLabel": "A carregar os campos universais de patrulha"
+  },
+  "newLeg": {
+    "footer": {
+      "cancelButton": "Cancelar",
+      "saveButton": "Salvar"
+    },
+    "header": {
+      "breadcrumbNewLegLabel": "Nova etapa de patrulha",
+      "breadcrumbPatrolsLabel": "Patrulhas",
+      "title": "Nova etapa de patrulha"
+    },
+    "saveErrorMessage": "Não foi possível criar a etapa da patrulha. Tente novamente."
   },
   "newPatrol": {
     "footer": {
       "cancelButton": "Cancelar",
-      "saveButton": "Salvar",
-      "saveButtonLoadingLabel": "Carregando"
+      "saveButton": "Salvar"
     },
     "header": {
       "breadcrumbNewPatrolLabel": "Nova patrulha",
@@ -128,8 +146,7 @@
       "addEventButton": "Adicionar evento",
       "addEventButtonLabel": "Adicionar evento",
       "addEventButtonText": "Evento",
-      "saveButton": "Salvar",
-      "saveButtonLoadingLabel": "Carregando"
+      "saveButton": "Salvar"
     },
     "header": {
       "breadcrumbPatrolsLabel": "Patrulhas",
@@ -197,6 +214,7 @@
         "endColumnHeader": "Data da finalização",
         "legActionsColumnHeader": "Ações",
         "legColumnHeader": "Etapa",
+        "legDidNotRunLabel": "Este troço nunca decorreu",
         "legTableCaption": "Etapas da patrulha",
         "newLegButton": "Nova etapa de patrulha",
         "patrolTypeColumnHeader": "Tipo de patrulha",

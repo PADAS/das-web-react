@@ -3,6 +3,7 @@ import { Route, Routes, useLocation } from 'react-router';
 
 import { getCurrentIdFromURL } from '../../utils/navigation';
 
+import LegManager from './LegManager';
 import NewPatrol from './NewPatrol';
 import PatrolOverview from './PatrolOverview';
 import PatrolsFeed from '../PatrolsFeed';
@@ -15,11 +16,11 @@ const PatrolsManager = () => {
   return <Routes>
     <Route element={<PatrolsFeed />} index />
 
-    <Route path="new" element={<NewPatrol />} />
+    <Route element={<NewPatrol />} path="new" />
 
-    <Route path=":patrolId" element={<PatrolOverview key={patrolId} />} />
+    <Route element={<PatrolOverview key={patrolId} />} path=":patrolId" />
 
-    <Route path=":patrolId/legs/*" element={<div>Leg Manager</div>} />
+    <Route element={<LegManager key={patrolId} />} path=":patrolId/legs/*" />
   </Routes>;
 };
 

@@ -8,10 +8,10 @@ import { createMapMock } from '../../../../__test-helpers/mocks';
 import { downloadJsonAsFile } from '../../../../utils/download';
 import { MapContext } from '../../../../MapContext';
 import { mockStore } from '../../../../__test-helpers/MockStore';
+import { PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS } from '../../../../constants';
 import patrols from '../../../../__test-helpers/fixtures/patrols';
 import * as patrolSelectors from '../../../../selectors/patrols';
 import * as patrolUtils from '../../../../utils/patrols';
-import { PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS } from '../../../../constants';
 import { render, screen, within } from '../../../../test-utils';
 import { TRACK_LENGTH_ORIGINS } from '../../../../ducks/tracks';
 import { TrackerContext } from '../../../../utils/analytics';
@@ -28,18 +28,22 @@ jest.mock('../../../../utils/download', () => ({
   downloadJsonAsFile: jest.fn(),
 }));
 
+jest.mock('../../../../SvgIcon', () => {
+  const SvgIcon = ({ iconId }) => <span data-testid="header-patrolIcon">{iconId}</span>;
+
+  return SvgIcon;
+});
+
 const LocationDisplay = () => {
   const location = useLocation();
 
   return <div data-testid="test-location">{location.pathname}</div>;
 };
 
-// The title input and the status select are controlled by PatrolOverview, so the tests own their
-// state too.
 const ControlledHeader = ({ onChangeState, onChangeTitle, patrol, ...restProps }) => {
   const [editedState, setEditedState] = useState(null);
   const [title, setTitle] = useState(
-    () => patrolUtils.displayTitleForPatrol(patrol, patrol.patrol_segments.at(-1)?.leader)
+    () => patrolUtils.displayTitleForPatrol(patrol, patrolUtils.governingPatrolSegment(patrol)?.leader)
   );
 
   const patrolState = patrolUtils.calcPatrolState(patrol);
@@ -487,6 +491,32 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
     expect(container.querySelector('.icon')).toBeInTheDocument();
   });
 
+  test('shows the icon of the leg the patrol is on rather than of a leg planned after it', () => {
+    const patrolWithPlannedLeg = {
+      ...patrolWithLeader,
+      patrol_segments: [
+        {
+          ...patrolWithLeader.patrol_segments[0],
+          icon_id: 'running-leg-icon',
+          patrol_type: 'unknown_patrol_type',
+          time_range: { end_time: null, start_time: '2021-08-13T16:24:00-07:00' },
+        },
+        {
+          ...patrolWithLeader.patrol_segments[0],
+          icon_id: 'planned-leg-icon',
+          id: 'planned-leg-id',
+          patrol_type: 'unknown_patrol_type',
+          scheduled_start: '2100-01-01T00:00:00Z',
+          time_range: { end_time: null, start_time: null },
+        },
+      ],
+    };
+
+    renderHeader({ patrol: patrolWithPlannedLeg });
+
+    expect(screen.getByTestId('header-patrolIcon')).toHaveTextContent('running-leg-icon');
+  });
+
   test('shows the patrol serial number', () => {
     renderHeader();
 
@@ -539,6 +569,15 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
     renderHeader();
 
     expect(screen.getByTitle('Edit title')).toBeInTheDocument();
+  });
+
+  test('shows the patrol title read only when the user may not update patrols', () => {
+    store.data.user.permissions[PERMISSION_KEYS.PATROLS] = [PERMISSIONS.READ];
+
+    renderHeader();
+
+    expect(screen.getByTestId('patrolOverview-title')).toHaveAttribute('readonly');
+    expect(screen.queryByTitle('Edit title')).not.toBeInTheDocument();
   });
 
   test('focuses and selects the title input when the edit title button is clicked', async () => {

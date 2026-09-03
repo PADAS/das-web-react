@@ -112,8 +112,8 @@ const FiltersPopover = ({ ref, ...rest }) => {
     patrolFilterTracker.track('Click reset status');
   }, [dispatch]);
 
-  // A filter can outlive the leader it names, so the ones that are gone are dropped instead of
-  // reaching the select as holes.
+  // A filter can outlive the leader it names, so leaders that are gone are
+  // dropped instead of reaching the select as holes.
   const selectedLeaders = selectedLeaderIds
     ?.map(id => patrolLeaders.find(leader => leader.id === id))
     .filter(Boolean) ?? [];

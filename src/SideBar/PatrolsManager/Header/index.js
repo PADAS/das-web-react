@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as CrossIcon } from '../../../common/images/icons/cross.svg';
@@ -33,4 +33,4 @@ const Header = ({ crumbs, renderActions = () => null, renderTitleBar = () => nul
   </header>;
 };
 
-export default memo(Header);
+export default Header;

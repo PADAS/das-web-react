@@ -3,8 +3,13 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import buildLegDraft from './utils/buildLegDraft';
+import { CLEAR } from '../../../ducks/user-content';
 import { createMapMock } from '../../../__test-helpers/mocks';
-import { DEFAULT_PATROL_SEGMENT_TYPE, fetchPatrolTypeSchema } from '../../../ducks/patrol-schemas';
+import {
+  DEFAULT_PATROL_SEGMENT_TYPE,
+  fetchDefaultPatrolSegmentTypeSchema,
+  fetchPatrolTypeSchema,
+} from '../../../ducks/patrol-schemas';
 import { defaultPatrolSegmentTypeSchema, patrolTypeFieldsSchema } from '../../../__test-helpers/fixtures/patrol-schemas';
 import { GPS_FORMATS } from '../../../utils/location';
 import { MapContext } from '../../../MapContext';
@@ -17,6 +22,7 @@ import LegForm from './';
 
 jest.mock('../../../ducks/patrol-schemas', () => ({
   ...jest.requireActual('../../../ducks/patrol-schemas'),
+  fetchDefaultPatrolSegmentTypeSchema: jest.fn(),
   fetchPatrolTypeSchema: jest.fn(),
 }));
 
@@ -33,8 +39,9 @@ const withRequiredField = (schema, fieldName) => ({
 describe('SideBar - PatrolsManager - LegForm', () => {
   const onSubmit = jest.fn();
 
-  let map, store;
+  let map, reduxStore, store;
   beforeEach(() => {
+    fetchDefaultPatrolSegmentTypeSchema.mockImplementation(() => () => {});
     fetchPatrolTypeSchema.mockImplementation(() => () => {});
 
     map = createMapMock();
@@ -61,11 +68,11 @@ describe('SideBar - PatrolsManager - LegForm', () => {
     };
   });
 
-  // The form is controlled by its route, so the tests own the leg draft too.
-  const ControlledLegForm = ({ initialLeg }) => {
+  const ControlledLegForm = ({ earliestStartDateTime, initialLeg }) => {
     const [leg, setLeg] = useState(initialLeg);
 
     return <LegForm
+      earliestStartDateTime={earliestStartDateTime}
       formId="legForm"
       leg={leg}
       onChangeLeg={(legChanges) => setLeg((prevLeg) => ({ ...prevLeg, ...legChanges }))}
@@ -73,25 +80,30 @@ describe('SideBar - PatrolsManager - LegForm', () => {
     />;
   };
 
-  const renderLegForm = ({ leg } = {}) => render(
-    <Provider store={mockStore(store)}>
-      <MapContext.Provider value={map}>
-        <TrackerContext.Provider value={{ track: jest.fn() }}>
-          <ControlledLegForm
-            initialLeg={{
-              ...buildLegDraft(),
-              patrolType: dogPatrol,
-              startDate: '2026-04-13',
-              startTime: '08:00',
-              ...leg,
-            }}
-          />
-        </TrackerContext.Provider>
-      </MapContext.Provider>
+  const renderLegForm = ({ earliestStartDateTime, leg } = {}) => {
+    reduxStore = mockStore(store);
 
-      <button form="legForm" type="submit">Submit</button>
-    </Provider>
-  );
+    return render(
+      <Provider store={reduxStore}>
+        <MapContext.Provider value={map}>
+          <TrackerContext.Provider value={{ track: jest.fn() }}>
+            <ControlledLegForm
+              earliestStartDateTime={earliestStartDateTime}
+              initialLeg={{
+                ...buildLegDraft(),
+                patrolType: dogPatrol,
+                startDate: '2026-04-13',
+                startTime: '08:00',
+                ...leg,
+              }}
+            />
+          </TrackerContext.Provider>
+        </MapContext.Provider>
+
+        <button form="legForm" type="submit">Submit</button>
+      </Provider>
+    );
+  };
 
   const getDateInput = (groupName, inputName) =>
     within(screen.getByRole('group', { name: groupName })).getByRole('textbox', { name: inputName });
@@ -137,7 +149,14 @@ describe('SideBar - PatrolsManager - LegForm', () => {
     expect(screen.getByRole('textbox', { name: 'Vehicle Name' })).toBeVisible();
   });
 
-  // A patrol type defining no fields of its own comes back with an empty schema, not without one.
+  test('clears the user content the schema driven fields uploaded when it goes away', () => {
+    const { unmount } = renderLegForm();
+
+    unmount();
+
+    expect(reduxStore.getActions()).toContainEqual(expect.objectContaining({ type: CLEAR }));
+  });
+
   test('does not show the patrol type fields when the schema of the picked type is empty', () => {
     store.data.patrolSchemas[dogPatrol.value] = { isLoading: false, schema: EMPTY_PATROL_TYPE_SCHEMA };
 
@@ -173,18 +192,18 @@ describe('SideBar - PatrolsManager - LegForm', () => {
     await submitForm();
 
     expect(onSubmit).not.toHaveBeenCalled();
-    expect(screen.getByText('A patrol needs a start date.')).toBeVisible();
+    expect(screen.getByText('A leg needs a start date.')).toBeVisible();
   });
 
   test('drops the error of a field as soon as the user edits it', async () => {
     renderLegForm({ leg: { startDate: '--' } });
 
     await submitForm();
-    expect(screen.getByText('A patrol needs a start date.')).toBeVisible();
+    expect(screen.getByText('A leg needs a start date.')).toBeVisible();
 
     await userEvent.type(getDateInput('Start date', 'Year'), '2');
 
-    expect(screen.queryByText('A patrol needs a start date.')).toBeNull();
+    expect(screen.queryByText('A leg needs a start date.')).toBeNull();
   });
 
   test('keeps the error of a field while the user edits another one', async () => {
@@ -194,19 +213,18 @@ describe('SideBar - PatrolsManager - LegForm', () => {
 
     await userEvent.type(getDateInput('End date', 'Year'), '2026');
 
-    expect(screen.getByText('A patrol needs a start date.')).toBeVisible();
+    expect(screen.getByText('A leg needs a start date.')).toBeVisible();
   });
 
-  // The end error is about how the two times relate, so the start is as much a way out of it.
   test('drops the end error when the user moves the start it is measured against', async () => {
     renderLegForm({ leg: { endDate: '2026-04-12', endTime: '08:00' } });
 
     await submitForm();
-    expect(screen.getByText('The end of the patrol must be later than its start.')).toBeVisible();
+    expect(screen.getByText('The end of the leg must be later than its start.')).toBeVisible();
 
     await userEvent.clear(getDateInput('Start date', 'Year'));
 
-    expect(screen.queryByText('The end of the patrol must be later than its start.')).toBeNull();
+    expect(screen.queryByText('The end of the leg must be later than its start.')).toBeNull();
   });
 
   test('brings a dropped static field error back when the next submission still has it', async () => {
@@ -218,7 +236,7 @@ describe('SideBar - PatrolsManager - LegForm', () => {
     await submitForm();
 
     expect(onSubmit).not.toHaveBeenCalled();
-    expect(screen.getByText('A patrol needs a start date.')).toBeVisible();
+    expect(screen.getByText('A leg needs a start date.')).toBeVisible();
   });
 
   test('focuses the erroneous static field even when a schema form is invalid too', async () => {
@@ -241,6 +259,71 @@ describe('SideBar - PatrolsManager - LegForm', () => {
     await submitForm();
 
     expect(getDateInput('End date', 'Year')).toHaveFocus();
+  });
+
+  test('does not submit the leg when it starts earlier than it may', async () => {
+    renderLegForm({ earliestStartDateTime: new Date(2026, 3, 14, 8, 0) });
+
+    await submitForm();
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(screen.getByText('This leg cannot overlap the previous one.')).toBeVisible();
+    expect(getDateInput('Start date', 'Year')).toHaveFocus();
+  });
+
+  test('does not submit the leg when its start time is incomplete', async () => {
+    renderLegForm({ leg: { startTime: ':' } });
+
+    await submitForm();
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(screen.getByText('A leg needs a start time.')).toBeVisible();
+    expect(getDateInput('Start time', 'Hour')).toHaveFocus();
+  });
+
+  test('does not submit the leg when it has an end date and no end time', async () => {
+    renderLegForm({ leg: { endDate: '2026-04-20' } });
+
+    await submitForm();
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(screen.getByText('A leg with an end date needs an end time.')).toBeVisible();
+    expect(getDateInput('End time', 'Hour')).toHaveFocus();
+  });
+
+  test('does not submit the leg without a patrol type', async () => {
+    renderLegForm({ leg: { patrolType: null } });
+
+    await submitForm();
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(screen.getByText('A leg needs a patrol type.')).toBeVisible();
+    expect(screen.getByRole('combobox', { name: 'Patrol Type' })).toHaveFocus();
+  });
+
+  test('drops the patrol type error as soon as the user picks a type', async () => {
+    renderLegForm({ leg: { patrolType: null } });
+
+    await submitForm();
+    expect(screen.getByText('A leg needs a patrol type.')).toBeVisible();
+
+    await pickPatrolType('Dog Patrol');
+
+    expect(screen.queryByText('A leg needs a patrol type.')).toBeNull();
+  });
+
+  test('focuses the erroneous universal patrol fields before the missing patrol type', async () => {
+    store.data.patrolSchemas[DEFAULT_PATROL_SEGMENT_TYPE] = {
+      isLoading: false,
+      schema: withRequiredField(defaultPatrolSegmentTypeSchema, 'objective'),
+    };
+
+    renderLegForm({ leg: { patrolType: null } });
+
+    await submitForm();
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(screen.getByRole('textbox', { name: 'Objective' })).toHaveFocus();
   });
 
   test('focuses the first erroneous universal patrol field when both schema forms are invalid', async () => {
@@ -338,6 +421,50 @@ describe('SideBar - PatrolsManager - LegForm', () => {
       renderLegForm();
 
       expect(screen.getByText('The fields of this patrol type could not be loaded.')).toBeVisible();
+    });
+  });
+
+  describe('the schema of the universal patrol fields', () => {
+    test('loads it when the store does not hold it yet', () => {
+      delete store.data.patrolSchemas[DEFAULT_PATROL_SEGMENT_TYPE];
+
+      renderLegForm();
+
+      expect(fetchDefaultPatrolSegmentTypeSchema).toHaveBeenCalledTimes(1);
+    });
+
+    test('does not load it again when the store already holds it', () => {
+      renderLegForm();
+
+      expect(fetchDefaultPatrolSegmentTypeSchema).not.toHaveBeenCalled();
+    });
+
+    test('shows a loader while it is on its way', () => {
+      store.data.patrolSchemas[DEFAULT_PATROL_SEGMENT_TYPE] = { isLoading: true };
+
+      renderLegForm();
+
+      expect(screen.getByTestId('legForm-universalFieldsSchemaLoader')).toBeVisible();
+      expect(screen.queryByRole('textbox', { name: 'Objective' })).toBeNull();
+    });
+
+    test('shows an error message when it cannot be loaded', () => {
+      store.data.patrolSchemas[DEFAULT_PATROL_SEGMENT_TYPE] = { error: new Error('Oops'), isLoading: false };
+
+      renderLegForm();
+
+      expect(screen.getByText('The universal patrol fields could not be loaded.')).toBeVisible();
+      expect(screen.queryByTestId('legForm-universalFieldsSchemaLoader')).toBeNull();
+    });
+
+    test('leaves the rest of the form usable when it cannot be loaded', async () => {
+      store.data.patrolSchemas[DEFAULT_PATROL_SEGMENT_TYPE] = { error: new Error('Oops'), isLoading: false };
+
+      renderLegForm();
+
+      await submitForm();
+
+      expect(onSubmit).toHaveBeenCalledTimes(1);
     });
   });
 });

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useId, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import isEqual from 'react-fast-compare';
 import MoonLoader from 'react-spinners/MoonLoader';
 import { toast } from 'react-toastify';
@@ -9,10 +9,12 @@ import { useTranslation } from 'react-i18next';
 import buildLegSegment from '../LegForm/utils/buildLegSegment';
 import buildNewPatrolLegDraft from './utils/buildNewPatrolLegDraft';
 import { createPatrol } from '../../../ducks/patrols';
+import { fetchPatrolTypes } from '../../../ducks/patrol-types';
 import { NEW_PATROL_CATEGORY, TrackerContext, trackEventFactory } from '../../../utils/analytics';
 import { PATROL_TYPE_QUERY_PARAMETER, TAB_KEYS } from '../../../constants';
 import { updateUserPreferences } from '../../../ducks/user-preferences';
 import useNavigate from '../../../hooks/useNavigate';
+import { usePatrolsPermissions } from '../../../hooks/usePermissions';
 
 import Footer from './Footer';
 import Header from './Header';
@@ -38,7 +40,7 @@ const NewPatrolContent = ({ initialPatrolType }) => {
 
   const [createdPatrolId, setCreatedPatrolId] = useState(null);
   const [editedTitle, setEditedTitle] = useState(null);
-  const [initialLeg] = useState(() => buildNewPatrolLegDraft({
+  const [initialLeg, setInitialLeg] = useState(() => buildNewPatrolLegDraft({
     isAutoEnd: autoEndPatrols,
     isAutoStart: autoStartPatrols,
     patrolData: location.state?.patrolData,
@@ -53,8 +55,8 @@ const NewPatrolContent = ({ initialPatrolType }) => {
 
   const hasUnsavedChanges = isTitleDirty || !isEqual(leg, initialLeg);
 
-  const onChangeLeg = useCallback((legChanges) => {
-    // Whether a patrol starts and ends by itself is a preference the next new patrol inherits.
+  const onChangeLeg = useCallback((legChanges, { isDefaultData = false } = {}) => {
+    // Starting and ending by itself is a preference the next patrol inherits.
     if ('isAutoEnd' in legChanges) {
       dispatch(updateUserPreferences({ autoEndPatrols: legChanges.isAutoEnd }));
     }
@@ -62,10 +64,16 @@ const NewPatrolContent = ({ initialPatrolType }) => {
       dispatch(updateUserPreferences({ autoStartPatrols: legChanges.isAutoStart }));
     }
 
+    // A schema form populates its defaults before the user can touch it, so
+    // they belong to the draft handed over rather than to an edit of it.
+    if (isDefaultData) {
+      setInitialLeg((prevInitialLeg) => ({ ...prevInitialLeg, ...legChanges }));
+    }
+
     setLeg((prevLeg) => ({ ...prevLeg, ...legChanges }));
   }, [dispatch]);
 
-  const onSubmit = useCallback(async () => {
+  const onSubmit = async () => {
     newPatrolTracker.track('Click the "Save Patrol" button in new patrol');
 
     setIsSaving(true);
@@ -93,7 +101,7 @@ const NewPatrolContent = ({ initialPatrolType }) => {
 
       setIsSaving(false);
     }
-  }, [dispatch, leg, t, title]);
+  };
 
   const onContinueNavigation = useCallback(() => {
     newPatrolTracker.track('Discard unsaved changes and navigate away from new patrol');
@@ -134,29 +142,43 @@ const NewPatrolContent = ({ initialPatrolType }) => {
 };
 
 const NewPatrol = () => {
+  const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+  const { hasPatrolsCreatePermission } = usePatrolsPermissions();
+
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
+
+  const hasRequestedPatrolTypesRef = useRef(false);
+
+  const [hasFetchedPatrolTypes, setHasFetchedPatrolTypes] = useState(false);
 
   const patrolTypeId = searchParams.get(PATROL_TYPE_QUERY_PARAMETER);
 
-  const patrolType = useMemo(
-    () => patrolTypes.find(({ id }) => id === patrolTypeId) ?? null,
-    [patrolTypeId, patrolTypes]
-  );
+  const arePatrolTypesReady = patrolTypes.length > 0 || hasFetchedPatrolTypes;
+
+  const patrolType = patrolTypes.find(({ id }) => id === patrolTypeId) ?? null;
 
   useEffect(() => {
-    // A patrol cannot be created without knowing its type, and the patrol
-    // types are already in the store by the time the feed can offer this
-    // route.
-    if (patrolTypes.length > 0 && !patrolType) {
+    if (patrolTypes.length === 0 && !hasRequestedPatrolTypesRef.current) {
+      hasRequestedPatrolTypesRef.current = true;
+
+      dispatch(fetchPatrolTypes())
+        .then(() => setHasFetchedPatrolTypes(true))
+        .catch(() => navigate(`/${TAB_KEYS.PATROLS}`, { replace: true }));
+    }
+  }, [dispatch, navigate, patrolTypes.length]);
+
+  useEffect(() => {
+    // A patrol needs a type to be created, and a user allowed to create one.
+    if (!hasPatrolsCreatePermission || (arePatrolTypesReady && !patrolType)) {
       navigate(`/${TAB_KEYS.PATROLS}`, { replace: true });
     }
-  }, [navigate, patrolType, patrolTypes.length]);
+  }, [arePatrolTypesReady, hasPatrolsCreatePermission, navigate, patrolType]);
 
-  return patrolType
+  return patrolType && hasPatrolsCreatePermission
     // Reaching this route again, with another type or start data, must begin a
     // brand new patrol instead of reusing the draft already in the form.
     ? <NewPatrolContent initialPatrolType={patrolType} key={location.state?.temporalId} />

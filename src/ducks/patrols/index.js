@@ -5,10 +5,8 @@ import { calcPatrolFilterForRequest } from '../../utils/patrol-filter';
 import globallyResettableReducer from '../../reducers/global-resettable';
 
 export const PATROLS_API_URL = `${API_URL}activity/patrols/`;
-export const PATROL_ASSETS_API_URL = `${PATROLS_API_URL}assets`;
+export const PATROL_CONFIG_API_URL = `${PATROLS_API_URL}config/default/resolved/`;
 export const PATROL_LEADERS_API_URL = `${PATROLS_API_URL}trackedby`;
-export const PATROL_TEAMS_API_URL = `${PATROLS_API_URL}teams`;
-export const PATROL_TEAM_MEMBERS_API_URL = `${PATROL_TEAMS_API_URL}/members`;
 
 const PATROLS_FEED_PAGE_SIZE = 200;
 
@@ -41,7 +39,7 @@ const patrolFeedMembership = (patrolId, matchesCurrentFilter) => ({
   type: matchesCurrentFilter ? ADD_PATROL_TO_FEED : REMOVE_PATROL_FROM_FEED,
 });
 
-export const socketCreatePatrol = ({ patrol_data, matches_current_filter }) => (dispatch) => {
+export const socketCreatePatrol = ({ matches_current_filter, patrol_data }) => (dispatch) => {
   dispatch({
     payload: patrol_data,
     type: CREATE_PATROL_REALTIME,
@@ -50,7 +48,7 @@ export const socketCreatePatrol = ({ patrol_data, matches_current_filter }) => (
   dispatch(patrolFeedMembership(patrol_data.id, matches_current_filter));
 };
 
-export const socketUpdatePatrol = ({ patrol_data, matches_current_filter }) => (dispatch) => {
+export const socketUpdatePatrol = ({ matches_current_filter, patrol_data }) => (dispatch) => {
   dispatch({
     payload: patrol_data,
     type: UPDATE_PATROL_REALTIME,
@@ -116,32 +114,30 @@ export const fetchPatrolsFeed = () => (dispatch) => {
 };
 
 export const fetchPatrolTeamAndTrackingOptions = () => async (dispatch) => {
-  // The leaders endpoint answers with a fragment of the patrol schema instead
-  // of a plain list.
-  const { data: { data: leadersSchema } } = await axios.get(PATROL_LEADERS_API_URL);
-  const leaders = leadersSchema?.properties?.leader?.enum_ext?.map(({ value }) => value) ?? [];
+  // Each endpoint backs lists of its own, so one of them answering is worth
+  // keeping whatever the other one does.
+  const [configResult, leadersResult] = await Promise.allSettled([
+    axios.get(PATROL_CONFIG_API_URL),
+    axios.get(PATROL_LEADERS_API_URL),
+  ]);
 
-  // TODO: The assets, teams and team members endpoints are not deployed yet, so their responses
-  // are mocked here. Request them beside the leaders once they are.
+  if (configResult.status === 'rejected') {
+    console.warn('error fetching the patrol config', configResult.reason);
+  }
+  if (leadersResult.status === 'rejected') {
+    console.warn('error fetching the patrol leaders', leadersResult.reason);
+  }
+
+  const config = configResult.value?.data?.data;
+  const leadersSchema = leadersResult.value?.data?.data;
+
   const options = {
-    assets: [
-      { id: 'a55e7000-0000-4000-8000-000000000001', name: 'KTN-123' },
-      { id: 'a55e7000-0000-4000-8000-000000000002', name: 'Priya Garmin' },
-      { id: 'a55e7000-0000-4000-8000-000000000003', name: 'Radio 7' },
-    ],
-    leaders,
-    teamMembers: [
-      { id: 'b3a70000-0000-4000-8000-000000000001', name: 'Amara Osei' },
-      { id: 'b3a70000-0000-4000-8000-000000000002', name: 'Jordan Reeves' },
-      { id: 'b3a70000-0000-4000-8000-000000000003', name: 'Leo Nakamura' },
-      { id: 'b3a70000-0000-4000-8000-000000000004', name: 'Maya Chen' },
-      { id: 'b3a70000-0000-4000-8000-000000000005', name: 'Priya Sharma' },
-    ],
-    teams: [
-      { id: 'e0d1a3f4-0000-4000-8000-000000000001', name: 'Alpha' },
-      { id: 'e0d1a3f4-0000-4000-8000-000000000002', name: 'Bravo' },
-      { id: 'e0d1a3f4-0000-4000-8000-000000000003', name: 'Delta' },
-    ],
+    assets: config?.assets ?? [],
+    // The leaders endpoint answers with a fragment of the patrol schema
+    // instead of a plain list.
+    leaders: leadersSchema?.properties?.leader?.enum_ext?.map(({ value }) => value) ?? [],
+    teamMembers: config?.members ?? [],
+    teams: config?.teams ?? [],
   };
 
   dispatch({
@@ -220,14 +216,42 @@ export const togglePatrolTrackState = (id) => (dispatch, getState) => {
   return dispatch(updatePatrolTrackState({ visible: [...visible, id] }));
 };
 
-// Reducers
+// Reducer
+
+// Every consumer takes the first leg for the earliest and the last for the most
+// recent, and the API promises no order.
+const patrolSegmentStartTime = (patrolSegment) =>
+  patrolSegment.time_range?.start_time ?? patrolSegment.scheduled_start ?? null;
+
+const withSortedPatrolSegments = (patrol) => {
+  if (!Array.isArray(patrol.patrol_segments) || patrol.patrol_segments.length < 2) {
+    return patrol;
+  }
+
+  const sortedPatrolSegments = [...patrol.patrol_segments].sort((a, b) => {
+    const aStartTime = patrolSegmentStartTime(a);
+    const bStartTime = patrolSegmentStartTime(b);
+
+    // A leg that has no start of its own goes last, in the order it came in.
+    if (!aStartTime || !bStartTime) {
+      return (aStartTime ? 0 : 1) - (bStartTime ? 0 : 1);
+    }
+
+    return new Date(aStartTime).getTime() - new Date(bStartTime).getTime();
+  });
+
+  return sortedPatrolSegments.every((patrolSegment, index) => patrolSegment === patrol.patrol_segments[index])
+    ? patrol
+    : { ...patrol, patrol_segments: sortedPatrolSegments };
+};
+
 export const INITIAL_STORE_STATE = {};
 
 export const patrolStoreReducer = globallyResettableReducer((state, { type, payload }) => {
   switch (type) {
   case UPDATE_PATROL_STORE:
     return payload.results.reduce((accumulator, patrol) => {
-      accumulator[patrol.id] = { ...state[patrol.id], ...patrol };
+      accumulator[patrol.id] = withSortedPatrolSegments({ ...state[patrol.id], ...patrol });
 
       return accumulator;
     }, { ...state });
@@ -238,10 +262,10 @@ export const patrolStoreReducer = globallyResettableReducer((state, { type, payl
   case UPDATE_PATROL_SUCCESS:
     return {
       ...state,
-      [payload.id]: {
+      [payload.id]: withSortedPatrolSegments({
         ...state[payload.id],
         ...payload,
-      },
+      }),
     };
 
   case DELETE_PATROL_BY_ID: {

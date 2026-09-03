@@ -18,13 +18,13 @@
     gap: 1rem;
     padding: 1rem;
 
-    .patrolTypeSchemaLoader {
+    .schemaLoader {
       display: flex;
       justify-content: center;
       margin: 1rem 0;
     }
 
-    .patrolTypeSchemaError {
+    .schemaErrorMessage {
       color: colors.$bright-red;
       font-size: 0.875rem;
       margin: 0;

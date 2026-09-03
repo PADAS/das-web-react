@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useId, useImperativeHandle, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useId, useImperativeHandle, useMemo, useState } from 'react';
 import isEqual from 'react-fast-compare';
 import { merge } from 'lodash-es';
 import { useDispatch } from 'react-redux';
@@ -259,7 +259,9 @@ const SchemaForm = ({
         const initialData = getDefaultFormData(visibleFieldIds, formElements);
 
         if (!isEqual(initialData, normalizedFormData)) {
-          onFormDataChange(initialData);
+          // The defaults are part of the form the user is handed, not an edit
+          // they made, so a consumer tracking changes can tell the two apart.
+          onFormDataChange(initialData, { isDefaultData: true });
         }
       }
 
@@ -345,4 +347,4 @@ const SchemaForm = ({
   </FormInstanceContext.Provider>;
 };
 
-export default SchemaForm;
+export default memo(SchemaForm);

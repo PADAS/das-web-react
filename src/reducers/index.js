@@ -11,13 +11,13 @@ import communityReducer from '../ducks/community';
 import eventCategoriesReducer from '../ducks/event-categories';
 import eventTypesReducer from '../ducks/event-types';
 import observationsReducer from '../ducks/observations';
+import patrolSchemasReducer from '../ducks/patrol-schemas';
 import {
   patrolsFeedReducer,
   patrolStoreReducer,
   patrolTeamAndTrackingOptionsReducer,
   patrolTracksReducer,
 } from '../ducks/patrols';
-import patrolSchemasReducer from '../ducks/patrol-schemas';
 import patrolTypesReducer from '../ducks/patrol-types';
 import patrolFilterReducer, { persistenceConfig as patrolFilterPersistenceConfig } from '../ducks/patrol-filter';
 import mapsReducer, { homeMapReducer } from '../ducks/maps';

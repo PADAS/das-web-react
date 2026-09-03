@@ -24,8 +24,8 @@ const buildPatrolStatusUpdate = (patrol, state) => {
       : buildPatrolStartUpdate(patrol);
   }
 
-  // TODO: Build the paused update once the API models paused patrols. Coming back from it has to
-  // copy the paused leg, so neither side can be expressed as a time range change on the last leg.
+  // TODO: Build the paused update once the API models paused patrols. Neither
+  // direction is a time range change: resuming has to copy the paused leg.
   case PATROL_UI_STATES.PAUSED:
     return null;
 

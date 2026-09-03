@@ -2,9 +2,10 @@ import React from 'react';
 import {
   addHours,
   addMinutes,
-  isToday,
-  isThisYear,
   formatDistance,
+  isThisYear,
+  isToday,
+  startOfMinute,
 } from 'date-fns';
 import { bbox, booleanEqual, featureCollection, point, multiLineString } from '@turf/turf';
 import i18next from 'i18next';
@@ -163,7 +164,7 @@ export const iconTypeForPatrol = (patrol) => {
   return UNKNOWN_TYPE;
 };
 
-const findMatchingPatrolType = (patrolTypes, patrolType) => (patrolTypes || []).find(type =>
+export const findMatchingPatrolType = (patrolTypes, patrolType) => (patrolTypes || []).find(type =>
   (type.value === patrolType) || (type.id === patrolType)
 );
 
@@ -219,7 +220,13 @@ export const actualStartTimeForPatrol = (patrol) => {
     : null;
 };
 
-export const getReportsForPatrol = (patrol) => patrol?.patrol_segments?.flatMap((segment) => segment.events ?? []) ?? [];
+export const getReportsForPatrol = (patrol) => {
+  const patrolReportsById = new Map((patrol?.patrol_segments ?? [])
+    .flatMap((segment) => segment.events ?? [])
+    .map((event) => [event.id, event]));
+
+  return [...patrolReportsById.values()];
+};
 
 export const displayEndTimeForPatrolSegment = (patrolSegment) => {
   const { scheduled_end, time_range: { end_time } = {} } = patrolSegment;
@@ -229,6 +236,20 @@ export const displayEndTimeForPatrolSegment = (patrolSegment) => {
   return value
     ? new Date(value)
     : null;
+};
+
+export const scheduledEndTimeForPatrolSegment = (patrolSegment) =>
+  patrolSegment.scheduled_end ? new Date(patrolSegment.scheduled_end) : null;
+
+// The earliest a following leg may begin is where this one ends, or begins
+// while it has no end.
+export const earliestStartAfterPatrolSegment = (patrolSegment) => {
+  const earliestStart = displayEndTimeForPatrolSegment(patrolSegment)
+    ?? displayStartTimeForPatrolSegment(patrolSegment);
+
+  return earliestStart && (earliestStart.getSeconds() || earliestStart.getMilliseconds())
+    ? addMinutes(startOfMinute(earliestStart), 1)
+    : earliestStart;
 };
 
 export const displayEndTimeForPatrol = (patrol) => {
@@ -485,6 +506,21 @@ export const isSegmentPending = (patrolSegment) => {
   return !start_time || isPatrolStartDateInTheFuture;
 };
 
+// A patrol has begun once one of its legs really started.
+export const hasPatrolBegun = (patrol) => (patrol.patrol_segments ?? [])
+  .some((patrolSegment) => !isSegmentPending(patrolSegment));
+
+// The leg the patrol is on: the one running, the last one to have run, or its
+// first while none has begun.
+export const governingPatrolSegment = (patrol) => {
+  const patrolSegments = patrol.patrol_segments ?? [];
+
+  return patrolSegments.findLast(isSegmentActive)
+    ?? patrolSegments.findLast((patrolSegment) => !isSegmentPending(patrolSegment))
+    ?? patrolSegments[0]
+    ?? null;
+};
+
 export const patrolStateDetailsOverdueStartTime = (patrol) => {
   const startTime = displayStartTimeForPatrol(patrol);
   const currentTime = new Date();
@@ -512,14 +548,10 @@ export const formatPatrolStateTitleDate = (date) => {
 };
 
 export const patrolStateDetailsStartTime = (patrol) =>
-  formatPatrolStateTitleDate(
-    displayStartTimeForPatrol(patrol)
-  );
+  formatPatrolStateTitleDate(displayStartTimeForPatrol(patrol));
 
 export const patrolStateDetailsEndTime = (patrol) =>
-  formatPatrolStateTitleDate(
-    displayEndTimeForPatrol(patrol)
-  );
+  formatPatrolStateTitleDate(displayEndTimeForPatrol(patrol));
 
 export const calcPatrolState = (patrol) => {
   if (isPatrolCancelled(patrol)) {
@@ -532,25 +564,25 @@ export const calcPatrolState = (patrol) => {
     return INVALID;
   }
 
-  const segment = patrol.patrol_segments[patrol.patrol_segments.length - 1];
+  const [firstSegment] = patrol.patrol_segments;
 
-  if (isSegmentFinished(segment)) {
+  if (isSegmentFinished(patrol.patrol_segments.at(-1))) {
     return DONE;
   }
-  if (isSegmentOverdue(segment)) {
-    return START_OVERDUE;
-  }
-  if (isSegmentActive(segment)) {
+  if (hasPatrolBegun(patrol)) {
     return ACTIVE;
   }
-  if (isSegmentPending(segment)) {
-    const patrolStartDate = displayStartTimeForPatrol(patrol);
-    if (patrolStartDate) {
-      const readyToStartThreshold = addHours(new Date(), READY_TO_START_WINDOW_HOURS);
-
-      return patrolStartDate.getTime() < readyToStartThreshold.getTime() ? READY_TO_START : SCHEDULED;
-    }
+  if (isSegmentOverdue(firstSegment)) {
+    return START_OVERDUE;
   }
+
+  const patrolStartDate = displayStartTimeForPatrolSegment(firstSegment);
+  if (patrolStartDate) {
+    const readyToStartThreshold = addHours(new Date(), READY_TO_START_WINDOW_HOURS);
+
+    return patrolStartDate.getTime() < readyToStartThreshold.getTime() ? READY_TO_START : SCHEDULED;
+  }
+
   return INVALID;
 };
 
@@ -559,28 +591,69 @@ export const canEndPatrol = (patrol) => {
   return patrolState === PATROL_UI_STATES.ACTIVE;
 };
 
-export const withLastSegmentTimeRange = (patrol, timeRange) => {
-  const lastSegmentIndex = patrol.patrol_segments.length - 1;
+// A patrol that is over has nothing left to run, and one running from the
+// mobile app cannot be given new legs from here.
+export const canPatrolTakeNewLegs = (patrol, patrolState) => patrolState !== PATROL_UI_STATES.CANCELLED
+  && patrolState !== PATROL_UI_STATES.DONE
+  && !(getIsMobilePatrol(patrol) && patrolState === PATROL_UI_STATES.ACTIVE);
 
-  return patrol.patrol_segments.map((segment, index) => index === lastSegmentIndex
-    ? { ...segment, time_range: { ...segment.time_range, ...timeRange } }
-    : segment);
+const withPatrolSegmentTimeRange = (patrolSegment, timeRange) => ({
+  ...patrolSegment,
+  time_range: { ...patrolSegment.time_range, ...timeRange },
+});
+
+// A leg that never ran keeps the times it was given as the plan they always
+// were, and takes the patrol's end as its own.
+const withPatrolSegmentClosedUnrun = (patrolSegment, endTime) => ({
+  ...patrolSegment,
+  scheduled_end: patrolSegment.scheduled_end ?? patrolSegment.time_range?.end_time ?? null,
+  scheduled_start: patrolSegment.scheduled_start ?? patrolSegment.time_range?.start_time ?? null,
+  time_range: { end_time: endTime, start_time: null },
+});
+
+export const buildPatrolEndUpdate = (patrol) => {
+  const endTime = new Date().toISOString();
+
+  return {
+    patrol_segments: patrol.patrol_segments.map((patrolSegment) => {
+      if (isSegmentFinished(patrolSegment)) {
+        return patrolSegment;
+      }
+
+      return isSegmentPending(patrolSegment)
+        ? withPatrolSegmentClosedUnrun(patrolSegment, endTime)
+        : withPatrolSegmentTimeRange(patrolSegment, { end_time: endTime });
+    }),
+    state: PATROL_API_STATES.DONE,
+  };
 };
 
-export const buildPatrolEndUpdate = (patrol) => ({
-  patrol_segments: withLastSegmentTimeRange(patrol, { end_time: new Date().toISOString() }),
-  state: PATROL_API_STATES.DONE,
-});
+export const buildPatrolReopenUpdate = (patrol) => {
+  // Ending the patrol closed every leg still running or waiting to at one
+  // instant, and that instant is what tells them from the legs that had
+  // really ended by themselves.
+  const closingEndTime = patrol.patrol_segments.at(-1)?.time_range?.end_time ?? null;
 
-export const buildPatrolReopenUpdate = (patrol) => ({
-  patrol_segments: withLastSegmentTimeRange(patrol, { end_time: null }),
-  state: PATROL_API_STATES.OPEN,
-});
+  return {
+    patrol_segments: patrol.patrol_segments.map((patrolSegment) =>
+      closingEndTime && patrolSegment.time_range?.end_time === closingEndTime
+        ? withPatrolSegmentTimeRange(patrolSegment, { end_time: null })
+        : patrolSegment),
+    state: PATROL_API_STATES.OPEN,
+  };
+};
 
-export const buildPatrolStartUpdate = (patrol) => ({
-  patrol_segments: withLastSegmentTimeRange(patrol, { end_time: null, start_time: new Date().toISOString() }),
-  state: PATROL_API_STATES.OPEN,
-});
+export const buildPatrolStartUpdate = (patrol) => {
+  const [firstSegment] = patrol.patrol_segments;
+  const startTime = new Date().toISOString();
+
+  return {
+    patrol_segments: patrol.patrol_segments.map((patrolSegment) => patrolSegment === firstSegment
+      ? withPatrolSegmentTimeRange(patrolSegment, { end_time: null, start_time: startTime })
+      : patrolSegment),
+    state: PATROL_API_STATES.OPEN,
+  };
+};
 
 export const sortPatrolList = (patrols) => {
   const { READY_TO_START, SCHEDULED, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_UI_STATES;

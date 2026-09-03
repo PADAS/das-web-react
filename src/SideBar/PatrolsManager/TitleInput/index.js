@@ -1,4 +1,4 @@
-import React, { memo, useLayoutEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as PencilIcon } from '../../../common/images/icons/pencil.svg';
@@ -7,7 +7,7 @@ import * as styles from './styles.module.scss';
 
 const WIDTH_CARET_BUFFER = 2;
 
-const TitleInput = ({ isDirty, onChange, value, ...otherProps }) => {
+const TitleInput = ({ isDirty, isReadOnly = false, onChange, value, ...otherProps }) => {
   const { t } = useTranslation('patrols', { keyPrefix: 'titleInput' });
 
   const inputRef = useRef();
@@ -31,6 +31,7 @@ const TitleInput = ({ isDirty, onChange, value, ...otherProps }) => {
     <input
       className={`${styles.input} ${isDirty ? styles.unsaved : ''}`}
       onChange={(event) => onChange(event.target.value)}
+      readOnly={isReadOnly}
       ref={inputRef}
       style={width ? { width } : undefined}
       type="text"
@@ -45,7 +46,7 @@ const TitleInput = ({ isDirty, onChange, value, ...otherProps }) => {
     </span>
 
     {/* Mouse-only. The input is already focusable/editable. */}
-    <button
+    {!isReadOnly && <button
       aria-hidden="true"
       className={styles.editButton}
       onClick={onEditButtonClick}
@@ -55,8 +56,8 @@ const TitleInput = ({ isDirty, onChange, value, ...otherProps }) => {
       type="button"
     >
       <PencilIcon aria-hidden="true" />
-    </button>
+    </button>}
   </div>;
 };
 
-export default memo(TitleInput);
+export default TitleInput;

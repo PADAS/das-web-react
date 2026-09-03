@@ -1,3 +1,5 @@
+import patrolTypes, { dogPatrol } from '../../../../../__test-helpers/fixtures/patrol-types';
+
 import buildLegDraft from './';
 
 describe('SideBar - PatrolsManager - LegForm - utils - buildLegDraft', () => {
@@ -54,6 +56,22 @@ describe('SideBar - PatrolsManager - LegForm - utils - buildLegDraft', () => {
     const leader = { id: 'leader-1', name: 'Alex' };
 
     expect(buildLegDraft({ leader }).teamLead).toBe(leader);
+  });
+
+  test('takes the patrol type of a leg', () => {
+    expect(buildLegDraft({ patrol_type: dogPatrol.value }, patrolTypes)).toHaveProperty('patrolType', dogPatrol);
+  });
+
+  test('takes the patrol type of a leg that holds it by id', () => {
+    expect(buildLegDraft({ patrol_type: dogPatrol.id }, patrolTypes)).toHaveProperty('patrolType', dogPatrol);
+  });
+
+  test('leaves the patrol type empty when the site does not serve the one of a leg', () => {
+    expect(buildLegDraft({ patrol_type: 'a_retired_patrol_type' }, patrolTypes)).toHaveProperty('patrolType', null);
+  });
+
+  test('leaves the patrol type empty when the one of a leg is no longer active', () => {
+    expect(buildLegDraft({ patrol_type: 'The_Don_Patrol' }, patrolTypes)).toHaveProperty('patrolType', null);
   });
 
   test('takes the locations of a leg', () => {

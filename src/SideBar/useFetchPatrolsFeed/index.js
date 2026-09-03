@@ -19,9 +19,8 @@ const useFetchPatrolsFeed = () => {
     // a new one started.
     let isLatestFetch = true;
 
-    // Mounting refreshes the feed behind whatever is already listed. A filter
-    // change invalidates that list, so the feed waits for the new results
-    // instead.
+    // Mounting refreshes the feed behind what is already listed. A filter
+    // change invalidates that list, so it waits for the new results instead.
     if (!isEqual(fetchedFilterRef.current, patrolFilter)) {
       setLoadingPatrolsFeed(true);
     }

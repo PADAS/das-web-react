@@ -13,8 +13,12 @@ export const PATROL_TYPE_SCHEMA_API_URL = (patrolTypeValue) =>
 const SCHEMA_REQUEST_PARAMS = { pre_render: true, s_format: 'enum' };
 
 // Actions
+export const FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA
+  = 'PATROL_SCHEMAS.FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA';
 export const FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_SUCCESS
   = 'PATROL_SCHEMAS.FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_SUCCESS';
+export const FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_FAILURE
+  = 'PATROL_SCHEMAS.FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_FAILURE';
 
 export const FETCH_PATROL_TYPE_SCHEMA = 'PATROL_SCHEMAS.FETCH_PATROL_TYPE_SCHEMA';
 export const FETCH_PATROL_TYPE_SCHEMA_SUCCESS = 'PATROL_SCHEMAS.FETCH_PATROL_TYPE_SCHEMA_SUCCESS';
@@ -22,13 +26,21 @@ export const FETCH_PATROL_TYPE_SCHEMA_FAILURE = 'PATROL_SCHEMAS.FETCH_PATROL_TYP
 
 // Action creators
 export const fetchDefaultPatrolSegmentTypeSchema = () => async (dispatch) => {
-  const { data } = await axios.get(DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_API_URL, { params: SCHEMA_REQUEST_PARAMS });
+  dispatch({ type: FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA });
 
-  const schema = data?.json ? data : data?.data;
+  try {
+    const { data } = await axios.get(DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_API_URL, { params: SCHEMA_REQUEST_PARAMS });
 
-  dispatch({ payload: schema, type: FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_SUCCESS });
+    const schema = data?.json ? data : data?.data;
 
-  return schema;
+    dispatch({ payload: schema, type: FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_SUCCESS });
+
+    return schema;
+  } catch (error) {
+    dispatch({ payload: error, type: FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_FAILURE });
+
+    return null;
+  }
 };
 
 export const fetchPatrolTypeSchema = (patrolTypeValue) => async (dispatch) => {
@@ -50,8 +62,14 @@ export const INITIAL_STATE = {};
 
 const patrolSchemasReducer = (state, { payload, type }) => {
   switch (type) {
+  case FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA:
+    return { ...state, [DEFAULT_PATROL_SEGMENT_TYPE]: { isLoading: true } };
+
   case FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_SUCCESS:
     return { ...state, [DEFAULT_PATROL_SEGMENT_TYPE]: { isLoading: false, schema: payload } };
+
+  case FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_FAILURE:
+    return { ...state, [DEFAULT_PATROL_SEGMENT_TYPE]: { error: payload, isLoading: false } };
 
   case FETCH_PATROL_TYPE_SCHEMA:
     return { ...state, [payload.patrolTypeValue]: { isLoading: true } };

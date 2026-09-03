@@ -109,7 +109,6 @@ describe('SideBar - useFetchPatrolsFeed', () => {
 
     const { rerender, result } = renderHook(() => useFetchPatrolsFeed(), { wrapper });
 
-    // A filter update that resolves to the same values still hands down a new filter object.
     builtStore = mockStore({
       ...store,
       data: { ...store.data, patrolFilter: { ...INITIAL_PATROL_FILTER_STATE } },

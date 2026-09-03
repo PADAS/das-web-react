@@ -38,6 +38,13 @@ $boxed-field-border-width: 1px;
   cursor: pointer;
 }
 
+@mixin dropdownOptionCheckMark {
+  color: $bright-blue;
+  flex-shrink: 0;
+  height: 0.8rem;
+  width: 0.8rem;
+}
+
 @mixin label-styles {
   font-weight: 500;
   color: $secondary-medium-gray;

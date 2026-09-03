@@ -56,7 +56,6 @@ describe('usePatrolState', () => {
   });
 
   test('walks a scheduled patrol through each of its transitions', () => {
-    // Starts in 3 hours: scheduled, then ready to start an hour out, then active.
     const patrol = makePatrol({ time_range: { start_time: atOffset(180).toISOString(), end_time: null } });
     const { result } = renderHook(() => usePatrolState(patrol));
 
@@ -144,11 +143,10 @@ describe('usePatrolState', () => {
         time_range: { start_time: null, end_time: atOffset(600).toISOString() },
       });
 
-      // The overdue threshold lands before the end time.
       expect(recheckDelayFor(patrol)).toBe(afterMinutes(5 + DELTA_FOR_OVERDUE));
     });
 
-    test('reads the last leg of a multi leg patrol', () => {
+    test('takes the end of a multi leg patrol from its last leg', () => {
       const patrol = {
         state: 'open',
         patrol_segments: [
@@ -160,8 +158,38 @@ describe('usePatrolState', () => {
       expect(recheckDelayFor(patrol)).toBe(afterMinutes(90));
     });
 
+    test('waits for a leg other than the first one to begin', () => {
+      const patrol = {
+        state: 'open',
+        patrol_segments: [
+          { scheduled_start: atOffset(-120).toISOString(), time_range: { start_time: null, end_time: null } },
+          { time_range: { start_time: atOffset(45).toISOString(), end_time: null } },
+        ],
+      };
+
+      expect(recheckDelayFor(patrol)).toBe(afterMinutes(45));
+    });
+
+    test('turns active once a leg other than the first one begins', () => {
+      const patrol = {
+        state: 'open',
+        patrol_segments: [
+          { scheduled_start: atOffset(-120).toISOString(), time_range: { start_time: null, end_time: null } },
+          { time_range: { start_time: atOffset(45).toISOString(), end_time: null } },
+        ],
+      };
+      const { result } = renderHook(() => usePatrolState(patrol));
+
+      expect(result.current).toBe(PATROL_UI_STATES.START_OVERDUE);
+
+      act(() => {
+        jest.advanceTimersByTime(45 * 60_000 + 1);
+      });
+
+      expect(result.current).toBe(PATROL_UI_STATES.ACTIVE);
+    });
+
     test('caps the delay so a far off transition does not overflow the timer', () => {
-      // A patrol scheduled a year out would overflow setTimeout's 32 bit delay.
       const patrol = makePatrol({ time_range: { start_time: atOffset(525_600).toISOString(), end_time: null } });
 
       expect(recheckDelayFor(patrol)).toBe(MAX_TIMEOUT_DELAY);

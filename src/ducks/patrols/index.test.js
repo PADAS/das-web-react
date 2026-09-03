@@ -13,20 +13,21 @@ import {
   FETCH_PATROLS_FEED_SUCCESS,
   fetchPatrolsFeed,
   fetchPatrolTeamAndTrackingOptions,
+  PATROL_CONFIG_API_URL,
   PATROL_LEADERS_API_URL,
+  PATROLS_API_URL,
   patrolsFeedReducer,
   patrolStoreReducer,
   patrolTeamAndTrackingOptionsReducer,
-  PATROLS_API_URL,
   REMOVE_PATROL_FROM_FEED,
   socketCreatePatrol,
   socketDeletePatrol,
   socketUpdatePatrol,
-  updatePatrol,
   UPDATE_PATROL_ERROR,
   UPDATE_PATROL_REALTIME,
   UPDATE_PATROL_STORE,
   UPDATE_PATROL_SUCCESS,
+  updatePatrol,
 } from './';
 
 const PATROL_A_ID = 'aaaaaaaa-0000-0000-0000-000000000001';
@@ -156,15 +157,25 @@ describe('Ducks - Patrols', () => {
   });
 
   describe('fetchPatrolTeamAndTrackingOptions', () => {
+    const assets = [{ id: 'asset-1', name: 'Land Cruiser' }];
     const leaders = [{ id: PATROL_A_ID, name: 'Alex' }, { id: PATROL_B_ID, name: 'Priya' }];
+    const members = [{ id: 'member-1', name: 'Ranger Sam' }];
+    const teams = [{ display: 'Alpha', id: 'team-1' }];
+
+    const respondWithConfig = (config) => server.use(
+      http.get(PATROL_CONFIG_API_URL, () => HttpResponse.json({ data: config }))
+    );
 
     const respondWithLeadersSchema = (properties) => server.use(
       http.get(PATROL_LEADERS_API_URL, () => HttpResponse.json({ data: { properties } }))
     );
 
-    test('unwraps the leaders out of the schema the endpoint answers with', async () => {
+    beforeEach(() => {
+      respondWithConfig({ assets, members, teams });
       respondWithLeadersSchema({ leader: { enum_ext: leaders.map((value) => ({ value })) } });
+    });
 
+    test('unwraps the leaders out of the schema the endpoint answers with', async () => {
       const store = mockStore({ data: {}, view: {} });
       const options = await store.dispatch(fetchPatrolTeamAndTrackingOptions());
 
@@ -181,17 +192,44 @@ describe('Ducks - Patrols', () => {
       expect((await store.dispatch(fetchPatrolTeamAndTrackingOptions())).leaders).toEqual([]);
     });
 
-    // The endpoints behind these are not deployed yet, so the creator answers with its own mocks.
-    test.each(['assets', 'teamMembers', 'teams'])('stores the named %s a leg can pick from', async (key) => {
-      respondWithLeadersSchema({});
+    test('stores the team and tracking lists the config answers with', async () => {
+      const store = mockStore({ data: {}, view: {} });
+      const options = await store.dispatch(fetchPatrolTeamAndTrackingOptions());
+
+      expect(options.assets).toEqual(assets);
+      expect(options.teamMembers).toEqual(members);
+      expect(options.teams).toEqual(teams);
+    });
+
+    test('reports empty lists when the config answers with none of them', async () => {
+      respondWithConfig({});
 
       const store = mockStore({ data: {}, view: {} });
       const options = await store.dispatch(fetchPatrolTeamAndTrackingOptions());
 
-      expect(options[key].length).toBeGreaterThan(0);
-      options[key].forEach((option) => {
-        expect(option).toEqual({ id: expect.any(String), name: expect.any(String) });
-      });
+      expect(options).toEqual({ assets: [], leaders, teamMembers: [], teams: [] });
+    });
+
+    test('keeps the leaders when the config request fails', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+      server.use(http.get(PATROL_CONFIG_API_URL, () => new HttpResponse(null, { status: 404 })));
+
+      const store = mockStore({ data: {}, view: {} });
+      const options = await store.dispatch(fetchPatrolTeamAndTrackingOptions());
+
+      expect(options).toEqual({ assets: [], leaders, teamMembers: [], teams: [] });
+      expect(store.getActions())
+        .toEqual([{ payload: options, type: FETCH_PATROL_TEAM_AND_TRACKING_OPTIONS_SUCCESS }]);
+    });
+
+    test('keeps the config lists when the leaders request fails', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+      server.use(http.get(PATROL_LEADERS_API_URL, () => new HttpResponse(null, { status: 500 })));
+
+      const store = mockStore({ data: {}, view: {} });
+      const options = await store.dispatch(fetchPatrolTeamAndTrackingOptions());
+
+      expect(options).toEqual({ assets, leaders: [], teamMembers: members, teams });
     });
   });
 
@@ -278,6 +316,76 @@ describe('Ducks - Patrols', () => {
 
     test('empties the store on a global reset', () => {
       expect(patrolStoreReducer(loadedStore, resetGlobalState())).toEqual({});
+    });
+
+    describe('ordering the legs of a patrol', () => {
+      const leg = (id, startTime, overrides) => ({
+        id,
+        time_range: { end_time: null, start_time: startTime },
+        ...overrides,
+      });
+
+      const storeLegs = (patrolSegments) => patrolStoreReducer({}, {
+        payload: { results: [makePatrol(PATROL_A_ID, { patrol_segments: patrolSegments })] },
+        type: UPDATE_PATROL_STORE,
+      })[PATROL_A_ID].patrol_segments.map(({ id }) => id);
+
+      test('sorts them by the time they start', () => {
+        expect(storeLegs([
+          leg('leg-2', '2026-04-13T10:00:00.000Z'),
+          leg('leg-1', '2026-04-13T06:00:00.000Z'),
+        ])).toEqual(['leg-1', 'leg-2']);
+      });
+
+      test('reads the scheduled start of a leg that has not started', () => {
+        expect(storeLegs([
+          leg('leg-2', null, { scheduled_start: '2026-04-13T10:00:00.000Z' }),
+          leg('leg-1', '2026-04-13T06:00:00.000Z'),
+        ])).toEqual(['leg-1', 'leg-2']);
+      });
+
+      test('leaves the legs that carry no start of their own at the end', () => {
+        expect(storeLegs([
+          leg('leg-3', null),
+          leg('leg-2', '2026-04-13T10:00:00.000Z'),
+          leg('leg-1', '2026-04-13T06:00:00.000Z'),
+        ])).toEqual(['leg-1', 'leg-2', 'leg-3']);
+      });
+
+      test('keeps the order legs that start at the same time came in', () => {
+        expect(storeLegs([
+          leg('leg-1', '2026-04-13T06:00:00.000Z'),
+          leg('leg-2', '2026-04-13T06:00:00.000Z'),
+        ])).toEqual(['leg-1', 'leg-2']);
+      });
+
+      test('hands back the very array a patrol whose legs are in order came with', () => {
+        const patrolSegments = [
+          leg('leg-1', '2026-04-13T06:00:00.000Z'),
+          leg('leg-2', '2026-04-13T10:00:00.000Z'),
+        ];
+
+        const state = patrolStoreReducer({}, {
+          payload: { results: [makePatrol(PATROL_A_ID, { patrol_segments: patrolSegments })] },
+          type: UPDATE_PATROL_STORE,
+        });
+
+        expect(state[PATROL_A_ID].patrol_segments).toBe(patrolSegments);
+      });
+
+      test('sorts the legs a realtime update brings in too', () => {
+        const state = patrolStoreReducer({}, {
+          payload: makePatrol(PATROL_A_ID, {
+            patrol_segments: [
+              leg('leg-2', '2026-04-13T10:00:00.000Z'),
+              leg('leg-1', '2026-04-13T06:00:00.000Z'),
+            ],
+          }),
+          type: UPDATE_PATROL_REALTIME,
+        });
+
+        expect(state[PATROL_A_ID].patrol_segments.map(({ id }) => id)).toEqual(['leg-1', 'leg-2']);
+      });
     });
   });
 

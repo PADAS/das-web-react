@@ -65,33 +65,51 @@
   "legForm": {
     "patrolTypeField": {
       "label": "Type de patrouille",
-      "placeholder": "Sélectionnez un type de patrouille"
+      "placeholder": "Sélectionnez un type de patrouille",
+      "requiredError": "Une étape doit avoir un type de patrouille."
     },
     "patrolTypeSchemaErrorMessage": "Les champs de ce type de patrouille n'ont pas pu être chargés.",
+    "patrolTypeSchemaLoadingLabel": "Chargement des champs de ce type de patrouille",
     "staticFields": {
       "assetsLabel": "Équipements",
-      "autoEndCheckboxLabel": "Terminer automatiquement la patrouille à cette heure",
-      "autoStartCheckboxLabel": "Commencer automatiquement la patrouille à cette heure",
-      "endDateBeforeStartDateError": "La fin de la patrouille doit être postérieure à son début.",
+      "autoEndCheckboxLabel": "Terminer automatiquement l'étape à cette heure",
+      "autoStartCheckboxLabel": "Commencer automatiquement l'étape à cette heure",
+      "endDateBeforeStartDateError": "La fin de l'étape doit être postérieure à son début.",
       "endDateInputLabel": "Date de fin",
       "endLocationLabel": "Coordonnées GPS de fin",
       "endTimeInputLabel": "Heure de fin",
       "endTimeLabel": "Heure de fin",
+      "endTimeRequiredError": "Une étape avec une date de fin doit avoir une heure de fin.",
       "startDateInputLabel": "Date de début",
-      "startDateRequiredError": "Une patrouille doit avoir une date de début.",
+      "startDateOverlapsPreviousLegError": "Cette étape ne peut pas chevaucher la précédente.",
+      "startDateRequiredError": "Une étape doit avoir une date de début.",
       "startLocationLabel": "Coordonnées GPS de début",
       "startTimeInputLabel": "Heure de début",
       "startTimeLabel": "Heure de début",
+      "startTimeRequiredError": "Une étape doit avoir une heure de début.",
       "teamLabel": "Équipe",
       "teamLeadLabel": "Chef d'équipe",
       "teamMembersLabel": "Membres de l'équipe"
-    }
+    },
+    "universalFieldsSchemaErrorMessage": "Les champs universels de patrouille n'ont pas pu être chargés.",
+    "universalFieldsSchemaLoadingLabel": "Chargement des champs universels de patrouille"
+  },
+  "newLeg": {
+    "footer": {
+      "cancelButton": "Annuler",
+      "saveButton": "Sauvegarder"
+    },
+    "header": {
+      "breadcrumbNewLegLabel": "Nouvelle étape de patrouille",
+      "breadcrumbPatrolsLabel": "Patrouilles",
+      "title": "Nouvelle étape de patrouille"
+    },
+    "saveErrorMessage": "L'étape de la patrouille n'a pas pu être créée. Veuillez réessayer."
   },
   "newPatrol": {
     "footer": {
       "cancelButton": "Annuler",
-      "saveButton": "Sauvegarder",
-      "saveButtonLoadingLabel": "Chargement"
+      "saveButton": "Sauvegarder"
     },
     "header": {
       "breadcrumbNewPatrolLabel": "Nouvelle patrouille",
@@ -128,8 +146,7 @@
       "addEventButton": "Ajouter un événement",
       "addEventButtonLabel": "Ajouter un événement",
       "addEventButtonText": "Événement",
-      "saveButton": "Sauvegarder",
-      "saveButtonLoadingLabel": "Chargement"
+      "saveButton": "Sauvegarder"
     },
     "header": {
       "breadcrumbPatrolsLabel": "Patrouilles",
@@ -197,6 +214,7 @@
         "endColumnHeader": "Date de fin",
         "legActionsColumnHeader": "Actions",
         "legColumnHeader": "Étape",
+        "legDidNotRunLabel": "Ce tronçon n'a jamais eu lieu",
         "legTableCaption": "Étapes de la patrouille",
         "newLegButton": "Nouvelle étape de patrouille",
         "patrolTypeColumnHeader": "Type de patrouille",

@@ -13,10 +13,7 @@ import { ReactComponent as StopIcon } from '../common/images/icons/stop.svg';
 import { ReactComponent as CloseIcon } from '../common/images/icons/close-icon.svg';
 import { ReactComponent as RestoreIcon } from '../common/images/icons/restore.svg';
 
-import { DAS_HOST, PATROL_UI_STATES, PATROL_API_STATES } from '../constants';
-import { TRACKS_API_URL } from '../ducks/tracks';
-import { usePatrolsPermissions } from '../hooks/usePermissions';
-import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
+import { basePrintingStyles } from '../utils/styles';
 import {
   buildPatrolEndUpdate,
   buildPatrolReopenUpdate,
@@ -24,8 +21,11 @@ import {
   calcPatrolState,
   canEndPatrol,
 } from '../utils/patrols';
-import { basePrintingStyles } from '../utils/styles';
+import { DAS_HOST, PATROL_API_STATES, PATROL_UI_STATES } from '../constants';
 import { downloadFileFromUrl } from '../utils/download';
+import { PATROL_LIST_ITEM_CATEGORY, trackEventFactory } from '../utils/analytics';
+import { TRACKS_API_URL } from '../ducks/tracks';
+import { usePatrolsPermissions } from '../hooks/usePermissions';
 
 import TextCopyBtn from '../TextCopyBtn';
 import KebabMenu from '../KebabMenu';

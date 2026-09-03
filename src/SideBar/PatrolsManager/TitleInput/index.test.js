@@ -61,4 +61,24 @@ describe('SideBar - PatrolsManager - TitleInput', () => {
     expect(editButton).toHaveAttribute('aria-hidden', 'true');
     expect(editButton).toHaveAttribute('tabindex', '-1');
   });
+
+  describe('a read only title', () => {
+    test('cannot be edited', async () => {
+      renderTitleInput({ isReadOnly: true });
+
+      const input = screen.getByRole('textbox', { name: 'Patrol title' });
+
+      await userEvent.type(input, ' North');
+
+      expect(input).toHaveAttribute('readonly');
+      expect(input).toHaveValue('Delta Patrol');
+      expect(onChange).not.toHaveBeenCalled();
+    });
+
+    test('does not show the edit button', () => {
+      renderTitleInput({ isReadOnly: true });
+
+      expect(screen.queryByTitle('Edit title')).not.toBeInTheDocument();
+    });
+  });
 });

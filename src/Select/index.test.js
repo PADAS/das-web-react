@@ -21,6 +21,8 @@ describe('Select', () => {
 
   const openMenu = () => userEvent.type(screen.getByRole('combobox', { name: 'Team' }), '{arrowdown}');
 
+  const clickToOpenMenu = () => userEvent.click(screen.getByRole('combobox', { name: 'Team' }));
+
   test('offers the options it is given', async () => {
     renderSelect();
 
@@ -54,6 +56,65 @@ describe('Select', () => {
     await userEvent.click(screen.getByRole('option', { name: 'Bravo' }));
 
     expect(onChange).toHaveBeenCalledWith(OPTIONS, expect.anything());
+  });
+
+  test('focuses the selected option when the menu opens', async () => {
+    renderSelect({ value: OPTIONS[1] });
+
+    await clickToOpenMenu();
+
+    expect(screen.getByRole('combobox', { name: 'Team' }))
+      .toHaveAttribute('aria-activedescendant', screen.getByRole('option', { name: 'Bravo' }).id);
+  });
+
+  test('focuses the selected option when the menu opens for a value equal to an option', async () => {
+    renderSelect({ value: { ...OPTIONS[1] } });
+
+    await clickToOpenMenu();
+
+    expect(screen.getByRole('combobox', { name: 'Team' }))
+      .toHaveAttribute('aria-activedescendant', screen.getByRole('option', { name: 'Bravo' }).id);
+  });
+
+  test('focuses the selected option of a select that labels its options on its own', async () => {
+    const namedOptions = [{ id: 'alpha', name: 'Alpha' }, { id: 'bravo', name: 'Bravo' }];
+
+    renderSelect({
+      getOptionLabel: ({ name }) => name,
+      getOptionValue: ({ id }) => id,
+      options: namedOptions,
+      value: { id: 'bravo', name: 'Bravo' },
+    });
+
+    await clickToOpenMenu();
+
+    expect(screen.getByRole('combobox', { name: 'Team' }))
+      .toHaveAttribute('aria-activedescendant', screen.getByRole('option', { name: 'Bravo' }).id);
+  });
+
+  test('keeps the keyboard on the option the user moved to while taking several values', async () => {
+    renderSelect({ isMulti: true, value: [{ ...OPTIONS[0] }] });
+
+    await clickToOpenMenu();
+    await userEvent.keyboard('{arrowdown}');
+
+    expect(screen.getByRole('combobox', { name: 'Team' }))
+      .toHaveAttribute('aria-activedescendant', screen.getByRole('option', { name: 'Bravo' }).id);
+  });
+
+  test('marks the selected option as selected', async () => {
+    renderSelect({ value: OPTIONS[1] });
+
+    await clickToOpenMenu();
+
+    expect(screen.getByRole('option', { name: 'Alpha' })).toHaveAttribute('aria-selected', 'false');
+    expect(screen.getByRole('option', { name: 'Bravo' })).toHaveAttribute('aria-selected', 'true');
+  });
+
+  test('keeps a value the options no longer carry', () => {
+    renderSelect({ value: { label: 'Charlie', value: 'charlie' } });
+
+    expect(screen.getByText('Charlie')).toBeVisible();
   });
 
   test('tells the user when there is nothing to pick', async () => {

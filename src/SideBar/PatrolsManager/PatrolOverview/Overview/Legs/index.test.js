@@ -7,7 +7,7 @@ import { mockStore } from '../../../../../__test-helpers/MockStore';
 import { createMapMock } from '../../../../../__test-helpers/mocks';
 import patrolTypes from '../../../../../__test-helpers/fixtures/patrol-types';
 import { multiLegPatrol } from '../../../../../__test-helpers/fixtures/patrols';
-import { PATROL_UI_STATES } from '../../../../../constants';
+import { PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS } from '../../../../../constants';
 import { render, screen, within } from '../../../../../test-utils';
 import { format, STANDARD_DATE_FORMAT } from '../../../../../utils/datetime';
 import { TrackerContext } from '../../../../../utils/analytics';
@@ -24,6 +24,10 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
   const patrol = multiLegPatrol;
   const [legOne, legTwo] = patrol.patrol_segments;
   const legTwoLeaderId = legTwo.leader.id;
+  const patrolWithPlannedLeg = {
+    ...patrol,
+    patrol_segments: [legOne, { ...legTwo, scheduled_start: '2099-04-20T08:00:00.000Z', time_range: {} }],
+  };
 
   const map = createMapMock();
   const navigate = jest.fn();
@@ -36,6 +40,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
       data: {
         eventFilter: { filter: { date_range: { lower: '2020-01-01T06:00:00.000Z' } } },
         patrolTypes,
+        user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ, PERMISSIONS.UPDATE] } },
         tracks: {
           // Only the 2nd leg's leader has track data, so only its leg has bounds to zoom to.
           [legTwoLeaderId]: {
@@ -166,6 +171,65 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
     expect(leaderCell).toHaveTextContent('');
   });
 
+  test('marks the legs the patrol never ran once it is over', () => {
+    renderLegs({ patrol: patrolWithPlannedLeg, patrolState: PATROL_UI_STATES.DONE });
+
+    const [, legOneRow, legTwoRow] = getRows();
+
+    expect(legOneRow).not.toHaveClass('notRunLeg');
+    expect(legTwoRow).toHaveClass('notRunLeg');
+  });
+
+  test('says in words which legs the patrol never ran, not in colour alone', () => {
+    renderLegs({ patrol: patrolWithPlannedLeg, patrolState: PATROL_UI_STATES.DONE });
+
+    const [, legOneRow, legTwoRow] = getRows();
+
+    expect(within(legTwoRow).getByText('This leg never ran')).toBeInTheDocument();
+    expect(within(legOneRow).queryByText('This leg never ran')).toBeNull();
+  });
+
+  test('shows the planned end of a leg the patrol never ran, not the end that closed it', () => {
+    const closedUnrunLeg = {
+      ...legTwo,
+      scheduled_end: '2026-09-03T20:00:00.000Z',
+      scheduled_start: '2026-09-03T18:00:00.000Z',
+      time_range: { end_time: '2026-09-02T15:57:00.000Z', start_time: null },
+    };
+
+    renderLegs({
+      patrol: { ...patrol, patrol_segments: [legOne, closedUnrunLeg] },
+      patrolState: PATROL_UI_STATES.DONE,
+    });
+
+    const [, , legTwoRow] = getRows();
+    const legTwoEnd = within(legTwoRow).getAllByRole('time')[1];
+
+    expect(legTwoEnd).toHaveAttribute('datetime', '2026-09-03T20:00:00.000Z');
+    expect(legTwoEnd).not.toHaveTextContent('02 Sep');
+  });
+
+  test('does not mark the legs a patrol has yet to run while it is under way', () => {
+    renderLegs({ patrol: patrolWithPlannedLeg });
+
+    const [, legOneRow, legTwoRow] = getRows();
+
+    expect(legOneRow).not.toHaveClass('notRunLeg');
+    expect(legTwoRow).not.toHaveClass('notRunLeg');
+  });
+
+  test('keeps the leg link reachable on a leg the patrol never ran', async () => {
+    renderLegs({ patrol: patrolWithPlannedLeg, patrolState: PATROL_UI_STATES.DONE });
+
+    const viewLegTwoLink = screen.getByRole('link', { name: 'View leg 2' });
+
+    expect(viewLegTwoLink).toHaveAttribute('href', `/patrols/${patrol.id}/legs/${legTwo.id}`);
+
+    await userEvent.click(viewLegTwoLink);
+
+    expect(track).toHaveBeenCalledWith('View leg from patrol overview');
+  });
+
   test('shows the zoom to leg bounds button', () => {
     renderLegs();
 
@@ -224,7 +288,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
     expect(screen.queryByRole('link', { name: 'New Patrol Leg' })).not.toBeInTheDocument();
   });
 
-  test.each([PATROL_UI_STATES.DONE, PATROL_UI_STATES.CANCELLED, PATROL_UI_STATES.SCHEDULED])(
+  test.each([PATROL_UI_STATES.READY_TO_START, PATROL_UI_STATES.SCHEDULED, PATROL_UI_STATES.START_OVERDUE])(
     'shows the new leg link for a patrol with a mobile provenance that is not active',
     (patrolState) => {
       renderLegs({ patrol: { ...patrol, provenance: 'mobile' }, patrolState });
@@ -232,4 +296,21 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
       expect(screen.getByRole('link', { name: 'New Patrol Leg' })).toBeInTheDocument();
     }
   );
+
+  test.each([PATROL_UI_STATES.CANCELLED, PATROL_UI_STATES.DONE])(
+    'hides the new leg link for a patrol that is over',
+    (patrolState) => {
+      renderLegs({ patrolState });
+
+      expect(screen.queryByRole('link', { name: 'New Patrol Leg' })).not.toBeInTheDocument();
+    }
+  );
+
+  test('hides the new leg link when the user may not update patrols', () => {
+    store.data.user.permissions[PERMISSION_KEYS.PATROLS] = [PERMISSIONS.READ];
+
+    renderLegs();
+
+    expect(screen.queryByRole('link', { name: 'New Patrol Leg' })).not.toBeInTheDocument();
+  });
 });

@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 
 import { ReactComponent as ChevronRightIcon } from '../../../../common/images/icons/chevron-right.svg';
 
@@ -26,4 +26,4 @@ const Breadcrumb = ({ 'aria-label': ariaLabel, className = '', crumbs, ...otherP
   </ol>
 </nav>;
 
-export default memo(Breadcrumb);
+export default Breadcrumb;

@@ -1,9 +1,10 @@
-import React, { memo, useId, useImperativeHandle, useRef } from 'react';
-import { isFuture } from 'date-fns';
+import React, { useId, useImperativeHandle, useRef } from 'react';
+import { format, isFuture } from 'date-fns';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { calcUrlForImage } from '../../../../utils/img';
+import { getHoursAndMinutesString } from '../../../../utils/datetime';
 import parseLegDraftDateTime from '../utils/parseLegDraftDateTime';
 
 import DatePicker, { isValidDate } from '../../../../DatePicker';
@@ -18,34 +19,42 @@ const TIME_OPTIONS_INTERVAL_IN_MINUTES = 15;
 
 const getOptionLabel = ({ name }) => name;
 const getOptionValue = ({ id }) => id;
+const getTeamOptionLabel = ({ display }) => display;
 
-const renderTeamLeadOptionIcon = ({ image_url }) => !!image_url
+const renderSubjectOptionIcon = ({ image_url }) => !!image_url
   && <SvgIcon imageUrl={calcUrlForImage(image_url)} type="subjects" />;
 
-const StaticFields = ({ errors, leg, onChangeLeg, ref }) => {
+const StaticFields = ({ earliestStartDateTime = null, errors, leg, onChangeLeg, ref }) => {
   const { t } = useTranslation('patrols', { keyPrefix: 'legForm.staticFields' });
 
   const teamAndTrackingOptions = useSelector((state) => state.data.patrolTeamAndTrackingOptions);
 
   const endDatePickerRef = useRef();
+  const endTimePickerRef = useRef();
   const startDatePickerRef = useRef();
+  const startTimePickerRef = useRef();
 
   useImperativeHandle(ref, () => ({
     focusField: (field) => {
-      const datePickerRef = field === 'endDate' ? endDatePickerRef : startDatePickerRef;
+      const fieldRefs = {
+        endDate: endDatePickerRef,
+        endTime: endTimePickerRef,
+        startDate: startDatePickerRef,
+        startTime: startTimePickerRef,
+      };
 
-      // Each picker is a group of inputs, the first one begins the date.
-      datePickerRef.current?.querySelector('input')?.focus();
+      // Each picker is a group of inputs, the first one begins the value.
+      fieldRefs[field]?.current?.querySelector('input')?.focus();
     },
   }));
 
   const assetsSelectId = useId();
   const autoEndCheckboxId = useId();
   const autoStartCheckboxId = useId();
-  const endDateErrorId = useId();
+  const endDateTimeErrorId = useId();
   const endLocationId = useId();
   const endTimeLabelId = useId();
-  const startDateErrorId = useId();
+  const startDateTimeErrorId = useId();
   const startLocationId = useId();
   const startTimeLabelId = useId();
   const teamLeadSelectId = useId();
@@ -55,14 +64,26 @@ const StaticFields = ({ errors, leg, onChangeLeg, ref }) => {
   const endDateTime = parseLegDraftDateTime(leg.endDate, leg.endTime);
   const startDateTime = parseLegDraftDateTime(leg.startDate, leg.startTime);
 
-  // The end time is bounded by the start one only when both happen on the
-  // same day, and only once the start time is complete: a partial one
-  // discards every option of the picker.
+  // An empty start date would reach the picker's calendar as an invalid bound.
+  const endDateMin = isValidDate(leg.startDate) ? leg.startDate : undefined;
+
+  // The end time is bounded by the start only on the same day, and only once
+  // the start time is complete: a partial one discards every option.
   const endTimeMin = isValidDate(leg.endDate) && leg.endDate === leg.startDate && isValidTime(leg.startTime)
     ? leg.startTime
     : undefined;
 
-  const renderCheckbox = ({ id, isDisabled, isChecked, label, onChange }) => <div className={styles.checkboxWrapper}>
+  const startDateMin = earliestStartDateTime ? format(earliestStartDateTime, 'yyyy-MM-dd') : undefined;
+
+  const startTimeMin = startDateMin === leg.startDate
+    ? getHoursAndMinutesString(earliestStartDateTime)
+    : undefined;
+
+  // A group shows a single message, wherever within it the error belongs.
+  const endDateTimeError = errors.endDate ?? errors.endTime;
+  const startDateTimeError = errors.startDate ?? errors.startTime;
+
+  const renderCheckbox = ({ id, isChecked, isDisabled, label, onChange }) => <div className={styles.checkboxWrapper}>
     <input
       checked={isChecked}
       className={styles.checkbox}
@@ -94,10 +115,11 @@ const StaticFields = ({ errors, leg, onChangeLeg, ref }) => {
 
           <div className={styles.dateTimeInputs}>
             <DatePicker
-              aria-errormessage={errors.startDate ? startDateErrorId : undefined}
+              aria-errormessage={errors.startDate ? startDateTimeErrorId : undefined}
               aria-invalid={errors.startDate ? 'true' : 'false'}
               aria-label={t('startDateInputLabel')}
               className={styles.datePicker}
+              min={startDateMin}
               onChange={(startDate) => onChangeLeg({ startDate })}
               reactDatePickerProps={{ endDate: endDateTime, selectsStart: true, startDate: startDateTime }}
               ref={startDatePickerRef}
@@ -105,17 +127,19 @@ const StaticFields = ({ errors, leg, onChangeLeg, ref }) => {
             />
 
             <TimePicker
-              aria-errormessage={errors.startDate ? startDateErrorId : undefined}
-              aria-invalid={errors.startDate ? 'true' : 'false'}
+              aria-errormessage={errors.startTime ? startDateTimeErrorId : undefined}
+              aria-invalid={errors.startTime ? 'true' : 'false'}
               aria-label={t('startTimeInputLabel')}
+              min={startTimeMin}
               minutesInterval={TIME_OPTIONS_INTERVAL_IN_MINUTES}
               onChange={(startTime) => onChangeLeg({ startTime })}
+              ref={startTimePickerRef}
               value={leg.startTime}
             />
           </div>
 
-          {!!errors.startDate && <p className={styles.errorMessage} id={startDateErrorId} role="alert">
-            {errors.startDate}
+          {!!startDateTimeError && <p className={styles.errorMessage} id={startDateTimeErrorId} role="alert">
+            {startDateTimeError}
           </p>}
         </div>
 
@@ -145,11 +169,11 @@ const StaticFields = ({ errors, leg, onChangeLeg, ref }) => {
 
           <div className={styles.dateTimeInputs}>
             <DatePicker
-              aria-errormessage={errors.endDate ? endDateErrorId : undefined}
+              aria-errormessage={errors.endDate ? endDateTimeErrorId : undefined}
               aria-invalid={errors.endDate ? 'true' : 'false'}
               aria-label={t('endDateInputLabel')}
               className={styles.datePicker}
-              min={leg.startDate}
+              min={endDateMin}
               onChange={(endDate) => onChangeLeg({ endDate })}
               reactDatePickerProps={{ endDate: endDateTime, selectsEnd: true, startDate: startDateTime }}
               ref={endDatePickerRef}
@@ -157,20 +181,21 @@ const StaticFields = ({ errors, leg, onChangeLeg, ref }) => {
             />
 
             <TimePicker
-              aria-errormessage={errors.endDate ? endDateErrorId : undefined}
-              aria-invalid={errors.endDate ? 'true' : 'false'}
+              aria-errormessage={errors.endTime ? endDateTimeErrorId : undefined}
+              aria-invalid={errors.endTime ? 'true' : 'false'}
               aria-label={t('endTimeInputLabel')}
               disabled={!isValidDate(leg.endDate)}
               min={endTimeMin}
               minutesInterval={TIME_OPTIONS_INTERVAL_IN_MINUTES}
               onChange={(endTime) => onChangeLeg({ endTime })}
+              ref={endTimePickerRef}
               showDurationFromMin={!!endTimeMin}
               value={leg.endTime}
             />
           </div>
 
-          {!!errors.endDate && <p className={styles.errorMessage} id={endDateErrorId} role="alert">
-            {errors.endDate}
+          {!!endDateTimeError && <p className={styles.errorMessage} id={endDateTimeErrorId} role="alert">
+            {endDateTimeError}
           </p>}
         </div>
 
@@ -198,6 +223,7 @@ const StaticFields = ({ errors, leg, onChangeLeg, ref }) => {
     <div className={styles.columns}>
       <div className={styles.column}>
         {renderSelect({
+          getOptionLabel: getTeamOptionLabel,
           id: teamSelectId,
           label: t('teamLabel'),
           onChange: (team) => onChangeLeg({ team }),
@@ -211,6 +237,7 @@ const StaticFields = ({ errors, leg, onChangeLeg, ref }) => {
           label: t('teamMembersLabel'),
           onChange: (teamMembers) => onChangeLeg({ teamMembers: [...teamMembers] }),
           options: teamAndTrackingOptions.teamMembers,
+          renderOptionIcon: renderSubjectOptionIcon,
           value: leg.teamMembers,
         })}
       </div>
@@ -221,7 +248,7 @@ const StaticFields = ({ errors, leg, onChangeLeg, ref }) => {
           label: t('teamLeadLabel'),
           onChange: (teamLead) => onChangeLeg({ teamLead }),
           options: teamAndTrackingOptions.leaders,
-          renderOptionIcon: renderTeamLeadOptionIcon,
+          renderOptionIcon: renderSubjectOptionIcon,
           value: leg.teamLead,
         })}
 
@@ -231,6 +258,7 @@ const StaticFields = ({ errors, leg, onChangeLeg, ref }) => {
           label: t('assetsLabel'),
           onChange: (assets) => onChangeLeg({ assets: [...assets] }),
           options: teamAndTrackingOptions.assets,
+          renderOptionIcon: renderSubjectOptionIcon,
           value: leg.assets,
         })}
       </div>
@@ -238,4 +266,4 @@ const StaticFields = ({ errors, leg, onChangeLeg, ref }) => {
   </div>;
 };
 
-export default memo(StaticFields);
+export default StaticFields;

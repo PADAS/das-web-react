@@ -175,15 +175,35 @@ const selectPatrolTrackedSubjectTracks = createSelector(
   { memoizeOptions: { resultEqualityCheck: shallowEqual } }
 );
 
-// The kilometers a subject covered during a leg: its own track, bounded to the leg's time range.
-const distanceCoveredInSegment = (segment, subjectTrack) => {
-  if (!segment.time_range?.start_time
-    || !trackHasDataWithinTimeRange(subjectTrack, segment.time_range.start_time, segment.time_range.end_time)
-  ) {
-    return 0;
-  }
+// The time a subject spent on the patrol, as a set of ranges that do not
+// overlap.
+const mergeSegmentTimeRanges = (segments) => segments
+  .filter((segment) => segment.time_range?.start_time)
+  .map((segment) => ({
+    since: new Date(segment.time_range.start_time).getTime(),
+    until: segment.time_range.end_time ? new Date(segment.time_range.end_time).getTime() : Infinity,
+  }))
+  .sort((timeRange, otherTimeRange) => timeRange.since - otherTimeRange.since)
+  .reduce((mergedTimeRanges, timeRange) => {
+    const lastMergedTimeRange = mergedTimeRanges[mergedTimeRanges.length - 1];
 
-  return trackLengthWithinTimeRange(subjectTrack, segment.time_range.start_time, segment.time_range.end_time);
+    if (lastMergedTimeRange && timeRange.since <= lastMergedTimeRange.until) {
+      lastMergedTimeRange.until = Math.max(lastMergedTimeRange.until, timeRange.until);
+    } else {
+      mergedTimeRanges.push({ ...timeRange });
+    }
+
+    return mergedTimeRanges;
+  }, []);
+
+// The kilometers a subject covered during a time range: its own track, bounded
+// to that range.
+const distanceCoveredInTimeRange = ({ since, until }, subjectTrack) => {
+  const boundedUntil = until === Infinity ? null : until;
+
+  return trackHasDataWithinTimeRange(subjectTrack, since, boundedUntil)
+    ? trackLengthWithinTimeRange(subjectTrack, since, boundedUntil)
+    : 0;
 };
 
 // Every subject the patrol tracks, along with the total distance it covered across the legs it
@@ -210,7 +230,10 @@ export const selectPatrolTrackedSubjects = createSelector(
 
         return {
           distance: subjectTrack
-            ? segments.reduce((distance, segment) => distance + distanceCoveredInSegment(segment, subjectTrack), 0)
+            ? mergeSegmentTimeRanges(segments).reduce(
+              (distance, timeRange) => distance + distanceCoveredInTimeRange(timeRange, subjectTrack),
+              0
+            )
             : null,
           isPatrolLeader: subject.id === patrolLeaderId,
           subject,
@@ -241,8 +264,8 @@ export const selectPatrolLeadersWithLastPosition = createSelector(
       return patrolLeader;
     });
 
-    // Every position a socket update brings in changes the subject store, so the list keeps its
-    // identity unless this recalculation actually filled something in.
+    // A socket update changes the subject store on every position, so the list
+    // keeps its identity unless this pass actually filled something in.
     return patrolLeadersWithLastPosition.every(
       (patrolLeader, index) => patrolLeader === patrolLeaders[index]
     ) ? patrolLeaders : patrolLeadersWithLastPosition;

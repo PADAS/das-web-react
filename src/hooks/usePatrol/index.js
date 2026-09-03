@@ -1,5 +1,4 @@
 import { useCallback, useMemo } from 'react';
-import merge from 'lodash/merge';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
@@ -89,8 +88,7 @@ const usePatrol = (patrol) => {
   ]);
 
   const onPatrolChange = useCallback((value) => {
-    const merged = merge(patrol, value);
-    const payload = { ...merged };
+    const payload = { ...patrol, ...value };
     delete payload.updates;
 
     dispatch(updatePatrol(payload));

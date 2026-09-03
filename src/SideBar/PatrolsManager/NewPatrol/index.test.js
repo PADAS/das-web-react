@@ -8,10 +8,12 @@ import { createMapMock } from '../../../__test-helpers/mocks';
 import { createPatrol } from '../../../ducks/patrols';
 import { DEFAULT_PATROL_SEGMENT_TYPE } from '../../../ducks/patrol-schemas';
 import { defaultPatrolSegmentTypeSchema, patrolTypeFieldsSchema } from '../../../__test-helpers/fixtures/patrol-schemas';
+import { fetchPatrolTypes } from '../../../ducks/patrol-types';
 import { GPS_FORMATS } from '../../../utils/location';
 import { MapContext } from '../../../MapContext';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import patrolTypes, { dogPatrol, routinePatrol } from '../../../__test-helpers/fixtures/patrol-types';
+import { PERMISSION_KEYS, PERMISSIONS } from '../../../constants';
 import { render, screen, waitFor, within } from '../../../test-utils';
 
 import NewPatrol from './';
@@ -19,6 +21,11 @@ import NewPatrol from './';
 jest.mock('../../../ducks/patrols', () => ({
   ...jest.requireActual('../../../ducks/patrols'),
   createPatrol: jest.fn(),
+}));
+
+jest.mock('../../../ducks/patrol-types', () => ({
+  ...jest.requireActual('../../../ducks/patrol-types'),
+  fetchPatrolTypes: jest.fn(),
 }));
 
 const LocationDisplay = () => <div data-testid="test-location">{useLocation().pathname}</div>;
@@ -42,6 +49,7 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
     createPatrol.mockImplementation(
       () => () => Promise.resolve({ data: { data: { id: 'a-new-patrol-id' } } })
     );
+    fetchPatrolTypes.mockImplementation(() => () => Promise.resolve());
 
     map = createMapMock();
 
@@ -54,6 +62,7 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
         },
         patrolTeamAndTrackingOptions: { assets: [], leaders: [], teamMembers: [], teams: [] },
         patrolTypes,
+        user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.CREATE, PERMISSIONS.READ] } },
         userContent: {},
       },
       view: {
@@ -85,7 +94,6 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
           <Routes>
             <Route element={<NewPatrol />} path="/patrols/new" />
 
-            {/* The routes the form leaves for are out of the scope of these tests. */}
             <Route element={null} path="/patrols/*" />
           </Routes>
         </MapContext.Provider>
@@ -171,17 +179,51 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
     expect(getStartDateInput('Day')).toHaveValue('13');
   });
 
-  test('shows the loader while the patrol types are not in the store', () => {
+  test('shows the loader while the patrol types are on their way', () => {
     store.data.patrolTypes = [];
+    fetchPatrolTypes.mockImplementation(() => () => new Promise(() => {}));
+
     renderNewPatrol();
 
     expect(screen.getByTestId('newPatrol-loader')).toBeVisible();
+  });
+
+  test('fetches the patrol types when the store holds none', async () => {
+    store.data.patrolTypes = [];
+
+    renderNewPatrol();
+
+    await waitFor(() => expect(fetchPatrolTypes).toHaveBeenCalled());
+  });
+
+  test('does not fetch the patrol types when the store already holds them', () => {
+    renderNewPatrol();
+
+    expect(fetchPatrolTypes).not.toHaveBeenCalled();
   });
 
   test('redirects to the patrols feed when the patrol type is unknown', async () => {
     renderNewPatrol({ patrolTypeId: 'not-a-patrol-type' });
 
     await waitFor(() => expect(screen.getByTestId('test-location')).toHaveTextContent('/patrols'));
+  });
+
+  test('redirects to the patrols feed when the patrol types cannot be loaded', async () => {
+    store.data.patrolTypes = [];
+    fetchPatrolTypes.mockImplementation(() => () => Promise.reject(new Error('Server error')));
+
+    renderNewPatrol();
+
+    await waitFor(() => expect(screen.getByTestId('test-location')).toHaveTextContent('/patrols'));
+  });
+
+  test('redirects to the patrols feed when the user may not create patrols', async () => {
+    store.data.user.permissions[PERMISSION_KEYS.PATROLS] = [PERMISSIONS.READ];
+
+    renderNewPatrol();
+
+    await waitFor(() => expect(screen.getByTestId('test-location')).toHaveTextContent('/patrols'));
+    expect(screen.queryByRole('group', { name: 'Start Time' })).toBeNull();
   });
 
   describe('saving', () => {
@@ -222,8 +264,6 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
       expect(createdPatrol.patrol_segments[0].patrol_type).toBe(routinePatrol.value);
     });
 
-    // The save button lives in the footer, outside the form. It reaches the form through its form
-    // attribute, which is also what lets a keyboard user submit by pressing enter in any field.
     test('associates the save button with the leg form', () => {
       const { container } = renderNewPatrol();
 
@@ -241,7 +281,7 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
       await clickSave(user);
 
       expect(createPatrol).not.toHaveBeenCalled();
-      expect(screen.getByText('A patrol needs a start date.')).toBeVisible();
+      expect(screen.getByText('A leg needs a start date.')).toBeVisible();
     });
 
     test('shows an error message when the patrol cannot be created', async () => {
@@ -257,6 +297,69 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
         () => expect(toast.error).toHaveBeenCalledWith('The patrol could not be created. Please try again.')
       );
       expect(screen.getByTestId('test-location')).toHaveTextContent('/patrols/new');
+    });
+  });
+
+  describe('leaving the form', () => {
+    const withDefaultObjective = {
+      ...defaultPatrolSegmentTypeSchema,
+      json: {
+        ...defaultPatrolSegmentTypeSchema.json,
+        properties: {
+          ...defaultPatrolSegmentTypeSchema.json.properties,
+          objective: { ...defaultPatrolSegmentTypeSchema.json.properties.objective, default: 'Routine sweep' },
+        },
+      },
+    };
+
+    const getPathname = () => screen.getByTestId('test-location').textContent;
+
+    test('goes back to the patrols feed from a form the user has not touched', async () => {
+      const { user } = renderNewPatrol();
+
+      await user.click(screen.getByRole('link', { name: 'Cancel' }));
+
+      expect(screen.queryByRole('dialog')).toBeNull();
+      expect(getPathname()).toBe('/patrols');
+    });
+
+    test('goes back without warning when the schema filled fields in by itself', async () => {
+      store.data.patrolSchemas[DEFAULT_PATROL_SEGMENT_TYPE] = { isLoading: false, schema: withDefaultObjective };
+
+      const { user } = renderNewPatrol();
+
+      expect(screen.getByRole('textbox', { name: 'Objective' })).toHaveValue('Routine sweep');
+
+      await user.click(screen.getByRole('link', { name: 'Cancel' }));
+
+      expect(screen.queryByRole('dialog')).toBeNull();
+      expect(getPathname()).toBe('/patrols');
+    });
+
+    test('warns about unsaved changes once the user edits a schema filled field', async () => {
+      store.data.patrolSchemas[DEFAULT_PATROL_SEGMENT_TYPE] = { isLoading: false, schema: withDefaultObjective };
+
+      const { user } = renderNewPatrol();
+
+      await user.type(screen.getByRole('textbox', { name: 'Objective' }), ' and count');
+      await user.click(screen.getByRole('link', { name: 'Cancel' }));
+
+      expect(await screen.findByRole('dialog')).toBeVisible();
+      expect(getPathname()).toBe('/patrols/new');
+    });
+
+    test('does not warn about unsaved changes while the patrol is being created', async () => {
+      createPatrol.mockImplementation(() => () => new Promise(() => {}));
+
+      const { user } = renderNewPatrol();
+
+      await user.type(screen.getByRole('textbox', { name: 'Objective' }), 'Count the herd');
+      await clickSave(user);
+
+      await user.click(screen.getByRole('link', { name: 'Cancel' }));
+
+      expect(screen.queryByRole('dialog')).toBeNull();
+      expect(getPathname()).toBe('/patrols');
     });
   });
 });

@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { clearUserContent } from '../ducks/user-content';
 import { act, fireEvent, render, screen, within } from '../test-utils';
+import { clearUserContent } from '../ducks/user-content';
 import { DATE_TIME_ELEMENT_INPUT_TYPES } from '../utils/form-schemas/constants';
 import { GPS_FORMATS } from '../utils/location';
 import { mockStore } from '../__test-helpers/MockStore';
@@ -374,7 +374,17 @@ describe('SchemaForm', () => {
     renderSchemaForm({ shouldPopulateDefaultData: true });
 
     expect(onFormDataChange).toHaveBeenCalledTimes(1);
-    expect(onFormDataChange).toHaveBeenCalledWith({ text_field: 'Default Value 1' });
+    expect(onFormDataChange).toHaveBeenCalledWith({ text_field: 'Default Value 1' }, { isDefaultData: true });
+  });
+
+  test('tells the default inputs apart from an edit the user made', async () => {
+    renderSchemaForm({ shouldPopulateDefaultData: true });
+
+    expect(onFormDataChange).toHaveBeenCalledWith(expect.anything(), { isDefaultData: true });
+
+    await userEvent.type(screen.getByRole('textbox', { name: 'Text Field' }), '!');
+
+    expect(onFormDataChange).toHaveBeenLastCalledWith(expect.anything());
   });
 
   test('does not set the initial form data if there are no default inputs', async () => {
@@ -440,7 +450,6 @@ describe('SchemaForm', () => {
 
     const locationFieldElement = { focus: jest.fn() };
     const originalGetElementById = document.getElementById;
-    // The dom id is namespaced with the form instance id, which React generates.
     document.getElementById = jest.fn((id) => {
       if (id.endsWith('-location_field')) {
         return locationFieldElement;
@@ -469,8 +478,6 @@ describe('SchemaForm', () => {
 
     const collectionItemElement = { focus: jest.fn() };
     const originalGetElementById = document.getElementById;
-    // The collection item is in the document, and its dom id is namespaced with the form instance
-    // id, which React generates.
     document.getElementById = jest.fn((id) => {
       if (id.endsWith('-collection_field[0]')) {
         return collectionItemElement;
@@ -766,8 +773,6 @@ describe('SchemaForm', () => {
       schema.ui.sections['section-3'].leftColumn.push({ name: 'choice_field', type: 'field' });
     };
 
-    // Both forms are controlled, so the tests own their form data to tell a selection in one apart
-    // from a selection in the other.
     const ControlledSchemaForms = () => {
       const [firstFormData, setFirstFormData] = useState({});
       const [secondFormData, setSecondFormData] = useState({});
@@ -805,7 +810,6 @@ describe('SchemaForm', () => {
       const firstForm = screen.getByTestId('firstForm');
       const secondForm = screen.getByTestId('secondForm');
 
-      // Each label reaches its own control, otherwise these queries would find nothing.
       const firstTextField = within(firstForm).getByRole('textbox', { name: 'Text Field' });
       const secondTextField = within(secondForm).getByRole('textbox', { name: 'Text Field' });
 

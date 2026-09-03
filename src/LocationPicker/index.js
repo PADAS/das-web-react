@@ -72,7 +72,7 @@ const LocationPicker = ({
         {...otherProps}
       >
       <button
-        aria-controls={menuPopoverId}
+        aria-controls={isMenuPopoverOpen ? menuPopoverId : undefined}
         aria-expanded={isMenuPopoverOpen}
         aria-haspopup="dialog"
         aria-label={t(`setLocationButtonLabel.${isMenuPopoverOpen ? 'open' : 'closed'}`)}

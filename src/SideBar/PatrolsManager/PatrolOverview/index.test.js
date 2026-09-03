@@ -5,13 +5,13 @@ import { toast } from 'react-toastify';
 import { useLocation, useParams } from 'react-router';
 import userEvent from '@testing-library/user-event';
 
+import { act, render, screen, waitFor } from '../../../test-utils';
 import AddItemButton from '../../../AddItemButton';
 import { addPatrolSegmentToEvent } from '../../../utils/events';
 import { fetchPatrol, updatePatrol, uploadPatrolFile } from '../../../ducks/patrols';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import patrolTypes from '../../../__test-helpers/fixtures/patrol-types';
 import patrols from '../../../__test-helpers/fixtures/patrols';
-import { act, render, screen, waitFor } from '../../../test-utils';
 import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../../constants';
 import * as trackUtils from '../../../utils/tracks';
 import { TRACK_LENGTH_ORIGINS } from '../../../ducks/tracks';
@@ -560,12 +560,19 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     expect(props.formProps.redirectTo).toEqual([{ pathname: `/patrols/${patrolWithoutLeader.id}` }]);
   });
 
-  test('links a newly added event to the most recently active leg and refreshes the patrol', async () => {
+  test('links a newly added event to the leg the patrol is on and refreshes the patrol', async () => {
     const patrolWithMultipleLegs = {
       ...patrolWithoutLeader,
       patrol_segments: [
-        patrolWithoutLeader.patrol_segments[0],
-        { ...patrolWithoutLeader.patrol_segments[0], id: 'second-leg-id' },
+        {
+          ...patrolWithoutLeader.patrol_segments[0],
+          time_range: { end_time: '2021-08-13T18:00:00-07:00', start_time: '2021-08-13T16:24:00-07:00' },
+        },
+        {
+          ...patrolWithoutLeader.patrol_segments[0],
+          id: 'second-leg-id',
+          time_range: { end_time: null, start_time: '2021-08-13T18:00:00-07:00' },
+        },
       ],
     };
     store.data.patrolStore[patrolWithMultipleLegs.id] = patrolWithMultipleLegs;
@@ -578,6 +585,29 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
 
     expect(addPatrolSegmentToEvent).toHaveBeenCalledWith('second-leg-id', 'new-event-id');
     expect(fetchPatrol).toHaveBeenCalledWith(patrolWithMultipleLegs.id);
+  });
+
+  test('does not link a newly added event to a leg planned after the one the patrol is on', async () => {
+    const patrolWithPlannedLeg = {
+      ...patrolWithoutLeader,
+      patrol_segments: [
+        {
+          ...patrolWithoutLeader.patrol_segments[0],
+          time_range: { end_time: null, start_time: '2021-08-13T16:24:00-07:00' },
+        },
+        { ...patrolWithoutLeader.patrol_segments[0], id: 'planned-leg-id', scheduled_start: '2100-01-01T00:00:00Z' },
+      ],
+    };
+    store.data.patrolStore[patrolWithPlannedLeg.id] = patrolWithPlannedLeg;
+
+    await renderPatrolOverview(patrolWithPlannedLeg.id);
+
+    const [props] = addItemButtonMock.mock.calls.at(-1);
+
+    await props.formProps.onSaveSuccess([{ data: { data: { id: 'new-event-id' } } }]);
+
+    expect(addPatrolSegmentToEvent)
+      .toHaveBeenCalledWith(patrolWithoutLeader.patrol_segments[0].id, 'new-event-id');
   });
 
   test('also accepts a single, non-array save result when linking a new event', async () => {
@@ -1249,8 +1279,6 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
 
       await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
-      // The attachment upload failed, so the view stays put. The status change went through, so it
-      // stops counting as a change and the pill falls back to the patrol's own state.
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Active, Change patrol status' })).toBeInTheDocument();
       });

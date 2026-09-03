@@ -65,33 +65,51 @@
   "legForm": {
     "patrolTypeField": {
       "label": "Aina ya doria",
-      "placeholder": "Chagua aina ya doria"
+      "placeholder": "Chagua aina ya doria",
+      "requiredError": "Kipande kinahitaji aina ya doria."
     },
     "patrolTypeSchemaErrorMessage": "Sehemu za aina hii ya doria hazikuweza kupakiwa.",
+    "patrolTypeSchemaLoadingLabel": "Inapakia sehemu za aina hii ya doria",
     "staticFields": {
       "assetsLabel": "Vifaa",
-      "autoEndCheckboxLabel": "Maliza doria moja kwa moja wakati huu",
-      "autoStartCheckboxLabel": "Anza doria moja kwa moja wakati huu",
-      "endDateBeforeStartDateError": "Mwisho wa doria lazima uwe baadaye kuliko kuanza kwake.",
+      "autoEndCheckboxLabel": "Maliza kipande moja kwa moja wakati huu",
+      "autoStartCheckboxLabel": "Anza kipande moja kwa moja wakati huu",
+      "endDateBeforeStartDateError": "Mwisho wa kipande lazima uwe baadaye kuliko kuanza kwake.",
       "endDateInputLabel": "Tarehe ya mwisho",
       "endLocationLabel": "Mahali pa mwisho",
       "endTimeInputLabel": "Muda wa mwisho",
       "endTimeLabel": "Muda wa mwisho",
+      "endTimeRequiredError": "Kipande kilicho na tarehe ya mwisho kinahitaji muda wa mwisho.",
       "startDateInputLabel": "Tarehe ya kuanza",
-      "startDateRequiredError": "Doria inahitaji tarehe ya kuanza.",
+      "startDateOverlapsPreviousLegError": "Kipande hiki hakiwezi kuingiliana na kipande kilichotangulia.",
+      "startDateRequiredError": "Kipande kinahitaji tarehe ya kuanza.",
       "startLocationLabel": "Mahali pa kuanzia",
       "startTimeInputLabel": "Muda wa kuanza",
       "startTimeLabel": "Muda wa kuanza",
+      "startTimeRequiredError": "Kipande kinahitaji muda wa kuanza.",
       "teamLabel": "Timu",
       "teamLeadLabel": "Kiongozi wa timu",
       "teamMembersLabel": "Wanachama wa timu"
-    }
+    },
+    "universalFieldsSchemaErrorMessage": "Sehemu za doria za wote hazikuweza kupakiwa.",
+    "universalFieldsSchemaLoadingLabel": "Inapakia sehemu za doria za wote"
+  },
+  "newLeg": {
+    "footer": {
+      "cancelButton": "Ghairi",
+      "saveButton": "Hifadhi"
+    },
+    "header": {
+      "breadcrumbNewLegLabel": "Kipande kipya cha doria",
+      "breadcrumbPatrolsLabel": "Doria",
+      "title": "Kipande kipya cha doria"
+    },
+    "saveErrorMessage": "Kipande cha doria hakikuweza kuundwa. Tafadhali jaribu tena."
   },
   "newPatrol": {
     "footer": {
       "cancelButton": "Ghairi",
-      "saveButton": "Hifadhi",
-      "saveButtonLoadingLabel": "Inapakia"
+      "saveButton": "Hifadhi"
     },
     "header": {
       "breadcrumbNewPatrolLabel": "Doria mpya",
@@ -128,8 +146,7 @@
       "addEventButton": "Ongeza tukio",
       "addEventButtonLabel": "Ongeza tukio",
       "addEventButtonText": "Tukio",
-      "saveButton": "Hifadhi",
-      "saveButtonLoadingLabel": "Inapakia"
+      "saveButton": "Hifadhi"
     },
     "header": {
       "breadcrumbPatrolsLabel": "Doria",
@@ -197,6 +214,7 @@
         "endColumnHeader": "Tarehe ya mwisho",
         "legActionsColumnHeader": "Vitendo",
         "legColumnHeader": "Kipande",
+        "legDidNotRunLabel": "Sehemu hii haikuwahi kuendeshwa",
         "legTableCaption": "Vipande vya doria",
         "newLegButton": "Kipande kipya cha doria",
         "patrolTypeColumnHeader": "Aina ya doria",

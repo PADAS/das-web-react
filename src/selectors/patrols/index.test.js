@@ -720,6 +720,48 @@ describe('Selectors - Patrols', () => {
       expect(trackedSubjects[0].distance).toBeCloseTo(2 * ONE_DEGREE_IN_KILOMETERS, 1);
     });
 
+    describe('when the legs of a patrol overlap', () => {
+      const legsSharingATrack = (...timeRanges) => ({
+        patrol_segments: timeRanges.map((time_range) => ({ leader: RANGER, time_range })),
+      });
+
+      beforeEach(() => {
+        state.data.tracks = {
+          [RANGER.id]: trackFor(
+            [[2, 0], [1, 0], [0, 0]],
+            [SECOND_LEG_TIME_RANGE.end_time, FIRST_LEG_TIME_RANGE.end_time, FIRST_LEG_TIME_RANGE.start_time]
+          ),
+        };
+      });
+
+      test('counts the stretch they share once', () => {
+        const patrol = legsSharingATrack(
+          { end_time: SECOND_LEG_TIME_RANGE.end_time, start_time: FIRST_LEG_TIME_RANGE.start_time },
+          SECOND_LEG_TIME_RANGE
+        );
+
+        expect(selectPatrolTrackedSubjects(state, patrol)[0].distance)
+          .toBeCloseTo(2 * ONE_DEGREE_IN_KILOMETERS, 1);
+      });
+
+      test('counts the stretch they share once when the earlier leg carries no end', () => {
+        const patrol = legsSharingATrack(
+          { end_time: null, start_time: FIRST_LEG_TIME_RANGE.start_time },
+          SECOND_LEG_TIME_RANGE
+        );
+
+        expect(selectPatrolTrackedSubjects(state, patrol)[0].distance)
+          .toBeCloseTo(2 * ONE_DEGREE_IN_KILOMETERS, 1);
+      });
+
+      test('still adds up the legs that do not overlap, whatever order they come in', () => {
+        const patrol = legsSharingATrack(SECOND_LEG_TIME_RANGE, FIRST_LEG_TIME_RANGE);
+
+        expect(selectPatrolTrackedSubjects(state, patrol)[0].distance)
+          .toBeCloseTo(2 * ONE_DEGREE_IN_KILOMETERS, 1);
+      });
+    });
+
     test('counts only the stretch of the track that falls within the leg time range', () => {
       const patrolWithinALongerTrack = {
         patrol_segments: [{ leader: RANGER, time_range: FIRST_LEG_TIME_RANGE }],

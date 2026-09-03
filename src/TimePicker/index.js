@@ -34,6 +34,8 @@ const HOUR_INPUT_PLACEHOLDER = '--';
 const MINUTE_INPUT_PLACEHOLDER = '--';
 
 const TimePicker = ({
+  'aria-errormessage': ariaErrorMessage,
+  'aria-invalid': ariaInvalid,
   className = '',
   disabled = false,
   max = '',
@@ -64,8 +66,9 @@ const TimePicker = ({
 
   useImperativeHandle(ref, () => innerRef.current);
 
-  // We calculate the hour format depending on the user's locale.
-  const use12HourFormat = shouldUse12HourFormat(i18n.language);
+  // The hour format comes from the user's locale. Memoized because it builds an
+  // Intl formatter, which is expensive next to a render.
+  const use12HourFormat = useMemo(() => shouldUse12HourFormat(i18n.language), [i18n.language]);
 
   // The value is expected to come as a string in format HH:mm so we break it down to its parts. The time may be
   // transformed into a 12 hour format depending on the user's locale.
@@ -401,6 +404,8 @@ const TimePicker = ({
   }, [period, periodFromValue, value]);
 
   return <div
+      aria-errormessage={ariaErrorMessage}
+      aria-invalid={ariaInvalid}
       className={styles.timePicker
         + (use12HourFormat ? ` ${styles.twelveHourFormat}` : '')
         + (readOnly ? ` ${styles.readOnly}` : '')
@@ -417,6 +422,8 @@ const TimePicker = ({
     <ClockIcon className={styles.clockIcon} />
 
     <input
+      aria-errormessage={ariaErrorMessage}
+      aria-invalid={ariaInvalid}
       aria-label={t('hourInputLabel')}
       autoComplete="off"
       className={styles.hourInput}
@@ -438,6 +445,8 @@ const TimePicker = ({
     <span className={styles.colon}>:</span>
 
     <input
+      aria-errormessage={ariaErrorMessage}
+      aria-invalid={ariaInvalid}
       aria-label={t('minuteInputLabel')}
       autoComplete="off"
       className={styles.minuteInput}
@@ -457,6 +466,8 @@ const TimePicker = ({
     />
 
     {use12HourFormat && <input
+      aria-errormessage={ariaErrorMessage}
+      aria-invalid={ariaInvalid}
       aria-label={t('periodInputLabel')}
       autoComplete="off"
       className={styles.periodInput}
@@ -473,7 +484,7 @@ const TimePicker = ({
     />}
 
     <button
-      aria-controls={optionsPopoverId}
+      aria-controls={isOptionsPopoverOpen ? optionsPopoverId : undefined}
       aria-expanded={isOptionsPopoverOpen}
       aria-haspopup="listbox"
       aria-label={t('optionsPopoverButtonLabel')}

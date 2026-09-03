@@ -13,6 +13,12 @@
     margin: 0;
   }
 
+  .errorMessage {
+    color: colors.$bright-red;
+    font-size: 0.875rem;
+    margin: 0;
+  }
+
   @media (min-width: layout.$md-layout-width-min) {
     max-width: calc(50% - 0.5rem);
   }
