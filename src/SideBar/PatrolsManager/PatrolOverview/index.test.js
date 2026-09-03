@@ -1,4 +1,5 @@
 import React from 'react';
+import { CanceledError } from 'axios';
 import { Provider } from 'react-redux';
 import { toast } from 'react-toastify';
 import { useLocation, useParams } from 'react-router';
@@ -101,10 +102,10 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     jest.restoreAllMocks();
   });
 
-  const renderPatrolOverview = (patrolId, { withLocationDisplay = false, withNavigateAwayButton = false } = {}) => {
+  const renderPatrolOverview = async (patrolId, { withLocationDisplay = false, withNavigateAwayButton = false } = {}) => {
     useParams.mockReturnValue({ patrolId });
 
-    return render(
+    const renderResult = render(
       <Provider store={mockStore(store)}>
         <PatrolOverview />
 
@@ -114,10 +115,15 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       </Provider>,
       { initialEntries: [`/patrols/${patrolId}`] }
     );
+
+    // The overview only renders the patrol once its detail request settles.
+    await act(async () => {});
+
+    return renderResult;
   };
 
-  test('fetches the patrol if it is not in the store', () => {
-    renderPatrolOverview(patrolWithoutLeader.id);
+  test('fetches the patrol if it is not in the store', async () => {
+    await renderPatrolOverview(patrolWithoutLeader.id);
 
     expect(fetchPatrol).toHaveBeenCalledWith(patrolWithoutLeader.id);
   });
@@ -127,7 +133,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       Object.assign(new Error('Not found'), { response: { status: 404 } })
     ));
 
-    renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true });
+    await renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true });
 
     await waitFor(() => {
       expect(screen.getByTestId('test-location')).toHaveTextContent('/patrols');
@@ -137,25 +143,25 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   test('sends the user back to the feed when the patrol fetch fails for any other reason', async () => {
     fetchPatrol.mockImplementation(() => () => Promise.reject(new Error('Network error')));
 
-    renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true });
+    await renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true });
 
     await waitFor(() => {
       expect(screen.getByTestId('test-location')).toHaveTextContent('/patrols');
     });
   });
 
-  test('fetches the patrol even when the store already lists it, since the feed leaves out its detail', () => {
+  test('fetches the patrol even when the store already lists it, since the feed leaves out its detail', async () => {
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-    renderPatrolOverview(patrolWithoutLeader.id);
+    await renderPatrolOverview(patrolWithoutLeader.id);
 
     expect(fetchPatrol).toHaveBeenCalledWith(patrolWithoutLeader.id);
   });
 
-  test('fetches the patrol leg tracks if necessary', () => {
+  test('fetches the patrol leg tracks if necessary', async () => {
     store.data.patrolStore[patrolWithLeader.id] = patrolWithLeader;
 
-    renderPatrolOverview(patrolWithLeader.id);
+    await renderPatrolOverview(patrolWithLeader.id);
 
     const segment = patrolWithLeader.patrol_segments[0];
 
@@ -170,25 +176,60 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     );
   });
 
-  test('shows a loader if the patrol is not in the store', () => {
-    renderPatrolOverview(patrolWithoutLeader.id);
+  test('shows a loader if the patrol is not in the store', async () => {
+    await renderPatrolOverview(patrolWithoutLeader.id);
 
     expect(screen.getByTestId('patrolOverview-loader')).toBeInTheDocument();
     expect(screen.queryByTestId('patrolOverview-title')).not.toBeInTheDocument();
   });
 
-  test('shows the header', () => {
+  test('shows a loader until the patrol detail arrives, even when the store already lists the patrol', async () => {
+    fetchPatrol.mockImplementation(() => () => new Promise(() => {}));
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-    renderPatrolOverview(patrolWithoutLeader.id);
+    await renderPatrolOverview(patrolWithoutLeader.id);
+
+    expect(screen.getByTestId('patrolOverview-loader')).toBeInTheDocument();
+    expect(screen.queryByTestId('patrolOverview-title')).not.toBeInTheDocument();
+  });
+
+  test('does not send the user back to the feed when the patrol fetch is cancelled', async () => {
+    fetchPatrol.mockImplementation(() => () => Promise.reject(new CanceledError()));
+
+    await renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true });
+
+    expect(screen.getByTestId('test-location')).toHaveTextContent(`/patrols/${patrolWithoutLeader.id}`);
+  });
+
+  test('does not send the user back to the feed when the patrol fetch fails after leaving the patrol', async () => {
+    let rejectPatrolFetch;
+    fetchPatrol.mockImplementation(() => () => new Promise((_, reject) => {
+      rejectPatrolFetch = reject;
+    }));
+
+    const { rerender } = await renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true });
+
+    rerender(<Provider store={mockStore(store)}><LocationDisplay /></Provider>);
+
+    await act(async () => {
+      rejectPatrolFetch(new Error('Network error'));
+    });
+
+    expect(screen.getByTestId('test-location')).toHaveTextContent(`/patrols/${patrolWithoutLeader.id}`);
+  });
+
+  test('shows the header', async () => {
+    store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
+
+    await renderPatrolOverview(patrolWithoutLeader.id);
 
     expect(screen.getByTestId('patrolOverview-title')).toHaveValue(patrolWithoutLeader.title);
   });
 
-  test('shows the tabs', () => {
+  test('shows the tabs', async () => {
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-    renderPatrolOverview(patrolWithoutLeader.id);
+    await renderPatrolOverview(patrolWithoutLeader.id);
 
     expect(screen.getByTestId('patrolOverview-overviewTab')).toBeInTheDocument();
     expect(screen.getByTestId('patrolOverview-historyTab')).toBeInTheDocument();
@@ -197,7 +238,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   test('switches to the history tab when it is selected', async () => {
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-    renderPatrolOverview(patrolWithoutLeader.id);
+    await renderPatrolOverview(patrolWithoutLeader.id);
 
     const historyTab = screen.getByRole('tab', { name: 'History' });
 
@@ -208,10 +249,10 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     expect(historyTab).toHaveAttribute('aria-selected', 'true');
   });
 
-  test('shows the footer', () => {
+  test('shows the footer', async () => {
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-    renderPatrolOverview(patrolWithoutLeader.id);
+    await renderPatrolOverview(patrolWithoutLeader.id);
 
     expect(screen.getByText('Save')).toBeInTheDocument();
   });
@@ -219,7 +260,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   test('adds a new note when clicking the footer note button', async () => {
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-    renderPatrolOverview(patrolWithoutLeader.id);
+    await renderPatrolOverview(patrolWithoutLeader.id);
 
     expect(screen.queryByTestId('note-icon')).not.toBeInTheDocument();
 
@@ -231,7 +272,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   test('disables the note button while there is an unsaved note', async () => {
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-    renderPatrolOverview(patrolWithoutLeader.id);
+    await renderPatrolOverview(patrolWithoutLeader.id);
 
     const addNoteButton = await screen.findByTestId('addNoteButton');
 
@@ -246,7 +287,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   test('re-enables the note button once the unsaved note is saved', async () => {
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-    renderPatrolOverview(patrolWithoutLeader.id);
+    await renderPatrolOverview(patrolWithoutLeader.id);
 
     const addNoteButton = await screen.findByTestId('addNoteButton');
     await userEvent.click(addNoteButton);
@@ -260,7 +301,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   test('deletes a pending note', async () => {
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-    renderPatrolOverview(patrolWithoutLeader.id);
+    await renderPatrolOverview(patrolWithoutLeader.id);
 
     await userEvent.click(await screen.findByTestId('addNoteButton'));
     await userEvent.click(await screen.findByTestId('activitySection-deleteIcon-'));
@@ -271,7 +312,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   test('reverts a note to its saved text when editing is cancelled, leaving other notes untouched', async () => {
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-    renderPatrolOverview(patrolWithoutLeader.id);
+    await renderPatrolOverview(patrolWithoutLeader.id);
 
     await userEvent.click(await screen.findByTestId('addNoteButton'));
     await userEvent.type(screen.getByTestId('activitySection-noteTextArea-'), 'first note');
@@ -296,7 +337,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   test('keeps other pending notes intact when marking one note as done', async () => {
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-    renderPatrolOverview(patrolWithoutLeader.id);
+    await renderPatrolOverview(patrolWithoutLeader.id);
 
     await userEvent.click(await screen.findByTestId('addNoteButton'));
     await userEvent.type(screen.getByTestId('activitySection-noteTextArea-'), 'first note');
@@ -333,14 +374,14 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   };
 
   test('shows the notes the patrol was saved with', async () => {
-    renderPatrolWithNotes();
+    await renderPatrolWithNotes();
 
     expect((await screen.findByTestId('activitySection-noteTextArea-note1'))).toHaveValue('First note');
     expect(screen.getByTestId('activitySection-noteTextArea-note2')).toHaveValue('Second note');
   });
 
   test('user can edit an existing note', async () => {
-    renderPatrolWithNotes();
+    await renderPatrolWithNotes();
 
     const textarea = await editFirstNote('First note edited');
     await userEvent.click(screen.getByTestId('activitySection-noteDone-note1'));
@@ -351,7 +392,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   });
 
   test('marks an existing note as unsaved while its text differs from the one it was saved with', async () => {
-    renderPatrolWithNotes();
+    await renderPatrolWithNotes();
 
     await editFirstNote('First note edited');
     await userEvent.click(screen.getByTestId('activitySection-noteDone-note1'));
@@ -361,7 +402,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   });
 
   test('stops marking an existing note as unsaved once it is typed back to its saved text', async () => {
-    renderPatrolWithNotes();
+    await renderPatrolWithNotes();
 
     await editFirstNote('First note edited');
     await userEvent.click(screen.getByTestId('activitySection-noteDone-note1'));
@@ -373,7 +414,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   });
 
   test('trims the text of an existing note when it is saved', async () => {
-    renderPatrolWithNotes();
+    await renderPatrolWithNotes();
 
     const textarea = await editFirstNote('  First note edited  ');
     await userEvent.click(screen.getByTestId('activitySection-noteDone-note1'));
@@ -382,7 +423,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   });
 
   test('reverts an existing note to its saved text when the edition is cancelled', async () => {
-    renderPatrolWithNotes();
+    await renderPatrolWithNotes();
 
     const textarea = await editFirstNote('First note edited');
     await userEvent.click(screen.getByTestId('activitySection-noteCancel-note1'));
@@ -391,7 +432,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   });
 
   test('reverts an existing note to its saved text when it is collapsed mid edition', async () => {
-    renderPatrolWithNotes();
+    await renderPatrolWithNotes();
 
     const textarea = await editFirstNote('First note edited');
     await userEvent.click(screen.getByRole('button', { name: 'Collapse note' }));
@@ -400,7 +441,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   });
 
   test('leaves an existing note untouched when its edition is cancelled without any change', async () => {
-    renderPatrolWithNotes();
+    await renderPatrolWithNotes();
 
     await userEvent.click(await screen.findByTestId('activitySection-editIcon-note1'));
     await userEvent.click(screen.getByTestId('activitySection-noteCancel-note1'));
@@ -413,7 +454,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   });
 
   test('keeps an edited existing note when a later edition is cancelled', async () => {
-    renderPatrolWithNotes();
+    await renderPatrolWithNotes();
 
     const textarea = await editFirstNote('First note edited');
     await userEvent.click(screen.getByTestId('activitySection-noteDone-note1'));
@@ -425,7 +466,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   });
 
   test('does not allow saving an existing note that has not changed since the last edition', async () => {
-    renderPatrolWithNotes();
+    await renderPatrolWithNotes();
 
     await editFirstNote('First note edited');
     await userEvent.click(screen.getByTestId('activitySection-noteDone-note1'));
@@ -436,7 +477,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   });
 
   test('does not allow emptying an existing note', async () => {
-    renderPatrolWithNotes();
+    await renderPatrolWithNotes();
 
     await userEvent.click(await screen.findByTestId('activitySection-editIcon-note1'));
     await userEvent.clear(screen.getByTestId('activitySection-noteTextArea-note1'));
@@ -445,7 +486,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   });
 
   test('warns about unsaved changes when an existing note was edited', async () => {
-    renderPatrolWithNotes();
+    await renderPatrolWithNotes();
 
     await editFirstNote('First note edited');
     await userEvent.click(screen.getByTestId('activitySection-noteDone-note1'));
@@ -456,7 +497,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   });
 
   test('stops warning about unsaved changes once an existing note is typed back to its saved text', async () => {
-    renderPatrolWithNotes();
+    await renderPatrolWithNotes();
 
     await editFirstNote('First note edited');
     await editFirstNote('First note');
@@ -470,7 +511,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   test('adds a new attachment when uploading a file through the footer attachment button', async () => {
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-    renderPatrolOverview(patrolWithoutLeader.id);
+    await renderPatrolOverview(patrolWithoutLeader.id);
 
     const fakeFile = new File(['file contents'], 'file.pdf', { type: 'application/pdf' });
     await userEvent.upload(await screen.findByTestId('addAttachmentButton'), fakeFile);
@@ -481,7 +522,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   test('does not add a duplicate attachment with the same filename', async () => {
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-    renderPatrolOverview(patrolWithoutLeader.id);
+    await renderPatrolOverview(patrolWithoutLeader.id);
 
     const fakeFile = new File(['file contents'], 'file.pdf', { type: 'application/pdf' });
     const attachmentButton = await screen.findByTestId('addAttachmentButton');
@@ -495,7 +536,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   test('deletes a pending attachment', async () => {
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-    renderPatrolOverview(patrolWithoutLeader.id);
+    await renderPatrolOverview(patrolWithoutLeader.id);
 
     const fakeFile = new File(['file contents'], 'file.pdf', { type: 'application/pdf' });
     await userEvent.upload(await screen.findByTestId('addAttachmentButton'), fakeFile);
@@ -507,10 +548,10 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     expect(screen.queryByText('file.pdf')).not.toBeInTheDocument();
   });
 
-  test('wires the add event button to redirect back to this patrol on save', () => {
+  test('wires the add event button to redirect back to this patrol on save', async () => {
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-    renderPatrolOverview(patrolWithoutLeader.id);
+    await renderPatrolOverview(patrolWithoutLeader.id);
 
     const [props] = addItemButtonMock.mock.calls.at(-1);
 
@@ -536,7 +577,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     };
     store.data.patrolStore[patrolWithMultipleLegs.id] = patrolWithMultipleLegs;
 
-    renderPatrolOverview(patrolWithMultipleLegs.id);
+    await renderPatrolOverview(patrolWithMultipleLegs.id);
 
     const [props] = addItemButtonMock.mock.calls.at(-1);
 
@@ -572,7 +613,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   test('also accepts a single, non-array save result when linking a new event', async () => {
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-    renderPatrolOverview(patrolWithoutLeader.id);
+    await renderPatrolOverview(patrolWithoutLeader.id);
 
     const [props] = addItemButtonMock.mock.calls.at(-1);
 
@@ -586,7 +627,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   test('shows the unsaved changes prompt and stays on the page if navigation is cancelled', async () => {
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-    renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true });
+    await renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true });
 
     await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
     await userEvent.click(screen.getByRole('link', { name: 'Patrols' }));
@@ -602,7 +643,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   test('does not prompt when navigating away without any unsaved changes', async () => {
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-    renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true });
+    await renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true });
 
     await userEvent.click(screen.getByRole('link', { name: 'Patrols' }));
 
@@ -613,7 +654,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   test('offers to go back, discard or save when navigating away with unsaved changes', async () => {
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-    renderPatrolOverview(patrolWithoutLeader.id);
+    await renderPatrolOverview(patrolWithoutLeader.id);
 
     await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
     await userEvent.click(screen.getByRole('link', { name: 'Patrols' }));
@@ -630,7 +671,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   test('discards unsaved changes and navigates away when confirmed', async () => {
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-    renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true });
+    await renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true });
 
     await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
     await userEvent.click(screen.getByRole('link', { name: 'Patrols' }));
@@ -648,7 +689,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   test('saves the unsaved changes and navigates away when confirmed', async () => {
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-    renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true });
+    await renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true });
 
     await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
     await userEvent.click(screen.getByRole('link', { name: 'Patrols' }));
@@ -669,7 +710,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   test('resumes a navigation waiting on the prompt after saving the unsaved changes', async () => {
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-    renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true, withNavigateAwayButton: true });
+    await renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true, withNavigateAwayButton: true });
 
     await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
     await userEvent.click(screen.getByRole('button', { name: 'Navigate away' }));
@@ -690,7 +731,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     updatePatrol.mockImplementation(() => () => Promise.reject(new Error('Save error')));
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-    renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true, withNavigateAwayButton: true });
+    await renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true, withNavigateAwayButton: true });
 
     await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
     await userEvent.click(screen.getByRole('button', { name: 'Navigate away' }));
@@ -721,7 +762,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('disables the save button while there is nothing to save', async () => {
       store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-      renderPatrolOverview(patrolWithoutLeader.id);
+      await renderPatrolOverview(patrolWithoutLeader.id);
 
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
     });
@@ -729,7 +770,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('enables the save button once there are changes', async () => {
       store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-      renderPatrolOverview(patrolWithoutLeader.id);
+      await renderPatrolOverview(patrolWithoutLeader.id);
 
       await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
 
@@ -737,7 +778,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     });
 
     test('keeps the save button disabled when an existing note only gained whitespace', async () => {
-      renderPatrolWithNotes();
+      await renderPatrolWithNotes();
 
       await userEvent.click(await screen.findByTestId('activitySection-editIcon-note1'));
       await userEvent.type(screen.getByTestId('activitySection-noteTextArea-note1'), '  ');
@@ -746,7 +787,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     });
 
     test('keeps the save button disabled when an existing note is emptied', async () => {
-      renderPatrolWithNotes();
+      await renderPatrolWithNotes();
 
       await userEvent.click(await screen.findByTestId('activitySection-editIcon-note1'));
       await userEvent.clear(screen.getByTestId('activitySection-noteTextArea-note1'));
@@ -757,7 +798,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('keeps the save button disabled while a new note has no text yet', async () => {
       store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-      renderPatrolOverview(patrolWithoutLeader.id);
+      await renderPatrolOverview(patrolWithoutLeader.id);
 
       await userEvent.click(await screen.findByTestId('addNoteButton'));
 
@@ -767,7 +808,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('patches the patrol with the edited title only', async () => {
       store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-      renderPatrolOverview(patrolWithoutLeader.id);
+      await renderPatrolOverview(patrolWithoutLeader.id);
 
       await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
       await clickSave();
@@ -781,7 +822,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     });
 
     test('patches the patrol with the whole notes collection when a note is added', async () => {
-      renderPatrolWithNotes();
+      await renderPatrolWithNotes();
 
       await addNote('a new note');
       await clickSave();
@@ -795,7 +836,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     });
 
     test('patches the patrol with the whole notes collection when an existing note is edited', async () => {
-      renderPatrolWithNotes();
+      await renderPatrolWithNotes();
 
       await editFirstNote('First note edited');
       await userEvent.click(screen.getByTestId('activitySection-noteDone-note1'));
@@ -813,7 +854,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('uploads the new attachments without patching the patrol', async () => {
       store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-      renderPatrolOverview(patrolWithoutLeader.id);
+      await renderPatrolOverview(patrolWithoutLeader.id);
 
       const fakeFile = new File(['file contents'], 'file.pdf', { type: 'application/pdf' });
       await uploadAttachment(fakeFile);
@@ -828,7 +869,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('refreshes the patrol and redirects to the feed once the save succeeds', async () => {
       store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-      renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true });
+      await renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true });
 
       await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
       await uploadAttachment(new File(['file contents'], 'file.pdf', { type: 'application/pdf' }));
@@ -849,7 +890,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       updatePatrol.mockImplementation(() => () => Promise.reject(new Error('Save error')));
       store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-      renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true });
+      await renderPatrolOverview(patrolWithoutLeader.id, { withLocationDisplay: true });
 
       await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
       await clickSave();
@@ -864,9 +905,9 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     });
 
     test('redirects to the feed before the patrol refresh resolves', async () => {
-      fetchPatrol.mockImplementation(() => () => new Promise(() => {}));
+      await renderPatrolWithNotes();
 
-      renderPatrolWithNotes();
+      fetchPatrol.mockImplementation(() => () => new Promise(() => {}));
 
       await addNote('a new note');
       await clickSave();
@@ -878,9 +919,9 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     });
 
     test('does not report an error when only the refresh on the way out fails', async () => {
-      fetchPatrol.mockImplementation(() => () => Promise.reject(new Error('Refresh error')));
+      await renderPatrolWithNotes();
 
-      renderPatrolWithNotes();
+      fetchPatrol.mockImplementation(() => () => Promise.reject(new Error('Refresh error')));
 
       await addNote('a new note');
       await clickSave();
@@ -895,7 +936,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       jest.spyOn(console, 'warn').mockImplementation(() => {});
       uploadPatrolFile.mockRejectedValue(new Error('Upload error'));
 
-      renderPatrolWithNotes();
+      await renderPatrolWithNotes();
 
       await addNote('a new note');
       await uploadAttachment(new File(['file contents'], 'file.pdf', { type: 'application/pdf' }));
@@ -917,9 +958,10 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('does not patch the notes again when the refresh after a partial failure also fails', async () => {
       jest.spyOn(console, 'warn').mockImplementation(() => {});
       uploadPatrolFile.mockRejectedValue(new Error('Upload error'));
-      fetchPatrol.mockImplementation(() => () => Promise.reject(new Error('Refresh error')));
 
-      renderPatrolWithNotes();
+      await renderPatrolWithNotes();
+
+      fetchPatrol.mockImplementation(() => () => Promise.reject(new Error('Refresh error')));
 
       await addNote('a new note');
       await uploadAttachment(new File(['file contents'], 'file.pdf', { type: 'application/pdf' }));
@@ -946,7 +988,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
         : Promise.resolve({}));
       store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-      renderPatrolOverview(patrolWithoutLeader.id);
+      await renderPatrolOverview(patrolWithoutLeader.id);
 
       await uploadAttachment([uploadedFile, rejectedFile]);
       await clickSave();
@@ -969,7 +1011,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('follows the patrol title while the user has not edited it', async () => {
       store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-      const { rerender } = renderPatrolOverview(patrolWithoutLeader.id);
+      const { rerender } = await renderPatrolOverview(patrolWithoutLeader.id);
 
       expect(screen.getByTestId('patrolOverview-title')).toHaveValue(patrolWithoutLeader.title);
 
@@ -983,7 +1025,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('keeps the edited title when the patrol changes underneath', async () => {
       store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
-      const { rerender } = renderPatrolOverview(patrolWithoutLeader.id);
+      const { rerender } = await renderPatrolOverview(patrolWithoutLeader.id);
 
       await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
 
@@ -1032,7 +1074,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     });
 
     test('follows the patrol state while the user has not picked one', async () => {
-      const { rerender } = renderPatrolInStore(patrolWithLeader);
+      const { rerender } = await renderPatrolInStore(patrolWithLeader);
 
       expect(screen.getByRole('button', { name: 'Active, Change patrol status' })).toBeInTheDocument();
 
@@ -1043,10 +1085,10 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
     });
 
-    test('follows the patrol state as it transitions on its own', () => {
+    test('follows the patrol state as it transitions on its own', async () => {
       jest.useFakeTimers().setSystemTime(new Date('2026-04-13T12:00:00.000Z'));
 
-      renderPatrolInStore(withLastLeg(patrolWithLeader, {
+      await renderPatrolInStore(withLastLeg(patrolWithLeader, {
         time_range: { start_time: '2026-04-13T12:10:00.000Z', end_time: null },
       }));
 
@@ -1060,7 +1102,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     });
 
     test('keeps the picked state when the patrol changes underneath', async () => {
-      const { rerender } = renderPatrolInStore(patrolWithLeader);
+      const { rerender } = await renderPatrolInStore(patrolWithLeader);
 
       await selectStatus('Done');
 
@@ -1072,7 +1114,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     });
 
     test('does not update the patrol until it is saved', async () => {
-      renderPatrolInStore(patrolWithLeader);
+      await renderPatrolInStore(patrolWithLeader);
 
       await selectStatus('Done');
 
@@ -1080,7 +1122,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     });
 
     test('enables saving once a status is picked', async () => {
-      renderPatrolInStore(patrolWithLeader);
+      await renderPatrolInStore(patrolWithLeader);
 
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
 
@@ -1091,7 +1133,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     });
 
     test('drops the change when the status the patrol is already in is picked back', async () => {
-      renderPatrolInStore(patrolWithLeader);
+      await renderPatrolInStore(patrolWithLeader);
 
       await selectStatus('Done');
       await selectStatus('Active');
@@ -1101,7 +1143,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     });
 
     test('does not turn picking the status the patrol is already in into a change when it later moves on', async () => {
-      const { rerender } = renderPatrolInStore(patrolWithLeader);
+      const { rerender } = await renderPatrolInStore(patrolWithLeader);
 
       await selectStatus('Active');
 
@@ -1112,7 +1154,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     });
 
     test('still sends the picked status when the patrol reaches it on its own before saving', async () => {
-      const { rerender } = renderPatrolInStore(patrolWithLeader);
+      const { rerender } = await renderPatrolInStore(patrolWithLeader);
 
       await selectStatus('Done');
 
@@ -1124,7 +1166,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     });
 
     test('sends the status picked last when another one replaces it', async () => {
-      renderPatrolInStore(patrolWithLeader);
+      await renderPatrolInStore(patrolWithLeader);
 
       await selectStatus('Done');
       await selectStatus('Cancelled');
@@ -1133,7 +1175,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     });
 
     test('sends the update built for the picked status when the patrol is saved', async () => {
-      renderPatrolInStore(patrolWithLeader);
+      await renderPatrolInStore(patrolWithLeader);
 
       await selectStatus('Done');
 
@@ -1145,7 +1187,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     });
 
     test('sends the state alone when the patrol is cancelled', async () => {
-      renderPatrolInStore(patrolWithLeader);
+      await renderPatrolInStore(patrolWithLeader);
 
       await selectStatus('Cancelled');
 
@@ -1153,7 +1195,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     });
 
     test('sends the picked status together with the edited title', async () => {
-      renderPatrolInStore(patrolWithLeader);
+      await renderPatrolInStore(patrolWithLeader);
 
       await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
       await selectStatus('Cancelled');
@@ -1168,7 +1210,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       jest.useFakeTimers().setSystemTime(new Date('2026-04-13T12:00:00.000Z'));
       const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-      renderPatrolInStore(patrolWithLeader);
+      await renderPatrolInStore(patrolWithLeader);
 
       await user.click(screen.getByRole('button', { name: /Change patrol status/ }));
       await user.click(await screen.findByRole('menuitemradio', { name: 'Done' }));
@@ -1188,7 +1230,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     });
 
     test('builds the status update from the patrol as it stands when it is saved', async () => {
-      const { rerender } = renderPatrolInStore(patrolWithLeader);
+      const { rerender } = await renderPatrolInStore(patrolWithLeader);
 
       await selectStatus('Done');
 
@@ -1202,7 +1244,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     });
 
     test('has nothing to send for a pause until the API models paused patrols', async () => {
-      renderPatrolInStore(patrolWithLeader);
+      await renderPatrolInStore(patrolWithLeader);
 
       await selectStatus('Paused');
       await userEvent.click(screen.getByRole('button', { name: 'Save' }));
@@ -1216,7 +1258,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('prompts before navigating away with a picked status', async () => {
       store.data.patrolStore[patrolWithLeader.id] = patrolWithLeader;
 
-      renderPatrolOverview(patrolWithLeader.id, { withNavigateAwayButton: true });
+      await renderPatrolOverview(patrolWithLeader.id, { withNavigateAwayButton: true });
 
       await selectStatus('Done');
       await userEvent.click(screen.getByRole('button', { name: 'Navigate away' }));
@@ -1228,7 +1270,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       uploadPatrolFile.mockRejectedValue(new Error('Upload error'));
       jest.spyOn(console, 'warn').mockImplementation(() => {});
 
-      renderPatrolInStore(patrolWithLeader);
+      await renderPatrolInStore(patrolWithLeader);
 
       await selectStatus('Cancelled');
 
