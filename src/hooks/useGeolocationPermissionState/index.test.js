@@ -115,6 +115,26 @@ describe('useGeolocationPermissionState', () => {
     expect(window.navigator.geolocation.getCurrentPosition).not.toHaveBeenCalled();
   });
 
+  test('forgets the permission state while it is disabled and checks it again once it is enabled', async () => {
+    const { rerender, result } = renderHook(
+      (isEnabled) => useGeolocationPermissionState(isEnabled),
+      { initialProps: true }
+    );
+
+    await waitFor(() => expect(result.current).toBe(GEOLOCATION_PERMISSION_STATES.GRANTED));
+
+    rerender(false);
+
+    expect(result.current).toBeNull();
+    expect(global.navigator.permissions.query).toHaveBeenCalledTimes(1);
+
+    rerender(true);
+
+    await waitFor(() => expect(global.navigator.permissions.query).toHaveBeenCalledTimes(2));
+
+    expect(result.current).toBe(GEOLOCATION_PERMISSION_STATES.GRANTED);
+  });
+
   test('stops listening to permission changes on unmount', async () => {
     const { unmount } = renderHook(() => useGeolocationPermissionState());
 

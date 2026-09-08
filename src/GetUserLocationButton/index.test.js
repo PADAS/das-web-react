@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import { toast } from 'react-toastify';
 import userEvent from '@testing-library/user-event';
 
-import { act, render, screen, within } from '../test-utils';
+import { act, fireEvent, render, screen, within } from '../test-utils';
 import { GEOLOCATOR_OPTIONS } from '../constants';
 import { mockStore } from '../__test-helpers/MockStore';
 import { setCurrentUserLocation } from '../ducks/location';
@@ -55,9 +55,9 @@ describe('GetUserLocationButton', () => {
   );
 
   test('configures the button with other props', async () => {
-    renderGetUserLocationButton({ className: 'className' });
+    renderGetUserLocationButton({ id: 'user-location-button' });
 
-    expect(screen.getByLabelText('Get current position')).toHaveClass('className');
+    expect(screen.getByLabelText('Get current position')).toHaveAttribute('id', 'user-location-button');
   });
 
   test('returns the user position from the store if it is fresh', async () => {
@@ -230,7 +230,7 @@ describe('GetUserLocationButton', () => {
     expect(toast.error).not.toHaveBeenCalled();
   });
 
-  test('does not show an error toast if the user blocked the location permission', async () => {
+  test('shows an error toast for a blocked location permission the caller does not handle', async () => {
     window.navigator.geolocation = {
       getCurrentPosition: jest.fn((_, errorCallback) => {
         errorCallback({ code: 1, message: 'User denied Geolocation', PERMISSION_DENIED: 1 });
@@ -241,7 +241,8 @@ describe('GetUserLocationButton', () => {
     await userEvent.click(screen.getByLabelText('Get current position'));
 
     expect(onGet).not.toHaveBeenCalled();
-    expect(toast.error).not.toHaveBeenCalled();
+    expect(toast.error).toHaveBeenCalledTimes(1);
+    expect(toast.error).toHaveBeenCalledWith('Could not read your current location: User denied Geolocation');
   });
 
   test('notifies the caller when the user blocks the location permission', async () => {
@@ -351,7 +352,8 @@ describe('GetUserLocationButton', () => {
 
       const button = screen.getByLabelText('Get current position');
 
-      await userEvent.click(button);
+      // fireEvent does not move focus on its own, so the focus can only come from the component.
+      fireEvent.click(button);
 
       expect(onClick).toHaveBeenCalledTimes(1);
       expect(document.activeElement).toBe(button);

@@ -4,24 +4,23 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { GEOLOCATION_PERMISSION_STATES } from '../utils/location/constants';
-import { GEOLOCATOR_OPTIONS } from '../constants';
+import { GEOLOCATOR_OPTIONS, USER_LOCATION_REFRESH_INTERVAL } from '../constants';
 import { setCurrentUserLocation } from '../ducks/location';
 import { setUserLocationAccessGranted } from '../ducks/user';
 import { showToast } from '../utils/toast';
 import useGeolocationPermissionState from '../hooks/useGeolocationPermissionState';
 import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
 
-const ONE_MINUTE = 1000 * 60;
-
-const GeoLocationWatcher = ({ updateRate = ONE_MINUTE }) => {
+const GeoLocationWatcher = ({ updateRate = USER_LOCATION_REFRESH_INTERVAL }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('components', { keyPrefix: 'geoLocationWatcher' });
-
-  const geolocationPermissionState = useGeolocationPermissionState();
 
   const user = useSelector((state) => state.data.user);
   const userLocation = useSelector((state) => state.view.userLocation);
   const userLocationAccessGranted = useSelector((state) => state.view.userLocationAccessGranted?.granted);
+
+  // Placed after the selectors because it depends on one of them.
+  const geolocationPermissionState = useGeolocationPermissionState(!!user?.id);
 
   const errorToastId = useRef(null);
   const localUserLocationState = useRef(userLocation);
@@ -68,7 +67,8 @@ const GeoLocationWatcher = ({ updateRate = ONE_MINUTE }) => {
 
     const isGranted = geolocationPermissionState === GEOLOCATION_PERMISSION_STATES.GRANTED;
 
-    if (isGranted) {
+    // react-toastify dismisses every toast when it is given a null id.
+    if (isGranted && errorToastId.current) {
       toast.dismiss(errorToastId.current);
     }
 

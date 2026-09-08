@@ -61,7 +61,9 @@ const MenuPopover = ({
   const [wasLocationPermissionDeniedOnClick, setWasLocationPermissionDeniedOnClick] = useState(false);
 
   // A browser that reports "prompt" after a denied read was dismissed rather than blocked, and dismissing
-  // is not a state the user should be told to go and undo in their settings.
+  // is not a state the user should be told to go and undo in their settings. The click latch is
+  // deliberately one-directional, reset only by closing and reopening the picker, so that a later probe
+  // cannot clear a denial the user has just seen.
   const isLocationPermissionDenied = geolocationPermissionState === GEOLOCATION_PERMISSION_STATES.DENIED
     || (wasLocationPermissionDeniedOnClick && geolocationPermissionState !== GEOLOCATION_PERMISSION_STATES.PROMPT);
 

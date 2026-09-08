@@ -51,7 +51,7 @@ const useGeolocationPermissionState = (isEnabled = true) => {
     };
   }, [isEnabled]);
 
-  return geolocationPermissionState;
+  return isEnabled ? geolocationPermissionState : null;
 };
 
 export default useGeolocationPermissionState;
