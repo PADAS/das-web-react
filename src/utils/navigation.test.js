@@ -1,12 +1,6 @@
 import { matchPath } from 'react-router';
 
-import {
-  detailViewPattern,
-  getCurrentIdFromURL,
-  getCurrentTabFromURL,
-  redirectToExternalUrl,
-  tabPath,
-} from './navigation';
+import { detailViewPattern, getCurrentIdFromURL, getCurrentTabFromURL, redirectToExternalUrl, tabPath } from './navigation';
 
 describe('Navigation utils', () => {
   describe('getCurrentIdFromURL', () => {
