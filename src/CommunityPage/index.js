@@ -22,7 +22,6 @@ import {
 import { fetchCommunityInfo } from '../ducks/community';
 import { fetchEventsSchema } from '../ducks/event-schemas';
 import { fetchEventTypes } from '../ducks/event-types';
-import { probeGeolocationPermission } from '../utils/location/permission-probe';
 import { SidebarScrollProvider } from '../SidebarScrollContext';
 import { uuid } from '../utils/string';
 
@@ -111,16 +110,6 @@ const CommunityPage = () => {
       navigate(`/community/${value}/${creatableEventTypes[0].value}`, { replace: true });
     }
   }, [creatableEventTypes, eventTypeValue, isLoading, isUnauthorized, navigate, value]);
-
-  useEffect(() => {
-    // Without the Permissions API a read attempt is the only way to learn the geolocation state. Waiting for
-    // the community info keeps the prompt off invalid URLs while still resolving before the picker opens.
-    if (isLoading || isUnauthorized) return;
-
-    if (!window.navigator.permissions?.query) {
-      probeGeolocationPermission();
-    }
-  }, [isLoading, isUnauthorized]);
 
   useEffect(() => () => clearTimeout(timeoutRef.current), []);
 
