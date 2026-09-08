@@ -4,14 +4,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { GEOLOCATION_PERMISSION_STATES } from '../utils/location/constants';
-import { GEOLOCATOR_OPTIONS, USER_LOCATION_REFRESH_INTERVAL } from '../constants';
+import { GEOLOCATOR_OPTIONS } from '../constants';
 import { setCurrentUserLocation } from '../ducks/location';
 import { setUserLocationAccessGranted } from '../ducks/user';
 import { showToast } from '../utils/toast';
 import useGeolocationPermissionState from '../hooks/useGeolocationPermissionState';
 import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
 
-const GeoLocationWatcher = ({ updateRate = USER_LOCATION_REFRESH_INTERVAL }) => {
+const ONE_MINUTE = 1000 * 60;
+
+const GeoLocationWatcher = ({ updateRate = ONE_MINUTE }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('components', { keyPrefix: 'geoLocationWatcher' });
 

@@ -5,23 +5,13 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as GpsLocationIcon } from '../common/images/icons/gps-location-icon.svg';
 
-import { GEOLOCATOR_OPTIONS, USER_LOCATION_REFRESH_INTERVAL } from '../constants';
+import { GEOLOCATOR_OPTIONS } from '../constants';
 import { isGeolocationPermissionDeniedError } from '../utils/location/permission-probe';
 import { setCurrentUserLocation } from '../ducks/location';
 
 import LoadingOverlay from '../LoadingOverlay';
 
 import * as styles from './styles.module.scss';
-
-// receivedAt is when the store last received the position, which a running watcher refreshes on every tick
-// even when the fix itself is unchanged, so a position counts as fresh while the watcher was still vouching
-// for it within one refresh.
-const FRESH_POSITION_MAX_AGE = USER_LOCATION_REFRESH_INTERVAL;
-// A transient read failure can fall back to the stored position, but only for a few refreshes: past that
-// nothing has vouched for it in a while.
-const FALLBACK_POSITION_MAX_AGE = USER_LOCATION_REFRESH_INTERVAL * 5;
-
-const positionAge = (position) => (position?.receivedAt ? Date.now() - position.receivedAt : Infinity);
 
 const GetUserLocationButton = ({
   className = '',
@@ -37,6 +27,7 @@ const GetUserLocationButton = ({
   const dispatch = useDispatch();
   const { t } = useTranslation('components', { keyPrefix: 'getUserLocationButton' });
 
+  const isUserLocationWatched = useSelector((state) => state.view.userLocationAccessGranted?.granted);
   const userLocation = useSelector((state) => state.view.userLocation);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -66,7 +57,9 @@ const GetUserLocationButton = ({
       return;
     }
 
-    if (positionAge(userLocation) < FRESH_POSITION_MAX_AGE) {
+    // A live watch is what makes the stored position current: had the user moved, it would have fired. Without
+    // one, a position an earlier click left in the store says nothing about where the user is now.
+    if (isUserLocationWatched && userLocation) {
       onGet(userLocation.coords);
     } else {
       setIsLoading(true);
@@ -81,13 +74,6 @@ const GetUserLocationButton = ({
           },
           (error) => {
             setIsLoading(false);
-
-            // A position the watcher was refreshing until recently beats an error when the device can't
-            // produce a new one, but a denial must stay visible and a position nothing has vouched for in a
-            // while must not silently become the reported location.
-            if (positionAge(userLocation) < FALLBACK_POSITION_MAX_AGE && !isGeolocationPermissionDeniedError(error)) {
-              return onGet(userLocation.coords);
-            }
 
             reportError(error);
           },

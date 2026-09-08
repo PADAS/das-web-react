@@ -252,7 +252,8 @@ describe('LocationPicker - MenuPopover', () => {
 
   test('changes the location when the user clicks the button to get its location', async () => {
     store.view.showUserLocation = true;
-    store.view.userLocation = { coords: { latitude: 10, longitude: 10 }, receivedAt: Date.now() };
+    store.view.userLocation = { coords: { latitude: 10, longitude: 10 } };
+    store.view.userLocationAccessGranted = { granted: true };
     renderMenuPopover();
 
     expect(onChange).not.toHaveBeenCalled();

@@ -293,8 +293,6 @@ export const REPORT_PRIORITIES = [
   REPORT_PRIORITY_NONE
 ];
 
-export const USER_LOCATION_REFRESH_INTERVAL = 1000 * 60;
-
 export const GEOLOCATOR_OPTIONS = {
   enableHighAccuracy: true,
   maximumAge: 0,
