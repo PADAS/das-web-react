@@ -119,6 +119,7 @@
   },
   "legOverview": {
     "activityEmptyStateMessage": "L'activité de l'étape apparaîtra ici",
+    "addEventLinkErrorMessage": "L'événement a été enregistré, mais n'a pas pu être ajouté à cette étape de la patrouille.",
     "attachmentsSaveErrorMessage": "Certaines pièces jointes n'ont pas pu être téléversées. Veuillez réessayer.",
     "footer": {
       "addEventButtonLabel": "Signaler un événement sur cette étape de patrouille",
@@ -213,6 +214,7 @@
     "title": "Options de la patrouille"
   },
   "patrolOverview": {
+    "addEventLinkErrorMessage": "L'événement a été enregistré, mais n'a pas pu être ajouté à cette patrouille.",
     "attachmentsSaveErrorMessage": "Certaines pièces jointes n'ont pas pu être téléversées. Veuillez réessayer.",
     "footer": {
       "addEventButton": "Ajouter un événement",

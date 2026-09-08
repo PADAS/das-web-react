@@ -119,6 +119,7 @@
   },
   "legOverview": {
     "activityEmptyStateMessage": "खण्डको गतिविधि यहाँ देखा पर्नेछ",
+    "addEventLinkErrorMessage": "घटना सुरक्षित भयो, तर यसलाई यो गस्ती खण्डमा थप्न सकिएन।",
     "attachmentsSaveErrorMessage": "केही संलग्न फाइलहरू अपलोड गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।",
     "footer": {
       "addEventButtonLabel": "यो गस्ती खण्डमा घटना रिपोर्ट गर्नुहोस्",
@@ -213,6 +214,7 @@
     "title": "गस्तीका विकल्पहरु"
   },
   "patrolOverview": {
+    "addEventLinkErrorMessage": "घटना सुरक्षित भयो, तर यसलाई यो गस्तीमा थप्न सकिएन।",
     "attachmentsSaveErrorMessage": "केही संलग्न फाइलहरू अपलोड गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।",
     "footer": {
       "addEventButton": "घटना थप्नुहोस्",

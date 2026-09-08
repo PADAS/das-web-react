@@ -70,12 +70,24 @@ const PatrolOverviewContent = ({ patrol }) => {
     const [firstResult] = Array.isArray(saveResults) ? saveResults : [saveResults];
     const newEventId = firstResult.data.data.id;
 
-    await addPatrolSegmentToEvent(governingPatrolSegment(patrol).id, newEventId);
+    // The event is already saved: a failed link leaves it out of the patrol,
+    // not unreported, so the rest of the flow carries on.
+    try {
+      await addPatrolSegmentToEvent(governingPatrolSegment(patrol).id, newEventId);
 
-    patrolOverviewTracker.track('Link new event to patrol');
+      patrolOverviewTracker.track('Link new event to patrol');
+    } catch (error) {
+      toast.error(t('addEventLinkErrorMessage'));
 
-    await dispatch(fetchPatrol(patrol.id));
-  }, [dispatch, patrol]);
+      patrolOverviewTracker.track('Error linking new event to patrol');
+
+      console.warn('Error linking a new event to a patrol: ', error);
+    }
+
+    // The event form is waiting on this, so a failed refresh must not reject
+    // into it.
+    await dispatch(fetchPatrol(patrol.id)).catch(() => {});
+  }, [dispatch, patrol, t]);
 
   const addEventFormProps = useMemo(() => ({
     isPatrolReport: true,

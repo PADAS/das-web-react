@@ -119,6 +119,7 @@
   },
   "legOverview": {
     "activityEmptyStateMessage": "Shughuli za kipande hiki zitaonekana hapa",
+    "addEventLinkErrorMessage": "Tukio limehifadhiwa, lakini halikuweza kuongezwa kwenye kipande hiki cha doria.",
     "attachmentsSaveErrorMessage": "Baadhi ya viambatisho havikuweza kupakiwa. Tafadhali jaribu tena.",
     "footer": {
       "addEventButtonLabel": "Ripoti tukio katika kipande hiki cha doria",
@@ -213,6 +214,7 @@
     "title": "Chaguzi za doria"
   },
   "patrolOverview": {
+    "addEventLinkErrorMessage": "Tukio limehifadhiwa, lakini halikuweza kuongezwa kwenye doria hii.",
     "attachmentsSaveErrorMessage": "Baadhi ya viambatisho havikuweza kupakiwa. Tafadhali jaribu tena.",
     "footer": {
       "addEventButton": "Ongeza tukio",

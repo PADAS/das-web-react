@@ -119,6 +119,7 @@
   },
   "legOverview": {
     "activityEmptyStateMessage": "A atividade da etapa aparecerá aqui",
+    "addEventLinkErrorMessage": "O evento foi salvo, mas não foi possível adicioná-lo a esta etapa da patrulha.",
     "attachmentsSaveErrorMessage": "Não foi possível carregar alguns anexos. Tente novamente.",
     "footer": {
       "addEventButtonLabel": "Relatar um evento nesta etapa de patrulha",
@@ -213,6 +214,7 @@
     "title": "Opções da patrulha"
   },
   "patrolOverview": {
+    "addEventLinkErrorMessage": "O evento foi salvo, mas não foi possível adicioná-lo a esta patrulha.",
     "attachmentsSaveErrorMessage": "Não foi possível carregar alguns anexos. Tente novamente.",
     "footer": {
       "addEventButton": "Adicionar evento",

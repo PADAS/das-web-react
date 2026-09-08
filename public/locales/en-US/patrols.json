@@ -119,6 +119,7 @@
   },
   "legOverview": {
     "activityEmptyStateMessage": "Leg activity will appear here",
+    "addEventLinkErrorMessage": "The event was saved but could not be added to this patrol leg.",
     "attachmentsSaveErrorMessage": "Some attachments could not be uploaded. Please try again.",
     "footer": {
       "addEventButtonLabel": "Report an event on this patrol leg",
@@ -213,6 +214,7 @@
     "title": "Patrol Options"
   },
   "patrolOverview": {
+    "addEventLinkErrorMessage": "The event was saved but could not be added to this patrol.",
     "attachmentsSaveErrorMessage": "Some attachments could not be uploaded. Please try again.",
     "footer": {
       "addEventButton": "Add Event",

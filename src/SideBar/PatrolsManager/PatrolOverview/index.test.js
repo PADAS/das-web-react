@@ -579,6 +579,8 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
 
     await renderPatrolOverview(patrolWithMultipleLegs.id);
 
+    fetchPatrol.mockClear();
+
     const [props] = addItemButtonMock.mock.calls.at(-1);
 
     await props.formProps.onSaveSuccess([{ data: { data: { id: 'new-event-id' } } }]);
@@ -608,6 +610,36 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
 
     expect(addPatrolSegmentToEvent)
       .toHaveBeenCalledWith(patrolWithoutLeader.patrol_segments[0].id, 'new-event-id');
+  });
+
+  test('warns the user and still refreshes the patrol when a new event could not be linked to it', async () => {
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    addPatrolSegmentToEvent.mockImplementation(() => Promise.reject(new Error('link error')));
+    store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
+
+    await renderPatrolOverview(patrolWithoutLeader.id);
+
+    fetchPatrol.mockClear();
+
+    const [props] = addItemButtonMock.mock.calls.at(-1);
+
+    await props.formProps.onSaveSuccess([{ data: { data: { id: 'new-event-id' } } }]);
+
+    expect(toast.error).toHaveBeenCalledWith('The event was saved but could not be added to this patrol.');
+    expect(fetchPatrol).toHaveBeenCalledWith(patrolWithoutLeader.id);
+  });
+
+  test('does not reject back into the event form when the patrol refresh fails', async () => {
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
+
+    await renderPatrolOverview(patrolWithoutLeader.id);
+
+    fetchPatrol.mockImplementation(() => () => Promise.reject(new Error('refresh error')));
+
+    const [props] = addItemButtonMock.mock.calls.at(-1);
+
+    await expect(props.formProps.onSaveSuccess([{ data: { data: { id: 'new-event-id' } } }])).resolves.toBeUndefined();
   });
 
   test('also accepts a single, non-array save result when linking a new event', async () => {

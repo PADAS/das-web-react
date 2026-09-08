@@ -119,6 +119,7 @@
   },
   "legOverview": {
     "activityEmptyStateMessage": "La actividad del tramo aparecerá aquí",
+    "addEventLinkErrorMessage": "El evento se guardó, pero no se pudo agregar a este tramo de la patrulla.",
     "attachmentsSaveErrorMessage": "No se pudieron subir algunos archivos adjuntos. Vuelva a intentarlo.",
     "footer": {
       "addEventButtonLabel": "Reportar un evento en este tramo de patrulla",
@@ -213,6 +214,7 @@
     "title": "Opciones de patrulla"
   },
   "patrolOverview": {
+    "addEventLinkErrorMessage": "El evento se guardó, pero no se pudo agregar a esta patrulla.",
     "attachmentsSaveErrorMessage": "No se pudieron subir algunos archivos adjuntos. Vuelva a intentarlo.",
     "footer": {
       "addEventButton": "Agregar evento",

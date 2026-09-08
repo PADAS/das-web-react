@@ -220,7 +220,9 @@ const PatrolDetailView = () => {
 
   const onAddReport = useCallback(async (reportData) => {
     const { data: { data } } = reportData.length ? reportData[0] : reportData;
-    await addPatrolSegmentToEvent(patrolSegmentId, data.id);
+
+    await addPatrolSegmentToEvent(patrolSegmentId, data.id)
+      .catch((error) => console.warn('add segment error', error));
 
     patrolDetailViewTracker.track('Save report to patrol');
 
