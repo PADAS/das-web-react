@@ -124,7 +124,6 @@
       "addEventButtonLabel": "Report an event on this patrol leg",
       "addEventButtonText": "Event",
       "editButton": "Edit",
-      "inactiveLegActionsHint": "Only a patrol leg that is under way can take notes, attachments and events",
       "saveButton": "Save"
     },
     "header": {

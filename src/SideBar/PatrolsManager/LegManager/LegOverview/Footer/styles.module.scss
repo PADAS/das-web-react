@@ -17,15 +17,6 @@
   justify-content: space-between;
   padding: 1rem;
 
-  .inactiveLegHint {
-    color: colors.$secondary-medium-gray;
-    flex: 1;
-    font-size: 0.75rem;
-    margin: 0;
-    min-width: 0;
-    padding: 0 0.5rem;
-  }
-
   .leftActions {
     align-items: center;
     display: flex;

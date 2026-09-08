@@ -124,7 +124,6 @@
       "addEventButtonLabel": "Reportar un evento en este tramo de patrulla",
       "addEventButtonText": "Evento",
       "editButton": "Editar",
-      "inactiveLegActionsHint": "Solo un tramo de patrulla en curso puede recibir notas, archivos adjuntos y eventos",
       "saveButton": "Guardar"
     },
     "header": {

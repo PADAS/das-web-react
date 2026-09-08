@@ -124,7 +124,6 @@
       "addEventButtonLabel": "Relatar um evento nesta etapa de patrulha",
       "addEventButtonText": "Evento",
       "editButton": "Editar",
-      "inactiveLegActionsHint": "Apenas uma etapa de patrulha em andamento pode receber notas, anexos e eventos",
       "saveButton": "Salvar"
     },
     "header": {

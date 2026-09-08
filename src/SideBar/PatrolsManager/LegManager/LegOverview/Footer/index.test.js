@@ -97,20 +97,6 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview - Footer', () => {
     expect(screen.getByRole('button', { name: ADD_EVENT_BUTTON_LABEL })).toBeDisabled();
   });
 
-  test('says why a leg that is not under way takes no notes, attachments or events', () => {
-    renderFooter({ isLegActive: false });
-
-    expect(screen.getByText('Only a patrol leg that is under way can take notes, attachments and events'))
-      .toBeInTheDocument();
-  });
-
-  test('says nothing about the actions of a leg that is under way', () => {
-    renderFooter();
-
-    expect(screen.queryByText('Only a patrol leg that is under way can take notes, attachments and events'))
-      .not.toBeInTheDocument();
-  });
-
   test('still lets a leg that is not under way be edited and saved', () => {
     renderFooter({ disableSaveButton: false, isLegActive: false });
 

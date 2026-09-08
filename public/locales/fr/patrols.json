@@ -124,7 +124,6 @@
       "addEventButtonLabel": "Signaler un événement sur cette étape de patrouille",
       "addEventButtonText": "Événement",
       "editButton": "Modifier",
-      "inactiveLegActionsHint": "Seule une étape de patrouille en cours peut recevoir des notes, des pièces jointes et des événements",
       "saveButton": "Enregistrer"
     },
     "header": {

@@ -37,9 +37,7 @@ const Footer = ({
   const { hasPatrolsUpdatePermission } = usePatrolsPermissions();
 
   // Notes and files land on the leg whose time range covers them, so a leg that
-  // is not running has no room left for any, and the footer says as much.
-  const inactiveLegProps = isLegActive ? {} : { disabled: true };
-
+  // is not running has no room left for any.
   return <footer className={`${styles.footer} ${styles.hideOnPrint}`}>
     <div className={styles.leftActions}>
       {!!hasPatrolsUpdatePermission && <AddNoteButton
@@ -48,8 +46,8 @@ const Footer = ({
       />}
 
       {!!hasPatrolsUpdatePermission && <AddAttachmentButton
+        disabled={!isLegActive}
         onAddAttachments={onAddAttachments}
-        {...inactiveLegProps}
       />}
 
       <AddItemButton
@@ -57,17 +55,15 @@ const Footer = ({
         aria-label={t('addEventButtonLabel')}
         className={styles.footerActionButton}
         data-testid="legOverviewFooter-addEventButton"
+        disabled={!isLegActive}
         formProps={addEventFormProps}
         hideAddPatrolTab
         iconComponent={<DocumentIcon aria-hidden="true" />}
         label={t('addEventButtonText')}
         title={t('addEventButtonLabel')}
         variant="plain"
-        {...inactiveLegProps}
       />
     </div>
-
-    {!isLegActive && <p className={styles.inactiveLegHint}>{t('inactiveLegActionsHint')}</p>}
 
     <div className={styles.rightActions}>
       {!!hasPatrolsUpdatePermission && !!canEditLeg && <Link
