@@ -179,7 +179,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   test('shows a loader if the patrol is not in the store', async () => {
     await renderPatrolOverview(patrolWithoutLeader.id);
 
-    expect(screen.getByTestId('patrolOverview-loader')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Loading patrol data');
     expect(screen.queryByTestId('patrolOverview-title')).not.toBeInTheDocument();
   });
 
@@ -189,7 +189,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
 
     await renderPatrolOverview(patrolWithoutLeader.id);
 
-    expect(screen.getByTestId('patrolOverview-loader')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Loading patrol data');
     expect(screen.queryByTestId('patrolOverview-title')).not.toBeInTheDocument();
   });
 
@@ -1243,16 +1243,17 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       expect((await savedPayload()).patrol_segments.at(-1).id).toBe('leg-changed-while-editing');
     });
 
-    test('has nothing to send for a pause until the API models paused patrols', async () => {
+    test('pauses the patrol by adding a pause leg, without asking the user for one', async () => {
       await renderPatrolInStore(patrolWithLeader);
 
       await selectStatus('Paused');
       await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
-      await waitFor(() => {
-        expect(fetchPatrol).toHaveBeenCalledWith(patrolWithLeader.id);
-      });
-      expect(updatePatrol).not.toHaveBeenCalled();
+      const { patrol_segments: patrolSegments } = await savedPayload();
+
+      expect(patrolSegments.at(-1).is_pause).toBe(true);
+      expect(patrolSegments.at(-1).time_range.end_time).toBeNull();
+      expect(patrolSegments.at(-2).time_range.end_time).toBe(patrolSegments.at(-1).time_range.start_time);
     });
 
     test('prompts before navigating away with a picked status', async () => {

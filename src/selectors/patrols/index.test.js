@@ -2,6 +2,7 @@ import { TRACK_LENGTH_ORIGINS } from '../../ducks/tracks';
 
 import {
   selectPatrolLeadersWithLastPosition,
+  selectTrackedSubjectsPerPatrolSegment,
   selectPatrolsWithTracks,
   selectPatrolsWithTracksData,
   selectPatrolTrackData,
@@ -23,7 +24,7 @@ describe('Selectors - Patrols', () => {
             },
           },
         },
-        patrolTeamAndTrackingOptions: { leaders: [] },
+        patrolTeamAndTrackingOptions: { assets: [], leaders: [], members: [], teams: [] },
         patrolStore: {},
         subjectStore: {},
         tracks: {},
@@ -670,11 +671,10 @@ describe('Selectors - Patrols', () => {
       },
     });
 
+    const legFor = (leader, timeRange) => ({ assets: [], leader, members: [], time_range: timeRange });
+
     const twoLeggedPatrol = {
-      patrol_segments: [
-        { leader: RANGER, time_range: FIRST_LEG_TIME_RANGE },
-        { leader: DOG, time_range: SECOND_LEG_TIME_RANGE },
-      ],
+      patrol_segments: [legFor(RANGER, FIRST_LEG_TIME_RANGE), legFor(DOG, SECOND_LEG_TIME_RANGE)],
     };
 
     beforeEach(() => {
@@ -690,10 +690,10 @@ describe('Selectors - Patrols', () => {
       };
     });
 
-    test('lists the subject tracked by every leg with the distance it covered, the patrol leader first', () => {
+    test('lists the subject tracked by every leg with the distance it covered, the team lead first', () => {
       const trackedSubjects = selectPatrolTrackedSubjects(state, twoLeggedPatrol);
 
-      expect(trackedSubjects.map(({ isPatrolLeader, subject }) => [subject.id, isPatrolLeader])).toEqual([
+      expect(trackedSubjects.map(({ isTeamLead, subject }) => [subject.id, isTeamLead])).toEqual([
         [DOG.id, true],
         [RANGER.id, false],
       ]);
@@ -702,10 +702,7 @@ describe('Selectors - Patrols', () => {
 
     test('adds up the distance a subject covered across every leg it took part in', () => {
       const singleSubjectPatrol = {
-        patrol_segments: [
-          { leader: RANGER, time_range: FIRST_LEG_TIME_RANGE },
-          { leader: RANGER, time_range: SECOND_LEG_TIME_RANGE },
-        ],
+        patrol_segments: [legFor(RANGER, FIRST_LEG_TIME_RANGE), legFor(RANGER, SECOND_LEG_TIME_RANGE)],
       };
       state.data.tracks = {
         [RANGER.id]: trackFor(
@@ -722,7 +719,7 @@ describe('Selectors - Patrols', () => {
 
     describe('when the legs of a patrol overlap', () => {
       const legsSharingATrack = (...timeRanges) => ({
-        patrol_segments: timeRanges.map((time_range) => ({ leader: RANGER, time_range })),
+        patrol_segments: timeRanges.map((timeRange) => legFor(RANGER, timeRange)),
       });
 
       beforeEach(() => {
@@ -764,7 +761,7 @@ describe('Selectors - Patrols', () => {
 
     test('counts only the stretch of the track that falls within the leg time range', () => {
       const patrolWithinALongerTrack = {
-        patrol_segments: [{ leader: RANGER, time_range: FIRST_LEG_TIME_RANGE }],
+        patrol_segments: [legFor(RANGER, FIRST_LEG_TIME_RANGE)],
       };
       state.data.tracks = {
         [RANGER.id]: trackFor(
@@ -800,7 +797,7 @@ describe('Selectors - Patrols', () => {
 
     test('counts no distance for a leg without a start time', () => {
       const patrolWithoutLegStartTime = {
-        patrol_segments: [{ leader: RANGER, time_range: { end_time: FIRST_LEG_TIME_RANGE.end_time } }],
+        patrol_segments: [legFor(RANGER, { end_time: FIRST_LEG_TIME_RANGE.end_time })],
       };
 
       expect(selectPatrolTrackedSubjects(state, patrolWithoutLegStartTime)[0].distance).toBe(0);
@@ -808,17 +805,16 @@ describe('Selectors - Patrols', () => {
 
     test('counts no distance for a leg whose time range falls outside the fetched track', () => {
       const patrolOutsideTheFetchedTrack = {
-        patrol_segments: [{
-          leader: RANGER,
-          time_range: { end_time: '2019-12-05T00:00:00.000Z', start_time: '2019-12-01T00:00:00.000Z' },
-        }],
+        patrol_segments: [
+          legFor(RANGER, { end_time: '2019-12-05T00:00:00.000Z', start_time: '2019-12-01T00:00:00.000Z' }),
+        ],
       };
 
       expect(selectPatrolTrackedSubjects(state, patrolOutsideTheFetchedTrack)[0].distance).toBe(0);
     });
 
     test('returns an empty list for a patrol whose legs have no leader', () => {
-      const patrolWithoutLeaders = { patrol_segments: [{ leader: null, time_range: FIRST_LEG_TIME_RANGE }] };
+      const patrolWithoutLeaders = { patrol_segments: [legFor(null, FIRST_LEG_TIME_RANGE)] };
 
       expect(selectPatrolTrackedSubjects(state, patrolWithoutLeaders)).toEqual([]);
     });
@@ -839,6 +835,71 @@ describe('Selectors - Patrols', () => {
       };
 
       expect(selectPatrolTrackedSubjects(state, twoLeggedPatrol)).toBe(firstResult);
+    });
+
+    test('locates a tracked subject at its most recent tracked position', () => {
+      state.data.tracks = {
+        [DOG.id]: {
+          ...trackFor([[1, 0], [0, 0]], [SECOND_LEG_TIME_RANGE.end_time, SECOND_LEG_TIME_RANGE.start_time]),
+          points: { features: [{ geometry: { coordinates: [1, 0], type: 'Point' } }] },
+        },
+      };
+      const patrol = { patrol_segments: [legFor(DOG, SECOND_LEG_TIME_RANGE)] };
+
+      expect(selectPatrolTrackedSubjects(state, patrol)[0].coordinates).toEqual([1, 0]);
+    });
+
+    test('falls back to the last known position of a tracked subject whose track is not loaded', () => {
+      const patrolWithoutTracks = {
+        patrol_segments: [legFor({ ...DOG, last_position: { geometry: { coordinates: [5, 6] } } }, FIRST_LEG_TIME_RANGE)],
+      };
+      state.data.tracks = {};
+
+      expect(selectPatrolTrackedSubjects(state, patrolWithoutTracks)[0].coordinates).toEqual([5, 6]);
+    });
+
+    test('falls back to the last position the subject store knows for a tracked subject', () => {
+      const patrolWithoutTracks = { patrol_segments: [legFor(DOG, FIRST_LEG_TIME_RANGE)] };
+      state.data.subjectStore = { [DOG.id]: { last_position: { geometry: { coordinates: [7, 8] } } } };
+      state.data.tracks = {};
+
+      expect(selectPatrolTrackedSubjects(state, patrolWithoutTracks)[0].coordinates).toEqual([7, 8]);
+    });
+
+    test('leaves a tracked subject nothing has located without coordinates', () => {
+      const patrolWithoutTracks = { patrol_segments: [legFor(DOG, FIRST_LEG_TIME_RANGE)] };
+      state.data.tracks = {};
+
+      expect(selectPatrolTrackedSubjects(state, patrolWithoutTracks)[0].coordinates).toBeNull();
+    });
+  });
+
+  describe('selectTrackedSubjectsPerPatrolSegment', () => {
+    const RANGER = { id: 'subject111', name: 'Ranger Amara' };
+    const DOG = { id: 'subject222', name: 'K9 Rex' };
+
+    const legFor = (leader) => ({ assets: [], leader, members: [] });
+
+    test('lists the subjects of every leg, aligned with the legs of the patrol', () => {
+      const patrol = { patrol_segments: [legFor(RANGER), legFor(DOG)] };
+
+      expect(selectTrackedSubjectsPerPatrolSegment(state, patrol).map(
+        (trackedSubjects) => trackedSubjects.map(({ subject }) => subject.id)
+      )).toEqual([[RANGER.id], [DOG.id]]);
+    });
+
+    test('marks the leader of each leg as its own', () => {
+      const patrol = { patrol_segments: [legFor(RANGER), legFor(DOG)] };
+
+      expect(selectTrackedSubjectsPerPatrolSegment(state, patrol).map(
+        (trackedSubjects) => trackedSubjects.map(({ isTeamLead }) => isTeamLead)
+      )).toEqual([[true], [true]]);
+    });
+
+    test('leaves the legs that track nothing empty', () => {
+      const patrol = { patrol_segments: [legFor(null), legFor(DOG)] };
+
+      expect(selectTrackedSubjectsPerPatrolSegment(state, patrol)[0]).toEqual([]);
     });
   });
 
@@ -1325,7 +1386,7 @@ describe('Selectors - Patrols', () => {
       ]);
     });
 
-    test('flags a subject as a patrol leader when it leads a leg other than the first', () => {
+    test('flags a subject as a team lead when it leads a leg other than the first', () => {
       state.view.subjectTrackState.pinned = ['subject789'];
       state.view.patrolTrackState.pinned = ['patrol789'];
       state.data.patrolStore = {

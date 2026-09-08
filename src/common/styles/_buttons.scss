@@ -170,6 +170,38 @@ $square-button-border-radius: .25rem;
   }
 }
 
+@mixin inlineIconButton {
+  align-items: center;
+  background: none;
+  border: none;
+  border-radius: 0.1875rem;
+  color: $secondary-medium-gray;
+  display: inline-flex;
+  height: 1.5rem;
+  justify-content: center;
+  padding: 0;
+  width: 1.5rem;
+
+  svg {
+    height: 1rem;
+    width: 1rem;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: $light-gray-background;
+  }
+
+  &:focus-visible:not(:disabled) {
+    color: $bright-blue;
+    outline: 2px solid $bright-blue;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+}
+
 @mixin baseButton {
   align-items: center;
   background-color: $light-gray-background;

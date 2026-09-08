@@ -1,4 +1,4 @@
-import buildLegDraft from '../../../../LegForm/utils/buildLegDraft';
+import buildLegDraft from '../../../../utils/buildLegDraft';
 import { dogPatrol } from '../../../../../../__test-helpers/fixtures/patrol-types';
 
 import buildAddLegUpdate from './';
@@ -48,18 +48,32 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg - utils - buildAddLegUp
       .toBe(patrol.patrol_segments[0].time_range.start_time);
   });
 
-  test('ends the previous leg where a leg planned ahead of time begins', () => {
+  test('gives a leg planned ahead of time a real start, and ends the previous leg there', () => {
     const patrolUpdate = buildAddLegUpdate(patrol, { ...leg, startDate: '2026-04-20', startTime: '08:00' });
 
-    expect(patrolUpdate.patrol_segments[1].scheduled_start).toBe(new Date(2026, 3, 20, 8, 0).toISOString());
+    expect(patrolUpdate.patrol_segments[1].scheduled_start).toBeNull();
+    expect(patrolUpdate.patrol_segments[1].time_range.start_time)
+      .toBe(new Date(2026, 3, 20, 8, 0).toISOString());
     expect(patrolUpdate.patrol_segments[0].time_range.end_time)
       .toBe(new Date(2026, 3, 20, 8, 0).toISOString());
   });
 
-  test('leaves the previous leg alone when it already carries an end', () => {
+  test('lets the very first leg of a patrol keep a scheduled start', () => {
+    patrol.patrol_segments = [];
+
+    const patrolUpdate = buildAddLegUpdate(patrol, { ...leg, startDate: '2026-04-20', startTime: '08:00' });
+
+    expect(patrolUpdate.patrol_segments[0].scheduled_start).toBe(new Date(2026, 3, 20, 8, 0).toISOString());
+    expect(patrolUpdate.patrol_segments[0].time_range.start_time).toBeNull();
+  });
+
+  test('sends the new leg alone when the previous one already carries an end', () => {
     patrol.patrol_segments[0].time_range.end_time = new Date(2026, 3, 13, 10, 0).toISOString();
 
-    expect(buildAddLegUpdate(patrol, leg).patrol_segments[0]).toBe(patrol.patrol_segments[0]);
+    const patrolUpdate = buildAddLegUpdate(patrol, leg);
+
+    expect(patrolUpdate.patrol_segments).toHaveLength(1);
+    expect(patrolUpdate.patrol_segments[0].patrol_type).toBe(dogPatrol.value);
   });
 
   test('really ends a previous leg that began and was only scheduled to end', () => {
@@ -69,21 +83,21 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg - utils - buildAddLegUp
 
     expect(patrolUpdate.patrol_segments[0].time_range.end_time)
       .toBe(new Date(2026, 3, 13, 11, 0).toISOString());
-    expect(patrolUpdate.patrol_segments[0].scheduled_end).toBe(patrol.patrol_segments[0].scheduled_end);
+    expect(patrolUpdate.patrol_segments[0]).not.toHaveProperty('scheduled_end');
   });
 
-  test('leaves the plan of a previous leg that never began and is already scheduled to end', () => {
+  test('sends the new leg alone when the previous one never began and is already scheduled to end', () => {
     patrol.patrol_segments[0].time_range.start_time = null;
     patrol.patrol_segments[0].scheduled_start = new Date(2026, 3, 13, 6, 0).toISOString();
     patrol.patrol_segments[0].scheduled_end = new Date(2026, 3, 13, 10, 0).toISOString();
 
-    expect(buildAddLegUpdate(patrol, leg).patrol_segments[0]).toBe(patrol.patrol_segments[0]);
+    expect(buildAddLegUpdate(patrol, leg).patrol_segments).toHaveLength(1);
   });
 
-  test('leaves the previous leg alone when it never began', () => {
+  test('sends the new leg alone when the previous one never began', () => {
     patrol.patrol_segments[0].time_range.start_time = null;
 
-    expect(buildAddLegUpdate(patrol, leg).patrol_segments[0]).toBe(patrol.patrol_segments[0]);
+    expect(buildAddLegUpdate(patrol, leg).patrol_segments).toHaveLength(1);
   });
 
   test('schedules the end of a previous leg that is itself only scheduled to begin', () => {
@@ -93,10 +107,10 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg - utils - buildAddLegUp
     const patrolUpdate = buildAddLegUpdate(patrol, { ...leg, startDate: '2026-04-20', startTime: '10:00' });
 
     expect(patrolUpdate.patrol_segments[0].scheduled_end).toBe(new Date(2026, 3, 20, 10, 0).toISOString());
-    expect(patrolUpdate.patrol_segments[0].time_range.end_time).toBeNull();
+    expect(patrolUpdate.patrol_segments[0]).not.toHaveProperty('time_range');
   });
 
-  test('leaves every leg before the previous one alone', () => {
+  test('sends the previous leg and the new one alone, whatever came before them', () => {
     const firstLeg = {
       id: 'leg-0',
       time_range: { end_time: new Date(2026, 3, 13, 6, 0).toISOString(), start_time: new Date(2026, 3, 13, 5, 0).toISOString() },
@@ -105,8 +119,14 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg - utils - buildAddLegUp
 
     const patrolUpdate = buildAddLegUpdate(patrol, leg);
 
-    expect(patrolUpdate.patrol_segments).toHaveLength(3);
-    expect(patrolUpdate.patrol_segments[0]).toBe(firstLeg);
+    expect(patrolUpdate.patrol_segments).toHaveLength(2);
+    expect(patrolUpdate.patrol_segments[0].id).toBe('leg-1');
+  });
+
+  test('names the previous leg and says only what it changes about it', () => {
+    const patrolUpdate = buildAddLegUpdate(patrol, leg);
+
+    expect(Object.keys(patrolUpdate.patrol_segments[0])).toEqual(['id', 'time_range']);
   });
 
   test('adds the leg as the only one of a patrol without legs', () => {

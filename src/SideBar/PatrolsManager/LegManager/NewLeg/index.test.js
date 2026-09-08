@@ -34,6 +34,9 @@ const LocationDisplay = () => <div data-testid="test-location">{useLocation().pa
 
 describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
   const teamLead = { id: 'leader-1', name: 'Alex' };
+  const teamMember = { id: 'member-1', name: 'Nadia' };
+  const asset = { id: 'asset-1', name: 'Land Cruiser' };
+  const team = { display: 'Alpha', id: 'team-1' };
 
   let map, patrol, reduxStore, store;
   beforeEach(() => {
@@ -48,10 +51,13 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
     patrol = {
       id: '93485e1d-6804-459b-9243-1d239556bb48',
       patrol_segments: [{
+        assets: [asset.id],
         end_location: { latitude: 2, longitude: 3 },
         id: '76794b2f-cbb2-49ed-b0dd-9335ae471562',
         leader: teamLead,
+        members: [teamLead.id, teamMember.id],
         patrol_type: dogPatrol.value,
+        team: team.id,
         scheduled_end: new Date(2026, 3, 13, 10, 0).toISOString(),
         start_location: { latitude: 0, longitude: 1 },
         time_range: {
@@ -71,7 +77,12 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
           [dogPatrol.value]: { isLoading: false, schema: patrolTypeFieldsSchema },
           [routinePatrol.value]: { isLoading: false, schema: patrolTypeFieldsSchema },
         },
-        patrolTeamAndTrackingOptions: { assets: [], leaders: [teamLead], teamMembers: [], teams: [] },
+        patrolTeamAndTrackingOptions: {
+          assets: [asset],
+          leaders: [teamLead],
+          members: [teamLead, teamMember],
+          teams: [team],
+        },
         patrolTypes,
         user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ, PERMISSIONS.UPDATE] } },
         userContent: {},
@@ -153,10 +164,12 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
       expect(screen.getByText(dogPatrol.display)).toBeVisible();
     });
 
+    const readTeamAndTrackingField = (label) => within(screen.getByText(label).parentElement);
+
     test('takes its team lead', () => {
       renderNewLeg();
 
-      expect(screen.getByText('Alex')).toBeVisible();
+      expect(readTeamAndTrackingField('Team Lead').getByText(teamLead.name)).toBeVisible();
     });
 
     test('starts the leg where the previous one ends', () => {
@@ -191,6 +204,20 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
       expect(getStartDateTime()).toBe('2026 04 13 10 01 AM');
     });
 
+    test('takes its team, its members and its assets', () => {
+      renderNewLeg();
+
+      expect(readTeamAndTrackingField('Team').getByText(team.display)).toBeVisible();
+      expect(readTeamAndTrackingField('Team Members').getByText(teamMember.name)).toBeVisible();
+      expect(readTeamAndTrackingField('Assets').getByText(asset.name)).toBeVisible();
+    });
+
+    test('lists the team lead among the members it takes', () => {
+      renderNewLeg();
+
+      expect(readTeamAndTrackingField('Team Members').getByText(teamLead.name)).toBeVisible();
+    });
+
     test('leaves the end and the locations of the leg empty', () => {
       renderNewLeg();
 
@@ -217,6 +244,9 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
         .toBe(new Date(2026, 3, 13, 10, 0).toISOString());
       expect(patrolUpdate.patrol_segments[1].patrol_type).toBe(dogPatrol.value);
       expect(patrolUpdate.patrol_segments[1].leader).toBe(teamLead);
+      expect(patrolUpdate.patrol_segments[1].team).toBe(team.id);
+      expect(patrolUpdate.patrol_segments[1].members).toEqual([teamLead.id, teamMember.id]);
+      expect(patrolUpdate.patrol_segments[1].assets).toEqual([asset.id]);
       expect(patrolUpdate.patrol_segments[1].time_range.start_time)
         .toBe(new Date(2026, 3, 13, 10, 0).toISOString());
 
@@ -277,21 +307,6 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
         .toBe(new Date(2026, 3, 13, 12, 0).toISOString());
     });
 
-    test('leaves the previous leg alone when it never started', async () => {
-      patrol.patrol_segments[0].time_range = { end_time: null, start_time: null };
-      patrol.patrol_segments[0].scheduled_end = null;
-
-      const { user } = renderNewLeg();
-
-      await clickSave(user);
-
-      await waitFor(() => expect(updatePatrol).toHaveBeenCalledTimes(1));
-
-      const [patrolUpdate] = updatePatrol.mock.calls[0];
-
-      expect(patrolUpdate.patrol_segments[0]).toBe(patrol.patrol_segments[0]);
-    });
-
     test('shows an error message when the leg cannot be added', async () => {
       updatePatrol.mockImplementation(() => () => Promise.reject(new Error('Oops')));
       jest.spyOn(toast, 'error').mockImplementation(() => {});
@@ -326,6 +341,15 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
     expect(screen.queryByRole('group', { name: 'Start Time' })).toBeNull();
   });
 
+  test('sends the user back to the patrol overview when the patrol has no start to follow on from', async () => {
+    patrol.patrol_segments[0].time_range = { end_time: null, start_time: null };
+
+    renderNewLeg();
+
+    await waitFor(() => expect(screen.getByTestId('test-location')).toHaveTextContent(`/patrols/${patrol.id}`));
+    expect(screen.queryByRole('group', { name: 'Start Time' })).toBeNull();
+  });
+
   test('sends the user back to the patrol overview when the last leg of the patrol has ended', async () => {
     patrol.patrol_segments[0].time_range.end_time = new Date(2026, 3, 13, 10, 0).toISOString();
 
@@ -345,14 +369,13 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
   });
 
   describe('remembering whether a leg starts and ends by itself', () => {
-    test('stores the choice of starting by itself', async () => {
+    test('does not offer the choice of starting by itself to a leg that follows another', () => {
       patrol.patrol_segments[0].scheduled_end = new Date(2026, 3, 13, 14, 0).toISOString();
 
-      const { user } = renderNewLeg();
+      renderNewLeg();
 
-      await user.click(screen.getByRole('checkbox', { name: 'Automatically start the leg at this time' }));
-
-      expect(updateUserPreferences).toHaveBeenCalledWith({ autoStartPatrols: true });
+      expect(screen.queryByRole('checkbox', { name: 'Automatically start the leg at this time' }))
+        .not.toBeInTheDocument();
     });
 
     test('stores the choice of ending by itself', async () => {
@@ -368,13 +391,18 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
       expect(updateUserPreferences).toHaveBeenCalledWith({ autoEndPatrols: true });
     });
 
-    test('opens the form with the choices the user made last', () => {
-      patrol.patrol_segments[0].scheduled_end = new Date(2026, 3, 13, 14, 0).toISOString();
-      store.view.userPreferences.autoStartPatrols = true;
+    test('opens the form with the choices the user made last', async () => {
+      store.view.userPreferences.autoEndPatrols = true;
 
-      renderNewLeg();
+      const { user } = renderNewLeg();
 
-      expect(screen.getByRole('checkbox', { name: 'Automatically start the leg at this time' })).toBeChecked();
+      await user.type(getDateInput('End date', 'Year'), '2026');
+      await user.type(getDateInput('End date', 'Month'), '04');
+      await user.type(getDateInput('End date', 'Day'), '20');
+      await user.type(getDateInput('End time', 'Hour'), '08');
+      await user.type(getDateInput('End time', 'Minute'), '00');
+
+      expect(screen.getByRole('checkbox', { name: 'Automatically end the leg at this time' })).toBeChecked();
     });
   });
 

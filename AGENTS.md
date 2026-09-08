@@ -54,7 +54,7 @@ A **source** is a telemetry device (GPS collar, radio, acoustic sensor). Sources
 - `points`: `FeatureCollection` of `Point` features derived from the line, each with a computed `bearing` for directional arrows
 - `fetchedDateRange`: the `{ since, until }` window already loaded
 
-Tracks are lazy-loaded and cached, socket status updates prepend new positions onto them. Track history depth is user-configurable (default 21 days) and can be locked to the active event filter's date range. When time-of-day coloring is enabled, a `trackSegments` `FeatureCollection` is added that segments the line into time-range buckets, each with a distinct color.
+Tracks are lazy-loaded and cached, socket status updates prepend new positions onto them. Track history depth is user-configurable and can be locked to the active event filter's date range. When time-of-day coloring is enabled, a `trackSegments` `FeatureCollection` is added that segments the line into time-range buckets, each with a distinct color.
 
 **Track visibility** cycles through three states: **hidden** (default), **visible** (line at lower opacity), and **pinned** (full opacity, higher render priority). Subjects can be included to the **subject heatmap**, a density surface overlay on the map.
 
@@ -75,9 +75,9 @@ Tracks are lazy-loaded and cached, socket status updates prepend new positions o
 
 **Universal Patrol Fields** are the fields every leg renders on top of its patrol type's own, whatever the type. A site defines a single admin-configured schema for them, fetched once at startup.
 
-> "Universal Patrol Fields" is the admin UI's wording. The API models them as the schema of a segment type whose value is `default`, and the code follows the API.
+> "Universal Patrol Fields" is the admin UI's wording. The API models them as the schema of a segment type whose value is `default`.
 
-**Team & Tracking** are the leg fields for who is on it and what reports its position: a team, a team lead, team members, and assets (vehicles, radios, GPS devices), each chosen from its own site-level list — a team carries no members of its own, it is only a choice. The team lead is stored as the leg's `leader`, which the API and older UI call "tracked by"; the tracked subjects' observations are what produce the patrol track.
+**Team & Tracking** are the leg fields for who is on it and what reports its position: a team, a team lead, team members, and assets (vehicles, radios, GPS devices), each chosen from its own site-level list. The team lead is stored as the leg's `leader`, which the API and older UI call "tracked by"; the tracked subjects' observations are what produce the patrol track.
 
 **UI states** are derived client-side; the API only knows `open`, `done`, and `cancelled`:
 
@@ -86,20 +86,20 @@ Tracks are lazy-loaded and cached, socket status updates prepend new positions o
 | `scheduled` | scheduled start is more than an hour away |
 | `ready_to_start` | scheduled start is within the next hour |
 | `start_overdue` | scheduled start passed 30+ min ago and the patrol has not started |
-| `active` | a leg has begun and the last leg has not ended |
+| `active` | the first leg has begun and some leg has not ended |
 | `paused` | paused and not yet resumed |
-| `done` | ended |
+| `done` | every leg has ended |
 | `cancelled` | cancelled |
 | `invalid` | no legs, or a first leg with no start of any kind |
 
-**Tracks.** The patrol track is the track of the leg's tracked subjects, trimmed to the leg's time range. Only patrols that have started can display tracks. Visibility follows the same three-state cycle as subjects (hidden → visible → pinned).
+**Tracks.** The patrol track is the track of the leg's tracked subjects, trimmed to the leg's time range. Any patrol with a leg that has begun can display tracks, whatever state it went on to reach. Visibility follows the same three-state cycle as subjects (hidden → visible → pinned).
 
 **Provenance.** A patrol's `provenance` records where it was created. An active patrol with `provenance: 'mobile'` can't be fully managed from the web client: it can't take new legs, and ending the patrol is the only status change offered.
 
 **Two patrol detail UIs ship side by side**, switched by the `PATROL_SCHEMAS` preview feature: the legacy `PatrolDetailView` and the current `SideBar/PatrolsManager`. The feed is shared. New work goes in `PatrolsManager`, which is what the routes below describe.
 
 **UI**
-- **Patrols Feed** (`/patrols`): the patrol list, ordered start_overdue → ready_to_start → paused → active → scheduled → done → cancelled, with inline actions per row (start, resume, restore). Filters: text search, date range, patrol type, tracked-by, and status.
+- **Patrols Feed** (`/patrols`): the patrol list, ordered ready_to_start → start_overdue → active → paused → scheduled → done → cancelled, with inline actions per row (start, resume, restore). Filters: text search, date range, patrol type, tracked-by, and status.
 - **New Patrol** (`/patrols/new?patrol-type=:id`): the leg form. Creating a patrol means creating its first leg, so this is the same form the leg routes use, with the patrol's title and type set here; the query parameter seeds the type.
 - **Patrol Overview** (`/patrols/:patrolId`): header (editable title, track and location actions, kebab menu, status select), an **Overview** tab (the leg table and the activity timeline) and a **History** tab (audit trail from `updates`), and footer actions to add notes, attachments and events.
 - **New Leg** (`/patrols/:patrolId/legs/new`): the leg form, adding a leg to an existing patrol. Saving it ends the current leg and starts this one.
@@ -169,13 +169,9 @@ Messages are grouped by date and sender, support infinite-scroll pagination, and
 A tenant's system config decides how users sign in: local credentials or Auth0, never both. Either path ends with an access token, kept in a cookie and in Redux and sent as a `Bearer` header.
 
 - **Username and password** (`require_idp` off): posted to the DAS OAuth token endpoint.
-- **Auth0 redirect** (`require_idp` on): to the organization's identity provider when `idp_org_id` is set, otherwise to EarthRanger Identity. The latter sites are mid-migration, so accounts that aren't linked yet are sent to the server's account linker.
+- **Auth0 redirect** (`require_idp` on): to the organization's identity provider, or to EarthRanger Identity where the site has none. Those sites are mid-migration, so an account that is not linked yet is sent to the server's account linker. A site may also offer a **managed user** button, for accounts local to its own Auth0 database.
 
-On the Auth0 path a site may also offer a **managed user** button — an account that exists only in that site's Auth0 database, with a username and no self-service reset. It redirects with `connection` set to the site slug, and appears only where `support_managed_users` and `site_slug` are both present and the site is not org-scoped. Failures returning from Auth0 are attributed by a stored attempt marker, never by reading Auth0's error text. If the account-linking gate finds no ER account for one, the user is signed out of Auth0 — the session, not just the cached token — and told so on the login page, rather than sent to the linker, whose password form cannot serve them.
-
-Two guards wrap the app: one redirects to `/login` without a token, preserving the intended route across the Auth0 round trip; the other, only where the `EULA` flag is on, redirects to `/eula` until the user accepts it.
-
-A 401 first tries a silent token renewal and replays the request, or restarts the Auth0 redirect for MFA if the response carries a step-up challenge. Only when that fails is the session cleared. Signing out drops the token cookies, the selected profile, and all Redux state.
+Two guards wrap the app: one redirects to `/login` without a token, the other, where the `EULA` flag is on, to `/eula` until the user accepts it. A 401 tries a silent recovery — renewing the token or restarting the redirect — and clears the session only when that fails. Signing out drops the token cookies, the selected profile, and all Redux state.
 
 **Profiles.** A user account can have profiles: alternate identities the signed-in user can operate as, listed beside the main user in the top-bar user menu and PIN-protected when the profile has one. While a profile is active, requests carry a `User-Profile` header so data is scoped to it.
 
@@ -299,12 +295,15 @@ Two separate systems.
 
 ### Development Preferences
 
-The repository favors code that reads the same everywhere: a reviewer should not be able to tell which file a snippet came from. ESLint and Stylelint own a small part of that; everything below is convention they do not enforce, and it is expected in new code and in code you touch.
+The repository favors code that reads the same everywhere. ESLint and Stylelint own a small part of that; everything below is convention they do not enforce, and it is expected in new code and in code you touch.
 
 #### Workflow
 
+Follow the boy scout rule: leave a file you touch better than you found it. Keep those improvements inside the files the task already takes you to.
+
 After making code changes:
 
+- Reread the code you wrote against the conventions in this file and fix what drifts. Put special attention to comments' size.
 - Run `yarn lint`, and `yarn stylelint` if you touched SCSS. Fix every problem you introduced.
 - Run `yarn test <path-or-pattern>` over the areas you changed and make sure they pass.
 - If you changed anything under `public/locales/`, bump `I18N_FILES_VERSION` in `src/i18n.js`. Verify with `yarn check-i18n-files-version`.
@@ -335,9 +334,11 @@ Sort each block alphabetically by the first imported binding, not by path.
 - Arrow functions everywhere.
 - Module-level constants in `SCREAMING_SNAKE_CASE` above the component; analytics trackers built once at module level (`const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);`). Anything a test needs to reach is exported inline; there is exactly one default export, at the bottom of the file.
 - Names are verbose and explicit over short and obscure.
-- Booleans start with `is`/`has`/`can`/`should`; handlers and handler props with `on`; refs end in `Ref`; setters start with `set`; selectors start with `select`.
+- Booleans start with `is`/`has`/`can`/`should`; handlers and handler props with `on`; refs end in `Ref`; setters start with `set`.
+- Selectors start with `select`, and whatever takes their value drops it: `selectPatrolTypes` gives `patrolTypes`, in `useSelector` reads and `createSelector` result functions alike.
 - Avoid a variable read only once. Prefer the readable one-liner, and introduce the variable only when its name is what makes the code readable.
 - Avoid destructuring in a function body: `leg.startTime` keeps the origin of the value visible, `const { startTime } = leg;` hides it. Props destructured in a component signature are the exception.
+- Conditions read positively. A single branch wraps its logic rather than guarding with a bare `return;`; an early return that yields a value is fine.
 
 #### Alphabetical Ordering
 
@@ -347,7 +348,7 @@ Sort alphabetically, so diffs stay small and merge conflicts stay rare:
 - JSX props, with `{...otherProps}` last;
 - destructured props in a component signature, and named import bindings;
 - `useSelector` and `useState` declarations within their group;
-- translation JSON keys, nested and flat interleaved;
+- translation JSON keys, case-insensitively, nested and flat interleaved;
 - CSS declarations within a rule.
 
 Function parameters follow the call's own logic, not the alphabet.
@@ -357,7 +358,7 @@ Function parameters follow the call's own logic, not the alphabet.
 - Functional components with hooks. No PropTypes.
 - Props destructured in the signature with defaults inline, alphabetically. `ref` is a plain prop. A component that wraps a DOM element collects the rest into `...otherProps` and spreads it last onto the root element.
 - Body order, each group sorted alphabetically and separated by a blank line: library hooks (`useDispatch`, `useTranslation`, router hooks), app hooks, `useSelector` calls, `useContext`, `useRef`, `useId`, `useState`, derived variables, `useMemo`, handlers, `useEffect`, then the returned JSX.
-- Memoize only when it pays: for a dependency array, for a genuinely expensive computation, or for the props of a `memo` boundary you checked actually bails — one unmemoized sibling prop wastes every other one. Never to spare a field or two a re-render. `memo()` only where a parent re-renders often with the child's props unchanged; a memoized parent already spares its whole subtree.
+- Memoize only when it pays: for a dependency array, for a genuinely expensive computation, or for the props of a `memo` boundary you checked actually bails. Never to spare a field or two a re-render. `memo()` only where a parent re-renders often with the child's props unchanged; a memoized parent already spares its whole subtree.
 - JSX: a blank line between sibling elements at the same indentation level, one-line inline arrows for trivial handlers, a local `render*` helper for JSX rendered in more than one place, and `type="button"` on every button.
 - `data-testid` only where no accessible query can reach the element, named `<componentName>-<element>` (`timeSlider-wrapper`).
 
@@ -379,13 +380,16 @@ Function parameters follow the call's own logic, not the alphabet.
 
 - Read strings with `useTranslation('<namespace>', { keyPrefix: '<path>' })`, where the key prefix mirrors the component's position in the folder tree (`sideBar.settingsPane.mapTab.mainMapSettingsView.generalFieldSet`). Outside components, use `i18next.getFixedT(null, '<namespace>', '<keyPrefix>')`.
 - Key names describe the element and its role: `closeButtonLabel`, `resultsTableCaption`, `speedMenuOptionLabel`.
+- Call `t` inline where the string is used rather than holding its result in a variable, even when that repeats the call.
 - Every user-facing string, including `aria-label` and `title` text, goes through i18n and is added to **every** locale under `public/locales/`, properly translated — never copied from English.
+- Match the wording a locale already carries: one term per domain noun across a namespace, one regional variant and one level of formality per locale, and the same value for a message that already exists under another key.
 
 #### Comments
 
 Comment only what the code cannot say — a non-obvious *why*, a caveat, an external reference. If naming and structure can carry it, no comment is written. Anything that restates what the code does is noise.
 
 - Hard limits: `//` only, at most two lines, each at most 80 columns — wider code nearby is no licence. Past two lines, cut it rather than wrap again.
+- One reason is enough — a second sentence arguing the same point is cut, not kept.
 - Directly above the code they explain, full sentences ending in a period.
 - An `eslint-disable` line always carries the reason it is there.
 - Never leave working notes behind: no narrating the change (`// now using X instead of Y`, `// this fixes the bug`), no ticket numbers, no references to plans or conversations that exist only on your machine. The diff and the commit message are for that.

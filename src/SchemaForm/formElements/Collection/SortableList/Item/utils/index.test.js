@@ -5,17 +5,13 @@ import { getItemTitle } from './';
 
 describe('SchemaForm - formElements - Collection - SortableList - Item - utils', () => {
   describe('getItemTitle', () => {
-    const t = (_, { collectionLength }) => `${collectionLength} items`;
-
     test('returns the default value if there is no identifier', () => {
       expect(getItemTitle(
         { identifier: 'identifier value' },
         null,
         'default',
         { type: FORM_ELEMENT_TYPES.TEXT },
-        'en-US',
-        GPS_FORMATS.DEG,
-        t
+        GPS_FORMATS.DEG
       )).toBe('default');
     });
 
@@ -25,9 +21,7 @@ describe('SchemaForm - formElements - Collection - SortableList - Item - utils',
         'identifier',
         'default',
         { type: FORM_ELEMENT_TYPES.TEXT },
-        'en-US',
-        GPS_FORMATS.DEG,
-        t
+        GPS_FORMATS.DEG
       )).toBe('default');
     });
 
@@ -37,9 +31,7 @@ describe('SchemaForm - formElements - Collection - SortableList - Item - utils',
         'identifier',
         'default',
         { type: FORM_ELEMENT_TYPES.TEXT },
-        'en-US',
-        GPS_FORMATS.DEG,
-        t
+        GPS_FORMATS.DEG
       )).toBe('identifier value');
     });
   });

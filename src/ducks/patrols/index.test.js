@@ -11,6 +11,7 @@ import {
   DELETE_PATROL_BY_ID,
   FETCH_PATROL_TEAM_AND_TRACKING_OPTIONS_SUCCESS,
   FETCH_PATROLS_FEED_SUCCESS,
+  fetchPatrol,
   fetchPatrolsFeed,
   fetchPatrolTeamAndTrackingOptions,
   PATROL_CONFIG_API_URL,
@@ -32,6 +33,8 @@ import {
 
 const PATROL_A_ID = 'aaaaaaaa-0000-0000-0000-000000000001';
 const PATROL_B_ID = 'bbbbbbbb-0000-0000-0000-000000000002';
+
+const SERVED_TEAM_AND_TRACKING = { assets: [], members: [], team: null };
 
 const makePatrol = (id, overrides = {}) => ({
   id,
@@ -130,6 +133,20 @@ describe('Ducks - Patrols', () => {
       ]);
     });
 
+    test('asks for the pauses, so the feed and the socket agree on a patrol\'s legs', async () => {
+      let requestedUrl = null;
+      server.use(http.get(PATROLS_API_URL, ({ request }) => {
+        requestedUrl = new URL(request.url);
+
+        return HttpResponse.json({ data: feedResponse });
+      }));
+
+      const store = mockStore({ data: {}, view: {} });
+      await store.dispatch(fetchPatrolsFeed()).request;
+
+      expect(requestedUrl.searchParams.get('include_pauses')).toBe('true');
+    });
+
     test('does not report a cancelled request as a failure', async () => {
       const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
       respondWithFeed();
@@ -153,6 +170,23 @@ describe('Ducks - Patrols', () => {
 
       expect(store.getActions()).toEqual([]);
       expect(warn).toHaveBeenCalled();
+    });
+  });
+
+  describe('fetchPatrol', () => {
+    test('asks for the pauses, so a refetch does not drop the ones the socket sent', async () => {
+      let requestedUrl = null;
+      server.use(http.get(`${PATROLS_API_URL}:patrolId`, ({ request }) => {
+        requestedUrl = new URL(request.url);
+
+        return HttpResponse.json({ data: patrolA });
+      }));
+
+      const store = mockStore({ data: {}, view: {} });
+      await store.dispatch(fetchPatrol(PATROL_A_ID));
+
+      expect(requestedUrl.searchParams.get('include_pauses')).toBe('true');
+      expect(store.getActions()).toEqual([{ payload: patrolA, type: UPDATE_PATROL_SUCCESS }]);
     });
   });
 
@@ -197,7 +231,7 @@ describe('Ducks - Patrols', () => {
       const options = await store.dispatch(fetchPatrolTeamAndTrackingOptions());
 
       expect(options.assets).toEqual(assets);
-      expect(options.teamMembers).toEqual(members);
+      expect(options.members).toEqual(members);
       expect(options.teams).toEqual(teams);
     });
 
@@ -207,7 +241,7 @@ describe('Ducks - Patrols', () => {
       const store = mockStore({ data: {}, view: {} });
       const options = await store.dispatch(fetchPatrolTeamAndTrackingOptions());
 
-      expect(options).toEqual({ assets: [], leaders, teamMembers: [], teams: [] });
+      expect(options).toEqual({ assets: [], hasFetched: true, leaders, members: [], teams: [] });
     });
 
     test('keeps the leaders when the config request fails', async () => {
@@ -217,7 +251,7 @@ describe('Ducks - Patrols', () => {
       const store = mockStore({ data: {}, view: {} });
       const options = await store.dispatch(fetchPatrolTeamAndTrackingOptions());
 
-      expect(options).toEqual({ assets: [], leaders, teamMembers: [], teams: [] });
+      expect(options).toEqual({ assets: [], hasFetched: true, leaders, members: [], teams: [] });
       expect(store.getActions())
         .toEqual([{ payload: options, type: FETCH_PATROL_TEAM_AND_TRACKING_OPTIONS_SUCCESS }]);
     });
@@ -229,7 +263,7 @@ describe('Ducks - Patrols', () => {
       const store = mockStore({ data: {}, view: {} });
       const options = await store.dispatch(fetchPatrolTeamAndTrackingOptions());
 
-      expect(options).toEqual({ assets, leaders: [], teamMembers: members, teams });
+      expect(options).toEqual({ assets, hasFetched: true, leaders: [], members: members, teams });
     });
   });
 
@@ -243,6 +277,20 @@ describe('Ducks - Patrols', () => {
 
       expect(store.getActions()).toEqual([{ payload: updatedPatrol, type: UPDATE_PATROL_SUCCESS }]);
       expect(response.data.data).toEqual(updatedPatrol);
+    });
+
+    test('asks for the pauses, so the update answers with the legs the patrol has', async () => {
+      let requestedUrl = null;
+      server.use(http.patch(`${PATROLS_API_URL}${PATROL_A_ID}`, ({ request }) => {
+        requestedUrl = new URL(request.url);
+
+        return HttpResponse.json({ data: patrolA });
+      }));
+
+      const store = mockStore({ data: {}, view: {} });
+      await store.dispatch(updatePatrol({ id: PATROL_A_ID, state: 'done' }));
+
+      expect(requestedUrl.searchParams.get('include_pauses')).toBe('true');
     });
 
     test('reports the error and rejects when the update fails', async () => {
@@ -279,14 +327,21 @@ describe('Ducks - Patrols', () => {
     });
 
     test('replaces the collections of a stored patrol instead of merging them item by item', () => {
-      const storedPatrol = makePatrol(PATROL_A_ID, { patrol_segments: [{ id: 'leg-1' }, { id: 'leg-2' }] });
+      const storedPatrol = makePatrol(PATROL_A_ID, {
+        patrol_segments: [
+          { id: 'leg-1', ...SERVED_TEAM_AND_TRACKING },
+          { id: 'leg-2', ...SERVED_TEAM_AND_TRACKING },
+        ],
+      });
 
       const state = patrolStoreReducer({ [PATROL_A_ID]: storedPatrol }, {
         type: UPDATE_PATROL_STORE,
-        payload: { results: [makePatrol(PATROL_A_ID, { patrol_segments: [{ id: 'leg-1' }] })] },
+        payload: {
+          results: [makePatrol(PATROL_A_ID, { patrol_segments: [{ id: 'leg-1', ...SERVED_TEAM_AND_TRACKING }] })],
+        },
       });
 
-      expect(state[PATROL_A_ID].patrol_segments).toEqual([{ id: 'leg-1' }]);
+      expect(state[PATROL_A_ID].patrol_segments).toEqual([{ id: 'leg-1', ...SERVED_TEAM_AND_TRACKING }]);
     });
 
     test('stores a patrol created through the API', () => {
@@ -322,6 +377,7 @@ describe('Ducks - Patrols', () => {
       const leg = (id, startTime, overrides) => ({
         id,
         time_range: { end_time: null, start_time: startTime },
+        ...SERVED_TEAM_AND_TRACKING,
         ...overrides,
       });
 
@@ -425,12 +481,12 @@ describe('Ducks - Patrols', () => {
     const loadedOptions = {
       assets: [{ id: 'asset-1', name: 'Radio 7' }],
       leaders: [{ id: 'leader-1', name: 'Alex' }],
-      teamMembers: [{ id: 'member-1', name: 'Maya Chen' }],
+      members: [{ id: 'member-1', name: 'Maya Chen' }],
       teams: [{ id: 'team-1', name: 'Alpha' }],
     };
 
     test('replaces the options it has with the ones the site serves', () => {
-      const newOptions = { assets: [], leaders: [{ id: 'leader-2', name: 'Priya' }], teamMembers: [], teams: [] };
+      const newOptions = { assets: [], leaders: [{ id: 'leader-2', name: 'Priya' }], members: [], teams: [] };
 
       expect(patrolTeamAndTrackingOptionsReducer(
         loadedOptions,
@@ -440,7 +496,7 @@ describe('Ducks - Patrols', () => {
 
     test('empties the options on a global reset', () => {
       expect(patrolTeamAndTrackingOptionsReducer(loadedOptions, resetGlobalState()))
-        .toEqual({ assets: [], leaders: [], teamMembers: [], teams: [] });
+        .toEqual({ assets: [], hasFetched: false, leaders: [], members: [], teams: [] });
     });
   });
 });

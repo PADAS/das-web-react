@@ -1,3 +1,5 @@
+import '../../../i18nForTests';
+
 import { format, parseISO } from 'date-fns';
 
 import { choicesListOptions } from '../fixtures';
@@ -8,13 +10,16 @@ import { GPS_FORMATS } from '../../location';
 import getHumanizedFieldValue from '.';
 
 describe('getHumanizedFieldValue', () => {
-  const t = (key, params = {}) => {
-    if (key === 'attachmentHumanizedValue') return `${params.count} attachments`;
-    return `${params.collectionLength} items`;
-  };
-
   test('returns the default value if no value is provided', () => {
-    expect(getHumanizedFieldValue({ type: FORM_ELEMENT_TYPES.TEXT }, undefined, 'default', 'en-US', GPS_FORMATS.DEG, t)).toBe('default');
+    expect(getHumanizedFieldValue({ type: FORM_ELEMENT_TYPES.TEXT }, undefined, 'default', GPS_FORMATS.DEG))
+      .toBe('default');
+  });
+
+  test('returns the default value for a field explicitly emptied', () => {
+    [FORM_ELEMENT_TYPES.ATTACHMENT, FORM_ELEMENT_TYPES.CHOICE_LIST, FORM_ELEMENT_TYPES.COLLECTION].forEach((type) => {
+      expect(getHumanizedFieldValue({ details: { multiple: true }, type }, null, 'default', GPS_FORMATS.DEG))
+        .toBe('default');
+    });
   });
 
   test('returns the default value if the attachment array is empty', () => {
@@ -22,9 +27,7 @@ describe('getHumanizedFieldValue', () => {
       { type: FORM_ELEMENT_TYPES.ATTACHMENT },
       [],
       'default',
-      'en-US',
-      GPS_FORMATS.DEG,
-      t
+      GPS_FORMATS.DEG
     )).toBe('default');
   });
 
@@ -33,10 +36,35 @@ describe('getHumanizedFieldValue', () => {
       { type: FORM_ELEMENT_TYPES.ATTACHMENT },
       [{}, {}, {}],
       'default',
-      'en-US',
-      GPS_FORMATS.DEG,
-      t
-    )).toBe('3 attachments');
+      GPS_FORMATS.DEG
+    )).toBe('3 files');
+  });
+
+  test('returns the count of a single attachment', () => {
+    expect(getHumanizedFieldValue(
+      { type: FORM_ELEMENT_TYPES.ATTACHMENT },
+      [{}],
+      'default',
+      GPS_FORMATS.DEG
+    )).toBe('1 file');
+  });
+
+  test('returns an affirmative value for a checked boolean', () => {
+    expect(getHumanizedFieldValue(
+      { type: FORM_ELEMENT_TYPES.BOOLEAN },
+      true,
+      'default',
+      GPS_FORMATS.DEG
+    )).toBe('Yes');
+  });
+
+  test('returns a negative value for an unchecked boolean', () => {
+    expect(getHumanizedFieldValue(
+      { type: FORM_ELEMENT_TYPES.BOOLEAN },
+      false,
+      'default',
+      GPS_FORMATS.DEG
+    )).toBe('No');
   });
 
   test('returns the length of a collection', () => {
@@ -44,9 +72,7 @@ describe('getHumanizedFieldValue', () => {
       { type: FORM_ELEMENT_TYPES.COLLECTION },
       [{}, {}],
       'default',
-      'en-US',
-      GPS_FORMATS.DEG,
-      t
+      GPS_FORMATS.DEG
     )).toBe('2 items');
   });
 
@@ -61,9 +87,7 @@ describe('getHumanizedFieldValue', () => {
       },
       ['17e67b22-0e4a-4fcb-aeee-903b51a7a2e0', '223ab492-0ea7-4ff2-b8b8-cb6504c943b6'],
       'default',
-      'en-US',
-      GPS_FORMATS.DEG,
-      t
+      GPS_FORMATS.DEG
     )).toBe('Desert Bighorn Sheep, Ranger Cruz');
   });
 
@@ -78,9 +102,7 @@ describe('getHumanizedFieldValue', () => {
       },
       '0d553bb7-5c4f-43d7-9b82-a561a668ae64',
       'default',
-      'en-US',
-      GPS_FORMATS.DEG,
-      t
+      GPS_FORMATS.DEG
     )).toBe('EarthRanger System');
   });
 
@@ -89,9 +111,7 @@ describe('getHumanizedFieldValue', () => {
       { details: { inputType: DATE_TIME_ELEMENT_INPUT_TYPES.DATE }, type: FORM_ELEMENT_TYPES.DATE_TIME },
       '2020-01-01',
       'default',
-      'en-US',
-      GPS_FORMATS.DEG,
-      t
+      GPS_FORMATS.DEG
     )).toBe('2020/01/01');
   });
 
@@ -101,9 +121,7 @@ describe('getHumanizedFieldValue', () => {
       { details: { inputType: DATE_TIME_ELEMENT_INPUT_TYPES.DATE_TIME }, type: FORM_ELEMENT_TYPES.DATE_TIME },
       utcValue,
       'default',
-      'en-US',
-      GPS_FORMATS.DEG,
-      t
+      GPS_FORMATS.DEG
     )).toBe(format(parseISO(utcValue), 'yyyy/MM/dd hh:mm a'));
   });
 
@@ -113,9 +131,7 @@ describe('getHumanizedFieldValue', () => {
       { details: { inputType: DATE_TIME_ELEMENT_INPUT_TYPES.TIME }, type: FORM_ELEMENT_TYPES.DATE_TIME },
       utcValue,
       'default',
-      'en-US',
-      GPS_FORMATS.DEG,
-      t
+      GPS_FORMATS.DEG
     )).toBe(format(parseISO(`2000-01-01T${utcValue}`), 'hh:mm a'));
   });
 
@@ -124,9 +140,7 @@ describe('getHumanizedFieldValue', () => {
       { details: { inputType: DATE_TIME_ELEMENT_INPUT_TYPES.DATE }, type: FORM_ELEMENT_TYPES.DATE_TIME },
       'invalid',
       'default',
-      'en-US',
-      GPS_FORMATS.DEG,
-      t
+      GPS_FORMATS.DEG
     )).toBe('default');
   });
 
@@ -135,9 +149,7 @@ describe('getHumanizedFieldValue', () => {
       { type: FORM_ELEMENT_TYPES.LOCATION },
       { latitude: 10.1234, longitude: 30.987 },
       'default',
-      'en-US',
-      GPS_FORMATS.DEG,
-      t
+      GPS_FORMATS.DEG
     )).toBe('10.123400°, 30.987000°');
   });
 
@@ -146,9 +158,7 @@ describe('getHumanizedFieldValue', () => {
       { type: FORM_ELEMENT_TYPES.LOCATION },
       { latitude: 10.1234, longitude: 30.987 },
       'default',
-      'en-US',
-      epsg5367,
-      t
+      epsg5367
     )).toBe('default');
   });
 
@@ -157,9 +167,7 @@ describe('getHumanizedFieldValue', () => {
       { type: FORM_ELEMENT_TYPES.TEXT },
       'Value',
       'default',
-      'en-US',
-      GPS_FORMATS.DEG,
-      t
+      GPS_FORMATS.DEG
     )).toBe('Value');
   });
 });

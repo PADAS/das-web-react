@@ -32,10 +32,10 @@ const PatrolListItem = ({
   const {
     patrolTrackData,
 
-    isPatrolActive,
     isPatrolCancelled,
     isPatrolDone,
     isPatrolScheduled,
+    isPatrolUnderWay,
 
     actualEndTime,
     actualStartTime,
@@ -57,7 +57,7 @@ const PatrolListItem = ({
 
   const debouncedTrackFetch = useRef(null);
   const { t } = useTranslation('patrols');
-  const isPatrolActiveOrDone = isPatrolActive || isPatrolDone;
+  const isPatrolUnderWayOrDone = isPatrolUnderWay || isPatrolDone;
 
   const { base: themeColor, background: themeBgColor } = theme;
 
@@ -69,7 +69,7 @@ const PatrolListItem = ({
 
   const patrolsData = useMemo(() => [{ patrol, ...patrolTrackData }], [patrol, patrolTrackData]);
   const TitleDetailsComponent = useMemo(() => {
-    if (isPatrolActiveOrDone) {
+    if (isPatrolUnderWayOrDone) {
       return <span className={styles.titleDetails}>
         <span>{patrolElapsedTime}</span> | <span>
           <PatrolDistanceCovered patrolsData={patrolsData} />
@@ -84,7 +84,7 @@ const PatrolListItem = ({
     }
 
     return null;
-  }, [isPatrolActiveOrDone, isPatrolScheduled, isPatrolCancelled, patrolElapsedTime, patrolsData, scheduledStartTime, t]);
+  }, [isPatrolUnderWayOrDone, isPatrolScheduled, isPatrolCancelled, patrolElapsedTime, patrolsData, scheduledStartTime, t]);
 
   const onLocationClick = useCallback(() => {
     patrolListItemTracker.track('Click "jump to location" from patrol list item');
@@ -102,8 +102,8 @@ const PatrolListItem = ({
     startPatrol();
   }, [startPatrol]);
 
-  const StateDependentControls = () => {
-    if (isPatrolActiveOrDone) {
+  const renderStateDependentControls = () => {
+    if (isPatrolUnderWayOrDone) {
       return <PatrolTrackControls patrol={patrol} onLocationClick={onLocationClick} />;
     }
 
@@ -149,7 +149,7 @@ const PatrolListItem = ({
 
   const renderedControlsComponent = showControls
     ? <div className={styles.controls}>
-      <StateDependentControls />
+      {renderStateDependentControls()}
       <PatrolMenu
         data-testid={`patrol-list-item-kebab-menu-${patrol.id}`}
         onPatrolChange={onPatrolChange}

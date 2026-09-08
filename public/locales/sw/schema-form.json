@@ -56,13 +56,10 @@
         "dragStartAnnouncement": "{{activeItemTitle}} imechukuliwa. Nafasi ya {{activeItemPosition}} kati ya {{itemsLength}}.",
         "draggableScreenReaderInstructions": "Kuchukua {{itemName}}, bonyeza space. Wakati wa kuburuta, tumia vibonyo vya mshale juu na chini kusogeza {{itemName}} katika mwelekeo unaotaka. Bonyeza space tena kuacha {{itemName}} kwenye msimamo wake mpya, au bonyeza escape kughairi.",
         "item": {
-          "attachmentHumanizedValue_one": "faili 1",
-          "attachmentHumanizedValue_other": "faili {{count}}",
           "chevronButtonLabel": {
             "closed": "Fungua muhtasari wa fomu ya {{itemTitle}}",
             "open": "Funga muhtasari wa fomu ya {{itemTitle}}"
           },
-          "collectionHumanizedValue": "{{collectionLength}} vitu",
           "deleteButtonLabel": "Futa {{itemTitle}}",
           "dragHandleButtonLabel": "Panga upya {{itemTitle}}",
           "dragHandleButtonRoleDescription": "inaburutika",
@@ -73,9 +70,6 @@
             "doneButton": "Imekamilika"
           },
           "formPreview": {
-            "attachmentHumanizedValue_one": "faili 1",
-            "attachmentHumanizedValue_other": "faili {{count}}",
-            "collectionHumanizedValue": "{{collectionLength}} vitu",
             "jumpToLocationButtonLabel": "Ruka kwenye eneo la {{field}}"
           }
         }
@@ -84,6 +78,15 @@
     "text": {
       "urlLinkLabel": "Fungua URL kwenye kichupo kipya"
     }
+  },
+  "humanizedFieldValues": {
+    "attachmentHumanizedValue_one": "faili 1",
+    "attachmentHumanizedValue_other": "faili {{count}}",
+    "booleanHumanizedValue": {
+      "false": "Hapana",
+      "true": "Ndiyo"
+    },
+    "collectionHumanizedValue": "{{collectionLength}} vitu"
   },
   "validationErrorsAnnouncement": "Kuna makosa ya uthibitishaji katika sehemu zifuatazo:"
 }

@@ -74,20 +74,17 @@ describe('SideBar - PatrolsManager - PatrolOverview - utils - buildPatrolStatusU
   });
 
   test.each([PATROL_UI_STATES.SCHEDULED, PATROL_UI_STATES.READY_TO_START, PATROL_UI_STATES.START_OVERDUE])(
-    'reopens a cancelled patrol that never started, leaving it $key',
+    'reopens a cancelled patrol that never started, leaving it $key and its plan as it was',
     (state) => {
-      const update = buildPatrolStatusUpdate(unstartedPatrol, state);
-
-      expect(update.state).toBe('open');
-      expect(update.patrol_segments.at(-1).time_range).toEqual({ start_time: null, end_time: null });
+      expect(buildPatrolStatusUpdate(unstartedPatrol, state)).toEqual({ state: 'open' });
     }
   );
 
-  test('sends every leg, but only rebuilds the one it changes', () => {
+  test('sends the leg it changes alone, leaving the ones it does not name untouched', () => {
     const update = buildPatrolStatusUpdate(startedPatrol, PATROL_UI_STATES.DONE);
 
-    expect(update.patrol_segments).toHaveLength(startedPatrol.patrol_segments.length);
-    expect(update.patrol_segments[0]).toBe(firstLeg);
+    expect(update.patrol_segments).toHaveLength(1);
+    expect(update.patrol_segments[0].id).toBe(lastLeg.id);
   });
 
   test('does not mutate the patrol it builds the update from', () => {
@@ -96,7 +93,58 @@ describe('SideBar - PatrolsManager - PatrolOverview - utils - buildPatrolStatusU
     expect(startedPatrol.patrol_segments.at(-1).time_range.end_time).toBeNull();
   });
 
-  test('has nothing to send for a paused patrol until the API models one', () => {
-    expect(buildPatrolStatusUpdate(startedPatrol, PATROL_UI_STATES.PAUSED)).toBeNull();
+  test('pauses the patrol by closing the leg under way and opening a pause in its place', () => {
+    const update = buildPatrolStatusUpdate(startedPatrol, PATROL_UI_STATES.PAUSED);
+
+    expect(update.patrol_segments).toHaveLength(2);
+    expect(update.patrol_segments[0]).toEqual({ id: lastLeg.id, time_range: { ...lastLeg.time_range, end_time: NOW } });
+    expect(update.patrol_segments.at(-1)).toMatchObject({
+      is_pause: true,
+      time_range: { end_time: null, start_time: NOW },
+    });
+  });
+
+  test('reopens a patrol cancelled while paused, rather than pausing it a second time', () => {
+    const pauseLeg = {
+      id: 'leg-2',
+      is_pause: true,
+      time_range: { end_time: null, start_time: '2026-04-13T10:00:00.000Z' },
+    };
+    const cancelledWhilePaused = { state: 'cancelled', patrol_segments: [firstLeg, pauseLeg] };
+
+    expect(buildPatrolStatusUpdate(cancelledWhilePaused, PATROL_UI_STATES.PAUSED)).toEqual({ state: 'open' });
+  });
+
+  test('reopens a patrol ended while paused by clearing the end its pause was closed with', () => {
+    const pauseLeg = {
+      id: 'leg-2',
+      is_pause: true,
+      time_range: { end_time: NOW, start_time: '2026-04-13T10:00:00.000Z' },
+    };
+    const endedWhilePaused = { state: 'done', patrol_segments: [firstLeg, pauseLeg] };
+
+    const update = buildPatrolStatusUpdate(endedWhilePaused, PATROL_UI_STATES.PAUSED);
+
+    expect(update.state).toBe('open');
+    expect(update.patrol_segments).toEqual([
+      { id: 'leg-2', time_range: { end_time: null, start_time: '2026-04-13T10:00:00.000Z' } },
+    ]);
+  });
+
+  test('resumes a paused patrol by closing the pause and opening a leg in its place', () => {
+    const pausedPatrol = {
+      state: 'open',
+      patrol_segments: [firstLeg, { ...lastLeg, is_pause: true, patrol_type: 'routine_patrol' }],
+    };
+
+    const update = buildPatrolStatusUpdate(pausedPatrol, PATROL_UI_STATES.ACTIVE);
+
+    expect(update.patrol_segments).toHaveLength(2);
+    expect(update.patrol_segments[0].time_range.end_time).toBe(NOW);
+    expect(update.patrol_segments.at(-1)).toMatchObject({
+      is_pause: false,
+      patrol_type: 'routine_patrol',
+      time_range: { end_time: null, start_time: NOW },
+    });
   });
 });

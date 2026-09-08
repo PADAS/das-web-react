@@ -12,7 +12,9 @@ import { ReactComponent as PrinterIcon } from '../../../../common/images/icons/p
 import { ReactComponent as TrackIcon } from '../../../../common/images/icons/tracks_off.svg';
 
 import { basePrintingStyles } from '../../../../utils/styles';
+import { DAS_HOST, TAB_KEYS } from '../../../../constants';
 import {
+  displayNameForPatrolType,
   getBoundsForPatrol,
   getIsMobilePatrol,
   getPatrolLocationCoordinates,
@@ -20,7 +22,6 @@ import {
   iconIdForPatrolSegment,
   patrolHasTrackData,
 } from '../../../../utils/patrols';
-import { DAS_HOST, TAB_KEYS } from '../../../../constants';
 import { downloadJsonAsFile } from '../../../../utils/download';
 import { selectPatrolTrackData } from '../../../../selectors/patrols';
 import { togglePatrolTrackState } from '../../../../ducks/patrols';
@@ -66,6 +67,9 @@ const Header = ({
   const crumbs = [{ label: t('breadcrumbPatrolsLabel'), to: `/${TAB_KEYS.PATROLS}` }, { label: title }];
 
   const patrolIconId = governingSegment ? iconIdForPatrolSegment(patrolTypes, governingSegment) : null;
+  const patrolTypeName = governingSegment
+    ? displayNameForPatrolType(patrolTypes, governingSegment.patrol_type)
+    : null;
 
   const isPatrolTrackPinned = patrolTrackState.pinned.includes(patrol.id);
   const isPatrolTrackVisible = !isPatrolTrackPinned && patrolTrackState.visible.includes(patrol.id);
@@ -73,16 +77,14 @@ const Header = ({
   const trackToggleState = isPatrolTrackPinned ? 'pinned' : isPatrolTrackVisible ? 'visible' : 'hidden';
   const nextTrackToggleStateIfToggled = isPatrolTrackPinned ? 'hidden' : isPatrolTrackVisible ? 'pinned' : 'visible';
 
-  // TODO: The patrol track toggle only shows each leg leader's track. Once team members and
-  // assets are available from the endpoint, it should also include their tracks bounded to
-  // the leg's time range.
+  // TODO: Draw the tracks of the team members and the assets a leg tracks
+  // alongside its leader's, once they have colors of their own.
   const hasTrack = patrolHasTrackData(patrolTrackData);
 
   const jumpToLocationCoordinates = getPatrolLocationCoordinates(patrolTrackData);
 
-  // TODO: Zoom to patrol bounds only accounts for the leg leader's track/position. Once team
-  // members and assets are available from the endpoint, their tracks bounded to the leg's
-  // time range should also be included in the bounds.
+  // TODO: Take the tracks of every subject a leg tracks into the bounds, not
+  // its leader's alone.
   const patrolBounds = useMemo(() => getBoundsForPatrol(patrol, patrolTrackData), [patrol, patrolTrackData]);
 
   const onToggleTrack = () => {
@@ -228,7 +230,7 @@ const Header = ({
 
     <div className={styles.titleBarMain}>
       <div className={styles.icon}>
-        <SvgIcon iconId={patrolIconId} type="patrols" />
+        <SvgIcon iconId={patrolIconId} title={patrolTypeName} type="patrols" />
       </div>
 
       <p className={styles.serialNumber}>{patrol.serial_number}</p>

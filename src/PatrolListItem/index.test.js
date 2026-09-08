@@ -332,7 +332,7 @@ describe('for cancelled patrols', () => {
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
     expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.OPEN);
-    expect(updatePatrol.mock.calls[0][0].patrol_segments[0].time_range.end_time).toBeNull();
+    expect(updatePatrol.mock.calls[0][0]).not.toHaveProperty('patrol_segments');
   });
 
   test('restoring the patrol from the kebab menu', async () => {
@@ -347,7 +347,7 @@ describe('for cancelled patrols', () => {
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
     expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.OPEN);
-    expect(updatePatrol.mock.calls[0][0].patrol_segments[0].time_range.end_time).toBeNull();
+    expect(updatePatrol.mock.calls[0][0]).not.toHaveProperty('patrol_segments');
   });
 });
 
@@ -373,6 +373,6 @@ describe('for completed patrols', () => {
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
     expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.OPEN);
-    expect(updatePatrol.mock.calls[0][0].patrol_segments[0].time_range.end_time).toBeNull();
+    expect(updatePatrol.mock.calls[0][0]).not.toHaveProperty('patrol_segments');
   });
 });

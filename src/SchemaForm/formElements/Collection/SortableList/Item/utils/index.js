@@ -5,16 +5,12 @@ export const getItemTitle = (
   itemIdentifierFieldName,
   defaultTitle,
   identifierField,
-  language,
-  coordinatesRepresentation,
-  t
+  coordinatesRepresentation
 ) => !itemIdentifierFieldName || !formData[itemIdentifierFieldName]
   ? defaultTitle
   : getHumanizedFieldValue(
     identifierField,
     formData[itemIdentifierFieldName],
     defaultTitle,
-    language,
-    coordinatesRepresentation,
-    t
+    coordinatesRepresentation
   );

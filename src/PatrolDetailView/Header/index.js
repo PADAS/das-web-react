@@ -23,11 +23,11 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
   const {
     patrolTrackData,
 
-    isPatrolActive,
     isPatrolCancelled,
     isPatrolDone,
     isPatrolOverdue,
     isPatrolScheduled,
+    isPatrolUnderWay,
 
     displayTitle,
     patrolElapsedTime,
@@ -49,7 +49,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
   const title = patrol.title || displayTitle;
 
   const titleDetails = useMemo(() => {
-    if (isPatrolActive || isPatrolDone) {
+    if (isPatrolUnderWay || isPatrolDone) {
       return <span data-testid="patrol-drawer-header-details" className={`${styles.headerDetails} ${styles.overflowedEllipsisText}`}>
         {patrolElapsedTime}
         <span className={styles.distanceCovered}>
@@ -64,10 +64,10 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
     }
     return null;
   }, [
-    isPatrolActive,
-    isPatrolDone,
     isPatrolCancelled,
+    isPatrolDone,
     isPatrolScheduled,
+    isPatrolUnderWay,
     patrol,
     patrolTrackData,
     patrolElapsedTime,
@@ -142,7 +142,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
       <span className={styles.date}>{dateComponentDateString}</span>
     </div>}
 
-    {(isPatrolActive || isPatrolDone) && <PatrolTrackControls patrol={patrol} onLocationClick={onLocationClick} className={styles.patrolTrackControls}/>}
+    {(isPatrolUnderWay || isPatrolDone) && <PatrolTrackControls patrol={patrol} onLocationClick={onLocationClick} className={styles.patrolTrackControls}/>}
 
     {( (isPatrolScheduled || isPatrolOverdue) && !isNewPatrol ) && <Button
       className={`${styles.actionButton} ${styles.startPatrolButton}`}

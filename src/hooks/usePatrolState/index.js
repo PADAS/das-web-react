@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { addMinutes, subHours } from 'date-fns';
 
 import {
+  calcPatrolSegmentState,
   calcPatrolState,
   DELTA_FOR_OVERDUE,
-  displayStartTimeForPatrol,
+  displayStartTimeForPatrolSegment,
   isPatrolCancelled,
   isPatrolDone,
   READY_TO_START_WINDOW_HOURS,
@@ -12,43 +13,47 @@ import {
 
 export const MAX_TIMEOUT_DELAY = 6 * 60 * 60 * 1000; // 6 hours
 
+// A leg's state is read off the whole patrol, so a leg reading and a patrol
+// reading wait on the same moments.
 const getNextPatrolStateTransitionTime = (patrol) => {
   if (isPatrolCancelled(patrol) || isPatrolDone(patrol)) {
     return null;
   }
 
-  const firstSegment = patrol.patrol_segments?.[0];
+  const patrolSegments = patrol.patrol_segments ?? [];
+
+  const [firstSegment] = patrolSegments;
   if (!firstSegment) {
     return null;
   }
 
-  const displayStartTime = displayStartTimeForPatrol(patrol);
-  const firstSegmentStartTime = firstSegment.time_range?.start_time;
-  const lastSegmentEndTime = patrol.patrol_segments.at(-1).time_range?.end_time;
+  const displayStartTime = displayStartTimeForPatrolSegment(firstSegment);
 
-  const readyToStartTransitionTime = displayStartTime
-    ? subHours(displayStartTime, READY_TO_START_WINDOW_HOURS)
-    : null;
-  // Any leg beginning turns the patrol active, so every one of them is worth
-  // waiting for.
-  const activeTransitionTimes = patrol.patrol_segments
-    .filter((patrolSegment) => patrolSegment.time_range?.start_time)
-    .map((patrolSegment) => new Date(patrolSegment.time_range.start_time));
-  const startOverdueTransitionTime = !firstSegmentStartTime && firstSegment.scheduled_start
-    ? addMinutes(new Date(firstSegment.scheduled_start), DELTA_FOR_OVERDUE)
-    : null;
-  const doneTransitionTime = lastSegmentEndTime ? new Date(lastSegmentEndTime) : null;
+  const transitionTimes = [
+    // A patrol takes its schedule from its first leg: it is ready to start an
+    // hour before that leg's start and overdue half an hour after it.
+    displayStartTime ? subHours(displayStartTime, READY_TO_START_WINDOW_HOURS) : null,
+    !firstSegment.time_range?.start_time && firstSegment.scheduled_start
+      ? addMinutes(new Date(firstSegment.scheduled_start), DELTA_FOR_OVERDUE)
+      : null,
+    // Every leg begins and ends by itself, and each of those moves the leg the
+    // patrol is on.
+    ...patrolSegments.flatMap((patrolSegment) => [
+      patrolSegment.time_range?.start_time ? new Date(patrolSegment.time_range.start_time) : null,
+      patrolSegment.time_range?.end_time ? new Date(patrolSegment.time_range.end_time) : null,
+    ]),
+  ];
 
   const now = Date.now();
-  return [readyToStartTransitionTime, ...activeTransitionTimes, startOverdueTransitionTime, doneTransitionTime]
+  return transitionTimes
     .filter((transitionTime) => transitionTime && transitionTime.getTime() > now)
     .sort((a, b) => a.getTime() - b.getTime())[0] ?? null;
 };
 
-const usePatrolState = (patrol) => {
+const usePatrolState = (patrol, patrolSegment = null) => {
   const [recheckCount, setRecheckCount] = useState(0);
 
-  const patrolState = calcPatrolState(patrol);
+  const patrolState = patrolSegment ? calcPatrolSegmentState(patrol, patrolSegment) : calcPatrolState(patrol);
 
   useEffect(() => {
     // recheckCount re-arms the timeout at the next transition time.

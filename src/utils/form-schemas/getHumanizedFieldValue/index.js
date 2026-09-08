@@ -1,4 +1,5 @@
 import { format, isValid, parseISO } from 'date-fns';
+import i18next from 'i18next';
 
 import { DATE_TIME_ELEMENT_INPUT_TYPES, FORM_ELEMENT_TYPES } from '../constants';
 import { OUTSIDE_BBOX, stringifyCoordinates } from '../../location';
@@ -13,18 +14,23 @@ const getChoiceListOptionHumanizedValue = (value, field) => {
 // Utility to calculate a human readable version of the field values. For
 // example, render a date-time like 2020/01/01 12:00 PM instead of
 // 2020-01-01T12:00:00Z.
-const getHumanizedFieldValue = (field, value, defaultHumanizedValue, language, coordinatesRepresentation, t) => {
-  if (value === undefined) {
+const getHumanizedFieldValue = (field, value, defaultHumanizedValue, coordinatesRepresentation) => {
+  // A field the form never wrote and one it explicitly emptied both read as
+  // unanswered, and neither has a value the cases below could work with.
+  if (value === undefined || value === null) {
     return defaultHumanizedValue;
   }
 
-  const use12HourFormat = shouldUse12HourFormat(language);
+  const t = i18next.getFixedT(null, 'schema-form', 'humanizedFieldValues');
 
   switch (field.type) {
   case FORM_ELEMENT_TYPES.ATTACHMENT:
     return value.length === 0
       ? defaultHumanizedValue
       : t('attachmentHumanizedValue', { count: value.length });
+
+  case FORM_ELEMENT_TYPES.BOOLEAN:
+    return t(`booleanHumanizedValue.${value ? 'true' : 'false'}`);
 
   case FORM_ELEMENT_TYPES.CHOICE_LIST: {
     if (field.details.multiple) {
@@ -38,6 +44,8 @@ const getHumanizedFieldValue = (field, value, defaultHumanizedValue, language, c
   }
 
   case FORM_ELEMENT_TYPES.DATE_TIME: {
+    const use12HourFormat = shouldUse12HourFormat(i18next.language);
+
     let parsedDate;
     let formatStr;
     switch (field.details.inputType) {
