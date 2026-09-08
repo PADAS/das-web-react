@@ -1,11 +1,7 @@
-export const GEOLOCATION_PERMISSION_PROBE_RESULTS = {
-  DENIED: 'denied',
-  GRANTED: 'granted',
-  UNKNOWN: 'unknown',
-};
+import { GEOLOCATION_PERMISSION_STATES } from './constants';
 
 // A read verdict is all the probe needs, so skip the GPS hardware and take any cached fix.
-const PROBE_GEOLOCATOR_OPTIONS = {
+export const PROBE_GEOLOCATOR_OPTIONS = {
   enableHighAccuracy: false,
   maximumAge: Infinity,
   timeout: 5000,
@@ -26,22 +22,22 @@ export const probeGeolocationPermission = () => {
   if (!probePromise) {
     probePromise = new Promise((resolve) => {
       if (!window.navigator.geolocation?.getCurrentPosition) {
-        return resolve(GEOLOCATION_PERMISSION_PROBE_RESULTS.UNKNOWN);
+        return resolve(GEOLOCATION_PERMISSION_STATES.UNKNOWN);
       }
 
       try {
         window.navigator.geolocation.getCurrentPosition(
-          () => resolve(GEOLOCATION_PERMISSION_PROBE_RESULTS.GRANTED),
+          () => resolve(GEOLOCATION_PERMISSION_STATES.GRANTED),
           (error) => resolve(isGeolocationPermissionDeniedError(error)
-            ? GEOLOCATION_PERMISSION_PROBE_RESULTS.DENIED
-            : GEOLOCATION_PERMISSION_PROBE_RESULTS.UNKNOWN),
+            ? GEOLOCATION_PERMISSION_STATES.DENIED
+            : GEOLOCATION_PERMISSION_STATES.UNKNOWN),
           PROBE_GEOLOCATOR_OPTIONS
         );
       } catch {
-        resolve(GEOLOCATION_PERMISSION_PROBE_RESULTS.UNKNOWN);
+        resolve(GEOLOCATION_PERMISSION_STATES.UNKNOWN);
       }
     }).then((result) => {
-      if (result !== GEOLOCATION_PERMISSION_PROBE_RESULTS.GRANTED) {
+      if (result !== GEOLOCATION_PERMISSION_STATES.GRANTED) {
         probePromise = null;
       }
 

@@ -3,19 +3,21 @@ import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
+import { GEOLOCATION_PERMISSION_STATES } from '../utils/location/constants';
 import { GEOLOCATOR_OPTIONS } from '../constants';
 import { setCurrentUserLocation } from '../ducks/location';
 import { setUserLocationAccessGranted } from '../ducks/user';
 import { showToast } from '../utils/toast';
+import useGeolocationPermissionState from '../hooks/useGeolocationPermissionState';
 import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
 
-const DENIED_STATE = 'denied';
-const GRANTED_STATE = 'granted';
 const ONE_MINUTE = 1000 * 60;
 
 const GeoLocationWatcher = ({ updateRate = ONE_MINUTE }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('components', { keyPrefix: 'geoLocationWatcher' });
+
+  const geolocationPermissionState = useGeolocationPermissionState();
 
   const user = useSelector((state) => state.data.user);
   const userLocation = useSelector((state) => state.view.userLocation);
@@ -51,7 +53,7 @@ const GeoLocationWatcher = ({ updateRate = ONE_MINUTE }) => {
   }, []);
 
   const onGeoInitSuccess = useCallback((location) => {
-    onGeoUpdateSuccess();
+    onGeoUpdateSuccess(location);
     dispatch(setCurrentUserLocation(location));
   }, [dispatch, onGeoUpdateSuccess]);
 
@@ -62,40 +64,16 @@ const GeoLocationWatcher = ({ updateRate = ONE_MINUTE }) => {
   }, [clearUserLocation, user]);
 
   useEffect(() => {
-    const setPermissionState = (state) => {
-      if (state === GRANTED_STATE) {
-        toast.dismiss(errorToastId.current);
-        return dispatch(setUserLocationAccessGranted(true));
-      }
-      return dispatch(setUserLocationAccessGranted(false));
-    };
+    if (geolocationPermissionState === null) return;
 
-    const handlePermissionStateChange = (event) => setPermissionState(event.target.state);
+    const isGranted = geolocationPermissionState === GEOLOCATION_PERMISSION_STATES.GRANTED;
 
-    if (navigator?.permissions?.query) {
-      let permStatus;
-      window.navigator.permissions.query({ name: 'geolocation' })
-        .then((permissionStatus) => {
-          permStatus = permissionStatus;
-
-          setPermissionState(permStatus.state);
-
-          permStatus.addEventListener('change', handlePermissionStateChange);
-        });
-
-      return () => permStatus?.removeEventListener('change', handlePermissionStateChange);
-    } else {
-      window.navigator.geolocation.getCurrentPosition(
-        () => setPermissionState(GRANTED_STATE),
-        () => setPermissionState(DENIED_STATE),
-        GEOLOCATOR_OPTIONS
-      );
+    if (isGranted) {
+      toast.dismiss(errorToastId.current);
     }
-  }, [dispatch]);
 
-  useEffect(() => {
-    window.navigator.geolocation.getCurrentPosition(onGeoInitSuccess, onGeoError, GEOLOCATOR_OPTIONS);
-  }, [onGeoInitSuccess, onGeoError]);
+    dispatch(setUserLocationAccessGranted(isGranted));
+  }, [dispatch, geolocationPermissionState]);
 
   useEffect(() => {
     if (!userLocationAccessGranted) {

@@ -252,7 +252,7 @@ describe('LocationPicker - MenuPopover', () => {
 
   test('changes the location when the user clicks the button to get its location', async () => {
     store.view.showUserLocation = true;
-    store.view.userLocation = { coords: { latitude: 10, longitude: 10 }, timestamp: Date.now() };
+    store.view.userLocation = { coords: { latitude: 10, longitude: 10 }, receivedAt: Date.now() };
     renderMenuPopover();
 
     expect(onChange).not.toHaveBeenCalled();
@@ -443,7 +443,7 @@ describe('LocationPicker - MenuPopover', () => {
       expect(screen.getByRole('status')).toHaveTextContent(permissionBlockedMessage);
     });
 
-    test('shows the message if the user dismisses the browser prompt without the state changing', async () => {
+    test('does not show the message if the user dismisses the browser prompt without blocking it', async () => {
       permissionStatus.state = 'prompt';
       window.navigator.geolocation = {
         getCurrentPosition: jest.fn((_, errorCallback) => errorCallback({ code: 1, PERMISSION_DENIED: 1 })),
@@ -458,8 +458,8 @@ describe('LocationPicker - MenuPopover', () => {
 
       await userEvent.click(button);
 
-      expect(screen.getByRole('status')).toHaveTextContent(permissionBlockedMessage);
-      expect(button).toHaveAttribute('aria-disabled', 'true');
+      expect(screen.getByRole('status')).toBeEmptyDOMElement();
+      expect(button).not.toHaveAttribute('aria-disabled');
       expect(toast.error).not.toHaveBeenCalled();
     });
 
@@ -562,14 +562,19 @@ describe('LocationPicker - MenuPopover', () => {
 
     test('neither shows the message nor ghosts the button if the probe succeeds', async () => {
       window.navigator.geolocation = {
-        getCurrentPosition: jest.fn((successCallback) => successCallback({ coords: {} })),
+        getCurrentPosition: jest.fn((successCallback) => successCallback({ coords: { latitude: 4, longitude: 5 } })),
       };
       renderMenuPopover();
 
       await waitFor(() => expect(window.navigator.geolocation.getCurrentPosition).toHaveBeenCalled());
 
-      expect(screen.queryByText(permissionBlockedMessage)).toBeNull();
-      expect(screen.getByLabelText('Get current position')).not.toHaveAttribute('aria-disabled');
+      const button = screen.getByLabelText('Get current position');
+
+      await userEvent.click(button);
+
+      expect(onChange).toHaveBeenCalledWith({ latitude: 4, longitude: 5 });
+      expect(screen.getByRole('status')).toBeEmptyDOMElement();
+      expect(button).not.toHaveAttribute('aria-disabled');
     });
 
     test('shows the message and ghosts the button if the click is denied after an inconclusive probe', async () => {
@@ -595,6 +600,33 @@ describe('LocationPicker - MenuPopover', () => {
       expect(toast.error).not.toHaveBeenCalled();
     });
 
+    test('keeps the message and the ghosted button when a probe succeeds after a denied click', async () => {
+      let resolveProbe;
+      window.navigator.geolocation = {
+        getCurrentPosition: jest.fn((successCallback) => {
+          resolveProbe = () => successCallback({ coords: {} });
+        }),
+      };
+      renderMenuPopover();
+
+      await waitFor(() => expect(window.navigator.geolocation.getCurrentPosition).toHaveBeenCalled());
+
+      window.navigator.geolocation.getCurrentPosition = jest.fn(
+        (_, errorCallback) => errorCallback({ code: 1, PERMISSION_DENIED: 1 })
+      );
+
+      const button = screen.getByLabelText('Get current position');
+
+      await userEvent.click(button);
+
+      expect(screen.getByRole('status')).toHaveTextContent(permissionBlockedMessage);
+
+      await act(async () => resolveProbe());
+
+      expect(screen.getByRole('status')).toHaveTextContent(permissionBlockedMessage);
+      expect(button).toHaveAttribute('aria-disabled', 'true');
+    });
+
     test('reads the position only once across repeated openings while the permission is granted', async () => {
       window.navigator.geolocation = {
         getCurrentPosition: jest.fn((successCallback) => successCallback({ coords: {} })),
@@ -610,7 +642,7 @@ describe('LocationPicker - MenuPopover', () => {
       expect(window.navigator.geolocation.getCurrentPosition).toHaveBeenCalledTimes(1);
     });
 
-    test('checks the permission again on reopening so unblocking it clears the message', async () => {
+    test('probes the permission again on reopening rather than memoizing a denial', async () => {
       window.navigator.geolocation = {
         getCurrentPosition: jest.fn((_, errorCallback) => errorCallback({ code: 1, PERMISSION_DENIED: 1 })),
       };

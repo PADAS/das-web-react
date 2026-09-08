@@ -7,7 +7,8 @@ import { ReactComponent as GpsLocationIcon } from '../../common/images/icons/gps
 import { ReactComponent as MarkerFeedIcon } from '../../common/images/icons/marker-feed.svg';
 
 import { EVENT_REPORT_CATEGORY, trackEventFactory } from '../../utils/analytics';
-import { GEOLOCATION_PERMISSION_PROBE_RESULTS, probeGeolocationPermission } from '../../utils/location/permission-probe';
+import { GEOLOCATION_PERMISSION_STATES } from '../../utils/location/constants';
+import useGeolocationPermissionState from '../../hooks/useGeolocationPermissionState';
 
 import { MapContext } from '../../MapContext';
 
@@ -43,6 +44,8 @@ const MenuPopover = ({
   const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
   const showUserLocation = useSelector((state) => state.view.showUserLocation);
 
+  const geolocationPermissionState = useGeolocationPermissionState(showUserLocation);
+
   const gpsFormatToggleRef = useRef();
   const gpsInputRef = useRef();
   const lastFocusableElementRef = useRef();
@@ -50,12 +53,17 @@ const MenuPopover = ({
 
   const permissionBlockedMessageId = useId();
 
-  const [isLocationPermissionDenied, setIsLocationPermissionDenied] = useState(false);
   // The popover opens at the width of the picker, clamped, and keeps it however
   // the picker is resized while open.
   const [popoverWidth] = useState(
     () => Math.min(MAX_POPOVER_WIDTH, Math.max(MIN_POPOVER_WIDTH, target.current?.offsetWidth))
   );
+  const [wasLocationPermissionDeniedOnClick, setWasLocationPermissionDeniedOnClick] = useState(false);
+
+  // A browser that reports "prompt" after a denied read was dismissed rather than blocked, and dismissing
+  // is not a state the user should be told to go and undo in their settings.
+  const isLocationPermissionDenied = geolocationPermissionState === GEOLOCATION_PERMISSION_STATES.DENIED
+    || (wasLocationPermissionDeniedOnClick && geolocationPermissionState !== GEOLOCATION_PERMISSION_STATES.PROMPT);
 
   const onWrapperKeyDown = (event) => {
     if (event.key === 'Escape') {
@@ -101,57 +109,6 @@ const MenuPopover = ({
     // Select the GPS input on mount so user can type away or navigate.
     gpsInputRef.current.select();
   }, []);
-
-  useEffect(() => {
-    // The message explains why the "use my location" button won't work, so it's pointless without that button.
-    if (!showUserLocation) return;
-
-    let isListening = true;
-
-    // Without the Permissions API there's nothing to subscribe to, so a denial arriving after this
-    // resolves only surfaces when the user clicks the button.
-    const probePermission = () => probeGeolocationPermission().then((result) => {
-      if (!isListening) return;
-
-      setIsLocationPermissionDenied(result === GEOLOCATION_PERMISSION_PROBE_RESULTS.DENIED);
-    });
-
-    if (window.navigator.permissions?.query) {
-      let permissionStatus;
-
-      const onPermissionStateChange = (event) => setIsLocationPermissionDenied(
-        event.target.state === GEOLOCATION_PERMISSION_PROBE_RESULTS.DENIED
-      );
-
-      window.navigator.permissions.query({ name: 'geolocation' })
-        .then(
-          (status) => {
-            if (!isListening) return;
-
-            setIsLocationPermissionDenied(status.state === GEOLOCATION_PERMISSION_PROBE_RESULTS.DENIED);
-
-            status.addEventListener('change', onPermissionStateChange);
-
-            permissionStatus = status;
-          },
-          // Browsers that don't know the geolocation permission name reject the query, leaving the probe as
-          // the only way to tell whether it's blocked.
-          probePermission
-        );
-
-      return () => {
-        isListening = false;
-
-        permissionStatus?.removeEventListener('change', onPermissionStateChange);
-      };
-    }
-
-    probePermission();
-
-    return () => {
-      isListening = false;
-    };
-  }, [showUserLocation]);
 
   useEffect(() => {
     // Create a focus trap while the component is mounted so only internal elements are focused when pressing tab only
@@ -260,7 +217,7 @@ const MenuPopover = ({
           isDisabled={isLocationPermissionDenied}
           onClick={() => eventReportTracker.track('Click \'Use my location\'')}
           onGet={onUserLocationGet}
-          onPermissionDenied={() => setIsLocationPermissionDenied(true)}
+          onPermissionDenied={() => setWasLocationPermissionDeniedOnClick(true)}
           ref={lastFocusableElementRef}
           renderContent={() => <>
             <GpsLocationIcon />

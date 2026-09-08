@@ -95,6 +95,8 @@ describe('CommunityPage', () => {
   beforeEach(() => {
     window.localStorage.clear();
 
+    resetGeolocationPermissionProbe();
+
     fetchCommunityInfo.mockReturnValue(() => Promise.resolve({ name: 'Test Community' }));
     fetchEventTypes.mockReturnValue(() => Promise.resolve());
     fetchEventsSchema.mockReturnValue(() => Promise.resolve());
@@ -462,18 +464,16 @@ describe('CommunityPage', () => {
   });
 
   describe('geolocation permission probe', () => {
-    let originalGeolocation;
+    let originalGeolocation, originalPermissions;
     beforeEach(() => {
       originalGeolocation = window.navigator.geolocation;
+      originalPermissions = window.navigator.permissions;
       window.navigator.geolocation = { getCurrentPosition: jest.fn() };
-
-      resetGeolocationPermissionProbe();
     });
 
     afterEach(() => {
       window.navigator.geolocation = originalGeolocation;
-
-      delete window.navigator.permissions;
+      window.navigator.permissions = originalPermissions;
     });
 
     test('probes the permission once the community info has loaded when the permissions API is unavailable', async () => {
