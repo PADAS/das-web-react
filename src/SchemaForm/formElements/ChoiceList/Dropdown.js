@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import Select, { components } from 'react-select';
 import { useTranslation } from 'react-i18next';
 
@@ -37,8 +37,6 @@ const Option = ({ className = '', data, innerProps, isSelected, isMulti, ...rest
 const Dropdown = ({ details, disabled, id, invalid, onChange, readOnly, value, ...otherProps }) => {
   const { t } = useTranslation('components', { keyPrefix: 'choiceList' });
 
-  const [isMenuOpen, setMenuOpen] = useState(false);
-
   const options = useMemo(
     () => getDisplayableChoiceListOptions(details.options)
       .map((option) => ({
@@ -68,7 +66,6 @@ const Dropdown = ({ details, disabled, id, invalid, onChange, readOnly, value, .
   return <Select
     classNames={{
       clearIndicator: () => styles.clearIndicator,
-      container: () => styles.container,
       control: (state) => styles.control
         + (invalid ? ` ${styles.dropdownError}` : '')
         + (state.isFocused ? ` ${styles.controlFocused}` : '')
@@ -79,6 +76,7 @@ const Dropdown = ({ details, disabled, id, invalid, onChange, readOnly, value, .
         + (readOnly ? ` ${styles.readOnly}` : ''),
       multiValue: () => styles.multiValue,
       multiValueRemove: () => `${styles.multiValueRemove} ${readOnly ? styles.readOnly : ''}`,
+      noOptionsMessage: () => styles.noOptionsMessage,
       option: readOnly ? undefined : () => styles.cursorPointer,
       placeholder: () => invalid && styles.error,
     }}
@@ -94,9 +92,6 @@ const Dropdown = ({ details, disabled, id, invalid, onChange, readOnly, value, .
     menuShouldScrollIntoView
     noOptionsMessage={() => t('select.noOptionsMessage')}
     onChange={readOnly ? undefined : onSelectChange}
-    onKeyDown={(event) => event.key === 'Escape' && isMenuOpen && event.stopPropagation()}
-    onMenuClose={() => setMenuOpen(false)}
-    onMenuOpen={() => setMenuOpen(true)}
     options={options}
     placeholder={details.hint}
     styles={{ menuPortal: (base) => ({ ...base, zIndex: BOOTSTRAP_DEFAULTS.MODAL_ZINDEX + 1 }) }}

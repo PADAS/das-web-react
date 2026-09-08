@@ -53,7 +53,7 @@ describe('SchemaForm - formElements - Location', () => {
           details={details}
           error={undefined}
           focusLocationMarker={focusLocationMarker}
-          id="location-1"
+          formElementId="location-1"
           onFieldChange={onFieldChange}
           value={undefined}
           {...props}
@@ -77,14 +77,14 @@ describe('SchemaForm - formElements - Location', () => {
   test('shows a non required location field', () => {
     renderLocationField();
 
-    expect(screen.getByRole('textbox', { name: 'Location' })).not.toBeRequired();
+    expect(screen.getByRole('textbox', { name: 'Location 1 Label' })).not.toBeRequired();
   });
 
   test('shows a required location field', () => {
     details.isRequired = true;
     renderLocationField();
 
-    expect(screen.getByRole('textbox', { name: 'Location' })).toBeRequired();
+    expect(screen.getByRole('textbox', { name: 'Location 1 Label' })).toBeRequired();
   });
 
   test('does not show an error state in the label if the value is valid', () => {
@@ -103,7 +103,7 @@ describe('SchemaForm - formElements - Location', () => {
     details.description = '';
     renderLocationField();
 
-    expect(screen.getByLabelText('Location 1 Label')).not.toHaveAccessibleDescription();
+    expect(screen.getAllByRole('paragraph')[1]).toBeEmptyDOMElement();
   });
 
   test('shows the description', () => {
@@ -113,7 +113,9 @@ describe('SchemaForm - formElements - Location', () => {
 
     expect(description).not.toHaveClass('error');
     expect(description).toHaveTextContent('Location 1 Description');
-    expect(screen.getByRole('textbox', { name: 'Location' })).toHaveAccessibleDescription('Location 1 Description');
+    expect(screen.getByRole('textbox', { name: 'Location 1 Label' })).toHaveAccessibleDescription(
+      'Click the button to set a value from the location picker menu. Location 1 Description'
+    );
   });
 
   test('shows a valid input when there are no errors', () => {

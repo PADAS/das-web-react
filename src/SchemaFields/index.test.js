@@ -76,7 +76,7 @@ describe('DateTimeWidget', () => {
 
     const timePickerOpenOptionsButton = await screen.findByLabelText('Open time options');
     await userEvent.click(timePickerOpenOptionsButton);
-    const optionsList = await screen.findByTestId('timePicker-OptionsList');
+    const optionsList = await screen.findByTestId('timePicker-optionsList');
     const timeOptionsListItems = await within(optionsList).findAllByRole('option');
     await userEvent.click(timeOptionsListItems[2]);
 

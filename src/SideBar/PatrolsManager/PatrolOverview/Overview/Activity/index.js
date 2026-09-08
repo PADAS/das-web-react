@@ -1,16 +1,20 @@
 import React, { memo, useMemo } from 'react';
-import Button from 'react-bootstrap/Button';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowDownIcon } from '../../../../../common/images/icons/arrow-down.svg';
-import { ReactComponent as ArrowDownSmallIcon } from '../../../../../common/images/icons/arrow-down-small.svg';
 import { ReactComponent as ArrowUpIcon } from '../../../../../common/images/icons/arrow-up.svg';
-import { ReactComponent as PlayIcon } from '../../../../../common/images/icons/play.svg';
 
-import { actualEndTimeForPatrol, actualStartTimeForPatrol, getReportsForPatrol } from '../../../../../utils/patrols';
+import {
+  actualEndTimeForPatrol,
+  actualStartTimeForPatrol,
+  getReportsForPatrol,
+  isSegmentPending,
+} from '../../../../../utils/patrols';
 import { DESCENDING_SORT_ORDER } from '../../../../../constants';
 import { getEventIdsForCollection } from '../../../../../utils/events';
 import useActivityFeed from '../../../../../DetailViewComponents/ActivitySection/useActivityFeed';
+
+import SummaryStats from './SummaryStats';
 
 import * as styles from './styles.module.scss';
 
@@ -64,9 +68,10 @@ const Activity = ({
 
   const startTime = useMemo(() => actualStartTimeForPatrol(patrol), [patrol]);
 
+  // Only legs that really ran hand over to one another.
   const legTransitionMilestones = useMemo(() => patrol.patrol_segments
     .slice(0, -1)
-    .flatMap((leg, index) => leg.time_range?.end_time
+    .flatMap((leg, index) => leg.time_range?.end_time && !isSegmentPending(patrol.patrol_segments[index + 1])
       ? [{
         date: leg.time_range.end_time,
         id: leg.id,
@@ -120,41 +125,7 @@ const Activity = ({
       </div>
     </div>
 
-    <dl className={styles.statsRow}>
-      <div className={styles.statItem}>
-        <dt className={styles.statLabel}>{t('durationLabel')}</dt>
-
-        <dd className={styles.statValue}>-</dd>
-      </div>
-
-      <div className={styles.statItem}>
-        <dt className={styles.statLabel}>{t('pausedTimeLabel')}</dt>
-
-        <dd className={styles.statValue}>-</dd>
-      </div>
-
-      <div className={styles.statItem}>
-        <dt className={styles.statLabel}>{t('activeTimeLabel')}</dt>
-
-        <dd className={styles.statValue}>-</dd>
-      </div>
-
-      <div className={styles.statItem}>
-        <dt className={styles.statLabel}>
-          {t('distanceLabel')}
-
-          <ArrowDownSmallIcon aria-hidden="true" className={styles.statLabelIcon} />
-        </dt>
-
-        <dd className={styles.statValue}>-</dd>
-      </div>
-
-      <div className={styles.statItem}>
-        <dt className={styles.statLabel}>{t('eventsLabel')}</dt>
-
-        <dd className={styles.statValue}>-</dd>
-      </div>
-    </dl>
+    <SummaryStats eventCount={containedEvents.length} patrol={patrol} />
 
     {hasItems
       ? <ul className={styles.activityList}>
@@ -162,13 +133,6 @@ const Activity = ({
       </ul>
       : <div className={styles.emptyState}>
         <p className={styles.emptyStateMessage}>{t('emptyStateMessage')}</p>
-
-        {/* TODO: Implement start patrol button. */}
-        <Button className={styles.startPatrolButton} onClick={() => {}} type="button">
-          <PlayIcon aria-hidden="true" />
-
-          {t('startPatrolButton')}
-        </Button>
       </div>}
   </div>;
 };

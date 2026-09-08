@@ -5,6 +5,7 @@ import { ReactComponent as ArrowUpRightFromSquareIcon } from '../../../common/im
 
 import { getIsValidWebUrl } from '../../../utils/string';
 import { TEXT_ELEMENT_FORMAT_VALIDATIONS, TEXT_ELEMENT_INPUT_TYPES } from '../../../utils/form-schemas/constants';
+import useFormElementDomId from '../../utils/useFormElementDomId';
 
 import * as styles from './styles.module.scss';
 
@@ -17,8 +18,10 @@ const INPUTS = {
   [TEXT_ELEMENT_INPUT_TYPES.LONG]: LongTextInput,
 };
 
-const Text = ({ details, error, id, onFieldChange, readOnly, value = '' }) => {
+const Text = ({ details, error, formElementId, onFieldChange, readOnly, value = '' }) => {
   const { t } = useTranslation('schema-form', { keyPrefix: 'fields.text' });
+
+  const domId = useFormElementDomId(formElementId);
 
   const inputRef = useRef(null);
 
@@ -31,8 +34,8 @@ const Text = ({ details, error, id, onFieldChange, readOnly, value = '' }) => {
     [details.formatValidation, readOnly, value]
   );
 
-  return <div className={styles.text} data-testid={`schema-form-text-field-${id}`}>
-    <label className={`${styles.label} ${hasError ? styles.error : ''}`} htmlFor={id}>
+  return <div className={styles.text} data-testid={`schema-form-text-field-${formElementId}`}>
+    <label className={`${styles.label} ${hasError ? styles.error : ''}`} htmlFor={domId}>
       {details.label}
 
       {details.isRequired && <span aria-hidden="true"> *</span>}
@@ -40,16 +43,16 @@ const Text = ({ details, error, id, onFieldChange, readOnly, value = '' }) => {
 
     <div
       className={`${styles.textInput} ${readOnly ? styles.readOnly : ''} ${hasError ? styles.error : ''}`}
-      data-testid={`schemaForm-field-text-${id}-textInput`}
+      data-testid={`schemaForm-field-text-${formElementId}-textInput`}
       onClick={(event) => event.target === event.currentTarget && inputRef.current?.focus()}
     >
       <Input
-        aria-describedby={`${id}-description`}
-        aria-errormessage={hasError ? `${id}-description` : undefined}
+        aria-describedby={`${domId}-description`}
+        aria-errormessage={hasError ? `${domId}-description` : undefined}
         aria-invalid={hasError ? 'true' : 'false'}
         aria-required={details.isRequired}
-        id={id}
-        onChange={(event) => onFieldChange(id, event.currentTarget.value || undefined)}
+        id={domId}
+        onChange={(event) => onFieldChange(formElementId, event.currentTarget.value || undefined)}
         placeholder={details.hint}
         readOnly={readOnly}
         ref={inputRef}
@@ -69,7 +72,7 @@ const Text = ({ details, error, id, onFieldChange, readOnly, value = '' }) => {
 
     <p
       className={`${styles.description} ${hasError ? styles.error : ''}`}
-      id={`${id}-description`}
+      id={`${domId}-description`}
     >
       {error?.message || details.description}
     </p>

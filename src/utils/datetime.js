@@ -138,6 +138,18 @@ export const HUMANIZED_DURATION_CONFIGS = {
 export const durationHumanizer = (config = HUMANIZED_DURATION_CONFIGS.FULL_FORMAT()) =>
   humanizeDuration.humanizer(config);
 
+// `t` must be bound to the `dates` namespace.
+export const longTermAbbreviatedDurationHumanizer = (t) => durationHumanizer(
+  HUMANIZED_DURATION_CONFIGS.LONG_TERM_ABRREVIATED({
+    d: () => t('timeUnitAbbreviations.day'),
+    h: () => t('timeUnitAbbreviations.hour'),
+    m: () => t('timeUnitAbbreviations.minute'),
+    mo: () => t('timeUnitAbbreviations.month'),
+    w: () => t('timeUnitAbbreviations.week'),
+    y: () => t('timeUnitAbbreviations.year'),
+  })
+);
+
 const SUPPORTED_DURATION_HUMANIZER_LANGUAGES = humanizeDuration.getSupportedLanguages();
 
 export const resolveDurationHumanizerLanguage = (i18nLanguage) => {

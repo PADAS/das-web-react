@@ -358,7 +358,7 @@ describe('ReportManager - ReportDetailView', () => {
     const timePicker = await screen.findByTestId('reportManager-detailsSection-timePicker');
     const timePickerOpenOptionsButton = await within(timePicker).findByLabelText('Open time options');
     await userEvent.click(timePickerOpenOptionsButton);
-    const optionsList = await screen.findByTestId('timePicker-OptionsList');
+    const optionsList = await screen.findByTestId('timePicker-optionsList');
     const timeOptionsListItems = await within(optionsList).findAllByRole('option');
     await userEvent.click(timeOptionsListItems[2]);
 

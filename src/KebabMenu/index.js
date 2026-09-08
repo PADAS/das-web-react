@@ -227,8 +227,6 @@ const KebabMenu = ({
 
     case 'Tab':
       if (show) {
-        event.preventDefault();
-
         closeMenu();
       }
 
@@ -237,7 +235,6 @@ const KebabMenu = ({
     case 'Escape':
       if (show) {
         event.preventDefault();
-        event.stopPropagation();
 
         closeMenu();
       }

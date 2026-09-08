@@ -59,7 +59,7 @@ describe('SchemaForm - formElements - Attachment', () => {
         <Attachment
           details={details}
           error={undefined}
-          id="attachment-1"
+          formElementId="attachment-1"
           onFieldChange={onFieldChange}
           value={[]}
           {...props}
@@ -631,7 +631,7 @@ describe('SchemaForm - formElements - Attachment', () => {
           <Attachment
             details={details}
             error={undefined}
-            id="attachment-1"
+            formElementId="attachment-1"
             onFieldChange={onFieldChange}
             value={[{ uploadId: 'test-upload-id' }]}
           />
@@ -657,7 +657,7 @@ describe('SchemaForm - formElements - Attachment', () => {
           <Attachment
             details={details}
             error={undefined}
-            id="attachment-1"
+            formElementId="attachment-1"
             onFieldChange={onFieldChange}
             value={[{ uploadId: 'test-upload-id' }]}
           />
@@ -691,7 +691,7 @@ describe('SchemaForm - formElements - Attachment', () => {
           <Attachment
             details={details}
             error={undefined}
-            id="attachment-1"
+            formElementId="attachment-1"
             onFieldChange={onFieldChange}
             value={[{ uploadId: 'upload-1' }, { uploadId: 'upload-2' }]}
           />
@@ -725,7 +725,7 @@ describe('SchemaForm - formElements - Attachment', () => {
           <Attachment
             details={details}
             error={undefined}
-            id="attachment-1"
+            formElementId="attachment-1"
             onFieldChange={onFieldChange}
             value={[{ uploadId: 'upload-1' }, { uploadId: 'upload-2' }]}
           />
@@ -759,7 +759,7 @@ describe('SchemaForm - formElements - Attachment', () => {
           <Attachment
             details={details}
             error={undefined}
-            id="attachment-1"
+            formElementId="attachment-1"
             onFieldChange={onFieldChange}
             value={[{ uploadId: 'upload-1' }, { uploadId: 'upload-2' }]}
           />
@@ -795,7 +795,7 @@ describe('SchemaForm - formElements - Attachment', () => {
             attachmentsMetadata={attachmentsMetadata}
             details={details}
             error={undefined}
-            id="attachment-1"
+            formElementId="attachment-1"
             onFieldChange={onFieldChange}
             value={[{ uploadId: 'saved-1' }, { uploadId: 'saved-2' }]}
           />
@@ -829,7 +829,7 @@ describe('SchemaForm - formElements - Attachment', () => {
             attachmentsMetadata={attachmentsMetadata}
             details={details}
             error={undefined}
-            id="attachment-1"
+            formElementId="attachment-1"
             onFieldChange={onFieldChange}
             value={[{ uploadId: 'saved-1' }]}
           />
@@ -866,7 +866,7 @@ describe('SchemaForm - formElements - Attachment', () => {
             attachmentsMetadata={attachmentsMetadata}
             details={details}
             error={undefined}
-            id="attachment-1"
+            formElementId="attachment-1"
             onFieldChange={onFieldChange}
             value={[{ uploadId: 'saved-1' }]}
           />

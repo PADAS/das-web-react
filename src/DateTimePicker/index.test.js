@@ -149,6 +149,18 @@ describe('DateTimePicker', () => {
     expect(onChange).toHaveBeenCalledWith('2020-01-13T00:00');
   });
 
+  test('autofills the time to the min time when changing the date to the min date if the time is empty', async () => {
+    renderDateTimePicker({ min: '2020-01-13T09:30', value: '2020-01-01T:' });
+
+    expect(onChange).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByLabelText('Open calendar'));
+    await userEvent.click(screen.getByLabelText('Choose Monday, January 13th, 2020'));
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith('2020-01-13T09:30');
+  });
+
   test('changes when the user modifies the time', async () => {
     renderDateTimePicker({ value: '--T06:30' });
 

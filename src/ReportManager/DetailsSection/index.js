@@ -292,6 +292,7 @@ const DetailsSection = ({
 
     {eventType?.version === 2 && eventSchema?.json && !eventSchema?.error && <SchemaForm
       anchorLocation={reportForm.location}
+      className={styles.schemaForm}
       formData={reportForm.event_details}
       hideMapLocationMarkers={isBehindAddedEvent}
       metadata={reportForm.metadata ?? {}}

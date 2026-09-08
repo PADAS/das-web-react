@@ -46,16 +46,16 @@ const MenuPopover = ({
   const gpsFormatToggleRef = useRef();
   const gpsInputRef = useRef();
   const lastFocusableElementRef = useRef();
-  // Set the popover width equal to the location picker's width if it's between the min and max boundaries and store it
-  // in a ref so it doesn't change.
-  const popoverWidthRef = useRef(
-    Math.min(MAX_POPOVER_WIDTH, Math.max(MIN_POPOVER_WIDTH, target.current?.offsetWidth))
-  );
   const wrapperRef = useRef();
 
   const permissionBlockedMessageId = useId();
 
   const [isLocationPermissionDenied, setIsLocationPermissionDenied] = useState(false);
+  // The popover opens at the width of the picker, clamped, and keeps it however
+  // the picker is resized while open.
+  const [popoverWidth] = useState(
+    () => Math.min(MAX_POPOVER_WIDTH, Math.max(MIN_POPOVER_WIDTH, target.current?.offsetWidth))
+  );
 
   const onWrapperKeyDown = (event) => {
     if (event.key === 'Escape') {
@@ -73,9 +73,11 @@ const MenuPopover = ({
       event.preventDefault();
       event.stopPropagation();
 
-      onClose();
+      if (event.target === gpsInputRef.current) {
+        onClose();
 
-      setLocationButtonRef.current.focus();
+        setLocationButtonRef.current.focus();
+      }
     }
   };
 
@@ -215,15 +217,15 @@ const MenuPopover = ({
       className={`${className} ${styles.menuPopover}`}
       ref={ref}
       role="dialog"
-      style={{ ...style, minWidth: popoverWidthRef.current, width: popoverWidthRef.current }}
+      style={{ ...style, minWidth: popoverWidth, width: popoverWidth }}
       {...otherProps}
     >
     <div className={styles.wrapper} onKeyDown={isPickingLocation ? undefined : onWrapperKeyDown} ref={wrapperRef}>
       <GpsInput
         gpsFormatToggleRef={gpsFormatToggleRef}
         inputRef={gpsInputRef}
-        onKeyDown={isPickingLocation ? undefined : onGpsInputKeyDown}
         onChange={onChange}
+        onKeyDown={isPickingLocation ? undefined : onGpsInputKeyDown}
         value={value}
       />
 

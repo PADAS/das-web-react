@@ -28,7 +28,7 @@ import { fetchPatrol } from '../ducks/patrols';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { getCurrentIdFromURL } from '../utils/navigation';
-import { PATROL_API_STATES, TAB_KEYS } from '../constants';
+import { PATROL_API_STATES, PATROL_TYPE_QUERY_PARAMETER, TAB_KEYS } from '../constants';
 import {
   TrackerContext,
   PATROL_DETAIL_VIEW_CATEGORY,
@@ -69,7 +69,7 @@ const PatrolDetailView = () => {
 
   const patrolId = getCurrentIdFromURL(location.pathname);
   const newPatrolTemporalId = location.state?.temporalId;
-  const newPatrolTypeId = searchParams.get('patrolType');
+  const newPatrolTypeId = searchParams.get(PATROL_TYPE_QUERY_PARAMETER);
   const { setScrollPosition } = useContext(SidebarScrollContext);
 
   const isAutoStart = useSelector((state) => state.view.userPreferences.autoStartPatrols);

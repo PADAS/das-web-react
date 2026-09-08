@@ -18,6 +18,7 @@
     },
     "mapDrawingTools": {
         "addPointLabel": "नयाँ बिन्दु थप्न क्लिक गर्नुहोस् । पुरा गर्नका लागि ‘enter’ वा ‘return’ थिच्नुहोस् ।",
+        "areaLabel": "क्षेत्रफल: {{area}}",
         "bearingLabel": "असर: {{bearing}}°",
         "distanceLabel": "दूरी: {{distance}}",
         "instructionsLabel": "नयाँ बिन्दु थप्नका लागि क्लिक गरेर तान्नुहोस्",
@@ -35,6 +36,7 @@
         "title": "नक्शाको मापक"
     },
     "pointPopup": {
+        "areaLabel": "क्षेत्रफल:",
         "bearingLabel": "असर:",
         "distanceLabel": "सुरु देखिको दुरी:",
         "finishButton": "समाप्त गर्न यहाँ क्लिक गर्नुहोस्"

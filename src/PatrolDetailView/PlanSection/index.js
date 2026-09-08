@@ -12,7 +12,6 @@ import {
   displayEndTimeForPatrol,
   displayStartTimeForPatrol
 } from '../../utils/patrols';
-import { fetchTrackedBySchema } from '../../ducks/trackedby';
 import { getHoursAndMinutesString } from '../../utils/datetime';
 import { updateUserPreferences } from '../../ducks/user-preferences';
 import { setMapLocationSelectionPatrol } from '../../ducks/map-ui';
@@ -123,12 +122,6 @@ const PlanSection = ({
   }, [dispatch, displayStartDate, isAutoStart, isNewPatrol, onPatrolStartDateChange]);
 
   useEffect(() => {
-    if (!patrolLeaders) {
-      dispatch(fetchTrackedBySchema());
-    }
-  }, [dispatch, patrolLeaders]);
-
-  useEffect(() => {
     dispatch(setMapLocationSelectionPatrol(patrolForm));
 
     return () => {
@@ -150,7 +143,7 @@ const PlanSection = ({
           {t('trackedByLabel')}
           <ReportedBySelect
             onChange={onPatrolReportedByChange}
-            options={patrolLeaders ?? []}
+            options={patrolLeaders}
             placeholder={t('trackedByPlaceholder')}
             value={patrolForm.patrol_segments?.[0]?.leader}
           />

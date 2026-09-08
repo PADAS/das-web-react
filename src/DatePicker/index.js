@@ -27,6 +27,8 @@ import CalendarPopper from './CalendarPopper';
 import * as styles from './styles.module.scss';
 
 const DatePicker = ({
+  'aria-errormessage': ariaErrorMessage,
+  'aria-invalid': ariaInvalid,
   className = '',
   dateSeparator = '/',
   disabled = false,
@@ -303,6 +305,8 @@ const DatePicker = ({
   }, [day]);
 
   return <div
+      aria-errormessage={ariaErrorMessage}
+      aria-invalid={ariaInvalid}
       className={styles.datePicker
         + (readOnly ? ` ${styles.readOnly}` : '')
         + (disabled ? ` ${styles.disabled}` : '')
@@ -318,7 +322,10 @@ const DatePicker = ({
     <CalendarIcon className={styles.calendarIcon} />
 
     <input
+      aria-errormessage={ariaErrorMessage}
+      aria-invalid={ariaInvalid}
       aria-label={t('yearInputLabel')}
+      autoComplete="off"
       className={styles.yearInput}
       disabled={disabled}
       inputMode="numeric"
@@ -337,7 +344,10 @@ const DatePicker = ({
     <span className={styles.dateSeparator}>{dateSeparator}</span>
 
     <input
+      aria-errormessage={ariaErrorMessage}
+      aria-invalid={ariaInvalid}
       aria-label={t('monthInputLabel')}
+      autoComplete="off"
       className={styles.monthInput}
       disabled={disabled}
       inputMode="numeric"
@@ -357,7 +367,10 @@ const DatePicker = ({
     <span className={styles.dateSeparator}>{dateSeparator}</span>
 
     <input
+      aria-errormessage={ariaErrorMessage}
+      aria-invalid={ariaInvalid}
       aria-label={t('dayInputLabel')}
+      autoComplete="off"
       className={styles.dayInput}
       disabled={disabled}
       inputMode="numeric"

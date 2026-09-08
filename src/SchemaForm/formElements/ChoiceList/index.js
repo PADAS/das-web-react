@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 
 import { CHOICE_LIST_ELEMENT_INPUT_TYPES } from '../../../utils/form-schemas/constants';
+import useFormElementDomId from '../../utils/useFormElementDomId';
 
 import Dropdown from './Dropdown';
 import List from './List';
@@ -12,7 +13,9 @@ const INPUTS = {
   [CHOICE_LIST_ELEMENT_INPUT_TYPES.LIST]: List
 };
 
-const ChoiceList = ({ details, error, id, onFieldChange, readOnly, value = '' }) => {
+const ChoiceList = ({ details, error, formElementId, onFieldChange, readOnly, value = '' }) => {
+  const domId = useFormElementDomId(formElementId);
+
   const Input = INPUTS[details.inputType];
 
   const hasError = !!error;
@@ -20,7 +23,7 @@ const ChoiceList = ({ details, error, id, onFieldChange, readOnly, value = '' })
   return <div>
     {details.inputType === CHOICE_LIST_ELEMENT_INPUT_TYPES.DROPDOWN && <label
       className={`${styles.dropdownWrapper} ${hasError ? styles.error : ''}`}
-      htmlFor={id}
+      htmlFor={domId}
     >
       {details.label}
 
@@ -28,22 +31,22 @@ const ChoiceList = ({ details, error, id, onFieldChange, readOnly, value = '' })
     </label>}
 
     <Input
-      aria-describedby={`${id}-description`}
-      aria-errormessage={hasError ? `${id}-description` : undefined}
+      aria-describedby={`${domId}-description`}
+      aria-errormessage={hasError ? `${domId}-description` : undefined}
       aria-invalid={hasError ? 'true' : 'false'}
       aria-required={details.isRequired}
       details={details}
-      id={id}
+      id={domId}
       invalid={hasError}
       label={details.label}
-      onChange={(newValue) => onFieldChange(id, newValue)}
+      onChange={(newValue) => onFieldChange(formElementId, newValue)}
       readOnly={readOnly}
       value={value}
     />
 
     <p
       className={`${styles.description} ${hasError ? styles.error : ''}`}
-      id={`${id}-description`}
+      id={`${domId}-description`}
     >
       {error?.message || details.description}
     </p>

@@ -13,6 +13,7 @@
   "displayTitleForPatrol": {
     "unknown": "Aina isiyojulikana ya doria"
   },
+  "distanceInKilometers": "{{distance}}km",
   "filterDuplicateUploadFilenames": {
     "duplicationAlert": "Haiwezi kuongeza {{fileName}}: faili tayari ipo"
   },

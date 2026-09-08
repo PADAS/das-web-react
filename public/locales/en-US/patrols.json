@@ -12,14 +12,15 @@
       "save": "Save"
     },
     "header": {
+      "patrolRestoreButton": "Restore",
       "patrolSchedule": "Scheduled {{scheduledStartTime}}",
       "patrolStartButton": "Start",
-      "patrolRestoreButton": "Restore",
       "uiStateTitles": {
         "active": "Active",
         "cancelled": "Cancelled",
         "done": "Done",
         "invalid": "Invalid Configuration",
+        "paused": "Paused",
         "readyToStart": "Ready to Start",
         "scheduled": "Scheduled",
         "startOverdue": "Start Overdue"
@@ -27,21 +28,21 @@
     },
     "loadingMessage": "Saving...",
     "planSection": {
-      "autoStartCheckboxLargeLabel": "Automatically start the patrol in EarthRanger at this time",
-      "autoStartCheckboxSmallLabel": "Automatically start the patrol in EarthRanger",
       "autoEndCheckboxLargeLabel": "Automatically end the patrol in EarthRanger at this time",
       "autoEndCheckboxSmallLabel": "Automatically end the patrol in EarthRanger",
+      "autoStartCheckboxLargeLabel": "Automatically start the patrol in EarthRanger at this time",
+      "autoStartCheckboxSmallLabel": "Automatically start the patrol in EarthRanger",
       "endDateLabel": "End Date",
-      "endTimeLabel": "End Time",
       "endLocationLargeLabel": "End Location",
       "endLocationSmallLabel": "Location",
+      "endTimeLabel": "End Time",
       "locationSelectorPlaceholder": "Set Location",
       "objectiveLabel": "Objective",
       "objectivePlaceholder": "Describe the purpose of the patrol...",
       "startDateLabel": "Start Date",
-      "startTimeLabel": "Start Time",
       "startLocationLargeLabel": "Start Location",
       "startLocationSmallLabel": "Location",
+      "startTimeLabel": "Start Time",
       "title": "Plan",
       "trackedByLabel": "Tracked by",
       "trackedByPlaceholder": "Select Device..."
@@ -52,10 +53,92 @@
       "plan": "Plan"
     }
   },
+  "header": {
+    "breadcrumbNavLabel": "Patrol navigation",
+    "closeButtonLabel": "Close sidebar"
+  },
   "invalidDatesModal": {
     "body": "This patrol can not be saved. The end time of a patrol must be later than the start time. Please correct the start or end patrol time.",
     "okButton": "OK",
     "title": "Invalid Patrol Times"
+  },
+  "legForm": {
+    "patrolTypeField": {
+      "label": "Patrol Type",
+      "placeholder": "Select a patrol type",
+      "requiredError": "A leg needs a patrol type."
+    },
+    "patrolTypeSchemaErrorMessage": "The fields of this patrol type could not be loaded.",
+    "patrolTypeSchemaLoadingLabel": "Loading the fields of this patrol type",
+    "staticFields": {
+      "assetsLabel": "Assets",
+      "autoEndCheckboxLabel": "Automatically end the leg at this time",
+      "autoStartCheckboxLabel": "Automatically start the leg at this time",
+      "endDateBeforeStartDateError": "The end of the leg must be later than its start.",
+      "endDateInputLabel": "End date",
+      "endLocationLabel": "End Location",
+      "endTimeInputLabel": "End time",
+      "endTimeLabel": "End Time",
+      "endTimeRequiredError": "A leg with an end date needs an end time.",
+      "startDateInputLabel": "Start date",
+      "startDateOverlapsPreviousLegError": "This leg cannot overlap the previous one.",
+      "startDateRequiredError": "A leg needs a start date.",
+      "startLocationLabel": "Start Location",
+      "startTimeInputLabel": "Start time",
+      "startTimeLabel": "Start Time",
+      "startTimeRequiredError": "A leg needs a start time.",
+      "teamLabel": "Team",
+      "teamLeadLabel": "Team Lead",
+      "teamMembersLabel": "Team Members"
+    },
+    "universalFieldsSchemaErrorMessage": "The universal patrol fields could not be loaded.",
+    "universalFieldsSchemaLoadingLabel": "Loading the universal patrol fields"
+  },
+  "newLeg": {
+    "footer": {
+      "cancelButton": "Cancel",
+      "saveButton": "Save"
+    },
+    "header": {
+      "breadcrumbNewLegLabel": "New Patrol Leg",
+      "breadcrumbPatrolsLabel": "Patrols",
+      "title": "New Patrol Leg"
+    },
+    "saveErrorMessage": "The patrol leg could not be created. Please try again."
+  },
+  "newPatrol": {
+    "footer": {
+      "cancelButton": "Cancel",
+      "saveButton": "Save"
+    },
+    "header": {
+      "breadcrumbNewPatrolLabel": "New Patrol",
+      "breadcrumbPatrolsLabel": "Patrols",
+      "statePill": "New",
+      "titleInputLabel": "Patrol title"
+    },
+    "saveErrorMessage": "The patrol could not be created. Please try again."
+  },
+  "patrolList": {
+    "emptyPatrolList": "No patrols to display."
+  },
+  "patrolListItem": {
+    "restoreButton": "Restore",
+    "scheduledTitle": "Scheduled:",
+    "startButton": "Start"
+  },
+  "patrolMenu": {
+    "cancelPatrol": "Cancel Patrol",
+    "copyButton": "Copy patrol link",
+    "copyButtonMessage": "Link copied",
+    "downloadTrackButton": "Download Patrol Track",
+    "endPatrol": "End Patrol",
+    "label": "View Patrol Options",
+    "noTrackDataTooltip": "No data to download",
+    "printPatrolButton": "Print Patrol",
+    "restorePatrol": "Restore Patrol",
+    "startPatrol": "Start Patrol",
+    "title": "Patrol Options"
   },
   "patrolOverview": {
     "attachmentsSaveErrorMessage": "Some attachments could not be uploaded. Please try again.",
@@ -63,27 +146,20 @@
       "addEventButton": "Add Event",
       "addEventButtonLabel": "Add Event",
       "addEventButtonText": "Event",
-      "cancelOption": "Cancel Patrol",
-      "endOption": "End Patrol",
-      "endPatrolButton": "End Patrol",
-      "pauseOption": "Pause Patrol",
-      "saveButton": "Save",
-      "saveButtonLoadingLabel": "Loading",
-      "updateStatusButton": "Update Status"
+      "saveButton": "Save"
     },
     "header": {
-      "breadcrumbNavLabel": "Patrol navigation",
       "breadcrumbPatrolsLabel": "Patrols",
-      "closeButtonLabel": "Close sidebar",
       "copyLinkMessage": "Link copied",
       "copyLinkOption": "Copy patrol link",
       "downloadTrackOption": "Download Patrol Track",
-      "editTitleButtonLabel": "Edit title",
       "fitToBoundsButtonLabel": "Zoom to patrol bounds",
       "jumpToLocationButtonLabel": "Jump to location",
       "mobileProvenancePill": "Mobile",
       "moreOptionsButtonLabel": "More options",
       "printOption": "Print Patrol",
+      "statusMenuLabel": "Patrol status actions",
+      "statusSelectLabel": "Change patrol status",
       "titleInputLabel": "Patrol title",
       "toggleTrackButtonLabel": {
         "hidden": "Show patrol track",
@@ -95,6 +171,7 @@
         "cancelled": "Cancelled",
         "done": "Done",
         "invalid": "Invalid Configuration",
+        "paused": "Paused",
         "readyToStart": "Ready to Start",
         "scheduled": "Scheduled",
         "startOverdue": "Start Overdue"
@@ -110,30 +187,34 @@
     "historyTabTitle": "History",
     "overview": {
       "activity": {
-        "activeTimeLabel": "Active Time",
         "activitySectionTitle": "Activity",
         "collapseAllButtonLabel": "Collapse all",
-        "distanceLabel": "Distance",
-        "durationLabel": "Duration",
         "emptyStateMessage": "Patrol activity will appear here",
-        "eventsLabel": "Events",
         "expandAllButtonLabel": "Expand all",
-        "jumpToLocationButtonLabel": "Jump to location",
         "legTransitionTitle": "Leg {{endedLeg}} Ended, Leg {{startedLeg}} Started",
         "patrolEndedTitle": "Patrol Ended",
         "patrolStartedTitle": "Patrol Started",
-        "pausedTimeLabel": "Paused Time",
         "sortDirectionButtonLabel": {
           "down": "Sort activity in ascending order",
           "up": "Sort activity in descending order"
         },
-        "startPatrolButton": "Start Patrol",
+        "summaryStats": {
+          "activeTimeLabel": "Active Time",
+          "distanceLabel": "Distance",
+          "distanceSubjectButtonLabel": "Distance covered by {{subject}}. Change the tracked subject",
+          "distanceSubjectMenuLabel": "Tracked subjects",
+          "durationLabel": "Duration",
+          "eventsLabel": "Events",
+          "patrolLeaderIndicator": "Patrol leader",
+          "pausedTimeLabel": "Paused Time"
+        },
         "timeLabel": "Time"
       },
       "legs": {
         "endColumnHeader": "End Date",
         "legActionsColumnHeader": "Actions",
         "legColumnHeader": "Leg",
+        "legDidNotRunLabel": "This leg never ran",
         "legTableCaption": "Patrol legs",
         "newLegButton": "New Patrol Leg",
         "patrolTypeColumnHeader": "Patrol Type",
@@ -147,30 +228,12 @@
     "saveErrorMessage": "The patrol could not be saved. Please try again.",
     "tabsLabel": "Patrol overview tabs"
   },
-  "patrolMenu": {
-    "cancelPatrol": "Cancel Patrol",
-    "copyButton": "Copy patrol link",
-    "copyButtonMessage": "Link copied",
-    "endPatrol": "End Patrol",
-    "label": "View Patrol Options",
-    "title": "Patrol Options",
-    "downloadTrackButton": "Download Patrol Track",
-    "noTrackDataTooltip": "No data to download",
-    "printPatrolButton": "Print Patrol",
-    "restorePatrol": "Restore Patrol",
-    "startPatrol": "Start Patrol"
-  },
-  "patrolList": {
-    "emptyPatrolList": "No patrols to display."
-  },
-  "patrolListItem": {
-    "restoreButton": "Restore",
-    "scheduledTitle": "Scheduled:",
-    "startButton": "Start"
+  "titleInput": {
+    "editButtonLabel": "Edit title"
   },
   "trackToggleButton": {
-    "tracksPinned": "Tracks pinned",
+    "tracksOff": "Tracks off",
     "tracksOn": "Tracks on",
-    "tracksOff": "Tracks off"
+    "tracksPinned": "Tracks pinned"
   }
 }

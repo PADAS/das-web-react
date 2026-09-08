@@ -62,6 +62,26 @@ describe('ActivitySection - Note', () => {
     expect((await screen.findByTestId('activitySection-noteTitle-1234')).textContent).toBe('note');
   });
 
+  test('italicizes the title of a note that is not saved yet', async () => {
+    renderNoteListItem({ ...initialProps, note: { text: 'note' } });
+
+    expect(await screen.findByTestId('activitySection-noteTitle-note')).toHaveClass('unsaved');
+  });
+
+  test('italicizes the title of a saved note with pending edits', async () => {
+    const note = { id: '1234', isUnsaved: true, text: 'edited note' };
+    renderNoteListItem({ ...initialProps, note });
+
+    expect(await screen.findByTestId('activitySection-noteTitle-1234')).toHaveClass('unsaved');
+  });
+
+  test('does not italicize the title of a saved note without pending edits', async () => {
+    const note = { id: '1234', text: 'note', updates: [{ time: '2022-06-06T21:58:48.248635+00:00' }] };
+    renderNoteListItem({ ...initialProps, note });
+
+    expect(await screen.findByTestId('activitySection-noteTitle-1234')).not.toHaveClass('unsaved');
+  });
+
   test('shows the date time of the last update of the note if it is saved in the patrol already', async () => {
     const note = { id: '1234', text: 'note', updates: [{ time: '2022-06-06T21:58:48.248635+00:00' }] };
     renderNoteListItem({ ...initialProps, note });

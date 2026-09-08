@@ -1,0 +1,151 @@
+@use 'sass:color';
+
+@use '../../../../../common/styles/inputs';
+@use '../../../../../common/styles/vars/colors';
+
+.statusPill {
+  align-items: center;
+  border-radius: 999px;
+  display: flex;
+  flex-shrink: 0;
+  font-size: 0.875rem;
+  gap: 0.25rem;
+  padding: 0.125rem 0.625rem;
+
+  &.active {
+    background-color: map-get(colors.$patrol-active-theme, 'base');
+    color: white;
+  }
+
+  &.paused {
+    background-color: map-get(colors.$patrol-paused-theme, 'base');
+    color: white;
+  }
+
+  &.done {
+    background-color: map-get(colors.$patrol-done-theme, 'base');
+    color: white;
+  }
+
+  &.readyToStart, &.scheduled {
+    background-color: map-get(colors.$patrol-ready-theme, 'base');
+    color: white;
+  }
+
+  &.startOverdue {
+    background-color: map-get(colors.$patrol-overdue-theme, 'base');
+    color: white;
+  }
+
+  &.cancelled, &.invalid {
+    background-color: map-get(colors.$patrol-cancelled-theme, 'base');
+    color: map-get(colors.$patrol-cancelled-theme, 'fontColor');
+  }
+
+  .unsavedLabel {
+    font-style: italic;
+  }
+}
+
+.statusPillButton {
+  border: none;
+  gap: 0.5rem;
+
+  .caret {
+    @include inputs.dropdown-caret($color: currentcolor);
+
+    flex-shrink: 0;
+
+    &.open {
+      transform: rotate(180deg);
+    }
+
+    @media print {
+      display: none;
+    }
+  }
+
+  &:hover {
+    background-image: linear-gradient(rgb(0 0 0 / 8%), rgb(0 0 0 / 8%));
+  }
+
+  &:focus-visible {
+    outline: 2px solid colors.$bright-blue;
+    outline-offset: 1px;
+  }
+}
+
+.menuPopover {
+  @include inputs.boxShadow;
+  border: none !important;
+  border-radius: 0.25rem !important;
+  min-width: 9rem;
+
+  [class*='popover-arrow'] {
+    display: none;
+  }
+
+  .menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    .menuItem {
+      .menuItemOption {
+        align-items: center;
+        background-color: white;
+        border: none;
+        color: colors.$off-black;
+        display: flex;
+        outline: none;
+        padding: 0.5rem 0.75rem;
+        text-align: left;
+        white-space: nowrap;
+        width: 100%;
+
+        &:hover {
+          background-color: color.adjust(colors.$light-gray-background, $lightness: 5%);
+          cursor: pointer;
+        }
+
+        &:focus {
+          background-color: colors.$light-gray-background;
+        }
+
+        &[aria-checked="true"] {
+          background-color: colors.$blue-highlight;
+
+          &:hover, &:focus {
+            background-color: color.adjust(colors.$blue-highlight, $lightness: -5%);
+          }
+        }
+
+        &[aria-checked="false"] {
+          padding-left: 2rem;
+        }
+
+        .checkIcon {
+          color: colors.$bright-blue;
+          flex-shrink: 0;
+          height: 0.75rem;
+          margin-right: 0.5rem;
+          width: 0.75rem;
+        }
+      }
+
+      &:first-child .menuItemOption {
+        border-top-left-radius: 0.25rem;
+        border-top-right-radius: 0.25rem;
+      }
+
+      &:last-child .menuItemOption {
+        border-bottom-left-radius: 0.25rem;
+        border-bottom-right-radius: 0.25rem;
+      }
+    }
+  }
+
+  @media print {
+    display: none !important;
+  }
+}

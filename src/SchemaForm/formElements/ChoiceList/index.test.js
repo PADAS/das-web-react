@@ -36,7 +36,7 @@ describe('SchemaForm - formElements - ChoiceList', () => {
       label: 'Choice list label'
     },
     error: null,
-    id: 'a-choice',
+    formElementId: 'a-choice',
     onFieldChange: () => {},
     value: undefined
   };

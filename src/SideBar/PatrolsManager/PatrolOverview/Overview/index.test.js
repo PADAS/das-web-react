@@ -2,10 +2,10 @@ import React from 'react';
 import { Provider } from 'react-redux';
 
 import { mockStore } from '../../../../__test-helpers/MockStore';
+import { PATROL_UI_STATES, SYSTEM_CONFIG_FLAGS } from '../../../../constants';
 import patrolTypes from '../../../../__test-helpers/fixtures/patrol-types';
 import { multiLegPatrol } from '../../../../__test-helpers/fixtures/patrols';
 import { render, screen } from '../../../../test-utils';
-import { SYSTEM_CONFIG_FLAGS } from '../../../../constants';
 import { TRACK_LENGTH_ORIGINS } from '../../../../ducks/tracks';
 
 import Overview from './';
@@ -48,6 +48,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview', () => {
         onDeleteNote={onDeleteNote}
         onDoneNote={onDoneNote}
         patrol={patrolWithLeader}
+        patrolState={PATROL_UI_STATES.ACTIVE}
         {...props}
       />
     </Provider>

@@ -25,7 +25,7 @@ describe('SchemaForm - formElements - Numeric', () => {
   const renderNumericField = (props) => render(<Numeric
         details={details}
         error={undefined}
-        id="numeric-1"
+        formElementId="numeric-1"
         onFieldChange={onFieldChange}
         value={undefined}
         {...props}

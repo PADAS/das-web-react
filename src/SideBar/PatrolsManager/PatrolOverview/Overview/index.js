@@ -13,8 +13,9 @@ const Overview = ({
   onDeleteNote,
   onDoneNote,
   patrol,
+  patrolState,
 }) => <>
-  <Legs patrol={patrol} />
+  <Legs patrol={patrol} patrolState={patrolState} />
 
   <Activity
     existingNotes={existingNotes}

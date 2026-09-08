@@ -1,7 +1,13 @@
 import { imgElFromSrc, calcImgIdFromUrlForMapImages, calcUrlForImage, ImageCache } from './img';
 
-jest.spyOn(global.URL, 'createObjectURL').mockImplementation(() => {});
-jest.spyOn(global.URL, 'revokeObjectURL').mockImplementation(() => {});
+const { createObjectURL, revokeObjectURL } = URL;
+
+afterAll(() => {
+  Object.assign(URL, { createObjectURL, revokeObjectURL });
+});
+
+global.URL.createObjectURL = jest.fn();
+global.URL.revokeObjectURL = jest.fn();
 
 describe('img utility functions', () => {
   afterAll(() => {
@@ -253,11 +259,7 @@ describe('img utility functions', () => {
 
         mockImage.onerror(new Error('test error'));
 
-        try {
-          await loadPromise;
-        } catch (e) {
-
-        }
+        await expect(loadPromise).rejects.toBeDefined();
 
         expect(mapDeleteSpy).toHaveBeenCalled();
 

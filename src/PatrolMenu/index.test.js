@@ -148,10 +148,8 @@ describe('PatrolMenu', () => {
     await userEvent.click(screen.getByRole('button'));
     await userEvent.click(screen.getByText('Restore Patrol'));
 
-    expect(onPatrolChange).toHaveBeenCalledWith({
-      patrol_segments: [{ time_range: { end_time: null } }],
-      state: 'open'
-    });
+    expect(onPatrolChange).toHaveBeenCalledWith(expect.objectContaining({ state: 'open' }));
+    expect(onPatrolChange.mock.calls[0][0].patrol_segments.at(-1).time_range.end_time).toBeNull();
   });
 
   describe('Download Patrol Track button', () => {
@@ -293,10 +291,9 @@ describe('PatrolMenu', () => {
     await user.click(screen.getByRole('button'));
     await user.click(screen.getByText('Start Patrol'));
 
-    expect(onPatrolChange).toHaveBeenCalledWith({
-      patrol_segments: [{ time_range: { end_time: null, start_time: mockedDate } }],
-      state: 'open'
-    });
+    expect(onPatrolChange).toHaveBeenCalledWith(expect.objectContaining({ state: 'open' }));
+    expect(onPatrolChange.mock.calls[0][0].patrol_segments.at(-1).time_range)
+      .toEqual(expect.objectContaining({ end_time: null, start_time: mockedDate }));
 
     jest.useRealTimers();
   });

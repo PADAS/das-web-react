@@ -202,7 +202,7 @@ const AttachmentListItem = ({
     </div>
 
     <div className={activitySectionStyles.itemDetails}>
-      <p className={activitySectionStyles.itemTitle}>{fileName}</p>
+      <p className={`${activitySectionStyles.itemTitle} ${isNew ? activitySectionStyles.unsaved : ''}`}>{fileName}</p>
 
       {updateDate && <time
         className={activitySectionStyles.itemDate}

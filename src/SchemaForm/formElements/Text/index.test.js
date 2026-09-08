@@ -26,7 +26,7 @@ describe('SchemaForm - formElements - Text', () => {
   const renderTextField = (props) => render(<Text
     details={details}
     error={undefined}
-    id="text-1"
+    formElementId="text-1"
     onFieldChange={onFieldChange}
     value={undefined}
     {...props}

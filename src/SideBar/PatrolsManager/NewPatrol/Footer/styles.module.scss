@@ -1,0 +1,71 @@
+@use 'sass:color';
+
+@use '../../../../common/styles/buttons';
+@use '../../../../common/styles/vars/colors';
+
+.footer {
+  align-items: center;
+  background: white;
+  border-top: 1px solid colors.$very-light-gray-alt;
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  padding: 1rem;
+
+  .cancelButton {
+    @include buttons.baseButton;
+
+    justify-content: center;
+    text-decoration: none;
+
+    &:hover {
+      color: colors.$off-black;
+    }
+
+    &:focus-visible {
+      outline-offset: 0;
+    }
+  }
+
+  .saveButton {
+    align-items: center;
+    background-color: colors.$bright-blue;
+    border: none;
+    border-radius: 0.25rem;
+    color: white;
+    display: inline-flex;
+    height: 2.25rem;
+    justify-content: center;
+    padding: 0 0.5rem;
+    position: relative;
+    transition: background-color 150ms ease;
+
+    &[aria-busy='true'] .saveButtonLabel {
+      visibility: hidden;
+    }
+
+    .saveButtonLoader {
+      align-items: center;
+      display: flex;
+      inset: 0;
+      justify-content: center;
+      position: absolute;
+    }
+
+    &:hover:not(:disabled):not(:focus-visible) {
+      background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+    }
+
+    &:focus-visible {
+      background-color: white;
+      color: colors.$bright-blue;
+      outline: 2px solid colors.$bright-blue;
+    }
+
+    &:disabled {
+      cursor: default;
+      opacity: 0.75;
+    }
+  }
+}

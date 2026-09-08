@@ -234,23 +234,7 @@ describe('Selectors - Event types', () => {
         url: 'https://root.dev.pamdas.org/api/v1.0/activity/events/eventtypes/58bde7d9-4a5c-43bf-a5c7-06803a3aaec8',
         value: 'spoor_rep',
         version: 1,
-      }, {
-        default_priority: 0,
-        display: 'Dog Patrol',
-        icon_id: 'dog-patrol-icon',
-        id: 'ff2f7da6-ade4-4dc1-bd7a-c2c5244017fa',
-        is_active: true,
-        ordernum: 3,
-        value: 'dog_patrol',
-      }, {
-        default_priority: 0,
-        display: 'Routine Patrol',
-        icon_id: 'routine-patrol-icon',
-        id: 'c6f88fd2-2b87-477a-9c23-3bc4b3eb845d',
-        is_active: true,
-        ordernum: 1,
-        value: 'routine_patrol',
-      }]);
+      }, dogPatrol, routinePatrol]);
     });
   });
 

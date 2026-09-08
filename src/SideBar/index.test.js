@@ -114,9 +114,6 @@ describe('SideBar', () => {
         },
       },
       view: {
-        mapLocationSelection: {
-          isPickingLocation: false,
-        },
         userPreferences: {},
         sideBar: {},
         systemConfig: {
@@ -650,73 +647,6 @@ describe('SideBar', () => {
     await waitFor(() => {
       expect(screen.getByTestId('badgeIcon')).toBeDefined();
     });
-  });
-
-  test('navigates to current tab when Escape key is pressed in report detail view with sidebar focused', async () => {
-    useLocationMock = jest.fn((() => ({ pathname: '/events/123' })));
-    useLocation.mockImplementation(useLocationMock);
-
-    renderSideBar();
-
-    const sidebar = screen.getByRole('navigation');
-    sidebar?.focus();
-
-    expect(navigate).not.toHaveBeenCalled();
-
-    await userEvent.keyboard('{Escape}');
-
-    expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/events');
-  });
-
-  test('navigates to current tab when Escape key is pressed in patrol detail view with sidebar focused', async () => {
-    useLocationMock = jest.fn((() => ({ pathname: '/patrols/123' })));
-    useLocation.mockImplementation(useLocationMock);
-
-    renderSideBar();
-
-    const sidebar = screen.getByRole('navigation');
-    sidebar?.focus();
-
-    expect(navigate).not.toHaveBeenCalled();
-
-    await userEvent.keyboard('{Escape}');
-
-    expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/patrols');
-  });
-
-  test('does not navigate when Escape key is pressed but not in detail view', async () => {
-    useLocationMock = jest.fn((() => ({ pathname: '/events' })));
-    useLocation.mockImplementation(useLocationMock);
-
-    renderSideBar();
-
-    const sidebar = screen.getByRole('navigation');
-    sidebar?.focus();
-
-    expect(navigate).not.toHaveBeenCalled();
-
-    await userEvent.keyboard('{Escape}');
-
-    expect(navigate).not.toHaveBeenCalled();
-  });
-
-  test('does not navigate when Escape key is pressed but location is being picked', async () => {
-    store.view.mapLocationSelection.isPickingLocation = true;
-    useLocationMock = jest.fn((() => ({ pathname: '/events/123' })));
-    useLocation.mockImplementation(useLocationMock);
-
-    renderSideBar();
-
-    const sidebar = screen.getByRole('navigation');
-    sidebar?.focus();
-
-    expect(navigate).not.toHaveBeenCalled();
-
-    await userEvent.keyboard('{Escape}');
-
-    expect(navigate).not.toHaveBeenCalled();
   });
 
   test('does not redirect away from /gear while the initial gear list is still loading', async () => {

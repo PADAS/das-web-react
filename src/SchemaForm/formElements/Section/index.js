@@ -11,9 +11,9 @@ const Section = ({
   fieldErrors,
   focusLocationMarker,
   formData,
+  formElementId,
   formElements,
   hidden,
-  id,
   onFieldChange,
   onFieldErrorsChange,
   renderFormElement,
@@ -45,13 +45,17 @@ const Section = ({
     previousHiddenRef.current = hidden;
   }, [hidden]);
 
-  return <div className={styles.section} data-testid={`schema-form-section-${id}`} hidden={hidden}>
+  return <div
+      className={styles.section}
+      data-testid={`schema-form-section-${formElementId}`}
+      hidden={hidden}
+    >
     {details.label && <h3 className={styles.header}>{details.label}</h3>}
 
     <div className={styles.columns}>
       <div
         className={`${styles.column} ${details.columns === 1 ? styles.fullWidth : styles.halfWidthLeft}`}
-        data-testid={`schema-form-section-${id}-left-column`}
+        data-testid={`schema-form-section-${formElementId}-left-column`}
       >
         {details.leftColumn.map((leftColumnChildId) => {
           const leftColumnChildName = formElements[leftColumnChildId].details.value;
@@ -68,7 +72,7 @@ const Section = ({
 
       {details.columns === 2 && <div
         className={`${styles.column} ${styles.halfWidthRight}`}
-        data-testid={`schema-form-section-${id}-right-column`}
+        data-testid={`schema-form-section-${formElementId}-right-column`}
       >
         {details.rightColumn.map((rightColumnChildId) => {
           const rightColumnChildName = formElements[rightColumnChildId].details.value;

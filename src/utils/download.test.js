@@ -11,17 +11,21 @@ jest.mock('axios', () => {
 
 describe('utils - download', () => {
   let clickSpy;
+  let createObjectURLSpy;
 
   beforeEach(() => {
-    jest.clearAllMocks();
     clickSpy = jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    createObjectURLSpy = jest.spyOn(window.URL, 'createObjectURL');
+    createObjectURLSpy.mockClear();
   });
 
   afterEach(() => {
-    clickSpy.mockRestore();
+    jest.restoreAllMocks();
   });
 
   const clickedLink = () => clickSpy.mock.instances[0];
+
+  const downloadedBlob = () => createObjectURLSpy.mock.calls[0][0];
 
   describe('downloadFileFromUrl', () => {
     test('requests the url as a blob, with the given params', async () => {
@@ -59,13 +63,11 @@ describe('utils - download', () => {
     test('downloads a blob built from the response body using its content type', async () => {
       axios.get.mockResolvedValue({ data: 'file contents', headers: { 'Content-Type': 'text/plain' } });
 
-      const createObjectURLSpy = jest.spyOn(window.URL, 'createObjectURL');
-
       await downloadFileFromUrl('/some/url', { filename: 'my-file.txt' });
 
-      const [blob] = createObjectURLSpy.mock.calls[0];
-      expect(blob.type).toBe('text/plain');
-      await expect(blob.text()).resolves.toBe('file contents');
+      expect(createObjectURLSpy).toHaveBeenCalledTimes(1);
+      expect(downloadedBlob().type).toBe('text/plain');
+      await expect(downloadedBlob().text()).resolves.toBe('file contents');
     });
   });
 
@@ -79,13 +81,12 @@ describe('utils - download', () => {
     });
 
     test('downloads a JSON blob serialized from the given data', async () => {
-      const createObjectURLSpy = jest.spyOn(window.URL, 'createObjectURL');
-
       downloadJsonAsFile({ type: 'FeatureCollection', features: [] }, 'track.geojson');
 
-      const [blob] = createObjectURLSpy.mock.calls[0];
-      expect(blob.type).toBe('application/json');
-      await expect(blob.text()).resolves.toBe(JSON.stringify({ type: 'FeatureCollection', features: [] }));
+      expect(createObjectURLSpy).toHaveBeenCalledTimes(1);
+      expect(downloadedBlob().type).toBe('application/json');
+      await expect(downloadedBlob().text())
+        .resolves.toBe(JSON.stringify({ type: 'FeatureCollection', features: [] }));
     });
   });
 });

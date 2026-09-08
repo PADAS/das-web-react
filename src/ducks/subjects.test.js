@@ -3,6 +3,11 @@ import axios from 'axios';
 import { mockStore } from '../__test-helpers/MockStore';
 
 import mapSubjectsReducer, {
+  cancelMapSubjectsFetch,
+  COVERED_SCAN_MAX_AGE_MS,
+  FETCH_MAP_SUBJECTS_SUCCESS,
+  fetchMapSubjects,
+  INITIAL_MAP_SUBJECT_STATE,
   SOCKET_DELETE_SUBJECT,
   SOCKET_NEW_SUBJECT,
   socketDeleteSubject,
@@ -230,7 +235,32 @@ describe('subjectStoreReducer', () => {
 });
 
 describe('mapSubjectsReducer (default export)', () => {
-  const INITIAL = { bbox: null, subjects: [] };
+  const INITIAL = INITIAL_MAP_SUBJECT_STATE;
+
+  describe('FETCH_MAP_SUBJECTS_SUCCESS', () => {
+    const makeSuccessAction = (subjects, fetchedQuery) => ({
+      type: FETCH_MAP_SUBJECTS_SUCCESS,
+      payload: { data: subjects, fetchedQuery },
+    });
+
+    test('records the query that was run alongside the subjects it returned', () => {
+      const action = makeSuccessAction([subjectA], { bbox: '-1,-1,1,1', params: { use_lkl: false } });
+      const state = mapSubjectsReducer(INITIAL, action);
+
+      expect(state.fetchedQuery).toEqual({
+        bbox: '-1,-1,1,1',
+        params: { use_lkl: false },
+        subjectIds: [SUBJECT_A_ID],
+      });
+    });
+
+    test('replaces the recorded query when a later fetch succeeds', () => {
+      const first = mapSubjectsReducer(INITIAL, makeSuccessAction([subjectA], { bbox: '-1,-1,1,1' }));
+      const second = mapSubjectsReducer(first, makeSuccessAction([subjectB], { bbox: '-2,-2,2,2' }));
+
+      expect(second.fetchedQuery).toEqual({ bbox: '-2,-2,2,2', subjectIds: [SUBJECT_B_ID] });
+    });
+  });
 
   describe('SOCKET_NEW_SUBJECT', () => {
     test('appends the subject_id to mapSubjects.subjects when not present', () => {
@@ -522,5 +552,140 @@ describe('subjectStoreReducer — SOCKET_SUBJECT_STATUS after SOCKET_NEW_SUBJECT
     expect(storeAfterStatus[SUBJECT_A_ID].last_position).not.toBeNull();
     expect(storeAfterStatus[SUBJECT_A_ID].last_position.geometry.coordinates).toEqual([-122.38, 47.52]);
     expect(storeAfterStatus[SUBJECT_A_ID].last_position_date).toBe('2024-01-01T10:00:00Z');
+  });
+});
+
+describe('fetchMapSubjects thunk', () => {
+  const LAST_KNOWN_BBOX = '-1,-1,1,1';
+  const COVERING_BBOX = '-10,-10,10,10';
+  const SCRUBBED_INTO_PAST = { active: true, hasScrubbedIntoPast: true };
+  const SLIDER_CLOSED = { active: false, hasScrubbedIntoPast: false };
+
+  // A null map makes the thunk reuse the stored bbox, so the map itself needs no mocking.
+  const dispatchFetch = (timeSliderState, { fetchedQuery, params } = {}) => mockStore({
+    data: {
+      mapSubjects: { bbox: LAST_KNOWN_BBOX, fetchedQuery, subjects: [] },
+      subjectStore: { [SUBJECT_A_ID]: subjectA },
+    },
+    view: { timeSliderState },
+  }).dispatch(fetchMapSubjects(null, params));
+
+  const getRequestParams = () => axios.get.mock.calls[0][1].params;
+
+  // The query the thunk builds for an observation scan carrying no extra parameters.
+  const SCAN_PARAMS = { include_inactive: false, use_lkl: false };
+
+  // What the store holds after an observation scan of a viewport wider than LAST_KNOWN_BBOX.
+  const COVERED_SCAN = {
+    bbox: COVERING_BBOX,
+    fetchedAt: Date.now(),
+    params: SCAN_PARAMS,
+    subjectIds: [SUBJECT_A_ID],
+  };
+
+  beforeEach(() => {
+    jest.spyOn(axios, 'get').mockResolvedValue({ data: { data: [] } });
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  test('asks for last known locations when the time slider is inactive', async () => {
+    await dispatchFetch(SLIDER_CLOSED);
+
+    expect(getRequestParams().use_lkl).toBe(true);
+  });
+
+  test('asks for last known locations while the time slider sits at the end of its range', async () => {
+    await dispatchFetch({ active: true, hasScrubbedIntoPast: false });
+
+    expect(getRequestParams().use_lkl).toBe(true);
+  });
+
+  test('matches the bbox against observations once the slider has been scrubbed into the past', async () => {
+    await dispatchFetch(SCRUBBED_INTO_PAST);
+
+    expect(getRequestParams().use_lkl).toBe(false);
+  });
+
+  test('cancels the request that is in flight, not the one it was exported beside', async () => {
+    // Two fetches, so the request in flight is no longer using the original cancel token source.
+    await dispatchFetch(SLIDER_CLOSED);
+    await dispatchFetch(SLIDER_CLOSED);
+
+    const { cancelToken } = axios.get.mock.calls[axios.get.mock.calls.length - 1][1];
+    expect(cancelToken.reason).toBeUndefined();
+
+    cancelMapSubjectsFetch();
+
+    expect(cancelToken.reason).toBeDefined();
+  });
+
+  test('skips the observation scan for a viewport already covered by one', async () => {
+    await dispatchFetch(SCRUBBED_INTO_PAST, { fetchedQuery: COVERED_SCAN });
+
+    expect(axios.get).not.toHaveBeenCalled();
+  });
+
+  test('hands back the covered subjects, so a missing track is still requested', async () => {
+    const covered = await dispatchFetch(SCRUBBED_INTO_PAST, { fetchedQuery: COVERED_SCAN });
+
+    expect(covered).toEqual([subjectA]);
+  });
+
+  test('runs the observation scan when the viewport reaches outside the covered one', async () => {
+    await dispatchFetch(SCRUBBED_INTO_PAST, {
+      fetchedQuery: { ...COVERED_SCAN, bbox: '-0.5,-0.5,0.5,0.5' },
+    });
+
+    expect(axios.get).toHaveBeenCalled();
+  });
+
+  test('runs the observation scan again once the covered one has aged out', async () => {
+    await dispatchFetch(SCRUBBED_INTO_PAST, {
+      fetchedQuery: { ...COVERED_SCAN, fetchedAt: Date.now() - COVERED_SCAN_MAX_AGE_MS - 1 },
+    });
+
+    expect(axios.get).toHaveBeenCalled();
+  });
+
+  test('runs the observation scan when the covered result answered a different query', async () => {
+    await dispatchFetch(SCRUBBED_INTO_PAST, {
+      fetchedQuery: COVERED_SCAN,
+      params: { updated_since: '2026-07-01T00:00:00.000Z' },
+    });
+
+    expect(axios.get).toHaveBeenCalled();
+  });
+
+  test('still asks for last known locations for a covered viewport, so subjects moving in appear', async () => {
+    await dispatchFetch(SLIDER_CLOSED, {
+      fetchedQuery: { ...COVERED_SCAN, params: { include_inactive: false, use_lkl: true } },
+    });
+
+    expect(axios.get).toHaveBeenCalled();
+  });
+
+  test('records the query it ran so a later fetch can be skipped', async () => {
+    const store = mockStore({
+      data: { mapSubjects: { bbox: LAST_KNOWN_BBOX, fetchedQuery: null, subjects: [] } },
+      view: { timeSliderState: SCRUBBED_INTO_PAST },
+    });
+
+    await store.dispatch(fetchMapSubjects(null));
+
+    const successAction = store.getActions().find(({ type }) => type === 'FETCH_MAP_SUBJECTS_SUCCESS');
+    expect(successAction.payload.fetchedQuery).toEqual({
+      bbox: LAST_KNOWN_BBOX,
+      fetchedAt: expect.any(Number),
+      params: SCAN_PARAMS,
+    });
+  });
+
+  test('asks for last known locations when there is no time slider state at all', async () => {
+    await dispatchFetch(undefined);
+
+    expect(getRequestParams().use_lkl).toBe(true);
   });
 });

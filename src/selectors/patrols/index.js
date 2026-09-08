@@ -7,11 +7,12 @@ import {
   drawLinesBetweenPatrolTrackAndPatrolPoints,
   extractLegPatrolPoints,
   finalizeCombinedPatrolPoints,
+  getTrackedSubjectsForPatrolSegment,
   isSegmentActiveForPatrol,
   patrolStateAllowsTrackDisplay,
 } from '../../utils/patrols';
 import { selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod, selectTrackTimeEnvelope } from '../tracks';
-import { trackHasDataWithinTimeRange, trimTrackDataToTimeRange } from '../../utils/tracks';
+import { trackHasDataWithinTimeRange, trackLengthWithinTimeRange, trimTrackDataToTimeRange } from '../../utils/tracks';
 
 const clampLegEndTime = (endTime, envelopeUntil) => {
   if (!envelopeUntil) {
@@ -128,20 +129,12 @@ const buildPatrolData = (patrol, timeSliderState, trackTimeEnvelopeUntil, tracks
 };
 
 const selectPatrolsFeed = (state) => state.data.patrolsFeed;
-const selectPatrolLeaderSchema = (state) => state.data.patrolLeaderSchema;
+const selectPatrolLeaders = (state) => state.data.patrolTeamAndTrackingOptions.leaders;
 const selectPatrolStore = (state) => state.data.patrolStore;
 const selectPatrolTrackState = (state) => state.view.patrolTrackState;
 const selectSubjectStore = (state) => state.data.subjectStore;
 const selectTimeSliderState = (state) => state.view.timeSliderState;
 const selectTracks = (state) => state.data.tracks;
-
-const selectPatrolLeaders = createSelector(
-  [selectPatrolLeaderSchema],
-  (patrolLeaderSchema) => patrolLeaderSchema?.trackedbySchema?.properties?.leader?.enum_ext?.map(
-    // Map the patrol leaders from the patrol leader schema.
-    (leader) => leader.value
-  ) || null
-);
 
 const selectVisibleAndPinnedPatrolTracks = createSelector(
   [selectPatrolTrackState],
@@ -168,24 +161,115 @@ export const selectPatrolTrackData = createSelector(
     buildPatrolData(patrol, timeSliderState, trackTimeEnvelope.until, tracks)
 );
 
+const selectPatrolTrackedSubjectTracks = createSelector(
+  [selectTracks, (_, patrol) => patrol],
+  (tracks, patrol) => patrol.patrol_segments.reduce((patrolTrackedSubjectTracks, segment) => {
+    getTrackedSubjectsForPatrolSegment(segment).forEach((subject) => {
+      if (tracks[subject.id]) {
+        patrolTrackedSubjectTracks[subject.id] = tracks[subject.id];
+      }
+    });
+
+    return patrolTrackedSubjectTracks;
+  }, {}),
+  { memoizeOptions: { resultEqualityCheck: shallowEqual } }
+);
+
+// The time a subject spent on the patrol, as a set of ranges that do not
+// overlap.
+const mergeSegmentTimeRanges = (segments) => segments
+  .filter((segment) => segment.time_range?.start_time)
+  .map((segment) => ({
+    since: new Date(segment.time_range.start_time).getTime(),
+    until: segment.time_range.end_time ? new Date(segment.time_range.end_time).getTime() : Infinity,
+  }))
+  .sort((timeRange, otherTimeRange) => timeRange.since - otherTimeRange.since)
+  .reduce((mergedTimeRanges, timeRange) => {
+    const lastMergedTimeRange = mergedTimeRanges[mergedTimeRanges.length - 1];
+
+    if (lastMergedTimeRange && timeRange.since <= lastMergedTimeRange.until) {
+      lastMergedTimeRange.until = Math.max(lastMergedTimeRange.until, timeRange.until);
+    } else {
+      mergedTimeRanges.push({ ...timeRange });
+    }
+
+    return mergedTimeRanges;
+  }, []);
+
+// The kilometers a subject covered during a time range: its own track, bounded
+// to that range.
+const distanceCoveredInTimeRange = ({ since, until }, subjectTrack) => {
+  const boundedUntil = until === Infinity ? null : until;
+
+  return trackHasDataWithinTimeRange(subjectTrack, since, boundedUntil)
+    ? trackLengthWithinTimeRange(subjectTrack, since, boundedUntil)
+    : 0;
+};
+
+// Every subject the patrol tracks, along with the total distance it covered across the legs it
+// took part in, which stays unknown until that subject's track has been loaded.
+export const selectPatrolTrackedSubjects = createSelector(
+  [selectPatrolTrackedSubjectTracks, (_, patrol) => patrol],
+  (patrolTrackedSubjectTracks, patrol) => {
+    const patrolLeaderId = patrol.patrol_segments[patrol.patrol_segments.length - 1]?.leader?.id ?? null;
+
+    const patrolTrackedSubjectsMap = new Map();
+    patrol.patrol_segments.forEach((segment) => {
+      getTrackedSubjectsForPatrolSegment(segment).forEach((subject) => {
+        const trackedSubject = patrolTrackedSubjectsMap.get(subject.id) ?? { segments: [], subject };
+
+        trackedSubject.segments.push(segment);
+
+        patrolTrackedSubjectsMap.set(subject.id, trackedSubject);
+      });
+    });
+
+    return [...patrolTrackedSubjectsMap.values()]
+      .map(({ segments, subject }) => {
+        const subjectTrack = patrolTrackedSubjectTracks[subject.id];
+
+        return {
+          distance: subjectTrack
+            ? mergeSegmentTimeRanges(segments).reduce(
+              (distance, timeRange) => distance + distanceCoveredInTimeRange(timeRange, subjectTrack),
+              0
+            )
+            : null,
+          isPatrolLeader: subject.id === patrolLeaderId,
+          subject,
+        };
+      })
+      // The patrol leader comes first.
+      .sort((a, b) => b.isPatrolLeader - a.isPatrolLeader);
+  }
+);
+
 export const selectPatrolLeadersWithLastPosition = createSelector(
   [selectPatrolLeaders, selectSubjectStore],
-  (patrolLeaders, subjectStore) => patrolLeaders ? patrolLeaders.map((patrolLeader) => {
-    // Map each patrol leader to its subject.
-    const patrolLeaderSubject = subjectStore[patrolLeader.id];
-    if (!patrolLeader.last_position
-      && !patrolLeader.last_position_status
-      && patrolLeaderSubject?.last_position
-      && patrolLeaderSubject?.last_position_status) {
-      // If the patrol leader misses the last position properties, fill them from the subject object.
-      return {
-        ...patrolLeader,
-        last_position: patrolLeaderSubject.last_position,
-        last_position_status: patrolLeaderSubject.last_position_status,
-      };
-    }
-    return patrolLeader;
-  }) : null
+  (patrolLeaders, subjectStore) => {
+    const patrolLeadersWithLastPosition = patrolLeaders.map((patrolLeader) => {
+      const patrolLeaderSubject = subjectStore[patrolLeader.id];
+
+      if (!patrolLeader.last_position
+        && !patrolLeader.last_position_status
+        && patrolLeaderSubject?.last_position
+        && patrolLeaderSubject?.last_position_status) {
+        return {
+          ...patrolLeader,
+          last_position: patrolLeaderSubject.last_position,
+          last_position_status: patrolLeaderSubject.last_position_status,
+        };
+      }
+
+      return patrolLeader;
+    });
+
+    // A socket update changes the subject store on every position, so the list
+    // keeps its identity unless this pass actually filled something in.
+    return patrolLeadersWithLastPosition.every(
+      (patrolLeader, index) => patrolLeader === patrolLeaders[index]
+    ) ? patrolLeaders : patrolLeadersWithLastPosition;
+  }
 );
 
 export const selectPatrolsFeedMappedFromStore = createSelector(

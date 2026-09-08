@@ -33,8 +33,8 @@ describe('eventMapIcons registry', () => {
 
     loadCallbacks = [];
 
-    jest.spyOn(global.URL, 'createObjectURL').mockImplementation(() => {});
-    jest.spyOn(global.URL, 'revokeObjectURL').mockImplementation(() => {});
+    jest.spyOn(URL, 'createObjectURL').mockImplementation(() => undefined);
+    jest.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
 
     global.Image = jest.fn(() => ({
       setAttribute: jest.fn(),

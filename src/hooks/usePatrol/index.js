@@ -1,17 +1,18 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import merge from 'lodash/merge';
+import { useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
   actualEndTimeForPatrol,
   actualStartTimeForPatrol,
+  buildPatrolReopenUpdate,
+  buildPatrolStartUpdate,
   calcColorThemeForPatrolState,
-  calcPatrolState,
   displayDurationForPatrol,
   displayStartTimeForPatrol,
   displayTitleForPatrol,
   formatPatrolStateTitleDate,
   getBoundsForPatrol,
+  getCancellationTimeForPatrol,
   iconTypeForPatrol,
   patrolHasGeoDataToDisplay,
   patrolStateDetailsEndTime,
@@ -20,8 +21,9 @@ import {
 } from '../../utils/patrols';
 
 import { selectPatrolTrackData } from '../../selectors/patrols';
-import { PATROL_API_STATES, PATROL_UI_STATES } from '../../constants';
+import { PATROL_UI_STATES } from '../../constants';
 import { updatePatrol } from '../../ducks/patrols';
+import usePatrolState from '../usePatrolState';
 
 const usePatrol = (patrol) => {
   const dispatch = useDispatch();
@@ -30,7 +32,7 @@ const usePatrol = (patrol) => {
   const patrolTrackState = useSelector(state =>  state?.view?.patrolTrackState);
   const trackState = useSelector(state => state?.view?.subjectTrackState);
 
-  const [patrolState, setPatrolState] = useState(calcPatrolState(patrol));
+  const patrolState = usePatrolState(patrol);
 
   const isPatrolActive = patrolState === PATROL_UI_STATES.ACTIVE;
   const isPatrolCancelled = patrolState === PATROL_UI_STATES.CANCELLED;
@@ -60,16 +62,10 @@ const usePatrol = (patrol) => {
   const theme = useMemo(() => calcColorThemeForPatrolState(patrolState), [patrolState]);
 
   const patrolCancellationTime = useMemo(() => {
-    if (!isPatrolCancelled) return null;
+    const cancellationTimeForPatrol = getCancellationTimeForPatrol(patrol);
 
-    const cancellation = patrol?.updates
-      ?.find(update => update.type === 'update_patrol_state' && update.message.includes('cancelled'))
-      ?? null;
-    if (!cancellation) return null;
-
-    return formatPatrolStateTitleDate(new Date(cancellation.time));
-
-  }, [isPatrolCancelled, patrol.updates]);
+    return cancellationTimeForPatrol ? formatPatrolStateTitleDate(cancellationTimeForPatrol) : null;
+  }, [patrol]);
 
   const dateComponentDateString = useMemo(() => {
     if (isPatrolCancelled) return patrolCancellationTime;
@@ -91,28 +87,20 @@ const usePatrol = (patrol) => {
     patrolCancellationTime,
   ]);
 
-  useEffect(() => {
-    setPatrolState(calcPatrolState(patrol));
-  }, [patrol]);
-
   const onPatrolChange = useCallback((value) => {
-    const merged = merge(patrol, value);
-    const payload = { ...merged };
+    const payload = { ...patrol, ...value };
     delete payload.updates;
 
     dispatch(updatePatrol(payload));
   }, [dispatch, patrol]);
 
   const restorePatrol = useCallback(() => {
-    onPatrolChange({ state: PATROL_API_STATES.OPEN, patrol_segments: [{ time_range: { end_time: null } }] });
-  }, [onPatrolChange]);
+    onPatrolChange(buildPatrolReopenUpdate(patrol));
+  }, [onPatrolChange, patrol]);
 
   const startPatrol = useCallback(() => {
-    onPatrolChange({
-      state: PATROL_API_STATES.OPEN,
-      patrol_segments: [{ time_range: { start_time: new Date().toISOString(), end_time: null } }],
-    });
-  }, [onPatrolChange]);
+    onPatrolChange(buildPatrolStartUpdate(patrol));
+  }, [onPatrolChange, patrol]);
 
   return {
     patrolTrackData,
@@ -137,8 +125,6 @@ const usePatrol = (patrol) => {
     theme,
 
     dateComponentDateString,
-
-    setPatrolState,
 
     onPatrolChange,
     restorePatrol,

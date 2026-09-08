@@ -22,7 +22,7 @@ describe('SchemaForm - formElements - DateTime', () => {
   const renderDateTimeField = (props) => render(<DateTime
     details={details}
     error={undefined}
-    id="date-time-1"
+    formElementId="date-time-1"
     onFieldChange={onFieldChange}
     value={undefined}
     {...props}
@@ -66,13 +66,19 @@ describe('SchemaForm - formElements - DateTime', () => {
   test('does not show an error state in the label if the value is valid', () => {
     renderDateTimeField();
 
-    expect(screen.getByText('Date Time 1 Label')).not.toHaveClass('error');
+    expect(screen.getByText('Date Time 1 Label').parentElement).not.toHaveClass('error');
   });
 
   test('shows an error state in the label if the value is invalid', () => {
     renderDateTimeField({ error: { message: 'Error' } });
 
-    expect(screen.getByText('Date Time 1 Label')).toHaveClass('error');
+    expect(screen.getByText('Date Time 1 Label').parentElement).toHaveClass('error');
+  });
+
+  test('names the group of inputs of the picker after the field', () => {
+    renderDateTimeField();
+
+    expect(screen.getAllByRole('group')[0]).toHaveAccessibleName('Date Time 1 Label');
   });
 
   test('shows the field for date time inputs', () => {

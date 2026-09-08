@@ -1782,18 +1782,11 @@ export const patrolDefaultStoreData = {
         },
       },
     },
-    patrolLeaderSchema: {
-      trackedbySchema: {
-        properties: {
-          leader: {
-            enum_ext: [{
-              value: { id: 'Leader 1' },
-            }, {
-              value: { id: 'Leader 2' },
-            }],
-          },
-        },
-      },
+    patrolTeamAndTrackingOptions: {
+      assets: [],
+      leaders: [{ id: 'Leader 1' }, { id: 'Leader 2' }],
+      teamMembers: [],
+      teams: [],
     },
     patrolStore: {},
     subjectStore: {},

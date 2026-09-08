@@ -27,6 +27,41 @@ export const getBboxParamsFromMap = async (map, asString = true) => {
   return asString ? toString(finalBounds) : finalBounds;
 };
 
+export const isBboxContainedBy = (candidateBbox, containerBbox) => {
+  const [
+    candidateMinLongitude,
+    candidateMinLatitude,
+    candidateMaxLongitude,
+    candidateMaxLatitude,
+  ] = toString(candidateBbox).split(',').map(Number);
+  const [
+    containerMinLongitude,
+    containerMinLatitude,
+    containerMaxLongitude,
+    containerMaxLatitude,
+  ] = toString(containerBbox).split(',').map(Number);
+
+  const isWellFormed = [
+    candidateMinLongitude,
+    candidateMinLatitude,
+    candidateMaxLongitude,
+    candidateMaxLatitude,
+    containerMinLongitude,
+    containerMinLatitude,
+    containerMaxLongitude,
+    containerMaxLatitude,
+  ].every((coordinate) => Number.isFinite(coordinate))
+    && candidateMinLongitude <= candidateMaxLongitude
+    && candidateMinLatitude <= candidateMaxLatitude
+    && containerMinLongitude <= containerMaxLongitude
+    && containerMinLatitude <= containerMaxLatitude;
+  const isCandidateContainedByContainer = candidateMinLongitude >= containerMinLongitude
+    && candidateMinLatitude >= containerMinLatitude
+    && candidateMaxLongitude <= containerMaxLongitude
+    && candidateMaxLatitude <= containerMaxLatitude;
+  return isWellFormed && isCandidateContainedByContainer;
+};
+
 export const recursivePaginatedQuery = async (initialQuery, onEach = null, resultsToDate = []) => {
   return initialQuery
     .then((response) => {

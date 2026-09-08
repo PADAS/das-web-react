@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { matchPath, Route, Routes, useLocation } from 'react-router';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -60,7 +60,6 @@ const SideBar = () => {
 
   const analyzersEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.ANALYZERS]);
   const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
-  const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
   const {
     gearEndpointUnavailable,
     hasGear,
@@ -73,8 +72,6 @@ const SideBar = () => {
   const subjectsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SUBJECTS]);
 
   const { hasPatrolsReadPermission } = usePatrolsPermissions();
-
-  const sideBarRef = useRef();
 
   const [showEventsBadge, setShowEventsBadge] = useState(false);
   const [reportIsBeingAdded, setReportIsBeingAdded] = useState(false);
@@ -182,31 +179,7 @@ const SideBar = () => {
     }
   }, [currentTab, isReportDetailsViewActive, isSideBarOpen, socket]);
 
-  // NOTE: This is getting unmaintainable. Is it really a good practice to use escape like a navigation key?
-  useEffect(() => {
-    const onKeydown = (event) => {
-      const wasEscapePressed = event.key === 'Escape';
-      const isItemViewActive = isReportDetailsViewActive || isPatrolItemActive;
-      const isSideBarFocused = sideBarRef.current.contains(document.activeElement);
-      if (wasEscapePressed && isItemViewActive && isSideBarFocused && !isPickingLocation) {
-        navigate(tabPath(getCurrentTabFromURL(location.pathname)));
-      }
-    };
-
-    document.addEventListener('keydown', onKeydown, false);
-
-    return () => document.removeEventListener('keydown', onKeydown, false);
-  }, [isPatrolItemActive, isPickingLocation, isReportDetailsViewActive, location.pathname, navigate]);
-
-  useEffect(() => {
-    sideBarRef.current.focus();
-  }, [itemId]);
-
-  return <nav
-      className={`${styles.sideBar} ${sideBar.showSideBar ? '' : 'hidden'}`}
-      ref={sideBarRef}
-      tabIndex={0}
-    >
+  return <nav className={`${styles.sideBar} ${sideBar.showSideBar ? '' : 'hidden'}`}>
     <div className={`${styles.verticalNav} ${isSideBarOpen ? 'open' : ''}`}>
       {eventsEnabled && <Link
         className={`${styles.navItem} ${currentTab === TAB_KEYS.EVENTS ? styles.active : ''}`}

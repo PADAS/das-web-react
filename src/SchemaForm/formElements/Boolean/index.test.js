@@ -22,7 +22,7 @@ describe('SchemaForm - formElements - Boolean', () => {
   const renderBooleanField = (props) => render(<Boolean
     details={details}
     error={undefined}
-    id="boolean-1"
+    formElementId="boolean-1"
     onFieldChange={onFieldChange}
     value={undefined}
     {...props}

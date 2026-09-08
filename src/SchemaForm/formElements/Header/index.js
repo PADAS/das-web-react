@@ -10,9 +10,9 @@ const HEADER_THEMES = {
   [HEADER_ELEMENT_SIZES.SMALL]: styles.small
 };
 
-const Header = ({ details, id }) => <p
+const Header = ({ details, formElementId }) => <p
   className={`${styles.header} ${HEADER_THEMES[details.size]}`}
-  data-testid={`schema-form-header-${id}`}
+  data-testid={`schema-form-header-${formElementId}`}
   >
   {details.label}
 </p>;

@@ -21,6 +21,7 @@ import { removeFile, uploadFile } from '../../../ducks/user-content';
 import { selectUploadStatesByIds } from '../../../selectors/user-content';
 import { showToast } from '../../../utils/toast';
 import { TrackerContext } from '../../../utils/analytics';
+import useFormElementDomId from '../../utils/useFormElementDomId';
 
 import ImageModal from '../../../ImageModal';
 
@@ -188,9 +189,11 @@ const AttachmentListItem = ({ actionButtonRefs, attachment, onRemove, readOnly }
   </li>;
 };
 
-const Attachment = ({ attachmentsMetadata, details, error, id, onFieldChange, readOnly, value = [] }) => {
+const Attachment = ({ attachmentsMetadata, details, error, formElementId, onFieldChange, readOnly, value = [] }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('schema-form', { keyPrefix: 'fields.attachment' });
+
+  const domId = useFormElementDomId(formElementId);
 
   const uploadIds = useMemo(
     () => value.map((attachment) => attachment?.uploadId).filter(Boolean),
@@ -270,7 +273,7 @@ const Attachment = ({ attachmentsMetadata, details, error, id, onFieldChange, re
         fileName: newAttachments[0].name,
       }));
 
-      onFieldChange(id, [...value, ...newUploadIds.map((uploadId) => ({ uploadId }))]);
+      onFieldChange(formElementId, [...value, ...newUploadIds.map((uploadId) => ({ uploadId }))]);
     }
   };
 
@@ -291,7 +294,7 @@ const Attachment = ({ attachmentsMetadata, details, error, id, onFieldChange, re
       ? actionButtonRefs.current.get(attachmentToFocus.uploadId)
       : chooseFileButtonRef.current;
 
-    onFieldChange(id, [...value.slice(0, attachmentIndex), ...value.slice(attachmentIndex + 1)]);
+    onFieldChange(formElementId, [...value.slice(0, attachmentIndex), ...value.slice(attachmentIndex + 1)]);
 
     dispatch(removeFile(attachment.uploadId));
   };
@@ -406,13 +409,13 @@ const Attachment = ({ attachmentsMetadata, details, error, id, onFieldChange, re
   }, [attachmentsMetadata, value]);
 
   return <div
-      aria-describedby={`${id}-description`}
-      aria-errormessage={hasError ? `${id}-description` : undefined}
+      aria-describedby={`${domId}-description`}
+      aria-errormessage={hasError ? `${domId}-description` : undefined}
       aria-invalid={hasError ? 'true' : 'false'}
-      aria-labelledby={`${id}-label`}
+      aria-labelledby={`${domId}-label`}
       className={styles.attachment}
-      data-testid={`schema-form-attachment-field-${id}`}
-      id={id}
+      data-testid={`schema-form-attachment-field-${formElementId}`}
+      id={domId}
       onDragEnter={onDragEnter}
       onDragLeave={(event) => !event.currentTarget.contains(event.relatedTarget) && setDraggingOver(false)}
       onDragOver={(event) => isInteractive && event.preventDefault()}
@@ -420,7 +423,7 @@ const Attachment = ({ attachmentsMetadata, details, error, id, onFieldChange, re
       role="group"
       tabIndex={-1}
     >
-    <span className={`${styles.label} ${hasError ? styles.error : ''}`} id={`${id}-label`}>
+    <span className={`${styles.label} ${hasError ? styles.error : ''}`} id={`${domId}-label`}>
       {details.label}
 
       {details.isRequired && <>
@@ -435,7 +438,7 @@ const Attachment = ({ attachmentsMetadata, details, error, id, onFieldChange, re
     {attachments.length === 0
       ? <div
         className={`${styles.dropzone} ${draggingOver ? styles.draggingOver : ''}`}
-        data-testid={`schema-form-attachment-field-${id}-dropzone`}
+        data-testid={`schema-form-attachment-field-${formElementId}-dropzone`}
       >
         <CloudUploadIcon aria-hidden="true" className={styles.icon} />
 
@@ -453,7 +456,7 @@ const Attachment = ({ attachmentsMetadata, details, error, id, onFieldChange, re
 
     <p
       className={`${styles.description} ${hasError ? styles.error : ''}`}
-      id={`${id}-description`}
+      id={`${domId}-description`}
     >
       {error?.message || details.description}
     </p>
@@ -464,7 +467,7 @@ const Attachment = ({ attachmentsMetadata, details, error, id, onFieldChange, re
           .flatMap((fileType) => ATTACHMENT_FIELD_ALLOWABLE_FILE_TYPE_SPECIFIERS[fileType] ?? [])
           .join(',')}
         className={styles.fileInput}
-        data-testid={`schema-form-attachment-field-${id}-file-input`}
+        data-testid={`schema-form-attachment-field-${formElementId}-file-input`}
         multiple
         onChange={onChangeFileInput}
         ref={fileInputRef}

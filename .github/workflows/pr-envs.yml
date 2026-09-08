@@ -30,6 +30,22 @@ jobs:
       - name: Run tests
         run: yarn test-ci
 
+  i18n-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # The check needs the merge base, which shallow history cannot reach.
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Require an i18n files version bump when locale files change
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: ./scripts/check-i18n-files-version.sh "origin/${BASE_REF}"
+
   prepare:
     runs-on: ubuntu-latest
     outputs:

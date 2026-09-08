@@ -709,7 +709,8 @@ const ReportDetailView = ({
 
   useEffect(() => {
     if (linkedPatrolIds?.length > 0) {
-      linkedPatrolIds.forEach((id) => !patrolStore[id] && dispatch(fetchPatrol(id)));
+      // A linked patrol can be gone by the time the event is opened.
+      linkedPatrolIds.forEach((id) => !patrolStore[id] && dispatch(fetchPatrol(id)).catch(() => {}));
     }
   }, [dispatch, linkedPatrolIds, patrolStore]);
 

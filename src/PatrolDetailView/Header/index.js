@@ -53,7 +53,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
       return <span data-testid="patrol-drawer-header-details" className={`${styles.headerDetails} ${styles.overflowedEllipsisText}`}>
         {patrolElapsedTime}
         <span className={styles.distanceCovered}>
-          <PatrolDistanceCovered patrolsData={[{ patrol, ...patrolTrackData }]} suffix=' km' />
+          <PatrolDistanceCovered patrolsData={[{ patrol, ...patrolTrackData }]} />
         </span>
       </span>;
     }

@@ -25,7 +25,8 @@
   
     button {
       @include unstyledButton;
-  
+
+      flex: 1;
       font-weight: bold;
       height: 100%;
       width: 100%;
@@ -41,10 +42,22 @@
         border: none;
         color: $bright-blue;
         text-decoration: underline;
-  
+
         svg {
           fill: $bright-blue;
-        }      
+        }
+      }
+
+      &[aria-disabled='true'],
+      &[aria-disabled='true']:hover {
+        color: $secondary-medium-gray;
+        cursor: not-allowed;
+        opacity: 0.6;
+        text-decoration: none;
+
+        svg {
+          fill: $secondary-medium-gray;
+        }
       }
     }
   
@@ -63,10 +76,20 @@
 
     .typeListItem {
       border: 1px solid $light-gray-border;
+      display: flex;
+      flex-direction: column;
       font-size: 0.8rem;
-      height: 6rem;
       margin-bottom: auto;
+      min-height: 6rem;
       width: 25%;
+    }
+
+    .typeUnavailableReason {
+      color: $secondary-medium-gray;
+      display: block;
+      font-size: 0.7rem;
+      padding: 0 0.25rem 0.25rem;
+      text-align: center;
     }
   }
 }

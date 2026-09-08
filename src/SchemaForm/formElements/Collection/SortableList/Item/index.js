@@ -12,6 +12,7 @@ import { ReactComponent as TrashCanIcon } from '../../../../../common/images/ico
 import getDefaultFormData from '../../../../utils/getDefaultFormData';
 import { getItemTitle } from './utils';
 import { selectCoordinatesRepresentation } from '../../../../../selectors/location';
+import useFormElementDomId from '../../../../utils/useFormElementDomId';
 
 import FormModal from './FormModal';
 import FormPreview from './FormPreview';
@@ -47,6 +48,9 @@ const Item = ({
     keyPrefix: 'fields.collection.sortableList.item',
   });
 
+  const itemDomId = useFormElementDomId(`${collectionDetails.value}[${index}]`);
+  const formPreviewDomId = useFormElementDomId(`collectionForm-${collectionDetails.value}-${id}`);
+
   const coordinatesRepresentation = useSelector(selectCoordinatesRepresentation);
 
   // We use these variables to store the initial errors and form data so we can restore those values if the user does
@@ -55,7 +59,7 @@ const Item = ({
   const formDataBeforeEditingRef = useRef(null);
   const shouldDeleteOnCancelRef = useRef(wasItemRecentlyAdded);
 
-  const formPreviewId = isDragOverlay ? undefined : `collectionForm-${collectionDetails.value}-${id}`;
+  const formPreviewId = isDragOverlay ? undefined : formPreviewDomId;
   const hasError = !!errors;
   const itemIdentifierFieldName = collectionDetails.itemIdentifier
     ? formElements[collectionDetails.itemIdentifier].details.value
@@ -144,7 +148,7 @@ const Item = ({
       data-testid="schema-form-collection-item"
       // We use the index and not the item id because the id is internal for having a constant default title, while the
       // index corresponds directly to the position of the item in the form data object.
-      id={index !== null ? `${collectionDetails.value}[${index}]` : undefined}
+      id={index !== null ? itemDomId : undefined}
       ref={ref}
       {...otherProps}
     >
