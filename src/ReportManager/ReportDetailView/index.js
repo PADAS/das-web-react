@@ -760,7 +760,7 @@ const ReportDetailView = ({
   const shouldRenderLinksSection = !!linkedReports.length || !!linkedPatrols.length;
 
   return <div
-    className={`${styles.reportDetailView} ${className || ''}`}
+    className={`${styles.reportDetailView} ${isCommunity ? styles.community : ''} ${className || ''}`}
     data-testid="reportManagerContainer"
     ref={printableContentRef}
     >

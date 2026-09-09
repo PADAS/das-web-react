@@ -37,7 +37,7 @@ States are `active`, `new` (legacy alias for active), `review` (community submis
 
 **UI**
 - **Events Sidebar** (`/events`): text search, filters (state, priority, event type, reporter, date range), and sorting.
-- **Event Detail View** (`/events/:id` or `/events/new`): **Details** section (state, reported-by, priority, location, date/time, and schema-driven form fields), **Activity** section (notes, files, and contained events for incident collections), **Links** section (linked events and patrols), and **History** section (audit trail from `updates`).
+- **Event Detail View** (`/events/:id` or `/events/new`): **Details** section (state, reported-by, priority, location, date/time, and schema-driven form fields), **Activity** section (notes, files, and contained events for incident collections), **Links** section (linked events and patrols), and **History** section (audit trail from `updates`). The location picker's **Use my location** button asks the browser for the location permission only when it is clicked, and it is disabled with an inline explanation when the browser has blocked location sharing.
 - **Map:** Fetched from a vector tile endpoint and updated in realtime through a socket using a GeoJSON overlay. Point events render as clustered icon markers; polygon events as priority-colored fills. A heatmap overlay can be toggled from Map Layers → Events.
 - **Community input** (`/community/:value/*`): The public page reuses the event stack, letting unauthenticated users submit events. Schema **Attachment** fields on the community form upload through the community chunked-upload endpoints, and a rejected file tells the reporter whether it was too large or of a disallowed type.
 
