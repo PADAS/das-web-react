@@ -4,6 +4,17 @@ import { EMPTY_DATE_VALUE } from '../../../../DatePicker';
 import { findMatchingPatrolType, getTeamAndTrackingForPatrolSegment } from '../../../../utils/patrols';
 import { getHoursAndMinutesString } from '../../../../utils/datetime';
 
+// A leg keeps the type it was run under even once that type is retired, so
+// one the form no longer offers is rebuilt from what the leg itself stores.
+const patrolTypeForPatrolSegment = (patrolSegment, patrolTypes) => {
+  if (!patrolSegment?.patrol_type) {
+    return null;
+  }
+
+  return findMatchingPatrolType(patrolTypes, patrolSegment.patrol_type)
+    ?? { display: patrolSegment.patrol_type, icon_id: patrolSegment.icon_id, value: patrolSegment.patrol_type };
+};
+
 const buildLegDraft = (patrolSegment = null, patrolTypes = [], teamAndTrackingOptions) => {
   const actualEndTime = patrolSegment?.time_range?.end_time ?? null;
   const actualStartTime = patrolSegment?.time_range?.start_time ?? null;
@@ -12,8 +23,6 @@ const buildLegDraft = (patrolSegment = null, patrolTypes = [], teamAndTrackingOp
 
   const endDate = endTime ? new Date(endTime) : null;
   const startDate = startTime ? new Date(startTime) : null;
-
-  const activePatrolTypes = patrolTypes.filter((patrolType) => patrolType.is_active);
 
   const teamAndTracking = getTeamAndTrackingForPatrolSegment(patrolSegment, teamAndTrackingOptions);
 
@@ -24,7 +33,7 @@ const buildLegDraft = (patrolSegment = null, patrolTypes = [], teamAndTrackingOp
     endTime: getHoursAndMinutesString(endDate),
     isAutoEnd: !!actualEndTime,
     isAutoStart: !!actualStartTime,
-    patrolType: findMatchingPatrolType(activePatrolTypes, patrolSegment?.patrol_type) ?? null,
+    patrolType: patrolTypeForPatrolSegment(patrolSegment, patrolTypes),
     startDate: startDate ? format(startDate, 'yyyy-MM-dd') : EMPTY_DATE_VALUE,
     startLocation: patrolSegment?.start_location ?? null,
     startTime: getHoursAndMinutesString(startDate),
