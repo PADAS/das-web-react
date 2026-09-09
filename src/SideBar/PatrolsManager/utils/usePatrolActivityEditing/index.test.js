@@ -117,7 +117,7 @@ describe('SideBar - PatrolsManager - utils - usePatrolActivityEditing', () => {
 
     act(() => result.current.onAddAttachments([new File([''], 'photo.png')]));
 
-    expect(result.current.newAttachments.map(({ file }) => file.name)).toEqual(['photo.png']);
+    expect(result.current.newAttachments.map((newAttachment) => newAttachment.file.name)).toEqual(['photo.png']);
     expect(result.current.hasStagedChanges).toBe(true);
   });
 
@@ -148,7 +148,7 @@ describe('SideBar - PatrolsManager - utils - usePatrolActivityEditing', () => {
     act(() => result.current.onAddAttachments([new File([''], 'uploaded.png'), new File([''], 'failed.png')]));
     act(() => result.current.onAttachmentsUploaded([result.current.newAttachments[0]]));
 
-    expect(result.current.newAttachments.map(({ file }) => file.name)).toEqual(['failed.png']);
+    expect(result.current.newAttachments.map((newAttachment) => newAttachment.file.name)).toEqual(['failed.png']);
   });
 
   test('reports what the user staged to the analytics tracker', () => {

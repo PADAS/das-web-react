@@ -76,6 +76,18 @@
   "detailViewLoader": {
     "loadingLabel": "Inapakia data ya doria"
   },
+  "editLeg": {
+    "footer": {
+      "cancelButton": "Ghairi",
+      "saveButton": "Hifadhi"
+    },
+    "header": {
+      "breadcrumbPatrolsLabel": "Doria",
+      "mobileProvenancePill": "Simu",
+      "title": "Hariri kipande {{legNumber}}"
+    },
+    "saveErrorMessage": "Kipande cha doria hakikuweza kuhifadhiwa. Tafadhali jaribu tena."
+  },
   "header": {
     "breadcrumbNavLabel": "Urambazaji wa doria",
     "closeButtonLabel": "Funga upau wa pembeni"
@@ -99,11 +111,13 @@
       "autoStartCheckboxLabel": "Anza kipande moja kwa moja wakati huu",
       "endDateBeforeStartDateError": "Mwisho wa kipande lazima uwe baadaye kuliko kuanza kwake.",
       "endDateInputLabel": "Tarehe ya mwisho",
+      "endDateOverlapsNextLegError": "Kipande hiki hakiwezi kuingiliana na kipande kinachofuata.",
       "endLocationLabel": "Mahali pa mwisho",
       "endTimeInputLabel": "Muda wa mwisho",
       "endTimeLabel": "Muda wa mwisho",
       "endTimeRequiredError": "Kipande kilicho na tarehe ya mwisho kinahitaji muda wa mwisho.",
       "startDateInputLabel": "Tarehe ya kuanza",
+      "startDateOverlapsNextLegError": "Kipande hiki hakiwezi kuingiliana na kipande kinachofuata.",
       "startDateOverlapsPreviousLegError": "Kipande hiki hakiwezi kuingiliana na kipande kilichotangulia.",
       "startDateRequiredError": "Kipande kinahitaji tarehe ya kuanza.",
       "startLocationLabel": "Mahali pa kuanzia",

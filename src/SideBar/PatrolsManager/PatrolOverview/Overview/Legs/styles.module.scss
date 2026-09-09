@@ -49,7 +49,7 @@
         color: colors.$secondary-medium-gray;
       }
 
-      &:hover:not(:has(.zoomToLegBoundsButton:hover)) {
+      &:hover:not(:has(button:hover)) {
         background: colors.$blue-highlight;
       }
 

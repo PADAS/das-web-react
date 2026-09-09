@@ -9,7 +9,7 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg - utils - buildNewLegDr
 
   const teamAndTrackingOptions = { assets: [asset], leaders: [], members: [member], teams: [team] };
 
-  const previousLeg = {
+  const previousPatrolSegment = {
     assets: [asset.id],
     end_location: { latitude: 2, longitude: 3 },
     leader: { id: 'leader-1', name: 'Alex' },
@@ -35,7 +35,7 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg - utils - buildNewLegDr
     isAutoEnd: false,
     isAutoStart: false,
     patrolTypes,
-    previousLeg,
+    previousPatrolSegment,
     teamAndTrackingOptions,
     ...overrides,
   });
@@ -48,7 +48,7 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg - utils - buildNewLegDr
   });
 
   test('starts the leg now when the previous one carries no end', () => {
-    const draft = buildDraft({ previousLeg: { ...previousLeg, scheduled_end: null } });
+    const draft = buildDraft({ previousPatrolSegment: { ...previousPatrolSegment, scheduled_end: null } });
 
     expect(draft.startDate).toBe('2026-04-13');
     expect(draft.startTime).toBe('08:30');
@@ -56,8 +56,8 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg - utils - buildNewLegDr
 
   test('starts the leg where the previous one does when that one is planned ahead of time', () => {
     const draft = buildDraft({
-      previousLeg: {
-        ...previousLeg,
+      previousPatrolSegment: {
+        ...previousPatrolSegment,
         scheduled_end: null,
         scheduled_start: new Date(2026, 3, 20, 6, 15).toISOString(),
         time_range: { end_time: null, start_time: null },
@@ -70,7 +70,10 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg - utils - buildNewLegDr
 
   test('starts the leg on the minute after an end carrying seconds', () => {
     const draft = buildDraft({
-      previousLeg: { ...previousLeg, scheduled_end: new Date(2026, 3, 13, 17, 45, 32).toISOString() },
+      previousPatrolSegment: {
+        ...previousPatrolSegment,
+        scheduled_end: new Date(2026, 3, 13, 17, 45, 32).toISOString(),
+      },
     });
 
     expect(draft.startDate).toBe('2026-04-13');
@@ -95,7 +98,7 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg - utils - buildNewLegDr
     const draft = buildDraft();
 
     expect(draft.patrolType).toBe(dogPatrol);
-    expect(draft.teamLead).toBe(previousLeg.leader);
+    expect(draft.teamLead).toBe(previousPatrolSegment.leader);
   });
 
   test('takes the team, the members, the assets and the schema fields of the previous leg', () => {
@@ -116,7 +119,7 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg - utils - buildNewLegDr
   });
 
   test('builds an empty draft that starts now when there is no previous leg', () => {
-    const draft = buildDraft({ previousLeg: null });
+    const draft = buildDraft({ previousPatrolSegment: null });
 
     expect(draft.assets).toEqual([]);
     expect(draft.patrolType).toBeNull();

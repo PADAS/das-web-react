@@ -109,7 +109,7 @@ const PatrolOverviewContent = ({ patrol }) => {
     // Update the patrol and upload the new attachments in parallel.
     const [patrolUpdateResult, ...attachmentResults] = await Promise.allSettled([
       hasUpdates ? dispatch(updatePatrol({ ...patrolUpdatesWithStatusUpdate, id: patrol.id })) : Promise.resolve(),
-      ...activityEditing.newAttachments.map(({ file }) => uploadPatrolFile(patrol.id, file)),
+      ...activityEditing.newAttachments.map((newAttachment) => uploadPatrolFile(patrol.id, newAttachment.file)),
     ]);
 
     const refetchPatrol = dispatch(fetchPatrol(patrol.id)).catch(() => {});
@@ -127,7 +127,7 @@ const PatrolOverviewContent = ({ patrol }) => {
       activityEditing.newAttachments.filter((_, index) => attachmentResults[index].status === 'fulfilled')
     );
 
-    const failedRequest = [patrolUpdateResult, ...attachmentResults].find(({ status }) => status === 'rejected');
+    const failedRequest = [patrolUpdateResult, ...attachmentResults].find((request) => request.status === 'rejected');
     if (!failedRequest) {
       patrolOverviewTracker.track('Saved patrol from patrol overview');
 
@@ -172,7 +172,7 @@ const PatrolOverviewContent = ({ patrol }) => {
   useEffect(() => {
     patrol.patrol_segments.forEach((segment) => {
       const trackedSubjectIds = getTrackedSubjectsForPatrolSegment(segment, patrolTeamAndTrackingOptions)
-        .map(({ id }) => id);
+        .map((trackedSubject) => trackedSubject.id);
 
       if (trackedSubjectIds.length > 0) {
         fetchTracksIfNecessary(

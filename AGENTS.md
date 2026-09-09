@@ -69,7 +69,7 @@ Tracks are lazy-loaded and cached, socket status updates prepend new positions o
 
 **Patrol Legs** hold the actual plan and data: a patrol type, scheduled and actual start/end times, start/end locations, the team and tracking assignments, and the values entered for the universal and patrol type fields. Creating a patrol means creating its first leg; a running patrol is continued with a new leg, which ends the previous one. Legs may differ in type.
 
-> The API and older code call legs "patrol segments". "Leg" is the preferred term.
+> The API calls legs "patrol segments" — the two are the same thing. UI copy says "leg"; code names often follow the API.
 
 **Patrol Types** are the templates legs belong to (e.g., "Vehicle Patrol", "Foot Patrol"). They define the display name, icon, default priority, and a **form schema** that drives the leg's type-specific fields, fetched on demand per type.
 
@@ -334,10 +334,11 @@ Sort each block alphabetically by the first imported binding, not by path.
 - Arrow functions everywhere.
 - Module-level constants in `SCREAMING_SNAKE_CASE` above the component; analytics trackers built once at module level (`const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);`). Anything a test needs to reach is exported inline; there is exactly one default export, at the bottom of the file.
 - Names are verbose and explicit over short and obscure.
+- Collections are plural, and iterating one names its parameter that same word in the singular: `events.some((event) => event.id === eventId)`. A second parameter of the same kind takes an `other` prefix (`(timeRange, otherTimeRange)`).
 - Booleans start with `is`/`has`/`can`/`should`; handlers and handler props with `on`; refs end in `Ref`; setters start with `set`.
 - Selectors start with `select`, and whatever takes their value drops it: `selectPatrolTypes` gives `patrolTypes`, in `useSelector` reads and `createSelector` result functions alike.
 - Avoid a variable read only once. Prefer the readable one-liner, and introduce the variable only when its name is what makes the code readable.
-- Avoid destructuring in a function body: `leg.startTime` keeps the origin of the value visible, `const { startTime } = leg;` hides it. Props destructured in a component signature are the exception.
+- Avoid destructuring anywhere but a component signature: `leg.startTime` keeps the origin of the value visible, while `const { startTime } = leg;` and `.map(({ id }) => id)` hide it.
 - Conditions read positively. A single branch wraps its logic rather than guarding with a bare `return;`; an early return that yields a value is fine.
 
 #### Alphabetical Ordering

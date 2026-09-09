@@ -9,6 +9,7 @@ import { TAB_KEYS } from '../../../constants';
 import useNavigate from '../../../hooks/useNavigate';
 
 import DetailViewLoader from '../DetailViewLoader';
+import EditLeg from './EditLeg';
 import LegOverview from './LegOverview';
 import NewLeg from './NewLeg';
 
@@ -65,7 +66,7 @@ const LegManager = () => {
       <Route path=":legId">
         <Route element={<LegOverview patrol={patrol} />} index />
 
-        <Route element={<div>Edit Leg</div>} path="edit" />
+        <Route element={<EditLeg patrol={patrol} />} path="edit" />
       </Route>
     </Routes>
     : <DetailViewLoader />;

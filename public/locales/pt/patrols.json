@@ -76,6 +76,18 @@
   "detailViewLoader": {
     "loadingLabel": "Carregando os dados da patrulha"
   },
+  "editLeg": {
+    "footer": {
+      "cancelButton": "Cancelar",
+      "saveButton": "Salvar"
+    },
+    "header": {
+      "breadcrumbPatrolsLabel": "Patrulhas",
+      "mobileProvenancePill": "Móvel",
+      "title": "Editar etapa {{legNumber}}"
+    },
+    "saveErrorMessage": "Não foi possível salvar a etapa da patrulha. Tente novamente."
+  },
   "header": {
     "breadcrumbNavLabel": "Navegação da patrulha",
     "closeButtonLabel": "Fechar barra lateral"
@@ -99,11 +111,13 @@
       "autoStartCheckboxLabel": "Iniciar automaticamente a etapa neste horário",
       "endDateBeforeStartDateError": "A finalização da etapa deve ser posterior ao seu início.",
       "endDateInputLabel": "Data de finalização",
+      "endDateOverlapsNextLegError": "Esta etapa não pode se sobrepor à próxima.",
       "endLocationLabel": "Localização da finalização",
       "endTimeInputLabel": "Hora da finalização",
       "endTimeLabel": "Hora da finalização",
       "endTimeRequiredError": "Uma etapa com data de finalização precisa de uma hora de finalização.",
       "startDateInputLabel": "Data de início",
+      "startDateOverlapsNextLegError": "Esta etapa não pode se sobrepor à próxima.",
       "startDateOverlapsPreviousLegError": "Esta etapa não pode se sobrepor à anterior.",
       "startDateRequiredError": "Uma etapa precisa de uma data de início.",
       "startLocationLabel": "Localização de início",

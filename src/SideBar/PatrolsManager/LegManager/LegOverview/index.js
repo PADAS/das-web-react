@@ -117,7 +117,7 @@ const LegOverviewContent = ({ patrol, patrolSegment }) => {
       activityEditing.notesUpdate
         ? dispatch(updatePatrol({ id: patrol.id, notes: activityEditing.notesUpdate }))
         : Promise.resolve(),
-      ...activityEditing.newAttachments.map(({ file }) => uploadPatrolFile(patrol.id, file)),
+      ...activityEditing.newAttachments.map((newAttachment) => uploadPatrolFile(patrol.id, newAttachment.file)),
     ]);
 
     const refetchPatrol = dispatch(fetchPatrol(patrol.id)).catch(() => {});
@@ -132,7 +132,7 @@ const LegOverviewContent = ({ patrol, patrolSegment }) => {
       activityEditing.newAttachments.filter((_, index) => attachmentResults[index].status === 'fulfilled')
     );
 
-    const failedRequest = [patrolUpdateResult, ...attachmentResults].find(({ status }) => status === 'rejected');
+    const failedRequest = [patrolUpdateResult, ...attachmentResults].find((request) => request.status === 'rejected');
     if (!failedRequest) {
       legOverviewTracker.track('Saved a leg from leg overview');
 
@@ -176,7 +176,7 @@ const LegOverviewContent = ({ patrol, patrolSegment }) => {
 
   useEffect(() => {
     const trackedSubjectIds = getTrackedSubjectsForPatrolSegment(patrolSegment, patrolTeamAndTrackingOptions)
-      .map(({ id }) => id);
+      .map((trackedSubject) => trackedSubject.id);
 
     if (trackedSubjectIds.length > 0) {
       fetchTracksIfNecessary(
@@ -248,7 +248,7 @@ const LegOverview = ({ patrol }) => {
   const navigate = useNavigate();
   const { legId } = useParams();
 
-  const patrolSegment = patrol.patrol_segments.find(({ id }) => id === legId) ?? null;
+  const patrolSegment = patrol.patrol_segments.find((patrolSegment) => patrolSegment.id === legId) ?? null;
 
   useEffect(() => {
     // This route is reachable by its url alone.

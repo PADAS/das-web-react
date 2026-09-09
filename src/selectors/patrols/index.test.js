@@ -1,6 +1,7 @@
 import { TRACK_LENGTH_ORIGINS } from '../../ducks/tracks';
 
 import {
+  selectIsPatrolTrackShown,
   selectPatrolLeadersWithLastPosition,
   selectTrackedSubjectsPerPatrolSegment,
   selectPatrolsWithTracks,
@@ -693,7 +694,7 @@ describe('Selectors - Patrols', () => {
     test('lists the subject tracked by every leg with the distance it covered, the team lead first', () => {
       const trackedSubjects = selectPatrolTrackedSubjects(state, twoLeggedPatrol);
 
-      expect(trackedSubjects.map(({ isTeamLead, subject }) => [subject.id, isTeamLead])).toEqual([
+      expect(trackedSubjects.map((trackedSubject) => [trackedSubject.subject.id, trackedSubject.isTeamLead])).toEqual([
         [DOG.id, true],
         [RANGER.id, false],
       ]);
@@ -884,7 +885,7 @@ describe('Selectors - Patrols', () => {
       const patrol = { patrol_segments: [legFor(RANGER), legFor(DOG)] };
 
       expect(selectTrackedSubjectsPerPatrolSegment(state, patrol).map(
-        (trackedSubjects) => trackedSubjects.map(({ subject }) => subject.id)
+        (trackedSubjects) => trackedSubjects.map((trackedSubject) => trackedSubject.subject.id)
       )).toEqual([[RANGER.id], [DOG.id]]);
     });
 
@@ -892,7 +893,7 @@ describe('Selectors - Patrols', () => {
       const patrol = { patrol_segments: [legFor(RANGER), legFor(DOG)] };
 
       expect(selectTrackedSubjectsPerPatrolSegment(state, patrol).map(
-        (trackedSubjects) => trackedSubjects.map(({ isTeamLead }) => isTeamLead)
+        (trackedSubjects) => trackedSubjects.map((trackedSubject) => trackedSubject.isTeamLead)
       )).toEqual([[true], [true]]);
     });
 
@@ -986,6 +987,50 @@ describe('Selectors - Patrols', () => {
           ],
         },
       ]);
+    });
+  });
+
+  describe('selectIsPatrolTrackShown', () => {
+    beforeAll(() => {
+      jest.useFakeTimers().setSystemTime(new Date('2020-01-15'));
+    });
+
+    beforeEach(() => {
+      state.data.patrolStore = {
+        patrol123: {
+          id: 'patrol123',
+          patrol_segments: [{ time_range: { end_time: null, start_time: '2020-01-01T00:00:00.000Z' } }],
+        },
+      };
+    });
+
+    test('tells that the track of a patrol the user pinned is shown', () => {
+      state.view.patrolTrackState.pinned = ['patrol123'];
+
+      expect(selectIsPatrolTrackShown(state, 'patrol123')).toBe(true);
+    });
+
+    test('tells that the track of a patrol the user made visible is shown', () => {
+      state.view.patrolTrackState.visible = ['patrol123'];
+
+      expect(selectIsPatrolTrackShown(state, 'patrol123')).toBe(true);
+    });
+
+    test('tells that the track of a patrol the user has hidden is not shown', () => {
+      expect(selectIsPatrolTrackShown(state, 'patrol123')).toBe(false);
+    });
+
+    test('tells that the track of a patrol that has not begun is not shown', () => {
+      state.data.patrolStore.patrol123.patrol_segments = [{ time_range: { end_time: null, start_time: null } }];
+      state.view.patrolTrackState.visible = ['patrol123'];
+
+      expect(selectIsPatrolTrackShown(state, 'patrol123')).toBe(false);
+    });
+
+    test('tells that no track is shown for a patrol that does not exist yet', () => {
+      state.view.patrolTrackState.visible = ['patrol123'];
+
+      expect(selectIsPatrolTrackShown(state, null)).toBe(false);
     });
   });
 

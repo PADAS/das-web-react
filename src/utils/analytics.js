@@ -25,6 +25,7 @@ export const PATROL_FILTER_CATEGORY = 'Patrol Filter';
 export const NEW_PATROL_CATEGORY = 'New Patrol';
 export const NEW_LEG_CATEGORY = 'New Leg';
 export const LEG_OVERVIEW_CATEGORY = 'Leg Overview';
+export const EDIT_LEG_CATEGORY = 'Edit Leg';
 export const ADD_TO_PATROL_CATEGORY = 'Add To Patrol';
 export const REPORTS_CATEGORY = 'Reports';
 export const REPORT_NOTE_CATEGORY = 'Report Note';

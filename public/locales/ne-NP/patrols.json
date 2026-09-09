@@ -76,6 +76,18 @@
   "detailViewLoader": {
     "loadingLabel": "गस्तीको डाटा लोड हुँदै"
   },
+  "editLeg": {
+    "footer": {
+      "cancelButton": "रद्द गर्नुहोस्",
+      "saveButton": "सुरक्षित गर्नुहोस्"
+    },
+    "header": {
+      "breadcrumbPatrolsLabel": "गस्तीहरू",
+      "mobileProvenancePill": "मोबाइल",
+      "title": "खण्ड {{legNumber}} सम्पादन गर्नुहोस्"
+    },
+    "saveErrorMessage": "गस्ती खण्ड सुरक्षित गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।"
+  },
   "header": {
     "breadcrumbNavLabel": "गस्ती नेभिगेशन",
     "closeButtonLabel": "साइडबार बन्द गर्नुहोस्"
@@ -99,11 +111,13 @@
       "autoStartCheckboxLabel": "यसै समयमा खण्ड स्वतः सुरु गर्नुहोस्",
       "endDateBeforeStartDateError": "खण्डको अन्त्य समय सुरुवाती समय भन्दा पछि हुनुपर्छ।",
       "endDateInputLabel": "अन्त्य मिति",
+      "endDateOverlapsNextLegError": "यो खण्ड अर्को खण्डसँग खप्टिन सक्दैन।",
       "endLocationLabel": "अन्त्य स्थान",
       "endTimeInputLabel": "अन्त्य समय",
       "endTimeLabel": "अन्त्य समय",
       "endTimeRequiredError": "अन्त्य मिति भएको खण्डलाई अन्त्य समय आवश्यक छ।",
       "startDateInputLabel": "सुरु मिति",
+      "startDateOverlapsNextLegError": "यो खण्ड अर्को खण्डसँग खप्टिन सक्दैन।",
       "startDateOverlapsPreviousLegError": "यो खण्ड अघिल्लो खण्डसँग खप्टिन सक्दैन।",
       "startDateRequiredError": "खण्डलाई सुरु मिति आवश्यक छ।",
       "startLocationLabel": "सुरु स्थान",
