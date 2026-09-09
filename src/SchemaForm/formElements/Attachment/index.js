@@ -59,6 +59,11 @@ const ATTACHMENT_FIELD_ALLOWABLE_FILE_TYPE_SPECIFIERS = {
   video: ['video/*'],
 };
 
+const UPLOAD_ERROR_LABEL_KEYS_BY_STATUS_CODE = {
+  413: 'uploadTooLargeErrorLabel',
+  415: 'uploadUnsupportedTypeErrorLabel',
+};
+
 const getFileCategoryFromMimeType = (mimeType) => {
   if ((mimeType).startsWith('image/')) {
     return 'image';
@@ -183,13 +188,24 @@ const AttachmentListItem = ({ actionButtonRefs, attachment, onRemove, readOnly }
 
     {attachment.status === 'unknown' && <span className={styles.pendingLabel}>{t('pendingLabel')}</span>}
 
-    {attachment.status === 'failed' && <span className={styles.error}>{t('uploadErrorLabel')}</span>}
+    {attachment.status === 'failed' && <span className={styles.error}>
+      {t(UPLOAD_ERROR_LABEL_KEYS_BY_STATUS_CODE[attachment.statusCode] ?? 'uploadErrorLabel')}
+    </span>}
 
     {actionButton}
   </li>;
 };
 
-const Attachment = ({ attachmentsMetadata, details, error, formElementId, onFieldChange, readOnly, value = [] }) => {
+const Attachment = ({
+  attachmentsMetadata,
+  communityInputValue = null,
+  details,
+  error,
+  formElementId,
+  onFieldChange,
+  readOnly,
+  value = [],
+}) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('schema-form', { keyPrefix: 'fields.attachment' });
 
@@ -232,6 +248,7 @@ const Attachment = ({ attachmentsMetadata, details, error, formElementId, onFiel
       originalUrl: attachmentMetadata?.files?.original,
       progress: upload?.progress ?? null,
       status: upload?.status ?? attachmentMetadata.status ?? 'complete',
+      statusCode: upload?.statusCode,
       thumbnailImageSource: attachmentImageSources.thumbnail ?? upload?.objectUrl,
       uploadId: attachment?.uploadId,
     };
@@ -265,7 +282,7 @@ const Attachment = ({ attachmentsMetadata, details, error, formElementId, onFiel
       showToast({ message: t('maxItemsAlert', { count: details.maxItems }) });
     }
 
-    const newUploadIds = newAttachments.map((file) => dispatch(uploadFile(file)));
+    const newUploadIds = newAttachments.map((file) => dispatch(uploadFile(file, communityInputValue)));
 
     if (newUploadIds.length > 0) {
       setAnnouncement(t('uploadStartedAnnouncement', {

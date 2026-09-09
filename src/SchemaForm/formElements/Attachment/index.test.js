@@ -248,7 +248,7 @@ describe('SchemaForm - formElements - Attachment', () => {
     await userEvent.upload(getFileInput(), file);
 
     expect(uploadFile).toHaveBeenCalledTimes(1);
-    expect(uploadFile).toHaveBeenCalledWith(file);
+    expect(uploadFile).toHaveBeenCalledWith(file, null);
     expect(onFieldChange).toHaveBeenCalledWith('attachment-1', [{ uploadId: 'test-upload-id' }]);
   });
 
@@ -260,12 +260,21 @@ describe('SchemaForm - formElements - Attachment', () => {
     await userEvent.upload(getFileInput(), [file1, file2]);
 
     expect(uploadFile).toHaveBeenCalledTimes(2);
-    expect(uploadFile).toHaveBeenCalledWith(file1);
-    expect(uploadFile).toHaveBeenCalledWith(file2);
+    expect(uploadFile).toHaveBeenCalledWith(file1, null);
+    expect(uploadFile).toHaveBeenCalledWith(file2, null);
     expect(onFieldChange).toHaveBeenCalledWith('attachment-1', [
       { uploadId: 'test-upload-id' },
       { uploadId: 'test-upload-id' },
     ]);
+  });
+
+  test('dispatches uploadFile with the community input value when the field is rendered in a community context', async () => {
+    renderAttachmentField({ communityInputValue: 'test-community-input' });
+    const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
+
+    await userEvent.upload(getFileInput(), file);
+
+    expect(uploadFile).toHaveBeenCalledWith(file, 'test-community-input');
   });
 
   test('announces the upload start to screen readers', async () => {
@@ -508,6 +517,33 @@ describe('SchemaForm - formElements - Attachment', () => {
 
     expect(screen.getByText('Upload failed')).toBeVisible();
     expect(screen.getByRole('button', { name: 'Remove test.pdf' })).toBeVisible();
+  });
+
+  test('shows the generic upload error text for a failed upload rejected for an unrecognized reason', () => {
+    const failedStore = mockStore({
+      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', fileType: 'application/pdf', progress: 0, status: 'failed', statusCode: 500 } } },
+    });
+    renderAttachmentField({ value: [{ uploadId: 'test-upload-id' }] }, failedStore);
+
+    expect(screen.getByText('Upload failed')).toBeVisible();
+  });
+
+  test('shows the too large error text for a failed upload rejected for its size', () => {
+    const failedStore = mockStore({
+      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', fileType: 'application/pdf', progress: 0, status: 'failed', statusCode: 413 } } },
+    });
+    renderAttachmentField({ value: [{ uploadId: 'test-upload-id' }] }, failedStore);
+
+    expect(screen.getByText('File is too large')).toBeVisible();
+  });
+
+  test('shows the unsupported type error text for a failed upload rejected for its file type', () => {
+    const failedStore = mockStore({
+      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', fileType: 'application/pdf', progress: 0, status: 'failed', statusCode: 415 } } },
+    });
+    renderAttachmentField({ value: [{ uploadId: 'test-upload-id' }] }, failedStore);
+
+    expect(screen.getByText('File type is not allowed')).toBeVisible();
   });
 
   test('dispatches addModal when the expand button is clicked for a saved image', async () => {

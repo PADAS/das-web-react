@@ -39,7 +39,9 @@
       "uploadStartedAnnouncement_one": "Téléversement de {{fileName}}",
       "uploadStartedAnnouncement_other": "Téléversement de {{count}} fichiers",
       "uploadSucceededAnnouncement_one": "{{fileName}} téléversé",
-      "uploadSucceededAnnouncement_other": "{{count}} fichiers téléversés"
+      "uploadSucceededAnnouncement_other": "{{count}} fichiers téléversés",
+      "uploadTooLargeErrorLabel": "Le fichier est trop volumineux",
+      "uploadUnsupportedTypeErrorLabel": "Type de fichier non autorisé"
     },
     "collection": {
       "addButtonLabel": "Ajouter {{itemName}}",

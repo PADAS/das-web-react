@@ -39,7 +39,9 @@
       "uploadStartedAnnouncement_one": "Inapakia {{fileName}}",
       "uploadStartedAnnouncement_other": "Inapakia faili {{count}}",
       "uploadSucceededAnnouncement_one": "{{fileName}} imepakiwa",
-      "uploadSucceededAnnouncement_other": "Faili {{count}} zimepakiwa"
+      "uploadSucceededAnnouncement_other": "Faili {{count}} zimepakiwa",
+      "uploadTooLargeErrorLabel": "Faili ni kubwa mno",
+      "uploadUnsupportedTypeErrorLabel": "Aina ya faili hairuhusiwi"
     },
     "collection": {
       "addButtonLabel": "Ongeza {{itemName}}",

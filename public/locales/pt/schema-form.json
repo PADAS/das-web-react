@@ -39,7 +39,9 @@
       "uploadStartedAnnouncement_one": "Enviando {{fileName}}",
       "uploadStartedAnnouncement_other": "Enviando {{count}} arquivos",
       "uploadSucceededAnnouncement_one": "{{fileName}} enviado",
-      "uploadSucceededAnnouncement_other": "{{count}} arquivos enviados"
+      "uploadSucceededAnnouncement_other": "{{count}} arquivos enviados",
+      "uploadTooLargeErrorLabel": "O arquivo é muito grande",
+      "uploadUnsupportedTypeErrorLabel": "Tipo de arquivo não permitido"
     },
     "collection": {
       "addButtonLabel": "Adicionar {{itemName}}",

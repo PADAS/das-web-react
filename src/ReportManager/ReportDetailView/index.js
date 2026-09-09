@@ -279,7 +279,8 @@ const ReportDetailView = ({
     && !isPatrolAddedReport
     && !belongsToPatrol
     && !relationshipButtonDisabled
-    && !isCollectionChild;
+    && !isCollectionChild
+    && !isCommunity;
 
   const onClearErrors = useCallback(() => setSaveError(null), []);
 
@@ -823,6 +824,7 @@ const ReportDetailView = ({
           <QuickLinks.SectionsWrapper>
             <QuickLinks.Section anchorTitle={t('reportDetailView.quickLinks.detailsAnchor')}>
               <DetailsSection
+                communityInputValue={communityInputValue}
                 eventSchema={eventSchema}
                 hidePriority={hidePriority}
                 hideReportedBy={hideReportedBy}

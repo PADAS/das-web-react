@@ -15,6 +15,7 @@ import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import { render, screen, waitFor, within } from '../../test-utils';
 import { report } from '../../__test-helpers/fixtures/reports';
 import { TrackerContext } from '../../utils/analytics';
+import { uploadFile } from '../../ducks/user-content';
 import { VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 
 import DetailsSection from './';
@@ -29,6 +30,11 @@ jest.mock('mapbox-gl', () => ({
     setOffset() {}
     trackPointer() {}
   },
+}));
+
+jest.mock('../../ducks/user-content', () => ({
+  ...jest.requireActual('../../ducks/user-content'),
+  uploadFile: jest.fn(),
 }));
 
 describe('ReportManager - DetailsSection', () => {
@@ -55,6 +61,8 @@ describe('ReportManager - DetailsSection', () => {
   let map, store, submitFormButtonRef;
   beforeEach(() => {
     map = createMapMock();
+
+    uploadFile.mockImplementation(() => () => 'test-upload-id');
 
     submitFormButtonRef = { current: {} };
 
@@ -553,6 +561,57 @@ describe('ReportManager - DetailsSection', () => {
     submitFormButtonRef.current.click();
 
     expect(onFormSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  test('gives the schema form the community input value it receives for v2 schemas', async () => {
+    store.data.eventTypes = [...eventTypes, snareV2];
+    const attachmentSchemaV2 = {
+      json: {
+        ...snareSchemaV2.json,
+        properties: {
+          attachment_field: {
+            description: '',
+            items: { properties: { uploadId: { type: 'string' } }, type: 'object' },
+            title: 'Attachment Field',
+            type: 'array',
+            unevaluatedItems: false,
+          },
+        },
+        required: [],
+      },
+      ui: {
+        ...snareSchemaV2.ui,
+        fields: {
+          attachment_field: {
+            allowableFileTypes: [],
+            conditionalDependents: [],
+            isRequired: false,
+            maxItems: null,
+            parent: '0-7_eLbCyR8Vypp_BjDlU',
+            type: 'ATTACHMENT',
+          },
+        },
+        sections: {
+          '0-7_eLbCyR8Vypp_BjDlU': {
+            ...snareSchemaV2.ui.sections['0-7_eLbCyR8Vypp_BjDlU'],
+            leftColumn: [{ name: 'attachment_field', type: 'field' }],
+          },
+        },
+      },
+    };
+    renderDetailsSection({
+      communityInputValue: 'test-community-input',
+      eventSchema: attachmentSchemaV2,
+      reportForm: { ...report, event_type: 'snare_v2_rep' },
+    });
+    const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
+
+    await userEvent.upload(
+      screen.getByTestId('schema-form-attachment-field-attachment_field-file-input'),
+      file
+    );
+
+    expect(uploadFile).toHaveBeenCalledWith(file, 'test-community-input');
   });
 
   test('does not show the loader if the schema is loaded', async () => {
