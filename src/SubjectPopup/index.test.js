@@ -126,6 +126,40 @@ describe('SubjectPopup', () => {
     });
   });
 
+  describe('messaging entry point', () => {
+    const subjectFeatureWithMessaging = {
+      ...subjectFeatureWithOneDeviceProp,
+      properties: {
+        ...subjectFeatureWithOneDeviceProp.properties,
+        messaging: [{ provider: 'inreach' }],
+      },
+    };
+
+    beforeEach(() => {
+      jest.spyOn(document, 'querySelector').mockImplementation(() => ({
+        clientHeight: 1000,
+        clientWidth: 1000,
+      }));
+
+      /* eslint-disable-next-line react/display-name */
+      Wrapper = ({ children }) => <Provider store={mockStore(state)}>{children}</Provider>;
+
+      renderWithWrapper = (Component) => render(Component, { wrapper: Wrapper });
+    });
+
+    test('shows the messaging entry point when the subject has messaging capability regardless of message permission', () => {
+      renderWithWrapper(<SubjectPopup data={subjectFeatureWithMessaging} />);
+
+      expect(screen.getByTestId('subject-messages-popover')).toBeInTheDocument();
+    });
+
+    test('does not show the messaging entry point when the subject has no messaging capability', () => {
+      renderWithWrapper(<SubjectPopup data={subjectFeatureWithOneDeviceProp} />);
+
+      expect(screen.queryByTestId('subject-messages-popover')).not.toBeInTheDocument();
+    });
+  });
+
   describe('Stationary Subjects popup', () => {
     const defaultSubjectProperty = getSubjectDefaultDeviceProperty(staticSubjectFeature);
     const defaultSubjectValue = `${defaultSubjectProperty.value} ${defaultSubjectProperty.units}`;

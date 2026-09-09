@@ -11,6 +11,7 @@ import AdditionalDeviceProperties from '../AdditionalDeviceProperties';
 import DateTime from '../DateTime';
 import GpsFormatToggle from '../GpsFormatToggle';
 import SubjectControls from '../SubjectControls';
+import SubjectMessagesPopover from '../SubjectMessagesPopover';
 import TimeAgo from '../TimeAgo';
 import TrackLength from '../TrackLength';
 
@@ -42,6 +43,7 @@ const SubjectPopup = ({ data }) => {
   const { tracks_available } = properties;
 
   const hasAdditionalDeviceProps = !!device_status_properties?.length;
+  const isMessageable = !!properties?.messaging?.length;
 
   const displayName = calcDisplayNameForSubject(properties);
   const popupTitle = popupTitleFromStore ?? displayName;
@@ -123,8 +125,11 @@ const SubjectPopup = ({ data }) => {
       className={styles.controls}
       showHistoryButton={hasAdditionalDeviceProps}
       showJumpButton={false}
+      showMessageButton={false}
       subject={properties}
-    />
+      >
+      {isMessageable && <SubjectMessagesPopover subject={properties} />}
+    </SubjectControls>
   </>;
 };
 
