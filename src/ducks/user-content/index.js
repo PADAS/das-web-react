@@ -1,9 +1,15 @@
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 
-import { API_URL } from '../../constants';
+import { API_URL, API_V2_URL } from '../../constants';
 import globallyResettableReducer from '../../reducers/global-resettable';
 
+export const COMMUNITY_COMPLETE_CHUNKED_UPLOAD_API_URL = (communityValue, uploadId) =>
+  `${API_V2_URL}community/${communityValue}/usercontent/chunked-uploads/${uploadId}/complete/`;
+export const COMMUNITY_INITIATE_CHUNKED_UPLOAD_API_URL = (communityValue) =>
+  `${API_V2_URL}community/${communityValue}/usercontent/chunked-uploads/`;
+export const COMMUNITY_UPLOAD_CHUNK_API_URL = (communityValue, uploadId, chunkIndex) =>
+  `${API_V2_URL}community/${communityValue}/usercontent/chunked-uploads/${uploadId}/chunks/${chunkIndex}/`;
 export const COMPLETE_CHUNKED_UPLOAD_API_URL = (uploadId) => `${API_URL}usercontent/chunked-uploads/${uploadId}/complete/`;
 export const INITIATE_CHUNKED_UPLOAD_API_URL = `${API_URL}usercontent/chunked-uploads/`;
 export const UPLOAD_CHUNK_API_URL = (uploadId, chunkIndex) => `${API_URL}usercontent/chunked-uploads/${uploadId}/chunks/${chunkIndex}/`;
@@ -43,14 +49,27 @@ export const removeFile = (uploadId) => (dispatch, getState) => {
   dispatch({ payload: { uploadId }, type: REMOVE_UPLOAD });
 };
 
-export const startChunkedUpload = async (file, uploadId, dispatch) => {
+export const startChunkedUpload = async (file, uploadId, dispatch, communityInputValue = null) => {
   const abortController = ABORT_CONTROLLERS.get(uploadId);
+
+  // A community visitor is anonymous and has no session to renew, so a 401 here
+  // must skip the auth recovery that would otherwise sign them out mid-form.
+  const requestConfig = {
+    signal: abortController.signal,
+    ...(communityInputValue ? { skipAuth: true } : {}),
+  };
+
+  const getUploadChunkUrl = (chunkIndex) => communityInputValue
+    ? COMMUNITY_UPLOAD_CHUNK_API_URL(communityInputValue, uploadId, chunkIndex)
+    : UPLOAD_CHUNK_API_URL(uploadId, chunkIndex);
 
   try {
     const initiateChunkedUploadResponse = await axios.post(
-      INITIATE_CHUNKED_UPLOAD_API_URL,
+      communityInputValue
+        ? COMMUNITY_INITIATE_CHUNKED_UPLOAD_API_URL(communityInputValue)
+        : INITIATE_CHUNKED_UPLOAD_API_URL,
       { chunk_size: SUGGESTED_CHUNK_SIZE, filename: file.name, id: uploadId, size: file.size },
-      { signal: abortController.signal }
+      requestConfig
     );
 
     const { chunk_size: chunkSize, num_chunks: numChunks } = initiateChunkedUploadResponse.data.data;
@@ -62,9 +81,9 @@ export const startChunkedUpload = async (file, uploadId, dispatch) => {
       const chunk = file.slice(chunkOffset, chunkOffset + chunkSize);
 
       await axios.put(
-        UPLOAD_CHUNK_API_URL(uploadId, chunkIndex),
+        getUploadChunkUrl(chunkIndex),
         chunk,
-        { headers: { 'Content-Type': 'application/octet-stream' }, signal: abortController.signal }
+        { headers: { 'Content-Type': 'application/octet-stream' }, ...requestConfig }
       );
 
       dispatch({
@@ -73,7 +92,13 @@ export const startChunkedUpload = async (file, uploadId, dispatch) => {
       });
     }
 
-    await axios.post(COMPLETE_CHUNKED_UPLOAD_API_URL(uploadId), {}, { signal: abortController.signal });
+    await axios.post(
+      communityInputValue
+        ? COMMUNITY_COMPLETE_CHUNKED_UPLOAD_API_URL(communityInputValue, uploadId)
+        : COMPLETE_CHUNKED_UPLOAD_API_URL(uploadId),
+      {},
+      requestConfig
+    );
 
     dispatch({ payload: { progress: 1, status: 'complete', uploadId }, type: SET_CHUNKED_UPLOAD_STATUS });
   } catch {
@@ -85,7 +110,7 @@ export const startChunkedUpload = async (file, uploadId, dispatch) => {
   }
 };
 
-export const uploadFile = (file) => (dispatch) => {
+export const uploadFile = (file, communityInputValue = null) => (dispatch) => {
   const uploadId = uuidv4();
 
   dispatch({
@@ -103,7 +128,7 @@ export const uploadFile = (file) => (dispatch) => {
   const abortController = new AbortController();
   ABORT_CONTROLLERS.set(uploadId, abortController);
 
-  startChunkedUpload(file, uploadId, dispatch);
+  startChunkedUpload(file, uploadId, dispatch, communityInputValue);
 
   return uploadId;
 };

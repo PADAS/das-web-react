@@ -248,7 +248,7 @@ describe('SchemaForm - formElements - Attachment', () => {
     await userEvent.upload(getFileInput(), file);
 
     expect(uploadFile).toHaveBeenCalledTimes(1);
-    expect(uploadFile).toHaveBeenCalledWith(file);
+    expect(uploadFile).toHaveBeenCalledWith(file, null);
     expect(onFieldChange).toHaveBeenCalledWith('attachment-1', [{ uploadId: 'test-upload-id' }]);
   });
 
@@ -260,12 +260,21 @@ describe('SchemaForm - formElements - Attachment', () => {
     await userEvent.upload(getFileInput(), [file1, file2]);
 
     expect(uploadFile).toHaveBeenCalledTimes(2);
-    expect(uploadFile).toHaveBeenCalledWith(file1);
-    expect(uploadFile).toHaveBeenCalledWith(file2);
+    expect(uploadFile).toHaveBeenCalledWith(file1, null);
+    expect(uploadFile).toHaveBeenCalledWith(file2, null);
     expect(onFieldChange).toHaveBeenCalledWith('attachment-1', [
       { uploadId: 'test-upload-id' },
       { uploadId: 'test-upload-id' },
     ]);
+  });
+
+  test('dispatches uploadFile with the community input value when the field is rendered in a community context', async () => {
+    renderAttachmentField({ communityInputValue: 'test-community-input' });
+    const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
+
+    await userEvent.upload(getFileInput(), file);
+
+    expect(uploadFile).toHaveBeenCalledWith(file, 'test-community-input');
   });
 
   test('announces the upload start to screen readers', async () => {

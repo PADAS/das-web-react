@@ -46,6 +46,7 @@ const LOADER_COLOR = '#006cd9'; // Bright blue
 const LOADER_SIZE = 50;
 
 const DetailsSection = ({
+  communityInputValue = null,
   eventSchema = null,
   formValidator,
   // hidePriority / hideReportedBy are intentionally generic visibility props expressed in this
@@ -293,6 +294,7 @@ const DetailsSection = ({
     {eventType?.version === 2 && eventSchema?.json && !eventSchema?.error && <SchemaForm
       anchorLocation={reportForm.location}
       className={styles.schemaForm}
+      communityInputValue={communityInputValue}
       formData={reportForm.event_details}
       hideMapLocationMarkers={isBehindAddedEvent}
       metadata={reportForm.metadata ?? {}}

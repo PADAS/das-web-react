@@ -189,7 +189,16 @@ const AttachmentListItem = ({ actionButtonRefs, attachment, onRemove, readOnly }
   </li>;
 };
 
-const Attachment = ({ attachmentsMetadata, details, error, formElementId, onFieldChange, readOnly, value = [] }) => {
+const Attachment = ({
+  attachmentsMetadata,
+  communityInputValue = null,
+  details,
+  error,
+  formElementId,
+  onFieldChange,
+  readOnly,
+  value = [],
+}) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('schema-form', { keyPrefix: 'fields.attachment' });
 
@@ -265,7 +274,7 @@ const Attachment = ({ attachmentsMetadata, details, error, formElementId, onFiel
       showToast({ message: t('maxItemsAlert', { count: details.maxItems }) });
     }
 
-    const newUploadIds = newAttachments.map((file) => dispatch(uploadFile(file)));
+    const newUploadIds = newAttachments.map((file) => dispatch(uploadFile(file, communityInputValue)));
 
     if (newUploadIds.length > 0) {
       setAnnouncement(t('uploadStartedAnnouncement', {
