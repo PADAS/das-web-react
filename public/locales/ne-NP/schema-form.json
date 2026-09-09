@@ -39,7 +39,9 @@
       "uploadStartedAnnouncement_one": "{{fileName}} अपलोड हुँदै",
       "uploadStartedAnnouncement_other": "{{count}} फाइलहरू अपलोड हुँदै",
       "uploadSucceededAnnouncement_one": "{{fileName}} अपलोड भयो",
-      "uploadSucceededAnnouncement_other": "{{count}} फाइलहरू अपलोड भए"
+      "uploadSucceededAnnouncement_other": "{{count}} फाइलहरू अपलोड भए",
+      "uploadTooLargeErrorLabel": "फाइल धेरै ठूलो छ",
+      "uploadUnsupportedTypeErrorLabel": "फाइल प्रकार अनुमति छैन"
     },
     "collection": {
       "addButtonLabel": "{{itemName}} थप्नुहोस्",

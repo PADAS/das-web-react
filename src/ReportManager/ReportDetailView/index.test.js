@@ -1134,6 +1134,14 @@ describe('ReportManager - ReportDetailView', () => {
     expect((await screen.queryByTestId('addItemButton-button'))).toBeNull();
   });
 
+  test('does not show add report button if the report is rendered in a community context', async () => {
+    renderWithWrapper(
+      <ReportDetailView isCommunity isNewReport={false} reportId="456" />
+    );
+
+    expect(screen.queryByTestId('addItemButton-button')).toBeNull();
+  });
+
   test('shows the add report button', async () => {
     renderWithWrapper(
       <ReportDetailView isNewReport={false} reportId="456" />

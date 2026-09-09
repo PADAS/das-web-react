@@ -279,7 +279,8 @@ const ReportDetailView = ({
     && !isPatrolAddedReport
     && !belongsToPatrol
     && !relationshipButtonDisabled
-    && !isCollectionChild;
+    && !isCollectionChild
+    && !isCommunity;
 
   const onClearErrors = useCallback(() => setSaveError(null), []);
 

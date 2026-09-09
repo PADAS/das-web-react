@@ -59,15 +59,21 @@ export const startChunkedUpload = async (file, uploadId, dispatch, communityInpu
     ...(communityInputValue ? { skipAuth: true } : {}),
   };
 
-  const getUploadChunkUrl = (chunkIndex) => communityInputValue
-    ? COMMUNITY_UPLOAD_CHUNK_API_URL(communityInputValue, uploadId, chunkIndex)
-    : UPLOAD_CHUNK_API_URL(uploadId, chunkIndex);
+  const endpoints = communityInputValue
+    ? {
+      completeUrl: COMMUNITY_COMPLETE_CHUNKED_UPLOAD_API_URL(communityInputValue, uploadId),
+      getChunkUrl: (chunkIndex) => COMMUNITY_UPLOAD_CHUNK_API_URL(communityInputValue, uploadId, chunkIndex),
+      initiateUrl: COMMUNITY_INITIATE_CHUNKED_UPLOAD_API_URL(communityInputValue),
+    }
+    : {
+      completeUrl: COMPLETE_CHUNKED_UPLOAD_API_URL(uploadId),
+      getChunkUrl: (chunkIndex) => UPLOAD_CHUNK_API_URL(uploadId, chunkIndex),
+      initiateUrl: INITIATE_CHUNKED_UPLOAD_API_URL,
+    };
 
   try {
     const initiateChunkedUploadResponse = await axios.post(
-      communityInputValue
-        ? COMMUNITY_INITIATE_CHUNKED_UPLOAD_API_URL(communityInputValue)
-        : INITIATE_CHUNKED_UPLOAD_API_URL,
+      endpoints.initiateUrl,
       { chunk_size: SUGGESTED_CHUNK_SIZE, filename: file.name, id: uploadId, size: file.size },
       requestConfig
     );
@@ -81,7 +87,7 @@ export const startChunkedUpload = async (file, uploadId, dispatch, communityInpu
       const chunk = file.slice(chunkOffset, chunkOffset + chunkSize);
 
       await axios.put(
-        getUploadChunkUrl(chunkIndex),
+        endpoints.getChunkUrl(chunkIndex),
         chunk,
         { headers: { 'Content-Type': 'application/octet-stream' }, ...requestConfig }
       );
@@ -92,18 +98,14 @@ export const startChunkedUpload = async (file, uploadId, dispatch, communityInpu
       });
     }
 
-    await axios.post(
-      communityInputValue
-        ? COMMUNITY_COMPLETE_CHUNKED_UPLOAD_API_URL(communityInputValue, uploadId)
-        : COMPLETE_CHUNKED_UPLOAD_API_URL(uploadId),
-      {},
-      requestConfig
-    );
+    await axios.post(endpoints.completeUrl, {}, requestConfig);
 
     dispatch({ payload: { progress: 1, status: 'complete', uploadId }, type: SET_CHUNKED_UPLOAD_STATUS });
-  } catch {
+  } catch (error) {
     if (!abortController.signal.aborted) {
-      dispatch({ payload: { status: 'failed', uploadId }, type: SET_CHUNKED_UPLOAD_STATUS });
+      const statusCode = error?.response?.status;
+
+      dispatch({ payload: { status: 'failed', statusCode, uploadId }, type: SET_CHUNKED_UPLOAD_STATUS });
     }
   } finally {
     ABORT_CONTROLLERS.delete(uploadId);

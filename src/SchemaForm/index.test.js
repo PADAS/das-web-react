@@ -540,9 +540,9 @@ describe('SchemaForm', () => {
   test('shows upload errors if there are any when the user submits the form', async () => {
     schema.json.properties.attachment_field = {
       description: '',
+      items: { properties: { uploadId: { type: 'string' } }, type: 'object' },
       title: 'Attachment Field',
       type: 'array',
-      items: { properties: { uploadId: { type: 'string' } }, type: 'object' },
       unevaluatedItems: false,
     };
     schema.ui.fields.attachment_field = {
@@ -550,8 +550,8 @@ describe('SchemaForm', () => {
       conditionalDependents: [],
       isRequired: false,
       maxItems: null,
-      type: 'ATTACHMENT',
       parent: 'section-3',
+      type: 'ATTACHMENT',
     };
     schema.ui.sections['section-3'].leftColumn.push({ name: 'attachment_field', type: 'field' });
 
@@ -581,9 +581,9 @@ describe('SchemaForm', () => {
   test('gives its attachment fields the community input value it receives', async () => {
     schema.json.properties.attachment_field = {
       description: '',
+      items: { properties: { uploadId: { type: 'string' } }, type: 'object' },
       title: 'Attachment Field',
       type: 'array',
-      items: { properties: { uploadId: { type: 'string' } }, type: 'object' },
       unevaluatedItems: false,
     };
     schema.ui.fields.attachment_field = {
@@ -591,11 +591,11 @@ describe('SchemaForm', () => {
       conditionalDependents: [],
       isRequired: false,
       maxItems: null,
-      type: 'ATTACHMENT',
       parent: 'section-3',
+      type: 'ATTACHMENT',
     };
     schema.ui.sections['section-3'].leftColumn.push({ name: 'attachment_field', type: 'field' });
-    uploadFile.mockReturnValue({ payload: {}, type: 'USER_CONTENT.SET_CHUNKED_UPLOAD_STATUS' });
+    uploadFile.mockImplementation(() => () => 'test-upload-id');
 
     renderSchemaForm({ communityInputValue: 'test-community-input' });
     const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });

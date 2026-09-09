@@ -227,7 +227,49 @@ describe('Ducks - User content', () => {
     await startChunkedUpload(file, MOCK_UPLOAD_ID, dispatch);
 
     expect(dispatch).toHaveBeenCalledWith({
-      payload: { status: 'failed', uploadId: MOCK_UPLOAD_ID },
+      payload: { status: 'failed', statusCode: 500, uploadId: MOCK_UPLOAD_ID },
+      type: SET_CHUNKED_UPLOAD_STATUS,
+    });
+  });
+
+  test('uploadFile reports the status code of a rejection for a file that is too large', async () => {
+    server.use(
+      http.post(
+        COMMUNITY_INITIATE_CHUNKED_UPLOAD_API_URL(MOCK_COMMUNITY_INPUT_VALUE),
+        () => HttpResponse.json({}, { status: 413 })
+      ),
+    );
+
+    const dispatch = jest.fn();
+    const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
+    const abortController = new AbortController();
+    ABORT_CONTROLLERS.set(MOCK_UPLOAD_ID, abortController);
+
+    await startChunkedUpload(file, MOCK_UPLOAD_ID, dispatch, MOCK_COMMUNITY_INPUT_VALUE);
+
+    expect(dispatch).toHaveBeenCalledWith({
+      payload: { status: 'failed', statusCode: 413, uploadId: MOCK_UPLOAD_ID },
+      type: SET_CHUNKED_UPLOAD_STATUS,
+    });
+  });
+
+  test('uploadFile reports the status code of a rejection for a file of a disallowed type', async () => {
+    server.use(
+      http.post(
+        COMMUNITY_INITIATE_CHUNKED_UPLOAD_API_URL(MOCK_COMMUNITY_INPUT_VALUE),
+        () => HttpResponse.json({}, { status: 415 })
+      ),
+    );
+
+    const dispatch = jest.fn();
+    const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
+    const abortController = new AbortController();
+    ABORT_CONTROLLERS.set(MOCK_UPLOAD_ID, abortController);
+
+    await startChunkedUpload(file, MOCK_UPLOAD_ID, dispatch, MOCK_COMMUNITY_INPUT_VALUE);
+
+    expect(dispatch).toHaveBeenCalledWith({
+      payload: { status: 'failed', statusCode: 415, uploadId: MOCK_UPLOAD_ID },
       type: SET_CHUNKED_UPLOAD_STATUS,
     });
   });
@@ -298,21 +340,6 @@ describe('Ducks - User content', () => {
       payload: { progress: 1, status: 'complete', uploadId: MOCK_UPLOAD_ID },
       type: SET_CHUNKED_UPLOAD_STATUS,
     });
-  });
-
-  test('uploadFile forwards the community input value it receives to the chunked upload', () => {
-    const postSpy = jest.spyOn(axios, 'post');
-
-    const dispatch = jest.fn();
-    const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
-
-    uploadFile(file, MOCK_COMMUNITY_INPUT_VALUE)(dispatch);
-
-    expect(postSpy).toHaveBeenCalledWith(
-      COMMUNITY_INITIATE_CHUNKED_UPLOAD_API_URL(MOCK_COMMUNITY_INPUT_VALUE),
-      expect.anything(),
-      expect.objectContaining({ skipAuth: true })
-    );
   });
 
   test('uploadFile does not dispatch the SET_CHUNKED_UPLOAD_STATUS action when the upload is aborted', async () => {

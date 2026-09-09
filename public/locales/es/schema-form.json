@@ -39,7 +39,9 @@
       "uploadStartedAnnouncement_one": "Subiendo {{fileName}}",
       "uploadStartedAnnouncement_other": "Subiendo {{count}} archivos",
       "uploadSucceededAnnouncement_one": "{{fileName}} subido",
-      "uploadSucceededAnnouncement_other": "{{count}} archivos subidos"
+      "uploadSucceededAnnouncement_other": "{{count}} archivos subidos",
+      "uploadTooLargeErrorLabel": "El archivo es demasiado grande",
+      "uploadUnsupportedTypeErrorLabel": "Tipo de archivo no permitido"
     },
     "collection": {
       "addButtonLabel": "Agregar {{itemName}}",
