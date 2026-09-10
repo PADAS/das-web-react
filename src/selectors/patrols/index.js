@@ -83,7 +83,7 @@ const buildPatrolData = (patrol, timeSliderState, trackTimeEnvelopeUntil, tracks
 
   if (patrolData.trackData) {
     // If the patrol has track data, we now calculate its start and stop geometries.
-    const labels = getPatrolPointLabels(patrol, patrolTypes);
+    const labels = getPatrolPointLabels(patrol, patrolLeader, patrolTypes);
     const legsPoints = legsData.map(({ leader: legLeader, rawTrackData, segment, trackData: legTrackData }) => (legTrackData
       ? extractLegPatrolPoints(segment, legLeader, legTrackData, rawTrackData, isSegmentActiveForPatrol(patrol, segment), labels)
       : null));

@@ -698,18 +698,20 @@ export const makePatrolPointFromFeature = (label, coordinates, image, stroke, ti
   return point(coordinates, properties);
 };
 
-// Start/end pin labels: patrol title, else patrol type display name, else the
-// generic "Patrol Start"/"Patrol End". `estimatedSuffix` marks points inferred
-// from track data rather than an explicit start/end location.
-export const getPatrolPointLabels = (patrol, patrolTypes) => {
+// Start/end pin labels resolve the patrol name the same way as
+// displayTitleForPatrol (title, else leader name, else patrol type display name)
+// so the pins match the track legend, then fall back to the generic
+// "Patrol Start"/"Patrol End". `estimatedSuffix` marks points inferred from
+// track data rather than an explicit start/end location.
+export const getPatrolPointLabels = (patrol, leader, patrolTypes) => {
   const t = i18next.getFixedT(null, 'utils', 'patrolPoints');
 
   const segments = patrol?.patrol_segments || [];
   const patrolTypeValue = segments[segments.length - 1]?.patrol_type;
-  const matchingPatrolType = patrolTypeValue
-    ? (patrolTypes || []).find(({ id, value }) => value === patrolTypeValue || id === patrolTypeValue)
+  const patrolTypeName = patrolTypeValue
+    ? displayNameForPatrolType(patrolTypes || [], patrolTypeValue)
     : null;
-  const patrolName = patrol?.title || matchingPatrolType?.display || null;
+  const patrolName = patrol?.title || leader?.name || patrolTypeName || null;
 
   return {
     start: patrolName || t('patrolStart'),

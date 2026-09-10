@@ -915,25 +915,34 @@ describe('Patrols utils', () => {
     test('uses the patrol title when present', () => {
       const patrol = { title: 'Border Sweep', patrol_segments: [{ patrol_type: routinePatrol.value }] };
 
-      const labels = getPatrolPointLabels(patrol, patrolTypes);
+      const labels = getPatrolPointLabels(patrol, { name: 'Tiffany Wong' }, patrolTypes);
 
       expect(labels.start).toBe('Border Sweep');
       expect(labels.end).toBe('Border Sweep');
     });
 
-    test('falls back to the patrol type display name when there is no title', () => {
+    test('falls back to the leader name when there is no title (matching the track legend)', () => {
       const patrol = { title: '', patrol_segments: [{ patrol_type: routinePatrol.value }] };
 
-      const labels = getPatrolPointLabels(patrol, patrolTypes);
+      const labels = getPatrolPointLabels(patrol, { name: 'Tiffany Wong' }, patrolTypes);
+
+      expect(labels.start).toBe('Tiffany Wong');
+      expect(labels.end).toBe('Tiffany Wong');
+    });
+
+    test('falls back to the patrol type display name when there is no title or leader name', () => {
+      const patrol = { title: '', patrol_segments: [{ patrol_type: routinePatrol.value }] };
+
+      const labels = getPatrolPointLabels(patrol, null, patrolTypes);
 
       expect(labels.start).toBe(routinePatrol.display);
       expect(labels.end).toBe(routinePatrol.display);
     });
 
-    test('falls back to generic labels when there is no title or matching patrol type', () => {
+    test('falls back to generic labels when there is no title, leader, or matching patrol type', () => {
       const patrol = { title: '', patrol_segments: [{ patrol_type: 'unknown_type' }] };
 
-      const labels = getPatrolPointLabels(patrol, patrolTypes);
+      const labels = getPatrolPointLabels(patrol, null, patrolTypes);
 
       expect(labels.start).toBe('Patrol Start');
       expect(labels.end).toBe('Patrol End');
