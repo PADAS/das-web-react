@@ -29,18 +29,12 @@ const groupColumnChildren = (columnChildIds, formElements) => {
 };
 
 const Section = ({ className = '', coordinatesRepresentation, formData, formElements, section }) => {
-  const renderFieldValue = (field) => {
-    const humanizedFieldValue = getHumanizedFieldValue(
-      field,
-      formData[field.details.value],
-      EMPTY_VALUE,
-      coordinatesRepresentation
-    );
-
-    // An empty multiple choice list humanizes to an empty string, which would
-    // read as a field with no answer rather than one left blank.
-    return humanizedFieldValue === '' ? EMPTY_VALUE : humanizedFieldValue;
-  };
+  const renderFieldValue = (field) => getHumanizedFieldValue(
+    field,
+    formData[field.details.value],
+    EMPTY_VALUE,
+    coordinatesRepresentation
+  );
 
   const renderColumn = (columnChildIds) => groupColumnChildren(columnChildIds, formElements).map((group) => {
     if (group.headerId) {

@@ -16,7 +16,7 @@ import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 import LoadingOverlay from '../LoadingOverlay';
 import PatrolListItem from '../PatrolListItem';
 
-import { PATROLS_API_URL, updatePatrolStore } from '../ducks/patrols';
+import { PATROL_REQUEST_PARAMS, PATROLS_API_URL, updatePatrolStore } from '../ducks/patrols';
 
 import { SocketContext } from '../withSocketConnection';
 
@@ -101,7 +101,7 @@ const AddToPatrolModal = (props) => {
     ), [patrolStore, patrols.results]);
 
   const fetchFeedPatrols = useCallback(() => {
-    const params = calcPatrolFilterForRequest({ params: { page_size: 75 } });
+    const params = calcPatrolFilterForRequest({ params: { ...PATROL_REQUEST_PARAMS, page_size: 75 } });
     return get(`${PATROLS_API_URL}?${params}`)
       .then(({ data: { data: patrols } }) => {
         dispatch(fetchFeedSuccess(patrols));

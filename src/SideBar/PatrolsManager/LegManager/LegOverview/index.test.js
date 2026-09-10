@@ -19,6 +19,7 @@ import patrolTypes from '../../../../__test-helpers/fixtures/patrol-types';
 import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../../../constants';
 import { render, screen, waitFor } from '../../../../test-utils';
 import { TRACK_LENGTH_ORIGINS } from '../../../../ducks/tracks';
+import useNavigate from '../../../../hooks/useNavigate';
 
 import LegOverview from './';
 
@@ -58,6 +59,14 @@ jest.mock('../../../../utils/events', () => ({
 }));
 
 const LocationDisplay = () => <div data-testid="test-location">{useLocation().pathname}</div>;
+
+// Navigates the same way the footer buttons do: through a pending navigation
+// held by the navigation context until the blocker lets it through.
+const NavigateAwayButton = ({ to }) => {
+  const navigate = useNavigate();
+
+  return <button onClick={() => navigate(to)} type="button">Leave the leg</button>;
+};
 
 const ADD_EVENT_BUTTON_LABEL = 'Report an event on this patrol leg';
 
@@ -246,6 +255,124 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Leg 1' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
     expect(screen.queryByRole('textbox')).toBeNull();
+  });
+
+  test('keeps the staged note and stays on the leg when the save fails', async () => {
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    updatePatrol.mockImplementation(() => () => Promise.reject(new Error('Save error')));
+
+    renderLegOverview({ legId: activePatrolSegment.id });
+
+    await userEvent.click(screen.getByTestId('addNoteButton'));
+    await userEvent.type(screen.getByRole('textbox'), 'A new note');
+    await userEvent.click(screen.getByRole('button', { name: 'Done' }));
+
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Save' })).not.toBeDisabled());
+    expect(screen.getByTestId('activitySection-noteTextArea-A new note')).toBeInTheDocument();
+  });
+
+  test('keeps the staged note and stays on the leg when the save on the way out fails', async () => {
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    updatePatrol.mockImplementation(() => () => Promise.reject(new Error('Save error')));
+
+    render(
+      <Provider store={mockStore(store)}>
+        <MapContext.Provider value={map}>
+          <NavigateAwayButton to={`/patrols/${patrol.id}`} />
+
+          <Routes>
+            <Route element={<LegOverview patrol={patrol} />} path="/patrols/:patrolId/legs/:legId" />
+
+            <Route element={<LocationDisplay />} path="/patrols/:patrolId" />
+          </Routes>
+        </MapContext.Provider>
+      </Provider>,
+      { initialEntries: [`/patrols/${patrol.id}/legs/${activePatrolSegment.id}`] }
+    );
+
+    await userEvent.click(screen.getByTestId('addNoteButton'));
+    await userEvent.type(screen.getByRole('textbox'), 'A new note');
+    await userEvent.click(screen.getByRole('button', { name: 'Done' }));
+
+    await userEvent.click(screen.getByRole('button', { name: 'Leave the leg' }));
+    await userEvent.click(await screen.findByTestId('navigation-prompt-positive-continue-btn'));
+
+    await waitFor(() => expect(updatePatrol).toHaveBeenCalled());
+
+    expect(screen.queryByTestId('test-location')).not.toBeInTheDocument();
+    expect(screen.getByTestId('activitySection-noteTextArea-A new note')).toBeInTheDocument();
+  });
+
+  test('keeps a leg that goes away from under a staged note on screen', async () => {
+    const { rerender } = render(
+      <Provider store={mockStore(store)}>
+        <MapContext.Provider value={map}>
+          <Routes>
+            <Route element={<LegOverview patrol={patrol} />} path="/patrols/:patrolId/legs/:legId" />
+
+            <Route element={<LocationDisplay />} path="/patrols/:patrolId" />
+          </Routes>
+        </MapContext.Provider>
+      </Provider>,
+      { initialEntries: [`/patrols/${patrol.id}/legs/${activePatrolSegment.id}`] }
+    );
+
+    await userEvent.click(screen.getByTestId('addNoteButton'));
+    await userEvent.type(screen.getByRole('textbox'), 'A new note');
+
+    rerender(
+      <Provider store={mockStore(store)}>
+        <MapContext.Provider value={map}>
+          <Routes>
+            <Route
+              element={<LegOverview patrol={{ ...patrol, patrol_segments: [endedPatrolSegment] }} />}
+              path="/patrols/:patrolId/legs/:legId"
+            />
+
+            <Route element={<LocationDisplay />} path="/patrols/:patrolId" />
+          </Routes>
+        </MapContext.Provider>
+      </Provider>
+    );
+
+    expect(screen.queryByTestId('test-location')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'Leg 2' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox')).toHaveValue('A new note');
+  });
+
+  test('shows a pause as the leg it is, standing still for the whole of its duration', () => {
+    const pause = {
+      ...activePatrolSegment,
+      id: 'pause-1',
+      is_pause: true,
+      time_range: { end_time: '2026-04-13T03:00:00.000-07:00', start_time: '2026-04-13T02:00:00.000-07:00' },
+    };
+
+    renderLegOverview({
+      legId: pause.id,
+      patrol: { ...patrol, patrol_segments: [endedPatrolSegment, pause] },
+    });
+
+    expect(screen.getByRole('heading', { level: 2, name: 'Leg 2' })).toBeInTheDocument();
+    expect(screen.getByText('Duration').nextElementSibling).toHaveTextContent('1h');
+    expect(screen.getByText('Paused Time').nextElementSibling).toHaveTextContent('1h');
+    expect(screen.getByText('Active Time').nextElementSibling).toHaveTextContent('0m');
+    expect(screen.getByText('Team Lead')).toBeInTheDocument();
+  });
+
+  test('lets a pause the patrol is sitting on take notes, attachments and events', () => {
+    const pause = { ...activePatrolSegment, id: 'pause-1', is_pause: true };
+
+    renderLegOverview({
+      legId: pause.id,
+      patrol: { ...patrol, patrol_segments: [endedPatrolSegment, pause] },
+    });
+
+    expect(screen.getByTestId('addNoteButton')).not.toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Add an attachment' })).not.toBeDisabled();
+    expect(screen.getByRole('button', { name: ADD_EVENT_BUTTON_LABEL })).not.toBeDisabled();
   });
 
   test('links a new event to the leg it was reported on', async () => {

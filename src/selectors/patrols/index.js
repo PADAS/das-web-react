@@ -163,11 +163,39 @@ export const selectPatrolTrackData = createSelector(
     buildPatrolData(patrol, timeSliderState, trackTimeEnvelope.until, patrolSegmentLeaderTracks)
 );
 
+// The subjects a patrol's legs name that its rosters no longer offer, looked
+// up in the subject store once. Held apart from the store itself so that the
+// selectors below are not invalidated by every position a socket brings in.
+export const selectPatrolRosterFallbackSubjects = createSelector(
+  [selectPatrolTeamAndTrackingOptions, selectSubjectStore, (_, patrol) => patrol],
+  (patrolTeamAndTrackingOptions, subjectStore, patrol) => {
+    const offeredRosterIds = new Set([
+      ...(patrolTeamAndTrackingOptions?.assets ?? []),
+      ...(patrolTeamAndTrackingOptions?.members ?? []),
+    ].map(({ id }) => id));
+
+    return (patrol.patrol_segments ?? []).reduce((fallbackSubjects, patrolSegment) => {
+      [...(patrolSegment.assets ?? []), ...(patrolSegment.members ?? [])].forEach((rosterId) => {
+        if (!offeredRosterIds.has(rosterId) && subjectStore?.[rosterId]) {
+          fallbackSubjects[rosterId] = subjectStore[rosterId];
+        }
+      });
+
+      return fallbackSubjects;
+    }, {});
+  },
+  { memoizeOptions: { resultEqualityCheck: shallowEqual } }
+);
+
 const selectPatrolTrackedSubjectTracks = createSelector(
-  [selectPatrolTeamAndTrackingOptions, selectTracks, (_, patrol) => patrol],
-  (patrolTeamAndTrackingOptions, tracks, patrol) => patrol.patrol_segments
+  [selectPatrolTeamAndTrackingOptions, selectPatrolRosterFallbackSubjects, selectTracks, (_, patrol) => patrol],
+  (patrolTeamAndTrackingOptions, rosterFallbackSubjects, tracks, patrol) => patrol.patrol_segments
     .reduce((patrolTrackedSubjectTracks, segment) => {
-      getTrackedSubjectsForPatrolSegment(segment, patrolTeamAndTrackingOptions).forEach((subject) => {
+      getTrackedSubjectsForPatrolSegment(
+        segment,
+        patrolTeamAndTrackingOptions,
+        rosterFallbackSubjects
+      ).forEach((subject) => {
         if (tracks[subject.id]) {
           patrolTrackedSubjectTracks[subject.id] = tracks[subject.id];
         }
@@ -212,10 +240,19 @@ const distanceCoveredInTimeRange = ({ since, until }, subjectTrack) => {
 // Where each subject a patrol tracks was last seen, so a jump to its location
 // has somewhere to go before that subject's own track has been fetched.
 const selectPatrolTrackedSubjectPositions = createSelector(
-  [selectPatrolTeamAndTrackingOptions, selectSubjectStore, (_, patrol) => patrol],
-  (patrolTeamAndTrackingOptions, subjectStore, patrol) => patrol.patrol_segments
+  [
+    selectPatrolTeamAndTrackingOptions,
+    selectPatrolRosterFallbackSubjects,
+    selectSubjectStore,
+    (_, patrol) => patrol,
+  ],
+  (patrolTeamAndTrackingOptions, rosterFallbackSubjects, subjectStore, patrol) => patrol.patrol_segments
     .reduce((trackedSubjectPositions, segment) => {
-      getTrackedSubjectsForPatrolSegment(segment, patrolTeamAndTrackingOptions).forEach((subject) => {
+      getTrackedSubjectsForPatrolSegment(
+        segment,
+        patrolTeamAndTrackingOptions,
+        rosterFallbackSubjects
+      ).forEach((subject) => {
         const coordinates = getSubjectLastPositionCoordinates(subjectStore[subject.id] ?? subject);
 
         if (coordinates) {
@@ -234,12 +271,17 @@ const buildTrackedSubjects = (
   trackedSubjectTracks,
   trackedSubjectPositions,
   teamAndTrackingOptions,
+  rosterFallbackSubjects,
   segments,
   teamLeadId
 ) => {
   const trackedSubjectsMap = new Map();
   segments.forEach((segment) => {
-    getTrackedSubjectsForPatrolSegment(segment, teamAndTrackingOptions).forEach((subject) => {
+    getTrackedSubjectsForPatrolSegment(
+      segment,
+      teamAndTrackingOptions,
+      rosterFallbackSubjects
+    ).forEach((subject) => {
       const trackedSubject = trackedSubjectsMap.get(subject.id) ?? { segments: [], subject };
 
       trackedSubject.segments.push(segment);
@@ -276,17 +318,20 @@ export const selectPatrolTrackedSubjects = createSelector(
     selectPatrolTrackedSubjectTracks,
     selectPatrolTrackedSubjectPositions,
     selectPatrolTeamAndTrackingOptions,
+    selectPatrolRosterFallbackSubjects,
     (_, patrol) => patrol,
   ],
   (
     patrolTrackedSubjectTracks,
     patrolTrackedSubjectPositions,
     patrolTeamAndTrackingOptions,
+    rosterFallbackSubjects,
     patrol
   ) => buildTrackedSubjects(
     patrolTrackedSubjectTracks,
     patrolTrackedSubjectPositions,
     patrolTeamAndTrackingOptions,
+    rosterFallbackSubjects,
     patrol.patrol_segments,
     patrol.patrol_segments.at(-1)?.leader?.id ?? null
   )
@@ -299,18 +344,21 @@ export const selectTrackedSubjectsPerPatrolSegment = createSelector(
     selectPatrolTrackedSubjectTracks,
     selectPatrolTrackedSubjectPositions,
     selectPatrolTeamAndTrackingOptions,
+    selectPatrolRosterFallbackSubjects,
     (_, patrol) => patrol,
   ],
   (
     patrolTrackedSubjectTracks,
     patrolTrackedSubjectPositions,
     patrolTeamAndTrackingOptions,
+    rosterFallbackSubjects,
     patrol
   ) => patrol
     .patrol_segments.map((patrolSegment) => buildTrackedSubjects(
       patrolTrackedSubjectTracks,
       patrolTrackedSubjectPositions,
       patrolTeamAndTrackingOptions,
+      rosterFallbackSubjects,
       [patrolSegment],
       patrolSegment.leader?.id ?? null
     ))
@@ -322,17 +370,20 @@ export const selectPatrolSegmentTrackedSubjects = createSelector(
     selectPatrolTrackedSubjectTracks,
     selectPatrolTrackedSubjectPositions,
     selectPatrolTeamAndTrackingOptions,
+    selectPatrolRosterFallbackSubjects,
     (_, __, patrolSegment) => patrolSegment,
   ],
   (
     patrolTrackedSubjectTracks,
     patrolTrackedSubjectPositions,
     patrolTeamAndTrackingOptions,
+    rosterFallbackSubjects,
     patrolSegment
   ) => buildTrackedSubjects(
     patrolTrackedSubjectTracks,
     patrolTrackedSubjectPositions,
     patrolTeamAndTrackingOptions,
+    rosterFallbackSubjects,
     [patrolSegment],
     patrolSegment.leader?.id ?? null
   )

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { Route, Routes, useLocation } from 'react-router';
+import { Link, Route, Routes, useLocation } from 'react-router';
 
 import { fetchPatrol, fetchPatrolTeamAndTrackingOptions } from '../../../ducks/patrols';
 import { fetchPatrolTypes } from '../../../ducks/patrol-types';
@@ -8,6 +8,7 @@ import { mockStore } from '../../../__test-helpers/MockStore';
 import patrols from '../../../__test-helpers/fixtures/patrols';
 import patrolTypes from '../../../__test-helpers/fixtures/patrol-types';
 import { render, screen, waitFor } from '../../../test-utils';
+import userEvent from '@testing-library/user-event';
 
 import LegManager from './';
 
@@ -114,6 +115,43 @@ describe('SideBar - PatrolsManager - LegManager', () => {
     renderLegManager();
 
     expect(screen.getByRole('status')).toHaveTextContent('Loading patrol data');
+  });
+
+  test('shows the leg even when the rosters could not be fetched, so one failure does not blank it', async () => {
+    store.data.patrolTeamAndTrackingOptions.hasFetched = false;
+
+    renderLegManager();
+
+    expect(await screen.findByText('New Leg')).toBeVisible();
+  });
+
+  test('waits for the new patrol instead of sending the user to the feed when the url moves to another one', async () => {
+    const otherPatrolId = 'a-patrol-that-is-not-in-the-store';
+    fetchPatrol.mockImplementation((patrolId) => () => patrolId === otherPatrolId
+      ? new Promise(() => {})
+      : Promise.resolve());
+
+    render(
+      <Provider store={mockStore(store)}>
+        <Link to={`/patrols/${otherPatrolId}/legs/new`}>Go to the other patrol</Link>
+
+        <Routes>
+          <Route element={<LegManager />} path="/patrols/:patrolId/legs/*" />
+
+          <Route element={null} path="/patrols/*" />
+        </Routes>
+
+        <LocationDisplay />
+      </Provider>,
+      { initialEntries: [`/patrols/${patrol.id}/legs/new`] }
+    );
+
+    expect(await screen.findByText('New Leg')).toBeVisible();
+
+    await userEvent.click(screen.getByRole('link', { name: 'Go to the other patrol' }));
+
+    expect(screen.getByRole('status')).toHaveTextContent('Loading patrol data');
+    expect(screen.getByTestId('test-location')).toHaveTextContent(`/patrols/${otherPatrolId}/legs/new`);
   });
 
   test('fetches the patrol types when the store holds none', async () => {

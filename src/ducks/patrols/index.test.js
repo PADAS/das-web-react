@@ -8,6 +8,7 @@ import {
   ADD_PATROL_TO_FEED,
   CREATE_PATROL_REALTIME,
   CREATE_PATROL_SUCCESS,
+  createPatrol,
   DELETE_PATROL_BY_ID,
   FETCH_PATROL_TEAM_AND_TRACKING_OPTIONS_SUCCESS,
   FETCH_PATROLS_FEED_SUCCESS,
@@ -190,6 +191,23 @@ describe('Ducks - Patrols', () => {
     });
   });
 
+  describe('createPatrol', () => {
+    test('asks for the pauses, so the created patrol answers with the legs it has', async () => {
+      let requestedUrl = null;
+      server.use(http.post(PATROLS_API_URL, ({ request }) => {
+        requestedUrl = new URL(request.url);
+
+        return HttpResponse.json({ data: patrolA });
+      }));
+
+      const store = mockStore({ data: {}, view: {} });
+      await store.dispatch(createPatrol({ title: 'A new patrol' }));
+
+      expect(requestedUrl.searchParams.get('include_pauses')).toBe('true');
+      expect(store.getActions()).toEqual([{ payload: patrolA, type: CREATE_PATROL_SUCCESS }]);
+    });
+  });
+
   describe('fetchPatrolTeamAndTrackingOptions', () => {
     const assets = [{ id: 'asset-1', name: 'Land Cruiser' }];
     const leaders = [{ id: PATROL_A_ID, name: 'Alex' }, { id: PATROL_B_ID, name: 'Priya' }];
@@ -244,14 +262,14 @@ describe('Ducks - Patrols', () => {
       expect(options).toEqual({ assets: [], hasFetched: true, leaders, members: [], teams: [] });
     });
 
-    test('keeps the leaders when the config request fails', async () => {
+    test('keeps the leaders and leaves the rosters unfetched when the config request fails', async () => {
       jest.spyOn(console, 'warn').mockImplementation(() => {});
       server.use(http.get(PATROL_CONFIG_API_URL, () => new HttpResponse(null, { status: 404 })));
 
       const store = mockStore({ data: {}, view: {} });
       const options = await store.dispatch(fetchPatrolTeamAndTrackingOptions());
 
-      expect(options).toEqual({ assets: [], hasFetched: true, leaders, members: [], teams: [] });
+      expect(options).toEqual({ assets: [], hasFetched: false, leaders, members: [], teams: [] });
       expect(store.getActions())
         .toEqual([{ payload: options, type: FETCH_PATROL_TEAM_AND_TRACKING_OPTIONS_SUCCESS }]);
     });
@@ -314,6 +332,18 @@ describe('Ducks - Patrols', () => {
 
       expect(state[PATROL_A_ID]).toEqual({ ...patrolA, state: 'done' });
       expect(state[PATROL_B_ID]).toBe(patrolB);
+    });
+
+    test('keeps the pause legs a realtime update carries, so a paused patrol stays paused', () => {
+      const runningLeg = { id: 'leg-1', is_pause: false, time_range: { start_time: '2026-04-13T06:00:00.000Z' } };
+      const pauseLeg = { id: 'pause-1', is_pause: true, time_range: { start_time: '2026-04-13T10:00:00.000Z' } };
+
+      const state = patrolStoreReducer({ [PATROL_A_ID]: makePatrol(PATROL_A_ID) }, {
+        payload: makePatrol(PATROL_A_ID, { patrol_segments: [runningLeg, pauseLeg] }),
+        type: UPDATE_PATROL_REALTIME,
+      });
+
+      expect(state[PATROL_A_ID].patrol_segments).toEqual([runningLeg, pauseLeg]);
     });
 
     test('merges each patrol of a fetched feed page in, leaving the patrols it left out alone', () => {

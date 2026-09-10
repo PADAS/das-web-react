@@ -266,7 +266,7 @@ export const filterActivityItemsForPatrolSegment = (activityItems, patrolSegment
     // A leg claims what was written while it ran, so an edit made later does
     // not move a note onto the leg the user happened to be editing from.
     const itemTime = new Date(
-      activityItem.created_at || activityItem.updates?.[0]?.time || activityItem.updated_at
+      activityItem.created_at || activityItem.updates?.at(-1)?.time || activityItem.updated_at
     ).getTime();
 
     // Consecutive legs share an instant, so the range is half-open.
@@ -327,25 +327,27 @@ export const actualEndTimeForPatrol = (patrol) => {
 
 const EMPTY_TEAM_AND_TRACKING_OPTIONS = { assets: [], members: [], teams: [] };
 
-// A leg stores its team and rosters as ids. One no longer on the tenant's
-// configured list resolves to nothing and is left out.
-const resolveRoster = (rosterIds, rosterOptions) => uniq(rosterIds ?? [])
-  .map((rosterId) => rosterOptions.find(({ id }) => id === rosterId))
+// A leg stores its team and rosters as ids. The configured lists only offer
+// what a site can pick today, so a subject deactivated since the leg ran falls
+// back to the subject store rather than dropping out of what it did.
+const resolveRoster = (rosterIds, rosterOptions, subjectStore) => uniq(rosterIds ?? [])
+  .map((rosterId) => rosterOptions.find(({ id }) => id === rosterId) ?? subjectStore[rosterId])
   .filter(Boolean);
 
 export const getTeamAndTrackingForPatrolSegment = (
   patrolSegment,
-  teamAndTrackingOptions = EMPTY_TEAM_AND_TRACKING_OPTIONS
+  teamAndTrackingOptions = EMPTY_TEAM_AND_TRACKING_OPTIONS,
+  subjectStore = {}
 ) => ({
-  assets: resolveRoster(patrolSegment?.assets, teamAndTrackingOptions.assets),
-  members: resolveRoster(patrolSegment?.members, teamAndTrackingOptions.members),
+  assets: resolveRoster(patrolSegment?.assets, teamAndTrackingOptions.assets, subjectStore),
+  members: resolveRoster(patrolSegment?.members, teamAndTrackingOptions.members, subjectStore),
   team: teamAndTrackingOptions.teams.find(({ id }) => id === patrolSegment?.team) ?? null,
 });
 
 // Every subject a leg tracks, each of them once and its lead first: the lead,
 // the team members and the assets.
-export const getTrackedSubjectsForPatrolSegment = (patrolSegment, teamAndTrackingOptions) => {
-  const teamAndTracking = getTeamAndTrackingForPatrolSegment(patrolSegment, teamAndTrackingOptions);
+export const getTrackedSubjectsForPatrolSegment = (patrolSegment, teamAndTrackingOptions, subjectStore) => {
+  const teamAndTracking = getTeamAndTrackingForPatrolSegment(patrolSegment, teamAndTrackingOptions, subjectStore);
 
   return uniqBy(
     [
@@ -393,16 +395,38 @@ export const effectiveEndTimeForPatrol = (patrol) => {
   return getLastStateChangeTimeForPatrol(patrol) ?? actualStartTimeForPatrol(patrol);
 };
 
+// The start of the first leg to have taken over from this one: a leg with no
+// end of its own ran only up to there, whatever its own end time never said.
+const takeoverTimeAfterPatrolSegment = (patrol, patrolSegment) => {
+  const patrolSegments = patrol.patrol_segments ?? [];
+  const segmentIndex = patrolSegments.indexOf(patrolSegment);
+
+  if (segmentIndex === -1) {
+    return null;
+  }
+
+  return patrolSegments
+    .slice(segmentIndex + 1)
+    .map(actualStartTimeForPatrolSegment)
+    .find((startTime) => !!startTime && startTime.getTime() <= Date.now())
+    ?? null;
+};
+
 // A leg the patrol was cancelled or marked done on carries no end of its own,
-// so the moment the patrol was closed stands in for it.
+// so the moment the patrol was closed stands in for it — and so does the start
+// of the leg that took over from one the patrol left open.
 export const effectiveEndTimeForPatrolSegment = (patrol, patrolSegment) => {
   const segmentEndTime = actualEndTimeForPatrolSegment(patrolSegment);
 
-  if (segmentEndTime || !(isPatrolCancelled(patrol) || isPatrolDone(patrol))) {
+  if (segmentEndTime) {
     return segmentEndTime;
   }
 
-  return getLastStateChangeTimeForPatrol(patrol) ?? actualStartTimeForPatrolSegment(patrolSegment);
+  if (isPatrolCancelled(patrol) || isPatrolDone(patrol)) {
+    return getLastStateChangeTimeForPatrol(patrol) ?? actualStartTimeForPatrolSegment(patrolSegment);
+  }
+
+  return takeoverTimeAfterPatrolSegment(patrol, patrolSegment);
 };
 
 const endTimeForPatrolOrFallback = (patrol, fallbackEndTime) =>
@@ -423,7 +447,10 @@ export const getPausedTimeForPatrol = (patrol, fallbackEndTime = Date.now()) => 
 
   return patrol.patrol_segments.reduce(
     (totalPausedTime, patrolSegment) => isPatrolSegmentAPause(patrolSegment)
-      ? totalPausedTime + getElapsedTimeForPatrolSegment(patrolSegment, endTime)
+      ? totalPausedTime + getElapsedTimeForPatrolSegment(
+        patrolSegment,
+        effectiveEndTimeForPatrolSegment(patrol, patrolSegment)?.getTime() ?? endTime
+      )
       : totalPausedTime,
     0
   );
@@ -610,9 +637,11 @@ export const governingPatrolSegment = (patrol) => {
 };
 
 // A pause is a leg like any other, so a patrol is paused while the leg it is
-// running is one.
-export const isPatrolPaused = (patrol) =>
-  isPatrolSegmentAPause((patrol?.patrol_segments ?? []).findLast(isSegmentActive));
+// running is one. A patrol that was called off or closed runs no leg at all,
+// whatever end its legs were left without.
+export const isPatrolPaused = (patrol) => isPatrolSegmentAPause(
+  (patrol?.patrol_segments ?? []).findLast((patrolSegment) => isSegmentActiveForPatrol(patrol, patrolSegment))
+);
 
 export const patrolStateDetailsOverdueStartTime = (patrol) => {
   const startTime = displayStartTimeForPatrol(patrol);

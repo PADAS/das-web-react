@@ -24,7 +24,7 @@ const Footer = ({
   canEditLeg,
   disableAddNoteButton,
   disableSaveButton,
-  isLegActive,
+  isLegUnderWay,
   isSaving,
   legId,
   onAddAttachments,
@@ -36,17 +36,17 @@ const Footer = ({
 
   const { hasPatrolsUpdatePermission } = usePatrolsPermissions();
 
-  // Notes and files land on the leg whose time range covers them, so a leg that
-  // is not running has no room left for any.
+  // Notes and files land on the leg whose time range covers them, so a leg the
+  // patrol is no longer on — a pause included — has no room left for any.
   return <footer className={`${styles.footer} ${styles.hideOnPrint}`}>
     <div className={styles.leftActions}>
       {!!hasPatrolsUpdatePermission && <AddNoteButton
-        disabled={!isLegActive || disableAddNoteButton}
+        disabled={!isLegUnderWay || disableAddNoteButton}
         onAddNote={onAddNote}
       />}
 
       {!!hasPatrolsUpdatePermission && <AddAttachmentButton
-        disabled={!isLegActive}
+        disabled={!isLegUnderWay}
         onAddAttachments={onAddAttachments}
       />}
 
@@ -55,7 +55,7 @@ const Footer = ({
         aria-label={t('addEventButtonLabel')}
         className={styles.footerActionButton}
         data-testid="legOverviewFooter-addEventButton"
-        disabled={!isLegActive}
+        disabled={!isLegUnderWay}
         formProps={addEventFormProps}
         hideAddPatrolTab
         iconComponent={<DocumentIcon aria-hidden="true" />}

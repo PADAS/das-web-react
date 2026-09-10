@@ -28,10 +28,10 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview - Plan - StaticFie
     };
   });
 
-  const renderStaticFields = (patrolSegment = leg) => render(
+  const renderStaticFields = (patrolSegment = leg, patrolOverride = patrol) => render(
     <Provider store={mockStore(store)}>
       <MapContext.Provider value={map}>
-        <StaticFields patrol={patrol} patrolSegment={patrolSegment} />
+        <StaticFields patrol={patrolOverride} patrolSegment={patrolSegment} />
       </MapContext.Provider>
     </Provider>
   );
@@ -150,6 +150,21 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview - Plan - StaticFie
     renderStaticFields();
 
     expect(readFields()['Team Members']).toBe('Ranger AmaraLeadRanger Nadia');
+  });
+
+  test('still lists a team member the rosters no longer offer, so a past leg keeps who ran it', () => {
+    const deactivatedMember = { id: 'a-deactivated-ranger', name: 'Ranger Kofi' };
+
+    store.data.subjectStore = { [deactivatedMember.id]: deactivatedMember };
+
+    const legWithDeactivatedMember = { ...leg, members: [...leg.members, deactivatedMember.id] };
+
+    renderStaticFields(
+      legWithDeactivatedMember,
+      { ...patrol, patrol_segments: [legWithDeactivatedMember, patrol.patrol_segments[1]] }
+    );
+
+    expect(readFields()['Team Members']).toBe('Ranger AmaraLeadRanger NadiaRanger Kofi');
   });
 
   test('marks the team lead among the team members', () => {

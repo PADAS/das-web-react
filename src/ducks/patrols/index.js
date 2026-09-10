@@ -74,7 +74,7 @@ export const updatePatrolTrackState = (payload) => ({
 
 // The server leaves pause legs out of a patrol unless they are asked for, so
 // every request that answers with one has to ask.
-const PATROL_REQUEST_PARAMS = { include_pauses: true };
+export const PATROL_REQUEST_PARAMS = { include_pauses: true };
 
 export const fetchPatrol = (id) => (dispatch) => axios.get(`${PATROLS_API_URL}${id}`, { params: PATROL_REQUEST_PARAMS })
   .then((response) => {
@@ -140,8 +140,9 @@ export const fetchPatrolTeamAndTrackingOptions = () => async (dispatch) => {
   const options = {
     assets: config?.assets ?? [],
     // A tenant may configure no roster at all, so an empty list is an answer
-    // and only this says whether one has been given.
-    hasFetched: true,
+    // and only this says whether one has been given. A rejected config leaves
+    // it unset, so the next consumer asks again instead of reading blanks.
+    hasFetched: configResult.status === 'fulfilled',
     // The leaders endpoint answers with a fragment of the patrol schema
     // instead of a plain list.
     leaders: leadersSchema?.properties?.leader?.enum_ext?.map(({ value }) => value) ?? [],

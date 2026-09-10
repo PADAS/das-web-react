@@ -131,6 +131,51 @@ describe('SideBar - PatrolsManager - PatrolOverview - utils - buildPatrolStatusU
     ]);
   });
 
+  test('resumes a patrol cancelled while paused, rather than starting it over from its first leg', () => {
+    const pauseLeg = {
+      id: 'leg-2',
+      is_pause: true,
+      patrol_type: 'routine_patrol',
+      time_range: { end_time: null, start_time: '2026-04-13T10:00:00.000Z' },
+    };
+    const cancelledWhilePaused = { state: 'cancelled', patrol_segments: [firstLeg, pauseLeg] };
+
+    const update = buildPatrolStatusUpdate(cancelledWhilePaused, PATROL_UI_STATES.ACTIVE);
+
+    expect(update.state).toBe('open');
+    expect(update.patrol_segments).toHaveLength(2);
+    expect(update.patrol_segments[0]).toEqual({
+      id: 'leg-2',
+      time_range: { end_time: NOW, start_time: '2026-04-13T10:00:00.000Z' },
+    });
+    expect(update.patrol_segments.at(-1)).toMatchObject({
+      is_pause: false,
+      time_range: { end_time: null, start_time: NOW },
+    });
+  });
+
+  test('resumes a patrol ended while paused, rather than starting it over from its first leg', () => {
+    const pauseLeg = {
+      id: 'leg-2',
+      is_pause: true,
+      patrol_type: 'routine_patrol',
+      time_range: { end_time: '2026-04-13T11:00:00.000Z', start_time: '2026-04-13T10:00:00.000Z' },
+    };
+    const endedWhilePaused = { state: 'done', patrol_segments: [firstLeg, pauseLeg] };
+
+    const update = buildPatrolStatusUpdate(endedWhilePaused, PATROL_UI_STATES.ACTIVE);
+
+    expect(update.state).toBe('open');
+    expect(update.patrol_segments[0]).toEqual({
+      id: 'leg-2',
+      time_range: { end_time: NOW, start_time: '2026-04-13T10:00:00.000Z' },
+    });
+    expect(update.patrol_segments.at(-1)).toMatchObject({
+      is_pause: false,
+      time_range: { end_time: null, start_time: NOW },
+    });
+  });
+
   test('resumes a paused patrol by closing the pause and opening a leg in its place', () => {
     const pausedPatrol = {
       state: 'open',

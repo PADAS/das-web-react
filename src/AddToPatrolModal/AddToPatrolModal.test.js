@@ -85,6 +85,21 @@ describe('the "add to patrol" modal within a report form', () => {
 
   });
 
+  test('asking for the pauses, so it does not write pause-less patrols into the shared store', async () => {
+    let requestedUrl = null;
+    server.use(http.get(PATROLS_API_URL, ({ request }) => {
+      requestedUrl = new URL(request.url);
+
+      return HttpResponse.json({ data: mockPatrolApiResponse });
+    }));
+
+    renderAddToPatrolModal();
+
+    await waitFor(() => {
+      expect(requestedUrl?.searchParams.get('include_pauses')).toBe('true');
+    });
+  });
+
   test('listing the patrols if any are present', async () => {
     const store = mockStore(
       merge({}, defaultStoreValue, {
@@ -109,7 +124,7 @@ describe('the "add to patrol" modal within a report form', () => {
     await screen.findByTestId('patrol-feed-loading-overlay');
   });
 
-  test('listing the patrols if any are present', async () => {
+  test('listing one item per patrol', async () => {
     const store = mockStore(
       merge({}, defaultStoreValue, {
         data: {

@@ -9,6 +9,7 @@ import {
   actualEndTimeForPatrolSegment,
   actualStartTimeForPatrol,
   actualStartTimeForPatrolSegment,
+  effectiveEndTimeForPatrolSegment,
   getElapsedTimeForPatrolSegment,
   getReportsForPatrol,
   hasPatrolSegmentNotRun,
@@ -78,7 +79,10 @@ const Overview = ({
     // A pause interrupts the patrol rather than carrying it on, so its moments
     // are the patrol stopping and, where a leg follows, picking back up.
     if (isPatrolSegmentAPause(leg)) {
-      const pausedFor = humanizeDuration(getElapsedTimeForPatrolSegment(leg, endTime?.getTime() ?? currentTime));
+      // A pause the patrol was called off or closed on has an end of its own,
+      // so only one the patrol is still sitting on counts up to now.
+      const pausedUntil = effectiveEndTimeForPatrolSegment(patrol, leg)?.getTime() ?? currentTime;
+      const pausedFor = humanizeDuration(getElapsedTimeForPatrolSegment(leg, pausedUntil));
 
       return [
         ...(startTime ? [{

@@ -1512,6 +1512,17 @@ describe('Patrols utils', () => {
       });
     });
 
+    test('falls back to the subject store for an id the tenant\'s rosters no longer offer', () => {
+      const deactivatedMember = { id: 'a-retired-member', name: 'Ranger Kofi' };
+      const patrolSegment = { assets: [], leader: { id: 'leader-a' }, members: [deactivatedMember.id], team: null };
+
+      expect(getTeamAndTrackingForPatrolSegment(
+        patrolSegment,
+        teamAndTrackingOptions,
+        { [deactivatedMember.id]: deactivatedMember }
+      )).toEqual({ assets: [], members: [deactivatedMember], team: null });
+    });
+
     test('leaves out an id that is no longer on the tenant\'s rosters', () => {
       const patrolSegment = {
         assets: ['a-retired-asset'],
@@ -1765,12 +1776,30 @@ describe('Patrols utils', () => {
       expect(isPatrolPaused({ patrol_segments: [{ ...endedLeg, is_pause: true }] })).toBe(false);
     });
 
+    test('is not paused once the patrol has been called off on an open pause', () => {
+      expect(isPatrolPaused({
+        patrol_segments: [endedLeg, { ...runningLeg, is_pause: true }],
+        state: 'cancelled',
+      })).toBe(false);
+    });
+
+    test('is not paused once the patrol has been closed on an open pause', () => {
+      expect(isPatrolPaused({
+        patrol_segments: [endedLeg, { ...runningLeg, is_pause: true }],
+        state: 'done',
+      })).toBe(false);
+    });
+
     test('is not paused without a patrol', () => {
       expect(isPatrolPaused(undefined)).toBe(false);
     });
   });
 
   describe('getPausedTimeForPatrol', () => {
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
     test('returns zero when no leg is a pause', () => {
       const patrol = {
         patrol_segments: [
@@ -1795,6 +1824,31 @@ describe('Patrols utils', () => {
       };
 
       expect(getPausedTimeForPatrol(patrol)).toBe(45 * 60 * 1000);
+    });
+
+    test('measures a pause a later leg took over from up to that leg\'s start, not up to now', () => {
+      jest.useFakeTimers().setSystemTime(new Date('2022-06-15T15:00:00.000Z'));
+
+      const patrol = {
+        patrol_segments: [
+          { is_pause: true, time_range: { end_time: null, start_time: '2022-06-15T11:00:00.000Z' } },
+          { time_range: { end_time: null, start_time: '2022-06-15T12:00:00.000Z' } },
+        ],
+      };
+
+      expect(getPausedTimeForPatrol(patrol)).toBe(60 * 60 * 1000);
+    });
+
+    test('measures a pause the patrol was called off on up to the cancellation, not up to now', () => {
+      jest.useFakeTimers().setSystemTime(new Date('2022-06-15T15:00:00.000Z'));
+
+      const patrol = {
+        patrol_segments: [{ is_pause: true, time_range: { end_time: null, start_time: '2022-06-15T11:00:00.000Z' } }],
+        state: 'cancelled',
+        updates: [{ time: '2022-06-15T12:00:00.000Z', type: 'update_patrol_state' }],
+      };
+
+      expect(getPausedTimeForPatrol(patrol)).toBe(60 * 60 * 1000);
     });
 
     test('returns zero for a patrol without legs', () => {
@@ -1996,9 +2050,11 @@ describe('Patrols utils', () => {
       )).toEqual([item]);
     });
 
-    test('falls back to the creation date and then to the first update', () => {
+    test('falls back to the creation date and then to the oldest update', () => {
       const createdItem = { created_at: '2026-04-13T09:00:00.000Z' };
-      const updatedItem = { updates: [{ time: '2026-04-13T09:30:00.000Z' }] };
+      const updatedItem = {
+        updates: [{ time: '2027-04-13T18:00:00.000Z' }, { time: '2026-04-13T09:30:00.000Z' }],
+      };
 
       expect(filterActivityItemsForPatrolSegment([createdItem, updatedItem], leg))
         .toEqual([createdItem, updatedItem]);
@@ -2040,6 +2096,10 @@ describe('Patrols utils', () => {
   describe('effectiveEndTimeForPatrolSegment', () => {
     const openLeg = { time_range: { start_time: '2026-04-13T08:00:00.000Z' } };
 
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
     test('returns the leg own end time', () => {
       const leg = { time_range: { end_time: '2026-04-13T10:00:00.000Z', start_time: '2026-04-13T08:00:00.000Z' } };
 
@@ -2063,6 +2123,28 @@ describe('Patrols utils', () => {
     test('falls back to the leg start when the closed patrol records no state change', () => {
       expect(effectiveEndTimeForPatrolSegment({ state: 'cancelled' }, openLeg))
         .toEqual(new Date('2026-04-13T08:00:00.000Z'));
+    });
+
+    test('falls back to the start of the leg that took over from one left open', () => {
+      jest.useFakeTimers().setSystemTime(new Date('2026-04-13T12:00:00.000Z'));
+
+      const takeoverLeg = { time_range: { start_time: '2026-04-13T09:00:00.000Z' } };
+
+      expect(effectiveEndTimeForPatrolSegment(
+        { patrol_segments: [openLeg, takeoverLeg], state: 'open' },
+        openLeg
+      )).toEqual(new Date('2026-04-13T09:00:00.000Z'));
+    });
+
+    test('stays open while the only leg planned after it has not begun', () => {
+      jest.useFakeTimers().setSystemTime(new Date('2026-04-13T12:00:00.000Z'));
+
+      const plannedLeg = { time_range: { start_time: '2026-04-13T18:00:00.000Z' } };
+
+      expect(effectiveEndTimeForPatrolSegment(
+        { patrol_segments: [openLeg, plannedLeg], state: 'open' },
+        openLeg
+      )).toBeNull();
     });
   });
 
