@@ -24,6 +24,7 @@ import {
   getCancellationTimeForPatrol,
   getElapsedTimeForPatrol,
   getPatrolLocationCoordinates,
+  getPatrolPointLabels,
   getPatrolsForLeaderId,
   getPausedTimeForPatrol,
   getReportsForPatrol,
@@ -48,7 +49,10 @@ import {
   multiLegPatrol,
 } from '../__test-helpers/fixtures/patrols';
 import patrolTypes, { dogPatrol, routinePatrol } from '../__test-helpers/fixtures/patrol-types';
+import patrolStartPin from '../common/images/icons/patrol-start-pin.svg?url';
+import patrolEndPin from '../common/images/icons/patrol-end-pin.svg?url';
 import store from '../store';
+import '../i18nForTests';
 import { uploadPatrolFile } from '../ducks/patrols';
 
 jest.mock('../store', () => ({ dispatch: jest.fn(), getState: jest.fn() }));
@@ -61,6 +65,8 @@ jest.mock('../ducks/patrols', () => ({
 }));
 
 const { SCHEDULED, READY_TO_START, ACTIVE, START_OVERDUE, DONE, CANCELLED, INVALID } = PATROL_UI_STATES;
+
+const genericLabels = { start: 'Patrol Start', end: 'Patrol End', estimatedSuffix: '(Est)' };
 
 describe('Patrols utils', () => {
   beforeEach(() => {
@@ -635,7 +641,7 @@ describe('Patrols utils', () => {
         time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' },
       };
 
-      expect(extractLegPatrolPoints(segment, null, null, null, true)).toBeNull();
+      expect(extractLegPatrolPoints(segment, null, null, null, true, genericLabels)).toBeNull();
     });
 
     test('uses the segment start_location for the start marker when set', () => {
@@ -646,7 +652,7 @@ describe('Patrols utils', () => {
         time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' },
       };
 
-      const points = extractLegPatrolPoints(segment, null, null, null, true);
+      const points = extractLegPatrolPoints(segment, null, null, null, true, genericLabels);
 
       expect(points.start_location.geometry.coordinates).toEqual([2, 1]);
       expect(points.start_location.properties.title).toBe('Patrol Start');
@@ -661,7 +667,7 @@ describe('Patrols utils', () => {
         time_range: { end_time: '2022-06-15T11:00:00.000Z', start_time: '2022-06-15T10:00:00.000Z' },
       };
 
-      const points = extractLegPatrolPoints(segment, null, null, null, true);
+      const points = extractLegPatrolPoints(segment, null, null, null, true, genericLabels);
 
       expect(points.end_location).toBeNull();
     });
@@ -674,7 +680,7 @@ describe('Patrols utils', () => {
         time_range: { end_time: '2022-06-15T11:00:00.000Z', start_time: '2022-06-15T10:00:00.000Z' },
       };
 
-      const points = extractLegPatrolPoints(segment, null, null, null, false);
+      const points = extractLegPatrolPoints(segment, null, null, null, false, genericLabels);
 
       expect(points.end_location.geometry.coordinates).toEqual([4, 3]);
       expect(points.end_location.properties.title).toBe('Patrol End');
@@ -696,7 +702,7 @@ describe('Patrols utils', () => {
         },
       };
 
-      const points = extractLegPatrolPoints(segment, null, legTrackData, null, true);
+      const points = extractLegPatrolPoints(segment, null, legTrackData, null, true, genericLabels);
 
       expect(points.start_location.geometry.coordinates).toEqual([1, 1]);
       expect(points.start_location.properties.title).toBe('Patrol Start');
@@ -719,7 +725,7 @@ describe('Patrols utils', () => {
         },
       };
 
-      const points = extractLegPatrolPoints(segment, null, legTrackData, null, true);
+      const points = extractLegPatrolPoints(segment, null, legTrackData, null, true, genericLabels);
 
       expect(points.start_location.properties.title).toBe('Patrol Start (Est)');
     });
@@ -740,7 +746,7 @@ describe('Patrols utils', () => {
         },
       };
 
-      const points = extractLegPatrolPoints(segment, null, legTrackData, null, false);
+      const points = extractLegPatrolPoints(segment, null, legTrackData, null, false, genericLabels);
 
       expect(points.end_location.geometry.coordinates).toEqual([9, 9]);
       expect(points.end_location.properties.title).toBe('Patrol End');
@@ -773,7 +779,7 @@ describe('Patrols utils', () => {
         },
       };
 
-      const points = extractLegPatrolPoints(segment, null, legTrackData, rawLegTrackData, false);
+      const points = extractLegPatrolPoints(segment, null, legTrackData, rawLegTrackData, false, genericLabels);
 
       expect(points.end_location.geometry.coordinates).toEqual([15, 15]);
       expect(points.end_location.properties.title).toBe('Patrol End (Est)');
@@ -789,7 +795,7 @@ describe('Patrols utils', () => {
       const leader = { last_position: { properties: { stroke: '#654321' } } };
       const legTrackData = { points: { features: [] } };
 
-      const points = extractLegPatrolPoints(segment, leader, legTrackData, null, true);
+      const points = extractLegPatrolPoints(segment, leader, legTrackData, null, true, genericLabels);
 
       expect(points.start_location.properties.stroke).toBe('#654321');
     });
@@ -804,7 +810,7 @@ describe('Patrols utils', () => {
       const leader = { additional: { rgb: '10,20,30' } };
       const legTrackData = { points: { features: [] } };
 
-      const points = extractLegPatrolPoints(segment, leader, legTrackData, null, true);
+      const points = extractLegPatrolPoints(segment, leader, legTrackData, null, true, genericLabels);
 
       expect(points.start_location.properties.stroke).toBe('rgb(10,20,30)');
     });
@@ -817,9 +823,49 @@ describe('Patrols utils', () => {
         time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' },
       };
 
-      const points = extractLegPatrolPoints(segment, null, null, null, true);
+      const points = extractLegPatrolPoints(segment, null, null, null, true, genericLabels);
 
       expect(points.start_location.properties.stroke).toBe('#FF0080');
+    });
+
+    test('uses the shared start and end pin assets for the markers', () => {
+      const segment = {
+        end_location: { latitude: 3, longitude: 4 },
+        start_location: { latitude: 1, longitude: 2 },
+        time_range: { end_time: '2022-06-15T11:00:00.000Z', start_time: '2022-06-15T10:00:00.000Z' },
+      };
+
+      const points = extractLegPatrolPoints(segment, null, null, null, false, genericLabels);
+
+      expect(points.start_location.properties.image).toBe(patrolStartPin);
+      expect(points.end_location.properties.image).toBe(patrolEndPin);
+    });
+
+    test('labels the markers with the provided patrol name and appends the estimated suffix', () => {
+      const namedLabels = { start: 'Fence Patrol', end: 'Fence Patrol', estimatedSuffix: '(Est)' };
+      const segment = {
+        end_location: { latitude: 3, longitude: 4 },
+        start_location: { latitude: 1, longitude: 2 },
+        time_range: { end_time: '2022-06-15T11:00:00.000Z', start_time: '2022-06-15T10:00:00.000Z' },
+      };
+      const legTrackData = {
+        points: {
+          features: [
+            { geometry: { coordinates: [9, 9] }, properties: { time: '2022-06-15T11:30:00.000Z' } },
+            { geometry: { coordinates: [1, 1] }, properties: { time: '2022-06-15T10:30:00.000Z' } },
+          ],
+        },
+      };
+
+      const explicit = extractLegPatrolPoints(segment, null, null, null, false, namedLabels);
+      expect(explicit.start_location.properties.title).toBe('Fence Patrol');
+      expect(explicit.end_location.properties.title).toBe('Fence Patrol');
+
+      const inferred = extractLegPatrolPoints(
+        { ...segment, end_location: null, start_location: null }, null, legTrackData, null, false, namedLabels
+      );
+      expect(inferred.start_location.properties.title).toBe('Fence Patrol (Est)');
+      expect(inferred.end_location.properties.title).toBe('Fence Patrol (Est)');
     });
   });
 
@@ -831,14 +877,14 @@ describe('Patrols utils', () => {
     test('folds an estimated end marker into the start marker when the patrol is done but has no end marker', () => {
       // The estimated end is cloned from the start, so it's always at the same coordinates -
       // the very next check merges same-spot markers, collapsing this into a single marker.
-      const result = finalizeCombinedPatrolPoints(patrolDone, { end_location: null, start_location: startLocation() });
+      const result = finalizeCombinedPatrolPoints(patrolDone, { end_location: null, start_location: startLocation() }, genericLabels);
 
       expect(result.end_location).toBeUndefined();
       expect(result.start_location.properties.title).toBe('Patrol Start & Patrol End (Est)');
     });
 
     test('does not invent an end marker for a patrol that is not done', () => {
-      const result = finalizeCombinedPatrolPoints(patrolOpen, { end_location: null, start_location: startLocation() });
+      const result = finalizeCombinedPatrolPoints(patrolOpen, { end_location: null, start_location: startLocation() }, genericLabels);
 
       expect(result.end_location).toBeNull();
     });
@@ -846,10 +892,60 @@ describe('Patrols utils', () => {
     test('merges start and end into a single marker when they land on the same spot', () => {
       const endLocation = { geometry: { coordinates: [1, 2], type: 'Point' }, properties: { title: 'Patrol End' }, type: 'Feature' };
 
-      const result = finalizeCombinedPatrolPoints(patrolDone, { end_location: endLocation, start_location: startLocation() });
+      const result = finalizeCombinedPatrolPoints(patrolDone, { end_location: endLocation, start_location: startLocation() }, genericLabels);
 
       expect(result.end_location).toBeUndefined();
       expect(result.start_location.properties.title).toBe('Patrol Start & Patrol End');
+    });
+
+    test('shows a named patrol only once when its start and end share a location', () => {
+      const namedLabels = { start: 'Fence Patrol', end: 'Fence Patrol', estimatedSuffix: '(Est)' };
+      const named = (title) => ({ geometry: { coordinates: [1, 2], type: 'Point' }, properties: { title }, type: 'Feature' });
+
+      const result = finalizeCombinedPatrolPoints(
+        patrolDone, { end_location: named('Fence Patrol'), start_location: named('Fence Patrol') }, namedLabels
+      );
+
+      expect(result.end_location).toBeUndefined();
+      expect(result.start_location.properties.title).toBe('Fence Patrol');
+    });
+  });
+
+  describe('getPatrolPointLabels', () => {
+    test('uses the patrol title when present', () => {
+      const patrol = { title: 'Border Sweep', patrol_segments: [{ patrol_type: routinePatrol.value }] };
+
+      const labels = getPatrolPointLabels(patrol, { name: 'Tiffany Wong' }, patrolTypes);
+
+      expect(labels.start).toBe('Border Sweep');
+      expect(labels.end).toBe('Border Sweep');
+    });
+
+    test('falls back to the leader name when there is no title (matching the track legend)', () => {
+      const patrol = { title: '', patrol_segments: [{ patrol_type: routinePatrol.value }] };
+
+      const labels = getPatrolPointLabels(patrol, { name: 'Tiffany Wong' }, patrolTypes);
+
+      expect(labels.start).toBe('Tiffany Wong');
+      expect(labels.end).toBe('Tiffany Wong');
+    });
+
+    test('falls back to the patrol type display name when there is no title or leader name', () => {
+      const patrol = { title: '', patrol_segments: [{ patrol_type: routinePatrol.value }] };
+
+      const labels = getPatrolPointLabels(patrol, null, patrolTypes);
+
+      expect(labels.start).toBe(routinePatrol.display);
+      expect(labels.end).toBe(routinePatrol.display);
+    });
+
+    test('falls back to generic labels when there is no title, leader, or matching patrol type', () => {
+      const patrol = { title: '', patrol_segments: [{ patrol_type: 'unknown_type' }] };
+
+      const labels = getPatrolPointLabels(patrol, null, patrolTypes);
+
+      expect(labels.start).toBe('Patrol Start');
+      expect(labels.end).toBe('Patrol End');
     });
   });
 

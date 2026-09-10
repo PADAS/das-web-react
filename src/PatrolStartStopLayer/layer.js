@@ -1,13 +1,10 @@
-import React, { memo, useContext, useEffect, useMemo, useState } from 'react';
+import React, { memo, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 
-import { addMapImage } from '../utils/map';
-import { calcImgIdFromUrlForMapImages } from '../utils/img';
 import { selectPatrolTrackData } from '../selectors/patrols';
-import { DEFAULT_SYMBOL_PAINT, LAYER_IDS } from '../constants';
+import { DEFAULT_SYMBOL_PAINT, LAYER_IDS, MAP_ICON_SIZE, MAP_ICON_SCALE } from '../constants';
 import { uuid } from '../utils/string';
 import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
-import { MapContext } from '../MapContext';
 import withMapViewConfig from '../WithMapViewConfig';
 import useMapSources from '../hooks/useMapSources';
 import useMapLayers from '../hooks/useMapLayers';
@@ -31,47 +28,46 @@ const lineLayout = {
   'line-cap': 'round',
 };
 
-const symbolPaint = {
-  ...DEFAULT_SYMBOL_PAINT,
-  'text-color': '#ffffff',
-  'text-halo-blur': 0.5,
-  'text-halo-color': 'rgba(0,0,0,0.7)',
-  'text-halo-width': 0.5,
+// Scale the shared icon-size zoom curve so the pin renders 32px tall at full
+// zoom. A zoom interpolate must stay top-level, so the scale is baked into the
+// output stops rather than wrapping the shared expression.
+const PIN_ICON_SIZE = [
+  'interpolate', ['exponential', 0.5], ['zoom'],
+  0, (0.2 / MAP_ICON_SCALE) * (32 / MAP_ICON_SIZE),
+  14, (1 / MAP_ICON_SCALE) * (32 / MAP_ICON_SIZE),
+];
+
+const iconLayout = {
+  'icon-anchor': 'bottom',
+  'icon-size': PIN_ICON_SIZE,
 };
 
+// Name sits to the right of the pin (kept on the label layer so the Map Markers
+// visibility toggle still applies).
 const textLayout = {
   'text-field': '{title}',
+  'text-anchor': 'left',
+  'text-justify': 'left',
+  'text-offset': [1.1, -1.2],
+};
+
+// Black name text with a white halo and no background chip.
+const labelTextPaint = {
+  'icon-opacity': 0,
+  'text-color': '#000000',
+  'text-halo-color': '#ffffff',
+  'text-halo-width': 2,
 };
 
 const symbolFilter = ['==', ['geometry-type'], 'Point'];
 
 
 const StartStopLayer = ({ patrolTrackData, ...rest }) => {
-  const map = useContext(MapContext);
-
   const [instanceId] = useState(uuid());
   const layerId = `${PATROL_SYMBOLS}-${instanceId}`;
 
   const points = patrolTrackData?.startStopGeometries?.points;
   const lines = patrolTrackData?.startStopGeometries?.lines;
-
-  useEffect(() => {
-    const start_location = patrolTrackData?.startStopGeometries?.points?.start_location;
-
-    if (start_location) {
-
-      const image = start_location?.properties?.image;
-      const imgHeight = start_location?.properties?.height;
-      const imgWidth = start_location?.properties?.imgWidth;
-
-      const imgUrl = calcImgIdFromUrlForMapImages(image, imgWidth, imgHeight);
-
-      if (!map.hasImage(imgUrl)) {
-        addMapImage({ src: image });
-      }
-
-    }
-  }, [map, patrolTrackData]);
 
   const sourceId = `patrol-symbol-source-${instanceId}`;
 
@@ -87,7 +83,6 @@ const StartStopLayer = ({ patrolTrackData, ...rest }) => {
     features: patrolPointFeatures,
   }), [patrolPointFeatures]);
 
-  const layerSymbolPaint = useMemo(() => ({ ...symbolPaint, 'text-color': ['get', 'stroke'] }), []);
   const layerLinePaint = useMemo(() => ({ ...linePaint, 'line-color': ['get', 'stroke'] }), []);
 
   useMapSources([{ id: sourceId, data: patrolPointsSourceData }]);
@@ -101,8 +96,9 @@ const StartStopLayer = ({ patrolTrackData, ...rest }) => {
 
   if (!points && !lines) return null;
 
-  return <LabeledPatrolSymbolLayer paint={layerSymbolPaint} sourceId={sourceId} type='symbol'
-      id={layerId} filter={symbolFilter} textLayout={textLayout} {...rest}
+  return <LabeledPatrolSymbolLayer paint={DEFAULT_SYMBOL_PAINT} sourceId={sourceId} type='symbol'
+      id={layerId} filter={symbolFilter} layout={iconLayout} textLayout={textLayout}
+      textPaint={labelTextPaint} {...rest}
     />;
 };
 

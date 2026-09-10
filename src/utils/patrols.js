@@ -15,7 +15,6 @@ import cloneDeep from 'lodash/cloneDeep';
 import isUndefined from 'lodash/isUndefined';
 import isNil from 'lodash/isNil';
 
-import { calcSpriteSvgUrl } from './img';
 import { format, getCurrentLocale, SHORT_TIME_FORMAT } from './datetime';
 import { PATROL_UI_STATES, PATROL_API_STATES } from '../constants';
 
@@ -27,6 +26,9 @@ import { createPatrol, updatePatrol, addNoteToPatrol, uploadPatrolFile } from '.
 import { getReporterById } from './events';
 
 import * as colorVariables from '../common/styles/vars/colors.module.scss';
+
+import patrolStartPin from '../common/images/icons/patrol-start-pin.svg?url';
+import patrolEndPin from '../common/images/icons/patrol-end-pin.svg?url';
 
 const DEFAULT_STROKE = '#FF0080';
 export const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
@@ -683,11 +685,11 @@ export const sortPatrolList = (patrols) => {
   return orderBy(patrols, [sortFunc, patrolGetLastUpdateTime], ['asc', 'desc']);
 };
 
-export const makePatrolPointFromFeature = (label, coordinates, icon_id, stroke, time) => {
+export const makePatrolPointFromFeature = (label, coordinates, image, stroke, time) => {
 
   const properties = {
     stroke,
-    image: calcSpriteSvgUrl(icon_id),
+    image,
     name: label,
     title: label,
     time: time,
@@ -696,9 +698,33 @@ export const makePatrolPointFromFeature = (label, coordinates, icon_id, stroke, 
   return point(coordinates, properties);
 };
 
+// Start/end pin labels resolve the patrol name the same way as
+// displayTitleForPatrol (title, else leader name, else patrol type display name)
+// so the pins match the track legend, then fall back to the generic
+// "Patrol Start"/"Patrol End". `estimatedSuffix` marks points inferred from
+// track data rather than an explicit start/end location.
+export const getPatrolPointLabels = (patrol, leader, patrolTypes) => {
+  const t = i18next.getFixedT(null, 'utils', 'patrolPoints');
 
-export const extractLegPatrolPoints = (segment, leader, legTrackData, rawLegTrackData, isLegActive) => {
-  const { icon_id, start_location, end_location, time_range: { start_time, end_time } = {} } = segment;
+  const segments = patrol?.patrol_segments || [];
+  const patrolTypeValue = segments[segments.length - 1]?.patrol_type;
+  const patrolTypeName = patrolTypeValue
+    ? displayNameForPatrolType(patrolTypes || [], patrolTypeValue)
+    : null;
+  const patrolName = patrol?.title || leader?.name || patrolTypeName || null;
+
+  return {
+    start: patrolName || t('patrolStart'),
+    end: patrolName || t('patrolEnd'),
+    estimatedSuffix: t('estimatedSuffix'),
+  };
+};
+
+const withEstimatedSuffix = (label, labels, isEstimated) =>
+  isEstimated ? `${label} ${labels.estimatedSuffix}` : label;
+
+export const extractLegPatrolPoints = (segment, leader, legTrackData, rawLegTrackData, isLegActive, labels) => {
+  const { start_location, end_location, time_range: { start_time, end_time } = {} } = segment;
 
   const hasFeatures = !!legTrackData?.points?.features?.length;
   const features = hasFeatures && legTrackData.points.features;
@@ -717,7 +743,7 @@ export const extractLegPatrolPoints = (segment, leader, legTrackData, rawLegTrac
   const startTime = new Date(start_time);
 
   if (start_location) {
-    leg_points.start_location = makePatrolPointFromFeature('Patrol Start', [start_location.longitude, start_location.latitude], icon_id, stroke, start_time);
+    leg_points.start_location = makePatrolPointFromFeature(labels.start, [start_location.longitude, start_location.latitude], patrolStartPin, stroke, start_time);
 
   } else if (hasFeatures) {
     const firstTrackPoint = features[features.length - 1];
@@ -725,12 +751,12 @@ export const extractLegPatrolPoints = (segment, leader, legTrackData, rawLegTrac
 
     const { geometry: { coordinates: [longitude, latitude] } } = firstTrackPoint;
 
-    leg_points.start_location = makePatrolPointFromFeature(`Patrol Start${firstTrackPointMatchesStartTime ? '' : ' (Est)'}`, [longitude, latitude], icon_id, stroke, firstTrackPoint.properties.time);
+    leg_points.start_location = makePatrolPointFromFeature(withEstimatedSuffix(labels.start, labels, !firstTrackPointMatchesStartTime), [longitude, latitude], patrolStartPin, stroke, firstTrackPoint.properties.time);
   }
 
   if (!isLegActive) {
     if (end_location) {
-      leg_points.end_location = makePatrolPointFromFeature('Patrol End', [end_location.longitude, end_location.latitude], icon_id, stroke, end_time);
+      leg_points.end_location = makePatrolPointFromFeature(labels.end, [end_location.longitude, end_location.latitude], patrolEndPin, stroke, end_time);
 
     } else if (hasFeatures) {
       let lastTrackPoint = features[0];
@@ -758,7 +784,7 @@ export const extractLegPatrolPoints = (segment, leader, legTrackData, rawLegTrac
 
       const { geometry: { coordinates: [longitude, latitude] } } = lastTrackPoint;
 
-      leg_points.end_location = makePatrolPointFromFeature(`Patrol End${lastTrackPointMatchesEndTime ? '' : ' (Est)'}`, [longitude, latitude], icon_id, stroke, lastTrackPoint.properties.time);
+      leg_points.end_location = makePatrolPointFromFeature(withEstimatedSuffix(labels.end, labels, !lastTrackPointMatchesEndTime), [longitude, latitude], patrolEndPin, stroke, lastTrackPoint.properties.time);
     }
   }
 
@@ -767,13 +793,15 @@ export const extractLegPatrolPoints = (segment, leader, legTrackData, rawLegTrac
   return leg_points;
 };
 
-export const finalizeCombinedPatrolPoints = (patrol, patrolPoints) => {
+export const finalizeCombinedPatrolPoints = (patrol, patrolPoints, labels) => {
   const isPatrolDone = calcPatrolState(patrol) === PATROL_UI_STATES.DONE;
 
   if (!!patrolPoints.start_location && !patrolPoints.end_location &&
   isPatrolDone) {
+    const estimatedEndLabel = withEstimatedSuffix(labels.end, labels, true);
     patrolPoints.end_location = cloneDeep(patrolPoints.start_location);
-    patrolPoints.end_location.properties.title = 'Patrol End (Est)';
+    patrolPoints.end_location.properties.name = estimatedEndLabel;
+    patrolPoints.end_location.properties.title = estimatedEndLabel;
   }
 
   if (!!patrolPoints.end_location && !!patrolPoints.start_location
@@ -781,7 +809,12 @@ export const finalizeCombinedPatrolPoints = (patrol, patrolPoints) => {
       point(patrolPoints.end_location.geometry.coordinates),
       point(patrolPoints.start_location.geometry.coordinates),
     )) {
-    patrolPoints.start_location.properties.title += ` & ${patrolPoints.end_location.properties.title}`;
+    // Start and end share a location, so only one marker is shown. Combine the
+    // labels only when they are distinct (the generic "Patrol Start"/"Patrol
+    // End" fallback); a named patrol keeps its name once.
+    if (labels.start !== labels.end) {
+      patrolPoints.start_location.properties.title += ` & ${patrolPoints.end_location.properties.title}`;
+    }
     delete patrolPoints.end_location;
   }
 

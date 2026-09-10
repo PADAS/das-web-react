@@ -29,6 +29,11 @@
     "serviceUnavailable": "La ressource demandée est actuellement indisponible. Veuillez réessayer plus tard et contacter votre administrateur si le problème persiste (503).",
     "tooManyRequests": "Seuil de demandes atteint. Veuillez réessayer plus tard et contacter votre administrateur si le problème persiste (429)."
   },
+  "patrolPoints": {
+    "patrolStart": "Début de patrouille",
+    "patrolEnd": "Fin de patrouille",
+    "estimatedSuffix": "(est.)"
+  },
   "showFilterMismatchToastForHiddenReports": {
     "eventCreatedDoesNotMatchFilterToast": "{{serialNumber}} \"{{displayTitle}}\" has been created but does not match the current filter"
   }
