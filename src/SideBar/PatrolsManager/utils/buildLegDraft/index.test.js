@@ -1,4 +1,4 @@
-import patrolTypes, { dogPatrol } from '../../../../__test-helpers/fixtures/patrol-types';
+import patrolTypes, { dogPatrol, theDonPatrol } from '../../../../__test-helpers/fixtures/patrol-types';
 
 import buildLegDraft from './';
 
@@ -66,12 +66,23 @@ describe('SideBar - PatrolsManager - utils - buildLegDraft', () => {
     expect(buildLegDraft({ patrol_type: dogPatrol.id }, patrolTypes)).toHaveProperty('patrolType', dogPatrol);
   });
 
-  test('leaves the patrol type empty when the site does not serve the one of a leg', () => {
-    expect(buildLegDraft({ patrol_type: 'a_retired_patrol_type' }, patrolTypes)).toHaveProperty('patrolType', null);
+  test('rebuilds the patrol type of a leg from the leg itself when the site does not serve it', () => {
+    const leg = { icon_id: 'retired-patrol-icon', patrol_type: 'a_retired_patrol_type' };
+
+    expect(buildLegDraft(leg, patrolTypes)).toHaveProperty('patrolType', {
+      display: 'a_retired_patrol_type',
+      icon_id: 'retired-patrol-icon',
+      value: 'a_retired_patrol_type',
+    });
   });
 
-  test('leaves the patrol type empty when the one of a leg is no longer active', () => {
-    expect(buildLegDraft({ patrol_type: 'The_Don_Patrol' }, patrolTypes)).toHaveProperty('patrolType', null);
+  test('takes the patrol type of a leg that is no longer active', () => {
+    expect(buildLegDraft({ patrol_type: theDonPatrol.value }, patrolTypes))
+      .toHaveProperty('patrolType', theDonPatrol);
+  });
+
+  test('leaves the patrol type empty when a leg holds none', () => {
+    expect(buildLegDraft({ patrol_type: null }, patrolTypes)).toHaveProperty('patrolType', null);
   });
 
   test('resolves the team, the members and the assets of a leg against the tenant\'s rosters', () => {

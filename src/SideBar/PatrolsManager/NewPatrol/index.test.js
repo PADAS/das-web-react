@@ -60,6 +60,7 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
           [dogPatrol.value]: { isLoading: false, schema: patrolTypeFieldsSchema },
           [routinePatrol.value]: { isLoading: false, schema: patrolTypeFieldsSchema },
         },
+        patrolStore: {},
         patrolTeamAndTrackingOptions: { assets: [], leaders: [], members: [], teams: [] },
         patrolTypes,
         user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.CREATE, PERMISSIONS.READ] } },
@@ -69,6 +70,7 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
         coordinateReferenceSystems: { storedSystems: [] },
         mapLocationSelection: { isPickingLocation: false },
         modals: { canShowModals: true },
+        patrolTrackState: { pinned: [], visible: [] },
         showUserLocation: false,
         userLocation: null,
         userPreferences: {

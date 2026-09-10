@@ -36,12 +36,13 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
     };
   });
 
-  const ControlledStaticFields = ({ earliestStartDateTime, errors, initialLeg }) => {
+  const ControlledStaticFields = ({ earliestStartDateTime, errors, initialLeg, latestEndDateTime }) => {
     const [leg, setLeg] = useState(initialLeg);
 
     return <StaticFields
       earliestStartDateTime={earliestStartDateTime}
       errors={errors}
+      latestEndDateTime={latestEndDateTime}
       leg={leg}
       onChangeLeg={(legChanges) => {
         onChangeLeg(legChanges);
@@ -50,15 +51,17 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
     />;
   };
 
-  const renderStaticFields = ({ earliestStartDateTime = null, errors = {}, leg } = {}) => render(
-    <Provider store={mockStore(store)}>
-      <ControlledStaticFields
-        earliestStartDateTime={earliestStartDateTime}
-        errors={errors}
-        initialLeg={{ ...buildLegDraft(), startDate: '2026-04-13', startTime: '08:00', ...leg }}
-      />
-    </Provider>
-  );
+  const renderStaticFields = ({ earliestStartDateTime = null, errors = {}, latestEndDateTime = null, leg } = {}) =>
+    render(
+      <Provider store={mockStore(store)}>
+        <ControlledStaticFields
+          earliestStartDateTime={earliestStartDateTime}
+          errors={errors}
+          initialLeg={{ ...buildLegDraft(), startDate: '2026-04-13', startTime: '08:00', ...leg }}
+          latestEndDateTime={latestEndDateTime}
+        />
+      </Provider>
+    );
 
   const getDateInput = (groupName, inputName) =>
     within(screen.getByRole('group', { name: groupName })).getByRole('textbox', { name: inputName });
@@ -208,6 +211,39 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
     await userEvent.type(getDateInput('Start date', 'Day'), '10');
 
     expect(getDateInput('Start date', 'Day')).toHaveValue('13');
+  });
+
+  test('measures the start time options up to the latest end of the leg on its same day', async () => {
+    renderStaticFields({ latestEndDateTime: new Date(2026, 3, 13, 8, 0) });
+
+    const startTime = screen.getByRole('group', { name: 'Start time' });
+    await userEvent.click(within(startTime).getByLabelText('Open time options'));
+
+    expect(within(startTime).getAllByRole('option')).toHaveLength(33);
+  });
+
+  test('measures the end time options up to the latest end of the leg on its same day', async () => {
+    renderStaticFields({
+      latestEndDateTime: new Date(2026, 3, 14, 12, 0),
+      leg: { endDate: '2026-04-14', endTime: '10:00' },
+    });
+
+    const endTime = screen.getByRole('group', { name: 'End time' });
+    await userEvent.click(within(endTime).getByLabelText('Open time options'));
+
+    expect(within(endTime).getAllByRole('option')).toHaveLength(49);
+  });
+
+  test('holds the end date at the latest end of the leg when the user types a later one', async () => {
+    renderStaticFields({
+      latestEndDateTime: new Date(2026, 3, 14, 12, 0),
+      leg: { endDate: '2026-04-14', endTime: '10:00' },
+    });
+
+    await userEvent.clear(getDateInput('End date', 'Day'));
+    await userEvent.type(getDateInput('End date', 'Day'), '20');
+
+    expect(getDateInput('End date', 'Day')).toHaveValue('14');
   });
 
   test('shows the errors of the start and end dates', () => {

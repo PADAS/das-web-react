@@ -11,6 +11,7 @@ import {
   fetchPatrolTypeSchema,
 } from '../../../ducks/patrol-schemas';
 import getStaticFieldErrors from './utils/getStaticFieldErrors';
+import { selectIsPatrolTrackShown } from '../../../selectors/patrols';
 
 import PatrolTypeField from './PatrolTypeField';
 import SchemaForm from '../../../SchemaForm';
@@ -29,16 +30,26 @@ const ERRORS_CLEARED_BY_LEG_DRAFT_FIELD = {
   endTime: ['endDate', 'endTime'],
   patrolType: ['patrolType'],
   startDate: ['endDate', 'startDate'],
-  startTime: ['endDate', 'startTime'],
+  startTime: ['endDate', 'startDate', 'startTime'],
 };
 
-const LegForm = ({ earliestStartDateTime = null, formId, isFirstLeg = true, leg, onChangeLeg, onSubmit }) => {
+const LegForm = ({
+  earliestStartDateTime = null,
+  formId,
+  isFirstLeg = true,
+  latestEndDateTime = null,
+  leg,
+  onChangeLeg,
+  onSubmit,
+  patrolId = null,
+}) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('patrols', { keyPrefix: 'legForm' });
 
   const defaultPatrolSegmentTypeSchemaState = useSelector(
     (state) => state.data.patrolSchemas[DEFAULT_PATROL_SEGMENT_TYPE]
   );
+  const isPatrolTrackShown = useSelector((state) => selectIsPatrolTrackShown(state, patrolId));
   const patrolTypeSchemaState = useSelector((state) => state.data.patrolSchemas[leg.patrolType?.value]);
 
   const defaultPatrolSegmentTypeFormRef = useRef(null);
@@ -47,6 +58,8 @@ const LegForm = ({ earliestStartDateTime = null, formId, isFirstLeg = true, leg,
   const staticFieldsRef = useRef(null);
 
   const [staticFieldErrors, setStaticFieldErrors] = useState({});
+
+  const anchorLocation = isPatrolTrackShown ? leg.startLocation : null;
 
   // The schema forms and the patrol type select are memoized and expensive to
   // redraw, so their handlers are the one thing here worth holding still.
@@ -79,7 +92,7 @@ const LegForm = ({ earliestStartDateTime = null, formId, isFirstLeg = true, leg,
   const onSubmitForm = (event) => {
     event.preventDefault();
 
-    const newStaticFieldErrors = getStaticFieldErrors(leg, earliestStartDateTime);
+    const newStaticFieldErrors = getStaticFieldErrors(leg, earliestStartDateTime, latestEndDateTime);
     setStaticFieldErrors(newStaticFieldErrors);
 
     const [erroneousField] = Object.keys(newStaticFieldErrors);
@@ -126,6 +139,7 @@ const LegForm = ({ earliestStartDateTime = null, formId, isFirstLeg = true, leg,
         earliestStartDateTime={earliestStartDateTime}
         errors={staticFieldErrors}
         isFirstLeg={isFirstLeg}
+        latestEndDateTime={latestEndDateTime}
         leg={leg}
         onChangeLeg={onChangeLegField}
         ref={staticFieldsRef}
@@ -133,7 +147,7 @@ const LegForm = ({ earliestStartDateTime = null, formId, isFirstLeg = true, leg,
     </div>
 
     {!!defaultPatrolSegmentTypeSchemaState?.schema && <SchemaForm
-      anchorLocation={leg.startLocation}
+      anchorLocation={anchorLocation}
       as="div"
       className={styles.schemaForm}
       formData={leg.universalDetails}
@@ -183,7 +197,7 @@ const LegForm = ({ earliestStartDateTime = null, formId, isFirstLeg = true, leg,
     </div>
 
     {!!patrolTypeSchemaState?.schema && <SchemaForm
-      anchorLocation={leg.startLocation}
+      anchorLocation={anchorLocation}
       as="div"
       className={styles.schemaForm}
       formData={leg.typeDetails}

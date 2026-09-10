@@ -53,6 +53,9 @@ import {
   isPatrolSegmentAPause,
   isPatrolStateUnderWay,
   isSegmentActive,
+  earliestStartForEditedPatrolSegment,
+  latestEndBeforePatrolSegment,
+  latestEndForEditedPatrolSegment,
   PATROL_SAVE_ACTIONS,
   patrolWithUpdateApplied,
   sortPatrolList,
@@ -438,7 +441,7 @@ describe('Patrols utils', () => {
         state: 'done',
       });
 
-      expect(update.patrol_segments.map(({ id }) => id)).toEqual(['leg-2', 'leg-3']);
+      expect(update.patrol_segments.map((patrolSegment) => patrolSegment.id)).toEqual(['leg-2', 'leg-3']);
       expect(update.patrol_segments[0].time_range.end_time).toBeNull();
       expect(update.patrol_segments[1].time_range.end_time).toBeNull();
     });
@@ -455,7 +458,7 @@ describe('Patrols utils', () => {
 
       const update = buildPatrolReopenUpdate({ patrol_segments: [overlappingLeg, legEndedEarlier], state: 'done' });
 
-      expect(update.patrol_segments.map(({ id }) => id)).toEqual(['leg-1']);
+      expect(update.patrol_segments.map((patrolSegment) => patrolSegment.id)).toEqual(['leg-1']);
     });
 
     test('names no leg at all when the patrol carries no end to clear', () => {
@@ -479,7 +482,8 @@ describe('Patrols utils', () => {
       const update = buildPatrolReopenUpdate(endedPatrol);
 
       expect(update.state).toBe('open');
-      expect(patrolWithUpdateApplied(endedPatrol, update).patrol_segments.map(({ time_range }) => time_range))
+      expect(patrolWithUpdateApplied(endedPatrol, update).patrol_segments
+        .map((patrolSegment) => patrolSegment.time_range))
         .toEqual([{ end_time: null, start_time: '2026-04-13T08:00:00.000Z' }, { end_time: null, start_time: null }]);
     });
   });
@@ -1342,6 +1346,99 @@ describe('Patrols utils', () => {
     test('raises the start of a leg that carries no end too', () => {
       expect(earliestStartAfterPatrolSegment({ scheduled_start: '2022-06-14T11:00:32.000Z', time_range: {} }))
         .toEqual(new Date('2022-06-14T11:01:00.000Z'));
+    });
+  });
+
+  describe('latestEndBeforePatrolSegment', () => {
+    test('returns the start of the leg', () => {
+      const segment = {
+        scheduled_start: '2022-06-10T00:00:00.000Z',
+        time_range: { end_time: null, start_time: '2022-06-14T11:00:00.000Z' },
+      };
+
+      expect(latestEndBeforePatrolSegment(segment)).toEqual(new Date('2022-06-14T11:00:00.000Z'));
+    });
+
+    test('falls back to the scheduled start of the leg', () => {
+      const segment = { scheduled_start: '2022-06-14T11:00:00.000Z', time_range: {} };
+
+      expect(latestEndBeforePatrolSegment(segment)).toEqual(new Date('2022-06-14T11:00:00.000Z'));
+    });
+
+    test('returns null for a leg that has no start of any kind', () => {
+      expect(latestEndBeforePatrolSegment({ time_range: {} })).toBeNull();
+    });
+
+    test('drops a start carrying seconds or milliseconds to the whole minute', () => {
+      const withSeconds = { time_range: { end_time: null, start_time: '2022-06-14T11:00:32.000Z' } };
+      const withMilliseconds = { time_range: { end_time: null, start_time: '2022-06-14T11:00:00.500Z' } };
+
+      expect(latestEndBeforePatrolSegment(withSeconds)).toEqual(new Date('2022-06-14T11:00:00.000Z'));
+      expect(latestEndBeforePatrolSegment(withMilliseconds)).toEqual(new Date('2022-06-14T11:00:00.000Z'));
+    });
+  });
+
+  describe('earliestStartForEditedPatrolSegment', () => {
+    const leg = { time_range: { end_time: null, start_time: '2022-06-14T11:00:00.000Z' } };
+
+    test('takes the end of the leg before it', () => {
+      const previousPatrolSegment = { time_range: { end_time: '2022-06-14T09:00:00.000Z', start_time: null } };
+
+      expect(earliestStartForEditedPatrolSegment(leg, previousPatrolSegment))
+        .toEqual(new Date('2022-06-14T09:00:00.000Z'));
+    });
+
+    test('leaves a leg with no leg before it unbounded', () => {
+      expect(earliestStartForEditedPatrolSegment(leg, null)).toBeNull();
+    });
+
+    test('keeps the minute a leg starts on when a pause rounded the boundary past it', () => {
+      const pausedLeg = { time_range: { end_time: null, start_time: '2022-06-14T11:00:47.512Z' } };
+      const previousPatrolSegment = { time_range: { end_time: '2022-06-14T11:00:47.512Z', start_time: null } };
+
+      expect(earliestStartForEditedPatrolSegment(pausedLeg, previousPatrolSegment))
+        .toEqual(new Date('2022-06-14T11:00:00.000Z'));
+    });
+
+    test('keeps the start of a leg the leg before it already overlaps', () => {
+      const previousPatrolSegment = { time_range: { end_time: '2022-06-14T14:00:00.000Z', start_time: null } };
+
+      expect(earliestStartForEditedPatrolSegment(leg, previousPatrolSegment))
+        .toEqual(new Date('2022-06-14T11:00:00.000Z'));
+    });
+
+    test('leaves a leg with no start of its own bounded by the leg before it', () => {
+      const previousPatrolSegment = { time_range: { end_time: '2022-06-14T09:00:00.000Z', start_time: null } };
+
+      expect(earliestStartForEditedPatrolSegment({ time_range: {} }, previousPatrolSegment))
+        .toEqual(new Date('2022-06-14T09:00:00.000Z'));
+    });
+  });
+
+  describe('latestEndForEditedPatrolSegment', () => {
+    const leg = { time_range: { end_time: '2022-06-14T11:00:00.000Z', start_time: null } };
+
+    test('takes the start of the leg after it', () => {
+      const nextLeg = { time_range: { end_time: null, start_time: '2022-06-14T14:00:00.000Z' } };
+
+      expect(latestEndForEditedPatrolSegment(leg, nextLeg)).toEqual(new Date('2022-06-14T14:00:00.000Z'));
+    });
+
+    test('leaves a leg with no leg after it unbounded', () => {
+      expect(latestEndForEditedPatrolSegment(leg, null)).toBeNull();
+    });
+
+    test('keeps the end of a leg that already outlives the leg after it', () => {
+      const nextLeg = { time_range: { end_time: null, start_time: '2022-06-14T09:00:00.000Z' } };
+
+      expect(latestEndForEditedPatrolSegment(leg, nextLeg)).toEqual(new Date('2022-06-14T11:00:00.000Z'));
+    });
+
+    test('leaves a leg with no end of its own bounded by the leg after it', () => {
+      const nextLeg = { time_range: { end_time: null, start_time: '2022-06-14T09:00:00.000Z' } };
+
+      expect(latestEndForEditedPatrolSegment({ time_range: {} }, nextLeg))
+        .toEqual(new Date('2022-06-14T09:00:00.000Z'));
     });
   });
 

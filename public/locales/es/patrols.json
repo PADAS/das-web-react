@@ -76,6 +76,18 @@
   "detailViewLoader": {
     "loadingLabel": "Cargando datos de la patrulla"
   },
+  "editLeg": {
+    "footer": {
+      "cancelButton": "Cancelar",
+      "saveButton": "Guardar"
+    },
+    "header": {
+      "breadcrumbPatrolsLabel": "Patrullas",
+      "mobileProvenancePill": "Móvil",
+      "title": "Editar tramo {{legNumber}}"
+    },
+    "saveErrorMessage": "No se pudo guardar el tramo de la patrulla. Vuelva a intentarlo."
+  },
   "header": {
     "breadcrumbNavLabel": "Navegación de patrullas",
     "closeButtonLabel": "Cerrar barra lateral"
@@ -99,11 +111,13 @@
       "autoStartCheckboxLabel": "Iniciar el tramo automáticamente a esta hora",
       "endDateBeforeStartDateError": "La finalización del tramo debe ser posterior a su inicio.",
       "endDateInputLabel": "Fecha de finalización",
+      "endDateOverlapsNextLegError": "Este tramo no puede solaparse con el siguiente.",
       "endLocationLabel": "Ubicación final",
       "endTimeInputLabel": "Hora de finalización",
       "endTimeLabel": "Hora de finalización",
       "endTimeRequiredError": "Un tramo con fecha de finalización necesita una hora de finalización.",
       "startDateInputLabel": "Fecha de inicio",
+      "startDateOverlapsNextLegError": "Este tramo no puede solaparse con el siguiente.",
       "startDateOverlapsPreviousLegError": "Este tramo no puede solaparse con el anterior.",
       "startDateRequiredError": "Un tramo necesita una fecha de inicio.",
       "startLocationLabel": "Ubicación inicial",
@@ -119,6 +133,7 @@
   },
   "legOverview": {
     "activityEmptyStateMessage": "La actividad del tramo aparecerá aquí",
+    "addEventLinkErrorMessage": "El evento se guardó, pero no se pudo agregar a este tramo de la patrulla.",
     "attachmentsSaveErrorMessage": "No se pudieron subir algunos archivos adjuntos. Vuelva a intentarlo.",
     "footer": {
       "addEventButtonLabel": "Reportar un evento en este tramo de patrulla",
@@ -213,6 +228,7 @@
     "title": "Opciones de patrulla"
   },
   "patrolOverview": {
+    "addEventLinkErrorMessage": "El evento se guardó, pero no se pudo agregar a esta patrulla.",
     "attachmentsSaveErrorMessage": "No se pudieron subir algunos archivos adjuntos. Vuelva a intentarlo.",
     "footer": {
       "addEventButton": "Agregar evento",

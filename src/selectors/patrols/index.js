@@ -172,7 +172,7 @@ export const selectPatrolRosterFallbackSubjects = createSelector(
     const offeredRosterIds = new Set([
       ...(patrolTeamAndTrackingOptions?.assets ?? []),
       ...(patrolTeamAndTrackingOptions?.members ?? []),
-    ].map(({ id }) => id));
+    ].map((rosterOption) => rosterOption.id));
 
     return (patrol.patrol_segments ?? []).reduce((fallbackSubjects, patrolSegment) => {
       [...(patrolSegment.assets ?? []), ...(patrolSegment.members ?? [])].forEach((rosterId) => {
@@ -189,12 +189,12 @@ export const selectPatrolRosterFallbackSubjects = createSelector(
 
 const selectPatrolTrackedSubjectTracks = createSelector(
   [selectPatrolTeamAndTrackingOptions, selectPatrolRosterFallbackSubjects, selectTracks, (_, patrol) => patrol],
-  (patrolTeamAndTrackingOptions, rosterFallbackSubjects, tracks, patrol) => patrol.patrol_segments
-    .reduce((patrolTrackedSubjectTracks, segment) => {
+  (patrolTeamAndTrackingOptions, patrolRosterFallbackSubjects, tracks, patrol) => patrol.patrol_segments
+    .reduce((patrolTrackedSubjectTracks, patrolSegment) => {
       getTrackedSubjectsForPatrolSegment(
-        segment,
+        patrolSegment,
         patrolTeamAndTrackingOptions,
-        rosterFallbackSubjects
+        patrolRosterFallbackSubjects
       ).forEach((subject) => {
         if (tracks[subject.id]) {
           patrolTrackedSubjectTracks[subject.id] = tracks[subject.id];
@@ -208,11 +208,11 @@ const selectPatrolTrackedSubjectTracks = createSelector(
 
 // The time a subject spent on the patrol, as a set of ranges that do not
 // overlap.
-const mergeSegmentTimeRanges = (segments) => segments
-  .filter((segment) => segment.time_range?.start_time)
-  .map((segment) => ({
-    since: new Date(segment.time_range.start_time).getTime(),
-    until: segment.time_range.end_time ? new Date(segment.time_range.end_time).getTime() : Infinity,
+const mergeSegmentTimeRanges = (patrolSegments) => patrolSegments
+  .filter((patrolSegment) => patrolSegment.time_range?.start_time)
+  .map((patrolSegment) => ({
+    since: new Date(patrolSegment.time_range.start_time).getTime(),
+    until: patrolSegment.time_range.end_time ? new Date(patrolSegment.time_range.end_time).getTime() : Infinity,
   }))
   .sort((timeRange, otherTimeRange) => timeRange.since - otherTimeRange.since)
   .reduce((mergedTimeRanges, timeRange) => {
@@ -246,12 +246,12 @@ const selectPatrolTrackedSubjectPositions = createSelector(
     selectSubjectStore,
     (_, patrol) => patrol,
   ],
-  (patrolTeamAndTrackingOptions, rosterFallbackSubjects, subjectStore, patrol) => patrol.patrol_segments
-    .reduce((trackedSubjectPositions, segment) => {
+  (patrolTeamAndTrackingOptions, patrolRosterFallbackSubjects, subjectStore, patrol) => patrol.patrol_segments
+    .reduce((trackedSubjectPositions, patrolSegment) => {
       getTrackedSubjectsForPatrolSegment(
-        segment,
+        patrolSegment,
         patrolTeamAndTrackingOptions,
-        rosterFallbackSubjects
+        patrolRosterFallbackSubjects
       ).forEach((subject) => {
         const coordinates = getSubjectLastPositionCoordinates(subjectStore[subject.id] ?? subject);
 
@@ -272,45 +272,45 @@ const buildTrackedSubjects = (
   trackedSubjectPositions,
   teamAndTrackingOptions,
   rosterFallbackSubjects,
-  segments,
+  patrolSegments,
   teamLeadId
 ) => {
   const trackedSubjectsMap = new Map();
-  segments.forEach((segment) => {
+  patrolSegments.forEach((patrolSegment) => {
     getTrackedSubjectsForPatrolSegment(
-      segment,
+      patrolSegment,
       teamAndTrackingOptions,
       rosterFallbackSubjects
     ).forEach((subject) => {
-      const trackedSubject = trackedSubjectsMap.get(subject.id) ?? { segments: [], subject };
+      const trackedSubject = trackedSubjectsMap.get(subject.id) ?? { patrolSegments: [], subject };
 
-      trackedSubject.segments.push(segment);
+      trackedSubject.patrolSegments.push(patrolSegment);
 
       trackedSubjectsMap.set(subject.id, trackedSubject);
     });
   });
 
   return [...trackedSubjectsMap.values()]
-    .map(({ segments: subjectSegments, subject }) => {
-      const subjectTrack = trackedSubjectTracks[subject.id];
+    .map((trackedSubject) => {
+      const subjectTrack = trackedSubjectTracks[trackedSubject.subject.id];
 
       return {
         // Tracks are stored most recent position first.
         coordinates: subjectTrack?.points?.features?.[0]?.geometry?.coordinates
-          ?? trackedSubjectPositions[subject.id]
+          ?? trackedSubjectPositions[trackedSubject.subject.id]
           ?? null,
         distance: subjectTrack
-          ? mergeSegmentTimeRanges(subjectSegments).reduce(
+          ? mergeSegmentTimeRanges(trackedSubject.patrolSegments).reduce(
             (distance, timeRange) => distance + distanceCoveredInTimeRange(timeRange, subjectTrack),
             0
           )
           : null,
-        isTeamLead: subject.id === teamLeadId,
-        subject,
+        isTeamLead: trackedSubject.subject.id === teamLeadId,
+        subject: trackedSubject.subject,
       };
     })
     // The team lead comes first.
-    .sort((a, b) => b.isTeamLead - a.isTeamLead);
+    .sort((trackedSubject, otherTrackedSubject) => otherTrackedSubject.isTeamLead - trackedSubject.isTeamLead);
 };
 
 export const selectPatrolTrackedSubjects = createSelector(
@@ -325,13 +325,13 @@ export const selectPatrolTrackedSubjects = createSelector(
     patrolTrackedSubjectTracks,
     patrolTrackedSubjectPositions,
     patrolTeamAndTrackingOptions,
-    rosterFallbackSubjects,
+    patrolRosterFallbackSubjects,
     patrol
   ) => buildTrackedSubjects(
     patrolTrackedSubjectTracks,
     patrolTrackedSubjectPositions,
     patrolTeamAndTrackingOptions,
-    rosterFallbackSubjects,
+    patrolRosterFallbackSubjects,
     patrol.patrol_segments,
     patrol.patrol_segments.at(-1)?.leader?.id ?? null
   )
@@ -351,14 +351,14 @@ export const selectTrackedSubjectsPerPatrolSegment = createSelector(
     patrolTrackedSubjectTracks,
     patrolTrackedSubjectPositions,
     patrolTeamAndTrackingOptions,
-    rosterFallbackSubjects,
+    patrolRosterFallbackSubjects,
     patrol
   ) => patrol
     .patrol_segments.map((patrolSegment) => buildTrackedSubjects(
       patrolTrackedSubjectTracks,
       patrolTrackedSubjectPositions,
       patrolTeamAndTrackingOptions,
-      rosterFallbackSubjects,
+      patrolRosterFallbackSubjects,
       [patrolSegment],
       patrolSegment.leader?.id ?? null
     ))
@@ -377,13 +377,13 @@ export const selectPatrolSegmentTrackedSubjects = createSelector(
     patrolTrackedSubjectTracks,
     patrolTrackedSubjectPositions,
     patrolTeamAndTrackingOptions,
-    rosterFallbackSubjects,
+    patrolRosterFallbackSubjects,
     patrolSegment
   ) => buildTrackedSubjects(
     patrolTrackedSubjectTracks,
     patrolTrackedSubjectPositions,
     patrolTeamAndTrackingOptions,
-    rosterFallbackSubjects,
+    patrolRosterFallbackSubjects,
     [patrolSegment],
     patrolSegment.leader?.id ?? null
   )
@@ -446,6 +446,13 @@ export const selectPatrolsWithTracks = createSelector(
 
     return patrolsWithTracks;
   }
+);
+
+// The start and stop markers of a patrol are drawn alongside its track, so
+// this says whether the map holds either of them.
+export const selectIsPatrolTrackShown = createSelector(
+  [selectPatrolsWithTracks, (_, patrolId) => patrolId],
+  (patrolsWithTracks, patrolId) => patrolsWithTracks.some((patrolWithTracks) => patrolWithTracks.id === patrolId)
 );
 
 const selectPatrolsWithTracksSegmentLeaderTracks = createSelector(

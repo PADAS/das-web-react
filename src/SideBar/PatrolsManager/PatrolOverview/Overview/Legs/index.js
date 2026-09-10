@@ -51,19 +51,19 @@ const Legs = ({ patrol, patrolState }) => {
 
   // Not memoized: a leg reads the clock, and this component only renders when
   // the patrol, its state or its tracks have moved anyway.
-  const legs = patrol.patrol_segments.map((segment, index) => {
-    const hasNotRun = hasPatrolSegmentNotRun(patrol, segment);
+  const legs = patrol.patrol_segments.map((patrolSegment, index) => {
+    const hasNotRun = hasPatrolSegmentNotRun(patrol, patrolSegment);
 
     return {
-      bbox: getBoundsForPatrolSegment(segment, patrolTrackData.legsTrackData?.[index]),
-      end: hasNotRun ? scheduledEndTimeForPatrolSegment(segment) : displayEndTimeForPatrolSegment(segment),
+      bbox: getBoundsForPatrolSegment(patrolSegment, patrolTrackData.legsTrackData?.[index]),
+      end: hasNotRun ? scheduledEndTimeForPatrolSegment(patrolSegment) : displayEndTimeForPatrolSegment(patrolSegment),
       hasNotRun,
-      id: segment.id,
-      isPause: isPatrolSegmentAPause(segment),
+      id: patrolSegment.id,
+      isPause: isPatrolSegmentAPause(patrolSegment),
       number: index + 1,
-      overviewPath: `/${TAB_KEYS.PATROLS}/${patrol.id}/legs/${segment.id}`,
-      patrolTypeDisplay: displayNameForPatrolType(patrolTypes, segment.patrol_type),
-      start: displayStartTimeForPatrolSegment(segment),
+      overviewPath: `/${TAB_KEYS.PATROLS}/${patrol.id}/legs/${patrolSegment.id}`,
+      patrolTypeDisplay: displayNameForPatrolType(patrolTypes, patrolSegment.patrol_type),
+      start: displayStartTimeForPatrolSegment(patrolSegment),
       trackedSubjects: trackedSubjectsPerPatrolSegment[index] ?? [],
     };
   });

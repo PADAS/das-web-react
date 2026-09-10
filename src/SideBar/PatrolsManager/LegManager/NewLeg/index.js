@@ -45,14 +45,14 @@ const NewLeg = ({ patrol }) => {
 
   const legFormId = useId();
 
-  const previousLeg = patrol.patrol_segments.at(-1) ?? null;
+  const previousPatrolSegment = patrol.patrol_segments.at(-1) ?? null;
 
   const [hasAddedLeg, setHasAddedLeg] = useState(false);
   const [initialLeg, setInitialLeg] = useState(() => buildNewLegDraft({
     isAutoEnd: autoEndPatrols,
     isAutoStart: autoStartPatrols,
     patrolTypes,
-    previousLeg,
+    previousPatrolSegment,
     teamAndTrackingOptions: patrolTeamAndTrackingOptions,
   }));
   const [isSaving, setIsSaving] = useState(false);
@@ -62,7 +62,7 @@ const NewLeg = ({ patrol }) => {
 
   const hasUnsavedChanges = !isEqual(leg, initialLeg);
 
-  const earliestStartDateTime = previousLeg ? earliestStartAfterPatrolSegment(previousLeg) : null;
+  const earliestStartDateTime = previousPatrolSegment ? earliestStartAfterPatrolSegment(previousPatrolSegment) : null;
 
   const patrolTitle = displayTitleForPatrol(patrol, governingPatrolSegment(patrol)?.leader);
 
@@ -150,6 +150,7 @@ const NewLeg = ({ patrol }) => {
           leg={leg}
           onChangeLeg={onChangeLeg}
           onSubmit={onSubmit}
+          patrolId={patrol.id}
         />
       </div>
 

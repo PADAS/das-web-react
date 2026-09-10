@@ -43,7 +43,7 @@ const usePatrolActivityEditing = (patrol, tracker) => {
     const hasEditedNotes = patrolNotesWithEditions.some((note, index) => note !== patrolNotes[index]);
 
     return hasEditedNotes || newNotesWithText.length > 0
-      ? [...patrolNotesWithEditions, ...newNotesWithText.map(({ text }) => ({ text: text.trim() }))]
+      ? [...patrolNotesWithEditions, ...newNotesWithText.map((newNote) => ({ text: newNote.text.trim() }))]
       : null;
   }, [editedExistingNotes, newNotesWithText, patrolNotes]);
 
