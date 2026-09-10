@@ -34,7 +34,7 @@ const ATTACHMENT_FILE_TYPES_ACCEPTED = [
   '.wmv'
 ].join(', ');
 
-const AddAttachmentButton = ({ onAddAttachments }) => {
+const AddAttachmentButton = ({ disabled = false, onAddAttachments, ...otherProps }) => {
   const fileInputRef = useRef();
   const { t } = useTranslation('details-view');
 
@@ -57,20 +57,24 @@ const AddAttachmentButton = ({ onAddAttachments }) => {
   const onAttachmentButtonDragOver = useCallback((event) => {
     event.preventDefault();
 
-    analytics?.track('Drag in attachment');
+    if (!disabled) {
+      analytics?.track('Drag in attachment');
 
-    setDraggingOver(true);
-  }, [analytics]);
+      setDraggingOver(true);
+    }
+  }, [analytics, disabled]);
 
   const onAttachmentButtonDrop = useCallback((event) => {
     event.preventDefault();
 
-    analytics?.track('Drop dragged attachment');
+    if (!disabled) {
+      analytics?.track('Drop dragged attachment');
 
-    setDraggingOver(false);
-    onAddAttachments(event.dataTransfer.files);
-    fileInputRef.current.value = '';
-  }, [analytics, onAddAttachments]);
+      setDraggingOver(false);
+      onAddAttachments(event.dataTransfer.files);
+      fileInputRef.current.value = '';
+    }
+  }, [analytics, disabled, onAddAttachments]);
 
   const onChangeFileInput = useCallback(() => {
     analytics?.track('Add attachment');
@@ -93,12 +97,14 @@ const AddAttachmentButton = ({ onAddAttachments }) => {
     <button
       aria-label={t('addAttachmentButtonLabel')}
       className={`${styles.addAttachmentButton} ${draggingOver ? styles.draggingOver : ''}`}
+      disabled={disabled}
       onClick={onAttachmentButtonClick}
       onDragLeave={onAttachmentButtonDragLeave}
       onDragOver={onAttachmentButtonDragOver}
       onDrop={onAttachmentButtonDrop}
       title={t('addAttachmentButtonLabel')}
       type="button"
+      {...otherProps}
       >
       <AttachmentIcon aria-hidden="true" />
 

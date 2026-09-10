@@ -1,4 +1,24 @@
 {
+  "activity": {
+    "activitySectionTitle": "Actividad",
+    "collapseAllButtonLabel": "Colapsar todo",
+    "expandAllButtonLabel": "Expandir todo",
+    "sortDirectionButtonLabel": {
+      "down": "Ordenar actividad de forma ascendente",
+      "up": "Ordenar actividad de forma descendente"
+    },
+    "summaryStats": {
+      "activeTimeLabel": "Tiempo activo",
+      "distanceLabel": "Distancia",
+      "distanceSubjectButtonLabel": "Distancia recorrida por {{subject}}. Cambiar el sujeto rastreado",
+      "distanceSubjectMenuLabel": "Sujetos rastreados",
+      "durationLabel": "Duración",
+      "eventsLabel": "Eventos",
+      "pausedTimeLabel": "Tiempo en pausa",
+      "teamLeadIndicator": "Líder del equipo"
+    },
+    "timeLabel": "Hora"
+  },
   "addToPatrolModal": {
     "cancel": "Cancelar",
     "loading": "Cargando...",
@@ -53,6 +73,9 @@
       "plan": "Plan"
     }
   },
+  "detailViewLoader": {
+    "loadingLabel": "Cargando datos de la patrulla"
+  },
   "header": {
     "breadcrumbNavLabel": "Navegación de patrullas",
     "closeButtonLabel": "Cerrar barra lateral"
@@ -93,6 +116,55 @@
     },
     "universalFieldsSchemaErrorMessage": "No se pudieron cargar los campos universales de patrulla.",
     "universalFieldsSchemaLoadingLabel": "Cargando los campos universales de patrulla"
+  },
+  "legOverview": {
+    "activityEmptyStateMessage": "La actividad del tramo aparecerá aquí",
+    "attachmentsSaveErrorMessage": "No se pudieron subir algunos archivos adjuntos. Vuelva a intentarlo.",
+    "footer": {
+      "addEventButtonLabel": "Reportar un evento en este tramo de patrulla",
+      "addEventButtonText": "Evento",
+      "editButton": "Editar",
+      "saveButton": "Guardar"
+    },
+    "header": {
+      "breadcrumbPatrolsLabel": "Patrullas",
+      "copyLinkMessage": "Enlace copiado",
+      "copyLinkOption": "Copiar el enlace del tramo de patrulla",
+      "downloadTrackOption": "Descargar el recorrido del tramo de patrulla",
+      "fitToBoundsButtonLabel": "Acercar a los límites del tramo de patrulla",
+      "jumpToLocationButtonLabel": "Ir a la ubicación",
+      "mobileProvenancePill": "Móvil",
+      "moreOptionsButtonLabel": "Más opciones",
+      "printOption": "Imprimir el tramo de patrulla",
+      "title": "Tramo {{legNumber}}",
+      "toggleTrackButtonLabel": {
+        "hidden": "Mostrar el recorrido de la patrulla",
+        "pinned": "Ocultar el recorrido de la patrulla",
+        "visible": "Fijar el recorrido de la patrulla"
+      }
+    },
+    "legEndedTitle": "Tramo {{legNumber}} finalizado",
+    "legStartedTitle": "Tramo {{legNumber}} iniciado",
+    "plan": {
+      "patrolTypeSchemaErrorMessage": "No se pudieron cargar los campos de este tipo de patrulla.",
+      "patrolTypeSchemaLoadingLabel": "Cargando los campos de este tipo de patrulla",
+      "staticFields": {
+        "assetsLabel": "Activos",
+        "copyCoordinatesButtonLabel": "Copiar las coordenadas de {{field}}",
+        "copyCoordinatesMessage": "Coordenadas copiadas",
+        "endLabel": "Fin",
+        "jumpToLocationButtonLabel": "Ir a la ubicación de {{field}}",
+        "scheduledIndicator": "Programado",
+        "startLabel": "Inicio",
+        "teamLabel": "Equipo",
+        "teamLeadIndicator": "Líder",
+        "teamLeadLabel": "Líder del equipo",
+        "teamMembersLabel": "Miembros del equipo"
+      },
+      "universalFieldsSchemaErrorMessage": "No se pudieron cargar los campos universales de patrulla.",
+      "universalFieldsSchemaLoadingLabel": "Cargando los campos universales de patrulla"
+    },
+    "saveErrorMessage": "No se pudo guardar el tramo de la patrulla. Vuelva a intentarlo."
   },
   "newLeg": {
     "footer": {
@@ -165,16 +237,6 @@
         "hidden": "Mostrar ruta de la patrulla",
         "pinned": "Ocultar ruta de la patrulla",
         "visible": "Fijar ruta de la patrulla"
-      },
-      "uiStateTitles": {
-        "active": "Activo",
-        "cancelled": "Cancelado",
-        "done": "Finalizado",
-        "invalid": "Configuración no válida",
-        "paused": "En pausa",
-        "readyToStart": "Listo para iniciar",
-        "scheduled": "Agendado",
-        "startOverdue": "Inicio atrasado"
       }
     },
     "history": {
@@ -186,30 +248,8 @@
     },
     "historyTabTitle": "Historial",
     "overview": {
-      "activity": {
-        "activitySectionTitle": "Actividad",
-        "collapseAllButtonLabel": "Colapsar todo",
-        "emptyStateMessage": "La actividad de la patrulla aparecerá aquí",
-        "expandAllButtonLabel": "Expandir todo",
-        "legTransitionTitle": "Tramo {{endedLeg}} finalizado, tramo {{startedLeg}} iniciado",
-        "patrolEndedTitle": "Patrullaje finalizado",
-        "patrolStartedTitle": "Patrullaje iniciado",
-        "sortDirectionButtonLabel": {
-          "down": "Ordenar actividad de forma ascendente",
-          "up": "Ordenar actividad de forma descendente"
-        },
-        "summaryStats": {
-          "activeTimeLabel": "Tiempo activo",
-          "distanceLabel": "Distancia",
-          "distanceSubjectButtonLabel": "Distancia recorrida por {{subject}}. Cambiar el sujeto rastreado",
-          "distanceSubjectMenuLabel": "Sujetos rastreados",
-          "durationLabel": "Duración",
-          "eventsLabel": "Eventos",
-          "patrolLeaderIndicator": "Líder del patrullaje",
-          "pausedTimeLabel": "Tiempo en pausa"
-        },
-        "timeLabel": "Hora"
-      },
+      "activityEmptyStateMessage": "La actividad de la patrulla aparecerá aquí",
+      "legEndedTitle": "Tramo {{legNumber}} finalizado",
       "legs": {
         "endColumnHeader": "Fecha de finalización",
         "legActionsColumnHeader": "Acciones",
@@ -219,14 +259,38 @@
         "newLegButton": "Nuevo tramo de patrulla",
         "patrolTypeColumnHeader": "Tipo de patrulla",
         "startColumnHeader": "Fecha de inicio",
+        "teamAndTracking": {
+          "jumpToLocationButtonLabel": "Ir a la ubicación de {{subject}}",
+          "listLabel": "Sujetos rastreados por el tramo {{legNumber}}",
+          "teamLeadIndicator": "Líder del equipo",
+          "toggleButtonLabel": "{{subject}} +{{extraSubjects}}",
+          "toggleButtonTitle": "Mostrar los sujetos que rastrea el tramo {{legNumber}}"
+        },
         "teamColumnHeader": "Equipo y rastreo",
         "viewLegButtonLabel": "Ver tramo {{legNumber}}",
         "zoomToLegBoundsButtonLabel": "Ajustar a los límites del tramo {{legNumber}}"
-      }
+      },
+      "legStartedTitle": "Tramo {{legNumber}} iniciado",
+      "patrolEndedTitle": "Patrullaje finalizado",
+      "patrolPausedTitle": "Patrullaje en pausa por {{pausedFor}}",
+      "patrolResumedTitle": "Patrullaje reanudado",
+      "patrolStartedTitle": "Patrullaje iniciado"
     },
     "overviewTabTitle": "Resumen",
     "saveErrorMessage": "No se pudo guardar la patrulla. Vuelva a intentarlo.",
     "tabsLabel": "Pestañas de resumen de la patrulla"
+  },
+  "statusPill": {
+    "uiStateTitles": {
+      "active": "Activo",
+      "cancelled": "Cancelado",
+      "done": "Finalizado",
+      "invalid": "Configuración no válida",
+      "paused": "En pausa",
+      "readyToStart": "Listo para iniciar",
+      "scheduled": "Agendado",
+      "startOverdue": "Inicio atrasado"
+    }
   },
   "titleInput": {
     "editButtonLabel": "Editar título"

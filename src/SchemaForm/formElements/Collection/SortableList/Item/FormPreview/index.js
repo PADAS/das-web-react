@@ -21,7 +21,7 @@ const FormPreview = ({
   formElements,
   isDragOverlay,
 }) => {
-  const { t, i18n } = useTranslation('schema-form', {
+  const { t } = useTranslation('schema-form', {
     keyPrefix: 'fields.collection.sortableList.item.formPreview',
   });
 
@@ -50,9 +50,7 @@ const FormPreview = ({
               field,
               formData[fieldName],
               '-',
-              i18n.language,
-              coordinatesRepresentation,
-              t
+              coordinatesRepresentation
             )}
           </p>
         </div>
@@ -70,7 +68,7 @@ const FormPreview = ({
           title={t('jumpToLocationButtonLabel', { field: field.details.label })}
           type="button"
         >
-          <MarkerFeedIcon />
+          <MarkerFeedIcon aria-hidden="true" />
         </button>}
       </li>;
     })}

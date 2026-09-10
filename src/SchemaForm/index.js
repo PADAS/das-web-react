@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { clearUserContent } from '../ducks/user-content';
-import evaluateSectionConditions from './utils/evaluateSectionConditions';
+import evaluateSectionConditions from '../utils/form-schemas/evaluateSectionConditions';
 import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from '../utils/form-schemas/constants';
 import { FormInstanceContext } from './utils/useFormElementDomId';
 import getDefaultFormData from './utils/getDefaultFormData';
@@ -256,7 +256,7 @@ const SchemaForm = ({
           ...formElements[sectionId].details.leftColumn,
           ...formElements[sectionId].details.rightColumn,
         ]);
-        const initialData = getDefaultFormData(visibleFieldIds, formElements);
+        const initialData = { ...getDefaultFormData(visibleFieldIds, formElements), ...normalizedFormData };
 
         if (!isEqual(initialData, normalizedFormData)) {
           // The defaults are part of the form the user is handed, not an edit

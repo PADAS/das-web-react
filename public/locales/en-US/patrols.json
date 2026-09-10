@@ -1,4 +1,24 @@
 {
+  "activity": {
+    "activitySectionTitle": "Activity",
+    "collapseAllButtonLabel": "Collapse all",
+    "expandAllButtonLabel": "Expand all",
+    "sortDirectionButtonLabel": {
+      "down": "Sort activity in ascending order",
+      "up": "Sort activity in descending order"
+    },
+    "summaryStats": {
+      "activeTimeLabel": "Active Time",
+      "distanceLabel": "Distance",
+      "distanceSubjectButtonLabel": "Distance covered by {{subject}}. Change the tracked subject",
+      "distanceSubjectMenuLabel": "Tracked subjects",
+      "durationLabel": "Duration",
+      "eventsLabel": "Events",
+      "pausedTimeLabel": "Paused Time",
+      "teamLeadIndicator": "Team lead"
+    },
+    "timeLabel": "Time"
+  },
   "addToPatrolModal": {
     "cancel": "Cancel",
     "loading": "Loading...",
@@ -53,6 +73,9 @@
       "plan": "Plan"
     }
   },
+  "detailViewLoader": {
+    "loadingLabel": "Loading patrol data"
+  },
   "header": {
     "breadcrumbNavLabel": "Patrol navigation",
     "closeButtonLabel": "Close sidebar"
@@ -93,6 +116,55 @@
     },
     "universalFieldsSchemaErrorMessage": "The universal patrol fields could not be loaded.",
     "universalFieldsSchemaLoadingLabel": "Loading the universal patrol fields"
+  },
+  "legOverview": {
+    "activityEmptyStateMessage": "Leg activity will appear here",
+    "attachmentsSaveErrorMessage": "Some attachments could not be uploaded. Please try again.",
+    "footer": {
+      "addEventButtonLabel": "Report an event on this patrol leg",
+      "addEventButtonText": "Event",
+      "editButton": "Edit",
+      "saveButton": "Save"
+    },
+    "header": {
+      "breadcrumbPatrolsLabel": "Patrols",
+      "copyLinkMessage": "Link copied",
+      "copyLinkOption": "Copy patrol leg link",
+      "downloadTrackOption": "Download Patrol Leg Track",
+      "fitToBoundsButtonLabel": "Zoom to patrol leg bounds",
+      "jumpToLocationButtonLabel": "Jump to location",
+      "mobileProvenancePill": "Mobile",
+      "moreOptionsButtonLabel": "More options",
+      "printOption": "Print Patrol Leg",
+      "title": "Leg {{legNumber}}",
+      "toggleTrackButtonLabel": {
+        "hidden": "Show patrol track",
+        "pinned": "Hide patrol track",
+        "visible": "Pin patrol track"
+      }
+    },
+    "legEndedTitle": "Leg {{legNumber}} Ended",
+    "legStartedTitle": "Leg {{legNumber}} Started",
+    "plan": {
+      "patrolTypeSchemaErrorMessage": "The fields of this patrol type could not be loaded.",
+      "patrolTypeSchemaLoadingLabel": "Loading the fields of this patrol type",
+      "staticFields": {
+        "assetsLabel": "Assets",
+        "copyCoordinatesButtonLabel": "Copy the {{field}} coordinates",
+        "copyCoordinatesMessage": "Coordinates copied",
+        "endLabel": "End",
+        "jumpToLocationButtonLabel": "Jump to the {{field}} location",
+        "scheduledIndicator": "Scheduled",
+        "startLabel": "Start",
+        "teamLabel": "Team",
+        "teamLeadIndicator": "Lead",
+        "teamLeadLabel": "Team Lead",
+        "teamMembersLabel": "Team Members"
+      },
+      "universalFieldsSchemaErrorMessage": "The universal patrol fields could not be loaded.",
+      "universalFieldsSchemaLoadingLabel": "Loading the universal patrol fields"
+    },
+    "saveErrorMessage": "The patrol leg could not be saved. Please try again."
   },
   "newLeg": {
     "footer": {
@@ -165,16 +237,6 @@
         "hidden": "Show patrol track",
         "pinned": "Hide patrol track",
         "visible": "Pin patrol track"
-      },
-      "uiStateTitles": {
-        "active": "Active",
-        "cancelled": "Cancelled",
-        "done": "Done",
-        "invalid": "Invalid Configuration",
-        "paused": "Paused",
-        "readyToStart": "Ready to Start",
-        "scheduled": "Scheduled",
-        "startOverdue": "Start Overdue"
       }
     },
     "history": {
@@ -186,30 +248,8 @@
     },
     "historyTabTitle": "History",
     "overview": {
-      "activity": {
-        "activitySectionTitle": "Activity",
-        "collapseAllButtonLabel": "Collapse all",
-        "emptyStateMessage": "Patrol activity will appear here",
-        "expandAllButtonLabel": "Expand all",
-        "legTransitionTitle": "Leg {{endedLeg}} Ended, Leg {{startedLeg}} Started",
-        "patrolEndedTitle": "Patrol Ended",
-        "patrolStartedTitle": "Patrol Started",
-        "sortDirectionButtonLabel": {
-          "down": "Sort activity in ascending order",
-          "up": "Sort activity in descending order"
-        },
-        "summaryStats": {
-          "activeTimeLabel": "Active Time",
-          "distanceLabel": "Distance",
-          "distanceSubjectButtonLabel": "Distance covered by {{subject}}. Change the tracked subject",
-          "distanceSubjectMenuLabel": "Tracked subjects",
-          "durationLabel": "Duration",
-          "eventsLabel": "Events",
-          "patrolLeaderIndicator": "Patrol leader",
-          "pausedTimeLabel": "Paused Time"
-        },
-        "timeLabel": "Time"
-      },
+      "activityEmptyStateMessage": "Patrol activity will appear here",
+      "legEndedTitle": "Leg {{legNumber}} Ended",
       "legs": {
         "endColumnHeader": "End Date",
         "legActionsColumnHeader": "Actions",
@@ -219,14 +259,38 @@
         "newLegButton": "New Patrol Leg",
         "patrolTypeColumnHeader": "Patrol Type",
         "startColumnHeader": "Start Date",
+        "teamAndTracking": {
+          "jumpToLocationButtonLabel": "Jump to the location of {{subject}}",
+          "listLabel": "Subjects tracked by leg {{legNumber}}",
+          "teamLeadIndicator": "Team lead",
+          "toggleButtonLabel": "{{subject}} +{{extraSubjects}}",
+          "toggleButtonTitle": "Show the subjects leg {{legNumber}} tracks"
+        },
         "teamColumnHeader": "Team & Tracking",
         "viewLegButtonLabel": "View leg {{legNumber}}",
         "zoomToLegBoundsButtonLabel": "Zoom to leg {{legNumber}} bounds"
-      }
+      },
+      "legStartedTitle": "Leg {{legNumber}} Started",
+      "patrolEndedTitle": "Patrol Ended",
+      "patrolPausedTitle": "Patrol Paused for {{pausedFor}}",
+      "patrolResumedTitle": "Patrol Resumed",
+      "patrolStartedTitle": "Patrol Started"
     },
     "overviewTabTitle": "Overview",
     "saveErrorMessage": "The patrol could not be saved. Please try again.",
     "tabsLabel": "Patrol overview tabs"
+  },
+  "statusPill": {
+    "uiStateTitles": {
+      "active": "Active",
+      "cancelled": "Cancelled",
+      "done": "Done",
+      "invalid": "Invalid Configuration",
+      "paused": "Paused",
+      "readyToStart": "Ready to Start",
+      "scheduled": "Scheduled",
+      "startOverdue": "Start Overdue"
+    }
   },
   "titleInput": {
     "editButtonLabel": "Edit title"

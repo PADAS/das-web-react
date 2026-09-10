@@ -24,7 +24,7 @@ const getTeamOptionLabel = ({ display }) => display;
 const renderSubjectOptionIcon = ({ image_url }) => !!image_url
   && <SvgIcon imageUrl={calcUrlForImage(image_url)} type="subjects" />;
 
-const StaticFields = ({ earliestStartDateTime = null, errors, leg, onChangeLeg, ref }) => {
+const StaticFields = ({ earliestStartDateTime = null, errors, isFirstLeg = true, leg, onChangeLeg, ref }) => {
   const { t } = useTranslation('patrols', { keyPrefix: 'legForm.staticFields' });
 
   const teamAndTrackingOptions = useSelector((state) => state.data.patrolTeamAndTrackingOptions);
@@ -83,7 +83,10 @@ const StaticFields = ({ earliestStartDateTime = null, errors, leg, onChangeLeg, 
   const endDateTimeError = errors.endDate ?? errors.endTime;
   const startDateTimeError = errors.startDate ?? errors.startTime;
 
-  const renderCheckbox = ({ id, isChecked, isDisabled, label, onChange }) => <div className={styles.checkboxWrapper}>
+  const renderCheckbox = ({ id, isChecked, isDisabled, isHidden = false, label, onChange }) => <div
+    aria-hidden={isHidden ? 'true' : undefined}
+    className={`${styles.checkboxWrapper} ${isHidden ? styles.hidden : ''}`}
+    >
     <input
       checked={isChecked}
       className={styles.checkbox}
@@ -147,6 +150,8 @@ const StaticFields = ({ earliestStartDateTime = null, errors, leg, onChangeLeg, 
           id: autoStartCheckboxId,
           isChecked: leg.isAutoStart,
           isDisabled: !startDateTime || !isFuture(startDateTime),
+          // Only the first leg's start can be a plan.
+          isHidden: !isFirstLeg,
           label: t('autoStartCheckboxLabel'),
           onChange: (isAutoStart) => onChangeLeg({ isAutoStart }),
         })}
@@ -236,7 +241,7 @@ const StaticFields = ({ earliestStartDateTime = null, errors, leg, onChangeLeg, 
           isMulti: true,
           label: t('teamMembersLabel'),
           onChange: (teamMembers) => onChangeLeg({ teamMembers: [...teamMembers] }),
-          options: teamAndTrackingOptions.teamMembers,
+          options: teamAndTrackingOptions.members,
           renderOptionIcon: renderSubjectOptionIcon,
           value: leg.teamMembers,
         })}

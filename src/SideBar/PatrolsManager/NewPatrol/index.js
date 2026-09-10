@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import isEqual from 'react-fast-compare';
-import MoonLoader from 'react-spinners/MoonLoader';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useSearchParams } from 'react-router';
@@ -16,6 +15,7 @@ import { updateUserPreferences } from '../../../ducks/user-preferences';
 import useNavigate from '../../../hooks/useNavigate';
 import { usePatrolsPermissions } from '../../../hooks/usePermissions';
 
+import DetailViewLoader from '../DetailViewLoader';
 import Footer from './Footer';
 import Header from './Header';
 import LegForm from '../LegForm';
@@ -24,8 +24,6 @@ import NavigationPromptModal from '../../../NavigationPromptModal';
 import * as styles from './styles.module.scss';
 
 const newPatrolTracker = trackEventFactory(NEW_PATROL_CATEGORY);
-
-const LOADER_SIZE = 50;
 
 const NewPatrolContent = ({ initialPatrolType }) => {
   const dispatch = useDispatch();
@@ -182,9 +180,7 @@ const NewPatrol = () => {
     // Reaching this route again, with another type or start data, must begin a
     // brand new patrol instead of reusing the draft already in the form.
     ? <NewPatrolContent initialPatrolType={patrolType} key={location.state?.temporalId} />
-    : <div className={styles.loaderWrapper} data-testid="newPatrol-loader">
-      <MoonLoader size={LOADER_SIZE} />
-    </div>;
+    : <DetailViewLoader />;
 };
 
 export default NewPatrol;

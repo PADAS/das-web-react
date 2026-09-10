@@ -38,6 +38,9 @@ export const API_V2_URL = `${DAS_HOST}${REACT_APP_DAS_API_V2_URL}`;
 // migration. Reachable before auth.
 export const ACCOUNT_LINKER_URL = `${DAS_HOST}/auth/link-accounts/`;
 
+// What a read-only field shows in place of a value it was never given.
+export const EMPTY_VALUE = '-';
+
 export const STATUSES = {
   HEALTHY_STATUS: 'HEALTHY',
   WARNING_STATUS: 'WARNING',

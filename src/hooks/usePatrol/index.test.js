@@ -96,6 +96,32 @@ describe('usePatrol', () => {
     expect(updatePatrol.mock.calls[0][0].state).toBe('cancelled');
   });
 
+  test('sends the patrol id and what the change names, and nothing the patrol was read with', async () => {
+    const Component = ({ patrol }) => {
+      const { onPatrolChange } = usePatrol(patrol);
+
+      onPatrolChange({ state: PATROL_API_STATES.CANCELLED });
+
+      return null;
+    };
+    renderTestComponent(activePatrol, Component);
+
+    expect(updatePatrol).toHaveBeenCalledWith({ id: activePatrol.id, state: PATROL_API_STATES.CANCELLED });
+  });
+
+  test('sends the legs a change names', async () => {
+    const Component = ({ patrol }) => {
+      const { onPatrolChange } = usePatrol(patrol);
+
+      onPatrolChange({ patrol_segments: [{ id: 'leg-1' }] });
+
+      return null;
+    };
+    renderTestComponent(activePatrol, Component);
+
+    expect(updatePatrol.mock.calls[0][0].patrol_segments).toEqual([{ id: 'leg-1' }]);
+  });
+
   test('triggers a patrol update when calling restorePatrol', async () => {
     const Component = ({ patrol }) => {
       const { restorePatrol } = usePatrol(patrol);

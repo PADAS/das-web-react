@@ -1,5 +1,4 @@
-import React, { memo, useContext, useMemo } from 'react';
-import { bbox, featureCollection } from '@turf/turf';
+import React, { memo, useContext } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -12,24 +11,26 @@ import {
   displayEndTimeForPatrolSegment,
   displayNameForPatrolType,
   displayStartTimeForPatrolSegment,
-  isSegmentPending,
+  getBoundsForPatrolSegment,
+  hasPatrolSegmentNotRun,
+  isPatrolSegmentAPause,
   scheduledEndTimeForPatrolSegment,
 } from '../../../../../utils/patrols';
+import { EMPTY_VALUE, PATROL_UI_STATES, TAB_KEYS } from '../../../../../constants';
 import { format, STANDARD_DATE_FORMAT } from '../../../../../utils/datetime';
-import { PATROL_UI_STATES, TAB_KEYS } from '../../../../../constants';
-import { selectPatrolTrackData } from '../../../../../selectors/patrols';
+import { selectPatrolTrackData, selectTrackedSubjectsPerPatrolSegment } from '../../../../../selectors/patrols';
 import { TrackerContext } from '../../../../../utils/analytics';
 import useJumpToLocation from '../../../../../hooks/useJumpToLocation';
 import useNavigate from '../../../../../hooks/useNavigate';
 import { usePatrolsPermissions } from '../../../../../hooks/usePermissions';
 
 import Link from '../../../../../Link';
+import StatusPill from '../../../StatusPill';
+import TeamAndTracking from './TeamAndTracking';
 
 import * as styles from './styles.module.scss';
 
 const SIMPLIFIED_DATE_FORMAT = 'MM/dd/yyyy HH:mm';
-
-const formatLegDate = (date, dateFormat) => date ? format(date, dateFormat) : null;
 
 const Legs = ({ patrol, patrolState }) => {
   const navigate = useNavigate();
@@ -42,30 +43,30 @@ const Legs = ({ patrol, patrolState }) => {
 
   const patrolTrackData = useSelector((state) => selectPatrolTrackData(state, patrol));
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
+  const trackedSubjectsPerPatrolSegment = useSelector(
+    (state) => selectTrackedSubjectsPerPatrolSegment(state, patrol)
+  );
 
   const canAddLeg = hasPatrolsUpdatePermission && canPatrolTakeNewLegs(patrol, patrolState);
-  const isPatrolOver = patrolState === PATROL_UI_STATES.CANCELLED || patrolState === PATROL_UI_STATES.DONE;
 
-  const legs = useMemo(() => patrol.patrol_segments.map((segment, index) => {
-    const legTrackData = patrolTrackData.legsTrackData?.[index] ?? null;
-    const legTrackFeatures = (legTrackData?.track?.features ?? []).filter(
-      (feature) => feature.geometry?.coordinates?.length
-    );
-
-    const hasNotRun = isPatrolOver && isSegmentPending(segment);
+  // Not memoized: a leg reads the clock, and this component only renders when
+  // the patrol, its state or its tracks have moved anyway.
+  const legs = patrol.patrol_segments.map((segment, index) => {
+    const hasNotRun = hasPatrolSegmentNotRun(patrol, segment);
 
     return {
-      bbox: legTrackFeatures.length ? bbox(featureCollection(legTrackFeatures)) : null,
+      bbox: getBoundsForPatrolSegment(segment, patrolTrackData.legsTrackData?.[index]),
       end: hasNotRun ? scheduledEndTimeForPatrolSegment(segment) : displayEndTimeForPatrolSegment(segment),
       hasNotRun,
       id: segment.id,
-      leaderName: segment.leader?.name ?? null,
+      isPause: isPatrolSegmentAPause(segment),
       number: index + 1,
       overviewPath: `/${TAB_KEYS.PATROLS}/${patrol.id}/legs/${segment.id}`,
       patrolTypeDisplay: displayNameForPatrolType(patrolTypes, segment.patrol_type),
       start: displayStartTimeForPatrolSegment(segment),
+      trackedSubjects: trackedSubjectsPerPatrolSegment[index] ?? [],
     };
-  }), [isPatrolOver, patrol, patrolTrackData, patrolTypes]);
+  });
 
   const onZoomToLegBounds = (leg) => (event) => {
     event.stopPropagation();
@@ -81,11 +82,19 @@ const Legs = ({ patrol, patrolState }) => {
     tracker.track('View leg from patrol overview');
   };
 
-  const onViewLeg = () => (event) => {
+  const onViewLeg = (event) => {
     event.stopPropagation();
 
     tracker.track('View leg from patrol overview');
   };
+
+  const renderLegDate = (date) => date
+    ? <time dateTime={date.toISOString()}>
+      <span className={styles.fullDate}>{format(date, STANDARD_DATE_FORMAT)}</span>
+
+      <span className={styles.simplifiedDate}>{format(date, SIMPLIFIED_DATE_FORMAT)}</span>
+    </time>
+    : EMPTY_VALUE;
 
   return <>
     <div className={`${styles.legTableWrapper} ${canAddLeg ? '' : styles.withoutNewLegButton}`}>
@@ -122,28 +131,18 @@ const Legs = ({ patrol, patrolState }) => {
               {!!leg.hasNotRun && <span className="sr-only">{t('legDidNotRunLabel')}</span>}
             </td>
 
-            <td>{leg.patrolTypeDisplay}</td>
-
             <td>
-              <time dateTime={leg.start?.toISOString()}>
-                <span className={styles.fullDate}>{formatLegDate(leg.start, STANDARD_DATE_FORMAT)}</span>
-
-                <span className={styles.simplifiedDate}>{formatLegDate(leg.start, SIMPLIFIED_DATE_FORMAT)}</span>
-              </time>
+              {leg.isPause
+                ? <StatusPill className={styles.pausePill} state={PATROL_UI_STATES.PAUSED} />
+                : leg.patrolTypeDisplay}
             </td>
 
-            <td>
-              <time dateTime={leg.end?.toISOString()}>
-                <span className={styles.fullDate}>{formatLegDate(leg.end, STANDARD_DATE_FORMAT)}</span>
+            <td>{renderLegDate(leg.start)}</td>
 
-                <span className={styles.simplifiedDate}>{formatLegDate(leg.end, SIMPLIFIED_DATE_FORMAT)}</span>
-              </time>
-            </td>
+            <td>{renderLegDate(leg.end)}</td>
 
             <td>
-              {/* TODO: Also list the leg's team members and tracked assets
-              once they're part of the data model. */}
-              <span className={styles.teamColumn}>{leg.leaderName}</span>
+              <TeamAndTracking legNumber={leg.number} trackedSubjects={leg.trackedSubjects} />
             </td>
 
             <td>
@@ -162,7 +161,7 @@ const Legs = ({ patrol, patrolState }) => {
                 <Link
                   aria-label={t('viewLegButtonLabel', { legNumber: leg.number })}
                   className={styles.viewLegButton}
-                  onClick={onViewLeg(leg)}
+                  onClick={onViewLeg}
                   title={t('viewLegButtonLabel', { legNumber: leg.number })}
                   to={leg.overviewPath}
                 >

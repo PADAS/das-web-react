@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { isCancel } from 'axios';
-import MoonLoader from 'react-spinners/MoonLoader';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { toast } from 'react-toastify';
@@ -10,30 +9,26 @@ import { useTranslation } from 'react-i18next';
 
 import { addPatrolSegmentToEvent } from '../../../utils/events';
 import buildPatrolStatusUpdate from './utils/buildPatrolStatusUpdate';
-import { convertFileListToArray, filterDuplicateUploadFilenames } from '../../../utils/file';
-import { displayTitleForPatrol, governingPatrolSegment } from '../../../utils/patrols';
+import { displayTitleForPatrol, getTrackedSubjectsForPatrolSegment, governingPatrolSegment } from '../../../utils/patrols';
 import { fetchPatrol, updatePatrol, uploadPatrolFile } from '../../../ducks/patrols';
 import { fetchTracksIfNecessary } from '../../../utils/tracks';
 import { PATROL_OVERVIEW_CATEGORY, TrackerContext, trackEventFactory } from '../../../utils/analytics';
+import { selectPatrolRosterFallbackSubjects } from '../../../selectors/patrols';
 import { TAB_KEYS as SIDEBAR_TAB_KEYS } from '../../../constants';
 import useNavigate from '../../../hooks/useNavigate';
+import usePatrolActivityEditing from '../utils/usePatrolActivityEditing';
 import usePatrolState from '../../../hooks/usePatrolState';
-import { uuid } from '../../../utils/string';
 
+import DetailViewLoader from '../DetailViewLoader';
 import Footer from './Footer';
 import Header from './Header';
 import History from './History';
 import NavigationPromptModal from '../../../NavigationPromptModal';
 import Overview from './Overview';
 
-import * as activitySectionStyles from '../../../DetailViewComponents/ActivitySection/styles.module.scss';
 import * as styles from './styles.module.scss';
 
 const patrolOverviewTracker = trackEventFactory(PATROL_OVERVIEW_CATEGORY);
-
-const LOADER_SIZE = 50;
-
-const NEW_ACTIVITY_SECTION_ITEM_SCROLL_DELAY = parseFloat(activitySectionStyles.cardToggleTransitionTime);
 
 const TAB_KEYS = { HISTORY: 'history', OVERVIEW: 'overview' };
 const TAB_LABELS = { [TAB_KEYS.HISTORY]: 'History', [TAB_KEYS.OVERVIEW]: 'Overview' };
@@ -43,16 +38,17 @@ const PatrolOverviewContent = ({ patrol }) => {
   const navigate = useNavigate();
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolOverview' });
 
-  const newAttachmentRef = useRef(null);
-  const newNoteRef = useRef(null);
+  const activityEditing = usePatrolActivityEditing(patrol, patrolOverviewTracker);
+  const patrolState = usePatrolState(patrol);
+
+  const patrolRosterFallbackSubjects = useSelector((state) => selectPatrolRosterFallbackSubjects(state, patrol));
+  const patrolTeamAndTrackingOptions = useSelector((state) => state.data.patrolTeamAndTrackingOptions);
+
   const printableContentRef = useRef(null);
 
-  const [editedExistingNotes, setEditedExistingNotes] = useState({});
   const [editedState, setEditedState] = useState(null);
   const [editedTitle, setEditedTitle] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [newAttachments, setNewAttachments] = useState([]);
-  const [newNotes, setNewNotes] = useState([]);
   const [shouldRedirectToFeed, setShouldRedirectToFeed] = useState(false);
 
   const patrolTitle = displayTitleForPatrol(patrol, governingPatrolSegment(patrol)?.leader);
@@ -61,57 +57,16 @@ const PatrolOverviewContent = ({ patrol }) => {
 
   const isTitleDirty = editedTitle !== null && editedTitle.trim() !== patrolTitle.trim();
 
-  const patrolState = usePatrolState(patrol);
-
   const state = editedState ?? patrolState;
 
   const isStateDirty = editedState !== null;
 
-  const patrolAttachments = useMemo(() => Array.isArray(patrol.files) ? patrol.files : [], [patrol]);
+  const patrolUpdates = useMemo(() => ({
+    ...(isTitleDirty ? { title: title.trim() } : {}),
+    ...(activityEditing.notesUpdate ? { notes: activityEditing.notesUpdate } : {}),
+  }), [activityEditing.notesUpdate, isTitleDirty, title]);
 
-  const patrolNotes = useMemo(() => Array.isArray(patrol.notes) ? patrol.notes : [], [patrol]);
-
-  const editedPatrolNotes = useMemo(() => patrolNotes.map((note) => {
-    const edition = editedExistingNotes[note.id];
-    const editedText = edition?.text.trim();
-
-    return {
-      ...note,
-      isUnsaved: !!editedText && editedText !== note.text.trim(),
-      originalText: edition?.originalText ?? note.text,
-      text: edition?.text ?? note.text,
-    };
-  }), [editedExistingNotes, patrolNotes]);
-
-  const newNotesWithText = useMemo(() => newNotes.filter((note) => note.text.trim()), [newNotes]);
-
-  const patrolUpdates = useMemo(() => {
-    const patrolUpdates = {};
-
-    if (isTitleDirty) {
-      patrolUpdates.title = title.trim();
-    }
-
-    const patrolNotesWithEditions = patrolNotes.map((note) => {
-      const editedText = editedExistingNotes[note.id]?.text.trim();
-
-      return editedText && editedText !== note.text.trim() ? { ...note, text: editedText } : note;
-    });
-
-    const hasEditedNotes = patrolNotesWithEditions.some((note, index) => note !== patrolNotes[index]);
-    if (hasEditedNotes || newNotesWithText.length > 0) {
-      patrolUpdates.notes = [
-        ...patrolNotesWithEditions,
-        ...newNotesWithText.map(({ text }) => ({ text: text.trim() })),
-      ];
-    }
-
-    return patrolUpdates;
-  }, [editedExistingNotes, isTitleDirty, newNotesWithText, patrolNotes, title]);
-
-  const hasPatrolUpdates = Object.keys(patrolUpdates).length > 0;
-
-  const hasUnsavedChanges = hasPatrolUpdates || newAttachments.length > 0 || isStateDirty;
+  const hasUnsavedChanges = isTitleDirty || isStateDirty || activityEditing.hasStagedChanges;
 
   const onAddEvent = useCallback(async (saveResults) => {
     const [firstResult] = Array.isArray(saveResults) ? saveResults : [saveResults];
@@ -130,123 +85,9 @@ const PatrolOverviewContent = ({ patrol }) => {
     redirectTo: [{ pathname: `/${SIDEBAR_TAB_KEYS.PATROLS}/${patrol.id}` }],
   }), [onAddEvent, patrol.id]);
 
-  const onAddNote = useCallback(() => {
-    setNewNotes((prevNewNotes) => [
-      ...prevNewNotes,
-      { creationDate: new Date().toISOString(), ref: newNoteRef, text: '', tmpId: uuid() },
-    ]);
-
-    setTimeout(
-      () => newNoteRef.current?.scrollIntoView?.({ behavior: 'smooth' }),
-      NEW_ACTIVITY_SECTION_ITEM_SCROLL_DELAY
-    );
-
-    patrolOverviewTracker.track('Added Note');
-  }, []);
-
   const onChangeState = useCallback((pickedState) => {
     setEditedState(pickedState === patrolState ? null : pickedState);
   }, [patrolState]);
-
-  const onChangeNote = useCallback((originalNote, event) => {
-    if (originalNote.tmpId) {
-      setNewNotes((prevNewNotes) => prevNewNotes.map(
-        (note) => note.tmpId === originalNote.tmpId ? { ...note, text: event.target.value } : note
-      ));
-    } else {
-      setEditedExistingNotes((prevEditedExistingNotes) => ({
-        ...prevEditedExistingNotes,
-        [originalNote.id]: { originalText: originalNote.originalText, text: event.target.value },
-      }));
-    }
-  }, []);
-
-  const onDoneNote = useCallback((editedNote) => {
-    if (editedNote.tmpId) {
-      setNewNotes((prevNewNotes) => prevNewNotes.map((note) => {
-        if (note.tmpId === editedNote.tmpId) {
-          // The trimmed text becomes the original one, so the note no longer
-          // counts as being written.
-          const text = note.text.trim();
-          return { ...note, originalText: text, text };
-        }
-        return note;
-      }));
-
-      patrolOverviewTracker.track('Save new note');
-    } else {
-      setEditedExistingNotes((prevEditedExistingNotes) => {
-        const text = editedNote.text.trim();
-
-        return { ...prevEditedExistingNotes, [editedNote.id]: { originalText: text, text } };
-      });
-
-      patrolOverviewTracker.track('Save existing note');
-    }
-  }, []);
-
-  const onCancelNote = useCallback((editedNote) => {
-    if (editedNote.tmpId) {
-      setNewNotes((prevNewNotes) => prevNewNotes.map(
-        (note) => note.tmpId === editedNote.tmpId ? { ...note, text: note.originalText } : note
-      ));
-    } else {
-      setEditedExistingNotes((prevEditedExistingNotes) => {
-        const edition = prevEditedExistingNotes[editedNote.id];
-
-        if (!edition) {
-          return prevEditedExistingNotes;
-        }
-
-        if (edition.originalText === patrolNotes.find((note) => note.id === editedNote.id)?.text) {
-          const nextEditedExistingNotes = { ...prevEditedExistingNotes };
-          delete nextEditedExistingNotes[editedNote.id];
-          return nextEditedExistingNotes;
-        }
-
-        return { ...prevEditedExistingNotes, [editedNote.id]: { ...edition, text: edition.originalText } };
-      });
-    }
-  }, [patrolNotes]);
-
-  const onDeleteNote = useCallback((noteToDelete) => {
-    setNewNotes((prevNewNotes) => prevNewNotes.filter((note) => note !== noteToDelete));
-
-    patrolOverviewTracker.track('Delete new note');
-  }, []);
-
-  const onAddAttachments = useCallback((files) => {
-    const filesToAdd = filterDuplicateUploadFilenames(
-      [...patrolAttachments, ...newAttachments.map((attachmentToAdd) => attachmentToAdd.file)],
-      convertFileListToArray(files)
-    );
-
-    if (filesToAdd.length === 0) {
-      return;
-    }
-
-    setNewAttachments((prevNewAttachments) => [
-      ...prevNewAttachments,
-      ...filesToAdd.map((file) => ({ creationDate: new Date().toISOString(), file, ref: newAttachmentRef })),
-    ]);
-
-    setTimeout(
-      () => newAttachmentRef.current?.scrollIntoView?.({ behavior: 'smooth' }),
-      NEW_ACTIVITY_SECTION_ITEM_SCROLL_DELAY
-    );
-
-    patrolOverviewTracker.track('Added Attachment');
-  }, [newAttachments, patrolAttachments]);
-
-  const onDeleteAttachment = useCallback((fileToDelete) => {
-    setNewAttachments(
-      (prevNewAttachments) => prevNewAttachments.filter(
-        (attachment) => attachment.file.name !== fileToDelete.name
-      )
-    );
-
-    patrolOverviewTracker.track('Delete new attachment');
-  }, []);
 
   const savePatrol = useCallback(async () => {
     // The status update is built here, and not alongside the other updates,
@@ -258,18 +99,23 @@ const PatrolOverviewContent = ({ patrol }) => {
     // Update the patrol and upload the new attachments in parallel.
     const [patrolUpdateResult, ...attachmentResults] = await Promise.allSettled([
       hasUpdates ? dispatch(updatePatrol({ ...patrolUpdatesWithStatusUpdate, id: patrol.id })) : Promise.resolve(),
-      ...newAttachments.map(({ file }) => uploadPatrolFile(patrol.id, file)),
+      ...activityEditing.newAttachments.map(({ file }) => uploadPatrolFile(patrol.id, file)),
     ]);
 
     const refetchPatrol = dispatch(fetchPatrol(patrol.id)).catch(() => {});
 
     if (patrolUpdateResult.status === 'fulfilled') {
       // The patrol update went through. Clear what it saved.
-      setEditedExistingNotes({});
       setEditedState(null);
       setEditedTitle(null);
-      setNewNotes((prevNewNotes) => prevNewNotes.filter((note) => !newNotesWithText.includes(note)));
+      activityEditing.onNotesSaved();
     }
+
+    // Whatever was uploaded stops being staged, whether the rest of the save
+    // went through or not: the refetched patrol carries it from here on.
+    activityEditing.onAttachmentsUploaded(
+      activityEditing.newAttachments.filter((_, index) => attachmentResults[index].status === 'fulfilled')
+    );
 
     const failedRequest = [patrolUpdateResult, ...attachmentResults].find(({ status }) => status === 'rejected');
     if (!failedRequest) {
@@ -280,13 +126,6 @@ const PatrolOverviewContent = ({ patrol }) => {
 
     await refetchPatrol;
 
-    // Remove the sucessfully uploaded attachments from the new attachments
-    // list.
-    const uploadedAttachments = newAttachments.filter((_, index) => attachmentResults[index].status === 'fulfilled');
-    setNewAttachments((prevNewAttachments) => prevNewAttachments.filter(
-      (attachment) => !uploadedAttachments.includes(attachment)
-    ));
-
     toast.error(patrolUpdateResult.status === 'fulfilled' ? t('attachmentsSaveErrorMessage') : t('saveErrorMessage'));
 
     patrolOverviewTracker.track('Error saving patrol from patrol overview');
@@ -294,7 +133,7 @@ const PatrolOverviewContent = ({ patrol }) => {
     console.warn('Error saving patrol: ', failedRequest.reason);
 
     return false;
-  }, [dispatch, isStateDirty, newAttachments, newNotesWithText, patrol, patrolUpdates, state, t]);
+  }, [activityEditing, dispatch, isStateDirty, patrol, patrolUpdates, state, t]);
 
   const onSave = useCallback(async () => {
     patrolOverviewTracker.track('Click the "Save" button in patrol overview');
@@ -308,24 +147,31 @@ const PatrolOverviewContent = ({ patrol }) => {
     }
   }, [savePatrol]);
 
+  // The prompt keeps the user on the page when this answers falsy, so a save
+  // that failed leaves them with their edits rather than losing them.
   const onContinueNavigation = useCallback((shouldSave) => {
     if (shouldSave) {
-      savePatrol();
-
       patrolOverviewTracker.track('Save unsaved changes and navigate away from patrol overview');
-    } else {
-      patrolOverviewTracker.track('Discard unsaved changes and navigate away from patrol overview');
+
+      return savePatrol();
     }
+
+    patrolOverviewTracker.track('Discard unsaved changes and navigate away from patrol overview');
 
     return true;
   }, [savePatrol]);
 
   useEffect(() => {
-    // Fetches the patrol segment tracks if necessary.
     patrol.patrol_segments.forEach((segment) => {
-      if (segment.leader?.id) {
+      const trackedSubjectIds = getTrackedSubjectsForPatrolSegment(
+        segment,
+        patrolTeamAndTrackingOptions,
+        patrolRosterFallbackSubjects
+      ).map(({ id }) => id);
+
+      if (trackedSubjectIds.length > 0) {
         fetchTracksIfNecessary(
-          [segment.leader.id],
+          trackedSubjectIds,
           {
             optionalDateBoundaries: {
               since: segment.time_range?.start_time,
@@ -335,7 +181,7 @@ const PatrolOverviewContent = ({ patrol }) => {
         );
       }
     });
-  }, [patrol]);
+  }, [patrol, patrolRosterFallbackSubjects, patrolTeamAndTrackingOptions]);
 
   useEffect(() => {
     // Navigating from an effect instead of the save method to make sure the
@@ -377,14 +223,15 @@ const PatrolOverviewContent = ({ patrol }) => {
             title={t('overviewTabTitle')}
           >
             <Overview
-              existingNotes={editedPatrolNotes}
-              newAttachments={newAttachments}
-              newNotes={newNotes}
-              onCancelNote={onCancelNote}
-              onChangeNote={onChangeNote}
-              onDeleteAttachment={onDeleteAttachment}
-              onDeleteNote={onDeleteNote}
-              onDoneNote={onDoneNote}
+              attachments={activityEditing.patrolAttachments}
+              existingNotes={activityEditing.editedNotes}
+              newAttachments={activityEditing.newAttachments}
+              newNotes={activityEditing.newNotes}
+              onCancelNote={activityEditing.onCancelNote}
+              onChangeNote={activityEditing.onChangeNote}
+              onDeleteAttachment={activityEditing.onDeleteAttachment}
+              onDeleteNote={activityEditing.onDeleteNote}
+              onDoneNote={activityEditing.onDoneNote}
               patrol={patrol}
               patrolState={patrolState}
             />
@@ -404,11 +251,11 @@ const PatrolOverviewContent = ({ patrol }) => {
 
       <Footer
         addEventFormProps={addEventFormProps}
-        disableAddNoteButton={newNotes.some((noteToAdd) => !noteToAdd.originalText)}
+        disableAddNoteButton={activityEditing.isAddNoteDisabled}
         disableSaveButton={!hasUnsavedChanges}
         isSaving={isSaving}
-        onAddAttachments={onAddAttachments}
-        onAddNote={onAddNote}
+        onAddAttachments={activityEditing.onAddAttachments}
+        onAddNote={activityEditing.onAddNote}
         onSave={onSave}
       />
     </div>
@@ -448,9 +295,7 @@ const PatrolOverview = () => {
   }, [dispatch, navigate, patrolId]);
 
   return isLoadingPatrol || !patrol
-    ? <div className={styles.loaderWrapper} data-testid="patrolOverview-loader">
-      <MoonLoader size={LOADER_SIZE} />
-    </div>
+    ? <DetailViewLoader />
     : <PatrolOverviewContent patrol={patrol} />;
 };
 

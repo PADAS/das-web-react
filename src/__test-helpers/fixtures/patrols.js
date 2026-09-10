@@ -1641,6 +1641,50 @@ export const cancelledPatrol = {
   ]
 };
 
+export const patrolTeamAndTrackingOptions = {
+  assets: [{
+    content_type: 'observations.subject',
+    id: 'd1d2d3d4-0001-4b1a-8c3d-1a2b3c4d5e01',
+    image_url: '/static/suv.svg',
+    is_active: true,
+    name: 'Land Cruiser 42',
+    subject_subtype: 'suv',
+    subject_subtype_display: 'SUV',
+    subject_type: 'vehicle',
+  }, {
+    content_type: 'observations.subject',
+    id: 'd1d2d3d4-0002-4b1a-8c3d-1a2b3c4d5e02',
+    image_url: '/static/radio-black.svg',
+    is_active: true,
+    name: 'Handheld Radio 07',
+    subject_subtype: 'stationary-radio',
+    subject_subtype_display: 'Handheld VHF Radio',
+    subject_type: 'static_sensor',
+  }],
+  hasFetched: true,
+  leaders: [{ id: 'Leader 1' }, { id: 'Leader 2' }],
+  members: [{
+    content_type: 'observations.subject',
+    id: 'b1b2b3b4-0001-4b1a-8c3d-1a2b3c4d5e01',
+    image_url: '/static/ranger-black.svg',
+    is_active: true,
+    name: 'Ranger Amara',
+    subject_subtype: 'ranger',
+    subject_subtype_display: 'Ranger',
+    subject_type: 'person',
+  }, {
+    content_type: 'observations.subject',
+    id: 'b1b2b3b4-0003-4b1a-8c3d-1a2b3c4d5e03',
+    image_url: '/static/er_mobile.svg',
+    is_active: true,
+    name: 'Ranger Nadia',
+    subject_subtype: 'er_mobile',
+    subject_subtype_display: 'ER Mobile',
+    subject_type: 'person',
+  }],
+  teams: [{ display: 'Alpha', id: 'e1e2e3e4-0001-4b1a-8c3d-1a2b3c4d5e01', is_active: true, ordernum: 1, value: 'alpha' }],
+};
+
 export const multiLegPatrol = {
   'id': 'b1f2a4a1-6a68-4c1a-9f0b-2a6e6c6a6f01',
   'priority': 0,
@@ -1654,6 +1698,11 @@ export const multiLegPatrol = {
     {
       'id': 'a1a2a3a4-0001-4b1a-8c3d-1a2b3c4d5e01',
       'patrol_type': 'routine_patrol',
+      'team': 'e1e2e3e4-0001-4b1a-8c3d-1a2b3c4d5e01',
+      'members': ['b1b2b3b4-0001-4b1a-8c3d-1a2b3c4d5e01', 'b1b2b3b4-0003-4b1a-8c3d-1a2b3c4d5e03'],
+      'assets': ['d1d2d3d4-0001-4b1a-8c3d-1a2b3c4d5e01', 'd1d2d3d4-0002-4b1a-8c3d-1a2b3c4d5e02'],
+      'segment_details': {},
+      'type_details': {},
       'leader': {
         'content_type': 'observations.subject',
         'id': 'b1b2b3b4-0001-4b1a-8c3d-1a2b3c4d5e01',
@@ -1703,6 +1752,11 @@ export const multiLegPatrol = {
     {
       'id': 'a1a2a3a4-0002-4b1a-8c3d-1a2b3c4d5e02',
       'patrol_type': 'dog_patrol',
+      'team': null,
+      'members': [],
+      'assets': [],
+      'segment_details': {},
+      'type_details': {},
       'leader': {
         'content_type': 'observations.subject',
         'id': 'b1b2b3b4-0002-4b1a-8c3d-1a2b3c4d5e02',
@@ -1782,12 +1836,7 @@ export const patrolDefaultStoreData = {
         },
       },
     },
-    patrolTeamAndTrackingOptions: {
-      assets: [],
-      leaders: [{ id: 'Leader 1' }, { id: 'Leader 2' }],
-      teamMembers: [],
-      teams: [],
-    },
+    patrolTeamAndTrackingOptions,
     patrolStore: {},
     subjectStore: {},
     patrolsFeed: [],

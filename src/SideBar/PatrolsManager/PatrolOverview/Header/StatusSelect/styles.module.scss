@@ -3,50 +3,6 @@
 @use '../../../../../common/styles/inputs';
 @use '../../../../../common/styles/vars/colors';
 
-.statusPill {
-  align-items: center;
-  border-radius: 999px;
-  display: flex;
-  flex-shrink: 0;
-  font-size: 0.875rem;
-  gap: 0.25rem;
-  padding: 0.125rem 0.625rem;
-
-  &.active {
-    background-color: map-get(colors.$patrol-active-theme, 'base');
-    color: white;
-  }
-
-  &.paused {
-    background-color: map-get(colors.$patrol-paused-theme, 'base');
-    color: white;
-  }
-
-  &.done {
-    background-color: map-get(colors.$patrol-done-theme, 'base');
-    color: white;
-  }
-
-  &.readyToStart, &.scheduled {
-    background-color: map-get(colors.$patrol-ready-theme, 'base');
-    color: white;
-  }
-
-  &.startOverdue {
-    background-color: map-get(colors.$patrol-overdue-theme, 'base');
-    color: white;
-  }
-
-  &.cancelled, &.invalid {
-    background-color: map-get(colors.$patrol-cancelled-theme, 'base');
-    color: map-get(colors.$patrol-cancelled-theme, 'fontColor');
-  }
-
-  .unsavedLabel {
-    font-style: italic;
-  }
-}
-
 .statusPillButton {
   border: none;
   gap: 0.5rem;

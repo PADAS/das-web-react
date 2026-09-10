@@ -56,13 +56,10 @@
         "dragStartAnnouncement": "Picked up {{activeItemTitle}}. Position {{activeItemPosition}} of {{itemsLength}}.",
         "draggableScreenReaderInstructions": "To pick up a {{itemName}}, press the space bar. While dragging, use the up and down arrow keys to move the {{itemName}} in a given direction. Press space again to drop the {{itemName}} in its new position, or press escape to cancel.",
         "item": {
-          "attachmentHumanizedValue_one": "1 file",
-          "attachmentHumanizedValue_other": "{{count}} files",
           "chevronButtonLabel": {
             "closed": "Open the {{itemTitle}} form preview",
             "open": "Close the {{itemTitle}} form preview"
           },
-          "collectionHumanizedValue": "{{collectionLength}} items",
           "deleteButtonLabel": "Delete {{itemTitle}}",
           "dragHandleButtonLabel": "Reorder {{itemTitle}}",
           "dragHandleButtonRoleDescription": "draggable",
@@ -73,9 +70,6 @@
             "doneButton": "Done"
           },
           "formPreview": {
-            "attachmentHumanizedValue_one": "1 file",
-            "attachmentHumanizedValue_other": "{{count}} files",
-            "collectionHumanizedValue": "{{collectionLength}} items",
             "jumpToLocationButtonLabel": "Jump to {{field}} location"
           }
         }
@@ -84,6 +78,15 @@
     "text": {
       "urlLinkLabel": "Open URL in new tab"
     }
+  },
+  "humanizedFieldValues": {
+    "attachmentHumanizedValue_one": "1 file",
+    "attachmentHumanizedValue_other": "{{count}} files",
+    "booleanHumanizedValue": {
+      "false": "No",
+      "true": "Yes"
+    },
+    "collectionHumanizedValue": "{{collectionLength}} items"
   },
   "validationErrorsAnnouncement": "There are validation errors in the following fields:"
 }

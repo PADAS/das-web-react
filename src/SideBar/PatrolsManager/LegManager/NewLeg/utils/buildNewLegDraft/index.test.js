@@ -3,13 +3,24 @@ import patrolTypes, { dogPatrol } from '../../../../../../__test-helpers/fixture
 import buildNewLegDraft from './';
 
 describe('SideBar - PatrolsManager - LegManager - NewLeg - utils - buildNewLegDraft', () => {
+  const asset = { id: 'asset-1', name: 'Land Cruiser' };
+  const member = { id: 'member-1', name: 'Nadia' };
+  const team = { display: 'Alpha', id: 'team-1' };
+
+  const teamAndTrackingOptions = { assets: [asset], leaders: [], members: [member], teams: [team] };
+
   const previousLeg = {
+    assets: [asset.id],
     end_location: { latitude: 2, longitude: 3 },
     leader: { id: 'leader-1', name: 'Alex' },
+    members: [member.id],
     patrol_type: dogPatrol.value,
     scheduled_end: new Date(2026, 3, 13, 17, 45).toISOString(),
+    segment_details: { objective: 'Snare sweep' },
     start_location: { latitude: 0, longitude: 1 },
+    team: team.id,
     time_range: { end_time: null, start_time: new Date(2026, 3, 13, 6, 15).toISOString() },
+    type_details: { breed: 'malinois' },
   };
 
   beforeEach(() => {
@@ -25,6 +36,7 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg - utils - buildNewLegDr
     isAutoStart: false,
     patrolTypes,
     previousLeg,
+    teamAndTrackingOptions,
     ...overrides,
   });
 
@@ -86,6 +98,16 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg - utils - buildNewLegDr
     expect(draft.teamLead).toBe(previousLeg.leader);
   });
 
+  test('takes the team, the members, the assets and the schema fields of the previous leg', () => {
+    const draft = buildDraft();
+
+    expect(draft.assets).toEqual([asset]);
+    expect(draft.team).toBe(team);
+    expect(draft.teamMembers).toEqual([member]);
+    expect(draft.typeDetails).toEqual({ breed: 'malinois' });
+    expect(draft.universalDetails).toEqual({ objective: 'Snare sweep' });
+  });
+
   test('takes the automatic start and end preferences', () => {
     const draft = buildDraft({ isAutoEnd: true, isAutoStart: true });
 
@@ -96,8 +118,11 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg - utils - buildNewLegDr
   test('builds an empty draft that starts now when there is no previous leg', () => {
     const draft = buildDraft({ previousLeg: null });
 
+    expect(draft.assets).toEqual([]);
     expect(draft.patrolType).toBeNull();
+    expect(draft.team).toBeNull();
     expect(draft.teamLead).toBeNull();
+    expect(draft.teamMembers).toEqual([]);
     expect(draft.startDate).toBe('2026-04-13');
     expect(draft.startTime).toBe('08:30');
   });

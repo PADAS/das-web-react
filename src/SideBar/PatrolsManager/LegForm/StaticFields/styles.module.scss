@@ -57,6 +57,10 @@
     gap: 0.5rem;
     margin-bottom: 0.5rem;
 
+    &.hidden {
+      visibility: hidden;
+    }
+
     .checkbox:not(:disabled) {
       cursor: pointer;
     }

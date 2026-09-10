@@ -28,7 +28,7 @@ const SortableList = ({
   setIsItemFormModalOpen,
   setIsItemFormPreviewOpen,
 }) => {
-  const { i18n, t } = useTranslation('schema-form', {
+  const { t } = useTranslation('schema-form', {
     keyPrefix: 'fields.collection.sortableList',
   });
 
@@ -38,7 +38,6 @@ const SortableList = ({
   // values that can change afterwards through refs.
   const coordinatesRepresentationRef = useRef(coordinatesRepresentation);
   const itemsRef = useRef(items);
-  const languageRef = useRef(i18n.language);
 
   const getActiveItemTitle = (activeItemId) => {
     const activeItem = itemsRef.current.find((item) => item.id === activeItemId);
@@ -51,9 +50,7 @@ const SortableList = ({
       itemIdentifierFieldName,
       `${collectionDetails.itemName} ${activeItem.id + 1}`,
       formElements[collectionDetails.itemIdentifier],
-      languageRef.current,
-      coordinatesRepresentationRef.current,
-      t
+      coordinatesRepresentationRef.current
     );
   };
 
@@ -70,8 +67,7 @@ const SortableList = ({
   useEffect(() => {
     coordinatesRepresentationRef.current = coordinatesRepresentation;
     itemsRef.current = items;
-    languageRef.current = i18n.language;
-  }, [coordinatesRepresentation, i18n.language, items]);
+  }, [coordinatesRepresentation, items]);
 
   return <DragDropProvider
       onDragEnd={onDragEnd}

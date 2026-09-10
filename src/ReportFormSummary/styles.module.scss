@@ -11,6 +11,7 @@
   .nonSchemaFields {
     display: flex;
     flex-direction: column;
+    margin: 0;
     width: 100%;
 
     .nonSchemaField {
@@ -18,10 +19,15 @@
       flex-direction: column;
       width: 100%;
 
-      label {
+      dt {
         color: colors.$secondary-medium-gray;
         font-size: 0.875rem;
+        font-weight: normal;
         margin: 0.75rem 0 0;
+      }
+
+      dd {
+        margin: 0;
       }
 
       @media (min-width: layout.$md-layout-width-min) {
@@ -32,5 +38,11 @@
     @media (min-width: layout.$md-layout-width-min) {
       flex-direction: row;
     }
+  }
+
+  .schemaSection {
+    border-top: 1px solid colors.$light-gray-lines;
+    margin: 0.75rem -1rem 0;
+    padding: 0.75rem 1rem 0;
   }
 }

@@ -93,6 +93,72 @@ describe('usePatrolState', () => {
     expect(clearTimeoutSpy).toHaveBeenCalled();
   });
 
+  describe('given a leg', () => {
+    const runningLeg = { time_range: { start_time: atOffset(-60).toISOString(), end_time: null } };
+
+    test('returns the state of that leg rather than the patrol', () => {
+      const patrol = {
+        state: 'open',
+        patrol_segments: [
+          { time_range: { start_time: atOffset(-300).toISOString(), end_time: atOffset(-240).toISOString() } },
+          runningLeg,
+        ],
+      };
+
+      const { result: doneLeg } = renderHook(() => usePatrolState(patrol, patrol.patrol_segments[0]));
+      const { result: activeLeg } = renderHook(() => usePatrolState(patrol, patrol.patrol_segments[1]));
+
+      expect(doneLeg.current).toBe(PATROL_UI_STATES.DONE);
+      expect(activeLeg.current).toBe(PATROL_UI_STATES.ACTIVE);
+    });
+
+    test('waits on the transitions of every leg, since a leg is read off the whole patrol', () => {
+      const setTimeoutSpy = jest.spyOn(window, 'setTimeout');
+      const patrol = {
+        state: 'open',
+        patrol_segments: [
+          { time_range: { start_time: atOffset(-300).toISOString(), end_time: atOffset(30).toISOString() } },
+          { time_range: { start_time: atOffset(-60).toISOString(), end_time: atOffset(90).toISOString() } },
+        ],
+      };
+
+      renderHook(() => usePatrolState(patrol, patrol.patrol_segments[1]));
+
+      expect(setTimeoutSpy.mock.calls[0][1]).toBe(30 * 60_000 + 1);
+    });
+
+    test('rechecks when the leg ends', () => {
+      const leg = { time_range: { start_time: atOffset(-60).toISOString(), end_time: atOffset(45).toISOString() } };
+      const patrol = { state: 'open', patrol_segments: [leg] };
+
+      const { result } = renderHook(() => usePatrolState(patrol, leg));
+
+      expect(result.current).toBe(PATROL_UI_STATES.ACTIVE);
+
+      act(() => {
+        jest.advanceTimersByTime(45 * 60_000 + 1);
+      });
+
+      expect(result.current).toBe(PATROL_UI_STATES.DONE);
+    });
+
+    test('rechecks when the leg after it takes over', () => {
+      const leg = { time_range: { start_time: atOffset(-60).toISOString(), end_time: null } };
+      const legAfterIt = { time_range: { start_time: atOffset(45).toISOString(), end_time: null } };
+      const patrol = { state: 'open', patrol_segments: [leg, legAfterIt] };
+
+      const { result } = renderHook(() => usePatrolState(patrol, leg));
+
+      expect(result.current).toBe(PATROL_UI_STATES.ACTIVE);
+
+      act(() => {
+        jest.advanceTimersByTime(45 * 60_000 + 1);
+      });
+
+      expect(result.current).toBe(PATROL_UI_STATES.DONE);
+    });
+  });
+
   describe('scheduling the recheck', () => {
     const recheckDelayFor = (patrol) => {
       const setTimeoutSpy = jest.spyOn(window, 'setTimeout');
@@ -170,7 +236,7 @@ describe('usePatrolState', () => {
       expect(recheckDelayFor(patrol)).toBe(afterMinutes(45));
     });
 
-    test('turns active once a leg other than the first one begins', () => {
+    test('does not turn active when a leg planned ahead of the first one begins', () => {
       const patrol = {
         state: 'open',
         patrol_segments: [
@@ -186,7 +252,7 @@ describe('usePatrolState', () => {
         jest.advanceTimersByTime(45 * 60_000 + 1);
       });
 
-      expect(result.current).toBe(PATROL_UI_STATES.ACTIVE);
+      expect(result.current).toBe(PATROL_UI_STATES.START_OVERDUE);
     });
 
     test('caps the delay so a far off transition does not overflow the timer', () => {

@@ -56,13 +56,10 @@
         "dragStartAnnouncement": "{{activeItemTitle}} seleccionado. Posición {{activeItemPosition}} de {{itemsLength}}.",
         "draggableScreenReaderInstructions": "Para agarrar un {{itemName}}, presione la barra espaciadora. Mientras arrastra, use las teclas de flecha arriba y abajo para mover el {{itemName}} en una dirección determinada. Presione la barra espaciadora nuevamente para soltar el {{itemName}} en su nueva posición, o presione escape para cancelar.",
         "item": {
-          "attachmentHumanizedValue_one": "1 archivo",
-          "attachmentHumanizedValue_other": "{{count}} archivos",
           "chevronButtonLabel": {
             "closed": "Abrir la vista previa del formulario {{itemTitle}}",
             "open": "Cerrar la vista previa del formulario {{itemTitle}}"
           },
-          "collectionHumanizedValue": "{{collectionLength}} elementos",
           "deleteButtonLabel": "Eliminar {{itemTitle}}",
           "dragHandleButtonLabel": "Reordenar {{itemTitle}}",
           "dragHandleButtonRoleDescription": "arrastrable",
@@ -73,9 +70,6 @@
             "doneButton": "Hecho"
           },
           "formPreview": {
-            "attachmentHumanizedValue_one": "1 archivo",
-            "attachmentHumanizedValue_other": "{{count}} archivos",
-            "collectionHumanizedValue": "{{collectionLength}} elementos",
             "jumpToLocationButtonLabel": "Ir a la ubicación de {{field}}"
           }
         }
@@ -84,6 +78,15 @@
     "text": {
       "urlLinkLabel": "Abrir URL en nueva pestaña"
     }
+  },
+  "humanizedFieldValues": {
+    "attachmentHumanizedValue_one": "1 archivo",
+    "attachmentHumanizedValue_other": "{{count}} archivos",
+    "booleanHumanizedValue": {
+      "false": "No",
+      "true": "Sí"
+    },
+    "collectionHumanizedValue": "{{collectionLength}} elementos"
   },
   "validationErrorsAnnouncement": "Hay errores de validación en los siguientes campos:"
 }

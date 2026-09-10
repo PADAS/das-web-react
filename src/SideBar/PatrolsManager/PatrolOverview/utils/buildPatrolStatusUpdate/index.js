@@ -1,39 +1,48 @@
 import {
   buildPatrolEndUpdate,
+  buildPatrolPauseUpdate,
   buildPatrolReopenUpdate,
+  buildPatrolResumeUpdate,
   buildPatrolStartUpdate,
   calcPatrolState,
+  isPatrolPaused,
+  patrolWithUpdateApplied,
 } from '../../../../../utils/patrols';
 import { PATROL_API_STATES, PATROL_UI_STATES } from '../../../../../constants';
 
 const buildPatrolStatusUpdate = (patrol, state) => {
-  switch (state) {
-  case PATROL_UI_STATES.CANCELLED:
+  if (state === PATROL_UI_STATES.CANCELLED) {
     return { state: PATROL_API_STATES.CANCELLED };
+  }
 
-  case PATROL_UI_STATES.DONE:
+  if (state === PATROL_UI_STATES.DONE) {
     return buildPatrolEndUpdate(patrol);
+  }
 
-  case PATROL_UI_STATES.ACTIVE: {
-    // A patrol that turns active on its own once its end time is cleared was
-    // already running, so reopening it is enough.
-    const reopenUpdate = buildPatrolReopenUpdate(patrol);
+  // A patrol that reaches the picked state as soon as its close is cleared was
+  // already there: reopening it is the whole of the change.
+  const reopenUpdate = buildPatrolReopenUpdate(patrol);
+  const reopenedPatrol = patrolWithUpdateApplied(patrol, reopenUpdate);
+  if (calcPatrolState(reopenedPatrol) === state) {
+    return reopenUpdate;
+  }
 
-    return calcPatrolState({ ...patrol, ...reopenUpdate }) === PATROL_UI_STATES.ACTIVE
-      ? reopenUpdate
+  if (state === PATROL_UI_STATES.ACTIVE) {
+    // Coming back from a pause is the pause leg ending and the leg it
+    // interrupted resuming, not the patrol starting over. A patrol that was
+    // closed while paused is read as it will be once it is open again.
+    return isPatrolPaused(reopenedPatrol)
+      ? buildPatrolResumeUpdate(reopenedPatrol)
       : buildPatrolStartUpdate(patrol);
   }
 
-  // TODO: Build the paused update once the API models paused patrols. Neither
-  // direction is a time range change: resuming has to copy the paused leg.
-  case PATROL_UI_STATES.PAUSED:
-    return null;
+  if (state === PATROL_UI_STATES.PAUSED) {
+    return buildPatrolPauseUpdate(patrol);
+  }
 
   // The states left are the ones a patrol that never started falls back to
   // once it is reopened.
-  default:
-    return buildPatrolReopenUpdate(patrol);
-  }
+  return reopenUpdate;
 };
 
 export default buildPatrolStatusUpdate;

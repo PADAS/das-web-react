@@ -1,118 +1,17 @@
-@use 'sass:color';
-
-@use '../../../../common/styles/layout';
-@use '../../../../common/styles/vars/colors';
 @use '../../_shared' as shared;
 
 .mobileOnlyOption {
-  @media (min-width: layout.$md-layout-width-min) {
-    display: none !important;
-  }
+  @include shared.header-mobile-only-option;
 }
 
 .desktopActions {
-  align-items: center;
-  display: none;
-  gap: 0.5rem;
-
-  @media (min-width: layout.$md-layout-width-min) {
-    display: flex;
-  }
-
-  .iconButton {
-    @include shared.chip-icon-button;
-  }
-
-  .toggleTrackButton {
-    svg {
-      height: 2.5rem;
-      width: 2.5rem;
-    }
-
-    &.visible {
-      background-color: colors.$bright-blue;
-      border-color: colors.$bright-blue;
-      color: white;
-
-      &:hover {
-        background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
-        border-color: color.adjust(colors.$bright-blue, $lightness: -5%);
-      }
-
-      &:focus-visible {
-        background-color: white;
-        border-color: colors.$bright-blue;
-        color: colors.$bright-blue;
-        outline: 1px solid colors.$bright-blue;
-      }
-    }
-
-    &.pinned {
-      background-color: colors.$green;
-      border-color: colors.$green;
-      color: white;
-
-      &:hover {
-        background-color: color.adjust(colors.$green, $lightness: -5%);
-        border-color: color.adjust(colors.$green, $lightness: -5%);
-      }
-
-      &:focus-visible {
-        background-color: white;
-        border-color: colors.$green;
-        color: colors.$green;
-        outline: 1px solid colors.$green;
-      }
-    }
-  }
+  @include shared.header-desktop-actions;
 }
 
 .titleBarMain {
-  align-items: center;
-  display: flex;
-  flex: 1;
-  gap: 0.5rem;
-  min-width: 0;
-
-  .icon {
-    align-items: center;
-    color: colors.$secondary-medium-gray;
-    display: flex;
-    justify-content: center;
-
-    svg {
-      fill: currentcolor;
-      height: 1.75rem;
-      width: 1.75rem;
-    }
-  }
-
-  .serialNumber {
-    color: colors.$secondary-medium-gray;
-    font-size: 1.375rem;
-    line-height: 2rem;
-    margin: 0;
-  }
-
-  @media (max-width: layout.$sm-layout-width-max) {
-    flex-basis: 100%;
-  }
+  @include shared.header-title-bar-main;
 }
 
 .pills {
-  align-items: center;
-  display: flex;
-  flex-shrink: 0;
-  gap: 0.5rem;
-
-  .provenancePill {
-    align-items: center;
-    background: colors.$off-black;
-    border-radius: 999px;
-    color: white;
-    display: flex;
-    flex-shrink: 0;
-    font-size: 0.875rem;
-    padding: 0.125rem 0.625rem;
-  }
+  @include shared.header-pills;
 }

@@ -1,4 +1,24 @@
 {
+  "activity": {
+    "activitySectionTitle": "Shughuli",
+    "collapseAllButtonLabel": "Ficha yote",
+    "expandAllButtonLabel": "Panua yote",
+    "sortDirectionButtonLabel": {
+      "down": "Panga shughuli kwa mpangilio wa kupanda",
+      "up": "Panga shughuli kwa mpangilio wa kushuka"
+    },
+    "summaryStats": {
+      "activeTimeLabel": "Muda inatekelezwa",
+      "distanceLabel": "Umbali",
+      "distanceSubjectButtonLabel": "Umbali uliofikiwa na {{subject}}. Badilisha mhusika anayefuatiliwa",
+      "distanceSubjectMenuLabel": "Wahusika wanaofuatiliwa",
+      "durationLabel": "Muda",
+      "eventsLabel": "Matukio",
+      "pausedTimeLabel": "Muda wa kusitisha",
+      "teamLeadIndicator": "Kiongozi wa timu"
+    },
+    "timeLabel": "Wakati"
+  },
   "addToPatrolModal": {
     "cancel": "Ghairi",
     "loading": "Inapakia...",
@@ -53,6 +73,9 @@
       "plan": "Panga"
     }
   },
+  "detailViewLoader": {
+    "loadingLabel": "Inapakia data ya doria"
+  },
   "header": {
     "breadcrumbNavLabel": "Urambazaji wa doria",
     "closeButtonLabel": "Funga upau wa pembeni"
@@ -93,6 +116,55 @@
     },
     "universalFieldsSchemaErrorMessage": "Sehemu za doria za wote hazikuweza kupakiwa.",
     "universalFieldsSchemaLoadingLabel": "Inapakia sehemu za doria za wote"
+  },
+  "legOverview": {
+    "activityEmptyStateMessage": "Shughuli za kipande hiki zitaonekana hapa",
+    "attachmentsSaveErrorMessage": "Baadhi ya viambatisho havikuweza kupakiwa. Tafadhali jaribu tena.",
+    "footer": {
+      "addEventButtonLabel": "Ripoti tukio katika kipande hiki cha doria",
+      "addEventButtonText": "Tukio",
+      "editButton": "Hariri",
+      "saveButton": "Hifadhi"
+    },
+    "header": {
+      "breadcrumbPatrolsLabel": "Doria",
+      "copyLinkMessage": "Kiungo kimenakiliwa",
+      "copyLinkOption": "Nakili kiungo cha kipande cha doria",
+      "downloadTrackOption": "Pakua njia ya kipande cha doria",
+      "fitToBoundsButtonLabel": "Kuza kwenye mipaka ya kipande cha doria",
+      "jumpToLocationButtonLabel": "Ruka kwenye eneo",
+      "mobileProvenancePill": "Simu",
+      "moreOptionsButtonLabel": "Machaguo zaidi",
+      "printOption": "Chapisha kipande cha doria",
+      "title": "Kipande {{legNumber}}",
+      "toggleTrackButtonLabel": {
+        "hidden": "Onyesha njia ya doria",
+        "pinned": "Ficha njia ya doria",
+        "visible": "Bandika njia ya doria"
+      }
+    },
+    "legEndedTitle": "Kipande {{legNumber}} kimekamilika",
+    "legStartedTitle": "Kipande {{legNumber}} kimeanza",
+    "plan": {
+      "patrolTypeSchemaErrorMessage": "Sehemu za aina hii ya doria hazikuweza kupakiwa.",
+      "patrolTypeSchemaLoadingLabel": "Inapakia sehemu za aina hii ya doria",
+      "staticFields": {
+        "assetsLabel": "Rasilimali",
+        "copyCoordinatesButtonLabel": "Nakili viwianishi vya {{field}}",
+        "copyCoordinatesMessage": "Viwianishi vimenakiliwa",
+        "endLabel": "Mwisho",
+        "jumpToLocationButtonLabel": "Ruka kwenye eneo la {{field}}",
+        "scheduledIndicator": "Imepangwa",
+        "startLabel": "Mwanzo",
+        "teamLabel": "Timu",
+        "teamLeadIndicator": "Kiongozi",
+        "teamLeadLabel": "Kiongozi wa timu",
+        "teamMembersLabel": "Wanachama wa timu"
+      },
+      "universalFieldsSchemaErrorMessage": "Sehemu za doria za wote hazikuweza kupakiwa.",
+      "universalFieldsSchemaLoadingLabel": "Inapakia sehemu za doria za wote"
+    },
+    "saveErrorMessage": "Kipande cha doria hakikuweza kuhifadhiwa. Tafadhali jaribu tena."
   },
   "newLeg": {
     "footer": {
@@ -165,16 +237,6 @@
         "hidden": "Onyesha njia ya doria",
         "pinned": "Ficha njia ya doria",
         "visible": "Bandika njia ya doria"
-      },
-      "uiStateTitles": {
-        "active": "Inatekelezwa",
-        "cancelled": "Imefutwa",
-        "done": "Imekamilika",
-        "invalid": "Usanidi batili",
-        "paused": "Imesitishwa",
-        "readyToStart": "Tayari kuanza",
-        "scheduled": "Imepangwa",
-        "startOverdue": "Kuanza kuchelewa"
       }
     },
     "history": {
@@ -186,47 +248,49 @@
     },
     "historyTabTitle": "Historia",
     "overview": {
-      "activity": {
-        "activitySectionTitle": "Shughuli",
-        "collapseAllButtonLabel": "Ficha yote",
-        "emptyStateMessage": "Shughuli za doria zitaonekana hapa",
-        "expandAllButtonLabel": "Panua yote",
-        "legTransitionTitle": "Kipande {{endedLeg}} kimekamilika, kipande {{startedLeg}} kimeanza",
-        "patrolEndedTitle": "Doria imekamilika",
-        "patrolStartedTitle": "Doria imeanza",
-        "sortDirectionButtonLabel": {
-          "down": "Panga shughuli kwa mpangilio wa kupanda",
-          "up": "Panga shughuli kwa mpangilio wa kushuka"
-        },
-        "summaryStats": {
-          "activeTimeLabel": "Muda inatekelezwa",
-          "distanceLabel": "Umbali",
-          "distanceSubjectButtonLabel": "Umbali uliofikiwa na {{subject}}. Badilisha mhusika anayefuatiliwa",
-          "distanceSubjectMenuLabel": "Wahusika wanaofuatiliwa",
-          "durationLabel": "Muda",
-          "eventsLabel": "Matukio",
-          "patrolLeaderIndicator": "Kiongozi wa doria",
-          "pausedTimeLabel": "Muda wa kusitisha"
-        },
-        "timeLabel": "Wakati"
-      },
+      "activityEmptyStateMessage": "Shughuli za doria zitaonekana hapa",
+      "legEndedTitle": "Kipande {{legNumber}} kimekamilika",
       "legs": {
         "endColumnHeader": "Tarehe ya mwisho",
         "legActionsColumnHeader": "Vitendo",
         "legColumnHeader": "Kipande",
-        "legDidNotRunLabel": "Sehemu hii haikuwahi kuendeshwa",
+        "legDidNotRunLabel": "Kipande hiki hakikuwahi kuendeshwa",
         "legTableCaption": "Vipande vya doria",
         "newLegButton": "Kipande kipya cha doria",
         "patrolTypeColumnHeader": "Aina ya doria",
         "startColumnHeader": "Tarehe ya kuanza",
+        "teamAndTracking": {
+          "jumpToLocationButtonLabel": "Ruka kwenye eneo la {{subject}}",
+          "listLabel": "Wahusika wanaofuatiliwa na kipande {{legNumber}}",
+          "teamLeadIndicator": "Kiongozi wa timu",
+          "toggleButtonLabel": "{{subject}} +{{extraSubjects}}",
+          "toggleButtonTitle": "Onyesha wahusika wanaofuatiliwa na kipande {{legNumber}}"
+        },
         "teamColumnHeader": "Timu na ufuatiliaji",
         "viewLegButtonLabel": "Angalia kipande {{legNumber}}",
         "zoomToLegBoundsButtonLabel": "Rekebisha kwenye mipaka ya kipande {{legNumber}}"
-      }
+      },
+      "legStartedTitle": "Kipande {{legNumber}} kimeanza",
+      "patrolEndedTitle": "Doria imekamilika",
+      "patrolPausedTitle": "Doria imesitishwa kwa {{pausedFor}}",
+      "patrolResumedTitle": "Doria imeendelea",
+      "patrolStartedTitle": "Doria imeanza"
     },
     "overviewTabTitle": "Muhtasari",
     "saveErrorMessage": "Doria haikuweza kuhifadhiwa. Tafadhali jaribu tena.",
     "tabsLabel": "Vichupo vya muhtasari wa doria"
+  },
+  "statusPill": {
+    "uiStateTitles": {
+      "active": "Inatekelezwa",
+      "cancelled": "Imefutwa",
+      "done": "Imekamilika",
+      "invalid": "Usanidi batili",
+      "paused": "Imesitishwa",
+      "readyToStart": "Tayari kuanza",
+      "scheduled": "Imepangwa",
+      "startOverdue": "Kuanza kuchelewa"
+    }
   },
   "titleInput": {
     "editButtonLabel": "Hariri kichwa"
