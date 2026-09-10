@@ -808,8 +808,8 @@ const isPatrolSegmentOver = (patrol, patrolSegment) => {
 export const hasPatrolSegmentNotRun = (patrol, patrolSegment) =>
   isSegmentPending(patrolSegment) && isPatrolSegmentOver(patrol, patrolSegment);
 
-// The mobile app owns a leg until it stops running it, so a leg it may still
-// be working on cannot be edited from here.
+// Provenance is a patrol-level flag and every leg inherits it: nothing says a
+// single leg is the app's, so only a leg it can no longer run is editable.
 export const canEditPatrolSegment = (patrol, patrolSegmentState) => !getIsMobilePatrol(patrol)
   || patrolSegmentState === PATROL_UI_STATES.CANCELLED
   || patrolSegmentState === PATROL_UI_STATES.DONE;
