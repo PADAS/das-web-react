@@ -108,6 +108,7 @@
     "menuPopover": {
       "dialogLabel": "Emplacement",
       "getUserLocationButton": "Utiliser ma position",
+      "permissionBlockedMessage": "Partage de position bloqué par le navigateur",
       "pickMapLocationButton": "Définir sur la carte"
     },
     "setLocationButtonLabel": {

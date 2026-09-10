@@ -29,6 +29,8 @@ import { notes } from '../../__test-helpers/fixtures/reports';
 import { SidebarScrollProvider } from '../../SidebarScrollContext';
 import { cleanup, render, screen, waitFor, within } from '../../test-utils';
 
+import * as styles from './styles.module.scss';
+
 jest.mock('mapbox-gl', () => ({
   ...jest.requireActual('mapbox-gl'),
   Popup: class {
@@ -1217,6 +1219,18 @@ describe('ReportManager - ReportDetailView', () => {
       expect(changes.state).toBe('resolved');
       expect(changes.title).toBe('2');
     });
+  });
+
+  test('applies the community styles to the container when the report is shown in the community page', async () => {
+    renderWithWrapper(<ReportDetailView isCommunity isNewReport={false} reportId="456" />);
+
+    expect(await screen.findByTestId('reportManagerContainer')).toHaveClass(styles.community);
+  });
+
+  test('does not apply the community styles to the container otherwise', async () => {
+    renderWithWrapper(<ReportDetailView isCommunity={false} isNewReport={false} reportId="456" />);
+
+    expect(await screen.findByTestId('reportManagerContainer')).not.toHaveClass(styles.community);
   });
 
   describe('the warning prompt', () => {

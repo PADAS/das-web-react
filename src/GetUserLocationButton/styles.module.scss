@@ -1,3 +1,7 @@
 .loadingOverlay {
   pointer-events: none;
 }
+
+.ghosted {
+  cursor: default;
+}
