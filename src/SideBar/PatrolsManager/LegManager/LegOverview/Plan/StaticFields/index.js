@@ -15,6 +15,7 @@ import {
 } from '../../../../../../utils/patrols';
 import { EMPTY_VALUE } from '../../../../../../constants';
 import { format, STANDARD_DATE_FORMAT } from '../../../../../../utils/datetime';
+import { selectPatrolRosterFallbackSubjects } from '../../../../../../selectors/patrols';
 import useJumpToLocation from '../../../../../../hooks/useJumpToLocation';
 import useStringifyCoordinates from '../../../../../../hooks/useStringifyCoordinates';
 
@@ -62,6 +63,7 @@ const Location = ({ fieldLabel, value }) => {
 const StaticFields = ({ patrol, patrolSegment }) => {
   const { t } = useTranslation('patrols', { keyPrefix: 'legOverview.plan.staticFields' });
 
+  const rosterFallbackSubjects = useSelector((state) => selectPatrolRosterFallbackSubjects(state, patrol));
   const teamAndTrackingOptions = useSelector((state) => state.data.patrolTeamAndTrackingOptions);
 
   const hasNotRun = hasPatrolSegmentNotRun(patrol, patrolSegment);
@@ -78,7 +80,11 @@ const StaticFields = ({ patrol, patrolSegment }) => {
   const isStartPlanned = !patrolSegment.time_range?.start_time || isFuture(startDateTime);
   const isEndPlanned = hasNotRun || !patrolSegment.time_range?.end_time || isFuture(endDateTime);
 
-  const teamAndTracking = getTeamAndTrackingForPatrolSegment(patrolSegment, teamAndTrackingOptions);
+  const teamAndTracking = getTeamAndTrackingForPatrolSegment(
+    patrolSegment,
+    teamAndTrackingOptions,
+    rosterFallbackSubjects
+  );
 
   const renderTimeField = (label, dateTime, isPlanned, location) => <div className={styles.field}>
     <dt className={styles.fieldLabel}>{label}</dt>

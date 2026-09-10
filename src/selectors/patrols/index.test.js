@@ -3,6 +3,7 @@ import { TRACK_LENGTH_ORIGINS } from '../../ducks/tracks';
 import {
   selectIsPatrolTrackShown,
   selectPatrolLeadersWithLastPosition,
+  selectPatrolRosterFallbackSubjects,
   selectTrackedSubjectsPerPatrolSegment,
   selectPatrolsWithTracks,
   selectPatrolsWithTracksData,
@@ -872,6 +873,29 @@ describe('Selectors - Patrols', () => {
       state.data.tracks = {};
 
       expect(selectPatrolTrackedSubjects(state, patrolWithoutTracks)[0].coordinates).toBeNull();
+    });
+  });
+
+  describe('selectPatrolRosterFallbackSubjects', () => {
+    const DEACTIVATED_RANGER = { id: 'subject333', name: 'Ranger Kofi' };
+    const OFFERED_RANGER = { id: 'subject111', name: 'Ranger Amara' };
+
+    test('looks up the subjects a leg names that the rosters no longer offer', () => {
+      state.data.patrolTeamAndTrackingOptions.members = [OFFERED_RANGER];
+      state.data.subjectStore = { [DEACTIVATED_RANGER.id]: DEACTIVATED_RANGER };
+
+      const patrol = { patrol_segments: [{ members: [OFFERED_RANGER.id, DEACTIVATED_RANGER.id] }] };
+
+      expect(selectPatrolRosterFallbackSubjects(state, patrol))
+        .toEqual({ [DEACTIVATED_RANGER.id]: DEACTIVATED_RANGER });
+    });
+
+    test('holds nothing while the rosters offer every subject the legs name', () => {
+      state.data.patrolTeamAndTrackingOptions.members = [OFFERED_RANGER];
+      state.data.subjectStore = { [OFFERED_RANGER.id]: OFFERED_RANGER };
+
+      expect(selectPatrolRosterFallbackSubjects(state, { patrol_segments: [{ members: [OFFERED_RANGER.id] }] }))
+        .toEqual({});
     });
   });
 

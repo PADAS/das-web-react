@@ -171,6 +171,31 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview', () => {
     expect(screen.getByText('Leg 3 Started')).toBeInTheDocument();
   });
 
+  test('stops counting a pause the patrol was called off on at the cancellation', () => {
+    jest.useFakeTimers().setSystemTime(new Date('2026-04-14T01:00:00.000-07:00'));
+
+    const [legOne] = patrolWithLeader.patrol_segments;
+    const pause = {
+      ...legOne,
+      id: 'pause-1',
+      is_pause: true,
+      time_range: { end_time: null, start_time: legOne.time_range.end_time },
+    };
+
+    renderOverview({
+      patrol: {
+        ...patrolWithLeader,
+        patrol_segments: [legOne, pause],
+        state: 'cancelled',
+        updates: [{ time: '2026-04-13T10:00:00.000Z', type: 'update_patrol_state' }],
+      },
+    });
+
+    expect(screen.getByText('Patrol Paused for 1h')).toBeInTheDocument();
+
+    jest.useRealTimers();
+  });
+
   test('marks the end of a leg whose successor never started', () => {
     renderOverview({
       patrol: patrolWithLegTimes(

@@ -34,7 +34,10 @@ const getHumanizedFieldValue = (field, value, defaultHumanizedValue, coordinates
 
   case FORM_ELEMENT_TYPES.CHOICE_LIST: {
     if (field.details.multiple) {
-      return value.map((choiceValue) => getChoiceListOptionHumanizedValue(choiceValue, field)).join(', ');
+      // A list emptied of every choice is as unanswered as one never written.
+      return value.length === 0
+        ? defaultHumanizedValue
+        : value.map((choiceValue) => getChoiceListOptionHumanizedValue(choiceValue, field)).join(', ');
     }
     return getChoiceListOptionHumanizedValue(value, field);
   }

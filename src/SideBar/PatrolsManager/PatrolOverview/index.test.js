@@ -758,7 +758,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     });
   });
 
-  test('navigates away and reports the error when the save on the way out fails', async () => {
+  test('stays on the patrol with its edits and reports the error when the save on the way out fails', async () => {
     jest.spyOn(console, 'warn').mockImplementation(() => {});
     updatePatrol.mockImplementation(() => () => Promise.reject(new Error('Save error')));
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
@@ -773,9 +773,9 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith('The patrol could not be saved. Please try again.');
     });
-    await waitFor(() => {
-      expect(screen.getByTestId('test-location')).toHaveTextContent('/events/new');
-    });
+
+    expect(screen.getByTestId('test-location')).not.toHaveTextContent('/events/new');
+    expect(screen.getByTestId('patrolOverview-title')).toHaveValue(`${patrolWithoutLeader.title} edited`);
   });
 
   describe('saving', () => {

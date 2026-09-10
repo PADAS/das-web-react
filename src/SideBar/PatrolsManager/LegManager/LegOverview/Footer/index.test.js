@@ -41,7 +41,7 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview - Footer', () => {
           canEditLeg
           disableAddNoteButton={false}
           disableSaveButton
-          isLegActive
+          isLegUnderWay
           isSaving={false}
           legId={LEG_ID}
           onAddAttachments={onAddAttachments}
@@ -90,7 +90,7 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview - Footer', () => {
   });
 
   test('does not let a leg that is not under way take notes, attachments or events', () => {
-    renderFooter({ isLegActive: false });
+    renderFooter({ isLegUnderWay: false });
 
     expect(screen.getByTestId('addNoteButton')).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Add an attachment' })).toBeDisabled();
@@ -98,7 +98,7 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview - Footer', () => {
   });
 
   test('still lets a leg that is not under way be edited and saved', () => {
-    renderFooter({ disableSaveButton: false, isLegActive: false });
+    renderFooter({ disableSaveButton: false, isLegUnderWay: false });
 
     expect(screen.getByRole('link', { name: 'Edit' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save' })).not.toBeDisabled();

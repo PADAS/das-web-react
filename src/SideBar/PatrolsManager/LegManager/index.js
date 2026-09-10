@@ -24,12 +24,15 @@ const LegManager = () => {
 
   const requestedPatrolIdRef = useRef(null);
 
-  const [hasFetchedPatrolData, setHasFetchedPatrolData] = useState(false);
+  // The patrol the data below has been fetched for, so editing the url from one
+  // patrol to another waits for the new one instead of reading the old answer.
+  const [fetchedPatrolId, setFetchedPatrolId] = useState(null);
 
-  const isPatrolDataReady = hasFetchedPatrolData
-    && !!patrol
-    && patrolTeamAndTrackingOptions.hasFetched
-    && patrolTypes.length > 0;
+  const hasFetchedPatrolData = fetchedPatrolId === patrolId;
+
+  // The roster is awaited below rather than required here: a site that answers
+  // with none, or fails to, still has a leg plan and activity to show.
+  const isPatrolDataReady = hasFetchedPatrolData && !!patrol && patrolTypes.length > 0;
 
   useEffect(() => {
     if (patrolId && requestedPatrolIdRef.current !== patrolId) {
@@ -40,7 +43,7 @@ const LegManager = () => {
         patrolTeamAndTrackingOptions.hasFetched ? null : dispatch(fetchPatrolTeamAndTrackingOptions()),
         patrolTypes.length === 0 ? dispatch(fetchPatrolTypes()) : null,
       ])
-        .then(() => setHasFetchedPatrolData(true))
+        .then(() => setFetchedPatrolId(patrolId))
         .catch((error) => {
           // A cancelled request means the session is being torn down, and the
           // redirect that is already under way is the one that stands.

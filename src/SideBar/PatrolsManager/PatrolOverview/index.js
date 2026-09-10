@@ -13,6 +13,7 @@ import { displayTitleForPatrol, getTrackedSubjectsForPatrolSegment, governingPat
 import { fetchPatrol, updatePatrol, uploadPatrolFile } from '../../../ducks/patrols';
 import { fetchTracksIfNecessary } from '../../../utils/tracks';
 import { PATROL_OVERVIEW_CATEGORY, TrackerContext, trackEventFactory } from '../../../utils/analytics';
+import { selectPatrolRosterFallbackSubjects } from '../../../selectors/patrols';
 import { TAB_KEYS as SIDEBAR_TAB_KEYS } from '../../../constants';
 import useNavigate from '../../../hooks/useNavigate';
 import usePatrolActivityEditing from '../utils/usePatrolActivityEditing';
@@ -40,6 +41,7 @@ const PatrolOverviewContent = ({ patrol }) => {
   const activityEditing = usePatrolActivityEditing(patrol, patrolOverviewTracker);
   const patrolState = usePatrolState(patrol);
 
+  const patrolRosterFallbackSubjects = useSelector((state) => selectPatrolRosterFallbackSubjects(state, patrol));
   const patrolTeamAndTrackingOptions = useSelector((state) => state.data.patrolTeamAndTrackingOptions);
 
   const printableContentRef = useRef(null);
@@ -157,22 +159,27 @@ const PatrolOverviewContent = ({ patrol }) => {
     }
   }, [savePatrol]);
 
+  // The prompt keeps the user on the page when this answers falsy, so a save
+  // that failed leaves them with their edits rather than losing them.
   const onContinueNavigation = useCallback((shouldSave) => {
     if (shouldSave) {
-      savePatrol();
-
       patrolOverviewTracker.track('Save unsaved changes and navigate away from patrol overview');
-    } else {
-      patrolOverviewTracker.track('Discard unsaved changes and navigate away from patrol overview');
+
+      return savePatrol();
     }
+
+    patrolOverviewTracker.track('Discard unsaved changes and navigate away from patrol overview');
 
     return true;
   }, [savePatrol]);
 
   useEffect(() => {
     patrol.patrol_segments.forEach((segment) => {
-      const trackedSubjectIds = getTrackedSubjectsForPatrolSegment(segment, patrolTeamAndTrackingOptions)
-        .map((trackedSubject) => trackedSubject.id);
+      const trackedSubjectIds = getTrackedSubjectsForPatrolSegment(
+        segment,
+        patrolTeamAndTrackingOptions,
+        patrolRosterFallbackSubjects
+      ).map((trackedSubject) => trackedSubject.id);
 
       if (trackedSubjectIds.length > 0) {
         fetchTracksIfNecessary(
@@ -186,7 +193,7 @@ const PatrolOverviewContent = ({ patrol }) => {
         );
       }
     });
-  }, [patrol, patrolTeamAndTrackingOptions]);
+  }, [patrol, patrolRosterFallbackSubjects, patrolTeamAndTrackingOptions]);
 
   useEffect(() => {
     // Navigating from an effect instead of the save method to make sure the

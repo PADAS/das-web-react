@@ -91,6 +91,21 @@ describe('getHumanizedFieldValue', () => {
     )).toBe('Desert Bighorn Sheep, Ranger Cruz');
   });
 
+  test('returns the default value for a multiple choice list emptied of every choice', () => {
+    expect(getHumanizedFieldValue(
+      {
+        details: {
+          multiple: true,
+          options: choicesListOptions
+        },
+        type: FORM_ELEMENT_TYPES.CHOICE_LIST
+      },
+      [],
+      'default',
+      GPS_FORMATS.DEG
+    )).toBe('default');
+  });
+
   test('returns the choice list value it supports a single value', () => {
     expect(getHumanizedFieldValue(
       {

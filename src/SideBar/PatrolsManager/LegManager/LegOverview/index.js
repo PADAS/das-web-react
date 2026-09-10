@@ -13,11 +13,13 @@ import {
   getReportsForPatrolSegment,
   getTrackedSubjectsForPatrolSegment,
   hasPatrolSegmentNotRun,
+  isPatrolStateUnderWay,
 } from '../../../../utils/patrols';
 import { fetchPatrol, updatePatrol, uploadPatrolFile } from '../../../../ducks/patrols';
 import { fetchTracksIfNecessary } from '../../../../utils/tracks';
 import { LEG_OVERVIEW_CATEGORY, TrackerContext, trackEventFactory } from '../../../../utils/analytics';
-import { PATROL_UI_STATES, TAB_KEYS } from '../../../../constants';
+import { selectPatrolRosterFallbackSubjects } from '../../../../selectors/patrols';
+import { TAB_KEYS } from '../../../../constants';
 import useNavigate from '../../../../hooks/useNavigate';
 import usePatrolActivityEditing from '../../utils/usePatrolActivityEditing';
 import usePatrolState from '../../../../hooks/usePatrolState';
@@ -33,20 +35,19 @@ import * as styles from './styles.module.scss';
 
 const legOverviewTracker = trackEventFactory(LEG_OVERVIEW_CATEGORY);
 
-const LegOverviewContent = ({ patrol, patrolSegment }) => {
+const LegOverviewContent = ({ legNumber, onStagedChangesChange, patrol, patrolSegment }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('patrols', { keyPrefix: 'legOverview' });
 
   const activityEditing = usePatrolActivityEditing(patrol, legOverviewTracker);
   const legState = usePatrolState(patrol, patrolSegment);
 
+  const patrolRosterFallbackSubjects = useSelector((state) => selectPatrolRosterFallbackSubjects(state, patrol));
   const patrolTeamAndTrackingOptions = useSelector((state) => state.data.patrolTeamAndTrackingOptions);
 
   const printableContentRef = useRef(null);
 
   const [isSaving, setIsSaving] = useState(false);
-
-  const legNumber = patrol.patrol_segments.indexOf(patrolSegment) + 1;
 
   const hasNotRun = hasPatrolSegmentNotRun(patrol, patrolSegment);
 
@@ -162,21 +163,32 @@ const LegOverviewContent = ({ patrol, patrolSegment }) => {
     setIsSaving(false);
   }, [savePatrol]);
 
+  // The prompt keeps the user on the page when this answers falsy, so a save
+  // that failed leaves them with their edits rather than losing them.
   const onContinueNavigation = useCallback((shouldSave) => {
     if (shouldSave) {
-      savePatrol();
-
       legOverviewTracker.track('Save unsaved changes and navigate away from leg overview');
-    } else {
-      legOverviewTracker.track('Discard unsaved changes and navigate away from leg overview');
+
+      return savePatrol();
     }
+
+    legOverviewTracker.track('Discard unsaved changes and navigate away from leg overview');
 
     return true;
   }, [savePatrol]);
 
+  // Lifted so that the route keeps this leg on screen while an edit is staged
+  // on it, rather than sending the user away with the edit.
   useEffect(() => {
-    const trackedSubjectIds = getTrackedSubjectsForPatrolSegment(patrolSegment, patrolTeamAndTrackingOptions)
-      .map((trackedSubject) => trackedSubject.id);
+    onStagedChangesChange(activityEditing.hasStagedChanges);
+  }, [activityEditing.hasStagedChanges, onStagedChangesChange]);
+
+  useEffect(() => {
+    const trackedSubjectIds = getTrackedSubjectsForPatrolSegment(
+      patrolSegment,
+      patrolTeamAndTrackingOptions,
+      patrolRosterFallbackSubjects
+    ).map((trackedSubject) => trackedSubject.id);
 
     if (trackedSubjectIds.length > 0) {
       fetchTracksIfNecessary(
@@ -189,7 +201,7 @@ const LegOverviewContent = ({ patrol, patrolSegment }) => {
         },
       );
     }
-  }, [patrolSegment, patrolTeamAndTrackingOptions]);
+  }, [patrolRosterFallbackSubjects, patrolSegment, patrolTeamAndTrackingOptions]);
 
   return <TrackerContext.Provider value={legOverviewTracker}>
     <NavigationPromptModal onContinue={onContinueNavigation} when={activityEditing.hasStagedChanges && !isSaving} />
@@ -232,7 +244,7 @@ const LegOverviewContent = ({ patrol, patrolSegment }) => {
         canEditLeg={canEditPatrolSegment(patrol, legState)}
         disableAddNoteButton={activityEditing.isAddNoteDisabled}
         disableSaveButton={!activityEditing.hasStagedChanges}
-        isLegActive={legState === PATROL_UI_STATES.ACTIVE}
+        isLegUnderWay={isPatrolStateUnderWay(legState)}
         isSaving={isSaving}
         legId={patrolSegment.id}
         onAddAttachments={activityEditing.onAddAttachments}
@@ -248,19 +260,43 @@ const LegOverview = ({ patrol }) => {
   const navigate = useNavigate();
   const { legId } = useParams();
 
-  const patrolSegment = patrol.patrol_segments.find((patrolSegment) => patrolSegment.id === legId) ?? null;
+  const [hasStagedChanges, setHasStagedChanges] = useState(false);
+  const [lastShownLeg, setLastShownLeg] = useState(null);
+
+  const patrolSegmentIndex = patrol.patrol_segments.findIndex((patrolSegment) => patrolSegment.id === legId);
+
+  const foundLeg = patrolSegmentIndex === -1
+    ? null
+    : { legNumber: patrolSegmentIndex + 1, patrolSegment: patrol.patrol_segments[patrolSegmentIndex] };
+
+  if (foundLeg && foundLeg.patrolSegment !== lastShownLeg?.patrolSegment) {
+    setLastShownLeg(foundLeg);
+  }
+
+  // A leg that goes away under an unsaved edit stays on screen, its number
+  // included, so the user saves or discards it rather than losing it to the
+  // redirect below.
+  const shownLeg = foundLeg ?? (hasStagedChanges ? lastShownLeg : null);
+
+  const hasLegToShow = !!shownLeg;
 
   useEffect(() => {
     // This route is reachable by its url alone.
-    if (!patrolSegment) {
+    if (!hasLegToShow) {
       navigate(`/${TAB_KEYS.PATROLS}/${patrol.id}`, { replace: true });
     }
-  }, [navigate, patrol.id, patrolSegment]);
+  }, [hasLegToShow, navigate, patrol.id]);
 
   // Keyed by leg, so what the user staged on one does not follow them to the
   // next.
-  return patrolSegment
-    ? <LegOverviewContent key={patrolSegment.id} patrol={patrol} patrolSegment={patrolSegment} />
+  return shownLeg
+    ? <LegOverviewContent
+      key={shownLeg.patrolSegment.id}
+      legNumber={shownLeg.legNumber}
+      onStagedChangesChange={setHasStagedChanges}
+      patrol={patrol}
+      patrolSegment={shownLeg.patrolSegment}
+    />
     : <DetailViewLoader />;
 };
 
