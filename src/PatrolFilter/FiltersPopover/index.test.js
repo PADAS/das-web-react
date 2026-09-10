@@ -2,16 +2,11 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { fetchTrackedBySchema } from '../../ducks/trackedby';
 import FiltersPopover from '.';
 import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../../ducks/patrol-filter';
 import { mockStore } from '../../__test-helpers/MockStore';
 import { render, screen, within } from '../../test-utils';
 
-jest.mock('../../ducks/trackedby', () => ({
-  ...jest.requireActual('../../ducks/trackedby'),
-  fetchTrackedBySchema: jest.fn(),
-}));
 jest.mock('../../ducks/patrol-filter', () => ({
   ...jest.requireActual('../../ducks/patrol-filter'),
   updatePatrolFilter: jest.fn(),
@@ -26,10 +21,8 @@ jest.mock('redux-persist', () => {
 });
 
 describe('PatrolFilter', () => {
-  let fetchTrackedBySchemaMock, store, updatePatrolFilterMock;
+  let store, updatePatrolFilterMock;
   beforeEach(() => {
-    fetchTrackedBySchemaMock = jest.fn(() => () => {});
-    fetchTrackedBySchema.mockImplementation(fetchTrackedBySchemaMock);
     updatePatrolFilterMock = jest.fn(() => () => {});
     updatePatrolFilter.mockImplementation(updatePatrolFilterMock);
 
@@ -55,19 +48,7 @@ describe('PatrolFilter', () => {
           },
           status: INITIAL_FILTER_STATE.status,
         },
-        patrolLeaderSchema: {
-          trackedbySchema: {
-            properties: {
-              leader: {
-                enum_ext: [{
-                  value: { id: 'Leader 1' },
-                }, {
-                  value: { id: 'Leader 2' },
-                }],
-              },
-            },
-          },
-        },
+        patrolTeamAndTrackingOptions: { leaders: [{ id: 'Leader 1' }, { id: 'Leader 2' }] },
         patrolTypes: [{
           display: 'Dog Patrol',
           icon_id: 'dog-patrol-icon',

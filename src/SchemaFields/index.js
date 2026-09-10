@@ -17,7 +17,7 @@ import { getElementPositionDataWithinScrollContainer } from '../utils/layout';
 import { uuid } from '../utils/string';
 
 import DateTimePicker, { EMPTY_DATE_TIME_VALUE } from '../DateTimePicker';
-import Select from '../Select';
+import LegacySelect from '../LegacySelect';
 
 import * as styles from './styles.module.scss';
 
@@ -251,8 +251,6 @@ export const SelectWidget = ({
   const containerRef = useRef(null);
   const selectRef = useRef(null);
 
-  const [isMenuOpen, setMenuOpen] = useState(false);
-
   const getOptionLabel = (option) => option.label ?? option.name ?? getOptionValue(option);
 
   const getOptionValue = (optionValue) => isPlainObject(optionValue) ? optionValue.value : optionValue;
@@ -269,7 +267,6 @@ export const SelectWidget = ({
   );
 
   const onMenuOpen = useCallback(() => {
-    setMenuOpen(true);
     setTimeout(() => {
       if (selectRef?.current?.menuListRef && registry.formContext && registry.formContext.scrollContainer) {
         scrollSelectIntoViewOnMenuOpenIfNecessary(
@@ -281,17 +278,7 @@ export const SelectWidget = ({
     });
   }, [registry.formContext]);
 
-  const onMenuClose = useCallback(() => {
-    setMenuOpen(false);
-  }, []);
-
-  const onKeyDown = useCallback((event) => {
-    if (event.key === 'Escape' && isMenuOpen) {
-      event.stopPropagation();
-    }
-  }, [isMenuOpen]);
-
-  return <Select
+  return <LegacySelect
     autoFocus={autofocus}
     className={`${rawErrors.length > 0 ? 'is-invalid' : ''} ${styles.selectWidget}`}
     getOptionLabel={getOptionLabel}
@@ -310,8 +297,6 @@ export const SelectWidget = ({
     onBlur={onBlur}
     onChange={handleChange}
     onFocus={onFocus}
-    onKeyDown={onKeyDown}
-    onMenuClose={onMenuClose}
     onMenuOpen={onMenuOpen}
     options={enumOptions}
     ref={selectRef}

@@ -3,9 +3,9 @@ import { connect } from 'react-redux';
 import { Navigate, useLocation } from 'react-router';
 import { useAuth0 } from '@auth0/auth0-react';
 
+import { APP_ROUTES } from '../constants/routes';
 import { getTemporaryAccessTokenFromCookies, setIntendedPostAuth0SuccessRoute } from '../utils/auth';
 import { hasAuth0CallbackParams } from '../utils/auth0';
-import { REACT_APP_ROUTE_PREFIX } from '../constants';
 import LoadingOverlay from '../LoadingOverlay';
 
 const RequireAccessToken = ({ children, token, systemConfig }) => {
@@ -34,10 +34,16 @@ const RequireAccessToken = ({ children, token, systemConfig }) => {
     return children;
   }
 
+  // An Auth0 error response has no `code`, so it is not a callback and lands here.
+  // Its params are the only ones the login page reads.
+  const auth0ErrorSearch = new URLSearchParams(location.search).has('error')
+    ? location.search
+    : '';
+
   return <Navigate
     replace
     state={{ from: location }}
-    to={`${REACT_APP_ROUTE_PREFIX}login`}
+    to={{ pathname: APP_ROUTES.LOGIN, search: auth0ErrorSearch }}
   />;
 };
 

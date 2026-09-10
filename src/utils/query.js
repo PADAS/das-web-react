@@ -1,5 +1,5 @@
 import axios, { isCancel } from 'axios';
-import { bbox, bboxPolygon, buffer, distance, point } from '@turf/turf';
+import { bbox, bboxPolygon, distance, point } from '@turf/turf';
 import toString from 'lodash/toString';
 import isArrayLike from 'lodash/isArrayLike';
 import isEmpty from 'lodash/isEmpty';
@@ -19,11 +19,47 @@ export const getBboxParamsFromMap = async (map, asString = true) => {
       (distance(asPointArray[0], asPointArray[1]) / 10), 10
     ), 0.333,
   );
+  const { default: buffer } = await import('@turf/buffer');
   const withBuffer = buffer(asPolygon, bufferPadding);
 
   const finalBounds = bbox(withBuffer);
 
   return asString ? toString(finalBounds) : finalBounds;
+};
+
+export const isBboxContainedBy = (candidateBbox, containerBbox) => {
+  const [
+    candidateMinLongitude,
+    candidateMinLatitude,
+    candidateMaxLongitude,
+    candidateMaxLatitude,
+  ] = toString(candidateBbox).split(',').map(Number);
+  const [
+    containerMinLongitude,
+    containerMinLatitude,
+    containerMaxLongitude,
+    containerMaxLatitude,
+  ] = toString(containerBbox).split(',').map(Number);
+
+  const isWellFormed = [
+    candidateMinLongitude,
+    candidateMinLatitude,
+    candidateMaxLongitude,
+    candidateMaxLatitude,
+    containerMinLongitude,
+    containerMinLatitude,
+    containerMaxLongitude,
+    containerMaxLatitude,
+  ].every((coordinate) => Number.isFinite(coordinate))
+    && candidateMinLongitude <= candidateMaxLongitude
+    && candidateMinLatitude <= candidateMaxLatitude
+    && containerMinLongitude <= containerMaxLongitude
+    && containerMinLatitude <= containerMaxLatitude;
+  const isCandidateContainedByContainer = candidateMinLongitude >= containerMinLongitude
+    && candidateMinLatitude >= containerMinLatitude
+    && candidateMaxLongitude <= containerMaxLongitude
+    && candidateMaxLatitude <= containerMaxLatitude;
+  return isWellFormed && isCandidateContainedByContainer;
 };
 
 export const recursivePaginatedQuery = async (initialQuery, onEach = null, resultsToDate = []) => {

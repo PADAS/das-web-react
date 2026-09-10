@@ -6,7 +6,7 @@ import { AddItemContext } from '../..';
 import {
   generatePseudoReportCategoryForPatrolTypes
 } from '../../../utils/patrols';
-import { TAB_KEYS } from '../../../constants';
+import { PATROL_TYPE_QUERY_PARAMETER, TAB_KEYS } from '../../../constants';
 import { trackEvent } from '../../../utils/analytics';
 import useNavigate from '../../../hooks/useNavigate';
 import { uuid } from '../../../utils/string';
@@ -34,7 +34,7 @@ const AddPatrolTab = ({ onHideModal }) => {
       onAddPatrol(formProps, patrolData, patrolType.id);
     } else {
       navigate(
-        { pathname: `/${TAB_KEYS.PATROLS}/new`, search: `?patrolType=${patrolType.id}` },
+        { pathname: `/${TAB_KEYS.PATROLS}/new`, search: `?${PATROL_TYPE_QUERY_PARAMETER}=${patrolType.id}` },
         { state: { patrolData, temporalId: uuid() } },
         { formProps }
       );

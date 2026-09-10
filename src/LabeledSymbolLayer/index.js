@@ -49,7 +49,6 @@ const LabeledSymbolLayer = ({
 
   const labelLayout = {
     ...DEFAULT_SYMBOL_LAYOUT,
-    ...textLayout,
     'icon-anchor': 'bottom',
     'icon-image': 'name-label-78-sdf',
     'icon-size': 1,
@@ -57,6 +56,9 @@ const LabeledSymbolLayer = ({
     'icon-text-fit-padding': [5, 8, 5, 8],
     'text-anchor': 'top',
     'text-offset': [0, 1.1],
+    // Spread after the defaults so callers can override text placement, but
+    // before the user config so the Map Markers visibility toggle still wins.
+    ...textLayout,
     ...mapUserLayoutConfigByLayerId(id),
   };
 

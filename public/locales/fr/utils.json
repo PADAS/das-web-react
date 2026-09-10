@@ -13,6 +13,7 @@
   "displayTitleForPatrol": {
     "unknown": "Type de patrouille inconnue"
   },
+  "distanceInKilometers": "{{distance}}km",
   "filterDuplicateUploadFilenames": {
     "duplicationAlert": "Impossible d'ajouter {{fileName}}: le fichier existe déjà"
   },
@@ -27,6 +28,11 @@
     "requestTimeout": "La demande a expiré. Veuillez réessayer (408).",
     "serviceUnavailable": "La ressource demandée est actuellement indisponible. Veuillez réessayer plus tard et contacter votre administrateur si le problème persiste (503).",
     "tooManyRequests": "Seuil de demandes atteint. Veuillez réessayer plus tard et contacter votre administrateur si le problème persiste (429)."
+  },
+  "patrolPoints": {
+    "patrolStart": "Début de patrouille",
+    "patrolEnd": "Fin de patrouille",
+    "estimatedSuffix": "(est.)"
   },
   "showFilterMismatchToastForHiddenReports": {
     "eventCreatedDoesNotMatchFilterToast": "{{serialNumber}} \"{{displayTitle}}\" has been created but does not match the current filter"

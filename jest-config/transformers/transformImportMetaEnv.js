@@ -1,6 +1,9 @@
 'use strict';
 
-// Custom Babel plugin to transform `import.meta.env.*` into `process.env.*`.
+// Custom Babel plugin to transform `import.meta.env.*` into `process.env.*`,
+// and to strip any other `import.meta.*` access down to an empty object so
+// Jest's CJS transform doesn't choke on syntax Node can't parse outside a
+// module.
 module.exports = ({ types }) => ({
   name: 'transform-import-meta-env',
 
@@ -23,6 +26,11 @@ module.exports = ({ types }) => ({
             path.node.computed,
           ),
         );
+      }
+    },
+    MetaProperty: (path) => {
+      if (path.node.meta.name === 'import' && path.node.property.name === 'meta') {
+        path.replaceWith(types.objectExpression([]));
       }
     },
   },

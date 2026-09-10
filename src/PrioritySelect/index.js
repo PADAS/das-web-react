@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo } from 'react';
 import { components } from 'react-select';
 import { useTranslation } from 'react-i18next';
 
@@ -9,7 +9,7 @@ import {
   REPORT_PRIORITY_MEDIUM,
 } from '../constants';
 
-import Select from '../Select';
+import LegacySelect from '../LegacySelect';
 
 import * as styles from './styles.module.scss';
 
@@ -42,34 +42,15 @@ const Option = ({ data, ...props }) => <components.Option {...props} >
 const PrioritySelect = ({ className = '', isDisabled = false, onChange, placeholder = '', priority = null }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'prioritySelect' });
 
-  const [isMenuOpen, setMenuOpen] = useState(false);
-
   const priorityValue = REPORT_PRIORITIES.find((reportPriority) => reportPriority.value === priority);
 
-  const onMenuClose = useCallback(() => {
-    setMenuOpen(false);
-  }, []);
-
-  const onMenuOpen = useCallback(() => {
-    setMenuOpen(true);
-  }, []);
-
-  const onKeyDown = useCallback((event) => {
-    if (event.key === 'Escape' && isMenuOpen) {
-      event.stopPropagation();
-    }
-  }, [isMenuOpen]);
-
-  return <Select
+  return <LegacySelect
     className={`${styles.select} ${className}`}
     components={{ Option, SingleValue }}
     getOptionLabel={(option) => t(`labels.${option.key}`)}
     getOptionValue={(option) => option.value}
     isDisabled={isDisabled}
     onChange={onChange}
-    onKeyDown={onKeyDown}
-    onMenuClose={onMenuClose}
-    onMenuOpen={onMenuOpen}
     options={REPORT_PRIORITIES}
     placeholder={placeholder || t('placeholder')}
     styles={{

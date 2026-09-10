@@ -2,7 +2,6 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { bbox, lineString } from '@turf/turf';
 import userEvent from '@testing-library/user-event';
-import { within } from '@testing-library/dom';
 
 import { PATROL_API_STATES, PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../constants';
 
@@ -18,6 +17,7 @@ import { UPDATE_PATROL_TRACK_STATE, updatePatrol } from '../ducks/patrols';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
 import patrols from '../__test-helpers/fixtures/patrols';
 import { render, screen } from '../test-utils';
+import { TRACK_LENGTH_ORIGINS } from '../ducks/tracks';
 
 import PatrolListItem from './';
 
@@ -42,8 +42,13 @@ const minimumNecessaryStoreStructure = {
     systemConfig: {
       [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true,
     },
+    trackSettings: {
+      length: 21,
+      origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH,
+    },
   },
   data: {
+    eventFilter: { filter: { date_range: { lower: '2020-01-01T06:00:00.000Z' } } },
     subjectStore: {},
     tracks: {},
     patrolTypes,
@@ -59,7 +64,6 @@ const minimumNecessaryStoreStructure = {
 let store = mockStore(minimumNecessaryStoreStructure);
 
 const onClick = jest.fn();
-const onPatrolSelfManagedStateChange = jest.fn();
 const map = createMapMock({ fitBounds: jest.fn() });
 
 jest.spyOn(trackUtils, 'fetchTracksIfNecessary').mockImplementation(() => Promise.resolve({}));
@@ -74,7 +78,6 @@ beforeEach(() => {
 
 const initialProps = {
   onClick,
-  onPatrolSelfManagedStateChange,
   patrol: testPatrol,
   showStateTitle: true,
   showTitleDetails: true,
@@ -82,12 +85,11 @@ const initialProps = {
   map
 };
 
-const getPatrolListItemComponent = ({ onClick, onPatrolSelfManagedStateChange, patrol, map, showStateTitle, showTitleDetails, ...otherProps }, storeObject = store) => (
+const getPatrolListItemComponent = ({ onClick, patrol, map, showStateTitle, showTitleDetails, ...otherProps }, storeObject = store) => (
   <Provider store={storeObject}>
     <MapContext.Provider value={map}>
       <PatrolListItem
               onClick={onClick}
-              onSelfManagedStateChange={onPatrolSelfManagedStateChange}
               patrol={patrol}
               map={map}
               showStateTitle={showStateTitle}
@@ -150,7 +152,7 @@ describe('the patrol list item', () => {
   test('showing the patrol\'s current state', async () => {
     const state = await screen.findByTestId(`patrol-list-item-state-title-${testPatrol.id}`);
 
-    expect(state).toHaveTextContent(PATROL_UI_STATES.ACTIVE.title);
+    expect(state).toHaveTextContent('Active');
   });
 
   test('showing a kebab menu for additional actions', async () => {
@@ -158,17 +160,16 @@ describe('the patrol list item', () => {
   });
 
   test('hides menu on outside click to prevent menu overlapping', async () => {
-    const toggleClass = 'show';
-    const patrolListItem = screen.getByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`);
-    const [, , kebabMenu] = screen.getAllByRole('button');
+    const kebabMenu = screen.getByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`);
+    const kebabButton = kebabMenu.querySelector('button');
 
-    expect(patrolListItem.classList.contains(toggleClass)).toBeFalsy();
-    await userEvent.click(kebabMenu);
-    expect(patrolListItem.classList.contains(toggleClass)).toBeTruthy();
+    expect(kebabButton).toHaveAttribute('aria-expanded', 'false');
+    await userEvent.click(kebabButton);
+    expect(kebabButton).toHaveAttribute('aria-expanded', 'true');
 
     await userEvent.click(document.body);
 
-    expect(patrolListItem.classList.contains(toggleClass)).toBeFalsy();
+    expect(kebabButton).toHaveAttribute('aria-expanded', 'false');
   });
 });
 
@@ -224,14 +225,18 @@ describe('for active patrols', () => {
     await screen.findByTestId(`patrol-list-item-track-btn-${testPatrol.id}`);
   });
 
+  test('showing the distance the patrol has covered', async () => {
+    expect(await screen.findByText('0km')).toBeInTheDocument();
+  });
+
   test('canceling the patrol from the kebab menu', async () => {
     const kebabMenu = await screen.findByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`);
-    const kebabButton = kebabMenu.querySelector('.dropdown-toggle');
+    const kebabButton = kebabMenu.querySelector('button');
     await userEvent.click(kebabButton);
 
     expect(updatePatrol).toHaveBeenCalledTimes(0);
 
-    const cancelBtn = await within(kebabMenu).findByText('Cancel Patrol');
+    const cancelBtn = await screen.findByText('Cancel Patrol');
     await userEvent.click(cancelBtn);
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
@@ -240,12 +245,12 @@ describe('for active patrols', () => {
 
   test('ending a patrol from the kebab menu', async () => {
     const kebabMenu = await screen.findByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`);
-    const kebabButton = kebabMenu.querySelector('.dropdown-toggle');
+    const kebabButton = kebabMenu.querySelector('button');
     await userEvent.click(kebabButton);
 
     expect(updatePatrol).toHaveBeenCalledTimes(0);
 
-    const endBtn = await within(kebabMenu).findByText('End Patrol');
+    const endBtn = await screen.findByText('End Patrol');
     await userEvent.click(endBtn);
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
@@ -277,12 +282,12 @@ describe('for scheduled patrols', () => {
 
   test('canceling the patrol from the kebab menu', async () => {
     const kebabMenu = await screen.findByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`);
-    const kebabButton = kebabMenu.querySelector('.dropdown-toggle');
+    const kebabButton = kebabMenu.querySelector('button');
     await userEvent.click(kebabButton);
 
     expect(updatePatrol).toHaveBeenCalledTimes(0);
 
-    const cancelBtn = await within(kebabMenu).findByText('Cancel Patrol');
+    const cancelBtn = await screen.findByText('Cancel Patrol');
     await userEvent.click(cancelBtn);
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
@@ -305,7 +310,7 @@ describe('for overdue patrols', () => {
   test('showing an overdue indicator', async () => {
     const stateIndicator = await screen.findByTestId(`patrol-list-item-state-title-${testPatrol.id}`);
 
-    expect(stateIndicator).toHaveTextContent(PATROL_UI_STATES.START_OVERDUE.title);
+    expect(stateIndicator).toHaveTextContent('Start Overdue');
   });
 });
 
@@ -332,12 +337,12 @@ describe('for cancelled patrols', () => {
 
   test('restoring the patrol from the kebab menu', async () => {
     const kebabMenu = await screen.findByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`);
-    const kebabButton = kebabMenu.querySelector('.dropdown-toggle');
+    const kebabButton = kebabMenu.querySelector('button');
     await userEvent.click(kebabButton);
 
     expect(updatePatrol).toHaveBeenCalledTimes(0);
 
-    const restoreBtn = await within(kebabMenu).findByText('Restore Patrol');
+    const restoreBtn = await screen.findByText('Restore Patrol');
     await userEvent.click(restoreBtn);
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
@@ -358,12 +363,12 @@ describe('for completed patrols', () => {
 
   test('restoring the patrol from the kebab menu', async () => {
     const kebabMenu = await screen.findByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`);
-    const kebabButton = kebabMenu.querySelector('.dropdown-toggle');
+    const kebabButton = kebabMenu.querySelector('button');
     await userEvent.click(kebabButton);
 
     expect(updatePatrol).toHaveBeenCalledTimes(0);
 
-    const restoreBtn = await within(kebabMenu).findByText('Restore Patrol');
+    const restoreBtn = await screen.findByText('Restore Patrol');
     await userEvent.click(restoreBtn);
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);

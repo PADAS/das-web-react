@@ -30,6 +30,22 @@ jobs:
       - name: Run tests
         run: yarn test-ci
 
+  i18n-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # The check needs the merge base, which shallow history cannot reach.
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Require an i18n files version bump when locale files change
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: ./scripts/check-i18n-files-version.sh "origin/${BASE_REF}"
+
   prepare:
     runs-on: ubuntu-latest
     outputs:
@@ -74,6 +90,8 @@ jobs:
   build:
     needs: [prepare, config]
     runs-on: ubuntu-latest
+    env:
+      REGISTRY_IMAGE: europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react
     steps:
       - uses: actions/checkout@v7
 
@@ -100,17 +118,29 @@ jobs:
         id: meta
         uses: docker/metadata-action@v6
         with:
-          images: >
-            europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react
+          images: ${{ env.REGISTRY_IMAGE }}
           tags: |
             type=raw,value=${{ needs.prepare.outputs.image-tag }}
             type=raw,value=pr-${{ needs.prepare.outputs.image-tag }}
+
+      - name: Check if image already exists
+        id: image-check
+        run: |
+          TAG="${{ needs.prepare.outputs.image-tag }}"
+          IMAGE="${REGISTRY_IMAGE}:${TAG}"
+          if gcloud artifacts docker images describe "${IMAGE}" --quiet; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Image does not exist yet; proceeding with build."
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Read node version
         id: node-ver
         run: echo "value=$(cat .node-version)" >> $GITHUB_OUTPUT
 
       - name: Build and push
+        if: steps.image-check.outputs.exists != 'true'
         uses: docker/build-push-action@v7
         with:
           push: true

@@ -11,8 +11,14 @@ const buildSW = () => {
       swDest: path.join(process.cwd(), 'build/sw.js'), // sw output file (auto-generated)
       globDirectory: path.join(process.cwd(), 'build'),
       globPatterns: ['**/*.{js,html,css,png,svg}'],
-      globIgnores: ['**/*service-worker*.js', '**/*precache-manifest*.js'],
-      maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10 MB
+      globIgnores: [
+        '**/*service-worker*.js',
+        '**/*precache-manifest*.js',
+        // Heavy on-demand chunks; runtime-cached instead (see sw-custom.js).
+        '**/all-*.js', // epsg-index/all.json, ~7.4 MB
+        '**/PickMapLocationButton-*.js', // mapbox-gl, ~1.76 MB
+      ],
+      maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3 MB
     })
     .then(({ count, size, warnings }) => {
       warnings.forEach(console.warn);

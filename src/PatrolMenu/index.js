@@ -13,13 +13,19 @@ import { ReactComponent as StopIcon } from '../common/images/icons/stop.svg';
 import { ReactComponent as CloseIcon } from '../common/images/icons/close-icon.svg';
 import { ReactComponent as RestoreIcon } from '../common/images/icons/restore.svg';
 
-import { DAS_HOST, PATROL_UI_STATES, PATROL_API_STATES } from '../constants';
+import { basePrintingStyles } from '../utils/styles';
+import {
+  buildPatrolEndUpdate,
+  buildPatrolReopenUpdate,
+  buildPatrolStartUpdate,
+  calcPatrolState,
+  canEndPatrol,
+} from '../utils/patrols';
+import { DAS_HOST, PATROL_API_STATES, PATROL_UI_STATES } from '../constants';
+import { downloadFileFromUrl } from '../utils/download';
+import { PATROL_LIST_ITEM_CATEGORY, trackEventFactory } from '../utils/analytics';
 import { TRACKS_API_URL } from '../ducks/tracks';
 import { usePatrolsPermissions } from '../hooks/usePermissions';
-import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
-import { canEndPatrol, calcPatrolState } from '../utils/patrols';
-import { basePrintingStyles } from '../utils/styles';
-import { downloadFileFromUrl } from '../utils/download';
 
 import TextCopyBtn from '../TextCopyBtn';
 import KebabMenu from '../KebabMenu';
@@ -31,7 +37,6 @@ const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 const PatrolMenu = ({
   patrol,
   onPatrolChange,
-  menuRef,
   printableContentRef,
   patrolTitle = '',
   isPatrolCancelled = false,
@@ -116,21 +121,21 @@ const PatrolMenu = ({
     patrolListItemTracker.track(`${canRestorePatrol ? 'Restore' : 'Cancel'} patrol from patrol list item kebab menu`);
 
     if (canRestorePatrol) {
-      onPatrolChange({ state: PATROL_API_STATES.OPEN, patrol_segments: [{ time_range: { end_time: null } }] });
+      onPatrolChange(buildPatrolReopenUpdate(patrol));
     } else {
       onPatrolChange({ state: PATROL_API_STATES.CANCELLED });
     }
-  }, [canRestorePatrol, onPatrolChange]);
+  }, [canRestorePatrol, onPatrolChange, patrol]);
 
   const togglePatrolStartStopState = useCallback(() => {
     patrolListItemTracker.track(`${patrolStartStopTitle} from patrol list item kebab menu`);
 
     if (canEnd) {
-      onPatrolChange({ state: PATROL_API_STATES.DONE, patrol_segments: [{ time_range: { end_time: new Date().toISOString() } }] });
+      onPatrolChange(buildPatrolEndUpdate(patrol));
     } else {
-      onPatrolChange({ state: PATROL_API_STATES.OPEN, patrol_segments: [{ time_range: { start_time: new Date().toISOString(), end_time: null } }] });
+      onPatrolChange(buildPatrolStartUpdate(patrol));
     }
-  }, [canEnd, onPatrolChange, patrolStartStopTitle]);
+  }, [canEnd, onPatrolChange, patrol, patrolStartStopTitle]);
 
   const handleDownloadTrack = useCallback(() => {
     if (!patrolLeader) return;
@@ -160,7 +165,6 @@ const PatrolMenu = ({
       aria-label={t('label')}
       align='end'
       className={className}
-      ref={menuRef}
       title={t('title')}
       {...rest}
     >
@@ -179,7 +183,7 @@ const PatrolMenu = ({
     }
 
     { !!patrol.id &&
-      <KebabMenu.Option className={styles.copyBtn}>
+      <KebabMenu.Option as="div" className={styles.copyBtn}>
         <TextCopyBtn
           label={t('copyButton')}
           text={`${DAS_HOST}/patrols/${patrol.id}`}

@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import React, { memo, useEffect, useId, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import Overlay from 'react-bootstrap/Overlay';
 import { useTranslation } from 'react-i18next';
 
@@ -34,6 +34,8 @@ const HOUR_INPUT_PLACEHOLDER = '--';
 const MINUTE_INPUT_PLACEHOLDER = '--';
 
 const TimePicker = ({
+  'aria-errormessage': ariaErrorMessage,
+  'aria-invalid': ariaInvalid,
   className = '',
   disabled = false,
   max = '',
@@ -60,10 +62,13 @@ const TimePicker = ({
   const shouldAutofillHourOnBlurRef = useRef(true);
   const shouldAutofillMinuteOnBlurRef = useRef(true);
 
+  const optionsPopoverId = useId();
+
   useImperativeHandle(ref, () => innerRef.current);
 
-  // We calculate the hour format depending on the user's locale.
-  const use12HourFormat = shouldUse12HourFormat(i18n.language);
+  // The hour format comes from the user's locale. Memoized because it builds an
+  // Intl formatter, which is expensive next to a render.
+  const use12HourFormat = useMemo(() => shouldUse12HourFormat(i18n.language), [i18n.language]);
 
   // The value is expected to come as a string in format HH:mm so we break it down to its parts. The time may be
   // transformed into a 12 hour format depending on the user's locale.
@@ -80,7 +85,10 @@ const TimePicker = ({
   // Period is the only input that is handled locally since the value is always a 24 hour format.
   const [period, setPeriod] = useState(periodFromValue || AM_PERIOD);
 
-  const internationalizedTimePeriods = getInternationalizedTimePeriods(i18n.language);
+  const internationalizedTimePeriods = useMemo(
+    () => getInternationalizedTimePeriods(i18n.language),
+    [i18n.language]
+  );
 
   // Instead of calling onChange, we use this method as a proxy to first transform the value to 24 hour format before
   // commiting any change.
@@ -115,8 +123,8 @@ const TimePicker = ({
       onTransformTo24HourAndChange(newHour, minute, period);
     } else {
       // For 24 hour format we do validations with every change.
-      const hourWithinValidRange = getHourWithinValidRange(newHour, max, min, use12HourFormat);
-      const minuteWithinValidRange = getMinuteWithinValidRange(minute, hourWithinValidRange, max, min, use12HourFormat);
+      const hourWithinValidRange = getHourWithinValidRange(newHour, max, min);
+      const minuteWithinValidRange = getMinuteWithinValidRange(minute, hourWithinValidRange, max, min);
 
       onTransformTo24HourAndChange(hourWithinValidRange, minuteWithinValidRange, period);
     }
@@ -125,7 +133,9 @@ const TimePicker = ({
   const onHourInputBlur = () => {
     // If the hour input is blurred and the user left a single digit we autofill the first one with a zero, unless we
     // moved the focus programatically after the user typed a valid hour.
-    if (!readOnly && shouldAutofillHourOnBlurRef.current && shouldCompleteFirstHourDigitWithZero(hour)) {
+    if (!readOnly
+      && shouldAutofillHourOnBlurRef.current
+      && shouldCompleteFirstHourDigitWithZero(hour, use12HourFormat)) {
       onHourChange(`0${hour}`);
     }
 
@@ -208,7 +218,7 @@ const TimePicker = ({
       onTransformTo24HourAndChange(hour, newMinute, period);
     } else {
       // For 24 hour format we do validations with every change.
-      const minuteWithinValidRange = getMinuteWithinValidRange(newMinute, hour, max, min, use12HourFormat);
+      const minuteWithinValidRange = getMinuteWithinValidRange(newMinute, hour, max, min);
 
       onTransformTo24HourAndChange(hour, minuteWithinValidRange, period);
     }
@@ -300,7 +310,7 @@ const TimePicker = ({
   // Keyboard navigation for the period input.
   const onPeriodInputKeyDown = (event) => {
     const amPeriodInitial = internationalizedTimePeriods[AM_PERIOD][0];
-    const  pmPeriodInitial = internationalizedTimePeriods[PM_PERIOD][0];
+    const pmPeriodInitial = internationalizedTimePeriods[PM_PERIOD][0];
 
     switch (event.key) {
     case 'ArrowLeft':
@@ -394,6 +404,8 @@ const TimePicker = ({
   }, [period, periodFromValue, value]);
 
   return <div
+      aria-errormessage={ariaErrorMessage}
+      aria-invalid={ariaInvalid}
       className={styles.timePicker
         + (use12HourFormat ? ` ${styles.twelveHourFormat}` : '')
         + (readOnly ? ` ${styles.readOnly}` : '')
@@ -410,7 +422,10 @@ const TimePicker = ({
     <ClockIcon className={styles.clockIcon} />
 
     <input
+      aria-errormessage={ariaErrorMessage}
+      aria-invalid={ariaInvalid}
       aria-label={t('hourInputLabel')}
+      autoComplete="off"
       className={styles.hourInput}
       disabled={disabled}
       inputMode="numeric"
@@ -430,7 +445,10 @@ const TimePicker = ({
     <span className={styles.colon}>:</span>
 
     <input
+      aria-errormessage={ariaErrorMessage}
+      aria-invalid={ariaInvalid}
       aria-label={t('minuteInputLabel')}
+      autoComplete="off"
       className={styles.minuteInput}
       disabled={disabled}
       inputMode="numeric"
@@ -448,7 +466,10 @@ const TimePicker = ({
     />
 
     {use12HourFormat && <input
+      aria-errormessage={ariaErrorMessage}
+      aria-invalid={ariaInvalid}
       aria-label={t('periodInputLabel')}
+      autoComplete="off"
       className={styles.periodInput}
       disabled={disabled}
       // We are handling changes through the key down, but we need this to suppress a React warning.
@@ -463,7 +484,7 @@ const TimePicker = ({
     />}
 
     <button
-      aria-controls="timePicker-optionsPopover"
+      aria-controls={isOptionsPopoverOpen ? optionsPopoverId : undefined}
       aria-expanded={isOptionsPopoverOpen}
       aria-haspopup="listbox"
       aria-label={t('optionsPopoverButtonLabel')}
@@ -474,7 +495,7 @@ const TimePicker = ({
       title={t('optionsPopoverButtonLabel')}
       type="button"
     >
-      <div className={`${styles.caret} ${isOptionsPopoverOpen ? styles.open : ''}`} role="img" />
+      <div aria-hidden="true" className={`${styles.caret} ${isOptionsPopoverOpen ? styles.open : ''}`} />
     </button>
 
     <Overlay
@@ -486,6 +507,7 @@ const TimePicker = ({
       target={innerRef}
     >
       <OptionsPopover
+        id={optionsPopoverId}
         internationalizedTimePeriods={internationalizedTimePeriods}
         max={max}
         min={min}

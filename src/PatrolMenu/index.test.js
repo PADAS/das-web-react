@@ -101,6 +101,15 @@ describe('PatrolMenu', () => {
     testMinimumOptionsMenu();
   });
 
+  test('reaches the copy button with the keyboard', async () => {
+    renderPatrolMenu(undefined, storeWithUpdatePermissions);
+    await userEvent.click(screen.getByRole('button'));
+
+    await userEvent.keyboard('{ArrowDown}{ArrowDown}{ArrowDown}');
+
+    expect(screen.getByRole('button', { name: 'Copy to clipboard' })).toHaveFocus();
+  });
+
   test('prints the patrol details', async () => {
     renderPatrolMenu();
     await userEvent.click(screen.getByRole('button'));
@@ -139,10 +148,8 @@ describe('PatrolMenu', () => {
     await userEvent.click(screen.getByRole('button'));
     await userEvent.click(screen.getByText('Restore Patrol'));
 
-    expect(onPatrolChange).toHaveBeenCalledWith({
-      patrol_segments: [{ time_range: { end_time: null } }],
-      state: 'open'
-    });
+    expect(onPatrolChange).toHaveBeenCalledWith(expect.objectContaining({ state: 'open' }));
+    expect(onPatrolChange.mock.calls[0][0].patrol_segments.at(-1).time_range.end_time).toBeNull();
   });
 
   describe('Download Patrol Track button', () => {
@@ -176,18 +183,18 @@ describe('PatrolMenu', () => {
     };
 
     const getDownloadOption = () =>
-      screen.getByText('Download Patrol Track').closest('a');
+      screen.getByText('Download Patrol Track').closest('button');
 
     test('is disabled when patrol has no leader', async () => {
       renderPatrolMenu({ ...initialProps, patrol: patrols[0] });
       await openMenu();
-      expect(getDownloadOption()).toHaveClass('disabled');
+      expect(getDownloadOption()).toBeDisabled();
     });
 
     test('is disabled when leader has no track in the store', async () => {
       renderPatrolMenu({ ...initialProps, patrol: patrolWithLeader });
       await openMenu();
-      expect(getDownloadOption()).toHaveClass('disabled');
+      expect(getDownloadOption()).toBeDisabled();
     });
 
     test('is disabled when track has no points within the patrol time range', async () => {
@@ -196,7 +203,7 @@ describe('PatrolMenu', () => {
       const store = makeTrackStore([beforeStart]);
       renderPatrolMenu({ ...initialProps, patrol: patrolWithLeader }, store);
       await openMenu();
-      expect(getDownloadOption()).toHaveClass('disabled');
+      expect(getDownloadOption()).toBeDisabled();
     });
 
     test('is enabled when track has points within the patrol time range', async () => {
@@ -205,7 +212,7 @@ describe('PatrolMenu', () => {
       const store = makeTrackStore([afterStart]);
       renderPatrolMenu({ ...initialProps, patrol: patrolWithLeader }, store);
       await openMenu();
-      expect(getDownloadOption()).not.toHaveClass('disabled');
+      expect(getDownloadOption()).not.toBeDisabled();
     });
 
     test('calls downloadFileFromUrl with correct url, params, and filename when clicked', async () => {
@@ -284,10 +291,9 @@ describe('PatrolMenu', () => {
     await user.click(screen.getByRole('button'));
     await user.click(screen.getByText('Start Patrol'));
 
-    expect(onPatrolChange).toHaveBeenCalledWith({
-      patrol_segments: [{ time_range: { end_time: null, start_time: mockedDate } }],
-      state: 'open'
-    });
+    expect(onPatrolChange).toHaveBeenCalledWith(expect.objectContaining({ state: 'open' }));
+    expect(onPatrolChange.mock.calls[0][0].patrol_segments.at(-1).time_range)
+      .toEqual(expect.objectContaining({ end_time: null, start_time: mockedDate }));
 
     jest.useRealTimers();
   });

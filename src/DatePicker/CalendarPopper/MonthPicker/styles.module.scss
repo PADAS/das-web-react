@@ -1,7 +1,11 @@
 @use '../../../common/styles/inputs';
 @use '../../../common/styles/vars/colors';
 
+$control-height: 1.5rem;
+$label-font-size: 0.875rem;
+
 .monthPicker {
+  align-items: center;
   border-bottom: 1px solid colors.$light-gray;
   display: flex;
   justify-content: space-around;
@@ -43,23 +47,16 @@
     }
   }
 
-  .header {
-    border-bottom: 1px solid colors.$light-gray;
-    display: flex;
-    justify-content: space-around;
-    padding: 0.25rem;
-
-    .year {
-      margin: 0;
-    }
-  }
-
   .chevronButton {
+    align-items: center;
     background-color: white;
     border: none;
     border-radius: 0.25rem;
     color: colors.$secondary-medium-light-gray;
+    display: flex;
     flex: 1;
+    height: $control-height;
+    justify-content: center;
     margin: 0 0.125rem;
     outline: none;
     padding: 0;
@@ -70,11 +67,28 @@
     }
 
     &:focus {
-      outline: 1px solid colors.$bright-blue;
+      outline: 2px solid colors.$bright-blue;
     }
 
     &:hover:not(:disabled) {
       background-color: colors.$blue-highlight;
+    }
+  }
+
+  .header {
+    align-items: center;
+    border-bottom: 1px solid colors.$light-gray;
+    display: flex;
+    justify-content: space-around;
+    padding: 0.25rem 0.5rem;
+
+    .chevronButton {
+      flex: 0 0 1.75rem;
+    }
+
+    .year {
+      font-size: $label-font-size;
+      margin: 0;
     }
   }
 
@@ -84,12 +98,13 @@
     border: none;
     border-radius: 0.25rem;
     display: flex;
-    font-size: 0.875rem;
+    font-size: $label-font-size;
+    height: $control-height;
     outline: none;
-    padding: 0.25rem 0.5rem;
+    padding: 0 0.5rem;
 
     &:focus {
-      outline: 1px solid colors.$bright-blue;
+      outline: 2px solid colors.$bright-blue;
     }
 
     &:hover {

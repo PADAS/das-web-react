@@ -116,6 +116,27 @@ describe('NavigationPromptModal', () => {
     });
   });
 
+  test('hides the save option when showPositiveContinueButton is false', async () => {
+    const ChildComponent = () => {
+      const { isNavigationBlocked, onNavigationAttemptBlocked } = useContext(NavigationContext);
+
+      useEffect(() => {
+        if (isNavigationBlocked) {
+          onNavigationAttemptBlocked();
+        }
+      }, [isNavigationBlocked, onNavigationAttemptBlocked]);
+
+      return null;
+    };
+
+    renderNavigationPromptModal({ ...initialProps, showPositiveContinueButton: false, when: true }, ChildComponent);
+
+    await screen.findByText(TITLE_TEXT);
+
+    expect(screen.queryByText('Save')).not.toBeInTheDocument();
+    expect(screen.getByText('Discard')).toBeInTheDocument();
+  });
+
   test('triggers onCancel and closes the modal if navigation attempt is resolved (clicking "go back" button)', async () => {
     const ChildComponent = () => {
       const {

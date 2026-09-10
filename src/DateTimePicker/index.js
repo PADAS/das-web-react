@@ -1,11 +1,13 @@
 import React, { memo, useImperativeHandle, useRef } from 'react';
 
-import { EMPTY_DATE_TIME_VALUE, getMaxDateAndTime, getMinDateAndTime } from './utils';
+import { EMPTY_DATE_TIME_VALUE, getBoundaryDateAndTime } from './utils';
 
 import DatePicker from '../DatePicker';
 import TimePicker, { EMPTY_TIME_VALUE } from '../TimePicker';
 
 import * as styles from './styles.module.scss';
+
+const START_OF_DAY_TIME_VALUE = '00:00';
 
 const DateTimePicker = ({
   className = '',
@@ -33,8 +35,18 @@ const DateTimePicker = ({
   const [dateValue, timeValue] = value.split('T');
   const [hourValue = '', minuteValue = ''] = timeValue.split(':');
 
-  const [maxDate, maxTime] = getMaxDateAndTime(max, value);
-  const [minDate, minTime] = getMinDateAndTime(min, value);
+  const [maxDate, maxTime] = getBoundaryDateAndTime(max, value);
+  const [minDate, minTime] = getBoundaryDateAndTime(min, value);
+
+  const onDateChange = (date) => {
+    const [, minTimeOfNewDate] = getBoundaryDateAndTime(min, `${date}T${START_OF_DAY_TIME_VALUE}`);
+
+    const timeOfNewDate = timeValue === EMPTY_TIME_VALUE
+      ? minTimeOfNewDate || START_OF_DAY_TIME_VALUE
+      : timeValue;
+
+    onChange(`${date}T${timeOfNewDate}`);
+  };
 
   return <div
       className={`${styles.dateTimePicker} ${className}`}
@@ -54,7 +66,7 @@ const DateTimePicker = ({
       required={required}
       {...datePickerProps}
       className={`${styles.datePicker} ${datePickerProps.className || ''}`}
-      onChange={(date) => onChange(`${date}T${timeValue === EMPTY_TIME_VALUE ? '00:00' : timeValue}`)}
+      onChange={onDateChange}
       ref={datePickerRef}
       value={dateValue}
     />

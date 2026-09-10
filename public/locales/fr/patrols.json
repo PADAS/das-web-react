@@ -3,7 +3,7 @@
     "cancel": "Annuler",
     "loading": "Chargement...",
     "noMorePatrols": "Il n'y a plus de patrouilles à afficher.",
-    "title": "Ajouter à une Patrouille"
+    "title": "Ajouter à une patrouille"
   },
   "detailView": {
     "addEmptyNoteAlert": "Impossible d'ajouter un nouveau commentaire: il y a un commentaire vide qui n'a pas encore été sauvegardé",
@@ -12,38 +12,39 @@
       "save": "Sauvegarder"
     },
     "header": {
+      "patrolRestoreButton": "Restaurer",
       "patrolSchedule": "Planifiée pour le {{scheduledStartTime}}",
       "patrolStartButton": "Début",
-      "patrolRestoreButton": "Restaurer",
       "uiStateTitles": {
         "active": "Active",
         "cancelled": "Annulée",
         "done": "Terminée",
-        "invalid": "Configuration Invalide",
-        "readyToStart": "Prête à Démarrer",
-        "scheduled": "Planifiée pour le",
-        "startOverdue": "Patrouille Retardée de"
+        "invalid": "Configuration invalide",
+        "paused": "En pause",
+        "readyToStart": "Prête à démarrer",
+        "scheduled": "Planifiée",
+        "startOverdue": "Démarrage en retard"
       }
     },
     "loadingMessage": "Sauvegardement...",
     "planSection": {
-      "autoStartCheckboxLargeLabel": "Commencer automatiquement la patrouille dans EarthRanger à l'heure suivante",
-      "autoStartCheckboxSmallLabel": "Commencer automatiquement la patrouille dans EarthRanger",
       "autoEndCheckboxLargeLabel": "Terminer automatiquement la patrouille dans EarthRanger à l'heure suivante",
       "autoEndCheckboxSmallLabel": "Terminer automatiquement la patrouille dans EarthRanger",
-      "endDateLabel": "Date de Fin",
-      "endTimeLabel": "Heure de Fin",
-      "endLocationLargeLabel": "Coordonnées GPS de Fin",
+      "autoStartCheckboxLargeLabel": "Commencer automatiquement la patrouille dans EarthRanger à l'heure suivante",
+      "autoStartCheckboxSmallLabel": "Commencer automatiquement la patrouille dans EarthRanger",
+      "endDateLabel": "Date de fin",
+      "endLocationLargeLabel": "Coordonnées GPS de fin",
       "endLocationSmallLabel": "Coordonnées GPS  ",
-      "locationSelectorPlaceholder": "Déterminer les Coordonnées GPS",
+      "endTimeLabel": "Heure de fin",
+      "locationSelectorPlaceholder": "Déterminer les coordonnées GPS",
       "objectiveLabel": "Objectif",
       "objectivePlaceholder": "Décrire l'objectif de la patrouille...",
-      "startDateLabel": "Date de Début",
-      "startTimeLabel": "Heure de Début",
-      "startLocationLargeLabel": "Coordonnées GPS de Début",
+      "startDateLabel": "Date de début",
+      "startLocationLargeLabel": "Coordonnées GPS de début",
       "startLocationSmallLabel": "Coordonnées GPS",
+      "startTimeLabel": "Heure de début",
       "title": "Description",
-      "trackedByLabel": "Suivi par:",
+      "trackedByLabel": "Suivi par",
       "trackedByPlaceholder": "Sélectionnez l'Appareil..."
     },
     "quickLinksTitles": {
@@ -52,21 +53,71 @@
       "plan": "Description"
     }
   },
+  "header": {
+    "breadcrumbNavLabel": "Navigation de la patrouille",
+    "closeButtonLabel": "Fermer la barre latérale"
+  },
   "invalidDatesModal": {
     "body": "Cette patrouille ne peut pas être sauvegardée. L'heure de fin d'une patrouille doit être postérieure à l'heure de début. Veuillez corriger l'heure de début ou de fin de la patrouille.",
     "okButton": "OK",
-    "title": "Dates de Patrouille Invalides"
+    "title": "Dates de patrouille invalides"
   },
-  "patrolMenu": {
-    "cancelPatrol": "Annuler la Patrouille",
-    "copyButton": "Copier le lien de la patrouille",
-    "copyButtonMessage": "Lien copié avec succès",
-    "endPatrol": "Terminer la Patrouille",
-    "downloadTrackButton": "Télécharger la Piste de la Patrouille",
-    "printPatrolButton": "Imprimer la Patrouille",
-    "restorePatrol": "Restaurer la Patrouille",
-    "startPatrol": "Commencer la Patrouille",
-    "noTrackDataTooltip": "Aucune donnée à télécharger"
+  "legForm": {
+    "patrolTypeField": {
+      "label": "Type de patrouille",
+      "placeholder": "Sélectionnez un type de patrouille",
+      "requiredError": "Une étape doit avoir un type de patrouille."
+    },
+    "patrolTypeSchemaErrorMessage": "Les champs de ce type de patrouille n'ont pas pu être chargés.",
+    "patrolTypeSchemaLoadingLabel": "Chargement des champs de ce type de patrouille",
+    "staticFields": {
+      "assetsLabel": "Équipements",
+      "autoEndCheckboxLabel": "Terminer automatiquement l'étape à cette heure",
+      "autoStartCheckboxLabel": "Commencer automatiquement l'étape à cette heure",
+      "endDateBeforeStartDateError": "La fin de l'étape doit être postérieure à son début.",
+      "endDateInputLabel": "Date de fin",
+      "endLocationLabel": "Coordonnées GPS de fin",
+      "endTimeInputLabel": "Heure de fin",
+      "endTimeLabel": "Heure de fin",
+      "endTimeRequiredError": "Une étape avec une date de fin doit avoir une heure de fin.",
+      "startDateInputLabel": "Date de début",
+      "startDateOverlapsPreviousLegError": "Cette étape ne peut pas chevaucher la précédente.",
+      "startDateRequiredError": "Une étape doit avoir une date de début.",
+      "startLocationLabel": "Coordonnées GPS de début",
+      "startTimeInputLabel": "Heure de début",
+      "startTimeLabel": "Heure de début",
+      "startTimeRequiredError": "Une étape doit avoir une heure de début.",
+      "teamLabel": "Équipe",
+      "teamLeadLabel": "Chef d'équipe",
+      "teamMembersLabel": "Membres de l'équipe"
+    },
+    "universalFieldsSchemaErrorMessage": "Les champs universels de patrouille n'ont pas pu être chargés.",
+    "universalFieldsSchemaLoadingLabel": "Chargement des champs universels de patrouille"
+  },
+  "newLeg": {
+    "footer": {
+      "cancelButton": "Annuler",
+      "saveButton": "Sauvegarder"
+    },
+    "header": {
+      "breadcrumbNewLegLabel": "Nouvelle étape de patrouille",
+      "breadcrumbPatrolsLabel": "Patrouilles",
+      "title": "Nouvelle étape de patrouille"
+    },
+    "saveErrorMessage": "L'étape de la patrouille n'a pas pu être créée. Veuillez réessayer."
+  },
+  "newPatrol": {
+    "footer": {
+      "cancelButton": "Annuler",
+      "saveButton": "Sauvegarder"
+    },
+    "header": {
+      "breadcrumbNewPatrolLabel": "Nouvelle patrouille",
+      "breadcrumbPatrolsLabel": "Patrouilles",
+      "statePill": "Nouvelle",
+      "titleInputLabel": "Titre de la patrouille"
+    },
+    "saveErrorMessage": "La patrouille n'a pas pu être créée. Veuillez réessayer."
   },
   "patrolList": {
     "emptyPatrolList": "Aucune patrouille à afficher."
@@ -76,9 +127,113 @@
     "scheduledTitle": "Planifiée pour le:",
     "startButton": "Commencer"
   },
+  "patrolMenu": {
+    "cancelPatrol": "Annuler la patrouille",
+    "copyButton": "Copier le lien de la patrouille",
+    "copyButtonMessage": "Lien copié avec succès",
+    "downloadTrackButton": "Télécharger la piste de la patrouille",
+    "endPatrol": "Terminer la patrouille",
+    "label": "Voir les options de la patrouille",
+    "noTrackDataTooltip": "Aucune donnée à télécharger",
+    "printPatrolButton": "Imprimer la patrouille",
+    "restorePatrol": "Restaurer la patrouille",
+    "startPatrol": "Commencer la patrouille",
+    "title": "Options de la patrouille"
+  },
+  "patrolOverview": {
+    "attachmentsSaveErrorMessage": "Certaines pièces jointes n'ont pas pu être téléversées. Veuillez réessayer.",
+    "footer": {
+      "addEventButton": "Ajouter un événement",
+      "addEventButtonLabel": "Ajouter un événement",
+      "addEventButtonText": "Événement",
+      "saveButton": "Sauvegarder"
+    },
+    "header": {
+      "breadcrumbPatrolsLabel": "Patrouilles",
+      "copyLinkMessage": "Lien copié avec succès",
+      "copyLinkOption": "Copier le lien de la patrouille",
+      "downloadTrackOption": "Télécharger la piste de la patrouille",
+      "fitToBoundsButtonLabel": "Ajuster aux limites de la patrouille",
+      "jumpToLocationButtonLabel": "Aller à l'emplacement",
+      "mobileProvenancePill": "Mobile",
+      "moreOptionsButtonLabel": "Plus d'options",
+      "printOption": "Imprimer la patrouille",
+      "statusMenuLabel": "Actions sur le statut de la patrouille",
+      "statusSelectLabel": "Modifier le statut de la patrouille",
+      "titleInputLabel": "Titre de la patrouille",
+      "toggleTrackButtonLabel": {
+        "hidden": "Afficher la piste de la patrouille",
+        "pinned": "Masquer la piste de la patrouille",
+        "visible": "Épingler la piste de la patrouille"
+      },
+      "uiStateTitles": {
+        "active": "Active",
+        "cancelled": "Annulée",
+        "done": "Terminée",
+        "invalid": "Configuration invalide",
+        "paused": "En pause",
+        "readyToStart": "Prête à démarrer",
+        "scheduled": "Planifiée",
+        "startOverdue": "Démarrage en retard"
+      }
+    },
+    "history": {
+      "sortDirectionButtonLabel": {
+        "down": "Trier l'historique par ordre croissant",
+        "up": "Trier l'historique par ordre décroissant"
+      },
+      "timeLabel": "Heure"
+    },
+    "historyTabTitle": "Historique",
+    "overview": {
+      "activity": {
+        "activitySectionTitle": "Activité",
+        "collapseAllButtonLabel": "Tout réduire",
+        "emptyStateMessage": "L'activité de la patrouille apparaîtra ici",
+        "expandAllButtonLabel": "Tout développer",
+        "legTransitionTitle": "Étape {{endedLeg}} terminée, étape {{startedLeg}} commencée",
+        "patrolEndedTitle": "Patrouille terminée",
+        "patrolStartedTitle": "Patrouille commencée",
+        "sortDirectionButtonLabel": {
+          "down": "Trier l'activité par ordre croissant",
+          "up": "Trier l'activité par ordre décroissant"
+        },
+        "summaryStats": {
+          "activeTimeLabel": "Temps actif",
+          "distanceLabel": "Distance",
+          "distanceSubjectButtonLabel": "Distance parcourue par {{subject}}. Changer le sujet suivi",
+          "distanceSubjectMenuLabel": "Sujets suivis",
+          "durationLabel": "Durée",
+          "eventsLabel": "Événements",
+          "patrolLeaderIndicator": "Chef de la patrouille",
+          "pausedTimeLabel": "Temps en pause"
+        },
+        "timeLabel": "Heure"
+      },
+      "legs": {
+        "endColumnHeader": "Date de fin",
+        "legActionsColumnHeader": "Actions",
+        "legColumnHeader": "Étape",
+        "legDidNotRunLabel": "Ce tronçon n'a jamais eu lieu",
+        "legTableCaption": "Étapes de la patrouille",
+        "newLegButton": "Nouvelle étape de patrouille",
+        "patrolTypeColumnHeader": "Type de patrouille",
+        "startColumnHeader": "Date de début",
+        "teamColumnHeader": "Équipe et suivi",
+        "viewLegButtonLabel": "Voir l'étape {{legNumber}}",
+        "zoomToLegBoundsButtonLabel": "Ajuster aux limites de l'étape {{legNumber}}"
+      }
+    },
+    "overviewTabTitle": "Aperçu",
+    "saveErrorMessage": "La patrouille n'a pas pu être enregistrée. Veuillez réessayer.",
+    "tabsLabel": "Onglets de l'aperçu de la patrouille"
+  },
+  "titleInput": {
+    "editButtonLabel": "Modifier le titre"
+  },
   "trackToggleButton": {
-    "tracksPinned": "Pistes verrouillées",
+    "tracksOff": "Pistes désactivées",
     "tracksOn": "Pistes activées",
-    "tracksOff": "Pistes désactivées"
+    "tracksPinned": "Pistes verrouillées"
   }
 }

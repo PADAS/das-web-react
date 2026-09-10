@@ -27,15 +27,18 @@ import {
 } from '../../utils/events';
 import { createNewReportForEventType } from '../../utils/events';
 import { executeSaveActions, generateSaveActionsForReportLikeObject } from '../../utils/save';
+import { generateErrorMessageForRequest } from '../../utils/request';
 import { extractObjectDifference } from '../../utils/objects';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
 import { fetchPatrol } from '../../ducks/patrols';
+import normalizeChoiceListValues from '../../utils/form-schemas/normalizeChoiceListValues';
 import { selectEventSchema } from '../../selectors/event-schemas';
 import { selectEventTypeById, selectEventTypeByValue } from '../../selectors/event-types';
 import { setLocallyEditedEvent, unsetLocallyEditedEvent } from '../../ducks/locally-edited-event';
 import { SidebarScrollContext } from '../../SidebarScrollContext';
 import { TAB_KEYS } from '../../constants';
 import { TrackerContext } from '../../utils/analytics';
+import transformSchemaToFormElements from '../../utils/form-schemas/transformSchemaToFormElements';
 import useNavigate from '../../hooks/useNavigate';
 import { usePreviewFeature } from '../../hooks';
 import { uuid } from '../../utils/string';
@@ -102,8 +105,10 @@ const generateErrorListForApiResponseDetails = (response, t) => {
         [{ label: key, message: value }, ...accumulator],
       []);
   } catch (e) {
+    const label = (response != null && generateErrorMessageForRequest(response))
+      || t('reportDetailView.unknownErrorLabel');
     const message = response?.response?.data?.status?.message;
-    return [{ label: t('reportDetailView.unknownErrorLabel'), message }];
+    return [{ label, message }];
   }
 };
 
@@ -168,6 +173,13 @@ const ReportDetailView = ({
   const eventSchema = useSelector((state) => reportForm
     ? selectEventSchema(state, reportForm.event_type, reportForm.id)
     : null);
+
+  const formElements = useMemo(
+    () => eventType?.version === 2 && eventSchema?.json && !eventSchema?.error
+      ? transformSchemaToFormElements(eventSchema)
+      : null,
+    [eventSchema, eventType?.version]
+  );
 
   const {
     onCancelAddedReport,
@@ -326,8 +338,8 @@ const ReportDetailView = ({
     } else {
       reportToSubmit = {
         ...reportChanges,
+        event_details: normalizeChoiceListValues(reportForm.event_details, formElements),
         id: reportForm.id,
-        event_details: reportForm.event_details,
         location: originalReport.location,
       };
 
@@ -379,6 +391,7 @@ const ReportDetailView = ({
     attachmentsToAdd,
     communityInputValue,
     dispatch,
+    formElements,
     isAddedReport,
     isCommunity,
     isNewReport,
@@ -440,13 +453,16 @@ const ReportDetailView = ({
   }, [reportForm, reportTracker]);
 
   const onLegacyFormChange = useCallback((event) => {
-    const formData = Object.entries(event.formData).reduce((acc, [formKey, formData]) => ({
-      ...acc,
-      [formKey]: formData === undefined ? '' : formData
+    const eventDetails = reportForm.event_details ?? {};
+    const eventDetailsKeys = new Set([...Object.keys(eventDetails), ...Object.keys(event.formData)]);
+    // rjsf unsets (deletes) or sets to undefined a cleared leaf field's key,
+    // so a missing or undefined value in event.formData means the field was cleared.
+    const nextEventDetails = [...eventDetailsKeys].reduce((accumulator, eventDetailKey) => ({
+      ...accumulator,
+      [eventDetailKey]: event.formData[eventDetailKey] === undefined ? '' : event.formData[eventDetailKey]
     }), {});
 
-    setReportForm({ ...reportForm, event_details: { ...reportForm.event_details, ...formData } });
-
+    setReportForm({ ...reportForm, event_details: nextEventDetails });
   }, [reportForm]);
 
   const onFormError = useCallback((errors) => {
@@ -693,7 +709,8 @@ const ReportDetailView = ({
 
   useEffect(() => {
     if (linkedPatrolIds?.length > 0) {
-      linkedPatrolIds.forEach((id) => !patrolStore[id] && dispatch(fetchPatrol(id)));
+      // A linked patrol can be gone by the time the event is opened.
+      linkedPatrolIds.forEach((id) => !patrolStore[id] && dispatch(fetchPatrol(id)).catch(() => {}));
     }
   }, [dispatch, linkedPatrolIds, patrolStore]);
 
@@ -712,7 +729,7 @@ const ReportDetailView = ({
   useEffect(() => {
     const shouldUpdateMapEvent = reportChanges?.geometry ||
       reportChanges?.location ||
-      reportChanges?.priority ||
+      reportChanges?.priority !== undefined ||
       reportChanges?.time ||
       reportChanges?.title;
     if (!isNewReport && shouldUpdateMapEvent) {
@@ -742,7 +759,7 @@ const ReportDetailView = ({
   const shouldRenderLinksSection = !!linkedReports.length || !!linkedPatrols.length;
 
   return <div
-    className={`${styles.reportDetailView} ${className || ''}`}
+    className={`${styles.reportDetailView} ${isCommunity ? styles.community : ''} ${className || ''}`}
     data-testid="reportManagerContainer"
     ref={printableContentRef}
     >
@@ -806,7 +823,6 @@ const ReportDetailView = ({
           <QuickLinks.SectionsWrapper>
             <QuickLinks.Section anchorTitle={t('reportDetailView.quickLinks.detailsAnchor')}>
               <DetailsSection
-                eventId={reportId}
                 eventSchema={eventSchema}
                 hidePriority={hidePriority}
                 hideReportedBy={hideReportedBy}
@@ -878,15 +894,13 @@ const ReportDetailView = ({
           <div className={styles.footer}>
             <div className={styles.footerActionButtonsContainer}>
               <AddNoteButton
-                className={styles.footerActionButton}
                 data-testid={`reportDetailView-addNoteButton-${isAddedReport ? 'added' : 'original'}`}
                 onAddNote={onAddNote}
               />
 
-              <AddAttachmentButton className={styles.footerActionButton} onAddAttachments={onAddAttachments} />
+              <AddAttachmentButton onAddAttachments={onAddAttachments} />
 
               {showAddReportButton && <AddReportButton
-                className={styles.footerActionButton}
                 formProps={{ onSaveSuccess: onSaveAddedReport, relationshipButtonDisabled: true }}
                 onAddReport={onAddReport}
               />}

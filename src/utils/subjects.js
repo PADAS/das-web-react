@@ -112,12 +112,12 @@ export const updateSubjectLastPositionFromSocketStatusUpdate = (subject, updateO
 
   const returnVal = {
     ...subject,
-    last_position_date: update.properties.coordinateProperties.time,
+    last_position_date: update.properties?.coordinateProperties?.time,
     last_position_status: {
       ...subject.last_position_status,
       last_voice_call_start_at: update.properties.last_voice_call_start_at,
       radio_state_at: update.properties.radio_state_at,
-      radio_state: update.properties.state || subject.last_position.radio_state,
+      radio_state: update?.properties?.state || subject?.last_position?.radio_state,
     },
     last_position: {
       ...(subject?.last_position ?? {}), ...update, properties: {

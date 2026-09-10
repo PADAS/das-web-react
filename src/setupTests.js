@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 import 'jest-webgl-canvas-mock';
 import dotenv from 'dotenv';
 import ReactGA4 from 'react-ga4';
+import ResizeObserver from 'resize-observer-polyfill';
 
 import MockSocketContext, { SocketContext } from './__test-helpers/MockSocketContext';
 
@@ -48,4 +49,23 @@ global.IntersectionObserver = class IntersectionObserver {
   observe = jest.fn();
   takeRecords = jest.fn();
   unobserve = jest.fn();
+};
+
+global.PointerEvent = class PointerEvent extends MouseEvent {};
+
+global.ResizeObserver = ResizeObserver;
+
+// jest-fixed-jsdom replaces AbortSignal with Node's implementation, which
+// jsdom's addEventListener refuses to accept, so the option is honored here.
+const { addEventListener } = EventTarget.prototype;
+EventTarget.prototype.addEventListener = function (type, listener, options) {
+  if (!options?.signal) {
+    return addEventListener.call(this, type, listener, options);
+  }
+
+  const { signal, ...remainingOptions } = options;
+  if (!signal.aborted) {
+    addEventListener.call(this, type, listener, remainingOptions);
+    signal.addEventListener('abort', () => this.removeEventListener(type, listener, remainingOptions), { once: true });
+  }
 };

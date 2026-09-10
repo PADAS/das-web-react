@@ -82,5 +82,41 @@ describe('auth0 utils', () => {
         organization: 'org_abc',
       });
     });
+
+    test('forwards the connection when one is provided', () => {
+      expect(buildAuth0AuthorizationParams(AUDIENCE, null, 'gdl-zoo')).toEqual({
+        audience: AUDIENCE,
+        connection: 'gdl-zoo',
+      });
+    });
+
+    test('forwards a trimmed connection when it has surrounding whitespace', () => {
+      expect(buildAuth0AuthorizationParams(AUDIENCE, null, '  gdl-zoo  ')).toEqual({
+        audience: AUDIENCE,
+        connection: 'gdl-zoo',
+      });
+    });
+
+    test('omits the connection entirely when it is not provided', () => {
+      const params = buildAuth0AuthorizationParams(AUDIENCE, null);
+      expect(params).toEqual({ audience: AUDIENCE });
+      expect(params).not.toHaveProperty('connection');
+    });
+
+    test('omits the connection entirely when it is null, empty, or only whitespace', () => {
+      [null, '', '   '].forEach((connection) => {
+        const params = buildAuth0AuthorizationParams(AUDIENCE, null, connection);
+        expect(params).toEqual({ audience: AUDIENCE });
+        expect(params).not.toHaveProperty('connection');
+      });
+    });
+
+    test('forwards both the organization and the connection instead of special-casing their overlap', () => {
+      expect(buildAuth0AuthorizationParams(AUDIENCE, 'org_abc', 'gdl-zoo')).toEqual({
+        audience: AUDIENCE,
+        organization: 'org_abc',
+        connection: 'gdl-zoo',
+      });
+    });
   });
 });

@@ -1,7 +1,7 @@
 import React, { memo, useContext, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
-import { selectPatrolData } from '../selectors/patrols';
+import { selectPatrolTrackData } from '../selectors/patrols';
 import { LAYER_IDS } from '../constants';
 import { MapContext } from '../MapContext';
 import { trimTrackDataToTimeRange } from '../utils/tracks';
@@ -17,27 +17,29 @@ const LINE_PAINT = {
 const getPointLayer = (event, map) => map.queryRenderedFeatures(event.point)
   .filter((item) => item.layer.id.includes(LAYER_IDS.TRACK_TIMEPOINTS))[0];
 
-const PatrolTrackLayer = ({ onPointClick, patrol: patrolFromProps, trackTimeEnvelope, ...restProps }) => {
+const PatrolTrackLayer = ({ onPointClick, patrol, trackTimeEnvelope, ...restProps }) => {
   const map = useContext(MapContext);
 
-  const { patrol, trackData } = useSelector((state) => {
-    return selectPatrolData(state, patrolFromProps);
-  });
+  const patrolTrackData = useSelector((state) => selectPatrolTrackData(state, patrol));
+  const { legsTrackData } = patrolTrackData;
   const showTrackTimepoints = useSelector((state) => state.view.showTrackTimepoints);
 
-  const trimmedTrackData = useMemo(
-    () => !!trackData && trimTrackDataToTimeRange(trackData, trackTimeEnvelope.from, trackTimeEnvelope.until),
-    [trackData, trackTimeEnvelope.from, trackTimeEnvelope.until]
+  const trimmedLegsTrackData = useMemo(
+    () => legsTrackData.map((legTrackData) => (
+      !!legTrackData && trimTrackDataToTimeRange(legTrackData, trackTimeEnvelope.from, trackTimeEnvelope.until)
+    )),
+    [legsTrackData, trackTimeEnvelope.from, trackTimeEnvelope.until]
   );
 
-  return trackData && trackData.track ? <TrackLayer
-    id={patrol.id}
+  return trimmedLegsTrackData.map((trimmedLegTrackData, index) => (trimmedLegTrackData?.track ? <TrackLayer
+    id={`${patrol.id}-${patrol.patrol_segments[index].id}`}
+    key={patrol.patrol_segments[index].id}
     linePaint={LINE_PAINT}
     onPointClick={(event) => onPointClick(getPointLayer(event, map))}
     showTimepoints={showTrackTimepoints}
-    trackData={trimmedTrackData}
+    trackData={trimmedLegTrackData}
     {...restProps}
-  /> : null;
+  /> : null));
 };
 
 export default memo(PatrolTrackLayer);

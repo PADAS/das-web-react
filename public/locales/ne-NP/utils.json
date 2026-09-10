@@ -13,6 +13,7 @@
     "displayTitleForPatrol": {
         "unknown": "अज्ञात गस्ती"
     },
+    "distanceInKilometers": "{{distance}}km",
     "filterDuplicateUploadFilenames": {
         "duplicationAlert": "थप गर्न सकिँदैन । {{fileName}}: नामको फाइल पहिले नै अवस्थित छ"
     },
@@ -27,6 +28,11 @@
         "requestTimeout": "अनुरोधको समय सकियो । कृपया फेरी प्रयास गर्नुहोस् (४०८) ।",
         "serviceUnavailable": "अनुरोधको स्रोत हाल उपलब्ध छैन । कृपया फेरी प्रयास गर्नुहोस् र यही समस्या जारी रहेमा (५०३) तपाईंको प्रशासकलाई सम्पर्क गर्नुहोस् ।",
         "tooManyRequests": "अति धेरै अनुरोधहरु । कृपया फेरी प्रयास गर्नुहोस् र यही समस्या जारी रहेमा (४२९) तपाईंको प्रशासकलाई सम्पर्क गर्नुहोस् ।"
+    },
+    "patrolPoints": {
+        "patrolStart": "गस्ती सुरु",
+        "patrolEnd": "गस्ती अन्त्य",
+        "estimatedSuffix": "(अनुमानित)"
     },
     "showFilterMismatchToastForHiddenReports": {
         "eventCreatedDoesNotMatchFilterToast": "{{serialNumber}} \\\"{{displayTitle}}\\\" सिर्जना गरियो तर हालको फिल्टरसँग मेल खाएन ।"

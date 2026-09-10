@@ -2,7 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { act, fireEvent, render, screen, waitFor } from '../test-utils';
+import { act, createEvent, fireEvent, render, screen, waitFor } from '../test-utils';
 import { BREAKPOINTS } from '../constants';
 import {
   clearVirtualDate,
@@ -73,6 +73,24 @@ describe('TimeSlider', () => {
     { initialEntries }
   );
 
+  test('sets the virtual date to the event filter end date when the range ends at a date', () => {
+    const upper = '2020-02-01T06:00:00.000Z';
+    store.data.eventFilter.filter.date_range.upper = upper;
+
+    renderTimeSlider();
+
+    expect(setVirtualDate).toHaveBeenCalledWith(upper);
+  });
+
+  test('does not set a virtual date when the range ends at the present', () => {
+    store.data.eventFilter.filter.date_range.upper = null;
+
+    renderTimeSlider();
+
+    expect(setVirtualDate).not.toHaveBeenCalled();
+    expect(clearVirtualDate).toHaveBeenCalled();
+  });
+
   test('has no sidebar offset when no sidebar tab is open', () => {
     renderTimeSlider(undefined, { initialEntries: ['/'] });
 
@@ -99,15 +117,15 @@ describe('TimeSlider', () => {
     expect(screen.getByTestId('timeSlider-wrapper')).toHaveStyle({ '--sidebar-offset': '0px' });
   });
 
-  test('hides the other controls, leaving only the slider and the play button, when a sidebar tab is open', () => {
+  test('hides the speed and close controls, but keeps the slider, play button, date range button and time, when a sidebar tab is open', () => {
     renderTimeSlider(undefined, { initialEntries: ['/events'] });
 
     expect(screen.getByRole('slider', { name: 'Timeslider' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Play timeslider' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Change date range' })).toBeVisible();
+    expect(screen.getByRole('time')).toBeVisible();
     expect(screen.queryByRole('button', { name: 'Open playback speed options' })).toBeNull();
-    expect(screen.queryByRole('button', { name: 'Change date range' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Close timeslider' })).toBeNull();
-    expect(screen.queryByRole('time')).toBeNull();
   });
 
   test('hides the other controls when a sidebar detail view is open, but keeps the play button', () => {
@@ -210,6 +228,23 @@ describe('TimeSlider', () => {
     await userEvent.keyboard('{Escape}');
 
     expect(screen.queryByRole('menu', { name: 'Playback speed options' })).toBeNull();
+    expect(speedButton).toHaveFocus();
+  });
+
+  test('closes the speed menu with the tab key, giving the focus back to its button without trapping it', async () => {
+    renderTimeSlider();
+
+    const speedButton = screen.getByRole('button', { name: 'Open playback speed options' });
+
+    await userEvent.click(speedButton);
+
+    const speedMenu = screen.getByRole('menu', { name: 'Playback speed options' });
+    const tabKeyDown = createEvent.keyDown(speedMenu, { key: 'Tab' });
+
+    fireEvent(speedMenu, tabKeyDown);
+
+    expect(tabKeyDown.defaultPrevented).toBe(false);
+    await waitFor(() => expect(screen.queryByRole('menu', { name: 'Playback speed options' })).toBeNull());
     expect(speedButton).toHaveFocus();
   });
 
@@ -533,7 +568,16 @@ describe('TimeSlider', () => {
     store.view.timeSliderState.virtualDate = '2020-06-15T12:00:00.000Z';
     renderTimeSlider();
 
+    // Mounting parks the handle at the range end; playback is what moves it from there.
+    setVirtualDate.mockClear();
+
     fireEvent.click(screen.getByRole('button', { name: 'Play timeslider' }));
+
+    expect(setVirtualDate).not.toHaveBeenCalled();
+
+    act(() => {
+      jest.advanceTimersByTime(FRAME_INTERVAL_MS);
+    });
 
     expect(setVirtualDate).toHaveBeenCalledTimes(1);
 
@@ -542,11 +586,5 @@ describe('TimeSlider', () => {
     });
 
     expect(setVirtualDate).toHaveBeenCalledTimes(2);
-
-    act(() => {
-      jest.advanceTimersByTime(FRAME_INTERVAL_MS);
-    });
-
-    expect(setVirtualDate).toHaveBeenCalledTimes(3);
   });
 });

@@ -210,6 +210,27 @@ describe('LocationPicker', () => {
     expect(screen.getByLabelText('Location')).toHaveValue('15.000000°, 10.000000°');
   });
 
+  test('adds a description given through the input props to the one of the input', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <MapContext.Provider value={map}>
+          <LocationPicker
+            id="locationPicker"
+            inputProps={{ 'aria-describedby': 'locationPicker-customDescription' }}
+            onChange={onChange}
+            value={null}
+          />
+
+          <p id="locationPicker-customDescription">Custom description</p>
+        </MapContext.Provider>
+      </Provider>
+    );
+
+    expect(screen.getByLabelText('Location')).toHaveAccessibleDescription(
+      'Click the button to set a value from the location picker menu. Custom description'
+    );
+  });
+
   test('shows the coordinates in DEG format and a warning tooltip if the coordinates representation is a CRS and the value is outside the BBOX', async () => {
     store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = [
       GPS_FORMATS.DEG,

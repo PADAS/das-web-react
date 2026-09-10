@@ -164,4 +164,57 @@ describe('ReportFormSummary - V2SchemaFormSummary', () => {
     expect(screen.getByText('Text Field')).toBeInTheDocument();
     expect(screen.getByText('Hello')).toBeInTheDocument();
   });
+
+  test('shows the display names of a legacy choice list stored as { name, value } objects', () => {
+    const eventSchema = {
+      json: {
+        $schema: 'https://json-schema.org/draft/2020-12/schema',
+        properties: {
+          team_members: {
+            items: {
+              anyOf: [{
+                enum: ['kumoi_njapit', 'sam_kumum'],
+                'x-enumExtra': {
+                  kumoi_njapit: { display: 'Kumoi Njapit' },
+                  sam_kumum: { display: 'Sam Kumum' },
+                },
+              }],
+            },
+            title: 'Team Member',
+            type: 'array',
+          },
+        },
+        required: [],
+        type: 'object',
+        unevaluatedProperties: false,
+      },
+      ui: {
+        fields: { team_members: { inputType: 'LIST', parent: 'section-1', type: 'CHOICE_LIST' } },
+        headers: {},
+        order: ['section-1'],
+        sections: {
+          'section-1': {
+            columns: 1,
+            isActive: true,
+            label: 'Details',
+            leftColumn: [{ name: 'team_members', type: 'field' }],
+            rightColumn: [],
+          },
+        },
+      },
+    };
+
+    renderV2SchemaFormSummary({
+      eventSchema,
+      formData: {
+        team_members: [
+          { name: 'Kumoi Njapit', value: 'kumoi_njapit' },
+          { name: 'Sam Kumum', value: 'sam_kumum' },
+        ],
+      },
+    });
+
+    expect(screen.getByText('Team Member')).toBeInTheDocument();
+    expect(screen.getByText('Kumoi Njapit, Sam Kumum')).toBeInTheDocument();
+  });
 });

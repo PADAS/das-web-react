@@ -23,7 +23,6 @@ jest.mock('../../ducks/patrols', () => ({
 
 const store = mockStore(patrolDefaultStoreData);
 
-/** Remove key prop from toHaveTextContent payload when title/key are removed from const*/
 describe('usePatrol', () => {
   const Component = ({ patrol }) => {
     const { patrolElapsedTime: _patrolElapsedTime, ...data } = usePatrol(patrol);
@@ -50,37 +49,37 @@ describe('usePatrol', () => {
   test('provides the expected data for a new patrol', async () => {
     renderTestComponent(newPatrol);
 
-    expect((await screen.findByTestId('patrol-data'))).toHaveTextContent('"patrolState":{"key":"active","title":"Active","status":"open"}');
+    expect((await screen.findByTestId('patrol-data'))).toHaveTextContent('"patrolState":{"key":"active","status":"open"}');
   });
 
   test('provides the expected data for a scheduled patrol', async () => {
     renderTestComponent(scheduledPatrol);
 
-    expect((await screen.findByTestId('patrol-data'))).toHaveTextContent('"patrolState":{"key":"scheduled","title":"Scheduled","status":"scheduled"}');
+    expect((await screen.findByTestId('patrol-data'))).toHaveTextContent('"patrolState":{"key":"scheduled","status":"scheduled"}');
   });
 
   test('provides the expected data for an active patrol', async () => {
     renderTestComponent(activePatrol);
 
-    expect((await screen.findByTestId('patrol-data'))).toHaveTextContent('"patrolState":{"key":"active","title":"Active","status":"open"}');
+    expect((await screen.findByTestId('patrol-data'))).toHaveTextContent('"patrolState":{"key":"active","status":"open"}');
   });
 
   test('provides the expected data for an overdue patrol', async () => {
     renderTestComponent(overduePatrol);
 
-    expect((await screen.findByTestId('patrol-data'))).toHaveTextContent('"patrolState":{"key":"startOverdue","title":"Start Overdue","status":"start-overdue"}');
+    expect((await screen.findByTestId('patrol-data'))).toHaveTextContent('"patrolState":{"key":"startOverdue","status":"start-overdue"}');
   });
 
   test('provides the expected data for a done patrol', async () => {
     renderTestComponent(donePatrol);
 
-    expect((await screen.findByTestId('patrol-data'))).toHaveTextContent('"patrolState":{"key":"done","title":"Done","status":"done"}');
+    expect((await screen.findByTestId('patrol-data'))).toHaveTextContent('"patrolState":{"key":"done","status":"done"}');
   });
 
   test('provides the expected data for a cancelled patrol', async () => {
     renderTestComponent(cancelledPatrol);
 
-    expect((await screen.findByTestId('patrol-data'))).toHaveTextContent('"patrolState":{"key":"cancelled","title":"Cancelled","status":"cancelled"}');
+    expect((await screen.findByTestId('patrol-data'))).toHaveTextContent('"patrolState":{"key":"cancelled","status":"cancelled"}');
   });
 
   test('triggers a patrol update when calling onPatrolChange', async () => {

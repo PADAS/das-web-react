@@ -1,6 +1,6 @@
 import i18next from 'i18next';
 
-import { format, getTimeInTimezone, STANDARD_DATE_FORMAT } from './datetime';
+import { format, getTimeInTimezone, resolveDurationHumanizerLanguage, STANDARD_DATE_FORMAT } from './datetime';
 
 describe('format dates', () => {
   const date = new Date('1993-12-20T07:30:00');
@@ -48,6 +48,22 @@ describe('format dates', () => {
     expect( getTimeInTimezone( date, 'Africa/Nairobi') ).toBe('00:41');
   });
 
+});
 
+describe('resolveDurationHumanizerLanguage', () => {
+  test('returns the bare language code for a language humanize-duration supports', () => {
+    expect(resolveDurationHumanizerLanguage('es')).toBe('es');
+  });
 
+  test('strips the region suffix from a supported language', () => {
+    expect(resolveDurationHumanizerLanguage('en-US')).toBe('en');
+  });
+
+  test('falls back to english for a language humanize-duration has no translation for', () => {
+    expect(resolveDurationHumanizerLanguage('ne-NP')).toBe('en');
+  });
+
+  test('falls back to english when no language is given', () => {
+    expect(resolveDurationHumanizerLanguage(undefined)).toBe('en');
+  });
 });

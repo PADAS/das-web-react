@@ -13,6 +13,7 @@
   "displayTitleForPatrol": {
     "unknown": "Aina isiyojulikana ya doria"
   },
+  "distanceInKilometers": "{{distance}}km",
   "filterDuplicateUploadFilenames": {
     "duplicationAlert": "Haiwezi kuongeza {{fileName}}: faili tayari ipo"
   },
@@ -27,6 +28,11 @@
     "requestTimeout": "Muda wa ombi umekwisha. Tafadhali jaribu tena (408).",
     "serviceUnavailable": "Rasilimali iliyoombwa haipatikani kwa sasa. Tafadhali jaribu tena baadaye, na wasiliana na msimamizi wako ikiwa tatizo hili litaendelea (503).",
     "tooManyRequests": "Maombi mengi. Tafadhali jaribu tena baadaye, na wasiliana na msimamizi wako ikiwa tatizo hili litaendelea (429)."
+  },
+  "patrolPoints": {
+    "patrolStart": "Mwanzo wa doria",
+    "patrolEnd": "Mwisho wa doria",
+    "estimatedSuffix": "(kadirio)"
   },
   "showFilterMismatchToastForHiddenReports": {
     "eventCreatedDoesNotMatchFilterToast": "{{serialNumber}} \"{{displayTitle}}\" imeundwa lakini haifanani na mfuatano wa sasa"

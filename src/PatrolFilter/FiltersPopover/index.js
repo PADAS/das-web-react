@@ -1,19 +1,17 @@
-import React, { memo, useCallback, useEffect } from 'react';
+import React, { memo, useCallback } from 'react';
 import Button from 'react-bootstrap/Button';
-import isEmpty from 'lodash/isEmpty';
 import isEqual from 'react-fast-compare';
 import Popover from 'react-bootstrap/Popover';
 import uniq from 'lodash/uniq';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { fetchTrackedBySchema } from '../../ducks/trackedby';
 import { iconTypeForPatrol } from '../../utils/patrols';
 import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../../ducks/patrol-filter';
 import { trackEventFactory, PATROL_FILTER_CATEGORY } from '../../utils/analytics';
 
 import CheckboxList from '../../CheckboxList';
-import DasIcon from '../../DasIcon';
+import SvgIcon from '../../SvgIcon';
 import ReportedBySelect from '../../ReportedBySelect';
 
 import * as colorVariables from '../../common/styles/vars/colors.module.scss';
@@ -48,7 +46,7 @@ const FiltersPopover = ({ ref, ...rest }) => {
   const { t } = useTranslation('filters', { keyPrefix: 'patrolFilters.filtersPopover' });
 
   const patrolFilter = useSelector((state) => state.data.patrolFilter);
-  const patrolLeaderSchema = useSelector((state) => state.data.patrolLeaderSchema);
+  const patrolLeaders = useSelector((state) => state.data.patrolTeamAndTrackingOptions.leaders);
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
   const { status: selectedStatusIds } = patrolFilter;
@@ -114,23 +112,16 @@ const FiltersPopover = ({ ref, ...rest }) => {
     patrolFilterTracker.track('Click reset status');
   }, [dispatch]);
 
-  useEffect(() => {
-    if (isEmpty(patrolLeaderSchema)){
-      dispatch(fetchTrackedBySchema());
-    }
-  }, [dispatch, patrolLeaderSchema]);
-
-  const patrolLeaderFilterOptions = patrolLeaderSchema?.trackedbySchema?.properties?.leader?.enum_ext?.map(({ value }) => value)
-    || [];
-
-  const selectedLeaders = !!selectedLeaderIds?.length && !isEmpty(patrolLeaderSchema) ?
-    selectedLeaderIds.map(id => patrolLeaderFilterOptions.find(leader => leader.id === id))
-    : [];
+  // A filter can outlive the leader it names, so leaders that are gone are
+  // dropped instead of reaching the select as holes.
+  const selectedLeaders = selectedLeaderIds
+    ?.map(id => patrolLeaders.find(leader => leader.id === id))
+    .filter(Boolean) ?? [];
 
   const statusFilterOptions = PATROL_FILTERS_STATUS_OPTIONS.map(status => ({
     id: status.id,
     value: <div className='statusItem'>
-      {<DasIcon color={status.color} iconId='generic_rep' type='events' />}
+      {<SvgIcon color={status.color} iconId='generic_rep' type='patrols' />}
       {(t(`patrolStatuses.${status.id}`))}
     </div>,
   }));
@@ -145,7 +136,7 @@ const FiltersPopover = ({ ref, ...rest }) => {
     return {
       id: patrolType.id,
       value: <div className='patrolTypeItem'>
-        {patrolIconId && <DasIcon color='black' iconId={patrolIconId} type='events' />}
+        {patrolIconId && <SvgIcon color='black' iconId={patrolIconId} type='patrols' />}
         {patrolType.display}
       </div>,
     };
@@ -197,7 +188,7 @@ const FiltersPopover = ({ ref, ...rest }) => {
             className={styles.reportedBySelect}
             isMulti
             onChange={onLeadersFilterChange}
-            options={patrolLeaderFilterOptions}
+            options={patrolLeaders}
             placeholder={t('reportedByPlaceholder')}
             value={selectedLeaders}
           />

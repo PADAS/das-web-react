@@ -1,0 +1,5 @@
+@use '../common/styles/buttons';
+
+.addNoteButton {
+  @include buttons.baseButton;
+}

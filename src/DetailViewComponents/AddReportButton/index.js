@@ -7,16 +7,17 @@ import AddItemButton from '../../AddItemButton';
 
 import * as styles from './styles.module.scss';
 
-const AddReportButton = ({ className, ...rest }) => {
+const AddReportButton = ({ className = '', ...otherProps }) => {
   const { t } = useTranslation('details-view');
 
   return <AddItemButton
         aria-label={t('addReportButtonLabel')}
-        className={`${className} ${styles.addReportButton}`}
+        className={`${styles.addReportButton} ${className}`}
         hideAddPatrolTab
-        iconComponent={<DocumentIcon />}
+        iconComponent={<DocumentIcon aria-hidden="true" />}
         title={t('addReportButtonTitle')}
-        {...rest}
+        variant="plain"
+        {...otherProps}
     />;
 };
 

@@ -11,14 +11,15 @@ import ReactGA4 from 'react-ga4';
 import { createUserAnalyticsData } from './utils/analytics';
 
 import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
-import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/event-svg-sprite.svg';
 
 import { fetchAnalyzers } from './ducks/analyzers';
+import { fetchDefaultPatrolSegmentTypeSchema } from './ducks/patrol-schemas';
 import { fetchEventCategories } from './ducks/event-categories';
 import { fetchEventsSchema } from './ducks/event-schemas';
 import { fetchEventTypes } from './ducks/event-types';
 import { fetchFeaturesets } from './ducks/features';
 import { fetchMaps } from './ducks/maps';
+import { fetchPatrolTeamAndTrackingOptions } from './ducks/patrols';
 import { fetchPatrolTypes } from './ducks/patrol-types';
 import { fetchAllGear, GEAR_LIST_POLL_INTERVAL_MS } from './ducks/gear';
 import { fetchSubjectGroups } from './ducks/subjects';
@@ -147,6 +148,8 @@ export const App = () => {
     dispatch(fetchSystemStatus())
       .then((results = {}) => {
         if (results.patrol_enabled) {
+          dispatch(fetchDefaultPatrolSegmentTypeSchema());
+          dispatch(fetchPatrolTeamAndTrackingOptions());
           dispatch(fetchPatrolTypes());
         }
         if (results.track_length) {
@@ -235,8 +238,6 @@ export const App = () => {
         </div>
 
         <div style={{ display: 'none', height: 0, width: 0 }}>
-          <ReportTypeIconSprite id="reportTypeIconSprite" />
-
           <EarthRangerLogoSprite />
         </div>
 

@@ -1,14 +1,13 @@
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import uniq from 'lodash/uniq';
 import xor from 'lodash/xor';
 import debounce from 'lodash/debounce';
-import { CancelToken } from 'axios';
 import { differenceInCalendarDays } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
-import { clearSubjectData, fetchMapSubjects, mapSubjectsFetchCancelToken } from '../ducks/subjects';
+import { cancelMapSubjectsFetch, clearSubjectData, fetchMapSubjects } from '../ducks/subjects';
 import { clearEventData, fetchMapEvents, cancelMapEventsFetch } from '../ducks/events';
 import { fetchBaseLayers } from '../ducks/layers';
 import { setMapPosition } from '../ducks/map-position';
@@ -19,7 +18,7 @@ import { getPatrolsForLeaderId } from '../utils/patrols';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 import { fetchTracksIfNecessary } from '../utils/tracks';
-import { subjectIsStatic } from '../utils/subjects';
+import { canShowTrackForSubject, subjectIsStatic } from '../utils/subjects';
 import { withMultiLayerHandlerAwareness, queryMultiLayerClickFeatures } from '../utils/map-handlers';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
@@ -87,11 +86,17 @@ import MapLocationSelectionOverview from '../MapLocationSelectionOverview';
 
 import './Map.scss';
 import { addMapImage } from '../utils/map';
+import { attachEventIconsToMap } from '../utils/eventMapIcons';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const CLUSTER_APPROX_WIDTH = 40;
 const CLUSTER_APPROX_HEIGHT = 25;
+
+export const MAP_DATA_FETCH_DEBOUNCE_MS = 100;
+/* Showing history makes the subjects query scan observations instead of reading cached
+   locations, so map interaction is coalesced harder while the time slider is scrubbed. */
+export const TIME_SLIDER_HISTORY_MAP_DATA_FETCH_DEBOUNCE_MS = 400;
 
 const { SUBJECT_SYMBOLS } = LAYER_IDS;
 
@@ -160,9 +165,9 @@ const Map = ({ children, onMapLoad, socket }) => {
     hidePopupActionCreator(popupId)
   ), [dispatch]);
 
-  const trackRequestCancelToken = useRef(CancelToken.source());
-
   const timeSliderActive = timeSliderState.active;
+
+  const hasScrubbedIntoPast = !!timeSliderState.hasScrubbedIntoPast;
 
   const isDrawingEventGeometry = mapLocationSelection.isPickingLocation
     && mapLocationSelection.mode === MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
@@ -191,7 +196,7 @@ const Map = ({ children, onMapLoad, socket }) => {
   }, [showPopup]);
 
   const cancelMapDataRequests = useCallback(() => {
-    mapSubjectsFetchCancelToken.cancel();
+    cancelMapSubjectsFetch();
     cancelMapEventsFetch();
   }, []);
 
@@ -205,19 +210,13 @@ const Map = ({ children, onMapLoad, socket }) => {
   }
   , [eventVectorTilesEnabled, dispatch, map]);
 
-  const resetTrackRequestCancelToken = useCallback(() => {
-    trackRequestCancelToken.current.cancel();
-    trackRequestCancelToken.current = CancelToken.source();
-  }, []);
-
   const fetchMapSubjectTracksForTimeslider = useCallback((subjects) => {
-    resetTrackRequestCancelToken();
     return fetchTracksIfNecessary(subjects
-      .filter(subject => !subjectIsStatic(subject))
+      .filter((subject) => canShowTrackForSubject(subject) && !subjectIsStatic(subject))
       .filter(({ last_position_date }) =>
         (new Date(last_position_date) - new Date(eventFilter.filter.date_range.lower) >= 0))
       .map(({ id }) => id));
-  }, [eventFilter.filter.date_range.lower, resetTrackRequestCancelToken]);
+  }, [eventFilter.filter.date_range.lower]);
 
 
   const fetchMapSubjectsFromTimeslider = useCallback(() => {
@@ -250,8 +249,9 @@ const Map = ({ children, onMapLoad, socket }) => {
       )
         .catch((e) =>
           console.warn('error loading map data', e)
-        ), 100)
-  , [mapEventsFetch, fetchMapSubjectsFromTimeslider]);
+        ),
+    hasScrubbedIntoPast ? TIME_SLIDER_HISTORY_MAP_DATA_FETCH_DEBOUNCE_MS : MAP_DATA_FETCH_DEBOUNCE_MS)
+  , [hasScrubbedIntoPast, mapEventsFetch, fetchMapSubjectsFromTimeslider]);
 
   const fetchMapData = useCallback(() => {
     cancelMapDataRequests();
@@ -536,9 +536,8 @@ const Map = ({ children, onMapLoad, socket }) => {
   }, [dispatch, eventFilter.filter.date_range.lower]);
 
   const onTrackLengthChange = useCallback(() => {
-    resetTrackRequestCancelToken();
     fetchTracksIfNecessary(uniq([...subjectTrackState.visible, ...subjectTrackState.pinned, ...heatmapSubjectIDs]));
-  }, [heatmapSubjectIDs, resetTrackRequestCancelToken, subjectTrackState.pinned, subjectTrackState.visible]);
+  }, [heatmapSubjectIDs, subjectTrackState.pinned, subjectTrackState.visible]);
 
   useEffect(() => {
     dispatch(
@@ -581,7 +580,12 @@ const Map = ({ children, onMapLoad, socket }) => {
     if (map) {
       fetchMapData();
     }
-  }, [fetchMapData, map, timeSliderState.active]);
+    // hasScrubbedIntoPast decides the use_lkl parameter of the subjects query.
+  }, [fetchMapData, hasScrubbedIntoPast, map, timeSliderState.active]);
+
+  /* Changing the debounce interval builds a new debounced function, so the pending call on the
+     outgoing one is dropped rather than fired alongside the refetch the change itself triggers. */
+  useEffect(() => () => debouncedFetchEventsAndSubjects.cancel(), [debouncedFetchEventsAndSubjects]);
 
   useEffect(() => {
     if (!!map && heatmapSubjectIDs.length && showReportHeatmap) {
@@ -646,8 +650,8 @@ const Map = ({ children, onMapLoad, socket }) => {
     const handleMapStyleImageMissing = async (event) => {
       const { id } = event;
 
-      // Event icon ids have no path segment and are owned by
-      // MapImageFromSvgSpriteRenderer.
+      // Event icon ids have no path segment and are owned by the event icon
+      // registry (utils/eventMapIcons, attached separately below).
       if (!id.includes('/')) {
         return;
       }
@@ -689,6 +693,12 @@ const Map = ({ children, onMapLoad, socket }) => {
       return () => {
         map.off('styleimagemissing', handleMapStyleImageMissing);
       };
+    }
+  }, [map]);
+
+  useEffect(() => {
+    if (map) {
+      return attachEventIconsToMap(map);
     }
   }, [map]);
 

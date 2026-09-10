@@ -1,4 +1,6 @@
-import { getCurrentIdFromURL, getCurrentTabFromURL, redirectToExternalUrl } from './navigation';
+import { matchPath } from 'react-router';
+
+import { detailViewPattern, getCurrentIdFromURL, getCurrentTabFromURL, redirectToExternalUrl, tabPath } from './navigation';
 
 describe('Navigation utils', () => {
   describe('getCurrentIdFromURL', () => {
@@ -28,6 +30,29 @@ describe('Navigation utils', () => {
 
     test('returns undefined if there is not a tab', () => {
       expect(getCurrentTabFromURL('/')).toBeUndefined();
+    });
+  });
+
+  describe('tabPath', () => {
+    test('prefixes the tab key with a leading slash', () => {
+      expect(tabPath('events')).toBe('/events');
+      expect(tabPath('patrols')).toBe('/patrols');
+    });
+  });
+
+  describe('detailViewPattern', () => {
+    test('builds a matchPath pattern scoped to the given tab', () => {
+      expect(detailViewPattern('events')).toBe('/events/:id/*');
+    });
+
+    test('matches a detail view URL and any nested path beneath it', () => {
+      expect(matchPath(detailViewPattern('patrols'), '/patrols/patrolId-987')).not.toBeNull();
+      expect(matchPath(detailViewPattern('patrols'), '/patrols/patrolId-987/legs/legId-1')).not.toBeNull();
+    });
+
+    test('does not match a different tab or the bare tab path', () => {
+      expect(matchPath(detailViewPattern('patrols'), '/events/reportId-1234')).toBeNull();
+      expect(matchPath(detailViewPattern('patrols'), '/patrols')).toBeNull();
     });
   });
 

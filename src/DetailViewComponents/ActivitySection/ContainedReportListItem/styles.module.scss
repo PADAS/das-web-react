@@ -1,55 +1,38 @@
-@import '../../../common/styles/layout';
+@use 'sass:color';
+@use 'sass:map';
 
-.reportListItem {
-  background-color: transparent !important;
-  flex: 7;
-  height: 100%;
-  position: relative;
-  width: 100%;
+@use '../../../common/styles/vars/colors';
 
-  [class*=iconContainer] {
-    width: 3.5rem;
-  }
+$rowHoverBlackMix: 4%;
 
-  [class*=titleContainer] {
-    left: 3.125rem;
-    position: absolute;
-    top: -0.5rem;
+@mixin priorityTheme($theme) {
+  --item-icon-bg: #{map.get($theme, 'base')};
+  --item-row-bg: #{map.get($theme, 'background')};
+  --item-row-hover-bg: #{color.mix(black, map.get($theme, 'background'), $rowHoverBlackMix)};
+}
 
-    @media (min-width: $md-layout-width-min) {
-      position: unset;
-    }
-  }
+.red {
+  @include priorityTheme(colors.$report-high-priority-theme);
+}
 
-  [class*=dateContainer] {
-    bottom: -0.5rem;
-    left: 3.5rem;
-    position: absolute;
+.amber {
+  @include priorityTheme(colors.$report-medium-priority-theme);
+}
 
-    @media (min-width: $md-layout-width-min) {
-      position: unset;
-    }
-  }
+.green {
+  @include priorityTheme(colors.$report-low-priority-theme);
+}
 
-  span[class*=date] {
-    font-size: 0.875rem;
-  }
-
-  [class*=resolved] {
-    display: none;
-
-    @media (min-width: $md-layout-width-min) {
-      display: unset;
-    }
-  }
-
-  @media (min-width: $md-layout-width-min) {
-    flex: 11;
-  }
+.none {
+  @include priorityTheme(colors.$report-no-priority-theme);
 }
 
 .loaderWrapper {
   display: flex;
   justify-content: center;
   width: 100%;
+}
+
+.viewReportIcon {
+  --action-icon-size: 0.875rem;
 }

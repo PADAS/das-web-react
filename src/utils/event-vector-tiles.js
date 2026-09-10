@@ -30,14 +30,17 @@ export const buildEventIconLayout = ({ iconIdExpression, ifIsGeneric }) => ({
   ...DEFAULT_SYMBOL_LAYOUT,
   'icon-allow-overlap': true,
   'text-allow-overlap': true,
-  // Sprite id encodes icon + priority + optional size, e.g. "generic-200-78".
+  // Icon variant id: "event-icon|" prefix + icon + priority + optional size,
+  // e.g. "event-icon|generic|200|78". Must match calcSvgImageIconId in
+  // utils/mapImages so styleimagemissing can reverse-parse it.
   'icon-image': [
     'concat',
+    'event-icon|',
     iconIdExpression,
-    '-',
+    '|',
     ['get', 'priority'],
-    ['case', ['has', 'width'], ['concat', '-', ['get', 'width']], ''],
-    ['case', ['has', 'height'], ['concat', '-', ['get', 'height']], ''],
+    ['case', ['has', 'width'], ['concat', '|', ['get', 'width']], ''],
+    ['case', ['has', 'height'], ['concat', '|', ['get', 'height']], ''],
   ],
   // Scale icons up with zoom; generic icons stay smaller than typed ones at
   // every level.

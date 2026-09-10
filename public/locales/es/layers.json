@@ -4,6 +4,9 @@
     "allAnalyzersCheckboxAriaLabel": "Mostrar todos los analizadores",
     "allFeaturesCheckboxLabel": "Todos los elementos",
     "allFeaturesCheckboxAriaLabel": "Mostrar todos los elementos",
+    "analyzersLoadErrorMessage": "No se pudieron cargar los analizadores.",
+    "analyzersPartialLoadErrorMessage": "No se pudieron cargar algunos analizadores.",
+    "analyzersRetryButtonLabel": "Reintentar",
     "subjectsTitle": "Sujetos",
     "reportsTitle": "Eventos"
   }

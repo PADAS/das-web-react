@@ -12,12 +12,17 @@ import { MapContext } from '../MapContext';
 import { setIsPickingLocation } from '../ducks/map-ui';
 import { useMapEventBinding } from '../hooks';
 
-import MapDrawingTools, { DRAWING_MODES } from '../MapDrawingTools';
+import MapDrawingTools, { DefaultCursorPopup, DRAWING_MODES } from '../MapDrawingTools';
+import MapDrawingToolsContextProvider from '../MapDrawingTools/ContextProvider';
 import PointPopup from './PointPopup';
+
+import { calcCursorPolygonAreaDisplayString } from './utils';
 
 import * as styles from './styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
+
+const MEASUREMENT_LAYER_IDS = [LAYER_IDS.POINTS, LAYER_IDS.LINES, LAYER_IDS.FILL];
 
 const MapRulerControl = ({ setIsPickingLocation }) => {
   const { t } = useTranslation('map-controls', { keyPrefix: 'mapRuler' });
@@ -72,6 +77,11 @@ const MapRulerControl = ({ setIsPickingLocation }) => {
   const onFinish = useCallback(() => { // KEEP
     setDrawingState(false);
   }, []);
+
+  const renderCursorPopup = useCallback((cursorPopupProps) => <DefaultCursorPopup
+    {...cursorPopupProps}
+    area={calcCursorPolygonAreaDisplayString(cursorPopupProps.points, cursorPopupProps.coords)}
+  />, []);
 
   const popupPointSelected = (selectedPointIndex > -1) && !!points[selectedPointIndex];
 
@@ -155,11 +165,11 @@ const MapRulerControl = ({ setIsPickingLocation }) => {
   useEffect(() => {
     if (map && nextClickResetsState) {
       const onMapClickToReset = (e) => {
-        const isPointClick = !!map.queryRenderedFeatures(e.point, {
-          layers: [LAYER_IDS.POINTS],
+        const isMeasurementClick = !!map.queryRenderedFeatures(e.point, {
+          layers: MEASUREMENT_LAYER_IDS.filter((layerId) => !!map.getLayer(layerId)),
         }).length;
 
-        if (!isPointClick) {
+        if (!isMeasurementClick) {
           setActiveState(false);
           map.off('click', onMapClickToReset);
         }
@@ -189,13 +199,17 @@ const MapRulerControl = ({ setIsPickingLocation }) => {
       {drawing && <PointPopup map={map} points={points} pointIndex={points.length - 1} drawing={drawing} onClickFinish={onFinish} />}
       {!drawing && popupPointSelected && <PointPopup map={map} points={points} pointIndex={selectedPointIndex} drawing={drawing} />}
     </>}
-    {active && <MapDrawingTools
-      drawing={drawing}
-      drawingMode={DRAWING_MODES.LINE}
-      points={points}
-      onChange={onDrawChange}
-      onClickPoint={onClickPoint}
-    />}
+    {active && <MapDrawingToolsContextProvider>
+      <MapDrawingTools
+        drawing={drawing}
+        drawingMode={DRAWING_MODES.LINE}
+        points={points}
+        onChange={onDrawChange}
+        onClickPoint={onClickPoint}
+        renderCursorPopup={renderCursorPopup}
+        showLineFill
+      />
+    </MapDrawingToolsContextProvider>}
   </>;
 };
 

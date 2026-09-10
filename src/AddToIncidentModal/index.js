@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import InfiniteScroll from 'react-infinite-scroller';
 import Modal from 'react-bootstrap/Modal';
@@ -22,12 +22,14 @@ const AddToIncidentModal = ({ id, onAddToExistingIncident, onAddToNewIncident })
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'addToIncidentModal' });
 
-  const incidents = useSelector(getFeedIncidents);
+  const feedIncidents = useSelector(getFeedIncidents);
   const userLocationCoords = useSelector((state) => state?.view?.userLocation?.coords);
 
   const scrollRef = useRef(null);
 
   const [loaded, setLoadedState] = useState(false);
+
+  const hasMore = !!feedIncidents.next;
 
   const onClickAddNewIncident = () => {
     onAddToNewIncident();
@@ -36,16 +38,16 @@ const AddToIncidentModal = ({ id, onAddToExistingIncident, onAddToNewIncident })
     addIncidentTracker.track('Click Add to new Incident');
   };
 
-  const onExistingIncidentClick = (report) => {
+  const onExistingIncidentClick = useCallback((report) => {
     onAddToExistingIncident(report);
     dispatch(removeModal(id));
 
     addIncidentTracker.track('Click Add to Existing Incident');
-  };
+  }, [dispatch, id, onAddToExistingIncident]);
 
   const onScroll = () => {
-    if (incidents.next) {
-      dispatch(fetchNextIncidentFeedPage(incidents.next));
+    if (feedIncidents.next) {
+      dispatch(fetchNextIncidentFeedPage(feedIncidents.next));
     }
   };
 
@@ -64,16 +66,15 @@ const AddToIncidentModal = ({ id, onAddToExistingIncident, onAddToNewIncident })
     fetchFeed();
   }, [dispatch, userLocationCoords]);
 
-  const hasMore = !loaded || !!incidents.next;
   return <>
     <Modal.Header>
       <Modal.Title>{t('modalTitle')}</Modal.Title>
     </Modal.Header>
 
-    <Modal.Body>
+    <Modal.Body className={styles.modalBody}>
       {!loaded && <LoadingOverlay />}
 
-      <div ref={scrollRef} className={styles.incidentScrollList}>
+      {!!loaded && <div ref={scrollRef} className={styles.incidentScrollList}>
         <InfiniteScroll
           element="ul"
           getScrollParent={() => scrollRef.current}
@@ -81,9 +82,9 @@ const AddToIncidentModal = ({ id, onAddToExistingIncident, onAddToNewIncident })
           loadMore={onScroll}
           useWindow={false}
         >
-          {incidents.results.map((report, index) =>
+          {feedIncidents.results.map((report) =>
             <ReportListItem
-              key={`${report.id}-${index}`}
+              key={report.id}
               onIconClick={onExistingIncidentClick}
               onTitleClick={onExistingIncidentClick}
               report={report}
@@ -92,14 +93,14 @@ const AddToIncidentModal = ({ id, onAddToExistingIncident, onAddToNewIncident })
           )}
 
           {hasMore
-            ? <li key={0}>{t('modalBody.loadingItem')}</li>
-            : <li key="no-more-events-to-load">
+            ? <li className={styles.listFooterItem} key={0}>{t('modalBody.loadingItem')}</li>
+            : <li className={styles.listFooterItem} key="no-more-events-to-load">
               {t('modalBody.noMoreEventsItem')}
             </li>}
         </InfiniteScroll>
-      </div>
+      </div>}
 
-      <br />
+      <div className={styles.spacer} />
 
       <Button onClick={onClickAddNewIncident} type="button">{t('modalBody.addToNewIncidentButton')}</Button>
     </Modal.Body>

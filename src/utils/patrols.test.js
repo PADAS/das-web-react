@@ -1,10 +1,41 @@
-import { addMinutes } from 'date-fns';
+import { addHours, addMinutes, subHours } from 'date-fns';
 
 import {
+  actualEndTimeForPatrol,
+  buildPatrolEndUpdate,
+  buildPatrolReopenUpdate,
+  buildPatrolStartUpdate,
   calcPatrolState,
+  canPatrolTakeNewLegs,
   createNewPatrolForPatrolType,
   DELTA_FOR_OVERDUE,
-  sortPatrolList
+  displayEndTimeForPatrol,
+  displayEndTimeForPatrolSegment,
+  displayNameForPatrolType,
+  displayStartTimeForPatrol,
+  displayStartTimeForPatrolSegment,
+  displayTitleForPatrol,
+  earliestStartAfterPatrolSegment,
+  effectiveEndTimeForPatrol,
+  extractLegPatrolPoints,
+  finalizeCombinedPatrolPoints,
+  getActivePatrolsForLeaderId,
+  getBoundsForPatrol,
+  getCancellationTimeForPatrol,
+  getElapsedTimeForPatrol,
+  getPatrolLocationCoordinates,
+  getPatrolPointLabels,
+  getPatrolsForLeaderId,
+  getPausedTimeForPatrol,
+  getReportsForPatrol,
+  getTrackedSubjectsForPatrolSegment,
+  governingPatrolSegment,
+  iconIdForPatrolSegment,
+  iconIdForPatrolType,
+  iconTypeForPatrol,
+  getIsMobilePatrol,
+  PATROL_SAVE_ACTIONS,
+  sortPatrolList,
 } from './patrols';
 import { PATROL_UI_STATES } from '../constants';
 import {
@@ -15,12 +46,44 @@ import {
   overduePatrol,
   donePatrol,
   cancelledPatrol,
+  multiLegPatrol,
 } from '../__test-helpers/fixtures/patrols';
-import patrolTypes from '../__test-helpers/fixtures/patrol-types';
+import patrolTypes, { dogPatrol, routinePatrol } from '../__test-helpers/fixtures/patrol-types';
+import patrolStartPin from '../common/images/icons/patrol-start-pin.svg?url';
+import patrolEndPin from '../common/images/icons/patrol-end-pin.svg?url';
+import store from '../store';
+import '../i18nForTests';
+import { uploadPatrolFile } from '../ducks/patrols';
+
+jest.mock('../store', () => ({ dispatch: jest.fn(), getState: jest.fn() }));
+
+jest.mock('../ducks/patrols', () => ({
+  addNoteToPatrol: jest.fn(),
+  createPatrol: jest.fn(),
+  updatePatrol: jest.fn(),
+  uploadPatrolFile: jest.fn(),
+}));
 
 const { SCHEDULED, READY_TO_START, ACTIVE, START_OVERDUE, DONE, CANCELLED, INVALID } = PATROL_UI_STATES;
 
+const genericLabels = { start: 'Patrol Start', end: 'Patrol End', estimatedSuffix: '(Est)' };
+
 describe('Patrols utils', () => {
+  beforeEach(() => {
+    store.getState.mockReturnValue({
+      data: {
+        eventSchemas: { globalSchema: null },
+        patrolStore: {},
+        patrolTypes: [],
+      },
+    });
+  });
+
+  afterEach(() => {
+    store.getState.mockReset();
+  });
+
+
   describe('calcPatrolState', () => {
     test('returns scheduled for a patrol that has scheduled_start but no value in time_range properties', () => {
       expect(calcPatrolState(scheduledPatrol)).toBe(SCHEDULED);
@@ -28,6 +91,23 @@ describe('Patrols utils', () => {
 
     test('returns ready to start for patrols with time range in the same current day but few hours previous current time', () => {
       expect(calcPatrolState(readyToStartPatrol)).toBe(READY_TO_START);
+    });
+
+    const patrolStartingIn = (minutes) => ({
+      ...scheduledPatrol,
+      patrol_segments: [{
+        ...scheduledPatrol.patrol_segments[0],
+        scheduled_start: addMinutes(new Date(), minutes).toISOString(),
+        time_range: { start_time: null, end_time: null },
+      }],
+    });
+
+    test('returns ready to start for a patrol starting within the ready to start window', () => {
+      expect(calcPatrolState(patrolStartingIn(59))).toBe(READY_TO_START);
+    });
+
+    test('returns scheduled for a patrol starting past the ready to start window', () => {
+      expect(calcPatrolState(patrolStartingIn(61))).toBe(SCHEDULED);
     });
 
     test('returns ready to start for patrols with scheduled start in the past, before overdue delta', () => {
@@ -56,6 +136,270 @@ describe('Patrols utils', () => {
     test('returns invalid for patrols without segments', () => {
       const patrolWithoutSegments = { ...newPatrol, ...{ patrol_segments: [] } };
       expect(calcPatrolState(patrolWithoutSegments)).toBe(INVALID);
+    });
+
+    test('returns active for a patrol whose running leg is followed by a leg planned ahead of time', () => {
+      const patrol = {
+        patrol_segments: [
+          { time_range: { end_time: null, start_time: subHours(new Date(), 2).toISOString() } },
+          { scheduled_start: addHours(new Date(), 48).toISOString(), time_range: {} },
+        ],
+        state: 'open',
+      };
+
+      expect(calcPatrolState(patrol)).toBe(ACTIVE);
+    });
+
+    test('returns active for a patrol sitting in the gap between two of its legs', () => {
+      const patrol = {
+        patrol_segments: [
+          {
+            time_range: {
+              end_time: subHours(new Date(), 2).toISOString(),
+              start_time: subHours(new Date(), 4).toISOString(),
+            },
+          },
+          { scheduled_start: addHours(new Date(), 48).toISOString(), time_range: {} },
+        ],
+        state: 'open',
+      };
+
+      expect(calcPatrolState(patrol)).toBe(ACTIVE);
+    });
+
+    test('returns done once the last leg of the patrol has ended', () => {
+      const patrol = {
+        patrol_segments: [
+          {
+            time_range: {
+              end_time: subHours(new Date(), 4).toISOString(),
+              start_time: subHours(new Date(), 6).toISOString(),
+            },
+          },
+          {
+            time_range: {
+              end_time: subHours(new Date(), 1).toISOString(),
+              start_time: subHours(new Date(), 3).toISOString(),
+            },
+          },
+        ],
+        state: 'open',
+      };
+
+      expect(calcPatrolState(patrol)).toBe(DONE);
+    });
+
+    test('reports a patrol that has not begun as overdue from its first leg', () => {
+      const patrol = {
+        patrol_segments: [
+          { scheduled_start: subHours(new Date(), 2).toISOString(), time_range: {} },
+          { scheduled_start: addHours(new Date(), 48).toISOString(), time_range: {} },
+        ],
+        state: 'open',
+      };
+
+      expect(calcPatrolState(patrol)).toBe(START_OVERDUE);
+    });
+
+    test('returns active for a multi-leg patrol whose earlier leg has ended but whose latest leg is still active', () => {
+      expect(calcPatrolState(multiLegPatrol)).toBe(ACTIVE);
+    });
+  });
+
+  describe('governingPatrolSegment', () => {
+    const runningLeg = { id: 'running', time_range: { end_time: null, start_time: '2026-04-13T08:00:00.000Z' } };
+    const finishedLeg = {
+      id: 'finished',
+      time_range: { end_time: '2026-04-13T09:00:00.000Z', start_time: '2026-04-13T08:00:00.000Z' },
+    };
+    const plannedLeg = { id: 'planned', scheduled_start: '2026-04-20T08:00:00.000Z', time_range: {} };
+    const laterPlannedLeg = { id: 'laterPlanned', scheduled_start: '2026-04-21T08:00:00.000Z', time_range: {} };
+
+    test('is the leg that is running, even with a leg planned after it', () => {
+      expect(governingPatrolSegment({ patrol_segments: [runningLeg, plannedLeg] })).toBe(runningLeg);
+    });
+
+    test('is the last leg that ran, not a leg planned after it', () => {
+      expect(governingPatrolSegment({ patrol_segments: [finishedLeg, plannedLeg] })).toBe(finishedLeg);
+    });
+
+    test('is the first leg of a patrol that has not begun', () => {
+      expect(governingPatrolSegment({ patrol_segments: [plannedLeg, laterPlannedLeg] })).toBe(plannedLeg);
+    });
+
+    test('is the only leg of a single legged patrol, whatever it is doing', () => {
+      expect(governingPatrolSegment({ patrol_segments: [runningLeg] })).toBe(runningLeg);
+      expect(governingPatrolSegment({ patrol_segments: [finishedLeg] })).toBe(finishedLeg);
+      expect(governingPatrolSegment({ patrol_segments: [plannedLeg] })).toBe(plannedLeg);
+    });
+
+    test('is the most recent leg that runs when legs overlap', () => {
+      const otherRunningLeg = {
+        id: 'otherRunning',
+        time_range: { end_time: null, start_time: '2026-04-13T08:30:00.000Z' },
+      };
+
+      expect(governingPatrolSegment({ patrol_segments: [runningLeg, otherRunningLeg] })).toBe(otherRunningLeg);
+    });
+
+    test('is null for a patrol without legs', () => {
+      expect(governingPatrolSegment({ patrol_segments: [] })).toBeNull();
+      expect(governingPatrolSegment({})).toBeNull();
+    });
+  });
+
+  describe('buildPatrolEndUpdate', () => {
+    const NOW = '2026-04-13T12:00:00.000Z';
+
+    beforeEach(() => {
+      jest.useFakeTimers().setSystemTime(new Date(NOW));
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    test('ends the patrol by stamping the last leg end time', () => {
+      const update = buildPatrolEndUpdate(multiLegPatrol);
+
+      expect(update.state).toBe('done');
+      expect(update.patrol_segments.at(-1).time_range.end_time).toBe(NOW);
+    });
+
+    test('leaves the legs before the last one alone', () => {
+      const update = buildPatrolEndUpdate(multiLegPatrol);
+
+      expect(update.patrol_segments[0]).toBe(multiLegPatrol.patrol_segments[0]);
+    });
+
+    test('sends every leg of the patrol', () => {
+      expect(buildPatrolEndUpdate(multiLegPatrol).patrol_segments)
+        .toHaveLength(multiLegPatrol.patrol_segments.length);
+    });
+
+    test('closes a leg that never began, holding the times it was given as its plan', () => {
+      const runningLeg = { id: 'leg-1', time_range: { end_time: null, start_time: '2026-04-13T08:00:00.000Z' } };
+      const plannedLeg = {
+        id: 'leg-2',
+        time_range: { end_time: '2026-04-20T17:00:00.000Z', start_time: '2026-04-20T08:00:00.000Z' },
+      };
+
+      const update = buildPatrolEndUpdate({ patrol_segments: [runningLeg, plannedLeg] });
+
+      expect(update.patrol_segments).toHaveLength(2);
+      expect(update.patrol_segments[0].time_range.end_time).toBe(NOW);
+      expect(update.patrol_segments[1]).toEqual(expect.objectContaining({
+        scheduled_end: '2026-04-20T17:00:00.000Z',
+        scheduled_start: '2026-04-20T08:00:00.000Z',
+        time_range: { end_time: NOW, start_time: null },
+      }));
+    });
+
+    test('cuts short a leg whose end was still ahead', () => {
+      const runningLeg = {
+        id: 'leg-1',
+        time_range: { end_time: '2026-04-20T08:00:00.000Z', start_time: '2026-04-13T08:00:00.000Z' },
+      };
+
+      expect(buildPatrolEndUpdate({ patrol_segments: [runningLeg] }).patrol_segments[0].time_range.end_time)
+        .toBe(NOW);
+    });
+
+    test('closes the leg of a patrol that never began, keeping the schedule it carried', () => {
+      const plannedLeg = { id: 'leg-1', scheduled_start: '2026-04-20T08:00:00.000Z', time_range: {} };
+
+      const update = buildPatrolEndUpdate({ patrol_segments: [plannedLeg] });
+
+      expect(update.state).toBe('done');
+      expect(update.patrol_segments[0].scheduled_start).toBe('2026-04-20T08:00:00.000Z');
+      expect(update.patrol_segments[0].time_range).toEqual({ end_time: NOW, start_time: null });
+    });
+  });
+
+  describe('buildPatrolReopenUpdate', () => {
+    test('opens the patrol back up and clears the last leg end time', () => {
+      const update = buildPatrolReopenUpdate({ ...multiLegPatrol, state: 'done' });
+
+      expect(update.state).toBe('open');
+      expect(update.patrol_segments.at(-1).time_range.end_time).toBeNull();
+    });
+
+    test('leaves the last leg start time alone, so the patrol lands wherever its own times put it', () => {
+      expect(buildPatrolReopenUpdate({
+        state: 'cancelled',
+        patrol_segments: [{ scheduled_start: '2026-04-13T10:00:00.000Z', time_range: { start_time: null, end_time: null } }],
+      }).patrol_segments.at(-1).time_range.start_time).toBeNull();
+    });
+
+    test('does not end an earlier leg of a multi-leg patrol', () => {
+      const update = buildPatrolReopenUpdate({ ...multiLegPatrol, state: 'done' });
+
+      expect(update.patrol_segments[0].time_range.end_time)
+        .toBe(multiLegPatrol.patrol_segments[0].time_range.end_time);
+    });
+
+    test('reopens every leg the patrol end closed at once, not the last one alone', () => {
+      const closedAt = '2026-04-13T12:00:00.000Z';
+      const endedLeg = {
+        id: 'leg-1',
+        time_range: { end_time: '2026-04-13T09:00:00.000Z', start_time: '2026-04-13T08:00:00.000Z' },
+      };
+      const closedRunningLeg = { id: 'leg-2', time_range: { end_time: closedAt, start_time: '2026-04-13T09:00:00.000Z' } };
+      const closedPlannedLeg = { id: 'leg-3', time_range: { end_time: closedAt, start_time: null } };
+
+      const update = buildPatrolReopenUpdate({
+        patrol_segments: [endedLeg, closedRunningLeg, closedPlannedLeg],
+        state: 'done',
+      });
+
+      expect(update.patrol_segments[0]).toBe(endedLeg);
+      expect(update.patrol_segments[1].time_range.end_time).toBeNull();
+      expect(update.patrol_segments[2].time_range.end_time).toBeNull();
+    });
+
+    test('ends and reopens a patrol back into the legs it started with', () => {
+      jest.useFakeTimers().setSystemTime(new Date('2026-04-13T12:00:00.000Z'));
+
+      const patrol = {
+        patrol_segments: [
+          { id: 'leg-1', time_range: { end_time: null, start_time: '2026-04-13T08:00:00.000Z' } },
+          { id: 'leg-2', scheduled_end: null, scheduled_start: null, time_range: { end_time: null, start_time: null } },
+        ],
+        state: 'open',
+      };
+
+      const update = buildPatrolReopenUpdate(buildPatrolEndUpdate(patrol));
+
+      expect(update.state).toBe('open');
+      expect(update.patrol_segments.map(({ time_range }) => time_range))
+        .toEqual([{ end_time: null, start_time: '2026-04-13T08:00:00.000Z' }, { end_time: null, start_time: null }]);
+
+      jest.useRealTimers();
+    });
+  });
+
+  describe('buildPatrolStartUpdate', () => {
+    const NOW = '2026-04-13T12:00:00.000Z';
+
+    beforeEach(() => {
+      jest.useFakeTimers().setSystemTime(new Date(NOW));
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    test('starts the patrol by stamping the first leg start time and clearing its end time', () => {
+      const update = buildPatrolStartUpdate(multiLegPatrol);
+
+      expect(update.state).toBe('open');
+      expect(update.patrol_segments[0].time_range)
+        .toEqual(expect.objectContaining({ end_time: null, start_time: NOW }));
+    });
+
+    test('does not restamp a later leg of a multi-leg patrol', () => {
+      expect(buildPatrolStartUpdate(multiLegPatrol).patrol_segments.at(-1))
+        .toBe(multiLegPatrol.patrol_segments.at(-1));
     });
   });
 
@@ -149,6 +493,1041 @@ describe('Patrols utils', () => {
       expect(mostRecentScheduledPatrol.patrol_segments[0].updates[0].time).toBe(scheduledPatrolUpdateTime);
       expect(mostRecentDonePatrol.patrol_segments[0].updates[0].time).toBe(donePatrolUpdateTime);
       expect(mostRecentCancelledPatrol.patrol_segments[0].updates[0].time).toBe(cancelledPatrolUpdateTime);
+    });
+
+    test('uses the most recent update across every leg, not only the first, to break ties', async () => {
+      const [firstLeg] = donePatrol.patrol_segments;
+
+      const recentlyContinuedDonePatrol = {
+        ...donePatrol,
+        patrol_segments: [
+          { ...firstLeg, updates: [{ ...firstLeg.updates[0], time: '2023-01-01T00:00:00.000Z' }] },
+          { ...firstLeg, updates: [{ ...firstLeg.updates[0], time: '2023-06-25T00:00:00.000Z' }] },
+        ],
+      };
+      const staleDonePatrol = modifyPatrolUpdatesTime(donePatrol, '2023-06-18T22:12:24.207505+00:00');
+
+      const [mostRecent] = await sortPatrolList([staleDonePatrol, recentlyContinuedDonePatrol]);
+
+      expect(mostRecent).toBe(recentlyContinuedDonePatrol);
+    });
+  });
+
+  describe('getBoundsForPatrol', () => {
+    const trackDataWithLine = (coordinates) => ({
+      track: {
+        type: 'FeatureCollection',
+        features: [{ type: 'Feature', geometry: { type: 'LineString', coordinates }, properties: {} }],
+      },
+    });
+
+    test('returns null when the patrol has no segments', () => {
+      const patrol = { patrol_segments: [] };
+
+      expect(getBoundsForPatrol(patrol, { startStopGeometries: null, trackData: null })).toBeNull();
+    });
+
+    test('returns null when there is no geo data to display', () => {
+      const patrol = { patrol_segments: [{ time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' } }] };
+
+      expect(getBoundsForPatrol(patrol, { startStopGeometries: null, trackData: null })).toBeNull();
+    });
+
+    test('includes the leader live position while its leg is still active', () => {
+      const patrol = {
+        patrol_segments: [{
+          events: [],
+          leader: { last_position: { type: 'Feature', geometry: { type: 'Point', coordinates: [50, 50] } } },
+          time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' },
+        }],
+      };
+
+      const bounds = getBoundsForPatrol(patrol, {
+        startStopGeometries: null,
+        trackData: trackDataWithLine([[0, 0], [1, 1]]),
+      });
+
+      expect(bounds).toEqual([0, 0, 50, 50]);
+    });
+
+    test('excludes the leader live position once its leg has finished', () => {
+      const patrol = {
+        patrol_segments: [{
+          events: [],
+          leader: { last_position: { type: 'Feature', geometry: { type: 'Point', coordinates: [50, 50] } } },
+          time_range: { end_time: '2022-06-15T11:00:00.000Z', start_time: '2022-06-15T10:00:00.000Z' },
+        }],
+      };
+
+      const bounds = getBoundsForPatrol(patrol, {
+        startStopGeometries: null,
+        trackData: trackDataWithLine([[0, 0], [1, 1]]),
+      });
+
+      expect(bounds).toEqual([0, 0, 1, 1]);
+    });
+
+    test('excludes the leader live position once the patrol is marked done, even when its leg has no end time', () => {
+      const patrol = {
+        state: 'done',
+        patrol_segments: [{
+          events: [],
+          leader: { last_position: { type: 'Feature', geometry: { type: 'Point', coordinates: [50, 50] } } },
+          time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' },
+        }],
+      };
+
+      const bounds = getBoundsForPatrol(patrol, {
+        startStopGeometries: null,
+        trackData: trackDataWithLine([[0, 0], [1, 1]]),
+      });
+
+      expect(bounds).toEqual([0, 0, 1, 1]);
+    });
+
+    test('excludes the leader live position once the patrol is marked cancelled, even when its leg has no end time', () => {
+      const patrol = {
+        state: 'cancelled',
+        patrol_segments: [{
+          events: [],
+          leader: { last_position: { type: 'Feature', geometry: { type: 'Point', coordinates: [50, 50] } } },
+          time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' },
+        }],
+      };
+
+      const bounds = getBoundsForPatrol(patrol, {
+        startStopGeometries: null,
+        trackData: trackDataWithLine([[0, 0], [1, 1]]),
+      });
+
+      expect(bounds).toEqual([0, 0, 1, 1]);
+    });
+
+    test('combines events from every leg, and only the last (currently active) leg leader contributes its position', () => {
+      const finishedLegLeader = { last_position: { type: 'Feature', geometry: { type: 'Point', coordinates: [90, 90] } } };
+      const activeLegLeader = { last_position: { type: 'Feature', geometry: { type: 'Point', coordinates: [5, 5] } } };
+
+      const patrol = {
+        patrol_segments: [
+          {
+            events: [{ geojson: { type: 'Feature', geometry: { type: 'Point', coordinates: [-10, -10] } } }],
+            leader: finishedLegLeader,
+            time_range: { end_time: '2022-06-15T09:00:00.000Z', start_time: '2022-06-15T08:00:00.000Z' },
+          },
+          {
+            events: [{ geojson: { type: 'Feature', geometry: { type: 'Point', coordinates: [10, 10] } } }],
+            leader: activeLegLeader,
+            time_range: { end_time: null, start_time: '2022-06-15T09:00:00.000Z' },
+          },
+        ],
+      };
+
+      const bounds = getBoundsForPatrol(patrol, {
+        startStopGeometries: null,
+        trackData: trackDataWithLine([[0, 0], [1, 1]]),
+      });
+
+      // The finished leg's leader position at [90, 90] must not stretch the bounds.
+      expect(bounds).toEqual([-10, -10, 10, 10]);
+    });
+  });
+
+  describe('extractLegPatrolPoints', () => {
+    test('returns null when the leg has neither an explicit location nor track data', () => {
+      const segment = {
+        end_location: null,
+        icon_id: 'icon',
+        start_location: null,
+        time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' },
+      };
+
+      expect(extractLegPatrolPoints(segment, null, null, null, true, genericLabels)).toBeNull();
+    });
+
+    test('uses the segment start_location for the start marker when set', () => {
+      const segment = {
+        end_location: null,
+        icon_id: 'icon',
+        start_location: { latitude: 1, longitude: 2 },
+        time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' },
+      };
+
+      const points = extractLegPatrolPoints(segment, null, null, null, true, genericLabels);
+
+      expect(points.start_location.geometry.coordinates).toEqual([2, 1]);
+      expect(points.start_location.properties.title).toBe('Patrol Start');
+      expect(points.end_location).toBeNull();
+    });
+
+    test('does not compute an end marker while the leg is still active', () => {
+      const segment = {
+        end_location: { latitude: 3, longitude: 4 },
+        icon_id: 'icon',
+        start_location: { latitude: 1, longitude: 2 },
+        time_range: { end_time: '2022-06-15T11:00:00.000Z', start_time: '2022-06-15T10:00:00.000Z' },
+      };
+
+      const points = extractLegPatrolPoints(segment, null, null, null, true, genericLabels);
+
+      expect(points.end_location).toBeNull();
+    });
+
+    test('uses the segment end_location for the end marker once the leg is no longer active', () => {
+      const segment = {
+        end_location: { latitude: 3, longitude: 4 },
+        icon_id: 'icon',
+        start_location: { latitude: 1, longitude: 2 },
+        time_range: { end_time: '2022-06-15T11:00:00.000Z', start_time: '2022-06-15T10:00:00.000Z' },
+      };
+
+      const points = extractLegPatrolPoints(segment, null, null, null, false, genericLabels);
+
+      expect(points.end_location.geometry.coordinates).toEqual([4, 3]);
+      expect(points.end_location.properties.title).toBe('Patrol End');
+    });
+
+    test('infers the start marker from the earliest track point and uses its stroke', () => {
+      const segment = {
+        end_location: null,
+        icon_id: 'icon',
+        start_location: null,
+        time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' },
+      };
+      const legTrackData = {
+        points: {
+          features: [
+            { geometry: { coordinates: [9, 9] }, properties: { stroke: '#123456', time: '2022-06-15T11:00:00.000Z' } },
+            { geometry: { coordinates: [1, 1] }, properties: { time: '2022-06-15T10:00:00.000Z' } },
+          ],
+        },
+      };
+
+      const points = extractLegPatrolPoints(segment, null, legTrackData, null, true, genericLabels);
+
+      expect(points.start_location.geometry.coordinates).toEqual([1, 1]);
+      expect(points.start_location.properties.title).toBe('Patrol Start');
+      expect(points.start_location.properties.stroke).toBe('#123456');
+    });
+
+    test('marks the inferred start marker as estimated when the earliest track point does not match the segment start time', () => {
+      const segment = {
+        end_location: null,
+        icon_id: 'icon',
+        start_location: null,
+        time_range: { end_time: null, start_time: '2022-06-15T09:00:00.000Z' },
+      };
+      const legTrackData = {
+        points: {
+          features: [
+            { geometry: { coordinates: [9, 9] }, properties: { time: '2022-06-15T11:00:00.000Z' } },
+            { geometry: { coordinates: [1, 1] }, properties: { time: '2022-06-15T10:00:00.000Z' } },
+          ],
+        },
+      };
+
+      const points = extractLegPatrolPoints(segment, null, legTrackData, null, true, genericLabels);
+
+      expect(points.start_location.properties.title).toBe('Patrol Start (Est)');
+    });
+
+    test('infers the end marker from the latest track point once the leg is no longer active', () => {
+      const segment = {
+        end_location: null,
+        icon_id: 'icon',
+        start_location: null,
+        time_range: { end_time: '2022-06-15T11:00:00.000Z', start_time: '2022-06-15T10:00:00.000Z' },
+      };
+      const legTrackData = {
+        points: {
+          features: [
+            { geometry: { coordinates: [9, 9] }, properties: { time: '2022-06-15T11:00:00.000Z' } },
+            { geometry: { coordinates: [1, 1] }, properties: { time: '2022-06-15T10:00:00.000Z' } },
+          ],
+        },
+      };
+
+      const points = extractLegPatrolPoints(segment, null, legTrackData, null, false, genericLabels);
+
+      expect(points.end_location.geometry.coordinates).toEqual([9, 9]);
+      expect(points.end_location.properties.title).toBe('Patrol End');
+    });
+
+    test('uses a later raw track point instead of the trimmed data\'s own last point when it lines up closer to the segment end time', () => {
+      const segment = {
+        end_location: null,
+        icon_id: 'icon',
+        start_location: null,
+        time_range: { end_time: '2022-06-15T11:50:00.000Z', start_time: '2022-06-15T10:00:00.000Z' },
+      };
+      const legTrackData = {
+        indices: { until: 2 },
+        points: {
+          features: [
+            { geometry: { coordinates: [9, 9] }, properties: { time: '2022-06-15T11:00:00.000Z' } },
+            { geometry: { coordinates: [1, 1] }, properties: { time: '2022-06-15T10:00:00.000Z' } },
+          ],
+        },
+      };
+      const rawLegTrackData = {
+        points: {
+          features: [
+            { geometry: { coordinates: [20, 20] }, properties: { time: '2022-06-15T12:30:00.000Z' } },
+            { geometry: { coordinates: [15, 15] }, properties: { time: '2022-06-15T12:00:00.000Z' } },
+            { geometry: { coordinates: [9, 9] }, properties: { time: '2022-06-15T11:00:00.000Z' } },
+            { geometry: { coordinates: [1, 1] }, properties: { time: '2022-06-15T10:00:00.000Z' } },
+          ],
+        },
+      };
+
+      const points = extractLegPatrolPoints(segment, null, legTrackData, rawLegTrackData, false, genericLabels);
+
+      expect(points.end_location.geometry.coordinates).toEqual([15, 15]);
+      expect(points.end_location.properties.title).toBe('Patrol End (Est)');
+    });
+
+    test('falls back to the leader\'s last known stroke when the track has no stroke of its own', () => {
+      const segment = {
+        end_location: null,
+        icon_id: 'icon',
+        start_location: { latitude: 1, longitude: 2 },
+        time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' },
+      };
+      const leader = { last_position: { properties: { stroke: '#654321' } } };
+      const legTrackData = { points: { features: [] } };
+
+      const points = extractLegPatrolPoints(segment, leader, legTrackData, null, true, genericLabels);
+
+      expect(points.start_location.properties.stroke).toBe('#654321');
+    });
+
+    test('falls back to the leader\'s additional rgb color when there is no other stroke source', () => {
+      const segment = {
+        end_location: null,
+        icon_id: 'icon',
+        start_location: { latitude: 1, longitude: 2 },
+        time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' },
+      };
+      const leader = { additional: { rgb: '10,20,30' } };
+      const legTrackData = { points: { features: [] } };
+
+      const points = extractLegPatrolPoints(segment, leader, legTrackData, null, true, genericLabels);
+
+      expect(points.start_location.properties.stroke).toBe('rgb(10,20,30)');
+    });
+
+    test('falls back to the default stroke when no stroke source is available', () => {
+      const segment = {
+        end_location: null,
+        icon_id: 'icon',
+        start_location: { latitude: 1, longitude: 2 },
+        time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' },
+      };
+
+      const points = extractLegPatrolPoints(segment, null, null, null, true, genericLabels);
+
+      expect(points.start_location.properties.stroke).toBe('#FF0080');
+    });
+
+    test('uses the shared start and end pin assets for the markers', () => {
+      const segment = {
+        end_location: { latitude: 3, longitude: 4 },
+        start_location: { latitude: 1, longitude: 2 },
+        time_range: { end_time: '2022-06-15T11:00:00.000Z', start_time: '2022-06-15T10:00:00.000Z' },
+      };
+
+      const points = extractLegPatrolPoints(segment, null, null, null, false, genericLabels);
+
+      expect(points.start_location.properties.image).toBe(patrolStartPin);
+      expect(points.end_location.properties.image).toBe(patrolEndPin);
+    });
+
+    test('labels the markers with the provided patrol name and appends the estimated suffix', () => {
+      const namedLabels = { start: 'Fence Patrol', end: 'Fence Patrol', estimatedSuffix: '(Est)' };
+      const segment = {
+        end_location: { latitude: 3, longitude: 4 },
+        start_location: { latitude: 1, longitude: 2 },
+        time_range: { end_time: '2022-06-15T11:00:00.000Z', start_time: '2022-06-15T10:00:00.000Z' },
+      };
+      const legTrackData = {
+        points: {
+          features: [
+            { geometry: { coordinates: [9, 9] }, properties: { time: '2022-06-15T11:30:00.000Z' } },
+            { geometry: { coordinates: [1, 1] }, properties: { time: '2022-06-15T10:30:00.000Z' } },
+          ],
+        },
+      };
+
+      const explicit = extractLegPatrolPoints(segment, null, null, null, false, namedLabels);
+      expect(explicit.start_location.properties.title).toBe('Fence Patrol');
+      expect(explicit.end_location.properties.title).toBe('Fence Patrol');
+
+      const inferred = extractLegPatrolPoints(
+        { ...segment, end_location: null, start_location: null }, null, legTrackData, null, false, namedLabels
+      );
+      expect(inferred.start_location.properties.title).toBe('Fence Patrol (Est)');
+      expect(inferred.end_location.properties.title).toBe('Fence Patrol (Est)');
+    });
+  });
+
+  describe('finalizeCombinedPatrolPoints', () => {
+    const patrolDone = { patrol_segments: [{ time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' } }], state: 'done' };
+    const patrolOpen = { patrol_segments: [{ time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' } }], state: 'open' };
+    const startLocation = () => ({ geometry: { coordinates: [1, 2], type: 'Point' }, properties: { title: 'Patrol Start' }, type: 'Feature' });
+
+    test('folds an estimated end marker into the start marker when the patrol is done but has no end marker', () => {
+      // The estimated end is cloned from the start, so it's always at the same coordinates -
+      // the very next check merges same-spot markers, collapsing this into a single marker.
+      const result = finalizeCombinedPatrolPoints(patrolDone, { end_location: null, start_location: startLocation() }, genericLabels);
+
+      expect(result.end_location).toBeUndefined();
+      expect(result.start_location.properties.title).toBe('Patrol Start & Patrol End (Est)');
+    });
+
+    test('does not invent an end marker for a patrol that is not done', () => {
+      const result = finalizeCombinedPatrolPoints(patrolOpen, { end_location: null, start_location: startLocation() }, genericLabels);
+
+      expect(result.end_location).toBeNull();
+    });
+
+    test('merges start and end into a single marker when they land on the same spot', () => {
+      const endLocation = { geometry: { coordinates: [1, 2], type: 'Point' }, properties: { title: 'Patrol End' }, type: 'Feature' };
+
+      const result = finalizeCombinedPatrolPoints(patrolDone, { end_location: endLocation, start_location: startLocation() }, genericLabels);
+
+      expect(result.end_location).toBeUndefined();
+      expect(result.start_location.properties.title).toBe('Patrol Start & Patrol End');
+    });
+
+    test('shows a named patrol only once when its start and end share a location', () => {
+      const namedLabels = { start: 'Fence Patrol', end: 'Fence Patrol', estimatedSuffix: '(Est)' };
+      const named = (title) => ({ geometry: { coordinates: [1, 2], type: 'Point' }, properties: { title }, type: 'Feature' });
+
+      const result = finalizeCombinedPatrolPoints(
+        patrolDone, { end_location: named('Fence Patrol'), start_location: named('Fence Patrol') }, namedLabels
+      );
+
+      expect(result.end_location).toBeUndefined();
+      expect(result.start_location.properties.title).toBe('Fence Patrol');
+    });
+  });
+
+  describe('getPatrolPointLabels', () => {
+    test('uses the patrol title when present', () => {
+      const patrol = { title: 'Border Sweep', patrol_segments: [{ patrol_type: routinePatrol.value }] };
+
+      const labels = getPatrolPointLabels(patrol, patrolTypes);
+
+      expect(labels.start).toBe('Border Sweep');
+      expect(labels.end).toBe('Border Sweep');
+    });
+
+    test('falls back to the patrol type display name when there is no title', () => {
+      const patrol = { title: '', patrol_segments: [{ patrol_type: routinePatrol.value }] };
+
+      const labels = getPatrolPointLabels(patrol, patrolTypes);
+
+      expect(labels.start).toBe(routinePatrol.display);
+      expect(labels.end).toBe(routinePatrol.display);
+    });
+
+    test('falls back to generic labels when there is no title or matching patrol type', () => {
+      const patrol = { title: '', patrol_segments: [{ patrol_type: 'unknown_type' }] };
+
+      const labels = getPatrolPointLabels(patrol, patrolTypes);
+
+      expect(labels.start).toBe('Patrol Start');
+      expect(labels.end).toBe('Patrol End');
+    });
+  });
+
+  describe('getPatrolLocationCoordinates', () => {
+    test('returns the last patrol track coordinates when there is track data', () => {
+      const patrolTrackData = {
+        trackData: {
+          points: {
+            type: 'FeatureCollection',
+            features: [{ type: 'Feature', geometry: { type: 'Point', coordinates: [37.482, 0.232] } }],
+          },
+        },
+        startStopGeometries: {
+          points: { start_location: { type: 'Feature', geometry: { type: 'Point', coordinates: [37.472, 0.226] } } },
+        },
+      };
+
+      expect(getPatrolLocationCoordinates(patrolTrackData)).toEqual([37.482, 0.232]);
+    });
+
+    test('falls back to the patrol start location when there is no track data', () => {
+      const patrolTrackData = {
+        trackData: null,
+        startStopGeometries: {
+          points: { start_location: { type: 'Feature', geometry: { type: 'Point', coordinates: [37.472, 0.226] } } },
+        },
+      };
+
+      expect(getPatrolLocationCoordinates(patrolTrackData)).toEqual([37.472, 0.226]);
+    });
+
+    test('returns null when there is neither track data nor a start location', () => {
+      expect(getPatrolLocationCoordinates({ trackData: null, startStopGeometries: null })).toBeNull();
+      expect(getPatrolLocationCoordinates()).toBeNull();
+    });
+  });
+
+  describe('getIsMobilePatrol', () => {
+    test('returns true when the provenance is "mobile"', () => {
+      expect(getIsMobilePatrol({ provenance: 'mobile' })).toBe(true);
+    });
+
+    test('returns false for any other provenance', () => {
+      expect(getIsMobilePatrol({ provenance: 'web' })).toBe(false);
+      expect(getIsMobilePatrol({ provenance: 'ER Mobile' })).toBe(false);
+      expect(getIsMobilePatrol({ provenance: '' })).toBe(false);
+    });
+
+    test('returns false when the patrol has no provenance', () => {
+      expect(getIsMobilePatrol({})).toBe(false);
+      expect(getIsMobilePatrol(undefined)).toBe(false);
+    });
+  });
+
+  describe('displayNameForPatrolType', () => {
+    test('returns the display name for a type matched by value', () => {
+      expect(displayNameForPatrolType(patrolTypes, routinePatrol.value)).toBe('Routine Patrol');
+    });
+
+    test('returns the display name for a type matched by id', () => {
+      expect(displayNameForPatrolType(patrolTypes, dogPatrol.id)).toBe('Dog Patrol');
+    });
+
+    test('returns null when no type matches', () => {
+      expect(displayNameForPatrolType(patrolTypes, 'unknown_type')).toBeNull();
+    });
+
+    test('returns null when there are no patrol types', () => {
+      expect(displayNameForPatrolType(undefined, routinePatrol.value)).toBeNull();
+    });
+  });
+
+  describe('iconIdForPatrolType', () => {
+    test('returns the icon id for a matching type', () => {
+      expect(iconIdForPatrolType(patrolTypes, dogPatrol.value)).toBe('dog-patrol-icon');
+    });
+
+    test('returns null when no type matches', () => {
+      expect(iconIdForPatrolType(patrolTypes, 'unknown_type')).toBeNull();
+    });
+  });
+
+  describe('iconIdForPatrolSegment', () => {
+    test('uses the icon id from the matching patrol type over the segment\'s own icon id', () => {
+      const segment = { patrol_type: routinePatrol.value, icon_id: 'segment-icon' };
+
+      expect(iconIdForPatrolSegment(patrolTypes, segment)).toBe('routine-patrol-icon');
+    });
+
+    test('falls back to the segment\'s own icon id when no type matches', () => {
+      const segment = { patrol_type: 'unknown_type', icon_id: 'segment-icon' };
+
+      expect(iconIdForPatrolSegment(patrolTypes, segment)).toBe('segment-icon');
+    });
+
+    test('returns null when neither the type nor the segment has an icon id', () => {
+      const segment = { patrol_type: 'unknown_type', icon_id: null };
+
+      expect(iconIdForPatrolSegment(patrolTypes, segment)).toBeNull();
+    });
+  });
+
+  describe('displayStartTimeForPatrolSegment', () => {
+    test('returns the time_range start_time when set', () => {
+      const segment = { scheduled_start: '2022-06-01T00:00:00.000Z', time_range: { start_time: '2022-06-15T10:00:00.000Z' } };
+
+      expect(displayStartTimeForPatrolSegment(segment)).toEqual(new Date('2022-06-15T10:00:00.000Z'));
+    });
+
+    test('falls back to scheduled_start when there is no start_time', () => {
+      const segment = { scheduled_start: '2022-06-01T00:00:00.000Z', time_range: {} };
+
+      expect(displayStartTimeForPatrolSegment(segment)).toEqual(new Date('2022-06-01T00:00:00.000Z'));
+    });
+
+    test('returns null when neither start_time nor scheduled_start is set', () => {
+      const segment = { time_range: {} };
+
+      expect(displayStartTimeForPatrolSegment(segment)).toBeNull();
+    });
+  });
+
+  describe('displayStartTimeForPatrol', () => {
+    test('returns null when the patrol has no segments', () => {
+      expect(displayStartTimeForPatrol({ patrol_segments: [] })).toBeNull();
+    });
+
+    test('uses the first segment\'s start time', () => {
+      const patrol = { patrol_segments: [{ time_range: { start_time: '2022-06-15T10:00:00.000Z' } }] };
+
+      expect(displayStartTimeForPatrol(patrol)).toEqual(new Date('2022-06-15T10:00:00.000Z'));
+    });
+  });
+
+  describe('displayEndTimeForPatrolSegment', () => {
+    test('returns the time_range end_time when set', () => {
+      const segment = { scheduled_end: '2022-06-01T00:00:00.000Z', time_range: { end_time: '2022-06-15T11:00:00.000Z' } };
+
+      expect(displayEndTimeForPatrolSegment(segment)).toEqual(new Date('2022-06-15T11:00:00.000Z'));
+    });
+
+    test('falls back to scheduled_end when there is no end_time', () => {
+      const segment = { scheduled_end: '2022-06-01T00:00:00.000Z', time_range: {} };
+
+      expect(displayEndTimeForPatrolSegment(segment)).toEqual(new Date('2022-06-01T00:00:00.000Z'));
+    });
+
+    test('returns null when neither end_time nor scheduled_end is set', () => {
+      const segment = { time_range: {} };
+
+      expect(displayEndTimeForPatrolSegment(segment)).toBeNull();
+    });
+  });
+
+  describe('earliestStartAfterPatrolSegment', () => {
+    test('returns the end of the leg', () => {
+      const segment = {
+        scheduled_end: '2022-06-20T00:00:00.000Z',
+        time_range: { end_time: '2022-06-15T11:00:00.000Z', start_time: '2022-06-14T11:00:00.000Z' },
+      };
+
+      expect(earliestStartAfterPatrolSegment(segment)).toEqual(new Date('2022-06-15T11:00:00.000Z'));
+    });
+
+    test('falls back to the scheduled end of the leg', () => {
+      const segment = { scheduled_end: '2022-06-20T00:00:00.000Z', time_range: { start_time: '2022-06-14T11:00:00.000Z' } };
+
+      expect(earliestStartAfterPatrolSegment(segment)).toEqual(new Date('2022-06-20T00:00:00.000Z'));
+    });
+
+    test('falls back to the start of a leg that carries no end', () => {
+      const segment = { time_range: { start_time: '2022-06-14T11:00:00.000Z' } };
+
+      expect(earliestStartAfterPatrolSegment(segment)).toEqual(new Date('2022-06-14T11:00:00.000Z'));
+    });
+
+    test('falls back to the scheduled start of a leg that carries no end', () => {
+      const segment = { scheduled_start: '2022-06-14T11:00:00.000Z', time_range: {} };
+
+      expect(earliestStartAfterPatrolSegment(segment)).toEqual(new Date('2022-06-14T11:00:00.000Z'));
+    });
+
+    test('returns null for a leg with neither a start nor an end', () => {
+      expect(earliestStartAfterPatrolSegment({ time_range: {} })).toBeNull();
+    });
+
+    test('raises an end carrying seconds to the next whole minute', () => {
+      const segment = { time_range: { end_time: '2022-06-15T11:00:32.000Z', start_time: '2022-06-14T11:00:00.000Z' } };
+
+      expect(earliestStartAfterPatrolSegment(segment)).toEqual(new Date('2022-06-15T11:01:00.000Z'));
+    });
+
+    test('raises an end carrying milliseconds alone to the next whole minute', () => {
+      const segment = { time_range: { end_time: '2022-06-15T11:00:00.500Z', start_time: '2022-06-14T11:00:00.000Z' } };
+
+      expect(earliestStartAfterPatrolSegment(segment)).toEqual(new Date('2022-06-15T11:01:00.000Z'));
+    });
+
+    test('raises the start of a leg that carries no end too', () => {
+      expect(earliestStartAfterPatrolSegment({ scheduled_start: '2022-06-14T11:00:32.000Z', time_range: {} }))
+        .toEqual(new Date('2022-06-14T11:01:00.000Z'));
+    });
+  });
+
+  describe('canPatrolTakeNewLegs', () => {
+    test('allows a patrol that is still open', () => {
+      expect(canPatrolTakeNewLegs({ state: 'open' }, ACTIVE)).toBe(true);
+    });
+
+    test('refuses a patrol that is done or cancelled', () => {
+      expect(canPatrolTakeNewLegs({ state: 'done' }, DONE)).toBe(false);
+      expect(canPatrolTakeNewLegs({ state: 'cancelled' }, CANCELLED)).toBe(false);
+    });
+
+    test('refuses a patrol the API still calls open once its own legs are over', () => {
+      expect(canPatrolTakeNewLegs({ state: 'open' }, DONE)).toBe(false);
+    });
+
+    test('refuses a patrol running from the mobile app', () => {
+      expect(canPatrolTakeNewLegs({ provenance: 'mobile', state: 'open' }, ACTIVE)).toBe(false);
+    });
+
+    test('allows a patrol from the mobile app that is not running yet', () => {
+      expect(canPatrolTakeNewLegs({ provenance: 'mobile', state: 'open' }, SCHEDULED)).toBe(true);
+    });
+  });
+
+  describe('displayEndTimeForPatrol', () => {
+    test('returns null when the patrol has no segments', () => {
+      expect(displayEndTimeForPatrol({ patrol_segments: [] })).toBeNull();
+    });
+
+    test('uses the last segment\'s end time', () => {
+      const patrol = { patrol_segments: [{ time_range: { end_time: '2022-06-15T11:00:00.000Z' } }] };
+
+      expect(displayEndTimeForPatrol(patrol)).toEqual(new Date('2022-06-15T11:00:00.000Z'));
+    });
+
+    test('uses the last segment\'s end time for a multi-leg patrol, not the first', () => {
+      const patrol = {
+        patrol_segments: [
+          { time_range: { end_time: '2022-06-15T11:00:00.000Z' } },
+          { time_range: { end_time: null } },
+        ],
+      };
+
+      expect(displayEndTimeForPatrol(patrol)).toBeNull();
+    });
+  });
+
+  describe('actualEndTimeForPatrol', () => {
+    test('returns null when the patrol has no segments', () => {
+      expect(actualEndTimeForPatrol({ patrol_segments: [] })).toBeNull();
+    });
+
+    test('returns null for a multi-leg patrol whose last leg is still ongoing, even though an earlier leg has ended', () => {
+      const patrol = {
+        patrol_segments: [
+          { time_range: { end_time: '2022-06-15T11:00:00.000Z', start_time: '2022-06-15T10:00:00.000Z' } },
+          { time_range: { end_time: null, start_time: '2022-06-15T11:00:00.000Z' } },
+        ],
+      };
+
+      expect(actualEndTimeForPatrol(patrol)).toBeNull();
+    });
+
+    test('uses the last leg\'s end time for a multi-leg patrol that has fully ended', () => {
+      const patrol = {
+        patrol_segments: [
+          { time_range: { end_time: '2022-06-15T11:00:00.000Z', start_time: '2022-06-15T10:00:00.000Z' } },
+          { time_range: { end_time: '2022-06-15T12:00:00.000Z', start_time: '2022-06-15T11:00:00.000Z' } },
+        ],
+      };
+
+      expect(actualEndTimeForPatrol(patrol)).toEqual(new Date('2022-06-15T12:00:00.000Z'));
+    });
+  });
+
+  describe('getTrackedSubjectsForPatrolSegment', () => {
+    test('returns the leg\'s leader', () => {
+      const leader = { id: 'leader-a', name: 'Ranger Amara' };
+
+      expect(getTrackedSubjectsForPatrolSegment({ leader })).toEqual([leader]);
+    });
+
+    test('returns an empty list for a leg without a leader', () => {
+      expect(getTrackedSubjectsForPatrolSegment({ leader: null })).toEqual([]);
+    });
+  });
+
+  describe('effectiveEndTimeForPatrol', () => {
+    test('returns the end time of the last leg', () => {
+      const patrol = {
+        patrol_segments: [{ time_range: { end_time: '2022-06-15T13:00:00.000Z', start_time: '2022-06-15T10:00:00.000Z' } }],
+      };
+
+      expect(effectiveEndTimeForPatrol(patrol)).toEqual(new Date('2022-06-15T13:00:00.000Z'));
+    });
+
+    test('falls back to the moment a cancelled patrol was cancelled', () => {
+      expect(effectiveEndTimeForPatrol(cancelledPatrol)).toEqual(new Date('2022-01-18T22:42:04.843502+00:00'));
+    });
+
+    test('falls back to the moment a done patrol was marked done', () => {
+      const patrol = {
+        ...donePatrol,
+        patrol_segments: [{
+          ...donePatrol.patrol_segments[0],
+          time_range: { ...donePatrol.patrol_segments[0].time_range, end_time: null },
+        }],
+      };
+
+      expect(effectiveEndTimeForPatrol(patrol)).toEqual(new Date('2022-01-18T22:12:24.207505+00:00'));
+    });
+
+    test('falls back to the last state change of a finished patrol however it is worded', () => {
+      const patrol = {
+        patrol_segments: [{ time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' } }],
+        state: 'cancelled',
+        updates: [
+          { message: 'Estado actualizado', time: '2022-06-15T13:00:00.000Z', type: 'update_patrol_state' },
+          { message: 'Updated fields: State is open', time: '2022-06-15T10:00:00.000Z', type: 'update_patrol_state' },
+        ],
+      };
+
+      expect(effectiveEndTimeForPatrol(patrol)).toEqual(new Date('2022-06-15T13:00:00.000Z'));
+    });
+
+    test('falls back to the start time of a finished patrol with nothing recording when it stopped', () => {
+      const patrol = {
+        patrol_segments: [{ time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' } }],
+        state: 'cancelled',
+        updates: [{ message: 'Patrol Added', time: '2022-06-15T09:00:00.000Z', type: 'add_patrol' }],
+      };
+
+      expect(effectiveEndTimeForPatrol(patrol)).toEqual(new Date('2022-06-15T10:00:00.000Z'));
+    });
+
+    test('returns null for a patrol that has not ended', () => {
+      const patrol = {
+        patrol_segments: [{ time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' } }],
+      };
+
+      expect(effectiveEndTimeForPatrol(patrol)).toBeNull();
+    });
+
+    test('ignores the state changes of a patrol that is still running', () => {
+      const patrol = {
+        patrol_segments: [{ time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' } }],
+        state: 'open',
+        updates: [
+          { message: 'Updated fields: State is open', time: '2022-06-15T13:00:00.000Z', type: 'update_patrol_state' },
+        ],
+      };
+
+      expect(effectiveEndTimeForPatrol(patrol)).toBeNull();
+    });
+  });
+
+  describe('getCancellationTimeForPatrol', () => {
+    test('returns the time of the most recent update that cancelled the patrol', () => {
+      expect(getCancellationTimeForPatrol(cancelledPatrol))
+        .toEqual(new Date('2022-01-18T22:42:04.843502+00:00'));
+    });
+
+    test('returns the time of the last state change however it is worded', () => {
+      const patrol = {
+        ...cancelledPatrol,
+        updates: [{ message: 'Estado actualizado', time: '2022-01-19T10:00:00.000Z', type: 'update_patrol_state' }],
+      };
+
+      expect(getCancellationTimeForPatrol(patrol)).toEqual(new Date('2022-01-19T10:00:00.000Z'));
+    });
+
+    test('returns null for a patrol that is not cancelled', () => {
+      expect(getCancellationTimeForPatrol({ ...cancelledPatrol, state: 'open' })).toBeNull();
+    });
+
+    test('returns null for a cancelled patrol without a state update recording it', () => {
+      expect(getCancellationTimeForPatrol({ ...cancelledPatrol, updates: [] })).toBeNull();
+    });
+  });
+
+  describe('getElapsedTimeForPatrol', () => {
+    const HOUR = 60 * 60 * 1000;
+
+    test('measures from the first leg\'s start time to the last leg\'s end time', () => {
+      const patrol = {
+        patrol_segments: [
+          { time_range: { end_time: '2022-06-15T11:00:00.000Z', start_time: '2022-06-15T10:00:00.000Z' } },
+          { time_range: { end_time: '2022-06-15T13:00:00.000Z', start_time: '2022-06-15T11:00:00.000Z' } },
+        ],
+      };
+
+      expect(getElapsedTimeForPatrol(patrol)).toBe(3 * HOUR);
+    });
+
+    test('measures up to the given fallback end time while the patrol has not ended', () => {
+      const patrol = {
+        patrol_segments: [{ time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' } }],
+      };
+
+      expect(getElapsedTimeForPatrol(patrol, new Date('2022-06-15T12:00:00.000Z').getTime())).toBe(2 * HOUR);
+    });
+
+    test('measures an ongoing patrol up to now by default', () => {
+      jest.useFakeTimers().setSystemTime(new Date('2022-06-15T12:00:00.000Z'));
+
+      const patrol = {
+        patrol_segments: [{ time_range: { end_time: null, start_time: '2022-06-15T10:00:00.000Z' } }],
+      };
+
+      expect(getElapsedTimeForPatrol(patrol)).toBe(2 * HOUR);
+
+      jest.useRealTimers();
+    });
+
+    test('measures a cancelled patrol up to the moment it was cancelled, not the fallback end time', () => {
+      const patrol = {
+        ...cancelledPatrol,
+        patrol_segments: [{ time_range: { end_time: null, start_time: '2022-01-18T21:42:04.843502+00:00' } }],
+      };
+
+      expect(getElapsedTimeForPatrol(patrol, new Date('2022-01-20T00:00:00.000Z').getTime())).toBe(HOUR);
+    });
+
+    test('stops measuring a finished patrol with nothing recording when it stopped', () => {
+      const patrol = {
+        patrol_segments: [{ time_range: { end_time: null, start_time: '2022-01-18T21:42:04.843502+00:00' } }],
+        state: 'cancelled',
+        updates: [],
+      };
+
+      expect(getElapsedTimeForPatrol(patrol, new Date('2022-01-20T00:00:00.000Z').getTime())).toBe(0);
+    });
+
+    test('returns zero for a patrol that has not started', () => {
+      const patrol = { patrol_segments: [{ time_range: { end_time: null, start_time: null } }] };
+
+      expect(getElapsedTimeForPatrol(patrol)).toBe(0);
+    });
+
+    test('returns zero for a patrol without legs', () => {
+      expect(getElapsedTimeForPatrol({ patrol_segments: [] })).toBe(0);
+    });
+
+    test('never returns a negative elapsed time', () => {
+      const patrol = {
+        patrol_segments: [{ time_range: { end_time: '2022-06-15T09:00:00.000Z', start_time: '2022-06-15T10:00:00.000Z' } }],
+      };
+
+      expect(getElapsedTimeForPatrol(patrol)).toBe(0);
+    });
+  });
+
+  describe('getPausedTimeForPatrol', () => {
+    test('returns zero while no leg can be recognized as a pause', () => {
+      const patrol = {
+        patrol_segments: [
+          { time_range: { end_time: '2022-06-15T11:00:00.000Z', start_time: '2022-06-15T10:00:00.000Z' } },
+          { time_range: { end_time: null, start_time: '2022-06-15T11:00:00.000Z' } },
+        ],
+      };
+
+      expect(getPausedTimeForPatrol(patrol)).toBe(0);
+    });
+
+    test('returns zero for a patrol without legs', () => {
+      expect(getPausedTimeForPatrol({ patrol_segments: [] })).toBe(0);
+    });
+  });
+
+  describe('iconTypeForPatrol', () => {
+    test('returns the patrol-level icon_id when set', () => {
+      const patrol = { icon_id: 'custom-icon', patrol_segments: [{ icon_id: 'first-leg-icon' }] };
+
+      expect(iconTypeForPatrol(patrol)).toBe('custom-icon');
+    });
+
+    test('falls back to the last leg\'s icon_id for a multi-leg patrol, not the first', () => {
+      const patrol = {
+        patrol_segments: [
+          { icon_id: 'first-leg-icon' },
+          { icon_id: 'second-leg-icon' },
+        ],
+      };
+
+      expect(iconTypeForPatrol(patrol)).toBe('second-leg-icon');
+    });
+
+    test('returns an empty string when there is no icon anywhere', () => {
+      expect(iconTypeForPatrol({ patrol_segments: [{}] })).toBe('');
+    });
+  });
+
+  describe('displayTitleForPatrol', () => {
+    test('falls back to the last leg\'s patrol type name, not the first, when there is no title or leader name', () => {
+      store.getState.mockReturnValue({ data: { patrolTypes: [dogPatrol, routinePatrol] } });
+
+      const patrol = {
+        title: null,
+        patrol_segments: [
+          { patrol_type: routinePatrol.value },
+          { patrol_type: dogPatrol.value },
+        ],
+      };
+
+      expect(displayTitleForPatrol(patrol, null)).toBe(dogPatrol.display);
+    });
+  });
+
+  describe('getPatrolsForLeaderId', () => {
+    test('matches the last leg\'s leader for a multi-leg patrol, not the first', () => {
+      const patrol = {
+        id: 'patrol-1',
+        patrol_segments: [
+          { leader: { id: 'leader-a' } },
+          { leader: { id: 'leader-b' } },
+        ],
+      };
+      store.getState.mockReturnValue({ data: { patrolStore: { 'patrol-1': patrol } } });
+
+      expect(getPatrolsForLeaderId('leader-b')).toEqual([patrol]);
+      expect(getPatrolsForLeaderId('leader-a')).toEqual([]);
+    });
+  });
+
+  describe('getActivePatrolsForLeaderId', () => {
+    test('matches the last leg\'s leader and requires the patrol to currently be active', () => {
+      const activeLastLegPatrol = {
+        ...activePatrol,
+        id: 'patrol-active',
+        patrol_segments: [
+          { ...activePatrol.patrol_segments[0], leader: { id: 'leader-a' } },
+          { ...activePatrol.patrol_segments[0], leader: { id: 'leader-b' } },
+        ],
+      };
+      store.getState.mockReturnValue({ data: { patrolStore: { 'patrol-active': activeLastLegPatrol } } });
+
+      expect(getActivePatrolsForLeaderId('leader-b')).toEqual([activeLastLegPatrol]);
+      expect(getActivePatrolsForLeaderId('leader-a')).toEqual([]);
+    });
+  });
+
+  describe('getReportsForPatrol', () => {
+    const patrolWithLegEvents = (...eventsPerLeg) => ({
+      ...multiLegPatrol,
+      patrol_segments: multiLegPatrol.patrol_segments.map((leg, index) => ({ ...leg, events: eventsPerLeg[index] })),
+    });
+
+    test('collects the events of every leg in leg order', () => {
+      const firstLegEvent = { id: 'event-1' };
+      const secondLegEvent = { id: 'event-2' };
+
+      expect(getReportsForPatrol(patrolWithLegEvents([firstLegEvent], [secondLegEvent])))
+        .toEqual([firstLegEvent, secondLegEvent]);
+    });
+
+    test('skips the legs that carry no events', () => {
+      const secondLegEvent = { id: 'event-2' };
+
+      expect(getReportsForPatrol(patrolWithLegEvents(undefined, [secondLegEvent]))).toEqual([secondLegEvent]);
+    });
+
+    test('returns an empty list for a patrol without legs', () => {
+      expect(getReportsForPatrol({ patrol_segments: [] })).toEqual([]);
+    });
+
+    test('returns an empty list without a patrol', () => {
+      expect(getReportsForPatrol(undefined)).toEqual([]);
+    });
+
+    test('lists an event linked to more than one leg once', () => {
+      const sharedEvent = { id: 'event-1' };
+      const secondLegEvent = { id: 'event-2' };
+
+      expect(getReportsForPatrol(patrolWithLegEvents([sharedEvent], [sharedEvent, secondLegEvent])))
+        .toEqual([sharedEvent, secondLegEvent]);
+    });
+  });
+
+  describe('PATROL_SAVE_ACTIONS.addFile', () => {
+    test('uploads the file against the saved patrol without going through the store', () => {
+      const upload = Promise.resolve({ data: {} });
+      uploadPatrolFile.mockReturnValue(upload);
+
+      const file = new File(['content'], 'photo.png');
+
+      expect(PATROL_SAVE_ACTIONS.addFile(file).action('patrol-1')).toBe(upload);
+      expect(uploadPatrolFile).toHaveBeenCalledWith('patrol-1', file);
+      expect(store.dispatch).not.toHaveBeenCalled();
     });
   });
 });

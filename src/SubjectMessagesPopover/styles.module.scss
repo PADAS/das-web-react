@@ -8,6 +8,11 @@
   [class*=popover-body] {
     height: 15.5rem;
   }
+
+  [class*='popover-header'] svg {
+    background-color: $transparent-dark-gray;
+    border-radius: 0.125rem;
+  }
 }
 
 .container {

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef } from 'react';
+import { lazy, Suspense, useContext, useEffect, useId, useRef, useState } from 'react';
 import Popover from 'react-bootstrap/Popover';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +7,10 @@ import { ReactComponent as GpsLocationIcon } from '../../common/images/icons/gps
 import { ReactComponent as MarkerFeedIcon } from '../../common/images/icons/marker-feed.svg';
 
 import { EVENT_REPORT_CATEGORY, trackEventFactory } from '../../utils/analytics';
+import { GEOLOCATION_PERMISSION_STATES } from '../../utils/location/constants';
+import useGeolocationPermissionState from '../../hooks/useGeolocationPermissionState';
+
+import { MapContext } from '../../MapContext';
 
 import GetUserLocationButton from '../../GetUserLocationButton';
 import GpsInput from '../../GpsInput';
@@ -35,18 +39,33 @@ const MenuPopover = ({
 }) => {
   const { t } = useTranslation('components', { keyPrefix: 'locationPicker.menuPopover' });
 
+  const map = useContext(MapContext);
+
   const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
   const showUserLocation = useSelector((state) => state.view.showUserLocation);
+
+  const geolocationPermissionState = useGeolocationPermissionState(showUserLocation);
 
   const gpsFormatToggleRef = useRef();
   const gpsInputRef = useRef();
   const lastFocusableElementRef = useRef();
-  // Set the popover width equal to the location picker's width if it's between the min and max boundaries and store it
-  // in a ref so it doesn't change.
-  const popoverWidthRef = useRef(
-    Math.min(MAX_POPOVER_WIDTH, Math.max(MIN_POPOVER_WIDTH, target.current?.offsetWidth))
-  );
   const wrapperRef = useRef();
+
+  const permissionBlockedMessageId = useId();
+
+  // The popover opens at the width of the picker, clamped, and keeps it however
+  // the picker is resized while open.
+  const [popoverWidth] = useState(
+    () => Math.min(MAX_POPOVER_WIDTH, Math.max(MIN_POPOVER_WIDTH, target.current?.offsetWidth))
+  );
+  const [wasLocationPermissionDeniedOnClick, setWasLocationPermissionDeniedOnClick] = useState(false);
+
+  // A browser that reports "prompt" after a denied read was dismissed rather than blocked, and dismissing
+  // is not a state the user should be told to go and undo in their settings. The click latch is
+  // deliberately one-directional, reset only by closing and reopening the picker, so that a later probe
+  // cannot clear a denial the user has just seen.
+  const isLocationPermissionDenied = geolocationPermissionState === GEOLOCATION_PERMISSION_STATES.DENIED
+    || (wasLocationPermissionDeniedOnClick && geolocationPermissionState !== GEOLOCATION_PERMISSION_STATES.PROMPT);
 
   const onWrapperKeyDown = (event) => {
     if (event.key === 'Escape') {
@@ -64,9 +83,11 @@ const MenuPopover = ({
       event.preventDefault();
       event.stopPropagation();
 
-      onClose();
+      if (event.target === gpsInputRef.current) {
+        onClose();
 
-      setLocationButtonRef.current.focus();
+        setLocationButtonRef.current.focus();
+      }
     }
   };
 
@@ -97,11 +118,12 @@ const MenuPopover = ({
     if (!isPickingLocation) {
       const onKeyDown = (event) => {
         if (event.key === 'Tab') {
+          const lastFocusableElement = lastFocusableElementRef.current || gpsInputRef.current;
           if (event.shiftKey && document.activeElement === gpsFormatToggleRef.current) {
             event.preventDefault();
 
-            lastFocusableElementRef.current.focus();
-          } else if (!event.shiftKey && document.activeElement === lastFocusableElementRef.current) {
+            lastFocusableElement.focus();
+          } else if (!event.shiftKey && document.activeElement === lastFocusableElement) {
             event.preventDefault();
 
             gpsFormatToggleRef.current.focus();
@@ -154,35 +176,50 @@ const MenuPopover = ({
       className={`${className} ${styles.menuPopover}`}
       ref={ref}
       role="dialog"
-      style={{ ...style, minWidth: popoverWidthRef.current, width: popoverWidthRef.current }}
+      style={{ ...style, minWidth: popoverWidth, width: popoverWidth }}
       {...otherProps}
     >
     <div className={styles.wrapper} onKeyDown={isPickingLocation ? undefined : onWrapperKeyDown} ref={wrapperRef}>
       <GpsInput
         gpsFormatToggleRef={gpsFormatToggleRef}
         inputRef={gpsInputRef}
-        onKeyDown={isPickingLocation ? undefined : onGpsInputKeyDown}
         onChange={onChange}
+        onKeyDown={isPickingLocation ? undefined : onGpsInputKeyDown}
         value={value}
       />
 
-      <div className={styles.buttons}>
-        <Suspense fallback={null}>
-          <PickMapLocationButton
-            onClick={() => eventReportTracker.track('Click \'Set on map\'')}
-            onPick={onMapLocationPick}
-            ref={!showUserLocation ? lastFocusableElementRef : undefined}
-            renderContent={() => <>
-              <MarkerFeedIcon />
+      {/* Mounted even while empty: screen readers only announce changes inside a live region that was
+          already present. */}
+      {showUserLocation && <p
+        className={styles.permissionBlockedMessage}
+        id={permissionBlockedMessageId}
+        role="status"
+      >
+        {isLocationPermissionDenied && t('permissionBlockedMessage')}
+      </p>}
 
-              {t('pickMapLocationButton')}
-            </>}
-          />
-        </Suspense>
+      <div className={styles.buttons}>
+        {map && (
+          <Suspense fallback={null}>
+            <PickMapLocationButton
+              onClick={() => eventReportTracker.track('Click \'Set on map\'')}
+              onPick={onMapLocationPick}
+              ref={!showUserLocation ? lastFocusableElementRef : undefined}
+              renderContent={() => <>
+                <MarkerFeedIcon />
+
+                {t('pickMapLocationButton')}
+              </>}
+            />
+          </Suspense>
+        )}
 
         {showUserLocation && <GetUserLocationButton
+          aria-describedby={permissionBlockedMessageId}
+          isDisabled={isLocationPermissionDenied}
           onClick={() => eventReportTracker.track('Click \'Use my location\'')}
           onGet={onUserLocationGet}
+          onPermissionDenied={() => setWasLocationPermissionDeniedOnClick(true)}
           ref={lastFocusableElementRef}
           renderContent={() => <>
             <GpsLocationIcon />

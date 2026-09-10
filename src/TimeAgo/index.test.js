@@ -8,9 +8,10 @@ import {
   subYears
 } from 'date-fns';
 
+import i18n from '../i18nForTests';
 import TimeAgo from '../TimeAgo';
-import { /* advanceTimersByTime, */ runOnlyPendingTimers } from '../__test-helpers/timers';
-import { render, screen } from '../test-utils';
+import { runOnlyPendingTimers } from '../__test-helpers/timers';
+import { act, render, screen } from '../test-utils';
 
 beforeEach(() => {
   const mockSystemTime = new Date('2021-02-01');
@@ -88,5 +89,28 @@ describe('the TimeAgo component', () => {
     const component = await screen.findByTestId('time-ago');
 
     expect(component).toHaveTextContent(`30 seconds ${testSuffix}`);
+  });
+
+  it('includes the elapsed time in its accessible name', async () => {
+    const testDate = subSeconds(new Date(), 30);
+
+    renderTimeAgo({ date: testDate });
+
+    const component = await screen.findByTestId('time-ago');
+
+    expect(component).toHaveAccessibleName(expect.stringContaining('30 seconds'));
+  });
+
+  it('updates the displayed elapsed time as time passes', async () => {
+    const testDate = subSeconds(new Date(), 30);
+    renderTimeAgo({ date: testDate });
+
+    const component = await screen.findByTestId('time-ago');
+
+    expect(component).toHaveTextContent('30 seconds');
+
+    await act(() => runOnlyPendingTimers());
+
+    expect(component).toHaveTextContent('31 seconds');
   });
 });

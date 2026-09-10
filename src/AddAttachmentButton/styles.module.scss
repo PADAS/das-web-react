@@ -1,7 +1,14 @@
-@import '../common/styles/vars/colors';
+@use 'sass:color';
+
+@use '../common/styles/buttons';
+@use '../common/styles/vars/colors';
+
+.addAttachmentButton {
+  @include buttons.baseButton;
+}
 
 .draggingOver {
-  background-color: rgba($bright-green, 0.5) !important;
-  border: 0.1rem dashed $light-gray-border !important;
-  cursor: copy !important;
+  background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+  outline: 2px dashed colors.$off-black;
+  cursor: copy;
 }

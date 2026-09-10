@@ -138,6 +138,26 @@ export const HUMANIZED_DURATION_CONFIGS = {
 export const durationHumanizer = (config = HUMANIZED_DURATION_CONFIGS.FULL_FORMAT()) =>
   humanizeDuration.humanizer(config);
 
+// `t` must be bound to the `dates` namespace.
+export const longTermAbbreviatedDurationHumanizer = (t) => durationHumanizer(
+  HUMANIZED_DURATION_CONFIGS.LONG_TERM_ABRREVIATED({
+    d: () => t('timeUnitAbbreviations.day'),
+    h: () => t('timeUnitAbbreviations.hour'),
+    m: () => t('timeUnitAbbreviations.minute'),
+    mo: () => t('timeUnitAbbreviations.month'),
+    w: () => t('timeUnitAbbreviations.week'),
+    y: () => t('timeUnitAbbreviations.year'),
+  })
+);
+
+const SUPPORTED_DURATION_HUMANIZER_LANGUAGES = humanizeDuration.getSupportedLanguages();
+
+export const resolveDurationHumanizerLanguage = (i18nLanguage) => {
+  const baseLanguage = i18nLanguage?.split('-')[0];
+
+  return SUPPORTED_DURATION_HUMANIZER_LANGUAGES.includes(baseLanguage) ? baseLanguage : 'en';
+};
+
 export const getUserLocaleTime = (date = new Date()) => date.toLocaleTimeString(
   i18next.language,
   { hour: '2-digit', minute: '2-digit' }

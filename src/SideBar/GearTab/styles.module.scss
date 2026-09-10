@@ -88,9 +88,31 @@
 }
 
 .displayId {
+  background: none;
+  border: none;
+  color: inherit;
   display: block;
+  font: inherit;
   font-weight: 600;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  width: 100%;
   word-break: break-word;
+}
+
+.displayIdClickable {
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
 }
 
 /* Match Map Layers → Subjects row timestamp alignment. */

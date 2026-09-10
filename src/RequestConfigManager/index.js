@@ -2,13 +2,14 @@ import { memo, useCallback, useEffect } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import { useLocation } from 'react-router';
-import { useAuth0 } from '@auth0/auth0-react';
 import { toast } from 'react-toastify';
 
-import { applyAccessToken, clearAuth, resetMasterCancelToken } from '../ducks/auth';
+import { clearAuth, resetMasterCancelToken } from '../ducks/auth';
 
-import { REACT_APP_ROUTE_PREFIX } from '../constants';
+import { APP_ROUTES } from '../constants/routes';
+import { isStepUpChallenge, parseAuthChallenge, recoverAuth } from '../utils/auth-recovery';
 import { showToast } from '../utils/toast';
+import useAuthRecovery from '../hooks/useAuthRecovery';
 import useNavigate from '../hooks/useNavigate';
 
 const STARTUP_TIME = new Date();
@@ -51,7 +52,6 @@ const handleGeoPermWarningHeader = (response, userLocationAccessGranted) => {
 
 
 const RequestConfigManager = ({
-  applyAccessToken,
   clearAuth,
   userLocationAccessGranted,
   masterRequestCancelToken,
@@ -62,16 +62,20 @@ const RequestConfigManager = ({
 }) => {
   const { search } = useLocation();
   const navigate = useNavigate();
-  const { getAccessTokenSilently } = useAuth0();
+
+  useAuthRecovery();
 
   const handle401Errors = useCallback(async (error) => {
     const isAuthError = error?.response?.status === 401 && !error.config?.skipAuth;
     const request = error?.config;
+    // Step-up is allowed even after a silent renew (retriedAfterRefresh): it redirects rather
+    // than looping, and a renewed-but-MFA-stale token surfaces the step-up only on the replay.
+    const challenge = error?.response?.headers?.['www-authenticate'];
+    const stepUp = isStepUpChallenge(challenge);
 
-    if (isAuthError && request && !request.retriedAfterRefresh) {
+    if (isAuthError && request && (stepUp || !request.retriedAfterRefresh)) {
       try {
-        const accessToken = await getAccessTokenSilently();
-        applyAccessToken(accessToken);
+        const accessToken = await recoverAuth(stepUp ? { stepUp: true, challenge: parseAuthChallenge(challenge) } : undefined);
         return axios({
           ...request,
           retriedAfterRefresh: true,
@@ -85,11 +89,11 @@ const RequestConfigManager = ({
     if (isAuthError) {
       resetMasterCancelToken();
       clearAuth().then(() => {
-        navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search });
+        navigate({ pathname: APP_ROUTES.LOGIN, search });
       });
     }
     return Promise.reject(error);
-  }, [applyAccessToken, clearAuth, getAccessTokenSilently, navigate, resetMasterCancelToken, search]);
+  }, [clearAuth, navigate, resetMasterCancelToken, search]);
 
   const addMasterCancelTokenToRequests = useCallback((config) => {
     config.cancelToken = config.cancelToken || (masterRequestCancelToken && masterRequestCancelToken.token);
@@ -180,4 +184,4 @@ const mapStateToProps = ({ data: { selectedUserProfile, user, masterRequestCance
 });
 
 
-export default connect(mapStateToProps, { applyAccessToken, clearAuth, resetMasterCancelToken })(memo(RequestConfigManager));
+export default connect(mapStateToProps, { clearAuth, resetMasterCancelToken })(memo(RequestConfigManager));

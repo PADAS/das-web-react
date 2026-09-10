@@ -8,13 +8,15 @@ import useJumpToLocation from '../hooks/useJumpToLocation';
 import DateTime from '../DateTime';
 import GpsFormatToggle from '../GpsFormatToggle';
 
+import * as styles from './styles.module.scss';
+
 const SubjectMessagePopup = ({ data }) => {
   const jumpToLocation = useJumpToLocation();
 
   const { subject, message } = data;
   return <>
     <h6 onClick={() => jumpToLocation(getSubjectLastPositionCoordinates(subject))}>
-      <ChatIcon /> {calcDisplayNameForSubject(subject)}
+      <ChatIcon className={styles.icon} /> {calcDisplayNameForSubject(subject)}
     </h6>
 
     <p style={{ marginBottom: '0.25rem' }}>{message.text}</p>

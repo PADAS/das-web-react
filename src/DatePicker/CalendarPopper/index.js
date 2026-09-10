@@ -47,39 +47,11 @@ const Input = ({
       {...otherProps}
       title={t('menuButtonLabel')}
     >
-    <div className={`${styles.caret} ${isOpen ? styles.open : ''}`} role="img" />
+    <div aria-hidden="true" className={`${styles.caret} ${isOpen ? styles.open : ''}`} />
   </button>;
 };
 
-// eslint-disable-next-line react/display-name
-const getRenderCustomHeader = (maxDate, minDate, onKeyDown) => ({
-  changeMonth,
-  changeYear,
-  date,
-  decreaseMonth,
-  decreaseYear,
-  increaseMonth,
-  increaseYear,
-  nextMonthButtonDisabled,
-  nextYearButtonDisabled,
-  prevMonthButtonDisabled,
-  prevYearButtonDisabled,
-}) => <MonthPicker
-  changeMonth={changeMonth}
-  changeYear={changeYear}
-  date={date}
-  decreaseMonth={decreaseMonth}
-  decreaseYear={decreaseYear}
-  increaseMonth={increaseMonth}
-  increaseYear={increaseYear}
-  maxDate={maxDate}
-  minDate={minDate}
-  nextMonthButtonDisabled={nextMonthButtonDisabled}
-  nextYearButtonDisabled={nextYearButtonDisabled}
-  onKeyDown={onKeyDown}
-  prevMonthButtonDisabled={prevMonthButtonDisabled}
-  prevYearButtonDisabled={prevYearButtonDisabled}
-/>;
+const getDayClassName = () => styles.day;
 
 const CalendarPopper = ({
   dateFormat = 'yyyy/MM/dd',
@@ -131,21 +103,26 @@ const CalendarPopper = ({
     calendarClassName={styles.calendar}
     customInput={<Input isOpen={isOpen} setIsOpen={setIsOpen} />}
     dateFormat={dateFormat}
-    dayClassName={() => styles.day}
+    dayClassName={getDayClassName}
     disabled={disabled || readOnly}
     locale={dateLocale}
     maxDate={maxDate}
     minDate={minDate}
     onChange={onDatePickerChange}
     // If there is a click outside of the calendar that is not in the date picker input, we close it.
-    onClickOutside={(event) => !innerRef.current.input.contains(event.target) && setIsOpen(false)}
+    onClickOutside={(event) => !innerRef.current?.input?.contains(event.target) && setIsOpen(false)}
     onKeyDown={onKeyDown}
     open={isOpen}
     popperClassName={styles.popper}
     popperPlacement="bottom"
     popperProps={{ strategy: 'fixed' }}
     ref={innerRef}
-    renderCustomHeader={getRenderCustomHeader(maxDate, minDate, onKeyDown)}
+    renderCustomHeader={(headerProps) => <MonthPicker
+      maxDate={maxDate}
+      minDate={minDate}
+      onKeyDown={onKeyDown}
+      {...headerProps}
+    />}
     selected={selected}
     showPopperArrow={false}
     wrapperClassName={styles.wrapper}

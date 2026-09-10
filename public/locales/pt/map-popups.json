@@ -17,7 +17,8 @@
         }
     },
     "layerSelectorPopup": {
-        "searchBarPlaceholder": "Buscar"
+        "searchBarPlaceholder": "Buscar",
+        "unsavedChangesLabel": "Alterações não salvas"
     },
     "mouseMarkerPopup": {
         "coordinatesStringOutsideBbox": "N/D",

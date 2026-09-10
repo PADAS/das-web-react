@@ -81,16 +81,16 @@ h6 {
 }
 
 .modal-backdrop {
-  display: none;
   &.show {
-    .modal[role=dialog] {
-      @include fade-in;
-      align-items: center;
-      background: rgba(0, 0, 0, 0.5);
-      display: flex !important;
-      justify-content: center;
-    }
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 1;
   }
+}
+
+.modal[role=dialog] {
+  align-items: center;
+  display: flex !important;
+  justify-content: center;
 }
 
 .modal-dialog-centered::before {

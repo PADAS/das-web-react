@@ -1,0 +1,89 @@
+{
+  "errors": {
+    "alphanumericPattern": "अक्षर र नम्बरहरू मात्र अनुमति छ।",
+    "collectionItems": "यस संग्रहका केही वस्तुहरूमा तिनीहरूको आन्तरिक फारमहरूमा त्रुटिहरू छन्।",
+    "dateFormat": "अमान्य मिति ढांचा वा अमान्य मिति। दिन, महिना र वर्षको पुन: जाँच गर्नुहोस्।",
+    "dateTimeFormat": "अमान्य मिति र समय ढांचा वा अमान्य मिति। दिन, महिना र वर्षको पुन: जाँच गर्नुहोस्।",
+    "defaultFormat": "अमान्य ढाँचा।",
+    "defaultKeyword": "अमान्य मान।",
+    "defaultPattern": "मान आवश्यक ढाँचासँग मेल खाँदैन।",
+    "emailFormat": "अमान्य इमेल ढाँचा।",
+    "maxItems_one": "यो सङ्कलनमा धेरैमा {{count}} वस्तु मात्र हुन सक्छ।",
+    "maxItems_other": "यो सङ्कलनमा धेरैमा {{count}} वस्तुहरू मात्र हुन सक्छन्।",
+    "maximum": "यो मान भन्दा कम वा बराबर हुनुपर्छ {{maximum}}।",
+    "minItems_one": "यो सङ्कलनमा कम्तीमा {{count}} वस्तु हुनुपर्छ।",
+    "minItems_other": "यो सङ्कलनमा कम्तीमा {{count}} वस्तुहरू हुनुपर्छ।",
+    "minimum": "यो मान भन्दा ठूलो वा बराबर हुनुपर्छ {{minimum}}।",
+    "required": "यो आवश्यक फिल्ड हो।",
+    "timeFormat": "अमान्य समय ढांचा।",
+    "uploadFailedError": "एक वा बढी फाइल अपलोड असफल भयो। पेश गर्नुभन्दा पहिले असफल फाइलहरू हटाउनुहोस्।",
+    "uploadInProgressError": "कृपया फाइलहरू अपलोड पूरा नभएसम्म प्रतीक्षा गर्नुहोस्।",
+    "uriFormat": "अमान्य URL ढाँचा।",
+    "uuidFormat": "अमान्य UUID ढाँचा।"
+  },
+  "fields": {
+    "attachment": {
+      "chooseFile": "फाइल छान्नुहोस्",
+      "disallowedTypeAlert": "{{fileName}} थप्न सकिँदैन किनभने यसको फाइल प्रकार अनुमति छैन।",
+      "downloadButtonLabel": "{{fileName}} डाउनलोड गर्नुहोस्",
+      "dropzoneText": "फाइलहरू यहाँ तान्नुहोस् र छोड्नुहोस्",
+      "expandButtonLabel": "{{fileName}} विस्तार गर्नुहोस्",
+      "maxItemsAlert_one": "तपाईं बढीमा {{count}} फाइल मात्र थप्न सक्नुहुन्छ।",
+      "maxItemsAlert_other": "तपाईं बढीमा {{count}} फाइलहरू मात्र थप्न सक्नुहुन्छ।",
+      "pendingLabel": "बाँकी",
+      "removeButtonLabel": "{{fileName}} हटाउनुहोस्",
+      "requiredLabel": "(आवश्यक)",
+      "uploadErrorLabel": "अपलोड असफल भयो",
+      "uploadFailedAnnouncement_one": "{{fileName}} अपलोड गर्न सकिएन",
+      "uploadFailedAnnouncement_other": "{{count}} फाइलहरू अपलोड गर्न सकिएन",
+      "uploadStartedAnnouncement_one": "{{fileName}} अपलोड हुँदै",
+      "uploadStartedAnnouncement_other": "{{count}} फाइलहरू अपलोड हुँदै",
+      "uploadSucceededAnnouncement_one": "{{fileName}} अपलोड भयो",
+      "uploadSucceededAnnouncement_other": "{{count}} फाइलहरू अपलोड भए"
+    },
+    "collection": {
+      "addButtonLabel": "{{itemName}} थप्नुहोस्",
+      "chevronButtonLabel": {
+        "closed": "{{collectionLabel}} सूची खोल्नुहोस्",
+        "open": "{{collectionLabel}} सूची बन्द गर्नुहोस्"
+      },
+      "defaultAddButton": "थप्नुहोस्",
+      "sortableList": {
+        "dragCancelAnnouncement": "तान्ने कार्य रद्द गरिएको छ। {{activeItemTitle}} {{itemsLength}} को स्थान {{activeItemPosition}} मा फर्कियो।",
+        "dragEndAnnouncement": "{{activeItemTitle}} लाई {{itemsLength}} को स्थान {{overItemPosition}} मा खसालिएको छ।",
+        "dragEndOutsideAnnouncement": "{{activeItemTitle}} खसालियो र {{itemsLength}} को स्थान {{activeItemPosition}} मा फर्कियो।",
+        "dragOverAnnouncement": "{{activeItemTitle}} लाई {{itemsLength}} को स्थान {{overItemPosition}} मा सारिएको छ।",
+        "dragStartAnnouncement": "{{activeItemTitle}} उचालिएको छ। {{itemsLength}} मध्ये स्थान {{activeItemPosition}}।",
+        "draggableScreenReaderInstructions": "{{itemName}} उचाल्न, space थिच्नुहोस्। तान्दै गर्दा, माथि र तलको एरो कुञ्जी प्रयोग गरेर {{itemName}} लाई निर्दिष्ट दिशामा सार्नुहोस्। {{itemName}} लाई नयाँ स्थानमा छोड्न space फेरि थिच्नुहोस्, वा रद्द गर्न escape थिच्नुहोस्।",
+        "item": {
+          "attachmentHumanizedValue_one": "1 फाइल",
+          "attachmentHumanizedValue_other": "{{count}} फाइलहरू",
+          "chevronButtonLabel": {
+            "closed": "{{itemTitle}} फारमको पूर्वावलोकन खोल्नुहोस्",
+            "open": "{{itemTitle}} फारमको पूर्वावलोकन बन्द गर्नुहोस्"
+          },
+          "collectionHumanizedValue": "{{collectionLength}} वस्तुहरू",
+          "deleteButtonLabel": "{{itemTitle}} मेट्नुहोस्",
+          "dragHandleButtonLabel": "{{itemTitle}} पुन: क्रमबद्ध गर्नुहोस्",
+          "dragHandleButtonRoleDescription": "तान्न मिल्ने",
+          "editButtonLabel": "{{itemTitle}} सम्पादन गर्नुहोस्",
+          "formModal": {
+            "cancelButton": "रद्द गर्नुहोस्",
+            "deleteButton": "{{itemTitle}} मेटाउनुहोस्",
+            "doneButton": "सम्पन्न"
+          },
+          "formPreview": {
+            "attachmentHumanizedValue_one": "1 फाइल",
+            "attachmentHumanizedValue_other": "{{count}} फाइलहरू",
+            "collectionHumanizedValue": "{{collectionLength}} वस्तुहरू",
+            "jumpToLocationButtonLabel": "{{field}} स्थानमा जानुहोस्"
+          }
+        }
+      }
+    },
+    "text": {
+      "urlLinkLabel": "URL नयाँ ट्याबमा खोल्नुहोस्"
+    }
+  },
+  "validationErrorsAnnouncement": "निम्न फिल्डहरूमा सत्यापन त्रुटिहरू छन्:"
+}

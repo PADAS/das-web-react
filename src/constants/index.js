@@ -45,15 +45,15 @@ export const STATUSES = {
   UNKNOWN_STATUS: 'UNKNOWN',
 };
 
-/** ToDo: remove title once all translations related with this const are done */
 export const PATROL_UI_STATES = {
-  SCHEDULED: { key: 'scheduled', title: 'Scheduled', status: 'scheduled' },
-  READY_TO_START: { key: 'readyToStart', title: 'Ready to start', status: 'ready' },
-  ACTIVE: { key: 'active', title: 'Active', status: 'open' },
-  DONE: { key: 'done', title: 'Done', status: 'done' },
-  START_OVERDUE: { key: 'startOverdue', title: 'Start Overdue', status: 'start-overdue' },
-  CANCELLED: { key: 'cancelled', title: 'Cancelled', status: 'cancelled' },
-  INVALID: { key: 'invalid', title: 'Invalid Configuration', status: 'cancelled' },
+  ACTIVE: { key: 'active', status: 'open' },
+  CANCELLED: { key: 'cancelled', status: 'cancelled' },
+  DONE: { key: 'done', status: 'done' },
+  INVALID: { key: 'invalid', status: 'cancelled' },
+  PAUSED: { key: 'paused', status: 'paused' },
+  READY_TO_START: { key: 'readyToStart', status: 'ready' },
+  SCHEDULED: { key: 'scheduled', status: 'scheduled' },
+  START_OVERDUE: { key: 'startOverdue', status: 'start-overdue' },
 };
 
 export const PATROL_API_STATES = {
@@ -61,6 +61,8 @@ export const PATROL_API_STATES = {
   DONE: 'done',
   CANCELLED: 'cancelled',
 };
+
+export const PATROL_TYPE_QUERY_PARAMETER = 'patrol-type';
 
 export const TAB_KEYS = {
   EVENTS: 'events',
@@ -100,7 +102,6 @@ export const LAYER_IDS = {
   CLUSTERS_LAYER_ID: 'clusters-layer',
   EVENT_CLUSTER_COUNT_SYMBOLS: 'event_cluster_count',
   EVENT_GEOMETRY_LAYER: 'event-geometry-layer',
-  EVENT_LOCATION_MARKERS: 'event-location-markers-layer',
   EVENT_SYMBOLS: 'event_symbols',
   EVENTS_REALTIME_OVERLAY_GEOMETRY: 'events-realtime-overlay-geometry',
   EVENTS_REALTIME_OVERLAY_SYMBOLS: 'event_symbols-realtime-overlay',
@@ -108,6 +109,7 @@ export const LAYER_IDS = {
   EVENTS_VECTOR_CLUSTER_SYMBOLS: 'event_symbols-vector-cluster',
   EVENTS_VECTOR_GEOMETRY: 'events-vector-geometry',
   EVENTS_VECTOR_SYMBOLS: 'events-vector-symbols',
+  FORM_LOCATION_MARKERS: 'form-location-markers-layer',
   GEAR_LINE: 'gear-line-layer',
   GEAR_LINE_HIT: 'gear-line-hit-layer',
   GEAR_POINT: 'gear-point-layer',
@@ -136,10 +138,10 @@ export const SOURCE_IDS = {
   CLUSTERS_SOURCE_ID: 'clusters-source',
   CURRENT_USER_LOCATION_SOURCE: 'current-user-location-source',
   EVENT_GEOMETRY: 'event-geometry-source',
-  EVENT_LOCATION_MARKERS: 'event-location-markers-source',
   EVENTS_REALTIME_OVERLAY_POLYGON_SOURCE: 'events-realtime-overlay-polygon-source',
   EVENTS_REALTIME_OVERLAY_SOURCE: 'events-realtime-overlay-source',
   EVENTS_VECTOR_SOURCE: 'events-vector-source',
+  FORM_LOCATION_MARKERS: 'form-location-markers-source',
   MAP_FEATURES_LINES_SOURCE: 'feature-line-source',
   MAP_FEATURES_POLYGONS_SOURCE: 'feature-polygon-source',
   MAP_FEATURES_SYMBOLS_SOURCE: 'feature-symbol-source',
@@ -176,6 +178,7 @@ export const SYSTEM_CONFIG_FLAGS = {
 export const PREVIEW_FEATURES = {
   COMMUNITY_INPUT_ADMIN: 'community_input_admin_enabled',
   EVENTS_VECTOR_TILES: 'events_vector_tiles',
+  PATROL_SCHEMAS: 'patrol_schemas',
 };
 
 export const IF_IS_GENERIC = (ifGeneric, ifNonGeneric) => ['case',

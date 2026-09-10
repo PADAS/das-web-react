@@ -13,6 +13,7 @@ import * as styles from './styles.module.scss';
 const NavigationPromptModal = ({
   onCancel = null,
   onContinue = null,
+  showPositiveContinueButton = true,
   when,
   ...restProps
 }) => {
@@ -64,14 +65,14 @@ const NavigationPromptModal = ({
         {continueNavigationNegativeButtonText}
       </Button>
 
-      <Button
+      {showPositiveContinueButton && <Button
         className={styles.positiveContinue}
         onClick={handlePositiveContinue}
         data-testid='navigation-prompt-positive-continue-btn'
         variant="primary"
       >
         {continueNavigationPositiveButtonText}
-      </Button>
+      </Button>}
     </Modal.Footer>
   </Modal>;
 };

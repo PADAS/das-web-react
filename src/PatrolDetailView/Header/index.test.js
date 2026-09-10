@@ -58,7 +58,7 @@ describe('Header', () => {
     expect((screen.queryByTestId('patrol-drawer-header-details'))).toHaveTextContent('Scheduled');
     expect((screen.queryByTestId('patrol-drawer-header-description'))).toHaveTextContent('Scheduled');
     expect(buttons[0]).toHaveTextContent('Start');
-    expect(buttons[1]).toHaveClass('dropdown-toggle');
+    expect(buttons[1]).toHaveClass('toggle');
   });
 
   test('renders correctly case of an active patrol', async () => {
@@ -68,7 +68,13 @@ describe('Header', () => {
 
     expect((screen.queryByTestId('patrol-drawer-header-details'))).toBeDefined();
     expect((screen.queryByTestId('patrol-drawer-header-description'))).toHaveTextContent('Active');
-    expect(buttons[0]).toHaveClass('dropdown-toggle');
+    expect(buttons[0]).toHaveClass('toggle');
+  });
+
+  test('shows the distance covered by an active patrol', async () => {
+    renderHeader({ patrol: activePatrol });
+
+    expect((await screen.findByTestId('patrol-drawer-header-details'))).toHaveTextContent('0km');
   });
 
   test('renders correctly case of an overdue patrol', async () => {
@@ -79,7 +85,7 @@ describe('Header', () => {
     expect((screen.queryByTestId('patrol-drawer-header-details'))).toHaveTextContent('Scheduled');
     expect((screen.queryByTestId('patrol-drawer-header-description'))).toHaveTextContent('Start Overdue');
     expect(buttons[0]).toHaveTextContent('Start');
-    expect(buttons[1]).toHaveClass('dropdown-toggle');
+    expect(buttons[1]).toHaveClass('toggle');
   });
 
   test('renders correctly case of an done patrol', async () => {
@@ -89,7 +95,7 @@ describe('Header', () => {
 
     expect((screen.queryByTestId('patrol-drawer-header-details'))).toBeDefined();
     expect((screen.queryByTestId('patrol-drawer-header-description'))).toHaveTextContent('Done');
-    expect(buttons[0]).toHaveClass('dropdown-toggle');
+    expect(buttons[0]).toHaveClass('toggle');
   });
 
   test('renders correctly case of an cancelled patrol', async () => {
