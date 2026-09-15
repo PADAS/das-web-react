@@ -1,219 +1,81 @@
 import { createSelector } from 'reselect';
-import { shallowEqual } from 'react-redux';
 import { isAfter } from 'date-fns';
+import { length } from '@turf/turf';
+import { shallowEqual } from 'react-redux';
 import uniq from 'lodash/uniq';
 
+import { buildTrackSegments, trackLengthWithinTimeRange, trimTrackDataToTimeRange } from '../../utils/tracks';
 import {
-  drawLinesBetweenPatrolTrackAndPatrolPoints,
+  actualStartTimeForPatrolSegment,
+  displayNumberForPatrolSegment,
+  drawPatrolTrackConnectorLines,
+  effectiveEndTimeForPatrol,
+  effectiveEndTimeForPatrolSegment,
   extractLegPatrolPoints,
+  extractPausePatrolPoint,
   finalizeCombinedPatrolPoints,
   getTrackedSubjectsForPatrolSegment,
+  isPatrolSegmentAPause,
   isSegmentActiveForPatrol,
+  isSegmentPending,
+  makePatrolLegMarkerPoint,
+  makePatrolPauseMarkerPoint,
   patrolStateAllowsTrackDisplay,
 } from '../../utils/patrols';
 import { getSubjectLastPositionCoordinates } from '../../utils/subjects';
 import { selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod, selectTrackTimeEnvelope } from '../tracks';
-import { trackHasDataWithinTimeRange, trackLengthWithinTimeRange, trimTrackDataToTimeRange } from '../../utils/tracks';
 
-const clampLegEndTime = (endTime, envelopeUntil) => {
-  if (!envelopeUntil) {
-    return endTime;
+const EMPTY_HIDDEN_SUBJECT_IDS = [];
+
+const clampTrackTimeRangeEnd = (until, trackTimeEnvelopeUntil) => {
+  if (!trackTimeEnvelopeUntil) {
+    return until;
   }
 
-  if (!endTime) {
-    return envelopeUntil;
+  if (!until) {
+    return trackTimeEnvelopeUntil;
   }
 
-  return new Date(envelopeUntil).getTime() < new Date(endTime).getTime() ? envelopeUntil : endTime;
+  return new Date(trackTimeEnvelopeUntil).getTime() < new Date(until).getTime() ? trackTimeEnvelopeUntil : until;
 };
 
-// A leg's track is its own leader's track, bounded to that leg's own start/end
-// times.
-const buildLegTrackData = (segment, tracks, trackTimeEnvelopeUntil) => {
-  const leader = segment.leader || null;
-  const rawTrackData = leader ? (tracks[leader.id] || null) : null;
-  const { start_time, end_time } = segment.time_range || {};
-  const clampedEndTime = clampLegEndTime(end_time, trackTimeEnvelopeUntil);
-
-  const trackData = (!!rawTrackData
-    && !!start_time
-    && trackHasDataWithinTimeRange(rawTrackData, start_time, clampedEndTime)
-    && trimTrackDataToTimeRange(rawTrackData, start_time, clampedEndTime)) || null;
-
-  return { leader, rawTrackData, segment, trackData };
-};
-
-// Combines every leg's own track into the patrol's overall track.
-const combineLegsTrackData = (legsData) => {
-  const legsWithTrackData = [...legsData].reverse().filter(({ trackData }) => !!trackData);
-
-  if (legsWithTrackData.length) {
-    return {
-      points: {
-        type: 'FeatureCollection',
-        features: legsWithTrackData.flatMap(({ trackData }) => trackData.points?.features ?? []),
-      },
-      track: {
-        type: 'FeatureCollection',
-        features: legsWithTrackData.flatMap(({ trackData }) => trackData.track?.features ?? []),
-      },
-    };
-  }
-  return null;
-};
-
-const buildPatrolData = (patrol, timeSliderState, trackTimeEnvelopeUntil, tracks) => {
-  // The last leg's leader is used for title/display purposes, since it's the
-  // most recent one.
-  const patrolLeader = patrol.patrol_segments[patrol.patrol_segments.length - 1]?.leader || null;
-
-  if (!patrolStateAllowsTrackDisplay(patrol)) {
-    return { leader: patrolLeader, legsTrackData: [], trackData: null };
+const clampTrackTimeRangeStart = (since, trackTimeEnvelopeFrom) => {
+  if (!trackTimeEnvelopeFrom) {
+    return since;
   }
 
-  const legsData = patrol.patrol_segments.map((segment) => buildLegTrackData(segment, tracks, trackTimeEnvelopeUntil));
-  const trackData = combineLegsTrackData(legsData);
-
-  // Create the patrol data object with what we have so far.
-  const patrolData = {
-    leader: patrolLeader,
-    legsTrackData: legsData.map(({ trackData: legTrackData }) => legTrackData),
-    trackData,
-  };
-
-  if (patrolData.trackData) {
-    // If the patrol has track data, we now calculate its start and stop geometries.
-    const legsPoints = legsData.map(({ leader: legLeader, rawTrackData, segment, trackData: legTrackData }) => (legTrackData
-      ? extractLegPatrolPoints(segment, legLeader, legTrackData, rawTrackData, isSegmentActiveForPatrol(patrol, segment))
-      : null));
-
-    const patrolPoints = {
-      start_location: legsPoints.find((legPoints) => !!legPoints?.start_location)?.start_location ?? null,
-      end_location: [...legsPoints].reverse().find((legPoints) => !!legPoints?.end_location)?.end_location ?? null,
-    };
-
-    if (patrolPoints.start_location || patrolPoints.end_location) {
-      const isTimeSliderActiveWithAVirtualDate = timeSliderState.active && timeSliderState.virtualDate;
-      if (isTimeSliderActiveWithAVirtualDate) {
-        // Adjust the patrol points to the time slider virtual date.
-        const timeSliderVirtualDate = new Date(timeSliderState.virtualDate);
-
-        if (patrolPoints.start_location?.properties?.time) {
-          const patrolStartDate = new Date(patrolPoints.start_location.properties.time);
-          if (isAfter(patrolStartDate, timeSliderVirtualDate)) {
-            patrolPoints.start_location = null;
-          }
-        }
-
-        if (patrolPoints.end_location?.properties?.time) {
-          const patrolEndDate = new Date(patrolPoints.end_location.properties.time);
-          if (isAfter(patrolEndDate, timeSliderVirtualDate)) {
-            patrolPoints.end_location = null;
-          }
-        }
-      }
-
-      if (patrolPoints.start_location || patrolPoints.end_location) {
-        // If there are either a start or an end location, we calculate the lines and add the start and stop geometries
-        // to the patrol data object.
-        const finalizedPatrolPoints = finalizeCombinedPatrolPoints(patrol, patrolPoints);
-
-        patrolData.startStopGeometries = {
-          points: finalizedPatrolPoints,
-          lines: drawLinesBetweenPatrolTrackAndPatrolPoints(finalizedPatrolPoints, patrolData.trackData),
-        };
-      }
-    }
+  if (!since) {
+    return trackTimeEnvelopeFrom;
   }
 
-  return patrolData;
+  return new Date(trackTimeEnvelopeFrom).getTime() > new Date(since).getTime() ? trackTimeEnvelopeFrom : since;
 };
 
-const selectPatrolsFeed = (state) => state.data.patrolsFeed;
-const selectPatrolLeaders = (state) => state.data.patrolTeamAndTrackingOptions.leaders;
-const selectPatrolStore = (state) => state.data.patrolStore;
-const selectPatrolTeamAndTrackingOptions = (state) => state.data.patrolTeamAndTrackingOptions;
-const selectPatrolTrackState = (state) => state.view.patrolTrackState;
-const selectSubjectStore = (state) => state.data.subjectStore;
-const selectTimeSliderState = (state) => state.view.timeSliderState;
-const selectTracks = (state) => state.data.tracks;
+// The stretch of a time range the track length setting still reaches back to,
+// or nothing when the range has scrolled out of that window entirely.
+const clampTimeRangeToTrackTimeEnvelope = (timeRange, trackTimeEnvelope) => {
+  const since = clampTrackTimeRangeStart(timeRange.since, trackTimeEnvelope.from);
+  const until = clampTrackTimeRangeEnd(timeRange.until, trackTimeEnvelope.until);
 
-const selectVisibleAndPinnedPatrolTracks = createSelector(
-  [selectPatrolTrackState],
-  (patrolTrackState) => uniq([...patrolTrackState.visible, ...patrolTrackState.pinned])
-);
+  return until && new Date(since).getTime() > new Date(until).getTime() ? null : { since, until };
+};
 
-// Only the tracks belonging to this patrol's own segment leaders, so a socket update to some
-// other subject's track elsewhere in the app doesn't invalidate this patrol's (comparatively
-// expensive) segment-trimming work below.
-const selectPatrolSegmentLeaderTracks = createSelector(
-  [selectTracks, (_, patrol) => patrol],
-  (tracks, patrol) => patrol.patrol_segments.reduce((segmentLeaderTracks, { leader }) => {
-    if (tracks[leader?.id]) {
-      segmentLeaderTracks[leader.id] = tracks[leader.id];
-    }
-    return segmentLeaderTracks;
-  }, {}),
-  { memoizeOptions: { resultEqualityCheck: shallowEqual } }
-);
+// The time a subject spent on the patrol, in the shape the track helpers take.
+const patrolTimeRanges = (patrol, patrolSegments) => mergeSegmentTimeRanges(patrol, patrolSegments)
+  .map((timeRange) => ({ since: timeRange.since, until: timeRange.until === Infinity ? null : timeRange.until }));
 
-export const selectPatrolTrackData = createSelector(
-  [selectTimeSliderState, selectTrackTimeEnvelope, selectPatrolSegmentLeaderTracks, (_, patrol) => patrol],
-  (timeSliderState, trackTimeEnvelope, patrolSegmentLeaderTracks, patrol) =>
-    buildPatrolData(patrol, timeSliderState, trackTimeEnvelope.until, patrolSegmentLeaderTracks)
-);
-
-// The subjects a patrol's legs name that its rosters no longer offer, looked
-// up in the subject store once. Held apart from the store itself so that the
-// selectors below are not invalidated by every position a socket brings in.
-export const selectPatrolRosterFallbackSubjects = createSelector(
-  [selectPatrolTeamAndTrackingOptions, selectSubjectStore, (_, patrol) => patrol],
-  (patrolTeamAndTrackingOptions, subjectStore, patrol) => {
-    const offeredRosterIds = new Set([
-      ...(patrolTeamAndTrackingOptions?.assets ?? []),
-      ...(patrolTeamAndTrackingOptions?.members ?? []),
-    ].map((rosterOption) => rosterOption.id));
-
-    return (patrol.patrol_segments ?? []).reduce((fallbackSubjects, patrolSegment) => {
-      [...(patrolSegment.assets ?? []), ...(patrolSegment.members ?? [])].forEach((rosterId) => {
-        if (!offeredRosterIds.has(rosterId) && subjectStore?.[rosterId]) {
-          fallbackSubjects[rosterId] = subjectStore[rosterId];
-        }
-      });
-
-      return fallbackSubjects;
-    }, {});
-  },
-  { memoizeOptions: { resultEqualityCheck: shallowEqual } }
-);
-
-const selectPatrolTrackedSubjectTracks = createSelector(
-  [selectPatrolTeamAndTrackingOptions, selectPatrolRosterFallbackSubjects, selectTracks, (_, patrol) => patrol],
-  (patrolTeamAndTrackingOptions, patrolRosterFallbackSubjects, tracks, patrol) => patrol.patrol_segments
-    .reduce((patrolTrackedSubjectTracks, patrolSegment) => {
-      getTrackedSubjectsForPatrolSegment(
-        patrolSegment,
-        patrolTeamAndTrackingOptions,
-        patrolRosterFallbackSubjects
-      ).forEach((subject) => {
-        if (tracks[subject.id]) {
-          patrolTrackedSubjectTracks[subject.id] = tracks[subject.id];
-        }
-      });
-
-      return patrolTrackedSubjectTracks;
-    }, {}),
-  { memoizeOptions: { resultEqualityCheck: shallowEqual } }
-);
+// The stretch of the patrol a leg ran for: a leg the record left open still
+// ended when the patrol closed or the next leg took over.
+const patrolSegmentTimeRange = (patrol, patrolSegment) => ({
+  since: actualStartTimeForPatrolSegment(patrolSegment).getTime(),
+  until: effectiveEndTimeForPatrolSegment(patrol, patrolSegment)?.getTime() ?? Infinity,
+});
 
 // The time a subject spent on the patrol, as a set of ranges that do not
 // overlap.
-const mergeSegmentTimeRanges = (patrolSegments) => patrolSegments
+const mergeSegmentTimeRanges = (patrol, patrolSegments) => patrolSegments
   .filter((patrolSegment) => patrolSegment.time_range?.start_time)
-  .map((patrolSegment) => ({
-    since: new Date(patrolSegment.time_range.start_time).getTime(),
-    until: patrolSegment.time_range.end_time ? new Date(patrolSegment.time_range.end_time).getTime() : Infinity,
-  }))
+  .map((patrolSegment) => patrolSegmentTimeRange(patrol, patrolSegment))
   .sort((timeRange, otherTimeRange) => timeRange.since - otherTimeRange.since)
   .reduce((mergedTimeRanges, timeRange) => {
     const lastMergedTimeRange = mergedTimeRanges[mergedTimeRanges.length - 1];
@@ -227,55 +89,36 @@ const mergeSegmentTimeRanges = (patrolSegments) => patrolSegments
     return mergedTimeRanges;
   }, []);
 
+// A leg the patrol actually ran. A pause covered no ground, and a leg still to
+// come has covered none yet.
+const hasPatrolSegmentRun = (patrolSegment) =>
+  !isPatrolSegmentAPause(patrolSegment) && !isSegmentPending(patrolSegment);
+
 // The kilometers a subject covered during a time range: its own track, bounded
 // to that range.
-const distanceCoveredInTimeRange = ({ since, until }, subjectTrack) => {
-  const boundedUntil = until === Infinity ? null : until;
+const distanceCoveredInTimeRange = ({ since, until }, subjectTrack) =>
+  trackLengthWithinTimeRange(subjectTrack, since, until === Infinity ? null : until);
 
-  return trackHasDataWithinTimeRange(subjectTrack, since, boundedUntil)
-    ? trackLengthWithinTimeRange(subjectTrack, since, boundedUntil)
-    : 0;
+// The subjects a leg's distance is read from. A lead answers for its leg;
+// without one, the furthest of the subjects it tracks stands in for it.
+const measuredSubjectsForPatrolSegment = (patrolSegment, trackedSubjects) => patrolSegment.leader
+  ? trackedSubjects.filter((subject) => subject.id === patrolSegment.leader.id)
+  : trackedSubjects;
+
+// The kilometers a leg covered, or nothing while no track of its own has
+// loaded. A pause tracks nobody, so it covered nothing.
+const legDistanceForPatrolSegment = (patrol, patrolSegment, trackedSubjects, tracks) => {
+  const legDistances = measuredSubjectsForPatrolSegment(patrolSegment, trackedSubjects)
+    .filter((subject) => !!tracks[subject.id])
+    .map((subject) => distanceCoveredInTimeRange(patrolSegmentTimeRange(patrol, patrolSegment), tracks[subject.id]));
+
+  return legDistances.length ? Math.max(...legDistances) : null;
 };
 
-// Where each subject a patrol tracks was last seen, so a jump to its location
-// has somewhere to go before that subject's own track has been fetched.
-const selectPatrolTrackedSubjectPositions = createSelector(
-  [
-    selectPatrolTeamAndTrackingOptions,
-    selectPatrolRosterFallbackSubjects,
-    selectSubjectStore,
-    (_, patrol) => patrol,
-  ],
-  (patrolTeamAndTrackingOptions, patrolRosterFallbackSubjects, subjectStore, patrol) => patrol.patrol_segments
-    .reduce((trackedSubjectPositions, patrolSegment) => {
-      getTrackedSubjectsForPatrolSegment(
-        patrolSegment,
-        patrolTeamAndTrackingOptions,
-        patrolRosterFallbackSubjects
-      ).forEach((subject) => {
-        const coordinates = getSubjectLastPositionCoordinates(subjectStore[subject.id] ?? subject);
-
-        if (coordinates) {
-          trackedSubjectPositions[subject.id] = coordinates;
-        }
-      });
-
-      return trackedSubjectPositions;
-    }, {}),
-  { memoizeOptions: { resultEqualityCheck: shallowEqual } }
-);
-
-// Every subject the given legs track, with the total distance it covered
-// across them — unknown until that subject's track has loaded.
-const buildTrackedSubjects = (
-  trackedSubjectTracks,
-  trackedSubjectPositions,
-  teamAndTrackingOptions,
-  rosterFallbackSubjects,
-  patrolSegments,
-  teamLeadId
-) => {
+// Every subject the given legs track, each paired with the legs it is on.
+const groupPatrolSegmentsByTrackedSubject = (patrolSegments, teamAndTrackingOptions, rosterFallbackSubjects) => {
   const trackedSubjectsMap = new Map();
+
   patrolSegments.forEach((patrolSegment) => {
     getTrackedSubjectsForPatrolSegment(
       patrolSegment,
@@ -290,28 +133,555 @@ const buildTrackedSubjects = (
     });
   });
 
-  return [...trackedSubjectsMap.values()]
-    .map((trackedSubject) => {
-      const subjectTrack = trackedSubjectTracks[trackedSubject.subject.id];
-
-      return {
-        // Tracks are stored most recent position first.
-        coordinates: subjectTrack?.points?.features?.[0]?.geometry?.coordinates
-          ?? trackedSubjectPositions[trackedSubject.subject.id]
-          ?? null,
-        distance: subjectTrack
-          ? mergeSegmentTimeRanges(trackedSubject.patrolSegments).reduce(
-            (distance, timeRange) => distance + distanceCoveredInTimeRange(timeRange, subjectTrack),
-            0
-          )
-          : null,
-        isTeamLead: trackedSubject.subject.id === teamLeadId,
-        subject: trackedSubject.subject,
-      };
-    })
-    // The team lead comes first.
-    .sort((trackedSubject, otherTrackedSubject) => otherTrackedSubject.isTeamLead - trackedSubject.isTeamLead);
+  return [...trackedSubjectsMap.values()];
 };
+
+// Tracks are stored most recent position first, and that has to hold for a
+// track stitched out of several of them.
+const combineTrackData = (trackDataList) => {
+  if (!trackDataList.length) {
+    return null;
+  }
+
+  return {
+    points: {
+      type: 'FeatureCollection',
+      features: trackDataList
+        .flatMap((trackData) => trackData.points?.features ?? [])
+        .sort((trackPoint, otherTrackPoint) =>
+          new Date(otherTrackPoint.properties.time).getTime() - new Date(trackPoint.properties.time).getTime()),
+    },
+    track: {
+      type: 'FeatureCollection',
+      features: trackDataList.flatMap((trackData) => trackData.track?.features ?? []),
+    },
+  };
+};
+
+// Trimming a window a subject has no positions in keeps the one position
+// nearest it, which belongs neither to the patrol nor on the map.
+const trimTrackDataToPatrolTimeRange = (subjectTrack, since, until) => {
+  const trimmedTrackData = trimTrackDataToTimeRange(subjectTrack, since, until);
+
+  // Times run most recent first, so the first one kept is the latest in range.
+  const [latestTime] = trimmedTrackData.track.features[0]?.properties?.coordinateProperties?.times ?? [];
+
+  if (!latestTime) {
+    return null;
+  }
+
+  const isLatestTimeInRange = new Date(latestTime).getTime() >= new Date(since).getTime()
+    && (!until || new Date(latestTime).getTime() <= new Date(until).getTime());
+
+  return isLatestTimeInRange ? trimmedTrackData : null;
+};
+
+// A subject's patrol track: its own, cut to the stretches it spent on the
+// patrol and kept apart, so no line crosses the time it was off the patrol.
+const buildTrackedSubjectTrackData = (patrol, trackedSubject, tracks, trackTimeEnvelope = null) => {
+  const subjectTrack = tracks[trackedSubject.subject.id];
+
+  if (!subjectTrack) {
+    return null;
+  }
+
+  // The merged ranges come out oldest first, tracks the other way around.
+  return combineTrackData(patrolTimeRanges(patrol, trackedSubject.patrolSegments)
+    .reverse()
+    .map((timeRange) => trackTimeEnvelope
+      ? clampTimeRangeToTrackTimeEnvelope(timeRange, trackTimeEnvelope)
+      : timeRange)
+    .filter(Boolean)
+    .map((timeRange) => trimTrackDataToPatrolTimeRange(subjectTrack, timeRange.since, timeRange.until))
+    .filter(Boolean));
+};
+
+// A leg's leader track alone: the start, end and hand-over markers a patrol
+// draws all sit on the line its leader made.
+const buildPatrolSegmentLeaderTrackData = (patrol, patrolSegment, tracks, virtualDate) => {
+  const leader = patrolSegment.leader || null;
+  const rawTrackData = leader ? (tracks[leader.id] || null) : null;
+  const startTime = patrolSegment.time_range?.start_time;
+  const endTime = clampTrackTimeRangeEnd(effectiveEndTimeForPatrolSegment(patrol, patrolSegment), virtualDate);
+
+  const trackData = (!!rawTrackData
+    && !!startTime
+    && trimTrackDataToPatrolTimeRange(rawTrackData, startTime, endTime)) || null;
+
+  return { leader, rawTrackData, trackData };
+};
+
+// Where the leg before a pause left the patrol, which is what the pause stands
+// on when the pause itself was logged nowhere.
+const lastLegEndPointBefore = (patrolSegmentsPoints, patrolSegmentIndex) => patrolSegmentsPoints
+  .slice(0, patrolSegmentIndex)
+  .reverse()
+  .find((patrolSegmentPoints) => !!patrolSegmentPoints?.end_location)
+  ?.end_location ?? null;
+
+// Where a patrol starts, where it ends, where each leg hands over to the next,
+// and where it stood still.
+const buildPatrolPoints = (patrol, patrolSegmentsLeaderTrackData) => {
+  const patrolSegmentsPoints = patrol.patrol_segments.map((patrolSegment, index) => {
+    const leaderTrackData = patrolSegmentsLeaderTrackData[index];
+
+    return leaderTrackData
+      ? extractLegPatrolPoints(
+        patrolSegment,
+        leaderTrackData.leader,
+        leaderTrackData.trackData,
+        leaderTrackData.rawTrackData,
+        isSegmentActiveForPatrol(patrol, patrolSegment)
+      )
+      : null;
+  });
+
+  // A patrol still running ends nowhere: the marker would otherwise fall back
+  // to where the leg before the running one handed over.
+  const hasSegmentRunning = patrol.patrol_segments
+    .some((patrolSegment) => isSegmentActiveForPatrol(patrol, patrolSegment));
+
+  // The leg the patrol opens on is the one its start marker stands for, so it
+  // takes no hand-over marker of its own on top of it.
+  const startPatrolSegmentIndex = patrolSegmentsPoints
+    .findIndex((patrolSegmentPoints) => !!patrolSegmentPoints?.start_location);
+
+  return {
+    end_location: hasSegmentRunning
+      ? null
+      : [...patrolSegmentsPoints]
+        .reverse()
+        .find((patrolSegmentPoints) => !!patrolSegmentPoints?.end_location)?.end_location ?? null,
+    // Every leg after the one the patrol opened on shows where it took over,
+    // and a pause stands where the leg before it was last seen.
+    legMarkers: patrol.patrol_segments
+      .map((patrolSegment, index) => {
+        if (index === startPatrolSegmentIndex) {
+          return null;
+        }
+
+        const displayNumber = displayNumberForPatrolSegment(patrol.patrol_segments, index);
+
+        if (isPatrolSegmentAPause(patrolSegment)) {
+          const pausePoint = extractPausePatrolPoint(patrolSegment, lastLegEndPointBefore(patrolSegmentsPoints, index));
+
+          return pausePoint ? makePatrolPauseMarkerPoint(displayNumber, pausePoint) : null;
+        }
+
+        return patrolSegmentsPoints[index]?.start_location
+          ? makePatrolLegMarkerPoint(displayNumber, patrolSegmentsPoints[index].start_location)
+          : null;
+      })
+      .filter(Boolean),
+    start_location: patrolSegmentsPoints[startPatrolSegmentIndex]?.start_location ?? null,
+  };
+};
+
+// A point the time slider has not reached yet has not happened yet.
+const isPatrolPointBeforeVirtualDate = (patrolPoint, virtualDate) => !patrolPoint?.properties?.time
+  || !isAfter(new Date(patrolPoint.properties.time), virtualDate);
+
+// The time slider rewinds a patrol to a moment it may not have ended in yet,
+// and one that has not ended takes no end marker, estimated or otherwise.
+const hasPatrolEndedByVirtualDate = (patrol, virtualDate) => {
+  const patrolEndTime = effectiveEndTimeForPatrol(patrol);
+
+  return !!patrolEndTime && !isAfter(patrolEndTime, virtualDate);
+};
+
+const buildPatrolStartStopGeometries = (patrol, timeSliderState, tracks) => {
+  const virtualDate = timeSliderState.active ? timeSliderState.virtualDate ?? null : null;
+
+  // The markers sit on the line the leads made. A pause tracks nobody and a leg
+  // still to come has been nowhere, so neither puts the patrol anywhere.
+  const patrolSegmentsLeaderTrackData = patrol.patrol_segments.map((patrolSegment) =>
+    hasPatrolSegmentRun(patrolSegment)
+      ? buildPatrolSegmentLeaderTrackData(patrol, patrolSegment, tracks, virtualDate)
+      : null);
+
+  const patrolPoints = buildPatrolPoints(patrol, patrolSegmentsLeaderTrackData);
+
+  if (virtualDate) {
+    const virtualDateTime = new Date(virtualDate);
+
+    if (!isPatrolPointBeforeVirtualDate(patrolPoints.start_location, virtualDateTime)) {
+      patrolPoints.start_location = null;
+    }
+
+    if (!isPatrolPointBeforeVirtualDate(patrolPoints.end_location, virtualDateTime)) {
+      patrolPoints.end_location = null;
+    }
+
+    patrolPoints.legMarkers = patrolPoints.legMarkers
+      .filter((legMarker) => isPatrolPointBeforeVirtualDate(legMarker, virtualDateTime));
+  }
+
+  if (!patrolPoints.start_location && !patrolPoints.end_location && !patrolPoints.legMarkers.length) {
+    return null;
+  }
+
+  const finalizedPatrolPoints = finalizeCombinedPatrolPoints(
+    patrol,
+    patrolPoints,
+    !virtualDate || hasPatrolEndedByVirtualDate(patrol, new Date(virtualDate))
+  );
+
+  return {
+    // The dashed lines reach to the leads' line, not every subject's: hiding a
+    // subject in the legend leaves where the patrol began and ended alone.
+    lines: drawPatrolTrackConnectorLines(
+      finalizedPatrolPoints,
+      combineTrackData(patrolSegmentsLeaderTrackData
+        .map((leaderTrackData) => leaderTrackData?.trackData)
+        .filter(Boolean))
+    ),
+    points: {
+      type: 'FeatureCollection',
+      features: [
+        finalizedPatrolPoints.start_location,
+        ...finalizedPatrolPoints.legMarkers,
+        finalizedPatrolPoints.end_location,
+      ].filter(Boolean),
+    },
+  };
+};
+
+const buildPatrolSubjectsTrackData = (patrol, trackedSubjects, patrolTrackContext) => {
+  // The last leg's leader is used for title/display purposes, since it's the
+  // most recent one.
+  const patrolLeader = patrol.patrol_segments[patrol.patrol_segments.length - 1]?.leader || null;
+
+  if (!patrolStateAllowsTrackDisplay(patrol)) {
+    return {
+      hasTrackData: false,
+      leader: patrolLeader,
+      subjectsTrackData: [],
+      trackData: null,
+    };
+  }
+
+  const subjectsTrackData = trackedSubjects.map((trackedSubject) => {
+    const trackData = buildTrackedSubjectTrackData(
+      patrol,
+      trackedSubject,
+      patrolTrackContext.tracks,
+      patrolTrackContext.trackTimeEnvelope
+    );
+
+    return {
+      distance: trackData ? length(trackData.track) : null,
+      isHidden: patrolTrackContext.hiddenSubjectIds.includes(trackedSubject.subject.id),
+      subject: trackedSubject.subject,
+      trackData: trackData && patrolTrackContext.isTimeOfDayColoringActive
+        ? { ...trackData, trackSegments: buildTrackSegments(trackData.track, patrolTrackContext.timeOfDayTimeZone) }
+        : trackData,
+    };
+  });
+
+  const trackData = combineTrackData(subjectsTrackData
+    .filter((subjectTrackData) => !subjectTrackData.isHidden && !!subjectTrackData.trackData)
+    .map((subjectTrackData) => subjectTrackData.trackData));
+
+  return {
+    hasTrackData: subjectsTrackData.some((subjectTrackData) => !!subjectTrackData.trackData),
+    leader: patrolLeader,
+    subjectsTrackData,
+    trackData,
+  };
+};
+
+// Every subject the given legs track, with the total distance it covered
+// across them — unknown until that subject's track has loaded.
+const buildTrackedSubjects = (
+  trackedSubjectTracks,
+  trackedSubjectPositions,
+  teamAndTrackingOptions,
+  rosterFallbackSubjects,
+  patrol,
+  patrolSegments,
+  teamLeadId
+) => groupPatrolSegmentsByTrackedSubject(patrolSegments, teamAndTrackingOptions, rosterFallbackSubjects)
+  .map((trackedSubject) => {
+    const subjectTrack = trackedSubjectTracks[trackedSubject.subject.id];
+
+    return {
+      // Tracks are stored most recent position first.
+      coordinates: subjectTrack?.points?.features?.[0]?.geometry?.coordinates
+        ?? trackedSubjectPositions[trackedSubject.subject.id]
+        ?? null,
+      distance: subjectTrack
+        ? mergeSegmentTimeRanges(patrol, trackedSubject.patrolSegments).reduce(
+          (distance, timeRange) => distance + distanceCoveredInTimeRange(timeRange, subjectTrack),
+          0
+        )
+        : null,
+      isTeamLead: trackedSubject.subject.id === teamLeadId,
+      subject: trackedSubject.subject,
+    };
+  })
+  // The team lead comes first.
+  .sort((trackedSubject, otherTrackedSubject) => otherTrackedSubject.isTeamLead - trackedSubject.isTeamLead);
+
+// The subjects the given patrols' legs name that the rosters no longer offer,
+// looked up in the subject store.
+const buildRosterFallbackSubjects = (patrols, teamAndTrackingOptions, subjectStore) => {
+  const offeredRosterIds = new Set([
+    ...(teamAndTrackingOptions?.assets ?? []),
+    ...(teamAndTrackingOptions?.members ?? []),
+  ].map((rosterOption) => rosterOption.id));
+
+  return patrols.reduce((fallbackSubjects, patrol) => {
+    (patrol.patrol_segments ?? []).forEach((patrolSegment) => {
+      [...(patrolSegment.assets ?? []), ...(patrolSegment.members ?? [])].forEach((rosterId) => {
+        if (!offeredRosterIds.has(rosterId) && subjectStore?.[rosterId]) {
+          fallbackSubjects[rosterId] = subjectStore[rosterId];
+        }
+      });
+    });
+
+    return fallbackSubjects;
+  }, {});
+};
+
+// Only the tracks of the subjects these patrols track, so a socket update to
+// some other subject does not invalidate the trimming work below.
+const buildTrackedSubjectTracks = (patrols, teamAndTrackingOptions, rosterFallbackSubjects, tracks) =>
+  patrols.reduce((trackedSubjectTracks, patrol) => {
+    (patrol.patrol_segments ?? []).forEach((patrolSegment) => {
+      getTrackedSubjectsForPatrolSegment(
+        patrolSegment,
+        teamAndTrackingOptions,
+        rosterFallbackSubjects
+      ).forEach((subject) => {
+        if (tracks[subject.id]) {
+          trackedSubjectTracks[subject.id] = tracks[subject.id];
+        }
+      });
+    });
+
+    return trackedSubjectTracks;
+  }, {});
+
+// Rows the map's own selectors already memoized, so each one holds its identity
+// for as long as the patrol it stands for does.
+const arePatrolsTracksDataEqual = (patrolsTracksData, otherPatrolsTracksData) =>
+  patrolsTracksData.length === otherPatrolsTracksData.length
+  && patrolsTracksData.every((patrolTracksData, index) =>
+    shallowEqual(patrolTracksData, otherPatrolsTracksData[index]));
+
+const selectHiddenPatrolTrackedSubjects = (state) => state.view.patrolTrackState.hiddenSubjects;
+const selectIsTimeOfDayColoringActive = (state) => state.view.trackSettings.isTimeOfDayColoringActive;
+const selectPatrolsFeed = (state) => state.data.patrolsFeed;
+const selectPatrolLeaders = (state) => state.data.patrolTeamAndTrackingOptions.leaders;
+const selectPatrolStore = (state) => state.data.patrolStore;
+const selectPatrolTeamAndTrackingOptions = (state) => state.data.patrolTeamAndTrackingOptions;
+const selectPatrolTrackState = (state) => state.view.patrolTrackState;
+const selectSubjectStore = (state) => state.data.subjectStore;
+const selectTimeOfDayTimeZone = (state) => state.view.trackSettings.timeOfDayTimeZone;
+const selectTimeSliderState = (state) => state.view.timeSliderState;
+const selectTracks = (state) => state.data.tracks;
+
+const selectVisibleAndPinnedPatrolTracks = createSelector(
+  [selectPatrolTrackState],
+  (patrolTrackState) => uniq([...patrolTrackState.visible, ...patrolTrackState.pinned])
+);
+
+// The subjects a patrol's legs name that its rosters no longer offer. Held
+// apart from the store, so a position a socket brings in invalidates nothing.
+export const selectPatrolRosterFallbackSubjects = createSelector(
+  [selectPatrolTeamAndTrackingOptions, selectSubjectStore, (_, patrol) => patrol],
+  (patrolTeamAndTrackingOptions, subjectStore, patrol) =>
+    buildRosterFallbackSubjects([patrol], patrolTeamAndTrackingOptions, subjectStore),
+  { memoizeOptions: { resultEqualityCheck: shallowEqual } }
+);
+
+const selectPatrolTrackedSubjectTracks = createSelector(
+  [selectPatrolTeamAndTrackingOptions, selectPatrolRosterFallbackSubjects, selectTracks, (_, patrol) => patrol],
+  (patrolTeamAndTrackingOptions, patrolRosterFallbackSubjects, tracks, patrol) =>
+    buildTrackedSubjectTracks([patrol], patrolTeamAndTrackingOptions, patrolRosterFallbackSubjects, tracks),
+  { memoizeOptions: { resultEqualityCheck: shallowEqual } }
+);
+
+const selectPatrolTrackedSubjectsWithPatrolSegments = createSelector(
+  [selectPatrolTeamAndTrackingOptions, selectPatrolRosterFallbackSubjects, (_, patrol) => patrol],
+  (patrolTeamAndTrackingOptions, patrolRosterFallbackSubjects, patrol) => groupPatrolSegmentsByTrackedSubject(
+    patrol.patrol_segments,
+    patrolTeamAndTrackingOptions,
+    patrolRosterFallbackSubjects
+  )
+);
+
+// What the map draws: the track length setting narrows the lines, and the
+// subjects the user hid in the legend drop out of them.
+const selectPatrolMapTrackContext = createSelector(
+  [
+    selectHiddenPatrolTrackedSubjects,
+    selectIsTimeOfDayColoringActive,
+    selectPatrolTrackedSubjectTracks,
+    selectTimeOfDayTimeZone,
+    selectTrackTimeEnvelope,
+    (_, patrol) => patrol.id,
+  ],
+  (
+    hiddenPatrolTrackedSubjects,
+    isTimeOfDayColoringActive,
+    patrolTrackedSubjectTracks,
+    timeOfDayTimeZone,
+    trackTimeEnvelope,
+    patrolId
+  ) => ({
+    hiddenSubjectIds: hiddenPatrolTrackedSubjects[patrolId] ?? EMPTY_HIDDEN_SUBJECT_IDS,
+    isTimeOfDayColoringActive,
+    timeOfDayTimeZone,
+    trackTimeEnvelope,
+    tracks: patrolTrackedSubjectTracks,
+  })
+);
+
+// What the patrol covered: the views that report on the patrol answer for it,
+// not for the window the map draws or the rows folded away in its legend.
+const selectPatrolTrackContext = createSelector(
+  [selectPatrolTrackedSubjectTracks],
+  (patrolTrackedSubjectTracks) => ({
+    hiddenSubjectIds: EMPTY_HIDDEN_SUBJECT_IDS,
+    isTimeOfDayColoringActive: false,
+    timeOfDayTimeZone: null,
+    trackTimeEnvelope: null,
+    tracks: patrolTrackedSubjectTracks,
+  })
+);
+
+// Where a patrol began, handed over, stood still and ended, held apart from
+// its lines: the time slider moves these pins and leaves those alone.
+const selectPatrolStartStopGeometries = createSelector(
+  [selectPatrolTrackedSubjectTracks, selectTimeSliderState, (_, patrol) => patrol],
+  (patrolTrackedSubjectTracks, timeSliderState, patrol) => patrolStateAllowsTrackDisplay(patrol)
+    ? buildPatrolStartStopGeometries(patrol, timeSliderState, patrolTrackedSubjectTracks)
+    : null
+);
+
+const selectPatrolSubjectsTrackData = createSelector(
+  [selectPatrolTrackedSubjectsWithPatrolSegments, selectPatrolTrackContext, (_, patrol) => patrol],
+  (patrolTrackedSubjectsWithPatrolSegments, patrolTrackContext, patrol) =>
+    buildPatrolSubjectsTrackData(patrol, patrolTrackedSubjectsWithPatrolSegments, patrolTrackContext)
+);
+
+const selectPatrolMapSubjectsTrackData = createSelector(
+  [selectPatrolTrackedSubjectsWithPatrolSegments, selectPatrolMapTrackContext, (_, patrol) => patrol],
+  (patrolTrackedSubjectsWithPatrolSegments, patrolMapTrackContext, patrol) =>
+    buildPatrolSubjectsTrackData(patrol, patrolTrackedSubjectsWithPatrolSegments, patrolMapTrackContext)
+);
+
+export const selectPatrolTrackData = createSelector(
+  [selectPatrolStartStopGeometries, selectPatrolSubjectsTrackData],
+  (patrolStartStopGeometries, patrolSubjectsTrackData) =>
+    ({ ...patrolSubjectsTrackData, startStopGeometries: patrolStartStopGeometries })
+);
+
+export const selectPatrolMapTrackData = createSelector(
+  [selectPatrolStartStopGeometries, selectPatrolMapSubjectsTrackData],
+  (patrolStartStopGeometries, patrolMapSubjectsTrackData) =>
+    ({ ...patrolMapSubjectsTrackData, startStopGeometries: patrolStartStopGeometries })
+);
+
+// The ground a patrol covered: what each of its legs covered, added up.
+export const selectPatrolLeadSumDistance = createSelector(
+  [
+    selectPatrolTeamAndTrackingOptions,
+    selectPatrolRosterFallbackSubjects,
+    selectPatrolTrackedSubjectTracks,
+    (_, patrol) => patrol,
+  ],
+  (patrolTeamAndTrackingOptions, patrolRosterFallbackSubjects, patrolTrackedSubjectTracks, patrol) => {
+    if (!patrolStateAllowsTrackDisplay(patrol)) {
+      return null;
+    }
+
+    const legDistances = patrol.patrol_segments
+      .filter(hasPatrolSegmentRun)
+      .map((patrolSegment) => legDistanceForPatrolSegment(
+        patrol,
+        patrolSegment,
+        getTrackedSubjectsForPatrolSegment(patrolSegment, patrolTeamAndTrackingOptions, patrolRosterFallbackSubjects),
+        patrolTrackedSubjectTracks
+      ));
+
+    // A leg whose tracks have not arrived would leave a part of the patrol
+    // reading as the whole of it, so the patrol waits for every leg it ran.
+    return legDistances.length && legDistances.every((legDistance) => legDistance !== null)
+      ? legDistances.reduce((leadSumDistance, legDistance) => leadSumDistance + legDistance, 0)
+      : null;
+  }
+);
+
+// The subjects the patrol's distance is read from. The feed measures every
+// patrol it lists, so a lead on every leg costs it one track per patrol.
+export const selectPatrolMeasuredSubjectIds = createSelector(
+  [selectPatrolTeamAndTrackingOptions, selectPatrolRosterFallbackSubjects, (_, patrol) => patrol],
+  (patrolTeamAndTrackingOptions, patrolRosterFallbackSubjects, patrol) => uniq(patrol.patrol_segments
+    .filter(hasPatrolSegmentRun)
+    .flatMap((patrolSegment) => measuredSubjectsForPatrolSegment(
+      patrolSegment,
+      getTrackedSubjectsForPatrolSegment(patrolSegment, patrolTeamAndTrackingOptions, patrolRosterFallbackSubjects)
+    ).map((subject) => subject.id))),
+  { memoizeOptions: { resultEqualityCheck: shallowEqual } }
+);
+
+// A leg's own track, index aligned with the patrol's legs. Held apart from
+// the patrol track: only the views that list legs one by one ever read it.
+export const selectPatrolSegmentsTrackData = createSelector(
+  [
+    selectPatrolTeamAndTrackingOptions,
+    selectPatrolRosterFallbackSubjects,
+    selectPatrolTrackedSubjectTracks,
+    (_, patrol) => patrol,
+  ],
+  (patrolTeamAndTrackingOptions, patrolRosterFallbackSubjects, patrolTrackedSubjectTracks, patrol) =>
+    patrol.patrol_segments.map((patrolSegment) => {
+      const startTime = patrolSegment.time_range?.start_time;
+
+      if (!startTime) {
+        return null;
+      }
+
+      return combineTrackData(getTrackedSubjectsForPatrolSegment(
+        patrolSegment,
+        patrolTeamAndTrackingOptions,
+        patrolRosterFallbackSubjects
+      )
+        .map((subject) => {
+          const subjectTrack = patrolTrackedSubjectTracks[subject.id];
+
+          return subjectTrack
+            ? trimTrackDataToPatrolTimeRange(
+              subjectTrack,
+              startTime,
+              effectiveEndTimeForPatrolSegment(patrol, patrolSegment)
+            )
+            : null;
+        })
+        .filter(Boolean));
+    })
+);
+
+// Where each subject a patrol tracks was last seen, so a jump to its location
+// has somewhere to go before that subject's own track has been fetched.
+const selectPatrolTrackedSubjectPositions = createSelector(
+  [selectPatrolTrackedSubjectsWithPatrolSegments, selectSubjectStore],
+  (patrolTrackedSubjectsWithPatrolSegments, subjectStore) => patrolTrackedSubjectsWithPatrolSegments
+    .reduce((trackedSubjectPositions, trackedSubject) => {
+      const coordinates = getSubjectLastPositionCoordinates(
+        subjectStore[trackedSubject.subject.id] ?? trackedSubject.subject
+      );
+
+      if (coordinates) {
+        trackedSubjectPositions[trackedSubject.subject.id] = coordinates;
+      }
+
+      return trackedSubjectPositions;
+    }, {}),
+  { memoizeOptions: { resultEqualityCheck: shallowEqual } }
+);
 
 export const selectPatrolTrackedSubjects = createSelector(
   [
@@ -332,6 +702,7 @@ export const selectPatrolTrackedSubjects = createSelector(
     patrolTrackedSubjectPositions,
     patrolTeamAndTrackingOptions,
     patrolRosterFallbackSubjects,
+    patrol,
     patrol.patrol_segments,
     patrol.patrol_segments.at(-1)?.leader?.id ?? null
   )
@@ -359,6 +730,7 @@ export const selectTrackedSubjectsPerPatrolSegment = createSelector(
       patrolTrackedSubjectPositions,
       patrolTeamAndTrackingOptions,
       patrolRosterFallbackSubjects,
+      patrol,
       [patrolSegment],
       patrolSegment.leader?.id ?? null
     ))
@@ -371,6 +743,7 @@ export const selectPatrolSegmentTrackedSubjects = createSelector(
     selectPatrolTrackedSubjectPositions,
     selectPatrolTeamAndTrackingOptions,
     selectPatrolRosterFallbackSubjects,
+    (_, patrol) => patrol,
     (_, __, patrolSegment) => patrolSegment,
   ],
   (
@@ -378,12 +751,14 @@ export const selectPatrolSegmentTrackedSubjects = createSelector(
     patrolTrackedSubjectPositions,
     patrolTeamAndTrackingOptions,
     patrolRosterFallbackSubjects,
+    patrol,
     patrolSegment
   ) => buildTrackedSubjects(
     patrolTrackedSubjectTracks,
     patrolTrackedSubjectPositions,
     patrolTeamAndTrackingOptions,
     patrolRosterFallbackSubjects,
+    patrol,
     [patrolSegment],
     patrolSegment.leader?.id ?? null
   )
@@ -455,41 +830,62 @@ export const selectIsPatrolTrackShown = createSelector(
   (patrolsWithTracks, patrolId) => patrolsWithTracks.some((patrolWithTracks) => patrolWithTracks.id === patrolId)
 );
 
-const selectPatrolsWithTracksSegmentLeaderTracks = createSelector(
-  [selectTracks, selectPatrolsWithTracks],
-  (tracks, patrolsWithTracks) => patrolsWithTracks.reduce((leaderTracks, patrol) => {
-    patrol.patrol_segments.forEach(({ leader }) => {
-      if (tracks[leader?.id]) {
-        leaderTracks[leader.id] = tracks[leader.id];
-      }
-    });
-    return leaderTracks;
-  }, {}),
+const selectPatrolsWithTracksRosterFallbackSubjects = createSelector(
+  [selectPatrolTeamAndTrackingOptions, selectPatrolsWithTracks, selectSubjectStore],
+  (patrolTeamAndTrackingOptions, patrolsWithTracks, subjectStore) =>
+    buildRosterFallbackSubjects(patrolsWithTracks, patrolTeamAndTrackingOptions, subjectStore),
   { memoizeOptions: { resultEqualityCheck: shallowEqual } }
 );
 
+// Every subject these patrols track and the leg times their tracks have to
+// reach: nothing else fetches them once the user navigates away.
+export const selectPatrolsWithTracksTrackedSubjectRequests = createSelector(
+  [selectPatrolTeamAndTrackingOptions, selectPatrolsWithTracks, selectPatrolsWithTracksRosterFallbackSubjects],
+  (patrolTeamAndTrackingOptions, patrolsWithTracks, patrolsWithTracksRosterFallbackSubjects) => patrolsWithTracks
+    .flatMap((patrol) => (patrol.patrol_segments ?? []).map((patrolSegment) => ({
+      since: patrolSegment.time_range?.start_time ?? null,
+      subjectIds: getTrackedSubjectsForPatrolSegment(
+        patrolSegment,
+        patrolTeamAndTrackingOptions,
+        patrolsWithTracksRosterFallbackSubjects
+      ).map((subject) => subject.id),
+      until: patrolSegment.time_range?.end_time ?? null,
+    })))
+    .filter((trackedSubjectRequest) => !!trackedSubjectRequest.subjectIds.length)
+);
+
+// The legend lists what the map draws, so it reads the same per patrol work
+// rather than a second copy of it: only the rows holding it are built here.
 export const selectPatrolsWithTracksData = createSelector(
-  [selectPatrolsWithTracks, selectTimeSliderState, selectTrackTimeEnvelope, selectPatrolsWithTracksSegmentLeaderTracks],
-  (patrolsWithTracks, timeSliderState, trackTimeEnvelope, patrolsWithTracksSegmentLeaderTracks) =>
-    patrolsWithTracks.map(
-      // Build the patrol data for each patrol with tracks.
-      (patrol) => ({
-        patrol,
-        ...buildPatrolData(patrol, timeSliderState, trackTimeEnvelope.until, patrolsWithTracksSegmentLeaderTracks),
-      })
-    )
+  [selectPatrolsWithTracks, (state) => state],
+  (patrolsWithTracks, state) => patrolsWithTracks
+    .map((patrol) => ({ patrol, ...selectPatrolMapTrackData(state, patrol) })),
+  { memoizeOptions: { resultEqualityCheck: arePatrolsTracksDataEqual } }
 );
 
 export const selectSubjectTracksWithPatrolTrackShownFlag = createSelector(
-  [selectPatrolsWithTracks, selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod],
-  (patrolsWithTracks, subjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod) =>
-    subjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod.map((subjectTracks) => {
-      const subjectId = subjectTracks.track.features[0].properties.id;
-      const isSubjectLeaderOfSomePatrol = patrolsWithTracks.some(
-        (patrol) => patrol.patrol_segments?.some((segment) => segment.leader?.id === subjectId)
-      );
+  [
+    selectPatrolTeamAndTrackingOptions,
+    selectPatrolsWithTracks,
+    selectPatrolsWithTracksRosterFallbackSubjects,
+    selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod,
+  ],
+  (
+    patrolTeamAndTrackingOptions,
+    patrolsWithTracks,
+    patrolsWithTracksRosterFallbackSubjects,
+    subjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod
+  ) => {
+    const patrolTrackedSubjectIds = new Set(patrolsWithTracks.flatMap((patrol) =>
+      (patrol.patrol_segments ?? []).flatMap((patrolSegment) => getTrackedSubjectsForPatrolSegment(
+        patrolSegment,
+        patrolTeamAndTrackingOptions,
+        patrolsWithTracksRosterFallbackSubjects
+      ).map((subject) => subject.id))));
 
-      // Map each subject tracks and add the patrolTrackShown flag.
-      return { ...subjectTracks, patrolTrackShown: isSubjectLeaderOfSomePatrol };
-    }),
+    return subjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod.map((subjectTracks) => ({
+      ...subjectTracks,
+      patrolTrackShown: patrolTrackedSubjectIds.has(subjectTracks.track.features[0].properties.id),
+    }));
+  }
 );

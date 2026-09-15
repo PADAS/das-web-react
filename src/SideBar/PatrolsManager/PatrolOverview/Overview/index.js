@@ -9,6 +9,7 @@ import {
   actualEndTimeForPatrolSegment,
   actualStartTimeForPatrol,
   actualStartTimeForPatrolSegment,
+  displayNumberForPatrolSegment,
   effectiveEndTimeForPatrolSegment,
   getElapsedTimeForPatrolSegment,
   getReportsForPatrol,
@@ -72,7 +73,7 @@ const Overview = ({
       return [];
     }
 
-    const legNumber = index + 1;
+    const legNumber = displayNumberForPatrolSegment(patrol.patrol_segments, index);
     const startTime = index > 0 ? actualStartTimeForPatrolSegment(patrolSegment) : null;
     const endTime = index < patrol.patrol_segments.length - 1 ? actualEndTimeForPatrolSegment(patrolSegment) : null;
 

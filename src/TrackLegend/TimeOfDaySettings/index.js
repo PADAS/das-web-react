@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
@@ -65,18 +65,23 @@ const COLORED_TIME_ITEMS = [
 const TimeOfDaySettings = ({ isExpanded, onCollapseTimeOfDaySettings, onExpandTimeOfDaySettings }) => {
   const { t } = useTranslation('tracks', { keyPrefix: 'trackLegend.timeOfDaySettings' });
 
+  // Every track legend on the map holds a copy of these settings, so none of
+  // them can name its own panel.
+  const bodyId = useId();
+  const informationTooltipId = useId();
+
   return <div className={styles.timeOfDaySettings}>
     <div className={styles.header}>
       <div className={styles.titleWrapper}>
-        <p className={styles.title}>{t('title')}</p>
+        <h2 className={styles.title}>{t('title')}</h2>
 
-        <OverlayTrigger overlay={<Tooltip id="time-of-day-information-tootltip">{t('informationTooltip')}</Tooltip>}>
+        <OverlayTrigger overlay={<Tooltip id={informationTooltipId}>{t('informationTooltip')}</Tooltip>}>
           <InformationIcon className={styles.informationIcon} />
         </OverlayTrigger>
       </div>
 
       <button
-        aria-controls="timeOfDaySettingsBody"
+        aria-controls={bodyId}
         aria-expanded={isExpanded}
         aria-label={t(`chevronButtonLabel.${isExpanded ? 'open' : 'closed'}`)}
         className={styles.chevronButton}
@@ -85,13 +90,13 @@ const TimeOfDaySettings = ({ isExpanded, onCollapseTimeOfDaySettings, onExpandTi
         type="button"
       >
         {isExpanded
-          ? <ArrowUpSimpleIcon className={styles.arrowIcon} data-testid="arrow-up-simple-icon" />
-          : <ArrowDownSimpleIcon className={styles.arrowIcon} data-testid="arrow-down-simple-icon" />}
+          ? <ArrowUpSimpleIcon aria-hidden="true" data-testid="timeOfDaySettings-collapseIcon" />
+          : <ArrowDownSimpleIcon aria-hidden="true" data-testid="timeOfDaySettings-expandIcon" />}
       </button>
     </div>
 
-    <Collapse id="timeOfDaySettingsBody" in={isExpanded}>
-      <div>
+    <Collapse id={bodyId} in={isExpanded}>
+      <div className={styles.body}>
         <TimeZoneSelect />
 
         <div className={styles.coloringDescription}>
@@ -99,9 +104,10 @@ const TimeOfDaySettings = ({ isExpanded, onCollapseTimeOfDaySettings, onExpandTi
 
           <ol className={styles.coloredTimesList}>
             {COLORED_TIME_ITEMS.map((coloredTimeItem) => <li className={styles.item} key={coloredTimeItem.key}>
-              <div
-                aria-label={t(`coloredTimeSquarLabels.${coloredTimeItem.color}`)}
+              <span
+                aria-label={t(`coloredTimeSquareLabels.${coloredTimeItem.color}`)}
                 className={`${styles.square} ${styles[coloredTimeItem.color]}`}
+                role="img"
               />
 
               <span>{coloredTimeItem.text}</span>

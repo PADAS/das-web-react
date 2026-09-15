@@ -10,10 +10,13 @@
     "summaryStats": {
       "activeTimeLabel": "सक्रिय समय",
       "distanceLabel": "दूरी",
-      "distanceSubjectButtonLabel": "{{subject}} ले तय गरेको दूरी। ट्र्याक गरिएको विषय परिवर्तन गर्नुहोस्",
-      "distanceSubjectMenuLabel": "ट्र्याक गरिएका विषयहरू",
+      "distanceMenuLabel": "दूरीले के समेट्छ",
+      "distanceOptionButtonLabel": "तय गरेको दूरी: {{option}}। दूरीले के समेट्छ भन्ने परिवर्तन गर्नुहोस्",
       "durationLabel": "अवधि",
       "eventsLabel": "घटनाहरू",
+      "legLeadOptionDescription": "प्रत्येक खण्डको नेताले वा नेता नभएको खण्डमा सबैभन्दा टाढा पुगेको टोली सदस्य वा उपकरणले तय गरेको कुल दूरी",
+      "legLeadOptionLabel_one": "खण्ड नेता",
+      "legLeadOptionLabel_other": "खण्ड नेताहरू",
       "pausedTimeLabel": "रोकिएको समय",
       "teamLeadIndicator": "टोली नेता"
     },
@@ -84,7 +87,11 @@
     "header": {
       "breadcrumbPatrolsLabel": "गस्तीहरू",
       "mobileProvenancePill": "मोबाइल",
-      "title": "खण्ड {{legNumber}} सम्पादन गर्नुहोस्"
+      "pauseIconLabel": "रोकाइ",
+      "title": {
+        "leg": "खण्ड {{number}} सम्पादन गर्नुहोस्",
+        "pause": "रोकाइ {{number}} सम्पादन गर्नुहोस्"
+      }
     },
     "saveErrorMessage": "गस्ती खण्ड सुरक्षित गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।"
   },
@@ -135,6 +142,10 @@
     "activityEmptyStateMessage": "खण्डको गतिविधि यहाँ देखा पर्नेछ",
     "addEventLinkErrorMessage": "घटना सुरक्षित भयो, तर यसलाई यो गस्ती खण्डमा थप्न सकिएन।",
     "attachmentsSaveErrorMessage": "केही संलग्न फाइलहरू अपलोड गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।",
+    "endedTitle": {
+      "leg": "खण्ड {{number}} समाप्त भयो",
+      "pause": "रोकाइ {{number}} समाप्त भयो"
+    },
     "footer": {
       "addEventButtonLabel": "यो गस्ती खण्डमा घटना रिपोर्ट गर्नुहोस्",
       "addEventButtonText": "घटना",
@@ -144,22 +155,30 @@
     "header": {
       "breadcrumbPatrolsLabel": "गस्तीहरू",
       "copyLinkMessage": "लिङ्क प्रतिलिपि भयो",
-      "copyLinkOption": "गस्ती खण्डको लिङ्क प्रतिलिपि गर्नुहोस्",
+      "copyLinkOption": {
+        "leg": "गस्ती खण्डको लिङ्क प्रतिलिपि गर्नुहोस्",
+        "pause": "गस्ती रोकाइको लिङ्क प्रतिलिपि गर्नुहोस्"
+      },
       "downloadTrackOption": "गस्ती खण्डको ट्रयाक डाउनलोड गर्नुहोस्",
       "fitToBoundsButtonLabel": "गस्ती खण्डको सीमामा जुम गर्नुहोस्",
       "jumpToLocationButtonLabel": "स्थानमा जानुहोस्",
       "mobileProvenancePill": "मोबाइल",
       "moreOptionsButtonLabel": "थप विकल्पहरू",
-      "printOption": "गस्ती खण्ड प्रिन्ट गर्नुहोस्",
-      "title": "खण्ड {{legNumber}}",
+      "pauseIconLabel": "रोकाइ",
+      "printOption": {
+        "leg": "गस्ती खण्ड प्रिन्ट गर्नुहोस्",
+        "pause": "गस्ती रोकाइ प्रिन्ट गर्नुहोस्"
+      },
+      "title": {
+        "leg": "खण्ड {{number}}",
+        "pause": "रोकाइ {{number}}"
+      },
       "toggleTrackButtonLabel": {
         "hidden": "गस्तीको ट्रयाक देखाउनुहोस्",
         "pinned": "गस्तीको ट्रयाक लुकाउनुहोस्",
         "visible": "गस्तीको ट्रयाक पिन गर्नुहोस्"
       }
     },
-    "legEndedTitle": "खण्ड {{legNumber}} समाप्त भयो",
-    "legStartedTitle": "खण्ड {{legNumber}} सुरु भयो",
     "plan": {
       "patrolTypeSchemaErrorMessage": "यो गस्ती प्रकारका फिल्डहरू लोड गर्न सकिएन।",
       "patrolTypeSchemaLoadingLabel": "यो गस्ती प्रकारका फिल्डहरू लोड हुँदैछन्",
@@ -179,7 +198,11 @@
       "universalFieldsSchemaErrorMessage": "विश्वव्यापी गस्ती फिल्डहरू लोड गर्न सकिएन।",
       "universalFieldsSchemaLoadingLabel": "विश्वव्यापी गस्ती फिल्डहरू लोड हुँदैछन्"
     },
-    "saveErrorMessage": "गस्ती खण्ड सुरक्षित गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।"
+    "saveErrorMessage": "गस्ती खण्ड सुरक्षित गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।",
+    "startedTitle": {
+      "leg": "खण्ड {{number}} सुरु भयो",
+      "pause": "रोकाइ {{number}} सुरु भयो"
+    }
   },
   "newLeg": {
     "footer": {
@@ -277,14 +300,17 @@
         "startColumnHeader": "सुरु मिति",
         "teamAndTracking": {
           "jumpToLocationButtonLabel": "{{subject}} को स्थानमा जानुहोस्",
-          "listLabel": "खण्ड {{legNumber}} द्वारा ट्र्याक गरिएका विषयहरू",
+          "listLabel": "खण्ड {{number}} द्वारा ट्र्याक गरिएका विषयहरू",
           "teamLeadIndicator": "टोली नेता",
           "toggleButtonLabel": "{{subject}} +{{extraSubjects}}",
-          "toggleButtonTitle": "खण्ड {{legNumber}} ले ट्र्याक गर्ने विषयहरू देखाउनुहोस्"
+          "toggleButtonTitle": "खण्ड {{number}} ले ट्र्याक गर्ने विषयहरू देखाउनुहोस्"
         },
         "teamColumnHeader": "टोली र ट्र्याकिङ",
-        "viewLegButtonLabel": "खण्ड {{legNumber}} हेर्नुहोस्",
-        "zoomToLegBoundsButtonLabel": "खण्ड {{legNumber}} को सीमामा मिलाउनुहोस्"
+        "viewLegButtonLabel": {
+          "leg": "खण्ड {{number}} हेर्नुहोस्",
+          "pause": "रोकाइ {{number}} हेर्नुहोस्"
+        },
+        "zoomToLegBoundsButtonLabel": "खण्ड {{number}} को सीमामा मिलाउनुहोस्"
       },
       "legStartedTitle": "खण्ड {{legNumber}} सुरु भयो",
       "patrolEndedTitle": "गस्ती समाप्त भएको",
@@ -295,6 +321,16 @@
     "overviewTabTitle": "सारांश",
     "saveErrorMessage": "गस्ती सुरक्षित गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।",
     "tabsLabel": "गस्ती सारांश ट्याबहरू"
+  },
+  "patrolStartStopLayer": {
+    "endMarkerLabel": "गस्तीको अन्त्य",
+    "estimatedEndMarkerLabel": "गस्तीको अन्त्य (अनुमानित)",
+    "estimatedStartAndEndMarkerLabel": "गस्तीको सुरु र अन्त्य (अनुमानित)",
+    "estimatedStartMarkerLabel": "गस्तीको सुरु (अनुमानित)",
+    "legMarkerLabel": "खण्ड {{legNumber}}",
+    "pauseMarkerLabel": "रोकाइ {{pauseNumber}}",
+    "startAndEndMarkerLabel": "गस्तीको सुरु र अन्त्य",
+    "startMarkerLabel": "गस्तीको सुरु"
   },
   "statusPill": {
     "uiStateTitles": {

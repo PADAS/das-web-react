@@ -10,10 +10,13 @@
     "summaryStats": {
       "activeTimeLabel": "Temps actif",
       "distanceLabel": "Distance",
-      "distanceSubjectButtonLabel": "Distance parcourue par {{subject}}. Changer le sujet suivi",
-      "distanceSubjectMenuLabel": "Sujets suivis",
+      "distanceMenuLabel": "Ce que la distance couvre",
+      "distanceOptionButtonLabel": "Distance parcourue : {{option}}. Changer ce que la distance couvre",
       "durationLabel": "Durée",
       "eventsLabel": "Événements",
+      "legLeadOptionDescription": "La distance totale parcourue par le chef de chaque étape ou, sur une étape sans chef, par le membre de l'équipe ou l'équipement allé le plus loin",
+      "legLeadOptionLabel_one": "Chef d'étape",
+      "legLeadOptionLabel_other": "Chefs d'étape",
       "pausedTimeLabel": "Temps en pause",
       "teamLeadIndicator": "Chef d'équipe"
     },
@@ -84,7 +87,11 @@
     "header": {
       "breadcrumbPatrolsLabel": "Patrouilles",
       "mobileProvenancePill": "Mobile",
-      "title": "Modifier l'étape {{legNumber}}"
+      "pauseIconLabel": "Pause",
+      "title": {
+        "leg": "Modifier l'étape {{number}}",
+        "pause": "Modifier la pause {{number}}"
+      }
     },
     "saveErrorMessage": "L'étape de la patrouille n'a pas pu être enregistrée. Veuillez réessayer."
   },
@@ -135,6 +142,10 @@
     "activityEmptyStateMessage": "L'activité de l'étape apparaîtra ici",
     "addEventLinkErrorMessage": "L'événement a été enregistré, mais n'a pas pu être ajouté à cette étape de la patrouille.",
     "attachmentsSaveErrorMessage": "Certaines pièces jointes n'ont pas pu être téléversées. Veuillez réessayer.",
+    "endedTitle": {
+      "leg": "Étape {{number}} terminée",
+      "pause": "Pause {{number}} terminée"
+    },
     "footer": {
       "addEventButtonLabel": "Signaler un événement sur cette étape de patrouille",
       "addEventButtonText": "Événement",
@@ -144,22 +155,30 @@
     "header": {
       "breadcrumbPatrolsLabel": "Patrouilles",
       "copyLinkMessage": "Lien copié",
-      "copyLinkOption": "Copier le lien de l'étape de patrouille",
+      "copyLinkOption": {
+        "leg": "Copier le lien de l'étape de patrouille",
+        "pause": "Copier le lien de la pause de patrouille"
+      },
       "downloadTrackOption": "Télécharger le tracé de l'étape de patrouille",
       "fitToBoundsButtonLabel": "Zoomer sur les limites de l'étape de patrouille",
       "jumpToLocationButtonLabel": "Aller à l'emplacement",
       "mobileProvenancePill": "Mobile",
       "moreOptionsButtonLabel": "Plus d'options",
-      "printOption": "Imprimer l'étape de patrouille",
-      "title": "Étape {{legNumber}}",
+      "pauseIconLabel": "Pause",
+      "printOption": {
+        "leg": "Imprimer l'étape de patrouille",
+        "pause": "Imprimer la pause de patrouille"
+      },
+      "title": {
+        "leg": "Étape {{number}}",
+        "pause": "Pause {{number}}"
+      },
       "toggleTrackButtonLabel": {
         "hidden": "Afficher le tracé de la patrouille",
         "pinned": "Masquer le tracé de la patrouille",
         "visible": "Épingler le tracé de la patrouille"
       }
     },
-    "legEndedTitle": "Étape {{legNumber}} terminée",
-    "legStartedTitle": "Étape {{legNumber}} démarrée",
     "plan": {
       "patrolTypeSchemaErrorMessage": "Les champs de ce type de patrouille n'ont pas pu être chargés.",
       "patrolTypeSchemaLoadingLabel": "Chargement des champs de ce type de patrouille",
@@ -179,7 +198,11 @@
       "universalFieldsSchemaErrorMessage": "Les champs universels de patrouille n'ont pas pu être chargés.",
       "universalFieldsSchemaLoadingLabel": "Chargement des champs universels de patrouille"
     },
-    "saveErrorMessage": "L'étape de la patrouille n'a pas pu être enregistrée. Veuillez réessayer."
+    "saveErrorMessage": "L'étape de la patrouille n'a pas pu être enregistrée. Veuillez réessayer.",
+    "startedTitle": {
+      "leg": "Étape {{number}} démarrée",
+      "pause": "Pause {{number}} démarrée"
+    }
   },
   "newLeg": {
     "footer": {
@@ -277,14 +300,17 @@
         "startColumnHeader": "Date de début",
         "teamAndTracking": {
           "jumpToLocationButtonLabel": "Aller à l'emplacement de {{subject}}",
-          "listLabel": "Sujets suivis par l'étape {{legNumber}}",
+          "listLabel": "Sujets suivis par l'étape {{number}}",
           "teamLeadIndicator": "Chef d'équipe",
           "toggleButtonLabel": "{{subject}} +{{extraSubjects}}",
-          "toggleButtonTitle": "Afficher les sujets suivis par l'étape {{legNumber}}"
+          "toggleButtonTitle": "Afficher les sujets suivis par l'étape {{number}}"
         },
         "teamColumnHeader": "Équipe et suivi",
-        "viewLegButtonLabel": "Voir l'étape {{legNumber}}",
-        "zoomToLegBoundsButtonLabel": "Ajuster aux limites de l'étape {{legNumber}}"
+        "viewLegButtonLabel": {
+          "leg": "Voir l'étape {{number}}",
+          "pause": "Voir la pause {{number}}"
+        },
+        "zoomToLegBoundsButtonLabel": "Ajuster aux limites de l'étape {{number}}"
       },
       "legStartedTitle": "Étape {{legNumber}} démarrée",
       "patrolEndedTitle": "Patrouille terminée",
@@ -295,6 +321,16 @@
     "overviewTabTitle": "Aperçu",
     "saveErrorMessage": "La patrouille n'a pas pu être enregistrée. Veuillez réessayer.",
     "tabsLabel": "Onglets de l'aperçu de la patrouille"
+  },
+  "patrolStartStopLayer": {
+    "endMarkerLabel": "Fin de la patrouille",
+    "estimatedEndMarkerLabel": "Fin de la patrouille (est.)",
+    "estimatedStartAndEndMarkerLabel": "Début et fin de la patrouille (est.)",
+    "estimatedStartMarkerLabel": "Début de la patrouille (est.)",
+    "legMarkerLabel": "Étape {{legNumber}}",
+    "pauseMarkerLabel": "Pause {{pauseNumber}}",
+    "startAndEndMarkerLabel": "Début et fin de la patrouille",
+    "startMarkerLabel": "Début de la patrouille"
   },
   "statusPill": {
     "uiStateTitles": {

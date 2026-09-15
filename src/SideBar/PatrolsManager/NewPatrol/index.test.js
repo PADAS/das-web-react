@@ -70,7 +70,7 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
         coordinateReferenceSystems: { storedSystems: [] },
         mapLocationSelection: { isPickingLocation: false },
         modals: { canShowModals: true },
-        patrolTrackState: { pinned: [], visible: [] },
+        patrolTrackState: { hiddenSubjects: {}, pinned: [], visible: [] },
         showUserLocation: false,
         userLocation: null,
         userPreferences: {

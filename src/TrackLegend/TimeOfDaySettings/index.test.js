@@ -41,16 +41,16 @@ describe('TrackLegend - TimeOfDaySettings', () => {
     renderTimeOfDaySettings();
 
     expect(screen.getByLabelText('Collapse the time of day settings')).toHaveAttribute('aria-expanded', 'true');
-    expect(screen.getByTestId('arrow-up-simple-icon')).toBeVisible();
-    expect(screen.queryByTestId('arrow-down-simple-icon')).toBeNull();
+    expect(screen.getByTestId('timeOfDaySettings-collapseIcon')).toBeVisible();
+    expect(screen.queryByTestId('timeOfDaySettings-expandIcon')).toBeNull();
   });
 
   test('shows the time of day settings collapsed', async () => {
     renderTimeOfDaySettings({ isExpanded: false });
 
     expect(screen.getByLabelText('Expand the time of day settings')).toHaveAttribute('aria-expanded', 'false');
-    expect(screen.getByTestId('arrow-down-simple-icon')).toBeVisible();
-    expect(screen.queryByTestId('arrow-up-simple-icon')).toBeNull();
+    expect(screen.getByTestId('timeOfDaySettings-expandIcon')).toBeVisible();
+    expect(screen.queryByTestId('timeOfDaySettings-collapseIcon')).toBeNull();
   });
 
   test('collapses the time of day settings', async () => {

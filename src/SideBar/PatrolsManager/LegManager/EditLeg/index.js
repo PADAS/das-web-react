@@ -11,7 +11,9 @@ import buildLegDraft from '../../utils/buildLegDraft';
 import buildLegSegment from '../../LegForm/utils/buildLegSegment';
 import {
   canEditPatrolSegment,
+  displayNumberForPatrolSegment,
   earliestStartForEditedPatrolSegment,
+  isPatrolSegmentAPause,
   latestEndForEditedPatrolSegment,
 } from '../../../../utils/patrols';
 import { EDIT_LEG_CATEGORY, TrackerContext, trackEventFactory } from '../../../../utils/analytics';
@@ -89,6 +91,7 @@ const EditLegContent = ({ patrol, patrolSegment }) => {
   const patrolSegmentIndex = patrol.patrol_segments.indexOf(patrolSegment);
 
   const isFirstLeg = patrolSegmentIndex === 0;
+  const isPause = isPatrolSegmentAPause(patrolSegment);
 
   const legOverviewPath = `/${TAB_KEYS.PATROLS}/${patrol.id}/legs/${patrolSegment.id}`;
 
@@ -167,13 +170,20 @@ const EditLegContent = ({ patrol, patrolSegment }) => {
     />
 
     <div className={styles.editLeg}>
-      <Header legNumber={patrolSegmentIndex + 1} legState={legState} patrol={patrol} patrolSegment={patrolSegment} />
+      <Header
+        legNumber={displayNumberForPatrolSegment(patrol.patrol_segments, patrolSegmentIndex)}
+        legState={legState}
+        patrol={patrol}
+        patrolSegment={patrolSegment}
+        patrolType={leg.patrolType}
+      />
 
       <div className={styles.body}>
         <LegForm
           earliestStartDateTime={earliestStartDateTime}
           formId={legFormId}
           isFirstLeg={isFirstLeg}
+          isPause={isPause}
           latestEndDateTime={latestEndDateTime}
           leg={leg}
           onChangeLeg={onChangeLeg}

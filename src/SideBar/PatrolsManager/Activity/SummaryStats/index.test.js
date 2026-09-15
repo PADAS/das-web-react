@@ -121,8 +121,10 @@ describe('SideBar - PatrolsManager - Activity - SummaryStats', () => {
     [...document.querySelectorAll('dt')].map((label) => [label.textContent, label.nextElementSibling.textContent])
   );
 
-  const openTrackedSubjectsMenu = async (subjectName) => {
-    await user.click(screen.getByRole('button', { name: `Distance covered by ${subjectName}. Change the tracked subject` }));
+  const distanceButtonName = (optionName) => `Distance covered: ${optionName}. Change what the distance covers`;
+
+  const openDistanceMenu = async (optionName) => {
+    await user.click(screen.getByRole('button', { name: distanceButtonName(optionName) }));
   };
 
   test('shows the duration, paused time, active time, distance and event count of the patrol', () => {
@@ -130,7 +132,7 @@ describe('SideBar - PatrolsManager - Activity - SummaryStats', () => {
 
     expect(readSummaryStats()).toEqual({
       'Active Time': '2h 30m',
-      'Distance': '55.6km',
+      'Distance': '166.8km',
       'Duration': '2h 30m',
       'Events': '3',
       'Paused Time': '0m',
@@ -277,12 +279,23 @@ describe('SideBar - PatrolsManager - Activity - SummaryStats', () => {
     expect(readSummaryStats()['Distance']).toBe('-');
   });
 
-  test('shows no distance covered by a tracked subject that did not move during the patrol', () => {
-    store.data.tracks = { [DOG.id]: trackFor([[0, 0], [0, 0]], SECOND_LEG_TIME_RANGE) };
+  test('shows no distance covered by a patrol whose leads did not move', () => {
+    store.data.tracks = {
+      [DOG.id]: trackFor([[0, 0], [0, 0]], SECOND_LEG_TIME_RANGE),
+      [RANGER.id]: trackFor([[0, 0], [0, 0]], FIRST_LEG_TIME_RANGE),
+    };
 
     renderSummaryStats();
 
     expect(readSummaryStats()['Distance']).toBe('0km');
+  });
+
+  test('shows a dash as the distance of a patrol with a leg whose lead has no track yet', () => {
+    store.data.tracks = { [DOG.id]: trackFor([[0, 0.5], [0, 0]], SECOND_LEG_TIME_RANGE) };
+
+    renderSummaryStats();
+
+    expect(readSummaryStats()['Distance']).toBe('-');
   });
 
   test('adds up the distance a tracked subject covered across every leg it took part in', () => {
@@ -321,76 +334,105 @@ describe('SideBar - PatrolsManager - Activity - SummaryStats', () => {
     expect(readSummaryStats()['Distance']).toBe('222.4km');
   });
 
-  test('shows the distance covered by the team lead by default', () => {
+  test('adds up what the lead of every leg covered by default', () => {
     renderSummaryStats();
 
-    expect(screen.getByRole('button', { name: 'Distance covered by K9 Rex. Change the tracked subject' }))
-      .toBeInTheDocument();
-    expect(readSummaryStats()['Distance']).toBe('55.6km');
+    expect(screen.getByRole('button', { name: distanceButtonName('Leg leads') })).toBeInTheDocument();
+    expect(readSummaryStats()['Distance']).toBe('166.8km');
   });
 
-  test('lists every tracked subject of the patrol, the team lead first', async () => {
-    renderSummaryStats();
+  test('stands a leg with no lead on the subject it tracks that went furthest', () => {
+    const leaderlessPatrol = {
+      ...endedPatrol,
+      patrol_segments: [{
+        assets: [],
+        id: 'leg-1',
+        leader: null,
+        members: [DOG.id, RANGER.id],
+        time_range: FIRST_LEG_TIME_RANGE,
+      }],
+    };
 
-    await openTrackedSubjectsMenu('K9 Rex');
+    renderSummaryStats({ patrol: leaderlessPatrol });
 
-    expect(screen.getByRole('menu', { name: 'Tracked subjects' })).toBeInTheDocument();
-    expect(screen.getAllByRole('menuitemradio').map((option) => option.title)).toEqual(['K9 Rex', 'Ranger Amara']);
+    expect(screen.getByRole('button', { name: distanceButtonName('Leg lead') })).toBeInTheDocument();
+    expect(readSummaryStats()['Distance']).toBe('111.2km');
   });
 
-  test('checks the tracked subject the distance belongs to', async () => {
+  test('offers the leg leads and every tracked subject of the patrol, the team lead first', async () => {
     renderSummaryStats();
 
-    await openTrackedSubjectsMenu('K9 Rex');
+    await openDistanceMenu('Leg leads');
 
-    expect(screen.getByRole('menuitemradio', { name: 'K9 Rex Team lead' })).toBeChecked();
+    expect(screen.getByRole('menu', { name: 'What the distance covers' })).toBeInTheDocument();
+    expect(screen.getAllByRole('menuitemradio').map((option) => option.title))
+      .toEqual(['Leg leads', 'K9 Rex', 'Ranger Amara']);
+  });
+
+  test('describes what the leg leads option covers', async () => {
+    renderSummaryStats();
+
+    await openDistanceMenu('Leg leads');
+
+    expect(screen.getByRole('menuitemradio', { name: 'Leg leads' })).toHaveAccessibleDescription(
+      'The total distance covered by each leg\'s lead, or by the team member'
+      + ' or asset that went furthest on a leg with no lead'
+    );
+  });
+
+  test('checks what the distance covers', async () => {
+    renderSummaryStats();
+
+    await openDistanceMenu('Leg leads');
+
+    expect(screen.getByRole('menuitemradio', { name: 'Leg leads' })).toBeChecked();
+    expect(screen.getByRole('menuitemradio', { name: 'K9 Rex Team lead' })).not.toBeChecked();
     expect(screen.getByRole('menuitemradio', { name: 'Ranger Amara' })).not.toBeChecked();
   });
 
   test('shows the icon of the tracked subjects that have one', async () => {
     renderSummaryStats();
 
-    await openTrackedSubjectsMenu('K9 Rex');
+    await openDistanceMenu('Leg leads');
 
     expect(screen.getByRole('menuitemradio', { name: 'Ranger Amara' }).querySelector('img')).toBeInTheDocument();
     expect(screen.getByRole('menuitemradio', { name: 'K9 Rex Team lead' }).querySelector('img')).toBeNull();
+    expect(screen.getByRole('menuitemradio', { name: 'Leg leads' }).querySelector('img')).toBeNull();
   });
 
   test('shows the distance covered by the tracked subject chosen from the menu', async () => {
     renderSummaryStats();
 
-    await openTrackedSubjectsMenu('K9 Rex');
+    await openDistanceMenu('Leg leads');
     await user.click(screen.getByRole('menuitemradio', { name: 'Ranger Amara' }));
 
     expect(readSummaryStats()['Distance']).toBe('111.2km');
-    expect(screen.getByRole('button', { name: 'Distance covered by Ranger Amara. Change the tracked subject' }))
-      .toBeInTheDocument();
+    expect(screen.getByRole('button', { name: distanceButtonName('Ranger Amara') })).toBeInTheDocument();
   });
 
-  test('closes the menu and gives the focus back to its button after choosing a tracked subject', async () => {
+  test('closes the menu and gives the focus back to its button after choosing an option', async () => {
     renderSummaryStats();
 
-    await openTrackedSubjectsMenu('K9 Rex');
+    await openDistanceMenu('Leg leads');
     await user.click(screen.getByRole('menuitemradio', { name: 'Ranger Amara' }));
 
     await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
-    expect(screen.getByRole('button', { name: 'Distance covered by Ranger Amara. Change the tracked subject' }))
-      .toHaveFocus();
+    expect(screen.getByRole('button', { name: distanceButtonName('Ranger Amara') })).toHaveFocus();
   });
 
-  test('reports choosing a tracked subject to the analytics tracker', async () => {
+  test('reports choosing an option to the analytics tracker', async () => {
     renderSummaryStats();
 
-    await openTrackedSubjectsMenu('K9 Rex');
+    await openDistanceMenu('Leg leads');
 
     expect(tracker.track).not.toHaveBeenCalled();
 
     await user.click(screen.getByRole('menuitemradio', { name: 'Ranger Amara' }));
 
-    expect(tracker.track).toHaveBeenCalledWith('Select the subject of the distance stat');
+    expect(tracker.track).toHaveBeenCalledWith('Select what the distance stat covers');
   });
 
-  test('moves the focus among the tracked subjects that are left after the patrol changes', async () => {
+  test('moves the focus among the options that are left after the patrol changes', async () => {
     const threeLeggedPatrol = {
       ...endedPatrol,
       patrol_segments: [
@@ -401,7 +443,7 @@ describe('SideBar - PatrolsManager - Activity - SummaryStats', () => {
 
     const { rerenderSummaryStats } = renderSummaryStats({ patrol: threeLeggedPatrol });
 
-    await openTrackedSubjectsMenu('Pilot Zoe');
+    await openDistanceMenu('Leg leads');
     await user.keyboard('{End}');
 
     expect(screen.getByRole('menuitemradio', { name: 'K9 Rex' })).toHaveFocus();
@@ -413,79 +455,77 @@ describe('SideBar - PatrolsManager - Activity - SummaryStats', () => {
     expect(screen.getByRole('menuitemradio', { name: 'Ranger Amara' })).toHaveFocus();
   });
 
-  describe('with the tracked subjects menu open', () => {
-    let distanceSubjectButton;
+  describe('with the distance menu open', () => {
+    let distanceButton;
     beforeEach(async () => {
       renderSummaryStats();
 
-      await openTrackedSubjectsMenu('K9 Rex');
+      await openDistanceMenu('Leg leads');
 
-      distanceSubjectButton = screen.getByRole('button', {
-        name: 'Distance covered by K9 Rex. Change the tracked subject',
-      });
+      distanceButton = screen.getByRole('button', { name: distanceButtonName('Leg leads') });
     });
 
     test('reports the menu as expanded', () => {
-      expect(distanceSubjectButton).toHaveAttribute('aria-expanded', 'true');
-      expect(distanceSubjectButton).toHaveAttribute('aria-controls', screen.getByRole('menu').id);
+      expect(distanceButton).toHaveAttribute('aria-expanded', 'true');
+      expect(distanceButton).toHaveAttribute('aria-controls', screen.getByRole('menu').id);
     });
 
     test('closes the menu with its own button', async () => {
-      await user.click(distanceSubjectButton);
+      await user.click(distanceButton);
 
-      expect(distanceSubjectButton).toHaveAttribute('aria-expanded', 'false');
+      expect(distanceButton).toHaveAttribute('aria-expanded', 'false');
       await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
     });
 
-    test('focuses the checked tracked subject', () => {
-      expect(screen.getByRole('menuitemradio', { name: 'K9 Rex Team lead' })).toHaveFocus();
+    test('focuses the checked option', () => {
+      expect(screen.getByRole('menuitemradio', { name: 'Leg leads' })).toHaveFocus();
     });
 
-    test('moves the focus to the next tracked subject with the down arrow key, wrapping around', async () => {
-      await user.keyboard('{ArrowDown}');
-
-      expect(screen.getByRole('menuitemradio', { name: 'Ranger Amara' })).toHaveFocus();
-
+    test('moves the focus to the next option with the down arrow key, wrapping around', async () => {
       await user.keyboard('{ArrowDown}');
 
       expect(screen.getByRole('menuitemradio', { name: 'K9 Rex Team lead' })).toHaveFocus();
+
+      await user.keyboard('{ArrowDown}{ArrowDown}');
+
+      expect(screen.getByRole('menuitemradio', { name: 'Leg leads' })).toHaveFocus();
     });
 
-    test('moves the focus to the previous tracked subject with the up arrow key, wrapping around', async () => {
+    test('moves the focus to the previous option with the up arrow key, wrapping around', async () => {
       await user.keyboard('{ArrowUp}');
 
       expect(screen.getByRole('menuitemradio', { name: 'Ranger Amara' })).toHaveFocus();
 
-      await user.keyboard('{ArrowUp}');
+      await user.keyboard('{ArrowUp}{ArrowUp}');
 
-      expect(screen.getByRole('menuitemradio', { name: 'K9 Rex Team lead' })).toHaveFocus();
+      expect(screen.getByRole('menuitemradio', { name: 'Leg leads' })).toHaveFocus();
     });
 
-    test('moves the focus to the last tracked subject with the end key', async () => {
+    test('moves the focus to the last option with the end key', async () => {
       await user.keyboard('{End}');
 
       expect(screen.getByRole('menuitemradio', { name: 'Ranger Amara' })).toHaveFocus();
     });
 
-    test('moves the focus to the first tracked subject with the home key', async () => {
+    test('moves the focus to the first option with the home key', async () => {
       await user.keyboard('{End}');
       await user.keyboard('{Home}');
 
-      expect(screen.getByRole('menuitemradio', { name: 'K9 Rex Team lead' })).toHaveFocus();
+      expect(screen.getByRole('menuitemradio', { name: 'Leg leads' })).toHaveFocus();
     });
 
-    test('leaves the checked tracked subject alone while moving the focus around', async () => {
+    test('leaves the checked option alone while moving the focus around', async () => {
       await user.keyboard('{ArrowDown}');
 
-      expect(readSummaryStats()['Distance']).toBe('55.6km');
-      expect(screen.getByRole('menuitemradio', { name: 'K9 Rex Team lead' })).toBeChecked();
+      expect(readSummaryStats()['Distance']).toBe('166.8km');
+      expect(screen.getByRole('menuitemradio', { name: 'Leg leads' })).toBeChecked();
     });
 
     test('closes the menu and gives the focus back to its button with the escape key', async () => {
       await user.keyboard('{Escape}');
 
       await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
-      expect(distanceSubjectButton).toHaveFocus();
+      expect(distanceButton).toHaveFocus();
     });
 
     test('closes the menu with the tab key, giving the focus back to its button without trapping it', async () => {
@@ -495,25 +535,25 @@ describe('SideBar - PatrolsManager - Activity - SummaryStats', () => {
 
       expect(tabKeyDown.defaultPrevented).toBe(false);
       await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
-      expect(distanceSubjectButton).toHaveFocus();
+      expect(distanceButton).toHaveFocus();
     });
 
     test('ignores any other key', async () => {
       await user.keyboard('a');
 
-      expect(screen.getByRole('menu', { name: 'Tracked subjects' })).toBeInTheDocument();
-      expect(screen.getByRole('menuitemradio', { name: 'K9 Rex Team lead' })).toHaveFocus();
+      expect(screen.getByRole('menu', { name: 'What the distance covers' })).toBeInTheDocument();
+      expect(screen.getByRole('menuitemradio', { name: 'Leg leads' })).toHaveFocus();
     });
 
     test('closes the menu and gives the focus back to its button when clicking outside of it', async () => {
       await user.click(document.body);
 
       await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
-      expect(distanceSubjectButton).toHaveFocus();
+      expect(distanceButton).toHaveFocus();
     });
 
     test('leaves the focus alone when the track of a tracked subject updates', async () => {
-      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{End}');
 
       store = {
         ...store,
@@ -526,7 +566,7 @@ describe('SideBar - PatrolsManager - Activity - SummaryStats', () => {
         reduxStore.dispatch({ type: 'SOCKET_STATUS_UPDATE' });
       });
 
-      expect(readSummaryStats()['Distance']).toBe('111.2km');
+      expect(readSummaryStats()['Distance']).toBe('222.4km');
       expect(screen.getByRole('menuitemradio', { name: 'Ranger Amara' })).toHaveFocus();
     });
   });
@@ -565,13 +605,13 @@ describe('SideBar - PatrolsManager - Activity - SummaryStats', () => {
       expect(readSummaryStats()['Duration']).toBe('2h 1m');
     });
 
-    test('offers only the subjects that leg tracks', async () => {
+    test('offers only the subjects that leg tracks, its own lead first and no lead sum', async () => {
       renderSummaryStats({ patrolSegment: endedPatrol.patrol_segments[1] });
 
-      await openTrackedSubjectsMenu(DOG.name);
+      await openDistanceMenu(DOG.name);
 
-      expect(screen.getByRole('menuitemradio', { name: `${DOG.name} Team lead` })).toBeInTheDocument();
-      expect(screen.queryByRole('menuitemradio', { name: RANGER.name })).not.toBeInTheDocument();
+      expect(screen.getAllByRole('menuitemradio').map((option) => option.title)).toEqual([DOG.name]);
+      expect(screen.queryByRole('menuitemradio', { name: 'Leg leads' })).not.toBeInTheDocument();
     });
 
     test('offers the team members and the assets of a leg alongside its lead', async () => {
@@ -585,7 +625,7 @@ describe('SideBar - PatrolsManager - Activity - SummaryStats', () => {
 
       renderSummaryStats({ patrolSegment });
 
-      await openTrackedSubjectsMenu(RANGER.name);
+      await openDistanceMenu(RANGER.name);
 
       expect(screen.getAllByRole('menuitemradio').map((option) => option.title))
         .toEqual([RANGER.name, PILOT.name, TRUCK.name]);

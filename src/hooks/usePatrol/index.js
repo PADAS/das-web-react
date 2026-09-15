@@ -21,7 +21,7 @@ import {
   patrolStateDetailsStartTime,
 } from '../../utils/patrols';
 
-import { selectPatrolTrackData } from '../../selectors/patrols';
+import { selectPatrolLeadSumDistance, selectPatrolTrackData } from '../../selectors/patrols';
 import { PATROL_UI_STATES } from '../../constants';
 import { updatePatrol } from '../../ducks/patrols';
 import usePatrolState from '../usePatrolState';
@@ -29,6 +29,7 @@ import usePatrolState from '../usePatrolState';
 const usePatrol = (patrol) => {
   const dispatch = useDispatch();
 
+  const patrolLeadSumDistance = useSelector((state) => selectPatrolLeadSumDistance(state, patrol));
   const patrolTrackData = useSelector((state) => selectPatrolTrackData(state, patrol));
   const patrolTrackState = useSelector(state =>  state?.view?.patrolTrackState);
   const trackState = useSelector(state => state?.view?.subjectTrackState);
@@ -47,8 +48,8 @@ const usePatrol = (patrol) => {
   const actualEndTime = useMemo(() => actualEndTimeForPatrol(patrol), [patrol]);
   const actualStartTime = useMemo(() => actualStartTimeForPatrol(patrol), [patrol]);
   const canShowTrack = useMemo(
-    () => patrolHasGeoDataToDisplay(patrolTrackData.trackData, patrolTrackData.startStopGeometries),
-    [patrolTrackData.startStopGeometries, patrolTrackData.trackData]
+    () => patrolHasGeoDataToDisplay(patrolTrackData.trackData),
+    [patrolTrackData.trackData]
   );
   const displayTitle = useMemo(
     () => displayTitleForPatrol(patrol, patrolTrackData.leader),
@@ -104,6 +105,7 @@ const usePatrol = (patrol) => {
   }, [onPatrolChange, patrol]);
 
   return {
+    patrolLeadSumDistance,
     patrolTrackData,
     patrolTrackState,
     trackState,

@@ -102,7 +102,7 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview', () => {
       },
       view: {
         coordinateReferenceSystems: { storedSystems: [] },
-        patrolTrackState: { pinned: [], visible: [] },
+        patrolTrackState: { hiddenSubjects: {}, pinned: [], visible: [] },
         systemConfig: { [SYSTEM_CONFIG_FLAGS.EVENTS]: true },
         timeSliderState: { active: false },
         trackSettings: { length: 21, origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH },
@@ -150,7 +150,7 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview', () => {
     expect(screen.getByRole('link', { name: 'Edit' })).toBeInTheDocument();
   });
 
-  test('numbers a leg by its place among every segment, pauses included', () => {
+  test('numbers a leg by its place among the legs, skipping the pauses between them', () => {
     const pause = { ...endedPatrolSegment, id: 'pause-1', is_pause: true };
 
     renderLegOverview({
@@ -158,7 +158,7 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview', () => {
       patrol: { ...patrol, patrol_segments: [endedPatrolSegment, pause, activePatrolSegment] },
     });
 
-    expect(screen.getByRole('heading', { level: 2, name: 'Leg 3' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'Leg 2' })).toBeInTheDocument();
   });
 
   test('redirects to the patrol when the leg is not one of its own', async () => {
@@ -345,7 +345,7 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview', () => {
     expect(screen.getByRole('textbox')).toHaveValue('A new note');
   });
 
-  test('shows a pause as the leg it is, standing still for the whole of its duration', () => {
+  test('names a pause after the pauses of its patrol', () => {
     const pause = {
       ...activePatrolSegment,
       id: 'pause-1',
@@ -358,11 +358,39 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview', () => {
       patrol: { ...patrol, patrol_segments: [endedPatrolSegment, pause] },
     });
 
-    expect(screen.getByRole('heading', { level: 2, name: 'Leg 2' })).toBeInTheDocument();
-    expect(screen.getByText('Duration').nextElementSibling).toHaveTextContent('1h');
-    expect(screen.getByText('Paused Time').nextElementSibling).toHaveTextContent('1h');
-    expect(screen.getByText('Active Time').nextElementSibling).toHaveTextContent('0m');
-    expect(screen.getByText('Team Lead')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'Pause 1' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Pause' })).toBeInTheDocument();
+  });
+
+  test('keeps the activity of a pause but none of the stats a leg that ran reports', () => {
+    const pause = { ...activePatrolSegment, id: 'pause-1', is_pause: true };
+
+    renderLegOverview({
+      legId: pause.id,
+      patrol: { ...patrol, patrol_segments: [endedPatrolSegment, pause] },
+    });
+
+    expect(screen.getByRole('heading', { level: 2, name: 'Activity' })).toBeInTheDocument();
+    expect(screen.queryByText('Duration')).not.toBeInTheDocument();
+    expect(screen.queryByText('Paused Time')).not.toBeInTheDocument();
+    expect(screen.queryByText('Active Time')).not.toBeInTheDocument();
+    expect(screen.queryByText('Distance')).not.toBeInTheDocument();
+    expect(screen.queryByText('Events')).not.toBeInTheDocument();
+  });
+
+  test('shows nothing but the times and locations of a pause', () => {
+    const pause = { ...activePatrolSegment, id: 'pause-1', is_pause: true };
+
+    renderLegOverview({
+      legId: pause.id,
+      patrol: { ...patrol, patrol_segments: [endedPatrolSegment, pause] },
+    });
+
+    expect(screen.getByText('Start')).toBeInTheDocument();
+    expect(screen.getByText('End')).toBeInTheDocument();
+    expect(screen.queryByText('Team Lead')).not.toBeInTheDocument();
+    expect(screen.queryByText('Team Members')).not.toBeInTheDocument();
+    expect(screen.queryByText('Assets')).not.toBeInTheDocument();
   });
 
   test('lets a pause the patrol is sitting on take notes, attachments and events', () => {

@@ -13,8 +13,18 @@ import { LINK_TYPES } from '../../../constants';
 import LinkItem from '.';
 
 const store = {
-  data: { eventFilter: { filter: { date_range: {} } }, eventTypes: [], patrolTypes: [], tracks: {} },
-  view: { timeSliderState: {}, trackSettings: { origin: 'eventFilter' } },
+  data: {
+    eventFilter: { filter: { date_range: {} } },
+    eventTypes: [],
+    patrolTypes: [],
+    subjectStore: {},
+    tracks: {},
+  },
+  view: {
+    patrolTrackState: { hiddenSubjects: {}, pinned: [], visible: [] },
+    timeSliderState: {},
+    trackSettings: { origin: 'eventFilter' },
+  },
 };
 
 jest.mock('../../../store', () => mockStore(store));

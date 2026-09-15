@@ -9,7 +9,8 @@ import { ReactComponent as FitScreenIcon } from '../../../../../common/images/ic
 import {
   canPatrolTakeNewLegs,
   displayEndTimeForPatrolSegment,
-  displayNameForPatrolType,
+  displayNameForPatrolSegment,
+  displayNumberForPatrolSegment,
   displayStartTimeForPatrolSegment,
   getBoundsForPatrolSegment,
   hasPatrolSegmentNotRun,
@@ -18,7 +19,7 @@ import {
 } from '../../../../../utils/patrols';
 import { EMPTY_VALUE, PATROL_UI_STATES, TAB_KEYS } from '../../../../../constants';
 import { format, STANDARD_DATE_FORMAT } from '../../../../../utils/datetime';
-import { selectPatrolTrackData, selectTrackedSubjectsPerPatrolSegment } from '../../../../../selectors/patrols';
+import { selectPatrolSegmentsTrackData, selectTrackedSubjectsPerPatrolSegment } from '../../../../../selectors/patrols';
 import { TrackerContext } from '../../../../../utils/analytics';
 import useJumpToLocation from '../../../../../hooks/useJumpToLocation';
 import useNavigate from '../../../../../hooks/useNavigate';
@@ -32,6 +33,10 @@ import * as styles from './styles.module.scss';
 
 const SIMPLIFIED_DATE_FORMAT = 'MM/dd/yyyy HH:mm';
 
+// A pause is numbered among the pauses, so what a label calls a row changes
+// with the kind of segment it shows.
+const labelKeyForLeg = (leg, labelKey) => `${labelKey}.${leg.isPause ? 'pause' : 'leg'}`;
+
 const Legs = ({ patrol, patrolState }) => {
   const navigate = useNavigate();
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolOverview.overview.legs' });
@@ -41,7 +46,7 @@ const Legs = ({ patrol, patrolState }) => {
   const { hasPatrolsUpdatePermission } = usePatrolsPermissions();
   const jumpToLocation = useJumpToLocation();
 
-  const patrolTrackData = useSelector((state) => selectPatrolTrackData(state, patrol));
+  const patrolSegmentsTrackData = useSelector((state) => selectPatrolSegmentsTrackData(state, patrol));
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
   const trackedSubjectsPerPatrolSegment = useSelector(
     (state) => selectTrackedSubjectsPerPatrolSegment(state, patrol)
@@ -55,14 +60,14 @@ const Legs = ({ patrol, patrolState }) => {
     const hasNotRun = hasPatrolSegmentNotRun(patrol, patrolSegment);
 
     return {
-      bbox: getBoundsForPatrolSegment(patrolSegment, patrolTrackData.legsTrackData?.[index]),
+      bbox: getBoundsForPatrolSegment(patrolSegment, patrolSegmentsTrackData[index]),
       end: hasNotRun ? scheduledEndTimeForPatrolSegment(patrolSegment) : displayEndTimeForPatrolSegment(patrolSegment),
       hasNotRun,
       id: patrolSegment.id,
       isPause: isPatrolSegmentAPause(patrolSegment),
-      number: index + 1,
+      number: displayNumberForPatrolSegment(patrol.patrol_segments, index),
       overviewPath: `/${TAB_KEYS.PATROLS}/${patrol.id}/legs/${patrolSegment.id}`,
-      patrolTypeDisplay: displayNameForPatrolType(patrolTypes, patrolSegment.patrol_type),
+      patrolTypeDisplay: displayNameForPatrolSegment(patrolTypes, patrolSegment),
       start: displayStartTimeForPatrolSegment(patrolSegment),
       trackedSubjects: trackedSubjectsPerPatrolSegment[index] ?? [],
     };
@@ -125,44 +130,51 @@ const Legs = ({ patrol, patrolState }) => {
               key={leg.id}
               onClick={onNavigateToLeg(leg)}
             >
-            <td>
-              {leg.number}
+            {leg.isPause
+              ? <td colSpan={2}>
+                <StatusPill className={styles.pausePill} state={PATROL_UI_STATES.PAUSED} />
 
-              {!!leg.hasNotRun && <span className="sr-only">{t('legDidNotRunLabel')}</span>}
-            </td>
+                {!!leg.hasNotRun && <span className="sr-only">{t('legDidNotRunLabel')}</span>}
+              </td>
+              : <>
+                <td>
+                  {leg.number}
 
-            <td>
-              {leg.isPause
-                ? <StatusPill className={styles.pausePill} state={PATROL_UI_STATES.PAUSED} />
-                : leg.patrolTypeDisplay}
-            </td>
+                  {!!leg.hasNotRun && <span className="sr-only">{t('legDidNotRunLabel')}</span>}
+                </td>
+
+                <td>{leg.patrolTypeDisplay}</td>
+              </>}
 
             <td>{renderLegDate(leg.start)}</td>
 
             <td>{renderLegDate(leg.end)}</td>
 
+            {/* A pause tracks nothing and covers no ground: the team that sat
+                it out belongs to the legs either side of it. */}
             <td>
-              <TeamAndTracking legNumber={leg.number} trackedSubjects={leg.trackedSubjects} />
+              {!leg.isPause
+                && <TeamAndTracking legNumber={leg.number} trackedSubjects={leg.trackedSubjects} />}
             </td>
 
             <td>
               <div className={styles.legActionsColumn}>
-                <button
-                  aria-label={t('zoomToLegBoundsButtonLabel', { legNumber: leg.number })}
+                {!leg.isPause && <button
+                  aria-label={t('zoomToLegBoundsButtonLabel', { number: leg.number })}
                   className={styles.zoomToLegBoundsButton}
                   disabled={!leg.bbox}
                   onClick={onZoomToLegBounds(leg)}
-                  title={t('zoomToLegBoundsButtonLabel', { legNumber: leg.number })}
+                  title={t('zoomToLegBoundsButtonLabel', { number: leg.number })}
                   type="button"
                 >
                   <FitScreenIcon aria-hidden="true" />
-                </button>
+                </button>}
 
                 <Link
-                  aria-label={t('viewLegButtonLabel', { legNumber: leg.number })}
+                  aria-label={t(labelKeyForLeg(leg, 'viewLegButtonLabel'), { number: leg.number })}
                   className={styles.viewLegButton}
                   onClick={onViewLeg}
-                  title={t('viewLegButtonLabel', { legNumber: leg.number })}
+                  title={t(labelKeyForLeg(leg, 'viewLegButtonLabel'), { number: leg.number })}
                   to={leg.overviewPath}
                 >
                   <ChevronRightIcon aria-hidden="true" />

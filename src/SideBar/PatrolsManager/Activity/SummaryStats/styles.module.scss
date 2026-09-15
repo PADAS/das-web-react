@@ -33,7 +33,7 @@
       font-weight: 400;
       margin: 0;
 
-      .distanceSubjectButton {
+      .distanceOptionButton {
         align-items: center;
         background: none;
         border: none;
@@ -71,7 +71,7 @@
   }
 }
 
-.distanceSubjectMenuPopover {
+.distanceMenuPopover {
   @include inputs.boxShadow;
 
   border: none !important;
@@ -81,15 +81,15 @@
     display: none;
   }
 
-  .distanceSubjectMenu {
+  .distanceMenu {
     list-style: none;
     margin: 0;
     max-height: 15rem;
     overflow-y: auto;
     padding: 0;
 
-    .distanceSubjectMenuItem {
-      .distanceSubjectMenuItemOption {
+    .distanceMenuItem {
+      .distanceMenuItemOption {
         @include shared.subject-menu-row;
 
         border: none;
@@ -124,6 +124,25 @@
           width: 0.75rem;
         }
 
+        .labelWrapper {
+          display: flex;
+          flex-direction: column;
+          max-width: 18rem;
+          min-width: 0;
+
+          .description {
+            color: colors.$secondary-medium-gray;
+            font-size: 0.75rem;
+            line-height: 1.25;
+          }
+
+          .label {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+        }
+
         .subjectIcon {
           align-items: center;
           display: flex;
@@ -146,12 +165,12 @@
         }
       }
 
-      &:first-child .distanceSubjectMenuItemOption {
+      &:first-child .distanceMenuItemOption {
         border-top-left-radius: 0.25rem;
         border-top-right-radius: 0.25rem;
       }
 
-      &:last-child .distanceSubjectMenuItemOption {
+      &:last-child .distanceMenuItemOption {
         border-bottom-left-radius: 0.25rem;
         border-bottom-right-radius: 0.25rem;
       }

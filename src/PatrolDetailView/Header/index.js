@@ -4,13 +4,13 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as PlayIcon } from '../../common/images/icons/play.svg';
 
+import { EMPTY_VALUE, TAB_KEYS } from '../../constants';
+import { formatDistanceInKilometers } from '../../utils/distance';
 import { PATROL_DETAIL_VIEW_CATEGORY, trackEventFactory } from '../../utils/analytics';
-import { TAB_KEYS } from '../../constants';
 import usePatrol from '../../hooks/usePatrol';
 
 import SvgIcon from '../../SvgIcon';
 import PatrolTrackControls from '../../PatrolTrackControls';
-import PatrolDistanceCovered from '../../Patrols/DistanceCovered';
 import PatrolMenu from '../../PatrolMenu';
 
 import * as styles from './styles.module.scss';
@@ -19,9 +19,10 @@ const patrolDetailViewTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
 
 const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) => {
   const { t } = useTranslation('patrols', { keyPrefix: 'detailView.header' });
+  const { t: tUtils } = useTranslation('utils');
 
   const {
-    patrolTrackData,
+    patrolLeadSumDistance,
 
     isPatrolCancelled,
     isPatrolDone,
@@ -53,7 +54,9 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
       return <span data-testid="patrol-drawer-header-details" className={`${styles.headerDetails} ${styles.overflowedEllipsisText}`}>
         {patrolElapsedTime}
         <span className={styles.distanceCovered}>
-          <PatrolDistanceCovered patrolsData={[{ patrol, ...patrolTrackData }]} />
+          {patrolLeadSumDistance == null
+            ? EMPTY_VALUE
+            : formatDistanceInKilometers(tUtils, patrolLeadSumDistance)}
         </span>
       </span>;
     }
@@ -68,11 +71,11 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
     isPatrolDone,
     isPatrolScheduled,
     isPatrolUnderWay,
-    patrol,
-    patrolTrackData,
     patrolElapsedTime,
+    patrolLeadSumDistance,
     scheduledStartTime,
     t,
+    tUtils,
   ]);
 
   const onTitleBlur = useCallback((event) => {

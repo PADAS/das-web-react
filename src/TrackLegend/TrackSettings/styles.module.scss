@@ -1,84 +1,79 @@
-@use 'sass:color';
-
 @use '../../common/styles/vars/colors';
+@use '../_shared' as shared;
 
 .trackSettings {
-  backdrop-filter: blur(2px);
-  background: rgb(white, 90%);
-  border-radius: 0.25rem;
-  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
-  margin-top: 0.25rem;
-  padding: 0.5rem;
+  @include shared.legend-panel;
 
   .header {
-    align-items: center;
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.25rem;
+    @include shared.legend-panel-header;
+  }
 
-    .title {
-      color: black;
-      margin: 0;
-    }
-
-    .closeButton {
-      background: none;
-      border: none;
-      border-radius: .1875rem;
-      color: colors.$secondary-medium-gray;
-      padding: 0rem 0.5rem;
-
-      &:focus-visible {
-        color: colors.$bright-blue;
-        outline: 2px solid colors.$bright-blue;
-      }
-
-      &:hover {
-        background: colors.$light-gray-background;
-      }
-
-      .crossIcon {
-        height: 0.75rem;
-        width: 0.75rem;
-      }
-    }
+  .trackLengthFieldSet {
+    border: none;
+    margin: 0;
+    padding: 0;
   }
 
   .trackLengthLegend {
-    color: black;
+    color: colors.$off-black;
+    float: none;
     font-size: 0.875rem;
     margin-bottom: 0.25rem;
+    padding: 0;
+    width: auto;
   }
 
   .radioButton {
     align-items: center;
     display: flex;
+    gap: 0.375rem;
+    min-height: 1.75rem;
 
     .input {
+      accent-color: colors.$bright-blue;
+      flex-shrink: 0;
       height: 0.875rem;
-      outline-color: colors.$bright-blue;
+      margin: 0;
       width: 0.875rem;
+
+      &:focus-visible {
+        outline: 2px solid colors.$bright-blue;
+        outline-offset: 2px;
+      }
     }
 
     .label {
-      color: black;
+      color: colors.$off-black;
       font-size: 0.875rem;
-      margin-left: 0.25rem;
+      margin: 0;
     }
   }
 
   .customLengthInputs {
     align-items: center;
     display: flex;
-    padding-left: 1rem;
+    gap: 0.5rem;
+    padding-left: 1.25rem;
 
     .rangeInput {
-      margin-right: 0.5rem;
-      min-width: 10rem;
+      accent-color: colors.$bright-blue;
+      flex: 1;
+      min-width: 0;
+
+      &:focus-visible {
+        outline: 2px solid colors.$bright-blue;
+        outline-offset: 2px;
+      }
+
+      &:disabled {
+        cursor: default;
+        opacity: 0.5;
+      }
     }
 
     .numberInput {
-      max-width: 4rem;
+      flex-shrink: 0;
+      width: 5rem;
     }
   }
 
@@ -87,6 +82,6 @@
     font-size: 0.875rem;
     font-weight: 400;
     margin: 0;
-    margin-left: 1rem;
+    margin-left: 1.25rem;
   }
 }

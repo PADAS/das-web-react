@@ -1,5 +1,9 @@
 @use '../../../_shared' as shared;
 
-.title {
-  @include shared.header-title;
+.titleBarMain {
+  @include shared.header-title-bar-main;
+
+  .title {
+    @include shared.header-title;
+  }
 }

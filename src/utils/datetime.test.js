@@ -48,6 +48,12 @@ describe('format dates', () => {
     expect( getTimeInTimezone( date, 'Africa/Nairobi') ).toBe('00:41');
   });
 
+  test('converts date time iso string to time string based on the runtime time zone when given no time zone', () => {
+    const date = new Date('2025-02-21T21:41:14.677Z');
+    expect(getTimeInTimezone(date, null))
+      .toBe(getTimeInTimezone(date, Intl.DateTimeFormat().resolvedOptions().timeZone));
+  });
+
 });
 
 describe('resolveDurationHumanizerLanguage', () => {

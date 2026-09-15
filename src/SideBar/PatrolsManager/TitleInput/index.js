@@ -20,6 +20,13 @@ const TitleInput = ({ isDirty, isReadOnly = false, onChange, value, ...otherProp
     inputRef.current?.select();
   };
 
+  // A title is a single line of text, so a newline in it is only ever a stray.
+  const onKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+    }
+  };
+
   useLayoutEffect(() => {
     if (measureRef.current) {
       setWidth(measureRef.current.offsetWidth + WIDTH_CARET_BUFFER);
@@ -27,19 +34,34 @@ const TitleInput = ({ isDirty, isReadOnly = false, onChange, value, ...otherProp
   // Dirty titles render in italics, which changes the text metrics.
   }, [isDirty, value]);
 
+  // A title reads in full rather than truncating, so the field takes the height
+  // its value wraps to at the width measured for it.
+  useLayoutEffect(() => {
+    const input = inputRef.current;
+
+    if (input) {
+      input.style.height = 'auto';
+
+      if (input.scrollHeight) {
+        input.style.height = `${input.scrollHeight}px`;
+      }
+    }
+  }, [isDirty, value, width]);
+
   return <div className={styles.titleInput}>
-    <input
+    <textarea
       className={`${styles.input} ${isDirty ? styles.unsaved : ''}`}
       onChange={(event) => onChange(event.target.value)}
+      onKeyDown={onKeyDown}
       readOnly={isReadOnly}
       ref={inputRef}
+      rows={1}
       style={width ? { width } : undefined}
-      type="text"
       value={value}
       {...otherProps}
     />
 
-    {/* The input grows to fit its value, which only a copy of the text laid
+    {/* The field grows to fit its value, which only a copy of the text laid
     out freely can measure. */}
     <span aria-hidden="true" className={`${styles.measure} ${isDirty ? styles.unsaved : ''}`} ref={measureRef}>
       {value}

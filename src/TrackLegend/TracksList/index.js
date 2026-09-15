@@ -1,57 +1,117 @@
-import React from 'react';
+import React, { useId, useState } from 'react';
+import Collapse from 'react-bootstrap/Collapse';
 import { useTranslation } from 'react-i18next';
 
-import { ReactComponent as CrossIcon } from '../../common/images/icons/cross.svg';
+import { ReactComponent as ArrowDownSimpleIcon } from '../../common/images/icons/arrow-down-simple.svg';
+import { ReactComponent as ArrowUpSimpleIcon } from '../../common/images/icons/arrow-up-simple.svg';
+import { ReactComponent as EyeIcon } from '../../common/images/icons/eye.svg';
+import { ReactComponent as EyeOffIcon } from '../../common/images/icons/eye-off.svg';
 
 import * as styles from './styles.module.scss';
 
-const TracksItem = ({ item, onRemove }) => {
-  const { t } = useTranslation('tracks', { keyPrefix: 'trackLegend.tracksList.tracksItem' });
+const TracksChildItem = ({ child, onToggleTracks }) => {
+  const { t } = useTranslation('tracks', { keyPrefix: 'trackLegend.tracksList.tracksChildItem' });
 
-  return <li className={styles.tracksItem}>
+  return <li className={styles.tracksChildItem}>
     <div className={styles.leftColumn}>
-      {item.icon}
+      <span className={styles.icon}>{child.icon}</span>
 
-      <p className={styles.title} title={item.title}>{item.title}</p>
+      <p className={styles.title} title={child.title}>{child.title}</p>
     </div>
 
     <div className={styles.rightColumn}>
-      <p className={styles.description}>{item.description}</p>
+      {!!child.description && <p className={styles.description}>{child.description}</p>}
 
       <button
-        aria-label={t('removeButtonLabel', { title: item.title })}
-        className={styles.removeButton}
-        onClick={() => onRemove(item.id)}
+        aria-label={t(`toggleTracksButtonLabel.${child.isHidden ? 'hidden' : 'shown'}`, { title: child.title })}
+        aria-pressed={!child.isHidden}
+        className={`${styles.toggleTracksButton} ${child.isHidden ? '' : styles.active}`}
+        onClick={() => onToggleTracks(child.id)}
+        title={t(`toggleTracksButtonLabel.${child.isHidden ? 'hidden' : 'shown'}`, { title: child.title })}
         type="button"
       >
-        {t('removeButton')}
+        {child.isHidden ? <EyeOffIcon aria-hidden="true" /> : <EyeIcon aria-hidden="true" />}
       </button>
     </div>
   </li>;
 };
 
-const TracksList = ({ items, itemsName, onClose, onRemoveItemTracks }) => {
-  const { t } = useTranslation('tracks', { keyPrefix: 'trackLegend.tracksList' });
+const TracksItem = ({ item, onClear, onToggleChildTracks }) => {
+  const { t } = useTranslation('tracks', { keyPrefix: 'trackLegend.tracksList.tracksItem' });
 
-  return <div className={styles.tracksList}>
-    <div className={styles.header}>
-      <p className={styles.title}>{itemsName}</p>
+  const childrenListId = useId();
 
-      <button
-        aria-label={t('closeButtonLabel', { itemsName })}
-        className={styles.closeButton}
-        onClick={() => onClose()}
-        title={t('closeButtonLabel', { itemsName })}
-        type="button"
-      >
-        <CrossIcon className={styles.crossIcon} />
-      </button>
+  const [isExpanded, setIsExpanded] = useState(true);
+
+  const hasChildren = !!item.children?.length;
+
+  return <li className={styles.tracksItem}>
+    <div className={styles.itemRow}>
+      <div className={styles.leftColumn}>
+        <span className={styles.icon}>{item.icon}</span>
+
+        <p className={styles.title} title={item.title}>{item.title}</p>
+      </div>
+
+      <div className={styles.rightColumn}>
+        {!!item.description && <p className={styles.description}>{item.description}</p>}
+
+        <button
+          aria-label={t('clearButtonLabel', { title: item.title })}
+          className={styles.clearButton}
+          onClick={() => onClear(item.id)}
+          type="button"
+        >
+          {t('clearButton')}
+        </button>
+
+        {hasChildren && <button
+          aria-controls={childrenListId}
+          aria-expanded={isExpanded}
+          aria-label={t(`expandButtonLabel.${isExpanded ? 'open' : 'closed'}`, { title: item.title })}
+          className={styles.expandButton}
+          onClick={() => setIsExpanded((wasExpanded) => !wasExpanded)}
+          title={t(`expandButtonLabel.${isExpanded ? 'open' : 'closed'}`, { title: item.title })}
+          type="button"
+        >
+          {isExpanded ? <ArrowUpSimpleIcon aria-hidden="true" /> : <ArrowDownSimpleIcon aria-hidden="true" />}
+        </button>}
+      </div>
     </div>
 
-    <ul className={styles.list}>
-      {items.map((item) => <TracksItem item={item} key={item.id} onRemove={onRemoveItemTracks} />)}
-    </ul>
-  </div>;
+    {hasChildren && <Collapse in={isExpanded}>
+      <div>
+        <ul className={styles.childrenList} id={childrenListId}>
+          {item.children.map((child) => <TracksChildItem
+            child={child}
+            key={child.id}
+            onToggleTracks={(childId) => onToggleChildTracks(item.id, childId)}
+          />)}
+        </ul>
+      </div>
+    </Collapse>}
+  </li>;
+};
+
+const TracksList = ({ items, onClearItemTracks, onToggleItemChildTracks }) => {
+  // The row of a lone item would only repeat the title above it, so its rows
+  // take over the list. One with no rows has nothing left to list.
+  const loneItem = items.length === 1 ? items[0] : null;
+
+  return <ul className={styles.tracksList}>
+    {loneItem
+      ? (loneItem.children ?? []).map((child) => <TracksChildItem
+        child={child}
+        key={child.id}
+        onToggleTracks={(childId) => onToggleItemChildTracks(loneItem.id, childId)}
+      />)
+      : items.map((item) => <TracksItem
+        item={item}
+        key={item.id}
+        onClear={onClearItemTracks}
+        onToggleChildTracks={onToggleItemChildTracks}
+      />)}
+  </ul>;
 };
 
 export default TracksList;

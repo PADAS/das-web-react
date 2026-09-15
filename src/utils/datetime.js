@@ -176,9 +176,11 @@ export const shouldUse12HourFormat = (locale) => {
 };
 
 export const getTimeInTimezone = (date, timeZone) => new Intl.DateTimeFormat('en-US', {
-  timeZone,
   hour: '2-digit',
-  minute: '2-digit',
   hourCycle: 'h23',
+  minute: '2-digit',
+  // Intl reads a formatter given no time zone as the runtime's own, which is
+  // what a time zone nobody has chosen yet means, but it rejects a null.
+  timeZone: timeZone ?? undefined,
 }).format(date);
 

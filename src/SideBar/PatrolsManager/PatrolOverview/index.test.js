@@ -84,6 +84,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       },
       view: {
         patrolTrackState: {
+          hiddenSubjects: {},
           pinned: [],
           visible: [],
         },

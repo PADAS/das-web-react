@@ -40,7 +40,7 @@ afterAll(() => server.close());
 
 const defaultStoreValue = {
   view: {
-    patrolTrackState: { pinned: [], visible: [] },
+    patrolTrackState: { hiddenSubjects: {}, pinned: [], visible: [] },
     timeSliderState: { active: false },
     trackSettings: { length: 21, origin: 'CUSTOM_LENGTH' },
     trackState: { pinned: [], visible: [] },

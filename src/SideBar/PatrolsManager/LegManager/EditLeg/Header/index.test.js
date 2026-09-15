@@ -1,9 +1,13 @@
 import React from 'react';
 
+import { dogPatrol } from '../../../../../__test-helpers/fixtures/patrol-types';
 import { PATROL_UI_STATES } from '../../../../../constants';
 import { render, screen } from '../../../../../test-utils';
 
 import Header from './';
+import SvgIcon from '../../../../../SvgIcon';
+
+jest.mock('../../../../../SvgIcon', () => jest.fn(() => null));
 
 describe('SideBar - PatrolsManager - LegManager - EditLeg - Header', () => {
   let patrol, patrolSegment;
@@ -23,6 +27,7 @@ describe('SideBar - PatrolsManager - LegManager - EditLeg - Header', () => {
       legState={PATROL_UI_STATES.ACTIVE}
       patrol={patrol}
       patrolSegment={patrolSegment}
+      patrolType={dogPatrol}
       {...props}
     />
   );
@@ -40,6 +45,24 @@ describe('SideBar - PatrolsManager - LegManager - EditLeg - Header', () => {
     renderHeader();
 
     expect(screen.getByRole('heading', { name: 'Edit Leg 1' })).toBeVisible();
+  });
+
+  test('shows the icon of the patrol type of the leg being edited', () => {
+    renderHeader();
+
+    expect(SvgIcon.mock.calls.at(-1)[0]).toEqual(expect.objectContaining({ iconId: 'dog-patrol-icon' }));
+  });
+
+  test('names a paused leg after the pauses of its patrol and shows the pause icon', () => {
+    patrol.patrol_segments = [{ id: 'leg' }, patrolSegment];
+    patrolSegment.is_pause = true;
+
+    renderHeader({ legNumber: 1 });
+
+    expect(screen.getByRole('heading', { name: 'Edit Pause 1' })).toBeVisible();
+    expect(screen.getByText('Edit Pause 1', { selector: 'span' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('img', { name: 'Pause' })).toBeVisible();
+    expect(SvgIcon).not.toHaveBeenCalled();
   });
 
   test('shows the state of the leg', () => {

@@ -37,6 +37,7 @@ const LegForm = ({
   earliestStartDateTime = null,
   formId,
   isFirstLeg = true,
+  isPause = false,
   latestEndDateTime = null,
   leg,
   onChangeLeg,
@@ -117,18 +118,18 @@ const LegForm = ({
   };
 
   useEffect(() => {
-    if (!defaultPatrolSegmentTypeSchemaState) {
+    if (!isPause && !defaultPatrolSegmentTypeSchemaState) {
       dispatch(fetchDefaultPatrolSegmentTypeSchema());
     }
-  }, [defaultPatrolSegmentTypeSchemaState, dispatch]);
+  }, [defaultPatrolSegmentTypeSchemaState, dispatch, isPause]);
 
   useEffect(() => {
-    if (leg.patrolType && !patrolTypeSchemaState) {
+    if (!isPause && leg.patrolType && !patrolTypeSchemaState) {
       // The schema of the currently selected patrol type is not available,
       // fetch it.
       dispatch(fetchPatrolTypeSchema(leg.patrolType.value));
     }
-  }, [dispatch, leg.patrolType, patrolTypeSchemaState]);
+  }, [dispatch, isPause, leg.patrolType, patrolTypeSchemaState]);
 
   // Clear the user content that its schema driven parts uploaded.
   useEffect(() => () => dispatch(clearUserContent()), [dispatch]);
@@ -139,6 +140,7 @@ const LegForm = ({
         earliestStartDateTime={earliestStartDateTime}
         errors={staticFieldErrors}
         isFirstLeg={isFirstLeg}
+        isPause={isPause}
         latestEndDateTime={latestEndDateTime}
         leg={leg}
         onChangeLeg={onChangeLegField}
@@ -146,7 +148,7 @@ const LegForm = ({
       />
     </div>
 
-    {!!defaultPatrolSegmentTypeSchemaState?.schema && <SchemaForm
+    {!isPause && !!defaultPatrolSegmentTypeSchemaState?.schema && <SchemaForm
       anchorLocation={anchorLocation}
       as="div"
       className={styles.schemaForm}
@@ -160,7 +162,7 @@ const LegForm = ({
       validateRef={defaultPatrolSegmentTypeFormRef}
     />}
 
-    {(!defaultPatrolSegmentTypeSchemaState || !!defaultPatrolSegmentTypeSchemaState.isLoading)
+    {!isPause && (!defaultPatrolSegmentTypeSchemaState || !!defaultPatrolSegmentTypeSchemaState.isLoading)
       && <div className={styles.section}>
         <div className={styles.schemaLoader} data-testid="legForm-universalFieldsSchemaLoader" role="status">
           <MoonLoader size={SCHEMA_LOADER_SIZE} />
@@ -169,11 +171,11 @@ const LegForm = ({
         </div>
       </div>}
 
-    {!!defaultPatrolSegmentTypeSchemaState?.error && <div className={styles.section}>
+    {!isPause && !!defaultPatrolSegmentTypeSchemaState?.error && <div className={styles.section}>
       <p className={styles.schemaErrorMessage} role="alert">{t('universalFieldsSchemaErrorMessage')}</p>
     </div>}
 
-    <div className={styles.section}>
+    {!isPause && <div className={styles.section}>
       <PatrolTypeField
         error={staticFieldErrors.patrolType}
         onChange={onChangePatrolType}
@@ -194,9 +196,9 @@ const LegForm = ({
       {!!patrolTypeSchemaState?.error && <p className={styles.schemaErrorMessage} role="alert">
         {t('patrolTypeSchemaErrorMessage')}
       </p>}
-    </div>
+    </div>}
 
-    {!!patrolTypeSchemaState?.schema && <SchemaForm
+    {!isPause && !!patrolTypeSchemaState?.schema && <SchemaForm
       anchorLocation={anchorLocation}
       as="div"
       className={styles.schemaForm}

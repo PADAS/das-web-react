@@ -1,16 +1,12 @@
-import React, { memo, useCallback, useContext, useEffect } from 'react';
+import React, { memo, useCallback, useContext } from 'react';
 import { useSelector } from 'react-redux';
 
-import { addMapImage } from '../utils/map';
 import { LAYER_IDS } from '../constants';
 import { MAP_LAYERS_CATEGORY, trackEventFactory } from '../utils/analytics';
 import { MapContext } from '../MapContext';
 import { selectSubjectTracksWithPatrolTrackShownFlag } from '../selectors/patrols';
 
-import Arrow from '../common/images/icons/track-arrow.svg?url';
 import TrackLayer from './track';
-
-const ARROW_IMG_ID = 'track_arrow';
 
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
@@ -26,12 +22,6 @@ const TracksLayer = ({ onPointClick, showTimepoints = true }) => {
 
     mapLayerTracker.track('Clicked Track Timepoint');
   }, [map, onPointClick]);
-
-  useEffect(() => {
-    if (!map.hasImage(ARROW_IMG_ID)) {
-      addMapImage({ src: Arrow, id: ARROW_IMG_ID });
-    }
-  }, [map]);
 
   return subjectTracksWithPatrolTrackShownFlag.length > 0
     ? subjectTracksWithPatrolTrackShownFlag.map((subjectTracks) => <TrackLayer

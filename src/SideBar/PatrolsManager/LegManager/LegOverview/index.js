@@ -9,10 +9,12 @@ import {
   actualEndTimeForPatrolSegment,
   actualStartTimeForPatrolSegment,
   canEditPatrolSegment,
+  displayNumberForPatrolSegment,
   filterActivityItemsForPatrolSegment,
   getReportsForPatrolSegment,
   getTrackedSubjectsForPatrolSegment,
   hasPatrolSegmentNotRun,
+  isPatrolSegmentAPause,
   isPatrolStateUnderWay,
 } from '../../../../utils/patrols';
 import { fetchPatrol, updatePatrol, uploadPatrolFile } from '../../../../ducks/patrols';
@@ -50,6 +52,8 @@ const LegOverviewContent = ({ legNumber, onStagedChangesChange, patrol, patrolSe
   const [isSaving, setIsSaving] = useState(false);
 
   const hasNotRun = hasPatrolSegmentNotRun(patrol, patrolSegment);
+  // A pause is named after the pauses it is counted among, not the legs.
+  const legKind = isPatrolSegmentAPause(patrolSegment) ? 'pause' : 'leg';
 
   // Events belong to the leg itself; notes and files belong to the patrol, so
   // the leg claims the ones written while it ran.
@@ -223,7 +227,7 @@ const LegOverviewContent = ({ legNumber, onStagedChangesChange, patrol, patrolSe
           containedEvents={legEvents}
           emptyStateMessage={t('activityEmptyStateMessage')}
           endTime={legEndTime}
-          endTitle={t('legEndedTitle', { legNumber })}
+          endTitle={t(`endedTitle.${legKind}`, { number: legNumber })}
           existingNotes={legNotes}
           newAttachments={activityEditing.newAttachments}
           newNotes={activityEditing.newNotes}
@@ -235,7 +239,7 @@ const LegOverviewContent = ({ legNumber, onStagedChangesChange, patrol, patrolSe
           patrol={patrol}
           patrolSegment={patrolSegment}
           startTime={legStartTime}
-          startTitle={t('legStartedTitle', { legNumber })}
+          startTitle={t(`startedTitle.${legKind}`, { number: legNumber })}
         />
       </div>
 
@@ -267,15 +271,17 @@ const LegOverview = ({ patrol }) => {
 
   const foundLeg = patrolSegmentIndex === -1
     ? null
-    : { legNumber: patrolSegmentIndex + 1, patrolSegment: patrol.patrol_segments[patrolSegmentIndex] };
+    : {
+      legNumber: displayNumberForPatrolSegment(patrol.patrol_segments, patrolSegmentIndex),
+      patrolSegment: patrol.patrol_segments[patrolSegmentIndex],
+    };
 
   if (foundLeg && foundLeg.patrolSegment !== lastShownLeg?.patrolSegment) {
     setLastShownLeg(foundLeg);
   }
 
-  // A leg that goes away under an unsaved edit stays on screen, its number
-  // included, so the user saves or discards it rather than losing it to the
-  // redirect below.
+  // A leg that goes away under an unsaved edit stays on screen, so the user
+  // saves or discards it rather than losing it to the redirect below.
   const shownLeg = foundLeg ?? (hasStagedChanges ? lastShownLeg : null);
 
   const hasLegToShow = !!shownLeg;

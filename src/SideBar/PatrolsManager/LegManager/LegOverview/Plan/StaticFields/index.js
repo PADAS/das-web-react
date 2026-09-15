@@ -60,7 +60,7 @@ const Location = ({ fieldLabel, value }) => {
   </span>;
 };
 
-const StaticFields = ({ patrol, patrolSegment }) => {
+const StaticFields = ({ isPause = false, patrol, patrolSegment }) => {
   const { t } = useTranslation('patrols', { keyPrefix: 'legOverview.plan.staticFields' });
 
   const rosterFallbackSubjects = useSelector((state) => selectPatrolRosterFallbackSubjects(state, patrol));
@@ -85,6 +85,11 @@ const StaticFields = ({ patrol, patrolSegment }) => {
     teamAndTrackingOptions,
     rosterFallbackSubjects
   );
+
+  // The lead heads the team it leads, whatever order the roster came back in.
+  const isTeamLead = (member) => member.id === patrolSegment.leader?.id;
+  const teamMembers = [...teamAndTracking.members]
+    .sort((member, otherMember) => Number(isTeamLead(otherMember)) - Number(isTeamLead(member)));
 
   const renderTimeField = (label, dateTime, isPlanned, location) => <div className={styles.field}>
     <dt className={styles.fieldLabel}>{label}</dt>
@@ -137,7 +142,7 @@ const StaticFields = ({ patrol, patrolSegment }) => {
       {subjects.length > 0
         ? <ul className={styles.subjectList}>
           {subjects.map((subject) => <li className={styles.subject} key={subject.id}>
-            {renderSubject(subject, subject.id === patrolSegment.leader?.id)}
+            {renderSubject(subject, isTeamLead(subject))}
           </li>)}
         </ul>
         : EMPTY_VALUE}
@@ -155,11 +160,11 @@ const StaticFields = ({ patrol, patrolSegment }) => {
       </dl>
     </div>
 
-    <div className={styles.columns}>
+    {!isPause && <div className={styles.columns}>
       <dl className={styles.column}>
         {renderTextField(t('teamLabel'), teamAndTracking.team?.display)}
 
-        {renderSubjectListField(t('teamMembersLabel'), teamAndTracking.members)}
+        {renderSubjectListField(t('teamMembersLabel'), teamMembers)}
       </dl>
 
       <dl className={styles.column}>
@@ -167,7 +172,7 @@ const StaticFields = ({ patrol, patrolSegment }) => {
 
         {renderSubjectListField(t('assetsLabel'), teamAndTracking.assets)}
       </dl>
-    </div>
+    </div>}
   </div>;
 };
 

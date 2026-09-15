@@ -43,6 +43,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview', () => {
         systemConfig: {
           [SYSTEM_CONFIG_FLAGS.EVENTS]: true,
         },
+        patrolTrackState: { hiddenSubjects: {}, pinned: [], visible: [] },
         timeSliderState: {},
         trackSettings: { length: 21, origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH },
       },
@@ -167,8 +168,8 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview', () => {
 
     expect(screen.getByText(/Patrol Paused for/)).toBeInTheDocument();
     expect(screen.getByText('Patrol Resumed')).toBeInTheDocument();
-    expect(screen.queryByText('Leg 2 Started')).not.toBeInTheDocument();
-    expect(screen.getByText('Leg 3 Started')).toBeInTheDocument();
+    expect(screen.getByText('Leg 2 Started')).toBeInTheDocument();
+    expect(screen.queryByText('Leg 3 Started')).not.toBeInTheDocument();
   });
 
   test('stops counting a pause the patrol was called off on at the cancellation', () => {
