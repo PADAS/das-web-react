@@ -1,0 +1,32 @@
+# TEMPORARY PROBE — DELETE AFTER ONE RUN.
+#
+# Answers one question: can this PUBLIC repo call a reusable workflow that lives
+# in the INTERNAL serca-pipelines repo? GitHub excludes public repositories from
+# the "accessible from repositories in the organization" sharing that internal
+# and private repos get, and das-web-react has never consumed serca-pipelines
+# before, so nothing here proves it either way.
+#
+# It lives in its own file on purpose. A reusable-workflow reference is resolved
+# when the run graph is built, so an unresolvable one is a RUN-LEVEL startup
+# failure in which no job executes at all. Putting the probe in develop.yml would
+# mean finding out by taking test, build, deploy-dev and sync-dev down with it.
+#
+# The webhook is deliberately invalid so nothing reaches the ER Core channel:
+# with errors: true the post step fails, which still proves the call resolved.
+# A startup failure and a failed post look nothing alike.
+name: "[temp] Reusable access probe"
+
+on:
+  push:
+    branches:
+      - ci-DASOPS-2238-slack-notify-develop-failures
+
+jobs:
+  probe:
+    permissions:
+      actions: read
+    uses: PADAS/serca-pipelines/.github/workflows/_slack-notify-failure.yml@main
+    with:
+      title: "probe - should never reach Slack"
+    secrets:
+      SLACK_WEBHOOK_URL: "https://hooks.slack.invalid/probe"
