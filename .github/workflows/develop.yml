@@ -158,6 +158,11 @@ jobs:
   notify-failure:
     needs: [test, config, build, deploy-dev, sync-dev]
     if: ${{ !cancelled() && contains(needs.*.result, 'failure') }}
+    # The shared workflow reads this run's jobs API. A called workflow's
+    # permissions must be a subset of the caller's, so granting it here keeps
+    # this working if the workflow is ever hardened with a top-level block.
+    permissions:
+      actions: read
     uses: PADAS/serca-pipelines/.github/workflows/_slack-notify-failure.yml@main
     with:
       title: "das-web-react develop build failed"
