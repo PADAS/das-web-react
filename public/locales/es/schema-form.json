@@ -17,6 +17,7 @@
     "required": "Este campo es obligatorio.",
     "timeFormat": "Formato de hora inválido.",
     "uploadFailedError": "Uno o más archivos no se pudieron cargar. Elimina los archivos con error antes de enviar.",
+    "uploadFailedWithReasonError": "Uno o más archivos no se pudieron cargar: {{reason}}. Elimina los archivos con error antes de enviar.",
     "uploadInProgressError": "Espera a que los archivos terminen de cargarse.",
     "uriFormat": "Formato de URL inválido.",
     "uuidFormat": "Formato de UUID inválido."
@@ -36,12 +37,12 @@
       "uploadErrorLabel": "Error al subir",
       "uploadFailedAnnouncement_one": "No se pudo subir {{fileName}}",
       "uploadFailedAnnouncement_other": "No se pudieron subir {{count}} archivos",
+      "uploadFailedWithReasonAnnouncement_one": "No se pudo subir {{fileName}}: {{reason}}",
+      "uploadFailedWithReasonAnnouncement_other": "No se pudieron subir {{count}} archivos: {{reason}}",
       "uploadStartedAnnouncement_one": "Subiendo {{fileName}}",
       "uploadStartedAnnouncement_other": "Subiendo {{count}} archivos",
       "uploadSucceededAnnouncement_one": "{{fileName}} subido",
-      "uploadSucceededAnnouncement_other": "{{count}} archivos subidos",
-      "uploadTooLargeErrorLabel": "El archivo es demasiado grande",
-      "uploadUnsupportedTypeErrorLabel": "Tipo de archivo no permitido"
+      "uploadSucceededAnnouncement_other": "{{count}} archivos subidos"
     },
     "collection": {
       "addButtonLabel": "Agregar {{itemName}}",
@@ -86,6 +87,11 @@
     "text": {
       "urlLinkLabel": "Abrir URL en nueva pestaña"
     }
+  },
+  "uploadFailureReasons": {
+    "tooLarge": "El archivo es demasiado grande",
+    "tooManyRequests": "Demasiadas subidas, inténtalo más tarde",
+    "unsupportedType": "Tipo de archivo no permitido"
   },
   "validationErrorsAnnouncement": "Hay errores de validación en los siguientes campos:"
 }

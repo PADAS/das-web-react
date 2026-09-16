@@ -3,8 +3,8 @@ import { AxiosError } from 'axios';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
+import { attachmentSchemaV2, eventSchemas, snareSchemaV2 } from '../../__test-helpers/fixtures/event-schemas';
 import { createMapMock } from '../../__test-helpers/mocks';
-import { eventSchemas, snareSchemaV2 } from '../../__test-helpers/fixtures/event-schemas';
 import { eventTypes, snareV2 } from '../../__test-helpers/fixtures/event-types';
 import { formValidator } from '../../utils/events';
 import { GPS_FORMATS } from '../../utils/location';
@@ -76,6 +76,7 @@ describe('ReportManager - DetailsSection', () => {
           ...eventSchemas,
           loading: false,
         },
+        userContent: {},
       },
       view: {
         coordinateReferenceSystems: {
@@ -565,40 +566,6 @@ describe('ReportManager - DetailsSection', () => {
 
   test('gives the schema form the community input value it receives for v2 schemas', async () => {
     store.data.eventTypes = [...eventTypes, snareV2];
-    const attachmentSchemaV2 = {
-      json: {
-        ...snareSchemaV2.json,
-        properties: {
-          attachment_field: {
-            description: '',
-            items: { properties: { uploadId: { type: 'string' } }, type: 'object' },
-            title: 'Attachment Field',
-            type: 'array',
-            unevaluatedItems: false,
-          },
-        },
-        required: [],
-      },
-      ui: {
-        ...snareSchemaV2.ui,
-        fields: {
-          attachment_field: {
-            allowableFileTypes: [],
-            conditionalDependents: [],
-            isRequired: false,
-            maxItems: null,
-            parent: '0-7_eLbCyR8Vypp_BjDlU',
-            type: 'ATTACHMENT',
-          },
-        },
-        sections: {
-          '0-7_eLbCyR8Vypp_BjDlU': {
-            ...snareSchemaV2.ui.sections['0-7_eLbCyR8Vypp_BjDlU'],
-            leftColumn: [{ name: 'attachment_field', type: 'field' }],
-          },
-        },
-      },
-    };
     renderDetailsSection({
       communityInputValue: 'test-community-input',
       eventSchema: attachmentSchemaV2,

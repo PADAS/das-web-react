@@ -353,6 +353,25 @@ describe('SchemaForm', () => {
     jest.restoreAllMocks();
   });
 
+  const addAttachmentFieldToSchema = (schema) => {
+    schema.json.properties.attachment_field = {
+      description: '',
+      items: { properties: { uploadId: { type: 'string' } }, type: 'object' },
+      title: 'Attachment Field',
+      type: 'array',
+      unevaluatedItems: false,
+    };
+    schema.ui.fields.attachment_field = {
+      allowableFileTypes: [],
+      conditionalDependents: [],
+      isRequired: false,
+      maxItems: null,
+      parent: 'section-3',
+      type: 'ATTACHMENT',
+    };
+    schema.ui.sections['section-3'].leftColumn.push({ name: 'attachment_field', type: 'field' });
+  };
+
   const renderSchemaForm = (props, overrideStore) => render(
     <Provider store={mockStore({ ...store, ...overrideStore })}>
       <SchemaForm
@@ -538,22 +557,7 @@ describe('SchemaForm', () => {
   });
 
   test('shows upload errors if there are any when the user submits the form', async () => {
-    schema.json.properties.attachment_field = {
-      description: '',
-      items: { properties: { uploadId: { type: 'string' } }, type: 'object' },
-      title: 'Attachment Field',
-      type: 'array',
-      unevaluatedItems: false,
-    };
-    schema.ui.fields.attachment_field = {
-      allowableFileTypes: [],
-      conditionalDependents: [],
-      isRequired: false,
-      maxItems: null,
-      parent: 'section-3',
-      type: 'ATTACHMENT',
-    };
-    schema.ui.sections['section-3'].leftColumn.push({ name: 'attachment_field', type: 'field' });
+    addAttachmentFieldToSchema(schema);
 
     renderSchemaForm(
       { formData: { text_field: 'a text value', attachment_field: [{ uploadId: 'pending-upload-id' }] } },
@@ -579,22 +583,7 @@ describe('SchemaForm', () => {
   });
 
   test('gives its attachment fields the community input value it receives', async () => {
-    schema.json.properties.attachment_field = {
-      description: '',
-      items: { properties: { uploadId: { type: 'string' } }, type: 'object' },
-      title: 'Attachment Field',
-      type: 'array',
-      unevaluatedItems: false,
-    };
-    schema.ui.fields.attachment_field = {
-      allowableFileTypes: [],
-      conditionalDependents: [],
-      isRequired: false,
-      maxItems: null,
-      parent: 'section-3',
-      type: 'ATTACHMENT',
-    };
-    schema.ui.sections['section-3'].leftColumn.push({ name: 'attachment_field', type: 'field' });
+    addAttachmentFieldToSchema(schema);
     uploadFile.mockImplementation(() => () => 'test-upload-id');
 
     renderSchemaForm({ communityInputValue: 'test-community-input' });

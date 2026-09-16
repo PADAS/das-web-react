@@ -17,6 +17,7 @@ import {
   filterDuplicateUploadFilenames,
 } from '../../../utils/file';
 import { downloadFileFromUrl } from '../../../utils/download';
+import getSharedUploadFailureReasonLabel from '../../utils/getSharedUploadFailureReasonLabel';
 import { removeFile, uploadFile } from '../../../ducks/user-content';
 import { selectUploadStatesByIds } from '../../../selectors/user-content';
 import { showToast } from '../../../utils/toast';
@@ -57,11 +58,6 @@ const ATTACHMENT_FIELD_ALLOWABLE_FILE_TYPE_SPECIFIERS = {
   ],
   image: ['image/*'],
   video: ['video/*'],
-};
-
-const UPLOAD_ERROR_LABEL_KEYS_BY_STATUS_CODE = {
-  413: 'uploadTooLargeErrorLabel',
-  415: 'uploadUnsupportedTypeErrorLabel',
 };
 
 const getFileCategoryFromMimeType = (mimeType) => {
@@ -189,7 +185,7 @@ const AttachmentListItem = ({ actionButtonRefs, attachment, onRemove, readOnly }
     {attachment.status === 'unknown' && <span className={styles.pendingLabel}>{t('pendingLabel')}</span>}
 
     {attachment.status === 'failed' && <span className={styles.error}>
-      {t(UPLOAD_ERROR_LABEL_KEYS_BY_STATUS_CODE[attachment.statusCode] ?? 'uploadErrorLabel')}
+      {getSharedUploadFailureReasonLabel([attachment.reason]) || t('uploadErrorLabel')}
     </span>}
 
     {actionButton}
@@ -247,8 +243,8 @@ const Attachment = ({
       originalImageSource: attachmentImageSources.original ?? upload?.objectUrl,
       originalUrl: attachmentMetadata?.files?.original,
       progress: upload?.progress ?? null,
+      reason: upload?.reason,
       status: upload?.status ?? attachmentMetadata.status ?? 'complete',
-      statusCode: upload?.statusCode,
       thumbnailImageSource: attachmentImageSources.thumbnail ?? upload?.objectUrl,
       uploadId: attachment?.uploadId,
     };
@@ -268,19 +264,32 @@ const Attachment = ({
       }
     });
 
+    // A failed attachment is not a duplicate: picking its name again is how a
+    // reporter replaces the file that was rejected.
     newAttachments = filterDuplicateUploadFilenames(
-      attachments.map((attachment) => ({ name: attachment.name })),
+      attachments
+        .filter((attachment) => attachment.status !== 'failed')
+        .map((attachment) => ({ name: attachment.name })),
       newAttachments
+    );
+
+    const replaceableAttachments = attachments.filter(
+      (attachment) => attachment.status === 'failed' && newAttachments.some((file) => file.name === attachment.name)
     );
 
     const availableSlots = details.maxItems === null
       ? newAttachments.length
-      : details.maxItems - attachments.length;
+      : details.maxItems - attachments.length + replaceableAttachments.length;
     if (newAttachments.length > availableSlots) {
       newAttachments = newAttachments.slice(0, Math.max(0, availableSlots));
 
       showToast({ message: t('maxItemsAlert', { count: details.maxItems }) });
     }
+
+    const replacedAttachments = replaceableAttachments.filter(
+      (attachment) => newAttachments.some((file) => file.name === attachment.name)
+    );
+    replacedAttachments.forEach((attachment) => dispatch(removeFile(attachment.uploadId)));
 
     const newUploadIds = newAttachments.map((file) => dispatch(uploadFile(file, communityInputValue)));
 
@@ -290,7 +299,12 @@ const Attachment = ({
         fileName: newAttachments[0].name,
       }));
 
-      onFieldChange(formElementId, [...value, ...newUploadIds.map((uploadId) => ({ uploadId }))]);
+      onFieldChange(formElementId, [
+        ...value.filter((attachment) => !replacedAttachments.some(
+          (replacedAttachment) => replacedAttachment.uploadId === attachment?.uploadId
+        )),
+        ...newUploadIds.map((uploadId) => ({ uploadId })),
+      ]);
     }
   };
 
@@ -368,7 +382,11 @@ const Attachment = ({
       }
 
       if (newlyFailedUploads.length > 0) {
-        announcementParts.push(t('uploadFailedAnnouncement', { count: newlyFailedUploads.length, fileName: newlyFailedUploads[0].filename }));
+        const failureReasonLabel = getSharedUploadFailureReasonLabel(newlyFailedUploads.map((upload) => upload.reason));
+
+        announcementParts.push(failureReasonLabel
+          ? t('uploadFailedWithReasonAnnouncement', { count: newlyFailedUploads.length, fileName: newlyFailedUploads[0].filename, reason: failureReasonLabel })
+          : t('uploadFailedAnnouncement', { count: newlyFailedUploads.length, fileName: newlyFailedUploads[0].filename }));
       }
 
       if (announcementParts.length > 0) {

@@ -4,18 +4,32 @@ import { v4 as uuidv4 } from 'uuid';
 import { API_URL, API_V2_URL } from '../../constants';
 import globallyResettableReducer from '../../reducers/global-resettable';
 
+const COMMUNITY_API_URL = (communityValue) => `${API_V2_URL}community/${encodeURIComponent(communityValue)}/`;
+
 export const COMMUNITY_COMPLETE_CHUNKED_UPLOAD_API_URL = (communityValue, uploadId) =>
-  `${API_V2_URL}community/${communityValue}/usercontent/chunked-uploads/${uploadId}/complete/`;
+  `${COMMUNITY_API_URL(communityValue)}usercontent/chunked-uploads/${uploadId}/complete/`;
 export const COMMUNITY_INITIATE_CHUNKED_UPLOAD_API_URL = (communityValue) =>
-  `${API_V2_URL}community/${communityValue}/usercontent/chunked-uploads/`;
+  `${COMMUNITY_API_URL(communityValue)}usercontent/chunked-uploads/`;
 export const COMMUNITY_UPLOAD_CHUNK_API_URL = (communityValue, uploadId, chunkIndex) =>
-  `${API_V2_URL}community/${communityValue}/usercontent/chunked-uploads/${uploadId}/chunks/${chunkIndex}/`;
+  `${COMMUNITY_API_URL(communityValue)}usercontent/chunked-uploads/${uploadId}/chunks/${chunkIndex}/`;
 export const COMPLETE_CHUNKED_UPLOAD_API_URL = (uploadId) => `${API_URL}usercontent/chunked-uploads/${uploadId}/complete/`;
 export const INITIATE_CHUNKED_UPLOAD_API_URL = `${API_URL}usercontent/chunked-uploads/`;
 export const UPLOAD_CHUNK_API_URL = (uploadId, chunkIndex) => `${API_URL}usercontent/chunked-uploads/${uploadId}/chunks/${chunkIndex}/`;
 
 export const ABORT_CONTROLLERS = new Map();
 export const SUGGESTED_CHUNK_SIZE = 1024 * 1024; // 1 MiB
+export const UPLOAD_FAILURE_REASONS = {
+  TOO_LARGE: 'tooLarge',
+  TOO_MANY_REQUESTS: 'tooManyRequests',
+  UNKNOWN: 'unknown',
+  UNSUPPORTED_TYPE: 'unsupportedType',
+};
+
+const UPLOAD_FAILURE_REASONS_BY_STATUS_CODE = {
+  413: UPLOAD_FAILURE_REASONS.TOO_LARGE,
+  415: UPLOAD_FAILURE_REASONS.UNSUPPORTED_TYPE,
+  429: UPLOAD_FAILURE_REASONS.TOO_MANY_REQUESTS,
+};
 
 // Actions
 export const CLEAR = 'USER_CONTENT.CLEAR';
@@ -103,9 +117,18 @@ export const startChunkedUpload = async (file, uploadId, dispatch, communityInpu
     dispatch({ payload: { progress: 1, status: 'complete', uploadId }, type: SET_CHUNKED_UPLOAD_STATUS });
   } catch (error) {
     if (!abortController.signal.aborted) {
-      const statusCode = error?.response?.status;
+      // The DAS envelope carries the real code when the HTTP status is a generic
+      // one. utils/request.js resolves the pair the same way.
+      const statusCode = error?.response?.data?.status?.code ?? error?.response?.status;
 
-      dispatch({ payload: { status: 'failed', statusCode, uploadId }, type: SET_CHUNKED_UPLOAD_STATUS });
+      dispatch({
+        payload: {
+          reason: UPLOAD_FAILURE_REASONS_BY_STATUS_CODE[statusCode] ?? UPLOAD_FAILURE_REASONS.UNKNOWN,
+          status: 'failed',
+          uploadId,
+        },
+        type: SET_CHUNKED_UPLOAD_STATUS,
+      });
     }
   } finally {
     ABORT_CONTROLLERS.delete(uploadId);

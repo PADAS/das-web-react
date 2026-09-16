@@ -3,6 +3,7 @@ import { useStore } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { FORM_ELEMENT_TYPES } from '../../../utils/form-schemas/constants';
+import getSharedUploadFailureReasonLabel from '../getSharedUploadFailureReasonLabel';
 
 const computeUploadErrors = (formData, formElements, userContent, t, parentCollectionFieldId = null) => {
   const errors = {};
@@ -14,13 +15,21 @@ const computeUploadErrors = (formData, formElements, userContent, t, parentColle
       if (Array.isArray(fieldValue) && fieldValue.length > 0) {
         // The field is an attachment with uploads.
         const hasPending = fieldValue.some(({ uploadId }) => userContent[uploadId]?.status === 'in_progress');
-        const hasFailed = fieldValue.some(({ uploadId }) => userContent[uploadId]?.status === 'failed');
+        const failedUploadReasons = fieldValue
+          .filter(({ uploadId }) => userContent[uploadId]?.status === 'failed')
+          .map(({ uploadId }) => userContent[uploadId].reason);
         if (hasPending) {
           // The attachment has pending uploads.
           errors[fieldName] = { message: t('uploadInProgressError') };
-        } else if (hasFailed) {
+        } else if (failedUploadReasons.length > 0) {
           // The attachment has failed uploads.
-          errors[fieldName] = { message: t('uploadFailedError') };
+          const failureReasonLabel = getSharedUploadFailureReasonLabel(failedUploadReasons);
+
+          errors[fieldName] = {
+            message: failureReasonLabel
+              ? t('uploadFailedWithReasonError', { reason: failureReasonLabel })
+              : t('uploadFailedError'),
+          };
         }
       }
     } else if (formElements[fieldId]?.type === FORM_ELEMENT_TYPES.COLLECTION && Array.isArray(fieldValue)) {
