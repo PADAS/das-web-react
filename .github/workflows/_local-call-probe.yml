@@ -1,0 +1,28 @@
+# TEMPORARY PROBE — DELETE AFTER ONE RUN.
+#
+# The shared notify-failure workflow has never actually executed anywhere: the
+# earlier smoke test exercised the INLINE version, which differs from what
+# shipped (no shell: bash, a narrower conclusion filter, no field caps, a
+# different actor source). This runs the real thing.
+#
+# The webhook is deliberately unreachable, so nothing reaches the team channel.
+# That still proves everything up to the post: that the local `uses:` resolves,
+# that the jobs-API lookup works under the caller's actions: read, and that the
+# jq payload program runs in situ rather than only on a laptop. A failure at the
+# post step means all of that worked.
+name: "[temp] Local call probe"
+
+on:
+  push:
+    branches:
+      - ci-DASOPS-2238-slack-notify-develop-failures
+
+jobs:
+  probe:
+    permissions:
+      actions: read
+    uses: ./.github/workflows/_slack-notify-failure.yml
+    with:
+      title: "probe - unreachable webhook, nothing is sent"
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_DOES_NOT_EXIST }}
