@@ -17,6 +17,7 @@
     "required": "Este é um campo obrigatório.",
     "timeFormat": "Formato de hora inválido.",
     "uploadFailedError": "Falha no envio de um ou mais arquivos. Remova os arquivos com falha antes de enviar.",
+    "uploadFailedWithReasonError": "Falha no envio de um ou mais arquivos: {{reason}}. Remova os arquivos com falha antes de enviar.",
     "uploadInProgressError": "Aguarde o envio dos arquivos.",
     "uriFormat": "Formato de URL inválido.",
     "uuidFormat": "Formato de UUID inválido."
@@ -36,6 +37,8 @@
       "uploadErrorLabel": "Falha no envio",
       "uploadFailedAnnouncement_one": "Não foi possível enviar {{fileName}}",
       "uploadFailedAnnouncement_other": "Não foi possível enviar {{count}} arquivos",
+      "uploadFailedWithReasonAnnouncement_one": "Não foi possível enviar {{fileName}}: {{reason}}",
+      "uploadFailedWithReasonAnnouncement_other": "Não foi possível enviar {{count}} arquivos: {{reason}}",
       "uploadStartedAnnouncement_one": "Enviando {{fileName}}",
       "uploadStartedAnnouncement_other": "Enviando {{count}} arquivos",
       "uploadSucceededAnnouncement_one": "{{fileName}} enviado",
@@ -84,6 +87,11 @@
     "text": {
       "urlLinkLabel": "Abrir URL em nova guia"
     }
+  },
+  "uploadFailureReasons": {
+    "tooLarge": "O arquivo é muito grande",
+    "tooManyRequests": "Muitos envios, tente mais tarde",
+    "unsupportedType": "Tipo de arquivo não permitido"
   },
   "validationErrorsAnnouncement": "Há erros de validação nos seguintes campos:"
 }

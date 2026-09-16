@@ -114,6 +114,7 @@
       .name {
         color: colors.$off-black;
         flex: 1;
+        min-width: 5rem;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -127,8 +128,12 @@
 
       .error {
         color: colors.$bright-red;
-        flex-shrink: 0;
+        flex-shrink: 1;
         font-size: 0.875rem;
+        min-width: 4rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .actionButton {

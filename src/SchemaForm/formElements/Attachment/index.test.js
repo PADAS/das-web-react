@@ -7,12 +7,13 @@ import { TrackerContext } from '../../../utils/analytics';
 import { downloadFileFromUrl } from '../../../utils/download';
 import { fetchImageAsBase64FromUrl } from '../../../utils/file';
 import { mockStore } from '../../../__test-helpers/MockStore';
-import { removeFile, uploadFile } from '../../../ducks/user-content';
+import { removeFile, UPLOAD_FAILURE_REASONS, uploadFile } from '../../../ducks/user-content';
 import { showToast } from '../../../utils/toast';
 
 import Attachment from './';
 
 jest.mock('../../../ducks/user-content', () => ({
+  ...jest.requireActual('../../../ducks/user-content'),
   removeFile: jest.fn(),
   uploadFile: jest.fn(),
 }));
@@ -248,7 +249,7 @@ describe('SchemaForm - formElements - Attachment', () => {
     await userEvent.upload(getFileInput(), file);
 
     expect(uploadFile).toHaveBeenCalledTimes(1);
-    expect(uploadFile).toHaveBeenCalledWith(file);
+    expect(uploadFile).toHaveBeenCalledWith(file, null);
     expect(onFieldChange).toHaveBeenCalledWith('attachment-1', [{ uploadId: 'test-upload-id' }]);
   });
 
@@ -260,12 +261,21 @@ describe('SchemaForm - formElements - Attachment', () => {
     await userEvent.upload(getFileInput(), [file1, file2]);
 
     expect(uploadFile).toHaveBeenCalledTimes(2);
-    expect(uploadFile).toHaveBeenCalledWith(file1);
-    expect(uploadFile).toHaveBeenCalledWith(file2);
+    expect(uploadFile).toHaveBeenCalledWith(file1, null);
+    expect(uploadFile).toHaveBeenCalledWith(file2, null);
     expect(onFieldChange).toHaveBeenCalledWith('attachment-1', [
       { uploadId: 'test-upload-id' },
       { uploadId: 'test-upload-id' },
     ]);
+  });
+
+  test('dispatches uploadFile with the community input value when the field is rendered in a community context', async () => {
+    renderAttachmentField({ communityInputValue: 'test-community-input' });
+    const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
+
+    await userEvent.upload(getFileInput(), file);
+
+    expect(uploadFile).toHaveBeenCalledWith(file, 'test-community-input');
   });
 
   test('announces the upload start to screen readers', async () => {
@@ -510,6 +520,28 @@ describe('SchemaForm - formElements - Attachment', () => {
     expect(screen.getByRole('button', { name: 'Remove test.pdf' })).toBeVisible();
   });
 
+  test('shows the generic upload error text for a failed upload rejected for an unrecognized reason', () => {
+    const failedStore = mockStore({
+      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', fileType: 'application/pdf', progress: 0, reason: UPLOAD_FAILURE_REASONS.UNKNOWN, status: 'failed' } } },
+    });
+    renderAttachmentField({ value: [{ uploadId: 'test-upload-id' }] }, failedStore);
+
+    expect(screen.getByText('Upload failed')).toBeVisible();
+  });
+
+  test.each([
+    [UPLOAD_FAILURE_REASONS.TOO_LARGE, 'File is too large'],
+    [UPLOAD_FAILURE_REASONS.TOO_MANY_REQUESTS, 'Too many uploads, try later'],
+    [UPLOAD_FAILURE_REASONS.UNSUPPORTED_TYPE, 'File type is not allowed'],
+  ])('shows the error text of a failed upload rejected as %s', (reason, reasonLabel) => {
+    const failedStore = mockStore({
+      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', fileType: 'application/pdf', progress: 0, reason, status: 'failed' } } },
+    });
+    renderAttachmentField({ value: [{ uploadId: 'test-upload-id' }] }, failedStore);
+
+    expect(screen.getByText(reasonLabel)).toBeVisible();
+  });
+
   test('dispatches addModal when the expand button is clicked for a saved image', async () => {
     const mockStoreInstance = mockStore({ data: { userContent: {} } });
     renderAttachmentField({
@@ -666,6 +698,71 @@ describe('SchemaForm - formElements - Attachment', () => {
     );
 
     expect(screen.getByRole('status')).toHaveTextContent('test.pdf couldn\'t be uploaded');
+  });
+
+  test.each([
+    [UPLOAD_FAILURE_REASONS.TOO_LARGE, 'File is too large'],
+    [UPLOAD_FAILURE_REASONS.TOO_MANY_REQUESTS, 'Too many uploads, try later'],
+    [UPLOAD_FAILURE_REASONS.UNSUPPORTED_TYPE, 'File type is not allowed'],
+  ])('announces the reason of a failed upload rejected as %s to screen readers', (reason, reasonLabel) => {
+    const pendingStore = mockStore({
+      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', progress: 0, status: 'in_progress' } } },
+    });
+    const { rerender } = renderAttachmentField({ value: [{ uploadId: 'test-upload-id' }] }, pendingStore);
+
+    const failedStore = mockStore({
+      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', progress: 0, reason, status: 'failed' } } },
+    });
+    rerender(
+      <Provider store={failedStore}>
+        <TrackerContext.Provider value={null}>
+          <Attachment
+            details={details}
+            error={undefined}
+            formElementId="attachment-1"
+            onFieldChange={onFieldChange}
+            value={[{ uploadId: 'test-upload-id' }]}
+          />
+        </TrackerContext.Provider>
+      </Provider>
+    );
+
+    expect(screen.getByRole('status')).toHaveTextContent(`test.pdf couldn't be uploaded: ${reasonLabel}`);
+  });
+
+  test('announces failed uploads without a reason to screen readers when they were rejected for different reasons', () => {
+    const pendingStore = mockStore({
+      data: { userContent: {
+        'upload-1': { uploadId: 'upload-1', filename: 'file1.pdf', progress: 0, status: 'in_progress' },
+        'upload-2': { uploadId: 'upload-2', filename: 'file2.pdf', progress: 0, status: 'in_progress' },
+      } },
+    });
+    const { rerender } = renderAttachmentField({
+      value: [{ uploadId: 'upload-1' }, { uploadId: 'upload-2' }],
+    }, pendingStore);
+
+    const failedStore = mockStore({
+      data: { userContent: {
+        'upload-1': { uploadId: 'upload-1', filename: 'file1.pdf', progress: 0, reason: UPLOAD_FAILURE_REASONS.TOO_LARGE, status: 'failed' },
+        'upload-2': { uploadId: 'upload-2', filename: 'file2.pdf', progress: 0, reason: UPLOAD_FAILURE_REASONS.UNSUPPORTED_TYPE, status: 'failed' },
+      } },
+    });
+    rerender(
+      <Provider store={failedStore}>
+        <TrackerContext.Provider value={null}>
+          <Attachment
+            details={details}
+            error={undefined}
+            formElementId="attachment-1"
+            onFieldChange={onFieldChange}
+            value={[{ uploadId: 'upload-1' }, { uploadId: 'upload-2' }]}
+          />
+        </TrackerContext.Provider>
+      </Provider>
+    );
+
+    expect(screen.getByRole('status')).toHaveTextContent('2 files couldn\'t be uploaded');
+    expect(screen.getByRole('status')).not.toHaveTextContent('File is too large');
   });
 
   test('announces multiple completed uploads to screen readers', () => {
@@ -1043,5 +1140,81 @@ describe('SchemaForm - formElements - Attachment', () => {
 
     expect(showToast).toHaveBeenCalled();
     expect(onFieldChange).not.toHaveBeenCalled();
+  });
+
+  test.each(['complete', 'in_progress'])(
+    'shows a toast and keeps the attachment when a file with the same name as a %s upload is selected',
+    async (status) => {
+      const uploadStore = mockStore({
+        data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'existing.pdf', fileType: 'application/pdf', progress: 0, status } } },
+      });
+      renderAttachmentField({ value: [{ uploadId: 'test-upload-id' }] }, uploadStore);
+
+      await userEvent.upload(
+        getFileInput(),
+        new File(['content'], 'existing.pdf', { type: 'application/pdf' })
+      );
+
+      expect(showToast).toHaveBeenCalled();
+      expect(uploadFile).not.toHaveBeenCalled();
+      expect(removeFile).not.toHaveBeenCalled();
+      expect(onFieldChange).not.toHaveBeenCalled();
+    }
+  );
+
+  test('replaces a failed attachment when a file with its name is selected again', async () => {
+    const failedStore = mockStore({
+      data: { userContent: { 'failed-upload-id': { uploadId: 'failed-upload-id', filename: 'existing.pdf', fileType: 'application/pdf', progress: 0, reason: UPLOAD_FAILURE_REASONS.TOO_LARGE, status: 'failed' } } },
+    });
+    renderAttachmentField({ value: [{ uploadId: 'failed-upload-id' }] }, failedStore);
+    const file = new File(['content'], 'existing.pdf', { type: 'application/pdf' });
+
+    await userEvent.upload(getFileInput(), file);
+
+    expect(showToast).not.toHaveBeenCalled();
+    expect(uploadFile).toHaveBeenCalledWith(file, null);
+    expect(removeFile).toHaveBeenCalledWith('failed-upload-id');
+    expect(onFieldChange).toHaveBeenCalledTimes(1);
+    expect(onFieldChange).toHaveBeenCalledWith('attachment-1', [{ uploadId: 'test-upload-id' }]);
+  });
+
+  test('keeps the other attachments when a failed attachment is replaced', async () => {
+    const failedStore = mockStore({
+      data: { userContent: {
+        'failed-upload-id': { uploadId: 'failed-upload-id', filename: 'existing.pdf', fileType: 'application/pdf', progress: 0, reason: UPLOAD_FAILURE_REASONS.TOO_LARGE, status: 'failed' },
+        'other-upload-id': { uploadId: 'other-upload-id', filename: 'other.pdf', fileType: 'application/pdf', progress: 1, status: 'complete' },
+      } },
+    });
+    renderAttachmentField({ value: [{ uploadId: 'failed-upload-id' }, { uploadId: 'other-upload-id' }] }, failedStore);
+
+    await userEvent.upload(getFileInput(), new File(['content'], 'existing.pdf', { type: 'application/pdf' }));
+
+    expect(onFieldChange).toHaveBeenCalledWith('attachment-1', [
+      { uploadId: 'other-upload-id' },
+      { uploadId: 'test-upload-id' },
+    ]);
+  });
+
+  test('counts a replaced attachment as an available slot when checking the maximum', async () => {
+    details.maxItems = 3;
+    const failedStore = mockStore({
+      data: { userContent: {
+        'failed-upload-id': { uploadId: 'failed-upload-id', filename: 'existing.pdf', fileType: 'application/pdf', progress: 0, reason: UPLOAD_FAILURE_REASONS.TOO_LARGE, status: 'failed' },
+        'other-upload-id': { uploadId: 'other-upload-id', filename: 'other.pdf', fileType: 'application/pdf', progress: 1, status: 'complete' },
+      } },
+    });
+    renderAttachmentField({ value: [{ uploadId: 'failed-upload-id' }, { uploadId: 'other-upload-id' }] }, failedStore);
+
+    await userEvent.upload(getFileInput(), [
+      new File(['content'], 'existing.pdf', { type: 'application/pdf' }),
+      new File(['content'], 'new.pdf', { type: 'application/pdf' }),
+    ]);
+
+    expect(showToast).not.toHaveBeenCalled();
+    expect(onFieldChange).toHaveBeenCalledWith('attachment-1', [
+      { uploadId: 'other-upload-id' },
+      { uploadId: 'test-upload-id' },
+      { uploadId: 'test-upload-id' },
+    ]);
   });
 });

@@ -17,6 +17,7 @@
     "required": "Ceci est un champ obligatoire.",
     "timeFormat": "Format d'heure invalide.",
     "uploadFailedError": "Le téléversement d'un ou plusieurs fichiers a échoué. Supprimez les fichiers en erreur avant de soumettre.",
+    "uploadFailedWithReasonError": "Le téléversement d'un ou plusieurs fichiers a échoué : {{reason}}. Supprimez les fichiers en erreur avant de soumettre.",
     "uploadInProgressError": "Veuillez attendre que les fichiers aient terminé de se téléverser.",
     "uriFormat": "Format d'URL invalide.",
     "uuidFormat": "Format d'UUID invalide."
@@ -36,6 +37,8 @@
       "uploadErrorLabel": "Échec du téléversement",
       "uploadFailedAnnouncement_one": "Impossible de téléverser {{fileName}}",
       "uploadFailedAnnouncement_other": "Impossible de téléverser {{count}} fichiers",
+      "uploadFailedWithReasonAnnouncement_one": "Impossible de téléverser {{fileName}} : {{reason}}",
+      "uploadFailedWithReasonAnnouncement_other": "Impossible de téléverser {{count}} fichiers : {{reason}}",
       "uploadStartedAnnouncement_one": "Téléversement de {{fileName}}",
       "uploadStartedAnnouncement_other": "Téléversement de {{count}} fichiers",
       "uploadSucceededAnnouncement_one": "{{fileName}} téléversé",
@@ -84,6 +87,11 @@
     "text": {
       "urlLinkLabel": "Ouvrir l'URL dans un nouvel onglet"
     }
+  },
+  "uploadFailureReasons": {
+    "tooLarge": "Le fichier est trop volumineux",
+    "tooManyRequests": "Trop de téléversements, réessayez plus tard",
+    "unsupportedType": "Type de fichier non autorisé"
   },
   "validationErrorsAnnouncement": "Il y a des erreurs de validation dans les champs suivants :"
 }

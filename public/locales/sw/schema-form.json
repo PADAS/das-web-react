@@ -17,6 +17,7 @@
     "required": "Hili ni shamba la lazima.",
     "timeFormat": "Muundo wa muda haukubaliwi.",
     "uploadFailedError": "Upakiaji wa faili moja au zaidi umeshindwa. Ondoa faili zilizoshindwa kabla ya kutuma.",
+    "uploadFailedWithReasonError": "Upakiaji wa faili moja au zaidi umeshindwa: {{reason}}. Ondoa faili zilizoshindwa kabla ya kutuma.",
     "uploadInProgressError": "Tafadhali subiri faili ziishe kupakiwa.",
     "uriFormat": "Muundo wa URL haukubaliwi.",
     "uuidFormat": "Muundo wa UUID haukubaliwi."
@@ -36,6 +37,8 @@
       "uploadErrorLabel": "Upakiaji umeshindwa",
       "uploadFailedAnnouncement_one": "{{fileName}} haikuweza kupakiwa",
       "uploadFailedAnnouncement_other": "Faili {{count}} hazikuweza kupakiwa",
+      "uploadFailedWithReasonAnnouncement_one": "{{fileName}} haikuweza kupakiwa: {{reason}}",
+      "uploadFailedWithReasonAnnouncement_other": "Faili {{count}} hazikuweza kupakiwa: {{reason}}",
       "uploadStartedAnnouncement_one": "Inapakia {{fileName}}",
       "uploadStartedAnnouncement_other": "Inapakia faili {{count}}",
       "uploadSucceededAnnouncement_one": "{{fileName}} imepakiwa",
@@ -84,6 +87,11 @@
     "text": {
       "urlLinkLabel": "Fungua URL kwenye kichupo kipya"
     }
+  },
+  "uploadFailureReasons": {
+    "tooLarge": "Faili ni kubwa mno",
+    "tooManyRequests": "Upakiaji mwingi mno, jaribu baadaye",
+    "unsupportedType": "Aina ya faili hairuhusiwi"
   },
   "validationErrorsAnnouncement": "Kuna makosa ya uthibitishaji katika sehemu zifuatazo:"
 }

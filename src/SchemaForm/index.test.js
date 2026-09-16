@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { act, fireEvent, render, screen, within } from '../test-utils';
-import { clearUserContent } from '../ducks/user-content';
+import { clearUserContent, uploadFile } from '../ducks/user-content';
 import { DATE_TIME_ELEMENT_INPUT_TYPES } from '../utils/form-schemas/constants';
 import { GPS_FORMATS } from '../utils/location';
 import { mockStore } from '../__test-helpers/MockStore';
@@ -353,6 +353,25 @@ describe('SchemaForm', () => {
     jest.restoreAllMocks();
   });
 
+  const addAttachmentFieldToSchema = (schema) => {
+    schema.json.properties.attachment_field = {
+      description: '',
+      items: { properties: { uploadId: { type: 'string' } }, type: 'object' },
+      title: 'Attachment Field',
+      type: 'array',
+      unevaluatedItems: false,
+    };
+    schema.ui.fields.attachment_field = {
+      allowableFileTypes: [],
+      conditionalDependents: [],
+      isRequired: false,
+      maxItems: null,
+      parent: 'section-3',
+      type: 'ATTACHMENT',
+    };
+    schema.ui.sections['section-3'].leftColumn.push({ name: 'attachment_field', type: 'field' });
+  };
+
   const renderSchemaForm = (props, overrideStore) => render(
     <Provider store={mockStore({ ...store, ...overrideStore })}>
       <SchemaForm
@@ -538,22 +557,7 @@ describe('SchemaForm', () => {
   });
 
   test('shows upload errors if there are any when the user submits the form', async () => {
-    schema.json.properties.attachment_field = {
-      description: '',
-      title: 'Attachment Field',
-      type: 'array',
-      items: { properties: { uploadId: { type: 'string' } }, type: 'object' },
-      unevaluatedItems: false,
-    };
-    schema.ui.fields.attachment_field = {
-      allowableFileTypes: [],
-      conditionalDependents: [],
-      isRequired: false,
-      maxItems: null,
-      type: 'ATTACHMENT',
-      parent: 'section-3',
-    };
-    schema.ui.sections['section-3'].leftColumn.push({ name: 'attachment_field', type: 'field' });
+    addAttachmentFieldToSchema(schema);
 
     renderSchemaForm(
       { formData: { text_field: 'a text value', attachment_field: [{ uploadId: 'pending-upload-id' }] } },
@@ -576,6 +580,18 @@ describe('SchemaForm', () => {
     expect(attachmentField).toBeInvalid();
     expect(attachmentField).toHaveAccessibleErrorMessage('Please wait for files to finish uploading.');
     expect(attachmentField).toHaveFocus();
+  });
+
+  test('gives its attachment fields the community input value it receives', async () => {
+    addAttachmentFieldToSchema(schema);
+    uploadFile.mockImplementation(() => () => 'test-upload-id');
+
+    renderSchemaForm({ communityInputValue: 'test-community-input' });
+    const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
+
+    await userEvent.upload(screen.getByTestId('schema-form-attachment-field-attachment_field-file-input'), file);
+
+    expect(uploadFile).toHaveBeenCalledWith(file, 'test-community-input');
   });
 
   test('submits the form when there are no field errors', async () => {
