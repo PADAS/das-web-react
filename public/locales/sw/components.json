@@ -72,6 +72,7 @@
     "shareLocationToastTitle": "Jifunze zaidi"
   },
   "getUserLocationButton": {
+    "cancelButtonLabel": "Ghairi",
     "errorToastMessage": "Imeshindikana kusoma eneo lako la sasa: {{errorMessage}}",
     "loadingOverlayMessage": "Inajaribu kusoma eneo lako...",
     "userLocationButtonLabel": "Pata eneo la sasa"
@@ -114,7 +115,7 @@
     "menuPopover": {
       "dialogLabel": "Eneo",
       "getUserLocationButton": "Tumia eneo langu",
-      "permissionBlockedMessage": "Kushiriki eneo kumezuiwa na kivinjari",
+      "permissionBlockedMessage": "Onyesha upya ukurasa na uruhusu kushiriki eneo ili kupakia eneo lako kutoka GPS",
       "pickMapLocationButton": "Weka kwenye ramani"
     },
     "setLocationButtonLabel": {
