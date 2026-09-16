@@ -143,3 +143,23 @@ jobs:
       app-name: das-web-react-er-dev
     secrets:
       ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+
+  # Tells the ER Core team in Slack when mainline `develop` breaks (DASOPS-2238).
+  #
+  # `needs` lists every job in this workflow. It cannot move into the reusable
+  # workflow: the gate below reads *this* workflow's `needs.*.result`, so a job
+  # added here and left out of the list contributes nothing to the trigger, and
+  # if it is the only failure no alert fires at all.
+  #
+  # The condition is deliberately not `failure()`. A run that gets superseded and
+  # cancelled mid-flight is not a broken build, and `!cancelled()` is what keeps
+  # those quiet. `contains(needs.*.result, 'failure')` then fires on a real
+  # failure even when some other job was skipped.
+  notify-failure:
+    needs: [test, config, build, deploy-dev, sync-dev]
+    if: ${{ !cancelled() && contains(needs.*.result, 'failure') }}
+    uses: PADAS/serca-pipelines/.github/workflows/_slack-notify-failure.yml@main
+    with:
+      title: "das-web-react develop build failed"
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
