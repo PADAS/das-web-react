@@ -170,7 +170,8 @@ $cardExpansionTransitionTime: 300ms;
         }
       }
 
-      .itemDate {
+      .itemDate,
+      .itemMeta {
         flex-shrink: 0;
         font-size: 0.875rem;
         white-space: nowrap;

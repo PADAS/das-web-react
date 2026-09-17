@@ -89,7 +89,7 @@ const ContainedReportListItem = ({ isOpen = false, onCollapse, onExpand, report 
         </div>
 
         <div className={styles.metaGroup}>
-          <span className={styles.stateLabel}>
+          <span className={`${activitySectionStyles.itemMeta} ${styles.stateLabel}`}>
             <span className="sr-only">{t('stateLabel')} </span>
 
             {t(stateLabelKey)}

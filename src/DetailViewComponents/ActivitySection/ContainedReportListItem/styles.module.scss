@@ -53,21 +53,11 @@ $rowHoverBlackMix: 4%;
   display: flex;
   flex-shrink: 0;
   gap: 0.5rem;
-  justify-content: space-between;
-  width: 100%;
-
-  @media (min-width: layout.$md-layout-width-min) {
-    width: auto;
-  }
 
   .stateLabel {
     color: colors.$secondary-medium-gray;
-    flex-shrink: 0;
-    font-size: 0.875rem;
-    white-space: nowrap;
 
     @media (max-width: layout.$sm-layout-width-max) {
-      font-size: 0.75rem;
       order: 1;
     }
   }
