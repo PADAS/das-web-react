@@ -26,9 +26,14 @@
     "imagePreviewAlt": "{{fileName}} preview"
   },
   "containedReportListItem": {
+    "activeStateLabel": "Active",
     "collapseClosedButtonLabel": "Expand {{title}}",
     "collapseOpenButtonLabel": "Collapse {{title}}",
     "loadingLabel": "Loading {{title}}",
+    "resolvedStateLabel": "Resolved",
+    "reviewStateLabel": "Review",
+    "serialNumberLabel": "Event number",
+    "stateLabel": "State",
     "viewReportButtonLabel": "View event {{title}}"
   },
   "footer": {
