@@ -7,6 +7,7 @@ import {
   drawLinesBetweenPatrolTrackAndPatrolPoints,
   extractLegPatrolPoints,
   finalizeCombinedPatrolPoints,
+  getPatrolPointLabels,
   getTrackedSubjectsForPatrolSegment,
   isSegmentActiveForPatrol,
   patrolStateAllowsTrackDisplay,
@@ -61,7 +62,7 @@ const combineLegsTrackData = (legsData) => {
   return null;
 };
 
-const buildPatrolData = (patrol, timeSliderState, trackTimeEnvelopeUntil, tracks) => {
+const buildPatrolData = (patrol, timeSliderState, trackTimeEnvelopeUntil, tracks, patrolTypes) => {
   // The last leg's leader is used for title/display purposes, since it's the
   // most recent one.
   const patrolLeader = patrol.patrol_segments[patrol.patrol_segments.length - 1]?.leader || null;
@@ -82,8 +83,9 @@ const buildPatrolData = (patrol, timeSliderState, trackTimeEnvelopeUntil, tracks
 
   if (patrolData.trackData) {
     // If the patrol has track data, we now calculate its start and stop geometries.
+    const labels = getPatrolPointLabels(patrol, patrolLeader, patrolTypes);
     const legsPoints = legsData.map(({ leader: legLeader, rawTrackData, segment, trackData: legTrackData }) => (legTrackData
-      ? extractLegPatrolPoints(segment, legLeader, legTrackData, rawTrackData, isSegmentActiveForPatrol(patrol, segment))
+      ? extractLegPatrolPoints(segment, legLeader, legTrackData, rawTrackData, isSegmentActiveForPatrol(patrol, segment), labels)
       : null));
 
     const patrolPoints = {
@@ -115,7 +117,7 @@ const buildPatrolData = (patrol, timeSliderState, trackTimeEnvelopeUntil, tracks
       if (patrolPoints.start_location || patrolPoints.end_location) {
         // If there are either a start or an end location, we calculate the lines and add the start and stop geometries
         // to the patrol data object.
-        const finalizedPatrolPoints = finalizeCombinedPatrolPoints(patrol, patrolPoints);
+        const finalizedPatrolPoints = finalizeCombinedPatrolPoints(patrol, patrolPoints, labels);
 
         patrolData.startStopGeometries = {
           points: finalizedPatrolPoints,
@@ -135,6 +137,7 @@ const selectPatrolTrackState = (state) => state.view.patrolTrackState;
 const selectSubjectStore = (state) => state.data.subjectStore;
 const selectTimeSliderState = (state) => state.view.timeSliderState;
 const selectTracks = (state) => state.data.tracks;
+const selectPatrolTypes = (state) => state.data.patrolTypes;
 
 const selectVisibleAndPinnedPatrolTracks = createSelector(
   [selectPatrolTrackState],
@@ -156,9 +159,9 @@ const selectPatrolSegmentLeaderTracks = createSelector(
 );
 
 export const selectPatrolTrackData = createSelector(
-  [selectTimeSliderState, selectTrackTimeEnvelope, selectPatrolSegmentLeaderTracks, (_, patrol) => patrol],
-  (timeSliderState, trackTimeEnvelope, tracks, patrol) =>
-    buildPatrolData(patrol, timeSliderState, trackTimeEnvelope.until, tracks)
+  [selectTimeSliderState, selectTrackTimeEnvelope, selectPatrolSegmentLeaderTracks, selectPatrolTypes, (_, patrol) => patrol],
+  (timeSliderState, trackTimeEnvelope, tracks, patrolTypes, patrol) =>
+    buildPatrolData(patrol, timeSliderState, trackTimeEnvelope.until, tracks, patrolTypes)
 );
 
 const selectPatrolTrackedSubjectTracks = createSelector(
@@ -317,10 +320,10 @@ const selectPatrolsWithTracksSegmentLeaderTracks = createSelector(
 );
 
 export const selectPatrolsWithTracksData = createSelector(
-  [selectPatrolsWithTracks, selectTimeSliderState, selectTrackTimeEnvelope, selectPatrolsWithTracksSegmentLeaderTracks],
-  (patrolsWithTracks, timeSliderState, trackTimeEnvelope, tracks) => patrolsWithTracks.map(
+  [selectPatrolsWithTracks, selectTimeSliderState, selectTrackTimeEnvelope, selectPatrolsWithTracksSegmentLeaderTracks, selectPatrolTypes],
+  (patrolsWithTracks, timeSliderState, trackTimeEnvelope, tracks, patrolTypes) => patrolsWithTracks.map(
     // Build the patrol data for each patrol with tracks.
-    (patrol) => ({ patrol, ...buildPatrolData(patrol, timeSliderState, trackTimeEnvelope.until, tracks) })
+    (patrol) => ({ patrol, ...buildPatrolData(patrol, timeSliderState, trackTimeEnvelope.until, tracks, patrolTypes) })
   )
 );
 

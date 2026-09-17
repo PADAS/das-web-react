@@ -1,4 +1,5 @@
 import { TRACK_LENGTH_ORIGINS } from '../../ducks/tracks';
+import '../../i18nForTests';
 
 import {
   selectPatrolLeadersWithLastPosition,
