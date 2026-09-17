@@ -268,6 +268,30 @@ describe('LocationPicker - MenuPopover', () => {
     expect(setLocationButtonRefFocus).toHaveBeenCalledTimes(1);
   });
 
+  test('focuses the set location button while the loading overlay still holds the focus, so a device read never drops it', async () => {
+    let resolveRead, wasCancelButtonMountedOnFocus;
+    window.navigator.geolocation = {
+      getCurrentPosition: jest.fn((successCallback) => {
+        resolveRead = successCallback;
+      }),
+    };
+    setLocationButtonRefFocus.mockImplementation(() => {
+      wasCancelButtonMountedOnFocus = !!screen.queryByRole('button', { name: 'Cancel' });
+    });
+    store.view.showUserLocation = true;
+    renderMenuPopover();
+
+    await userEvent.click(screen.getByLabelText('Get current position'));
+
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Cancel' }));
+
+    act(() => resolveRead({ coords: { latitude: 10, longitude: 10 } }));
+
+    expect(setLocationButtonRefFocus).toHaveBeenCalledTimes(1);
+    expect(wasCancelButtonMountedOnFocus).toBe(true);
+    expect(screen.queryByRole('button', { name: 'Cancel' })).toBeNull();
+  });
+
   test('closes the menu if the user clicks outside and triggers the blur callback if the click was outside of the picker', async () => {
     render(<>
       <div data-testid="outside" />
@@ -375,8 +399,37 @@ describe('LocationPicker - MenuPopover', () => {
     expect(document.activeElement).toBe(pickMapLocationButton);
   });
 
+  test('moves focus to the cancel button on tab from the location button while a device read runs', async () => {
+    window.navigator.geolocation = { getCurrentPosition: jest.fn() };
+    store.view.showUserLocation = true;
+    renderMenuPopover();
+
+    const getUserLocationButton = screen.getByLabelText('Get current position');
+
+    await userEvent.click(getUserLocationButton);
+
+    getUserLocationButton.focus();
+
+    await userEvent.tab();
+
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Cancel' }));
+  });
+
+  test('wraps focus to the GPS format toggle on tab from the cancel button of a running device read', async () => {
+    window.navigator.geolocation = { getCurrentPosition: jest.fn() };
+    store.view.showUserLocation = true;
+    renderMenuPopover();
+
+    await userEvent.click(screen.getByLabelText('Get current position'));
+
+    await userEvent.tab();
+
+    expect(screen.getByRole('dialog', { name: 'Location' })).toContainElement(document.activeElement);
+    expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'DEG' }));
+  });
+
   describe('the geolocation permission blocked message', () => {
-    const permissionBlockedMessage = 'Location sharing blocked by browser';
+    const permissionBlockedMessage = 'Refresh and allow location sharing to load your location from GPS';
 
     let permissionStatus;
     beforeEach(() => {
@@ -544,7 +597,7 @@ describe('LocationPicker - MenuPopover', () => {
   });
 
   describe('the geolocation permission blocked message without the permissions API', () => {
-    const permissionBlockedMessage = 'Location sharing blocked by browser';
+    const permissionBlockedMessage = 'Refresh and allow location sharing to load your location from GPS';
 
     beforeEach(() => {
       store.view.showUserLocation = true;

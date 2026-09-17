@@ -67,6 +67,7 @@
     "shareLocationToastTitle": "कसरी भनेर जान्नुहोस्"
   },
   "getUserLocationButton": {
+    "cancelButtonLabel": "रद्द गर्नुहोस्",
     "errorToastMessage": "तपाईंको हालको स्थान प्राप्त गर्न सकिएन: {{errorMessage}}",
     "loadingOverlayMessage": "तपाईंको स्थान प्राप्त गर्ने प्रयास गर्दैछ...",
     "userLocationButtonLabel": "हालको स्थान प्राप्त गर्नुहोस्"
@@ -109,7 +110,7 @@
     "menuPopover": {
       "dialogLabel": "स्थान",
       "getUserLocationButton": "मेरो स्थान प्रयोग गर्नुहोस्",
-      "permissionBlockedMessage": "ब्राउजरले स्थान साझेदारी रोकेको छ",
+      "permissionBlockedMessage": "GPS बाट तपाईंको स्थान लोड गर्न पृष्ठ रिफ्रेस गर्नुहोस् र स्थान साझेदारीलाई अनुमति दिनुहोस्",
       "pickMapLocationButton": "नक्सामा सेट गर्नुहोस्"
     },
     "setLocationButtonLabel": {
