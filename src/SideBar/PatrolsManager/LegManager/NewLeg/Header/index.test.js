@@ -33,6 +33,12 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg - Header', () => {
     expect(screen.getByRole('heading', { name: 'New Patrol Leg' })).toBeVisible();
   });
 
+  test('marks the leg being planned as new', () => {
+    renderHeader();
+
+    expect(screen.getByText('New')).toBeVisible();
+  });
+
   test('shows the icon of the patrol type the leg is being planned with', () => {
     renderHeader();
 

@@ -212,6 +212,16 @@ describe('SchemaFormSummary', () => {
     expect(screen.getByRole('heading', { level: 4, name: 'Medium Header' })).toBeInTheDocument();
   });
 
+  test('lets its caller style the section labels', () => {
+    renderSchemaFormSummary({
+      formData: { date_field: '', numeric_field: 10, text_field: 'Hello' },
+      schema: SCHEMA,
+      sectionLabelClassName: 'legPlanLabel',
+    });
+
+    expect(screen.getByRole('heading', { level: 3, name: 'Section 1 Label' })).toHaveClass('legPlanLabel');
+  });
+
   test('shows the sections in the order of the schema', () => {
     renderSchemaFormSummary({
       formData: { date_field: '', numeric_field: 10, text_field: 'Hello' },

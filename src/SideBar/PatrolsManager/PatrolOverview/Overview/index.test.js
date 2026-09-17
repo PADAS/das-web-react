@@ -7,7 +7,7 @@ import { events } from '../../../../__test-helpers/fixtures/events';
 import { PATROL_UI_STATES, SYSTEM_CONFIG_FLAGS } from '../../../../constants';
 import patrolTypes from '../../../../__test-helpers/fixtures/patrol-types';
 import patrols, { multiLegPatrol } from '../../../../__test-helpers/fixtures/patrols';
-import { render, screen } from '../../../../test-utils';
+import { render, screen, within } from '../../../../test-utils';
 import { TRACK_LENGTH_ORIGINS } from '../../../../ducks/tracks';
 
 import Overview from './';
@@ -67,6 +67,28 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview', () => {
       />
     </Provider>
   );
+
+  const activityRow = (rowTitle) => within(screen.getByText(rowTitle).closest('li'));
+
+  const activityLink = (rowTitle) => activityRow(rowTitle).getByRole('link');
+
+  const patrolWithPause = () => {
+    const [legOne, legTwo] = patrolWithLeader.patrol_segments;
+
+    return {
+      ...patrolWithLeader,
+      patrol_segments: [
+        legOne,
+        {
+          ...legOne,
+          id: 'pause-1',
+          is_pause: true,
+          time_range: { end_time: legTwo.time_range.start_time, start_time: legOne.time_range.end_time },
+        },
+        legTwo,
+      ],
+    };
+  };
 
   const patrolWithLegTimes = (...timeRanges) => ({
     ...multiLegPatrol,
@@ -156,15 +178,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview', () => {
   });
 
   test('marks a pause as the patrol stopping and picking back up, not as a leg', () => {
-    const [legOne, legTwo] = patrolWithLeader.patrol_segments;
-    const pause = {
-      ...legOne,
-      id: 'pause-1',
-      is_pause: true,
-      time_range: { end_time: legTwo.time_range.start_time, start_time: legOne.time_range.end_time },
-    };
-
-    renderOverview({ patrol: { ...patrolWithLeader, patrol_segments: [legOne, pause, legTwo] } });
+    renderOverview({ patrol: patrolWithPause() });
 
     expect(screen.getByText(/Patrol Paused for/)).toBeInTheDocument();
     expect(screen.getByText('Patrol Resumed')).toBeInTheDocument();
@@ -221,6 +235,50 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview', () => {
     expect(screen.queryByText('Leg 2 Ended')).not.toBeInTheDocument();
     expect(screen.getByText('Patrol Started')).toBeInTheDocument();
     expect(screen.getByText('Patrol Ended')).toBeInTheDocument();
+  });
+
+  test('links a leg started milestone to the leg it marks', () => {
+    renderOverview();
+
+    const [, legTwo] = patrolWithLeader.patrol_segments;
+
+    expect(activityLink('Leg 2 Started'))
+      .toHaveAttribute('href', `/patrols/${patrolWithLeader.id}/legs/${legTwo.id}`);
+  });
+
+  test('links the patrol started milestone to the first leg', () => {
+    const patrol = patrolWithLegTimes(
+      { end_time: '2026-04-13T02:00:00.000-07:00', start_time: '2026-04-13T01:00:00.000-07:00' },
+      { end_time: '2026-04-13T03:00:00.000-07:00', start_time: '2026-04-13T02:00:00.000-07:00' },
+    );
+
+    renderOverview({ patrol });
+
+    expect(activityLink('Patrol Started')).toHaveAttribute('href', `/patrols/${patrol.id}/legs/leg-0`);
+  });
+
+  test('links a pause milestone to the pause it marks', () => {
+    renderOverview({ patrol: patrolWithPause() });
+
+    expect(activityLink(/Patrol Paused for/))
+      .toHaveAttribute('href', `/patrols/${patrolWithLeader.id}/legs/pause-1`);
+  });
+
+  test('does not link the milestones that mark something ending', () => {
+    renderOverview({ patrol: patrolWithPause() });
+
+    expect(activityRow('Leg 1 Ended').queryByRole('link')).toBeNull();
+    expect(activityRow('Patrol Resumed').queryByRole('link')).toBeNull();
+  });
+
+  test('does not link the patrol ended milestone', () => {
+    renderOverview({
+      patrol: patrolWithLegTimes(
+        { end_time: '2026-04-13T02:00:00.000-07:00', start_time: '2026-04-13T01:00:00.000-07:00' },
+      ),
+    });
+
+    expect(activityRow('Patrol Ended').queryByRole('link')).toBeNull();
   });
 
   test('marks both ends of a leg in the middle of the patrol', () => {

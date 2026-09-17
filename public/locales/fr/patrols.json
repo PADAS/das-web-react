@@ -212,6 +212,7 @@
     "header": {
       "breadcrumbNewLegLabel": "Nouvelle étape de patrouille",
       "breadcrumbPatrolsLabel": "Patrouilles",
+      "statePill": "Nouvelle",
       "title": "Nouvelle étape de patrouille"
     },
     "saveErrorMessage": "L'étape de la patrouille n'a pas pu être créée. Veuillez réessayer."
@@ -316,7 +317,11 @@
       "patrolEndedTitle": "Patrouille terminée",
       "patrolPausedTitle": "Patrouille en pause pendant {{pausedFor}}",
       "patrolResumedTitle": "Patrouille reprise",
-      "patrolStartedTitle": "Patrouille commencée"
+      "patrolStartedTitle": "Patrouille commencée",
+      "viewLegLinkLabel": {
+        "leg": "Voir l'étape {{number}}",
+        "pause": "Voir la pause {{number}}"
+      }
     },
     "overviewTabTitle": "Aperçu",
     "saveErrorMessage": "La patrouille n'a pas pu être enregistrée. Veuillez réessayer.",

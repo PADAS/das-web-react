@@ -7,3 +7,7 @@
     @include shared.header-title;
   }
 }
+
+.pills {
+  @include shared.header-pills;
+}

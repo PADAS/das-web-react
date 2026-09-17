@@ -36,6 +36,7 @@ const Activity = ({
   className = '',
   containedEvents,
   emptyStateMessage,
+  endIcon,
   endTime,
   endTitle,
   existingNotes = [],
@@ -49,6 +50,8 @@ const Activity = ({
   onDoneNote,
   patrol,
   patrolSegment = null,
+  startIcon,
+  startLink = null,
   startTime,
   startTitle,
 }) => {
@@ -64,6 +67,7 @@ const Activity = ({
   } = useActivityFeed({
     attachments,
     containedReports: containedEvents,
+    endIcon,
     endTime,
     endTitle,
     milestones,
@@ -76,6 +80,8 @@ const Activity = ({
     onDeleteNote,
     onDoneNote,
     sortButtonComponent: CustomSortButton,
+    startIcon,
+    startLink,
     startTime,
     startTitle,
   });

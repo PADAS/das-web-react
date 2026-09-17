@@ -35,7 +35,9 @@ const Header = ({ isTitleDirty, onChangeTitle, patrolType, title }) => {
       />
     </div>
 
-    <span className={styles.statePill}>{t('statePill')}</span>
+    <div className={styles.pills}>
+      <span className={styles.statePill}>{t('statePill')}</span>
+    </div>
   </>;
 
   return <PatrolsManagerHeader crumbs={crumbs} renderTitleBar={renderTitleBar} />;

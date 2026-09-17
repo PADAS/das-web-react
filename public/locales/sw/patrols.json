@@ -212,6 +212,7 @@
     "header": {
       "breadcrumbNewLegLabel": "Kipande kipya cha doria",
       "breadcrumbPatrolsLabel": "Doria",
+      "statePill": "Kipya",
       "title": "Kipande kipya cha doria"
     },
     "saveErrorMessage": "Kipande cha doria hakikuweza kuundwa. Tafadhali jaribu tena."
@@ -316,7 +317,11 @@
       "patrolEndedTitle": "Doria imekamilika",
       "patrolPausedTitle": "Doria imesitishwa kwa {{pausedFor}}",
       "patrolResumedTitle": "Doria imeendelea",
-      "patrolStartedTitle": "Doria imeanza"
+      "patrolStartedTitle": "Doria imeanza",
+      "viewLegLinkLabel": {
+        "leg": "Angalia kipande {{number}}",
+        "pause": "Angalia msitisho {{number}}"
+      }
     },
     "overviewTabTitle": "Muhtasari",
     "saveErrorMessage": "Doria haikuweza kuhifadhiwa. Tafadhali jaribu tena.",

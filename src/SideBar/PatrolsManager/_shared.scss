@@ -117,15 +117,22 @@
   flex-shrink: 0;
   gap: 0.5rem;
 
-  .provenancePill {
+  .provenancePill, .statePill {
     align-items: center;
-    background: colors.$off-black;
     border-radius: 999px;
     color: white;
     display: flex;
     flex-shrink: 0;
     font-size: 0.875rem;
     padding: 0.125rem 0.625rem;
+  }
+
+  .provenancePill {
+    background: colors.$off-black;
+  }
+
+  .statePill {
+    background: colors.$bright-blue;
   }
 }
 

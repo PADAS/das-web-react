@@ -12,7 +12,13 @@ import Section from './Section';
 
 import * as styles from './styles.module.scss';
 
-const SchemaFormSummary = ({ className = '', formData, schema, sectionClassName = '' }) => {
+const SchemaFormSummary = ({
+  className = '',
+  formData,
+  schema,
+  sectionClassName = '',
+  sectionLabelClassName = '',
+}) => {
   // Field values are humanized against the language i18next holds when they
   // are read, so this memoized summary subscribes to redraw when it changes.
   useTranslation('schema-form');
@@ -43,6 +49,7 @@ const SchemaFormSummary = ({ className = '', formData, schema, sectionClassName 
       formData={normalizedFormData}
       formElements={formElements}
       key={sectionId}
+      labelClassName={sectionLabelClassName}
       section={formElements[sectionId]}
     />)}
   </div>;

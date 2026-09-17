@@ -212,6 +212,7 @@
     "header": {
       "breadcrumbNewLegLabel": "नयाँ गस्ती खण्ड",
       "breadcrumbPatrolsLabel": "गस्तीहरू",
+      "statePill": "नयाँ",
       "title": "नयाँ गस्ती खण्ड"
     },
     "saveErrorMessage": "गस्ती खण्ड सिर्जना गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।"
@@ -316,7 +317,11 @@
       "patrolEndedTitle": "गस्ती समाप्त भएको",
       "patrolPausedTitle": "गस्ती {{pausedFor}} का लागि रोकिएको",
       "patrolResumedTitle": "गस्ती पुनः सुरु भएको",
-      "patrolStartedTitle": "गस्ती सुरु भएको"
+      "patrolStartedTitle": "गस्ती सुरु भएको",
+      "viewLegLinkLabel": {
+        "leg": "खण्ड {{number}} हेर्नुहोस्",
+        "pause": "रोकाइ {{number}} हेर्नुहोस्"
+      }
     },
     "overviewTabTitle": "सारांश",
     "saveErrorMessage": "गस्ती सुरक्षित गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।",

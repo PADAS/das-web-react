@@ -212,6 +212,7 @@
     "header": {
       "breadcrumbNewLegLabel": "Nova etapa de patrulha",
       "breadcrumbPatrolsLabel": "Patrulhas",
+      "statePill": "Nova",
       "title": "Nova etapa de patrulha"
     },
     "saveErrorMessage": "Não foi possível criar a etapa da patrulha. Tente novamente."
@@ -316,7 +317,11 @@
       "patrolEndedTitle": "Patrulha finalizada",
       "patrolPausedTitle": "Patrulha pausada por {{pausedFor}}",
       "patrolResumedTitle": "Patrulha retomada",
-      "patrolStartedTitle": "Patrulha iniciada"
+      "patrolStartedTitle": "Patrulha iniciada",
+      "viewLegLinkLabel": {
+        "leg": "Ver etapa {{number}}",
+        "pause": "Ver pausa {{number}}"
+      }
     },
     "overviewTabTitle": "Visão geral",
     "saveErrorMessage": "Não foi possível salvar a patrulha. Tente novamente.",

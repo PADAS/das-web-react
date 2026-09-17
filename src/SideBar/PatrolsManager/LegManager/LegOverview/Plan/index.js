@@ -79,6 +79,7 @@ const Plan = ({ patrol, patrolSegment }) => {
       formData={legDraft.universalDetails}
       schema={defaultPatrolSegmentTypeSchemaState.schema}
       sectionClassName={styles.section}
+      sectionLabelClassName={styles.sectionLabel}
     />}
 
     {(!defaultPatrolSegmentTypeSchemaState || !!defaultPatrolSegmentTypeSchemaState.isLoading)
@@ -91,6 +92,7 @@ const Plan = ({ patrol, patrolSegment }) => {
       formData={legDraft.typeDetails}
       schema={patrolTypeSchemaState.schema}
       sectionClassName={styles.section}
+      sectionLabelClassName={styles.sectionLabel}
     />}
 
     {!!patrolSegment.patrol_type && (!patrolTypeSchemaState || !!patrolTypeSchemaState.isLoading)

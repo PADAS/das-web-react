@@ -17,13 +17,19 @@ const Header = ({ patrolId, patrolTitle, patrolType }) => {
     { label: t('breadcrumbNewLegLabel') },
   ];
 
-  const renderTitleBar = () => <div className={styles.titleBarMain}>
-    <div className={styles.icon}>
-      <SvgIcon iconId={patrolType?.icon_id} title={patrolType?.display} type="patrols" />
+  const renderTitleBar = () => <>
+    <div className={styles.titleBarMain}>
+      <div className={styles.icon}>
+        <SvgIcon iconId={patrolType?.icon_id} title={patrolType?.display} type="patrols" />
+      </div>
+
+      <h2 className={styles.title}>{t('title')}</h2>
     </div>
 
-    <h2 className={styles.title}>{t('title')}</h2>
-  </div>;
+    <div className={styles.pills}>
+      <span className={styles.statePill}>{t('statePill')}</span>
+    </div>
+  </>;
 
   return <PatrolsManagerHeader crumbs={crumbs} renderTitleBar={renderTitleBar} />;
 };

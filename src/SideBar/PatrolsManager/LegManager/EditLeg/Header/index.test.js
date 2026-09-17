@@ -17,6 +17,7 @@ describe('SideBar - PatrolsManager - LegManager - EditLeg - Header', () => {
     patrol = {
       id: '93485e1d-6804-459b-9243-1d239556bb48',
       patrol_segments: [patrolSegment],
+      serial_number: 4867,
       title: 'Delta Patrol',
     };
   });
@@ -45,6 +46,12 @@ describe('SideBar - PatrolsManager - LegManager - EditLeg - Header', () => {
     renderHeader();
 
     expect(screen.getByRole('heading', { name: 'Edit Leg 1' })).toBeVisible();
+  });
+
+  test('shows the ticker number of the patrol the leg belongs to', () => {
+    renderHeader();
+
+    expect(screen.getByText('4867')).toBeVisible();
   });
 
   test('shows the icon of the patrol type of the leg being edited', () => {

@@ -212,6 +212,7 @@
     "header": {
       "breadcrumbNewLegLabel": "Nuevo tramo de patrulla",
       "breadcrumbPatrolsLabel": "Patrullas",
+      "statePill": "Nuevo",
       "title": "Nuevo tramo de patrulla"
     },
     "saveErrorMessage": "No se pudo crear el tramo de la patrulla. Vuelva a intentarlo."
@@ -316,7 +317,11 @@
       "patrolEndedTitle": "Patrullaje finalizado",
       "patrolPausedTitle": "Patrullaje en pausa por {{pausedFor}}",
       "patrolResumedTitle": "Patrullaje reanudado",
-      "patrolStartedTitle": "Patrullaje iniciado"
+      "patrolStartedTitle": "Patrullaje iniciado",
+      "viewLegLinkLabel": {
+        "leg": "Ver tramo {{number}}",
+        "pause": "Ver pausa {{number}}"
+      }
     },
     "overviewTabTitle": "Resumen",
     "saveErrorMessage": "No se pudo guardar la patrulla. Vuelva a intentarlo.",

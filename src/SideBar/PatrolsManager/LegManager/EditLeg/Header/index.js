@@ -41,6 +41,8 @@ const Header = ({ legNumber, legState, patrol, patrolSegment, patrolType }) => {
           : <SvgIcon iconId={patrolType?.icon_id} title={patrolType?.display} type="patrols" />}
       </div>
 
+      <p className={styles.serialNumber}>{patrol.serial_number}</p>
+
       <h2 className={styles.title}>{legTitle}</h2>
     </div>
 
