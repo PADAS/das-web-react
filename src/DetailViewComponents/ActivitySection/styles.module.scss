@@ -135,6 +135,7 @@ $cardExpansionTransitionTime: 300ms;
 
     .itemDetails {
       align-items: flex-start;
+      column-gap: 0.5rem;
       display: flex;
       flex: 6;
       flex-direction: var(--item-details-direction, column);
