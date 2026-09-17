@@ -133,6 +133,7 @@ $cardExpansionTransitionTime: 300ms;
 
     .itemDetails {
       align-items: flex-start;
+      column-gap: 0.5rem;
       display: flex;
       flex: 6;
       flex-direction: var(--item-details-direction, column);
@@ -167,7 +168,8 @@ $cardExpansionTransitionTime: 300ms;
         }
       }
 
-      .itemDate {
+      .itemDate,
+      .itemMeta {
         flex-shrink: 0;
         font-size: 0.875rem;
         white-space: nowrap;
