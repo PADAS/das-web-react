@@ -1,3 +1,5 @@
+import omit from 'lodash/omit';
+
 import { TRACK_LENGTH_ORIGINS } from '../../ducks/tracks';
 
 import {
@@ -754,6 +756,44 @@ describe('Selectors - Patrols', () => {
 
       expect(startStopGeometries.lines.features).toHaveLength(1);
       expect(startStopGeometries.lines.features[0].geometry.coordinates).toEqual([[[2, 2], [3, 3]]]);
+    });
+
+    test('marks a leg with no lead from the first subject it tracks', () => {
+      const asset = { id: 'subjectAsset', name: 'KTN-123' };
+
+      state.data.patrolTeamAndTrackingOptions.assets = [asset];
+      state.data.tracks = {
+        [asset.id]: {
+          fetchedDateRange: { since: '2019-11-01T00:00:00.000Z' },
+          points: {
+            features: [
+              { geometry: { coordinates: [0, 2] }, properties: { time: '2019-11-20T00:00:00.000Z' } },
+              { geometry: { coordinates: [0, 0] }, properties: { time: '2019-11-01T00:00:00.000Z' } },
+            ],
+          },
+          track: {
+            features: [{
+              geometry: { type: 'LineString', coordinates: [[0, 2], [0, 0]] },
+              properties: {
+                coordinateProperties: { times: ['2019-11-20T00:00:00.000Z', '2019-11-01T00:00:00.000Z'] },
+              },
+            }],
+          },
+        },
+      };
+
+      const patrol = {
+        state: 'done',
+        patrol_segments: [{
+          assets: [asset.id],
+          time_range: { end_time: '2019-11-20T00:00:00.000Z', start_time: '2019-11-01T00:00:00.000Z' },
+        }],
+      };
+
+      const { startStopGeometries } = selectPatrolTrackData(state, patrol);
+
+      expect(startStopGeometries.points.features.map(({ geometry }) => geometry.coordinates))
+        .toEqual([[0, 0], [0, 2]]);
     });
 
     test('does not mark a leg whose window holds none of its leader positions', () => {
@@ -1535,6 +1575,12 @@ describe('Selectors - Patrols', () => {
 
         expect(selectPatrolLeadSumDistance(state, patrol)).toBeNull();
       });
+
+      test('leaves the distance unknown while only some of its subjects have a track', () => {
+        state.data.tracks = omit(state.data.tracks, ASSET.id);
+
+        expect(selectPatrolLeadSumDistance(state, { state: 'done', patrol_segments: [legWithoutLead] })).toBeNull();
+      });
     });
   });
 
@@ -1960,11 +2006,42 @@ describe('Selectors - Patrols', () => {
     });
 
     test('asks for every subject a drawn patrol tracks, over the times its legs ran', () => {
-      expect(selectPatrolsWithTracksTrackedSubjectRequests(state)).toEqual([{
-        since: '2020-01-01T00:00:00.000Z',
-        subjectIds: [LEAD.id, ASSET.id],
-        until: '2020-01-05T00:00:00.000Z',
-      }]);
+      expect(selectPatrolsWithTracksTrackedSubjectRequests(state)).toEqual([
+        { since: '2020-01-01T00:00:00.000Z', subjectId: LEAD.id, until: '2020-01-05T00:00:00.000Z' },
+        { since: '2020-01-01T00:00:00.000Z', subjectId: ASSET.id, until: '2020-01-05T00:00:00.000Z' },
+      ]);
+    });
+
+    test('asks once for a subject on several legs, over all of them at once', () => {
+      state.data.patrolStore[patrol.id] = {
+        ...patrol,
+        patrol_segments: [
+          ...patrol.patrol_segments,
+          {
+            assets: [ASSET.id],
+            time_range: { end_time: '2020-01-08T00:00:00.000Z', start_time: '2020-01-06T00:00:00.000Z' },
+          },
+        ],
+      };
+
+      expect(selectPatrolsWithTracksTrackedSubjectRequests(state)).toEqual([
+        { since: '2020-01-01T00:00:00.000Z', subjectId: LEAD.id, until: '2020-01-05T00:00:00.000Z' },
+        { since: '2020-01-01T00:00:00.000Z', subjectId: ASSET.id, until: '2020-01-08T00:00:00.000Z' },
+      ]);
+    });
+
+    test('asks up to now for a subject whose leg has not ended', () => {
+      state.data.patrolStore[patrol.id] = {
+        ...patrol,
+        patrol_segments: [
+          ...patrol.patrol_segments,
+          { assets: [ASSET.id], time_range: { start_time: '2020-01-06T00:00:00.000Z' } },
+        ],
+      };
+
+      expect(selectPatrolsWithTracksTrackedSubjectRequests(state)).toContainEqual(
+        { since: '2020-01-01T00:00:00.000Z', subjectId: ASSET.id, until: null }
+      );
     });
 
     test('asks for nothing while no patrol track is drawn', () => {

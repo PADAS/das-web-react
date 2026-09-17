@@ -5,6 +5,7 @@ import { ReactComponent as PencilIcon } from '../../../common/images/icons/penci
 
 import * as styles from './styles.module.scss';
 
+const NEW_LINES = /[\r\n]+/g;
 const WIDTH_CARET_BUFFER = 2;
 
 const TitleInput = ({ isDirty, isReadOnly = false, onChange, value, ...otherProps }) => {
@@ -20,7 +21,8 @@ const TitleInput = ({ isDirty, isReadOnly = false, onChange, value, ...otherProp
     inputRef.current?.select();
   };
 
-  // A title is a single line of text, so a newline in it is only ever a stray.
+  // A title is a single line of text, so a newline in it is only ever a stray:
+  // typed it does nothing, and pasted it reads as the space it stood for.
   const onKeyDown = (event) => {
     if (event.key === 'Enter') {
       event.preventDefault();
@@ -51,7 +53,7 @@ const TitleInput = ({ isDirty, isReadOnly = false, onChange, value, ...otherProp
   return <div className={styles.titleInput}>
     <textarea
       className={`${styles.input} ${isDirty ? styles.unsaved : ''}`}
-      onChange={(event) => onChange(event.target.value)}
+      onChange={(event) => onChange(event.target.value.replace(NEW_LINES, ' '))}
       onKeyDown={onKeyDown}
       readOnly={isReadOnly}
       ref={inputRef}

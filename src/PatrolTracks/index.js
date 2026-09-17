@@ -12,7 +12,7 @@ const PatrolTracks = (props) => {
 
   useEffect(() => {
     patrolsWithTracksTrackedSubjectRequests.forEach((trackedSubjectRequest) => {
-      fetchTracksIfNecessary(trackedSubjectRequest.subjectIds, {
+      fetchTracksIfNecessary([trackedSubjectRequest.subjectId], {
         optionalDateBoundaries: { since: trackedSubjectRequest.since, until: trackedSubjectRequest.until },
       });
     });

@@ -1,4 +1,5 @@
 import { memo, useContext, useEffect, useMemo } from 'react';
+import pick from 'lodash/pick';
 import { useSelector } from 'react-redux';
 
 import { addMapImage, safeRemoveMapLayer, safeRemoveMapSource } from '../utils/map';
@@ -59,6 +60,11 @@ const TIMEPOINT_LAYER_PAINT = {
 // the source asks for it.
 const LINE_SOURCE_OPTIONS = { lineMetrics: true, tolerance: 1.5, type: 'geojson' };
 
+// A time-of-day segment carries the two colours it spans and nothing else, so
+// only a paint value that reads none of the track's own properties carries over.
+const GRADIENT_LINE_PAINT_PROPERTIES = ['line-offset', 'line-opacity'];
+const GRADIENT_LINE_WIDTH = 3;
+
 const EMPTY_FEATURE_COLLECTION = { features: [], type: 'FeatureCollection' };
 
 const TrackLayer = ({
@@ -91,6 +97,11 @@ const TrackLayer = ({
   // keeps the layers off a teardown-and-rebuild cycle.
   const stableLineLayout = useMemoCompare({ ...TRACK_LAYER_LINE_LAYOUT, ...lineLayout });
   const stableLinePaint = useMemoCompare({ ...TRACK_LAYER_LINE_PAINT, ...linePaint });
+
+  const gradientLinePaint = useMemo(() => ({
+    ...pick(stableLinePaint, GRADIENT_LINE_PAINT_PROPERTIES),
+    'line-width': GRADIENT_LINE_WIDTH,
+  }), [stableLinePaint]);
 
   // One source and one line per pair of time-of-day periods the track crosses,
   // each drawing the gradient between that pair's two colours.
@@ -201,6 +212,7 @@ const TrackLayer = ({
             id: timeOfDayLine.layerId,
             layout: stableLineLayout,
             paint: {
+              ...gradientLinePaint,
               'line-gradient': [
                 'interpolate',
                 ['linear'],
@@ -208,7 +220,6 @@ const TrackLayer = ({
                 0, timeOfDayLine.colors[0],
                 1, timeOfDayLine.colors[1],
               ],
-              'line-width': 3,
             },
             source: timeOfDayLine.sourceId,
             type: 'line',
@@ -224,7 +235,7 @@ const TrackLayer = ({
         safeRemoveMapSource(map, timeOfDayLine.sourceId);
       });
     };
-  }, [lineBeforeId, map, stableLineLayout, timeOfDayLines]);
+  }, [gradientLinePaint, lineBeforeId, map, stableLineLayout, timeOfDayLines]);
 
   useEffect(() => {
     if (map) {

@@ -175,6 +175,20 @@ describe('TracksLayer - track', () => {
         .toEqual(['interpolate', ['linear'], ['line-progress'], 0, '#000000', 1, '#111111']);
     });
 
+    test('keeps the plain paint values its caller passed on each of those lines', () => {
+      renderTrackLayer({ isTimeOfDayColoringActive: true, linePaint: { 'line-offset': -0.75, 'line-opacity': 0.4 } });
+
+      expect(addedLayer(`${lineLayerId}-colorpair-0`).paint)
+        .toEqual(expect.objectContaining({ 'line-offset': -0.75, 'line-opacity': 0.4 }));
+    });
+
+    test('leaves out the paint values reading properties a segment does not carry', () => {
+      renderTrackLayer({ isTimeOfDayColoringActive: true });
+
+      expect(addedLayer(`${lineLayerId}-colorpair-0`).paint).not.toHaveProperty('line-color');
+      expect(addedLayer(`${lineLayerId}-colorpair-0`).paint['line-width']).toBe(3);
+    });
+
     test('feeds each of those lines the segments that run between its colors', () => {
       renderTrackLayer({ isTimeOfDayColoringActive: true });
 

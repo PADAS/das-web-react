@@ -27,6 +27,24 @@ import { selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod, selec
 
 const EMPTY_HIDDEN_SUBJECT_IDS = [];
 
+// A leg that never started bounds nothing, so it leaves the window as it is.
+const earliestTime = (time, otherTime) => {
+  if (!time || !otherTime) {
+    return time ?? otherTime;
+  }
+
+  return new Date(time).getTime() < new Date(otherTime).getTime() ? time : otherTime;
+};
+
+// A leg still open runs up to now, which no end time can stand in for.
+const latestTimeOrOpenEnded = (time, otherTime) => {
+  if (!time || !otherTime) {
+    return null;
+  }
+
+  return new Date(time).getTime() > new Date(otherTime).getTime() ? time : otherTime;
+};
+
 const clampTrackTimeRangeEnd = (until, trackTimeEnvelopeUntil) => {
   if (!trackTimeEnvelopeUntil) {
     return until;
@@ -105,14 +123,17 @@ const measuredSubjectsForPatrolSegment = (patrolSegment, trackedSubjects) => pat
   ? trackedSubjects.filter((subject) => subject.id === patrolSegment.leader.id)
   : trackedSubjects;
 
-// The kilometers a leg covered, or nothing while no track of its own has
-// loaded. A pause tracks nobody, so it covered nothing.
+// The kilometers a leg covered, or nothing until every subject it is measured
+// by has a track: the furthest of those that arrived is not the furthest of all.
 const legDistanceForPatrolSegment = (patrol, patrolSegment, trackedSubjects, tracks) => {
-  const legDistances = measuredSubjectsForPatrolSegment(patrolSegment, trackedSubjects)
-    .filter((subject) => !!tracks[subject.id])
-    .map((subject) => distanceCoveredInTimeRange(patrolSegmentTimeRange(patrol, patrolSegment), tracks[subject.id]));
+  const measuredSubjects = measuredSubjectsForPatrolSegment(patrolSegment, trackedSubjects);
 
-  return legDistances.length ? Math.max(...legDistances) : null;
+  if (!measuredSubjects.length || measuredSubjects.some((subject) => !tracks[subject.id])) {
+    return null;
+  }
+
+  return Math.max(...measuredSubjects.map((subject) =>
+    distanceCoveredInTimeRange(patrolSegmentTimeRange(patrol, patrolSegment), tracks[subject.id])));
 };
 
 // Every subject the given legs track, each paired with the legs it is on.
@@ -196,11 +217,12 @@ const buildTrackedSubjectTrackData = (patrol, trackedSubject, tracks, trackTimeE
     .filter(Boolean));
 };
 
-// A leg's leader track alone: the start, end and hand-over markers a patrol
-// draws all sit on the line its leader made.
-const buildPatrolSegmentLeaderTrackData = (patrol, patrolSegment, tracks, virtualDate) => {
-  const leader = patrolSegment.leader || null;
-  const rawTrackData = leader ? (tracks[leader.id] || null) : null;
+// One subject's track alone, since the start, end and hand-over markers a
+// patrol draws all sit on a single line: its lead's, or, with no lead, the
+// first subject it tracks.
+const buildPatrolSegmentLeadTrackData = (patrol, patrolSegment, trackedSubjects, tracks, virtualDate) => {
+  const lead = patrolSegment.leader ?? trackedSubjects[0] ?? null;
+  const rawTrackData = lead ? (tracks[lead.id] || null) : null;
   const startTime = patrolSegment.time_range?.start_time;
   const endTime = clampTrackTimeRangeEnd(effectiveEndTimeForPatrolSegment(patrol, patrolSegment), virtualDate);
 
@@ -208,7 +230,7 @@ const buildPatrolSegmentLeaderTrackData = (patrol, patrolSegment, tracks, virtua
     && !!startTime
     && trimTrackDataToPatrolTimeRange(rawTrackData, startTime, endTime)) || null;
 
-  return { leader, rawTrackData, trackData };
+  return { lead, rawTrackData, trackData };
 };
 
 // Where the leg before a pause left the patrol, which is what the pause stands
@@ -221,16 +243,16 @@ const lastLegEndPointBefore = (patrolSegmentsPoints, patrolSegmentIndex) => patr
 
 // Where a patrol starts, where it ends, where each leg hands over to the next,
 // and where it stood still.
-const buildPatrolPoints = (patrol, patrolSegmentsLeaderTrackData) => {
+const buildPatrolPoints = (patrol, patrolSegmentsLeadTrackData) => {
   const patrolSegmentsPoints = patrol.patrol_segments.map((patrolSegment, index) => {
-    const leaderTrackData = patrolSegmentsLeaderTrackData[index];
+    const leadTrackData = patrolSegmentsLeadTrackData[index];
 
-    return leaderTrackData
+    return leadTrackData
       ? extractLegPatrolPoints(
         patrolSegment,
-        leaderTrackData.leader,
-        leaderTrackData.trackData,
-        leaderTrackData.rawTrackData,
+        leadTrackData.lead,
+        leadTrackData.trackData,
+        leadTrackData.rawTrackData,
         isSegmentActiveForPatrol(patrol, patrolSegment)
       )
       : null;
@@ -289,17 +311,23 @@ const hasPatrolEndedByVirtualDate = (patrol, virtualDate) => {
   return !!patrolEndTime && !isAfter(patrolEndTime, virtualDate);
 };
 
-const buildPatrolStartStopGeometries = (patrol, timeSliderState, tracks) => {
+const buildPatrolStartStopGeometries = (patrol, patrolSegmentsTrackedSubjects, timeSliderState, tracks) => {
   const virtualDate = timeSliderState.active ? timeSliderState.virtualDate ?? null : null;
 
   // The markers sit on the line the leads made. A pause tracks nobody and a leg
   // still to come has been nowhere, so neither puts the patrol anywhere.
-  const patrolSegmentsLeaderTrackData = patrol.patrol_segments.map((patrolSegment) =>
+  const patrolSegmentsLeadTrackData = patrol.patrol_segments.map((patrolSegment, index) =>
     hasPatrolSegmentRun(patrolSegment)
-      ? buildPatrolSegmentLeaderTrackData(patrol, patrolSegment, tracks, virtualDate)
+      ? buildPatrolSegmentLeadTrackData(
+        patrol,
+        patrolSegment,
+        patrolSegmentsTrackedSubjects[index],
+        tracks,
+        virtualDate
+      )
       : null);
 
-  const patrolPoints = buildPatrolPoints(patrol, patrolSegmentsLeaderTrackData);
+  const patrolPoints = buildPatrolPoints(patrol, patrolSegmentsLeadTrackData);
 
   if (virtualDate) {
     const virtualDateTime = new Date(virtualDate);
@@ -331,8 +359,8 @@ const buildPatrolStartStopGeometries = (patrol, timeSliderState, tracks) => {
     // subject in the legend leaves where the patrol began and ended alone.
     lines: drawPatrolTrackConnectorLines(
       finalizedPatrolPoints,
-      combineTrackData(patrolSegmentsLeaderTrackData
-        .map((leaderTrackData) => leaderTrackData?.trackData)
+      combineTrackData(patrolSegmentsLeadTrackData
+        .map((leadTrackData) => leadTrackData?.trackData)
         .filter(Boolean))
     ),
     points: {
@@ -511,6 +539,17 @@ const selectPatrolTrackedSubjectsWithPatrolSegments = createSelector(
   )
 );
 
+// The subjects each of a patrol's legs tracks, index aligned with its legs.
+const selectPatrolSegmentsTrackedSubjects = createSelector(
+  [selectPatrolTeamAndTrackingOptions, selectPatrolRosterFallbackSubjects, (_, patrol) => patrol],
+  (patrolTeamAndTrackingOptions, patrolRosterFallbackSubjects, patrol) => patrol.patrol_segments
+    .map((patrolSegment) => getTrackedSubjectsForPatrolSegment(
+      patrolSegment,
+      patrolTeamAndTrackingOptions,
+      patrolRosterFallbackSubjects
+    ))
+);
+
 // What the map draws: the track length setting narrows the lines, and the
 // subjects the user hid in the legend drop out of them.
 const selectPatrolMapTrackContext = createSelector(
@@ -554,10 +593,21 @@ const selectPatrolTrackContext = createSelector(
 // Where a patrol began, handed over, stood still and ended, held apart from
 // its lines: the time slider moves these pins and leaves those alone.
 const selectPatrolStartStopGeometries = createSelector(
-  [selectPatrolTrackedSubjectTracks, selectTimeSliderState, (_, patrol) => patrol],
-  (patrolTrackedSubjectTracks, timeSliderState, patrol) => patrolStateAllowsTrackDisplay(patrol)
-    ? buildPatrolStartStopGeometries(patrol, timeSliderState, patrolTrackedSubjectTracks)
-    : null
+  [
+    selectPatrolSegmentsTrackedSubjects,
+    selectPatrolTrackedSubjectTracks,
+    selectTimeSliderState,
+    (_, patrol) => patrol,
+  ],
+  (patrolSegmentsTrackedSubjects, patrolTrackedSubjectTracks, timeSliderState, patrol) =>
+    patrolStateAllowsTrackDisplay(patrol)
+      ? buildPatrolStartStopGeometries(
+        patrol,
+        patrolSegmentsTrackedSubjects,
+        timeSliderState,
+        patrolTrackedSubjectTracks
+      )
+      : null
 );
 
 const selectPatrolSubjectsTrackData = createSelector(
@@ -837,21 +887,36 @@ const selectPatrolsWithTracksRosterFallbackSubjects = createSelector(
   { memoizeOptions: { resultEqualityCheck: shallowEqual } }
 );
 
-// Every subject these patrols track and the leg times their tracks have to
-// reach: nothing else fetches them once the user navigates away.
+// Every subject these patrols track and the window its track has to reach:
+// nothing else fetches them once the user navigates away. A subject asks once
+// for every leg it is on, since a fetch already under way is reused whole.
 export const selectPatrolsWithTracksTrackedSubjectRequests = createSelector(
   [selectPatrolTeamAndTrackingOptions, selectPatrolsWithTracks, selectPatrolsWithTracksRosterFallbackSubjects],
-  (patrolTeamAndTrackingOptions, patrolsWithTracks, patrolsWithTracksRosterFallbackSubjects) => patrolsWithTracks
-    .flatMap((patrol) => (patrol.patrol_segments ?? []).map((patrolSegment) => ({
-      since: patrolSegment.time_range?.start_time ?? null,
-      subjectIds: getTrackedSubjectsForPatrolSegment(
+  (patrolTeamAndTrackingOptions, patrolsWithTracks, patrolsWithTracksRosterFallbackSubjects) => {
+    const trackedSubjectRequests = new Map();
+
+    patrolsWithTracks.forEach((patrol) => (patrol.patrol_segments ?? []).forEach((patrolSegment) => {
+      const since = patrolSegment.time_range?.start_time ?? null;
+      const until = patrolSegment.time_range?.end_time ?? null;
+
+      getTrackedSubjectsForPatrolSegment(
         patrolSegment,
         patrolTeamAndTrackingOptions,
         patrolsWithTracksRosterFallbackSubjects
-      ).map((subject) => subject.id),
-      until: patrolSegment.time_range?.end_time ?? null,
-    })))
-    .filter((trackedSubjectRequest) => !!trackedSubjectRequest.subjectIds.length)
+      ).forEach((subject) => {
+        const trackedSubjectRequest = trackedSubjectRequests.get(subject.id);
+
+        if (trackedSubjectRequest) {
+          trackedSubjectRequest.since = earliestTime(trackedSubjectRequest.since, since);
+          trackedSubjectRequest.until = latestTimeOrOpenEnded(trackedSubjectRequest.until, until);
+        } else {
+          trackedSubjectRequests.set(subject.id, { since, subjectId: subject.id, until });
+        }
+      });
+    }));
+
+    return [...trackedSubjectRequests.values()];
+  }
 );
 
 // The legend lists what the map draws, so it reads the same per patrol work
