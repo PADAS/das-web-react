@@ -26,9 +26,14 @@
     "imagePreviewAlt": "{{fileName}} aperçu"
   },
   "containedReportListItem": {
+    "activeStateLabel": "Actif",
     "collapseClosedButtonLabel": "Agrandir {{title}}",
     "collapseOpenButtonLabel": "Réduire {{title}}",
     "loadingLabel": "Chargement de {{title}}",
+    "resolvedStateLabel": "Résolu",
+    "reviewStateLabel": "En révision",
+    "serialNumberLabel": "Numéro d'événement",
+    "stateLabel": "État",
     "viewReportButtonLabel": "Voir l'événement {{title}}"
   },
   "footer": {

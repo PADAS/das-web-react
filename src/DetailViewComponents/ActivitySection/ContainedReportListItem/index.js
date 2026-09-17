@@ -8,10 +8,10 @@ import { ReactComponent as ArrowDownSimpleIcon } from '../../../common/images/ic
 import { ReactComponent as ArrowIntoIcon } from '../../../common/images/icons/arrow-into.svg';
 import { ReactComponent as ArrowUpSimpleIcon } from '../../../common/images/icons/arrow-up-simple.svg';
 
+import { EVENT_FORM_STATES, TAB_KEYS } from '../../../constants';
 import { fetchEvent } from '../../../ducks/events';
 import { format, STANDARD_DATE_FORMAT } from '../../../utils/datetime';
 import { getIsEventFullyLoaded, PRIORITY_COLOR_MAP } from '../../../utils/events';
-import { TAB_KEYS } from '../../../constants';
 import useReport from '../../../hooks/useReport';
 
 import EventIcon from '../../../EventIcon';
@@ -25,6 +25,13 @@ const LOADER_COLOR = '#006cd9'; // Bright blue
 const LOADER_SIZE = 30;
 
 const CONTAINED_REPORT_ANALYTICS_LABEL = 'contained report';
+
+const STATE_LABEL_KEYS = {
+  [EVENT_FORM_STATES.ACTIVE]: 'activeStateLabel',
+  [EVENT_FORM_STATES.NEW_LEGACY]: 'activeStateLabel',
+  [EVENT_FORM_STATES.RESOLVED]: 'resolvedStateLabel',
+  [EVENT_FORM_STATES.REVIEW]: 'reviewStateLabel',
+};
 
 const ContainedReportListItem = ({ isOpen = false, onCollapse, onExpand, report }) => {
   const dispatch = useDispatch();
@@ -40,6 +47,11 @@ const ContainedReportListItem = ({ isOpen = false, onCollapse, onExpand, report 
 
   const reportedTime = report.time || report.updated_at;
   const reportedDate = reportedTime ? new Date(reportedTime) : null;
+
+  // The store copy is the fresh one: the collection's own snapshot goes stale
+  // when a child is resolved elsewhere. The prop covers the first paint.
+  const reportState = eventFromEventStore?.state ?? report.state;
+  const stateLabelKey = STATE_LABEL_KEYS[reportState] ?? STATE_LABEL_KEYS[EVENT_FORM_STATES.ACTIVE];
 
   const onToggleCollapseRow = () => (isOpen ? onCollapse : onExpand)(report, CONTAINED_REPORT_ANALYTICS_LABEL);
 
@@ -66,15 +78,31 @@ const ContainedReportListItem = ({ isOpen = false, onCollapse, onExpand, report 
       </div>
 
       <div className={activitySectionStyles.itemDetails}>
-        <p className={activitySectionStyles.itemTitle}>{displayTitle}</p>
+        <div className={styles.titleGroup}>
+          {!!report.serial_number && <span className={styles.serialNumber}>
+            <span className="sr-only">{t('serialNumberLabel')} </span>
 
-        {reportedDate && <time
-          className={activitySectionStyles.itemDate}
-          data-testid={`activitySection-dateTime-${report.id}`}
-          dateTime={reportedDate.toISOString()}
-        >
-          {format(reportedDate, STANDARD_DATE_FORMAT)}
-        </time>}
+            {report.serial_number}
+          </span>}
+
+          <p className={activitySectionStyles.itemTitle}>{displayTitle}</p>
+        </div>
+
+        <div className={styles.metaGroup}>
+          <span className={`${activitySectionStyles.itemMeta} ${styles.stateLabel}`}>
+            <span className="sr-only">{t('stateLabel')} </span>
+
+            {t(stateLabelKey)}
+          </span>
+
+          {reportedDate && <time
+            className={activitySectionStyles.itemDate}
+            data-testid={`activitySection-dateTime-${report.id}`}
+            dateTime={reportedDate.toISOString()}
+          >
+            {format(reportedDate, STANDARD_DATE_FORMAT)}
+          </time>}
+        </div>
       </div>
 
       <div className={activitySectionStyles.itemActionButtonContainer} onClick={(event) => event.stopPropagation()}>

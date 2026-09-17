@@ -26,9 +26,14 @@
     "imagePreviewAlt": "{{fileName}} muhtasari"
   },
   "containedReportListItem": {
+    "activeStateLabel": "Tendaji",
     "collapseClosedButtonLabel": "Panua {{title}}",
     "collapseOpenButtonLabel": "Ficha {{title}}",
     "loadingLabel": "Inapakia {{title}}",
+    "resolvedStateLabel": "Imetatuliwa",
+    "reviewStateLabel": "Inakaguliwa",
+    "serialNumberLabel": "Nambari ya tukio",
+    "stateLabel": "Hali",
     "viewReportButtonLabel": "Angalia tukio {{title}}"
   },
   "footer": {

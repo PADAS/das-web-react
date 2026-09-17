@@ -25,9 +25,14 @@
     "imagePreviewAlt": "{{fileName}} पुर्वावलोकन"
   },
   "containedReportListItem": {
+    "activeStateLabel": "सक्रिय",
     "collapseClosedButtonLabel": "{{title}} विस्तार गर्नुहोस्",
     "collapseOpenButtonLabel": "{{title}} बन्द गर्नुहोस्",
     "loadingLabel": "{{title}} लोड हुँदैछ",
+    "resolvedStateLabel": "समाधान गरिएको",
+    "reviewStateLabel": "समीक्षामा",
+    "serialNumberLabel": "घटना नम्बर",
+    "stateLabel": "स्थिति",
     "viewReportButtonLabel": "घटना {{title}} हेर्नुहोस्"
   },
   "footer": {
