@@ -56,13 +56,10 @@
         "dragStartAnnouncement": "{{activeItemTitle}} a été saisi. Position {{activeItemPosition}} sur {{itemsLength}}.",
         "draggableScreenReaderInstructions": "Pour saisir un {{itemName}}, appuyez sur la barre d’espace. Pendant le déplacement, utilisez les touches fléchées haut et bas pour déplacer le {{itemName}} dans une direction donnée. Appuyez à nouveau sur la barre d’espace pour déposer le {{itemName}} à sa nouvelle position, ou appuyez sur Échap pour annuler.",
         "item": {
-          "attachmentHumanizedValue_one": "1 fichier",
-          "attachmentHumanizedValue_other": "{{count}} fichiers",
           "chevronButtonLabel": {
             "closed": "Ouvrir l'aperçu du formulaire {{itemTitle}}",
             "open": "Fermer l'aperçu du formulaire {{itemTitle}}"
           },
-          "collectionHumanizedValue": "{{collectionLength}} éléments",
           "deleteButtonLabel": "Supprimer {{itemTitle}}",
           "dragHandleButtonLabel": "Réorganiser {{itemTitle}}",
           "dragHandleButtonRoleDescription": "déplaçable",
@@ -73,9 +70,6 @@
             "doneButton": "Terminé"
           },
           "formPreview": {
-            "attachmentHumanizedValue_one": "1 fichier",
-            "attachmentHumanizedValue_other": "{{count}} fichiers",
-            "collectionHumanizedValue": "{{collectionLength}} éléments",
             "jumpToLocationButtonLabel": "Aller à l'emplacement de {{field}}"
           }
         }
@@ -84,6 +78,15 @@
     "text": {
       "urlLinkLabel": "Ouvrir l'URL dans un nouvel onglet"
     }
+  },
+  "humanizedFieldValues": {
+    "attachmentHumanizedValue_one": "1 fichier",
+    "attachmentHumanizedValue_other": "{{count}} fichiers",
+    "booleanHumanizedValue": {
+      "false": "Non",
+      "true": "Oui"
+    },
+    "collectionHumanizedValue": "{{collectionLength}} éléments"
   },
   "validationErrorsAnnouncement": "Il y a des erreurs de validation dans les champs suivants :"
 }

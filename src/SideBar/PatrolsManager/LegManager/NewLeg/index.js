@@ -20,6 +20,7 @@ import useNavigate from '../../../../hooks/useNavigate';
 import { usePatrolsPermissions } from '../../../../hooks/usePermissions';
 import usePatrolState from '../../../../hooks/usePatrolState';
 
+import DetailViewLoader from '../../DetailViewLoader';
 import Footer from './Footer';
 import Header from './Header';
 import LegForm from '../../LegForm';
@@ -39,6 +40,7 @@ const NewLeg = ({ patrol }) => {
 
   const autoEndPatrols = useSelector((state) => state.view.userPreferences.autoEndPatrols);
   const autoStartPatrols = useSelector((state) => state.view.userPreferences.autoStartPatrols);
+  const patrolTeamAndTrackingOptions = useSelector((state) => state.data.patrolTeamAndTrackingOptions);
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
   const legFormId = useId();
@@ -51,6 +53,7 @@ const NewLeg = ({ patrol }) => {
     isAutoStart: autoStartPatrols,
     patrolTypes,
     previousLeg,
+    teamAndTrackingOptions: patrolTeamAndTrackingOptions,
   }));
   const [isSaving, setIsSaving] = useState(false);
   const [leg, setLeg] = useState(initialLeg);
@@ -125,6 +128,10 @@ const NewLeg = ({ patrol }) => {
     }
   }, [hasAddedLeg, navigate, patrol.id]);
 
+  if (!canAddLeg) {
+    return <DetailViewLoader />;
+  }
+
   return <TrackerContext.Provider value={newLegTracker}>
     <NavigationPromptModal
       onContinue={onContinueNavigation}
@@ -139,6 +146,7 @@ const NewLeg = ({ patrol }) => {
         <LegForm
           earliestStartDateTime={earliestStartDateTime}
           formId={legFormId}
+          isFirstLeg={patrol.patrol_segments.length === 0}
           leg={leg}
           onChangeLeg={onChangeLeg}
           onSubmit={onSubmit}

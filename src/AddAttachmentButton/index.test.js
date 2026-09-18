@@ -14,15 +14,17 @@ const dragLeaveOnto = (element, relatedTarget) => {
 describe('AddAttachmentButton', () => {
   const onAddAttachments = jest.fn();
 
-  beforeEach(() => {
-    render(<AddAttachmentButton onAddAttachments={onAddAttachments} />);
-  });
-
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
+  const renderAddAttachmentButton = (props) => render(
+    <AddAttachmentButton onAddAttachments={onAddAttachments} {...props} />
+  );
+
   test('shows the add attachment button', () => {
+    renderAddAttachmentButton();
+
     const addAttachmentButton = screen.getByRole('button', { name: 'Add an attachment' });
 
     expect(addAttachmentButton).toBeVisible();
@@ -32,6 +34,8 @@ describe('AddAttachmentButton', () => {
   });
 
   test('sets the accepted file types and allows selecting multiple files on the file input', () => {
+    renderAddAttachmentButton();
+
     const fileInput = screen.getByTestId('addAttachmentButton');
 
     expect(fileInput).toHaveAttribute('multiple');
@@ -40,6 +44,8 @@ describe('AddAttachmentButton', () => {
   });
 
   test('opens the file picker when the user clicks the button', async () => {
+    renderAddAttachmentButton();
+
     const fileInput = screen.getByTestId('addAttachmentButton');
     const clickSpy = jest.spyOn(fileInput, 'click');
 
@@ -49,6 +55,8 @@ describe('AddAttachmentButton', () => {
   });
 
   test('triggers onAddAttachments if user adds a new attachment', async () => {
+    renderAddAttachmentButton();
+
     expect(onAddAttachments).toHaveBeenCalledTimes(0);
 
     const fileInput = screen.getByTestId('addAttachmentButton');
@@ -60,6 +68,8 @@ describe('AddAttachmentButton', () => {
   });
 
   test('resets the file input after adding an attachment, so the same file can be selected again', async () => {
+    renderAddAttachmentButton();
+
     const fileInput = screen.getByTestId('addAttachmentButton');
     const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
     await userEvent.upload(fileInput, fakeFile);
@@ -68,6 +78,8 @@ describe('AddAttachmentButton', () => {
   });
 
   test('shows a dragging over style when a file is dragged over the button', async () => {
+    renderAddAttachmentButton();
+
     const addAttachmentButton = screen.getByRole('button', { name: 'Add an attachment' });
 
     expect(addAttachmentButton).not.toHaveClass('draggingOver');
@@ -78,6 +90,8 @@ describe('AddAttachmentButton', () => {
   });
 
   test('clears the dragging over style when the drag leaves the button', async () => {
+    renderAddAttachmentButton();
+
     const addAttachmentButton = screen.getByRole('button', { name: 'Add an attachment' });
 
     fireEvent.dragOver(addAttachmentButton);
@@ -90,6 +104,8 @@ describe('AddAttachmentButton', () => {
   });
 
   test('keeps the dragging over style when the drag moves onto the button icon or label', async () => {
+    renderAddAttachmentButton();
+
     const addAttachmentButton = screen.getByRole('button', { name: 'Add an attachment' });
 
     fireEvent.dragOver(addAttachmentButton);
@@ -106,6 +122,8 @@ describe('AddAttachmentButton', () => {
   });
 
   test('attaches dropped files and clears the dragging over style', async () => {
+    renderAddAttachmentButton();
+
     expect(onAddAttachments).toHaveBeenCalledTimes(0);
 
     const addAttachmentButton = screen.getByRole('button', { name: 'Add an attachment' });
@@ -122,5 +140,39 @@ describe('AddAttachmentButton', () => {
     expect(onAddAttachments).toHaveBeenCalledTimes(1);
     expect(onAddAttachments.mock.calls[0][0][0].name).toBe('fake.txt');
     expect(addAttachmentButton).not.toHaveClass('draggingOver');
+  });
+
+  describe('when disabled', () => {
+    test('marks the button as disabled', () => {
+      renderAddAttachmentButton({ disabled: true });
+
+      expect(screen.getByRole('button', { name: 'Add an attachment' })).toBeDisabled();
+    });
+
+    test('does not open the file picker', async () => {
+      renderAddAttachmentButton({ disabled: true });
+
+      const clickFileInput = jest.spyOn(screen.getByTestId('addAttachmentButton'), 'click');
+
+      await userEvent.click(screen.getByRole('button', { name: 'Add an attachment' }));
+
+      expect(clickFileInput).not.toHaveBeenCalled();
+    });
+
+    test('takes no dropped files and shows no dragging over style', () => {
+      renderAddAttachmentButton({ disabled: true });
+
+      const addAttachmentButton = screen.getByRole('button', { name: 'Add an attachment' });
+      fireEvent.dragOver(addAttachmentButton);
+
+      expect(addAttachmentButton).not.toHaveClass('draggingOver');
+
+      const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
+      fireEvent.drop(addAttachmentButton, {
+        dataTransfer: { files: { '0': fakeFile, item: () => fakeFile, length: 1 } },
+      });
+
+      expect(onAddAttachments).not.toHaveBeenCalled();
+    });
   });
 });

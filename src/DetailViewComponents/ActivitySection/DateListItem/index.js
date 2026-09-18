@@ -5,13 +5,14 @@ import { ReactComponent as ClockIcon } from '../../../common/images/icons/clock-
 import { dateIsValid, format, STANDARD_DATE_FORMAT } from '../../../utils/datetime';
 
 import * as activitySectionStyles from '../styles.module.scss';
+import * as styles from './styles.module.scss';
 
-const DateListItem = ({ date, title }) => {
+const DateListItem = ({ date, icon: Icon = ClockIcon, title, variant = null }) => {
   const parsedDate = date ? new Date(date) : null;
 
-  return <li className={`${activitySectionStyles.listItem} ${activitySectionStyles.itemRow}`}>
+  return <li className={`${activitySectionStyles.listItem} ${activitySectionStyles.itemRow} ${variant ? styles[variant] : ''}`}>
     <div className={activitySectionStyles.itemIcon}>
-      <ClockIcon aria-hidden="true" data-testid="clock-icon" />
+      <Icon aria-hidden="true" data-testid={Icon === ClockIcon ? 'clock-icon' : `${variant}-icon`} />
     </div>
 
     <div className={activitySectionStyles.itemDetails}>

@@ -1,4 +1,4 @@
-import buildLegDraft from '../buildLegDraft';
+import buildLegDraft from '../../../utils/buildLegDraft';
 import { dogPatrol } from '../../../../../__test-helpers/fixtures/patrol-types';
 
 import buildLegSegment from './';
@@ -68,6 +68,49 @@ describe('SideBar - PatrolsManager - LegForm - utils - buildLegSegment', () => {
     expect(segment.scheduled_end).toBeNull();
     expect(segment.scheduled_start).toBeNull();
     expect(segment.time_range).toEqual({ end_time: null, start_time: null });
+  });
+
+  test('sends the team, the members and the assets as the ids the API stores', () => {
+    const segment = buildLegSegment({
+      ...leg,
+      assets: [{ id: 'asset-1', name: 'Land Cruiser' }],
+      team: { display: 'Alpha', id: 'team-1' },
+      teamLead: { id: 'leader-1', name: 'Alex' },
+      teamMembers: [{ id: 'leader-1', name: 'Alex' }, { id: 'member-1', name: 'Nadia' }],
+    });
+
+    expect(segment.assets).toEqual(['asset-1']);
+    expect(segment.members).toEqual(['leader-1', 'member-1']);
+    expect(segment.team).toBe('team-1');
+  });
+
+  test('adds the team lead to the members the API stores', () => {
+    const segment = buildLegSegment({
+      ...leg,
+      teamLead: { id: 'leader-1', name: 'Alex' },
+      teamMembers: [{ id: 'member-1', name: 'Nadia' }],
+    });
+
+    expect(segment.members).toEqual(['leader-1', 'member-1']);
+  });
+
+  test('leaves the team, the members and the assets empty when the user picked none', () => {
+    const segment = buildLegSegment(leg);
+
+    expect(segment.assets).toEqual([]);
+    expect(segment.members).toEqual([]);
+    expect(segment.team).toBeNull();
+  });
+
+  test('sends the universal and the patrol type fields as the leg details', () => {
+    const segment = buildLegSegment({
+      ...leg,
+      typeDetails: { breed: 'malinois' },
+      universalDetails: { objective: 'Snare sweep' },
+    });
+
+    expect(segment.segment_details).toEqual({ objective: 'Snare sweep' });
+    expect(segment.type_details).toEqual({ breed: 'malinois' });
   });
 
   test('takes the locations of the draft', () => {

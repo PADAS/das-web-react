@@ -1,18 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
-import MoonLoader from 'react-spinners/MoonLoader';
+import { isCancel } from 'axios';
 import { Route, Routes, useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { fetchPatrol } from '../../../ducks/patrols';
+import { fetchPatrol, fetchPatrolTeamAndTrackingOptions } from '../../../ducks/patrols';
 import { fetchPatrolTypes } from '../../../ducks/patrol-types';
 import { TAB_KEYS } from '../../../constants';
 import useNavigate from '../../../hooks/useNavigate';
 
+import DetailViewLoader from '../DetailViewLoader';
+import LegOverview from './LegOverview';
 import NewLeg from './NewLeg';
-
-import * as styles from './styles.module.scss';
-
-const LOADER_SIZE = 50;
 
 const LegManager = () => {
   const dispatch = useDispatch();
@@ -20,12 +18,19 @@ const LegManager = () => {
   const { patrolId } = useParams();
 
   const patrol = useSelector((state) => state.data.patrolStore[patrolId]);
+  const patrolTeamAndTrackingOptions = useSelector((state) => state.data.patrolTeamAndTrackingOptions);
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
   const requestedPatrolIdRef = useRef(null);
 
-  const [hasFetchedPatrolData, setHasFetchedPatrolData] = useState(false);
+  // The patrol the data below has been fetched for, so editing the url from one
+  // patrol to another waits for the new one instead of reading the old answer.
+  const [fetchedPatrolId, setFetchedPatrolId] = useState(null);
 
+  const hasFetchedPatrolData = fetchedPatrolId === patrolId;
+
+  // The roster is awaited below rather than required here: a site that answers
+  // with none, or fails to, still has a leg plan and activity to show.
   const isPatrolDataReady = hasFetchedPatrolData && !!patrol && patrolTypes.length > 0;
 
   useEffect(() => {
@@ -34,12 +39,19 @@ const LegManager = () => {
 
       Promise.all([
         dispatch(fetchPatrol(patrolId)),
+        patrolTeamAndTrackingOptions.hasFetched ? null : dispatch(fetchPatrolTeamAndTrackingOptions()),
         patrolTypes.length === 0 ? dispatch(fetchPatrolTypes()) : null,
       ])
-        .then(() => setHasFetchedPatrolData(true))
-        .catch(() => navigate(`/${TAB_KEYS.PATROLS}`, { replace: true }));
+        .then(() => setFetchedPatrolId(patrolId))
+        .catch((error) => {
+          // A cancelled request means the session is being torn down, and the
+          // redirect that is already under way is the one that stands.
+          if (!isCancel(error)) {
+            navigate(`/${TAB_KEYS.PATROLS}`, { replace: true });
+          }
+        });
     }
-  }, [dispatch, navigate, patrolId, patrolTypes.length]);
+  }, [dispatch, navigate, patrolId, patrolTeamAndTrackingOptions.hasFetched, patrolTypes.length]);
 
   useEffect(() => {
     // There is no leg to show without the patrol it belongs to, and none to
@@ -53,11 +65,13 @@ const LegManager = () => {
     ? <Routes>
       <Route element={<NewLeg patrol={patrol} />} path="new" />
 
-      <Route element={<div>Leg Manager</div>} path=":legId/*" />
+      <Route path=":legId">
+        <Route element={<LegOverview patrol={patrol} />} index />
+
+        <Route element={<div>Edit Leg</div>} path="edit" />
+      </Route>
     </Routes>
-    : <div className={styles.loaderWrapper} data-testid="legManager-loader">
-      <MoonLoader size={LOADER_SIZE} />
-    </div>;
+    : <DetailViewLoader />;
 };
 
 export default LegManager;

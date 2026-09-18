@@ -371,14 +371,29 @@ describe('SchemaForm', () => {
   );
 
   test('sets the initial form data with the default inputs', async () => {
-    renderSchemaForm({ shouldPopulateDefaultData: true });
+    renderSchemaForm({ formData: {}, shouldPopulateDefaultData: true });
 
     expect(onFormDataChange).toHaveBeenCalledTimes(1);
     expect(onFormDataChange).toHaveBeenCalledWith({ text_field: 'Default Value 1' }, { isDefaultData: true });
   });
 
-  test('tells the default inputs apart from an edit the user made', async () => {
+  test('keeps the value a field was given instead of filling in its default', async () => {
     renderSchemaForm({ shouldPopulateDefaultData: true });
+
+    expect(onFormDataChange).not.toHaveBeenCalled();
+  });
+
+  test('fills in the default of a field the form data leaves out alone', async () => {
+    renderSchemaForm({ formData: { text_field_3: 'another text value' }, shouldPopulateDefaultData: true });
+
+    expect(onFormDataChange).toHaveBeenCalledWith(
+      { text_field: 'Default Value 1', text_field_3: 'another text value' },
+      { isDefaultData: true }
+    );
+  });
+
+  test('tells the default inputs apart from an edit the user made', async () => {
+    renderSchemaForm({ formData: {}, shouldPopulateDefaultData: true });
 
     expect(onFormDataChange).toHaveBeenCalledWith(expect.anything(), { isDefaultData: true });
 
@@ -401,7 +416,7 @@ describe('SchemaForm', () => {
   });
 
   test('does not set the initial form data after it has been set', async () => {
-    const { rerender } = renderSchemaForm({ shouldPopulateDefaultData: true });
+    const { rerender } = renderSchemaForm({ formData: {}, shouldPopulateDefaultData: true });
 
     expect(onFormDataChange).toHaveBeenCalledTimes(1);
 

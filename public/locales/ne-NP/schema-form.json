@@ -56,13 +56,10 @@
         "dragStartAnnouncement": "{{activeItemTitle}} उचालिएको छ। {{itemsLength}} मध्ये स्थान {{activeItemPosition}}।",
         "draggableScreenReaderInstructions": "{{itemName}} उचाल्न, space थिच्नुहोस्। तान्दै गर्दा, माथि र तलको एरो कुञ्जी प्रयोग गरेर {{itemName}} लाई निर्दिष्ट दिशामा सार्नुहोस्। {{itemName}} लाई नयाँ स्थानमा छोड्न space फेरि थिच्नुहोस्, वा रद्द गर्न escape थिच्नुहोस्।",
         "item": {
-          "attachmentHumanizedValue_one": "1 फाइल",
-          "attachmentHumanizedValue_other": "{{count}} फाइलहरू",
           "chevronButtonLabel": {
             "closed": "{{itemTitle}} फारमको पूर्वावलोकन खोल्नुहोस्",
             "open": "{{itemTitle}} फारमको पूर्वावलोकन बन्द गर्नुहोस्"
           },
-          "collectionHumanizedValue": "{{collectionLength}} वस्तुहरू",
           "deleteButtonLabel": "{{itemTitle}} मेट्नुहोस्",
           "dragHandleButtonLabel": "{{itemTitle}} पुन: क्रमबद्ध गर्नुहोस्",
           "dragHandleButtonRoleDescription": "तान्न मिल्ने",
@@ -73,9 +70,6 @@
             "doneButton": "सम्पन्न"
           },
           "formPreview": {
-            "attachmentHumanizedValue_one": "1 फाइल",
-            "attachmentHumanizedValue_other": "{{count}} फाइलहरू",
-            "collectionHumanizedValue": "{{collectionLength}} वस्तुहरू",
             "jumpToLocationButtonLabel": "{{field}} स्थानमा जानुहोस्"
           }
         }
@@ -84,6 +78,15 @@
     "text": {
       "urlLinkLabel": "URL नयाँ ट्याबमा खोल्नुहोस्"
     }
+  },
+  "humanizedFieldValues": {
+    "attachmentHumanizedValue_one": "1 फाइल",
+    "attachmentHumanizedValue_other": "{{count}} फाइलहरू",
+    "booleanHumanizedValue": {
+      "false": "होइन",
+      "true": "हो"
+    },
+    "collectionHumanizedValue": "{{collectionLength}} वस्तुहरू"
   },
   "validationErrorsAnnouncement": "निम्न फिल्डहरूमा सत्यापन त्रुटिहरू छन्:"
 }

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import buildLegDraft from '../utils/buildLegDraft';
+import buildLegDraft from '../../utils/buildLegDraft';
 import { GPS_FORMATS } from '../../../../utils/location';
 import { mockStore } from '../../../../__test-helpers/MockStore';
 import { render, screen, within } from '../../../../test-utils';
@@ -22,7 +22,7 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
             { id: 'leader-1', image_url: '/static/ranger-black.svg', name: 'Alex' },
             { id: 'leader-2', image_url: '/static/ranger-black.svg', name: 'Priya' },
           ],
-          teamMembers: [{ id: 'member-1', name: 'Maya Chen' }],
+          members: [{ id: 'member-1', name: 'Maya Chen' }],
           teams: [{ display: 'Alpha', id: 'team-1' }],
         },
       },
@@ -102,7 +102,7 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
 
   test.each([
     ['Team', 'teams', 'Alpha', (option) => ({ team: option })],
-    ['Team Members', 'teamMembers', 'Maya Chen', (option) => ({ teamMembers: [option] })],
+    ['Team Members', 'members', 'Maya Chen', (option) => ({ teamMembers: [option] })],
     ['Assets', 'assets', 'Radio 7', (option) => ({ assets: [option] })],
   ])('reports the %s the user picks out of the ones the site serves', async (label, options, optionName, legChange) => {
     renderStaticFields();

@@ -14,6 +14,7 @@ import {
   getBoundsForPatrol,
   getCancellationTimeForPatrol,
   iconTypeForPatrol,
+  isPatrolStateUnderWay,
   patrolHasGeoDataToDisplay,
   patrolStateDetailsEndTime,
   patrolStateDetailsOverdueStartTime,
@@ -34,13 +35,14 @@ const usePatrol = (patrol) => {
 
   const patrolState = usePatrolState(patrol);
 
-  const isPatrolActive = patrolState === PATROL_UI_STATES.ACTIVE;
   const isPatrolCancelled = patrolState === PATROL_UI_STATES.CANCELLED;
   const isPatrolDone = patrolState === PATROL_UI_STATES.DONE;
   const isPatrolOverdue = patrolState === PATROL_UI_STATES.START_OVERDUE;
   const isPatrolScheduled = patrolState === PATROL_UI_STATES.READY_TO_START
     || patrolState === PATROL_UI_STATES.SCHEDULED
     || patrolState === PATROL_UI_STATES.START_OVERDUE;
+  // A pause is the patrol still running, so it reads like any other leg.
+  const isPatrolUnderWay = isPatrolStateUnderWay(patrolState);
 
   const actualEndTime = useMemo(() => actualEndTimeForPatrol(patrol), [patrol]);
   const actualStartTime = useMemo(() => actualStartTimeForPatrol(patrol), [patrol]);
@@ -71,28 +73,27 @@ const usePatrol = (patrol) => {
     if (isPatrolCancelled) return patrolCancellationTime;
     if (isPatrolDone) return patrolStateDetailsEndTime(patrol);
     if (isPatrolOverdue) return patrolStateDetailsOverdueStartTime(patrol);
-    if (isPatrolActive || isPatrolScheduled) {
+    if (isPatrolUnderWay || isPatrolScheduled) {
       return formatPatrolStateTitleDate(displayStartTimeForPatrol(patrol));
     }
 
     return null;
 
   }, [
-    isPatrolActive,
     isPatrolCancelled,
     isPatrolDone,
     isPatrolOverdue,
     isPatrolScheduled,
+    isPatrolUnderWay,
     patrol,
     patrolCancellationTime,
   ]);
 
+  // The API merges an update into the patrol it holds, so a change says only
+  // what it changes rather than echoing back everything it was read with.
   const onPatrolChange = useCallback((value) => {
-    const payload = { ...patrol, ...value };
-    delete payload.updates;
-
-    dispatch(updatePatrol(payload));
-  }, [dispatch, patrol]);
+    dispatch(updatePatrol({ id: patrol.id, ...value }));
+  }, [dispatch, patrol.id]);
 
   const restorePatrol = useCallback(() => {
     onPatrolChange(buildPatrolReopenUpdate(patrol));
@@ -107,11 +108,11 @@ const usePatrol = (patrol) => {
     patrolTrackState,
     trackState,
 
-    isPatrolActive,
     isPatrolCancelled,
     isPatrolDone,
     isPatrolOverdue,
     isPatrolScheduled,
+    isPatrolUnderWay,
 
     actualEndTime,
     actualStartTime,

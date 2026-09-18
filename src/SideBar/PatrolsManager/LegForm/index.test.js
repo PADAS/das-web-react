@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import buildLegDraft from './utils/buildLegDraft';
+import buildLegDraft from '../utils/buildLegDraft';
 import { CLEAR } from '../../../ducks/user-content';
 import { createMapMock } from '../../../__test-helpers/mocks';
 import {
@@ -53,7 +53,7 @@ describe('SideBar - PatrolsManager - LegForm', () => {
           [dogPatrol.value]: { isLoading: false, schema: patrolTypeFieldsSchema },
           [routinePatrol.value]: { isLoading: false, schema: patrolTypeFieldsSchema },
         },
-        patrolTeamAndTrackingOptions: { assets: [], leaders: [], teamMembers: [], teams: [] },
+        patrolTeamAndTrackingOptions: { assets: [], leaders: [], members: [], teams: [] },
         patrolTypes,
         userContent: {},
       },

@@ -1,6 +1,6 @@
 import '../../../../../i18nForTests';
 
-import buildLegDraft from '../buildLegDraft';
+import buildLegDraft from '../../../utils/buildLegDraft';
 
 import getStaticFieldErrors from './';
 

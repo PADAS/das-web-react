@@ -1,0 +1,43 @@
+@use '../../../../../common/styles/buttons';
+@use '../../../../../common/styles/vars/colors';
+@use '../../../_shared' as shared;
+
+.hideOnPrint {
+  @media print {
+    display: none !important;
+  }
+}
+
+.footer {
+  align-items: center;
+  background: white;
+  border-top: 1px solid colors.$very-light-gray-alt;
+  display: flex;
+  flex-shrink: 0;
+  justify-content: space-between;
+  padding: 1rem;
+
+  .leftActions {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+
+    .footerActionButton {
+      @include buttons.baseButton;
+    }
+  }
+
+  .rightActions {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+
+    .editButton {
+      @include shared.secondary-action-button;
+    }
+
+    .saveButton {
+      @include shared.save-button;
+    }
+  }
+}

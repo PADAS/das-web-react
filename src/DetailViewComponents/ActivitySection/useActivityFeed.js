@@ -126,12 +126,18 @@ const useActivityFeed = ({
       });
     }
 
-    milestones.forEach(({ date, id, title }) => {
+    milestones.forEach(({ date, icon, id, title, variant }) => {
       const milestoneDate = date ? new Date(date) : null;
 
       if (milestoneDate && !isGreaterThan(milestoneDate, now)) {
         datesSortableList.push({
-          node: <DateListItem date={milestoneDate} key={`milestone-${id}`} title={title} />,
+          node: <DateListItem
+            date={milestoneDate}
+            icon={icon}
+            key={`milestone-${id}`}
+            title={title}
+            variant={variant}
+          />,
           sortDate: milestoneDate,
         });
       }

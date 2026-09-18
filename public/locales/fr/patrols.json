@@ -1,4 +1,24 @@
 {
+  "activity": {
+    "activitySectionTitle": "Activité",
+    "collapseAllButtonLabel": "Tout réduire",
+    "expandAllButtonLabel": "Tout développer",
+    "sortDirectionButtonLabel": {
+      "down": "Trier l'activité par ordre croissant",
+      "up": "Trier l'activité par ordre décroissant"
+    },
+    "summaryStats": {
+      "activeTimeLabel": "Temps actif",
+      "distanceLabel": "Distance",
+      "distanceSubjectButtonLabel": "Distance parcourue par {{subject}}. Changer le sujet suivi",
+      "distanceSubjectMenuLabel": "Sujets suivis",
+      "durationLabel": "Durée",
+      "eventsLabel": "Événements",
+      "pausedTimeLabel": "Temps en pause",
+      "teamLeadIndicator": "Chef d'équipe"
+    },
+    "timeLabel": "Heure"
+  },
   "addToPatrolModal": {
     "cancel": "Annuler",
     "loading": "Chargement...",
@@ -53,6 +73,9 @@
       "plan": "Description"
     }
   },
+  "detailViewLoader": {
+    "loadingLabel": "Chargement des données de la patrouille"
+  },
   "header": {
     "breadcrumbNavLabel": "Navigation de la patrouille",
     "closeButtonLabel": "Fermer la barre latérale"
@@ -93,6 +116,55 @@
     },
     "universalFieldsSchemaErrorMessage": "Les champs universels de patrouille n'ont pas pu être chargés.",
     "universalFieldsSchemaLoadingLabel": "Chargement des champs universels de patrouille"
+  },
+  "legOverview": {
+    "activityEmptyStateMessage": "L'activité de l'étape apparaîtra ici",
+    "attachmentsSaveErrorMessage": "Certaines pièces jointes n'ont pas pu être téléversées. Veuillez réessayer.",
+    "footer": {
+      "addEventButtonLabel": "Signaler un événement sur cette étape de patrouille",
+      "addEventButtonText": "Événement",
+      "editButton": "Modifier",
+      "saveButton": "Enregistrer"
+    },
+    "header": {
+      "breadcrumbPatrolsLabel": "Patrouilles",
+      "copyLinkMessage": "Lien copié",
+      "copyLinkOption": "Copier le lien de l'étape de patrouille",
+      "downloadTrackOption": "Télécharger le tracé de l'étape de patrouille",
+      "fitToBoundsButtonLabel": "Zoomer sur les limites de l'étape de patrouille",
+      "jumpToLocationButtonLabel": "Aller à l'emplacement",
+      "mobileProvenancePill": "Mobile",
+      "moreOptionsButtonLabel": "Plus d'options",
+      "printOption": "Imprimer l'étape de patrouille",
+      "title": "Étape {{legNumber}}",
+      "toggleTrackButtonLabel": {
+        "hidden": "Afficher le tracé de la patrouille",
+        "pinned": "Masquer le tracé de la patrouille",
+        "visible": "Épingler le tracé de la patrouille"
+      }
+    },
+    "legEndedTitle": "Étape {{legNumber}} terminée",
+    "legStartedTitle": "Étape {{legNumber}} démarrée",
+    "plan": {
+      "patrolTypeSchemaErrorMessage": "Les champs de ce type de patrouille n'ont pas pu être chargés.",
+      "patrolTypeSchemaLoadingLabel": "Chargement des champs de ce type de patrouille",
+      "staticFields": {
+        "assetsLabel": "Équipements",
+        "copyCoordinatesButtonLabel": "Copier les coordonnées de {{field}}",
+        "copyCoordinatesMessage": "Coordonnées copiées",
+        "endLabel": "Fin",
+        "jumpToLocationButtonLabel": "Aller à l'emplacement de {{field}}",
+        "scheduledIndicator": "Planifié",
+        "startLabel": "Début",
+        "teamLabel": "Équipe",
+        "teamLeadIndicator": "Chef",
+        "teamLeadLabel": "Chef d'équipe",
+        "teamMembersLabel": "Membres de l'équipe"
+      },
+      "universalFieldsSchemaErrorMessage": "Les champs universels de patrouille n'ont pas pu être chargés.",
+      "universalFieldsSchemaLoadingLabel": "Chargement des champs universels de patrouille"
+    },
+    "saveErrorMessage": "L'étape de la patrouille n'a pas pu être enregistrée. Veuillez réessayer."
   },
   "newLeg": {
     "footer": {
@@ -165,16 +237,6 @@
         "hidden": "Afficher la piste de la patrouille",
         "pinned": "Masquer la piste de la patrouille",
         "visible": "Épingler la piste de la patrouille"
-      },
-      "uiStateTitles": {
-        "active": "Active",
-        "cancelled": "Annulée",
-        "done": "Terminée",
-        "invalid": "Configuration invalide",
-        "paused": "En pause",
-        "readyToStart": "Prête à démarrer",
-        "scheduled": "Planifiée",
-        "startOverdue": "Démarrage en retard"
       }
     },
     "history": {
@@ -186,47 +248,49 @@
     },
     "historyTabTitle": "Historique",
     "overview": {
-      "activity": {
-        "activitySectionTitle": "Activité",
-        "collapseAllButtonLabel": "Tout réduire",
-        "emptyStateMessage": "L'activité de la patrouille apparaîtra ici",
-        "expandAllButtonLabel": "Tout développer",
-        "legTransitionTitle": "Étape {{endedLeg}} terminée, étape {{startedLeg}} commencée",
-        "patrolEndedTitle": "Patrouille terminée",
-        "patrolStartedTitle": "Patrouille commencée",
-        "sortDirectionButtonLabel": {
-          "down": "Trier l'activité par ordre croissant",
-          "up": "Trier l'activité par ordre décroissant"
-        },
-        "summaryStats": {
-          "activeTimeLabel": "Temps actif",
-          "distanceLabel": "Distance",
-          "distanceSubjectButtonLabel": "Distance parcourue par {{subject}}. Changer le sujet suivi",
-          "distanceSubjectMenuLabel": "Sujets suivis",
-          "durationLabel": "Durée",
-          "eventsLabel": "Événements",
-          "patrolLeaderIndicator": "Chef de la patrouille",
-          "pausedTimeLabel": "Temps en pause"
-        },
-        "timeLabel": "Heure"
-      },
+      "activityEmptyStateMessage": "L'activité de la patrouille apparaîtra ici",
+      "legEndedTitle": "Étape {{legNumber}} terminée",
       "legs": {
         "endColumnHeader": "Date de fin",
         "legActionsColumnHeader": "Actions",
         "legColumnHeader": "Étape",
-        "legDidNotRunLabel": "Ce tronçon n'a jamais eu lieu",
+        "legDidNotRunLabel": "Cette étape n'a jamais eu lieu",
         "legTableCaption": "Étapes de la patrouille",
         "newLegButton": "Nouvelle étape de patrouille",
         "patrolTypeColumnHeader": "Type de patrouille",
         "startColumnHeader": "Date de début",
+        "teamAndTracking": {
+          "jumpToLocationButtonLabel": "Aller à l'emplacement de {{subject}}",
+          "listLabel": "Sujets suivis par l'étape {{legNumber}}",
+          "teamLeadIndicator": "Chef d'équipe",
+          "toggleButtonLabel": "{{subject}} +{{extraSubjects}}",
+          "toggleButtonTitle": "Afficher les sujets suivis par l'étape {{legNumber}}"
+        },
         "teamColumnHeader": "Équipe et suivi",
         "viewLegButtonLabel": "Voir l'étape {{legNumber}}",
         "zoomToLegBoundsButtonLabel": "Ajuster aux limites de l'étape {{legNumber}}"
-      }
+      },
+      "legStartedTitle": "Étape {{legNumber}} démarrée",
+      "patrolEndedTitle": "Patrouille terminée",
+      "patrolPausedTitle": "Patrouille en pause pendant {{pausedFor}}",
+      "patrolResumedTitle": "Patrouille reprise",
+      "patrolStartedTitle": "Patrouille commencée"
     },
     "overviewTabTitle": "Aperçu",
     "saveErrorMessage": "La patrouille n'a pas pu être enregistrée. Veuillez réessayer.",
     "tabsLabel": "Onglets de l'aperçu de la patrouille"
+  },
+  "statusPill": {
+    "uiStateTitles": {
+      "active": "Active",
+      "cancelled": "Annulée",
+      "done": "Terminée",
+      "invalid": "Configuration invalide",
+      "paused": "En pause",
+      "readyToStart": "Prête à démarrer",
+      "scheduled": "Planifiée",
+      "startOverdue": "Démarrage en retard"
+    }
   },
   "titleInput": {
     "editButtonLabel": "Modifier le titre"

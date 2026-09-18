@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 
-import buildLegDraft from '../../../../LegForm/utils/buildLegDraft';
+import buildLegDraft from '../../../../utils/buildLegDraft';
 import { displayEndTimeForPatrolSegment, earliestStartAfterPatrolSegment } from '../../../../../../utils/patrols';
 import { EMPTY_DATE_VALUE } from '../../../../../../DatePicker';
 import { getHoursAndMinutesString } from '../../../../../../utils/datetime';
@@ -23,13 +23,13 @@ const getStartDate = (previousLeg) => {
   return earliestStart && earliestStart > now ? earliestStart : now;
 };
 
-const buildNewLegDraft = ({ isAutoEnd, isAutoStart, patrolTypes, previousLeg }) => {
+const buildNewLegDraft = ({ isAutoEnd, isAutoStart, patrolTypes, previousLeg, teamAndTrackingOptions }) => {
   const startDate = getStartDate(previousLeg);
 
   return {
     // The new leg carries on the previous plan, so everything comes from it
     // but the schedule and the places, which are this leg's alone.
-    ...buildLegDraft(previousLeg, patrolTypes),
+    ...buildLegDraft(previousLeg, patrolTypes, teamAndTrackingOptions),
     endDate: EMPTY_DATE_VALUE,
     endLocation: null,
     endTime: '',

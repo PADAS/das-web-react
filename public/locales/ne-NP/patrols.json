@@ -1,4 +1,24 @@
 {
+  "activity": {
+    "activitySectionTitle": "गतिविधि",
+    "collapseAllButtonLabel": "सबै बन्द गर्नुहोस्",
+    "expandAllButtonLabel": "सबै विस्तार गर्नुहोस्",
+    "sortDirectionButtonLabel": {
+      "down": "गतिविधि आरोही क्रममा क्रमबद्ध गर्नुहोस्",
+      "up": "गतिविधि अवरोही क्रममा क्रमबद्ध गर्नुहोस्"
+    },
+    "summaryStats": {
+      "activeTimeLabel": "सक्रिय समय",
+      "distanceLabel": "दूरी",
+      "distanceSubjectButtonLabel": "{{subject}} ले तय गरेको दूरी। ट्र्याक गरिएको विषय परिवर्तन गर्नुहोस्",
+      "distanceSubjectMenuLabel": "ट्र्याक गरिएका विषयहरू",
+      "durationLabel": "अवधि",
+      "eventsLabel": "घटनाहरू",
+      "pausedTimeLabel": "रोकिएको समय",
+      "teamLeadIndicator": "टोली नेता"
+    },
+    "timeLabel": "समय"
+  },
   "addToPatrolModal": {
     "cancel": "रद्द गर्नुहोस्",
     "loading": "लोड हुँदैछ…",
@@ -53,6 +73,9 @@
       "plan": "योजना"
     }
   },
+  "detailViewLoader": {
+    "loadingLabel": "गस्तीको डाटा लोड हुँदै"
+  },
   "header": {
     "breadcrumbNavLabel": "गस्ती नेभिगेशन",
     "closeButtonLabel": "साइडबार बन्द गर्नुहोस्"
@@ -93,6 +116,55 @@
     },
     "universalFieldsSchemaErrorMessage": "विश्वव्यापी गस्ती फिल्डहरू लोड गर्न सकिएन।",
     "universalFieldsSchemaLoadingLabel": "विश्वव्यापी गस्ती फिल्डहरू लोड हुँदैछन्"
+  },
+  "legOverview": {
+    "activityEmptyStateMessage": "खण्डको गतिविधि यहाँ देखा पर्नेछ",
+    "attachmentsSaveErrorMessage": "केही संलग्न फाइलहरू अपलोड गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।",
+    "footer": {
+      "addEventButtonLabel": "यो गस्ती खण्डमा घटना रिपोर्ट गर्नुहोस्",
+      "addEventButtonText": "घटना",
+      "editButton": "सम्पादन",
+      "saveButton": "सुरक्षित गर्नुहोस्"
+    },
+    "header": {
+      "breadcrumbPatrolsLabel": "गस्तीहरू",
+      "copyLinkMessage": "लिङ्क प्रतिलिपि भयो",
+      "copyLinkOption": "गस्ती खण्डको लिङ्क प्रतिलिपि गर्नुहोस्",
+      "downloadTrackOption": "गस्ती खण्डको ट्रयाक डाउनलोड गर्नुहोस्",
+      "fitToBoundsButtonLabel": "गस्ती खण्डको सीमामा जुम गर्नुहोस्",
+      "jumpToLocationButtonLabel": "स्थानमा जानुहोस्",
+      "mobileProvenancePill": "मोबाइल",
+      "moreOptionsButtonLabel": "थप विकल्पहरू",
+      "printOption": "गस्ती खण्ड प्रिन्ट गर्नुहोस्",
+      "title": "खण्ड {{legNumber}}",
+      "toggleTrackButtonLabel": {
+        "hidden": "गस्तीको ट्रयाक देखाउनुहोस्",
+        "pinned": "गस्तीको ट्रयाक लुकाउनुहोस्",
+        "visible": "गस्तीको ट्रयाक पिन गर्नुहोस्"
+      }
+    },
+    "legEndedTitle": "खण्ड {{legNumber}} समाप्त भयो",
+    "legStartedTitle": "खण्ड {{legNumber}} सुरु भयो",
+    "plan": {
+      "patrolTypeSchemaErrorMessage": "यो गस्ती प्रकारका फिल्डहरू लोड गर्न सकिएन।",
+      "patrolTypeSchemaLoadingLabel": "यो गस्ती प्रकारका फिल्डहरू लोड हुँदैछन्",
+      "staticFields": {
+        "assetsLabel": "सम्पत्तिहरू",
+        "copyCoordinatesButtonLabel": "{{field}} को निर्देशांक प्रतिलिपि गर्नुहोस्",
+        "copyCoordinatesMessage": "निर्देशांक प्रतिलिपि भयो",
+        "endLabel": "अन्त्य",
+        "jumpToLocationButtonLabel": "{{field}} स्थानमा जानुहोस्",
+        "scheduledIndicator": "निर्धारित",
+        "startLabel": "सुरु",
+        "teamLabel": "टोली",
+        "teamLeadIndicator": "नेता",
+        "teamLeadLabel": "टोली नेता",
+        "teamMembersLabel": "टोलीका सदस्यहरू"
+      },
+      "universalFieldsSchemaErrorMessage": "विश्वव्यापी गस्ती फिल्डहरू लोड गर्न सकिएन।",
+      "universalFieldsSchemaLoadingLabel": "विश्वव्यापी गस्ती फिल्डहरू लोड हुँदैछन्"
+    },
+    "saveErrorMessage": "गस्ती खण्ड सुरक्षित गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।"
   },
   "newLeg": {
     "footer": {
@@ -165,16 +237,6 @@
         "hidden": "गस्तीको ट्र्याक देखाउनुहोस्",
         "pinned": "गस्तीको ट्र्याक लुकाउनुहोस्",
         "visible": "गस्तीको ट्र्याक पिन गर्नुहोस्"
-      },
-      "uiStateTitles": {
-        "active": "सकृय",
-        "cancelled": "रद्द गरियो",
-        "done": "भयो",
-        "invalid": "स्वरुप मिलेन",
-        "paused": "रोकिएको",
-        "readyToStart": "सुरु गर्न तयार अवस्थामा",
-        "scheduled": "निर्धारित",
-        "startOverdue": "सुरु हुन ढिलो भएको"
       }
     },
     "history": {
@@ -186,47 +248,49 @@
     },
     "historyTabTitle": "इतिहास",
     "overview": {
-      "activity": {
-        "activitySectionTitle": "गतिविधि",
-        "collapseAllButtonLabel": "सबै बन्द गर्नुहोस्",
-        "emptyStateMessage": "गस्ती गतिविधि यहाँ देखा पर्नेछ",
-        "expandAllButtonLabel": "सबै विस्तार गर्नुहोस्",
-        "legTransitionTitle": "खण्ड {{endedLeg}} समाप्त भयो, खण्ड {{startedLeg}} सुरु भयो",
-        "patrolEndedTitle": "गस्ती समाप्त भएको",
-        "patrolStartedTitle": "गस्ती सुरु भएको",
-        "sortDirectionButtonLabel": {
-          "down": "गतिविधि आरोही क्रममा क्रमबद्ध गर्नुहोस्",
-          "up": "गतिविधि अवरोही क्रममा क्रमबद्ध गर्नुहोस्"
-        },
-        "summaryStats": {
-          "activeTimeLabel": "सक्रिय समय",
-          "distanceLabel": "दूरी",
-          "distanceSubjectButtonLabel": "{{subject}} ले तय गरेको दूरी। ट्र्याक गरिएको विषय परिवर्तन गर्नुहोस्",
-          "distanceSubjectMenuLabel": "ट्र्याक गरिएका विषयहरू",
-          "durationLabel": "अवधि",
-          "eventsLabel": "घटनाहरू",
-          "patrolLeaderIndicator": "गस्ती नेता",
-          "pausedTimeLabel": "रोकिएको समय"
-        },
-        "timeLabel": "समय"
-      },
+      "activityEmptyStateMessage": "गस्ती गतिविधि यहाँ देखा पर्नेछ",
+      "legEndedTitle": "खण्ड {{legNumber}} समाप्त भयो",
       "legs": {
         "endColumnHeader": "अन्त्य मिति",
         "legActionsColumnHeader": "कार्यहरू",
         "legColumnHeader": "खण्ड",
-        "legDidNotRunLabel": "यो चरण कहिल्यै चलेन",
+        "legDidNotRunLabel": "यो खण्ड कहिल्यै चलेन",
         "legTableCaption": "गस्ती खण्डहरू",
         "newLegButton": "नयाँ गस्ती खण्ड",
         "patrolTypeColumnHeader": "गस्ती प्रकार",
         "startColumnHeader": "सुरु मिति",
+        "teamAndTracking": {
+          "jumpToLocationButtonLabel": "{{subject}} को स्थानमा जानुहोस्",
+          "listLabel": "खण्ड {{legNumber}} द्वारा ट्र्याक गरिएका विषयहरू",
+          "teamLeadIndicator": "टोली नेता",
+          "toggleButtonLabel": "{{subject}} +{{extraSubjects}}",
+          "toggleButtonTitle": "खण्ड {{legNumber}} ले ट्र्याक गर्ने विषयहरू देखाउनुहोस्"
+        },
         "teamColumnHeader": "टोली र ट्र्याकिङ",
         "viewLegButtonLabel": "खण्ड {{legNumber}} हेर्नुहोस्",
         "zoomToLegBoundsButtonLabel": "खण्ड {{legNumber}} को सीमामा मिलाउनुहोस्"
-      }
+      },
+      "legStartedTitle": "खण्ड {{legNumber}} सुरु भयो",
+      "patrolEndedTitle": "गस्ती समाप्त भएको",
+      "patrolPausedTitle": "गस्ती {{pausedFor}} का लागि रोकिएको",
+      "patrolResumedTitle": "गस्ती पुनः सुरु भएको",
+      "patrolStartedTitle": "गस्ती सुरु भएको"
     },
     "overviewTabTitle": "सारांश",
     "saveErrorMessage": "गस्ती सुरक्षित गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।",
     "tabsLabel": "गस्ती सारांश ट्याबहरू"
+  },
+  "statusPill": {
+    "uiStateTitles": {
+      "active": "सकृय",
+      "cancelled": "रद्द गरियो",
+      "done": "भयो",
+      "invalid": "स्वरुप मिलेन",
+      "paused": "रोकिएको",
+      "readyToStart": "सुरु गर्न तयार अवस्थामा",
+      "scheduled": "निर्धारित",
+      "startOverdue": "सुरु हुन ढिलो भएको"
+    }
   },
   "titleInput": {
     "editButtonLabel": "शीर्षक सम्पादन गर्नुहोस्"

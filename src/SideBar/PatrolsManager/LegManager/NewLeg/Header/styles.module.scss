@@ -1,11 +1,5 @@
-@use '../../../../../common/styles/vars/colors';
+@use '../../../_shared' as shared;
 
 .title {
-  color: colors.$off-black;
-  font-size: 1.375rem;
-  font-weight: 500;
-  margin: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  @include shared.header-title;
 }

@@ -32,7 +32,7 @@ const ERRORS_CLEARED_BY_LEG_DRAFT_FIELD = {
   startTime: ['endDate', 'startTime'],
 };
 
-const LegForm = ({ earliestStartDateTime = null, formId, leg, onChangeLeg, onSubmit }) => {
+const LegForm = ({ earliestStartDateTime = null, formId, isFirstLeg = true, leg, onChangeLeg, onSubmit }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('patrols', { keyPrefix: 'legForm' });
 
@@ -125,6 +125,7 @@ const LegForm = ({ earliestStartDateTime = null, formId, leg, onChangeLeg, onSub
       <StaticFields
         earliestStartDateTime={earliestStartDateTime}
         errors={staticFieldErrors}
+        isFirstLeg={isFirstLeg}
         leg={leg}
         onChangeLeg={onChangeLegField}
         ref={staticFieldsRef}
