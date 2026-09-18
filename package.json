@@ -134,7 +134,7 @@
       "^(?!.*\\.(js|jsx|mjs|cjs|ts|tsx|json)$)": "<rootDir>/jest-config/transformers/fileTransform.js"
     },
     "transformIgnorePatterns": [
-      "/node_modules/(?!(@open-draft|@rjsf|@x0k|cookie-es|geodesy|geokdbush|kdbush|lodash-es|msw|nanoid|react-error-boundary|react-ga4|react-router|rettime|until-async|uuid)/)"
+      "/node_modules/(?!(@open-draft|@remix-run|@rjsf|@x0k|cookie-es|geodesy|geokdbush|kdbush|lodash-es|msw|nanoid|react-error-boundary|react-ga4|react-router|rettime|until-async|uuid)/)"
     ],
     "watchPlugins": [
       "jest-watch-typeahead/filename",
