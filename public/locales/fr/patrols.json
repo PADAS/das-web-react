@@ -76,6 +76,18 @@
   "detailViewLoader": {
     "loadingLabel": "Chargement des données de la patrouille"
   },
+  "editLeg": {
+    "footer": {
+      "cancelButton": "Annuler",
+      "saveButton": "Sauvegarder"
+    },
+    "header": {
+      "breadcrumbPatrolsLabel": "Patrouilles",
+      "mobileProvenancePill": "Mobile",
+      "title": "Modifier l'étape {{legNumber}}"
+    },
+    "saveErrorMessage": "L'étape de la patrouille n'a pas pu être enregistrée. Veuillez réessayer."
+  },
   "header": {
     "breadcrumbNavLabel": "Navigation de la patrouille",
     "closeButtonLabel": "Fermer la barre latérale"
@@ -99,11 +111,13 @@
       "autoStartCheckboxLabel": "Commencer automatiquement l'étape à cette heure",
       "endDateBeforeStartDateError": "La fin de l'étape doit être postérieure à son début.",
       "endDateInputLabel": "Date de fin",
+      "endDateOverlapsNextLegError": "Cette étape ne peut pas chevaucher la suivante.",
       "endLocationLabel": "Coordonnées GPS de fin",
       "endTimeInputLabel": "Heure de fin",
       "endTimeLabel": "Heure de fin",
       "endTimeRequiredError": "Une étape avec une date de fin doit avoir une heure de fin.",
       "startDateInputLabel": "Date de début",
+      "startDateOverlapsNextLegError": "Cette étape ne peut pas chevaucher la suivante.",
       "startDateOverlapsPreviousLegError": "Cette étape ne peut pas chevaucher la précédente.",
       "startDateRequiredError": "Une étape doit avoir une date de début.",
       "startLocationLabel": "Coordonnées GPS de début",
@@ -119,6 +133,7 @@
   },
   "legOverview": {
     "activityEmptyStateMessage": "L'activité de l'étape apparaîtra ici",
+    "addEventLinkErrorMessage": "L'événement a été enregistré, mais n'a pas pu être ajouté à cette étape de la patrouille.",
     "attachmentsSaveErrorMessage": "Certaines pièces jointes n'ont pas pu être téléversées. Veuillez réessayer.",
     "footer": {
       "addEventButtonLabel": "Signaler un événement sur cette étape de patrouille",
@@ -213,6 +228,7 @@
     "title": "Options de la patrouille"
   },
   "patrolOverview": {
+    "addEventLinkErrorMessage": "L'événement a été enregistré, mais n'a pas pu être ajouté à cette patrouille.",
     "attachmentsSaveErrorMessage": "Certaines pièces jointes n'ont pas pu être téléversées. Veuillez réessayer.",
     "footer": {
       "addEventButton": "Ajouter un événement",

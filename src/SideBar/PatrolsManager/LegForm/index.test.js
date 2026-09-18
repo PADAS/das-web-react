@@ -15,7 +15,7 @@ import { GPS_FORMATS } from '../../../utils/location';
 import { MapContext } from '../../../MapContext';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import patrolTypes, { dogPatrol, routinePatrol } from '../../../__test-helpers/fixtures/patrol-types';
-import { render, screen, within } from '../../../test-utils';
+import { render, screen, waitFor, within } from '../../../test-utils';
 import { TrackerContext } from '../../../utils/analytics';
 
 import LegForm from './';
@@ -25,6 +25,8 @@ jest.mock('../../../ducks/patrol-schemas', () => ({
   fetchDefaultPatrolSegmentTypeSchema: jest.fn(),
   fetchPatrolTypeSchema: jest.fn(),
 }));
+
+const LINES_SOURCE_ID_PATTERN = /^form-location-markers-source-lines-.+$/;
 
 const EMPTY_PATROL_TYPE_SCHEMA = {
   json: { $schema: 'https://json-schema.org/draft/2020-12/schema', properties: {}, required: [], type: 'object' },
@@ -53,6 +55,7 @@ describe('SideBar - PatrolsManager - LegForm', () => {
           [dogPatrol.value]: { isLoading: false, schema: patrolTypeFieldsSchema },
           [routinePatrol.value]: { isLoading: false, schema: patrolTypeFieldsSchema },
         },
+        patrolStore: {},
         patrolTeamAndTrackingOptions: { assets: [], leaders: [], members: [], teams: [] },
         patrolTypes,
         userContent: {},
@@ -61,6 +64,7 @@ describe('SideBar - PatrolsManager - LegForm', () => {
         coordinateReferenceSystems: { storedSystems: [] },
         mapLocationSelection: { isPickingLocation: false },
         modals: { canShowModals: true },
+        patrolTrackState: { pinned: [], visible: [] },
         showUserLocation: false,
         userLocation: null,
         userPreferences: { gpsFormat: GPS_FORMATS.DEG },
@@ -68,7 +72,7 @@ describe('SideBar - PatrolsManager - LegForm', () => {
     };
   });
 
-  const ControlledLegForm = ({ earliestStartDateTime, initialLeg }) => {
+  const ControlledLegForm = ({ earliestStartDateTime, initialLeg, patrolId }) => {
     const [leg, setLeg] = useState(initialLeg);
 
     return <LegForm
@@ -77,10 +81,11 @@ describe('SideBar - PatrolsManager - LegForm', () => {
       leg={leg}
       onChangeLeg={(legChanges) => setLeg((prevLeg) => ({ ...prevLeg, ...legChanges }))}
       onSubmit={onSubmit}
+      patrolId={patrolId}
     />;
   };
 
-  const renderLegForm = ({ earliestStartDateTime, leg } = {}) => {
+  const renderLegForm = ({ earliestStartDateTime, leg, patrolId } = {}) => {
     reduxStore = mockStore(store);
 
     return render(
@@ -96,6 +101,7 @@ describe('SideBar - PatrolsManager - LegForm', () => {
                 startTime: '08:00',
                 ...leg,
               }}
+              patrolId={patrolId}
             />
           </TrackerContext.Provider>
         </MapContext.Provider>
@@ -465,6 +471,99 @@ describe('SideBar - PatrolsManager - LegForm', () => {
       await submitForm();
 
       expect(onSubmit).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('the lines drawn from the schema forms to the start of the leg', () => {
+    const PATROL_ID = 'b1f2a4a1-6a68-4c1a-9f0b-2a6e6c6a6f01';
+
+    const LOCATION_FIELD_SCHEMA = {
+      json: {
+        ...defaultPatrolSegmentTypeSchema.json,
+        properties: {
+          ...defaultPatrolSegmentTypeSchema.json.properties,
+          location_field: {
+            deprecated: false,
+            description: '',
+            properties: {
+              latitude: { maximum: 90, minimum: -90, type: 'number' },
+              longitude: { maximum: 180, minimum: -180, type: 'number' },
+            },
+            title: 'Location Field',
+            type: 'object',
+          },
+        },
+      },
+      ui: {
+        ...defaultPatrolSegmentTypeSchema.ui,
+        fields: {
+          ...defaultPatrolSegmentTypeSchema.ui.fields,
+          location_field: { conditionalDependents: [], parent: 'universalPatrolFields', type: 'LOCATION' },
+        },
+        sections: {
+          universalPatrolFields: {
+            ...defaultPatrolSegmentTypeSchema.ui.sections.universalPatrolFields,
+            rightColumn: [
+              ...defaultPatrolSegmentTypeSchema.ui.sections.universalPatrolFields.rightColumn,
+              { name: 'location_field', type: 'field' },
+            ],
+          },
+        },
+      },
+    };
+
+    let linesSource;
+    beforeEach(() => {
+      linesSource = { setData: jest.fn() };
+      map.getSource.mockImplementation((sourceId) =>
+        LINES_SOURCE_ID_PATTERN.test(sourceId) ? linesSource : { setData: jest.fn() });
+
+      store.data.patrolSchemas[DEFAULT_PATROL_SEGMENT_TYPE] = { isLoading: false, schema: LOCATION_FIELD_SCHEMA };
+      store.data.patrolStore = {
+        [PATROL_ID]: {
+          id: PATROL_ID,
+          patrol_segments: [{ time_range: { end_time: null, start_time: '2026-04-13T06:00:00.000Z' } }],
+        },
+      };
+    });
+
+    const renderLegFormWithALocation = () => renderLegForm({
+      leg: {
+        startLocation: { latitude: 10, longitude: 10 },
+        universalDetails: { location_field: { latitude: 15, longitude: 15 } },
+      },
+      patrolId: PATROL_ID,
+    });
+
+    const getDrawnLines = () => linesSource.setData.mock.calls.flatMap(([{ features }]) => features);
+
+    test('connects them to the start of the leg while the track of the patrol is shown', async () => {
+      store.view.patrolTrackState.visible = [PATROL_ID];
+
+      renderLegFormWithALocation();
+
+      await waitFor(() => expect(getDrawnLines()).toEqual([expect.objectContaining({
+        geometry: { coordinates: [[15, 15], [10, 10]], type: 'LineString' },
+      })]));
+    });
+
+    test('draws none while the track of the patrol is hidden', async () => {
+      renderLegFormWithALocation();
+
+      await waitFor(() => expect(linesSource.setData).toHaveBeenCalled());
+      expect(getDrawnLines()).toEqual([]);
+    });
+
+    test('draws none while the leg has no start location', async () => {
+      store.view.patrolTrackState.visible = [PATROL_ID];
+
+      renderLegForm({
+        leg: { universalDetails: { location_field: { latitude: 15, longitude: 15 } } },
+        patrolId: PATROL_ID,
+      });
+
+      await waitFor(() => expect(linesSource.setData).toHaveBeenCalled());
+      expect(getDrawnLines()).toEqual([]);
     });
   });
 });

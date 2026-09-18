@@ -15,12 +15,12 @@ const buildLegSegment = (leg, { isFirstLeg = true } = {}) => {
   const isStartScheduled = isFirstLeg && getIsScheduled(startDateTime, leg.isAutoStart);
 
   return {
-    assets: leg.assets.map(({ id }) => id),
+    assets: leg.assets.map((asset) => asset.id),
     end_location: leg.endLocation,
     events: [],
     leader: leg.teamLead,
     // The API rejects a lead who is not one of the members.
-    members: uniq([...(leg.teamLead ? [leg.teamLead.id] : []), ...leg.teamMembers.map(({ id }) => id)]),
+    members: uniq([...(leg.teamLead ? [leg.teamLead.id] : []), ...leg.teamMembers.map((teamMember) => teamMember.id)]),
     patrol_type: leg.patrolType?.value ?? null,
     priority: leg.patrolType?.default_priority ?? 0,
     scheduled_end: isEndScheduled ? endDateTime.toISOString() : null,

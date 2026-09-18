@@ -306,6 +306,34 @@ export const earliestStartAfterPatrolSegment = (patrolSegment) => {
     : earliestStart;
 };
 
+// The latest a preceding leg may reach is where this one begins, down to the
+// minute the pickers reach.
+export const latestEndBeforePatrolSegment = (patrolSegment) => {
+  const latestEnd = displayStartTimeForPatrolSegment(patrolSegment);
+
+  return latestEnd ? startOfMinute(latestEnd) : null;
+};
+
+// A pause stamps one instant on the leg it ends and the leg it opens, so a
+// bound is never tightened past the times the leg being edited already holds.
+export const earliestStartForEditedPatrolSegment = (patrolSegment, previousPatrolSegment) => {
+  const earliestStart = previousPatrolSegment ? earliestStartAfterPatrolSegment(previousPatrolSegment) : null;
+  const startDateTime = displayStartTimeForPatrolSegment(patrolSegment);
+
+  return earliestStart && startDateTime && earliestStart > startDateTime
+    ? startOfMinute(startDateTime)
+    : earliestStart;
+};
+
+export const latestEndForEditedPatrolSegment = (patrolSegment, nextPatrolSegment) => {
+  const latestEnd = nextPatrolSegment ? latestEndBeforePatrolSegment(nextPatrolSegment) : null;
+  const endDateTime = displayEndTimeForPatrolSegment(patrolSegment);
+
+  return latestEnd && endDateTime && latestEnd < endDateTime
+    ? startOfMinute(endDateTime)
+    : latestEnd;
+};
+
 export const displayEndTimeForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
 
@@ -331,7 +359,7 @@ const EMPTY_TEAM_AND_TRACKING_OPTIONS = { assets: [], members: [], teams: [] };
 // what a site can pick today, so a subject deactivated since the leg ran falls
 // back to the subject store rather than dropping out of what it did.
 const resolveRoster = (rosterIds, rosterOptions, subjectStore) => uniq(rosterIds ?? [])
-  .map((rosterId) => rosterOptions.find(({ id }) => id === rosterId) ?? subjectStore[rosterId])
+  .map((rosterId) => rosterOptions.find((rosterOption) => rosterOption.id === rosterId) ?? subjectStore[rosterId])
   .filter(Boolean);
 
 export const getTeamAndTrackingForPatrolSegment = (
@@ -341,7 +369,7 @@ export const getTeamAndTrackingForPatrolSegment = (
 ) => ({
   assets: resolveRoster(patrolSegment?.assets, teamAndTrackingOptions.assets, subjectStore),
   members: resolveRoster(patrolSegment?.members, teamAndTrackingOptions.members, subjectStore),
-  team: teamAndTrackingOptions.teams.find(({ id }) => id === patrolSegment?.team) ?? null,
+  team: teamAndTrackingOptions.teams.find((team) => team.id === patrolSegment?.team) ?? null,
 });
 
 // Every subject a leg tracks, each of them once and its lead first: the lead,
@@ -854,7 +882,7 @@ export const patrolWithUpdateApplied = (patrol, patrolUpdate) => ({
   ...patrol,
   ...patrolUpdate,
   patrol_segments: (patrolUpdate.patrol_segments ?? []).reduce((patrolSegments, patrolSegmentUpdate) => {
-    const updatedIndex = patrolSegments.findIndex(({ id }) => id === patrolSegmentUpdate.id);
+    const updatedIndex = patrolSegments.findIndex((patrolSegment) => patrolSegment.id === patrolSegmentUpdate.id);
 
     return updatedIndex === -1
       ? [...patrolSegments, patrolSegmentUpdate]

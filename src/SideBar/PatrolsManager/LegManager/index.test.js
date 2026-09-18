@@ -24,6 +24,9 @@ jest.mock('../../../ducks/patrol-types', () => ({
 }));
 
 // eslint-disable-next-line react/display-name -- a route stub needs no name.
+jest.mock('./EditLeg', () => () => <div>Edit Leg</div>);
+
+// eslint-disable-next-line react/display-name -- a route stub needs no name.
 jest.mock('./LegOverview', () => () => <div>Leg Overview</div>);
 
 // eslint-disable-next-line react/display-name -- a route stub needs no name.
@@ -215,7 +218,7 @@ describe('SideBar - PatrolsManager - LegManager', () => {
     expect(await screen.findByText('Leg Overview')).toBeVisible();
   });
 
-  test('renders the edit leg placeholder when the path points at the edition of a leg', async () => {
+  test('renders the edit leg when the path points at the edition of a leg', async () => {
     renderLegManager(`${patrol.patrol_segments[0].id}/edit`);
 
     expect(await screen.findByText('Edit Leg')).toBeVisible();

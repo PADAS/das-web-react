@@ -24,7 +24,15 @@ const getTeamOptionLabel = ({ display }) => display;
 const renderSubjectOptionIcon = ({ image_url }) => !!image_url
   && <SvgIcon imageUrl={calcUrlForImage(image_url)} type="subjects" />;
 
-const StaticFields = ({ earliestStartDateTime = null, errors, isFirstLeg = true, leg, onChangeLeg, ref }) => {
+const StaticFields = ({
+  earliestStartDateTime = null,
+  errors,
+  isFirstLeg = true,
+  latestEndDateTime = null,
+  leg,
+  onChangeLeg,
+  ref,
+}) => {
   const { t } = useTranslation('patrols', { keyPrefix: 'legForm.staticFields' });
 
   const teamAndTrackingOptions = useSelector((state) => state.data.patrolTeamAndTrackingOptions);
@@ -79,6 +87,14 @@ const StaticFields = ({ earliestStartDateTime = null, errors, isFirstLeg = true,
     ? getHoursAndMinutesString(earliestStartDateTime)
     : undefined;
 
+  // Neither bound of the leg may pass the start of the leg after it, and a
+  // time is only bounded by it on its own day.
+  const latestDate = latestEndDateTime ? format(latestEndDateTime, 'yyyy-MM-dd') : undefined;
+
+  const endTimeMax = latestDate === leg.endDate ? getHoursAndMinutesString(latestEndDateTime) : undefined;
+
+  const startTimeMax = latestDate === leg.startDate ? getHoursAndMinutesString(latestEndDateTime) : undefined;
+
   // A group shows a single message, wherever within it the error belongs.
   const endDateTimeError = errors.endDate ?? errors.endTime;
   const startDateTimeError = errors.startDate ?? errors.startTime;
@@ -122,6 +138,7 @@ const StaticFields = ({ earliestStartDateTime = null, errors, isFirstLeg = true,
               aria-invalid={errors.startDate ? 'true' : 'false'}
               aria-label={t('startDateInputLabel')}
               className={styles.datePicker}
+              max={latestDate}
               min={startDateMin}
               onChange={(startDate) => onChangeLeg({ startDate })}
               reactDatePickerProps={{ endDate: endDateTime, selectsStart: true, startDate: startDateTime }}
@@ -133,6 +150,7 @@ const StaticFields = ({ earliestStartDateTime = null, errors, isFirstLeg = true,
               aria-errormessage={errors.startTime ? startDateTimeErrorId : undefined}
               aria-invalid={errors.startTime ? 'true' : 'false'}
               aria-label={t('startTimeInputLabel')}
+              max={startTimeMax}
               min={startTimeMin}
               minutesInterval={TIME_OPTIONS_INTERVAL_IN_MINUTES}
               onChange={(startTime) => onChangeLeg({ startTime })}
@@ -178,6 +196,7 @@ const StaticFields = ({ earliestStartDateTime = null, errors, isFirstLeg = true,
               aria-invalid={errors.endDate ? 'true' : 'false'}
               aria-label={t('endDateInputLabel')}
               className={styles.datePicker}
+              max={latestDate}
               min={endDateMin}
               onChange={(endDate) => onChangeLeg({ endDate })}
               reactDatePickerProps={{ endDate: endDateTime, selectsEnd: true, startDate: startDateTime }}
@@ -190,6 +209,7 @@ const StaticFields = ({ earliestStartDateTime = null, errors, isFirstLeg = true,
               aria-invalid={errors.endTime ? 'true' : 'false'}
               aria-label={t('endTimeInputLabel')}
               disabled={!isValidDate(leg.endDate)}
+              max={endTimeMax}
               min={endTimeMin}
               minutesInterval={TIME_OPTIONS_INTERVAL_IN_MINUTES}
               onChange={(endTime) => onChangeLeg({ endTime })}

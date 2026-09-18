@@ -88,12 +88,24 @@ const LegOverviewContent = ({ legNumber, onStagedChangesChange, patrol, patrolSe
     const [firstResult] = Array.isArray(saveResults) ? saveResults : [saveResults];
     const newEventId = firstResult.data.data.id;
 
-    await addPatrolSegmentToEvent(patrolSegment.id, newEventId);
+    // The event is already saved: a failed link leaves it out of the leg, not
+    // unreported, so the rest of the flow carries on.
+    try {
+      await addPatrolSegmentToEvent(patrolSegment.id, newEventId);
 
-    legOverviewTracker.track('Link new event to leg');
+      legOverviewTracker.track('Link new event to leg');
+    } catch (error) {
+      toast.error(t('addEventLinkErrorMessage'));
 
-    await dispatch(fetchPatrol(patrol.id));
-  }, [dispatch, patrol.id, patrolSegment.id]);
+      legOverviewTracker.track('Error linking new event to leg');
+
+      console.warn('Error linking a new event to a leg: ', error);
+    }
+
+    // The event form is waiting on this, so a failed refresh must not reject
+    // into it.
+    await dispatch(fetchPatrol(patrol.id)).catch(() => {});
+  }, [dispatch, patrol.id, patrolSegment.id, t]);
 
   const addEventFormProps = useMemo(() => ({
     isPatrolReport: true,
@@ -106,7 +118,7 @@ const LegOverviewContent = ({ legNumber, onStagedChangesChange, patrol, patrolSe
       activityEditing.notesUpdate
         ? dispatch(updatePatrol({ id: patrol.id, notes: activityEditing.notesUpdate }))
         : Promise.resolve(),
-      ...activityEditing.newAttachments.map(({ file }) => uploadPatrolFile(patrol.id, file)),
+      ...activityEditing.newAttachments.map((newAttachment) => uploadPatrolFile(patrol.id, newAttachment.file)),
     ]);
 
     const refetchPatrol = dispatch(fetchPatrol(patrol.id)).catch(() => {});
@@ -121,7 +133,7 @@ const LegOverviewContent = ({ legNumber, onStagedChangesChange, patrol, patrolSe
       activityEditing.newAttachments.filter((_, index) => attachmentResults[index].status === 'fulfilled')
     );
 
-    const failedRequest = [patrolUpdateResult, ...attachmentResults].find(({ status }) => status === 'rejected');
+    const failedRequest = [patrolUpdateResult, ...attachmentResults].find((request) => request.status === 'rejected');
     if (!failedRequest) {
       legOverviewTracker.track('Saved a leg from leg overview');
 
@@ -176,7 +188,7 @@ const LegOverviewContent = ({ legNumber, onStagedChangesChange, patrol, patrolSe
       patrolSegment,
       patrolTeamAndTrackingOptions,
       patrolRosterFallbackSubjects
-    ).map(({ id }) => id);
+    ).map((trackedSubject) => trackedSubject.id);
 
     if (trackedSubjectIds.length > 0) {
       fetchTracksIfNecessary(
@@ -251,7 +263,7 @@ const LegOverview = ({ patrol }) => {
   const [hasStagedChanges, setHasStagedChanges] = useState(false);
   const [lastShownLeg, setLastShownLeg] = useState(null);
 
-  const patrolSegmentIndex = patrol.patrol_segments.findIndex(({ id }) => id === legId);
+  const patrolSegmentIndex = patrol.patrol_segments.findIndex((patrolSegment) => patrolSegment.id === legId);
 
   const foundLeg = patrolSegmentIndex === -1
     ? null

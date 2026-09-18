@@ -1,0 +1,12 @@
+@use '../../../_shared' as shared;
+
+.title {
+  @include shared.header-title;
+
+  flex: 1;
+  min-width: 0;
+}
+
+.pills {
+  @include shared.header-pills;
+}

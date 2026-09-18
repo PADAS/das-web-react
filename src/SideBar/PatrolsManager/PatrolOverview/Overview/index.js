@@ -65,37 +65,37 @@ const Overview = ({
     return patrolEvents.filter((event) => !idsOfEventsInPatrolCollections.includes(event.id));
   }, [patrol]);
 
-  const legMilestones = useMemo(() => patrol.patrol_segments.flatMap((leg, index) => {
+  const legMilestones = useMemo(() => patrol.patrol_segments.flatMap((patrolSegment, index) => {
     // Closing a patrol stamps an end even on a leg that never ran, and that
     // end marks nothing that happened.
-    if (hasPatrolSegmentNotRun(patrol, leg)) {
+    if (hasPatrolSegmentNotRun(patrol, patrolSegment)) {
       return [];
     }
 
     const legNumber = index + 1;
-    const startTime = index > 0 ? actualStartTimeForPatrolSegment(leg) : null;
-    const endTime = index < patrol.patrol_segments.length - 1 ? actualEndTimeForPatrolSegment(leg) : null;
+    const startTime = index > 0 ? actualStartTimeForPatrolSegment(patrolSegment) : null;
+    const endTime = index < patrol.patrol_segments.length - 1 ? actualEndTimeForPatrolSegment(patrolSegment) : null;
 
     // A pause interrupts the patrol rather than carrying it on, so its moments
     // are the patrol stopping and, where a leg follows, picking back up.
-    if (isPatrolSegmentAPause(leg)) {
+    if (isPatrolSegmentAPause(patrolSegment)) {
       // A pause the patrol was called off or closed on has an end of its own,
       // so only one the patrol is still sitting on counts up to now.
-      const pausedUntil = effectiveEndTimeForPatrolSegment(patrol, leg)?.getTime() ?? currentTime;
-      const pausedFor = humanizeDuration(getElapsedTimeForPatrolSegment(leg, pausedUntil));
+      const pausedUntil = effectiveEndTimeForPatrolSegment(patrol, patrolSegment)?.getTime() ?? currentTime;
+      const pausedFor = humanizeDuration(getElapsedTimeForPatrolSegment(patrolSegment, pausedUntil));
 
       return [
         ...(startTime ? [{
           date: startTime,
           icon: PauseIcon,
-          id: `${leg.id}-start`,
+          id: `${patrolSegment.id}-start`,
           title: t('patrolPausedTitle', { pausedFor }),
           variant: PATROL_UI_STATES.PAUSED.key,
         }] : []),
         ...(endTime ? [{
           date: endTime,
           icon: PlayIcon,
-          id: `${leg.id}-end`,
+          id: `${patrolSegment.id}-end`,
           title: t('patrolResumedTitle'),
           variant: PATROL_UI_STATES.ACTIVE.key,
         }] : []),
@@ -103,8 +103,12 @@ const Overview = ({
     }
 
     return [
-      ...(startTime ? [{ date: startTime, id: `${leg.id}-start`, title: t('legStartedTitle', { legNumber }) }] : []),
-      ...(endTime ? [{ date: endTime, id: `${leg.id}-end`, title: t('legEndedTitle', { legNumber }) }] : []),
+      ...(startTime
+        ? [{ date: startTime, id: `${patrolSegment.id}-start`, title: t('legStartedTitle', { legNumber }) }]
+        : []),
+      ...(endTime
+        ? [{ date: endTime, id: `${patrolSegment.id}-end`, title: t('legEndedTitle', { legNumber }) }]
+        : []),
     ];
   }), [currentTime, humanizeDuration, patrol, t]);
 

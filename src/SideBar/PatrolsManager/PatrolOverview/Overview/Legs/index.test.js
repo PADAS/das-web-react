@@ -105,7 +105,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
     const [, legOneRow] = getRows();
     await userEvent.click(within(legOneRow).getByRole('button', { expanded: false }));
 
-    expect(screen.getAllByRole('listitem').map(({ textContent }) => textContent)).toEqual([
+    expect(screen.getAllByRole('listitem').map((listItem) => listItem.textContent)).toEqual([
       'Ranger AmaraTeam lead',
       'Ranger Nadia',
       'Land Cruiser 42',

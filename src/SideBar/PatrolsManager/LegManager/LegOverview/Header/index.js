@@ -54,9 +54,9 @@ const Header = ({ legNumber, legState, patrol, patrolSegment, printableContentRe
   const patrolTrackState = useSelector((state) => state.view.patrolTrackState);
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
-  const legIndex = patrol.patrol_segments.indexOf(patrolSegment);
+  const patrolSegmentIndex = patrol.patrol_segments.indexOf(patrolSegment);
 
-  const legTrackData = patrolTrackData.legsTrackData?.[legIndex] ?? null;
+  const legTrackData = patrolTrackData.legsTrackData?.[patrolSegmentIndex] ?? null;
 
   const crumbs = [
     { label: t('breadcrumbPatrolsLabel'), to: `/${TAB_KEYS.PATROLS}` },

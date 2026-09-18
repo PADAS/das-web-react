@@ -7,29 +7,29 @@ import { getHoursAndMinutesString } from '../../../../../../utils/datetime';
 
 // A leg begins where the one before it ends. While that end is unset it begins
 // now, or where the previous leg's own plan starts when that is still ahead.
-const getStartDate = (previousLeg) => {
+const getStartDate = (previousPatrolSegment) => {
   const now = new Date();
 
-  if (!previousLeg) {
+  if (!previousPatrolSegment) {
     return now;
   }
 
-  const earliestStart = earliestStartAfterPatrolSegment(previousLeg);
+  const earliestStart = earliestStartAfterPatrolSegment(previousPatrolSegment);
 
-  if (displayEndTimeForPatrolSegment(previousLeg)) {
+  if (displayEndTimeForPatrolSegment(previousPatrolSegment)) {
     return earliestStart;
   }
 
   return earliestStart && earliestStart > now ? earliestStart : now;
 };
 
-const buildNewLegDraft = ({ isAutoEnd, isAutoStart, patrolTypes, previousLeg, teamAndTrackingOptions }) => {
-  const startDate = getStartDate(previousLeg);
+const buildNewLegDraft = ({ isAutoEnd, isAutoStart, patrolTypes, previousPatrolSegment, teamAndTrackingOptions }) => {
+  const startDate = getStartDate(previousPatrolSegment);
 
   return {
     // The new leg carries on the previous plan, so everything comes from it
     // but the schedule and the places, which are this leg's alone.
-    ...buildLegDraft(previousLeg, patrolTypes, teamAndTrackingOptions),
+    ...buildLegDraft(previousPatrolSegment, patrolTypes, teamAndTrackingOptions),
     endDate: EMPTY_DATE_VALUE,
     endLocation: null,
     endTime: '',

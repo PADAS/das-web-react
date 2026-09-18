@@ -72,12 +72,24 @@ const PatrolOverviewContent = ({ patrol }) => {
     const [firstResult] = Array.isArray(saveResults) ? saveResults : [saveResults];
     const newEventId = firstResult.data.data.id;
 
-    await addPatrolSegmentToEvent(governingPatrolSegment(patrol).id, newEventId);
+    // The event is already saved: a failed link leaves it out of the patrol,
+    // not unreported, so the rest of the flow carries on.
+    try {
+      await addPatrolSegmentToEvent(governingPatrolSegment(patrol).id, newEventId);
 
-    patrolOverviewTracker.track('Link new event to patrol');
+      patrolOverviewTracker.track('Link new event to patrol');
+    } catch (error) {
+      toast.error(t('addEventLinkErrorMessage'));
 
-    await dispatch(fetchPatrol(patrol.id));
-  }, [dispatch, patrol]);
+      patrolOverviewTracker.track('Error linking new event to patrol');
+
+      console.warn('Error linking a new event to a patrol: ', error);
+    }
+
+    // The event form is waiting on this, so a failed refresh must not reject
+    // into it.
+    await dispatch(fetchPatrol(patrol.id)).catch(() => {});
+  }, [dispatch, patrol, t]);
 
   const addEventFormProps = useMemo(() => ({
     isPatrolReport: true,
@@ -99,7 +111,7 @@ const PatrolOverviewContent = ({ patrol }) => {
     // Update the patrol and upload the new attachments in parallel.
     const [patrolUpdateResult, ...attachmentResults] = await Promise.allSettled([
       hasUpdates ? dispatch(updatePatrol({ ...patrolUpdatesWithStatusUpdate, id: patrol.id })) : Promise.resolve(),
-      ...activityEditing.newAttachments.map(({ file }) => uploadPatrolFile(patrol.id, file)),
+      ...activityEditing.newAttachments.map((newAttachment) => uploadPatrolFile(patrol.id, newAttachment.file)),
     ]);
 
     const refetchPatrol = dispatch(fetchPatrol(patrol.id)).catch(() => {});
@@ -117,7 +129,7 @@ const PatrolOverviewContent = ({ patrol }) => {
       activityEditing.newAttachments.filter((_, index) => attachmentResults[index].status === 'fulfilled')
     );
 
-    const failedRequest = [patrolUpdateResult, ...attachmentResults].find(({ status }) => status === 'rejected');
+    const failedRequest = [patrolUpdateResult, ...attachmentResults].find((request) => request.status === 'rejected');
     if (!failedRequest) {
       patrolOverviewTracker.track('Saved patrol from patrol overview');
 
@@ -167,7 +179,7 @@ const PatrolOverviewContent = ({ patrol }) => {
         segment,
         patrolTeamAndTrackingOptions,
         patrolRosterFallbackSubjects
-      ).map(({ id }) => id);
+      ).map((trackedSubject) => trackedSubject.id);
 
       if (trackedSubjectIds.length > 0) {
         fetchTracksIfNecessary(

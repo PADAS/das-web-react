@@ -77,6 +77,7 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
           [dogPatrol.value]: { isLoading: false, schema: patrolTypeFieldsSchema },
           [routinePatrol.value]: { isLoading: false, schema: patrolTypeFieldsSchema },
         },
+        patrolStore: { [patrol.id]: patrol },
         patrolTeamAndTrackingOptions: {
           assets: [asset],
           leaders: [teamLead],
@@ -91,6 +92,7 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
         coordinateReferenceSystems: { storedSystems: [] },
         mapLocationSelection: { isPickingLocation: false },
         modals: { canShowModals: true },
+        patrolTrackState: { pinned: [], visible: [] },
         showUserLocation: false,
         userLocation: null,
         userPreferences: { autoEndPatrols: false, autoStartPatrols: false, gpsFormat: GPS_FORMATS.DEG },

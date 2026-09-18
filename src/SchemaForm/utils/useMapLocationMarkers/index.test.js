@@ -116,6 +116,36 @@ describe('SchemaForm - Utils - useMapLocationMarkers', () => {
     );
   });
 
+  it('leaves the marker connecting lines source empty when the anchor location is not defined', async () => {
+    const source = { setData: jest.fn() };
+    map.getSource.mockImplementation((sourceId) =>
+      LINES_SOURCE_ID_PATTERN.test(sourceId) ? source : undefined
+    );
+
+    const { result } = renderHook(() => useMapLocationMarkers(), { wrapper: Wrapper });
+
+    const { setLocationMarkers } = result.current;
+
+    setLocationMarkers({
+      'location-1': {
+        latitude: 15,
+        longitude: 15,
+      },
+      'location-2': {
+        latitude: 20,
+        longitude: 20,
+      },
+    });
+
+    await waitFor(() => {
+      expect(source.setData).toHaveBeenCalledTimes(2);
+      expect(source.setData).toHaveBeenLastCalledWith({
+        features: [],
+        type: 'FeatureCollection',
+      });
+    });
+  });
+
   it('updates the the marker connecting lines source data when the markers change', async () => {
     const source = { setData: jest.fn() };
     map.getSource.mockImplementation((sourceId) =>

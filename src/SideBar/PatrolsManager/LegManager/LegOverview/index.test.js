@@ -1,6 +1,7 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Link, Route, Routes, useLocation } from 'react-router';
+import { toast } from 'react-toastify';
 import userEvent from '@testing-library/user-event';
 
 import { addPatrolSegmentToEvent } from '../../../../utils/events';
@@ -78,6 +79,8 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview', () => {
 
   let store;
   beforeEach(() => {
+    jest.spyOn(toast, 'error').mockImplementation(() => {});
+
     addPatrolSegmentToEvent.mockImplementation(() => Promise.resolve());
     fetchDefaultPatrolSegmentTypeSchema.mockImplementation(() => () => {});
     fetchEvent.mockImplementation(() => () => Promise.resolve());
@@ -381,5 +384,18 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview', () => {
     await userEvent.click(screen.getByRole('button', { name: ADD_EVENT_BUTTON_LABEL }));
 
     await waitFor(() => expect(addPatrolSegmentToEvent).toHaveBeenCalledWith(activePatrolSegment.id, 'new-event'));
+  });
+
+  test('warns the user and still refreshes the patrol when a new event could not be linked to the leg', async () => {
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    addPatrolSegmentToEvent.mockImplementation(() => Promise.reject(new Error('link error')));
+
+    renderLegOverview({ legId: activePatrolSegment.id });
+
+    await userEvent.click(screen.getByRole('button', { name: ADD_EVENT_BUTTON_LABEL }));
+
+    await waitFor(() => expect(toast.error)
+      .toHaveBeenCalledWith('The event was saved but could not be added to this patrol leg.'));
+    expect(fetchPatrol).toHaveBeenCalledWith(patrol.id);
   });
 });

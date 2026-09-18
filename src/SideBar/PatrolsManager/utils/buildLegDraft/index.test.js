@@ -1,4 +1,4 @@
-import patrolTypes, { dogPatrol } from '../../../../__test-helpers/fixtures/patrol-types';
+import patrolTypes, { dogPatrol, theDonPatrol } from '../../../../__test-helpers/fixtures/patrol-types';
 
 import buildLegDraft from './';
 
@@ -66,12 +66,25 @@ describe('SideBar - PatrolsManager - utils - buildLegDraft', () => {
     expect(buildLegDraft({ patrol_type: dogPatrol.id }, patrolTypes)).toHaveProperty('patrolType', dogPatrol);
   });
 
-  test('leaves the patrol type empty when the site does not serve the one of a leg', () => {
-    expect(buildLegDraft({ patrol_type: 'a_retired_patrol_type' }, patrolTypes)).toHaveProperty('patrolType', null);
+  test('rebuilds the patrol type of a leg from the leg itself when the site does not serve it', () => {
+    const patrolSegment = { icon_id: 'retired-patrol-icon', patrol_type: 'a_retired_patrol_type', priority: 300 };
+
+    expect(buildLegDraft(patrolSegment, patrolTypes)).toHaveProperty('patrolType', {
+      default_priority: 300,
+      display: 'A Retired Patrol Type',
+      icon_id: 'retired-patrol-icon',
+      id: 'a_retired_patrol_type',
+      value: 'a_retired_patrol_type',
+    });
   });
 
-  test('leaves the patrol type empty when the one of a leg is no longer active', () => {
-    expect(buildLegDraft({ patrol_type: 'The_Don_Patrol' }, patrolTypes)).toHaveProperty('patrolType', null);
+  test('takes the patrol type of a leg that is no longer active', () => {
+    expect(buildLegDraft({ patrol_type: theDonPatrol.value }, patrolTypes))
+      .toHaveProperty('patrolType', theDonPatrol);
+  });
+
+  test('leaves the patrol type empty when a leg holds none', () => {
+    expect(buildLegDraft({ patrol_type: null }, patrolTypes)).toHaveProperty('patrolType', null);
   });
 
   test('resolves the team, the members and the assets of a leg against the tenant\'s rosters', () => {
@@ -88,6 +101,22 @@ describe('SideBar - PatrolsManager - utils - buildLegDraft', () => {
     expect(draft.assets).toEqual([asset]);
     expect(draft.team).toBe(team);
     expect(draft.teamMembers).toEqual([member]);
+  });
+
+  test('keeps the subjects of a leg that the tenant\'s rosters no longer offer', () => {
+    const deactivatedAsset = { id: 'asset-2', name: 'Retired Cruiser' };
+    const deactivatedMember = { id: 'member-2', name: 'Kofi' };
+    const member = { id: 'member-1', name: 'Nadia' };
+
+    const draft = buildLegDraft(
+      { assets: [deactivatedAsset.id], members: [member.id, deactivatedMember.id] },
+      patrolTypes,
+      { assets: [], leaders: [], members: [member], teams: [] },
+      { [deactivatedAsset.id]: deactivatedAsset, [deactivatedMember.id]: deactivatedMember }
+    );
+
+    expect(draft.assets).toEqual([deactivatedAsset]);
+    expect(draft.teamMembers).toEqual([member, deactivatedMember]);
   });
 
   test('takes the universal and the patrol type fields a leg carries', () => {

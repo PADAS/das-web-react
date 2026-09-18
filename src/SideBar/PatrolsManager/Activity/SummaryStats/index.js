@@ -81,7 +81,8 @@ const SummaryStats = ({ eventCount, patrol, patrolSegment = null }) => {
   const [distanceSubjectMenuAnchorEl, setDistanceSubjectMenuAnchorEl] = useState();
   const [isDistanceSubjectMenuOpen, setIsDistanceSubjectMenuOpen] = useState(false);
 
-  const distanceSubject = patrolTrackedSubjects.find(({ subject }) => subject.id === distanceSubjectId)
+  const distanceSubject = patrolTrackedSubjects
+    .find((patrolTrackedSubject) => patrolTrackedSubject.subject.id === distanceSubjectId)
     ?? patrolTrackedSubjects[0]
     ?? null;
 
@@ -212,32 +213,33 @@ const SummaryStats = ({ eventCount, patrol, patrolSegment = null }) => {
             onKeyDown={onDistanceSubjectMenuKeyDown}
             role="menu"
           >
-            {patrolTrackedSubjects.map(({ isTeamLead, subject }, index) => <li
+            {patrolTrackedSubjects.map((patrolTrackedSubject, index) => <li
               className={styles.distanceSubjectMenuItem}
-              key={subject.id}
+              key={patrolTrackedSubject.subject.id}
               role="none"
             >
               <button
-                aria-checked={subject.id === distanceSubject.subject.id}
+                aria-checked={patrolTrackedSubject.subject.id === distanceSubject.subject.id}
                 className={styles.distanceSubjectMenuItemOption}
-                onClick={() => onDistanceSubjectMenuOptionClick(subject.id)}
+                onClick={() => onDistanceSubjectMenuOptionClick(patrolTrackedSubject.subject.id)}
                 ref={(element) => {
                   distanceSubjectMenuItemOptionRefs.current[index] = element;
                 }}
                 role="menuitemradio"
                 tabIndex={-1}
-                title={subject.name}
+                title={patrolTrackedSubject.subject.name}
                 type="button"
               >
-                {subject.id === distanceSubject.subject.id && <CheckIcon aria-hidden="true" className={styles.checkIcon} />}
+                {patrolTrackedSubject.subject.id === distanceSubject.subject.id
+                  && <CheckIcon aria-hidden="true" className={styles.checkIcon} />}
 
-                {!!subject.image_url && <span className={styles.subjectIcon}>
-                  <SvgIcon imageUrl={calcUrlForImage(subject.image_url)} type="subjects" />
+                {!!patrolTrackedSubject.subject.image_url && <span className={styles.subjectIcon}>
+                  <SvgIcon imageUrl={calcUrlForImage(patrolTrackedSubject.subject.image_url)} type="subjects" />
                 </span>}
 
-                {subject.name}
+                {patrolTrackedSubject.subject.name}
 
-                {!!isTeamLead && <>
+                {!!patrolTrackedSubject.isTeamLead && <>
                   <StarIcon aria-hidden="true" className={styles.teamLeadIcon} />
 
                   <span className="sr-only">{t('teamLeadIndicator')}</span>

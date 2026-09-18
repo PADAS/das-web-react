@@ -4,9 +4,7 @@ import { isValidDate } from '../../../../../DatePicker';
 import { isValidTime } from '../../../../../TimePicker';
 import parseLegDraftDateTime from '../parseLegDraftDateTime';
 
-// TODO: Take a latestEndDateTime once Edit Leg is built: neither the end nor
-// the start of the edited leg may pass the start of the leg after it.
-const getStaticFieldErrors = (leg, earliestStartDateTime = null) => {
+const getStaticFieldErrors = (leg, earliestStartDateTime = null, latestEndDateTime = null) => {
   const t = i18next.getFixedT(null, 'patrols', 'legForm');
 
   if (!isValidDate(leg.startDate)) {
@@ -27,6 +25,11 @@ const getStaticFieldErrors = (leg, earliestStartDateTime = null) => {
     return { startDate: t('staticFields.startDateOverlapsPreviousLegError') };
   }
 
+  // Neither bound of the leg may pass the start of the leg after it.
+  if (latestEndDateTime && startDateTime > latestEndDateTime) {
+    return { startDate: t('staticFields.startDateOverlapsNextLegError') };
+  }
+
   if (isValidDate(leg.endDate) && !isValidTime(leg.endTime)) {
     return { endTime: t('staticFields.endTimeRequiredError') };
   }
@@ -35,6 +38,10 @@ const getStaticFieldErrors = (leg, earliestStartDateTime = null) => {
 
   if (endDateTime && endDateTime < startDateTime) {
     return { endDate: t('staticFields.endDateBeforeStartDateError') };
+  }
+
+  if (endDateTime && latestEndDateTime && endDateTime > latestEndDateTime) {
+    return { endDate: t('staticFields.endDateOverlapsNextLegError') };
   }
 
   if (!leg.patrolType) {

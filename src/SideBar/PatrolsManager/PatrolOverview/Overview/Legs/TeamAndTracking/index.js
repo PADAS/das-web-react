@@ -210,30 +210,30 @@ const TeamAndTracking = ({ legNumber, trackedSubjects }) => {
           onKeyDown={onKeyDown}
           ref={listRef}
         >
-          {trackedSubjects.map(({ coordinates, isTeamLead, subject }, index) => <li
+          {trackedSubjects.map((trackedSubject, index) => <li
             className={styles.subject}
-            key={subject.id}
+            key={trackedSubject.subject.id}
           >
-            {!!subject.image_url && <span className={styles.subjectIcon}>
-              <SvgIcon imageUrl={calcUrlForImage(subject.image_url)} type="subjects" />
+            {!!trackedSubject.subject.image_url && <span className={styles.subjectIcon}>
+              <SvgIcon imageUrl={calcUrlForImage(trackedSubject.subject.image_url)} type="subjects" />
             </span>}
 
-            <span>{subject.name}</span>
+            <span>{trackedSubject.subject.name}</span>
 
-            {!!isTeamLead && <>
+            {!!trackedSubject.isTeamLead && <>
               <StarIcon aria-hidden="true" className={styles.teamLeadIcon} />
 
               <span className="sr-only">{t('teamLeadIndicator')}</span>
             </>}
 
-            {!!coordinates && <button
-              aria-label={t('jumpToLocationButtonLabel', { subject: subject.name })}
+            {!!trackedSubject.coordinates && <button
+              aria-label={t('jumpToLocationButtonLabel', { subject: trackedSubject.subject.name })}
               className={styles.jumpToLocationButton}
-              onClick={onJumpToSubjectLocation(coordinates)}
+              onClick={onJumpToSubjectLocation(trackedSubject.coordinates)}
               ref={(element) => {
                 jumpToLocationButtonRefs.current[index] = element;
               }}
-              title={t('jumpToLocationButtonLabel', { subject: subject.name })}
+              title={t('jumpToLocationButtonLabel', { subject: trackedSubject.subject.name })}
               type="button"
             >
               <MarkerFeedIcon aria-hidden="true" />

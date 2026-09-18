@@ -120,4 +120,44 @@ describe('SideBar - PatrolsManager - LegForm - utils - getStaticFieldErrors', ()
       });
     });
   });
+
+  describe('when another leg follows the leg', () => {
+    test('reports a start date later than the latest end of the leg', () => {
+      expect(getStaticFieldErrors(leg, null, new Date(2026, 3, 12, 8, 0))).toEqual({
+        startDate: 'This leg cannot overlap the next one.',
+      });
+    });
+
+    test('reports a start time later than the latest end of the leg on the same day', () => {
+      expect(getStaticFieldErrors(leg, null, new Date(2026, 3, 13, 7, 0))).toEqual({
+        startDate: 'This leg cannot overlap the next one.',
+      });
+    });
+
+    test('does not report a start that meets the latest end of the leg', () => {
+      expect(getStaticFieldErrors(leg, null, new Date(2026, 3, 13, 8, 0))).toEqual({});
+    });
+
+    test('reports an end date later than the latest end of the leg', () => {
+      const legWithEnd = { ...leg, endDate: '2026-04-20', endTime: '08:00' };
+
+      expect(getStaticFieldErrors(legWithEnd, null, new Date(2026, 3, 14, 8, 0))).toEqual({
+        endDate: 'This leg cannot overlap the next one.',
+      });
+    });
+
+    test('does not report an end that meets the latest end of the leg', () => {
+      const legWithEnd = { ...leg, endDate: '2026-04-14', endTime: '08:00' };
+
+      expect(getStaticFieldErrors(legWithEnd, null, new Date(2026, 3, 14, 8, 0))).toEqual({});
+    });
+
+    test('reports the erroneous start of the leg before its end', () => {
+      const legWithEnd = { ...leg, endDate: '2026-04-20', endTime: '08:00' };
+
+      expect(getStaticFieldErrors(legWithEnd, null, new Date(2026, 3, 12, 8, 0))).toEqual({
+        startDate: 'This leg cannot overlap the next one.',
+      });
+    });
+  });
 });
