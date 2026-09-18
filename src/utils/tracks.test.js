@@ -264,13 +264,23 @@ describe('utils - tracks', () => {
         .toBe(false);
     });
 
-    test('does not answer for a subject whose track came back with no positions', () => {
-      const emptyTrackData = {
-        fetchedDateRange: { since: '2026-04-13T01:00:00.000Z', until: null },
-        track: { features: [], type: 'FeatureCollection' },
-      };
+    const emptyTrackDataFetchedSince = (since) => ({
+      fetchedDateRange: { since, until: null },
+      track: { features: [], type: 'FeatureCollection' },
+    });
 
-      expect(trackHasDataWithinTimeRange(emptyTrackData, '2026-04-13T01:30:00.000Z')).toBe(false);
+    test('answers for a range the window a track came back empty from covers', () => {
+      expect(trackHasDataWithinTimeRange(
+        emptyTrackDataFetchedSince('2026-04-13T01:00:00.000Z'),
+        '2026-04-13T01:30:00.000Z'
+      )).toBe(true);
+    });
+
+    test('does not answer for a range reaching back past the window a track came back empty from', () => {
+      expect(trackHasDataWithinTimeRange(
+        emptyTrackDataFetchedSince('2026-04-13T01:00:00.000Z'),
+        '2026-04-13T00:00:00.000Z'
+      )).toBe(false);
     });
   });
 

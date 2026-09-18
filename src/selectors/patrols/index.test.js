@@ -1258,6 +1258,46 @@ describe('Selectors - Patrols', () => {
         expect(startStopGeometries.points.features.map((feature) => feature.properties.markerKind))
           .toEqual(['start']);
       });
+
+      describe('a leg whose track stops before the patrol does', () => {
+        const patrol = {
+          state: 'done',
+          patrol_segments: [{
+            leader: LEAD,
+            start_location: { latitude: 0, longitude: 1 },
+            time_range: { end_time: '2020-01-10T00:00:00.000Z', start_time: '2020-01-01T00:00:00.000Z' },
+          }],
+        };
+
+        beforeEach(() => {
+          state.data.tracks = {
+            [LEAD.id]: trackWithTimes(
+              [[4, 0], [3, 0], [2, 0], [1, 0]],
+              [
+                '2020-01-04T00:00:00.000Z',
+                '2020-01-03T00:00:00.000Z',
+                '2020-01-02T00:00:00.000Z',
+                '2020-01-01T00:00:00.000Z',
+              ]
+            ),
+          };
+        });
+
+        const markerKindsAtVirtualDate = (virtualDate) => {
+          state.view.timeSliderState = { active: true, virtualDate };
+
+          return selectPatrolTrackData(state, patrol).startStopGeometries.points.features
+            .map((feature) => feature.properties.markerKind);
+        };
+
+        test('does not end the patrol where its track stopped while the time slider is short of its end', () => {
+          expect(markerKindsAtVirtualDate('2020-01-06T00:00:00.000Z')).toEqual(['start']);
+        });
+
+        test('ends the patrol where its track stopped once the time slider has passed its end', () => {
+          expect(markerKindsAtVirtualDate('2020-01-11T00:00:00.000Z')).toEqual(['start', 'end']);
+        });
+      });
     });
   });
 

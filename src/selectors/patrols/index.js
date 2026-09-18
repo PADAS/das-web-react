@@ -312,7 +312,10 @@ const hasPatrolEndedByVirtualDate = (patrol, virtualDate) => {
 };
 
 const buildPatrolStartStopGeometries = (patrol, patrolSegmentsTrackedSubjects, timeSliderState, tracks) => {
-  const virtualDate = timeSliderState.active ? timeSliderState.virtualDate ?? null : null;
+  const virtualDate = timeSliderState.active && timeSliderState.virtualDate
+    ? new Date(timeSliderState.virtualDate)
+    : null;
+  const hasPatrolEnded = !virtualDate || hasPatrolEndedByVirtualDate(patrol, virtualDate);
 
   // The markers sit on the line the leads made. A pause tracks nobody and a leg
   // still to come has been nowhere, so neither puts the patrol anywhere.
@@ -330,29 +333,25 @@ const buildPatrolStartStopGeometries = (patrol, patrolSegmentsTrackedSubjects, t
   const patrolPoints = buildPatrolPoints(patrol, patrolSegmentsLeadTrackData);
 
   if (virtualDate) {
-    const virtualDateTime = new Date(virtualDate);
-
-    if (!isPatrolPointBeforeVirtualDate(patrolPoints.start_location, virtualDateTime)) {
+    if (!isPatrolPointBeforeVirtualDate(patrolPoints.start_location, virtualDate)) {
       patrolPoints.start_location = null;
     }
 
-    if (!isPatrolPointBeforeVirtualDate(patrolPoints.end_location, virtualDateTime)) {
+    // Where a track had reached when the slider stopped is not where the patrol
+    // finished, and one the slider left mid-run has not finished at all.
+    if (!hasPatrolEnded || !isPatrolPointBeforeVirtualDate(patrolPoints.end_location, virtualDate)) {
       patrolPoints.end_location = null;
     }
 
     patrolPoints.legMarkers = patrolPoints.legMarkers
-      .filter((legMarker) => isPatrolPointBeforeVirtualDate(legMarker, virtualDateTime));
+      .filter((legMarker) => isPatrolPointBeforeVirtualDate(legMarker, virtualDate));
   }
 
   if (!patrolPoints.start_location && !patrolPoints.end_location && !patrolPoints.legMarkers.length) {
     return null;
   }
 
-  const finalizedPatrolPoints = finalizeCombinedPatrolPoints(
-    patrol,
-    patrolPoints,
-    !virtualDate || hasPatrolEndedByVirtualDate(patrol, new Date(virtualDate))
-  );
+  const finalizedPatrolPoints = finalizeCombinedPatrolPoints(patrol, patrolPoints, hasPatrolEnded);
 
   return {
     // The dashed lines reach to the leads' line, not every subject's: hiding a
