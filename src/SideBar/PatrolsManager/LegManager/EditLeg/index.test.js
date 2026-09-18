@@ -5,7 +5,11 @@ import { toast } from 'react-toastify';
 import userEvent from '@testing-library/user-event';
 
 import { createMapMock } from '../../../../__test-helpers/mocks';
-import { DEFAULT_PATROL_SEGMENT_TYPE } from '../../../../ducks/patrol-schemas';
+import {
+  DEFAULT_PATROL_SEGMENT_TYPE,
+  fetchDefaultPatrolSegmentTypeSchema,
+  fetchPatrolTypeSchema,
+} from '../../../../ducks/patrol-schemas';
 import {
   defaultPatrolSegmentTypeSchema,
   patrolTypeFieldsSchema,
@@ -20,16 +24,34 @@ import { updatePatrol } from '../../../../ducks/patrols';
 
 import EditLeg from './';
 
+jest.mock('../../../../ducks/patrol-schemas', () => ({
+  ...jest.requireActual('../../../../ducks/patrol-schemas'),
+  fetchDefaultPatrolSegmentTypeSchema: jest.fn(),
+  fetchPatrolTypeSchema: jest.fn(),
+}));
+
 jest.mock('../../../../ducks/patrols', () => ({
   ...jest.requireActual('../../../../ducks/patrols'),
   updatePatrol: jest.fn(),
 }));
+
+const PATROL_TYPE_FIELDS_SCHEMA_WITH_A_DEFAULT = {
+  ...patrolTypeFieldsSchema,
+  json: {
+    ...patrolTypeFieldsSchema.json,
+    properties: {
+      ...patrolTypeFieldsSchema.json.properties,
+      vehicle_name: { ...patrolTypeFieldsSchema.json.properties.vehicle_name, default: 'Fleet 4x4' },
+    },
+  },
+};
 
 const LocationDisplay = () => <div data-testid="test-location">{useLocation().pathname}</div>;
 
 describe('SideBar - PatrolsManager - LegManager - EditLeg', () => {
   const teamLead = { id: 'leader-1', name: 'Alex' };
   const teamMember = { id: 'member-1', name: 'Nadia' };
+  const unassignedMember = { id: 'member-2', name: 'Kofi' };
   const asset = { id: 'asset-1', name: 'Land Cruiser' };
   const team = { display: 'Alpha', id: 'team-1' };
 
@@ -41,6 +63,8 @@ describe('SideBar - PatrolsManager - LegManager - EditLeg', () => {
     jest.clearAllMocks();
     jest.useFakeTimers().setSystemTime(new Date(2026, 3, 13, 12, 0));
 
+    fetchDefaultPatrolSegmentTypeSchema.mockImplementation(() => () => {});
+    fetchPatrolTypeSchema.mockImplementation(() => () => {});
     updatePatrol.mockImplementation(() => () => Promise.resolve());
 
     map = createMapMock();
@@ -95,10 +119,11 @@ describe('SideBar - PatrolsManager - LegManager - EditLeg', () => {
         patrolTeamAndTrackingOptions: {
           assets: [asset],
           leaders: [teamLead],
-          members: [teamLead, teamMember],
+          members: [teamLead, teamMember, unassignedMember],
           teams: [team],
         },
         patrolTypes,
+        subjectStore: {},
         user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ, PERMISSIONS.UPDATE] } },
         userContent: {},
       },
@@ -122,22 +147,21 @@ describe('SideBar - PatrolsManager - LegManager - EditLeg', () => {
   const renderEditLeg = (legId = firstLegId) => {
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    const renderResult = render(
-      <Provider store={mockStore(store)}>
-        <MapContext.Provider value={map}>
-          <Routes>
-            <Route element={<EditLeg patrol={patrol} />} path="/patrols/:patrolId/legs/:legId/edit" />
+    const editLeg = () => <Provider store={mockStore(store)}>
+      <MapContext.Provider value={map}>
+        <Routes>
+          <Route element={<EditLeg patrol={patrol} />} path="/patrols/:patrolId/legs/:legId/edit" />
 
-            <Route element={null} path="/patrols/*" />
-          </Routes>
-        </MapContext.Provider>
+          <Route element={null} path="/patrols/*" />
+        </Routes>
+      </MapContext.Provider>
 
-        <LocationDisplay />
-      </Provider>,
-      { initialEntries: [`/patrols/${patrol.id}/legs/${legId}/edit`] }
-    );
+      <LocationDisplay />
+    </Provider>;
 
-    return { ...renderResult, user };
+    const renderResult = render(editLeg(), { initialEntries: [`/patrols/${patrol.id}/legs/${legId}/edit`] });
+
+    return { ...renderResult, rerenderWithStoreChanges: () => renderResult.rerender(editLeg()), user };
   };
 
   const clickSave = (user) => user.click(screen.getByRole('button', { name: 'Save' }));
@@ -148,6 +172,11 @@ describe('SideBar - PatrolsManager - LegManager - EditLeg', () => {
     within(screen.getByRole('group', { name: groupName })).getByRole('textbox', { name: inputName });
 
   const getPathname = () => screen.getByTestId('test-location').textContent;
+
+  const pickOption = async (user, selectName, optionName) => {
+    await user.type(screen.getByRole('combobox', { name: selectName }), '{arrowdown}');
+    await user.click(screen.getByRole('option', { name: optionName }));
+  };
 
   const readTeamAndTrackingField = (label) => within(screen.getByText(label).parentElement);
 
@@ -188,6 +217,16 @@ describe('SideBar - PatrolsManager - LegManager - EditLeg', () => {
 
       expect(screen.getByRole('textbox', { name: 'Objective' })).toHaveValue('Sweep the fence line');
       expect(screen.getByRole('textbox', { name: 'Vehicle Name' })).toHaveValue('KTN-123');
+    });
+
+    test('takes a subject of its team that the tenant no longer offers', () => {
+      const deactivatedMember = { id: 'member-3', name: 'Zuri' };
+      patrol.patrol_segments[0].members.push(deactivatedMember.id);
+      store.data.subjectStore[deactivatedMember.id] = deactivatedMember;
+
+      renderEditLeg();
+
+      expect(readTeamAndTrackingField('Team Members').getByText(deactivatedMember.name)).toBeVisible();
     });
 
     test('titles the view after the leg and names the patrol it belongs to in its breadcrumb', () => {
@@ -403,6 +442,49 @@ describe('SideBar - PatrolsManager - LegManager - EditLeg', () => {
       expect(updatePatrol.mock.calls[0][0].patrol_segments).toEqual([{
         id: lastLegId,
         time_range: { end_time: null, start_time: new Date(2026, 3, 13, 11, 0).toISOString() },
+      }]);
+    });
+
+    test('sends the details of the patrol type the user picked, not the ones the leg was run under', async () => {
+      delete store.data.patrolSchemas[routinePatrol.value];
+
+      const { rerenderWithStoreChanges, user } = renderEditLeg();
+
+      await pickOption(user, 'Patrol Type', routinePatrol.display);
+
+      store.data.patrolSchemas[routinePatrol.value] = {
+        isLoading: false,
+        schema: PATROL_TYPE_FIELDS_SCHEMA_WITH_A_DEFAULT,
+      };
+      rerenderWithStoreChanges();
+
+      expect(await screen.findByRole('textbox', { name: 'Vehicle Name' })).toHaveValue('Fleet 4x4');
+
+      await clickSave(user);
+
+      await waitFor(() => expect(updatePatrol).toHaveBeenCalledTimes(1));
+
+      expect(updatePatrol.mock.calls[0][0].patrol_segments).toEqual([{
+        id: firstLegId,
+        patrol_type: routinePatrol.value,
+        type_details: { vehicle_name: 'Fleet 4x4' },
+      }]);
+    });
+
+    test('keeps a subject of the leg that nothing can name when the user edits its team', async () => {
+      patrol.patrol_segments[0].members.push('member-nothing-names');
+
+      const { user } = renderEditLeg();
+
+      await pickOption(user, 'Team Members', unassignedMember.name);
+
+      await clickSave(user);
+
+      await waitFor(() => expect(updatePatrol).toHaveBeenCalledTimes(1));
+
+      expect(updatePatrol.mock.calls[0][0].patrol_segments).toEqual([{
+        id: firstLegId,
+        members: [teamLead.id, teamMember.id, unassignedMember.id, 'member-nothing-names'],
       }]);
     });
 

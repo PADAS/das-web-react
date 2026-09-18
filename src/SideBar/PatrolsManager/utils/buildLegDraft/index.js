@@ -1,4 +1,5 @@
 import { format } from 'date-fns';
+import { startCase } from 'lodash-es';
 
 import { EMPTY_DATE_VALUE } from '../../../../DatePicker';
 import { findMatchingPatrolType, getTeamAndTrackingForPatrolSegment } from '../../../../utils/patrols';
@@ -11,11 +12,16 @@ const patrolTypeForPatrolSegment = (patrolSegment, patrolTypes) => {
     return null;
   }
 
-  return findMatchingPatrolType(patrolTypes, patrolSegment.patrol_type)
-    ?? { display: patrolSegment.patrol_type, icon_id: patrolSegment.icon_id, value: patrolSegment.patrol_type };
+  return findMatchingPatrolType(patrolTypes, patrolSegment.patrol_type) ?? {
+    default_priority: patrolSegment.priority ?? 0,
+    display: startCase(patrolSegment.patrol_type),
+    icon_id: patrolSegment.icon_id,
+    id: patrolSegment.patrol_type,
+    value: patrolSegment.patrol_type,
+  };
 };
 
-const buildLegDraft = (patrolSegment = null, patrolTypes = [], teamAndTrackingOptions) => {
+const buildLegDraft = (patrolSegment = null, patrolTypes = [], teamAndTrackingOptions, rosterFallbackSubjects) => {
   const actualEndTime = patrolSegment?.time_range?.end_time ?? null;
   const actualStartTime = patrolSegment?.time_range?.start_time ?? null;
   const endTime = actualEndTime ?? patrolSegment?.scheduled_end ?? null;
@@ -24,7 +30,11 @@ const buildLegDraft = (patrolSegment = null, patrolTypes = [], teamAndTrackingOp
   const endDate = endTime ? new Date(endTime) : null;
   const startDate = startTime ? new Date(startTime) : null;
 
-  const teamAndTracking = getTeamAndTrackingForPatrolSegment(patrolSegment, teamAndTrackingOptions);
+  const teamAndTracking = getTeamAndTrackingForPatrolSegment(
+    patrolSegment,
+    teamAndTrackingOptions,
+    rosterFallbackSubjects
+  );
 
   return {
     assets: teamAndTracking.assets,

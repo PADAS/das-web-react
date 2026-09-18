@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useId, useState } from 'react';
 import isEqual from 'react-fast-compare';
 import { isSameMinute } from 'date-fns';
-import { pickBy } from 'lodash-es';
+import { omit, pickBy, uniq } from 'lodash-es';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router';
@@ -15,6 +15,7 @@ import {
   latestEndForEditedPatrolSegment,
 } from '../../../../utils/patrols';
 import { EDIT_LEG_CATEGORY, TrackerContext, trackEventFactory } from '../../../../utils/analytics';
+import { selectPatrolRosterFallbackSubjects } from '../../../../selectors/patrols';
 import { TAB_KEYS } from '../../../../constants';
 import { updatePatrol } from '../../../../ducks/patrols';
 import useNavigate from '../../../../hooks/useNavigate';
@@ -47,11 +48,28 @@ const segmentKeepingItsSeconds = (segment, storedSegment) => ({
   },
 });
 
+// The form never sees a roster id that neither the site's lists nor the
+// subject store can name, so the leg keeps it rather than losing the subject.
+const unnamedRosterIds = (storedRosterIds, openedRosterIds) =>
+  (storedRosterIds ?? []).filter((rosterId) => !openedRosterIds.includes(rosterId));
+
+const segmentKeepingItsUnnamedRoster = (segment, unnamedAssetIds, unnamedMemberIds) => ({
+  ...segment,
+  assets: uniq([...segment.assets, ...unnamedAssetIds]),
+  members: uniq([...segment.members, ...unnamedMemberIds]),
+});
+
 // The API merges a leg into the one it holds by id, so an edit sends the fields
 // the user changed and leaves the leg's every other field as it stands.
 const buildEditLegUpdate = (patrol, patrolSegment, { initialLeg, isFirstLeg, leg }) => {
-  const segmentAsEdited = segmentKeepingItsSeconds(buildLegSegment(leg, { isFirstLeg }), patrolSegment);
-  const segmentAsOpened = segmentKeepingItsSeconds(buildLegSegment(initialLeg, { isFirstLeg }), patrolSegment);
+  const editedSegment = segmentKeepingItsSeconds(buildLegSegment(leg, { isFirstLeg }), patrolSegment);
+  const openedSegment = segmentKeepingItsSeconds(buildLegSegment(initialLeg, { isFirstLeg }), patrolSegment);
+
+  const unnamedAssetIds = unnamedRosterIds(patrolSegment.assets, openedSegment.assets);
+  const unnamedMemberIds = unnamedRosterIds(patrolSegment.members, openedSegment.members);
+
+  const segmentAsEdited = segmentKeepingItsUnnamedRoster(editedSegment, unnamedAssetIds, unnamedMemberIds);
+  const segmentAsOpened = segmentKeepingItsUnnamedRoster(openedSegment, unnamedAssetIds, unnamedMemberIds);
 
   return {
     id: patrol.id,
@@ -70,6 +88,7 @@ const EditLegContent = ({ patrol, patrolSegment }) => {
   const { hasPatrolsUpdatePermission } = usePatrolsPermissions();
   const legState = usePatrolState(patrol, patrolSegment);
 
+  const patrolRosterFallbackSubjects = useSelector((state) => selectPatrolRosterFallbackSubjects(state, patrol));
   const patrolTeamAndTrackingOptions = useSelector((state) => state.data.patrolTeamAndTrackingOptions);
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
@@ -77,7 +96,7 @@ const EditLegContent = ({ patrol, patrolSegment }) => {
 
   const [hasSavedLeg, setHasSavedLeg] = useState(false);
   const [initialLeg, setInitialLeg] = useState(
-    () => buildLegDraft(patrolSegment, patrolTypes, patrolTeamAndTrackingOptions)
+    () => buildLegDraft(patrolSegment, patrolTypes, patrolTeamAndTrackingOptions, patrolRosterFallbackSubjects)
   );
   const [isSaving, setIsSaving] = useState(false);
   const [leg, setLeg] = useState(initialLeg);
@@ -85,6 +104,8 @@ const EditLegContent = ({ patrol, patrolSegment }) => {
   const canEditLeg = hasPatrolsUpdatePermission && canEditPatrolSegment(patrol, legState);
 
   const hasUnsavedChanges = !isEqual(leg, initialLeg);
+
+  const isPatrolTypeAsOpened = leg.patrolType?.value === initialLeg.patrolType?.value;
 
   const patrolSegmentIndex = patrol.patrol_segments.indexOf(patrolSegment);
 
@@ -102,13 +123,16 @@ const EditLegContent = ({ patrol, patrolSegment }) => {
 
   const onChangeLeg = useCallback((legChanges, { isDefaultData = false } = {}) => {
     // A schema form populates its defaults before the user can touch it, so
-    // they belong to the leg as it was handed over, not to an edit of it.
+    // they belong to the leg as handed over: those of a picked type do not.
     if (isDefaultData) {
-      setInitialLeg((prevInitialLeg) => ({ ...prevInitialLeg, ...legChanges }));
+      setInitialLeg((prevInitialLeg) => ({
+        ...prevInitialLeg,
+        ...(isPatrolTypeAsOpened ? legChanges : omit(legChanges, 'typeDetails')),
+      }));
     }
 
     setLeg((prevLeg) => ({ ...prevLeg, ...legChanges }));
-  }, []);
+  }, [isPatrolTypeAsOpened]);
 
   const onSubmit = async () => {
     editLegTracker.track('Click the "Save" button in edit leg');

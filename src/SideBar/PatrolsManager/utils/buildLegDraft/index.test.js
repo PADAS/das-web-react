@@ -67,11 +67,13 @@ describe('SideBar - PatrolsManager - utils - buildLegDraft', () => {
   });
 
   test('rebuilds the patrol type of a leg from the leg itself when the site does not serve it', () => {
-    const leg = { icon_id: 'retired-patrol-icon', patrol_type: 'a_retired_patrol_type' };
+    const patrolSegment = { icon_id: 'retired-patrol-icon', patrol_type: 'a_retired_patrol_type', priority: 300 };
 
-    expect(buildLegDraft(leg, patrolTypes)).toHaveProperty('patrolType', {
-      display: 'a_retired_patrol_type',
+    expect(buildLegDraft(patrolSegment, patrolTypes)).toHaveProperty('patrolType', {
+      default_priority: 300,
+      display: 'A Retired Patrol Type',
       icon_id: 'retired-patrol-icon',
+      id: 'a_retired_patrol_type',
       value: 'a_retired_patrol_type',
     });
   });
@@ -99,6 +101,22 @@ describe('SideBar - PatrolsManager - utils - buildLegDraft', () => {
     expect(draft.assets).toEqual([asset]);
     expect(draft.team).toBe(team);
     expect(draft.teamMembers).toEqual([member]);
+  });
+
+  test('keeps the subjects of a leg that the tenant\'s rosters no longer offer', () => {
+    const deactivatedAsset = { id: 'asset-2', name: 'Retired Cruiser' };
+    const deactivatedMember = { id: 'member-2', name: 'Kofi' };
+    const member = { id: 'member-1', name: 'Nadia' };
+
+    const draft = buildLegDraft(
+      { assets: [deactivatedAsset.id], members: [member.id, deactivatedMember.id] },
+      patrolTypes,
+      { assets: [], leaders: [], members: [member], teams: [] },
+      { [deactivatedAsset.id]: deactivatedAsset, [deactivatedMember.id]: deactivatedMember }
+    );
+
+    expect(draft.assets).toEqual([deactivatedAsset]);
+    expect(draft.teamMembers).toEqual([member, deactivatedMember]);
   });
 
   test('takes the universal and the patrol type fields a leg carries', () => {
