@@ -5,7 +5,7 @@
   "buildbranch": "generated_by_build",
   "buildnum": "also_generated_by_build",
   "dependencies": {
-    "@auth0/auth0-react": "^2.25.0",
+    "@auth0/auth0-react": "^2.26.0",
     "@dnd-kit/collision": "^0.5.0",
     "@dnd-kit/dom": "^0.5.0",
     "@dnd-kit/helpers": "^0.5.0",

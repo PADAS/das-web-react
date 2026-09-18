@@ -37,37 +37,37 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@auth0/auth0-auth-js@npm:^1.10.0":
-  version: 1.12.1
-  resolution: "@auth0/auth0-auth-js@npm:1.12.1"
+"@auth0/auth0-auth-js@npm:^1.15.0":
+  version: 1.15.0
+  resolution: "@auth0/auth0-auth-js@npm:1.15.0"
   dependencies:
     jose: "npm:^6.0.8"
     openid-client: "npm:^6.8.0"
-  checksum: 10c0/77892d733b755d1c1dc2f4128390ec097222796fe785e881fe6b88aafb8123f6953c8d5f1952a9e74865a1da8f1e54506362133a0bc2163af59a6956b0edc6d9
+  checksum: 10c0/3f0078d3b23b1e3d3117f9ad11de337d91987df97e1107341c6eecdf7984685360222a79840be7f16b061483019c65d5db924755c9bed53e59d79058e1b5728e
   languageName: node
   linkType: hard
 
-"@auth0/auth0-react@npm:^2.25.0":
-  version: 2.25.0
-  resolution: "@auth0/auth0-react@npm:2.25.0"
+"@auth0/auth0-react@npm:^2.26.0":
+  version: 2.26.0
+  resolution: "@auth0/auth0-react@npm:2.26.0"
   dependencies:
-    "@auth0/auth0-spa-js": "npm:^2.25.0"
+    "@auth0/auth0-spa-js": "npm:^2.26.0"
   peerDependencies:
     react: ^16.11.0 || ^17 || ^18 || ~19.0.1 || ~19.1.2 || ^19.2.1
     react-dom: ^16.11.0 || ^17 || ^18 || ~19.0.1 || ~19.1.2 || ^19.2.1
-  checksum: 10c0/9ef4a7e51d5ad256e0a435599284a9b278d84dcb9ff99ae833d7b877f2d8c461f4f09643ef10ee778ed45df51f35b0614c43648513602d9c60e4d752bab00888
+  checksum: 10c0/7fb91ec1ef09d3860baa3ec2e3ad1332e0bd154926c5642f3183b033c3752c01b35083fd8ae2ca46179c85676155f50491f348dcdcebe02b78b3b5ebb4afb34d
   languageName: node
   linkType: hard
 
-"@auth0/auth0-spa-js@npm:^2.25.0":
-  version: 2.25.0
-  resolution: "@auth0/auth0-spa-js@npm:2.25.0"
+"@auth0/auth0-spa-js@npm:^2.26.0":
+  version: 2.26.0
+  resolution: "@auth0/auth0-spa-js@npm:2.26.0"
   dependencies:
-    "@auth0/auth0-auth-js": "npm:^1.10.0"
+    "@auth0/auth0-auth-js": "npm:^1.15.0"
     browser-tabs-lock: "npm:^1.3.0"
     dpop: "npm:^2.1.1"
     es-cookie: "npm:~1.3.2"
-  checksum: 10c0/3a265994c9c2253fe6f04c6b5dcd43ca14408671d183c401dd8dccc1d3b522704c81b94f2007747699e5c6adba18252dfb0699dccc7990f2dc0ba1054baf0082
+  checksum: 10c0/83b69447c270b2cd6a69fc900b71985bf83741c3a454496336fc47de640aebe7a353e2acc14efb1b0e16ed775dff3ff3fbe7dd67e0e894ea44f6c18dc137f7a9
   languageName: node
   linkType: hard
 
@@ -8139,7 +8139,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "das-web-react@workspace:."
   dependencies:
-    "@auth0/auth0-react": "npm:^2.25.0"
+    "@auth0/auth0-react": "npm:^2.26.0"
     "@babel/core": "npm:^8.0.5"
     "@babel/preset-env": "npm:^8.0.5"
     "@babel/preset-react": "npm:^8.0.1"
