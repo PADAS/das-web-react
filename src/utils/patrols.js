@@ -1255,16 +1255,19 @@ export const extractLegPatrolPoints = (segment, leader, legTrackData, rawLegTrac
   return leg_points;
 };
 
-// Where a patrol stood still: a pause tracks nothing, so its pin takes where
-// it was logged, and otherwise where the leg before it ended.
+// Where a patrol stood still: a pause tracks nothing, so its pin borrows the
+// place the leg before it ended, but never that leg's time along with it.
 export const extractPausePatrolPoint = (patrolSegment, previousLegEndPoint) => {
   const pauseLocation = patrolSegment.start_location;
+  const coordinates = pauseLocation
+    ? [pauseLocation.longitude, pauseLocation.latitude]
+    : previousLegEndPoint?.geometry.coordinates;
 
-  if (!pauseLocation) {
-    return previousLegEndPoint;
+  if (!coordinates) {
+    return null;
   }
 
-  return point([pauseLocation.longitude, pauseLocation.latitude], {
+  return point(coordinates, {
     stroke: previousLegEndPoint?.properties.stroke ?? strokeForPatrolSegmentLeader(patrolSegment.leader),
     time: patrolSegment.time_range?.start_time ?? null,
   });

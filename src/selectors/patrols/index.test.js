@@ -1297,6 +1297,31 @@ describe('Selectors - Patrols', () => {
         test('ends the patrol where its track stopped once the time slider has passed its end', () => {
           expect(markerKindsAtVirtualDate('2020-01-11T00:00:00.000Z')).toEqual(['start', 'end']);
         });
+
+        test('holds back a pause standing where that track stopped until the time slider reaches it', () => {
+          const patrolPausedAfterItsTrackStopped = {
+            state: 'done',
+            patrol_segments: [
+              {
+                leader: LEAD,
+                start_location: { latitude: 0, longitude: 1 },
+                time_range: { end_time: '2020-01-08T00:00:00.000Z', start_time: '2020-01-01T00:00:00.000Z' },
+              },
+              {
+                is_pause: true,
+                leader: LEAD,
+                time_range: { end_time: null, start_time: '2020-01-08T00:00:00.000Z' },
+              },
+            ],
+            updates: [{ time: '2020-01-10T00:00:00.000Z', type: 'update_patrol_state' }],
+          };
+          state.view.timeSliderState = { active: true, virtualDate: '2020-01-06T00:00:00.000Z' };
+
+          const { startStopGeometries } = selectPatrolTrackData(state, patrolPausedAfterItsTrackStopped);
+
+          expect(startStopGeometries.points.features.map((feature) => feature.properties.markerKind))
+            .toEqual(['start']);
+        });
       });
     });
   });
