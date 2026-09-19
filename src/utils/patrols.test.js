@@ -1231,7 +1231,7 @@ describe('Patrols utils', () => {
   describe('extractPausePatrolPoint', () => {
     const previousLegEndPoint = {
       geometry: { coordinates: [1, 1], type: 'Point' },
-      properties: { stroke: '#C87850' },
+      properties: { stroke: '#C87850', time: '2022-06-15T08:00:00.000Z' },
       type: 'Feature',
     };
 
@@ -1251,7 +1251,14 @@ describe('Patrols utils', () => {
     test('stands the pause where the leg before it ended when it was logged nowhere', () => {
       const patrolSegment = { is_pause: true, time_range: { start_time: '2022-06-15T10:00:00.000Z' } };
 
-      expect(extractPausePatrolPoint(patrolSegment, previousLegEndPoint)).toBe(previousLegEndPoint);
+      expect(extractPausePatrolPoint(patrolSegment, previousLegEndPoint).geometry.coordinates).toEqual([1, 1]);
+    });
+
+    test('keeps the pause at its own time when it stands where the leg before it ended', () => {
+      const patrolSegment = { is_pause: true, time_range: { start_time: '2022-06-15T10:00:00.000Z' } };
+
+      expect(extractPausePatrolPoint(patrolSegment, previousLegEndPoint).properties)
+        .toEqual({ stroke: '#C87850', time: '2022-06-15T10:00:00.000Z' });
     });
 
     test('stands the pause nowhere when neither it nor the leg before it was logged', () => {

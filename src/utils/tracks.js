@@ -20,6 +20,8 @@ const MAX_ABSOLUTE_LONGITUDE = 180;
 const WORLD_TOTAL_LONGITUDE = 360;
 const MAX_MINUTES_PER_DAY = 1440;
 
+const EMPTY_TIMES = [];
+
 // Helper function to fix antimeridian crossing for a coordinate array
 export const fixAntimeridianCrossing = (featCollection) => {
   if (!featCollection?.features?.length) return featCollection;
@@ -199,10 +201,8 @@ export const trackHasDataWithinTimeRange = (trackData, since = null, until = nul
   const { fetchedDateRange, track } = trackData;
 
   // A subject with no positions in the window it was fetched for comes back
-  // with no line at all, and there is nothing for the range to reach.
-  const times = track.features[0]?.properties?.coordinateProperties?.times;
-
-  if (!times) return false;
+  // with no line at all, and that window is all there is to answer with.
+  const times = track.features[0]?.properties?.coordinateProperties?.times ?? EMPTY_TIMES;
 
   const [first] = times;
   const last = times[times.length - 1];
