@@ -92,7 +92,7 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
         coordinateReferenceSystems: { storedSystems: [] },
         mapLocationSelection: { isPickingLocation: false },
         modals: { canShowModals: true },
-        patrolTrackState: { pinned: [], visible: [] },
+        patrolTrackState: { hiddenSubjects: {}, pinned: [], visible: [] },
         showUserLocation: false,
         userLocation: null,
         userPreferences: { autoEndPatrols: false, autoStartPatrols: false, gpsFormat: GPS_FORMATS.DEG },

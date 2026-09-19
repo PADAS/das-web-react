@@ -23,6 +23,7 @@ const isUnsavedNewNote = (note) => !!note.tmpId && !note.originalText;
 const useActivityFeed = ({
   attachments,
   containedReports,
+  endIcon,
   endTime = null,
   endTitle = null,
   milestones = EMPTY_LIST,
@@ -35,6 +36,8 @@ const useActivityFeed = ({
   onChangeNote,
   onDoneNote,
   sortButtonComponent,
+  startIcon,
+  startLink = null,
   startTime = null,
   startTitle = null,
 }) => {
@@ -121,7 +124,13 @@ const useActivityFeed = ({
     const now = new Date();
     if (startTime && isGreaterThan(now, startTime)){
       datesSortableList.push({
-        node: <DateListItem date={startTime} key="startTime" title={startTitle ?? t('dateItemStartTitle')} />,
+        node: <DateListItem
+          date={startTime}
+          icon={startIcon}
+          key="startTime"
+          link={startLink}
+          title={startTitle ?? t('dateItemStartTitle')}
+        />,
         sortDate: new Date(startTime),
       });
     }
@@ -135,6 +144,7 @@ const useActivityFeed = ({
             date={milestoneDate}
             icon={milestone.icon}
             key={`milestone-${milestone.id}`}
+            link={milestone.link}
             title={milestone.title}
             variant={milestone.variant}
           />,
@@ -145,13 +155,18 @@ const useActivityFeed = ({
 
     if (endTime && !isGreaterThan(endTime, now)){
       datesSortableList.push({
-        node: <DateListItem date={endTime} key="endTime" title={endTitle ?? t('dateItemEndedTitle')} />,
+        node: <DateListItem
+          date={endTime}
+          icon={endIcon}
+          key="endTime"
+          title={endTitle ?? t('dateItemEndedTitle')}
+        />,
         sortDate: new Date(endTime),
       });
     }
 
     return datesSortableList;
-  }, [endTime, endTitle, milestones, startTime, startTitle, t]);
+  }, [endIcon, endTime, endTitle, milestones, startIcon, startLink, startTime, startTitle, t]);
 
   const notesSortableList = useMemo(() => notes.map((note) => ({
     node: <NoteListItem

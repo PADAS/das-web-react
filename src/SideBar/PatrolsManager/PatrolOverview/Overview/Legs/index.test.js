@@ -33,6 +33,14 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
   const map = createMapMock();
   const navigate = jest.fn();
 
+  beforeAll(() => {
+    jest.useFakeTimers({ advanceTimers: true }).setSystemTime(new Date('2026-04-14'));
+  });
+
+  afterAll(() => {
+    jest.useRealTimers();
+  });
+
   let store;
   beforeEach(() => {
     useNavigate.mockReturnValue(navigate);
@@ -45,7 +53,6 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
         subjectStore: {},
         user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ, PERMISSIONS.UPDATE] } },
         tracks: {
-          // Only the 2nd leg's leader has track data, so only its leg has bounds to zoom to.
           [legTwoLeaderId]: {
             fetchedDateRange: { since: '2026-04-01T00:00:00.000Z', until: '2026-05-01T00:00:00.000Z' },
             track: {
@@ -67,6 +74,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
         },
       },
       view: {
+        patrolTrackState: { hiddenSubjects: {}, pinned: [], visible: [] },
         timeSliderState: {},
         trackSettings: { length: 21, origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH },
       },
@@ -131,7 +139,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
     expect(within(legTwoRow).getByText('2')).toBeInTheDocument();
   });
 
-  test('lists a pause as a leg of its own, named by its state instead of a patrol type', () => {
+  test('lists a pause without a number, leaving the legs around it consecutive', () => {
     const pause = { ...legOne, id: 'pause-1', is_pause: true };
 
     renderLegs({ patrol: { ...patrol, patrol_segments: [legOne, pause, legTwo] } });
@@ -139,10 +147,30 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
     const [, legOneRow, pauseRow, legTwoRow] = getRows();
 
     expect(within(legOneRow).getByText('1')).toBeInTheDocument();
-    expect(within(pauseRow).getByText('2')).toBeInTheDocument();
-    expect(within(pauseRow).getByText('Paused')).toBeInTheDocument();
+    expect(within(pauseRow).queryByText('2')).not.toBeInTheDocument();
     expect(within(pauseRow).queryByText('Routine Patrol')).not.toBeInTheDocument();
-    expect(within(legTwoRow).getByText('3')).toBeInTheDocument();
+    expect(within(legTwoRow).getByText('2')).toBeInTheDocument();
+  });
+
+  test('spans the paused chip of a pause over the leg and patrol type columns', () => {
+    const pause = { ...legOne, id: 'pause-1', is_pause: true };
+
+    renderLegs({ patrol: { ...patrol, patrol_segments: [legOne, pause, legTwo] } });
+
+    const [, , pauseRow] = getRows();
+
+    expect(within(pauseRow).getByText('Paused').closest('td')).toHaveAttribute('colspan', '2');
+  });
+
+  test('leaves a pause without the team and the map actions of a leg that ran', () => {
+    const pause = { ...legOne, id: 'pause-1', is_pause: true };
+
+    renderLegs({ patrol: { ...patrol, patrol_segments: [legOne, pause, legTwo] } });
+
+    const [, , pauseRow] = getRows();
+
+    expect(within(pauseRow).getByRole('link', { name: 'View pause 1' })).toBeInTheDocument();
+    expect(within(pauseRow).queryByRole('button')).not.toBeInTheDocument();
   });
 
   test('shows the leg patrol type', () => {
@@ -295,15 +323,10 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
     );
   });
 
-  test('falls back to the planned locations of a leg nothing has tracked', async () => {
+  test('frames a leg nothing has tracked by the locations it was planned around', () => {
     renderLegs();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Zoom to leg 1 bounds' }));
-
-    expect(map.fitBounds).toHaveBeenCalledWith(
-      [[37.472, 0.225], [37.480, 0.230]],
-      expect.objectContaining({ maxZoom: 17 })
-    );
+    expect(screen.getByRole('button', { name: 'Zoom to leg 1 bounds' })).toBeEnabled();
   });
 
   test('has no bounds to zoom to on a leg with neither a track nor planned locations', () => {

@@ -131,7 +131,7 @@ describe('SideBar - PatrolsManager - LegManager - EditLeg', () => {
         coordinateReferenceSystems: { storedSystems: [] },
         mapLocationSelection: { isPickingLocation: false },
         modals: { canShowModals: true },
-        patrolTrackState: { pinned: [], visible: [] },
+        patrolTrackState: { hiddenSubjects: {}, pinned: [], visible: [] },
         showUserLocation: false,
         userLocation: null,
         userPreferences: { autoEndPatrols: false, autoStartPatrols: false, gpsFormat: GPS_FORMATS.DEG },
@@ -235,6 +235,22 @@ describe('SideBar - PatrolsManager - LegManager - EditLeg', () => {
       expect(screen.getByRole('heading', { name: 'Edit Leg 1' })).toBeVisible();
       expect(screen.getByRole('link', { name: 'Delta Patrol' })).toHaveAttribute('href', `/patrols/${patrol.id}`);
     });
+
+    test('offers nothing but the times and the locations of a pause', () => {
+      const pauseLegId = 'aaaaaaaa-0000-0000-0000-000000000001';
+      patrol.patrol_segments.splice(1, 0, { ...patrol.patrol_segments[0], id: pauseLegId, is_pause: true });
+
+      renderEditLeg(pauseLegId);
+
+      expect(screen.getByRole('heading', { name: 'Edit Pause 1' })).toBeVisible();
+      expect(screen.getByLabelText('Start Location')).toBeInTheDocument();
+      expect(screen.getByLabelText('End Location')).toBeInTheDocument();
+      expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+      expect(screen.queryByText('Team Lead')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('Patrol Type')).not.toBeInTheDocument();
+      expect(screen.queryByRole('textbox', { name: 'Objective' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('textbox', { name: 'Vehicle Name' })).not.toBeInTheDocument();
+    });
   });
 
   describe('the room the legs around it leave it', () => {
@@ -306,31 +322,32 @@ describe('SideBar - PatrolsManager - LegManager - EditLeg', () => {
       }]);
     });
 
-    test('saves a pause leg the legs on both sides of it stamped to the second', async () => {
+    test('saves a pause the legs on both sides of it stamped to the second', async () => {
       const pausedAt = new Date(2026, 3, 13, 10, 0, 47, 512).toISOString();
       const resumedAt = new Date(2026, 3, 13, 11, 30, 22, 908).toISOString();
       const pauseLegId = 'aaaaaaaa-0000-0000-0000-000000000001';
 
       patrol.patrol_segments[0].time_range.end_time = pausedAt;
-      patrol.patrol_segments[1].time_range.start_time = resumedAt;
+      patrol.patrol_segments[1].time_range.start_time = new Date(2026, 3, 13, 13, 0).toISOString();
       patrol.patrol_segments.splice(1, 0, {
         ...patrol.patrol_segments[0],
         id: pauseLegId,
         is_pause: true,
-        segment_details: { objective: 'Paused for the storm' },
         time_range: { end_time: resumedAt, start_time: pausedAt },
       });
 
       const { user } = renderEditLeg(pauseLegId);
 
-      await editObjective(user, ' again');
+      await user.clear(getDateInput('End time', 'Minute'));
+      await user.type(getDateInput('End time', 'Minute'), '45');
+
       await clickSave(user);
 
       await waitFor(() => expect(updatePatrol).toHaveBeenCalledTimes(1));
 
       expect(updatePatrol.mock.calls[0][0].patrol_segments).toEqual([{
         id: pauseLegId,
-        segment_details: { objective: 'Paused for the storm again' },
+        time_range: { end_time: new Date(2026, 3, 13, 11, 45).toISOString(), start_time: pausedAt },
       }]);
     });
 

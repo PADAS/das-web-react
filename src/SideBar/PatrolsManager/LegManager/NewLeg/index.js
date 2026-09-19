@@ -140,7 +140,7 @@ const NewLeg = ({ patrol }) => {
     />
 
     <div className={styles.newLeg}>
-      <Header patrolId={patrol.id} patrolTitle={patrolTitle} />
+      <Header patrolId={patrol.id} patrolTitle={patrolTitle} patrolType={leg.patrolType} />
 
       <div className={styles.body}>
         <LegForm

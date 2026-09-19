@@ -12,8 +12,25 @@ const DEFAULT_LOCATION_JUMP_PADDING = {
   bottom: 12,
   right: 12,
 };
+const MAP_CONTROLS_PADDING_PIXELS = 90;
+const MIN_UNPADDED_MAP_WIDTH_PIXELS = 150;
 
 const flattenToCoordinatePairs = (coords) => (Array.isArray(coords[0]) ? coords.flatMap(flattenToCoordinatePairs) : [coords]);
+
+const calcLocationJumpPadding = (isMediumLayoutOrLarger, pathname) => {
+  const right = isMediumLayoutOrLarger ? MAP_CONTROLS_PADDING_PIXELS : DEFAULT_LOCATION_JUMP_PADDING.right;
+  const sidebarPaddingLeft = calcSidebarPaddingLeft({ isMediumLayoutOrLarger, pathname });
+
+  return {
+    ...DEFAULT_LOCATION_JUMP_PADDING,
+    right,
+    // Mapbox fits nothing into a canvas its padding leaves no room in, so the
+    // sidebar's share of the map stops where the map's own begins.
+    ...(sidebarPaddingLeft !== undefined && {
+      left: Math.min(sidebarPaddingLeft, window.innerWidth - right - MIN_UNPADDED_MAP_WIDTH_PIXELS),
+    }),
+  };
+};
 
 const useJumpToLocation = () => {
   const routerLocation = useRouterLocation();
@@ -23,17 +40,7 @@ const useJumpToLocation = () => {
   return (coords, zoom = 15, options = {}) => {
     const isArrayCoords = Array.isArray(coords[0]);
 
-    const sidebarPaddingLeft = calcSidebarPaddingLeft({
-      isMediumLayoutOrLarger,
-      isPolygon: isArrayCoords,
-      pathname: routerLocation.pathname,
-    });
-
-    const padding = {
-      ...DEFAULT_LOCATION_JUMP_PADDING,
-      ...(sidebarPaddingLeft !== undefined && { left: sidebarPaddingLeft }),
-      ...(isMediumLayoutOrLarger && { right: 90 }),
-    };
+    const padding = calcLocationJumpPadding(isMediumLayoutOrLarger, routerLocation.pathname);
 
     if (isArrayCoords && coords.length > 1) {
       const points = coords.flatMap(flattenToCoordinatePairs);

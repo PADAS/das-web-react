@@ -28,7 +28,14 @@ const groupColumnChildren = (columnChildIds, formElements) => {
   return groups;
 };
 
-const Section = ({ className = '', coordinatesRepresentation, formData, formElements, section }) => {
+const Section = ({
+  className = '',
+  coordinatesRepresentation,
+  formData,
+  formElements,
+  labelClassName = '',
+  section,
+}) => {
   const renderFieldValue = (field) => getHumanizedFieldValue(
     field,
     formData[field.details.value],
@@ -55,7 +62,9 @@ const Section = ({ className = '', coordinatesRepresentation, formData, formElem
   });
 
   return <div className={`${styles.section} ${className}`}>
-    {!!section.details.label && <h3 className={styles.sectionLabel}>{section.details.label}</h3>}
+    {!!section.details.label && <h3 className={`${styles.sectionLabel} ${labelClassName}`}>
+      {section.details.label}
+    </h3>}
 
     <div className={styles.columns}>
       <div

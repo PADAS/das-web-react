@@ -71,10 +71,10 @@ describe('Header', () => {
     expect(buttons[0]).toHaveClass('toggle');
   });
 
-  test('shows the distance covered by an active patrol', async () => {
+  test('shows no distance for a patrol whose legs nothing has measured yet', async () => {
     renderHeader({ patrol: activePatrol });
 
-    expect((await screen.findByTestId('patrol-drawer-header-details'))).toHaveTextContent('0km');
+    expect((await screen.findByTestId('patrol-drawer-header-details'))).toHaveTextContent('-');
   });
 
   test('renders correctly case of an overdue patrol', async () => {

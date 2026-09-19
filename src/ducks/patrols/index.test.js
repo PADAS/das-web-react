@@ -25,10 +25,13 @@ import {
   socketCreatePatrol,
   socketDeletePatrol,
   socketUpdatePatrol,
+  togglePatrolTrackedSubjectState,
+  togglePatrolTrackState,
   UPDATE_PATROL_ERROR,
   UPDATE_PATROL_REALTIME,
   UPDATE_PATROL_STORE,
   UPDATE_PATROL_SUCCESS,
+  UPDATE_PATROL_TRACK_STATE,
   updatePatrol,
 } from './';
 
@@ -318,6 +321,68 @@ describe('Ducks - Patrols', () => {
 
       await expect(store.dispatch(updatePatrol({ id: PATROL_A_ID }))).rejects.toBeDefined();
       expect(store.getActions()).toEqual([expect.objectContaining({ type: UPDATE_PATROL_ERROR })]);
+    });
+  });
+
+  describe('togglePatrolTrackState', () => {
+    const dispatchToggle = (patrolTrackState) => {
+      const store = mockStore({ view: { patrolTrackState } });
+
+      store.dispatch(togglePatrolTrackState(PATROL_A_ID));
+
+      return store.getActions()[0];
+    };
+
+    test('shows the track of a patrol that had none shown', () => {
+      expect(dispatchToggle({ hiddenSubjects: {}, pinned: [], visible: [] }))
+        .toEqual({ payload: { visible: [PATROL_A_ID] }, type: UPDATE_PATROL_TRACK_STATE });
+    });
+
+    test('pins the track of a patrol that was showing one', () => {
+      expect(dispatchToggle({ hiddenSubjects: {}, pinned: [], visible: [PATROL_A_ID] }))
+        .toEqual({ payload: { pinned: [PATROL_A_ID], visible: [] }, type: UPDATE_PATROL_TRACK_STATE });
+    });
+
+    test('forgets the subjects the user hid when it hides the track of a patrol that had it pinned', () => {
+      expect(dispatchToggle({
+        hiddenSubjects: { [PATROL_A_ID]: ['subject123'], [PATROL_B_ID]: ['subject456'] },
+        pinned: [PATROL_A_ID],
+        visible: [],
+      })).toEqual({
+        payload: { hiddenSubjects: { [PATROL_B_ID]: ['subject456'] }, pinned: [], visible: [] },
+        type: UPDATE_PATROL_TRACK_STATE,
+      });
+    });
+  });
+
+  describe('togglePatrolTrackedSubjectState', () => {
+    const dispatchToggle = (hiddenSubjects) => {
+      const store = mockStore({ view: { patrolTrackState: { hiddenSubjects, pinned: [], visible: [] } } });
+
+      store.dispatch(togglePatrolTrackedSubjectState(PATROL_A_ID, 'subject123'));
+
+      return store.getActions()[0];
+    };
+
+    test('hides a subject the patrol was drawing', () => {
+      expect(dispatchToggle({})).toEqual({
+        payload: { hiddenSubjects: { [PATROL_A_ID]: ['subject123'] } },
+        type: UPDATE_PATROL_TRACK_STATE,
+      });
+    });
+
+    test('shows a subject the user had hidden', () => {
+      expect(dispatchToggle({ [PATROL_A_ID]: ['subject123', 'subject456'] })).toEqual({
+        payload: { hiddenSubjects: { [PATROL_A_ID]: ['subject456'] } },
+        type: UPDATE_PATROL_TRACK_STATE,
+      });
+    });
+
+    test('leaves the subjects hidden on other patrols alone', () => {
+      expect(dispatchToggle({ [PATROL_B_ID]: ['subject789'] })).toEqual({
+        payload: { hiddenSubjects: { [PATROL_A_ID]: ['subject123'], [PATROL_B_ID]: ['subject789'] } },
+        type: UPDATE_PATROL_TRACK_STATE,
+      });
     });
   });
 

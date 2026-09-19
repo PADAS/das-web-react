@@ -181,7 +181,7 @@ const TeamAndTracking = ({ legNumber, trackedSubjects }) => {
       onClick={onToggleList}
       onKeyDown={onToggleKeyDown}
       ref={setToggleButtonEl}
-      title={t('toggleButtonTitle', { legNumber })}
+      title={t('toggleButtonTitle', { number: legNumber })}
       type="button"
       >
       {trackedSubjects.length > 1
@@ -204,7 +204,7 @@ const TeamAndTracking = ({ legNumber, trackedSubjects }) => {
       >
       <Popover className={styles.listPopover} onClick={onPopoverClick} role="presentation">
         <ul
-          aria-label={t('listLabel', { legNumber })}
+          aria-label={t('listLabel', { number: legNumber })}
           className={styles.list}
           id={listId}
           onKeyDown={onKeyDown}

@@ -1,4 +1,6 @@
-import {
+import { SOCKET_SUBJECT_STATUS } from '../subjects';
+
+import tracksReducer, {
   INITIAL_TRACK_SETTINGS_STATE,
   SET_TRACK_SETTINGS_DEFAULT_CUSTOM_TRACK_LENGTH,
   SET_TRACK_SETTINGS_IS_TIME_OF_DAY_COLORING_ACTIVE,
@@ -109,6 +111,31 @@ describe('Ducks - Tracks', () => {
       };
 
       expect(trackSettingsReducer(INITIAL_TRACK_SETTINGS_STATE, action)).toEqual(expectedState);
+    });
+  });
+
+  describe('tracksReducer', () => {
+    test('leaves a track fetched with no positions alone when its subject reports one', () => {
+      const state = {
+        subject123: {
+          fetchedDateRange: { since: '2026-04-13T01:00:00.000Z' },
+          points: { features: [], type: 'FeatureCollection' },
+          track: { features: [], type: 'FeatureCollection' },
+        },
+      };
+      const action = {
+        payload: {
+          geometry: { coordinates: [1, 2], type: 'Point' },
+          properties: {
+            coordinateProperties: { time: '2026-04-13T02:00:00.000Z' },
+            id: 'subject123',
+          },
+          type: 'Feature',
+        },
+        type: SOCKET_SUBJECT_STATUS,
+      };
+
+      expect(tracksReducer(state, action)).toBe(state);
     });
   });
 });

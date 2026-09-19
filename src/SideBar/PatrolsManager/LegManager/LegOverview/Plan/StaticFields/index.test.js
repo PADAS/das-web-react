@@ -152,6 +152,17 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview - Plan - StaticFie
     expect(readFields()['Team Members']).toBe('Ranger AmaraLeadRanger Nadia');
   });
 
+  test('puts the team lead at the top of the team members, wherever the roster had them', () => {
+    const legWithLeadListedLast = { ...leg, members: [...leg.members].reverse() };
+
+    renderStaticFields(
+      legWithLeadListedLast,
+      { ...patrol, patrol_segments: [legWithLeadListedLast, patrol.patrol_segments[1]] }
+    );
+
+    expect(readFields()['Team Members']).toBe('Ranger AmaraLeadRanger Nadia');
+  });
+
   test('still lists a team member the rosters no longer offer, so a past leg keeps who ran it', () => {
     const deactivatedMember = { id: 'a-deactivated-ranger', name: 'Ranger Kofi' };
 

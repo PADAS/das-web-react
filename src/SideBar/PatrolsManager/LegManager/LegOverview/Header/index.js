@@ -8,13 +8,14 @@ import { ReactComponent as ClipIcon } from '../../../../../common/images/icons/l
 import { ReactComponent as DownloadArrowIcon } from '../../../../../common/images/icons/download-arrow.svg';
 import { ReactComponent as FitScreenIcon } from '../../../../../common/images/icons/fit-screen.svg';
 import { ReactComponent as MarkerFeedIcon } from '../../../../../common/images/icons/marker-feed.svg';
+import { ReactComponent as PauseIcon } from '../../../../../common/images/icons/pause.svg';
 import { ReactComponent as PrinterIcon } from '../../../../../common/images/icons/printer-outline.svg';
 import { ReactComponent as TrackIcon } from '../../../../../common/images/icons/tracks_off.svg';
 
 import { basePrintingStyles } from '../../../../../utils/styles';
 import { DAS_HOST, PATROL_UI_STATES, TAB_KEYS } from '../../../../../constants';
 import {
-  displayNameForPatrolType,
+  displayNameForPatrolSegment,
   displayTitleForPatrol,
   getBoundsForPatrolSegment,
   getIsMobilePatrol,
@@ -26,7 +27,7 @@ import {
   patrolSegmentHasTrackData,
 } from '../../../../../utils/patrols';
 import { downloadJsonAsFile } from '../../../../../utils/download';
-import { selectPatrolTrackData } from '../../../../../selectors/patrols';
+import { selectPatrolSegmentsTrackData, selectPatrolTrackData } from '../../../../../selectors/patrols';
 import { togglePatrolTrackState } from '../../../../../ducks/patrols';
 import { TrackerContext } from '../../../../../utils/analytics';
 import useJumpToLocation from '../../../../../hooks/useJumpToLocation';
@@ -50,13 +51,17 @@ const Header = ({ legNumber, legState, patrol, patrolSegment, printableContentRe
 
   const jumpToLocation = useJumpToLocation();
 
+  const patrolSegmentsTrackData = useSelector((state) => selectPatrolSegmentsTrackData(state, patrol));
   const patrolTrackData = useSelector((state) => selectPatrolTrackData(state, patrol));
   const patrolTrackState = useSelector((state) => state.view.patrolTrackState);
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
-  const patrolSegmentIndex = patrol.patrol_segments.indexOf(patrolSegment);
+  const legTrackData = patrolSegmentsTrackData[patrol.patrol_segments.indexOf(patrolSegment)] ?? null;
 
-  const legTrackData = patrolTrackData.legsTrackData?.[patrolSegmentIndex] ?? null;
+  // A pause is named after the pauses it is counted among, not the legs.
+  const isPause = isPatrolSegmentAPause(patrolSegment);
+  const legKind = isPause ? 'pause' : 'leg';
+  const legTitle = t(`title.${legKind}`, { number: legNumber });
 
   const crumbs = [
     { label: t('breadcrumbPatrolsLabel'), to: `/${TAB_KEYS.PATROLS}` },
@@ -64,11 +69,11 @@ const Header = ({ legNumber, legState, patrol, patrolSegment, printableContentRe
       label: displayTitleForPatrol(patrol, governingPatrolSegment(patrol)?.leader),
       to: `/${TAB_KEYS.PATROLS}/${patrol.id}`,
     },
-    { label: t('title', { legNumber }) },
+    { label: legTitle },
   ];
 
   const legIconId = iconIdForPatrolSegment(patrolTypes, patrolSegment);
-  const patrolTypeName = displayNameForPatrolType(patrolTypes, patrolSegment.patrol_type);
+  const patrolTypeName = displayNameForPatrolSegment(patrolTypes, patrolSegment);
 
   const isPatrolTrackPinned = patrolTrackState.pinned.includes(patrol.id);
   const isPatrolTrackVisible = !isPatrolTrackPinned && patrolTrackState.visible.includes(patrol.id);
@@ -127,18 +132,23 @@ const Header = ({ legNumber, legState, patrol, patrolSegment, printableContentRe
 
   const onPrint = useReactToPrint({
     contentRef: printableContentRef,
-    documentTitle: `${patrol.serial_number ?? ''} ${t('title', { legNumber })}`.trim(),
+    documentTitle: `${patrol.serial_number ?? ''} ${legTitle}`.trim(),
     pageStyle: basePrintingStyles,
   });
 
   const onDownloadTrack = () => {
-    downloadJsonAsFile(legTrackData.track, `Patrol_${patrol.serial_number}_Leg_${legNumber}.geojson`);
+    downloadJsonAsFile(
+      legTrackData.track,
+      `Patrol_${patrol.serial_number}_${isPause ? 'Pause' : 'Leg'}_${legNumber}.geojson`
+    );
 
     tracker.track('Download leg track from leg overview');
   };
 
+  // A pause has no track to follow, frame, download or jump to the end of. The
+  // locations it was logged at are in its plan, with jumps of their own.
   const renderActions = () => <>
-    <div className={styles.desktopActions}>
+    {!isPause && <div className={styles.desktopActions}>
       <button
         aria-label={t(`toggleTrackButtonLabel.${trackToggleState}`)}
         aria-pressed={isPatrolTrackPinned ? 'true' : isPatrolTrackVisible ? 'mixed' : 'false'}
@@ -174,81 +184,84 @@ const Header = ({ legNumber, legState, patrol, patrolSegment, printableContentRe
       >
         <FitScreenIcon aria-hidden="true" />
       </button>
-    </div>
+    </div>}
 
     <KebabMenu
       align="end"
       aria-label={t('moreOptionsButtonLabel')}
       title={t('moreOptionsButtonLabel')}
       >
-      <KebabMenu.Option
-        className={styles.mobileOnlyOption}
-        disabled={!hasPatrolTrack}
-        onClick={onToggleTrack}
-      >
-        <TrackIcon aria-hidden="true" />
+      {!isPause && <>
+        <KebabMenu.Option
+          className={styles.mobileOnlyOption}
+          disabled={!hasPatrolTrack}
+          onClick={onToggleTrack}
+        >
+          <TrackIcon aria-hidden="true" />
 
-        {t(`toggleTrackButtonLabel.${trackToggleState}`)}
-      </KebabMenu.Option>
+          {t(`toggleTrackButtonLabel.${trackToggleState}`)}
+        </KebabMenu.Option>
 
-      <KebabMenu.Option
-        className={styles.mobileOnlyOption}
-        disabled={!jumpToLocationCoordinates}
-        onClick={onJumpToLocation}
-      >
-        <MarkerFeedIcon aria-hidden="true" />
+        <KebabMenu.Option
+          className={styles.mobileOnlyOption}
+          disabled={!jumpToLocationCoordinates}
+          onClick={onJumpToLocation}
+        >
+          <MarkerFeedIcon aria-hidden="true" />
 
-        {t('jumpToLocationButtonLabel')}
-      </KebabMenu.Option>
+          {t('jumpToLocationButtonLabel')}
+        </KebabMenu.Option>
 
-      <KebabMenu.Option
-        className={styles.mobileOnlyOption}
-        disabled={!legBounds}
-        onClick={onFitToBounds}
-      >
-        <FitScreenIcon aria-hidden="true" />
+        <KebabMenu.Option
+          className={styles.mobileOnlyOption}
+          disabled={!legBounds}
+          onClick={onFitToBounds}
+        >
+          <FitScreenIcon aria-hidden="true" />
 
-        {t('fitToBoundsButtonLabel')}
-      </KebabMenu.Option>
+          {t('fitToBoundsButtonLabel')}
+        </KebabMenu.Option>
 
-      <KebabMenu.Divider className={styles.mobileOnlyOption} />
+        <KebabMenu.Divider className={styles.mobileOnlyOption} />
+      </>}
 
       <KebabMenu.Option onClick={onCopyLink}>
         <ClipIcon aria-hidden="true" />
 
-        {t('copyLinkOption')}
+        {t(`copyLinkOption.${legKind}`)}
       </KebabMenu.Option>
 
       <KebabMenu.Option onClick={onPrint}>
         <PrinterIcon aria-hidden="true" />
 
-        {t('printOption')}
+        {t(`printOption.${legKind}`)}
       </KebabMenu.Option>
 
-      <KebabMenu.Option disabled={!hasLegTrack} onClick={onDownloadTrack}>
+      {!isPause && <KebabMenu.Option disabled={!hasLegTrack} onClick={onDownloadTrack}>
         <DownloadArrowIcon aria-hidden="true" />
 
         {t('downloadTrackOption')}
-      </KebabMenu.Option>
+      </KebabMenu.Option>}
     </KebabMenu>
   </>;
 
   const renderTitleBar = () => <>
     <div className={styles.titleBarMain}>
       <div className={styles.icon}>
-        <SvgIcon iconId={legIconId} title={patrolTypeName} type="patrols" />
+        {isPause
+          ? <PauseIcon aria-label={t('pauseIconLabel')} role="img" />
+          : <SvgIcon iconId={legIconId} title={patrolTypeName} type="patrols" />}
       </div>
 
       <p className={styles.serialNumber}>{patrol.serial_number}</p>
 
-      <h2 className={styles.title}>{t('title', { legNumber })}</h2>
+      <h2 className={styles.title}>{legTitle}</h2>
     </div>
 
     <div className={styles.pills}>
       {getIsMobilePatrol(patrol) && <span className={styles.provenancePill}>{t('mobileProvenancePill')}</span>}
 
-      {isPatrolSegmentAPause(patrolSegment) && legState !== PATROL_UI_STATES.PAUSED
-        && <StatusPill state={PATROL_UI_STATES.PAUSED} />}
+      {isPause && legState !== PATROL_UI_STATES.PAUSED && <StatusPill state={PATROL_UI_STATES.PAUSED} />}
 
       <StatusPill state={legState} />
     </div>

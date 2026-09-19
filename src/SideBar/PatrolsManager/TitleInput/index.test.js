@@ -39,6 +39,15 @@ describe('SideBar - PatrolsManager - TitleInput', () => {
     expect(onChange).toHaveBeenLastCalledWith('Delta Patrol North');
   });
 
+  test('reports a title pasted over several lines as one line', async () => {
+    renderTitleInput();
+
+    await userEvent.clear(screen.getByRole('textbox', { name: 'Patrol title' }));
+    await userEvent.paste('Delta\nPatrol\r\nNorth');
+
+    expect(onChange).toHaveBeenLastCalledWith('Delta Patrol North');
+  });
+
   test('shows a dirty title as unsaved', () => {
     renderTitleInput({ isDirty: true });
 

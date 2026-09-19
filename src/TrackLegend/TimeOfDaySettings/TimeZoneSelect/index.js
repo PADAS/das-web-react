@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useId, useMemo, useRef } from 'react';
 import Select, { components } from 'react-select';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +20,29 @@ const CustomDropdownIndicator = ({ selectProps, ...otherProps }) => <components.
 </components.DropdownIndicator>;
 
 const CustomIndicatorSeparator = () => null;
+
+const CustomMenuList = ({ innerRef, ...otherProps }) => {
+  const menuListRef = useRef(null);
+
+  const onMenuListRef = useCallback((menuList) => {
+    menuListRef.current = menuList;
+
+    innerRef(menuList);
+  }, [innerRef]);
+
+  // The menu reaches its portal a commit after react-select measures it, so the
+  // scroll to the selected option finds none. Opening it is the one moment.
+  useEffect(() => {
+    const selectedOption = menuListRef.current?.querySelector(`.${styles.selected}`);
+
+    if (selectedOption) {
+      menuListRef.current.scrollTop = selectedOption.offsetTop
+        - ((menuListRef.current.clientHeight - selectedOption.clientHeight) / 2);
+    }
+  }, []);
+
+  return <components.MenuList innerRef={onMenuListRef} {...otherProps} />;
+};
 
 const CustomOption = ({ data, isFocused, isSelected, ...otherProps }) => <div title={data.label}>
   <components.Option
@@ -93,6 +116,9 @@ const TimeZoneSelect = () => {
 
   const timeOfDayTimeZone = useSelector((state) => state.view.trackSettings.timeOfDayTimeZone);
 
+  // Every track legend on the map holds a copy of this select.
+  const inputId = useId();
+
   const options = useMemo(() => Intl.supportedValuesOf('timeZone')
     .map((ianaTimeZone) => getTimeZoneParts(ianaTimeZone, i18n.language))
     .sort(compareTimeZoneParts)
@@ -128,7 +154,7 @@ const TimeZoneSelect = () => {
   }, [dispatch, timeOfDayTimeZone]);
 
   return <div className={styles.timeZoneSelect}>
-    <label className={styles.label} htmlFor="timeZoneSelect-input">{t('label')}</label>
+    <label className={styles.label} htmlFor={inputId}>{t('label')}</label>
 
     <div className={styles.inputWrapper} title={value?.label}>
       <Select
@@ -140,9 +166,10 @@ const TimeZoneSelect = () => {
         components={{
           DropdownIndicator: CustomDropdownIndicator,
           IndicatorSeparator: CustomIndicatorSeparator,
+          MenuList: CustomMenuList,
           Option: CustomOption,
         }}
-        inputId="timeZoneSelect-input"
+        inputId={inputId}
         // The absolute position of this item was hidding it behind other map legeds, attaching the portal to the body
         // fixes the issue. 
         menuPortalTarget={document.querySelector('body')}

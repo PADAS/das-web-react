@@ -18,7 +18,6 @@ import omit from 'lodash/omit';
 import uniq from 'lodash/uniq';
 import uniqBy from 'lodash/uniqBy';
 
-import { calcSpriteSvgUrl } from './img';
 import { format, getCurrentLocale, SHORT_TIME_FORMAT } from './datetime';
 import { PATROL_UI_STATES, PATROL_API_STATES } from '../constants';
 
@@ -179,6 +178,11 @@ export const iconIdForPatrolType = (patrolTypes, patrolType) =>
 
 export const iconIdForPatrolSegment = (patrolTypes, patrolSegment) =>
   iconIdForPatrolType(patrolTypes, patrolSegment.patrol_type) ?? patrolSegment.icon_id ?? null;
+
+// The types are fetched once a session, so one added since is missing from the
+// list. Its own value reads better than an empty cell.
+export const displayNameForPatrolSegment = (patrolTypes, patrolSegment) =>
+  displayNameForPatrolType(patrolTypes, patrolSegment.patrol_type) ?? patrolSegment.patrol_type ?? null;
 
 export const displayTitleForPatrol = (patrol, leader, includeLeaderName = true) => {
   const t = i18next.getFixedT(null, 'utils', 'displayTitleForPatrol');
@@ -355,9 +359,8 @@ export const actualEndTimeForPatrol = (patrol) => {
 
 const EMPTY_TEAM_AND_TRACKING_OPTIONS = { assets: [], members: [], teams: [] };
 
-// A leg stores its team and rosters as ids. The configured lists only offer
-// what a site can pick today, so a subject deactivated since the leg ran falls
-// back to the subject store rather than dropping out of what it did.
+// The configured rosters only offer what a site can pick today, so a subject
+// deactivated since the leg ran falls back to the subject store.
 const resolveRoster = (rosterIds, rosterOptions, subjectStore) => uniq(rosterIds ?? [])
   .map((rosterId) => rosterOptions.find((rosterOption) => rosterOption.id === rosterId) ?? subjectStore[rosterId])
   .filter(Boolean);
@@ -372,22 +375,41 @@ export const getTeamAndTrackingForPatrolSegment = (
   team: teamAndTrackingOptions.teams.find((team) => team.id === patrolSegment?.team) ?? null,
 });
 
-// Every subject a leg tracks, each of them once and its lead first: the lead,
-// the team members and the assets.
-export const getTrackedSubjectsForPatrolSegment = (patrolSegment, teamAndTrackingOptions, subjectStore) => {
-  const teamAndTracking = getTeamAndTrackingForPatrolSegment(patrolSegment, teamAndTrackingOptions, subjectStore);
+export const isPatrolSegmentAPause = (patrolSegment) => !!patrolSegment?.is_pause;
+
+const EMPTY_TRACKED_SUBJECTS = [];
+
+// Every subject a leg tracks, once each and its lead first. A pause is the
+// patrol standing still: it tracks nobody, so nothing then is the patrol's.
+export const getTrackedSubjectsForPatrolSegment = (
+  patrolSegment,
+  teamAndTrackingOptions = EMPTY_TEAM_AND_TRACKING_OPTIONS,
+  subjectStore = {}
+) => {
+  if (isPatrolSegmentAPause(patrolSegment)) {
+    return EMPTY_TRACKED_SUBJECTS;
+  }
 
   return uniqBy(
     [
       ...(patrolSegment?.leader ? [patrolSegment.leader] : []),
-      ...teamAndTracking.members,
-      ...teamAndTracking.assets,
+      ...resolveRoster(patrolSegment?.members, teamAndTrackingOptions.members, subjectStore),
+      ...resolveRoster(patrolSegment?.assets, teamAndTrackingOptions.assets, subjectStore),
     ],
     'id'
   );
 };
 
-export const isPatrolSegmentAPause = (patrolSegment) => !!patrolSegment?.is_pause;
+// A pause interrupts a patrol rather than carrying it on, so it is numbered
+// among the pauses and leaves the legs around it reading as consecutive.
+export const displayNumberForPatrolSegment = (patrolSegments, patrolSegmentIndex) => {
+  const isPause = isPatrolSegmentAPause(patrolSegments[patrolSegmentIndex]);
+
+  return patrolSegments
+    .slice(0, patrolSegmentIndex + 1)
+    .filter((patrolSegment) => isPatrolSegmentAPause(patrolSegment) === isPause)
+    .length;
+};
 
 export const getElapsedTimeForPatrolSegment = (patrolSegment, fallbackEndTime) => {
   if (!patrolSegment.time_range?.start_time) {
@@ -440,9 +462,8 @@ const takeoverTimeAfterPatrolSegment = (patrol, patrolSegment) => {
     ?? null;
 };
 
-// A leg the patrol was cancelled or marked done on carries no end of its own,
-// so the moment the patrol was closed stands in for it — and so does the start
-// of the leg that took over from one the patrol left open.
+// A leg the patrol was cancelled or closed on carries no end of its own, so
+// the patrol's own close stands in, as does the next leg's start.
 export const effectiveEndTimeForPatrolSegment = (patrol, patrolSegment) => {
   const segmentEndTime = actualEndTimeForPatrolSegment(patrolSegment);
 
@@ -664,9 +685,8 @@ export const governingPatrolSegment = (patrol) => {
     ?? null;
 };
 
-// A pause is a leg like any other, so a patrol is paused while the leg it is
-// running is one. A patrol that was called off or closed runs no leg at all,
-// whatever end its legs were left without.
+// A pause is a leg like any other, so a patrol is paused while the leg it
+// runs is one. A patrol called off or closed runs no leg at all.
 export const isPatrolPaused = (patrol) => isPatrolSegmentAPause(
   (patrol?.patrol_segments ?? []).findLast((patrolSegment) => isSegmentActiveForPatrol(patrol, patrolSegment))
 );
@@ -774,6 +794,34 @@ const hasPatrolSegmentRunBeforeCancellation = (patrol, patrolSegment) => {
     || actualEndTimeForPatrolSegment(patrolSegment).getTime() <= cancellationTime.getTime();
 };
 
+// A leg can no longer run once the patrol is over, once its own end has passed,
+// or, having no end of its own, once a later leg has begun.
+const isPatrolSegmentOver = (patrol, patrolSegment) => {
+  const patrolState = calcPatrolState(patrol);
+  if (patrolState === CANCELLED || patrolState === DONE) {
+    return true;
+  }
+
+  // A leg with an end of its own runs up to it, whatever the legs overlapping
+  // it do: the API lets more than one of them run at a time.
+  if (patrolSegment.time_range?.end_time) {
+    return isSegmentFinished(patrolSegment);
+  }
+
+  // Nothing has begun until the patrol has, so a leg only takes over from an
+  // earlier one once the patrol is really under way.
+  if (!hasPatrolBegun(patrol)) {
+    return false;
+  }
+
+  const patrolSegments = patrol.patrol_segments ?? [];
+  const segmentIndex = patrolSegments.indexOf(patrolSegment);
+
+  return segmentIndex !== -1 && patrolSegments
+    .slice(segmentIndex + 1)
+    .some((laterPatrolSegment) => !isSegmentPending(laterPatrolSegment));
+};
+
 // A leg carries no state of its own in the API, so it takes the patrol's, and
 // its times only say where in the patrol it falls.
 export const calcPatrolSegmentState = (patrol, patrolSegment) => {
@@ -801,34 +849,6 @@ export const calcPatrolSegmentState = (patrol, patrolSegment) => {
   }
 
   return isPatrolSegmentAPause(patrolSegment) ? PAUSED : ACTIVE;
-};
-
-// A leg can no longer run once the patrol is over, once its own end has passed,
-// or, having no end of its own, once a later leg has begun.
-const isPatrolSegmentOver = (patrol, patrolSegment) => {
-  const patrolState = calcPatrolState(patrol);
-  if (patrolState === CANCELLED || patrolState === DONE) {
-    return true;
-  }
-
-  // A leg with an end of its own runs up to it, whatever the legs overlapping
-  // it do: the API lets more than one of them run at a time.
-  if (patrolSegment.time_range?.end_time) {
-    return isSegmentFinished(patrolSegment);
-  }
-
-  // Nothing has begun until the patrol has, so a leg only takes over from an
-  // earlier one once the patrol is really under way.
-  if (!hasPatrolBegun(patrol)) {
-    return false;
-  }
-
-  const patrolSegments = patrol.patrol_segments ?? [];
-  const segmentIndex = patrolSegments.indexOf(patrolSegment);
-
-  return segmentIndex !== -1 && patrolSegments
-    .slice(segmentIndex + 1)
-    .some((laterPatrolSegment) => !isSegmentPending(laterPatrolSegment));
 };
 
 // Closing a patrol stamps an end on every leg, so the end time of a leg that
@@ -927,9 +947,8 @@ export const buildPatrolReopenUpdate = (patrol) => {
     return { state: PATROL_API_STATES.OPEN };
   }
 
-  // Ending the patrol closed every leg still running or waiting to at one
-  // instant, the latest any leg carries, and that instant is what tells them
-  // from the legs that had really ended by themselves.
+  // Ending the patrol closed every leg still open at one instant, the latest
+  // any leg carries, and that instant tells them from legs that really ended.
   const closingEndTime = patrol.patrol_segments.reduce((latestEndTime, patrolSegment) => {
     const endTime = patrolSegment.time_range?.end_time ?? null;
 
@@ -1057,30 +1076,104 @@ export const sortPatrolList = (patrols) => {
   return orderBy(patrols, [sortFunc, patrolGetLastUpdateTime], ['asc', 'desc']);
 };
 
-export const makePatrolPointFromFeature = (label, coordinates, icon_id, stroke, time) => {
 
-  const properties = {
-    stroke,
-    image: calcSpriteSvgUrl(icon_id),
-    name: label,
-    title: label,
-    time: time,
-  };
+// The patrol markers are drawn rather than sprited: a leg's number has to go
+// inside its pin, and Mapbox picks an icon by image, not by a data expression.
+const PATROL_MARKER_HEIGHT = 37;
+const PATROL_MARKER_WIDTH = 27;
+const PATROL_MARKER_COLOR = '#0056C7';
+const PATROL_MARKER_PIN_PATH = 'M13.5 1C6.6 1 1 6.6 1 13.5c0 9 12.5 23 12.5 23S26 22.5 26 13.5C26 6.6 20.4 1 13.5 1z';
+const PATROL_MARKER_TEXT_FONT = 'Arial, Helvetica, sans-serif';
 
-  return point(coordinates, properties);
+const buildPatrolMarkerImage = (glyph) => {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${PATROL_MARKER_WIDTH}" `
+    + `height="${PATROL_MARKER_HEIGHT}" viewBox="0 0 ${PATROL_MARKER_WIDTH} ${PATROL_MARKER_HEIGHT}">`
+    + `<path d="${PATROL_MARKER_PIN_PATH}" fill="${PATROL_MARKER_COLOR}" stroke="#ffffff" stroke-width="1.5"/>`
+    + `${glyph}</svg>`;
+
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 };
 
+const PATROL_START_MARKER_IMAGE = buildPatrolMarkerImage(
+  '<path d="M10.75 8.75 19 13.5l-8.25 4.75z" fill="#ffffff"/>'
+);
+const PATROL_END_MARKER_IMAGE = buildPatrolMarkerImage(
+  '<rect x="9.75" y="9.75" width="7.5" height="7.5" rx="1" fill="#ffffff"/>'
+);
+
+const patrolLegMarkerImages = new Map();
+
+// A leg's pin carries its own number, so unlike the others it cannot be one
+// image built once. The few a patrol needs are kept rather than re-encoded.
+const buildPatrolLegMarkerImage = (legNumber) => {
+  if (!patrolLegMarkerImages.has(legNumber)) {
+    patrolLegMarkerImages.set(legNumber, buildPatrolMarkerImage(
+      '<circle cx="13.5" cy="13.5" r="7.5" fill="#ffffff"/>'
+      + `<text x="13.5" y="13.5" fill="${PATROL_MARKER_COLOR}" font-family="${PATROL_MARKER_TEXT_FONT}" `
+      + `font-size="11" font-weight="bold" text-anchor="middle" dominant-baseline="central">${legNumber}</text>`
+    ));
+  }
+
+  return patrolLegMarkerImages.get(legNumber);
+};
+
+const PATROL_PAUSE_MARKER_IMAGE = buildPatrolMarkerImage(
+  '<rect x="9.25" y="9.5" width="3" height="8" rx="0.75" fill="#ffffff"/>'
+  + '<rect x="14.75" y="9.5" width="3" height="8" rx="0.75" fill="#ffffff"/>'
+);
+
+export const PATROL_MARKER_KINDS = {
+  END: 'end',
+  LEG: 'leg',
+  PAUSE: 'pause',
+  START: 'start',
+  START_AND_END: 'startAndEnd',
+};
+
+export const makePatrolPointFromFeature = (markerKind, coordinates, isEstimated, stroke, time) => point(
+  coordinates,
+  {
+    image: markerKind === PATROL_MARKER_KINDS.START ? PATROL_START_MARKER_IMAGE : PATROL_END_MARKER_IMAGE,
+    isEstimated,
+    markerKind,
+    stroke,
+    time,
+  }
+);
+
+// Where one leg hands over to the next, drawn as a pin badged with the number
+// the leg table gives that leg.
+export const makePatrolLegMarkerPoint = (legNumber, patrolPoint) => point(patrolPoint.geometry.coordinates, {
+  image: buildPatrolLegMarkerImage(legNumber),
+  legNumber,
+  markerKind: PATROL_MARKER_KINDS.LEG,
+  stroke: patrolPoint.properties.stroke,
+  time: patrolPoint.properties.time,
+});
+
+// A pause's pin stands where the leg before it was last seen, and carries the
+// pause symbol: the leg table leaves it unnumbered.
+export const makePatrolPauseMarkerPoint = (pauseNumber, patrolPoint) => point(patrolPoint.geometry.coordinates, {
+  image: PATROL_PAUSE_MARKER_IMAGE,
+  markerKind: PATROL_MARKER_KINDS.PAUSE,
+  pauseNumber,
+  stroke: patrolPoint.properties.stroke,
+  time: patrolPoint.properties.time,
+});
+
+// The colour a leg's line is drawn in when its leader has no track to take one
+// from: the colour the leader itself was given.
+const strokeForPatrolSegmentLeader = (leader) => leader?.last_position?.properties?.stroke
+  || (!!leader?.additional?.rgb && `rgb(${leader.additional.rgb})`)
+  || DEFAULT_STROKE;
 
 export const extractLegPatrolPoints = (segment, leader, legTrackData, rawLegTrackData, isLegActive) => {
-  const { icon_id, start_location, end_location, time_range: { start_time, end_time } = {} } = segment;
+  const { start_location, end_location, time_range: { start_time, end_time } = {} } = segment;
 
   const hasFeatures = !!legTrackData?.points?.features?.length;
   const features = hasFeatures && legTrackData.points.features;
 
-  const stroke = features?.[0]?.properties?.stroke
-    || leader?.last_position?.properties?.stroke
-    || (!!leader && !!leader.additional && !!leader.additional.rgb && `rgb(${leader.additional.rgb})`)
-    || DEFAULT_STROKE;
+  const stroke = features?.[0]?.properties?.stroke || strokeForPatrolSegmentLeader(leader);
 
   let leg_points = {
     start_location: null,
@@ -1091,7 +1184,13 @@ export const extractLegPatrolPoints = (segment, leader, legTrackData, rawLegTrac
   const startTime = new Date(start_time);
 
   if (start_location) {
-    leg_points.start_location = makePatrolPointFromFeature('Patrol Start', [start_location.longitude, start_location.latitude], icon_id, stroke, start_time);
+    leg_points.start_location = makePatrolPointFromFeature(
+      PATROL_MARKER_KINDS.START,
+      [start_location.longitude, start_location.latitude],
+      false,
+      stroke,
+      start_time
+    );
 
   } else if (hasFeatures) {
     const firstTrackPoint = features[features.length - 1];
@@ -1099,12 +1198,24 @@ export const extractLegPatrolPoints = (segment, leader, legTrackData, rawLegTrac
 
     const { geometry: { coordinates: [longitude, latitude] } } = firstTrackPoint;
 
-    leg_points.start_location = makePatrolPointFromFeature(`Patrol Start${firstTrackPointMatchesStartTime ? '' : ' (Est)'}`, [longitude, latitude], icon_id, stroke, firstTrackPoint.properties.time);
+    leg_points.start_location = makePatrolPointFromFeature(
+      PATROL_MARKER_KINDS.START,
+      [longitude, latitude],
+      !firstTrackPointMatchesStartTime,
+      stroke,
+      firstTrackPoint.properties.time
+    );
   }
 
   if (!isLegActive) {
     if (end_location) {
-      leg_points.end_location = makePatrolPointFromFeature('Patrol End', [end_location.longitude, end_location.latitude], icon_id, stroke, end_time);
+      leg_points.end_location = makePatrolPointFromFeature(
+        PATROL_MARKER_KINDS.END,
+        [end_location.longitude, end_location.latitude],
+        false,
+        stroke,
+        end_time
+      );
 
     } else if (hasFeatures) {
       let lastTrackPoint = features[0];
@@ -1117,13 +1228,10 @@ export const extractLegPatrolPoints = (segment, leader, legTrackData, rawLegTrac
         const nextPointAfterTrimmedData = rawLegTrackData.points.features[legTrackData.indices.until - 1];
 
         if (nextPointAfterTrimmedData) {
-
-          const nextPointMatchesEndTime = !!nextPointAfterTrimmedData && new Date(nextPointAfterTrimmedData.properties.properties).getTime() === endTime.getTime();
           const timeDiffFromLastPatrolTrackPoint = Math.abs(new Date(lastTrackPoint.properties.time).getTime() - endTime.getTime());
           const timeDiffFromNextPoint = Math.abs(new Date(nextPointAfterTrimmedData.properties.time).getTime() - endTime.getTime());
 
-          if (nextPointMatchesEndTime
-          || (timeDiffFromNextPoint < timeDiffFromLastPatrolTrackPoint)) {
+          if (timeDiffFromNextPoint < timeDiffFromLastPatrolTrackPoint) {
             lastTrackPoint = nextPointAfterTrimmedData;
             lastTrackPointMatchesEndTime = new Date(nextPointAfterTrimmedData.properties.time).getTime() === endTime.getTime();
           }
@@ -1132,7 +1240,13 @@ export const extractLegPatrolPoints = (segment, leader, legTrackData, rawLegTrac
 
       const { geometry: { coordinates: [longitude, latitude] } } = lastTrackPoint;
 
-      leg_points.end_location = makePatrolPointFromFeature(`Patrol End${lastTrackPointMatchesEndTime ? '' : ' (Est)'}`, [longitude, latitude], icon_id, stroke, lastTrackPoint.properties.time);
+      leg_points.end_location = makePatrolPointFromFeature(
+        PATROL_MARKER_KINDS.END,
+        [longitude, latitude],
+        !lastTrackPointMatchesEndTime,
+        stroke,
+        lastTrackPoint.properties.time
+      );
     }
   }
 
@@ -1141,81 +1255,137 @@ export const extractLegPatrolPoints = (segment, leader, legTrackData, rawLegTrac
   return leg_points;
 };
 
-export const finalizeCombinedPatrolPoints = (patrol, patrolPoints) => {
-  const isPatrolDone = calcPatrolState(patrol) === PATROL_UI_STATES.DONE;
+// Where a patrol stood still: a pause tracks nothing, so its pin borrows the
+// place the leg before it ended, but never that leg's time along with it.
+export const extractPausePatrolPoint = (patrolSegment, previousLegEndPoint) => {
+  const pauseLocation = patrolSegment.start_location;
+  const coordinates = pauseLocation
+    ? [pauseLocation.longitude, pauseLocation.latitude]
+    : previousLegEndPoint?.geometry.coordinates;
 
-  if (!!patrolPoints.start_location && !patrolPoints.end_location &&
-  isPatrolDone) {
-    patrolPoints.end_location = cloneDeep(patrolPoints.start_location);
-    patrolPoints.end_location.properties.title = 'Patrol End (Est)';
+  if (!coordinates) {
+    return null;
   }
 
+  return point(coordinates, {
+    stroke: previousLegEndPoint?.properties.stroke ?? strokeForPatrolSegmentLeader(patrolSegment.leader),
+    time: patrolSegment.time_range?.start_time ?? null,
+  });
+};
+
+export const finalizeCombinedPatrolPoints = (patrol, patrolPoints, canEstimateEndLocation = true) => {
+  const isPatrolDone = calcPatrolState(patrol) === PATROL_UI_STATES.DONE;
+
+  if (!!patrolPoints.start_location && !patrolPoints.end_location && isPatrolDone && canEstimateEndLocation) {
+    patrolPoints.end_location = cloneDeep(patrolPoints.start_location);
+    patrolPoints.end_location.properties.isEstimated = true;
+    patrolPoints.end_location.properties.markerKind = PATROL_MARKER_KINDS.END;
+  }
+
+  // One pin cannot be two icons, so a patrol that ended where it started keeps
+  // the start pin and says so in its label.
   if (!!patrolPoints.end_location && !!patrolPoints.start_location
     && booleanEqual(
       point(patrolPoints.end_location.geometry.coordinates),
       point(patrolPoints.start_location.geometry.coordinates),
     )) {
-    patrolPoints.start_location.properties.title += ` & ${patrolPoints.end_location.properties.title}`;
+    patrolPoints.start_location.properties.isEstimated = patrolPoints.start_location.properties.isEstimated
+      || patrolPoints.end_location.properties.isEstimated;
+    patrolPoints.start_location.properties.markerKind = PATROL_MARKER_KINDS.START_AND_END;
     delete patrolPoints.end_location;
   }
 
   return patrolPoints;
 };
 
-export const drawLinesBetweenPatrolTrackAndPatrolPoints = (patrolPoints, trackData) => {
-  if (!patrolPoints || !trackData) return null;
+// From the pins a patrol was planned around to where its track actually begins
+// and ends.
+const patrolTrackEndConnectors = (patrolPoints, trackData) => {
+  const trackPoints = trackData?.points?.features ?? [];
 
-  const { end_location, start_location } = patrolPoints;
-  const { points: { features } } = trackData;
-
-  if (!end_location && !start_location) return null;
-  if (!features || !features.length) return null;
-
-  const earliestTrackPoint = features[features.length - 1];
-  const latestTrackPoint = features[0];
-
-  const lineCoords = {
-    startLineCoords: null,
-    endLineCoords: null,
-  };
-
-  if (!!end_location && !booleanEqual(
-    point(end_location.geometry.coordinates),
-    point(latestTrackPoint.geometry.coordinates)
-  )) {
-    lineCoords.endLineCoords = [end_location.geometry.coordinates, latestTrackPoint.geometry.coordinates];
+  if (!trackPoints.length) {
+    return [];
   }
 
-  if (!!start_location && !booleanEqual(
-    point(start_location.geometry.coordinates),
-    point(earliestTrackPoint.geometry.coordinates)
-  )) {
-    lineCoords.startLineCoords = [start_location.geometry.coordinates, earliestTrackPoint.geometry.coordinates];
-  }
+  const earliestTrackPoint = trackPoints[trackPoints.length - 1];
+  const latestTrackPoint = trackPoints[0];
 
-  const asArray = Object.values(lineCoords).filter(val => !!val);
-
-  if (!asArray.length) return null;
-
-  return multiLineString(asArray, { stroke: start_location.properties.stroke });
-
+  return [
+    ...(patrolPoints.start_location
+      ? [[patrolPoints.start_location.geometry.coordinates, earliestTrackPoint.geometry.coordinates]]
+      : []),
+    ...(patrolPoints.end_location
+      ? [[patrolPoints.end_location.geometry.coordinates, latestTrackPoint.geometry.coordinates]]
+      : []),
+  ];
 };
 
-export const patrolHasGeoDataToDisplay = (trackData, startStopGeometries) => !!trackData?.track?.features?.[0]?.geometry || !!startStopGeometries;
+// Across each pause, which the patrol tracked nothing during. A pause next to
+// another is a leg between them that left no mark to reach.
+const patrolPauseConnectors = (patrolPoints) => (patrolPoints.legMarkers ?? []).flatMap((legMarker, index) => {
+  const resumeMarker = patrolPoints.legMarkers[index + 1];
 
-export const patrolHasTrackData = (patrolTrackData) => !!patrolTrackData?.trackData?.track?.features?.[0]?.geometry;
+  return legMarker.properties.markerKind === PATROL_MARKER_KINDS.PAUSE
+    && !!resumeMarker
+    && resumeMarker.properties.markerKind !== PATROL_MARKER_KINDS.PAUSE
+    ? [[legMarker.geometry.coordinates, resumeMarker.geometry.coordinates]]
+    : [];
+});
 
+// One dashed line per colour, skipping the connectors whose two ends stand in
+// the same place and would draw nothing.
+const connectorLine = (connectors, stroke) => {
+  const drawableConnectors = connectors.filter(([fromCoordinates, toCoordinates]) =>
+    !booleanEqual(point(fromCoordinates), point(toCoordinates)));
+
+  return drawableConnectors.length ? multiLineString(drawableConnectors, { stroke }) : null;
+};
+
+// The dashed lines that hold a patrol's line together where its track does
+// not reach: its own colour out to the pins, a pause's across a pause.
+export const drawPatrolTrackConnectorLines = (patrolPoints, trackData) => {
+  if (!patrolPoints) {
+    return null;
+  }
+
+  const connectorLines = [
+    connectorLine(
+      patrolTrackEndConnectors(patrolPoints, trackData),
+      (patrolPoints.start_location ?? patrolPoints.end_location)?.properties.stroke
+    ),
+    connectorLine(patrolPauseConnectors(patrolPoints), colorVariables.patrolPausedThemeColor),
+  ].filter(Boolean);
+
+  return connectorLines.length ? featureCollection(connectorLines) : null;
+};
+
+// The legacy patrol track is a line or nothing: the start and stop pins ride
+// along with that line rather than standing in for it.
+export const patrolHasGeoDataToDisplay = (trackData) => !!trackData?.track?.features?.[0]?.geometry;
+
+// Whether any subject the patrol tracks has a track, whether or not the user
+// has hidden it: what the track toggle is enabled by.
+export const patrolHasTrackData = (patrolTrackData) => !!patrolTrackData?.hasTrackData;
+
+// Its start marker when it has one, and otherwise whatever marker came first.
 export const getPatrolLocationCoordinates = (patrolTrackData) =>
   patrolTrackData?.trackData?.points?.features?.[0]?.geometry?.coordinates
-    ?? patrolTrackData?.startStopGeometries?.points?.start_location?.geometry?.coordinates
+    ?? patrolTrackData?.startStopGeometries?.points?.features?.[0]?.geometry?.coordinates
     ?? null;
 
 const locationToCoordinates = (location) => location?.longitude != null && location?.latitude != null
   ? [location.longitude, location.latitude]
   : null;
 
-// A leg's own slice of selectPatrolTrackData's legsTrackData, which carries the
-// track alone: the start and stop geometries belong to the patrol as a whole.
+// The places a leg was planned around. They are not part of the track: a jump
+// frames them, a distance and a download leave them out.
+const patrolSegmentLocationPoints = (patrolSegment) => [patrolSegment?.start_location, patrolSegment?.end_location]
+  .map(locationToCoordinates)
+  .filter(Boolean)
+  .map((coordinates) => point(coordinates));
+
+// A leg's own slice of selectPatrolSegmentsTrackData, which carries the track
+// alone: the start and stop geometries belong to the patrol as a whole.
 export const patrolSegmentHasTrackData = (patrolSegmentTrackData) =>
   !!patrolSegmentTrackData?.track?.features?.[0]?.geometry;
 
@@ -1227,18 +1397,13 @@ export const getPatrolSegmentLocationCoordinates = (patrolSegment, patrolSegment
     ?? locationToCoordinates(patrolSegment?.start_location)
     ?? null;
 
-// Everything of a leg there is to fit on screen: its track and the locations it
-// was planned around, so a leg nothing has tracked yet still has bounds.
+// Everything of a leg there is to fit on screen: its track, and the locations
+// it was planned around, so a leg that tracked nothing still has bounds.
 export const getBoundsForPatrolSegment = (patrolSegment, patrolSegmentTrackData) => {
-  const trackFeatures = (patrolSegmentTrackData?.track?.features ?? [])
-    .filter((feature) => feature.geometry?.coordinates?.length);
-
-  const locationPoints = [patrolSegment?.start_location, patrolSegment?.end_location]
-    .map(locationToCoordinates)
-    .filter(Boolean)
-    .map((coordinates) => point(coordinates));
-
-  const features = [...trackFeatures, ...locationPoints];
+  const features = [
+    ...(patrolSegmentTrackData?.track?.features ?? []).filter((feature) => feature.geometry?.coordinates?.length),
+    ...patrolSegmentLocationPoints(patrolSegment),
+  ];
 
   return features.length ? bbox(featureCollection(features)) : null;
 };
@@ -1260,32 +1425,22 @@ export const patrolShouldBeMarkedDone = (patrol) => {
 
 };
 
-export const getBoundsForPatrol = ((patrol, patrolTrackData) => {
-  const { trackData, startStopGeometries } = patrolTrackData;
+// Everything of a patrol to fit on screen: its subjects' tracks, markers and
+// events, and where its legs were planned. Not where its team stands today.
+export const getBoundsForPatrol = (patrol, patrolTrackData) => {
+  if (!patrol.patrol_segments?.length) return null;
 
-  const hasSegments = !!patrol.patrol_segments && !!patrol.patrol_segments.length;
-  const hasGeoData = patrolHasGeoDataToDisplay(trackData, startStopGeometries);
-
-  if (!hasSegments || !hasGeoData) return null;
-
-  const lastSegment = patrol.patrol_segments[patrol.patrol_segments.length - 1];
-  const activeSegmentLeader = isSegmentActiveForPatrol(patrol, lastSegment) ? lastSegment.leader : null;
-
-  const { start_location: patrolStartPoint, end_location: patrolEndPoint } = startStopGeometries?.points || {};
-  const patrolEvents = patrol.patrol_segments.flatMap(({ events }) => (events || []).map(({ geojson }) => geojson));
-  const patrolLeaderPosition = !!activeSegmentLeader?.last_position && activeSegmentLeader.last_position;
-  const patrolTrack = !!trackData && trackData.track;
-
-
-  const collectionData = concat(patrolEvents, patrolLeaderPosition, patrolTrack.features, patrolStartPoint, patrolEndPoint)
-    .filter(item => !!item?.geometry);
+  const collectionData = concat(
+    patrol.patrol_segments.flatMap(({ events }) => (events || []).map(({ geojson }) => geojson)),
+    patrol.patrol_segments.flatMap(patrolSegmentLocationPoints),
+    patrolTrackData.trackData?.track?.features ?? [],
+    patrolTrackData.startStopGeometries?.points?.features ?? [],
+  ).filter(item => !!item?.geometry);
 
   if (!collectionData.length) return null;
 
-  return bbox(
-    featureCollection(collectionData),
-  );
-});
+  return bbox(featureCollection(collectionData));
+};
 
 // A patrol has a track from the moment any leg begins, whatever state it went
 // on to reach: one called off halfway still covered ground.

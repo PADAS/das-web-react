@@ -1,13 +1,21 @@
+import { calcImgIdFromUrlForMapImages, imgElFromSrc } from './img';
 import { createMapMock } from '../__test-helpers/mocks';
 
 import {
+  addFeatureCollectionImagesToMap,
   buildGeoSpanFilter,
   calcSidebarPaddingLeft,
   calculatePopoverPlacement,
   safeRemoveMapLayer,
   safeRemoveMapSource,
+  safeRemoveMapSourceAndItsLayers,
   waitForMapBounds,
 } from './map';
+
+jest.mock('./img', () => ({
+  ...jest.requireActual('./img'),
+  imgElFromSrc: jest.fn(),
+}));
 
 let map;
 const errorObj = new Error('invalid LngLat');
@@ -220,6 +228,85 @@ describe('safeRemoveMapLayer / safeRemoveMapSource', () => {
   });
 });
 
+describe('safeRemoveMapSourceAndItsLayers', () => {
+  const mapWith = (layers) => {
+    const style = { layers };
+    return {
+      getLayer: jest.fn((layerId) => style.layers.find((layer) => layer.id === layerId)),
+      getSource: jest.fn(() => ({})),
+      getStyle: jest.fn(() => style),
+      removeLayer: jest.fn((layerId) => {
+        style.layers = style.layers.filter((layer) => layer.id !== layerId);
+      }),
+      removeSource: jest.fn(),
+    };
+  };
+
+  test('takes every layer reading from the source off the map', () => {
+    const map = mapWith([
+      { id: 'layer-a', source: 'source-a' },
+      { id: 'layer-b', source: 'source-b' },
+      { id: 'layer-c', source: 'source-a' },
+    ]);
+
+    safeRemoveMapSourceAndItsLayers(map, 'source-a');
+
+    expect(map.removeLayer).toHaveBeenCalledWith('layer-a');
+    expect(map.removeLayer).toHaveBeenCalledWith('layer-c');
+    expect(map.removeLayer).not.toHaveBeenCalledWith('layer-b');
+  });
+
+  test('takes those layers off before the source they read from', () => {
+    const map = mapWith([{ id: 'layer-a', source: 'source-a' }]);
+
+    safeRemoveMapSourceAndItsLayers(map, 'source-a');
+
+    expect(map.removeLayer.mock.invocationCallOrder[0])
+      .toBeLessThan(map.removeSource.mock.invocationCallOrder[0]);
+  });
+
+  test('removes the source of a style that carries no layers at all', () => {
+    const map = mapWith([]);
+
+    safeRemoveMapSourceAndItsLayers(map, 'source-a');
+
+    expect(map.removeSource).toHaveBeenCalledWith('source-a');
+  });
+
+  test('leaves a map without a style alone', () => {
+    expect(() => safeRemoveMapSourceAndItsLayers(undefined, 'source-a')).not.toThrow();
+  });
+});
+
+describe('addFeatureCollectionImagesToMap', () => {
+  const collectionOf = (...images) => ({
+    features: images.map((image) => ({ properties: { image } })),
+    type: 'FeatureCollection',
+  });
+
+  let imagesMap;
+  beforeEach(() => {
+    imagesMap = createMapMock();
+
+    imgElFromSrc.mockImplementation((src) => Promise.resolve(`image element for ${src}`));
+  });
+
+  test('loads each distinct image of a collection once', async () => {
+    const images = await addFeatureCollectionImagesToMap(collectionOf('icon-one', 'icon-two', 'icon-one'));
+
+    expect(images.map((image) => image.icon_id))
+      .toEqual([calcImgIdFromUrlForMapImages('icon-one'), calcImgIdFromUrlForMapImages('icon-two')]);
+  });
+
+  test('leaves out the images the style it is given already carries', async () => {
+    imagesMap.hasImage.mockImplementation((iconId) => iconId === calcImgIdFromUrlForMapImages('icon-one'));
+
+    const images = await addFeatureCollectionImagesToMap(collectionOf('icon-one', 'icon-two'), {}, imagesMap);
+
+    expect(images.map((image) => image.icon_id)).toEqual([calcImgIdFromUrlForMapImages('icon-two')]);
+  });
+});
+
 describe('calcSidebarPaddingLeft', () => {
   test('returns undefined below the medium layout breakpoint, regardless of the URL', () => {
     expect(calcSidebarPaddingLeft({ pathname: '/events', isMediumLayoutOrLarger: false })).toBeUndefined();
@@ -236,18 +323,6 @@ describe('calcSidebarPaddingLeft', () => {
 
   test('pads for the wider detail view when an item is open', () => {
     expect(calcSidebarPaddingLeft({ pathname: '/events/some-event-id', isMediumLayoutOrLarger: true })).toBe(736);
-  });
-
-  test('reduces the sidebar padding for a polygon/bounds fit, since it already hugs its own shape', () => {
-    expect(calcSidebarPaddingLeft({
-      pathname: '/events', isMediumLayoutOrLarger: true, isPolygon: true,
-    })).toBe(162);
-  });
-
-  test('reduces the detail-view padding for a polygon/bounds fit', () => {
-    expect(calcSidebarPaddingLeft({
-      pathname: '/events/some-event-id', isMediumLayoutOrLarger: true, isPolygon: true,
-    })).toBe(386);
   });
 
   test('prioritizes the detail-view width over the tab width when both are present', () => {

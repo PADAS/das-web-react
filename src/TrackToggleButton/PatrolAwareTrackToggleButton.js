@@ -22,6 +22,10 @@ const PatrolAwareTrackToggleButton = ({ buttonRef, patrol, patrolData, ...restPr
 
   const { leader } = patrolData;
 
+  // Only the legacy toggle pairs a patrol's track with its leader's own. A
+  // patrol track is every subject its legs name, and a leg may have no leader.
+  const canToggleTrack = patrolSchemasEnabled || !!leader;
+
   const patrolTrackPinned = patrolTrackState.pinned.includes(patrol.id);
   const patrolTrackVisible = !patrolTrackPinned && patrolTrackState.visible.includes(patrol.id);
   const patrolTrackHidden = !patrolTrackPinned && !patrolTrackVisible;
@@ -33,7 +37,7 @@ const PatrolAwareTrackToggleButton = ({ buttonRef, patrol, patrolData, ...restPr
   const onTrackButtonClick = useCallback((event) => {
     event.stopPropagation();
 
-    if (!leader) {
+    if (!canToggleTrack) {
       return;
     }
 
@@ -78,6 +82,7 @@ const PatrolAwareTrackToggleButton = ({ buttonRef, patrol, patrolData, ...restPr
       return;
     }
   }, [
+    canToggleTrack,
     dispatch,
     leader,
     patrol.id,
@@ -91,7 +96,7 @@ const PatrolAwareTrackToggleButton = ({ buttonRef, patrol, patrolData, ...restPr
   ]);
 
   return <TrackToggleButton
-    disabled={!leader}
+    disabled={!canToggleTrack}
     onClick={onTrackButtonClick}
     ref={buttonRef}
     showTransparentIcon

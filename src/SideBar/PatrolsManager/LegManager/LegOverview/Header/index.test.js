@@ -71,6 +71,14 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview - Header', () => {
   const map = createMapMock();
   const handlePrint = jest.fn();
 
+  beforeAll(() => {
+    jest.useFakeTimers({ advanceTimers: true }).setSystemTime(new Date('2026-04-14'));
+  });
+
+  afterAll(() => {
+    jest.useRealTimers();
+  });
+
   let reduxStore, store, tracker;
   afterEach(() => {
     jest.restoreAllMocks();
@@ -90,7 +98,7 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview - Header', () => {
         user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.UPDATE] } },
       },
       view: {
-        patrolTrackState: { pinned: [], visible: [] },
+        patrolTrackState: { hiddenSubjects: {}, pinned: [], visible: [] },
         timeSliderState: { active: false },
         trackSettings: { length: 21, origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH },
       },
@@ -141,6 +149,14 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview - Header', () => {
     renderHeader();
 
     expect(screen.getByTestId('header-legIcon')).toBeInTheDocument();
+  });
+
+  test('names a pause after the pauses of its patrol and takes the pause icon', () => {
+    renderHeader({ legNumber: 1, patrolSegment: { ...patrolSegment, is_pause: true } });
+
+    expect(screen.getByRole('heading', { level: 2, name: 'Pause 1' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Pause' })).toBeInTheDocument();
+    expect(screen.queryByTestId('header-legIcon')).not.toBeInTheDocument();
   });
 
   test('shows the state of the leg as a read only pill', () => {
@@ -241,12 +257,11 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview - Header', () => {
     }));
   });
 
-  test('zooms to the planned locations of a leg nothing has tracked', async () => {
+  test('frames a leg nothing has tracked by the locations it was planned around', () => {
     renderHeader();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Zoom to patrol leg bounds' }));
-
-    expect(map.fitBounds).toHaveBeenCalledWith(expect.any(Array), expect.objectContaining({ maxZoom: 17 }));
+    expect(screen.getByRole('button', { name: 'Zoom to patrol leg bounds' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Jump to location' })).toBeEnabled();
   });
 
   test('offers no map location on a leg with neither a track nor planned locations', () => {
@@ -298,6 +313,24 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview - Header', () => {
       expect.objectContaining({ type: 'FeatureCollection' }),
       `Patrol_${patrol.serial_number}_Leg_2.geojson`
     );
+  });
+
+  test('offers a pause none of the track actions of a leg that ran', async () => {
+    store.data.tracks = legTracks;
+
+    renderHeader({ legNumber: 1, patrolSegment: { ...patrolSegment, is_pause: true } });
+
+    expect(screen.queryByRole('button', { name: /patrol track/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Zoom to patrol leg bounds' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Jump to location' })).not.toBeInTheDocument();
+
+    await openKebabMenu();
+
+    expect(await screen.findByRole('menuitem', { name: 'Print Patrol Pause' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Copy patrol pause link' })).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Download Patrol Leg Track' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Zoom to patrol leg bounds' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Jump to location' })).not.toBeInTheDocument();
   });
 
   test('closes the sidebar', () => {

@@ -14,7 +14,7 @@ import { ReactComponent as TrackIcon } from '../../../../common/images/icons/tra
 import { basePrintingStyles } from '../../../../utils/styles';
 import { DAS_HOST, TAB_KEYS } from '../../../../constants';
 import {
-  displayNameForPatrolType,
+  displayNameForPatrolSegment,
   getBoundsForPatrol,
   getIsMobilePatrol,
   getPatrolLocationCoordinates,
@@ -68,7 +68,7 @@ const Header = ({
 
   const patrolIconId = governingSegment ? iconIdForPatrolSegment(patrolTypes, governingSegment) : null;
   const patrolTypeName = governingSegment
-    ? displayNameForPatrolType(patrolTypes, governingSegment.patrol_type)
+    ? displayNameForPatrolSegment(patrolTypes, governingSegment)
     : null;
 
   const isPatrolTrackPinned = patrolTrackState.pinned.includes(patrol.id);
@@ -77,14 +77,10 @@ const Header = ({
   const trackToggleState = isPatrolTrackPinned ? 'pinned' : isPatrolTrackVisible ? 'visible' : 'hidden';
   const nextTrackToggleStateIfToggled = isPatrolTrackPinned ? 'hidden' : isPatrolTrackVisible ? 'pinned' : 'visible';
 
-  // TODO: Draw the tracks of the team members and the assets a leg tracks
-  // alongside its leader's, once they have colors of their own.
   const hasTrack = patrolHasTrackData(patrolTrackData);
 
   const jumpToLocationCoordinates = getPatrolLocationCoordinates(patrolTrackData);
 
-  // TODO: Take the tracks of every subject a leg tracks into the bounds, not
-  // its leader's alone.
   const patrolBounds = useMemo(() => getBoundsForPatrol(patrol, patrolTrackData), [patrol, patrolTrackData]);
 
   const onToggleTrack = () => {

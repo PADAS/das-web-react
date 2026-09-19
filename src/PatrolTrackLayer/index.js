@@ -1,10 +1,9 @@
-import React, { memo, useContext, useMemo } from 'react';
+import React, { memo, useContext } from 'react';
 import { useSelector } from 'react-redux';
 
-import { selectPatrolTrackData } from '../selectors/patrols';
+import { selectPatrolMapTrackData } from '../selectors/patrols';
 import { LAYER_IDS } from '../constants';
 import { MapContext } from '../MapContext';
-import { trimTrackDataToTimeRange } from '../utils/tracks';
 
 import TrackLayer from '../TracksLayer/track';
 
@@ -17,29 +16,25 @@ const LINE_PAINT = {
 const getPointLayer = (event, map) => map.queryRenderedFeatures(event.point)
   .filter((item) => item.layer.id.includes(LAYER_IDS.TRACK_TIMEPOINTS))[0];
 
-const PatrolTrackLayer = ({ onPointClick, patrol, trackTimeEnvelope, ...restProps }) => {
+const PatrolTrackLayer = ({ onPointClick, patrol, ...restProps }) => {
   const map = useContext(MapContext);
 
-  const patrolTrackData = useSelector((state) => selectPatrolTrackData(state, patrol));
-  const { legsTrackData } = patrolTrackData;
+  const patrolMapTrackData = useSelector((state) => selectPatrolMapTrackData(state, patrol));
   const showTrackTimepoints = useSelector((state) => state.view.showTrackTimepoints);
 
-  const trimmedLegsTrackData = useMemo(
-    () => legsTrackData.map((legTrackData) => (
-      !!legTrackData && trimTrackDataToTimeRange(legTrackData, trackTimeEnvelope.from, trackTimeEnvelope.until)
-    )),
-    [legsTrackData, trackTimeEnvelope.from, trackTimeEnvelope.until]
-  );
-
-  return trimmedLegsTrackData.map((trimmedLegTrackData, index) => (trimmedLegTrackData?.track ? <TrackLayer
-    id={`${patrol.id}-${patrol.patrol_segments[index].id}`}
-    key={patrol.patrol_segments[index].id}
-    linePaint={LINE_PAINT}
-    onPointClick={(event) => onPointClick(getPointLayer(event, map))}
-    showTimepoints={showTrackTimepoints}
-    trackData={trimmedLegTrackData}
-    {...restProps}
-  /> : null));
+  // A subject's own line, whatever legs of the patrol it took part in: its
+  // colour tells it apart from the rest of the team's.
+  return patrolMapTrackData.subjectsTrackData
+    .filter((subjectTrackData) => !subjectTrackData.isHidden && !!subjectTrackData.trackData)
+    .map((subjectTrackData) => <TrackLayer
+      id={`${patrol.id}-${subjectTrackData.subject.id}`}
+      key={subjectTrackData.subject.id}
+      linePaint={LINE_PAINT}
+      onPointClick={(event) => onPointClick(getPointLayer(event, map))}
+      showTimepoints={showTrackTimepoints}
+      trackData={subjectTrackData.trackData}
+      {...restProps}
+    />);
 };
 
 export default memo(PatrolTrackLayer);

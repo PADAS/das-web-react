@@ -1858,7 +1858,7 @@ export const patrolDefaultStoreData = {
       pinned: [], visible: []
     },
     patrolTrackState: {
-      pinned: [], visible: []
+      hiddenSubjects: {}, pinned: [], visible: []
     },
     systemConfig: {},
     trackSettings: {

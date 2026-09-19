@@ -28,6 +28,7 @@ const StaticFields = ({
   earliestStartDateTime = null,
   errors,
   isFirstLeg = true,
+  isPause = false,
   latestEndDateTime = null,
   leg,
   onChangeLeg,
@@ -164,7 +165,9 @@ const StaticFields = ({
           </p>}
         </div>
 
-        {renderCheckbox({
+        {/* A pause neither starts nor ends by itself, so neither checkbox is
+            rendered on one and the column closes the gap they leave. */}
+        {!isPause && renderCheckbox({
           id: autoStartCheckboxId,
           isChecked: leg.isAutoStart,
           isDisabled: !startDateTime || !isFuture(startDateTime),
@@ -224,7 +227,7 @@ const StaticFields = ({
           </p>}
         </div>
 
-        {renderCheckbox({
+        {!isPause && renderCheckbox({
           id: autoEndCheckboxId,
           isChecked: leg.isAutoEnd,
           isDisabled: !endDateTime || !isFuture(endDateTime),
@@ -245,7 +248,7 @@ const StaticFields = ({
       </div>
     </div>
 
-    <div className={styles.columns}>
+    {!isPause && <div className={styles.columns}>
       <div className={styles.column}>
         {renderSelect({
           getOptionLabel: getTeamOptionLabel,
@@ -287,7 +290,7 @@ const StaticFields = ({
           value: leg.assets,
         })}
       </div>
-    </div>
+    </div>}
   </div>;
 };
 

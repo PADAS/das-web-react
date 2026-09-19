@@ -1,7 +1,9 @@
 {
   "patrolTrackLegend": {
+    "description": "{{pointCount}} points over {{trackTime}}",
     "icon": "Icon for {{patrolTitle}}",
     "itemTitle": "Patrol: {{patrolTitle}}",
+    "subjectIcon": "Icon for {{subject}}",
     "trackLegendItemsName": "patrols"
   },
   "subjectTrackLegend": {
@@ -18,7 +20,7 @@
         "closed": "Expand the time of day settings",
         "open": "Collapse the time of day settings"
       },
-      "coloredTimeSquarLabels": {
+      "coloredTimeSquareLabels": {
         "americanYellow": "American yellow",
         "fandangoPink": "Fandango pink",
         "green": "green",
@@ -39,22 +41,11 @@
       "active": "Deactivate the time of day coloring",
       "inactive": "Activate the time of day coloring"
     },
-    "tracksList": {
-      "closeButtonLabel": "Close the list of {{itemsName}}",
-      "tracksItem": {
-        "removeButton": "Remove",
-        "removeButtonLabel": "Remove {{title}}"
-      }
-    },
-    "tracksListButtonLabel": {
-      "closed": "Open the list of {{itemsName}}",
-      "open": "Close the list of {{itemsName}}"
-    },
     "trackSettings": {
       "closeButtonLabel": "Close the track settings",
       "customLengthErrorMessage": "Please enter a track length between {{min}} and {{max}}.",
-      "customLengthRadioLabel": "Custom length",
       "customLengthInputLabel": "Track length in days",
+      "customLengthRadioLabel": "Custom length",
       "eventFilterRadioLabel": "Match event filter \"from\" date ({{length}} days)",
       "title": "Track Settings",
       "trackLengthLegend": "Track Length"
@@ -62,6 +53,26 @@
     "trackSettingsButtonLabel": {
       "closed": "Open the track settings",
       "open": "Close the track settings"
+    },
+    "tracksList": {
+      "tracksChildItem": {
+        "toggleTracksButtonLabel": {
+          "hidden": "Show the track of {{title}}",
+          "shown": "Hide the track of {{title}}"
+        }
+      },
+      "tracksItem": {
+        "clearButton": "Clear",
+        "clearButtonLabel": "Clear the tracks of {{title}}",
+        "expandButtonLabel": {
+          "closed": "Open the tracks of {{title}}",
+          "open": "Close the tracks of {{title}}"
+        }
+      }
+    },
+    "tracksListButtonLabel": {
+      "closed": "Open the list of {{itemsName}}",
+      "open": "Close the list of {{itemsName}}"
     }
   },
   "trackLength": {

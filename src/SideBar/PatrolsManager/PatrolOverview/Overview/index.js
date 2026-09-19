@@ -1,6 +1,7 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { ReactComponent as ArrowRightFromLineIcon } from '../../../../common/images/icons/arrow-right-from-line.svg';
 import { ReactComponent as PauseIcon } from '../../../../common/images/icons/pause.svg';
 import { ReactComponent as PlayIcon } from '../../../../common/images/icons/play.svg';
 
@@ -9,6 +10,7 @@ import {
   actualEndTimeForPatrolSegment,
   actualStartTimeForPatrol,
   actualStartTimeForPatrolSegment,
+  displayNumberForPatrolSegment,
   effectiveEndTimeForPatrolSegment,
   getElapsedTimeForPatrolSegment,
   getReportsForPatrol,
@@ -18,7 +20,7 @@ import {
 } from '../../../../utils/patrols';
 import { getEventIdsForCollection } from '../../../../utils/events';
 import { longTermAbbreviatedDurationHumanizer } from '../../../../utils/datetime';
-import { PATROL_UI_STATES } from '../../../../constants';
+import { PATROL_UI_STATES, TAB_KEYS } from '../../../../constants';
 import useCurrentTime from '../../../../hooks/useCurrentTime';
 
 import Activity from '../../Activity';
@@ -65,6 +67,24 @@ const Overview = ({
     return patrolEvents.filter((event) => !idsOfEventsInPatrolCollections.includes(event.id));
   }, [patrol]);
 
+  const legLinkForPatrolSegment = useCallback((patrolSegmentIndex) => {
+    const patrolSegment = patrol.patrol_segments[patrolSegmentIndex];
+
+    return {
+      label: t(
+        `viewLegLinkLabel.${isPatrolSegmentAPause(patrolSegment) ? 'pause' : 'leg'}`,
+        { number: displayNumberForPatrolSegment(patrol.patrol_segments, patrolSegmentIndex) }
+      ),
+      to: `/${TAB_KEYS.PATROLS}/${patrol.id}/legs/${patrolSegment.id}`,
+    };
+  }, [patrol.id, patrol.patrol_segments, t]);
+
+  // The first leg has no start row of its own: the patrol starting stands for it.
+  const patrolStartLink = useMemo(
+    () => patrol.patrol_segments.length > 0 ? legLinkForPatrolSegment(0) : null,
+    [legLinkForPatrolSegment, patrol.patrol_segments.length]
+  );
+
   const legMilestones = useMemo(() => patrol.patrol_segments.flatMap((patrolSegment, index) => {
     // Closing a patrol stamps an end even on a leg that never ran, and that
     // end marks nothing that happened.
@@ -72,7 +92,7 @@ const Overview = ({
       return [];
     }
 
-    const legNumber = index + 1;
+    const legNumber = displayNumberForPatrolSegment(patrol.patrol_segments, index);
     const startTime = index > 0 ? actualStartTimeForPatrolSegment(patrolSegment) : null;
     const endTime = index < patrol.patrol_segments.length - 1 ? actualEndTimeForPatrolSegment(patrolSegment) : null;
 
@@ -89,6 +109,7 @@ const Overview = ({
           date: startTime,
           icon: PauseIcon,
           id: `${patrolSegment.id}-start`,
+          link: legLinkForPatrolSegment(index),
           title: t('patrolPausedTitle', { pausedFor }),
           variant: PATROL_UI_STATES.PAUSED.key,
         }] : []),
@@ -103,14 +124,20 @@ const Overview = ({
     }
 
     return [
-      ...(startTime
-        ? [{ date: startTime, id: `${patrolSegment.id}-start`, title: t('legStartedTitle', { legNumber }) }]
-        : []),
-      ...(endTime
-        ? [{ date: endTime, id: `${patrolSegment.id}-end`, title: t('legEndedTitle', { legNumber }) }]
-        : []),
+      ...(startTime ? [{
+        date: startTime,
+        icon: ArrowRightFromLineIcon,
+        id: `${patrolSegment.id}-start`,
+        link: legLinkForPatrolSegment(index),
+        title: t('legStartedTitle', { legNumber }),
+      }] : []),
+      ...(endTime ? [{
+        date: endTime,
+        id: `${patrolSegment.id}-end`,
+        title: t('legEndedTitle', { legNumber }),
+      }] : []),
     ];
-  }), [currentTime, humanizeDuration, patrol, t]);
+  }), [currentTime, humanizeDuration, legLinkForPatrolSegment, patrol, t]);
 
   return <>
     <Legs patrol={patrol} patrolState={patrolState} />
@@ -132,6 +159,8 @@ const Overview = ({
       onDeleteNote={onDeleteNote}
       onDoneNote={onDoneNote}
       patrol={patrol}
+      startIcon={ArrowRightFromLineIcon}
+      startLink={patrolStartLink}
       startTime={patrolStartTime}
       startTitle={t('patrolStartedTitle')}
     />

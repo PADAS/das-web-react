@@ -68,6 +68,7 @@
       .legActionsColumn {
         display: flex;
         gap: 0.25rem;
+        justify-content: flex-end;
         white-space: nowrap;
 
         .viewLegButton {
@@ -94,18 +95,18 @@
         }
       }
 
+      .pausePill {
+        display: inline-flex;
+        font-size: 0.75rem;
+        padding: 0.125rem 0.5rem;
+      }
+
       .simplifiedDate {
         display: none;
 
         @media (max-width: layout.$sm-layout-width-max) {
           display: inline;
         }
-      }
-
-      .pausePill {
-        display: inline-flex;
-        font-size: 0.75rem;
-        padding: 0.125rem 0.5rem;
       }
     }
   }

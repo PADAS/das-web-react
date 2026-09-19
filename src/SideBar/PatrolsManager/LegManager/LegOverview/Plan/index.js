@@ -9,6 +9,7 @@ import {
   fetchDefaultPatrolSegmentTypeSchema,
   fetchPatrolTypeSchema,
 } from '../../../../../ducks/patrol-schemas';
+import { isPatrolSegmentAPause } from '../../../../../utils/patrols';
 
 import SchemaFormSummary from '../../../../../SchemaFormSummary';
 import StaticFields from './StaticFields';
@@ -28,22 +29,33 @@ const Plan = ({ patrol, patrolSegment }) => {
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
   const patrolTypeSchemaState = useSelector((state) => state.data.patrolSchemas[patrolSegment.patrol_type]);
 
+  // A pause holds nothing but the moment the patrol stopped and picked back up.
+  const isPause = isPatrolSegmentAPause(patrolSegment);
+
   const legDraft = useMemo(
     () => buildLegDraft(patrolSegment, patrolTypes, patrolTeamAndTrackingOptions),
     [patrolSegment, patrolTeamAndTrackingOptions, patrolTypes]
   );
 
   useEffect(() => {
-    if (!defaultPatrolSegmentTypeSchemaState) {
+    if (!isPause && !defaultPatrolSegmentTypeSchemaState) {
       dispatch(fetchDefaultPatrolSegmentTypeSchema());
     }
-  }, [defaultPatrolSegmentTypeSchemaState, dispatch]);
+  }, [defaultPatrolSegmentTypeSchemaState, dispatch, isPause]);
 
   useEffect(() => {
-    if (patrolSegment.patrol_type && !patrolTypeSchemaState) {
+    if (!isPause && patrolSegment.patrol_type && !patrolTypeSchemaState) {
       dispatch(fetchPatrolTypeSchema(patrolSegment.patrol_type));
     }
-  }, [dispatch, patrolSegment.patrol_type, patrolTypeSchemaState]);
+  }, [dispatch, isPause, patrolSegment.patrol_type, patrolTypeSchemaState]);
+
+  if (isPause) {
+    return <div className={styles.plan}>
+      <div className={styles.section}>
+        <StaticFields isPause patrol={patrol} patrolSegment={patrolSegment} />
+      </div>
+    </div>;
+  }
 
   const renderSchemaLoader = (label, testId) => <div className={styles.section}>
     <div className={styles.schemaLoader} data-testid={testId} role="status">
@@ -67,6 +79,7 @@ const Plan = ({ patrol, patrolSegment }) => {
       formData={legDraft.universalDetails}
       schema={defaultPatrolSegmentTypeSchemaState.schema}
       sectionClassName={styles.section}
+      sectionLabelClassName={styles.sectionLabel}
     />}
 
     {(!defaultPatrolSegmentTypeSchemaState || !!defaultPatrolSegmentTypeSchemaState.isLoading)
@@ -79,6 +92,7 @@ const Plan = ({ patrol, patrolSegment }) => {
       formData={legDraft.typeDetails}
       schema={patrolTypeSchemaState.schema}
       sectionClassName={styles.section}
+      sectionLabelClassName={styles.sectionLabel}
     />}
 
     {!!patrolSegment.patrol_type && (!patrolTypeSchemaState || !!patrolTypeSchemaState.isLoading)

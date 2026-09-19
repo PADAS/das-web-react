@@ -79,6 +79,12 @@ describe('SchemaFormSummary - Section', () => {
     expect(screen.getByRole('heading', { level: 3, name: 'Section Label' })).toBeInTheDocument();
   });
 
+  test('lets its caller style the section label', () => {
+    renderSection({ labelClassName: 'legPlanLabel' });
+
+    expect(screen.getByRole('heading', { level: 3, name: 'Section Label' })).toHaveClass('legPlanLabel');
+  });
+
   test('does not show a heading when the section has no label', () => {
     section.details.label = '';
 

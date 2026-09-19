@@ -23,7 +23,11 @@ import { calcUrlForImage } from '../../../../utils/img';
 import { EMPTY_VALUE } from '../../../../constants';
 import { formatDistanceInKilometers } from '../../../../utils/distance';
 import { longTermAbbreviatedDurationHumanizer } from '../../../../utils/datetime';
-import { selectPatrolSegmentTrackedSubjects, selectPatrolTrackedSubjects } from '../../../../selectors/patrols';
+import {
+  selectPatrolLeadSumDistance,
+  selectPatrolSegmentTrackedSubjects,
+  selectPatrolTrackedSubjects,
+} from '../../../../selectors/patrols';
 import { TrackerContext } from '../../../../utils/analytics';
 import useCurrentTime from '../../../../hooks/useCurrentTime';
 
@@ -32,6 +36,8 @@ import SvgIcon from '../../../../SvgIcon';
 import * as styles from './styles.module.scss';
 
 const ELAPSED_TIME_REFRESH_INTERVAL = 30_000;
+
+const LEG_LEAD_DISTANCE_OPTION_ID = 'legLead';
 
 const Stat = ({ label, value }) => <div className={styles.statItem}>
   <dt className={styles.statLabel}>{label}</dt>
@@ -68,50 +74,82 @@ const SummaryStats = ({ eventCount, patrol, patrolSegment = null }) => {
 
   const tracker = useContext(TrackerContext);
 
+  const patrolLeadSumDistance = useSelector((state) => selectPatrolLeadSumDistance(state, patrol));
   const patrolTrackedSubjects = useSelector((state) => patrolSegment
     ? selectPatrolSegmentTrackedSubjects(state, patrol, patrolSegment)
     : selectPatrolTrackedSubjects(state, patrol));
 
-  const distanceSubjectMenuItemOptionRefs = useRef([]);
-  const wasDistanceSubjectMenuOpen = useRef(false);
+  const distanceOptionRefs = useRef([]);
+  const wasDistanceMenuOpen = useRef(false);
 
-  const distanceSubjectMenuPopoverId = useId();
+  const distanceMenuPopoverId = useId();
+  const legLeadOptionDescriptionId = useId();
 
-  const [distanceSubjectId, setDistanceSubjectId] = useState(null);
-  const [distanceSubjectMenuAnchorEl, setDistanceSubjectMenuAnchorEl] = useState();
-  const [isDistanceSubjectMenuOpen, setIsDistanceSubjectMenuOpen] = useState(false);
+  const [distanceMenuAnchorEl, setDistanceMenuAnchorEl] = useState();
+  const [distanceOptionId, setDistanceOptionId] = useState(null);
+  const [isDistanceMenuOpen, setIsDistanceMenuOpen] = useState(false);
 
-  const distanceSubject = patrolTrackedSubjects
-    .find((patrolTrackedSubject) => patrolTrackedSubject.subject.id === distanceSubjectId)
-    ?? patrolTrackedSubjects[0]
+  // A patrol hands over from lead to lead, so what it covered is each leg's
+  // lead: adding the whole team would count one walk once per subject on it.
+  const hasLegLeadOption = !patrolSegment && patrolTrackedSubjects.length > 0;
+
+  const distanceOptions = useMemo(() => [
+    ...(hasLegLeadOption ? [{
+      description: t('legLeadOptionDescription'),
+      distance: patrolLeadSumDistance,
+      id: LEG_LEAD_DISTANCE_OPTION_ID,
+      isTeamLead: false,
+      name: t('legLeadOptionLabel', { count: patrol.patrol_segments.length }),
+      subject: null,
+    }] : []),
+    ...patrolTrackedSubjects.map((patrolTrackedSubject) => ({
+      description: null,
+      distance: patrolTrackedSubject.distance,
+      id: patrolTrackedSubject.subject.id,
+      isTeamLead: patrolTrackedSubject.isTeamLead,
+      name: patrolTrackedSubject.subject.name,
+      subject: patrolTrackedSubject.subject,
+    })),
+  ], [
+    hasLegLeadOption,
+    patrol.patrol_segments.length,
+    patrolLeadSumDistance,
+    patrolTrackedSubjects,
+    t,
+  ]);
+
+  // The leg leads come first, so they are what a patrol reads by default and a
+  // leg falls back to its own lead.
+  const distanceOption = distanceOptions.find((option) => option.id === distanceOptionId)
+    ?? distanceOptions[0]
     ?? null;
 
-  const distance = hasStarted && distanceSubject?.distance != null
-    ? formatDistanceInKilometers(tUtils, distanceSubject.distance)
+  const distance = hasStarted && distanceOption?.distance != null
+    ? formatDistanceInKilometers(tUtils, distanceOption.distance)
     : EMPTY_VALUE;
 
   const humanizeDuration = useMemo(() => longTermAbbreviatedDurationHumanizer(tDates), [tDates]);
 
   const formatElapsedTime = (elapsedTime) => hasStarted ? humanizeDuration(elapsedTime) : EMPTY_VALUE;
 
-  const onDistanceSubjectMenuClose = () => {
-    setIsDistanceSubjectMenuOpen(false);
+  const onDistanceMenuClose = () => {
+    setIsDistanceMenuOpen(false);
 
-    distanceSubjectMenuAnchorEl?.focus();
+    distanceMenuAnchorEl?.focus();
   };
 
-  const onDistanceSubjectMenuHide = () => {
-    setIsDistanceSubjectMenuOpen(false);
+  const onDistanceMenuHide = () => {
+    setIsDistanceMenuOpen(false);
 
     if (document.activeElement === document.body) {
-      distanceSubjectMenuAnchorEl?.focus();
+      distanceMenuAnchorEl?.focus();
     }
   };
 
-  const onDistanceSubjectMenuKeyDown = (event) => {
+  const onDistanceMenuKeyDown = (event) => {
     // React leaves the slots of unmounted options behind, so only the mounted
     // ones can take focus.
-    const menuItemOptions = distanceSubjectMenuItemOptionRefs.current.filter(Boolean);
+    const menuItemOptions = distanceOptionRefs.current.filter(Boolean);
     const currentOptionIndex = menuItemOptions.findIndex((option) => option === document.activeElement);
 
     switch (event.key) {
@@ -144,14 +182,14 @@ const SummaryStats = ({ eventCount, patrol, patrolSegment = null }) => {
       break;
 
     case 'Tab':
-      onDistanceSubjectMenuClose();
+      onDistanceMenuClose();
 
       break;
 
     case 'Escape':
       event.preventDefault();
 
-      onDistanceSubjectMenuClose();
+      onDistanceMenuClose();
 
       break;
 
@@ -159,38 +197,35 @@ const SummaryStats = ({ eventCount, patrol, patrolSegment = null }) => {
     }
   };
 
-  const onDistanceSubjectMenuOptionClick = (subjectId) => {
-    setDistanceSubjectId(subjectId);
+  const onDistanceMenuOptionClick = (optionId) => {
+    setDistanceOptionId(optionId);
 
-    onDistanceSubjectMenuClose();
+    onDistanceMenuClose();
 
-    tracker.track('Select the subject of the distance stat');
+    tracker.track('Select what the distance stat covers');
   };
 
   useEffect(() => {
-    const isDistanceSubjectMenuOpening = isDistanceSubjectMenuOpen && !wasDistanceSubjectMenuOpen.current;
-    wasDistanceSubjectMenuOpen.current = isDistanceSubjectMenuOpen;
+    const isDistanceMenuOpening = isDistanceMenuOpen && !wasDistanceMenuOpen.current;
+    wasDistanceMenuOpen.current = isDistanceMenuOpen;
 
-    if (isDistanceSubjectMenuOpening) {
-      // Opening the menu focuses the checked subject menu item option.
-      const checkedDistanceSubjectMenuItemOptionIndex = patrolTrackedSubjects.findIndex(
-        ({ subject }) => subject.id === distanceSubject?.subject.id
-      );
-      distanceSubjectMenuItemOptionRefs.current[checkedDistanceSubjectMenuItemOptionIndex]?.focus();
+    if (isDistanceMenuOpening) {
+      // Opening the menu focuses the checked menu item option.
+      distanceOptionRefs.current[distanceOptions.findIndex((option) => option.id === distanceOption?.id)]?.focus();
     }
-  }, [isDistanceSubjectMenuOpen, patrolTrackedSubjects, distanceSubject]);
+  }, [distanceOption, distanceOptions, isDistanceMenuOpen]);
 
-  const distanceLabel = distanceSubject
+  const distanceLabel = distanceOption
     ? <>
       <button
-        aria-controls={isDistanceSubjectMenuOpen ? distanceSubjectMenuPopoverId : undefined}
-        aria-expanded={isDistanceSubjectMenuOpen}
+        aria-controls={isDistanceMenuOpen ? distanceMenuPopoverId : undefined}
+        aria-expanded={isDistanceMenuOpen}
         aria-haspopup="menu"
-        aria-label={t('distanceSubjectButtonLabel', { subject: distanceSubject.subject.name })}
-        className={styles.distanceSubjectButton}
-        onClick={() => setIsDistanceSubjectMenuOpen((isOpen) => !isOpen)}
-        ref={setDistanceSubjectMenuAnchorEl}
-        title={t('distanceSubjectButtonLabel', { subject: distanceSubject.subject.name })}
+        aria-label={t('distanceOptionButtonLabel', { option: distanceOption.name })}
+        className={styles.distanceOptionButton}
+        onClick={() => setIsDistanceMenuOpen((isOpen) => !isOpen)}
+        ref={setDistanceMenuAnchorEl}
+        title={t('distanceOptionButtonLabel', { option: distanceOption.name })}
         type="button"
         >
         {t('distanceLabel')}
@@ -199,47 +234,57 @@ const SummaryStats = ({ eventCount, patrol, patrolSegment = null }) => {
       </button>
 
       <Overlay
-        onHide={onDistanceSubjectMenuHide}
+        onHide={onDistanceMenuHide}
         placement="bottom-start"
         rootClose
-        show={isDistanceSubjectMenuOpen}
-        target={distanceSubjectMenuAnchorEl}
+        show={isDistanceMenuOpen}
+        target={distanceMenuAnchorEl}
         >
-        <Popover className={styles.distanceSubjectMenuPopover} role="presentation">
+        <Popover className={styles.distanceMenuPopover} role="presentation">
           <ul
-            aria-label={t('distanceSubjectMenuLabel')}
-            className={styles.distanceSubjectMenu}
-            id={distanceSubjectMenuPopoverId}
-            onKeyDown={onDistanceSubjectMenuKeyDown}
+            aria-label={t('distanceMenuLabel')}
+            className={styles.distanceMenu}
+            id={distanceMenuPopoverId}
+            onKeyDown={onDistanceMenuKeyDown}
             role="menu"
           >
-            {patrolTrackedSubjects.map((patrolTrackedSubject, index) => <li
-              className={styles.distanceSubjectMenuItem}
-              key={patrolTrackedSubject.subject.id}
+            {distanceOptions.map((option, index) => <li
+              className={styles.distanceMenuItem}
+              key={option.id}
               role="none"
             >
               <button
-                aria-checked={patrolTrackedSubject.subject.id === distanceSubject.subject.id}
-                className={styles.distanceSubjectMenuItemOption}
-                onClick={() => onDistanceSubjectMenuOptionClick(patrolTrackedSubject.subject.id)}
+                aria-checked={option.id === distanceOption.id}
+                aria-describedby={option.description ? legLeadOptionDescriptionId : undefined}
+                className={styles.distanceMenuItemOption}
+                onClick={() => onDistanceMenuOptionClick(option.id)}
                 ref={(element) => {
-                  distanceSubjectMenuItemOptionRefs.current[index] = element;
+                  distanceOptionRefs.current[index] = element;
                 }}
                 role="menuitemradio"
                 tabIndex={-1}
-                title={patrolTrackedSubject.subject.name}
+                title={option.name}
                 type="button"
               >
-                {patrolTrackedSubject.subject.id === distanceSubject.subject.id
-                  && <CheckIcon aria-hidden="true" className={styles.checkIcon} />}
+                {option.id === distanceOption.id && <CheckIcon aria-hidden="true" className={styles.checkIcon} />}
 
-                {!!patrolTrackedSubject.subject.image_url && <span className={styles.subjectIcon}>
-                  <SvgIcon imageUrl={calcUrlForImage(patrolTrackedSubject.subject.image_url)} type="subjects" />
+                {!!option.subject?.image_url && <span className={styles.subjectIcon}>
+                  <SvgIcon imageUrl={calcUrlForImage(option.subject.image_url)} type="subjects" />
                 </span>}
 
-                {patrolTrackedSubject.subject.name}
+                <span className={styles.labelWrapper}>
+                  <span className={styles.label}>{option.name}</span>
 
-                {!!patrolTrackedSubject.isTeamLead && <>
+                  {!!option.description && <span
+                    aria-hidden="true"
+                    className={styles.description}
+                    id={legLeadOptionDescriptionId}
+                  >
+                    {option.description}
+                  </span>}
+                </span>
+
+                {!!option.isTeamLead && <>
                   <StarIcon aria-hidden="true" className={styles.teamLeadIcon} />
 
                   <span className="sr-only">{t('teamLeadIndicator')}</span>

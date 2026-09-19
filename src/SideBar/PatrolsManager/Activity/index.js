@@ -5,6 +5,7 @@ import { ReactComponent as ArrowDownIcon } from '../../../common/images/icons/ar
 import { ReactComponent as ArrowUpIcon } from '../../../common/images/icons/arrow-up.svg';
 
 import { DESCENDING_SORT_ORDER } from '../../../constants';
+import { isPatrolSegmentAPause } from '../../../utils/patrols';
 import useActivityFeed from '../../../DetailViewComponents/ActivitySection/useActivityFeed';
 
 import SummaryStats from './SummaryStats';
@@ -35,6 +36,7 @@ const Activity = ({
   className = '',
   containedEvents,
   emptyStateMessage,
+  endIcon,
   endTime,
   endTitle,
   existingNotes = [],
@@ -48,6 +50,8 @@ const Activity = ({
   onDoneNote,
   patrol,
   patrolSegment = null,
+  startIcon,
+  startLink = null,
   startTime,
   startTitle,
 }) => {
@@ -63,6 +67,7 @@ const Activity = ({
   } = useActivityFeed({
     attachments,
     containedReports: containedEvents,
+    endIcon,
     endTime,
     endTitle,
     milestones,
@@ -75,6 +80,8 @@ const Activity = ({
     onDeleteNote,
     onDoneNote,
     sortButtonComponent: CustomSortButton,
+    startIcon,
+    startLink,
     startTime,
     startTitle,
   });
@@ -99,7 +106,10 @@ const Activity = ({
       </div>
     </div>
 
-    <SummaryStats eventCount={containedEvents.length} patrol={patrol} patrolSegment={patrolSegment} />
+    {/* A pause covered no ground and did nothing but stand still, so the only
+        stats it could show are the start and end it already lists below. */}
+    {!isPatrolSegmentAPause(patrolSegment)
+      && <SummaryStats eventCount={containedEvents.length} patrol={patrol} patrolSegment={patrolSegment} />}
 
     {hasItems
       ? <ul className={styles.activityList}>

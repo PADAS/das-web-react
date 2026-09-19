@@ -1,7 +1,9 @@
 {
   "patrolTrackLegend": {
-    "icon": "Icône pour {{title}}",
+    "description": "{{pointCount}} points sur {{trackTime}}",
+    "icon": "Icône pour {{patrolTitle}}",
     "itemTitle": "Patrouille : {{patrolTitle}}",
+    "subjectIcon": "Icône pour {{subject}}",
     "trackLegendItemsName": "patrouilles"
   },
   "subjectTrackLegend": {
@@ -39,22 +41,11 @@
       "active": "Désactiver la coloration par heure de la journée",
       "inactive": "Activer la coloration par heure de la journée"
     },
-    "tracksList": {
-      "closeButtonLabel": "Fermer la liste des {{itemsName}}",
-      "tracksItem": {
-        "removeButton": "Supprimer",
-        "removeButtonLabel": "Supprimer {{title}}"
-      }
-    },
-    "tracksListButtonLabel": {
-      "closed": "Ouvrir la liste des {{itemsName}}",
-      "open": "Fermer la liste des {{itemsName}}"
-    },
     "trackSettings": {
       "closeButtonLabel": "Fermer les paramètres des trajectoires",
       "customLengthErrorMessage": "Veuillez entrer une durée de trajectoire entre {{min}} et {{max}}.",
-      "customLengthRadioLabel": "Durée personnalisée",
       "customLengthInputLabel": "Durée de la trajectoire en jours",
+      "customLengthRadioLabel": "Durée personnalisée",
       "eventFilterRadioLabel": "Correspondre au filtre d'événements \"à partir de\" la date ({{length}} jours)",
       "title": "Paramètres des trajectoires",
       "trackLengthLegend": "Durée de la trajectoire"
@@ -62,6 +53,26 @@
     "trackSettingsButtonLabel": {
       "closed": "Ouvrir les paramètres des trajectoires",
       "open": "Fermer les paramètres des trajectoires"
+    },
+    "tracksList": {
+      "tracksChildItem": {
+        "toggleTracksButtonLabel": {
+          "hidden": "Afficher la trajectoire de {{title}}",
+          "shown": "Masquer la trajectoire de {{title}}"
+        }
+      },
+      "tracksItem": {
+        "clearButton": "Effacer",
+        "clearButtonLabel": "Effacer les trajectoires de {{title}}",
+        "expandButtonLabel": {
+          "closed": "Ouvrir les trajectoires de {{title}}",
+          "open": "Fermer les trajectoires de {{title}}"
+        }
+      }
+    },
+    "tracksListButtonLabel": {
+      "closed": "Ouvrir la liste des {{itemsName}}",
+      "open": "Fermer la liste des {{itemsName}}"
     }
   },
   "trackLength": {

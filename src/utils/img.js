@@ -180,6 +180,23 @@ export const calcImgIdFromUrlForMapImages = (src, width = null, height = null) =
   return `${path}-${width ? width : 'x'}-${height ? height : 'x'}`;
 };
 
+// The inverse of calcImgIdFromUrlForMapImages. Only the last two hyphens mark
+// the sizes, so a src with hyphens of its own comes back whole.
+export const parseImgIdForMapImages = (imgId) => {
+  const heightSeparatorIndex = imgId.lastIndexOf('-');
+  const widthSeparatorIndex = imgId.lastIndexOf('-', heightSeparatorIndex - 1);
+
+  if (widthSeparatorIndex < 1) {
+    return null;
+  }
+
+  return {
+    height: Number(imgId.slice(heightSeparatorIndex + 1)) || null,
+    src: imgId.slice(0, widthSeparatorIndex),
+    width: Number(imgId.slice(widthSeparatorIndex + 1, heightSeparatorIndex)) || null,
+  };
+};
+
 export const calcSpriteSvgUrl = (iconId) => `${DAS_HOST}/static/sprite-src/${iconId}.svg`;
 
 const PRIORITY_TO_BACKEND_ICON_COLOR = { 0: 'gray', 100: 'med_green', 200: 'amber', 300: 'red' };

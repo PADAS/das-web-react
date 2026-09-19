@@ -1,4 +1,5 @@
 import axios, { CancelToken, isCancel } from 'axios';
+import omit from 'lodash/omit';
 
 import { API_URL } from '../../constants';
 import { calcPatrolFilterForRequest } from '../../utils/patrol-filter';
@@ -139,9 +140,8 @@ export const fetchPatrolTeamAndTrackingOptions = () => async (dispatch) => {
 
   const options = {
     assets: config?.assets ?? [],
-    // A tenant may configure no roster at all, so an empty list is an answer
-    // and only this says whether one has been given. A rejected config leaves
-    // it unset, so the next consumer asks again instead of reading blanks.
+    // An empty roster is an answer, so only this says whether one was given. A
+    // rejected config leaves it unset, so the next consumer asks again.
     hasFetched: configResult.status === 'fulfilled',
     // The leaders endpoint answers with a fragment of the patrol schema
     // instead of a plain list.
@@ -209,10 +209,12 @@ export const uploadPatrolFile = (patrolId, file) => {
 };
 
 export const togglePatrolTrackState = (id) => (dispatch, getState) => {
-  const { view: { patrolTrackState: { pinned, visible } } } = getState();
+  const { view: { patrolTrackState: { hiddenSubjects, pinned, visible } } } = getState();
 
   if (pinned.includes(id)) {
     return dispatch(updatePatrolTrackState({
+      // A track the user turns off starts over the next time it comes back.
+      hiddenSubjects: omit(hiddenSubjects, id),
       pinned: pinned.filter((item) => item !== id),
       visible: visible.filter((item) => item !== id),
     }));
@@ -226,6 +228,23 @@ export const togglePatrolTrackState = (id) => (dispatch, getState) => {
   }
 
   return dispatch(updatePatrolTrackState({ visible: [...visible, id] }));
+};
+
+// A subject a patrol tracks is drawn unless the user says otherwise, so this
+// keeps the ones they hid rather than the ones they kept.
+export const togglePatrolTrackedSubjectState = (patrolId, subjectId) => (dispatch, getState) => {
+  const { view: { patrolTrackState: { hiddenSubjects } } } = getState();
+
+  const patrolHiddenSubjects = hiddenSubjects[patrolId] ?? [];
+
+  return dispatch(updatePatrolTrackState({
+    hiddenSubjects: {
+      ...hiddenSubjects,
+      [patrolId]: patrolHiddenSubjects.includes(subjectId)
+        ? patrolHiddenSubjects.filter((item) => item !== subjectId)
+        : [...patrolHiddenSubjects, subjectId],
+    },
+  }));
 };
 
 // Reducer
@@ -327,6 +346,7 @@ export const patrolTeamAndTrackingOptionsReducer = globallyResettableReducer((st
 }, INITIAL_PATROL_TEAM_AND_TRACKING_OPTIONS_STATE);
 
 export const INITIAL_PATROL_TRACKS_STATE = {
+  hiddenSubjects: {},
   pinned: [],
   visible: [],
 };

@@ -7,6 +7,12 @@
 
   .schemaFormSummary {
     gap: 1rem;
+
+    .sectionLabel {
+      border-bottom: 1px solid colors.$light-gray-lines;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+    }
   }
 
   .section {
