@@ -1,11 +1,18 @@
 import React, { memo, useMemo } from 'react';
-import { length } from '@turf/turf';
+import { formatDistance, formatDistanceToNow } from 'date-fns';
+import omit from 'lodash/omit';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { displayTitleForPatrol, iconTypeForPatrol, patrolStateAllowsTrackDisplay } from '../utils/patrols';
+import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
+
+import { calcUrlForImage } from '../utils/img';
+import { displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
+import { formatDistanceInKilometers } from '../utils/distance';
+import { getCurrentLocale } from '../utils/datetime';
 import { selectPatrolsWithTracksData } from '../selectors/patrols';
-import { updatePatrolTrackState } from '../ducks/patrols';
+import { selectTrackTimeEnvelope } from '../selectors/tracks';
+import { togglePatrolTrackedSubjectState, updatePatrolTrackState } from '../ducks/patrols';
 
 import SvgIcon from '../SvgIcon';
 import TrackLegend from '../TrackLegend';
@@ -15,53 +22,73 @@ import * as styles from './styles.module.scss';
 const PatrolTrackLegend = () => {
   const dispatch = useDispatch();
   const { t } = useTranslation('tracks', { keyPrefix: 'patrolTrackLegend' });
+  const { t: tUtils } = useTranslation('utils');
 
-  const patrolTrackState = useSelector((state) => state.view.patrolTrackState);
   const patrolsWithTrackData = useSelector(selectPatrolsWithTracksData);
+  const patrolTrackState = useSelector((state) => state.view.patrolTrackState);
+  const trackTimeEnvelope = useSelector(selectTrackTimeEnvelope);
 
-  // Calculate the total tracks length to show a description in the legend like "3km".
+  // The points every drawn patrol track holds, as "3 points over 2 days".
   const description = useMemo(() => {
-    const totalTracksLength = patrolsWithTrackData
-      .filter((patrolData) => !!patrolStateAllowsTrackDisplay(patrolData.patrol))
-      .reduce((accumulator, patrolData) => {
-        const lineLength = patrolData.startStopGeometries?.lines ? length(patrolData.startStopGeometries.lines) : 0;
-        const trackLength = patrolData.trackData?.track ? length(patrolData.trackData.track) : 0;
+    const patrolTracksPointCount = patrolsWithTrackData.reduce(
+      (accumulator, patrolData) => accumulator + (patrolData.trackData?.points.features.length ?? 0),
+      0
+    );
+    const trackTimeEnvelopeFormatted = trackTimeEnvelope.until
+      ? formatDistance(
+        new Date(trackTimeEnvelope.from),
+        new Date(trackTimeEnvelope.until),
+        { locale: getCurrentLocale() }
+      )
+      : formatDistanceToNow(new Date(trackTimeEnvelope.from), { locale: getCurrentLocale() });
 
-        return accumulator + lineLength + trackLength;
-      }, 0);
+    return t('description', { pointCount: patrolTracksPointCount, trackTime: trackTimeEnvelopeFormatted });
+  }, [patrolsWithTrackData, t, trackTimeEnvelope.from, trackTimeEnvelope.until]);
 
-    return `${totalTracksLength ? totalTracksLength.toFixed(2) : 0}km`;
-  }, [patrolsWithTrackData]);
-
-  // Build the items array with the description, icon, id and title of each tracked patrol.
+  // One row per tracked patrol, listing the subjects whose tracks make it up.
+  // Only the subjects carry a distance: summing them tells a reader nothing.
   const items = useMemo(() => patrolsWithTrackData.map((patrolData) => {
-    const iconId = iconTypeForPatrol(patrolData.patrol);
     const patrolTitle = displayTitleForPatrol(patrolData.patrol, patrolData.leader);
 
     return {
-      description: `${patrolData.trackData ? length(patrolData.trackData.track).toFixed(2): 0.00}km`,
+      children: patrolData.subjectsTrackData.map((subjectTrackData) => ({
+        description: subjectTrackData.distance === null
+          ? ''
+          : formatDistanceInKilometers(tUtils, subjectTrackData.distance),
+        icon: !!subjectTrackData.subject.image_url && <SvgIcon
+          className={styles.subjectIcon}
+          imageUrl={calcUrlForImage(subjectTrackData.subject.image_url)}
+          title={t('subjectIcon', { subject: subjectTrackData.subject.name })}
+          type="subjects"
+        />,
+        id: subjectTrackData.subject.id,
+        isHidden: subjectTrackData.isHidden,
+        title: subjectTrackData.subject.name,
+      })),
       icon: <SvgIcon
         className={styles.itemIcon}
-        iconId={iconId}
+        iconId={iconTypeForPatrol(patrolData.patrol)}
         title={t('icon', { patrolTitle })}
         type="patrols"
       />,
       id: patrolData.patrol.id,
       title: t('itemTitle', { patrolTitle }),
     };
-  }), [patrolsWithTrackData, t]);
+  }), [patrolsWithTrackData, t, tUtils]);
 
   return <TrackLegend
     description={description}
     items={items}
+    itemsIcon={<PatrolIcon className={styles.itemsIcon} />}
     itemsName={t('trackLegendItemsName')}
-    onClickClearTracks={() => dispatch(updatePatrolTrackState({ visible: [], pinned: [] }))}
-    onRemoveItemTracks={(patrolId) => dispatch(updatePatrolTrackState({
+    onClearItemTracks={(patrolId) => dispatch(updatePatrolTrackState({
+      // A track the user turns off starts over the next time it comes back.
+      hiddenSubjects: omit(patrolTrackState.hiddenSubjects, patrolId),
       pinned: patrolTrackState.pinned.filter((pinnedPatrolTracksId) => pinnedPatrolTracksId !== patrolId),
       visible: patrolTrackState.visible.filter((visiblePatrolTracksId) => visiblePatrolTracksId !== patrolId),
     }))}
-    showTimeOfDaySettings={false}
-    showTrackSettings={false}
+    onClickClearTracks={() => dispatch(updatePatrolTrackState({ hiddenSubjects: {}, pinned: [], visible: [] }))}
+    onToggleItemChildTracks={(patrolId, subjectId) => dispatch(togglePatrolTrackedSubjectState(patrolId, subjectId))}
   />;
 };
 

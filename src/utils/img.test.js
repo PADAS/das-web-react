@@ -1,9 +1,19 @@
-import { imgElFromSrc, calcImgIdFromUrlForMapImages, calcUrlForImage, ImageCache } from './img';
+import { imgElFromSrc, calcImgIdFromUrlForMapImages, calcUrlForImage, ImageCache, parseImgIdForMapImages } from './img';
+
+const { createObjectURL, revokeObjectURL } = URL;
+
+afterAll(() => {
+  Object.assign(URL, { createObjectURL, revokeObjectURL });
+});
 
 global.URL.createObjectURL = jest.fn();
 global.URL.revokeObjectURL = jest.fn();
 
 describe('img utility functions', () => {
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
+
   describe('calcUrlForImage', () => {
     beforeEach(() => {
       jest.resetAllMocks();
@@ -20,6 +30,16 @@ describe('img utility functions', () => {
 
     it('returns the original URL if it is a data URL', () => {
       const url = 'data:image/png;base64,abc123';
+      expect(calcUrlForImage(url)).toBe(url);
+    });
+
+    it('returns the original URL if it is protocol relative', () => {
+      const url = '//cdn.example.com/image.jpg';
+      expect(calcUrlForImage(url)).toBe(url);
+    });
+
+    it('returns the original URL if it is an object URL', () => {
+      const url = 'blob:https://localhost/9a4f0e2c-1b3d-4c5e-8f7a-6b2d0e1c3a5f';
       expect(calcUrlForImage(url)).toBe(url);
     });
 
@@ -43,7 +63,7 @@ describe('img utility functions', () => {
       try {
         const url = '/src/common/images/icons/photo.png';
         const cleaned = calcUrlForImage(url);
-        expect(cleaned).toBe(`https://localhost/${url}`);
+        expect(cleaned).toBe('https://localhost/src/common/images/icons/photo.png');
       } finally {
         process.env.DEV = prevDev;
       }
@@ -53,6 +73,27 @@ describe('img utility functions', () => {
       const url = 'images/test.jpg';
       const cleaned = calcUrlForImage(url);
       expect(cleaned).toBe(`https://localhost/${url}`);
+    });
+
+    it('appends host to an absolute path without doubling the slash', () => {
+      expect(calcUrlForImage('/api/v1.0/activity/event/1234/file/5678/icon/image.png'))
+        .toBe('https://localhost/api/v1.0/activity/event/1234/file/5678/icon/image.png');
+    });
+
+    it('appends host to a path whose filename contains a scheme-like word', () => {
+      expect(calcUrlForImage('/api/v1.0/activity/event/1234/file/5678/icon/http.png'))
+        .toBe('https://localhost/api/v1.0/activity/event/1234/file/5678/icon/http.png');
+    });
+
+    it('appends a host configured with a trailing slash without doubling the slash', () => {
+      jest.isolateModules(() => {
+        jest.doMock('../constants', () => ({ DAS_HOST: 'https://site.pamdas.org/' }));
+
+        const { calcUrlForImage: calcUrlForImageWithTrailingSlashHost } = require('./img');
+
+        expect(calcUrlForImageWithTrailingSlashHost('/static/photo.png'))
+          .toBe('https://site.pamdas.org/static/photo.png');
+      });
     });
   });
 
@@ -76,6 +117,43 @@ describe('img utility functions', () => {
       const height = 200;
       const expectedUrl = calcUrlForImage(src);
       expect(calcImgIdFromUrlForMapImages(src, width, height)).toBe(`${expectedUrl}-${width}-${height}`);
+    });
+  });
+
+  describe('parseImgIdForMapImages', () => {
+    it('reads back the src, width and height an id was built from', () => {
+      expect(parseImgIdForMapImages(calcImgIdFromUrlForMapImages('images/test.jpg', 100, 200))).toEqual({
+        height: 200,
+        src: calcUrlForImage('images/test.jpg'),
+        width: 100,
+      });
+    });
+
+    it('reads an unsized id back as having neither width nor height', () => {
+      expect(parseImgIdForMapImages(calcImgIdFromUrlForMapImages('images/test.jpg'))).toEqual({
+        height: null,
+        src: calcUrlForImage('images/test.jpg'),
+        width: null,
+      });
+    });
+
+    it('keeps the hyphens a src carries of its own', () => {
+      expect(parseImgIdForMapImages(calcImgIdFromUrlForMapImages('/static/pin-black.svg')).src)
+        .toBe(calcUrlForImage('/static/pin-black.svg'));
+    });
+
+    it('keeps a data URI whole, hyphens, slashes and all', () => {
+      const dataUri = `data:image/svg+xml;charset=utf-8,${encodeURIComponent('<svg><path d="M1-2 3-4"/></svg>')}`;
+
+      expect(parseImgIdForMapImages(calcImgIdFromUrlForMapImages(dataUri, 27, 37))).toEqual({
+        height: 37,
+        src: dataUri,
+        width: 27,
+      });
+    });
+
+    it('reads nothing out of an id that carries no sizes', () => {
+      expect(parseImgIdForMapImages('track_arrow')).toBeNull();
     });
   });
 
@@ -218,11 +296,7 @@ describe('img utility functions', () => {
 
         mockImage.onerror(new Error('test error'));
 
-        try {
-          await loadPromise;
-        } catch (e) {
-
-        }
+        await expect(loadPromise).rejects.toBeDefined();
 
         expect(mapDeleteSpy).toHaveBeenCalled();
 

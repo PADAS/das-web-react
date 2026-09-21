@@ -8,32 +8,36 @@
     "timeLabel": "Time"
   },
   "addAttachmentButton": "Attachment",
+  "addAttachmentButtonLabel": "Add an attachment",
   "addReportButtonLabel": "Create Event",
   "addReportButtonTitle": "Event",
   "addNoteButton": "Note",
+  "addNoteButtonLabel": "Add a note",
   "attachmentControls": {
     "addNoteTitle": "Add Note",
     "addAttachmentTitle": "Add Attachment"
   },
   "attachmentListItem": {
-    "collapseClosedButtonLabel": "Expand",
-    "collapseClosedButtonTitle": "Collapsed",
-    "collapseOpenButtonLabel": "Collapse",
-    "collapseOpenButtonTitle": "Expanded",
     "audioPreviewAlt": "{{fileName}} audio preview",
+    "collapseClosedButtonLabel": "Expand {{fileName}}",
+    "collapseOpenButtonLabel": "Collapse {{fileName}}",
+    "deleteButtonTooltip": "Delete {{fileName}}",
+    "downloadButtonTooltip": "Download {{fileName}}",
+    "fullViewButtonTooltip": "Show {{fileName}} in full screen",
     "imagePreviewAlt": "{{fileName}} preview",
-    "videoPreviewAlt": "{{fileName}} video preview",
     "mediaLoadErrorMessage": "Unable to load this file.",
-    "downloadButtonTooltip": "Download",
-    "deleteButtonTooltip": "Delete",
-    "fullViewButtonTooltip": "Full View"
+    "videoPreviewAlt": "{{fileName}} video preview"
   },
   "containedReportListItem": {
-    "collapseClosedButtonLabel": "Expand",
-    "collapseClosedButtonTitle": "Collapsed",
-    "collapseOpenButtonLabel": "Collapse",
-    "collapseOpenButtonTitle": "Expanded",
-    "goToReportButtonTooltip": "Go to event"
+    "activeStateLabel": "Active",
+    "collapseClosedButtonLabel": "Expand {{title}}",
+    "collapseOpenButtonLabel": "Collapse {{title}}",
+    "loadingLabel": "Loading {{title}}",
+    "resolvedStateLabel": "Resolved",
+    "reviewStateLabel": "Review",
+    "serialNumberLabel": "Event number",
+    "stateLabel": "State",
+    "viewReportButtonLabel": "View event {{title}}"
   },
   "footer": {
     "cancelButton": "Cancel",
@@ -67,22 +71,16 @@
   },
   "noteListItem": {
     "cancelEditingNoteButton": "Cancel",
-    "collapseClosedButtonLabel": "Expand",
-    "collapseClosedButtonTitle": "Collapsed",
-    "collapseOpenButtonLabel": "Collapse",
-    "collapseOpenButtonTitle": "Expanded",
-    "deleteNoteButtonTooltip": "Delete",
+    "collapseClosedButtonLabel": "Expand note",
+    "collapseOpenButtonLabel": "Collapse note",
+    "deleteNoteButtonTooltip": "Delete note",
     "doneEditingNoteButton": "Done",
-    "editNoteButtonTooltip": "Edit",
+    "editNoteButtonTooltip": "Edit note",
+    "noteTextAreaLabel": "Note text",
     "noteTitle": "New note: {{noteText}}"
   },
   "reportFormSummary": {
     "reportTypeLabel": "Event Type",
-    "reportedByLabel": "Reported By",
-    "v2SchemaFormSummary": {
-      "attachmentHumanizedValue_one": "1 file",
-      "attachmentHumanizedValue_other": "{{count}} files",
-      "collectionHumanizedValue": "{{collectionLength}} items"
-    }
+    "reportedByLabel": "Reported By"
   }
 }

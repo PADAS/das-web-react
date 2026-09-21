@@ -82,7 +82,7 @@
       padding: 0 0.5rem;
       transition: background-color 150ms ease;
 
-      &:hover:not(:disabled) {
+      &:hover:not(:disabled):not(:focus-visible) {
         background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
       }
 
@@ -90,10 +90,42 @@
         background-color: white;
         border: 2px solid colors.$bright-blue;
         color: colors.$bright-blue;
+
+        /* Forced colors override the inversion, leaving no focus cue. */
+        @media (forced-colors: active) {
+          outline: 2px solid;
+          outline-offset: 2px;
+        }
       }
 
       &:disabled {
         opacity: 0.75;
+      }
+
+      &:has(+ .secondaryButton) {
+        margin-bottom: 0.75rem;
+      }
+
+      /* Compounded, not a sibling rule: a sibling would lose to the primary's own
+         states on specificity. */
+      &.secondaryButton {
+        background-color: white;
+        border: 1px solid colors.$bright-blue;
+        color: colors.$bright-blue;
+
+        /* Inverts the other way from the primary, whose focus state is this
+           button's resting look. */
+        &:focus-visible {
+          background-color: colors.$bright-blue;
+          color: white;
+        }
+
+        &:hover:not(:disabled):not(:focus-visible) {
+          background-color: color.adjust(colors.$bright-blue, $lightness: 52%);
+
+          /* The resting blue reads 4.41:1 on this tint, under the 4.5:1 AA floor. */
+          color: color.adjust(colors.$bright-blue, $lightness: -5%);
+        }
       }
     }
   }

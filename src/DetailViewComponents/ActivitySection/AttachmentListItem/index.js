@@ -1,9 +1,7 @@
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useContext, useEffect, useState } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-
-import { TrackerContext } from '../../../utils/analytics';
 
 import { ReactComponent as ArrowDownSimpleIcon } from '../../../common/images/icons/arrow-down-simple.svg';
 import { ReactComponent as ArrowUpSimpleIcon } from '../../../common/images/icons/arrow-up-simple.svg';
@@ -15,282 +13,282 @@ import { ReactComponent as TrashCanIcon } from '../../../common/images/icons/tra
 import { ReactComponent as VideoIcon } from '../../../common/images/icons/video.svg';
 import { ReactComponent as VolumeIcon } from '../../../common/images/icons/volume.svg';
 
-import { addModal, removeModal, updateModal } from '../../../ducks/modals';
+import { addModal } from '../../../ducks/modals';
 import { downloadFileFromUrl } from '../../../utils/download';
-import { fetchFileAsObjectUrlFromUrl, fetchImageAsBase64FromUrl } from '../../../utils/file';
+import { fetchImageAsBase64FromUrl } from '../../../utils/file';
+import { format, STANDARD_DATE_FORMAT } from '../../../utils/datetime';
+import { TrackerContext } from '../../../utils/analytics';
+import useMediaObjectUrl from '../../../hooks/useMediaObjectUrl';
 
-import DateTime from '../../../DateTime';
-import MediaModal from '../../../MediaModal';
-import ItemActionButton from '../ItemActionButton';
 import LoadingOverlay from '../../../LoadingOverlay';
+import MediaModal from '../../../MediaModal';
 
-import * as styles from '../styles.module.scss';
+import * as activitySectionStyles from '../styles.module.scss';
+import * as styles from './styles.module.scss';
+
+const ATTACHMENT_ANALYTICS_LABEL = 'attachment';
+
+const useBase64ImageSource = (url) => {
+  const [downloadedImage, setDownloadedImage] = useState(null);
+
+  useEffect(() => {
+    if (!url) {
+      return undefined;
+    }
+
+    let isCancelled = false;
+
+    const downloadSource = async () => {
+      try {
+        const source = await fetchImageAsBase64FromUrl(url);
+        if (!isCancelled) {
+          setDownloadedImage({ source, url });
+        }
+      } catch (error) {
+        // Attachment urls are signed and expire, so a rejection is expected.
+        console.warn('Error downloading the attachment image: ', error);
+      }
+    };
+
+    downloadSource();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [url]);
+
+  return downloadedImage?.url === url ? downloadedImage.source : null;
+};
+
+const MediaAttachmentPreview = ({ attachment, error, fileName, objectUrl, t }) => {
+  if (error) {
+    return <p
+      className={activitySectionStyles.mediaLoadError}
+      data-testid={`activitySection-mediaError-${attachment.id}`}
+      >
+      {t('mediaLoadErrorMessage')}
+    </p>;
+  }
+
+  if (!objectUrl) {
+    return <div className={activitySectionStyles.mediaLoadingContainer}>
+      <LoadingOverlay data-testid={`activitySection-mediaLoading-${attachment.id}`} />
+    </div>;
+  }
+
+  if (attachment.file_type === 'audio') {
+    return <audio
+      aria-label={t('audioPreviewAlt', { fileName })}
+      className={activitySectionStyles.attachmentAudioPreview}
+      controls
+      data-testid={`activitySection-audio-${attachment.id}`}
+      src={objectUrl}
+    />;
+  }
+
+  return <video
+    aria-label={t('videoPreviewAlt', { fileName })}
+    className={activitySectionStyles.attachmentVideoPreview}
+    controls
+    data-testid={`activitySection-video-${attachment.id}`}
+    src={objectUrl}
+  />;
+};
 
 const AttachmentListItem = ({
   attachment,
-  cardsExpanded = [],
+  isOpen = false,
   onCollapse = null,
   onDelete = null,
   onExpand = null,
   ref,
 }) => {
   const dispatch = useDispatch();
+  const { t } = useTranslation('details-view', { keyPrefix: 'attachmentListItem' });
 
   const tracker = useContext(TrackerContext);
-  const { t } = useTranslation('details-view', { keyPrefix: 'attachmentListItem' });
-  const isNew = useMemo(() => !attachment.id, [attachment.id]);
-  const isOpen = useMemo(() => cardsExpanded?.includes(attachment), [attachment, cardsExpanded]);
-  const isImage = attachment.file_type === 'image';
-  const isVideo = attachment.file_type === 'video';
-  const isAudio = attachment.file_type === 'audio';
 
-  const [imageThumbnailSource, setImageThumbnailSource] = useState(null);
-  const [imageIconSource, setImageIconSource] = useState(null);
-  const [imageOriginalSource, setImageOriginalSource] = useState(null);
-  const [mediaObjectUrl, setMediaObjectUrl] = useState(null);
-  const [mediaError, setMediaError] = useState(false);
+  const isImageAttachment = attachment.file_type === 'image';
+  const isVideoAttachment = attachment.file_type === 'video';
+  const isAudioAttachment = attachment.file_type === 'audio';
+  const isPlayableAttachment = isVideoAttachment || isAudioAttachment;
 
-  const currentImageSource = useMemo(() => imageOriginalSource || imageThumbnailSource, [imageOriginalSource, imageThumbnailSource]);
+  const imageIconSource = useBase64ImageSource(isImageAttachment ? attachment.images?.icon : null);
+  const imageOriginalSource = useBase64ImageSource(isImageAttachment ? attachment.images?.original : null);
+  const imageThumbnailSource = useBase64ImageSource(isImageAttachment ? attachment.images?.thumbnail : null);
 
-  const mediaFetchPromiseRef = useRef(null);
-  const openVideoModalIdsRef = useRef(new Set());
-  const pendingModalIdsRef = useRef(new Set());
+  const {
+    error: mediaError,
+    objectUrl: mediaObjectUrl,
+  } = useMediaObjectUrl(isPlayableAttachment && isOpen ? attachment.url : null);
 
-  const ensureMediaObjectUrl = useCallback(() => {
-    if (mediaFetchPromiseRef.current) {
-      return;
-    }
+  const isNew = !attachment.id;
+  const fileName = attachment.filename || attachment.name;
+  const updateDate = attachment.updates?.[0]?.time ? new Date(attachment.updates[0].time) : null;
 
-    setMediaError(false);
-    mediaFetchPromiseRef.current = fetchFileAsObjectUrlFromUrl(attachment.url)
-      .then((objectUrl) => {
-        setMediaObjectUrl(objectUrl);
-      })
-      .catch(() => {
-        mediaFetchPromiseRef.current = null;
-        setMediaError(true);
-      });
-  }, [attachment.url]);
+  const defaultImageSource = imageOriginalSource || imageThumbnailSource;
 
-  const onShowFullScreen = useCallback((event) => {
+  // Videos get no `src`: MediaModal fetches its own object url so playback does not break when
+  // this row collapses and revokes the one behind the inline player.
+  const onShowFullScreen = (event) => {
     event.stopPropagation();
 
-    tracker.track(`View fullscreen ${attachment.file_type} from activity section`);
-
-    const modal = dispatch(addModal({
+    dispatch(addModal({
       content: MediaModal,
-      mediaType: isVideo ? 'video' : 'image',
-      src: isVideo ? mediaObjectUrl : currentImageSource,
-      title: attachment.filename,
+      mediaType: isVideoAttachment ? 'video' : 'image',
+      src: isVideoAttachment ? null : defaultImageSource,
+      title: fileName,
       tracker,
       url: attachment.url,
     }));
 
-    if (isVideo) {
-      openVideoModalIdsRef.current.add(modal.id);
+    tracker.track(`View fullscreen ${attachment.file_type} from activity section`);
+  };
 
-      if (!mediaObjectUrl) {
-        pendingModalIdsRef.current.add(modal.id);
-
-        ensureMediaObjectUrl();
-      }
-    }
-  }, [attachment.file_type, attachment.filename, attachment.url, currentImageSource, dispatch, ensureMediaObjectUrl, isVideo, mediaObjectUrl, tracker]);
-
-  const onClickDownloadIcon = useCallback(() => {
-    downloadFileFromUrl(attachment.url, { filename: attachment.filename });
+  const onClickDownloadIcon = () => {
+    downloadFileFromUrl(attachment.url, { filename: fileName });
 
     tracker.track('Download attachment');
-  }, [attachment.filename, attachment.url, tracker]);
+  };
 
-  useEffect(() => {
-    if (isImage) {
-      const downloadAndSetThumbnail = async () => {
-        const source = await fetchImageAsBase64FromUrl(attachment.images.thumbnail);
-        setImageThumbnailSource(source);
-      };
+  const onClickDeleteIcon = () => onDelete(attachment);
 
-      downloadAndSetThumbnail();
-    }
-  }, [isImage, attachment.images?.thumbnail]);
+  const onToggleCollapseRow = () => (isOpen ? onCollapse : onExpand)(attachment, ATTACHMENT_ANALYTICS_LABEL);
 
-  useEffect(() => {
-    if (isImage) {
-      const downloadAndSetIcon = async () => {
-        const source = await fetchImageAsBase64FromUrl(attachment.images.icon);
-        setImageIconSource(source);
-      };
+  const onClickCollapseToggleButton = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
 
-      downloadAndSetIcon();
-    }
-  }, [isImage, attachment.images?.icon]);
+    onToggleCollapseRow();
+  };
 
-  useEffect(() => {
-    if (isImage) {
-      const downloadAndSetOriginal = async () => {
-        const source = await fetchImageAsBase64FromUrl(attachment.images.original);
-        setImageOriginalSource(source);
-      };
-
-      downloadAndSetOriginal();
-    }
-  }, [isImage, attachment.images?.original]);
-
-  useEffect(() => {
-    if (isOpen && (isVideo || isAudio)) {
-      ensureMediaObjectUrl();
-    }
-  }, [isOpen, isVideo, isAudio, ensureMediaObjectUrl]);
-
-  useEffect(() => {
-    if (mediaObjectUrl && pendingModalIdsRef.current.size > 0) {
-      pendingModalIdsRef.current.forEach((modalId) => dispatch(updateModal({ id: modalId, src: mediaObjectUrl })));
-      pendingModalIdsRef.current.clear();
-    }
-  }, [dispatch, mediaObjectUrl]);
-
-  useEffect(() => {
-    if (mediaError && pendingModalIdsRef.current.size > 0) {
-      pendingModalIdsRef.current.forEach((modalId) => dispatch(updateModal({ id: modalId, fetchError: true })));
-      pendingModalIdsRef.current.clear();
-    }
-  }, [dispatch, mediaError]);
-
-  useEffect(() => () => {
-    if (mediaObjectUrl) {
-      openVideoModalIdsRef.current.forEach((modalId) => dispatch(removeModal(modalId)));
-      URL.revokeObjectURL(mediaObjectUrl);
-    }
-  }, [dispatch, mediaObjectUrl]);
-
-  if (isImage || isVideo || isAudio) {
-    return <li className={isOpen ? styles.openItem : ''} ref={ref}>
-      <div className={`${styles.itemRow} ${styles.collapseRow}`} onClick={isOpen ? onCollapse : onExpand}>
-        {isImage && (imageIconSource
+  if (isImageAttachment || isPlayableAttachment) {
+    return <li className={activitySectionStyles.listItem} ref={ref}>
+      <div
+        className={`${activitySectionStyles.itemRow} ${activitySectionStyles.collapseRow}`}
+        onClick={onToggleCollapseRow}
+      >
+        {isImageAttachment && imageIconSource
           ? <img
-            alt={`${attachment.filename} thumbnail`}
-            className={styles.attachmentThumbnail}
+            alt=""
+            className={activitySectionStyles.attachmentThumbnail}
             src={imageIconSource}
           />
-          : <div className={styles.itemIcon}>
-            <ImageIcon />
-          </div>)}
+          : <div className={activitySectionStyles.itemIcon}>
+            {isVideoAttachment && <VideoIcon aria-hidden="true" />}
+            {isAudioAttachment && <VolumeIcon aria-hidden="true" />}
+            {isImageAttachment && <ImageIcon aria-hidden="true" />}
+          </div>}
 
-        {isVideo && <div className={styles.itemIcon}>
-          <VideoIcon />
-        </div>}
+        <div className={activitySectionStyles.itemDetails}>
+          <p className={activitySectionStyles.itemTitle}>{fileName}</p>
 
-        {isAudio && <div className={styles.itemIcon}>
-          <VolumeIcon />
-        </div>}
-
-        <div className={styles.itemDetails}>
-          <p className={styles.itemTitle}>{attachment.filename}</p>
-
-          <DateTime
-            className={styles.itemDate}
+          {updateDate && <time
+            className={activitySectionStyles.itemDate}
             data-testid={`activitySection-dateTime-${attachment.id}`}
-            date={attachment.updates[0].time}
-            showElapsed={false}
-          />
+            dateTime={updateDate.toISOString()}
+          >
+            {format(updateDate, STANDARD_DATE_FORMAT)}
+          </time>}
         </div>
 
-        <div className={styles.itemActionButtonContainer}>
-          {!isAudio && <ItemActionButton onClick={onShowFullScreen} tooltip={t('fullViewButtonTooltip')}>
-            <ExpandArrowIcon data-testid="expand-arrow-icon" />
-          </ItemActionButton>}
+        <div className={activitySectionStyles.itemActionButtonContainer}>
+          {!isAudioAttachment && <button
+            aria-label={t('fullViewButtonTooltip', { fileName })}
+            className={`${activitySectionStyles.actionButton} ${styles.largeActionIcon}`}
+            onClick={onShowFullScreen}
+            title={t('fullViewButtonTooltip', { fileName })}
+            type="button"
+          >
+            <ExpandArrowIcon aria-hidden="true" data-testid="expand-arrow-icon" />
+          </button>}
         </div>
 
-        <div className={styles.itemActionButtonContainer}>
-          <ItemActionButton
-            aria-label={t(isOpen ? 'collapseOpenButtonLabel' : 'collapseClosedButtonLabel')}
-            title={t(isOpen ? 'collapseOpenButtonTitle' : 'collapseClosedButtonTitle')}
+        <div className={activitySectionStyles.itemActionButtonContainer}>
+          <button
+            aria-expanded={isOpen}
+            aria-label={t(
+              isOpen ? 'collapseOpenButtonLabel' : 'collapseClosedButtonLabel',
+              { fileName }
+            )}
+            className={`${activitySectionStyles.actionButton} ${activitySectionStyles.collapseToggleButton}`}
+            onClick={onClickCollapseToggleButton}
+            title={t(
+              isOpen ? 'collapseOpenButtonLabel' : 'collapseClosedButtonLabel',
+              { fileName }
+            )}
+            type="button"
           >
             {isOpen
-              ? <ArrowUpSimpleIcon data-testid={`activitySection-arrowUp-${attachment.id}`} />
-              : <ArrowDownSimpleIcon data-testid={`activitySection-arrowDown-${attachment.id}`} />}
-          </ItemActionButton>
+              ? <ArrowUpSimpleIcon aria-hidden="true" data-testid={`activitySection-arrowUp-${attachment.id}`} />
+              : <ArrowDownSimpleIcon aria-hidden="true" data-testid={`activitySection-arrowDown-${attachment.id}`} />}
+          </button>
         </div>
       </div>
 
       <Collapse
-        className={styles.collapse}
+        className={activitySectionStyles.collapse}
         data-testid={`activitySection-collapse-${attachment.id}`}
         in={isOpen}
       >
         <div>
-          {isImage && <img
-            alt={t('imagePreviewAlt', {
-              fileName: attachment.filename
-            })}
-            className={styles.attachmentImagePreview}
-            onClick={onShowFullScreen}
-            src={currentImageSource}
-          />}
+          <div>
+            {isImageAttachment && <img
+              alt={t('imagePreviewAlt', { fileName })}
+              className={activitySectionStyles.attachmentImagePreview}
+              onClick={onShowFullScreen}
+              src={defaultImageSource}
+            />}
 
-          {(isVideo || isAudio) && mediaError && <p
-            className={styles.mediaLoadError}
-            data-testid={`activitySection-mediaError-${attachment.id}`}
-          >
-            {t('mediaLoadErrorMessage')}
-          </p>}
-
-          {isVideo && !mediaError && (mediaObjectUrl
-            ? <video
-              aria-label={t('videoPreviewAlt', { fileName: attachment.filename })}
-              className={styles.attachmentVideoPreview}
-              controls
-              data-testid={`activitySection-video-${attachment.id}`}
-              src={mediaObjectUrl}
-            />
-            : <div className={styles.mediaLoadingContainer}>
-              <LoadingOverlay data-testid={`activitySection-mediaLoading-${attachment.id}`} />
-            </div>)}
-
-          {isAudio && !mediaError && (mediaObjectUrl
-            ? <audio
-              aria-label={t('audioPreviewAlt', { fileName: attachment.filename })}
-              className={styles.attachmentAudioPreview}
-              controls
-              data-testid={`activitySection-audio-${attachment.id}`}
-              src={mediaObjectUrl}
-            />
-            : <div className={styles.mediaLoadingContainer}>
-              <LoadingOverlay data-testid={`activitySection-mediaLoading-${attachment.id}`} />
-            </div>)}
+            {isPlayableAttachment && <MediaAttachmentPreview
+              attachment={attachment}
+              error={mediaError}
+              fileName={fileName}
+              objectUrl={mediaObjectUrl}
+              t={t}
+            />}
+          </div>
         </div>
       </Collapse>
     </li>;
   }
 
-  return <li className={`${styles.itemRow} ${styles.nonImageAttachment}`} ref={ref}>
-    <div className={styles.itemIcon}>
-      <AttachmentIcon data-testid="attachment-icon" />
+  return <li
+      className={`${activitySectionStyles.listItem} ${activitySectionStyles.itemRow} ${activitySectionStyles.nonImageAttachment}`}
+      ref={ref}
+    >
+    <div className={activitySectionStyles.itemIcon}>
+      <AttachmentIcon aria-hidden="true" data-testid="attachment-icon" />
     </div>
 
-    <div className={styles.itemDetails}>
-      <p className={styles.itemTitle}>{attachment.filename || attachment.name}</p>
+    <div className={activitySectionStyles.itemDetails}>
+      <p className={`${activitySectionStyles.itemTitle} ${isNew ? activitySectionStyles.unsaved : ''}`}>{fileName}</p>
 
-      {!!attachment.updates && <DateTime
-        className={styles.itemDate}
+      {updateDate && <time
+        className={activitySectionStyles.itemDate}
         data-testid={`activitySection-dateTime-${attachment.id}`}
-        date={attachment.updates[0].time}
-        showElapsed={false}
-      />}
+        dateTime={updateDate.toISOString()}
+      >
+        {format(updateDate, STANDARD_DATE_FORMAT)}
+      </time>}
     </div>
 
-    <div className={styles.itemActionButtonContainer}>
-      <ItemActionButton onClick={!isNew ? onClickDownloadIcon : onDelete} tooltip={t(!isNew ? 'downloadButtonTooltip' : 'deleteButtonTooltip')}>
-        {!isNew
-          ? <DownloadArrowIcon data-testid={`activitySection-downloadArrow-${attachment.id}`} />
-          : <TrashCanIcon
-            data-testid={`activitySection-trashCan-${attachment.filename || attachment.name}`}
-          />}
-      </ItemActionButton>
+    <div className={activitySectionStyles.itemActionButtonContainer}>
+      <button
+        aria-label={t(isNew ? 'deleteButtonTooltip' : 'downloadButtonTooltip', { fileName })}
+        className={`${activitySectionStyles.actionButton} ${styles.largeActionIcon}`}
+        onClick={isNew ? onClickDeleteIcon : onClickDownloadIcon}
+        title={t(isNew ? 'deleteButtonTooltip' : 'downloadButtonTooltip', { fileName })}
+        type="button"
+      >
+        {isNew
+          ? <TrashCanIcon aria-hidden="true" data-testid={`activitySection-trashCan-${fileName}`} />
+          : <DownloadArrowIcon aria-hidden="true" data-testid={`activitySection-downloadArrow-${attachment.id}`} />}
+      </button>
     </div>
 
-    <div className={styles.itemActionButtonContainer} />
+    <div className={activitySectionStyles.itemActionButtonContainer} />
   </li>;
 };
 
-export default AttachmentListItem;
+export default memo(AttachmentListItem);

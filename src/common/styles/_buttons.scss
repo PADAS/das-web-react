@@ -170,31 +170,205 @@ $square-button-border-radius: .25rem;
   }
 }
 
-@mixin footerActionButton {
+@mixin inlineIconButton {
   align-items: center;
-  background-color: lighten($light-gray-background, 3.5%);
+  background: none;
   border: none;
   border-radius: 0.1875rem;
   color: $secondary-medium-gray;
-  margin-right: 0.5rem;
-  font-size: 0.7rem;
-  font-weight: bold;
-  height: 2.5rem;
-  min-width: 2.5rem;
+  display: inline-flex;
+  height: 1.5rem;
+  justify-content: center;
+  padding: 0;
+  width: 1.5rem;
 
   svg {
     height: 1rem;
-
-    @media (min-width: $md-layout-width-min) {
-      margin-right: 0.375rem;
-    }
+    width: 1rem;
   }
 
-  label {
+  &:hover:not(:disabled) {
+    background-color: $light-gray-background;
+  }
+
+  &:focus-visible:not(:disabled) {
+    color: $bright-blue;
+    outline: 2px solid $bright-blue;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+}
+
+@mixin baseButton {
+  align-items: center;
+  background-color: $light-gray-background;
+  border: none;
+  border-radius: 0.25rem;
+  color: $off-black;
+  display: flex;
+  font-size: 0.875rem;
+  font-weight: 700;
+  gap: 0.375rem;
+  height: 2.25rem;
+  padding: 0 0.5rem;
+
+  svg {
+    flex-shrink: 0;
+    height: 1rem;
+    width: 1rem;
+  }
+
+  span {
     display: none;
 
     @media (min-width: $md-layout-width-min) {
       display: unset;
+    }
+  }
+
+  &:hover {
+    background-color: darken($light-gray-background, 5%);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $bright-blue;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+
+    &:hover {
+      background-color: $light-gray-background;
+    }
+  }
+}
+
+
+@mixin iconButton {
+  align-items: center;
+  background: none;
+  border: none;
+  border-radius: 0.25rem;
+  color: $secondary-medium-gray;
+  display: flex;
+  height: 2.25rem;
+  justify-content: center;
+  outline: none;
+  padding: 0;
+  text-decoration: none;
+  width: 2.25rem;
+
+  svg {
+    height: 1.25rem;
+    width: 1.25rem;
+  }
+
+  &:focus-visible {
+    color: $bright-blue;
+    outline: 2px solid $bright-blue;
+  }
+
+  &:hover:not(:disabled) {
+    background: $light-gray-background;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+}
+
+@mixin chipIconButton {
+  align-items: center;
+  background-color: $light-gray-background;
+  border: 1px solid $light-gray-background;
+  border-radius: 0.25rem;
+  color: $secondary-medium-gray;
+  display: flex;
+  height: 2.25rem;
+  justify-content: center;
+  padding: 0;
+  width: 2.25rem;
+
+  svg {
+    height: 1.25rem;
+    width: 1.25rem;
+  }
+
+  &:hover {
+    background-color: darken($light-gray-background, 5%);
+    border-color: darken($light-gray-background, 5%);
+  }
+
+  &:focus-visible {
+    border-color: $bright-blue;
+    outline: 1px solid $bright-blue;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+
+    &:hover {
+      background-color: $light-gray-background;
+      border-color: $light-gray-background;
+    }
+  }
+}
+
+@mixin chipIconButtonActiveState {
+  &.active {
+    background-color: $bright-blue;
+    border-color: $bright-blue;
+    color: white;
+
+    &:hover {
+      background-color: darken($bright-blue, 5%);
+      border-color: darken($bright-blue, 5%);
+    }
+
+    &:focus-visible {
+      background-color: white;
+      border-color: $bright-blue;
+      color: $bright-blue;
+      outline: 1px solid $bright-blue;
+    }
+  }
+}
+
+@mixin chipTextButton {
+  align-items: center;
+  background-color: $light-gray-background;
+  border: 1px solid $light-gray-background;
+  border-radius: 0.25rem;
+  color: $secondary-medium-gray;
+  display: flex;
+  font-size: 0.875rem;
+  font-weight: 700;
+  height: 2.25rem;
+  padding: 0 0.75rem;
+
+  &:hover {
+    background-color: darken($light-gray-background, 5%);
+    border-color: darken($light-gray-background, 5%);
+  }
+
+  &:focus-visible {
+    border-color: $bright-blue;
+    outline: 1px solid $bright-blue;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+
+    &:hover {
+      background-color: $light-gray-background;
+      border-color: $light-gray-background;
     }
   }
 }

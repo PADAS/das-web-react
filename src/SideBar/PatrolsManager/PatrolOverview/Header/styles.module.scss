@@ -1,0 +1,17 @@
+@use '../../_shared' as shared;
+
+.mobileOnlyOption {
+  @include shared.header-mobile-only-option;
+}
+
+.desktopActions {
+  @include shared.header-desktop-actions;
+}
+
+.titleBarMain {
+  @include shared.header-title-bar-main;
+}
+
+.pills {
+  @include shared.header-pills;
+}

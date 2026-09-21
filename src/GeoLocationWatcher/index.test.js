@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Provider } from 'react-redux';
+import { toast } from 'react-toastify';
 
 import { mockStore } from '../__test-helpers/MockStore';
 import { render, waitFor } from '../test-utils';
@@ -18,10 +19,14 @@ const mockUserLocation = {
 
 
 describe('The GeoLocationWatcher', () => {
-  let store;
+  let permissionStatus, reduxStore, store;
 
   beforeEach(() => {
-    store = mockStore({ view: { userLocation: null, userLocationAccessGranted: { granted: true } }, data: { user: { } } });
+    store = {
+      data: { user: { id: 'user-id' } },
+      view: { userLocation: null, userLocationAccessGranted: { granted: true } },
+    };
+
     const mockGeolocation = {
       clearWatch: jest.fn(),
       getCurrentPosition: jest.fn().mockImplementation((successFn) => successFn && successFn(mockUserLocation)),
@@ -32,44 +37,79 @@ describe('The GeoLocationWatcher', () => {
 
     global.navigator.geolocation = mockGeolocation;
 
-    global.navigator.permissions = {
-      query: jest.fn().mockReturnValue(
-        Promise.resolve(
-          { state: 'granted',
-            addEventListener: jest.fn()
-              .mockImplementation((_eventType, callback) => {
-                callback({ target: { state: 'granted' } });
-              }),
-            removeEventListener: jest.fn() }
-        )
-      ),
+    permissionStatus = {
+      addEventListener: jest.fn()
+        .mockImplementation((_eventType, callback) => {
+          callback({ target: { state: 'granted' } });
+        }),
+      removeEventListener: jest.fn(),
+      state: 'granted',
     };
 
+    global.navigator.permissions = { query: jest.fn().mockResolvedValue(permissionStatus) };
   });
 
-  afterAll(() => {
-    jest.clearAllMocks();
-  });
+  const renderGeoLocationWatcher = (props) => {
+    reduxStore = mockStore(store);
+
+    return render(<Provider store={reduxStore}>
+      <GeoLocationWatcher {...props} />
+    </Provider>);
+  };
 
   test('checking if geolocation permission has been granted', () => {
-    render(<Provider store={store}>
-      <GeoLocationWatcher />
-    </Provider>);
+    renderGeoLocationWatcher();
 
     expect(global.navigator.permissions.query).toHaveBeenCalledWith({ name: 'geolocation' });
   });
 
   test('updating a user\'s location in the store when it changes', async () => {
-    render(<Provider store={store}>
-      <GeoLocationWatcher />
-    </Provider>);
+    renderGeoLocationWatcher();
 
     await waitFor(() => {
       expect(global.navigator.geolocation.watchPosition).toHaveBeenCalled();
     });
 
-    const actions = store.getActions();
+    const actions = reduxStore.getActions();
 
     expect(actions[0].type).toEqual(USER_LOCATION_RETRIEVED);
+  });
+
+  test('does not read the position while the permission is still to be asked', async () => {
+    permissionStatus.state = 'prompt';
+    store.view.userLocationAccessGranted = { granted: false };
+    renderGeoLocationWatcher();
+
+    await waitFor(() => expect(global.navigator.permissions.query).toHaveBeenCalled());
+
+    expect(global.navigator.geolocation.getCurrentPosition).not.toHaveBeenCalled();
+    expect(global.navigator.geolocation.watchPosition).not.toHaveBeenCalled();
+  });
+
+  test('does not read the position or check the permission until a user is loaded', () => {
+    store.data.user = {};
+    store.view.userLocationAccessGranted = { granted: false };
+    renderGeoLocationWatcher();
+
+    expect(global.navigator.permissions.query).not.toHaveBeenCalled();
+    expect(global.navigator.geolocation.getCurrentPosition).not.toHaveBeenCalled();
+    expect(global.navigator.geolocation.watchPosition).not.toHaveBeenCalled();
+  });
+
+  test('reads the position once the permission is granted', async () => {
+    renderGeoLocationWatcher();
+
+    await waitFor(() => expect(global.navigator.geolocation.getCurrentPosition).toHaveBeenCalled());
+
+    expect(global.navigator.geolocation.watchPosition).toHaveBeenCalled();
+  });
+
+  test('does not dismiss toasts when the permission resolves granted with no permissions toast showing', async () => {
+    jest.spyOn(toast, 'dismiss');
+    renderGeoLocationWatcher();
+
+    await waitFor(() => expect(global.navigator.geolocation.getCurrentPosition).toHaveBeenCalled());
+
+    expect(toast.dismiss).not.toHaveBeenCalled();
   });
 });

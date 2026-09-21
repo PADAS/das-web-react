@@ -1,0 +1,9 @@
+@use '../../_shared' as shared;
+
+.titleBarMain {
+  @include shared.header-title-bar-main;
+}
+
+.pills {
+  @include shared.header-pills;
+}

@@ -2,7 +2,6 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { bbox, lineString } from '@turf/turf';
 import userEvent from '@testing-library/user-event';
-import { within } from '@testing-library/dom';
 
 import { PATROL_API_STATES, PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../constants';
 
@@ -18,6 +17,7 @@ import { UPDATE_PATROL_TRACK_STATE, updatePatrol } from '../ducks/patrols';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
 import patrols from '../__test-helpers/fixtures/patrols';
 import { render, screen } from '../test-utils';
+import { TRACK_LENGTH_ORIGINS } from '../ducks/tracks';
 
 import PatrolListItem from './';
 
@@ -37,13 +37,18 @@ const minimumNecessaryStoreStructure = {
       pinned: [], visible: []
     },
     patrolTrackState: {
-      pinned: [], visible: []
+      hiddenSubjects: {}, pinned: [], visible: []
     },
     systemConfig: {
       [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true,
     },
+    trackSettings: {
+      length: 21,
+      origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH,
+    },
   },
   data: {
+    eventFilter: { filter: { date_range: { lower: '2020-01-01T06:00:00.000Z' } } },
     subjectStore: {},
     tracks: {},
     patrolTypes,
@@ -59,7 +64,6 @@ const minimumNecessaryStoreStructure = {
 let store = mockStore(minimumNecessaryStoreStructure);
 
 const onClick = jest.fn();
-const onPatrolSelfManagedStateChange = jest.fn();
 const map = createMapMock({ fitBounds: jest.fn() });
 
 jest.spyOn(trackUtils, 'fetchTracksIfNecessary').mockImplementation(() => Promise.resolve({}));
@@ -74,7 +78,6 @@ beforeEach(() => {
 
 const initialProps = {
   onClick,
-  onPatrolSelfManagedStateChange,
   patrol: testPatrol,
   showStateTitle: true,
   showTitleDetails: true,
@@ -82,12 +85,11 @@ const initialProps = {
   map
 };
 
-const getPatrolListItemComponent = ({ onClick, onPatrolSelfManagedStateChange, patrol, map, showStateTitle, showTitleDetails, ...otherProps }, storeObject = store) => (
+const getPatrolListItemComponent = ({ onClick, patrol, map, showStateTitle, showTitleDetails, ...otherProps }, storeObject = store) => (
   <Provider store={storeObject}>
     <MapContext.Provider value={map}>
       <PatrolListItem
               onClick={onClick}
-              onSelfManagedStateChange={onPatrolSelfManagedStateChange}
               patrol={patrol}
               map={map}
               showStateTitle={showStateTitle}
@@ -150,7 +152,7 @@ describe('the patrol list item', () => {
   test('showing the patrol\'s current state', async () => {
     const state = await screen.findByTestId(`patrol-list-item-state-title-${testPatrol.id}`);
 
-    expect(state).toHaveTextContent(PATROL_UI_STATES.ACTIVE.title);
+    expect(state).toHaveTextContent('Active');
   });
 
   test('showing a kebab menu for additional actions', async () => {
@@ -158,17 +160,16 @@ describe('the patrol list item', () => {
   });
 
   test('hides menu on outside click to prevent menu overlapping', async () => {
-    const toggleClass = 'show';
-    const patrolListItem = screen.getByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`);
-    const [, , kebabMenu] = screen.getAllByRole('button');
+    const kebabMenu = screen.getByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`);
+    const kebabButton = kebabMenu.querySelector('button');
 
-    expect(patrolListItem.classList.contains(toggleClass)).toBeFalsy();
-    await userEvent.click(kebabMenu);
-    expect(patrolListItem.classList.contains(toggleClass)).toBeTruthy();
+    expect(kebabButton).toHaveAttribute('aria-expanded', 'false');
+    await userEvent.click(kebabButton);
+    expect(kebabButton).toHaveAttribute('aria-expanded', 'true');
 
     await userEvent.click(document.body);
 
-    expect(patrolListItem.classList.contains(toggleClass)).toBeFalsy();
+    expect(kebabButton).toHaveAttribute('aria-expanded', 'false');
   });
 });
 
@@ -224,14 +225,18 @@ describe('for active patrols', () => {
     await screen.findByTestId(`patrol-list-item-track-btn-${testPatrol.id}`);
   });
 
+  test('showing no distance while nothing has measured the legs of the patrol', async () => {
+    expect(await screen.findByText('-')).toBeInTheDocument();
+  });
+
   test('canceling the patrol from the kebab menu', async () => {
     const kebabMenu = await screen.findByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`);
-    const kebabButton = kebabMenu.querySelector('.dropdown-toggle');
+    const kebabButton = kebabMenu.querySelector('button');
     await userEvent.click(kebabButton);
 
     expect(updatePatrol).toHaveBeenCalledTimes(0);
 
-    const cancelBtn = await within(kebabMenu).findByText('Cancel Patrol');
+    const cancelBtn = await screen.findByText('Cancel Patrol');
     await userEvent.click(cancelBtn);
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
@@ -240,12 +245,12 @@ describe('for active patrols', () => {
 
   test('ending a patrol from the kebab menu', async () => {
     const kebabMenu = await screen.findByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`);
-    const kebabButton = kebabMenu.querySelector('.dropdown-toggle');
+    const kebabButton = kebabMenu.querySelector('button');
     await userEvent.click(kebabButton);
 
     expect(updatePatrol).toHaveBeenCalledTimes(0);
 
-    const endBtn = await within(kebabMenu).findByText('End Patrol');
+    const endBtn = await screen.findByText('End Patrol');
     await userEvent.click(endBtn);
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
@@ -277,12 +282,12 @@ describe('for scheduled patrols', () => {
 
   test('canceling the patrol from the kebab menu', async () => {
     const kebabMenu = await screen.findByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`);
-    const kebabButton = kebabMenu.querySelector('.dropdown-toggle');
+    const kebabButton = kebabMenu.querySelector('button');
     await userEvent.click(kebabButton);
 
     expect(updatePatrol).toHaveBeenCalledTimes(0);
 
-    const cancelBtn = await within(kebabMenu).findByText('Cancel Patrol');
+    const cancelBtn = await screen.findByText('Cancel Patrol');
     await userEvent.click(cancelBtn);
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
@@ -305,7 +310,7 @@ describe('for overdue patrols', () => {
   test('showing an overdue indicator', async () => {
     const stateIndicator = await screen.findByTestId(`patrol-list-item-state-title-${testPatrol.id}`);
 
-    expect(stateIndicator).toHaveTextContent(PATROL_UI_STATES.START_OVERDUE.title);
+    expect(stateIndicator).toHaveTextContent('Start Overdue');
   });
 });
 
@@ -327,22 +332,22 @@ describe('for cancelled patrols', () => {
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
     expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.OPEN);
-    expect(updatePatrol.mock.calls[0][0].patrol_segments[0].time_range.end_time).toBeNull();
+    expect(updatePatrol.mock.calls[0][0]).not.toHaveProperty('patrol_segments');
   });
 
   test('restoring the patrol from the kebab menu', async () => {
     const kebabMenu = await screen.findByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`);
-    const kebabButton = kebabMenu.querySelector('.dropdown-toggle');
+    const kebabButton = kebabMenu.querySelector('button');
     await userEvent.click(kebabButton);
 
     expect(updatePatrol).toHaveBeenCalledTimes(0);
 
-    const restoreBtn = await within(kebabMenu).findByText('Restore Patrol');
+    const restoreBtn = await screen.findByText('Restore Patrol');
     await userEvent.click(restoreBtn);
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
     expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.OPEN);
-    expect(updatePatrol.mock.calls[0][0].patrol_segments[0].time_range.end_time).toBeNull();
+    expect(updatePatrol.mock.calls[0][0]).not.toHaveProperty('patrol_segments');
   });
 });
 
@@ -358,16 +363,89 @@ describe('for completed patrols', () => {
 
   test('restoring the patrol from the kebab menu', async () => {
     const kebabMenu = await screen.findByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`);
-    const kebabButton = kebabMenu.querySelector('.dropdown-toggle');
+    const kebabButton = kebabMenu.querySelector('button');
     await userEvent.click(kebabButton);
 
     expect(updatePatrol).toHaveBeenCalledTimes(0);
 
-    const restoreBtn = await within(kebabMenu).findByText('Restore Patrol');
+    const restoreBtn = await screen.findByText('Restore Patrol');
     await userEvent.click(restoreBtn);
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
     expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.OPEN);
-    expect(updatePatrol.mock.calls[0][0].patrol_segments[0].time_range.end_time).toBeNull();
+    expect(updatePatrol.mock.calls[0][0]).not.toHaveProperty('patrol_segments');
+  });
+});
+
+describe('the tracks the row fetches', () => {
+  const ASSET = { id: 'subjectAsset', name: 'KTN-123' };
+  const LEAD = { id: 'subjectLead', name: 'Maya Chen' };
+  const MEMBER = { id: 'subjectMember', name: 'Pilot Zoe' };
+
+  const legWith = (leader) => ({
+    assets: [ASSET.id],
+    leader,
+    members: [MEMBER.id],
+    time_range: { end_time: '2020-01-05T00:00:00.000Z', start_time: '2020-01-01T00:00:00.000Z' },
+  });
+
+  let fetchTracksIfNecessary, trackedPatrol;
+  beforeEach(() => {
+    jest.useFakeTimers({ advanceTimers: true }).setSystemTime(new Date('2020-01-06'));
+
+    fetchTracksIfNecessary = jest.spyOn(trackUtils, 'fetchTracksIfNecessary')
+      .mockImplementation(() => Promise.resolve({}));
+    trackedPatrol = { ...patrols[0], id: 'trackedPatrol', patrol_segments: [legWith(LEAD)], state: 'done' };
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  const renderTrackedPatrolListItem = (patrol, tracks = {}) => {
+    renderPatrolListItem({ ...initialProps, patrol }, mockStore({
+      ...minimumNecessaryStoreStructure,
+      data: {
+        ...minimumNecessaryStoreStructure.data,
+        patrolStore: { [patrol.id]: patrol },
+        patrolTeamAndTrackingOptions: { assets: [ASSET], leaders: [LEAD], members: [MEMBER], teams: [] },
+        tracks,
+      },
+    }));
+
+    jest.runOnlyPendingTimers();
+  };
+
+  test('fetches the track of the lead alone when every leg has one', () => {
+    renderTrackedPatrolListItem(trackedPatrol);
+
+    expect(fetchTracksIfNecessary).toHaveBeenCalledTimes(1);
+    expect(fetchTracksIfNecessary.mock.calls[0][0]).toEqual([LEAD.id]);
+  });
+
+  test('shows what the lead of the patrol covered once its track has arrived', async () => {
+    renderTrackedPatrolListItem(trackedPatrol, {
+      [LEAD.id]: {
+        fetchedDateRange: { since: '2020-01-01T00:00:00.000Z' },
+        points: { features: [] },
+        track: {
+          features: [{
+            geometry: { coordinates: [[1, 0], [0, 0]], type: 'LineString' },
+            properties: {
+              coordinateProperties: { times: ['2020-01-05T00:00:00.000Z', '2020-01-01T00:00:00.000Z'] },
+            },
+          }],
+        },
+      },
+    });
+
+    expect(await screen.findByText('111.2km')).toBeInTheDocument();
+  });
+
+  test('fetches the tracks of everyone a leg with no lead tracks', () => {
+    renderTrackedPatrolListItem({ ...trackedPatrol, patrol_segments: [legWith(null)] });
+
+    expect(fetchTracksIfNecessary).toHaveBeenCalledTimes(1);
+    expect(fetchTracksIfNecessary.mock.calls[0][0]).toEqual([MEMBER.id, ASSET.id]);
   });
 });

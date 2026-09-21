@@ -9,11 +9,18 @@ import {
   ReactComponent as EarthRangerLogo,
 } from '../common/images/earth-ranger-logo.svg';
 
+import { ACCOUNT_LINKER_URL, SYSTEM_CONFIG_FLAGS } from '../constants';
+import { APP_ROUTES } from '../constants/routes';
 import appConfig from '../config';
+import { buildAuth0AuthorizationParams } from '../utils/auth0';
 import { clearAuth, postAuth } from '../ducks/auth';
 import { fetchEula } from '../ducks/eula';
-import { ACCOUNT_LINKER_URL, REACT_APP_ROUTE_PREFIX, SYSTEM_CONFIG_FLAGS } from '../constants';
-import { buildAuth0AuthorizationParams } from '../utils/auth0';
+import {
+  markManagedUserLoginAttempt,
+  stripAuth0Params,
+  takeManagedUserLoginAttempt,
+  takeManagedUserNotProvisioned,
+} from '../utils/auth';
 import useNavigate from '../hooks/useNavigate';
 
 import * as styles from './styles.module.scss';
@@ -36,12 +43,14 @@ const LoginPage = () => {
   const passwordInputRef = useRef(null);
   const usernameInputRef = useRef(null);
 
-  // Initialized from router state (no effect/flicker): Auth0TokenManager routes
-  // here with authLinkingError when the post-Auth0 account-linking gate fails
-  // transiently.
-  const [alertMessage, setAlertMessage] = useState(
-    () => (location.state?.authLinkingError ? t('errorAlert.signInIncomplete') : null)
-  );
+  // A key, not a translated string: the namespace may not have loaded yet, and a
+  // stored string would never re-translate.
+  const [alert, setAlert] = useState(() => {
+    if (location.state?.managedUserSignInFailed) {
+      return { key: 'errorAlert.managedUserSignInFailed' };
+    }
+    return location.state?.authLinkingError ? { key: 'errorAlert.signInIncomplete' } : null;
+  });
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [formErrors, setFormErrors] = useState({ username: null, password: null });
   const [isLoading, setIsLoading] = useState(false);
@@ -49,6 +58,13 @@ const LoginPage = () => {
   const idpOrgId = systemConfig?.idp_org_id?.trim() || null;
   const isEULAEnabled = !!systemConfig?.[SYSTEM_CONFIG_FLAGS.EULA];
   const requireIdp = !!systemConfig?.require_idp;
+  const siteSlug = systemConfig?.site_slug?.trim() || null;
+
+  // No slug means no connection on the redirect, which would sign the user into the
+  // common database. Org-scoped sites skip the gate that catches an unmapped one.
+  const canSignInAsManagedUser = !!systemConfig?.support_managed_users
+    && !!siteSlug
+    && !idpOrgId;
 
   const onAuth0Login = useCallback(async () => {
     try {
@@ -56,9 +72,27 @@ const LoginPage = () => {
         authorizationParams: buildAuth0AuthorizationParams(appConfig.auth0.audience, idpOrgId),
       });
     } catch (_error) {
-      setAlertMessage(t('errorAlert.signInFailed'));
+      setAlert({ key: 'errorAlert.signInFailed' });
     }
-  }, [auth0LoginWithRedirect, idpOrgId, t]);
+  }, [auth0LoginWithRedirect, idpOrgId]);
+
+  const onManagedUserLogin = useCallback(async () => {
+    markManagedUserLoginAttempt();
+
+    try {
+      await auth0LoginWithRedirect({
+        authorizationParams: buildAuth0AuthorizationParams(
+          appConfig.auth0.audience,
+          idpOrgId,
+          siteSlug,
+        ),
+      });
+    } catch (_error) {
+      // No redirect happened, so there is no attempt left to attribute.
+      takeManagedUserLoginAttempt();
+      setAlert({ key: 'errorAlert.signInFailed' });
+    }
+  }, [auth0LoginWithRedirect, idpOrgId, siteSlug]);
 
   const onFormSubmit = useCallback(async (event) => {
     event.preventDefault();
@@ -91,7 +125,7 @@ const LoginPage = () => {
         : {};
       navigate(
         location.state?.from
-          || { pathname: REACT_APP_ROUTE_PREFIX, search: location.search },
+          || { pathname: APP_ROUTES.ROOT, search: location.search },
         options
       );
     } catch (error) {
@@ -102,9 +136,11 @@ const LoginPage = () => {
         usernameInputRef.current?.select();
       }
 
-      setAlertMessage(invalidCredentials
-        ? t('errorAlert.invalidCredentialsMessage')
-        : t('errorAlert.unknownErrorMessage'));
+      setAlert({
+        key: invalidCredentials
+          ? 'errorAlert.invalidCredentialsMessage'
+          : 'errorAlert.unknownErrorMessage',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -115,38 +151,64 @@ const LoginPage = () => {
     setFormErrors((prevFormErrors) => (prevFormErrors[event.target.name]
       ? { ...prevFormErrors, [event.target.name]: null }
       : prevFormErrors));
-    setAlertMessage(null);
+    setAlert(null);
   }, []);
 
+  // Separate from the effect below, which re-runs when the URL is stripped.
   useEffect(() => {
     dispatch(clearAuth());
     dispatch(fetchEula());
+  }, [dispatch]);
 
+  useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const auth0Error = urlParams.get('error');
     const auth0ErrorDescription = urlParams.get('error_description');
-    if (auth0Error && auth0ErrorDescription) {
-      // There are Auth0 errors in URL parameters. Display an error message
-      // based on the error type.
-      if (auth0Error === 'access_denied') {
-        if (auth0ErrorDescription.includes('not part of the')) {
-          // eslint-disable-next-line react-hooks/set-state-in-effect
-          setAlertMessage(t('errorAlert.accessDeniedNotAuthorized'));
-        } else {
-          setAlertMessage(t('errorAlert.accessDeniedNoPermission'));
+    // Consumed on every visit, so a stale marker cannot mislabel a later failure.
+    const attemptedManagedUserLogin = takeManagedUserLoginAttempt();
+
+    // Set before the logout redirect, which leaves the app and drops router state.
+    const managedUserNotProvisioned = takeManagedUserNotProvisioned();
+
+    // Code alone: a description is optional in OAuth 2.0.
+    if (managedUserNotProvisioned || auth0Error) {
+      const alertForArrival = () => {
+        if (managedUserNotProvisioned) {
+          return { key: 'errorAlert.managedUserNotProvisioned' };
         }
-      } else if (auth0Error === 'unauthorized') {
-        setAlertMessage(t('errorAlert.authenticationFailed'));
-      } else {
-        setAlertMessage(
-          t(
-            'errorAlert.authenticationError',
-            { errorDescription: auth0ErrorDescription },
-          )
+        // Auth0's error text is not a contract, so name the path, not the cause.
+        if (attemptedManagedUserLogin) {
+          return { key: 'errorAlert.managedUserSignInFailed' };
+        }
+        if (auth0Error === 'access_denied') {
+          return auth0ErrorDescription?.includes('not part of the')
+            ? { key: 'errorAlert.accessDeniedNotAuthorized' }
+            : { key: 'errorAlert.accessDeniedNoPermission' };
+        }
+        if (auth0Error === 'unauthorized') {
+          return { key: 'errorAlert.authenticationFailed' };
+        }
+        return auth0ErrorDescription
+          ? {
+            key: 'errorAlert.authenticationError',
+            values: { errorDescription: auth0ErrorDescription },
+          }
+          : { key: 'errorAlert.unknownErrorMessage' };
+      };
+
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setAlert(alertForArrival());
+
+      if (auth0Error) {
+        // The marker is single-use, so a reload would re-derive a different reason.
+        // The shared helper drops only the Auth0 params.
+        navigate(
+          stripAuth0Params(`${location.pathname}${location.search}`),
+          { replace: true, state: location.state },
         );
       }
     }
-  }, [dispatch, location.search, t]);
+  }, [location.pathname, location.search, location.state, navigate]);
 
   return <div className={styles.container}>
     <EarthRangerLogo aria-label="EarthRanger" className={styles.logo} role="img" />
@@ -165,6 +227,10 @@ const LoginPage = () => {
 
         <p className={styles.infoBoxBody}>{t('auth0Info.intro')}</p>
         <p className={styles.infoBoxBody}>{t('auth0Info.signInPrompt')}</p>
+
+        {canSignInAsManagedUser && (
+          <p className={styles.infoBoxBody}>{t('auth0Info.managedUserPrompt')}</p>
+        )}
 
         <p className={styles.infoBoxBody}>{t('auth0Info.convertPrompt')}</p>
         <a className={styles.infoBoxLink} href={ACCOUNT_LINKER_URL}>
@@ -189,6 +255,18 @@ const LoginPage = () => {
             ? <MoonLoader aria-hidden color="white" size={SUBMIT_LOADER_SIZE} />
             : t(idpOrgId ? 'loginButtonIdp' : 'loginButtonEmail')}
         </button>
+
+        {canSignInAsManagedUser && (
+          <button
+            aria-busy={isAuth0Loading}
+            className={`${styles.loginButton} ${styles.secondaryButton}`}
+            disabled={isAuth0Loading}
+            onClick={onManagedUserLogin}
+            type="button"
+          >
+            {t('loginButtonManagedUser')}
+          </button>
+        )}
       </div>
     ) : (
       <form className={styles.form} noValidate onSubmit={onFormSubmit}>
@@ -252,7 +330,7 @@ const LoginPage = () => {
       </form>
     )}
 
-    {!!alertMessage && <div role="alert" className={styles.alertMessage}>{alertMessage}</div>}
+    {!!alert && <div role="alert" className={styles.alertMessage}>{t(alert.key, alert.values)}</div>}
 
     {isEULAEnabled && <a
       aria-label={t('eulaLinkLabel')}

@@ -2,7 +2,7 @@ import React from 'react';
 import { createMapMock } from '../__test-helpers/mocks';
 
 import { MapContext } from '../MapContext';
-import MapDrawingTools, { DRAWING_MODES } from './';
+import MapDrawingTools, { DefaultCursorPopup, DRAWING_MODES } from './';
 import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from './ContextProvider';
 import { useMatchMedia } from '../hooks';
 import { render, waitFor } from '../test-utils';
@@ -260,6 +260,123 @@ describe('MapDrawingTools', () => {
     });
   });
 
+  describe('the line fill', () => {
+    const renderLineDrawingTools = (setMapDrawingData, props) => render(
+      <MapContext.Provider value={map}>
+        <MapDrawingToolsContext.Provider value={{ setMapDrawingData }}>
+          <MapDrawingTools
+            drawing={drawing}
+            drawingMode={DRAWING_MODES.LINE}
+            points={[[1, 2], [2, 3], [4, 1]]}
+            {...props}
+          />
+        </MapDrawingToolsContext.Provider>
+      </MapContext.Provider>
+    );
+
+    const getLastDrawingData = (setMapDrawingData) =>
+      setMapDrawingData.mock.calls[setMapDrawingData.mock.calls.length - 1][0];
+
+    test('fills the closed ring of the drawn line when enabled', async () => {
+      const setMapDrawingData = jest.fn();
+
+      renderLineDrawingTools(setMapDrawingData, { showLineFill: true });
+
+      await waitFor(() => {
+        const { fillPolygon } = getLastDrawingData(setMapDrawingData);
+
+        expect(fillPolygon.geometry.type).toBe('Polygon');
+        expect(fillPolygon.geometry.coordinates[0]).toEqual([[1, 2], [2, 3], [4, 1], [1, 2]]);
+      });
+    });
+
+    test('does not label the filled area on the map', async () => {
+      const setMapDrawingData = jest.fn();
+
+      renderLineDrawingTools(setMapDrawingData, { showLineFill: true });
+
+      await waitFor(() => {
+        expect(getLastDrawingData(setMapDrawingData).fillLabelPoint.features).toHaveLength(0);
+      });
+    });
+
+    test('does not fill when disabled', async () => {
+      const setMapDrawingData = jest.fn();
+
+      renderLineDrawingTools(setMapDrawingData);
+
+      await waitFor(() => {
+        expect(getLastDrawingData(setMapDrawingData).fillPolygon.features).toHaveLength(0);
+      });
+    });
+
+    test('does not fill with fewer than three distinct vertices', async () => {
+      const setMapDrawingData = jest.fn();
+
+      renderLineDrawingTools(setMapDrawingData, { points: [[1, 2], [2, 3]], showLineFill: true });
+
+      await waitFor(() => {
+        expect(getLastDrawingData(setMapDrawingData).fillPolygon.features).toHaveLength(0);
+      });
+    });
+
+    test('counts the cursor location as a vertex while drawing', async () => {
+      const setMapDrawingData = jest.fn();
+
+      renderLineDrawingTools(setMapDrawingData, { points: [[1, 2], [2, 3]], showLineFill: true });
+
+      map.__test__.fireHandlers('mousemove', { lngLat: { lng: 4, lat: 1 } });
+
+      await waitFor(() => {
+        const { fillPolygon } = getLastDrawingData(setMapDrawingData);
+
+        expect(fillPolygon.geometry.coordinates[0]).toEqual([[1, 2], [2, 3], [4, 1], [1, 2]]);
+      });
+    });
+
+    test('draws underneath the line and its labels', async () => {
+      map.getLayer.mockImplementation((layerId) => layerId === LAYER_IDS.LINE_LABELS ? { id: layerId } : undefined);
+
+      renderLineDrawingTools(jest.fn(), { showLineFill: true });
+
+      await waitFor(() => {
+        const [, before] = map.addLayer.mock.calls.find(([layer]) => layer.id === LAYER_IDS.FILL);
+
+        expect(before).toBe(LAYER_IDS.LINE_LABELS);
+      });
+    });
+
+    test('draws the polygon fill on top of the line, as before', async () => {
+      map.getLayer.mockImplementation((layerId) => layerId === LAYER_IDS.LINE_LABELS ? { id: layerId } : undefined);
+
+      render(
+        <MapContext.Provider value={map}>
+          <MapDrawingToolsContextProvider>
+            <MapDrawingTools drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={[[1, 2], [2, 3], [4, 1]]} />
+          </MapDrawingToolsContextProvider>
+        </MapContext.Provider>
+      );
+
+      await waitFor(() => {
+        const [, before] = map.addLayer.mock.calls.find(([layer]) => layer.id === LAYER_IDS.FILL);
+
+        expect(before).toBeUndefined();
+      });
+    });
+
+    test('ignores a cursor location identical to the last point', async () => {
+      const setMapDrawingData = jest.fn();
+
+      renderLineDrawingTools(setMapDrawingData, { points: [[1, 2], [2, 3]], showLineFill: true });
+
+      map.__test__.fireHandlers('mousemove', { lngLat: { lng: 2, lat: 3 } });
+
+      await waitFor(() => {
+        expect(getLastDrawingData(setMapDrawingData).fillPolygon.features).toHaveLength(0);
+      });
+    });
+  });
+
   describe('the cursor popup', () => {
     test('rendering a cursor popup with point details when drawing and the mouse is moved', async () => {
       const points = [[1, 2], [2, 3], [4, 5]];
@@ -319,6 +436,42 @@ describe('MapDrawingTools', () => {
 
       await waitFor(() => {
         expect(container).not.toHaveTextContent('Cursor popup rendering stuff');
+      });
+    });
+
+    describe('DefaultCursorPopup', () => {
+      const renderCursorPopup = (props) => {
+        render(
+          <MapContext.Provider value={map}>
+            <DefaultCursorPopup
+              coords={[2, 2]}
+              drawing
+              lineLength="1.23km"
+              points={[[1, 2], [2, 3]]}
+              {...props}
+            />
+          </MapContext.Provider>
+        );
+
+        return popupDomContent[popupDomContent.length - 1];
+      };
+
+      test('shows only the bearing and the distance without an area', () => {
+        const popup = renderCursorPopup();
+
+        expect(popup).toHaveTextContent('Bearing:');
+        expect(popup).toHaveTextContent('Distance: 1.23km');
+        expect(popup).not.toHaveTextContent('Area:');
+      });
+
+      test('shows the area between the bearing and the distance', () => {
+        const popup = renderCursorPopup({ area: '6181.86km²' });
+
+        const paragraphs = [...popup.querySelectorAll('p')].map((paragraph) => paragraph.textContent);
+
+        expect(paragraphs[0]).toContain('Bearing:');
+        expect(paragraphs[1]).toBe('Area: 6181.86km²');
+        expect(paragraphs[2]).toBe('Distance: 1.23km');
       });
     });
   });

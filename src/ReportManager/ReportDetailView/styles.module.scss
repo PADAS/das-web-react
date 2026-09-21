@@ -1,6 +1,5 @@
 @import '../../common/styles/layout';
 @import '../../common/styles/vars/colors';
-@import '../../common/styles/buttons';
 
 .reportDetailView {
   display: flex;
@@ -10,7 +9,13 @@
   position: relative;
 
   @media (min-width: $md-layout-width-min) {
-    width: 46rem;
+    @include sidebar-width-detail;
+  }
+
+  /* Capped so fields stay readable on wide screens. */
+  &.community {
+    max-width: 60rem;
+    width: 100%;
   }
 }
 
@@ -99,10 +104,7 @@
 
 .footerActionButtonsContainer {
   display: flex;
-}
-
-.footerActionButton {
-  @include footerActionButton;
+  gap: 0.5rem;
 }
 
 .actionButtons{

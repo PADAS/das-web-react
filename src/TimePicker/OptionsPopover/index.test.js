@@ -13,6 +13,7 @@ describe('TimePicker - OptionsPopover', () => {
 
   const renderOptionsPopover = (props) => render(<OptionsPopover
     className="className"
+    id="optionsPopover"
     internationalizedTimePeriods={{ [AM_PERIOD]: 'AM', [PM_PERIOD]: 'PM' }}
     max={undefined}
     min={undefined}
@@ -41,6 +42,12 @@ describe('TimePicker - OptionsPopover', () => {
     expect(screen.getByRole('listbox')).toHaveFocus();
   });
 
+  test('keeps the popover itself out of the tab order', async () => {
+    renderOptionsPopover();
+
+    expect(screen.getByRole('presentation')).toHaveAttribute('tabindex', '-1');
+  });
+
   test('matches the width of the target element', async () => {
     renderOptionsPopover({ target: { current: { offsetWidth: 48 } } });
 
@@ -53,38 +60,54 @@ describe('TimePicker - OptionsPopover', () => {
     const optionsList = screen.getByRole('listbox');
     const options = screen.getAllByRole('option');
 
-    expect(optionsList).toHaveAttribute('aria-activedescendant', '00:00');
+    expect(optionsList).toHaveAttribute('aria-activedescendant', 'optionsPopover-00:00');
     expect(options[0]).toHaveAttribute('aria-selected', 'true');
     expect(options[1]).toHaveAttribute('aria-selected', 'false');
     expect(options[2]).toHaveAttribute('aria-selected', 'false');
 
     await userEvent.keyboard('[ArrowDown]');
 
-    expect(optionsList).toHaveAttribute('aria-activedescendant', '00:30');
+    expect(optionsList).toHaveAttribute('aria-activedescendant', 'optionsPopover-00:30');
     expect(options[0]).toHaveAttribute('aria-selected', 'false');
     expect(options[1]).toHaveAttribute('aria-selected', 'true');
     expect(options[2]).toHaveAttribute('aria-selected', 'false');
 
     await userEvent.keyboard('[ArrowDown]');
 
-    expect(optionsList).toHaveAttribute('aria-activedescendant', '01:00');
+    expect(optionsList).toHaveAttribute('aria-activedescendant', 'optionsPopover-01:00');
     expect(options[0]).toHaveAttribute('aria-selected', 'false');
     expect(options[1]).toHaveAttribute('aria-selected', 'false');
     expect(options[2]).toHaveAttribute('aria-selected', 'true');
 
     await userEvent.keyboard('[ArrowUp]');
 
-    expect(optionsList).toHaveAttribute('aria-activedescendant', '00:30');
+    expect(optionsList).toHaveAttribute('aria-activedescendant', 'optionsPopover-00:30');
     expect(options[0]).toHaveAttribute('aria-selected', 'false');
     expect(options[1]).toHaveAttribute('aria-selected', 'true');
     expect(options[2]).toHaveAttribute('aria-selected', 'false');
 
     await userEvent.keyboard('[ArrowUp]');
 
-    expect(optionsList).toHaveAttribute('aria-activedescendant', '00:00');
+    expect(optionsList).toHaveAttribute('aria-activedescendant', 'optionsPopover-00:00');
     expect(options[0]).toHaveAttribute('aria-selected', 'true');
     expect(options[1]).toHaveAttribute('aria-selected', 'false');
     expect(options[2]).toHaveAttribute('aria-selected', 'false');
+  });
+
+  test('navigates to the first and the last options with the home and end keys', async () => {
+    renderOptionsPopover();
+
+    const options = screen.getAllByRole('option');
+
+    await userEvent.keyboard('{End}');
+
+    expect(screen.getByRole('listbox')).toHaveAttribute('aria-activedescendant', 'optionsPopover-23:30');
+    expect(options[options.length - 1]).toHaveAttribute('aria-selected', 'true');
+
+    await userEvent.keyboard('{Home}');
+
+    expect(screen.getByRole('listbox')).toHaveAttribute('aria-activedescendant', 'optionsPopover-00:00');
+    expect(options[0]).toHaveAttribute('aria-selected', 'true');
   });
 
   test('selects the option closest to the current value', async () => {
@@ -93,6 +116,25 @@ describe('TimePicker - OptionsPopover', () => {
     const options = screen.getAllByRole('option');
 
     expect(options[31]).toHaveAttribute('aria-selected', 'true');
+  });
+
+  test('selects the option closest to the current value when the min time leaves options out', async () => {
+    renderOptionsPopover({ min: '10:00', value: '11:00' });
+
+    const options = screen.getAllByRole('option');
+
+    expect(screen.getByRole('listbox')).toHaveAttribute('aria-activedescendant', 'optionsPopover-11:00');
+    expect(options[2]).toHaveAttribute('aria-selected', 'true');
+  });
+
+  test('changes to the first option when the user presses enter without navigating the list', async () => {
+    renderOptionsPopover();
+
+    await userEvent.keyboard('{Enter}');
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith('00:00');
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 
   test('changes to the option selected by pressing enter', async () => {
@@ -150,6 +192,16 @@ describe('TimePicker - OptionsPopover', () => {
 
     await userEvent.keyboard('{Escape}');
 
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(optionsPopoverButtonFocus).toHaveBeenCalledTimes(1);
+  });
+
+  test('closes the popover and focuses the options popover button when the user presses tab', async () => {
+    renderOptionsPopover();
+
+    await userEvent.keyboard('{Tab}');
+
+    expect(onChange).not.toHaveBeenCalled();
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(optionsPopoverButtonFocus).toHaveBeenCalledTimes(1);
   });

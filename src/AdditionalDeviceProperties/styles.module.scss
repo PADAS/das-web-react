@@ -1,0 +1,49 @@
+@use '../common/styles/buttons';
+@use '../common/styles/vars/colors';
+
+.additionalProperties {
+  margin: 0;
+  padding: 0;
+
+  &.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  li {
+    display: flex;
+    justify-content: space-between;
+
+    &:not(:last-child) {
+      border-bottom: 1px solid colors.$gray-border;
+    }
+
+    strong {
+      text-align: left;
+    }
+
+    span {
+      text-align: right;
+    }
+  }
+}
+
+.toggleAdditionalProps {
+  @include buttons.linkButton;
+
+  border-radius: var(--bs-border-radius-sm);
+  color: var(--bs-link-color);
+  cursor: pointer;
+  font-size: 0.875rem;
+  margin: 0 0 0.25rem;
+  padding: 0.25rem 0.5rem;
+
+  &:hover {
+    color: var(--bs-link-hover-color);
+  }
+
+  &:focus-visible {
+    box-shadow: 0 0 0 0.25rem var(--bs-focus-ring-color);
+    outline: 0;
+  }
+}

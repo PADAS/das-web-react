@@ -13,6 +13,7 @@
   "displayTitleForPatrol": {
     "unknown": "Tipo de patrulla desconocido"
   },
+  "distanceInKilometers": "{{distance}}km",
   "filterDuplicateUploadFilenames": {
     "duplicationAlert": "No se puede agregar {{fileName}}: el archivo ya existe"
   },

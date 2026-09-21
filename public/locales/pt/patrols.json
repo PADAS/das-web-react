@@ -1,25 +1,49 @@
 {
+  "activity": {
+    "activitySectionTitle": "Atividade",
+    "collapseAllButtonLabel": "Minimizar tudo",
+    "expandAllButtonLabel": "Expandir tudo",
+    "sortDirectionButtonLabel": {
+      "down": "Ordenar atividade em ordem crescente",
+      "up": "Ordenar atividade em ordem decrescente"
+    },
+    "summaryStats": {
+      "activeTimeLabel": "Tempo ativo",
+      "distanceLabel": "Distância",
+      "distanceMenuLabel": "O que a distância abrange",
+      "distanceOptionButtonLabel": "Distância percorrida: {{option}}. Alterar o que a distância abrange",
+      "durationLabel": "Duração",
+      "eventsLabel": "Eventos",
+      "legLeadOptionDescription": "A distância total percorrida pelo líder de cada etapa ou, em uma etapa sem líder, pelo membro da equipe ou recurso que foi mais longe",
+      "legLeadOptionLabel_one": "Líder da etapa",
+      "legLeadOptionLabel_other": "Líderes das etapas",
+      "pausedTimeLabel": "Tempo pausado",
+      "teamLeadIndicator": "Líder da equipe"
+    },
+    "timeLabel": "Hora"
+  },
   "addToPatrolModal": {
-    "title": "Adicionar à Patrulha",
     "cancel": "Cancelar",
+    "loading": "Carregando...",
     "noMorePatrols": "Não há mais patrulhas para mostrar",
-    "loading": "Carregando..."
+    "title": "Adicionar à patrulha"
   },
   "detailView": {
     "addEmptyNoteAlert": "Não é possivel adicionar uma nova anotação: existe uma anotação vazia que ainda não foi salva",
     "formButtons": {
-      "save": "Salvar",
-      "cancel": "Cancelar"
+      "cancel": "Cancelar",
+      "save": "Salvar"
     },
     "header": {
+      "patrolRestoreButton": "Restaurar",
       "patrolSchedule": "Programada para  {{scheduledStartTime}}",
       "patrolStartButton": "Iniciar",
-      "patrolRestoreButton": "Restaurar",
       "uiStateTitles": {
         "active": "Ativa",
         "cancelled": "Cancelada",
         "done": "Finalizada",
         "invalid": "Configuração inválida",
+        "paused": "Pausada",
         "readyToStart": "Pronta para começar",
         "scheduled": "Programada",
         "startOverdue": "Início atrasado"
@@ -27,23 +51,23 @@
     },
     "loadingMessage": "Salvando...",
     "planSection": {
-      "autoStartCheckboxLargeLabel": "Iniciar automaticamente a patrulha em EarthRanger no horário programado",
-      "autoStartCheckboxSmallLabel": "Iniciar automaticamente a patrulha em EarthRanger",
       "autoEndCheckboxLargeLabel": "Finalizar automaticamente a patrulha em EarthRanger no horário programado",
       "autoEndCheckboxSmallLabel": "Finalizar automaticamente a patrulha em EarthRanger",
+      "autoStartCheckboxLargeLabel": "Iniciar automaticamente a patrulha em EarthRanger no horário programado",
+      "autoStartCheckboxSmallLabel": "Iniciar automaticamente a patrulha em EarthRanger",
       "endDateLabel": "Data da finalização",
-      "endTimeLabel": "Hora da finalização",
       "endLocationLargeLabel": "Localização da finalização",
       "endLocationSmallLabel": "Localização",
+      "endTimeLabel": "Hora da finalização",
       "locationSelectorPlaceholder": "Definir localização",
       "objectiveLabel": "Objetivo",
       "objectivePlaceholder": "Descrever o propósito da patrulha...",
-      "startDateLabel": "Data de início:",
-      "startTimeLabel": "Hora de início:",
-      "startLocationLargeLabel": "Localização de início:",
+      "startDateLabel": "Data de início",
+      "startLocationLargeLabel": "Localização de início",
       "startLocationSmallLabel": "Localização",
+      "startTimeLabel": "Hora de início",
       "title": "Plano",
-      "trackedByLabel": "Rastreado por:",
+      "trackedByLabel": "Rastreado por",
       "trackedByPlaceholder": "Selecionar dispositivo..."
     },
     "quickLinksTitles": {
@@ -52,21 +76,159 @@
       "plan": "Plano"
     }
   },
+  "detailViewLoader": {
+    "loadingLabel": "Carregando os dados da patrulha"
+  },
+  "editLeg": {
+    "footer": {
+      "cancelButton": "Cancelar",
+      "saveButton": "Salvar"
+    },
+    "header": {
+      "breadcrumbPatrolsLabel": "Patrulhas",
+      "mobileProvenancePill": "Móvel",
+      "pauseIconLabel": "Pausa",
+      "title": {
+        "leg": "Editar etapa {{number}}",
+        "pause": "Editar pausa {{number}}"
+      }
+    },
+    "saveErrorMessage": "Não foi possível salvar a etapa da patrulha. Tente novamente."
+  },
+  "header": {
+    "breadcrumbNavLabel": "Navegação da patrulha",
+    "closeButtonLabel": "Fechar barra lateral"
+  },
   "invalidDatesModal": {
     "body": "Esta patrulha não pode ser salva. A hora de finalização de uma patrulha deve ser posterior à hora de início. Por favor, corrija a hora de início ou finalização da patrulha.",
     "okButton": "Ok",
     "title": "Datas de patrulha inválidas."
   },
-  "patrolMenu": {
-    "cancelPatrol": "Cancelar Patrulha",
-    "copyButton": "Copiar link de patrulha",
-    "copyButtonMessage": "Link copiado",
-    "endPatrol": "Finalizar patrulha",
-    "downloadTrackButton": "Baixar trilha da patrulha",
-    "printPatrolButton": "Imprimir patrulha",
-    "restorePatrol": "Restaurar patrulha",
-    "startPatrol": "Iniciar patrulha",
-    "noTrackDataTooltip": "Nenhum dado para baixar"
+  "legForm": {
+    "patrolTypeField": {
+      "label": "Tipo de patrulha",
+      "placeholder": "Selecione um tipo de patrulha",
+      "requiredError": "Uma etapa precisa de um tipo de patrulha."
+    },
+    "patrolTypeSchemaErrorMessage": "Não foi possível carregar os campos deste tipo de patrulha.",
+    "patrolTypeSchemaLoadingLabel": "Carregando os campos deste tipo de patrulha",
+    "staticFields": {
+      "assetsLabel": "Recursos",
+      "autoEndCheckboxLabel": "Finalizar automaticamente a etapa neste horário",
+      "autoStartCheckboxLabel": "Iniciar automaticamente a etapa neste horário",
+      "endDateBeforeStartDateError": "A finalização da etapa deve ser posterior ao seu início.",
+      "endDateInputLabel": "Data de finalização",
+      "endDateOverlapsNextLegError": "Esta etapa não pode se sobrepor à próxima.",
+      "endLocationLabel": "Localização da finalização",
+      "endTimeInputLabel": "Hora da finalização",
+      "endTimeLabel": "Hora da finalização",
+      "endTimeRequiredError": "Uma etapa com data de finalização precisa de uma hora de finalização.",
+      "startDateInputLabel": "Data de início",
+      "startDateOverlapsNextLegError": "Esta etapa não pode se sobrepor à próxima.",
+      "startDateOverlapsPreviousLegError": "Esta etapa não pode se sobrepor à anterior.",
+      "startDateRequiredError": "Uma etapa precisa de uma data de início.",
+      "startLocationLabel": "Localização de início",
+      "startTimeInputLabel": "Hora de início",
+      "startTimeLabel": "Hora de início",
+      "startTimeRequiredError": "Uma etapa precisa de uma hora de início.",
+      "teamLabel": "Equipe",
+      "teamLeadLabel": "Líder da equipe",
+      "teamMembersLabel": "Membros da equipe"
+    },
+    "universalFieldsSchemaErrorMessage": "Não foi possível carregar os campos universais de patrulha.",
+    "universalFieldsSchemaLoadingLabel": "Carregando os campos universais de patrulha"
+  },
+  "legOverview": {
+    "activityEmptyStateMessage": "A atividade da etapa aparecerá aqui",
+    "addEventLinkErrorMessage": "O evento foi salvo, mas não foi possível adicioná-lo a esta etapa da patrulha.",
+    "attachmentsSaveErrorMessage": "Não foi possível carregar alguns anexos. Tente novamente.",
+    "endedTitle": {
+      "leg": "Etapa {{number}} encerrada",
+      "pause": "Pausa {{number}} encerrada"
+    },
+    "footer": {
+      "addEventButtonLabel": "Relatar um evento nesta etapa de patrulha",
+      "addEventButtonText": "Evento",
+      "editButton": "Editar",
+      "saveButton": "Salvar"
+    },
+    "header": {
+      "breadcrumbPatrolsLabel": "Patrulhas",
+      "copyLinkMessage": "Link copiado",
+      "copyLinkOption": {
+        "leg": "Copiar o link da etapa de patrulha",
+        "pause": "Copiar o link da pausa de patrulha"
+      },
+      "downloadTrackOption": "Baixar o trajeto da etapa de patrulha",
+      "fitToBoundsButtonLabel": "Ampliar para os limites da etapa de patrulha",
+      "jumpToLocationButtonLabel": "Ir para a localização",
+      "mobileProvenancePill": "Móvel",
+      "moreOptionsButtonLabel": "Mais opções",
+      "pauseIconLabel": "Pausa",
+      "printOption": {
+        "leg": "Imprimir a etapa de patrulha",
+        "pause": "Imprimir a pausa de patrulha"
+      },
+      "title": {
+        "leg": "Etapa {{number}}",
+        "pause": "Pausa {{number}}"
+      },
+      "toggleTrackButtonLabel": {
+        "hidden": "Mostrar o trajeto da patrulha",
+        "pinned": "Ocultar o trajeto da patrulha",
+        "visible": "Fixar o trajeto da patrulha"
+      }
+    },
+    "plan": {
+      "patrolTypeSchemaErrorMessage": "Não foi possível carregar os campos deste tipo de patrulha.",
+      "patrolTypeSchemaLoadingLabel": "Carregando os campos deste tipo de patrulha",
+      "staticFields": {
+        "assetsLabel": "Ativos",
+        "copyCoordinatesButtonLabel": "Copiar as coordenadas de {{field}}",
+        "copyCoordinatesMessage": "Coordenadas copiadas",
+        "endLabel": "Fim",
+        "jumpToLocationButtonLabel": "Ir para a localização de {{field}}",
+        "scheduledIndicator": "Programado",
+        "startLabel": "Início",
+        "teamLabel": "Equipe",
+        "teamLeadIndicator": "Líder",
+        "teamLeadLabel": "Líder da equipe",
+        "teamMembersLabel": "Membros da equipe"
+      },
+      "universalFieldsSchemaErrorMessage": "Não foi possível carregar os campos universais de patrulha.",
+      "universalFieldsSchemaLoadingLabel": "Carregando os campos universais de patrulha"
+    },
+    "saveErrorMessage": "Não foi possível salvar a etapa da patrulha. Tente novamente.",
+    "startedTitle": {
+      "leg": "Etapa {{number}} iniciada",
+      "pause": "Pausa {{number}} iniciada"
+    }
+  },
+  "newLeg": {
+    "footer": {
+      "cancelButton": "Cancelar",
+      "saveButton": "Salvar"
+    },
+    "header": {
+      "breadcrumbNewLegLabel": "Nova etapa de patrulha",
+      "breadcrumbPatrolsLabel": "Patrulhas",
+      "statePill": "Nova",
+      "title": "Nova etapa de patrulha"
+    },
+    "saveErrorMessage": "Não foi possível criar a etapa da patrulha. Tente novamente."
+  },
+  "newPatrol": {
+    "footer": {
+      "cancelButton": "Cancelar",
+      "saveButton": "Salvar"
+    },
+    "header": {
+      "breadcrumbNewPatrolLabel": "Nova patrulha",
+      "breadcrumbPatrolsLabel": "Patrulhas",
+      "statePill": "Nova",
+      "titleInputLabel": "Título da patrulha"
+    },
+    "saveErrorMessage": "Não foi possível criar a patrulha. Tente novamente."
   },
   "patrolList": {
     "emptyPatrolList": "Não há patrulhas para mostrar"
@@ -76,9 +238,123 @@
     "scheduledTitle": "Programada:",
     "startButton": "Iniciar"
   },
+  "patrolMenu": {
+    "cancelPatrol": "Cancelar patrulha",
+    "copyButton": "Copiar link de patrulha",
+    "copyButtonMessage": "Link copiado",
+    "downloadTrackButton": "Baixar trilha da patrulha",
+    "endPatrol": "Finalizar patrulha",
+    "label": "Ver opções da patrulha",
+    "noTrackDataTooltip": "Nenhum dado para baixar",
+    "printPatrolButton": "Imprimir patrulha",
+    "restorePatrol": "Restaurar patrulha",
+    "startPatrol": "Iniciar patrulha",
+    "title": "Opções da patrulha"
+  },
+  "patrolOverview": {
+    "addEventLinkErrorMessage": "O evento foi salvo, mas não foi possível adicioná-lo a esta patrulha.",
+    "attachmentsSaveErrorMessage": "Não foi possível carregar alguns anexos. Tente novamente.",
+    "footer": {
+      "addEventButton": "Adicionar evento",
+      "addEventButtonLabel": "Adicionar evento",
+      "addEventButtonText": "Evento",
+      "saveButton": "Salvar"
+    },
+    "header": {
+      "breadcrumbPatrolsLabel": "Patrulhas",
+      "copyLinkMessage": "Link copiado",
+      "copyLinkOption": "Copiar link de patrulha",
+      "downloadTrackOption": "Baixar trilha da patrulha",
+      "fitToBoundsButtonLabel": "Ajustar aos limites da patrulha",
+      "jumpToLocationButtonLabel": "Ir para a localização",
+      "mobileProvenancePill": "Móvel",
+      "moreOptionsButtonLabel": "Mais opções",
+      "printOption": "Imprimir patrulha",
+      "statusMenuLabel": "Ações de status da patrulha",
+      "statusSelectLabel": "Alterar o status da patrulha",
+      "titleInputLabel": "Título da patrulha",
+      "toggleTrackButtonLabel": {
+        "hidden": "Mostrar trilha da patrulha",
+        "pinned": "Ocultar trilha da patrulha",
+        "visible": "Fixar trilha da patrulha"
+      }
+    },
+    "history": {
+      "sortDirectionButtonLabel": {
+        "down": "Ordenar histórico em ordem crescente",
+        "up": "Ordenar histórico em ordem decrescente"
+      },
+      "timeLabel": "Hora"
+    },
+    "historyTabTitle": "Histórico",
+    "overview": {
+      "activityEmptyStateMessage": "A atividade da patrulha aparecerá aqui",
+      "legEndedTitle": "Etapa {{legNumber}} encerrada",
+      "legs": {
+        "endColumnHeader": "Data da finalização",
+        "legActionsColumnHeader": "Ações",
+        "legColumnHeader": "Etapa",
+        "legDidNotRunLabel": "Esta etapa nunca foi realizada",
+        "legTableCaption": "Etapas da patrulha",
+        "newLegButton": "Nova etapa de patrulha",
+        "patrolTypeColumnHeader": "Tipo de patrulha",
+        "startColumnHeader": "Data de início",
+        "teamAndTracking": {
+          "jumpToLocationButtonLabel": "Ir para a localização de {{subject}}",
+          "listLabel": "Sujeitos rastreados pela etapa {{number}}",
+          "teamLeadIndicator": "Líder da equipe",
+          "toggleButtonLabel": "{{subject}} +{{extraSubjects}}",
+          "toggleButtonTitle": "Mostrar os sujeitos rastreados pela etapa {{number}}"
+        },
+        "teamColumnHeader": "Equipe e rastreamento",
+        "viewLegButtonLabel": {
+          "leg": "Ver etapa {{number}}",
+          "pause": "Ver pausa {{number}}"
+        },
+        "zoomToLegBoundsButtonLabel": "Ajustar aos limites da etapa {{number}}"
+      },
+      "legStartedTitle": "Etapa {{legNumber}} iniciada",
+      "patrolEndedTitle": "Patrulha finalizada",
+      "patrolPausedTitle": "Patrulha pausada por {{pausedFor}}",
+      "patrolResumedTitle": "Patrulha retomada",
+      "patrolStartedTitle": "Patrulha iniciada",
+      "viewLegLinkLabel": {
+        "leg": "Ver etapa {{number}}",
+        "pause": "Ver pausa {{number}}"
+      }
+    },
+    "overviewTabTitle": "Visão geral",
+    "saveErrorMessage": "Não foi possível salvar a patrulha. Tente novamente.",
+    "tabsLabel": "Guias de visão geral da patrulha"
+  },
+  "patrolStartStopLayer": {
+    "endMarkerLabel": "Fim da patrulha",
+    "estimatedEndMarkerLabel": "Fim da patrulha (aprox.)",
+    "estimatedStartAndEndMarkerLabel": "Início e fim da patrulha (aprox.)",
+    "estimatedStartMarkerLabel": "Início da patrulha (aprox.)",
+    "legMarkerLabel": "Etapa {{legNumber}}",
+    "pauseMarkerLabel": "Pausa {{pauseNumber}}",
+    "startAndEndMarkerLabel": "Início e fim da patrulha",
+    "startMarkerLabel": "Início da patrulha"
+  },
+  "statusPill": {
+    "uiStateTitles": {
+      "active": "Ativa",
+      "cancelled": "Cancelada",
+      "done": "Finalizada",
+      "invalid": "Configuração inválida",
+      "paused": "Pausada",
+      "readyToStart": "Pronta para começar",
+      "scheduled": "Programada",
+      "startOverdue": "Início atrasado"
+    }
+  },
+  "titleInput": {
+    "editButtonLabel": "Editar título"
+  },
   "trackToggleButton": {
-    "tracksPinned": "Rastros fixados",
+    "tracksOff": "Rastros desativados",
     "tracksOn": "Rastros ativados",
-    "tracksOff": "Rastros desativados"
+    "tracksPinned": "Rastros fixados"
   }
 }

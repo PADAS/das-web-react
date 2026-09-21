@@ -1,36 +1,5 @@
-@import '../../common/styles/layout';
-@import '../../common/styles/vars/colors';
+@use '../../common/styles/buttons';
 
 .addReportButton {
-  display: flex;
-  flex-direction: row;
-  padding: 1rem;
-  width: auto;
-
-  span {
-    color: $secondary-medium-gray;
-    font-size: 1rem;
-    font-weight: bold;
-    display: none;
-
-    @media (min-width: $md-layout-width-min) {
-      display: unset;
-    }
-  }
-
-  svg {
-    height: 1rem;
-    width: 1rem;
-    border-radius: 0;
-    margin-bottom: 0;
-    
-    @media (min-width: $md-layout-width-min) {
-      margin-right: 0.375rem;
-    }
-  }
-
-  &:hover {
-    color: white;
-    background-color: $secondary-medium-gray;
-  }
+  @include buttons.baseButton;
 }

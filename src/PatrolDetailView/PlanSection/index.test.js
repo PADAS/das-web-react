@@ -52,24 +52,20 @@ const store = {
     userPreferences: { gpsFormat: GPS_FORMATS.DEG },
   },
 };
-store.data.patrolLeaderSchema.trackedbySchema.properties.leader.enum_ext.push(
-  {
-    value: {
-      content_type: 'observations.subject',
-      id: 'dba0e0a6-0083-41be-a0eb-99e956977748',
-      name: 'Alex',
-      subject_type: 'person',
-      subject_subtype: 'ranger',
-      common_name: null,
-      additional: {},
-      created_at: '2021-08-31T14:42:06.701541-07:00',
-      updated_at: '2021-08-31T14:42:06.701557-07:00',
-      is_active: true,
-      tracks_available: false,
-      image_url: '/static/ranger-black.svg'
-    },
-  }
-);
+store.data.patrolTeamAndTrackingOptions.leaders.push({
+  content_type: 'observations.subject',
+  id: 'dba0e0a6-0083-41be-a0eb-99e956977748',
+  name: 'Alex',
+  subject_type: 'person',
+  subject_subtype: 'ranger',
+  common_name: null,
+  additional: {},
+  created_at: '2021-08-31T14:42:06.701541-07:00',
+  updated_at: '2021-08-31T14:42:06.701557-07:00',
+  is_active: true,
+  tracks_available: false,
+  image_url: '/static/ranger-black.svg'
+});
 
 describe('PatrolDetailView - PlanSection', () => {
   let map, mockedStore;
@@ -110,7 +106,7 @@ describe('PatrolDetailView - PlanSection', () => {
     const selectionImage = await screen.getByAltText('Radio icon for Alex value');
 
     expect(within(reportedBySelect).queryByText('Select Device...')).toBeNull();
-    expect(selectionImage).toHaveAttribute('src', 'https://localhost//static/ranger-black.svg');
+    expect(selectionImage).toHaveAttribute('src', 'https://localhost/static/ranger-black.svg');
     expect((await within(reportedBySelect).findByText('Alex'))).toBeDefined();
   });
 

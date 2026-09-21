@@ -8,21 +8,36 @@
     "timeLabel": "Tiempo"
   },
   "addAttachmentButton": "Adjuntar",
+  "addAttachmentButtonLabel": "Agregar un adjunto",
   "addReportButtonLabel": "Crear Evento",
   "addReportButtonTitle": "Evento",
   "addNoteButton": "Nota",
+  "addNoteButtonLabel": "Agregar una nota",
   "attachmentControls": {
     "addNoteTitle": "Agregar Nota",
     "addAttachmentTitle": "Adjuntar archivo"
   },
   "attachmentListItem": {
     "audioPreviewAlt": "{{fileName}} vista previa de audio",
+    "collapseClosedButtonLabel": "Expandir {{fileName}}",
+    "collapseOpenButtonLabel": "Colapsar {{fileName}}",
+    "deleteButtonTooltip": "Borrar {{fileName}}",
+    "downloadButtonTooltip": "Descargar {{fileName}}",
+    "fullViewButtonTooltip": "Mostrar {{fileName}} en pantalla completa",
     "imagePreviewAlt": "{{fileName}} vista previa",
-    "videoPreviewAlt": "{{fileName}} vista previa de video",
     "mediaLoadErrorMessage": "No se pudo cargar este archivo.",
-    "downloadButtonTooltip": "Descargar",
-    "deleteButtonTooltip": "Borrar",
-    "fullViewButtonTooltip": "Vista completa"
+    "videoPreviewAlt": "{{fileName}} vista previa de video"
+  },
+  "containedReportListItem": {
+    "activeStateLabel": "Activo",
+    "collapseClosedButtonLabel": "Expandir {{title}}",
+    "collapseOpenButtonLabel": "Colapsar {{title}}",
+    "loadingLabel": "Cargando {{title}}",
+    "resolvedStateLabel": "Resuelto",
+    "reviewStateLabel": "En revisión",
+    "serialNumberLabel": "Número de evento",
+    "stateLabel": "Estado",
+    "viewReportButtonLabel": "Ver evento {{title}}"
   },
   "footer": {
     "cancelButton": "Cancelar",
@@ -32,7 +47,6 @@
     "stateReopenButton": "Guardar y reabrir",
     "stateReviewButton": "Guardar y revisar"
   },
-  "goToReportButtonTooltip": "Ir a evento",
   "header": {
     "historyLinkCreated": "Creado",
     "historyLinkUpdated": "Actualizado",
@@ -57,18 +71,16 @@
   },
   "noteListItem": {
     "cancelEditingNoteButton": "Cancelar",
-    "deleteNoteButtonTooltip": "Borrar",
+    "collapseClosedButtonLabel": "Expandir nota",
+    "collapseOpenButtonLabel": "Colapsar nota",
+    "deleteNoteButtonTooltip": "Borrar nota",
     "doneEditingNoteButton": "Listo",
-    "editNoteButtonTooltip": "Editar",
+    "editNoteButtonTooltip": "Editar nota",
+    "noteTextAreaLabel": "Texto de la nota",
     "noteTitle": "Nueva nota: {{noteText}}"
   },
   "reportFormSummary": {
     "reportTypeLabel": "Tipo de evento",
-    "reportedByLabel": "Reportado por",
-    "v2SchemaFormSummary": {
-      "attachmentHumanizedValue_one": "1 archivo",
-      "attachmentHumanizedValue_other": "{{count}} archivos",
-      "collectionHumanizedValue": "{{collectionLength}} elementos"
-    }
+    "reportedByLabel": "Reportado por"
   }
 }

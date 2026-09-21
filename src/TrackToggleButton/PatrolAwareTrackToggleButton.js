@@ -3,20 +3,28 @@ import isEqual from 'react-fast-compare';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { PATROL_LIST_ITEM_CATEGORY, trackEventFactory } from '../utils/analytics';
+import { PREVIEW_FEATURES } from '../constants';
 import { togglePatrolTrackState } from '../ducks/patrols';
 import { toggleTrackState } from '../ducks/map-ui';
+import { usePreviewFeature } from '../hooks';
 
 import TrackToggleButton from './';
 
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
-const PatrolAwareTrackToggleButton = ({ buttonRef, patrolData, ...restProps }) => {
+const PatrolAwareTrackToggleButton = ({ buttonRef, patrol, patrolData, ...restProps }) => {
   const dispatch = useDispatch();
+
+  const patrolSchemasEnabled = usePreviewFeature(PREVIEW_FEATURES.PATROL_SCHEMAS);
 
   const patrolTrackState = useSelector((state) => state.view.patrolTrackState);
   const subjectTrackState = useSelector((state) => state.view.subjectTrackState);
 
-  const { patrol, leader } = patrolData;
+  const { leader } = patrolData;
+
+  // Only the legacy toggle pairs a patrol's track with its leader's own. A
+  // patrol track is every subject its legs name, and a leg may have no leader.
+  const canToggleTrack = patrolSchemasEnabled || !!leader;
 
   const patrolTrackPinned = patrolTrackState.pinned.includes(patrol.id);
   const patrolTrackVisible = !patrolTrackPinned && patrolTrackState.visible.includes(patrol.id);
@@ -29,15 +37,21 @@ const PatrolAwareTrackToggleButton = ({ buttonRef, patrolData, ...restProps }) =
   const onTrackButtonClick = useCallback((event) => {
     event.stopPropagation();
 
-    const nextPatrolTrackStateIfToggled = patrolTrackPinned
-      ? 'hidden'
-      : patrolTrackHidden ? 'visible' : 'pinned';
-
-    if (!leader) {
+    if (!canToggleTrack) {
       return;
     }
 
+    const nextPatrolTrackStateIfToggled = patrolTrackPinned
+      ? 'hidden'
+      : patrolTrackHidden ? 'visible' : 'pinned';
     const actionToTrack = `Toggle patrol track state to ${nextPatrolTrackStateIfToggled} from patrol card popover`;
+
+    if (patrolSchemasEnabled) {
+      dispatch(togglePatrolTrackState(patrol.id));
+      patrolListItemTracker.track(actionToTrack);
+      return;
+    }
+
     const patrolToggleStates = [patrolTrackPinned, patrolTrackVisible, patrolTrackHidden];
     const subjectToggleStates = [subjectTrackPinned, subjectTrackVisible, subjectTrackHidden];
 
@@ -68,9 +82,11 @@ const PatrolAwareTrackToggleButton = ({ buttonRef, patrolData, ...restProps }) =
       return;
     }
   }, [
+    canToggleTrack,
     dispatch,
     leader,
     patrol.id,
+    patrolSchemasEnabled,
     patrolTrackHidden,
     patrolTrackPinned,
     patrolTrackVisible,
@@ -80,11 +96,11 @@ const PatrolAwareTrackToggleButton = ({ buttonRef, patrolData, ...restProps }) =
   ]);
 
   return <TrackToggleButton
-    disabled={!leader}
+    disabled={!canToggleTrack}
     onClick={onTrackButtonClick}
     ref={buttonRef}
     showTransparentIcon
-    trackPinned={patrolTrackPinned && subjectTrackPinned}
+    trackPinned={patrolSchemasEnabled ? patrolTrackPinned : patrolTrackPinned && subjectTrackPinned}
     trackVisible={patrolTrackVisible}
     {...restProps}
   />;

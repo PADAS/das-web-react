@@ -47,6 +47,43 @@
   text-align: center;
 }
 
+.coolOffNotice {
+  align-items: center;
+  background-color: $very-light-blue;
+  border-color: $light-gray-lines;
+  border-radius: 0.25rem;
+  border-style: solid;
+  border-width: 1px;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 1.5rem;
+  text-align: center;
+
+  .coolOffIcon {
+    height: 2.5rem;
+    width: 2.5rem;
+
+    > g {
+      stroke: $primary-button-color;
+    }
+  }
+
+  .coolOffTitle {
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin: 1rem 0 0.5rem;
+  }
+
+  .coolOffMessage {
+    color: $primary-font-color;
+    margin-bottom: 0;
+  }
+
+  .coolOffBackButton {
+    margin-top: 1.5rem;
+  }
+}
+
 .searchControls {
   align-items: center;
   display: flex;

@@ -42,6 +42,52 @@ export const setIntendedPostAuth0SuccessRoute = (route) => {
   }
 };
 
+const MANAGED_USER_LOGIN_ATTEMPT_KEY = 'er:managed_user_login_attempt';
+
+// Auth0 reports failures after a full redirect, by which point nothing on the page
+// says which button started the login. This is how the callback knows.
+export const markManagedUserLoginAttempt = () => {
+  try {
+    sessionStorage.setItem(MANAGED_USER_LOGIN_ATTEMPT_KEY, 'true');
+  } catch (_) {
+    // Ignore errors
+  }
+};
+
+// Reads and clears together — the marker describes one attempt.
+export const takeManagedUserLoginAttempt = () => {
+  try {
+    const attempted = sessionStorage.getItem(MANAGED_USER_LOGIN_ATTEMPT_KEY) === 'true';
+    sessionStorage.removeItem(MANAGED_USER_LOGIN_ATTEMPT_KEY);
+    return attempted;
+  } catch (_) {
+    return false;
+  }
+};
+
+const MANAGED_USER_NOT_PROVISIONED_KEY = 'er:managed_user_not_provisioned';
+
+// Set when a managed user has no ER account here. The logout redirect that follows
+// leaves the app, so the reason cannot ride router state.
+export const markManagedUserNotProvisioned = () => {
+  try {
+    sessionStorage.setItem(MANAGED_USER_NOT_PROVISIONED_KEY, 'true');
+  } catch (_) {
+    // Ignore errors
+  }
+};
+
+// Carries the message, not the protection: losing it costs an explanation.
+export const takeManagedUserNotProvisioned = () => {
+  try {
+    const notProvisioned = sessionStorage.getItem(MANAGED_USER_NOT_PROVISIONED_KEY) === 'true';
+    sessionStorage.removeItem(MANAGED_USER_NOT_PROVISIONED_KEY);
+    return notProvisioned;
+  } catch (_) {
+    return false;
+  }
+};
+
 export const stripAuth0Params = (url) => {
   const [pathname, searchString] = url.split('?');
   if (!searchString) return pathname;

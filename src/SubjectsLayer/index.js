@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { featureCollection } from '@turf/turf';
 import { useSelector } from 'react-redux';
 
@@ -56,6 +56,36 @@ const SubjectsLayer = ({ mapImages = {}, onSubjectClick }) => {
   useEffect(() => {
     setMapSubjectFeatures({ ...subjectFeatureCollection });
   }, [mapImages, subjectFeatureCollection]);
+
+  // When an unclustered symbol source's data shrinks Mapbox keeps the
+  // previously rendered symbol bucket on screen. Toggling the layer's
+  // visibility rebuilds the bucket.
+  const previousSubjectCountRef = useRef(0);
+  const currentSubjectCount = mapSubjectFeatures.features?.length ?? 0;
+  useEffect(() => {
+    const didShrink = currentSubjectCount < previousSubjectCountRef.current;
+    previousSubjectCountRef.current = currentSubjectCount;
+
+    if (!didShrink || !map || shouldSubjectsBeClustered) return;
+
+    const rebuildLayers = () => [UNCLUSTERED_LAYER_ID, `${UNCLUSTERED_LAYER_ID}-labels`].forEach((layerId) => {
+      // Preserve the layer's current visibility (a user may have name labels turned off);
+      // a hidden layer has nothing stale to clear, so skip it.
+      if (map.getLayer(layerId) && map.getLayoutProperty(layerId, 'visibility') !== 'none') {
+        map.setLayoutProperty(layerId, 'visibility', 'none');
+        map.setLayoutProperty(layerId, 'visibility', 'visible');
+      }
+    });
+
+    const onSourceData = (event) => {
+      if (event.sourceId === UNCLUSTERED_SOURCE_ID && event.isSourceLoaded) {
+        map.off('sourcedata', onSourceData);
+        rebuildLayers();
+      }
+    };
+    map.on('sourcedata', onSourceData);
+    return () => map.off('sourcedata', onSourceData);
+  }, [currentSubjectCount, map, shouldSubjectsBeClustered]);
 
   const onSubjectSymbolClick = useMemo(() => withMultiLayerHandlerAwareness(
     map,

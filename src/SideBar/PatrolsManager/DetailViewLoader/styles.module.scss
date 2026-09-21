@@ -1,0 +1,10 @@
+@use '../_shared' as shared;
+
+.detailViewLoader {
+  @include shared.detail-view-width;
+
+  align-items: center;
+  display: flex;
+  height: 100%;
+  justify-content: center;
+}

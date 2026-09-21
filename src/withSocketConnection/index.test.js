@@ -6,7 +6,11 @@ import { recoverAuth } from '../utils/auth-recovery';
 import { clearAuth } from '../ducks/auth';
 
 jest.mock('socket.io-client', () => ({ __esModule: true, default: jest.fn() }));
-jest.mock('../utils/auth-recovery', () => ({ recoverAuth: jest.fn() }));
+// Real parsers; only recoverAuth is stubbed.
+jest.mock('../utils/auth-recovery', () => ({
+  ...jest.requireActual('../utils/auth-recovery'),
+  recoverAuth: jest.fn(),
+}));
 jest.mock('../ducks/auth', () => ({ clearAuth: jest.fn() }));
 // The socket handler dispatches through the imported store singleton; stub it so the
 // test controls dispatch and importing the hook doesn't build the real reducer tree.
@@ -142,5 +146,67 @@ describe('websocket auth recovery (resp_authorization)', () => {
 
     expect(recoverAuth).toHaveBeenCalledTimes(2);
     expect(clearAuth).not.toHaveBeenCalled();
+  });
+
+  test('a 401 carrying the RFC 9470 step-up challenge routes to interactive step-up, not silent-renew', async () => {
+    // Step-up never settles (redirect); assert the routing decision, not a completion.
+    recoverAuth.mockReturnValue(new Promise(() => {}));
+    const challenge = 'Bearer error="insufficient_user_authentication", acr_values="http://schemas.openid.net/pape/policies/2007/06/multi-factor", max_age="31536000"';
+
+    const { socket, store } = bindSocket();
+    await act(async () => {
+      socket.handlers.resp_authorization({ status: { code: 401, www_authenticate: challenge } });
+      await Promise.resolve();
+    });
+
+    expect(recoverAuth).toHaveBeenCalledWith({
+      stepUp: true,
+      challenge: {
+        error: 'insufficient_user_authentication',
+        acrValues: 'http://schemas.openid.net/pape/policies/2007/06/multi-factor',
+        maxAge: '31536000',
+      },
+    });
+    expect(clearAuth).not.toHaveBeenCalled();
+    expect(store.dispatch).not.toHaveBeenCalledWith(CLEAR_AUTH_ACTION);
+  });
+
+  test('a 401 with an ordinary (non-step-up) challenge still takes the silent-renew path', async () => {
+    recoverAuth.mockResolvedValue('fresh.token');
+
+    const { socket } = bindSocket();
+    await act(async () => {
+      await socket.handlers.resp_authorization({
+        status: { code: 401, www_authenticate: 'Bearer error="invalid_token"' },
+      });
+    });
+
+    expect(recoverAuth).toHaveBeenCalledWith(undefined);
+    expect(clearAuth).not.toHaveBeenCalled();
+  });
+
+  test('escalates to step-up (not sign-out) when a silently-renewed socket then 401s with a step-up challenge', async () => {
+    const { socket, store } = bindSocket();
+
+    // Ordinary 401 → silent renew → re-authorize (sets the once-per-cycle guard).
+    recoverAuth.mockResolvedValueOnce('renewed.token');
+    await act(async () => {
+      await socket.handlers.resp_authorization({ status: { code: 401 } });
+    });
+
+    // The re-authorize 401s with a step-up challenge (guard already set); step-up bypasses it.
+    recoverAuth.mockReturnValue(new Promise(() => {}));
+    const challenge = 'Bearer error="insufficient_user_authentication", acr_values="urn:mfa", max_age="3600"';
+    await act(async () => {
+      socket.handlers.resp_authorization({ status: { code: 401, www_authenticate: challenge } });
+      await Promise.resolve();
+    });
+
+    expect(recoverAuth).toHaveBeenLastCalledWith({
+      stepUp: true,
+      challenge: { error: 'insufficient_user_authentication', acrValues: 'urn:mfa', maxAge: '3600' },
+    });
+    expect(clearAuth).not.toHaveBeenCalled();
+    expect(store.dispatch).not.toHaveBeenCalledWith(CLEAR_AUTH_ACTION);
   });
 });

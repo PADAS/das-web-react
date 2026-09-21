@@ -8,15 +8,16 @@
   font-size: 1rem !important;
   max-height: 12rem;
   min-width: 6rem;
-  overflow-y: scroll;
+  overflow-y: auto;
 
   .list {
     margin: 0;
     outline: none;
 
     .option {
+      align-items: center;
       display: flex;
-      flex-direction: column;
+      gap: 0.5rem;
       line-height: 1rem;
       padding: 0.5rem;
 
@@ -29,10 +30,19 @@
         scroll-margin: 2rem;
       }
 
-      .duration {
-        color: colors.$secondary-medium-light-gray;
-        font-size: 0.875rem;
-        margin-top: 0.125rem;
+      .checkMark, .checkMarkPlaceholder {
+        @include inputs.dropdownOptionCheckMark;
+      }
+
+      .optionLabel {
+        display: flex;
+        flex-direction: column;
+
+        .duration {
+          color: colors.$secondary-medium-light-gray;
+          font-size: 0.875rem;
+          margin-top: 0.125rem;
+        }
       }
     }
   }

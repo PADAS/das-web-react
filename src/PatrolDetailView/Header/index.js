@@ -4,13 +4,13 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as PlayIcon } from '../../common/images/icons/play.svg';
 
+import { EMPTY_VALUE, TAB_KEYS } from '../../constants';
+import { formatDistanceInKilometers } from '../../utils/distance';
 import { PATROL_DETAIL_VIEW_CATEGORY, trackEventFactory } from '../../utils/analytics';
-import { TAB_KEYS } from '../../constants';
 import usePatrol from '../../hooks/usePatrol';
 
 import SvgIcon from '../../SvgIcon';
 import PatrolTrackControls from '../../PatrolTrackControls';
-import PatrolDistanceCovered from '../../Patrols/DistanceCovered';
 import PatrolMenu from '../../PatrolMenu';
 
 import * as styles from './styles.module.scss';
@@ -19,15 +19,16 @@ const patrolDetailViewTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
 
 const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) => {
   const { t } = useTranslation('patrols', { keyPrefix: 'detailView.header' });
+  const { t: tUtils } = useTranslation('utils');
 
   const {
-    patrolData,
+    patrolLeadSumDistance,
 
-    isPatrolActive,
     isPatrolCancelled,
     isPatrolDone,
     isPatrolOverdue,
     isPatrolScheduled,
+    isPatrolUnderWay,
 
     displayTitle,
     patrolElapsedTime,
@@ -49,11 +50,13 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
   const title = patrol.title || displayTitle;
 
   const titleDetails = useMemo(() => {
-    if (isPatrolActive || isPatrolDone) {
+    if (isPatrolUnderWay || isPatrolDone) {
       return <span data-testid="patrol-drawer-header-details" className={`${styles.headerDetails} ${styles.overflowedEllipsisText}`}>
         {patrolElapsedTime}
         <span className={styles.distanceCovered}>
-          <PatrolDistanceCovered patrolsData={[patrolData]} suffix=' km' />
+          {patrolLeadSumDistance == null
+            ? EMPTY_VALUE
+            : formatDistanceInKilometers(tUtils, patrolLeadSumDistance)}
         </span>
       </span>;
     }
@@ -64,14 +67,15 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
     }
     return null;
   }, [
-    isPatrolActive,
-    isPatrolDone,
     isPatrolCancelled,
+    isPatrolDone,
     isPatrolScheduled,
-    patrolData,
+    isPatrolUnderWay,
     patrolElapsedTime,
+    patrolLeadSumDistance,
     scheduledStartTime,
     t,
+    tUtils,
   ]);
 
   const onTitleBlur = useCallback((event) => {
@@ -141,7 +145,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
       <span className={styles.date}>{dateComponentDateString}</span>
     </div>}
 
-    {(isPatrolActive || isPatrolDone) && <PatrolTrackControls patrol={patrol} onLocationClick={onLocationClick} className={styles.patrolTrackControls}/>}
+    {(isPatrolUnderWay || isPatrolDone) && <PatrolTrackControls patrol={patrol} onLocationClick={onLocationClick} className={styles.patrolTrackControls}/>}
 
     {( (isPatrolScheduled || isPatrolOverdue) && !isNewPatrol ) && <Button
       className={`${styles.actionButton} ${styles.startPatrolButton}`}
@@ -163,6 +167,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
     </Button>}
 
     {!isNewPatrol && <PatrolMenu
+      className={styles.patrolMenu}
       isPatrolCancelled={isPatrolCancelled}
       onPatrolChange={onPatrolChange}
       patrol={patrol}

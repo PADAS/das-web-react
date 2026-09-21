@@ -48,6 +48,12 @@ export const getReporterById = (id) => {
 
 export const displayTitleForEvent = (event, eventTypes) => event.title || eventTypeTitleForEvent(event, eventTypes);
 
+export const getIsEventFullyLoaded = (event) => !!event
+  && !!event.event_details
+  && !!event.files
+  && !!event.notes
+  && !!event.updates;
+
 export const getCoordinatesForEvent = (event) => {
   if (event?.geojson?.geometry?.type === 'Polygon') {
     return event.geojson.geometry.coordinates.reduce((accumulator, shape) => [...accumulator, ...shape], []);
@@ -96,7 +102,7 @@ export const createNewReportForEventType = (reportType, data) => {
     is_collection: false,
     location,
     priority: reportType.default_priority || 0,
-    reported_by: reporter || null,
+    reported_by: reporter || null,
     state: reportType.default_state || EVENT_FORM_STATES.ACTIVE,
     time: time ? new Date(time) : new Date(),
   };
@@ -232,12 +238,8 @@ export const validateReportAgainstCurrentEventFilter = (report, storeFromProps) 
     && reportMatchesEventTypeFilter();
 };
 
-export const addPatrolSegmentToEvent = (segment_id, event_id) => {
-  const segmentPayload = { patrol_segments: [segment_id] };
-
-  return axios.patch(`${EVENT_API_URL}${event_id}/`, segmentPayload)
-    .catch((error) => console.warn('add segment error', error));
-};
+export const addPatrolSegmentToEvent = (segment_id, event_id) =>
+  axios.patch(`${EVENT_API_URL}${event_id}/`, { patrol_segments: [segment_id] });
 
 export const calcDisplayPriorityForReport = (report, eventTypes) => {
   if (report.priority) {

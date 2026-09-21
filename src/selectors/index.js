@@ -21,6 +21,7 @@ const getUser = ({ data: { user } }) => user;
 const getAlertsFeatureFlag = ({ view: { systemConfig } }) => systemConfig?.alerts_enabled;
 
 export const analyzerFeatures = ({ data: { analyzerFeatures } }) => analyzerFeatures.data;
+export const analyzersHaveFailures = ({ data: { analyzerFeatures } }) => analyzerFeatures.hasFailures;
 export const featureSets = ({ data: { featureSets } }) => featureSets.data;
 export const getTimeSliderState = ({ view: { timeSliderState } }) => timeSliderState;
 export const getEventFilterDateRange = ({ data: { eventFilter: { filter: { date_range } } } }) => date_range;

@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useId, useState } from 'react';
+import React, { memo, useEffect, useId, useRef, useState } from 'react';
 import flatten from 'lodash/flatten';
 import Modal from 'react-bootstrap/Modal';
 import startCase from 'lodash/startCase';
@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { fetchObservationsForSubject } from '../ducks/observations';
+import { getDeviceStatusPropertiesForSubject } from '../utils/subjects';
 import { selectCoordinatesRepresentation } from '../selectors/location';
 import useStringifyCoordinates from '../hooks/useStringifyCoordinates';
 
@@ -26,6 +27,21 @@ export const getObservationUniqProperties = (observations) => {
   const observationsDeviceProperties = observations.map((result) => result?.device_status_properties ?? []);
   const uniqPropertiesByLabel = unionBy(flatten(observationsDeviceProperties), 'label');
   return uniqPropertiesByLabel.map((property) => property.label);
+};
+
+const buildObservationFromSubject = (subject) => {
+  const recordedAt = subject.last_position?.properties?.coordinateProperties?.time ?? subject.last_position_date;
+  const coordinates = subject.last_position?.geometry?.coordinates;
+  const deviceStatusProperties = getDeviceStatusPropertiesForSubject(subject);
+
+  return {
+    id: recordedAt,
+    recorded_at: recordedAt,
+    location: coordinates ? { longitude: coordinates[0], latitude: coordinates[1] } : null,
+    device_status_properties: Array.isArray(deviceStatusProperties)
+      ? deviceStatusProperties
+      : Object.values(deviceStatusProperties ?? {}),
+  };
 };
 
 const getPageItemNumbers = (pagesCount, activePage) => {
@@ -101,11 +117,17 @@ const SubjectHistoricalDataModal = ({ subjectId, subjectIsStatic, title }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('subjects', { keyPrefix: 'subjectHistoricalDataModal' });
 
+  const subject = useSelector((state) => state.data?.subjectStore?.[subjectId]);
+
   const [activePage, setActivePage] = useState(1);
   const [loading, setLoadState] = useState(true);
   const [observationsCount, setObservationsCount] = useState(1);
   const [observationProperties, setObservationProperties] = useState([]);
   const [subjectObservations, setSubjectObservations] = useState([]);
+
+  const subjectLastPositionDate = subject?.last_position_date;
+
+  const lastProcessedPositionDate = useRef(subjectLastPositionDate);
 
   useEffect(() => {
     setLoadState(true);
@@ -123,6 +145,35 @@ const SubjectHistoricalDataModal = ({ subjectId, subjectIsStatic, title }) => {
       setObservationProperties(getObservationUniqProperties(data.results));
     });
   }, [activePage, dispatch, subjectId]);
+
+  useEffect(() => {
+    if (lastProcessedPositionDate.current === subjectLastPositionDate) {
+      return;
+    }
+    lastProcessedPositionDate.current = subjectLastPositionDate;
+
+    if (activePage !== 1 || !subject) {
+      return;
+    }
+
+    const newObservation = buildObservationFromSubject(subject);
+    const newTime = new Date(newObservation.recorded_at).getTime();
+    const isExisting = subjectObservations.some(
+      (observation) => new Date(observation.recorded_at).getTime() === newTime
+    );
+
+    if (isExisting) {
+      setSubjectObservations((current) => current.map((observation) =>
+        new Date(observation.recorded_at).getTime() === newTime
+          ? { ...newObservation, id: observation.id }
+          : observation));
+      return;
+    }
+
+    setSubjectObservations((current) => [newObservation, ...current].slice(0, ITEMS_PER_PAGE));
+    setObservationsCount((count) => count + 1);
+    setObservationProperties((current) => current.length ? current : getObservationUniqProperties([newObservation]));
+  }, [subject, subjectLastPositionDate, activePage, subjectObservations]);
 
   const pagesCount = Math.ceil(observationsCount / ITEMS_PER_PAGE);
   const pageItemNumbers = getPageItemNumbers(pagesCount, activePage);

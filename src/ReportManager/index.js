@@ -10,6 +10,7 @@ import {
 } from '../utils/analytics';
 import { fetchEvent } from '../ducks/events';
 import { getCurrentIdFromURL } from '../utils/navigation';
+import { getIsEventFullyLoaded } from '../utils/events';
 import { NavigationContext } from '../NavigationContextProvider';
 import { selectEventTypeById } from '../selectors/event-types';
 import { TAB_KEYS } from '../constants';
@@ -77,9 +78,9 @@ const ReportManager = ({ communityInputValue = null, hidePriority = false, hideR
   const event = useSelector((state) => state.data.eventStore[reportId]);
   const eventType = useSelector((state) => selectEventTypeById(state, newReportTypeId));
 
-  const [isLoadingReport, setIsLoadingReport] = useState(true);
+  const isEventFullyLoaded = getIsEventFullyLoaded(event);
 
-  const shouldRenderReportDetailView = !!(isNewReport ? eventType : (event && !isLoadingReport));
+  const shouldRenderReportDetailView = !!(isNewReport ? eventType : isEventFullyLoaded);
 
   const onAddReport = useCallback((formProps, reportData, reportTypeId) => {
     setAddedReportFormProps({ ...formProps, onCancelAddedReport });
@@ -102,20 +103,11 @@ const ReportManager = ({ communityInputValue = null, hidePriority = false, hideR
   }, [eventType, fallbackPath, isNewReport, location.pathname, location.search, location.state, navigate, newReportTemporalId, reportIdProp]);
 
   useEffect(() => {
-    const shouldFetchEventDetails = !event
-      || !event.event_details
-      || !event.files
-      || !event.notes
-      || !event.updates;
-    if (!isNewReport && shouldFetchEventDetails) {
-      setIsLoadingReport(true);
+    if (!isNewReport && !isEventFullyLoaded) {
       dispatch(fetchEvent(reportId))
-        .then(() => setIsLoadingReport(false))
         .catch(() => navigate(`/${TAB_KEYS.EVENTS}`, { replace: true }));
-    } else {
-      setIsLoadingReport(false);
     }
-  }, [dispatch, event, isNewReport, navigate, reportId]);
+  }, [dispatch, isEventFullyLoaded, isNewReport, navigate, reportId]);
 
   return <TrackerContext.Provider value={reportTracker}>
     {shouldRenderReportDetailView ? <ReportDetailView

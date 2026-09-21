@@ -11,7 +11,7 @@ import { addEventToIncident, createEvent, fetchEvent } from '../../ducks/events'
 import { activePatrol } from '../../__test-helpers/fixtures/patrols';
 import { createMapMock } from '../../__test-helpers/mocks';
 import { eventSchemas } from '../../__test-helpers/fixtures/event-schemas';
-import { eventTypes } from '../../__test-helpers/fixtures/event-types';
+import { eventTypes, snareV2 } from '../../__test-helpers/fixtures/event-types';
 import { executeSaveActions, generateSaveActionsForReportLikeObject } from '../../utils/save';
 import { TrackerContext } from '../../utils/analytics';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
@@ -28,6 +28,8 @@ import useNavigate from '../../hooks/useNavigate';
 import { notes } from '../../__test-helpers/fixtures/reports';
 import { SidebarScrollProvider } from '../../SidebarScrollContext';
 import { cleanup, render, screen, waitFor, within } from '../../test-utils';
+
+import * as styles from './styles.module.scss';
 
 jest.mock('mapbox-gl', () => ({
   ...jest.requireActual('mapbox-gl'),
@@ -112,6 +114,65 @@ describe('ReportManager - ReportDetailView', () => {
       user: { first_name: 'First', last_name: 'Last' },
     }],
   };
+  const setUpLegacyChoiceListEvent = () => {
+    state.data.eventTypes = [...eventTypes, snareV2];
+    state.data.eventSchemas = {
+      ...eventSchemas,
+      [snareV2.value]: {
+        792: {
+          json: {
+            $schema: 'https://json-schema.org/draft/2020-12/schema',
+            properties: {
+              team_members: {
+                items: {
+                  anyOf: [{
+                    enum: ['kumoi_njapit', 'sam_kumum'],
+                    'x-enumExtra': {
+                      kumoi_njapit: { display: 'Kumoi Njapit' },
+                      sam_kumum: { display: 'Sam Kumum' },
+                    },
+                  }],
+                },
+                title: 'Team Member',
+                type: 'array',
+              },
+            },
+            required: [],
+            type: 'object',
+            unevaluatedProperties: false,
+          },
+          ui: {
+            fields: { team_members: { inputType: 'LIST', parent: 'section-1', type: 'CHOICE_LIST' } },
+            headers: {},
+            order: ['section-1'],
+            sections: {
+              'section-1': {
+                columns: 1,
+                isActive: true,
+                label: 'Details',
+                leftColumn: [{ name: 'team_members', type: 'field' }],
+                rightColumn: [],
+              },
+            },
+          },
+        },
+      },
+    };
+    state.data.eventStore = {
+      ...state.data.eventStore,
+      792: {
+        ...mockReport,
+        event_type: snareV2.value,
+        event_details: {
+          team_members: [
+            { name: 'Kumoi Njapit', value: 'kumoi_njapit' },
+            { name: 'Sam Kumum', value: 'sam_kumum' },
+          ],
+        },
+        id: '792',
+      },
+    };
+  };
   let AddItemButtonMock,
     addEventToIncidentMock,
     createEventMock,
@@ -171,6 +232,7 @@ describe('ReportManager - ReportDetailView', () => {
     state = {
       data: {
         subjectStore: {},
+        eventFilter: { filter: { date_range: { lower: '2020-01-01T06:00:00.000Z' } } },
         eventStore: { 456: mockReportWithNotes, 123: mockReport },
         eventTypes,
         patrolTypes,
@@ -184,8 +246,11 @@ describe('ReportManager - ReportDetailView', () => {
           storedSystems: [],
         },
         mapLocationSelection: { isPickingLocation: false },
+        patrolTrackState: { hiddenSubjects: {}, pinned: [], visible: [] },
         sideBar: {},
         systemConfig: {},
+        timeSliderState: { active: false },
+        trackSettings: { length: 21, origin: 'CUSTOM_LENGTH' },
         userPreferences: { gpsFormat: GPS_FORMATS.DEG },
       },
     };
@@ -296,7 +361,7 @@ describe('ReportManager - ReportDetailView', () => {
     const timePicker = await screen.findByTestId('reportManager-detailsSection-timePicker');
     const timePickerOpenOptionsButton = await within(timePicker).findByLabelText('Open time options');
     await userEvent.click(timePickerOpenOptionsButton);
-    const optionsList = await screen.findByTestId('timePicker-OptionsList');
+    const optionsList = await screen.findByTestId('timePicker-optionsList');
     const timeOptionsListItems = await within(optionsList).findAllByRole('option');
     await userEvent.click(timeOptionsListItems[2]);
 
@@ -496,6 +561,24 @@ describe('ReportManager - ReportDetailView', () => {
     expect(generateSaveActionsForReportLikeObject.mock.calls[0][0].event_details).toEqual({
       severity: '',
       type_accident: 'Truck crash',
+    });
+  });
+
+  test('renders and saves the option values of a legacy V2 choice list stored as { name, value } objects', async () => {
+    setUpLegacyChoiceListEvent();
+
+    renderWithWrapper(<ReportDetailView isNewReport={false} reportId="792" />);
+
+    expect(await screen.findByRole('checkbox', { name: 'Kumoi Njapit' })).toBeChecked();
+    expect(await screen.findByRole('checkbox', { name: 'Sam Kumum' })).toBeChecked();
+
+    await userEvent.click(await screen.findByText('Save'));
+
+    await waitFor(() => {
+      expect(generateSaveActionsForReportLikeObject).toHaveBeenCalledTimes(1);
+    });
+    expect(generateSaveActionsForReportLikeObject.mock.calls[0][0].event_details).toEqual({
+      team_members: ['kumoi_njapit', 'sam_kumum'],
     });
   });
 
@@ -1137,6 +1220,18 @@ describe('ReportManager - ReportDetailView', () => {
       expect(changes.state).toBe('resolved');
       expect(changes.title).toBe('2');
     });
+  });
+
+  test('applies the community styles to the container when the report is shown in the community page', async () => {
+    renderWithWrapper(<ReportDetailView isCommunity isNewReport={false} reportId="456" />);
+
+    expect(await screen.findByTestId('reportManagerContainer')).toHaveClass(styles.community);
+  });
+
+  test('does not apply the community styles to the container otherwise', async () => {
+    renderWithWrapper(<ReportDetailView isCommunity={false} isNewReport={false} reportId="456" />);
+
+    expect(await screen.findByTestId('reportManagerContainer')).not.toHaveClass(styles.community);
   });
 
   describe('the warning prompt', () => {

@@ -90,6 +90,24 @@ describe('ActivitySection - AttachmentListItem', () => {
     expect(title).toHaveClass('itemTitle');
   });
 
+  test('italicizes the title of an attachment that is not saved yet', async () => {
+    renderWithWrapper(
+      <AttachmentListItem attachment={{ name: 'file.txt' }} onDelete={onDelete} />
+    );
+
+    const title = await screen.findByText('file.txt');
+
+    expect(title).toHaveClass('unsaved');
+  });
+
+  test('does not italicize the title of a saved attachment', async () => {
+    renderWithWrapper(
+      <AttachmentListItem attachment={{ filename: 'file.txt', id: '1234', url: '/file.txt' }} />
+    );
+
+    expect(await screen.findByText('file.txt')).not.toHaveClass('unsaved');
+  });
+
   test('shows the last update time if it is an existing attachment', async () => {
     renderWithWrapper(
       <AttachmentListItem
@@ -163,9 +181,36 @@ describe('ActivitySection - AttachmentListItem', () => {
     expect(onDelete).toHaveBeenCalledTimes(1);
   });
 
+  test('exposes an accessible name and title on the download button', async () => {
+    renderWithWrapper(
+      <AttachmentListItem
+          attachment={{
+            filename: 'file.txt',
+            id: '1234',
+            url: '/file.txt',
+            updates: [{ time: '2021-11-10T07:26:19.869873-08:00' }],
+          }}
+        />
+    );
+
+    const downloadButton = (await screen.findByTestId('activitySection-downloadArrow-1234')).closest('button');
+    expect(downloadButton).toHaveAccessibleName('Download file.txt');
+    expect(downloadButton).toHaveAttribute('title', 'Download file.txt');
+  });
+
+  test('exposes an accessible name and title on the delete button', async () => {
+    renderWithWrapper(
+      <AttachmentListItem attachment={{ name: 'file.txt' }} onDelete={onDelete} />
+    );
+
+    const deleteButton = (await screen.findByTestId('activitySection-trashCan-file.txt')).closest('button');
+    expect(deleteButton).toHaveAccessibleName('Delete file.txt');
+    expect(deleteButton).toHaveAttribute('title', 'Delete file.txt');
+  });
+
   test('saved images are collapsibles', async () => {
     renderWithWrapper(
-      <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
+      <AttachmentListItem attachment={savedImageAttachment} isOpen={false} onCollapse={onCollapse} onExpand={onExpand} />
     );
 
     expect((await screen.findAllByTestId((content) => content.startsWith('activitySection-collapse'))))
@@ -174,13 +219,34 @@ describe('ActivitySection - AttachmentListItem', () => {
 
   test('fetches the different image sizes for saved images', async () => {
     renderWithWrapper(
-      <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
+      <AttachmentListItem attachment={savedImageAttachment} isOpen={false} onCollapse={onCollapse} onExpand={onExpand} />
     );
 
     expect(fetchImageAsBase64FromUrlMock).toHaveBeenCalledTimes(3);
     expect(fetchImageAsBase64FromUrlMock).toHaveBeenCalledWith('icon');
     expect(fetchImageAsBase64FromUrlMock).toHaveBeenCalledWith('original');
     expect(fetchImageAsBase64FromUrlMock).toHaveBeenCalledWith('thumbnail');
+  });
+
+  test('falls back to the generic icon and reports the failure if the image download fails', async () => {
+    const onUnhandledRejection = jest.fn();
+    process.on('unhandledRejection', onUnhandledRejection);
+
+    const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    fetchImageAsBase64FromUrlMock = jest.fn(() => Promise.reject(new Error('The url expired')));
+    fetchImageAsBase64FromUrl.mockImplementation(fetchImageAsBase64FromUrlMock);
+
+    renderWithWrapper(
+      <AttachmentListItem attachment={savedImageAttachment} isOpen={false} onCollapse={onCollapse} onExpand={onExpand} />
+    );
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    process.off('unhandledRejection', onUnhandledRejection);
+
+    expect(onUnhandledRejection).toHaveBeenCalledTimes(0);
+    expect(consoleWarn).toHaveBeenCalled();
+    expect(document.querySelector('.attachmentThumbnail')).toBeNull();
+    expect((await screen.findByRole('img', { name: 'file.txt preview' }))).not.toHaveAttribute('src');
   });
 
   test('does not render collapsibles nor fetches images for non saved images', async () => {
@@ -199,7 +265,7 @@ describe('ActivitySection - AttachmentListItem', () => {
     fetchImageAsBase64FromUrl.mockImplementation(fetchImageAsBase64FromUrlMock);
 
     renderWithWrapper(
-      <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
+      <AttachmentListItem attachment={savedImageAttachment} isOpen={false} onCollapse={onCollapse} onExpand={onExpand} />
     );
 
     expect(mockStoreInstance.getActions()).toHaveLength(0);
@@ -219,7 +285,7 @@ describe('ActivitySection - AttachmentListItem', () => {
     fetchImageAsBase64FromUrl.mockImplementation(fetchImageAsBase64FromUrlMock);
 
     renderWithWrapper(
-      <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
+      <AttachmentListItem attachment={savedImageAttachment} isOpen={false} onCollapse={onCollapse} onExpand={onExpand} />
     );
 
     expect(mockStoreInstance.getActions()).toHaveLength(0);
@@ -234,7 +300,7 @@ describe('ActivitySection - AttachmentListItem', () => {
 
   test('user can open the image collapsible', async () => {
     renderWithWrapper(
-      <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
+      <AttachmentListItem attachment={savedImageAttachment} isOpen={false} onCollapse={onCollapse} onExpand={onExpand} />
     );
 
     expect(onExpand).toHaveBeenCalledTimes(0);
@@ -250,7 +316,7 @@ describe('ActivitySection - AttachmentListItem', () => {
     renderWithWrapper(
       <AttachmentListItem
           attachment={savedImageAttachment}
-          cardsExpanded={[savedImageAttachment]}
+          isOpen={true}
           onCollapse={onCollapse}
           onExpand={onExpand}
         />
@@ -265,17 +331,73 @@ describe('ActivitySection - AttachmentListItem', () => {
     expect(onCollapse).toHaveBeenCalledTimes(1);
   });
 
+  test('user can click anywhere on the row to open the image collapsible', async () => {
+    renderWithWrapper(
+      <AttachmentListItem attachment={savedImageAttachment} isOpen={false} onCollapse={onCollapse} onExpand={onExpand} />
+    );
+
+    expect(onExpand).toHaveBeenCalledTimes(0);
+
+    const title = await screen.findByText('file.txt');
+    await userEvent.click(title);
+
+    expect(onExpand).toHaveBeenCalledTimes(1);
+  });
+
+  test('does not toggle the image collapsible when pressing the full screen button', async () => {
+    renderWithWrapper(
+      <AttachmentListItem attachment={savedImageAttachment} isOpen={false} onCollapse={onCollapse} onExpand={onExpand} />
+    );
+
+    const expandArrowIcon = await screen.findByTestId('expand-arrow-icon');
+    await userEvent.click(expandArrowIcon);
+
+    expect(onExpand).toHaveBeenCalledTimes(0);
+    expect(onCollapse).toHaveBeenCalledTimes(0);
+  });
+
+  test('exposes an accessible name and title on the image row buttons', async () => {
+    const { rerender } = renderWithWrapper(
+      <AttachmentListItem attachment={savedImageAttachment} isOpen={false} onCollapse={onCollapse} onExpand={onExpand} />
+    );
+
+    const fullScreenButton = (await screen.findByTestId('expand-arrow-icon')).closest('button');
+    expect(fullScreenButton).toHaveAccessibleName('Show file.txt in full screen');
+    expect(fullScreenButton).toHaveAttribute('title', 'Show file.txt in full screen');
+
+    const expandButton = (await screen.findByTestId('activitySection-arrowDown-1234')).closest('button');
+    expect(expandButton).toHaveAccessibleName('Expand file.txt');
+    expect(expandButton).toHaveAttribute('title', 'Expand file.txt');
+
+    rerender(
+      <AttachmentListItem attachment={savedImageAttachment} isOpen={true} onCollapse={onCollapse} onExpand={onExpand} />
+    );
+
+    const collapseButton = (await screen.findByTestId('activitySection-arrowUp-1234')).closest('button');
+    expect(collapseButton).toHaveAccessibleName('Collapse file.txt');
+    expect(collapseButton).toHaveAttribute('title', 'Collapse file.txt');
+  });
+
+  test('exposes aria-expanded on the collapse toggle button', async () => {
+    renderWithWrapper(
+      <AttachmentListItem attachment={savedImageAttachment} isOpen={false} onCollapse={onCollapse} onExpand={onExpand} />
+    );
+
+    const arrowIcon = await screen.findByTestId('activitySection-arrowDown-1234');
+    expect(arrowIcon.closest('button')).toHaveAttribute('aria-expanded', 'false');
+  });
+
   test('opens the fullscreen mode when pressing the image expanded', async () => {
     fetchImageAsBase64FromUrlMock = jest.fn((url) => Promise.resolve(url));
     fetchImageAsBase64FromUrl.mockImplementation(fetchImageAsBase64FromUrlMock);
 
     renderWithWrapper(
-      <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
+      <AttachmentListItem attachment={savedImageAttachment} isOpen={false} onCollapse={onCollapse} onExpand={onExpand} />
     );
 
     expect(mockStoreInstance.getActions()).toHaveLength(0);
 
-    const expandedImage = await screen.findByRole('img');
+    const expandedImage = await screen.findByRole('img', { name: 'file.txt preview' });
     await userEvent.click(expandedImage);
 
     expect(mockStoreInstance.getActions()).toHaveLength(1);
@@ -290,10 +412,10 @@ describe('ActivitySection - AttachmentListItem', () => {
     fetchImageAsBase64FromUrl.mockImplementation(fetchImageAsBase64FromUrlMock);
 
     renderWithWrapper(
-      <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
+      <AttachmentListItem attachment={savedImageAttachment} isOpen={false} onCollapse={onCollapse} onExpand={onExpand} />
     );
 
-    const expandedImage = await screen.findByRole('img');
+    const expandedImage = await screen.findByRole('img', { name: 'file.txt preview' });
 
     await waitFor(() => {
       expect(expandedImage).toHaveAttribute('src', 'thumbnail');
@@ -304,35 +426,97 @@ describe('ActivitySection - AttachmentListItem', () => {
     });
   });
 
+  test('does not put the expanded image in the tab order', async () => {
+    fetchImageAsBase64FromUrlMock = jest.fn((url) => Promise.resolve(url));
+    fetchImageAsBase64FromUrl.mockImplementation(fetchImageAsBase64FromUrlMock);
+
+    renderWithWrapper(
+      <AttachmentListItem attachment={savedImageAttachment} isOpen={false} onCollapse={onCollapse} onExpand={onExpand} />
+    );
+
+    const expandedImage = await screen.findByRole('img', { name: 'file.txt preview' });
+
+    expect(expandedImage).not.toHaveAttribute('tabindex');
+  });
+
+  test('hides the previous image while the image url changes and the new one is still loading', async () => {
+    fetchImageAsBase64FromUrlMock = jest.fn((url) => url === 'slow-icon'
+      ? new Promise(() => {})
+      : Promise.resolve(url));
+    fetchImageAsBase64FromUrl.mockImplementation(fetchImageAsBase64FromUrlMock);
+
+    const { rerender } = renderWithWrapper(
+      <AttachmentListItem attachment={savedImageAttachment} isOpen={false} onCollapse={onCollapse} onExpand={onExpand} />
+    );
+
+    await waitFor(() => {
+      expect(document.querySelector('.attachmentThumbnail')).toHaveAttribute('src', 'icon');
+    });
+
+    const attachmentWithSlowIcon = { ...savedImageAttachment, images: { ...savedImageAttachment.images, icon: 'slow-icon' } };
+    rerender(
+      <AttachmentListItem attachment={attachmentWithSlowIcon} isOpen={false} onCollapse={onCollapse} onExpand={onExpand} />
+    );
+
+    await waitFor(() => {
+      expect(document.querySelector('.attachmentThumbnail')).toBeNull();
+    });
+  });
+
+  test('ignores a stale image response if the image url changes before it resolves', async () => {
+    let resolveSlowOriginal;
+    fetchImageAsBase64FromUrlMock = jest.fn((url) => {
+      if (url === 'slow-original') {
+        return new Promise((resolve) => { resolveSlowOriginal = resolve; });
+      }
+      return Promise.resolve(url);
+    });
+    fetchImageAsBase64FromUrl.mockImplementation(fetchImageAsBase64FromUrlMock);
+
+    const attachmentWithSlowOriginal = { ...savedImageAttachment, images: { ...savedImageAttachment.images, original: 'slow-original' } };
+    const { rerender } = renderWithWrapper(
+      <AttachmentListItem attachment={attachmentWithSlowOriginal} isOpen={false} onCollapse={onCollapse} onExpand={onExpand} />
+    );
+
+    const attachmentWithFastOriginal = { ...savedImageAttachment, images: { ...savedImageAttachment.images, original: 'fast-original' } };
+    rerender(
+      <AttachmentListItem attachment={attachmentWithFastOriginal} isOpen={false} onCollapse={onCollapse} onExpand={onExpand} />
+    );
+
+    const expandedImage = await screen.findByRole('img', { name: 'file.txt preview' });
+    await waitFor(() => {
+      expect(expandedImage).toHaveAttribute('src', 'fast-original');
+    });
+
+    resolveSlowOriginal('slow-original');
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(expandedImage).toHaveAttribute('src', 'fast-original');
+  });
+
   describe('video attachments', () => {
     const savedVideoAttachment = {
       file_type: 'video',
-      id: '5678',
       filename: 'clip.mp4',
+      id: '5678',
       updates: [{ time: '2021-11-10T07:26:19.869873-08:00' }],
       url: 'https://example.com/clip.mp4',
     };
 
-    test('is collapsible', async () => {
-      renderWithWrapper(
-        <AttachmentListItem attachment={savedVideoAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
-      );
-
-      expect((await screen.findAllByTestId((content) => content.startsWith('activitySection-collapse'))))
-        .toHaveLength(1);
-    });
-
     test('does not fetch image data', async () => {
       renderWithWrapper(
-        <AttachmentListItem attachment={savedVideoAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
+        <AttachmentListItem attachment={savedVideoAttachment} isOpen={false} onCollapse={onCollapse} onExpand={onExpand} />
       );
 
-      expect(fetchImageAsBase64FromUrlMock).toHaveBeenCalledTimes(0);
+      await screen.findByText('clip.mp4');
+
+      expect(fetchImageAsBase64FromUrlMock).not.toHaveBeenCalled();
     });
 
     test('does not fetch the media file until the row is expanded', async () => {
       renderWithWrapper(
-        <AttachmentListItem attachment={savedVideoAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
+        <AttachmentListItem attachment={savedVideoAttachment} isOpen={false} onCollapse={onCollapse} onExpand={onExpand} />
       );
 
       await screen.findByText('clip.mp4');
@@ -340,52 +524,20 @@ describe('ActivitySection - AttachmentListItem', () => {
       expect(fetchFileAsObjectUrlFromUrlMock).not.toHaveBeenCalled();
     });
 
-    test('shows a loading spinner while the media file is being fetched', () => {
+    test('shows a loading indicator while the media file is being fetched', () => {
       fetchFileAsObjectUrlFromUrlMock.mockImplementation(() => new Promise(() => {}));
 
       renderWithWrapper(
-        <AttachmentListItem attachment={savedVideoAttachment} cardsExpanded={[savedVideoAttachment]} onCollapse={onCollapse} onExpand={onExpand} />
+        <AttachmentListItem attachment={savedVideoAttachment} isOpen onCollapse={onCollapse} onExpand={onExpand} />
       );
 
       expect(screen.getByTestId('activitySection-mediaLoading-5678')).toBeInTheDocument();
       expect(screen.queryByTestId('activitySection-video-5678')).not.toBeInTheDocument();
     });
 
-    test('shows an error message instead of the player if the media fetch fails', async () => {
-      fetchFileAsObjectUrlFromUrlMock.mockRejectedValue(new Error('network error'));
-
+    test('fetches the media file as an authenticated blob and plays it from the resulting object url', async () => {
       renderWithWrapper(
-        <AttachmentListItem attachment={savedVideoAttachment} cardsExpanded={[savedVideoAttachment]} onCollapse={onCollapse} onExpand={onExpand} />
-      );
-
-      expect(await screen.findByTestId('activitySection-mediaError-5678')).toHaveTextContent('Unable to load this file.');
-      expect(screen.queryByTestId('activitySection-video-5678')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('activitySection-mediaLoading-5678')).not.toBeInTheDocument();
-    });
-
-    test('refetches the media file when re-expanded after a failure', async () => {
-      fetchFileAsObjectUrlFromUrlMock.mockRejectedValueOnce(new Error('network error'));
-
-      const { rerender } = renderWithWrapper(
-        <AttachmentListItem attachment={savedVideoAttachment} cardsExpanded={[savedVideoAttachment]} onCollapse={onCollapse} onExpand={onExpand} />
-      );
-
-      await screen.findByTestId('activitySection-mediaError-5678');
-
-      rerender(
-        <AttachmentListItem attachment={savedVideoAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
-      );
-      rerender(
-        <AttachmentListItem attachment={savedVideoAttachment} cardsExpanded={[savedVideoAttachment]} onCollapse={onCollapse} onExpand={onExpand} />
-      );
-
-      expect(await screen.findByTestId('activitySection-video-5678')).toBeInTheDocument();
-      expect(fetchFileAsObjectUrlFromUrlMock).toHaveBeenCalledTimes(2);
-    });
-
-    test('fetches the media file as an authenticated blob and renders a native video player with the resulting object url', async () => {
-      renderWithWrapper(
-        <AttachmentListItem attachment={savedVideoAttachment} cardsExpanded={[savedVideoAttachment]} onCollapse={onCollapse} onExpand={onExpand} />
+        <AttachmentListItem attachment={savedVideoAttachment} isOpen onCollapse={onCollapse} onExpand={onExpand} />
       );
 
       const video = await screen.findByTestId('activitySection-video-5678');
@@ -396,68 +548,68 @@ describe('ActivitySection - AttachmentListItem', () => {
       expect(video).toHaveAttribute('controls');
     });
 
-    test('opens the video fullscreen modal immediately and patches in the object url once the media file has been fetched', async () => {
+    test('shows an error message instead of the player if the media fetch fails', async () => {
+      fetchFileAsObjectUrlFromUrlMock.mockRejectedValue(new Error('network error'));
+
       renderWithWrapper(
-        <AttachmentListItem attachment={savedVideoAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
+        <AttachmentListItem attachment={savedVideoAttachment} isOpen onCollapse={onCollapse} onExpand={onExpand} />
+      );
+
+      expect(await screen.findByTestId('activitySection-mediaError-5678')).toHaveTextContent('Unable to load this file.');
+      expect(screen.queryByTestId('activitySection-video-5678')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('activitySection-mediaLoading-5678')).not.toBeInTheDocument();
+    });
+
+    test('refetches the media file when the row is collapsed and expanded again after a failure', async () => {
+      fetchFileAsObjectUrlFromUrlMock.mockRejectedValueOnce(new Error('network error'));
+
+      const { rerender } = renderWithWrapper(
+        <AttachmentListItem attachment={savedVideoAttachment} isOpen onCollapse={onCollapse} onExpand={onExpand} />
+      );
+
+      await screen.findByTestId('activitySection-mediaError-5678');
+
+      rerender(
+        <AttachmentListItem attachment={savedVideoAttachment} isOpen={false} onCollapse={onCollapse} onExpand={onExpand} />
+      );
+      rerender(
+        <AttachmentListItem attachment={savedVideoAttachment} isOpen onCollapse={onCollapse} onExpand={onExpand} />
+      );
+
+      expect(await screen.findByTestId('activitySection-video-5678')).toBeInTheDocument();
+      expect(fetchFileAsObjectUrlFromUrlMock).toHaveBeenCalledTimes(2);
+    });
+
+    test('opens the fullscreen modal without a src so the modal fetches its own object url', async () => {
+      renderWithWrapper(
+        <AttachmentListItem attachment={savedVideoAttachment} isOpen={false} onCollapse={onCollapse} onExpand={onExpand} />
       );
 
       expect(mockStoreInstance.getActions()).toHaveLength(0);
 
-      const expandArrowIcon = await screen.findByTestId('expand-arrow-icon');
-      await userEvent.click(expandArrowIcon);
+      await userEvent.click(await screen.findByTestId('expand-arrow-icon'));
 
-      expect(mockStoreInstance.getActions()[0].type).toEqual('ADD_MODAL');
-      expect(mockStoreInstance.getActions()[0].payload.mediaType).toEqual('video');
-      expect(mockStoreInstance.getActions()[0].payload.src).toBeNull();
+      const [addModalAction] = mockStoreInstance.getActions();
 
-      expect(fetchFileAsObjectUrlFromUrlMock).toHaveBeenCalledWith('https://example.com/clip.mp4');
-
-      await waitFor(() => {
-        expect(mockStoreInstance.getActions()[1].type).toEqual('UPDATE_MODAL');
-        expect(mockStoreInstance.getActions()[1].payload.src).toEqual('blob:fake-object-url');
-        expect(mockStoreInstance.getActions()[1].payload.id).toEqual(mockStoreInstance.getActions()[0].payload.id);
-      });
-    });
-
-    test('patches the fullscreen modal with a fetch error if the media fetch fails', async () => {
-      fetchFileAsObjectUrlFromUrlMock.mockRejectedValue(new Error('network error'));
-
-      renderWithWrapper(
-        <AttachmentListItem attachment={savedVideoAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
-      );
-
-      const expandArrowIcon = await screen.findByTestId('expand-arrow-icon');
-      await userEvent.click(expandArrowIcon);
-
-      await waitFor(() => {
-        expect(mockStoreInstance.getActions()[1].type).toEqual('UPDATE_MODAL');
-        expect(mockStoreInstance.getActions()[1].payload.fetchError).toBe(true);
-        expect(mockStoreInstance.getActions()[1].payload.id).toEqual(mockStoreInstance.getActions()[0].payload.id);
-      });
+      expect(addModalAction.type).toBe('ADD_MODAL');
+      expect(addModalAction.payload.mediaType).toBe('video');
+      expect(addModalAction.payload.src).toBeNull();
+      expect(addModalAction.payload.url).toBe('https://example.com/clip.mp4');
     });
   });
 
   describe('audio attachments', () => {
     const savedAudioAttachment = {
       file_type: 'audio',
-      id: '9012',
       filename: 'interview.m4a',
+      id: '9012',
       updates: [{ time: '2021-11-10T07:26:19.869873-08:00' }],
       url: 'https://example.com/interview.m4a',
     };
 
-    test('is collapsible', async () => {
-      renderWithWrapper(
-        <AttachmentListItem attachment={savedAudioAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
-      );
-
-      expect((await screen.findAllByTestId((content) => content.startsWith('activitySection-collapse'))))
-        .toHaveLength(1);
-    });
-
     test('does not fetch the media file until the row is expanded', async () => {
       renderWithWrapper(
-        <AttachmentListItem attachment={savedAudioAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
+        <AttachmentListItem attachment={savedAudioAttachment} isOpen={false} onCollapse={onCollapse} onExpand={onExpand} />
       );
 
       await screen.findByText('interview.m4a');
@@ -465,9 +617,9 @@ describe('ActivitySection - AttachmentListItem', () => {
       expect(fetchFileAsObjectUrlFromUrlMock).not.toHaveBeenCalled();
     });
 
-    test('fetches the media file as an authenticated blob and renders a native audio player with the resulting object url', async () => {
+    test('fetches the media file as an authenticated blob and plays it from the resulting object url', async () => {
       renderWithWrapper(
-        <AttachmentListItem attachment={savedAudioAttachment} cardsExpanded={[savedAudioAttachment]} onCollapse={onCollapse} onExpand={onExpand} />
+        <AttachmentListItem attachment={savedAudioAttachment} isOpen onCollapse={onCollapse} onExpand={onExpand} />
       );
 
       const audio = await screen.findByTestId('activitySection-audio-9012');
@@ -480,7 +632,7 @@ describe('ActivitySection - AttachmentListItem', () => {
 
     test('does not show a fullscreen expand button', async () => {
       renderWithWrapper(
-        <AttachmentListItem attachment={savedAudioAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
+        <AttachmentListItem attachment={savedAudioAttachment} isOpen={false} onCollapse={onCollapse} onExpand={onExpand} />
       );
 
       await screen.findByText('interview.m4a');
@@ -492,12 +644,11 @@ describe('ActivitySection - AttachmentListItem', () => {
       fetchFileAsObjectUrlFromUrlMock.mockRejectedValue(new Error('network error'));
 
       renderWithWrapper(
-        <AttachmentListItem attachment={savedAudioAttachment} cardsExpanded={[savedAudioAttachment]} onCollapse={onCollapse} onExpand={onExpand} />
+        <AttachmentListItem attachment={savedAudioAttachment} isOpen onCollapse={onCollapse} onExpand={onExpand} />
       );
 
       expect(await screen.findByTestId('activitySection-mediaError-9012')).toHaveTextContent('Unable to load this file.');
       expect(screen.queryByTestId('activitySection-audio-9012')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('activitySection-mediaLoading-9012')).not.toBeInTheDocument();
     });
   });
 });

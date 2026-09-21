@@ -1,4 +1,4 @@
-import { bearing, explode, featureCollection } from '@turf/turf';
+import { bearing, explode, featureCollection, length, lineString } from '@turf/turf';
 import isEqual from 'react-fast-compare';
 import { CancelToken } from 'axios';
 import {
@@ -19,6 +19,8 @@ import { TIME_OF_DAY_PERIODS } from '../constants';
 const MAX_ABSOLUTE_LONGITUDE = 180;
 const WORLD_TOTAL_LONGITUDE = 360;
 const MAX_MINUTES_PER_DAY = 1440;
+
+const EMPTY_TIMES = [];
 
 // Helper function to fix antimeridian crossing for a coordinate array
 export const fixAntimeridianCrossing = (featCollection) => {
@@ -160,17 +162,21 @@ export const findTimeEnvelopeIndices = (times, from = null, until = null) => {
       : findDateIndexInRange(times, from);
   }
   if (until) {
-    const untilIndex = dateIsAtOrBeforeDate(mostRecentTime, until)
-      ? 0
-      : findDateIndexInRange(times, until);
+    // Times run newest first, so `until` starts the kept slice. With nothing
+    // newer than the window that is index 0; stepping past it would drop it.
+    if (dateIsAtOrBeforeDate(mostRecentTime, until)) {
+      results.until = 0;
+    } else {
+      const untilIndex = findDateIndexInRange(times, until);
 
-    if (
-      times[untilIndex] === earliestTime
-      && dateIsAtOrAfterDate(earliestTime, until)
-    ) {
-      results.until = times.length;
-    } else if (untilIndex > -1) {
-      results.until = isEqualDate(new Date(times[untilIndex]), new Date(until)) ? untilIndex : untilIndex + 1;
+      if (
+        times[untilIndex] === earliestTime
+        && dateIsAtOrAfterDate(earliestTime, until)
+      ) {
+        results.until = times.length;
+      } else if (untilIndex > -1) {
+        results.until = isEqualDate(new Date(times[untilIndex]), new Date(until)) ? untilIndex : untilIndex + 1;
+      }
     }
   }
   return results;
@@ -194,8 +200,12 @@ export const trackHasDataWithinTimeRange = (trackData, since = null, until = nul
 
   const { fetchedDateRange, track } = trackData;
 
-  const [first] = track.features[0].properties.coordinateProperties.times;
-  const last = track.features[0].properties.coordinateProperties.times[track.features[0].properties.coordinateProperties.times.length - 1];
+  // A subject with no positions in the window it was fetched for comes back
+  // with no line at all, and that window is all there is to answer with.
+  const times = track.features[0]?.properties?.coordinateProperties?.times ?? EMPTY_TIMES;
+
+  const [first] = times;
+  const last = times[times.length - 1];
 
 
   if (
@@ -227,7 +237,7 @@ export const trackHasDataWithinTimeRange = (trackData, since = null, until = nul
 const trackFetchState = {};
 export const fetchTracksIfNecessary = (ids, config) => {
   const optionalDateBoundaries = config?.optionalDateBoundaries;
-  const { data: { tracks, virtualDate, eventFilter }, view: { trackSettings, timeSliderState } } = store.getState();
+  const { data: { tracks, eventFilter }, view: { trackSettings, timeSliderState } } = store.getState();
 
 
   const { active: timeSliderActive } = timeSliderState;
@@ -241,7 +251,12 @@ export const fetchTracksIfNecessary = (ids, config) => {
     if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.EVENT_FILTER) {
       dateRange = removeNullAndUndefinedValuesFromObject({ since: eventFilterSince, until: eventFilterUntil });
     } else if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH) {
-      dateRange = removeNullAndUndefinedValuesFromObject({ since: timeSliderActive ? eventFilterSince : startOfDay(subDays(virtualDate || new Date(), length)), until: virtualDate });
+      dateRange = removeNullAndUndefinedValuesFromObject({
+        since: timeSliderActive ? eventFilterSince : startOfDay(subDays(new Date(), length)),
+        // The map never draws past the filter's end, so fetching beyond it is
+        // wasted. The virtual date moves with the handle, so it would refetch.
+        until: timeSliderActive ? eventFilterUntil : undefined,
+      });
     }
 
     /* use optional date boundaries to further expand the lower and upper limits of the track request, if necessary, to have maximum necessary data coverage */
@@ -261,7 +276,11 @@ export const fetchTracksIfNecessary = (ids, config) => {
       const cancelToken = CancelToken.source();
 
       const request = store.dispatch(fetchTracks(dateRange, cancelToken, id))
-        .finally(() => delete trackFetchState[id]);
+        .finally(() => {
+          if (trackFetchState[id]?.cancelToken === cancelToken) {
+            delete trackFetchState[id];
+          }
+        });
 
       trackFetchState[id] = {
         cancelToken,
@@ -298,7 +317,7 @@ export const fetchTracksIfNecessary = (ids, config) => {
         return buildRequest();
       }
 
-
+      return ongoingRequest.request;
     };
 
     if (!trackData
@@ -316,7 +335,7 @@ export const trimTrackDataToTimeRange = (trackData, from = null, until = null) =
   const { track, points, ...rest } = trackData;
 
   const [originalTrack] = track.features;
-  if ((!from && !until) || !originalTrack.geometry) return { track, points };
+  if ((!from && !until) || !originalTrack?.geometry) return { track, points };
 
   const indices = findTimeEnvelopeIndices(originalTrack.properties.coordinateProperties.times, from ? new Date(from) : null, until ? new Date(until) : until);
 
@@ -358,6 +377,31 @@ export const trimTrackDataToTimeRange = (trackData, from = null, until = null) =
 
 };
 
+// The length in kilometers of the stretch of a track within a time range.
+export const trackLengthWithinTimeRange = (trackData, from = null, until = null) => {
+  const [trackFeature] = trackData.track.features;
+
+  if (!trackFeature?.geometry) {
+    return 0;
+  }
+
+  const { coordinates } = trackFeature.geometry;
+
+  const measure = (positions) => positions.length > 1 ? length(lineString(positions)) : 0;
+
+  if (!from && !until) {
+    return measure(coordinates);
+  }
+
+  const indices = findTimeEnvelopeIndices(
+    trackFeature.properties.coordinateProperties.times,
+    from ? new Date(from) : null,
+    until ? new Date(until) : null
+  );
+
+  return measure(trimArrayWithEnvelopeIndices(coordinates, indices));
+};
+
 export const addSocketStatusUpdateToTrack = (tracks, newData) => {
   const { track, points, ...rest } = tracks;
 
@@ -367,6 +411,12 @@ export const addSocketStatusUpdateToTrack = (tracks, newData) => {
   delete update.trace_id;
 
   update.properties = merge({}, points.features[0].properties, update.properties);
+
+  // The merge seeds this point from the previously newest one, whose `time` belongs to that
+  // point; the incoming position carries its own under coordinateProperties.
+  if (update.properties.coordinateProperties?.time) {
+    update.properties.time = update.properties.coordinateProperties.time;
+  }
 
   const [trackFeature] = track.features;
 
@@ -423,23 +473,11 @@ export const getTimeOfDayPeriodBasedOnTime = (datetimeString, timeZone) => {
 * The segmentation will allow us to set a line gradient with specific stop colors to each line.
 * This being a workaround of the issue of MapBox not being able to apply dynamically data-drive stop colors for a gradient line.
 * */
-export const buildTrackSegments = (trackFeatureCollection, timeZone) => {
-  const emptyFeatureCollection = {
-    type: 'FeatureCollection',
-    features: []
-  };
-
-  if (!trackFeatureCollection || !trackFeatureCollection.features || !trackFeatureCollection.features.length) {
-    return emptyFeatureCollection;
-  }
-
-  const [lineStringFeature] = trackFeatureCollection.features;
-
-  // Checking if first feature is valid
+const buildTrackFeatureSegments = (lineStringFeature, timeZone) => {
   if (!lineStringFeature?.geometry ||
     lineStringFeature.geometry?.type !== 'LineString' ||
     !lineStringFeature.properties?.coordinateProperties?.times) {
-    return emptyFeatureCollection;
+    return [];
   }
 
   const {
@@ -455,7 +493,7 @@ export const buildTrackSegments = (trackFeatureCollection, timeZone) => {
 
   // At least there should be 2 points to create the line string and the amount of times should be the same as the amount of coordinates
   if (coordinates.length < 2 || coordinates.length !== times.length) {
-    return emptyFeatureCollection;
+    return [];
   }
 
   const segments = [];
@@ -489,5 +527,12 @@ export const buildTrackSegments = (trackFeatureCollection, timeZone) => {
     });
   }
 
-  return featureCollection(segments);
+  return segments;
 };
+
+// A patrol track carries one line feature per stretch its subject was on the
+// patrol, so every feature is segmented, not just the first.
+export const buildTrackSegments = (trackFeatureCollection, timeZone) => featureCollection(
+  (trackFeatureCollection?.features ?? [])
+    .flatMap((lineStringFeature) => buildTrackFeatureSegments(lineStringFeature, timeZone))
+);

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth0 } from '@auth0/auth0-react';
 
 import { addModal } from '../ducks/modals';
+import { APP_ROUTES } from '../constants/routes';
 import { BREAKPOINTS, MAX_ZOOM, REACT_APP_ROUTE_PREFIX } from '../constants';
 import { clearAuth } from '../ducks/auth';
 import { clearUserProfile, fetchCurrentUser, fetchCurrentUserProfiles, setUserProfile } from '../ducks/user';
@@ -117,20 +118,20 @@ const Nav = () => {
           },
         });
       } else {
-        navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login` }, { replace: true });
+        navigate({ pathname: APP_ROUTES.LOGIN }, { replace: true });
       }
 
     } catch (error) {
       console.error('[Nav] Logout failed:', error);
       // Fallback: clear everything and navigate to login
       await dispatch(clearAuth());
-      navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login` }, { replace: true });
+      navigate({ pathname: APP_ROUTES.LOGIN }, { replace: true });
     }
   }, [dispatch, navigate, requireIdp, auth0Logout]);
 
   useEffect(() => {
     dispatch(fetchCurrentUser())
-      .catch(() => navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search: location.search }));
+      .catch(() => navigate({ pathname: APP_ROUTES.LOGIN, search: location.search }));
     dispatch(fetchCurrentUserProfiles());
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

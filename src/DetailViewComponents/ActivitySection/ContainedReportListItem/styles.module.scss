@@ -1,50 +1,65 @@
-@import '../../../common/styles/layout';
+@use 'sass:color';
+@use 'sass:map';
 
-.reportListItem {
-  background-color: transparent !important;
-  flex: 7;
-  height: 100%;
-  position: relative;
+@use '../../../common/styles/layout';
+@use '../../../common/styles/vars/colors';
+
+$rowHoverBlackMix: 4%;
+
+@mixin priorityTheme($theme) {
+  --item-icon-bg: #{map.get($theme, 'base')};
+  --item-row-bg: #{map.get($theme, 'background')};
+  --item-row-hover-bg: #{color.mix(black, map.get($theme, 'background'), $rowHoverBlackMix)};
+}
+
+.red {
+  @include priorityTheme(colors.$report-high-priority-theme);
+}
+
+.amber {
+  @include priorityTheme(colors.$report-medium-priority-theme);
+}
+
+.green {
+  @include priorityTheme(colors.$report-low-priority-theme);
+}
+
+.none {
+  @include priorityTheme(colors.$report-no-priority-theme);
+}
+
+.titleGroup {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  min-width: 0;
   width: 100%;
 
-  [class*=iconContainer] {
-    width: 3.5rem;
+  @media (min-width: layout.$md-layout-width-min) {
+    flex: 1;
+    width: auto;
   }
 
-  [class*=titleContainer] {
-    left: 3.125rem;
-    position: absolute;
-    top: -0.5rem;
-
-    @media (min-width: $md-layout-width-min) {
-      position: unset;
-    }
-  }
-
-  [class*=dateContainer] {
-    bottom: -0.5rem;
-    left: 3.5rem;
-    position: absolute;
-
-    @media (min-width: $md-layout-width-min) {
-      position: unset;
-    }
-  }
-
-  span[class*=date] {
+  .serialNumber {
+    color: colors.$secondary-medium-gray;
+    flex-shrink: 0;
     font-size: 0.875rem;
+    font-variant-numeric: tabular-nums;
   }
+}
 
-  [class*=resolved] {
-    display: none;
+.metaGroup {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.5rem;
 
-    @media (min-width: $md-layout-width-min) {
-      display: unset;
+  .stateLabel {
+    color: colors.$secondary-medium-gray;
+
+    @media (max-width: layout.$sm-layout-width-max) {
+      order: 1;
     }
-  }
-
-  @media (min-width: $md-layout-width-min) {
-    flex: 11;
   }
 }
 
@@ -52,4 +67,8 @@
   display: flex;
   justify-content: center;
   width: 100%;
+}
+
+.viewReportIcon {
+  --action-icon-size: 0.875rem;
 }

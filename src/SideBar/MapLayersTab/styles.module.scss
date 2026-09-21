@@ -67,6 +67,19 @@
   }
 }
 
+.errorBanner {
+  background: var(--bs-danger-bg-subtle, #f8d7da);
+  border: 1px solid var(--bs-danger-border-subtle, #f1aeb5);
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0.75rem;
+
+  p {
+    margin: 0 0 0.35rem;
+  }
+}
+
 .allCheckboxWrapper {
   border-bottom: 1px solid colors.$light-gray-border;
   font-size: 1.25rem;

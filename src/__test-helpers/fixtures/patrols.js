@@ -1641,9 +1641,188 @@ export const cancelledPatrol = {
   ]
 };
 
+export const patrolTeamAndTrackingOptions = {
+  assets: [{
+    content_type: 'observations.subject',
+    id: 'd1d2d3d4-0001-4b1a-8c3d-1a2b3c4d5e01',
+    image_url: '/static/suv.svg',
+    is_active: true,
+    name: 'Land Cruiser 42',
+    subject_subtype: 'suv',
+    subject_subtype_display: 'SUV',
+    subject_type: 'vehicle',
+  }, {
+    content_type: 'observations.subject',
+    id: 'd1d2d3d4-0002-4b1a-8c3d-1a2b3c4d5e02',
+    image_url: '/static/radio-black.svg',
+    is_active: true,
+    name: 'Handheld Radio 07',
+    subject_subtype: 'stationary-radio',
+    subject_subtype_display: 'Handheld VHF Radio',
+    subject_type: 'static_sensor',
+  }],
+  hasFetched: true,
+  leaders: [{ id: 'Leader 1' }, { id: 'Leader 2' }],
+  members: [{
+    content_type: 'observations.subject',
+    id: 'b1b2b3b4-0001-4b1a-8c3d-1a2b3c4d5e01',
+    image_url: '/static/ranger-black.svg',
+    is_active: true,
+    name: 'Ranger Amara',
+    subject_subtype: 'ranger',
+    subject_subtype_display: 'Ranger',
+    subject_type: 'person',
+  }, {
+    content_type: 'observations.subject',
+    id: 'b1b2b3b4-0003-4b1a-8c3d-1a2b3c4d5e03',
+    image_url: '/static/er_mobile.svg',
+    is_active: true,
+    name: 'Ranger Nadia',
+    subject_subtype: 'er_mobile',
+    subject_subtype_display: 'ER Mobile',
+    subject_type: 'person',
+  }],
+  teams: [{ display: 'Alpha', id: 'e1e2e3e4-0001-4b1a-8c3d-1a2b3c4d5e01', is_active: true, ordernum: 1, value: 'alpha' }],
+};
+
+export const multiLegPatrol = {
+  'id': 'b1f2a4a1-6a68-4c1a-9f0b-2a6e6c6a6f01',
+  'priority': 0,
+  'state': 'open',
+  'objective': null,
+  'serial_number': 1700,
+  'title': 'Multi-Leg Patrol',
+  'files': [],
+  'notes': [],
+  'patrol_segments': [
+    {
+      'id': 'a1a2a3a4-0001-4b1a-8c3d-1a2b3c4d5e01',
+      'patrol_type': 'routine_patrol',
+      'team': 'e1e2e3e4-0001-4b1a-8c3d-1a2b3c4d5e01',
+      'members': ['b1b2b3b4-0001-4b1a-8c3d-1a2b3c4d5e01', 'b1b2b3b4-0003-4b1a-8c3d-1a2b3c4d5e03'],
+      'assets': ['d1d2d3d4-0001-4b1a-8c3d-1a2b3c4d5e01', 'd1d2d3d4-0002-4b1a-8c3d-1a2b3c4d5e02'],
+      'segment_details': {},
+      'type_details': {},
+      'leader': {
+        'content_type': 'observations.subject',
+        'id': 'b1b2b3b4-0001-4b1a-8c3d-1a2b3c4d5e01',
+        'name': 'Ranger Amara',
+        'subject_type': 'person',
+        'subject_subtype': 'ranger',
+        'common_name': null,
+        'additional': {},
+        'created_at': '2026-04-01T08:00:00.000-07:00',
+        'updated_at': '2026-04-01T08:00:00.000-07:00',
+        'is_active': true,
+        'tracks_available': true,
+        'image_url': '/static/ranger-black.svg'
+      },
+      'scheduled_start': null,
+      'scheduled_end': null,
+      'time_range': {
+        'start_time': '2026-04-13T01:00:00.000-07:00',
+        'end_time': '2026-04-13T02:00:00.000-07:00'
+      },
+      'start_location': {
+        'latitude': 0.225,
+        'longitude': 37.472
+      },
+      'end_location': {
+        'latitude': 0.230,
+        'longitude': 37.480
+      },
+      'events': [],
+      'image_url': 'https://develop.pamdas.org/static/sprite-src/routine-patrol-icon.svg',
+      'icon_id': 'routine-patrol-icon',
+      'updates': [
+        {
+          'message': 'Leg 1 Ended',
+          'time': '2026-04-13T10:00:00.000Z',
+          'user': {
+            'username': 'amaraosei',
+            'first_name': 'Amara',
+            'last_name': 'Osei',
+            'id': 'c1c2c3c4-0001-4b1a-8c3d-1a2b3c4d5e01',
+            'content_type': 'accounts.user'
+          },
+          'type': 'update_segment'
+        }
+      ]
+    },
+    {
+      'id': 'a1a2a3a4-0002-4b1a-8c3d-1a2b3c4d5e02',
+      'patrol_type': 'dog_patrol',
+      'team': null,
+      'members': [],
+      'assets': [],
+      'segment_details': {},
+      'type_details': {},
+      'leader': {
+        'content_type': 'observations.subject',
+        'id': 'b1b2b3b4-0002-4b1a-8c3d-1a2b3c4d5e02',
+        'name': 'K9 Rex',
+        'subject_type': 'wildlife',
+        'subject_subtype': 'dog',
+        'common_name': null,
+        'additional': {},
+        'created_at': '2026-04-01T08:00:00.000-07:00',
+        'updated_at': '2026-04-01T08:00:00.000-07:00',
+        'is_active': true,
+        'tracks_available': true,
+        'image_url': '/static/dog-black.svg'
+      },
+      'scheduled_start': null,
+      'scheduled_end': null,
+      'time_range': {
+        'start_time': '2026-04-13T02:00:00.000-07:00',
+        'end_time': null
+      },
+      'start_location': {
+        'latitude': 0.230,
+        'longitude': 37.480
+      },
+      'end_location': null,
+      'events': [],
+      'image_url': 'https://develop.pamdas.org/static/sprite-src/dog-patrol-icon.svg',
+      'icon_id': 'dog-patrol-icon',
+      'updates': [
+        {
+          'message': 'Leg 2 Started',
+          'time': '2026-04-13T09:00:00.000Z',
+          'user': {
+            'content_type': null
+          },
+          'type': 'update_segment'
+        }
+      ]
+    }
+  ],
+  'updates': [
+    {
+      'message': 'Patrol Added',
+      'time': '2026-04-13T08:00:00.000Z',
+      'user': {
+        'username': 'amaraosei',
+        'first_name': 'Amara',
+        'last_name': 'Osei',
+        'id': 'c1c2c3c4-0001-4b1a-8c3d-1a2b3c4d5e01',
+        'content_type': 'accounts.user'
+      },
+      'type': 'add_patrol'
+    }
+  ]
+};
+
 export const patrolDefaultStoreData = {
   data: {
     tracks: {},
+    eventFilter: {
+      filter: {
+        date_range: {
+          lower: '2020-01-01T06:00:00.000Z',
+        },
+      },
+    },
     eventSchemas: {
       globalSchema: {
         properties: {
@@ -1657,19 +1836,7 @@ export const patrolDefaultStoreData = {
         },
       },
     },
-    patrolLeaderSchema: {
-      trackedbySchema: {
-        properties: {
-          leader: {
-            enum_ext: [{
-              value: { id: 'Leader 1' },
-            }, {
-              value: { id: 'Leader 2' },
-            }],
-          },
-        },
-      },
-    },
+    patrolTeamAndTrackingOptions,
     patrolStore: {},
     subjectStore: {},
     patrolsFeed: [],
@@ -1691,8 +1858,14 @@ export const patrolDefaultStoreData = {
       pinned: [], visible: []
     },
     patrolTrackState: {
-      pinned: [], visible: []
+      hiddenSubjects: {}, pinned: [], visible: []
     },
     systemConfig: {},
+    trackSettings: {
+      isTimeOfDayColoringActive: false,
+      length: 21,
+      origin: 'CUSTOM_LENGTH',
+      timeOfDayTimeZone: null,
+    },
   },
 };

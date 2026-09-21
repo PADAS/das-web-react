@@ -1,5 +1,6 @@
 @use 'sass:color';
 
+@use '../common/styles/inputs';
 @use '../common/styles/vars/colors';
 
 .numericInput {
@@ -45,8 +46,7 @@
   }
 
   .controls {
-    height: 100%;
-    width: 1.5rem;
+    @include inputs.boxedFieldTrailingControl;
 
     button {
       align-items: center;

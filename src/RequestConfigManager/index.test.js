@@ -23,7 +23,13 @@ jest.mock('axios', () => {
 jest.mock('react-router', () => ({ __esModule: true, useLocation: jest.fn() }));
 jest.mock('../hooks/useNavigate');
 jest.mock('../hooks/useAuthRecovery');
-jest.mock('../utils/auth-recovery', () => ({ recoverAuth: jest.fn() }));
+// Stub the store singleton so requireActual(auth-recovery) doesn't build the real reducer tree.
+jest.mock('../store', () => ({ __esModule: true, default: { dispatch: jest.fn(), getState: () => ({ data: {} }) } }));
+// Real challenge parsers (isStepUpChallenge / parseAuthChallenge); only recoverAuth is stubbed.
+jest.mock('../utils/auth-recovery', () => ({
+  ...jest.requireActual('../utils/auth-recovery'),
+  recoverAuth: jest.fn(),
+}));
 
 const renderManager = () => {
   const store = mockStore({
@@ -79,6 +85,70 @@ describe('RequestConfigManager 401 handling', () => {
       }),
     }));
     expect(result).toEqual({ status: 200, data: 'ok' });
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  test('a 401 carrying an RFC 9470 step-up challenge routes to interactive step-up', async () => {
+    recoverAuth.mockResolvedValue('mfa.jwt.token');
+    axios.mockResolvedValue({ status: 200, data: 'ok' });
+
+    const { rejected } = renderManager();
+    const challenge = 'Bearer error="insufficient_user_authentication", acr_values="http://schemas.openid.net/pape/policies/2007/06/multi-factor", max_age="31536000"';
+    const error = {
+      response: { status: 401, headers: { 'www-authenticate': challenge } },
+      config: { headers: {}, url: '/api/v1.0/events' },
+    };
+
+    await rejected(error);
+
+    expect(recoverAuth).toHaveBeenCalledWith({
+      stepUp: true,
+      challenge: {
+        error: 'insufficient_user_authentication',
+        acrValues: 'http://schemas.openid.net/pape/policies/2007/06/multi-factor',
+        maxAge: '31536000',
+      },
+    });
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  test('a 401 with an ordinary WWW-Authenticate challenge takes the silent-renew path', async () => {
+    recoverAuth.mockResolvedValue('new.jwt.token');
+    axios.mockResolvedValue({ status: 200, data: 'ok' });
+
+    const { rejected } = renderManager();
+    const error = {
+      response: { status: 401, headers: { 'www-authenticate': 'Bearer error="invalid_token"' } },
+      config: { headers: {}, url: '/api/v1.0/events' },
+    };
+    await rejected(error);
+
+    expect(recoverAuth).toHaveBeenCalledWith(undefined);
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  test('escalates to step-up (not sign-out) when a silently-renewed request then 401s with a step-up challenge', async () => {
+    recoverAuth.mockResolvedValue('renewed.jwt.token');
+    axios.mockResolvedValue({ status: 200, data: 'ok' });
+
+    const { rejected } = renderManager();
+
+    // Ordinary 401 → silent renew → replay carries retriedAfterRefresh.
+    await rejected(make401());
+    const replayConfig = axios.mock.calls[0][0];
+    expect(replayConfig.retriedAfterRefresh).toBe(true);
+
+    // The replay comes back as a step-up 401 (token now valid but MFA stale).
+    const challenge = 'Bearer error="insufficient_user_authentication", acr_values="urn:mfa", max_age="3600"';
+    await rejected({
+      response: { status: 401, headers: { 'www-authenticate': challenge } },
+      config: replayConfig,
+    });
+
+    expect(recoverAuth).toHaveBeenCalledWith({
+      stepUp: true,
+      challenge: { error: 'insufficient_user_authentication', acrValues: 'urn:mfa', maxAge: '3600' },
+    });
     expect(navigate).not.toHaveBeenCalled();
   });
 

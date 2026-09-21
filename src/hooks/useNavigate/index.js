@@ -1,10 +1,10 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
-import { useNavigate as useRouterNavigate } from 'react-router';
+import { useCallback, useContext } from 'react';
 import { useDispatch } from 'react-redux';
+import { useNavigate as useRouterNavigate } from 'react-router';
 
 import { showSideBar } from '../../ducks/side-bar';
 
-import { BLOCKER_STATES, NavigationContext } from '../../NavigationContextProvider';
+import { NavigationContext } from '../../NavigationContextProvider';
 
 // Custom useNavigate hook to handle blocking navigation, context navigation
 // data and synchronization with sidebar reducer
@@ -14,20 +14,10 @@ const useNavigate = (options = {}) => {
   const dispatch = useDispatch();
   const routerNavigate = useRouterNavigate();
 
-  const {
-    blocker,
-    isNavigationBlocked,
-    onNavigationAttemptBlocked,
-    setNavigationData,
-  } = useContext(NavigationContext);
+  const { attemptNavigation, setNavigationData } = useContext(NavigationContext);
 
-  const [navigationAttemptParameters, setNavigationAttemptParameters] = useState(null);
-
-  const navigate = useCallback((to, options, navigationContextData = null, skipBlocker = false) => {
-    if (!skipBlocker && isNavigationBlocked) {
-      setNavigationAttemptParameters({ to, options, navigationContextData });
-      onNavigationAttemptBlocked();
-    } else {
+  const navigate = useCallback((to, navigateOptions, navigationContextData = null) => {
+    attemptNavigation(() => {
       if (clearContext || navigationContextData) {
         setNavigationData(navigationContextData || {});
       }
@@ -36,36 +26,9 @@ const useNavigate = (options = {}) => {
         dispatch(showSideBar());
       }
 
-      routerNavigate(to, options);
-    }
-  }, [
-    clearContext,
-    dispatch,
-    dispatchShowSideBar,
-    isNavigationBlocked,
-    onNavigationAttemptBlocked,
-    setNavigationData,
-    routerNavigate,
-  ]);
-
-  useEffect(() => {
-    if (blocker.state === BLOCKER_STATES.PROCEEDING && navigationAttemptParameters) {
-      navigate(
-        navigationAttemptParameters.to,
-        navigationAttemptParameters.options,
-        navigationAttemptParameters.navigationContextData,
-        true
-      );
-
-      blocker.reset();
-    }
-  }, [blocker, navigate, navigationAttemptParameters]);
-
-  useEffect(() => {
-    if (blocker.state === BLOCKER_STATES.UNBLOCKED) {
-      setNavigationAttemptParameters(null);
-    }
-  }, [blocker.state]);
+      routerNavigate(to, navigateOptions);
+    });
+  }, [attemptNavigation, clearContext, dispatch, dispatchShowSideBar, routerNavigate, setNavigationData]);
 
   return navigate;
 };

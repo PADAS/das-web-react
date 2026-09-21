@@ -1,14 +1,16 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import Button from 'react-bootstrap/Button';
+import { shallowEqual, useSelector } from 'react-redux';
 
-import { calcPatrolState } from '../utils/patrols';
+import { EMPTY_VALUE } from '../constants';
 import { fetchTracksIfNecessary } from '../utils/tracks';
+import { formatDistanceInKilometers } from '../utils/distance';
 import { PATROL_LIST_ITEM_CATEGORY, trackEventFactory } from '../utils/analytics';
+import { selectPatrolMeasuredSubjectIds } from '../selectors/patrols';
 import usePatrol from '../hooks/usePatrol';
 
 import SvgIcon from '../SvgIcon';
 import FeedListItem from '../FeedListItem';
-import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 import PatrolMenu from '../PatrolMenu';
 import PatrolTrackControls from '../PatrolTrackControls';
 
@@ -17,15 +19,13 @@ import { useTranslation } from 'react-i18next';
 
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
-const STATE_CHANGE_POLLING_INTERVAL = 3000;
 const TRACK_FETCH_DEBOUNCE_DELAY = 150;
 
 const PatrolListItem = ({
   className,
   dispatch: _dispatch,
   onClick = null,
-  onSelfManagedStateChange,
-  patrol: patrolFromProps,
+  patrol,
   ref,
   showControls = true,
   showStateTitle = true,
@@ -33,12 +33,12 @@ const PatrolListItem = ({
   ...rest
 }) => {
   const {
-    patrolData,
+    patrolLeadSumDistance,
 
-    isPatrolActive,
     isPatrolCancelled,
     isPatrolDone,
     isPatrolScheduled,
+    isPatrolUnderWay,
 
     actualEndTime,
     actualStartTime,
@@ -51,20 +51,22 @@ const PatrolListItem = ({
 
     dateComponentDateString,
 
-    setPatrolState,
-
     onPatrolChange,
     restorePatrol,
     startPatrol,
-  } = usePatrol(patrolFromProps);
+  } = usePatrol(patrol);
 
-  const { patrol, leader } = patrolData;
+  // The row reports only the patrol's distance, so it fetches what that is read
+  // from. Its identity has to hold, or the debounce below never settles.
+  const patrolMeasuredSubjectIds = useSelector(
+    (state) => selectPatrolMeasuredSubjectIds(state, patrol),
+    shallowEqual
+  );
 
   const debouncedTrackFetch = useRef(null);
-  const intervalRef = useRef(null);
-  const menuRef = useRef(null);
   const { t } = useTranslation('patrols');
-  const isPatrolActiveOrDone = isPatrolActive || isPatrolDone;
+  const { t: tUtils } = useTranslation('utils');
+  const isPatrolUnderWayOrDone = isPatrolUnderWay || isPatrolDone;
 
   const { base: themeColor, background: themeBgColor } = theme;
 
@@ -74,12 +76,13 @@ const PatrolListItem = ({
     onClick?.(patrol);
   }, [onClick, patrol]);
 
-  const patrolsData = useMemo(() => [patrolData], [patrolData]);
   const TitleDetailsComponent = useMemo(() => {
-    if (isPatrolActiveOrDone) {
+    if (isPatrolUnderWayOrDone) {
       return <span className={styles.titleDetails}>
         <span>{patrolElapsedTime}</span> | <span>
-          <PatrolDistanceCovered patrolsData={patrolsData} suffix=' km' />
+          {patrolLeadSumDistance == null
+            ? EMPTY_VALUE
+            : formatDistanceInKilometers(tUtils, patrolLeadSumDistance)}
         </span>
       </span>;
     }
@@ -91,29 +94,35 @@ const PatrolListItem = ({
     }
 
     return null;
-  }, [isPatrolActiveOrDone, isPatrolScheduled, isPatrolCancelled, patrolElapsedTime, patrolsData, scheduledStartTime, t]);
+  }, [
+    isPatrolCancelled,
+    isPatrolScheduled,
+    isPatrolUnderWayOrDone,
+    patrolElapsedTime,
+    patrolLeadSumDistance,
+    scheduledStartTime,
+    t,
+    tUtils,
+  ]);
 
-  const onLocationClick = useCallback((event) => {
-    event.stopPropagation();
+  const onLocationClick = useCallback(() => {
     patrolListItemTracker.track('Click "jump to location" from patrol list item');
   }, []);
 
-  const restorePatrolAndTrack = useCallback((event) => {
-    event.stopPropagation();
+  const restorePatrolAndTrack = useCallback(() => {
     patrolListItemTracker.track('Restore patrol from patrol list item');
 
     restorePatrol();
   }, [restorePatrol]);
 
-  const startPatrolAndTrack = useCallback((event) => {
-    event.stopPropagation();
+  const startPatrolAndTrack = useCallback(() => {
     patrolListItemTracker.track('Start patrol from patrol list item');
 
     startPatrol();
   }, [startPatrol]);
 
-  const StateDependentControls = () => {
-    if (isPatrolActiveOrDone) {
+  const renderStateDependentControls = () => {
+    if (isPatrolUnderWayOrDone) {
       return <PatrolTrackControls patrol={patrol} onLocationClick={onLocationClick} />;
     }
 
@@ -145,53 +154,31 @@ const PatrolListItem = ({
   };
 
   useEffect(() => {
-    if (leader?.id) {
+    if (patrolMeasuredSubjectIds.length) {
       window.clearTimeout(debouncedTrackFetch.current);
       debouncedTrackFetch.current = setTimeout(() => {
-        fetchTracksIfNecessary([leader.id], {
+        fetchTracksIfNecessary(patrolMeasuredSubjectIds, {
           optionalDateBoundaries: { since: actualStartTime, until: actualEndTime }
         });
       }, TRACK_FETCH_DEBOUNCE_DELAY);
 
       return () => window.clearTimeout(debouncedTrackFetch.current);
     }
-  }, [actualEndTime, actualStartTime, leader]);
-
-  useEffect(() => {
-    intervalRef.current = window.setInterval(() => {
-      const currentState = calcPatrolState(patrol);
-      if (currentState !== patrolState) {
-        setPatrolState(currentState);
-        onSelfManagedStateChange && onSelfManagedStateChange(patrol);
-      }
-    }, STATE_CHANGE_POLLING_INTERVAL);
-
-    return () => window.clearInterval(intervalRef.current);
-  }, [onSelfManagedStateChange, patrol, patrolState, setPatrolState]);
-
-  const onDropdownClick = useCallback((event) => event.stopPropagation(), []);
+  }, [actualEndTime, actualStartTime, patrolMeasuredSubjectIds]);
 
   const renderedControlsComponent = showControls
     ? <div className={styles.controls}>
-      <StateDependentControls />
+      {renderStateDependentControls()}
       <PatrolMenu
         data-testid={`patrol-list-item-kebab-menu-${patrol.id}`}
-        menuRef={menuRef}
         onPatrolChange={onPatrolChange}
         patrol={patrol}
         showPatrolPrintOption={false}
         className={styles.patrolMenu}
-        onClick={onDropdownClick}
         isPatrolCancelled={isPatrolCancelled}
       />
     </div>
     : null;
-
-  useEffect(() => {
-    const preventPatrolMenuOverlapping = () => menuRef?.current?.classList.remove('show');
-    window.addEventListener('click', preventPatrolMenuOverlapping, true);
-    return () => window.removeEventListener('click', preventPatrolMenuOverlapping);
-  }, []);
 
   const renderedDateComponent = <div
       className={styles.statusInfo}

@@ -24,6 +24,7 @@
   },
   "mapDrawingTools": {
     "addPointLabel": "Cliquez pour ajouter un point. Sélectionner \"entrée\" pour finaliser.",
+    "areaLabel": "Surface: {{area}}",
     "bearingLabel": "Direction: {{bearing}}°",
     "distanceLabel": "Distance: {{distance}}",
     "instructionsLabel": "Cliquez puis glissez pour ajouter un point",
@@ -41,6 +42,7 @@
     "title": "Règle "
   },
   "pointPopup": {
+    "areaLabel": "Surface:",
     "bearingLabel": "Direction: ",
     "distanceLabel": "Distance depuis l'origine",
     "finishButton": "Cliquez ici pour finaliser"

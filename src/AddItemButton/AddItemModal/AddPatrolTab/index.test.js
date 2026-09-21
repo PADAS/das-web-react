@@ -118,6 +118,6 @@ describe('AddItemButton - AddItemModal - AddPatrolTab', () => {
     expect(onHideModal).toHaveBeenCalledTimes(1);
     expect(navigate).toHaveBeenCalledTimes(1);
     expect(navigate.mock.calls[0][0].pathname).toBe('/patrols/new');
-    expect(navigate.mock.calls[0][0].search).toBe('?patrolType=c6f88fd2-2b87-477a-9c23-3bc4b3eb845d');
+    expect(navigate.mock.calls[0][0].search).toBe('?patrol-type=c6f88fd2-2b87-477a-9c23-3bc4b3eb845d');
   });
 });

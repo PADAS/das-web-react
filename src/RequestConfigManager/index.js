@@ -6,8 +6,8 @@ import { toast } from 'react-toastify';
 
 import { clearAuth, resetMasterCancelToken } from '../ducks/auth';
 
-import { REACT_APP_ROUTE_PREFIX } from '../constants';
-import { recoverAuth } from '../utils/auth-recovery';
+import { APP_ROUTES } from '../constants/routes';
+import { isStepUpChallenge, parseAuthChallenge, recoverAuth } from '../utils/auth-recovery';
 import { showToast } from '../utils/toast';
 import useAuthRecovery from '../hooks/useAuthRecovery';
 import useNavigate from '../hooks/useNavigate';
@@ -68,10 +68,14 @@ const RequestConfigManager = ({
   const handle401Errors = useCallback(async (error) => {
     const isAuthError = error?.response?.status === 401 && !error.config?.skipAuth;
     const request = error?.config;
+    // Step-up is allowed even after a silent renew (retriedAfterRefresh): it redirects rather
+    // than looping, and a renewed-but-MFA-stale token surfaces the step-up only on the replay.
+    const challenge = error?.response?.headers?.['www-authenticate'];
+    const stepUp = isStepUpChallenge(challenge);
 
-    if (isAuthError && request && !request.retriedAfterRefresh) {
+    if (isAuthError && request && (stepUp || !request.retriedAfterRefresh)) {
       try {
-        const accessToken = await recoverAuth();
+        const accessToken = await recoverAuth(stepUp ? { stepUp: true, challenge: parseAuthChallenge(challenge) } : undefined);
         return axios({
           ...request,
           retriedAfterRefresh: true,
@@ -85,7 +89,7 @@ const RequestConfigManager = ({
     if (isAuthError) {
       resetMasterCancelToken();
       clearAuth().then(() => {
-        navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search });
+        navigate({ pathname: APP_ROUTES.LOGIN, search });
       });
     }
     return Promise.reject(error);

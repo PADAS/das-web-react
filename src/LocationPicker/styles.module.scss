@@ -1,5 +1,6 @@
 @use 'sass:color';
 
+@use '../common/styles/inputs';
 @use '../common/styles/vars/colors';
 
 .locationPicker {
@@ -9,6 +10,11 @@
   border-radius: 0.25rem;
   display: flex;
   height: 2.5rem;
+
+  &:not(.disabled):has(.setLocationButton:focus, .setLocationButton[aria-expanded="true"]) {
+    border: 1px solid colors.$bright-blue;
+    outline: 1px solid colors.$bright-blue;
+  }
 
   &.error {
     border-color: colors.$bright-red;
@@ -62,10 +68,6 @@
     outline: none;
     padding: 0 0.5rem;
 
-    &:focus:not(:disabled) {
-      outline: 2px solid colors.$bright-blue;
-    }
-
     &:hover:not(:disabled) {
       background-color: colors.$very-light-blue;
     }
@@ -92,7 +94,7 @@
 
     .inputDescription {
       border-width: 0;
-      clip: rect(0, 0, 0, 0);
+      clip-path: inset(50%);
       height: 1px;
       margin: -1px;
       overflow: hidden;
@@ -121,15 +123,14 @@
   }
 
   .jumpToLocationButton {
+    @include inputs.boxedFieldTrailingControl;
+
     background-color: colors.$light-gray-background;
     border: none;
     border-radius: 0.25rem;
     color: colors.$secondary-medium-gray;
-    height: 100%;
     margin-left: 1px;
-    min-width: 2.5rem;
     outline: none;
-    width: 2.5rem;
 
     &:disabled {
       background-color: colors.$disabled-field-gray;

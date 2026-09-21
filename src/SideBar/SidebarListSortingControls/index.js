@@ -82,6 +82,10 @@ const SidebarListSortingControls = () => {
       break;
 
     case 'Tab':
+      onMenuClose();
+
+      break;
+
     case 'Escape':
       event.preventDefault();
 

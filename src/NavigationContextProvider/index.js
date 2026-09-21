@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useEffect, useRef, useState } from 'react';
 
 export const NavigationContext = createContext();
 
@@ -9,14 +9,16 @@ export const BLOCKER_STATES = {
 };
 
 const NavigationContextProvider = ({ children }) => {
-  const [blockRequestIds, setBlockRequestIds] = useState([]);
+  const pendingNavigationRef = useRef(null);
+
+  const [blockerIds, setBlockerIds] = useState([]);
   const [blockerState, setBlockerState] = useState(BLOCKER_STATES.UNBLOCKED);
   const [navigationData, setNavigationData] = useState({});
 
-  const isNavigationBlocked = !!blockRequestIds.length;
+  const isNavigationBlocked = blockerIds.length > 0;
 
-  const blockNavigation = useCallback((newBlockRequestId) => {
-    setBlockRequestIds((blockRequestIds) => [...blockRequestIds, newBlockRequestId]);
+  const blockNavigation = useCallback((newBlockerId) => {
+    setBlockerIds((blockerIds) => [...blockerIds, newBlockerId]);
   }, []);
 
   const onNavigationAttemptBlocked = useCallback(() => {
@@ -25,12 +27,47 @@ const NavigationContextProvider = ({ children }) => {
     }
   }, [isNavigationBlocked]);
 
-  const unblockNavigation = useCallback((blockRequestIdToRemove) => {
-    setBlockRequestIds(
-      (blockRequestIds) => blockRequestIds.filter((blockRequestId) => blockRequestId !== blockRequestIdToRemove)
+  const attemptNavigation = useCallback((performNavigation) => {
+    if (isNavigationBlocked) {
+      pendingNavigationRef.current = performNavigation;
+      setBlockerState(BLOCKER_STATES.BLOCKED);
+    } else {
+      performNavigation();
+    }
+  }, [isNavigationBlocked]);
+
+  const unblockNavigation = useCallback((blockerIdToRemove) => {
+    setBlockerIds(
+      (blockerIds) => blockerIds.filter((blockerId) => blockerId !== blockerIdToRemove)
     );
+    pendingNavigationRef.current = null;
     setBlockerState(BLOCKER_STATES.UNBLOCKED);
   }, []);
+
+  const proceed = useCallback(() => {
+    if (blockerState !== BLOCKER_STATES.BLOCKED) {
+      return;
+    }
+
+    const performNavigation = pendingNavigationRef.current;
+    pendingNavigationRef.current = null;
+
+    if (performNavigation) {
+      setBlockerState(BLOCKER_STATES.UNBLOCKED);
+      performNavigation();
+    } else {
+      setBlockerState(BLOCKER_STATES.PROCEEDING);
+    }
+  }, [blockerState]);
+
+  const reset = useCallback(() => {
+    if (blockerState !== BLOCKER_STATES.UNBLOCKED) {
+      pendingNavigationRef.current = null;
+      setBlockerState(BLOCKER_STATES.UNBLOCKED);
+    }
+  }, [blockerState]);
+
+  const blocker = { proceed, reset, state: blockerState };
 
   useEffect(() => {
     if (isNavigationBlocked) {
@@ -42,25 +79,12 @@ const NavigationContextProvider = ({ children }) => {
     }
   }, [isNavigationBlocked]);
 
-  const proceed = useCallback(() => {
-    if (blockerState === BLOCKER_STATES.BLOCKED) {
-      setBlockerState(BLOCKER_STATES.PROCEEDING);
-    }
-  }, [blockerState]);
-
-  const reset = useCallback(() => {
-    if (blockerState !== BLOCKER_STATES.UNBLOCKED) {
-      setBlockerState(BLOCKER_STATES.UNBLOCKED);
-    }
-  }, [blockerState]);
-
-  const blocker = { proceed, reset, state: blockerState };
-
   const navigationContextValue = {
     blocker,
     isNavigationBlocked,
     navigationData,
 
+    attemptNavigation,
     blockNavigation,
     onNavigationAttemptBlocked,
     setNavigationData,

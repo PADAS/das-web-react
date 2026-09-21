@@ -1,17 +1,21 @@
-@import '../../../common/styles/vars/colors';
+@use 'sass:map';
+@use '../../../common/styles/vars/colors';
 
-.itemRow {
-  background: $light-gray;
+@mixin milestoneTheme($theme) {
+  --item-icon-bg: #{map.get($theme, 'base')};
+  --item-icon-color: white;
+
+  background: map.get($theme, 'background');
 }
 
-.itemIcon {
-  background: $light-gray;
-
-  g {
-    stroke: $primary-font-color;
-  }
+.active {
+  @include milestoneTheme(colors.$patrol-active-theme);
 }
 
-.itemTitle {
-  font-weight: 500;
+.paused {
+  @include milestoneTheme(colors.$patrol-paused-theme);
+}
+
+.linkIcon {
+  --action-icon-size: 0.875rem;
 }

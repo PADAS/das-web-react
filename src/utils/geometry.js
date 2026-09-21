@@ -9,6 +9,15 @@ export const UNIT_LABELS = {
   'kilometers': 'km',
 };
 
+const SQUARE_METERS_KM_DISPLAY_THRESHOLD = 10000;
+
+export const convertAreaForDisplay = (areaInMeters) => {
+  const unit = areaInMeters > SQUARE_METERS_KM_DISPLAY_THRESHOLD ? 'kilometers' : 'meters';
+  const value = convertArea(areaInMeters, 'meters', unit);
+
+  return { displayString: `${value.toFixed(2)}${UNIT_LABELS[unit]}²`, value };
+};
+
 export const validateEventPolygonPoints = (points) => {
   let shape;
 

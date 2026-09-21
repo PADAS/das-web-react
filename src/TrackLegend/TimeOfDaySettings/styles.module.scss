@@ -1,59 +1,34 @@
-@use 'sass:color';
-
+@use '../../common/styles/buttons';
 @use '../../common/styles/vars/colors';
+@use '../_shared' as shared;
 
 .timeOfDaySettings {
-  backdrop-filter: blur(2px);
-  background: rgb(white, 90%);
-  border-radius: 0.25rem;
-  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
-  margin-top: 0.25rem;
-  padding: 0.5rem;
+  @include shared.legend-panel;
 
   .header {
-    align-items: center;
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.25rem;
+    @include shared.legend-panel-header;
 
     .titleWrapper {
       align-items: center;
       display: flex;
-
-      .title {
-        color: black;
-        margin: 0;
-        margin-right: 0.5rem;
-      }
+      gap: 0.5rem;
+      min-width: 0;
 
       .informationIcon {
         color: colors.$secondary-medium-light-gray;
+        flex-shrink: 0;
         height: 1.125rem;
         width: 1.125rem;
       }
     }
 
     .chevronButton {
-      background: none;
-      border: none;
-      border-radius: .1875rem;
-      color: colors.$secondary-medium-gray;
-      padding: 0rem 0.5rem;
-
-      &:focus-visible {
-        color: colors.$bright-blue;
-        outline: 2px solid colors.$bright-blue;
-      }
-
-      &:hover {
-        background: colors.$light-gray-background;
-      }
-
-      .arrowIcon {
-        height: 0.75rem;
-        width: 0.75rem;
-      }
+      @include buttons.inlineIconButton;
     }
+  }
+
+  .body {
+    padding-top: 0.25rem;
   }
 
   .coloringDescription {
@@ -67,6 +42,7 @@
 
     .coloredTimesList {
       margin: 0;
+      padding-left: 1.25rem;
 
       .item {
         align-items: center;

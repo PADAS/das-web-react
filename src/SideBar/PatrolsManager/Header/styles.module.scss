@@ -1,0 +1,45 @@
+@use '../../../common/styles/vars/colors';
+@use '../_shared' as shared;
+
+.header {
+  background: white;
+  flex-shrink: 0;
+
+  .topBar {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    padding: 1rem 1rem 0.5rem;
+
+    .topActions {
+      align-items: center;
+      display: flex;
+      flex-shrink: 0;
+      gap: 0.5rem;
+
+      @media print {
+        display: none;
+      }
+
+      .closeButton {
+        @include shared.icon-button;
+
+        .closeButtonIcon {
+          height: 1rem;
+          width: 1rem;
+        }
+      }
+    }
+  }
+
+  .titleBar {
+    align-items: center;
+    border-bottom: 1px solid colors.$light-gray-lines;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    min-height: 2rem;
+    padding: 0.5rem 1rem;
+  }
+}

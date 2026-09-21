@@ -18,6 +18,7 @@ export const setTimeSliderState = state => ({
 
 const INITIAL_STATE = {
   active: false,
+  hasScrubbedIntoPast: false,
   virtualDate: null,
 };
 
@@ -25,6 +26,10 @@ const timeSliderReducer = (state = INITIAL_STATE, { type, payload }) => {
   if (type === SET_VIRTUAL_DATE) {
     return {
       ...state,
+      /* A virtual date means a moment other than the present is on screen, so viewport membership
+         can only be answered by scanning observations. Last known locations answer for the present
+         alone. */
+      hasScrubbedIntoPast: true,
       virtualDate: payload,
     };
   }

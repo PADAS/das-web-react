@@ -1,10 +1,21 @@
 {
+  "auth0Info": {
+    "title": "Sanidi EarthRanger Identity",
+    "intro": "EarthRanger inahamia kwenye njia rahisi na salama zaidi ya kuingia, inayoitwa EarthRanger Identity.",
+    "signInPrompt": "Ikiwa tayari una EarthRanger Identity, chagua Ingia kwa barua pepe hapa chini.",
+    "managedUserPrompt": "Ikiwa msimamizi wa tovuti yako alikupa jina la mtumiaji na nenosiri kwa tovuti hii pekee, chagua Ingia kama mtumiaji anayesimamiwa.",
+    "convertPrompt": "Ni mara yako ya kwanza kutumia EarthRanger Identity? Kwanza utahitaji kubadilisha akaunti yako iliyopo ukitumia jina la mtumiaji na nenosiri unalotumia sasa.",
+    "convertLink": "Badilisha akaunti yako",
+    "helpText": "Una maswali? Wasiliana na msimamizi wa tovuti yako."
+  },
   "errorAlert": {
     "accessDeniedNotAuthorized": "Ufikiaji umekataliwa: Akaunti yako haijaruhusiwa kwa shirika hili. Tafadhali wasiliana na msimamizi wako.",
     "accessDeniedNoPermission": "Ufikiaji umekataliwa: Huna ruhusa ya kufikia programu hii.",
     "authenticationFailed": "Uthibitishaji umeshindwa: Tafadhali hakikisha maelezo yako na jaribu tena.",
     "authenticationError": "Kosa la uthibitishaji: {{errorDescription}}",
     "invalidCredentialsMessage": "Maelezo yasiyo sahihi yametolewa. Tafadhali jaribu tena.",
+    "managedUserNotProvisioned": "Akaunti yako inayosimamiwa haijasanidiwa kwenye tovuti hii. Wasiliana na msimamizi wa tovuti yako.",
+    "managedUserSignInFailed": "Hatukuweza kukuingiza kama mtumiaji anayesimamiwa. Huduma ya kuingia kwa watumiaji wanaosimamiwa inaweza kuwa haijawa tayari kwenye tovuti hii. Jaribu tena baada ya muda mfupi, au wasiliana na msimamizi wa tovuti yako.",
     "signInFailed": "Kuingia kumeshindwa. Tafadhali jaribu tena.",
     "signInIncomplete": "Hatukuweza kukamilisha kuingia kwako. Tafadhali jaribu tena.",
     "unknownErrorMessage": "Kumetokea kosa. Tafadhali jaribu tena."
@@ -19,6 +30,7 @@
   "loginButtonEmail": "Ingia kwa barua pepe",
   "loginButtonIdp": "Ingia",
   "loginButtonLoadingLabel": "Inapakia",
+  "loginButtonManagedUser": "Ingia kama mtumiaji anayesimamiwa",
   "passwordLabel": "Nenosiri",
   "title": "Ingia",
   "usernameLabel": "Jina la Mtumiaji"

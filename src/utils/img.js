@@ -1,7 +1,12 @@
 import { DAS_HOST } from '../constants';
 
-const urlContainsOwnHost = url => url.includes('http');
-const imgIsDataUrl = url => url.includes('data:image');
+const URL_WITH_SCHEME_REGEX = /^([a-z][a-z\d+\-.]*:|\/\/)/i;
+
+const urlResolvesOnItsOwn = (url) => URL_WITH_SCHEME_REGEX.test(url);
+
+const NORMALIZED_DAS_HOST = DAS_HOST
+  ? DAS_HOST.replace(/\/+$/, '').replace(/^http:\/\//i, 'https://')
+  : '';
 
 const imgIsAppBundledAsset = url => {
   if (typeof url === 'string') {
@@ -20,8 +25,7 @@ const imgIsAppBundledAsset = url => {
 const isObjectURL = url => url && typeof url === 'string' && url.startsWith('blob:');
 
 const imgNeedsHostAppended = url => {
-  if (urlContainsOwnHost(url)) return false;
-  if (imgIsDataUrl(url)) return false;
+  if (urlResolvesOnItsOwn(url)) return false;
   if (imgIsAppBundledAsset(url)) return false;
   return true;
 };
@@ -176,6 +180,23 @@ export const calcImgIdFromUrlForMapImages = (src, width = null, height = null) =
   return `${path}-${width ? width : 'x'}-${height ? height : 'x'}`;
 };
 
+// The inverse of calcImgIdFromUrlForMapImages. Only the last two hyphens mark
+// the sizes, so a src with hyphens of its own comes back whole.
+export const parseImgIdForMapImages = (imgId) => {
+  const heightSeparatorIndex = imgId.lastIndexOf('-');
+  const widthSeparatorIndex = imgId.lastIndexOf('-', heightSeparatorIndex - 1);
+
+  if (widthSeparatorIndex < 1) {
+    return null;
+  }
+
+  return {
+    height: Number(imgId.slice(heightSeparatorIndex + 1)) || null,
+    src: imgId.slice(0, widthSeparatorIndex),
+    width: Number(imgId.slice(widthSeparatorIndex + 1, heightSeparatorIndex)) || null,
+  };
+};
+
 export const calcSpriteSvgUrl = (iconId) => `${DAS_HOST}/static/sprite-src/${iconId}.svg`;
 
 const PRIORITY_TO_BACKEND_ICON_COLOR = { 0: 'gray', 100: 'med_green', 200: 'amber', 300: 'red' };
@@ -202,9 +223,8 @@ export const calcUrlForImage = imagePath => {
   if (!imagePath) {
     return null;
   }
-  if (!imgNeedsHostAppended(imagePath)) {
+  if (!NORMALIZED_DAS_HOST || !imgNeedsHostAppended(imagePath)) {
     return imagePath;
   }
-  const appendString = DAS_HOST ? `${DAS_HOST}/` : '';
-  return `${appendString}${imagePath}`.replace(/^http:\/\//i, 'https://').replace('.org//', '.org/');
+  return `${NORMALIZED_DAS_HOST}/${imagePath.replace(/^\/+/, '')}`;
 };

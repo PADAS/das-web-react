@@ -33,7 +33,9 @@ export const setSystemConfigFromSystemStatus = (systemStatus) => (dispatch) => {
       idp_org_id: systemStatus.idp_org_id || null,
       previewFeatures: systemStatus.preview_features || {},
       require_idp: !!systemStatus.require_idp,
+      site_slug: systemStatus.site_slug || null,
       sitename,
+      support_managed_users: !!systemStatus.support_managed_users,
       showTrackDays: systemStatus.show_track_days,
     },
   });
@@ -78,7 +80,9 @@ export const INITIAL_STATE = {
   idp_org_id: null,
   previewFeatures: {},
   require_idp: null,
+  site_slug: null,
   sitename: '',
+  support_managed_users: false,
   showTrackDays: DEFAULT_SHOW_TRACK_DAYS,
 };
 

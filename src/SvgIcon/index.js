@@ -195,14 +195,6 @@ const resolveIconEntry = async ({ src, repSrc, fallbackSrc }) => {
 export const InlineSvg = ({ src, repSrc, fallbackSrc, className, style, title, ...rest }) => {
   const [cached, setCached] = useState(() => svgCache.get(src) ?? null);
   const [imgFailed, setImgFailed] = useState(false);
-  const [renderedSrc, setRenderedSrc] = useState(src);
-
-  // Reset from the cache (or null) when src changes, so a stale icon never keeps rendering.
-  if (renderedSrc !== src) {
-    setRenderedSrc(src);
-    setCached(svgCache.get(src) ?? null);
-    setImgFailed(false);
-  }
 
   useEffect(() => {
     let current = true;
@@ -283,6 +275,7 @@ const SvgIcon = ({ type, iconId, imageUrl, className, color, style, title, ...re
     <InlineSvg
       className={`${className || ''} ${isGeneric ? 'generic' : ''}`.trim()}
       fallbackSrc={buildSpriteSvgUrl(GENERIC_ICON_ID, communityValue)}
+      key={iconSrc}
       repSrc={repSrc}
       src={iconSrc}
       style={svgStyle}

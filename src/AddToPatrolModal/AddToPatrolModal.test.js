@@ -38,7 +38,23 @@ beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-const defaultStoreValue = { view: { patrolTrackState: { pinned: [], visible: [] }, trackState: { pinned: [], visible: [] } }, data: { eventTypes, patrolTypes: mockPatrolTypeData, patrolStore: { }, subjectStore: {}, patrols: { ...INITIAL_PATROLS_STATE }, tracks: {} } };
+const defaultStoreValue = {
+  view: {
+    patrolTrackState: { hiddenSubjects: {}, pinned: [], visible: [] },
+    timeSliderState: { active: false },
+    trackSettings: { length: 21, origin: 'CUSTOM_LENGTH' },
+    trackState: { pinned: [], visible: [] },
+  },
+  data: {
+    eventFilter: { filter: { date_range: { lower: '2020-01-01T06:00:00.000Z' } } },
+    eventTypes,
+    patrolTypes: mockPatrolTypeData,
+    patrolStore: { },
+    subjectStore: {},
+    patrols: { ...INITIAL_PATROLS_STATE },
+    tracks: {},
+  },
+};
 
 const onAddToPatrol = jest.fn();
 
@@ -69,6 +85,21 @@ describe('the "add to patrol" modal within a report form', () => {
 
   });
 
+  test('asking for the pauses, so it does not write pause-less patrols into the shared store', async () => {
+    let requestedUrl = null;
+    server.use(http.get(PATROLS_API_URL, ({ request }) => {
+      requestedUrl = new URL(request.url);
+
+      return HttpResponse.json({ data: mockPatrolApiResponse });
+    }));
+
+    renderAddToPatrolModal();
+
+    await waitFor(() => {
+      expect(requestedUrl?.searchParams.get('include_pauses')).toBe('true');
+    });
+  });
+
   test('listing the patrols if any are present', async () => {
     const store = mockStore(
       merge({}, defaultStoreValue, {
@@ -93,7 +124,7 @@ describe('the "add to patrol" modal within a report form', () => {
     await screen.findByTestId('patrol-feed-loading-overlay');
   });
 
-  test('listing the patrols if any are present', async () => {
+  test('listing one item per patrol', async () => {
     const store = mockStore(
       merge({}, defaultStoreValue, {
         data: {

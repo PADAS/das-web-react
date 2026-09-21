@@ -1,8 +1,11 @@
-import React, { useContext, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import Button from 'react-bootstrap/Button';
 import intersection from 'lodash/intersection';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
+import { analyzersHaveFailures } from '../../../selectors';
+import { fetchAnalyzers } from '../../../ducks/analyzers';
 import { getAnalyzerListState } from './selectors';
 import { hideAnalyzers, showAnalyzers } from '../../../ducks/map-layer-filter';
 import { MapContext } from '../../../MapContext';
@@ -22,6 +25,7 @@ const AnalyzersTab = () => {
   const { t } = useTranslation('layers', { keyPrefix: 'layerList' });
 
   const analyzerList = useSelector(getAnalyzerListState);
+  const haveAnalyzersFailed = useSelector(analyzersHaveFailures);
   const mapLayerFilter = useSelector((state) => state.data.mapLayerFilter);
 
   const map = useContext(MapContext);
@@ -84,6 +88,12 @@ const AnalyzersTab = () => {
     }
   };
 
+  const onRetry = useCallback(() => {
+    mapLayerTracker.track('Retry loading analyzers');
+
+    dispatch(fetchAnalyzers());
+  }, [dispatch]);
+
   useEffect(() => {
     if (allAnalyzersChekboxRef.current) {
       allAnalyzersChekboxRef.current.indeterminate = areAnalyzersPartiallyChecked;
@@ -109,6 +119,14 @@ const AnalyzersTab = () => {
         {t('allAnalyzersCheckboxLabel')}
       </label>
     </div>
+
+    {haveAnalyzersFailed && <div className={styles.errorBanner} role="alert">
+      <p>{analyzers.length ? t('analyzersPartialLoadErrorMessage') : t('analyzersLoadErrorMessage')}</p>
+
+      <Button onClick={onRetry} size="sm" type="button" variant="outline-secondary">
+        {t('analyzersRetryButtonLabel')}
+      </Button>
+    </div>}
 
     {analyzers.length > 0 && <CheckableList
       className={`${styles.list} ${styles.itemList} ${styles.compressed}`}
