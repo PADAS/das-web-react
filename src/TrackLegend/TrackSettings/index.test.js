@@ -105,25 +105,34 @@ describe('TrackLegend - TrackSettings', () => {
   test('changes the track length when the user interacts with the slider', async () => {
     renderTrackSettings();
 
-    expect(setTrackLength).toHaveBeenCalledTimes(1);
-    expect(setTrackLength).toHaveBeenCalledWith(21);
-
     fireEvent.change(screen.getByRole('slider'), { target: { value: 60 } });
 
-    expect(setTrackLength).toHaveBeenCalledTimes(2);
+    expect(setTrackLength).toHaveBeenCalledTimes(1);
     expect(setTrackLength).toHaveBeenCalledWith(60);
   });
 
   test('changes the track length when the user interacts with the numeric input', async () => {
     renderTrackSettings();
 
-    expect(setTrackLength).toHaveBeenCalledTimes(1);
-    expect(setTrackLength).toHaveBeenCalledWith(21);
-
     await userEvent.type(screen.getAllByLabelText('Track length in days')[1], '{backspace}');
 
-    expect(setTrackLength).toHaveBeenCalledTimes(2);
+    expect(setTrackLength).toHaveBeenCalledTimes(1);
     expect(setTrackLength).toHaveBeenCalledWith(2);
+  });
+
+  test('does not change the track length until the user asks it to', () => {
+    renderTrackSettings();
+
+    expect(setTrackLength).not.toHaveBeenCalled();
+  });
+
+  test('changes the track length to the custom one when the user picks the custom length option', async () => {
+    store.view.trackSettings.origin = TRACK_LENGTH_ORIGINS.EVENT_FILTER;
+    renderTrackSettings();
+
+    await userEvent.click(screen.getByRole('radio', { name: 'Custom length' }));
+
+    expect(setTrackLength).toHaveBeenCalledWith(21);
   });
 
   test('shows an error if the custom length inputs have an invalid value', async () => {
@@ -135,9 +144,9 @@ describe('TrackLegend - TrackSettings', () => {
 
     expect(screen.getByText('Please enter a track length between 1 and 365.')).toBeVisible();
     expect(customLenghtSlider).toBeInvalid();
-    expect(customLenghtSlider).toHaveAttribute('aria-errormessage', 'customLengthErrorMessage');
+    expect(customLenghtSlider).toHaveAccessibleErrorMessage('Please enter a track length between 1 and 365.');
     expect(customLenghtNumericInput).toBeInvalid();
-    expect(customLenghtNumericInput).toHaveAttribute('aria-errormessage', 'customLengthErrorMessage');
+    expect(customLenghtNumericInput).toHaveAccessibleErrorMessage('Please enter a track length between 1 and 365.');
   });
 
   test('does not show an error if the custom length inputs have a valid value', async () => {

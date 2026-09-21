@@ -88,6 +88,37 @@ describe('SideBar - PatrolsManager - PatrolOverview - utils - getPatrolStatusOpt
     expect(getPatrolStatusOptions({ ...startedPatrol, patrol_segments: [] }, INVALID)).toEqual([INVALID]);
   });
 
+  test('does not offer pausing a patrol with no leg under way to pause', () => {
+    const patrolBetweenLegs = {
+      state: 'open',
+      patrol_segments: [
+        { id: 'leg-1', time_range: { end_time: atOffset(-HOUR), start_time: atOffset(-2 * HOUR) } },
+        { id: 'leg-2', time_range: { end_time: null, start_time: atOffset(HOUR) } },
+      ],
+    };
+
+    expect(getPatrolStatusOptions(patrolBetweenLegs, ACTIVE)).toEqual([ACTIVE, CANCELLED, DONE]);
+  });
+
+  test('offers a patrol cancelled while paused the paused state reopening it lands on', () => {
+    const cancelledWhilePaused = {
+      state: 'cancelled',
+      patrol_segments: [{ id: 'leg-1', is_pause: true, time_range: { end_time: null, start_time: atOffset(-HOUR) } }],
+    };
+
+    expect(getPatrolStatusOptions(cancelledWhilePaused, CANCELLED)).toEqual([CANCELLED, PAUSED]);
+  });
+
+  test('offers a paused mobile patrol nothing but ending it', () => {
+    const pausedMobilePatrol = {
+      provenance: 'mobile',
+      state: 'open',
+      patrol_segments: [{ id: 'leg-1', is_pause: true, time_range: { end_time: null, start_time: atOffset(-HOUR) } }],
+    };
+
+    expect(getPatrolStatusOptions(pausedMobilePatrol, PAUSED)).toEqual([PAUSED, DONE]);
+  });
+
   test('offers an active mobile patrol nothing but ending it', () => {
     expect(getPatrolStatusOptions({ ...startedPatrol, provenance: 'mobile' }, ACTIVE)).toEqual([ACTIVE, DONE]);
   });

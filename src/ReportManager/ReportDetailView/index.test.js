@@ -246,6 +246,7 @@ describe('ReportManager - ReportDetailView', () => {
           storedSystems: [],
         },
         mapLocationSelection: { isPickingLocation: false },
+        patrolTrackState: { hiddenSubjects: {}, pinned: [], visible: [] },
         sideBar: {},
         systemConfig: {},
         timeSliderState: { active: false },

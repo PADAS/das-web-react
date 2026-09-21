@@ -1,4 +1,4 @@
-import { imgElFromSrc, calcImgIdFromUrlForMapImages, calcUrlForImage, ImageCache } from './img';
+import { imgElFromSrc, calcImgIdFromUrlForMapImages, calcUrlForImage, ImageCache, parseImgIdForMapImages } from './img';
 
 const { createObjectURL, revokeObjectURL } = URL;
 
@@ -117,6 +117,43 @@ describe('img utility functions', () => {
       const height = 200;
       const expectedUrl = calcUrlForImage(src);
       expect(calcImgIdFromUrlForMapImages(src, width, height)).toBe(`${expectedUrl}-${width}-${height}`);
+    });
+  });
+
+  describe('parseImgIdForMapImages', () => {
+    it('reads back the src, width and height an id was built from', () => {
+      expect(parseImgIdForMapImages(calcImgIdFromUrlForMapImages('images/test.jpg', 100, 200))).toEqual({
+        height: 200,
+        src: calcUrlForImage('images/test.jpg'),
+        width: 100,
+      });
+    });
+
+    it('reads an unsized id back as having neither width nor height', () => {
+      expect(parseImgIdForMapImages(calcImgIdFromUrlForMapImages('images/test.jpg'))).toEqual({
+        height: null,
+        src: calcUrlForImage('images/test.jpg'),
+        width: null,
+      });
+    });
+
+    it('keeps the hyphens a src carries of its own', () => {
+      expect(parseImgIdForMapImages(calcImgIdFromUrlForMapImages('/static/pin-black.svg')).src)
+        .toBe(calcUrlForImage('/static/pin-black.svg'));
+    });
+
+    it('keeps a data URI whole, hyphens, slashes and all', () => {
+      const dataUri = `data:image/svg+xml;charset=utf-8,${encodeURIComponent('<svg><path d="M1-2 3-4"/></svg>')}`;
+
+      expect(parseImgIdForMapImages(calcImgIdFromUrlForMapImages(dataUri, 27, 37))).toEqual({
+        height: 37,
+        src: dataUri,
+        width: 27,
+      });
+    });
+
+    it('reads nothing out of an id that carries no sizes', () => {
+      expect(parseImgIdForMapImages('track_arrow')).toBeNull();
     });
   });
 

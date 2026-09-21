@@ -1,12 +1,21 @@
 import React from 'react';
 
+import { dogPatrol } from '../../../../../__test-helpers/fixtures/patrol-types';
 import { render, screen } from '../../../../../test-utils';
 
 import Header from './';
+import SvgIcon from '../../../../../SvgIcon';
+
+jest.mock('../../../../../SvgIcon', () => jest.fn(() => null));
 
 describe('SideBar - PatrolsManager - LegManager - NewLeg - Header', () => {
-  const renderHeader = () => render(
-    <Header patrolId="93485e1d-6804-459b-9243-1d239556bb48" patrolTitle="Delta Patrol" />
+  const renderHeader = (props) => render(
+    <Header
+      patrolId="93485e1d-6804-459b-9243-1d239556bb48"
+      patrolTitle="Delta Patrol"
+      patrolType={dogPatrol}
+      {...props}
+    />
   );
 
   test('shows the breadcrumb of the route', () => {
@@ -22,6 +31,18 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg - Header', () => {
     renderHeader();
 
     expect(screen.getByRole('heading', { name: 'New Patrol Leg' })).toBeVisible();
+  });
+
+  test('marks the leg being planned as new', () => {
+    renderHeader();
+
+    expect(screen.getByText('New')).toBeVisible();
+  });
+
+  test('shows the icon of the patrol type the leg is being planned with', () => {
+    renderHeader();
+
+    expect(SvgIcon.mock.calls.at(-1)[0]).toEqual(expect.objectContaining({ iconId: 'dog-patrol-icon' }));
   });
 
   test('closes the sidebar', () => {

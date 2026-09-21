@@ -1,7 +1,9 @@
 {
   "patrolTrackLegend": {
-    "icon": "Ícono para {{title}}",
+    "description": "{{pointCount}} puntos en {{trackTime}}",
+    "icon": "Ícono para {{patrolTitle}}",
     "itemTitle": "Patrulla: {{patrolTitle}}",
+    "subjectIcon": "Icono para {{subject}}",
     "trackLegendItemsName": "patrullas"
   },
   "subjectTrackLegend": {
@@ -18,7 +20,7 @@
         "closed": "Expandir la configuración de la hora del día",
         "open": "Contraer la configuración de la hora del día"
       },
-      "coloredTimeSquarLabels": {
+      "coloredTimeSquareLabels": {
         "americanYellow": "Amarillo americano",
         "fandangoPink": "Rosa fandango",
         "green": "verde",
@@ -39,22 +41,11 @@
       "active": "Desactivar la coloración por hora del día",
       "inactive": "Activar la coloración por hora del día"
     },
-    "tracksList": {
-      "closeButtonLabel": "Cerrar la lista de {{itemsName}}",
-      "tracksItem": {
-        "removeButton": "Eliminar",
-        "removeButtonLabel": "Eliminar a {{title}}"
-      }
-    },
-    "tracksListButtonLabel": {
-      "closed": "Abrir la lista de {{itemsName}}",
-      "open": "Cerrar la lista de {{itemsName}}"
-    },
     "trackSettings": {
       "closeButtonLabel": "Cerrar la configuración de trayectorias",
       "customLengthErrorMessage": "Por favor, introduce una duración de trayectoria entre {{min}} y {{max}}.",
-      "customLengthRadioLabel": "Duración personalizada",
       "customLengthInputLabel": "Duración de la trayectoria en días",
+      "customLengthRadioLabel": "Duración personalizada",
       "eventFilterRadioLabel": "Coincidir con el filtro de eventos \"desde\" la fecha ({{length}} días)",
       "title": "Configuración de trayectorias",
       "trackLengthLegend": "Duración de la trayectoria"
@@ -62,6 +53,26 @@
     "trackSettingsButtonLabel": {
       "closed": "Abrir la configuración de trayectorias",
       "open": "Cerrar la configuración de trayectorias"
+    },
+    "tracksList": {
+      "tracksChildItem": {
+        "toggleTracksButtonLabel": {
+          "hidden": "Mostrar la trayectoria de {{title}}",
+          "shown": "Ocultar la trayectoria de {{title}}"
+        }
+      },
+      "tracksItem": {
+        "clearButton": "Limpiar",
+        "clearButtonLabel": "Limpiar las trayectorias de {{title}}",
+        "expandButtonLabel": {
+          "closed": "Abrir las trayectorias de {{title}}",
+          "open": "Cerrar las trayectorias de {{title}}"
+        }
+      }
+    },
+    "tracksListButtonLabel": {
+      "closed": "Abrir la lista de {{itemsName}}",
+      "open": "Cerrar la lista de {{itemsName}}"
     }
   },
   "trackLength": {

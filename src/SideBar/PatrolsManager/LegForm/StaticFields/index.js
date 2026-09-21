@@ -24,7 +24,16 @@ const getTeamOptionLabel = ({ display }) => display;
 const renderSubjectOptionIcon = ({ image_url }) => !!image_url
   && <SvgIcon imageUrl={calcUrlForImage(image_url)} type="subjects" />;
 
-const StaticFields = ({ earliestStartDateTime = null, errors, leg, onChangeLeg, ref }) => {
+const StaticFields = ({
+  earliestStartDateTime = null,
+  errors,
+  isFirstLeg = true,
+  isPause = false,
+  latestEndDateTime = null,
+  leg,
+  onChangeLeg,
+  ref,
+}) => {
   const { t } = useTranslation('patrols', { keyPrefix: 'legForm.staticFields' });
 
   const teamAndTrackingOptions = useSelector((state) => state.data.patrolTeamAndTrackingOptions);
@@ -79,11 +88,22 @@ const StaticFields = ({ earliestStartDateTime = null, errors, leg, onChangeLeg, 
     ? getHoursAndMinutesString(earliestStartDateTime)
     : undefined;
 
+  // Neither bound of the leg may pass the start of the leg after it, and a
+  // time is only bounded by it on its own day.
+  const latestDate = latestEndDateTime ? format(latestEndDateTime, 'yyyy-MM-dd') : undefined;
+
+  const endTimeMax = latestDate === leg.endDate ? getHoursAndMinutesString(latestEndDateTime) : undefined;
+
+  const startTimeMax = latestDate === leg.startDate ? getHoursAndMinutesString(latestEndDateTime) : undefined;
+
   // A group shows a single message, wherever within it the error belongs.
   const endDateTimeError = errors.endDate ?? errors.endTime;
   const startDateTimeError = errors.startDate ?? errors.startTime;
 
-  const renderCheckbox = ({ id, isChecked, isDisabled, label, onChange }) => <div className={styles.checkboxWrapper}>
+  const renderCheckbox = ({ id, isChecked, isDisabled, isHidden = false, label, onChange }) => <div
+    aria-hidden={isHidden ? 'true' : undefined}
+    className={`${styles.checkboxWrapper} ${isHidden ? styles.hidden : ''}`}
+    >
     <input
       checked={isChecked}
       className={styles.checkbox}
@@ -119,6 +139,7 @@ const StaticFields = ({ earliestStartDateTime = null, errors, leg, onChangeLeg, 
               aria-invalid={errors.startDate ? 'true' : 'false'}
               aria-label={t('startDateInputLabel')}
               className={styles.datePicker}
+              max={latestDate}
               min={startDateMin}
               onChange={(startDate) => onChangeLeg({ startDate })}
               reactDatePickerProps={{ endDate: endDateTime, selectsStart: true, startDate: startDateTime }}
@@ -130,6 +151,7 @@ const StaticFields = ({ earliestStartDateTime = null, errors, leg, onChangeLeg, 
               aria-errormessage={errors.startTime ? startDateTimeErrorId : undefined}
               aria-invalid={errors.startTime ? 'true' : 'false'}
               aria-label={t('startTimeInputLabel')}
+              max={startTimeMax}
               min={startTimeMin}
               minutesInterval={TIME_OPTIONS_INTERVAL_IN_MINUTES}
               onChange={(startTime) => onChangeLeg({ startTime })}
@@ -143,10 +165,14 @@ const StaticFields = ({ earliestStartDateTime = null, errors, leg, onChangeLeg, 
           </p>}
         </div>
 
-        {renderCheckbox({
+        {/* A pause neither starts nor ends by itself, so neither checkbox is
+            rendered on one and the column closes the gap they leave. */}
+        {!isPause && renderCheckbox({
           id: autoStartCheckboxId,
           isChecked: leg.isAutoStart,
           isDisabled: !startDateTime || !isFuture(startDateTime),
+          // Only the first leg's start can be a plan.
+          isHidden: !isFirstLeg,
           label: t('autoStartCheckboxLabel'),
           onChange: (isAutoStart) => onChangeLeg({ isAutoStart }),
         })}
@@ -173,6 +199,7 @@ const StaticFields = ({ earliestStartDateTime = null, errors, leg, onChangeLeg, 
               aria-invalid={errors.endDate ? 'true' : 'false'}
               aria-label={t('endDateInputLabel')}
               className={styles.datePicker}
+              max={latestDate}
               min={endDateMin}
               onChange={(endDate) => onChangeLeg({ endDate })}
               reactDatePickerProps={{ endDate: endDateTime, selectsEnd: true, startDate: startDateTime }}
@@ -185,6 +212,7 @@ const StaticFields = ({ earliestStartDateTime = null, errors, leg, onChangeLeg, 
               aria-invalid={errors.endTime ? 'true' : 'false'}
               aria-label={t('endTimeInputLabel')}
               disabled={!isValidDate(leg.endDate)}
+              max={endTimeMax}
               min={endTimeMin}
               minutesInterval={TIME_OPTIONS_INTERVAL_IN_MINUTES}
               onChange={(endTime) => onChangeLeg({ endTime })}
@@ -199,7 +227,7 @@ const StaticFields = ({ earliestStartDateTime = null, errors, leg, onChangeLeg, 
           </p>}
         </div>
 
-        {renderCheckbox({
+        {!isPause && renderCheckbox({
           id: autoEndCheckboxId,
           isChecked: leg.isAutoEnd,
           isDisabled: !endDateTime || !isFuture(endDateTime),
@@ -220,7 +248,7 @@ const StaticFields = ({ earliestStartDateTime = null, errors, leg, onChangeLeg, 
       </div>
     </div>
 
-    <div className={styles.columns}>
+    {!isPause && <div className={styles.columns}>
       <div className={styles.column}>
         {renderSelect({
           getOptionLabel: getTeamOptionLabel,
@@ -236,7 +264,7 @@ const StaticFields = ({ earliestStartDateTime = null, errors, leg, onChangeLeg, 
           isMulti: true,
           label: t('teamMembersLabel'),
           onChange: (teamMembers) => onChangeLeg({ teamMembers: [...teamMembers] }),
-          options: teamAndTrackingOptions.teamMembers,
+          options: teamAndTrackingOptions.members,
           renderOptionIcon: renderSubjectOptionIcon,
           value: leg.teamMembers,
         })}
@@ -262,7 +290,7 @@ const StaticFields = ({ earliestStartDateTime = null, errors, leg, onChangeLeg, 
           value: leg.assets,
         })}
       </div>
-    </div>
+    </div>}
   </div>;
 };
 

@@ -13,6 +13,7 @@ import {
   updateTrackState
 } from '../ducks/map-ui';
 import { act, render, screen, waitFor } from '../test-utils';
+import { addMapImage } from '../utils/map';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { setTrackLength } from '../ducks/tracks';
 import { updatePatrolTrackState } from '../ducks/patrols';
@@ -83,6 +84,11 @@ jest.mock('../ducks/tracks', () => ({
 jest.mock('../utils/tracks', () => ({
   ...jest.requireActual('../utils/tracks'),
   fetchTracksIfNecessary: jest.fn(),
+}));
+
+jest.mock('../utils/map', () => ({
+  ...jest.requireActual('../utils/map'),
+  addMapImage: jest.fn(),
 }));
 
 jest.mock('../ducks/patrols', () => ({
@@ -173,7 +179,7 @@ describe('Map', () => {
         homeMap: { center: [] },
         mapClusterConfig: {},
         mapImages: {},
-        patrolTrackState: { pinned: [], visible: [] },
+        patrolTrackState: { hiddenSubjects: {}, pinned: [], visible: [] },
         mapLocationSelection: {},
         modals: { modals: [] },
         showMapNames: {},
@@ -565,6 +571,73 @@ describe('Map', () => {
 
     await waitFor(() => {
       expect(screen.findByTestId('mapLocationSelectionOverview-wrapper')).toBeDefined();
+    });
+  });
+
+  describe('an image the style is missing', () => {
+    beforeEach(() => {
+      addMapImage.mockResolvedValue({ img: 'the loaded image' });
+    });
+
+    const fireImageMissing = async (id) => {
+      renderMap();
+
+      await act(async () => {
+        map.__test__.fireHandlers('styleimagemissing', { id });
+      });
+    };
+
+    test('loads it from the src and sizes its id was built with', async () => {
+      await fireImageMissing('https://tenant.example.org/static/pin-black.svg-24-36');
+
+      expect(addMapImage).toHaveBeenCalledWith({
+        height: 36,
+        id: 'https://tenant.example.org/static/pin-black.svg-24-36',
+        src: 'https://tenant.example.org/static/pin-black.svg',
+        width: 24,
+      });
+    });
+
+    test('loads a marker the app drew itself, data URI and all', async () => {
+      const dataUri = `data:image/svg+xml;charset=utf-8,${encodeURIComponent('<svg><path d="M1-2"/></svg>')}`;
+
+      await fireImageMissing(`${dataUri}-27-37`);
+
+      expect(addMapImage).toHaveBeenCalledWith({ height: 37, id: `${dataUri}-27-37`, src: dataUri, width: 27 });
+    });
+
+    test('puts the loaded image on the map the style is missing it from', async () => {
+      map.hasImage.mockReturnValue(false);
+
+      await fireImageMissing('https://tenant.example.org/static/pin-black.svg-x-x');
+
+      expect(map.addImage)
+        .toHaveBeenCalledWith('https://tenant.example.org/static/pin-black.svg-x-x', 'the loaded image');
+    });
+
+    test('leaves an image the map already carries alone', async () => {
+      map.hasImage.mockReturnValue(true);
+
+      await fireImageMissing('https://tenant.example.org/static/pin-black.svg-x-x');
+
+      expect(map.addImage).not.toHaveBeenCalled();
+    });
+
+    test('leaves an id belonging to another registry to that registry', async () => {
+      await fireImageMissing('event-icon|fire_rep|300');
+
+      expect(addMapImage).not.toHaveBeenCalled();
+    });
+
+    test('says so rather than throwing when the image cannot be loaded', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+      addMapImage.mockRejectedValue(new Error('404'));
+
+      await fireImageMissing('https://tenant.example.org/static/gone.svg-x-x');
+
+      expect(console.warn).toHaveBeenCalledWith('Error adding map image:', expect.objectContaining({
+        id: 'https://tenant.example.org/static/gone.svg-x-x',
+      }));
     });
   });
 

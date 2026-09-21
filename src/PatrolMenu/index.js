@@ -20,6 +20,7 @@ import {
   buildPatrolStartUpdate,
   calcPatrolState,
   canEndPatrol,
+  isPatrolStateUnderWay,
 } from '../utils/patrols';
 import { DAS_HOST, PATROL_API_STATES, PATROL_UI_STATES } from '../constants';
 import { downloadFileFromUrl } from '../utils/download';
@@ -97,7 +98,7 @@ const PatrolMenu = ({
   }, [patrolState]);
 
   const patrolStartEndCanBeToggled = useMemo(() => {
-    return (patrolState === PATROL_UI_STATES.ACTIVE
+    return (isPatrolStateUnderWay(patrolState)
       || patrolState === PATROL_UI_STATES.READY_TO_START
       || patrolState === PATROL_UI_STATES.SCHEDULED
       || patrolState === PATROL_UI_STATES.START_OVERDUE);

@@ -7,7 +7,7 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 import { useReactToPrint } from 'react-to-print';
 
-import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../constants';
+import { PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../constants';
 import { render, screen } from '../test-utils';
 import { downloadFileFromUrl } from '../utils/download';
 
@@ -132,6 +132,27 @@ describe('PatrolMenu', () => {
     expect( screen.getByTestId('play-icon') ).toBeInTheDocument();
   });
 
+  test('offers ending a paused patrol, which is still running', async () => {
+    const pausedPatrol = {
+      ...testPatrol,
+      state: 'open',
+      patrol_segments: [{
+        ...testPatrol.patrol_segments[0],
+        is_pause: true,
+        time_range: { end_time: null, start_time: '2020-01-01T00:00:00.000Z' },
+      }],
+    };
+
+    renderPatrolMenu(
+      { ...initialProps, patrol: pausedPatrol, patrolState: PATROL_UI_STATES.PAUSED },
+      storeWithUpdatePermissions
+    );
+
+    await userEvent.click(screen.getByRole('button'));
+
+    expect(screen.getByText('End Patrol').closest('button')).not.toBeDisabled();
+  });
+
   test('renders restore menu option for a cancelled patrol', async () => {
     renderMenuWithCancelledPatrol();
     await userEvent.click(screen.getByRole('button'));
@@ -148,8 +169,7 @@ describe('PatrolMenu', () => {
     await userEvent.click(screen.getByRole('button'));
     await userEvent.click(screen.getByText('Restore Patrol'));
 
-    expect(onPatrolChange).toHaveBeenCalledWith(expect.objectContaining({ state: 'open' }));
-    expect(onPatrolChange.mock.calls[0][0].patrol_segments.at(-1).time_range.end_time).toBeNull();
+    expect(onPatrolChange).toHaveBeenCalledWith({ state: 'open' });
   });
 
   describe('Download Patrol Track button', () => {

@@ -60,7 +60,8 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
           [dogPatrol.value]: { isLoading: false, schema: patrolTypeFieldsSchema },
           [routinePatrol.value]: { isLoading: false, schema: patrolTypeFieldsSchema },
         },
-        patrolTeamAndTrackingOptions: { assets: [], leaders: [], teamMembers: [], teams: [] },
+        patrolStore: {},
+        patrolTeamAndTrackingOptions: { assets: [], leaders: [], members: [], teams: [] },
         patrolTypes,
         user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.CREATE, PERMISSIONS.READ] } },
         userContent: {},
@@ -69,6 +70,7 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
         coordinateReferenceSystems: { storedSystems: [] },
         mapLocationSelection: { isPickingLocation: false },
         modals: { canShowModals: true },
+        patrolTrackState: { hiddenSubjects: {}, pinned: [], visible: [] },
         showUserLocation: false,
         userLocation: null,
         userPreferences: {
@@ -185,7 +187,7 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
 
     renderNewPatrol();
 
-    expect(screen.getByTestId('newPatrol-loader')).toBeVisible();
+    expect(screen.getByRole('status')).toHaveTextContent('Loading patrol data');
   });
 
   test('fetches the patrol types when the store holds none', async () => {

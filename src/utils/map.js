@@ -10,17 +10,16 @@ import { imgElFromSrc, calcUrlForImage, calcImgIdFromUrlForMapImages } from './i
 // Extra allowance for the fixed vertical icon nav rail that sits between the
 // sidebar panel and the map. Keep in sync with --vertical-nav-width.
 const VERTICAL_NAV_RAIL_WIDTH_PIXELS = 70;
-const POLYGON_PADDING_REDUCTION_PIXELS = 350;
 
-export const calcSidebarPaddingLeft = ({ pathname, isMediumLayoutOrLarger, isPolygon = false }) => {
+export const calcSidebarPaddingLeft = ({ pathname, isMediumLayoutOrLarger }) => {
   if (isMediumLayoutOrLarger) {
     const currentTab = getCurrentTabFromURL(pathname);
     const itemId = getCurrentIdFromURL(pathname);
 
     if (currentTab || itemId) {
       return itemId
-        ? SIDEBAR_DETAIL_VIEW_WIDTH_PIXELS - (isPolygon ? POLYGON_PADDING_REDUCTION_PIXELS : 0)
-        : SIDEBAR_WIDTH_PIXELS + (isPolygon ? -POLYGON_PADDING_REDUCTION_PIXELS : VERTICAL_NAV_RAIL_WIDTH_PIXELS);
+        ? SIDEBAR_DETAIL_VIEW_WIDTH_PIXELS
+        : SIDEBAR_WIDTH_PIXELS + VERTICAL_NAV_RAIL_WIDTH_PIXELS;
     }
   }
 
@@ -111,9 +110,10 @@ export const addFeatureCollectionImagesToMap = (collection, options = {}, map = 
     .filter(({ properties: { image } }) => !!image)
     .map(({ properties }) => properties)
     .filter((properties, index, array) =>  array.findIndex(item => item.image === properties.image) === index)
+    // Given a map, the images already in its style need no loading again.
     .filter((properties) => {
       if (!map) return !!properties;
-      return !!map.hasImage(calcImgIdFromUrlForMapImages(properties.image, properties.width, properties.height));
+      return !map.hasImage(calcImgIdFromUrlForMapImages(properties.image, properties.width, properties.height));
     })
     .map(properties => addMapImage({ src: properties.image, height: properties.height, width: properties.width, options }));
 
@@ -274,5 +274,15 @@ export const safeRemoveMapSource = (map, sourceId) => {
   if (map?.getSource?.(sourceId)) {
     map.removeSource(sourceId);
   }
+};
+
+// The map refuses a source a layer still reads from, and React tears a parent
+// down before its children: what a child layer left behind comes off first.
+export const safeRemoveMapSourceAndItsLayers = (map, sourceId) => {
+  (map?.getStyle?.()?.layers ?? [])
+    .filter((layer) => layer.source === sourceId)
+    .forEach((layer) => safeRemoveMapLayer(map, layer.id));
+
+  safeRemoveMapSource(map, sourceId);
 };
 

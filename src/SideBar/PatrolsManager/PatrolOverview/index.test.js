@@ -84,6 +84,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       },
       view: {
         patrolTrackState: {
+          hiddenSubjects: {},
           pinned: [],
           visible: [],
         },
@@ -179,7 +180,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
   test('shows a loader if the patrol is not in the store', async () => {
     await renderPatrolOverview(patrolWithoutLeader.id);
 
-    expect(screen.getByTestId('patrolOverview-loader')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Loading patrol data');
     expect(screen.queryByTestId('patrolOverview-title')).not.toBeInTheDocument();
   });
 
@@ -189,7 +190,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
 
     await renderPatrolOverview(patrolWithoutLeader.id);
 
-    expect(screen.getByTestId('patrolOverview-loader')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Loading patrol data');
     expect(screen.queryByTestId('patrolOverview-title')).not.toBeInTheDocument();
   });
 
@@ -579,6 +580,8 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
 
     await renderPatrolOverview(patrolWithMultipleLegs.id);
 
+    fetchPatrol.mockClear();
+
     const [props] = addItemButtonMock.mock.calls.at(-1);
 
     await props.formProps.onSaveSuccess([{ data: { data: { id: 'new-event-id' } } }]);
@@ -608,6 +611,36 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
 
     expect(addPatrolSegmentToEvent)
       .toHaveBeenCalledWith(patrolWithoutLeader.patrol_segments[0].id, 'new-event-id');
+  });
+
+  test('warns the user and still refreshes the patrol when a new event could not be linked to it', async () => {
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    addPatrolSegmentToEvent.mockImplementation(() => Promise.reject(new Error('link error')));
+    store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
+
+    await renderPatrolOverview(patrolWithoutLeader.id);
+
+    fetchPatrol.mockClear();
+
+    const [props] = addItemButtonMock.mock.calls.at(-1);
+
+    await props.formProps.onSaveSuccess([{ data: { data: { id: 'new-event-id' } } }]);
+
+    expect(toast.error).toHaveBeenCalledWith('The event was saved but could not be added to this patrol.');
+    expect(fetchPatrol).toHaveBeenCalledWith(patrolWithoutLeader.id);
+  });
+
+  test('does not reject back into the event form when the patrol refresh fails', async () => {
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
+
+    await renderPatrolOverview(patrolWithoutLeader.id);
+
+    fetchPatrol.mockImplementation(() => () => Promise.reject(new Error('refresh error')));
+
+    const [props] = addItemButtonMock.mock.calls.at(-1);
+
+    await expect(props.formProps.onSaveSuccess([{ data: { data: { id: 'new-event-id' } } }])).resolves.toBeUndefined();
   });
 
   test('also accepts a single, non-array save result when linking a new event', async () => {
@@ -726,7 +759,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     });
   });
 
-  test('navigates away and reports the error when the save on the way out fails', async () => {
+  test('stays on the patrol with its edits and reports the error when the save on the way out fails', async () => {
     jest.spyOn(console, 'warn').mockImplementation(() => {});
     updatePatrol.mockImplementation(() => () => Promise.reject(new Error('Save error')));
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
@@ -741,9 +774,9 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith('The patrol could not be saved. Please try again.');
     });
-    await waitFor(() => {
-      expect(screen.getByTestId('test-location')).toHaveTextContent('/events/new');
-    });
+
+    expect(screen.getByTestId('test-location')).not.toHaveTextContent('/events/new');
+    expect(screen.getByTestId('patrolOverview-title')).toHaveValue(`${patrolWithoutLeader.title} edited`);
   });
 
   describe('saving', () => {
@@ -1243,16 +1276,17 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       expect((await savedPayload()).patrol_segments.at(-1).id).toBe('leg-changed-while-editing');
     });
 
-    test('has nothing to send for a pause until the API models paused patrols', async () => {
+    test('pauses the patrol by adding a pause leg, without asking the user for one', async () => {
       await renderPatrolInStore(patrolWithLeader);
 
       await selectStatus('Paused');
       await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
-      await waitFor(() => {
-        expect(fetchPatrol).toHaveBeenCalledWith(patrolWithLeader.id);
-      });
-      expect(updatePatrol).not.toHaveBeenCalled();
+      const { patrol_segments: patrolSegments } = await savedPayload();
+
+      expect(patrolSegments.at(-1).is_pause).toBe(true);
+      expect(patrolSegments.at(-1).time_range.end_time).toBeNull();
+      expect(patrolSegments.at(-2).time_range.end_time).toBe(patrolSegments.at(-1).time_range.start_time);
     });
 
     test('prompts before navigating away with a picked status', async () => {

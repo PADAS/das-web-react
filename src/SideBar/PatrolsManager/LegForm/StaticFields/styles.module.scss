@@ -57,6 +57,15 @@
     gap: 0.5rem;
     margin-bottom: 0.5rem;
 
+    &.hidden {
+      display: none;
+
+      @media (min-width: layout.$md-layout-width-min) {
+        display: flex;
+        visibility: hidden;
+      }
+    }
+
     .checkbox:not(:disabled) {
       cursor: pointer;
     }

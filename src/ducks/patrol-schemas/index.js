@@ -12,6 +12,10 @@ export const PATROL_TYPE_SCHEMA_API_URL = (patrolTypeValue) =>
 
 const SCHEMA_REQUEST_PARAMS = { pre_render: true, s_format: 'enum' };
 
+// The schema route hides a retired type, and a leg still has to render the
+// fields of the type it was run under.
+const PATROL_TYPE_SCHEMA_REQUEST_PARAMS = { ...SCHEMA_REQUEST_PARAMS, include_inactive: true };
+
 // Actions
 export const FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA
   = 'PATROL_SCHEMAS.FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA';
@@ -47,7 +51,10 @@ export const fetchPatrolTypeSchema = (patrolTypeValue) => async (dispatch) => {
   dispatch({ payload: { patrolTypeValue }, type: FETCH_PATROL_TYPE_SCHEMA });
 
   try {
-    const { data } = await axios.get(PATROL_TYPE_SCHEMA_API_URL(patrolTypeValue), { params: SCHEMA_REQUEST_PARAMS });
+    const { data } = await axios.get(
+      PATROL_TYPE_SCHEMA_API_URL(patrolTypeValue),
+      { params: PATROL_TYPE_SCHEMA_REQUEST_PARAMS }
+    );
 
     const schema = data?.json ? data : data?.data;
 

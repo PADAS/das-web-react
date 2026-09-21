@@ -8,8 +8,8 @@ import { selectEventSchema } from '../selectors/event-schemas';
 import { selectEventTypeByValue } from '../selectors/event-types';
 import useReport from '../hooks/useReport';
 
+import SchemaFormSummary from '../SchemaFormSummary';
 import V1SchemaFormSummary from './V1SchemaFormSummary';
-import V2SchemaFormSummary from './V2SchemaFormSummary';
 
 import * as styles from './styles.module.scss';
 
@@ -40,28 +40,26 @@ const EventFormSummary = ({ report }) => {
   }
 
   return <div className={styles.reportFormSummary}>
-    <div className={styles.nonSchemaFields}>
+    <dl className={styles.nonSchemaFields}>
       <div className={styles.nonSchemaField}>
-        <label>
-          {t('reportTypeLabel')}
-        </label>
+        <dt>{t('reportTypeLabel')}</dt>
 
-        {eventTypeTitle}
+        <dd>{eventTypeTitle}</dd>
       </div>
 
-      {report.reported_by?.name && <div className={styles.nonSchemaField}>
-        <label>
-          {t('reportedByLabel')}
-        </label>
-        {report.reported_by?.name}
+      {!!report.reported_by?.name && <div className={styles.nonSchemaField}>
+        <dt>{t('reportedByLabel')}</dt>
+
+        <dd>{report.reported_by.name}</dd>
       </div>}
-    </div>
+    </dl>
 
     {eventType.version === 1 && <V1SchemaFormSummary eventSchema={eventSchema} report={report} />}
 
-    {eventType.version === 2 && <V2SchemaFormSummary
-      eventSchema={eventSchema}
-      formData={report?.event_details || {}}
+    {eventType.version === 2 && <SchemaFormSummary
+      formData={report?.event_details ?? {}}
+      schema={eventSchema}
+      sectionClassName={styles.schemaSection}
     />}
   </div>;
 };

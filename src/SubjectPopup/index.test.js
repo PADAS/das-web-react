@@ -58,8 +58,9 @@ describe('SubjectPopup', () => {
           pinned: [],
         },
         patrolTrackState: {
-          visible: [],
+          hiddenSubjects: {},
           pinned: [],
+          visible: [],
         },
         userPreferences: {
           gpsFormat: GPS_FORMATS.DEG,

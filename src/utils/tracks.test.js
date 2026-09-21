@@ -10,7 +10,9 @@ import {
   buildTrackSegments,
   fetchTracksIfNecessary,
   fixAntimeridianCrossing,
+  findTimeEnvelopeIndices,
   getTimeOfDayPeriodBasedOnTime,
+  trackHasDataWithinTimeRange,
   trackLengthWithinTimeRange,
 } from './tracks';
 
@@ -23,9 +25,8 @@ describe('utils - tracks', () => {
   describe('getTimeOfDayPeriodBasedOnTime', () => {
     const baseDateTimeString = '2025-02-21T21:41:14.677Z';
 
-    test('calculate proper time of day range based on time', () => {
+    test('returns the period the time falls into in the given time zone', () => {
       expect(
-        // time being converted to 15:41 based on Monterrey time, having 941 minutes therefore falling into period #1
         getTimeOfDayPeriodBasedOnTime(
           baseDateTimeString,
           'America/Monterrey'
@@ -33,14 +34,19 @@ describe('utils - tracks', () => {
       ).toBe(TIME_OF_DAY_PERIODS[1]);
     });
 
-    test('calculate proper time of day range based on time', () => {
+    test('returns the period the time falls into in another given time zone', () => {
       expect(
-        // time being converted to 05:41 based on Hong Kong time, having 341 minutes therefore falling into period #1
         getTimeOfDayPeriodBasedOnTime(
           baseDateTimeString,
           'Asia/Hong_Kong'
         )
       ).toBe(TIME_OF_DAY_PERIODS[5]);
+    });
+
+    test('returns the period the time falls into in the runtime time zone when no time zone is set', () => {
+      expect(getTimeOfDayPeriodBasedOnTime(baseDateTimeString, null)).toBe(
+        getTimeOfDayPeriodBasedOnTime(baseDateTimeString, Intl.DateTimeFormat().resolvedOptions().timeZone)
+      );
     });
   });
 
@@ -176,6 +182,29 @@ describe('utils - tracks', () => {
 
     });
 
+    test('segments every feature of a track, not only the first', () => {
+      const secondFeature = {
+        geometry: {
+          coordinates: [[-109.3, -27.1], [-109.31, -27.11], [-109.32, -27.12]],
+          type: 'LineString',
+        },
+        properties: {
+          coordinateProperties: {
+            times: ['2023-07-05T12:00:00-06:00', '2023-07-05T11:00:00-06:00', '2023-07-05T10:00:00-06:00'],
+          },
+        },
+        type: 'Feature',
+      };
+
+      const trackSegments = buildTrackSegments(
+        { ...track, features: [...track.features, secondFeature] },
+        'America/Monterrey'
+      );
+
+      expect(trackSegments.features.length)
+        .toBe(buildTrackSegments(track, 'America/Monterrey').features.length + 2);
+    });
+
     test('returns empty feature collection when track data has no features', () => {
       const emptyTracks = { ...track };
       emptyTracks.features = [];
@@ -210,6 +239,49 @@ describe('utils - tracks', () => {
     });
 
 
+  });
+
+  describe('trackHasDataWithinTimeRange', () => {
+    const trackDataFetchedSince = (since) => ({
+      fetchedDateRange: { since, until: null },
+      track: {
+        features: [{
+          geometry: { coordinates: [[1, 0], [0, 0]], type: 'LineString' },
+          properties: { coordinateProperties: { times: ['2026-04-13T02:00:00.000Z', since] } },
+          type: 'Feature',
+        }],
+        type: 'FeatureCollection',
+      },
+    });
+
+    test('answers for a range the fetched window covers', () => {
+      expect(trackHasDataWithinTimeRange(trackDataFetchedSince('2026-04-13T01:00:00.000Z'), '2026-04-13T01:30:00.000Z'))
+        .toBe(true);
+    });
+
+    test('does not answer for a range that reaches back past the fetched window', () => {
+      expect(trackHasDataWithinTimeRange(trackDataFetchedSince('2026-04-13T01:00:00.000Z'), '2026-04-13T00:00:00.000Z'))
+        .toBe(false);
+    });
+
+    const emptyTrackDataFetchedSince = (since) => ({
+      fetchedDateRange: { since, until: null },
+      track: { features: [], type: 'FeatureCollection' },
+    });
+
+    test('answers for a range the window a track came back empty from covers', () => {
+      expect(trackHasDataWithinTimeRange(
+        emptyTrackDataFetchedSince('2026-04-13T01:00:00.000Z'),
+        '2026-04-13T01:30:00.000Z'
+      )).toBe(true);
+    });
+
+    test('does not answer for a range reaching back past the window a track came back empty from', () => {
+      expect(trackHasDataWithinTimeRange(
+        emptyTrackDataFetchedSince('2026-04-13T01:00:00.000Z'),
+        '2026-04-13T00:00:00.000Z'
+      )).toBe(false);
+    });
   });
 
   describe('trackLengthWithinTimeRange', () => {
@@ -884,6 +956,35 @@ describe('utils - tracks', () => {
       await releaseOneRequest();
 
       expect(hasResolved).toBe(true);
+    });
+  });
+
+  describe('findTimeEnvelopeIndices', () => {
+    const times = [
+      '2026-09-11T16:00:00Z',
+      '2026-09-11T15:00:00Z',
+      '2026-09-11T14:00:00Z',
+      '2026-09-11T13:00:00Z',
+    ];
+
+    test('keeps the most recent position when the window ends after it', () => {
+      expect(findTimeEnvelopeIndices(times, '2026-09-11T13:00:00Z', '2026-09-12T10:00:00Z'))
+        .toEqual({ from: 3, until: 0 });
+    });
+
+    test('keeps the most recent position when the window ends exactly on it', () => {
+      expect(findTimeEnvelopeIndices(times, '2026-09-11T13:00:00Z', '2026-09-11T16:00:00Z'))
+        .toEqual({ from: 3, until: 0 });
+    });
+
+    test('starts after the positions newer than the window', () => {
+      expect(findTimeEnvelopeIndices(times, '2026-09-11T13:00:00Z', '2026-09-11T14:30:00Z'))
+        .toEqual({ from: 3, until: 2 });
+    });
+
+    test('keeps nothing when every position is newer than the window', () => {
+      expect(findTimeEnvelopeIndices(times, '2026-09-11T10:00:00Z', '2026-09-11T11:00:00Z').until)
+        .toBe(times.length);
     });
   });
 });

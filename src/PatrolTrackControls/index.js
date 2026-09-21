@@ -67,9 +67,11 @@ const PatrolTrackControls = ({ className = '', onLocationClick, patrol }) => {
   ]);
 
   const showJumpToLocationButton = patrolSchemasEnabled ? !!patrolLocationCoordinates : !!patrolBounds;
+  // The legacy toggle acts on the patrol's leader, so it needs one.
+  const showTrackToggleButton = canShowTrack && (patrolSchemasEnabled || !!leader);
 
   return <div className={`${styles.patrolTrackControls} ${className}`}>
-    {!!canShowTrack && !!leader && <PatrolAwareTrackToggleButton
+    {!!showTrackToggleButton && <PatrolAwareTrackToggleButton
       buttonRef={trackToggleButtonRef}
       data-testid={`patrol-list-item-track-btn-${patrol.id}`}
       patrol={patrol}

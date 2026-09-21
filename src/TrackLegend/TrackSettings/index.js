@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 import { differenceInCalendarDays } from 'date-fns';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -25,16 +25,37 @@ const TrackSettings = ({ onClose }) => {
   const lowerEventFilterDateRange = useSelector((state) => state.data.eventFilter.filter.date_range.lower);
   const trackSettings = useSelector((state) => state.view.trackSettings);
 
+  // Every track legend on the map holds a copy of these settings, so none of
+  // them can name its own controls.
+  const customLengthErrorMessageId = useId();
+  const customLengthOptionId = useId();
+  const eventFilterOptionId = useId();
+
   const [customLength, setCustomLength] = useState(trackSettings.length);
-  const [isCustomLengthValid, setIsCustomLengthValid] = useState(true);
 
   const lengthFromEventFilterLowerRangeToToday = differenceInCalendarDays(new Date(), lowerEventFilterDateRange);
+
+  const applyCustomLength = (length) => {
+    if ((length >= MIN_TRACK_LENGTH) && (length <= MAX_NUMBER_INPUT_TRACK_LENGTH)) {
+      dispatch(setTrackLength(length));
+
+      mapInteractionTracker.debouncedTrack('Set Track Length To Custom Length', `${length} days`);
+    }
+  };
+
+  const onCustomLengthChange = (length) => {
+    setCustomLength(length);
+
+    applyCustomLength(length);
+  };
 
   const onTrackLengthChange = (event) => {
     dispatch(setTrackLengthOrigin(event.target.value));
 
     if (event.target.value === TRACK_LENGTH_ORIGINS.EVENT_FILTER) {
       mapInteractionTracker.track('Set Track Length To Match Report Filter');
+    } else {
+      applyCustomLength(customLength);
     }
   };
 
@@ -45,25 +66,14 @@ const TrackSettings = ({ onClose }) => {
     }
   }, [dispatch, lengthFromEventFilterLowerRangeToToday, trackSettings.origin]);
 
-  useEffect(() => {
-    // If the track length origin is set to a custom length, the track length follows the inputs while they have a
-    // valid value.
-    if (trackSettings.origin === TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH) {
-      const isCustomLengthValid = (customLength >= MIN_TRACK_LENGTH)
-        && (customLength <= MAX_NUMBER_INPUT_TRACK_LENGTH);
-      if (isCustomLengthValid) {
-        dispatch(setTrackLength(customLength));
-
-        mapInteractionTracker.debouncedTrack('Set Track Length To Custom Length', `${customLength} days`);
-      }
-
-      setIsCustomLengthValid(isCustomLengthValid);
-    }
-  }, [customLength, dispatch, trackSettings.origin]);
+  // The inputs only drive the track length while the custom length is what it
+  // follows, so a disabled pair of them is never the one in error.
+  const isCustomLengthValid = trackSettings.origin !== TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH
+    || ((customLength >= MIN_TRACK_LENGTH) && (customLength <= MAX_NUMBER_INPUT_TRACK_LENGTH));
 
   return <div className={styles.trackSettings}>
     <div className={styles.header}>
-      <p className={styles.title}>{t('title')}</p>
+      <h2 className={styles.title}>{t('title')}</h2>
 
       <button
         aria-label={t('closeButtonLabel')}
@@ -72,24 +82,24 @@ const TrackSettings = ({ onClose }) => {
         title={t('closeButtonLabel')}
         type="button"
       >
-        <CrossIcon className={styles.crossIcon} />
+        <CrossIcon aria-hidden="true" />
       </button>
     </div>
 
-    <fieldset>
+    <fieldset className={styles.trackLengthFieldSet}>
       <legend className={styles.trackLengthLegend}>{t('trackLengthLegend')}</legend>
 
       <div className={styles.radioButton}>
         <input
           className={styles.input}
           checked={trackSettings.origin === TRACK_LENGTH_ORIGINS.EVENT_FILTER}
-          id="trackLength-eventFilterOption"
+          id={eventFilterOptionId}
           onChange={onTrackLengthChange}
           type="radio"
           value={TRACK_LENGTH_ORIGINS.EVENT_FILTER}
         />
 
-        <label className={styles.label} htmlFor="trackLength-eventFilterOption">
+        <label className={styles.label} htmlFor={eventFilterOptionId}>
           {t('eventFilterRadioLabel', { length: lengthFromEventFilterLowerRangeToToday })}
         </label>
       </div>
@@ -98,13 +108,13 @@ const TrackSettings = ({ onClose }) => {
         <input
           className={styles.input}
           checked={trackSettings.origin === TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH}
-          id="trackLength-customLengthOption"
+          id={customLengthOptionId}
           onChange={onTrackLengthChange}
           type="radio"
           value={TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH}
         />
 
-        <label className={styles.label} htmlFor="trackLength-customLengthOption">
+        <label className={styles.label} htmlFor={customLengthOptionId}>
           {t('customLengthRadioLabel')}
         </label>
       </div>
@@ -112,14 +122,14 @@ const TrackSettings = ({ onClose }) => {
 
     <div className={styles.customLengthInputs}>
       <input
-        aria-errormessage={!isCustomLengthValid ? 'customLengthErrorMessage' : undefined}
+        aria-errormessage={isCustomLengthValid ? undefined : customLengthErrorMessageId}
         aria-invalid={isCustomLengthValid ? 'false' : 'true'}
         aria-label={t('customLengthInputLabel')}
         className={styles.rangeInput}
         disabled={trackSettings.origin !== TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH}
         max={MAX_RANGE_INPUT_TRACK_LENGTH}
         min={MIN_TRACK_LENGTH}
-        onChange={(event) => setCustomLength(parseInt(event.target.value))}
+        onChange={(event) => onCustomLengthChange(parseInt(event.target.value))}
         step={1}
         title={t('customLengthInputLabel')}
         type="range"
@@ -130,21 +140,21 @@ const TrackSettings = ({ onClose }) => {
         className={styles.numberInput}
         disabled={trackSettings.origin !== TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH}
         inputProps={{
-          'aria-errormessage': !isCustomLengthValid ? 'customLengthErrorMessage' : undefined,
+          'aria-errormessage': isCustomLengthValid ? undefined : customLengthErrorMessageId,
           'aria-invalid': isCustomLengthValid ? 'false' : 'true',
           'aria-label': t('customLengthInputLabel'),
         }}
         max={MAX_NUMBER_INPUT_TRACK_LENGTH}
         min={MIN_TRACK_LENGTH}
-        onChange={(number) => setCustomLength(number)}
+        onChange={(number) => onCustomLengthChange(number)}
         title={t('customLengthInputLabel')}
         value={customLength}
       />
     </div>
 
-    {!isCustomLengthValid && trackSettings.origin === TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH && <p
+    {!isCustomLengthValid && <p
       className={styles.customLengthErrorMessage}
-      id="customLengthErrorMessage"
+      id={customLengthErrorMessageId}
     >
       {t('customLengthErrorMessage', { max: MAX_NUMBER_INPUT_TRACK_LENGTH, min: MIN_TRACK_LENGTH })}
     </p>}

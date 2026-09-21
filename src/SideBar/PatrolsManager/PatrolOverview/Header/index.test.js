@@ -79,6 +79,14 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
   const map = createMapMock();
   const handlePrint = jest.fn();
 
+  beforeAll(() => {
+    jest.useFakeTimers({ advanceTimers: true }).setSystemTime(new Date('2021-11-04'));
+  });
+
+  afterAll(() => {
+    jest.useRealTimers();
+  });
+
   let onChangeTitle;
   let onChangeState;
   let store;
@@ -98,6 +106,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
       },
       view: {
         patrolTrackState: {
+          hiddenSubjects: {},
           pinned: [],
           visible: [],
         },
@@ -207,9 +216,15 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
   });
 
   test('shows the jump to location button disabled when the patrol has no track or start location data', () => {
-    renderHeader();
+    renderHeader({ patrol: patrolWithoutLeader });
 
     expect(screen.getByRole('button', { name: 'Jump to location' })).toBeDisabled();
+  });
+
+  test('shows the jump to location button enabled when the patrol only has a planned start location', () => {
+    renderHeader();
+
+    expect(screen.getByRole('button', { name: 'Jump to location' })).toBeEnabled();
   });
 
   test('jumps to the last patrol track coordinates when the jump to location button is clicked', async () => {
@@ -241,13 +256,16 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
 
   test('falls back to the patrol start location when the jump to location button is clicked and there is no track data', async () => {
     jest.spyOn(patrolSelectors, 'selectPatrolTrackData').mockReturnValue({
+      hasTrackData: true,
       leader: patrolWithLeader.patrol_segments[0].leader,
-      trackData: null,
       startStopGeometries: {
         points: {
-          start_location: { type: 'Feature', geometry: { type: 'Point', coordinates: [37.472, 0.226] } },
+          type: 'FeatureCollection',
+          features: [{ type: 'Feature', geometry: { type: 'Point', coordinates: [37.472, 0.226] } }],
         },
       },
+      subjectsTrackData: [],
+      trackData: null,
     });
 
     renderHeader();
@@ -264,6 +282,8 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
   });
 
   test('shows the fit to bounds button disabled when the patrol bounds are not set', () => {
+    jest.spyOn(patrolUtils, 'getBoundsForPatrol').mockReturnValue(null);
+
     renderHeader();
 
     expect(screen.getByRole('button', { name: 'Zoom to patrol bounds' })).toBeDisabled();
@@ -430,8 +450,6 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
   test('downloads the combined patrol track (all legs) when the download track button in the kebab menu is clicked', async () => {
     const track = {
       type: 'FeatureCollection',
-      // Both points fall after the leg's own start_time (2021-11-01T18:50:00.724Z), so none of
-      // them get trimmed off by the leg's own time range.
       features: [{
         type: 'Feature',
         properties: { coordinateProperties: { times: ['2021-11-03T00:00:00.000Z', '2021-11-02T00:00:00.000Z'] }, stroke: '#FF0080' },
@@ -457,9 +475,67 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
     await userEvent.click(menuItem);
 
     expect(downloadJsonAsFile).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'FeatureCollection', features: track.features }),
+      expect.objectContaining({
+        features: track.features.map((feature) => expect.objectContaining({
+          geometry: feature.geometry,
+          properties: expect.objectContaining(feature.properties),
+        })),
+        type: 'FeatureCollection',
+      }),
       `Patrol_${patrolWithLeader.serial_number}.geojson`
     );
+  });
+
+  test('leaves the stretches the patrol stood still on a pause out of the downloaded track', async () => {
+    const times = ['2021-11-03T00:00:00.000Z', '2021-11-02T00:00:00.000Z', '2021-11-01T19:00:00.000Z'];
+    const coordinates = [[37.484, 0.234], [37.482, 0.232], [37.480, 0.230]];
+
+    store.data.tracks[leaderId] = {
+      fetchedDateRange: { since: '2021-01-01T00:00:00.000Z', until: '2022-01-01T00:00:00.000Z' },
+      points: {
+        type: 'FeatureCollection',
+        features: times.map((time, index) => ({
+          geometry: { coordinates: coordinates[index], type: 'Point' },
+          properties: { bearing: 0, time },
+          type: 'Feature',
+        })),
+      },
+      track: {
+        type: 'FeatureCollection',
+        features: [{
+          geometry: { coordinates, type: 'LineString' },
+          properties: { coordinateProperties: { times }, stroke: '#FF0080' },
+          type: 'Feature',
+        }],
+      },
+    };
+
+    const pausedPatrol = {
+      ...patrolWithLeader,
+      patrol_segments: [
+        {
+          ...patrolWithLeader.patrol_segments[0],
+          time_range: { end_time: '2021-11-02T12:00:00.000Z', start_time: '2021-11-01T18:50:00.724Z' },
+        },
+        {
+          ...patrolWithLeader.patrol_segments[0],
+          id: 'pause-1',
+          is_pause: true,
+          time_range: { end_time: null, start_time: '2021-11-02T12:00:00.000Z' },
+        },
+      ],
+    };
+
+    renderHeader({ patrol: pausedPatrol });
+    await openKebabMenu();
+
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'Download Patrol Track' }));
+
+    const [downloadedTrack] = downloadJsonAsFile.mock.calls[0];
+
+    expect(downloadedTrack.features).toHaveLength(1);
+    expect(downloadedTrack.features[0].geometry.coordinates)
+      .toEqual([[37.482, 0.232], [37.480, 0.230]]);
   });
 
   test('disables the download track button in the kebab menu when the patrol has no track data', async () => {
@@ -581,7 +657,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
   });
 
   test('focuses and selects the title input when the edit title button is clicked', async () => {
-    const selectSpy = jest.spyOn(HTMLInputElement.prototype, 'select');
+    const selectSpy = jest.spyOn(HTMLTextAreaElement.prototype, 'select');
 
     renderHeader();
 
