@@ -26,6 +26,7 @@ import { TrackerContext } from '../../../utils/analytics';
 import useFormElementDomId from '../../utils/useFormElementDomId';
 import useMediaObjectUrl from '../../../hooks/useMediaObjectUrl';
 
+import LoadingOverlay from '../../../LoadingOverlay';
 import MediaModal from '../../../MediaModal';
 
 import * as styles from './styles.module.scss';
@@ -106,7 +107,9 @@ const MediaPlayer = ({ attachment, mediaError, mediaObjectUrl, t }) => {
   }
 
   if (!mediaObjectUrl) {
-    return <span className={styles.playerLoadingSpinner} data-testid={`player-loading-${attachment.uploadId}`} />;
+    return <div className={styles.playerLoadingContainer}>
+      <LoadingOverlay data-testid={`player-loading-${attachment.uploadId}`} loaderSize={32} />
+    </div>;
   }
 
   if (attachment.fileType === 'audio') {
