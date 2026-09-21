@@ -2,7 +2,7 @@ import React, { memo, Suspense, useContext } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import { useDispatch, useSelector } from 'react-redux';
 
-import ImageModal from '../ImageModal';
+import MediaModal from '../MediaModal';
 import { MapContext } from '../MapContext';
 import { removeModal } from '../ducks/modals';
 
@@ -43,8 +43,8 @@ const ModalRenderer = () => {
           }}
           {...modalProps}
           onHide={onHideModal}
-          {...(ContentComponent.type?.name === ImageModal.type.name
-            ? { className: `${modalProps?.className || ''} ${styles.modalImageBackground}` }
+          {...(ContentComponent.type?.name === MediaModal.type.name
+            ? { className: `${modalProps?.className || ''} ${styles.modalMediaBackground}` }
             : {}
           )}
         >

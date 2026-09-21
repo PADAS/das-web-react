@@ -25,7 +25,7 @@ import { selectUploadStatesByIds } from '../../../../../selectors/user-content';
 import { showToast } from '../../../../../utils/toast';
 import { TrackerContext } from '../../../../../utils/analytics';
 
-import ImageModal from '../../../../../ImageModal';
+import MediaModal from '../../../../../MediaModal';
 
 import * as styles from './styles.module.scss';
 
@@ -97,6 +97,22 @@ const isFileTypeAllowed = (file, allowableFileTypes) => {
       return file.type === specifier;
     });
   });
+};
+
+const MediaPlayer = ({ attachment, mediaError, mediaObjectUrl, t }) => {
+  if (mediaError) {
+    return <span className={styles.error}>{t('playerErrorLabel')}</span>;
+  }
+
+  if (!mediaObjectUrl) {
+    return <span className={styles.playerLoadingSpinner} data-testid={`player-loading-${attachment.uploadId}`} />;
+  }
+
+  if (attachment.fileType === 'audio') {
+    return <audio aria-label={t('audioPlayerLabel', { fileName: attachment.name })} controls src={mediaObjectUrl} />;
+  }
+
+  return <video aria-label={t('videoPlayerLabel', { fileName: attachment.name })} controls src={mediaObjectUrl} />;
 };
 
 const AttachmentListItem = ({ actionButtonRefs, attachment, onRemove, readOnly }) => {
@@ -179,7 +195,7 @@ const AttachmentListItem = ({ actionButtonRefs, attachment, onRemove, readOnly }
         className={styles.actionButton}
         disabled={!attachment.originalImageSource && !attachment.thumbnailImageSource}
         onClick={() => dispatch(addModal({
-          content: ImageModal,
+          content: MediaModal,
           src: attachment.originalImageSource ?? attachment.thumbnailImageSource,
           title: attachment.name,
           tracker,
@@ -232,21 +248,7 @@ const AttachmentListItem = ({ actionButtonRefs, attachment, onRemove, readOnly }
     </div>
 
     {isMedia && isPlayerOpen && attachment.status === 'complete' && <div className={styles.player}>
-      {mediaError
-        ? <span className={styles.error}>{t('playerErrorLabel')}</span>
-        : mediaObjectUrl
-          ? (attachment.fileType === 'audio'
-            ? <audio
-              aria-label={t('audioPlayerLabel', { fileName: attachment.name })}
-              controls
-              src={mediaObjectUrl}
-            />
-            : <video
-              aria-label={t('videoPlayerLabel', { fileName: attachment.name })}
-              controls
-              src={mediaObjectUrl}
-            />)
-          : <span className={styles.playerLoadingSpinner} data-testid={`player-loading-${attachment.uploadId}`} />}
+      <MediaPlayer attachment={attachment} mediaError={mediaError} mediaObjectUrl={mediaObjectUrl} t={t} />
     </div>}
   </li>;
 };

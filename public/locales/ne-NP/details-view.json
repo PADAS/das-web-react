@@ -15,9 +15,6 @@
     "addAttachmentTitle": "संलग्नक थप्नुहोस्"
   },
   "attachmentListItem": {
-    "imagePreviewAlt": "{{fileName}} पुर्वावलोकन",
-    "videoPreviewAlt": "{{fileName}} भिडियो पुर्वावलोकन",
-    "audioPreviewAlt": "{{fileName}} अडियो पुर्वावलोकन",
     "mediaLoadErrorMessage": "यो फाइल लोड गर्न सकिएन।",
     "downloadButtonTooltip": "डाउनलोड गर्नुहोस्",
     "deleteButtonTooltip": "मेट्नुहोस्",
@@ -25,7 +22,10 @@
     "collapseClosedButtonLabel": "बिस्तार गर्नुहोस्",
     "collapseClosedButtonTitle": "बन्द गरिएको",
     "collapseOpenButtonLabel": "बन्द गर्नुहोस्",
-    "collapseOpenButtonTitle": "बिस्तार गरिएको"
+    "collapseOpenButtonTitle": "बिस्तार गरिएको",
+    "audioPreviewAlt": "{{fileName}} अडियो पुर्वावलोकन",
+    "imagePreviewAlt": "{{fileName}} पुर्वावलोकन",
+    "videoPreviewAlt": "{{fileName}} भिडियो पुर्वावलोकन"
   },
   "footer": {
     "cancelButton": "रद्द गर्नुहोस्",
@@ -50,7 +50,7 @@
     "sectionTitle": "इतिहास",
     "timeLabel": "समय"
   },
-  "imageModal": {
+  "mediaModal": {
     "errorTitle": "फाईल लोड गर्न समस्या भइरहेको छ ।",
     "errorMessage": "यो फाईल भर्खरै अपलोड गर्नुभएको हो भने कृपया केही समय पर्खेर फेरी प्रयास गर्नुहोस् ।"
   },

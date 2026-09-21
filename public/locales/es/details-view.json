@@ -16,9 +16,9 @@
     "addAttachmentTitle": "Adjuntar archivo"
   },
   "attachmentListItem": {
+    "audioPreviewAlt": "{{fileName}} vista previa de audio",
     "imagePreviewAlt": "{{fileName}} vista previa",
     "videoPreviewAlt": "{{fileName}} vista previa de video",
-    "audioPreviewAlt": "{{fileName}} vista previa de audio",
     "mediaLoadErrorMessage": "No se pudo cargar este archivo.",
     "downloadButtonTooltip": "Descargar",
     "deleteButtonTooltip": "Borrar",
@@ -44,7 +44,7 @@
     "sectionTitle": "Historial",
     "timeLabel": "Tiempo"
   },
-  "imageModal": {
+  "mediaModal": {
     "errorTitle": "Error al cargar el archivo.",
     "errorMessage": "Si subió este archivo recientemente, espere un minuto y vuelva a intentarlo, por favor."
   },

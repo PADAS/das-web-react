@@ -14,13 +14,13 @@ import * as styles from './styles.module.scss';
 
 const { Header, Title, Body } = Modal;
 
-const ImageModal = ({ fetchError = false, id, mediaType = 'image', src, title, url, tracker }) => {
+const MediaModal = ({ fetchError = false, id, mediaType = 'image', src, title, url, tracker }) => {
   const dispatch = useDispatch();
 
   const imageRef = useRef();
   const downloadIconRef = useRef();
   const titleRef = useRef();
-  const { t } = useTranslation('details-view', { keyPrefix: 'imageModal' });
+  const { t } = useTranslation('details-view', { keyPrefix: 'mediaModal' });
 
   const [error, setErrorState] = useState(false);
   const [loaded, setLoadState] = useState(false);
@@ -103,4 +103,4 @@ const ImageModal = ({ fetchError = false, id, mediaType = 'image', src, title, u
   </>;
 };
 
-export default memo(ImageModal);
+export default memo(MediaModal);

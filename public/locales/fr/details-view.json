@@ -16,9 +16,9 @@
     "addAttachmentTitle": "Ajouter une pièce jointe"
   },
   "attachmentListItem": {
+    "audioPreviewAlt": "{{fileName}} aperçu audio",
     "imagePreviewAlt": "{{fileName}} aperçu",
     "videoPreviewAlt": "{{fileName}} aperçu vidéo",
-    "audioPreviewAlt": "{{fileName}} aperçu audio",
     "mediaLoadErrorMessage": "Impossible de charger ce fichier.",
     "downloadButtonTooltip": "Télécharger",
     "deleteButtonTooltip": "Supprimer",
@@ -44,7 +44,7 @@
     "sectionTitle": "Historique",
     "timeLabel": "Heure"
   },
-  "imageModal": {
+  "mediaModal": {
     "errorTitle": "Erreur de chargement du fichier",
     "errorMessage": "Si vous avez télécharger ce fichier récemment, veuillez patientez quelques minutes et réessayer."
   },

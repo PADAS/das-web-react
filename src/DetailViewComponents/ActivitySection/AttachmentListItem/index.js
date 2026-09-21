@@ -15,13 +15,14 @@ import { ReactComponent as TrashCanIcon } from '../../../common/images/icons/tra
 import { ReactComponent as VideoIcon } from '../../../common/images/icons/video.svg';
 import { ReactComponent as VolumeIcon } from '../../../common/images/icons/volume.svg';
 
-import { addModal, updateModal } from '../../../ducks/modals';
+import { addModal, removeModal, updateModal } from '../../../ducks/modals';
 import { downloadFileFromUrl } from '../../../utils/download';
 import { fetchFileAsObjectUrlFromUrl, fetchImageAsBase64FromUrl } from '../../../utils/file';
 
 import DateTime from '../../../DateTime';
-import ImageModal from '../../../ImageModal';
+import MediaModal from '../../../MediaModal';
 import ItemActionButton from '../ItemActionButton';
+import LoadingOverlay from '../../../LoadingOverlay';
 
 import * as styles from '../styles.module.scss';
 
@@ -52,26 +53,23 @@ const AttachmentListItem = ({
   const currentImageSource = useMemo(() => imageOriginalSource || imageThumbnailSource, [imageOriginalSource, imageThumbnailSource]);
 
   const mediaFetchPromiseRef = useRef(null);
-  const pendingModalIdRef = useRef(null);
+  const openVideoModalIdsRef = useRef(new Set());
+  const pendingModalIdsRef = useRef(new Set());
 
   const ensureMediaObjectUrl = useCallback(() => {
-    if (!mediaFetchPromiseRef.current) {
-      setMediaError(false);
-      mediaFetchPromiseRef.current = fetchFileAsObjectUrlFromUrl(attachment.url)
-        .then((objectUrl) => {
-          setMediaObjectUrl(objectUrl);
-
-          return objectUrl;
-        })
-        .catch(() => {
-          mediaFetchPromiseRef.current = null;
-          setMediaError(true);
-
-          return null;
-        });
+    if (mediaFetchPromiseRef.current) {
+      return;
     }
 
-    return mediaFetchPromiseRef.current;
+    setMediaError(false);
+    mediaFetchPromiseRef.current = fetchFileAsObjectUrlFromUrl(attachment.url)
+      .then((objectUrl) => {
+        setMediaObjectUrl(objectUrl);
+      })
+      .catch(() => {
+        mediaFetchPromiseRef.current = null;
+        setMediaError(true);
+      });
   }, [attachment.url]);
 
   const onShowFullScreen = useCallback((event) => {
@@ -80,7 +78,7 @@ const AttachmentListItem = ({
     tracker.track(`View fullscreen ${attachment.file_type} from activity section`);
 
     const modal = dispatch(addModal({
-      content: ImageModal,
+      content: MediaModal,
       mediaType: isVideo ? 'video' : 'image',
       src: isVideo ? mediaObjectUrl : currentImageSource,
       title: attachment.filename,
@@ -88,10 +86,14 @@ const AttachmentListItem = ({
       url: attachment.url,
     }));
 
-    if (isVideo && !mediaObjectUrl) {
-      pendingModalIdRef.current = modal.id;
+    if (isVideo) {
+      openVideoModalIdsRef.current.add(modal.id);
 
-      ensureMediaObjectUrl();
+      if (!mediaObjectUrl) {
+        pendingModalIdsRef.current.add(modal.id);
+
+        ensureMediaObjectUrl();
+      }
     }
   }, [attachment.file_type, attachment.filename, attachment.url, currentImageSource, dispatch, ensureMediaObjectUrl, isVideo, mediaObjectUrl, tracker]);
 
@@ -141,24 +143,25 @@ const AttachmentListItem = ({
   }, [isOpen, isVideo, isAudio, ensureMediaObjectUrl]);
 
   useEffect(() => {
-    if (mediaObjectUrl && pendingModalIdRef.current) {
-      dispatch(updateModal({ id: pendingModalIdRef.current, src: mediaObjectUrl }));
-      pendingModalIdRef.current = null;
+    if (mediaObjectUrl && pendingModalIdsRef.current.size > 0) {
+      pendingModalIdsRef.current.forEach((modalId) => dispatch(updateModal({ id: modalId, src: mediaObjectUrl })));
+      pendingModalIdsRef.current.clear();
     }
   }, [dispatch, mediaObjectUrl]);
 
   useEffect(() => {
-    if (mediaError && pendingModalIdRef.current) {
-      dispatch(updateModal({ id: pendingModalIdRef.current, fetchError: true }));
-      pendingModalIdRef.current = null;
+    if (mediaError && pendingModalIdsRef.current.size > 0) {
+      pendingModalIdsRef.current.forEach((modalId) => dispatch(updateModal({ id: modalId, fetchError: true })));
+      pendingModalIdsRef.current.clear();
     }
   }, [dispatch, mediaError]);
 
   useEffect(() => () => {
     if (mediaObjectUrl) {
+      openVideoModalIdsRef.current.forEach((modalId) => dispatch(removeModal(modalId)));
       URL.revokeObjectURL(mediaObjectUrl);
     }
-  }, [mediaObjectUrl]);
+  }, [dispatch, mediaObjectUrl]);
 
   if (isImage || isVideo || isAudio) {
     return <li className={isOpen ? styles.openItem : ''} ref={ref}>
@@ -240,7 +243,9 @@ const AttachmentListItem = ({
               data-testid={`activitySection-video-${attachment.id}`}
               src={mediaObjectUrl}
             />
-            : <div className={styles.mediaLoadingSpinner} data-testid={`activitySection-mediaLoading-${attachment.id}`} />)}
+            : <div className={styles.mediaLoadingContainer}>
+              <LoadingOverlay data-testid={`activitySection-mediaLoading-${attachment.id}`} />
+            </div>)}
 
           {isAudio && !mediaError && (mediaObjectUrl
             ? <audio
@@ -250,7 +255,9 @@ const AttachmentListItem = ({
               data-testid={`activitySection-audio-${attachment.id}`}
               src={mediaObjectUrl}
             />
-            : <div className={styles.mediaLoadingSpinner} data-testid={`activitySection-mediaLoading-${attachment.id}`} />)}
+            : <div className={styles.mediaLoadingContainer}>
+              <LoadingOverlay data-testid={`activitySection-mediaLoading-${attachment.id}`} />
+            </div>)}
         </div>
       </Collapse>
     </li>;

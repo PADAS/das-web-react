@@ -7,14 +7,14 @@ import { downloadFileFromUrl } from '../utils/download';
 import { mockStore } from '../__test-helpers/MockStore';
 import { render, screen } from '../test-utils';
 
-import ImageModal from '.';
+import MediaModal from '.';
 
 jest.mock('../utils/download', () => ({
   ...jest.requireActual('../utils/download'),
   downloadFileFromUrl: jest.fn(),
 }));
 
-describe('ImageModal', () => {
+describe('MediaModal', () => {
   let store;
   beforeEach(() => {
     downloadFileFromUrl.mockImplementation(() => {});
@@ -24,7 +24,7 @@ describe('ImageModal', () => {
 
   const renderModal = (props) => render(
     <Provider store={store}>
-      <ImageModal id="modal-1" title="attachment.mp4" tracker={{ track: jest.fn() }} {...props} />
+      <MediaModal id="modal-1" title="attachment.mp4" tracker={{ track: jest.fn() }} {...props} />
     </Provider>
   );
 

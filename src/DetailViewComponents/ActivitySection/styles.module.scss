@@ -4,10 +4,6 @@
 
 $cardExpansionTransitionTime: 300ms;
 
-@keyframes mediaLoadingSpin {
-  to { transform: rotate(360deg); }
-}
-
 .sectionHeader {
   display: flex;
   justify-content: space-between;
@@ -231,14 +227,9 @@ $cardExpansionTransitionTime: 300ms;
   text-align: center;
 }
 
-.mediaLoadingSpinner {
-  animation: mediaLoadingSpin 0.8s linear infinite;
-  border: 0.1875rem solid $light-gray-border;
-  border-top-color: $bright-blue;
-  border-radius: 50%;
-  height: 2rem;
-  margin: 0 auto;
-  width: 2rem;
+.mediaLoadingContainer {
+  min-height: 8rem;
+  position: relative;
 }
 
 .noteTextArea {
