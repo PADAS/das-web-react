@@ -115,7 +115,7 @@
     "menuPopover": {
       "dialogLabel": "Location",
       "getUserLocationButton": "Use my location",
-      "permissionBlockedMessage": "Refresh and allow location sharing to load your location from GPS",
+      "permissionBlockedMessage": "Location sharing blocked by browser. Allow it in your browser settings.",
       "pickMapLocationButton": "Set on map"
     },
     "setLocationButtonLabel": {

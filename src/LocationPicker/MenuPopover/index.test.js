@@ -449,7 +449,7 @@ describe('LocationPicker - MenuPopover', () => {
   });
 
   describe('the geolocation permission blocked message', () => {
-    const permissionBlockedMessage = 'Refresh and allow location sharing to load your location from GPS';
+    const permissionBlockedMessage = 'Location sharing blocked by browser. Allow it in your browser settings.';
 
     let permissionStatus;
     beforeEach(() => {
@@ -617,7 +617,7 @@ describe('LocationPicker - MenuPopover', () => {
   });
 
   describe('the geolocation permission blocked message without the permissions API', () => {
-    const permissionBlockedMessage = 'Refresh and allow location sharing to load your location from GPS';
+    const permissionBlockedMessage = 'Location sharing blocked by browser. Allow it in your browser settings.';
 
     beforeEach(() => {
       store.view.showUserLocation = true;

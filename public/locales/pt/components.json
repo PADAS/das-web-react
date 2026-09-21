@@ -109,7 +109,7 @@
     "menuPopover": {
       "dialogLabel": "Localização",
       "getUserLocationButton": "Usar minha localização",
-      "permissionBlockedMessage": "Atualize a página e permita o compartilhamento de localização para carregar sua localização do GPS",
+      "permissionBlockedMessage": "Compartilhamento de localização bloqueado pelo navegador. Permita nas configurações do navegador.",
       "pickMapLocationButton": "Definir no mapa"
     },
     "setLocationButtonLabel": {

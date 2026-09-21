@@ -115,7 +115,7 @@
     "menuPopover": {
       "dialogLabel": "Eneo",
       "getUserLocationButton": "Tumia eneo langu",
-      "permissionBlockedMessage": "Onyesha upya ukurasa na uruhusu kushiriki eneo ili kupakia eneo lako kutoka GPS",
+      "permissionBlockedMessage": "Kushiriki eneo kumezuiwa na kivinjari. Ruhusu katika mipangilio ya kivinjari.",
       "pickMapLocationButton": "Weka kwenye ramani"
     },
     "setLocationButtonLabel": {
