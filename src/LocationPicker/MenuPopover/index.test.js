@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 
 import { act, render, screen, waitFor } from '../../test-utils';
 import { createMapMock } from '../../__test-helpers/mocks';
+import { GEOLOCATOR_OPTIONS } from '../../constants';
 import { GPS_FORMATS } from '../../utils/location';
 import { MapContext } from '../../MapContext';
 import { mockStore } from '../../__test-helpers/MockStore';
@@ -426,6 +427,25 @@ describe('LocationPicker - MenuPopover', () => {
 
     expect(screen.getByRole('dialog', { name: 'Location' })).toContainElement(document.activeElement);
     expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'DEG' }));
+  });
+
+  test('keeps what the user typed in the GPS input when a running device read fails', async () => {
+    window.navigator.geolocation = { getCurrentPosition: jest.fn() };
+    store.view.showUserLocation = true;
+    renderMenuPopover();
+
+    await userEvent.click(screen.getByLabelText('Get current position'));
+
+    const gpsInput = screen.getByRole('searchbox', { name: 'Search location in DEG format' });
+    await userEvent.type(gpsInput, '10.5');
+
+    const [, reportReadError] = window.navigator.geolocation.getCurrentPosition.mock.calls
+      .find(([, , options]) => options === GEOLOCATOR_OPTIONS);
+
+    act(() => reportReadError({ code: 2, message: 'Position unavailable', PERMISSION_DENIED: 1 }));
+
+    expect(document.activeElement).toBe(gpsInput);
+    expect(gpsInput).toHaveValue('10.5');
   });
 
   describe('the geolocation permission blocked message', () => {

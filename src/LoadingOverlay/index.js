@@ -24,7 +24,7 @@ const LoadingOverlay = ({
 
     {message && <span className={styles.message} id={messageId}>{message}</span>}
 
-    {typeof children === 'function' ? children({ messageId }) : children}
+    {typeof children === 'function' ? children({ messageId: message ? messageId : undefined }) : children}
   </div>;
 };
 

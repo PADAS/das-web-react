@@ -26,4 +26,12 @@ describe('LoadingOverlay', () => {
 
     expect(screen.getByRole('button', { name: 'Cancel' })).toHaveAccessibleDescription('Loading something');
   });
+
+  test('does not give an id to children rendered as a function when there is no message', async () => {
+    render(<LoadingOverlay>
+      {({ messageId }) => <button aria-describedby={messageId} type="button">Cancel</button>}
+    </LoadingOverlay>);
+
+    expect(screen.getByRole('button', { name: 'Cancel' })).not.toHaveAttribute('aria-describedby');
+  });
 });

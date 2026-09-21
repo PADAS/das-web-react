@@ -11,20 +11,14 @@ import React, {
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 
+import { FOCUSABLE_SELECTOR } from '../constants';
+
 import * as styles from './styles.module.scss';
 
 const MenuContext = createContext(null);
 
 const FOCUS_INTENT_FIRST = 'first';
 const FOCUS_INTENT_LAST = 'last';
-
-const FOCUSABLE_SELECTOR = [
-  'button:not(:disabled)',
-  'a[href]',
-  'input:not(:disabled)',
-  '[role="button"]:not([aria-disabled="true"])',
-  '[tabindex]:not([tabindex="-1"])',
-].join(', ');
 
 const focusItemNode = (node) => {
   const focusable = node?.matches(FOCUSABLE_SELECTOR) ? node : node?.querySelector(FOCUSABLE_SELECTOR);

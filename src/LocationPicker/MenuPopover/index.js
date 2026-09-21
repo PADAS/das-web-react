@@ -7,6 +7,7 @@ import { ReactComponent as GpsLocationIcon } from '../../common/images/icons/gps
 import { ReactComponent as MarkerFeedIcon } from '../../common/images/icons/marker-feed.svg';
 
 import { EVENT_REPORT_CATEGORY, trackEventFactory } from '../../utils/analytics';
+import { FOCUSABLE_SELECTOR } from '../../constants';
 import { GEOLOCATION_PERMISSION_STATES } from '../../utils/location/constants';
 import useGeolocationPermissionState from '../../hooks/useGeolocationPermissionState';
 
@@ -19,7 +20,6 @@ const PickMapLocationButton = lazy(() => import('../../PickMapLocationButton'));
 
 import * as styles from './styles.module.scss';
 
-const FOCUSABLE_ELEMENTS_SELECTOR = 'button, input, [tabindex]:not([tabindex="-1"])';
 const MAX_POPOVER_WIDTH = 380;
 const MIN_POPOVER_WIDTH = 280;
 
@@ -120,8 +120,8 @@ const MenuPopover = ({
         if (event.key === 'Tab') {
           // The overlay of a running location read adds a cancel button to the
           // popover, so the last focusable element is not always the same one.
-          const focusableElements = wrapperRef.current.querySelectorAll(FOCUSABLE_ELEMENTS_SELECTOR);
-          const lastFocusableElement = focusableElements[focusableElements.length - 1] || gpsInputRef.current;
+          const focusableElements = wrapperRef.current?.querySelectorAll(FOCUSABLE_SELECTOR);
+          const lastFocusableElement = focusableElements?.[focusableElements.length - 1] || gpsInputRef.current;
 
           if (event.shiftKey && document.activeElement === gpsFormatToggleRef.current) {
             event.preventDefault();

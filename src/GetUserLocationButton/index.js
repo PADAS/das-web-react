@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import React, { memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -34,6 +34,8 @@ const GetUserLocationButton = ({
   const cancelButtonRef = useRef(null);
   const locationReadRef = useRef(null);
 
+  useImperativeHandle(ref, () => buttonRef.current);
+
   const [isLoading, setIsLoading] = useState(false);
 
   const reportError = (error) => {
@@ -50,9 +52,11 @@ const GetUserLocationButton = ({
     toast.error(t('errorToastMessage', { errorMessage: error.message }));
   };
 
-  // The overlay unmounts with the focus on its cancel button, and the picker's
-  // focus trap has nowhere to send it.
-  const returnFocusToLocationButton = () => buttonRef.current?.focus();
+  // A late failure must not pull the focus out of the picker's inputs, which
+  // revert to their last committed value when they lose it.
+  const returnFocusToLocationButton = () => {
+    if (document.activeElement === cancelButtonRef.current) buttonRef.current?.focus();
+  };
 
   const onButtonClick = (event) => {
     onClick?.();
@@ -118,16 +122,6 @@ const GetUserLocationButton = ({
     returnFocusToLocationButton();
   };
 
-  const setButtonNode = useCallback((node) => {
-    buttonRef.current = node;
-
-    if (typeof ref === 'function') {
-      ref(node);
-    } else if (ref) {
-      ref.current = node;
-    }
-  }, [ref]);
-
   // Focusing the cancel button puts the one control of the running read a
   // keypress away and, through its description, announces it is in progress.
   useEffect(() => {
@@ -147,7 +141,7 @@ const GetUserLocationButton = ({
         aria-label={t('userLocationButtonLabel')}
         className={`${className} ${isDisabled ? styles.ghosted : ''}`.trim()}
         onClick={onButtonClick}
-        ref={setButtonNode}
+        ref={buttonRef}
         title={t('userLocationButtonLabel')}
         type="button"
         {...otherProps}

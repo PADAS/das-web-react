@@ -410,6 +410,23 @@ describe('GetUserLocationButton', () => {
       expect(document.activeElement).toBe(screen.getByLabelText('Get current position'));
     });
 
+    test('does not move the focus when the read fails after the user moved to another control', async () => {
+      render(<Provider store={mockStore(store)}>
+        <GetUserLocationButton onGet={onGet} />
+
+        <input aria-label="Coordinates" />
+      </Provider>);
+
+      await clickUserLocationButton();
+
+      const coordinatesInput = screen.getByLabelText('Coordinates');
+      coordinatesInput.focus();
+
+      act(() => pendingReads[0].error({ code: 2, message: 'Position unavailable', PERMISSION_DENIED: 1 }));
+
+      expect(document.activeElement).toBe(coordinatesInput);
+    });
+
     test('hides the loading overlay when the user cancels', async () => {
       renderGetUserLocationButton();
 
