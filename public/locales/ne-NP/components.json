@@ -235,6 +235,18 @@
       "featuresTabTitle": "विशेषताहरु",
       "subjectsTabTitle": "विषयहरु"
     },
+    "otusLink": "Otus",
+    "otusTab": {
+      "header": {
+        "betaBadgeLabel": "बिटा",
+        "closeButtonLabel": "Otus बन्द गर्नुहोस्",
+        "newConversationButtonLabel": "नयाँ कुराकानी",
+        "recentButtonLabel": "हालका",
+        "title": "Otus"
+      },
+      "iframeTitle": "Otus सँग च्याट",
+      "resizeHandleLabel": "Otus प्यानलको आकार बदल्नुहोस्"
+    },
     "patrolsLink": "गस्ती",
     "reportsFeedTab": {
       "fetchReportsErrorMessage": "घटना लोड गर्न सकिएन । कृपया फेरी प्रयास गर्नुहोस् ।",

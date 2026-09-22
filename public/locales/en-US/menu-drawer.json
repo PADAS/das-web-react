@@ -53,6 +53,7 @@
     },
     "navigationButton": {
       "mapLayers": "Map Layers",
+      "otus": "Otus",
       "patrols": "Patrols",
       "reports": "Events",
       "settings": "Settings"

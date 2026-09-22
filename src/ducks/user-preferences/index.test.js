@@ -6,6 +6,7 @@ import userPreferencesReducer, {
   setPlaySoundForNewEvents,
   setPlaySoundForNewInReachMessages,
   setPlaySoundForRadioStateChangeToRed,
+  updateUserPreferences,
 } from './';
 
 describe('Ducks - User preferences', () => {
@@ -55,6 +56,13 @@ describe('Ducks - User preferences', () => {
       const payload = true;
       const action = { payload, type: SET_PLAY_SOUND_FOR_RADIO_STATE_CHANGE_TO_RED };
       const expectedState = { ...INITIAL_STATE, playSoundForRadioStateChangeToRed: true };
+
+      expect(userPreferencesReducer(INITIAL_STATE, action)).toEqual(expectedState);
+    });
+
+    test('handles an update of the Otus tab width', async () => {
+      const action = updateUserPreferences({ otusTabWidth: 700 });
+      const expectedState = { ...INITIAL_STATE, otusTabWidth: 700 };
 
       expect(userPreferencesReducer(INITIAL_STATE, action)).toEqual(expectedState);
     });

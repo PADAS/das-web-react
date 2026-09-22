@@ -53,6 +53,7 @@
     },
     "navigationButton": {
       "mapLayers": "Tabaka za Ramani",
+      "otus": "Otus",
       "patrols": "Doria",
       "reports": "Matukio",
       "settings": "Mipangilio"

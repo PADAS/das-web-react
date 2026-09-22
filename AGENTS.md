@@ -166,6 +166,10 @@ Two guards wrap the app: one redirects to the login route without a token, the o
 **UI**
 - **Top bar → User Settings**: switch profile, sign out.
 
+### Otus
+
+**Otus** is EarthRanger's field-intelligence chat agent, a separate web app rather than part of this client. The client embeds it in an iframe whose URL comes from the system status payload (`otus_settings.url`), overridden for local development by `REACT_APP_OTUS_URL`.
+
 ### App Chrome
 
 The **top bar** carries the global menu button, the logo, map quick links, the system status indicator, messages, and the user menu.
@@ -178,6 +182,7 @@ The **sidebar** is a vertical panel whose tabs appear conditionally:
 | **Patrols** | `PATROL_MANAGEMENT` flag + patrol read permission |
 | **Gear** | gear data available |
 | **Map Layers** | `ANALYZERS`, `SPATIAL_FEATURES`, `SUBJECTS` or `EVENTS` flag |
+| **Otus** | an Otus URL in the system status payload, which the server sends only where the `otus` preview feature is on |
 | **Settings** | always |
 
 **Map Layers** has four sub-tabs — Subjects, Features, Analyzers, Events — each shown only when its flag is on.

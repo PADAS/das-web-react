@@ -251,6 +251,18 @@
       "featuresTabTitle": "Features",
       "subjectsTabTitle": "Subjects"
     },
+    "otusLink": "Otus",
+    "otusTab": {
+      "header": {
+        "betaBadgeLabel": "Beta",
+        "closeButtonLabel": "Close Otus",
+        "newConversationButtonLabel": "New conversation",
+        "recentButtonLabel": "Recent",
+        "title": "Otus"
+      },
+      "iframeTitle": "Otus chat",
+      "resizeHandleLabel": "Resize Otus panel"
+    },
     "patrolsLink": "Patrols",
     "reportsFeedTab": {
       "fetchReportsErrorMessage": "Could not load events. Please try again.",

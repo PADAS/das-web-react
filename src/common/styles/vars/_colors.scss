@@ -19,6 +19,7 @@ $blue-highlight: #E8F0FB;
 $green: #4f8317;
 $mustard-yellow: #d1c22e;
 
+$white: #fff;
 $off-white: #fbfbfb;
 $off-black: #333;
 $dark-gray: darken($secondary-medium-gray, 20%);
@@ -36,6 +37,14 @@ $plum: #3E35A3;
 $dark-teal: #107283;
 $dark-gold: #C6880C;
 $light-gold: #FDFAF4;
+
+/* design system tokens */
+
+$palette-green-6: #f5f7f3;
+$ui-background-secondary: #faf2e9;
+$ui-cta-primary: #0f865d;
+$ui-text-primary: #0a3235;
+$ui-text-primary-reversed: $white;
 
 /* semantic variables */
 

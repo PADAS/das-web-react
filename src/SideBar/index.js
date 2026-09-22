@@ -10,6 +10,7 @@ import { ReactComponent as ERLogo } from '../common/images/icons/er-logo.svg';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
+import { ReactComponent as OtusIcon } from '../common/images/icons/otus.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
 
 import { detailViewPattern, getCurrentIdFromURL, getCurrentTabFromURL, tabPath } from '../utils/navigation';
@@ -30,6 +31,7 @@ import SoundNotificationsPlayer from '../SoundNotificationsPlayer';
 
 import GearTab from './GearTab';
 import MapLayersTab from './MapLayersTab';
+import OtusTab from './OtusTab';
 import PatrolsFeed from './PatrolsFeed';
 import PatrolsManager from './PatrolsManager';
 import ReportsFeedTab from './ReportsFeedTab';
@@ -66,6 +68,7 @@ const SideBar = () => {
     initialLoadInProgress,
     loading: gearLoading,
   } = useSelector((state) => state.data.gear);
+  const otusUrl = useSelector((state) => state.view.systemConfig.otusUrl);
   const patrolManagementEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]);
   const sideBar = useSelector((state) => state.view.sideBar);
   const spatialFeaturesEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]);
@@ -90,9 +93,12 @@ const SideBar = () => {
   const isReportDetailsViewActive = eventsEnabled
     && !!matchPath(detailViewPattern(TAB_KEYS.EVENTS), location.pathname);
 
-  const hideDefaultHeader = patrolSchemasEnabled && isPatrolItemActive;
-
   const showGearTab = hasGear;
+  const showOtusTab = !!otusUrl;
+
+  const isOtusTabActive = showOtusTab && currentTab === TAB_KEYS.OTUS;
+
+  const hideDefaultHeader = (patrolSchemasEnabled && isPatrolItemActive) || isOtusTabActive;
 
   const gearStillResolving = !gearEndpointUnavailable
     && (initialLoadInProgress || (gearLoading && !hasGear));
@@ -102,12 +108,21 @@ const SideBar = () => {
     EVENTS: eventsEnabled ? TAB_KEYS.EVENTS : undefined,
     GEAR: showGearTab ? TAB_KEYS.GEAR : undefined,
     LAYERS: showLayersTab ? TAB_KEYS.LAYERS : undefined,
+    OTUS: showOtusTab ? TAB_KEYS.OTUS : undefined,
     PATROLS: canReadPatrols ? TAB_KEYS.PATROLS : undefined,
-  }), [canReadPatrols, eventsEnabled, showGearTab, showLayersTab]);
+  }), [canReadPatrols, eventsEnabled, showGearTab, showLayersTab, showOtusTab]);
 
   // If there is a current tab and it is in the enabled tab keys, the side bar
   // is open.
   const isSideBarOpen = currentTab && Object.values(enabledTabKeys).includes(currentTab.toLowerCase());
+
+  const onClickActiveOtusLink = useCallback((event) => {
+    if (event.button === 0 && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+      event.preventDefault();
+
+      navigate('/');
+    }
+  }, [navigate]);
 
   const onClickBackFromDetailView = useCallback(() => {
     if (reportIsBeingAdded) {
@@ -221,6 +236,16 @@ const SideBar = () => {
         <span>{t('layersLink')}</span>
       </Link>}
 
+      {showOtusTab && <Link
+        className={`${styles.navItem} ${currentTab === TAB_KEYS.OTUS ? styles.active : ''}`}
+        onClick={isOtusTabActive ? onClickActiveOtusLink : undefined}
+        to={tabPath(TAB_KEYS.OTUS)}
+      >
+        <OtusIcon />
+
+        <span>{t('otusLink')}</span>
+      </Link>}
+
       <Link
         className={`${styles.navItem} ${currentTab === TAB_KEYS.SETTINGS ? styles.active : ''}`}
         to={tabPath(TAB_KEYS.SETTINGS)}
@@ -276,6 +301,9 @@ const SideBar = () => {
         </div>}
 
         <div className={`${styles.tabBody} ${hideDefaultHeader ? styles.noHeader : ''}`}>
+          {/* Outside the routes so a tab switch does not remount the Otus frame and its session. */}
+          {showOtusTab && <OtusTab isActive={isOtusTabActive} url={otusUrl} />}
+
           <Routes>
             {/* Gets rid of warning */}
             <Route path="/" element={null} />
@@ -311,6 +339,8 @@ const SideBar = () => {
             </div>} />}
 
             {showLayersTab && <Route path={TAB_KEYS.LAYERS} element={<MapLayersTab />} />}
+
+            {showOtusTab && <Route path={TAB_KEYS.OTUS} element={null} />}
 
             <Route path={TAB_KEYS.SETTINGS} element={<SettingsPane />} />
           </Routes>

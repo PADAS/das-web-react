@@ -234,6 +234,18 @@
       "featuresTabTitle": "Calques",
       "subjectsTabTitle": "Appareils Suivis"
     },
+    "otusLink": "Otus",
+    "otusTab": {
+      "header": {
+        "betaBadgeLabel": "Bêta",
+        "closeButtonLabel": "Fermer Otus",
+        "newConversationButtonLabel": "Nouvelle conversation",
+        "recentButtonLabel": "Récentes",
+        "title": "Otus"
+      },
+      "iframeTitle": "Discussion avec Otus",
+      "resizeHandleLabel": "Redimensionner le panneau Otus"
+    },
     "patrolsLink": "Patrouilles",
     "reportsFeedTab": {
       "fetchReportsErrorMessage": "Impossible de charger les événements. Veuillez réessayer.",

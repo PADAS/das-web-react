@@ -127,15 +127,15 @@ describe('SideBar', () => {
     };
   });
 
-  const renderSideBar = (mockedStore = mockStore(store)) => render(
-    <Provider store={mockedStore}>
-      <MockSocketProvider>
-        <MapContext.Provider value={map}>
-          <SideBar />
-        </MapContext.Provider>
-      </MockSocketProvider>
-    </Provider>
-  );
+  const sideBarTree = (mockedStore) => <Provider store={mockedStore}>
+    <MockSocketProvider>
+      <MapContext.Provider value={map}>
+        <SideBar />
+      </MapContext.Provider>
+    </MockSocketProvider>
+  </Provider>;
+
+  const renderSideBar = (mockedStore = mockStore(store)) => render(sideBarTree(mockedStore));
 
   test('shows the events tab if user has permissions', async () => {
     renderSideBar();
@@ -284,6 +284,92 @@ describe('SideBar', () => {
     expect(screen.getByRole('link', { name: 'Patrols' })).not.toHaveClass('active');
     expect(screen.getByRole('link', { name: 'Map Layers' })).toHaveClass('active');
     expect(screen.getByRole('link', { name: 'Settings' })).not.toHaveClass('active');
+  });
+
+  test('shows the Otus tab when an Otus URL is configured', async () => {
+    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+
+    renderSideBar();
+
+    expect(screen.getByRole('link', { name: 'Otus' })).toBeVisible();
+  });
+
+  test('does not show the Otus tab when there is no Otus URL in the store', async () => {
+    renderSideBar();
+
+    expect(screen.queryByRole('link', { name: 'Otus' })).toBeNull();
+  });
+
+  test('sets the Otus tab as active', async () => {
+    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+    useLocationMock = jest.fn((() => ({ pathname: '/otus' })));
+    useLocation.mockImplementation(useLocationMock);
+
+    renderSideBar();
+
+    expect(screen.getByRole('link', { name: 'Events' })).not.toHaveClass('active');
+    expect(screen.getByRole('link', { name: 'Otus' })).toHaveClass('active');
+    expect(screen.getByRole('link', { name: 'Settings' })).not.toHaveClass('active');
+  });
+
+  test('keeps the Otus frame mounted when navigating to another tab', async () => {
+    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+    useLocationMock = jest.fn((() => ({ pathname: '/otus' })));
+    useLocation.mockImplementation(useLocationMock);
+
+    const { rerender } = renderSideBar();
+
+    const otusFrame = screen.getByTitle('Otus chat');
+
+    expect(otusFrame.parentElement).toHaveClass('active');
+
+    useLocationMock = jest.fn((() => ({ pathname: '/events' })));
+    useLocation.mockImplementation(useLocationMock);
+
+    rerender(sideBarTree(mockStore(store)));
+
+    expect(screen.getByTitle('Otus chat')).toBe(otusFrame);
+    expect(otusFrame).toBeInTheDocument();
+    expect(otusFrame.parentElement).not.toHaveClass('active');
+  });
+
+  test('navigates home when the user clicks the active Otus tab link', async () => {
+    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+    useLocationMock = jest.fn((() => ({ pathname: '/otus' })));
+    useLocation.mockImplementation(useLocationMock);
+
+    renderSideBar();
+
+    await userEvent.click(screen.getByRole('link', { name: 'Otus' }));
+
+    expect(navigate).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledWith('/');
+  });
+
+  test('leaves a modified click on the active Otus tab link to the browser', async () => {
+    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+    useLocationMock = jest.fn((() => ({ pathname: '/otus' })));
+    useLocation.mockImplementation(useLocationMock);
+    const user = userEvent.setup();
+
+    renderSideBar();
+
+    await user.keyboard('{Meta>}');
+    await user.click(screen.getByRole('link', { name: 'Otus' }));
+    await user.keyboard('{/Meta}');
+
+    expect(navigate).not.toHaveBeenCalledWith('/');
+  });
+
+  test('does not navigate home when the user clicks the Events tab link from an event detail view', async () => {
+    useLocationMock = jest.fn((() => ({ pathname: '/events/some-id' })));
+    useLocation.mockImplementation(useLocationMock);
+
+    renderSideBar();
+
+    await userEvent.click(screen.getByRole('link', { name: 'Events' }));
+
+    expect(navigate).not.toHaveBeenCalledWith('/');
   });
 
   test('sets the settings tab as active', async () => {
@@ -492,6 +578,15 @@ describe('SideBar', () => {
     expect(screen.getByRole('heading')).toHaveTextContent('Map Layers');
   });
 
+  test('does not show the default header for the Otus tab', async () => {
+    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+    useLocationMock = jest.fn((() => ({ pathname: '/otus' })));
+    useLocation.mockImplementation(useLocationMock);
+    renderSideBar();
+
+    expect(screen.queryByRole('heading', { level: 3 })).toBeNull();
+  });
+
   test('sets the tab title for the Settings tab', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/settings' })));
     useLocation.mockImplementation(useLocationMock);
@@ -546,6 +641,16 @@ describe('SideBar', () => {
 
   test('does not navigate to home when current tab is in enabled tab keys', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/events' })));
+    useLocation.mockImplementation(useLocationMock);
+
+    renderSideBar();
+
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  test('does not navigate to home when the current tab is otus and the tab is enabled', async () => {
+    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+    useLocationMock = jest.fn((() => ({ pathname: '/otus' })));
     useLocation.mockImplementation(useLocationMock);
 
     renderSideBar();
