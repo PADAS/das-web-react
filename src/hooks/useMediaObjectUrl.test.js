@@ -29,7 +29,8 @@ describe('useMediaObjectUrl', () => {
 
     await waitFor(() => expect(result.current.objectUrl).toBe('blob:clip'));
 
-    expect(fetchFileAsObjectUrlFromUrl).toHaveBeenCalledWith('https://example.com/clip.mp4');
+    expect(fetchFileAsObjectUrlFromUrl)
+      .toHaveBeenCalledWith('https://example.com/clip.mp4', { signal: expect.any(AbortSignal) });
     expect(result.current.error).toBe(false);
   });
 
@@ -88,5 +89,16 @@ describe('useMediaObjectUrl', () => {
     await waitFor(() => expect(revokeObjectURLSpy).toHaveBeenCalledWith('blob:slow'));
 
     expect(result.current.objectUrl).toBe('blob:fast');
+  });
+
+  test('aborts the in-flight download on unmount', () => {
+    fetchFileAsObjectUrlFromUrl.mockImplementation(() => new Promise(() => {}));
+
+    const { unmount } = renderHook(() => useMediaObjectUrl('https://example.com/clip.mp4'));
+    const signal = fetchFileAsObjectUrlFromUrl.mock.calls[0][1].signal;
+
+    unmount();
+
+    expect(signal.aborted).toBe(true);
   });
 });

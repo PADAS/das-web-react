@@ -22,8 +22,8 @@ export const fetchImageAsBase64FromUrl = async (url) => {
   return `data:${contentType};base64,${Buffer.from(response.data).toString('base64')}`;
 };
 
-export const fetchFileAsObjectUrlFromUrl = async (url) => {
-  const response = await axios.get(url, { responseType: 'blob' });
+export const fetchFileAsObjectUrlFromUrl = async (url, { signal } = {}) => {
+  const response = await axios.get(url, { responseType: 'blob', signal });
 
   return URL.createObjectURL(response.data);
 };

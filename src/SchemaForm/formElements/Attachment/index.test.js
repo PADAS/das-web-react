@@ -596,7 +596,7 @@ describe('SchemaForm - formElements - Attachment', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Play audio.mp3' }));
 
-    expect(fetchFileAsObjectUrlFromUrl).toHaveBeenCalledWith('https://example.com/audio.mp3');
+    expect(fetchFileAsObjectUrlFromUrl).toHaveBeenCalledWith('https://example.com/audio.mp3', { signal: expect.any(AbortSignal) });
 
     await waitFor(() => expect(document.querySelector('audio')).toBeInTheDocument());
     const audio = document.querySelector('audio');
@@ -616,7 +616,7 @@ describe('SchemaForm - formElements - Attachment', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Play video.mp4' }));
 
-    expect(fetchFileAsObjectUrlFromUrl).toHaveBeenCalledWith('https://example.com/video.mp4');
+    expect(fetchFileAsObjectUrlFromUrl).toHaveBeenCalledWith('https://example.com/video.mp4', { signal: expect.any(AbortSignal) });
 
     await waitFor(() => expect(document.querySelector('video')).toBeInTheDocument());
     const video = document.querySelector('video');
@@ -641,6 +641,22 @@ describe('SchemaForm - formElements - Attachment', () => {
     expect(await screen.findByText('Unable to load this file.')).toBeVisible();
     expect(document.querySelector('audio')).not.toBeInTheDocument();
     expect(screen.queryByTestId('player-loading-saved-1')).not.toBeInTheDocument();
+  });
+
+  test('shows an error message instead of the player if the media element fails to play the file', async () => {
+    renderAttachmentField({
+      attachmentsMetadata: {
+        'saved-1': { filename: 'video.mp4', file_type: 'video', files: { original: 'https://example.com/video.mp4' } },
+      },
+      value: [{ uploadId: 'saved-1' }],
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Play video.mp4' }));
+    await waitFor(() => expect(document.querySelector('video')).toBeInTheDocument());
+    fireEvent.error(document.querySelector('video'));
+
+    expect(await screen.findByText('Unable to load this file.')).toBeVisible();
+    expect(document.querySelector('video')).not.toBeInTheDocument();
   });
 
   test('retries the fetch when the player is reopened after a failure', async () => {

@@ -12,27 +12,25 @@ const useMediaObjectUrl = (url) => {
       return undefined;
     }
 
+    const abortController = new AbortController();
     let fetchedObjectUrl = null;
-    let isCancelled = false;
 
     const fetchMedia = async () => {
       try {
-        const objectUrl = await fetchFileAsObjectUrlFromUrl(url);
+        const objectUrl = await fetchFileAsObjectUrlFromUrl(url, { signal: abortController.signal });
 
         // Revoking right away keeps a fetch that resolves after unmount from leaking its blob.
-        if (isCancelled) {
+        if (abortController.signal.aborted) {
           URL.revokeObjectURL(objectUrl);
-
-          return;
+        } else {
+          fetchedObjectUrl = objectUrl;
+          setFetchedMedia({ error: false, objectUrl, url });
         }
-
-        fetchedObjectUrl = objectUrl;
-        setFetchedMedia({ error: false, objectUrl, url });
       } catch (error) {
-        // Attachment urls are signed and expire, so a rejection is expected.
-        console.warn('Error downloading the media attachment: ', error);
+        if (!abortController.signal.aborted) {
+          // Attachment urls are signed and expire, so a rejection is expected.
+          console.warn('Error downloading the media attachment: ', error);
 
-        if (!isCancelled) {
           setFetchedMedia({ error: true, objectUrl: null, url });
         }
       }
@@ -41,7 +39,7 @@ const useMediaObjectUrl = (url) => {
     fetchMedia();
 
     return () => {
-      isCancelled = true;
+      abortController.abort();
 
       if (fetchedObjectUrl) {
         URL.revokeObjectURL(fetchedObjectUrl);

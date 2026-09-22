@@ -540,7 +540,7 @@ describe('DetailViewComponents - ActivitySection', () => {
     });
   });
 
-  test('expands audio and video attachments when clicking the button Expand All', async () => {
+  test('expands audio and video attachments without downloading them when clicking the button Expand All', async () => {
     const videoAttachment = {
       created_at: '2022-06-09T14:58:48.242658-07:00',
       file_type: 'video',
@@ -568,6 +568,8 @@ describe('DetailViewComponents - ActivitySection', () => {
       expect(screen.getByTestId(`activitySection-collapse-${videoAttachment.id}`)).toHaveClass('show');
       expect(screen.getByTestId(`activitySection-collapse-${audioAttachment.id}`)).toHaveClass('show');
     });
+
+    expect(fetchFileAsObjectUrlFromUrl).not.toHaveBeenCalled();
   });
 
   test('shows activity action buttons if there are items', async () => {

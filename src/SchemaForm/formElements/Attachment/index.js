@@ -102,7 +102,9 @@ const isFileTypeAllowed = (file, allowableFileTypes) => {
 };
 
 const MediaPlayer = ({ attachment, mediaError, mediaObjectUrl, t }) => {
-  if (mediaError) {
+  const [hasPlaybackFailed, setHasPlaybackFailed] = useState(false);
+
+  if (mediaError || hasPlaybackFailed) {
     return <span className={styles.error}>{t('playerErrorLabel')}</span>;
   }
 
@@ -113,10 +115,20 @@ const MediaPlayer = ({ attachment, mediaError, mediaObjectUrl, t }) => {
   }
 
   if (attachment.fileType === 'audio') {
-    return <audio aria-label={t('audioPlayerLabel', { fileName: attachment.name })} controls src={mediaObjectUrl} />;
+    return <audio
+      aria-label={t('audioPlayerLabel', { fileName: attachment.name })}
+      controls
+      onError={() => setHasPlaybackFailed(true)}
+      src={mediaObjectUrl}
+    />;
   }
 
-  return <video aria-label={t('videoPlayerLabel', { fileName: attachment.name })} controls src={mediaObjectUrl} />;
+  return <video
+    aria-label={t('videoPlayerLabel', { fileName: attachment.name })}
+    controls
+    onError={() => setHasPlaybackFailed(true)}
+    src={mediaObjectUrl}
+  />;
 };
 
 const AttachmentListItem = ({ actionButtonRefs, attachment, onRemove, readOnly }) => {

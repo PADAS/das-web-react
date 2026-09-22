@@ -26,6 +26,7 @@
     "fullViewButtonTooltip": "Mostrar {{fileName}} en pantalla completa",
     "imagePreviewAlt": "{{fileName}} vista previa",
     "mediaLoadErrorMessage": "No se pudo cargar este archivo.",
+    "playButtonLabel": "Reproducir {{fileName}}",
     "videoPreviewAlt": "{{fileName}} vista previa de video"
   },
   "containedReportListItem": {
@@ -59,8 +60,8 @@
     "timeLabel": "Tiempo"
   },
   "mediaModal": {
-    "errorTitle": "Error al cargar el archivo.",
-    "errorMessage": "Si subió este archivo recientemente, espere un minuto y vuelva a intentarlo, por favor."
+    "errorMessage": "Si subió este archivo recientemente, espere un minuto y vuelva a intentarlo, por favor.",
+    "errorTitle": "Error al cargar el archivo."
   },
   "navigationPromptModal": {
     "cancelNavigationButtonText": "Regresar",

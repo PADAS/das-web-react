@@ -102,11 +102,23 @@ describe('Utils - File', () => {
 
       const result = await fetchFileAsObjectUrlFromUrl('https://example.com/clip.mp4');
 
-      expect(axios.get).toHaveBeenCalledWith('https://example.com/clip.mp4', { responseType: 'blob' });
+      expect(axios.get).toHaveBeenCalledWith('https://example.com/clip.mp4', { responseType: 'blob', signal: undefined });
       expect(createObjectURLSpy).toHaveBeenCalledWith(fakeBlob);
       expect(result).toBe('blob:fake-object-url');
 
       createObjectURLSpy.mockRestore();
+    });
+
+    test('passes the abort signal through to the request', async () => {
+      axios.get.mockResolvedValue({ data: new Blob(['fake-media-data']) });
+      const abortController = new AbortController();
+
+      await fetchFileAsObjectUrlFromUrl('https://example.com/clip.mp4', { signal: abortController.signal });
+
+      expect(axios.get).toHaveBeenCalledWith(
+        'https://example.com/clip.mp4',
+        { responseType: 'blob', signal: abortController.signal }
+      );
     });
   });
 

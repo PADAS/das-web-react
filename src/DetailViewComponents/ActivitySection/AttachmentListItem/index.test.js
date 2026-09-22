@@ -7,7 +7,7 @@ import { TrackerContext } from '../../../utils/analytics';
 import { downloadFileFromUrl } from '../../../utils/download';
 import { fetchFileAsObjectUrlFromUrl, fetchImageAsBase64FromUrl } from '../../../utils/file';
 import { mockStore } from '../../../__test-helpers/MockStore';
-import { render, screen, waitFor } from '../../../test-utils';
+import { fireEvent, render, screen, waitFor } from '../../../test-utils';
 
 import AttachmentListItem from '.';
 
@@ -23,7 +23,7 @@ jest.mock('../../../utils/file', () => ({
 }));
 
 describe('ActivitySection - AttachmentListItem', () => {
-  let Wrapper, renderWithWrapper;
+  let clickPlayButton, Wrapper, renderWithWrapper;
   const savedImageAttachment = {
     file_type: 'image',
     id: '1234',
@@ -54,6 +54,8 @@ describe('ActivitySection - AttachmentListItem', () => {
       </Provider>;
 
     renderWithWrapper = (Component) => render(Component, { wrapper: Wrapper });
+
+    clickPlayButton = (fileName) => userEvent.click(screen.getByRole('button', { name: `Play ${fileName}` }));
 
   });
 
@@ -524,12 +526,24 @@ describe('ActivitySection - AttachmentListItem', () => {
       expect(fetchFileAsObjectUrlFromUrlMock).not.toHaveBeenCalled();
     });
 
-    test('shows a loading indicator while the media file is being fetched', () => {
+    test('shows a play button instead of fetching the media file when the row is expanded', async () => {
+      renderWithWrapper(
+        <AttachmentListItem attachment={savedVideoAttachment} isOpen onCollapse={onCollapse} onExpand={onExpand} />
+      );
+
+      expect(await screen.findByRole('button', { name: 'Play clip.mp4' })).toBeVisible();
+      expect(screen.queryByTestId('activitySection-video-5678')).not.toBeInTheDocument();
+      expect(fetchFileAsObjectUrlFromUrlMock).not.toHaveBeenCalled();
+    });
+
+    test('shows a loading indicator while the media file is being fetched', async () => {
       fetchFileAsObjectUrlFromUrlMock.mockImplementation(() => new Promise(() => {}));
 
       renderWithWrapper(
         <AttachmentListItem attachment={savedVideoAttachment} isOpen onCollapse={onCollapse} onExpand={onExpand} />
       );
+
+      await clickPlayButton('clip.mp4');
 
       expect(screen.getByTestId('activitySection-mediaLoading-5678')).toBeInTheDocument();
       expect(screen.queryByTestId('activitySection-video-5678')).not.toBeInTheDocument();
@@ -540,9 +554,11 @@ describe('ActivitySection - AttachmentListItem', () => {
         <AttachmentListItem attachment={savedVideoAttachment} isOpen onCollapse={onCollapse} onExpand={onExpand} />
       );
 
+      await clickPlayButton('clip.mp4');
+
       const video = await screen.findByTestId('activitySection-video-5678');
 
-      expect(fetchFileAsObjectUrlFromUrlMock).toHaveBeenCalledWith('https://example.com/clip.mp4');
+      expect(fetchFileAsObjectUrlFromUrlMock).toHaveBeenCalledWith('https://example.com/clip.mp4', { signal: expect.any(AbortSignal) });
       expect(video.tagName).toBe('VIDEO');
       expect(video).toHaveAttribute('src', 'blob:fake-object-url');
       expect(video).toHaveAttribute('controls');
@@ -555,9 +571,24 @@ describe('ActivitySection - AttachmentListItem', () => {
         <AttachmentListItem attachment={savedVideoAttachment} isOpen onCollapse={onCollapse} onExpand={onExpand} />
       );
 
+      await clickPlayButton('clip.mp4');
+
       expect(await screen.findByTestId('activitySection-mediaError-5678')).toHaveTextContent('Unable to load this file.');
       expect(screen.queryByTestId('activitySection-video-5678')).not.toBeInTheDocument();
       expect(screen.queryByTestId('activitySection-mediaLoading-5678')).not.toBeInTheDocument();
+    });
+
+    test('shows an error message instead of the player if the media element fails to play the file', async () => {
+      renderWithWrapper(
+        <AttachmentListItem attachment={savedVideoAttachment} isOpen onCollapse={onCollapse} onExpand={onExpand} />
+      );
+
+      await clickPlayButton('clip.mp4');
+
+      fireEvent.error(await screen.findByTestId('activitySection-video-5678'));
+
+      expect(await screen.findByTestId('activitySection-mediaError-5678')).toHaveTextContent('Unable to load this file.');
+      expect(screen.queryByTestId('activitySection-video-5678')).not.toBeInTheDocument();
     });
 
     test('refetches the media file when the row is collapsed and expanded again after a failure', async () => {
@@ -566,6 +597,8 @@ describe('ActivitySection - AttachmentListItem', () => {
       const { rerender } = renderWithWrapper(
         <AttachmentListItem attachment={savedVideoAttachment} isOpen onCollapse={onCollapse} onExpand={onExpand} />
       );
+
+      await clickPlayButton('clip.mp4');
 
       await screen.findByTestId('activitySection-mediaError-5678');
 
@@ -622,9 +655,11 @@ describe('ActivitySection - AttachmentListItem', () => {
         <AttachmentListItem attachment={savedAudioAttachment} isOpen onCollapse={onCollapse} onExpand={onExpand} />
       );
 
+      await clickPlayButton('interview.m4a');
+
       const audio = await screen.findByTestId('activitySection-audio-9012');
 
-      expect(fetchFileAsObjectUrlFromUrlMock).toHaveBeenCalledWith('https://example.com/interview.m4a');
+      expect(fetchFileAsObjectUrlFromUrlMock).toHaveBeenCalledWith('https://example.com/interview.m4a', { signal: expect.any(AbortSignal) });
       expect(audio.tagName).toBe('AUDIO');
       expect(audio).toHaveAttribute('src', 'blob:fake-object-url');
       expect(audio).toHaveAttribute('controls');
@@ -646,6 +681,8 @@ describe('ActivitySection - AttachmentListItem', () => {
       renderWithWrapper(
         <AttachmentListItem attachment={savedAudioAttachment} isOpen onCollapse={onCollapse} onExpand={onExpand} />
       );
+
+      await clickPlayButton('interview.m4a');
 
       expect(await screen.findByTestId('activitySection-mediaError-9012')).toHaveTextContent('Unable to load this file.');
       expect(screen.queryByTestId('activitySection-audio-9012')).not.toBeInTheDocument();

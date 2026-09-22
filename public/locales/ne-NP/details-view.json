@@ -25,6 +25,7 @@
     "fullViewButtonTooltip": "{{fileName}} पूरा स्क्रिनमा देखाउनुहोस्",
     "imagePreviewAlt": "{{fileName}} पुर्वावलोकन",
     "mediaLoadErrorMessage": "यो फाइल लोड गर्न सकिएन।",
+    "playButtonLabel": "{{fileName}} बजाउनुहोस्",
     "videoPreviewAlt": "{{fileName}} भिडियो पुर्वावलोकन"
   },
   "containedReportListItem": {
@@ -55,8 +56,8 @@
     "timeLabel": "समय"
   },
   "mediaModal": {
-    "errorTitle": "फाईल लोड गर्न समस्या भइरहेको छ ।",
-    "errorMessage": "यो फाईल भर्खरै अपलोड गर्नुभएको हो भने कृपया केही समय पर्खेर फेरी प्रयास गर्नुहोस् ।"
+    "errorMessage": "यो फाईल भर्खरै अपलोड गर्नुभएको हो भने कृपया केही समय पर्खेर फेरी प्रयास गर्नुहोस् ।",
+    "errorTitle": "फाईल लोड गर्न समस्या भइरहेको छ ।"
   },
   "navigationPromptModal": {
     "cancelNavigationButtonText": "पछाडी जानुहोस्",

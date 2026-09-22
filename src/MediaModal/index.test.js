@@ -53,7 +53,7 @@ describe('MediaModal', () => {
 
     const video = await screen.findByLabelText('attachment.mp4');
 
-    expect(fetchFileAsObjectUrlFromUrl).toHaveBeenCalledWith('https://example.com/clip.mp4');
+    expect(fetchFileAsObjectUrlFromUrl).toHaveBeenCalledWith('https://example.com/clip.mp4', { signal: expect.any(AbortSignal) });
     expect(video.tagName).toBe('VIDEO');
     expect(video).toHaveAttribute('src', 'blob:fake-object-url');
     expect(video).toHaveAttribute('controls');

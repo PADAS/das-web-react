@@ -9,6 +9,7 @@ import { ReactComponent as AttachmentIcon } from '../../../common/images/icons/a
 import { ReactComponent as DownloadArrowIcon } from '../../../common/images/icons/download-arrow.svg';
 import { ReactComponent as ExpandArrowIcon } from '../../../common/images/icons/expand-arrow.svg';
 import { ReactComponent as ImageIcon } from '../../../common/images/icons/image.svg';
+import { ReactComponent as PlayCircleIcon } from '../../../common/images/icons/play-circle.svg';
 import { ReactComponent as TrashCanIcon } from '../../../common/images/icons/trash-can.svg';
 import { ReactComponent as VideoIcon } from '../../../common/images/icons/video.svg';
 import { ReactComponent as VolumeIcon } from '../../../common/images/icons/volume.svg';
@@ -60,8 +61,27 @@ const useBase64ImageSource = (url) => {
   return downloadedImage?.url === url ? downloadedImage.source : null;
 };
 
-const MediaAttachmentPreview = ({ attachment, error, fileName, objectUrl, t }) => {
-  if (error) {
+const MediaAttachmentPreview = ({ attachment, fileName, isOpen, t }) => {
+  // Keyed by object url so reopening the row, which fetches a fresh one, retries playback.
+  const [failedObjectUrl, setFailedObjectUrl] = useState(null);
+  const [hasRequestedPlayback, setHasRequestedPlayback] = useState(false);
+
+  // Media is downloaded whole, so opening the card alone must not start it.
+  const { error, objectUrl } = useMediaObjectUrl(isOpen && hasRequestedPlayback ? attachment.url : null);
+
+  if (!hasRequestedPlayback) {
+    return <button
+      className={activitySectionStyles.mediaPlayButton}
+      onClick={() => setHasRequestedPlayback(true)}
+      type="button"
+      >
+      <PlayCircleIcon aria-hidden="true" />
+
+      {t('playButtonLabel', { fileName })}
+    </button>;
+  }
+
+  if (error || (objectUrl && objectUrl === failedObjectUrl)) {
     return <p
       className={activitySectionStyles.mediaLoadError}
       data-testid={`activitySection-mediaError-${attachment.id}`}
@@ -82,6 +102,7 @@ const MediaAttachmentPreview = ({ attachment, error, fileName, objectUrl, t }) =
       className={activitySectionStyles.attachmentAudioPreview}
       controls
       data-testid={`activitySection-audio-${attachment.id}`}
+      onError={() => setFailedObjectUrl(objectUrl)}
       src={objectUrl}
     />;
   }
@@ -91,6 +112,7 @@ const MediaAttachmentPreview = ({ attachment, error, fileName, objectUrl, t }) =
     className={activitySectionStyles.attachmentVideoPreview}
     controls
     data-testid={`activitySection-video-${attachment.id}`}
+    onError={() => setFailedObjectUrl(objectUrl)}
     src={objectUrl}
   />;
 };
@@ -116,11 +138,6 @@ const AttachmentListItem = ({
   const imageIconSource = useBase64ImageSource(isImageAttachment ? attachment.images?.icon : null);
   const imageOriginalSource = useBase64ImageSource(isImageAttachment ? attachment.images?.original : null);
   const imageThumbnailSource = useBase64ImageSource(isImageAttachment ? attachment.images?.thumbnail : null);
-
-  const {
-    error: mediaError,
-    objectUrl: mediaObjectUrl,
-  } = useMediaObjectUrl(isPlayableAttachment && isOpen ? attachment.url : null);
 
   const isNew = !attachment.id;
   const fileName = attachment.filename || attachment.name;
@@ -242,9 +259,8 @@ const AttachmentListItem = ({
 
             {isPlayableAttachment && <MediaAttachmentPreview
               attachment={attachment}
-              error={mediaError}
               fileName={fileName}
-              objectUrl={mediaObjectUrl}
+              isOpen={isOpen}
               t={t}
             />}
           </div>

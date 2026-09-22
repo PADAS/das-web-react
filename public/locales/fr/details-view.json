@@ -26,6 +26,7 @@
     "fullViewButtonTooltip": "Afficher {{fileName}} en plein écran",
     "imagePreviewAlt": "{{fileName}} aperçu",
     "mediaLoadErrorMessage": "Impossible de charger ce fichier.",
+    "playButtonLabel": "Lire {{fileName}}",
     "videoPreviewAlt": "{{fileName}} aperçu vidéo"
   },
   "containedReportListItem": {
@@ -59,8 +60,8 @@
     "timeLabel": "Heure"
   },
   "mediaModal": {
-    "errorTitle": "Erreur de chargement du fichier",
-    "errorMessage": "Si vous avez télécharger ce fichier récemment, veuillez patientez quelques minutes et réessayer."
+    "errorMessage": "Si vous avez télécharger ce fichier récemment, veuillez patientez quelques minutes et réessayer.",
+    "errorTitle": "Erreur de chargement du fichier"
   },
   "navigationPromptModal": {
     "cancelNavigationButtonText": "Retour",

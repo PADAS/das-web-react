@@ -26,6 +26,7 @@
     "fullViewButtonTooltip": "Show {{fileName}} in full screen",
     "imagePreviewAlt": "{{fileName}} preview",
     "mediaLoadErrorMessage": "Unable to load this file.",
+    "playButtonLabel": "Play {{fileName}}",
     "videoPreviewAlt": "{{fileName}} video preview"
   },
   "containedReportListItem": {
@@ -59,8 +60,8 @@
     "timeLabel": "Time"
   },
   "mediaModal": {
-    "errorTitle": "Error loading file.",
-    "errorMessage": "If you uploaded this file recently, please wait a minute and try again."
+    "errorMessage": "If you uploaded this file recently, please wait a minute and try again.",
+    "errorTitle": "Error loading file."
   },
   "navigationPromptModal": {
     "cancelNavigationButtonText": "Go Back",
