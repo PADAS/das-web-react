@@ -18,12 +18,15 @@
     "addAttachmentTitle": "Add Attachment"
   },
   "attachmentListItem": {
+    "audioPreviewAlt": "{{fileName}} audio preview",
     "collapseClosedButtonLabel": "Expand {{fileName}}",
     "collapseOpenButtonLabel": "Collapse {{fileName}}",
     "deleteButtonTooltip": "Delete {{fileName}}",
     "downloadButtonTooltip": "Download {{fileName}}",
     "fullViewButtonTooltip": "Show {{fileName}} in full screen",
-    "imagePreviewAlt": "{{fileName}} preview"
+    "imagePreviewAlt": "{{fileName}} preview",
+    "mediaLoadErrorMessage": "Unable to load this file.",
+    "videoPreviewAlt": "{{fileName}} video preview"
   },
   "containedReportListItem": {
     "activeStateLabel": "Active",
@@ -55,8 +58,8 @@
     "sectionTitle": "History",
     "timeLabel": "Time"
   },
-  "imageModal": {
-    "errorTitle": "Error loading image.",
+  "mediaModal": {
+    "errorTitle": "Error loading file.",
     "errorMessage": "If you uploaded this file recently, please wait a minute and try again."
   },
   "navigationPromptModal": {

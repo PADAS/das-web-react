@@ -18,12 +18,15 @@
     "addAttachmentTitle": "Ongeza Kiambatisho"
   },
   "attachmentListItem": {
+    "audioPreviewAlt": "{{fileName}} muhtasari wa sauti",
     "collapseClosedButtonLabel": "Panua {{fileName}}",
     "collapseOpenButtonLabel": "Ficha {{fileName}}",
     "deleteButtonTooltip": "Futa {{fileName}}",
     "downloadButtonTooltip": "Pakua {{fileName}}",
     "fullViewButtonTooltip": "Onyesha {{fileName}} kwenye skrini nzima",
-    "imagePreviewAlt": "{{fileName}} muhtasari"
+    "imagePreviewAlt": "{{fileName}} muhtasari",
+    "mediaLoadErrorMessage": "Imeshindwa kupakia faili hii.",
+    "videoPreviewAlt": "{{fileName}} muhtasari wa video"
   },
   "containedReportListItem": {
     "activeStateLabel": "Tendaji",
@@ -52,8 +55,8 @@
     "sectionTitle": "Historia",
     "timeLabel": "Wakati"
   },
-  "imageModal": {
-    "errorTitle": "Kosa kwenye kupakia picha.",
+  "mediaModal": {
+    "errorTitle": "Kosa kwenye kupakia faili.",
     "errorMessage": "Ikiwa uliweka faili hii hivi karibuni, tafadhali subiri dakika na ujaribu tena."
   },
   "navigationPromptModal": {

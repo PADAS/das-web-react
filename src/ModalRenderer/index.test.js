@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { createMapMock } from '../__test-helpers/mocks';
-import ImageModal from '../ImageModal';
+import MediaModal from '../MediaModal';
 import { MapContext } from '../MapContext';
 import ModalRenderer from './';
 import { mockStore } from '../__test-helpers/MockStore';
@@ -15,9 +15,9 @@ jest.mock('../ducks/modals', () => ({
   removeModal: jest.fn(),
 }));
 
-jest.mock('../ImageModal', () => {
-  const MockImageModal = () => <div title="image-modal-content" />;
-  return { __esModule: true, default: MockImageModal };
+jest.mock('../MediaModal', () => {
+  const MockMediaModal = () => <div title="media-modal-content" />;
+  return { __esModule: true, default: MockMediaModal };
 });
 
 describe('ModalRenderer', () => {
@@ -91,22 +91,22 @@ describe('ModalRenderer', () => {
     expect(removeModal).toHaveBeenCalledTimes(0);
   });
 
-  test('applies the image-modal background style when the content is ImageModal', async () => {
-    store.view.modals.modals = [{ content: ImageModal, id: '1' }];
+  test('applies the media-modal background style when the content is MediaModal', async () => {
+    store.view.modals.modals = [{ content: MediaModal, id: '1' }];
 
     renderModalRenderer();
 
-    expect(screen.getByRole('dialog').className).toMatch('modalImageBackground');
+    expect(screen.getByRole('dialog').className).toMatch('modalMediaBackground');
   });
 
-  test('does not apply the image-modal background style when the content is not ImageModal', async () => {
+  test('does not apply the media-modal background style when the content is not MediaModal', async () => {
     const AnotherModal = () => <div title="another-modal-content" />;
 
     store.view.modals.modals = [{ content: AnotherModal, id: '1' }];
 
     renderModalRenderer();
 
-    expect(screen.getByRole('dialog').className).not.toMatch('modalImageBackground');
+    expect(screen.getByRole('dialog').className).not.toMatch('modalMediaBackground');
   });
 
   test('hides the backdrop and dialog without unmounting them when canShowModals is false', async () => {

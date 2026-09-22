@@ -18,12 +18,15 @@
     "addAttachmentTitle": "Ajouter une pièce jointe"
   },
   "attachmentListItem": {
+    "audioPreviewAlt": "{{fileName}} aperçu audio",
     "collapseClosedButtonLabel": "Agrandir {{fileName}}",
     "collapseOpenButtonLabel": "Réduire {{fileName}}",
     "deleteButtonTooltip": "Supprimer {{fileName}}",
     "downloadButtonTooltip": "Télécharger {{fileName}}",
     "fullViewButtonTooltip": "Afficher {{fileName}} en plein écran",
-    "imagePreviewAlt": "{{fileName}} aperçu"
+    "imagePreviewAlt": "{{fileName}} aperçu",
+    "mediaLoadErrorMessage": "Impossible de charger ce fichier.",
+    "videoPreviewAlt": "{{fileName}} aperçu vidéo"
   },
   "containedReportListItem": {
     "activeStateLabel": "Actif",
@@ -55,8 +58,8 @@
     "sectionTitle": "Historique",
     "timeLabel": "Heure"
   },
-  "imageModal": {
-    "errorTitle": "Erreur de chargement de l'image",
+  "mediaModal": {
+    "errorTitle": "Erreur de chargement du fichier",
     "errorMessage": "Si vous avez télécharger ce fichier récemment, veuillez patientez quelques minutes et réessayer."
   },
   "navigationPromptModal": {

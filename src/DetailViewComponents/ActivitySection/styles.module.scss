@@ -252,6 +252,28 @@ $cardExpansionTransitionTime: 300ms;
       object-fit: cover;
       width: 100%;
     }
+
+    .attachmentVideoPreview {
+      display: block;
+      max-height: 26rem;
+      width: 100%;
+    }
+
+    .attachmentAudioPreview {
+      width: 100%;
+    }
+
+    .mediaLoadError {
+      color: colors.$bright-red;
+      margin: 0;
+      padding: 0.5rem;
+      text-align: center;
+    }
+
+    .mediaLoadingContainer {
+      min-height: 8rem;
+      position: relative;
+    }
   }
 }
 

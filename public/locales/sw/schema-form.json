@@ -23,7 +23,9 @@
   },
   "fields": {
     "attachment": {
+      "audioPlayerLabel": "Kicheza sauti cha {{fileName}}",
       "chooseFile": "Chagua faili",
+      "closePlayerButtonLabel": "Funga kicheza cha {{fileName}}",
       "disallowedTypeAlert": "{{fileName}} haiwezi kuongezwa kwa sababu aina yake ya faili hairuhusiwi.",
       "downloadButtonLabel": "Pakua {{fileName}}",
       "dropzoneText": "Buruta na udondoshe faili hapa",
@@ -31,6 +33,8 @@
       "maxItemsAlert_one": "Unaweza kuongeza faili {{count}} pekee.",
       "maxItemsAlert_other": "Unaweza kuongeza faili {{count}} pekee.",
       "pendingLabel": "Inasubiri",
+      "playButtonLabel": "Cheza {{fileName}}",
+      "playerErrorLabel": "Imeshindwa kupakia faili hii.",
       "removeButtonLabel": "Ondoa {{fileName}}",
       "requiredLabel": "(inahitajika)",
       "uploadErrorLabel": "Upakiaji umeshindwa",
@@ -39,7 +43,8 @@
       "uploadStartedAnnouncement_one": "Inapakia {{fileName}}",
       "uploadStartedAnnouncement_other": "Inapakia faili {{count}}",
       "uploadSucceededAnnouncement_one": "{{fileName}} imepakiwa",
-      "uploadSucceededAnnouncement_other": "Faili {{count}} zimepakiwa"
+      "uploadSucceededAnnouncement_other": "Faili {{count}} zimepakiwa",
+      "videoPlayerLabel": "Kicheza video cha {{fileName}}"
     },
     "collection": {
       "addButtonLabel": "Ongeza {{itemName}}",

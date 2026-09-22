@@ -23,7 +23,9 @@
   },
   "fields": {
     "attachment": {
+      "audioPlayerLabel": "{{fileName}} अडियो प्लेयर",
       "chooseFile": "फाइल छान्नुहोस्",
+      "closePlayerButtonLabel": "{{fileName}} को प्लेयर बन्द गर्नुहोस्",
       "disallowedTypeAlert": "{{fileName}} थप्न सकिँदैन किनभने यसको फाइल प्रकार अनुमति छैन।",
       "downloadButtonLabel": "{{fileName}} डाउनलोड गर्नुहोस्",
       "dropzoneText": "फाइलहरू यहाँ तान्नुहोस् र छोड्नुहोस्",
@@ -31,6 +33,8 @@
       "maxItemsAlert_one": "तपाईं बढीमा {{count}} फाइल मात्र थप्न सक्नुहुन्छ।",
       "maxItemsAlert_other": "तपाईं बढीमा {{count}} फाइलहरू मात्र थप्न सक्नुहुन्छ।",
       "pendingLabel": "बाँकी",
+      "playButtonLabel": "{{fileName}} बजाउनुहोस्",
+      "playerErrorLabel": "यो फाइल लोड गर्न सकिएन।",
       "removeButtonLabel": "{{fileName}} हटाउनुहोस्",
       "requiredLabel": "(आवश्यक)",
       "uploadErrorLabel": "अपलोड असफल भयो",
@@ -39,7 +43,8 @@
       "uploadStartedAnnouncement_one": "{{fileName}} अपलोड हुँदै",
       "uploadStartedAnnouncement_other": "{{count}} फाइलहरू अपलोड हुँदै",
       "uploadSucceededAnnouncement_one": "{{fileName}} अपलोड भयो",
-      "uploadSucceededAnnouncement_other": "{{count}} फाइलहरू अपलोड भए"
+      "uploadSucceededAnnouncement_other": "{{count}} फाइलहरू अपलोड भए",
+      "videoPlayerLabel": "{{fileName}} भिडियो प्लेयर"
     },
     "collection": {
       "addButtonLabel": "{{itemName}} थप्नुहोस्",

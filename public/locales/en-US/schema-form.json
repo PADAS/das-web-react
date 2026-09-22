@@ -23,7 +23,9 @@
   },
   "fields": {
     "attachment": {
+      "audioPlayerLabel": "{{fileName}} audio player",
       "chooseFile": "Choose File",
+      "closePlayerButtonLabel": "Close player for {{fileName}}",
       "disallowedTypeAlert": "{{fileName}} can't be added because its file type isn't allowed.",
       "downloadButtonLabel": "Download {{fileName}}",
       "dropzoneText": "Drag and drop files here",
@@ -31,6 +33,8 @@
       "maxItemsAlert_one": "You can only add up to {{count}} file.",
       "maxItemsAlert_other": "You can only add up to {{count}} files.",
       "pendingLabel": "Pending",
+      "playButtonLabel": "Play {{fileName}}",
+      "playerErrorLabel": "Unable to load this file.",
       "removeButtonLabel": "Remove {{fileName}}",
       "requiredLabel": "(required)",
       "uploadErrorLabel": "Upload failed",
@@ -39,7 +43,8 @@
       "uploadStartedAnnouncement_one": "Uploading {{fileName}}",
       "uploadStartedAnnouncement_other": "Uploading {{count}} files",
       "uploadSucceededAnnouncement_one": "{{fileName}} uploaded",
-      "uploadSucceededAnnouncement_other": "{{count}} files uploaded"
+      "uploadSucceededAnnouncement_other": "{{count}} files uploaded",
+      "videoPlayerLabel": "{{fileName}} video player"
     },
     "collection": {
       "addButtonLabel": "Add {{itemName}}",

@@ -55,6 +55,11 @@ global.PointerEvent = class PointerEvent extends MouseEvent {};
 
 global.ResizeObserver = ResizeObserver;
 
+// jsdom ships no blob url registry, so code that plays media from an object url needs these stubs.
+// They are plain functions rather than jest.fn()s because `resetMocks` would strip the return value.
+URL.createObjectURL = () => 'blob:fake-object-url';
+URL.revokeObjectURL = () => {};
+
 // jest-fixed-jsdom replaces AbortSignal with Node's implementation, which
 // jsdom's addEventListener refuses to accept, so the option is honored here.
 const { addEventListener } = EventTarget.prototype;

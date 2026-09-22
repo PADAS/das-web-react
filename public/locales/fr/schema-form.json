@@ -23,7 +23,9 @@
   },
   "fields": {
     "attachment": {
+      "audioPlayerLabel": "Lecteur audio de {{fileName}}",
       "chooseFile": "Choisir un fichier",
+      "closePlayerButtonLabel": "Fermer le lecteur de {{fileName}}",
       "disallowedTypeAlert": "Impossible d'ajouter {{fileName}} car son type de fichier n'est pas autorisé.",
       "downloadButtonLabel": "Télécharger {{fileName}}",
       "dropzoneText": "Glissez-déposez des fichiers ici",
@@ -31,6 +33,8 @@
       "maxItemsAlert_one": "Vous ne pouvez ajouter que {{count}} fichier au maximum.",
       "maxItemsAlert_other": "Vous ne pouvez ajouter que {{count}} fichiers au maximum.",
       "pendingLabel": "En attente",
+      "playButtonLabel": "Lire {{fileName}}",
+      "playerErrorLabel": "Impossible de charger ce fichier.",
       "removeButtonLabel": "Supprimer {{fileName}}",
       "requiredLabel": "(obligatoire)",
       "uploadErrorLabel": "Échec du téléversement",
@@ -39,7 +43,8 @@
       "uploadStartedAnnouncement_one": "Téléversement de {{fileName}}",
       "uploadStartedAnnouncement_other": "Téléversement de {{count}} fichiers",
       "uploadSucceededAnnouncement_one": "{{fileName}} téléversé",
-      "uploadSucceededAnnouncement_other": "{{count}} fichiers téléversés"
+      "uploadSucceededAnnouncement_other": "{{count}} fichiers téléversés",
+      "videoPlayerLabel": "Lecteur vidéo de {{fileName}}"
     },
     "collection": {
       "addButtonLabel": "Ajouter {{itemName}}",

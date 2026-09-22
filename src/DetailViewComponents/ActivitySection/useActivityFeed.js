@@ -220,8 +220,8 @@ const useActivityFeed = ({
 
   const [sortButton, sortedItems] = useSortedNodesWithToggleBtn(sortableList, onSort, undefined, sortButtonComponent);
 
-  const imageAttachments = useMemo(
-    () => attachments.filter((attachment) => attachment.file_type === 'image'),
+  const collapsibleAttachments = useMemo(
+    () => attachments.filter((attachment) => ['audio', 'image', 'video'].includes(attachment.file_type)),
     [attachments]
   );
 
@@ -232,10 +232,10 @@ const useActivityFeed = ({
 
   const collapsibleCardIds = useMemo(() => [
     ...enabledContainedEvents,
-    ...imageAttachments,
+    ...collapsibleAttachments,
     ...notes,
     ...newNotes.filter((note) => !isUnsavedNewNote(note)),
-  ].map(getCardId), [enabledContainedEvents, imageAttachments, newNotes, notes]);
+  ].map(getCardId), [collapsibleAttachments, enabledContainedEvents, newNotes, notes]);
 
   const hasCollapsibleItems = collapsibleCardIds.length > 0;
   // Cards dropped while expanded leave their id behind, so this asks the cards on screen instead

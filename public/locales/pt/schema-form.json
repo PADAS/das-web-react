@@ -23,7 +23,9 @@
   },
   "fields": {
     "attachment": {
+      "audioPlayerLabel": "Reprodutor de áudio de {{fileName}}",
       "chooseFile": "Escolher arquivo",
+      "closePlayerButtonLabel": "Fechar reprodutor de {{fileName}}",
       "disallowedTypeAlert": "{{fileName}} não pode ser adicionado porque seu tipo de arquivo não é permitido.",
       "downloadButtonLabel": "Baixar {{fileName}}",
       "dropzoneText": "Arraste e solte arquivos aqui",
@@ -31,6 +33,8 @@
       "maxItemsAlert_one": "Você só pode adicionar até {{count}} arquivo.",
       "maxItemsAlert_other": "Você só pode adicionar até {{count}} arquivos.",
       "pendingLabel": "Pendente",
+      "playButtonLabel": "Reproduzir {{fileName}}",
+      "playerErrorLabel": "Não foi possível carregar este arquivo.",
       "removeButtonLabel": "Remover {{fileName}}",
       "requiredLabel": "(obrigatório)",
       "uploadErrorLabel": "Falha no envio",
@@ -39,7 +43,8 @@
       "uploadStartedAnnouncement_one": "Enviando {{fileName}}",
       "uploadStartedAnnouncement_other": "Enviando {{count}} arquivos",
       "uploadSucceededAnnouncement_one": "{{fileName}} enviado",
-      "uploadSucceededAnnouncement_other": "{{count}} arquivos enviados"
+      "uploadSucceededAnnouncement_other": "{{count}} arquivos enviados",
+      "videoPlayerLabel": "Reprodutor de vídeo de {{fileName}}"
     },
     "collection": {
       "addButtonLabel": "Adicionar {{itemName}}",

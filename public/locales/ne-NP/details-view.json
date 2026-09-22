@@ -17,12 +17,15 @@
     "addAttachmentTitle": "संलग्नक थप्नुहोस्"
   },
   "attachmentListItem": {
+    "audioPreviewAlt": "{{fileName}} अडियो पुर्वावलोकन",
     "collapseClosedButtonLabel": "{{fileName}} विस्तार गर्नुहोस्",
     "collapseOpenButtonLabel": "{{fileName}} बन्द गर्नुहोस्",
     "deleteButtonTooltip": "{{fileName}} मेट्नुहोस्",
     "downloadButtonTooltip": "{{fileName}} डाउनलोड गर्नुहोस्",
     "fullViewButtonTooltip": "{{fileName}} पूरा स्क्रिनमा देखाउनुहोस्",
-    "imagePreviewAlt": "{{fileName}} पुर्वावलोकन"
+    "imagePreviewAlt": "{{fileName}} पुर्वावलोकन",
+    "mediaLoadErrorMessage": "यो फाइल लोड गर्न सकिएन।",
+    "videoPreviewAlt": "{{fileName}} भिडियो पुर्वावलोकन"
   },
   "containedReportListItem": {
     "activeStateLabel": "सक्रिय",
@@ -51,8 +54,8 @@
     "sectionTitle": "इतिहास",
     "timeLabel": "समय"
   },
-  "imageModal": {
-    "errorTitle": "फोटो लोड गर्न समस्या भइरहेको छ ।",
+  "mediaModal": {
+    "errorTitle": "फाईल लोड गर्न समस्या भइरहेको छ ।",
     "errorMessage": "यो फाईल भर्खरै अपलोड गर्नुभएको हो भने कृपया केही समय पर्खेर फेरी प्रयास गर्नुहोस् ।"
   },
   "navigationPromptModal": {
