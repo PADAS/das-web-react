@@ -1,5 +1,4 @@
-@use 'sass:color';
-
+@use '../../../common/styles/buttons';
 @use '../../../common/styles/vars/colors';
 
 .collection {
@@ -23,21 +22,10 @@
     }
 
     .chevronButton {
-      background: none;
-      border: none;
-      border-radius: 0.1875rem;
-      color: colors.$secondary-medium-gray;
+      @include buttons.iconButtonSmall;
+
+      flex-shrink: 0;
       margin-right: 0.5rem;
-      outline: none;
-
-      &:hover {
-        background: colors.$light-gray-background;
-      }
-
-      &:focus-visible {
-        border: 2px solid colors.$bright-blue;
-        color: colors.$bright-blue;
-      }
     }
 
     .label {
@@ -64,33 +52,15 @@
     }
 
     .addButton {
-      align-items: center;
-      background-color: colors.$light-gray-background;
-      border: none;
-      border-radius: 0.25rem;
-      color: colors.$off-black;
-      display: flex;
-      font-weight: 500;
+      @include buttons.chipTextButton;
+
+      gap: 0.25rem;
       margin-top: 1rem;
-      padding: 0.25rem;
-      padding-right: 0.75rem;
-  
-      &:disabled {
-        background-color: colors.$disabled-field-gray;
-        opacity: 0.66;
-      }
-  
-      &:focus-visible:not(:disabled) {
-        outline: 2px solid colors.$bright-blue;
-      }
-  
-      &:hover:not(:disabled) {
-        background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
-      }
-  
+
       .icon {
-        margin-right: 0.25rem;
-  
+        height: 1.5rem;
+        width: 1.5rem;
+
         path {
           display: none;
         }

@@ -87,35 +87,42 @@
     }
   },
   "patrolFilters": {
-    "datesTitle": "Datas",
     "dateRangePopover": {
-      "title": "Intervalo de datas",
-      "resetButton": "Redefinir"
+      "resetButton": "Redefinir",
+      "title": "Intervalo de datas"
+    },
+    "datesModifiedButtonLabel": "Datas, intervalo de datas personalizado aplicado",
+    "datesTitle": "Datas",
+    "filteredResultsSummary_one": "{{count}} resultado filtrado de <dateRange>{{dateRange}}</dateRange>",
+    "filteredResultsSummary_other": "{{count}} resultados filtrados de <dateRange>{{dateRange}}</dateRange>",
+    "filtersModifiedButtonLabel": "Filtros, filtros aplicados",
+    "filtersPopover": {
+      "checkBoxAllOption": "Selecionar tudo",
+      "patrolStatuses": {
+        "active": "Ativo",
+        "cancelled": "Cancelado",
+        "done": "Finalizado"
+      },
+      "patrolTypeLabel": "Tipo de Patrulha",
+      "reportedByPlaceholder": "Selecionar Dispositivo",
+      "resetAllButton": "Redefinir tudo",
+      "resetButton": "Redefinir",
+      "statusLabel": "Status ou Situação",
+      "title": "Filtros de Patrulhas",
+      "trackedByLabel": "Rastreado por"
     },
     "filtersTitle": "Filtros",
     "globalResetFilterButton": "Redefinir",
-    "searchbarPlaceHolder": "Buscar patrulhas",
-    "filtersPopover": {
-      "checkBoxAllOption": "Selecionar tudo",
-      "title": "Filtros de Patrulhas",
-      "resetAllButton": "Redefinir tudo",
-      "resetButton": "Redefinir",
-      "trackedByLabel": "Rastreado por",
-      "statusLabel": "Status ou Situação",
-      "patrolTypeLabel": "Tipo de Patrulha",
-      "reportedByPlaceholder": "Selecionar Dispositivo",
-      "patrolStatuses": {
-        "active": "Ativo",
-        "done": "Finalizado",
-        "cancelled": "Cancelado"
-      }
-    }
+    "resultsSummary_one": "{{count}} resultado de <dateRange>{{dateRange}}</dateRange>",
+    "resultsSummary_other": "{{count}} resultados de <dateRange>{{dateRange}}</dateRange>",
+    "searchbarPlaceHolder": "Buscar patrulhas"
   },
   "patrolFiltersSettings": {
-    "byStartDateLabel": "Filtrar por data de inicio",
     "byRangeDateLabel": "Filtrar por sobreposição de intervalo de datas",
-    "patrolWithinRangeTooltip": "Incluir patrulhas que iniciam no intervalo de datas",
-    "patrolOverlapsRangeTooltip": "Incluir patrulhas cujas datas de início e fim se sobreponham ao intervalo de datas"
+    "byStartDateLabel": "Filtrar por data de inicio",
+    "dateFilterModeLabel": "Modo de filtro por data",
+    "patrolOverlapsRangeTooltip": "Incluir patrulhas cujas datas de início e fim se sobreponham ao intervalo de datas",
+    "patrolWithinRangeTooltip": "Incluir patrulhas que iniciam no intervalo de datas"
   },
   "reportTypeMultiSelect": {
     "placeholder": "Buscar tipos de eventos",

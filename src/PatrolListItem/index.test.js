@@ -310,7 +310,7 @@ describe('for overdue patrols', () => {
   test('showing an overdue indicator', async () => {
     const stateIndicator = await screen.findByTestId(`patrol-list-item-state-title-${testPatrol.id}`);
 
-    expect(stateIndicator).toHaveTextContent('Start Overdue');
+    expect(stateIndicator).toHaveTextContent('Overdue');
   });
 });
 

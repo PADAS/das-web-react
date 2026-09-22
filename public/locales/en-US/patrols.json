@@ -46,7 +46,7 @@
         "paused": "Paused",
         "readyToStart": "Ready to Start",
         "scheduled": "Scheduled",
-        "startOverdue": "Start Overdue"
+        "startOverdue": "Overdue"
       }
     },
     "loadingMessage": "Saving...",
@@ -255,7 +255,6 @@
     "addEventLinkErrorMessage": "The event was saved but could not be added to this patrol.",
     "attachmentsSaveErrorMessage": "Some attachments could not be uploaded. Please try again.",
     "footer": {
-      "addEventButton": "Add Event",
       "addEventButtonLabel": "Add Event",
       "addEventButtonText": "Event",
       "saveButton": "Save"
@@ -327,6 +326,28 @@
     "saveErrorMessage": "The patrol could not be saved. Please try again.",
     "tabsLabel": "Patrol overview tabs"
   },
+  "patrolsFeed": {
+    "emptyStateMessage": "No patrols to display.",
+    "patrolListLabel": "Patrol list",
+    "patrolRow": {
+      "actions": {
+        "copyLinkMessage": "Link copied",
+        "copyLinkOption": "Copy patrol link",
+        "downloadTrackOption": "Download Patrol Track",
+        "jumpToLocationButtonLabel": "Jump to location",
+        "moreOptionsButtonLabel": "More options",
+        "statusUpdateErrorMessage": "The patrol status could not be updated. Please try again.",
+        "toggleTrackButtonLabel": {
+          "hidden": "Show patrol track",
+          "pinned": "Hide patrol track",
+          "visible": "Pin patrol track"
+        }
+      },
+      "legLabel": "Leg {{number}}",
+      "mobileProvenanceLabel": "Mobile",
+      "scheduledLabel": "Scheduled: {{startTime}}"
+    }
+  },
   "patrolStartStopLayer": {
     "endMarkerLabel": "Patrol End",
     "estimatedEndMarkerLabel": "Patrol End (Est)",
@@ -346,8 +367,16 @@
       "paused": "Paused",
       "readyToStart": "Ready to Start",
       "scheduled": "Scheduled",
-      "startOverdue": "Start Overdue"
+      "startOverdue": "Overdue"
     }
+  },
+  "statusTransitions": {
+    "cancel": "Cancel",
+    "end": "End",
+    "pause": "Pause",
+    "restore": "Restore",
+    "resume": "Resume",
+    "start": "Start"
   },
   "titleInput": {
     "editButtonLabel": "Edit title"

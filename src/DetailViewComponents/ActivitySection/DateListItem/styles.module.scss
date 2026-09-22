@@ -4,8 +4,6 @@
 @mixin milestoneTheme($theme) {
   --item-icon-bg: #{map.get($theme, 'base')};
   --item-icon-color: white;
-
-  background: map.get($theme, 'background');
 }
 
 .active {

@@ -1,0 +1,28 @@
+@use '../../../../../../common/styles/vars/colors';
+
+.settings {
+  border: none;
+  margin: 0;
+  padding: 0;
+
+  .option {
+    display: flex;
+    line-height: 1.25;
+    margin: 0.25rem 0;
+
+    input {
+      accent-color: colors.$bright-blue;
+      flex-shrink: 0;
+      margin-right: 0.5rem;
+
+      &:focus-visible {
+        outline: 2px solid colors.$bright-blue;
+        outline-offset: 2px;
+      }
+    }
+
+    label {
+      margin: 0;
+    }
+  }
+}

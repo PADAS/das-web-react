@@ -1082,7 +1082,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
 
     const selectStatus = async (name) => {
       await openStatusSelect();
-      await userEvent.click(await screen.findByRole('menuitemradio', { name }));
+      await userEvent.click(await screen.findByRole('menuitem', { name }));
     };
 
     const savedPayload = async () => {
@@ -1137,7 +1137,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('keeps the picked state when the patrol changes underneath', async () => {
       const { rerender } = await renderPatrolInStore(patrolWithLeader);
 
-      await selectStatus('Done');
+      await selectStatus('End');
 
       store.data.patrolStore[patrolWithLeader.id] = { ...patrolWithLeader, title: 'Renamed patrol' };
       rerenderWithStore(rerender);
@@ -1149,7 +1149,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('does not update the patrol until it is saved', async () => {
       await renderPatrolInStore(patrolWithLeader);
 
-      await selectStatus('Done');
+      await selectStatus('End');
 
       expect(updatePatrol).not.toHaveBeenCalled();
     });
@@ -1159,7 +1159,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
 
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
 
-      await selectStatus('Done');
+      await selectStatus('End');
 
       expect(screen.getByText('Done')).toHaveClass('unsavedLabel');
       expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
@@ -1168,7 +1168,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('drops the change when the status the patrol is already in is picked back', async () => {
       await renderPatrolInStore(patrolWithLeader);
 
-      await selectStatus('Done');
+      await selectStatus('End');
       await selectStatus('Active');
 
       expect(screen.getByRole('button', { name: 'Active, Change patrol status' })).toBeInTheDocument();
@@ -1189,7 +1189,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('still sends the picked status when the patrol reaches it on its own before saving', async () => {
       const { rerender } = await renderPatrolInStore(patrolWithLeader);
 
-      await selectStatus('Done');
+      await selectStatus('End');
 
       store.data.patrolStore[patrolWithLeader.id] = { ...patrolWithLeader, state: 'done' };
       rerenderWithStore(rerender);
@@ -1201,8 +1201,8 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('sends the status picked last when another one replaces it', async () => {
       await renderPatrolInStore(patrolWithLeader);
 
-      await selectStatus('Done');
-      await selectStatus('Cancelled');
+      await selectStatus('End');
+      await selectStatus('Cancel');
 
       expect((await savedPayload()).state).toBe('cancelled');
     });
@@ -1210,7 +1210,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('sends the update built for the picked status when the patrol is saved', async () => {
       await renderPatrolInStore(patrolWithLeader);
 
-      await selectStatus('Done');
+      await selectStatus('End');
 
       const payload = await savedPayload();
 
@@ -1222,7 +1222,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('sends the state alone when the patrol is cancelled', async () => {
       await renderPatrolInStore(patrolWithLeader);
 
-      await selectStatus('Cancelled');
+      await selectStatus('Cancel');
 
       expect(await savedPayload()).toEqual({ id: patrolWithLeader.id, state: 'cancelled' });
     });
@@ -1231,7 +1231,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       await renderPatrolInStore(patrolWithLeader);
 
       await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
-      await selectStatus('Cancelled');
+      await selectStatus('Cancel');
 
       const payload = await savedPayload();
 
@@ -1246,7 +1246,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       await renderPatrolInStore(patrolWithLeader);
 
       await user.click(screen.getByRole('button', { name: /Change patrol status/ }));
-      await user.click(await screen.findByRole('menuitemradio', { name: 'Done' }));
+      await user.click(await screen.findByRole('menuitem', { name: 'End' }));
 
       act(() => {
         jest.advanceTimersByTime(5 * 60_000);
@@ -1265,7 +1265,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('builds the status update from the patrol as it stands when it is saved', async () => {
       const { rerender } = await renderPatrolInStore(patrolWithLeader);
 
-      await selectStatus('Done');
+      await selectStatus('End');
 
       store.data.patrolStore[patrolWithLeader.id] = withLastLeg(
         { ...patrolWithLeader, id: patrolWithLeader.id },
@@ -1279,7 +1279,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('pauses the patrol by adding a pause leg, without asking the user for one', async () => {
       await renderPatrolInStore(patrolWithLeader);
 
-      await selectStatus('Paused');
+      await selectStatus('Pause');
       await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
       const { patrol_segments: patrolSegments } = await savedPayload();
@@ -1294,7 +1294,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
 
       await renderPatrolOverview(patrolWithLeader.id, { withNavigateAwayButton: true });
 
-      await selectStatus('Done');
+      await selectStatus('End');
       await userEvent.click(screen.getByRole('button', { name: 'Navigate away' }));
 
       expect(await screen.findByTestId('navigation-prompt-positive-continue-btn')).toBeInTheDocument();
@@ -1306,7 +1306,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
 
       await renderPatrolInStore(patrolWithLeader);
 
-      await selectStatus('Cancelled');
+      await selectStatus('Cancel');
 
       const fakeFile = new File(['file contents'], 'file.pdf', { type: 'application/pdf' });
       await userEvent.upload(screen.getByTestId('addAttachmentButton'), fakeFile);

@@ -120,6 +120,33 @@ describe('PatrolTrackLegend', () => {
     });
   });
 
+  test('shows the colour the map draws a subject track in', async () => {
+    store.data.tracks[LEAD.id].track.features[0].properties.stroke = '#33A02C';
+    renderPatrolTrackLegend();
+
+    await userEvent.click(screen.getByLabelText('Open the list of patrols'));
+
+    expect(screen.getByTestId('tracksList-trackColor')).toHaveStyle({ backgroundColor: '#33A02C' });
+  });
+
+  test('does not show a colour for a subject whose track carries none', async () => {
+    renderPatrolTrackLegend();
+
+    await userEvent.click(screen.getByLabelText('Open the list of patrols'));
+
+    expect(screen.queryByTestId('tracksList-trackColor')).not.toBeInTheDocument();
+  });
+
+  test('does not show track colours while time of day colouring is on', async () => {
+    store.data.tracks[LEAD.id].track.features[0].properties.stroke = '#33A02C';
+    store.view.trackSettings.isTimeOfDayColoringActive = true;
+    renderPatrolTrackLegend();
+
+    await userEvent.click(screen.getByLabelText('Open the list of patrols'));
+
+    expect(screen.queryByTestId('tracksList-trackColor')).not.toBeInTheDocument();
+  });
+
   test('forgets every hidden subject when every patrol track is cleared', async () => {
     renderPatrolTrackLegend();
 

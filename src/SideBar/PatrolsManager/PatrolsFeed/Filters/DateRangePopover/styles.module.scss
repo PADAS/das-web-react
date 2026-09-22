@@ -1,0 +1,9 @@
+@use '../_shared' as shared;
+
+.dateRangePopover {
+  @include shared.filter-popover;
+
+  .header {
+    @include shared.filter-popover-header;
+  }
+}

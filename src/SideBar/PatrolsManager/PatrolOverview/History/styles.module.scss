@@ -25,7 +25,7 @@
 
       .sortDirectionButton {
         @include shared.chip-icon-button;
-        @include shared.chip-icon-button-active-state;
+        @include shared.chip-active-state;
 
         svg {
           height: 1rem;

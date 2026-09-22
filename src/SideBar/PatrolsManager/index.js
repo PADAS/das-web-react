@@ -6,7 +6,7 @@ import { getCurrentIdFromURL } from '../../utils/navigation';
 import LegManager from './LegManager';
 import NewPatrol from './NewPatrol';
 import PatrolOverview from './PatrolOverview';
-import PatrolsFeed from '../PatrolsFeed';
+import PatrolsFeed from './PatrolsFeed';
 
 const PatrolsManager = () => {
   const { pathname } = useLocation();

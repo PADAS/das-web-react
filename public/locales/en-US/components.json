@@ -222,12 +222,8 @@
     "addPatrolButtonTitle": "Create Patrol",
     "backButtonLabel": "Go Back",
     "backButtonTitle": "Back",
-    "closeButtonTitle": "Close",
-    "closeEventFeedButtonLabel": "Close Event Feed",
-    "closeGearTabButtonLabel": "Close Gear",
-    "closeMapLayersButtonLabel": "Close Map Layers",
-    "closePatrolFeedButtonLabel": "Close Patrol Feed",
-    "closeSettingsButtonLabel": "Close Settings",
+    "closeButtonLabel": "Close sidebar",
+    "eventsLink": "Events",
     "gearLink": "Gear",
     "gearTab": {
       "loadErrorFallback": "Request failed",
@@ -255,7 +251,7 @@
       "fetchReportsErrorMessage": "Could not load events. Please try again.",
       "tryAgainButton": "Try again"
     },
-    "eventsLink": "Events",
+    "settingsLink": "Settings",
     "settingsPane": {
       "alertsFrameTitle": "Configure your EarthRanger alerts",
       "alertsTabTitle": "Alerts",
@@ -361,8 +357,7 @@
         }
       },
       "mapTabTitle": "Map"
-    },
-    "settingsLink": "Settings"
+    }
   },
   "sortedNodes": {
     "labelAscending": "Change Order to Descending",

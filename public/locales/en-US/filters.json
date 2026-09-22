@@ -87,35 +87,42 @@
     }
   },
   "patrolFilters": {
-    "datesTitle": "Dates",
     "dateRangePopover": {
-      "title": "Date Range",
-      "resetButton": "Reset"
+      "resetButton": "Reset",
+      "title": "Date Range"
+    },
+    "datesModifiedButtonLabel": "Dates, custom date range applied",
+    "datesTitle": "Dates",
+    "filteredResultsSummary_one": "{{count}} result filtered from <dateRange>{{dateRange}}</dateRange>",
+    "filteredResultsSummary_other": "{{count}} results filtered from <dateRange>{{dateRange}}</dateRange>",
+    "filtersModifiedButtonLabel": "Filters, filters applied",
+    "filtersPopover": {
+      "checkBoxAllOption": "All",
+      "patrolStatuses": {
+        "active": "Active",
+        "cancelled": "Cancelled",
+        "done": "Done"
+      },
+      "patrolTypeLabel": "Patrol Type",
+      "reportedByPlaceholder": "Select Device...",
+      "resetAllButton": "Reset All",
+      "resetButton": "Reset",
+      "statusLabel": "Status",
+      "title": "Patrol Filters",
+      "trackedByLabel": "Tracked by"
     },
     "filtersTitle": "Filters",
     "globalResetFilterButton": "Reset",
-    "searchbarPlaceHolder": "Search Patrols...",
-    "filtersPopover": {
-      "checkBoxAllOption": "All",
-      "title": "Patrol Filters",
-      "resetAllButton": "Reset All",
-      "resetButton": "Reset",
-      "trackedByLabel": "Tracked by",
-      "statusLabel": "Status",
-      "patrolTypeLabel": "Patrol Type",
-      "reportedByPlaceholder": "Select Device...",
-      "patrolStatuses": {
-        "active": "Active",
-        "done": "Done",
-        "cancelled": "Cancelled"
-      }
-    }
+    "resultsSummary_one": "{{count}} result from <dateRange>{{dateRange}}</dateRange>",
+    "resultsSummary_other": "{{count}} results from <dateRange>{{dateRange}}</dateRange>",
+    "searchbarPlaceHolder": "Search Patrols..."
   },
   "patrolFiltersSettings": {
-    "byStartDateLabel": "Filter by start date",
     "byRangeDateLabel": "Filter by date range overlap",
-    "patrolWithinRangeTooltip": "Include patrols starting within the date range",
-    "patrolOverlapsRangeTooltip": "Include patrols whose start to end date range overlaps with the date range"
+    "byStartDateLabel": "Filter by start date",
+    "dateFilterModeLabel": "Date filter mode",
+    "patrolOverlapsRangeTooltip": "Include patrols whose start to end date range overlaps with the date range",
+    "patrolWithinRangeTooltip": "Include patrols starting within the date range"
   },
   "reportTypeMultiSelect": {
     "placeholder": "Search types",

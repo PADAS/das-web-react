@@ -444,7 +444,7 @@ const TimeSlider = () => {
     >
       <button
         aria-label={t('dateRangeButtonLabel')}
-        className={`${styles.dateRangeButton} ${isEventFilterDateRangeModified ? styles.modified : ''}`}
+        className={`${styles.dateRangeButton} ${isEventFilterDateRangeModified ? styles.active : ''}`}
         title={t('dateRangeButtonLabel')}
         type="button"
       >

@@ -15,6 +15,7 @@
     background-color: var(--kebab-menu-background-color, #{colors.$light-gray-background});
     border: 1px solid var(--kebab-menu-background-color, #{colors.$light-gray-background});
     border-radius: 0.25rem;
+    color: var(--kebab-menu-dot-color, #{colors.$secondary-medium-gray});
     display: flex;
     height: var(--kebab-menu-size, 2.25rem);
     justify-content: center;
@@ -31,7 +32,7 @@
       width: 0.25rem;
     }
 
-    &:hover {
+    &:hover:not([aria-disabled="true"]) {
       background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
       border-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
     }

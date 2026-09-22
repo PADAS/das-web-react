@@ -1,9 +1,9 @@
 import getPatrolStatusOptions from './';
-import { PATROL_UI_STATES } from '../../../../../constants';
+import { PATROL_UI_STATES } from '../../../../constants';
 
 const { ACTIVE, CANCELLED, DONE, INVALID, PAUSED, READY_TO_START, SCHEDULED, START_OVERDUE } = PATROL_UI_STATES;
 
-describe('SideBar - PatrolsManager - PatrolOverview - utils - getPatrolStatusOptions', () => {
+describe('SideBar - PatrolsManager - utils - getPatrolStatusOptions', () => {
   const NOW = new Date('2026-04-13T12:00:00.000Z');
 
   const HOUR = 60 * 60 * 1000;

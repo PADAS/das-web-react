@@ -115,12 +115,13 @@ const SidebarListSortingControls = () => {
     <button
       aria-label={t(`groupButtonLabel.${mapLayerFilter.grouped ? 'grouped' : 'ungrouped'}`)}
       aria-pressed={!mapLayerFilter.grouped}
-      className={`${styles.sortingButton} ${mapLayerFilter.grouped ? styles.inactive : styles.active}`}
+      className={`${styles.sortingButton} ${mapLayerFilter.grouped ? '' : styles.active}`}
       onClick={() => dispatch(setMapLayersGrouped(!mapLayerFilter.grouped))}
-      title={t(`groupButtonLabel.${mapLayerFilter.grouped ? 'grouped' : 'ungrouped'}`)}
       type="button"
     >
-      {t(`groupButton.${mapLayerFilter.grouped ? 'grouped' : 'ungrouped'}`)}
+      <span className={styles.sortingButtonLabel}>
+        {t(`groupButton.${mapLayerFilter.grouped ? 'grouped' : 'ungrouped'}`)}
+      </span>
     </button>
 
     <button
@@ -129,16 +130,15 @@ const SidebarListSortingControls = () => {
       aria-haspopup="menu"
       aria-label={t('setSortByButtonLabel')}
       className={`${styles.sortingButton} ${
-        mapLayerFilter.sortBy === MAP_LAYER_SORT_VALUES.LAST_UPDATE ? styles.inactive : styles.active
+        mapLayerFilter.sortBy === MAP_LAYER_SORT_VALUES.LAST_UPDATE ? '' : styles.active
       }`}
       onClick={() => setIsSortByMenuOpen(true)}
       ref={setSortByMenuAnchorEl}
-      title={t('setSortByButtonLabel')}
       type="button"
     >
       <SortLinesIcon className={styles.sortingButtonIcon} />
 
-      {t(`setSortByButton.${mapLayerFilter.sortBy}`)}
+      <span className={styles.sortingButtonLabel}>{t(`setSortByButton.${mapLayerFilter.sortBy}`)}</span>
     </button>
 
     <Overlay
@@ -164,7 +164,6 @@ const SidebarListSortingControls = () => {
               }}
               role="menuitemradio"
               tabIndex={-1}
-              title={t(`sortByMenuOptionLabel.${option.key}`)}
               type="button"
             >
               {mapLayerFilter.sortBy === option.value && <CheckIcon className={styles.checkIcon} />}
@@ -179,7 +178,7 @@ const SidebarListSortingControls = () => {
     <button
       aria-pressed={mapLayerFilter.sortDirection === SORT_DIRECTION.up}
       aria-label={t(`sortDirectionButtonLabel.${mapLayerFilter.sortDirection}`)}
-      className={`${styles.sortingButton} ${mapLayerFilter.sortDirection === SORT_DIRECTION.up ? styles.active : styles.inactive}`}
+      className={`${styles.sortDirectionButton} ${mapLayerFilter.sortDirection === SORT_DIRECTION.up ? styles.active : ''}`}
       onClick={() => dispatch(setMapLayersSortDirection(
         mapLayerFilter.sortDirection === SORT_DIRECTION.up ? SORT_DIRECTION.down : SORT_DIRECTION.up
       ))}

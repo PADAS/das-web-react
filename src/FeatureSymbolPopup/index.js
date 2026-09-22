@@ -31,6 +31,7 @@ const FeatureSymbolPopup = ({ data, id }) => {
         formProps={{ onSaveSuccess: onComplete, onSaveError: onComplete }}
         reportData={{ location: { latitude: coordinates[1], longitude: coordinates[0] } }}
         showLabel={false}
+        variant="secondary"
       />
     </>
   );

@@ -1,0 +1,82 @@
+@use '../../../../common/styles/buttons';
+@use '../../../../common/styles/vars/colors';
+
+@mixin filter-popover {
+  max-height: 32rem;
+  max-width: 29rem;
+  width: 90vw;
+
+  > [class*='popover-arrow']::after {
+    border-bottom-color: colors.$popover-header-color;
+  }
+
+  [class*='popover-header'] {
+    background: colors.$highlight-color;
+    color: white;
+    padding: 1rem;
+
+    &::before {
+      display: none;
+    }
+  }
+
+  [class*='popover-body'] {
+    padding: 0;
+  }
+}
+
+@mixin filter-popover-header {
+  align-items: center;
+  display: flex;
+  line-height: normal;
+  width: 100%;
+
+  .title {
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0;
+  }
+
+  svg {
+    height: 1.5rem;
+    margin-right: 1rem;
+    width: 1.5rem;
+
+    * {
+      stroke: white;
+    }
+  }
+
+  .resetButton {
+    @include buttons.chipTextButtonSmall;
+
+    margin-left: auto;
+  }
+}
+
+@mixin filter-section {
+  align-items: flex-start;
+  border-bottom: 1px solid colors.$gray-border;
+  display: flex;
+  flex-direction: column;
+
+  .sectionHeader {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.625rem;
+    min-height: 1.75rem;
+    width: 100%;
+
+    .sectionLabel {
+      color: colors.$primary-font-color;
+      font-size: 1rem;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    .resetButton {
+      @include buttons.chipTextButtonSmall;
+    }
+  }
+}

@@ -222,12 +222,8 @@
     "addPatrolButtonTitle": "Unda Doria",
     "backButtonLabel": "Nenda Nyuma",
     "backButtonTitle": "Nyuma",
-    "closeButtonTitle": "Funga",
-    "closeEventFeedButtonLabel": "Funga Onyesha Matukio",
-    "closeMapLayersButtonLabel": "Funga Safu za Ramani",
-    "closePatrolFeedButtonLabel": "Funga Onyesha Doria",
-    "closeSettingsButtonLabel": "Funga Mipangilio",
-    "closeGearTabButtonLabel": "Funga vifaa",
+    "closeButtonLabel": "Funga upau wa pembeni",
+    "eventsLink": "Matukio",
     "gearLink": "Vifaa",
     "gearTab": {
       "loadErrorFallback": "Ombi halikufaulu",
@@ -255,7 +251,7 @@
       "fetchReportsErrorMessage": "Haikuweza kupakia matukio. Tafadhali jaribu tena.",
       "tryAgainButton": "Jaribu tena"
     },
-    "eventsLink": "Matukio",
+    "settingsLink": "Mipangilio",
     "settingsPane": {
       "alertsFrameTitle": "Sanidi tahadhari zako za EarthRanger",
       "alertsTabTitle": "Tahadhari",
@@ -361,8 +357,7 @@
         }
       },
       "mapTabTitle": "Ramani"
-    },
-    "settingsLink": "Mipangilio"
+    }
   },
   "sortedNodes": {
     "labelAscending": "Badilisha Kwa Mpangilio wa Kushuka",

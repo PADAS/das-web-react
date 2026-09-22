@@ -118,7 +118,7 @@ const PatrolFilter = ({ className = '' }) => {
           flip={true}
         >
           <button
-            className={`${styles.button} ${filtersModified ? styles.active : styles.inactive}`}
+            className={`${styles.button} ${filtersModified ? styles.active : ''}`}
             data-testid="patrolFilter-filtersButton"
             onClick={() => patrolFilterTracker.track('Filters Icon Clicked')}
           >
@@ -135,7 +135,7 @@ const PatrolFilter = ({ className = '' }) => {
           flip={true}
         >
           <button
-            className={`${styles.button} ${dateRangeModified ? styles.active : styles.inactive}`}
+            className={`${styles.button} ${dateRangeModified ? styles.active : ''}`}
             onClick={() => patrolFilterTracker.track('Date Filter Popover Toggled')}
             data-testid="patrolFilter-dateRangeButton"
           >

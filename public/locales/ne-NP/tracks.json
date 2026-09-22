@@ -42,7 +42,6 @@
       "inactive": "दिनको समय अनुसार रंग सक्रिय गर्नुहोस्"
     },
     "trackSettings": {
-      "closeButtonLabel": "ट्र्याक सेटिङहरू बन्द गर्नुहोस्",
       "customLengthErrorMessage": "कृपया {{min}} देखि {{max}} को बीचमा ट्र्याक लम्बाइ प्रविष्ट गर्नुहोस्।",
       "customLengthInputLabel": "दिनमा ट्र्याक लम्बाइ",
       "customLengthRadioLabel": "कस्टम लम्बाइ",

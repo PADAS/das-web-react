@@ -87,7 +87,7 @@ describe('PatrolFilter', () => {
   });
 
   test('sets an inactive state to the filters button if there are no filters applied', async () => {
-    expect(screen.getByTestId('patrolFilter-filtersButton')).toHaveClass('inactive');
+    expect(screen.getByTestId('patrolFilter-filtersButton')).not.toHaveClass('active');
   });
 
   test('sets an active state to the filters button if there is a filter applied', async () => {
@@ -103,7 +103,7 @@ describe('PatrolFilter', () => {
   });
 
   test('sets an inactive state to the date range button if there are no filters applied', async () => {
-    expect(screen.getByTestId('patrolFilter-dateRangeButton')).toHaveClass('inactive');
+    expect(screen.getByTestId('patrolFilter-dateRangeButton')).not.toHaveClass('active');
   });
 
   test('sets an active state to the date range button if there is a filter applied', async () => {

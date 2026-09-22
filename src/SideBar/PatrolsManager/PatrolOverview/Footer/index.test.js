@@ -88,7 +88,6 @@ describe('SideBar - PatrolsManager - PatrolOverview - Footer', () => {
     expect(props.formProps).toBe(addEventFormProps);
     expect(props.hideAddPatrolTab).toBe(true);
     expect(props['aria-label']).toBe('Add Event');
-    expect(props.title).toBe('Add Event');
     expect(props.label).toBe('Event');
     expect(props.analyticsMetadata).toEqual({ category: 'Patrol Overview', location: 'Patrol Overview' });
   });

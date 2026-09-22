@@ -98,7 +98,7 @@
             }
 
             .locationButton {
-              @include buttons.inlineIconButton;
+              @include buttons.iconButtonSmall;
             }
           }
         }

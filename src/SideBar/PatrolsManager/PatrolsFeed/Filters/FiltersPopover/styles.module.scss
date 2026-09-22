@@ -1,0 +1,85 @@
+@use '../../../../../common/styles/vars/colors';
+@use '../_shared' as shared;
+
+.filtersPopover {
+  @include shared.filter-popover;
+
+  overflow: hidden;
+
+  .header {
+    @include shared.filter-popover-header;
+  }
+
+  .body {
+    max-height: 28rem;
+    overflow-y: auto;
+  }
+
+  .trackedBySection {
+    @include shared.filter-section;
+
+    padding: 1.5rem 1rem 1rem;
+
+    .sectionHeader .sectionLabel {
+      color: colors.$medium-light-gray;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .trackedBySelect {
+      width: 100%;
+    }
+  }
+
+  .checkboxSection {
+    @include shared.filter-section;
+
+    overflow: hidden;
+    padding: 0.5rem 1rem;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .checkboxList {
+      columns: 2;
+      display: block;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+
+      li {
+        break-inside: avoid;
+      }
+
+      label {
+        align-items: center;
+        color: colors.$primary-font-color;
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        min-height: 1.5rem;
+
+        input {
+          accent-color: colors.$bright-blue;
+          flex-shrink: 0;
+          height: 1rem;
+          margin: 0;
+          width: 1rem;
+
+          &:focus-visible {
+            outline: 2px solid colors.$bright-blue;
+            outline-offset: 2px;
+          }
+        }
+
+        svg {
+          flex-shrink: 0;
+          height: 1.25rem;
+          width: 1.25rem;
+        }
+      }
+    }
+  }
+}

@@ -9,7 +9,7 @@ import { ReactComponent as EyeOffIcon } from '../../common/images/icons/eye-off.
 
 import * as styles from './styles.module.scss';
 
-const TracksChildItem = ({ child, onToggleTracks }) => {
+const TracksChildItem = ({ child, onToggleTracks, showTrackColor }) => {
   const { t } = useTranslation('tracks', { keyPrefix: 'trackLegend.tracksList.tracksChildItem' });
 
   return <li className={styles.tracksChildItem}>
@@ -20,6 +20,13 @@ const TracksChildItem = ({ child, onToggleTracks }) => {
     </div>
 
     <div className={styles.rightColumn}>
+      {showTrackColor && !!child.trackColor && <span
+        aria-hidden="true"
+        className={styles.trackColor}
+        data-testid="tracksList-trackColor"
+        style={{ backgroundColor: child.trackColor }}
+      />}
+
       {!!child.description && <p className={styles.description}>{child.description}</p>}
 
       <button
@@ -36,7 +43,7 @@ const TracksChildItem = ({ child, onToggleTracks }) => {
   </li>;
 };
 
-const TracksItem = ({ item, onClear, onToggleChildTracks }) => {
+const TracksItem = ({ item, onClear, onToggleChildTracks, showTrackColors }) => {
   const { t } = useTranslation('tracks', { keyPrefix: 'trackLegend.tracksList.tracksItem' });
 
   const childrenListId = useId();
@@ -86,6 +93,7 @@ const TracksItem = ({ item, onClear, onToggleChildTracks }) => {
             child={child}
             key={child.id}
             onToggleTracks={(childId) => onToggleChildTracks(item.id, childId)}
+            showTrackColor={showTrackColors}
           />)}
         </ul>
       </div>
@@ -93,7 +101,7 @@ const TracksItem = ({ item, onClear, onToggleChildTracks }) => {
   </li>;
 };
 
-const TracksList = ({ items, onClearItemTracks, onToggleItemChildTracks }) => {
+const TracksList = ({ items, onClearItemTracks, onToggleItemChildTracks, showTrackColors }) => {
   // The row of a lone item would only repeat the title above it, so its rows
   // take over the list. One with no rows has nothing left to list.
   const loneItem = items.length === 1 ? items[0] : null;
@@ -104,12 +112,14 @@ const TracksList = ({ items, onClearItemTracks, onToggleItemChildTracks }) => {
         child={child}
         key={child.id}
         onToggleTracks={(childId) => onToggleItemChildTracks(loneItem.id, childId)}
+        showTrackColor={showTrackColors}
       />)
       : items.map((item) => <TracksItem
         item={item}
         key={item.id}
         onClear={onClearItemTracks}
         onToggleChildTracks={onToggleItemChildTracks}
+        showTrackColors={showTrackColors}
       />)}
   </ul>;
 };

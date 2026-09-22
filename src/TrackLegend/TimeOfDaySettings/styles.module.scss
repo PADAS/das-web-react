@@ -23,7 +23,9 @@
     }
 
     .chevronButton {
-      @include buttons.inlineIconButton;
+      @include buttons.iconButton;
+
+      flex-shrink: 0;
     }
   }
 

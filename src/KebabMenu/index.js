@@ -8,12 +8,15 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import MoonLoader from 'react-spinners/MoonLoader';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 
 import * as styles from './styles.module.scss';
 
 const MenuContext = createContext(null);
+
+const LOADER_SIZE = 18;
 
 const FOCUS_INTENT_FIRST = 'first';
 const FOCUS_INTENT_LAST = 'last';
@@ -105,6 +108,7 @@ const KebabMenu = ({
   className = '',
   defaultShow = false,
   dotColor,
+  isLoading = false,
   ref,
   size,
   title,
@@ -118,17 +122,24 @@ const KebabMenu = ({
   const [show, setShow] = useState(defaultShow);
   const [buttonRef, setButtonRef] = useState(null);
 
+  // Closing without restoring focus: a click outside lands focus where the user
+  // clicked, and pulling it back would scroll the list to the abandoned toggle.
+  const hideMenu = useCallback(() => setShow(false), []);
+
   const closeMenu = useCallback(() => {
-    setShow(false);
+    hideMenu();
 
     buttonRef?.focus();
-  }, [buttonRef]);
+  }, [buttonRef, hideMenu]);
 
+  // The menu takes no new action while the one it started is still running.
   const openMenu = useCallback((focusIntent = null) => {
-    pendingFocusIntentRef.current = focusIntent;
+    if (!isLoading) {
+      pendingFocusIntentRef.current = focusIntent;
 
-    setShow(true);
-  }, []);
+      setShow(true);
+    }
+  }, [isLoading]);
 
   const registerOption = useCallback((nodeRef, disabled) => {
     const option = { nodeRef, disabled };
@@ -278,7 +289,9 @@ const KebabMenu = ({
   return (
     <div className={`${styles.kebabMenu} ${className}`} onKeyDown={onKeyDown} {...rest}>
       <button
+        aria-busy={isLoading}
         aria-controls={menuId}
+        aria-disabled={isLoading}
         aria-expanded={show}
         aria-haspopup="menu"
         aria-label={ariaLabel}
@@ -289,11 +302,14 @@ const KebabMenu = ({
         title={title}
         type="button"
       >
-        <span aria-hidden="true" className={styles.dots} />
+        {isLoading
+          ? <MoonLoader aria-hidden color="currentColor" size={LOADER_SIZE} />
+          : <span aria-hidden="true" className={styles.dots} />}
       </button>
 
       <Overlay
-        onHide={closeMenu}
+        flip
+        onHide={hideMenu}
         placement={align === 'end' ? 'bottom-end' : 'bottom-start'}
         rootClose
         show={show}

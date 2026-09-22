@@ -1,5 +1,6 @@
 @use 'sass:color';
 
+@use '../../../../../../common/styles/buttons';
 @use '../../../../../../common/styles/vars/colors';
 @use '../../../../../../common/styles/inputs';
 
@@ -80,68 +81,36 @@
   }
 
   .deleteButton {
+    @include buttons.chipIconButton;
+
     background-color: colors.$high-priority-bg-hover;
-    border: none;
-    border-radius: 0.25rem;
+    border-color: colors.$high-priority-bg-hover;
     color: colors.$bright-red;
-    height: 2.25rem;
-    outline: none;
-    width: 2.25rem;
 
-    &:disabled {
-      opacity: 0.66;
+    svg {
+      height: 1rem;
+      width: 1rem;
     }
 
-    &:hover:not(:disabled) {
+    &:hover {
       background-color: color.adjust(colors.$high-priority-bg-hover, $lightness: -5%);
+      border-color: color.adjust(colors.$high-priority-bg-hover, $lightness: -5%);
     }
 
-    &:focus-visible {
-      border: 2px solid colors.$bright-blue;
+    &:disabled:hover {
+      background-color: colors.$high-priority-bg-hover;
+      border-color: colors.$high-priority-bg-hover;
     }
   }
 
   .cancelButton {
-    background-color: white;
-    border: none;
-    border-radius: 0.25rem;
-    color: colors.$off-black;
-    font-size: 1rem;
-    font-weight: bold;
-    height: 2.25rem;
+    @include buttons.chipTextButton;
+
+    display: inline-flex;
     margin-right: 0.5rem;
-    outline: none;
-    padding: 0 0.5rem;
-
-    &:hover {
-      background: colors.$light-gray-background;
-    }
-
-    &:focus-visible {
-      border: 2px solid colors.$bright-blue;
-      color: colors.$bright-blue;
-    }
   }
 
   .doneButton {
-    background-color: colors.$bright-blue;
-    border: none;
-    border-radius: 0.25rem;
-    color: white;
-    font-size: 1rem;
-    font-weight: bold;
-    height: 2.25rem;
-    outline: none;
-    padding: 0 0.5rem;
-
-    &:hover {
-      background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
-    }
-
-    &:focus-visible {
-      background-color: white;
-      border: 2px solid colors.$bright-blue;
-      color: colors.$bright-blue;
-    }
+    @include buttons.primaryActionButton;
   }
 }

@@ -94,11 +94,10 @@ $cardExpansionTransitionTime: 300ms;
     padding-right: 0.5rem;
 
     &.collapseRow {
-      background: var(--item-row-bg, transparent);
       cursor: pointer;
 
       &:hover:not(:has(.actionButton:not(.collapseToggleButton):hover)) {
-        background: var(--item-row-hover-bg, #{colors.$light-gray});
+        background: var(--item-row-hover-bg, #{colors.$very-light-gray});
       }
     }
 
@@ -110,20 +109,24 @@ $cardExpansionTransitionTime: 300ms;
 
     // List item components tune parts of the row from their own CSS modules,
     // through the --item-* and --action-icon-size custom properties below.
+    .attachmentThumbnail,
+    .itemIcon {
+      border-radius: 0.25rem;
+      height: 2.5rem;
+      margin-left: 0.25rem;
+      width: 2.5rem;
+    }
+
     .attachmentThumbnail {
-      height: 100%;
       object-fit: cover;
-      width: 3rem;
     }
 
     .itemIcon {
       align-items: center;
-      background-color: var(--item-icon-bg, #{colors.$very-light-gray});
-      color: var(--item-icon-color, black);
+      background-color: var(--item-icon-bg, #{colors.$light-gray-background});
+      color: var(--item-icon-color, #{colors.$secondary-medium-gray});
       display: flex;
-      height: 100%;
       justify-content: center;
-      width: 3rem;
 
       svg {
         height: var(--item-icon-size, 1.375rem);

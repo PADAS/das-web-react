@@ -1,0 +1,54 @@
+@use '../../../../common/styles/buttons';
+@use '../../../../common/styles/vars/colors';
+
+.filters {
+  flex-shrink: 0;
+
+  .controls {
+    border-bottom: 1px solid colors.$light-gray-lines;
+    display: flex;
+    padding: 0.75rem;
+
+    .searchBar {
+      width: 40%;
+    }
+
+    .triggerButtons {
+      align-items: center;
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+      width: 60%;
+
+      .triggerButton {
+        @include buttons.chipTextButton;
+        @include buttons.chipActiveState;
+
+        flex-shrink: 0;
+      }
+    }
+  }
+
+  .summaryBar {
+    align-items: center;
+    border-bottom: 1px solid colors.$light-gray-lines;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: space-between;
+    min-height: 3.25rem;
+    padding: 0.5rem;
+
+    .summary {
+      color: colors.$off-black;
+      font-size: 0.75rem;
+      line-height: normal;
+      margin: 0;
+    }
+
+    .resetButton {
+      @include buttons.chipTextButton;
+
+      flex-shrink: 0;
+    }
+  }
+}

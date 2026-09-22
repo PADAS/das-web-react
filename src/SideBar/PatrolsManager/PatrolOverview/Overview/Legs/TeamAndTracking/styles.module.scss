@@ -1,4 +1,3 @@
-@use '../../../../../../common/styles/buttons';
 @use '../../../../../../common/styles/inputs';
 @use '../../../../../../common/styles/vars/colors';
 @use '../../../../_shared' as shared;
@@ -86,7 +85,7 @@
       }
 
       .jumpToLocationButton {
-        @include buttons.inlineIconButton;
+        @include shared.icon-button-small;
 
         flex-shrink: 0;
         margin-left: auto;

@@ -1,3 +1,4 @@
+@use '../../../../common/styles/buttons';
 @use '../../../../common/styles/vars/colors';
 
 .header {
@@ -6,21 +7,14 @@
   margin-bottom: 0.75rem;
 
   .backButton {
-    background: none;
-    border: none;
-    border-radius: 0.1875rem;
-    color: colors.$secondary-medium-gray;
+    @include buttons.iconButton;
+
+    flex-shrink: 0;
     margin-right: 1rem;
-    outline: none;
-    padding: 0.25rem 0.5rem;
 
-    &:focus-visible {
-      outline: 2px solid colors.$bright-blue;
-      color: colors.$bright-blue;
-    }
-
-    &:hover {
-      background: colors.$light-gray-background;
+    svg {
+      height: 1rem;
+      width: 1rem;
     }
   }
 
