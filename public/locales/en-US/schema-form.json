@@ -17,6 +17,7 @@
     "required": "This is a required field.",
     "timeFormat": "Invalid time format.",
     "uploadFailedError": "One or more file uploads failed. Remove the failed files before submitting.",
+    "uploadFailedWithReasonError": "One or more file uploads failed: {{reason}}. Remove the failed files before submitting.",
     "uploadInProgressError": "Please wait for files to finish uploading.",
     "uriFormat": "Invalid URL format.",
     "uuidFormat": "Invalid UUID format."
@@ -36,6 +37,8 @@
       "uploadErrorLabel": "Upload failed",
       "uploadFailedAnnouncement_one": "{{fileName}} couldn't be uploaded",
       "uploadFailedAnnouncement_other": "{{count}} files couldn't be uploaded",
+      "uploadFailedWithReasonAnnouncement_one": "{{fileName}} couldn't be uploaded: {{reason}}",
+      "uploadFailedWithReasonAnnouncement_other": "{{count}} files couldn't be uploaded: {{reason}}",
       "uploadStartedAnnouncement_one": "Uploading {{fileName}}",
       "uploadStartedAnnouncement_other": "Uploading {{count}} files",
       "uploadSucceededAnnouncement_one": "{{fileName}} uploaded",
@@ -87,6 +90,11 @@
       "true": "Yes"
     },
     "collectionHumanizedValue": "{{collectionLength}} items"
+  },
+  "uploadFailureReasons": {
+    "tooLarge": "File is too large",
+    "tooManyRequests": "Too many uploads, try later",
+    "unsupportedType": "File type is not allowed"
   },
   "validationErrorsAnnouncement": "There are validation errors in the following fields:"
 }

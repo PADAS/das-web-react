@@ -3,8 +3,8 @@ import { AxiosError } from 'axios';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
+import { attachmentSchemaV2, eventSchemas, snareSchemaV2 } from '../../__test-helpers/fixtures/event-schemas';
 import { createMapMock } from '../../__test-helpers/mocks';
-import { eventSchemas, snareSchemaV2 } from '../../__test-helpers/fixtures/event-schemas';
 import { eventTypes, snareV2 } from '../../__test-helpers/fixtures/event-types';
 import { formValidator } from '../../utils/events';
 import { GPS_FORMATS } from '../../utils/location';
@@ -15,6 +15,7 @@ import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import { render, screen, waitFor, within } from '../../test-utils';
 import { report } from '../../__test-helpers/fixtures/reports';
 import { TrackerContext } from '../../utils/analytics';
+import { uploadFile } from '../../ducks/user-content';
 import { VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 
 import DetailsSection from './';
@@ -29,6 +30,11 @@ jest.mock('mapbox-gl', () => ({
     setOffset() {}
     trackPointer() {}
   },
+}));
+
+jest.mock('../../ducks/user-content', () => ({
+  ...jest.requireActual('../../ducks/user-content'),
+  uploadFile: jest.fn(),
 }));
 
 describe('ReportManager - DetailsSection', () => {
@@ -56,6 +62,8 @@ describe('ReportManager - DetailsSection', () => {
   beforeEach(() => {
     map = createMapMock();
 
+    uploadFile.mockImplementation(() => () => 'test-upload-id');
+
     submitFormButtonRef = { current: {} };
 
     store = {
@@ -68,6 +76,7 @@ describe('ReportManager - DetailsSection', () => {
           ...eventSchemas,
           loading: false,
         },
+        userContent: {},
       },
       view: {
         coordinateReferenceSystems: {
@@ -553,6 +562,23 @@ describe('ReportManager - DetailsSection', () => {
     submitFormButtonRef.current.click();
 
     expect(onFormSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  test('gives the schema form the community input value it receives for v2 schemas', async () => {
+    store.data.eventTypes = [...eventTypes, snareV2];
+    renderDetailsSection({
+      communityInputValue: 'test-community-input',
+      eventSchema: attachmentSchemaV2,
+      reportForm: { ...report, event_type: 'snare_v2_rep' },
+    });
+    const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
+
+    await userEvent.upload(
+      screen.getByTestId('schema-form-attachment-field-attachment_field-file-input'),
+      file
+    );
+
+    expect(uploadFile).toHaveBeenCalledWith(file, 'test-community-input');
   });
 
   test('does not show the loader if the schema is loaded', async () => {

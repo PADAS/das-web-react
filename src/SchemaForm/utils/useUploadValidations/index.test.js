@@ -6,6 +6,7 @@ import { renderHook } from '../../../test-utils';
 import i18n from '../../../i18nForTests';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import { FORM_ELEMENT_TYPES } from '../../../utils/form-schemas/constants';
+import { UPLOAD_FAILURE_REASONS } from '../../../ducks/user-content';
 
 import useUploadValidations from '.';
 
@@ -71,6 +72,66 @@ describe('SchemaForm - Utils - useUploadValidations', () => {
       textField: 'some text',
       attachmentField: [{ uploadId: 'upload-1' }],
       collectionField: [{ attachmentField: [{ uploadId: 'upload-2' }] }],
+    };
+
+    const { result } = renderHook(() => useUploadValidations(formElements), { wrapper: Wrapper });
+    const runValidations = result.current;
+
+    expect(runValidations(formData)).toEqual({
+      attachmentField: { message: 'One or more file uploads failed. Remove the failed files before submitting.' },
+    });
+  });
+
+  test.each([
+    [UPLOAD_FAILURE_REASONS.TOO_LARGE, 'File is too large'],
+    [UPLOAD_FAILURE_REASONS.TOO_MANY_REQUESTS, 'Too many uploads, try later'],
+    [UPLOAD_FAILURE_REASONS.UNSUPPORTED_TYPE, 'File type is not allowed'],
+  ])('names the %s reason in the upload failed error', (reason, reasonLabel) => {
+    store.data.userContent = {
+      'upload-1': { reason, status: 'failed' },
+      'upload-2': { status: 'success' },
+    };
+    const formData = {
+      textField: 'some text',
+      attachmentField: [{ uploadId: 'upload-1' }],
+      collectionField: [{ attachmentField: [{ uploadId: 'upload-2' }] }],
+    };
+
+    const { result } = renderHook(() => useUploadValidations(formElements), { wrapper: Wrapper });
+    const runValidations = result.current;
+
+    expect(runValidations(formData)).toEqual({
+      attachmentField: {
+        message: `One or more file uploads failed: ${reasonLabel}. Remove the failed files before submitting.`,
+      },
+    });
+  });
+
+  test('returns the upload failed error without a reason when the uploads failed for different reasons', () => {
+    store.data.userContent = {
+      'upload-1': { reason: UPLOAD_FAILURE_REASONS.TOO_LARGE, status: 'failed' },
+      'upload-1b': { reason: UPLOAD_FAILURE_REASONS.UNSUPPORTED_TYPE, status: 'failed' },
+    };
+    const formData = {
+      textField: 'some text',
+      attachmentField: [{ uploadId: 'upload-1' }, { uploadId: 'upload-1b' }],
+    };
+
+    const { result } = renderHook(() => useUploadValidations(formElements), { wrapper: Wrapper });
+    const runValidations = result.current;
+
+    expect(runValidations(formData)).toEqual({
+      attachmentField: { message: 'One or more file uploads failed. Remove the failed files before submitting.' },
+    });
+  });
+
+  test('returns the upload failed error without a reason when the upload failed for an unknown reason', () => {
+    store.data.userContent = {
+      'upload-1': { reason: UPLOAD_FAILURE_REASONS.UNKNOWN, status: 'failed' },
+    };
+    const formData = {
+      textField: 'some text',
+      attachmentField: [{ uploadId: 'upload-1' }],
     };
 
     const { result } = renderHook(() => useUploadValidations(formElements), { wrapper: Wrapper });
