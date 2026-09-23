@@ -1,3 +1,5 @@
+import isEqual from 'react-fast-compare';
+
 import { endOfToday, generateDaysAgoDate } from '../../utils/datetime';
 import globalDateRangeReducerWithDefaultConfig, { RESET_DATE_RANGE, UPDATE_DATE_RANGE } from '../global-date-range';
 import { REACT_APP_DEFAULT_PATROL_FILTER_FROM_DAYS } from '../../constants';
@@ -24,12 +26,11 @@ export const INITIAL_FILTER_STATE = {
 export const PATROL_FILTER_STORAGE_KEY = 'patrolFilter';
 
 export const patrolFilterMigrations = {
-  // The date filter mode used to be overridden with overlap at the default
-  // range, so a stored mode may never have been the user's choice.
-  0: (state) => ({
-    ...state,
-    filter: { ...state.filter, patrols_overlap_daterange: INITIAL_FILTER_STATE.filter.patrols_overlap_daterange },
-  }),
+  // Requests at the default range used to send overlap whatever mode was stored,
+  // so only there does the stored mode differ from the one in effect.
+  0: (state) => isEqual(state.filter?.date_range, INITIAL_FILTER_STATE.filter.date_range)
+    ? { ...state, filter: { ...state.filter, patrols_overlap_daterange: true } }
+    : state,
 };
 
 export const persistenceConfig = generateOptionalStorageConfig(

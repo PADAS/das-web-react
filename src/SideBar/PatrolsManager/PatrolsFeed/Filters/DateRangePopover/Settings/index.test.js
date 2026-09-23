@@ -36,6 +36,15 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters - DateRangePopover - 
     expect(screen.getByRole('radio', { name: /^Filter by date range overlap/ })).not.toBeChecked();
   });
 
+  test('lists the overlap mode first', () => {
+    renderSettings();
+
+    const radios = screen.getAllByRole('radio');
+
+    expect(radios[0]).toHaveAccessibleName(/^Filter by date range overlap/);
+    expect(radios[1]).toHaveAccessibleName(/^Filter by start date/);
+  });
+
   test('marks the overlap mode as the one in use when the filter is set to it', () => {
     store.data.patrolFilter.filter.patrols_overlap_daterange = true;
 

@@ -17,14 +17,14 @@ const Settings = ({ className = '', onChange }) => {
 
   const dateFilterModeOptions = [
     {
-      description: t('patrolWithinRangeTooltip'),
-      label: t('byStartDateLabel'),
-      value: DATE_FILTER_MODES.START_DATE,
-    },
-    {
       description: t('patrolOverlapsRangeTooltip'),
       label: t('byRangeDateLabel'),
       value: DATE_FILTER_MODES.OVERLAP,
+    },
+    {
+      description: t('patrolWithinRangeTooltip'),
+      label: t('byStartDateLabel'),
+      value: DATE_FILTER_MODES.START_DATE,
     },
   ];
 

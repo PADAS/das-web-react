@@ -64,7 +64,7 @@ describe('Ducks - Patrol filter', () => {
   });
 
   describe('persistenceConfig', () => {
-    test('brings a stored date filter mode back to its default while keeping the rest of the stored filter', async () => {
+    test('sets the overlap mode on a filter stored at the default date range, keeping the rest of it', async () => {
       const storedState = {
         _persist: { rehydrated: false, version: -1 },
         filter: { ...INITIAL_FILTER_STATE.filter, patrol_type: ['1'], patrols_overlap_daterange: false },
@@ -77,6 +77,23 @@ describe('Ducks - Patrol filter', () => {
         ...storedState,
         filter: { ...storedState.filter, patrols_overlap_daterange: true },
       });
+    });
+
+    test('keeps the start date mode of a filter stored at a custom date range', async () => {
+      const storedState = {
+        _persist: { rehydrated: false, version: -1 },
+        filter: {
+          ...INITIAL_FILTER_STATE.filter,
+          date_range: { lower: '2026-01-01T00:00:00.000Z', upper: '2026-02-01T00:00:00.000Z' },
+          patrols_overlap_daterange: false,
+        },
+        status: [],
+      };
+
+      const migratedState = await persistenceConfig.migrate(storedState, persistenceConfig.version);
+
+      expect(migratedState.filter.patrols_overlap_daterange).toBe(false);
+      expect(migratedState.filter.date_range).toEqual(storedState.filter.date_range);
     });
 
     test('keeps a date filter mode stored since the migration', async () => {
