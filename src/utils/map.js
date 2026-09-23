@@ -17,9 +17,7 @@ export const calcSidebarPaddingLeft = ({ pathname, isMediumLayoutOrLarger }) => 
     const itemId = getCurrentIdFromURL(pathname);
 
     if (currentTab || itemId) {
-      return itemId
-        ? SIDEBAR_DETAIL_VIEW_WIDTH_PIXELS
-        : SIDEBAR_WIDTH_PIXELS + VERTICAL_NAV_RAIL_WIDTH_PIXELS;
+      return (itemId ? SIDEBAR_DETAIL_VIEW_WIDTH_PIXELS : SIDEBAR_WIDTH_PIXELS) + VERTICAL_NAV_RAIL_WIDTH_PIXELS;
     }
   }
 

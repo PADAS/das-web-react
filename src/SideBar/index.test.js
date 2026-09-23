@@ -500,15 +500,10 @@ describe('SideBar', () => {
     expect(screen.getByRole('heading')).toHaveTextContent('Settings');
   });
 
-  test('closes the sidebar tabs when clicking the cross button', async () => {
+  test('closes the sidebar tabs with a link to the root route', async () => {
     renderSideBar();
 
-    expect(navigate).toHaveBeenCalledTimes(0);
-
-    await userEvent.click(screen.getByRole('button', { name: 'Close Event Feed' }));
-
-    expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/');
+    expect(screen.getByRole('link', { name: 'Close sidebar' })).toHaveAttribute('href', '/');
   });
 
   test('redirects to events path when legacy reports URL is accessed and events are enabled', async () => {

@@ -5,7 +5,8 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as CheckIcon } from '../../../../../common/images/icons/check-light.svg';
 
-import getPatrolStatusOptions from '../../utils/getPatrolStatusOptions';
+import getPatrolStatusOptions from '../../../utils/getPatrolStatusOptions';
+import getPatrolStatusTransition from '../../../utils/getPatrolStatusTransition';
 import { TrackerContext } from '../../../../../utils/analytics';
 import { usePatrolsPermissions } from '../../../../../hooks/usePermissions';
 
@@ -16,6 +17,7 @@ import * as styles from './styles.module.scss';
 const StatusSelect = ({ isDirty, onSelect, patrol, patrolState, state }) => {
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolOverview.header' });
   const { t: tStatusPill } = useTranslation('patrols', { keyPrefix: 'statusPill' });
+  const { t: tStatusTransitions } = useTranslation('patrols', { keyPrefix: 'statusTransitions' });
 
   const { hasPatrolsUpdatePermission } = usePatrolsPermissions();
 
@@ -152,21 +154,26 @@ const StatusSelect = ({ isDirty, onSelect, patrol, patrolState, state }) => {
           {options.map((option, index) => {
             const isSelected = option === state;
 
+            // Only the state the patrol is in already names itself; the rest
+            // are named after the move that reaches them, which makes them
+            // commands rather than a set to choose one of.
+            const transition = getPatrolStatusTransition(patrolState, option);
+
             return <li className={styles.menuItem} key={option.key} role="none">
               <button
-                aria-checked={isSelected}
+                aria-current={isSelected || undefined}
                 className={styles.menuItemOption}
                 onClick={() => onOptionClick(option)}
                 ref={(element) => {
                   optionRefs.current[index] = element;
                 }}
-                role="menuitemradio"
+                role="menuitem"
                 tabIndex={-1}
                 type="button"
               >
                 {isSelected && <CheckIcon aria-hidden="true" className={styles.checkIcon} />}
 
-                {tStatusPill(`uiStateTitles.${option.key}`)}
+                {transition ? tStatusTransitions(transition) : tStatusPill(`uiStateTitles.${option.key}`)}
               </button>
             </li>;
           })}

@@ -86,35 +86,57 @@
     }
   },
   "patrolFilters": {
-    "datesTitle": "Tarehe",
     "dateRangePopover": {
-      "title": "Upeo wa Tarehe",
-      "resetButton": "Rudisha"
+      "endDateLabel": "Hadi",
+      "presetButtons": {
+        "lastSevenDays": "Siku 7 zilizopita",
+        "lastThirtyDays": "Siku 30 zilizopita",
+        "lastThreeMonths": "Miezi 3 iliyopita",
+        "today": "Leo",
+        "yesterday": "Jana"
+      },
+      "presetsGroupLabel": "Upeo wa tarehe uliowekwa awali",
+      "resetButton": "Rudisha",
+      "resetButtonLabel": "Rudisha vichujio vya tarehe",
+      "startDateLabel": "Kutoka",
+      "title": "Upeo wa Tarehe"
+    },
+    "datesModifiedButtonLabel": "Tarehe, vichujio vya tarehe vimetumika",
+    "datesTitle": "Tarehe",
+    "filteredResultsSummary_one": "matokeo {{count}} yaliyochujwa kutoka <dateRange>{{dateRange}}</dateRange>",
+    "filteredResultsSummary_other": "matokeo {{count}} yaliyochujwa kutoka <dateRange>{{dateRange}}</dateRange>",
+    "filtersModifiedButtonLabel": "Vichujio, vichujio vimetumika",
+    "filtersPopover": {
+      "checkBoxAllOption": "Zote",
+      "patrolStatuses": {
+        "active": "Tendaji",
+        "cancelled": "Imeghairiwa",
+        "done": "Imefanyika"
+      },
+      "patrolTypeLabel": "Aina ya Doria",
+      "reportedByPlaceholder": "Chagua Kifaa...",
+      "resetAllButton": "Rudisha Zote",
+      "resetButton": "Rudisha",
+      "resetPatrolTypesButtonLabel": "Rudisha aina za doria",
+      "resetStatusButtonLabel": "Rudisha hali",
+      "statusLabel": "Hali",
+      "teamLeadLabel": "Kiongozi wa timu",
+      "title": "Vichujio vya Doria",
+      "trackedByLabel": "Inayofuatiliwa na",
+      "unknownTeamLeadLabel": "Kiongozi wa timu asiyejulikana"
     },
     "filtersTitle": "Vichujio",
     "globalResetFilterButton": "Rudisha",
-    "searchbarPlaceHolder": "Tafuta Doria...",
-    "filtersPopover": {
-      "checkBoxAllOption": "Zote",
-      "title": "Vichujio vya Doria",
-      "resetAllButton": "Rudisha Zote",
-      "resetButton": "Rudisha",
-      "trackedByLabel": "Inayofuatiliwa na",
-      "statusLabel": "Hali",
-      "patrolTypeLabel": "Aina ya Doria",
-      "reportedByPlaceholder": "Chagua Kifaa...",
-      "patrolStatuses": {
-        "active": "Tendaji",
-        "done": "Imefanyika",
-        "cancelled": "Imeghairiwa"
-      }
-    }
+    "resultsSummary_one": "matokeo {{count}} kutoka <dateRange>{{dateRange}}</dateRange>",
+    "resultsSummary_other": "matokeo {{count}} kutoka <dateRange>{{dateRange}}</dateRange>",
+    "searchbarPlaceHolder": "Tafuta Doria..."
   },
   "patrolFiltersSettings": {
-    "byStartDateLabel": "Chuja kwa tarehe ya kuanza",
     "byRangeDateLabel": "Chuja kwa mizunguko ya tarehe",
-    "patrolWithinRangeTooltip": "Jumuisha doria zinazoanza ndani ya upeo wa tarehe",
-    "patrolOverlapsRangeTooltip": "Jumuisha doria ambazo upeo wa tarehe wa kuanzia hadi mwisho unafanana na upeo wa tarehe"
+    "byStartDateLabel": "Chuja kwa tarehe ya kuanza",
+    "dateFilterModeLabel": "Hali ya kichujio cha tarehe",
+    "patrolOverlapsRangeTooltip": "Jumuisha doria ambazo upeo wa tarehe wa kuanzia hadi mwisho unafanana na upeo wa tarehe",
+    "patrolWithinRangeTooltip": "Jumuisha doria zinazoanza ndani ya upeo wa tarehe"
   },
   "reportTypeMultiSelect": {
     "placeholder": "Tafuta aina",

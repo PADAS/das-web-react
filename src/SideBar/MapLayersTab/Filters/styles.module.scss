@@ -2,10 +2,10 @@
 @use '../../../common/styles/vars/colors';
 
 .form {
-  border-bottom: 1px solid colors.$gray-border;
+  border-bottom: 1px solid colors.$light-gray-lines;
   display: flex;
   flex-direction: column;
-  padding: 0.75rem 0.5rem;
+  padding: 0.75rem;
 
   @media (min-width: layout.$md-layout-width-min) {
     flex-direction: row;

@@ -211,7 +211,6 @@ const Collection = ({
           className={styles.addButton}
           disabled={readOnly || isMaxItemsReached}
           onClick={onAddButtonClick}
-          title={t('addButtonLabel', { itemName: details.itemName })}
           type="button"
         >
           <AddButtonIcon className={styles.icon} />

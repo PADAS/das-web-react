@@ -8,17 +8,64 @@
   @include buttons.iconButton;
 }
 
+@mixin icon-button-small {
+  @include buttons.iconButtonSmall;
+}
+
 @mixin chip-icon-button {
   @include buttons.chipIconButton;
 }
 
-@mixin chip-icon-button-active-state {
-  @include buttons.chipIconButtonActiveState;
+@mixin chip-active-state {
+  @include buttons.chipActiveState;
 }
 
 @mixin header-mobile-only-option {
   @media (min-width: layout.$md-layout-width-min) {
     display: none !important;
+  }
+}
+
+@mixin track-toggle-button {
+  svg {
+    height: 2.5rem;
+    width: 2.5rem;
+  }
+
+  &.visible {
+    background-color: colors.$bright-blue;
+    border-color: colors.$bright-blue;
+    color: white;
+
+    &:hover {
+      background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+      border-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+    }
+
+    &:focus-visible {
+      background-color: white;
+      border-color: colors.$bright-blue;
+      color: colors.$bright-blue;
+      outline: 1px solid colors.$bright-blue;
+    }
+  }
+
+  &.pinned {
+    background-color: colors.$green;
+    border-color: colors.$green;
+    color: white;
+
+    &:hover {
+      background-color: color.adjust(colors.$green, $lightness: -5%);
+      border-color: color.adjust(colors.$green, $lightness: -5%);
+    }
+
+    &:focus-visible {
+      background-color: white;
+      border-color: colors.$green;
+      color: colors.$green;
+      outline: 1px solid colors.$green;
+    }
   }
 }
 
@@ -36,46 +83,7 @@
   }
 
   .toggleTrackButton {
-    svg {
-      height: 2.5rem;
-      width: 2.5rem;
-    }
-
-    &.visible {
-      background-color: colors.$bright-blue;
-      border-color: colors.$bright-blue;
-      color: white;
-
-      &:hover {
-        background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
-        border-color: color.adjust(colors.$bright-blue, $lightness: -5%);
-      }
-
-      &:focus-visible {
-        background-color: white;
-        border-color: colors.$bright-blue;
-        color: colors.$bright-blue;
-        outline: 1px solid colors.$bright-blue;
-      }
-    }
-
-    &.pinned {
-      background-color: colors.$green;
-      border-color: colors.$green;
-      color: white;
-
-      &:hover {
-        background-color: color.adjust(colors.$green, $lightness: -5%);
-        border-color: color.adjust(colors.$green, $lightness: -5%);
-      }
-
-      &:focus-visible {
-        background-color: white;
-        border-color: colors.$green;
-        color: colors.$green;
-        outline: 1px solid colors.$green;
-      }
-    }
+    @include track-toggle-button;
   }
 }
 
@@ -149,15 +157,8 @@
 }
 
 @mixin save-button {
-  align-items: center;
-  background-color: colors.$bright-blue;
-  border: none;
-  border-radius: 0.25rem;
-  color: white;
-  display: inline-flex;
-  height: 2.25rem;
-  justify-content: center;
-  padding: 0 0.5rem;
+  @include buttons.primaryActionButton;
+
   position: relative;
   transition: background-color 150ms ease;
 
@@ -172,49 +173,14 @@
     justify-content: center;
     position: absolute;
   }
-
-  &:hover:not(:disabled):not(:focus-visible) {
-    background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
-  }
-
-  &:focus-visible {
-    background-color: white;
-    color: colors.$bright-blue;
-    outline: 2px solid colors.$bright-blue;
-  }
-
-  &:disabled {
-    cursor: default;
-    opacity: 0.75;
-  }
 }
 
 @mixin secondary-action-button {
-  align-items: center;
-  background-color: colors.$very-light-blue;
-  border: none;
-  border-radius: 0.25rem;
-  color: colors.$bright-blue;
-  display: inline-flex;
-  font-size: 0.875rem;
-  font-weight: 500;
-  gap: 0.375rem;
-  height: 2.25rem;
-  padding: 0 0.75rem;
-  text-decoration: none;
+  @include buttons.secondaryActionButton;
 
   svg {
     height: 1rem;
     width: 1rem;
-  }
-
-  &:hover {
-    background-color: color.adjust(colors.$very-light-blue, $lightness: -5%);
-    color: colors.$bright-blue;
-  }
-
-  &:focus-visible {
-    outline: 2px solid colors.$bright-blue;
   }
 }
 
@@ -225,6 +191,14 @@
   gap: 0.5rem;
   min-height: 2.5rem;
   padding: 0.5rem 0.75rem;
+}
+
+@mixin default-view-width {
+  width: 100%;
+
+  @media (min-width: layout.$md-layout-width-min) {
+    @include layout.sidebar-width-base;
+  }
 }
 
 @mixin detail-view-width {

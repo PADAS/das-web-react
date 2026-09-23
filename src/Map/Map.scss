@@ -112,10 +112,6 @@
 
 .general-add-button {
   color: $bright-blue;
+  height: 2.5rem !important;
   width: 2.5rem !important;
-
-  svg {
-    height: 2.5rem;
-    width: 2.5rem;
-  }
 }

@@ -1,5 +1,4 @@
-@use 'sass:color';
-
+@use '../../../../../common/styles/buttons';
 @use '../../../../../common/styles/vars/colors';
 
 .item {
@@ -134,30 +133,9 @@
 
     .dragHandleButton,
     .actionButton {
-      align-items: center;
-      background: none;
-      border: none;
-      border-radius: 0.1875rem;
-      color: colors.$secondary-medium-gray;
-      display: flex;
-      height: 1.75rem;
-      justify-content: center;
-      outline: none;
-      padding: 0;
-      width: 1.75rem;
+      @include buttons.iconButtonSmall;
 
-      &:disabled {
-        opacity: 0.66;
-      }
-
-      &:hover:not(:disabled) {
-        background: colors.$light-gray-background;
-      }
-
-      &:focus-visible {
-        color: colors.$bright-blue;
-        outline: 2px solid colors.$bright-blue;
-      }
+      flex-shrink: 0;
     }
 
     .titleWrapper {

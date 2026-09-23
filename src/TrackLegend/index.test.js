@@ -400,28 +400,6 @@ describe('TrackLegend', () => {
     expect(trackSettingsButton).not.toHaveClass('active');
   });
 
-  test('closes the track settings from the close button in the menu', async () => {
-    renderTrackLegend({
-      items: [{
-        description: 'Item description',
-        icon: <img alt="Item icon" src="icon" />,
-        id: 'id',
-        title: 'Item title',
-      }],
-    });
-
-    const trackSettingsButton = screen.getByLabelText('Open the track settings');
-    await userEvent.click(trackSettingsButton);
-
-    expect(trackSettingsButton).toHaveAttribute('aria-expanded', 'true');
-    expect(trackSettingsButton).toHaveAttribute('aria-label', 'Close the track settings');
-
-    await userEvent.click(screen.getAllByLabelText('Close the track settings')[1]);
-
-    expect(trackSettingsButton).toHaveAttribute('aria-expanded', 'false');
-    expect(trackSettingsButton).toHaveAttribute('aria-label', 'Open the track settings');
-  });
-
   test('clears the tracks when clicking the clear tracks button', async () => {
     renderTrackLegend({
       items: [{

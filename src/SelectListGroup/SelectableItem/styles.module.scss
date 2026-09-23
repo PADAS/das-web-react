@@ -50,9 +50,10 @@
   }
 
   .label {
+    align-items: center;
     color: colors.$off-black;
     display: flex;
-    flex-direction: column;
+    gap: 0.5rem;
     min-width: 0;
     width: fit-content;
 
@@ -64,21 +65,42 @@
       color: colors.$bright-red;
     }
 
-    .display {
-      line-height: 1.375;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+    .icon {
+      align-items: center;
+      display: flex;
+      flex-shrink: 0;
+      height: 1.25rem;
+      justify-content: center;
+      width: 1.25rem;
+
+      img, svg {
+        height: 100%;
+        object-fit: contain;
+        width: 100%;
+      }
     }
 
-    .description {
-      color: colors.$alt-light-gray;
-      font-size: 0.875rem;
-      font-weight: 400;
-      line-height: 1.25;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+    .text {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+
+      .display {
+        line-height: 1.375;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .description {
+        color: colors.$alt-light-gray;
+        font-size: 0.875rem;
+        font-weight: 400;
+        line-height: 1.25;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
     }
   }
 }

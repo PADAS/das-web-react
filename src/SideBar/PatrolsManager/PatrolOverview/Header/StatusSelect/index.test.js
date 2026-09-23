@@ -9,12 +9,25 @@ import { TrackerContext } from '../../../../../utils/analytics';
 
 import StatusSelect from './';
 
-const { ACTIVE, DONE, INVALID, PAUSED } = PATROL_UI_STATES;
+const { ACTIVE, CANCELLED, DONE, INVALID, PAUSED } = PATROL_UI_STATES;
 
 const TWO_HOURS_AGO = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
 
 const activePatrol = {
   state: 'open',
+  patrol_segments: [{ time_range: { start_time: TWO_HOURS_AGO, end_time: null } }],
+};
+
+const pausedPatrol = {
+  state: 'open',
+  patrol_segments: [
+    { time_range: { start_time: TWO_HOURS_AGO, end_time: null } },
+    { is_pause: true, time_range: { start_time: TWO_HOURS_AGO, end_time: null } },
+  ],
+};
+
+const cancelledPatrol = {
+  state: 'cancelled',
   patrol_segments: [{ time_range: { start_time: TWO_HOURS_AGO, end_time: null } }],
 };
 
@@ -81,26 +94,44 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header - StatusSelect', ()
 
     await openMenu();
 
-    expect((await screen.findAllByRole('menuitemradio')).map((option) => option.textContent))
-      .toEqual(['Active', 'Cancelled', 'Paused', 'Done']);
+    expect((await screen.findAllByRole('menuitem')).map((option) => option.textContent))
+      .toEqual(['Active', 'Cancel', 'Pause', 'End']);
   });
 
-  test('checks the current status when there is nothing picked yet', async () => {
+  test('names resuming a paused patrol after the move, not after the state it reaches', async () => {
+    renderStatusSelect({ patrol: pausedPatrol, patrolState: PAUSED, state: PAUSED });
+
+    await openMenu();
+
+    expect((await screen.findAllByRole('menuitem')).map((option) => option.textContent))
+      .toEqual(['Paused', 'Resume', 'Cancel', 'End']);
+  });
+
+  test('names reopening a cancelled patrol as restoring it', async () => {
+    renderStatusSelect({ patrol: cancelledPatrol, patrolState: CANCELLED, state: CANCELLED });
+
+    await openMenu();
+
+    expect((await screen.findAllByRole('menuitem')).map((option) => option.textContent))
+      .toEqual(['Cancelled', 'Restore']);
+  });
+
+  test('marks the current status when there is nothing picked yet', async () => {
     renderStatusSelect();
 
     await openMenu();
 
-    expect(await screen.findByRole('menuitemradio', { name: 'Active' })).toBeChecked();
-    expect(screen.getByRole('menuitemradio', { name: 'Done' })).not.toBeChecked();
+    expect(await screen.findByRole('menuitem', { name: 'Active' })).toHaveAttribute('aria-current', 'true');
+    expect(screen.getByRole('menuitem', { name: 'End' })).not.toHaveAttribute('aria-current');
   });
 
-  test('checks the picked status instead of the current one', async () => {
+  test('marks the picked status instead of the current one', async () => {
     renderStatusSelect({ isDirty: true, state: DONE });
 
     await openMenu();
 
-    expect(await screen.findByRole('menuitemradio', { name: 'Done' })).toBeChecked();
-    expect(screen.getByRole('menuitemradio', { name: 'Active' })).not.toBeChecked();
+    expect(await screen.findByRole('menuitem', { name: 'End' })).toHaveAttribute('aria-current', 'true');
+    expect(screen.getByRole('menuitem', { name: 'Active' })).not.toHaveAttribute('aria-current');
   });
 
   test('focuses the checked status when the menu opens', async () => {
@@ -108,7 +139,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header - StatusSelect', ()
 
     await openMenu();
 
-    expect(await screen.findByRole('menuitemradio', { name: 'Paused' })).toHaveFocus();
+    expect(await screen.findByRole('menuitem', { name: 'Pause' })).toHaveFocus();
   });
 
   test('opens the menu when ArrowDown is pressed on the toggle', async () => {
@@ -117,7 +148,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header - StatusSelect', ()
     getToggle().focus();
     await userEvent.keyboard('{ArrowDown}');
 
-    expect(await screen.findByRole('menuitemradio', { name: 'Active' })).toHaveFocus();
+    expect(await screen.findByRole('menuitem', { name: 'Active' })).toHaveFocus();
   });
 
   test('opens the menu when ArrowUp is pressed on the toggle', async () => {
@@ -126,7 +157,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header - StatusSelect', ()
     getToggle().focus();
     await userEvent.keyboard('{ArrowUp}');
 
-    expect(await screen.findByRole('menuitemradio', { name: 'Active' })).toHaveFocus();
+    expect(await screen.findByRole('menuitem', { name: 'Active' })).toHaveFocus();
   });
 
   test('leaves the menu closed when a key it does not handle is pressed on the toggle', async () => {
@@ -145,13 +176,13 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header - StatusSelect', ()
     await screen.findByRole('menu');
 
     await userEvent.keyboard('{ArrowDown}');
-    expect(screen.getByRole('menuitemradio', { name: 'Cancelled' })).toHaveFocus();
+    expect(screen.getByRole('menuitem', { name: 'Cancel' })).toHaveFocus();
 
     await userEvent.keyboard('{ArrowDown}{ArrowDown}');
-    expect(screen.getByRole('menuitemradio', { name: 'Done' })).toHaveFocus();
+    expect(screen.getByRole('menuitem', { name: 'End' })).toHaveFocus();
 
     await userEvent.keyboard('{ArrowDown}');
-    expect(screen.getByRole('menuitemradio', { name: 'Active' })).toHaveFocus();
+    expect(screen.getByRole('menuitem', { name: 'Active' })).toHaveFocus();
   });
 
   test('moves focus to the previous status when ArrowUp is pressed, wrapping around', async () => {
@@ -162,7 +193,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header - StatusSelect', ()
 
     await userEvent.keyboard('{ArrowUp}');
 
-    expect(screen.getByRole('menuitemradio', { name: 'Done' })).toHaveFocus();
+    expect(screen.getByRole('menuitem', { name: 'End' })).toHaveFocus();
   });
 
   test('moves focus to the last status when End is pressed, and the first when Home is pressed', async () => {
@@ -172,10 +203,10 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header - StatusSelect', ()
     await screen.findByRole('menu');
 
     await userEvent.keyboard('{End}');
-    expect(screen.getByRole('menuitemradio', { name: 'Done' })).toHaveFocus();
+    expect(screen.getByRole('menuitem', { name: 'End' })).toHaveFocus();
 
     await userEvent.keyboard('{Home}');
-    expect(screen.getByRole('menuitemradio', { name: 'Active' })).toHaveFocus();
+    expect(screen.getByRole('menuitem', { name: 'Active' })).toHaveFocus();
   });
 
   test('keeps the menu open when a key it does not handle is pressed inside it', async () => {
@@ -187,7 +218,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header - StatusSelect', ()
     await userEvent.keyboard('a');
 
     expect(screen.getByRole('menu')).toBeInTheDocument();
-    expect(screen.getByRole('menuitemradio', { name: 'Active' })).toHaveFocus();
+    expect(screen.getByRole('menuitem', { name: 'Active' })).toHaveFocus();
   });
 
   test('hides the menu and refocuses the toggle when Escape is pressed', async () => {
@@ -248,7 +279,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header - StatusSelect', ()
     renderStatusSelect();
 
     await openMenu();
-    await userEvent.click(await screen.findByRole('menuitemradio', { name: 'Done' }));
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'End' }));
 
     expect(onSelect).toHaveBeenCalledWith(DONE);
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
@@ -258,7 +289,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header - StatusSelect', ()
     renderStatusSelect({ isDirty: true, state: DONE });
 
     await openMenu();
-    await userEvent.click(await screen.findByRole('menuitemradio', { name: 'Active' }));
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'Active' }));
 
     expect(onSelect).toHaveBeenCalledWith(ACTIVE);
   });
@@ -267,7 +298,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header - StatusSelect', ()
     renderStatusSelect();
 
     await openMenu();
-    await userEvent.click(await screen.findByRole('menuitemradio', { name: 'Done' }));
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'End' }));
 
     expect(track).toHaveBeenCalledWith('Pick the "done" patrol status from patrol overview');
   });

@@ -11,6 +11,7 @@
       },
       "addReportTabTitle": "Crear Evento"
     },
+    "defaultLabel": "Crear Evento o Patrulla",
     "defaultTitle": "Crear"
   },
   "choiceList": {
@@ -211,7 +212,14 @@
     "newVersionAvailableNotification": "Una nueva versión de EarthRanger está disponible. Se cargará la siguiente vez que recargue su navegador."
   },
   "sideBar": {
-    "closeGearTabButtonLabel": "Cerrar aparejos",
+    "addEventButtonLabel": "Crear Evento",
+    "addEventButtonTitle": "Crear Evento",
+    "addPatrolButtonLabel": "Crear Patrulla",
+    "addPatrolButtonTitle": "Crear Patrulla",
+    "backButtonLabel": "Volver atrás",
+    "backButtonTitle": "Atrás",
+    "closeButtonLabel": "Cerrar barra lateral",
+    "eventsLink": "Eventos",
     "gearLink": "Aparejos",
     "gearTab": {
       "loadErrorFallback": "Error en la solicitud",
@@ -239,7 +247,7 @@
       "fetchReportsErrorMessage": "No se pudieron cargar los eventos. Por favor intente de nuevo.",
       "tryAgainButton": "Intentar de nuevo"
     },
-    "eventsLink": "Eventos",
+    "settingsLink": "Preferencias",
     "settingsPane": {
       "alertsFrameTitle": "Configure sus alertas de EarthRanger",
       "alertsTabTitle": "Alertas",
@@ -345,8 +353,7 @@
         }
       },
       "mapTabTitle": "Mapa"
-    },
-    "settingsLink": "Preferencias"
+    }
   },
   "soundNotificationsPlayer": {
     "alarmRadioStateToastMessage": "{{subjectName}} necesita atención inmediata"

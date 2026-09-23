@@ -4,9 +4,9 @@
 @import '../common/styles/popovers';
 
 .form {
-  border-bottom: 1px solid $gray-border;
+  border-bottom: 1px solid $light-gray-lines;
   display: flex;
-  padding: 0.25rem 0.75rem 0.75rem;
+  padding: 0.75rem;
 
   .searchBar {
     width: 40%;
@@ -20,47 +20,8 @@
     width: 60%;
 
     .button {
-      align-items: center;
-      border-radius: 0.25rem;
-      display: flex;
-      font-size: 0.875rem;
-      font-weight: 500;
-      height: 2rem;
-      padding: 0 0.5rem;
-
-      &.inactive {
-        background-color: $light-gray-background;
-        border: 1px solid $light-gray-background;
-        color: $secondary-medium-gray;
-
-        &:hover {
-          background-color: darken($light-gray-background, 5%);
-          border-color: darken($light-gray-background, 5%);
-        }
-
-        &:focus-visible:not(:disabled) {
-          border-color: $bright-blue;
-          outline: 1px solid $bright-blue;
-        }
-      }
-
-      &.active {
-        background-color: $bright-blue;
-        border: 1px solid $bright-blue;
-        color: white;
-
-        &:hover {
-          background-color: darken($bright-blue, 5%);
-          border-color: darken($bright-blue, 5%);
-        }
-
-        &:focus-visible:not(:disabled) {
-          background-color: white;
-          border-color: $bright-blue;
-          color: $bright-blue;
-          outline: 1px solid $bright-blue;
-        }
-      }
+      @include chipTextButton;
+      @include chipActiveState;
     }
   }
 }

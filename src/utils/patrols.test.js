@@ -242,6 +242,23 @@ describe('Patrols utils', () => {
     test('returns active for a multi-leg patrol whose earlier leg has ended but whose latest leg is still active', () => {
       expect(calcPatrolState(multiLegPatrol)).toBe(ACTIVE);
     });
+
+    test('keeps returning done for a patrol the API calls done while a leg of it is still open', () => {
+      const patrol = {
+        patrol_segments: [
+          {
+            time_range: {
+              end_time: subHours(new Date(), 2).toISOString(),
+              start_time: subHours(new Date(), 4).toISOString(),
+            },
+          },
+          { is_pause: true, time_range: { end_time: null, start_time: subHours(new Date(), 2).toISOString() } },
+        ],
+        state: 'done',
+      };
+
+      expect(calcPatrolState(patrol)).toBe(DONE);
+    });
   });
 
   describe('hasPatrolBegun', () => {

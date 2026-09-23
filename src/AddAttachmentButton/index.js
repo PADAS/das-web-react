@@ -102,7 +102,6 @@ const AddAttachmentButton = ({ disabled = false, onAddAttachments, ...otherProps
       onDragLeave={onAttachmentButtonDragLeave}
       onDragOver={onAttachmentButtonDragOver}
       onDrop={onAttachmentButtonDrop}
-      title={t('addAttachmentButtonLabel')}
       type="button"
       {...otherProps}
       >

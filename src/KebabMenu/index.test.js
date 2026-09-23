@@ -131,17 +131,20 @@ describe('KebabMenu', () => {
     expect(toggle).toHaveFocus();
   });
 
-  test('hides the menu and refocuses the toggle button when clicking outside of it', async () => {
-    renderKebabMenu();
+  test('hides the menu and leaves focus on what was clicked when clicking outside of it', async () => {
+    render(<>
+      <KebabMenu aria-label="Options menu" title="Options">{defaultOptions}</KebabMenu>
 
-    const toggle = screen.getByRole('button', { name: 'Options menu' });
+      <button type="button">Elsewhere</button>
+    </>);
+
     await openMenu();
     await screen.findByRole('menu');
 
-    await userEvent.click(document.body);
+    await userEvent.click(screen.getByRole('button', { name: 'Elsewhere' }));
 
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
-    expect(toggle).toHaveFocus();
+    expect(screen.getByRole('button', { name: 'Elsewhere' })).toHaveFocus();
   });
 
   test('places the menu at the start of the toggle button by default', async () => {
@@ -343,6 +346,43 @@ describe('KebabMenu', () => {
     await userEvent.keyboard('{End}');
 
     expect(screen.getByText('Third option')).toHaveFocus();
+  });
+
+  describe('while an action it started is loading', () => {
+    test('shows the toggle button as busy', () => {
+      renderKebabMenu({ isLoading: true });
+
+      const toggle = screen.getByRole('button', { name: 'Options menu' });
+
+      expect(toggle).toHaveAttribute('aria-busy', 'true');
+      expect(toggle).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    test('does not open the menu when the toggle button is clicked', async () => {
+      renderKebabMenu({ isLoading: true });
+
+      await openMenu();
+
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    });
+
+    test('does not open the menu with the keyboard either', async () => {
+      renderKebabMenu({ isLoading: true });
+
+      screen.getByRole('button', { name: 'Options menu' }).focus();
+      await userEvent.keyboard('{ArrowDown}');
+
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    });
+
+    test('keeps the toggle button focusable, so focus stays where the user left it', async () => {
+      renderKebabMenu({ isLoading: true });
+
+      const toggle = screen.getByRole('button', { name: 'Options menu' });
+      await userEvent.tab();
+
+      expect(toggle).toHaveFocus();
+    });
   });
 
   test('skips an option that fails to actually receive focus when navigating with arrow keys', async () => {

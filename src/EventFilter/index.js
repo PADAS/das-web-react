@@ -183,7 +183,7 @@ const EventFilter = ({
       <div className={styles.buttons}>
         <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='bottom' overlay={FiltersPopover} flip={true}>
           <button
-            className={`${styles.button} ${filterModified ? styles.active : styles.inactive}`}
+            className={`${styles.button} ${filterModified ? styles.active : ''}`}
             data-testid='filter-btn'
             onClick={() => reportsTracker.track('Filters Icon Clicked')}
           >
@@ -193,7 +193,7 @@ const EventFilter = ({
 
         <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={DateFilterPopover} flip={true}>
           <button
-            className={`${styles.button} ${isDateRangeModified ? styles.active : styles.inactive}`}
+            className={`${styles.button} ${isDateRangeModified ? styles.active : ''}`}
             data-testid='date-filter-btn'
             onClick={() => reportsTracker.track('Dates Icon Clicked')}
           >

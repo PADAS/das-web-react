@@ -37,6 +37,7 @@ describe('PatrolFilter', () => {
             },
             tracked_by: INITIAL_FILTER_STATE.filter.tracked_by,
             patrol_type: INITIAL_FILTER_STATE.filter.patrol_type,
+            patrols_overlap_daterange: INITIAL_FILTER_STATE.filter.patrols_overlap_daterange,
             text: '',
           },
           status: INITIAL_FILTER_STATE.status,
@@ -87,7 +88,7 @@ describe('PatrolFilter', () => {
   });
 
   test('sets an inactive state to the filters button if there are no filters applied', async () => {
-    expect(screen.getByTestId('patrolFilter-filtersButton')).toHaveClass('inactive');
+    expect(screen.getByTestId('patrolFilter-filtersButton')).not.toHaveClass('active');
   });
 
   test('sets an active state to the filters button if there is a filter applied', async () => {
@@ -103,7 +104,7 @@ describe('PatrolFilter', () => {
   });
 
   test('sets an inactive state to the date range button if there are no filters applied', async () => {
-    expect(screen.getByTestId('patrolFilter-dateRangeButton')).toHaveClass('inactive');
+    expect(screen.getByTestId('patrolFilter-dateRangeButton')).not.toHaveClass('active');
   });
 
   test('sets an active state to the date range button if there is a filter applied', async () => {
@@ -119,5 +120,35 @@ describe('PatrolFilter', () => {
     );
 
     expect(screen.getByTestId('patrolFilter-dateRangeButton')).toHaveClass('active');
+  });
+
+  test('sets an active state to the date range button if the date filter mode is changed', async () => {
+    store.data.patrolFilter.filter.patrols_overlap_daterange = false;
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <PatrolFilter />
+      </Provider>
+    );
+
+    expect(screen.getByTestId('patrolFilter-dateRangeButton')).toHaveClass('active');
+  });
+
+  test('resets the date filter mode when the user clicks the global reset button', async () => {
+    store.data.patrolFilter.filter.patrols_overlap_daterange = false;
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <PatrolFilter />
+      </Provider>
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'Reset' }));
+
+    expect(updatePatrolFilter).toHaveBeenCalledWith(expect.objectContaining({
+      filter: expect.objectContaining({
+        patrols_overlap_daterange: INITIAL_FILTER_STATE.filter.patrols_overlap_daterange,
+      }),
+    }));
   });
 });

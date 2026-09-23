@@ -2,7 +2,7 @@ import React, { memo, useContext } from 'react';
 import { useDispatch } from 'react-redux';
 import { center, bboxPolygon } from '@turf/turf';
 
-import { BREAKPOINTS } from '../../../constants';
+import { BREAKPOINTS, SIDEBAR_WIDTH_PIXELS } from '../../../constants';
 import { useMatchMedia } from '../../../hooks';
 import { showFeatures } from '../../../ducks/map-layer-filter';
 import { setMapFeatureHighlightIDs } from '../../../ducks/mapFeatureHighlight';
@@ -20,8 +20,6 @@ import * as styles from '../styles.module.scss';
 
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
-
-const SIDEBAR_WIDTH_PIXELS = 512;
 
 const FeatureListItem = memo((props) => {
   const map = useContext(MapContext);

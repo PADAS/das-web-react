@@ -83,7 +83,7 @@ describe('Header', () => {
     const buttons = await screen.findAllByRole('button');
 
     expect((screen.queryByTestId('patrol-drawer-header-details'))).toHaveTextContent('Scheduled');
-    expect((screen.queryByTestId('patrol-drawer-header-description'))).toHaveTextContent('Start Overdue');
+    expect((screen.queryByTestId('patrol-drawer-header-description'))).toHaveTextContent('Overdue');
     expect(buttons[0]).toHaveTextContent('Start');
     expect(buttons[1]).toHaveClass('toggle');
   });

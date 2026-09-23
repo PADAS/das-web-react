@@ -86,35 +86,57 @@
     }
   },
   "patrolFilters": {
-    "datesTitle": "मिति",
     "dateRangePopover": {
-      "title": "समय सिमा",
-      "resetButton": "रिसेट गर्नुहोस्"
+      "endDateLabel": "सम्म",
+      "presetButtons": {
+        "lastSevenDays": "पछिल्लो ७ दिन",
+        "lastThirtyDays": "पछिल्लो ३० दिन",
+        "lastThreeMonths": "पछिल्लो तीन महिना",
+        "today": "आज",
+        "yesterday": "हिजो"
+      },
+      "presetsGroupLabel": "पूर्वनिर्धारित समय सिमाहरू",
+      "resetButton": "रिसेट गर्नुहोस्",
+      "resetButtonLabel": "मिति फिल्टरहरू रिसेट गर्नुहोस्",
+      "startDateLabel": "देखि",
+      "title": "समय सिमा"
+    },
+    "datesModifiedButtonLabel": "मिति, मिति फिल्टरहरू लागू गरिएका",
+    "datesTitle": "मिति",
+    "filteredResultsSummary_one": "<dateRange>{{dateRange}}</dateRange> देखि फिल्टर गरिएको {{count}} नतिजा",
+    "filteredResultsSummary_other": "<dateRange>{{dateRange}}</dateRange> देखि फिल्टर गरिएका {{count}} नतिजाहरु",
+    "filtersModifiedButtonLabel": "फिल्टर, फिल्टरहरू लागू गरिएका",
+    "filtersPopover": {
+      "checkBoxAllOption": "सबै",
+      "patrolStatuses": {
+        "active": "सकृय",
+        "cancelled": "रद्द गरिएको",
+        "done": "सकिएको"
+      },
+      "patrolTypeLabel": "गस्तीको किसिम",
+      "reportedByPlaceholder": "उपकरण छान्नुहोस्…",
+      "resetAllButton": "सबै रिसेट गर्नुहोस्",
+      "resetButton": "रिसेट गर्नुहोस्",
+      "resetPatrolTypesButtonLabel": "गस्तीका किसिमहरू रिसेट गर्नुहोस्",
+      "resetStatusButtonLabel": "अवस्था रिसेट गर्नुहोस्",
+      "statusLabel": "अवस्था",
+      "teamLeadLabel": "टोली नेता",
+      "title": "गस्ती फिल्टर",
+      "trackedByLabel": "द्वारा ट्रयाक गरिएको",
+      "unknownTeamLeadLabel": "अज्ञात टोली नेता"
     },
     "filtersTitle": "फिल्टर",
     "globalResetFilterButton": "रिसेट गर्नुहोस्",
-    "searchbarPlaceHolder": "गस्तीहरु खोज्नुहोस्…",
-    "filtersPopover": {
-      "checkBoxAllOption": "सबै",
-      "title": "गस्ती फिल्टर",
-      "resetAllButton": "सबै रिसेट गर्नुहोस्",
-      "resetButton": "रिसेट गर्नुहोस्",
-      "trackedByLabel": "द्वारा ट्रयाक गरिएको",
-      "statusLabel": "अवस्था",
-      "patrolTypeLabel": "गस्तीको किसिम",
-      "reportedByPlaceholder": "उपकरण छान्नुहोस्…",
-      "patrolStatuses": {
-        "active": "सकृय",
-        "done": "सकिएको",
-        "cancelled": "रद्द गरिएको"
-      }
-    }
+    "resultsSummary_one": "<dateRange>{{dateRange}}</dateRange> देखि {{count}} नतिजा",
+    "resultsSummary_other": "<dateRange>{{dateRange}}</dateRange> देखि {{count}} नतिजाहरु",
+    "searchbarPlaceHolder": "गस्तीहरु खोज्नुहोस्…"
   },
   "patrolFiltersSettings": {
-    "byStartDateLabel": "सुरु मिति अनुसार फिल्टर गर्नुहोस्",
     "byRangeDateLabel": "जेडिएका मितिका दायरा अनुसार फिल्टर गर्नुहोस्",
-    "patrolWithinRangeTooltip": "मितिको दायरा भित्रै सुरुहुने गस्ती समावेश गर्नुहोस्",
-    "patrolOverlapsRangeTooltip": "सुरु देखि अन्त्यसम्मै मितिको दायरा भित्रै पर्ने गस्तिहरु समावेश गर्नुहोस्"
+    "byStartDateLabel": "सुरु मिति अनुसार फिल्टर गर्नुहोस्",
+    "dateFilterModeLabel": "मिति फिल्टर मोड",
+    "patrolOverlapsRangeTooltip": "सुरु देखि अन्त्यसम्मै मितिको दायरा भित्रै पर्ने गस्तिहरु समावेश गर्नुहोस्",
+    "patrolWithinRangeTooltip": "मितिको दायरा भित्रै सुरुहुने गस्ती समावेश गर्नुहोस्"
   },
   "reportTypeMultiSelect": {
     "placeholder": "प्रकारहरु खोज्नुहोस्",

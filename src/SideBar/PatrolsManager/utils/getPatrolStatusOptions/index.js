@@ -5,8 +5,8 @@ import {
   getIsMobilePatrol,
   isPatrolStateUnderWay,
   patrolWithUpdateApplied,
-} from '../../../../../utils/patrols';
-import { PATROL_UI_STATES } from '../../../../../constants';
+} from '../../../../utils/patrols';
+import { PATROL_UI_STATES } from '../../../../constants';
 
 const { ACTIVE, CANCELLED, DONE, INVALID, PAUSED, READY_TO_START, SCHEDULED, START_OVERDUE } = PATROL_UI_STATES;
 

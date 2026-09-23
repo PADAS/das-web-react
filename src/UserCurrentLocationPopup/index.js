@@ -39,6 +39,7 @@ const UserCurrentLocationPopup = ({ data, id }) => {
         }
       }}
       showLabel={false}
+      variant="secondary"
     />
   </>;
 };

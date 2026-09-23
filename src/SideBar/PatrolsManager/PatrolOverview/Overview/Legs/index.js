@@ -37,6 +37,8 @@ const SIMPLIFIED_DATE_FORMAT = 'MM/dd/yyyy HH:mm';
 // with the kind of segment it shows.
 const labelKeyForLeg = (leg, labelKey) => `${labelKey}.${leg.isPause ? 'pause' : 'leg'}`;
 
+const ROW_CONTROL_SELECTOR = 'a, button, input';
+
 const Legs = ({ patrol, patrolState }) => {
   const navigate = useNavigate();
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolOverview.overview.legs' });
@@ -73,25 +75,26 @@ const Legs = ({ patrol, patrolState }) => {
     };
   });
 
-  const onZoomToLegBounds = (leg) => (event) => {
-    event.stopPropagation();
-
+  const onZoomToLegBounds = (leg) => () => {
     jumpToLocation([[leg.bbox[0], leg.bbox[1]], [leg.bbox[2], leg.bbox[3]]], undefined, { maxZoom: 17 });
 
     tracker.track('Click "zoom to leg bounds" from patrol overview');
   };
 
-  const onNavigateToLeg = (leg) => () => {
-    navigate(leg.overviewPath);
+  const onNavigateToLeg = (leg) => (event) => {
+    // The row opens the leg, but the controls it carries act on it in place,
+    // and the team list opens through a portal from outside the row.
+    const isRowItself = event.currentTarget.contains(event.target)
+      && !event.target.closest(ROW_CONTROL_SELECTOR);
 
-    tracker.track('View leg from patrol overview');
+    if (isRowItself) {
+      navigate(leg.overviewPath);
+
+      tracker.track('View leg from patrol overview');
+    }
   };
 
-  const onViewLeg = (event) => {
-    event.stopPropagation();
-
-    tracker.track('View leg from patrol overview');
-  };
+  const onViewLeg = () => tracker.track('View leg from patrol overview');
 
   const renderLegDate = (date) => date
     ? <time dateTime={date.toISOString()}>

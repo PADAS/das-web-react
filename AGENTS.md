@@ -87,7 +87,7 @@ Tracks are lazy-loaded and cached, and socket updates prepend new positions. Tra
 
 **Provenance.** A patrol's `provenance` records where it was created, and its legs inherit it. An active patrol with `provenance: 'mobile'` can't be fully managed from the web client: it can't take new legs, and ending the patrol is the only status change offered.
 
-**Two patrol detail UIs ship side by side**, switched by the `PATROL_SCHEMAS` preview feature: the legacy `PatrolDetailView` and the current `SideBar/PatrolsManager`. The feed is shared. New work goes in `PatrolsManager`, which is what the routes below describe.
+**Two patrol UIs ship side by side**, switched by the `PATROL_SCHEMAS` preview feature: the legacy `SideBar/PatrolsFeed` and `PatrolDetailView`, and the current `SideBar/PatrolsManager`. New work goes in `PatrolsManager`, which is what the routes below describe.
 
 **UI**
 - **Patrols Feed** (`/patrols`): the patrol list, ordered ready_to_start → start_overdue → active → paused → scheduled → done → cancelled, then by most recent leg update. Inline actions per row (start, resume, restore). Filters: text search, date range, patrol type, tracked-by, and status.

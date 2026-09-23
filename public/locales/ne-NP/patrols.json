@@ -46,7 +46,7 @@
         "paused": "रोकिएको",
         "readyToStart": "सुरु गर्न तयार अवस्थामा",
         "scheduled": "निर्धारित",
-        "startOverdue": "सुरु हुन ढिलो भएको"
+        "startOverdue": "ढिलो भएको"
       }
     },
     "loadingMessage": "सुरक्षित हुँदैछ…",
@@ -255,7 +255,6 @@
     "addEventLinkErrorMessage": "घटना सुरक्षित भयो, तर यसलाई यो गस्तीमा थप्न सकिएन।",
     "attachmentsSaveErrorMessage": "केही संलग्न फाइलहरू अपलोड गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।",
     "footer": {
-      "addEventButton": "घटना थप्नुहोस्",
       "addEventButtonLabel": "घटना थप्नुहोस्",
       "addEventButtonText": "घटना",
       "saveButton": "सुरक्षित गर्नुहोस्"
@@ -327,6 +326,28 @@
     "saveErrorMessage": "गस्ती सुरक्षित गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।",
     "tabsLabel": "गस्ती सारांश ट्याबहरू"
   },
+  "patrolsFeed": {
+    "emptyStateMessage": "प्रदर्शनीका लागि कुनै गस्ती छैन ।",
+    "patrolListLabel": "गस्ती सूची",
+    "patrolRow": {
+      "actions": {
+        "copyLinkMessage": "लिकं कपि भयो",
+        "copyLinkOption": "गस्तीको लिकं कपि गर्नुहोस्",
+        "downloadTrackOption": "गस्तीको ट्र्याक डाउनलोड गर्नुहोस्",
+        "jumpToLocationButtonLabel": "स्थानमा जानुहोस्",
+        "moreOptionsButtonLabel": "थप विकल्पहरू",
+        "statusUpdateErrorMessage": "गस्तीको स्थिति अद्यावधिक गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।",
+        "toggleTrackButtonLabel": {
+          "hidden": "गस्तीको ट्र्याक देखाउनुहोस्",
+          "pinned": "गस्तीको ट्र्याक लुकाउनुहोस्",
+          "visible": "गस्तीको ट्र्याक पिन गर्नुहोस्"
+        }
+      },
+      "legLabel": "खण्ड {{number}}",
+      "mobileProvenanceLabel": "मोबाइल",
+      "scheduledLabel": "निर्धारित: {{startTime}}"
+    }
+  },
   "patrolStartStopLayer": {
     "endMarkerLabel": "गस्तीको अन्त्य",
     "estimatedEndMarkerLabel": "गस्तीको अन्त्य (अनुमानित)",
@@ -346,8 +367,16 @@
       "paused": "रोकिएको",
       "readyToStart": "सुरु गर्न तयार अवस्थामा",
       "scheduled": "निर्धारित",
-      "startOverdue": "सुरु हुन ढिलो भएको"
+      "startOverdue": "ढिलो भएको"
     }
+  },
+  "statusTransitions": {
+    "cancel": "रद्द गर्नुहोस्",
+    "end": "अन्त्य गर्नुहोस्",
+    "pause": "रोक्नुहोस्",
+    "restore": "पुर्नस्थापना गर्नुहोस्",
+    "resume": "पुनः सुरु गर्नुहोस्",
+    "start": "सुरु गर्नुहोस्"
   },
   "titleInput": {
     "editButtonLabel": "शीर्षक सम्पादन गर्नुहोस्"

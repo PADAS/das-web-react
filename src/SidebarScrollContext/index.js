@@ -41,12 +41,18 @@ export const ScrollRestoration = ({ Component = 'div', namespace, children, ...p
   useEffect(() => {
     let element = null;
 
-    setTimeout(() => {
+    // Unmounting before this lands would otherwise leave the listener on the
+    // element the ref points at by then, with nothing left to take it off.
+    const timeoutId = setTimeout(() => {
       element = getElement(scrollRef);
       element?.addEventListener?.('scroll', onScrollFeed);
     }, 1000);
 
-    return () => element?.removeEventListener?.('scroll', onScrollFeed);
+    return () => {
+      clearTimeout(timeoutId);
+
+      element?.removeEventListener?.('scroll', onScrollFeed);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

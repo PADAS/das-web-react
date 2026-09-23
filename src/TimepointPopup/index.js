@@ -111,6 +111,7 @@ const TimepointPopup = ({ data }) => {
         time,
       }}
       showLabel={false}
+      variant="secondary"
     />
   </>;
 };
