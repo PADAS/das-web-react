@@ -1,9 +1,23 @@
-import { DEFAULT_SHOW_TRACK_DAYS, SYSTEM_CONFIG_FLAGS } from '../../constants';
+import { DEFAULT_SHOW_TRACK_DAYS, REACT_APP_OTUS_URL, SYSTEM_CONFIG_FLAGS } from '../../constants';
 import { endOfToday, generateDaysAgoDate } from '../../utils/datetime';
 import { EVENT_FILTER_STORAGE_KEY, setDefaultDateRange as setDefaultEventDateRange } from '../event-filter';
+import { getIsValidWebUrl } from '../../utils/string';
 import { getKeyIsRestorable } from '../../reducers/storage-config';
 import { setDefaultDateRange as setDefaultPatrolDateRange } from '../patrol-filter';
 import { setSitenameDimension } from '../../utils/analytics';
+
+// A malformed URL would throw from the component that builds the frame source.
+const parseOtusUrl = (value) => {
+  if (value) {
+    if (getIsValidWebUrl(value)) {
+      return value;
+    }
+
+    console.warn('Ignoring an invalid Otus URL from the system status', value);
+  }
+
+  return null;
+};
 
 // Actions
 export const SET_SYSTEM_CONFIG = 'SYSTEM_CONFIG.SET_SYSTEM_CONFIG';
@@ -31,6 +45,8 @@ export const setSystemConfigFromSystemStatus = (systemStatus) => (dispatch) => {
       [SYSTEM_CONFIG_FLAGS.TABLEAU]: systemStatus[SYSTEM_CONFIG_FLAGS.TABLEAU] ?? true,
       [SYSTEM_CONFIG_FLAGS.GEO_SPAN]: systemStatus[SYSTEM_CONFIG_FLAGS.GEO_SPAN] ?? null,
       idp_org_id: systemStatus.idp_org_id || null,
+      // The env override wins here, unlike default_event_filter_from_days.
+      otusUrl: parseOtusUrl(REACT_APP_OTUS_URL || systemStatus.otus_settings?.url),
       previewFeatures: systemStatus.preview_features || {},
       require_idp: !!systemStatus.require_idp,
       site_slug: systemStatus.site_slug || null,
@@ -78,6 +94,7 @@ export const INITIAL_STATE = {
   [SYSTEM_CONFIG_FLAGS.TABLEAU]: false,
   [SYSTEM_CONFIG_FLAGS.GEO_SPAN]: null,
   idp_org_id: null,
+  otusUrl: parseOtusUrl(REACT_APP_OTUS_URL),
   previewFeatures: {},
   require_idp: null,
   site_slug: null,

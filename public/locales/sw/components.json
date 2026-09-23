@@ -251,6 +251,18 @@
       "featuresTabTitle": "Vipengele",
       "subjectsTabTitle": "Masomo"
     },
+    "otusLink": "Otus",
+    "otusTab": {
+      "header": {
+        "betaBadgeLabel": "Beta",
+        "closeButtonLabel": "Funga Otus",
+        "newConversationButtonLabel": "Mazungumzo mapya",
+        "recentButtonLabel": "Za hivi karibuni",
+        "title": "Otus"
+      },
+      "iframeTitle": "Gumzo na Otus",
+      "resizeHandleLabel": "Badilisha ukubwa wa kidirisha cha Otus"
+    },
     "patrolsLink": "Doria",
     "reportsFeedTab": {
       "fetchReportsErrorMessage": "Haikuweza kupakia matukio. Tafadhali jaribu tena.",

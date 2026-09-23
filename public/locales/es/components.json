@@ -234,6 +234,18 @@
       "featuresTabTitle": "Funcionalidades",
       "subjectsTabTitle": "Sujetos"
     },
+    "otusLink": "Otus",
+    "otusTab": {
+      "header": {
+        "betaBadgeLabel": "Beta",
+        "closeButtonLabel": "Cerrar Otus",
+        "newConversationButtonLabel": "Nueva conversación",
+        "recentButtonLabel": "Recientes",
+        "title": "Otus"
+      },
+      "iframeTitle": "Chat de Otus",
+      "resizeHandleLabel": "Redimensionar el panel de Otus"
+    },
     "patrolsLink": "Patrullas",
     "reportsFeedTab": {
       "fetchReportsErrorMessage": "No se pudieron cargar los eventos. Por favor intente de nuevo.",

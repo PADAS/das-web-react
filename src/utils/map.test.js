@@ -1,5 +1,6 @@
 import { calcImgIdFromUrlForMapImages, imgElFromSrc } from './img';
 import { createMapMock } from '../__test-helpers/mocks';
+import store from '../store';
 
 import {
   addFeatureCollectionImagesToMap,
@@ -16,6 +17,8 @@ jest.mock('./img', () => ({
   ...jest.requireActual('./img'),
   imgElFromSrc: jest.fn(),
 }));
+
+jest.mock('../store', () => ({ dispatch: jest.fn(), getState: jest.fn() }));
 
 let map;
 const errorObj = new Error('invalid LngLat');
@@ -308,6 +311,10 @@ describe('addFeatureCollectionImagesToMap', () => {
 });
 
 describe('calcSidebarPaddingLeft', () => {
+  beforeEach(() => {
+    store.getState.mockReturnValue({ view: { userPreferences: {} } });
+  });
+
   test('returns undefined below the medium layout breakpoint, regardless of the URL', () => {
     expect(calcSidebarPaddingLeft({ pathname: '/events', isMediumLayoutOrLarger: false })).toBeUndefined();
     expect(calcSidebarPaddingLeft({ pathname: '/events/some-id', isMediumLayoutOrLarger: false })).toBeUndefined();
@@ -327,5 +334,21 @@ describe('calcSidebarPaddingLeft', () => {
 
   test('prioritizes the detail-view width over the tab width when both are present', () => {
     expect(calcSidebarPaddingLeft({ pathname: '/patrols/some-patrol-id', isMediumLayoutOrLarger: true })).toBe(736);
+  });
+
+  test('pads for the default Otus panel width, plus the vertical nav rail, when the Otus tab is open', () => {
+    expect(calcSidebarPaddingLeft({ pathname: '/otus', isMediumLayoutOrLarger: true })).toBe(806);
+  });
+
+  test('pads for the width the user dragged the Otus panel to', () => {
+    store.getState.mockReturnValue({ view: { userPreferences: { otusTabWidth: 900 } } });
+
+    expect(calcSidebarPaddingLeft({ pathname: '/otus', isMediumLayoutOrLarger: true })).toBe(970);
+  });
+
+  test('caps the Otus panel padding at the width of the viewport', () => {
+    store.getState.mockReturnValue({ view: { userPreferences: { otusTabWidth: window.innerWidth * 2 } } });
+
+    expect(calcSidebarPaddingLeft({ pathname: '/otus', isMediumLayoutOrLarger: true })).toBe(window.innerWidth);
   });
 });

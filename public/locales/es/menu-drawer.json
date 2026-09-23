@@ -51,6 +51,7 @@
     },
     "navigationButton": {
       "mapLayers": "Capas de mapa",
+      "otus": "Otus",
       "patrols": "Patrullas",
       "reports": "Eventos",
       "settings": "Configuraciones"

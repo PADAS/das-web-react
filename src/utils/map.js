@@ -2,19 +2,30 @@ import { featureCollection } from '@turf/turf';
 
 import store from '../store';
 import { addImageToMapIfNecessary } from '../ducks/map-images';
-import { MAP_ICON_SIZE, MAP_ICON_SCALE, SIDEBAR_DETAIL_VIEW_WIDTH_PIXELS, SIDEBAR_WIDTH_PIXELS } from '../constants';
+import {
+  MAP_ICON_SIZE,
+  MAP_ICON_SCALE,
+  SIDEBAR_DETAIL_VIEW_WIDTH_PIXELS,
+  SIDEBAR_WIDTH_PIXELS,
+  TAB_KEYS,
+  VERTICAL_NAV_RAIL_WIDTH_PIXELS,
+} from '../constants';
 import { format, formatEventSymbolDate } from './datetime';
 import { getCurrentIdFromURL, getCurrentTabFromURL } from './navigation';
 import { imgElFromSrc, calcUrlForImage, calcImgIdFromUrlForMapImages } from './img';
-
-// Extra allowance for the fixed vertical icon nav rail that sits between the
-// sidebar panel and the map. Keep in sync with --vertical-nav-width.
-const VERTICAL_NAV_RAIL_WIDTH_PIXELS = 70;
 
 export const calcSidebarPaddingLeft = ({ pathname, isMediumLayoutOrLarger }) => {
   if (isMediumLayoutOrLarger) {
     const currentTab = getCurrentTabFromURL(pathname);
     const itemId = getCurrentIdFromURL(pathname);
+
+    if (currentTab === TAB_KEYS.OTUS) {
+      const otusTabWidth = store.getState().view.userPreferences.otusTabWidth ?? SIDEBAR_DETAIL_VIEW_WIDTH_PIXELS;
+
+      // The panel's CSS caps its width at the viewport minus the rail.
+      return Math.min(otusTabWidth, window.innerWidth - VERTICAL_NAV_RAIL_WIDTH_PIXELS)
+        + VERTICAL_NAV_RAIL_WIDTH_PIXELS;
+    }
 
     if (currentTab || itemId) {
       return itemId

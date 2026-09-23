@@ -77,6 +77,7 @@ describe('Ducks - System config', () => {
         [SYSTEM_CONFIG_FLAGS.SUBJECTS]: true,
         [SYSTEM_CONFIG_FLAGS.TABLEAU]: true,
         idp_org_id: null,
+        otusUrl: null,
         previewFeatures: {
           community_input_admin_enabled: true,
         },
@@ -130,6 +131,137 @@ describe('Ducks - System config', () => {
 
     expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
       payload: expect.objectContaining({ support_managed_users: false }),
+      type: SET_SYSTEM_CONFIG,
+    }));
+  });
+
+  test('setSystemConfigFromSystemStatus sets the Otus URL from the system status payload', async () => {
+    const dispatch = jest.fn();
+
+    setSystemConfigFromSystemStatus({
+      otus_settings: { url: 'https://otus.pamdas.org' },
+      site_name: 'Site name',
+    })(dispatch);
+
+    expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
+      payload: expect.objectContaining({ otusUrl: 'https://otus.pamdas.org' }),
+      type: SET_SYSTEM_CONFIG,
+    }));
+  });
+
+  test('setSystemConfigFromSystemStatus keeps an Otus URL served over http', async () => {
+    const dispatch = jest.fn();
+
+    setSystemConfigFromSystemStatus({
+      otus_settings: { url: 'http://localhost:8080' },
+      site_name: 'Site name',
+    })(dispatch);
+
+    expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
+      payload: expect.objectContaining({ otusUrl: 'http://localhost:8080' }),
+      type: SET_SYSTEM_CONFIG,
+    }));
+  });
+
+  test('setSystemConfigFromSystemStatus ignores a relative Otus URL', async () => {
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const dispatch = jest.fn();
+
+    setSystemConfigFromSystemStatus({ otus_settings: { url: '/otus' }, site_name: 'Site name' })(dispatch);
+
+    expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
+      payload: expect.objectContaining({ otusUrl: null }),
+      type: SET_SYSTEM_CONFIG,
+    }));
+  });
+
+  test('setSystemConfigFromSystemStatus ignores an Otus URL that carries no scheme', async () => {
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const dispatch = jest.fn();
+
+    setSystemConfigFromSystemStatus({ otus_settings: { url: 'otus.pamdas.org' }, site_name: 'Site name' })(dispatch);
+
+    expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
+      payload: expect.objectContaining({ otusUrl: null }),
+      type: SET_SYSTEM_CONFIG,
+    }));
+  });
+
+  test('setSystemConfigFromSystemStatus ignores an Otus URL whose scheme is not http or https', async () => {
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const dispatch = jest.fn();
+
+    setSystemConfigFromSystemStatus({
+      otus_settings: { url: 'javascript:alert(1)' },
+      site_name: 'Site name',
+    })(dispatch);
+
+    expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
+      payload: expect.objectContaining({ otusUrl: null }),
+      type: SET_SYSTEM_CONFIG,
+    }));
+  });
+
+  test('setSystemConfigFromSystemStatus warns about the invalid Otus URL it ignores', async () => {
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    setSystemConfigFromSystemStatus({ otus_settings: { url: 'otus.pamdas.org' }, site_name: 'Site name' })(jest.fn());
+
+    expect(console.warn).toHaveBeenCalledTimes(1);
+    expect(console.warn)
+      .toHaveBeenCalledWith('Ignoring an invalid Otus URL from the system status', 'otus.pamdas.org');
+  });
+
+  test('setSystemConfigFromSystemStatus reports a null Otus URL on a server that does not send Otus settings', async () => {
+    const dispatch = jest.fn();
+
+    setSystemConfigFromSystemStatus({ site_name: 'Site name' })(dispatch);
+
+    expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
+      payload: expect.objectContaining({ otusUrl: null }),
+      type: SET_SYSTEM_CONFIG,
+    }));
+  });
+
+  test('setSystemConfigFromSystemStatus reports a null Otus URL when the Otus settings carry an empty URL', async () => {
+    const dispatch = jest.fn();
+
+    setSystemConfigFromSystemStatus({ otus_settings: { url: '' }, site_name: 'Site name' })(dispatch);
+
+    expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
+      payload: expect.objectContaining({ otusUrl: null }),
+      type: SET_SYSTEM_CONFIG,
+    }));
+  });
+
+  test('setSystemConfigFromSystemStatus does not warn about the empty Otus URL of a tenant without Otus', async () => {
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    setSystemConfigFromSystemStatus({ otus_settings: { url: '' }, site_name: 'Site name' })(jest.fn());
+
+    expect(console.warn).not.toHaveBeenCalled();
+  });
+
+  test('setSystemConfigFromSystemStatus prefers the environment override over the Otus URL in the status payload', async () => {
+    jest.doMock('../../constants', () => ({
+      ...jest.requireActual('../../constants'),
+      REACT_APP_OTUS_URL: 'https://otus.local.pamdas.org',
+    }));
+    const dispatch = jest.fn();
+
+    try {
+      jest.isolateModules(() => {
+        require('./').setSystemConfigFromSystemStatus({
+          otus_settings: { url: 'https://otus.pamdas.org' },
+          site_name: 'Site name',
+        })(dispatch);
+      });
+    } finally {
+      jest.dontMock('../../constants');
+    }
+
+    expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
+      payload: expect.objectContaining({ otusUrl: 'https://otus.local.pamdas.org' }),
       type: SET_SYSTEM_CONFIG,
     }));
   });
@@ -249,6 +381,7 @@ describe('Ducks - System config', () => {
         [SYSTEM_CONFIG_FLAGS.SUBJECTS]: true,
         [SYSTEM_CONFIG_FLAGS.TABLEAU]: true,
         idp_org_id: null,
+        otusUrl: null,
         previewFeatures: { community_input_admin_enabled: true },
         require_idp: null,
         showTrackDays: true,

@@ -51,6 +51,7 @@
     },
     "navigationButton": {
       "mapLayers": "Camadas",
+      "otus": "Otus",
       "patrols": "Patrulhas",
       "reports": "Eventos",
       "settings": "Preferências"

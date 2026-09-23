@@ -234,6 +234,18 @@
       "featuresTabTitle": "Feições",
       "subjectsTabTitle": "Indivíduos rastreados"
     },
+    "otusLink": "Otus",
+    "otusTab": {
+      "header": {
+        "betaBadgeLabel": "Beta",
+        "closeButtonLabel": "Fechar Otus",
+        "newConversationButtonLabel": "Nova conversa",
+        "recentButtonLabel": "Recentes",
+        "title": "Otus"
+      },
+      "iframeTitle": "Chat com o Otus",
+      "resizeHandleLabel": "Redimensionar o painel do Otus"
+    },
     "patrolsLink": "Patrulhas",
     "reportsFeedTab": {
       "fetchReportsErrorMessage": "Não foi possível carregar os eventos. Por favor, tente novamente. ",

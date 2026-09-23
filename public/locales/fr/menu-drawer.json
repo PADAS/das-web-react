@@ -51,6 +51,7 @@
     },
     "navigationButton": {
       "mapLayers": "Calques",
+      "otus": "Otus",
       "patrols": "Patrouilles",
       "reports": "Événements",
       "settings": "Réglages"

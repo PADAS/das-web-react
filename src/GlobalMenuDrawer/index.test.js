@@ -120,6 +120,21 @@ describe('GlobalMenuDrawer', () => {
     expect(screen.queryByRole('link', { name: 'Patrols' })).toBeNull();
   });
 
+  test('shows the Otus link in small screens when an Otus URL is configured', async () => {
+    useMatchMedia.mockImplementation(() => false);
+    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+    renderGlobalMenuDrawer();
+
+    expect(within(screen.getByRole('navigation')).getByRole('link', { name: 'Otus' })).toBeDefined();
+  });
+
+  test('does not show the Otus link in small screens when there is no Otus URL', async () => {
+    useMatchMedia.mockImplementation(() => false);
+    renderGlobalMenuDrawer();
+
+    expect(screen.queryByRole('link', { name: 'Otus' })).toBeNull();
+  });
+
   test('does not show the Tableau button if it is not enabled', async () => {
     store.view.systemConfig.tableau_enabled = false;
     renderGlobalMenuDrawer();
