@@ -1,5 +1,4 @@
-import React, { memo, useContext, useMemo } from 'react';
-import { bbox, featureCollection } from '@turf/turf';
+import React, { memo, useContext } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -10,26 +9,33 @@ import { ReactComponent as FitScreenIcon } from '../../../../../common/images/ic
 import {
   canPatrolTakeNewLegs,
   displayEndTimeForPatrolSegment,
-  displayNameForPatrolType,
+  displayNameForPatrolSegment,
+  displayNumberForPatrolSegment,
   displayStartTimeForPatrolSegment,
-  isSegmentPending,
+  getBoundsForPatrolSegment,
+  hasPatrolSegmentNotRun,
+  isPatrolSegmentAPause,
   scheduledEndTimeForPatrolSegment,
 } from '../../../../../utils/patrols';
+import { EMPTY_VALUE, PATROL_UI_STATES, TAB_KEYS } from '../../../../../constants';
 import { format, STANDARD_DATE_FORMAT } from '../../../../../utils/datetime';
-import { PATROL_UI_STATES, TAB_KEYS } from '../../../../../constants';
-import { selectPatrolTrackData } from '../../../../../selectors/patrols';
+import { selectPatrolSegmentsTrackData, selectTrackedSubjectsPerPatrolSegment } from '../../../../../selectors/patrols';
 import { TrackerContext } from '../../../../../utils/analytics';
 import useJumpToLocation from '../../../../../hooks/useJumpToLocation';
 import useNavigate from '../../../../../hooks/useNavigate';
 import { usePatrolsPermissions } from '../../../../../hooks/usePermissions';
 
 import Link from '../../../../../Link';
+import StatusPill from '../../../StatusPill';
+import TeamAndTracking from './TeamAndTracking';
 
 import * as styles from './styles.module.scss';
 
 const SIMPLIFIED_DATE_FORMAT = 'MM/dd/yyyy HH:mm';
 
-const formatLegDate = (date, dateFormat) => date ? format(date, dateFormat) : null;
+// A pause is numbered among the pauses, so what a label calls a row changes
+// with the kind of segment it shows.
+const labelKeyForLeg = (leg, labelKey) => `${labelKey}.${leg.isPause ? 'pause' : 'leg'}`;
 
 const Legs = ({ patrol, patrolState }) => {
   const navigate = useNavigate();
@@ -40,32 +46,32 @@ const Legs = ({ patrol, patrolState }) => {
   const { hasPatrolsUpdatePermission } = usePatrolsPermissions();
   const jumpToLocation = useJumpToLocation();
 
-  const patrolTrackData = useSelector((state) => selectPatrolTrackData(state, patrol));
+  const patrolSegmentsTrackData = useSelector((state) => selectPatrolSegmentsTrackData(state, patrol));
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
+  const trackedSubjectsPerPatrolSegment = useSelector(
+    (state) => selectTrackedSubjectsPerPatrolSegment(state, patrol)
+  );
 
   const canAddLeg = hasPatrolsUpdatePermission && canPatrolTakeNewLegs(patrol, patrolState);
-  const isPatrolOver = patrolState === PATROL_UI_STATES.CANCELLED || patrolState === PATROL_UI_STATES.DONE;
 
-  const legs = useMemo(() => patrol.patrol_segments.map((segment, index) => {
-    const legTrackData = patrolTrackData.legsTrackData?.[index] ?? null;
-    const legTrackFeatures = (legTrackData?.track?.features ?? []).filter(
-      (feature) => feature.geometry?.coordinates?.length
-    );
-
-    const hasNotRun = isPatrolOver && isSegmentPending(segment);
+  // Not memoized: a leg reads the clock, and this component only renders when
+  // the patrol, its state or its tracks have moved anyway.
+  const legs = patrol.patrol_segments.map((patrolSegment, index) => {
+    const hasNotRun = hasPatrolSegmentNotRun(patrol, patrolSegment);
 
     return {
-      bbox: legTrackFeatures.length ? bbox(featureCollection(legTrackFeatures)) : null,
-      end: hasNotRun ? scheduledEndTimeForPatrolSegment(segment) : displayEndTimeForPatrolSegment(segment),
+      bbox: getBoundsForPatrolSegment(patrolSegment, patrolSegmentsTrackData[index]),
+      end: hasNotRun ? scheduledEndTimeForPatrolSegment(patrolSegment) : displayEndTimeForPatrolSegment(patrolSegment),
       hasNotRun,
-      id: segment.id,
-      leaderName: segment.leader?.name ?? null,
-      number: index + 1,
-      overviewPath: `/${TAB_KEYS.PATROLS}/${patrol.id}/legs/${segment.id}`,
-      patrolTypeDisplay: displayNameForPatrolType(patrolTypes, segment.patrol_type),
-      start: displayStartTimeForPatrolSegment(segment),
+      id: patrolSegment.id,
+      isPause: isPatrolSegmentAPause(patrolSegment),
+      number: displayNumberForPatrolSegment(patrol.patrol_segments, index),
+      overviewPath: `/${TAB_KEYS.PATROLS}/${patrol.id}/legs/${patrolSegment.id}`,
+      patrolTypeDisplay: displayNameForPatrolSegment(patrolTypes, patrolSegment),
+      start: displayStartTimeForPatrolSegment(patrolSegment),
+      trackedSubjects: trackedSubjectsPerPatrolSegment[index] ?? [],
     };
-  }), [isPatrolOver, patrol, patrolTrackData, patrolTypes]);
+  });
 
   const onZoomToLegBounds = (leg) => (event) => {
     event.stopPropagation();
@@ -81,11 +87,19 @@ const Legs = ({ patrol, patrolState }) => {
     tracker.track('View leg from patrol overview');
   };
 
-  const onViewLeg = () => (event) => {
+  const onViewLeg = (event) => {
     event.stopPropagation();
 
     tracker.track('View leg from patrol overview');
   };
+
+  const renderLegDate = (date) => date
+    ? <time dateTime={date.toISOString()}>
+      <span className={styles.fullDate}>{format(date, STANDARD_DATE_FORMAT)}</span>
+
+      <span className={styles.simplifiedDate}>{format(date, SIMPLIFIED_DATE_FORMAT)}</span>
+    </time>
+    : EMPTY_VALUE;
 
   return <>
     <div className={`${styles.legTableWrapper} ${canAddLeg ? '' : styles.withoutNewLegButton}`}>
@@ -116,54 +130,51 @@ const Legs = ({ patrol, patrolState }) => {
               key={leg.id}
               onClick={onNavigateToLeg(leg)}
             >
+            {leg.isPause
+              ? <td colSpan={2}>
+                <StatusPill className={styles.pausePill} state={PATROL_UI_STATES.PAUSED} />
+
+                {!!leg.hasNotRun && <span className="sr-only">{t('legDidNotRunLabel')}</span>}
+              </td>
+              : <>
+                <td>
+                  {leg.number}
+
+                  {!!leg.hasNotRun && <span className="sr-only">{t('legDidNotRunLabel')}</span>}
+                </td>
+
+                <td>{leg.patrolTypeDisplay}</td>
+              </>}
+
+            <td>{renderLegDate(leg.start)}</td>
+
+            <td>{renderLegDate(leg.end)}</td>
+
+            {/* A pause tracks nothing and covers no ground: the team that sat
+                it out belongs to the legs either side of it. */}
             <td>
-              {leg.number}
-
-              {!!leg.hasNotRun && <span className="sr-only">{t('legDidNotRunLabel')}</span>}
-            </td>
-
-            <td>{leg.patrolTypeDisplay}</td>
-
-            <td>
-              <time dateTime={leg.start?.toISOString()}>
-                <span className={styles.fullDate}>{formatLegDate(leg.start, STANDARD_DATE_FORMAT)}</span>
-
-                <span className={styles.simplifiedDate}>{formatLegDate(leg.start, SIMPLIFIED_DATE_FORMAT)}</span>
-              </time>
-            </td>
-
-            <td>
-              <time dateTime={leg.end?.toISOString()}>
-                <span className={styles.fullDate}>{formatLegDate(leg.end, STANDARD_DATE_FORMAT)}</span>
-
-                <span className={styles.simplifiedDate}>{formatLegDate(leg.end, SIMPLIFIED_DATE_FORMAT)}</span>
-              </time>
-            </td>
-
-            <td>
-              {/* TODO: Also list the leg's team members and tracked assets
-              once they're part of the data model. */}
-              <span className={styles.teamColumn}>{leg.leaderName}</span>
+              {!leg.isPause
+                && <TeamAndTracking legNumber={leg.number} trackedSubjects={leg.trackedSubjects} />}
             </td>
 
             <td>
               <div className={styles.legActionsColumn}>
-                <button
-                  aria-label={t('zoomToLegBoundsButtonLabel', { legNumber: leg.number })}
+                {!leg.isPause && <button
+                  aria-label={t('zoomToLegBoundsButtonLabel', { number: leg.number })}
                   className={styles.zoomToLegBoundsButton}
                   disabled={!leg.bbox}
                   onClick={onZoomToLegBounds(leg)}
-                  title={t('zoomToLegBoundsButtonLabel', { legNumber: leg.number })}
+                  title={t('zoomToLegBoundsButtonLabel', { number: leg.number })}
                   type="button"
                 >
                   <FitScreenIcon aria-hidden="true" />
-                </button>
+                </button>}
 
                 <Link
-                  aria-label={t('viewLegButtonLabel', { legNumber: leg.number })}
+                  aria-label={t(labelKeyForLeg(leg, 'viewLegButtonLabel'), { number: leg.number })}
                   className={styles.viewLegButton}
-                  onClick={onViewLeg(leg)}
-                  title={t('viewLegButtonLabel', { legNumber: leg.number })}
+                  onClick={onViewLeg}
+                  title={t(labelKeyForLeg(leg, 'viewLegButtonLabel'), { number: leg.number })}
                   to={leg.overviewPath}
                 >
                   <ChevronRightIcon aria-hidden="true" />

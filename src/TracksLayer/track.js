@@ -1,16 +1,18 @@
-import { memo, useContext, useMemo } from 'react';
+import { memo, useContext, useEffect, useMemo } from 'react';
+import pick from 'lodash/pick';
+import { useSelector } from 'react-redux';
 
+import { addMapImage, safeRemoveMapLayer, safeRemoveMapSource } from '../utils/map';
 import { LAYER_IDS, MAP_ICON_SCALE } from '../constants';
 import { MapContext } from '../MapContext';
-import {
-  useMapEventBinding
-} from '../hooks';
-import { getTimeOfDaySourceAndLayerConfigurations } from './utils';
-import { useSelector } from 'react-redux';
-import useMapSources from '../hooks/useMapSources';
-import useMapLayers from '../hooks/useMapLayers';
+import { segmentTrackPointsByTimeOfDayPeriodPairs } from './utils';
+import { useMapEventBinding, useMemoCompare } from '../hooks';
 
-const { SUBJECT_SYMBOLS, TRACKS_LINES, TRACKS_SOURCE, TRACK_TIMEPOINTS,  } = LAYER_IDS;
+import Arrow from '../common/images/icons/track-arrow.svg?url';
+
+const { SUBJECT_SYMBOLS, TRACKS_LINES, TRACKS_SOURCE, TRACK_TIMEPOINTS } = LAYER_IDS;
+
+export const ARROW_IMG_ID = 'track_arrow';
 
 const STABLE_RANDOM_TRACK_COLOR_BASED_ON_ID = [
   'rgb',
@@ -54,6 +56,17 @@ const TIMEPOINT_LAYER_PAINT = {
   ],
 };
 
+// A gradient reads the line's own progress, which the map only measures where
+// the source asks for it.
+const LINE_SOURCE_OPTIONS = { lineMetrics: true, tolerance: 1.5, type: 'geojson' };
+
+// A time-of-day segment carries the two colours it spans and nothing else, so
+// only a paint value that reads none of the track's own properties carries over.
+const GRADIENT_LINE_PAINT_PROPERTIES = ['line-offset', 'line-opacity'];
+const GRADIENT_LINE_WIDTH = 3;
+
+const EMPTY_FEATURE_COLLECTION = { features: [], type: 'FeatureCollection' };
+
 const TrackLayer = ({
   before = null,
   id = null,
@@ -71,60 +84,174 @@ const TrackLayer = ({
 
   const trackId = id;
 
-  const onSymbolMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
-  const onSymbolMouseLeave = () => map.getCanvas().style.cursor = '';
-
   const sourceId = `${TRACKS_SOURCE}-${trackId}`;
   const pointSourceId = `${sourceId}-points`;
 
   const layerId = `${TRACKS_LINES}-${trackId}`;
   const pointLayerId = `${TRACK_TIMEPOINTS}-${trackId}`;
 
-  const {
-    sourcesConfigs,
-    layersConfigs
-  } = useMemo(() => getTimeOfDaySourceAndLayerConfigurations(
-    trackData,
-    isTimeOfDayColoringActive,
-    sourceId,
-    layerId,
-    { ...TRACK_LAYER_LINE_LAYOUT, ...lineLayout },
-    {
-      before: before || SUBJECT_SYMBOLS
+  const lineBeforeId = before || SUBJECT_SYMBOLS;
+  const timepointBeforeId = before || `${SUBJECT_SYMBOLS}-unclustered`;
+
+  // The callers build these fresh on every render, so a compared copy is what
+  // keeps the layers off a teardown-and-rebuild cycle.
+  const stableLineLayout = useMemoCompare({ ...TRACK_LAYER_LINE_LAYOUT, ...lineLayout });
+  const stableLinePaint = useMemoCompare({ ...TRACK_LAYER_LINE_PAINT, ...linePaint });
+
+  const gradientLinePaint = useMemo(() => ({
+    ...pick(stableLinePaint, GRADIENT_LINE_PAINT_PROPERTIES),
+    'line-width': GRADIENT_LINE_WIDTH,
+  }), [stableLinePaint]);
+
+  // One source and one line per pair of time-of-day periods the track crosses,
+  // each drawing the gradient between that pair's two colours.
+  const timeOfDayColorPairs = useMemo(() => {
+    if (!isTimeOfDayColoringActive || !trackData.trackSegments?.features?.length) {
+      return [];
     }
-  ), [trackData, sourceId, layerId, lineLayout, before, isTimeOfDayColoringActive]);
 
+    return Object.entries(segmentTrackPointsByTimeOfDayPeriodPairs(trackData.trackSegments))
+      .map(([colorPairKey, segments], index) => ({
+        colors: colorPairKey.split('|'),
+        layerId: `${layerId}-colorpair-${index}`,
+        segments,
+        sourceId: `${sourceId}-colorpair-${index}`,
+      }));
+  }, [isTimeOfDayColoringActive, layerId, sourceId, trackData.trackSegments]);
 
-  useMapSources([{ id: sourceId, data: trackData.track }], { tolerance: 1.5, type: 'geojson', lineMetrics: true });
-  useMapSources([{ id: pointSourceId, data: trackData.points }]);
+  // What the lines are, without what they draw: new positions reach a line
+  // through its source rather than by building it again.
+  const timeOfDayLines = useMemoCompare(timeOfDayColorPairs.map(
+    (timeOfDayColorPair) => ({
+      colors: timeOfDayColorPair.colors,
+      layerId: timeOfDayColorPair.layerId,
+      sourceId: timeOfDayColorPair.sourceId,
+    })
+  ));
 
-  useMapSources(sourcesConfigs, { tolerance: 1.5, type: 'geojson', lineMetrics: true });
-  useMapLayers(layersConfigs);
+  const onSymbolMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
+  const onSymbolMouseLeave = () => map.getCanvas().style.cursor = '';
 
-  // Only create the normal layer if there are no time_of_day_segments
-  useMapLayers([{
-    id: layerId,
-    type: 'line',
-    sourceId,
-    paint: { ...TRACK_LAYER_LINE_PAINT, ...linePaint },
-    layout: { ...TRACK_LAYER_LINE_LAYOUT, ...lineLayout },
-    options: {
-      before: before || SUBJECT_SYMBOLS,
-      condition: !isTimeOfDayColoringActive && sourcesConfigs.length === 0
+  // Registered here rather than by whatever draws the tracks, so a patrol
+  // track has its arrows even when no subject track is on the map.
+  useEffect(() => {
+    if (!map.hasImage(ARROW_IMG_ID)) {
+      addMapImage({ id: ARROW_IMG_ID, src: Arrow });
     }
-  }]);
+  }, [map]);
 
-  useMapLayers([{
-    id: pointLayerId,
-    type: 'symbol',
-    sourceId: pointSourceId,
-    paint: TIMEPOINT_LAYER_PAINT,
-    layout: TIMEPOINT_LAYER_LAYOUT,
-    options: {
-      before: before || `${SUBJECT_SYMBOLS}-unclustered`,
-      condition: showTimepoints
+  useEffect(() => {
+    if (!map || timeOfDayLines.length > 0) {
+      return undefined;
     }
-  }]);
+
+    if (!map.getSource(sourceId)) {
+      map.addSource(sourceId, { ...LINE_SOURCE_OPTIONS, data: EMPTY_FEATURE_COLLECTION });
+    }
+
+    if (!map.getLayer(layerId)) {
+      map.addLayer(
+        {
+          id: layerId,
+          layout: stableLineLayout,
+          paint: stableLinePaint,
+          source: sourceId,
+          type: 'line',
+        },
+        map.getLayer(lineBeforeId) ? lineBeforeId : undefined
+      );
+    }
+
+    return () => {
+      safeRemoveMapLayer(map, layerId);
+      safeRemoveMapSource(map, sourceId);
+    };
+  }, [layerId, lineBeforeId, map, sourceId, stableLineLayout, stableLinePaint, timeOfDayLines.length]);
+
+  useEffect(() => {
+    if (!map || !showTimepoints) {
+      return undefined;
+    }
+
+    if (!map.getSource(pointSourceId)) {
+      map.addSource(pointSourceId, { data: EMPTY_FEATURE_COLLECTION, type: 'geojson' });
+    }
+
+    if (!map.getLayer(pointLayerId)) {
+      map.addLayer(
+        {
+          id: pointLayerId,
+          layout: TIMEPOINT_LAYER_LAYOUT,
+          paint: TIMEPOINT_LAYER_PAINT,
+          source: pointSourceId,
+          type: 'symbol',
+        },
+        map.getLayer(timepointBeforeId) ? timepointBeforeId : undefined
+      );
+    }
+
+    return () => {
+      safeRemoveMapLayer(map, pointLayerId);
+      safeRemoveMapSource(map, pointSourceId);
+    };
+  }, [map, pointLayerId, pointSourceId, showTimepoints, timepointBeforeId]);
+
+  useEffect(() => {
+    if (!map || timeOfDayLines.length === 0) {
+      return undefined;
+    }
+
+    timeOfDayLines.forEach((timeOfDayLine) => {
+      if (!map.getSource(timeOfDayLine.sourceId)) {
+        map.addSource(timeOfDayLine.sourceId, { ...LINE_SOURCE_OPTIONS, data: EMPTY_FEATURE_COLLECTION });
+      }
+
+      if (!map.getLayer(timeOfDayLine.layerId)) {
+        map.addLayer(
+          {
+            id: timeOfDayLine.layerId,
+            layout: stableLineLayout,
+            paint: {
+              ...gradientLinePaint,
+              'line-gradient': [
+                'interpolate',
+                ['linear'],
+                ['line-progress'],
+                0, timeOfDayLine.colors[0],
+                1, timeOfDayLine.colors[1],
+              ],
+            },
+            source: timeOfDayLine.sourceId,
+            type: 'line',
+          },
+          map.getLayer(lineBeforeId) ? lineBeforeId : undefined
+        );
+      }
+    });
+
+    return () => {
+      timeOfDayLines.forEach((timeOfDayLine) => {
+        safeRemoveMapLayer(map, timeOfDayLine.layerId);
+        safeRemoveMapSource(map, timeOfDayLine.sourceId);
+      });
+    };
+  }, [gradientLinePaint, lineBeforeId, map, stableLineLayout, timeOfDayLines]);
+
+  useEffect(() => {
+    if (map) {
+      map.getSource(sourceId)?.setData?.(trackData.track ?? EMPTY_FEATURE_COLLECTION);
+      map.getSource(pointSourceId)?.setData?.(trackData.points ?? EMPTY_FEATURE_COLLECTION);
+    }
+  }, [map, pointSourceId, sourceId, trackData]);
+
+  useEffect(() => {
+    if (map) {
+      timeOfDayColorPairs.forEach((timeOfDayColorPair) => {
+        map.getSource(timeOfDayColorPair.sourceId)
+          ?.setData?.({ features: timeOfDayColorPair.segments, type: 'FeatureCollection' });
+      });
+    }
+  }, [map, timeOfDayColorPairs]);
 
   useMapEventBinding('click', onPointClick, pointLayerId, showTimepoints);
   useMapEventBinding('mouseenter', onSymbolMouseEnter, pointLayerId, showTimepoints);

@@ -1,0 +1,21 @@
+@use 'sass:map';
+@use '../../../common/styles/vars/colors';
+
+@mixin milestoneTheme($theme) {
+  --item-icon-bg: #{map.get($theme, 'base')};
+  --item-icon-color: white;
+
+  background: map.get($theme, 'background');
+}
+
+.active {
+  @include milestoneTheme(colors.$patrol-active-theme);
+}
+
+.paused {
+  @include milestoneTheme(colors.$patrol-paused-theme);
+}
+
+.linkIcon {
+  --action-icon-size: 0.875rem;
+}

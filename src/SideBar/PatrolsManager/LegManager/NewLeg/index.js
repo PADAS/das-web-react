@@ -20,6 +20,7 @@ import useNavigate from '../../../../hooks/useNavigate';
 import { usePatrolsPermissions } from '../../../../hooks/usePermissions';
 import usePatrolState from '../../../../hooks/usePatrolState';
 
+import DetailViewLoader from '../../DetailViewLoader';
 import Footer from './Footer';
 import Header from './Header';
 import LegForm from '../../LegForm';
@@ -39,18 +40,20 @@ const NewLeg = ({ patrol }) => {
 
   const autoEndPatrols = useSelector((state) => state.view.userPreferences.autoEndPatrols);
   const autoStartPatrols = useSelector((state) => state.view.userPreferences.autoStartPatrols);
+  const patrolTeamAndTrackingOptions = useSelector((state) => state.data.patrolTeamAndTrackingOptions);
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
   const legFormId = useId();
 
-  const previousLeg = patrol.patrol_segments.at(-1) ?? null;
+  const previousPatrolSegment = patrol.patrol_segments.at(-1) ?? null;
 
   const [hasAddedLeg, setHasAddedLeg] = useState(false);
   const [initialLeg, setInitialLeg] = useState(() => buildNewLegDraft({
     isAutoEnd: autoEndPatrols,
     isAutoStart: autoStartPatrols,
     patrolTypes,
-    previousLeg,
+    previousPatrolSegment,
+    teamAndTrackingOptions: patrolTeamAndTrackingOptions,
   }));
   const [isSaving, setIsSaving] = useState(false);
   const [leg, setLeg] = useState(initialLeg);
@@ -59,7 +62,7 @@ const NewLeg = ({ patrol }) => {
 
   const hasUnsavedChanges = !isEqual(leg, initialLeg);
 
-  const earliestStartDateTime = previousLeg ? earliestStartAfterPatrolSegment(previousLeg) : null;
+  const earliestStartDateTime = previousPatrolSegment ? earliestStartAfterPatrolSegment(previousPatrolSegment) : null;
 
   const patrolTitle = displayTitleForPatrol(patrol, governingPatrolSegment(patrol)?.leader);
 
@@ -125,6 +128,10 @@ const NewLeg = ({ patrol }) => {
     }
   }, [hasAddedLeg, navigate, patrol.id]);
 
+  if (!canAddLeg) {
+    return <DetailViewLoader />;
+  }
+
   return <TrackerContext.Provider value={newLegTracker}>
     <NavigationPromptModal
       onContinue={onContinueNavigation}
@@ -133,15 +140,17 @@ const NewLeg = ({ patrol }) => {
     />
 
     <div className={styles.newLeg}>
-      <Header patrolId={patrol.id} patrolTitle={patrolTitle} />
+      <Header patrolId={patrol.id} patrolTitle={patrolTitle} patrolType={leg.patrolType} />
 
       <div className={styles.body}>
         <LegForm
           earliestStartDateTime={earliestStartDateTime}
           formId={legFormId}
+          isFirstLeg={patrol.patrol_segments.length === 0}
           leg={leg}
           onChangeLeg={onChangeLeg}
           onSubmit={onSubmit}
+          patrolId={patrol.id}
         />
       </div>
 

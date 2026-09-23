@@ -9,10 +9,13 @@ import getPatrolStatusOptions from '../../utils/getPatrolStatusOptions';
 import { TrackerContext } from '../../../../../utils/analytics';
 import { usePatrolsPermissions } from '../../../../../hooks/usePermissions';
 
+import StatusPill from '../../../StatusPill';
+
 import * as styles from './styles.module.scss';
 
 const StatusSelect = ({ isDirty, onSelect, patrol, patrolState, state }) => {
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolOverview.header' });
+  const { t: tStatusPill } = useTranslation('patrols', { keyPrefix: 'statusPill' });
 
   const { hasPatrolsUpdatePermission } = usePatrolsPermissions();
 
@@ -24,8 +27,6 @@ const StatusSelect = ({ isDirty, onSelect, patrol, patrolState, state }) => {
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const label = <span className={isDirty ? styles.unsavedLabel : undefined}>{t(`uiStateTitles.${state.key}`)}</span>;
 
   const options = getPatrolStatusOptions(patrol, patrolState);
 
@@ -111,26 +112,27 @@ const StatusSelect = ({ isDirty, onSelect, patrol, patrolState, state }) => {
   }, [isMenuOpen]);
 
   if (!hasPatrolsUpdatePermission || options.length < 2) {
-    return <span className={`${styles.statusPill} ${styles[state.key]}`}>{label}</span>;
+    return <StatusPill isDirty={isDirty} state={state} />;
   }
 
   return <>
-    <button
+    <StatusPill
       aria-controls={isMenuOpen ? menuId : undefined}
       aria-expanded={isMenuOpen}
       aria-haspopup="menu"
-      aria-label={`${t(`uiStateTitles.${state.key}`)}, ${t('statusSelectLabel')}`}
-      className={`${styles.statusPill} ${styles[state.key]} ${styles.statusPillButton}`}
+      aria-label={`${tStatusPill(`uiStateTitles.${state.key}`)}, ${t('statusSelectLabel')}`}
+      as="button"
+      className={styles.statusPillButton}
+      isDirty={isDirty}
       onClick={() => setIsMenuOpen((isOpen) => !isOpen)}
       onKeyDown={onToggleKeyDown}
       ref={setAnchorEl}
+      state={state}
       title={t('statusSelectLabel')}
       type="button"
       >
-      {label}
-
       <span aria-hidden="true" className={`${styles.caret} ${isMenuOpen ? styles.open : ''}`} />
-    </button>
+    </StatusPill>
 
     <Overlay
       onHide={closeMenu}
@@ -164,7 +166,7 @@ const StatusSelect = ({ isDirty, onSelect, patrol, patrolState, state }) => {
               >
                 {isSelected && <CheckIcon aria-hidden="true" className={styles.checkIcon} />}
 
-                {t(`uiStateTitles.${option.key}`)}
+                {tStatusPill(`uiStateTitles.${option.key}`)}
               </button>
             </li>;
           })}

@@ -37,7 +37,7 @@ const minimumNecessaryStoreStructure = {
       pinned: [], visible: []
     },
     patrolTrackState: {
-      pinned: [], visible: []
+      hiddenSubjects: {}, pinned: [], visible: []
     },
     systemConfig: {
       [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true,
@@ -225,8 +225,8 @@ describe('for active patrols', () => {
     await screen.findByTestId(`patrol-list-item-track-btn-${testPatrol.id}`);
   });
 
-  test('showing the distance the patrol has covered', async () => {
-    expect(await screen.findByText('0km')).toBeInTheDocument();
+  test('showing no distance while nothing has measured the legs of the patrol', async () => {
+    expect(await screen.findByText('-')).toBeInTheDocument();
   });
 
   test('canceling the patrol from the kebab menu', async () => {
@@ -332,7 +332,7 @@ describe('for cancelled patrols', () => {
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
     expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.OPEN);
-    expect(updatePatrol.mock.calls[0][0].patrol_segments[0].time_range.end_time).toBeNull();
+    expect(updatePatrol.mock.calls[0][0]).not.toHaveProperty('patrol_segments');
   });
 
   test('restoring the patrol from the kebab menu', async () => {
@@ -347,7 +347,7 @@ describe('for cancelled patrols', () => {
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
     expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.OPEN);
-    expect(updatePatrol.mock.calls[0][0].patrol_segments[0].time_range.end_time).toBeNull();
+    expect(updatePatrol.mock.calls[0][0]).not.toHaveProperty('patrol_segments');
   });
 });
 
@@ -373,6 +373,79 @@ describe('for completed patrols', () => {
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
     expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.OPEN);
-    expect(updatePatrol.mock.calls[0][0].patrol_segments[0].time_range.end_time).toBeNull();
+    expect(updatePatrol.mock.calls[0][0]).not.toHaveProperty('patrol_segments');
+  });
+});
+
+describe('the tracks the row fetches', () => {
+  const ASSET = { id: 'subjectAsset', name: 'KTN-123' };
+  const LEAD = { id: 'subjectLead', name: 'Maya Chen' };
+  const MEMBER = { id: 'subjectMember', name: 'Pilot Zoe' };
+
+  const legWith = (leader) => ({
+    assets: [ASSET.id],
+    leader,
+    members: [MEMBER.id],
+    time_range: { end_time: '2020-01-05T00:00:00.000Z', start_time: '2020-01-01T00:00:00.000Z' },
+  });
+
+  let fetchTracksIfNecessary, trackedPatrol;
+  beforeEach(() => {
+    jest.useFakeTimers({ advanceTimers: true }).setSystemTime(new Date('2020-01-06'));
+
+    fetchTracksIfNecessary = jest.spyOn(trackUtils, 'fetchTracksIfNecessary')
+      .mockImplementation(() => Promise.resolve({}));
+    trackedPatrol = { ...patrols[0], id: 'trackedPatrol', patrol_segments: [legWith(LEAD)], state: 'done' };
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  const renderTrackedPatrolListItem = (patrol, tracks = {}) => {
+    renderPatrolListItem({ ...initialProps, patrol }, mockStore({
+      ...minimumNecessaryStoreStructure,
+      data: {
+        ...minimumNecessaryStoreStructure.data,
+        patrolStore: { [patrol.id]: patrol },
+        patrolTeamAndTrackingOptions: { assets: [ASSET], leaders: [LEAD], members: [MEMBER], teams: [] },
+        tracks,
+      },
+    }));
+
+    jest.runOnlyPendingTimers();
+  };
+
+  test('fetches the track of the lead alone when every leg has one', () => {
+    renderTrackedPatrolListItem(trackedPatrol);
+
+    expect(fetchTracksIfNecessary).toHaveBeenCalledTimes(1);
+    expect(fetchTracksIfNecessary.mock.calls[0][0]).toEqual([LEAD.id]);
+  });
+
+  test('shows what the lead of the patrol covered once its track has arrived', async () => {
+    renderTrackedPatrolListItem(trackedPatrol, {
+      [LEAD.id]: {
+        fetchedDateRange: { since: '2020-01-01T00:00:00.000Z' },
+        points: { features: [] },
+        track: {
+          features: [{
+            geometry: { coordinates: [[1, 0], [0, 0]], type: 'LineString' },
+            properties: {
+              coordinateProperties: { times: ['2020-01-05T00:00:00.000Z', '2020-01-01T00:00:00.000Z'] },
+            },
+          }],
+        },
+      },
+    });
+
+    expect(await screen.findByText('111.2km')).toBeInTheDocument();
+  });
+
+  test('fetches the tracks of everyone a leg with no lead tracks', () => {
+    renderTrackedPatrolListItem({ ...trackedPatrol, patrol_segments: [legWith(null)] });
+
+    expect(fetchTracksIfNecessary).toHaveBeenCalledTimes(1);
+    expect(fetchTracksIfNecessary.mock.calls[0][0]).toEqual([MEMBER.id, ASSET.id]);
   });
 });

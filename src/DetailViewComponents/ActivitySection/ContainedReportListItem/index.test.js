@@ -278,6 +278,77 @@ describe('ActivitySection - ContainedReportListItem', () => {
     expect((screen.queryByTestId(`activitySection-dateTime-${report.id}`))).toBeNull();
   });
 
+  test('shows the serial number of the report', async () => {
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem(undefined, mockedStore);
+
+    expect((await screen.findByText(`${report.serial_number}`))).toBeDefined();
+  });
+
+  test('does not show a serial number if the report has none', async () => {
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem({ report: { ...report, serial_number: undefined } }, mockedStore);
+
+    expect((screen.queryByText(`${report.serial_number}`))).toBeNull();
+  });
+
+  test('shows the state of the report', async () => {
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem({ report: { ...report, state: 'resolved' } }, mockedStore);
+
+    expect((await screen.findByText('Resolved'))).toBeDefined();
+  });
+
+  test('shows the review state of the report', async () => {
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem({ report: { ...report, state: 'review' } }, mockedStore);
+
+    expect((await screen.findByText('Review'))).toBeDefined();
+  });
+
+  test('shows the active state for a report in the legacy new state', async () => {
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem({ report: { ...report, state: 'new' } }, mockedStore);
+
+    expect((await screen.findByText('Active'))).toBeDefined();
+  });
+
+  test('falls back to the active state if the report has no state', async () => {
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem({ report: { ...report, state: undefined } }, mockedStore);
+
+    expect((await screen.findByText('Active'))).toBeDefined();
+  });
+
+  test('prefers the state in the event store over the one in the report', async () => {
+    store.data.eventStore[report.id] = { ...report, state: 'resolved' };
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem(undefined, mockedStore);
+
+    expect((await screen.findByText('Resolved'))).toBeDefined();
+    expect((screen.queryByText('Active'))).toBeNull();
+  });
+
+  test('labels the serial number of the report for screen readers', async () => {
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem(undefined, mockedStore);
+
+    const screenReaderLabel = await screen.findByText('Event number');
+
+    expect(screenReaderLabel).toHaveClass('sr-only');
+    expect(screenReaderLabel.parentElement).toHaveTextContent(`Event number ${report.serial_number}`);
+  });
+
+  test('labels the state of the report for screen readers', async () => {
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem({ report: { ...report, state: 'resolved' } }, mockedStore);
+
+    const screenReaderLabel = await screen.findByText('State');
+
+    expect(screenReaderLabel).toHaveClass('sr-only');
+    expect(screenReaderLabel.parentElement).toHaveTextContent('State Resolved');
+  });
+
   test('colors the row after the priority of the report', async () => {
     const mockedStore = mockStore(store);
     renderContainedReportListItem(undefined, mockedStore);

@@ -44,7 +44,7 @@ const Item = ({
   setIsFormPreviewOpen = null,
   ...otherProps
 }) => {
-  const { i18n, t } = useTranslation('schema-form', {
+  const { t } = useTranslation('schema-form', {
     keyPrefix: 'fields.collection.sortableList.item',
   });
 
@@ -69,9 +69,7 @@ const Item = ({
     itemIdentifierFieldName,
     `${collectionDetails.itemName} ${id + 1}`,
     formElements[collectionDetails.itemIdentifier],
-    i18n.language,
-    coordinatesRepresentation,
-    t
+    coordinatesRepresentation
   );
 
   const onEditButtonClick = (event) => {

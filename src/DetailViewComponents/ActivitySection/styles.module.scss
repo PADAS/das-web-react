@@ -108,10 +108,8 @@ $cardExpansionTransitionTime: 300ms;
       }
     }
 
-    // List item components tune parts of the row from their own CSS modules.
-    // They can do so through the custom properties: --item-icon-bg,
-    // --item-icon-size, --item-row-bg, --item-row-hover-bg,
-    // --item-details-direction, and --item-details-justify.
+    // List item components tune parts of the row from their own CSS modules,
+    // through the --item-* and --action-icon-size custom properties below.
     .attachmentThumbnail {
       height: 100%;
       object-fit: cover;
@@ -121,7 +119,7 @@ $cardExpansionTransitionTime: 300ms;
     .itemIcon {
       align-items: center;
       background-color: var(--item-icon-bg, #{colors.$very-light-gray});
-      color: black;
+      color: var(--item-icon-color, black);
       display: flex;
       height: 100%;
       justify-content: center;
@@ -135,6 +133,7 @@ $cardExpansionTransitionTime: 300ms;
 
     .itemDetails {
       align-items: flex-start;
+      column-gap: 0.5rem;
       display: flex;
       flex: 6;
       flex-direction: var(--item-details-direction, column);
@@ -169,7 +168,8 @@ $cardExpansionTransitionTime: 300ms;
         }
       }
 
-      .itemDate {
+      .itemDate,
+      .itemMeta {
         flex-shrink: 0;
         font-size: 0.875rem;
         white-space: nowrap;

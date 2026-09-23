@@ -1,4 +1,5 @@
 import axios, { CancelToken, isCancel } from 'axios';
+import omit from 'lodash/omit';
 
 import { API_URL } from '../../constants';
 import { calcPatrolFilterForRequest } from '../../utils/patrol-filter';
@@ -72,7 +73,11 @@ export const updatePatrolTrackState = (payload) => ({
   type: UPDATE_PATROL_TRACK_STATE,
 });
 
-export const fetchPatrol = (id) => (dispatch) => axios.get(`${PATROLS_API_URL}${id}`)
+// The server leaves pause legs out of a patrol unless they are asked for, so
+// every request that answers with one has to ask.
+export const PATROL_REQUEST_PARAMS = { include_pauses: true };
+
+export const fetchPatrol = (id) => (dispatch) => axios.get(`${PATROLS_API_URL}${id}`, { params: PATROL_REQUEST_PARAMS })
   .then((response) => {
     dispatch({
       payload: response.data.data,
@@ -91,7 +96,9 @@ export const fetchPatrolsFeed = () => (dispatch) => {
   const cancelToken = CancelToken.source();
 
   const request = axios.get(
-    `${PATROLS_API_URL}?${calcPatrolFilterForRequest({ params: { page_size: PATROLS_FEED_PAGE_SIZE } })}`,
+    `${PATROLS_API_URL}?${calcPatrolFilterForRequest({
+      params: { ...PATROL_REQUEST_PARAMS, page_size: PATROLS_FEED_PAGE_SIZE },
+    })}`,
     { cancelToken: cancelToken.token }
   )
     .then((response) => {
@@ -133,10 +140,13 @@ export const fetchPatrolTeamAndTrackingOptions = () => async (dispatch) => {
 
   const options = {
     assets: config?.assets ?? [],
+    // An empty roster is an answer, so only this says whether one was given. A
+    // rejected config leaves it unset, so the next consumer asks again.
+    hasFetched: configResult.status === 'fulfilled',
     // The leaders endpoint answers with a fragment of the patrol schema
     // instead of a plain list.
     leaders: leadersSchema?.properties?.leader?.enum_ext?.map(({ value }) => value) ?? [],
-    teamMembers: config?.members ?? [],
+    members: config?.members ?? [],
     teams: config?.teams ?? [],
   };
 
@@ -148,33 +158,35 @@ export const fetchPatrolTeamAndTrackingOptions = () => async (dispatch) => {
   return options;
 };
 
-export const createPatrol = (patrol) => (dispatch) => axios.post(PATROLS_API_URL, patrol)
-  .then((response) => {
-    dispatch({
-      payload: response.data.data,
-      type: CREATE_PATROL_SUCCESS,
+export const createPatrol = (patrol) => (dispatch) =>
+  axios.post(PATROLS_API_URL, patrol, { params: PATROL_REQUEST_PARAMS })
+    .then((response) => {
+      dispatch({
+        payload: response.data.data,
+        type: CREATE_PATROL_SUCCESS,
+      });
+
+      return response;
     });
 
-    return response;
-  });
+export const updatePatrol = (patrol) => (dispatch) =>
+  axios.patch(`${PATROLS_API_URL}${patrol.id}`, patrol, { params: PATROL_REQUEST_PARAMS })
+    .then((response) => {
+      dispatch({
+        payload: response.data.data,
+        type: UPDATE_PATROL_SUCCESS,
+      });
 
-export const updatePatrol = (patrol) => (dispatch) => axios.patch(`${PATROLS_API_URL}${patrol.id}`, patrol)
-  .then((response) => {
-    dispatch({
-      payload: response.data.data,
-      type: UPDATE_PATROL_SUCCESS,
+      return response;
+    })
+    .catch((error) => {
+      dispatch({
+        payload: error,
+        type: UPDATE_PATROL_ERROR,
+      });
+
+      return Promise.reject(error);
     });
-
-    return response;
-  })
-  .catch((error) => {
-    dispatch({
-      payload: error,
-      type: UPDATE_PATROL_ERROR,
-    });
-
-    return Promise.reject(error);
-  });
 
 export const addNoteToPatrol = (patrolId, note) => (dispatch) =>
   axios.post(`${PATROLS_API_URL}${patrolId}/notes/`, note)
@@ -197,10 +209,12 @@ export const uploadPatrolFile = (patrolId, file) => {
 };
 
 export const togglePatrolTrackState = (id) => (dispatch, getState) => {
-  const { view: { patrolTrackState: { pinned, visible } } } = getState();
+  const { view: { patrolTrackState: { hiddenSubjects, pinned, visible } } } = getState();
 
   if (pinned.includes(id)) {
     return dispatch(updatePatrolTrackState({
+      // A track the user turns off starts over the next time it comes back.
+      hiddenSubjects: omit(hiddenSubjects, id),
       pinned: pinned.filter((item) => item !== id),
       visible: visible.filter((item) => item !== id),
     }));
@@ -214,6 +228,23 @@ export const togglePatrolTrackState = (id) => (dispatch, getState) => {
   }
 
   return dispatch(updatePatrolTrackState({ visible: [...visible, id] }));
+};
+
+// A subject a patrol tracks is drawn unless the user says otherwise, so this
+// keeps the ones they hid rather than the ones they kept.
+export const togglePatrolTrackedSubjectState = (patrolId, subjectId) => (dispatch, getState) => {
+  const { view: { patrolTrackState: { hiddenSubjects } } } = getState();
+
+  const patrolHiddenSubjects = hiddenSubjects[patrolId] ?? [];
+
+  return dispatch(updatePatrolTrackState({
+    hiddenSubjects: {
+      ...hiddenSubjects,
+      [patrolId]: patrolHiddenSubjects.includes(subjectId)
+        ? patrolHiddenSubjects.filter((item) => item !== subjectId)
+        : [...patrolHiddenSubjects, subjectId],
+    },
+  }));
 };
 
 // Reducer
@@ -262,10 +293,7 @@ export const patrolStoreReducer = globallyResettableReducer((state, { type, payl
   case UPDATE_PATROL_SUCCESS:
     return {
       ...state,
-      [payload.id]: withSortedPatrolSegments({
-        ...state[payload.id],
-        ...payload,
-      }),
+      [payload.id]: withSortedPatrolSegments({ ...state[payload.id], ...payload }),
     };
 
   case DELETE_PATROL_BY_ID: {
@@ -301,8 +329,9 @@ export const patrolsFeedReducer = globallyResettableReducer((state, { type, payl
 
 export const INITIAL_PATROL_TEAM_AND_TRACKING_OPTIONS_STATE = {
   assets: [],
+  hasFetched: false,
   leaders: [],
-  teamMembers: [],
+  members: [],
   teams: [],
 };
 
@@ -317,6 +346,7 @@ export const patrolTeamAndTrackingOptionsReducer = globallyResettableReducer((st
 }, INITIAL_PATROL_TEAM_AND_TRACKING_OPTIONS_STATE);
 
 export const INITIAL_PATROL_TRACKS_STATE = {
+  hiddenSubjects: {},
   pinned: [],
   visible: [],
 };

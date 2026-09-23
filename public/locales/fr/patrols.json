@@ -1,4 +1,27 @@
 {
+  "activity": {
+    "activitySectionTitle": "Activité",
+    "collapseAllButtonLabel": "Tout réduire",
+    "expandAllButtonLabel": "Tout développer",
+    "sortDirectionButtonLabel": {
+      "down": "Trier l'activité par ordre croissant",
+      "up": "Trier l'activité par ordre décroissant"
+    },
+    "summaryStats": {
+      "activeTimeLabel": "Temps actif",
+      "distanceLabel": "Distance",
+      "distanceMenuLabel": "Ce que la distance couvre",
+      "distanceOptionButtonLabel": "Distance parcourue : {{option}}. Changer ce que la distance couvre",
+      "durationLabel": "Durée",
+      "eventsLabel": "Événements",
+      "legLeadOptionDescription": "La distance totale parcourue par le chef de chaque étape ou, sur une étape sans chef, par le membre de l'équipe ou l'équipement allé le plus loin",
+      "legLeadOptionLabel_one": "Chef d'étape",
+      "legLeadOptionLabel_other": "Chefs d'étape",
+      "pausedTimeLabel": "Temps en pause",
+      "teamLeadIndicator": "Chef d'équipe"
+    },
+    "timeLabel": "Heure"
+  },
   "addToPatrolModal": {
     "cancel": "Annuler",
     "loading": "Chargement...",
@@ -53,6 +76,25 @@
       "plan": "Description"
     }
   },
+  "detailViewLoader": {
+    "loadingLabel": "Chargement des données de la patrouille"
+  },
+  "editLeg": {
+    "footer": {
+      "cancelButton": "Annuler",
+      "saveButton": "Sauvegarder"
+    },
+    "header": {
+      "breadcrumbPatrolsLabel": "Patrouilles",
+      "mobileProvenancePill": "Mobile",
+      "pauseIconLabel": "Pause",
+      "title": {
+        "leg": "Modifier l'étape {{number}}",
+        "pause": "Modifier la pause {{number}}"
+      }
+    },
+    "saveErrorMessage": "L'étape de la patrouille n'a pas pu être enregistrée. Veuillez réessayer."
+  },
   "header": {
     "breadcrumbNavLabel": "Navigation de la patrouille",
     "closeButtonLabel": "Fermer la barre latérale"
@@ -76,11 +118,13 @@
       "autoStartCheckboxLabel": "Commencer automatiquement l'étape à cette heure",
       "endDateBeforeStartDateError": "La fin de l'étape doit être postérieure à son début.",
       "endDateInputLabel": "Date de fin",
+      "endDateOverlapsNextLegError": "Cette étape ne peut pas chevaucher la suivante.",
       "endLocationLabel": "Coordonnées GPS de fin",
       "endTimeInputLabel": "Heure de fin",
       "endTimeLabel": "Heure de fin",
       "endTimeRequiredError": "Une étape avec une date de fin doit avoir une heure de fin.",
       "startDateInputLabel": "Date de début",
+      "startDateOverlapsNextLegError": "Cette étape ne peut pas chevaucher la suivante.",
       "startDateOverlapsPreviousLegError": "Cette étape ne peut pas chevaucher la précédente.",
       "startDateRequiredError": "Une étape doit avoir une date de début.",
       "startLocationLabel": "Coordonnées GPS de début",
@@ -94,6 +138,72 @@
     "universalFieldsSchemaErrorMessage": "Les champs universels de patrouille n'ont pas pu être chargés.",
     "universalFieldsSchemaLoadingLabel": "Chargement des champs universels de patrouille"
   },
+  "legOverview": {
+    "activityEmptyStateMessage": "L'activité de l'étape apparaîtra ici",
+    "addEventLinkErrorMessage": "L'événement a été enregistré, mais n'a pas pu être ajouté à cette étape de la patrouille.",
+    "attachmentsSaveErrorMessage": "Certaines pièces jointes n'ont pas pu être téléversées. Veuillez réessayer.",
+    "endedTitle": {
+      "leg": "Étape {{number}} terminée",
+      "pause": "Pause {{number}} terminée"
+    },
+    "footer": {
+      "addEventButtonLabel": "Signaler un événement sur cette étape de patrouille",
+      "addEventButtonText": "Événement",
+      "editButton": "Modifier",
+      "saveButton": "Enregistrer"
+    },
+    "header": {
+      "breadcrumbPatrolsLabel": "Patrouilles",
+      "copyLinkMessage": "Lien copié",
+      "copyLinkOption": {
+        "leg": "Copier le lien de l'étape de patrouille",
+        "pause": "Copier le lien de la pause de patrouille"
+      },
+      "downloadTrackOption": "Télécharger le tracé de l'étape de patrouille",
+      "fitToBoundsButtonLabel": "Zoomer sur les limites de l'étape de patrouille",
+      "jumpToLocationButtonLabel": "Aller à l'emplacement",
+      "mobileProvenancePill": "Mobile",
+      "moreOptionsButtonLabel": "Plus d'options",
+      "pauseIconLabel": "Pause",
+      "printOption": {
+        "leg": "Imprimer l'étape de patrouille",
+        "pause": "Imprimer la pause de patrouille"
+      },
+      "title": {
+        "leg": "Étape {{number}}",
+        "pause": "Pause {{number}}"
+      },
+      "toggleTrackButtonLabel": {
+        "hidden": "Afficher le tracé de la patrouille",
+        "pinned": "Masquer le tracé de la patrouille",
+        "visible": "Épingler le tracé de la patrouille"
+      }
+    },
+    "plan": {
+      "patrolTypeSchemaErrorMessage": "Les champs de ce type de patrouille n'ont pas pu être chargés.",
+      "patrolTypeSchemaLoadingLabel": "Chargement des champs de ce type de patrouille",
+      "staticFields": {
+        "assetsLabel": "Équipements",
+        "copyCoordinatesButtonLabel": "Copier les coordonnées de {{field}}",
+        "copyCoordinatesMessage": "Coordonnées copiées",
+        "endLabel": "Fin",
+        "jumpToLocationButtonLabel": "Aller à l'emplacement de {{field}}",
+        "scheduledIndicator": "Planifié",
+        "startLabel": "Début",
+        "teamLabel": "Équipe",
+        "teamLeadIndicator": "Chef",
+        "teamLeadLabel": "Chef d'équipe",
+        "teamMembersLabel": "Membres de l'équipe"
+      },
+      "universalFieldsSchemaErrorMessage": "Les champs universels de patrouille n'ont pas pu être chargés.",
+      "universalFieldsSchemaLoadingLabel": "Chargement des champs universels de patrouille"
+    },
+    "saveErrorMessage": "L'étape de la patrouille n'a pas pu être enregistrée. Veuillez réessayer.",
+    "startedTitle": {
+      "leg": "Étape {{number}} démarrée",
+      "pause": "Pause {{number}} démarrée"
+    }
+  },
   "newLeg": {
     "footer": {
       "cancelButton": "Annuler",
@@ -102,6 +212,7 @@
     "header": {
       "breadcrumbNewLegLabel": "Nouvelle étape de patrouille",
       "breadcrumbPatrolsLabel": "Patrouilles",
+      "statePill": "Nouvelle",
       "title": "Nouvelle étape de patrouille"
     },
     "saveErrorMessage": "L'étape de la patrouille n'a pas pu être créée. Veuillez réessayer."
@@ -141,6 +252,7 @@
     "title": "Options de la patrouille"
   },
   "patrolOverview": {
+    "addEventLinkErrorMessage": "L'événement a été enregistré, mais n'a pas pu être ajouté à cette patrouille.",
     "attachmentsSaveErrorMessage": "Certaines pièces jointes n'ont pas pu être téléversées. Veuillez réessayer.",
     "footer": {
       "addEventButton": "Ajouter un événement",
@@ -165,16 +277,6 @@
         "hidden": "Afficher la piste de la patrouille",
         "pinned": "Masquer la piste de la patrouille",
         "visible": "Épingler la piste de la patrouille"
-      },
-      "uiStateTitles": {
-        "active": "Active",
-        "cancelled": "Annulée",
-        "done": "Terminée",
-        "invalid": "Configuration invalide",
-        "paused": "En pause",
-        "readyToStart": "Prête à démarrer",
-        "scheduled": "Planifiée",
-        "startOverdue": "Démarrage en retard"
       }
     },
     "history": {
@@ -186,47 +288,66 @@
     },
     "historyTabTitle": "Historique",
     "overview": {
-      "activity": {
-        "activitySectionTitle": "Activité",
-        "collapseAllButtonLabel": "Tout réduire",
-        "emptyStateMessage": "L'activité de la patrouille apparaîtra ici",
-        "expandAllButtonLabel": "Tout développer",
-        "legTransitionTitle": "Étape {{endedLeg}} terminée, étape {{startedLeg}} commencée",
-        "patrolEndedTitle": "Patrouille terminée",
-        "patrolStartedTitle": "Patrouille commencée",
-        "sortDirectionButtonLabel": {
-          "down": "Trier l'activité par ordre croissant",
-          "up": "Trier l'activité par ordre décroissant"
-        },
-        "summaryStats": {
-          "activeTimeLabel": "Temps actif",
-          "distanceLabel": "Distance",
-          "distanceSubjectButtonLabel": "Distance parcourue par {{subject}}. Changer le sujet suivi",
-          "distanceSubjectMenuLabel": "Sujets suivis",
-          "durationLabel": "Durée",
-          "eventsLabel": "Événements",
-          "patrolLeaderIndicator": "Chef de la patrouille",
-          "pausedTimeLabel": "Temps en pause"
-        },
-        "timeLabel": "Heure"
-      },
+      "activityEmptyStateMessage": "L'activité de la patrouille apparaîtra ici",
+      "legEndedTitle": "Étape {{legNumber}} terminée",
       "legs": {
         "endColumnHeader": "Date de fin",
         "legActionsColumnHeader": "Actions",
         "legColumnHeader": "Étape",
-        "legDidNotRunLabel": "Ce tronçon n'a jamais eu lieu",
+        "legDidNotRunLabel": "Cette étape n'a jamais eu lieu",
         "legTableCaption": "Étapes de la patrouille",
         "newLegButton": "Nouvelle étape de patrouille",
         "patrolTypeColumnHeader": "Type de patrouille",
         "startColumnHeader": "Date de début",
+        "teamAndTracking": {
+          "jumpToLocationButtonLabel": "Aller à l'emplacement de {{subject}}",
+          "listLabel": "Sujets suivis par l'étape {{number}}",
+          "teamLeadIndicator": "Chef d'équipe",
+          "toggleButtonLabel": "{{subject}} +{{extraSubjects}}",
+          "toggleButtonTitle": "Afficher les sujets suivis par l'étape {{number}}"
+        },
         "teamColumnHeader": "Équipe et suivi",
-        "viewLegButtonLabel": "Voir l'étape {{legNumber}}",
-        "zoomToLegBoundsButtonLabel": "Ajuster aux limites de l'étape {{legNumber}}"
+        "viewLegButtonLabel": {
+          "leg": "Voir l'étape {{number}}",
+          "pause": "Voir la pause {{number}}"
+        },
+        "zoomToLegBoundsButtonLabel": "Ajuster aux limites de l'étape {{number}}"
+      },
+      "legStartedTitle": "Étape {{legNumber}} démarrée",
+      "patrolEndedTitle": "Patrouille terminée",
+      "patrolPausedTitle": "Patrouille en pause pendant {{pausedFor}}",
+      "patrolResumedTitle": "Patrouille reprise",
+      "patrolStartedTitle": "Patrouille commencée",
+      "viewLegLinkLabel": {
+        "leg": "Voir l'étape {{number}}",
+        "pause": "Voir la pause {{number}}"
       }
     },
     "overviewTabTitle": "Aperçu",
     "saveErrorMessage": "La patrouille n'a pas pu être enregistrée. Veuillez réessayer.",
     "tabsLabel": "Onglets de l'aperçu de la patrouille"
+  },
+  "patrolStartStopLayer": {
+    "endMarkerLabel": "Fin de la patrouille",
+    "estimatedEndMarkerLabel": "Fin de la patrouille (est.)",
+    "estimatedStartAndEndMarkerLabel": "Début et fin de la patrouille (est.)",
+    "estimatedStartMarkerLabel": "Début de la patrouille (est.)",
+    "legMarkerLabel": "Étape {{legNumber}}",
+    "pauseMarkerLabel": "Pause {{pauseNumber}}",
+    "startAndEndMarkerLabel": "Début et fin de la patrouille",
+    "startMarkerLabel": "Début de la patrouille"
+  },
+  "statusPill": {
+    "uiStateTitles": {
+      "active": "Active",
+      "cancelled": "Annulée",
+      "done": "Terminée",
+      "invalid": "Configuration invalide",
+      "paused": "En pause",
+      "readyToStart": "Prête à démarrer",
+      "scheduled": "Planifiée",
+      "startOverdue": "Démarrage en retard"
+    }
   },
   "titleInput": {
     "editButtonLabel": "Modifier le titre"

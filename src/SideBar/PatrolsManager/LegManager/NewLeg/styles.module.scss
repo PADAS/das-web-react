@@ -1,5 +1,5 @@
-@use '../../../../common/styles/layout';
 @use '../../../../common/styles/vars/colors';
+@use '../../_shared' as shared;
 
 .newLeg {
   display: flex;
@@ -14,7 +14,5 @@
     padding: 1rem 0;
   }
 
-  @media (min-width: layout.$md-layout-width-min) {
-    @include layout.sidebar-width-detail;
-  }
+  @include shared.detail-view-width;
 }

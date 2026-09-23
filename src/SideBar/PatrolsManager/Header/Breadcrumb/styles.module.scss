@@ -6,7 +6,8 @@
   ol {
     align-items: center;
     display: flex;
-    gap: 0.5rem;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.5rem;
     list-style: none;
     margin: 0;
     padding: 0;
@@ -17,21 +18,11 @@
       gap: 0.5rem;
       min-width: 0;
 
-      &:first-child {
-        flex-shrink: 0;
-      }
-
-      &:not(:first-child, :last-child) {
-        flex-shrink: 100;
-      }
-
       a {
         border-radius: 0.25rem;
         color: colors.$secondary-medium-gray;
-        overflow: hidden;
+        overflow-wrap: anywhere;
         text-decoration: none;
-        text-overflow: ellipsis;
-        white-space: nowrap;
 
         &:focus-visible {
           outline: 2px solid colors.$light-blue;
@@ -52,9 +43,7 @@
       .currentCrumb {
         color: colors.$bright-blue;
         min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        overflow-wrap: anywhere;
       }
     }
   }

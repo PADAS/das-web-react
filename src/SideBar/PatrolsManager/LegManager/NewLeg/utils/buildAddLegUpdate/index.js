@@ -1,40 +1,44 @@
 import buildLegSegment from '../../../../LegForm/utils/buildLegSegment';
 import { displayStartTimeForPatrolSegment } from '../../../../../../utils/patrols';
 
-// A leg runs up to but not including its end, so the leg before this one ends
-// exactly where the new one begins, run or still only planned.
-const withEndAtNewLegStart = (previousLeg, newLegSegment) => {
-  const newLegStart = displayStartTimeForPatrolSegment(newLegSegment);
+// A leg ends exactly where the next begins. An end already there needs no
+// update, and the API leaves the legs an update does not name alone.
+const buildPreviousPatrolSegmentEnd = (previousPatrolSegment, newPatrolSegment) => {
+  const newPatrolSegmentStart = displayStartTimeForPatrolSegment(newPatrolSegment);
 
-  // A leg that never began has no end to speak of.
-  if (!newLegStart || !displayStartTimeForPatrolSegment(previousLeg)) {
-    return previousLeg;
+  if (!newPatrolSegmentStart || !displayStartTimeForPatrolSegment(previousPatrolSegment)) {
+    return null;
   }
 
-  // A leg that really began gets a real end, one only scheduled to begin gets
-  // a scheduled one, so a leg nobody started never reads as finished. Only an
-  // end of its own kind is the bound the new leg was validated against: a
-  // scheduled end never stops the leg running past it.
-  if (previousLeg.time_range?.start_time) {
-    return previousLeg.time_range.end_time
-      ? previousLeg
-      : { ...previousLeg, time_range: { ...previousLeg.time_range, end_time: newLegStart.toISOString() } };
+  // The end matches the kind of start: a real one for a leg that ran, a
+  // scheduled one otherwise, so a leg nobody started never reads as finished.
+  if (previousPatrolSegment.time_range?.start_time) {
+    return previousPatrolSegment.time_range.end_time
+      ? null
+      : {
+        id: previousPatrolSegment.id,
+        time_range: { ...previousPatrolSegment.time_range, end_time: newPatrolSegmentStart.toISOString() },
+      };
   }
 
-  return previousLeg.scheduled_end
-    ? previousLeg
-    : { ...previousLeg, scheduled_end: newLegStart.toISOString() };
+  return previousPatrolSegment.scheduled_end
+    ? null
+    : { id: previousPatrolSegment.id, scheduled_end: newPatrolSegmentStart.toISOString() };
 };
 
 const buildAddLegUpdate = (patrol, leg) => {
-  const newLegSegment = buildLegSegment(leg);
-  const previousLeg = patrol.patrol_segments.at(-1);
+  const newPatrolSegment = buildLegSegment(leg, { isFirstLeg: patrol.patrol_segments.length === 0 });
+  const previousPatrolSegment = patrol.patrol_segments.at(-1);
+
+  const previousPatrolSegmentEnd = previousPatrolSegment
+    ? buildPreviousPatrolSegmentEnd(previousPatrolSegment, newPatrolSegment)
+    : null;
 
   return {
     id: patrol.id,
-    patrol_segments: previousLeg
-      ? [...patrol.patrol_segments.slice(0, -1), withEndAtNewLegStart(previousLeg, newLegSegment), newLegSegment]
-      : [newLegSegment],
+    patrol_segments: previousPatrolSegmentEnd
+      ? [previousPatrolSegmentEnd, newPatrolSegment]
+      : [newPatrolSegment],
   };
 };
 

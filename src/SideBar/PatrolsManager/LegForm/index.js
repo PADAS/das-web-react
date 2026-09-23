@@ -11,6 +11,7 @@ import {
   fetchPatrolTypeSchema,
 } from '../../../ducks/patrol-schemas';
 import getStaticFieldErrors from './utils/getStaticFieldErrors';
+import { selectIsPatrolTrackShown } from '../../../selectors/patrols';
 
 import PatrolTypeField from './PatrolTypeField';
 import SchemaForm from '../../../SchemaForm';
@@ -29,16 +30,27 @@ const ERRORS_CLEARED_BY_LEG_DRAFT_FIELD = {
   endTime: ['endDate', 'endTime'],
   patrolType: ['patrolType'],
   startDate: ['endDate', 'startDate'],
-  startTime: ['endDate', 'startTime'],
+  startTime: ['endDate', 'startDate', 'startTime'],
 };
 
-const LegForm = ({ earliestStartDateTime = null, formId, leg, onChangeLeg, onSubmit }) => {
+const LegForm = ({
+  earliestStartDateTime = null,
+  formId,
+  isFirstLeg = true,
+  isPause = false,
+  latestEndDateTime = null,
+  leg,
+  onChangeLeg,
+  onSubmit,
+  patrolId = null,
+}) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('patrols', { keyPrefix: 'legForm' });
 
   const defaultPatrolSegmentTypeSchemaState = useSelector(
     (state) => state.data.patrolSchemas[DEFAULT_PATROL_SEGMENT_TYPE]
   );
+  const isPatrolTrackShown = useSelector((state) => selectIsPatrolTrackShown(state, patrolId));
   const patrolTypeSchemaState = useSelector((state) => state.data.patrolSchemas[leg.patrolType?.value]);
 
   const defaultPatrolSegmentTypeFormRef = useRef(null);
@@ -47,6 +59,8 @@ const LegForm = ({ earliestStartDateTime = null, formId, leg, onChangeLeg, onSub
   const staticFieldsRef = useRef(null);
 
   const [staticFieldErrors, setStaticFieldErrors] = useState({});
+
+  const anchorLocation = isPatrolTrackShown ? leg.startLocation : null;
 
   // The schema forms and the patrol type select are memoized and expensive to
   // redraw, so their handlers are the one thing here worth holding still.
@@ -79,7 +93,7 @@ const LegForm = ({ earliestStartDateTime = null, formId, leg, onChangeLeg, onSub
   const onSubmitForm = (event) => {
     event.preventDefault();
 
-    const newStaticFieldErrors = getStaticFieldErrors(leg, earliestStartDateTime);
+    const newStaticFieldErrors = getStaticFieldErrors(leg, earliestStartDateTime, latestEndDateTime);
     setStaticFieldErrors(newStaticFieldErrors);
 
     const [erroneousField] = Object.keys(newStaticFieldErrors);
@@ -104,18 +118,18 @@ const LegForm = ({ earliestStartDateTime = null, formId, leg, onChangeLeg, onSub
   };
 
   useEffect(() => {
-    if (!defaultPatrolSegmentTypeSchemaState) {
+    if (!isPause && !defaultPatrolSegmentTypeSchemaState) {
       dispatch(fetchDefaultPatrolSegmentTypeSchema());
     }
-  }, [defaultPatrolSegmentTypeSchemaState, dispatch]);
+  }, [defaultPatrolSegmentTypeSchemaState, dispatch, isPause]);
 
   useEffect(() => {
-    if (leg.patrolType && !patrolTypeSchemaState) {
+    if (!isPause && leg.patrolType && !patrolTypeSchemaState) {
       // The schema of the currently selected patrol type is not available,
       // fetch it.
       dispatch(fetchPatrolTypeSchema(leg.patrolType.value));
     }
-  }, [dispatch, leg.patrolType, patrolTypeSchemaState]);
+  }, [dispatch, isPause, leg.patrolType, patrolTypeSchemaState]);
 
   // Clear the user content that its schema driven parts uploaded.
   useEffect(() => () => dispatch(clearUserContent()), [dispatch]);
@@ -125,14 +139,17 @@ const LegForm = ({ earliestStartDateTime = null, formId, leg, onChangeLeg, onSub
       <StaticFields
         earliestStartDateTime={earliestStartDateTime}
         errors={staticFieldErrors}
+        isFirstLeg={isFirstLeg}
+        isPause={isPause}
+        latestEndDateTime={latestEndDateTime}
         leg={leg}
         onChangeLeg={onChangeLegField}
         ref={staticFieldsRef}
       />
     </div>
 
-    {!!defaultPatrolSegmentTypeSchemaState?.schema && <SchemaForm
-      anchorLocation={leg.startLocation}
+    {!isPause && !!defaultPatrolSegmentTypeSchemaState?.schema && <SchemaForm
+      anchorLocation={anchorLocation}
       as="div"
       className={styles.schemaForm}
       formData={leg.universalDetails}
@@ -145,7 +162,7 @@ const LegForm = ({ earliestStartDateTime = null, formId, leg, onChangeLeg, onSub
       validateRef={defaultPatrolSegmentTypeFormRef}
     />}
 
-    {(!defaultPatrolSegmentTypeSchemaState || !!defaultPatrolSegmentTypeSchemaState.isLoading)
+    {!isPause && (!defaultPatrolSegmentTypeSchemaState || !!defaultPatrolSegmentTypeSchemaState.isLoading)
       && <div className={styles.section}>
         <div className={styles.schemaLoader} data-testid="legForm-universalFieldsSchemaLoader" role="status">
           <MoonLoader size={SCHEMA_LOADER_SIZE} />
@@ -154,11 +171,11 @@ const LegForm = ({ earliestStartDateTime = null, formId, leg, onChangeLeg, onSub
         </div>
       </div>}
 
-    {!!defaultPatrolSegmentTypeSchemaState?.error && <div className={styles.section}>
+    {!isPause && !!defaultPatrolSegmentTypeSchemaState?.error && <div className={styles.section}>
       <p className={styles.schemaErrorMessage} role="alert">{t('universalFieldsSchemaErrorMessage')}</p>
     </div>}
 
-    <div className={styles.section}>
+    {!isPause && <div className={styles.section}>
       <PatrolTypeField
         error={staticFieldErrors.patrolType}
         onChange={onChangePatrolType}
@@ -179,10 +196,10 @@ const LegForm = ({ earliestStartDateTime = null, formId, leg, onChangeLeg, onSub
       {!!patrolTypeSchemaState?.error && <p className={styles.schemaErrorMessage} role="alert">
         {t('patrolTypeSchemaErrorMessage')}
       </p>}
-    </div>
+    </div>}
 
-    {!!patrolTypeSchemaState?.schema && <SchemaForm
-      anchorLocation={leg.startLocation}
+    {!isPause && !!patrolTypeSchemaState?.schema && <SchemaForm
+      anchorLocation={anchorLocation}
       as="div"
       className={styles.schemaForm}
       formData={leg.typeDetails}

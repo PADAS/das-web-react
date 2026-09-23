@@ -1,8 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useId, useState } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
+import { ReactComponent as ArrowDownSimpleIcon } from '../common/images/icons/arrow-down-simple.svg';
+import { ReactComponent as ArrowUpSimpleIcon } from '../common/images/icons/arrow-up-simple.svg';
 import { ReactComponent as DayNightIcon } from '../common/images/icons/day-night.svg';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { ReactComponent as TracksOffIcon } from '../common/images/icons/tracks_off.svg';
@@ -26,9 +28,11 @@ const MENUS = {
 const TrackLegend = ({
   description,
   items,
+  itemsIcon = <TracksOffIcon className={styles.tracksOffIcon} data-testid="trackLegend-tracksOffIcon" />,
   itemsName,
+  onClearItemTracks,
   onClickClearTracks,
-  onRemoveItemTracks,
+  onToggleItemChildTracks,
   showTimeOfDaySettings = true,
   showTrackSettings = true,
 }) => {
@@ -37,14 +41,31 @@ const TrackLegend = ({
 
   const isTimeOfDayColoringActive = useSelector((state) => state.view.trackSettings.isTimeOfDayColoringActive);
 
+  // The map holds a legend per kind of track, each with a menu of its own, so
+  // no panel here can name itself.
+  const timeOfDaySettingsId = useId();
+  const trackSettingsId = useId();
+  const tracksListId = useId();
+
   // This variable tracks if a menu is expanded, which one it is. There can be only one menu expanded at a time.
   const [expandedMenu, setExpandedMenu] = useState(null);
   // The component starts hidden so the slide in transition effect kicks.
   const [show, setShow] = useState(false);
 
+  // A lone item still has a list worth opening when it owns rows of its own.
+  const hasNestedItems = items.some((item) => !!item.children?.length);
+  // The legend outlives its items: clearing the tracks leaves it sliding out
+  // with nothing left to take an icon or a title from.
+  const hasItems = items.length > 0;
+  const hasSingleItem = items.length === 1;
+  const hasTracksList = items.length > 1 || hasNestedItems;
+
+  const legendTitle = hasSingleItem ? items[0].title : `${items.length} ${itemsName}`;
+
   const isTimeOfDaySettingsExpanded = expandedMenu === MENUS.TIME_OF_DAY_SETTINGS;
   const isTrackSettingsExpanded = expandedMenu === MENUS.TRACK_SETTINGS;
-  const isTracksListExpanded = expandedMenu === MENUS.TRACKS_LIST;
+  // A list the legend has stopped offering closes itself.
+  const isTracksListExpanded = hasTracksList && expandedMenu === MENUS.TRACKS_LIST;
 
   const onCollapseMenu = () => setExpandedMenu(null);
 
@@ -75,22 +96,19 @@ const TrackLegend = ({
   }, [dispatch, isTimeOfDaySettingsExpanded]);
 
   useEffect(() => {
-    // If there were multiple tracked items, the user could have expanded the tracks list menu. If then the user
-    // removes all tracked items but one, we collapse it automatically.
-    if (items.length === 1 && isTracksListExpanded) {
-      onCollapseMenu();
+    if (!hasItems) {
+      return undefined;
     }
-  }, [dispatch, isTracksListExpanded, items.length]);
 
-  useEffect(() => {
-    // If there are tracked items, show the legend. If not, hide it. The state variable is used so the transition
-    // effects kick.
-    if (!show && items.length > 0) {
-      setShow(true);
-    } else if (show && items.length === 0) {
+    // The legend slides in, so it has to paint hidden once before it shows.
+    const frame = requestAnimationFrame(() => setShow(true));
+
+    return () => {
+      cancelAnimationFrame(frame);
+
       setShow(false);
-    }
-  }, [items.length, show]);
+    };
+  }, [hasItems]);
 
   return <div
     className={`${styles.trackLegendWrapper} ${show ? styles.show : ''}`}
@@ -99,52 +117,50 @@ const TrackLegend = ({
     <div className={styles.trackLegend}>
       <div className={styles.row}>
         <div className={styles.titleWrapper} data-testid="trackLegend-titleWrapper">
-          {items.length === 1
-            ? <>
-              {items[0].icon}
+          <span className={styles.itemIcon}>
+            {hasSingleItem ? items[0].icon : itemsIcon}
+          </span>
 
-              <p className={styles.title} data-testid="points-over-time" title={items[0].title}>{items[0].title}</p>
-            </>
-            : <>
-              <TracksOffIcon className={styles.tracksOffIcon} data-testid="tracks-off-icon" />
-
-              <button
-                aria-controls="tracksListCollapse"
-                aria-expanded={isTracksListExpanded}
-                aria-label={t(`tracksListButtonLabel.${isTracksListExpanded ? 'open' : 'closed'}`, { itemsName })}
-                className={styles.tracksListButton}
-                onClick={() => isTracksListExpanded ? onCollapseMenu() : onExpandMenu(MENUS.TRACKS_LIST)}
-                title={t(`tracksListButtonLabel.${isTracksListExpanded ? 'open' : 'closed'}`, { itemsName })}
-                type="button"
-              >
-                {`${items.length} ${itemsName}`}
-              </button>
-            </>}
+          <p className={styles.title}>{legendTitle}</p>
         </div>
 
-        <div>
+        <div className={styles.settingsButtons}>
           {showTimeOfDaySettings && <button
-            aria-controls="timeOfDaySettings"
+            aria-controls={timeOfDaySettingsId}
             aria-expanded={isTimeOfDayColoringActive}
             aria-label={t(`timeOfDaySettingsButtonLabel.${isTimeOfDayColoringActive ? 'active' : 'inactive'}`)}
-            className={`${styles.settingsButton} ${isTimeOfDayColoringActive ? styles.open : ''}`}
+            className={`${styles.settingsButton} ${isTimeOfDayColoringActive ? styles.active : ''}`}
             onClick={() => isTimeOfDayColoringActive ? onDeactivateTimeOfDayColoring() : onActivateTimeOfDayColoring()}
             title={t(`timeOfDaySettingsButtonLabel.${isTimeOfDayColoringActive ? 'active' : 'inactive'}`)}
             type="button"
           >
-            <DayNightIcon className={styles.icon} />
+            <DayNightIcon aria-hidden="true" />
           </button>}
 
           {showTrackSettings && <button
-            aria-controls="trackSettingsCollapse"
+            aria-controls={trackSettingsId}
             aria-expanded={isTrackSettingsExpanded}
             aria-label={t(`trackSettingsButtonLabel.${isTrackSettingsExpanded ? 'open' : 'closed'}`)}
-            className={`${styles.settingsButton} ${isTrackSettingsExpanded ? styles.open : ''}`}
+            className={`${styles.settingsButton} ${isTrackSettingsExpanded ? styles.active : ''}`}
             onClick={() => isTrackSettingsExpanded ? onCollapseMenu() : onExpandMenu(MENUS.TRACK_SETTINGS)}
             title={t(`trackSettingsButtonLabel.${isTrackSettingsExpanded ? 'open' : 'closed'}`)}
             type="button"
           >
-            <GearIcon className={styles.icon} />
+            <GearIcon aria-hidden="true" />
+          </button>}
+
+          {hasTracksList && <button
+            aria-controls={tracksListId}
+            aria-expanded={isTracksListExpanded}
+            aria-label={t(`tracksListButtonLabel.${isTracksListExpanded ? 'open' : 'closed'}`, { itemsName })}
+            className={styles.settingsButton}
+            onClick={() => isTracksListExpanded ? onCollapseMenu() : onExpandMenu(MENUS.TRACKS_LIST)}
+            title={t(`tracksListButtonLabel.${isTracksListExpanded ? 'open' : 'closed'}`, { itemsName })}
+            type="button"
+          >
+            {isTracksListExpanded
+              ? <ArrowUpSimpleIcon aria-hidden="true" />
+              : <ArrowDownSimpleIcon aria-hidden="true" />}
           </button>}
         </div>
       </div>
@@ -158,28 +174,33 @@ const TrackLegend = ({
       </div>
     </div>
 
-    <Collapse id="tracksListCollapse" in={isTracksListExpanded}>
-      <div>
+    {/* Each menu holds collapses of its own, and a nested one still animating
+        is one the height of this transition measures too short, opening the
+        menu in two steps. Unmounting a closed menu has its collapses mount
+        open instead, at their full height. The wrapper carries the gap for the
+        same reason: a margin on the panel collapses out of that measurement. */}
+    <Collapse id={tracksListId} in={isTracksListExpanded} unmountOnExit>
+      <div className={styles.collapseWrapper}>
         <TracksList
           items={items}
-          itemsName={itemsName}
-          onClose={onCollapseMenu}
-          onRemoveItemTracks={onRemoveItemTracks}
+          onClearItemTracks={onClearItemTracks}
+          onToggleItemChildTracks={onToggleItemChildTracks}
         />
       </div>
     </Collapse>
 
-    {showTrackSettings && <Collapse id="trackSettingsCollapse" in={isTrackSettingsExpanded}>
-      <div>
+    {showTrackSettings && <Collapse id={trackSettingsId} in={isTrackSettingsExpanded} unmountOnExit>
+      <div className={styles.collapseWrapper}>
         <TrackSettings onClose={onCollapseMenu} />
       </div>
     </Collapse>}
 
     {showTimeOfDaySettings && <Collapse
-      id="timeOfDaySettings"
+      id={timeOfDaySettingsId}
       in={isTimeOfDayColoringActive}
+      unmountOnExit
     >
-      <div>
+      <div className={styles.collapseWrapper}>
         <TimeOfDaySettings
           isExpanded={isTimeOfDaySettingsExpanded}
           onCollapseTimeOfDaySettings={onCollapseMenu}

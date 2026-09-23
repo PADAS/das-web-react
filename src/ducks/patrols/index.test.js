@@ -8,9 +8,11 @@ import {
   ADD_PATROL_TO_FEED,
   CREATE_PATROL_REALTIME,
   CREATE_PATROL_SUCCESS,
+  createPatrol,
   DELETE_PATROL_BY_ID,
   FETCH_PATROL_TEAM_AND_TRACKING_OPTIONS_SUCCESS,
   FETCH_PATROLS_FEED_SUCCESS,
+  fetchPatrol,
   fetchPatrolsFeed,
   fetchPatrolTeamAndTrackingOptions,
   PATROL_CONFIG_API_URL,
@@ -23,15 +25,20 @@ import {
   socketCreatePatrol,
   socketDeletePatrol,
   socketUpdatePatrol,
+  togglePatrolTrackedSubjectState,
+  togglePatrolTrackState,
   UPDATE_PATROL_ERROR,
   UPDATE_PATROL_REALTIME,
   UPDATE_PATROL_STORE,
   UPDATE_PATROL_SUCCESS,
+  UPDATE_PATROL_TRACK_STATE,
   updatePatrol,
 } from './';
 
 const PATROL_A_ID = 'aaaaaaaa-0000-0000-0000-000000000001';
 const PATROL_B_ID = 'bbbbbbbb-0000-0000-0000-000000000002';
+
+const SERVED_TEAM_AND_TRACKING = { assets: [], members: [], team: null };
 
 const makePatrol = (id, overrides = {}) => ({
   id,
@@ -130,6 +137,20 @@ describe('Ducks - Patrols', () => {
       ]);
     });
 
+    test('asks for the pauses, so the feed and the socket agree on a patrol\'s legs', async () => {
+      let requestedUrl = null;
+      server.use(http.get(PATROLS_API_URL, ({ request }) => {
+        requestedUrl = new URL(request.url);
+
+        return HttpResponse.json({ data: feedResponse });
+      }));
+
+      const store = mockStore({ data: {}, view: {} });
+      await store.dispatch(fetchPatrolsFeed()).request;
+
+      expect(requestedUrl.searchParams.get('include_pauses')).toBe('true');
+    });
+
     test('does not report a cancelled request as a failure', async () => {
       const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
       respondWithFeed();
@@ -153,6 +174,40 @@ describe('Ducks - Patrols', () => {
 
       expect(store.getActions()).toEqual([]);
       expect(warn).toHaveBeenCalled();
+    });
+  });
+
+  describe('fetchPatrol', () => {
+    test('asks for the pauses, so a refetch does not drop the ones the socket sent', async () => {
+      let requestedUrl = null;
+      server.use(http.get(`${PATROLS_API_URL}:patrolId`, ({ request }) => {
+        requestedUrl = new URL(request.url);
+
+        return HttpResponse.json({ data: patrolA });
+      }));
+
+      const store = mockStore({ data: {}, view: {} });
+      await store.dispatch(fetchPatrol(PATROL_A_ID));
+
+      expect(requestedUrl.searchParams.get('include_pauses')).toBe('true');
+      expect(store.getActions()).toEqual([{ payload: patrolA, type: UPDATE_PATROL_SUCCESS }]);
+    });
+  });
+
+  describe('createPatrol', () => {
+    test('asks for the pauses, so the created patrol answers with the legs it has', async () => {
+      let requestedUrl = null;
+      server.use(http.post(PATROLS_API_URL, ({ request }) => {
+        requestedUrl = new URL(request.url);
+
+        return HttpResponse.json({ data: patrolA });
+      }));
+
+      const store = mockStore({ data: {}, view: {} });
+      await store.dispatch(createPatrol({ title: 'A new patrol' }));
+
+      expect(requestedUrl.searchParams.get('include_pauses')).toBe('true');
+      expect(store.getActions()).toEqual([{ payload: patrolA, type: CREATE_PATROL_SUCCESS }]);
     });
   });
 
@@ -197,7 +252,7 @@ describe('Ducks - Patrols', () => {
       const options = await store.dispatch(fetchPatrolTeamAndTrackingOptions());
 
       expect(options.assets).toEqual(assets);
-      expect(options.teamMembers).toEqual(members);
+      expect(options.members).toEqual(members);
       expect(options.teams).toEqual(teams);
     });
 
@@ -207,17 +262,17 @@ describe('Ducks - Patrols', () => {
       const store = mockStore({ data: {}, view: {} });
       const options = await store.dispatch(fetchPatrolTeamAndTrackingOptions());
 
-      expect(options).toEqual({ assets: [], leaders, teamMembers: [], teams: [] });
+      expect(options).toEqual({ assets: [], hasFetched: true, leaders, members: [], teams: [] });
     });
 
-    test('keeps the leaders when the config request fails', async () => {
+    test('keeps the leaders and leaves the rosters unfetched when the config request fails', async () => {
       jest.spyOn(console, 'warn').mockImplementation(() => {});
       server.use(http.get(PATROL_CONFIG_API_URL, () => new HttpResponse(null, { status: 404 })));
 
       const store = mockStore({ data: {}, view: {} });
       const options = await store.dispatch(fetchPatrolTeamAndTrackingOptions());
 
-      expect(options).toEqual({ assets: [], leaders, teamMembers: [], teams: [] });
+      expect(options).toEqual({ assets: [], hasFetched: false, leaders, members: [], teams: [] });
       expect(store.getActions())
         .toEqual([{ payload: options, type: FETCH_PATROL_TEAM_AND_TRACKING_OPTIONS_SUCCESS }]);
     });
@@ -229,7 +284,7 @@ describe('Ducks - Patrols', () => {
       const store = mockStore({ data: {}, view: {} });
       const options = await store.dispatch(fetchPatrolTeamAndTrackingOptions());
 
-      expect(options).toEqual({ assets, leaders: [], teamMembers: members, teams });
+      expect(options).toEqual({ assets, hasFetched: true, leaders: [], members: members, teams });
     });
   });
 
@@ -245,6 +300,20 @@ describe('Ducks - Patrols', () => {
       expect(response.data.data).toEqual(updatedPatrol);
     });
 
+    test('asks for the pauses, so the update answers with the legs the patrol has', async () => {
+      let requestedUrl = null;
+      server.use(http.patch(`${PATROLS_API_URL}${PATROL_A_ID}`, ({ request }) => {
+        requestedUrl = new URL(request.url);
+
+        return HttpResponse.json({ data: patrolA });
+      }));
+
+      const store = mockStore({ data: {}, view: {} });
+      await store.dispatch(updatePatrol({ id: PATROL_A_ID, state: 'done' }));
+
+      expect(requestedUrl.searchParams.get('include_pauses')).toBe('true');
+    });
+
     test('reports the error and rejects when the update fails', async () => {
       server.use(http.patch(`${PATROLS_API_URL}${PATROL_A_ID}`, () => new HttpResponse(null, { status: 500 })));
 
@@ -252,6 +321,68 @@ describe('Ducks - Patrols', () => {
 
       await expect(store.dispatch(updatePatrol({ id: PATROL_A_ID }))).rejects.toBeDefined();
       expect(store.getActions()).toEqual([expect.objectContaining({ type: UPDATE_PATROL_ERROR })]);
+    });
+  });
+
+  describe('togglePatrolTrackState', () => {
+    const dispatchToggle = (patrolTrackState) => {
+      const store = mockStore({ view: { patrolTrackState } });
+
+      store.dispatch(togglePatrolTrackState(PATROL_A_ID));
+
+      return store.getActions()[0];
+    };
+
+    test('shows the track of a patrol that had none shown', () => {
+      expect(dispatchToggle({ hiddenSubjects: {}, pinned: [], visible: [] }))
+        .toEqual({ payload: { visible: [PATROL_A_ID] }, type: UPDATE_PATROL_TRACK_STATE });
+    });
+
+    test('pins the track of a patrol that was showing one', () => {
+      expect(dispatchToggle({ hiddenSubjects: {}, pinned: [], visible: [PATROL_A_ID] }))
+        .toEqual({ payload: { pinned: [PATROL_A_ID], visible: [] }, type: UPDATE_PATROL_TRACK_STATE });
+    });
+
+    test('forgets the subjects the user hid when it hides the track of a patrol that had it pinned', () => {
+      expect(dispatchToggle({
+        hiddenSubjects: { [PATROL_A_ID]: ['subject123'], [PATROL_B_ID]: ['subject456'] },
+        pinned: [PATROL_A_ID],
+        visible: [],
+      })).toEqual({
+        payload: { hiddenSubjects: { [PATROL_B_ID]: ['subject456'] }, pinned: [], visible: [] },
+        type: UPDATE_PATROL_TRACK_STATE,
+      });
+    });
+  });
+
+  describe('togglePatrolTrackedSubjectState', () => {
+    const dispatchToggle = (hiddenSubjects) => {
+      const store = mockStore({ view: { patrolTrackState: { hiddenSubjects, pinned: [], visible: [] } } });
+
+      store.dispatch(togglePatrolTrackedSubjectState(PATROL_A_ID, 'subject123'));
+
+      return store.getActions()[0];
+    };
+
+    test('hides a subject the patrol was drawing', () => {
+      expect(dispatchToggle({})).toEqual({
+        payload: { hiddenSubjects: { [PATROL_A_ID]: ['subject123'] } },
+        type: UPDATE_PATROL_TRACK_STATE,
+      });
+    });
+
+    test('shows a subject the user had hidden', () => {
+      expect(dispatchToggle({ [PATROL_A_ID]: ['subject123', 'subject456'] })).toEqual({
+        payload: { hiddenSubjects: { [PATROL_A_ID]: ['subject456'] } },
+        type: UPDATE_PATROL_TRACK_STATE,
+      });
+    });
+
+    test('leaves the subjects hidden on other patrols alone', () => {
+      expect(dispatchToggle({ [PATROL_B_ID]: ['subject789'] })).toEqual({
+        payload: { hiddenSubjects: { [PATROL_A_ID]: ['subject123'], [PATROL_B_ID]: ['subject789'] } },
+        type: UPDATE_PATROL_TRACK_STATE,
+      });
     });
   });
 
@@ -268,6 +399,18 @@ describe('Ducks - Patrols', () => {
       expect(state[PATROL_B_ID]).toBe(patrolB);
     });
 
+    test('keeps the pause legs a realtime update carries, so a paused patrol stays paused', () => {
+      const runningLeg = { id: 'leg-1', is_pause: false, time_range: { start_time: '2026-04-13T06:00:00.000Z' } };
+      const pauseLeg = { id: 'pause-1', is_pause: true, time_range: { start_time: '2026-04-13T10:00:00.000Z' } };
+
+      const state = patrolStoreReducer({ [PATROL_A_ID]: makePatrol(PATROL_A_ID) }, {
+        payload: makePatrol(PATROL_A_ID, { patrol_segments: [runningLeg, pauseLeg] }),
+        type: UPDATE_PATROL_REALTIME,
+      });
+
+      expect(state[PATROL_A_ID].patrol_segments).toEqual([runningLeg, pauseLeg]);
+    });
+
     test('merges each patrol of a fetched feed page in, leaving the patrols it left out alone', () => {
       const state = patrolStoreReducer(loadedStore, {
         type: UPDATE_PATROL_STORE,
@@ -279,14 +422,21 @@ describe('Ducks - Patrols', () => {
     });
 
     test('replaces the collections of a stored patrol instead of merging them item by item', () => {
-      const storedPatrol = makePatrol(PATROL_A_ID, { patrol_segments: [{ id: 'leg-1' }, { id: 'leg-2' }] });
+      const storedPatrol = makePatrol(PATROL_A_ID, {
+        patrol_segments: [
+          { id: 'leg-1', ...SERVED_TEAM_AND_TRACKING },
+          { id: 'leg-2', ...SERVED_TEAM_AND_TRACKING },
+        ],
+      });
 
       const state = patrolStoreReducer({ [PATROL_A_ID]: storedPatrol }, {
         type: UPDATE_PATROL_STORE,
-        payload: { results: [makePatrol(PATROL_A_ID, { patrol_segments: [{ id: 'leg-1' }] })] },
+        payload: {
+          results: [makePatrol(PATROL_A_ID, { patrol_segments: [{ id: 'leg-1', ...SERVED_TEAM_AND_TRACKING }] })],
+        },
       });
 
-      expect(state[PATROL_A_ID].patrol_segments).toEqual([{ id: 'leg-1' }]);
+      expect(state[PATROL_A_ID].patrol_segments).toEqual([{ id: 'leg-1', ...SERVED_TEAM_AND_TRACKING }]);
     });
 
     test('stores a patrol created through the API', () => {
@@ -322,6 +472,7 @@ describe('Ducks - Patrols', () => {
       const leg = (id, startTime, overrides) => ({
         id,
         time_range: { end_time: null, start_time: startTime },
+        ...SERVED_TEAM_AND_TRACKING,
         ...overrides,
       });
 
@@ -425,12 +576,12 @@ describe('Ducks - Patrols', () => {
     const loadedOptions = {
       assets: [{ id: 'asset-1', name: 'Radio 7' }],
       leaders: [{ id: 'leader-1', name: 'Alex' }],
-      teamMembers: [{ id: 'member-1', name: 'Maya Chen' }],
+      members: [{ id: 'member-1', name: 'Maya Chen' }],
       teams: [{ id: 'team-1', name: 'Alpha' }],
     };
 
     test('replaces the options it has with the ones the site serves', () => {
-      const newOptions = { assets: [], leaders: [{ id: 'leader-2', name: 'Priya' }], teamMembers: [], teams: [] };
+      const newOptions = { assets: [], leaders: [{ id: 'leader-2', name: 'Priya' }], members: [], teams: [] };
 
       expect(patrolTeamAndTrackingOptionsReducer(
         loadedOptions,
@@ -440,7 +591,7 @@ describe('Ducks - Patrols', () => {
 
     test('empties the options on a global reset', () => {
       expect(patrolTeamAndTrackingOptionsReducer(loadedOptions, resetGlobalState()))
-        .toEqual({ assets: [], leaders: [], teamMembers: [], teams: [] });
+        .toEqual({ assets: [], hasFetched: false, leaders: [], members: [], teams: [] });
     });
   });
 });

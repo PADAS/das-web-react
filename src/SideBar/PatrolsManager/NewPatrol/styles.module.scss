@@ -1,13 +1,5 @@
-@use '../../../common/styles/layout';
 @use '../../../common/styles/vars/colors';
-
-.loaderWrapper {
-  align-items: center;
-  display: flex;
-  height: 100%;
-  justify-content: center;
-  width: 100%;
-}
+@use '../_shared' as shared;
 
 .newPatrol {
   display: flex;
@@ -22,7 +14,5 @@
     padding: 1rem 0;
   }
 
-  @media (min-width: layout.$md-layout-width-min) {
-    @include layout.sidebar-width-detail;
-  }
+  @include shared.detail-view-width;
 }

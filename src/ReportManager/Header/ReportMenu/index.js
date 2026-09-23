@@ -78,7 +78,9 @@ const ReportMenu = ({ onSaveReport, printableContentRef, report, setRedirectTo }
     if (!patrolSegmentId) return;
 
     const [{ data: { data: savedReport } }] = await onSaveReport(undefined, false);
-    await addPatrolSegmentToEvent(patrolSegmentId, savedReport.id);
+
+    await addPatrolSegmentToEvent(patrolSegmentId, savedReport.id)
+      .catch((error) => console.warn('add segment error', error));
 
     reportTracker.track(`Added ${report.is_collection ? 'Incident':'Event'} to Patrol`);
 

@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 
-import buildLegDraft from '../../../LegForm/utils/buildLegDraft';
+import buildLegDraft from '../../../utils/buildLegDraft';
 import { getHoursAndMinutesString } from '../../../../../utils/datetime';
 
 const buildNewPatrolLegDraft = ({ isAutoEnd, isAutoStart, patrolData, patrolType }) => {

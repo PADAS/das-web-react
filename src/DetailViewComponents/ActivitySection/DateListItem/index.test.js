@@ -56,6 +56,20 @@ describe('ActivitySection - DateListItem', () => {
     const listItem = (await screen.findByText('Patrol Started')).closest('li');
 
     expect(listItem).toBeInTheDocument();
-    expect((await screen.findByTestId('clock-icon'))).toHaveAttribute('aria-hidden', 'true');
+    expect((await screen.findByTestId('dateListItem-icon'))).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  test('does not render a link when the row has none', async () => {
+    renderDateListItem();
+
+    expect((await screen.findByText('Patrol Started'))).toBeInTheDocument();
+    expect(screen.queryByRole('link')).toBeNull();
+  });
+
+  test('renders a named link to what the row stands for', async () => {
+    renderDateListItem({ link: { label: 'View leg 1', to: '/patrols/123/legs/456' } });
+
+    expect((await screen.findByRole('link', { name: 'View leg 1' })))
+      .toHaveAttribute('href', '/patrols/123/legs/456');
   });
 });
