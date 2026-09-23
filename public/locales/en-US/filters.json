@@ -88,10 +88,21 @@
   },
   "patrolFilters": {
     "dateRangePopover": {
+      "endDateLabel": "To",
+      "presetButtons": {
+        "lastSevenDays": "Last 7 days",
+        "lastThirtyDays": "Last 30 days",
+        "lastThreeMonths": "Last 3 months",
+        "today": "Today",
+        "yesterday": "Yesterday"
+      },
+      "presetsGroupLabel": "Date range presets",
       "resetButton": "Reset",
+      "resetButtonLabel": "Reset date filters",
+      "startDateLabel": "From",
       "title": "Date Range"
     },
-    "datesModifiedButtonLabel": "Dates, custom date range applied",
+    "datesModifiedButtonLabel": "Dates, date filters applied",
     "datesTitle": "Dates",
     "filteredResultsSummary_one": "{{count}} result filtered from <dateRange>{{dateRange}}</dateRange>",
     "filteredResultsSummary_other": "{{count}} results filtered from <dateRange>{{dateRange}}</dateRange>",
@@ -107,9 +118,13 @@
       "reportedByPlaceholder": "Select Device...",
       "resetAllButton": "Reset All",
       "resetButton": "Reset",
+      "resetPatrolTypesButtonLabel": "Reset patrol types",
+      "resetStatusButtonLabel": "Reset status",
       "statusLabel": "Status",
+      "teamLeadLabel": "Team Lead",
       "title": "Patrol Filters",
-      "trackedByLabel": "Tracked by"
+      "trackedByLabel": "Tracked by",
+      "unknownTeamLeadLabel": "Unknown team lead"
     },
     "filtersTitle": "Filters",
     "globalResetFilterButton": "Reset",

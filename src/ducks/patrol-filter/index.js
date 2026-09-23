@@ -13,7 +13,7 @@ const defaultDateRange = {
 export const INITIAL_FILTER_STATE = {
   filter: {
     date_range: defaultDateRange,
-    patrols_overlap_daterange: false,
+    patrols_overlap_daterange: true,
     patrol_type: [],
     text: '',
     tracked_by: [],
@@ -22,7 +22,22 @@ export const INITIAL_FILTER_STATE = {
 };
 
 export const PATROL_FILTER_STORAGE_KEY = 'patrolFilter';
-export const persistenceConfig = generateOptionalStorageConfig(PATROL_FILTER_STORAGE_KEY, INITIAL_FILTER_STATE);
+
+export const patrolFilterMigrations = {
+  // The date filter mode used to be overridden with overlap at the default
+  // range, so a stored mode may never have been the user's choice.
+  0: (state) => ({
+    ...state,
+    filter: { ...state.filter, patrols_overlap_daterange: INITIAL_FILTER_STATE.filter.patrols_overlap_daterange },
+  }),
+};
+
+export const persistenceConfig = generateOptionalStorageConfig(
+  PATROL_FILTER_STORAGE_KEY,
+  INITIAL_FILTER_STATE,
+  0,
+  patrolFilterMigrations
+);
 
 const dateRangeReducer = globalDateRangeReducerWithDefaultConfig(defaultDateRange);
 

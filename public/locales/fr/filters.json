@@ -88,10 +88,21 @@
   },
   "patrolFilters": {
     "dateRangePopover": {
+      "endDateLabel": "Jusqu'à",
+      "presetButtons": {
+        "lastSevenDays": "7 derniers jours",
+        "lastThirtyDays": "30 derniers jours",
+        "lastThreeMonths": "3 derniers mois",
+        "today": "Aujourd'hui",
+        "yesterday": "Hier"
+      },
+      "presetsGroupLabel": "Intervalles de dates prédéfinis",
       "resetButton": "Réinitialiser",
+      "resetButtonLabel": "Réinitialiser les filtres de date",
+      "startDateLabel": "Depuis",
       "title": "Intervalle de Dates"
     },
-    "datesModifiedButtonLabel": "Dates, plage de dates personnalisée appliquée",
+    "datesModifiedButtonLabel": "Dates, filtres de date appliqués",
     "datesTitle": "Dates",
     "filteredResultsSummary_one": "{{count}} résultat filtré depuis <dateRange>{{dateRange}}</dateRange>",
     "filteredResultsSummary_other": "{{count}} résultats filtrés depuis <dateRange>{{dateRange}}</dateRange>",
@@ -107,9 +118,13 @@
       "reportedByPlaceholder": "Sélectionner l'Appareil",
       "resetAllButton": "Tout Réinitialiser",
       "resetButton": "Réinitialiser",
+      "resetPatrolTypesButtonLabel": "Réinitialiser les types de patrouille",
+      "resetStatusButtonLabel": "Réinitialiser le statut",
       "statusLabel": "Statut",
+      "teamLeadLabel": "Chef d'équipe",
       "title": "Filtres de Patrouilles",
-      "trackedByLabel": "Suivi depuis:"
+      "trackedByLabel": "Suivi depuis:",
+      "unknownTeamLeadLabel": "Chef d'équipe inconnu"
     },
     "filtersTitle": "Filtres",
     "globalResetFilterButton": "Réinitialiser",

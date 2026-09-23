@@ -87,10 +87,21 @@
   },
   "patrolFilters": {
     "dateRangePopover": {
+      "endDateLabel": "सम्म",
+      "presetButtons": {
+        "lastSevenDays": "पछिल्लो ७ दिन",
+        "lastThirtyDays": "पछिल्लो ३० दिन",
+        "lastThreeMonths": "पछिल्लो तीन महिना",
+        "today": "आज",
+        "yesterday": "हिजो"
+      },
+      "presetsGroupLabel": "पूर्वनिर्धारित समय सिमाहरू",
       "resetButton": "रिसेट गर्नुहोस्",
+      "resetButtonLabel": "मिति फिल्टरहरू रिसेट गर्नुहोस्",
+      "startDateLabel": "देखि",
       "title": "समय सिमा"
     },
-    "datesModifiedButtonLabel": "मिति, अनुकूलित मिति दायरा लागू गरिएको",
+    "datesModifiedButtonLabel": "मिति, मिति फिल्टरहरू लागू गरिएका",
     "datesTitle": "मिति",
     "filteredResultsSummary_one": "<dateRange>{{dateRange}}</dateRange> देखि फिल्टर गरिएको {{count}} नतिजा",
     "filteredResultsSummary_other": "<dateRange>{{dateRange}}</dateRange> देखि फिल्टर गरिएका {{count}} नतिजाहरु",
@@ -106,9 +117,13 @@
       "reportedByPlaceholder": "उपकरण छान्नुहोस्…",
       "resetAllButton": "सबै रिसेट गर्नुहोस्",
       "resetButton": "रिसेट गर्नुहोस्",
+      "resetPatrolTypesButtonLabel": "गस्तीका किसिमहरू रिसेट गर्नुहोस्",
+      "resetStatusButtonLabel": "अवस्था रिसेट गर्नुहोस्",
       "statusLabel": "अवस्था",
+      "teamLeadLabel": "टोली नेता",
       "title": "गस्ती फिल्टर",
-      "trackedByLabel": "द्वारा ट्रयाक गरिएको"
+      "trackedByLabel": "द्वारा ट्रयाक गरिएको",
+      "unknownTeamLeadLabel": "अज्ञात टोली नेता"
     },
     "filtersTitle": "फिल्टर",
     "globalResetFilterButton": "रिसेट गर्नुहोस्",

@@ -4,9 +4,9 @@
 @import '../common/styles/popovers';
 
 .form {
-  border-bottom: 1px solid $gray-border;
+  border-bottom: 1px solid $light-gray-lines;
   display: flex;
-  padding: 0.25rem 0.75rem 0.75rem;
+  padding: 0.75rem;
 
   .searchBar {
     width: 40%;

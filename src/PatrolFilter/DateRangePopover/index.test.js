@@ -34,6 +34,7 @@ describe('DateRangePopover', () => {
               lower: INITIAL_FILTER_STATE.filter.date_range.lower,
               upper: INITIAL_FILTER_STATE.filter.date_range.upper,
             },
+            patrols_overlap_daterange: INITIAL_FILTER_STATE.filter.patrols_overlap_daterange,
           },
         },
       },
@@ -61,7 +62,33 @@ describe('DateRangePopover', () => {
     });
   });
 
+  test('disables the Reset button while the date range and the date filter mode are at their defaults', () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <DateRangePopover />
+      </Provider>
+    );
+
+    expect(screen.getByRole('button', { name: 'Reset' })).toBeDisabled();
+  });
+
+  test('resets the date filter mode when the user clicks the Reset button', async () => {
+    store.data.patrolFilter.filter.patrols_overlap_daterange = false;
+    render(
+      <Provider store={mockStore(store)}>
+        <DateRangePopover />
+      </Provider>
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'Reset' }));
+
+    expect(updatePatrolFilter).toHaveBeenCalledWith({
+      filter: { patrols_overlap_daterange: INITIAL_FILTER_STATE.filter.patrols_overlap_daterange },
+    });
+  });
+
   test('updates the patrol overlap filter when the user clicks the date overlap radio button', async () => {
+    store.data.patrolFilter.filter.patrols_overlap_daterange = false;
     render(
       <Provider store={mockStore(store)}>
         <DateRangePopover />

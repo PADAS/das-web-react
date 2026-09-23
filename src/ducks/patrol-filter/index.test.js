@@ -1,6 +1,7 @@
 import { generateDaysAgoDate } from '../../utils/datetime';
 import patrolFilterReducer, {
   INITIAL_FILTER_STATE,
+  persistenceConfig,
   setDefaultDateRange,
   updatePatrolFilter,
   UPDATE_PATROL_FILTER,
@@ -60,5 +61,32 @@ describe('Ducks - Patrol filter', () => {
     expect(action).toEqual({ payload: { filter: { date_range: { lower, upper } } }, type: UPDATE_PATROL_FILTER });
     expect(INITIAL_FILTER_STATE.filter.date_range.lower).toBe(lower);
     expect(INITIAL_FILTER_STATE.filter.date_range.upper).toBe(upper);
+  });
+
+  describe('persistenceConfig', () => {
+    test('brings a stored date filter mode back to its default while keeping the rest of the stored filter', async () => {
+      const storedState = {
+        _persist: { rehydrated: false, version: -1 },
+        filter: { ...INITIAL_FILTER_STATE.filter, patrol_type: ['1'], patrols_overlap_daterange: false },
+        status: ['active'],
+      };
+
+      const migratedState = await persistenceConfig.migrate(storedState, persistenceConfig.version);
+
+      expect(migratedState).toEqual({
+        ...storedState,
+        filter: { ...storedState.filter, patrols_overlap_daterange: true },
+      });
+    });
+
+    test('keeps a date filter mode stored since the migration', async () => {
+      const storedState = {
+        _persist: { rehydrated: false, version: persistenceConfig.version },
+        filter: { ...INITIAL_FILTER_STATE.filter, patrols_overlap_daterange: false },
+        status: [],
+      };
+
+      expect(await persistenceConfig.migrate(storedState, persistenceConfig.version)).toEqual(storedState);
+    });
   });
 });

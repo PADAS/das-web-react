@@ -60,6 +60,7 @@ const PatrolFilter = ({ className = '' }) => {
       filter: {
         tracked_by: INITIAL_FILTER_STATE.filter.tracked_by,
         patrol_type: INITIAL_FILTER_STATE.filter.patrol_type,
+        patrols_overlap_daterange: INITIAL_FILTER_STATE.filter.patrols_overlap_daterange,
       },
       status: INITIAL_FILTER_STATE.status,
     }));
@@ -93,7 +94,8 @@ const PatrolFilter = ({ className = '' }) => {
   const patrolTypesFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.patrol_type, patrolFilter.filter.patrol_type);
   const statusModified = !isEqual(INITIAL_FILTER_STATE.status, patrolFilter.status);
   const filtersModified = leadersFilterModified || patrolTypesFilterModified || statusModified;
-  const dateRangeModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, patrolFilter.filter.date_range);
+  const dateRangeModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, patrolFilter.filter.date_range)
+    || INITIAL_FILTER_STATE.filter.patrols_overlap_daterange !== patrolFilter.filter.patrols_overlap_daterange;
 
   return <>
     <form

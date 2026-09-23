@@ -231,6 +231,20 @@ body {
 
   .report-filter {
     padding: 0.333rem;
+
+    // Only the filter and date buttons sit beside the search bar on the map, so
+    // it takes the rest of the row rather than the split the sidebar needs.
+    [class*=searchBar] {
+      flex: 1;
+      min-width: 0;
+      width: auto;
+    }
+
+    [class*=buttons] {
+      flex-shrink: 0;
+      margin-left: 0.5rem;
+      width: auto;
+    }
   }
 
   form {

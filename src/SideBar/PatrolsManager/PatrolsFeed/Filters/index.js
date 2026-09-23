@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useId, useMemo, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useId, useMemo, useState } from 'react';
 import debounce from 'lodash/debounce';
 import isEqual from 'react-fast-compare';
 import Overlay from 'react-bootstrap/Overlay';
@@ -19,7 +19,15 @@ import * as styles from './styles.module.scss';
 
 export const TEXT_FILTER_DEBOUNCE_DELAY = 200;
 
+// The menus inside the popovers are positioned fixed, which a transformed
+// popover would anchor to itself rather than to the viewport.
+const POPOVER_POPPER_CONFIG = { modifiers: [{ name: 'computeStyles', options: { gpuAcceleration: false } }] };
+
 const POPOVER_KEYS = { DATES: 'dates', FILTERS: 'filters' };
+
+// A popover still fading out can report a click outside it, which must not
+// close the popover that replaced it.
+const hidePopoverIfOpen = (popoverKey) => (openPopover) => openPopover === popoverKey ? null : openPopover;
 
 const Filters = ({ resultCount }) => {
   const dispatch = useDispatch();
@@ -37,12 +45,13 @@ const Filters = ({ resultCount }) => {
   const [filtersAnchor, setFiltersAnchor] = useState(null);
   const [openPopover, setOpenPopover] = useState(null);
 
-  const isDateRangeModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, patrolFilter.filter.date_range);
+  const isDatesModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, patrolFilter.filter.date_range)
+    || INITIAL_FILTER_STATE.filter.patrols_overlap_daterange !== patrolFilter.filter.patrols_overlap_daterange;
   const isFiltersModified = !isEqual(INITIAL_FILTER_STATE.status, patrolFilter.status)
     || !isEqual(INITIAL_FILTER_STATE.filter.patrol_type, patrolFilter.filter.patrol_type)
     || !isEqual(INITIAL_FILTER_STATE.filter.tracked_by, patrolFilter.filter.tracked_by);
 
-  const canReset = isDateRangeModified || isFiltersModified || !!filterText;
+  const canReset = isDatesModified || isFiltersModified || !!filterText;
 
   // Reading the clock, so it is held until the range it describes moves rather
   // than rebuilt on every keystroke in the search box.
@@ -59,11 +68,8 @@ const Filters = ({ resultCount }) => {
     [dispatch]
   );
 
-  const closePopover = (anchor) => {
-    setOpenPopover(null);
-
-    anchor?.focus();
-  };
+  const hideDatesPopover = useCallback(() => setOpenPopover(hidePopoverIfOpen(POPOVER_KEYS.DATES)), []);
+  const hideFiltersPopover = useCallback(() => setOpenPopover(hidePopoverIfOpen(POPOVER_KEYS.FILTERS)), []);
 
   const onChangeSearch = (event) => {
     setFilterText(event.target.value);
@@ -82,25 +88,6 @@ const Filters = ({ resultCount }) => {
     tracker.track('Clear the search text filter');
   };
 
-  // A click on a trigger already toggles its own popover, so closing here too
-  // would undo the click that opened it. A key press never doubles up.
-  const onHidePopover = (event) => {
-    const isToggledByItsOwnTrigger = event?.type === 'click'
-      && [datesAnchor, filtersAnchor].some((anchor) => anchor?.contains(event.target));
-
-    if (!isToggledByItsOwnTrigger) {
-      setOpenPopover(null);
-    }
-  };
-
-  const onKeyDownPopover = (anchor) => (event) => {
-    if (event.key === 'Escape') {
-      event.preventDefault();
-
-      closePopover(anchor);
-    }
-  };
-
   const onReset = () => {
     setFilterText('');
 
@@ -108,6 +95,7 @@ const Filters = ({ resultCount }) => {
     dispatch(updatePatrolFilter({
       filter: {
         patrol_type: INITIAL_FILTER_STATE.filter.patrol_type,
+        patrols_overlap_daterange: INITIAL_FILTER_STATE.filter.patrols_overlap_daterange,
         text: INITIAL_FILTER_STATE.filter.text,
         tracked_by: INITIAL_FILTER_STATE.filter.tracked_by,
       },
@@ -123,14 +111,6 @@ const Filters = ({ resultCount }) => {
 
     tracker.track(`Toggle the ${popoverKey} filter popover`);
   };
-
-  // A popover opens in a portal at the end of the page, out of reach of the tab
-  // order, so the only way into the dialog it announces is to send focus there.
-  useEffect(() => {
-    if (openPopover) {
-      document.getElementById(openPopover === POPOVER_KEYS.DATES ? datesPopoverId : filtersPopoverId)?.focus();
-    }
-  }, [datesPopoverId, filtersPopoverId, openPopover]);
 
   useEffect(() => () => updateTextFilterDebounced.cancel(), [updateTextFilterDebounced]);
 
@@ -163,8 +143,8 @@ const Filters = ({ resultCount }) => {
           aria-controls={openPopover === POPOVER_KEYS.DATES ? datesPopoverId : undefined}
           aria-expanded={openPopover === POPOVER_KEYS.DATES}
           aria-haspopup="dialog"
-          aria-label={isDateRangeModified ? t('datesModifiedButtonLabel') : undefined}
-          className={`${styles.triggerButton} ${isDateRangeModified ? styles.active : ''}`}
+          aria-label={isDatesModified ? t('datesModifiedButtonLabel') : undefined}
+          className={`${styles.triggerButton} ${isDatesModified ? styles.active : ''}`}
           onClick={onTogglePopover(POPOVER_KEYS.DATES)}
           ref={setDatesAnchor}
           type="button"
@@ -191,35 +171,21 @@ const Filters = ({ resultCount }) => {
     </div>
 
     <Overlay
-      onHide={onHidePopover}
-      placement="bottom-start"
-      rootClose
+      placement="bottom"
+      popperConfig={POPOVER_POPPER_CONFIG}
       show={openPopover === POPOVER_KEYS.FILTERS}
       target={filtersAnchor}
     >
-      <FiltersPopover
-        aria-label={t('filtersPopover.title')}
-        id={filtersPopoverId}
-        onKeyDown={onKeyDownPopover(filtersAnchor)}
-        role="dialog"
-        tabIndex={-1}
-      />
+      <FiltersPopover id={filtersPopoverId} onClose={hideFiltersPopover} trigger={filtersAnchor} />
     </Overlay>
 
     <Overlay
-      onHide={onHidePopover}
-      placement="bottom-end"
-      rootClose
+      placement="bottom"
+      popperConfig={POPOVER_POPPER_CONFIG}
       show={openPopover === POPOVER_KEYS.DATES}
       target={datesAnchor}
     >
-      <DateRangePopover
-        aria-label={t('dateRangePopover.title')}
-        id={datesPopoverId}
-        onKeyDown={onKeyDownPopover(datesAnchor)}
-        role="dialog"
-        tabIndex={-1}
-      />
+      <DateRangePopover id={datesPopoverId} onClose={hideDatesPopover} trigger={datesAnchor} />
     </Overlay>
   </div>;
 };

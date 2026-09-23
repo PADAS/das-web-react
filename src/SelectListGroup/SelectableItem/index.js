@@ -2,11 +2,20 @@ import React from 'react';
 
 import * as styles from './styles.module.scss';
 
+// Text runs out in an ellipsis where it is too long, and only then does a
+// title need to spell it out.
+const onMouseEnterText = (event) => {
+  const text = event.currentTarget;
+
+  text.title = text.scrollWidth > text.clientWidth ? text.textContent : '';
+};
+
 const SelectableItem = ({
   className = '',
   description = null,
   disabled = false,
   groupId,
+  icon = null,
   id,
   invalid,
   isChecked,
@@ -42,9 +51,15 @@ const SelectableItem = ({
     className={`${styles.label} ${invalid ? styles.error : ''}`}
     htmlFor={id}
   >
-    <span className={styles.display} title={label}>{label}</span>
+    {!!icon && <span aria-hidden="true" className={styles.icon}>{icon}</span>}
 
-    {description && <span className={styles.description} title={description}>{description}</span>}
+    <span className={styles.text}>
+      <span className={styles.display} onMouseEnter={onMouseEnterText}>{label}</span>
+
+      {description && <span className={styles.description} onMouseEnter={onMouseEnterText}>
+        {description}
+      </span>}
+    </span>
   </label>
 </div>;
 

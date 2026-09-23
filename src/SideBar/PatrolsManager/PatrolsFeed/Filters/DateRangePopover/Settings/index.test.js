@@ -32,8 +32,8 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters - DateRangePopover - 
   test('offers the two date filter modes as one choice', () => {
     renderSettings();
 
-    expect(screen.getByRole('radio', { name: 'Filter by start date' })).toBeChecked();
-    expect(screen.getByRole('radio', { name: 'Filter by date range overlap' })).not.toBeChecked();
+    expect(screen.getByRole('radio', { name: /^Filter by start date/ })).toBeChecked();
+    expect(screen.getByRole('radio', { name: /^Filter by date range overlap/ })).not.toBeChecked();
   });
 
   test('marks the overlap mode as the one in use when the filter is set to it', () => {
@@ -41,14 +41,14 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters - DateRangePopover - 
 
     renderSettings();
 
-    expect(screen.getByRole('radio', { name: 'Filter by date range overlap' })).toBeChecked();
-    expect(screen.getByRole('radio', { name: 'Filter by start date' })).not.toBeChecked();
+    expect(screen.getByRole('radio', { name: /^Filter by date range overlap/ })).toBeChecked();
+    expect(screen.getByRole('radio', { name: /^Filter by start date/ })).not.toBeChecked();
   });
 
   test('reports the overlap mode when the user picks it', async () => {
     renderSettings();
 
-    await userEvent.click(screen.getByRole('radio', { name: 'Filter by date range overlap' }));
+    await userEvent.click(screen.getByRole('radio', { name: /^Filter by date range overlap/ }));
 
     expect(onChange).toHaveBeenCalledWith(true);
   });
@@ -58,7 +58,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters - DateRangePopover - 
 
     renderSettings();
 
-    await userEvent.click(screen.getByRole('radio', { name: 'Filter by start date' }));
+    await userEvent.click(screen.getByRole('radio', { name: /^Filter by start date/ }));
 
     expect(onChange).toHaveBeenCalledWith(false);
   });

@@ -88,10 +88,21 @@
   },
   "patrolFilters": {
     "dateRangePopover": {
+      "endDateLabel": "Até",
+      "presetButtons": {
+        "lastSevenDays": "Últimos 7 dias",
+        "lastThirtyDays": "Últimos 30 dias",
+        "lastThreeMonths": "Últimos 3 meses",
+        "today": "Hoje",
+        "yesterday": "Ontem"
+      },
+      "presetsGroupLabel": "Intervalos de datas predefinidos",
       "resetButton": "Redefinir",
+      "resetButtonLabel": "Redefinir filtros de data",
+      "startDateLabel": "Desde",
       "title": "Intervalo de datas"
     },
-    "datesModifiedButtonLabel": "Datas, intervalo de datas personalizado aplicado",
+    "datesModifiedButtonLabel": "Datas, filtros de data aplicados",
     "datesTitle": "Datas",
     "filteredResultsSummary_one": "{{count}} resultado filtrado de <dateRange>{{dateRange}}</dateRange>",
     "filteredResultsSummary_other": "{{count}} resultados filtrados de <dateRange>{{dateRange}}</dateRange>",
@@ -107,9 +118,13 @@
       "reportedByPlaceholder": "Selecionar Dispositivo",
       "resetAllButton": "Redefinir tudo",
       "resetButton": "Redefinir",
+      "resetPatrolTypesButtonLabel": "Redefinir tipos de patrulha",
+      "resetStatusButtonLabel": "Redefinir status",
       "statusLabel": "Status ou Situação",
+      "teamLeadLabel": "Líder da equipe",
       "title": "Filtros de Patrulhas",
-      "trackedByLabel": "Rastreado por"
+      "trackedByLabel": "Rastreado por",
+      "unknownTeamLeadLabel": "Líder da equipe desconhecido"
     },
     "filtersTitle": "Filtros",
     "globalResetFilterButton": "Redefinir",

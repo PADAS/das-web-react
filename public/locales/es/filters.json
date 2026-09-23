@@ -88,10 +88,21 @@
   },
   "patrolFilters": {
     "dateRangePopover": {
+      "endDateLabel": "Hasta",
+      "presetButtons": {
+        "lastSevenDays": "Últimos 7 días",
+        "lastThirtyDays": "Últimos 30 días",
+        "lastThreeMonths": "Últimos 3 meses",
+        "today": "Hoy",
+        "yesterday": "Ayer"
+      },
+      "presetsGroupLabel": "Rangos de fechas predefinidos",
       "resetButton": "Restablecer",
+      "resetButtonLabel": "Restablecer filtros de fecha",
+      "startDateLabel": "Desde",
       "title": "Rango de fechas"
     },
-    "datesModifiedButtonLabel": "Fechas, rango de fechas personalizado aplicado",
+    "datesModifiedButtonLabel": "Fechas, filtros de fecha aplicados",
     "datesTitle": "Fechas",
     "filteredResultsSummary_one": "{{count}} resultado filtrado de <dateRange>{{dateRange}}</dateRange>",
     "filteredResultsSummary_other": "{{count}} resultados filtrados de <dateRange>{{dateRange}}</dateRange>",
@@ -107,9 +118,13 @@
       "reportedByPlaceholder": "Reportado por...",
       "resetAllButton": "Restablecer todo",
       "resetButton": "Restablecer",
+      "resetPatrolTypesButtonLabel": "Restablecer tipos de patrullaje",
+      "resetStatusButtonLabel": "Restablecer estado",
       "statusLabel": "Estado",
+      "teamLeadLabel": "Líder del equipo",
       "title": "Filtros del patrullaje",
-      "trackedByLabel": "Rastreado por"
+      "trackedByLabel": "Rastreado por",
+      "unknownTeamLeadLabel": "Líder del equipo desconocido"
     },
     "filtersTitle": "Filtros",
     "globalResetFilterButton": "Restablecer",

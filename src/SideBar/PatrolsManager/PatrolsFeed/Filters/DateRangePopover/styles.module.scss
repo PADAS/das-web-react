@@ -1,9 +1,72 @@
-@use '../_shared' as shared;
+@use '../../../../../common/styles/buttons';
+@use '../../../../../common/styles/vars/colors';
+@use '../shared';
 
 .dateRangePopover {
   @include shared.filter-popover;
 
-  .header {
-    @include shared.filter-popover-header;
+  .body {
+    @include shared.filter-popover-body;
+
+    .rangeSection {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1rem 0;
+
+      .rangeDescriptionRow {
+        align-items: center;
+        display: flex;
+        gap: 0.5rem;
+        justify-content: space-between;
+        min-height: buttons.$chip-height-small;
+
+        .rangeDescription {
+          color: colors.$off-black;
+          font-size: 0.875rem;
+          font-weight: normal;
+          margin: 0;
+
+          &::first-letter {
+            text-transform: uppercase;
+          }
+        }
+
+        .resetButton {
+          @include buttons.chipTextButtonSmall;
+
+          flex-shrink: 0;
+        }
+      }
+
+      .dateField {
+        display: flex;
+        flex-direction: column;
+
+        .label {
+          @include shared.section-label;
+        }
+      }
+    }
+
+    .presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0 0 1rem;
+
+      .presetButton {
+        @include buttons.chipTextButton;
+      }
+    }
+
+    .settingsSection {
+      border-top: 1px solid colors.$light-gray-lines;
+      padding: 1rem 0 0.75rem;
+
+      .settingsList {
+        @include shared.borderless-select-list;
+      }
+    }
   }
 }

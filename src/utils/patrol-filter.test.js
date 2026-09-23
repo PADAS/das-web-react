@@ -1,12 +1,29 @@
-import { INITIAL_FILTER_STATE } from '../ducks/patrol-filter';
+import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../ducks/patrol-filter';
+import store from '../store';
+
 import { isFilterModified, calcPatrolFilterForRequest } from './patrol-filter';
 
 describe('Patrol filter utils', () => {
   describe('calcPatrolFilterForRequest', () => {
+    afterEach(() => {
+      store.dispatch(updatePatrolFilter({
+        filter: { patrols_overlap_daterange: INITIAL_FILTER_STATE.filter.patrols_overlap_daterange },
+      }));
+    });
+
     test('adds a constant exclude_empty_patrols=true param to all patrols API requests', () => {
       const value = calcPatrolFilterForRequest({ hello: false });
 
       expect(value).toContain('exclude_empty_patrols=true');
+    });
+
+    test('sends the date filter mode the user picked while the date range is at its default', () => {
+      store.dispatch(updatePatrolFilter({ filter: { patrols_overlap_daterange: false } }));
+
+      const value = calcPatrolFilterForRequest({ format: 'object' });
+
+      expect(value.filter.date_range).toEqual(INITIAL_FILTER_STATE.filter.date_range);
+      expect(value.filter.patrols_overlap_daterange).toBe(false);
     });
   });
 

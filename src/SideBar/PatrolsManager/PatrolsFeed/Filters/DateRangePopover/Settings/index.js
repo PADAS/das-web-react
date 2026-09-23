@@ -1,63 +1,42 @@
 import React, { useId } from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Tooltip from 'react-bootstrap/Tooltip';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import * as styles from './styles.module.scss';
+import SelectListGroup from '../../../../../../SelectListGroup';
 
-const TOOLTIP_SHOW_DELAY = 1000;
+const DATE_FILTER_MODES = { OVERLAP: 'overlap', START_DATE: 'startDate' };
 
-const Settings = ({ onChange }) => {
+const Settings = ({ className = '', onChange }) => {
   const { t } = useTranslation('filters', { keyPrefix: 'patrolFiltersSettings' });
 
   const patrolsOverlapDateRange = useSelector(
     (state) => state.data.patrolFilter.filter.patrols_overlap_daterange
   );
 
-  const groupName = useId();
-  const overlapDatesId = useId();
-  const startDatesId = useId();
+  const dateFilterModeListId = useId();
 
-  return <fieldset className={styles.settings}>
-    <legend className="sr-only">{t('dateFilterModeLabel')}</legend>
+  const dateFilterModeOptions = [
+    {
+      description: t('patrolWithinRangeTooltip'),
+      label: t('byStartDateLabel'),
+      value: DATE_FILTER_MODES.START_DATE,
+    },
+    {
+      description: t('patrolOverlapsRangeTooltip'),
+      label: t('byRangeDateLabel'),
+      value: DATE_FILTER_MODES.OVERLAP,
+    },
+  ];
 
-    <OverlayTrigger
-      delay={{ show: TOOLTIP_SHOW_DELAY }}
-      overlay={<Tooltip>{t('patrolWithinRangeTooltip')}</Tooltip>}
-      placement="top"
-    >
-      <div className={styles.option}>
-        <input
-          checked={!patrolsOverlapDateRange}
-          id={startDatesId}
-          name={groupName}
-          onChange={() => onChange(false)}
-          type="radio"
-        />
-
-        <label htmlFor={startDatesId}>{t('byStartDateLabel')}</label>
-      </div>
-    </OverlayTrigger>
-
-    <OverlayTrigger
-      delay={{ show: TOOLTIP_SHOW_DELAY }}
-      overlay={<Tooltip>{t('patrolOverlapsRangeTooltip')}</Tooltip>}
-      placement="top"
-    >
-      <div className={styles.option}>
-        <input
-          checked={patrolsOverlapDateRange}
-          id={overlapDatesId}
-          name={groupName}
-          onChange={() => onChange(true)}
-          type="radio"
-        />
-
-        <label htmlFor={overlapDatesId}>{t('byRangeDateLabel')}</label>
-      </div>
-    </OverlayTrigger>
-  </fieldset>;
+  return <SelectListGroup
+    className={className}
+    id={dateFilterModeListId}
+    isMulti={false}
+    label={t('dateFilterModeLabel')}
+    onChange={(dateFilterMode) => onChange(dateFilterMode === DATE_FILTER_MODES.OVERLAP)}
+    options={dateFilterModeOptions}
+    value={patrolsOverlapDateRange ? DATE_FILTER_MODES.OVERLAP : DATE_FILTER_MODES.START_DATE}
+  />;
 };
 
 export default Settings;

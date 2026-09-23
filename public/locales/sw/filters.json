@@ -87,10 +87,21 @@
   },
   "patrolFilters": {
     "dateRangePopover": {
+      "endDateLabel": "Hadi",
+      "presetButtons": {
+        "lastSevenDays": "Siku 7 zilizopita",
+        "lastThirtyDays": "Siku 30 zilizopita",
+        "lastThreeMonths": "Miezi 3 iliyopita",
+        "today": "Leo",
+        "yesterday": "Jana"
+      },
+      "presetsGroupLabel": "Upeo wa tarehe uliowekwa awali",
       "resetButton": "Rudisha",
+      "resetButtonLabel": "Rudisha vichujio vya tarehe",
+      "startDateLabel": "Kutoka",
       "title": "Upeo wa Tarehe"
     },
-    "datesModifiedButtonLabel": "Tarehe, kipindi maalum cha tarehe kimetumika",
+    "datesModifiedButtonLabel": "Tarehe, vichujio vya tarehe vimetumika",
     "datesTitle": "Tarehe",
     "filteredResultsSummary_one": "matokeo {{count}} yaliyochujwa kutoka <dateRange>{{dateRange}}</dateRange>",
     "filteredResultsSummary_other": "matokeo {{count}} yaliyochujwa kutoka <dateRange>{{dateRange}}</dateRange>",
@@ -106,9 +117,13 @@
       "reportedByPlaceholder": "Chagua Kifaa...",
       "resetAllButton": "Rudisha Zote",
       "resetButton": "Rudisha",
+      "resetPatrolTypesButtonLabel": "Rudisha aina za doria",
+      "resetStatusButtonLabel": "Rudisha hali",
       "statusLabel": "Hali",
+      "teamLeadLabel": "Kiongozi wa timu",
       "title": "Vichujio vya Doria",
-      "trackedByLabel": "Inayofuatiliwa na"
+      "trackedByLabel": "Inayofuatiliwa na",
+      "unknownTeamLeadLabel": "Kiongozi wa timu asiyejulikana"
     },
     "filtersTitle": "Vichujio",
     "globalResetFilterButton": "Rudisha",

@@ -50,7 +50,7 @@ describe('SelectListGroup - SelectableItem', () => {
     expect(wrapper.firstElementChild).toHaveClass('ripple');
     expect(within(wrapper).getByRole('checkbox')).toBe(input);
 
-    expect(screen.queryByTitle('African')).not.toBeInTheDocument();
+    expect(screen.queryByText('African')).not.toBeInTheDocument();
   });
 
   test('shows a single-select selectable item', () => {
@@ -126,7 +126,7 @@ describe('SelectListGroup - SelectableItem', () => {
     renderSelectableItem();
 
     const input = screen.getByRole('checkbox', { name: 'Buffalo' });
-    const display = screen.getByTitle('Buffalo');
+    const display = screen.getByText('Buffalo');
 
     expect(input).toBeInTheDocument();
     expect(display).toHaveTextContent('Buffalo');
@@ -137,11 +137,35 @@ describe('SelectListGroup - SelectableItem', () => {
     renderSelectableItem({ description: 'African' });
 
     const input = screen.getByRole('checkbox', { name: /Buffalo.*African/i });
-    const description = screen.getByTitle('African');
+    const description = screen.getByText('African');
 
     expect(input).toBeInTheDocument();
     expect(description).toHaveTextContent('African');
     expect(description).toHaveClass('description');
+  });
+
+  test('spells out a label cut off by its ellipsis in a title when the user hovers it', async () => {
+    jest.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(50);
+    jest.spyOn(HTMLElement.prototype, 'scrollWidth', 'get').mockReturnValue(100);
+
+    renderSelectableItem();
+
+    await userEvent.hover(screen.getByText('Buffalo'));
+
+    expect(screen.getByText('Buffalo')).toHaveAttribute('title', 'Buffalo');
+  });
+
+  test('leaves out the title of a label shown in full when the user hovers it', async () => {
+    jest.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(100);
+    jest.spyOn(HTMLElement.prototype, 'scrollWidth', 'get').mockReturnValue(100);
+
+    renderSelectableItem({ description: 'African' });
+
+    await userEvent.hover(screen.getByText('Buffalo'));
+    await userEvent.hover(screen.getByText('African'));
+
+    expect(screen.getByText('Buffalo')).not.toHaveAttribute('title', 'Buffalo');
+    expect(screen.getByText('African')).not.toHaveAttribute('title', 'African');
   });
 
   test('does not render a description span when description is omitted', () => {
@@ -149,6 +173,13 @@ describe('SelectListGroup - SelectableItem', () => {
 
     expect(screen.queryByRole('checkbox', { name: /Buffalo.*African/i })).not.toBeInTheDocument();
     expect(document.querySelector('.description')).toBeNull();
+  });
+
+  test('shows an icon ahead of the label, left out of the name of its checkbox', () => {
+    renderSelectableItem({ icon: <span>Buffalo icon</span> });
+
+    expect(screen.getByText('Buffalo icon')).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: 'Buffalo' })).toBeInTheDocument();
   });
 
   test('merges className onto the wrapper', () => {

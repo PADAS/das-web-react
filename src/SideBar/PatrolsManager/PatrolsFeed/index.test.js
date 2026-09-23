@@ -55,7 +55,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed', () => {
           filter: {
             date_range: { ...INITIAL_FILTER_STATE.filter.date_range },
             patrol_type: INITIAL_FILTER_STATE.filter.patrol_type,
-            patrols_overlap_daterange: false,
+            patrols_overlap_daterange: INITIAL_FILTER_STATE.filter.patrols_overlap_daterange,
             text: INITIAL_FILTER_STATE.filter.text,
             tracked_by: INITIAL_FILTER_STATE.filter.tracked_by,
           },
