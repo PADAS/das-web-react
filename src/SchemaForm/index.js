@@ -47,6 +47,7 @@ const SchemaForm = ({
   anchorLocation,
   as = 'form',
   className = '',
+  communityInputValue = null,
   formData,
   hideMapLocationMarkers,
   metadata,
@@ -178,6 +179,7 @@ const SchemaForm = ({
     case FORM_ELEMENT_TYPES.ATTACHMENT:
       return <Attachment
         attachmentsMetadata={metadata?.attachments}
+        communityInputValue={communityInputValue}
         details={formElements[id].details}
         error={error}
         formElementId={id}

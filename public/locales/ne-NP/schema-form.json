@@ -17,6 +17,7 @@
     "required": "यो आवश्यक फिल्ड हो।",
     "timeFormat": "अमान्य समय ढांचा।",
     "uploadFailedError": "एक वा बढी फाइल अपलोड असफल भयो। पेश गर्नुभन्दा पहिले असफल फाइलहरू हटाउनुहोस्।",
+    "uploadFailedWithReasonError": "एक वा बढी फाइल अपलोड असफल भयो: {{reason}}। पेश गर्नुभन्दा पहिले असफल फाइलहरू हटाउनुहोस्।",
     "uploadInProgressError": "कृपया फाइलहरू अपलोड पूरा नभएसम्म प्रतीक्षा गर्नुहोस्।",
     "uriFormat": "अमान्य URL ढाँचा।",
     "uuidFormat": "अमान्य UUID ढाँचा।"
@@ -36,6 +37,8 @@
       "uploadErrorLabel": "अपलोड असफल भयो",
       "uploadFailedAnnouncement_one": "{{fileName}} अपलोड गर्न सकिएन",
       "uploadFailedAnnouncement_other": "{{count}} फाइलहरू अपलोड गर्न सकिएन",
+      "uploadFailedWithReasonAnnouncement_one": "{{fileName}} अपलोड गर्न सकिएन: {{reason}}",
+      "uploadFailedWithReasonAnnouncement_other": "{{count}} फाइलहरू अपलोड गर्न सकिएन: {{reason}}",
       "uploadStartedAnnouncement_one": "{{fileName}} अपलोड हुँदै",
       "uploadStartedAnnouncement_other": "{{count}} फाइलहरू अपलोड हुँदै",
       "uploadSucceededAnnouncement_one": "{{fileName}} अपलोड भयो",
@@ -87,6 +90,11 @@
       "true": "हो"
     },
     "collectionHumanizedValue": "{{collectionLength}} वस्तुहरू"
+  },
+  "uploadFailureReasons": {
+    "tooLarge": "फाइल धेरै ठूलो छ",
+    "tooManyRequests": "धेरै अपलोड, पछि प्रयास गर्नुहोस्",
+    "unsupportedType": "फाइल प्रकार अनुमति छैन"
   },
   "validationErrorsAnnouncement": "निम्न फिल्डहरूमा सत्यापन त्रुटिहरू छन्:"
 }

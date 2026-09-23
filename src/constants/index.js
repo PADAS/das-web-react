@@ -94,6 +94,14 @@ export const BREAKPOINTS = {
 export const SIDEBAR_WIDTH_PIXELS = 640;
 export const SIDEBAR_DETAIL_VIEW_WIDTH_PIXELS = 736;
 
+export const FOCUSABLE_SELECTOR = [
+  'button:not(:disabled)',
+  'a[href]',
+  'input:not(:disabled)',
+  '[role="button"]:not([aria-disabled="true"])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(', ');
+
 export const LAYER_IDS = {
   ANALYZER_LINES_CRITICAL: 'analyzer-line-critical',
   ANALYZER_LINES_WARNING: 'analyzer-line-warning',

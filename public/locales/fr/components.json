@@ -67,6 +67,7 @@
     "shareLocationToastTitle": "Comment faire?"
   },
   "getUserLocationButton": {
+    "cancelButtonLabel": "Annuler",
     "errorToastMessage": "Impossible de lire votre position actuelle : {{errorMessage}}",
     "loadingOverlayMessage": "Tentative de lecture de votre position...",
     "userLocationButtonLabel": "Obtenir la position actuelle"
@@ -109,7 +110,7 @@
     "menuPopover": {
       "dialogLabel": "Emplacement",
       "getUserLocationButton": "Utiliser ma position",
-      "permissionBlockedMessage": "Partage de position bloqué par le navigateur",
+      "permissionBlockedMessage": "Partage de position bloqué par le navigateur. Autorisez-le dans les paramètres du navigateur.",
       "pickMapLocationButton": "Définir sur la carte"
     },
     "setLocationButtonLabel": {

@@ -17,6 +17,7 @@ import {
   filterDuplicateUploadFilenames,
 } from '../../../utils/file';
 import { downloadFileFromUrl } from '../../../utils/download';
+import getSharedUploadFailureReasonLabel from '../../utils/getSharedUploadFailureReasonLabel';
 import { removeFile, uploadFile } from '../../../ducks/user-content';
 import { selectUploadStatesByIds } from '../../../selectors/user-content';
 import { showToast } from '../../../utils/toast';
@@ -183,13 +184,24 @@ const AttachmentListItem = ({ actionButtonRefs, attachment, onRemove, readOnly }
 
     {attachment.status === 'unknown' && <span className={styles.pendingLabel}>{t('pendingLabel')}</span>}
 
-    {attachment.status === 'failed' && <span className={styles.error}>{t('uploadErrorLabel')}</span>}
+    {attachment.status === 'failed' && <span className={styles.error}>
+      {getSharedUploadFailureReasonLabel([attachment.reason]) || t('uploadErrorLabel')}
+    </span>}
 
     {actionButton}
   </li>;
 };
 
-const Attachment = ({ attachmentsMetadata, details, error, formElementId, onFieldChange, readOnly, value = [] }) => {
+const Attachment = ({
+  attachmentsMetadata,
+  communityInputValue = null,
+  details,
+  error,
+  formElementId,
+  onFieldChange,
+  readOnly,
+  value = [],
+}) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('schema-form', { keyPrefix: 'fields.attachment' });
 
@@ -231,6 +243,7 @@ const Attachment = ({ attachmentsMetadata, details, error, formElementId, onFiel
       originalImageSource: attachmentImageSources.original ?? upload?.objectUrl,
       originalUrl: attachmentMetadata?.files?.original,
       progress: upload?.progress ?? null,
+      reason: upload?.reason,
       status: upload?.status ?? attachmentMetadata.status ?? 'complete',
       thumbnailImageSource: attachmentImageSources.thumbnail ?? upload?.objectUrl,
       uploadId: attachment?.uploadId,
@@ -251,21 +264,34 @@ const Attachment = ({ attachmentsMetadata, details, error, formElementId, onFiel
       }
     });
 
+    // A failed attachment is not a duplicate: picking its name again is how a
+    // reporter replaces the file that was rejected.
     newAttachments = filterDuplicateUploadFilenames(
-      attachments.map((attachment) => ({ name: attachment.name })),
+      attachments
+        .filter((attachment) => attachment.status !== 'failed')
+        .map((attachment) => ({ name: attachment.name })),
       newAttachments
+    );
+
+    const replaceableAttachments = attachments.filter(
+      (attachment) => attachment.status === 'failed' && newAttachments.some((file) => file.name === attachment.name)
     );
 
     const availableSlots = details.maxItems === null
       ? newAttachments.length
-      : details.maxItems - attachments.length;
+      : details.maxItems - attachments.length + replaceableAttachments.length;
     if (newAttachments.length > availableSlots) {
       newAttachments = newAttachments.slice(0, Math.max(0, availableSlots));
 
       showToast({ message: t('maxItemsAlert', { count: details.maxItems }) });
     }
 
-    const newUploadIds = newAttachments.map((file) => dispatch(uploadFile(file)));
+    const replacedAttachments = replaceableAttachments.filter(
+      (attachment) => newAttachments.some((file) => file.name === attachment.name)
+    );
+    replacedAttachments.forEach((attachment) => dispatch(removeFile(attachment.uploadId)));
+
+    const newUploadIds = newAttachments.map((file) => dispatch(uploadFile(file, communityInputValue)));
 
     if (newUploadIds.length > 0) {
       setAnnouncement(t('uploadStartedAnnouncement', {
@@ -273,7 +299,12 @@ const Attachment = ({ attachmentsMetadata, details, error, formElementId, onFiel
         fileName: newAttachments[0].name,
       }));
 
-      onFieldChange(formElementId, [...value, ...newUploadIds.map((uploadId) => ({ uploadId }))]);
+      onFieldChange(formElementId, [
+        ...value.filter((attachment) => !replacedAttachments.some(
+          (replacedAttachment) => replacedAttachment.uploadId === attachment?.uploadId
+        )),
+        ...newUploadIds.map((uploadId) => ({ uploadId })),
+      ]);
     }
   };
 
@@ -351,7 +382,11 @@ const Attachment = ({ attachmentsMetadata, details, error, formElementId, onFiel
       }
 
       if (newlyFailedUploads.length > 0) {
-        announcementParts.push(t('uploadFailedAnnouncement', { count: newlyFailedUploads.length, fileName: newlyFailedUploads[0].filename }));
+        const failureReasonLabel = getSharedUploadFailureReasonLabel(newlyFailedUploads.map((upload) => upload.reason));
+
+        announcementParts.push(failureReasonLabel
+          ? t('uploadFailedWithReasonAnnouncement', { count: newlyFailedUploads.length, fileName: newlyFailedUploads[0].filename, reason: failureReasonLabel })
+          : t('uploadFailedAnnouncement', { count: newlyFailedUploads.length, fileName: newlyFailedUploads[0].filename }));
       }
 
       if (announcementParts.length > 0) {
