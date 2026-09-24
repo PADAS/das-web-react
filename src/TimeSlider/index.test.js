@@ -100,7 +100,7 @@ describe('TimeSlider', () => {
   test('offsets for the sidebar width when a tab is open', () => {
     renderTimeSlider(undefined, { initialEntries: ['/events'] });
 
-    expect(screen.getByTestId('timeSlider-wrapper')).toHaveStyle({ '--sidebar-offset': '710px' });
+    expect(screen.getByTestId('timeSlider-wrapper')).toHaveStyle({ '--sidebar-offset': '646px' });
   });
 
   test('offsets for the wider detail view width when an item is open', () => {

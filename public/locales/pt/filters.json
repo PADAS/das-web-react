@@ -15,6 +15,78 @@
     "startDateLabel": "Desde:",
     "yesterdayLabel": "Ontem"
   },
+  "eventFilters": {
+    "dateRangePopover": {
+      "emptyEndDateMessage": "Agora",
+      "endDateLabel": "Até",
+      "presetButtons": {
+        "lastSevenDays": "Últimos 7 dias",
+        "lastThirtyDays": "Últimos 30 dias",
+        "lastThreeMonths": "Últimos 3 meses",
+        "today": "Hoje",
+        "yesterday": "Ontem"
+      },
+      "presetsGroupLabel": "Intervalos de datas predefinidos",
+      "resetButton": "Redefinir",
+      "resetButtonLabel": "Redefinir filtros de data",
+      "startDateLabel": "Desde",
+      "title": "Intervalo de datas"
+    },
+    "datesModifiedButtonLabel": "Datas, filtros de data aplicados",
+    "datesTitle": "Datas",
+    "filteredResultsSummary_one": "{{count}} resultado filtrado de <dateRange>{{dateRange}}</dateRange>",
+    "filteredResultsSummary_other": "{{count}} resultados filtrados de <dateRange>{{dateRange}}</dateRange>",
+    "filtersModifiedButtonLabel": "Filtros, filtros aplicados",
+    "filtersPopover": {
+      "eventTypesFilter": {
+        "label": "Tipos de Eventos",
+        "noMatchesMessage": "Nenhum tipo de evento correspondente",
+        "searchBarLabel": "Buscar tipos de eventos",
+        "searchBarPlaceholder": "Buscar tipos de eventos",
+        "setMatchesButton": "Usar estes",
+        "setMatchesButtonLabel_one": "Usar estes: {{count}} tipo de evento correspondente",
+        "setMatchesButtonLabel_other": "Usar estes: {{count}} tipos de eventos correspondentes"
+      },
+      "priorities": {
+        "amber": "Laranja",
+        "green": "Verde",
+        "none": "Nenhum",
+        "red": "Vermelho"
+      },
+      "priorityLabel": "Prioridade",
+      "reportedByLabel": "Reportado por",
+      "resetButton": "Redefinir",
+      "resetEventTypesButtonLabel": "Redefinir tipos de eventos",
+      "resetPriorityButtonLabel": "Redefinir prioridade",
+      "resetStateButtonLabel": "Redefinir status",
+      "stateLabel": "Status ou Situação",
+      "states": {
+        "active": "Ativo",
+        "resolved": "Resolvido",
+        "review": "Em revisão"
+      },
+      "title": "Filtro de Eventos",
+      "unknownReporterLabel": "Relator desconhecido"
+    },
+    "filtersTitle": "Filtros",
+    "globalResetFilterButton": "Redefinir",
+    "resultsSummary_one": "{{count}} resultado de <dateRange>{{dateRange}}</dateRange>",
+    "resultsSummary_other": "{{count}} resultados de <dateRange>{{dateRange}}</dateRange>",
+    "searchBarPlaceholder": "Buscar Eventos...",
+    "sortControls": {
+      "setSortByButtonLabel": "Abrir opções de ordenação para eventos, ordenados por {{sortBy}}",
+      "sortByMenuLabel": "Opções de ordenação para eventos",
+      "sortByMenuOption": {
+        "createdAtLabel": "Data de criação",
+        "eventTimeLabel": "Data do evento",
+        "updatedAtLabel": "Data de atualização"
+      },
+      "sortDirectionButtonLabel": {
+        "down": "Ordenar eventos em ordem crescente",
+        "up": "Ordenar eventos em ordem decrescente"
+      }
+    }
+  },
   "eventsFilter": {
     "datesButton": "Datas",
     "filtersButton": "Filtros",
@@ -88,6 +160,7 @@
   },
   "patrolFilters": {
     "dateRangePopover": {
+      "emptyEndDateMessage": "Agora",
       "endDateLabel": "Até",
       "presetButtons": {
         "lastSevenDays": "Últimos 7 dias",

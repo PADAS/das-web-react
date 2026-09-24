@@ -219,6 +219,9 @@
     "backButtonLabel": "Voltar atrás",
     "backButtonTitle": "Voltar",
     "closeButtonLabel": "Fechar barra lateral",
+    "detailViewHeader": {
+      "closeButtonLabel": "Fechar barra lateral"
+    },
     "eventsLink": "Eventos",
     "gearLink": "Equipamento",
     "gearTab": {
@@ -243,10 +246,6 @@
       "subjectsTabTitle": "Indivíduos rastreados"
     },
     "patrolsLink": "Patrulhas",
-    "reportsFeedTab": {
-      "fetchReportsErrorMessage": "Não foi possível carregar os eventos. Por favor, tente novamente. ",
-      "tryAgainButton": "Tentar novamente"
-    },
     "settingsLink": "Preferências",
     "settingsPane": {
       "alertsFrameTitle": "Configure seus alertas de EarthRanger",
@@ -353,6 +352,9 @@
         }
       },
       "mapTabTitle": "Mapa"
+    },
+    "titleInput": {
+      "editButtonLabel": "Editar título"
     }
   },
   "soundNotificationsPlayer": {

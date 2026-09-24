@@ -15,6 +15,78 @@
     "startDateLabel": "Kutoka:",
     "yesterdayLabel": "Jana"
   },
+  "eventFilters": {
+    "dateRangePopover": {
+      "emptyEndDateMessage": "Sasa",
+      "endDateLabel": "Hadi",
+      "presetButtons": {
+        "lastSevenDays": "Siku 7 zilizopita",
+        "lastThirtyDays": "Siku 30 zilizopita",
+        "lastThreeMonths": "Miezi 3 iliyopita",
+        "today": "Leo",
+        "yesterday": "Jana"
+      },
+      "presetsGroupLabel": "Upeo wa tarehe uliowekwa awali",
+      "resetButton": "Rudisha",
+      "resetButtonLabel": "Rudisha vichujio vya tarehe",
+      "startDateLabel": "Kutoka",
+      "title": "Upeo wa Tarehe"
+    },
+    "datesModifiedButtonLabel": "Tarehe, vichujio vya tarehe vimetumika",
+    "datesTitle": "Tarehe",
+    "filteredResultsSummary_one": "matokeo {{count}} yaliyochujwa kutoka <dateRange>{{dateRange}}</dateRange>",
+    "filteredResultsSummary_other": "matokeo {{count}} yaliyochujwa kutoka <dateRange>{{dateRange}}</dateRange>",
+    "filtersModifiedButtonLabel": "Vichujio, vichujio vimetumika",
+    "filtersPopover": {
+      "eventTypesFilter": {
+        "label": "Aina za Matukio",
+        "noMatchesMessage": "Hakuna aina za matukio zinazolingana",
+        "searchBarLabel": "Tafuta aina za matukio",
+        "searchBarPlaceholder": "Tafuta aina",
+        "setMatchesButton": "Chagua hizi",
+        "setMatchesButtonLabel_one": "Chagua hizi: aina {{count}} ya tukio inayolingana",
+        "setMatchesButtonLabel_other": "Chagua hizi: aina {{count}} za matukio zinazolingana"
+      },
+      "priorities": {
+        "amber": "Ambari",
+        "green": "Kijani",
+        "none": "Hakuna",
+        "red": "Nyekundu"
+      },
+      "priorityLabel": "Kipaumbele",
+      "reportedByLabel": "Iliripotiwa Na",
+      "resetButton": "Rudisha",
+      "resetEventTypesButtonLabel": "Rudisha aina za matukio",
+      "resetPriorityButtonLabel": "Rudisha kipaumbele",
+      "resetStateButtonLabel": "Rudisha hali",
+      "stateLabel": "Hali",
+      "states": {
+        "active": "Tendaji",
+        "resolved": "Imetatuliwa",
+        "review": "Inakaguliwa"
+      },
+      "title": "Vichujio vya Matukio",
+      "unknownReporterLabel": "Mripoti asiyejulikana"
+    },
+    "filtersTitle": "Vichujio",
+    "globalResetFilterButton": "Rudisha",
+    "resultsSummary_one": "matokeo {{count}} kutoka <dateRange>{{dateRange}}</dateRange>",
+    "resultsSummary_other": "matokeo {{count}} kutoka <dateRange>{{dateRange}}</dateRange>",
+    "searchBarPlaceholder": "Tafuta Matukio...",
+    "sortControls": {
+      "setSortByButtonLabel": "Fungua chaguzi za kupanga matukio, yamepangwa kwa {{sortBy}}",
+      "sortByMenuLabel": "Chaguzi za kupanga matukio",
+      "sortByMenuOption": {
+        "createdAtLabel": "Tarehe ya Kuundwa",
+        "eventTimeLabel": "Tarehe ya Tukio",
+        "updatedAtLabel": "Tarehe iliyosasishwa"
+      },
+      "sortDirectionButtonLabel": {
+        "down": "Panga matukio kwa mpangilio wa kupanda",
+        "up": "Panga matukio kwa mpangilio wa kushuka"
+      }
+    }
+  },
   "eventsFilter": {
     "datesButton": "Tarehe",
     "filtersButton": "Vichujio",
@@ -36,7 +108,8 @@
     "stateSelector": {
       "active": "Tendaji",
       "resolved": "Imetatuliwa",
-      "all": "Zote"
+      "all": "Zote",
+      "review": "Inakaguliwa"
     },
     "title": "Vichujio vya Matukio"
   },
@@ -87,6 +160,7 @@
   },
   "patrolFilters": {
     "dateRangePopover": {
+      "emptyEndDateMessage": "Sasa",
       "endDateLabel": "Hadi",
       "presetButtons": {
         "lastSevenDays": "Siku 7 zilizopita",

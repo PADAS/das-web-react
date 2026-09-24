@@ -1,0 +1,340 @@
+@use 'sass:color';
+@use 'sass:map';
+
+@use '../common/styles/buttons';
+@use '../common/styles/inputs';
+@use '../common/styles/layout';
+@use '../common/styles/vars/colors';
+
+@mixin icon-button {
+  @include buttons.iconButton;
+}
+
+@mixin icon-button-small {
+  @include buttons.iconButtonSmall;
+}
+
+@mixin chip-icon-button {
+  @include buttons.chipIconButton;
+}
+
+@mixin chip-active-state {
+  @include buttons.chipActiveState;
+}
+
+@mixin header-mobile-only-option {
+  @media (min-width: layout.$md-layout-width-min) {
+    display: none !important;
+  }
+}
+
+@mixin track-toggle-button {
+  svg {
+    height: 2.5rem;
+    width: 2.5rem;
+  }
+
+  &.visible {
+    background-color: colors.$bright-blue;
+    border-color: colors.$bright-blue;
+    color: white;
+
+    &:hover {
+      background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+      border-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+    }
+
+    &:focus-visible {
+      background-color: white;
+      border-color: colors.$bright-blue;
+      color: colors.$bright-blue;
+      outline: 1px solid colors.$bright-blue;
+    }
+  }
+
+  &.pinned {
+    background-color: colors.$green;
+    border-color: colors.$green;
+    color: white;
+
+    &:hover {
+      background-color: color.adjust(colors.$green, $lightness: -5%);
+      border-color: color.adjust(colors.$green, $lightness: -5%);
+    }
+
+    &:focus-visible {
+      background-color: white;
+      border-color: colors.$green;
+      color: colors.$green;
+      outline: 1px solid colors.$green;
+    }
+  }
+}
+
+@mixin header-desktop-actions {
+  align-items: center;
+  display: none;
+  gap: 0.5rem;
+
+  @media (min-width: layout.$md-layout-width-min) {
+    display: flex;
+  }
+
+  .iconButton {
+    @include chip-icon-button;
+  }
+
+  .toggleTrackButton {
+    @include track-toggle-button;
+  }
+}
+
+@mixin multi-location-icon {
+  display: block;
+  height: 1.75rem;
+  position: relative;
+  width: 1.75rem;
+
+  svg {
+    height: 1rem;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 1rem;
+
+    + svg {
+      inset: auto 0 0 auto;
+    }
+  }
+}
+
+@mixin patrol-indicator-badge {
+  background: rgb(0 0 0 / 25%);
+  border-top-left-radius: 0.25rem;
+  color: white;
+  font-size: 0.625rem;
+  font-weight: 500;
+  left: 0;
+  line-height: 1rem;
+  position: absolute;
+  text-align: center;
+  text-transform: uppercase;
+  top: 0;
+  width: 1rem;
+}
+
+@mixin header-title-bar-main {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  gap: 0.5rem;
+  min-width: 0;
+
+  .icon {
+    align-items: center;
+    color: colors.$secondary-medium-gray;
+    display: flex;
+    justify-content: center;
+
+    svg {
+      fill: currentcolor;
+      height: 1.75rem;
+      width: 1.75rem;
+    }
+  }
+
+  .serialNumber {
+    color: colors.$secondary-medium-gray;
+    font-size: 1.375rem;
+    line-height: 2rem;
+    margin: 0;
+  }
+
+  @media (max-width: layout.$sm-layout-width-max) {
+    flex-basis: 100%;
+  }
+}
+
+@mixin header-icon-tile($theme) {
+  background-color: map.get($theme, 'base');
+  border-radius: 0.25rem;
+  color: map.get($theme, 'fontColor') or white;
+  flex-shrink: 0;
+  height: 3rem;
+  width: 3rem;
+
+  svg, img {
+    height: 2rem;
+    width: 2rem;
+  }
+}
+
+@mixin header-title-stack {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+
+  .subtitle {
+    color: colors.$secondary-medium-gray;
+    font-size: 0.875rem;
+    margin: 0;
+    padding: 0 0.125rem;
+  }
+}
+
+@mixin header-pills {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.5rem;
+
+  .provenancePill, .statePill {
+    align-items: center;
+    border-radius: 999px;
+    color: white;
+    display: flex;
+    flex-shrink: 0;
+    font-size: 0.875rem;
+    padding: 0.125rem 0.625rem;
+  }
+
+  .provenancePill {
+    background: colors.$off-black;
+  }
+
+  .statePill {
+    background: colors.$bright-blue;
+  }
+}
+
+@mixin header-title {
+  color: colors.$off-black;
+  font-size: 1.375rem;
+  font-weight: 500;
+  height: 2rem;
+  line-height: 2rem;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin save-button {
+  @include buttons.primaryActionButton;
+
+  position: relative;
+  transition: background-color 150ms ease;
+
+  &[aria-busy='true'] .saveButtonLabel {
+    visibility: hidden;
+  }
+
+  .saveButtonLoader {
+    align-items: center;
+    display: flex;
+    inset: 0;
+    justify-content: center;
+    position: absolute;
+  }
+}
+
+@mixin secondary-action-button {
+  @include buttons.secondaryActionButton;
+
+  svg {
+    height: 1rem;
+    width: 1rem;
+  }
+}
+
+@mixin default-view-width {
+  width: 100%;
+
+  @media (min-width: layout.$md-layout-width-min) {
+    @include layout.sidebar-width-base;
+  }
+}
+
+@mixin detail-view-width {
+  width: 100%;
+
+  @media (min-width: layout.$md-layout-width-min) {
+    @include layout.sidebar-width-detail;
+  }
+}
+
+@mixin filter-popover {
+  @include inputs.boxShadow;
+
+  border: none !important;
+  border-radius: 0.25rem !important;
+  max-width: 29rem;
+  width: 90vw;
+
+  &:focus {
+    outline: none;
+  }
+
+  [class*='popover-arrow'] {
+    display: none;
+  }
+}
+
+@mixin filter-popover-body {
+  display: flex;
+  flex-direction: column;
+  max-height: min(32rem, calc(100dvh - 11rem));
+  overflow-y: auto;
+  padding: 0 1rem;
+}
+
+@mixin section-label {
+  color: colors.$off-black;
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0 0 0.5rem;
+}
+
+@mixin compact-selectable-items {
+  [class*='selectableItem'] {
+    margin-bottom: 0;
+    min-height: 1.5rem;
+  }
+
+  [class*='ripple'] {
+    height: auto;
+    margin-right: 0.5rem;
+    width: auto;
+
+    &:hover {
+      background: transparent;
+    }
+  }
+
+  label > [class*='icon'] {
+    height: 1rem;
+    width: 1rem;
+  }
+}
+
+@mixin borderless-select-list {
+  @include compact-selectable-items;
+
+  legend {
+    @include section-label;
+  }
+
+  > div {
+    border: none;
+    gap: 0 1rem;
+    max-height: none;
+    overflow: visible;
+    padding: 0;
+  }
+
+  [class*='description'], [class*='display'] {
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+}

@@ -127,6 +127,18 @@ test('rendering without state label', () => {
   expect(screen.queryByTestId(testId)).not.toBeInTheDocument();
 });
 
+test('naming an untitled patrol after the type of its leg, as the patrol views do', () => {
+  testPatrol = {
+    ...patrols[0],
+    patrol_segments: [{ ...patrols[0].patrol_segments[0], leader: { id: 'leader', name: 'Alex' } }],
+    title: '',
+  };
+
+  renderPatrolListItem({ ...initialProps, patrol: testPatrol });
+
+  expect(screen.getByTestId(`patrol-list-item-title-${testPatrol.id}`)).toHaveTextContent('Routine Patrol');
+});
+
 describe('the patrol list item', () => {
   const TEST_PATROL_TITLE = 'wow what a neat patrol';
 

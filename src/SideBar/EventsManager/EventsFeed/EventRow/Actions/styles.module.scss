@@ -1,0 +1,13 @@
+@use '../../../../shared';
+
+.desktopActions {
+  @include shared.header-desktop-actions;
+
+  .multiLocationIcon {
+    @include shared.multi-location-icon;
+  }
+}
+
+.mobileOnlyOption {
+  @include shared.header-mobile-only-option;
+}

@@ -168,6 +168,28 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
     expect(screen.getByTestId('patrolOverview-title')).toHaveValue(patrolWithoutLeader.title);
   });
 
+  test('shows the patrol type icon in the color of the patrol status', () => {
+    renderHeader({ patrol: { ...patrolWithLeader, state: 'cancelled' } });
+
+    expect(screen.getByTestId('patrolOverviewHeader-icon')).toHaveClass('cancelled');
+  });
+
+  test('shows the patrol type below a title of its own', () => {
+    store.data.patrolTypes = [{ display: 'Dog Patrol', id: 'dog-patrol-id', value: 'dog_patrol' }];
+
+    renderHeader();
+
+    expect(screen.getByText('Dog Patrol')).toBeVisible();
+  });
+
+  test('does not repeat the patrol type below a title that is the patrol type', () => {
+    store.data.patrolTypes = [{ display: 'Dog Patrol', id: 'dog-patrol-id', value: 'dog_patrol' }];
+
+    renderHeader({ patrol: { ...patrolWithLeader, title: 'Dog Patrol' } });
+
+    expect(screen.queryByText('Dog Patrol', { selector: 'p' })).toBeNull();
+  });
+
   test('shows the toggle track button when the patrol tracks are off', () => {
     renderHeader();
 

@@ -25,14 +25,13 @@ import AddItemButton from '../AddItemButton';
 import BadgeIcon from '../Badge';
 import Link from '../Link';
 import PatrolDetailView from '../PatrolDetailView';
-import ReportManager from '../ReportManager';
 import SoundNotificationsPlayer from '../SoundNotificationsPlayer';
 
+import EventsManager from './EventsManager';
 import GearTab from './GearTab';
 import MapLayersTab from './MapLayersTab';
 import PatrolsFeed from './PatrolsFeed';
 import PatrolsManager from './PatrolsManager';
-import ReportsFeedTab from './ReportsFeedTab';
 import SettingsPane from './SettingsPane';
 
 import * as styles from './styles.module.scss';
@@ -48,7 +47,7 @@ const SideBar = () => {
 
   const socket = useContext(SocketContext);
 
-  const reportsFeed = useReportsFeed();
+  const eventsFeed = useReportsFeed();
 
   const analyzersEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.ANALYZERS]);
   const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
@@ -66,7 +65,6 @@ const SideBar = () => {
   const { hasPatrolsReadPermission } = usePatrolsPermissions();
 
   const [showEventsBadge, setShowEventsBadge] = useState(false);
-  const [reportIsBeingAdded, setReportIsBeingAdded] = useState(false);
 
   const canReadPatrols = patrolManagementEnabled && hasPatrolsReadPermission;
 
@@ -82,7 +80,7 @@ const SideBar = () => {
   const isReportDetailsViewActive = eventsEnabled
     && !!matchPath(detailViewPattern(TAB_KEYS.EVENTS), location.pathname);
 
-  const hideDefaultHeader = patrolSchemasEnabled && isPatrolItemActive;
+  const hideDefaultHeader = (patrolSchemasEnabled && isPatrolItemActive) || isReportDetailsViewActive;
 
   const showGearTab = hasGear;
 
@@ -102,30 +100,17 @@ const SideBar = () => {
   const isSideBarOpen = currentTab && Object.values(enabledTabKeys).includes(currentTab.toLowerCase());
 
   const onClickBackFromDetailView = useCallback(() => {
-    if (reportIsBeingAdded) {
-      return navigate(location.pathname, { replace: true });
-    }
-
-    if (eventsEnabled && location.state?.relatedEvent) {
-      return navigate(`${tabPath(TAB_KEYS.EVENTS)}/${location.state.relatedEvent}`, {
-        replace: true
-      });
-    }
-
     if (location.key === 'default' || location.state?.comesFromLogin || location.state?.comesFromLngLatRedirection) {
       return navigate(tabPath(getCurrentTabFromURL(location.pathname)), {});
     }
 
     return navigate(-1, {});
   }, [
-    eventsEnabled,
     location.key,
     location.pathname,
     location.state?.comesFromLngLatRedirection,
     location.state?.comesFromLogin,
-    location.state?.relatedEvent,
     navigate,
-    reportIsBeingAdded,
   ]);
 
   useEffect(() => {
@@ -273,18 +258,10 @@ const SideBar = () => {
             {/* Gets rid of warning */}
             <Route path="/" element={null} />
 
-            {eventsEnabled && <Route path={TAB_KEYS.EVENTS}>
-              <Route index element={<ReportsFeedTab
-                events={reportsFeed.events}
-                feedSort={reportsFeed.feedSort}
-                loadFeedEvents={reportsFeed.loadFeedEvents}
-                loadingEventFeed={reportsFeed.loadingEventFeed}
-                setFeedSort={reportsFeed.setFeedSort}
-                shouldExcludeContained={reportsFeed.shouldExcludeContained}
-              />} />
-
-              <Route path=":id/*" element={<ReportManager onReportBeingAdded={setReportIsBeingAdded} />} />
-            </Route>}
+            {eventsEnabled && <Route
+              element={<EventsManager eventsFeed={eventsFeed} />}
+              path={`${TAB_KEYS.EVENTS}/*`}
+            />}
 
             {/* Legacy patrol routes */}
             {canReadPatrols && !patrolSchemasEnabled && <Route path={TAB_KEYS.PATROLS}>

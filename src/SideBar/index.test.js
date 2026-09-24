@@ -305,14 +305,15 @@ describe('SideBar', () => {
     expect(screen.queryByRole('button', { name: 'Go Back' })).toBeNull();
   });
 
-  test('shows the back button in the report detail view', async () => {
+  test('does not show the default header in the event detail view', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/events/new' })));
     useLocation.mockImplementation(useLocationMock);
 
     renderSideBar();
 
     expect(screen.queryByRole('button', { name: 'Create Event' })).toBeNull();
-    expect(screen.getByRole('button', { name: 'Go Back' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Go Back' })).toBeNull();
+    expect(screen.queryByRole('heading', { name: 'Events' })).toBeNull();
   });
 
   test('shows the Add Patrol button in the patrols tab', async () => {
@@ -379,28 +380,9 @@ describe('SideBar', () => {
     expect(screen.queryByRole('button', { name: 'Go Back' })).toBeNull();
   });
 
-  test('navigates to related event when user clicks the back button in the report detail view', async () => {
-    const relatedEventId = 'related-event-123';
+  test('navigates to current tab when user clicks the back button in the patrol detail view and location.key is default', async () => {
     useLocationMock = jest.fn((() => ({
-      pathname: '/events/456',
-      key: 'abc123',
-      state: { relatedEvent: relatedEventId }
-    })));
-    useLocation.mockImplementation(useLocationMock);
-
-    renderSideBar();
-
-    expect(navigate).not.toHaveBeenCalled();
-
-    await userEvent.click(screen.getByRole('button', { name: 'Go Back' }));
-
-    expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith(`/events/${relatedEventId}`, { replace: true });
-  });
-
-  test('navigates to current tab when user clicks the back button in the report detail view and location.key is default', async () => {
-    useLocationMock = jest.fn((() => ({
-      pathname: '/events/123',
+      pathname: '/patrols/123',
       key: 'default',
       state: null
     })));
@@ -413,7 +395,7 @@ describe('SideBar', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Go Back' }));
 
     expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/events', {});
+    expect(navigate).toHaveBeenCalledWith('/patrols', {});
   });
 
   test('navigates to current tab when user clicks the back button in the patrol detail view and location.state.comesFromLogin is true', async () => {
@@ -434,9 +416,9 @@ describe('SideBar', () => {
     expect(navigate).toHaveBeenCalledWith('/patrols', {});
   });
 
-  test('navigates to current tab when user clicks the back button in the report detail view and location.state.comesFromLngLatRedirection is true', async () => {
+  test('navigates to current tab when user clicks the back button in the patrol detail view and location.state.comesFromLngLatRedirection is true', async () => {
     useLocationMock = jest.fn((() => ({
-      pathname: '/events/123',
+      pathname: '/patrols/123',
       key: 'abc123',
       state: { comesFromLngLatRedirection: true }
     })));
@@ -449,12 +431,12 @@ describe('SideBar', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Go Back' }));
 
     expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/events', {});
+    expect(navigate).toHaveBeenCalledWith('/patrols', {});
   });
 
-  test('navigates back with when user clicks the back button in the report detail view and none of the special conditions are met', async () => {
+  test('navigates back when user clicks the back button in the patrol detail view and none of the special conditions are met', async () => {
     useLocationMock = jest.fn((() => ({
-      pathname: '/events/123',
+      pathname: '/patrols/123',
       key: 'abc123',
       state: null
     })));

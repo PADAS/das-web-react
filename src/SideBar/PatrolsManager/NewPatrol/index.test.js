@@ -325,6 +325,16 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
       expect(getPathname()).toBe('/patrols');
     });
 
+    test('goes back without warning from a form whose title the user only emptied', async () => {
+      const { user } = renderNewPatrol();
+
+      await user.clear(screen.getByRole('textbox', { name: 'Patrol title' }));
+      await user.click(screen.getByRole('link', { name: 'Cancel' }));
+
+      expect(screen.queryByRole('dialog')).toBeNull();
+      expect(getPathname()).toBe('/patrols');
+    });
+
     test('goes back without warning when the schema filled fields in by itself', async () => {
       store.data.patrolSchemas[DEFAULT_PATROL_SEGMENT_TYPE] = { isLoading: false, schema: withDefaultObjective };
 

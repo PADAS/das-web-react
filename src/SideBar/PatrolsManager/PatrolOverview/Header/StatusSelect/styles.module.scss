@@ -68,7 +68,7 @@
           background-color: colors.$light-gray-background;
         }
 
-        &[aria-checked="true"] {
+        &[aria-current="true"] {
           background-color: colors.$blue-highlight;
 
           &:hover, &:focus {
@@ -76,7 +76,7 @@
           }
         }
 
-        &[aria-checked="false"] {
+        &:not([aria-current="true"]) {
           padding-left: 2rem;
         }
 

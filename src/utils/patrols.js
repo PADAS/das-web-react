@@ -18,6 +18,7 @@ import omit from 'lodash/omit';
 import uniq from 'lodash/uniq';
 import uniqBy from 'lodash/uniqBy';
 
+import { calcTitleAndSubtitle } from './titles';
 import { format, getCurrentLocale, SHORT_TIME_FORMAT } from './datetime';
 import { PATROL_UI_STATES, PATROL_API_STATES } from '../constants';
 
@@ -200,6 +201,17 @@ export const displayTitleForPatrol = (patrol, leader, includeLeaderName = true) 
   const { data: { patrolTypes } } = store.getState();
 
   return displayNameForPatrolType(patrolTypes, lastSegment.patrol_type) ?? t('unknown');
+};
+
+// Unlike displayTitleForPatrol, an untitled patrol goes by the type of the leg
+// that governs it rather than by its leader, the way the patrol views read.
+export const calcTitleAndSubtitleForPatrol = (patrol, patrolTypes) => {
+  const governingSegment = governingPatrolSegment(patrol);
+  const patrolTypeTitle = governingSegment ? displayNameForPatrolSegment(patrolTypes, governingSegment) : null;
+
+  return patrolTypeTitle
+    ? calcTitleAndSubtitle(patrol.title, patrolTypeTitle)
+    : { subtitle: null, title: displayTitleForPatrol(patrol) };
 };
 
 export const displayStartTimeForPatrolSegment = (patrolSegment) => {

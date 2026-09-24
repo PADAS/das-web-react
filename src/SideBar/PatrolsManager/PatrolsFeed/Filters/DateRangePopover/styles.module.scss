@@ -46,6 +46,18 @@
         .label {
           @include shared.section-label;
         }
+
+        .dateInputs {
+          align-items: center;
+          display: flex;
+          gap: 0.75rem;
+
+          .emptyEndDateMessage {
+            color: colors.$link-color;
+            flex-shrink: 0;
+            font-size: 0.75rem;
+          }
+        }
       }
     }
 
@@ -66,6 +78,10 @@
 
       .settingsList {
         @include shared.borderless-select-list;
+
+        [class*='description'] {
+          font-size: 0.75rem;
+        }
       }
     }
   }

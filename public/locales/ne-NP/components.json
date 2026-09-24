@@ -219,6 +219,9 @@
     "backButtonLabel": "पछाडी फर्कनुहोस्",
     "backButtonTitle": "फर्कनुहोस्",
     "closeButtonLabel": "साइडबार बन्द गर्नुहोस्",
+    "detailViewHeader": {
+      "closeButtonLabel": "साइडबार बन्द गर्नुहोस्"
+    },
     "eventsLink": "घटनाहरु",
     "gearLink": "जाल",
     "gearTab": {
@@ -243,10 +246,6 @@
       "subjectsTabTitle": "विषयहरु"
     },
     "patrolsLink": "गस्ती",
-    "reportsFeedTab": {
-      "fetchReportsErrorMessage": "घटना लोड गर्न सकिएन । कृपया फेरी प्रयास गर्नुहोस् ।",
-      "tryAgainButton": "फेरी प्रयास गर्नुहोस्"
-    },
     "settingsLink": "सेटिङ",
     "settingsPane": {
       "alertsFrameTitle": "तपाईंको अर्थरेन्जर सतर्क सुचना मिलाउनुहोस्",
@@ -353,6 +352,9 @@
         }
       },
       "mapTabTitle": "नक्सा"
+    },
+    "titleInput": {
+      "editButtonLabel": "शीर्षक सम्पादन गर्नुहोस्"
     }
   },
   "soundNotificationsPlayer": {

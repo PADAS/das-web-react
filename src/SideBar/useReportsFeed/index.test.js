@@ -64,8 +64,18 @@ describe('useReportsFeed', () => {
     expect(reportsFetchFeed.feedSort).toBe(DEFAULT_EVENT_SORT);
     expect(typeof reportsFetchFeed.loadFeedEvents).toBe('function');
     expect(reportsFetchFeed.loadingEventFeed).toBe(true);
-    expect(typeof reportsFetchFeed.setFeedSort).toBe('function');
     expect(reportsFetchFeed.shouldExcludeContained).toBe(true);
+  });
+
+  test('returns the same feed until something in it changes', () => {
+    const builtStore = mockStore(store);
+    const wrapper = ({ children }) => <Provider store={builtStore}>{children}</Provider>;
+    const { rerender, result } = renderHook(() => useReportsFeed(), { wrapper });
+    const initialFeed = result.current;
+
+    rerender();
+
+    expect(result.current).toBe(initialFeed);
   });
 
   test('loads the reports feed for georestricted users', async () => {

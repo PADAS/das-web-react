@@ -29,6 +29,8 @@ describe('SideBar - PatrolsManager - NewPatrol - Header', () => {
 
   const renderHeader = () => render(<ControlledHeader patrolType={dogPatrol} />);
 
+  const getSubtitle = () => screen.queryByText('Dog Patrol', { selector: 'p' });
+
   test('shows the breadcrumb of the route', () => {
     renderHeader();
 
@@ -46,6 +48,26 @@ describe('SideBar - PatrolsManager - NewPatrol - Header', () => {
     renderHeader();
 
     expect(screen.getByText('New')).toBeVisible();
+  });
+
+  test('shows the patrol type icon in the color of a new patrol', () => {
+    renderHeader();
+
+    expect(screen.getByTestId('newPatrolHeader-icon')).toHaveClass('new');
+  });
+
+  test('does not repeat the patrol type below a title that is the patrol type', () => {
+    renderHeader();
+
+    expect(getSubtitle()).toBeNull();
+  });
+
+  test('shows the patrol type below a title of its own', async () => {
+    renderHeader();
+
+    await userEvent.type(screen.getByRole('textbox', { name: 'Patrol title' }), '!');
+
+    expect(getSubtitle()).toBeVisible();
   });
 
   test('reports the title the user types', async () => {

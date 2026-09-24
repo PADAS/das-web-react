@@ -1,6 +1,8 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 
-import { dogPatrol } from '../../../../../__test-helpers/fixtures/patrol-types';
+import patrolTypes, { dogPatrol } from '../../../../../__test-helpers/fixtures/patrol-types';
+import { mockStore } from '../../../../../__test-helpers/MockStore';
 import { PATROL_UI_STATES } from '../../../../../constants';
 import { render, screen } from '../../../../../test-utils';
 
@@ -23,14 +25,16 @@ describe('SideBar - PatrolsManager - LegManager - EditLeg - Header', () => {
   });
 
   const renderHeader = (props) => render(
-    <Header
-      legNumber={1}
-      legState={PATROL_UI_STATES.ACTIVE}
-      patrol={patrol}
-      patrolSegment={patrolSegment}
-      patrolType={dogPatrol}
-      {...props}
-    />
+    <Provider store={mockStore({ data: { patrolTypes } })}>
+      <Header
+        legNumber={1}
+        legState={PATROL_UI_STATES.ACTIVE}
+        patrol={patrol}
+        patrolSegment={patrolSegment}
+        patrolType={dogPatrol}
+        {...props}
+      />
+    </Provider>
   );
 
   test('shows the breadcrumb of the route', () => {
@@ -70,6 +74,27 @@ describe('SideBar - PatrolsManager - LegManager - EditLeg - Header', () => {
     expect(screen.getByText('Edit Pause 1', { selector: 'span' })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByRole('img', { name: 'Pause' })).toBeVisible();
     expect(SvgIcon).not.toHaveBeenCalled();
+  });
+
+  test('shows the patrol type icon in the color of the state of the leg', () => {
+    renderHeader({ legState: PATROL_UI_STATES.DONE });
+
+    expect(screen.getByTestId('editLegHeader-icon')).toHaveClass('done');
+  });
+
+  test('shows the patrol type of the leg below the title', () => {
+    renderHeader();
+
+    expect(screen.getByText('Dog Patrol', { selector: 'p' })).toBeVisible();
+  });
+
+  test('shows the pause icon of a pause in the paused color, without a patrol type', () => {
+    patrolSegment.is_pause = true;
+
+    renderHeader({ legState: PATROL_UI_STATES.DONE });
+
+    expect(screen.getByTestId('editLegHeader-icon')).toHaveClass('paused');
+    expect(screen.queryByText('Dog Patrol', { selector: 'p' })).toBeNull();
   });
 
   test('shows the state of the leg', () => {

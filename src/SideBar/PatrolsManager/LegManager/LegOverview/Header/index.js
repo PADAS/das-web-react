@@ -13,27 +13,26 @@ import { ReactComponent as PrinterIcon } from '../../../../../common/images/icon
 import { ReactComponent as TrackIcon } from '../../../../../common/images/icons/tracks_off.svg';
 
 import { basePrintingStyles } from '../../../../../utils/styles';
-import { DAS_HOST, PATROL_UI_STATES, TAB_KEYS } from '../../../../../constants';
 import {
+  calcTitleAndSubtitleForPatrol,
   displayNameForPatrolSegment,
-  displayTitleForPatrol,
   getBoundsForPatrolSegment,
   getIsMobilePatrol,
   getPatrolSegmentLocationCoordinates,
-  governingPatrolSegment,
   iconIdForPatrolSegment,
   isPatrolSegmentAPause,
   patrolHasTrackData,
   patrolSegmentHasTrackData,
 } from '../../../../../utils/patrols';
+import { DAS_HOST, PATROL_UI_STATES, TAB_KEYS } from '../../../../../constants';
 import { downloadJsonAsFile } from '../../../../../utils/download';
 import { selectPatrolSegmentsTrackData, selectPatrolTrackData } from '../../../../../selectors/patrols';
 import { togglePatrolTrackState } from '../../../../../ducks/patrols';
 import { TrackerContext } from '../../../../../utils/analytics';
 import useJumpToLocation from '../../../../../hooks/useJumpToLocation';
 
+import DetailViewHeader from '../../../../DetailViewHeader';
 import KebabMenu from '../../../../../KebabMenu';
-import PatrolsManagerHeader from '../../../Header';
 import StatusPill from '../../../StatusPill';
 import SvgIcon from '../../../../../SvgIcon';
 
@@ -46,6 +45,7 @@ const FIT_TO_BOUNDS_MAX_ZOOM = 17;
 const Header = ({ legNumber, legState, patrol, patrolSegment, printableContentRef }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('patrols', { keyPrefix: 'legOverview.header' });
+  const { t: tHeader } = useTranslation('patrols', { keyPrefix: 'header' });
 
   const tracker = useContext(TrackerContext);
 
@@ -65,10 +65,7 @@ const Header = ({ legNumber, legState, patrol, patrolSegment, printableContentRe
 
   const crumbs = [
     { label: t('breadcrumbPatrolsLabel'), to: `/${TAB_KEYS.PATROLS}` },
-    {
-      label: displayTitleForPatrol(patrol, governingPatrolSegment(patrol)?.leader),
-      to: `/${TAB_KEYS.PATROLS}/${patrol.id}`,
-    },
+    { label: calcTitleAndSubtitleForPatrol(patrol, patrolTypes).title, to: `/${TAB_KEYS.PATROLS}/${patrol.id}` },
     { label: legTitle },
   ];
 
@@ -247,7 +244,10 @@ const Header = ({ legNumber, legState, patrol, patrolSegment, printableContentRe
 
   const renderTitleBar = () => <>
     <div className={styles.titleBarMain}>
-      <div className={styles.icon}>
+      <div
+        className={`${styles.icon} ${styles[isPause ? PATROL_UI_STATES.PAUSED.key : legState.key]}`}
+        data-testid="legOverviewHeader-icon"
+        >
         {isPause
           ? <PauseIcon aria-label={t('pauseIconLabel')} role="img" />
           : <SvgIcon iconId={legIconId} title={patrolTypeName} type="patrols" />}
@@ -255,7 +255,11 @@ const Header = ({ legNumber, legState, patrol, patrolSegment, printableContentRe
 
       <p className={styles.serialNumber}>{patrol.serial_number}</p>
 
-      <h2 className={styles.title}>{legTitle}</h2>
+      <div className={styles.titleStack}>
+        <h2 className={styles.title}>{legTitle}</h2>
+
+        {!isPause && !!patrolTypeName && <p className={styles.subtitle}>{patrolTypeName}</p>}
+      </div>
     </div>
 
     <div className={styles.pills}>
@@ -267,7 +271,12 @@ const Header = ({ legNumber, legState, patrol, patrolSegment, printableContentRe
     </div>
   </>;
 
-  return <PatrolsManagerHeader crumbs={crumbs} renderActions={renderActions} renderTitleBar={renderTitleBar} />;
+  return <DetailViewHeader
+    breadcrumbLabel={tHeader('breadcrumbNavLabel')}
+    crumbs={crumbs}
+    renderActions={renderActions}
+    renderTitleBar={renderTitleBar}
+  />;
 };
 
 export default memo(Header);

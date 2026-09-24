@@ -224,6 +224,9 @@
     "backButtonLabel": "Nenda Nyuma",
     "backButtonTitle": "Nyuma",
     "closeButtonLabel": "Funga upau wa pembeni",
+    "detailViewHeader": {
+      "closeButtonLabel": "Funga upau wa pembeni"
+    },
     "eventsLink": "Matukio",
     "gearLink": "Vifaa",
     "gearTab": {
@@ -248,10 +251,6 @@
       "subjectsTabTitle": "Masomo"
     },
     "patrolsLink": "Doria",
-    "reportsFeedTab": {
-      "fetchReportsErrorMessage": "Haikuweza kupakia matukio. Tafadhali jaribu tena.",
-      "tryAgainButton": "Jaribu tena"
-    },
     "settingsLink": "Mipangilio",
     "settingsPane": {
       "alertsFrameTitle": "Sanidi tahadhari zako za EarthRanger",
@@ -358,6 +357,9 @@
         }
       },
       "mapTabTitle": "Ramani"
+    },
+    "titleInput": {
+      "editButtonLabel": "Hariri kichwa"
     }
   },
   "sortedNodes": {

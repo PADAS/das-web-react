@@ -7,9 +7,9 @@ import {
   buildPatrolReopenUpdate,
   buildPatrolStartUpdate,
   calcColorThemeForPatrolState,
+  calcTitleAndSubtitleForPatrol,
   displayDurationForPatrol,
   displayStartTimeForPatrol,
-  displayTitleForPatrol,
   formatPatrolStateTitleDate,
   getBoundsForPatrol,
   getCancellationTimeForPatrol,
@@ -32,6 +32,7 @@ const usePatrol = (patrol) => {
   const patrolLeadSumDistance = useSelector((state) => selectPatrolLeadSumDistance(state, patrol));
   const patrolTrackData = useSelector((state) => selectPatrolTrackData(state, patrol));
   const patrolTrackState = useSelector(state =>  state?.view?.patrolTrackState);
+  const patrolTypes = useSelector((state) => state.data.patrolTypes);
   const trackState = useSelector(state => state?.view?.subjectTrackState);
 
   const patrolState = usePatrolState(patrol);
@@ -52,8 +53,8 @@ const usePatrol = (patrol) => {
     [patrolTrackData.trackData]
   );
   const displayTitle = useMemo(
-    () => displayTitleForPatrol(patrol, patrolTrackData.leader),
-    [patrol, patrolTrackData.leader]
+    () => calcTitleAndSubtitleForPatrol(patrol, patrolTypes).title,
+    [patrol, patrolTypes]
   );
   const patrolBounds = useMemo(() => getBoundsForPatrol(patrol, patrolTrackData), [patrol, patrolTrackData]);
   const patrolElapsedTime = useMemo(

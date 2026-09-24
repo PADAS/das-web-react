@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { calcUrlForImage } from '../../../../../utils/img';
 import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../../../../../ducks/patrol-filter';
 import { TrackerContext } from '../../../../../utils/analytics';
-import useModalPopover from '../utils/useModalPopover';
+import useModalPopover from '../../../../utils/useModalPopover';
 
 import Select from '../../../../../Select';
 import SelectListGroup from '../../../../../SelectListGroup';

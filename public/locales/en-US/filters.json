@@ -15,6 +15,78 @@
     "startDateLabel": "From:",
     "yesterdayLabel": "Yesterday"
   },
+  "eventFilters": {
+    "dateRangePopover": {
+      "emptyEndDateMessage": "Now",
+      "endDateLabel": "To",
+      "presetButtons": {
+        "lastSevenDays": "Last 7 days",
+        "lastThirtyDays": "Last 30 days",
+        "lastThreeMonths": "Last 3 months",
+        "today": "Today",
+        "yesterday": "Yesterday"
+      },
+      "presetsGroupLabel": "Date range presets",
+      "resetButton": "Reset",
+      "resetButtonLabel": "Reset date filters",
+      "startDateLabel": "From",
+      "title": "Date Range"
+    },
+    "datesModifiedButtonLabel": "Dates, date filters applied",
+    "datesTitle": "Dates",
+    "filteredResultsSummary_one": "{{count}} result filtered from <dateRange>{{dateRange}}</dateRange>",
+    "filteredResultsSummary_other": "{{count}} results filtered from <dateRange>{{dateRange}}</dateRange>",
+    "filtersModifiedButtonLabel": "Filters, filters applied",
+    "filtersPopover": {
+      "eventTypesFilter": {
+        "label": "Event Types",
+        "noMatchesMessage": "No matching event types",
+        "searchBarLabel": "Search event types",
+        "searchBarPlaceholder": "Search types",
+        "setMatchesButton": "Set these",
+        "setMatchesButtonLabel_one": "Set these: {{count}} matching event type",
+        "setMatchesButtonLabel_other": "Set these: {{count}} matching event types"
+      },
+      "priorities": {
+        "amber": "Amber",
+        "green": "Green",
+        "none": "None",
+        "red": "Red"
+      },
+      "priorityLabel": "Priority",
+      "reportedByLabel": "Reported By",
+      "resetButton": "Reset",
+      "resetEventTypesButtonLabel": "Reset event types",
+      "resetPriorityButtonLabel": "Reset priority",
+      "resetStateButtonLabel": "Reset state",
+      "stateLabel": "State",
+      "states": {
+        "active": "Active",
+        "resolved": "Resolved",
+        "review": "In review"
+      },
+      "title": "Event Filters",
+      "unknownReporterLabel": "Unknown reporter"
+    },
+    "filtersTitle": "Filters",
+    "globalResetFilterButton": "Reset",
+    "resultsSummary_one": "{{count}} result from <dateRange>{{dateRange}}</dateRange>",
+    "resultsSummary_other": "{{count}} results from <dateRange>{{dateRange}}</dateRange>",
+    "searchBarPlaceholder": "Search Events...",
+    "sortControls": {
+      "setSortByButtonLabel": "Open sort options for events, sorted by {{sortBy}}",
+      "sortByMenuLabel": "Sort options for events",
+      "sortByMenuOption": {
+        "createdAtLabel": "Created Date",
+        "eventTimeLabel": "Event Date",
+        "updatedAtLabel": "Date Updated"
+      },
+      "sortDirectionButtonLabel": {
+        "down": "Sort events in ascending order",
+        "up": "Sort events in descending order"
+      }
+    }
+  },
   "eventsFilter": {
     "datesButton": "Dates",
     "filtersButton": "Filters",
@@ -88,6 +160,7 @@
   },
   "patrolFilters": {
     "dateRangePopover": {
+      "emptyEndDateMessage": "Now",
       "endDateLabel": "To",
       "presetButtons": {
         "lastSevenDays": "Last 7 days",

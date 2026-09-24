@@ -167,6 +167,26 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters - DateRangePopover', 
     expect(getDateInput('To', 'Year')).toHaveValue('');
   });
 
+  test('describes an empty end date as now', () => {
+    store.data.patrolFilter.filter.date_range = { lower: subYears(new Date(), 3).toISOString(), upper: null };
+
+    renderDateRangePopover();
+
+    expect(screen.getByRole('group', { name: 'To' })).toHaveAccessibleDescription('Now');
+  });
+
+  test('does not describe an end date that is set as now', () => {
+    store.data.patrolFilter.filter.date_range = {
+      lower: subYears(new Date(), 3).toISOString(),
+      upper: subYears(new Date(), 2).toISOString(),
+    };
+
+    renderDateRangePopover();
+
+    expect(screen.getByRole('group', { name: 'To' })).not.toHaveAccessibleDescription();
+    expect(screen.queryByText('Now')).toBeNull();
+  });
+
   test('does not offer to reset the date filters while they are at their defaults', () => {
     renderDateRangePopover();
 

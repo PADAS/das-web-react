@@ -1,0 +1,68 @@
+@use '../../../common/styles/buttons';
+@use '../../shared';
+
+.eventsFeed {
+  @include shared.default-view-width;
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+
+  .errorState {
+    align-items: center;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 1rem;
+    justify-content: center;
+    padding: 1rem;
+
+    h6 {
+      align-items: center;
+      display: flex;
+      margin: 0;
+      min-height: 2.25rem;
+
+      + div {
+        font-size: 0.875rem;
+        font-style: italic;
+        padding: 0 1rem;
+        width: 100%;
+      }
+    }
+
+    .retryButton {
+      @include buttons.chipTextButton;
+    }
+  }
+
+  .loader {
+    flex: 1;
+    max-width: 100%;
+  }
+
+  .emptyStateMessage {
+    margin: 0;
+    padding: 2rem 1rem;
+    text-align: center;
+  }
+
+  .eventListScrollContainer {
+    flex: 1;
+    overflow-y: auto;
+
+    .eventList {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+
+      .loadingMoreMessage {
+        font-size: 0.75rem;
+        font-weight: bold;
+        padding: 1rem;
+        text-align: center;
+      }
+    }
+  }
+}

@@ -3,8 +3,16 @@
 .titleBarMain {
   @include shared.header-title-bar-main;
 
-  .title {
-    @include shared.header-title;
+  .icon {
+    @include shared.header-icon-tile-by-state;
+  }
+
+  .titleStack {
+    @include shared.header-title-stack;
+
+    .title {
+      @include shared.header-title;
+    }
   }
 }
 

@@ -96,8 +96,7 @@
     "saveErrorMessage": "Não foi possível salvar a etapa da patrulha. Tente novamente."
   },
   "header": {
-    "breadcrumbNavLabel": "Navegação da patrulha",
-    "closeButtonLabel": "Fechar barra lateral"
+    "breadcrumbNavLabel": "Navegação da patrulha"
   },
   "invalidDatesModal": {
     "body": "Esta patrulha não pode ser salva. A hora de finalização de uma patrulha deve ser posterior à hora de início. Por favor, corrija a hora de início ou finalização da patrulha.",
@@ -377,9 +376,6 @@
     "restore": "Restaurar",
     "resume": "Retomar",
     "start": "Iniciar"
-  },
-  "titleInput": {
-    "editButtonLabel": "Editar título"
   },
   "trackToggleButton": {
     "tracksOff": "Rastros desativados",

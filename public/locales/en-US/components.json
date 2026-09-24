@@ -224,6 +224,9 @@
     "backButtonLabel": "Go Back",
     "backButtonTitle": "Back",
     "closeButtonLabel": "Close sidebar",
+    "detailViewHeader": {
+      "closeButtonLabel": "Close sidebar"
+    },
     "eventsLink": "Events",
     "gearLink": "Gear",
     "gearTab": {
@@ -248,10 +251,6 @@
       "subjectsTabTitle": "Subjects"
     },
     "patrolsLink": "Patrols",
-    "reportsFeedTab": {
-      "fetchReportsErrorMessage": "Could not load events. Please try again.",
-      "tryAgainButton": "Try again"
-    },
     "settingsLink": "Settings",
     "settingsPane": {
       "alertsFrameTitle": "Configure your EarthRanger alerts",
@@ -358,6 +357,9 @@
         }
       },
       "mapTabTitle": "Map"
+    },
+    "titleInput": {
+      "editButtonLabel": "Edit title"
     }
   },
   "sortedNodes": {

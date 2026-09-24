@@ -3,9 +3,9 @@ import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import {
+  calcTitleAndSubtitleForPatrol,
   displayNumberForPatrolSegment,
   displayStartTimeForPatrol,
-  displayTitleForPatrol,
   formatPatrolStateTitleDate,
   getCancellationTimeForPatrol,
   getIsMobilePatrol,
@@ -60,7 +60,7 @@ const PatrolRow = ({ patrol }) => {
 
   const patrolPath = `/${TAB_KEYS.PATROLS}/${patrol.id}`;
 
-  const title = displayTitleForPatrol(patrol, governingSegment?.leader);
+  const title = calcTitleAndSubtitleForPatrol(patrol, patrolTypes).title;
 
   const isUnderWayOrDone = isPatrolStateUnderWay(patrolState) || patrolState === DONE;
 

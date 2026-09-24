@@ -9,11 +9,6 @@ import { DEFAULT_EVENT_SORT, SORT_DIRECTION } from '../constants';
 
 import store from '../store';
 
-export const EVENT_SORT_ORDER_OPTIONS = [
-  { value: SORT_DIRECTION.down, key: 'newest' },
-  { value: SORT_DIRECTION.up, key: 'oldest' },
-];
-
 export const isFilterModified = ({ state, filter: { priority, reported_by, text } }) => (
   !isEqual(INITIAL_FILTER_STATE.state, state)
     || !isEqual(INITIAL_FILTER_STATE.filter.priority, priority)
