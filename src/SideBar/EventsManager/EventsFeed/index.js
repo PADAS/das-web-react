@@ -1,5 +1,6 @@
 import React, { memo, useContext, useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
+import MoonLoader from 'react-spinners/MoonLoader';
 import uniq from 'lodash/uniq';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +21,7 @@ import SortControls from './SortControls';
 import * as styles from './styles.module.scss';
 
 const EMPTY_EVENTS = [];
+const LOADING_MORE_SPINNER_SIZE = 20;
 
 const eventsFeedTracker = trackEventFactory(FEED_CATEGORY);
 
@@ -96,8 +98,12 @@ const EventsFeed = ({ eventsFeed }) => {
           >
             {events.map((event) => <EventRow displayTimeProp={displayTimeProp} event={event} key={event.id} />)}
 
-            {hasMoreEvents && <li className={styles.loadingMoreMessage} key="loading-more-events">
-              {t('loadingMoreMessage')}
+            {hasMoreEvents && <li className={styles.loadingMoreItem} key="loading-more-events">
+              <div role="status">
+                <MoonLoader aria-hidden size={LOADING_MORE_SPINNER_SIZE} />
+
+                <span className="sr-only">{t('loadingMoreLabel')}</span>
+              </div>
             </li>}
           </InfiniteScroll>
         </ScrollRestoration>}

@@ -116,7 +116,7 @@
       },
       "fetchErrorMessage": "Haikuweza kupakia matukio. Tafadhali jaribu tena.",
       "loadingLabel": "Inapakia matukio",
-      "loadingMoreMessage": "Inapakia matukio zaidi...",
+      "loadingMoreLabel": "Inapakia matukio zaidi",
       "retryButton": "Jaribu tena"
     }
   },

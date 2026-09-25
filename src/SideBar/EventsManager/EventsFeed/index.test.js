@@ -194,10 +194,10 @@ describe('SideBar - EventsManager - EventsFeed', () => {
     expect(getEventRowTexts()).toHaveLength(3);
   });
 
-  test('shows a loading more item when there is a next page', () => {
+  test('shows a loading more spinner when there is a next page', () => {
     renderEventsFeed({ events: { ...eventsFeed.events, next: 'https://example.com/events?page=2' } });
 
-    expect(screen.getByText('Loading more events...')).toBeVisible();
+    expect(screen.getByRole('status')).toHaveTextContent('Loading more events');
   });
 
   test('loads the next page once the list is scrolled to its end', () => {
@@ -210,9 +210,9 @@ describe('SideBar - EventsManager - EventsFeed', () => {
     expect(fetchNextEventFeedPage).toHaveBeenCalledWith('https://das/events?page=2');
   });
 
-  test('does not show a loading more item without a next page', () => {
+  test('does not show a loading more spinner without a next page', () => {
     renderEventsFeed();
 
-    expect(screen.queryByText('Loading more events...')).toBeNull();
+    expect(screen.queryByRole('status')).toBeNull();
   });
 });

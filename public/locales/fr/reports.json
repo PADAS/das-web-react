@@ -116,7 +116,7 @@
       },
       "fetchErrorMessage": "Impossible de charger les événements. Veuillez réessayer.",
       "loadingLabel": "Chargement des événements",
-      "loadingMoreMessage": "Chargement d'autres événements...",
+      "loadingMoreLabel": "Chargement d'autres événements",
       "retryButton": "Réessayez"
     }
   },

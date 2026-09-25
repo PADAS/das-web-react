@@ -57,11 +57,10 @@
       margin: 0;
       padding: 0;
 
-      .loadingMoreMessage {
-        font-size: 0.75rem;
-        font-weight: bold;
+      .loadingMoreItem {
+        display: flex;
+        justify-content: center;
         padding: 1rem;
-        text-align: center;
       }
     }
   }

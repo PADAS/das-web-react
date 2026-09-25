@@ -113,7 +113,7 @@
       },
       "fetchErrorMessage": "घटना लोड गर्न सकिएन । कृपया फेरी प्रयास गर्नुहोस् ।",
       "loadingLabel": "घटनाहरु लोड हुँदै",
-      "loadingMoreMessage": "थप घटनाहरु लोड हुँदैछन्…",
+      "loadingMoreLabel": "थप घटनाहरु लोड हुँदैछन्",
       "retryButton": "फेरी प्रयास गर्नुहोस्"
     }
   },

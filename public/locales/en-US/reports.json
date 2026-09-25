@@ -116,7 +116,7 @@
       },
       "fetchErrorMessage": "Could not load events. Please try again.",
       "loadingLabel": "Loading events",
-      "loadingMoreMessage": "Loading more events...",
+      "loadingMoreLabel": "Loading more events",
       "retryButton": "Try again"
     }
   },
