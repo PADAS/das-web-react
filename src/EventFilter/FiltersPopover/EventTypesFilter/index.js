@@ -3,12 +3,12 @@ import uniq from 'lodash/uniq';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { mapEventTypesToCategories } from '../../../../../../utils/event-types';
-import { TrackerContext } from '../../../../../../utils/analytics';
+import { mapEventTypesToCategories } from '../../../utils/event-types';
+import { TrackerContext } from '../../../utils/analytics';
 
-import SearchBar from '../../../../../../SearchBar';
-import SelectableItem from '../../../../../../SelectListGroup/SelectableItem';
-import SvgIcon from '../../../../../../SvgIcon';
+import SearchBar from '../../../SearchBar';
+import SelectableItem from '../../../SelectListGroup/SelectableItem';
+import SvgIcon from '../../../SvgIcon';
 
 import * as styles from './styles.module.scss';
 

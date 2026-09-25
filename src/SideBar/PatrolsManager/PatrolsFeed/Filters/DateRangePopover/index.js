@@ -16,7 +16,7 @@ import {
 import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../../../../../ducks/patrol-filter';
 import { resetGlobalDateRange, updateGlobalDateRange } from '../../../../../ducks/global-date-range';
 import { TrackerContext } from '../../../../../utils/analytics';
-import useModalPopover from '../../../../utils/useModalPopover';
+import useModalPopover from '../../../../../hooks/useModalPopover';
 
 import DateTimePicker, { EMPTY_DATE_TIME_VALUE } from '../../../../../DateTimePicker';
 import Settings from './Settings';

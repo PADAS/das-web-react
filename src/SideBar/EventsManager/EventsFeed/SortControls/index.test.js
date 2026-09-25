@@ -2,20 +2,20 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, SORT_DIRECTION } from '../../../../../constants';
-import { mockStore } from '../../../../../__test-helpers/MockStore';
-import { render, screen } from '../../../../../test-utils';
-import { TrackerContext } from '../../../../../utils/analytics';
-import { updateEventFilter } from '../../../../../ducks/event-filter';
+import { DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, SORT_DIRECTION } from '../../../../constants';
+import { mockStore } from '../../../../__test-helpers/MockStore';
+import { render, screen } from '../../../../test-utils';
+import { TrackerContext } from '../../../../utils/analytics';
+import { updateEventFilter } from '../../../../ducks/event-filter';
 
 import SortControls from './';
 
-jest.mock('../../../../../ducks/event-filter', () => ({
-  ...jest.requireActual('../../../../../ducks/event-filter'),
+jest.mock('../../../../ducks/event-filter', () => ({
+  ...jest.requireActual('../../../../ducks/event-filter'),
   updateEventFilter: jest.fn(),
 }));
 
-describe('SideBar - EventsManager - EventsFeed - Filters - SortControls', () => {
+describe('SideBar - EventsManager - EventsFeed - SortControls', () => {
   let store;
   let track;
 

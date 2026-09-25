@@ -2,13 +2,13 @@ import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { allSubjects } from '../../../selectors/subjects';
-import { calcRecentRadiosFromSubjects, isRadioWithImage } from '../../../utils/subjects';
-import { calcUrlForImage } from '../../../utils/img';
-import { getGlobalSchemaReportedBy } from '../../../selectors';
+import { allSubjects } from '../selectors/subjects';
+import { calcRecentRadiosFromSubjects, isRadioWithImage } from '../utils/subjects';
+import { calcUrlForImage } from '../utils/img';
+import { getGlobalSchemaReportedBy } from '../selectors';
 
-import Select from '../../../Select';
-import SvgIcon from '../../../SvgIcon';
+import Select from '../Select';
+import SvgIcon from '../SvgIcon';
 
 const RECENT_RADIO_COUNT = 5;
 
@@ -22,7 +22,7 @@ const renderReporterIcon = (reporter) => {
 
 // Subjects update constantly, so only this select follows them, not its form.
 const ReporterSelect = ({ ...otherProps }) => {
-  const { t } = useTranslation('reports', { keyPrefix: 'eventsManager.reporterSelect' });
+  const { t } = useTranslation('components', { keyPrefix: 'reporterSelect' });
 
   const reporters = useSelector(getGlobalSchemaReportedBy);
   const subjects = useSelector(allSubjects);

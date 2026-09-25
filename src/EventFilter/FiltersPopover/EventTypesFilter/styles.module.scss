@@ -1,6 +1,6 @@
-@use '../../../../../../common/styles/buttons';
-@use '../../../../../../common/styles/vars/colors';
-@use '../../../../../shared';
+@use '../../../common/styles/buttons';
+@use '../../../common/styles/vars/colors';
+@use '../../../common/styles/filter-popovers';
 
 .eventTypesFilter {
   border: none;
@@ -9,7 +9,7 @@
   padding: 0;
 
   .label {
-    @include shared.section-label;
+    @include filter-popovers.section-label;
   }
 
   .search {
@@ -43,7 +43,7 @@
   }
 
   .categoryList {
-    @include shared.compact-selectable-items;
+    @include filter-popovers.compact-selectable-items;
 
     .category label {
       font-weight: 500;

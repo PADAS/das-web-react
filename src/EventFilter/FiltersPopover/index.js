@@ -4,17 +4,17 @@ import Popover from 'react-bootstrap/Popover';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { EVENT_STATE_CHOICES, PREVIEW_FEATURES, REPORT_PRIORITIES } from '../../../../../constants';
-import { getGlobalSchemaReportedBy } from '../../../../../selectors';
-import { INITIAL_FILTER_STATE, updateEventFilter } from '../../../../../ducks/event-filter';
-import { PRIORITY_COLOR_MAP } from '../../../../../utils/events';
-import { TrackerContext } from '../../../../../utils/analytics';
-import useModalPopover from '../../../../utils/useModalPopover';
-import { usePreviewFeature } from '../../../../../hooks';
+import { EVENT_STATE_CHOICES, PREVIEW_FEATURES, REPORT_PRIORITIES } from '../../constants';
+import { getGlobalSchemaReportedBy } from '../../selectors';
+import { INITIAL_FILTER_STATE, updateEventFilter } from '../../ducks/event-filter';
+import { PRIORITY_COLOR_MAP } from '../../utils/events';
+import { TrackerContext } from '../../utils/analytics';
+import useModalPopover from '../../hooks/useModalPopover';
+import { usePreviewFeature } from '../../hooks';
 
 import EventTypesFilter from './EventTypesFilter';
-import ReporterSelect from '../../../ReporterSelect';
-import SelectListGroup from '../../../../../SelectListGroup';
+import ReporterSelect from '../../ReporterSelect';
+import SelectListGroup from '../../SelectListGroup';
 
 import * as styles from './styles.module.scss';
 
@@ -25,9 +25,11 @@ const ALL_STATE_KEY = 'all';
 const REVIEW_STATE_KEY = 'review';
 
 const renderPriorityIcon = (priority) => <span
-  className={styles.priorityDot}
+  className={styles.optionDot}
   style={{ backgroundColor: PRIORITY_COLOR_MAP[priority.value].base }}
 />;
+
+const renderStateIcon = (state) => <span className={`${styles.optionDot} ${styles[state.value]}`} />;
 
 const FiltersPopover = ({ className = '', onClose, ref, trigger, ...otherProps }) => {
   const dispatch = useDispatch();
@@ -187,6 +189,7 @@ const FiltersPopover = ({ className = '', onClose, ref, trigger, ...otherProps }
           label={t('stateLabel')}
           onChange={onChangeStates}
           options={stateOptions}
+          renderOptionIcon={renderStateIcon}
           value={selectedStateKeys}
         />
       </div>

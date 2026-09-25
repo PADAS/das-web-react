@@ -2,14 +2,14 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { mockStore } from '../../../__test-helpers/MockStore';
-import { render, screen } from '../../../test-utils';
+import { mockStore } from '../__test-helpers/MockStore';
+import { render, screen } from '../test-utils';
 
 import ReporterSelect from './';
 
-jest.mock('../../../SvgIcon', () => () => null);
+jest.mock('../SvgIcon', () => () => null);
 
-describe('SideBar - EventsManager - ReporterSelect', () => {
+describe('ReporterSelect', () => {
   let onChange, store;
 
   beforeEach(() => {

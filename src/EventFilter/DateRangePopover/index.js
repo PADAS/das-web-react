@@ -11,14 +11,14 @@ import {
   generateDaysAgoDate,
   generateMonthsAgoDate,
   generateWeeksAgoDate,
-} from '../../../../../utils/datetime';
-import { INITIAL_FILTER_STATE } from '../../../../../ducks/event-filter';
-import { resetGlobalDateRange, updateGlobalDateRange } from '../../../../../ducks/global-date-range';
-import { TrackerContext } from '../../../../../utils/analytics';
-import useModalPopover from '../../../../utils/useModalPopover';
+} from '../../utils/datetime';
+import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
+import { resetGlobalDateRange, updateGlobalDateRange } from '../../ducks/global-date-range';
+import { TrackerContext } from '../../utils/analytics';
+import useModalPopover from '../../hooks/useModalPopover';
 
-import { EMPTY_DATE_VALUE } from '../../../../../DatePicker';
-import DateTimePicker, { EMPTY_DATE_TIME_VALUE } from '../../../../../DateTimePicker';
+import { EMPTY_DATE_VALUE } from '../../DatePicker';
+import DateTimePicker, { EMPTY_DATE_TIME_VALUE } from '../../DateTimePicker';
 
 import * as styles from './styles.module.scss';
 

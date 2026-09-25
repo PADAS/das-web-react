@@ -87,32 +87,6 @@
       }
     }
   },
-  "eventsFilter": {
-    "datesButton": "Tarehe",
-    "filtersButton": "Vichujio",
-    "resetButton": "Rudisha",
-    "searchBarPlaceholder": "Tafuta Matukio..."
-  },
-  "filters": {
-    "priorityPickerLabel": "Kipaumbele",
-    "reportTypesAllLabel": "Zote",
-    "reportTypesLabel": "Aina za Matukio",
-    "reportTypesSelectionLabels": {
-      "allSelected": "Zote zilizochaguliwa",
-      "noneSelected": "Hakuna iliyochaguliwa",
-      "someSelected": "{{reportTypesCheckedCount}} kati ya {{eventTypeIDsLength}} zimechaguliwa"
-    },
-    "resetAllButton": "Rudisha Zote",
-    "resetButton": "Rudisha",
-    "stateLabel": "Hali",
-    "stateSelector": {
-      "active": "Tendaji",
-      "resolved": "Imetatuliwa",
-      "all": "Zote",
-      "review": "Inakaguliwa"
-    },
-    "title": "Vichujio vya Matukio"
-  },
   "friendlyFilterString": {
     "resultLabel": "matokeo",
     "resultsLabel": "Matokeo",
@@ -211,11 +185,5 @@
     "dateFilterModeLabel": "Hali ya kichujio cha tarehe",
     "patrolOverlapsRangeTooltip": "Jumuisha doria ambazo upeo wa tarehe wa kuanzia hadi mwisho unafanana na upeo wa tarehe",
     "patrolWithinRangeTooltip": "Jumuisha doria zinazoanza ndani ya upeo wa tarehe"
-  },
-  "reportTypeMultiSelect": {
-    "placeholder": "Tafuta aina",
-    "noResultsLabel": "Hakuna mechi",
-    "someResultsLabel": "Weka hizi {{resultCount}}",
-    "singleResultLabel": "Weka hii moja"
   }
 }

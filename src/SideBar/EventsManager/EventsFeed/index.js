@@ -12,9 +12,10 @@ import { TAB_KEYS } from '../../../constants';
 import DetailViewLoader from '../../DetailViewLoader';
 import ErrorBoundary from '../../../ErrorBoundary';
 import ErrorMessage from '../../../ErrorMessage';
+import EventFilter from '../../../EventFilter';
 import EventRow from './EventRow';
-import Filters from './Filters';
 import { ScrollRestoration, SidebarScrollContext } from '../../../SidebarScrollContext';
+import SortControls from './SortControls';
 
 import * as styles from './styles.module.scss';
 
@@ -57,7 +58,9 @@ const EventsFeed = ({ eventsFeed }) => {
   return <TrackerContext.Provider value={eventsFeedTracker}>
     <ErrorBoundary>
       <div className={styles.eventsFeed}>
-        <Filters resultCount={eventsFeed.events.count ?? 0} />
+        <EventFilter isSortable>
+          <SortControls />
+        </EventFilter>
 
         {!!eventsFeed.events.error && <div className={styles.errorState}>
           <ErrorMessage details={eventsFeed.events.error} message={t('fetchErrorMessage')} />

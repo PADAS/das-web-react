@@ -7,23 +7,23 @@ import {
   generateDaysAgoDate,
   generateMonthsAgoDate,
   generateWeeksAgoDate,
-} from '../../../../../utils/datetime';
-import { INITIAL_FILTER_STATE } from '../../../../../ducks/event-filter';
-import { mockStore } from '../../../../../__test-helpers/MockStore';
-import { render, screen, within } from '../../../../../test-utils';
-import { resetGlobalDateRange, updateGlobalDateRange } from '../../../../../ducks/global-date-range';
-import { TrackerContext } from '../../../../../utils/analytics';
+} from '../../utils/datetime';
+import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
+import { mockStore } from '../../__test-helpers/MockStore';
+import { render, screen, within } from '../../test-utils';
+import { resetGlobalDateRange, updateGlobalDateRange } from '../../ducks/global-date-range';
+import { TrackerContext } from '../../utils/analytics';
 
 import DateRangePopover from './';
 
-jest.mock('../../../../../ducks/global-date-range', () => ({
+jest.mock('../../ducks/global-date-range', () => ({
   __esModule: true,
-  ...jest.requireActual('../../../../../ducks/global-date-range'),
+  ...jest.requireActual('../../ducks/global-date-range'),
   resetGlobalDateRange: jest.fn(),
   updateGlobalDateRange: jest.fn(),
 }));
 
-describe('SideBar - EventsManager - EventsFeed - Filters - DateRangePopover', () => {
+describe('EventFilter - DateRangePopover', () => {
   let onClose, store, track;
 
   beforeEach(() => {

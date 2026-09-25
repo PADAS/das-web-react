@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { calcUrlForImage } from '../../../../../utils/img';
 import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../../../../../ducks/patrol-filter';
 import { TrackerContext } from '../../../../../utils/analytics';
-import useModalPopover from '../../../../utils/useModalPopover';
+import useModalPopover from '../../../../../hooks/useModalPopover';
 
 import Select from '../../../../../Select';
 import SelectListGroup from '../../../../../SelectListGroup';
@@ -26,6 +26,8 @@ const getTeamLeadLabel = (teamLead) => teamLead.name;
 const getTeamLeadValue = (teamLead) => teamLead.id;
 
 const renderPatrolTypeIcon = (patrolType) => <SvgIcon color="black" iconId={patrolType.icon_id} type="patrols" />;
+
+const renderStatusIcon = (status) => <span className={`${styles.optionDot} ${styles[status.value]}`} />;
 
 const renderTeamLeadIcon = (teamLead) => !!teamLead.image_url
   && <SvgIcon imageUrl={calcUrlForImage(teamLead.image_url)} type="subjects" />;
@@ -162,6 +164,7 @@ const FiltersPopover = ({ className = '', onClose, ref, trigger, ...otherProps }
           label: t('statusLabel'),
           onChange: onChangeStatus,
           options: statusOptions,
+          renderOptionIcon: renderStatusIcon,
           value: patrolFilter.status,
         },
         onResetStatus,

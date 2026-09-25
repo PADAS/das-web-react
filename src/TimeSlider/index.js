@@ -1,8 +1,6 @@
 import React, { memo, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
-import Button from 'react-bootstrap/Button';
 import isEqual from 'react-fast-compare';
 import Overlay from 'react-bootstrap/Overlay';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
@@ -10,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
 import { ReactComponent as CheckIcon } from '../common/images/icons/check-light.svg';
-import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as PauseIcon } from '../common/images/icons/pause.svg';
 import { ReactComponent as PlayIcon } from '../common/images/icons/play.svg';
@@ -32,12 +29,13 @@ import {
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import {
   MAP_INTERACTION_CATEGORY,
+  TrackerContext,
   trackEventFactory,
 } from '../utils/analytics';
-import { resetGlobalDateRange } from '../ducks/global-date-range';
+import { POPOVER_POPPER_CONFIG } from '../EventFilter';
 import { useMatchMedia } from '../hooks';
 
-import EventFilterDateRange from '../EventFilter/DateRange';
+import DateRangePopover from '../EventFilter/DateRangePopover';
 
 import * as styles from './styles.module.scss';
 
@@ -57,8 +55,6 @@ const PLAYBACK_SPEED_OPTIONS = [
   { value: 2, label: '2x' },
 ];
 
-const trackDateChange = () => mapInteractionTracker.track('Update Time Slider Date Range');
-
 const isAtEnd = (value) => value >= 0.99999;
 
 const TimeSlider = () => {
@@ -74,8 +70,11 @@ const TimeSlider = () => {
 
   const speedMenuItemOptionRefs = useRef([]);
 
+  const dateRangePopoverId = useId();
   const speedMenuPopoverId = useId();
 
+  const [dateRangeButtonAnchor, setDateRangeButtonAnchor] = useState(null);
+  const [isDateRangePopoverOpen, setIsDateRangePopoverOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isSpeedMenuOpen, setIsSpeedMenuOpen] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(DEFAULT_PLAYBACK_SPEED);
@@ -239,12 +238,7 @@ const TimeSlider = () => {
     debouncedRangeChangeAnalytics('Changed \'Time Slider\'');
   };
 
-  const onClickReset = (event) => {
-    event.stopPropagation();
-
-    dispatch(resetGlobalDateRange());
-    trackDateChange();
-  };
+  const hideDateRangePopover = useCallback(() => setIsDateRangePopoverOpen(false), []);
 
   useEffect(() => {
     if (isSpeedMenuOpen) {
@@ -408,49 +402,30 @@ const TimeSlider = () => {
       </div>
     </div>
 
-    <OverlayTrigger
-      overlay={
-        <Popover className={styles.popover}>
-          <Popover.Header className={styles.popoverTitle}>
-            <ClockIcon aria-hidden="true" />
-
-            {t('popoverHeader')}
-
-            <Button
-              disabled={!isEventFilterDateRangeModified}
-              onClick={onClickReset}
-              size="sm"
-              type="button"
-              variant="light"
-            >
-              {t('popoverResetButton')}
-            </Button>
-          </Popover.Header>
-
-          <Popover.Body className={styles.popoverBody}>
-            <EventFilterDateRange
-              endDateLabel=""
-              onEndChange={() => trackDateChange()}
-              onStartChange={() => trackDateChange()}
-              placement="top"
-              popoverClassName={styles.dateRangePopover}
-              startDateLabel=""
-            />
-          </Popover.Body>
-        </Popover>
-      }
-      rootClose
-      trigger="click"
+    <button
+      aria-controls={isDateRangePopoverOpen ? dateRangePopoverId : undefined}
+      aria-expanded={isDateRangePopoverOpen}
+      aria-haspopup="dialog"
+      aria-label={t('dateRangeButtonLabel')}
+      className={`${styles.dateRangeButton} ${isEventFilterDateRangeModified ? styles.active : ''}`}
+      onClick={() => setIsDateRangePopoverOpen((isOpen) => !isOpen)}
+      ref={setDateRangeButtonAnchor}
+      title={t('dateRangeButtonLabel')}
+      type="button"
     >
-      <button
-        aria-label={t('dateRangeButtonLabel')}
-        className={`${styles.dateRangeButton} ${isEventFilterDateRangeModified ? styles.active : ''}`}
-        title={t('dateRangeButtonLabel')}
-        type="button"
+      <CalendarIcon aria-hidden="true" />
+    </button>
+
+    <TrackerContext.Provider value={mapInteractionTracker}>
+      <Overlay
+        placement="top"
+        popperConfig={POPOVER_POPPER_CONFIG}
+        show={isDateRangePopoverOpen}
+        target={dateRangeButtonAnchor}
       >
-        <CalendarIcon aria-hidden="true" />
-      </button>
-    </OverlayTrigger>
+        <DateRangePopover id={dateRangePopoverId} onClose={hideDateRangePopover} trigger={dateRangeButtonAnchor} />
+      </Overlay>
+    </TrackerContext.Provider>
 
     {!isCompact && <button
       aria-label={t('closeButtonLabel')}

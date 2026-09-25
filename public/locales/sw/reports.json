@@ -118,11 +118,6 @@
       "loadingLabel": "Inapakia matukio",
       "loadingMoreMessage": "Inapakia matukio zaidi...",
       "retryButton": "Jaribu tena"
-    },
-    "reporterSelect": {
-      "allReportersGroupLabel": "Zote",
-      "recentRadiosGroupLabel": "Redio za hivi karibuni",
-      "restrictedReporterLabel": "ILIZUIWA"
     }
   },
   "reportGeometryDrawer": {

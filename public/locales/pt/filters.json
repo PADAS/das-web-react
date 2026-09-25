@@ -87,32 +87,6 @@
       }
     }
   },
-  "eventsFilter": {
-    "datesButton": "Datas",
-    "filtersButton": "Filtros",
-    "resetButton": "Redefinir",
-    "searchBarPlaceholder": "Buscar Eventos..."
-  },
-  "filters": {
-    "priorityPickerLabel": "Prioridade",
-    "reportTypesAllLabel": "Todos",
-    "reportTypesLabel": "Tipos de Eventos",
-    "reportTypesSelectionLabels": {
-      "allSelected": "Todos selecionados",
-      "noneSelected": "Nenhum selecionado",
-      "someSelected": "{{reportTypesCheckedCount}} de {{eventTypeIDsLength}} selecionado"
-    },
-    "resetAllButton": "Redefinir tudo",
-    "resetButton": "Redefinir",
-    "stateLabel": "Status ou Situação",
-    "stateSelector": {
-      "active": "Ativo",
-      "resolved": "Resolvido",
-      "all": "Todos",
-      "review": "Em revisão"
-    },
-    "title": "Filtro de Eventos"
-  },
   "friendlyFilterString": {
     "resultLabel": "Resultado",
     "resultsLabel": "Resultados ",
@@ -211,11 +185,5 @@
     "dateFilterModeLabel": "Modo de filtro por data",
     "patrolOverlapsRangeTooltip": "Incluir patrulhas cujas datas de início e fim se sobreponham ao intervalo de datas",
     "patrolWithinRangeTooltip": "Incluir patrulhas que iniciam no intervalo de datas"
-  },
-  "reportTypeMultiSelect": {
-    "placeholder": "Buscar tipos de eventos",
-    "noResultsLabel": "Sem correspondências",
-    "someResultsLabel": "Considerar estes {{resultCount}}",
-    "singleResultLabel": "Considerar este"
   }
 }

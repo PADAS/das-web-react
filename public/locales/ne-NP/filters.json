@@ -87,32 +87,6 @@
       }
     }
   },
-  "eventsFilter": {
-    "datesButton": "मिति",
-    "filtersButton": "फिल्टर",
-    "resetButton": "रिसेट",
-    "searchBarPlaceholder": "घटनाहरु खोज्नुहोस्…"
-  },
-  "filters": {
-    "priorityPickerLabel": "प्राथमिकता",
-    "reportTypesAllLabel": "सबै",
-    "reportTypesLabel": "घटनाका प्रकार",
-    "reportTypesSelectionLabels": {
-      "allSelected": "सबै छानियो",
-      "noneSelected": "कुनैपनि छानिएन",
-      "someSelected": "{{eventTypeIDsLength}} को {{reportTypesCheckedCount}} वटा छानियो"
-    },
-    "resetAllButton": "सबै रिसेट गर्नुहोस्",
-    "resetButton": "रिसेट गर्नुहोस्",
-    "stateLabel": "अवस्था",
-    "stateSelector": {
-      "active": "सक्रिय",
-      "resolved": "समाधान गरिएको",
-      "all": "सबै",
-      "review": "समीक्षामा"
-    },
-    "title": "घटना फिल्टर"
-  },
   "friendlyFilterString": {
     "resultLabel": "नतिजा",
     "resultsLabel": "नतिजाहरु",
@@ -211,11 +185,5 @@
     "dateFilterModeLabel": "मिति फिल्टर मोड",
     "patrolOverlapsRangeTooltip": "सुरु देखि अन्त्यसम्मै मितिको दायरा भित्रै पर्ने गस्तिहरु समावेश गर्नुहोस्",
     "patrolWithinRangeTooltip": "मितिको दायरा भित्रै सुरुहुने गस्ती समावेश गर्नुहोस्"
-  },
-  "reportTypeMultiSelect": {
-    "placeholder": "प्रकारहरु खोज्नुहोस्",
-    "noResultsLabel": "मिल्दो केही भेटिएन",
-    "someResultsLabel": "यी सेट गर्नुहोस् {{resultCount}}",
-    "singleResultLabel": "यो सेट गर्नुहोस्"
   }
 }

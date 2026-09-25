@@ -17,7 +17,15 @@ jest.mock('../../../ducks/events', () => ({
 }));
 
 /* eslint-disable-next-line react/display-name */
-jest.mock('./Filters', () => ({ resultCount }) => <div>{`${resultCount} results`}</div>);
+jest.mock('../../../EventFilter', () => ({ children, isSortable }) => <div
+  data-sortable={isSortable}
+  data-testid="eventFilter"
+  >
+  {children}
+</div>);
+
+/* eslint-disable-next-line react/display-name */
+jest.mock('./SortControls', () => () => <button type="button">Sort</button>);
 
 /* eslint-disable-next-line react/display-name */
 jest.mock('./EventRow', () => ({ displayTimeProp, event }) => <li>
@@ -90,16 +98,11 @@ describe('SideBar - EventsManager - EventsFeed', () => {
     .getAllByRole('listitem')
     .map((eventRow) => eventRow.textContent);
 
-  test('passes the event count to the filters', () => {
+  test('renders the sort controls inside a sortable event filter', () => {
     renderEventsFeed();
 
-    expect(screen.getByText('3 results')).toBeVisible();
-  });
-
-  test('passes a zero count to the filters when the feed has no count yet', () => {
-    renderEventsFeed({ events: { ...eventsFeed.events, count: undefined } });
-
-    expect(screen.getByText('0 results')).toBeVisible();
+    expect(screen.getByTestId('eventFilter')).toHaveAttribute('data-sortable', 'true');
+    expect(within(screen.getByTestId('eventFilter')).getByRole('button', { name: 'Sort' })).toBeVisible();
   });
 
   test('shows a loading status while the feed is loading', () => {

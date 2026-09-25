@@ -1,3 +1,5 @@
+@use 'sass:map';
+
 @use '../../../../../common/styles/buttons';
 @use '../../../../../common/styles/vars/colors';
 @use '../shared';
@@ -33,6 +35,22 @@
 
       .checkboxList {
         @include shared.borderless-select-list;
+      }
+
+      .optionDot {
+        @include shared.select-list-option-dot;
+
+        &.active {
+          background-color: map.get(colors.$patrol-active-theme, 'base');
+        }
+
+        &.cancelled {
+          background-color: map.get(colors.$patrol-cancelled-theme, 'base');
+        }
+
+        &.done {
+          background-color: map.get(colors.$patrol-done-theme, 'base');
+        }
       }
     }
   }

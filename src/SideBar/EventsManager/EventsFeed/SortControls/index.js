@@ -4,15 +4,15 @@ import Popover from 'react-bootstrap/Popover';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { ReactComponent as ArrowDownIcon } from '../../../../../common/images/icons/arrow-down.svg';
-import { ReactComponent as ArrowUpIcon } from '../../../../../common/images/icons/arrow-up.svg';
-import { ReactComponent as CheckIcon } from '../../../../../common/images/icons/check-light.svg';
-import { ReactComponent as SortLinesIcon } from '../../../../../common/images/icons/sort-lines.svg';
+import { ReactComponent as ArrowDownIcon } from '../../../../common/images/icons/arrow-down.svg';
+import { ReactComponent as ArrowUpIcon } from '../../../../common/images/icons/arrow-up.svg';
+import { ReactComponent as CheckIcon } from '../../../../common/images/icons/check-light.svg';
+import { ReactComponent as SortLinesIcon } from '../../../../common/images/icons/sort-lines.svg';
 
-import { DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, SORT_DIRECTION } from '../../../../../constants';
-import navigateMenuWithKeyboard from '../../../../utils/navigateMenuWithKeyboard';
-import { TrackerContext } from '../../../../../utils/analytics';
-import { updateEventFilter } from '../../../../../ducks/event-filter';
+import { DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, SORT_DIRECTION } from '../../../../constants';
+import navigateMenuWithKeyboard from '../../../utils/navigateMenuWithKeyboard';
+import { TrackerContext } from '../../../../utils/analytics';
+import { updateEventFilter } from '../../../../ducks/event-filter';
 
 import * as styles from './styles.module.scss';
 

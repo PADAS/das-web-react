@@ -158,12 +158,6 @@
     "instructionsPopupLabel": "Cliquez pour sélectionner un emplacement",
     "pickLocationButtonLabel": "Sélectionnez un emplacement sur la carte"
   },
-  "priorityPicker": {
-    "amber": "Ambre",
-    "green": "Verte",
-    "none": "Aucune",
-    "red": "Rouge"
-  },
   "numericInput": {
     "numericInputLabel": "Champ numérique",
     "incrementValueNumericInputButtonLabel": "Bouton d'incrémentation de la valeur numérique",
@@ -184,6 +178,11 @@
     "singleValue": {
       "radioIcon": "Icône de radio pour"
     }
+  },
+  "reporterSelect": {
+    "allReportersGroupLabel": "Tous",
+    "recentRadiosGroupLabel": "Radios récentes",
+    "restrictedReporterLabel": "RESTRICTION"
   },
   "schemaFields": {
     "addButton": {
@@ -374,8 +373,6 @@
     "closeButtonLabel": "Fermer le curseur temporel",
     "dateRangeButtonLabel": "Modifier la plage de dates",
     "endDateNowSliderLabel": "Maintenant",
-    "popoverHeader": "Intervalle de Dates",
-    "popoverResetButton": "Réinitialiser",
     "sliderLabel": "Curseur Temporel",
     "speedButtonLabel": "Ouvrir les options de vitesse de lecture",
     "speedMenuHeader": "Vitesse de Lecture",

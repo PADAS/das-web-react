@@ -115,11 +115,6 @@
       "loadingLabel": "घटनाहरु लोड हुँदै",
       "loadingMoreMessage": "थप घटनाहरु लोड हुँदैछन्…",
       "retryButton": "फेरी प्रयास गर्नुहोस्"
-    },
-    "reporterSelect": {
-      "allReportersGroupLabel": "सबै",
-      "recentRadiosGroupLabel": "हालैका रेडियोहरू",
-      "restrictedReporterLabel": "प्रतिबन्धित"
     }
   },
   "reportGeometryDrawer": {

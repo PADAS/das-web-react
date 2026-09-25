@@ -87,32 +87,6 @@
       }
     }
   },
-  "eventsFilter": {
-    "datesButton": "Dates",
-    "filtersButton": "Filters",
-    "resetButton": "Reset",
-    "searchBarPlaceholder": "Search Events..."
-  },
-  "filters": {
-    "priorityPickerLabel": "Priority",
-    "reportTypesAllLabel": "All",
-    "reportTypesLabel": "Event Types",
-    "reportTypesSelectionLabels": {
-      "allSelected": "All selected",
-      "noneSelected": "None selected",
-      "someSelected": "{{reportTypesCheckedCount}} of {{eventTypeIDsLength}} selected"
-    },
-    "resetAllButton": "Reset All",
-    "resetButton": "Reset",
-    "stateLabel": "State",
-    "stateSelector": {
-      "active": "Active",
-      "resolved": "Resolved",
-      "all": "All",
-      "review": "Review"
-    },
-    "title": "Event Filters"
-  },
   "friendlyFilterString": {
     "resultLabel": "result",
     "resultsLabel": "Results",
@@ -211,11 +185,5 @@
     "dateFilterModeLabel": "Date filter mode",
     "patrolOverlapsRangeTooltip": "Include patrols whose start to end date range overlaps with the date range",
     "patrolWithinRangeTooltip": "Include patrols starting within the date range"
-  },
-  "reportTypeMultiSelect": {
-    "placeholder": "Search types",
-    "noResultsLabel": "No matches",
-    "someResultsLabel": "Set to these {{resultCount}}",
-    "singleResultLabel": "Set to this one"
   }
 }

@@ -87,32 +87,6 @@
       }
     }
   },
-  "eventsFilter": {
-    "datesButton": "Dates",
-    "filtersButton": "Filtres",
-    "resetButton": "Réinitialiser",
-    "searchBarPlaceholder": "Recherche..."
-  },
-  "filters": {
-    "priorityPickerLabel": "Priorité",
-    "reportTypesAllLabel": "Tout sélectionner",
-    "reportTypesLabel": "Tout événement",
-    "reportTypesSelectionLabels": {
-      "allSelected": "Tout sélectionner",
-      "noneSelected": "Aucune sélection",
-      "someSelected": "{{reportTypesCheckedCount}} sur {{eventTypeIDsLength}} sélectionnés "
-    },
-    "resetAllButton": "Tout réinitialiser",
-    "resetButton": "Réinitialiser",
-    "stateLabel": "Statut",
-    "stateSelector": {
-      "active": "Actif",
-      "resolved": "Résolu",
-      "all": "Tous statut",
-      "review": "En révision"
-    },
-    "title": "Filtre d'Événements"
-  },
   "friendlyFilterString": {
     "resultLabel": "Résultat",
     "resultsLabel": "Résultats",
@@ -211,11 +185,5 @@
     "dateFilterModeLabel": "Mode de filtre par date",
     "patrolOverlapsRangeTooltip": "Comprend les patrouilles ayant une date de début et de fin compris dans l'intervalle de dates sélectionnée",
     "patrolWithinRangeTooltip": "Comprend les patrouilles débutant dans l'intervalle de dates sélectionnée"
-  },
-  "reportTypeMultiSelect": {
-    "placeholder": "Recherche de types",
-    "noResultsLabel": "Aucune correspondance",
-    "someResultsLabel": "Filtrer selon les options suivantes:",
-    "singleResultLabel": "Filtrer selon l'option suivante:"
   }
 }

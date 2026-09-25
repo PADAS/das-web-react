@@ -1,302 +1,70 @@
-@import '../common/styles/buttons';
-@import '../common/styles/vars/colors';
-@import '../common/styles/layout';
-@import '../common/styles/popovers';
+@use '../common/styles/buttons';
+@use '../common/styles/layout';
+@use '../common/styles/vars/colors';
 
-.form {
-  border-bottom: 1px solid $light-gray-lines;
-  display: flex;
-  padding: 0.75rem;
+.eventFilter {
+  flex-shrink: 0;
 
-  .searchBar {
-    width: 40%;
+  .controls {
+    border-bottom: 1px solid colors.$light-gray-lines;
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem;
+
+    .searchBar {
+      width: 60%;
+
+      @media (min-width: layout.$md-layout-width-min) {
+        width: 40%;
+      }
+    }
+
+    .triggerButtons {
+      align-items: center;
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      width: 100%;
+
+      .triggerButton {
+        @include buttons.chipTextButton;
+        @include buttons.chipActiveState;
+
+        flex-shrink: 0;
+      }
+
+      @media (min-width: layout.$md-layout-width-min) {
+        justify-content: flex-end;
+        margin-top: 0;
+        width: 60%;
+      }
+    }
+
+    @media (min-width: layout.$md-layout-width-min) {
+      flex-direction: row;
+    }
   }
 
-  .buttons {
+  .summaryBar {
     align-items: center;
+    border-bottom: 1px solid colors.$light-gray-lines;
     display: flex;
     gap: 0.5rem;
-    justify-content: flex-end;
-    width: 60%;
+    justify-content: space-between;
+    min-height: 3.25rem;
+    padding: 0.5rem;
 
-    .button {
-      @include chipTextButton;
-      @include chipActiveState;
+    .summary {
+      color: colors.$off-black;
+      font-size: 0.75rem;
+      line-height: normal;
+      margin: 0;
+    }
+
+    .resetButton {
+      @include buttons.chipTextButton;
+
+      flex-shrink: 0;
     }
   }
 }
-
-.dateSelect {
-  display: flex;
-  flex-wrap: wrap;
-  position: relative;
-  z-index: 1;
-
-  > label {
-    width: 100%;
-    padding-right: 0.25rem;
-
-    + label {
-      padding-left: 0.25rem;
-    }
-
-    @media (min-width: $md-layout-width-min) {
-      width: 50%;
-    }
-  }
-}
-
-.filterPopover {
-  > [class*=arrow]::after {
-    border-bottom-color: $popover-header-color;
-  }
-
-  [class*=popover-header] {
-    background: $highlight-color;
-    color: white;
-    padding: 1rem;
-
-    &::before {
-      display: none;
-    }
-  }
-}
-
-div.filterPopover {
-  --content-height: 32rem;
-
-  max-height: var(--content-height);
-  max-width: 29rem;
-  width: 90vw;
-
-  [class*=popover-body] {
-    overflow: hidden;
-    padding: 0;
-  }
-
-  [class*=Collapsible__trigger] {
-    cursor: pointer;
-  }
-
-  &.filters {
-    overflow: hidden;
-  }
-}
-
-.filterTitle,
-.popoverTitle {
-  align-items: center;
-  display: flex;
-  line-height: normal;
-  width: 100%;
-
-  button {
-    margin-left: auto;
-  }
-}
-
-.popoverTitle {
-  --dimensions: 1.5rem;
-
-  background: $highlight-color;
-
-  svg {
-    height: var(--dimensions);
-    margin-right: 1rem;
-    width: var(--dimensions);
-
-    * {
-      stroke: white;
-    }
-  }
-}
-
-.closedFilterDrawer,
-.openedFilterDrawer {
-  border-bottom: 1px solid $gray-border;
-}
-
-.closedFilterDrawer,
-.openedFilterDrawer {
-  &:last-of-type {
-    border: none;
-  }
-}
-
-.filterTitle {
-  small {
-    font-size: 65%;
-    font-style: italic;
-    margin-left: 0.5rem;
-    max-width: 5rem;
-  }
-}
-
-.reportFilterTitle {
-  padding: 0.25rem 0.5rem 0;
-}
-
-.toggleAllReportTypes {
-  align-items: flex-end;
-  display: flex;
-  font-size: 0.3rem;
-  height: 1.5rem;
-  margin-right: 0.5rem;
-
-  span {
-    margin-left: -0.25rem;
-  }
-}
-
-.closedFilterDrawer {
-  [class*=Collapsible__contentOuter] {
-    overflow-y: hidden !important;
-  }
-}
-
-.openedFilterDrawer {
-  [class*=Collapsible__contentOuter] {
-    // min-height: 20rem;
-    height: 70vh;
-    max-height: 24rem;
-    overflow-y: auto !important;
-  }
-
-  &.reportTypeDrawer {
-    [class*=Collapsible__contentOuter] {
-      overflow-y: hidden !important;
-
-      [class*=Collapsible__contentInner] {
-        height: 70vh;
-        max-height: 24rem;
-      }
-    }
-  }
-}
-
-.filterRow,
-.stateList {
-  align-items: center;
-  display: flex;
-}
-
-.stateList {
-  margin-bottom: 0;
-}
-
-.activeState {
-  font-weight: 600;
-}
-
-.filterRow {
-  border-bottom: 1px solid $gray-border;
-  justify-content: space-between;
-  padding: 0.5rem;
-
-  > svg {
-    --dimensions: 1.5rem;
-
-    height: var(--dimensions);
-    width: var(--dimensions);
-  }
-
-  label {
-    margin-bottom: 0;
-  }
-
-  &.priorityRow {
-    label {
-      display: none;
-
-      @media (min-width: $md-layout-width-min) {
-        display: initial;
-      }
-    }
-  }
-
-  &.reportTypeRow {
-    flex-flow: column;
-    height: 20rem;
-    overflow: hidden;
-    padding: 0 0 2rem 0;
-  }
-}
-
-.reportedBySelect,
-.stateList,
-.priorityPicker {
-  flex: 1;
-  flex-flow: row;
-  margin-left: 0.5rem;
-}
-
-.priorityPicker {
-  margin-left: 0;
-
-  @media (min-width: $md-layout-width-min) {
-    margin-left: 0.5rem;
-  }
-}
-
-.priorityPicker li {
-  font-size: 0.65rem;
-  white-space: nowrap;
-  width: 25%;
-
-  button {
-    width: 100%;
-  }
-
-  @media (min-width: $md-layout-width-min) {
-    font-size: 1rem;
-    white-space: initial;
-  }
-}
-
-.filterStringWrapper {
-  align-items: center;
-  display: flex;
-  justify-content: space-between;
-  padding: 0.3rem;
-  padding-top: 0.5rem !important;
-  border-bottom: 1px solid $light-gray-border;
-  min-height: 2.81rem;
-  
-  .friendlyFilterString {
-    display: block;
-    font-size: 0.75rem;
-    line-height: normal;
-    margin: 0rem;
-    transition: 0.3s all linear;
-    width: 28rem;
-  }
-  
-  > button {
-    min-width: 16%;
-
-    > svg {
-      margin-right: 0.125rem;
-    }
-  }
-}
-
-.userIcon {
-  height: 1.5rem;
-  color: $medium-light-gray;
-}
-
-/* --- OLD NAVIGATION STUFF STARTS HERE --- */
-.oldNavigation {
-  div.filterPopover {
-    &[class*=bs-popover-bottom] {
-      @media (min-width: $lg-layout-width-min) {
-        margin-left: -5rem;
-  
-        > [class*=arrow] {
-          margin-left: 5rem;
-        }
-      }
-    }
-  }
-}
-/* --- OLD NAVIGATION STUFF ENDS HERE --- */

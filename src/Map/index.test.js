@@ -48,6 +48,9 @@ jest.mock('../ducks/events', () => ({
   fetchMapEvents: jest.fn(),
 }));
 
+/* eslint-disable-next-line react/display-name */
+jest.mock('../EventFilter', () => () => <div data-testid="eventFilter" />);
+
 jest.mock('../EventsTileLayers', () => () => null);
 
 jest.mock('../TileEventFeaturesProvider', () => ({ children }) => children);
@@ -510,7 +513,7 @@ describe('Map', () => {
     store.view.mapLocationSelection.isPickingLocation = true;
     renderMap();
 
-    expect((await screen.queryByTestId('eventFilter-form'))).toBeNull();
+    expect((await screen.queryByTestId('eventFilter'))).toBeNull();
   });
 
   test('does not show the MapLocationSelectionOverview if user is drawing a geometry on the map', async () => {

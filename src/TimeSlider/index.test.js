@@ -14,11 +14,6 @@ import { resetGlobalDateRange } from '../ducks/global-date-range';
 
 import TimeSlider, { FRAME_INTERVAL_MS } from '.';
 
-jest.mock('../EventFilter/DateRange', () => ({
-  __esModule: true,
-  default: () => <div data-testid="event-filter-date-range" />,
-}));
-
 jest.mock('../ducks/timeslider', () => ({
   ...jest.requireActual('../ducks/timeslider'),
   clearVirtualDate: jest.fn(),
@@ -459,52 +454,52 @@ describe('TimeSlider', () => {
     expect(changeDateRangeButton).toBeInTheDocument();
   });
 
-  test('opens the date range popover when the user clicks the date range button', async () => {
+  test('opens and closes the date range popover from the date range button', async () => {
     renderTimeSlider();
 
-    expect(screen.queryByRole('tooltip', { name: 'Date Range Reset' })).toBeNull();
+    const dateRangeButton = screen.getByRole('button', { name: 'Change date range' });
 
-    await userEvent.click(screen.getByRole('button', { name: 'Change date range' }));
+    expect(dateRangeButton).toHaveAttribute('aria-expanded', 'false');
+    expect(dateRangeButton).not.toHaveAttribute('aria-controls');
 
-    expect(await screen.findByRole('tooltip', { name: 'Date Range Reset' })).toBeVisible();
+    await userEvent.click(dateRangeButton);
+
+    const dateRangePopover = await screen.findByRole('dialog', { name: 'Date Range' });
+
+    expect(dateRangeButton).toHaveAttribute('aria-expanded', 'true');
+    expect(dateRangeButton).toHaveAttribute('aria-controls', dateRangePopover.id);
+    expect(dateRangePopover).toBeVisible();
+
+    await userEvent.click(dateRangeButton);
+
+    expect(dateRangeButton).toHaveAttribute('aria-expanded', 'false');
   });
 
-  test('shows the date range popover header', async () => {
+  test('closes the date range popover and restores focus when the user presses escape', async () => {
     renderTimeSlider();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Change date range' }));
+    const dateRangeButton = screen.getByRole('button', { name: 'Change date range' });
 
-    expect(screen.getByText('Date Range')).toBeVisible();
+    await userEvent.click(dateRangeButton);
+
+    expect(await screen.findByRole('dialog', { name: 'Date Range' })).toHaveFocus();
+
+    await userEvent.keyboard('{Escape}');
+
+    expect(dateRangeButton).toHaveAttribute('aria-expanded', 'false');
+    expect(dateRangeButton).toHaveFocus();
   });
 
-  test('shows the date range popover reset button', async () => {
-    renderTimeSlider();
-
-    await userEvent.click(screen.getByRole('button', { name: 'Change date range' }));
-
-    const resetButton = await screen.findByRole('button', { name: 'Reset' });
-
-    expect(resetButton).toBeVisible();
-  });
-
-  test('resets the date range when the user clicks the reset button', async () => {
+  test('resets the date range from the date range popover', async () => {
     renderTimeSlider();
 
     await userEvent.click(screen.getByRole('button', { name: 'Change date range' }));
 
     expect(resetGlobalDateRange).not.toHaveBeenCalled();
 
-    await userEvent.click(await screen.findByRole('button', { name: 'Reset' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Reset date filters' }));
 
     expect(resetGlobalDateRange).toHaveBeenCalledTimes(1);
-  });
-
-  test('shows the date range popover body', async () => {
-    renderTimeSlider();
-
-    await userEvent.click(screen.getByRole('button', { name: 'Change date range' }));
-
-    expect(await screen.findByTestId('event-filter-date-range')).toBeVisible();
   });
 
   test('shows the close button', async () => {

@@ -118,11 +118,6 @@
       "loadingLabel": "Cargando eventos",
       "loadingMoreMessage": "Cargando más eventos...",
       "retryButton": "Intentar de nuevo"
-    },
-    "reporterSelect": {
-      "allReportersGroupLabel": "Todos",
-      "recentRadiosGroupLabel": "Radios recientes",
-      "restrictedReporterLabel": "RESTRINGIDO"
     }
   },
   "reportGeometryDrawer": {

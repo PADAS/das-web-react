@@ -1,8 +1,8 @@
 @use 'sass:color';
 
-@use '../../../../../common/styles/buttons';
-@use '../../../../../common/styles/inputs';
-@use '../../../../../common/styles/vars/colors';
+@use '../../../../common/styles/buttons';
+@use '../../../../common/styles/inputs';
+@use '../../../../common/styles/vars/colors';
 
 .sortingButton {
   @include buttons.chipTextButton;

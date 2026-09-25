@@ -2,19 +2,19 @@ import React, { useState } from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { INITIAL_FILTER_STATE, updateEventFilter } from '../../../../../ducks/event-filter';
-import { mockStore } from '../../../../../__test-helpers/MockStore';
-import { PREVIEW_FEATURES } from '../../../../../constants';
-import { render, screen, within } from '../../../../../test-utils';
-import { TrackerContext } from '../../../../../utils/analytics';
+import { INITIAL_FILTER_STATE, updateEventFilter } from '../../ducks/event-filter';
+import { mockStore } from '../../__test-helpers/MockStore';
+import { PREVIEW_FEATURES } from '../../constants';
+import { render, screen, within } from '../../test-utils';
+import { TrackerContext } from '../../utils/analytics';
 
 import FiltersPopover from './';
 
-jest.mock('../../../../../ducks/event-filter', () => ({
-  ...jest.requireActual('../../../../../ducks/event-filter'),
+jest.mock('../../ducks/event-filter', () => ({
+  ...jest.requireActual('../../ducks/event-filter'),
   updateEventFilter: jest.fn(),
 }));
-jest.mock('../../../../../SvgIcon', () => jest.fn(() => null));
+jest.mock('../../SvgIcon', () => jest.fn(() => null));
 
 const FENCE_EVENT_TYPE = {
   category: { display: 'Logistics', value: 'logistics' },
@@ -25,7 +25,7 @@ const FENCE_EVENT_TYPE = {
   version: 1,
 };
 
-describe('SideBar - EventsManager - EventsFeed - Filters - FiltersPopover', () => {
+describe('EventFilter - FiltersPopover', () => {
   let onClose, store, track;
 
   beforeEach(() => {

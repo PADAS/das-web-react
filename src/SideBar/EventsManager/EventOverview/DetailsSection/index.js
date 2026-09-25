@@ -34,7 +34,7 @@ import AreaPicker from './AreaPicker';
 import DatePicker, { EMPTY_DATE_VALUE } from '../../../../DatePicker';
 import { GeometryPreview } from './AreaPicker/MenuPopover';
 import LocationPicker from '../../../../LocationPicker';
-import ReporterSelect from '../../ReporterSelect';
+import ReporterSelect from '../../../../ReporterSelect';
 import SchemaForm from '../../../../SchemaForm';
 import Select from '../../../../Select';
 import TimePicker, { EMPTY_TIME_VALUE, isValidTime } from '../../../../TimePicker';

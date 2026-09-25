@@ -1,11 +1,11 @@
 import React, { useRef, useState } from 'react';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen } from '../../../test-utils';
+import { render, screen } from '../../test-utils';
 
 import useModalPopover from './';
 
-describe('SideBar - utils - useModalPopover', () => {
+describe('hooks - useModalPopover', () => {
   let onClose;
 
   beforeEach(() => {

@@ -1,20 +1,11 @@
-import isEqual from 'react-fast-compare';
 import isNil from 'lodash/isNil';
 import merge from 'lodash/merge';
 
 import { cleanedUpFilterObject, objectToParamString } from './query';
 import { generateMonthsAgoDate } from './datetime';
-import { INITIAL_FILTER_STATE } from '../ducks/event-filter/';
 import { DEFAULT_EVENT_SORT, SORT_DIRECTION } from '../constants';
 
 import store from '../store';
-
-export const isFilterModified = ({ state, filter: { priority, reported_by, text } }) => (
-  !isEqual(INITIAL_FILTER_STATE.state, state)
-    || !isEqual(INITIAL_FILTER_STATE.filter.priority, priority)
-    || !isEqual(INITIAL_FILTER_STATE.filter.text, text)
-    || !isEqual(INITIAL_FILTER_STATE.filter.reported_by, reported_by)
-);
 
 export const calcSortParamForEventFilter = ([direction, sortProp]) =>
   `${direction === SORT_DIRECTION.down ? '-' : ''}${sortProp.value}`;

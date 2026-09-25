@@ -1,170 +1,409 @@
 import React from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import { Provider } from 'react-redux';
-import store from '../store';
 import userEvent from '@testing-library/user-event';
 
-import { DEFAULT_EVENT_SORT } from '../constants';
-import {
-  INITIAL_FILTER_STATE,
-  UPDATE_EVENT_FILTER,
-} from '../ducks/event-filter';
-
-import EventFilter from './';
-import { mockStore } from '../__test-helpers/MockStore';
+import { DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, SORT_DIRECTION } from '../constants';
 import eventCategories from '../__test-helpers/fixtures/event-categories';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
-import { render, screen, waitFor, within } from '../test-utils';
+import { INITIAL_FILTER_STATE, updateEventFilter } from '../ducks/event-filter';
+import { mockStore } from '../__test-helpers/MockStore';
+import { render, screen, waitFor } from '../test-utils';
+import { resetGlobalDateRange } from '../ducks/global-date-range';
+import { TrackerContext } from '../utils/analytics';
 
-const feedSort = DEFAULT_EVENT_SORT;
-const resetMock = jest.fn();
+import EventFilter, { TEXT_FILTER_DEBOUNCE_DELAY } from './';
 
-const renderEventFilter = (mockedStore = store) => {
-  render(
-    <Provider store={mockedStore}>
-      <EventFilter sortConfig={feedSort} onResetAll={resetMock} />
-    </Provider>
-  );
-};
-
-test('rendering without crashing', () => {
-  renderEventFilter();
-});
+jest.mock('../ducks/event-filter', () => ({
+  ...jest.requireActual('../ducks/event-filter'),
+  updateEventFilter: jest.fn(),
+}));
+jest.mock('../ducks/global-date-range', () => ({
+  __esModule: true,
+  ...jest.requireActual('../ducks/global-date-range'),
+  resetGlobalDateRange: jest.fn(),
+}));
 
 describe('EventFilter', () => {
-  let initialState;
+  let store;
+
   beforeEach(() => {
-    initialState = {
+    resetGlobalDateRange.mockImplementation(() => () => {});
+    updateEventFilter.mockImplementation(() => () => {});
+
+    store = {
       data: {
-        subjectStore: {},
         eventCategories,
-        eventTypes,
         eventFilter: cloneDeep(INITIAL_FILTER_STATE),
-        eventSchemas: {
-          globalSchema: {
-            properties: {
-              reported_by: {
-                enum_ext: [
-                  {
-                    value: { id: 'Leader 1' },
-                  },
-                  {
-                    value: { id: 'Leader 2' },
-                  },
-                ],
-              },
-            },
-          },
-        },
-        feedEvents: { results: [] },
+        eventSchemas: {},
+        eventTypes,
+        feedEvents: { count: 3, results: [] },
+        subjectStore: {},
       },
-      view: {
-        systemConfig: { previewFeatures: {} },
-      },
+      view: { systemConfig: { previewFeatures: {} } },
     };
   });
 
-  describe('default filters state', () => {
-    test('the default state for Filter button should be inactive', async () => {
-      renderEventFilter(mockStore(initialState));
+  const renderEventFilter = (props) => render(
+    <Provider store={mockStore(store)}>
+      <TrackerContext.Provider value={{ track: jest.fn() }}>
+        <EventFilter {...props} />
+      </TrackerContext.Provider>
+    </Provider>
+  );
 
-      expect(screen.getByTestId('filter-btn')).not.toHaveClass('active');
-    });
+  test('renders its children beside the popover triggers', () => {
+    renderEventFilter({ children: <button type="button">Sort</button> });
 
-    test('the default state for Date button, should be inactive', () => {
-      renderEventFilter(mockStore(initialState));
-
-      expect(screen.getByTestId('date-filter-btn')).not.toHaveClass('active');
-    });
-
-    test('the popover for the filters should be shown after clicking on filter button', async () => {
-      renderEventFilter(mockStore(initialState));
-
-      const filterBtn = screen.getByTestId('filter-btn');
-      await userEvent.click(filterBtn);
-
-      const filterPopover = screen.getByTestId('filter-popover');
-      expect(filterPopover).toBeDefined();
-    });
-
-    test('the popover for the date filters should be shown after clicking on date filter button', async () => {
-      renderEventFilter(mockStore(initialState));
-
-      const dateFilterBtn = screen.getByTestId('date-filter-btn');
-      await userEvent.click(dateFilterBtn);
-
-      const dateFilterPopover = screen.getByTestId('filter-date-popover');
-      expect(dateFilterPopover).toBeDefined();
-    });
-
-    test('the reset button should not been displayed if there are not applied filters', () => {
-      renderEventFilter(mockStore(initialState));
-
-      const resetWrapper = screen.getByTestId('general-reset-wrapper');
-      const generalResetButton = within(resetWrapper).queryByText('Reset');
-      expect(generalResetButton).toBeNull();
-    });
+    expect(screen.getByRole('button', { name: 'Sort' })).toBeVisible();
   });
 
-  describe('After filters being applied', () => {
-    test('the state for Filter button after filters being applied should be active', async () => {
-      initialState.data.eventFilter.filter.priority = [200];
-      renderEventFilter(mockStore(initialState));
+  test('summarizes how many events the feed is listing and over what range', () => {
+    renderEventFilter();
 
-      expect(screen.getByTestId('filter-btn')).toHaveClass('active');
+    expect(screen.getByText(/3 results from/)).toBeVisible();
+  });
+
+  test('summarizes a single result in the singular', () => {
+    store.data.feedEvents.count = 1;
+
+    renderEventFilter();
+
+    expect(screen.getByText(/1 result from/)).toBeVisible();
+  });
+
+  test('summarizes no results while the feed has no count yet', () => {
+    store.data.feedEvents = { results: [] };
+
+    renderEventFilter();
+
+    expect(screen.getByText(/0 results from/)).toBeVisible();
+  });
+
+  test('says the results are filtered once a filter has been modified', () => {
+    store.data.eventFilter.state = ['resolved'];
+
+    renderEventFilter();
+
+    expect(screen.getByText(/3 results filtered from/)).toBeVisible();
+  });
+
+  test('says the results are filtered while there is search text', () => {
+    store.data.eventFilter.filter.text = 'snare';
+
+    renderEventFilter();
+
+    expect(screen.getByText(/3 results filtered from/)).toBeVisible();
+  });
+
+  test('does not say the results are filtered when only the sort is modified', () => {
+    store.data.eventFilter.filter.sort = [SORT_DIRECTION.up, EVENT_SORT_OPTIONS[0]];
+
+    renderEventFilter();
+
+    expect(screen.getByText(/3 results from/)).toBeVisible();
+  });
+
+  test('searches events after the user stops typing', async () => {
+    renderEventFilter();
+
+    await userEvent.type(screen.getByRole('searchbox', { name: 'Search Events...' }), 'snare');
+
+    expect(updateEventFilter).toHaveBeenCalledTimes(0);
+
+    await waitFor(
+      () => expect(updateEventFilter).toHaveBeenCalledWith({ filter: { text: 'snare' } }),
+      { timeout: TEXT_FILTER_DEBOUNCE_DELAY * 5 }
+    );
+    expect(updateEventFilter).toHaveBeenCalledTimes(1);
+  });
+
+  test('clears the search text right away when the user clears the search box', async () => {
+    store.data.eventFilter.filter.text = 'snare';
+
+    renderEventFilter();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Clear search' }));
+
+    expect(updateEventFilter).toHaveBeenCalledWith({ filter: { text: '' } });
+    expect(screen.getByRole('searchbox', { name: 'Search Events...' })).toHaveValue('');
+  });
+
+  test('announces that both triggers open a dialog', () => {
+    renderEventFilter();
+
+    expect(screen.getByRole('button', { name: 'Filters' })).toHaveAttribute('aria-haspopup', 'dialog');
+    expect(screen.getByRole('button', { name: 'Dates' })).toHaveAttribute('aria-haspopup', 'dialog');
+  });
+
+  test('opens and closes the filters popover from its trigger', async () => {
+    renderEventFilter();
+
+    const filtersButton = screen.getByRole('button', { name: 'Filters' });
+
+    expect(filtersButton).toHaveAttribute('aria-expanded', 'false');
+    expect(filtersButton).not.toHaveAttribute('aria-controls');
+
+    await userEvent.click(filtersButton);
+
+    const filtersPopover = await screen.findByRole('dialog', { name: 'Event Filters' });
+
+    expect(filtersButton).toHaveAttribute('aria-expanded', 'true');
+    expect(filtersButton).toHaveAttribute('aria-controls', filtersPopover.id);
+    expect(filtersPopover).toBeVisible();
+
+    await userEvent.click(filtersButton);
+
+    expect(filtersButton).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  test('opens and closes the dates popover from its trigger', async () => {
+    renderEventFilter();
+
+    const datesButton = screen.getByRole('button', { name: 'Dates' });
+
+    expect(datesButton).toHaveAttribute('aria-expanded', 'false');
+
+    await userEvent.click(datesButton);
+
+    const datesPopover = await screen.findByRole('dialog', { name: 'Date Range' });
+
+    expect(datesButton).toHaveAttribute('aria-expanded', 'true');
+    expect(datesButton).toHaveAttribute('aria-controls', datesPopover.id);
+    expect(datesPopover).toBeVisible();
+
+    await userEvent.click(datesButton);
+
+    expect(datesButton).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  test('swaps straight from the filters popover to the dates popover', async () => {
+    renderEventFilter();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Filters' }));
+
+    expect(await screen.findByRole('dialog', { name: 'Event Filters' })).toBeVisible();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Dates' }));
+
+    expect(await screen.findByRole('dialog', { name: 'Date Range' })).toBeVisible();
+    expect(screen.queryByRole('dialog', { name: 'Event Filters' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Filters' })).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  test('closes the filters popover and restores focus when the user presses escape', async () => {
+    renderEventFilter();
+
+    const filtersButton = screen.getByRole('button', { name: 'Filters' });
+
+    await userEvent.click(filtersButton);
+
+    expect(await screen.findByRole('dialog', { name: 'Event Filters' })).toHaveFocus();
+
+    await userEvent.keyboard('{Escape}');
+
+    expect(filtersButton).toHaveAttribute('aria-expanded', 'false');
+    expect(filtersButton).toHaveFocus();
+  });
+
+  test('closes the filters popover when the user clicks outside it', async () => {
+    renderEventFilter();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Filters' }));
+
+    expect(await screen.findByRole('dialog', { name: 'Event Filters' })).toBeVisible();
+
+    await userEvent.click(screen.getByRole('searchbox', { name: 'Search Events...' }));
+
+    expect(screen.getByRole('button', { name: 'Filters' })).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  test('closes the dates popover and restores focus when the user presses escape', async () => {
+    renderEventFilter();
+
+    const datesButton = screen.getByRole('button', { name: 'Dates' });
+
+    await userEvent.click(datesButton);
+
+    expect(await screen.findByRole('dialog', { name: 'Date Range' })).toBeVisible();
+
+    await userEvent.keyboard('{Escape}');
+
+    expect(datesButton).toHaveAttribute('aria-expanded', 'false');
+    expect(datesButton).toHaveFocus();
+  });
+
+  test('closes the dates popover when the user clicks outside it', async () => {
+    renderEventFilter();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Dates' }));
+
+    expect(await screen.findByRole('dialog', { name: 'Date Range' })).toBeVisible();
+
+    await userEvent.click(screen.getByRole('searchbox', { name: 'Search Events...' }));
+
+    expect(screen.getByRole('button', { name: 'Dates' })).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  test('leaves both triggers inactive while every filter is at its default', () => {
+    renderEventFilter();
+
+    expect(screen.getByRole('button', { name: 'Filters' })).not.toHaveClass('active');
+    expect(screen.getByRole('button', { name: 'Dates' })).not.toHaveClass('active');
+  });
+
+  test('marks the filters trigger as active and names its state while the state filter is modified', () => {
+    store.data.eventFilter.state = ['resolved'];
+
+    renderEventFilter();
+
+    expect(screen.getByRole('button', { name: 'Filters, filters applied' })).toHaveClass('active');
+    expect(screen.getByRole('button', { name: 'Dates' })).not.toHaveClass('active');
+  });
+
+  test('names the filters trigger state while the priority filter is modified', () => {
+    store.data.eventFilter.filter.priority = [300];
+
+    renderEventFilter();
+
+    expect(screen.getByRole('button', { name: 'Filters, filters applied' })).toHaveClass('active');
+  });
+
+  test('names the filters trigger state while the reported by filter is modified', () => {
+    store.data.eventFilter.filter.reported_by = ['reporter-id'];
+
+    renderEventFilter();
+
+    expect(screen.getByRole('button', { name: 'Filters, filters applied' })).toHaveClass('active');
+  });
+
+  test('names the filters trigger state while the event type filter is modified', () => {
+    store.data.eventFilter.filter.event_type = [eventTypes[0].id];
+
+    renderEventFilter();
+
+    expect(screen.getByRole('button', { name: 'Filters, filters applied' })).toHaveClass('active');
+  });
+
+  test('names the dates trigger state while the date range is modified', () => {
+    store.data.eventFilter.filter.date_range = { lower: '2026-09-01T00:00:00.000Z', upper: null };
+
+    renderEventFilter();
+
+    expect(screen.getByRole('button', { name: 'Dates, date filters applied' })).toHaveClass('active');
+    expect(screen.getByRole('button', { name: 'Filters' })).not.toHaveClass('active');
+  });
+
+  test('does not offer to reset while every filter is at its default', () => {
+    renderEventFilter();
+
+    expect(screen.queryByRole('button', { name: 'Reset' })).toBeNull();
+  });
+
+  test('offers to reset while there is search text', () => {
+    store.data.eventFilter.filter.text = 'snare';
+
+    renderEventFilter();
+
+    expect(screen.getByRole('button', { name: 'Reset' })).toBeVisible();
+  });
+
+  test('offers to reset once the user types in the search box', async () => {
+    renderEventFilter();
+
+    await userEvent.type(screen.getByRole('searchbox', { name: 'Search Events...' }), 's');
+
+    expect(screen.getByRole('button', { name: 'Reset' })).toBeVisible();
+  });
+
+  test('offers to reset while a filter is modified', () => {
+    store.data.eventFilter.filter.priority = [300];
+
+    renderEventFilter();
+
+    expect(screen.getByRole('button', { name: 'Reset' })).toBeVisible();
+  });
+
+  test('offers to reset while the date range is modified', () => {
+    store.data.eventFilter.filter.date_range = { lower: '2026-09-01T00:00:00.000Z', upper: null };
+
+    renderEventFilter();
+
+    expect(screen.getByRole('button', { name: 'Reset' })).toBeVisible();
+  });
+
+  test('offers to reset a sortable filter while the sort direction is modified', () => {
+    store.data.eventFilter.filter.sort = [SORT_DIRECTION.up, EVENT_SORT_OPTIONS[0]];
+
+    renderEventFilter({ isSortable: true });
+
+    expect(screen.getByRole('button', { name: 'Reset' })).toBeVisible();
+  });
+
+  test('offers to reset a sortable filter while the sort option is modified', () => {
+    store.data.eventFilter.filter.sort = [SORT_DIRECTION.down, EVENT_SORT_OPTIONS[2]];
+
+    renderEventFilter({ isSortable: true });
+
+    expect(screen.getByRole('button', { name: 'Reset' })).toBeVisible();
+  });
+
+  test('does not offer to reset a filter that is not sortable while only the sort is modified', () => {
+    store.data.eventFilter.filter.sort = [SORT_DIRECTION.up, EVENT_SORT_OPTIONS[2]];
+
+    renderEventFilter();
+
+    expect(screen.queryByRole('button', { name: 'Reset' })).toBeNull();
+  });
+
+  test('resets the filters, the search text, the sort and the date range of a sortable filter at once', async () => {
+    store.data.eventFilter.filter.sort = [SORT_DIRECTION.up, EVENT_SORT_OPTIONS[2]];
+    store.data.eventFilter.filter.text = 'snare';
+    store.data.eventFilter.state = ['resolved'];
+
+    renderEventFilter({ isSortable: true });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Reset' }));
+
+    expect(updateEventFilter).toHaveBeenCalledWith({
+      filter: {
+        event_type: INITIAL_FILTER_STATE.filter.event_type,
+        priority: INITIAL_FILTER_STATE.filter.priority,
+        reported_by: INITIAL_FILTER_STATE.filter.reported_by,
+        sort: DEFAULT_EVENT_SORT,
+        text: INITIAL_FILTER_STATE.filter.text,
+      },
+      state: INITIAL_FILTER_STATE.state,
     });
+    expect(resetGlobalDateRange).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('searchbox', { name: 'Search Events...' })).toHaveValue('');
+  });
 
-    test('the state for Date button after filters being applied should be active', async () => {
-      initialState.data.eventFilter.filter.date_range.lower = '2024-01-01T06:00:00.000Z';
-      renderEventFilter(mockStore(initialState));
+  test('keeps the sort when the user resets a filter that is not sortable', async () => {
+    const sort = [SORT_DIRECTION.up, EVENT_SORT_OPTIONS[2]];
+    store.data.eventFilter.filter.sort = sort;
+    store.data.eventFilter.state = ['resolved'];
 
-      expect(screen.getByTestId('date-filter-btn')).toHaveClass('active');
-    });
+    renderEventFilter();
 
-    test('the reset button is not displayed if a filter is not applied', async () => {
-      renderEventFilter(mockStore(initialState));
+    await userEvent.click(screen.getByRole('button', { name: 'Reset' }));
 
-      const resetWrapper = await screen.getByTestId('general-reset-wrapper');
-      const resetButton = await within(resetWrapper).queryByText('Reset');
-      expect(resetButton).toBeNull();
-    });
+    expect(updateEventFilter).toHaveBeenCalledWith(expect.objectContaining({
+      filter: expect.objectContaining({ sort }),
+    }));
+  });
 
-    test('the reset button is displayed only when a filter is applied', async () => {
-      initialState.data.eventFilter.filter.priority = [200];
-      renderEventFilter(mockStore(initialState));
+  test('does not apply a pending search once the user resets', async () => {
+    store.data.eventFilter.state = ['resolved'];
 
-      const resetWrapper = await screen.getByTestId('general-reset-wrapper');
-      const resetButton = await within(resetWrapper).queryByText('Reset');
-      expect(resetButton).toBeDefined();
-    });
+    renderEventFilter();
 
-    test('clicking on reset button should call onResetAll', async () => {
-      initialState.data.eventFilter.filter.priority = [200];
-      renderEventFilter(mockStore(initialState));
+    await userEvent.type(screen.getByRole('searchbox', { name: 'Search Events...' }), 'snare');
+    await userEvent.click(screen.getByRole('button', { name: 'Reset' }));
 
-      const resetWrapper = await screen.getByTestId('general-reset-wrapper');
-      const resetButton = within(resetWrapper).queryByText('Reset');
-      await userEvent.click(resetButton);
+    await new Promise((resolve) => setTimeout(resolve, TEXT_FILTER_DEBOUNCE_DELAY * 2));
 
-      expect(resetMock).toHaveBeenCalledTimes(1);
-    });
-
-    test('clicking on reset button should erase the search text value', async () => {
-      initialState.data.eventFilter.filter.text = 'text';
-      const mockedStore = mockStore(initialState);
-      renderEventFilter(mockedStore);
-
-      const resetWrapper = await screen.getByTestId('general-reset-wrapper');
-
-      const resetButton = await within(resetWrapper).queryByText('Reset');
-      await userEvent.click(resetButton);
-
-      await waitFor(() => {
-        const actions = mockedStore.getActions();
-
-        expect(actions[0].type).toBe(UPDATE_EVENT_FILTER);
-        expect(actions[0].payload.filter.text).toBe('');
-      });
-    });
+    expect(updateEventFilter).toHaveBeenCalledTimes(1);
+    expect(updateEventFilter).not.toHaveBeenCalledWith({ filter: { text: 'snare' } });
   });
 });

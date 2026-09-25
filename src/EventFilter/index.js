@@ -1,235 +1,198 @@
-import React, { memo, useState, useEffect, useRef, useCallback } from 'react';
-import Button from 'react-bootstrap/Button';
-import { connect } from 'react-redux';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-
-import isEqual from 'react-fast-compare';
+import React, { memo, useCallback, useContext, useEffect, useId, useMemo, useState } from 'react';
 import debounce from 'lodash/debounce';
-import noop from 'lodash/noop';
+import isEqual from 'react-fast-compare';
+import Overlay from 'react-bootstrap/Overlay';
+import { Trans, useTranslation } from 'react-i18next';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { BREAKPOINTS } from '../constants';
-import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
+import { calcFriendlyDurationString } from '../utils/datetime';
 import { DEFAULT_EVENT_SORT } from '../constants';
-import { isFilterModified } from '../utils/event-filter';
+import { INITIAL_FILTER_STATE, updateEventFilter } from '../ducks/event-filter';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
-import { trackEventFactory, EVENT_FILTER_CATEGORY, REPORTS_CATEGORY } from '../utils/analytics';
-import { caseInsensitiveCompare } from '../utils/string';
-import { useMatchMedia } from '../hooks';
+import { TrackerContext } from '../utils/analytics';
 
-import { getGlobalSchemaReportedBy } from '../selectors';
-
+import DateRangePopover from './DateRangePopover';
+import FiltersPopover from './FiltersPopover';
 import SearchBar from '../SearchBar';
-import FriendlyFilterString from '../FriendlyFilterString';
-import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
+
 import * as styles from './styles.module.scss';
-import DateFilter from './DateFilter';
-import Filters from './Filters';
-import { useTranslation } from 'react-i18next';
 
-export const UPDATE_FILTER_DEBOUNCE_TIME = 200;
-const eventFilterTracker = trackEventFactory(EVENT_FILTER_CATEGORY);
-const reportsTracker = trackEventFactory(REPORTS_CATEGORY);
+export const TEXT_FILTER_DEBOUNCE_DELAY = 200;
 
-const EventFilter = ({
-  children,
-  className,
-  eventFilter,
-  eventTypes,
-  feedEvents,
-  reporters,
-  resetGlobalDateRange,
-  updateEventFilter,
-  sortConfig = DEFAULT_EVENT_SORT,
-  onResetAll = noop
-}) => {
-  const { state, filter: { date_range, event_type: currentFilterReportTypes, priority, reported_by, text } } = eventFilter;
-  const eventTypeFilterEmpty = !currentFilterReportTypes.length;
-  const [reportTypeFilterText, setReportTypeFilterText] = useState('');
+// The menus inside the popovers are positioned fixed, which a transformed
+// popover would anchor to itself rather than to the viewport.
+export const POPOVER_POPPER_CONFIG = { modifiers: [{ name: 'computeStyles', options: { gpuAcceleration: false } }] };
+
+const POPOVER_KEYS = { DATES: 'dates', FILTERS: 'filters' };
+
+// A popover still fading out can report a click outside it, which must not
+// close the popover that replaced it.
+const hidePopoverIfOpen = (popoverKey) => (openPopover) => openPopover === popoverKey ? null : openPopover;
+
+const EventFilter = ({ children, className = '', isSortable = false }) => {
+  const dispatch = useDispatch();
+  const { t } = useTranslation('filters', { keyPrefix: 'eventFilters' });
+
+  const eventFilter = useSelector((state) => state.data.eventFilter);
+  const feedEventsCount = useSelector((state) => state.data.feedEvents.count);
+
+  const tracker = useContext(TrackerContext);
+
+  const datesPopoverId = useId();
+  const filtersPopoverId = useId();
+
+  const [datesAnchor, setDatesAnchor] = useState(null);
   const [filterText, setFilterText] = useState(eventFilter.filter.text);
-  const isLargeLayout = useMatchMedia(BREAKPOINTS.screenIsLargeLayoutOrLarger);
-  const { t } = useTranslation('filters', { keyPrefix: 'eventsFilter' });
+  const [filtersAnchor, setFiltersAnchor] = useState(null);
+  const [openPopover, setOpenPopover] = useState(null);
 
-  const isSortModified = !isEqual(DEFAULT_EVENT_SORT, sortConfig);
-  const isDateRangeModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, date_range);
-  const stateFilterModified = !isEqual(INITIAL_FILTER_STATE.state, state);
-  const priorityFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.priority, priority);
-  const reportedByFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.reported_by, reported_by);
-  const filterModified = priorityFilterModified || !eventTypeFilterEmpty || stateFilterModified || reportedByFilterModified;
+  const isDatesModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, eventFilter.filter.date_range);
+  const isFiltersModified = !isEqual(INITIAL_FILTER_STATE.state, eventFilter.state)
+    || !isEqual(INITIAL_FILTER_STATE.filter.event_type, eventFilter.filter.event_type)
+    || !isEqual(INITIAL_FILTER_STATE.filter.priority, eventFilter.filter.priority)
+    || !isEqual(INITIAL_FILTER_STATE.filter.reported_by, eventFilter.filter.reported_by);
+  const isSortModified = isSortable && !isEqual(DEFAULT_EVENT_SORT, eventFilter.filter.sort);
 
-  const updateEventFilterDebounced = useRef(debounce(function (update) {
-    updateEventFilter(update);
-  }, UPDATE_FILTER_DEBOUNCE_TIME));
+  const canReset = isDatesModified || isFiltersModified || isSortModified || !!filterText;
 
-  const resetPopoverFilters = useCallback(() => {
-    updateEventFilter({
-      state: INITIAL_FILTER_STATE.state,
+  // Reading the clock, so it is held until the range it describes moves rather
+  // than rebuilt on every keystroke in the search box.
+  const friendlyDateRange = useMemo(
+    () => calcFriendlyDurationString(eventFilter.filter.date_range.lower, eventFilter.filter.date_range.upper),
+    [eventFilter.filter.date_range.lower, eventFilter.filter.date_range.upper]
+  );
+
+  const updateTextFilterDebounced = useMemo(
+    () => debounce(
+      (text) => dispatch(updateEventFilter({ filter: { text } })),
+      TEXT_FILTER_DEBOUNCE_DELAY
+    ),
+    [dispatch]
+  );
+
+  const hideDatesPopover = useCallback(() => setOpenPopover(hidePopoverIfOpen(POPOVER_KEYS.DATES)), []);
+  const hideFiltersPopover = useCallback(() => setOpenPopover(hidePopoverIfOpen(POPOVER_KEYS.FILTERS)), []);
+
+  const onChangeSearch = (event) => {
+    setFilterText(event.target.value);
+
+    updateTextFilterDebounced(event.target.value);
+
+    tracker.track('Change the search text filter');
+  };
+
+  const onClearSearch = () => {
+    setFilterText('');
+
+    updateTextFilterDebounced.cancel();
+    dispatch(updateEventFilter({ filter: { text: '' } }));
+
+    tracker.track('Clear the search text filter');
+  };
+
+  const onReset = () => {
+    setFilterText('');
+
+    updateTextFilterDebounced.cancel();
+    dispatch(updateEventFilter({
       filter: {
         event_type: INITIAL_FILTER_STATE.filter.event_type,
         priority: INITIAL_FILTER_STATE.filter.priority,
         reported_by: INITIAL_FILTER_STATE.filter.reported_by,
+        sort: isSortable ? DEFAULT_EVENT_SORT : eventFilter.filter.sort,
+        text: INITIAL_FILTER_STATE.filter.text,
       },
-    });
-    setReportTypeFilterText('');
-    eventFilterTracker.track('Click Reset All Filters');
-  }, [updateEventFilter]);
+      state: INITIAL_FILTER_STATE.state,
+    }));
+    dispatch(resetGlobalDateRange());
 
-  const clearDateRange = useCallback((e) => {
-    if (e) e.stopPropagation();
-    resetGlobalDateRange();
-    eventFilterTracker.track('Click Reset Date Range Filter');
-  }, [resetGlobalDateRange]);
+    tracker.track('Click reset all filters');
+  };
 
-  const onSearchClear = useCallback((e) => {
-    e?.stopPropagation();
-    setFilterText('');
-    eventFilterTracker.track('Clear Search Text Filter');
-  }, []);
+  const onTogglePopover = (popoverKey) => () => {
+    setOpenPopover((currentPopover) => currentPopover === popoverKey ? null : popoverKey);
 
-  const resetAllFilters = useCallback(() => {
-    if (filterModified) resetPopoverFilters();
-    if (isDateRangeModified) clearDateRange();
-    if (filterText) onSearchClear();
-    onResetAll();
-  }, [clearDateRange, isDateRangeModified, filterModified, filterText, onResetAll, onSearchClear, resetPopoverFilters]);
+    tracker.track(`Toggle the ${popoverKey} filter popover`);
+  };
 
-  const onSearchChange = useCallback(({ target: { value } }) => {
-    setFilterText(value);
-    eventFilterTracker.debouncedTrack('Clear Search Text Filter');
-  }, []);
+  useEffect(() => () => updateTextFilterDebounced.cancel(), [updateTextFilterDebounced]);
 
-  useEffect(() => {
-    if (!caseInsensitiveCompare(filterText, text)) {
-      if (filterText.length) {
-        updateEventFilterDebounced.current({
-          filter: { text: filterText },
-        });
-      } else {
-        updateEventFilter({
-          filter: { text: '', },
-        });
-      }
-    }
-  }, [filterText]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    if (!caseInsensitiveCompare(filterText, text)) {
-      setFilterText(text);
-    }
-  }, [text]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const DateFilterPopover = useCallback((props) =>
-    <Popover placement='bottom'
-             className={styles.filterPopover}
-             id='filter-date-popover'
-             data-testid='filter-date-popover'
-             {...props}>
-      <DateFilter isDateRangeModified={isDateRangeModified} onClearDateRange={clearDateRange} />
-    </Popover>,
-  [clearDateRange, isDateRangeModified]);
-
-  const FiltersPopover = useCallback((props) => (
-    <Popover id='filter-popover' data-testid='filter-popover' className={`${styles.filterPopover} ${styles.filters}`} {...props}>
-      <Filters priority={priority}
-               currentFilterReportTypes={currentFilterReportTypes}
-               reportTypeFilterText={reportTypeFilterText}
-               isFilterModified={filterModified}
-               isEventTypeFilterEmpty={eventTypeFilterEmpty}
-               isReportedByFilterModified={reportedByFilterModified}
-               isPriorityFilterModified={priorityFilterModified}
-               isStateFilterModified={stateFilterModified}
-               reporters={reporters}
-               reportedByFilter={reported_by}
-               eventFilterTracker={eventFilterTracker}
-               updateEventFilter={updateEventFilter}
-               eventTypes={eventTypes}
-               state={state}
-               setReportTypeFilterText={setReportTypeFilterText}
-               eventFilter={eventFilter}
-               onResetPopoverFilters={resetPopoverFilters} />
-    </Popover>
-  ), [
-    currentFilterReportTypes,
-    eventFilter,
-    eventTypeFilterEmpty,
-    eventTypes,
-    filterModified,
-    priority,
-    priorityFilterModified,
-    reportTypeFilterText,
-    reportedByFilterModified,
-    reported_by,
-    reporters,
-    resetPopoverFilters,
-    state,
-    stateFilterModified,
-    updateEventFilter
-  ]);
-
-  return <>
-    <form
-      className={`${styles.form} ${className} ${styles.oldNavigation}`}
-      data-testid="eventFilter-form"
-      onSubmit={e => e.preventDefault()}
-      >
+  return <div className={`${styles.eventFilter} ${className}`}>
+    <div className={styles.controls}>
       <SearchBar
+        aria-label={t('searchBarPlaceholder')}
         className={styles.searchBar}
+        onChange={onChangeSearch}
+        onClear={onClearSearch}
         placeholder={t('searchBarPlaceholder')}
         value={filterText}
-        onChange={onSearchChange}
-        onClear={onSearchClear}
       />
 
-      <div className={styles.buttons}>
-        <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='bottom' overlay={FiltersPopover} flip={true}>
-          <button
-            className={`${styles.button} ${filterModified ? styles.active : ''}`}
-            data-testid='filter-btn'
-            onClick={() => reportsTracker.track('Filters Icon Clicked')}
-          >
-            {t('filtersButton')}
-          </button>
-        </OverlayTrigger>
+      <div className={styles.triggerButtons}>
+        <button
+          aria-controls={openPopover === POPOVER_KEYS.FILTERS ? filtersPopoverId : undefined}
+          aria-expanded={openPopover === POPOVER_KEYS.FILTERS}
+          aria-haspopup="dialog"
+          aria-label={isFiltersModified ? t('filtersModifiedButtonLabel') : undefined}
+          className={`${styles.triggerButton} ${isFiltersModified ? styles.active : ''}`}
+          onClick={onTogglePopover(POPOVER_KEYS.FILTERS)}
+          ref={setFiltersAnchor}
+          type="button"
+        >
+          {t('filtersTitle')}
+        </button>
 
-        <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={DateFilterPopover} flip={true}>
-          <button
-            className={`${styles.button} ${isDateRangeModified ? styles.active : ''}`}
-            data-testid='date-filter-btn'
-            onClick={() => reportsTracker.track('Dates Icon Clicked')}
-          >
-            {t('datesButton')}
-          </button>
-        </OverlayTrigger>
+        <button
+          aria-controls={openPopover === POPOVER_KEYS.DATES ? datesPopoverId : undefined}
+          aria-expanded={openPopover === POPOVER_KEYS.DATES}
+          aria-haspopup="dialog"
+          aria-label={isDatesModified ? t('datesModifiedButtonLabel') : undefined}
+          className={`${styles.triggerButton} ${isDatesModified ? styles.active : ''}`}
+          onClick={onTogglePopover(POPOVER_KEYS.DATES)}
+          ref={setDatesAnchor}
+          type="button"
+        >
+          {t('datesTitle')}
+        </button>
 
         {children}
       </div>
-    </form>
+    </div>
 
-    {isLargeLayout && <div className={`${styles.filterStringWrapper} ${className}`} data-testid='general-reset-wrapper'>
-      <FriendlyFilterString
-        className={styles.friendlyFilterString}
-        dateRange={date_range}
-        isFiltered={isFilterModified(eventFilter)}
-        sortConfig={sortConfig}
-        totalFeedCount={feedEvents.count}
-      />
-      {
-        (filterModified || isDateRangeModified || isSortModified || !!filterText) &&
-        <Button type="button" variant='light' size='sm' onClick={resetAllFilters} data-testid='general-reset-btn'>
-          <RefreshIcon title={t('resetButton')} />
-          {t('resetButton')}
-        </Button>
-      }
-    </div>}
-  </>;
+    <div className={styles.summaryBar}>
+      <p className={styles.summary}>
+        <Trans
+          components={{ dateRange: <strong /> }}
+          count={feedEventsCount ?? 0}
+          i18nKey={isFiltersModified || !!eventFilter.filter.text ? 'filteredResultsSummary' : 'resultsSummary'}
+          t={t}
+          values={{ dateRange: friendlyDateRange }}
+        />
+      </p>
+
+      {!!canReset && <button className={styles.resetButton} onClick={onReset} type="button">
+        {t('globalResetFilterButton')}
+      </button>}
+    </div>
+
+    <Overlay
+      placement="bottom"
+      popperConfig={POPOVER_POPPER_CONFIG}
+      show={openPopover === POPOVER_KEYS.FILTERS}
+      target={filtersAnchor}
+    >
+      <FiltersPopover id={filtersPopoverId} onClose={hideFiltersPopover} trigger={filtersAnchor} />
+    </Overlay>
+
+    <Overlay
+      placement="bottom"
+      popperConfig={POPOVER_POPPER_CONFIG}
+      show={openPopover === POPOVER_KEYS.DATES}
+      target={datesAnchor}
+    >
+      <DateRangePopover id={datesPopoverId} onClose={hideDatesPopover} trigger={datesAnchor} />
+    </Overlay>
+  </div>;
 };
 
-const mapStateToProps = (state) =>
-  ({
-    eventFilter: state.data.eventFilter,
-    eventTypes: state.data.eventTypes,
-    feedEvents: state.data.feedEvents,
-    reporters: getGlobalSchemaReportedBy(state),
-  });
-
-export default connect(mapStateToProps, { updateEventFilter, resetGlobalDateRange })(memo(EventFilter));
+export default memo(EventFilter);

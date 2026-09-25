@@ -1,12 +1,12 @@
-@use '../../../../../common/styles/buttons';
-@use '../../../../../common/styles/vars/colors';
-@use '../../../../shared';
+@use '../../common/styles/buttons';
+@use '../../common/styles/vars/colors';
+@use '../../common/styles/filter-popovers';
 
 .dateRangePopover {
-  @include shared.filter-popover;
+  @include filter-popovers.filter-popover;
 
   .body {
-    @include shared.filter-popover-body;
+    @include filter-popovers.filter-popover-body;
 
     .rangeSection {
       display: flex;
@@ -44,7 +44,7 @@
         flex-direction: column;
 
         .label {
-          @include shared.section-label;
+          @include filter-popovers.section-label;
         }
 
         .dateInputs {

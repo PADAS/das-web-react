@@ -21,7 +21,7 @@ import { fetchTracksIfNecessary } from '../utils/tracks';
 import { canShowTrackForSubject, subjectIsStatic } from '../utils/subjects';
 import { withMultiLayerHandlerAwareness, queryMultiLayerClickFeatures } from '../utils/map-handlers';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
-import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
+import { EVENT_FILTER_CATEGORY, MAP_INTERACTION_CATEGORY, TrackerContext, trackEventFactory } from '../utils/analytics';
 import { findAnalyzerIdByChildFeatureId, getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
 import { getCurrentTabFromURL } from '../utils/navigation';
 import { analyzerFeatures as analyzerFeaturesSelector, getAnalyzerFeatureCollectionsByType } from '../selectors';
@@ -89,6 +89,7 @@ import { addMapImage } from '../utils/map';
 import { parseImgIdForMapImages } from '../utils/img';
 import { attachEventIconsToMap } from '../utils/eventMapIcons';
 
+const eventFilterTracker = trackEventFactory(EVENT_FILTER_CATEGORY);
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const CLUSTER_APPROX_WIDTH = 40;
@@ -733,7 +734,9 @@ const Map = ({ children, onMapLoad, socket }) => {
 
       {eventsEnabled && <DelayedUnmount isMounted={!currentTab && !mapLocationSelection.isPickingLocation}>
         <div className='floating-report-filter'>
-          <EventFilter className='report-filter' />
+          <TrackerContext.Provider value={eventFilterTracker}>
+            <EventFilter className='report-filter' />
+          </TrackerContext.Provider>
         </div>
       </DelayedUnmount>}
 

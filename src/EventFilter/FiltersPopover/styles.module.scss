@@ -1,0 +1,55 @@
+@use '../../common/styles/buttons';
+@use '../../common/styles/vars/colors';
+@use '../../common/styles/filter-popovers';
+
+.filtersPopover {
+  @include filter-popovers.filter-popover;
+
+  .body {
+    @include filter-popovers.filter-popover-body;
+
+    .reportedByField {
+      display: flex;
+      flex-direction: column;
+      padding: 1rem 0;
+
+      .label {
+        @include filter-popovers.section-label;
+      }
+    }
+
+    .checkboxSection {
+      border-top: 1px solid colors.$light-gray-lines;
+      padding: 1rem 0 0.75rem;
+      position: relative;
+
+      .resetButton {
+        @include buttons.chipTextButtonSmall;
+
+        position: absolute;
+        right: 0;
+        top: 0.875rem;
+      }
+
+      .checkboxList {
+        @include filter-popovers.borderless-select-list;
+      }
+
+      .optionDot {
+        @include filter-popovers.select-list-option-dot;
+
+        &.active {
+          background-color: colors.$plum;
+        }
+
+        &.resolved {
+          background-color: colors.$alt-light-gray;
+        }
+
+        &.review {
+          background-color: colors.$dark-gold;
+        }
+      }
+    }
+  }
+}

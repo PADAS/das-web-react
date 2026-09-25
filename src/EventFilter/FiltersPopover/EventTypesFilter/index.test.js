@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { mockStore } from '../../../../../../__test-helpers/MockStore';
-import { render, screen, within } from '../../../../../../test-utils';
-import { TrackerContext } from '../../../../../../utils/analytics';
+import { mockStore } from '../../../__test-helpers/MockStore';
+import { render, screen, within } from '../../../test-utils';
+import { TrackerContext } from '../../../utils/analytics';
 
 import EventTypesFilter from './';
 
-jest.mock('../../../../../../SvgIcon', () => jest.fn(() => null));
+jest.mock('../../../SvgIcon', () => jest.fn(() => null));
 
 const LOGISTICS_CATEGORY = { display: 'Logistics', value: 'logistics' };
 
@@ -47,7 +47,7 @@ const ControlledEventTypesFilter = ({ initialFilterText = '', ...otherProps }) =
   return <EventTypesFilter filterText={filterText} onChangeFilterText={setFilterText} {...otherProps} />;
 };
 
-describe('SideBar - EventsManager - EventsFeed - Filters - FiltersPopover - EventTypesFilter', () => {
+describe('EventFilter - FiltersPopover - EventTypesFilter', () => {
   let onChange, store, track;
 
   beforeEach(() => {
