@@ -25,9 +25,11 @@ jest.mock('../ducks/global-date-range', () => ({
 }));
 
 describe('EventFilter', () => {
-  let store;
+  let store, tracker;
 
   beforeEach(() => {
+    tracker = { track: jest.fn() };
+
     resetGlobalDateRange.mockImplementation(() => () => {});
     updateEventFilter.mockImplementation(() => () => {});
 
@@ -46,7 +48,7 @@ describe('EventFilter', () => {
 
   const renderEventFilter = (props) => render(
     <Provider store={mockStore(store)}>
-      <TrackerContext.Provider value={{ track: jest.fn() }}>
+      <TrackerContext.Provider value={tracker}>
         <EventFilter {...props} />
       </TrackerContext.Provider>
     </Provider>
@@ -116,6 +118,27 @@ describe('EventFilter', () => {
       { timeout: TEXT_FILTER_DEBOUNCE_DELAY * 5 }
     );
     expect(updateEventFilter).toHaveBeenCalledTimes(1);
+  });
+
+  test('tracks a search once the user stops typing', async () => {
+    renderEventFilter();
+
+    await userEvent.type(screen.getByRole('searchbox', { name: 'Search Events...' }), 'snare');
+
+    await waitFor(
+      () => expect(tracker.track).toHaveBeenCalledWith('Change the search text filter'),
+      { timeout: TEXT_FILTER_DEBOUNCE_DELAY * 5 }
+    );
+    expect(tracker.track).toHaveBeenCalledTimes(1);
+  });
+
+  test('applies the pending search when it unmounts before the user stops typing', async () => {
+    const { unmount } = renderEventFilter();
+
+    await userEvent.type(screen.getByRole('searchbox', { name: 'Search Events...' }), 'snare');
+    unmount();
+
+    expect(updateEventFilter).toHaveBeenCalledWith({ filter: { text: 'snare' } });
   });
 
   test('clears the search text right away when the user clears the search box', async () => {

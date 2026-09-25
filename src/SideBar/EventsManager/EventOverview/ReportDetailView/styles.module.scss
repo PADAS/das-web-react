@@ -12,7 +12,6 @@
     @include sidebar-width-detail;
   }
 
-  /* Capped so fields stay readable on wide screens. */
   &.community {
     max-width: 60rem;
     width: 100%;

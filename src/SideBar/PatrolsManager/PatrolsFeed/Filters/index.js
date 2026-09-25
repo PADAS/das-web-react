@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { calcFriendlyDurationString } from '../../../../utils/datetime';
 import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../../../../ducks/patrol-filter';
 import { isFilterModified } from '../../../../utils/patrol-filter';
+import { POPOVER_POPPER_CONFIG } from '../../../../constants';
 import { resetGlobalDateRange } from '../../../../ducks/global-date-range';
 import { TrackerContext } from '../../../../utils/analytics';
 
@@ -18,10 +19,6 @@ import SearchBar from '../../../../SearchBar';
 import * as styles from './styles.module.scss';
 
 export const TEXT_FILTER_DEBOUNCE_DELAY = 200;
-
-// The menus inside the popovers are positioned fixed, which a transformed
-// popover would anchor to itself rather than to the viewport.
-const POPOVER_POPPER_CONFIG = { modifiers: [{ name: 'computeStyles', options: { gpuAcceleration: false } }] };
 
 const POPOVER_KEYS = { DATES: 'dates', FILTERS: 'filters' };
 

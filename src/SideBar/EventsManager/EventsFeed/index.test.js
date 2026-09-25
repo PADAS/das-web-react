@@ -16,21 +16,25 @@ jest.mock('../../../ducks/events', () => ({
   fetchNextEventFeedPage: jest.fn(),
 }));
 
-/* eslint-disable-next-line react/display-name */
-jest.mock('../../../EventFilter', () => ({ children, isSortable }) => <div
-  data-sortable={isSortable}
-  data-testid="eventFilter"
-  >
-  {children}
-</div>);
+jest.mock('../../../EventFilter', () => {
+  const EventFilter = ({ children, isSortable }) => <div data-sortable={isSortable} data-testid="eventFilter">
+    {children}
+  </div>;
 
-/* eslint-disable-next-line react/display-name */
-jest.mock('./SortControls', () => () => <button type="button">Sort</button>);
+  return EventFilter;
+});
 
-/* eslint-disable-next-line react/display-name */
-jest.mock('./EventRow', () => ({ displayTimeProp, event }) => <li>
-  {`#${event.serial_number} by ${displayTimeProp}`}
-</li>);
+jest.mock('./SortControls', () => {
+  const SortControls = () => <button type="button">Sort</button>;
+
+  return SortControls;
+});
+
+jest.mock('./EventRow', () => {
+  const EventRow = ({ displayTimeProp, event }) => <li>{`#${event.serial_number} by ${displayTimeProp}`}</li>;
+
+  return EventRow;
+});
 
 describe('SideBar - EventsManager - EventsFeed', () => {
   let collection;

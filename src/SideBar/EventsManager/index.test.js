@@ -5,10 +5,16 @@ import { render, screen } from '../../test-utils';
 
 import EventsManager from './';
 
-/* eslint-disable-next-line react/display-name */
-jest.mock('./EventOverview', () => () => <div>Event Overview</div>);
-/* eslint-disable-next-line react/display-name */
-jest.mock('./EventsFeed', () => ({ eventsFeed }) => <div>{`Events Feed with ${eventsFeed.events.count} events`}</div>);
+jest.mock('./EventOverview', () => {
+  const EventOverview = () => <div>Event Overview</div>;
+
+  return EventOverview;
+});
+jest.mock('./EventsFeed', () => {
+  const EventsFeed = ({ eventsFeed }) => <div>{`Events Feed with ${eventsFeed.events.count} events`}</div>;
+
+  return EventsFeed;
+});
 
 describe('SideBar - EventsManager', () => {
   let eventsFeed;

@@ -12,7 +12,7 @@ import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as PauseIcon } from '../common/images/icons/pause.svg';
 import { ReactComponent as PlayIcon } from '../common/images/icons/play.svg';
 
-import { BREAKPOINTS } from '../constants';
+import { BREAKPOINTS, POPOVER_POPPER_CONFIG } from '../constants';
 import { calcSidebarPaddingLeft } from '../utils/map';
 import {
   clearVirtualDate,
@@ -32,7 +32,6 @@ import {
   TrackerContext,
   trackEventFactory,
 } from '../utils/analytics';
-import { POPOVER_POPPER_CONFIG } from '../EventFilter';
 import { useMatchMedia } from '../hooks';
 
 import DateRangePopover from '../EventFilter/DateRangePopover';

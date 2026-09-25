@@ -49,8 +49,11 @@ jest.mock('../ducks/events', () => ({
   fetchMapEvents: jest.fn(),
 }));
 
-/* eslint-disable-next-line react/display-name */
-jest.mock('../EventFilter', () => () => <div data-testid="eventFilter" />);
+jest.mock('../EventFilter', () => {
+  const EventFilter = () => <div data-testid="eventFilter" />;
+
+  return EventFilter;
+});
 
 jest.mock('../ClustersLayer', () => () => null);
 

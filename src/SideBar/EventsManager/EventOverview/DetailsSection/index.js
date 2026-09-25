@@ -52,10 +52,8 @@ const DetailsSection = ({
   communityInputValue = null,
   eventSchema = null,
   formValidator,
-  // hidePriority / hideReportedBy are intentionally generic visibility props expressed in this
-  // component's own vocabulary, rather than gating these fields on isCommunity (the caller's reason).
-  // This lets a future caller hide these fields for some other reason without adding yet another
-  // context flag here — the component stays agnostic of *why* a field is hidden.
+  // Generic rather than tied to isCommunity, so the component stays agnostic of
+  // why a caller hides a field.
   hidePriority = false,
   hideReportedBy = false,
   isCommunity = false,
@@ -94,7 +92,12 @@ const DetailsSection = ({
 
   const geometryType = eventType?.geometry_type;
   const jsonSchema = eventSchema?.schema ?? eventSchema?.json;
+  // Community event types are forced to v2 here, yet the backend can still send
+  // a v1 schema, so its shape rather than the version picks the renderer.
+  const isLegacySchema = !!eventSchema?.schema;
   const isReadOnly = eventType?.version === 1 ? jsonSchema?.readonly : eventType?.readonly;
+  // The view fetches a missing schema, so its absence means it is loading.
+  const isSchemaLoading = !eventSchema && !!eventType && !reportForm.is_collection;
   const shouldShowReportedBy = !isCollection && !hideReportedBy;
 
   const onDatePickerChange = (newDate) => {
@@ -231,11 +234,7 @@ const DetailsSection = ({
       </div>
     </div>
 
-    {/* Legacy form renderer */}
-    {/* Gate by schema shape, not eventType.version: community event types are forced to version 2
-       client-side, yet the backend can still return a v1-format schema (a top-level `schema`),
-       so the actual shape is the reliable signal for which renderer to use. */}
-    {!!eventSchema?.schema && !!jsonSchema && <Form
+    {isLegacySchema && <Form
       className={`${styles.form} ${reportForm.is_collection ? styles.hidden : ''}`}
       disabled={isReadOnly}
       fields={{ externalLink: ExternalLinkField }}
@@ -278,8 +277,7 @@ const DetailsSection = ({
       shouldPopulateDefaultData={isNewEvent}
     />}
 
-    {/* The view fetches a missing schema, so its absence means it is loading. */}
-    {!eventSchema && !!eventType && !reportForm.is_collection && <div className={styles.section}>
+    {isSchemaLoading && <div className={styles.section}>
       <div className={styles.schemaLoader} role="status">
         <MoonLoader size={SCHEMA_LOADER_SIZE} />
 

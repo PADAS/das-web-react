@@ -26,4 +26,8 @@ describe('calcTitleAndSubtitle', () => {
     expect(calcTitleAndSubtitle('', null)).toEqual({ subtitle: null, title: '' });
     expect(calcTitleAndSubtitle(null, null)).toEqual({ subtitle: null, title: '' });
   });
+
+  test('gives an empty title to an item with a blank title and no type', () => {
+    expect(calcTitleAndSubtitle('   ', null)).toEqual({ subtitle: null, title: '' });
+  });
 });

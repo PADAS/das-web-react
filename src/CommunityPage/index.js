@@ -260,9 +260,8 @@ const CommunityPage = () => {
     setNowMs(Date.now());
 
     if (creatableEventTypes.length === 1) {
-      // Only one creatable type: there's no list to return to, so refresh the form in place
-      // (bump the reset key → new temporalId → EventOverview remounts) instead of navigating to
-      // /community/:value, which would immediately auto-redirect back here.
+      // A lone type's list page redirects straight back here, so remounting
+      // Event Overview gives a fresh form instead.
       setFormResetKey((key) => key + 1);
     } else {
       navigate(`/community/${value}`);

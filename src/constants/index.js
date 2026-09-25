@@ -102,6 +102,10 @@ export const FOCUSABLE_SELECTOR = [
   '[tabindex]:not([tabindex="-1"])',
 ].join(', ');
 
+// The menus inside a popover are positioned fixed, which a transformed popover
+// would anchor to itself rather than to the viewport.
+export const POPOVER_POPPER_CONFIG = { modifiers: [{ name: 'computeStyles', options: { gpuAcceleration: false } }] };
+
 export const LAYER_IDS = {
   ANALYZER_LINES_CRITICAL: 'analyzer-line-critical',
   ANALYZER_LINES_WARNING: 'analyzer-line-warning',

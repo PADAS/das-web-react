@@ -6,7 +6,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { calcFriendlyDurationString } from '../utils/datetime';
-import { DEFAULT_EVENT_SORT } from '../constants';
+import { DEFAULT_EVENT_SORT, POPOVER_POPPER_CONFIG } from '../constants';
 import { INITIAL_FILTER_STATE, updateEventFilter } from '../ducks/event-filter';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
 import { TrackerContext } from '../utils/analytics';
@@ -18,10 +18,6 @@ import SearchBar from '../SearchBar';
 import * as styles from './styles.module.scss';
 
 export const TEXT_FILTER_DEBOUNCE_DELAY = 200;
-
-// The menus inside the popovers are positioned fixed, which a transformed
-// popover would anchor to itself rather than to the viewport.
-export const POPOVER_POPPER_CONFIG = { modifiers: [{ name: 'computeStyles', options: { gpuAcceleration: false } }] };
 
 const POPOVER_KEYS = { DATES: 'dates', FILTERS: 'filters' };
 
@@ -64,10 +60,14 @@ const EventFilter = ({ children, className = '', isSortable = false }) => {
 
   const updateTextFilterDebounced = useMemo(
     () => debounce(
-      (text) => dispatch(updateEventFilter({ filter: { text } })),
+      (text) => {
+        dispatch(updateEventFilter({ filter: { text } }));
+
+        tracker.track('Change the search text filter');
+      },
       TEXT_FILTER_DEBOUNCE_DELAY
     ),
-    [dispatch]
+    [dispatch, tracker]
   );
 
   const hideDatesPopover = useCallback(() => setOpenPopover(hidePopoverIfOpen(POPOVER_KEYS.DATES)), []);
@@ -77,8 +77,6 @@ const EventFilter = ({ children, className = '', isSortable = false }) => {
     setFilterText(event.target.value);
 
     updateTextFilterDebounced(event.target.value);
-
-    tracker.track('Change the search text filter');
   };
 
   const onClearSearch = () => {
@@ -115,7 +113,7 @@ const EventFilter = ({ children, className = '', isSortable = false }) => {
     tracker.track(`Toggle the ${popoverKey} filter popover`);
   };
 
-  useEffect(() => () => updateTextFilterDebounced.cancel(), [updateTextFilterDebounced]);
+  useEffect(() => () => updateTextFilterDebounced.flush(), [updateTextFilterDebounced]);
 
   return <div className={`${styles.eventFilter} ${className}`}>
     <div className={styles.controls}>
