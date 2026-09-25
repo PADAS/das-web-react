@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
 
 import { calcUrlForImage } from '../utils/img';
-import { displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
+import { calcTitleAndSubtitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
 import { formatDistanceInKilometers } from '../utils/distance';
 import { getCurrentLocale } from '../utils/datetime';
 import { selectPatrolsWithTracksData } from '../selectors/patrols';
@@ -26,6 +26,7 @@ const PatrolTrackLegend = () => {
 
   const patrolsWithTrackData = useSelector(selectPatrolsWithTracksData);
   const patrolTrackState = useSelector((state) => state.view.patrolTrackState);
+  const patrolTypes = useSelector((state) => state.data.patrolTypes);
   const trackTimeEnvelope = useSelector(selectTrackTimeEnvelope);
 
   // The points every drawn patrol track holds, as "3 points over 2 days".
@@ -48,7 +49,7 @@ const PatrolTrackLegend = () => {
   // One row per tracked patrol, listing the subjects whose tracks make it up.
   // Only the subjects carry a distance: summing them tells a reader nothing.
   const items = useMemo(() => patrolsWithTrackData.map((patrolData) => {
-    const patrolTitle = displayTitleForPatrol(patrolData.patrol, patrolData.leader);
+    const patrolTitle = calcTitleAndSubtitleForPatrol(patrolData.patrol, patrolTypes).title;
 
     return {
       children: patrolData.subjectsTrackData.map((subjectTrackData) => ({
@@ -75,7 +76,7 @@ const PatrolTrackLegend = () => {
       id: patrolData.patrol.id,
       title: t('itemTitle', { patrolTitle }),
     };
-  }), [patrolsWithTrackData, t, tUtils]);
+  }), [patrolTypes, patrolsWithTrackData, t, tUtils]);
 
   return <TrackLegend
     description={description}

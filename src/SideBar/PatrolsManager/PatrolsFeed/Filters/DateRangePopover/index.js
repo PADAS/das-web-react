@@ -16,7 +16,7 @@ import {
 import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../../../../../ducks/patrol-filter';
 import { resetGlobalDateRange, updateGlobalDateRange } from '../../../../../ducks/global-date-range';
 import { TrackerContext } from '../../../../../utils/analytics';
-import useModalPopover from '../utils/useModalPopover';
+import useModalPopover from '../../../../../hooks/useModalPopover';
 
 import DateTimePicker, { EMPTY_DATE_TIME_VALUE } from '../../../../../DateTimePicker';
 import Settings from './Settings';
@@ -66,6 +66,7 @@ const DateRangePopover = ({ className = '', onClose, ref, trigger, ...otherProps
 
   const bodyRef = useRef(null);
 
+  const emptyEndDateMessageId = useId();
   const endDateLabelId = useId();
   const startDateLabelId = useId();
 
@@ -78,6 +79,7 @@ const DateRangePopover = ({ className = '', onClose, ref, trigger, ...otherProps
 
   // A range with no end runs until now, as the Events feed can leave it.
   const endDate = dateRange.upper ? new Date(dateRange.upper) : null;
+  const isEndDateEmpty = !endDate && !endDateTimeDraft;
   const isDatesModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, dateRange)
     || INITIAL_FILTER_STATE.filter.patrols_overlap_daterange !== patrolsOverlapDateRange;
   const startDate = dateRange.lower ? new Date(dateRange.lower) : null;
@@ -188,13 +190,20 @@ const DateRangePopover = ({ className = '', onClose, ref, trigger, ...otherProps
         <div className={styles.dateField}>
           <span className={styles.label} id={endDateLabelId}>{t('endDateLabel')}</span>
 
-          <DateTimePicker
-            aria-invalid={!!endDateTimeDraft}
-            aria-labelledby={endDateLabelId}
-            min={startDate ? formatDateToLocalISO(startDate) : MIN_DATE_TIME}
-            onChange={onChangeEndDateTime}
-            value={endDateTimeDraft ?? (endDate ? formatDateToLocalISO(endDate) : EMPTY_DATE_TIME_VALUE)}
-          />
+          <div className={styles.dateInputs}>
+            <DateTimePicker
+              aria-describedby={isEndDateEmpty ? emptyEndDateMessageId : undefined}
+              aria-invalid={!!endDateTimeDraft}
+              aria-labelledby={endDateLabelId}
+              min={startDate ? formatDateToLocalISO(startDate) : MIN_DATE_TIME}
+              onChange={onChangeEndDateTime}
+              value={endDateTimeDraft ?? (endDate ? formatDateToLocalISO(endDate) : EMPTY_DATE_TIME_VALUE)}
+            />
+
+            {isEndDateEmpty && <span className={styles.emptyEndDateMessage} id={emptyEndDateMessageId}>
+              {t('emptyEndDateMessage')}
+            </span>}
+          </div>
         </div>
       </div>
 

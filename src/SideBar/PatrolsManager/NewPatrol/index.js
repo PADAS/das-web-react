@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 import buildLegSegment from '../LegForm/utils/buildLegSegment';
 import buildNewPatrolLegDraft from './utils/buildNewPatrolLegDraft';
+import { calcTitleAndSubtitle } from '../../../utils/titles';
 import { createPatrol } from '../../../ducks/patrols';
 import { fetchPatrolTypes } from '../../../ducks/patrol-types';
 import { NEW_PATROL_CATEGORY, TrackerContext, trackEventFactory } from '../../../utils/analytics';
@@ -49,7 +50,9 @@ const NewPatrolContent = ({ initialPatrolType }) => {
 
   const title = editedTitle ?? leg.patrolType.display;
 
-  const isTitleDirty = editedTitle !== null && editedTitle.trim() !== leg.patrolType.display.trim();
+  // A title only changes when the title it shows does.
+  const isTitleDirty = editedTitle !== null
+    && calcTitleAndSubtitle(editedTitle, leg.patrolType.display).title.trim() !== leg.patrolType.display.trim();
 
   const hasUnsavedChanges = isTitleDirty || !isEqual(leg, initialLeg);
 

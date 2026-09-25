@@ -168,12 +168,6 @@
     "instructionsPopupLabel": "Click to select a location",
     "pickLocationButtonLabel": "Pick a location on the map"
   },
-  "priorityPicker": {
-    "amber": "Amber",
-    "green": "Green",
-    "none": "None",
-    "red": "Red"
-  },
   "reportedBySelect": {
     "control": {
       "radioIconPlaceholder": "Radio icon placeholder for reported by selector"
@@ -189,6 +183,11 @@
     "singleValue": {
       "radioIcon": "Radio icon for {{name}} value"
     }
+  },
+  "reporterSelect": {
+    "allReportersGroupLabel": "All",
+    "recentRadiosGroupLabel": "Recent radios",
+    "restrictedReporterLabel": "RESTRICTED"
   },
   "schemaFields": {
     "addButton": {
@@ -224,6 +223,9 @@
     "backButtonLabel": "Go Back",
     "backButtonTitle": "Back",
     "closeButtonLabel": "Close sidebar",
+    "detailViewHeader": {
+      "closeButtonLabel": "Close sidebar"
+    },
     "eventsLink": "Events",
     "gearLink": "Gear",
     "gearTab": {
@@ -248,10 +250,6 @@
       "subjectsTabTitle": "Subjects"
     },
     "patrolsLink": "Patrols",
-    "reportsFeedTab": {
-      "fetchReportsErrorMessage": "Could not load events. Please try again.",
-      "tryAgainButton": "Try again"
-    },
     "settingsLink": "Settings",
     "settingsPane": {
       "alertsFrameTitle": "Configure your EarthRanger alerts",
@@ -358,6 +356,9 @@
         }
       },
       "mapTabTitle": "Map"
+    },
+    "titleInput": {
+      "editButtonLabel": "Edit title"
     }
   },
   "sortedNodes": {
@@ -383,8 +384,6 @@
     "closeButtonLabel": "Close timeslider",
     "dateRangeButtonLabel": "Change date range",
     "endDateNowSliderLabel": "Now",
-    "popoverHeader": "Date Range",
-    "popoverResetButton": "Reset",
     "sliderLabel": "Timeslider",
     "speedButtonLabel": "Open playback speed options",
     "speedMenuHeader": "Playback Speed",

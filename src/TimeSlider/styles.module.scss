@@ -210,47 +210,6 @@
   }
 }
 
-.popover {
-  display: flex;
-  flex-direction: column;
-  max-width: unset;
-  padding: 0;
-  width: 24rem;
-
-  .popoverTitle {
-    align-items: center;
-    background: colors.$bright-blue;
-    color: white;
-    display: flex;
-    padding: 1rem;
-
-    svg {
-      height: 1.5rem;
-      margin-right: 1rem;
-      width: 1.5rem;
-
-      circle,
-      g,
-      path {
-        stroke: white;
-      }
-    }
-
-    button {
-      margin-left: auto;
-    }
-  }
-
-  .popoverBody {
-    overflow: visible;
-    padding: 1rem 0 0;
-
-    .dateRangePopover {
-      top: -16rem;
-    }
-  }
-}
-
 .speedMenuPopover {
   @include inputs.boxShadow;
   border: none !important;

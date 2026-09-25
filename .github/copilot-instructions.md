@@ -2,29 +2,30 @@
 
 ### Context Awareness
 
-Before reviewing a PR, read the following project-specific rules and treat them with higher priority than generic best practices:
-
-- `.cursor/rules/business.mdc`
-- `.cursor/rules/development.mdc`
-- `.cursor/rules/testing.mdc`
+Before reviewing a PR, read `AGENTS.md` at the repository root and treat it with higher priority than generic best practices.
 
 ### High‑level checks
 
+- **Correctness**
+  - The logic is correct and does what the business and the user need, as described in `AGENTS.md` and the PR
+  - Edge cases and invalid input are handled: empty collections, absent values, failed requests
+  - No unintended side effects or regressions in the code paths the change touches
 - **Code Quality**
-  - Clarity, correctness, and maintainability over cleverness
-  - Matches existing patterns, conventions, and folder structure
-  - Handles edge cases and invalid input appropriately
-- **Tests**
-  - All code must be tested
-  - Tests meaningfully assert behavior
-  - Test names clearly describe the scenario and expectation
-- **Accessibility**
-  - Semantic HTML is used where possible
-  - ARIA roles and attributes are correct and minimal
-  - Keyboard navigation is supported
-  - Focus management is intentional
-  - Labels, roles, and names are accessible to screen readers
+  - Follows the repository's conventions in `AGENTS.md`, not the older code around it
+  - Clean and readable: clear names, no dead code, no needless complexity or cleverness
 - **Performance**
-  - Avoid unnecessary re‑renders, effects, or expensive computations
-  - Watch for unbounded loops, large payloads, or repeated work
-  - Ensure memoization or caching is justified and correct
+  - No unnecessary re‑renders, effects, or expensive computations
+  - No unbounded loops, large payloads, repeated work, or listeners left behind
+  - Memoization and caching are justified and correct
+- **Accessibility**
+  - Complies with WCAG 2.1 AA
+  - Semantic HTML where possible; ARIA roles and attributes only where needed, correct and minimal
+  - Keyboard navigation works, and focus management is intentional
+  - Labels, roles, and names are accessible to screen readers
+- **Translations**
+  - Every user-facing string goes through i18n and is present in every locale
+  - Each translation is correct, and follows the wording the app already uses in that language
+- **Tests**
+  - Every change is fully covered by tests
+  - Tests meaningfully assert behavior, and a regression test fails without the fix
+  - Test names clearly describe the scenario and expectation

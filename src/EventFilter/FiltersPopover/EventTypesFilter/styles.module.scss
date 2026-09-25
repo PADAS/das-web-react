@@ -1,0 +1,62 @@
+@use '../../../common/styles/buttons';
+@use '../../../common/styles/vars/colors';
+@use '../../../common/styles/filter-popovers';
+
+.eventTypesFilter {
+  border: none;
+  margin: 0;
+  min-width: 0;
+  padding: 0;
+
+  .label {
+    @include filter-popovers.section-label;
+  }
+
+  .search {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding: 0.125rem 0;
+
+    .searchBar {
+      flex: 0 0 calc(200% / 3);
+      min-width: 0;
+    }
+
+    .setMatchesButton {
+      @include buttons.chipTextButton;
+
+      flex-shrink: 0;
+      margin-left: auto;
+    }
+  }
+
+  .categoryList, .eventTypeList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    [class*='display'] {
+      overflow-wrap: anywhere;
+      white-space: normal;
+    }
+  }
+
+  .categoryList {
+    @include filter-popovers.compact-selectable-items;
+
+    .category label {
+      font-weight: 500;
+    }
+
+    .eventTypeList {
+      padding-left: 1.5rem;
+    }
+  }
+
+  .noMatchesMessage {
+    color: colors.$secondary-medium-gray;
+    font-size: 0.875rem;
+    margin: 0.5rem 0 0;
+  }
+}

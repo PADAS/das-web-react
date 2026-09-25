@@ -1,19 +1,12 @@
 import React from 'react';
-import MoonLoader from 'react-spinners/MoonLoader';
 import { useTranslation } from 'react-i18next';
 
-import * as styles from './styles.module.scss';
+import SideBarDetailViewLoader from '../../DetailViewLoader';
 
-const LOADER_SIZE = 50;
-
-const DetailViewLoader = ({ className = '', ...otherProps }) => {
+const DetailViewLoader = (props) => {
   const { t } = useTranslation('patrols', { keyPrefix: 'detailViewLoader' });
 
-  return <div className={`${styles.detailViewLoader} ${className}`} role="status" {...otherProps}>
-    <MoonLoader size={LOADER_SIZE} />
-
-    <span className="sr-only">{t('loadingLabel')}</span>
-  </div>;
+  return <SideBarDetailViewLoader label={t('loadingLabel')} {...props} />;
 };
 
 export default DetailViewLoader;

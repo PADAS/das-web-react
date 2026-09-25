@@ -50,6 +50,7 @@
       "title": "Export des pistes en format KML"
     },
     "navigationButton": {
+      "gear": "Engins",
       "mapLayers": "Calques",
       "patrols": "Patrouilles",
       "reports": "Événements",

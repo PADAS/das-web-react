@@ -168,12 +168,6 @@
     "instructionsPopupLabel": "Bonyeza ili kuchagua mahali",
     "pickLocationButtonLabel": "Chagua mahali kwenye ramani"
   },
-  "priorityPicker": {
-    "amber": "Ambari",
-    "green": "Kijani",
-    "none": "Hakuna",
-    "red": "Nyekundu"
-  },
   "reportedBySelect": {
     "control": {
       "radioIconPlaceholder": "Nafasi ya alama ya redio kwa chagua la aliye ripoti"
@@ -189,6 +183,11 @@
     "singleValue": {
       "radioIcon": "Alama ya redio kwa {{name}} thamani"
     }
+  },
+  "reporterSelect": {
+    "allReportersGroupLabel": "Zote",
+    "recentRadiosGroupLabel": "Redio za hivi karibuni",
+    "restrictedReporterLabel": "ILIZUIWA"
   },
   "schemaFields": {
     "addButton": {
@@ -224,6 +223,9 @@
     "backButtonLabel": "Nenda Nyuma",
     "backButtonTitle": "Nyuma",
     "closeButtonLabel": "Funga upau wa pembeni",
+    "detailViewHeader": {
+      "closeButtonLabel": "Funga upau wa pembeni"
+    },
     "eventsLink": "Matukio",
     "gearLink": "Vifaa",
     "gearTab": {
@@ -248,10 +250,6 @@
       "subjectsTabTitle": "Masomo"
     },
     "patrolsLink": "Doria",
-    "reportsFeedTab": {
-      "fetchReportsErrorMessage": "Haikuweza kupakia matukio. Tafadhali jaribu tena.",
-      "tryAgainButton": "Jaribu tena"
-    },
     "settingsLink": "Mipangilio",
     "settingsPane": {
       "alertsFrameTitle": "Sanidi tahadhari zako za EarthRanger",
@@ -358,6 +356,9 @@
         }
       },
       "mapTabTitle": "Ramani"
+    },
+    "titleInput": {
+      "editButtonLabel": "Hariri kichwa"
     }
   },
   "sortedNodes": {
@@ -383,8 +384,6 @@
     "closeButtonLabel": "Funga kishikilia muda",
     "dateRangeButtonLabel": "Badilisha masafa ya tarehe",
     "endDateNowSliderLabel": "Sasa",
-    "popoverHeader": "Upeo wa Tarehe",
-    "popoverResetButton": "Rudisha",
     "sliderLabel": "Kishikilia Muda",
     "speedButtonLabel": "Fungua chaguo za kasi ya uchezaji",
     "speedMenuHeader": "Kasi ya Uchezaji",

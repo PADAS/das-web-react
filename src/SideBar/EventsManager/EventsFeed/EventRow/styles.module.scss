@@ -1,0 +1,165 @@
+@use 'sass:color';
+@use 'sass:map';
+@use '../../../../common/styles/vars/colors';
+@use '../../../shared';
+
+@mixin event-row-theme($theme) {
+  $theme-color: map.get($theme, 'base');
+
+  --event-row-hover-background: #{color.mix($theme-color, white, colors.$patrol-row-tint)};
+
+  .icon {
+    background-color: $theme-color;
+  }
+}
+
+.eventRow {
+  align-items: center;
+  background-color: white;
+  border-bottom: 1px solid colors.$light-gray-lines;
+  cursor: pointer;
+  display: grid;
+  gap: 0 0.75rem;
+  grid-template:
+    'icon serial title status actions' 1fr
+    'icon serial details status actions' 1fr
+    / 3rem auto minmax(0, 1fr) auto auto;
+  padding: 0.25rem 0.5rem 0.25rem 0.25rem;
+
+  &:hover:not(:has(button:hover)) {
+    background-color: var(--event-row-hover-background);
+  }
+
+  .icon {
+    align-items: center;
+    align-self: center;
+    border-radius: 0.25rem;
+    color: white;
+    display: flex;
+    grid-area: icon;
+    height: 3rem;
+    justify-content: center;
+    position: relative;
+    width: 3rem;
+
+    svg, img {
+      fill: currentcolor;
+      height: 2rem;
+      width: 2rem;
+    }
+
+    .patrolIndicator {
+      @include shared.patrol-indicator-badge;
+    }
+  }
+
+  .serialNumber {
+    align-self: center;
+    color: colors.$secondary-medium-gray;
+    font-size: 1rem;
+    grid-area: serial;
+    grid-row: 1 / -1;
+  }
+
+  .titleRow {
+    align-items: center;
+    align-self: end;
+    display: flex;
+    gap: 0.375rem;
+    grid-area: title;
+    min-width: 0;
+
+    &.onlyLine {
+      align-self: center;
+      grid-row: 1 / -1;
+    }
+
+    .titleLink {
+      border-radius: 0.125rem;
+      color: colors.$off-black;
+      font-size: 1rem;
+      font-weight: 500;
+      min-width: 0;
+      overflow: hidden;
+      text-decoration: none;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+
+      &:focus-visible {
+        color: colors.$bright-blue;
+        outline: 2px solid colors.$bright-blue;
+        outline-offset: 2px;
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .details {
+    align-self: start;
+    color: colors.$secondary-medium-gray;
+    font-size: 0.75rem;
+    grid-area: details;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .status {
+    align-items: flex-end;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    grid-area: status;
+    grid-row: 1 / -1;
+
+    .statusTitle {
+      font-size: 0.875rem;
+      font-weight: 500;
+      white-space: nowrap;
+
+      &.active {
+        color: colors.$plum;
+      }
+
+      &.resolved {
+        color: colors.$alt-light-gray;
+      }
+
+      &.review {
+        color: colors.$dark-gold;
+      }
+    }
+
+    .statusDate {
+      color: colors.$secondary-medium-gray;
+      font-size: 0.75rem;
+      font-style: italic;
+      white-space: nowrap;
+    }
+  }
+
+  .actions {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+    grid-area: actions;
+    grid-row: 1 / -1;
+  }
+
+  &.red {
+    @include event-row-theme(colors.$report-high-priority-theme);
+  }
+
+  &.amber {
+    @include event-row-theme(colors.$report-medium-priority-theme);
+  }
+
+  &.green {
+    @include event-row-theme(colors.$report-low-priority-theme);
+  }
+
+  &.none {
+    @include event-row-theme(colors.$report-no-priority-theme);
+  }
+}

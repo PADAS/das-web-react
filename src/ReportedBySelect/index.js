@@ -45,7 +45,7 @@ const Option = ({ data, selectProps, innerProps: { onMouseMove: _onMouseMove, on
       </components.Option>
     </div>;
   } else {
-    const radioImage = isRadioWithImage(data) || calcUrlForImage(data.image_url);
+    const radioImage = calcUrlForImage(isRadioWithImage(data) || data.image_url);
     const isRecent = selectProps.recentRadios.some((item) => item.id === data.id)
       && (data.last_voice_call_start_at || data.last_position_date);
 
@@ -67,7 +67,7 @@ const Option = ({ data, selectProps, innerProps: { onMouseMove: _onMouseMove, on
 const MultiValueLabel = ({ data, ...restProps }) => {
   const { t } = useTranslation('components', { keyPrefix: 'reportedBySelect.multiValueLabel' });
 
-  const radioImage = isRadioWithImage(data) || calcUrlForImage(data.image_url);
+  const radioImage = calcUrlForImage(isRadioWithImage(data) || data.image_url);
 
   return <div className={styles.multiValue}>
     {radioImage && <img alt={t('radioIcon', { name: data.name })} src={radioImage} />}
@@ -81,7 +81,7 @@ const MultiValueLabel = ({ data, ...restProps }) => {
 const SingleValue = ({ data, children, ...restProps }) => {
   const { t } = useTranslation('components', { keyPrefix: 'reportedBySelect.singleValue' });
 
-  const radioImage = isRadioWithImage(data) || calcUrlForImage(data.image_url);
+  const radioImage = calcUrlForImage(isRadioWithImage(data) || data.image_url);
 
   return <components.SingleValue className={styles.singleValue} {...restProps}>
     {radioImage && <img alt={t('radioIcon', { name: data.name })} src={radioImage} />}

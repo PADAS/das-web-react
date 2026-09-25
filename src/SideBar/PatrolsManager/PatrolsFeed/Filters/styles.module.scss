@@ -1,4 +1,5 @@
 @use '../../../../common/styles/buttons';
+@use '../../../../common/styles/layout';
 @use '../../../../common/styles/vars/colors';
 
 .filters {
@@ -7,18 +8,23 @@
   .controls {
     border-bottom: 1px solid colors.$light-gray-lines;
     display: flex;
+    flex-direction: column;
     padding: 0.75rem;
 
     .searchBar {
-      width: 40%;
+      width: 60%;
+
+      @media (min-width: layout.$md-layout-width-min) {
+        width: 40%;
+      }
     }
 
     .triggerButtons {
       align-items: center;
       display: flex;
       gap: 0.5rem;
-      justify-content: flex-end;
-      width: 60%;
+      margin-top: 0.5rem;
+      width: 100%;
 
       .triggerButton {
         @include buttons.chipTextButton;
@@ -26,6 +32,16 @@
 
         flex-shrink: 0;
       }
+
+      @media (min-width: layout.$md-layout-width-min) {
+        justify-content: flex-end;
+        margin-top: 0;
+        width: 60%;
+      }
+    }
+
+    @media (min-width: layout.$md-layout-width-min) {
+      flex-direction: row;
     }
   }
 

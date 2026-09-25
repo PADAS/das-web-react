@@ -158,12 +158,6 @@
     "instructionsPopupLabel": "Haz clic para seleccionar una ubicación",
     "pickLocationButtonLabel": "Selecciona una ubicación en el mapa"
   },
-  "priorityPicker": {
-    "amber": "Ambar",
-    "green": "Verde",
-    "none": "N/A",
-    "red": "Roja"
-  },
   "numericInput": {
     "numericInputLabel": "Campo numérico",
     "incrementValueNumericInputButtonLabel": "Botón para aumentar el valor numérico",
@@ -184,6 +178,11 @@
     "singleValue": {
       "radioIcon": "Ícono de radio para el valor {{name}}"
     }
+  },
+  "reporterSelect": {
+    "allReportersGroupLabel": "Todos",
+    "recentRadiosGroupLabel": "Radios recientes",
+    "restrictedReporterLabel": "RESTRINGIDO"
   },
   "schemaFields": {
     "addButton": {
@@ -219,6 +218,9 @@
     "backButtonLabel": "Volver atrás",
     "backButtonTitle": "Atrás",
     "closeButtonLabel": "Cerrar barra lateral",
+    "detailViewHeader": {
+      "closeButtonLabel": "Cerrar barra lateral"
+    },
     "eventsLink": "Eventos",
     "gearLink": "Aparejos",
     "gearTab": {
@@ -243,10 +245,6 @@
       "subjectsTabTitle": "Sujetos"
     },
     "patrolsLink": "Patrullas",
-    "reportsFeedTab": {
-      "fetchReportsErrorMessage": "No se pudieron cargar los eventos. Por favor intente de nuevo.",
-      "tryAgainButton": "Intentar de nuevo"
-    },
     "settingsLink": "Preferencias",
     "settingsPane": {
       "alertsFrameTitle": "Configure sus alertas de EarthRanger",
@@ -353,6 +351,9 @@
         }
       },
       "mapTabTitle": "Mapa"
+    },
+    "titleInput": {
+      "editButtonLabel": "Editar título"
     }
   },
   "soundNotificationsPlayer": {
@@ -372,8 +373,6 @@
     "closeButtonLabel": "Cerrar control de tiempo",
     "dateRangeButtonLabel": "Cambiar rango de fechas",
     "endDateNowSliderLabel": "Ahora",
-    "popoverHeader": "Rango de fechas",
-    "popoverResetButton": "Reiniciar",
     "sliderLabel": "Control de tiempo",
     "speedButtonLabel": "Abrir opciones de velocidad de reproducción",
     "speedMenuHeader": "Velocidad de Reproducción",

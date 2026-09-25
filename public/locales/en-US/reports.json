@@ -10,82 +10,115 @@
     },
     "modalTitle": "Add to Incident"
   },
-  "columnSort": {
-    "popoverTitle": "Sort by:",
-    "eventSortOptions": {
-      "updatedAtLabel": "Date Updated",
-      "createdAtLabel": "Created Date",
-      "eventTimeLabel": "Event Date"
-    },
-    "eventOrderOptions": {
-      "newest": "Newest to Oldest",
-      "oldest": "Oldest to Newest"
-    },
-    "sortDirectionToggleLabel": {
-      "ascending": "Change order to Descending",
-      "descending": "Change order to Ascending"
-    },
-    "sortDirectionToggleTitle": {
-      "ascending": "Ascending Order",
-      "descending": "Descending Order"
-    }
-  },
   "errorMessages": {
     "accordionHeaderButton": {
       "closed": "See details",
       "open": "Hide details"
     }
   },
-  "eventFeed": {
-    "loadingMoreReportsItem": "Loading more events...",
-    "noMoreReportsItem": "No more events to display.",
-    "noReportsItem": "No events to display."
-  },
   "eventIcon": {
     "collectionTitle": "Collection"
   },
-  "eventItemContextMenu": {
-    "errorToastMessage": "#{{serialNumber}} still {{state}}, something went wrong",
-    "notificationDetails": {
-      "failedReports": "WARNING: These events could not be changed to state {{state}}",
-      "processedReports": {
-        "activated": "activated",
-        "resolved": "resolved",
-        "title": "These related events were {{newState}} as well:",
-        "review": "sent to review"
-      }
+  "eventsManager": {
+    "eventOverview": {
+      "footer": {
+        "cancelButton": "Cancel",
+        "cancelButtonLabel": "Cancel adding this event",
+        "saveAndActivateOption": "Save and activate",
+        "saveAndReopenOption": "Save and reopen",
+        "saveAndResolveOption": "Save and resolve",
+        "saveAndReviewOption": "Save and review",
+        "saveButton": "Save",
+        "saveOptionsMenuLabel": "More save options"
+      },
+      "header": {
+        "breadcrumbEventsLabel": "Events",
+        "breadcrumbNavLabel": "Event navigation",
+        "jumpToLocationButtonLabel": "Jump to location",
+        "patrolIndicator": "p",
+        "reportMenu": {
+          "addToIncidentOption": "Add to Incident",
+          "addToPatrolOption": "Add to Patrol",
+          "copyLinkMessage": "Link copied",
+          "copyLinkOption": "Copy Event Link",
+          "jumpToLocationOption": "Jump to location",
+          "moreOptionsButtonLabel": "More options",
+          "printOption": "Print Event Details"
+        },
+        "statusSelect": {
+          "states": {
+            "active": "Active",
+            "resolved": "Resolved",
+            "review": "In review"
+          },
+          "stateTransitions": {
+            "activate": "Activate",
+            "reopen": "Reopen",
+            "resolve": "Resolve",
+            "review": "Send to review"
+          },
+          "statusMenuLabel": "Event states",
+          "statusSelectLabel": "Change event state"
+        },
+        "titleInputLabel": "Event title"
+      },
+      "loadingLabel": "Loading event data"
     },
-    "state": {
-      "active": "active",
-      "resolved": "resolved",
-      "review": "review"
-    },
-    "textCopyButtonItem": {
-      "label": "Copy event link",
-      "successMessage": "Link copied"
-    },
-    "updatedCollectionInfoToast": {
-      "activated": "activated",
-      "message": "The collection #{{collectionSerialNumber}} was {{newState}} correctly",
-      "resolved": "resolved",
-      "review": "sent to review"
-    },
-    "updatedReportInfoToastMessage": "#{{reportSerialNumber}} {{newState}}",
-    "updateReportStateItem": {
-      "activate": "Activate",
-      "reopen": "Reopen",
-      "resolve": "Resolve",
-      "review": "Send to review"
+    "eventsFeed": {
+      "emptyStateMessage": "No events to display.",
+      "eventListLabel": "Event list",
+      "eventRow": {
+        "actions": {
+          "copyLinkMessage": "Link copied",
+          "copyLinkOption": "Copy event link",
+          "jumpToLocationButtonLabel": "Jump to location",
+          "moreOptionsButtonLabel": "More options",
+          "notificationDetails": {
+            "failedEvents": "WARNING: These events could not be changed to state {{state}}",
+            "processedEvents": {
+              "activated": "activated",
+              "resolved": "resolved",
+              "review": "sent to review",
+              "title": "These related events were {{newState}} as well:"
+            },
+            "states": {
+              "active": "active",
+              "resolved": "resolved",
+              "review": "review"
+            }
+          },
+          "states": {
+            "active": "active",
+            "resolved": "resolved",
+            "review": "review"
+          },
+          "stateTransitions": {
+            "activate": "Activate",
+            "reopen": "Reopen",
+            "resolve": "Resolve",
+            "review": "Send to review"
+          },
+          "stateUpdateErrorToastMessage": "#{{serialNumber}} still {{state}}, something went wrong",
+          "updatedCollectionToast": {
+            "activated": "activated",
+            "message": "The collection #{{collectionSerialNumber}} was {{newState}} correctly",
+            "resolved": "resolved",
+            "review": "sent to review"
+          },
+          "updatedEventToastMessage": "#{{eventSerialNumber}} {{newState}}"
+        },
+        "patrolIndicator": "p",
+        "states": {
+          "active": "Active",
+          "resolved": "Resolved",
+          "review": "In review"
+        }
+      },
+      "fetchErrorMessage": "Could not load events. Please try again.",
+      "loadingLabel": "Loading events",
+      "loadingMoreLabel": "Loading more events",
+      "retryButton": "Try again"
     }
-  },
-  "prioritySelect": {
-    "labels": {
-      "amber": "Amber",
-      "green": "Green",
-      "none": "None",
-      "red": "Red"
-    },
-    "placeholder": "Select"
   },
   "reportGeometryDrawer": {
     "cancelationConfirmationModal": {
@@ -147,41 +180,24 @@
       },
       "dateLabel": "Event Date",
       "detailsHeader": "Details",
-      "errorLoadingSchema": "Error loading schema",
       "locationLabel": "Event Location",
-      "priorityLabel": "Priority",
-      "reportedByLabel": "Reported By",
-      "stateDropdown": {
-        "active": "active",
-        "resolved": "resolved",
-        "review": "review"
-      },
-      "timeLabel": "Event Time"
-    },
-    "header": {
-      "priority": {
+      "priorities": {
         "amber": "Amber",
         "green": "Green",
         "none": "None",
         "red": "Red"
       },
-      "reportMenu": {
-        "addToIncidentItem": "Add to Incident",
-        "addToPatrolItem": "Add to Patrol",
-        "label": "View Event Options",
-        "printReportItem": "Print Event Details",
-        "textCopyButtonLabel": "Copy Event Link",
-        "textCopyButtonSuccessMessage": "Link copied",
-        "title": "Event Options"
-      }
+      "priorityLabel": "Priority",
+      "reportedByLabel": "Reported By",
+      "schemaErrorMessage": "The fields of this event type could not be loaded.",
+      "schemaLoadingLabel": "Loading the fields of this event type",
+      "timeLabel": "Event Time"
     },
     "linksSection": {
       "linksHeader": "Links"
     },
     "reportDetailView": {
-      "cancelButton": "Cancel",
       "cantAddNoteAlert": "Can not add a new note: there's an empty note not saved yet",
-      "loadingMessage": "Saving...",
       "quickLinks": {
         "activityAnchor": "Activity",
         "detailsAnchor": "Details",
@@ -189,13 +205,6 @@
         "linksAnchor": "Links"
       },
       "saveErrorMessage": "Error saving event.",
-      "saveSplitButton": {
-        "saveAndReopenItem": "Save and reopen",
-        "saveAndResolveItem": "Save and resolve",
-        "saveAndReviewItem": "Save and review",
-        "title": "Save",
-        "saveAndActivateItem": "Save and activate"
-      },
       "unknownErrorLabel": "Unknown error"
     }
   },

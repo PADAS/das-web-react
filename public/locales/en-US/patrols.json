@@ -96,8 +96,7 @@
     "saveErrorMessage": "The patrol leg could not be saved. Please try again."
   },
   "header": {
-    "breadcrumbNavLabel": "Patrol navigation",
-    "closeButtonLabel": "Close sidebar"
+    "breadcrumbNavLabel": "Patrol navigation"
   },
   "invalidDatesModal": {
     "body": "This patrol can not be saved. The end time of a patrol must be later than the start time. Please correct the start or end patrol time.",
@@ -377,9 +376,6 @@
     "restore": "Restore",
     "resume": "Resume",
     "start": "Start"
-  },
-  "titleInput": {
-    "editButtonLabel": "Edit title"
   },
   "trackToggleButton": {
     "tracksOff": "Tracks off",

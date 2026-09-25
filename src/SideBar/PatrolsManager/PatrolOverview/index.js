@@ -9,7 +9,11 @@ import { useTranslation } from 'react-i18next';
 
 import { addPatrolSegmentToEvent } from '../../../utils/events';
 import buildPatrolStatusUpdate from '../utils/buildPatrolStatusUpdate';
-import { displayTitleForPatrol, getTrackedSubjectsForPatrolSegment, governingPatrolSegment } from '../../../utils/patrols';
+import {
+  calcTitleAndSubtitleForPatrol,
+  getTrackedSubjectsForPatrolSegment,
+  governingPatrolSegment,
+} from '../../../utils/patrols';
 import { fetchPatrol, updatePatrol, uploadPatrolFile } from '../../../ducks/patrols';
 import { fetchTracksIfNecessary } from '../../../utils/tracks';
 import { PATROL_OVERVIEW_CATEGORY, TrackerContext, trackEventFactory } from '../../../utils/analytics';
@@ -43,6 +47,7 @@ const PatrolOverviewContent = ({ patrol }) => {
 
   const patrolRosterFallbackSubjects = useSelector((state) => selectPatrolRosterFallbackSubjects(state, patrol));
   const patrolTeamAndTrackingOptions = useSelector((state) => state.data.patrolTeamAndTrackingOptions);
+  const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
   const printableContentRef = useRef(null);
 
@@ -51,11 +56,13 @@ const PatrolOverviewContent = ({ patrol }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [shouldRedirectToFeed, setShouldRedirectToFeed] = useState(false);
 
-  const patrolTitle = displayTitleForPatrol(patrol, governingPatrolSegment(patrol)?.leader);
+  const patrolTitle = calcTitleAndSubtitleForPatrol(patrol, patrolTypes).title;
 
   const title = editedTitle ?? patrolTitle;
 
-  const isTitleDirty = editedTitle !== null && editedTitle.trim() !== patrolTitle.trim();
+  // A title only changes when the title it shows does.
+  const isTitleDirty = editedTitle !== null
+    && calcTitleAndSubtitleForPatrol({ ...patrol, title: editedTitle }, patrolTypes).title.trim() !== patrolTitle.trim();
 
   const state = editedState ?? patrolState;
 
@@ -94,8 +101,12 @@ const PatrolOverviewContent = ({ patrol }) => {
   const addEventFormProps = useMemo(() => ({
     isPatrolReport: true,
     onSaveSuccess: onAddEvent,
+    parentCrumbs: [
+      { label: t('header.breadcrumbPatrolsLabel'), to: `/${SIDEBAR_TAB_KEYS.PATROLS}` },
+      { label: patrolTitle, to: `/${SIDEBAR_TAB_KEYS.PATROLS}/${patrol.id}` },
+    ],
     redirectTo: [{ pathname: `/${SIDEBAR_TAB_KEYS.PATROLS}/${patrol.id}` }],
-  }), [onAddEvent, patrol.id]);
+  }), [onAddEvent, patrol.id, patrolTitle, t]);
 
   const onChangeState = useCallback((pickedState) => {
     setEditedState(pickedState === patrolState ? null : pickedState);

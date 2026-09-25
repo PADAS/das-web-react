@@ -13,6 +13,7 @@ import { addPatrolSegmentToEvent, getEventIdsForCollection } from '../../../../u
 import {
   actualEndTimeForPatrolSegment,
   actualStartTimeForPatrolSegment,
+  calcTitleAndSubtitleForPatrol,
   canEditPatrolSegment,
   displayNumberForPatrolSegment,
   filterActivityItemsForPatrolSegment,
@@ -55,6 +56,7 @@ const LegOverviewContent = ({ legNumber, onStagedChangesChange, patrol, patrolSe
 
   const patrolRosterFallbackSubjects = useSelector((state) => selectPatrolRosterFallbackSubjects(state, patrol));
   const patrolTeamAndTrackingOptions = useSelector((state) => state.data.patrolTeamAndTrackingOptions);
+  const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
   const printableContentRef = useRef(null);
 
@@ -123,8 +125,16 @@ const LegOverviewContent = ({ legNumber, onStagedChangesChange, patrol, patrolSe
   const addEventFormProps = useMemo(() => ({
     isPatrolReport: true,
     onSaveSuccess: onAddEvent,
+    parentCrumbs: [
+      { label: t('header.breadcrumbPatrolsLabel'), to: `/${TAB_KEYS.PATROLS}` },
+      { label: calcTitleAndSubtitleForPatrol(patrol, patrolTypes).title, to: `/${TAB_KEYS.PATROLS}/${patrol.id}` },
+      {
+        label: t(`header.title.${legKind}`, { number: legNumber }),
+        to: `/${TAB_KEYS.PATROLS}/${patrol.id}/legs/${patrolSegment.id}`,
+      },
+    ],
     redirectTo: [{ pathname: `/${TAB_KEYS.PATROLS}/${patrol.id}/legs/${patrolSegment.id}` }],
-  }), [onAddEvent, patrol.id, patrolSegment.id]);
+  }), [legKind, legNumber, onAddEvent, patrol, patrolSegment.id, patrolTypes, t]);
 
   const savePatrol = useCallback(async () => {
     const [patrolUpdateResult, ...attachmentResults] = await Promise.allSettled([
