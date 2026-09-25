@@ -20,6 +20,7 @@ import { updatePatrolTrackState } from '../ducks/patrols';
 
 import { createMapMock } from '../__test-helpers/mocks';
 import { MapContext } from '../MapContext';
+import { SYMBOLS_LAYER_ID as SPATIAL_FEATURES_SYMBOLS_LAYER_ID } from '../SpatialFeaturesLayer';
 import MapDrawingToolsContextProvider from '../MapDrawingTools/ContextProvider';
 import { mockedSocket } from '../__test-helpers/MockSocketContext';
 import { mockStore } from '../__test-helpers/MockStore';
@@ -51,7 +52,21 @@ jest.mock('../ducks/events', () => ({
 /* eslint-disable-next-line react/display-name */
 jest.mock('../EventFilter', () => () => <div data-testid="eventFilter" />);
 
+jest.mock('../ClustersLayer', () => () => null);
+
 jest.mock('../EventsTileLayers', () => () => null);
+
+jest.mock('../CursorGpsDisplay', () => () => null);
+
+jest.mock('../MapImagesLayer', () => () => null);
+
+jest.mock('../PatrolTrackLegend', () => () => null);
+
+jest.mock('../RightClickMarkerDropper', () => () => null);
+
+jest.mock('../SubjectTrackLegend', () => () => null);
+
+jest.mock('../UserCurrentLocationLayer', () => () => null);
 
 jest.mock('../TileEventFeaturesProvider', () => ({ children }) => children);
 
@@ -60,6 +75,26 @@ jest.mock('../ducks/subjects', () => ({
   clearSubjectData: jest.fn(),
   fetchMapSubjects: jest.fn(),
 }));
+
+let mockLoadedMap = null;
+jest.mock('../EarthRangerMap', () => {
+  const { useEffect } = jest.requireActual('react');
+  const ActualEarthRangerMap = jest.requireActual('../EarthRangerMap').default;
+
+  const MockEarthRangerMap = ({ children, onMapLoaded, ...otherProps }) => {
+    useEffect(() => {
+      if (mockLoadedMap) {
+        onMapLoaded(mockLoadedMap);
+      }
+    }, [onMapLoaded]);
+
+    return mockLoadedMap
+      ? children
+      : <ActualEarthRangerMap onMapLoaded={onMapLoaded} {...otherProps}>{children}</ActualEarthRangerMap>;
+  };
+
+  return { __esModule: true, default: MockEarthRangerMap };
+});
 
 jest.mock('../ducks/layers', () => ({
   ...jest.requireActual('../ducks/layers'),
@@ -509,6 +544,41 @@ describe('Map', () => {
     ]);
   });
 
+  describe('clicking a spatial feature point', () => {
+    const featurePoint = {
+      geometry: { coordinates: [-103.4, 20.7], type: 'Point' },
+      properties: { id: 'feature-point', name: 'Water Point' },
+    };
+
+    beforeEach(() => {
+      mockLoadedMap = map;
+      store.view.systemConfig = { [SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]: true };
+    });
+
+    afterEach(() => {
+      mockLoadedMap = null;
+    });
+
+    test('opens the feature popup', () => {
+      renderMap({ onMapLoad: jest.fn() });
+
+      map.__test__.fireHandlers('click', SPATIAL_FEATURES_SYMBOLS_LAYER_ID, { features: [featurePoint] });
+
+      expect(showPopupMock).toHaveBeenCalledWith('feature-symbol', expect.objectContaining({
+        coordinates: featurePoint.geometry.coordinates,
+      }));
+    });
+
+    test('does not open the feature popup while the user is picking a location', () => {
+      store.view.mapLocationSelection.isPickingLocation = true;
+      renderMap({ onMapLoad: jest.fn() });
+
+      map.__test__.fireHandlers('click', SPATIAL_FEATURES_SYMBOLS_LAYER_ID, { features: [featurePoint] });
+
+      expect(showPopupMock).not.toHaveBeenCalledWith('feature-symbol', expect.anything());
+    });
+  });
+
   test('does not show the EventFilter if user is picking a location on the map', async () => {
     store.view.mapLocationSelection.isPickingLocation = true;
     renderMap();
@@ -883,6 +953,24 @@ describe('Map', () => {
       });
 
       expect(hidePopupMock).not.toHaveBeenCalled();
+    });
+
+    test('hides the unpinned patrol tracks when no subject track is shown', async () => {
+      store.view.patrolTrackState = { hiddenSubjects: {}, pinned: [], visible: ['patrol-1'] };
+
+      renderMap();
+
+      map.queryRenderedFeatures.mockImplementation(() => []);
+
+      await waitFor(() => {
+        map.__test__.fireHandlers('click', {
+          originalEvent: { stopPropagation: jest.fn() },
+          point: { x: 100, y: 100 },
+        });
+      });
+
+      expect(updatePatrolTrackStateMock).toHaveBeenCalledWith({ visible: [] });
+      expect(updateTrackStateMock).not.toHaveBeenCalled();
     });
   });
 });

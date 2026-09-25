@@ -8,6 +8,7 @@ import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 import GlobalMenuDrawer from '.';
 import { hideDrawer } from '../ducks/drawer';
+import { INITIAL_GEAR_STATE } from '../ducks/gear';
 import { mockStore } from '../__test-helpers/MockStore';
 import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS, } from '../constants';
 import { render, screen, within } from '../test-utils';
@@ -51,6 +52,7 @@ describe('GlobalMenuDrawer', () => {
       data: {
         eventFilter: {},
         eventTypes,
+        gear: { ...INITIAL_GEAR_STATE },
         systemStatus: {
           server: { version: '' },
         },
@@ -118,6 +120,38 @@ describe('GlobalMenuDrawer', () => {
     renderGlobalMenuDrawer();
 
     expect(screen.queryByRole('link', { name: 'Patrols' })).toBeNull();
+  });
+
+  test('does not show the Events link if events are not enabled', async () => {
+    useMatchMedia.mockImplementation(() => false);
+    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS] = false;
+    renderGlobalMenuDrawer();
+
+    expect(within(screen.getByRole('navigation')).queryByRole('link', { name: 'Events' })).toBeNull();
+  });
+
+  test('shows the Gear link if the site has gear', async () => {
+    useMatchMedia.mockImplementation(() => false);
+    store.data.gear.hasGear = true;
+    renderGlobalMenuDrawer();
+
+    expect(within(screen.getByRole('navigation')).getByRole('link', { name: 'Gear' })).toHaveAttribute('href', '/gear');
+  });
+
+  test('does not show the Gear link if the site has no gear', async () => {
+    useMatchMedia.mockImplementation(() => false);
+    renderGlobalMenuDrawer();
+
+    expect(within(screen.getByRole('navigation')).queryByRole('link', { name: 'Gear' })).toBeNull();
+  });
+
+  test('does not show the Map Layers link if all layers are disabled', async () => {
+    useMatchMedia.mockImplementation(() => false);
+    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS] = false;
+    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.SUBJECTS] = false;
+    renderGlobalMenuDrawer();
+
+    expect(within(screen.getByRole('navigation')).queryByRole('link', { name: 'Map Layers' })).toBeNull();
   });
 
   test('does not show the Tableau button if it is not enabled', async () => {

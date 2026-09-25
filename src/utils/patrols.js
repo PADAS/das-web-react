@@ -527,16 +527,9 @@ export const getPatrolsForLeaderId = (leaderId) => {
   });
 };
 
-export const getActivePatrolsForLeaderId = (leaderId) => {
-  const patrols = getPatrolsForLeaderId(leaderId);
-  const activePatrols = patrols.filter(
-    item => {
-      return calcPatrolState(item) === PATROL_UI_STATES.ACTIVE;
-    }
-  );
-
-  return activePatrols;
-};
+// A paused patrol is still under way, so its lead is still out on it.
+export const getActivePatrolsForLeaderId = (leaderId) => getPatrolsForLeaderId(leaderId)
+  .filter((patrol) => isPatrolStateUnderWay(calcPatrolState(patrol)));
 
 export const extractAttachmentUpdates = (collection) => {
   const extractedUpdates =

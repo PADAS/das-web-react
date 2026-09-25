@@ -214,7 +214,7 @@ const SideBar = () => {
           <ERLogo />
         </div>
 
-        {!hideDefaultHeader && <div className={styles.header}>
+        {isSideBarOpen && !hideDefaultHeader && <div className={styles.header}>
           <div className={styles.title}>
             {(currentTab === TAB_KEYS.EVENTS || currentTab === TAB_KEYS.PATROLS) && <div>
               {itemId

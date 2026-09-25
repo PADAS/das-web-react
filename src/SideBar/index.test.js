@@ -482,6 +482,15 @@ describe('SideBar', () => {
     expect(screen.getByRole('heading')).toHaveTextContent('Settings');
   });
 
+  test('does not show the tab header when no tab is open', async () => {
+    useLocationMock = jest.fn((() => ({ pathname: '/' })));
+    useLocation.mockImplementation(useLocationMock);
+    renderSideBar();
+
+    expect(screen.queryByRole('heading')).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Close sidebar' })).toBeNull();
+  });
+
   test('closes the sidebar tabs with a link to the root route', async () => {
     renderSideBar();
 

@@ -2230,6 +2230,20 @@ describe('Patrols utils', () => {
       expect(getActivePatrolsForLeaderId('leader-b')).toEqual([activeLastLegPatrol]);
       expect(getActivePatrolsForLeaderId('leader-a')).toEqual([]);
     });
+
+    test('keeps a paused patrol, which is still under way', () => {
+      const pausedPatrol = {
+        ...activePatrol,
+        id: 'patrol-paused',
+        patrol_segments: [
+          { ...activePatrol.patrol_segments[0], leader: { id: 'leader-a' } },
+          { ...activePatrol.patrol_segments[0], is_pause: true, leader: { id: 'leader-a' } },
+        ],
+      };
+      store.getState.mockReturnValue({ data: { patrolStore: { 'patrol-paused': pausedPatrol } } });
+
+      expect(getActivePatrolsForLeaderId('leader-a')).toEqual([pausedPatrol]);
+    });
   });
 
   describe('getReportsForPatrol', () => {

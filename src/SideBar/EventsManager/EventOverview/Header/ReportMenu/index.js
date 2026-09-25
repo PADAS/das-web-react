@@ -20,6 +20,7 @@ import {
   getReportLink,
 } from '../../../../../utils/events';
 import { basePrintingStyles } from '../../../../../utils/styles';
+import { governingPatrolSegment } from '../../../../../utils/patrols';
 import { TAB_KEYS } from '../../../../../constants';
 import { TrackerContext } from '../../../../../utils/analytics';
 
@@ -85,7 +86,7 @@ const ReportMenu = ({
   };
 
   const onAddToPatrol = async (patrol) => {
-    const patrolSegmentId = patrol?.patrol_segments?.[0]?.id;
+    const patrolSegmentId = governingPatrolSegment(patrol)?.id;
     if (!patrolSegmentId) return;
 
     const [{ data: { data: savedReport } }] = await onSaveReport(undefined, false);

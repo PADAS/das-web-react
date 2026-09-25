@@ -347,21 +347,25 @@ const Map = ({ children, onMapLoad, socket }) => {
     const { visible } = subjectTrackState;
     const { visible: visiblePatrolIds } = patrolTrackState;
 
-    if (!visible.length) return;
+    if (visible.length || visiblePatrolIds.length) {
+      const clickedLayerIDs = map.queryRenderedFeatures(event.point)
+        .filter(({ properties }) => !!properties && properties.id)
+        .map(({ properties: { id } }) => id);
 
-    const clickedLayerIDs = map.queryRenderedFeatures(event.point)
-      .filter(({ properties }) => !!properties && properties.id)
-      .map(({ properties: { id } }) => id);
+      if (visible.length) {
+        dispatch(updateTrackState({ visible: visible.filter((id) => clickedLayerIDs.includes(id)) }));
+      }
 
-    const matchingPatrolIds = clickedLayerIDs
-      .reduce((accumulator, id) => [...accumulator, ...getPatrolsForLeaderId(id)], [])
-      .map(({ id }) => id);
-    dispatch(
-      updateTrackState({ visible: visible.filter(id => clickedLayerIDs.includes(id)) })
-    );
-    dispatch(
-      updatePatrolTrackState({ visible: visiblePatrolIds.filter(id => matchingPatrolIds.includes(id)) })
-    );
+      if (visiblePatrolIds.length) {
+        const matchingPatrolIds = clickedLayerIDs
+          .flatMap((id) => getPatrolsForLeaderId(id))
+          .map((patrol) => patrol.id);
+
+        dispatch(updatePatrolTrackState({
+          visible: visiblePatrolIds.filter((patrolId) => matchingPatrolIds.includes(patrolId)),
+        }));
+      }
+    }
   }, [patrolTrackState, subjectTrackState, dispatch]);
 
   const setMap = useCallback((map) => {
@@ -415,14 +419,14 @@ const Map = ({ children, onMapLoad, socket }) => {
     showPopup('timepoint', { geometry, properties, coordinates: geometry.coordinates });
   });
 
-  const onFeatureSymbolClick = useCallback((feature) => {
+  const onFeatureSymbolClick = useMemo(() => withLocationPickerState((feature) => {
     const { geometry, properties } = feature;
 
     if (geometry.type === 'Point') {
       showPopup('feature-symbol', { geometry, properties, coordinates: geometry.coordinates });
       mapInteractionTracker.track('Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
     }
-  }, [showPopup]);
+  }), [showPopup, withLocationPickerState]);
 
   const onAnalyzerGroupEnter = useCallback((e, groupIds) => {
     // if an analyzer popup is open, and the user selects a new analyzer, dismiss the current pop.

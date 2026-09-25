@@ -235,12 +235,18 @@ describe('Menu report options', () => {
     });
   });
 
-  test('saves the event into the first leg of the patrol the user picks, then opens the patrol', async () => {
+  test('saves the event into the running leg of the patrol the user picks, then opens the patrol', async () => {
     const modal = await renderReportMenuAndPick('Add to Patrol');
 
-    await act(() => modal.onAddToPatrol({ id: 'patrol', patrol_segments: [{ id: 'leg' }] }));
+    await act(() => modal.onAddToPatrol({
+      id: 'patrol',
+      patrol_segments: [
+        { id: 'first-leg', time_range: { end_time: '2026-01-01T10:00:00Z', start_time: '2026-01-01T08:00:00Z' } },
+        { id: 'running-leg', time_range: { end_time: null, start_time: '2026-01-01T10:00:00Z' } },
+      ],
+    }));
 
-    expect(addPatrolSegmentToEvent).toHaveBeenCalledWith('leg', 'saved-event');
+    expect(addPatrolSegmentToEvent).toHaveBeenCalledWith('running-leg', 'saved-event');
     await waitFor(() => {
       expect(setRedirectTo).toHaveBeenCalledWith('/patrols/patrol');
     });

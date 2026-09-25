@@ -436,12 +436,12 @@ export const TIME_OF_DAY_PERIODS = [
   {
     rangeString: '06:01 - 09:00',
     rangeMinutesMin: 361,
-    rangeMinutesMax: 54,
+    rangeMinutesMax: 540,
     color: '#29a272'
   },
   {
     rangeString: '09:01 - 12:00',
-    rangeMinutesMin: 55,
+    rangeMinutesMin: 541,
     rangeMinutesMax: 720,
     color: '#2ec27e'
   }
