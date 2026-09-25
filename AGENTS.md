@@ -29,7 +29,7 @@ This repository is the **EarthRanger web client**, used by control-room operator
 
 An event has a serial number users quote, a **title** (shown as its event type's name when it has none, and with that name beneath it when it does), a **state**, a **priority**, a **reporter** (a user, or a subject such as a ranger's radio), a time, notes, files, and `event_details`, the values captured by its type's form.
 
-**State** is the triage lifecycle: active until someone resolves it, with `review` for community submissions awaiting moderation. The server creates events as `new` and flips them to `active` on any update; the client treats both as active. **Priority** is `300` high / `200` medium / `100` low / `0` none.
+**State** is the triage lifecycle: active until someone resolves it, with `review` for community submissions awaiting moderation. The client treats `new` as active too. **Priority** is `300` high / `200` medium / `100` low / `0` none.
 
 > The codebase historically called events "reports", and many components, props and translation namespaces still do. "Event" is the preferred term.
 
@@ -62,7 +62,7 @@ An event can also belong to a **patrol**, when filed during one, and be **linked
 
 **Subject groups** are a nested hierarchy configured in the admin. They decide which subjects a user can see and organize the Map Layers subject list. A subject may belong to several groups.
 
-**Sources and observations.** A **source**, the physical device (a GPS collar, a radio, a satellite tag), sends **observations**, timestamped positions with telemetry, and the server attributes them to a subject through a time-windowed assignment, so a collar refitted to another animal does not rewrite the first animal's history. The client never handles sources: it reads everything by subject.
+**Sources and observations.** A **source**, the physical device (a GPS collar, a radio, a satellite tag), sends **observations**, timestamped positions with telemetry, which the server attributes to a subject. The client never handles sources: it reads everything by subject.
 
 Some subjects are handled differently:
 - **Static sensors** (`is_static`, or the `stationary-object` type) draw as a label showing their default reading, with no track or heatmap.
@@ -110,7 +110,7 @@ While the time slider is active, each subject sits at its last track point befor
 
 **Plan and actuals.** A leg's `scheduled_start` and `scheduled_end` are the plan; its `time_range` (`start_time`, `end_time`) is what happened, and the leg form decides which one a time goes into. A future start saved without "Automatically start" is a plan, fulfilled with the Start action. With it, or with a start in the past, it is written as the actual start, and the patrol begins by itself when it arrives. Ends work the same way. Only the first leg may keep a planned start; later legs begin by themselves.
 
-**Legs run in order,** sorted by their start. When the client adds a leg, it also ends the previous one at the new leg's start, in the same update, if it has no end yet; the server closes nothing by itself, so a leg added any other way leaves two legs running. A leg with no end is read as having ended when the next one began.
+**Legs run in order,** sorted by their start. When the client adds a leg, it also ends the previous one at the new leg's start, in the same update, if it has no end yet. A leg with no end is read as having ended when the next one began.
 
 **Pauses** are legs marked `is_pause`. Pausing closes the running leg and opens a copy of it as a pause at the same instant; resuming closes the pause and opens another copy. A pause tracks nobody and has no form fields. The API omits pauses from patrol reads unless asked, so every patrol request here asks for them.
 
@@ -122,7 +122,7 @@ While the time slider is active, each subject sits at its last track point befor
 - **assets**, the vehicles, aircraft, radios and GPS units taken along;
 - the **team lead**, the leg's `leader`, which the API and its filter call "tracked by".
 
-**State.** The API stores only `open`, `done` and `cancelled`, recomputed from the legs on every write, and a background task ends patrols whose legs have ended, so a patrol can turn `done` with no write from here. The UI computes a richer state from the leg times:
+**State.** The API stores only `open`, `done` and `cancelled`. The UI computes a richer state from the leg times:
 
 | UI state | Condition |
 |---|---|
@@ -150,7 +150,7 @@ A leg takes the patrol's state and its place in it: only the first leg can be re
 
 **Events** join a patrol through a leg: an event lists its legs in `patrol_segments`, and a patrol's events are its legs'. An event added from Patrol Overview, or added to a patrol from Event Overview, goes to the running leg, else the last to have run; one added from Leg Overview goes to that leg.
 
-**Mobile patrols.** Patrols run from EarthRanger Mobile will carry `provenance: 'mobile'`, which the client already honors: while one is under way it takes no new legs and offers only End, and its legs can be edited only once done or cancelled. The server does not send the field yet; update this paragraph when it does.
+**Mobile patrols.** A patrol run from EarthRanger Mobile carries `provenance: 'mobile'`: while one is under way it takes no new legs and offers only End, and its legs can be edited only once done or cancelled.
 
 **UI**
 - **Patrols Feed** (`/patrols`): ordered ready to start → overdue → active → paused → scheduled → done → cancelled, then by the latest leg update, and fetched in one request, kept live over the socket. Its date range is shared with the event filter and matches patrols that overlap it, or only those starting in it. A row's status change applies at once.
@@ -175,7 +175,7 @@ A leg takes the patrol's state and its place in it: only the first leg can be re
 
 **Gear** is ropeless fishing equipment. A **gearset** is a single trap on the seabed or a **trawl** of several, each marked by a buoy **device** that surfaces on command instead of a line to the surface. Manufacturer integrations report it; this client only displays it.
 
-A gearset has a label, a manufacturer, and devices with their positions and last deployment. The API returns only deployed sets by default, so a set hauled out of the water leaves the Gear tab at the next refresh. Its `type` counts only located devices: a trawl with a device missing its fix reads as `single`, and a set with none is not drawn.
+A gearset has a label, a manufacturer, and devices with their positions and last deployment. A set with no located device is not drawn.
 
 **Gear subjects.** A gearset is also a subject (`ropeless_buoy_gearset`, or the older `ropeless_buoy_device`), so gear comes back in subject reads too. The client keeps those subjects out of every subject display, so each set appears once, from the gear list.
 
@@ -198,8 +198,6 @@ They come in three levels:
 - a **featureset** (the admin's "display category") is a grouping users toggle, such as "Boundaries";
 - a **feature type** belongs to one featureset and sets its features' default style;
 - a **feature** has a name, one geometry (points, lines or polygons), and style keys of its own that override its type's, key by key.
-
-A feature whose type has no featureset, or is hidden in the admin, never reaches the map, though the API still returns it.
 
 **Loading.** The map draws features from vector tiles carrying their resolved style. Map Layers lists them from a featureset summary, fetched when the map loads, with names and bounds but no geometry.
 
@@ -233,7 +231,7 @@ A feature whose type has no featureset, or is hidden in the admin, never reaches
 
 **Analyzers** are server-side rules that watch the tracks of a subject group and raise an event when the movement matches a pattern: a geofence crossed, a subject near a feature or another subject, a collar that stopped moving, a drop in speed. Their findings reach the client as ordinary events; the client only draws where the spatial analyzers apply.
 
-**Spatial analyzers** are the geofence and feature-proximity ones. The client reads the active ones once at startup, filtered by the server to the types the user may view, and draws their features: a geofence's warning and critical lines or polygons, or a proximity analyzer's features buffered by its distance threshold.
+**Spatial analyzers** are the geofence and feature-proximity ones. The client reads the active ones once at startup and draws their features: a geofence's warning and critical lines or polygons, or a proximity analyzer's features buffered by its distance threshold.
 
 **Alerts** are personal rules for which event types, under which conditions and at which hours, notify a user by email or text message. The server sends them; the client embeds its alerts page in an iframe, in Settings → Alerts and in a global menu modal.
 
@@ -565,7 +563,7 @@ Comment only what the code cannot say — a non-obvious *why*, a caveat, an exte
 
 ### Commands
 
-- `yarn start`: Vite dev server on port 9000
+- `yarn start`: Vite dev server on port 9000, against the development backend at https://root.dev.pamdas.org. Each developer configures it in `.env.development`.
 - `yarn build`: production bundle, then the service worker
 - `yarn test <path-or-pattern>`: Jest. It pins `TZ=UTC`; a bare `jest` invocation will fail datetime tests on any other machine timezone.
 - `yarn lint`: ESLint over all of `src`, which carries pre-existing problems. To see only yours, run `npx eslint` on the files you touched.
