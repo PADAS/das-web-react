@@ -18,12 +18,16 @@
     "addAttachmentTitle": "Adjuntar archivo"
   },
   "attachmentListItem": {
+    "audioPreviewAlt": "{{fileName}} vista previa de audio",
     "collapseClosedButtonLabel": "Expandir {{fileName}}",
     "collapseOpenButtonLabel": "Colapsar {{fileName}}",
     "deleteButtonTooltip": "Borrar {{fileName}}",
     "downloadButtonTooltip": "Descargar {{fileName}}",
     "fullViewButtonTooltip": "Mostrar {{fileName}} en pantalla completa",
-    "imagePreviewAlt": "{{fileName}} vista previa"
+    "imagePreviewAlt": "{{fileName}} vista previa",
+    "mediaLoadErrorMessage": "No se pudo cargar este archivo.",
+    "playButtonLabel": "Reproducir {{fileName}}",
+    "videoPreviewAlt": "{{fileName}} vista previa de video"
   },
   "containedReportListItem": {
     "activeStateLabel": "Activo",
@@ -55,9 +59,9 @@
     "sectionTitle": "Historial",
     "timeLabel": "Tiempo"
   },
-  "imageModal": {
-    "errorTitle": "Error al cargar la imagen.",
-    "errorMessage": "Si subió esta imagen recientemente, espere un minuto y vuelva a intentarlo, por favor."
+  "mediaModal": {
+    "errorMessage": "Si subió este archivo recientemente, espere un minuto y vuelva a intentarlo, por favor.",
+    "errorTitle": "Error al cargar el archivo."
   },
   "navigationPromptModal": {
     "cancelNavigationButtonText": "Regresar",
