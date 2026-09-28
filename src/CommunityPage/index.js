@@ -2,6 +2,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import MoonLoader from 'react-spinners/MoonLoader';
+import { Slide, ToastContainer } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
@@ -363,6 +364,8 @@ const CommunityPage = () => {
     <div className={styles.pageContainer} ref={pageContainerRef} tabIndex={-1}>
       {content}
     </div>
+
+    <ToastContainer transition={Slide} />
   </SidebarScrollProvider>;
 };
 

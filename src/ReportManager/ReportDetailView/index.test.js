@@ -10,7 +10,7 @@ import AddItemButton from '../../AddItemButton';
 import { addEventToIncident, createEvent, fetchEvent } from '../../ducks/events';
 import { activePatrol } from '../../__test-helpers/fixtures/patrols';
 import { createMapMock } from '../../__test-helpers/mocks';
-import { eventSchemas } from '../../__test-helpers/fixtures/event-schemas';
+import { attachmentSchemaV2, eventSchemas } from '../../__test-helpers/fixtures/event-schemas';
 import { eventTypes, snareV2 } from '../../__test-helpers/fixtures/event-types';
 import { executeSaveActions, generateSaveActionsForReportLikeObject } from '../../utils/save';
 import { TrackerContext } from '../../utils/analytics';
@@ -24,6 +24,7 @@ import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import ReportDetailView from './';
 import { setLocallyEditedEvent, unsetLocallyEditedEvent } from '../../ducks/locally-edited-event';
 import { TAB_KEYS } from '../../constants';
+import { uploadFile } from '../../ducks/user-content';
 import useNavigate from '../../hooks/useNavigate';
 import { notes } from '../../__test-helpers/fixtures/reports';
 import { SidebarScrollProvider } from '../../SidebarScrollContext';
@@ -68,6 +69,11 @@ jest.mock('../../ducks/locally-edited-event', () => ({
 jest.mock('../../ducks/event-schemas', () => ({
   ...jest.requireActual('../../ducks/event-schemas'),
   fetchEventTypeSchema: jest.fn(),
+}));
+
+jest.mock('../../ducks/user-content', () => ({
+  ...jest.requireActual('../../ducks/user-content'),
+  uploadFile: jest.fn(),
 }));
 
 jest.mock('../../utils/save', () => ({
@@ -239,6 +245,7 @@ describe('ReportManager - ReportDetailView', () => {
         eventSchemas,
         patrolStore: { 123: activePatrol },
         tracks: {},
+        userContent: {},
       },
       view: {
         coordinateReferenceSystems: {
@@ -1135,6 +1142,36 @@ describe('ReportManager - ReportDetailView', () => {
     );
 
     expect((await screen.queryByTestId('addItemButton-button'))).toBeNull();
+  });
+
+  test('does not show add report button if the report is rendered in a community context', async () => {
+    renderWithWrapper(
+      <ReportDetailView isCommunity isNewReport={false} reportId="456" />
+    );
+
+    expect(screen.queryByTestId('addItemButton-button')).toBeNull();
+  });
+
+  test('gives the details section the community input value it receives', async () => {
+    state.data.eventTypes = [...eventTypes, snareV2];
+    state.data.eventSchemas = { ...eventSchemas, [snareV2.value]: { 792: attachmentSchemaV2 } };
+    state.data.eventStore = {
+      ...state.data.eventStore,
+      792: { ...mockReport, event_details: {}, event_type: snareV2.value, id: '792' },
+    };
+    uploadFile.mockImplementation(() => () => 'test-upload-id');
+
+    renderWithWrapper(
+      <ReportDetailView communityInputValue="test-community-input" isCommunity isNewReport={false} reportId="792" />
+    );
+    const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
+
+    await userEvent.upload(
+      await screen.findByTestId('schema-form-attachment-field-attachment_field-file-input'),
+      file
+    );
+
+    expect(uploadFile).toHaveBeenCalledWith(file, 'test-community-input');
   });
 
   test('shows the add report button', async () => {

@@ -1,4 +1,5 @@
 import { Provider } from 'react-redux';
+import { toast } from 'react-toastify';
 import { useNavigate, useParams } from 'react-router';
 import userEvent from '@testing-library/user-event';
 
@@ -474,6 +475,19 @@ describe('CommunityPage', () => {
       );
 
       expect(await screen.findByTestId(`categoryList-button-${TYPE_A.id}`)).toBeInTheDocument();
+    });
+  });
+
+  describe('toasts', () => {
+    test('renders a toast raised from within the page', async () => {
+      renderPage();
+      await screen.findByRole('heading', { level: 2 });
+
+      act(() => {
+        toast.error('Could not read your current location');
+      });
+
+      expect(await screen.findByText('Could not read your current location')).toBeInTheDocument();
     });
   });
 

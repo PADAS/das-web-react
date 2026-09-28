@@ -66,6 +66,7 @@
     "shareLocationToastTitle": "Aprende cómo"
   },
   "getUserLocationButton": {
+    "cancelButtonLabel": "Cancelar",
     "errorToastMessage": "No se pudo obtener tu ubicación actual: {{errorMessage}}",
     "loadingOverlayMessage": "Intentando obtener tu ubicación...",
     "userLocationButtonLabel": "Obtener ubicación actual"
@@ -108,7 +109,7 @@
     "menuPopover": {
       "dialogLabel": "Ubicación",
       "getUserLocationButton": "Usar mi ubicación",
-      "permissionBlockedMessage": "El navegador bloqueó el uso compartido de la ubicación",
+      "permissionBlockedMessage": "El navegador bloqueó el uso compartido de la ubicación. Permítelo en la configuración del navegador.",
       "pickMapLocationButton": "Establecer en el mapa"
     },
     "setLocationButtonLabel": {

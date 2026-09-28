@@ -362,6 +362,177 @@ describe('GetUserLocationButton', () => {
     jest.useRealTimers();
   });
 
+  test('does not offer to cancel the read before it starts', async () => {
+    renderGetUserLocationButton();
+
+    expect(screen.queryByRole('button', { name: 'Cancel' })).toBeNull();
+  });
+
+  describe('while the location is being read', () => {
+    let pendingReads;
+    beforeEach(() => {
+      pendingReads = [];
+
+      window.navigator.geolocation = {
+        getCurrentPosition: jest.fn((successCallback, errorCallback) => {
+          pendingReads.push({ error: errorCallback, success: successCallback });
+        }),
+      };
+    });
+
+    const clickUserLocationButton = () => userEvent.click(screen.getByLabelText('Get current position'));
+
+    const clickCancelButton = () => userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    test('offers to cancel the read', async () => {
+      renderGetUserLocationButton();
+
+      await clickUserLocationButton();
+
+      expect(screen.getByRole('button', { name: 'Cancel' })).toBeVisible();
+    });
+
+    test('moves the focus to the cancel button so it can be reached without tabbing', async () => {
+      renderGetUserLocationButton();
+
+      await clickUserLocationButton();
+
+      expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Cancel' }));
+    });
+
+    test('returns the focus to the location button when the read fails', async () => {
+      renderGetUserLocationButton();
+
+      await clickUserLocationButton();
+
+      act(() => pendingReads[0].error({ code: 2, message: 'Position unavailable', PERMISSION_DENIED: 1 }));
+
+      expect(document.activeElement).toBe(screen.getByLabelText('Get current position'));
+    });
+
+    test('does not move the focus when the read fails after the user moved to another control', async () => {
+      render(<Provider store={mockStore(store)}>
+        <GetUserLocationButton onGet={onGet} />
+
+        <input aria-label="Coordinates" />
+      </Provider>);
+
+      await clickUserLocationButton();
+
+      const coordinatesInput = screen.getByLabelText('Coordinates');
+      coordinatesInput.focus();
+
+      act(() => pendingReads[0].error({ code: 2, message: 'Position unavailable', PERMISSION_DENIED: 1 }));
+
+      expect(document.activeElement).toBe(coordinatesInput);
+    });
+
+    test('hides the loading overlay when the user cancels', async () => {
+      renderGetUserLocationButton();
+
+      await clickUserLocationButton();
+      await clickCancelButton();
+
+      expect(screen.queryByText('Trying to read your location...')).toBeNull();
+      expect(screen.queryByRole('button', { name: 'Cancel' })).toBeNull();
+    });
+
+    test('returns the focus to the location button when the user cancels', async () => {
+      renderGetUserLocationButton();
+
+      await clickUserLocationButton();
+      await clickCancelButton();
+
+      expect(document.activeElement).toBe(screen.getByLabelText('Get current position'));
+    });
+
+    test('ignores a position that arrives after the user cancels', async () => {
+      renderGetUserLocationButton();
+
+      await clickUserLocationButton();
+      await clickCancelButton();
+
+      act(() => pendingReads[0].success({ coords: { latitude: 15, longitude: 15 } }));
+
+      expect(onGet).not.toHaveBeenCalled();
+      expect(setCurrentUserLocationMock).not.toHaveBeenCalled();
+      expect(screen.queryByText('Trying to read your location...')).toBeNull();
+    });
+
+    test('ignores an error that arrives after the user cancels', async () => {
+      const onPermissionDenied = jest.fn();
+      renderGetUserLocationButton({ onPermissionDenied });
+
+      await clickUserLocationButton();
+      await clickCancelButton();
+
+      act(() => pendingReads[0].error({ code: 1, message: 'User denied Geolocation', PERMISSION_DENIED: 1 }));
+
+      expect(toast.error).not.toHaveBeenCalled();
+      expect(onPermissionDenied).not.toHaveBeenCalled();
+    });
+
+    test('reads the location again after a cancelled read', async () => {
+      renderGetUserLocationButton();
+
+      await clickUserLocationButton();
+      await clickCancelButton();
+      await clickUserLocationButton();
+
+      act(() => pendingReads[1].success({ coords: { latitude: 15, longitude: 15 } }));
+
+      expect(onGet).toHaveBeenCalledTimes(1);
+      expect(onGet).toHaveBeenCalledWith({ latitude: 15, longitude: 15 });
+    });
+
+    test('waits for the last read when the user asks for the location twice', async () => {
+      renderGetUserLocationButton();
+
+      await clickUserLocationButton();
+      await clickUserLocationButton();
+
+      act(() => pendingReads[0].success({ coords: { latitude: 15, longitude: 15 } }));
+
+      expect(onGet).not.toHaveBeenCalled();
+      expect(screen.getByText('Trying to read your location...')).toBeVisible();
+
+      act(() => pendingReads[1].success({ coords: { latitude: 20, longitude: 20 } }));
+
+      expect(onGet).toHaveBeenCalledTimes(1);
+      expect(onGet).toHaveBeenCalledWith({ latitude: 20, longitude: 20 });
+      expect(screen.queryByText('Trying to read your location...')).toBeNull();
+    });
+
+    test('describes the cancel button with the message of the overlay', async () => {
+      renderGetUserLocationButton();
+
+      await clickUserLocationButton();
+
+      expect(screen.getByRole('button', { name: 'Cancel' }))
+        .toHaveAccessibleDescription('Trying to read your location...');
+    });
+
+    test('ignores a position that arrives after the button unmounts', async () => {
+      const { unmount } = renderGetUserLocationButton();
+
+      await clickUserLocationButton();
+
+      unmount();
+
+      act(() => pendingReads[0].success({ coords: { latitude: 15, longitude: 15 } }));
+
+      expect(onGet).not.toHaveBeenCalled();
+      expect(setCurrentUserLocationMock).not.toHaveBeenCalled();
+    });
+  });
+
+  test('gives the button element to the ref of the caller', async () => {
+    const ref = React.createRef();
+    renderGetUserLocationButton({ ref });
+
+    expect(ref.current).toBe(screen.getByLabelText('Get current position'));
+  });
+
   test('renders the button content', async () => {
     renderGetUserLocationButton({ renderContent: () => <div data-testid="content" /> });
 

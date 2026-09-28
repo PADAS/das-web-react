@@ -7,6 +7,7 @@ import { ReactComponent as GpsLocationIcon } from '../../common/images/icons/gps
 import { ReactComponent as MarkerFeedIcon } from '../../common/images/icons/marker-feed.svg';
 
 import { EVENT_REPORT_CATEGORY, trackEventFactory } from '../../utils/analytics';
+import { FOCUSABLE_SELECTOR } from '../../constants';
 import { GEOLOCATION_PERMISSION_STATES } from '../../utils/location/constants';
 import useGeolocationPermissionState from '../../hooks/useGeolocationPermissionState';
 
@@ -48,7 +49,6 @@ const MenuPopover = ({
 
   const gpsFormatToggleRef = useRef();
   const gpsInputRef = useRef();
-  const lastFocusableElementRef = useRef();
   const wrapperRef = useRef();
 
   const permissionBlockedMessageId = useId();
@@ -118,7 +118,11 @@ const MenuPopover = ({
     if (!isPickingLocation) {
       const onKeyDown = (event) => {
         if (event.key === 'Tab') {
-          const lastFocusableElement = lastFocusableElementRef.current || gpsInputRef.current;
+          // The overlay of a running location read adds a cancel button to the
+          // popover, so the last focusable element is not always the same one.
+          const focusableElements = wrapperRef.current?.querySelectorAll(FOCUSABLE_SELECTOR);
+          const lastFocusableElement = focusableElements?.[focusableElements.length - 1] || gpsInputRef.current;
+
           if (event.shiftKey && document.activeElement === gpsFormatToggleRef.current) {
             event.preventDefault();
 
@@ -204,7 +208,6 @@ const MenuPopover = ({
             <PickMapLocationButton
               onClick={() => eventReportTracker.track('Click \'Set on map\'')}
               onPick={onMapLocationPick}
-              ref={!showUserLocation ? lastFocusableElementRef : undefined}
               renderContent={() => <>
                 <MarkerFeedIcon />
 
@@ -220,7 +223,6 @@ const MenuPopover = ({
           onClick={() => eventReportTracker.track('Click \'Use my location\'')}
           onGet={onUserLocationGet}
           onPermissionDenied={() => setWasLocationPermissionDeniedOnClick(true)}
-          ref={lastFocusableElementRef}
           renderContent={() => <>
             <GpsLocationIcon />
 
