@@ -594,3 +594,13 @@ Before you call the work done, reread what you wrote — every changed hunk, not
 - Run `yarn test` over the areas you changed and make sure they pass.
 - If you changed anything under `public/locales/`, bump `I18N_FILES_VERSION` in `src/i18n.js` above develop's and verify with `yarn check-i18n-files-version`.
 - Update this file only under the terms in **Maintaining This File**.
+
+### Reviewing a Pull Request
+
+Run the Polish Pass over the diff, and check as well:
+
+- **Correctness.** The change does what the PR description and its ticket, if there is one, say it does, and follows the business rules in the Product section for every domain it touches. It works as the user expects, handles failed requests and invalid input, and introduces no bug or regression on the paths it touches.
+- **Code quality.** The code follows the Conventions above, and is clean, readable, simple and elegant. Dead code is removed, and touched code is brought up to standard under the boy scout rule, within the bounds set in Scope.
+- **Performance.** React does no needless work: no avoidable re-renders or effects, and every memo is justified and correct. API calls are not duplicated, over-fetched or fired where the store already holds the data. State lives at the right level — Redux, component state or context — without copies to keep in sync. Algorithms fit the data: no brute force or needless nested loops, and a lookup map or set wherever repeated searches through an array would do.
+- **Accessibility.** The UI meets WCAG 2.1 AA. The HTML is valid and semantic, native elements come before ARIA, and ARIA, where needed, is correct and minimal. Every interactive element can be reached and operated by keyboard, with focus managed on purpose.
+- **Tests.** Every change is fully covered. Each test asserts behavior and is named for its scenario and expectation, and a regression test fails without the fix.
