@@ -19,7 +19,7 @@ import MockSocketProvider, { mockedSocket } from '../__test-helpers/MockSocketCo
 import { mockStore } from '../__test-helpers/MockStore';
 import patrols from '../__test-helpers/fixtures/patrols';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
-import { render, screen, waitFor } from '../test-utils';
+import { act, createEvent, fireEvent, render, screen, waitFor } from '../test-utils';
 import SideBar from '.';
 import { PERMISSION_KEYS, PERMISSIONS, PREVIEW_FEATURES, SYSTEM_CONFIG_FLAGS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
@@ -37,6 +37,42 @@ jest.mock('../ducks/patrols', () => ({
 }));
 
 jest.mock('../hooks/useNavigate', () => jest.fn());
+
+jest.mock('../PatrolDetailView', () => {
+  const MockPatrolDetailView = () => <div data-testid="patrolDetailView" />;
+
+  return MockPatrolDetailView;
+});
+jest.mock('./EventsManager', () => {
+  const MockEventsManager = () => <div data-testid="eventsManager" />;
+
+  return MockEventsManager;
+});
+jest.mock('./GearTab', () => {
+  const MockGearTab = () => <div data-testid="gearTab" />;
+
+  return MockGearTab;
+});
+jest.mock('./MapLayersTab', () => {
+  const MockMapLayersTab = () => <div data-testid="mapLayersTab" />;
+
+  return MockMapLayersTab;
+});
+jest.mock('./PatrolsFeed', () => {
+  const MockPatrolsFeed = () => <div data-testid="patrolsFeed" />;
+
+  return MockPatrolsFeed;
+});
+jest.mock('./PatrolsManager', () => {
+  const MockPatrolsManager = () => <div data-testid="patrolsManager" />;
+
+  return MockPatrolsManager;
+});
+jest.mock('./SettingsPane', () => {
+  const MockSettingsPane = () => <div data-testid="settingsPane" />;
+
+  return MockSettingsPane;
+});
 
 const eventFeedResponse = { data: { results: events, next: null, count: events.length, page: 1 } };
 
@@ -672,5 +708,89 @@ describe('SideBar', () => {
     renderSideBar();
 
     expect(navigate).toHaveBeenCalledWith('/', { replace: true });
+  });
+
+  describe('closing', () => {
+    let routerNavigate;
+
+    const RouterNavigateCapture = () => {
+      routerNavigate = jest.requireActual('react-router').useNavigate();
+
+      return null;
+    };
+
+    const renderOpenSideBar = () => render(
+      <Provider store={mockStore(store)}>
+        <MockSocketProvider>
+          <MapContext.Provider value={map}>
+            <RouterNavigateCapture />
+
+            <SideBar />
+          </MapContext.Provider>
+        </MockSocketProvider>
+      </Provider>,
+      { initialEntries: ['/settings'] }
+    );
+
+    const navigateTo = (pathname) => act(() => routerNavigate(pathname));
+
+    const fireTransformTransitionEnd = (element) => {
+      const transitionEndEvent = createEvent.transitionEnd(element);
+      Object.defineProperty(transitionEndEvent, 'propertyName', { value: 'transform' });
+
+      fireEvent(element, transitionEndEvent);
+    };
+
+    beforeEach(() => {
+      useLocation.mockImplementation(jest.requireActual('react-router').useLocation);
+    });
+
+    test('keeps the tab content and header while the sidebar slides out', () => {
+      renderOpenSideBar();
+
+      navigateTo('/');
+
+      expect(screen.getByTestId('settingsPane')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Settings' })).toBeInTheDocument();
+      expect(screen.getByTestId('sideBar-tab')).toHaveAttribute('inert');
+    });
+
+    test('unmounts the tab content once the slide out transition ends', () => {
+      renderOpenSideBar();
+
+      navigateTo('/');
+      fireTransformTransitionEnd(screen.getByTestId('sideBar-tab'));
+
+      expect(screen.queryByTestId('settingsPane')).toBeNull();
+      expect(screen.queryByRole('heading', { name: 'Settings' })).toBeNull();
+    });
+
+    test('keeps the tab content when a transition inside the tab ends', () => {
+      renderOpenSideBar();
+
+      navigateTo('/');
+      fireTransformTransitionEnd(screen.getByTestId('settingsPane'));
+
+      expect(screen.getByTestId('settingsPane')).toBeInTheDocument();
+    });
+
+    test('unmounts the tab content after a delay when the transition end never fires', async () => {
+      renderOpenSideBar();
+
+      navigateTo('/');
+
+      await waitFor(() => expect(screen.queryByTestId('settingsPane')).toBeNull());
+    });
+
+    test('renders the new tab when the sidebar opens again while it slides out', () => {
+      renderOpenSideBar();
+
+      navigateTo('/');
+      navigateTo('/layers');
+
+      expect(screen.getByTestId('mapLayersTab')).toBeInTheDocument();
+      expect(screen.queryByTestId('settingsPane')).toBeNull();
+      expect(screen.getByTestId('sideBar-tab')).not.toHaveAttribute('inert');
+    });
   });
 });

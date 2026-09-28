@@ -2,17 +2,20 @@
 
 ## Maintaining This File
 
-This is the repository's only context file, and every agent loads all of it. Keep it true, readable, and lean, in that order.
+This is the repository's only context file, and every agent loads all of it. Keep it true, readable, and lean.
 
 - **When to edit.** When a change makes something here wrong, or adds a fact that every agent working here needs. Most changes need neither.
 - **What belongs.** The domain and the reasons behind it: what each concept is, who relies on it, and how it is meant to behave. Beyond that, the architecture and conventions no single file reveals. Name a file, component or symbol only when it is a stable landmark an agent would otherwise have to hunt for. Never line numbers, prop or option lists, ticket numbers, a changelog, or anything the code or a lint rule already states.
 - **When this file and the code disagree.** For a fact about the product or the architecture, the code wins: correct the file. For a convention, this file wins: older code that departs from it is not a reason to rewrite it.
 - **Conventions belong to the team.** Add or change one only when the user sets it, never because a file, or your own diff, happens to do something a certain way.
-- **How to write.** High level, clear, concise, and when saving tokens would cost clarity, keep the words. Each fact lives once, in its section: Product for the domain and its UI, Architecture for how the app is built, Conventions for how code is written, Workflow for how work is run and checked. Prefer rewriting an existing line over adding one, and delete whatever stopped being true.
+- **How to write.** High level, clear, concise, and when saving tokens would cost clarity, keep the words. Each fact lives once, in its section: Product for the domain and its UI, Architecture for how the app is built, Conventions for how code is written, Workflow for how work is run and checked. Prefer rewriting an existing line over adding one, and delete whatever stopped being true. Mark examples with "such as" wherever they could pass for the complete set of values.
 
 ## Product
 
-This repository is the **EarthRanger web client**, used by control-room operators, protected-area managers and conservation staff at sites worldwide.
+**Project name:** EarthRanger Web Client
+**Organization:** EarthRanger
+**Domain:** Wildlife Conservation Technology
+**Users:** Control-room operators, protected-area managers and conservation staff at sites worldwide
 
 ### Core Concepts
 
@@ -27,7 +30,7 @@ This repository is the **EarthRanger web client**, used by control-room operator
 
 **Events** record something that happened at a place and time: a snare found, a carcass, an arrest, a fence break, a geofence breach. Rangers file them from the field, sensors and integrations file them automatically, and the control room triages and resolves them here.
 
-An event has a serial number users quote, a **title** (shown as its event type's name when it has none, and with that name beneath it when it does), a **state**, a **priority**, a **reporter** (a user, or a subject such as a ranger's radio), a time, notes, files, and `event_details`, the values captured by its type's form.
+An event has a serial number users quote, a **title** (shown as its event type's name when it has none), a **state**, a **priority**, a **reporter** (a user, or a subject such as a ranger's radio), a time, notes, files, and `event_details`, the values captured by its type's form.
 
 **State** is the triage lifecycle: active until someone resolves it, with `review` for community submissions awaiting moderation. The client treats `new` as active too. **Priority** is `300` high / `200` medium / `100` low / `0` none.
 
@@ -41,9 +44,9 @@ An event can also belong to a **patrol**, when filed during one, and be **linked
 
 **UI**
 - **Events Feed** (`/events`): the filtered, sorted feed. The filter drives the map too.
-- **Event Overview** (`/events/:id`, `/events/new`): a header with the state menu and actions; **Details**, **Activity**, **Links** and **History** (the audit trail) in one scrolling body; and a footer to add notes, files and events and to save with a state transition.
-- **Creating an event** always starts from the Add button's event type picker, offered in the Events tab, on the map and its popups, in patrols, and inside an open event. Adding one from inside another event groups both into an incident.
-- **Map**: points as markers, clustered with subjects, and polygons as priority-colored fills. Unsaved edits to the open event preview on the map. Events load as vector tiles with a live overlay under the `events_vector_tiles` preview feature, and as GeoJSON for the visible area otherwise.
+- **Event Overview** (`/events/:id`, `/events/new`): a header with the state menu and actions; **Details**, **Activity**, **Links** and **History** (the audit trail) in one scrolling body; and a footer to add notes, files and events and to save.
+- **Creating an event** starts from the Add button's event type picker, offered in the Events tab, on the map and its popups, in patrols, and inside an open event. Adding one from inside another event groups both into an incident.
+- **Map**: points as markers, clustered with subjects, and polygons as priority-colored fills. Unsaved edits to the open event preview on the map.
 - **Community input** (`/community/:value/*`): a public page that reuses Event Overview so unauthenticated users can submit events.
 
 **Key files**
@@ -70,11 +73,9 @@ Some subjects are handled differently:
 - **Gear** subjects are left out of every subject display; see Gear.
 - **Messageable** subjects can be sent messages; see Messaging.
 
-**Loading.** Subject groups, with their subjects, are fetched once at startup, and map subjects for the visible area as the map moves; both merge into one subject store. The socket keeps it live, moving subjects, refreshing their readings, and adding and removing them as the server creates and deletes them.
+**Tracks** are a subject's timestamped path, newest first. Permission caps how far back a user may read, so a short track can be a permission result rather than missing data.
 
-**Tracks** are a subject's timestamped path, newest first. They load on demand and are cached per subject, fetching only ranges not yet loaded, and socket position updates extend them. Permission caps how far back a user may read, so a short track can be a permission result rather than missing data.
-
-**Track length** is how many days back tracks reach, a custom number or the event filter's "from" date, and survives reloads. **Track state** is hidden (default), visible or pinned; both shown states draw alike. Clicking a subject on the map shows its track, and clicking anywhere else clears every visible track, but not pinned ones.
+**Track length** is how many days back tracks reach, a custom number or the event filter's "from" date, and survives reloads. **Track state** is hidden (default), visible or pinned. Clicking a subject on the map shows its track, and clicking anywhere else clears every visible track, but not pinned ones.
 
 Tracks can be colored by the time of day they were recorded, in a chosen time zone. The **subject heatmap** is a density surface of the track points of the subjects added to it.
 
@@ -102,7 +103,7 @@ While the time slider is active, each subject sits at its last track point befor
 
 ### Patrols
 
-**Patrols** are timed field activities (foot, vehicle, aerial, boat) carried out by a team. They answer who went where, when, and what they found. A patrol itself is thin: a serial number, a title (falling back to its current leg's type, as events do), a priority from its type, notes and files. Everything operational lives on its **legs**, and almost everything the UI shows about a patrol, from its state to its route, is computed here from them.
+**Patrols** are timed field activities, such as on foot, by vehicle, by air or by boat, carried out by a team. They answer who went where, when, and what they found. A patrol itself is thin: a serial number, a title (falling back to its current leg's type), a priority from its type, notes and files. Everything operational lives on its **legs**, and almost everything the UI shows about a patrol, from its state to its route, is computed here from them.
 
 **Legs** each hold one stretch of the patrol: a patrol type, start and end times and locations, the team and tracking, and the values of two forms, the universal fields (`segment_details`) and the type's fields (`type_details`). Creating a patrol creates its first leg; a running patrol continues with a new leg, possibly of another type, such as on foot and then by vehicle.
 
@@ -153,9 +154,9 @@ A leg takes the patrol's state and its place in it: only the first leg can be re
 **Mobile patrols.** A patrol run from EarthRanger Mobile carries `provenance: 'mobile'`: while one is under way it takes no new legs and offers only End, and its legs can be edited only once done or cancelled.
 
 **UI**
-- **Patrols Feed** (`/patrols`): ordered ready to start → overdue → active → paused → scheduled → done → cancelled, then by the latest leg update, and fetched in one request, kept live over the socket. Its date range is shared with the event filter and matches patrols that overlap it, or only those starting in it. A row's status change applies at once.
+- **Patrols Feed** (`/patrols`): ordered ready to start → overdue → active → paused → scheduled → done → cancelled, then by the latest leg update. Its date range is shared with the event filter and matches patrols that overlap it, or only those starting in it. A row's status change applies at once.
 - **New Patrol** (`/patrols/new?patrol-type=:id`): from the Add button's patrol type picker; a title and the first leg's form.
-- **Patrol Overview** (`/patrols/:patrolId`): the leg table, pauses included, the figures and a timeline under **Overview**, the audit trail under **History**, and a footer to add notes, files and events and to save. A status change here waits for Save.
+- **Patrol Overview** (`/patrols/:patrolId`): the leg table, pauses included, the figures and a timeline under **Overview**, the audit trail under **History**, and a footer to add notes, files and events and to save.
 - **New Leg** (`/patrols/:patrolId/legs/new`): pre-filled from the previous leg, until the patrol is done, cancelled or invalid.
 - **Leg Overview** (`/patrols/:patrolId/legs/:legId`): the leg or pause with its state, values, figures and timeline, and a footer to add notes, files and events while it runs, or to edit it.
 - **Edit Leg** (`/patrols/:patrolId/legs/:legId/edit`): times bounded by the legs around it; a pause edits only times and locations.
@@ -179,7 +180,7 @@ A gearset has a label, a manufacturer, and devices with their positions and last
 
 **Gear subjects.** A gearset is also a subject (`ropeless_buoy_gearset`, or the older `ropeless_buoy_device`), so gear comes back in subject reads too. The client keeps those subjects out of every subject display, so each set appears once, from the gear list.
 
-**Loading.** The list needs the permission to view gear regardless of location. It is fetched at startup and polled, with no socket updates. Hidden gear always survives a reload.
+Gear needs the permission to view it regardless of location, and refreshes by polling rather than over the socket. Hidden gear always survives a reload.
 
 **UI**
 - **Gear tab** (`/gear`): the gearsets, grouped by manufacturer or flat with the grouping and sort controls of Map Layers → Subjects; a row toggles visibility and jumps to the set.
@@ -198,8 +199,6 @@ They come in three levels:
 - a **featureset** (the admin's "display category") is a grouping users toggle, such as "Boundaries";
 - a **feature type** belongs to one featureset and sets its features' default style;
 - a **feature** has a name, one geometry (points, lines or polygons), and style keys of its own that override its type's, key by key.
-
-**Loading.** The map draws features from vector tiles carrying their resolved style. Map Layers lists them from a featureset summary, fetched when the map loads, with names and bounds but no geometry.
 
 **UI**
 - **Map Layers → Features** (`/layers`): the featureset → type → feature tree, with visibility at every level. Jumping to a feature shows it and opens its popup.
@@ -277,7 +276,7 @@ While it is open:
 **Key files**
 - `ducks/timeslider.js`: whether the slider is open, and the virtual date.
 - `TimeSlider/`, `TimeSliderMapControl/`: the slider and its map control.
-- `selectors/events.js`, `utils/event-vector-tiles.js`: hiding and fading map events at the virtual date, for the GeoJSON and vector tile paths.
+- `selectors/events.js`, `utils/event-vector-tiles.js`: hiding and fading map events at the virtual date.
 
 ### Coordinate Systems
 
@@ -410,7 +409,7 @@ Ducks call Axios directly with `API_URL` / `API_V2_URL` from `src/constants/`. `
 
 ### Real Time
 
-`withSocketConnection` opens one Socket.IO connection for the authenticated shell and shares it through `SocketContext`. The client sends the server its event and patrol filters, again whenever they change, and the server tags each event and patrol push with whether it still matches them, so the ducks' `socket*` handlers add, update or drop the object without refetching. Store-wide handlers are bound in `withSocketConnection/`; a component that needs a push only while mounted subscribes through `SocketContext` and unsubscribes on unmount.
+`withSocketConnection` opens one Socket.IO connection for the authenticated shell and shares it through `SocketContext`. Events, patrols, subjects, their tracks and messages stay live through it; gear is polled instead. The client sends the server its event and patrol filters, again whenever they change, and the server tags each event and patrol push with whether it still matches them, so the ducks' `socket*` handlers add, update or drop the object without refetching. Store-wide handlers are bound in `withSocketConnection/`; a component that needs a push only while mounted subscribes through `SocketContext` and unsubscribes on unmount.
 
 ### Map
 
@@ -474,7 +473,7 @@ Sort each block alphabetically by the first imported binding, not by path. Reach
 
 ### Alphabetical Ordering
 
-Sort alphabetically, so diffs stay small and merge conflicts stay rare:
+Sort alphabetically:
 
 - object literal keys — action objects (`{ payload, type }`), reducer state, option objects, configuration, fixtures;
 - JSX props, `aria-*` included, with `{...otherProps}` last;
