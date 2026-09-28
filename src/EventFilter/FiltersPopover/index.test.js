@@ -4,7 +4,6 @@ import userEvent from '@testing-library/user-event';
 
 import { INITIAL_FILTER_STATE, updateEventFilter } from '../../ducks/event-filter';
 import { mockStore } from '../../__test-helpers/MockStore';
-import { PREVIEW_FEATURES } from '../../constants';
 import { render, screen, within } from '../../test-utils';
 import { TrackerContext } from '../../utils/analytics';
 
@@ -198,18 +197,18 @@ describe('EventFilter - FiltersPopover', () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 
-  test('offers the active and resolved states as checkboxes while community input is disabled', () => {
-    renderFiltersPopover();
-
-    expect(getCheckboxLabels(stateGroup())).toEqual(['Active', 'Resolved']);
-  });
-
-  test('offers the in review state too while community input is enabled', () => {
-    store.view.systemConfig.previewFeatures[PREVIEW_FEATURES.COMMUNITY_INPUT_ADMIN] = true;
-
+  test('offers the active, in review and resolved states as checkboxes', () => {
     renderFiltersPopover();
 
     expect(getCheckboxLabels(stateGroup())).toEqual(['Active', 'In review', 'Resolved']);
+  });
+
+  test('checks the active and in review states by default', () => {
+    renderFiltersPopover();
+
+    expect(stateGroup().getByRole('checkbox', { name: 'Active' })).toBeChecked();
+    expect(stateGroup().getByRole('checkbox', { name: 'In review' })).toBeChecked();
+    expect(stateGroup().getByRole('checkbox', { name: 'Resolved' })).not.toBeChecked();
   });
 
   test('checks the states the filter holds', () => {
@@ -227,6 +226,7 @@ describe('EventFilter - FiltersPopover', () => {
     renderFiltersPopover();
 
     expect(stateGroup().getByRole('checkbox', { name: 'Active' })).not.toBeChecked();
+    expect(stateGroup().getByRole('checkbox', { name: 'In review' })).not.toBeChecked();
     expect(stateGroup().getByRole('checkbox', { name: 'Resolved' })).not.toBeChecked();
   });
 
@@ -235,11 +235,13 @@ describe('EventFilter - FiltersPopover', () => {
 
     await userEvent.click(stateGroup().getByRole('checkbox', { name: 'Resolved' }));
 
-    expect(updateEventFilter).toHaveBeenCalledWith({ state: ['active', 'new', 'resolved'] });
+    expect(updateEventFilter).toHaveBeenCalledWith({ state: ['active', 'new', 'review', 'resolved'] });
     expect(track).toHaveBeenCalledWith('Set the state filter');
   });
 
   test('clears the state filter when the user unchecks its last state', async () => {
+    store.data.eventFilter.state = ['active', 'new'];
+
     renderFiltersPopover();
 
     await userEvent.click(stateGroup().getByRole('checkbox', { name: 'Active' }));
@@ -314,6 +316,50 @@ describe('EventFilter - FiltersPopover', () => {
     expect(screen.getByRole('searchbox', { name: 'Search event types' })).toHaveValue('');
     expect(screen.getByRole('searchbox', { name: 'Search event types' })).toHaveFocus();
     expect(track).toHaveBeenCalledWith('Click reset the event types filter');
+  });
+
+  test.each([
+    ['reporter', (eventFilter) => { eventFilter.filter.reported_by = ['reporter-1']; }],
+    ['state', (eventFilter) => { eventFilter.state = ['resolved']; }],
+    ['priority', (eventFilter) => { eventFilter.filter.priority = [300]; }],
+    ['event type', (eventFilter) => { eventFilter.filter.event_type = [FENCE_EVENT_TYPE.id]; }],
+  ])('offers to reset all filters once the %s filter is set', (_, setFilter) => {
+    setFilter(store.data.eventFilter);
+
+    renderFiltersPopover();
+
+    expect(screen.getByRole('button', { name: 'Reset All' })).toBeVisible();
+  });
+
+  test('restores every filter, clears the event type search and focuses itself when the user resets all', async () => {
+    store.data.eventFilter.filter.event_type = [FENCE_EVENT_TYPE.id];
+
+    renderFiltersPopover();
+
+    await userEvent.type(screen.getByRole('searchbox', { name: 'Search event types' }), 'Fence');
+    await userEvent.click(screen.getByRole('button', { name: 'Reset All' }));
+
+    expect(updateEventFilter).toHaveBeenCalledWith({
+      filter: {
+        event_type: INITIAL_FILTER_STATE.filter.event_type,
+        priority: INITIAL_FILTER_STATE.filter.priority,
+        reported_by: INITIAL_FILTER_STATE.filter.reported_by,
+      },
+      state: INITIAL_FILTER_STATE.state,
+    });
+    expect(screen.getByRole('searchbox', { name: 'Search event types' })).toHaveValue('');
+    expect(screen.getByRole('dialog')).toHaveFocus();
+    expect(track).toHaveBeenCalledWith('Click reset all filters in the filters popover');
+  });
+
+  test('reaches the reset all button last when the user tabs backwards from the dialog', async () => {
+    store.data.eventFilter.filter.priority = [300];
+
+    renderFiltersPopover();
+
+    await userEvent.tab({ shift: true });
+
+    expect(screen.getByRole('button', { name: 'Reset All' })).toHaveFocus();
   });
 
   test('closes and returns focus to its trigger when the user presses escape', async () => {

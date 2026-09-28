@@ -69,6 +69,7 @@
 
       .presetButton {
         @include buttons.chipTextButton;
+        @include buttons.chipActiveState;
       }
     }
   }

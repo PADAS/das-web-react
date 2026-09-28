@@ -299,6 +299,20 @@ $chip-height-small: 1.75rem;
   }
 }
 
+// Include it after chipActiveState, so an open menu keeps the focus look of
+// whichever state its button is in.
+@mixin chipOpenState {
+  &[aria-expanded='true'] {
+    border-color: $bright-blue;
+    outline: 1px solid $bright-blue;
+
+    &.active {
+      background-color: white;
+      color: $bright-blue;
+    }
+  }
+}
+
 @mixin chipTextButton {
   align-items: center;
   background-color: $light-gray-background;

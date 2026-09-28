@@ -9,6 +9,7 @@
 
   .body {
     @include shared.filter-popover-body;
+    @include shared.reset-all-footer-clearance;
 
     .teamLeadField {
       display: flex;
@@ -51,6 +52,17 @@
         &.done {
           background-color: map.get(colors.$patrol-done-theme, 'base');
         }
+      }
+    }
+
+    .resetAllFooter {
+      @include shared.reset-all-footer;
+
+      .resetAllButton {
+        @include buttons.chipTextButton;
+
+        justify-content: center;
+        width: 100%;
       }
     }
   }

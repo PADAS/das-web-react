@@ -1,4 +1,5 @@
 import React, { useContext, useId, useRef, useState } from 'react';
+import isEqual from 'react-fast-compare';
 import Popover from 'react-bootstrap/Popover';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -52,6 +53,10 @@ const FiltersPopover = ({ className = '', onClose, ref, trigger, ...otherProps }
 
   const { focusPopover, onKeyDown } = useModalPopover(bodyRef, trigger, onClose, isTeamLeadMenuOpen);
 
+  const isAnyFilterModified = !isEqual(INITIAL_FILTER_STATE.status, patrolFilter.status)
+    || !isEqual(INITIAL_FILTER_STATE.filter.patrol_type, patrolFilter.filter.patrol_type)
+    || !isEqual(INITIAL_FILTER_STATE.filter.tracked_by, patrolFilter.filter.tracked_by);
+
   // A filter can outlive the leader it names, and it still filters the feed,
   // so it stays in the select where it can be removed.
   const teamLeads = patrolFilter.filter.tracked_by.map((leaderId) => patrolLeaders
@@ -87,6 +92,22 @@ const FiltersPopover = ({ className = '', onClose, ref, trigger, ...otherProps }
     } else {
       focusPopover();
     }
+  };
+
+  const onResetAll = () => {
+    dispatch(updatePatrolFilter({
+      filter: {
+        patrol_type: INITIAL_FILTER_STATE.filter.patrol_type,
+        tracked_by: INITIAL_FILTER_STATE.filter.tracked_by,
+      },
+      status: INITIAL_FILTER_STATE.status,
+    }));
+
+    // The button leaves with the filters it clears, so focus moves on to the
+    // popover rather than dropping to the page.
+    focusPopover();
+
+    tracker.track('Click reset all filters in the filters popover');
   };
 
   const onResetPatrolTypes = () => {
@@ -185,6 +206,12 @@ const FiltersPopover = ({ className = '', onClose, ref, trigger, ...otherProps }
         onResetPatrolTypes,
         t('resetPatrolTypesButtonLabel')
       )}
+
+      {isAnyFilterModified && <div className={styles.resetAllFooter}>
+        <button className={styles.resetAllButton} onClick={onResetAll} type="button">
+          {t('resetAllButton')}
+        </button>
+      </div>}
     </Popover.Body>
   </Popover>;
 };

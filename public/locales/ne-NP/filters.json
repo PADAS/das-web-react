@@ -55,6 +55,7 @@
       },
       "priorityLabel": "प्राथमिकता",
       "reportedByLabel": "द्वारा रिपार्ट गरिएको",
+      "resetAllButton": "सबै रिसेट गर्नुहोस्",
       "resetButton": "रिसेट गर्नुहोस्",
       "resetEventTypesButtonLabel": "घटनाका प्रकारहरू रिसेट गर्नुहोस्",
       "resetPriorityButtonLabel": "प्राथमिकता रिसेट गर्नुहोस्",
@@ -134,8 +135,8 @@
   },
   "patrolFilters": {
     "dateRangePopover": {
-      "emptyEndDateMessage": "अहिले",
       "endDateLabel": "सम्म",
+      "endOfTodayMessage": "आजको अन्त्य",
       "presetButtons": {
         "lastSevenDays": "पछिल्लो ७ दिन",
         "lastThirtyDays": "पछिल्लो ३० दिन",

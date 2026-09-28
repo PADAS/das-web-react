@@ -65,6 +65,7 @@
 
   .speedButton {
     @include buttons.chipTextButton;
+    @include buttons.chipOpenState;
 
     display: none;
     flex-shrink: 0;
@@ -169,6 +170,7 @@
   .dateRangeButton {
     @include buttons.chipIconButton;
     @include buttons.chipActiveState;
+    @include buttons.chipOpenState;
 
     display: none;
     flex-shrink: 0;

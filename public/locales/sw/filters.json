@@ -55,6 +55,7 @@
       },
       "priorityLabel": "Kipaumbele",
       "reportedByLabel": "Iliripotiwa Na",
+      "resetAllButton": "Rudisha Zote",
       "resetButton": "Rudisha",
       "resetEventTypesButtonLabel": "Rudisha aina za matukio",
       "resetPriorityButtonLabel": "Rudisha kipaumbele",
@@ -134,8 +135,8 @@
   },
   "patrolFilters": {
     "dateRangePopover": {
-      "emptyEndDateMessage": "Sasa",
       "endDateLabel": "Hadi",
+      "endOfTodayMessage": "Mwisho wa leo",
       "presetButtons": {
         "lastSevenDays": "Siku 7 zilizopita",
         "lastThirtyDays": "Siku 30 zilizopita",

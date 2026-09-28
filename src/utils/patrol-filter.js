@@ -1,3 +1,4 @@
+import { endOfDay, max } from 'date-fns';
 import isEqual from 'react-fast-compare';
 import merge from 'lodash/merge';
 
@@ -18,6 +19,15 @@ export const calcPatrolFilterForRequest = (options = {}) => {
     params
   );
   delete filterParams._persist;
+
+  const dateRange = filterParams.filter.date_range;
+  // The API reads a range with no end as reaching every patrol ever scheduled,
+  // so it ends today, or on the day it starts when that comes later.
+  if (!dateRange.upper) {
+    const lastDay = dateRange.lower ? max([new Date(), new Date(dateRange.lower)]) : new Date();
+
+    dateRange.upper = endOfDay(lastDay).toISOString();
+  }
 
   if (format === 'object') return filterParams;
   return objectToParamString(filterParams);

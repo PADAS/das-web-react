@@ -29,6 +29,10 @@
     flex-shrink: 0;
     height: 0.3125rem;
     width: 0.625rem;
+
+    &.open {
+      transform: rotate(180deg);
+    }
   }
 }
 

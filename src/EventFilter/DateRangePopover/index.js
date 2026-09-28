@@ -39,6 +39,9 @@ const DATE_RANGE_PRESETS = [
   { getLower: () => generateMonthsAgoDate(3), id: 'lastThreeMonths', trackingLabel: 'last three months' },
 ];
 
+const isPresetSelected = (preset, dateRange) => new Date(dateRange.lower).getTime() === preset.getLower().getTime()
+  && (dateRange.upper ? new Date(dateRange.upper).getTime() : null) === (preset.getUpper?.().getTime() ?? null);
+
 const DateRangePopover = ({ className = '', onClose, ref, trigger, ...otherProps }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('filters', { keyPrefix: 'eventFilters.dateRangePopover' });
@@ -64,6 +67,7 @@ const DateRangePopover = ({ className = '', onClose, ref, trigger, ...otherProps
   const endDate = dateRange.upper ? new Date(dateRange.upper) : null;
   const isEndDateEmpty = !endDate && !endDateTimeDraft;
   const isDatesModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, dateRange);
+  const selectedPresetId = DATE_RANGE_PRESETS.find((preset) => isPresetSelected(preset, dateRange))?.id;
   const startDate = dateRange.lower ? new Date(dateRange.lower) : null;
 
   const updateDateRange = (dateRangeUpdate) => dispatch(updateGlobalDateRange({ ...dateRange, ...dateRangeUpdate }));
@@ -188,7 +192,8 @@ const DateRangePopover = ({ className = '', onClose, ref, trigger, ...otherProps
 
       <div aria-label={t('presetsGroupLabel')} className={styles.presets} role="group">
         {DATE_RANGE_PRESETS.map((preset) => <button
-          className={styles.presetButton}
+          aria-current={preset.id === selectedPresetId}
+          className={`${styles.presetButton} ${preset.id === selectedPresetId ? styles.active : ''}`}
           key={preset.id}
           onClick={() => onClickPreset(preset)}
           type="button"

@@ -334,6 +334,27 @@ describe('EventFilter - DateRangePopover', () => {
     expect(track).toHaveBeenCalledWith('Select date range preset', 'Date Range: last week');
   });
 
+  test('marks the preset the date range matches as the current one', () => {
+    store.data.eventFilter.filter.date_range = { lower: generateDaysAgoDate(30).toISOString(), upper: null };
+
+    renderDateRangePopover();
+
+    expect(screen.getByRole('button', { name: 'Last 30 days' })).toHaveAttribute('aria-current', 'true');
+    expect(screen.getByRole('button', { name: 'Today' })).toHaveAttribute('aria-current', 'false');
+  });
+
+  test('marks no preset as the current one when the date range ends where no preset does', () => {
+    store.data.eventFilter.filter.date_range = {
+      lower: generateDaysAgoDate(30).toISOString(),
+      upper: addDays(new Date(), 1).toISOString(),
+    };
+
+    renderDateRangePopover();
+
+    within(screen.getByRole('group', { name: 'Date range presets' })).getAllByRole('button')
+      .forEach((presetButton) => expect(presetButton).toHaveAttribute('aria-current', 'false'));
+  });
+
   test('groups the presets under a name for assistive technology', () => {
     renderDateRangePopover();
 

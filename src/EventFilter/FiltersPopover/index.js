@@ -4,13 +4,12 @@ import Popover from 'react-bootstrap/Popover';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { EVENT_STATE_CHOICES, PREVIEW_FEATURES, REPORT_PRIORITIES } from '../../constants';
+import { EVENT_STATE_CHOICES, REPORT_PRIORITIES } from '../../constants';
 import { getGlobalSchemaReportedBy } from '../../selectors';
 import { INITIAL_FILTER_STATE, updateEventFilter } from '../../ducks/event-filter';
 import { PRIORITY_COLOR_MAP } from '../../utils/events';
 import { TrackerContext } from '../../utils/analytics';
 import useModalPopover from '../../hooks/useModalPopover';
-import { usePreviewFeature } from '../../hooks';
 
 import EventTypesFilter from './EventTypesFilter';
 import ReporterSelect from '../../ReporterSelect';
@@ -22,8 +21,6 @@ const CHECKBOX_LIST_COLUMN_COUNT = 2;
 
 const ALL_STATE_KEY = 'all';
 
-const REVIEW_STATE_KEY = 'review';
-
 const renderPriorityIcon = (priority) => <span
   className={styles.optionDot}
   style={{ backgroundColor: PRIORITY_COLOR_MAP[priority.value].base }}
@@ -34,10 +31,6 @@ const renderStateIcon = (state) => <span className={`${styles.optionDot} ${style
 const FiltersPopover = ({ className = '', onClose, ref, trigger, ...otherProps }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('filters', { keyPrefix: 'eventFilters.filtersPopover' });
-
-  // Remove this flag and the `.filter` below once community input is enabled
-  // for all tenants.
-  const isCommunityInputEnabled = usePreviewFeature(PREVIEW_FEATURES.COMMUNITY_INPUT_ADMIN);
 
   const eventFilter = useSelector((state) => state.data.eventFilter);
   const reporters = useSelector(getGlobalSchemaReportedBy);
@@ -56,6 +49,11 @@ const FiltersPopover = ({ className = '', onClose, ref, trigger, ...otherProps }
 
   const { focusPopover, onKeyDown } = useModalPopover(bodyRef, trigger, onClose, isReportedByMenuOpen);
 
+  const isAnyFilterModified = !isEqual(INITIAL_FILTER_STATE.state, eventFilter.state)
+    || !isEqual(INITIAL_FILTER_STATE.filter.event_type, eventFilter.filter.event_type)
+    || !isEqual(INITIAL_FILTER_STATE.filter.priority, eventFilter.filter.priority)
+    || !isEqual(INITIAL_FILTER_STATE.filter.reported_by, eventFilter.filter.reported_by);
+
   // A filter can outlive the reporter it names, and it still filters the feed,
   // so it stays in the select where it can be removed.
   const selectedReporters = eventFilter.filter.reported_by.map((reporterId) => reporters
@@ -71,7 +69,7 @@ const FiltersPopover = ({ className = '', onClose, ref, trigger, ...otherProps }
   }));
 
   const stateOptions = EVENT_STATE_CHOICES
-    .filter((choice) => choice.key !== ALL_STATE_KEY && (isCommunityInputEnabled || choice.key !== REVIEW_STATE_KEY))
+    .filter((choice) => choice.key !== ALL_STATE_KEY)
     .map((choice) => ({ label: t(`states.${choice.key}`), value: choice.key }));
 
   const onChangeEventTypes = (eventTypeIds) => {
@@ -111,6 +109,25 @@ const FiltersPopover = ({ className = '', onClose, ref, trigger, ...otherProps }
     } else {
       focusPopover();
     }
+  };
+
+  const onResetAll = () => {
+    setEventTypeFilterText('');
+
+    dispatch(updateEventFilter({
+      filter: {
+        event_type: INITIAL_FILTER_STATE.filter.event_type,
+        priority: INITIAL_FILTER_STATE.filter.priority,
+        reported_by: INITIAL_FILTER_STATE.filter.reported_by,
+      },
+      state: INITIAL_FILTER_STATE.state,
+    }));
+
+    // The button leaves with the filters it clears, so focus moves on to the
+    // popover rather than dropping to the page.
+    focusPopover();
+
+    tracker.track('Click reset all filters in the filters popover');
   };
 
   const onResetEventTypes = () => {
@@ -222,6 +239,12 @@ const FiltersPopover = ({ className = '', onClose, ref, trigger, ...otherProps }
           value={eventFilter.filter.event_type}
         />
       </div>
+
+      {isAnyFilterModified && <div className={styles.resetAllFooter}>
+        <button className={styles.resetAllButton} onClick={onResetAll} type="button">
+          {t('resetAllButton')}
+        </button>
+      </div>}
     </Popover.Body>
   </Popover>;
 };

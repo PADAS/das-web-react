@@ -7,6 +7,7 @@
 
   .body {
     @include filter-popovers.filter-popover-body;
+    @include filter-popovers.reset-all-footer-clearance;
 
     .reportedByField {
       display: flex;
@@ -49,6 +50,17 @@
         &.review {
           background-color: colors.$dark-gold;
         }
+      }
+    }
+
+    .resetAllFooter {
+      @include filter-popovers.reset-all-footer;
+
+      .resetAllButton {
+        @include buttons.chipTextButton;
+
+        justify-content: center;
+        width: 100%;
       }
     }
   }

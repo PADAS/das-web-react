@@ -158,24 +158,46 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters - DateRangePopover', 
     expect(screen.getByRole('group', { name: 'To' })).toBeInTheDocument();
   });
 
-  test('shows a range with no end as running until now, with an empty end date', () => {
-    store.data.patrolFilter.filter.date_range = { lower: subYears(new Date(), 3).toISOString(), upper: null };
+  test.each([
+    ['that ends today', () => endOfToday().toISOString()],
+    ['with no end', () => null],
+  ])('shows a range %s with an empty end date', (_, getUpper) => {
+    store.data.patrolFilter.filter.date_range = { lower: subYears(new Date(), 3).toISOString(), upper: getUpper() };
 
     renderDateRangePopover();
 
-    expect(screen.getByText('about 3 years ago until now')).toBeVisible();
     expect(getDateInput('To', 'Year')).toHaveValue('');
   });
 
-  test('describes an empty end date as now', () => {
-    store.data.patrolFilter.filter.date_range = { lower: subYears(new Date(), 3).toISOString(), upper: null };
+  test('describes an empty end date as the end of today', () => {
+    store.data.patrolFilter.filter.date_range = {
+      lower: subYears(new Date(), 3).toISOString(),
+      upper: endOfToday().toISOString(),
+    };
 
     renderDateRangePopover();
 
-    expect(screen.getByRole('group', { name: 'To' })).toHaveAccessibleDescription('Now');
+    expect(screen.getByRole('group', { name: 'To' })).toHaveAccessibleDescription('End of today');
   });
 
-  test('does not describe an end date that is set as now', () => {
+  test('leaves the end open again when the user clears the end date', async () => {
+    store.data.patrolFilter.filter.date_range = {
+      lower: subYears(new Date(), 3).toISOString(),
+      upper: subYears(new Date(), 2).toISOString(),
+    };
+
+    renderDateRangePopover();
+
+    await userEvent.clear(getDateInput('To', 'Year'));
+    await userEvent.clear(getDateInput('To', 'Month'));
+    await userEvent.clear(getDateInput('To', 'Day'));
+
+    expect(updateGlobalDateRange)
+      .toHaveBeenLastCalledWith({ ...store.data.patrolFilter.filter.date_range, upper: null });
+    expect(track).toHaveBeenCalledWith('Clear end date filter');
+  });
+
+  test('does not describe an end date that is set as the end of today', () => {
     store.data.patrolFilter.filter.date_range = {
       lower: subYears(new Date(), 3).toISOString(),
       upper: subYears(new Date(), 2).toISOString(),
@@ -184,7 +206,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters - DateRangePopover', 
     renderDateRangePopover();
 
     expect(screen.getByRole('group', { name: 'To' })).not.toHaveAccessibleDescription();
-    expect(screen.queryByText('Now')).toBeNull();
+    expect(screen.queryByText('End of today')).toBeNull();
   });
 
   test('does not offer to reset the date filters while they are at their defaults', () => {
@@ -244,6 +266,31 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters - DateRangePopover', 
       upper: new Date(2025, 0, 20).toISOString(),
     });
     expect(track).toHaveBeenCalledWith('Change start date filter');
+  });
+
+  test('sends an end shown as open as open when the user changes the start date', async () => {
+    store.data.patrolFilter.filter.date_range = {
+      lower: new Date(2025, 0, 15).toISOString(),
+      upper: endOfToday().toISOString(),
+    };
+
+    renderDateRangePopover();
+
+    getDateInput('From', 'Year').focus();
+
+    await userEvent.keyboard('{ArrowDown}');
+
+    expect(updateGlobalDateRange).toHaveBeenCalledWith({ lower: new Date(2024, 0, 15).toISOString(), upper: null });
+  });
+
+  test('holds a time typed into an empty end date until the date is typed too', async () => {
+    renderDateRangePopover();
+
+    await userEvent.type(getDateInput('To', 'Hour'), '10');
+
+    expect(getDateInput('To', 'Hour')).toHaveValue('10');
+    expect(updateGlobalDateRange).not.toHaveBeenCalled();
+    expect(track).not.toHaveBeenCalled();
   });
 
   test('moves the end of the range when the user changes the end date', async () => {
@@ -308,29 +355,12 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters - DateRangePopover', 
     ['Last 7 days', generateWeeksAgoDate(1)],
     ['Last 30 days', generateDaysAgoDate(30)],
     ['Last 3 months', generateMonthsAgoDate(3)],
-  ])('runs the %s preset until the end of today', async (presetName, expectedLower) => {
+  ])('leaves the end of the %s preset open, as the Events feed does', async (presetName, expectedLower) => {
     renderDateRangePopover();
 
     await userEvent.click(screen.getByRole('button', { name: presetName }));
 
-    expect(updateGlobalDateRange).toHaveBeenCalledWith({
-      lower: expectedLower.toISOString(),
-      upper: endOfToday().toISOString(),
-    });
-  });
-
-  test('runs a preset until the end of the day it is picked on, even after the day the app loaded', async () => {
-    jest.useFakeTimers().setSystemTime(addDays(new Date(), 1));
-    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
-
-    renderDateRangePopover();
-
-    await user.click(screen.getByRole('button', { name: 'Today' }));
-
-    expect(updateGlobalDateRange).toHaveBeenCalledWith({
-      lower: generateDaysAgoDate(0).toISOString(),
-      upper: endOfToday().toISOString(),
-    });
+    expect(updateGlobalDateRange).toHaveBeenCalledWith({ lower: expectedLower.toISOString(), upper: null });
   });
 
   test('tracks the preset the user picks', async () => {
@@ -350,6 +380,30 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters - DateRangePopover', 
       lower: generateDaysAgoDate(1).toISOString(),
       upper: subSeconds(generateDaysAgoDate(0), 1).toISOString(),
     });
+  });
+
+  test.each([
+    ['that ends today', () => endOfToday().toISOString()],
+    ['with no end', () => null],
+  ])('marks the preset a range %s matches as the current one', (_, getUpper) => {
+    store.data.patrolFilter.filter.date_range = { lower: generateDaysAgoDate(30).toISOString(), upper: getUpper() };
+
+    renderDateRangePopover();
+
+    expect(screen.getByRole('button', { name: 'Last 30 days' })).toHaveAttribute('aria-current', 'true');
+    expect(screen.getByRole('button', { name: 'Today' })).toHaveAttribute('aria-current', 'false');
+  });
+
+  test('marks no preset as the current one when the date range ends where no preset does', () => {
+    store.data.patrolFilter.filter.date_range = {
+      lower: generateDaysAgoDate(30).toISOString(),
+      upper: addDays(new Date(), 1).toISOString(),
+    };
+
+    renderDateRangePopover();
+
+    within(screen.getByRole('group', { name: 'Date range presets' })).getAllByRole('button')
+      .forEach((presetButton) => expect(presetButton).toHaveAttribute('aria-current', 'false'));
   });
 
   test('groups the presets under a name for assistive technology', () => {

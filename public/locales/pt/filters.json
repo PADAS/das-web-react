@@ -55,6 +55,7 @@
       },
       "priorityLabel": "Prioridade",
       "reportedByLabel": "Reportado por",
+      "resetAllButton": "Redefinir tudo",
       "resetButton": "Redefinir",
       "resetEventTypesButtonLabel": "Redefinir tipos de eventos",
       "resetPriorityButtonLabel": "Redefinir prioridade",
@@ -134,8 +135,8 @@
   },
   "patrolFilters": {
     "dateRangePopover": {
-      "emptyEndDateMessage": "Agora",
       "endDateLabel": "Até",
+      "endOfTodayMessage": "Fim de hoje",
       "presetButtons": {
         "lastSevenDays": "Últimos 7 dias",
         "lastThirtyDays": "Últimos 30 dias",

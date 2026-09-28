@@ -29,6 +29,7 @@
       .triggerButton {
         @include buttons.chipTextButton;
         @include buttons.chipActiveState;
+        @include buttons.chipOpenState;
 
         flex-shrink: 0;
       }
