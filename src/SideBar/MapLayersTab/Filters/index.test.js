@@ -103,8 +103,7 @@ describe('SideBar - MapLayersTab - Filters', () => {
     expect(groupButton).toHaveTextContent('Grouped');
     expect(groupButton).toHaveAttribute('aria-label', 'Ungroup layers');
     expect(groupButton).toHaveAttribute('aria-pressed', 'false');
-    expect(groupButton).toHaveClass('inactive');
-    expect(groupButton).toHaveAttribute('title', 'Ungroup layers');
+    expect(groupButton).not.toHaveClass('active');
     expect(setMapLayersGrouped).not.toHaveBeenCalled();
 
     await userEvent.click(groupButton);
@@ -123,7 +122,6 @@ describe('SideBar - MapLayersTab - Filters', () => {
     expect(groupButton).toHaveAttribute('aria-label', 'Group layers');
     expect(groupButton).toHaveAttribute('aria-pressed', 'true');
     expect(groupButton).toHaveClass('active');
-    expect(groupButton).toHaveAttribute('title', 'Group layers');
 
     await userEvent.click(groupButton);
 
@@ -139,8 +137,7 @@ describe('SideBar - MapLayersTab - Filters', () => {
     expect(sortByButton).toHaveTextContent('Last update');
     expect(sortByButton).toHaveAttribute('aria-label', 'Open sort options for layers');
     expect(sortByButton).toHaveAttribute('aria-expanded', 'false');
-    expect(sortByButton).toHaveClass('inactive');
-    expect(sortByButton).toHaveAttribute('title', 'Open sort options for layers');
+    expect(sortByButton).not.toHaveClass('active');
 
     await userEvent.click(sortByButton);
 
@@ -164,7 +161,6 @@ describe('SideBar - MapLayersTab - Filters', () => {
     expect(sortByButton).toHaveAttribute('aria-label', 'Open sort options for layers');
     expect(sortByButton).toHaveAttribute('aria-expanded', 'false');
     expect(sortByButton).toHaveClass('active');
-    expect(sortByButton).toHaveAttribute('title', 'Open sort options for layers');
 
     await userEvent.click(sortByButton);
 
@@ -227,7 +223,7 @@ describe('SideBar - MapLayersTab - Filters', () => {
     expect(within(sortDirectionButton).getByTestId('arrow-down-icon')).toBeVisible();
     expect(sortDirectionButton).toHaveAttribute('aria-label', 'Sort layers in ascending order');
     expect(sortDirectionButton).toHaveAttribute('aria-pressed', 'false');
-    expect(sortDirectionButton).toHaveClass('inactive');
+    expect(sortDirectionButton).not.toHaveClass('active');
     expect(sortDirectionButton).toHaveAttribute('title', 'Sort layers in ascending order');
     expect(setMapLayersSortDirection).not.toHaveBeenCalled();
 

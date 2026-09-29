@@ -16,8 +16,6 @@ jest.mock('../../ducks/tracks', () => ({
 }));
 
 describe('TrackLegend - TrackSettings', () => {
-  const onClose = jest.fn();
-
   let setTrackLengthMock, setTrackLengthOriginMock, store;
   beforeEach(() => {
     setTrackLengthMock = jest.fn(() => () => {});
@@ -46,7 +44,7 @@ describe('TrackLegend - TrackSettings', () => {
 
   const renderTrackSettings = (props, overrideStore) => render(
     <Provider store={mockStore({ ...store, ...overrideStore })}>
-      <TrackSettings onClose={onClose} {...props} />
+      <TrackSettings {...props} />
     </Provider>
   );
 
@@ -54,14 +52,10 @@ describe('TrackLegend - TrackSettings', () => {
     jest.restoreAllMocks();
   });
 
-  test('closes the track settings', async () => {
+  test('does not render a control to close the track settings', async () => {
     renderTrackSettings();
 
-    expect(onClose).not.toHaveBeenCalled();
-
-    await userEvent.click(screen.getByLabelText('Close the track settings'));
-
-    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('button', { name: /close/i })).toBeNull();
   });
 
   test('changes the track length origin to the lower event filter date range', async () => {

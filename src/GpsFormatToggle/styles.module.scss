@@ -1,7 +1,8 @@
 @use 'sass:color';
 
-@use '../common/styles/vars/colors';
+@use '../common/styles/buttons';
 @use '../common/styles/layout';
+@use '../common/styles/vars/colors';
 
 .fieldset {
   align-items: center;
@@ -84,6 +85,9 @@
   }
 
   .textCopyButton {
+    @include buttons.iconButtonSmall;
+
+    flex-shrink: 0;
     margin: 0;
   }
 

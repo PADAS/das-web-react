@@ -37,14 +37,6 @@ import SettingsPane from './SettingsPane';
 
 import * as styles from './styles.module.scss';
 
-const CLOSE_BUTTON_LABEL_KEY = {
-  [TAB_KEYS.EVENTS]: 'closeEventFeedButtonLabel',
-  [TAB_KEYS.GEAR]: 'closeGearTabButtonLabel',
-  [TAB_KEYS.LAYERS]: 'closeMapLayersButtonLabel',
-  [TAB_KEYS.PATROLS]: 'closePatrolFeedButtonLabel',
-  [TAB_KEYS.SETTINGS]: 'closeSettingsButtonLabel',
-};
-
 const legacyEventsURL = 'reports';
 
 const SideBar = () => {
@@ -244,12 +236,12 @@ const SideBar = () => {
                 ? <button
                   aria-label={t('backButtonLabel')}
                   className={styles.backButton}
-                  type='button'
+                  data-testid="sideBar-backDetailViewButton"
                   onClick={onClickBackFromDetailView}
                   title={t('backButtonTitle')}
-                  data-testid="sideBar-backDetailViewButton"
+                  type="button"
                 >
-                  <ArrowLeftIcon />
+                  <ArrowLeftIcon aria-hidden="true" className={styles.backButtonIcon} />
                 </button>
                 : <AddItemButton
                   analyticsMetadata={{ category: FEED_CATEGORY, location: 'Feed' }}
@@ -266,13 +258,14 @@ const SideBar = () => {
             <h3 id="side-bar-tab-header">{t(`${currentTab}Link`)}</h3>
           </div>
 
-          <button
-            aria-label={t(CLOSE_BUTTON_LABEL_KEY[currentTab])}
-            onClick={() => navigate('/')}
-            title={t('closeButtonTitle')}
+          <Link
+            aria-label={t('closeButtonLabel')}
+            className={styles.closeButton}
+            title={t('closeButtonLabel')}
+            to="/"
           >
-            <CrossIcon />
-          </button>
+            <CrossIcon aria-hidden="true" className={styles.closeButtonIcon} />
+          </Link>
         </div>}
 
         <div className={`${styles.tabBody} ${hideDefaultHeader ? styles.noHeader : ''}`}>

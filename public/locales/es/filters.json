@@ -87,35 +87,57 @@
     }
   },
   "patrolFilters": {
-    "datesTitle": "Fechas",
     "dateRangePopover": {
-      "title": "Rango de fechas",
-      "resetButton": "Restablecer"
+      "endDateLabel": "Hasta",
+      "presetButtons": {
+        "lastSevenDays": "Últimos 7 días",
+        "lastThirtyDays": "Últimos 30 días",
+        "lastThreeMonths": "Últimos 3 meses",
+        "today": "Hoy",
+        "yesterday": "Ayer"
+      },
+      "presetsGroupLabel": "Rangos de fechas predefinidos",
+      "resetButton": "Restablecer",
+      "resetButtonLabel": "Restablecer filtros de fecha",
+      "startDateLabel": "Desde",
+      "title": "Rango de fechas"
+    },
+    "datesModifiedButtonLabel": "Fechas, filtros de fecha aplicados",
+    "datesTitle": "Fechas",
+    "filteredResultsSummary_one": "{{count}} resultado filtrado de <dateRange>{{dateRange}}</dateRange>",
+    "filteredResultsSummary_other": "{{count}} resultados filtrados de <dateRange>{{dateRange}}</dateRange>",
+    "filtersModifiedButtonLabel": "Filtros, filtros aplicados",
+    "filtersPopover": {
+      "checkBoxAllOption": "Todos",
+      "patrolStatuses": {
+        "active": "Activo",
+        "cancelled": "Cancelado",
+        "done": "Finalizado"
+      },
+      "patrolTypeLabel": "Tipo de patrullaje",
+      "reportedByPlaceholder": "Reportado por...",
+      "resetAllButton": "Restablecer todo",
+      "resetButton": "Restablecer",
+      "resetPatrolTypesButtonLabel": "Restablecer tipos de patrullaje",
+      "resetStatusButtonLabel": "Restablecer estado",
+      "statusLabel": "Estado",
+      "teamLeadLabel": "Líder del equipo",
+      "title": "Filtros del patrullaje",
+      "trackedByLabel": "Rastreado por",
+      "unknownTeamLeadLabel": "Líder del equipo desconocido"
     },
     "filtersTitle": "Filtros",
     "globalResetFilterButton": "Restablecer",
-    "searchbarPlaceHolder": "Buscar patrullajes...",
-    "filtersPopover": {
-      "checkBoxAllOption": "Todos",
-      "title": "Filtros del patrullaje",
-      "resetAllButton": "Restablecer todo",
-      "resetButton": "Restablecer",
-      "trackedByLabel": "Rastreado por",
-      "statusLabel": "Estado",
-      "patrolTypeLabel": "Tipo de patrullaje",
-      "reportedByPlaceholder": "Reportado por...",
-      "patrolStatuses": {
-        "active": "Activo",
-        "done": "Finalizado",
-        "cancelled": "Cancelado"
-      }
-    }
+    "resultsSummary_one": "{{count}} resultado de <dateRange>{{dateRange}}</dateRange>",
+    "resultsSummary_other": "{{count}} resultados de <dateRange>{{dateRange}}</dateRange>",
+    "searchbarPlaceHolder": "Buscar patrullajes..."
   },
   "patrolFiltersSettings": {
-    "byStartDateLabel": "Filtrar por fecha de inicio",
     "byRangeDateLabel": "Filtrar por rango de fechas superpuestas",
-    "patrolWithinRangeTooltip": "Incluir patrullajes que iniciaron entre el rango de fechas",
-    "patrolOverlapsRangeTooltip": "Incluir patrullas cuyo rango de fechas de inicio a fin se superponga con el rango de fechas"
+    "byStartDateLabel": "Filtrar por fecha de inicio",
+    "dateFilterModeLabel": "Modo de filtro por fecha",
+    "patrolOverlapsRangeTooltip": "Incluir patrullas cuyo rango de fechas de inicio a fin se superponga con el rango de fechas",
+    "patrolWithinRangeTooltip": "Incluir patrullajes que iniciaron entre el rango de fechas"
   },
   "reportTypeMultiSelect": {
     "placeholder": "Buscar tipos",

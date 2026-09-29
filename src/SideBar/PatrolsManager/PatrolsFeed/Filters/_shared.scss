@@ -1,0 +1,57 @@
+@use '../../../../common/styles/inputs';
+@use '../../../../common/styles/vars/colors';
+
+@mixin filter-popover {
+  @include inputs.boxShadow;
+
+  border: none !important;
+  border-radius: 0.25rem !important;
+  max-width: 29rem;
+  width: 90vw;
+
+  &:focus {
+    outline: none;
+  }
+
+  [class*='popover-arrow'] {
+    display: none;
+  }
+}
+
+@mixin filter-popover-body {
+  display: flex;
+  flex-direction: column;
+  max-height: min(32rem, calc(100dvh - 11rem));
+  overflow-y: auto;
+  padding: 0 1rem;
+}
+
+@mixin section-label {
+  color: colors.$off-black;
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0 0 0.5rem;
+}
+
+@mixin borderless-select-list {
+  legend {
+    @include section-label;
+  }
+
+  > div {
+    border: none;
+    margin-left: -0.5rem;
+    max-height: none;
+    overflow: visible;
+    padding: 0;
+  }
+
+  label {
+    color: colors.$secondary-medium-gray;
+  }
+
+  [class*='description'], [class*='display'] {
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+}

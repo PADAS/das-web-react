@@ -153,7 +153,7 @@ describe('useJumpToLocation', () => {
       expect(map.easeTo).toHaveBeenCalledTimes(1);
       expect(map.easeTo).toHaveBeenCalledWith({
         center: [-104.19557197413907, 20.75709101172957],
-        padding: { top: 12, right: 90, bottom: 12, left: 582 },
+        padding: { top: 12, right: 90, bottom: 12, left: 710 },
         speed: 200,
         zoom: 12,
       });
@@ -163,6 +163,7 @@ describe('useJumpToLocation', () => {
   test('sets the right padding if a sidebar tab is open in detail view', async () => {
     useRouterLocationMock = jest.fn(() => ({ pathname: '/events/123' }),);
     useRouterLocation.mockImplementation(useRouterLocationMock);
+    jest.replaceProperty(window, 'innerWidth', 1440);
 
     const coordinates = [-104.19557197413907, 20.75709101172957];
 
@@ -172,7 +173,7 @@ describe('useJumpToLocation', () => {
       expect(map.easeTo).toHaveBeenCalledTimes(1);
       expect(map.easeTo).toHaveBeenCalledWith({
         center: [-104.19557197413907, 20.75709101172957],
-        padding: { top: 12, right: 90, bottom: 12, left: 736 },
+        padding: { top: 12, right: 90, bottom: 12, left: 806 },
         speed: 200,
         zoom: 12,
       });
@@ -182,6 +183,7 @@ describe('useJumpToLocation', () => {
   test('keeps the bounds it fits clear of an open sidebar', async () => {
     useRouterLocationMock = jest.fn(() => ({ pathname: '/patrols/123' }),);
     useRouterLocation.mockImplementation(useRouterLocationMock);
+    jest.replaceProperty(window, 'innerWidth', 1440);
 
     const coordinates = [
       [-104.19557197413907, 20.75709101172957],
@@ -195,7 +197,7 @@ describe('useJumpToLocation', () => {
       expect(map.fitBounds).toHaveBeenCalledWith([
         [-105.19557197413907, 20.75709101172957],
         [-104.19557197413907, 21.75709101172957],
-      ], { linear: true, padding: { top: 12, right: 90, bottom: 12, left: 736 }, speed: 200 });
+      ], { linear: true, padding: { top: 12, right: 90, bottom: 12, left: 806 }, speed: 200 });
     });
   });
 

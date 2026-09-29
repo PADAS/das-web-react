@@ -42,7 +42,6 @@
       "inactive": "Activate the time of day coloring"
     },
     "trackSettings": {
-      "closeButtonLabel": "Close the track settings",
       "customLengthErrorMessage": "Please enter a track length between {{min}} and {{max}}.",
       "customLengthInputLabel": "Track length in days",
       "customLengthRadioLabel": "Custom length",

@@ -318,14 +318,14 @@ describe('calcSidebarPaddingLeft', () => {
   });
 
   test('pads for the sidebar width, plus the vertical nav rail, when a tab is open', () => {
-    expect(calcSidebarPaddingLeft({ pathname: '/events', isMediumLayoutOrLarger: true })).toBe(582);
+    expect(calcSidebarPaddingLeft({ pathname: '/events', isMediumLayoutOrLarger: true })).toBe(710);
   });
 
   test('pads for the wider detail view when an item is open', () => {
-    expect(calcSidebarPaddingLeft({ pathname: '/events/some-event-id', isMediumLayoutOrLarger: true })).toBe(736);
+    expect(calcSidebarPaddingLeft({ pathname: '/events/some-event-id', isMediumLayoutOrLarger: true })).toBe(806);
   });
 
   test('prioritizes the detail-view width over the tab width when both are present', () => {
-    expect(calcSidebarPaddingLeft({ pathname: '/patrols/some-patrol-id', isMediumLayoutOrLarger: true })).toBe(736);
+    expect(calcSidebarPaddingLeft({ pathname: '/patrols/some-patrol-id', isMediumLayoutOrLarger: true })).toBe(806);
   });
 });

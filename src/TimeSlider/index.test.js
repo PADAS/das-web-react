@@ -100,13 +100,13 @@ describe('TimeSlider', () => {
   test('offsets for the sidebar width when a tab is open', () => {
     renderTimeSlider(undefined, { initialEntries: ['/events'] });
 
-    expect(screen.getByTestId('timeSlider-wrapper')).toHaveStyle({ '--sidebar-offset': '582px' });
+    expect(screen.getByTestId('timeSlider-wrapper')).toHaveStyle({ '--sidebar-offset': '710px' });
   });
 
   test('offsets for the wider detail view width when an item is open', () => {
     renderTimeSlider(undefined, { initialEntries: ['/events/some-event-id'] });
 
-    expect(screen.getByTestId('timeSlider-wrapper')).toHaveStyle({ '--sidebar-offset': '736px' });
+    expect(screen.getByTestId('timeSlider-wrapper')).toHaveStyle({ '--sidebar-offset': '806px' });
   });
 
   test('has no sidebar offset below the medium layout breakpoint, regardless of the URL', () => {
@@ -197,8 +197,8 @@ describe('TimeSlider', () => {
     const speedButton = screen.getByRole('button', { name: 'Open playback speed options' });
 
     expect(speedButton).toBeVisible();
-    expect(speedButton).toHaveAttribute('title', 'Open playback speed options');
     expect(speedButton).toHaveTextContent('1x');
+    expect(speedButton).toHaveAttribute('title', 'Open playback speed options');
   });
 
   test('opens the speed menu when the user clicks the speed button', async () => {

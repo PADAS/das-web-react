@@ -613,9 +613,9 @@ export const displayPatrolSegmentId = (patrol) => {
 
 export const getIsMobilePatrol = (patrol) => patrol?.provenance === 'mobile';
 
-export const isPatrolCancelled = (patrol) => patrol.state === 'cancelled';
+export const isPatrolCancelled = (patrol) => patrol.state === PATROL_API_STATES.CANCELLED;
 
-export const isPatrolDone = (patrol) => patrol.state === 'done';
+export const isPatrolDone = (patrol) => patrol.state === PATROL_API_STATES.DONE;
 
 export const isSegmentFinished = (patrolSegment) => {
   const { time_range: { end_time } = {} } = patrolSegment;
@@ -727,6 +727,8 @@ export const calcPatrolState = (patrol) => {
   if (isPatrolCancelled(patrol)) {
     return CANCELLED;
   }
+  // Ending a patrol is recorded in the state the API keeps, not in its legs, so
+  // a close stands even where a leg was left open behind it.
   if (isPatrolDone(patrol)) {
     return DONE;
   }

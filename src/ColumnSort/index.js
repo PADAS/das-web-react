@@ -90,8 +90,9 @@ const ColumnSort = ({ sortOptions, orderOptions, value, onChange }) => {
         trigger="click"
       >
       <button
-        className={`${styles.button} ${isSortModified ? styles.active : styles.inactive}`}
+        className={`${styles.button} ${isSortModified ? styles.active : ''}`}
         data-testid="sort-popover-trigger"
+        type="button"
       >
         <SortLines className={styles.sortingButtonIcon} />
 
@@ -103,10 +104,12 @@ const ColumnSort = ({ sortOptions, orderOptions, value, onChange }) => {
 
     <button
         aria-label={t(`sortDirectionToggleLabel.${isSortUp ? 'ascending' : 'descending'}`)}
-        className={`${styles.button} ${isSortUp ? styles.active : styles.inactive}`}
+        aria-pressed={isSortUp}
+        className={`${styles.sortDirectionButton} ${isSortUp ? styles.active : ''}`}
         data-testid="sort-direction-toggle"
         onClick={toggleSortDirection}
         title={t(`sortDirectionToggleTitle.${isSortUp ? 'ascending' : 'descending'}`)}
+        type="button"
       >
       {isSortUp ? <ArrowUp /> : <ArrowDown />}
     </button>

@@ -1,3 +1,4 @@
+@import '../common/styles/buttons';
 @import '../common/styles/layout';
 @import '../common/styles/vars/colors';
 
@@ -222,7 +223,6 @@
 
     .addReport {
       svg {
-        margin-bottom: 0;
         height: 2rem;
         width: 2rem;
       }
@@ -235,18 +235,21 @@
   }
 
   .backButton {
-    min-width: 2rem
+    @include iconButton;
+
+    .backButtonIcon {
+      height: 1rem;
+      width: 1rem;
+    }
   }
 
-  button {
-    background: none;
-    color: inherit;
-    border: none;
-    padding: 0;
-    font: inherit;
-    cursor: pointer;
-    outline: inherit;
-    display: block;
+  .closeButton {
+    @include iconButton;
+
+    .closeButtonIcon {
+      height: 1rem;
+      width: 1rem;
+    }
   }
 }
 

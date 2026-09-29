@@ -68,13 +68,13 @@ describe('EventFilter', () => {
     test('the default state for Filter button should be inactive', async () => {
       renderEventFilter(mockStore(initialState));
 
-      expect(screen.getByTestId('filter-btn')).toHaveClass('inactive');
+      expect(screen.getByTestId('filter-btn')).not.toHaveClass('active');
     });
 
     test('the default state for Date button, should be inactive', () => {
       renderEventFilter(mockStore(initialState));
 
-      expect(screen.getByTestId('date-filter-btn')).toHaveClass('inactive');
+      expect(screen.getByTestId('date-filter-btn')).not.toHaveClass('active');
     });
 
     test('the popover for the filters should be shown after clicking on filter button', async () => {

@@ -72,26 +72,20 @@
         white-space: nowrap;
 
         .viewLegButton {
-          @include shared.icon-button;
-
-          height: 1.75rem;
-          width: 1.75rem;
+          @include shared.icon-button-small;
 
           svg {
             height: 0.75rem;
             width: 0.75rem;
           }
 
-          &:hover {
+          &:hover:not(:disabled) {
             background: none;
           }
         }
 
         .zoomToLegBoundsButton {
-          @include shared.icon-button;
-
-          height: 1.75rem;
-          width: 1.75rem;
+          @include shared.icon-button-small;
         }
       }
 

@@ -87,35 +87,57 @@
     }
   },
   "patrolFilters": {
-    "datesTitle": "Dates",
     "dateRangePopover": {
-      "title": "Intervalle de Dates",
-      "resetButton": "Réinitialiser"
+      "endDateLabel": "Jusqu'à",
+      "presetButtons": {
+        "lastSevenDays": "7 derniers jours",
+        "lastThirtyDays": "30 derniers jours",
+        "lastThreeMonths": "3 derniers mois",
+        "today": "Aujourd'hui",
+        "yesterday": "Hier"
+      },
+      "presetsGroupLabel": "Intervalles de dates prédéfinis",
+      "resetButton": "Réinitialiser",
+      "resetButtonLabel": "Réinitialiser les filtres de date",
+      "startDateLabel": "Depuis",
+      "title": "Intervalle de Dates"
+    },
+    "datesModifiedButtonLabel": "Dates, filtres de date appliqués",
+    "datesTitle": "Dates",
+    "filteredResultsSummary_one": "{{count}} résultat filtré depuis <dateRange>{{dateRange}}</dateRange>",
+    "filteredResultsSummary_other": "{{count}} résultats filtrés depuis <dateRange>{{dateRange}}</dateRange>",
+    "filtersModifiedButtonLabel": "Filtres, filtres appliqués",
+    "filtersPopover": {
+      "checkBoxAllOption": "Tout Sélectionner",
+      "patrolStatuses": {
+        "active": "Active",
+        "cancelled": "Annulée",
+        "done": "Terminée"
+      },
+      "patrolTypeLabel": "Type de Patrouille",
+      "reportedByPlaceholder": "Sélectionner l'Appareil",
+      "resetAllButton": "Tout Réinitialiser",
+      "resetButton": "Réinitialiser",
+      "resetPatrolTypesButtonLabel": "Réinitialiser les types de patrouille",
+      "resetStatusButtonLabel": "Réinitialiser le statut",
+      "statusLabel": "Statut",
+      "teamLeadLabel": "Chef d'équipe",
+      "title": "Filtres de Patrouilles",
+      "trackedByLabel": "Suivi depuis:",
+      "unknownTeamLeadLabel": "Chef d'équipe inconnu"
     },
     "filtersTitle": "Filtres",
     "globalResetFilterButton": "Réinitialiser",
-    "searchbarPlaceHolder": "Recherche...",
-    "filtersPopover": {
-      "checkBoxAllOption": "Tout Sélectionner",
-      "title": "Filtres de Patrouilles",
-      "resetAllButton": "Tout Réinitialiser",
-      "resetButton": "Réinitialiser",
-      "trackedByLabel": "Suivi depuis:",
-      "statusLabel": "Statut",
-      "patrolTypeLabel": "Type de Patrouille",
-      "reportedByPlaceholder": "Sélectionner l'Appareil",
-      "patrolStatuses": {
-        "active": "Active",
-        "done": "Terminée",
-        "cancelled": "Annulée"
-      }
-    }
+    "resultsSummary_one": "{{count}} résultat depuis <dateRange>{{dateRange}}</dateRange>",
+    "resultsSummary_other": "{{count}} résultats depuis <dateRange>{{dateRange}}</dateRange>",
+    "searchbarPlaceHolder": "Recherche..."
   },
   "patrolFiltersSettings": {
-    "byStartDateLabel": "Filtrer par date de départ",
     "byRangeDateLabel": "Filtrer par dates comprises dans l'intervalle",
-    "patrolWithinRangeTooltip": "Comprend les patrouilles débutant dans l'intervalle de dates sélectionnée",
-    "patrolOverlapsRangeTooltip": "Comprend les patrouilles ayant une date de début et de fin compris dans l'intervalle de dates sélectionnée"
+    "byStartDateLabel": "Filtrer par date de départ",
+    "dateFilterModeLabel": "Mode de filtre par date",
+    "patrolOverlapsRangeTooltip": "Comprend les patrouilles ayant une date de début et de fin compris dans l'intervalle de dates sélectionnée",
+    "patrolWithinRangeTooltip": "Comprend les patrouilles débutant dans l'intervalle de dates sélectionnée"
   },
   "reportTypeMultiSelect": {
     "placeholder": "Recherche de types",

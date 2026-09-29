@@ -60,7 +60,6 @@ const Footer = ({
         hideAddPatrolTab
         iconComponent={<DocumentIcon aria-hidden="true" />}
         label={t('addEventButtonText')}
-        title={t('addEventButtonLabel')}
         variant="plain"
       />
     </div>

@@ -8,7 +8,7 @@ import { useParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
 import { addPatrolSegmentToEvent } from '../../../utils/events';
-import buildPatrolStatusUpdate from './utils/buildPatrolStatusUpdate';
+import buildPatrolStatusUpdate from '../utils/buildPatrolStatusUpdate';
 import { displayTitleForPatrol, getTrackedSubjectsForPatrolSegment, governingPatrolSegment } from '../../../utils/patrols';
 import { fetchPatrol, updatePatrol, uploadPatrolFile } from '../../../ducks/patrols';
 import { fetchTracksIfNecessary } from '../../../utils/tracks';

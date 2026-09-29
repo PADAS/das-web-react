@@ -46,7 +46,7 @@
         "paused": "Imesitishwa",
         "readyToStart": "Tayari kuanza",
         "scheduled": "Imepangwa",
-        "startOverdue": "Kuanza kuchelewa"
+        "startOverdue": "Imechelewa"
       }
     },
     "loadingMessage": "Inahifadhi...",
@@ -255,7 +255,6 @@
     "addEventLinkErrorMessage": "Tukio limehifadhiwa, lakini halikuweza kuongezwa kwenye doria hii.",
     "attachmentsSaveErrorMessage": "Baadhi ya viambatisho havikuweza kupakiwa. Tafadhali jaribu tena.",
     "footer": {
-      "addEventButton": "Ongeza tukio",
       "addEventButtonLabel": "Ongeza tukio",
       "addEventButtonText": "Tukio",
       "saveButton": "Hifadhi"
@@ -327,6 +326,28 @@
     "saveErrorMessage": "Doria haikuweza kuhifadhiwa. Tafadhali jaribu tena.",
     "tabsLabel": "Vichupo vya muhtasari wa doria"
   },
+  "patrolsFeed": {
+    "emptyStateMessage": "Hakuna doria za kuonyesha.",
+    "patrolListLabel": "Orodha ya doria",
+    "patrolRow": {
+      "actions": {
+        "copyLinkMessage": "Kiungo kimekopwa",
+        "copyLinkOption": "Nakili kiungo cha doria",
+        "downloadTrackOption": "Pakua njia ya doria",
+        "jumpToLocationButtonLabel": "Enda mahali",
+        "moreOptionsButtonLabel": "Chaguo zaidi",
+        "statusUpdateErrorMessage": "Hali ya doria haikuweza kusasishwa. Tafadhali jaribu tena.",
+        "toggleTrackButtonLabel": {
+          "hidden": "Onyesha njia ya doria",
+          "pinned": "Ficha njia ya doria",
+          "visible": "Bandika njia ya doria"
+        }
+      },
+      "legLabel": "Kipande {{number}}",
+      "mobileProvenanceLabel": "Simu",
+      "scheduledLabel": "Imepangwa: {{startTime}}"
+    }
+  },
   "patrolStartStopLayer": {
     "endMarkerLabel": "Mwisho wa doria",
     "estimatedEndMarkerLabel": "Mwisho wa doria (kadirio)",
@@ -346,8 +367,16 @@
       "paused": "Imesitishwa",
       "readyToStart": "Tayari kuanza",
       "scheduled": "Imepangwa",
-      "startOverdue": "Kuanza kuchelewa"
+      "startOverdue": "Imechelewa"
     }
+  },
+  "statusTransitions": {
+    "cancel": "Ghairi",
+    "end": "Maliza",
+    "pause": "Sitisha",
+    "restore": "Rejesha",
+    "resume": "Endeleza",
+    "start": "Anza"
   },
   "titleInput": {
     "editButtonLabel": "Hariri kichwa"

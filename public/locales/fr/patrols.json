@@ -46,7 +46,7 @@
         "paused": "En pause",
         "readyToStart": "Prête à démarrer",
         "scheduled": "Planifiée",
-        "startOverdue": "Démarrage en retard"
+        "startOverdue": "En retard"
       }
     },
     "loadingMessage": "Sauvegardement...",
@@ -255,7 +255,6 @@
     "addEventLinkErrorMessage": "L'événement a été enregistré, mais n'a pas pu être ajouté à cette patrouille.",
     "attachmentsSaveErrorMessage": "Certaines pièces jointes n'ont pas pu être téléversées. Veuillez réessayer.",
     "footer": {
-      "addEventButton": "Ajouter un événement",
       "addEventButtonLabel": "Ajouter un événement",
       "addEventButtonText": "Événement",
       "saveButton": "Sauvegarder"
@@ -327,6 +326,28 @@
     "saveErrorMessage": "La patrouille n'a pas pu être enregistrée. Veuillez réessayer.",
     "tabsLabel": "Onglets de l'aperçu de la patrouille"
   },
+  "patrolsFeed": {
+    "emptyStateMessage": "Aucune patrouille à afficher.",
+    "patrolListLabel": "Liste des patrouilles",
+    "patrolRow": {
+      "actions": {
+        "copyLinkMessage": "Lien copié avec succès",
+        "copyLinkOption": "Copier le lien de la patrouille",
+        "downloadTrackOption": "Télécharger la piste de la patrouille",
+        "jumpToLocationButtonLabel": "Aller à l'emplacement",
+        "moreOptionsButtonLabel": "Plus d'options",
+        "statusUpdateErrorMessage": "Le statut de la patrouille n'a pas pu être mis à jour. Veuillez réessayer.",
+        "toggleTrackButtonLabel": {
+          "hidden": "Afficher la piste de la patrouille",
+          "pinned": "Masquer la piste de la patrouille",
+          "visible": "Épingler la piste de la patrouille"
+        }
+      },
+      "legLabel": "Étape {{number}}",
+      "mobileProvenanceLabel": "Mobile",
+      "scheduledLabel": "Planifiée : {{startTime}}"
+    }
+  },
   "patrolStartStopLayer": {
     "endMarkerLabel": "Fin de la patrouille",
     "estimatedEndMarkerLabel": "Fin de la patrouille (est.)",
@@ -346,8 +367,16 @@
       "paused": "En pause",
       "readyToStart": "Prête à démarrer",
       "scheduled": "Planifiée",
-      "startOverdue": "Démarrage en retard"
+      "startOverdue": "En retard"
     }
+  },
+  "statusTransitions": {
+    "cancel": "Annuler",
+    "end": "Terminer",
+    "pause": "Suspendre",
+    "restore": "Restaurer",
+    "resume": "Reprendre",
+    "start": "Commencer"
   },
   "titleInput": {
     "editButtonLabel": "Modifier le titre"

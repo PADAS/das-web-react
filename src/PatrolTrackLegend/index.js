@@ -64,6 +64,7 @@ const PatrolTrackLegend = () => {
         id: subjectTrackData.subject.id,
         isHidden: subjectTrackData.isHidden,
         title: subjectTrackData.subject.name,
+        trackColor: subjectTrackData.trackData?.track?.features?.[0]?.properties?.stroke ?? '',
       })),
       icon: <SvgIcon
         className={styles.itemIcon}

@@ -91,7 +91,7 @@ export const BREAKPOINTS = {
   screenIsExtraLargeWidth: window.matchMedia(xlLayoutWidthMin),
 };
 
-export const SIDEBAR_WIDTH_PIXELS = 512;
+export const SIDEBAR_WIDTH_PIXELS = 640;
 export const SIDEBAR_DETAIL_VIEW_WIDTH_PIXELS = 736;
 
 export const FOCUSABLE_SELECTOR = [

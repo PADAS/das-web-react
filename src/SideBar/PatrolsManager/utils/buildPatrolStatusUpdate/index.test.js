@@ -1,7 +1,7 @@
 import buildPatrolStatusUpdate from './';
-import { PATROL_UI_STATES } from '../../../../../constants';
+import { PATROL_UI_STATES } from '../../../../constants';
 
-describe('SideBar - PatrolsManager - PatrolOverview - utils - buildPatrolStatusUpdate', () => {
+describe('SideBar - PatrolsManager - utils - buildPatrolStatusUpdate', () => {
   const NOW = '2026-04-13T12:00:00.000Z';
 
   const firstLeg = {

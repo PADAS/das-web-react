@@ -12,9 +12,9 @@
   .container {
     border: 1px solid colors.$light-gray-border;
     border-radius: 0.25rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
+    display: grid;
+    gap: 0.25rem 1rem;
+    grid-template-columns: repeat(var(--select-list-group-column-count, 1), minmax(0, 1fr));
     max-height: 15.625rem;
     overflow: hidden auto;
     padding: 0.5rem;

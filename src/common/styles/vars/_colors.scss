@@ -35,7 +35,6 @@ $violet: #B62879;
 $plum: #3E35A3;
 $dark-teal: #107283;
 $dark-gold: #C6880C;
-$light-gold: #FDFAF4;
 
 /* semantic variables */
 
@@ -112,34 +111,36 @@ $report-high-priority-theme: (
 
 /////
 
+$patrol-row-tint: 5%;
+
 $patrol-overdue-theme: (
   base: $violet,
-  background: rgba($violet, 0.1)
+  background: mix($violet, white, $patrol-row-tint)
 );
 
 $patrol-active-theme: (
   base: $plum,
-  background: rgba($plum, 0.1)
+  background: mix($plum, white, $patrol-row-tint)
 );
 
 $patrol-ready-theme: (
   base: $dark-teal,
-  background: rgba($dark-teal, 0.1)
+  background: mix($dark-teal, white, $patrol-row-tint)
 );
 
 $patrol-paused-theme: (
   base: $dark-gold,
-  background: $light-gold
+  background: mix($dark-gold, white, $patrol-row-tint)
 );
 
 $patrol-done-theme: (
   base: $medium-light-gray,
-  background: rgba($medium-light-gray, 0.1)
+  background: mix($medium-light-gray, white, $patrol-row-tint)
 );
 
 $patrol-cancelled-theme: (
   base: $very-light-gray-alt,
-  background: rgba($very-light-gray-alt, 0.1),
+  background: mix($very-light-gray-alt, white, $patrol-row-tint),
   fontColor: $secondary-medium-light-gray
 );
 

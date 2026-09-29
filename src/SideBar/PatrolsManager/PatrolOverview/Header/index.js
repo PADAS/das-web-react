@@ -81,6 +81,8 @@ const Header = ({
 
   const jumpToLocationCoordinates = getPatrolLocationCoordinates(patrolTrackData);
 
+  const shownTrack = patrolTrackData.trackData?.track ?? null;
+
   const patrolBounds = useMemo(() => getBoundsForPatrol(patrol, patrolTrackData), [patrol, patrolTrackData]);
 
   const onToggleTrack = () => {
@@ -120,7 +122,7 @@ const Header = ({
   });
 
   const onDownloadTrack = () => {
-    downloadJsonAsFile(patrolTrackData.trackData.track, `Patrol_${patrol.serial_number}.geojson`);
+    downloadJsonAsFile(shownTrack, `Patrol_${patrol.serial_number}.geojson`);
 
     tracker.track('Download patrol track from patrol overview');
   };
@@ -213,7 +215,7 @@ const Header = ({
         {t('printOption')}
       </KebabMenu.Option>
 
-      <KebabMenu.Option disabled={!hasTrack} onClick={onDownloadTrack}>
+      <KebabMenu.Option disabled={!shownTrack} onClick={onDownloadTrack}>
         <DownloadArrowIcon aria-hidden="true" />
 
         {t('downloadTrackOption')}

@@ -42,7 +42,6 @@
       "inactive": "Amua rangi kwa wakati wa siku"
     },
     "trackSettings": {
-      "closeButtonLabel": "Funga mipangilio ya nyimbo",
       "customLengthErrorMessage": "Tafadhali ingiza urefu wa wimbo kati ya {{min}} na {{max}}.",
       "customLengthInputLabel": "Urefu wa wimbo kwa siku",
       "customLengthRadioLabel": "Urefu maalum",

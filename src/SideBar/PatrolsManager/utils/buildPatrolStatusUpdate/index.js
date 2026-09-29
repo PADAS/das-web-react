@@ -7,8 +7,8 @@ import {
   calcPatrolState,
   isPatrolPaused,
   patrolWithUpdateApplied,
-} from '../../../../../utils/patrols';
-import { PATROL_API_STATES, PATROL_UI_STATES } from '../../../../../constants';
+} from '../../../../utils/patrols';
+import { PATROL_API_STATES, PATROL_UI_STATES } from '../../../../constants';
 
 const buildPatrolStatusUpdate = (patrol, state) => {
   if (state === PATROL_UI_STATES.CANCELLED) {

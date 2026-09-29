@@ -30,6 +30,7 @@ const DroppedMarkerPopup = ({ data: { location }, id }) => {
         }
       }}
       showLabel={false}
+      variant="secondary"
     />
   </>;
 };

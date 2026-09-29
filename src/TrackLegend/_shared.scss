@@ -23,10 +23,6 @@
     margin: 0;
     text-transform: capitalize;
   }
-
-  .closeButton {
-    @include buttons.inlineIconButton;
-  }
 }
 
 @mixin legend-item-card {

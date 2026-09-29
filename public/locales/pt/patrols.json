@@ -46,7 +46,7 @@
         "paused": "Pausada",
         "readyToStart": "Pronta para começar",
         "scheduled": "Programada",
-        "startOverdue": "Início atrasado"
+        "startOverdue": "Atrasada"
       }
     },
     "loadingMessage": "Salvando...",
@@ -255,7 +255,6 @@
     "addEventLinkErrorMessage": "O evento foi salvo, mas não foi possível adicioná-lo a esta patrulha.",
     "attachmentsSaveErrorMessage": "Não foi possível carregar alguns anexos. Tente novamente.",
     "footer": {
-      "addEventButton": "Adicionar evento",
       "addEventButtonLabel": "Adicionar evento",
       "addEventButtonText": "Evento",
       "saveButton": "Salvar"
@@ -327,6 +326,28 @@
     "saveErrorMessage": "Não foi possível salvar a patrulha. Tente novamente.",
     "tabsLabel": "Guias de visão geral da patrulha"
   },
+  "patrolsFeed": {
+    "emptyStateMessage": "Não há patrulhas para mostrar",
+    "patrolListLabel": "Lista de patrulhas",
+    "patrolRow": {
+      "actions": {
+        "copyLinkMessage": "Link copiado",
+        "copyLinkOption": "Copiar link de patrulha",
+        "downloadTrackOption": "Baixar trilha da patrulha",
+        "jumpToLocationButtonLabel": "Ir para a localização",
+        "moreOptionsButtonLabel": "Mais opções",
+        "statusUpdateErrorMessage": "Não foi possível atualizar o status da patrulha. Tente novamente.",
+        "toggleTrackButtonLabel": {
+          "hidden": "Mostrar trilha da patrulha",
+          "pinned": "Ocultar trilha da patrulha",
+          "visible": "Fixar trilha da patrulha"
+        }
+      },
+      "legLabel": "Etapa {{number}}",
+      "mobileProvenanceLabel": "Móvel",
+      "scheduledLabel": "Programada: {{startTime}}"
+    }
+  },
   "patrolStartStopLayer": {
     "endMarkerLabel": "Fim da patrulha",
     "estimatedEndMarkerLabel": "Fim da patrulha (aprox.)",
@@ -346,8 +367,16 @@
       "paused": "Pausada",
       "readyToStart": "Pronta para começar",
       "scheduled": "Programada",
-      "startOverdue": "Início atrasado"
+      "startOverdue": "Atrasada"
     }
+  },
+  "statusTransitions": {
+    "cancel": "Cancelar",
+    "end": "Finalizar",
+    "pause": "Pausar",
+    "restore": "Restaurar",
+    "resume": "Retomar",
+    "start": "Iniciar"
   },
   "titleInput": {
     "editButtonLabel": "Editar título"

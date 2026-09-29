@@ -18,6 +18,7 @@ export const AddItemContext = createContext();
 
 const AddItemButton = ({
   analyticsMetadata = { category: 'Feed', location: null },
+  'aria-label': ariaLabel = null,
   className = '',
   formProps = {
     hidePatrols: false,
@@ -80,11 +81,11 @@ const AddItemButton = ({
     </DelayedUnmount>
 
     <button
-      aria-label={t('defaultLabel')}
+      aria-label={ariaLabel ?? t('defaultLabel')}
       className={`${styles[`addItemButton-${variant}`]} ${className}`}
       data-testid="addItemButton"
       onClick={onClick}
-      title={title || t('defaultTitle')}
+      title={title ?? (showLabel ? undefined : t('defaultTitle'))}
       type="button"
       {...restProps}
     >

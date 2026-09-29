@@ -109,17 +109,11 @@ const TeamAndTracking = ({ legNumber, trackedSubjects }) => {
     }
   };
 
-  const onJumpToSubjectLocation = (coordinates) => (event) => {
-    event.stopPropagation();
-
+  const onJumpToSubjectLocation = (coordinates) => () => {
     jumpToLocation(coordinates, JUMP_TO_LOCATION_ZOOM);
 
     tracker.track('Click "jump to tracked subject location" from patrol overview');
   };
-
-  // The list is rendered in a portal but its clicks still reach the leg row
-  // through React, which would navigate away from under it.
-  const onPopoverClick = (event) => event.stopPropagation();
 
   // A collapsed toggle has no list to walk, so every key but the ones that open
   // one belongs to whatever surrounds it.
@@ -133,11 +127,7 @@ const TeamAndTracking = ({ legNumber, trackedSubjects }) => {
     }
   };
 
-  const onToggleList = (event) => {
-    event.stopPropagation();
-
-    setIsListOpen((isOpen) => !isOpen);
-  };
+  const onToggleList = () => setIsListOpen((isOpen) => !isOpen);
 
   useEffect(() => {
     const isListOpening = isListOpen && !wasListOpen.current;
@@ -202,7 +192,7 @@ const TeamAndTracking = ({ legNumber, trackedSubjects }) => {
       show={isListOpen}
       target={toggleButtonEl}
       >
-      <Popover className={styles.listPopover} onClick={onPopoverClick} role="presentation">
+      <Popover className={styles.listPopover} role="presentation">
         <ul
           aria-label={t('listLabel', { number: legNumber })}
           className={styles.list}

@@ -1,15 +1,11 @@
-@use 'sass:color';
 @use 'sass:map';
 
 @use '../../../common/styles/layout';
 @use '../../../common/styles/vars/colors';
 
-$rowHoverBlackMix: 4%;
-
 @mixin priorityTheme($theme) {
   --item-icon-bg: #{map.get($theme, 'base')};
-  --item-row-bg: #{map.get($theme, 'background')};
-  --item-row-hover-bg: #{color.mix(black, map.get($theme, 'background'), $rowHoverBlackMix)};
+  --item-row-hover-bg: #{map.get($theme, 'background')};
 }
 
 .red {

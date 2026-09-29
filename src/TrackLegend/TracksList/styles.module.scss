@@ -41,6 +41,12 @@
     flex-shrink: 0;
     gap: 0.5rem;
 
+    .trackColor {
+      border-radius: 0.125rem;
+      height: 0.25rem;
+      width: 0.75rem;
+    }
+
     .description {
       color: colors.$secondary-medium-gray;
       font-size: 0.75rem;

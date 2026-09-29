@@ -153,7 +153,7 @@ const TrackLegend = ({
             aria-controls={tracksListId}
             aria-expanded={isTracksListExpanded}
             aria-label={t(`tracksListButtonLabel.${isTracksListExpanded ? 'open' : 'closed'}`, { itemsName })}
-            className={styles.settingsButton}
+            className={`${styles.settingsButton} ${isTracksListExpanded ? styles.active : ''}`}
             onClick={() => isTracksListExpanded ? onCollapseMenu() : onExpandMenu(MENUS.TRACKS_LIST)}
             title={t(`tracksListButtonLabel.${isTracksListExpanded ? 'open' : 'closed'}`, { itemsName })}
             type="button"
@@ -185,13 +185,14 @@ const TrackLegend = ({
           items={items}
           onClearItemTracks={onClearItemTracks}
           onToggleItemChildTracks={onToggleItemChildTracks}
+          showTrackColors={!isTimeOfDayColoringActive}
         />
       </div>
     </Collapse>
 
     {showTrackSettings && <Collapse id={trackSettingsId} in={isTrackSettingsExpanded} unmountOnExit>
       <div className={styles.collapseWrapper}>
-        <TrackSettings onClose={onCollapseMenu} />
+        <TrackSettings />
       </div>
     </Collapse>}
 

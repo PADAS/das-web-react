@@ -74,6 +74,8 @@ const PointPopup = (props) => {
             longitude: point[0],
           }
         }}
+        showLabel={false}
+        variant="secondary"
       />
     </>}
     {
