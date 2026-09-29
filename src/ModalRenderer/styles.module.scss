@@ -3,7 +3,7 @@
   z-index: -1;
 }
 
-.modalImageBackground {
+.modalMediaBackground {
   background: rgba(0, 0, 0, 0.85) !important;
 
   [class*=modal-dialog] {
@@ -14,12 +14,12 @@
     [class*=modal-content] {
       background-color: transparent;
       border: none;
-      
+
       [class*=modal-body] {
         height: 80vh;
       }
 
-      img {
+      img, video {
         max-width: 100%;
         max-height: 100%;
       }
