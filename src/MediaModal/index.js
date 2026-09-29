@@ -7,6 +7,7 @@ import { ReactComponent as DownloadArrowIcon } from '../common/images/icons/down
 
 import { downloadFileFromUrl } from '../utils/download';
 import { removeModal } from '../ducks/modals';
+import useMediaObjectUrl from '../hooks/useMediaObjectUrl';
 
 import LoadingOverlay from '../LoadingOverlay';
 
@@ -14,38 +15,45 @@ import * as styles from './styles.module.scss';
 
 const { Header, Title, Body } = Modal;
 
-const ImageModal = ({ id, src, title, url, tracker }) => {
+const MediaModal = ({ id, mediaType = 'image', src = null, title, url, tracker }) => {
   const dispatch = useDispatch();
 
-  const imageRef = useRef();
+  const mediaRef = useRef();
   const downloadIconRef = useRef();
   const titleRef = useRef();
-  const { t } = useTranslation('details-view', { keyPrefix: 'imageModal' });
+  const { t } = useTranslation('details-view', { keyPrefix: 'mediaModal' });
 
   const [error, setErrorState] = useState(false);
   const [loaded, setLoadState] = useState(false);
 
-  const setImageLoaded = useCallback(() => setLoadState(true), []);
+  // Videos are opened without a `src` because their urls need an authenticated fetch.
+  const { error: fetchError, objectUrl } = useMediaObjectUrl(src ? null : url);
 
-  const setImageError = useCallback(() => {
-    tracker?.track('Error loading image');
+  const mediaSource = src ?? objectUrl;
+
+  const setMediaLoaded = useCallback(() => setLoadState(true), []);
+
+  const setMediaError = useCallback(() => {
+    tracker?.track(`Error loading ${mediaType}`);
 
     setErrorState(true);
-    setImageLoaded();
-  }, [setImageLoaded, tracker]);
+    setMediaLoaded();
+  }, [mediaType, setMediaLoaded, tracker]);
+
+  const showError = error || fetchError;
 
   const onClickDownload = useCallback(() => {
-    tracker?.track('Click image download button');
+    tracker?.track('Click media download button');
 
     downloadFileFromUrl(url, { filename: title });
   }, [title, tracker, url]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (!imageRef.current?.contains(event.target)
+      if (!mediaRef.current?.contains(event.target)
         && !downloadIconRef.current?.contains(event.target)
         && !titleRef.current?.contains(event.target)) {
-        tracker?.track('Click modal background to close image modal');
+        tracker?.track('Click modal background to close media modal');
 
         dispatch(removeModal(id));
       }
@@ -72,18 +80,28 @@ const ImageModal = ({ id, src, title, url, tracker }) => {
     </Header>
 
     <Body className={styles.body}>
-      {!loaded && <LoadingOverlay />}
+      {!loaded && !showError && <LoadingOverlay />}
 
-      {!error && <img
-        alt={title}
-        onError={setImageError}
-        onLoad={setImageLoaded}
-        ref={imageRef}
-        src={src}
+      {!showError && mediaSource && mediaType === 'video' && <video
+        aria-label={title}
+        controls
+        onError={setMediaError}
+        onLoadedData={setMediaLoaded}
+        ref={mediaRef}
+        src={mediaSource}
         style={{ display: loaded ? 'block' : 'none' }}
       />}
 
-      {error && <>
+      {!showError && mediaSource && mediaType === 'image' && <img
+        alt={title}
+        onError={setMediaError}
+        onLoad={setMediaLoaded}
+        ref={mediaRef}
+        src={mediaSource}
+        style={{ display: loaded ? 'block' : 'none' }}
+      />}
+
+      {showError && <>
         <h5>{t('errorTitle')}</h5>
         <h6>{t('errorMessage')}</h6>
       </>}
@@ -91,4 +109,4 @@ const ImageModal = ({ id, src, title, url, tracker }) => {
   </>;
 };
 
-export default memo(ImageModal);
+export default memo(MediaModal);
