@@ -1,9 +1,8 @@
 import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { EVENT_FORM_STATES, PREVIEW_FEATURES } from '../../../../constants';
+import { EVENT_FORM_STATES } from '../../../../constants';
 import { isReportActive } from '../../../../utils/events';
-import { usePreviewFeature } from '../../../../hooks';
 
 import AddAttachmentButton from '../../../../AddAttachmentButton';
 import AddNoteButton from '../../../../AddNoteButton';
@@ -31,16 +30,12 @@ const Footer = ({
 }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'eventsManager.eventOverview.footer' });
 
-  // Remove this flag and the conditional option below once community input is
-  // enabled for all tenants.
-  const isCommunityInputEnabled = usePreviewFeature(PREVIEW_FEATURES.COMMUNITY_INPUT_ADMIN);
-
   const isActive = isReportActive(report);
   const isInReview = report?.state === REVIEW;
 
   const saveOptions = isCommunity ? [] : [
     (isActive || isInReview) && { key: 'resolve', label: t('saveAndResolveOption'), targetState: RESOLVED },
-    isActive && isCommunityInputEnabled && { key: 'review', label: t('saveAndReviewOption'), targetState: REVIEW },
+    isActive && { key: 'review', label: t('saveAndReviewOption'), targetState: REVIEW },
     isInReview && { key: 'activate', label: t('saveAndActivateOption'), targetState: ACTIVE },
     !isActive && !isInReview && { key: 'reopen', label: t('saveAndReopenOption'), targetState: ACTIVE },
   ]

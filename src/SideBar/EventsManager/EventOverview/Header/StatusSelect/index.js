@@ -5,9 +5,8 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as CheckIcon } from '../../../../../common/images/icons/check-light.svg';
 
-import { EVENT_FORM_STATES, PREVIEW_FEATURES } from '../../../../../constants';
+import { EVENT_FORM_STATES } from '../../../../../constants';
 import navigateMenuWithKeyboard from '../../../../utils/navigateMenuWithKeyboard';
-import { usePreviewFeature } from '../../../../../hooks';
 
 import * as styles from './styles.module.scss';
 
@@ -26,10 +25,6 @@ const normalizeState = (state) => state === NEW_LEGACY ? ACTIVE : state;
 const StatusSelect = ({ isDirty, onSelect, savedState, state }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'eventsManager.eventOverview.header.statusSelect' });
 
-  // Remove this flag and the `.filter` below once community input is enabled
-  // for all tenants.
-  const isCommunityInputEnabled = usePreviewFeature(PREVIEW_FEATURES.COMMUNITY_INPUT_ADMIN);
-
   const optionRefs = useRef([]);
 
   const menuId = useId();
@@ -41,8 +36,7 @@ const StatusSelect = ({ isDirty, onSelect, savedState, state }) => {
   const savedStateKey = normalizeState(savedState);
 
   // The saved state leads, as the one the rest are moves away from.
-  const options = [savedStateKey, ...STATES.filter((option) => option !== savedStateKey)]
-    .filter((option) => isCommunityInputEnabled || option !== REVIEW || savedStateKey === REVIEW);
+  const options = [savedStateKey, ...STATES.filter((option) => option !== savedStateKey)];
 
   // Closing without restoring focus: a click outside lands focus where the user
   // clicked, and pulling it back would steal it from there.

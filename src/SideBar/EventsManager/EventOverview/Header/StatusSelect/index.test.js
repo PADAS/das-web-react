@@ -1,27 +1,22 @@
 import React from 'react';
-import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { mockStore } from '../../../../../__test-helpers/MockStore';
-import { PREVIEW_FEATURES } from '../../../../../constants';
 import { render, screen, within } from '../../../../../test-utils';
 
 import StatusSelect from './';
 
 describe('SideBar - EventsManager - EventOverview - Header - StatusSelect', () => {
-  let onSelect, store;
+  let onSelect;
 
   beforeEach(() => {
     onSelect = jest.fn();
-
-    store = { view: { systemConfig: { previewFeatures: { [PREVIEW_FEATURES.COMMUNITY_INPUT_ADMIN]: true } } } };
   });
 
-  const renderStatusSelect = (props = {}) => render(<Provider store={mockStore(store)}>
+  const renderStatusSelect = (props = {}) => render(<>
     <button type="button">Outside</button>
 
     <StatusSelect isDirty={false} onSelect={onSelect} savedState="active" state="active" {...props} />
-  </Provider>);
+  </>);
 
   const getToggle = () => screen.getByRole('button', { name: /Change event state/ });
 
@@ -39,15 +34,6 @@ describe('SideBar - EventsManager - EventOverview - Header - StatusSelect', () =
 
     expect(screen.getAllByRole('menuitem').map((option) => option.textContent))
       .toEqual(['Active', 'Send to review', 'Resolve']);
-  });
-
-  test('does not offer to send to review without community input', async () => {
-    store.view.systemConfig.previewFeatures = {};
-    renderStatusSelect();
-
-    await userEvent.click(getToggle());
-
-    expect(screen.queryByRole('menuitem', { name: 'Send to review' })).toBeNull();
   });
 
   test('selects the state the user picks and returns focus to the toggle', async () => {

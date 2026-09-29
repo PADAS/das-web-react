@@ -1,9 +1,6 @@
 import React from 'react';
-import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { mockStore } from '../../../../__test-helpers/MockStore';
-import { PREVIEW_FEATURES } from '../../../../constants';
 import { render, screen, within } from '../../../../test-utils';
 import { report } from '../../../../__test-helpers/fixtures/reports';
 
@@ -16,7 +13,7 @@ jest.mock('../../../../DetailViewComponents/AddReportButton', () => {
 });
 
 describe('SideBar - EventsManager - EventOverview - Footer', () => {
-  let onAddAttachments, onAddNote, onCancel, onSave, onSaveAndSetState, store;
+  let onAddAttachments, onAddNote, onCancel, onSave, onSaveAndSetState;
 
   beforeEach(() => {
     onAddAttachments = jest.fn();
@@ -24,22 +21,16 @@ describe('SideBar - EventsManager - EventOverview - Footer', () => {
     onCancel = jest.fn();
     onSave = jest.fn();
     onSaveAndSetState = jest.fn();
-
-    store = { data: {}, view: { systemConfig: {} } };
   });
 
-  const renderFooter = (props = {}, storeOverrides = store) => render(
-    <Provider store={mockStore(storeOverrides)}>
-      <Footer
-        onAddAttachments={onAddAttachments}
-        onAddNote={onAddNote}
-        onSave={onSave}
-        onSaveAndSetState={onSaveAndSetState}
-        report={report}
-        {...props}
-      />
-    </Provider>
-  );
+  const renderFooter = (props = {}) => render(<Footer
+    onAddAttachments={onAddAttachments}
+    onAddNote={onAddNote}
+    onSave={onSave}
+    onSaveAndSetState={onSaveAndSetState}
+    report={report}
+    {...props}
+  />);
 
   const openSaveOptions = async () => {
     await userEvent.click(screen.getByRole('button', { name: 'More save options' }));
@@ -114,19 +105,8 @@ describe('SideBar - EventsManager - EventOverview - Footer', () => {
     expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
   });
 
-  test('offers to save and resolve an active event', async () => {
+  test('offers to save and resolve or send to review an active event', async () => {
     renderFooter();
-
-    const menu = await openSaveOptions();
-
-    expect(within(menu).getAllByRole('menuitem').map((option) => option.textContent)).toEqual(['Save and resolve']);
-  });
-
-  test('offers to save and send to review an active event when community input is enabled', async () => {
-    renderFooter({}, {
-      ...store,
-      view: { systemConfig: { previewFeatures: { [PREVIEW_FEATURES.COMMUNITY_INPUT_ADMIN]: true } } },
-    });
 
     const menu = await openSaveOptions();
 

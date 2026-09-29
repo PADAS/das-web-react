@@ -5,7 +5,6 @@ import userEvent from '@testing-library/user-event';
 
 import { getReportLink } from '../../../../../utils/events';
 import { mockStore } from '../../../../../__test-helpers/MockStore';
-import { PREVIEW_FEATURES } from '../../../../../constants';
 import { render, screen, waitFor } from '../../../../../test-utils';
 import { report } from '../../../../../__test-helpers/fixtures/reports';
 import { setBounceEventIDs } from '../../../../../ducks/map-ui';
@@ -53,7 +52,7 @@ describe('SideBar - EventsManager - EventsFeed - EventRow - Actions', () => {
       ],
       is_collection: true,
     };
-    store = { data: {}, view: { systemConfig: { previewFeatures: {} } } };
+    store = { data: {} };
   });
 
   const renderActions = (props) => {
@@ -154,22 +153,14 @@ describe('SideBar - EventsManager - EventsFeed - EventRow - Actions', () => {
     });
   });
 
-  test('offers to resolve an active event', async () => {
+  test('offers to resolve or send to review an active event', async () => {
     renderActions();
 
-    expect(await getStateOptionNames()).toEqual(['Resolve']);
+    expect(await getStateOptionNames()).toEqual(['Resolve', 'Send to review']);
   });
 
-  test('offers to resolve a legacy new event', async () => {
+  test('offers to resolve or send to review a legacy new event', async () => {
     renderActions({ event: { ...report, state: 'new' } });
-
-    expect(await getStateOptionNames()).toEqual(['Resolve']);
-  });
-
-  test('offers to send an active event to review when community input is enabled', async () => {
-    store.view.systemConfig.previewFeatures[PREVIEW_FEATURES.COMMUNITY_INPUT_ADMIN] = true;
-
-    renderActions();
 
     expect(await getStateOptionNames()).toEqual(['Resolve', 'Send to review']);
   });
@@ -181,8 +172,6 @@ describe('SideBar - EventsManager - EventsFeed - EventRow - Actions', () => {
   });
 
   test('offers to reopen a resolved event', async () => {
-    store.view.systemConfig.previewFeatures[PREVIEW_FEATURES.COMMUNITY_INPUT_ADMIN] = true;
-
     renderActions({ event: { ...report, state: 'resolved' } });
 
     expect(await getStateOptionNames()).toEqual(['Reopen']);

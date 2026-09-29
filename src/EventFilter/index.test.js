@@ -42,7 +42,6 @@ describe('EventFilter', () => {
         feedEvents: { count: 3, results: [] },
         subjectStore: {},
       },
-      view: { systemConfig: { previewFeatures: {} } },
     };
   });
 
