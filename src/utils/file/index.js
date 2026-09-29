@@ -22,6 +22,12 @@ export const fetchImageAsBase64FromUrl = async (url) => {
   return `data:${contentType};base64,${Buffer.from(response.data).toString('base64')}`;
 };
 
+export const fetchFileAsObjectUrlFromUrl = async (url, { signal } = {}) => {
+  const response = await axios.get(url, { responseType: 'blob', signal });
+
+  return URL.createObjectURL(response.data);
+};
+
 export const filterDuplicateUploadFilenames = (currentFiles, newFilesToUpload) => {
   const t = i18next.getFixedT(null, 'utils', 'filterDuplicateUploadFilenames');
 

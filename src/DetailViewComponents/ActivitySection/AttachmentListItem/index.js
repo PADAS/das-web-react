@@ -9,15 +9,20 @@ import { ReactComponent as AttachmentIcon } from '../../../common/images/icons/a
 import { ReactComponent as DownloadArrowIcon } from '../../../common/images/icons/download-arrow.svg';
 import { ReactComponent as ExpandArrowIcon } from '../../../common/images/icons/expand-arrow.svg';
 import { ReactComponent as ImageIcon } from '../../../common/images/icons/image.svg';
+import { ReactComponent as PlayCircleIcon } from '../../../common/images/icons/play-circle.svg';
 import { ReactComponent as TrashCanIcon } from '../../../common/images/icons/trash-can.svg';
+import { ReactComponent as VideoIcon } from '../../../common/images/icons/video.svg';
+import { ReactComponent as VolumeIcon } from '../../../common/images/icons/volume.svg';
 
 import { addModal } from '../../../ducks/modals';
 import { downloadFileFromUrl } from '../../../utils/download';
 import { fetchImageAsBase64FromUrl } from '../../../utils/file';
 import { format, STANDARD_DATE_FORMAT } from '../../../utils/datetime';
 import { TrackerContext } from '../../../utils/analytics';
+import useMediaObjectUrl from '../../../hooks/useMediaObjectUrl';
 
-import ImageModal from '../../../ImageModal';
+import LoadingOverlay from '../../../LoadingOverlay';
+import MediaModal from '../../../MediaModal';
 
 import * as activitySectionStyles from '../styles.module.scss';
 import * as styles from './styles.module.scss';
@@ -56,6 +61,62 @@ const useBase64ImageSource = (url) => {
   return downloadedImage?.url === url ? downloadedImage.source : null;
 };
 
+const MediaAttachmentPreview = ({ attachment, fileName, isOpen, t }) => {
+  // Keyed by object url so reopening the row, which fetches a fresh one, retries playback.
+  const [failedObjectUrl, setFailedObjectUrl] = useState(null);
+  const [hasRequestedPlayback, setHasRequestedPlayback] = useState(false);
+
+  // Media is downloaded whole, so opening the card alone must not start it.
+  const { error, objectUrl } = useMediaObjectUrl(isOpen && hasRequestedPlayback ? attachment.url : null);
+
+  if (!hasRequestedPlayback) {
+    return <button
+      className={activitySectionStyles.mediaPlayButton}
+      onClick={() => setHasRequestedPlayback(true)}
+      type="button"
+      >
+      <PlayCircleIcon aria-hidden="true" />
+
+      {t('playButtonLabel', { fileName })}
+    </button>;
+  }
+
+  if (error || (objectUrl && objectUrl === failedObjectUrl)) {
+    return <p
+      className={activitySectionStyles.mediaLoadError}
+      data-testid={`activitySection-mediaError-${attachment.id}`}
+      >
+      {t('mediaLoadErrorMessage')}
+    </p>;
+  }
+
+  if (!objectUrl) {
+    return <div className={activitySectionStyles.mediaLoadingContainer}>
+      <LoadingOverlay data-testid={`activitySection-mediaLoading-${attachment.id}`} />
+    </div>;
+  }
+
+  if (attachment.file_type === 'audio') {
+    return <audio
+      aria-label={t('audioPreviewAlt', { fileName })}
+      className={activitySectionStyles.attachmentAudioPreview}
+      controls
+      data-testid={`activitySection-audio-${attachment.id}`}
+      onError={() => setFailedObjectUrl(objectUrl)}
+      src={objectUrl}
+    />;
+  }
+
+  return <video
+    aria-label={t('videoPreviewAlt', { fileName })}
+    className={activitySectionStyles.attachmentVideoPreview}
+    controls
+    data-testid={`activitySection-video-${attachment.id}`}
+    onError={() => setFailedObjectUrl(objectUrl)}
+    src={objectUrl}
+  />;
+};
+
 const AttachmentListItem = ({
   attachment,
   isOpen = false,
@@ -70,6 +131,9 @@ const AttachmentListItem = ({
   const tracker = useContext(TrackerContext);
 
   const isImageAttachment = attachment.file_type === 'image';
+  const isVideoAttachment = attachment.file_type === 'video';
+  const isAudioAttachment = attachment.file_type === 'audio';
+  const isPlayableAttachment = isVideoAttachment || isAudioAttachment;
 
   const imageIconSource = useBase64ImageSource(isImageAttachment ? attachment.images?.icon : null);
   const imageOriginalSource = useBase64ImageSource(isImageAttachment ? attachment.images?.original : null);
@@ -81,18 +145,21 @@ const AttachmentListItem = ({
 
   const defaultImageSource = imageOriginalSource || imageThumbnailSource;
 
-  const onShowImageFullScreen = (event) => {
+  // Videos get no `src`: MediaModal fetches its own object url so playback does not break when
+  // this row collapses and revokes the one behind the inline player.
+  const onShowFullScreen = (event) => {
     event.stopPropagation();
 
     dispatch(addModal({
-      content: ImageModal,
-      src: defaultImageSource,
+      content: MediaModal,
+      mediaType: isVideoAttachment ? 'video' : 'image',
+      src: isVideoAttachment ? null : defaultImageSource,
       title: fileName,
       tracker,
       url: attachment.url,
     }));
 
-    tracker.track('View fullscreen image from activity section');
+    tracker.track(`View fullscreen ${attachment.file_type} from activity section`);
   };
 
   const onClickDownloadIcon = () => {
@@ -112,20 +179,22 @@ const AttachmentListItem = ({
     onToggleCollapseRow();
   };
 
-  if (isImageAttachment) {
+  if (isImageAttachment || isPlayableAttachment) {
     return <li className={activitySectionStyles.listItem} ref={ref}>
       <div
         className={`${activitySectionStyles.itemRow} ${activitySectionStyles.collapseRow}`}
         onClick={onToggleCollapseRow}
       >
-        {imageIconSource
+        {isImageAttachment && imageIconSource
           ? <img
             alt=""
             className={activitySectionStyles.attachmentThumbnail}
             src={imageIconSource}
           />
           : <div className={activitySectionStyles.itemIcon}>
-            <ImageIcon aria-hidden="true" />
+            {isVideoAttachment && <VideoIcon aria-hidden="true" />}
+            {isAudioAttachment && <VolumeIcon aria-hidden="true" />}
+            {isImageAttachment && <ImageIcon aria-hidden="true" />}
           </div>}
 
         <div className={activitySectionStyles.itemDetails}>
@@ -141,15 +210,15 @@ const AttachmentListItem = ({
         </div>
 
         <div className={activitySectionStyles.itemActionButtonContainer}>
-          <button
+          {!isAudioAttachment && <button
             aria-label={t('fullViewButtonTooltip', { fileName })}
             className={`${activitySectionStyles.actionButton} ${styles.largeActionIcon}`}
-            onClick={onShowImageFullScreen}
+            onClick={onShowFullScreen}
             title={t('fullViewButtonTooltip', { fileName })}
             type="button"
           >
             <ExpandArrowIcon aria-hidden="true" data-testid="expand-arrow-icon" />
-          </button>
+          </button>}
         </div>
 
         <div className={activitySectionStyles.itemActionButtonContainer}>
@@ -181,12 +250,19 @@ const AttachmentListItem = ({
       >
         <div>
           <div>
-            <img
+            {isImageAttachment && <img
               alt={t('imagePreviewAlt', { fileName })}
               className={activitySectionStyles.attachmentImagePreview}
-              onClick={onShowImageFullScreen}
+              onClick={onShowFullScreen}
               src={defaultImageSource}
-            />
+            />}
+
+            {isPlayableAttachment && <MediaAttachmentPreview
+              attachment={attachment}
+              fileName={fileName}
+              isOpen={isOpen}
+              t={t}
+            />}
           </div>
         </div>
       </Collapse>
