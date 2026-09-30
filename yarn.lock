@@ -3896,35 +3896,35 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rjsf/core@npm:^6.10.1":
-  version: 6.10.1
-  resolution: "@rjsf/core@npm:6.10.1"
+"@rjsf/core@npm:^6.11.0":
+  version: 6.11.0
+  resolution: "@rjsf/core@npm:6.11.0"
   dependencies:
     markdown-to-jsx: "npm:^9.8.2"
   peerDependencies:
-    "@rjsf/utils": ^6.10.1
+    "@rjsf/utils": ^6.11.0
     react: ">=18"
-  checksum: 10c0/b9b82d9b031541959f727ef145bb0f3e445baf44f026ec626fda531d2f1202e860bd3fbc916ee13d177fdbe101ff76f526bf439f19e4aea635d7fc60e89238b6
+  checksum: 10c0/a4bba78949c1a514c74a35e7db362a5f81256e9bc18ea5b076b0378173e4742b3981d3d60b7c1cde07aa041f01d5f811928a13cfde71b7c9f079ed1825cf9d84
   languageName: node
   linkType: hard
 
-"@rjsf/react-bootstrap@npm:^6.10.1":
-  version: 6.10.1
-  resolution: "@rjsf/react-bootstrap@npm:6.10.1"
+"@rjsf/react-bootstrap@npm:^6.11.0":
+  version: 6.11.0
+  resolution: "@rjsf/react-bootstrap@npm:6.11.0"
   dependencies:
     "@react-icons/all-files": "npm:^4.1.0"
   peerDependencies:
-    "@rjsf/core": ^6.10.1
-    "@rjsf/utils": ^6.10.1
+    "@rjsf/core": ^6.11.0
+    "@rjsf/utils": ^6.11.0
     react: ">=18"
     react-bootstrap: ^2.x
-  checksum: 10c0/f47b56c6719b405b7c492714b679843fa929b4616a8d4394566010d68141c6f1981e6fb67a741a6c5dcb88701e5c2ef0f49fdd0aecd0f06cbff5c913a630c16c
+  checksum: 10c0/f0db85e58fbf60ff901c7865ab896d69ffb410de4fa5801a17b08c5354d3a12402467fe7530f4799e2d0c5b424a39be0b2eb0d817cdebcdf6bbbd11dd31702bb
   languageName: node
   linkType: hard
 
-"@rjsf/utils@npm:^6.10.1":
-  version: 6.10.1
-  resolution: "@rjsf/utils@npm:6.10.1"
+"@rjsf/utils@npm:^6.11.0":
+  version: 6.11.0
+  resolution: "@rjsf/utils@npm:6.11.0"
   dependencies:
     "@x0k/json-schema-merge": "npm:^1.0.6"
     fast-equals: "npm:^6.0.0"
@@ -3933,19 +3933,19 @@ __metadata:
     react-is: "npm:^18.3.1"
   peerDependencies:
     react: ">=18"
-  checksum: 10c0/e176dd3abd370eff8b7ee37abad828734d6563d7d4367a25c1f5b5856be5f819ae1d0c1af480e388aec92c264a337808fcb9b1bc6a2fd0a7b0b96a5578d2887d
+  checksum: 10c0/4f663f0226f770658a9709bceb4b4f5fe016956b053e5cd6cf1198bded00b2010ed9919bdc0273d9bf0b4afc16bb3d8114104687200f4d81adcc8e209e664eea
   languageName: node
   linkType: hard
 
-"@rjsf/validator-ajv8@npm:^6.10.1":
-  version: 6.10.1
-  resolution: "@rjsf/validator-ajv8@npm:6.10.1"
+"@rjsf/validator-ajv8@npm:^6.11.0":
+  version: 6.11.0
+  resolution: "@rjsf/validator-ajv8@npm:6.11.0"
   dependencies:
     ajv: "npm:^8.20.0"
     ajv-formats: "npm:^2.1.1"
   peerDependencies:
-    "@rjsf/utils": ^6.10.1
-  checksum: 10c0/3e6eb8b9a23317196001a3783f01986464a788f4eb94dd432db3074535c344d71b49d6fc4086ad655d8b1293fb085608f8472d5df86c671d9a3f166e076d4ea6
+    "@rjsf/utils": ^6.11.0
+  checksum: 10c0/73818e97c63db9de92d82bb73e325fb0bc17b423704ff364ad94a8a993592b3d5cdcec5ec49fcb39134c5fb4a5904967d33a501ac09a25a1537523972884c225
   languageName: node
   linkType: hard
 
@@ -7926,10 +7926,10 @@ __metadata:
     "@dnd-kit/helpers": "npm:^0.5.0"
     "@dnd-kit/react": "npm:^0.5.0"
     "@eslint/js": "npm:^10.0.1"
-    "@rjsf/core": "npm:^6.10.1"
-    "@rjsf/react-bootstrap": "npm:^6.10.1"
-    "@rjsf/utils": "npm:^6.10.1"
-    "@rjsf/validator-ajv8": "npm:^6.10.1"
+    "@rjsf/core": "npm:^6.11.0"
+    "@rjsf/react-bootstrap": "npm:^6.11.0"
+    "@rjsf/utils": "npm:^6.11.0"
+    "@rjsf/validator-ajv8": "npm:^6.11.0"
     "@testing-library/dom": "npm:^10.4.2"
     "@testing-library/jest-dom": "npm:^7.0.1"
     "@testing-library/react": "npm:^16.3.3"
@@ -7969,7 +7969,7 @@ __metadata:
     localforage: "npm:^1.10.0"
     lodash: "npm:^4.18.1"
     lodash-es: "npm:^4.18.1"
-    mapbox-gl: "npm:^3.31.0"
+    mapbox-gl: "npm:^3.32.0"
     msw: "npm:2.15.0"
     pluralize: "npm:^8.0.0"
     proj4: "npm:^2.22.0"
@@ -11161,10 +11161,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mapbox-gl@npm:^3.31.0":
-  version: 3.31.0
-  resolution: "mapbox-gl@npm:3.31.0"
-  checksum: 10c0/033a7e2ce9e2fa6be4da0243f65ffae28bb6496347be13052bf5ed1f4e80f535d2fa10ddfbb8176ccfb410f5fa868e0af77357b6a2c003750c6b210ce0d66ec8
+"mapbox-gl@npm:^3.32.0":
+  version: 3.32.0
+  resolution: "mapbox-gl@npm:3.32.0"
+  checksum: 10c0/ad7bdc9d6c42b4febc3fb16b86e788f55f3fe552733b0a56723a8be41e27bde282da9235fafec7bd9f427cef2c5ae59c46954157bdc696d453c2ae4b65a5318e
   languageName: node
   linkType: hard
 
