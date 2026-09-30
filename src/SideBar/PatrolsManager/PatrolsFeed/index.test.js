@@ -62,7 +62,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed', () => {
           status: INITIAL_FILTER_STATE.status,
         },
         patrolStore: { [activePatrol.id]: activePatrol, [scheduledPatrol.id]: scheduledPatrol },
-        patrolTeamAndTrackingOptions: { leaders: [] },
+        patrolTeamAndTrackingOptions: { members: [] },
         patrolTypes: [],
         patrolsFeed: [activePatrol.id, scheduledPatrol.id],
         subjectStore: {},

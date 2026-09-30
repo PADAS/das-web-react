@@ -118,7 +118,6 @@ describe('SideBar - PatrolsManager - LegManager - EditLeg', () => {
         patrolStore: { [patrol.id]: patrol },
         patrolTeamAndTrackingOptions: {
           assets: [asset],
-          leaders: [teamLead],
           members: [teamLead, teamMember, unassignedMember],
           teams: [team],
         },

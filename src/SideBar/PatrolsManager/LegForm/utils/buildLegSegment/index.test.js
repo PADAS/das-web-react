@@ -84,14 +84,15 @@ describe('SideBar - PatrolsManager - LegForm - utils - buildLegSegment', () => {
     expect(segment.team).toBe('team-1');
   });
 
-  test('adds the team lead to the members the API stores', () => {
+  test('leaves the team lead off the members when the user did not pick them as one', () => {
     const segment = buildLegSegment({
       ...leg,
       teamLead: { id: 'leader-1', name: 'Alex' },
       teamMembers: [{ id: 'member-1', name: 'Nadia' }],
     });
 
-    expect(segment.members).toEqual(['leader-1', 'member-1']);
+    expect(segment.leader).toEqual({ id: 'leader-1', name: 'Alex' });
+    expect(segment.members).toEqual(['member-1']);
   });
 
   test('leaves the team, the members and the assets empty when the user picked none', () => {

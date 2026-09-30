@@ -39,7 +39,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters', () => {
           },
           status: INITIAL_FILTER_STATE.status,
         },
-        patrolTeamAndTrackingOptions: { leaders: [] },
+        patrolTeamAndTrackingOptions: { members: [] },
         patrolTypes: [],
       },
     };

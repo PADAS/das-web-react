@@ -575,28 +575,21 @@ describe('Patrols utils', () => {
       });
     });
 
-    test('puts the lead on the team of the copy when the leg it copies leaves them off', () => {
+    test('keeps the lead off the team members of the copy when the leg it copies leaves them off', () => {
       const patrolWithLeadOffTheTeam = { patrol_segments: [{ ...runningLeg, members: ['member-1'] }] };
 
       const { patrol_segments: [, pause] } = buildPatrolPauseUpdate(patrolWithLeadOffTheTeam);
 
-      expect(pause.members).toEqual(['leader-1', 'member-1']);
+      expect(pause.leader).toEqual({ id: 'leader-1' });
+      expect(pause.members).toEqual(['member-1']);
     });
 
-    test('gives the copy a team of the lead alone when the leg it copies has no team', () => {
-      const patrolWithNoTeam = { patrol_segments: [omit(runningLeg, ['members'])] };
+    test('sends no team members for the copy when the leg it copies has none', () => {
+      const patrolWithNoTeamMembers = { patrol_segments: [omit(runningLeg, ['members'])] };
 
-      const { patrol_segments: [, pause] } = buildPatrolPauseUpdate(patrolWithNoTeam);
+      const { patrol_segments: [, pause] } = buildPatrolPauseUpdate(patrolWithNoTeamMembers);
 
-      expect(pause.members).toEqual(['leader-1']);
-    });
-
-    test('keeps the team of the copy as it was when the leg it copies has no lead', () => {
-      const patrolWithNoLead = { patrol_segments: [{ ...runningLeg, leader: null }] };
-
-      const { patrol_segments: [, pause] } = buildPatrolPauseUpdate(patrolWithNoLead);
-
-      expect(pause.members).toEqual(['leader-1', 'member-1']);
+      expect(pause).not.toHaveProperty('members');
     });
 
     test('leaves the identity and the history of the leg it copies behind', () => {
@@ -1763,7 +1756,7 @@ describe('Patrols utils', () => {
 
     let teamAndTrackingOptions;
     beforeEach(() => {
-      teamAndTrackingOptions = { assets: [asset], leaders: [], members: [member], teams: [team] };
+      teamAndTrackingOptions = { assets: [asset], members: [member], teams: [team] };
     });
 
     test('resolves the team, members and assets the leg carries as ids', () => {
@@ -1847,7 +1840,7 @@ describe('Patrols utils', () => {
 
     let teamAndTrackingOptions;
     beforeEach(() => {
-      teamAndTrackingOptions = { assets: [asset], leaders: [leader], members: [leader, teamMember], teams: [] };
+      teamAndTrackingOptions = { assets: [asset], members: [leader, teamMember], teams: [] };
     });
 
     test('returns the leg\'s leader, team members and assets, the leader first', () => {

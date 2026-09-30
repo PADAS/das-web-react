@@ -1003,11 +1003,6 @@ const withPatrolSegmentContinuedAt = (patrolSegment, startTime, { isPause }) => 
   // the icon the server derived from its type is not the client's to send.
   ...omit(patrolSegment, ['end_location', 'events', 'icon_id', 'id', 'image_url', 'start_location', 'updates']),
   is_pause: isPause,
-  // The API rejects a leg whose lead is not one of its members, and a lead is
-  // on the team they lead — a leg from before rosters existed has none.
-  ...(patrolSegment.leader?.id
-    ? { members: uniq([patrolSegment.leader.id, ...(patrolSegment.members ?? [])]) }
-    : {}),
   scheduled_end: null,
   scheduled_start: null,
   time_range: { end_time: null, start_time: startTime },

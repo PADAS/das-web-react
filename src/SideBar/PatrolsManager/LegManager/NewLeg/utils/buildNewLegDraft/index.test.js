@@ -7,7 +7,7 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg - utils - buildNewLegDr
   const member = { id: 'member-1', name: 'Nadia' };
   const team = { display: 'Alpha', id: 'team-1' };
 
-  const teamAndTrackingOptions = { assets: [asset], leaders: [], members: [member], teams: [team] };
+  const teamAndTrackingOptions = { assets: [asset], members: [member], teams: [team] };
 
   const previousPatrolSegment = {
     assets: [asset.id],

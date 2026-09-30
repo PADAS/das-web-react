@@ -80,7 +80,6 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
         patrolStore: { [patrol.id]: patrol },
         patrolTeamAndTrackingOptions: {
           assets: [asset],
-          leaders: [teamLead],
           members: [teamLead, teamMember],
           teams: [team],
         },
