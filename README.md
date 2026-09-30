@@ -414,7 +414,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed', () => {
 Build the MSW handlers from the duck's exported URL constants, and start and stop the server around the tests:
 
 ```js
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw/http';
 import { setupServer } from 'msw/node';
 
 import { PATROLS_API_URL } from '../../../ducks/patrols';

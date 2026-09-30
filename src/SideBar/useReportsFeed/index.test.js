@@ -54,9 +54,12 @@ describe('useReportsFeed', () => {
     jest.restoreAllMocks();
   });
 
+  const renderUseReportsFeed = (builtStore = mockStore(store)) => renderHook(() => useReportsFeed(), {
+    wrapper: ({ children }) => <Provider store={builtStore}>{children}</Provider>,
+  });
+
   test('returns the reportsFetchFeed properties and methods', async () => {
-    const wrapper = ({ children }) => <Provider store={mockStore(store)}>{children}</Provider>;
-    const { result } = renderHook(() => useReportsFeed(), { wrapper });
+    const { result } = renderUseReportsFeed();
 
     const reportsFetchFeed = result.current;
 
@@ -68,9 +71,7 @@ describe('useReportsFeed', () => {
   });
 
   test('returns the same feed until something in it changes', () => {
-    const builtStore = mockStore(store);
-    const wrapper = ({ children }) => <Provider store={builtStore}>{children}</Provider>;
-    const { rerender, result } = renderHook(() => useReportsFeed(), { wrapper });
+    const { rerender, result } = renderUseReportsFeed();
     const initialFeed = result.current;
 
     rerender();
@@ -80,8 +81,7 @@ describe('useReportsFeed', () => {
 
   test('loads the reports feed for georestricted users', async () => {
     const builtStore = mockStore(store);
-    const wrapper = ({ children }) => <Provider store={builtStore}>{children}</Provider>;
-    renderHook(() => useReportsFeed(), { wrapper });
+    renderUseReportsFeed(builtStore);
 
     const actions = builtStore.getActions();
 
@@ -96,8 +96,7 @@ describe('useReportsFeed', () => {
   test('loads the reports feed normally', async () => {
     store.data.user.permissions = [];
     const builtStore = mockStore(store);
-    const wrapper = ({ children }) => <Provider store={builtStore}>{children}</Provider>;
-    renderHook(() => useReportsFeed(), { wrapper });
+    renderUseReportsFeed(builtStore);
 
     const actions = builtStore.getActions();
 
@@ -107,5 +106,49 @@ describe('useReportsFeed', () => {
       expect(actions[1].type).toBe('UPDATE_EVENT_STORE');
       expect(actions[2].type).toBe('FEED_FETCH_SUCCESS');
     });
+  });
+
+  test('warns and stops loading when the event feed request fails', async () => {
+    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    server.use(http.get(EVENTS_API_URL, () => new HttpResponse(null, { status: 500 })));
+
+    const { result } = renderUseReportsFeed();
+
+    await waitFor(() => {
+      expect(result.current.loadingEventFeed).toBe(false);
+    });
+    expect(consoleWarnSpy).toHaveBeenCalledWith('Failed to fetch the event feed', expect.any(Error));
+  });
+
+  test('does not warn when a newer event feed request cancels the pending one', async () => {
+    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    let releaseFirstRequest;
+    const firstRequestGate = new Promise((resolve) => {
+      releaseFirstRequest = resolve;
+    });
+    let requestCount = 0;
+    server.use(http.get(EVENTS_API_URL, async () => {
+      requestCount += 1;
+      if (requestCount === 1) {
+        await firstRequestGate;
+      }
+
+      return HttpResponse.json(eventFeedResponse);
+    }));
+    const builtStore = mockStore(store);
+
+    const { result } = renderUseReportsFeed(builtStore);
+    await waitFor(() => {
+      expect(requestCount).toBe(1);
+    });
+    result.current.loadFeedEvents();
+
+    await waitFor(() => {
+      expect(builtStore.getActions().map((action) => action.type)).toContain('FEED_FETCH_SUCCESS');
+    });
+    releaseFirstRequest();
+
+    expect(builtStore.getActions().map((action) => action.type)).toContain('FEED_FETCH_ERROR');
+    expect(consoleWarnSpy).not.toHaveBeenCalled();
   });
 });
