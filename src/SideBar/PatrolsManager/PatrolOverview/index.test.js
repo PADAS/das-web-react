@@ -682,7 +682,9 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
 
     await userEvent.click(screen.getByText('Go Back'));
 
-    expect(screen.queryByText('Unsaved Changes')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText('Unsaved Changes')).not.toBeInTheDocument();
+    });
     expect(screen.getByTestId('test-location')).toHaveTextContent(`/patrols/${patrolWithoutLeader.id}`);
   });
 
@@ -724,7 +726,9 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
 
     await userEvent.click(await screen.findByText('Discard'));
 
-    expect(screen.queryByText('Unsaved Changes')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText('Unsaved Changes')).not.toBeInTheDocument();
+    });
     await waitFor(() => {
       expect(screen.getByTestId('test-location')).not.toHaveTextContent(patrolWithoutLeader.id);
     });
@@ -742,7 +746,9 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
 
     await userEvent.click(await screen.findByTestId('navigation-prompt-positive-continue-btn'));
 
-    expect(screen.queryByText('Unsaved Changes')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText('Unsaved Changes')).not.toBeInTheDocument();
+    });
     await waitFor(() => {
       expect(screen.getByTestId('test-location')).not.toHaveTextContent(patrolWithoutLeader.id);
     });

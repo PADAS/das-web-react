@@ -102,7 +102,7 @@
     "jest-environment-jsdom": "^30.5.2",
     "jest-fixed-jsdom": "^0.0.11",
     "jest-webgl-canvas-mock": "^2.5.3",
-    "msw": "2.15.0",
+    "msw": "3.0.0",
     "redux-mock-store": "^1.5.5",
     "resize-observer-polyfill": "^1.5.1",
     "sass": "^1.105.0",
@@ -134,7 +134,7 @@
       "^(?!.*\\.(js|jsx|mjs|cjs|ts|tsx|json)$)": "<rootDir>/jest-config/transformers/fileTransform.js"
     },
     "transformIgnorePatterns": [
-      "/node_modules/(?!(@open-draft|@remix-run|@rjsf|@x0k|cookie-es|geodesy|geokdbush|kdbush|lodash-es|msw|nanoid|react-error-boundary|react-ga4|react-router|rettime|until-async|uuid)/)"
+      "/node_modules/(?!(@msw|@mswjs|@open-draft|@remix-run|@rjsf|@x0k|cookie|cookie-es|geodesy|geokdbush|kdbush|lodash-es|msw|nanoid|react-error-boundary|react-ga4|react-router|rettime|until-async|uuid)/)"
     ],
     "watchPlugins": [
       "jest-watch-typeahead/filename",

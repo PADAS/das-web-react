@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw/http';
 import { setupServer } from 'msw/node';
 
 import { createMapMock } from '../__test-helpers/mocks';

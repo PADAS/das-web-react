@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import debounce from 'lodash/debounce';
+import { isCancel } from 'axios';
 import isEqual from 'react-fast-compare';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -53,6 +54,11 @@ const useReportsFeed = () => {
     }
 
     return dispatch(fetchEventFeed({}, objectToParamString(eventParams.current)))
+      .catch((error) => {
+        if (!isCancel(error)) {
+          console.warn('Failed to fetch the event feed', error);
+        }
+      })
       .finally(() => setEventLoadState(false));
   }), [dispatch]);
 

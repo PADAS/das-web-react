@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom';
 import 'jest-webgl-canvas-mock';
+import { clearImmediate, setImmediate } from 'node:timers';
 import dotenv from 'dotenv';
 import ReactGA4 from 'react-ga4';
 import ResizeObserver from 'resize-observer-polyfill';
@@ -43,6 +44,9 @@ global.console = {
   info: console.info,
   debug: console.debug,
 };
+
+global.clearImmediate = clearImmediate;
+global.setImmediate = setImmediate;
 
 global.IntersectionObserver = class IntersectionObserver {
   disconnect = jest.fn();

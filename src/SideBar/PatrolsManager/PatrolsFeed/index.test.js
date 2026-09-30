@@ -1,7 +1,7 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import { setupServer } from 'msw/node';
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw/http';
 import userEvent from '@testing-library/user-event';
 
 import { activePatrol, scheduledPatrol } from '../../../__test-helpers/fixtures/patrols';
