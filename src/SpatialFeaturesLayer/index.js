@@ -64,7 +64,6 @@ const LINE_LAYERS_PAINT = {
 
 const SpatialFeaturesLayer = ({ onFeatureClick }) => {
   const map = useContext(MapContext);
-  const token = useSelector(state => state.data.token);
   const geoSpan = useSelector(state => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.GEO_SPAN]);
   const mapFeatureHighlightIDs = useSelector(state => state.view.mapFeatureHighlightIDs || []);
   const hiddenFeatureIDs = useSelector(state => state.data.mapLayerFilter?.hiddenFeatureIDs ?? []);
@@ -73,17 +72,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
   const lineLayerFilter = useMemo(() => ['all', ['==', ['geometry-type'], 'LineString'], ['!', ['in', ['get', 'id'], ['literal', hiddenFeatureIDs]]]], [hiddenFeatureIDs]);
   const polygonLayerFilter = useMemo(() => ['all', ['==', ['geometry-type'], 'Polygon'], ['!', ['in', ['get', 'id'], ['literal', hiddenFeatureIDs]]]], [hiddenFeatureIDs]);
 
-  const handleFeatureClick = useCallback((event) => {
-    const features = map.queryRenderedFeatures(event.point, {
-      layers: [SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_OUTLINE_LAYER_ID, POLYGONS_LAYER_ID]
-    });
-
-    if (features.length > 0 && onFeatureClick) {
-      features.forEach((feature) => {
-        onFeatureClick(feature, event);
-      });
-    }
-  }, [map, onFeatureClick]);
+  const onSymbolClick = useCallback((event) => onFeatureClick(event.features[0], event), [onFeatureClick]);
 
   const onMouseEnter = useCallback(() => {
     map.getCanvas().style.cursor = 'pointer';
@@ -93,8 +82,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
     map.getCanvas().style.cursor = '';
   }, [map]);
 
-  /* add the vector source + append bearer token to request headers */
-  /* add the vector layer and bind the event handlers */
+  // EarthRangerMap authenticates the tiles, so a new token needs no new source.
   useEffect(() => {
     if (!map) return;
     if (!map.getSource(SPATIAL_FEATURES_SOURCE)) {
@@ -105,17 +93,6 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
         minzoom: 0,
         maxzoom: 22,
         ...(geoSpanFilter && { bounds: geoSpanFilter }),
-        transformRequest: (url, resourceType) => {
-          if (resourceType === 'Tile' && token?.access_token) {
-            return {
-              url,
-              headers: {
-                'Authorization': `Bearer ${token.access_token}`
-              }
-            };
-          }
-          return { url };
-        }
       });
     }
 
@@ -159,24 +136,12 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
     }
 
     if (!map.getLayer(POLYGONS_OUTLINE_LAYER_ID)) {
-      const paint = {
-        ...LINE_LAYERS_PAINT,
-      };
-
-      paint['stroke'] = [
-        'case',
-        ['has', 'stroke'], ['get', 'stroke'],
-        ['has', 'outline_color'], ['get', 'outline_color'],
-        ['has', 'border_color'], ['get', 'border_color'],
-        'rgba(255, 102, 0, 0.25)'
-      ];
-
       map.addLayer({
         id: POLYGONS_OUTLINE_LAYER_ID,
         type: 'line',
         source: SPATIAL_FEATURES_SOURCE,
         'source-layer': 'spatial_features',
-        paint,
+        paint: LINE_LAYERS_PAINT,
         filter: polygonLayerFilter // this feed polygons into a line-typed layer so users can add stroke-width and stroke-opacity to their polygon features
       }, LINES_LAYER_ID);
     }
@@ -301,23 +266,13 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
         POLYGONS_LABELS_LAYER_ID */
     ];
 
-    layerIds.forEach(layerId => {
-      map.on('click', layerId, handleFeatureClick);
-    });
-
-    map.on('mouseenter', SYMBOLS_LAYER_ID, onMouseEnter);
-    map.on('mouseleave', SYMBOLS_LAYER_ID, onMouseLeave);
-
     return () => {
       layerIds.forEach(layerId => {
         if (map.getLayer(layerId)) {
-          map.off('click', layerId, handleFeatureClick);
           map.removeLayer(layerId);
         }
       });
 
-      map.off('mouseenter', SYMBOLS_LAYER_ID, onMouseEnter);
-      map.off('mouseleave', SYMBOLS_LAYER_ID, onMouseLeave);
       map.removeSource(SPATIAL_FEATURES_SOURCE);
     };
     /*
@@ -326,7 +281,22 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
       # this will help us support possible in-memory retention/rehydration in the future (via saved app state).
     */
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map, handleFeatureClick, onMouseEnter, onMouseLeave, token?.access_token]);
+  }, [map]);
+
+  // Only points open a popup, so only the symbols take clicks.
+  useEffect(() => {
+    if (map) {
+      map.on('click', SYMBOLS_LAYER_ID, onSymbolClick);
+      map.on('mouseenter', SYMBOLS_LAYER_ID, onMouseEnter);
+      map.on('mouseleave', SYMBOLS_LAYER_ID, onMouseLeave);
+
+      return () => {
+        map.off('click', SYMBOLS_LAYER_ID, onSymbolClick);
+        map.off('mouseenter', SYMBOLS_LAYER_ID, onMouseEnter);
+        map.off('mouseleave', SYMBOLS_LAYER_ID, onMouseLeave);
+      };
+    }
+  }, [map, onMouseEnter, onMouseLeave, onSymbolClick]);
 
   /* highlight spatial features based on the values in mapFeatureHighlightIDs */
   useEffect(() => {

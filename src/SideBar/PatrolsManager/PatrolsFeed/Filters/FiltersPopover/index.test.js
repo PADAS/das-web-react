@@ -261,6 +261,46 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters - FiltersPopover', ()
     expect(screen.getByRole('button', { name: 'Reset status' })).toHaveFocus();
   });
 
+  test.each([
+    ['team lead', (patrolFilter) => { patrolFilter.filter.tracked_by = ['Leader 1']; }],
+    ['status', (patrolFilter) => { patrolFilter.status = ['done']; }],
+    ['patrol type', (patrolFilter) => { patrolFilter.filter.patrol_type = ['fence-patrol-id']; }],
+  ])('offers to reset all filters once the %s filter is set', (_, setFilter) => {
+    setFilter(store.data.patrolFilter);
+
+    renderFiltersPopover();
+
+    expect(screen.getByRole('button', { name: 'Reset All' })).toBeVisible();
+  });
+
+  test('restores every filter and focuses itself when the user resets all', async () => {
+    store.data.patrolFilter.status = ['done'];
+
+    renderFiltersPopover();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Reset All' }));
+
+    expect(updatePatrolFilter).toHaveBeenCalledWith({
+      filter: {
+        patrol_type: INITIAL_FILTER_STATE.filter.patrol_type,
+        tracked_by: INITIAL_FILTER_STATE.filter.tracked_by,
+      },
+      status: INITIAL_FILTER_STATE.status,
+    });
+    expect(screen.getByRole('dialog')).toHaveFocus();
+    expect(track).toHaveBeenCalledWith('Click reset all filters in the filters popover');
+  });
+
+  test('reaches the reset all button last when the user tabs backwards from the dialog', async () => {
+    store.data.patrolFilter.status = ['done'];
+
+    renderFiltersPopover();
+
+    await userEvent.tab({ shift: true });
+
+    expect(screen.getByRole('button', { name: 'Reset All' })).toHaveFocus();
+  });
+
   test('moves focus from its last field back to the first when the user tabs past it', async () => {
     renderFiltersPopover();
 

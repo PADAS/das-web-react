@@ -1,186 +1,36 @@
-@use 'sass:color';
+@forward '../shared';
 
-@use '../../common/styles/buttons';
-@use '../../common/styles/layout';
 @use '../../common/styles/vars/colors';
+@use '../shared';
 
-@mixin icon-button {
-  @include buttons.iconButton;
-}
-
-@mixin icon-button-small {
-  @include buttons.iconButtonSmall;
-}
-
-@mixin chip-icon-button {
-  @include buttons.chipIconButton;
-}
-
-@mixin chip-active-state {
-  @include buttons.chipActiveState;
-}
-
-@mixin header-mobile-only-option {
-  @media (min-width: layout.$md-layout-width-min) {
-    display: none !important;
-  }
-}
-
-@mixin track-toggle-button {
-  svg {
-    height: 2.5rem;
-    width: 2.5rem;
+// Keyed by the patrol UI state keys, plus the new state of a draft.
+@mixin header-icon-tile-by-state {
+  &.active {
+    @include shared.header-icon-tile(colors.$patrol-active-theme);
   }
 
-  &.visible {
-    background-color: colors.$bright-blue;
-    border-color: colors.$bright-blue;
-    color: white;
-
-    &:hover {
-      background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
-      border-color: color.adjust(colors.$bright-blue, $lightness: -5%);
-    }
-
-    &:focus-visible {
-      background-color: white;
-      border-color: colors.$bright-blue;
-      color: colors.$bright-blue;
-      outline: 1px solid colors.$bright-blue;
-    }
+  &.cancelled, &.invalid {
+    @include shared.header-icon-tile(colors.$patrol-cancelled-theme);
   }
 
-  &.pinned {
-    background-color: colors.$green;
-    border-color: colors.$green;
-    color: white;
-
-    &:hover {
-      background-color: color.adjust(colors.$green, $lightness: -5%);
-      border-color: color.adjust(colors.$green, $lightness: -5%);
-    }
-
-    &:focus-visible {
-      background-color: white;
-      border-color: colors.$green;
-      color: colors.$green;
-      outline: 1px solid colors.$green;
-    }
-  }
-}
-
-@mixin header-desktop-actions {
-  align-items: center;
-  display: none;
-  gap: 0.5rem;
-
-  @media (min-width: layout.$md-layout-width-min) {
-    display: flex;
+  &.done {
+    @include shared.header-icon-tile(colors.$patrol-done-theme);
   }
 
-  .iconButton {
-    @include chip-icon-button;
+  &.new {
+    @include shared.header-icon-tile(('base': colors.$bright-blue));
   }
 
-  .toggleTrackButton {
-    @include track-toggle-button;
-  }
-}
-
-@mixin header-title-bar-main {
-  align-items: center;
-  display: flex;
-  flex: 1;
-  gap: 0.5rem;
-  min-width: 0;
-
-  .icon {
-    align-items: center;
-    color: colors.$secondary-medium-gray;
-    display: flex;
-    justify-content: center;
-
-    svg {
-      fill: currentcolor;
-      height: 1.75rem;
-      width: 1.75rem;
-    }
+  &.paused {
+    @include shared.header-icon-tile(colors.$patrol-paused-theme);
   }
 
-  .serialNumber {
-    color: colors.$secondary-medium-gray;
-    font-size: 1.375rem;
-    line-height: 2rem;
-    margin: 0;
+  &.readyToStart, &.scheduled {
+    @include shared.header-icon-tile(colors.$patrol-ready-theme);
   }
 
-  @media (max-width: layout.$sm-layout-width-max) {
-    flex-basis: 100%;
-  }
-}
-
-@mixin header-pills {
-  align-items: center;
-  display: flex;
-  flex-shrink: 0;
-  gap: 0.5rem;
-
-  .provenancePill, .statePill {
-    align-items: center;
-    border-radius: 999px;
-    color: white;
-    display: flex;
-    flex-shrink: 0;
-    font-size: 0.875rem;
-    padding: 0.125rem 0.625rem;
-  }
-
-  .provenancePill {
-    background: colors.$off-black;
-  }
-
-  .statePill {
-    background: colors.$bright-blue;
-  }
-}
-
-@mixin header-title {
-  color: colors.$off-black;
-  font-size: 1.375rem;
-  font-weight: 500;
-  height: 2rem;
-  line-height: 2rem;
-  margin: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-@mixin save-button {
-  @include buttons.primaryActionButton;
-
-  position: relative;
-  transition: background-color 150ms ease;
-
-  &[aria-busy='true'] .saveButtonLabel {
-    visibility: hidden;
-  }
-
-  .saveButtonLoader {
-    align-items: center;
-    display: flex;
-    inset: 0;
-    justify-content: center;
-    position: absolute;
-  }
-}
-
-@mixin secondary-action-button {
-  @include buttons.secondaryActionButton;
-
-  svg {
-    height: 1rem;
-    width: 1rem;
+  &.startOverdue {
+    @include shared.header-icon-tile(colors.$patrol-overdue-theme);
   }
 }
 
@@ -191,20 +41,4 @@
   gap: 0.5rem;
   min-height: 2.5rem;
   padding: 0.5rem 0.75rem;
-}
-
-@mixin default-view-width {
-  width: 100%;
-
-  @media (min-width: layout.$md-layout-width-min) {
-    @include layout.sidebar-width-base;
-  }
-}
-
-@mixin detail-view-width {
-  width: 100%;
-
-  @media (min-width: layout.$md-layout-width-min) {
-    @include layout.sidebar-width-detail;
-  }
 }

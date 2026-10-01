@@ -12,8 +12,8 @@ import { ReactComponent as PrinterIcon } from '../../../../common/images/icons/p
 import { ReactComponent as TrackIcon } from '../../../../common/images/icons/tracks_off.svg';
 
 import { basePrintingStyles } from '../../../../utils/styles';
-import { DAS_HOST, TAB_KEYS } from '../../../../constants';
 import {
+  calcTitleAndSubtitleForPatrol,
   displayNameForPatrolSegment,
   getBoundsForPatrol,
   getIsMobilePatrol,
@@ -22,6 +22,7 @@ import {
   iconIdForPatrolSegment,
   patrolHasTrackData,
 } from '../../../../utils/patrols';
+import { DAS_HOST, TAB_KEYS } from '../../../../constants';
 import { downloadJsonAsFile } from '../../../../utils/download';
 import { selectPatrolTrackData } from '../../../../selectors/patrols';
 import { togglePatrolTrackState } from '../../../../ducks/patrols';
@@ -29,11 +30,11 @@ import { TrackerContext } from '../../../../utils/analytics';
 import useJumpToLocation from '../../../../hooks/useJumpToLocation';
 import { usePatrolsPermissions } from '../../../../hooks/usePermissions';
 
+import DetailViewHeader from '../../../DetailViewHeader';
 import KebabMenu from '../../../../KebabMenu';
-import PatrolsManagerHeader from '../../Header';
 import StatusSelect from './StatusSelect';
 import SvgIcon from '../../../../SvgIcon';
-import TitleInput from '../../TitleInput';
+import TitleInput from '../../../TitleInput';
 
 import * as styles from './styles.module.scss';
 
@@ -52,6 +53,7 @@ const Header = ({
 }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolOverview.header' });
+  const { t: tHeader } = useTranslation('patrols', { keyPrefix: 'header' });
 
   const tracker = useContext(TrackerContext);
 
@@ -64,7 +66,10 @@ const Header = ({
   const patrolTrackState = useSelector((state) => state.view.patrolTrackState);
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
-  const crumbs = [{ label: t('breadcrumbPatrolsLabel'), to: `/${TAB_KEYS.PATROLS}` }, { label: title }];
+  // Read from the title being edited, so the breadcrumb and type follow it.
+  const titles = calcTitleAndSubtitleForPatrol({ ...patrol, title }, patrolTypes);
+
+  const crumbs = [{ label: t('breadcrumbPatrolsLabel'), to: `/${TAB_KEYS.PATROLS}` }, { label: titles.title }];
 
   const patrolIconId = governingSegment ? iconIdForPatrolSegment(patrolTypes, governingSegment) : null;
   const patrolTypeName = governingSegment
@@ -117,7 +122,7 @@ const Header = ({
 
   const onPrint = useReactToPrint({
     contentRef: printableContentRef,
-    documentTitle: `${patrol.serial_number ?? ''} ${title}`.trim(),
+    documentTitle: `${patrol.serial_number ?? ''} ${titles.title}`.trim(),
     pageStyle: basePrintingStyles,
   });
 
@@ -224,23 +229,27 @@ const Header = ({
   </>;
 
   const renderTitleBar = () => <>
-    <h2 className="sr-only">{title}</h2>
+    <h2 className="sr-only">{titles.title}</h2>
 
     <div className={styles.titleBarMain}>
-      <div className={styles.icon}>
+      <div className={`${styles.icon} ${styles[state.key]}`} data-testid="patrolOverviewHeader-icon">
         <SvgIcon iconId={patrolIconId} title={patrolTypeName} type="patrols" />
       </div>
 
       <p className={styles.serialNumber}>{patrol.serial_number}</p>
 
-      <TitleInput
-        aria-label={t('titleInputLabel')}
-        data-testid="patrolOverview-title"
-        isDirty={isTitleDirty}
-        isReadOnly={!hasPatrolsUpdatePermission}
-        onChange={onChangeTitle}
-        value={title}
-      />
+      <div className={styles.titleStack}>
+        <TitleInput
+          aria-label={t('titleInputLabel')}
+          data-testid="patrolOverview-title"
+          isDirty={isTitleDirty}
+          isReadOnly={!hasPatrolsUpdatePermission}
+          onChange={onChangeTitle}
+          value={title}
+        />
+
+        {!!titles.subtitle && <p className={styles.subtitle}>{titles.subtitle}</p>}
+      </div>
     </div>
 
     <div className={styles.pills}>
@@ -256,7 +265,12 @@ const Header = ({
     </div>
   </>;
 
-  return <PatrolsManagerHeader crumbs={crumbs} renderActions={renderActions} renderTitleBar={renderTitleBar} />;
+  return <DetailViewHeader
+    breadcrumbLabel={tHeader('breadcrumbNavLabel')}
+    crumbs={crumbs}
+    renderActions={renderActions}
+    renderTitleBar={renderTitleBar}
+  />;
 };
 
 export default memo(Header);

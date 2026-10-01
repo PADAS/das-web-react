@@ -163,7 +163,7 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
     test('takes its patrol type', () => {
       renderNewLeg();
 
-      expect(screen.getByText(dogPatrol.display)).toBeVisible();
+      expect(within(screen.getByText('Patrol Type').parentElement).getByText(dogPatrol.display)).toBeVisible();
     });
 
     const readTeamAndTrackingField = (label) => within(screen.getByText(label).parentElement);

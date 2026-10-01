@@ -1,0 +1,628 @@
+import React from 'react';
+import { AxiosError } from 'axios';
+import { Provider } from 'react-redux';
+import userEvent from '@testing-library/user-event';
+
+import { attachmentSchemaV2, eventSchemas, snareSchemaV2 } from '../../../../__test-helpers/fixtures/event-schemas';
+import { createMapMock } from '../../../../__test-helpers/mocks';
+import { eventTypes, snareV2 } from '../../../../__test-helpers/fixtures/event-types';
+import { formValidator } from '../../../../utils/events';
+import { GPS_FORMATS } from '../../../../utils/location';
+import { MapContext } from '../../../../MapContext';
+import { MapDrawingToolsContext } from '../../../../MapDrawingTools/ContextProvider';
+import { mockStore } from '../../../../__test-helpers/MockStore';
+import patrolTypes from '../../../../__test-helpers/fixtures/patrol-types';
+import { render, screen, waitFor, within } from '../../../../test-utils';
+import { report } from '../../../../__test-helpers/fixtures/reports';
+import { TrackerContext } from '../../../../utils/analytics';
+import { uploadFile } from '../../../../ducks/user-content';
+import { VALID_EVENT_GEOMETRY_TYPES } from '../../../../constants';
+
+import DetailsSection from './';
+
+jest.mock('mapbox-gl', () => ({
+  ...jest.requireActual('mapbox-gl'),
+  Popup: class {
+    addTo() {}
+    on() {}
+    remove() {}
+    setDOMContent() {}
+    setOffset() {}
+    trackPointer() {}
+  },
+}));
+
+jest.mock('../../../../ducks/user-content', () => ({
+  ...jest.requireActual('../../../../ducks/user-content'),
+  uploadFile: jest.fn(),
+}));
+
+describe('SideBar - EventsManager - EventOverview - DetailsSection', () => {
+  const onFormDataChange = jest.fn(),
+    onFormError = jest.fn(),
+    onFormSubmit = jest.fn(),
+    onLegacyFormChange = jest.fn(),
+    onPriorityChange = jest.fn(),
+    onReportedByChange = jest.fn(),
+    onReportDateChange = jest.fn(),
+    onReportGeometryChange = jest.fn(),
+    onReportLocationChange = jest.fn();
+
+  eventSchemas.globalSchema.properties.reported_by.enum_ext[0].value = {
+    id: '1234',
+    name: 'Canek',
+    subject_type: 'person',
+    subject_subtype: 'ranger',
+    is_active: true,
+    image_url: '/static/ranger-black.svg'
+  };
+
+  let map, store, submitFormButtonRef;
+  beforeEach(() => {
+    map = createMapMock();
+
+    uploadFile.mockImplementation(() => () => 'test-upload-id');
+
+    submitFormButtonRef = { current: {} };
+
+    store = {
+      data: {
+        subjectStore: {},
+        eventStore: {},
+        eventTypes,
+        patrolTypes,
+        eventSchemas: {
+          ...eventSchemas,
+          loading: false,
+        },
+        userContent: {},
+      },
+      view: {
+        coordinateReferenceSystems: {
+          selectedCoordinateRepresentations: Object.values(GPS_FORMATS),
+          storedSystems: [],
+        },
+        mapLocationSelection: { isPickingLocation: false },
+        sideBar: {},
+        systemConfig: {
+          previewFeatures: { community_input_admin_enabled: true },
+        },
+        userPreferences: { gpsFormat: GPS_FORMATS.DEG },
+      },
+    };
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  const renderDetailsSection = (
+    props = null,
+    mockedStore = mockStore(store),
+    mapDrawingToolsContextValue = null
+  ) => render(
+    <Provider store={mockedStore}>
+      <MapContext.Provider value={map}>
+        <MapDrawingToolsContext.Provider value={{ ...mapDrawingToolsContextValue }}>
+          <TrackerContext.Provider value={{ track: jest.fn() }}>
+            <DetailsSection
+              eventSchema={eventSchemas.accident_rep.base}
+              formValidator={formValidator}
+              isBehindAddedEvent={false}
+              isCollection={false}
+              isNewEvent={false}
+              onFormDataChange={onFormDataChange}
+              onFormError={onFormError}
+              onFormSubmit={onFormSubmit}
+              onLegacyFormChange={onLegacyFormChange}
+              onPriorityChange={onPriorityChange}
+              onReportedByChange={onReportedByChange}
+              onReportDateChange={onReportDateChange}
+              onReportGeometryChange={onReportGeometryChange}
+              onReportLocationChange={onReportLocationChange}
+              reportForm={report}
+              submitFormButtonRef={submitFormButtonRef}
+              {...props}
+            />
+          </TrackerContext.Provider>
+        </MapDrawingToolsContext.Provider>
+      </MapContext.Provider>
+    </Provider>
+  );
+
+  test('does not show the reported by select if the event is a collection', async () => {
+    renderDetailsSection({ isCollection: true });
+
+    expect(screen.queryByText('Reported By')).toBeNull();
+  });
+
+  test('shows the reported by select if the event is not a collection', async () => {
+    renderDetailsSection();
+
+    expect(screen.getByText('Reported By')).toBeVisible();
+  });
+
+  test('does not disable the reported by select if the schema is not readonly', async () => {
+    renderDetailsSection();
+
+    expect(screen.getByRole('combobox', { name: 'Reported By' })).toBeEnabled();
+  });
+
+  test('disables the reported by and priority selects if the schema is readonly', async () => {
+    renderDetailsSection({
+      eventSchema: {
+        ...eventSchemas.accident_rep.base,
+        schema: { ...eventSchemas.accident_rep.base.schema, readonly: true },
+      },
+    });
+
+    expect(screen.getByLabelText('Reported By')).toBeDisabled();
+    expect(screen.getByLabelText('Priority')).toBeDisabled();
+  });
+
+  test('changes the reporter of the event when selecting an item from the reported by select', async () => {
+    renderDetailsSection();
+
+    await userEvent.click(screen.getByRole('combobox', { name: 'Reported By' }));
+
+    expect(onReportedByChange).toHaveBeenCalledTimes(0);
+
+    await userEvent.click(screen.getByRole('option', { name: 'Canek' }));
+
+    expect(onReportedByChange).toHaveBeenCalledTimes(1);
+    expect(onReportedByChange.mock.calls[0][0]).toEqual({
+      id: '1234',
+      image_url: '/static/ranger-black.svg',
+      is_active: true,
+      name: 'Canek',
+      subject_subtype: 'ranger',
+      subject_type: 'person',
+    });
+  });
+
+  test('shows a reporter the user may not see as restricted', async () => {
+    renderDetailsSection({ reportForm: { ...report, reported_by: { hidden: true } } });
+
+    expect(screen.getByText('RESTRICTED')).toBeVisible();
+  });
+
+  test('offers the recent radios first, in a group of their own', async () => {
+    store.data.subjectStore = {
+      'radio-1': {
+        id: '1234',
+        last_position_date: new Date(Date.now() - 60000).toISOString(),
+        name: 'Canek',
+        subject_subtype: 'ranger',
+      },
+    };
+
+    renderDetailsSection();
+
+    await userEvent.click(screen.getByRole('combobox', { name: 'Reported By' }));
+
+    expect(screen.getByText('Recent radios')).toBeVisible();
+    expect(screen.getAllByRole('option')[0]).toHaveTextContent('Canek');
+  });
+
+  test('shows the priority of the event', async () => {
+    renderDetailsSection();
+
+    expect(screen.getByText('Red')).toBeVisible();
+  });
+
+  test('changes the priority of the event when selecting an item from priority select', async () => {
+    renderDetailsSection();
+
+    await userEvent.click(screen.getByRole('combobox', { name: 'Priority' }));
+
+    expect(screen.getAllByRole('option').map((option) => option.textContent))
+      .toEqual(['Red', 'Amber', 'Green', 'None']);
+    expect(onPriorityChange).toHaveBeenCalledTimes(0);
+
+    await userEvent.click(screen.getByRole('option', { name: 'Green' }));
+
+    expect(onPriorityChange).toHaveBeenCalledTimes(1);
+    expect(onPriorityChange.mock.calls[0][0]).toEqual({ display: 'Green', key: 'green', value: 100 });
+  });
+
+  test('does not let the user clear the priority of the event', async () => {
+    renderDetailsSection();
+
+    screen.getByRole('combobox', { name: 'Priority' }).focus();
+    await userEvent.keyboard('{Backspace}');
+
+    expect(onPriorityChange).not.toHaveBeenCalled();
+    expect(screen.getByText('Red')).toBeVisible();
+  });
+
+  test('does not leave an empty row where the reporter and priority fields are hidden', async () => {
+    renderDetailsSection({ hidePriority: true, hideReportedBy: true });
+
+    expect(screen.getByText('Event Location').closest('.row').previousElementSibling).toBeNull();
+  });
+
+  test('does not show the location selector if the event is a collection', async () => {
+    renderDetailsSection({ isCollection: true });
+
+    expect(screen.queryByText('Event Location')).toBeNull();
+  });
+
+  test('shows the location picker if the event is not a collection', async () => {
+    renderDetailsSection();
+
+    expect(screen.getByRole('textbox', { name: 'Event Location' })).toBeVisible();
+  });
+
+  test('shows the area picker if the geometry type of the event is polygon', async () => {
+    store.data.eventTypes = eventTypes.map((eventType) => {
+      if (eventType.value === report.event_type) {
+        return { ...eventType, geometry_type: VALID_EVENT_GEOMETRY_TYPES.POLYGON };
+      }
+      return eventType;
+    });
+    renderDetailsSection();
+
+    expect(screen.getByRole('textbox', { name: 'Area' })).toBeVisible();
+    expect(screen.queryByRole('textbox', { name: 'Event Location' })).toBeNull();
+  });
+
+  test('shows the area picker as read only if the event type is read only', async () => {
+    store.data.eventTypes = eventTypes.map((eventType) => {
+      if (eventType.value === report.event_type) {
+        return { ...eventType, geometry_type: VALID_EVENT_GEOMETRY_TYPES.POLYGON };
+      }
+      return eventType;
+    });
+    renderDetailsSection({
+      eventSchema: {
+        ...eventSchemas.accident_rep.base,
+        schema: {
+          ...eventSchemas.accident_rep.base.schema,
+          readonly: true,
+        },
+      }
+    });
+
+    expect(screen.getByRole('textbox', { name: 'Area' })).toHaveClass('readOnly');
+  });
+
+  test('changes the geometry of the event when selecting an area from the area picker', async () => {
+    store.data.eventTypes = eventTypes.map((eventType) => {
+      if (eventType.value === report.event_type) {
+        return { ...eventType, geometry_type: VALID_EVENT_GEOMETRY_TYPES.POLYGON };
+      }
+      return eventType;
+    });
+    renderDetailsSection(undefined, undefined, { mapDrawingData: {}, setMapDrawingData: jest.fn() });
+
+    expect(onReportGeometryChange).toHaveBeenCalledTimes(1);
+  });
+
+  test('shows the location picker if the geometry type of the event is not polygon', async () => {
+    renderDetailsSection();
+
+    expect(screen.getByRole('textbox', { name: 'Event Location' })).toBeVisible();
+    expect(screen.queryByRole('textbox', { name: 'Area' })).toBeNull();
+  });
+
+  test('shows the location picker as read only if the event type is read only', async () => {
+    renderDetailsSection({
+      eventSchema: {
+        ...eventSchemas.accident_rep.base,
+        schema: {
+          ...eventSchemas.accident_rep.base.schema,
+          readonly: true,
+        },
+      }
+    });
+
+    await userEvent.click(screen.getByRole('textbox', { name: 'Event Location' }));
+
+    expect(screen.queryByLabelText('Pick a location on the map')).toBeNull();
+  });
+
+  test('changes the location of the event when selecting a location from the location picker', async () => {
+    renderDetailsSection();
+
+    await userEvent.click(screen.getByLabelText('Event Location'));
+    await userEvent.click(screen.getByLabelText('Pick a location on the map'));
+
+    expect(onReportLocationChange).toHaveBeenCalledTimes(0);
+
+    map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
+
+    expect(onReportLocationChange).toHaveBeenCalledTimes(1);
+    expect(onReportLocationChange).toHaveBeenCalledWith({ latitude: 55, longitude: 88 });
+  });
+
+  test('does not show the date picker if the event is a collection', async () => {
+    renderDetailsSection({ isCollection: true });
+
+    expect(screen.queryByText('Event Date')).toBeNull();
+  });
+
+  test('shows the date picker if the event is not a collection', async () => {
+    renderDetailsSection();
+
+    expect(screen.getByText('Event Date')).toBeVisible();
+  });
+
+  test('shows the date picker as read only if the event type is read only', async () => {
+    renderDetailsSection({
+      eventSchema: {
+        ...eventSchemas.accident_rep.base,
+        schema: {
+          ...eventSchemas.accident_rep.base.schema,
+          readonly: true,
+        },
+      }
+    });
+
+    expect(screen.getByRole('group', { name: 'Event Date' })).toHaveClass('readOnly');
+  });
+
+  test('changes the date of the event when selecting an option from the date picker', async () => {
+    renderDetailsSection();
+
+    await userEvent.click(screen.getByTestId('datePicker-input'));
+
+    expect(onReportDateChange).not.toHaveBeenCalled();
+
+    const datePicker = await screen.findByRole('group', { name: 'Event Date' });
+    const datePickerOpenCalendarButton = await within(datePicker).findByLabelText('Open calendar');
+    await userEvent.click(datePickerOpenCalendarButton);
+    await userEvent.click(screen.getByRole('gridcell', { name: 'Choose Tuesday, April 12th, 2022' }));
+
+    expect(onReportDateChange).toHaveBeenCalledTimes(1);
+    expect(onReportDateChange.mock.calls[0][0].toISOString()).toMatch(/^2022-04-12/);
+  });
+
+  test('does not show the time picker if the event is a collection', async () => {
+    renderDetailsSection({ isCollection: true });
+
+    expect(screen.queryByText('Event Time')).toBeNull();
+  });
+
+  test('shows the time picker if the event is not a collection', async () => {
+    renderDetailsSection();
+
+    expect(screen.getByText('Event Time')).toBeVisible();
+  });
+
+  test('shows the time picker as read only if the event type is read only', async () => {
+    renderDetailsSection({
+      eventSchema: {
+        ...eventSchemas.accident_rep.base,
+        schema: {
+          ...eventSchemas.accident_rep.base.schema,
+          readonly: true,
+        },
+      }
+    });
+
+    expect(screen.getByRole('group', { name: 'Event Time' })).toHaveClass('readOnly');
+  });
+
+  test('changes the time of the event when selecting an option from the time picker', async () => {
+    renderDetailsSection();
+
+    expect(onReportDateChange).toHaveBeenCalledTimes(0);
+
+    const timePicker = await screen.findByRole('group', { name: 'Event Time' });
+    const timePickerOpenOptionsButton = await within(timePicker).findByLabelText('Open time options');
+    await userEvent.click(timePickerOpenOptionsButton);
+    const optionsList = await screen.findByTestId('timePicker-optionsList');
+    const timeOptionsListItems = await within(optionsList).findAllByRole('option');
+    await userEvent.click(timeOptionsListItems[2]);
+
+    expect(onReportDateChange).toHaveBeenCalled();
+  });
+
+  test('does not show the printable row with the geometry preview if report does not have a geometry', async () => {
+    renderDetailsSection();
+
+    expect(screen.queryByAltText('Static map with geometry')).toBeNull();
+  });
+
+  test('shows the printable row with the geometry preview if report has a geometry', async () => {
+    store.data.eventTypes = eventTypes.map((eventType) => {
+      if (eventType.value === report.event_type) {
+        return { ...eventType, geometry_type: VALID_EVENT_GEOMETRY_TYPES.POLYGON };
+      }
+      return eventType;
+    });
+    renderDetailsSection({
+      reportForm: {
+        ...report,
+        geometry: {
+          type: 'Feature',
+          geometry: {
+            type: 'Polygon',
+            coordinates: [
+              [
+                [6.657425, 9.301125],
+                [-40.668725, 5.047775],
+                [5.0602, -13.74975],
+                [6.657425, 9.301125],
+              ]
+            ]
+          },
+        },
+      },
+    });
+
+    expect(screen.getByAltText('Static map with geometry')).toBeVisible();
+  });
+
+  test('changes the event form when changing the value of an input for legacy schemas', async () => {
+    renderDetailsSection();
+
+    expect(onLegacyFormChange).toHaveBeenCalledTimes(0);
+
+    await userEvent.type(screen.getByLabelText('Type of accident'), 'Truck crash');
+
+    expect(onLegacyFormChange).toHaveBeenCalled();
+  });
+
+  const legacyEventSchemaWithDropdown = {
+    ...eventSchemas.accident_rep.base,
+    schema: {
+      ...eventSchemas.accident_rep.base.schema,
+      properties: {
+        ...eventSchemas.accident_rep.base.schema.properties,
+        severity: {
+          type: 'string',
+          title: 'Severity',
+          enum: ['minor', 'major'],
+          enumNames: ['Minor', 'Major'],
+          key: 'severity',
+        },
+      },
+    },
+    uiSchema: {
+      ...eventSchemas.accident_rep.base.uiSchema,
+      'ui:groups': [{
+        origin: 'inferred',
+        items: ['type_accident', 'number_people_involved', 'animals_involved', 'severity'],
+      }],
+    },
+  };
+
+  test('drops the key of a cleared dropdown from the legacy form change data', async () => {
+    renderDetailsSection({
+      eventSchema: legacyEventSchemaWithDropdown,
+      reportForm: { ...report, event_details: { severity: 'minor', type_accident: 'Truck crash' } },
+    });
+
+    await userEvent.selectOptions(screen.getByLabelText('Severity'), '');
+
+    const { formData } = onLegacyFormChange.mock.calls.at(-1)[0];
+    expect(formData.severity).toBeUndefined();
+    expect(formData.type_accident).toBe('Truck crash');
+  });
+
+  test('keeps event details keys that are not in the schema in the legacy form change data', async () => {
+    renderDetailsSection({
+      eventSchema: legacyEventSchemaWithDropdown,
+      reportForm: {
+        ...report,
+        event_details: { severity: 'minor', stashed_hidden_field: 'stashed value', type_accident: 'Truck crash' },
+      },
+    });
+
+    await userEvent.selectOptions(screen.getByLabelText('Severity'), '');
+
+    const { formData } = onLegacyFormChange.mock.calls.at(-1)[0];
+    expect(formData.stashed_hidden_field).toBe('stashed value');
+  });
+
+  test('submits the form for legacy schemas', async () => {
+    renderDetailsSection();
+
+    expect(onFormSubmit).toHaveBeenCalledTimes(0);
+
+    submitFormButtonRef.current.click();
+
+    await waitFor(() => {
+      expect(onFormSubmit).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  test('changes the event form when changing the value of an input for v2 schemas', async () => {
+    store.data.eventTypes = [...eventTypes, snareV2];
+    renderDetailsSection({
+      eventSchema: snareSchemaV2,
+      reportForm: { ...report, event_type: 'snare_v2_rep' },
+    });
+
+    expect(onFormDataChange).toHaveBeenCalledTimes(0);
+
+    await userEvent.type(screen.getByLabelText('Number of Snares Found *'), '3');
+
+    expect(onFormDataChange).toHaveBeenCalled();
+    expect(onFormDataChange).toHaveBeenCalledWith({ number_of_snares_found: 3 });
+  });
+
+  test('submits the form for v2 schemas', async () => {
+    store.data.eventTypes = [...eventTypes, snareV2];
+    renderDetailsSection({
+      eventSchema: snareSchemaV2,
+      reportForm: { ...report, event_details: { number_of_snares_found: 3 }, event_type: 'snare_v2_rep' },
+    });
+
+    expect(onFormSubmit).toHaveBeenCalledTimes(0);
+
+    submitFormButtonRef.current.click();
+
+    expect(onFormSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  test('gives the schema form the community input value it receives for v2 schemas', async () => {
+    store.data.eventTypes = [...eventTypes, snareV2];
+    renderDetailsSection({
+      communityInputValue: 'test-community-input',
+      eventSchema: attachmentSchemaV2,
+      reportForm: { ...report, event_type: 'snare_v2_rep' },
+    });
+    const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
+
+    await userEvent.upload(
+      screen.getByTestId('schema-form-attachment-field-attachment_field-file-input'),
+      file
+    );
+
+    expect(uploadFile).toHaveBeenCalledWith(file, 'test-community-input');
+  });
+
+  test('does not show the loader if the schema is loaded', async () => {
+    renderDetailsSection();
+
+    expect(screen.queryByText('Loading the fields of this event type')).toBeNull();
+  });
+
+  test('shows a loader while the schema loads', async () => {
+    renderDetailsSection({ eventSchema: null });
+
+    expect(screen.getByRole('status')).toHaveTextContent('Loading the fields of this event type');
+  });
+
+  test('does not show a schema loader for an incident', async () => {
+    renderDetailsSection({ eventSchema: null, isCollection: true, reportForm: { ...report, is_collection: true } });
+
+    expect(screen.queryByText('Loading the fields of this event type')).toBeNull();
+  });
+
+  test('does not show an error message if the schema is loaded correctly', async () => {
+    renderDetailsSection();
+
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  test('shows an error message if the schema is erroneous', async () => {
+    renderDetailsSection({ eventSchema: { error: new Error('Error loading schema') } });
+
+    expect(screen.getByRole('alert')).toHaveTextContent('The fields of this event type could not be loaded.');
+  });
+
+  test('shows an error message with the detail of the error if the schema is erroneous', async () => {
+    renderDetailsSection({
+      eventSchema: {
+        error: new AxiosError(
+          'Request failed with status code 500',
+          'ERR_BAD_RESPONSE',
+          {},
+          {},
+          {
+            data: {
+              status: {
+                detail: 'Error detail',
+              },
+            },
+          },
+        ),
+      },
+    });
+
+    expect(screen.getByRole('alert')).toHaveTextContent('The fields of this event type could not be loaded.Error detail');
+  });
+});

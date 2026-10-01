@@ -27,7 +27,10 @@ describe('Determining if a subject is static', () => {
   test('a non-static subject', () => {
     expect(subjectIsStatic(knownMovingSubject)).toBe(false);
   });
-});
+
+  test('a feature whose properties carry the stationary subject type', () => {
+    expect(subjectIsStatic({ properties: { subject_type: 'stationary-object' } })).toBe(true);
+  });});
 
 describe('getting the feature default property from a subject', () => {
   const knownFeaturePropertyFromSubjectA = staticSubjectFeature.properties.device_status_properties[0];

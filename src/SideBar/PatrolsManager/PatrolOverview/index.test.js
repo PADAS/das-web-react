@@ -561,6 +561,19 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     expect(props.formProps.redirectTo).toEqual([{ pathname: `/patrols/${patrolWithoutLeader.id}` }]);
   });
 
+  test('gives the event it adds the crumbs back to this patrol', async () => {
+    store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
+
+    await renderPatrolOverview(patrolWithoutLeader.id);
+
+    const [props] = addItemButtonMock.mock.calls.at(-1);
+
+    expect(props.formProps.parentCrumbs).toEqual([
+      { label: 'Patrols', to: '/patrols' },
+      { label: screen.getByRole('textbox', { name: 'Patrol title' }).value, to: `/patrols/${patrolWithoutLeader.id}` },
+    ]);
+  });
+
   test('links a newly added event to the leg the patrol is on and refreshes the patrol', async () => {
     const patrolWithMultipleLegs = {
       ...patrolWithoutLeader,
@@ -806,6 +819,62 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       await renderPatrolOverview(patrolWithoutLeader.id);
 
       await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
+
+      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+    });
+
+    const renderUntitledPatrol = async () => {
+      store.data.patrolStore[patrolWithoutLeader.id] = { ...patrolWithoutLeader, title: null };
+
+      await renderPatrolOverview(patrolWithoutLeader.id);
+
+      return screen.getByTestId('patrolOverview-title');
+    };
+
+    test('titles an untitled patrol after its patrol type, without repeating the type or anything to save', async () => {
+      const titleInput = await renderUntitledPatrol();
+
+      expect(titleInput.value).not.toBe('');
+      expect(screen.queryByText(titleInput.value, { selector: 'p' })).toBeNull();
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
+
+    test('disables the save button again when the user types back the type an untitled patrol shows', async () => {
+      const titleInput = await renderUntitledPatrol();
+
+      await userEvent.type(titleInput, '!');
+
+      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+
+      await userEvent.type(titleInput, '{Backspace}');
+
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
+
+    test('does not count emptying the title of an untitled patrol as a change', async () => {
+      await userEvent.clear(await renderUntitledPatrol());
+
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
+
+    test('leaves an emptied title empty, so the patrol keeps going by its type', async () => {
+      const titleInput = await renderUntitledPatrol();
+      const typeTitle = titleInput.value;
+
+      await userEvent.clear(titleInput);
+      await userEvent.tab();
+
+      expect(screen.getByTestId('patrolOverview-title')).toHaveValue('');
+      expect(screen.getByRole('heading', { name: typeTitle })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
+
+    test('counts emptying the title of a titled patrol as a change', async () => {
+      store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
+
+      await renderPatrolOverview(patrolWithoutLeader.id);
+
+      await userEvent.clear(screen.getByTestId('patrolOverview-title'));
 
       expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
     });

@@ -230,7 +230,10 @@ const SummaryStats = ({ eventCount, patrol, patrolSegment = null }) => {
         >
         {t('distanceLabel')}
 
-        <ArrowDownSmallIcon aria-hidden="true" className={styles.statLabelIcon} />
+        <ArrowDownSmallIcon
+          aria-hidden="true"
+          className={`${styles.statLabelIcon} ${isDistanceMenuOpen ? styles.open : ''}`}
+        />
       </button>
 
       <Overlay

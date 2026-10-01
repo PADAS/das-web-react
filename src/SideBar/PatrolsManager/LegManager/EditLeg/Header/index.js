@@ -1,17 +1,17 @@
 import React, { memo } from 'react';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as PauseIcon } from '../../../../../common/images/icons/pause.svg';
 
 import {
-  displayTitleForPatrol,
+  calcTitleAndSubtitleForPatrol,
   getIsMobilePatrol,
-  governingPatrolSegment,
   isPatrolSegmentAPause,
 } from '../../../../../utils/patrols';
 import { PATROL_UI_STATES, TAB_KEYS } from '../../../../../constants';
 
-import PatrolsManagerHeader from '../../../Header';
+import DetailViewHeader from '../../../../DetailViewHeader';
 import StatusPill from '../../../StatusPill';
 import SvgIcon from '../../../../../SvgIcon';
 
@@ -19,6 +19,9 @@ import * as styles from './styles.module.scss';
 
 const Header = ({ legNumber, legState, patrol, patrolSegment, patrolType }) => {
   const { t } = useTranslation('patrols', { keyPrefix: 'editLeg.header' });
+  const { t: tHeader } = useTranslation('patrols', { keyPrefix: 'header' });
+
+  const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
   // A pause is named after the pauses it is counted among, not the legs.
   const isPause = isPatrolSegmentAPause(patrolSegment);
@@ -26,16 +29,16 @@ const Header = ({ legNumber, legState, patrol, patrolSegment, patrolType }) => {
 
   const crumbs = [
     { label: t('breadcrumbPatrolsLabel'), to: `/${TAB_KEYS.PATROLS}` },
-    {
-      label: displayTitleForPatrol(patrol, governingPatrolSegment(patrol)?.leader),
-      to: `/${TAB_KEYS.PATROLS}/${patrol.id}`,
-    },
+    { label: calcTitleAndSubtitleForPatrol(patrol, patrolTypes).title, to: `/${TAB_KEYS.PATROLS}/${patrol.id}` },
     { label: legTitle },
   ];
 
   const renderTitleBar = () => <>
     <div className={styles.titleBarMain}>
-      <div className={styles.icon}>
+      <div
+        className={`${styles.icon} ${styles[isPause ? PATROL_UI_STATES.PAUSED.key : legState.key]}`}
+        data-testid="editLegHeader-icon"
+        >
         {isPause
           ? <PauseIcon aria-label={t('pauseIconLabel')} role="img" />
           : <SvgIcon iconId={patrolType?.icon_id} title={patrolType?.display} type="patrols" />}
@@ -43,7 +46,11 @@ const Header = ({ legNumber, legState, patrol, patrolSegment, patrolType }) => {
 
       <p className={styles.serialNumber}>{patrol.serial_number}</p>
 
-      <h2 className={styles.title}>{legTitle}</h2>
+      <div className={styles.titleStack}>
+        <h2 className={styles.title}>{legTitle}</h2>
+
+        {!isPause && !!patrolType && <p className={styles.subtitle}>{patrolType.display}</p>}
+      </div>
     </div>
 
     <div className={styles.pills}>
@@ -55,7 +62,11 @@ const Header = ({ legNumber, legState, patrol, patrolSegment, patrolType }) => {
     </div>
   </>;
 
-  return <PatrolsManagerHeader crumbs={crumbs} renderTitleBar={renderTitleBar} />;
+  return <DetailViewHeader
+    breadcrumbLabel={tHeader('breadcrumbNavLabel')}
+    crumbs={crumbs}
+    renderTitleBar={renderTitleBar}
+  />;
 };
 
 export default memo(Header);

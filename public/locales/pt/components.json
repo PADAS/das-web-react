@@ -158,12 +158,6 @@
     "instructionsPopupLabel": "Clique para selecionar um local",
     "pickLocationButtonLabel": "Selecione um local no mapa"
   },
-  "priorityPicker": {
-    "amber": "Laranja",
-    "green": "Verde",
-    "none": "Nenhum",
-    "red": "Vermelho"
-  },
   "numericInput": {
     "numericInputLabel": "Campo numérico",
     "incrementValueNumericInputButtonLabel": "Botão de incrementar valor numérico",
@@ -184,6 +178,11 @@
     "singleValue": {
       "radioIcon": "ícone de rádio para {{name}}"
     }
+  },
+  "reporterSelect": {
+    "allReportersGroupLabel": "Todos",
+    "recentRadiosGroupLabel": "Rádios recentes",
+    "restrictedReporterLabel": "RESTRITO"
   },
   "schemaFields": {
     "addButton": {
@@ -219,6 +218,9 @@
     "backButtonLabel": "Voltar atrás",
     "backButtonTitle": "Voltar",
     "closeButtonLabel": "Fechar barra lateral",
+    "detailViewHeader": {
+      "closeButtonLabel": "Fechar barra lateral"
+    },
     "eventsLink": "Eventos",
     "gearLink": "Equipamento",
     "gearTab": {
@@ -243,10 +245,6 @@
       "subjectsTabTitle": "Indivíduos rastreados"
     },
     "patrolsLink": "Patrulhas",
-    "reportsFeedTab": {
-      "fetchReportsErrorMessage": "Não foi possível carregar os eventos. Por favor, tente novamente. ",
-      "tryAgainButton": "Tentar novamente"
-    },
     "settingsLink": "Preferências",
     "settingsPane": {
       "alertsFrameTitle": "Configure seus alertas de EarthRanger",
@@ -353,6 +351,9 @@
         }
       },
       "mapTabTitle": "Mapa"
+    },
+    "titleInput": {
+      "editButtonLabel": "Editar título"
     }
   },
   "soundNotificationsPlayer": {
@@ -378,8 +379,6 @@
     "closeButtonLabel": "Fechar deslizador de tempo",
     "dateRangeButtonLabel": "Alterar intervalo de datas",
     "endDateNowSliderLabel": "Agora",
-    "popoverHeader": "Intervalo de datas",
-    "popoverResetButton": "Redefinir",
     "sliderLabel": "Deslizador de tempo",
     "speedButtonLabel": "Abrir opções de velocidade de reprodução",
     "speedMenuHeader": "Velocidade de Reprodução",

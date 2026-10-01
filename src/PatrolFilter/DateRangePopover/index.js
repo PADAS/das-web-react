@@ -14,7 +14,7 @@ import { resetGlobalDateRange } from '../../ducks/global-date-range';
 import PatrolFilterDateRangeSelector from '../DateRange';
 import PatrolFilterSettings from '../PatrolFilterSettings';
 
-import * as styles from '../../EventFilter/styles.module.scss';
+import * as styles from '../styles.module.scss';
 
 const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);
 

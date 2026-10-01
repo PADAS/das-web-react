@@ -42,8 +42,10 @@ jest.mock('../../../../ducks/patrols', () => ({
   uploadPatrolFile: jest.fn(),
 }));
 
+const mockAddItemButtonFormProps = jest.fn();
+
 jest.mock('../../../../AddItemButton', () => {
-  const AddItemButton = ({ formProps, label, ...otherProps }) => <button
+  const AddItemButton = ({ formProps, label, ...otherProps }) => mockAddItemButtonFormProps(formProps) ?? <button
     onClick={() => formProps.onSaveSuccess({ data: { data: { id: 'new-event' } } })}
     type="button"
     {...otherProps}
@@ -412,6 +414,16 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview', () => {
     await userEvent.click(screen.getByRole('button', { name: ADD_EVENT_BUTTON_LABEL }));
 
     await waitFor(() => expect(addPatrolSegmentToEvent).toHaveBeenCalledWith(activePatrolSegment.id, 'new-event'));
+  });
+
+  test('gives the event it adds the crumbs back to this leg', () => {
+    renderLegOverview({ legId: activePatrolSegment.id });
+
+    expect(mockAddItemButtonFormProps.mock.calls.at(-1)[0].parentCrumbs).toEqual([
+      { label: 'Patrols', to: '/patrols' },
+      { label: patrol.title, to: `/patrols/${patrol.id}` },
+      { label: 'Leg 2', to: `/patrols/${patrol.id}/legs/${activePatrolSegment.id}` },
+    ]);
   });
 
   test('warns the user and still refreshes the patrol when a new event could not be linked to the leg', async () => {

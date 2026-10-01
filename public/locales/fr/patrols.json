@@ -96,8 +96,7 @@
     "saveErrorMessage": "L'étape de la patrouille n'a pas pu être enregistrée. Veuillez réessayer."
   },
   "header": {
-    "breadcrumbNavLabel": "Navigation de la patrouille",
-    "closeButtonLabel": "Fermer la barre latérale"
+    "breadcrumbNavLabel": "Navigation de la patrouille"
   },
   "invalidDatesModal": {
     "body": "Cette patrouille ne peut pas être sauvegardée. L'heure de fin d'une patrouille doit être postérieure à l'heure de début. Veuillez corriger l'heure de début ou de fin de la patrouille.",
@@ -377,9 +376,6 @@
     "restore": "Restaurer",
     "resume": "Reprendre",
     "start": "Commencer"
-  },
-  "titleInput": {
-    "editButtonLabel": "Modifier le titre"
   },
   "trackToggleButton": {
     "tracksOff": "Pistes désactivées",

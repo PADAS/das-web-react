@@ -21,7 +21,7 @@ import { fetchTracksIfNecessary } from '../utils/tracks';
 import { canShowTrackForSubject, subjectIsStatic } from '../utils/subjects';
 import { withMultiLayerHandlerAwareness, queryMultiLayerClickFeatures } from '../utils/map-handlers';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
-import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
+import { EVENT_FILTER_CATEGORY, MAP_INTERACTION_CATEGORY, TrackerContext, trackEventFactory } from '../utils/analytics';
 import { findAnalyzerIdByChildFeatureId, getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
 import { getCurrentTabFromURL } from '../utils/navigation';
 import { analyzerFeatures as analyzerFeaturesSelector, getAnalyzerFeatureCollectionsByType } from '../selectors';
@@ -89,6 +89,7 @@ import { addMapImage } from '../utils/map';
 import { parseImgIdForMapImages } from '../utils/img';
 import { attachEventIconsToMap } from '../utils/eventMapIcons';
 
+const eventFilterTracker = trackEventFactory(EVENT_FILTER_CATEGORY);
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const CLUSTER_APPROX_WIDTH = 40;
@@ -346,21 +347,25 @@ const Map = ({ children, onMapLoad, socket }) => {
     const { visible } = subjectTrackState;
     const { visible: visiblePatrolIds } = patrolTrackState;
 
-    if (!visible.length) return;
+    if (visible.length || visiblePatrolIds.length) {
+      const clickedLayerIDs = map.queryRenderedFeatures(event.point)
+        .filter(({ properties }) => !!properties && properties.id)
+        .map(({ properties: { id } }) => id);
 
-    const clickedLayerIDs = map.queryRenderedFeatures(event.point)
-      .filter(({ properties }) => !!properties && properties.id)
-      .map(({ properties: { id } }) => id);
+      if (visible.length) {
+        dispatch(updateTrackState({ visible: visible.filter((id) => clickedLayerIDs.includes(id)) }));
+      }
 
-    const matchingPatrolIds = clickedLayerIDs
-      .reduce((accumulator, id) => [...accumulator, ...getPatrolsForLeaderId(id)], [])
-      .map(({ id }) => id);
-    dispatch(
-      updateTrackState({ visible: visible.filter(id => clickedLayerIDs.includes(id)) })
-    );
-    dispatch(
-      updatePatrolTrackState({ visible: visiblePatrolIds.filter(id => matchingPatrolIds.includes(id)) })
-    );
+      if (visiblePatrolIds.length) {
+        const matchingPatrolIds = clickedLayerIDs
+          .flatMap((id) => getPatrolsForLeaderId(id))
+          .map((patrol) => patrol.id);
+
+        dispatch(updatePatrolTrackState({
+          visible: visiblePatrolIds.filter((patrolId) => matchingPatrolIds.includes(patrolId)),
+        }));
+      }
+    }
   }, [patrolTrackState, subjectTrackState, dispatch]);
 
   const setMap = useCallback((map) => {
@@ -414,14 +419,14 @@ const Map = ({ children, onMapLoad, socket }) => {
     showPopup('timepoint', { geometry, properties, coordinates: geometry.coordinates });
   });
 
-  const onFeatureSymbolClick = useCallback((feature) => {
+  const onFeatureSymbolClick = useMemo(() => withLocationPickerState((feature) => {
     const { geometry, properties } = feature;
 
     if (geometry.type === 'Point') {
       showPopup('feature-symbol', { geometry, properties, coordinates: geometry.coordinates });
       mapInteractionTracker.track('Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
     }
-  }, [showPopup]);
+  }), [showPopup, withLocationPickerState]);
 
   const onAnalyzerGroupEnter = useCallback((e, groupIds) => {
     // if an analyzer popup is open, and the user selects a new analyzer, dismiss the current pop.
@@ -733,7 +738,9 @@ const Map = ({ children, onMapLoad, socket }) => {
 
       {eventsEnabled && <DelayedUnmount isMounted={!currentTab && !mapLocationSelection.isPickingLocation}>
         <div className='floating-report-filter'>
-          <EventFilter className='report-filter' />
+          <TrackerContext.Provider value={eventFilterTracker}>
+            <EventFilter className='report-filter' />
+          </TrackerContext.Provider>
         </div>
       </DelayedUnmount>}
 

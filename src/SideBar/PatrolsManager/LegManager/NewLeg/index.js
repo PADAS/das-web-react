@@ -6,12 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import buildAddLegUpdate from './utils/buildAddLegUpdate';
 import buildNewLegDraft from './utils/buildNewLegDraft';
-import {
-  canPatrolTakeNewLegs,
-  displayTitleForPatrol,
-  earliestStartAfterPatrolSegment,
-  governingPatrolSegment,
-} from '../../../../utils/patrols';
+import { canPatrolTakeNewLegs, earliestStartAfterPatrolSegment } from '../../../../utils/patrols';
 import { NEW_LEG_CATEGORY, TrackerContext, trackEventFactory } from '../../../../utils/analytics';
 import { TAB_KEYS } from '../../../../constants';
 import { updatePatrol } from '../../../../ducks/patrols';
@@ -63,8 +58,6 @@ const NewLeg = ({ patrol }) => {
   const hasUnsavedChanges = !isEqual(leg, initialLeg);
 
   const earliestStartDateTime = previousPatrolSegment ? earliestStartAfterPatrolSegment(previousPatrolSegment) : null;
-
-  const patrolTitle = displayTitleForPatrol(patrol, governingPatrolSegment(patrol)?.leader);
 
   const onChangeLeg = useCallback((legChanges, { isDefaultData = false } = {}) => {
     // Whether a patrol starts and ends by itself is a preference the next
@@ -140,7 +133,7 @@ const NewLeg = ({ patrol }) => {
     />
 
     <div className={styles.newLeg}>
-      <Header patrolId={patrol.id} patrolTitle={patrolTitle} patrolType={leg.patrolType} />
+      <Header patrol={patrol} patrolType={leg.patrolType} />
 
       <div className={styles.body}>
         <LegForm

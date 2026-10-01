@@ -1,0 +1,98 @@
+@use 'sass:color';
+
+@use '../../../../../common/styles/buttons';
+@use '../../../../../common/styles/inputs';
+@use '../../../../../common/styles/vars/colors';
+@use '../../../../shared';
+
+.saveSplitButton {
+  display: inline-flex;
+
+  .saveButton {
+    @include shared.save-button;
+  }
+
+  .toggle {
+    @include buttons.primaryActionButton;
+
+    border-bottom-left-radius: 0;
+    border-left: 1px solid rgb(255 255 255 / 50%);
+    border-top-left-radius: 0;
+    padding: 0 0.625rem;
+
+    .caret {
+      @include inputs.dropdown-caret($color: currentcolor);
+
+      transition: transform 150ms ease;
+
+      &.open {
+        transform: rotate(180deg);
+      }
+    }
+
+    &[aria-expanded='true'] {
+      background-color: color.adjust(colors.$bright-blue, $lightness: -10%);
+    }
+  }
+
+  &.hasOptions .saveButton {
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+  }
+}
+
+.menuPopover {
+  @include inputs.boxShadow;
+
+  border: none !important;
+  border-radius: 0.25rem !important;
+  min-width: 10rem;
+
+  [class*='popover-arrow'] {
+    display: none;
+  }
+
+  .menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    .menuItem {
+      .menuItemOption {
+        align-items: center;
+        background-color: white;
+        border: none;
+        color: colors.$off-black;
+        display: flex;
+        outline: none;
+        padding: 0.5rem 1rem;
+        text-align: left;
+        white-space: nowrap;
+        width: 100%;
+
+        &:hover:not(:focus-visible) {
+          background-color: color.adjust(colors.$light-gray-background, $lightness: 5%);
+          cursor: pointer;
+        }
+
+        &:focus-visible {
+          background-color: colors.$light-gray-background;
+        }
+      }
+
+      &:first-child .menuItemOption {
+        border-top-left-radius: 0.25rem;
+        border-top-right-radius: 0.25rem;
+      }
+
+      &:last-child .menuItemOption {
+        border-bottom-left-radius: 0.25rem;
+        border-bottom-right-radius: 0.25rem;
+      }
+    }
+  }
+
+  @media print {
+    display: none !important;
+  }
+}

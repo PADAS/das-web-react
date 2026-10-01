@@ -48,18 +48,18 @@ describe('TrackLegend', () => {
     };
   });
 
-  const renderTrackLegend = (props, overrideStore) => render(
-    <Provider store={mockStore({ ...store, ...overrideStore })}>
-      <TrackLegend
-        description="Description"
-        items={[]}
-        itemsName="items"
-        onClearItemTracks={onClearItemTracks}
-        onClickClearTracks={onClickClearTracks}
-        {...props}
-      />
-    </Provider>
-  );
+  const buildTrackLegend = (props, overrideStore) => <Provider store={mockStore({ ...store, ...overrideStore })}>
+    <TrackLegend
+      description="Description"
+      items={[]}
+      itemsName="items"
+      onClearItemTracks={onClearItemTracks}
+      onClickClearTracks={onClickClearTracks}
+      {...props}
+    />
+  </Provider>;
+
+  const renderTrackLegend = (props, overrideStore) => render(buildTrackLegend(props, overrideStore));
 
   afterEach(() => {
     jest.restoreAllMocks();
@@ -415,5 +415,52 @@ describe('TrackLegend', () => {
     await userEvent.click(screen.getByText('Clear Tracks'));
 
     expect(onClickClearTracks).toHaveBeenCalledTimes(1);
+  });
+
+  describe('clearing the tracks', () => {
+    const items = [{
+      description: 'Item 1 description',
+      icon: <img alt="Item 1 icon" src="icon-1" />,
+      id: '1',
+      title: 'Item 1 title',
+    }, {
+      description: 'Item 2 description',
+      icon: <img alt="Item 2 icon" src="icon-2" />,
+      id: '2',
+      title: 'Item 2 title',
+    }];
+
+    test('keeps showing the last items while the legend slides out', async () => {
+      const { rerender } = renderTrackLegend({ items });
+
+      await waitFor(() => expect(screen.getByTestId('trackLegend')).toHaveClass('show'));
+
+      rerender(buildTrackLegend({ description: 'No points', items: [] }));
+
+      expect(screen.getByTestId('trackLegend')).not.toHaveClass('show');
+      expect(screen.getByTestId('trackLegend')).toHaveAttribute('inert');
+      expect(screen.getByTestId('trackLegend-titleWrapper')).toHaveTextContent('2 items');
+      expect(screen.getByText('Description')).toBeInTheDocument();
+      expect(screen.queryByText('No points')).toBeNull();
+    });
+
+    test('unmounts the legend once it has slid out', async () => {
+      const { rerender } = renderTrackLegend({ items });
+
+      rerender(buildTrackLegend({ items: [] }));
+
+      await waitFor(() => expect(screen.queryByTestId('trackLegend')).toBeNull());
+    });
+
+    test('shows the new items when tracks come back while the legend slides out', async () => {
+      const { rerender } = renderTrackLegend({ items });
+
+      rerender(buildTrackLegend({ items: [] }));
+      rerender(buildTrackLegend({ items: [items[0]] }));
+
+      expect(screen.getByTestId('trackLegend-titleWrapper')).toHaveTextContent('Item 1 title');
+      expect(screen.getByTestId('trackLegend')).not.toHaveAttribute('inert');
+      await waitFor(() => expect(screen.getByTestId('trackLegend')).toHaveClass('show'));
+    });
   });
 });

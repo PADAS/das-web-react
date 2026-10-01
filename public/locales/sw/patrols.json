@@ -96,8 +96,7 @@
     "saveErrorMessage": "Kipande cha doria hakikuweza kuhifadhiwa. Tafadhali jaribu tena."
   },
   "header": {
-    "breadcrumbNavLabel": "Urambazaji wa doria",
-    "closeButtonLabel": "Funga upau wa pembeni"
+    "breadcrumbNavLabel": "Urambazaji wa doria"
   },
   "invalidDatesModal": {
     "body": "Doria hii haiwezi kuhifadhiwa. Muda wa mwisho wa doria lazima uwe baadaye kuliko muda wa kuanza. Tafadhali sahihisha wakati wa kuanza au wa mwisho wa doria.",
@@ -377,9 +376,6 @@
     "restore": "Rejesha",
     "resume": "Endeleza",
     "start": "Anza"
-  },
-  "titleInput": {
-    "editButtonLabel": "Hariri kichwa"
   },
   "trackToggleButton": {
     "tracksOff": "Vidokezo vimezimwa",

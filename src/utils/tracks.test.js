@@ -43,6 +43,10 @@ describe('utils - tracks', () => {
       ).toBe(TIME_OF_DAY_PERIODS[5]);
     });
 
+    test('returns the 06:01 - 09:00 period for a time between six and nine in the morning', () => {
+      expect(getTimeOfDayPeriodBasedOnTime('2025-02-21T07:30:00.000Z', 'UTC').rangeString).toBe('06:01 - 09:00');
+    });
+
     test('returns the period the time falls into in the runtime time zone when no time zone is set', () => {
       expect(getTimeOfDayPeriodBasedOnTime(baseDateTimeString, null)).toBe(
         getTimeOfDayPeriodBasedOnTime(baseDateTimeString, Intl.DateTimeFormat().resolvedOptions().timeZone)
@@ -145,7 +149,7 @@ describe('utils - tracks', () => {
         {
           properties: {
             startColor: TIME_OF_DAY_PERIODS[2].color,
-            endColor: TIME_OF_DAY_PERIODS[7].color,
+            endColor: TIME_OF_DAY_PERIODS[6].color,
             startTime: '2025-02-17T00:16:01+00:00',
             endTime: '2025-02-14T12:24:01+00:00'
           },

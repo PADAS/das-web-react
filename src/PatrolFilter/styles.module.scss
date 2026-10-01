@@ -1,5 +1,160 @@
-@import '../common/styles/layout';
-@import '../common/styles/vars/colors';
+@use 'sass:color';
+
+@use '../common/styles/vars/colors';
+
+.form {
+  border-bottom: 1px solid colors.$gray-border;
+  display: flex;
+  padding: 0.25rem 0.75rem 0.75rem;
+
+  .searchBar {
+    width: 40%;
+  }
+
+  .buttons {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    width: 60%;
+
+    .button {
+      align-items: center;
+      border-radius: 0.25rem;
+      display: flex;
+      font-size: 0.875rem;
+      font-weight: 500;
+      height: 2rem;
+      padding: 0 0.5rem;
+
+      &.active {
+        background-color: colors.$bright-blue;
+        border: 1px solid colors.$bright-blue;
+        color: white;
+
+        &:hover {
+          background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+          border-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+        }
+
+        &:focus-visible:not(:disabled) {
+          background-color: white;
+          border-color: colors.$bright-blue;
+          color: colors.$bright-blue;
+          outline: 1px solid colors.$bright-blue;
+        }
+      }
+    }
+  }
+}
+
+.filterPopover {
+  > [class*=arrow]::after {
+    border-bottom-color: colors.$popover-header-color;
+  }
+
+  [class*=popover-header] {
+    background: colors.$highlight-color;
+    color: white;
+    padding: 1rem;
+
+    &::before {
+      display: none;
+    }
+  }
+}
+
+div.filterPopover {
+  --content-height: 32rem;
+
+  max-height: var(--content-height);
+  max-width: 29rem;
+  width: 90vw;
+
+  [class*=popover-body] {
+    overflow: hidden;
+    padding: 0;
+  }
+
+  &.filters {
+    overflow: hidden;
+  }
+}
+
+.popoverTitle {
+  --dimensions: 1.5rem;
+
+  align-items: center;
+  background: colors.$highlight-color;
+  display: flex;
+  line-height: normal;
+  width: 100%;
+
+  button {
+    margin-left: auto;
+  }
+
+  svg {
+    height: var(--dimensions);
+    margin-right: 1rem;
+    width: var(--dimensions);
+
+    * {
+      stroke: white;
+    }
+  }
+}
+
+.filterRow {
+  align-items: center;
+  border-bottom: 1px solid colors.$gray-border;
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+
+  > svg {
+    --dimensions: 1.5rem;
+
+    height: var(--dimensions);
+    width: var(--dimensions);
+  }
+
+  label {
+    margin-bottom: 0;
+  }
+}
+
+.reportedBySelect {
+  flex: 1;
+  flex-flow: row;
+  margin-left: 0.5rem;
+}
+
+.filterStringWrapper {
+  align-items: center;
+  border-bottom: 1px solid colors.$light-gray-border;
+  display: flex;
+  justify-content: space-between;
+  min-height: 2.81rem;
+  padding: 0.5rem 0.3rem 0.3rem;
+
+  .friendlyFilterString {
+    display: block;
+    font-size: 0.75rem;
+    line-height: normal;
+    margin: 0;
+    transition: 0.3s all linear;
+    width: 28rem;
+  }
+
+  > button {
+    min-width: 16%;
+
+    > svg {
+      margin-right: 0.125rem;
+    }
+  }
+}
 
 .settingsInputContainer {
   display: flex;

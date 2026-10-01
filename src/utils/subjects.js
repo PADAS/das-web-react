@@ -64,10 +64,10 @@ export const getSubjectGroupSubjects = (...groups) => groups.reduce((accumulator
 export const getUniqueSubjectGroupSubjects = (...groups) => uniqBy(getSubjectGroupSubjects(...groups), 'id');
 export const getUniqueSubjectGroupSubjectIDs = (...groups) => getUniqueSubjectGroupSubjects(...groups).map(subject => subject.id);
 
-export const subjectIsStatic = subject => {
-  return subject?.is_static ?? subject?.properties?.is_static ?? subject.last_position?.properties?.is_static ??
-    subject?.subject_type === STATIONARY_SUBJECT_TYPE ?? subject?.properties?.subject_type === STATIONARY_SUBJECT_TYPE;
-};
+export const subjectIsStatic = (subject) => subject?.is_static
+  ?? subject?.properties?.is_static
+  ?? subject?.last_position?.properties?.is_static
+  ?? (subject?.subject_type === STATIONARY_SUBJECT_TYPE || subject?.properties?.subject_type === STATIONARY_SUBJECT_TYPE);
 
 export const canShowTrackForSubject = subject =>
   subject.tracks_available

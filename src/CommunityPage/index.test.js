@@ -7,7 +7,7 @@ import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { mockStore } from '../__test-helpers/MockStore';
 import { act, render, screen, waitFor } from '../test-utils';
 import CommunityPage from './';
-import ReportManager from '../ReportManager';
+import EventOverview from '../SideBar/EventsManager/EventOverview';
 import { fetchCommunityInfo } from '../ducks/community';
 import { fetchEventTypes } from '../ducks/event-types';
 import { fetchEventsSchema } from '../ducks/event-schemas';
@@ -18,7 +18,7 @@ jest.mock('react-router', () => ({
   useParams: jest.fn(),
 }));
 
-jest.mock('../ReportManager', () => jest.fn());
+jest.mock('../SideBar/EventsManager/EventOverview', () => jest.fn());
 
 jest.mock('../ducks/community', () => ({
   ...jest.requireActual('../ducks/community'),
@@ -102,7 +102,7 @@ describe('CommunityPage', () => {
     navigate = jest.fn();
     useNavigate.mockReturnValue(navigate);
     useParams.mockReturnValue({ value: COMMUNITY_VALUE, '*': '' });
-    ReportManager.mockImplementation(() => null);
+    EventOverview.mockImplementation(() => null);
   });
 
   afterEach(() => {
@@ -281,16 +281,16 @@ describe('CommunityPage', () => {
   });
 
   describe('URL-driven type selection', () => {
-    test('renders ReportManager when the URL contains a valid event type value', async () => {
+    test('renders EventOverview when the URL contains a valid event type value', async () => {
       useParams.mockReturnValue({ value: COMMUNITY_VALUE, '*': TYPE_A.value });
       renderPage();
-      await waitFor(() => expect(ReportManager).toHaveBeenCalled());
+      await waitFor(() => expect(EventOverview).toHaveBeenCalled());
     });
 
-    test('passes isCommunity to ReportManager', async () => {
+    test('passes isCommunity to EventOverview', async () => {
       useParams.mockReturnValue({ value: COMMUNITY_VALUE, '*': TYPE_A.value });
       renderPage();
-      await waitFor(() => expect(ReportManager).toHaveBeenCalledWith(
+      await waitFor(() => expect(EventOverview).toHaveBeenCalledWith(
         expect.objectContaining({
           isCommunity: true,
         }),
@@ -298,19 +298,19 @@ describe('CommunityPage', () => {
       ));
     });
 
-    test('passes the matching event type id to ReportManager', async () => {
+    test('passes the matching event type id to EventOverview', async () => {
       useParams.mockReturnValue({ value: COMMUNITY_VALUE, '*': TYPE_A.value });
       renderPage();
-      await waitFor(() => expect(ReportManager).toHaveBeenCalledWith(
+      await waitFor(() => expect(EventOverview).toHaveBeenCalledWith(
         expect.objectContaining({ newReportTypeId: TYPE_A.id }),
         undefined
       ));
     });
 
-    test('passes communityInputValue to ReportManager', async () => {
+    test('passes communityInputValue to EventOverview', async () => {
       useParams.mockReturnValue({ value: COMMUNITY_VALUE, '*': TYPE_A.value });
       renderPage();
-      await waitFor(() => expect(ReportManager).toHaveBeenCalledWith(
+      await waitFor(() => expect(EventOverview).toHaveBeenCalledWith(
         expect.objectContaining({
           communityInputValue: COMMUNITY_VALUE,
         }),
@@ -321,15 +321,15 @@ describe('CommunityPage', () => {
     test('passes a stable reportId across re-renders for the same event type', async () => {
       useParams.mockReturnValue({ value: COMMUNITY_VALUE, '*': TYPE_A.value });
       const { rerender } = renderPage();
-      await waitFor(() => expect(ReportManager).toHaveBeenCalled());
-      const firstCallId = ReportManager.mock.calls[0][0].reportId;
+      await waitFor(() => expect(EventOverview).toHaveBeenCalled());
+      const firstCallId = EventOverview.mock.calls[0][0].reportId;
 
       rerender(
         <Provider store={buildStore()}>
           <CommunityPage />
         </Provider>
       );
-      const secondCallId = ReportManager.mock.calls.at(-1)[0].reportId;
+      const secondCallId = EventOverview.mock.calls.at(-1)[0].reportId;
 
       expect(firstCallId).toBe(secondCallId);
     });
@@ -337,8 +337,8 @@ describe('CommunityPage', () => {
     test('generates a new reportId when switching to a different event type', async () => {
       useParams.mockReturnValue({ value: COMMUNITY_VALUE, '*': TYPE_A.value });
       const { rerender } = renderPage();
-      await waitFor(() => expect(ReportManager).toHaveBeenCalled());
-      const firstCallId = ReportManager.mock.calls[0][0].reportId;
+      await waitFor(() => expect(EventOverview).toHaveBeenCalled());
+      const firstCallId = EventOverview.mock.calls[0][0].reportId;
 
       useParams.mockReturnValue({ value: COMMUNITY_VALUE, '*': TYPE_B.value });
       rerender(
@@ -346,23 +346,23 @@ describe('CommunityPage', () => {
           <CommunityPage />
         </Provider>
       );
-      const secondCallId = ReportManager.mock.calls.at(-1)[0].reportId;
+      const secondCallId = EventOverview.mock.calls.at(-1)[0].reportId;
 
       expect(firstCallId).not.toBe(secondCallId);
     });
 
-    test('shows the type list instead of ReportManager when URL type value does not match any type', async () => {
+    test('shows the type list instead of EventOverview when URL type value does not match any type', async () => {
       useParams.mockReturnValue({ value: COMMUNITY_VALUE, '*': 'no-such-type' });
       renderPage();
       await screen.findByTestId(`categoryList-button-${TYPE_A.id}`);
-      expect(ReportManager).not.toHaveBeenCalled();
+      expect(EventOverview).not.toHaveBeenCalled();
     });
 
     test('shows the type list when there is no event type in the URL', async () => {
       useParams.mockReturnValue({ value: COMMUNITY_VALUE, '*': '' });
       renderPage();
       await screen.findByRole('heading', { level: 2 });
-      expect(ReportManager).not.toHaveBeenCalled();
+      expect(EventOverview).not.toHaveBeenCalled();
     });
   });
 
@@ -372,7 +372,7 @@ describe('CommunityPage', () => {
     beforeEach(() => {
       captureOnBack = undefined;
       useParams.mockReturnValue({ value: COMMUNITY_VALUE, '*': TYPE_A.value });
-      ReportManager.mockImplementation(({ onBack }) => {
+      EventOverview.mockImplementation(({ onBack }) => {
         captureOnBack = onBack;
         return null;
       });
@@ -443,7 +443,7 @@ describe('CommunityPage', () => {
 
     test('refreshes the form in place (new reportId) instead of navigating on form submission', async () => {
       let captureOnBack;
-      ReportManager.mockImplementation(({ onBack }) => {
+      EventOverview.mockImplementation(({ onBack }) => {
         captureOnBack = onBack;
         return null;
       });
@@ -451,11 +451,11 @@ describe('CommunityPage', () => {
       renderPage([TYPE_A]);
 
       await waitFor(() => expect(captureOnBack).toBeDefined());
-      const firstCallId = ReportManager.mock.calls.at(-1)[0].reportId;
+      const firstCallId = EventOverview.mock.calls.at(-1)[0].reportId;
 
       await act(async () => captureOnBack());
 
-      const secondCallId = ReportManager.mock.calls.at(-1)[0].reportId;
+      const secondCallId = EventOverview.mock.calls.at(-1)[0].reportId;
       expect(secondCallId).not.toBe(firstCallId);
       expect(navigate).not.toHaveBeenCalledWith(`/community/${COMMUNITY_VALUE}`);
     });
@@ -465,7 +465,7 @@ describe('CommunityPage', () => {
     test('shows the type list when navigating back clears the event type from the URL', async () => {
       useParams.mockReturnValue({ value: COMMUNITY_VALUE, '*': TYPE_A.value });
       const { rerender } = renderPage();
-      await waitFor(() => expect(ReportManager).toHaveBeenCalled());
+      await waitFor(() => expect(EventOverview).toHaveBeenCalled());
 
       useParams.mockReturnValue({ value: COMMUNITY_VALUE, '*': '' });
       rerender(
@@ -496,7 +496,7 @@ describe('CommunityPage', () => {
 
     const submitOnce = async (types, community) => {
       let captureOnBack;
-      ReportManager.mockImplementation(({ onBack }) => {
+      EventOverview.mockImplementation(({ onBack }) => {
         captureOnBack = onBack;
         return null;
       });
@@ -506,8 +506,8 @@ describe('CommunityPage', () => {
       await act(async () => captureOnBack());
       view.unmount();
 
-      ReportManager.mockClear();
-      ReportManager.mockImplementation(() => null);
+      EventOverview.mockClear();
+      EventOverview.mockImplementation(() => null);
     };
 
     test('does not block submission when the community has no cool off period configured', async () => {
@@ -516,7 +516,7 @@ describe('CommunityPage', () => {
 
       renderPage();
 
-      await waitFor(() => expect(ReportManager).toHaveBeenCalled());
+      await waitFor(() => expect(EventOverview).toHaveBeenCalled());
       expect(screen.queryByText('Please wait before submitting again')).not.toBeInTheDocument();
     });
 
@@ -527,7 +527,7 @@ describe('CommunityPage', () => {
 
       renderPage(undefined, community);
 
-      await waitFor(() => expect(ReportManager).toHaveBeenCalled());
+      await waitFor(() => expect(EventOverview).toHaveBeenCalled());
       expect(screen.queryByText('Please wait before submitting again')).not.toBeInTheDocument();
     });
 
@@ -538,7 +538,7 @@ describe('CommunityPage', () => {
       renderPage(undefined, COMMUNITY_WITH_COOL_OFF);
 
       expect(await screen.findByText('Please wait before submitting again')).toBeInTheDocument();
-      expect(ReportManager).not.toHaveBeenCalled();
+      expect(EventOverview).not.toHaveBeenCalled();
     });
 
     test('tells the user which event type is blocked and how long is left', async () => {
@@ -556,7 +556,7 @@ describe('CommunityPage', () => {
 
     test('replaces the form with the blocked state as soon as the submission completes', async () => {
       let captureOnBack;
-      ReportManager.mockImplementation(({ onBack }) => {
+      EventOverview.mockImplementation(({ onBack }) => {
         captureOnBack = onBack;
         return null;
       });
@@ -576,7 +576,7 @@ describe('CommunityPage', () => {
       jest.setSystemTime(new Date('2026-08-19T12:00:00.500Z'));
 
       let captureOnBack;
-      ReportManager.mockImplementation(({ onBack }) => {
+      EventOverview.mockImplementation(({ onBack }) => {
         captureOnBack = onBack;
         return null;
       });
@@ -598,7 +598,7 @@ describe('CommunityPage', () => {
       useParams.mockReturnValue({ value: COMMUNITY_VALUE, '*': TYPE_B.value });
       renderPage(undefined, COMMUNITY_WITH_COOL_OFF);
 
-      await waitFor(() => expect(ReportManager).toHaveBeenCalledWith(
+      await waitFor(() => expect(EventOverview).toHaveBeenCalledWith(
         expect.objectContaining({ newReportTypeId: TYPE_B.id }),
         undefined
       ));
@@ -611,7 +611,7 @@ describe('CommunityPage', () => {
 
       renderPage(undefined, COMMUNITY_WITH_COOL_OFF);
 
-      await waitFor(() => expect(ReportManager).toHaveBeenCalled());
+      await waitFor(() => expect(EventOverview).toHaveBeenCalled());
     });
 
     test('does not block once the recorded cool off window has already elapsed', async () => {
@@ -620,7 +620,7 @@ describe('CommunityPage', () => {
 
       renderPage(undefined, COMMUNITY_WITH_COOL_OFF);
 
-      await waitFor(() => expect(ReportManager).toHaveBeenCalled());
+      await waitFor(() => expect(EventOverview).toHaveBeenCalled());
       expect(screen.queryByText('Please wait before submitting again')).not.toBeInTheDocument();
     });
 
@@ -635,7 +635,7 @@ describe('CommunityPage', () => {
       await act(async () => jest.advanceTimersByTime(61 * 1000));
 
       expect(screen.queryByText('Please wait before submitting again')).not.toBeInTheDocument();
-      expect(ReportManager).toHaveBeenCalled();
+      expect(EventOverview).toHaveBeenCalled();
     });
 
     test('still blocks when the period was raised after the submission was recorded', async () => {
@@ -645,7 +645,7 @@ describe('CommunityPage', () => {
       renderPage(undefined, { name: 'Test Community', cool_off_period_minutes: 120 });
 
       expect(await screen.findByText('Please wait before submitting again')).toBeInTheDocument();
-      expect(ReportManager).not.toHaveBeenCalled();
+      expect(EventOverview).not.toHaveBeenCalled();
     });
 
     test('is already free when the period was lowered after the submission was recorded', async () => {
@@ -654,7 +654,7 @@ describe('CommunityPage', () => {
 
       renderPage(undefined, { name: 'Test Community', cool_off_period_minutes: 10 });
 
-      await waitFor(() => expect(ReportManager).toHaveBeenCalled());
+      await waitFor(() => expect(EventOverview).toHaveBeenCalled());
       expect(screen.queryByText('Please wait before submitting again')).not.toBeInTheDocument();
     });
 
@@ -677,7 +677,7 @@ describe('CommunityPage', () => {
 
       renderPage(undefined, { name: 'Test Community', cool_off_period_minutes: 0 });
 
-      await waitFor(() => expect(ReportManager).toHaveBeenCalled());
+      await waitFor(() => expect(EventOverview).toHaveBeenCalled());
     });
 
     test('does not block while the community payload has not loaded yet', async () => {
@@ -686,7 +686,7 @@ describe('CommunityPage', () => {
 
       renderPage(undefined, null);
 
-      await waitFor(() => expect(ReportManager).toHaveBeenCalled());
+      await waitFor(() => expect(EventOverview).toHaveBeenCalled());
     });
 
     test('offers a way back to the type list when there is more than one creatable type', async () => {
@@ -707,7 +707,7 @@ describe('CommunityPage', () => {
       renderPage([TYPE_A], COMMUNITY_WITH_COOL_OFF);
 
       expect(await screen.findByText('Please wait before submitting again')).toBeInTheDocument();
-      expect(ReportManager).not.toHaveBeenCalled();
+      expect(EventOverview).not.toHaveBeenCalled();
     });
 
     test('hides the type list link when there is only one creatable type', async () => {
@@ -745,7 +745,7 @@ describe('CommunityPage', () => {
       test('moves focus to the notice heading when the block engages', async () => {
         useParams.mockReturnValue({ value: COMMUNITY_VALUE, '*': TYPE_A.value });
         renderPage(undefined, COMMUNITY_WITH_COOL_OFF);
-        await waitFor(() => expect(ReportManager).toHaveBeenCalled());
+        await waitFor(() => expect(EventOverview).toHaveBeenCalled());
 
         setCoolOffEntries({ [COMMUNITY_VALUE]: { [TYPE_A.value]: submittedMinutesAgo(0) } });
         await act(async () => {
@@ -765,14 +765,14 @@ describe('CommunityPage', () => {
 
         renderPage(undefined, COMMUNITY_WITH_COOL_OFF);
 
-        await waitFor(() => expect(ReportManager).toHaveBeenCalled());
+        await waitFor(() => expect(EventOverview).toHaveBeenCalled());
         expect(screen.queryByText('Please wait before submitting again')).not.toBeInTheDocument();
       });
 
       test('still submits and blocks for the session when writing to storage throws', async () => {
         throwOnStorage('setItem');
         let captureOnBack;
-        ReportManager.mockImplementation(({ onBack }) => {
+        EventOverview.mockImplementation(({ onBack }) => {
           captureOnBack = onBack;
           return null;
         });
@@ -790,7 +790,7 @@ describe('CommunityPage', () => {
       const renderThenRecordElsewhere = async () => {
         useParams.mockReturnValue({ value: COMMUNITY_VALUE, '*': TYPE_A.value });
         renderPage(undefined, COMMUNITY_WITH_COOL_OFF);
-        await waitFor(() => expect(ReportManager).toHaveBeenCalled());
+        await waitFor(() => expect(EventOverview).toHaveBeenCalled());
 
         setCoolOffEntries({ [COMMUNITY_VALUE]: { [TYPE_A.value]: submittedMinutesAgo(0) } });
       };
@@ -838,8 +838,8 @@ describe('CommunityPage', () => {
         useParams.mockReturnValue({ value: COMMUNITY_VALUE, '*': TYPE_A.value });
 
         renderPage(undefined, COMMUNITY_WITH_COOL_OFF);
-        await waitFor(() => expect(ReportManager).toHaveBeenCalled());
-        const reportIdBeforeBlock = ReportManager.mock.calls.at(-1)[0].reportId;
+        await waitFor(() => expect(EventOverview).toHaveBeenCalled());
+        const reportIdBeforeBlock = EventOverview.mock.calls.at(-1)[0].reportId;
 
         setCoolOffEntries({ [COMMUNITY_VALUE]: { [TYPE_A.value]: submittedMinutesAgo(29) } });
         await act(async () => {
@@ -849,7 +849,7 @@ describe('CommunityPage', () => {
 
         await act(async () => jest.advanceTimersByTime(61 * 1000));
 
-        expect(ReportManager.mock.calls.at(-1)[0].reportId).not.toBe(reportIdBeforeBlock);
+        expect(EventOverview.mock.calls.at(-1)[0].reportId).not.toBe(reportIdBeforeBlock);
       });
     });
 

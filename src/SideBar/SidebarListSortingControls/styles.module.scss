@@ -21,6 +21,7 @@
   .sortingButton {
     @include buttons.chipTextButton;
     @include buttons.chipActiveState;
+    @include buttons.chipOpenState;
 
     max-width: 40%;
 

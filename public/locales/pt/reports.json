@@ -10,74 +10,115 @@
     },
     "modalTitle": "Adicionar a um incidente"
   },
-  "columnSort": {
-    "popoverTitle": "Ordenar por:",
-    "eventSortOptions": {
-      "updatedAtLabel": "Data de atualização",
-      "createdAtLabel": "Data de criação",
-      "eventTimeLabel": "Data do evento"
-    },
-    "eventOrderOptions": {
-      "newest": "Do mais novo ao mais antigo",
-      "oldest": "Do mais antigo ao mais novo"
-    }
-  },
   "errorMessages": {
     "accordionHeaderButton": {
       "closed": "Mostrar detalhes",
       "open": "Ocultar detalhes"
     }
   },
-  "eventFeed": {
-    "loadingMoreReportsItem": "Carregar mais eventos...",
-    "noMoreReportsItem": "Não há mais eventos para mostrar",
-    "noReportsItem": "Não há eventos para mostrar"
-  },
   "eventIcon": {
     "collectionTitle": "Coleção"
   },
-  "eventItemContextMenu": {
-    "errorToastMessage": "#{{serialNumber}} continua {{state}}, algo está errado",
-    "notificationDetails": {
-      "failedReports": "ATENÇÃO: Estes eventos ainda se encontram {{state}}",
-      "processedReports": {
-        "activated": "Ativado",
-        "resolved": "Resolvido",
-        "review": "enviado para revisão",
-        "title": "Estes eventos associados também são  {{newState}}:"
-      }
+  "eventsManager": {
+    "eventOverview": {
+      "footer": {
+        "cancelButton": "Cancelar",
+        "cancelButtonLabel": "Cancelar a adição deste evento",
+        "saveAndActivateOption": "Salvar e ativar",
+        "saveAndReopenOption": "Salvar e abrir novamente",
+        "saveAndResolveOption": "Salvar e resolver",
+        "saveAndReviewOption": "Salvar e revisar",
+        "saveButton": "Salvar",
+        "saveOptionsMenuLabel": "Mais opções de salvamento"
+      },
+      "header": {
+        "breadcrumbEventsLabel": "Eventos",
+        "breadcrumbNavLabel": "Navegação do evento",
+        "jumpToLocationButtonLabel": "Ir para a localização",
+        "patrolIndicator": "p",
+        "reportMenu": {
+          "addToIncidentOption": "Adicionar a um incidente",
+          "addToPatrolOption": "Adicionar a uma patrulha",
+          "copyLinkMessage": "Link copiado",
+          "copyLinkOption": "Copiar link do evento",
+          "jumpToLocationOption": "Ir para a localização",
+          "moreOptionsButtonLabel": "Mais opções",
+          "printOption": "Imprimir Evento"
+        },
+        "statusSelect": {
+          "states": {
+            "active": "Ativo",
+            "resolved": "Resolvido",
+            "review": "Em revisão"
+          },
+          "stateTransitions": {
+            "activate": "Ativar",
+            "reopen": "Reabrir",
+            "resolve": "Resolver",
+            "review": "Enviar para revisão"
+          },
+          "statusMenuLabel": "Status do evento",
+          "statusSelectLabel": "Alterar o status do evento"
+        },
+        "titleInputLabel": "Título do evento"
+      },
+      "loadingLabel": "Carregando os dados do evento"
     },
-    "state": {
-      "active": "Ativo",
-      "resolved": "Resolvido",
-      "review": "em revisão"
-    },
-    "textCopyButtonItem": {
-      "label": "Copiar link do evento",
-      "successMessage": "Link copiado"
-    },
-    "updatedCollectionInfoToast": {
-      "activated": "Ativado",
-      "message": "A coleção #{{collectionSerialNumber}} foi {{newState}} corretamente",
-      "resolved": "Resolvido",
-      "review": "enviado para revisão"
-    },
-    "updatedReportInfoToastMessage": "#{{reportSerialNumber}} {{newState}}",
-    "updateReportStateItem": {
-      "activate": "Ativar",
-      "reopen": "Reaberto",
-      "resolve": "Resolvido",
-      "review": "Enviar para revisão"
+    "eventsFeed": {
+      "emptyStateMessage": "Não há eventos para mostrar.",
+      "eventListLabel": "Lista de eventos",
+      "eventRow": {
+        "actions": {
+          "copyLinkMessage": "Link copiado",
+          "copyLinkOption": "Copiar link do evento",
+          "jumpToLocationButtonLabel": "Ir para a localização",
+          "moreOptionsButtonLabel": "Mais opções",
+          "notificationDetails": {
+            "failedEvents": "ATENÇÃO: Não foi possível alterar estes eventos para o status {{state}}",
+            "processedEvents": {
+              "activated": "ativados",
+              "resolved": "resolvidos",
+              "review": "enviados para revisão",
+              "title": "Estes eventos associados também foram {{newState}}:"
+            },
+            "states": {
+              "active": "ativo",
+              "resolved": "resolvido",
+              "review": "em revisão"
+            }
+          },
+          "states": {
+            "active": "ativo",
+            "resolved": "resolvido",
+            "review": "em revisão"
+          },
+          "stateTransitions": {
+            "activate": "Ativar",
+            "reopen": "Reabrir",
+            "resolve": "Resolver",
+            "review": "Enviar para revisão"
+          },
+          "stateUpdateErrorToastMessage": "#{{serialNumber}} continua {{state}}, algo está errado",
+          "updatedCollectionToast": {
+            "activated": "ativada",
+            "message": "A coleção #{{collectionSerialNumber}} foi {{newState}} corretamente",
+            "resolved": "resolvida",
+            "review": "enviada para revisão"
+          },
+          "updatedEventToastMessage": "#{{eventSerialNumber}} {{newState}}"
+        },
+        "patrolIndicator": "p",
+        "states": {
+          "active": "Ativo",
+          "resolved": "Resolvido",
+          "review": "Em revisão"
+        }
+      },
+      "fetchErrorMessage": "Não foi possível carregar os eventos. Por favor, tente novamente.",
+      "loadingLabel": "Carregando eventos",
+      "loadingMoreLabel": "Carregando mais eventos",
+      "retryButton": "Tentar novamente"
     }
-  },
-  "prioritySelect": {
-    "labels": {
-      "amber": "Laranja",
-      "green": "Verde",
-      "none": "Nenhum",
-      "red": "Vermelho"
-    },
-    "placeholder": "Selecionar"
   },
   "reportGeometryDrawer": {
     "cancelationConfirmationModal": {
@@ -139,39 +180,24 @@
       },
       "dateLabel": "Data do evento",
       "detailsHeader": "Detalhes",
-      "errorLoadingSchema": "Erro ao carregar esquema",
       "locationLabel": "Localização do evento",
-      "priorityLabel": "Prioridade",
-      "reportedByLabel": "Reportado por",
-      "stateDropdown": {
-        "active": "Ativo",
-        "resolved": "Resolvido",
-        "review": "em revisão"
-      },
-      "timeLabel": "Hora do evento"
-    },
-    "header": {
-      "priority": {
+      "priorities": {
         "amber": "Laranja",
         "green": "Verde",
         "none": "Nenhum",
         "red": "Vermelho"
       },
-      "reportMenu": {
-        "addToIncidentItem": "Adicionar a um incidente",
-        "addToPatrolItem": "Adicionar a uma patrulha",
-        "printReportItem": "Imprimir Evento",
-        "textCopyButtonLabel": "Copiar link do evento",
-        "textCopyButtonSuccessMessage": "Link copiado"
-      }
+      "priorityLabel": "Prioridade",
+      "reportedByLabel": "Reportado por",
+      "schemaErrorMessage": "Não foi possível carregar os campos deste tipo de evento.",
+      "schemaLoadingLabel": "Carregando os campos deste tipo de evento",
+      "timeLabel": "Hora do evento"
     },
     "linksSection": {
       "linksHeader": "Links"
     },
     "reportDetailView": {
-      "cancelButton": "Cancelar",
       "cantAddNoteAlert": "Não é possivel adicionar uma nova anotação: existe uma anotação vazia que ainda não foi salva",
-      "loadingMessage": "Salvando...",
       "quickLinks": {
         "activityAnchor": "Atividade",
         "detailsAnchor": "Detalhes",
@@ -179,13 +205,6 @@
         "linksAnchor": "Links"
       },
       "saveErrorMessage": "Erro ao salvar o evento",
-      "saveSplitButton": {
-        "saveAndActivateItem": "Salvar e ativar",
-        "saveAndReopenItem": "Salvar e abrir novamente",
-        "saveAndResolveItem": "Salvar e resolver",
-        "saveAndReviewItem": "Salvar e revisar",
-        "title": "Salvar"
-      },
       "unknownErrorLabel": "Erro desconhecido"
     }
   },

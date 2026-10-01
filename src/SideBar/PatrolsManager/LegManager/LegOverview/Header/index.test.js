@@ -159,6 +159,25 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview - Header', () => {
     expect(screen.queryByTestId('header-legIcon')).not.toBeInTheDocument();
   });
 
+  test('shows the patrol type icon in the color of the state of the leg', () => {
+    renderHeader({ legState: PATROL_UI_STATES.DONE });
+
+    expect(screen.getByTestId('legOverviewHeader-icon')).toHaveClass('done');
+  });
+
+  test('shows the patrol type of the leg below the title', () => {
+    renderHeader();
+
+    expect(screen.getByText('Dog Patrol', { selector: 'p' })).toBeVisible();
+  });
+
+  test('shows the pause icon of a pause in the paused color, without a patrol type', () => {
+    renderHeader({ legState: PATROL_UI_STATES.DONE, patrolSegment: { ...patrolSegment, is_pause: true } });
+
+    expect(screen.getByTestId('legOverviewHeader-icon')).toHaveClass('paused');
+    expect(screen.queryByText('Dog Patrol', { selector: 'p' })).toBeNull();
+  });
+
   test('shows the state of the leg as a read only pill', () => {
     renderHeader({ legState: PATROL_UI_STATES.DONE });
 

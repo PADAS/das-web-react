@@ -167,13 +167,16 @@ const NotificationMenu = (props) => {
 
   useEffect(() => {
     if (socket) {
-      const consumeMessage = ({ data: msg }) => setNews([...formatUnreadNewsItemsAsNotifications([msg]), ...news], t);
+      const consumeMessage = ({ data: msg }) => setNews((currentNews) => [
+        ...formatUnreadNewsItemsAsNotifications([msg], t),
+        ...(currentNews ?? []),
+      ]);
 
       const [, fnRef] = socket.on('new_announcement', consumeMessage);
 
       return () => socket.off('new_announcement', fnRef);
     }
-  }, [news, socket, t]);
+  }, [socket, t]);
 
   return <Dropdown align="end" className={styles.dropdown} onToggle={onToggle} {...props}>
     <Dropdown.Toggle

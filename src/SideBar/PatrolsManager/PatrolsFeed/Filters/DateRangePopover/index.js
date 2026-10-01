@@ -13,10 +13,11 @@ import {
   generateMonthsAgoDate,
   generateWeeksAgoDate,
 } from '../../../../../utils/datetime';
+import { EMPTY_DATE_VALUE } from '../../../../../DatePicker';
 import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../../../../../ducks/patrol-filter';
 import { resetGlobalDateRange, updateGlobalDateRange } from '../../../../../ducks/global-date-range';
 import { TrackerContext } from '../../../../../utils/analytics';
-import useModalPopover from '../utils/useModalPopover';
+import useModalPopover from '../../../../../hooks/useModalPopover';
 
 import DateTimePicker, { EMPTY_DATE_TIME_VALUE } from '../../../../../DateTimePicker';
 import Settings from './Settings';
@@ -25,35 +26,28 @@ import * as styles from './styles.module.scss';
 
 const MIN_DATE_TIME = formatDateToLocalISO(new Date('2000-01-01'));
 
-// A preset up to the present runs to the end of the day, which is how the feed
-// reaches the patrols scheduled later today.
+// The same presets as the Events feed, since both write the one date range.
 const DATE_RANGE_PRESETS = [
-  { getLower: () => generateDaysAgoDate(0), getUpper: () => endOfToday(), id: 'today', trackingLabel: 'today' },
+  { getLower: () => generateDaysAgoDate(0), id: 'today', trackingLabel: 'today' },
   {
     getLower: () => generateDaysAgoDate(1),
     getUpper: () => subSeconds(generateDaysAgoDate(0), 1),
     id: 'yesterday',
     trackingLabel: 'yesterday',
   },
-  {
-    getLower: () => generateWeeksAgoDate(1),
-    getUpper: () => endOfToday(),
-    id: 'lastSevenDays',
-    trackingLabel: 'last week',
-  },
-  {
-    getLower: () => generateDaysAgoDate(30),
-    getUpper: () => endOfToday(),
-    id: 'lastThirtyDays',
-    trackingLabel: 'last 30 days',
-  },
-  {
-    getLower: () => generateMonthsAgoDate(3),
-    getUpper: () => endOfToday(),
-    id: 'lastThreeMonths',
-    trackingLabel: 'last three months',
-  },
+  { getLower: () => generateWeeksAgoDate(1), id: 'lastSevenDays', trackingLabel: 'last week' },
+  { getLower: () => generateDaysAgoDate(30), id: 'lastThirtyDays', trackingLabel: 'last 30 days' },
+  { getLower: () => generateMonthsAgoDate(3), id: 'lastThreeMonths', trackingLabel: 'last three months' },
 ];
+
+// Requests end an open range today, so the default range, ending today, is open.
+const isDateRangeOpenEnded = (dateRange) => !dateRange.upper
+  || new Date(dateRange.upper).getTime() === endOfToday().getTime();
+
+const isPresetSelected = (preset, dateRange) => new Date(dateRange.lower).getTime() === preset.getLower().getTime()
+  && (preset.getUpper
+    ? new Date(dateRange.upper).getTime() === preset.getUpper().getTime()
+    : isDateRangeOpenEnded(dateRange));
 
 const DateRangePopover = ({ className = '', onClose, ref, trigger, ...otherProps }) => {
   const dispatch = useDispatch();
@@ -66,6 +60,7 @@ const DateRangePopover = ({ className = '', onClose, ref, trigger, ...otherProps
 
   const bodyRef = useRef(null);
 
+  const emptyEndDateMessageId = useId();
   const endDateLabelId = useId();
   const startDateLabelId = useId();
 
@@ -76,25 +71,39 @@ const DateRangePopover = ({ className = '', onClose, ref, trigger, ...otherProps
 
   const { focusPopover, onKeyDown } = useModalPopover(bodyRef, trigger, onClose);
 
-  // A range with no end runs until now, as the Events feed can leave it.
   const endDate = dateRange.upper ? new Date(dateRange.upper) : null;
+  const isEndDateOpen = isDateRangeOpenEnded(dateRange);
+  const isEndDateEmpty = isEndDateOpen && !endDateTimeDraft;
   const isDatesModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, dateRange)
     || INITIAL_FILTER_STATE.filter.patrols_overlap_daterange !== patrolsOverlapDateRange;
+  const selectedPresetId = DATE_RANGE_PRESETS.find((preset) => isPresetSelected(preset, dateRange))?.id;
   const startDate = dateRange.lower ? new Date(dateRange.lower) : null;
 
-  const updateDateRange = (dateRangeUpdate) => dispatch(updateGlobalDateRange({ ...dateRange, ...dateRangeUpdate }));
+  // An end shown as open is sent as open, so the Events feed does not end today.
+  const updateDateRange = (dateRangeUpdate) => dispatch(updateGlobalDateRange({
+    ...dateRange,
+    upper: isEndDateOpen ? null : dateRange.upper,
+    ...dateRangeUpdate,
+  }));
 
   const onChangeEndDateTime = (newEndDateTime) => {
     const newEndDate = parseISO(newEndDateTime);
 
-    if (isValid(newEndDate)) {
+    // With no date, a time typed into an open end is only a draft.
+    if (newEndDateTime.startsWith(`${EMPTY_DATE_VALUE}T`) && !isEndDateOpen) {
+      setEndDateTimeDraft(null);
+
+      updateDateRange({ upper: null });
+
+      tracker.track('Clear end date filter');
+    } else if (isValid(newEndDate)) {
       setEndDateTimeDraft(null);
 
       updateDateRange({ upper: newEndDate.toISOString() });
 
       tracker.track('Change end date filter');
     } else {
-      setEndDateTimeDraft(newEndDateTime);
+      setEndDateTimeDraft(newEndDateTime === EMPTY_DATE_TIME_VALUE ? null : newEndDateTime);
     }
   };
 
@@ -122,7 +131,7 @@ const DateRangePopover = ({ className = '', onClose, ref, trigger, ...otherProps
     setEndDateTimeDraft(null);
     setStartDateTimeDraft(null);
 
-    updateDateRange({ lower: preset.getLower().toISOString(), upper: preset.getUpper().toISOString() });
+    updateDateRange({ lower: preset.getLower().toISOString(), upper: preset.getUpper?.().toISOString() ?? null });
 
     tracker.track('Select date range preset', `Date Range: ${preset.trackingLabel}`);
   };
@@ -188,19 +197,27 @@ const DateRangePopover = ({ className = '', onClose, ref, trigger, ...otherProps
         <div className={styles.dateField}>
           <span className={styles.label} id={endDateLabelId}>{t('endDateLabel')}</span>
 
-          <DateTimePicker
-            aria-invalid={!!endDateTimeDraft}
-            aria-labelledby={endDateLabelId}
-            min={startDate ? formatDateToLocalISO(startDate) : MIN_DATE_TIME}
-            onChange={onChangeEndDateTime}
-            value={endDateTimeDraft ?? (endDate ? formatDateToLocalISO(endDate) : EMPTY_DATE_TIME_VALUE)}
-          />
+          <div className={styles.dateInputs}>
+            <DateTimePicker
+              aria-describedby={isEndDateEmpty ? emptyEndDateMessageId : undefined}
+              aria-invalid={!!endDateTimeDraft}
+              aria-labelledby={endDateLabelId}
+              min={startDate ? formatDateToLocalISO(startDate) : MIN_DATE_TIME}
+              onChange={onChangeEndDateTime}
+              value={endDateTimeDraft ?? (isEndDateOpen ? EMPTY_DATE_TIME_VALUE : formatDateToLocalISO(endDate))}
+            />
+
+            {isEndDateEmpty && <span className={styles.emptyEndDateMessage} id={emptyEndDateMessageId}>
+              {t('endOfTodayMessage')}
+            </span>}
+          </div>
         </div>
       </div>
 
       <div aria-label={t('presetsGroupLabel')} className={styles.presets} role="group">
         {DATE_RANGE_PRESETS.map((preset) => <button
-          className={styles.presetButton}
+          aria-current={preset.id === selectedPresetId}
+          className={`${styles.presetButton} ${preset.id === selectedPresetId ? styles.active : ''}`}
           key={preset.id}
           onClick={() => onClickPreset(preset)}
           type="button"

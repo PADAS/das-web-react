@@ -54,7 +54,7 @@ const GpsFormatToggle = ({
 
   const { coordinatesString, outsideRepresentationBbox } = useStringifyCoordinates(lngLat);
 
-  const gpsFormatOptions = selectedCoordinateRepresentations.sort((optionA, optionB) => {
+  const gpsFormatOptions = [...selectedCoordinateRepresentations].sort((optionA, optionB) => {
     // Sort coordinate representation options alphabetically. If they are a
     // CRS, we use the name property, otherwise we simply use the GPS format
     // string.

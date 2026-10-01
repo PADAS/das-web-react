@@ -13,6 +13,7 @@ import {
   createEvent,
   EVENT_API_URL,
   EVENTS_API_URL,
+  fetchEventFeed,
   fetchMapEvents,
   fetchRecentEventsIntoRealtimeOverlay,
   REMOVE_EVENT_BY_ID,
@@ -116,6 +117,30 @@ describe('fetchMapEvents', () => {
 
 
     server.close();
+  });
+});
+
+describe('fetchEventFeed', () => {
+  afterEach(() => {
+    window.history.pushState({}, '', '/');
+  });
+
+  test('leaves out the open event that reached the store while the feed was loading', async () => {
+    window.history.pushState({}, '', '/events/open-event');
+
+    let eventStore = {};
+    const store = mockStore(() => ({ data: { eventStore }, view: {} }));
+
+    jest.spyOn(axios, 'get').mockImplementationOnce(() => {
+      eventStore = { 'open-event': { event_details: {}, id: 'open-event' } };
+
+      return Promise.resolve({ data: { data: { results: [{ id: 'open-event' }, { id: 'other-event' }] } } });
+    });
+
+    await store.dispatch(fetchEventFeed({}, ''));
+
+    expect(store.getActions().find((action) => action.type === UPDATE_EVENT_STORE).payload)
+      .toEqual([{ id: 'other-event' }]);
   });
 });
 

@@ -181,7 +181,10 @@ const TeamAndTracking = ({ legNumber, trackedSubjects }) => {
         })
         : trackedSubjects[0].subject.name}
 
-      <ArrowDownSmallIcon aria-hidden="true" className={styles.toggleButtonIcon} />
+      <ArrowDownSmallIcon
+        aria-hidden="true"
+        className={`${styles.toggleButtonIcon} ${isListOpen ? styles.open : ''}`}
+      />
     </button>
 
     <Overlay

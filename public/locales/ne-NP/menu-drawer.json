@@ -50,6 +50,7 @@
       "title": "विषय KML"
     },
     "navigationButton": {
+      "gear": "जाल",
       "mapLayers": "नक्साका तहहरु",
       "patrols": "गस्तीहरु",
       "reports": "घटनाहरु",

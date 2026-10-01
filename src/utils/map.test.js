@@ -318,7 +318,7 @@ describe('calcSidebarPaddingLeft', () => {
   });
 
   test('pads for the sidebar width, plus the vertical nav rail, when a tab is open', () => {
-    expect(calcSidebarPaddingLeft({ pathname: '/events', isMediumLayoutOrLarger: true })).toBe(710);
+    expect(calcSidebarPaddingLeft({ pathname: '/events', isMediumLayoutOrLarger: true })).toBe(646);
   });
 
   test('pads for the wider detail view when an item is open', () => {

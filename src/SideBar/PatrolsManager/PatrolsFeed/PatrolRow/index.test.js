@@ -78,6 +78,18 @@ describe('SideBar - PatrolsManager - PatrolsFeed - PatrolRow', () => {
     );
   });
 
+  test('titles an untitled patrol after the patrol type of its leg rather than its leader', () => {
+    renderPatrolRow({ patrol: { ...activePatrol, title: null } });
+
+    expect(screen.getByRole('link', { name: 'Don Patrol' })).toBeVisible();
+  });
+
+  test('titles a patrol with a blank title after its patrol type', () => {
+    renderPatrolRow({ patrol: { ...activePatrol, title: '  ' } });
+
+    expect(screen.getByRole('link', { name: 'Don Patrol' })).toBeVisible();
+  });
+
   test('opens the patrol when the user reaches its title by keyboard', async () => {
     renderPatrolRow();
 

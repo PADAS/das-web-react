@@ -10,6 +10,14 @@
 
 .titleBarMain {
   @include shared.header-title-bar-main;
+
+  .icon {
+    @include shared.header-icon-tile-by-state;
+  }
+
+  .titleStack {
+    @include shared.header-title-stack;
+  }
 }
 
 .pills {

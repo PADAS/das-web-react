@@ -50,6 +50,7 @@
       "title": "KML de indivíduos rastreados"
     },
     "navigationButton": {
+      "gear": "Equipamento",
       "mapLayers": "Camadas",
       "patrols": "Patrulhas",
       "reports": "Eventos",

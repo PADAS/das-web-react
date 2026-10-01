@@ -311,7 +311,7 @@ describe('PatrolDetailView', () => {
 
     const titleInput = await screen.findByTestId('patrolDetailView-header-title');
 
-    expect(titleInput).toHaveTextContent('Unknown patrol type');
+    expect(titleInput).toHaveTextContent('Dog Patrol');
 
     await userEvent.type(titleInput, '2');
 

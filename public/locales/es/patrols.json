@@ -96,8 +96,7 @@
     "saveErrorMessage": "No se pudo guardar el tramo de la patrulla. Vuelva a intentarlo."
   },
   "header": {
-    "breadcrumbNavLabel": "Navegación de patrullas",
-    "closeButtonLabel": "Cerrar barra lateral"
+    "breadcrumbNavLabel": "Navegación de patrullas"
   },
   "invalidDatesModal": {
     "body": "No es posible guardar esta patrulla. La fecha de finalización de una patrulla debe ser posterior a la fecha de inicio. Por favor, corrija la fecha de finalización.",
@@ -377,9 +376,6 @@
     "restore": "Restaurar",
     "resume": "Reanudar",
     "start": "Iniciar"
-  },
-  "titleInput": {
-    "editButtonLabel": "Editar título"
   },
   "trackToggleButton": {
     "tracksOff": "Rutas ocultas",
