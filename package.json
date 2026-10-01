@@ -120,6 +120,9 @@
     },
     "resetMocks": true,
     "restoreMocks": true,
+    "roots": [
+      "<rootDir>/src"
+    ],
     "setupFilesAfterEnv": [
       "<rootDir>/src/setupTests.js"
     ],

@@ -7,6 +7,7 @@ import reactHooks from 'eslint-plugin-react-hooks';
 
 export default defineConfig([
   globalIgnores([
+    '.claude/',
     '.yarn/',
     'build/',
     'coverage/',

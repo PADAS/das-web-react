@@ -90,5 +90,9 @@ export default defineConfig(({ mode }) => ({
   ],
   server: {
     port: Number(loadEnv(mode, process.cwd(), '').PORT) || 9000,
+    watch: {
+      // Claude Code keeps full worktrees of this repository there.
+      ignored: ['**/.claude/**'],
+    },
   },
 }));
