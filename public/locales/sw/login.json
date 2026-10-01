@@ -9,7 +9,6 @@
     "helpText": "Una maswali? Wasiliana na msimamizi wa tovuti yako."
   },
   "errorAlert": {
-    "accessDeniedNotAuthorized": "Ufikiaji umekataliwa: Akaunti yako haijaruhusiwa kwa shirika hili. Tafadhali wasiliana na msimamizi wako.",
     "accessDeniedNoPermission": "Ufikiaji umekataliwa: Huna ruhusa ya kufikia programu hii.",
     "authenticationFailed": "Uthibitishaji umeshindwa: Tafadhali hakikisha maelezo yako na jaribu tena.",
     "authenticationError": "Kosa la uthibitishaji: {{errorDescription}}",
@@ -28,7 +27,6 @@
   "eulaLinkLabel": "EarthRanger EULA (hufungua kwenye kichupo kipya)",
   "loginButton": "Ingia",
   "loginButtonEmail": "Ingia kwa barua pepe",
-  "loginButtonIdp": "Ingia",
   "loginButtonLoadingLabel": "Inapakia",
   "loginButtonManagedUser": "Ingia kama mtumiaji anayesimamiwa",
   "passwordLabel": "Nenosiri",

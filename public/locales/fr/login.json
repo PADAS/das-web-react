@@ -9,7 +9,6 @@
     "helpText": "Des questions ? Contactez l'administrateur de votre site."
   },
   "errorAlert": {
-    "accessDeniedNotAuthorized": "Accès refusé : Votre compte n'est pas autorisé pour cette organisation. Veuillez contacter votre administrateur.",
     "accessDeniedNoPermission": "Accès refusé : Vous n'avez pas la permission d'accéder à cette application.",
     "authenticationFailed": "Authentification échouée : Veuillez vérifier vos identifiants et réessayer.",
     "authenticationError": "Erreur d'authentification : {{errorDescription}}",
@@ -28,7 +27,6 @@
   "eulaLinkLabel": "EULA EarthRanger (s'ouvre dans un nouvel onglet)",
   "loginButton": "Se Connecter",
   "loginButtonEmail": "Se connecter avec un e-mail",
-  "loginButtonIdp": "Se Connecter",
   "loginButtonLoadingLabel": "Chargement",
   "loginButtonManagedUser": "Se connecter en tant qu'utilisateur géré",
   "passwordLabel": "Mot de passe",

@@ -55,44 +55,37 @@ const LoginPage = () => {
   const [formErrors, setFormErrors] = useState({ username: null, password: null });
   const [isLoading, setIsLoading] = useState(false);
 
-  const idpOrgId = systemConfig?.idp_org_id?.trim() || null;
   const isEULAEnabled = !!systemConfig?.[SYSTEM_CONFIG_FLAGS.EULA];
   const requireIdp = !!systemConfig?.require_idp;
   const siteSlug = systemConfig?.site_slug?.trim() || null;
 
   // No slug means no connection on the redirect, which would sign the user into the
-  // common database. Org-scoped sites skip the gate that catches an unmapped one.
-  const canSignInAsManagedUser = !!systemConfig?.support_managed_users
-    && !!siteSlug
-    && !idpOrgId;
+  // common database.
+  const canSignInAsManagedUser = !!systemConfig?.support_managed_users && !!siteSlug;
 
   const onAuth0Login = useCallback(async () => {
     try {
       await auth0LoginWithRedirect({
-        authorizationParams: buildAuth0AuthorizationParams(appConfig.auth0.audience, idpOrgId),
+        authorizationParams: { audience: appConfig.auth0.audience },
       });
     } catch (_error) {
       setAlert({ key: 'errorAlert.signInFailed' });
     }
-  }, [auth0LoginWithRedirect, idpOrgId]);
+  }, [auth0LoginWithRedirect]);
 
   const onManagedUserLogin = useCallback(async () => {
     markManagedUserLoginAttempt();
 
     try {
       await auth0LoginWithRedirect({
-        authorizationParams: buildAuth0AuthorizationParams(
-          appConfig.auth0.audience,
-          idpOrgId,
-          siteSlug,
-        ),
+        authorizationParams: buildAuth0AuthorizationParams(appConfig.auth0.audience, siteSlug),
       });
     } catch (_error) {
       // No redirect happened, so there is no attempt left to attribute.
       takeManagedUserLoginAttempt();
       setAlert({ key: 'errorAlert.signInFailed' });
     }
-  }, [auth0LoginWithRedirect, idpOrgId, siteSlug]);
+  }, [auth0LoginWithRedirect, siteSlug]);
 
   const onFormSubmit = useCallback(async (event) => {
     event.preventDefault();
@@ -181,9 +174,7 @@ const LoginPage = () => {
           return { key: 'errorAlert.managedUserSignInFailed' };
         }
         if (auth0Error === 'access_denied') {
-          return auth0ErrorDescription?.includes('not part of the')
-            ? { key: 'errorAlert.accessDeniedNotAuthorized' }
-            : { key: 'errorAlert.accessDeniedNoPermission' };
+          return { key: 'errorAlert.accessDeniedNoPermission' };
         }
         if (auth0Error === 'unauthorized') {
           return { key: 'errorAlert.authenticationFailed' };
@@ -215,11 +206,10 @@ const LoginPage = () => {
 
     <h1 className={styles.srOnly}>{t('title')}</h1>
 
-    {/* Auth0 migration guidance: shown only on common-DB sites (require_idp with
-        no idp_org_id). "Sign in with email" below auto-drives EarthRanger
+    {/* Auth0 migration guidance: "Sign in with email" below drives EarthRanger
         Identity; users who have not converted their account yet are linked to
-        the server account linker. Org-scoped sites show no box. */}
-    {requireIdp && !idpOrgId && (
+        the server account linker. */}
+    {requireIdp && (
       <section className={styles.infoBox} aria-labelledby="auth0-info-title">
         <h2 className={styles.infoBoxTitle} id="auth0-info-title">
           {t('auth0Info.title')}
@@ -253,7 +243,7 @@ const LoginPage = () => {
         >
           {isAuth0Loading
             ? <MoonLoader aria-hidden color="white" size={SUBMIT_LOADER_SIZE} />
-            : t(idpOrgId ? 'loginButtonIdp' : 'loginButtonEmail')}
+            : t('loginButtonEmail')}
         </button>
 
         {canSignInAsManagedUser && (

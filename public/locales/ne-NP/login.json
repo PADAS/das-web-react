@@ -9,7 +9,6 @@
     "helpText": "प्रश्नहरू छन्? आफ्नो साइट प्रशासकलाई सम्पर्क गर्नुहोस्।"
   },
   "errorAlert": {
-    "accessDeniedNotAuthorized": "पहुँच अस्वीकार गरियो: तपाईंको खाता यस संस्थाको लागि अधिकृत छैन। कृपया आफ्नो प्रशासकलाई सम्पर्क गर्नुहोस्।",
     "accessDeniedNoPermission": "पहुँच अस्वीकार गरियो: तपाईंसँग यो अनुप्रयोग पहुँच गर्ने अनुमति छैन।",
     "authenticationFailed": "प्रमाणीकरण असफल भयो: कृपया आफ्नो प्रमाणहरू जाँच गर्नुहोस् र पुनः प्रयास गर्नुहोस्।",
     "authenticationError": "प्रमाणीकरण त्रुटि: {{errorDescription}}",
@@ -28,7 +27,6 @@
   "eulaLinkLabel": "अर्थरेन्जर EULA (नयाँ ट्याबमा खुल्छ)",
   "loginButton": "लग इन",
   "loginButtonEmail": "इमेलबाट साइन इन",
-  "loginButtonIdp": "साइन इन",
   "loginButtonLoadingLabel": "लोड हुँदैछ",
   "loginButtonManagedUser": "व्यवस्थापित प्रयोगकर्ताको रूपमा साइन इन",
   "passwordLabel": "पासवर्ड",
