@@ -1,3 +1,4 @@
+@use 'sass:map';
 @use '../../../common/styles/vars/colors';
 
 .statusPill {
@@ -10,33 +11,33 @@
   padding: 0.125rem 0.625rem;
 
   &.active {
-    background-color: map-get(colors.$patrol-active-theme, 'base');
+    background-color: map.get(colors.$patrol-active-theme, 'base');
     color: white;
   }
 
   &.paused {
-    background-color: map-get(colors.$patrol-paused-theme, 'base');
+    background-color: map.get(colors.$patrol-paused-theme, 'base');
     color: white;
   }
 
   &.done {
-    background-color: map-get(colors.$patrol-done-theme, 'base');
+    background-color: map.get(colors.$patrol-done-theme, 'base');
     color: white;
   }
 
   &.readyToStart, &.scheduled {
-    background-color: map-get(colors.$patrol-ready-theme, 'base');
+    background-color: map.get(colors.$patrol-ready-theme, 'base');
     color: white;
   }
 
   &.startOverdue {
-    background-color: map-get(colors.$patrol-overdue-theme, 'base');
+    background-color: map.get(colors.$patrol-overdue-theme, 'base');
     color: white;
   }
 
   &.cancelled, &.invalid {
-    background-color: map-get(colors.$patrol-cancelled-theme, 'base');
-    color: map-get(colors.$patrol-cancelled-theme, 'fontColor');
+    background-color: map.get(colors.$patrol-cancelled-theme, 'base');
+    color: map.get(colors.$patrol-cancelled-theme, 'font-color');
   }
 
   .unsavedLabel {

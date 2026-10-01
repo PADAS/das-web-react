@@ -1,14 +1,14 @@
 @use 'sass:color';
-
 @use '../../../../../../common/styles/vars/colors';
 @use '../../../../../../common/styles/inputs';
 
 .menuPopover {
-  @include inputs.boxShadow;
+  @include inputs.box-shadow;
+
   border: none !important;
   border-radius: 0.25rem !important;
 
-  [class*=popover-arrow] {
+  [class*="popover-arrow"] {
     display: none;
   }
 
@@ -74,7 +74,7 @@
   }
 
   .imageSource {
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgb(0 0 0 / 50%);
     border-radius: 0.125rem;
     bottom: 2px;
     color: white;

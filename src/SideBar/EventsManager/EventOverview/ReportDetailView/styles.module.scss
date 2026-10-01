@@ -1,5 +1,5 @@
-@import '../../../../common/styles/layout';
-@import '../../../../common/styles/vars/colors';
+@use '../../../../common/styles/layout';
+@use '../../../../common/styles/vars/colors';
 
 .reportDetailView {
   display: flex;
@@ -8,8 +8,8 @@
   background-color: white;
   position: relative;
 
-  @media (min-width: $md-layout-width-min) {
-    @include sidebar-width-detail;
+  @media (min-width: layout.$md-layout-width-min) {
+    @include layout.sidebar-width-detail;
   }
 
   &.community {
@@ -26,7 +26,7 @@
   .navigationBar {
     display: none;
 
-    @media (min-width: $md-layout-width-min) {
+    @media (min-width: layout.$md-layout-width-min) {
       display: unset;
     }
 
@@ -41,7 +41,7 @@
   flex-direction: column;
   height: 100%;
   background-color: white;
-  border-left: 1px solid $very-light-gray-alt;
+  border-left: 1px solid colors.$very-light-gray-alt;
   overflow: auto;
   width: 100%;
 
@@ -52,8 +52,8 @@
 
 .section {
   background-color: white;
-  border-bottom: 1px solid $very-light-gray-alt;
-  border-top: 1px solid $very-light-gray-alt;
+  border-bottom: 1px solid colors.$very-light-gray-alt;
+  border-top: 1px solid colors.$very-light-gray-alt;
   padding: 1rem;
 }
 

@@ -444,7 +444,7 @@ yarn test <path-or-pattern>
 #### Tools
 
 - **[ESLint](https://eslint.org/):** JavaScript linting, with the recommended rules of `@eslint/js`, `eslint-plugin-react`, `eslint-plugin-react-hooks` and, for tests, `eslint-plugin-jest`. Configured in `eslint.config.js`.
-- **[Stylelint](https://stylelint.io/):** SCSS linting, with `stylelint-config-standard`, `stylelint-config-css-modules` and `stylelint-scss`. Configured in `.stylelintrc.json`.
+- **[Stylelint](https://stylelint.io/):** SCSS linting, with `stylelint-config-standard-scss` and `stylelint-config-css-modules`, and camelCase class names. Configured in `stylelint.config.mjs`.
 
 #### Commands
 
@@ -459,6 +459,7 @@ yarn stylelint
 
 ```bash
 npx eslint --fix <files>
+npx stylelint --fix <files>
 ```
 
 ### VS Code Extensions

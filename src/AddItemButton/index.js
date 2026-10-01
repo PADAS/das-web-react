@@ -82,7 +82,7 @@ const AddItemButton = ({
 
     <button
       aria-label={ariaLabel ?? t('defaultLabel')}
-      className={`${styles[`addItemButton-${variant}`]} ${className}`}
+      className={`${styles[variant]} ${className}`}
       data-testid="addItemButton"
       onClick={onClick}
       title={title ?? (showLabel ? undefined : t('defaultTitle'))}

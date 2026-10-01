@@ -118,7 +118,7 @@ const EditableItemHeader = ({
     </Popover.Body>
   </Popover>;
 
-  return <div className={`${styles.formHeader} ${styles[`priority-${priority}`]} ${readonly ? styles.readonly : ''}`} onKeyDown={handleEscapePress}>
+  return <div className={`${styles.formHeader} ${styles[`priority${priority}`]} ${readonly ? styles.readonly : ''}`} onKeyDown={handleEscapePress}>
     <h4>
       {!!Icon && <span className={styles.headerIcon}>{Icon}</span>}
 

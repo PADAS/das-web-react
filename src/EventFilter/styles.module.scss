@@ -27,9 +27,9 @@
       width: 100%;
 
       .triggerButton {
-        @include buttons.chipTextButton;
-        @include buttons.chipActiveState;
-        @include buttons.chipOpenState;
+        @include buttons.chip-text-button;
+        @include buttons.chip-active-state;
+        @include buttons.chip-open-state;
 
         flex-shrink: 0;
       }
@@ -63,7 +63,7 @@
     }
 
     .resetButton {
-      @include buttons.chipTextButton;
+      @include buttons.chip-text-button;
 
       flex-shrink: 0;
     }

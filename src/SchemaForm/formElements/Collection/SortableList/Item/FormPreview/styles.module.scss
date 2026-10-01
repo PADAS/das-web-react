@@ -44,7 +44,7 @@
     }
   
     .jumpToLocationButton {
-      @include buttons.inlineIconButton;
+      @include buttons.inline-icon-button;
 
       flex-shrink: 0;
 

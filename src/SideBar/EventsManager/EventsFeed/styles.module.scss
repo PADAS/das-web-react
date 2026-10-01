@@ -33,7 +33,7 @@
     }
 
     .retryButton {
-      @include buttons.chipTextButton;
+      @include buttons.chip-text-button;
     }
   }
 

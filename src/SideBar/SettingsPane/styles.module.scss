@@ -6,10 +6,9 @@
   max-width: var(--sidebar-width);
   min-height: fit-content;
   padding: 0 1rem;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: auto hidden;
 
-  button[role=tab] {
+  button[role="tab"] {
     color: colors.$secondary-medium-gray;
     font-size: 1.125rem;
     font-weight: 500;
@@ -27,7 +26,7 @@
       border-bottom: 3px solid colors.$secondary-medium-light-gray;
     }
     
-    &[class*=active] {
+    &[class*="active"] {
       border-bottom: 3px solid colors.$bright-blue;
       font-weight: 500;
     }
@@ -62,7 +61,7 @@
       margin-left: 0.4rem;
     }
 
-    [type=checkbox] {
+    [type="checkbox"] {
       cursor: pointer;
     }
   }

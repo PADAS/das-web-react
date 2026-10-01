@@ -22,7 +22,7 @@
     gap: 0.5rem;
 
     .cancelButton {
-      @include buttons.baseButton;
+      @include buttons.base-button;
 
       &:hover {
         color: colors.$secondary-medium-gray;

@@ -1,5 +1,4 @@
 @use 'sass:color';
-
 @use '../common/styles/inputs';
 @use '../common/styles/vars/colors';
 
@@ -67,12 +66,13 @@
 }
 
 .menuPopover {
-  @include inputs.boxShadow;
+  @include inputs.box-shadow;
+
   border: none !important;
   border-radius: 0.25rem !important;
   min-width: 8.56rem;
 
-  [class*=popover-arrow] {
+  [class*="popover-arrow"] {
     display: none;
   }
 

@@ -1,11 +1,13 @@
-@import '../common/styles/buttons';
+@use '../common/styles/buttons';
 
 .buttons {
   align-items: center;
   display: flex;
+
   button {
     flex-shrink: 0;
   }
+
   button + button {
     margin-left: 0.25rem;
   }
@@ -15,22 +17,26 @@
   line-height: normal;
   margin-top: 2.25rem;
   position: fixed;
+
   &.unfinished {
-    [class*=mapboxgl-popup-content] {
+    [class*="mapboxgl-popup-content"] {
       width: 7rem;
       padding: 0.5rem 0;
     }
   }
+
   p {
     margin: 0.75rem 0;
   }
-  [class*=addReport] {
+
+  [class*="addReport"] {
     background: none !important;
   }
 }
 
 .button {
-  @include mapboxControlButton;
+  @include buttons.mapbox-control-button;
+
   svg path {
     fill: #333;
   }
@@ -43,6 +49,7 @@
   display: flex;
   flex-flow: column;
   justify-content: center;
+
   svg {
     height: 2rem;
     width: 2rem;

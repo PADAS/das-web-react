@@ -1,5 +1,5 @@
-@import '../common/styles/vars/colors';
-@import '../common/styles/layout';
+@use '../common/styles/vars/colors';
+@use '../common/styles/layout';
 
 .controls {
   align-items: center;
@@ -7,17 +7,21 @@
   flex-flow: column;
   justify-content: space-evenly;
   padding: 0 0 1rem;
+
   > button + button {
     margin-top: 1rem;
   }
+
   &:first-of-type {
-    @media (min-width: $md-layout-width-min) {
+    @media (min-width: layout.$md-layout-width-min) {
       flex-flow: row;
+
       > button + button {
         margin-top: 0;
       }
     }
   }
+
   label {
     // align-items: flex-start;
     display: flex;
@@ -28,12 +32,14 @@
 
 
 .form {
-  border-top: 1px solid $gray-border;
+  border-top: 1px solid colors.$gray-border;
   display: flex;
   flex-flow: column;
+
   .controls {
     padding-top: 1rem;
   }
+
   button {
     align-self: flex-end;
   }
@@ -46,5 +52,6 @@
 .popovers {
   // left: 0;
   position: absolute;
+
   // top: 0;
 }
