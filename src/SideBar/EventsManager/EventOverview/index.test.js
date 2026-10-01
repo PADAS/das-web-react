@@ -69,9 +69,6 @@ describe('SideBar - EventsManager - EventOverview', () => {
         },
         mapLocationSelection: { isPickingLocation: false },
         sideBar: {},
-        systemConfig: {
-          previewFeatures: { community_input_admin_enabled: true },
-        },
         userPreferences: { gpsFormat: GPS_FORMATS.DEG },
       },
     };

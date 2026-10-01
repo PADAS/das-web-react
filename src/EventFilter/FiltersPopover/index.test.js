@@ -60,7 +60,6 @@ describe('EventFilter - FiltersPopover', () => {
         eventTypes: [FENCE_EVENT_TYPE],
         subjectStore: {},
       },
-      view: { systemConfig: { previewFeatures: {} } },
     };
   });
 

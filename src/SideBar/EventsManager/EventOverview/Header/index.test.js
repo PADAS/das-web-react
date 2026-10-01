@@ -5,7 +5,6 @@ import userEvent from '@testing-library/user-event';
 import { eventTypes } from '../../../../__test-helpers/fixtures/event-types';
 import { mockStore } from '../../../../__test-helpers/MockStore';
 import patrolTypes from '../../../../__test-helpers/fixtures/patrol-types';
-import { PREVIEW_FEATURES } from '../../../../constants';
 import { render, screen, within } from '../../../../test-utils';
 import { report } from '../../../../__test-helpers/fixtures/reports';
 import { TrackerContext } from '../../../../utils/analytics';
@@ -50,7 +49,7 @@ describe('SideBar - EventsManager - EventOverview - Header', () => {
 
     useJumpToLocation.mockImplementation(() => jumpToLocation);
 
-    store = { data: { eventTypes, patrolTypes, subjectStore: {} }, view: { systemConfig: {} } };
+    store = { data: { eventTypes, patrolTypes, subjectStore: {} } };
   });
 
   const renderHeader = (props = {}, storeOverrides = store) => render(
@@ -250,15 +249,13 @@ describe('SideBar - EventsManager - EventOverview - Header', () => {
 
     const menu = screen.getByRole('menu', { name: 'Event states' });
 
-    expect(within(menu).getAllByRole('menuitem').map((option) => option.textContent)).toEqual(['Active', 'Resolve']);
+    expect(within(menu).getAllByRole('menuitem').map((option) => option.textContent))
+      .toEqual(['Active', 'Send to review', 'Resolve']);
     expect(within(menu).getByRole('menuitem', { name: 'Active' })).toHaveAttribute('aria-current', 'true');
   });
 
   test('offers to reopen or send to review a resolved event', async () => {
-    renderHeader({ report: { ...report, state: 'resolved' } }, {
-      ...store,
-      view: { systemConfig: { previewFeatures: { [PREVIEW_FEATURES.COMMUNITY_INPUT_ADMIN]: true } } },
-    });
+    renderHeader({ report: { ...report, state: 'resolved' } });
 
     await userEvent.click(getStatusSelect());
 
@@ -273,17 +270,6 @@ describe('SideBar - EventsManager - EventOverview - Header', () => {
 
     expect(screen.getAllByRole('menuitem').map((option) => option.textContent))
       .toEqual(['In review', 'Activate', 'Resolve']);
-  });
-
-  test('offers to send an active event to review when community input is enabled', async () => {
-    renderHeader({}, {
-      ...store,
-      view: { systemConfig: { previewFeatures: { [PREVIEW_FEATURES.COMMUNITY_INPUT_ADMIN]: true } } },
-    });
-
-    await userEvent.click(getStatusSelect());
-
-    expect(screen.getByRole('menuitem', { name: 'Send to review' })).toBeInTheDocument();
   });
 
   test('changes the state of the event when the user picks one', async () => {
@@ -305,7 +291,8 @@ describe('SideBar - EventsManager - EventOverview - Header', () => {
     await userEvent.click(screen.getByRole('menuitem', { name: 'Resolve' }));
     await userEvent.click(getStatusSelect());
 
-    expect(screen.getAllByRole('menuitem').map((option) => option.textContent)).toEqual(['Active', 'Resolve']);
+    expect(screen.getAllByRole('menuitem').map((option) => option.textContent))
+      .toEqual(['Active', 'Send to review', 'Resolve']);
     expect(screen.getByRole('menuitem', { name: 'Resolve' })).toHaveAttribute('aria-current', 'true');
   });
 
@@ -319,7 +306,7 @@ describe('SideBar - EventsManager - EventOverview - Header', () => {
 
     await userEvent.keyboard('{ArrowDown}');
 
-    expect(screen.getByRole('menuitem', { name: 'Resolve' })).toHaveFocus();
+    expect(screen.getByRole('menuitem', { name: 'Send to review' })).toHaveFocus();
   });
 
   test('closes the state menu and returns focus to it on escape', async () => {

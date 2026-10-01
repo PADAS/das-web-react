@@ -12,13 +12,12 @@ import {
   getReportLink,
   isReportActive,
 } from '../../../../../utils/events';
-import { EVENT_FORM_STATES, PREVIEW_FEATURES } from '../../../../../constants';
+import { EVENT_FORM_STATES } from '../../../../../constants';
 import { setBounceEventIDs } from '../../../../../ducks/map-ui';
 import { setEventState, updateEvent } from '../../../../../ducks/events';
 import { showToast } from '../../../../../utils/toast';
 import { TrackerContext } from '../../../../../utils/analytics';
 import useJumpToLocation from '../../../../../hooks/useJumpToLocation';
-import { usePreviewFeature } from '../../../../../hooks';
 
 import KebabMenu from '../../../../../KebabMenu';
 import NotificationDetails from './NotificationDetails';
@@ -37,9 +36,6 @@ const Actions = ({ className = '', coordinates, event }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'eventsManager.eventsFeed.eventRow.actions' });
 
-  // Remove this flag and the conditional option below once community input is
-  // enabled for all tenants.
-  const isCommunityInputEnabled = usePreviewFeature(PREVIEW_FEATURES.COMMUNITY_INPUT_ADMIN);
   const jumpToLocation = useJumpToLocation();
 
   const tracker = useContext(TrackerContext);
@@ -180,7 +176,7 @@ const Actions = ({ className = '', coordinates, event }) => {
         {t('stateTransitions.resolve')}
       </KebabMenu.Option>}
 
-      {isActive && isCommunityInputEnabled && <KebabMenu.Option onClick={() => onSelectState(REVIEW)}>
+      {isActive && <KebabMenu.Option onClick={() => onSelectState(REVIEW)}>
         {t('stateTransitions.review')}
       </KebabMenu.Option>}
 

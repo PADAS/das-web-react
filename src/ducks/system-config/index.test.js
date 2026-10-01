@@ -1,8 +1,8 @@
 import { getKeyIsRestorable } from '../../reducers/storage-config';
+import { PREVIEW_FEATURES, SYSTEM_CONFIG_FLAGS } from '../../constants';
 import { setDefaultDateRange as setDefaultEventDateRange } from '../event-filter';
 import { setDefaultDateRange as setDefaultPatrolDateRange } from '../patrol-filter';
 import { setSitenameDimension } from '../../utils/analytics';
-import { SYSTEM_CONFIG_FLAGS } from '../../constants';
 
 import systemConfigReducer, { SET_SYSTEM_CONFIG, setSystemConfigFromSystemStatus, INITIAL_STATE } from './';
 
@@ -52,7 +52,7 @@ describe('Ducks - System config', () => {
       [SYSTEM_CONFIG_FLAGS.TABLEAU]: true,
       geoPermissionsEnabled: true,
       idp_org_id: 'org_abc',
-      preview_features: { community_input_admin_enabled: true },
+      preview_features: { [PREVIEW_FEATURES.EVENTS_VECTOR_TILES]: true },
       show_track_days: true,
       site_name: 'Site name',
     };
@@ -77,9 +77,7 @@ describe('Ducks - System config', () => {
         [SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]: true,
         [SYSTEM_CONFIG_FLAGS.SUBJECTS]: true,
         [SYSTEM_CONFIG_FLAGS.TABLEAU]: true,
-        previewFeatures: {
-          community_input_admin_enabled: true,
-        },
+        previewFeatures: { [PREVIEW_FEATURES.EVENTS_VECTOR_TILES]: true },
         require_idp: false,
         site_slug: null,
         sitename: 'Site name',
@@ -230,7 +228,7 @@ describe('Ducks - System config', () => {
         [SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]: true,
         [SYSTEM_CONFIG_FLAGS.SUBJECTS]: true,
         [SYSTEM_CONFIG_FLAGS.TABLEAU]: true,
-        previewFeatures: { community_input_admin_enabled: true },
+        previewFeatures: { [PREVIEW_FEATURES.EVENTS_VECTOR_TILES]: true },
         showTrackDays: true,
         sitename: 'Site name',
       };
@@ -248,7 +246,7 @@ describe('Ducks - System config', () => {
         [SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]: true,
         [SYSTEM_CONFIG_FLAGS.SUBJECTS]: true,
         [SYSTEM_CONFIG_FLAGS.TABLEAU]: true,
-        previewFeatures: { community_input_admin_enabled: true },
+        previewFeatures: { [PREVIEW_FEATURES.EVENTS_VECTOR_TILES]: true },
         require_idp: null,
         showTrackDays: true,
         site_slug: null,

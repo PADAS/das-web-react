@@ -39,7 +39,6 @@ describe('SideBar - EventsManager - EventsFeed - EventRow', () => {
     event = { ...report, title: 'Poacher camp' };
     store = {
       data: { eventTypes, patrolTypes: [] },
-      view: { systemConfig: { previewFeatures: {} } },
     };
   });
 
