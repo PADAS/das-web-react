@@ -1,11 +1,9 @@
 import { useEffect } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
-import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
 
 import appConfig from '../config';
 import { registerAuthRecovery } from '../utils/auth-recovery';
-import { buildAuth0AuthorizationParams } from '../utils/auth0';
 import { setIntendedPostAuth0SuccessRoute } from '../utils/auth';
 
 /**
@@ -15,7 +13,6 @@ import { setIntendedPostAuth0SuccessRoute } from '../utils/auth';
 const useAuthRecovery = () => {
   const { getAccessTokenSilently, loginWithRedirect } = useAuth0();
   const { pathname, search } = useLocation();
-  const idpOrgId = useSelector((state) => state.view.systemConfig?.idp_org_id);
 
   useEffect(() => {
     registerAuthRecovery({
@@ -26,7 +23,7 @@ const useAuthRecovery = () => {
         setIntendedPostAuth0SuccessRoute(`${pathname}${search}`);
         await loginWithRedirect({
           authorizationParams: {
-            ...buildAuth0AuthorizationParams(appConfig.auth0.audience, idpOrgId),
+            audience: appConfig.auth0.audience,
             ...(acrValues ? { acr_values: acrValues } : {}),
             ...(maxAge ? { max_age: maxAge } : {}),
           },
@@ -34,7 +31,7 @@ const useAuthRecovery = () => {
         return new Promise(() => {});
       },
     });
-  }, [getAccessTokenSilently, loginWithRedirect, idpOrgId, pathname, search]);
+  }, [getAccessTokenSilently, loginWithRedirect, pathname, search]);
 };
 
 export default useAuthRecovery;

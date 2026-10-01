@@ -9,7 +9,6 @@
     "helpText": "Questions? Reach out to your site admin."
   },
   "errorAlert": {
-    "accessDeniedNotAuthorized": "Access denied: Your account is not authorized for this organization. Please contact your administrator.",
     "accessDeniedNoPermission": "Access denied: You do not have permission to access this application.",
     "authenticationFailed": "Authentication failed: Please check your credentials and try again.",
     "authenticationError": "Authentication error: {{errorDescription}}",
@@ -28,7 +27,6 @@
   "eulaLinkLabel": "EarthRanger EULA (opens in a new tab)",
   "loginButton": "Log in",
   "loginButtonEmail": "Sign in with email",
-  "loginButtonIdp": "Sign in",
   "loginButtonLoadingLabel": "Loading",
   "loginButtonManagedUser": "Sign in as a managed user",
   "passwordLabel": "Password",
