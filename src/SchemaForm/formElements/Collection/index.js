@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import { memo, useState } from 'react';
 import { arrayMove } from '@dnd-kit/helpers';
 import Collapse from 'react-bootstrap/Collapse';
 import { useTranslation } from 'react-i18next';

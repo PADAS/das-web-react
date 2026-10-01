@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useRef } from 'react';
+import { memo, useEffect, useMemo, useRef } from 'react';
 import { components } from 'react-select';
 import { List } from 'react-window';
 import { useSelector } from 'react-redux';

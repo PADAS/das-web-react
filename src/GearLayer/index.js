@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useMemo } from 'react';
+import { memo, useContext, useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
 import { MapContext } from '../MapContext';
@@ -114,7 +114,9 @@ const GearLayer = ({ onGearClick }) => {
     }
 
     return tearDown;
-  }, [map, shouldRender]); // geojson updates applied in the following effect via setData
+    // geojson updates are applied by the following effect through setData.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, shouldRender]);
 
   useEffect(() => {
     if (!map || !shouldRender) return;

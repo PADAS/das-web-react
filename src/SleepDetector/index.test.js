@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { act, render } from '../test-utils';
 
 import SleepDetector from './';

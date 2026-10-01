@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import { memo, useCallback } from 'react';
 import { connect } from 'react-redux';
 
 import { INITIAL_FILTER_STATE } from '../ducks/patrol-filter';

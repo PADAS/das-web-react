@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useMemo, useState, useRef } from 'react';
+import { memo, useCallback, useContext, useMemo, useState, useRef } from 'react';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 import { useTranslation } from 'react-i18next';
@@ -142,6 +142,8 @@ const EditableItemHeader = ({
           <HamburgerMenuIcon ref={menuRef} isOpen={headerPopoverOpen} onClick={onHamburgerMenuIconClick} />
           <Overlay
             show={headerPopoverOpen}
+            // Using this ref during render is intended.
+            // eslint-disable-next-line react-hooks/refs
             target={menuRef.current}
             shouldUpdatePosition={true}
             rootClose
@@ -158,6 +160,8 @@ const EditableItemHeader = ({
 
         <Overlay
           show={historyPopoverOpen}
+          // Using this ref during render is intended.
+          // eslint-disable-next-line react-hooks/refs
           target={historyRef.current}
           shouldUpdatePosition={true}
           rootClose
@@ -165,6 +169,8 @@ const EditableItemHeader = ({
           placement={popoverPlacement}
           trigger='click'
         >
+          {/* Creating this component during render is intended. */}
+          {/* eslint-disable-next-line react-hooks/static-components */}
           <HistoryPopover />
         </Overlay>
 

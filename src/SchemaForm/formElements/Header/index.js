@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 
 import { HEADER_ELEMENT_SIZES } from '../../../utils/form-schemas/constants';
 

@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router';
 import { createRoot } from 'react-dom/client';
 import { PersistGate } from 'redux-persist/integration/react';

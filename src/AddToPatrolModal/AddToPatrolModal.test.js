@@ -1,4 +1,3 @@
-import React from 'react';
 import { http, HttpResponse } from 'msw/http';
 import merge from 'lodash/merge';
 import { Provider } from 'react-redux';
@@ -70,7 +69,7 @@ const renderAddToPatrolModal = (storeOverride  = store, testModalId) => render(
 );
 
 test('rendering without crashing', () => {
-  renderAddToPatrolModal();
+  expect(() => renderAddToPatrolModal()).not.toThrow();
 });
 
 describe('the "add to patrol" modal within a report form', () => {
@@ -115,13 +114,13 @@ describe('the "add to patrol" modal within a report form', () => {
 
     renderAddToPatrolModal(store);
 
-    await screen.findByTestId('patrol-feed-container');
+    expect(await screen.findByTestId('patrol-feed-container')).toBeInTheDocument();
   });
 
   test('showing a loading overlay initially', async () => {
     renderAddToPatrolModal();
 
-    await screen.findByTestId('patrol-feed-loading-overlay');
+    expect(await screen.findByTestId('patrol-feed-loading-overlay')).toBeInTheDocument();
   });
 
   test('listing one item per patrol', async () => {

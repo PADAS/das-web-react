@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, memo } from 'react';
+import { useContext, useEffect, useRef, memo } from 'react';
 import noop from 'lodash/noop';
 
 import { SocketContext } from '../withSocketConnection';

@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useEffect, useRef, useState } from 'react';
+import { createContext, useCallback, useEffect, useRef, useState } from 'react';
 
 export const NavigationContext = createContext();
 

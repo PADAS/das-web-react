@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Provider } from 'react-redux';
 import { addDays, addYears, subSeconds, subYears } from 'date-fns';
 import userEvent from '@testing-library/user-event';

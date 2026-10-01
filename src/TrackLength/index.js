@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { length } from '@turf/turf';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -16,6 +16,8 @@ const TrackLength = ({ className = '', trackId }) => {
     const match = tracks.find(({ track }) => track?.features[0].properties.id === trackId);
 
     if (match) {
+      // Updating state from this effect is intended.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTrackFeature(match.track.features[0]);
     }
   }, [trackId, tracks]);

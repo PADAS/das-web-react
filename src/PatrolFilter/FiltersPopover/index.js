@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import { memo, useCallback } from 'react';
 import Button from 'react-bootstrap/Button';
 import isEqual from 'react-fast-compare';
 import Popover from 'react-bootstrap/Popover';

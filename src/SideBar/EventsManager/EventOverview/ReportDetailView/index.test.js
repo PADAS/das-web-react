@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { http, HttpResponse } from 'msw/http';
 import { MemoryRouter } from 'react-router';
 import { point } from '@turf/turf';
@@ -1461,8 +1461,8 @@ describe('SideBar - EventsManager - EventOverview - ReportDetailView', () => {
 
       await userEvent.click(screen.getByRole('link', { name: 'Events' }));
 
-      await screen.findByText(modalPromptTitle);
-      await screen.findByText(modalPromptText);
+      expect(await screen.findByText(modalPromptTitle)).toBeInTheDocument();
+      expect(await screen.findByText(modalPromptText)).toBeInTheDocument();
     });
 
     test('showing a warning prompt for an added report', async () => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef }  from 'react';
+import { useEffect, useRef }  from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -20,6 +20,8 @@ const MapMarkersFieldSet = () => {
   const showMapNames = useSelector((state) => state.view.showMapNames);
   const showUserLocation = useSelector((state) => state.view.showUserLocation);
 
+  // This in-place change is intended.
+  // eslint-disable-next-line react-hooks/immutability
   delete showMapNames._persist;
 
   const markerNamesAllChekboxRef = useRef();

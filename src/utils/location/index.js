@@ -48,7 +48,9 @@ const degToLngLat = (degCoordinates) => {
         return { latitude, longitude };
       }
     }
-  } catch {}
+  } catch {
+    // A string the format cannot parse is not a position.
+  }
 
   return null;
 };
@@ -63,7 +65,9 @@ const dmsToLngLat = (dmsCoordinates) => {
         return { latitude, longitude };
       }
     }
-  } catch {}
+  } catch {
+    // A string the format cannot parse is not a position.
+  }
 
   return null;
 };
@@ -78,7 +82,9 @@ const ddmToLngLat = (ddmCoordinates) => {
         return { latitude, longitude };
       }
     }
-  } catch {}
+  } catch {
+    // A string the format cannot parse is not a position.
+  }
 
   return null;
 };
@@ -91,7 +97,9 @@ const utmToLngLat = (utmCoordinates) => {
     if (isValidLatitude(latitude) && isValidLongitude(longitude)) {
       return { latitude, longitude };
     }
-  } catch {}
+  } catch {
+    // A string the format cannot parse is not a position.
+  }
 
   return null;
 };
@@ -104,7 +112,9 @@ const mgrsToLngLat = (mgrsCoordinates) => {
     if (isValidLatitude(latitude) && isValidLongitude(longitude)) {
       return { latitude, longitude };
     }
-  } catch {}
+  } catch {
+    // A string the format cannot parse is not a position.
+  }
 
   return null;
 };
@@ -120,7 +130,9 @@ const crsToLngLat = (crsCoordinates, crsProjection) => {
         return { latitude, longitude };
       }
     }
-  } catch {}
+  } catch {
+    // A string the format cannot parse is not a position.
+  }
 
   return null;
 };
@@ -233,7 +245,9 @@ export const stringifyCoordinates = (lngLat, representation = GPS_FORMATS.DEG) =
         default:
           return '';
         }
-      } catch {}
+      } catch {
+        // A position the format cannot represent shows as empty.
+      }
     }
   }
 

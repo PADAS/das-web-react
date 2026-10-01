@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { lastDayOfMonth, parseISO } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 

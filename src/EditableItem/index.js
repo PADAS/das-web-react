@@ -1,5 +1,3 @@
-import React from 'react';
-
 import EditableItemModal from './Modal';
 import EditableItemHeader from './Header';
 import EditableItemAttachmentControls from './AttachmentControls';

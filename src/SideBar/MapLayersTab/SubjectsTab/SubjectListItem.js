@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import isEmpty from 'lodash/isEmpty';
 
 import { calcDisplayNameForSubject, getSubjectDefaultDeviceProperty, isRadioWithImage, subjectIsStatic } from '../../../utils/subjects';

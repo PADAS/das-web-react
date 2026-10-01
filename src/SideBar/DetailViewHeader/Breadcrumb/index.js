@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { ReactComponent as ChevronRightIcon } from '../../../common/images/icons/chevron-right.svg';
 
 import Link from '../../../Link';

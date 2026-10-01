@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { render, screen } from '../../../test-utils';
 import { DATE_TIME_ELEMENT_INPUT_TYPES } from '../../../utils/form-schemas/constants';
 

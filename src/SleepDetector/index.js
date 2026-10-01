@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef } from 'react';
+import { memo, useEffect, useRef } from 'react';
 
 const DEFAULT_INTERVAL = 240_000;
 const DEFAULT_TOLERANCE = 2_000;

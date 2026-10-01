@@ -1,4 +1,3 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 import { bbox, lineString } from '@turf/turf';
 import userEvent from '@testing-library/user-event';
@@ -152,7 +151,7 @@ describe('the patrol list item', () => {
   });
 
   test('showing an icon for the patrol', async () => {
-    await screen.findByTestId(`patrol-list-item-icon-${testPatrol.id}`);
+    expect(await screen.findByTestId(`patrol-list-item-icon-${testPatrol.id}`)).toBeInTheDocument();
   });
 
   test('showing the patrol title', async () => {
@@ -168,7 +167,7 @@ describe('the patrol list item', () => {
   });
 
   test('showing a kebab menu for additional actions', async () => {
-    await screen.findByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`);
+    expect(await screen.findByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`)).toBeInTheDocument();
   });
 
   test('hides menu on outside click to prevent menu overlapping', async () => {
@@ -206,7 +205,7 @@ describe('for active patrols', () => {
   });
 
   test('showing a location jump button if the patrol has any location data', async () => {
-    await screen.findByTestId(`patrol-list-item-jump-btn-${testPatrol.id}`);
+    expect(await screen.findByTestId(`patrol-list-item-jump-btn-${testPatrol.id}`)).toBeInTheDocument();
   });
 
   test('toggling a patrol track on when clicking the "jump to location button"', async () => {
@@ -234,7 +233,7 @@ describe('for active patrols', () => {
   });
 
   test('showing a track button if the patrol has track data', async () => {
-    await screen.findByTestId(`patrol-list-item-track-btn-${testPatrol.id}`);
+    expect(await screen.findByTestId(`patrol-list-item-track-btn-${testPatrol.id}`)).toBeInTheDocument();
   });
 
   test('showing no distance while nothing has measured the legs of the patrol', async () => {

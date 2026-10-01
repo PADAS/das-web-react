@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as DocumentIcon } from '../../common/images/icons/document.svg';

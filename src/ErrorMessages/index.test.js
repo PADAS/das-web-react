@@ -1,4 +1,3 @@
-import React from 'react';
 import userEvent from '@testing-library/user-event';
 
 import ErrorMessages from './';
@@ -37,7 +36,7 @@ const ERROR_DATA = [{
 const clearErrors = jest.fn();
 
 test('rendering without crashing', () => {
-  render(<ErrorMessages errorData={ERROR_DATA} onClose={clearErrors} title="Error saving report." />);
+  expect(() => render(<ErrorMessages errorData={ERROR_DATA} onClose={clearErrors} title="Error saving report." />)).not.toThrow();
 });
 
 describe('Error messages', () => {

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 import { renderHook } from '../test-utils';
 
@@ -25,11 +24,11 @@ describe('#useMapEventBinding', () => {
   });
 
   test('binding a handler function', () => {
-    renderHook(() => useMapEventBinding('click', handler, layerId), { wrapper });
+    expect(() => renderHook(() => useMapEventBinding('click', handler, layerId), { wrapper })).not.toThrow();
   });
 
   test('not binding if no map is available', () => {
-    renderHook(() => useMapEventBinding('banana', handler, layerId)); // no context wrapper means there's no map available;
+    expect(() => renderHook(() => useMapEventBinding('banana', handler, layerId))).not.toThrow(); // no context wrapper means there's no map available;
   });
 
   describe('@param condition', () => {

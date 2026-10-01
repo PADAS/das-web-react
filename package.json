@@ -73,7 +73,7 @@
     "build": "vite build && yarn build-sw",
     "build-sw": "node ./src/sw-build.js",
     "check-i18n-files-version": "./scripts/check-i18n-files-version.sh",
-    "lint": "CI=true eslint src",
+    "lint": "eslint .",
     "start": "vite",
     "stylelint": "stylelint ./src/**/*.scss",
     "test": "TZ=UTC jest",

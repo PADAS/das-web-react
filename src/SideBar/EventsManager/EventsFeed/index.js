@@ -1,4 +1,4 @@
-import React, { memo, useContext, useMemo } from 'react';
+import { memo, useContext, useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import MoonLoader from 'react-spinners/MoonLoader';
 import uniq from 'lodash/uniq';

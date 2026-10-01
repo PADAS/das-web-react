@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { formatDistance, formatDistanceToNow } from 'date-fns';
 import omit from 'lodash/omit';
 import { useDispatch, useSelector } from 'react-redux';

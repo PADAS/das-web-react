@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -92,6 +92,8 @@ const EulaPage = ({ temporaryAccessToken }) => {
 
   useEffect(() => {
     if (rerouteCookieValue) {
+      // Updating state from this effect is intended.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRerouteOnSuccess(rerouteCookieValue);
     }
   }, [rerouteCookieValue]);
@@ -109,8 +111,10 @@ const EulaPage = ({ temporaryAccessToken }) => {
   }, [adminReferrer, canceled, rerouteCookieValue]);
 
   useEffect(() => {
-    if (user.hasOwnProperty('accepted_eula')) {
+    if (Object.hasOwn(user, 'accepted_eula')) {
       if (!user.accepted_eula) {
+        // Updating state from this effect is intended.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setPageLoaded(true);
       } else {
         navigate(-1);

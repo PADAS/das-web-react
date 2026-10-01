@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { matchPath, Route, Routes, useLocation } from 'react-router';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -152,6 +152,8 @@ const SideBar = () => {
 
   useEffect(() => {
     if (showEventsBadge && currentTab === TAB_KEYS.EVENTS && !isReportDetailsViewActive) {
+      // Updating state from this effect is intended.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setShowEventsBadge(false);
     }
   }, [currentTab, isReportDetailsViewActive, showEventsBadge]);

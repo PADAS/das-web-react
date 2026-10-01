@@ -7,36 +7,35 @@ import reactHooks from 'eslint-plugin-react-hooks';
 
 export default defineConfig([
   globalIgnores([
-    '.github/',
     '.yarn/',
     'build/',
+    'coverage/',
     'jest-config/',
-    'node_modules/',
     'public/',
-    'terraform/',
   ]),
 
   {
-    name: 'src/javascript',
-    files: ['**/*.{js,jsx}'],
     extends: [
       js.configs.recommended,
       react.configs.flat.recommended,
       react.configs.flat['jsx-runtime'],
       reactHooks.configs.flat.recommended,
     ],
+    files: ['**/*.{js,jsx,mjs}'],
     languageOptions: {
-      ecmaVersion: 'latest',
-      globals: {
-        ...globals.browser,
-        ...globals.node,
-      },
-      parserOptions: {
-        ecmaFeatures: {
-          jsx: true,
+      globals: globals.browser,
+    },
+    name: 'javascript',
+    rules: {
+      'no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
         },
-      },
-      sourceType: 'module',
+      ],
+      'react/prop-types': 'off',
     },
     settings: {
       react: {
@@ -44,72 +43,33 @@ export default defineConfig([
         version: '19.2.5',
       },
     },
-    rules: {
-      'keyword-spacing': [
-        'error',
-        { before: true, after: true },
-      ],
-      'comma-spacing': [
-        'error',
-        { before: false, after: true },
-      ],
-      'arrow-spacing': [
-        'error',
-        { before: true, after: true },
-      ],
-      'key-spacing': [
-        'error',
-        { afterColon: true },
-      ],
-      'object-curly-spacing': ['error', 'always'],
-      indent: [
-        'error',
-        2,
-        { ignoredNodes: ['TemplateLiteral', 'JSXElement *'] },
-      ],
-      'template-curly-spacing': 'off',
-      'react/jsx-indent': [
-        'error',
-        2,
-      ],
-      'linebreak-style': [
-        'error',
-        'unix',
-      ],
-      quotes: [
-        'error',
-        'single',
-      ],
-      semi: [
-        'error',
-        'always',
-      ],
-      'react/prop-types': 'off',
-      strict: 'off',
-      'max-len': 'off',
-      'no-trailing-spaces': [
-        'error',
-        { ignoreComments: true },
-      ],
-      'no-prototype-builtins': 'off',
-      'no-underscore-dangle': 'off',
-      'no-unused-vars': [
-        'warn',
-        {
-          argsIgnorePattern: '^_',
-          caughtErrorsIgnorePattern: '^_',
-          varsIgnorePattern: 'React|^_',
-        },
-      ],
-      camelcase: 'off',
-      'func-names': 'off',
-      'react/no-this-in-sfc': 'off',
-    },
   },
 
   {
-    name: 'src/jest',
-    files: ['**/*.test.{js,jsx}', '**/setupTests.js', '**/src/__test-helpers/**/*.js'],
+    files: ['*.{js,mjs}', 'src/sw-build.js'],
+    languageOptions: {
+      globals: globals.node,
+    },
+    name: 'node',
+  },
+
+  {
+    files: ['src/sw-custom.js'],
+    languageOptions: {
+      globals: {
+        ...globals.serviceworker,
+        workbox: 'readonly',
+      },
+    },
+    name: 'service-worker',
+  },
+
+  {
     extends: [jest.configs['flat/recommended']],
+    files: ['**/*.test.{js,jsx}', 'src/setupTests.js', 'src/__test-helpers/**'],
+    languageOptions: {
+      globals: globals.node,
+    },
+    name: 'jest',
   },
 ]);

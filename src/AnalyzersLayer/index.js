@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import withMapViewConfig from '../WithMapViewConfig';
 
 import { LAYER_IDS, SOURCE_IDS } from '../constants';
@@ -56,6 +56,8 @@ const AnalyzerLayer = (
 
   const onAnalyzerFeatureEnter = (e) => {
     const featureId = e.features[0].properties.id;
+    // This in-place change is intended.
+    // eslint-disable-next-line react-hooks/immutability
     hoverStateIds = getLayerGroup(featureId);
     onAnalyzerGroupEnter(e, hoverStateIds);
   };
@@ -110,6 +112,8 @@ const AnalyzerLayer = (
   }]);
 
   // (eventType = 'click', handlerFn = noop, layerId = null, condition = true)
+  // This in-place change is intended.
+  // eslint-disable-next-line react-hooks/immutability
   useMapEventBinding('mouseenter', onAnalyzerFeatureEnter, ANALYZER_POLYS_WARNING);
   useMapEventBinding('mouseenter', onAnalyzerFeatureEnter, ANALYZER_POLYS_CRITICAL);
   useMapEventBinding('mouseenter', onAnalyzerFeatureEnter, ANALYZER_LINES_WARNING);

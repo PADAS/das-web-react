@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { CancelToken } from 'axios';
 import Modal from 'react-bootstrap/Modal';

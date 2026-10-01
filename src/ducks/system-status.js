@@ -80,12 +80,12 @@ const createServiceModelsFromApiResponse = services => services.map(service => g
   heartbeat: {
     title: service.heartbeat.title,
     keyDefaultTitle: 'heartBeatDefTitle',
-    timestamp: new Date(service.heartbeat.latest_at) || null,
+    timestamp: new Date(service.heartbeat.latest_at),
   },
   datasource: {
     title: service.datasource.title,
     keyDefaultTitle: 'datasourceDefTitle',
-    timestamp: new Date(service.datasource.latest_at) || null,
+    timestamp: new Date(service.datasource.latest_at),
   },
 }));
 

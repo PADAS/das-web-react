@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Provider } from 'react-redux';
 import { useLocation } from 'react-router';
 import userEvent from '@testing-library/user-event';

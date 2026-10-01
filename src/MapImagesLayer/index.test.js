@@ -1,4 +1,3 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 
 import { createMapMock } from '../__test-helpers/mocks';
@@ -9,11 +8,11 @@ import { render } from '../test-utils';
 import MapImagesLayer from './';
 
 test('rendering without crashing', () => {
-  render(<Provider store={mockStore({ view: { mapImages: { } } })}>
+  expect(() => render(<Provider store={mockStore({ view: { mapImages: { } } })}>
     <MapContext.Provider value={createMapMock()}>
       <MapImagesLayer />
     </MapContext.Provider>
-  </Provider>);
+  </Provider>)).not.toThrow();
 });
 
 describe('adding images to the map', () => {

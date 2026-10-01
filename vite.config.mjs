@@ -4,6 +4,8 @@ import svgr from 'vite-plugin-svgr';
 
 // Filter app source .js files. Leave out Vite virtual modules and node_modules.
 const JS_APP_SOURCE_MODULE_ID_REGEX =
+  // Vite prefixes virtual module ids with a NUL character.
+  // eslint-disable-next-line no-control-regex
   /^(?!\u0000)(?!.*[\\/]node_modules[\\/]).*\.js(?:\?|$)/;
 
 const OSANO_SCRIPT_SRC = 'https://cmp.osano.com/AzqB4OUPPVD5j8EeT/bc796e8a-d3d4-4a74-b9c7-f737cbc3379b/osano.js';

@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { calcFriendlyDurationString } from '../utils/datetime';
 
 const DateRangeSelectionString = ({

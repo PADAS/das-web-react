@@ -1,4 +1,4 @@
-import React, { memo, useContext } from 'react';
+import { memo, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { EVENT_FORM_STATES, TAB_KEYS } from '../../../../constants';

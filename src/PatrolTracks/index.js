@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from 'react';
+import { memo, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
 import { fetchTracksIfNecessary } from '../utils/tracks';

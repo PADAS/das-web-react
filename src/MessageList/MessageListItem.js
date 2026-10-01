@@ -1,5 +1,4 @@
-
-import React, { memo }  from 'react';
+import { memo }  from 'react';
 import { connect } from 'react-redux';
 import uniq from 'lodash/uniq';
 

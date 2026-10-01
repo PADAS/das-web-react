@@ -448,7 +448,7 @@ The repository favors code that reads the same everywhere. ESLint and Stylelint 
 
 Group imports into blocks separated by a blank line, in this order:
 
-1. External packages, `React` first.
+1. External packages, `react` first.
 2. SVG icons: `import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';`
 3. Internal non-components: constants, ducks, selectors, hooks, utils, and the module's own `./utils` helpers.
 4. Components: app components, subcomponents, and lazily imported ones.
@@ -565,7 +565,7 @@ Comment only what the code cannot say — a non-obvious *why*, a caveat, an exte
 - `yarn start`: Vite dev server on port 9000, against the development backend at https://root.dev.pamdas.org. Each developer configures it in `.env.development`.
 - `yarn build`: production bundle, then the service worker
 - `yarn test <path-or-pattern>`: Jest. It pins `TZ=UTC`; a bare `jest` invocation will fail datetime tests on any other machine timezone.
-- `yarn lint`: ESLint over all of `src`, which carries pre-existing problems. To see only yours, run `npx eslint` on the files you touched.
+- `yarn lint`: ESLint over the whole repository, which reports no problems.
 - `yarn stylelint`: Stylelint over the SCSS modules
 - `yarn check-i18n-files-version`: verifies the translation cache version was bumped
 

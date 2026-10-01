@@ -1,10 +1,10 @@
-import React, { memo, useCallback, useContext, useRef, useState } from 'react';
+import { memo, useCallback, useContext, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { AddItemContext } from '../..';
 import { selectCreatableEventTypesByCategory } from '../../../selectors/event-types';
-import  { TAB_KEYS } from '../../../constants';
+import { TAB_KEYS } from '../../../constants';
 import { trackEvent } from '../../../utils/analytics';
 import useNavigate from '../../../hooks/useNavigate';
 import { uuid } from '../../../utils/string';
