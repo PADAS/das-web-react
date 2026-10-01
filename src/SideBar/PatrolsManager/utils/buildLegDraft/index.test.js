@@ -95,7 +95,7 @@ describe('SideBar - PatrolsManager - utils - buildLegDraft', () => {
     const draft = buildLegDraft(
       { assets: [asset.id], members: [member.id], team: team.id },
       patrolTypes,
-      { assets: [asset], leaders: [], members: [member], teams: [team] }
+      { assets: [asset], members: [member], teams: [team] }
     );
 
     expect(draft.assets).toEqual([asset]);
@@ -111,7 +111,7 @@ describe('SideBar - PatrolsManager - utils - buildLegDraft', () => {
     const draft = buildLegDraft(
       { assets: [deactivatedAsset.id], members: [member.id, deactivatedMember.id] },
       patrolTypes,
-      { assets: [], leaders: [], members: [member], teams: [] },
+      { assets: [], members: [member], teams: [] },
       { [deactivatedAsset.id]: deactivatedAsset, [deactivatedMember.id]: deactivatedMember }
     );
 

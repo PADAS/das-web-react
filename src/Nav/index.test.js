@@ -1,5 +1,5 @@
 import React from 'react';
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw/http';
 import { Provider } from 'react-redux';
 import { setupServer } from 'msw/node';
 import userEvent from '@testing-library/user-event';
@@ -75,6 +75,8 @@ describe('the Nav component', () => {
   });
 
   test('navigates to login if can not fetch the current user', async () => {
+    await waitFor(() => expect(store.getState().data.user).not.toEqual({}));
+
     server.use(
       http.get(CURRENT_USER_API_URL, () => {
         return HttpResponse.json(null, { status: 403 });

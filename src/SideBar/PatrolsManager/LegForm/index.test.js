@@ -56,7 +56,7 @@ describe('SideBar - PatrolsManager - LegForm', () => {
           [routinePatrol.value]: { isLoading: false, schema: patrolTypeFieldsSchema },
         },
         patrolStore: {},
-        patrolTeamAndTrackingOptions: { assets: [], leaders: [], members: [], teams: [] },
+        patrolTeamAndTrackingOptions: { assets: [], members: [], teams: [] },
         patrolTypes,
         userContent: {},
       },

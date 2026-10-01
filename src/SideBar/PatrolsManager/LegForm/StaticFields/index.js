@@ -275,7 +275,7 @@ const StaticFields = ({
           id: teamLeadSelectId,
           label: t('teamLeadLabel'),
           onChange: (teamLead) => onChangeLeg({ teamLead }),
-          options: teamAndTrackingOptions.leaders,
+          options: teamAndTrackingOptions.members,
           renderOptionIcon: renderSubjectOptionIcon,
           value: leg.teamLead,
         })}

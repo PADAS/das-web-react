@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw/http';
 import { setupServer } from 'msw/node';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';

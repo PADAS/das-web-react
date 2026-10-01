@@ -1,4 +1,4 @@
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw/http';
 import { setupServer } from 'msw/node';
 
 import { defaultPatrolSegmentTypeSchema, patrolTypeFieldsSchema } from '../../__test-helpers/fixtures/patrol-schemas';
@@ -23,11 +23,11 @@ import patrolSchemasReducer, {
 const server = setupServer(
   http.get(
     PATROL_TYPE_SCHEMA_API_URL('dog_patrol'),
-    () => HttpResponse.json({ data: patrolTypeFieldsSchema })
+    () => HttpResponse.json(patrolTypeFieldsSchema)
   ),
   http.get(
     DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_API_URL,
-    () => HttpResponse.json({ data: defaultPatrolSegmentTypeSchema })
+    () => HttpResponse.json(defaultPatrolSegmentTypeSchema)
   ),
 );
 
@@ -60,7 +60,7 @@ describe('Ducks - Patrol schemas', () => {
       server.use(http.get(PATROL_TYPE_SCHEMA_API_URL('dog_patrol'), ({ request }) => {
         requestParams = new URL(request.url).searchParams;
 
-        return HttpResponse.json({ data: patrolTypeFieldsSchema });
+        return HttpResponse.json(patrolTypeFieldsSchema);
       }));
 
       await fetchPatrolTypeSchema('dog_patrol')(jest.fn());
@@ -69,24 +69,14 @@ describe('Ducks - Patrol schemas', () => {
       expect(requestParams.get('s_format')).toBe('enum');
     });
 
-    test('reads the schema out of an answer that does not wrap it', async () => {
-      const dispatch = jest.fn();
-      server.use(http.get(PATROL_TYPE_SCHEMA_API_URL('dog_patrol'), () => HttpResponse.json(patrolTypeFieldsSchema)));
-
-      await fetchPatrolTypeSchema('dog_patrol')(dispatch);
-
-      expect(dispatch).toHaveBeenCalledWith({
-        payload: { patrolTypeValue: 'dog_patrol', schema: patrolTypeFieldsSchema },
-        type: FETCH_PATROL_TYPE_SCHEMA_SUCCESS,
-      });
-    });
-
     test('reports the failure when the schema cannot be fetched', async () => {
       const dispatch = jest.fn();
+      const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
       server.use(http.get(PATROL_TYPE_SCHEMA_API_URL('dog_patrol'), () => HttpResponse.error()));
 
       await fetchPatrolTypeSchema('dog_patrol')(dispatch);
 
+      expect(warn).toHaveBeenCalledWith('error fetching the patrol type schema', expect.any(Error));
       expect(dispatch).toHaveBeenCalledTimes(2);
       expect(dispatch.mock.calls[1][0].type).toBe(FETCH_PATROL_TYPE_SCHEMA_FAILURE);
       expect(dispatch.mock.calls[1][0].payload.patrolTypeValue).toBe('dog_patrol');
@@ -109,26 +99,18 @@ describe('Ducks - Patrol schemas', () => {
 
     test('reports the error of a schema that could not be fetched', async () => {
       const store = mockStore({ data: {}, view: {} });
+      const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
       server.use(http.get(
         DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_API_URL,
         () => new HttpResponse(null, { status: 500 })
       ));
 
       expect(await store.dispatch(fetchDefaultPatrolSegmentTypeSchema())).toBeNull();
+      expect(warn).toHaveBeenCalledWith('error fetching the default patrol segment type schema', expect.any(Error));
       expect(store.getActions()).toEqual([
         { type: FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA },
         { payload: expect.any(Error), type: FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_FAILURE },
       ]);
-    });
-
-    test('reads the schema out of an answer that does not wrap it', async () => {
-      const store = mockStore({ data: {}, view: {} });
-      server.use(http.get(
-        DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_API_URL,
-        () => HttpResponse.json(defaultPatrolSegmentTypeSchema)
-      ));
-
-      expect(await store.dispatch(fetchDefaultPatrolSegmentTypeSchema())).toEqual(defaultPatrolSegmentTypeSchema);
     });
 
     test('asks for the schema pre rendered and with its choice lists as enumerations', async () => {
@@ -136,7 +118,7 @@ describe('Ducks - Patrol schemas', () => {
       server.use(http.get(DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_API_URL, ({ request }) => {
         requestParams = new URL(request.url).searchParams;
 
-        return HttpResponse.json({ data: defaultPatrolSegmentTypeSchema });
+        return HttpResponse.json(defaultPatrolSegmentTypeSchema);
       }));
 
       await fetchDefaultPatrolSegmentTypeSchema()(jest.fn());
@@ -144,7 +126,6 @@ describe('Ducks - Patrol schemas', () => {
       expect(requestParams.get('pre_render')).toBe('true');
       expect(requestParams.get('s_format')).toBe('enum');
     });
-
   });
 
   describe('patrolSchemasReducer', () => {

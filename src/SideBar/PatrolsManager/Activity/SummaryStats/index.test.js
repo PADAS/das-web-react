@@ -34,7 +34,6 @@ const TRUCK = {
 
 const TEAM_AND_TRACKING_OPTIONS = {
   assets: [TRUCK],
-  leaders: [DOG, PILOT, RANGER],
   members: [DOG, PILOT, RANGER],
   teams: [],
 };

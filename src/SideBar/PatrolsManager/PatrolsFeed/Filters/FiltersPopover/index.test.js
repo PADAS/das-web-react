@@ -32,7 +32,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters - FiltersPopover', ()
           status: INITIAL_FILTER_STATE.status,
         },
         patrolTeamAndTrackingOptions: {
-          leaders: [{ id: 'Leader 1', name: 'Alpha' }, { id: 'Leader 2', name: 'Bravo' }],
+          members: [{ id: 'Member 1', name: 'Alpha' }, { id: 'Member 2', name: 'Bravo' }],
         },
         patrolTypes: [
           { display: 'Dog Patrol', icon_id: 'dog-patrol-icon', id: 'dog-patrol-id', value: 'dog_patrol' },
@@ -90,16 +90,28 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters - FiltersPopover', ()
     expect(screen.getByRole('dialog')).toHaveFocus();
   });
 
+  test('offers only the team members the site serves as team leads', async () => {
+    store.data.patrolTeamAndTrackingOptions.leaders = [{ id: 'Leader 1', name: 'Charlie' }];
+
+    renderFiltersPopover();
+
+    await userEvent.click(teamLeadSelect());
+
+    expect(await screen.findByText('Alpha')).toBeVisible();
+    expect(screen.getByText('Bravo')).toBeVisible();
+    expect(screen.queryByText('Charlie')).not.toBeInTheDocument();
+  });
+
   test('shows the team leads in the filter', () => {
-    store.data.patrolFilter.filter.tracked_by = ['Leader 2'];
+    store.data.patrolFilter.filter.tracked_by = ['Member 2'];
 
     renderFiltersPopover();
 
     expect(screen.getByRole('dialog')).toHaveTextContent('Bravo');
   });
 
-  test('shows a team lead selection whose leader is no longer offered as an unknown team lead', () => {
-    store.data.patrolFilter.filter.tracked_by = ['Leader 1', 'Retired leader'];
+  test('shows a team lead selection whose member is no longer offered as an unknown team lead', () => {
+    store.data.patrolFilter.filter.tracked_by = ['Member 1', 'Retired member'];
 
     renderFiltersPopover();
 
@@ -108,7 +120,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters - FiltersPopover', ()
   });
 
   test('removes an unknown team lead from the filter when the user clears it', async () => {
-    store.data.patrolFilter.filter.tracked_by = ['Retired leader'];
+    store.data.patrolFilter.filter.tracked_by = ['Retired member'];
 
     renderFiltersPopover();
 
@@ -120,19 +132,19 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters - FiltersPopover', ()
   });
 
   test('adds a team lead to the filter when the user picks one', async () => {
-    store.data.patrolFilter.filter.tracked_by = ['Leader 1'];
+    store.data.patrolFilter.filter.tracked_by = ['Member 1'];
 
     renderFiltersPopover();
 
     await userEvent.type(teamLeadSelect(), 'Bravo');
     await userEvent.keyboard('{Enter}');
 
-    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { tracked_by: ['Leader 1', 'Leader 2'] } });
+    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { tracked_by: ['Member 1', 'Member 2'] } });
     expect(track).toHaveBeenCalledWith('Set the team lead filter');
   });
 
   test('clears the team lead filter when the user removes every team lead', async () => {
-    store.data.patrolFilter.filter.tracked_by = ['Leader 1'];
+    store.data.patrolFilter.filter.tracked_by = ['Member 1'];
 
     renderFiltersPopover();
 
@@ -262,7 +274,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters - FiltersPopover', ()
   });
 
   test.each([
-    ['team lead', (patrolFilter) => { patrolFilter.filter.tracked_by = ['Leader 1']; }],
+    ['team lead', (patrolFilter) => { patrolFilter.filter.tracked_by = ['Member 1']; }],
     ['status', (patrolFilter) => { patrolFilter.status = ['done']; }],
     ['patrol type', (patrolFilter) => { patrolFilter.filter.patrol_type = ['fence-patrol-id']; }],
   ])('offers to reset all filters once the %s filter is set', (_, setFilter) => {
@@ -378,7 +390,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters - FiltersPopover', ()
     await userEvent.click(teamLeadSelect());
     await userEvent.click(await screen.findByText('Bravo'));
 
-    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { tracked_by: ['Leader 2'] } });
+    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { tracked_by: ['Member 2'] } });
     expect(onClose).not.toHaveBeenCalled();
   });
 

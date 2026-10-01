@@ -1,5 +1,5 @@
 import React from 'react';
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw/http';
 import { setupServer } from 'msw/node';
 
 import { EVENT_TYPE_SCHEMA_V1_URL } from '../ducks/event-schemas';

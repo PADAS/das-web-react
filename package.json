@@ -10,10 +10,10 @@
     "@dnd-kit/dom": "^0.5.0",
     "@dnd-kit/helpers": "^0.5.0",
     "@dnd-kit/react": "^0.5.0",
-    "@rjsf/core": "^6.10.1",
-    "@rjsf/react-bootstrap": "^6.10.1",
-    "@rjsf/utils": "^6.10.1",
-    "@rjsf/validator-ajv8": "^6.10.1",
+    "@rjsf/core": "^6.11.0",
+    "@rjsf/react-bootstrap": "^6.11.0",
+    "@rjsf/utils": "^6.11.0",
+    "@rjsf/validator-ajv8": "^6.11.0",
     "@turf/buffer": "^7.4.0",
     "@turf/turf": "^7.4.0",
     "ajv": "^8.20.0",
@@ -40,7 +40,7 @@
     "localforage": "^1.10.0",
     "lodash": "^4.18.1",
     "lodash-es": "^4.18.1",
-    "mapbox-gl": "^3.31.0",
+    "mapbox-gl": "^3.32.0",
     "pluralize": "^8.0.0",
     "proj4": "^2.22.0",
     "react": "^19.3.0",
@@ -102,10 +102,10 @@
     "jest-environment-jsdom": "^30.5.2",
     "jest-fixed-jsdom": "^0.0.11",
     "jest-webgl-canvas-mock": "^2.5.3",
-    "msw": "2.15.0",
+    "msw": "3.0.1",
     "redux-mock-store": "^1.5.5",
     "resize-observer-polyfill": "^1.5.1",
-    "sass": "^1.105.0",
+    "sass": "^1.105.1",
     "socket.io-mock": "^1.3.2",
     "stylelint": "^17.15.0",
     "stylelint-config-css-modules": "^4.6.0",
@@ -134,7 +134,7 @@
       "^(?!.*\\.(js|jsx|mjs|cjs|ts|tsx|json)$)": "<rootDir>/jest-config/transformers/fileTransform.js"
     },
     "transformIgnorePatterns": [
-      "/node_modules/(?!(@open-draft|@remix-run|@rjsf|@x0k|cookie-es|geodesy|geokdbush|kdbush|lodash-es|msw|nanoid|react-error-boundary|react-ga4|react-router|rettime|until-async|uuid)/)"
+      "/node_modules/(?!(@msw|@mswjs|@open-draft|@remix-run|@rjsf|@x0k|cookie|cookie-es|geodesy|geokdbush|kdbush|lodash-es|msw|nanoid|react-error-boundary|react-ga4|react-router|rettime|until-async|uuid)/)"
     ],
     "watchPlugins": [
       "jest-watch-typeahead/filename",

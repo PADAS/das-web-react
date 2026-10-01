@@ -18,11 +18,10 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
       data: {
         patrolTeamAndTrackingOptions: {
           assets: [{ id: 'asset-1', name: 'Radio 7' }],
-          leaders: [
-            { id: 'leader-1', image_url: '/static/ranger-black.svg', name: 'Alex' },
-            { id: 'leader-2', image_url: '/static/ranger-black.svg', name: 'Priya' },
+          members: [
+            { id: 'member-1', image_url: '/static/ranger-black.svg', name: 'Maya Chen' },
+            { id: 'member-2', image_url: '/static/ranger-black.svg', name: 'Priya' },
           ],
-          members: [{ id: 'member-1', name: 'Maya Chen' }],
           teams: [{ display: 'Alpha', id: 'team-1' }],
         },
       },
@@ -82,14 +81,18 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
     });
   });
 
-  test('offers the leaders the site serves as team leads, each with its icon', async () => {
+  test('offers only the team members the site serves as team leads, each with its icon', async () => {
+    store.data.patrolTeamAndTrackingOptions.leaders = [{ id: 'leader-1', name: 'Alex' }];
+
     renderStaticFields();
 
     await userEvent.click(screen.getByLabelText('Team Lead'));
 
-    const optionIcon = (await screen.findByText('Alex')).querySelector('img');
+    const optionIcon = (await screen.findByText('Maya Chen')).querySelector('img');
 
     expect(optionIcon).toHaveAttribute('src', expect.stringContaining('/static/ranger-black.svg'));
+    expect(screen.getByText('Priya')).toBeVisible();
+    expect(screen.queryByText('Alex')).not.toBeInTheDocument();
   });
 
   test('reports the team lead the user picks', async () => {
@@ -99,7 +102,7 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
     await userEvent.click(await screen.findByText('Priya'));
 
     expect(onChangeLeg).toHaveBeenCalledWith({
-      teamLead: store.data.patrolTeamAndTrackingOptions.leaders[1],
+      teamLead: store.data.patrolTeamAndTrackingOptions.members[1],
     });
   });
 

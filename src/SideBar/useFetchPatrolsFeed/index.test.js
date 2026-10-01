@@ -1,6 +1,6 @@
 import React from 'react';
 import { CancelToken } from 'axios';
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw/http';
 import { Provider } from 'react-redux';
 import { setupServer } from 'msw/node';
 

@@ -40,7 +40,7 @@ const FiltersPopover = ({ className = '', onClose, ref, trigger, ...otherProps }
   const tracker = useContext(TrackerContext);
 
   const patrolFilter = useSelector((state) => state.data.patrolFilter);
-  const patrolLeaders = useSelector((state) => state.data.patrolTeamAndTrackingOptions.leaders);
+  const patrolMembers = useSelector((state) => state.data.patrolTeamAndTrackingOptions.members);
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
   const bodyRef = useRef(null);
@@ -57,10 +57,10 @@ const FiltersPopover = ({ className = '', onClose, ref, trigger, ...otherProps }
     || !isEqual(INITIAL_FILTER_STATE.filter.patrol_type, patrolFilter.filter.patrol_type)
     || !isEqual(INITIAL_FILTER_STATE.filter.tracked_by, patrolFilter.filter.tracked_by);
 
-  // A filter can outlive the leader it names, and it still filters the feed,
+  // A filter can outlive the member it names, and it still filters the feed,
   // so it stays in the select where it can be removed.
-  const teamLeads = patrolFilter.filter.tracked_by.map((leaderId) => patrolLeaders
-    .find((patrolLeader) => patrolLeader.id === leaderId) ?? { id: leaderId, name: t('unknownTeamLeadLabel') });
+  const teamLeads = patrolFilter.filter.tracked_by.map((leaderId) => patrolMembers
+    .find((patrolMember) => patrolMember.id === leaderId) ?? { id: leaderId, name: t('unknownTeamLeadLabel') });
 
   const statusOptions = STATUS_IDS.map((statusId) => ({ label: t(`patrolStatuses.${statusId}`), value: statusId }));
 
@@ -173,7 +173,7 @@ const FiltersPopover = ({ className = '', onClose, ref, trigger, ...otherProps }
           onChange={onChangeTeamLeads}
           onMenuClose={() => setIsTeamLeadMenuOpen(false)}
           onMenuOpen={() => setIsTeamLeadMenuOpen(true)}
-          options={patrolLeaders}
+          options={patrolMembers}
           renderOptionIcon={renderTeamLeadIcon}
           value={teamLeads}
         />

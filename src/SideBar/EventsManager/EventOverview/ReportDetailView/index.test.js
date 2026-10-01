@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw/http';
 import { MemoryRouter } from 'react-router';
 import { point } from '@turf/turf';
 import { Provider } from 'react-redux';

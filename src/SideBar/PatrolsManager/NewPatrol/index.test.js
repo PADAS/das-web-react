@@ -61,7 +61,7 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
           [routinePatrol.value]: { isLoading: false, schema: patrolTypeFieldsSchema },
         },
         patrolStore: {},
-        patrolTeamAndTrackingOptions: { assets: [], leaders: [], members: [], teams: [] },
+        patrolTeamAndTrackingOptions: { assets: [], members: [], teams: [] },
         patrolTypes,
         user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.CREATE, PERMISSIONS.READ] } },
         userContent: {},
