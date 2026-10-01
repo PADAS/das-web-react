@@ -949,20 +949,7 @@ describe('Login', () => {
     expect(fetchEula).toHaveBeenCalled();
   });
 
-  test('shows the organization-access alert when the callback URL includes access_denied with a membership-related description', () => {
-    renderLogin({
-      initialEntries: ['/login?error=access_denied&error_description=user+is+not+part+of+the+org'],
-    });
-
-    const alert = screen.getByText(
-      'Access denied: Your account is not authorized for this organization. Please contact your administrator.',
-    );
-    expect(alert).toBeVisible();
-    expect(alert).toHaveAttribute('role', 'alert');
-    expect(alert).toHaveClass(loginStyles.alertMessage);
-  });
-
-  test('shows the generic access-denied alert when access_denied has no membership-related description', () => {
+  test('shows the access-denied alert when the callback URL includes an access_denied error', () => {
     renderLogin({
       initialEntries: ['/login?error=access_denied&error_description=User+cancelled+login'],
     });

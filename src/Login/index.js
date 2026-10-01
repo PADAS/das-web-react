@@ -78,11 +78,7 @@ const LoginPage = () => {
 
     try {
       await auth0LoginWithRedirect({
-        authorizationParams: buildAuth0AuthorizationParams(
-          appConfig.auth0.audience,
-          null,
-          siteSlug,
-        ),
+        authorizationParams: buildAuth0AuthorizationParams(appConfig.auth0.audience, siteSlug),
       });
     } catch (_error) {
       // No redirect happened, so there is no attempt left to attribute.
@@ -178,9 +174,7 @@ const LoginPage = () => {
           return { key: 'errorAlert.managedUserSignInFailed' };
         }
         if (auth0Error === 'access_denied') {
-          return auth0ErrorDescription?.includes('not part of the')
-            ? { key: 'errorAlert.accessDeniedNotAuthorized' }
-            : { key: 'errorAlert.accessDeniedNoPermission' };
+          return { key: 'errorAlert.accessDeniedNoPermission' };
         }
         if (auth0Error === 'unauthorized') {
           return { key: 'errorAlert.authenticationFailed' };
