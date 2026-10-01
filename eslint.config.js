@@ -11,8 +11,6 @@ export default defineConfig([
     '.yarn/',
     'build/',
     'jest-config/',
-    'mock-api/',
-    'nginx/',
     'node_modules/',
     'public/',
     'terraform/',

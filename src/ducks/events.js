@@ -16,11 +16,7 @@ import { calcLocationParamStringForUserLocationCoords } from '../utils/location'
 import parallelPaginatedQuery from '../utils/parallelPaginatedRequest';
 import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
 
-export const EVENTS_API_URL = (
-  import.meta.env.REACT_APP_MOCK_EVENTS_API === 'true'
-  && import.meta.env.DEV
-) ? '/api/v1.0/activity/events/'
-  : `${API_URL}activity/events`;
+export const EVENTS_API_URL = `${API_URL}activity/events`;
 export const EVENT_API_URL = `${API_URL}activity/event/`;
 
 export const COMMUNITY_EVENTS_API_URL = (communityValue) =>
