@@ -443,16 +443,15 @@ yarn test <path-or-pattern>
 
 #### Tools
 
-- **[ESLint](https://eslint.org/):** JavaScript linting, with the recommended rules of `@eslint/js`, `eslint-plugin-react`, `eslint-plugin-react-hooks` and, for tests, `eslint-plugin-jest`. Configured in `eslint.config.js`.
+- **[ESLint](https://eslint.org/):** JavaScript linting, with the recommended rules of `@eslint/js`, `eslint-plugin-react`, `eslint-plugin-react-hooks` and, for tests, `eslint-plugin-jest`. Configured in `eslint.config.mjs`.
 - **[Stylelint](https://stylelint.io/):** SCSS linting, with `stylelint-config-standard-scss` and `stylelint-config-css-modules`, and camelCase class names. Configured in `stylelint.config.mjs`.
 
 #### Commands
 
-- Lint the JavaScript and the SCSS:
+- Lint and fix all files:
 
 ```bash
-yarn lint
-yarn stylelint
+yarn format
 ```
 
 - Lint and fix only the files you touched:

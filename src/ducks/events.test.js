@@ -101,7 +101,6 @@ describe('fetchMapEvents', () => {
 
     expect(axios.get.mock.calls[0][0].includes(PARAM_NAME)).toBeTruthy();
   });
-  test.todo('handling 403 Forbidden errors for geo-permission-restricted users');
 });
 
 describe('fetchEventFeed', () => {

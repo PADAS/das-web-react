@@ -26,16 +26,6 @@ jest.mock('./useRealTimeImplementation/implementations/latest', () => ({
 jest.mock('../utils/event-filter', () => ({ calcEventFilterForRequest: () => ({}) }));
 jest.mock('../utils/patrol-filter', () => ({ calcPatrolFilterForRequest: () => ({}) }));
 
-describe('initializing the web socket', () => {
-  test.todo('binding socket events');
-});
-
-describe('recreating the web socket', () => {
-  test.todo('tearing down the old web socket for failure cases');
-
-  test.todo('creating the new web socket');
-});
-
 const CLEAR_AUTH_ACTION = { type: 'CLEAR_AUTH' };
 
 const makeSocket = () => {

@@ -73,9 +73,8 @@
     "build": "vite build && yarn build-sw",
     "build-sw": "node ./src/sw-build.js",
     "check-i18n-files-version": "./scripts/check-i18n-files-version.sh",
-    "lint": "eslint .",
+    "format": "eslint --fix . && stylelint --fix \"**/*.scss\"",
     "start": "vite",
-    "stylelint": "stylelint \"**/*.scss\"",
     "test": "TZ=UTC jest",
     "test-ci": "TZ=UTC CI=true jest --silent --detectOpenHandles --forceExit"
   },

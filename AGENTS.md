@@ -565,8 +565,7 @@ Comment only what the code cannot say — a non-obvious *why*, a caveat, an exte
 - `yarn start`: Vite dev server on port 9000, against the development backend at https://root.dev.pamdas.org. Each developer configures it in `.env.development`.
 - `yarn build`: production bundle, then the service worker
 - `yarn test <path-or-pattern>`: Jest. It pins `TZ=UTC`; a bare `jest` invocation will fail datetime tests on any other machine timezone.
-- `yarn lint`: ESLint over the whole repository, which reports no problems.
-- `yarn stylelint`: Stylelint over every SCSS file, which reports no problems.
+- `yarn format`: ESLint, then Stylelint, with fixes, over the whole repository.
 - `yarn check-i18n-files-version`: verifies the translation cache version was bumped
 
 ### Scope
@@ -590,7 +589,7 @@ Before you call the work done, reread what you wrote — every changed hunk, not
 
 ### Before You Commit
 
-- Run `yarn lint`, and `yarn stylelint` if you touched SCSS. Both must report no problems.
+- Run `yarn format`, and fix every problem you introduced.
 - Run `yarn test` over the areas you changed and make sure they pass.
 - If you changed anything under `public/locales/`, bump `I18N_FILES_VERSION` in `src/i18n.js` above develop's and verify with `yarn check-i18n-files-version`.
 - Update this file only under the terms in **Maintaining This File**.
