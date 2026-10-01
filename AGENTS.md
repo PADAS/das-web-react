@@ -300,7 +300,7 @@ Positions are stored and sent as **WGS84** longitude and latitude, but users rea
 
 **Signing in.** The site's status, read before anything renders, sets one way to sign in:
 - **Username and password** (`require_idp` off): the DAS OAuth password grant.
-- **Auth0** (`require_idp` on): through the organization's identity provider, or EarthRanger Identity where it has none. These sites are mid-migration, so an account not linked yet goes to the server's account linker. A site may also offer a **managed user** button, for accounts in its own Auth0 connection.
+- **Auth0** (`require_idp` on): through EarthRanger Identity. These sites are mid-migration, so an account not linked yet goes to the server's account linker. A site may also offer a **managed user** button, for accounts in its own Auth0 connection.
 
 Either way the client gets an access token, Auth0's used as is, kept in a cookie and in Redux and sent as a `Bearer` header.
 

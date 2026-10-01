@@ -51,71 +51,31 @@ describe('auth0 utils', () => {
   describe('buildAuth0AuthorizationParams', () => {
     const AUDIENCE = 'https://example.org/api';
 
-    test('forwards the organization when an idp org id is provided', () => {
-      expect(buildAuth0AuthorizationParams(AUDIENCE, 'org_abc')).toEqual({
-        audience: AUDIENCE,
-        organization: 'org_abc',
-      });
-    });
-
-    test('omits the organization entirely when the idp org id is null', () => {
-      const params = buildAuth0AuthorizationParams(AUDIENCE, null);
-      expect(params).toEqual({ audience: AUDIENCE });
-      expect(params).not.toHaveProperty('organization');
-    });
-
-    test('omits the organization entirely when the idp org id is an empty string', () => {
-      const params = buildAuth0AuthorizationParams(AUDIENCE, '');
-      expect(params).toEqual({ audience: AUDIENCE });
-      expect(params).not.toHaveProperty('organization');
-    });
-
-    test('omits the organization entirely when the idp org id is only whitespace', () => {
-      const params = buildAuth0AuthorizationParams(AUDIENCE, '   ');
-      expect(params).toEqual({ audience: AUDIENCE });
-      expect(params).not.toHaveProperty('organization');
-    });
-
-    test('forwards a trimmed organization when the idp org id has surrounding whitespace', () => {
-      expect(buildAuth0AuthorizationParams(AUDIENCE, '  org_abc  ')).toEqual({
-        audience: AUDIENCE,
-        organization: 'org_abc',
-      });
-    });
-
     test('forwards the connection when one is provided', () => {
-      expect(buildAuth0AuthorizationParams(AUDIENCE, null, 'gdl-zoo')).toEqual({
+      expect(buildAuth0AuthorizationParams(AUDIENCE, 'gdl-zoo')).toEqual({
         audience: AUDIENCE,
         connection: 'gdl-zoo',
       });
     });
 
     test('forwards a trimmed connection when it has surrounding whitespace', () => {
-      expect(buildAuth0AuthorizationParams(AUDIENCE, null, '  gdl-zoo  ')).toEqual({
+      expect(buildAuth0AuthorizationParams(AUDIENCE, '  gdl-zoo  ')).toEqual({
         audience: AUDIENCE,
         connection: 'gdl-zoo',
       });
     });
 
     test('omits the connection entirely when it is not provided', () => {
-      const params = buildAuth0AuthorizationParams(AUDIENCE, null);
+      const params = buildAuth0AuthorizationParams(AUDIENCE);
       expect(params).toEqual({ audience: AUDIENCE });
       expect(params).not.toHaveProperty('connection');
     });
 
     test('omits the connection entirely when it is null, empty, or only whitespace', () => {
       [null, '', '   '].forEach((connection) => {
-        const params = buildAuth0AuthorizationParams(AUDIENCE, null, connection);
+        const params = buildAuth0AuthorizationParams(AUDIENCE, connection);
         expect(params).toEqual({ audience: AUDIENCE });
         expect(params).not.toHaveProperty('connection');
-      });
-    });
-
-    test('forwards both the organization and the connection instead of special-casing their overlap', () => {
-      expect(buildAuth0AuthorizationParams(AUDIENCE, 'org_abc', 'gdl-zoo')).toEqual({
-        audience: AUDIENCE,
-        organization: 'org_abc',
-        connection: 'gdl-zoo',
       });
     });
   });
