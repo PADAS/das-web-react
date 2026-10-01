@@ -40,7 +40,7 @@ export default defineConfig([
     settings: {
       react: {
         // `version: "detect"` still uses APIs removed in ESLint 10.
-        version: '19.2.5',
+        version: '19.3.0',
       },
     },
   },
