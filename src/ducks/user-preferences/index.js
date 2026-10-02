@@ -35,6 +35,7 @@ export const INITIAL_STATE = {
   enable3D: true,
   gpsFormat: Object.values(GPS_FORMATS)[0],
   hideModals: false,
+  otusTabWidth: null,
   playSoundForNewEvents: false,
   playSoundForNewInReachMessages: false,
   playSoundForRadioStateChangeToRed: false,

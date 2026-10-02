@@ -322,6 +322,10 @@ Either way the client gets an access token, Auth0's used as is, kept in a cookie
 - `utils/geo-perms.js`: which users are geographically restricted.
 - `UserMenu/`, `ProfilePINModal/`: the user menu and the profile PIN prompt.
 
+### Otus
+
+**Otus** is EarthRanger's field-intelligence chat agent, a separate web app rather than part of this client. The client embeds it in an iframe whose URL comes from the system status payload (`otus_settings.url`), overridden for local development by `REACT_APP_OTUS_URL`.
+
 ### App Chrome
 
 The map fills the screen, framed by a top bar, a sidebar and a global menu. On small layouts the sidebar's icon rail moves into the global menu, and an open tab covers the map.
@@ -338,6 +342,7 @@ The map fills the screen, framed by a top bar, a sidebar and a global menu. On s
 | **Patrols** | `PATROL_MANAGEMENT` flag + patrol read permission |
 | **Gear** | the site has gear |
 | **Map Layers** | `ANALYZERS`, `SPATIAL_FEATURES`, `SUBJECTS` or `EVENTS` flag |
+| **Otus** | an Otus URL in the system status payload, which the server sends only where the `otus` preview feature is on |
 | **Settings** | always |
 
 **Map Layers** has Subjects, Features, Analyzers and Events sub-tabs, each behind its own flag; the first three share one search. Events shows or hides events on the map and toggles their heatmap. What a user hides survives a reload only if they chose to restore map layers in Settings → General.
