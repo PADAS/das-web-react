@@ -1,8 +1,8 @@
-@import '../common/styles/buttons';
-@import '../common/styles/layout';
-@import '../common/styles/vars/colors';
+@use '../common/styles/buttons';
+@use '../common/styles/layout';
+@use '../common/styles/vars/colors';
 
-@mixin buttonOpacity {
+@mixin button-opacity {
   opacity: 0.75;
 
   &:hover {
@@ -56,8 +56,9 @@
     z-index: -1 !important;
   }
 
-  [type="button"][class*=controlButton] {
-    background: rgba(white, 0.8);
+  [type="button"][class*="controlButton"] {
+    background: rgb(white, 0.8);
+
     &:hover,
     &:active {
       background: white;
@@ -82,11 +83,11 @@
   }
 }
 
-[class*="mapboxgl-ctrl-"][type=button] {
+[class*="mapboxgl-ctrl-"][type="button"] {
   --dimensions: 2.25rem;
 
-  @include buttonOpacity;
-  @include imageButton;
+  @include button-opacity;
+  @include buttons.image-button;
 
   height: var(--dimensions);
   width: var(--dimensions);
@@ -111,7 +112,7 @@
 }
 
 .general-add-button {
-  color: $bright-blue;
+  color: colors.$bright-blue;
   height: 2.5rem !important;
   width: 2.5rem !important;
 }

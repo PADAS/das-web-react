@@ -49,6 +49,8 @@ export const useMapEventBinding = (eventType = 'click', handlerFn = noop, layerI
 
 export const useMemoCompare = (next, compare = isEqual) => {
   const previousRef = useRef();
+  // Using this ref during render is intended.
+  // eslint-disable-next-line react-hooks/refs
   const previous = previousRef.current;
 
   const isEqual = compare(previous, next);

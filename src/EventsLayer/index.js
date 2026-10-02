@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { featureCollection } from '@turf/turf';
 import { useSelector } from 'react-redux';
 
@@ -91,6 +91,8 @@ const EventsLayer = ({
   const onEventSymbolClick = useMemo(() =>
     withMultiLayerHandlerAwareness(
       map,
+      // Using this ref during render is intended.
+      // eslint-disable-next-line react-hooks/refs
       (event) => {
         if (!clicking.current) {
           clicking.current = true;
@@ -207,6 +209,8 @@ const EventsLayer = ({
   }, [animationState.isRendering, bounceIDs.length, updateBounceSineAnimation]);
 
   useEffect(() => {
+    // Updating state from this effect is intended.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setEventsWithBounce({
       ...eventPointFeatureCollection,
       features: addBounceToEventMapFeatures(eventPointFeatureCollection.features, bounceEventIDs),
@@ -214,6 +218,8 @@ const EventsLayer = ({
   }, [bounceEventIDs, eventPointFeatureCollection]);
 
   useEffect(() => {
+    // Updating state from this effect is intended.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setBounceIDs(bounceEventIDs);
     setAnimationState({ frame: 1, isRendering: (bounceEventIDs.length > 0), scale: 0.0 });
   }, [bounceEventIDs]);

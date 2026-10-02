@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { memo, useContext, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { isFuture } from 'date-fns';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';

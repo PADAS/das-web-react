@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 
 import { ReactComponent as ArrowIntoIcon } from '../../../common/images/icons/arrow-into.svg';
 import { ReactComponent as ClockIcon } from '../../../common/images/icons/clock-icon.svg';

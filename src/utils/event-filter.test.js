@@ -28,7 +28,7 @@ describe('sortEventsBySortConfig', () => {
     expect(results[0].time).toBe('2021-07-29T23:05:57.732Z');
     expect(results[2].time).toBe('2021-08-08T23:05:57.732Z');
   });
-  test('sorting by event.created_at', () => {
+  test('sorting by event.time in both directions', () => {
     const testEvents = [{ ...events[0] }, { ...events[1] }, { ...events[2] }];
     const testSortConfig = [SORT_DIRECTION.up, {
       label: 'Event Date',

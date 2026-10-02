@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import InfiniteScroll from 'react-infinite-scroller';
 import Modal from 'react-bootstrap/Modal';

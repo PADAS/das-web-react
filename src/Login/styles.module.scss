@@ -1,11 +1,11 @@
 @use "sass:color";
-
 @use "../common/styles/vars/colors";
 
 @keyframes fadein {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -82,7 +82,7 @@
       padding: 0 0.5rem;
       transition: background-color 150ms ease;
 
-      &:hover:not(:disabled):not(:focus-visible) {
+      &:hover:not(:disabled, :focus-visible) {
         background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
       }
 
@@ -120,7 +120,7 @@
           color: white;
         }
 
-        &:hover:not(:disabled):not(:focus-visible) {
+        &:hover:not(:disabled, :focus-visible) {
           background-color: color.adjust(colors.$bright-blue, $lightness: 52%);
 
           /* The resting blue reads 4.41:1 on this tint, under the 4.5:1 AA floor. */
@@ -188,7 +188,7 @@
 
 .srOnly {
   border-width: 0;
-  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
   height: 1px;
   margin: -1px;
   overflow: hidden;

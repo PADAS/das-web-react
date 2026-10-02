@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useState } from 'react';
+import { memo, useContext, useEffect, useState } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { featureCollection } from '@turf/turf';
 import { useSelector } from 'react-redux';
 
@@ -54,6 +54,8 @@ const SubjectsLayer = ({ mapImages = {}, onSubjectClick }) => {
   }, [subjectFeatureCollection]);
 
   useEffect(() => {
+    // Updating state from this effect is intended.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMapSubjectFeatures({ ...subjectFeatureCollection });
   }, [mapImages, subjectFeatureCollection]);
 

@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useState } from 'react';
+import { memo, useContext, useEffect, useState } from 'react';
 
 import { calculatePopoverPlacement } from '../utils/map';
 import { MapContext } from '../MapContext';

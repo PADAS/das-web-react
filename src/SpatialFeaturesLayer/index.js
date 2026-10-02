@@ -1,4 +1,4 @@
-import React, { memo, useContext, useMemo, useCallback, useEffect } from 'react';
+import { memo, useContext, useMemo, useCallback, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { MapContext } from '../MapContext';
 import { addMapImage, buildGeoSpanFilter } from '../utils/map';

@@ -7,7 +7,7 @@
   touch-action: manipulation;
 
   &:hover:not(.readOnly) {
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 1px 4px rgb(0 0 0 / 25%);
     position: relative;
 
     .header {
@@ -39,7 +39,7 @@
 
   &.dragOverlay {
     cursor: grabbing;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 4px 8px rgb(0 0 0 / 25%);
     margin: 0;
 
     .header {
@@ -99,7 +99,7 @@
     }
   }
 
-  &:not(.open):not(.dragOverlay) {
+  &:not(.open, .dragOverlay) {
     &:not(:last-of-type) {
       border-bottom-left-radius: 0;
       border-bottom-right-radius: 0;
@@ -133,7 +133,7 @@
 
     .dragHandleButton,
     .actionButton {
-      @include buttons.iconButtonSmall;
+      @include buttons.icon-button-small;
 
       flex-shrink: 0;
     }

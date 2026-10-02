@@ -1,5 +1,4 @@
 @use 'sass:color';
-
 @use '../common/styles/inputs';
 @use '../common/styles/vars/colors';
 
@@ -26,7 +25,7 @@
       color: colors.$bright-red;
     }
 
-    > [class*=react-datepicker-wrapper] [class*=caret] {
+    > [class*="react-datepicker-wrapper"] [class*="caret"] {
       border-top-color: colors.$bright-red;
     }
 

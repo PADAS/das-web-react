@@ -10,7 +10,7 @@ const buildSW = () => {
       swSrc: path.join(process.cwd(), 'src/sw-custom.js'), // custom sw rule
       swDest: path.join(process.cwd(), 'build/sw.js'), // sw output file (auto-generated)
       globDirectory: path.join(process.cwd(), 'build'),
-      globPatterns: ['**/*.{js,html,css,png,svg}'],
+      globPatterns: ['**/*.{js,html,css,ico,png,svg}', 'manifest.json'],
       globIgnores: [
         '**/*service-worker*.js',
         '**/*precache-manifest*.js',

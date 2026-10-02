@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
 import { selectPatrolsFeedMappedFromStore } from '../../selectors/patrols';

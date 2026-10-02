@@ -1,4 +1,3 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
@@ -156,7 +155,7 @@ describe('PatrolDetailView - PlanSection', () => {
     expect(onPatrolObjectiveChange).toHaveBeenCalled();
   });
 
-  test('it should show the field empty for new patrols', async () => {
+  test('it should show the objective empty for new patrols', async () => {
     renderPlanSectionWithWrapper();
 
     const objectiveInput = await screen.getByTestId('patrolDetailView-objectiveTextArea');

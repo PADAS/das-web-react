@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useRef } from 'react';
+import { memo, useCallback, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 

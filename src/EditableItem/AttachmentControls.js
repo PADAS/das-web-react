@@ -1,4 +1,4 @@
-import React, { memo, useRef, useState } from 'react';
+import { memo, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 

@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from 'react';
+import { memo, useEffect } from 'react';
 
 import { JUMP_TO_LOCATION_BUTTON_ZOOM } from '../../utils/constants';
 import useFormElementDomId from '../../utils/useFormElementDomId';

@@ -1,11 +1,10 @@
 @use 'sass:color';
-
 @use '../../../../../../common/styles/buttons';
 @use '../../../../../../common/styles/vars/colors';
 @use '../../../../../../common/styles/inputs';
 
 .dimmedBackground {
-  background: rgba(0, 0, 0, 0.5);
+  background: rgb(0 0 0 / 50%);
 }
 
 .noBackground {
@@ -13,7 +12,7 @@
 }
 
 // So much detail is needed to override the App.scss .modal[role=dialog] display: flex !important
-.hide[class*=modal][role=dialog] {
+.hide[class*="modal"][role="dialog"] {
   display: none !important;
 }
 
@@ -81,7 +80,7 @@
   }
 
   .deleteButton {
-    @include buttons.chipIconButton;
+    @include buttons.chip-icon-button;
 
     background-color: colors.$high-priority-bg-hover;
     border-color: colors.$high-priority-bg-hover;
@@ -104,13 +103,13 @@
   }
 
   .cancelButton {
-    @include buttons.chipTextButton;
+    @include buttons.chip-text-button;
 
     display: inline-flex;
     margin-right: 0.5rem;
   }
 
   .doneButton {
-    @include buttons.primaryActionButton;
+    @include buttons.primary-action-button;
   }
 }

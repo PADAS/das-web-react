@@ -1,13 +1,13 @@
-@import '../common/styles/buttons';
-@import '../common//styles//vars/colors';
+@use '../common/styles/buttons';
+@use '../common//styles//vars/colors';
 
 .mapLegend {
   --close-button-size: 1.75rem;
   --legend-height: 3.25rem;
 
-  background: rgba(255, 255, 255, 0.9);
+  background: rgb(255 255 255 / 90%);
   border-radius: 0 var(--close-button-size) var(--close-button-size) 0;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 4px rgb(0 0 0 / 50%);
   display: flex;
   flex-wrap: wrap;
   height: var(--legend-height);
@@ -42,7 +42,7 @@
   }
 }
 
-@mixin buttonOpacity {
+@mixin button-opacity {
   opacity: 0.75;
 
   &:hover {
@@ -57,8 +57,8 @@
 }
 
 .close {
-  @include unstyledButton;
-  @include buttonOpacity;
+  @include buttons.unstyled-button;
+  @include button-opacity;
 
   right: 0.25rem;
   padding: 0;
@@ -75,8 +75,8 @@
 .gearButton {
   --dimensions: 1rem;
 
-  @include buttonOpacity;
-  @include gearButton;
+  @include button-opacity;
+  @include buttons.gear-button;
 
   height: var(--dimensions);
   position: absolute;

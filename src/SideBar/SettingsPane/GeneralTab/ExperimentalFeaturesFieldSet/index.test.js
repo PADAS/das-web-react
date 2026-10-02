@@ -1,4 +1,3 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 import { useSearchParams } from 'react-router';
@@ -7,7 +6,7 @@ import { render, screen } from '../../../../test-utils';
 import { mockStore } from '../../../../__test-helpers/MockStore';
 import { setExperimentalFeatures } from '../../../../ducks/experimental-features';
 
-import ExperimentalFeaturesFieldSet, { EXPERIMENTA_FEATURES_QUERY_PARAMETER } from './';
+import ExperimentalFeaturesFieldSet, { EXPERIMENTA_FEATURES_QUERY_PARAMETER } from './';
 
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),

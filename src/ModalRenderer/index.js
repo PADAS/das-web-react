@@ -1,4 +1,4 @@
-import React, { memo, Suspense, useContext } from 'react';
+import { memo, Suspense, useContext } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import { useDispatch, useSelector } from 'react-redux';
 

@@ -1,13 +1,16 @@
-@import '../common/styles/buttons';
-@import '../SubjectControls/mixins';
+@use '../common/styles/buttons';
+@use '../SubjectControls/mixins';
 
 .container {
   .button {
-    @include buttonBackground('heatmap');
+    @include mixins.button-background('heatmap');
+
     filter: saturate(50%) grayscale(100%);
+
     &.visible {
       filter: unset;
     }
+
     &.partial {
       filter: opacity(50%);
     }

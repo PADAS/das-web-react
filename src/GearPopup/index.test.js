@@ -1,4 +1,3 @@
-import React from 'react';
 import { Provider, useSelector } from 'react-redux';
 
 import { GPS_FORMATS } from '../utils/location';

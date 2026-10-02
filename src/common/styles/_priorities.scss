@@ -1,15 +1,17 @@
+@use 'vars/colors';
+
 @mixin priority300 {
-  background-color: $high-priority;
+  background-color: colors.$high-priority;
 }
 
 @mixin priority200 {
-  background-color: $medium-priority;
+  background-color: colors.$medium-priority;
 }
 
 @mixin priority100 {
-  background-color: $low-priority;
+  background-color: colors.$low-priority;
 }
 
 @mixin priority0 {
-  background-color: $no-priority;
+  background-color: colors.$no-priority;
 }

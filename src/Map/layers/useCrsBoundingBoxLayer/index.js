@@ -81,6 +81,8 @@ const useCrsBoundingBoxLayer = () => {
 
   // If the map is defined, there is a CRS selected with a BBOX and the bounds
   // don't cover the entirety of the Earth, the layer should be rendered.
+  // Only the React Compiler needs these dependencies to line up.
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const shouldRenderCrsBoundingBoxLayer = useMemo(() => {
     if (map && selectedCrs?.bbox) {
       const longitudeSpan = Math.abs(selectedCrs.bbox[2] - selectedCrs.bbox[0]);

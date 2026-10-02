@@ -1,41 +1,46 @@
-@import './common/styles/animations';
-@import './common/styles/vars/colors';
-@import "./common/styles/vars/fonts";
+@use 'common/styles/animations';
+@use 'common/styles/vars/colors';
+@use 'common/styles/vars/fonts';
 
 html, body {
   height: 100%;
 }
 
 body {
-  color: $primary-font-color;
-  font-family: $font-family-base;
+  color: colors.$primary-font-color;
+  font-family: fonts.$font-family-base;
   margin: 0;
   padding: 0;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: $headings-font-family;
-  font-weight: $headings-font-weight;
-  line-height: $headings-line-height;
+  font-family: fonts.$headings-font-family;
+  font-weight: fonts.$headings-font-weight;
+  line-height: fonts.$headings-line-height;
 }
 
 h1 {
-  font-size: $font-size-h1;
+  font-size: fonts.$font-size-h1;
 }
+
 h2 {
-  font-size: $font-size-h2;
+  font-size: fonts.$font-size-h2;
 }
+
 h3 {
-  font-size: $font-size-h3;
+  font-size: fonts.$font-size-h3;
 }
+
 h4 {
-  font-size: $font-size-h4;
+  font-size: fonts.$font-size-h4;
 }
+
 h5 {
-  font-size: $font-size-h5;
+  font-size: fonts.$font-size-h5;
 }
+
 h6 {
-  font-size: $font-size-h6;
+  font-size: fonts.$font-size-h6;
 }
 
 .btn-info {
@@ -54,7 +59,7 @@ h6 {
 }
 
 .modal-header {
-  background: $popover-header-color;
+  background: colors.$popover-header-color;
   color: white;
   align-items: flex-start;
   border-bottom: 1px solid #dee2e6;
@@ -82,12 +87,12 @@ h6 {
 
 .modal-backdrop {
   &.show {
-    background: rgba(0, 0, 0, 0.5);
+    background: rgb(0 0 0 / 50%);
     opacity: 1;
   }
 }
 
-.modal[role=dialog] {
+.modal[role="dialog"] {
   align-items: center;
   display: flex !important;
   justify-content: center;
@@ -103,7 +108,7 @@ h6 {
 
 .sr-only {
   border-width: 0;
-  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
   height: 1px;
   margin: -1px;
   overflow: hidden;

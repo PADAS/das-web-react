@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use '../../common/styles/vars/colors';
 @use '../../common/styles/layout';
 
@@ -7,10 +8,9 @@
   max-width: var(--sidebar-width);
   min-height: fit-content;
   padding: 0 1rem;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: auto hidden;
 
-  button[role=tab] {
+  button[role="tab"] {
     color: colors.$secondary-medium-gray;
     font-size: 1.125rem;
     font-weight: 500;
@@ -28,7 +28,7 @@
       border-bottom: 3px solid colors.$secondary-medium-light-gray;
     }
     
-    &[class*=active] {
+    &[class*="active"] {
       border-bottom: 3px solid colors.$bright-blue;
       font-weight: 500;
     }
@@ -88,7 +88,7 @@
 
   .checkbox {
     border-width: 0;
-    clip: rect(0, 0, 0, 0);
+    clip-path: inset(50%);
     height: 1px;
     margin: -1px;
     overflow: hidden;
@@ -133,7 +133,7 @@
       flex-grow: 1;
       margin: 0;
       margin-left: 1rem;
-      word-break: break-word;
+      overflow-wrap: anywhere;
 
       .defaultProperty {
         margin: 0.2rem 0 0 0.5rem;
@@ -183,7 +183,7 @@
       font-weight: 600;
     }
 
-    [class*=checkmark] {
+    [class*="checkmark"] {
       cursor: pointer;
       left: 1rem;
       position: absolute;
@@ -191,17 +191,17 @@
       top: 1.25rem;
     }
 
-    [class=Collapsible] {
+    [class="Collapsible"] {
       min-height: 3.3125rem;
       width: 100%;
     }
 
-    [class*=Collapsible__trigger],
+    [class*="Collapsible__trigger"],
     .itemTitle {
       display: block;
       padding-left: 3.5rem;
+      overflow-wrap: anywhere;
       padding-right: 1rem;
-      word-break: break-word;
       margin-bottom: 0;
       margin-right: 0.62rem;
       width: 100%;
@@ -226,11 +226,12 @@
       }
     }
 
-    [class*=Collapsible__trigger] {
+    [class*="Collapsible__trigger"] {
       cursor: pointer;
       padding-bottom: 1rem;
       padding-top: 1rem;
       position: relative;
+
       // z-index: 1;
 
       &:hover {
@@ -240,7 +241,7 @@
       &::after {
         content: '<';
         color: transparent;
-        background-image: url(../../common/images/icons/arrow.svg);
+        background-image: url("../../common/images/icons/arrow.svg");
         background-size: 1rem 1rem;
         background-repeat: no-repeat;
         background-position: center;
@@ -252,13 +253,13 @@
         transition: 0.15s transform linear;
       }
 
-      &[class*=is-disabled] {
+      &[class*="is-disabled"] {
         &::after {
           color: colors.$medium-light-gray;
         }
       }
 
-      &[class*=is-open] {
+      &[class*="is-open"] {
         box-shadow: 0 2px 3px colors.$medium-light-gray;
         min-height: 3.3125rem;
 
@@ -268,7 +269,7 @@
       }
     }
 
-    [class*=Collapsible__contentOuter] {
+    [class*="Collapsible__contentOuter"] {
       width: 100%;
     }
   }
@@ -279,7 +280,7 @@
   }
 
   .itemList {
-    background: lighten(colors.$light-gray-background, 3.5%);
+    background: color.adjust(colors.$light-gray-background, $lightness: 3.5%);
     width: 100%;
 
     &.compressed {
@@ -291,14 +292,14 @@
     li {
       padding: 1rem 0.65rem 1rem 0;
 
-      >[class*=checkmark] {
+      >[class*="checkmark"] {
         top: 1rem;
       }
     }
   }
 
   .reportDesc {
-    background: lighten(colors.$light-gray-background, 3.5%);
+    background: color.adjust(colors.$light-gray-background, $lightness: 3.5%);
     width: 100%;
   }
 }
@@ -316,7 +317,6 @@
   }
 
   button {
-
     &:focus,
     &:focus-visible,
     &:active,
@@ -331,7 +331,7 @@
   margin: -0.5rem 0;
 }
 
-.trigger {
+%trigger {
   align-items: center;
   display: flex;
   height: 1.5rem;
@@ -340,12 +340,16 @@
   padding-right: 2rem;
 }
 
+.trigger {
+  @extend %trigger;
+}
+
 .partialTrackButton {
   opacity: 0.5;
 }
 
-.featureTitle {
-  @extend .trigger;
+%feature-title {
+  @extend %trigger;
 
   height: 2.3125rem;
   justify-content: space-between;
@@ -354,8 +358,12 @@
   width: 100%;
 }
 
+.featureTitle {
+  @extend %feature-title;
+}
+
 .analyzerTitle {
-  @extend .featureTitle;
+  @extend %feature-title;
 
   height: 3.3125rem;
 

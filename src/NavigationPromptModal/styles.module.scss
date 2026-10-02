@@ -1,11 +1,12 @@
-@import '../common/styles/vars/colors';
+@use '../common/styles/vars/colors';
 
-@mixin continueButton($background: $bright-red) {
+@mixin continue-button($background: colors.$bright-red) {
   align-items: center;
   border: none;
   background-color: $background;
   display: flex;
   justify-content: center;
+
   svg {
     margin-right: 0.25rem;
   }
@@ -17,16 +18,16 @@
   .cancelButton {
     background-color: white;
     border: none;
-    color: $secondary-medium-gray;
+    color: colors.$secondary-medium-gray;
     margin-right: 0.5rem;
   }
 
   .negativeContinue {
-    @include continueButton;
+    @include continue-button;
   }
 
   .positiveContinue {
-    @include continueButton($primary-button-color);
+    @include continue-button(colors.$primary-button-color);
   }
 
 }

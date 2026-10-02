@@ -1,4 +1,4 @@
-@import '../../../../../common/styles/vars/colors';
+@use '../../../../../common/styles/vars/colors';
 
 .link {
   color: unset;
@@ -10,7 +10,7 @@
   height: 2.5rem;
   margin-bottom: 0.4rem;
 
-  div[role=img] {
+  div[role="img"] {
     border-radius: .25rem 0 0 .25rem;
     width: 2.5rem;
 

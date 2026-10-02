@@ -1,4 +1,3 @@
-import React from 'react';
 import userEvent from '@testing-library/user-event';
 
 import { Provider, useSelector }  from 'react-redux';
@@ -99,10 +98,10 @@ describe('SubjectPopup', () => {
       const additionalProps = await screen.findByTestId('additional-props');
       const deviceStatusProps = subjectFeatureWithMultipleDeviceProps.properties.device_status_properties;
 
-      deviceStatusProps.forEach(({ label, value }) => {
-        if (label.length) expect(additionalProps).toHaveTextContent(label);
-        if (value.length) expect(additionalProps).toHaveTextContent(value);
-      });
+      deviceStatusProps
+        .flatMap((deviceStatusProp) => [deviceStatusProp.label, deviceStatusProp.value])
+        .filter((text) => text.length)
+        .forEach((text) => expect(additionalProps).toHaveTextContent(text));
 
       await userEvent.click(additionalPropsToggleBtn);
       expect(additionalProps).not.toBeVisible();

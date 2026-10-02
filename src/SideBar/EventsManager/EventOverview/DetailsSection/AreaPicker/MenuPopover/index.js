@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { bbox, rewind, simplify } from '@turf/turf';
 import Popover from 'react-bootstrap/Popover';
 import { useSelector } from 'react-redux';
@@ -202,6 +202,8 @@ const MenuPopover = ({
       className={`${className} ${styles.menuPopover}`}
       ref={ref}
       role="dialog"
+      // Using this ref during render is intended.
+      // eslint-disable-next-line react-hooks/refs
       style={{ ...style, minWidth: popoverWidthRef.current, width: popoverWidthRef.current }}
       {...otherProps}
     >

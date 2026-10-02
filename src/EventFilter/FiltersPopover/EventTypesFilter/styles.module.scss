@@ -24,7 +24,7 @@
     }
 
     .setMatchesButton {
-      @include buttons.chipTextButton;
+      @include buttons.chip-text-button;
 
       flex-shrink: 0;
       margin-left: auto;

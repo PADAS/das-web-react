@@ -1,9 +1,9 @@
-@import '../common/styles/buttons';
+@use '../common/styles/buttons';
 
 .jump {
-  @include jumpButton;
+  @include buttons.jump-button;
 }
 
 .multi {
-  @include multiJumpButton;
+  @include buttons.multi-jump-button;
 }

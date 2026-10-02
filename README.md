@@ -291,7 +291,7 @@ Base element styles, such as fonts and headings, are in `src/index.scss`.
 
 #### Public assets
 
-Files in `public/`, such as `favicon.ico`, `manifest.json`, the translation files and `config.js`, are served as they are from the site's root.
+Files in `public/`, such as the app icons, `manifest.json`, the translation files and `config.js`, are served as they are from the site's root.
 
 #### SVG icons
 
@@ -443,22 +443,22 @@ yarn test <path-or-pattern>
 
 #### Tools
 
-- **[ESLint](https://eslint.org/):** JavaScript linting, with the recommended rules of `@eslint/js`, `eslint-plugin-react`, `eslint-plugin-react-hooks` and, for tests, `eslint-plugin-jest`. Configured in `eslint.config.js`.
-- **[Stylelint](https://stylelint.io/):** SCSS linting, with `stylelint-config-standard`, `stylelint-config-css-modules` and `stylelint-scss`. Configured in `.stylelintrc.json`.
+- **[ESLint](https://eslint.org/):** JavaScript linting, with the recommended rules of `@eslint/js`, `eslint-plugin-react`, `eslint-plugin-react-hooks` and, for tests, `eslint-plugin-jest`. Configured in `eslint.config.mjs`.
+- **[Stylelint](https://stylelint.io/):** SCSS linting, with `stylelint-config-standard-scss` and `stylelint-config-css-modules`, and camelCase class names. Configured in `stylelint.config.mjs`.
 
 #### Commands
 
-- Lint the JavaScript and the SCSS:
+- Lint and fix all files:
 
 ```bash
-yarn lint
-yarn stylelint
+yarn format
 ```
 
 - Lint and fix only the files you touched:
 
 ```bash
 npx eslint --fix <files>
+npx stylelint --fix <files>
 ```
 
 ### VS Code Extensions

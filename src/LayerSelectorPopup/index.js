@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { center } from '@turf/turf';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -171,6 +171,8 @@ const LayerSelectorPopup = ({ data, id }) => {
 
   useEffect(() => {
     if (!showFilterInput) {
+      // Updating state from this effect is intended.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFilter('');
     }
   }, [showFilterInput]);

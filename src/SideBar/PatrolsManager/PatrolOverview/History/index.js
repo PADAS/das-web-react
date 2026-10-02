@@ -1,4 +1,4 @@
-import React, { memo, useContext, useMemo, useState } from 'react';
+import { memo, useContext, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowDownIcon } from '../../../../common/images/icons/arrow-down.svg';

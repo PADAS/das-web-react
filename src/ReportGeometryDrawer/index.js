@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useReducer, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useReducer, useState } from 'react';
 import { bbox } from '@turf/turf';
 import isEqual from 'react-fast-compare';
 import { useDispatch, useSelector } from 'react-redux';
@@ -63,6 +63,8 @@ const ReportGeometryDrawer = () => {
     }
   }, [canUndo, isDrawing, points.length, reportGeometry.past]);
 
+  // Only the React Compiler needs these dependencies to line up.
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const onCancel = useCallback(() => {
     let originalPoints = [];
     if (event?.geometry) {
@@ -152,6 +154,8 @@ const ReportGeometryDrawer = () => {
 
       dispatchReportGeometry(setGeometryPoints(eventPolygon.geometry.coordinates[0].slice(0, -1)));
       setTimeout(() => dispatchReportGeometry(reset()));
+      // Updating state from this effect is intended.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsDrawing(false);
     }
   }, [event?.geometry, map]);

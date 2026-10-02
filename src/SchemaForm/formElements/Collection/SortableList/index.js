@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Accessibility, AutoScroller, PointerSensor } from '@dnd-kit/dom';
 import { DragDropProvider, DragOverlay } from '@dnd-kit/react';
 import { move } from '@dnd-kit/helpers';

@@ -1,6 +1,7 @@
-@import '../common/styles/vars/colors';
+@use 'sass:color';
+@use '../common/styles/vars/colors';
 
-$button-font-color: $medium-light-gray;
+$button-font-color: colors.$medium-light-gray;
 
 .form {
   display: flex;
@@ -10,9 +11,10 @@ $button-font-color: $medium-light-gray;
   border-bottom: 2px dashed white;
   cursor: pointer;
   line-height: normal;
+
   &:hover {
     button {
-      background-color: darken(gray, 50%);
+      background-color: color.adjust(gray, $lightness: -50%);
     }
   }
 }
@@ -24,9 +26,11 @@ $button-font-color: $medium-light-gray;
   height: 2rem;
   justify-content: center;
   width: 2rem;
+
   svg {
     --dimensions: 1rem;
   }
+
   + .button {
     margin-left: 0.5rem;
   }
@@ -40,7 +44,7 @@ $button-font-color: $medium-light-gray;
 }
 
 .input {
-  background: rgba(255, 255, 255, 0.5);
+  background: rgb(255 255 255 / 50%);
   border: none;
   outline: none;
   margin: -0.125rem;

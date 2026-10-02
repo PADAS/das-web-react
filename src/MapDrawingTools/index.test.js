@@ -1,4 +1,3 @@
-import React from 'react';
 import { createMapMock } from '../__test-helpers/mocks';
 
 import { MapContext } from '../MapContext';
@@ -34,7 +33,7 @@ describe('rendering', () => {
     let drawing = false;
     let map = createMapMock();
 
-    render(
+    expect(() => render(
       <MapContext.Provider value={map}>
         <MapDrawingToolsContextProvider>
           <MapDrawingToolsContextProvider>
@@ -42,7 +41,7 @@ describe('rendering', () => {
           <MapDrawingTools drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
         </MapDrawingToolsContextProvider>
       </MapContext.Provider>
-    );
+    )).not.toThrow();
   });
 });
 
@@ -69,13 +68,13 @@ describe('MapDrawingTools', () => {
       points = [];
       drawing = true;
 
-      render(
+      expect(() => render(
         <MapContext.Provider value={map}>
           <MapDrawingToolsContextProvider>
             <MapDrawingTools drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
           </MapDrawingToolsContextProvider>
         </MapContext.Provider>
-      );
+      )).not.toThrow();
     });
   });
 

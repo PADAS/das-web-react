@@ -1,4 +1,3 @@
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { EVENT_FILTER_STORAGE_KEY } from '../../../../ducks/event-filter';

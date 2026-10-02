@@ -1,13 +1,13 @@
-@import '../common/styles/vars/colors';
+@use '../common/styles/vars/colors';
 
-$profilePinDimensions: 2.5rem;
+$profile-pin-dimensions: 2.5rem;
 
 .modalBody {
   min-height: 9.5rem;
 }
 
 .error {
-  color: $error;
+  color: colors.$error;
   margin: 1rem 0 0;
 }
 
@@ -18,14 +18,14 @@ $profilePinDimensions: 2.5rem;
   input {
     border-radius: 0;
     font-size: 1.5rem;
-    height: $profilePinDimensions;
+    height: $profile-pin-dimensions;
     margin-right: 0.333rem;
     text-align: center;
-    width: $profilePinDimensions;
+    width: $profile-pin-dimensions;
 
     &:focus,
     &:active {
-      border-color: $highlight-color;
+      border-color: colors.$highlight-color;
     }
   }
 }

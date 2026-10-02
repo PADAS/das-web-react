@@ -1,6 +1,4 @@
 import axios from 'axios';
-import { http, HttpResponse } from 'msw/http';
-import { setupServer } from 'msw/node';
 
 import { createMapMock } from '../__test-helpers/mocks';
 import { mockStore } from '../__test-helpers/MockStore';
@@ -80,10 +78,7 @@ describe('fetchMapEvents', () => {
 
   });
   test('rejecting the request if no bbox data is available', async () => {
-    await store.dispatch(fetchMapEvents())
-      .catch((error) => {
-        expect(error).toEqual('no map available');
-      });
+    await expect(store.dispatch(fetchMapEvents())).rejects.toEqual('no map available');
   });
   test('appending parameters when passed', async () => {
     store = mockStore({ data: { mapEvents: { bbox: '1,2,3,4' } }, view: { userLocation: { coords: { longitude: 1, latitude: 2 } }, systemConfig: { geoPermissionsEnabled: true } } });
@@ -105,18 +100,6 @@ describe('fetchMapEvents', () => {
     expect(axios.get).toHaveBeenCalledTimes(1);
 
     expect(axios.get.mock.calls[0][0].includes(PARAM_NAME)).toBeTruthy();
-  });
-  test('handling 403 Forbidden errors for geo-permission-restricted users', () => {
-    const server = setupServer(
-      http.get(EVENTS_API_URL, () => HttpResponse.json({
-        errorMessage: 'Geo-permissions required to access this data',
-      }, { status: 403 }))
-    );
-
-    server.listen();
-
-
-    server.close();
   });
 });
 

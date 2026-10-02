@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useId, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef } from 'react';
 import Select, { components } from 'react-select';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';

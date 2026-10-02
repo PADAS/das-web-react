@@ -59,12 +59,12 @@
     &::-webkit-search-cancel-button,
     &::-webkit-search-results-button,
     &::-webkit-search-results-decoration {
-      -webkit-appearance: none;
+      appearance: none;
     }
   }
 
   .clearButton {
-    @include buttons.iconButtonSmall;
+    @include buttons.icon-button-small;
 
     flex-shrink: 0;
     visibility: hidden;

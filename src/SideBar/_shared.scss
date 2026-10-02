@@ -1,26 +1,24 @@
 @forward '../common/styles/filter-popovers';
-
 @use 'sass:color';
 @use 'sass:map';
-
 @use '../common/styles/buttons';
 @use '../common/styles/layout';
 @use '../common/styles/vars/colors';
 
 @mixin icon-button {
-  @include buttons.iconButton;
+  @include buttons.icon-button;
 }
 
 @mixin icon-button-small {
-  @include buttons.iconButtonSmall;
+  @include buttons.icon-button-small;
 }
 
 @mixin chip-icon-button {
-  @include buttons.chipIconButton;
+  @include buttons.chip-icon-button;
 }
 
 @mixin chip-active-state {
-  @include buttons.chipActiveState;
+  @include buttons.chip-active-state;
 }
 
 @mixin header-mobile-only-option {
@@ -159,7 +157,7 @@
 @mixin header-icon-tile($theme) {
   background-color: map.get($theme, 'base');
   border-radius: 0.25rem;
-  color: map.get($theme, 'fontColor') or white;
+  color: map.get($theme, 'font-color') or white;
   flex-shrink: 0;
   height: 3rem;
   width: 3rem;
@@ -222,7 +220,7 @@
 }
 
 @mixin save-button {
-  @include buttons.primaryActionButton;
+  @include buttons.primary-action-button;
 
   position: relative;
   transition: background-color 150ms ease;
@@ -241,7 +239,7 @@
 }
 
 @mixin secondary-action-button {
-  @include buttons.secondaryActionButton;
+  @include buttons.secondary-action-button;
 
   svg {
     height: 1rem;

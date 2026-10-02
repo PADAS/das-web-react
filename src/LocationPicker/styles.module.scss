@@ -1,5 +1,4 @@
 @use 'sass:color';
-
 @use '../common/styles/inputs';
 @use '../common/styles/vars/colors';
 
@@ -123,7 +122,7 @@
   }
 
   .jumpToLocationButton {
-    @include inputs.boxedFieldTrailingControl;
+    @include inputs.boxed-field-trailing-control;
 
     background-color: colors.$light-gray-background;
     border: none;

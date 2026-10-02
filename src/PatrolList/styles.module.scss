@@ -1,12 +1,14 @@
-@import '../common/styles/vars/colors';
-@import '../common/styles/buttons';
+@use 'sass:color';
+@use '../common/styles/vars/colors';
+@use '../common/styles/buttons';
 
 .patrolList {
   background-color: white;
   justify-content: space-evenly;
   overflow-y: scroll;
   height: calc(100% - 6.5rem);
-  [class*=titleContainer] {
+
+  [class*="titleContainer"] {
     max-width: 20.5rem;
   }
 }
@@ -34,7 +36,7 @@
   }
 
   &.modified {
-    background: lighten($highlight-color, 15%);
+    background: color.adjust(colors.$highlight-color, $lightness: 15%);
     color: white;
   }
 }
@@ -76,7 +78,7 @@
   width: 1.75rem;
 
   &:active {
-    background: rgba(0, 0, 0, 0.17);
+    background: rgb(0 0 0 / 17%);
   }
 }
 
@@ -95,7 +97,7 @@
   }
 
   .kebab {
-    --hamburger-menu-color: rgba(0, 0, 0, 0.47);
+    --hamburger-menu-color: rgb(0 0 0 / 47%);
 
     display: flex;
     position: static;
@@ -103,7 +105,7 @@
 }
 
 .patrolButton {
-  @include patrolJumpButton;
+  @include buttons.patrol-jump-button;
 }
 
 .loaderWrapper {

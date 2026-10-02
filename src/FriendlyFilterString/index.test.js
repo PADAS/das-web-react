@@ -1,5 +1,3 @@
-import React from 'react';
-
 import FriendlyFilterString from '.';
 import { EVENT_SORT_OPTIONS, SORT_DIRECTION } from '../constants';
 import { render, screen } from '../test-utils';

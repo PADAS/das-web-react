@@ -1,4 +1,4 @@
-import React, { useCallback, useId } from 'react';
+import { useCallback, useId } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import useLocalStorage from '../hooks/useLocalStorage';

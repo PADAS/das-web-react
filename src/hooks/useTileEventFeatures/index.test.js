@@ -1,4 +1,3 @@
-import React from 'react';
 import { render } from '@testing-library/react';
 
 import useTileEventFeatures, { EMPTY_TILE_EVENT_FEATURES, TileEventFeaturesContext } from './';

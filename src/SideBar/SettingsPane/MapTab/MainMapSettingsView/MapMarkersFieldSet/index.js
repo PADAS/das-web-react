@@ -1,4 +1,5 @@
-import React, { useEffect, useRef }  from 'react';
+import { useEffect, useRef } from 'react';
+import omit from 'lodash/omit';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -17,10 +18,8 @@ const MapMarkersFieldSet = () => {
   });
 
   const hasUserLocation = useSelector((state) => !!state.view.userLocation);
-  const showMapNames = useSelector((state) => state.view.showMapNames);
+  const showMapNames = omit(useSelector((state) => state.view.showMapNames), '_persist');
   const showUserLocation = useSelector((state) => state.view.showUserLocation);
-
-  delete showMapNames._persist;
 
   const markerNamesAllChekboxRef = useRef();
 

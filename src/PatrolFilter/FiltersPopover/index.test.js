@@ -1,4 +1,3 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
@@ -71,7 +70,7 @@ describe('PatrolFilter', () => {
       </Provider>
     );
 
-    await screen.findByText('Reset All');
+    expect(await screen.findByText('Reset All')).toBeInTheDocument();
   });
 
   test('does not show the Reset All button if the filters have not been modified', async () => {

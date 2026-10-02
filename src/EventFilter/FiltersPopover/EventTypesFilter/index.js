@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import uniq from 'lodash/uniq';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';

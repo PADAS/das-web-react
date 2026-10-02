@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import Form from 'react-bootstrap/Form';
 import { format, isFuture, isValid, parseISO } from 'date-fns';
 import { useDispatch, useSelector } from 'react-redux';
@@ -57,6 +57,8 @@ const PlanSection = ({
   const [startDate, setStartDate] = useState(format(displayStartDate ?? new Date(), 'yyyy-MM-dd'));
   const [startTime, setStartTime] = useState(getHoursAndMinutesString(displayStartDate));
 
+  // Only the React Compiler needs these dependencies to line up.
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleEndDateChange = useCallback((newEndDate) => {
     setEndDate(newEndDate);
 
@@ -68,6 +70,8 @@ const PlanSection = ({
     }
   }, [endTime, isAutoEnd, onPatrolEndDateChange]);
 
+  // Only the React Compiler needs these dependencies to line up.
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleStartDateChange = useCallback((newStartDate) => {
     setStartDate(newStartDate);
 
@@ -79,6 +83,8 @@ const PlanSection = ({
     }
   }, [isAutoStart, onPatrolStartDateChange, startTime]);
 
+  // Only the React Compiler needs these dependencies to line up.
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleEndTimeChange = useCallback((newEndTime) => {
     setEndTime(newEndTime);
 
