@@ -46,7 +46,7 @@
         "paused": "En pausa",
         "readyToStart": "Listo para iniciar",
         "scheduled": "Agendado",
-        "startOverdue": "Inicio atrasado"
+        "startOverdue": "Atrasado"
       }
     },
     "loadingMessage": "Guardando...",
@@ -96,8 +96,7 @@
     "saveErrorMessage": "No se pudo guardar el tramo de la patrulla. Vuelva a intentarlo."
   },
   "header": {
-    "breadcrumbNavLabel": "Navegación de patrullas",
-    "closeButtonLabel": "Cerrar barra lateral"
+    "breadcrumbNavLabel": "Navegación de patrullas"
   },
   "invalidDatesModal": {
     "body": "No es posible guardar esta patrulla. La fecha de finalización de una patrulla debe ser posterior a la fecha de inicio. Por favor, corrija la fecha de finalización.",
@@ -255,7 +254,6 @@
     "addEventLinkErrorMessage": "El evento se guardó, pero no se pudo agregar a esta patrulla.",
     "attachmentsSaveErrorMessage": "No se pudieron subir algunos archivos adjuntos. Vuelva a intentarlo.",
     "footer": {
-      "addEventButton": "Agregar evento",
       "addEventButtonLabel": "Agregar evento",
       "addEventButtonText": "Evento",
       "saveButton": "Guardar"
@@ -327,6 +325,28 @@
     "saveErrorMessage": "No se pudo guardar la patrulla. Vuelva a intentarlo.",
     "tabsLabel": "Pestañas de resumen de la patrulla"
   },
+  "patrolsFeed": {
+    "emptyStateMessage": "No hay más patrullas que mostrar.",
+    "patrolListLabel": "Lista de patrullas",
+    "patrolRow": {
+      "actions": {
+        "copyLinkMessage": "Link copiado",
+        "copyLinkOption": "Copiar link de la patrulla",
+        "downloadTrackOption": "Descargar ruta de patrulla",
+        "jumpToLocationButtonLabel": "Ir a la ubicación",
+        "moreOptionsButtonLabel": "Más opciones",
+        "statusUpdateErrorMessage": "No se pudo actualizar el estado de la patrulla. Vuelva a intentarlo.",
+        "toggleTrackButtonLabel": {
+          "hidden": "Mostrar ruta de la patrulla",
+          "pinned": "Ocultar ruta de la patrulla",
+          "visible": "Fijar ruta de la patrulla"
+        }
+      },
+      "legLabel": "Tramo {{number}}",
+      "mobileProvenanceLabel": "Móvil",
+      "scheduledLabel": "Agendado: {{startTime}}"
+    }
+  },
   "patrolStartStopLayer": {
     "endMarkerLabel": "Fin del patrullaje",
     "estimatedEndMarkerLabel": "Fin del patrullaje (aprox.)",
@@ -346,11 +366,16 @@
       "paused": "En pausa",
       "readyToStart": "Listo para iniciar",
       "scheduled": "Agendado",
-      "startOverdue": "Inicio atrasado"
+      "startOverdue": "Atrasado"
     }
   },
-  "titleInput": {
-    "editButtonLabel": "Editar título"
+  "statusTransitions": {
+    "cancel": "Cancelar",
+    "end": "Finalizar",
+    "pause": "Pausar",
+    "restore": "Restaurar",
+    "resume": "Reanudar",
+    "start": "Iniciar"
   },
   "trackToggleButton": {
     "tracksOff": "Rutas ocultas",

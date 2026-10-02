@@ -48,7 +48,7 @@ describe('SideBar - PatrolsManager - LegManager', () => {
     store = {
       data: {
         patrolStore: { [patrol.id]: patrol },
-        patrolTeamAndTrackingOptions: { assets: [], hasFetched: true, leaders: [], members: [], teams: [] },
+        patrolTeamAndTrackingOptions: { assets: [], hasFetched: true, members: [], teams: [] },
         patrolTypes,
       },
     };

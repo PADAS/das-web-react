@@ -17,13 +17,16 @@
     "required": "Hili ni shamba la lazima.",
     "timeFormat": "Muundo wa muda haukubaliwi.",
     "uploadFailedError": "Upakiaji wa faili moja au zaidi umeshindwa. Ondoa faili zilizoshindwa kabla ya kutuma.",
+    "uploadFailedWithReasonError": "Upakiaji wa faili moja au zaidi umeshindwa: {{reason}}. Ondoa faili zilizoshindwa kabla ya kutuma.",
     "uploadInProgressError": "Tafadhali subiri faili ziishe kupakiwa.",
     "uriFormat": "Muundo wa URL haukubaliwi.",
     "uuidFormat": "Muundo wa UUID haukubaliwi."
   },
   "fields": {
     "attachment": {
+      "audioPlayerLabel": "Kicheza sauti cha {{fileName}}",
       "chooseFile": "Chagua faili",
+      "closePlayerButtonLabel": "Funga kicheza cha {{fileName}}",
       "disallowedTypeAlert": "{{fileName}} haiwezi kuongezwa kwa sababu aina yake ya faili hairuhusiwi.",
       "downloadButtonLabel": "Pakua {{fileName}}",
       "dropzoneText": "Buruta na udondoshe faili hapa",
@@ -31,15 +34,20 @@
       "maxItemsAlert_one": "Unaweza kuongeza faili {{count}} pekee.",
       "maxItemsAlert_other": "Unaweza kuongeza faili {{count}} pekee.",
       "pendingLabel": "Inasubiri",
+      "playButtonLabel": "Cheza {{fileName}}",
+      "playerErrorLabel": "Imeshindwa kupakia faili hii.",
       "removeButtonLabel": "Ondoa {{fileName}}",
       "requiredLabel": "(inahitajika)",
       "uploadErrorLabel": "Upakiaji umeshindwa",
       "uploadFailedAnnouncement_one": "{{fileName}} haikuweza kupakiwa",
       "uploadFailedAnnouncement_other": "Faili {{count}} hazikuweza kupakiwa",
+      "uploadFailedWithReasonAnnouncement_one": "{{fileName}} haikuweza kupakiwa: {{reason}}",
+      "uploadFailedWithReasonAnnouncement_other": "Faili {{count}} hazikuweza kupakiwa: {{reason}}",
       "uploadStartedAnnouncement_one": "Inapakia {{fileName}}",
       "uploadStartedAnnouncement_other": "Inapakia faili {{count}}",
       "uploadSucceededAnnouncement_one": "{{fileName}} imepakiwa",
-      "uploadSucceededAnnouncement_other": "Faili {{count}} zimepakiwa"
+      "uploadSucceededAnnouncement_other": "Faili {{count}} zimepakiwa",
+      "videoPlayerLabel": "Kicheza video cha {{fileName}}"
     },
     "collection": {
       "addButtonLabel": "Ongeza {{itemName}}",
@@ -87,6 +95,11 @@
       "true": "Ndiyo"
     },
     "collectionHumanizedValue": "{{collectionLength}} vitu"
+  },
+  "uploadFailureReasons": {
+    "tooLarge": "Faili ni kubwa mno",
+    "tooManyRequests": "Upakiaji mwingi mno, jaribu baadaye",
+    "unsupportedType": "Aina ya faili hairuhusiwi"
   },
   "validationErrorsAnnouncement": "Kuna makosa ya uthibitishaji katika sehemu zifuatazo:"
 }

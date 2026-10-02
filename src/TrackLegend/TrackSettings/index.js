@@ -3,8 +3,6 @@ import { differenceInCalendarDays } from 'date-fns';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { ReactComponent as CrossIcon } from '../../common/images/icons/cross.svg';
-
 import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import { setTrackLength, setTrackLengthOrigin, TRACK_LENGTH_ORIGINS } from '../../ducks/tracks';
 
@@ -18,7 +16,7 @@ const MAX_NUMBER_INPUT_TRACK_LENGTH = 365;
 const MAX_RANGE_INPUT_TRACK_LENGTH = 60;
 const MIN_TRACK_LENGTH = 1;
 
-const TrackSettings = ({ onClose }) => {
+const TrackSettings = () => {
   const dispatch = useDispatch();
   const { t } = useTranslation('tracks', { keyPrefix: 'trackLegend.trackSettings' });
 
@@ -74,16 +72,6 @@ const TrackSettings = ({ onClose }) => {
   return <div className={styles.trackSettings}>
     <div className={styles.header}>
       <h2 className={styles.title}>{t('title')}</h2>
-
-      <button
-        aria-label={t('closeButtonLabel')}
-        className={styles.closeButton}
-        onClick={() => onClose()}
-        title={t('closeButtonLabel')}
-        type="button"
-      >
-        <CrossIcon aria-hidden="true" />
-      </button>
     </div>
 
     <fieldset className={styles.trackLengthFieldSet}>

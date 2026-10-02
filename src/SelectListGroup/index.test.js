@@ -97,6 +97,26 @@ describe('SelectListGroup', () => {
     expect(screen.getByRole('checkbox', { name: 'Lion' })).toBeInTheDocument();
   });
 
+  test('shows the icon of each option beside its label', () => {
+    renderSelectListGroup({ renderOptionIcon: (option) => <span>{`${option.label} icon`}</span> });
+
+    expect(screen.getByText('Lion icon')).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: 'Lion' })).toBeInTheDocument();
+  });
+
+  test('reads the value, label and description through the getters it is given over the option fields', async () => {
+    renderSelectListGroup({
+      getOptionDescription: (option) => option.notes,
+      getOptionLabel: (option) => option.display,
+      getOptionValue: (option) => option.id,
+      options: [{ description: 'Stale', display: 'Lion', id: 'lion-id', label: 'Stale', notes: 'Big cat', value: 'lion' }],
+    });
+
+    await userEvent.click(screen.getByRole('checkbox', { name: /Lion.*Big cat/ }));
+
+    expect(onChange).toHaveBeenCalledWith(['lion-id']);
+  });
+
   test('shows a required multi-select list group', () => {
     renderSelectListGroup({ 'aria-required': true });
 

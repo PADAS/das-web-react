@@ -168,12 +168,6 @@
     "instructionsPopupLabel": "Click to select a location",
     "pickLocationButtonLabel": "Pick a location on the map"
   },
-  "priorityPicker": {
-    "amber": "Amber",
-    "green": "Green",
-    "none": "None",
-    "red": "Red"
-  },
   "reportedBySelect": {
     "control": {
       "radioIconPlaceholder": "Radio icon placeholder for reported by selector"
@@ -189,6 +183,11 @@
     "singleValue": {
       "radioIcon": "Radio icon for {{name}} value"
     }
+  },
+  "reporterSelect": {
+    "allReportersGroupLabel": "All",
+    "recentRadiosGroupLabel": "Recent radios",
+    "restrictedReporterLabel": "RESTRICTED"
   },
   "schemaFields": {
     "addButton": {
@@ -223,12 +222,11 @@
     "addPatrolButtonTitle": "Create Patrol",
     "backButtonLabel": "Go Back",
     "backButtonTitle": "Back",
-    "closeButtonTitle": "Close",
-    "closeEventFeedButtonLabel": "Close Event Feed",
-    "closeGearTabButtonLabel": "Close Gear",
-    "closeMapLayersButtonLabel": "Close Map Layers",
-    "closePatrolFeedButtonLabel": "Close Patrol Feed",
-    "closeSettingsButtonLabel": "Close Settings",
+    "closeButtonLabel": "Close sidebar",
+    "detailViewHeader": {
+      "closeButtonLabel": "Close sidebar"
+    },
+    "eventsLink": "Events",
     "gearLink": "Gear",
     "gearTab": {
       "loadErrorFallback": "Request failed",
@@ -264,11 +262,7 @@
       "resizeHandleLabel": "Resize Otus panel"
     },
     "patrolsLink": "Patrols",
-    "reportsFeedTab": {
-      "fetchReportsErrorMessage": "Could not load events. Please try again.",
-      "tryAgainButton": "Try again"
-    },
-    "eventsLink": "Events",
+    "settingsLink": "Settings",
     "settingsPane": {
       "alertsFrameTitle": "Configure your EarthRanger alerts",
       "alertsTabTitle": "Alerts",
@@ -375,7 +369,9 @@
       },
       "mapTabTitle": "Map"
     },
-    "settingsLink": "Settings"
+    "titleInput": {
+      "editButtonLabel": "Edit title"
+    }
   },
   "sortedNodes": {
     "labelAscending": "Change Order to Descending",
@@ -400,8 +396,6 @@
     "closeButtonLabel": "Close timeslider",
     "dateRangeButtonLabel": "Change date range",
     "endDateNowSliderLabel": "Now",
-    "popoverHeader": "Date Range",
-    "popoverResetButton": "Reset",
     "sliderLabel": "Timeslider",
     "speedButtonLabel": "Open playback speed options",
     "speedMenuHeader": "Playback Speed",

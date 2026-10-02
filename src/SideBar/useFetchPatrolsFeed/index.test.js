@@ -1,6 +1,6 @@
 import React from 'react';
 import { CancelToken } from 'axios';
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw/http';
 import { Provider } from 'react-redux';
 import { setupServer } from 'msw/node';
 
@@ -68,9 +68,8 @@ describe('SideBar - useFetchPatrolsFeed', () => {
       expect(actions).toHaveLength(2);
       expect(actions[0].type).toBe(UPDATE_PATROL_STORE);
       expect(actions[1].type).toBe(FETCH_PATROLS_FEED_SUCCESS);
+      expect(result.current.loadingPatrolsFeed).toBe(false);
     });
-
-    expect(result.current.loadingPatrolsFeed).toBe(false);
   });
 
   test('refreshes the feed behind the patrols it already lists, without a loading state', async () => {

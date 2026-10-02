@@ -26,7 +26,7 @@ import { fetchEventTypes } from '../ducks/event-types';
 import { SidebarScrollProvider } from '../SidebarScrollContext';
 import { uuid } from '../utils/string';
 
-import ReportManager from '../ReportManager';
+import EventOverview from '../SideBar/EventsManager/EventOverview';
 import SearchBar from '../SearchBar';
 import TypesList from '../AddItemButton/AddItemModal/TypesList';
 
@@ -260,9 +260,8 @@ const CommunityPage = () => {
     setNowMs(Date.now());
 
     if (creatableEventTypes.length === 1) {
-      // Only one creatable type: there's no list to return to, so refresh the form in place
-      // (bump the reset key → new temporalId → ReportManager remounts) instead of navigating to
-      // /community/:value, which would immediately auto-redirect back here.
+      // A lone type's list page redirects straight back here, so remounting
+      // Event Overview gives a fresh form instead.
       setFormResetKey((key) => key + 1);
     } else {
       navigate(`/community/${value}`);
@@ -320,7 +319,7 @@ const CommunityPage = () => {
     );
   } else if (selectedType) {
     content = (
-      <ReportManager
+      <EventOverview
         fallbackPath={`/community/${value}`}
         hidePriority
         hideReportedBy

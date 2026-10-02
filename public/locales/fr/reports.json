@@ -10,74 +10,115 @@
     },
     "modalTitle": "Ajouter à un Incident"
   },
-  "columnSort": {
-    "popoverTitle": "Trié par:",
-    "eventSortOptions": {
-      "updatedAtLabel": "Date Actualisée",
-      "createdAtLabel": "Date de Création",
-      "eventTimeLabel": "Date de l'Événement"
-    },
-    "eventOrderOptions": {
-      "newest": "Du plus récent au plus ancien",
-      "oldest": "Du plus ancien au plus récent"
-    }
-  },
   "errorMessages": {
     "accordionHeaderButton": {
       "closed": "Afficher plus de détails",
       "open": "Masquer les détails"
     }
   },
-  "eventFeed": {
-    "loadingMoreReportsItem": "Chargement d'autres événements...",
-    "noMoreReportsItem": "Aucun autre événement à afficher.",
-    "noReportsItem": "Aucun événement à afficher."
-  },
   "eventIcon": {
     "collectionTitle": "Collection"
   },
-  "eventItemContextMenu": {
-    "errorToastMessage": "#{{serialNumber}} est toujours {{state}}, une erreur s'est produite",
-    "notificationDetails": {
-      "failedReports": "ALERTE: Ces événements n'ont pas pu être changés à l'état {{state}}",
-      "processedReports": {
-        "activated": "Actif",
-        "resolved": "Résolu",
-        "review": "envoyé en révision",
-        "title": "Ces événements associés sont aussi {{newState}}:"
-      }
+  "eventsManager": {
+    "eventOverview": {
+      "footer": {
+        "cancelButton": "Annuler",
+        "cancelButtonLabel": "Annuler l'ajout de cet événement",
+        "saveAndActivateOption": "Sauvegarder et activer",
+        "saveAndReopenOption": "Sauvegarder et réouvrir",
+        "saveAndResolveOption": "Sauvegarder et résoudre",
+        "saveAndReviewOption": "Sauvegarder et réviser",
+        "saveButton": "Sauvegarder",
+        "saveOptionsMenuLabel": "Plus d'options de sauvegarde"
+      },
+      "header": {
+        "breadcrumbEventsLabel": "Événements",
+        "breadcrumbNavLabel": "Navigation de l'événement",
+        "jumpToLocationButtonLabel": "Aller à l'emplacement",
+        "patrolIndicator": "p",
+        "reportMenu": {
+          "addToIncidentOption": "Ajouter à un Incident",
+          "addToPatrolOption": "Ajouter à une Patrouille",
+          "copyLinkMessage": "Lien copié avec succès",
+          "copyLinkOption": "Copier le lien de l'événement",
+          "jumpToLocationOption": "Aller à l'emplacement",
+          "moreOptionsButtonLabel": "Plus d'options",
+          "printOption": "Imprimer l'Événement"
+        },
+        "statusSelect": {
+          "states": {
+            "active": "Actif",
+            "resolved": "Résolu",
+            "review": "En révision"
+          },
+          "stateTransitions": {
+            "activate": "Activer",
+            "reopen": "Réouvrir",
+            "resolve": "Résoudre",
+            "review": "Envoyer en révision"
+          },
+          "statusMenuLabel": "Statuts de l'événement",
+          "statusSelectLabel": "Modifier le statut de l'événement"
+        },
+        "titleInputLabel": "Titre de l'événement"
+      },
+      "loadingLabel": "Chargement des données de l'événement"
     },
-    "state": {
-      "active": "Actif",
-      "resolved": "Résolu",
-      "review": "en révision"
-    },
-    "textCopyButtonItem": {
-      "label": "Copier le lien de l'événement",
-      "successMessage": "Lien copié avec succès"
-    },
-    "updatedCollectionInfoToast": {
-      "activated": "Actif",
-      "message": "La collection d'événements #{{collectionSerialNumber}} a été {{newState}} avec succès",
-      "resolved": "Résolu",
-      "review": "envoyé en révision"
-    },
-    "updatedReportInfoToastMessage": "#{{reportSerialNumber}} {{newState}}",
-    "updateReportStateItem": {
-      "activate": "Activer",
-      "reopen": "Réouvrir",
-      "resolve": "Résoudre",
-      "review": "Envoyer en révision"
+    "eventsFeed": {
+      "emptyStateMessage": "Aucun événement à afficher.",
+      "eventListLabel": "Liste des événements",
+      "eventRow": {
+        "actions": {
+          "copyLinkMessage": "Lien copié avec succès",
+          "copyLinkOption": "Copier le lien de l'événement",
+          "jumpToLocationButtonLabel": "Aller à l'emplacement",
+          "moreOptionsButtonLabel": "Plus d'options",
+          "notificationDetails": {
+            "failedEvents": "ALERTE : le statut de ces événements n'a pas pu être changé en « {{state}} »",
+            "processedEvents": {
+              "activated": "activés",
+              "resolved": "résolus",
+              "review": "envoyés en révision",
+              "title": "Ces événements associés ont aussi été {{newState}} :"
+            },
+            "states": {
+              "active": "Actif",
+              "resolved": "Résolu",
+              "review": "En révision"
+            }
+          },
+          "states": {
+            "active": "actif",
+            "resolved": "résolu",
+            "review": "en révision"
+          },
+          "stateTransitions": {
+            "activate": "Activer",
+            "reopen": "Réouvrir",
+            "resolve": "Résoudre",
+            "review": "Envoyer en révision"
+          },
+          "stateUpdateErrorToastMessage": "#{{serialNumber}} est toujours {{state}}, une erreur s'est produite",
+          "updatedCollectionToast": {
+            "activated": "activée",
+            "message": "La collection d'événements #{{collectionSerialNumber}} a été {{newState}} avec succès",
+            "resolved": "résolue",
+            "review": "envoyée en révision"
+          },
+          "updatedEventToastMessage": "#{{eventSerialNumber}} {{newState}}"
+        },
+        "patrolIndicator": "p",
+        "states": {
+          "active": "Actif",
+          "resolved": "Résolu",
+          "review": "En révision"
+        }
+      },
+      "fetchErrorMessage": "Impossible de charger les événements. Veuillez réessayer.",
+      "loadingLabel": "Chargement des événements",
+      "loadingMoreLabel": "Chargement d'autres événements",
+      "retryButton": "Réessayez"
     }
-  },
-  "prioritySelect": {
-    "labels": {
-      "amber": "Ambre",
-      "green": "Verte",
-      "none": "Aucune",
-      "red": "Rouge"
-    },
-    "placeholder": "Sélectionner"
   },
   "reportGeometryDrawer": {
     "cancelationConfirmationModal": {
@@ -139,39 +180,24 @@
       },
       "dateLabel": "Date de l'Événement",
       "detailsHeader": "Détails",
-      "errorLoadingSchema": "Erreur lors du chargement du schéma",
       "locationLabel": "Emplacement",
-      "priorityLabel": "Priorité",
-      "reportedByLabel": "Complété Par",
-      "stateDropdown": {
-        "active": "Actif",
-        "resolved": "Résolu",
-        "review": "en révision"
-      },
-      "timeLabel": "Heure"
-    },
-    "header": {
-      "priority": {
+      "priorities": {
         "amber": "Ambre",
         "green": "Verte",
         "none": "Aucune",
         "red": "Rouge"
       },
-      "reportMenu": {
-        "addToIncidentItem": "Ajouter à un Incident",
-        "addToPatrolItem": "Ajouter à une Patrouille",
-        "printReportItem": "Imprimer l'Événement",
-        "textCopyButtonLabel": "Copier le lien de l'événement",
-        "textCopyButtonSuccessMessage": "Lien copié avec succès"
-      }
+      "priorityLabel": "Priorité",
+      "reportedByLabel": "Complété Par",
+      "schemaErrorMessage": "Les champs de ce type d'événement n'ont pas pu être chargés.",
+      "schemaLoadingLabel": "Chargement des champs de ce type d'événement",
+      "timeLabel": "Heure"
     },
     "linksSection": {
       "linksHeader": "Liens"
     },
     "reportDetailView": {
-      "cancelButton": "Annuler",
       "cantAddNoteAlert": "Impossible d'ajouter un nouveau commentaire: il y a un commentaire vide qui n'a pas encore été sauvegardé",
-      "loadingMessage": "Sauvegardement....",
       "quickLinks": {
         "activityAnchor": "Activité",
         "detailsAnchor": "Détails",
@@ -179,13 +205,6 @@
         "linksAnchor": "Liens"
       },
       "saveErrorMessage": "Erreur de sauvegarde de l'événement",
-      "saveSplitButton": {
-        "saveAndActivateItem": "Sauvegarder et activer",
-        "saveAndReopenItem": "Sauvegarder et réouvrir",
-        "saveAndResolveItem": "Sauvegarder et résoudre",
-        "saveAndReviewItem": "Sauvegarder et réviser",
-        "title": "Sauvegarder"
-      },
       "unknownErrorLabel": "Erreur rencontrée indéterminée"
     }
   },

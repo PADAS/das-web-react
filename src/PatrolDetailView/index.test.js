@@ -1,5 +1,5 @@
 import React from 'react';
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw/http';
 import { Provider } from 'react-redux';
 import { setupServer } from 'msw/node';
 import { useLocation, useSearchParams } from 'react-router';
@@ -311,7 +311,7 @@ describe('PatrolDetailView', () => {
 
     const titleInput = await screen.findByTestId('patrolDetailView-header-title');
 
-    expect(titleInput).toHaveTextContent('Unknown patrol type');
+    expect(titleInput).toHaveTextContent('Dog Patrol');
 
     await userEvent.type(titleInput, '2');
 

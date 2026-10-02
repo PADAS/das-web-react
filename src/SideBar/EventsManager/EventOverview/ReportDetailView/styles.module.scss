@@ -1,0 +1,78 @@
+@import '../../../../common/styles/layout';
+@import '../../../../common/styles/vars/colors';
+
+.reportDetailView {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: white;
+  position: relative;
+
+  @media (min-width: $md-layout-width-min) {
+    @include sidebar-width-detail;
+  }
+
+  &.community {
+    max-width: 60rem;
+    width: 100%;
+  }
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+
+  .navigationBar {
+    display: none;
+
+    @media (min-width: $md-layout-width-min) {
+      display: unset;
+    }
+
+    @media print {
+      display: none;
+    }
+  }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: white;
+  border-left: 1px solid $very-light-gray-alt;
+  overflow: auto;
+  width: 100%;
+
+  @media print {
+    border-left: none;
+  }
+}
+
+.section {
+  background-color: white;
+  border-bottom: 1px solid $very-light-gray-alt;
+  border-top: 1px solid $very-light-gray-alt;
+  padding: 1rem;
+}
+
+.sectionSeparation {
+  height: 0.5rem;
+  width: calc(100% + 2.5rem);
+}
+
+.historySectionSeparation {
+  height: 0.5rem;
+  width: calc(100% + 2.5rem);
+
+  @media print {
+    display: none;
+  }
+}
+
+.historySection {
+  @media print {
+    display: none;
+  }
+}

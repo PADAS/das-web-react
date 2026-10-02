@@ -2,7 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { DAS_HOST, VERTICAL_NAV_RAIL_WIDTH_PIXELS } from '../../constants';
+import { DAS_HOST, SIDEBAR_WIDTH_PIXELS, VERTICAL_NAV_RAIL_WIDTH_PIXELS } from '../../constants';
 import { mockStore } from '../../__test-helpers/MockStore';
 import { fireEvent, render, screen } from '../../test-utils';
 import { updateUserPreferences } from '../../ducks/user-preferences';
@@ -274,7 +274,7 @@ describe('SideBar - OtusTab', () => {
   test('shows the width bounds of the panel in the resize handle', () => {
     renderOtusTab();
 
-    expect(getResizeHandle()).toHaveAttribute('aria-valuemin', '512');
+    expect(getResizeHandle()).toHaveAttribute('aria-valuemin', `${SIDEBAR_WIDTH_PIXELS}`);
     expect(getResizeHandle()).toHaveAttribute('aria-valuenow', '736');
     expect(getResizeHandle()).toHaveAttribute('aria-valuemax', `${window.innerWidth - VERTICAL_NAV_RAIL_WIDTH_PIXELS}`);
   });
@@ -305,13 +305,13 @@ describe('SideBar - OtusTab', () => {
   });
 
   test('narrows the panel no further than its minimum width', async () => {
-    store.view.userPreferences.otusTabWidth = 520;
+    store.view.userPreferences.otusTabWidth = SIDEBAR_WIDTH_PIXELS + 8;
     renderOtusTab();
 
     getResizeHandle().focus();
     await userEvent.keyboard('{ArrowLeft}');
 
-    expect(reduxStore.getActions()).toEqual([updateUserPreferences({ otusTabWidth: 512 })]);
+    expect(reduxStore.getActions()).toEqual([updateUserPreferences({ otusTabWidth: SIDEBAR_WIDTH_PIXELS })]);
   });
 
   test('narrows the panel to its minimum width when the user presses the home key on the resize handle', async () => {
@@ -320,7 +320,7 @@ describe('SideBar - OtusTab', () => {
     getResizeHandle().focus();
     await userEvent.keyboard('{Home}');
 
-    expect(reduxStore.getActions()).toEqual([updateUserPreferences({ otusTabWidth: 512 })]);
+    expect(reduxStore.getActions()).toEqual([updateUserPreferences({ otusTabWidth: SIDEBAR_WIDTH_PIXELS })]);
   });
 
   test('widens the panel to its maximum width when the user presses the end key on the resize handle', async () => {

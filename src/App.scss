@@ -51,7 +51,7 @@ $map-canvas: '.mapboxgl-canvas';
   --sidebar-width: calc(100vw);
 
   @media (min-width: $md-layout-width-min) {
-    --sidebar-width: #{$sidebar-width-base};
+    --sidebar-width: min(#{$sidebar-width-base}, calc(100vw - var(--vertical-nav-width)));
   }
 }
 
@@ -230,32 +230,37 @@ body {
   }
 
   .report-filter {
-    padding: 0.333rem;
-  }
+    padding: 0.5rem;
 
-  form {
-    border: none;
-    padding: 0;
+    // The map fits the search bar and the popover triggers on a single row, so
+    // the search bar takes whatever the triggers leave.
+    > [class*=controls] {
+      border: none;
+      flex-direction: row;
+      padding: 0;
 
-    @media (min-width: $md-layout-width-min) {
-      border-bottom: 1px solid $gray-border;
-      padding-bottom: 0.25rem;
+      > [class*=searchBar] {
+        flex: 1;
+        min-width: 0;
+        width: auto;
+
+        input {
+          background: transparent;
+        }
+      }
+
+      > [class*=triggerButtons] {
+        flex-shrink: 0;
+        margin: 0 0 0 0.5rem;
+        width: auto;
+      }
     }
-  }
 
-  [class*=search] {
-    input {
-      background: transparent;
-    }
-  }
-
-  .map-report-filter-details {
-    display: none;
-
-    @media (min-width: $md-layout-width-min) {
-      display: block;
-      font-size: 0.75rem;
-      margin-top: 0.25rem;
+    // Held at the reset button's height, so it showing up moves nothing.
+    > [class*=summaryBar] {
+      border: none;
+      min-height: calc($chip-height + 0.5rem);
+      padding: 0.5rem 0 0;
     }
   }
 }
@@ -829,18 +834,6 @@ div.mapboxgl-popup-tip {
       display: none !important;
     }
   }
-}
-
-.sr-only {
-  border-width: 0;
-  clip: rect(0, 0, 0, 0);
-  height: 1px;
-  margin: -1px;
-  overflow: hidden;
-  padding: 0;
-  position: absolute;
-  white-space: nowrap;
-  width: 1px;
 }
 
 /* --- OLD NAVIGATION STUFF ENDS HERE --- */

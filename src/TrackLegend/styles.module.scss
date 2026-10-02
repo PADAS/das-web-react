@@ -67,7 +67,7 @@
 
         .settingsButton {
           @include buttons.chipIconButton;
-          @include buttons.chipIconButtonActiveState;
+          @include buttons.chipActiveState;
         }
       }
 
@@ -78,9 +78,9 @@
       }
 
       .clearTracksButton {
-        @include shared.legend-text-button;
+        @include buttons.chipTextButton;
 
-        height: 2rem;
+        flex-shrink: 0;
       }
     }
   }

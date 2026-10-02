@@ -93,7 +93,7 @@ export const BREAKPOINTS = {
   screenIsExtraLargeWidth: window.matchMedia(xlLayoutWidthMin),
 };
 
-export const SIDEBAR_WIDTH_PIXELS = 512;
+export const SIDEBAR_WIDTH_PIXELS = 576;
 export const SIDEBAR_DETAIL_VIEW_WIDTH_PIXELS = 736;
 
 // Keep in sync with --vertical-nav-width in App.scss.
@@ -106,6 +106,10 @@ export const FOCUSABLE_SELECTOR = [
   '[role="button"]:not([aria-disabled="true"])',
   '[tabindex]:not([tabindex="-1"])',
 ].join(', ');
+
+// The menus inside a popover are positioned fixed, which a transformed popover
+// would anchor to itself rather than to the viewport.
+export const POPOVER_POPPER_CONFIG = { modifiers: [{ name: 'computeStyles', options: { gpuAcceleration: false } }] };
 
 export const LAYER_IDS = {
   ANALYZER_LINES_CRITICAL: 'analyzer-line-critical',
@@ -192,7 +196,6 @@ export const SYSTEM_CONFIG_FLAGS = {
 };
 
 export const PREVIEW_FEATURES = {
-  COMMUNITY_INPUT_ADMIN: 'community_input_admin_enabled',
   EVENTS_VECTOR_TILES: 'events_vector_tiles',
   PATROL_SCHEMAS: 'patrol_schemas',
 };
@@ -441,12 +444,12 @@ export const TIME_OF_DAY_PERIODS = [
   {
     rangeString: '06:01 - 09:00',
     rangeMinutesMin: 361,
-    rangeMinutesMax: 54,
+    rangeMinutesMax: 540,
     color: '#29a272'
   },
   {
     rangeString: '09:01 - 12:00',
-    rangeMinutesMin: 55,
+    rangeMinutesMin: 541,
     rangeMinutesMax: 720,
     color: '#2ec27e'
   }

@@ -7,6 +7,7 @@ import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
+import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
 import { ReactComponent as OtusIcon } from '../common/images/icons/otus.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
 
@@ -62,16 +63,19 @@ const GlobalMenuDrawer = () => {
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
   const alertsEnabled = useSelector(getAlertsEnabled);
+  const analyzersEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.ANALYZERS]);
   const dailyReportEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.DAILY_REPORT]);
   const drawer = useSelector((state) => state.view.drawer);
   const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
   const eventFilter = useSelector((state) => state.data.eventFilter);
   const eventTypes = useSelector((state) => state.data.eventTypes);
+  const hasGear = useSelector((state) => state.data.gear.hasGear);
   const kmlExportEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.KML_EXPORT]);
   const otusUrl = useSelector((state) => state.view.systemConfig.otusUrl);
   const patrolManagementEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]);
   const selectedUserProfile = useSelector((state) => state.data.selectedUserProfile);
   const serverData = useSelector((state) => state.data.systemStatus.server);
+  const spatialFeaturesEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]);
   const subjectsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SUBJECTS]);
   const tableauEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.TABLEAU]);
   const token = useSelector((state) => state.data.token);
@@ -194,14 +198,21 @@ const GlobalMenuDrawer = () => {
 
   // Calculate the navigation links to show based on the enabled features.
   const navigationItems = useMemo(() => [
-    { icon: <DocumentIcon />, sidebarTab: TAB_KEYS.EVENTS, title: t('navigationButton.reports') },
+    ...(eventsEnabled
+      ? [{ icon: <DocumentIcon />, sidebarTab: TAB_KEYS.EVENTS, title: t('navigationButton.reports') }]
+      : []),
     ...(canReadPatrols
       ? [{ icon: <PatrolIcon />, sidebarTab: TAB_KEYS.PATROLS, title: t('navigationButton.patrols') }]
       : []),
-    { icon: <LayersIcon />, sidebarTab: TAB_KEYS.LAYERS, title: t('navigationButton.mapLayers') },
+    ...(hasGear
+      ? [{ icon: <MarkerFeedIcon />, sidebarTab: TAB_KEYS.GEAR, title: t('navigationButton.gear') }]
+      : []),
+    ...(analyzersEnabled || spatialFeaturesEnabled || subjectsEnabled || eventsEnabled
+      ? [{ icon: <LayersIcon />, sidebarTab: TAB_KEYS.LAYERS, title: t('navigationButton.mapLayers') }]
+      : []),
     ...(otusUrl ? [{ icon: <OtusIcon />, sidebarTab: TAB_KEYS.OTUS, title: t('navigationButton.otus') }] : []),
     { icon: <GearIcon />, sidebarTab: TAB_KEYS.SETTINGS, title: t('navigationButton.settings') },
-  ], [canReadPatrols, otusUrl, t]);
+  ], [analyzersEnabled, canReadPatrols, eventsEnabled, hasGear, otusUrl, spatialFeaturesEnabled, subjectsEnabled, t]);
 
   useEffect(() => {
     if (drawer.drawerId === 'global-menu' && drawer.isOpen) {

@@ -11,6 +11,7 @@ import {
   buildPatrolResumeUpdate,
   buildPatrolStartUpdate,
   calcColorThemeForPatrolState,
+  calcTitleAndSubtitleForPatrol,
   calcPatrolSegmentState,
   calcPatrolState,
   canEditPatrolSegment,
@@ -241,6 +242,23 @@ describe('Patrols utils', () => {
 
     test('returns active for a multi-leg patrol whose earlier leg has ended but whose latest leg is still active', () => {
       expect(calcPatrolState(multiLegPatrol)).toBe(ACTIVE);
+    });
+
+    test('keeps returning done for a patrol the API calls done while a leg of it is still open', () => {
+      const patrol = {
+        patrol_segments: [
+          {
+            time_range: {
+              end_time: subHours(new Date(), 2).toISOString(),
+              start_time: subHours(new Date(), 4).toISOString(),
+            },
+          },
+          { is_pause: true, time_range: { end_time: null, start_time: subHours(new Date(), 2).toISOString() } },
+        ],
+        state: 'done',
+      };
+
+      expect(calcPatrolState(patrol)).toBe(DONE);
     });
   });
 
@@ -557,28 +575,21 @@ describe('Patrols utils', () => {
       });
     });
 
-    test('puts the lead on the team of the copy when the leg it copies leaves them off', () => {
+    test('keeps the lead off the team members of the copy when the leg it copies leaves them off', () => {
       const patrolWithLeadOffTheTeam = { patrol_segments: [{ ...runningLeg, members: ['member-1'] }] };
 
       const { patrol_segments: [, pause] } = buildPatrolPauseUpdate(patrolWithLeadOffTheTeam);
 
-      expect(pause.members).toEqual(['leader-1', 'member-1']);
+      expect(pause.leader).toEqual({ id: 'leader-1' });
+      expect(pause.members).toEqual(['member-1']);
     });
 
-    test('gives the copy a team of the lead alone when the leg it copies has no team', () => {
-      const patrolWithNoTeam = { patrol_segments: [omit(runningLeg, ['members'])] };
+    test('sends no team members for the copy when the leg it copies has none', () => {
+      const patrolWithNoTeamMembers = { patrol_segments: [omit(runningLeg, ['members'])] };
 
-      const { patrol_segments: [, pause] } = buildPatrolPauseUpdate(patrolWithNoTeam);
+      const { patrol_segments: [, pause] } = buildPatrolPauseUpdate(patrolWithNoTeamMembers);
 
-      expect(pause.members).toEqual(['leader-1']);
-    });
-
-    test('keeps the team of the copy as it was when the leg it copies has no lead', () => {
-      const patrolWithNoLead = { patrol_segments: [{ ...runningLeg, leader: null }] };
-
-      const { patrol_segments: [, pause] } = buildPatrolPauseUpdate(patrolWithNoLead);
-
-      expect(pause.members).toEqual(['leader-1', 'member-1']);
+      expect(pause).not.toHaveProperty('members');
     });
 
     test('leaves the identity and the history of the leg it copies behind', () => {
@@ -1745,7 +1756,7 @@ describe('Patrols utils', () => {
 
     let teamAndTrackingOptions;
     beforeEach(() => {
-      teamAndTrackingOptions = { assets: [asset], leaders: [], members: [member], teams: [team] };
+      teamAndTrackingOptions = { assets: [asset], members: [member], teams: [team] };
     });
 
     test('resolves the team, members and assets the leg carries as ids', () => {
@@ -1829,7 +1840,7 @@ describe('Patrols utils', () => {
 
     let teamAndTrackingOptions;
     beforeEach(() => {
-      teamAndTrackingOptions = { assets: [asset], leaders: [leader], members: [leader, teamMember], teams: [] };
+      teamAndTrackingOptions = { assets: [asset], members: [leader, teamMember], teams: [] };
     });
 
     test('returns the leg\'s leader, team members and assets, the leader first', () => {
@@ -2211,6 +2222,20 @@ describe('Patrols utils', () => {
 
       expect(getActivePatrolsForLeaderId('leader-b')).toEqual([activeLastLegPatrol]);
       expect(getActivePatrolsForLeaderId('leader-a')).toEqual([]);
+    });
+
+    test('keeps a paused patrol, which is still under way', () => {
+      const pausedPatrol = {
+        ...activePatrol,
+        id: 'patrol-paused',
+        patrol_segments: [
+          { ...activePatrol.patrol_segments[0], leader: { id: 'leader-a' } },
+          { ...activePatrol.patrol_segments[0], is_pause: true, leader: { id: 'leader-a' } },
+        ],
+      };
+      store.getState.mockReturnValue({ data: { patrolStore: { 'patrol-paused': pausedPatrol } } });
+
+      expect(getActivePatrolsForLeaderId('leader-a')).toEqual([pausedPatrol]);
     });
   });
 
@@ -2820,6 +2845,32 @@ describe('Patrols utils', () => {
       expect(PATROL_SAVE_ACTIONS.addFile(file).action('patrol-1')).toBe(upload);
       expect(uploadPatrolFile).toHaveBeenCalledWith('patrol-1', file);
       expect(store.dispatch).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('calcTitleAndSubtitleForPatrol', () => {
+    const PATROL_TYPES = [{ display: 'Dog Patrol', value: 'dog_patrol' }];
+
+    const buildPatrol = (title, patrolType = 'dog_patrol') => ({
+      patrol_segments: [{ leader: { name: 'Alex' }, patrol_type: patrolType, time_range: {} }],
+      title,
+    });
+
+    test('goes by the patrol type of an untitled patrol rather than its leader', () => {
+      expect(calcTitleAndSubtitleForPatrol(buildPatrol(null), PATROL_TYPES)).toEqual({ subtitle: null, title: 'Dog Patrol' });
+      expect(calcTitleAndSubtitleForPatrol(buildPatrol(' '), PATROL_TYPES)).toEqual({ subtitle: null, title: 'Dog Patrol' });
+    });
+
+    test('shows the patrol type below a title of its own only', () => {
+      expect(calcTitleAndSubtitleForPatrol(buildPatrol('North sweep'), PATROL_TYPES))
+        .toEqual({ subtitle: 'Dog Patrol', title: 'North sweep' });
+      expect(calcTitleAndSubtitleForPatrol(buildPatrol('Dog Patrol'), PATROL_TYPES))
+        .toEqual({ subtitle: null, title: 'Dog Patrol' });
+    });
+
+    test('keeps the title of a patrol without legs', () => {
+      expect(calcTitleAndSubtitleForPatrol({ patrol_segments: [], title: 'North sweep' }, PATROL_TYPES))
+        .toEqual({ subtitle: null, title: 'North sweep' });
     });
   });
 });

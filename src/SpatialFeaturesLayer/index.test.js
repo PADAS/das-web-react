@@ -150,8 +150,45 @@ describe('SpatialFeaturesLayer', () => {
 
     // Verify click handlers were added
     expect(mockMap.on).toHaveBeenCalledWith('click', SYMBOLS_LAYER_ID, expect.any(Function));
-    expect(mockMap.on).toHaveBeenCalledWith('click', LINES_LAYER_ID, expect.any(Function));
-    expect(mockMap.on).toHaveBeenCalledWith('click', POLYGONS_LAYER_ID, expect.any(Function));
+  });
+
+  test('takes clicks only on the point symbols, which are the features that open a popup', () => {
+    render(
+      <MapContext.Provider value={mockMap}>
+        <SpatialFeaturesLayer onFeatureClick={mockOnFeatureClick} />
+      </MapContext.Provider>
+    );
+
+    const clickedLayerIds = mockMap.on.mock.calls.filter((call) => call[0] === 'click').map((call) => call[1]);
+
+    expect(clickedLayerIds).toEqual([SYMBOLS_LAYER_ID]);
+  });
+
+  test('keeps its source and layers when the access token or the click handler changes', () => {
+    mockMap.getSource.mockReturnValue(null);
+    mockMap.getLayer.mockReturnValue(null);
+
+    const { rerender } = render(
+      <MapContext.Provider value={mockMap}>
+        <SpatialFeaturesLayer onFeatureClick={mockOnFeatureClick} />
+      </MapContext.Provider>
+    );
+
+    useSelector.mockImplementation((selector) => {
+      const selectorSource = selector.toString();
+      if (selectorSource.includes('token')) return { access_token: 'refreshed-token' };
+      if (selectorSource.includes('mapFeatureHighlightIDs')) return ['highlight-feature-1', 'highlight-feature-2'];
+      if (selectorSource.includes('hiddenFeatureIDs')) return ['hidden-feature-1', 'hidden-feature-2'];
+      return null;
+    });
+    rerender(
+      <MapContext.Provider value={mockMap}>
+        <SpatialFeaturesLayer onFeatureClick={jest.fn()} />
+      </MapContext.Provider>
+    );
+
+    expect(mockMap.removeSource).not.toHaveBeenCalled();
+    expect(mockMap.addSource).toHaveBeenCalledTimes(1);
   });
 
   test('should include bounds in addSource call when geoSpan is configured', () => {
@@ -200,15 +237,19 @@ describe('SpatialFeaturesLayer', () => {
     expect(mockMap.addLayer).not.toHaveBeenCalled();
   });
 
-  test('should handle feature clicks correctly', () => {
-    // Setup mock feature for testing click handler
+  test('reports only the topmost point under a click', () => {
     const mockFeature = {
       type: 'Feature',
       properties: { id: 'feature1' },
       geometry: { type: 'Point', coordinates: [10, 20] }
     };
+    const otherMockFeature = {
+      type: 'Feature',
+      properties: { id: 'feature2' },
+      geometry: { type: 'Point', coordinates: [10, 20] }
+    };
 
-    mockMap.queryRenderedFeatures.mockReturnValue([mockFeature]);
+    mockMap.queryRenderedFeatures.mockReturnValue([mockFeature, otherMockFeature]);
 
     render(
       <MapContext.Provider value={mockMap}>
@@ -221,17 +262,13 @@ describe('SpatialFeaturesLayer', () => {
       call[0] === 'click' && call[1] === SYMBOLS_LAYER_ID
     )[2];
 
-    // Create a mock event
-    const mockEvent = createMockInteractionEvent({ point: { x: 100, y: 100 } });
-
-    // Invoke the click handler
+    const mockEvent = createMockInteractionEvent({
+      features: [mockFeature, otherMockFeature],
+      point: { x: 100, y: 100 },
+    });
     clickHandler(mockEvent);
 
-    // Verify feature lookup and callback
-    expect(mockMap.queryRenderedFeatures).toHaveBeenCalledWith(
-      mockEvent.point,
-      { layers: [SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_OUTLINE_LAYER_ID, POLYGONS_LAYER_ID] }
-    );
+    expect(mockOnFeatureClick).toHaveBeenCalledTimes(1);
     expect(mockOnFeatureClick).toHaveBeenCalledWith(mockFeature, mockEvent);
   });
 

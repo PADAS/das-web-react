@@ -17,13 +17,16 @@
     "required": "This is a required field.",
     "timeFormat": "Invalid time format.",
     "uploadFailedError": "One or more file uploads failed. Remove the failed files before submitting.",
+    "uploadFailedWithReasonError": "One or more file uploads failed: {{reason}}. Remove the failed files before submitting.",
     "uploadInProgressError": "Please wait for files to finish uploading.",
     "uriFormat": "Invalid URL format.",
     "uuidFormat": "Invalid UUID format."
   },
   "fields": {
     "attachment": {
+      "audioPlayerLabel": "{{fileName}} audio player",
       "chooseFile": "Choose File",
+      "closePlayerButtonLabel": "Close player for {{fileName}}",
       "disallowedTypeAlert": "{{fileName}} can't be added because its file type isn't allowed.",
       "downloadButtonLabel": "Download {{fileName}}",
       "dropzoneText": "Drag and drop files here",
@@ -31,15 +34,20 @@
       "maxItemsAlert_one": "You can only add up to {{count}} file.",
       "maxItemsAlert_other": "You can only add up to {{count}} files.",
       "pendingLabel": "Pending",
+      "playButtonLabel": "Play {{fileName}}",
+      "playerErrorLabel": "Unable to load this file.",
       "removeButtonLabel": "Remove {{fileName}}",
       "requiredLabel": "(required)",
       "uploadErrorLabel": "Upload failed",
       "uploadFailedAnnouncement_one": "{{fileName}} couldn't be uploaded",
       "uploadFailedAnnouncement_other": "{{count}} files couldn't be uploaded",
+      "uploadFailedWithReasonAnnouncement_one": "{{fileName}} couldn't be uploaded: {{reason}}",
+      "uploadFailedWithReasonAnnouncement_other": "{{count}} files couldn't be uploaded: {{reason}}",
       "uploadStartedAnnouncement_one": "Uploading {{fileName}}",
       "uploadStartedAnnouncement_other": "Uploading {{count}} files",
       "uploadSucceededAnnouncement_one": "{{fileName}} uploaded",
-      "uploadSucceededAnnouncement_other": "{{count}} files uploaded"
+      "uploadSucceededAnnouncement_other": "{{count}} files uploaded",
+      "videoPlayerLabel": "{{fileName}} video player"
     },
     "collection": {
       "addButtonLabel": "Add {{itemName}}",
@@ -87,6 +95,11 @@
       "true": "Yes"
     },
     "collectionHumanizedValue": "{{collectionLength}} items"
+  },
+  "uploadFailureReasons": {
+    "tooLarge": "File is too large",
+    "tooManyRequests": "Too many uploads, try later",
+    "unsupportedType": "File type is not allowed"
   },
   "validationErrorsAnnouncement": "There are validation errors in the following fields:"
 }

@@ -2,6 +2,8 @@ import React, { memo, useContext, useEffect, useMemo, useRef, useState } from 'r
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
+import { ReactComponent as ArrowDownSimpleIcon } from '../../../common/images/icons/arrow-down-simple.svg';
+import { ReactComponent as ArrowUpSimpleIcon } from '../../../common/images/icons/arrow-up-simple.svg';
 import { ReactComponent as AttachmentIcon } from '../../../common/images/icons/attachment.svg';
 import { ReactComponent as CloudUploadIcon } from '../../../common/images/icons/cloud-upload.svg';
 import { ReactComponent as DownloadArrowIcon } from '../../../common/images/icons/download-arrow.svg';
@@ -17,13 +19,16 @@ import {
   filterDuplicateUploadFilenames,
 } from '../../../utils/file';
 import { downloadFileFromUrl } from '../../../utils/download';
+import getSharedUploadFailureReasonLabel from '../../utils/getSharedUploadFailureReasonLabel';
 import { removeFile, uploadFile } from '../../../ducks/user-content';
 import { selectUploadStatesByIds } from '../../../selectors/user-content';
 import { showToast } from '../../../utils/toast';
 import { TrackerContext } from '../../../utils/analytics';
 import useFormElementDomId from '../../utils/useFormElementDomId';
+import useMediaObjectUrl from '../../../hooks/useMediaObjectUrl';
 
-import ImageModal from '../../../ImageModal';
+import LoadingOverlay from '../../../LoadingOverlay';
+import MediaModal from '../../../MediaModal';
 
 import * as styles from './styles.module.scss';
 
@@ -97,11 +102,50 @@ const isFileTypeAllowed = (file, allowableFileTypes) => {
   });
 };
 
+const MediaPlayer = ({ attachment, mediaError, mediaObjectUrl, t }) => {
+  const [hasPlaybackFailed, setHasPlaybackFailed] = useState(false);
+
+  if (mediaError || hasPlaybackFailed) {
+    return <span className={styles.error}>{t('playerErrorLabel')}</span>;
+  }
+
+  if (!mediaObjectUrl) {
+    return <div className={styles.playerLoadingContainer}>
+      <LoadingOverlay data-testid={`player-loading-${attachment.uploadId}`} loaderSize={32} />
+    </div>;
+  }
+
+  if (attachment.fileType === 'audio') {
+    return <audio
+      aria-label={t('audioPlayerLabel', { fileName: attachment.name })}
+      controls
+      onError={() => setHasPlaybackFailed(true)}
+      src={mediaObjectUrl}
+    />;
+  }
+
+  return <video
+    aria-label={t('videoPlayerLabel', { fileName: attachment.name })}
+    controls
+    onError={() => setHasPlaybackFailed(true)}
+    src={mediaObjectUrl}
+  />;
+};
+
 const AttachmentListItem = ({ actionButtonRefs, attachment, onRemove, readOnly }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('schema-form', { keyPrefix: 'fields.attachment' });
 
   const tracker = useContext(TrackerContext);
+
+  const isMedia = attachment.fileType === 'audio' || attachment.fileType === 'video';
+
+  const [isPlayerOpen, setIsPlayerOpen] = useState(false);
+
+  const {
+    error: mediaError,
+    objectUrl: mediaObjectUrl,
+  } = useMediaObjectUrl(isMedia && isPlayerOpen ? attachment.originalUrl : null);
 
   const actionButtonRef = (node) => {
     if (node) {
@@ -149,7 +193,7 @@ const AttachmentListItem = ({ actionButtonRefs, attachment, onRemove, readOnly }
         className={styles.actionButton}
         disabled={!attachment.originalImageSource && !attachment.thumbnailImageSource}
         onClick={() => dispatch(addModal({
-          content: ImageModal,
+          content: MediaModal,
           src: attachment.originalImageSource ?? attachment.thumbnailImageSource,
           title: attachment.name,
           tracker,
@@ -160,6 +204,18 @@ const AttachmentListItem = ({ actionButtonRefs, attachment, onRemove, readOnly }
         type="button"
         >
         <ExpandArrowIcon aria-hidden="true" />
+      </button>;
+    } else if (isMedia) {
+      actionButton = <button
+        aria-label={t(isPlayerOpen ? 'closePlayerButtonLabel' : 'playButtonLabel', { fileName: attachment.name })}
+        className={styles.actionButton}
+        disabled={!attachment.originalUrl}
+        onClick={() => setIsPlayerOpen((open) => !open)}
+        ref={actionButtonRef}
+        title={t(isPlayerOpen ? 'closePlayerButtonLabel' : 'playButtonLabel', { fileName: attachment.name })}
+        type="button"
+        >
+        {isPlayerOpen ? <ArrowUpSimpleIcon aria-hidden="true" /> : <ArrowDownSimpleIcon aria-hidden="true" />}
       </button>;
     } else {
       actionButton = <button
@@ -177,19 +233,36 @@ const AttachmentListItem = ({ actionButtonRefs, attachment, onRemove, readOnly }
   }
 
   return <li className={styles.attachmentListItem}>
-    <span aria-hidden="true" className={styles.icon}>{icon}</span>
+    <div className={styles.row}>
+      <span aria-hidden="true" className={styles.icon}>{icon}</span>
 
-    <span className={styles.name}>{attachment.name}</span>
+      <span className={styles.name}>{attachment.name}</span>
 
-    {attachment.status === 'unknown' && <span className={styles.pendingLabel}>{t('pendingLabel')}</span>}
+      {attachment.status === 'unknown' && <span className={styles.pendingLabel}>{t('pendingLabel')}</span>}
 
-    {attachment.status === 'failed' && <span className={styles.error}>{t('uploadErrorLabel')}</span>}
+      {attachment.status === 'failed' && <span className={styles.error}>
+        {getSharedUploadFailureReasonLabel([attachment.reason]) || t('uploadErrorLabel')}
+      </span>}
 
-    {actionButton}
+      {actionButton}
+    </div>
+
+    {isMedia && isPlayerOpen && attachment.status === 'complete' && <div className={styles.player}>
+      <MediaPlayer attachment={attachment} mediaError={mediaError} mediaObjectUrl={mediaObjectUrl} t={t} />
+    </div>}
   </li>;
 };
 
-const Attachment = ({ attachmentsMetadata, details, error, formElementId, onFieldChange, readOnly, value = [] }) => {
+const Attachment = ({
+  attachmentsMetadata,
+  communityInputValue = null,
+  details,
+  error,
+  formElementId,
+  onFieldChange,
+  readOnly,
+  value = [],
+}) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('schema-form', { keyPrefix: 'fields.attachment' });
 
@@ -231,6 +304,7 @@ const Attachment = ({ attachmentsMetadata, details, error, formElementId, onFiel
       originalImageSource: attachmentImageSources.original ?? upload?.objectUrl,
       originalUrl: attachmentMetadata?.files?.original,
       progress: upload?.progress ?? null,
+      reason: upload?.reason,
       status: upload?.status ?? attachmentMetadata.status ?? 'complete',
       thumbnailImageSource: attachmentImageSources.thumbnail ?? upload?.objectUrl,
       uploadId: attachment?.uploadId,
@@ -251,21 +325,34 @@ const Attachment = ({ attachmentsMetadata, details, error, formElementId, onFiel
       }
     });
 
+    // A failed attachment is not a duplicate: picking its name again is how a
+    // reporter replaces the file that was rejected.
     newAttachments = filterDuplicateUploadFilenames(
-      attachments.map((attachment) => ({ name: attachment.name })),
+      attachments
+        .filter((attachment) => attachment.status !== 'failed')
+        .map((attachment) => ({ name: attachment.name })),
       newAttachments
+    );
+
+    const replaceableAttachments = attachments.filter(
+      (attachment) => attachment.status === 'failed' && newAttachments.some((file) => file.name === attachment.name)
     );
 
     const availableSlots = details.maxItems === null
       ? newAttachments.length
-      : details.maxItems - attachments.length;
+      : details.maxItems - attachments.length + replaceableAttachments.length;
     if (newAttachments.length > availableSlots) {
       newAttachments = newAttachments.slice(0, Math.max(0, availableSlots));
 
       showToast({ message: t('maxItemsAlert', { count: details.maxItems }) });
     }
 
-    const newUploadIds = newAttachments.map((file) => dispatch(uploadFile(file)));
+    const replacedAttachments = replaceableAttachments.filter(
+      (attachment) => newAttachments.some((file) => file.name === attachment.name)
+    );
+    replacedAttachments.forEach((attachment) => dispatch(removeFile(attachment.uploadId)));
+
+    const newUploadIds = newAttachments.map((file) => dispatch(uploadFile(file, communityInputValue)));
 
     if (newUploadIds.length > 0) {
       setAnnouncement(t('uploadStartedAnnouncement', {
@@ -273,7 +360,12 @@ const Attachment = ({ attachmentsMetadata, details, error, formElementId, onFiel
         fileName: newAttachments[0].name,
       }));
 
-      onFieldChange(formElementId, [...value, ...newUploadIds.map((uploadId) => ({ uploadId }))]);
+      onFieldChange(formElementId, [
+        ...value.filter((attachment) => !replacedAttachments.some(
+          (replacedAttachment) => replacedAttachment.uploadId === attachment?.uploadId
+        )),
+        ...newUploadIds.map((uploadId) => ({ uploadId })),
+      ]);
     }
   };
 
@@ -351,7 +443,11 @@ const Attachment = ({ attachmentsMetadata, details, error, formElementId, onFiel
       }
 
       if (newlyFailedUploads.length > 0) {
-        announcementParts.push(t('uploadFailedAnnouncement', { count: newlyFailedUploads.length, fileName: newlyFailedUploads[0].filename }));
+        const failureReasonLabel = getSharedUploadFailureReasonLabel(newlyFailedUploads.map((upload) => upload.reason));
+
+        announcementParts.push(failureReasonLabel
+          ? t('uploadFailedWithReasonAnnouncement', { count: newlyFailedUploads.length, fileName: newlyFailedUploads[0].filename, reason: failureReasonLabel })
+          : t('uploadFailedAnnouncement', { count: newlyFailedUploads.length, fileName: newlyFailedUploads[0].filename }));
       }
 
       if (announcementParts.length > 0) {

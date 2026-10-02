@@ -28,7 +28,7 @@ describe('AddAttachmentButton', () => {
     const addAttachmentButton = screen.getByRole('button', { name: 'Add an attachment' });
 
     expect(addAttachmentButton).toBeVisible();
-    expect(addAttachmentButton).toHaveAttribute('title', 'Add an attachment');
+    expect(addAttachmentButton).not.toHaveAttribute('title');
     expect(addAttachmentButton).toHaveAttribute('type', 'button');
     expect(addAttachmentButton).toHaveTextContent('Attachment');
   });

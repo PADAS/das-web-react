@@ -33,14 +33,14 @@ export const fetchDefaultPatrolSegmentTypeSchema = () => async (dispatch) => {
   dispatch({ type: FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA });
 
   try {
-    const { data } = await axios.get(DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_API_URL, { params: SCHEMA_REQUEST_PARAMS });
+    const response = await axios.get(DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_API_URL, { params: SCHEMA_REQUEST_PARAMS });
 
-    const schema = data?.json ? data : data?.data;
+    dispatch({ payload: response.data, type: FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_SUCCESS });
 
-    dispatch({ payload: schema, type: FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_SUCCESS });
-
-    return schema;
+    return response.data;
   } catch (error) {
+    console.warn('error fetching the default patrol segment type schema', error);
+
     dispatch({ payload: error, type: FETCH_DEFAULT_PATROL_SEGMENT_TYPE_SCHEMA_FAILURE });
 
     return null;
@@ -51,15 +51,15 @@ export const fetchPatrolTypeSchema = (patrolTypeValue) => async (dispatch) => {
   dispatch({ payload: { patrolTypeValue }, type: FETCH_PATROL_TYPE_SCHEMA });
 
   try {
-    const { data } = await axios.get(
+    const response = await axios.get(
       PATROL_TYPE_SCHEMA_API_URL(patrolTypeValue),
       { params: PATROL_TYPE_SCHEMA_REQUEST_PARAMS }
     );
 
-    const schema = data?.json ? data : data?.data;
-
-    dispatch({ payload: { patrolTypeValue, schema }, type: FETCH_PATROL_TYPE_SCHEMA_SUCCESS });
+    dispatch({ payload: { patrolTypeValue, schema: response.data }, type: FETCH_PATROL_TYPE_SCHEMA_SUCCESS });
   } catch (error) {
+    console.warn('error fetching the patrol type schema', error);
+
     dispatch({ payload: { error, patrolTypeValue }, type: FETCH_PATROL_TYPE_SCHEMA_FAILURE });
   }
 };

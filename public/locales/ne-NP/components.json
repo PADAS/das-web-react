@@ -158,12 +158,6 @@
     "instructionsPopupLabel": "स्थान चयन गर्न क्लिक गर्नुहोस्",
     "pickLocationButtonLabel": "नक्सामा स्थान चयन गर्नुहोस्"
   },
-  "priorityPicker": {
-    "amber": "पहेँलो",
-    "green": "हरियो",
-    "none": "कुनै होइन",
-    "red": "रातो"
-  },
   "numericInput": {
     "numericInputLabel": "संख्यात्मक क्षेत्र",
     "incrementValueNumericInputButtonLabel": "संख्यात्मक मान वृद्धि बटन",
@@ -184,6 +178,11 @@
     "singleValue": {
       "radioIcon": "{{name}} मानका लागि रेडियो आइकन"
     }
+  },
+  "reporterSelect": {
+    "allReportersGroupLabel": "सबै",
+    "recentRadiosGroupLabel": "हालैका रेडियोहरू",
+    "restrictedReporterLabel": "प्रतिबन्धित"
   },
   "schemaFields": {
     "addButton": {
@@ -212,7 +211,17 @@
     "newVersionAvailableNotification": "अर्थरेन्जरको नयाँ संस्करण उपलब्ध छ । तपाईंले अर्को पटक आफ्नो ब्राउजर रिफ्रेस गर्दा त्यो लोड हुनेछ ।"
   },
   "sideBar": {
-    "closeGearTabButtonLabel": "जाल बन्द गर्नुहोस्",
+    "addEventButtonLabel": "घटना सिर्जना गर्नुहोस्",
+    "addEventButtonTitle": "घटना सिर्जना गर्नुहोस्",
+    "addPatrolButtonLabel": "गस्ती सिर्जना गर्नुहोस्",
+    "addPatrolButtonTitle": "गस्ती सिर्जना गर्नुहोस्",
+    "backButtonLabel": "पछाडी फर्कनुहोस्",
+    "backButtonTitle": "फर्कनुहोस्",
+    "closeButtonLabel": "साइडबार बन्द गर्नुहोस्",
+    "detailViewHeader": {
+      "closeButtonLabel": "साइडबार बन्द गर्नुहोस्"
+    },
+    "eventsLink": "घटनाहरु",
     "gearLink": "जाल",
     "gearTab": {
       "loadErrorFallback": "अनुरोध असफल भयो",
@@ -248,11 +257,7 @@
       "resizeHandleLabel": "Otus प्यानलको आकार बदल्नुहोस्"
     },
     "patrolsLink": "गस्ती",
-    "reportsFeedTab": {
-      "fetchReportsErrorMessage": "घटना लोड गर्न सकिएन । कृपया फेरी प्रयास गर्नुहोस् ।",
-      "tryAgainButton": "फेरी प्रयास गर्नुहोस्"
-    },
-    "eventsLink": "घटनाहरु",
+    "settingsLink": "सेटिङ",
     "settingsPane": {
       "alertsFrameTitle": "तपाईंको अर्थरेन्जर सतर्क सुचना मिलाउनुहोस्",
       "alertsTabTitle": "सर्तक सुचनाहरु",
@@ -359,18 +364,9 @@
       },
       "mapTabTitle": "नक्सा"
     },
-    "settingsLink": "सेटिङ",
-    "addEventButtonLabel": "घटना सिर्जना गर्नुहोस्",
-    "addEventButtonTitle": "घटना सिर्जना गर्नुहोस्",
-    "addPatrolButtonLabel": "गस्ती सिर्जना गर्नुहोस्",
-    "addPatrolButtonTitle": "गस्ती सिर्जना गर्नुहोस्",
-    "backButtonLabel": "पछाडी फर्कनुहोस्",
-    "backButtonTitle": "फर्कनुहोस्",
-    "closeButtonTitle": "बन्द गर्नुहोस्",
-    "closeEventFeedButtonLabel": "घटनाको फिड बन्द गर्नुहोस्",
-    "closeMapLayersButtonLabel": "नक्साको तहहरु बन्द गर्नुहोस्",
-    "closePatrolFeedButtonLabel": "गस्तीको फिड बन्द गर्नुहोस्",
-    "closeSettingsButtonLabel": "सेटिङ बन्द गर्नुहोस्"
+    "titleInput": {
+      "editButtonLabel": "शीर्षक सम्पादन गर्नुहोस्"
+    }
   },
   "soundNotificationsPlayer": {
     "alarmRadioStateToastMessage": "{{subjectName}} लाई तत्काल ध्यान दिन आवश्यक छ"
@@ -395,8 +391,6 @@
     "closeButtonLabel": "समय स्लाइडर बन्द गर्नुहोस्",
     "dateRangeButtonLabel": "मिति दायरा परिवर्तन गर्नुहोस्",
     "endDateNowSliderLabel": "अहिले",
-    "popoverHeader": "मितिको दायरा",
-    "popoverResetButton": "रिसेट गर्नुहोस्",
     "sliderLabel": "समय स्लाइडर",
     "speedButtonLabel": "प्लेब्याक गति विकल्पहरू खोल्नुहोस्",
     "speedMenuHeader": "प्लेब्याक गति",

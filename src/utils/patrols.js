@@ -18,6 +18,7 @@ import omit from 'lodash/omit';
 import uniq from 'lodash/uniq';
 import uniqBy from 'lodash/uniqBy';
 
+import { calcTitleAndSubtitle } from './titles';
 import { format, getCurrentLocale, SHORT_TIME_FORMAT } from './datetime';
 import { PATROL_UI_STATES, PATROL_API_STATES } from '../constants';
 
@@ -200,6 +201,17 @@ export const displayTitleForPatrol = (patrol, leader, includeLeaderName = true) 
   const { data: { patrolTypes } } = store.getState();
 
   return displayNameForPatrolType(patrolTypes, lastSegment.patrol_type) ?? t('unknown');
+};
+
+// Unlike displayTitleForPatrol, an untitled patrol goes by the type of the leg
+// that governs it rather than by its leader, the way the patrol views read.
+export const calcTitleAndSubtitleForPatrol = (patrol, patrolTypes) => {
+  const governingSegment = governingPatrolSegment(patrol);
+  const patrolTypeTitle = governingSegment ? displayNameForPatrolSegment(patrolTypes, governingSegment) : null;
+
+  return patrolTypeTitle
+    ? calcTitleAndSubtitle(patrol.title, patrolTypeTitle)
+    : { subtitle: null, title: displayTitleForPatrol(patrol) };
 };
 
 export const displayStartTimeForPatrolSegment = (patrolSegment) => {
@@ -515,16 +527,9 @@ export const getPatrolsForLeaderId = (leaderId) => {
   });
 };
 
-export const getActivePatrolsForLeaderId = (leaderId) => {
-  const patrols = getPatrolsForLeaderId(leaderId);
-  const activePatrols = patrols.filter(
-    item => {
-      return calcPatrolState(item) === PATROL_UI_STATES.ACTIVE;
-    }
-  );
-
-  return activePatrols;
-};
+// A paused patrol is still under way, so its lead is still out on it.
+export const getActivePatrolsForLeaderId = (leaderId) => getPatrolsForLeaderId(leaderId)
+  .filter((patrol) => isPatrolStateUnderWay(calcPatrolState(patrol)));
 
 export const extractAttachmentUpdates = (collection) => {
   const extractedUpdates =
@@ -613,9 +618,9 @@ export const displayPatrolSegmentId = (patrol) => {
 
 export const getIsMobilePatrol = (patrol) => patrol?.provenance === 'mobile';
 
-export const isPatrolCancelled = (patrol) => patrol.state === 'cancelled';
+export const isPatrolCancelled = (patrol) => patrol.state === PATROL_API_STATES.CANCELLED;
 
-export const isPatrolDone = (patrol) => patrol.state === 'done';
+export const isPatrolDone = (patrol) => patrol.state === PATROL_API_STATES.DONE;
 
 export const isSegmentFinished = (patrolSegment) => {
   const { time_range: { end_time } = {} } = patrolSegment;
@@ -727,6 +732,8 @@ export const calcPatrolState = (patrol) => {
   if (isPatrolCancelled(patrol)) {
     return CANCELLED;
   }
+  // Ending a patrol is recorded in the state the API keeps, not in its legs, so
+  // a close stands even where a leg was left open behind it.
   if (isPatrolDone(patrol)) {
     return DONE;
   }
@@ -996,11 +1003,6 @@ const withPatrolSegmentContinuedAt = (patrolSegment, startTime, { isPause }) => 
   // the icon the server derived from its type is not the client's to send.
   ...omit(patrolSegment, ['end_location', 'events', 'icon_id', 'id', 'image_url', 'start_location', 'updates']),
   is_pause: isPause,
-  // The API rejects a leg whose lead is not one of its members, and a lead is
-  // on the team they lead — a leg from before rosters existed has none.
-  ...(patrolSegment.leader?.id
-    ? { members: uniq([patrolSegment.leader.id, ...(patrolSegment.members ?? [])]) }
-    : {}),
   scheduled_end: null,
   scheduled_start: null,
   time_range: { end_time: null, start_time: startTime },

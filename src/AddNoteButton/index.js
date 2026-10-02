@@ -21,7 +21,6 @@ const AddNoteButton = ({ onAddNote, ...rest }) => {
       data-testid="addNoteButton"
       className={styles.addNoteButton}
       onClick={onClick}
-      title={t('addNoteButtonLabel')}
       type="button"
       {...rest}
     >

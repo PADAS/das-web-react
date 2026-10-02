@@ -168,6 +168,18 @@ describe('AddItemButton', () => {
     expect((await screen.queryByText('Title'))).toBeNull();
   });
 
+  test('keeps the tooltip the caller asked for even where the label is shown', () => {
+    renderAddItemButton({ title: 'Title' });
+
+    expect(screen.getByTestId('addItemButton')).toHaveAttribute('title', 'Title');
+  });
+
+  test('names the button after the label the caller asked for', () => {
+    renderAddItemButton({ 'aria-label': 'Create a patrol' });
+
+    expect(screen.getByRole('button', { name: 'Create a patrol' })).toBeInTheDocument();
+  });
+
   test('triggers onAddReport when clicking a report type button if it is defined', async () => {
     const onAddReport = jest.fn();
 

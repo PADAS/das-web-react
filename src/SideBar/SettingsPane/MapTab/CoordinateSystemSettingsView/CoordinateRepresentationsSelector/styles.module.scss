@@ -1,5 +1,6 @@
 @use 'sass:color';
 
+@use '../../../../../common/styles/buttons';
 @use '../../../../../common/styles/vars/colors';
 
 .instructions {
@@ -37,21 +38,22 @@
     }
 
     .deleteButton {
+      @include buttons.chipIconButton;
+
       background-color: colors.$high-priority-bg-hover;
-      border: none;
-      border-radius: 0.25rem;
+      border-color: colors.$high-priority-bg-hover;
       color: colors.$bright-red;
-      height: 2.25rem;
+      flex-shrink: 0;
       margin-left: 1rem;
-      outline: none;
-      width: 2.25rem;
+
+      svg {
+        height: 1rem;
+        width: 1rem;
+      }
 
       &:hover {
         background-color: color.adjust(colors.$high-priority-bg-hover, $lightness: -5%);
-      }
-
-      &:focus-visible {
-        outline: 2px solid colors.$bright-blue;
+        border-color: color.adjust(colors.$high-priority-bg-hover, $lightness: -5%);
       }
     }
   }

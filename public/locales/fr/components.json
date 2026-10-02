@@ -11,6 +11,7 @@
       },
       "addReportTabTitle": "Ajouter un Événement"
     },
+    "defaultLabel": "Ajouter un Événement ou une Patrouille",
     "defaultTitle": "Ajouter"
   },
   "choiceList": {
@@ -157,12 +158,6 @@
     "instructionsPopupLabel": "Cliquez pour sélectionner un emplacement",
     "pickLocationButtonLabel": "Sélectionnez un emplacement sur la carte"
   },
-  "priorityPicker": {
-    "amber": "Ambre",
-    "green": "Verte",
-    "none": "Aucune",
-    "red": "Rouge"
-  },
   "numericInput": {
     "numericInputLabel": "Champ numérique",
     "incrementValueNumericInputButtonLabel": "Bouton d'incrémentation de la valeur numérique",
@@ -183,6 +178,11 @@
     "singleValue": {
       "radioIcon": "Icône de radio pour"
     }
+  },
+  "reporterSelect": {
+    "allReportersGroupLabel": "Tous",
+    "recentRadiosGroupLabel": "Radios récentes",
+    "restrictedReporterLabel": "RESTRICTION"
   },
   "schemaFields": {
     "addButton": {
@@ -211,7 +211,17 @@
     "newVersionAvailableNotification": "Une nouvelle version de EarthRanger est disponible. Elle sera appliquée la prochaine fois que vous actualiserez votre navigateur. "
   },
   "sideBar": {
-    "closeGearTabButtonLabel": "Fermer les engins",
+    "addEventButtonLabel": "Ajouter un Événement",
+    "addEventButtonTitle": "Ajouter un Événement",
+    "addPatrolButtonLabel": "Ajouter une Patrouille",
+    "addPatrolButtonTitle": "Ajouter une Patrouille",
+    "backButtonLabel": "Revenir en arrière",
+    "backButtonTitle": "Retour",
+    "closeButtonLabel": "Fermer la barre latérale",
+    "detailViewHeader": {
+      "closeButtonLabel": "Fermer la barre latérale"
+    },
+    "eventsLink": "Événements",
     "gearLink": "Engins",
     "gearTab": {
       "loadErrorFallback": "Échec de la requête",
@@ -247,11 +257,7 @@
       "resizeHandleLabel": "Redimensionner le panneau Otus"
     },
     "patrolsLink": "Patrouilles",
-    "reportsFeedTab": {
-      "fetchReportsErrorMessage": "Impossible de charger les événements. Veuillez réessayer.",
-      "tryAgainButton": "Réessayez"
-    },
-    "eventsLink": "Événements",
+    "settingsLink": "Réglages",
     "settingsPane": {
       "alertsFrameTitle": "Configurer vos alertes EarthRanger",
       "alertsTabTitle": "Alertes",
@@ -358,7 +364,9 @@
       },
       "mapTabTitle": "Carte"
     },
-    "settingsLink": "Réglages"
+    "titleInput": {
+      "editButtonLabel": "Modifier le titre"
+    }
   },
   "soundNotificationsPlayer": {
     "alarmRadioStateToastMessage": "TODO"
@@ -377,8 +385,6 @@
     "closeButtonLabel": "Fermer le curseur temporel",
     "dateRangeButtonLabel": "Modifier la plage de dates",
     "endDateNowSliderLabel": "Maintenant",
-    "popoverHeader": "Intervalle de Dates",
-    "popoverResetButton": "Réinitialiser",
     "sliderLabel": "Curseur Temporel",
     "speedButtonLabel": "Ouvrir les options de vitesse de lecture",
     "speedMenuHeader": "Vitesse de Lecture",

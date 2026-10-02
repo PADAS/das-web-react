@@ -61,7 +61,7 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
           [routinePatrol.value]: { isLoading: false, schema: patrolTypeFieldsSchema },
         },
         patrolStore: {},
-        patrolTeamAndTrackingOptions: { assets: [], leaders: [], members: [], teams: [] },
+        patrolTeamAndTrackingOptions: { assets: [], members: [], teams: [] },
         patrolTypes,
         user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.CREATE, PERMISSIONS.READ] } },
         userContent: {},
@@ -319,6 +319,16 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
     test('goes back to the patrols feed from a form the user has not touched', async () => {
       const { user } = renderNewPatrol();
 
+      await user.click(screen.getByRole('link', { name: 'Cancel' }));
+
+      expect(screen.queryByRole('dialog')).toBeNull();
+      expect(getPathname()).toBe('/patrols');
+    });
+
+    test('goes back without warning from a form whose title the user only emptied', async () => {
+      const { user } = renderNewPatrol();
+
+      await user.clear(screen.getByRole('textbox', { name: 'Patrol title' }));
       await user.click(screen.getByRole('link', { name: 'Cancel' }));
 
       expect(screen.queryByRole('dialog')).toBeNull();

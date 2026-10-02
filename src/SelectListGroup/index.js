@@ -4,9 +4,13 @@ import SelectableItem from './SelectableItem';
 
 import * as styles from './styles.module.scss';
 
-const isOptionChecked = (option, currentSelectListValue, isMulti, isAnyOptionChecked, getOptionValue = null) => {
-  const optionValue = option.value ?? getOptionValue?.(option);
+// A getter is passed to read a field the option names differently, so it wins
+// over an option field of the same name that means something else.
+const resolveOptionField = (option, field, getOptionField) => getOptionField
+  ? getOptionField(option)
+  : option[field];
 
+const isOptionChecked = (optionValue, currentSelectListValue, isMulti, isAnyOptionChecked) => {
   if (isMulti) {
     return isAnyOptionChecked ? false : currentSelectListValue.includes(optionValue);
   }
@@ -16,6 +20,7 @@ const isOptionChecked = (option, currentSelectListValue, isMulti, isAnyOptionChe
 const SelectListGroup = ({
   'aria-required': ariaRequired,
   className = '',
+  columnCount = 1,
   disabled = false,
   getOptionDescription = null,
   getOptionLabel = null,
@@ -27,20 +32,22 @@ const SelectListGroup = ({
   onChange,
   options,
   readOnly = false,
+  renderOptionIcon = null,
   value,
   ...otherProps
 }) => {
   const optionItems = useMemo(() => options.map((option) => {
-    const optionValue = option.value ?? getOptionValue?.(option);
+    const optionValue = resolveOptionField(option, 'value', getOptionValue);
 
     return {
-      description: option.description ?? getOptionDescription?.(option),
-      isChecked: isOptionChecked(option, value, isMulti, !value || value?.length === 0, getOptionValue),
+      description: resolveOptionField(option, 'description', getOptionDescription),
+      icon: renderOptionIcon?.(option) ?? null,
       id: `${id}-${optionValue}`,
-      label: option.label ?? getOptionLabel?.(option),
+      isChecked: isOptionChecked(optionValue, value, isMulti, !value || value?.length === 0),
+      label: resolveOptionField(option, 'label', getOptionLabel),
       value: optionValue
     };
-  }), [getOptionDescription, getOptionLabel, getOptionValue, id, isMulti, options, value]);
+  }), [getOptionDescription, getOptionLabel, getOptionValue, id, isMulti, options, renderOptionIcon, value]);
 
   const handleOnSelectableItemClick = (selectedOptionValue, isChecked) => {
     if (isMulti){
@@ -67,7 +74,7 @@ const SelectListGroup = ({
       {ariaRequired && <span aria-hidden="true"> *</span>}
     </legend>
 
-    <div className={styles.container}>
+    <div className={styles.container} style={{ '--select-list-group-column-count': columnCount }}>
       {optionItems.map((optionItem, index) => <SelectableItem
         aria-required={isMulti
           ? ariaRequired
@@ -76,9 +83,10 @@ const SelectListGroup = ({
         description={optionItem.description}
         disabled={disabled}
         groupId={id}
+        icon={optionItem.icon}
+        id={optionItem.id}
         invalid={invalid}
         isChecked={optionItem.isChecked}
-        id={optionItem.id}
         isMulti={isMulti}
         key={optionItem.id}
         label={optionItem.label}

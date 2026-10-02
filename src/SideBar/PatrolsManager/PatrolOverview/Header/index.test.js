@@ -168,6 +168,28 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
     expect(screen.getByTestId('patrolOverview-title')).toHaveValue(patrolWithoutLeader.title);
   });
 
+  test('shows the patrol type icon in the color of the patrol status', () => {
+    renderHeader({ patrol: { ...patrolWithLeader, state: 'cancelled' } });
+
+    expect(screen.getByTestId('patrolOverviewHeader-icon')).toHaveClass('cancelled');
+  });
+
+  test('shows the patrol type below a title of its own', () => {
+    store.data.patrolTypes = [{ display: 'Dog Patrol', id: 'dog-patrol-id', value: 'dog_patrol' }];
+
+    renderHeader();
+
+    expect(screen.getByText('Dog Patrol')).toBeVisible();
+  });
+
+  test('does not repeat the patrol type below a title that is the patrol type', () => {
+    store.data.patrolTypes = [{ display: 'Dog Patrol', id: 'dog-patrol-id', value: 'dog_patrol' }];
+
+    renderHeader({ patrol: { ...patrolWithLeader, title: 'Dog Patrol' } });
+
+    expect(screen.queryByText('Dog Patrol', { selector: 'p' })).toBeNull();
+  });
+
   test('shows the toggle track button when the patrol tracks are off', () => {
     renderHeader();
 
@@ -545,6 +567,21 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
     expect(await screen.findByRole('menuitem', { name: 'Download Patrol Track' })).toBeDisabled();
   });
 
+  test('disables the download track button in the kebab menu when every tracked subject is hidden', async () => {
+    jest.spyOn(patrolSelectors, 'selectPatrolTrackData').mockReturnValue({
+      hasTrackData: true,
+      leader: patrolWithLeader.patrol_segments[0].leader,
+      startStopGeometries: null,
+      subjectsTrackData: [],
+      trackData: null,
+    });
+
+    renderHeader();
+    await openKebabMenu();
+
+    expect(await screen.findByRole('menuitem', { name: 'Download Patrol Track' })).toBeDisabled();
+  });
+
   test('shows the close button', () => {
     renderHeader();
 
@@ -682,7 +719,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
   describe('patrol status', () => {
     const selectStatus = async (name) => {
       await openStatusSelect();
-      await userEvent.click(await screen.findByRole('menuitemradio', { name }));
+      await userEvent.click(await screen.findByRole('menuitem', { name }));
     };
 
     test('shows the patrol state in the status pill', () => {
@@ -694,7 +731,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
     test('reports the picked status', async () => {
       renderHeader();
 
-      await selectStatus('Done');
+      await selectStatus('End');
 
       expect(onChangeState).toHaveBeenCalledWith(PATROL_UI_STATES.DONE);
     });
@@ -702,7 +739,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
     test('shows the picked status instead of the one the patrol is saved with', async () => {
       renderHeader();
 
-      await selectStatus('Paused');
+      await selectStatus('Pause');
 
       expect(screen.getByRole('button', { name: 'Paused, Change patrol status' })).toBeInTheDocument();
     });

@@ -10,74 +10,115 @@
     },
     "modalTitle": "Agregar a Incidente"
   },
-  "columnSort": {
-    "popoverTitle": "Ordenar por:",
-    "eventSortOptions": {
-      "updatedAtLabel": "Fecha de actualización",
-      "createdAtLabel": "Fecha de creación",
-      "eventTimeLabel": "Fecha de evento"
-    },
-    "eventOrderOptions": {
-      "newest": "Más reciente a antiguo",
-      "oldest": "Más antiguo a reciente"
-    }
-  },
   "errorMessages": {
     "accordionHeaderButton": {
       "closed": "Ver detalles",
       "open": "Ocultar detalles"
     }
   },
-  "eventFeed": {
-    "loadingMoreReportsItem": "Cargando más eventos...",
-    "noMoreReportsItem": "No hay más eventos que mostrar.",
-    "noReportsItem": "No hay eventos que mostrar."
-  },
   "eventIcon": {
     "collectionTitle": "Colección"
   },
-  "eventItemContextMenu": {
-    "errorToastMessage": "#{{serialNumber}} aún está {{state}}, algo salió mal",
-    "notificationDetails": {
-      "failedReports": "ADVERTENCIA: Estos eventos no pudieron cambiarse al estado {{state}}",
-      "processedReports": {
-        "activated": "activos",
-        "resolved": "resueltos",
-        "review": "enviado a revisión",
-        "title": "Estos eventos relacionados ahora están {{newState}} también:"
-      }
+  "eventsManager": {
+    "eventOverview": {
+      "footer": {
+        "cancelButton": "Cancelar",
+        "cancelButtonLabel": "Cancelar la adición de este evento",
+        "saveAndActivateOption": "Guardar y activar",
+        "saveAndReopenOption": "Guardar y reabrir",
+        "saveAndResolveOption": "Guardar y resolver",
+        "saveAndReviewOption": "Guardar y revisar",
+        "saveButton": "Guardar",
+        "saveOptionsMenuLabel": "Más opciones de guardado"
+      },
+      "header": {
+        "breadcrumbEventsLabel": "Eventos",
+        "breadcrumbNavLabel": "Navegación de eventos",
+        "jumpToLocationButtonLabel": "Ir a la ubicación",
+        "patrolIndicator": "p",
+        "reportMenu": {
+          "addToIncidentOption": "Agregar a Incidente",
+          "addToPatrolOption": "Agregar a Patrulla",
+          "copyLinkMessage": "Enlace copiado",
+          "copyLinkOption": "Copiar enlace del evento",
+          "jumpToLocationOption": "Ir a la ubicación",
+          "moreOptionsButtonLabel": "Más opciones",
+          "printOption": "Imprimir Evento"
+        },
+        "statusSelect": {
+          "states": {
+            "active": "Activo",
+            "resolved": "Resuelto",
+            "review": "En revisión"
+          },
+          "stateTransitions": {
+            "activate": "Activar",
+            "reopen": "Reabrir",
+            "resolve": "Resolver",
+            "review": "Enviar a revisión"
+          },
+          "statusMenuLabel": "Estados del evento",
+          "statusSelectLabel": "Cambiar el estado del evento"
+        },
+        "titleInputLabel": "Título del evento"
+      },
+      "loadingLabel": "Cargando datos del evento"
     },
-    "state": {
-      "active": "activo",
-      "resolved": "resuelto",
-      "review": "en revisión"
-    },
-    "textCopyButtonItem": {
-      "label": "Copiar enlace del evento",
-      "successMessage": "Enlace copiado"
-    },
-    "updatedCollectionInfoToast": {
-      "activated": "activada",
-      "message": "La colección #{{collectionSerialNumber}} fue {{newState}} correctamente",
-      "resolved": "resuelta",
-      "review": "enviado a revisión"
-    },
-    "updatedReportInfoToastMessage": "#{{reportSerialNumber}} {{newState}}",
-    "updateReportStateItem": {
-      "activate": "Activar",
-      "reopen": "Reabierto",
-      "resolve": "Resuelto",
-      "review": "Enviar a revisión"
+    "eventsFeed": {
+      "emptyStateMessage": "No hay eventos que mostrar.",
+      "eventListLabel": "Lista de eventos",
+      "eventRow": {
+        "actions": {
+          "copyLinkMessage": "Enlace copiado",
+          "copyLinkOption": "Copiar enlace del evento",
+          "jumpToLocationButtonLabel": "Ir a la ubicación",
+          "moreOptionsButtonLabel": "Más opciones",
+          "notificationDetails": {
+            "failedEvents": "ADVERTENCIA: Estos eventos no pudieron cambiarse al estado {{state}}",
+            "processedEvents": {
+              "activated": "activados",
+              "resolved": "resueltos",
+              "review": "enviados a revisión",
+              "title": "Estos eventos relacionados también fueron {{newState}}:"
+            },
+            "states": {
+              "active": "activo",
+              "resolved": "resuelto",
+              "review": "en revisión"
+            }
+          },
+          "states": {
+            "active": "activo",
+            "resolved": "resuelto",
+            "review": "en revisión"
+          },
+          "stateTransitions": {
+            "activate": "Activar",
+            "reopen": "Reabrir",
+            "resolve": "Resolver",
+            "review": "Enviar a revisión"
+          },
+          "stateUpdateErrorToastMessage": "#{{serialNumber}} aún está {{state}}, algo salió mal",
+          "updatedCollectionToast": {
+            "activated": "activada",
+            "message": "La colección #{{collectionSerialNumber}} fue {{newState}} correctamente",
+            "resolved": "resuelta",
+            "review": "enviada a revisión"
+          },
+          "updatedEventToastMessage": "#{{eventSerialNumber}} {{newState}}"
+        },
+        "patrolIndicator": "p",
+        "states": {
+          "active": "Activo",
+          "resolved": "Resuelto",
+          "review": "En revisión"
+        }
+      },
+      "fetchErrorMessage": "No se pudieron cargar los eventos. Por favor intente de nuevo.",
+      "loadingLabel": "Cargando eventos",
+      "loadingMoreLabel": "Cargando más eventos",
+      "retryButton": "Intentar de nuevo"
     }
-  },
-  "prioritySelect": {
-    "labels": {
-      "amber": "Ambar",
-      "green": "Verde",
-      "none": "N/A",
-      "red": "Roja"
-    },
-    "placeholder": "Seleccionar"
   },
   "reportGeometryDrawer": {
     "cancelationConfirmationModal": {
@@ -139,39 +180,24 @@
       },
       "dateLabel": "Fecha del Evento",
       "detailsHeader": "Detalles",
-      "errorLoadingSchema": "Error cargando esquema",
       "locationLabel": "Ubicación del evento",
-      "priorityLabel": "Prioridad",
-      "reportedByLabel": "Reportado por",
-      "stateDropdown": {
-        "active": "activo",
-        "resolved": "resuelto",
-        "review": "en revisión"
-      },
-      "timeLabel": "Hora del evento"
-    },
-    "header": {
-      "priority": {
+      "priorities": {
         "amber": "Ambar",
         "green": "Verde",
         "none": "N/A",
         "red": "Roja"
       },
-      "reportMenu": {
-        "addToIncidentItem": "Agregar a Incidente",
-        "addToPatrolItem": "Agregar a Patrulla",
-        "printReportItem": "Imprimir Evento",
-        "textCopyButtonLabel": "Copiar enlace del evento",
-        "textCopyButtonSuccessMessage": "Enlace copiado"
-      }
+      "priorityLabel": "Prioridad",
+      "reportedByLabel": "Reportado por",
+      "schemaErrorMessage": "No se pudieron cargar los campos de este tipo de evento.",
+      "schemaLoadingLabel": "Cargando los campos de este tipo de evento",
+      "timeLabel": "Hora del evento"
     },
     "linksSection": {
       "linksHeader": "Enlaces"
     },
     "reportDetailView": {
-      "cancelButton": "Cancelar",
       "cantAddNoteAlert": "No se puede agregar una nueva nota: hay una nota vacía sin guardar",
-      "loadingMessage": "Cargando...",
       "quickLinks": {
         "activityAnchor": "Actividad",
         "detailsAnchor": "Detalles",
@@ -179,13 +205,6 @@
         "linksAnchor": "Enlaces"
       },
       "saveErrorMessage": "Hubo un error guardando el evento.",
-      "saveSplitButton": {
-        "saveAndActivateItem": "Guardar y activar",
-        "saveAndReopenItem": "Guardar y reabrir",
-        "saveAndResolveItem": "Guardar y resolver",
-        "saveAndReviewItem": "Guardar y revisar",
-        "title": "Guardar"
-      },
       "unknownErrorLabel": "Error desconocido"
     }
   },

@@ -1,5 +1,4 @@
 import { isFuture } from 'date-fns';
-import uniq from 'lodash/uniq';
 
 import parseLegDraftDateTime from '../parseLegDraftDateTime';
 
@@ -19,8 +18,7 @@ const buildLegSegment = (leg, { isFirstLeg = true } = {}) => {
     end_location: leg.endLocation,
     events: [],
     leader: leg.teamLead,
-    // The API rejects a lead who is not one of the members.
-    members: uniq([...(leg.teamLead ? [leg.teamLead.id] : []), ...leg.teamMembers.map((teamMember) => teamMember.id)]),
+    members: leg.teamMembers.map((teamMember) => teamMember.id),
     patrol_type: leg.patrolType?.value ?? null,
     priority: leg.patrolType?.default_priority ?? 0,
     scheduled_end: isEndScheduled ? endDateTime.toISOString() : null,

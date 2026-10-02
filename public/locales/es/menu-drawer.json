@@ -50,6 +50,7 @@
       "title": "KML Maestro"
     },
     "navigationButton": {
+      "gear": "Aparejos",
       "mapLayers": "Capas de mapa",
       "otus": "Otus",
       "patrols": "Patrullas",

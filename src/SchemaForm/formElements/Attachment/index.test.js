@@ -5,14 +5,15 @@ import userEvent from '@testing-library/user-event';
 import { fireEvent, render, screen, waitFor } from '../../../test-utils';
 import { TrackerContext } from '../../../utils/analytics';
 import { downloadFileFromUrl } from '../../../utils/download';
-import { fetchImageAsBase64FromUrl } from '../../../utils/file';
+import { fetchFileAsObjectUrlFromUrl, fetchImageAsBase64FromUrl } from '../../../utils/file';
 import { mockStore } from '../../../__test-helpers/MockStore';
-import { removeFile, uploadFile } from '../../../ducks/user-content';
+import { removeFile, UPLOAD_FAILURE_REASONS, uploadFile } from '../../../ducks/user-content';
 import { showToast } from '../../../utils/toast';
 
 import Attachment from './';
 
 jest.mock('../../../ducks/user-content', () => ({
+  ...jest.requireActual('../../../ducks/user-content'),
   removeFile: jest.fn(),
   uploadFile: jest.fn(),
 }));
@@ -24,6 +25,7 @@ jest.mock('../../../utils/download', () => ({
 
 jest.mock('../../../utils/file', () => ({
   ...jest.requireActual('../../../utils/file'),
+  fetchFileAsObjectUrlFromUrl: jest.fn(),
   fetchImageAsBase64FromUrl: jest.fn(),
 }));
 
@@ -50,6 +52,7 @@ describe('SchemaForm - formElements - Attachment', () => {
     uploadFile.mockImplementation(() => () => 'test-upload-id');
     removeFile.mockImplementation(() => () => {});
     fetchImageAsBase64FromUrl.mockResolvedValue('data:image/png;base64,test');
+    fetchFileAsObjectUrlFromUrl.mockResolvedValue('blob:fake-object-url');
     downloadFileFromUrl.mockImplementation(() => {});
   });
 
@@ -248,7 +251,7 @@ describe('SchemaForm - formElements - Attachment', () => {
     await userEvent.upload(getFileInput(), file);
 
     expect(uploadFile).toHaveBeenCalledTimes(1);
-    expect(uploadFile).toHaveBeenCalledWith(file);
+    expect(uploadFile).toHaveBeenCalledWith(file, null);
     expect(onFieldChange).toHaveBeenCalledWith('attachment-1', [{ uploadId: 'test-upload-id' }]);
   });
 
@@ -260,12 +263,21 @@ describe('SchemaForm - formElements - Attachment', () => {
     await userEvent.upload(getFileInput(), [file1, file2]);
 
     expect(uploadFile).toHaveBeenCalledTimes(2);
-    expect(uploadFile).toHaveBeenCalledWith(file1);
-    expect(uploadFile).toHaveBeenCalledWith(file2);
+    expect(uploadFile).toHaveBeenCalledWith(file1, null);
+    expect(uploadFile).toHaveBeenCalledWith(file2, null);
     expect(onFieldChange).toHaveBeenCalledWith('attachment-1', [
       { uploadId: 'test-upload-id' },
       { uploadId: 'test-upload-id' },
     ]);
+  });
+
+  test('dispatches uploadFile with the community input value when the field is rendered in a community context', async () => {
+    renderAttachmentField({ communityInputValue: 'test-community-input' });
+    const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
+
+    await userEvent.upload(getFileInput(), file);
+
+    expect(uploadFile).toHaveBeenCalledWith(file, 'test-community-input');
   });
 
   test('announces the upload start to screen readers', async () => {
@@ -510,6 +522,28 @@ describe('SchemaForm - formElements - Attachment', () => {
     expect(screen.getByRole('button', { name: 'Remove test.pdf' })).toBeVisible();
   });
 
+  test('shows the generic upload error text for a failed upload rejected for an unrecognized reason', () => {
+    const failedStore = mockStore({
+      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', fileType: 'application/pdf', progress: 0, reason: UPLOAD_FAILURE_REASONS.UNKNOWN, status: 'failed' } } },
+    });
+    renderAttachmentField({ value: [{ uploadId: 'test-upload-id' }] }, failedStore);
+
+    expect(screen.getByText('Upload failed')).toBeVisible();
+  });
+
+  test.each([
+    [UPLOAD_FAILURE_REASONS.TOO_LARGE, 'File is too large'],
+    [UPLOAD_FAILURE_REASONS.TOO_MANY_REQUESTS, 'Too many uploads, try later'],
+    [UPLOAD_FAILURE_REASONS.UNSUPPORTED_TYPE, 'File type is not allowed'],
+  ])('shows the error text of a failed upload rejected as %s', (reason, reasonLabel) => {
+    const failedStore = mockStore({
+      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', fileType: 'application/pdf', progress: 0, reason, status: 'failed' } } },
+    });
+    renderAttachmentField({ value: [{ uploadId: 'test-upload-id' }] }, failedStore);
+
+    expect(screen.getByText(reasonLabel)).toBeVisible();
+  });
+
   test('dispatches addModal when the expand button is clicked for a saved image', async () => {
     const mockStoreInstance = mockStore({ data: { userContent: {} } });
     renderAttachmentField({
@@ -529,7 +563,7 @@ describe('SchemaForm - formElements - Attachment', () => {
     expect(actions[0].payload.url).toBe('https://example.com/photo.png');
   });
 
-  test('shows the download button and no thumbnail for a saved audio attachment', () => {
+  test('shows a play button and no thumbnail for a saved audio attachment', () => {
     renderAttachmentField({
       attachmentsMetadata: {
         'saved-1': { filename: 'audio.mp3', file_type: 'audio', files: { original: 'https://example.com/audio.mp3' } },
@@ -538,11 +572,12 @@ describe('SchemaForm - formElements - Attachment', () => {
     });
 
     expect(screen.getByText('audio.mp3')).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Download audio.mp3' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Play audio.mp3' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Download audio.mp3' })).not.toBeInTheDocument();
     expect(document.querySelector('img')).not.toBeInTheDocument();
   });
 
-  test('shows the download button and no thumbnail for a saved video attachment', () => {
+  test('shows a play button and no thumbnail for a saved video attachment', () => {
     renderAttachmentField({
       attachmentsMetadata: {
         'saved-1': { filename: 'video.mp4', file_type: 'video', files: { original: 'https://example.com/video.mp4' } },
@@ -551,8 +586,167 @@ describe('SchemaForm - formElements - Attachment', () => {
     });
 
     expect(screen.getByText('video.mp4')).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Download video.mp4' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Play video.mp4' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Download video.mp4' })).not.toBeInTheDocument();
     expect(document.querySelector('img')).not.toBeInTheDocument();
+  });
+
+  test('does not show a player until the play button is clicked for a saved audio attachment', () => {
+    renderAttachmentField({
+      attachmentsMetadata: {
+        'saved-1': { filename: 'audio.mp3', file_type: 'audio', files: { original: 'https://example.com/audio.mp3' } },
+      },
+      value: [{ uploadId: 'saved-1' }],
+    });
+
+    expect(document.querySelector('audio')).not.toBeInTheDocument();
+  });
+
+  test('shows a loading spinner while the media file is being fetched', () => {
+    fetchFileAsObjectUrlFromUrl.mockImplementation(() => new Promise(() => {}));
+
+    renderAttachmentField({
+      attachmentsMetadata: {
+        'saved-1': { filename: 'audio.mp3', file_type: 'audio', files: { original: 'https://example.com/audio.mp3' } },
+      },
+      value: [{ uploadId: 'saved-1' }],
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Play audio.mp3' }));
+
+    expect(screen.getByTestId('player-loading-saved-1')).toBeInTheDocument();
+    expect(document.querySelector('audio')).not.toBeInTheDocument();
+  });
+
+  test('fetches the file as an authenticated blob and shows an inline audio player with the resulting object url after clicking the play button', async () => {
+    renderAttachmentField({
+      attachmentsMetadata: {
+        'saved-1': { filename: 'audio.mp3', file_type: 'audio', files: { original: 'https://example.com/audio.mp3' } },
+      },
+      value: [{ uploadId: 'saved-1' }],
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Play audio.mp3' }));
+
+    expect(fetchFileAsObjectUrlFromUrl).toHaveBeenCalledWith('https://example.com/audio.mp3', { signal: expect.any(AbortSignal) });
+
+    await waitFor(() => expect(document.querySelector('audio')).toBeInTheDocument());
+    const audio = document.querySelector('audio');
+
+    expect(audio).toHaveAttribute('src', 'blob:fake-object-url');
+    expect(audio).toHaveAttribute('controls');
+    expect(screen.getByRole('button', { name: 'Close player for audio.mp3' })).toBeVisible();
+  });
+
+  test('fetches the file as an authenticated blob and shows an inline video player with the resulting object url after clicking the play button', async () => {
+    renderAttachmentField({
+      attachmentsMetadata: {
+        'saved-1': { filename: 'video.mp4', file_type: 'video', files: { original: 'https://example.com/video.mp4' } },
+      },
+      value: [{ uploadId: 'saved-1' }],
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Play video.mp4' }));
+
+    expect(fetchFileAsObjectUrlFromUrl).toHaveBeenCalledWith('https://example.com/video.mp4', { signal: expect.any(AbortSignal) });
+
+    await waitFor(() => expect(document.querySelector('video')).toBeInTheDocument());
+    const video = document.querySelector('video');
+
+    expect(video).toHaveAttribute('src', 'blob:fake-object-url');
+    expect(video).toHaveAttribute('controls');
+    expect(screen.getByRole('button', { name: 'Close player for video.mp4' })).toBeVisible();
+  });
+
+  test('shows an error message instead of the player if the media fetch fails', async () => {
+    fetchFileAsObjectUrlFromUrl.mockRejectedValue(new Error('network error'));
+
+    renderAttachmentField({
+      attachmentsMetadata: {
+        'saved-1': { filename: 'audio.mp3', file_type: 'audio', files: { original: 'https://example.com/audio.mp3' } },
+      },
+      value: [{ uploadId: 'saved-1' }],
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Play audio.mp3' }));
+
+    expect(await screen.findByText('Unable to load this file.')).toBeVisible();
+    expect(document.querySelector('audio')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('player-loading-saved-1')).not.toBeInTheDocument();
+  });
+
+  test('shows an error message instead of the player if the media element fails to play the file', async () => {
+    renderAttachmentField({
+      attachmentsMetadata: {
+        'saved-1': { filename: 'video.mp4', file_type: 'video', files: { original: 'https://example.com/video.mp4' } },
+      },
+      value: [{ uploadId: 'saved-1' }],
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Play video.mp4' }));
+    await waitFor(() => expect(document.querySelector('video')).toBeInTheDocument());
+    fireEvent.error(document.querySelector('video'));
+
+    expect(await screen.findByText('Unable to load this file.')).toBeVisible();
+    expect(document.querySelector('video')).not.toBeInTheDocument();
+  });
+
+  test('retries the fetch when the player is reopened after a failure', async () => {
+    fetchFileAsObjectUrlFromUrl.mockRejectedValueOnce(new Error('network error'));
+
+    renderAttachmentField({
+      attachmentsMetadata: {
+        'saved-1': { filename: 'audio.mp3', file_type: 'audio', files: { original: 'https://example.com/audio.mp3' } },
+      },
+      value: [{ uploadId: 'saved-1' }],
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Play audio.mp3' }));
+    await screen.findByText('Unable to load this file.');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Close player for audio.mp3' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Play audio.mp3' }));
+
+    await waitFor(() => expect(document.querySelector('audio')).toBeInTheDocument());
+    expect(fetchFileAsObjectUrlFromUrl).toHaveBeenCalledTimes(2);
+  });
+
+  test('hides the inline player after clicking the close player button again', async () => {
+    renderAttachmentField({
+      attachmentsMetadata: {
+        'saved-1': { filename: 'audio.mp3', file_type: 'audio', files: { original: 'https://example.com/audio.mp3' } },
+      },
+      value: [{ uploadId: 'saved-1' }],
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Play audio.mp3' }));
+    await waitFor(() => expect(document.querySelector('audio')).toBeInTheDocument());
+
+    await userEvent.click(screen.getByRole('button', { name: 'Close player for audio.mp3' }));
+    expect(document.querySelector('audio')).not.toBeInTheDocument();
+  });
+
+  test('disables the play button for a saved media attachment with no original URL', () => {
+    renderAttachmentField({
+      attachmentsMetadata: {
+        'saved-1': { filename: 'audio.mp3', file_type: 'audio' },
+      },
+      value: [{ uploadId: 'saved-1' }],
+    });
+
+    expect(screen.getByRole('button', { name: 'Play audio.mp3' })).toBeDisabled();
+  });
+
+  test('shows the play button for a saved media attachment in read-only mode', () => {
+    renderAttachmentField({
+      attachmentsMetadata: {
+        'saved-1': { filename: 'video.mp4', file_type: 'video', files: { original: 'https://example.com/video.mp4' } },
+      },
+      readOnly: true,
+      value: [{ uploadId: 'saved-1' }],
+    });
+
+    expect(screen.getByRole('button', { name: 'Play video.mp4' })).toBeVisible();
   });
 
   test('shows the expand button for a saved image attachment in read-only mode', () => {
@@ -666,6 +860,71 @@ describe('SchemaForm - formElements - Attachment', () => {
     );
 
     expect(screen.getByRole('status')).toHaveTextContent('test.pdf couldn\'t be uploaded');
+  });
+
+  test.each([
+    [UPLOAD_FAILURE_REASONS.TOO_LARGE, 'File is too large'],
+    [UPLOAD_FAILURE_REASONS.TOO_MANY_REQUESTS, 'Too many uploads, try later'],
+    [UPLOAD_FAILURE_REASONS.UNSUPPORTED_TYPE, 'File type is not allowed'],
+  ])('announces the reason of a failed upload rejected as %s to screen readers', (reason, reasonLabel) => {
+    const pendingStore = mockStore({
+      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', progress: 0, status: 'in_progress' } } },
+    });
+    const { rerender } = renderAttachmentField({ value: [{ uploadId: 'test-upload-id' }] }, pendingStore);
+
+    const failedStore = mockStore({
+      data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'test.pdf', progress: 0, reason, status: 'failed' } } },
+    });
+    rerender(
+      <Provider store={failedStore}>
+        <TrackerContext.Provider value={null}>
+          <Attachment
+            details={details}
+            error={undefined}
+            formElementId="attachment-1"
+            onFieldChange={onFieldChange}
+            value={[{ uploadId: 'test-upload-id' }]}
+          />
+        </TrackerContext.Provider>
+      </Provider>
+    );
+
+    expect(screen.getByRole('status')).toHaveTextContent(`test.pdf couldn't be uploaded: ${reasonLabel}`);
+  });
+
+  test('announces failed uploads without a reason to screen readers when they were rejected for different reasons', () => {
+    const pendingStore = mockStore({
+      data: { userContent: {
+        'upload-1': { uploadId: 'upload-1', filename: 'file1.pdf', progress: 0, status: 'in_progress' },
+        'upload-2': { uploadId: 'upload-2', filename: 'file2.pdf', progress: 0, status: 'in_progress' },
+      } },
+    });
+    const { rerender } = renderAttachmentField({
+      value: [{ uploadId: 'upload-1' }, { uploadId: 'upload-2' }],
+    }, pendingStore);
+
+    const failedStore = mockStore({
+      data: { userContent: {
+        'upload-1': { uploadId: 'upload-1', filename: 'file1.pdf', progress: 0, reason: UPLOAD_FAILURE_REASONS.TOO_LARGE, status: 'failed' },
+        'upload-2': { uploadId: 'upload-2', filename: 'file2.pdf', progress: 0, reason: UPLOAD_FAILURE_REASONS.UNSUPPORTED_TYPE, status: 'failed' },
+      } },
+    });
+    rerender(
+      <Provider store={failedStore}>
+        <TrackerContext.Provider value={null}>
+          <Attachment
+            details={details}
+            error={undefined}
+            formElementId="attachment-1"
+            onFieldChange={onFieldChange}
+            value={[{ uploadId: 'upload-1' }, { uploadId: 'upload-2' }]}
+          />
+        </TrackerContext.Provider>
+      </Provider>
+    );
+
+    expect(screen.getByRole('status')).toHaveTextContent('2 files couldn\'t be uploaded');
+    expect(screen.getByRole('status')).not.toHaveTextContent('File is too large');
   });
 
   test('announces multiple completed uploads to screen readers', () => {
@@ -1043,5 +1302,81 @@ describe('SchemaForm - formElements - Attachment', () => {
 
     expect(showToast).toHaveBeenCalled();
     expect(onFieldChange).not.toHaveBeenCalled();
+  });
+
+  test.each(['complete', 'in_progress'])(
+    'shows a toast and keeps the attachment when a file with the same name as a %s upload is selected',
+    async (status) => {
+      const uploadStore = mockStore({
+        data: { userContent: { 'test-upload-id': { uploadId: 'test-upload-id', filename: 'existing.pdf', fileType: 'application/pdf', progress: 0, status } } },
+      });
+      renderAttachmentField({ value: [{ uploadId: 'test-upload-id' }] }, uploadStore);
+
+      await userEvent.upload(
+        getFileInput(),
+        new File(['content'], 'existing.pdf', { type: 'application/pdf' })
+      );
+
+      expect(showToast).toHaveBeenCalled();
+      expect(uploadFile).not.toHaveBeenCalled();
+      expect(removeFile).not.toHaveBeenCalled();
+      expect(onFieldChange).not.toHaveBeenCalled();
+    }
+  );
+
+  test('replaces a failed attachment when a file with its name is selected again', async () => {
+    const failedStore = mockStore({
+      data: { userContent: { 'failed-upload-id': { uploadId: 'failed-upload-id', filename: 'existing.pdf', fileType: 'application/pdf', progress: 0, reason: UPLOAD_FAILURE_REASONS.TOO_LARGE, status: 'failed' } } },
+    });
+    renderAttachmentField({ value: [{ uploadId: 'failed-upload-id' }] }, failedStore);
+    const file = new File(['content'], 'existing.pdf', { type: 'application/pdf' });
+
+    await userEvent.upload(getFileInput(), file);
+
+    expect(showToast).not.toHaveBeenCalled();
+    expect(uploadFile).toHaveBeenCalledWith(file, null);
+    expect(removeFile).toHaveBeenCalledWith('failed-upload-id');
+    expect(onFieldChange).toHaveBeenCalledTimes(1);
+    expect(onFieldChange).toHaveBeenCalledWith('attachment-1', [{ uploadId: 'test-upload-id' }]);
+  });
+
+  test('keeps the other attachments when a failed attachment is replaced', async () => {
+    const failedStore = mockStore({
+      data: { userContent: {
+        'failed-upload-id': { uploadId: 'failed-upload-id', filename: 'existing.pdf', fileType: 'application/pdf', progress: 0, reason: UPLOAD_FAILURE_REASONS.TOO_LARGE, status: 'failed' },
+        'other-upload-id': { uploadId: 'other-upload-id', filename: 'other.pdf', fileType: 'application/pdf', progress: 1, status: 'complete' },
+      } },
+    });
+    renderAttachmentField({ value: [{ uploadId: 'failed-upload-id' }, { uploadId: 'other-upload-id' }] }, failedStore);
+
+    await userEvent.upload(getFileInput(), new File(['content'], 'existing.pdf', { type: 'application/pdf' }));
+
+    expect(onFieldChange).toHaveBeenCalledWith('attachment-1', [
+      { uploadId: 'other-upload-id' },
+      { uploadId: 'test-upload-id' },
+    ]);
+  });
+
+  test('counts a replaced attachment as an available slot when checking the maximum', async () => {
+    details.maxItems = 3;
+    const failedStore = mockStore({
+      data: { userContent: {
+        'failed-upload-id': { uploadId: 'failed-upload-id', filename: 'existing.pdf', fileType: 'application/pdf', progress: 0, reason: UPLOAD_FAILURE_REASONS.TOO_LARGE, status: 'failed' },
+        'other-upload-id': { uploadId: 'other-upload-id', filename: 'other.pdf', fileType: 'application/pdf', progress: 1, status: 'complete' },
+      } },
+    });
+    renderAttachmentField({ value: [{ uploadId: 'failed-upload-id' }, { uploadId: 'other-upload-id' }] }, failedStore);
+
+    await userEvent.upload(getFileInput(), [
+      new File(['content'], 'existing.pdf', { type: 'application/pdf' }),
+      new File(['content'], 'new.pdf', { type: 'application/pdf' }),
+    ]);
+
+    expect(showToast).not.toHaveBeenCalled();
+    expect(onFieldChange).toHaveBeenCalledWith('attachment-1', [
+      { uploadId: 'other-upload-id' },
+      { uploadId: 'test-upload-id' },
+      { uploadId: 'test-upload-id' },
+    ]);
   });
 });

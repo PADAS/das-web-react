@@ -17,13 +17,16 @@
     "required": "Ceci est un champ obligatoire.",
     "timeFormat": "Format d'heure invalide.",
     "uploadFailedError": "Le téléversement d'un ou plusieurs fichiers a échoué. Supprimez les fichiers en erreur avant de soumettre.",
+    "uploadFailedWithReasonError": "Le téléversement d'un ou plusieurs fichiers a échoué : {{reason}}. Supprimez les fichiers en erreur avant de soumettre.",
     "uploadInProgressError": "Veuillez attendre que les fichiers aient terminé de se téléverser.",
     "uriFormat": "Format d'URL invalide.",
     "uuidFormat": "Format d'UUID invalide."
   },
   "fields": {
     "attachment": {
+      "audioPlayerLabel": "Lecteur audio de {{fileName}}",
       "chooseFile": "Choisir un fichier",
+      "closePlayerButtonLabel": "Fermer le lecteur de {{fileName}}",
       "disallowedTypeAlert": "Impossible d'ajouter {{fileName}} car son type de fichier n'est pas autorisé.",
       "downloadButtonLabel": "Télécharger {{fileName}}",
       "dropzoneText": "Glissez-déposez des fichiers ici",
@@ -31,15 +34,20 @@
       "maxItemsAlert_one": "Vous ne pouvez ajouter que {{count}} fichier au maximum.",
       "maxItemsAlert_other": "Vous ne pouvez ajouter que {{count}} fichiers au maximum.",
       "pendingLabel": "En attente",
+      "playButtonLabel": "Lire {{fileName}}",
+      "playerErrorLabel": "Impossible de charger ce fichier.",
       "removeButtonLabel": "Supprimer {{fileName}}",
       "requiredLabel": "(obligatoire)",
       "uploadErrorLabel": "Échec du téléversement",
       "uploadFailedAnnouncement_one": "Impossible de téléverser {{fileName}}",
       "uploadFailedAnnouncement_other": "Impossible de téléverser {{count}} fichiers",
+      "uploadFailedWithReasonAnnouncement_one": "Impossible de téléverser {{fileName}} : {{reason}}",
+      "uploadFailedWithReasonAnnouncement_other": "Impossible de téléverser {{count}} fichiers : {{reason}}",
       "uploadStartedAnnouncement_one": "Téléversement de {{fileName}}",
       "uploadStartedAnnouncement_other": "Téléversement de {{count}} fichiers",
       "uploadSucceededAnnouncement_one": "{{fileName}} téléversé",
-      "uploadSucceededAnnouncement_other": "{{count}} fichiers téléversés"
+      "uploadSucceededAnnouncement_other": "{{count}} fichiers téléversés",
+      "videoPlayerLabel": "Lecteur vidéo de {{fileName}}"
     },
     "collection": {
       "addButtonLabel": "Ajouter {{itemName}}",
@@ -87,6 +95,11 @@
       "true": "Oui"
     },
     "collectionHumanizedValue": "{{collectionLength}} éléments"
+  },
+  "uploadFailureReasons": {
+    "tooLarge": "Le fichier est trop volumineux",
+    "tooManyRequests": "Trop de téléversements, réessayez plus tard",
+    "unsupportedType": "Type de fichier non autorisé"
   },
   "validationErrorsAnnouncement": "Il y a des erreurs de validation dans les champs suivants :"
 }

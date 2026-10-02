@@ -42,7 +42,6 @@
       "inactive": "Ativar a coloração por hora do dia"
     },
     "trackSettings": {
-      "closeButtonLabel": "Fechar configurações de trajetórias",
       "customLengthErrorMessage": "Por favor, insira uma duração de trajetória entre {{min}} e {{max}}.",
       "customLengthInputLabel": "Duração da trajetória em dias",
       "customLengthRadioLabel": "Duração personalizada",

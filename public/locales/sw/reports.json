@@ -10,77 +10,115 @@
     },
     "modalTitle": "Ongeza kwenye Tukio"
   },
-  "columnSort": {
-    "popoverTitle": "Panga kwa:",
-    "eventSortOptions": {
-      "updatedAtLabel": "Tarehe iliyosasishwa",
-      "createdAtLabel": "Tarehe ya Kuundwa",
-      "eventTimeLabel": "Tarehe ya Tukio"
-    },
-    "eventOrderOptions": {
-      "newest": "Mpya hadi za Zamani",
-      "oldest": "Zamani hadi Mpya"
-    },
-    "sortDirectionToggleLabel": {
-      "ascending": "Badilisha mpangilio kuwa Kushuka",
-      "descending": "Badilisha mpangilio kuwa Kupanda"
-    },
-    "sortDirectionToggleTitle": {
-      "ascending": "Mpangilio wa Kupanda",
-      "descending": "Mpangilio wa Kushuka"
-    }
-  },
   "errorMessages": {
     "accordionHeaderButton": {
       "closed": "Ona maelezo",
       "open": "Ficha maelezo"
     }
   },
-  "eventFeed": {
-    "loadingMoreReportsItem": "Inapakia matukio zaidi...",
-    "noMoreReportsItem": "Hakuna matukio zaidi ya kuonyesha.",
-    "noReportsItem": "Hakuna matukio ya kuonyesha."
-  },
   "eventIcon": {
     "collectionTitle": "Ukusanyaji"
   },
-  "eventItemContextMenu": {
-    "errorToastMessage": "#{{serialNumber}} bado {{state}}, kitu kimeenda kombo",
-    "notificationDetails": {
-      "failedReports": "ONYO: Matukio haya hayakuweza kubadilishwa hadi hali ya {{state}}",
-      "processedReports": {
-        "activated": "limeanzishwa",
-        "resolved": "limekamilishwa",
-        "title": "Matukio haya yanayohusiana yalikuwa pia {{newState}}:"
-      }
+  "eventsManager": {
+    "eventOverview": {
+      "footer": {
+        "cancelButton": "Ghairi",
+        "cancelButtonLabel": "Ghairi kuongeza tukio hili",
+        "saveAndActivateOption": "Hifadhi na anzisha",
+        "saveAndReopenOption": "Hifadhi na fungua tena",
+        "saveAndResolveOption": "Hifadhi na tatua",
+        "saveAndReviewOption": "Hifadhi na tuma kwa ukaguzi",
+        "saveButton": "Hifadhi",
+        "saveOptionsMenuLabel": "Chaguo zaidi za kuhifadhi"
+      },
+      "header": {
+        "breadcrumbEventsLabel": "Matukio",
+        "breadcrumbNavLabel": "Urambazaji wa tukio",
+        "jumpToLocationButtonLabel": "Enda mahali",
+        "patrolIndicator": "d",
+        "reportMenu": {
+          "addToIncidentOption": "Ongeza kwenye Tukio",
+          "addToPatrolOption": "Ongeza kwenye Doria",
+          "copyLinkMessage": "Kiungo kimenakiliwa",
+          "copyLinkOption": "Nakili Kiungo cha Tukio",
+          "jumpToLocationOption": "Enda mahali",
+          "moreOptionsButtonLabel": "Chaguo zaidi",
+          "printOption": "Chapisha Maelezo ya Tukio"
+        },
+        "statusSelect": {
+          "states": {
+            "active": "Tendaji",
+            "resolved": "Imetatuliwa",
+            "review": "Inakaguliwa"
+          },
+          "stateTransitions": {
+            "activate": "Anzisha",
+            "reopen": "Fungua tena",
+            "resolve": "Tatua",
+            "review": "Tuma kwa ukaguzi"
+          },
+          "statusMenuLabel": "Hali za tukio",
+          "statusSelectLabel": "Badilisha hali ya tukio"
+        },
+        "titleInputLabel": "Kichwa cha tukio"
+      },
+      "loadingLabel": "Inapakia data ya tukio"
     },
-    "state": {
-      "active": "inachukua hatua",
-      "resolved": "limekamilishwa"
-    },
-    "textCopyButtonItem": {
-      "label": "Nakili kiungo cha tukio",
-      "successMessage": "Kiungo kimekopwa"
-    },
-    "updatedCollectionInfoToast": {
-      "activated": "limeanzishwa",
-      "message": "Ukusanyaji #{{collectionSerialNumber}} ulikuwa {{newState}} kwa usahihi",
-      "resolved": "limekamilishwa"
-    },
-    "updatedReportInfoToastMessage": "#{{reportSerialNumber}} {{newState}}",
-    "updateReportStateItem": {
-      "reopen": "Fungua tena",
-      "resolve": "Kamilisha"
+    "eventsFeed": {
+      "emptyStateMessage": "Hakuna matukio ya kuonyesha.",
+      "eventListLabel": "Orodha ya matukio",
+      "eventRow": {
+        "actions": {
+          "copyLinkMessage": "Kiungo kimenakiliwa",
+          "copyLinkOption": "Nakili kiungo cha tukio",
+          "jumpToLocationButtonLabel": "Enda mahali",
+          "moreOptionsButtonLabel": "Chaguo zaidi",
+          "notificationDetails": {
+            "failedEvents": "ONYO: Matukio haya hayakuweza kubadilishwa hadi hali ya {{state}}",
+            "processedEvents": {
+              "activated": "yameanzishwa",
+              "resolved": "yametatuliwa",
+              "review": "yametumwa kwa ukaguzi",
+              "title": "Matukio haya yanayohusiana pia {{newState}}:"
+            },
+            "states": {
+              "active": "Tendaji",
+              "resolved": "Imetatuliwa",
+              "review": "Inakaguliwa"
+            }
+          },
+          "states": {
+            "active": "tendaji",
+            "resolved": "imetatuliwa",
+            "review": "inakaguliwa"
+          },
+          "stateTransitions": {
+            "activate": "Anzisha",
+            "reopen": "Fungua tena",
+            "resolve": "Tatua",
+            "review": "Tuma kwa ukaguzi"
+          },
+          "stateUpdateErrorToastMessage": "#{{serialNumber}} bado {{state}}, kitu kimeenda kombo",
+          "updatedCollectionToast": {
+            "activated": "umeanzishwa",
+            "message": "Ukusanyaji #{{collectionSerialNumber}} {{newState}} kwa usahihi",
+            "resolved": "umetatuliwa",
+            "review": "umetumwa kwa ukaguzi"
+          },
+          "updatedEventToastMessage": "#{{eventSerialNumber}} {{newState}}"
+        },
+        "patrolIndicator": "d",
+        "states": {
+          "active": "Tendaji",
+          "resolved": "Imetatuliwa",
+          "review": "Inakaguliwa"
+        }
+      },
+      "fetchErrorMessage": "Haikuweza kupakia matukio. Tafadhali jaribu tena.",
+      "loadingLabel": "Inapakia matukio",
+      "loadingMoreLabel": "Inapakia matukio zaidi",
+      "retryButton": "Jaribu tena"
     }
-  },
-  "prioritySelect": {
-    "labels": {
-      "amber": "Ambari",
-      "green": "Kijani",
-      "none": "Hakuna",
-      "red": "Nyekundu"
-    },
-    "placeholder": "Chagua"
   },
   "reportGeometryDrawer": {
     "cancelationConfirmationModal": {
@@ -113,7 +151,8 @@
   },
   "reportListItem": {
     "dateTimeSuffix": "ilipita",
-    "resolvedState": "limekamilishwa"
+    "resolvedState": "imetatuliwa",
+    "reviewState": "inakaguliwa"
   },
   "reportManager": {
     "detailsSection": {
@@ -141,40 +180,24 @@
       },
       "dateLabel": "Tarehe ya Tukio",
       "detailsHeader": "Maelezo",
-      "errorLoadingSchema": "Hitilafu wakati wa kupakia muundo",
       "locationLabel": "Mahali pa Tukio",
-      "priorityLabel": "Kipaumbele",
-      "reportedByLabel": "Iliripotiwa Na",
-      "stateDropdown": {
-        "active": "inachukua hatua",
-        "resolved": "limekamilishwa"
-      },
-      "timeLabel": "Muda wa Tukio"
-    },
-    "header": {
-      "priority": {
+      "priorities": {
         "amber": "Ambari",
         "green": "Kijani",
         "none": "Hakuna",
         "red": "Nyekundu"
       },
-      "reportMenu": {
-        "addToIncidentItem": "Ongeza kwenye Tukio",
-        "addToPatrolItem": "Ongeza kwenye Doria",
-        "label": "Angalia Chaguzi za Tukio",
-        "printReportItem": "Chapisha Maelezo ya Tukio",
-        "textCopyButtonLabel": "Nakili Kiungo cha Tukio",
-        "textCopyButtonSuccessMessage": "Kiungo kimekopwa",
-        "title": "Chaguzi za Tukio"
-      }
+      "priorityLabel": "Kipaumbele",
+      "reportedByLabel": "Iliripotiwa Na",
+      "schemaErrorMessage": "Sehemu za aina hii ya tukio hazikuweza kupakiwa.",
+      "schemaLoadingLabel": "Inapakia sehemu za aina hii ya tukio",
+      "timeLabel": "Muda wa Tukio"
     },
     "linksSection": {
       "linksHeader": "Viungo"
     },
     "reportDetailView": {
-      "cancelButton": "Ghairi",
       "cantAddNoteAlert": "Haiwezi kuongeza hati mpya: kuna hati tupu ambayo haijasimbwa bado",
-      "loadingMessage": "Inahifadhi...",
       "quickLinks": {
         "activityAnchor": "Shughuli",
         "detailsAnchor": "Maelezo",
@@ -182,11 +205,6 @@
         "linksAnchor": "Viungo"
       },
       "saveErrorMessage": "Hitilafu wakati wa kuhifadhi tukio.",
-      "saveSplitButton": {
-        "saveAndReopenItem": "Hifadhi na fungua tena",
-        "saveAndResolveItem": "Hifadhi na kamilisha",
-        "title": "Hifadhi"
-      },
       "unknownErrorLabel": "Hitilafu isiyojulikana"
     }
   },

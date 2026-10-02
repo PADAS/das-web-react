@@ -1,0 +1,69 @@
+@use 'sass:map';
+
+@use '../../../../../common/styles/buttons';
+@use '../../../../../common/styles/vars/colors';
+@use '../shared';
+
+.filtersPopover {
+  @include shared.filter-popover;
+
+  .body {
+    @include shared.filter-popover-body;
+    @include shared.reset-all-footer-clearance;
+
+    .teamLeadField {
+      display: flex;
+      flex-direction: column;
+      padding: 1rem 0;
+
+      .label {
+        @include shared.section-label;
+      }
+    }
+
+    .checkboxSection {
+      border-top: 1px solid colors.$light-gray-lines;
+      padding: 1rem 0 0.75rem;
+      position: relative;
+
+      .resetButton {
+        @include buttons.chipTextButtonSmall;
+
+        position: absolute;
+        right: 0;
+        top: 0.875rem;
+      }
+
+      .checkboxList {
+        @include shared.borderless-select-list;
+      }
+
+      .optionDot {
+        @include shared.select-list-option-dot;
+
+        &.active {
+          background-color: map.get(colors.$patrol-active-theme, 'base');
+        }
+
+        &.cancelled {
+          background-color: map.get(colors.$patrol-cancelled-theme, 'base');
+        }
+
+        &.done {
+          background-color: map.get(colors.$patrol-done-theme, 'base');
+        }
+      }
+    }
+
+    .resetAllFooter {
+      @include shared.reset-all-footer;
+
+      .resetAllButton {
+        @include buttons.chipTextButton;
+
+        justify-content: center;
+        width: 100%;
+      }
+    }
+  }
+}

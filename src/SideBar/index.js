@@ -26,26 +26,20 @@ import AddItemButton from '../AddItemButton';
 import BadgeIcon from '../Badge';
 import Link from '../Link';
 import PatrolDetailView from '../PatrolDetailView';
-import ReportManager from '../ReportManager';
 import SoundNotificationsPlayer from '../SoundNotificationsPlayer';
 
+import EventsManager from './EventsManager';
 import GearTab from './GearTab';
 import MapLayersTab from './MapLayersTab';
 import OtusTab from './OtusTab';
 import PatrolsFeed from './PatrolsFeed';
 import PatrolsManager from './PatrolsManager';
-import ReportsFeedTab from './ReportsFeedTab';
 import SettingsPane from './SettingsPane';
 
 import * as styles from './styles.module.scss';
 
-const CLOSE_BUTTON_LABEL_KEY = {
-  [TAB_KEYS.EVENTS]: 'closeEventFeedButtonLabel',
-  [TAB_KEYS.GEAR]: 'closeGearTabButtonLabel',
-  [TAB_KEYS.LAYERS]: 'closeMapLayersButtonLabel',
-  [TAB_KEYS.PATROLS]: 'closePatrolFeedButtonLabel',
-  [TAB_KEYS.SETTINGS]: 'closeSettingsButtonLabel',
-};
+// A bit longer than the tab's slide out, in case its transitionend never fires.
+const CLOSING_UNMOUNT_DELAY = 450;
 
 const legacyEventsURL = 'reports';
 
@@ -58,7 +52,7 @@ const SideBar = () => {
 
   const socket = useContext(SocketContext);
 
-  const reportsFeed = useReportsFeed();
+  const eventsFeed = useReportsFeed();
 
   const analyzersEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.ANALYZERS]);
   const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
@@ -77,19 +71,16 @@ const SideBar = () => {
   const { hasPatrolsReadPermission } = usePatrolsPermissions();
 
   const [showEventsBadge, setShowEventsBadge] = useState(false);
-  const [reportIsBeingAdded, setReportIsBeingAdded] = useState(false);
+  const [tabLocation, setTabLocation] = useState(null);
 
   const canReadPatrols = patrolManagementEnabled && hasPatrolsReadPermission;
 
   const currentTab = getCurrentTabFromURL(location.pathname);
-  const itemId = getCurrentIdFromURL(location.pathname);
 
   const isLegacyEventURL = currentTab === legacyEventsURL;
   // Hide the layers tab if all map features are disabled.
   const showLayersTab = analyzersEnabled || spatialFeaturesEnabled || subjectsEnabled || eventsEnabled;
 
-  const isPatrolItemActive = canReadPatrols
-    && !!matchPath(detailViewPattern(TAB_KEYS.PATROLS), location.pathname);
   const isReportDetailsViewActive = eventsEnabled
     && !!matchPath(detailViewPattern(TAB_KEYS.EVENTS), location.pathname);
 
@@ -97,8 +88,6 @@ const SideBar = () => {
   const showOtusTab = !!otusUrl;
 
   const isOtusTabActive = showOtusTab && currentTab === TAB_KEYS.OTUS;
-
-  const hideDefaultHeader = (patrolSchemasEnabled && isPatrolItemActive) || isOtusTabActive;
 
   const gearStillResolving = !gearEndpointUnavailable
     && (initialLoadInProgress || (gearLoading && !hasGear));
@@ -124,32 +113,40 @@ const SideBar = () => {
     }
   }, [navigate]);
 
+  // The tab keeps rendering its last open location while it slides out.
+  if (isSideBarOpen && tabLocation?.key !== location.key) {
+    setTabLocation(location);
+  }
+
+  const isSideBarClosing = !isSideBarOpen && !!tabLocation;
+  const displayedPathname = (tabLocation ?? location).pathname;
+  const displayedTab = getCurrentTabFromURL(displayedPathname);
+
+  const hideDefaultHeader = (patrolSchemasEnabled
+    && canReadPatrols
+    && !!matchPath(detailViewPattern(TAB_KEYS.PATROLS), displayedPathname))
+    || (eventsEnabled && !!matchPath(detailViewPattern(TAB_KEYS.EVENTS), displayedPathname))
+    || (showOtusTab && displayedTab === TAB_KEYS.OTUS);
+
   const onClickBackFromDetailView = useCallback(() => {
-    if (reportIsBeingAdded) {
-      return navigate(location.pathname, { replace: true });
-    }
-
-    if (eventsEnabled && location.state?.relatedEvent) {
-      return navigate(`${tabPath(TAB_KEYS.EVENTS)}/${location.state.relatedEvent}`, {
-        replace: true
-      });
-    }
-
     if (location.key === 'default' || location.state?.comesFromLogin || location.state?.comesFromLngLatRedirection) {
       return navigate(tabPath(getCurrentTabFromURL(location.pathname)), {});
     }
 
     return navigate(-1, {});
   }, [
-    eventsEnabled,
     location.key,
     location.pathname,
     location.state?.comesFromLngLatRedirection,
     location.state?.comesFromLogin,
-    location.state?.relatedEvent,
     navigate,
-    reportIsBeingAdded,
   ]);
+
+  const onTabTransitionEnd = (event) => {
+    if (isSideBarClosing && event.target === event.currentTarget && event.propertyName === 'transform') {
+      setTabLocation(null);
+    }
+  };
 
   useEffect(() => {
     if (isLegacyEventURL){
@@ -193,6 +190,14 @@ const SideBar = () => {
       };
     }
   }, [currentTab, isReportDetailsViewActive, isSideBarOpen, socket]);
+
+  useEffect(() => {
+    if (isSideBarClosing) {
+      const unmountTimeout = setTimeout(() => setTabLocation(null), CLOSING_UNMOUNT_DELAY);
+
+      return () => clearTimeout(unmountTimeout);
+    }
+  }, [isSideBarClosing]);
 
   return <nav className={`${styles.sideBar} ${sideBar.showSideBar ? '' : 'hidden'}`}>
     <div className={`${styles.verticalNav} ${isSideBarOpen ? 'open' : ''}`}>
@@ -257,69 +262,67 @@ const SideBar = () => {
     </div>
 
     <div className={`${styles.tabsContainer} ${isSideBarOpen ? 'open' : ''}`}>
-      <div className={`${styles.tab}  ${isSideBarOpen ? 'open' : ''}`}>
+      <div
+        className={`${styles.tab} ${isSideBarOpen ? 'open' : ''}`}
+        data-testid="sideBar-tab"
+        inert={isSideBarClosing}
+        onTransitionEnd={onTabTransitionEnd}
+      >
         <div className={styles.printLogo}>
           <ERLogo />
         </div>
 
-        {!hideDefaultHeader && <div className={styles.header}>
+        {(isSideBarOpen || isSideBarClosing) && !hideDefaultHeader && <div className={styles.header}>
           <div className={styles.title}>
-            {(currentTab === TAB_KEYS.EVENTS || currentTab === TAB_KEYS.PATROLS) && <div>
-              {itemId
+            {(displayedTab === TAB_KEYS.EVENTS || displayedTab === TAB_KEYS.PATROLS) && <div>
+              {getCurrentIdFromURL(displayedPathname)
                 ? <button
                   aria-label={t('backButtonLabel')}
                   className={styles.backButton}
-                  type='button'
+                  data-testid="sideBar-backDetailViewButton"
                   onClick={onClickBackFromDetailView}
                   title={t('backButtonTitle')}
-                  data-testid="sideBar-backDetailViewButton"
+                  type="button"
                 >
-                  <ArrowLeftIcon />
+                  <ArrowLeftIcon aria-hidden="true" className={styles.backButtonIcon} />
                 </button>
                 : <AddItemButton
                   analyticsMetadata={{ category: FEED_CATEGORY, location: 'Feed' }}
-                  aria-label={t(currentTab === TAB_KEYS.EVENTS ? 'addEventButtonLabel' : 'addPatrolButtonLabel')}
+                  aria-label={t(displayedTab === TAB_KEYS.EVENTS ? 'addEventButtonLabel' : 'addPatrolButtonLabel')}
                   className={styles.addReport}
-                  hideAddPatrolTab={currentTab === TAB_KEYS.EVENTS}
-                  hideAddEventTab={currentTab === TAB_KEYS.PATROLS}
+                  hideAddPatrolTab={displayedTab === TAB_KEYS.EVENTS}
+                  hideAddEventTab={displayedTab === TAB_KEYS.PATROLS}
                   showLabel={false}
-                  title={t(currentTab === TAB_KEYS.EVENTS ? 'addEventButtonTitle' : 'addPatrolButtonTitle')}
+                  title={t(displayedTab === TAB_KEYS.EVENTS ? 'addEventButtonTitle' : 'addPatrolButtonTitle')}
                   variant="secondary"
                 />}
             </div>}
 
-            <h3 id="side-bar-tab-header">{t(`${currentTab}Link`)}</h3>
+            <h3 id="side-bar-tab-header">{t(`${displayedTab}Link`)}</h3>
           </div>
 
-          <button
-            aria-label={t(CLOSE_BUTTON_LABEL_KEY[currentTab])}
-            onClick={() => navigate('/')}
-            title={t('closeButtonTitle')}
+          <Link
+            aria-label={t('closeButtonLabel')}
+            className={styles.closeButton}
+            title={t('closeButtonLabel')}
+            to="/"
           >
-            <CrossIcon />
-          </button>
+            <CrossIcon aria-hidden="true" className={styles.closeButtonIcon} />
+          </Link>
         </div>}
 
         <div className={`${styles.tabBody} ${hideDefaultHeader ? styles.noHeader : ''}`}>
           {/* Outside the routes so a tab switch does not remount the Otus frame and its session. */}
-          {showOtusTab && <OtusTab isActive={isOtusTabActive} url={otusUrl} />}
+          {showOtusTab && <OtusTab isActive={displayedTab === TAB_KEYS.OTUS} url={otusUrl} />}
 
-          <Routes>
+          <Routes location={tabLocation ?? location}>
             {/* Gets rid of warning */}
             <Route path="/" element={null} />
 
-            {eventsEnabled && <Route path={TAB_KEYS.EVENTS}>
-              <Route index element={<ReportsFeedTab
-                events={reportsFeed.events}
-                feedSort={reportsFeed.feedSort}
-                loadFeedEvents={reportsFeed.loadFeedEvents}
-                loadingEventFeed={reportsFeed.loadingEventFeed}
-                setFeedSort={reportsFeed.setFeedSort}
-                shouldExcludeContained={reportsFeed.shouldExcludeContained}
-              />} />
-
-              <Route path=":id/*" element={<ReportManager onReportBeingAdded={setReportIsBeingAdded} />} />
-            </Route>}
+            {eventsEnabled && <Route
+              element={<EventsManager eventsFeed={eventsFeed} />}
+              path={`${TAB_KEYS.EVENTS}/*`}
+            />}
 
             {/* Legacy patrol routes */}
             {canReadPatrols && !patrolSchemasEnabled && <Route path={TAB_KEYS.PATROLS}>

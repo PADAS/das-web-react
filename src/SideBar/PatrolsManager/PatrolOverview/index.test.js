@@ -561,6 +561,19 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     expect(props.formProps.redirectTo).toEqual([{ pathname: `/patrols/${patrolWithoutLeader.id}` }]);
   });
 
+  test('gives the event it adds the crumbs back to this patrol', async () => {
+    store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
+
+    await renderPatrolOverview(patrolWithoutLeader.id);
+
+    const [props] = addItemButtonMock.mock.calls.at(-1);
+
+    expect(props.formProps.parentCrumbs).toEqual([
+      { label: 'Patrols', to: '/patrols' },
+      { label: screen.getByRole('textbox', { name: 'Patrol title' }).value, to: `/patrols/${patrolWithoutLeader.id}` },
+    ]);
+  });
+
   test('links a newly added event to the leg the patrol is on and refreshes the patrol', async () => {
     const patrolWithMultipleLegs = {
       ...patrolWithoutLeader,
@@ -669,7 +682,9 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
 
     await userEvent.click(screen.getByText('Go Back'));
 
-    expect(screen.queryByText('Unsaved Changes')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText('Unsaved Changes')).not.toBeInTheDocument();
+    });
     expect(screen.getByTestId('test-location')).toHaveTextContent(`/patrols/${patrolWithoutLeader.id}`);
   });
 
@@ -711,7 +726,9 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
 
     await userEvent.click(await screen.findByText('Discard'));
 
-    expect(screen.queryByText('Unsaved Changes')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText('Unsaved Changes')).not.toBeInTheDocument();
+    });
     await waitFor(() => {
       expect(screen.getByTestId('test-location')).not.toHaveTextContent(patrolWithoutLeader.id);
     });
@@ -729,7 +746,9 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
 
     await userEvent.click(await screen.findByTestId('navigation-prompt-positive-continue-btn'));
 
-    expect(screen.queryByText('Unsaved Changes')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText('Unsaved Changes')).not.toBeInTheDocument();
+    });
     await waitFor(() => {
       expect(screen.getByTestId('test-location')).not.toHaveTextContent(patrolWithoutLeader.id);
     });
@@ -806,6 +825,62 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       await renderPatrolOverview(patrolWithoutLeader.id);
 
       await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
+
+      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+    });
+
+    const renderUntitledPatrol = async () => {
+      store.data.patrolStore[patrolWithoutLeader.id] = { ...patrolWithoutLeader, title: null };
+
+      await renderPatrolOverview(patrolWithoutLeader.id);
+
+      return screen.getByTestId('patrolOverview-title');
+    };
+
+    test('titles an untitled patrol after its patrol type, without repeating the type or anything to save', async () => {
+      const titleInput = await renderUntitledPatrol();
+
+      expect(titleInput.value).not.toBe('');
+      expect(screen.queryByText(titleInput.value, { selector: 'p' })).toBeNull();
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
+
+    test('disables the save button again when the user types back the type an untitled patrol shows', async () => {
+      const titleInput = await renderUntitledPatrol();
+
+      await userEvent.type(titleInput, '!');
+
+      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+
+      await userEvent.type(titleInput, '{Backspace}');
+
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
+
+    test('does not count emptying the title of an untitled patrol as a change', async () => {
+      await userEvent.clear(await renderUntitledPatrol());
+
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
+
+    test('leaves an emptied title empty, so the patrol keeps going by its type', async () => {
+      const titleInput = await renderUntitledPatrol();
+      const typeTitle = titleInput.value;
+
+      await userEvent.clear(titleInput);
+      await userEvent.tab();
+
+      expect(screen.getByTestId('patrolOverview-title')).toHaveValue('');
+      expect(screen.getByRole('heading', { name: typeTitle })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
+
+    test('counts emptying the title of a titled patrol as a change', async () => {
+      store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
+
+      await renderPatrolOverview(patrolWithoutLeader.id);
+
+      await userEvent.clear(screen.getByTestId('patrolOverview-title'));
 
       expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
     });
@@ -1082,7 +1157,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
 
     const selectStatus = async (name) => {
       await openStatusSelect();
-      await userEvent.click(await screen.findByRole('menuitemradio', { name }));
+      await userEvent.click(await screen.findByRole('menuitem', { name }));
     };
 
     const savedPayload = async () => {
@@ -1137,7 +1212,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('keeps the picked state when the patrol changes underneath', async () => {
       const { rerender } = await renderPatrolInStore(patrolWithLeader);
 
-      await selectStatus('Done');
+      await selectStatus('End');
 
       store.data.patrolStore[patrolWithLeader.id] = { ...patrolWithLeader, title: 'Renamed patrol' };
       rerenderWithStore(rerender);
@@ -1149,7 +1224,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('does not update the patrol until it is saved', async () => {
       await renderPatrolInStore(patrolWithLeader);
 
-      await selectStatus('Done');
+      await selectStatus('End');
 
       expect(updatePatrol).not.toHaveBeenCalled();
     });
@@ -1159,7 +1234,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
 
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
 
-      await selectStatus('Done');
+      await selectStatus('End');
 
       expect(screen.getByText('Done')).toHaveClass('unsavedLabel');
       expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
@@ -1168,7 +1243,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('drops the change when the status the patrol is already in is picked back', async () => {
       await renderPatrolInStore(patrolWithLeader);
 
-      await selectStatus('Done');
+      await selectStatus('End');
       await selectStatus('Active');
 
       expect(screen.getByRole('button', { name: 'Active, Change patrol status' })).toBeInTheDocument();
@@ -1189,7 +1264,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('still sends the picked status when the patrol reaches it on its own before saving', async () => {
       const { rerender } = await renderPatrolInStore(patrolWithLeader);
 
-      await selectStatus('Done');
+      await selectStatus('End');
 
       store.data.patrolStore[patrolWithLeader.id] = { ...patrolWithLeader, state: 'done' };
       rerenderWithStore(rerender);
@@ -1201,8 +1276,8 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('sends the status picked last when another one replaces it', async () => {
       await renderPatrolInStore(patrolWithLeader);
 
-      await selectStatus('Done');
-      await selectStatus('Cancelled');
+      await selectStatus('End');
+      await selectStatus('Cancel');
 
       expect((await savedPayload()).state).toBe('cancelled');
     });
@@ -1210,7 +1285,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('sends the update built for the picked status when the patrol is saved', async () => {
       await renderPatrolInStore(patrolWithLeader);
 
-      await selectStatus('Done');
+      await selectStatus('End');
 
       const payload = await savedPayload();
 
@@ -1222,7 +1297,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('sends the state alone when the patrol is cancelled', async () => {
       await renderPatrolInStore(patrolWithLeader);
 
-      await selectStatus('Cancelled');
+      await selectStatus('Cancel');
 
       expect(await savedPayload()).toEqual({ id: patrolWithLeader.id, state: 'cancelled' });
     });
@@ -1231,7 +1306,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       await renderPatrolInStore(patrolWithLeader);
 
       await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
-      await selectStatus('Cancelled');
+      await selectStatus('Cancel');
 
       const payload = await savedPayload();
 
@@ -1246,7 +1321,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       await renderPatrolInStore(patrolWithLeader);
 
       await user.click(screen.getByRole('button', { name: /Change patrol status/ }));
-      await user.click(await screen.findByRole('menuitemradio', { name: 'Done' }));
+      await user.click(await screen.findByRole('menuitem', { name: 'End' }));
 
       act(() => {
         jest.advanceTimersByTime(5 * 60_000);
@@ -1265,7 +1340,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('builds the status update from the patrol as it stands when it is saved', async () => {
       const { rerender } = await renderPatrolInStore(patrolWithLeader);
 
-      await selectStatus('Done');
+      await selectStatus('End');
 
       store.data.patrolStore[patrolWithLeader.id] = withLastLeg(
         { ...patrolWithLeader, id: patrolWithLeader.id },
@@ -1279,7 +1354,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     test('pauses the patrol by adding a pause leg, without asking the user for one', async () => {
       await renderPatrolInStore(patrolWithLeader);
 
-      await selectStatus('Paused');
+      await selectStatus('Pause');
       await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
       const { patrol_segments: patrolSegments } = await savedPayload();
@@ -1294,7 +1369,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
 
       await renderPatrolOverview(patrolWithLeader.id, { withNavigateAwayButton: true });
 
-      await selectStatus('Done');
+      await selectStatus('End');
       await userEvent.click(screen.getByRole('button', { name: 'Navigate away' }));
 
       expect(await screen.findByTestId('navigation-prompt-positive-continue-btn')).toBeInTheDocument();
@@ -1306,7 +1381,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
 
       await renderPatrolInStore(patrolWithLeader);
 
-      await selectStatus('Cancelled');
+      await selectStatus('Cancel');
 
       const fakeFile = new File(['file contents'], 'file.pdf', { type: 'application/pdf' });
       await userEvent.upload(screen.getByTestId('addAttachmentButton'), fakeFile);

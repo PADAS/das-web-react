@@ -1,0 +1,40 @@
+@use '../../../../common/styles/buttons';
+@use '../../../../common/styles/vars/colors';
+
+.footer {
+  align-items: center;
+  background: white;
+  border-top: 1px solid colors.$very-light-gray-alt;
+  display: flex;
+  flex-shrink: 0;
+  justify-content: space-between;
+  padding: 1rem;
+
+  .leftActions {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .rightActions {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+
+    .cancelButton {
+      @include buttons.baseButton;
+
+      &:hover {
+        color: colors.$secondary-medium-gray;
+      }
+
+      &:focus-visible {
+        outline-offset: 0;
+      }
+    }
+  }
+
+  @media print {
+    display: none !important;
+  }
+}

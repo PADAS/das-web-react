@@ -1,10 +1,9 @@
-import { defineConfig, transformWithOxc } from 'vite';
+import { defineConfig, loadEnv, transformWithOxc } from 'vite';
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
 
 // Filter app source .js files. Leave out Vite virtual modules and node_modules.
 const JS_APP_SOURCE_MODULE_ID_REGEX =
-// eslint-disable-next-line no-control-regex -- Rollup virtual module ids start with a leading NUL.
   /^(?!\u0000)(?!.*[\\/]node_modules[\\/]).*\.js(?:\?|$)/;
 
 const OSANO_SCRIPT_SRC = 'https://cmp.osano.com/AzqB4OUPPVD5j8EeT/bc796e8a-d3d4-4a74-b9c7-f737cbc3379b/osano.js';
@@ -62,7 +61,7 @@ const osanoPlugin = () => ({
   },
 });
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   build: {
     outDir: 'build',
   },
@@ -88,6 +87,6 @@ export default defineConfig({
     osanoPlugin(),
   ],
   server: {
-    port: Number(process.env.PORT) || 9000,
+    port: Number(loadEnv(mode, process.cwd(), '').PORT) || 9000,
   },
-});
+}));

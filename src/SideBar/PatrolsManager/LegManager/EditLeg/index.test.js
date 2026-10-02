@@ -118,7 +118,6 @@ describe('SideBar - PatrolsManager - LegManager - EditLeg', () => {
         patrolStore: { [patrol.id]: patrol },
         patrolTeamAndTrackingOptions: {
           assets: [asset],
-          leaders: [teamLead],
           members: [teamLead, teamMember, unassignedMember],
           teams: [team],
         },
@@ -200,7 +199,7 @@ describe('SideBar - PatrolsManager - LegManager - EditLeg', () => {
     test('takes its patrol type', () => {
       renderEditLeg();
 
-      expect(screen.getByText(dogPatrol.display)).toBeVisible();
+      expect(within(screen.getByText('Patrol Type').parentElement).getByText(dogPatrol.display)).toBeVisible();
     });
 
     test('takes its team, its lead, its members and its assets', () => {

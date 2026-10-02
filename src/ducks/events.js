@@ -154,7 +154,7 @@ const fetchNamedFeedActionCreator = (name) => {
     })
       .then((response) => {
         if (typeof response !== 'undefined') { /* response === undefined for canceled requests. it's not an error, but it's a no-op for state management */
-          dispatch(updateEventStore(...excludeOpenEventIfAlreadyInEventStore(response.data.data.results, state.data.eventStore)));
+          dispatch(updateEventStore(...excludeOpenEventIfAlreadyInEventStore(response.data.data.results, getState().data.eventStore)));
 
           if (
             !response.data.data.results.length
@@ -180,8 +180,6 @@ const fetchNamedFeedActionCreator = (name) => {
   };
 
   const fetchNextPageFn = url => (dispatch, getState) => {
-    const state = getState();
-
     cancelToken.cancel();
     cancelToken = CancelToken.source();
 
@@ -189,7 +187,7 @@ const fetchNamedFeedActionCreator = (name) => {
       cancelToken: cancelToken.token,
     })
       .then(response => {
-        dispatch(updateEventStore(...excludeOpenEventIfAlreadyInEventStore(response.data.data.results, state.data.eventStore)));
+        dispatch(updateEventStore(...excludeOpenEventIfAlreadyInEventStore(response.data.data.results, getState().data.eventStore)));
         dispatch({
           name,
           type: FEED_FETCH_NEXT_PAGE_SUCCESS,

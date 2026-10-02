@@ -1,6 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw/http';
 import { setupServer } from 'msw/node';
 import { useLocation } from 'react-router';
 import userEvent from '@testing-library/user-event';
@@ -19,7 +19,7 @@ import MockSocketProvider, { mockedSocket } from '../__test-helpers/MockSocketCo
 import { mockStore } from '../__test-helpers/MockStore';
 import patrols from '../__test-helpers/fixtures/patrols';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
-import { render, screen, waitFor } from '../test-utils';
+import { act, createEvent, fireEvent, render, screen, waitFor } from '../test-utils';
 import SideBar from '.';
 import { PERMISSION_KEYS, PERMISSIONS, PREVIEW_FEATURES, SYSTEM_CONFIG_FLAGS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
@@ -37,6 +37,42 @@ jest.mock('../ducks/patrols', () => ({
 }));
 
 jest.mock('../hooks/useNavigate', () => jest.fn());
+
+jest.mock('../PatrolDetailView', () => {
+  const MockPatrolDetailView = () => <div data-testid="patrolDetailView" />;
+
+  return MockPatrolDetailView;
+});
+jest.mock('./EventsManager', () => {
+  const MockEventsManager = () => <div data-testid="eventsManager" />;
+
+  return MockEventsManager;
+});
+jest.mock('./GearTab', () => {
+  const MockGearTab = () => <div data-testid="gearTab" />;
+
+  return MockGearTab;
+});
+jest.mock('./MapLayersTab', () => {
+  const MockMapLayersTab = () => <div data-testid="mapLayersTab" />;
+
+  return MockMapLayersTab;
+});
+jest.mock('./PatrolsFeed', () => {
+  const MockPatrolsFeed = () => <div data-testid="patrolsFeed" />;
+
+  return MockPatrolsFeed;
+});
+jest.mock('./PatrolsManager', () => {
+  const MockPatrolsManager = () => <div data-testid="patrolsManager" />;
+
+  return MockPatrolsManager;
+});
+jest.mock('./SettingsPane', () => {
+  const MockSettingsPane = () => <div data-testid="settingsPane" />;
+
+  return MockSettingsPane;
+});
 
 const eventFeedResponse = { data: { results: events, next: null, count: events.length, page: 1 } };
 
@@ -391,14 +427,15 @@ describe('SideBar', () => {
     expect(screen.queryByRole('button', { name: 'Go Back' })).toBeNull();
   });
 
-  test('shows the back button in the report detail view', async () => {
+  test('does not show the default header in the event detail view', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/events/new' })));
     useLocation.mockImplementation(useLocationMock);
 
     renderSideBar();
 
     expect(screen.queryByRole('button', { name: 'Create Event' })).toBeNull();
-    expect(screen.getByRole('button', { name: 'Go Back' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Go Back' })).toBeNull();
+    expect(screen.queryByRole('heading', { name: 'Events' })).toBeNull();
   });
 
   test('shows the Add Patrol button in the patrols tab', async () => {
@@ -465,28 +502,9 @@ describe('SideBar', () => {
     expect(screen.queryByRole('button', { name: 'Go Back' })).toBeNull();
   });
 
-  test('navigates to related event when user clicks the back button in the report detail view', async () => {
-    const relatedEventId = 'related-event-123';
+  test('navigates to current tab when user clicks the back button in the patrol detail view and location.key is default', async () => {
     useLocationMock = jest.fn((() => ({
-      pathname: '/events/456',
-      key: 'abc123',
-      state: { relatedEvent: relatedEventId }
-    })));
-    useLocation.mockImplementation(useLocationMock);
-
-    renderSideBar();
-
-    expect(navigate).not.toHaveBeenCalled();
-
-    await userEvent.click(screen.getByRole('button', { name: 'Go Back' }));
-
-    expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith(`/events/${relatedEventId}`, { replace: true });
-  });
-
-  test('navigates to current tab when user clicks the back button in the report detail view and location.key is default', async () => {
-    useLocationMock = jest.fn((() => ({
-      pathname: '/events/123',
+      pathname: '/patrols/123',
       key: 'default',
       state: null
     })));
@@ -499,7 +517,7 @@ describe('SideBar', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Go Back' }));
 
     expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/events', {});
+    expect(navigate).toHaveBeenCalledWith('/patrols', {});
   });
 
   test('navigates to current tab when user clicks the back button in the patrol detail view and location.state.comesFromLogin is true', async () => {
@@ -520,9 +538,9 @@ describe('SideBar', () => {
     expect(navigate).toHaveBeenCalledWith('/patrols', {});
   });
 
-  test('navigates to current tab when user clicks the back button in the report detail view and location.state.comesFromLngLatRedirection is true', async () => {
+  test('navigates to current tab when user clicks the back button in the patrol detail view and location.state.comesFromLngLatRedirection is true', async () => {
     useLocationMock = jest.fn((() => ({
-      pathname: '/events/123',
+      pathname: '/patrols/123',
       key: 'abc123',
       state: { comesFromLngLatRedirection: true }
     })));
@@ -535,12 +553,12 @@ describe('SideBar', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Go Back' }));
 
     expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/events', {});
+    expect(navigate).toHaveBeenCalledWith('/patrols', {});
   });
 
-  test('navigates back with when user clicks the back button in the report detail view and none of the special conditions are met', async () => {
+  test('navigates back when user clicks the back button in the patrol detail view and none of the special conditions are met', async () => {
     useLocationMock = jest.fn((() => ({
-      pathname: '/events/123',
+      pathname: '/patrols/123',
       key: 'abc123',
       state: null
     })));
@@ -595,15 +613,19 @@ describe('SideBar', () => {
     expect(screen.getByRole('heading')).toHaveTextContent('Settings');
   });
 
-  test('closes the sidebar tabs when clicking the cross button', async () => {
+  test('does not show the tab header when no tab is open', async () => {
+    useLocationMock = jest.fn((() => ({ pathname: '/' })));
+    useLocation.mockImplementation(useLocationMock);
     renderSideBar();
 
-    expect(navigate).toHaveBeenCalledTimes(0);
+    expect(screen.queryByRole('heading')).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Close sidebar' })).toBeNull();
+  });
 
-    await userEvent.click(screen.getByRole('button', { name: 'Close Event Feed' }));
+  test('closes the sidebar tabs with a link to the root route', async () => {
+    renderSideBar();
 
-    expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/');
+    expect(screen.getByRole('link', { name: 'Close sidebar' })).toHaveAttribute('href', '/');
   });
 
   test('redirects to events path when legacy reports URL is accessed and events are enabled', async () => {
@@ -791,5 +813,89 @@ describe('SideBar', () => {
     renderSideBar();
 
     expect(navigate).toHaveBeenCalledWith('/', { replace: true });
+  });
+
+  describe('closing', () => {
+    let routerNavigate;
+
+    const RouterNavigateCapture = () => {
+      routerNavigate = jest.requireActual('react-router').useNavigate();
+
+      return null;
+    };
+
+    const renderOpenSideBar = () => render(
+      <Provider store={mockStore(store)}>
+        <MockSocketProvider>
+          <MapContext.Provider value={map}>
+            <RouterNavigateCapture />
+
+            <SideBar />
+          </MapContext.Provider>
+        </MockSocketProvider>
+      </Provider>,
+      { initialEntries: ['/settings'] }
+    );
+
+    const navigateTo = (pathname) => act(() => routerNavigate(pathname));
+
+    const fireTransformTransitionEnd = (element) => {
+      const transitionEndEvent = createEvent.transitionEnd(element);
+      Object.defineProperty(transitionEndEvent, 'propertyName', { value: 'transform' });
+
+      fireEvent(element, transitionEndEvent);
+    };
+
+    beforeEach(() => {
+      useLocation.mockImplementation(jest.requireActual('react-router').useLocation);
+    });
+
+    test('keeps the tab content and header while the sidebar slides out', () => {
+      renderOpenSideBar();
+
+      navigateTo('/');
+
+      expect(screen.getByTestId('settingsPane')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Settings' })).toBeInTheDocument();
+      expect(screen.getByTestId('sideBar-tab')).toHaveAttribute('inert');
+    });
+
+    test('unmounts the tab content once the slide out transition ends', () => {
+      renderOpenSideBar();
+
+      navigateTo('/');
+      fireTransformTransitionEnd(screen.getByTestId('sideBar-tab'));
+
+      expect(screen.queryByTestId('settingsPane')).toBeNull();
+      expect(screen.queryByRole('heading', { name: 'Settings' })).toBeNull();
+    });
+
+    test('keeps the tab content when a transition inside the tab ends', () => {
+      renderOpenSideBar();
+
+      navigateTo('/');
+      fireTransformTransitionEnd(screen.getByTestId('settingsPane'));
+
+      expect(screen.getByTestId('settingsPane')).toBeInTheDocument();
+    });
+
+    test('unmounts the tab content after a delay when the transition end never fires', async () => {
+      renderOpenSideBar();
+
+      navigateTo('/');
+
+      await waitFor(() => expect(screen.queryByTestId('settingsPane')).toBeNull());
+    });
+
+    test('renders the new tab when the sidebar opens again while it slides out', () => {
+      renderOpenSideBar();
+
+      navigateTo('/');
+      navigateTo('/layers');
+
+      expect(screen.getByTestId('mapLayersTab')).toBeInTheDocument();
+      expect(screen.queryByTestId('settingsPane')).toBeNull();
+      expect(screen.getByTestId('sideBar-tab')).not.toHaveAttribute('inert');
+    });
   });
 });

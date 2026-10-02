@@ -49,18 +49,26 @@ const TrackLegend = ({
 
   // This variable tracks if a menu is expanded, which one it is. There can be only one menu expanded at a time.
   const [expandedMenu, setExpandedMenu] = useState(null);
+  const [legendContent, setLegendContent] = useState({ description, items });
   // The component starts hidden so the slide in transition effect kicks.
   const [show, setShow] = useState(false);
 
-  // A lone item still has a list worth opening when it owns rows of its own.
-  const hasNestedItems = items.some((item) => !!item.children?.length);
-  // The legend outlives its items: clearing the tracks leaves it sliding out
-  // with nothing left to take an icon or a title from.
   const hasItems = items.length > 0;
-  const hasSingleItem = items.length === 1;
-  const hasTracksList = items.length > 1 || hasNestedItems;
 
-  const legendTitle = hasSingleItem ? items[0].title : `${items.length} ${itemsName}`;
+  // Clearing the tracks empties the items before the legend slides out, so it
+  // keeps showing the last ones it had until it unmounts.
+  if (hasItems && (legendContent.description !== description || legendContent.items !== items)) {
+    setLegendContent({ description, items });
+  }
+
+  // A lone item still has a list worth opening when it owns rows of its own.
+  const hasNestedItems = legendContent.items.some((item) => !!item.children?.length);
+  const hasSingleItem = legendContent.items.length === 1;
+  const hasTracksList = legendContent.items.length > 1 || hasNestedItems;
+
+  const legendTitle = hasSingleItem
+    ? legendContent.items[0].title
+    : `${legendContent.items.length} ${itemsName}`;
 
   const isTimeOfDaySettingsExpanded = expandedMenu === MENUS.TIME_OF_DAY_SETTINGS;
   const isTrackSettingsExpanded = expandedMenu === MENUS.TRACK_SETTINGS;
@@ -113,12 +121,13 @@ const TrackLegend = ({
   return <div
     className={`${styles.trackLegendWrapper} ${show ? styles.show : ''}`}
     data-testid="trackLegend"
+    inert={!hasItems}
     >
     <div className={styles.trackLegend}>
       <div className={styles.row}>
         <div className={styles.titleWrapper} data-testid="trackLegend-titleWrapper">
           <span className={styles.itemIcon}>
-            {hasSingleItem ? items[0].icon : itemsIcon}
+            {hasSingleItem ? legendContent.items[0].icon : itemsIcon}
           </span>
 
           <p className={styles.title}>{legendTitle}</p>
@@ -153,7 +162,7 @@ const TrackLegend = ({
             aria-controls={tracksListId}
             aria-expanded={isTracksListExpanded}
             aria-label={t(`tracksListButtonLabel.${isTracksListExpanded ? 'open' : 'closed'}`, { itemsName })}
-            className={styles.settingsButton}
+            className={`${styles.settingsButton} ${isTracksListExpanded ? styles.active : ''}`}
             onClick={() => isTracksListExpanded ? onCollapseMenu() : onExpandMenu(MENUS.TRACKS_LIST)}
             title={t(`tracksListButtonLabel.${isTracksListExpanded ? 'open' : 'closed'}`, { itemsName })}
             type="button"
@@ -166,7 +175,7 @@ const TrackLegend = ({
       </div>
 
       <div className={styles.row}>
-        <p className={styles.pointsOverTime}>{description}</p>
+        <p className={styles.pointsOverTime}>{legendContent.description}</p>
 
         <button className={styles.clearTracksButton} onClick={onClickClearTracks} type="button">
           {t('clearTracksButton')}
@@ -182,16 +191,17 @@ const TrackLegend = ({
     <Collapse id={tracksListId} in={isTracksListExpanded} unmountOnExit>
       <div className={styles.collapseWrapper}>
         <TracksList
-          items={items}
+          items={legendContent.items}
           onClearItemTracks={onClearItemTracks}
           onToggleItemChildTracks={onToggleItemChildTracks}
+          showTrackColors={!isTimeOfDayColoringActive}
         />
       </div>
     </Collapse>
 
     {showTrackSettings && <Collapse id={trackSettingsId} in={isTrackSettingsExpanded} unmountOnExit>
       <div className={styles.collapseWrapper}>
-        <TrackSettings onClose={onCollapseMenu} />
+        <TrackSettings />
       </div>
     </Collapse>}
 

@@ -17,13 +17,16 @@
     "required": "Este campo es obligatorio.",
     "timeFormat": "Formato de hora inválido.",
     "uploadFailedError": "Uno o más archivos no se pudieron cargar. Elimina los archivos con error antes de enviar.",
+    "uploadFailedWithReasonError": "Uno o más archivos no se pudieron cargar: {{reason}}. Elimina los archivos con error antes de enviar.",
     "uploadInProgressError": "Espera a que los archivos terminen de cargarse.",
     "uriFormat": "Formato de URL inválido.",
     "uuidFormat": "Formato de UUID inválido."
   },
   "fields": {
     "attachment": {
+      "audioPlayerLabel": "Reproductor de audio de {{fileName}}",
       "chooseFile": "Elegir archivo",
+      "closePlayerButtonLabel": "Cerrar reproductor de {{fileName}}",
       "disallowedTypeAlert": "No se puede añadir {{fileName}} porque su tipo de archivo no está permitido.",
       "downloadButtonLabel": "Descargar {{fileName}}",
       "dropzoneText": "Arrastra y suelta archivos aquí",
@@ -31,15 +34,20 @@
       "maxItemsAlert_one": "Solo puedes añadir hasta {{count}} archivo.",
       "maxItemsAlert_other": "Solo puedes añadir hasta {{count}} archivos.",
       "pendingLabel": "Pendiente",
+      "playButtonLabel": "Reproducir {{fileName}}",
+      "playerErrorLabel": "No se pudo cargar este archivo.",
       "removeButtonLabel": "Eliminar {{fileName}}",
       "requiredLabel": "(obligatorio)",
       "uploadErrorLabel": "Error al subir",
       "uploadFailedAnnouncement_one": "No se pudo subir {{fileName}}",
       "uploadFailedAnnouncement_other": "No se pudieron subir {{count}} archivos",
+      "uploadFailedWithReasonAnnouncement_one": "No se pudo subir {{fileName}}: {{reason}}",
+      "uploadFailedWithReasonAnnouncement_other": "No se pudieron subir {{count}} archivos: {{reason}}",
       "uploadStartedAnnouncement_one": "Subiendo {{fileName}}",
       "uploadStartedAnnouncement_other": "Subiendo {{count}} archivos",
       "uploadSucceededAnnouncement_one": "{{fileName}} subido",
-      "uploadSucceededAnnouncement_other": "{{count}} archivos subidos"
+      "uploadSucceededAnnouncement_other": "{{count}} archivos subidos",
+      "videoPlayerLabel": "Reproductor de video de {{fileName}}"
     },
     "collection": {
       "addButtonLabel": "Agregar {{itemName}}",
@@ -87,6 +95,11 @@
       "true": "Sí"
     },
     "collectionHumanizedValue": "{{collectionLength}} elementos"
+  },
+  "uploadFailureReasons": {
+    "tooLarge": "El archivo es demasiado grande",
+    "tooManyRequests": "Demasiadas subidas, inténtalo más tarde",
+    "unsupportedType": "Tipo de archivo no permitido"
   },
   "validationErrorsAnnouncement": "Hay errores de validación en los siguientes campos:"
 }

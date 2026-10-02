@@ -14,7 +14,7 @@ import { resetGlobalDateRange } from '../../ducks/global-date-range';
 import PatrolFilterDateRangeSelector from '../DateRange';
 import PatrolFilterSettings from '../PatrolFilterSettings';
 
-import * as styles from '../../EventFilter/styles.module.scss';
+import * as styles from '../styles.module.scss';
 
 const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);
 
@@ -37,11 +37,15 @@ const DateRangePopover = ({ containerRef, ref, ...rest }) => {
     event.stopPropagation();
 
     dispatch(resetGlobalDateRange());
+    dispatch(updatePatrolFilter({
+      filter: { patrols_overlap_daterange: INITIAL_FILTER_STATE.filter.patrols_overlap_daterange },
+    }));
 
     patrolFilterTracker.track('Click Reset Date Range Filter');
   }, [dispatch]);
 
-  const dateRangeModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, patrolFilter.filter.date_range);
+  const dateRangeModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, patrolFilter.filter.date_range)
+    || INITIAL_FILTER_STATE.filter.patrols_overlap_daterange !== patrolFilter.filter.patrols_overlap_daterange;
 
   return <Popover {...rest} ref={ref} className={styles.filterPopover} id='filter-date-popover'>
     <Popover.Header>

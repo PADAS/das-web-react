@@ -44,7 +44,6 @@ export const setSystemConfigFromSystemStatus = (systemStatus) => (dispatch) => {
       [SYSTEM_CONFIG_FLAGS.SUBJECTS]: systemStatus[SYSTEM_CONFIG_FLAGS.SUBJECTS] ?? true,
       [SYSTEM_CONFIG_FLAGS.TABLEAU]: systemStatus[SYSTEM_CONFIG_FLAGS.TABLEAU] ?? true,
       [SYSTEM_CONFIG_FLAGS.GEO_SPAN]: systemStatus[SYSTEM_CONFIG_FLAGS.GEO_SPAN] ?? null,
-      idp_org_id: systemStatus.idp_org_id || null,
       // The env override wins here, unlike default_event_filter_from_days.
       otusUrl: parseOtusUrl(REACT_APP_OTUS_URL || systemStatus.otus_settings?.url),
       previewFeatures: systemStatus.preview_features || {},
@@ -93,7 +92,6 @@ export const INITIAL_STATE = {
   [SYSTEM_CONFIG_FLAGS.SUBJECTS]: false,
   [SYSTEM_CONFIG_FLAGS.TABLEAU]: false,
   [SYSTEM_CONFIG_FLAGS.GEO_SPAN]: null,
-  idp_org_id: null,
   otusUrl: parseOtusUrl(REACT_APP_OTUS_URL),
   previewFeatures: {},
   require_idp: null,
