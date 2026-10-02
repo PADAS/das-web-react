@@ -71,6 +71,7 @@
   },
   "scripts": {
     "build": "vite build && yarn build-sw",
+    "build-app-icons": "node ./scripts/build-app-icons.mjs",
     "build-sw": "node ./src/sw-build.js",
     "check-i18n-files-version": "./scripts/check-i18n-files-version.sh",
     "format": "eslint --fix . && stylelint --fix \"**/*.scss\"",

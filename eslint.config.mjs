@@ -47,7 +47,7 @@ export default defineConfig([
   },
 
   {
-    files: ['*.{js,mjs}', 'src/sw-build.js'],
+    files: ['*.{js,mjs}', 'scripts/**/*.{js,mjs}', 'src/sw-build.js'],
     languageOptions: {
       globals: globals.node,
     },

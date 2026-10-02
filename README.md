@@ -291,7 +291,9 @@ Base element styles, such as fonts and headings, are in `src/index.scss`.
 
 #### Public assets
 
-Files in `public/`, such as `favicon.ico`, `manifest.json`, the translation files and `config.js`, are served as they are from the site's root.
+Files in `public/`, such as the app icons, `manifest.json`, the translation files and `config.js`, are served as they are from the site's root.
+
+The favicon is drawn by hand in `public/favicon.svg`, on a 32-unit grid so it stays sharp at 16px. `favicon.ico` and the PNG app icons are exported from it and from the sources in `scripts/app-icons/` with `yarn build-app-icons`, which renders them in Google Chrome (set `CHROME_PATH` outside macOS). Commit the regenerated files.
 
 #### SVG icons
 
