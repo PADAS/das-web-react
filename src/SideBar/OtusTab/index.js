@@ -37,6 +37,7 @@ const OtusTab = ({ isActive, url }) => {
   const otusTabWidth = useSelector(selectOtusTabWidth);
   const token = useSelector((state) => state.data.token?.access_token);
 
+  const hasConnectedRef = useRef(false);
   const iframeRef = useRef(null);
 
   const panelId = useId();
@@ -118,6 +119,8 @@ const OtusTab = ({ isActive, url }) => {
         && event.origin === otusOrigin
         && event.source === iframeRef.current?.contentWindow
         && event.data?.type === OTUS_MESSAGE_TYPES.READY) {
+        hasConnectedRef.current = true;
+
         postConnect();
       }
     };
@@ -127,6 +130,11 @@ const OtusTab = ({ isActive, url }) => {
 
     return () => window.removeEventListener('message', onMessage);
   }, [otusOrigin, postConnect, token]);
+
+  // Otus keeps the token it was last given, so a renewed one is sent again.
+  useEffect(() => {
+    if (hasConnectedRef.current && token) postConnect();
+  }, [postConnect, token]);
 
   return <section
     aria-labelledby={titleId}
@@ -144,6 +152,7 @@ const OtusTab = ({ isActive, url }) => {
         className={styles.frame}
         onLoad={() => setLoadedUrl(embedUrl.href)}
         ref={iframeRef}
+        sandbox="allow-downloads allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
         src={embedUrl.href}
         title={t('iframeTitle')}
       />

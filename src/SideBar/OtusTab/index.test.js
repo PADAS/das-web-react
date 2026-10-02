@@ -84,6 +84,15 @@ describe('SideBar - OtusTab', () => {
     expect(getFrame()).toHaveAttribute('src', 'https://otus.example.com/?embed=1&titlebar=0');
   });
 
+  test('sandboxes the frame without letting it navigate the top window', () => {
+    renderOtusTab();
+
+    expect(getFrame()).toHaveAttribute(
+      'sandbox',
+      'allow-downloads allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts'
+    );
+  });
+
   test('keeps a query string the configured url already carries', () => {
     renderOtusTab({ url: 'https://otus.example.com/chat?theme=dark' });
 
@@ -203,6 +212,31 @@ describe('SideBar - OtusTab', () => {
     dispatchReadyMessage();
 
     expect(postMessage).toHaveBeenCalledTimes(2);
+  });
+
+  test('posts the renewed token to the frame once it has connected', () => {
+    const { rerender } = renderOtusTab();
+    const postMessage = mockFramePostMessage();
+    dispatchReadyMessage();
+
+    reduxStore = mockStore({ ...store, data: { token: { access_token: 'the-renewed-token' } } });
+    rerender(otusTabTree());
+
+    expect(postMessage).toHaveBeenCalledTimes(2);
+    expect(postMessage).toHaveBeenLastCalledWith(
+      { site_url: DAS_HOST, token: 'the-renewed-token', type: 'otus:connect' },
+      OTUS_URL
+    );
+  });
+
+  test('does not post a renewed token to a frame that has not announced it is ready', () => {
+    const { rerender } = renderOtusTab();
+    const postMessage = mockFramePostMessage();
+
+    reduxStore = mockStore({ ...store, data: { token: { access_token: 'the-renewed-token' } } });
+    rerender(otusTabTree());
+
+    expect(postMessage).not.toHaveBeenCalled();
   });
 
   test('ignores a ready message from another origin', () => {
