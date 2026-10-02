@@ -357,7 +357,7 @@ describe('SideBar', () => {
 
     const otusFrame = screen.getByTitle('Otus chat');
 
-    expect(otusFrame.parentElement).toHaveClass('active');
+    expect(screen.getByRole('region', { name: 'Otus' })).toHaveClass('active');
 
     useLocationMock = jest.fn((() => ({ pathname: '/events' })));
     useLocation.mockImplementation(useLocationMock);
@@ -366,7 +366,7 @@ describe('SideBar', () => {
 
     expect(screen.getByTitle('Otus chat')).toBe(otusFrame);
     expect(otusFrame).toBeInTheDocument();
-    expect(otusFrame.parentElement).not.toHaveClass('active');
+    expect(screen.getByRole('region', { name: 'Otus' })).not.toHaveClass('active');
   });
 
   test('navigates home when the user clicks the active Otus tab link', async () => {
@@ -602,7 +602,7 @@ describe('SideBar', () => {
     useLocation.mockImplementation(useLocationMock);
     renderSideBar();
 
-    expect(screen.queryByRole('heading', { level: 3 })).toBeNull();
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Otus');
   });
 
   test('sets the tab title for the Settings tab', async () => {

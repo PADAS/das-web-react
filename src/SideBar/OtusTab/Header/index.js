@@ -7,7 +7,7 @@ import { ReactComponent as PlusIcon } from '../../../common/images/icons/plus.sv
 
 import * as styles from './styles.module.scss';
 
-const Header = ({ onClose, onNewConversation, onToggleRecent }) => {
+const Header = ({ onClose, onNewConversation, onToggleRecent, titleId }) => {
   const { t } = useTranslation('components', { keyPrefix: 'sideBar.otusTab.header' });
 
   return <header className={styles.header}>
@@ -22,7 +22,7 @@ const Header = ({ onClose, onNewConversation, onToggleRecent }) => {
     </button>
 
     <div className={styles.titleGroup}>
-      <h2 className={styles.title}>{t('title')}</h2>
+      <h3 className={styles.title} id={titleId}>{t('title')}</h3>
 
       <span className={styles.betaBadge}>{t('betaBadgeLabel')}</span>
     </div>

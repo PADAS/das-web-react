@@ -53,7 +53,7 @@
     .betaBadge {
       background-color: colors.$palette-green-6;
       border-radius: 0.625rem;
-      color: colors.$ui-cta-primary;
+      color: color.adjust(colors.$ui-cta-primary, $lightness: -6%);
       font-size: 0.75rem;
       line-height: 1.25rem;
       padding: 0 0.5rem;

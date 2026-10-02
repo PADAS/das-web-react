@@ -254,6 +254,7 @@
         "title": "Otus"
       },
       "iframeTitle": "Discussion avec Otus",
+      "loadingMessage": "Chargement d’Otus…",
       "resizeHandleLabel": "Redimensionner le panneau Otus"
     },
     "patrolsLink": "Patrouilles",

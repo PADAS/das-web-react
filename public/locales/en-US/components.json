@@ -259,6 +259,7 @@
         "title": "Otus"
       },
       "iframeTitle": "Otus chat",
+      "loadingMessage": "Loading Otus…",
       "resizeHandleLabel": "Resize Otus panel"
     },
     "patrolsLink": "Patrols",

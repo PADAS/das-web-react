@@ -14,17 +14,13 @@ import { format, formatEventSymbolDate } from './datetime';
 import { getCurrentIdFromURL, getCurrentTabFromURL } from './navigation';
 import { imgElFromSrc, calcUrlForImage, calcImgIdFromUrlForMapImages } from './img';
 
-export const calcSidebarPaddingLeft = ({ pathname, isMediumLayoutOrLarger }) => {
+export const calcSidebarPaddingLeft = ({ isMediumLayoutOrLarger, otusTabWidth, pathname }) => {
   if (isMediumLayoutOrLarger) {
     const currentTab = getCurrentTabFromURL(pathname);
     const itemId = getCurrentIdFromURL(pathname);
 
     if (currentTab === TAB_KEYS.OTUS) {
-      const otusTabWidth = store.getState().view.userPreferences.otusTabWidth ?? SIDEBAR_DETAIL_VIEW_WIDTH_PIXELS;
-
-      // The panel's CSS caps its width at the viewport minus the rail.
-      return Math.min(otusTabWidth, window.innerWidth - VERTICAL_NAV_RAIL_WIDTH_PIXELS)
-        + VERTICAL_NAV_RAIL_WIDTH_PIXELS;
+      return otusTabWidth + VERTICAL_NAV_RAIL_WIDTH_PIXELS;
     }
 
     if (currentTab || itemId) {

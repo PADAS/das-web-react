@@ -312,7 +312,7 @@ const SideBar = () => {
         </div>}
 
         <div className={`${styles.tabBody} ${hideDefaultHeader ? styles.noHeader : ''}`}>
-          {/* Outside the routes so a tab switch does not remount the Otus frame and its session. */}
+          {/* Outside the routes so a tab switch keeps the frame mounted. */}
           {showOtusTab && <OtusTab isActive={displayedTab === TAB_KEYS.OTUS} url={otusUrl} />}
 
           <Routes location={tabLocation ?? location}>

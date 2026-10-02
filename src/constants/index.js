@@ -95,6 +95,8 @@ export const BREAKPOINTS = {
 
 export const SIDEBAR_WIDTH_PIXELS = 576;
 export const SIDEBAR_DETAIL_VIEW_WIDTH_PIXELS = 736;
+// Room for the map controls plus some map beside a resizable panel.
+export const MIN_VISIBLE_MAP_WIDTH_PIXELS = 240;
 
 // Keep in sync with --vertical-nav-width in App.scss.
 export const VERTICAL_NAV_RAIL_WIDTH_PIXELS = 70;

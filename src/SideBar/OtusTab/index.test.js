@@ -2,7 +2,12 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { DAS_HOST, SIDEBAR_WIDTH_PIXELS, VERTICAL_NAV_RAIL_WIDTH_PIXELS } from '../../constants';
+import {
+  DAS_HOST,
+  MIN_VISIBLE_MAP_WIDTH_PIXELS,
+  SIDEBAR_WIDTH_PIXELS,
+  VERTICAL_NAV_RAIL_WIDTH_PIXELS,
+} from '../../constants';
 import { mockStore } from '../../__test-helpers/MockStore';
 import { fireEvent, render, screen } from '../../test-utils';
 import { updateUserPreferences } from '../../ducks/user-preferences';
@@ -19,6 +24,7 @@ jest.mock('../../hooks', () => ({
 jest.mock('../../hooks/useNavigate', () => jest.fn());
 
 const OTUS_URL = 'https://otus.example.com';
+const MAX_WIDTH = 1440 - VERTICAL_NAV_RAIL_WIDTH_PIXELS - MIN_VISIBLE_MAP_WIDTH_PIXELS;
 
 describe('SideBar - OtusTab', () => {
   let navigate, reduxStore, store, user;
@@ -27,6 +33,7 @@ describe('SideBar - OtusTab', () => {
     useNavigate.mockImplementation(() => navigate);
     useMatchMedia.mockImplementation(() => true);
     Element.prototype.setPointerCapture = jest.fn();
+    window.innerWidth = 1440;
     user = userEvent.setup();
 
     store = {
@@ -47,6 +54,8 @@ describe('SideBar - OtusTab', () => {
 
   const getFrame = () => screen.getByTitle('Otus chat');
 
+  const getPanel = () => screen.getByRole('region', { name: 'Otus' });
+
   const getResizeHandle = () => screen.getByRole('separator', { name: 'Resize Otus panel' });
 
   const mockFramePostMessage = () => {
@@ -62,12 +71,6 @@ describe('SideBar - OtusTab', () => {
     source: getFrame().contentWindow,
     ...overrides,
   }));
-
-  const renewToken = (rerender) => {
-    reduxStore = mockStore({ ...store, data: { token: { access_token: 'renewed-token' } } });
-
-    rerender(otusTabTree());
-  };
 
   const movePointerTo = (clientX) => user.pointer({ coords: { clientX }, target: getResizeHandle() });
 
@@ -113,7 +116,7 @@ describe('SideBar - OtusTab', () => {
   test('marks the wrapper as active when the tab is the current one', () => {
     renderOtusTab();
 
-    expect(getFrame().parentElement).toHaveClass('active');
+    expect(getPanel()).toHaveClass('active');
   });
 
   test('does not mark the wrapper as active when the tab is not the current one', () => {
@@ -121,7 +124,26 @@ describe('SideBar - OtusTab', () => {
 
     rerender(otusTabTree({ isActive: false }));
 
-    expect(getFrame().parentElement).not.toHaveClass('active');
+    expect(getPanel()).not.toHaveClass('active');
+  });
+
+  test('shows a loading message until the frame has loaded', () => {
+    renderOtusTab();
+
+    expect(screen.getByRole('status')).toHaveTextContent('Loading Otus…');
+
+    fireEvent.load(getFrame());
+
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+
+  test('shows the loading message again when the url changes', () => {
+    const { rerender } = renderOtusTab();
+    fireEvent.load(getFrame());
+
+    rerender(otusTabTree({ url: 'https://otus.example.com/other' }));
+
+    expect(screen.getByRole('status')).toBeVisible();
   });
 
   test('shows the header before the frame has been loaded', () => {
@@ -183,29 +205,6 @@ describe('SideBar - OtusTab', () => {
     expect(postMessage).toHaveBeenCalledTimes(2);
   });
 
-  test('posts the renewed token to the frame once it is ready', () => {
-    const { rerender } = renderOtusTab();
-    const postMessage = mockFramePostMessage();
-
-    dispatchReadyMessage();
-    renewToken(rerender);
-
-    expect(postMessage).toHaveBeenCalledTimes(2);
-    expect(postMessage).toHaveBeenLastCalledWith(
-      { site_url: DAS_HOST, token: 'renewed-token', type: 'otus:connect' },
-      OTUS_URL
-    );
-  });
-
-  test('does not post a renewed token before the frame is ready', () => {
-    const { rerender } = renderOtusTab();
-    const postMessage = mockFramePostMessage();
-
-    renewToken(rerender);
-
-    expect(postMessage).not.toHaveBeenCalled();
-  });
-
   test('ignores a ready message from another origin', () => {
     renderOtusTab();
     const postMessage = mockFramePostMessage();
@@ -262,13 +261,20 @@ describe('SideBar - OtusTab', () => {
     store.view.userPreferences.otusTabWidth = 700;
     renderOtusTab();
 
-    expect(getFrame().parentElement).toHaveStyle({ width: '700px' });
+    expect(getPanel()).toHaveStyle({ width: '700px' });
   });
 
-  test('leaves the panel width to the stylesheet when there is no stored width', () => {
+  test('applies the default width to the panel when there is no stored width', () => {
     renderOtusTab();
 
-    expect(getFrame().parentElement).not.toHaveAttribute('style');
+    expect(getPanel()).toHaveStyle({ width: '736px' });
+  });
+
+  test('clamps a stored width that no longer fits the viewport', () => {
+    store.view.userPreferences.otusTabWidth = 5000;
+    renderOtusTab();
+
+    expect(getPanel()).toHaveStyle({ width: `${MAX_WIDTH}px` });
   });
 
   test('shows the width bounds of the panel in the resize handle', () => {
@@ -276,7 +282,7 @@ describe('SideBar - OtusTab', () => {
 
     expect(getResizeHandle()).toHaveAttribute('aria-valuemin', `${SIDEBAR_WIDTH_PIXELS}`);
     expect(getResizeHandle()).toHaveAttribute('aria-valuenow', '736');
-    expect(getResizeHandle()).toHaveAttribute('aria-valuemax', `${window.innerWidth - VERTICAL_NAV_RAIL_WIDTH_PIXELS}`);
+    expect(getResizeHandle()).toHaveAttribute('aria-valuemax', `${MAX_WIDTH}`);
   });
 
   test('shows the stored width as the current value of the resize handle', () => {
@@ -329,9 +335,7 @@ describe('SideBar - OtusTab', () => {
     getResizeHandle().focus();
     await userEvent.keyboard('{End}');
 
-    expect(reduxStore.getActions()).toEqual([updateUserPreferences({
-      otusTabWidth: window.innerWidth - VERTICAL_NAV_RAIL_WIDTH_PIXELS,
-    })]);
+    expect(reduxStore.getActions()).toEqual([updateUserPreferences({ otusTabWidth: MAX_WIDTH })]);
   });
 
   test('ignores other keys pressed on the resize handle', async () => {
@@ -359,8 +363,8 @@ describe('SideBar - OtusTab', () => {
     await pressResizeHandle();
     await movePointerTo(870);
 
-    expect(getFrame().parentElement).toHaveStyle({ width: '800px' });
-    expect(getFrame().parentElement).toHaveClass('resizing');
+    expect(getPanel()).toHaveStyle({ width: '800px' });
+    expect(getPanel()).toHaveClass('resizing');
   });
 
   test('ignores pointer moves that do not follow a pointer down', async () => {
@@ -369,7 +373,7 @@ describe('SideBar - OtusTab', () => {
     await movePointerTo(870);
 
     expect(reduxStore.getActions()).toEqual([]);
-    expect(getFrame().parentElement).not.toHaveClass('resizing');
+    expect(getPanel()).not.toHaveClass('resizing');
   });
 
   test('drops an interrupted drag without persisting it', async () => {
@@ -380,7 +384,7 @@ describe('SideBar - OtusTab', () => {
     fireEvent.pointerCancel(getResizeHandle());
 
     expect(reduxStore.getActions()).toEqual([]);
-    expect(getFrame().parentElement).not.toHaveClass('resizing');
+    expect(getPanel()).not.toHaveClass('resizing');
   });
 
   test('drops an in-progress drag when the layout falls below medium', async () => {
@@ -391,7 +395,7 @@ describe('SideBar - OtusTab', () => {
     useMatchMedia.mockImplementation(() => false);
     fireEvent.pointerMove(getResizeHandle(), { clientX: 880 });
 
-    expect(getFrame().parentElement).not.toHaveClass('resizing');
+    expect(getPanel()).not.toHaveClass('resizing');
   });
 
   test('does not show the resize handle on a small screen', () => {
@@ -406,6 +410,6 @@ describe('SideBar - OtusTab', () => {
     store.view.userPreferences.otusTabWidth = 700;
     renderOtusTab();
 
-    expect(getFrame().parentElement).not.toHaveAttribute('style');
+    expect(getPanel()).not.toHaveAttribute('style');
   });
 });

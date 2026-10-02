@@ -254,6 +254,7 @@
         "title": "Otus"
       },
       "iframeTitle": "Otus सँग च्याट",
+      "loadingMessage": "Otus लोड हुँदैछ…",
       "resizeHandleLabel": "Otus प्यानलको आकार बदल्नुहोस्"
     },
     "patrolsLink": "गस्ती",
