@@ -308,7 +308,7 @@ describe('EventFilter', () => {
   });
 
   test('names the dates trigger state while the date range is modified', () => {
-    store.data.eventFilter.filter.date_range = { lower: '2026-09-01T00:00:00.000Z', upper: null };
+    store.data.eventFilter.filter.date_range = { lower: '2020-01-01T00:00:00.000Z', upper: null };
 
     renderEventFilter();
 
@@ -347,7 +347,7 @@ describe('EventFilter', () => {
   });
 
   test('offers to reset while the date range is modified', () => {
-    store.data.eventFilter.filter.date_range = { lower: '2026-09-01T00:00:00.000Z', upper: null };
+    store.data.eventFilter.filter.date_range = { lower: '2020-01-01T00:00:00.000Z', upper: null };
 
     renderEventFilter();
 
