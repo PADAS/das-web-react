@@ -82,11 +82,10 @@ describe('parallelPaginatedRequest', () => {
   });
 
   test('throws error if first page can not be resolved', async () => {
-    try {
-      await parallelPaginatedRequest(`${EVENTS_API_URL}/notAPage?`);
-    } catch (e){
-      expect(e.message).toBe('Failed to fetch the first page. Aborting.');
-    }
+    server.use(http.get(`${EVENTS_API_URL}/notAPage`, () => new HttpResponse(null, { status: 500 })));
+
+    await expect(parallelPaginatedRequest(`${EVENTS_API_URL}/notAPage?`))
+      .rejects.toThrow('Failed to fetch the first page. Aborting.');
   });
 
 });
