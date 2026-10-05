@@ -17,6 +17,8 @@ jest.mock('./img', () => ({
   imgElFromSrc: jest.fn(),
 }));
 
+jest.mock('../store', () => ({ dispatch: jest.fn(), getState: jest.fn() }));
+
 let map;
 const errorObj = new Error('invalid LngLat');
 
@@ -305,5 +307,9 @@ describe('calcSidebarPaddingLeft', () => {
 
   test('prioritizes the detail-view width over the tab width when both are present', () => {
     expect(calcSidebarPaddingLeft({ pathname: '/patrols/some-patrol-id', isMediumLayoutOrLarger: true })).toBe(806);
+  });
+
+  test('pads for the Otus panel width, plus the vertical nav rail, when the Otus tab is open', () => {
+    expect(calcSidebarPaddingLeft({ isMediumLayoutOrLarger: true, otusTabWidth: 900, pathname: '/otus' })).toBe(970);
   });
 });

@@ -121,6 +121,21 @@ describe('GlobalMenuDrawer', () => {
     expect(screen.queryByRole('link', { name: 'Patrols' })).toBeNull();
   });
 
+  test('shows the Otus link in small screens when an Otus URL is configured', async () => {
+    useMatchMedia.mockImplementation(() => false);
+    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+    renderGlobalMenuDrawer();
+
+    expect(within(screen.getByRole('navigation')).getByRole('link', { name: 'Otus' })).toBeVisible();
+  });
+
+  test('does not show the Otus link in small screens when there is no Otus URL', async () => {
+    useMatchMedia.mockImplementation(() => false);
+    renderGlobalMenuDrawer();
+
+    expect(screen.queryByRole('link', { name: 'Otus' })).not.toBeInTheDocument();
+  });
+
   test('does not show the Events link if events are not enabled', async () => {
     useMatchMedia.mockImplementation(() => false);
     store.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS] = false;

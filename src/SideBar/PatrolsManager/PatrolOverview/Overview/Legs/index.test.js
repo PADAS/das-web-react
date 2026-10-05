@@ -76,6 +76,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
         patrolTrackState: { hiddenSubjects: {}, pinned: [], visible: [] },
         timeSliderState: {},
         trackSettings: { length: 21, origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH },
+        userPreferences: {},
       },
     };
   });

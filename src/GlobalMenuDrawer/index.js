@@ -8,6 +8,7 @@ import { ReactComponent as DocumentIcon } from '../common/images/icons/document.
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
+import { ReactComponent as OtusIcon } from '../common/images/icons/otus.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
 
 import { addModal } from '../ducks/modals';
@@ -70,6 +71,7 @@ const GlobalMenuDrawer = () => {
   const eventTypes = useSelector((state) => state.data.eventTypes);
   const hasGear = useSelector((state) => state.data.gear.hasGear);
   const kmlExportEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.KML_EXPORT]);
+  const otusUrl = useSelector((state) => state.view.systemConfig.otusUrl);
   const patrolManagementEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]);
   const selectedUserProfile = useSelector((state) => state.data.selectedUserProfile);
   const serverData = useSelector((state) => state.data.systemStatus.server);
@@ -208,8 +210,9 @@ const GlobalMenuDrawer = () => {
     ...(analyzersEnabled || spatialFeaturesEnabled || subjectsEnabled || eventsEnabled
       ? [{ icon: <LayersIcon />, sidebarTab: TAB_KEYS.LAYERS, title: t('navigationButton.mapLayers') }]
       : []),
+    ...(otusUrl ? [{ icon: <OtusIcon />, sidebarTab: TAB_KEYS.OTUS, title: t('navigationButton.otus') }] : []),
     { icon: <GearIcon />, sidebarTab: TAB_KEYS.SETTINGS, title: t('navigationButton.settings') },
-  ], [analyzersEnabled, canReadPatrols, eventsEnabled, hasGear, spatialFeaturesEnabled, subjectsEnabled, t]);
+  ], [analyzersEnabled, canReadPatrols, eventsEnabled, hasGear, otusUrl, spatialFeaturesEnabled, subjectsEnabled, t]);
 
   useEffect(() => {
     if (drawer.drawerId === 'global-menu' && drawer.isOpen) {

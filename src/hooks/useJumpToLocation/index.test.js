@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
+import { Provider } from 'react-redux';
 import { render, waitFor } from '@testing-library/react';
 import { useLocation as useRouterLocation } from 'react-router';
 
 import { createMapMock } from '../../__test-helpers/mocks';
 import { MapContext } from '../../MapContext';
+import { mockStore } from '../../__test-helpers/MockStore';
 import useJumpToLocation from './';
 import { useMatchMedia } from '../';
 
@@ -40,9 +42,11 @@ describe('useJumpToLocation', () => {
   };
 
   const renderTestComponent = (coords, zoom = 15) => render(
-    <MapContext.Provider value={map}>
-      <TestComponent coordinates={coords} zoom={zoom} />
-    </MapContext.Provider>
+    <Provider store={mockStore({ view: { userPreferences: {} } })}>
+      <MapContext.Provider value={map}>
+        <TestComponent coordinates={coords} zoom={zoom} />
+      </MapContext.Provider>
+    </Provider>
   );
 
   test('fits the bounds of the coordinates in the map when there are multiple coordinates', async () => {
