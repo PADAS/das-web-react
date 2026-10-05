@@ -27,6 +27,7 @@ const buildStore = (gearOverrides = {}) => mockStore({
     gear: { ...INITIAL_GEAR_STATE, ...gearOverrides },
     mapLayerFilter: { ...INITIAL_FILTER_STATE },
   },
+  view: { userPreferences: {} },
 });
 
 describe('GearTab', () => {

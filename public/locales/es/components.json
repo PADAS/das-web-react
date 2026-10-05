@@ -244,6 +244,19 @@
       "featuresTabTitle": "Funcionalidades",
       "subjectsTabTitle": "Sujetos"
     },
+    "otusLink": "Otus",
+    "otusTab": {
+      "header": {
+        "betaBadgeLabel": "Beta",
+        "closeButtonLabel": "Cerrar Otus",
+        "newConversationButtonLabel": "Nueva conversación",
+        "recentButtonLabel": "Recientes",
+        "title": "Otus"
+      },
+      "iframeTitle": "Chat de Otus",
+      "loadingMessage": "Cargando Otus…",
+      "resizeHandleLabel": "Redimensionar el panel de Otus"
+    },
     "patrolsLink": "Patrullas",
     "settingsLink": "Preferencias",
     "settingsPane": {

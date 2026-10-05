@@ -52,6 +52,7 @@ describe('TimeSlider', () => {
         timeSliderState: {
           virtualDate: null,
         },
+        userPreferences: {},
       },
     };
   });

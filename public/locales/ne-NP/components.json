@@ -244,6 +244,19 @@
       "featuresTabTitle": "विशेषताहरु",
       "subjectsTabTitle": "विषयहरु"
     },
+    "otusLink": "Otus",
+    "otusTab": {
+      "header": {
+        "betaBadgeLabel": "बिटा",
+        "closeButtonLabel": "Otus बन्द गर्नुहोस्",
+        "newConversationButtonLabel": "नयाँ कुराकानी",
+        "recentButtonLabel": "हालका",
+        "title": "Otus"
+      },
+      "iframeTitle": "Otus सँग च्याट",
+      "loadingMessage": "Otus लोड हुँदैछ…",
+      "resizeHandleLabel": "Otus प्यानलको आकार बदल्नुहोस्"
+    },
     "patrolsLink": "गस्ती",
     "settingsLink": "सेटिङ",
     "settingsPane": {
