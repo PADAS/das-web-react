@@ -13,7 +13,7 @@
   padding: 1rem;
 
   .cancelButton {
-    @include buttons.baseButton;
+    @include buttons.base-button;
 
     justify-content: center;
     text-decoration: none;

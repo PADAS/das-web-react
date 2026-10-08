@@ -1,5 +1,4 @@
 @use 'sass:color';
-
 @use '../../../../../common/styles/buttons';
 @use '../../../../../common/styles/vars/colors';
 
@@ -38,7 +37,7 @@
     }
 
     .deleteButton {
-      @include buttons.chipIconButton;
+      @include buttons.chip-icon-button;
 
       background-color: colors.$high-priority-bg-hover;
       border-color: colors.$high-priority-bg-hover;

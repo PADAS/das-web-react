@@ -1,4 +1,3 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 
 import { MapContext } from '../../../MapContext';
@@ -27,11 +26,11 @@ beforeEach(() => {
 });
 
 test('rendering without crashing', () => {
-  render(<Provider store={mockStore(store)}>
+  expect(() => render(<Provider store={mockStore(store)}>
     <MapContext.Provider value={map}>
       <SubjectListItem  map={map} {...staticSubjectFeature.properties}/>
     </MapContext.Provider>
-  </Provider>);
+  </Provider>)).not.toThrow();
 });
 
 describe('Rendering subject list item', () => {

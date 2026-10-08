@@ -23,7 +23,7 @@
     gap: 0.5rem;
 
     .footerActionButton {
-      @include buttons.baseButton;
+      @include buttons.base-button;
     }
   }
 

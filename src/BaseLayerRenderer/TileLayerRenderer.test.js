@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { render } from '../test-utils';
 import { MapContext } from '../MapContext';
 import { createMapMock } from '../__test-helpers/mocks';

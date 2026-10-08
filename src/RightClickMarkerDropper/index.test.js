@@ -1,6 +1,3 @@
-
-
-import React from 'react';
 import { Provider } from 'react-redux';
 
 
@@ -22,12 +19,12 @@ beforeEach(() => {
 });
 
 test('rendering without crashing', () => {
-  render(
+  expect(() => render(
     <Provider store={store}>
       <MapContext.Provider value={map}>
         <RightClickMarkerDropper />
       </MapContext.Provider>
-    </Provider>);
+    </Provider>)).not.toThrow();
 });
 
 test('showing a popup on map right click', () => {

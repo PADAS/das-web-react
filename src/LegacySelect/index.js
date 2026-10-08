@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import ReactSelect, { components } from 'react-select';
 
 import * as colorVars from '../common/styles/vars/colors.module.scss';

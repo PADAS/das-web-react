@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import { getMonth, getYear } from 'date-fns';
 import { useTranslation } from 'react-i18next';

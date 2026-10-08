@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 
 import getDisplayableChoiceListOptions from '../../../utils/form-schemas/getDisplayableChoiceListOptions';
 

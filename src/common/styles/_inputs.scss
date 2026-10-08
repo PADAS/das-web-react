@@ -1,45 +1,45 @@
-@import 'vars/colors';
-@import 'vars/controls';
-@import 'layout';
+@use 'vars/colors';
+@use 'vars/controls';
+@use 'layout';
 
 
 $boxed-field-height: 2.5rem;
 $boxed-field-border-width: 1px;
 
-@mixin boxedFieldTrailingControl {
+@mixin boxed-field-trailing-control {
   align-self: center;
   flex-shrink: 0;
   height: calc(#{$boxed-field-height} - #{$boxed-field-border-width} * 2);
   width: calc(#{$boxed-field-height} - #{$boxed-field-border-width} * 2);
 }
 
-@mixin selectNoOptionsMessage {
-  color: $secondary-medium-light-gray !important;
+@mixin select-no-options-message {
+  color: colors.$secondary-medium-light-gray !important;
   font-size: 0.875rem;
   font-weight: 400;
 }
 
-@mixin defaultTextInput {
+@mixin default-text-input {
   background: white;
-  border: 1px solid $light-gray-border;
+  border: 1px solid colors.$light-gray-border;
   border-radius: 0.2rem;
   outline: none;
   padding: 0.25rem;
 }
 
-@mixin dropdown-caret($size: 0.3rem, $color: $secondary-medium-light-gray) {
+@mixin dropdown-caret($size: 0.3rem, $color: colors.$secondary-medium-light-gray) {
   border-left: $size solid transparent;
   border-right: $size solid transparent;
   border-top: $size solid $color;
 }
 
 @mixin dropdown-options-hover {
-  background-color: $blue-highlight;
+  background-color: colors.$blue-highlight;
   cursor: pointer;
 }
 
-@mixin dropdownOptionCheckMark {
-  color: $bright-blue;
+@mixin dropdown-option-check-mark {
+  color: colors.$bright-blue;
   flex-shrink: 0;
   height: 0.8rem;
   width: 0.8rem;
@@ -47,19 +47,19 @@ $boxed-field-border-width: 1px;
 
 @mixin label-styles {
   font-weight: 500;
-  color: $secondary-medium-gray;
+  color: colors.$secondary-medium-gray;
 }
 
-@mixin boxShadow {
-  box-shadow: $base-box-shadow;
+@mixin box-shadow {
+  box-shadow: controls.$base-box-shadow;
 }
 
-@mixin editableItemTitle {
+@mixin editable-item-title {
   max-height: 2.5rem;
   font-size: 1rem;
   font-weight: 500;
   line-height: 1rem;
-  color: $dark-gray;
+  color: colors.$dark-gray;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -76,11 +76,10 @@ $boxed-field-border-width: 1px;
     white-space: normal;
     display: unset;
     -webkit-line-clamp: unset;
-    -webkit-box-orient: unset;
-    overflow-y: overlay;
+    overflow-y: auto;
   }
 
-  @media (min-width: $md-layout-width-min) {
+  @media (min-width: layout.$md-layout-width-min) {
     max-height: 3rem;
     font-size: 1.25rem;
     line-height: 1.375rem;

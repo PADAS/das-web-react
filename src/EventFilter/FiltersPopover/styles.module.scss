@@ -25,7 +25,7 @@
       position: relative;
 
       .resetButton {
-        @include buttons.chipTextButtonSmall;
+        @include buttons.chip-text-button-small;
 
         position: absolute;
         right: 0;
@@ -57,7 +57,7 @@
       @include filter-popovers.reset-all-footer;
 
       .resetAllButton {
-        @include buttons.chipTextButton;
+        @include buttons.chip-text-button;
 
         justify-content: center;
         width: 100%;

@@ -1,4 +1,4 @@
-@import '../common/styles/vars/colors';
+@use '../common/styles/vars/colors';
 
 .messageMenu {
   margin-right: 1rem;
@@ -9,11 +9,11 @@
     width: 2.5rem;
     height: 2.5rem;
     margin: -0.625rem;
-    background-color: $transparent-dark-gray;
+    background-color: colors.$transparent-dark-gray;
     border-radius: 0.125rem;
 
     path {
-      fill: $light-gray;
+      fill: colors.$light-gray;
     }
   }
 
@@ -23,7 +23,7 @@
     }
   }
 
-  [class*=dropdown-menu] {
+  [class*="dropdown-menu"] {
     border: none;
     margin-right: -1rem;
     padding: 0;

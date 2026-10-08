@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { PATROL_UI_STATES } from '../../../constants';
 import { render, screen } from '../../../test-utils';
 

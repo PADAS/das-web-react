@@ -3,7 +3,7 @@
 @use 'vars/colors';
 
 @mixin filter-popover {
-  @include inputs.boxShadow;
+  @include inputs.box-shadow;
 
   border: none !important;
   border-radius: 0.25rem !important;

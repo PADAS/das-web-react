@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import mapboxgl from 'mapbox-gl';
 import { loadProgressBar } from 'axios-progress-bar';

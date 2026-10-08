@@ -324,7 +324,19 @@ Either way the client gets an access token, Auth0's used as is, kept in a cookie
 
 ### Otus
 
-**Otus** is EarthRanger's field-intelligence chat agent, a separate web app rather than part of this client. The client embeds it in an iframe whose URL comes from the system status payload (`otus_settings.url`), overridden for local development by `REACT_APP_OTUS_URL`.
+**Otus** is EarthRanger's field-intelligence agent: a chat where users ask operational questions about their site, such as which collars went quiet or how a patrol covered its area, and get answers drawn from the site's live data, sometimes with a map, chart, table or file. It is a separate web app with its own repository and deployment; the client only embeds it, as it does the alerts page.
+
+**Connection.** Each cluster runs one Otus, and the server sends its URL in the system status's `otus_settings.url` only where the `otus` preview feature is on; `REACT_APP_OTUS_URL` overrides it for local development. The client frames that URL in embedded mode and, once Otus says it is ready, hands it the site URL and the user's access token over `postMessage`, again whenever the token is renewed. Otus then reads the site as the signed-in user, never as an active profile, and never writes to it. Otus accepts being framed only by origins it allows, so an embed that stays blank is usually Otus's configuration, not this client's.
+
+**Conversations** belong to Otus, per user and site, so they survive a reload. Since Otus starts a sandbox per user, the frame loads on the tab's first visit, then stays alive while the user switches tabs.
+
+**UI**
+- **Otus tab** (`/otus`): the client's own header, whose New conversation and Recent buttons it relays to the frame, above the Otus frame. On medium layouts and up the panel resizes by drag or keyboard, its width survives a reload, and the map's padding follows it.
+
+**Key files**
+- `SideBar/OtusTab/`: the frame, the handshake, the resizing, and the header.
+- `ducks/system-config/`: the Otus URL.
+- `selectors/otus/`, `utils/otus.js`: the panel width and its bounds.
 
 ### App Chrome
 
@@ -342,7 +354,7 @@ The map fills the screen, framed by a top bar, a sidebar and a global menu. On s
 | **Patrols** | `PATROL_MANAGEMENT` flag + patrol read permission |
 | **Gear** | the site has gear |
 | **Map Layers** | `ANALYZERS`, `SPATIAL_FEATURES`, `SUBJECTS` or `EVENTS` flag |
-| **Otus** | an Otus URL in the system status payload, which the server sends only where the `otus` preview feature is on |
+| **Otus** | an Otus URL; see Otus |
 | **Settings** | always |
 
 **Map Layers** has Subjects, Features, Analyzers and Events sub-tabs, each behind its own flag; the first three share one search. Events shows or hides events on the map and toggles their heatmap. What a user hides survives a reload only if they chose to restore map layers in Settings → General.
@@ -397,7 +409,7 @@ All application source is `.js`, including JSX — Vite compiles every source `.
 
 ### Routing
 
-The app is mounted under `REACT_APP_ROUTE_PREFIX`. `constants/routes.js` holds the top-level routes: login, EULA and community sit above the shell, and everything else falls through to the authenticated app. Inside it, `SideBar/` routes each tab by its `TAB_KEYS` segment (`events`, `patrols`, `gear`, `layers`, `settings`), and the Events and Patrols managers nest their own routes. Elsewhere, read the tab and item from the URL with `getCurrentTabFromURL` / `getCurrentIdFromURL` in `utils/navigation.js`.
+The app is mounted under `REACT_APP_ROUTE_PREFIX`. `constants/routes.js` holds the top-level routes: login, EULA and community sit above the shell, and everything else falls through to the authenticated app. Inside it, `SideBar/` routes each tab by its `TAB_KEYS` segment (`events`, `patrols`, `gear`, `layers`, `otus`, `settings`), and the Events and Patrols managers nest their own routes. Elsewhere, read the tab and item from the URL with `getCurrentTabFromURL` / `getCurrentIdFromURL` in `utils/navigation.js`.
 
 Navigate with the app's `hooks/useNavigate`, not React Router's, so a form with unsaved changes can prompt before the user leaves.
 
@@ -453,7 +465,7 @@ The repository favors code that reads the same everywhere. ESLint and Stylelint 
 
 Group imports into blocks separated by a blank line, in this order:
 
-1. External packages, `React` first.
+1. External packages, `react` first.
 2. SVG icons: `import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';`
 3. Internal non-components: constants, ducks, selectors, hooks, utils, and the module's own `./utils` helpers.
 4. Components: app components, subcomponents, and lazily imported ones.
@@ -516,7 +528,7 @@ Function parameters follow the call's own logic, not the alphabet.
 
 - Component-specific styles go in a co-located `styles.module.scss`; global partials live in `src/common/styles/`; a subtree that repeats a pattern across its components keeps its own `_shared.scss` of mixins at its root.
 - Pull colors, layout breakpoints and mixins from those partials with `@use`; never hard-code a value that already exists as a variable.
-- Class names in camelCase, naming the element's role inside the component rather than how it looks: `.menuItemOption`, `.legTableWrapper`, `.titleBarMain`.
+- Class names name the element's role inside the component rather than how it looks: `.menuItemOption`, `.legTableWrapper`, `.titleBarMain`.
 - Nest selectors to mirror the component's own DOM structure; keep media queries at the end of the block they modify.
 - Sizes, spacing and radii in `rem`. `px` is for hairlines only — borders, outlines and shadows.
 - Derive a hover, active or disabled shade from the variable with `color.adjust`; never introduce a second hex for it.
@@ -538,7 +550,7 @@ Comment only what the code cannot say — a non-obvious *why*, a caveat, an exte
 
 - **One line, one reason.** Take a second line only when the first cannot carry the reason, never a third, and cut any sentence that argues the same point again. `//` only, each line at most 80 columns, however wide the code nearby.
 - **Directly above the line it explains**, as a full sentence ending in a period. A comment above a function is for a caveat that governs the whole of it, never a summary of what it does — if a function needs that summary, its name is wrong or it is doing too much.
-- An `eslint-disable` line always carries the reason it is there.
+- An `eslint-disable` or `stylelint-disable` line always carries the reason it is there.
 - A `TODO` is only for a blocker outside this repository, and says what it is waiting on. Otherwise, never leave working notes behind: no narrating the change (`// now using X instead of Y`, `// this fixes the bug`), no ticket numbers, no references to plans or conversations that exist only on your machine. The diff and the commit message are for that.
 - None at all in `styles.module.scss` or test files, even for the subtle case. Test intent goes in the `describe` / `test` names: rename or split instead. Why production code is surprising belongs in the production file.
 
@@ -570,8 +582,7 @@ Comment only what the code cannot say — a non-obvious *why*, a caveat, an exte
 - `yarn start`: Vite dev server on port 9000, against the development backend at https://root.dev.pamdas.org. Each developer configures it in `.env.development`.
 - `yarn build`: production bundle, then the service worker
 - `yarn test <path-or-pattern>`: Jest. It pins `TZ=UTC`; a bare `jest` invocation will fail datetime tests on any other machine timezone.
-- `yarn lint`: ESLint over all of `src`, which carries pre-existing problems. To see only yours, run `npx eslint` on the files you touched.
-- `yarn stylelint`: Stylelint over the SCSS modules
+- `yarn format`: ESLint, then Stylelint, with fixes, over the whole repository.
 - `yarn check-i18n-files-version`: verifies the translation cache version was bumped
 
 ### Scope
@@ -595,7 +606,7 @@ Before you call the work done, reread what you wrote — every changed hunk, not
 
 ### Before You Commit
 
-- Run `yarn lint`, and `yarn stylelint` if you touched SCSS. Fix every problem you introduced.
+- Run `yarn format`, and fix every problem you introduced.
 - Run `yarn test` over the areas you changed and make sure they pass.
 - If you changed anything under `public/locales/`, bump `I18N_FILES_VERSION` in `src/i18n.js` above develop's and verify with `yarn check-i18n-files-version`.
 - Update this file only under the terms in **Maintaining This File**.

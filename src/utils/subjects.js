@@ -132,7 +132,7 @@ export const updateSubjectLastPositionFromSocketStatusUpdate = (subject, updateO
     }
   };
 
-  if (update.hasOwnProperty('device_status_properties')) {
+  if (Object.hasOwn(update, 'device_status_properties')) {
     returnVal.device_status_properties = update.device_status_properties;
   }
 

@@ -1,16 +1,19 @@
 
-@import '../common/styles/vars/colors';
-@import '../common/styles/layout';
+@use '../common/styles/vars/colors';
+@use '../common/styles/layout';
 
 .listItem {
-  border-bottom: 1px solid $light-gray;
+  border-bottom: 1px solid colors.$light-gray;
   cursor: default;
   line-height: normal;
+
   // border-bottom: 1px solid $light-gray;
   justify-content: space-between;
+
   &:hover {
     background: none;
   }
+
   &:last-child {
     border-bottom: none;
   }
@@ -23,7 +26,7 @@
   max-width: 98vw;
   margin-top: 0.125rem;
 
-  @media (min-width: $md-layout-width-min) {
+  @media (min-width: layout.$md-layout-width-min) {
     min-width: 28rem;
     max-width: unset;
   }
@@ -37,16 +40,19 @@
 
 .itemTitle {
   white-space: normal;
-  @media (min-width: $md-layout-width-min) {
+
+  @media (min-width: layout.$md-layout-width-min) {
     white-space: nowrap;
   }
 }
 
 .badge {
   --badge-dimensions: 0.666rem;
+
   height: var(--badge-dimensions);
   width: var(--badge-dimensions);
-  @media (min-width:  $md-layout-width-min) {
+
+  @media (min-width:  layout.$md-layout-width-min) {
     --badge-dimensions: 0.95rem;
   }
 }
@@ -57,7 +63,7 @@
 
 .details {
   align-items: flex-end;
-  color: $light-font-color;
+  color: colors.$light-font-color;
   flex-flow: column;
   font-size: .8rem;
   margin-left: 0.5rem;
@@ -66,7 +72,7 @@
 }
 
 .timestamp {
-  color: $secondary-medium-gray;
+  color: colors.$secondary-medium-gray;
   margin-left: .5rem;
 }
 
@@ -74,13 +80,13 @@
   display: flex;
   align-items: center;
   font-size: 0.875rem;
-  color: $secondary-light-gray;
-  background-color: rgba(white, 0.1);
+  color: colors.$secondary-light-gray;
+  background-color: rgb(white, 0.1);
   border-radius: 1.375rem;
   padding: 0.25rem 0.75rem;
   margin: 0 1rem;
 
-  &[class*=open] {
+  &[class*="open"] {
     color: white;
   }
 

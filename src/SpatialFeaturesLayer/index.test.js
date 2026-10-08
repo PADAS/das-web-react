@@ -1,4 +1,3 @@
-import React from 'react';
 import { render } from '@testing-library/react';
 import { useSelector } from 'react-redux';
 import { buildGeoSpanFilter } from '../utils/map';

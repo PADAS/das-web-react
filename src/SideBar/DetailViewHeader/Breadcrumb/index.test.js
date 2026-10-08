@@ -1,4 +1,3 @@
-import React from 'react';
 import { useLocation, useNavigationType } from 'react-router';
 import userEvent from '@testing-library/user-event';
 

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { MapContext } from '../MapContext';
 
 import { useMapEventBinding } from '../hooks';

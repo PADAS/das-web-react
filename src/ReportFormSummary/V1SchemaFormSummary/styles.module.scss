@@ -1,7 +1,7 @@
 @use '../../common/styles/vars/colors';
 
 .form {
-  [class*=react-datepicker-wrapper] {
+  [class*="react-datepicker-wrapper"] {
     div {
       border: none;
       padding: 0;
@@ -10,7 +10,7 @@
     }
   }
 
-  [class*=row] {
+  [class*="row"] {
     padding: 0;
 
     > * {
@@ -18,7 +18,7 @@
     }
   }
 
-  [class*=col-] {
+  [class*="col-"] {
     padding: 0;
   }
 
@@ -30,7 +30,7 @@
 
   button,
   input,
-  [class*=control] {
+  [class*="control"] {
     background-color: transparent !important;
     border: transparent;
     font-size: 1rem;
@@ -39,18 +39,18 @@
     padding: 0;
   }
 
-  [class*=control] {
+  [class*="control"] {
     min-height: 1.5rem;
   }
 
-  [class*=selectWidget] {
+  [class*="selectWidget"] {
     div {
       height: 1.5rem;
       display: block;
       padding: 0;
     }
     
-    [class*=singleValue] {
+    [class*="singleValue"] {
       color: black;
       margin: 0;
     }
@@ -71,21 +71,21 @@
     margin-bottom: 0;
   }
 
-  button[class*=moveButton],
-  button[type=submit],
+  button[class*="moveButton"],
+  button[type="submit"],
   svg,
-  [class*=addButton],
-  [class*=triangle],
-  [class*=IndicatorsContainer] {
+  [class*="addButton"],
+  [class*="triangle"],
+  [class*="IndicatorsContainer"] {
     display: none !important;
   }
   
-  [class*=checkboxesWidget] {
+  [class*="checkboxesWidget"] {
     border: none;
     max-height: none;
     overflow-y: hidden;
 
-    [class*=checkbox] {
+    [class*="checkbox"] {
       margin-bottom: 0;
       padding-left: 0;
 
@@ -95,7 +95,7 @@
         margin: 0;
         opacity: 1;
 
-        &:before {
+        &::before {
           content: "\002D";
           margin-right: 0.25rem;
         }

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 
 import NavigationContextProvider, { BLOCKER_STATES, NavigationContext } from './';
 import { act, render, renderHook } from '../test-utils';

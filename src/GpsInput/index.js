@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useId, useRef, useState } from 'react';
+import { memo, useEffect, useId, useRef, useState } from 'react';
 import debounce from 'lodash/debounce';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -131,7 +131,7 @@ const GpsInput = ({
           if (isNewInputValueValid) {
             onChange(lngLat);
           }
-        } catch (error) {
+        } catch {
           setIsInputValueValid(false);
         }
       }
@@ -199,6 +199,8 @@ const GpsInput = ({
         // If the text search option is checked, set the input to the content
         // of the selected place or empty it if there isn't one.
         const selectedPlace = placesFromSearchText?.[selectedPlaceIndex];
+        // Updating state from this effect is intended.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setInputValue(selectedPlace ? `${selectedPlace.namePreferred} - ${selectedPlace.placeFormatted}` : '');
       } else {
         // If the text search option is unchecked or the coordinates
@@ -239,8 +241,12 @@ const GpsInput = ({
         onChange={onInputChange}
         onKeyDown={onInputKeyDown}
         placeholder={inputPlaceholder}
+        // This in-place change is intended.
+        // eslint-disable-next-line react-hooks/immutability
         ref={(element) => {
           if (inputRef) {
+            // This in-place change is intended.
+            // eslint-disable-next-line react-hooks/immutability
             inputRef.current = element;
           }
           innerInputRef.current = element;

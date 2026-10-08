@@ -37,7 +37,7 @@
 }
 
 @mixin legend-row-icon-button {
-  @include buttons.iconButton;
+  @include buttons.icon-button;
 
   flex-shrink: 0;
   height: 1.75rem;
@@ -66,7 +66,7 @@
 }
 
 @mixin legend-text-button {
-  @include buttons.chipTextButton;
+  @include buttons.chip-text-button;
 
   color: colors.$off-black;
   flex-shrink: 0;

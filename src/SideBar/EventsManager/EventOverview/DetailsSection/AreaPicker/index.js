@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useId, useImperativeHandle, useRef, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useId, useImperativeHandle, useRef, useState } from 'react';
 import Overlay from 'react-bootstrap/Overlay';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';

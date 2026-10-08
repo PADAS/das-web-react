@@ -1,4 +1,3 @@
-import React from 'react';
 import { isFuture } from 'date-fns';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';

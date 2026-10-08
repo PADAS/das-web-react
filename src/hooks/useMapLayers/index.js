@@ -115,7 +115,7 @@ const useMapLayers = (layerConfigsBatch = []) => {
               map.removeLayer(layerId);
             }
           });
-        } catch (error) {
+        } catch {
           // Silent error handling as in the original hook
         }
       }

@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { STATUSES } from '../constants';
 import * as styles from './styles.module.scss';
 

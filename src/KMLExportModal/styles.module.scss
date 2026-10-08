@@ -1,19 +1,22 @@
-@import '../common/styles/vars/colors';
-@import '../common/styles/layout';
+@use '../common/styles/vars/colors';
+@use '../common/styles/layout';
 
 .controls {
   display: flex;
   flex-flow: column;
   justify-content: space-evenly;
   padding: 0 0 1rem;
+
   > button + button {
     margin-top: 1rem;
   }
-  @media (min-width: $md-layout-width-min) {
+
+  @media (min-width: layout.$md-layout-width-min) {
     > button + button {
       margin-top: 0;
     }
   }
+
   label {
     // align-items: flex-start;
     display: flex;

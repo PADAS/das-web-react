@@ -1,4 +1,4 @@
-import React, { lazy, useCallback, useEffect, useMemo, useRef } from 'react';
+import { lazy, useCallback, useEffect, useMemo, useRef } from 'react';
 import { getYear } from 'date-fns';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';

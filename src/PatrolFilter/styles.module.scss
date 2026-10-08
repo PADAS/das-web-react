@@ -1,5 +1,4 @@
 @use 'sass:color';
-
 @use '../common/styles/vars/colors';
 
 .form {
@@ -49,11 +48,11 @@
 }
 
 .filterPopover {
-  > [class*=arrow]::after {
+  > [class*="arrow"]::after {
     border-bottom-color: colors.$popover-header-color;
   }
 
-  [class*=popover-header] {
+  [class*="popover-header"] {
     background: colors.$highlight-color;
     color: white;
     padding: 1rem;
@@ -71,7 +70,7 @@ div.filterPopover {
   max-width: 29rem;
   width: 90vw;
 
-  [class*=popover-body] {
+  [class*="popover-body"] {
     overflow: hidden;
     padding: 0;
   }

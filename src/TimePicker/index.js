@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useId, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useId, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import Overlay from 'react-bootstrap/Overlay';
 import { useTranslation } from 'react-i18next';
 
@@ -399,6 +399,8 @@ const TimePicker = ({
     // Since this is a controlled component, we need to check if the parent updates the value and the calculated period
     // doesn't match the locally stored one. In that case we just update the local state.
     if (periodFromValue && period !== periodFromValue && isValidTime(value)) {
+      // Updating state from this effect is intended.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPeriod(periodFromValue);
     }
   }, [period, periodFromValue, value]);

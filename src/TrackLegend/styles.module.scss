@@ -66,8 +66,8 @@
         gap: 0.5rem;
 
         .settingsButton {
-          @include buttons.chipIconButton;
-          @include buttons.chipActiveState;
+          @include buttons.chip-icon-button;
+          @include buttons.chip-active-state;
         }
       }
 
@@ -78,7 +78,7 @@
       }
 
       .clearTracksButton {
-        @include buttons.chipTextButton;
+        @include buttons.chip-text-button;
 
         flex-shrink: 0;
       }

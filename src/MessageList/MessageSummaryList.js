@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import MoonLoader from 'react-spinners/MoonLoader';
 import { useTranslation } from 'react-i18next';
 
@@ -63,6 +63,8 @@ const MessageSummaryList = (props) => {
   }, [dispatch, socket]);
 
   useEffect(() => {
+    // Updating state from this effect is intended.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoadState(true);
     fetchAllMessages({ page_size: 100, recent_message: 1 })
       .then((results) => dispatch(fetchMessagesSuccess({ results })))

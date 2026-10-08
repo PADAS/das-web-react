@@ -1,4 +1,3 @@
-import React from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';

@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 
 import { format, generateCurrentTimeZoneTitle, STANDARD_DATE_FORMAT } from '../utils/datetime';
 

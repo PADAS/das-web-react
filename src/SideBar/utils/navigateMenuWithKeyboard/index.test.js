@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '../../../test-utils';

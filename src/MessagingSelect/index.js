@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useRef } from 'react';
+import { memo, useEffect, useMemo, useRef } from 'react';
 import { components } from 'react-select';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';

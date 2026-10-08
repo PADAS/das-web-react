@@ -71,6 +71,8 @@ const StaticSensorsLayer = () => {
     ...dynamicLabelLayerLayoutProps,
   };
 
+  // Only the React Compiler needs these dependencies to line up.
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const onLayerClick = useCallback((event) => {
     event.preventDefault();
 

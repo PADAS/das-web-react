@@ -1,13 +1,13 @@
-@import '../../../common/styles/buttons';
-@import '../../../common/styles/layout';
-@import '../../../common/styles/vars/colors';
+@use '../../../common/styles/buttons';
+@use '../../../common/styles/layout';
+@use '../../../common/styles/vars/colors';
 
 .typesContainer {
   height: 20rem;
   overflow-y: auto;
 
   .categoryTitle {
-    background: $light-gray-background;
+    background: colors.$light-gray-background;
     line-height: normal;
     margin: 0;
     padding: 0.25rem 1rem;
@@ -24,7 +24,7 @@
     width: 100%;
   
     button {
-      @include unstyledButton;
+      @include buttons.unstyled-button;
 
       flex: 1;
       font-weight: bold;
@@ -40,23 +40,23 @@
   
       &:hover {
         border: none;
-        color: $bright-blue;
+        color: colors.$bright-blue;
         text-decoration: underline;
 
         svg {
-          fill: $bright-blue;
+          fill: colors.$bright-blue;
         }
       }
 
       &[aria-disabled='true'],
       &[aria-disabled='true']:hover {
-        color: $secondary-medium-gray;
+        color: colors.$secondary-medium-gray;
         cursor: not-allowed;
         opacity: 0.6;
         text-decoration: none;
 
         svg {
-          fill: $secondary-medium-gray;
+          fill: colors.$secondary-medium-gray;
         }
       }
     }
@@ -71,11 +71,11 @@
     }
   
     &:first-child {
-      border-top: thin solid $light-gray-border;
+      border-top: thin solid colors.$light-gray-border;
     }
 
     .typeListItem {
-      border: 1px solid $light-gray-border;
+      border: 1px solid colors.$light-gray-border;
       display: flex;
       flex-direction: column;
       font-size: 0.8rem;
@@ -85,7 +85,7 @@
     }
 
     .typeUnavailableReason {
-      color: $secondary-medium-gray;
+      color: colors.$secondary-medium-gray;
       display: block;
       font-size: 0.7rem;
       padding: 0 0.25rem 0.25rem;

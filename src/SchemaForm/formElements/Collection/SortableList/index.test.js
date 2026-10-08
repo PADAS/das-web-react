@@ -1,4 +1,3 @@
-import React from 'react';
 import { Accessibility, AutoScroller, Cursor, KeyboardSensor, PointerSensor } from '@dnd-kit/dom';
 import { DragDropProvider, DragOverlay } from '@dnd-kit/react';
 import { Provider } from 'react-redux';

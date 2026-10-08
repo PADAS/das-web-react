@@ -1,4 +1,3 @@
-import React from 'react';
 import PatrolMenu from './index';
 import patrols from '../__test-helpers/fixtures/patrols';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
@@ -98,7 +97,10 @@ describe('PatrolMenu', () => {
     renderPatrolMenu();
     await userEvent.click(screen.getByRole('button'));
 
-    testMinimumOptionsMenu();
+    expect(screen.getByText('Copy patrol link')).toBeInTheDocument();
+    expect(screen.getByTestId('clip-icon')).toBeInTheDocument();
+    expect(screen.getByText('Print Patrol')).toBeInTheDocument();
+    expect(screen.getByTestId('printer-icon')).toBeInTheDocument();
   });
 
   test('reaches the copy button with the keyboard', async () => {

@@ -1,4 +1,3 @@
-import React from 'react';
 import userEvent from '@testing-library/user-event';
 
 import { subjectIsStatic } from '../utils/subjects';
@@ -41,10 +40,10 @@ describe('SubjectControls', () => {
   });
 
   test('rendering without crashing', () => {
-    render(
+    expect(() => render(
       <Provider store={store}>
         <SubjectControls subject={subject} />
-      </Provider>);
+      </Provider>)).not.toThrow();
   });
 
   describe('the histrical data button', () => {
@@ -57,7 +56,7 @@ describe('SubjectControls', () => {
         </Provider>
       );
 
-      await screen.findByTestId(buttonTestId);
+      expect(await screen.findByTestId(buttonTestId)).toBeInTheDocument();
 
     });
 

@@ -1,10 +1,9 @@
 @use 'sass:color';
-
 @use '../common/styles/buttons';
 @use '../common/styles/vars/colors';
 
 .addAttachmentButton {
-  @include buttons.baseButton;
+  @include buttons.base-button;
 }
 
 .draggingOver {

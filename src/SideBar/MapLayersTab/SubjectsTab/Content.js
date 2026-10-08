@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import Collapsible from 'react-collapsible';
 import intersection from 'lodash/intersection';
@@ -98,6 +98,8 @@ const ContentComponent = (props) => {
   };
 
   useEffect(() => {
+    // Updating state from this effect is intended.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCollapsibleOpenState(subjectFilterEnabled && (!!subgroups.length || !!subjects.length));
   }, [subgroups.length, subjectFilterEnabled, subjects.length]);
 

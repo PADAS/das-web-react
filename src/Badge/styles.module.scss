@@ -1,34 +1,41 @@
-@import '../common/styles/vars/colors';
+@use '../common/styles/vars/colors';
 
-@mixin badge-box-shadow ($color: $unknown-border) {
+@mixin badge-box-shadow($color: colors.$unknown-border) {
   box-shadow: 0 0 .1rem $color;
 }
 
 .badge {
   @include badge-box-shadow;
+
   align-items: center;
   border-radius: 100%;
-  background: $unknown;
-  border: 2px solid $unknown-border;
+  background: colors.$unknown;
+  border: 2px solid colors.$unknown-border;
   border-style: solid;
-  box-shadow: 0 0 .5rem $unknown-border;
+  box-shadow: 0 0 .5rem colors.$unknown-border;
   display: flex;
   height: 1rem;
   justify-content: center;
   width: 1rem;
+
   &.red {
-    background: $error;
-    border-color: $error-border;
-    @include badge-box-shadow($error-border);
+    background: colors.$error;
+    border-color: colors.$error-border;
+
+    @include badge-box-shadow(colors.$error-border);
   }
+
   &.orange {
-    background: $warning;
-    border-color: $warning-border;
-    @include badge-box-shadow($warning-border);
+    background: colors.$warning;
+    border-color: colors.$warning-border;
+
+    @include badge-box-shadow(colors.$warning-border);
   }
+
   &.green {
-    background: $healthy;
-    border-color: $healthy-border;
-    @include badge-box-shadow($healthy-border);
+    background: colors.$healthy;
+    border-color: colors.$healthy-border;
+
+    @include badge-box-shadow(colors.$healthy-border);
   }
 }

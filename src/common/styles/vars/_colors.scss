@@ -1,14 +1,14 @@
+@use 'sass:color';
+
 /* descriptive variables */
 
 $primary-teal: #6bbbae;
 $primary-brown: #63512d;
 $primary-green: #4e5e31;
-
 $secondary-medium-gray: #63666a;
 $secondary-medium-light-gray: #888b8d;
 $secondary-light-gray: #b1b3b3;
 $alt-light-gray: #767676;
-
 $amber: #E76826;
 $bright-blue: #006cd9;
 $bright-green: #7fd320;
@@ -18,20 +18,17 @@ $very-light-blue: #F4F7FD;
 $blue-highlight: #E8F0FB;
 $green: #4f8317;
 $mustard-yellow: #d1c22e;
-
 $white: #fff;
 $off-white: #fbfbfb;
 $off-black: #333;
-$dark-gray: darken($secondary-medium-gray, 20%);
-$transparent-dark-gray: rgba(0, 0, 0, 0.05);
+$dark-gray: color.adjust($secondary-medium-gray, $lightness: -20%);
+$transparent-dark-gray: rgb(0 0 0 / 5%);
 $medium-light-gray: $secondary-medium-light-gray;
-$light-gray: lighten($secondary-light-gray, 25%);
+$light-gray: color.adjust($secondary-light-gray, $lightness: 25%);
 $light-gray-lines: #DDD;
-
 $semi-light-gray: #e9ecef;
 $very-light-gray: #f9f9f9;
 $very-light-gray-alt: #E7E7E7;
-
 $violet: #B62879;
 $plum: #3E35A3;
 $dark-teal: #107283;
@@ -48,40 +45,31 @@ $ui-text-primary-reversed: $white;
 /* semantic variables */
 
 $healthy: $bright-green;
-$healthy-border: lighten($bright-green, 15%);
+$healthy-border: color.adjust($bright-green, $lightness: 15%);
 $error: $bright-red;
-$error-border: lighten($bright-red, 15%);
+$error-border: color.adjust($bright-red, $lightness: 15%);
 $warning: $mustard-yellow;
-$warning-border: lighten($mustard-yellow, 15%);
+$warning-border: color.adjust($mustard-yellow, $lightness: 15%);
 $unknown: $dark-gray;
-$unknown-border: lighten($dark-gray, 15%);
-
+$unknown-border: color.adjust($dark-gray, $lightness: 15%);
 $no-priority: $secondary-medium-light-gray;
 $low-priority: $green;
 $medium-priority: $amber;
 $high-priority: $bright-red;
-
 $gray-border: $medium-light-gray;
-$light-gray-border: darken($light-gray, 10%);
-
+$light-gray-border: color.adjust($light-gray, $lightness: -10%);
 $map-layers-footer: #e2e2e2;
 $title-bar-color: $off-black;
 $primary-font-color: $dark-gray;
 $clear-all-link-color: $light-blue;
-$light-font-color: lighten($primary-font-color, 25%);
-
+$light-font-color: color.adjust($primary-font-color, $lightness: 25%);
 $primary-button-color: $bright-blue;
-$popover-header-color: lighten($title-bar-color, 5%);
+$popover-header-color: color.adjust($title-bar-color, $lightness: 5%);
 $popover-header-font-color: white;
-
 $mapbox-control-bg-color: $very-light-gray;
-
-$light-gray-background: darken($light-gray, 3%);
-
-$link-color: darken(#428bca, 6.5%);
-
+$light-gray-background: color.adjust($light-gray, $lightness: -3%);
+$link-color: color.adjust(#428bca, $lightness: -6.5%);
 $alert-text: $bright-red;
-
 $highlight-color: $bright-blue;
 
 /////
@@ -92,7 +80,6 @@ $report-no-priority-theme: (
   base: $no-priority,
   background: $very-light-gray,
 );
-
 $low-priority-base: #3B6211;
 $low-priority-base-hover: rgba($low-priority-base, 0.75);
 $low-priority-bg: #F5F7F3;
@@ -101,7 +88,6 @@ $report-low-priority-theme: (
   base: $low-priority-base,
   background: $low-priority-bg,
 );
-
 $medium-priority-bg: #FDF3EE;
 $medium-priority-base-hover: rgba($medium-priority, 0.75);
 $medium-priority-bg-hover: rgba($medium-priority-bg, 0.75);
@@ -109,7 +95,6 @@ $report-medium-priority-theme: (
   base: $medium-priority,
   background: $medium-priority-bg,
 );
-
 $high-priority-bg: #FDF2F4;
 $high-priority-base-hover: rgba($high-priority, 0.75);
 $high-priority-bg-hover: rgba($high-priority-bg, 0.75);
@@ -121,39 +106,31 @@ $report-high-priority-theme: (
 /////
 
 $patrol-row-tint: 5%;
-
 $patrol-overdue-theme: (
   base: $violet,
-  background: mix($violet, white, $patrol-row-tint)
+  background: color.mix($violet, white, $patrol-row-tint)
 );
-
 $patrol-active-theme: (
   base: $plum,
-  background: mix($plum, white, $patrol-row-tint)
+  background: color.mix($plum, white, $patrol-row-tint)
 );
-
 $patrol-ready-theme: (
   base: $dark-teal,
-  background: mix($dark-teal, white, $patrol-row-tint)
+  background: color.mix($dark-teal, white, $patrol-row-tint)
 );
-
 $patrol-paused-theme: (
   base: $dark-gold,
-  background: mix($dark-gold, white, $patrol-row-tint)
+  background: color.mix($dark-gold, white, $patrol-row-tint)
 );
-
 $patrol-done-theme: (
   base: $medium-light-gray,
-  background: mix($medium-light-gray, white, $patrol-row-tint)
+  background: color.mix($medium-light-gray, white, $patrol-row-tint)
 );
-
 $patrol-cancelled-theme: (
   base: $very-light-gray-alt,
-  background: mix($very-light-gray-alt, white, $patrol-row-tint),
-  fontColor: $secondary-medium-light-gray
+  background: color.mix($very-light-gray-alt, white, $patrol-row-tint),
+  font-color: $secondary-medium-light-gray
 );
-
 $subject-control-btn-bg: rgba($medium-light-gray, 0.15);
-
 $disabled-field-gray: $semi-light-gray;
-$hover-button-background: rgba(0,0,0, 0.15);
+$hover-button-background: rgb(0 0 0 / 15%);

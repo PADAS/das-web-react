@@ -1,10 +1,11 @@
 import { http, HttpResponse } from 'msw/http';
 import { setupServer } from 'msw/node';
 
-import {
+import systemStatusReducer, {
   fetchSystemStatus,
   FETCH_SYSTEM_STATUS_SUCCESS,
   SOCKET_HEALTHY_STATUS,
+  SOCKET_SERVICE_STATUS,
   SOCKET_UNHEALTHY_STATUS,
   SOCKET_WARNING_STATUS,
   STATUS_API_URL,
@@ -117,5 +118,34 @@ describe('updating socket health status', () => {
 
     expect(dispatch).toHaveBeenCalledTimes(2);
     expect(dispatch).toHaveBeenCalledWith({ payload: systemStatusConfig, type: FETCH_SYSTEM_STATUS_SUCCESS });
+  });
+});
+
+describe('service status', () => {
+  const createService = (heartbeatLatestAt, datasourceLatestAt) => ({
+    datasource: { latest_at: datasourceLatestAt, title: 'Datasource' },
+    display_name: 'Collars',
+    heartbeat: { latest_at: heartbeatLatestAt, title: 'Heartbeat' },
+    provider_key: 'collars',
+    status_code: 'OK',
+  });
+
+  const reduceServices = (services) => systemStatusReducer(
+    undefined,
+    { payload: { services }, type: SOCKET_SERVICE_STATUS }
+  ).services;
+
+  test('parses the heartbeat and datasource timestamps of a service', () => {
+    const [service] = reduceServices([createService('2026-09-30T10:00:00Z', '2026-09-30T09:00:00Z')]);
+
+    expect(service.heartbeat.timestamp).toEqual(new Date('2026-09-30T10:00:00Z'));
+    expect(service.datasource.timestamp).toEqual(new Date('2026-09-30T09:00:00Z'));
+  });
+
+  test('leaves the timestamps of a service null when the server does not send them', () => {
+    const [service] = reduceServices([createService(null, undefined)]);
+
+    expect(service.heartbeat.timestamp).toBeNull();
+    expect(service.datasource.timestamp).toBeNull();
   });
 });

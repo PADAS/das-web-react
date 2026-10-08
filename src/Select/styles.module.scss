@@ -18,7 +18,7 @@
 
 .indicatorsContainer {
   > div {
-    @include inputs.boxedFieldTrailingControl;
+    @include inputs.boxed-field-trailing-control;
 
     align-items: center;
     border-radius: 0.25rem;
@@ -68,7 +68,7 @@ $option-icon-gap: 0.5rem;
 }
 
 .noOptionsMessage {
-  @include inputs.selectNoOptionsMessage;
+  @include inputs.select-no-options-message;
 }
 
 .multiValue {
@@ -102,7 +102,7 @@ $option-icon-gap: 0.5rem;
   }
 
   .checkMark, .checkMarkPlaceholder {
-    @include inputs.dropdownOptionCheckMark;
+    @include inputs.dropdown-option-check-mark;
   }
 }
 
