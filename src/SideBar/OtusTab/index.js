@@ -1,4 +1,5 @@
 import { memo, useCallback, useEffect, useId, useRef, useState } from 'react';
+import Button from 'react-bootstrap/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -19,6 +20,8 @@ const KEYBOARD_RESIZE_STEP_PIXELS = 16;
 
 export const OTUS_COMMANDS = { NEW_THREAD: 'new-thread', TOGGLE_THREADS: 'toggle-threads' };
 export const OTUS_MESSAGE_TYPES = { COMMAND: 'otus:command', CONNECT: 'otus:connect', READY: 'otus:ready' };
+// Longer than the 8 seconds Otus itself waits for the token.
+export const OTUS_READY_TIMEOUT_MS = 10_000;
 
 const WIDTH_BY_RESIZE_KEY = {
   ArrowLeft: (width) => width - KEYBOARD_RESIZE_STEP_PIXELS,
@@ -43,8 +46,11 @@ const OtusTab = ({ isActive, url }) => {
   const panelId = useId();
   const titleId = useId();
 
+  const [frameReloadCount, setFrameReloadCount] = useState(0);
   const [hasBeenActivated, setHasBeenActivated] = useState(isActive);
-  const [loadedUrl, setLoadedUrl] = useState(null);
+  const [loadedFrameKey, setLoadedFrameKey] = useState(null);
+  const [readyFrameKey, setReadyFrameKey] = useState(null);
+  const [timedOutFrameKey, setTimedOutFrameKey] = useState(null);
   const [widthWhileResizing, setWidthWhileResizing] = useState(null);
 
   // The frame boots a per-user sandbox, so it waits for the first visit.
@@ -60,7 +66,11 @@ const OtusTab = ({ isActive, url }) => {
   embedUrl.searchParams.set('embed', '1');
   embedUrl.searchParams.set('titlebar', '0');
 
-  const isLoading = loadedUrl !== embedUrl.href;
+  const frameKey = `${frameReloadCount}-${embedUrl.href}`;
+  const hasTimedOut = timedOutFrameKey === frameKey;
+  const isLoading = loadedFrameKey !== frameKey;
+  // A frame Otus refuses still fires load, so only its ready message proves it.
+  const isWaitingForReady = !isLoading && readyFrameKey !== frameKey;
   const otusOrigin = embedUrl.origin;
 
   const postCommand = useCallback((command) => {
@@ -115,13 +125,16 @@ const OtusTab = ({ isActive, url }) => {
 
   useEffect(() => {
     const onMessage = (event) => {
-      if (token
-        && event.origin === otusOrigin
+      if (event.origin === otusOrigin
         && event.source === iframeRef.current?.contentWindow
         && event.data?.type === OTUS_MESSAGE_TYPES.READY) {
-        hasConnectedRef.current = true;
+        setReadyFrameKey(frameKey);
 
-        postConnect();
+        if (token) {
+          hasConnectedRef.current = true;
+
+          postConnect();
+        }
       }
     };
 
@@ -129,7 +142,15 @@ const OtusTab = ({ isActive, url }) => {
     window.addEventListener('message', onMessage);
 
     return () => window.removeEventListener('message', onMessage);
-  }, [otusOrigin, postConnect, token]);
+  }, [frameKey, otusOrigin, postConnect, token]);
+
+  useEffect(() => {
+    if (isWaitingForReady) {
+      const timeoutId = setTimeout(() => setTimedOutFrameKey(frameKey), OTUS_READY_TIMEOUT_MS);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [frameKey, isWaitingForReady]);
 
   // Otus keeps the token it was last given, so a renewed one is sent again.
   useEffect(() => {
@@ -145,17 +166,31 @@ const OtusTab = ({ isActive, url }) => {
     <Header onClose={onClose} onNewConversation={onNewConversation} onToggleRecent={onToggleRecent} titleId={titleId} />
 
     {hasBeenActivated && <div className={styles.frameWrapper}>
-      {isLoading && <LoadingOverlay message={t('loadingMessage')} role="status" />}
+      {hasTimedOut ? <div className={styles.loadError} role="alert">
+        <p>{t('loadErrorMessage')}</p>
 
-      <iframe
-        allow="clipboard-write"
-        className={styles.frame}
-        onLoad={() => setLoadedUrl(embedUrl.href)}
-        ref={iframeRef}
-        sandbox="allow-downloads allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
-        src={embedUrl.href}
-        title={t('iframeTitle')}
-      />
+        <Button
+          onClick={() => setFrameReloadCount((reloadCount) => reloadCount + 1)}
+          size="sm"
+          type="button"
+          variant="outline-secondary"
+          >
+          {t('retryButtonLabel')}
+        </Button>
+      </div> : <>
+        {isLoading && <LoadingOverlay message={t('loadingMessage')} role="status" />}
+
+        <iframe
+          allow="clipboard-write"
+          className={styles.frame}
+          key={frameKey}
+          onLoad={() => setLoadedFrameKey(frameKey)}
+          ref={iframeRef}
+          sandbox="allow-downloads allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
+          src={embedUrl.href}
+          title={t('iframeTitle')}
+        />
+      </>}
     </div>}
 
     {isMediumLayoutOrLarger && <div

@@ -254,8 +254,10 @@
         "title": "Otus"
       },
       "iframeTitle": "Otus सँग च्याट",
+      "loadErrorMessage": "यो साइटमा Otus लोड हुन सकेन। फेरि प्रयास गर्नुहोस्, वा यस्तो भइरहेमा सहायताका लागि सम्पर्क गर्नुहोस्।",
       "loadingMessage": "Otus लोड हुँदैछ…",
-      "resizeHandleLabel": "Otus प्यानलको आकार बदल्नुहोस्"
+      "resizeHandleLabel": "Otus प्यानलको आकार बदल्नुहोस्",
+      "retryButtonLabel": "फेरि प्रयास गर्नुहोस्"
     },
     "patrolsLink": "गस्ती",
     "settingsLink": "सेटिङ",

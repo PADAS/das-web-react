@@ -254,8 +254,10 @@
         "title": "Otus"
       },
       "iframeTitle": "Chat com o Otus",
+      "loadErrorMessage": "Não foi possível carregar o Otus neste site. Tente novamente ou fale com o suporte se o problema continuar.",
       "loadingMessage": "Carregando Otus…",
-      "resizeHandleLabel": "Redimensionar o painel do Otus"
+      "resizeHandleLabel": "Redimensionar o painel do Otus",
+      "retryButtonLabel": "Tentar novamente"
     },
     "patrolsLink": "Patrulhas",
     "settingsLink": "Preferências",

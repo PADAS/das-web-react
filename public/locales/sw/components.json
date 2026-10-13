@@ -259,8 +259,10 @@
         "title": "Otus"
       },
       "iframeTitle": "Gumzo na Otus",
+      "loadErrorMessage": "Otus haikuweza kupakia kwenye tovuti hii. Jaribu tena, au wasiliana na Msaada tatizo likiendelea.",
       "loadingMessage": "Otus inapakia…",
-      "resizeHandleLabel": "Badilisha ukubwa wa kidirisha cha Otus"
+      "resizeHandleLabel": "Badilisha ukubwa wa kidirisha cha Otus",
+      "retryButtonLabel": "Jaribu tena"
     },
     "patrolsLink": "Doria",
     "settingsLink": "Mipangilio",

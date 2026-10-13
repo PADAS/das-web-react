@@ -259,8 +259,10 @@
         "title": "Otus"
       },
       "iframeTitle": "Otus chat",
+      "loadErrorMessage": "Otus couldn't load on this site. Try again, or contact support if this keeps happening.",
       "loadingMessage": "Loading Otus…",
-      "resizeHandleLabel": "Resize Otus panel"
+      "resizeHandleLabel": "Resize Otus panel",
+      "retryButtonLabel": "Try again"
     },
     "patrolsLink": "Patrols",
     "settingsLink": "Settings",
