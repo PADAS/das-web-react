@@ -312,7 +312,30 @@ describe('SideBar - OtusTab', () => {
 
       expect(screen.getByRole('alert')).toHaveTextContent(LOAD_ERROR_MESSAGE);
       expect(screen.getByRole('button', { name: 'Try again' })).toBeVisible();
-      expect(screen.queryByTitle('Otus chat')).toBeNull();
+      expect(getFrame()).not.toBeVisible();
+    });
+
+    test('clears the load error when the frame announces it is ready late', () => {
+      renderOtusTab();
+      fireEvent.load(getFrame());
+      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+      mockFramePostMessage();
+
+      dispatchReadyMessage();
+
+      expect(screen.queryByRole('alert')).toBeNull();
+      expect(getFrame()).toBeVisible();
+    });
+
+    test('does not show the load error when the frame announces it is ready before it loads', () => {
+      renderOtusTab();
+      mockFramePostMessage();
+
+      dispatchReadyMessage();
+      fireEvent.load(getFrame());
+      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+
+      expect(screen.queryByRole('alert')).toBeNull();
     });
 
     test('does not show the load error before the wait runs out', () => {

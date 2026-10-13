@@ -67,7 +67,8 @@ const OtusTab = ({ isActive, url }) => {
   embedUrl.searchParams.set('titlebar', '0');
 
   const frameKey = `${frameReloadCount}-${embedUrl.href}`;
-  const hasTimedOut = timedOutFrameKey === frameKey;
+  // A late ready message still clears the error, as the frame stays mounted behind it.
+  const hasTimedOut = timedOutFrameKey === frameKey && readyFrameKey !== frameKey;
   const isLoading = loadedFrameKey !== frameKey;
   // A frame Otus refuses still fires load, so only its ready message proves it.
   const isWaitingForReady = !isLoading && readyFrameKey !== frameKey;
@@ -166,7 +167,7 @@ const OtusTab = ({ isActive, url }) => {
     <Header onClose={onClose} onNewConversation={onNewConversation} onToggleRecent={onToggleRecent} titleId={titleId} />
 
     {hasBeenActivated && <div className={styles.frameWrapper}>
-      {hasTimedOut ? <div className={styles.loadError} role="alert">
+      {hasTimedOut && <div className={styles.loadError} role="alert">
         <p>{t('loadErrorMessage')}</p>
 
         <Button
@@ -177,20 +178,21 @@ const OtusTab = ({ isActive, url }) => {
           >
           {t('retryButtonLabel')}
         </Button>
-      </div> : <>
-        {isLoading && <LoadingOverlay message={t('loadingMessage')} role="status" />}
+      </div>}
 
-        <iframe
-          allow="clipboard-write"
-          className={styles.frame}
-          key={frameKey}
-          onLoad={() => setLoadedFrameKey(frameKey)}
-          ref={iframeRef}
-          sandbox="allow-downloads allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
-          src={embedUrl.href}
-          title={t('iframeTitle')}
-        />
-      </>}
+      {isLoading && <LoadingOverlay message={t('loadingMessage')} role="status" />}
+
+      <iframe
+        allow="clipboard-write"
+        className={styles.frame}
+        hidden={hasTimedOut}
+        key={frameKey}
+        onLoad={() => setLoadedFrameKey(frameKey)}
+        ref={iframeRef}
+        sandbox="allow-downloads allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
+        src={embedUrl.href}
+        title={t('iframeTitle')}
+      />
     </div>}
 
     {isMediumLayoutOrLarger && <div
