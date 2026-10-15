@@ -435,7 +435,7 @@ export const getElapsedTimeForPatrolSegment = (patrolSegment, fallbackEndTime) =
 };
 
 // The feed leaves a patrol's history out, so its latest activity stands in for
-// its last state change.
+// its last state change, later than it when the patrol was edited since.
 const getLastStateChangeTimeForPatrol = (patrol) => {
   if (patrol.updates) {
     const stateChangeTimes = patrol.updates

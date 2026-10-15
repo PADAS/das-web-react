@@ -154,7 +154,7 @@ A leg takes the patrol's state and its place in it: only the first leg can be re
 **Mobile patrols.** A patrol run from EarthRanger Mobile carries `provenance: 'mobile'`: while one is under way it takes no new legs and offers only End, and its legs can be edited only once done or cancelled.
 
 **UI**
-- **Patrols Feed** (`/patrols`): ordered ready to start → overdue → active → paused → scheduled → done → cancelled, then by the latest leg update. Its date range is shared with the event filter and matches patrols that overlap it, or only those starting in it. A row's status change applies at once.
+- **Patrols Feed** (`/patrols`): ordered ready to start → overdue → active → paused → scheduled → done → cancelled, then by the latest edit to the patrol or its legs. Its date range is shared with the event filter and matches patrols that overlap it, or only those starting in it. A row's status change applies at once.
 - **New Patrol** (`/patrols/new?patrol-type=:id`): from the Add button's patrol type picker; a title and the first leg's form.
 - **Patrol Overview** (`/patrols/:patrolId`): the leg table, pauses included, the figures and a timeline under **Overview**, the audit trail under **History**, and a footer to add notes, files and events and to save.
 - **New Leg** (`/patrols/:patrolId/legs/new`): pre-filled from the previous leg, until the patrol is done, cancelled or invalid.
