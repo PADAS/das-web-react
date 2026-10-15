@@ -1,8 +1,9 @@
 import axios, { CancelToken, isCancel } from 'axios';
 import omit from 'lodash/omit';
 
-import { API_URL } from '../../constants';
+import { API_URL, PREVIEW_FEATURES } from '../../constants';
 import { calcPatrolFilterForRequest } from '../../utils/patrol-filter';
+import { getPreviewFeatureValue } from '../../utils/feature-flags';
 import globallyResettableReducer from '../../reducers/global-resettable';
 
 export const PATROLS_API_URL = `${API_URL}activity/patrols/`;
@@ -92,12 +93,21 @@ export const fetchPatrol = (id) => (dispatch) => axios.get(`${PATROLS_API_URL}${
     throw error;
   });
 
-export const fetchPatrolsFeed = () => (dispatch) => {
+export const fetchPatrolsFeed = () => (dispatch, getState) => {
   const cancelToken = CancelToken.source();
 
+  // The feed renders no history, notes or files, which make up most of a
+  // patrol's weight. The legacy feed still frames a patrol by its leg events.
   const request = axios.get(
     `${PATROLS_API_URL}?${calcPatrolFilterForRequest({
-      params: { ...PATROL_REQUEST_PARAMS, page_size: PATROLS_FEED_PAGE_SIZE },
+      params: {
+        ...PATROL_REQUEST_PARAMS,
+        include_files: false,
+        include_notes: false,
+        include_segment_events: !getPreviewFeatureValue(getState(), PREVIEW_FEATURES.PATROL_SCHEMAS),
+        include_updates: false,
+        page_size: PATROLS_FEED_PAGE_SIZE,
+      },
     })}`,
     { cancelToken: cancelToken.token }
   )

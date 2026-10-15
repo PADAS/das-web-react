@@ -788,64 +788,40 @@ describe('Patrols utils', () => {
   });
 
   describe('sortPatrolList', () => {
-
-    const modifyPatrolUpdatesTime = (patrol, updateTime) => {
-      const { patrol_segments } = patrol;
-      const [firstLeg] = patrol_segments;
-      const { updates } = firstLeg;
-      const [update] = updates;
-      return {
-        ...patrol,
-        patrol_segments: [{
-          ...firstLeg,
-          updates: [{
-            ...update,
-            time: updateTime
-          }]
-        }]
-      };
-    };
-
-    test('should return patrols in correct sort', async () => {
-      const donePatrolUpdateTime = '2023-06-18T22:12:24.207505+00:00';
-      const donePatrolWithLatestUpdate = modifyPatrolUpdatesTime(donePatrol, donePatrolUpdateTime);
-
-      const scheduledPatrolUpdateTime = '2023-06-20T22:12:24.207505+00:00';
-      const scheduledPatrolWithLatestUpdate = modifyPatrolUpdatesTime(scheduledPatrol, scheduledPatrolUpdateTime);
-
-      const cancelledPatrolUpdateTime = '2023-06-21T22:12:24.207505+00:00';
-      const cancelledPatrolWithLatestUpdate = modifyPatrolUpdatesTime(cancelledPatrol, cancelledPatrolUpdateTime);
-
-      const unorderedPatrols = [donePatrol, scheduledPatrol, activePatrol, cancelledPatrol, overduePatrol, readyToStartPatrol, cancelledPatrolWithLatestUpdate, donePatrolWithLatestUpdate, scheduledPatrolWithLatestUpdate ];
-      const expectedPatrolStateOrder = [READY_TO_START, START_OVERDUE, ACTIVE, SCHEDULED, SCHEDULED, DONE, DONE, CANCELLED, CANCELLED];
-      const sortedPatrols = await sortPatrolList(unorderedPatrols);
-
-      sortedPatrols.forEach((patrol, index) =>
-        expect(calcPatrolState(patrol)).toBe(expectedPatrolStateOrder[index])
-      );
-
-      const [,,, mostRecentScheduledPatrol,, mostRecentDonePatrol,, mostRecentCancelledPatrol] = sortedPatrols;
-
-      expect(mostRecentScheduledPatrol.patrol_segments[0].updates[0].time).toBe(scheduledPatrolUpdateTime);
-      expect(mostRecentDonePatrol.patrol_segments[0].updates[0].time).toBe(donePatrolUpdateTime);
-      expect(mostRecentCancelledPatrol.patrol_segments[0].updates[0].time).toBe(cancelledPatrolUpdateTime);
+    const withActivity = (patrol, lastActivityAt, legHistoryTime) => ({
+      ...patrol,
+      last_activity_at: lastActivityAt,
+      patrol_segments: patrol.patrol_segments.map((patrolSegment) => ({
+        ...patrolSegment,
+        updates: patrolSegment.updates.map((update) => ({ ...update, time: legHistoryTime })),
+      })),
     });
 
-    test('uses the most recent update across every leg, not only the first, to break ties', async () => {
-      const [firstLeg] = donePatrol.patrol_segments;
+    test('groups the patrols by state in the order the feed lists them', () => {
+      const unorderedPatrols = [
+        donePatrol,
+        scheduledPatrol,
+        activePatrol,
+        cancelledPatrol,
+        overduePatrol,
+        readyToStartPatrol,
+      ];
 
-      const recentlyContinuedDonePatrol = {
-        ...donePatrol,
-        patrol_segments: [
-          { ...firstLeg, updates: [{ ...firstLeg.updates[0], time: '2023-01-01T00:00:00.000Z' }] },
-          { ...firstLeg, updates: [{ ...firstLeg.updates[0], time: '2023-06-25T00:00:00.000Z' }] },
-        ],
-      };
-      const staleDonePatrol = modifyPatrolUpdatesTime(donePatrol, '2023-06-18T22:12:24.207505+00:00');
+      expect(sortPatrolList(unorderedPatrols).map(calcPatrolState))
+        .toEqual([READY_TO_START, START_OVERDUE, ACTIVE, SCHEDULED, DONE, CANCELLED]);
+    });
 
-      const [mostRecent] = await sortPatrolList([staleDonePatrol, recentlyContinuedDonePatrol]);
+    test('lists the patrol with the latest activity first within its state, whatever its leg history says', () => {
+      const staleDonePatrol = withActivity(donePatrol, '2023-06-18T22:12:24.207505+00:00', '2023-06-30T00:00:00.000Z');
+      const recentDonePatrol = withActivity(donePatrol, '2023-06-18T20:00:00.000-07:00', '2023-01-01T00:00:00.000Z');
 
-      expect(mostRecent).toBe(recentlyContinuedDonePatrol);
+      expect(sortPatrolList([staleDonePatrol, recentDonePatrol])).toEqual([recentDonePatrol, staleDonePatrol]);
+    });
+
+    test('lists a patrol without a last activity time last within its state', () => {
+      const recentDonePatrol = { ...donePatrol, last_activity_at: '2023-06-18T22:12:24.207505+00:00' };
+
+      expect(sortPatrolList([donePatrol, recentDonePatrol])).toEqual([recentDonePatrol, donePatrol]);
     });
   });
 
@@ -1954,6 +1930,18 @@ describe('Patrols utils', () => {
     test('returns null for a cancelled patrol without a state update recording it', () => {
       expect(getCancellationTimeForPatrol({ ...cancelledPatrol, updates: [] })).toBeNull();
     });
+
+    test('returns the latest activity of a cancelled patrol listed without its history', () => {
+      const patrol = { ...cancelledPatrol, last_activity_at: '2022-01-19T10:00:00.000Z', updates: undefined };
+
+      expect(getCancellationTimeForPatrol(patrol)).toEqual(new Date('2022-01-19T10:00:00.000Z'));
+    });
+
+    test('prefers the recorded state change over the latest activity', () => {
+      const patrol = { ...cancelledPatrol, last_activity_at: '2022-01-19T10:00:00.000Z' };
+
+      expect(getCancellationTimeForPatrol(patrol)).toEqual(new Date('2022-01-18T22:42:04.843502+00:00'));
+    });
   });
 
   describe('getElapsedTimeForPatrol', () => {
@@ -2429,6 +2417,12 @@ describe('Patrols utils', () => {
       };
 
       expect(effectiveEndTimeForPatrolSegment(patrol, openLeg)).toEqual(new Date('2026-04-13T11:00:00.000Z'));
+    });
+
+    test('falls back to the latest activity of a closed patrol listed without its history', () => {
+      const patrol = { last_activity_at: '2026-04-13T11:30:00.000Z', state: 'cancelled' };
+
+      expect(effectiveEndTimeForPatrolSegment(patrol, openLeg)).toEqual(new Date('2026-04-13T11:30:00.000Z'));
     });
 
     test('falls back to the leg start when the closed patrol records no state change', () => {

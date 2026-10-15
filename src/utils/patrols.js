@@ -434,12 +434,18 @@ export const getElapsedTimeForPatrolSegment = (patrolSegment, fallbackEndTime) =
   return Math.max(0, endTime - startTime);
 };
 
+// The feed leaves a patrol's history out, so its latest activity stands in for
+// its last state change.
 const getLastStateChangeTimeForPatrol = (patrol) => {
-  const stateChangeTimes = (patrol.updates ?? [])
-    .filter((update) => update.type === 'update_patrol_state')
-    .map((update) => new Date(update.time).getTime());
+  if (patrol.updates) {
+    const stateChangeTimes = patrol.updates
+      .filter((update) => update.type === 'update_patrol_state')
+      .map((update) => new Date(update.time).getTime());
 
-  return stateChangeTimes.length ? new Date(Math.max(...stateChangeTimes)) : null;
+    return stateChangeTimes.length ? new Date(Math.max(...stateChangeTimes)) : null;
+  }
+
+  return patrol.last_activity_at ? new Date(patrol.last_activity_at) : null;
 };
 
 export const getCancellationTimeForPatrol = (patrol) => isPatrolCancelled(patrol)
@@ -1048,34 +1054,25 @@ export const buildPatrolStartUpdate = (patrol) => {
   };
 };
 
-export const sortPatrolList = (patrols) => {
-  const { READY_TO_START, SCHEDULED, ACTIVE, DONE, PAUSED, START_OVERDUE, CANCELLED } = PATROL_UI_STATES;
-
-  const sortFunc = (patrol) => {
-    const patrolState = calcPatrolState(patrol);
-
-    if (patrolState === READY_TO_START) return 1;
-    if (patrolState === START_OVERDUE) return 2;
-    if (patrolState === ACTIVE) return 3;
-    if (patrolState === PAUSED) return 4;
-    if (patrolState === SCHEDULED) return 5;
-    if (patrolState === DONE) return 6;
-    if (patrolState === CANCELLED) return 7;
-    return 7;
-  };
-
-  // The most recent update across every leg.
-  const patrolGetLastUpdateTime = ({ patrol_segments }) => {
-    const legUpdateTimes = (patrol_segments || [])
-      .map((segment) => segment?.updates?.[0]?.time)
-      .filter(Boolean)
-      .map((time) => new Date(time).getTime());
-
-    return legUpdateTimes.length ? new Date(Math.max(...legUpdateTimes)) : 0;
-  };
-
-  return orderBy(patrols, [sortFunc, patrolGetLastUpdateTime], ['asc', 'desc']);
+const FEED_ORDER_BY_PATROL_UI_STATE = {
+  [ACTIVE.key]: 3,
+  [CANCELLED.key]: 7,
+  [DONE.key]: 6,
+  [INVALID.key]: 7,
+  [PAUSED.key]: 4,
+  [READY_TO_START.key]: 1,
+  [SCHEDULED.key]: 5,
+  [START_OVERDUE.key]: 2,
 };
+
+export const sortPatrolList = (patrols) => orderBy(
+  patrols,
+  [
+    (patrol) => FEED_ORDER_BY_PATROL_UI_STATE[calcPatrolState(patrol).key],
+    (patrol) => patrol.last_activity_at ? new Date(patrol.last_activity_at).getTime() : 0,
+  ],
+  ['asc', 'desc']
+);
 
 
 // The patrol markers are drawn rather than sprited: a leg's number has to go
