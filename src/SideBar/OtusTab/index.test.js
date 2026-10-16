@@ -410,6 +410,29 @@ describe('SideBar - OtusTab', () => {
       expect(screen.getByRole('status')).toHaveTextContent('Loading Otus…');
     });
 
+    test('moves focus to the frame wrapper when the user clicks try again', async () => {
+      renderOtusTab();
+      fireEvent.load(getFrame());
+      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+
+      await user.click(screen.getByRole('button', { name: 'Try again' }));
+
+      expect(screen.getByTestId('otusTab-frameWrapper')).toHaveFocus();
+    });
+
+    test('lets the user tab to try again when the reloaded frame times out too', async () => {
+      renderOtusTab();
+      fireEvent.load(getFrame());
+      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+      await user.click(screen.getByRole('button', { name: 'Try again' }));
+      fireEvent.load(getFrame());
+      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+
+      await user.tab();
+
+      expect(screen.getByRole('button', { name: 'Try again' })).toHaveFocus();
+    });
+
     test('waits again for the reloaded frame to announce it is ready', async () => {
       renderOtusTab();
       fireEvent.load(getFrame());

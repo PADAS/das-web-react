@@ -40,6 +40,7 @@ const OtusTab = ({ isActive, url }) => {
   const otusTabWidth = useSelector(selectOtusTabWidth);
   const token = useSelector((state) => state.data.token?.access_token);
 
+  const frameWrapperRef = useRef(null);
   const hasConnectedRef = useRef(false);
   const iframeRef = useRef(null);
 
@@ -84,6 +85,13 @@ const OtusTab = ({ isActive, url }) => {
       otusOrigin
     );
   }, [otusOrigin, token]);
+
+  // The retry button unmounts, so focus moves to the wrapper that outlives it.
+  const onClickRetryButton = () => {
+    frameWrapperRef.current.focus();
+
+    setFrameReloadCount((reloadCount) => reloadCount + 1);
+  };
 
   const onClose = useCallback(() => navigate('/'), [navigate]);
 
@@ -166,12 +174,17 @@ const OtusTab = ({ isActive, url }) => {
     >
     <Header onClose={onClose} onNewConversation={onNewConversation} onToggleRecent={onToggleRecent} titleId={titleId} />
 
-    {hasBeenActivated && <div className={styles.frameWrapper}>
+    {hasBeenActivated && <div
+      className={styles.frameWrapper}
+      data-testid="otusTab-frameWrapper"
+      ref={frameWrapperRef}
+      tabIndex={-1}
+      >
       {hasTimedOut && <div className={styles.loadError} role="alert">
         <p>{t('loadErrorMessage')}</p>
 
         <Button
-          onClick={() => setFrameReloadCount((reloadCount) => reloadCount + 1)}
+          onClick={onClickRetryButton}
           size="sm"
           type="button"
           variant="outline-secondary"
