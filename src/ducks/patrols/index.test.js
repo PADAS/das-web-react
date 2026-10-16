@@ -2,6 +2,7 @@ import { http, HttpResponse } from 'msw/http';
 import { setupServer } from 'msw/node';
 
 import { mockStore } from '../../__test-helpers/MockStore';
+import { PREVIEW_FEATURES } from '../../constants';
 import { resetGlobalState } from '../../reducers/global-resettable';
 
 import {
@@ -137,7 +138,7 @@ describe('Ducks - Patrols', () => {
       ]);
     });
 
-    test('asks for the pauses, so the feed and the socket agree on a patrol\'s legs', async () => {
+    const fetchFeedSearchParams = async (view = {}) => {
       let requestedUrl = null;
       server.use(http.get(PATROLS_API_URL, ({ request }) => {
         requestedUrl = new URL(request.url);
@@ -145,10 +146,33 @@ describe('Ducks - Patrols', () => {
         return HttpResponse.json({ data: feedResponse });
       }));
 
-      const store = mockStore({ data: {}, view: {} });
-      await store.dispatch(fetchPatrolsFeed()).request;
+      await mockStore({ data: {}, view }).dispatch(fetchPatrolsFeed()).request;
 
-      expect(requestedUrl.searchParams.get('include_pauses')).toBe('true');
+      return requestedUrl.searchParams;
+    };
+
+    test('asks for the pauses, so the feed and the socket agree on a patrol\'s legs', async () => {
+      expect((await fetchFeedSearchParams()).get('include_pauses')).toBe('true');
+    });
+
+    test('leaves out the history, notes and files the feed does not render', async () => {
+      const searchParams = await fetchFeedSearchParams();
+
+      expect(searchParams.get('include_files')).toBe('false');
+      expect(searchParams.get('include_notes')).toBe('false');
+      expect(searchParams.get('include_updates')).toBe('false');
+    });
+
+    test('asks for the leg events the legacy feed frames a patrol by while patrol schemas are off', async () => {
+      expect((await fetchFeedSearchParams()).get('include_segment_events')).toBe('true');
+    });
+
+    test('leaves out the leg events while patrol schemas are on', async () => {
+      const searchParams = await fetchFeedSearchParams({
+        systemConfig: { previewFeatures: { [PREVIEW_FEATURES.PATROL_SCHEMAS]: true } },
+      });
+
+      expect(searchParams.get('include_segment_events')).toBe('false');
     });
 
     test('does not report a cancelled request as a failure', async () => {
@@ -191,6 +215,20 @@ describe('Ducks - Patrols', () => {
 
       expect(requestedUrl.searchParams.get('include_pauses')).toBe('true');
       expect(store.getActions()).toEqual([{ payload: patrolA, type: UPDATE_PATROL_SUCCESS }]);
+    });
+
+    test('asks for the whole patrol, history, notes, files and leg events included', async () => {
+      let requestedUrl = null;
+      server.use(http.get(`${PATROLS_API_URL}:patrolId`, ({ request }) => {
+        requestedUrl = new URL(request.url);
+
+        return HttpResponse.json({ data: patrolA });
+      }));
+
+      await mockStore({ data: {}, view: {} }).dispatch(fetchPatrol(PATROL_A_ID));
+
+      ['include_files', 'include_notes', 'include_segment_events', 'include_updates']
+        .forEach((includeParam) => expect(requestedUrl.searchParams.has(includeParam)).toBe(false));
     });
   });
 
