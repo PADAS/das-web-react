@@ -15,6 +15,17 @@
       flex: 1;
       width: 100%;
     }
+
+    .loadError {
+      align-items: center;
+      color: colors.$ui-text-primary;
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      justify-content: center;
+      padding: 1rem;
+      text-align: center;
+    }
   }
 
   &.active {

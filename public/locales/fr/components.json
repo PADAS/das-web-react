@@ -254,8 +254,10 @@
         "title": "Otus"
       },
       "iframeTitle": "Discussion avec Otus",
+      "loadErrorMessage": "Otus n’a pas pu se charger sur ce site. Réessayez ou contactez l’équipe de Soutien si le problème persiste.",
       "loadingMessage": "Chargement d’Otus…",
-      "resizeHandleLabel": "Redimensionner le panneau Otus"
+      "resizeHandleLabel": "Redimensionner le panneau Otus",
+      "retryButtonLabel": "Réessayer"
     },
     "patrolsLink": "Patrouilles",
     "settingsLink": "Réglages",

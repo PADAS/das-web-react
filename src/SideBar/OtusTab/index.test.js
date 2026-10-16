@@ -8,12 +8,12 @@ import {
   VERTICAL_NAV_RAIL_WIDTH_PIXELS,
 } from '../../constants';
 import { mockStore } from '../../__test-helpers/MockStore';
-import { fireEvent, render, screen } from '../../test-utils';
+import { act, fireEvent, render, screen } from '../../test-utils';
 import { updateUserPreferences } from '../../ducks/user-preferences';
 import { useMatchMedia } from '../../hooks';
 import useNavigate from '../../hooks/useNavigate';
 
-import OtusTab from './';
+import OtusTab, { OTUS_READY_TIMEOUT_MS } from './';
 
 jest.mock('../../hooks', () => ({
   ...jest.requireActual('../../hooks'),
@@ -64,12 +64,14 @@ describe('SideBar - OtusTab', () => {
     return postMessage;
   };
 
-  const dispatchReadyMessage = (overrides = {}) => window.dispatchEvent(new MessageEvent('message', {
+  const dispatchReadyMessage = (overrides = {}) => act(() => window.dispatchEvent(new MessageEvent('message', {
     data: { type: 'otus:ready' },
     origin: OTUS_URL,
     source: getFrame().contentWindow,
     ...overrides,
-  }));
+  })));
+
+  const LOAD_ERROR_MESSAGE = 'Otus couldn\'t load on this site. Try again, or contact support if this keeps happening.';
 
   const movePointerTo = (clientX) => user.pointer({ coords: { clientX }, target: getResizeHandle() });
 
@@ -288,6 +290,188 @@ describe('SideBar - OtusTab', () => {
     }));
 
     expect(postMessage).not.toHaveBeenCalled();
+  });
+
+  describe('when the frame does not announce it is ready', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+      user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    const advanceTimersBy = (milliseconds) => act(() => jest.advanceTimersByTime(milliseconds));
+
+    test('shows the load error in place of the frame once the wait runs out', () => {
+      renderOtusTab();
+      fireEvent.load(getFrame());
+
+      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+
+      expect(screen.getByRole('alert')).toHaveTextContent(LOAD_ERROR_MESSAGE);
+      expect(screen.getByRole('button', { name: 'Try again' })).toBeVisible();
+      expect(getFrame()).not.toBeVisible();
+    });
+
+    test('clears the load error when the frame announces it is ready late', () => {
+      renderOtusTab();
+      fireEvent.load(getFrame());
+      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+      mockFramePostMessage();
+
+      dispatchReadyMessage();
+
+      expect(screen.queryByRole('alert')).toBeNull();
+      expect(getFrame()).toBeVisible();
+    });
+
+    test('does not show the load error when the frame announces it is ready before it loads', () => {
+      renderOtusTab();
+      mockFramePostMessage();
+
+      dispatchReadyMessage();
+      fireEvent.load(getFrame());
+      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+
+      expect(screen.queryByRole('alert')).toBeNull();
+    });
+
+    test('does not show the load error before the wait runs out', () => {
+      renderOtusTab();
+      fireEvent.load(getFrame());
+
+      advanceTimersBy(OTUS_READY_TIMEOUT_MS - 1);
+
+      expect(screen.queryByRole('alert')).toBeNull();
+      expect(getFrame()).toBeInTheDocument();
+    });
+
+    test('does not start the wait until the frame has loaded', () => {
+      renderOtusTab();
+
+      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+
+      expect(screen.queryByRole('alert')).toBeNull();
+    });
+
+    test('does not show the load error when the frame announces it is ready in time', () => {
+      renderOtusTab();
+      fireEvent.load(getFrame());
+      mockFramePostMessage();
+
+      dispatchReadyMessage();
+      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+
+      expect(screen.queryByRole('alert')).toBeNull();
+    });
+
+    test('does not show the load error when a ready frame has no token to receive', () => {
+      store.data.token = {};
+      renderOtusTab();
+      fireEvent.load(getFrame());
+
+      dispatchReadyMessage();
+      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+
+      expect(screen.queryByRole('alert')).toBeNull();
+    });
+
+    test('shows the load error when the ready message comes from another origin', () => {
+      renderOtusTab();
+      fireEvent.load(getFrame());
+
+      dispatchReadyMessage({ origin: 'https://impostor.example.com' });
+      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+
+      expect(screen.getByRole('alert')).toBeVisible();
+    });
+
+    test('shows the load error when the ready message comes from a window other than the frame', () => {
+      renderOtusTab();
+      fireEvent.load(getFrame());
+
+      dispatchReadyMessage({ source: window });
+      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+
+      expect(screen.getByRole('alert')).toBeVisible();
+    });
+
+    test('reloads the frame when the user clicks try again', async () => {
+      renderOtusTab();
+      fireEvent.load(getFrame());
+      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+
+      await user.click(screen.getByRole('button', { name: 'Try again' }));
+
+      expect(screen.queryByRole('alert')).toBeNull();
+      expect(getFrame()).toHaveAttribute('src', 'https://otus.example.com/?embed=1&titlebar=0');
+      expect(screen.getByRole('status')).toHaveTextContent('Loading Otus…');
+    });
+
+    test('moves focus to the frame wrapper when the user clicks try again', async () => {
+      renderOtusTab();
+      fireEvent.load(getFrame());
+      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+
+      await user.click(screen.getByRole('button', { name: 'Try again' }));
+
+      expect(screen.getByTestId('otusTab-frameWrapper')).toHaveFocus();
+    });
+
+    test('lets the user tab to try again when the reloaded frame times out too', async () => {
+      renderOtusTab();
+      fireEvent.load(getFrame());
+      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+      await user.click(screen.getByRole('button', { name: 'Try again' }));
+      fireEvent.load(getFrame());
+      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+
+      await user.tab();
+
+      expect(screen.getByRole('button', { name: 'Try again' })).toHaveFocus();
+    });
+
+    test('waits again for the reloaded frame to announce it is ready', async () => {
+      renderOtusTab();
+      fireEvent.load(getFrame());
+      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+      await user.click(screen.getByRole('button', { name: 'Try again' }));
+      fireEvent.load(getFrame());
+
+      advanceTimersBy(OTUS_READY_TIMEOUT_MS - 1);
+
+      expect(screen.queryByRole('alert')).toBeNull();
+
+      advanceTimersBy(1);
+
+      expect(screen.getByRole('alert')).toBeVisible();
+    });
+
+    test('keeps the reloaded frame once it announces it is ready', async () => {
+      renderOtusTab();
+      fireEvent.load(getFrame());
+      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+      await user.click(screen.getByRole('button', { name: 'Try again' }));
+      fireEvent.load(getFrame());
+      mockFramePostMessage();
+
+      dispatchReadyMessage();
+      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+
+      expect(screen.queryByRole('alert')).toBeNull();
+      expect(getFrame()).toBeInTheDocument();
+    });
+
+    test('stops waiting once unmounted', () => {
+      const { unmount } = renderOtusTab();
+      fireEvent.load(getFrame());
+
+      unmount();
+
+      expect(jest.getTimerCount()).toBe(0);
+    });
   });
 
   test('applies the stored width to the panel', () => {

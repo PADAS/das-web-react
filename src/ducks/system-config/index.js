@@ -1,3 +1,4 @@
+import { CLEAR_AUTH } from '../auth';
 import { DEFAULT_SHOW_TRACK_DAYS, REACT_APP_OTUS_URL, SYSTEM_CONFIG_FLAGS } from '../../constants';
 import { endOfToday, generateDaysAgoDate } from '../../utils/datetime';
 import { EVENT_FILTER_STORAGE_KEY, setDefaultDateRange as setDefaultEventDateRange } from '../event-filter';
@@ -103,6 +104,10 @@ export const INITIAL_STATE = {
 
 const systemConfigReducer = (state = INITIAL_STATE, action) => {
   switch (action.type) {
+  // Only superusers get the Otus URL, so it must not outlive the user.
+  case CLEAR_AUTH:
+    return { ...state, otusUrl: INITIAL_STATE.otusUrl };
+
   case SET_SYSTEM_CONFIG:
     return { ...state, ...action.payload };
 

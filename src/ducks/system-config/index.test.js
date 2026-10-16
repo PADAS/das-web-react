@@ -1,3 +1,4 @@
+import { CLEAR_AUTH } from '../auth';
 import { getKeyIsRestorable } from '../../reducers/storage-config';
 import { PREVIEW_FEATURES, SYSTEM_CONFIG_FLAGS } from '../../constants';
 import { setDefaultDateRange as setDefaultEventDateRange } from '../event-filter';
@@ -344,6 +345,15 @@ describe('Ducks - System config', () => {
   describe('systemConfigReducer', () => {
     test('returns the initial state', async () => {
       expect(systemConfigReducer(undefined, {})).toEqual(INITIAL_STATE);
+    });
+
+    test('clears the Otus URL when the user signs out', () => {
+      const state = { ...INITIAL_STATE, otusUrl: 'https://otus.pamdas.org', sitename: 'Site name' };
+
+      expect(systemConfigReducer(state, { payload: {}, type: CLEAR_AUTH })).toEqual({
+        ...INITIAL_STATE,
+        sitename: 'Site name',
+      });
     });
 
     test('handles a SET_SYSTEM_CONFIG action', async () => {
