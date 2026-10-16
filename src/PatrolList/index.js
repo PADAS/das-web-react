@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext } from 'react';
+import { memo, useCallback, useContext } from 'react';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 import MoonLoader from 'react-spinners/MoonLoader';
 import { useTranslation } from 'react-i18next';

@@ -1,12 +1,10 @@
-import React from 'react';
-
 import { render, screen, userEvent, waitFor } from '../test-utils';
 import SubjectHistoryButton from './';
 
 const onClick = jest.fn();
 
 test('rendering without crashing', () => {
-  render(<SubjectHistoryButton onClick={onClick} />);
+  expect(() => render(<SubjectHistoryButton onClick={onClick} />)).not.toThrow();
 });
 
 test('call onClick', () => {

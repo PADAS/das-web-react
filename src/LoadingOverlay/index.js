@@ -1,4 +1,4 @@
-import React, { useId } from 'react';
+import { useId } from 'react';
 import MoonLoader from 'react-spinners/MoonLoader';
 
 import * as styles from './styles.module.scss';

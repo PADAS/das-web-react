@@ -1,5 +1,4 @@
 @use 'sass:color';
-
 @use '../../../../../common/styles/buttons';
 @use '../../../../../common/styles/inputs';
 @use '../../../../../common/styles/vars/colors';
@@ -13,7 +12,7 @@
   }
 
   .toggle {
-    @include buttons.primaryActionButton;
+    @include buttons.primary-action-button;
 
     border-bottom-left-radius: 0;
     border-left: 1px solid rgb(255 255 255 / 50%);
@@ -42,7 +41,7 @@
 }
 
 .menuPopover {
-  @include inputs.boxShadow;
+  @include inputs.box-shadow;
 
   border: none !important;
   border-radius: 0.25rem !important;

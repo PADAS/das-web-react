@@ -49,12 +49,12 @@
   padding: 0.5rem 1rem;
 
   .cancelNoteButton {
-    @include buttons.chipTextButton;
+    @include buttons.chip-text-button;
 
     margin-right: 0.5rem;
   }
 
   .doneNoteButton {
-    @include buttons.primaryActionButton;
+    @include buttons.primary-action-button;
   }
 }

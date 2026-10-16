@@ -1,4 +1,3 @@
-import React from 'react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 
@@ -367,7 +366,7 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - Coord
       .toBeNull();
   });
 
-  test('shows a message if the limit of selected systems has been reached', async () => {
+  test('shows a message if the limit of stored systems has been reached', async () => {
     store.view.coordinateReferenceSystems.storedSystems = [
       epsg2154,
       epsg2946,

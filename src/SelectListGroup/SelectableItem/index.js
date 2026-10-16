@@ -1,5 +1,3 @@
-import React from 'react';
-
 import * as styles from './styles.module.scss';
 
 // Text runs out in an ellipsis where it is too long, and only then does a

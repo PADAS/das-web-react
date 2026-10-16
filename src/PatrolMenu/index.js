@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useCallback } from 'react';
+import { memo, useMemo, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';

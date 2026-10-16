@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { EMPTY_VALUE } from '../../constants';
 import { FORM_ELEMENT_TYPES, HEADER_ELEMENT_SIZES } from '../../utils/form-schemas/constants';
 import getHumanizedFieldValue from '../../utils/form-schemas/getHumanizedFieldValue';

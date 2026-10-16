@@ -1,4 +1,3 @@
-import React from 'react';
 import { act, render } from '@testing-library/react';
 import { point } from '@turf/turf';
 import { useSelector } from 'react-redux';

@@ -12,35 +12,36 @@ $label-font-size: 0.875rem;
   padding: 0.25rem 0.5rem;
 
   .calendar {
-    @include inputs.boxShadow;
+    @include inputs.box-shadow;
+
     border: none;
     font-weight: 400;
   
-    [class*=react-datepicker__header] {
+    [class*="react-datepicker__header"] {
       background: white;
       border: none;
       padding: 0;
     }
 
-    [class*=__month-text] {
+    [class*="__month-text"] {
       padding: 0.25rem 1rem;
       width: unset;
 
-      &:hover:not([aria-disabled=true]) {
+      &:hover:not([aria-disabled="true"]) {
         background-color: colors.$blue-highlight;
         color: black;
       }
 
-      &[aria-disabled=true] {
+      &[aria-disabled="true"] {
         pointer-events: none;
       }
     
-      &[aria-selected=true] {
+      &[aria-selected="true"] {
         background-color: colors.$bright-blue;
         color: white;
       }
 
-      &[class*=--keyboard-selected] {
+      &[class*="--keyboard-selected"] {
         background-color: colors.$blue-highlight;
         color: black;
       }
@@ -117,6 +118,7 @@ $label-font-size: 0.875rem;
 
     .caret {
       @include inputs.dropdown-caret($color: colors.$secondary-medium-gray);
+
       margin-left: 0.5rem;
 
       &.open {

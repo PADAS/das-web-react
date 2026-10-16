@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import userEvent from '@testing-library/user-event';
 
 import NavigationPromptModal from './';
@@ -52,13 +52,13 @@ describe('NavigationPromptModal', () => {
 
     renderNavigationPromptModal({ ...initialProps, when: true }, ChildComponent);
 
-    await screen.findByText(TITLE_TEXT);
+    expect(await screen.findByText(TITLE_TEXT)).toBeInTheDocument();
   });
 
   test('forces to show the modal even if when is false', async () => {
     renderNavigationPromptModal({ ...initialProps, when: false, show: true });
 
-    await screen.findByText(TITLE_TEXT);
+    expect(await screen.findByText(TITLE_TEXT)).toBeInTheDocument();
   });
 
   test('triggers onContinue and closes the modal if navigation attempt is continued in the negative', async () => {

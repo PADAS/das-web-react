@@ -1,12 +1,11 @@
-@import '../common/styles/vars/colors';
-$background_image_url: '../common/images/icons/';
+@use '../common/styles/vars/colors';
 
 .header {
   text-align: left;
-  margin: -.7rem -.7rem 0 -.7rem;
+  margin: -.7rem -.7rem 0;
   padding: .5rem;
   border-radius: 0.5rem 0.5rem 0 0;
-  background-color: $off-black;
+  background-color: colors.$off-black;
   color: white;
 
   > div {
@@ -59,7 +58,7 @@ $background_image_url: '../common/images/icons/';
 .addReport {
   display: inline;
   align-items: end;
-  padding: 0.3rem 0 0 0;
+  padding: 0.3rem 0 0;
   height: 1.75rem;
   width: 1.75rem;
 
@@ -79,12 +78,12 @@ $background_image_url: '../common/images/icons/';
   line-height: normal;
   margin-bottom: 0.4rem;
   padding-bottom: 0.4rem;
-  border-bottom: 0.06px solid $gray-border;
+  border-bottom: 0.06px solid colors.$gray-border;
 }
 
 .micActivity {
   align-items: baseline;
-  border-bottom: 0.06px solid $gray-border;
+  border-bottom: 0.06px solid colors.$gray-border;
   justify-content: space-between;
   display: flex;
   margin: 0.2rem 0;
@@ -115,6 +114,7 @@ $background_image_url: '../common/images/icons/';
 
 .controls {
   flex-wrap: wrap;
+
   > * {
     width: 48%;
     margin: 0 0.1rem 0.25rem;

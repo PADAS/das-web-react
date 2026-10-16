@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import MoonLoader from 'react-spinners/MoonLoader';
 import Collapsible from 'react-collapsible';

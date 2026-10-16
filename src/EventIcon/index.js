@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import isObject from 'lodash/isObject';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';

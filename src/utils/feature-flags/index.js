@@ -1,7 +1,7 @@
 import { DEVELOPMENT_FEATURE_FLAGS } from '../../constants';
 
 export const getFeatureFlagValue = (state, flagName) => {
-  if (!DEVELOPMENT_FEATURE_FLAGS.hasOwnProperty(flagName)) {
+  if (!Object.hasOwn(DEVELOPMENT_FEATURE_FLAGS, flagName)) {
     throw new Error('no feature flag with that name exists');
   }
 

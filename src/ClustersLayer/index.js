@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { featureCollection } from '@turf/turf';
 import { useSelector } from 'react-redux';
 

@@ -1,4 +1,4 @@
-import React, { Fragment, useMemo } from 'react';
+import { Fragment, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';

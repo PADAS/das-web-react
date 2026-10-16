@@ -244,6 +244,19 @@
       "featuresTabTitle": "Feições",
       "subjectsTabTitle": "Indivíduos rastreados"
     },
+    "otusLink": "Otus",
+    "otusTab": {
+      "header": {
+        "betaBadgeLabel": "Beta",
+        "closeButtonLabel": "Fechar Otus",
+        "newConversationButtonLabel": "Nova conversa",
+        "recentButtonLabel": "Recentes",
+        "title": "Otus"
+      },
+      "iframeTitle": "Chat com o Otus",
+      "loadingMessage": "Carregando Otus…",
+      "resizeHandleLabel": "Redimensionar o painel do Otus"
+    },
     "patrolsLink": "Patrulhas",
     "settingsLink": "Preferências",
     "settingsPane": {

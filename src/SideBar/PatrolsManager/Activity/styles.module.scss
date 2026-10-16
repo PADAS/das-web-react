@@ -1,5 +1,4 @@
 @use 'sass:color';
-
 @use '../../../common/styles/buttons';
 @use '../../../common/styles/vars/colors';
 @use '../_shared' as shared;
@@ -47,7 +46,7 @@
       }
 
       .collapseExpandAllButton {
-        @include buttons.chipTextButton;
+        @include buttons.chip-text-button;
       }
     }
   }

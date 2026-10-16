@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useRef } from 'react';
+import { useCallback, useContext, useRef } from 'react';
 
 import { PREVIEW_FEATURES } from '../constants';
 import { fitMapBoundsForAnalyzer } from '../utils/analyzers';

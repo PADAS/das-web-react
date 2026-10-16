@@ -1,4 +1,4 @@
-import React, { useMemo, memo } from 'react';
+import { useMemo, memo } from 'react';
 import { length, lineString } from '@turf/turf';
 import { useTranslation } from 'react-i18next';
 

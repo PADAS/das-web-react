@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { APP_ROUTES } from '../constants/routes';
 import { REACT_APP_ROUTE_PREFIX } from '../constants';

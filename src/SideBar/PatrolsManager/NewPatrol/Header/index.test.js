@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import userEvent from '@testing-library/user-event';
 
 import { dogPatrol } from '../../../../__test-helpers/fixtures/patrol-types';

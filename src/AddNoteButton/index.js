@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, memo } from 'react';
+import { useCallback, useContext, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { TrackerContext } from '../utils/analytics';

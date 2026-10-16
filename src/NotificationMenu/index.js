@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useRef, useState } from 'react';
+import { memo, useContext, useEffect, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { differenceInCalendarDays } from 'date-fns';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -43,7 +43,7 @@ const formatUnreadNewsItemsAsNotifications = (news = [], t) => news.map(item => 
 const NotificationItem = ({ item }) => {
   const { t } = useTranslation('top-bar', { keyPrefix: 'notificationMenu.notificationItem' });
 
-  const isNewsItem = item.hasOwnProperty('read');
+  const isNewsItem = Object.hasOwn(item, 'read');
   const isUnread = isNewsItem && !item.read;
 
   let displayMessage = item.message.replace(/(<([^>]+)>)/ig, '').substring(0, NEWS_ITEM_CHARACTER_LIMIT);
@@ -162,6 +162,8 @@ const NotificationMenu = (props) => {
   };
 
   useEffect(() => {
+    // Updating state from this effect is intended.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchNewsForMenu();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -195,6 +197,8 @@ const NotificationMenu = (props) => {
       id="overlay-example"
       placement="bottom"
       role="alert"
+      // Using this ref during render is intended.
+      // eslint-disable-next-line react-hooks/refs
       target={toggleBtnRef.current}
     >
       {outdatedNotificationString}

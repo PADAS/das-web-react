@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { toast } from 'react-toastify';
 
 import { DEFAULT_TOAST_CONFIG } from '../constants';

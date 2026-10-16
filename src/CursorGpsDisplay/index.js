@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import Overlay from 'react-bootstrap/Overlay';
 import throttle from 'lodash/throttle';
 import { useTranslation } from 'react-i18next';

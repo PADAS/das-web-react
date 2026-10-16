@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { featureCollection } from '@turf/turf';
 import { useSelector } from 'react-redux';
 
@@ -17,6 +17,8 @@ const SubjectHeatLayer = () => {
 
   useEffect(() => {
     const pointFeatures = trackData.reduce((accumulator, { points }) => [...accumulator, ...points.features], []);
+    // Updating state from this effect is intended.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPoints(featureCollection(pointFeatures));
   }, [trackData]);
 

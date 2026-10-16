@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { http, HttpResponse } from 'msw/http';
 import { Provider } from 'react-redux';
 import { setupServer } from 'msw/node';

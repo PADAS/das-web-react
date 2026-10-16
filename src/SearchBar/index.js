@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';

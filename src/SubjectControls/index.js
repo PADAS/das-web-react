@@ -1,4 +1,4 @@
-import React, { lazy, memo, useState } from 'react';
+import { lazy, memo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import { http, HttpResponse } from 'msw/http';
 import { setupServer } from 'msw/node';
 

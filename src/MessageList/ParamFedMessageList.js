@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -59,6 +59,8 @@ const ParamFedMessageList = ({ isReverse = false, params = null, ...restProps })
   useEffect(() => {
     if (params) {
       window.clearTimeout(scrollPositionTimeout.current);
+      // Updating state from this effect is intended.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoadState(true);
       isInit.current = false;
       fetchMessages({ since: FETCH_MESSAGES_SINCE_PARAMETER, ...params }, true)

@@ -1,13 +1,12 @@
 @use 'sass:color';
-
 @use '../../../../common/styles/buttons';
 @use '../../../../common/styles/inputs';
 @use '../../../../common/styles/vars/colors';
 
 .sortingButton {
-  @include buttons.chipTextButton;
-  @include buttons.chipActiveState;
-  @include buttons.chipOpenState;
+  @include buttons.chip-text-button;
+  @include buttons.chip-active-state;
+  @include buttons.chip-open-state;
 
   min-width: 0;
 
@@ -23,11 +22,11 @@
 }
 
 .sortDirectionButton {
-  @include buttons.sortDirectionButton;
+  @include buttons.sort-direction-button;
 }
 
 .sortByMenuPopover {
-  @include inputs.boxShadow;
+  @include inputs.box-shadow;
 
   border: none !important;
   border-radius: 0.25rem !important;

@@ -33,7 +33,7 @@
         }
 
         .resetButton {
-          @include buttons.chipTextButtonSmall;
+          @include buttons.chip-text-button-small;
 
           flex-shrink: 0;
         }
@@ -68,8 +68,8 @@
       padding: 0 0 1rem;
 
       .presetButton {
-        @include buttons.chipTextButton;
-        @include buttons.chipActiveState;
+        @include buttons.chip-text-button;
+        @include buttons.chip-active-state;
       }
     }
   }

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { isValid, parseISO, subSeconds } from 'date-fns';
 
@@ -97,10 +97,14 @@ const DateRangeSelector = ({
   };
 
   useEffect(() => {
+    // Updating state from this effect is intended.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setStartDateTime(startDate ? formatDateToLocalISO(startDate) : EMPTY_DATE_TIME_VALUE);
   }, [startDate]);
 
   useEffect(() => {
+    // Updating state from this effect is intended.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setEndDateTime(endDate ? formatDateToLocalISO(endDate) : EMPTY_DATE_TIME_VALUE);
   }, [endDate]);
 

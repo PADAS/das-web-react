@@ -1,4 +1,3 @@
-import React from 'react';
 import { renderHook, act } from '@testing-library/react';
 
 import useRealTimeImplementation from './useRealTimeImplementation';
@@ -26,16 +25,6 @@ jest.mock('./useRealTimeImplementation/implementations/latest', () => ({
 }));
 jest.mock('../utils/event-filter', () => ({ calcEventFilterForRequest: () => ({}) }));
 jest.mock('../utils/patrol-filter', () => ({ calcPatrolFilterForRequest: () => ({}) }));
-
-describe('initializing the web socket', () => {
-  test('binding socket events', () => {});
-});
-
-describe('recreating the web socket', () => {
-  test('tearing down the old web socket for failure cases', () => {});
-
-  test('creating the new web socket', () => {});
-});
 
 const CLEAR_AUTH_ACTION = { type: 'CLEAR_AUTH' };
 

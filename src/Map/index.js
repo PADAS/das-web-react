@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import uniq from 'lodash/uniq';
@@ -428,6 +428,8 @@ const Map = ({ children, onMapLoad, socket }) => {
     }
   }), [showPopup, withLocationPickerState]);
 
+  // Only the React Compiler needs these dependencies to line up.
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const onAnalyzerGroupEnter = useCallback((e, groupIds) => {
     // if an analyzer popup is open, and the user selects a new analyzer, dismiss the current pop.
     if (xor(groupIds, currentAnalyzerIds).length !== 0) {

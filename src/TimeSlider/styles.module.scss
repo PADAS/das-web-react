@@ -1,5 +1,4 @@
 @use 'sass:color';
-
 @use '../common/styles/buttons';
 @use '../common/styles/inputs';
 @use '../common/styles/layout';
@@ -19,7 +18,7 @@
 .wrapper {
   align-items: center;
   backdrop-filter: blur(22px) saturate(175%);
-  background: rgba(255, 255, 255, 0.55);
+  background: rgb(255 255 255 / 55%);
   border-radius: 2rem;
   bottom: 1.5rem;
   display: flex;
@@ -39,7 +38,7 @@
     background: colors.$bright-blue;
     border: none;
     border-radius: 50%;
-    box-shadow: 0 3px 10px rgba(27, 111, 208, 0.4);
+    box-shadow: 0 3px 10px rgb(27 111 208 / 40%);
     color: white;
     display: flex;
     flex-shrink: 0;
@@ -54,7 +53,7 @@
     }
 
     &:hover {
-      background: darken(colors.$bright-blue, 8%);
+      background: color.adjust(colors.$bright-blue, $lightness: -8%);
     }
 
     &:focus-visible {
@@ -64,8 +63,8 @@
   }
 
   .speedButton {
-    @include buttons.chipTextButton;
-    @include buttons.chipOpenState;
+    @include buttons.chip-text-button;
+    @include buttons.chip-open-state;
 
     display: none;
     flex-shrink: 0;
@@ -168,9 +167,9 @@
   }
 
   .dateRangeButton {
-    @include buttons.chipIconButton;
-    @include buttons.chipActiveState;
-    @include buttons.chipOpenState;
+    @include buttons.chip-icon-button;
+    @include buttons.chip-active-state;
+    @include buttons.chip-open-state;
 
     display: none;
     flex-shrink: 0;
@@ -181,7 +180,7 @@
   }
 
   .closeButton {
-    @include buttons.iconButton;
+    @include buttons.icon-button;
 
     display: none;
 
@@ -213,12 +212,13 @@
 }
 
 .speedMenuPopover {
-  @include inputs.boxShadow;
+  @include inputs.box-shadow;
+
   border: none !important;
   border-radius: 0.25rem !important;
   min-width: 9rem;
 
-  [class*=popover-arrow] {
+  [class*="popover-arrow"] {
     display: none;
   }
 

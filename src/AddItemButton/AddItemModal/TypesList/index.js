@@ -1,5 +1,3 @@
-import React from 'react';
-
 import EventTypeListItem from '../../../EventTypeListItem';
 
 import * as styles from './styles.module.scss';

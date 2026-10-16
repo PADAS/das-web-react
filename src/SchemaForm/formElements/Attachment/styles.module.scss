@@ -7,7 +7,7 @@
   initial-value: 0%;
 }
 
-@keyframes uploadProgressSpin {
+@keyframes upload-progress-spin {
   to { transform: rotate(360deg); }
 }
 
@@ -124,7 +124,7 @@
           width: 1.75rem;
 
           &.indeterminate {
-            animation: uploadProgressSpin 0.8s linear infinite;
+            animation: upload-progress-spin 0.8s linear infinite;
             animation-direction: reverse;
             background: conic-gradient(colors.$light-gray-border 25%, colors.$bright-blue 25%);
           }
@@ -157,7 +157,7 @@
       }
 
       .actionButton {
-        @include buttons.iconButtonSmall;
+        @include buttons.icon-button-small;
 
         flex-shrink: 0;
         margin-right: 0.5rem;
@@ -185,7 +185,7 @@
   }
 
   .chooseFileButton {
-    @include buttons.chipTextButton;
+    @include buttons.chip-text-button;
 
     gap: 0.25rem;
     margin-top: 1rem;

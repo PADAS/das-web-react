@@ -1,29 +1,33 @@
-@import '../common/styles/buttons';
-@import '../SubjectControls/mixins';
+@use '../common/styles/buttons';
+@use '../SubjectControls/mixins';
+@use '../common/styles/vars/colors';
 
 .container {
-  &[class*=visible] {
-    border: 0.06px solid $bright-blue;
-    background-color: rgba($bright-blue, 0.1);
+  &[class*="visible"] {
+    border: 0.06px solid colors.$bright-blue;
+    background-color: rgba(colors.$bright-blue, 0.1);
   }
   
-  &[class*=pinned] {
-    border: 0.06px solid $green;
-    background-color: rgba($green, 0.1);
+  &[class*="pinned"] {
+    border: 0.06px solid colors.$green;
+    background-color: rgba(colors.$green, 0.1);
   }
 
   .button {
     &.normal {
-      @include buttonBackground('tracks_off');
+      @include mixins.button-background('tracks_off');
     }
+
     &.transparent {
-      @include buttonBackground('tracks_off_transparent');
+      @include mixins.button-background('tracks_off_transparent');
     }
+
     &.visible {
-      @include buttonBackground('tracks_on');
+      @include mixins.button-background('tracks_on');
     }
+
     &.pinned {
-      @include buttonBackground('tracks_pinned');
+      @include mixins.button-background('tracks_pinned');
     }
   }
 
@@ -35,9 +39,11 @@
 div.loadingOverlay {
   background: none;
   z-index: 10;
-  [class*=spinner] {
+
+  [class*="spinner"] {
     height: 1rem;
     width: 1rem;
+
     &::after {
       background: none;
     }

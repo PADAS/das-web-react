@@ -1,4 +1,4 @@
-import React, { createContext, memo, useCallback, useState } from 'react';
+import { createContext, memo, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -82,7 +82,7 @@ const AddItemButton = ({
 
     <button
       aria-label={ariaLabel ?? t('defaultLabel')}
-      className={`${styles[`addItemButton-${variant}`]} ${className}`}
+      className={`${styles[variant]} ${className}`}
       data-testid="addItemButton"
       onClick={onClick}
       title={title ?? (showLabel ? undefined : t('defaultTitle'))}

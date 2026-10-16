@@ -1,12 +1,12 @@
-@import '../common/styles/vars/colors';
-@import '../common/styles/layout';
+@use '../common/styles/vars/colors';
+@use '../common/styles/layout';
 
 .dropdown {
   margin-right: 1rem;
   position: relative;
 
   &:hover {
-    [class*=icon] {
+    [class*="icon"] {
       opacity: 1;
     }
   }
@@ -18,7 +18,7 @@ div.menu {
   padding: 0;
   width: 20rem;
 
-  @media (min-height: $lg-height-min) {
+  @media (min-height: layout.$lg-height-min) {
     max-height: 60vh;
   }
 }
@@ -80,7 +80,7 @@ div.menu {
   flex-flow: column;
 
   + .item {
-    border-top: 1px solid $light-gray-border;
+    border-top: 1px solid colors.$light-gray-border;
   }
 
   /*   &.unread *:not(button) {
@@ -114,7 +114,7 @@ div.menu {
     position: relative;
     width: var(--badge-dimensions);
 
-    @media (min-width: $md-layout-width-min) {
+    @media (min-width: layout.$md-layout-width-min) {
       --badge-dimensions: 0.95rem;
     }
   }
@@ -137,7 +137,7 @@ div.menu {
 }
 
 .unreadNotificationsPopover {
-  color: $primary-font-color;
+  color: colors.$primary-font-color;
   left: -9rem;
   padding: 0.5rem;
   text-align: center;
@@ -145,7 +145,7 @@ div.menu {
   width: 18rem;
   position: absolute;
 
-  [class*=arrow] {
+  [class*="arrow"] {
     display: none;
   }
 }

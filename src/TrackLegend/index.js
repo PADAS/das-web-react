@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useId, useState } from 'react';
+import { useCallback, useEffect, useId, useState } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';

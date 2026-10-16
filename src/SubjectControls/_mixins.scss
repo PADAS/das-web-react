@@ -1,8 +1,8 @@
-@import '../common/styles/buttons';
-@import '../common/styles/vars/colors';
+@use '../common/styles/buttons';
+@use '../common/styles/vars/colors';
 
 
-@mixin buttonBackground($image: 'tracks_off') {
+@mixin button-background($image: 'tracks_off') {
   background-image: url('../common/images/icons/#{$image}.svg');
 }
 
@@ -16,15 +16,16 @@
   position: relative;
   
   .button {
-    @include buttonBackground();
+    @include button-background;
+
     background-size: cover;
-    background-color: $subject-control-btn-bg;
+    background-color: colors.$subject-control-btn-bg;
     border: none;
     border-radius: 0.25rem;
     display: block;
-    height: $square-button-dimension;
+    height: buttons.$square-button-dimension;
     outline: none;
-    width: $square-button-dimension;
+    width: buttons.$square-button-dimension;
   
     &:focus {
       outline: none;

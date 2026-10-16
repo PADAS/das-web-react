@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';

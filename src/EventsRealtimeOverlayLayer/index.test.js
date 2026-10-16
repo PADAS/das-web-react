@@ -1,4 +1,3 @@
-import React from 'react';
 import { featureCollection, point, polygon } from '@turf/turf';
 import { render } from '@testing-library/react';
 import { useDispatch, useSelector } from 'react-redux';

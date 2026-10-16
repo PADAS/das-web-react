@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -28,9 +28,11 @@ const RequireEulaConfirmation = ({ children }) => {
   useEffect(() => {
     // null check to distinguish from eulaEnabled = false
     if (user.id && eulaEnabled !== null) {
-      const accepted = user.hasOwnProperty('accepted_eula') ? user.accepted_eula : true;
+      const accepted = Object.hasOwn(user, 'accepted_eula') ? user.accepted_eula : true;
       const ignoreEula = eulaEnabled === false;
 
+      // Updating state from this effect is intended.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setEulaAccepted(accepted || ignoreEula);
     }
   }, [eulaEnabled, user]);

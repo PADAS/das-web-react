@@ -204,7 +204,7 @@ const patrols = [
         'icon_id': 'routine-patrol-icon',
         'updates': [
           {
-            'message': 'Report Added',
+            'message': 'Event Added',
             'time': '2021-10-20T14:59:12.880520+00:00',
             'user': {
               'content_type': null
@@ -224,7 +224,7 @@ const patrols = [
             'type': 'update_segment'
           },
           {
-            'message': 'Report Added',
+            'message': 'Event Added',
             'time': '2021-09-30T22:42:30.020771+00:00',
             'user': {
               'username': 'yazzm',
@@ -447,7 +447,7 @@ const patrols = [
         'icon_id': 'routine-patrol-icon',
         'updates': [
           {
-            'message': 'Report Added',
+            'message': 'Event Added',
             'time': '2021-09-30T22:27:18.994292+00:00',
             'user': {
               'username': 'yazzm',
@@ -515,7 +515,7 @@ const patrols = [
         'icon_id': 'dog-patrol-icon',
         'updates': [
           {
-            'message': 'Report Added',
+            'message': 'Event Added',
             'time': '2021-09-30T22:28:05.775361+00:00',
             'user': {
               'username': 'yazzm',
@@ -688,7 +688,7 @@ const patrols = [
         'icon_id': 'suspicious_person_rep',
         'updates': [
           {
-            'message': 'Report Added',
+            'message': 'Event Added',
             'time': '2021-09-30T22:28:46.256713+00:00',
             'user': {
               'username': 'yazzm',
@@ -781,7 +781,7 @@ const patrols = [
         'icon_id': 'suspicious_person_rep',
         'updates': [
           {
-            'message': 'Report Added',
+            'message': 'Event Added',
             'time': '2021-10-19T21:53:56.529053+00:00',
             'user': {
               'username': 'denniss',
@@ -1425,7 +1425,7 @@ export const overduePatrol = {
           'type': 'update_segment'
         },
         {
-          'message': 'Report Added',
+          'message': 'Event Added',
           'time': '2021-11-25T19:27:01.982922+00:00',
           'user': {
             'username': 'yazzm',

@@ -1,4 +1,4 @@
-$background: rgba(0,0,0,0.65);
+$background: rgb(0 0 0 / 65%);
 
 .instructionsPopup {
   align-items: center;
@@ -13,15 +13,15 @@ $background: rgba(0,0,0,0.65);
     margin: 0 0 0.25rem;
   }
 
-  [class*=mapboxgl-popup-content] {
+  [class*="mapboxgl-popup-content"] {
     background: $background;
     color: white;
     max-width: 10rem;
     padding: 0.25rem;
   }
 
-  [class*=mapboxgl-popup-tip] {
+  [class*="mapboxgl-popup-tip"] {
     border-right-color: $background;
-    border-top-color: rgba(0,0,0,0);
+    border-top-color: rgb(0 0 0 / 0%);
   }
 }

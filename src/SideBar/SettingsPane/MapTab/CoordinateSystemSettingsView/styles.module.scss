@@ -7,7 +7,7 @@
   margin-bottom: 0.75rem;
 
   .backButton {
-    @include buttons.iconButton;
+    @include buttons.icon-button;
 
     flex-shrink: 0;
     margin-right: 1rem;

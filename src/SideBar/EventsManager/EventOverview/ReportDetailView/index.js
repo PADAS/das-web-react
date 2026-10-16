@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import debounce from 'lodash/debounce';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
@@ -108,7 +108,7 @@ const generateErrorListForApiResponseDetails = (response, t) => {
       .reduce((accumulator, [key, value]) =>
         [{ label: key, message: value }, ...accumulator],
       []);
-  } catch (e) {
+  } catch {
     const label = (response != null && generateErrorMessageForRequest(response))
       || t('reportDetailView.unknownErrorLabel');
     const message = response?.response?.data?.status?.message;
@@ -201,7 +201,7 @@ const ReportDetailView = ({
   const originalReport = isNewReport ? newReport : reportFromStore;
   const isCollection = !!reportForm?.is_collection;
   const isCollectionChild = eventBelongsToCollection(reportForm);
-  const isPatrolAddedReport = formProps?.hasOwnProperty('isPatrolReport') && formProps.isPatrolReport;
+  const isPatrolAddedReport = formProps && Object.hasOwn(formProps, 'isPatrolReport') && formProps.isPatrolReport;
   const belongsToPatrol = eventBelongsToPatrol(reportForm);
 
   const parentCrumbs = useMemo(
@@ -210,6 +210,8 @@ const ReportDetailView = ({
   );
 
   const containedReports = useMemo(
+    // Only the React Compiler needs these dependencies to line up.
+    // eslint-disable-next-line react-hooks/preserve-manual-memoization
     () => reportForm?.contains?.map(({ related_event: report }) => report) || [],
     [reportForm?.contains]
   );
@@ -247,10 +249,14 @@ const ReportDetailView = ({
   );
 
   const reportAttachments = useMemo(
+    // Only the React Compiler needs these dependencies to line up.
+    // eslint-disable-next-line react-hooks/preserve-manual-memoization
     () => Array.isArray(reportForm?.files) ? reportForm.files : [],
     [reportForm?.files]
   );
 
+  // Only the React Compiler needs these dependencies to line up.
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const reportNotes = useMemo(() => Array.isArray(reportForm?.notes) ? [...reportForm.notes] : [], [reportForm?.notes]);
 
   const reportChanges = useMemo(() => {
@@ -348,7 +354,9 @@ const ReportDetailView = ({
     if (isNewReport) {
       reportToSubmit = reportForm;
 
-      if (reportToSubmit.hasOwnProperty('location') && !reportToSubmit.location) {
+      if (Object.hasOwn(reportToSubmit, 'location') && !reportToSubmit.location) {
+        // This in-place change is intended.
+        // eslint-disable-next-line react-hooks/immutability
         reportToSubmit.location = null;
       }
     } else {
@@ -359,13 +367,13 @@ const ReportDetailView = ({
         location: originalReport.location,
       };
 
-      if (reportChanges.hasOwnProperty('location')) {
+      if (Object.hasOwn(reportChanges, 'location')) {
         reportToSubmit.location = reportChanges.location
           ? { ...originalReport.location, ...reportChanges.location }
           : null;
       }
 
-      if (reportChanges.hasOwnProperty('reported_by')) {
+      if (Object.hasOwn(reportChanges, 'reported_by')) {
         reportToSubmit.reported_by = reportForm.reported_by;
       }
 
@@ -481,6 +489,8 @@ const ReportDetailView = ({
     setReportForm({ ...reportForm, event_details: nextEventDetails });
   }, [reportForm]);
 
+  // Only the React Compiler needs these dependencies to line up.
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const onFormError = useCallback((errors) => {
     const formattedErrors = errors.map((error) => ({
       ...error,

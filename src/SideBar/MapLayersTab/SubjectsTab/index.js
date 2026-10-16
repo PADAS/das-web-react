@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { calcDisplayNameForSubject, getUniqueSubjectGroupSubjects } from '../../../utils/subjects';

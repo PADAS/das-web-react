@@ -1,9 +1,11 @@
 import { useContext } from 'react';
 import { useLocation as useRouterLocation } from 'react-router';
+import { useStore } from 'react-redux';
 
 import { BREAKPOINTS } from '../../constants';
 import { calcSidebarPaddingLeft } from '../../utils/map';
 import { MapContext } from '../../MapContext';
+import { selectOtusTabWidth } from '../../selectors/otus';
 import { useMatchMedia } from '../';
 
 const DEFAULT_LOCATION_JUMP_PADDING = {
@@ -17,9 +19,9 @@ const MIN_UNPADDED_MAP_WIDTH_PIXELS = 150;
 
 const flattenToCoordinatePairs = (coords) => (Array.isArray(coords[0]) ? coords.flatMap(flattenToCoordinatePairs) : [coords]);
 
-const calcLocationJumpPadding = (isMediumLayoutOrLarger, pathname) => {
+const calcLocationJumpPadding = (isMediumLayoutOrLarger, otusTabWidth, pathname) => {
   const right = isMediumLayoutOrLarger ? MAP_CONTROLS_PADDING_PIXELS : DEFAULT_LOCATION_JUMP_PADDING.right;
-  const sidebarPaddingLeft = calcSidebarPaddingLeft({ isMediumLayoutOrLarger, pathname });
+  const sidebarPaddingLeft = calcSidebarPaddingLeft({ isMediumLayoutOrLarger, otusTabWidth, pathname });
 
   return {
     ...DEFAULT_LOCATION_JUMP_PADDING,
@@ -37,10 +39,17 @@ const useJumpToLocation = () => {
   const map = useContext(MapContext);
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
+  const store = useStore();
+
   return (coords, zoom = 15, options = {}) => {
     const isArrayCoords = Array.isArray(coords[0]);
 
-    const padding = calcLocationJumpPadding(isMediumLayoutOrLarger, routerLocation.pathname);
+    // Read when jumping, since a panel resize never needs to re-render the caller.
+    const padding = calcLocationJumpPadding(
+      isMediumLayoutOrLarger,
+      selectOtusTabWidth(store.getState()),
+      routerLocation.pathname
+    );
 
     if (isArrayCoords && coords.length > 1) {
       const points = coords.flatMap(flattenToCoordinatePairs);

@@ -1,4 +1,3 @@
-import React from 'react';
 import axios from 'axios';
 import { Provider } from 'react-redux';
 import { fireEvent, render, waitFor } from '../test-utils';

@@ -1,4 +1,4 @@
-@import '../common/styles/layout';
+@use '../common/styles/layout';
 
 .drawer {
   height: 100vh;
@@ -9,20 +9,20 @@
   right: 0;
   background-color: white;
   overflow-x: hidden;
-  transform: translate3d(100%, 0px, 0px);
+  transform: translate3d(100%, 0, 0);
   transition: transform 0.4s linear;
 
-  &[class*=direction-left] {
+  &[class*="direction-left"] {
     left: 0;
     right: auto;
-    transform: translate3d(-100%, 0px, 0px);
+    transform: translate3d(-100%, 0, 0);
   }
 
-  &[class*=open] {
+  &[class*="open"] {
     transform: translateZ(0);
   }
 
-  @media (min-width: $lg-layout-width-min) {
+  @media (min-width: layout.$lg-layout-width-min) {
     max-width: fit-content;
   }
 }
@@ -36,7 +36,7 @@
   z-index: 1;
   display: none;
 
-  &[class*=open] {
+  &[class*="open"] {
     display: block;
     background-color: black;
     opacity: 0.4;

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 import { cleanup, render } from '@testing-library/react';
 
 import { createMapMock } from '../__test-helpers/mocks';
@@ -33,6 +33,8 @@ jest.mock('mapbox-gl', () => ({
 const Wrapper = ({ children }) => {
   const mapRef = useRef(createMapMock());
 
+  // Using this ref during render is intended.
+  // eslint-disable-next-line react-hooks/refs
   return <MapContext.Provider value={mapRef.current}>
     {children}
   </MapContext.Provider>;
@@ -56,7 +58,7 @@ describe('the Popup component', () => {
   });
 
   test('rendering without crashing', () => {
-    renderWithWrapper(<Popup />);
+    expect(() => renderWithWrapper(<Popup />)).not.toThrow();
   });
 
   test('setting rendered React components as DOM content', () => {

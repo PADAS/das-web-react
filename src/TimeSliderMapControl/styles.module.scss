@@ -1,8 +1,8 @@
-@import '../common/styles/buttons';
-@import '../common/styles/vars/colors';
+@use '../common/styles/buttons';
+@use '../common/styles/vars/colors';
 
 .mapControl {
-  @include mapboxControlButton;
+  @include buttons.mapbox-control-button;
 }
 
 .icon {
@@ -10,19 +10,19 @@
   width: 1rem;
 
   circle, g, path {
-    stroke: $primary-font-color;
+    stroke: colors.$primary-font-color;
     transition: stroke 0.1s linear;
   }
 }
 
 .activeIcon {
   circle, g, path {
-    stroke: $bright-blue;
+    stroke: colors.$bright-blue;
   }
 }
 
 .warningIcon {
   circle, g, path {
-    stroke: $bright-red;
+    stroke: colors.$bright-red;
   }
 }

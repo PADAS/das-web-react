@@ -233,7 +233,7 @@ const generateUiSchemaForSelectFields = (key) => {
 
 const addCustomSelectFieldForEnums = (schema) => {
   return Object.entries(schema.properties).reduce((accumulator, [key, value]) => {
-    if (value.hasOwnProperty('enum') && Array.isArray(value.enum)) {
+    if (Object.hasOwn(value, 'enum') && Array.isArray(value.enum)) {
       return merge(accumulator, generateUiSchemaForSelectFields(key));
     }
     if (value.type === 'object') {

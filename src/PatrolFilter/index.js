@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 import debounce from 'lodash/debounce';
@@ -86,6 +86,8 @@ const PatrolFilter = ({ className = '' }) => {
 
   useEffect(() => {
     if (!caseInsensitiveCompare(filterText, patrolFilter.filter.text)) {
+      // Updating state from this effect is intended.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFilterText(patrolFilter.filter.text);
     }
   }, [patrolFilter.filter.text]); // eslint-disable-line react-hooks/exhaustive-deps

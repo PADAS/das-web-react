@@ -22,7 +22,7 @@
     }
 
     .chevronButton {
-      @include buttons.iconButtonSmall;
+      @include buttons.icon-button-small;
 
       flex-shrink: 0;
       margin-right: 0.5rem;
@@ -52,7 +52,7 @@
     }
 
     .addButton {
-      @include buttons.chipTextButton;
+      @include buttons.chip-text-button;
 
       gap: 0.25rem;
       margin-top: 1rem;

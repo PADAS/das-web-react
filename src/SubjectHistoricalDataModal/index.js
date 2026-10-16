@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useId, useRef, useState } from 'react';
+import { memo, useEffect, useId, useRef, useState } from 'react';
 import flatten from 'lodash/flatten';
 import Modal from 'react-bootstrap/Modal';
 import startCase from 'lodash/startCase';
@@ -130,6 +130,8 @@ const SubjectHistoricalDataModal = ({ subjectId, subjectIsStatic, title }) => {
   const lastProcessedPositionDate = useRef(subjectLastPositionDate);
 
   useEffect(() => {
+    // Updating state from this effect is intended.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoadState(true);
 
     dispatch(fetchObservationsForSubject({
@@ -163,6 +165,8 @@ const SubjectHistoricalDataModal = ({ subjectId, subjectIsStatic, title }) => {
     );
 
     if (isExisting) {
+      // Updating state from this effect is intended.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSubjectObservations((current) => current.map((observation) =>
         new Date(observation.recorded_at).getTime() === newTime
           ? { ...newObservation, id: observation.id }

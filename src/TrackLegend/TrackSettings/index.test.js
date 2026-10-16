@@ -1,4 +1,3 @@
-import React from 'react';
 import { fireEvent } from '@testing-library/dom';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';

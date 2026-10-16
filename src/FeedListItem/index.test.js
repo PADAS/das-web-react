@@ -1,4 +1,3 @@
-import React from 'react';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -6,13 +5,13 @@ import FeedListItem from './';
 
 
 test('rendering without crashing', () => {
-  render(<FeedListItem
+  expect(() => render(<FeedListItem
     themeColor='red'
     IconComponent={<div data-testid='icon'>I am in an icon slot how rude of me</div>}
     TitleComponent={<h3>I am the title</h3>}
     DateComponent={<span>Time for you to get a grip pal</span>}
     ControlsComponent={<button type='button'>nice button</button>}
-   />);
+   />)).not.toThrow();
 
   cleanup();
 });

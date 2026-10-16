@@ -22,7 +22,7 @@
       margin-top: 0.25rem;
       padding: 0 1rem;
 
-      button[role=tab] {
+      button[role="tab"] {
         border-top-left-radius: 0.25rem !important;
         border-top-right-radius: 0.25rem !important;
         color: colors.$secondary-medium-gray;
@@ -39,12 +39,13 @@
           box-shadow: none;
         }
 
-        &[class*=active] {
+        &[class*="active"] {
           border-bottom: 3px solid colors.$bright-blue;
         }
       }
     }
 
+    // stylelint-disable-next-line selector-class-pattern -- Bootstrap names it.
     :global(.tab-content) {
       background: colors.$light-gray-background;
       display: flex;

@@ -1,4 +1,3 @@
-import React from 'react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 
@@ -145,6 +144,17 @@ describe('SideBar - SettingsPane - MapTab - MainMapSettingsView - MapMarkersFiel
       static_sensor: { key: 'stationary_subjects', enabled: false },
       'subject-symbol-layer': { key: 'subjects', enabled: true },
     });
+  });
+
+  test('does not change the persisted marker names setting in the store', () => {
+    const showMapNames = { ...DEFAULT_SHOW_NAMES_IN_MAP_CONFIG, _persist: { rehydrated: true, version: -1 } };
+
+    renderMapMarkersFieldSet(undefined, { view: { ...store.view, showMapNames } });
+
+    expect(showMapNames).toHaveProperty('_persist');
+    expect(within(
+      screen.getByRole('group', { name: 'Show names on map markers for' })
+    ).getAllByRole('checkbox')).toHaveLength(Object.keys(DEFAULT_SHOW_NAMES_IN_MAP_CONFIG).length + 1);
   });
 
   test('does not show the show user location checkbox if user location is not provided', async () => {

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import isEqual from 'react-fast-compare';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
@@ -32,6 +32,7 @@ import {
   TrackerContext,
   trackEventFactory,
 } from '../utils/analytics';
+import { selectOtusTabWidth } from '../selectors/otus';
 import { useMatchMedia } from '../hooks';
 
 import DateRangePopover from '../EventFilter/DateRangePopover';
@@ -65,6 +66,7 @@ const TimeSlider = () => {
 
   const eventFilterLowerDateRange = useSelector((state) => state.data.eventFilter.filter.date_range.lower);
   const eventFilterUpperDateRange = useSelector((state) => state.data.eventFilter.filter.date_range.upper);
+  const otusTabWidth = useSelector(selectOtusTabWidth);
   const virtualDate = useSelector((state) => state.view.timeSliderState.virtualDate);
 
   const speedMenuItemOptionRefs = useRef([]);
@@ -81,6 +83,7 @@ const TimeSlider = () => {
 
   const sidebarOffsetPixels = calcSidebarPaddingLeft({
     isMediumLayoutOrLarger,
+    otusTabWidth,
     pathname: location.pathname,
   }) ?? 0;
 

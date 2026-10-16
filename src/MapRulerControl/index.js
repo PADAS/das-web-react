@@ -1,4 +1,4 @@
-import React, { memo, useContext, useState, useEffect, useCallback } from 'react';
+import { memo, useContext, useState, useEffect, useCallback } from 'react';
 import Button from 'react-bootstrap/Button';
 import { connect } from 'react-redux';
 import isEqual from 'react-fast-compare';
@@ -87,12 +87,16 @@ const MapRulerControl = ({ setIsPickingLocation }) => {
 
   useEffect(() => {
     if (!drawing && active) {
+      // Updating state from this effect is intended.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setNextClickResetsState(true);
     }
   }, [active, drawing]);
 
   useEffect(() => {
     if (!active || drawing) {
+      // Updating state from this effect is intended.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setNextClickResetsState(false);
     }
   }, [active, drawing]);
@@ -132,12 +136,16 @@ const MapRulerControl = ({ setIsPickingLocation }) => {
   }, []);
 
   useEffect(() => {
+    // Updating state from this effect is intended.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPoints([]);
     setDrawingState(active);
   }, [active]);
 
   useEffect(() => {
     if (!drawing && points.length > 1) {
+      // Updating state from this effect is intended.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedPointIndex(points.length - 1);
     }
   }, [drawing, points.length]);

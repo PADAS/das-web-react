@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { render, screen } from '../../../test-utils';
 import { HEADER_ELEMENT_SIZES } from '../../../utils/form-schemas/constants';
 

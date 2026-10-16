@@ -1,4 +1,3 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
@@ -27,6 +26,7 @@ const buildStore = (gearOverrides = {}) => mockStore({
     gear: { ...INITIAL_GEAR_STATE, ...gearOverrides },
     mapLayerFilter: { ...INITIAL_FILTER_STATE },
   },
+  view: { userPreferences: {} },
 });
 
 describe('GearTab', () => {

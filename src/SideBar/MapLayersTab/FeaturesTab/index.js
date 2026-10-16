@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useRef } from 'react';
+import { useContext, useEffect, useMemo, useRef } from 'react';
 import intersection from 'lodash/intersection';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';

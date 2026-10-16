@@ -1,4 +1,3 @@
-import React from 'react';
 import { subSeconds } from 'date-fns';
 
 import userEvent from '@testing-library/user-event';
@@ -9,13 +8,14 @@ import { render, screen } from '../test-utils';
 import DateRangeSelector from './';
 
 test('rendering without crashing', () => {
-  render(<DateRangeSelector />);
+  expect(() => render(<DateRangeSelector />)).not.toThrow();
 });
 
 describe('presets', () => {
   describe('"yesterday"', () => {
     const dateRangePresetFn = jest.fn();
     let lastCall;
+    let presetCallCount;
 
     beforeAll(async () => {
       render(<DateRangeSelector onClickDateRangePreset={dateRangePresetFn} showPresets={true} />);
@@ -23,10 +23,14 @@ describe('presets', () => {
       const yesterdayBtn = await screen.findByTestId('yesterday-btn');
       await userEvent.click(yesterdayBtn);
 
-      expect(dateRangePresetFn.mock.calls.length).toEqual(1);
-
+      presetCallCount = dateRangePresetFn.mock.calls.length;
       lastCall = dateRangePresetFn.mock.calls[0];
     });
+
+    test('calls the preset handler once', () => {
+      expect(presetCallCount).toEqual(1);
+    });
+
     test('the lower value is the beginning of yesterday', () => {
       const { lower } = lastCall[0];
 
@@ -36,7 +40,7 @@ describe('presets', () => {
     test('the upper value is the last second of yesterday', () => {
       const { upper } = lastCall[0];
 
-      expect(expect(upper).toEqual(subSeconds(generateDaysAgoDate(0), 1)));
+      expect(upper).toEqual(subSeconds(generateDaysAgoDate(0), 1));
     });
   });
 });

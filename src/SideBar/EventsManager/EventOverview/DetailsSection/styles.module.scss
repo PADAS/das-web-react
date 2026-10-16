@@ -102,23 +102,23 @@
   }
 
   [class='fieldset row'] {
-    & > [class*=col-]:nth-child(odd){
+    & > [class*="col-"]:nth-child(odd){
       padding-right: 0.5rem;
     }
   }
 
-  [class*=row] {
-    & > [class*=col-]:nth-child(even){
+  [class*="row"] {
+    & > [class*="col-"]:nth-child(even){
       padding-right: 0.5rem;
     }
   }
 
-  [class*=col-] {
+  [class*="col-"] {
     padding: 0;
   }
 
   select {
-    border-color: rgb(204, 204, 204);
+    border-color: rgb(204 204 204);
     border-radius: 0.25rem;
     display: block;
     height: 2.5rem;
@@ -133,20 +133,21 @@
     border-bottom: 1px solid colors.$light-gray-border;
   }
 
-  label:not([class=form-check-label]) {
+  label:not([class="form-check-label"]) {
     @include inputs.label-styles;
+
     margin: 1rem 0 0.25rem;
   }
   
-  button[class*=moveButton]:not([class*=removeButton]),
-  button[type=submit] {
+  button[class*="moveButton"]:not([class*="removeButton"]),
+  button[type="submit"] {
     display: none !important;
   }
 
   @media (min-width: layout.$md-layout-width-min) {
     font-size: 1rem;
 
-    button[class*=moveButton]:not([class*=removeButton]) {
+    button[class*="moveButton"]:not([class*="removeButton"]) {
       display: unset !important;
     }
   }

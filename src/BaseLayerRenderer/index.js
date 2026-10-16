@@ -1,4 +1,4 @@
-import React, { memo, Fragment } from 'react';
+import { memo, Fragment } from 'react';
 import { connect } from 'react-redux';
 
 import { TILE_LAYER_SOURCE_TYPES } from '../constants';

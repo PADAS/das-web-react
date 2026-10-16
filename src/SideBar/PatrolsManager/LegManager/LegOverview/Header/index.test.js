@@ -1,4 +1,3 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 import { useLocation } from 'react-router';
 import userEvent from '@testing-library/user-event';
@@ -101,6 +100,7 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview - Header', () => {
         patrolTrackState: { hiddenSubjects: {}, pinned: [], visible: [] },
         timeSliderState: { active: false },
         trackSettings: { length: 21, origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH },
+        userPreferences: {},
       },
     };
   });

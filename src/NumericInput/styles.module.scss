@@ -1,5 +1,4 @@
 @use 'sass:color';
-
 @use '../common/styles/inputs';
 @use '../common/styles/vars/colors';
 
@@ -46,7 +45,7 @@
   }
 
   .controls {
-    @include inputs.boxedFieldTrailingControl;
+    @include inputs.boxed-field-trailing-control;
 
     button {
       align-items: center;

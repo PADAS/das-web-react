@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { connect } from 'react-redux';
 
 import { showFeatures } from '../../../ducks/map-layer-filter';

@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { FORM_ELEMENT_TYPES, HEADER_ELEMENT_SIZES, ROOT_CANVAS_ID } from '../../utils/form-schemas/constants';
 import { GPS_FORMATS } from '../../utils/location';
 import { render, screen } from '../../test-utils';

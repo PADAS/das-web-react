@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { DAS_HOST } from '../../constants';
 import { resetSocketStateTracking } from './helpers';

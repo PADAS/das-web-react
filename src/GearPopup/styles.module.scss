@@ -1,16 +1,16 @@
-@import '../common/styles/vars/colors';
+@use '../common/styles/vars/colors';
 
 .popup {
-  [class*=mapboxgl-popup-content] {
+  [class*="mapboxgl-popup-content"] {
     width: 16.25rem;
   }
 }
 
 .header {
-  background-color: $off-black;
+  background-color: colors.$off-black;
   border-radius: 0.5rem 0.5rem 0 0;
   color: white;
-  margin: -0.7rem -0.7rem 0.75rem -0.7rem;
+  margin: -0.7rem -0.7rem 0.75rem;
   padding: 0.5rem;
   text-align: left;
 
@@ -40,7 +40,6 @@
 .title {
   margin: 0;
   overflow-wrap: anywhere;
-  word-break: break-word;
 }
 
 .body {
@@ -66,7 +65,6 @@
     max-width: 100%;
     min-width: 0;
     overflow-wrap: anywhere;
-    word-break: break-word;
   }
 }
 

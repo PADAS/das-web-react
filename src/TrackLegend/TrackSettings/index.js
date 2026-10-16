@@ -1,4 +1,4 @@
-import React, { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { differenceInCalendarDays } from 'date-fns';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';

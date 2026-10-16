@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { Route, Routes, useLocation } from 'react-router';
 
 import { getCurrentIdFromURL } from '../../utils/navigation';

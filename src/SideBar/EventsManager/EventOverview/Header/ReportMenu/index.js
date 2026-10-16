@@ -1,4 +1,4 @@
-import React, { memo, useContext } from 'react';
+import { memo, useContext } from 'react';
 import { toast } from 'react-toastify';
 import { useDispatch } from 'react-redux';
 import { useReactToPrint } from 'react-to-print';

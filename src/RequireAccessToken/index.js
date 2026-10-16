@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from 'react';
+import { memo, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Navigate, useLocation } from 'react-router';
 import { useAuth0 } from '@auth0/auth0-react';

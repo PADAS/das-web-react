@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 
 import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
 

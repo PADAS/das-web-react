@@ -29,7 +29,7 @@
 }
 
 .toggleAdditionalProps {
-  @include buttons.linkButton;
+  @include buttons.link-button;
 
   border-radius: var(--bs-border-radius-sm);
   color: var(--bs-link-color);

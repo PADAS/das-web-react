@@ -1,6 +1,6 @@
-@import '../common/styles/vars/colors';
-@import '../common/styles/buttons';
-@import '../common/styles/layout';
+@use '../common/styles/vars/colors';
+@use '../common/styles/buttons';
+@use '../common/styles/layout';
 
 
 .icon {
@@ -16,7 +16,7 @@
     height: var(--dimensions);
     width: var(--dimensions);
 
-    &[class*=generic] {
+    &[class*="generic"] {
       height: var(--half-size);
       width: var(--half-size);
     }
@@ -35,24 +35,24 @@
     text-overflow: ellipsis;
     font-size: .875rem;
 
-    @media (min-width: $sm-layout-width-max) {
+    @media (min-width: layout.$sm-layout-width-max) {
       font-size: unset;
       padding-right: 1.2rem;
     }
 
-    @media (min-width: $md-layout-width-max) {
+    @media (min-width: layout.$md-layout-width-max) {
       padding-right: unset;
     }
   }
 }
 
 .titleDetails {
-  color: $off-black;
+  color: colors.$off-black;
   font-size: 0.75rem;
 }
 
 .title, .icon {
-  @include unstyledButton;
+  @include buttons.unstyled-button;
 }
 
 .controls {
@@ -68,9 +68,9 @@
 .serialNumber {
   display: none;
   padding-right: 0.5rem;
-  color: $secondary-medium-gray;
+  color: colors.$secondary-medium-gray;
 
-  @media (min-width: $md-layout-width-min) {
+  @media (min-width: layout.$md-layout-width-min) {
     display: flex;
   }
 }
@@ -84,15 +84,15 @@
 }
 
 .stateDependantControl {
-  background: $transparent-dark-gray !important;
+  background: colors.$transparent-dark-gray !important;
   border: none;
   display: none;
 
   &:hover{
-    background: $hover-button-background !important;
+    background: colors.$hover-button-background !important;
   }
 
-  @media (min-width: $md-layout-width-min) {
+  @media (min-width: layout.$md-layout-width-min) {
     display: unset;
   }
 }

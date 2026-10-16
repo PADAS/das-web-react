@@ -1,5 +1,4 @@
 @use 'sass:color';
-
 @use '../../../../common/styles/inputs';
 @use '../../../../common/styles/layout';
 @use '../../../../common/styles/vars/colors';
@@ -76,7 +75,7 @@
 }
 
 .distanceMenuPopover {
-  @include inputs.boxShadow;
+  @include inputs.box-shadow;
 
   border: none !important;
   border-radius: 0.25rem !important;

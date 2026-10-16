@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useRef } from 'react';
+import { memo, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowUpRightFromSquareIcon } from '../../../common/images/icons/arrow-up-right-from-square.svg';

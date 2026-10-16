@@ -1,6 +1,6 @@
-@import '../common/styles/buttons';
-@import '../common/styles/layout';
-@import '../common/styles/vars/colors';
+@use '../common/styles/buttons';
+@use '../common/styles/layout';
+@use '../common/styles/vars/colors';
 
 .sideBar {
   display: flex;
@@ -11,7 +11,7 @@
   opacity: 1;
   transition: opacity .3s ease-in-out;
 
-  &[class*=hidden] {
+  &[class*="hidden"] {
     opacity: 0;
     pointer-events: none;
   }
@@ -28,11 +28,11 @@
   display: none;
   flex-direction: column;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgb(0 0 0 / 80%);
   backdrop-filter: blur(12px);
   width: var(--vertical-nav-width);
 
-  [class*=nav-item] {
+  [class*="nav-item"] {
     width: 100%;
     height: 5.5rem;
 
@@ -70,12 +70,12 @@
     width: 100%;
 
     &.active {
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: rgb(255 255 255 / 10%);
       opacity: 1;
     }
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: rgb(255 255 255 / 10%);
       opacity: 1;
     }
 
@@ -91,14 +91,14 @@
     }
   }
 
-  &[class*=open] {
-    a[class*=active] {
-      background: rgba(255, 255, 255, 0.1);
+  &[class*="open"] {
+    a[class*="active"] {
+      background: rgb(255 255 255 / 10%);
       opacity: 1;
     }
   }
 
-  @media (min-width: $md-layout-width-min) {
+  @media (min-width: layout.$md-layout-width-min) {
     display: flex;
   }
 }
@@ -113,7 +113,6 @@
 }
 
 .tabsContainer {
-
   height: 100%;
   overflow: hidden;
   left: 0;
@@ -122,34 +121,34 @@
   min-width: 0;
   transition: box-shadow 0s linear 0.3s;
 
-  &:not([class*=open]) {
+  &:not([class*="open"]) {
     transition: min-width 0s linear 0.4s;
   }
 
-  &[class*=open] {
-    box-shadow: 0 0 3px rgba(black, 0.7);
+  &[class*="open"] {
+    box-shadow: 0 0 3px rgb(black, 0.7);
     width: var(--sidebar-width);
     min-width: var(--sidebar-width);
 
-    @media (min-width: $md-layout-width-min) {
+    @media (min-width: layout.$md-layout-width-min) {
       width: auto;
     }
   }
 
-  @media (width: $md-layout-width-min) {
+  @media (width: layout.$md-layout-width-min) {
     left: var(--vertical-nav-width);
   }
 }
 
 .tab {
-  background: linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0.8) 100%);
+  background: linear-gradient(180deg, #FFF 0%, rgb(255 255 255 / 80%) 100%);
   backdrop-filter: blur(12px);
   width: auto;
   transform: translateX(calc(calc(var(--sidebar-width) + var(--vertical-nav-width)) * -1));
   transition: transform 0.4s ease-in-out;
   height: 100%;
 
-  &[class*=open] {
+  &[class*="open"] {
     transform: translateX(0);
   }
 
@@ -169,8 +168,8 @@
     }
   }
 
-  @media (min-width: $md-layout-width-min) {
-    transform: translateX(calc(calc(#{$sidebar-width-detail} + var(--vertical-nav-width)) * -1));
+  @media (min-width: layout.$md-layout-width-min) {
+    transform: translateX(calc(calc(#{layout.$sidebar-width-detail} + var(--vertical-nav-width)) * -1));
   }
 }
 
@@ -206,7 +205,7 @@
 
 .header {
   align-items: center;
-  color: $off-black;
+  color: colors.$off-black;
   display: flex;
   height: 3.5rem;
   justify-content: space-between;
@@ -235,7 +234,7 @@
   }
 
   .backButton {
-    @include iconButton;
+    @include buttons.icon-button;
 
     .backButtonIcon {
       height: 1rem;
@@ -244,7 +243,7 @@
   }
 
   .closeButton {
-    @include iconButton;
+    @include buttons.icon-button;
 
     .closeButtonIcon {
       height: 1rem;

@@ -1,5 +1,4 @@
 @use 'sass:color';
-
 @use '../common/styles/buttons';
 @use '../common/styles/layout';
 @use '../common/styles/vars/colors';
@@ -36,7 +35,7 @@
   }
 }
 
-.addItemButton-primary {
+.primary {
   @include add-item-button;
 
   svg {
@@ -59,7 +58,7 @@
   }
 }
 
-.addItemButton-secondary {
+.secondary {
   @include add-item-button;
 
   svg {
@@ -102,7 +101,7 @@
   }
 }
 
-.addItemButton-plain {
+.plain {
   background: none;
   border: none;
   padding: 0;

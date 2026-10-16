@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
@@ -36,6 +36,8 @@ const AddItemModal = ({ onHide, show, ...restProps }) => {
       && activeTabKey !== ADD_TAB_KEYS.ADD_PATROL
       && (storedActiveTabKey === ADD_TAB_KEYS.ADD_PATROL || hideAddEventTab);
     if (shouldSelectEventsTab) {
+      // Updating state from this effect is intended.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       onTabSelect(ADD_TAB_KEYS.ADD_REPORT);
     } else if (shouldSelectPatrolsTab) {
       onTabSelect(ADD_TAB_KEYS.ADD_PATROL);

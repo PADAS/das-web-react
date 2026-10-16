@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useMemo } from 'react';
+import { memo, useCallback, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as MarkerIcon } from '../common/images/icons/marker-feed.svg';

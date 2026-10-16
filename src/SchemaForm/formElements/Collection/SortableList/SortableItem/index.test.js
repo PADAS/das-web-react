@@ -1,4 +1,3 @@
-import React from 'react';
 import { directionBiased } from '@dnd-kit/collision';
 import { Provider } from 'react-redux';
 import { useSortable } from '@dnd-kit/react/sortable';

@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import { memo, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { hidePopup } from '../ducks/popup';

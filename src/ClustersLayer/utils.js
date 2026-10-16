@@ -7,6 +7,8 @@ import { calcSidebarPaddingLeft } from '../utils/map';
 import { calcSvgImageIconId } from '../utils/mapImages';
 import { ensureEventIcon, getEventIcon } from '../utils/eventMapIcons';
 import getWindowLocation from '../utils/getWindowLocation';
+import { selectOtusTabWidth } from '../selectors/otus';
+import store from '../store';
 import { subjectIsStatic } from '../utils/subjects';
 import { injectStylesToElement } from '../utils/styles';
 import { hashCode } from '../utils/string';
@@ -160,6 +162,7 @@ export const calcClusterZoomPadding = () => {
   const isMediumLayoutOrLarger = BREAKPOINTS.screenIsMediumLayoutOrLarger.matches;
   const left = calcSidebarPaddingLeft({
     isMediumLayoutOrLarger,
+    otusTabWidth: selectOtusTabWidth(store.getState()),
     pathname: getWindowLocation().pathname,
   }) ?? 0;
 

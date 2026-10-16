@@ -2,7 +2,7 @@
 @use '../../common/styles/layout';
 @use '../../common/styles/vars/colors';
 
-$cardExpansionTransitionTime: 300ms;
+$card-expansion-transition-time: 300ms;
 
 .sectionHeader {
   align-items: center;
@@ -310,5 +310,5 @@ $cardExpansionTransitionTime: 300ms;
 }
 
 :export {
-  cardToggleTransitionTime: $cardExpansionTransitionTime
+  cardToggleTransitionTime: $card-expansion-transition-time
 }

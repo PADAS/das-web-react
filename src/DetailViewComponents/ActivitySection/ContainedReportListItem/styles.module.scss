@@ -1,27 +1,26 @@
 @use 'sass:map';
-
 @use '../../../common/styles/layout';
 @use '../../../common/styles/vars/colors';
 
-@mixin priorityTheme($theme) {
+@mixin priority-theme($theme) {
   --item-icon-bg: #{map.get($theme, 'base')};
   --item-row-hover-bg: #{map.get($theme, 'background')};
 }
 
 .red {
-  @include priorityTheme(colors.$report-high-priority-theme);
+  @include priority-theme(colors.$report-high-priority-theme);
 }
 
 .amber {
-  @include priorityTheme(colors.$report-medium-priority-theme);
+  @include priority-theme(colors.$report-medium-priority-theme);
 }
 
 .green {
-  @include priorityTheme(colors.$report-low-priority-theme);
+  @include priority-theme(colors.$report-low-priority-theme);
 }
 
 .none {
-  @include priorityTheme(colors.$report-no-priority-theme);
+  @include priority-theme(colors.$report-no-priority-theme);
 }
 
 .titleGroup {

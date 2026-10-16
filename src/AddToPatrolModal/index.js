@@ -1,4 +1,4 @@
-import React, { memo, useRef, useEffect, useState, useReducer, useMemo, useCallback, useContext } from 'react';
+import { memo, useRef, useEffect, useState, useReducer, useMemo, useCallback, useContext } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';

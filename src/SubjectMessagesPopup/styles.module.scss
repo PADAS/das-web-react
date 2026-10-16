@@ -1,10 +1,11 @@
-@import '../common/styles/vars/colors';
+@use '../common/styles/vars/colors';
 
 .popup {
-  [class*=mapboxgl-popup-content] {
+  [class*="mapboxgl-popup-content"] {
     background: white;
     padding: 0.5rem 0 0.25rem;
     width: 24rem;
+
     > * {
       padding-left: 1rem;
       padding-right: 1rem;
@@ -16,17 +17,20 @@
   align-items: center;
   display: flex;
   margin: 0.25rem 0 0.5rem;
+
   h6 {
     flex-grow: 1;
     font-size: 0.75rem;
     font-weight: 500;
     margin: 0;
+
     svg {
       margin-right: 0.666rem;
-      background-color: $transparent-dark-gray;
+      background-color: colors.$transparent-dark-gray;
       border-radius: 0.125rem;
     }
   }
+
   img {
     cursor: pointer;
     margin-left: auto;

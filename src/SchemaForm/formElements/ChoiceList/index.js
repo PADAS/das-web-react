@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 
 import { CHOICE_LIST_ELEMENT_INPUT_TYPES } from '../../../utils/form-schemas/constants';
 import useFormElementDomId from '../../utils/useFormElementDomId';

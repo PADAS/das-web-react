@@ -16,11 +16,7 @@ import { calcLocationParamStringForUserLocationCoords } from '../utils/location'
 import parallelPaginatedQuery from '../utils/parallelPaginatedRequest';
 import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
 
-export const EVENTS_API_URL = (
-  import.meta.env.REACT_APP_MOCK_EVENTS_API === 'true'
-  && import.meta.env.DEV
-) ? '/api/v1.0/activity/events/'
-  : `${API_URL}activity/events`;
+export const EVENTS_API_URL = `${API_URL}activity/events`;
 export const EVENT_API_URL = `${API_URL}activity/event/`;
 
 export const COMMUNITY_EVENTS_API_URL = (communityValue) =>
@@ -156,11 +152,6 @@ const fetchNamedFeedActionCreator = (name) => {
         if (typeof response !== 'undefined') { /* response === undefined for canceled requests. it's not an error, but it's a no-op for state management */
           dispatch(updateEventStore(...excludeOpenEventIfAlreadyInEventStore(response.data.data.results, getState().data.eventStore)));
 
-          if (
-            !response.data.data.results.length
-          || (validateReportAgainstCurrentEventFilter(response.data.data.results[0], { getState })) /* extra layer of validation for async query race condition edge cases */
-          ) {
-          }
           dispatch({
             name,
             type: FEED_FETCH_SUCCESS,

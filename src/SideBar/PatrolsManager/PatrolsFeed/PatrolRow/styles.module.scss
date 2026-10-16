@@ -3,15 +3,15 @@
 @use '../../../../common/styles/vars/colors';
 
 @mixin patrol-row-theme($theme) {
-  $theme-color: map.get($theme, 'fontColor') or map.get($theme, 'base');
+  $theme-color: map.get($theme, 'font-color') or map.get($theme, 'base');
 
   --patrol-row-hover-background: #{color.mix($theme-color, white, colors.$patrol-row-tint)};
 
   .icon {
     background-color: map.get($theme, 'base');
 
-    @if map.get($theme, 'fontColor') {
-      color: map.get($theme, 'fontColor');
+    @if map.get($theme, 'font-color') {
+      color: map.get($theme, 'font-color');
     }
   }
 

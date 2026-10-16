@@ -1,4 +1,3 @@
-import React from 'react';
 import { http, HttpResponse } from 'msw/http';
 import { Provider } from 'react-redux';
 import { setupServer } from 'msw/node';
@@ -637,8 +636,8 @@ describe('PatrolDetailView', () => {
       const cancelButton = await screen.findByText('Cancel');
       await userEvent.click(cancelButton);
 
-      await screen.findByText('Unsaved Changes');
-      await screen.findByText('There are unsaved changes. Would you like to go back, discard the changes, or save and continue?');
+      expect(await screen.findByText('Unsaved Changes')).toBeInTheDocument();
+      expect(await screen.findByText('There are unsaved changes. Would you like to go back, discard the changes, or save and continue?')).toBeInTheDocument();
     });
 
     test('saving unsaved changes', async () => {

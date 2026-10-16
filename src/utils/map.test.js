@@ -17,6 +17,8 @@ jest.mock('./img', () => ({
   imgElFromSrc: jest.fn(),
 }));
 
+jest.mock('../store', () => ({ dispatch: jest.fn(), getState: jest.fn() }));
+
 let map;
 const errorObj = new Error('invalid LngLat');
 
@@ -58,28 +60,6 @@ describe('waitForMapBounds', () => {
 
     expect(map.getBounds).toHaveBeenCalledTimes(2);
   });
-
-  // the below tests will work once this jest bug is fixed:
-  // https://stackoverflow.com/questions/51126786/jest-fake-timers-with-promises
-
-/*   it('polls and resolves when `getBounds` returns a good value', () => {
-    const getBoundsMock = jest.fn().mockImplementation(() => successValue);
-    
-    map = createMapMock({ getBounds: getBoundsMock });
-    jest.advanceTimersByTime(500);
-    return waitForMapBounds(map).then((val) => {
-      expect(val).toEqual(successValue);
-    });
-  });
-  it('polls and rejects if no bounds are returned', async () => {
-    const getBoundsMock = jest.fn().mockImplementation(() => {
-      throw errorObj;
-    });
-    
-    map = createMapMock({ getBounds: getBoundsMock });
-    jest.advanceTimersByTime(2000);
-    await expect(waitForMapBounds(map)).rejects.toEqual(errorObj);
-  }); */
 });
 
 describe('calculatePopoverPlacement', () => {
@@ -327,5 +307,9 @@ describe('calcSidebarPaddingLeft', () => {
 
   test('prioritizes the detail-view width over the tab width when both are present', () => {
     expect(calcSidebarPaddingLeft({ pathname: '/patrols/some-patrol-id', isMediumLayoutOrLarger: true })).toBe(806);
+  });
+
+  test('pads for the Otus panel width, plus the vertical nav rail, when the Otus tab is open', () => {
+    expect(calcSidebarPaddingLeft({ isMediumLayoutOrLarger: true, otusTabWidth: 900, pathname: '/otus' })).toBe(970);
   });
 });

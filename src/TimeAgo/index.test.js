@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {
   subMinutes,
   subSeconds,
@@ -8,7 +6,7 @@ import {
   subYears
 } from 'date-fns';
 
-import i18n from '../i18nForTests';
+import '../i18nForTests';
 import TimeAgo from '../TimeAgo';
 import { runOnlyPendingTimers } from '../__test-helpers/timers';
 import { act, render, screen } from '../test-utils';

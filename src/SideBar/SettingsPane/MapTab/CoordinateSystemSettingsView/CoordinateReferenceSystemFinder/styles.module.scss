@@ -95,7 +95,7 @@
     }
 
     .addButton {
-      @include buttons.secondaryActionButton;
+      @include buttons.secondary-action-button;
     }
 
     .emptyState {

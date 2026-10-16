@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { format, STANDARD_DATE_FORMAT } from '../../../utils/datetime';
 import { render, screen } from '../../../test-utils';
 

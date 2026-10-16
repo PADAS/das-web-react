@@ -98,9 +98,10 @@ describe('auth-recovery', () => {
       const silentRenew = jest.fn(() => new Promise(() => {}));
       registerAuthRecovery({ silentRenew });
 
-      const rejection = expect(recoverAuth()).rejects.toThrow(/silent renewal timed out/);
-      await jest.advanceTimersByTimeAsync(30_000);
-      await rejection;
+      await Promise.all([
+        expect(recoverAuth()).rejects.toThrow(/silent renewal timed out/),
+        jest.advanceTimersByTimeAsync(30_000),
+      ]);
 
       expect(store.dispatch).not.toHaveBeenCalled();
 
@@ -119,9 +120,10 @@ describe('auth-recovery', () => {
       const stepUp = jest.fn(() => new Promise(() => {}));
       registerAuthRecovery({ stepUp });
 
-      const rejection = expect(recoverAuth({ stepUp: true, challenge: {} })).rejects.toThrow(/step-up redirect timed out/);
-      await jest.advanceTimersByTimeAsync(60_000);
-      await rejection;
+      await Promise.all([
+        expect(recoverAuth({ stepUp: true, challenge: {} })).rejects.toThrow(/step-up redirect timed out/),
+        jest.advanceTimersByTimeAsync(60_000),
+      ]);
 
       expect(store.dispatch).not.toHaveBeenCalled();
 

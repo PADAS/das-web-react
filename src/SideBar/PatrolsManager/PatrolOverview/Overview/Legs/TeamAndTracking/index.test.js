@@ -1,4 +1,3 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
@@ -38,7 +37,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs - TeamAndT
   });
 
   const renderTeamAndTracking = (props) => render(
-    <Provider store={mockStore({ data: {}, view: {} })}>
+    <Provider store={mockStore({ data: {}, view: { userPreferences: {} } })}>
       <MapContext.Provider value={map}>
         <TrackerContext.Provider value={{ track }}>
           <TeamAndTracking legNumber={1} trackedSubjects={[LEAD, MEMBER, ASSET]} {...props} />

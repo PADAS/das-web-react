@@ -1,6 +1,6 @@
-@import '../common/styles/vars/colors';
-@import '../common/styles/buttons';
-@import '../common/styles/layout';
+@use '../common/styles/vars/colors';
+@use '../common/styles/buttons';
+@use '../common/styles/layout';
 
 .icon {
   color: white;
@@ -10,7 +10,7 @@
   svg {
     --dimensions: 1.75rem;
 
-    @media (min-width: $md-layout-width-min) {
+    @media (min-width: layout.$md-layout-width-min) {
       --dimensions: 2rem;
     }
 
@@ -20,7 +20,7 @@
     height: var(--dimensions);
     width: var(--dimensions);
 
-    &[class*=generic] {
+    &[class*="generic"] {
       height: var(--half-size);
       width: var(--half-size);
     }
@@ -28,7 +28,7 @@
 
   .patrolIndicator {
     align-items: center;
-    background: rgba(0, 0, 0, 0.25);
+    background: rgb(0 0 0 / 25%);
     color: white;
     display: flex;
     font-size: 0.75rem;
@@ -46,17 +46,17 @@
 
 .title,
 .icon {
-  @include unstyledButton;
+  @include buttons.unstyled-button;
 }
 
 .serialNumber {
   display: none;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
-  color: $secondary-medium-gray;
+  color: colors.$secondary-medium-gray;
   min-width: 1.25rem;
 
-  @media (min-width: $md-layout-width-min) {
+  @media (min-width: layout.$md-layout-width-min) {
     display: flex;
   }
 }
@@ -89,33 +89,40 @@
 
 .noPriority {
   &:hover {
-    background-color: $no-priority-bg-hover !important;
+    background-color: colors.$no-priority-bg-hover !important;
+
     div[role='img'] {
-      background-color: $no-priority-base-hover !important;
+      background-color: colors.$no-priority-base-hover !important;
     }
   }
 }
+
 .lowPriority {
   &:hover {
-    background-color: $low-priority-bg-hover !important;
+    background-color: colors.$low-priority-bg-hover !important;
+
     div[role='img'] {
-      background-color: $low-priority-base-hover !important;
+      background-color: colors.$low-priority-base-hover !important;
     }
   }
 }
+
 .mediumPriority {
   &:hover {
-    background-color: $medium-priority-bg-hover !important;
+    background-color: colors.$medium-priority-bg-hover !important;
+
     div[role='img'] {
-      background-color: $medium-priority-base-hover !important;
+      background-color: colors.$medium-priority-base-hover !important;
     }
   }
 }
+
 .highPriority {
   &:hover {
-    background-color: $high-priority-bg-hover !important;
+    background-color: colors.$high-priority-bg-hover !important;
+
     div[role='img'] {
-      background-color: $high-priority-base-hover !important;
+      background-color: colors.$high-priority-base-hover !important;
     }
   }
 }

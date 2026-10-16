@@ -1,31 +1,7 @@
-import React from 'react';
 import { render } from '@testing-library/react';
 
-import JiraSupportWidget, {
-  JIRA_IFRAME_HELP_BUTTON_SELECTOR,
-  JIRA_WIDGET_IFRAME_SELECTOR,
-  JIRA_WIDGET_SCRIPT_SELECTOR,
-} from '../JiraSupportWidget';
-
-export const createQuerySelectorMockImplementationWithHelpButtonReference = () => {
-  const mockButton = document.createElement('button');
-  mockButton.click = jest.fn();
-
-  const querySelectorMockImplementation = (selector) => {
-    if (selector === JIRA_WIDGET_IFRAME_SELECTOR) {
-      return {
-        contentDocument: {
-          querySelector: querySelectorMockImplementation,
-        }
-      };
-    }
-    if (selector === JIRA_IFRAME_HELP_BUTTON_SELECTOR) {
-      return mockButton;
-    }
-  };
-
-  return [querySelectorMockImplementation, mockButton];
-};
+import { createQuerySelectorMockImplementationWithHelpButtonReference } from '../__test-helpers/jiraSupportWidget';
+import JiraSupportWidget, { JIRA_WIDGET_SCRIPT_SELECTOR } from '../JiraSupportWidget';
 
 const setPathname = (pathname) => {
   window.history.replaceState({}, '', pathname);

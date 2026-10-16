@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import Button from 'react-bootstrap/Button';
 import intersection from 'lodash/intersection';
 import { useDispatch, useSelector } from 'react-redux';

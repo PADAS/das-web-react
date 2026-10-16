@@ -1,4 +1,4 @@
-import React, { memo, useImperativeHandle, useRef } from 'react';
+import { memo, useImperativeHandle, useRef } from 'react';
 
 import { EMPTY_DATE_TIME_VALUE, getBoundaryDateAndTime } from './utils';
 

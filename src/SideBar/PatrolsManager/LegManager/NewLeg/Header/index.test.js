@@ -1,4 +1,3 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 
 import patrolTypes, { dogPatrol } from '../../../../../__test-helpers/fixtures/patrol-types';

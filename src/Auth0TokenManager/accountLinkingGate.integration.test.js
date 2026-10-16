@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, act, waitFor } from '@testing-library/react';
 import { BrowserRouter, MemoryRouter, Route, Routes, useLocation } from 'react-router';
 import { Provider } from 'react-redux';

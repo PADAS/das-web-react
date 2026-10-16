@@ -1,4 +1,3 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 import { toast } from 'react-toastify';
 import userEvent from '@testing-library/user-event';

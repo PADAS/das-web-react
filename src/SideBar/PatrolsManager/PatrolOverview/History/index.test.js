@@ -1,4 +1,3 @@
-import React from 'react';
 import userEvent from '@testing-library/user-event';
 
 import patrols, { multiLegPatrol } from '../../../../__test-helpers/fixtures/patrols';

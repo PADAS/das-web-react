@@ -1,4 +1,3 @@
-import React from 'react';
 import { AxiosError } from 'axios';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';

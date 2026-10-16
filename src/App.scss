@@ -1,8 +1,9 @@
-@import './common/styles/vars/colors';
-@import './common/styles/animations';
-@import './common/styles/buttons';
-@import './common/styles/layout';
-@import './common/styles/inputs';
+@use 'sass:color';
+@use 'common/styles/vars/colors';
+@use 'common/styles/animations';
+@use 'common/styles/buttons';
+@use 'common/styles/layout';
+@use 'common/styles/inputs';
 
 *,
 *::before,
@@ -16,7 +17,7 @@
 }
 
 div.Toastify__toast {
-  @media (max-width: $sm-layout-width-max) {
+  @media (max-width: layout.$sm-layout-width-max) {
     margin-bottom: 0.2rem;
   }
 }
@@ -50,13 +51,13 @@ $map-canvas: '.mapboxgl-canvas';
   // Keep in sync with SIDEBAR_WIDTH_PIXELS.
   --sidebar-width: calc(100vw);
 
-  @media (min-width: $md-layout-width-min) {
-    --sidebar-width: min(#{$sidebar-width-base}, calc(100vw - var(--vertical-nav-width)));
+  @media (min-width: layout.$md-layout-width-min) {
+    --sidebar-width: min(#{layout.$sidebar-width-base}, calc(100vw - var(--vertical-nav-width)));
   }
 }
 
-[type=text] {
-  @include defaultTextInput;
+[type="text"] {
+  @include inputs.default-text-input;
 }
 
 ul,
@@ -91,7 +92,6 @@ body {
   flex-flow: column;
 
   &.picking-location-fullscreen {
-
     .map-legends,
     .dropped-marker-popup,
     .map-controls-container,
@@ -102,7 +102,7 @@ body {
       display: none !important;
     }
 
-    @media (min-width: $md-layout-width-min) {
+    @media (min-width: layout.$md-layout-width-min) {
       .map-legends {
         display: block !important;
       }
@@ -135,11 +135,11 @@ body {
     max-height: 98vh;
     padding: 0;
 
-    @media (min-height: $lg-height-min) {
+    @media (min-height: layout.$lg-height-min) {
       max-height: 80vh;
     }
 
-    >div>*:not(form):not([class*=formScrollContainer]) {
+    >div>*:not(form, [class*="formScrollContainer"]) {
       padding: 1rem 0.5rem;
     }
 
@@ -147,7 +147,7 @@ body {
       padding: 1rem 1rem 11.5rem;
     }
 
-    [class*=loadingOverlay] [class*=spinner] {
+    [class*="loadingOverlay"] [class*="spinner"] {
       top: 0;
     }
   }
@@ -158,41 +158,41 @@ body {
     max-width: 46rem;
   }
 
-  &.readonly .modal-content>[class*=wrapper] {
+  &.readonly .modal-content>[class*="wrapper"] {
     cursor: not-allowed;
 
-    >*:not([class*=formButtons]) {
+    >*:not([class*="formButtons"]) {
       pointer-events: none;
 
-      [class*=empty] {
+      [class*="empty"] {
         opacity: 0;
       }
     }
 
-    >[class*=formButtons],
-    >[class*=formHeader] [class*=history],
-    [class*=locationAnchor]:not([class*=empty]),
-    [class*=gpsPopover] [class*=choices] {
+    >[class*="formButtons"],
+    >[class*="formHeader"] [class*="history"],
+    [class*="locationAnchor"]:not([class*="empty"]),
+    [class*="gpsPopover"] [class*="choices"] {
       pointer-events: all;
     }
 
-    [class*=gpsPopover] [class*=locationButtons] {
+    [class*="gpsPopover"] [class*="locationButtons"] {
       display: none;
     }
 
-    >[class*=attachmentControls] {
+    >[class*="attachmentControls"] {
       display: none;
     }
 
-    >[class*=formHeader] [class*=history] {
+    >[class*="formHeader"] [class*="history"] {
       cursor: pointer;
     }
 
-    >[class*=formButtons] {
+    >[class*="formButtons"] {
       cursor: default;
 
       &::before {
-        color: $light-font-color;
+        color: colors.$light-font-color;
         content: 'You only have permission to view patrols, and may not edit them.';
         display: block;
         font-style: italic;
@@ -200,7 +200,7 @@ body {
         width: 100%;
       }
 
-      [class*=saveButton] {
+      [class*="saveButton"] {
         display: none;
       }
     }
@@ -208,10 +208,10 @@ body {
 }
 
 .floating-report-filter {
-  @include fade-in;
+  @include animations.fade-in;
 
   display: none;
-  background: rgba(255, 255, 255, 0.85);
+  background: rgb(255 255 255 / 85%);
   border-radius: 0.666rem;
   line-height: normal;
   max-width: 14rem;
@@ -223,7 +223,7 @@ body {
   z-index: 12;
   flex-wrap: wrap;
 
-  @media (min-width: $md-layout-width-min) {
+  @media (min-width: layout.$md-layout-width-min) {
     display: block;
     margin-left: var(--vertical-nav-width);
     max-width: 25rem;
@@ -234,12 +234,12 @@ body {
 
     // The map fits the search bar and the popover triggers on a single row, so
     // the search bar takes whatever the triggers leave.
-    > [class*=controls] {
+    > [class*="controls"] {
       border: none;
       flex-direction: row;
       padding: 0;
 
-      > [class*=searchBar] {
+      > [class*="searchBar"] {
         flex: 1;
         min-width: 0;
         width: auto;
@@ -249,7 +249,7 @@ body {
         }
       }
 
-      > [class*=triggerButtons] {
+      > [class*="triggerButtons"] {
         flex-shrink: 0;
         margin: 0 0 0 0.5rem;
         width: auto;
@@ -257,9 +257,9 @@ body {
     }
 
     // Held at the reset button's height, so it showing up moves nothing.
-    > [class*=summaryBar] {
+    > [class*="summaryBar"] {
       border: none;
-      min-height: calc($chip-height + 0.5rem);
+      min-height: calc(buttons.$chip-height + 0.5rem);
       padding: 0.5rem 0 0;
     }
   }
@@ -287,7 +287,7 @@ body {
     }
 
     div.mapboxgl-canvas-container.mapboxgl-interactive {
-      @media (max-width: $md-layout-width-max) {
+      @media (max-width: layout.$md-layout-width-max) {
         cursor: pointer;
       }
     }
@@ -321,7 +321,7 @@ body {
 }
 
 .mapboxgl-ctrl-attrib.er-map {
-  background: rgba(white, 0.8);
+  background: rgb(white, 0.8);
   font-size: 0.7rem;
   right: 0;
   bottom: 0;
@@ -334,7 +334,7 @@ body {
     margin: 0;
   }
 
-  @media (min-width: $md-layout-width-min) {
+  @media (min-width: layout.$md-layout-width-min) {
     right: 4rem;
   }
 }
@@ -349,7 +349,7 @@ body {
 }
 
 .mapboxgl-ctrl-scale {
-  background-color: rgba(255, 255, 255, 0.75);
+  background-color: rgb(255 255 255 / 75%);
   transform: translate(-5rem, -1.5rem);
 }
 
@@ -371,13 +371,13 @@ body {
 }
 
 .btn-primary {
-  background-color: $primary-button-color;
-  border-color: $primary-button-color;
+  background-color: colors.$primary-button-color;
+  border-color: colors.$primary-button-color;
 }
 
 .btn-light {
-  background: $light-gray;
-  color: $secondary-medium-gray;
+  background: colors.$light-gray;
+  color: colors.$secondary-medium-gray;
 }
 
 .app-container h1,
@@ -391,7 +391,7 @@ h6 {
 }
 
 div.mapboxgl-popup-content {
-  background: rgba(255, 255, 255, 0.88);
+  background: rgb(255 255 255 / 88%);
   border-radius: 0.5rem;
   text-align: center;
   width: 13rem;
@@ -415,7 +415,7 @@ div.mapboxgl-popup-content {
 }
 
 div.mapboxgl-popup-tip {
-  border-top-color: rgba(255, 255, 255, 0.88);
+  border-top-color: rgb(255 255 255 / 88%);
 }
 
 .modal-dialog {
@@ -423,15 +423,14 @@ div.mapboxgl-popup-tip {
   top: 0;
 }
 
-.modal[role=dialog] {
+.modal[role="dialog"] {
   &[style*='opacity: 0'],
   &[style*='opacity:0'] {
     z-index: -1;
   }
 }
 
-@media (min-width: $md-layout-width-min) {
-
+@media (min-width: layout.$md-layout-width-min) {
   .event-form-modal,
   .patrol-form-modal {
     &+.modal-backdrop+.event-form-modal .modal-dialog {
@@ -462,11 +461,10 @@ div.mapboxgl-popup-tip {
 
 @media print {
   @page {
-    size: A3 landscape;
+    size: a3 landscape;
   }
 
   .primary-nav .rightMenus>div {
-
     &:first-child,
     &:last-child {
       display: none !important;
@@ -479,7 +477,7 @@ div.mapboxgl-popup-tip {
     display: none !important;
   }
 
-  [class*=sideBar],
+  [class*="sideBar"],
   .primary-nav {
     print-color-adjust: exact !important;
     -webkit-print-color-adjust: exact !important;
@@ -539,18 +537,18 @@ div.mapboxgl-popup-tip {
     width: 90vw;
     font-size: 0.95rem;
 
-    @media (min-width: $md-layout-width-min) {
+    @media (min-width: layout.$md-layout-width-min) {
       right: 4rem;
       width: 33rem;
     }
 
-    @media (min-width: $lg-layout-width-min) {
+    @media (min-width: layout.$lg-layout-width-min) {
       right: 11.5rem;
     }
   }
 
   .modal-content {
-    box-shadow: 0 0 0.187rem $light-gray;
+    box-shadow: 0 0 0.187rem colors.$light-gray;
   }
 
   .modal-header {
@@ -601,7 +599,7 @@ div.mapboxgl-popup-tip {
   :root {
     --sidebar-width: calc(100vw);
 
-    @media (min-width: $md-layout-width-min) {
+    @media (min-width: layout.$md-layout-width-min) {
       --sidebar-width: 32rem;
     }
   }
@@ -613,18 +611,18 @@ div.mapboxgl-popup-tip {
     left: auto;
     z-index: 7;
 
-    @media (min-width: $md-layout-width-min) {
+    @media (min-width: layout.$md-layout-width-min) {
       right: 4.5rem;
       top: 0.5rem;
       max-width: 18rem;
       margin-left: 0;
     }
 
-    @media (min-width: $lg-layout-width-min) {
+    @media (min-width: layout.$lg-layout-width-min) {
       max-width: 22rem;
     }
 
-    @media (min-width: $md-layout-width-min) {
+    @media (min-width: layout.$md-layout-width-min) {
       max-width: 25rem;
       right: 4.5rem;
       top: 0.5rem;
@@ -665,7 +663,7 @@ div.mapboxgl-popup-tip {
 
   .side-menu {
     background: white;
-    box-shadow: 0 0 0.25rem rgb(38, 38, 38);
+    box-shadow: 0 0 0.25rem rgb(38 38 38);
     display: flex;
     flex-flow: column;
     flex-grow: 0;
@@ -678,7 +676,7 @@ div.mapboxgl-popup-tip {
     width: var(--sidebar-width);
     z-index: 11;
 
-    [class*=addReportContainer] {
+    [class*="addReportContainer"] {
       .bs-popover-left {
         margin-left: -0.5rem;
         margin-top: 3rem;
@@ -687,14 +685,13 @@ div.mapboxgl-popup-tip {
 
     .bs-popover-left {
       .arrow {
-
         &::after,
         &::before {
           top: -3rem;
         }
 
         &::after {
-          border-left-color: $bright-blue;
+          border-left-color: colors.$bright-blue;
         }
       }
     }
@@ -703,7 +700,7 @@ div.mapboxgl-popup-tip {
       margin-top: 0;
 
       .arrow::after {
-        border-bottom-color: $popover-header-color;
+        border-bottom-color: colors.$popover-header-color;
       }
     }
 
@@ -735,7 +732,7 @@ div.mapboxgl-popup-tip {
       text-align: center;
 
       &:not(.active) {
-        background: lighten($title-bar-color, 15%);
+        background: color.adjust(colors.$title-bar-color, $lightness: 15%);
         color: white;
 
         &:hover {
@@ -750,10 +747,10 @@ div.mapboxgl-popup-tip {
     }
 
     .handle {
-      @include unstyledButton;
+      @include buttons.unstyled-button;
 
-      background-color: $off-black;
-      border: 1px solid lighten($off-black, 30%);
+      background-color: colors.$off-black;
+      border: 1px solid color.adjust(colors.$off-black, $lightness: 30%);
       border-right: none;
       border-radius: 0.5rem 0 0 0.5rem;
       color: white;
@@ -767,16 +764,16 @@ div.mapboxgl-popup-tip {
 
       &:hover,
       &:active {
-        border: 1px solid lighten($off-black, 25%);
+        border: 1px solid color.adjust(colors.$off-black, $lightness: 25%);
         border-right: none;
       }
 
       &:hover {
-        background-color: darken($off-black, 10%);
+        background-color: color.adjust(colors.$off-black, $lightness: -10%);
       }
 
       &:active {
-        background-color: darken($off-black, 16%);
+        background-color: color.adjust(colors.$off-black, $lightness: -16%);
       }
 
       span {
@@ -791,13 +788,14 @@ div.mapboxgl-popup-tip {
         }
       }
 
-      @media (min-width: $md-layout-width-min) {
+      @media (min-width: layout.$md-layout-width-min) {
         font-size: 0.5rem;
       }
     }
 
-    @media (min-width: $md-layout-width-min) {
+    @media (min-width: layout.$md-layout-width-min) {
       transform: translateX(calc(var(--sidebar-width) - 4rem));
+
       // width: var(--sidebar-width);
     }
   }
@@ -807,7 +805,7 @@ div.mapboxgl-popup-tip {
     transform: translate(-0.55rem, -0.8rem);
     background-color: transparent;
 
-    @media (min-width: $md-layout-width-min) {
+    @media (min-width: layout.$md-layout-width-min) {
       transform: translate(-7.05rem, -0.8rem);
     }
   }
@@ -824,7 +822,7 @@ div.mapboxgl-popup-tip {
       order: 0;
     }
 
-    @media (min-width: $md-layout-width-min) {
+    @media (min-width: layout.$md-layout-width-min) {
       transform: scale(1.25) translate(-3.5rem, -1rem);
     }
   }

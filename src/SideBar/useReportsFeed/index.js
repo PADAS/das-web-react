@@ -48,6 +48,8 @@ const useReportsFeed = () => {
     [userIsGeoPermRestricted, userLocationCoords]
   );
 
+  // Using this ref during render is intended.
+  // eslint-disable-next-line react-hooks/refs
   const loadFeedEvents = useMemo(() => debounce((silent = false) => {
     if (!silent) {
       setEventLoadState(true);
@@ -100,6 +102,8 @@ const useReportsFeed = () => {
 
   useEffect(() => {
     if (loadingEventFeed && events.error) {
+      // Updating state from this effect is intended.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setEventLoadState(false);
     }
   }, [events.error, loadingEventFeed]);

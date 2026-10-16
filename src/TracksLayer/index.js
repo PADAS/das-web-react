@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext } from 'react';
+import { memo, useCallback, useContext } from 'react';
 import { useSelector } from 'react-redux';
 
 import { LAYER_IDS } from '../constants';

@@ -1,4 +1,4 @@
-import React, { memo, useContext, useState, useEffect, useRef } from 'react';
+import { memo, useContext, useState, useEffect, useRef } from 'react';
 import throttle from 'lodash/throttle';
 
 import { addMapImage } from '../utils/map';

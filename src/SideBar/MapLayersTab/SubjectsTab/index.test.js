@@ -1,4 +1,3 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 
 import { render, screen } from '../../../test-utils';

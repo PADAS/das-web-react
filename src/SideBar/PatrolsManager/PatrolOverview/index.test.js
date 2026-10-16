@@ -1,4 +1,3 @@
-import React from 'react';
 import { CanceledError } from 'axios';
 import { Provider } from 'react-redux';
 import { toast } from 'react-toastify';

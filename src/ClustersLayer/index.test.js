@@ -1,4 +1,3 @@
-import React from 'react';
 import { featureCollection, point } from '@turf/turf';
 import { Provider } from 'react-redux';
 import { render, waitFor } from '@testing-library/react';

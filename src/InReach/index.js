@@ -1,4 +1,4 @@
-import React, { useReducer } from 'react';
+import { useReducer } from 'react';
 import MessageContext from './context';
 
 import { messageListReducer, INITIAL_MESSAGE_LIST_STATE } from '../ducks/messaging';

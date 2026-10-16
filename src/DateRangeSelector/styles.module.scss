@@ -1,5 +1,6 @@
-@import '../common/styles/vars/colors';
-@import '../common/styles/buttons';
+@use 'sass:color';
+@use '../common/styles/vars/colors';
+@use '../common/styles/buttons';
 
 .label {
   position: relative;
@@ -9,7 +10,7 @@
   .nullMessage {
     font-size: 0.75rem;
     height: 2rem;
-    color: $link-color;
+    color: colors.$link-color;
     left: 0.25rem;
     pointer-events: none;
   }
@@ -21,25 +22,28 @@
 
 .presets {
   align-items: center;
-  background: lighten($light-gray-background, 5%);
+  background: color.adjust(colors.$light-gray-background, $lightness: 5%);
   display: flex;
   justify-content: space-evenly;
   flex-wrap: wrap;
   padding: 1rem 1rem 0;
+
   button {
-    @include linkButton;
-    color: $medium-light-gray;
+    @include buttons.link-button;
+
+    color: colors.$medium-light-gray;
     margin-bottom: 1rem;
     text-decoration: none;
   }
+
   &:hover {
     button {
-      color: $link-color;
+      color: colors.$link-color;
     }
   }
 }
 
-.dateSelectorWrapper {
+%date-selector-wrapper {
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
@@ -48,41 +52,50 @@
   width: 100%;
 }
 
+.dateSelectorWrapper {
+  @extend %date-selector-wrapper;
+}
+
 .dateSelectorWrapperInline {
-  @extend .dateSelectorWrapper;
+  @extend %date-selector-wrapper;
 }
 
 .currentSelectedRange{
-  color: lighten($primary-font-color, 25%);
+  color: color.adjust(colors.$primary-font-color, $lightness: 25%);
   display: block; 
   text-align: center;
   width: 100%;
   padding: 0.5rem;
 }
 
-@mixin buttonOpacity {
+@mixin button-opacity {
   opacity: 0.75;
+
   &:hover {
     opacity: 1;
   }
 }
 
 .gearButton {
-  @include buttonOpacity;
+  @include button-opacity;
+
   svg {
     height: 1.25rem;
     width: 1.25rem;
     fill: #333;
   }
+
   position: absolute;
   border: none;
   background: none;
   right: 0.75rem;
   bottom: 0.75rem;
+
   &:hover, &:focus, &:active {
     border: none;
     background: none;
     outline: none;
   }
+
   z-index: 200;
 }

@@ -52,6 +52,7 @@
     "navigationButton": {
       "gear": "Equipamento",
       "mapLayers": "Camadas",
+      "otus": "Otus",
       "patrols": "Patrulhas",
       "reports": "Eventos",
       "settings": "Preferências"

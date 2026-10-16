@@ -6,14 +6,11 @@ import globallyResettableReducer from '../../reducers/global-resettable';
 import sanitizeSchemas from './sanitizeSchemas';
 import { selectEventTypeByValue } from '../../selectors/event-types';
 
-const USE_EVENTTYPE_SCHEMA_V2_MOCK_API = import.meta.env.REACT_APP_MOCK_EVENTTYPES_V2_API === 'true'
-  && import.meta.env.DEV;
-
 export const EVENTS_SCHEMA_API_URL = `${API_URL}activity/events/schema`;
 export const EVENT_TYPE_SCHEMA_V1_URL = (eventTypeValue) =>
   `${API_URL}activity/events/schema/eventtype/${eventTypeValue}`;
 export const EVENT_TYPE_SCHEMA_V2_URL = (eventTypeValue) =>
-  `${USE_EVENTTYPE_SCHEMA_V2_MOCK_API ? '/api/v2.0/' : API_V2_URL}activity/eventtypes/${eventTypeValue}/schema`;
+  `${API_V2_URL}activity/eventtypes/${eventTypeValue}/schema`;
 export const COMMUNITY_EVENTS_SCHEMA_API_URL = (communityValue) =>
   `${API_V2_URL}community/${communityValue}/schemas/event_types.json`;
 export const COMMUNITY_EVENT_TYPE_SCHEMA_URL = (communityValue, eventTypeValue) =>

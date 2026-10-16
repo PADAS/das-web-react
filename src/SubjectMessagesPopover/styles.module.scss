@@ -1,22 +1,24 @@
-@import '../SubjectControls/mixins';
+@use '../SubjectControls/mixins';
+@use '../common/styles/vars/colors';
 
 .popover {
   height: 22rem;
   max-width: unset;
   overflow: hidden;
   width: 24rem;
-  [class*=popover-body] {
+
+  [class*="popover-body"] {
     height: 15.5rem;
   }
 
   [class*='popover-header'] svg {
-    background-color: $transparent-dark-gray;
+    background-color: colors.$transparent-dark-gray;
     border-radius: 0.125rem;
   }
 }
 
 .container {
   .button {
-    @include buttonBackground('chat-icon');
+    @include mixins.button-background('chat-icon');
   }
 }

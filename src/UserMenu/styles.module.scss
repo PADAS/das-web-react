@@ -1,11 +1,11 @@
-@import '../common/styles/buttons';
-@import '../common/styles/layout';
+@use '../common/styles/buttons';
+@use '../common/styles/layout';
 
 .icon {
   height: 1.5rem;
   width: auto;
 
-  @media (min-width: $md-layout-width-min) {
+  @media (min-width: layout.$md-layout-width-min) {
     margin-right: 0.5rem;
   }
 }
@@ -13,25 +13,26 @@
 .username {
   display: none;
   font-size: 0.9rem;
-  @media (min-width: $md-layout-width-min) {
+
+  @media (min-width: layout.$md-layout-width-min) {
     display: initial;
   }
 }
 
 .menu {
-  [class*=icon],
-  [class*=username] {
+  [class*="icon"],
+  [class*="username"] {
     opacity: 0.8;
   }
 
   &:hover {
-    [class*=icon],
-    [class*=username] {
+    [class*="icon"],
+    [class*="username"] {
       opacity: 1;
     }
   }
 
-  button[class*=dropdown-toggle] {
+  button[class*="dropdown-toggle"] {
     align-items: center;
   }
 
@@ -39,7 +40,7 @@
     text-align: right;
   }
 
-  [class*=dropdown-menu] {
+  [class*="dropdown-menu"] {
     max-height: 80vh;
     overflow-y: auto;
   }
@@ -49,7 +50,7 @@
   max-height: 25vh;
   overflow-y: auto;
 
-  @media (min-width: $md-layout-width-min) {
+  @media (min-width: layout.$md-layout-width-min) {
     max-height: 300px;
   }
 }

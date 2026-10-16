@@ -1,4 +1,3 @@
-import React from 'react';
 import axios from 'axios';
 import { Provider } from 'react-redux';
 import { mockStore } from '../__test-helpers/MockStore';

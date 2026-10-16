@@ -1,5 +1,4 @@
 @use 'sass:map';
-
 @use '../../../../../common/styles/buttons';
 @use '../../../../../common/styles/vars/colors';
 @use '../shared';
@@ -27,7 +26,7 @@
       position: relative;
 
       .resetButton {
-        @include buttons.chipTextButtonSmall;
+        @include buttons.chip-text-button-small;
 
         position: absolute;
         right: 0;
@@ -59,7 +58,7 @@
       @include shared.reset-all-footer;
 
       .resetAllButton {
-        @include buttons.chipTextButton;
+        @include buttons.chip-text-button;
 
         justify-content: center;
         width: 100%;

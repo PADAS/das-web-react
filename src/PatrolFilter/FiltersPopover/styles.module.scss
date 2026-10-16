@@ -1,9 +1,9 @@
-@import '../../common/styles/vars/colors';
+@use '../../common/styles/vars/colors';
 
 .popover {
   overflow: auto !important;
 
-  [class*=popover-body] {
+  [class*="popover-body"] {
     overflow: auto !important;
   }
 }
@@ -20,17 +20,17 @@
   label {
     font-weight: 500;
     font-size: 0.75rem;
-    color: $medium-light-gray;
+    color: colors.$medium-light-gray;
     margin-bottom: 0.375rem;
   }
 
   button {
-    &[class*=hidden] {
+    &[class*="hidden"] {
       visibility: hidden;
     }
   }
 
-  [class*=select] {
+  [class*="select"] {
     display: flex;
     align-items: center;
     width: 100%;
@@ -49,7 +49,7 @@
   padding: 0.5rem 1rem;
   overflow: hidden;
 
-  [class*=header] {
+  [class*="header"] {
     width: 100%;
     display: flex;
     justify-content: space-between;
@@ -59,23 +59,23 @@
     label {
       font-weight: 500;
       font-size: 1rem;
-      color: $primary-font-color;
+      color: colors.$primary-font-color;
     }
   }
 
   button {
-    &[class*=hidden] {
+    &[class*="hidden"] {
       visibility: hidden;
     }
   }
 
-  [class*=checkboxListContainer] {
+  [class*="checkboxListContainer"] {
     width: 100%;
   }
 }
 
 .statusContainer {
-  [class*=statusItem] {
+  [class*="statusItem"] {
     display: flex;
     align-items: center;
 
@@ -88,7 +88,7 @@
 }
 
 .patrolTypeContainer {
-  [class*=patrolTypeItem] {
+  [class*="patrolTypeItem"] {
     display: flex;
     align-items: center;
 

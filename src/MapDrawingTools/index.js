@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import debounce from 'lodash/debounce';
 import noop from 'lodash/noop';
 import isEqual from 'react-fast-compare';
@@ -67,7 +67,8 @@ const MapDrawingTools = ({
 
   const showLayer = pointerLocation || points.length;
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // Memoizing the debounced handler, with these dependencies, is intended.
+  // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/use-memo
   const onMapClick = useCallback(debounce((event) => {
     event.preventDefault();
     event.originalEvent.stopPropagation();

@@ -1,4 +1,4 @@
-@import '../../../../common/styles/vars/colors';
+@use '../../../../common/styles/vars/colors';
 
 .sectionHeader {
   display: flex;
@@ -17,7 +17,7 @@
     }
   
     svg {
-      color: $secondary-medium-gray;
+      color: colors.$secondary-medium-gray;
       width: 1.5rem;
       margin-right: 0.5rem;
     }

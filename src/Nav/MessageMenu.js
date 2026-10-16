@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';

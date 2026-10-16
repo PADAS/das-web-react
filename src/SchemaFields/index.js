@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { canExpand, getInputProps, getTemplate, getUiOptions } from '@rjsf/utils';
 import Form from 'react-bootstrap/Form';
@@ -94,6 +94,8 @@ export const ArrayFieldTemplate = ({
   const descriptionToRender = uiOptions.description?.trim() || schema.description?.trim();
 
   return <div className={styles.arrayFieldTemplate}>
+    {/* Creating this component during render is intended. */}
+    {/* eslint-disable-next-line react-hooks/static-components */}
     {titleToRender && <ArrayFieldTitleTemplate
       fieldPathId={fieldPathId}
       registry={registry}
@@ -103,6 +105,8 @@ export const ArrayFieldTemplate = ({
       uiSchema={uiSchema}
     />}
 
+    {/* Creating this component during render is intended. */}
+    {/* eslint-disable-next-line react-hooks/static-components */}
     {descriptionToRender && <ArrayFieldDescriptionTemplate
       description={descriptionToRender}
       fieldPathId={fieldPathId}
@@ -534,6 +538,8 @@ export const ObjectFieldTemplate = (props) => {
   const descriptionToRender = uiOptions.description?.trim() || description?.trim();
 
   return <>
+    {/* Creating this component during render is intended. */}
+    {/* eslint-disable-next-line react-hooks/static-components */}
     {titleToRender && <TitleFieldTemplate
       id={`${fieldId}-title`}
       registry={registry}
@@ -543,6 +549,8 @@ export const ObjectFieldTemplate = (props) => {
       uiSchema={uiSchema}
     />}
 
+    {/* Creating this component during render is intended. */}
+    {/* eslint-disable-next-line react-hooks/static-components */}
     {descriptionToRender && <DescriptionFieldTemplate
       description={descriptionToRender}
       id={`${fieldId}-description`}

@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { format } from 'date-fns';
 
 import { DATE_TIME_ELEMENT_INPUT_TYPES } from '../../../utils/form-schemas/constants';

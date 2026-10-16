@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { isCancel } from 'axios';
 import { useDispatch } from 'react-redux';
 

@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { InputGroup } from 'react-bootstrap';
 
 import * as styles from './styles.module.scss';

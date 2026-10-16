@@ -24,7 +24,7 @@ export const validateEventPolygonPoints = (points) => {
   // first see if turf accepts it as a polygon
   try {
     shape = polygon([points]);
-  } catch (e) {
+  } catch {
     return false;
   }
 

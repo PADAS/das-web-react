@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { differenceInCalendarDays } from 'date-fns';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -8,7 +8,7 @@ import { getMapEventSymbolPointsWithVirtualDate } from '../selectors/events';
 import HeatmapLegend from '../HeatmapLegend';
 
 const ReportsHeatmapLegend = ({ onClose }) => {
-  const { t } = useTranslation('heatmap', { keyPrefix: 'reportsHeatmapLegend' });
+  const { t } = useTranslation('heatmap', { keyPrefix: 'reportsHeatmapLegend' });
 
   const eventFilter = useSelector((state) => state.data.eventFilter);
   const reports = useSelector(getMapEventSymbolPointsWithVirtualDate);

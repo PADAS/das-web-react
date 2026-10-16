@@ -1,4 +1,4 @@
-import React, { memo, useContext } from 'react';
+import { memo, useContext } from 'react';
 import { useDispatch } from 'react-redux';
 import { center, bboxPolygon } from '@turf/turf';
 
@@ -82,6 +82,8 @@ const FeatureListItem = memo((props) => {
   </span>;
 
 });
+
+FeatureListItem.displayName = 'FeatureListItem';
 
 export default FeatureListItem;
 

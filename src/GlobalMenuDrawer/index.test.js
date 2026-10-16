@@ -1,9 +1,8 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { addModal } from '../ducks/modals';
-import { createQuerySelectorMockImplementationWithHelpButtonReference } from '../JiraSupportWidget/index.test';
+import { createQuerySelectorMockImplementationWithHelpButtonReference } from '../__test-helpers/jiraSupportWidget';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 import GlobalMenuDrawer from '.';
@@ -120,6 +119,21 @@ describe('GlobalMenuDrawer', () => {
     renderGlobalMenuDrawer();
 
     expect(screen.queryByRole('link', { name: 'Patrols' })).toBeNull();
+  });
+
+  test('shows the Otus link in small screens when an Otus URL is configured', async () => {
+    useMatchMedia.mockImplementation(() => false);
+    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+    renderGlobalMenuDrawer();
+
+    expect(within(screen.getByRole('navigation')).getByRole('link', { name: 'Otus' })).toBeVisible();
+  });
+
+  test('does not show the Otus link in small screens when there is no Otus URL', async () => {
+    useMatchMedia.mockImplementation(() => false);
+    renderGlobalMenuDrawer();
+
+    expect(screen.queryByRole('link', { name: 'Otus' })).not.toBeInTheDocument();
   });
 
   test('does not show the Events link if events are not enabled', async () => {

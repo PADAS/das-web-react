@@ -1,14 +1,14 @@
-@import '../common/styles/animations';
-@import '../common/styles/vars/colors';
+@use '../common/styles/animations';
+@use '../common/styles/vars/colors';
 
 .alert {
-  @include fade-in;
+  @include animations.fade-in;
 
-  padding: 0.5rem 0.5rem 0rem !important;
+  padding: 0.5rem 0.5rem 0 !important;
   border-radius: 0 !important;
-  background-color: rgba(253, 242, 244, 0.95);
-  box-shadow: rgba(0, 0, 0, 0.45) 0rem 1.5rem 1.2rem -1.2rem;
-  color: $bright-red;
+  background-color: rgb(253 242 244 / 95%);
+  box-shadow: rgb(0 0 0 / 45%) 0 1.5rem 1.2rem -1.2rem;
+  color: colors.$bright-red;
   font-weight: 500;
   position: absolute !important;
   width: 100%;
@@ -26,16 +26,16 @@
 .alertLink {
   padding-bottom: 1rem;
 
-  [class*=accordion-button] {
+  [class*="accordion-button"] {
     display: inline;
-    color: $bright-red !important;
+    color: colors.$bright-red !important;
+    padding: 0;
     padding-top: 0.22rem !important;
     text-decoration: underline !important;
     background: transparent;
-    padding: 0;
     
     &:hover {
-      color: $bright-red !important;
+      color: colors.$bright-red !important;
     }
   }
 }

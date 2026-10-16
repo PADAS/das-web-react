@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useSearchParams } from 'react-router';
@@ -125,9 +125,13 @@ const PatrolDetailView = () => {
   const patrolStartTime = useMemo(() => patrolForm ? actualStartTimeForPatrol(patrolForm) : null, [patrolForm]);
 
   const patrolAttachments = useMemo(
+    // Only the React Compiler needs these dependencies to line up.
+    // eslint-disable-next-line react-hooks/preserve-manual-memoization
     () => Array.isArray(patrolForm?.files) ? patrolForm.files : [],
     [patrolForm?.files]
   );
+  // Only the React Compiler needs these dependencies to line up.
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const patrolNotes = useMemo(() => Array.isArray(patrolForm?.notes) ? [...patrolForm.notes] : [], [patrolForm?.notes]);
 
   const patrolChanges = useMemo(() => {
@@ -202,7 +206,7 @@ const PatrolDetailView = () => {
     }
 
     ['start_location', 'end_location'].forEach((prop) => {
-      if (patrolToSubmit.hasOwnProperty(prop) && !patrolToSubmit[prop]) {
+      if (Object.hasOwn(patrolToSubmit, prop) && !patrolToSubmit[prop]) {
         patrolToSubmit[prop] = null;
       }
     });
@@ -286,7 +290,7 @@ const PatrolDetailView = () => {
       leader: selection || null,
     };
     if (isNewPatrol && selection) {
-      const [patrolSegment] = patrolForm?.patrol_segments;
+      const [patrolSegment] = patrolForm.patrol_segments;
       const { start_location, time_range } = patrolSegment;
       const trackedSubjectLocation = selection?.last_position?.geometry?.coordinates;
       const trackedSubjectLocationTime = selection?.last_position?.properties?.coordinateProperties?.time;
@@ -312,7 +316,7 @@ const PatrolDetailView = () => {
           ...patrolForm?.patrol_segments[0],
           ...update,
         },
-        ...patrolForm?.patrol_segments.slice(1),
+        ...patrolForm.patrol_segments.slice(1),
       ],
     });
 
@@ -458,12 +462,16 @@ const PatrolDetailView = () => {
 
   useEffect(() => {
     if (patrol) {
+      // Updating state from this effect is intended.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPatrolForm({ ...patrol });
     }
   }, [leader, patrol]);
 
   useEffect(() => {
     if (isNewPatrol || patrolStore[patrolId]) {
+      // Updating state from this effect is intended.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsLoadingPatrol(false);
     }
   }, [isNewPatrol, patrolId, patrolStore]);
@@ -483,6 +491,8 @@ const PatrolDetailView = () => {
 
   useEffect(() => {
     if (!isNewPatrol && !patrolStore[patrolId]) {
+      // Updating state from this effect is intended.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsLoadingPatrol(true);
       dispatch(fetchPatrol(patrolId))
         .then(() => setIsLoadingPatrol(false))

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { addMinutes, differenceInMilliseconds } from 'date-fns';
 import Popover from 'react-bootstrap/Popover';
 import { useTranslation } from 'react-i18next';
@@ -212,6 +212,8 @@ const OptionsPopover = ({
   }, []);
 
   useEffect(() => {
+    // Updating state from this effect is intended.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedOptionIndex(indexOfOptionClosestToInputTime);
   }, [indexOfOptionClosestToInputTime]);
 

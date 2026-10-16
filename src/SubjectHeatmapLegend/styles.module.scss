@@ -1,4 +1,4 @@
-@import '../common/styles/buttons';
+@use '../common/styles/buttons';
 
 .icon {
   margin-left: 0.25rem;
@@ -7,7 +7,7 @@
 }
 
 .infoButton {
-  @include unstyledButton;
+  @include buttons.unstyled-button;
 }
 
 .infoIcon {
@@ -17,6 +17,7 @@
 
 .popover {
   width: 14rem;
+
   ul {
     list-style-type: none;
     margin: 0;
@@ -25,23 +26,28 @@
     padding: 0.5rem;
     width: 100%;
   } 
+
   li {
     align-items: center;
     display: flex;
     justify-content: flex-start;
     line-height: normal;
+
     span, small {
       display: block;
     }
+
     + li {
       margin-top: 0.5rem;
     }
   }
+
   img {
     max-height: 1.5rem;
     margin-right: .25rem;
     max-width: 1.5rem;
   }
+
   button {
     margin-left: auto;
   }

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 import { bbox, lineString } from '@turf/turf';
 import userEvent from '@testing-library/user-event';
@@ -21,11 +20,11 @@ const map = createMapMock({ fitBounds: jest.fn() });
 const onLocationClick = jest.fn();
 
 test('rendering without crashing', () => {
-  render(<Provider store={store}>
+  expect(() => render(<Provider store={store}>
     <MapContext.Provider value={map}>
       <PatrolTrackControls patrol={activePatrol} onLocationClick={onLocationClick}/>
     </MapContext.Provider>
-  </Provider>);
+  </Provider>)).not.toThrow();
 });
 
 
@@ -83,11 +82,11 @@ describe('patrols with leader, location and track data', () => {
   });
 
   test('showing a location jump button if the patrol has any location data', async () => {
-    await screen.findByTestId(`patrol-list-item-jump-btn-${testPatrol.id}`);
+    expect(await screen.findByTestId(`patrol-list-item-jump-btn-${testPatrol.id}`)).toBeInTheDocument();
   });
 
   test('showing a track button if the patrol has track data', async () => {
-    await screen.findByTestId(`patrol-list-item-track-btn-${testPatrol.id}`);
+    expect(await screen.findByTestId(`patrol-list-item-track-btn-${testPatrol.id}`)).toBeInTheDocument();
   });
 });
 
@@ -146,7 +145,7 @@ describe('patrols WITHOUT leader', () => {
   });
 
   test('showing a location jump button because patrol has location data', async () => {
-    await screen.findByTestId(`patrol-list-item-jump-btn-${testPatrol.id}`);
+    expect(await screen.findByTestId(`patrol-list-item-jump-btn-${testPatrol.id}`)).toBeInTheDocument();
   });
 
   test('NOT showing a track jump button even if the patrol has track data but there is no leader', () => {

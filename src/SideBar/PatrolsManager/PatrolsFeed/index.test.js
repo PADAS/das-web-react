@@ -1,4 +1,3 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw/http';
