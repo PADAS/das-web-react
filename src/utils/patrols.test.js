@@ -687,6 +687,166 @@ describe('Patrols utils', () => {
         .toEqual({ end_time: endTime, start_time: NOW });
     });
 
+    test('drops the planned end a single leg started late has already passed', () => {
+      const patrol = {
+        patrol_segments: [{
+          id: 'leg-1',
+          scheduled_end: subHours(new Date(), 1).toISOString(),
+          scheduled_start: subHours(new Date(), 3).toISOString(),
+          time_range: { end_time: null, start_time: null },
+        }],
+        state: 'open',
+      };
+
+      expect(buildPatrolStartUpdate(patrol).patrol_segments).toEqual([{
+        id: 'leg-1',
+        scheduled_end: null,
+        time_range: { end_time: null, start_time: NOW },
+      }]);
+    });
+
+    test('keeps the planned end a single leg has not reached yet', () => {
+      const patrol = {
+        patrol_segments: [{
+          id: 'leg-1',
+          scheduled_end: addHours(new Date(), 1).toISOString(),
+          scheduled_start: subHours(new Date(), 1).toISOString(),
+          time_range: { end_time: null, start_time: null },
+        }],
+        state: 'open',
+      };
+
+      expect(buildPatrolStartUpdate(patrol).patrol_segments).toEqual([{
+        id: 'leg-1',
+        time_range: { end_time: null, start_time: NOW },
+      }]);
+    });
+
+    test('ends the first leg where the next one begins when started before its planned end', () => {
+      const nextStartTime = addHours(new Date(), 1).toISOString();
+      const patrol = {
+        patrol_segments: [
+          {
+            id: 'leg-1',
+            scheduled_end: nextStartTime,
+            scheduled_start: subHours(new Date(), 1).toISOString(),
+            time_range: {},
+          },
+          { id: 'leg-2', time_range: { end_time: null, start_time: nextStartTime } },
+        ],
+        state: 'open',
+      };
+
+      expect(buildPatrolStartUpdate(patrol).patrol_segments).toEqual([{
+        id: 'leg-1',
+        time_range: { end_time: nextStartTime, start_time: NOW },
+      }]);
+    });
+
+    test('runs the first leg to its plan when started in the gap after its planned end', () => {
+      const scheduledEnd = subHours(new Date(), 1).toISOString();
+      const scheduledStart = subHours(new Date(), 3).toISOString();
+      const patrol = {
+        patrol_segments: [
+          { id: 'leg-1', scheduled_end: scheduledEnd, scheduled_start: scheduledStart, time_range: {} },
+          { id: 'leg-2', time_range: { end_time: null, start_time: addHours(new Date(), 1).toISOString() } },
+        ],
+        state: 'open',
+      };
+
+      expect(buildPatrolStartUpdate(patrol).patrol_segments).toEqual([{
+        id: 'leg-1',
+        scheduled_end: null,
+        scheduled_start: null,
+        time_range: { end_time: scheduledEnd, start_time: scheduledStart },
+      }]);
+    });
+
+    test('ends the first leg where it planned to rather than at the next one when there is a gap', () => {
+      const scheduledEnd = addHours(new Date(), 1).toISOString();
+      const patrol = {
+        patrol_segments: [
+          {
+            id: 'leg-1',
+            scheduled_end: scheduledEnd,
+            scheduled_start: subHours(new Date(), 1).toISOString(),
+            time_range: {},
+          },
+          { id: 'leg-2', time_range: { end_time: null, start_time: addHours(new Date(), 2).toISOString() } },
+        ],
+        state: 'open',
+      };
+
+      expect(buildPatrolStartUpdate(patrol).patrol_segments[0].time_range)
+        .toEqual({ end_time: scheduledEnd, start_time: NOW });
+    });
+
+    test('ends the first leg where the next one begins when it has no planned end', () => {
+      const nextStartTime = addHours(new Date(), 1).toISOString();
+      const patrol = {
+        patrol_segments: [
+          { id: 'leg-1', scheduled_start: subHours(new Date(), 1).toISOString(), time_range: {} },
+          { id: 'leg-2', time_range: { end_time: null, start_time: nextStartTime } },
+        ],
+        state: 'open',
+      };
+
+      expect(buildPatrolStartUpdate(patrol).patrol_segments[0].time_range)
+        .toEqual({ end_time: nextStartTime, start_time: NOW });
+    });
+
+    test('ends a first leg run to a plan with no end where the next one began', () => {
+      const nextStartTime = subHours(new Date(), 1).toISOString();
+      const scheduledStart = subHours(new Date(), 3).toISOString();
+      const patrol = {
+        patrol_segments: [
+          { id: 'leg-1', scheduled_start: scheduledStart, time_range: {} },
+          { id: 'leg-2', time_range: { end_time: null, start_time: nextStartTime } },
+        ],
+        state: 'open',
+      };
+
+      expect(buildPatrolStartUpdate(patrol).patrol_segments[0].time_range)
+        .toEqual({ end_time: nextStartTime, start_time: scheduledStart });
+    });
+
+    test('keeps an end the first leg ends itself at ahead of the next leg', () => {
+      const endTime = addHours(new Date(), 1).toISOString();
+      const patrol = {
+        patrol_segments: [
+          { id: 'leg-1', scheduled_start: subHours(new Date(), 1).toISOString(), time_range: { end_time: endTime } },
+          { id: 'leg-2', time_range: { end_time: null, start_time: addHours(new Date(), 2).toISOString() } },
+        ],
+        state: 'open',
+      };
+
+      expect(buildPatrolStartUpdate(patrol).patrol_segments[0].time_range)
+        .toEqual({ end_time: endTime, start_time: NOW });
+    });
+
+    test('leaves the first leg out of the end of a patrol the next leg took over', () => {
+      const nextStartTime = addHours(new Date(), 1).toISOString();
+      const patrol = {
+        patrol_segments: [
+          {
+            id: 'leg-1',
+            scheduled_end: nextStartTime,
+            scheduled_start: subHours(new Date(), 1).toISOString(),
+            time_range: {},
+          },
+          { id: 'leg-2', time_range: { end_time: null, start_time: nextStartTime } },
+        ],
+        state: 'open',
+      };
+
+      const startedPatrol = patrolWithUpdateApplied(patrol, buildPatrolStartUpdate(patrol));
+
+      jest.setSystemTime(addHours(new Date(), 2));
+
+      expect(buildPatrolEndUpdate(startedPatrol).patrol_segments.map((patrolSegment) => patrolSegment.id))
+        .toEqual(['leg-2']);
+    });
+
     test('runs the first leg to the plan it was given once a later leg has begun without it', () => {
       const scheduledStart = subHours(new Date(), 5).toISOString();
       const scheduledEnd = subHours(new Date(), 2).toISOString();

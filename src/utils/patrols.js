@@ -977,16 +977,38 @@ export const buildPatrolReopenUpdate = (patrol) => {
   };
 };
 
-// A leg starting now drops an end already behind it, which a close stamped on
-// it rather than the plan; one still ahead is the plan and stands.
-const withPatrolSegmentStartedNow = (patrolSegment) => withPatrolSegmentTimeRange(patrolSegment, {
-  ...(isSegmentFinished(patrolSegment) ? { end_time: null } : {}),
-  start_time: new Date().toISOString(),
-});
+// A leg starting now drops any end already behind it, and an end still ahead
+// is the plan and stands.
+const withPatrolSegmentStartedNow = (patrolSegment, nextPatrolSegment) => {
+  const startTime = new Date();
 
-// A leg reached only after its successor began cannot have started now, and
-// nothing records that it was skipped, so its plan stands as what it ran.
-const withPatrolSegmentRunAsPlanned = (patrolSegment) => {
+  const scheduledEndTime = scheduledEndTimeForPatrolSegment(patrolSegment);
+
+  const hasEndAhead = !!patrolSegment.time_range?.end_time && !isSegmentFinished(patrolSegment);
+  const hasScheduledEndAhead = !!scheduledEndTime && scheduledEndTime > startTime;
+
+  const nextStartTime = nextPatrolSegment ? displayStartTimeForPatrolSegment(nextPatrolSegment) : null;
+
+  // Nothing closes an open leg when the next one begins, and ending the patrol
+  // would then stamp both with one end, so a followed leg is given one.
+  const followedLegEndTime = hasScheduledEndAhead
+    ? patrolSegment.scheduled_end
+    : (!!nextStartTime && nextStartTime > startTime ? nextStartTime.toISOString() : null);
+
+  return {
+    id: patrolSegment.id,
+    ...(scheduledEndTime && !hasScheduledEndAhead ? { scheduled_end: null } : {}),
+    time_range: {
+      end_time: hasEndAhead ? patrolSegment.time_range.end_time : (nextPatrolSegment ? followedLegEndTime : null),
+      start_time: startTime.toISOString(),
+    },
+  };
+};
+
+// A followed leg whose plan is over cannot start now, and nothing records that
+// it was skipped, so its plan stands as what it ran.
+const withPatrolSegmentRunAsPlanned = (patrolSegment, nextPatrolSegment) => {
+  const nextStartTime = displayStartTimeForPatrolSegment(nextPatrolSegment);
   const scheduledEnd = scheduledEndTimeForPatrolSegment(patrolSegment);
   const hasScheduledEndPassed = !!scheduledEnd && scheduledEnd.getTime() < Date.now();
 
@@ -995,7 +1017,10 @@ const withPatrolSegmentRunAsPlanned = (patrolSegment) => {
     scheduled_end: hasScheduledEndPassed ? null : patrolSegment.scheduled_end,
     scheduled_start: null,
     time_range: {
-      end_time: hasScheduledEndPassed ? patrolSegment.scheduled_end : patrolSegment.time_range?.end_time ?? null,
+      // A leg with no end of its own would stay open beside the next one.
+      end_time: hasScheduledEndPassed
+        ? patrolSegment.scheduled_end
+        : patrolSegment.time_range?.end_time ?? nextStartTime?.toISOString() ?? null,
       start_time: patrolSegment.scheduled_start,
     },
   };
@@ -1039,16 +1064,21 @@ export const buildPatrolResumeUpdate = (patrol) => buildPatrolContinuationUpdate
 export const buildPatrolStartUpdate = (patrol) => {
   const [firstSegment] = patrol.patrol_segments;
 
-  // Legs are ordered by their start, so a first leg beginning now would sort
-  // behind any leg that has already begun by itself.
-  const hasFirstSegmentBeenOvertaken = !!firstSegment?.scheduled_start
-    && patrol.patrol_segments.slice(1).some((patrolSegment) => !isSegmentPending(patrolSegment));
+  const nextSegment = patrol.patrol_segments[1] ?? null;
+
+  // Once the first leg's plan is over, starting it now would shift it onto the
+  // legs after it, which keep the times they were planned for.
+  const firstSegmentEndTime = firstSegment ? displayEndTimeForPatrolSegment(firstSegment) : null;
+  const hasFirstSegmentPlanPassed = !!firstSegment?.scheduled_start && !!nextSegment && (
+    (!!firstSegmentEndTime && firstSegmentEndTime.getTime() <= Date.now())
+    || patrol.patrol_segments.slice(1).some((patrolSegment) => !isSegmentPending(patrolSegment))
+  );
 
   return {
     ...withPatrolSegmentUpdates(firstSegment
-      ? [hasFirstSegmentBeenOvertaken
-        ? withPatrolSegmentRunAsPlanned(firstSegment)
-        : withPatrolSegmentStartedNow(firstSegment)]
+      ? [hasFirstSegmentPlanPassed
+        ? withPatrolSegmentRunAsPlanned(firstSegment, nextSegment)
+        : withPatrolSegmentStartedNow(firstSegment, nextSegment)]
       : []),
     state: PATROL_API_STATES.OPEN,
   };

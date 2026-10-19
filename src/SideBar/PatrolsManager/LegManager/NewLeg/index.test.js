@@ -271,6 +271,7 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
       expect(updatePatrol).not.toHaveBeenCalled();
       expect(screen.getByText('A leg needs a start time.')).toBeVisible();
       expect(screen.getByRole('group', { name: 'Start time' })).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.getByRole('group', { name: 'Start date' })).toHaveAttribute('aria-invalid', 'false');
     });
 
     test('does not add the leg when a start typed on another day lands before the previous end', async () => {
@@ -288,6 +289,7 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
       expect(updatePatrol).not.toHaveBeenCalled();
       expect(screen.getByText('This leg cannot overlap the previous one.')).toBeVisible();
       expect(screen.getByRole('group', { name: 'Start date' })).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.getByRole('group', { name: 'Start time' })).toHaveAttribute('aria-invalid', 'true');
     });
 
     test('ends the previous leg where the new one begins when it carries no end', async () => {
@@ -305,6 +307,40 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
         .toBe(new Date(2026, 3, 13, 12, 0).toISOString());
       expect(patrolUpdate.patrol_segments[1].time_range.start_time)
         .toBe(new Date(2026, 3, 13, 12, 0).toISOString());
+    });
+
+    test('does not add the leg when it starts the same minute the running previous leg started on', async () => {
+      jest.setSystemTime(new Date(2026, 3, 13, 12, 0, 10));
+      patrol.patrol_segments[0].scheduled_end = null;
+      patrol.patrol_segments[0].time_range.start_time = new Date(2026, 3, 13, 12, 0).toISOString();
+
+      const { user } = renderNewLeg();
+
+      await clickSave(user);
+
+      expect(updatePatrol).not.toHaveBeenCalled();
+      expect(screen.getByText('This leg cannot start at the same time as the previous one.')).toBeVisible();
+      expect(screen.getByRole('group', { name: 'Start date' })).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.getByRole('group', { name: 'Start time' })).toHaveAttribute('aria-invalid', 'true');
+    });
+
+    test('does not add the leg when its end matches its start', async () => {
+      const { user } = renderNewLeg();
+
+      await user.type(getDateInput('End date', 'Year'), '2026');
+      await user.type(getDateInput('End date', 'Month'), '04');
+      await user.type(getDateInput('End date', 'Day'), '13');
+      await user.type(getDateInput('End time', 'Hour'), '10');
+      await user.type(getDateInput('End time', 'Minute'), '00');
+      await user.type(getDateInput('End time', 'Time period'), 'AM');
+
+      await clickSave(user);
+
+      expect(updatePatrol).not.toHaveBeenCalled();
+      expect(screen.getByText('The end of the leg must be later than its start.')).toBeVisible();
+      expect(screen.getByRole('group', { name: 'End date' })).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.getByRole('group', { name: 'End time' })).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.getByRole('group', { name: 'Start time' })).toHaveAttribute('aria-invalid', 'false');
     });
 
     test('shows an error message when the leg cannot be added', async () => {

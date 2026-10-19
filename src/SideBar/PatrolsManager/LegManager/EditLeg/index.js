@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useId, useState } from 'react';
 import isEqual from 'react-fast-compare';
-import { isSameMinute } from 'date-fns';
 import { omit, pickBy, uniq } from 'lodash-es';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
@@ -12,6 +11,7 @@ import buildLegSegment from '../../LegForm/utils/buildLegSegment';
 import {
   canEditPatrolSegment,
   displayNumberForPatrolSegment,
+  displayStartTimeForPatrolSegment,
   earliestStartForEditedPatrolSegment,
   isPatrolSegmentAPause,
   latestEndForEditedPatrolSegment,
@@ -19,6 +19,7 @@ import {
 import { EDIT_LEG_CATEGORY, TrackerContext, trackEventFactory } from '../../../../utils/analytics';
 import { selectPatrolRosterFallbackSubjects } from '../../../../selectors/patrols';
 import { TAB_KEYS } from '../../../../constants';
+import timeKeepingItsSeconds from '../../utils/timeKeepingItsSeconds';
 import { updatePatrol } from '../../../../ducks/patrols';
 import useNavigate from '../../../../hooks/useNavigate';
 import { usePatrolsPermissions } from '../../../../hooks/usePermissions';
@@ -33,14 +34,6 @@ import NavigationPromptModal from '../../../../NavigationPromptModal';
 import * as styles from './styles.module.scss';
 
 const editLegTracker = trackEventFactory(EDIT_LEG_CATEGORY);
-
-// The form reads and writes whole minutes, so a time it hands back on the same
-// minute the leg was stamped on is that stamp, and goes back with its seconds.
-const timeKeepingItsSeconds = (time, storedTime) => {
-  const isStillTheStoredTime = !!time && !!storedTime && isSameMinute(new Date(time), new Date(storedTime));
-
-  return isStillTheStoredTime ? storedTime : time;
-};
 
 const segmentKeepingItsSeconds = (segment, storedSegment) => ({
   ...segment,
@@ -124,6 +117,11 @@ const EditLegContent = ({ patrol, patrolSegment }) => {
   const earliestStartDateTime = earliestStartForEditedPatrolSegment(patrolSegment, previousPatrolSegment);
   const latestEndDateTime = latestEndForEditedPatrolSegment(patrolSegment, nextPatrolSegment);
 
+  const nextLegStartDateTime = nextPatrolSegment ? displayStartTimeForPatrolSegment(nextPatrolSegment) : null;
+  const previousLegStartDateTime = previousPatrolSegment
+    ? displayStartTimeForPatrolSegment(previousPatrolSegment)
+    : null;
+
   const onChangeLeg = useCallback((legChanges, { isDefaultData = false } = {}) => {
     // A schema form populates its defaults before the user can touch it, so
     // they belong to the leg as handed over: those of a picked type do not.
@@ -205,14 +203,17 @@ const EditLegContent = ({ patrol, patrolSegment }) => {
       <div className={styles.body}>
         <LegForm
           earliestStartDateTime={earliestStartDateTime}
+          editedPatrolSegment={patrolSegment}
           formId={legFormId}
           isFirstLeg={isFirstLeg}
           isPause={isPause}
           latestEndDateTime={latestEndDateTime}
           leg={leg}
+          nextLegStartDateTime={nextLegStartDateTime}
           onChangeLeg={onChangeLeg}
           onSubmit={onSubmit}
           patrolId={patrol.id}
+          previousLegStartDateTime={previousLegStartDateTime}
         />
       </div>
 
