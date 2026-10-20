@@ -291,14 +291,15 @@
       "activityEmptyStateMessage": "Shughuli za doria zitaonekana hapa",
       "legEndedTitle": "Kipande {{legNumber}} kimekamilika",
       "legs": {
-        "endColumnHeader": "Tarehe ya mwisho",
+        "durationLabel": "Muda",
         "legActionsColumnHeader": "Vitendo",
         "legColumnHeader": "Kipande",
         "legDidNotRunLabel": "Kipande hiki hakikuwahi kuendeshwa",
         "legTableCaption": "Vipande vya doria",
         "newLegButton": "Kipande kipya cha doria",
         "patrolTypeColumnHeader": "Aina ya doria",
-        "startColumnHeader": "Tarehe ya kuanza",
+        "scheduledIndicator": "Imepangwa",
+        "startAndEndColumnHeader": "Mwanzo na mwisho",
         "teamAndTracking": {
           "jumpToLocationButtonLabel": "Ruka kwenye eneo la {{subject}}",
           "listLabel": "Wahusika wanaofuatiliwa na kipande {{number}}",

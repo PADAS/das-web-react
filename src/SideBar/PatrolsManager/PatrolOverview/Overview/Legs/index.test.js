@@ -102,8 +102,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
     expect(screen.getByText('Patrol legs')).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: 'Leg' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: 'Patrol Type' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: 'Start Date' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: 'End Date' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Start & End' })).toHaveAttribute('colspan', '3');
     expect(screen.getByRole('columnheader', { name: 'Team & Tracking' })).toBeInTheDocument();
   });
 
@@ -152,14 +151,15 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
     expect(within(legTwoRow).getByText('2')).toBeInTheDocument();
   });
 
-  test('spans the paused chip of a pause over the leg and patrol type columns', () => {
+  test('shows the paused chip of a pause in the patrol type column', () => {
     const pause = { ...legOne, id: 'pause-1', is_pause: true };
 
     renderLegs({ patrol: { ...patrol, patrol_segments: [legOne, pause, legTwo] } });
 
     const [, , pauseRow] = getRows();
 
-    expect(within(pauseRow).getByText('Paused').closest('td')).toHaveAttribute('colspan', '2');
+    expect(within(pauseRow).getAllByRole('cell')[1]).toHaveTextContent('Paused');
+    expect(within(pauseRow).getAllByRole('cell')[0]).not.toHaveTextContent('Paused');
   });
 
   test('leaves a pause without the team and the map actions of a leg that ran', () => {
@@ -180,6 +180,59 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
 
     expect(within(legOneRow).getByText('Routine Patrol')).toBeInTheDocument();
     expect(within(legTwoRow).getByText('Dog Patrol')).toBeInTheDocument();
+  });
+
+  test('shows the state of each leg below its patrol type', () => {
+    renderLegs();
+
+    const [, legOneRow, legTwoRow] = getRows();
+
+    expect(within(legOneRow).getAllByRole('cell')[1]).toHaveTextContent('Routine PatrolDone');
+    expect(within(legTwoRow).getAllByRole('cell')[1]).toHaveTextContent('Dog PatrolActive');
+  });
+
+  test('shows how long a leg that ran took instead of its scheduled chips', () => {
+    renderLegs();
+
+    const [, legOneRow] = getRows();
+
+    expect(within(legOneRow).getAllByRole('cell')[2]).toHaveTextContent('Duration 1h');
+    expect(within(legOneRow).queryByText('Scheduled')).not.toBeInTheDocument();
+  });
+
+  test('shows no duration on a leg that is still running', () => {
+    renderLegs();
+
+    const [, , legTwoRow] = getRows();
+
+    expect(within(legTwoRow).queryByText('Duration')).not.toBeInTheDocument();
+  });
+
+  test('marks the planned start and end of a leg the patrol has yet to run as scheduled', () => {
+    const plannedLeg = {
+      ...legTwo,
+      scheduled_end: '2099-04-20T10:00:00.000Z',
+      scheduled_start: '2099-04-20T08:00:00.000Z',
+      time_range: {},
+    };
+
+    renderLegs({ patrol: { ...patrol, patrol_segments: [legOne, plannedLeg] } });
+
+    const [, , legTwoRow] = getRows();
+
+    expect(within(legTwoRow).getAllByRole('cell')[2]).toHaveTextContent('Scheduled');
+    expect(within(legTwoRow).getAllByRole('cell')[4]).toHaveTextContent('Scheduled');
+  });
+
+  test('marks only the planned end of a running leg as scheduled', () => {
+    const runningLeg = { ...legTwo, scheduled_end: '2099-04-20T10:00:00.000Z' };
+
+    renderLegs({ patrol: { ...patrol, patrol_segments: [legOne, runningLeg] } });
+
+    const [, , legTwoRow] = getRows();
+
+    expect(within(legTwoRow).getAllByRole('cell')[2]).not.toHaveTextContent('Scheduled');
+    expect(within(legTwoRow).getAllByRole('cell')[4]).toHaveTextContent('Scheduled');
   });
 
   test('shows the leg start date', () => {
@@ -204,13 +257,40 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
     expect(within(legOneRow).getByText(format(legOneEnd, SIMPLIFIED_DATE_FORMAT))).toBeInTheDocument();
   });
 
-  test('shows a dash instead of an empty date on the leg that is still running', () => {
+  test('leaves the end and the dash before it blank on a leg with no end', () => {
     renderLegs();
 
     const [, , legTwoRow] = getRows();
 
-    expect(within(legTwoRow).getAllByRole('cell')[3]).toHaveTextContent('-');
+    expect(within(legTwoRow).getAllByRole('cell')[3]).toBeEmptyDOMElement();
+    expect(within(legTwoRow).getAllByRole('cell')[4]).toBeEmptyDOMElement();
     expect(within(legTwoRow).getAllByRole('time')).toHaveLength(1);
+  });
+
+  test('shows a dash for the missing start of a leg that has an end', () => {
+    const legWithoutStart = { ...legTwo, scheduled_end: '2099-04-20T10:00:00.000Z', scheduled_start: null, time_range: {} };
+
+    renderLegs({ patrol: { ...patrol, patrol_segments: [legOne, legWithoutStart] } });
+
+    const [, , legTwoRow] = getRows();
+    const [, , startCell, separatorCell, endCell] = within(legTwoRow).getAllByRole('cell');
+
+    expect(startCell).toHaveTextContent(/^-$/);
+    expect(separatorCell).toHaveTextContent('-');
+    expect(endCell).toHaveTextContent(format(new Date('2099-04-20T10:00:00.000Z'), STANDARD_DATE_FORMAT));
+  });
+
+  test('shows a single dash on a leg with neither a start nor an end', () => {
+    const legWithoutDates = { ...legTwo, scheduled_end: null, scheduled_start: null, time_range: {} };
+
+    renderLegs({ patrol: { ...patrol, patrol_segments: [legOne, legWithoutDates] } });
+
+    const [, , legTwoRow] = getRows();
+    const [, , startCell, separatorCell, endCell] = within(legTwoRow).getAllByRole('cell');
+
+    expect(startCell).toHaveTextContent(/^-$/);
+    expect(separatorCell).toBeEmptyDOMElement();
+    expect(endCell).toBeEmptyDOMElement();
   });
 
   test('shows the subjects each leg tracks, its lead first', () => {
@@ -233,7 +313,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
 
     const [, legOneRow] = getRows();
 
-    expect(within(legOneRow).getAllByRole('cell')[4]).toHaveTextContent('-');
+    expect(within(legOneRow).getAllByRole('cell')[5]).toHaveTextContent('-');
   });
 
   test('does not navigate to the leg overview when its team and tracking list is opened', async () => {

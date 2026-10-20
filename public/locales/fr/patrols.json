@@ -291,14 +291,15 @@
       "activityEmptyStateMessage": "L'activité de la patrouille apparaîtra ici",
       "legEndedTitle": "Étape {{legNumber}} terminée",
       "legs": {
-        "endColumnHeader": "Date de fin",
+        "durationLabel": "Durée",
         "legActionsColumnHeader": "Actions",
         "legColumnHeader": "Étape",
         "legDidNotRunLabel": "Cette étape n'a jamais eu lieu",
         "legTableCaption": "Étapes de la patrouille",
         "newLegButton": "Nouvelle étape de patrouille",
         "patrolTypeColumnHeader": "Type de patrouille",
-        "startColumnHeader": "Date de début",
+        "scheduledIndicator": "Planifié",
+        "startAndEndColumnHeader": "Début et fin",
         "teamAndTracking": {
           "jumpToLocationButtonLabel": "Aller à l'emplacement de {{subject}}",
           "listLabel": "Sujets suivis par l'étape {{number}}",

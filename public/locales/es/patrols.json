@@ -291,14 +291,15 @@
       "activityEmptyStateMessage": "La actividad de la patrulla aparecerá aquí",
       "legEndedTitle": "Tramo {{legNumber}} finalizado",
       "legs": {
-        "endColumnHeader": "Fecha de finalización",
+        "durationLabel": "Duración",
         "legActionsColumnHeader": "Acciones",
         "legColumnHeader": "Tramo",
         "legDidNotRunLabel": "Este tramo nunca se realizó",
         "legTableCaption": "Tramos de la patrulla",
         "newLegButton": "Nuevo tramo de patrulla",
         "patrolTypeColumnHeader": "Tipo de patrulla",
-        "startColumnHeader": "Fecha de inicio",
+        "scheduledIndicator": "Programado",
+        "startAndEndColumnHeader": "Inicio y fin",
         "teamAndTracking": {
           "jumpToLocationButtonLabel": "Ir a la ubicación de {{subject}}",
           "listLabel": "Sujetos rastreados por el tramo {{number}}",

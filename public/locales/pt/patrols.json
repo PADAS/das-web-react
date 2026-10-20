@@ -291,14 +291,15 @@
       "activityEmptyStateMessage": "A atividade da patrulha aparecerá aqui",
       "legEndedTitle": "Etapa {{legNumber}} encerrada",
       "legs": {
-        "endColumnHeader": "Data da finalização",
+        "durationLabel": "Duração",
         "legActionsColumnHeader": "Ações",
         "legColumnHeader": "Etapa",
         "legDidNotRunLabel": "Esta etapa nunca foi realizada",
         "legTableCaption": "Etapas da patrulha",
         "newLegButton": "Nova etapa de patrulha",
         "patrolTypeColumnHeader": "Tipo de patrulha",
-        "startColumnHeader": "Data de início",
+        "scheduledIndicator": "Programado",
+        "startAndEndColumnHeader": "Início e fim",
         "teamAndTracking": {
           "jumpToLocationButtonLabel": "Ir para a localização de {{subject}}",
           "listLabel": "Sujeitos rastreados pela etapa {{number}}",

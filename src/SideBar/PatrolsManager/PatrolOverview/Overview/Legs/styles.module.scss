@@ -2,6 +2,11 @@
 @use '../../../../../common/styles/vars/colors';
 @use '../../../_shared' as shared;
 
+@mixin fit-content-column {
+  white-space: nowrap;
+  width: 0;
+}
+
 .legTableWrapper {
   margin-bottom: 0.5rem;
   overflow-x: auto;
@@ -26,12 +31,21 @@
 
     th, td {
       border-bottom: 1px solid colors.$light-gray-lines;
+      line-height: 1.25rem;
       padding: 0.5rem;
       text-align: left;
-      vertical-align: middle;
+      vertical-align: top;
 
       @media (max-width: layout.$sm-layout-width-max) {
         white-space: nowrap;
+      }
+    }
+
+    .patrolTypeColumn, .teamColumn {
+      width: 50%;
+
+      @media (min-width: layout.$lg-layout-width-min) {
+        max-width: 0;
       }
     }
 
@@ -59,6 +73,61 @@
         }
       }
 
+      .legNumberColumn {
+        @include fit-content-column;
+      }
+
+      .dateSeparatorColumn {
+        @include fit-content-column;
+
+        padding: 0.5rem 0.375rem;
+        text-align: center;
+      }
+
+      .endColumn {
+        @include fit-content-column;
+
+        padding-left: 0;
+      }
+
+      .primaryLine {
+        display: block;
+      }
+
+      .statePill {
+        display: inline-flex;
+        font-size: 0.75rem;
+        line-height: 1rem;
+        padding: 0.125rem 0.5rem;
+      }
+
+      .startColumn {
+        @include fit-content-column;
+
+        padding-right: 0;
+      }
+
+      .secondaryLine {
+        align-items: center;
+        display: flex;
+        height: 1.25rem;
+        margin-top: 0.25rem;
+
+        .duration {
+          color: colors.$secondary-medium-gray;
+          font-size: 0.75rem;
+        }
+
+        .scheduledIndicator {
+          background: colors.$light-gray-background;
+          border-radius: 0.625rem;
+          color: colors.$secondary-medium-gray;
+          font-size: 0.75rem;
+          line-height: 1rem;
+          padding: 0.125rem 0.375rem;
+        }
+      }
+
       .fullDate {
         @media (max-width: layout.$sm-layout-width-max) {
           display: none;
@@ -66,8 +135,14 @@
       }
 
       .legActionsColumn {
+        @include fit-content-column;
+      }
+
+      .legActions {
+        align-items: center;
         display: flex;
         gap: 0.25rem;
+        height: 1.25rem;
         justify-content: flex-end;
         white-space: nowrap;
 
@@ -87,12 +162,6 @@
         .zoomToLegBoundsButton {
           @include shared.icon-button-small;
         }
-      }
-
-      .pausePill {
-        display: inline-flex;
-        font-size: 0.75rem;
-        padding: 0.125rem 0.5rem;
       }
 
       .simplifiedDate {

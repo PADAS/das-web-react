@@ -291,14 +291,15 @@
       "activityEmptyStateMessage": "Patrol activity will appear here",
       "legEndedTitle": "Leg {{legNumber}} Ended",
       "legs": {
-        "endColumnHeader": "End Date",
+        "durationLabel": "Duration",
         "legActionsColumnHeader": "Actions",
         "legColumnHeader": "Leg",
         "legDidNotRunLabel": "This leg never ran",
         "legTableCaption": "Patrol legs",
         "newLegButton": "New Patrol Leg",
         "patrolTypeColumnHeader": "Patrol Type",
-        "startColumnHeader": "Start Date",
+        "scheduledIndicator": "Scheduled",
+        "startAndEndColumnHeader": "Start & End",
         "teamAndTracking": {
           "jumpToLocationButtonLabel": "Jump to the location of {{subject}}",
           "listLabel": "Subjects tracked by leg {{number}}",

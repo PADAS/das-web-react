@@ -291,14 +291,15 @@
       "activityEmptyStateMessage": "गस्ती गतिविधि यहाँ देखा पर्नेछ",
       "legEndedTitle": "खण्ड {{legNumber}} समाप्त भयो",
       "legs": {
-        "endColumnHeader": "अन्त्य मिति",
+        "durationLabel": "अवधि",
         "legActionsColumnHeader": "कार्यहरू",
         "legColumnHeader": "खण्ड",
         "legDidNotRunLabel": "यो खण्ड कहिल्यै चलेन",
         "legTableCaption": "गस्ती खण्डहरू",
         "newLegButton": "नयाँ गस्ती खण्ड",
         "patrolTypeColumnHeader": "गस्ती प्रकार",
-        "startColumnHeader": "सुरु मिति",
+        "scheduledIndicator": "निर्धारित",
+        "startAndEndColumnHeader": "सुरु र अन्त्य",
         "teamAndTracking": {
           "jumpToLocationButtonLabel": "{{subject}} को स्थानमा जानुहोस्",
           "listLabel": "खण्ड {{number}} द्वारा ट्र्याक गरिएका विषयहरू",
