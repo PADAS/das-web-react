@@ -14,7 +14,7 @@
       "distanceOptionButtonLabel": "Distance covered: {{option}}. Change what the distance covers",
       "durationLabel": "Duration",
       "eventsLabel": "Events",
-      "legLeadOptionDescription": "The total distance covered by each leg's lead, or by the team member or asset that went furthest on a leg with no lead",
+      "legLeadOptionDescription": "Or whoever went the furthest on a leg without a lead",
       "legLeadOptionLabel_one": "Leg lead",
       "legLeadOptionLabel_other": "Leg leads",
       "pausedTimeLabel": "Paused Time",

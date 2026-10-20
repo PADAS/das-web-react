@@ -14,7 +14,7 @@
       "distanceOptionButtonLabel": "तय गरेको दूरी: {{option}}। दूरीले के समेट्छ भन्ने परिवर्तन गर्नुहोस्",
       "durationLabel": "अवधि",
       "eventsLabel": "घटनाहरू",
-      "legLeadOptionDescription": "प्रत्येक खण्डको नेताले वा नेता नभएको खण्डमा सबैभन्दा टाढा पुगेको टोली सदस्य वा उपकरणले तय गरेको कुल दूरी",
+      "legLeadOptionDescription": "वा नेता नभएको खण्डमा सबैभन्दा टाढा पुग्ने",
       "legLeadOptionLabel_one": "खण्ड नेता",
       "legLeadOptionLabel_other": "खण्ड नेताहरू",
       "pausedTimeLabel": "रोकिएको समय",
