@@ -26,8 +26,8 @@ const EMPTY_METADATA = {};
 const SCHEMA_LOADER_SIZE = 40;
 
 const ERRORS_CLEARED_BY_LEG_DRAFT_FIELD = {
-  endDate: ['endDate', 'endDateTime', 'endTime'],
-  endTime: ['endDate', 'endDateTime', 'endTime'],
+  endDate: ['endDateTime', 'endTime'],
+  endTime: ['endDateTime', 'endTime'],
   patrolType: ['patrolType'],
   startDate: ['endDateTime', 'startDate', 'startDateTime'],
   startTime: ['endDateTime', 'startDateTime', 'startTime'],

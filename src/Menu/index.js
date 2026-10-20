@@ -17,7 +17,7 @@ const focusItemNode = (node) => {
 
   focusable?.focus();
 
-  // Returns whether focus actually landed
+  // Returns whether focus actually landed.
   return !!focusable && document.activeElement === focusable;
 };
 
@@ -42,7 +42,7 @@ const Option = ({
   disabled = false,
   onClick,
   ref,
-  ...rest
+  ...otherProps
 }) => {
   const { closeMenu, registerOption } = useContext(MenuContext);
 
@@ -86,16 +86,18 @@ const Option = ({
       role="menuitem"
       tabIndex={-1}
       type={isButton ? 'button' : undefined}
-      {...rest}
+      {...otherProps}
     >
       {children}
     </Component>
   </li>;
 };
 
-const Divider = ({ className = '' }) => (
-  <li aria-orientation="horizontal" className={`${styles.divider} ${className}`} role="separator" />
-);
+const Divider = ({ className = '' }) => <li
+  aria-orientation="horizontal"
+  className={`${styles.divider} ${className}`}
+  role="separator"
+/>;
 
 const Menu = ({
   anchor,
@@ -167,9 +169,7 @@ const Menu = ({
         || option.nodeRef.current.contains(document.activeElement)
     ));
 
-    // Options before the current one, then wrap around to the options after
-    // (and including) it, both walked backwards. When no option is focused start
-    // at the last option.
+    // Walks backwards from the current option, wrapping, or from the last one.
     [...options.slice(0, currentIndex).reverse(), ...options.slice(currentIndex).reverse()]
       .some((option) => focusItemNode(option.nodeRef.current));
   };
@@ -220,6 +220,7 @@ const Menu = ({
     }
   };
 
+  // A menu moved to a new anchor takes focus again, as one opened there would.
   useEffect(() => {
     if (show) {
       if (focusIntent === FOCUS_INTENTS.FIRST_OPTION) {
@@ -230,7 +231,7 @@ const Menu = ({
         listRef.current?.focus({ preventScroll: true });
       }
     }
-  }, [focusFirstOption, focusIntent, focusLastOption, show]);
+  }, [focusFirstOption, focusIntent, focusLastOption, show, target]);
 
   useEffect(() => {
     if (show) {

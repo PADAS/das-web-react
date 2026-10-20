@@ -7,7 +7,7 @@ import { createMapMock } from '../../../../../__test-helpers/mocks';
 import patrolTypes from '../../../../../__test-helpers/fixtures/patrol-types';
 import { multiLegPatrol, patrolTeamAndTrackingOptions } from '../../../../../__test-helpers/fixtures/patrols';
 import { PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS } from '../../../../../constants';
-import { render, screen, within } from '../../../../../test-utils';
+import { act, render, screen, within } from '../../../../../test-utils';
 import { format, STANDARD_DATE_FORMAT } from '../../../../../utils/datetime';
 import { TrackerContext } from '../../../../../utils/analytics';
 import { TRACK_LENGTH_ORIGINS } from '../../../../../ducks/tracks';
@@ -233,6 +233,27 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview - Legs', () => {
 
     expect(within(legTwoRow).getAllByRole('cell')[2]).not.toHaveTextContent('Scheduled');
     expect(within(legTwoRow).getAllByRole('cell')[4]).toHaveTextContent('Scheduled');
+  });
+
+  test('moves the state chips on when the next leg begins by itself', () => {
+    const handoverTime = new Date(Date.now() + 10_000).toISOString();
+    const legOneStartTime = new Date(Date.now() - 3_600_000).toISOString();
+    renderLegs({
+      patrol: {
+        ...patrol,
+        patrol_segments: [
+          { ...legOne, time_range: { end_time: handoverTime, start_time: legOneStartTime } },
+          { ...legTwo, time_range: { end_time: null, start_time: handoverTime } },
+        ],
+      },
+    });
+
+    act(() => jest.advanceTimersByTime(30_000));
+
+    const [, legOneRow, legTwoRow] = getRows();
+
+    expect(within(legOneRow).getAllByRole('cell')[1]).toHaveTextContent('Done');
+    expect(within(legTwoRow).getAllByRole('cell')[1]).toHaveTextContent('Active');
   });
 
   test('shows the leg start date', () => {

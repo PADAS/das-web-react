@@ -1,6 +1,8 @@
 import { useCallback, useImperativeHandle, useRef, useState } from 'react';
 
-import Menu from '../Menu';
+import { FOCUSABLE_SELECTOR } from '../constants';
+
+import Menu, { FOCUS_INTENTS } from '../Menu';
 
 const isPointWithinRect = (point, rect) => point.x >= rect.left
   && point.x <= rect.right
@@ -12,6 +14,10 @@ const ContextMenu = ({ 'aria-label': ariaLabel, children, isLoading = false, ref
 
   const [anchor, setAnchor] = useState(null);
   const [show, setShow] = useState(false);
+
+  // Only the context menu key anchors the menu to an element, and a keyboard
+  // user expects to land on an option.
+  const isOpenedFromKeyboard = anchor instanceof Element;
 
   const hideMenu = useCallback(() => setShow(false), []);
 
@@ -32,19 +38,28 @@ const ContextMenu = ({ 'aria-label': ariaLabel, children, isLoading = false, ref
         // The context menu key reports no pointer over the area that listens.
         const isFromPointer = isPointWithinRect(point, contextMenuEvent.currentTarget.getBoundingClientRect());
 
-        returnFocusRef.current = document.activeElement;
+        const focusedElement = document.activeElement;
+
+        // A click leaves focus on the page, and focus in a menu leaves with it,
+        // so a reopened menu keeps its target and a new one takes the area's.
+        returnFocusRef.current = !!focusedElement
+          && focusedElement !== document.body
+          && !focusedElement.closest('[role="menu"]')
+          ? focusedElement
+          : (show ? returnFocusRef.current : null) ?? contextMenuEvent.currentTarget.querySelector(FOCUSABLE_SELECTOR);
 
         setAnchor(isFromPointer ? point : contextMenuEvent.target);
         setShow(true);
       }
     },
-  }), [isLoading]);
+  }), [isLoading, show]);
 
   // The point it opened at belongs to no element, so it means nothing once
   // anything scrolls.
   return <Menu
     anchor={anchor}
     aria-label={ariaLabel}
+    focusIntent={isOpenedFromKeyboard ? FOCUS_INTENTS.FIRST_OPTION : FOCUS_INTENTS.MENU}
     onClose={closeMenu}
     onHide={hideMenu}
     shouldHideOnScroll

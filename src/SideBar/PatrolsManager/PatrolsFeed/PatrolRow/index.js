@@ -30,7 +30,7 @@ import * as styles from './styles.module.scss';
 
 const { ACTIVE, CANCELLED, DONE, PAUSED, READY_TO_START, SCHEDULED, START_OVERDUE } = PATROL_UI_STATES;
 
-// The title link opens the row's menu too; only buttons keep the browser's.
+// The title link opens the row's menu too; buttons and inputs keep the browser's.
 const CONTEXT_MENU_CONTROL_SELECTOR = 'button, input';
 const ROW_CONTROL_SELECTOR = 'a, button, input';
 

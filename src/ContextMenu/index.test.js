@@ -2,6 +2,7 @@ import userEvent from '@testing-library/user-event';
 
 import { fireEvent, render, screen, waitForElementToBeRemoved } from '../test-utils';
 
+import KebabMenu from '../KebabMenu';
 import Menu from '../Menu';
 
 import ContextMenu from './';
@@ -98,6 +99,75 @@ describe('ContextMenu', () => {
     await userEvent.keyboard('{Escape}');
 
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Focusable target' })).toHaveFocus();
+  });
+
+  test('focuses its first option when the event comes from the context menu key', async () => {
+    renderContextMenu();
+
+    fireEvent.contextMenu(screen.getByRole('button', { name: 'Focusable target' }), { clientX: 500, clientY: 500 });
+
+    expect(await screen.findByRole('menuitem', { name: 'First option' })).toHaveFocus();
+  });
+
+  test('returns focus to a control in the area when the menu opened over no control is closed with Escape', async () => {
+    renderContextMenu();
+
+    await rightClick(screen.getByText('Right click area'));
+    await screen.findByRole('menu');
+
+    await userEvent.keyboard('{Escape}');
+
+    expect(screen.getByRole('button', { name: 'Focusable target' })).toHaveFocus();
+  });
+
+  test('focuses the menu again when the user right clicks the area again', async () => {
+    renderContextMenu();
+
+    await rightClick(screen.getByText('Right click area'));
+    await screen.findByRole('menu');
+    await rightClick(screen.getByText('Right click area'));
+
+    expect(screen.getByRole('menu')).toHaveFocus();
+  });
+
+  test('returns focus to what the user first right clicked when the menu reopened over itself is closed with Escape', async () => {
+    renderContextMenu();
+
+    await rightClick(screen.getByRole('button', { name: 'Focusable target' }));
+    await screen.findByRole('menu');
+    await rightClick(screen.getByText('Right click area'));
+
+    await userEvent.keyboard('{Escape}');
+
+    expect(screen.getByRole('button', { name: 'Focusable target' })).toHaveFocus();
+  });
+
+  test('returns focus to a control in the area when the menu that took over from another is closed with Escape', async () => {
+    const contextMenuRef = { current: null };
+    render(<>
+      <KebabMenu aria-label="Kebab menu">
+        <Menu.Option>Kebab option</Menu.Option>
+      </KebabMenu>
+
+      <div onContextMenu={(event) => contextMenuRef.current.open(event)}>
+        Right click area
+
+        <button type="button">Focusable target</button>
+      </div>
+
+      <ContextMenu aria-label="Options menu" ref={contextMenuRef}>
+        <Menu.Option>First option</Menu.Option>
+      </ContextMenu>
+    </>);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Kebab menu' }));
+    await screen.findByRole('menu', { name: 'Kebab menu' });
+    await rightClick(screen.getByText('Right click area'));
+    await screen.findByRole('menu', { name: 'Options menu' });
+
+    await userEvent.keyboard('{Escape}');
+
     expect(screen.getByRole('button', { name: 'Focusable target' })).toHaveFocus();
   });
 

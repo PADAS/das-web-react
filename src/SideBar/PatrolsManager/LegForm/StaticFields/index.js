@@ -46,7 +46,6 @@ const StaticFields = ({
   useImperativeHandle(ref, () => ({
     focusField: (field) => {
       const fieldRefs = {
-        endDate: endDatePickerRef,
         endDateTime: endDatePickerRef,
         endTime: endTimePickerRef,
         startDate: startDatePickerRef,
@@ -100,8 +99,8 @@ const StaticFields = ({
 
   // A group shows a single message, wherever within it the error belongs, and
   // an error about the moment as a whole marks both of its pickers.
-  const endDateTimeError = errors.endDate ?? errors.endTime ?? errors.endDateTime;
-  const isEndDateInvalid = !!errors.endDate || !!errors.endDateTime;
+  const endDateTimeError = errors.endTime ?? errors.endDateTime;
+  const isEndDateInvalid = !!errors.endDateTime;
   const isEndTimeInvalid = !!errors.endTime || !!errors.endDateTime;
   const isStartDateInvalid = !!errors.startDate || !!errors.startDateTime;
   const isStartTimeInvalid = !!errors.startTime || !!errors.startDateTime;

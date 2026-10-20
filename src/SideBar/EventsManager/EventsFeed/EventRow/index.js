@@ -14,7 +14,7 @@ import Link from '../../../../Link';
 
 import * as styles from './styles.module.scss';
 
-// The title link opens the row's menu too; only buttons keep the browser's.
+// The title link opens the row's menu too; buttons and inputs keep the browser's.
 const CONTEXT_MENU_CONTROL_SELECTOR = 'button, input';
 const ROW_CONTROL_SELECTOR = 'a, button, input';
 

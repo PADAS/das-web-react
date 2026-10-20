@@ -25,6 +25,7 @@ import { EMPTY_VALUE, PATROL_UI_STATES, TAB_KEYS } from '../../../../../constant
 import { format, longTermAbbreviatedDurationHumanizer, STANDARD_DATE_FORMAT } from '../../../../../utils/datetime';
 import { selectPatrolSegmentsTrackData, selectTrackedSubjectsPerPatrolSegment } from '../../../../../selectors/patrols';
 import { TrackerContext } from '../../../../../utils/analytics';
+import useCurrentTime from '../../../../../hooks/useCurrentTime';
 import useJumpToLocation from '../../../../../hooks/useJumpToLocation';
 import useNavigate from '../../../../../hooks/useNavigate';
 import { usePatrolsPermissions } from '../../../../../hooks/usePermissions';
@@ -34,6 +35,12 @@ import StatusPill from '../../../StatusPill';
 import TeamAndTracking from './TeamAndTracking';
 
 import * as styles from './styles.module.scss';
+
+const { CANCELLED, DONE, INVALID, PAUSED } = PATROL_UI_STATES;
+
+const LEG_STATE_REFRESH_INTERVAL = 30_000;
+
+const OVER_PATROL_UI_STATES = [CANCELLED, DONE, INVALID];
 
 const SIMPLIFIED_DATE_FORMAT = 'MM/dd/yyyy HH:mm';
 
@@ -51,6 +58,10 @@ const Legs = ({ patrol, patrolState }) => {
   const jumpToLocation = useJumpToLocation();
   const navigate = useNavigate();
 
+  // Legs begin and hand over by themselves, which changes neither the patrol
+  // nor its state, so the table follows the clock until the patrol is over.
+  useCurrentTime(OVER_PATROL_UI_STATES.includes(patrolState) ? null : LEG_STATE_REFRESH_INTERVAL);
+
   const patrolSegmentsTrackData = useSelector((state) => selectPatrolSegmentsTrackData(state, patrol));
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
   const trackedSubjectsPerPatrolSegment = useSelector(
@@ -63,8 +74,7 @@ const Legs = ({ patrol, patrolState }) => {
 
   const humanizeDuration = useMemo(() => longTermAbbreviatedDurationHumanizer(tDates), [tDates]);
 
-  // Not memoized: a leg reads the clock, and this component only renders when
-  // the patrol, its state or its tracks have moved anyway.
+  // Not memoized: a leg reads the clock.
   const legs = patrol.patrol_segments.map((patrolSegment, index) => {
     const hasNotRun = hasPatrolSegmentNotRun(patrol, patrolSegment);
 
@@ -75,7 +85,7 @@ const Legs = ({ patrol, patrolState }) => {
     const state = calcPatrolSegmentState(patrol, patrolSegment);
 
     // A leg that ran its course is read by how long it took, not by its plan.
-    const duration = state === PATROL_UI_STATES.DONE
+    const duration = state === DONE
       ? humanizeDuration(getElapsedTimeForPatrolSegment(
         patrolSegment,
         effectiveEndTimeForPatrolSegment(patrol, patrolSegment)?.getTime()
@@ -174,7 +184,7 @@ const Legs = ({ patrol, patrolState }) => {
 
             <td className={styles.patrolTypeColumn}>
               {leg.isPause
-                ? <StatusPill className={styles.statePill} state={PATROL_UI_STATES.PAUSED} />
+                ? <StatusPill className={styles.statePill} state={PAUSED} />
                 : <>
                   <span className={styles.primaryLine}>{leg.patrolTypeDisplay}</span>
 
