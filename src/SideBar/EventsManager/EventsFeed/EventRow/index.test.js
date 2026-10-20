@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { eventTypes } from '../../../../__test-helpers/fixtures/event-types';
 import { format, STANDARD_DATE_FORMAT } from '../../../../utils/datetime';
 import { mockStore } from '../../../../__test-helpers/MockStore';
-import { render, screen, within } from '../../../../test-utils';
+import { fireEvent, render, screen, waitFor, within } from '../../../../test-utils';
 import { report } from '../../../../__test-helpers/fixtures/reports';
 import { TAB_KEYS } from '../../../../constants';
 import { TrackerContext } from '../../../../utils/analytics';
@@ -244,5 +244,63 @@ describe('SideBar - EventsManager - EventsFeed - EventRow', () => {
     await userEvent.click((await screen.findAllByRole('separator'))[0]);
 
     expect(navigate).not.toHaveBeenCalled();
+  });
+
+  test('opens the row menu, without opening the event, when the user right clicks the row itself', async () => {
+    renderEventRow();
+
+    await userEvent.pointer({ keys: '[MouseRight]', target: screen.getByText(report.serial_number) });
+
+    expect(await screen.findByRole('menu', { name: 'More options' })).toHaveFocus();
+    expect(screen.getByRole('menuitem', { name: 'Copy event link' })).toBeVisible();
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  test('opens the row menu when the user right clicks the title link', async () => {
+    renderEventRow();
+
+    await userEvent.pointer({ keys: '[MouseRight]', target: screen.getByRole('link', { name: 'Poacher camp' }) });
+
+    expect(await screen.findByRole('menu', { name: 'More options' })).toBeInTheDocument();
+  });
+
+  test('leaves the browser menu to a right click on a button of the row', () => {
+    renderEventRow();
+
+    expect(fireEvent.contextMenu(screen.getByRole('button', { name: 'Jump to location' }))).toBe(true);
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  });
+
+  test('keeps the kebab button collapsed while the row menu is open', async () => {
+    renderEventRow();
+
+    await userEvent.pointer({ keys: '[MouseRight]', target: screen.getByText(report.serial_number) });
+    await screen.findByRole('menu');
+
+    expect(screen.getByRole('button', { name: 'More options' })).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  test('swaps the row menu for the kebab menu when the user clicks the kebab button', async () => {
+    renderEventRow();
+
+    await userEvent.pointer({ keys: '[MouseRight]', target: screen.getByText(report.serial_number) });
+    await screen.findByRole('menu');
+
+    await userEvent.click(screen.getByRole('button', { name: 'More options' }));
+
+    await waitFor(() => expect(screen.getAllByRole('menu')).toHaveLength(1));
+    expect(screen.getByRole('button', { name: 'More options' })).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  test('swaps the kebab menu for the row menu when the user right clicks the row', async () => {
+    renderEventRow();
+
+    await userEvent.click(screen.getByRole('button', { name: 'More options' }));
+    await screen.findByRole('menu');
+
+    await userEvent.pointer({ keys: '[MouseRight]', target: screen.getByText(report.serial_number) });
+
+    await waitFor(() => expect(screen.getAllByRole('menu')).toHaveLength(1));
+    expect(screen.getByRole('button', { name: 'More options' })).toHaveAttribute('aria-expanded', 'false');
   });
 });

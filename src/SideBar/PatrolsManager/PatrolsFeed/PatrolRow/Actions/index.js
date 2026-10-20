@@ -26,7 +26,9 @@ import { TrackerContext } from '../../../../../utils/analytics';
 import useJumpToLocation from '../../../../../hooks/useJumpToLocation';
 import { usePatrolsPermissions } from '../../../../../hooks/usePermissions';
 
+import ContextMenu from '../../../../../ContextMenu';
 import KebabMenu from '../../../../../KebabMenu';
+import Menu from '../../../../../Menu';
 
 import * as styles from './styles.module.scss';
 
@@ -60,7 +62,7 @@ const getStatusTransitions = (patrol, patrolState) => getPatrolStatusOptions(pat
   .map((state) => ({ state, transition: getPatrolStatusTransition(patrolState, state) }))
   .filter((statusTransition) => !!statusTransition.transition);
 
-const Actions = ({ className = '', patrol, patrolState }) => {
+const Actions = ({ className = '', contextMenuRef, patrol, patrolState }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolsFeed.patrolRow.actions' });
   const { t: tStatusTransitions } = useTranslation('patrols', { keyPrefix: 'statusTransitions' });
@@ -147,6 +149,47 @@ const Actions = ({ className = '', patrol, patrolState }) => {
     );
   };
 
+  const renderMenuOptions = () => <>
+    {statusTransitions.map((statusTransition) => <Menu.Option
+      key={statusTransition.state.key}
+      onClick={() => onSelectStatus(statusTransition.state)}
+    >
+      {tStatusTransitions(statusTransition.transition)}
+    </Menu.Option>)}
+
+    {statusTransitions.length > 0 && <Menu.Divider />}
+
+    <Menu.Option className={styles.mobileOnlyOption} disabled={!hasTrack} onClick={onToggleTrack}>
+      <TrackIcon aria-hidden="true" />
+
+      {t(`toggleTrackButtonLabel.${trackToggleState}`)}
+    </Menu.Option>
+
+    <Menu.Option
+      className={styles.mobileOnlyOption}
+      disabled={!jumpToLocationCoordinates}
+      onClick={onJumpToLocation}
+    >
+      <MarkerFeedIcon aria-hidden="true" />
+
+      {t('jumpToLocationButtonLabel')}
+    </Menu.Option>
+
+    <Menu.Divider className={styles.mobileOnlyOption} />
+
+    <Menu.Option onClick={onCopyLink}>
+      <ClipIcon aria-hidden="true" />
+
+      {t('copyLinkOption')}
+    </Menu.Option>
+
+    <Menu.Option disabled={!shownTrack} onClick={onDownloadTrack}>
+      <DownloadArrowIcon aria-hidden="true" />
+
+      {t('downloadTrackOption')}
+    </Menu.Option>
+  </>;
+
   useEffect(() => {
     if (patrolMeasuredSubjectIds.length > 0) {
       const timeoutId = window.setTimeout(() => fetchTracksIfNecessary(
@@ -189,45 +232,12 @@ const Actions = ({ className = '', patrol, patrolState }) => {
       isLoading={isUpdatingStatus}
       title={t('moreOptionsButtonLabel')}
     >
-      {statusTransitions.map((statusTransition) => <KebabMenu.Option
-        key={statusTransition.state.key}
-        onClick={() => onSelectStatus(statusTransition.state)}
-      >
-        {tStatusTransitions(statusTransition.transition)}
-      </KebabMenu.Option>)}
-
-      {statusTransitions.length > 0 && <KebabMenu.Divider />}
-
-      <KebabMenu.Option className={styles.mobileOnlyOption} disabled={!hasTrack} onClick={onToggleTrack}>
-        <TrackIcon aria-hidden="true" />
-
-        {t(`toggleTrackButtonLabel.${trackToggleState}`)}
-      </KebabMenu.Option>
-
-      <KebabMenu.Option
-        className={styles.mobileOnlyOption}
-        disabled={!jumpToLocationCoordinates}
-        onClick={onJumpToLocation}
-      >
-        <MarkerFeedIcon aria-hidden="true" />
-
-        {t('jumpToLocationButtonLabel')}
-      </KebabMenu.Option>
-
-      <KebabMenu.Divider className={styles.mobileOnlyOption} />
-
-      <KebabMenu.Option onClick={onCopyLink}>
-        <ClipIcon aria-hidden="true" />
-
-        {t('copyLinkOption')}
-      </KebabMenu.Option>
-
-      <KebabMenu.Option disabled={!shownTrack} onClick={onDownloadTrack}>
-        <DownloadArrowIcon aria-hidden="true" />
-
-        {t('downloadTrackOption')}
-      </KebabMenu.Option>
+      {renderMenuOptions()}
     </KebabMenu>
+
+    <ContextMenu aria-label={t('moreOptionsButtonLabel')} isLoading={isUpdatingStatus} ref={contextMenuRef}>
+      {renderMenuOptions()}
+    </ContextMenu>
   </div>;
 };
 

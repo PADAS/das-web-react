@@ -55,13 +55,12 @@ describe('KebabMenu', () => {
     expect(screen.getByRole('button', { name: 'Options menu' })).toHaveAttribute('aria-expanded', 'true');
   });
 
-  test('does not focus an option when the menu is opened by clicking the toggle button', async () => {
+  test('focuses the menu, but none of its options, when the menu is opened by clicking the toggle button', async () => {
     renderKebabMenu();
 
     await openMenu();
-    await screen.findByRole('menu');
 
-    expect(screen.getByRole('button', { name: 'Options menu' })).toHaveFocus();
+    expect(await screen.findByRole('menu')).toHaveFocus();
   });
 
   test('focuses the first option when the menu is opened with the keyboard', async () => {
@@ -405,4 +404,5 @@ describe('KebabMenu', () => {
     await userEvent.keyboard('{ArrowUp}');
     expect(first).toHaveFocus();
   });
+
 });
