@@ -17,7 +17,15 @@ const SubjectControlButton = ({
 }) => {
   return <div className={`${styles.container} ${containerClassName} ${showLabel ? ` ${styles.hasLabel}` : ''}`} onClick={onClick || undefined}>
     {loading && <LoadingOverlay loaderSize='24' className={styles.loadingOverlay} />}
-    <button ref={ref} disabled={disabled} title={labelText} type="button" className={`${styles.button} ${buttonClassName}`} {...rest}></button>
+    <button
+      aria-busy={loading}
+      className={`${styles.button} ${buttonClassName}`}
+      disabled={disabled}
+      ref={ref}
+      title={labelText}
+      type="button"
+      {...rest}
+    />
     {showLabel && labelText && <span>{labelText}</span>}
   </div>;
 };
