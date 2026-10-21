@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { fetchTracksIfNecessary } from '../../../utils/tracks';
 import { render, screen, within } from '../../../test-utils';
 import { createMapMock } from '../../../__test-helpers/mocks';
+import { addHeatmapSubjects, showSubjectTracks } from '../../../ducks/map-ui';
 import { hideSubjects, showSubjects } from '../../../ducks/map-layer-filter';
 import { MAP_LAYER_SORT_VALUES, SORT_DIRECTION } from '../../../constants';
 import { MapContext } from '../../../MapContext';
@@ -14,6 +15,11 @@ import SubjectsTab from './';
 jest.mock('../../../utils/tracks', () => ({
   ...jest.requireActual('../../../utils/tracks'),
   fetchTracksIfNecessary: jest.fn(),
+}));
+jest.mock('../../../ducks/map-ui', () => ({
+  ...jest.requireActual('../../../ducks/map-ui'),
+  addHeatmapSubjects: jest.fn(),
+  showSubjectTracks: jest.fn(),
 }));
 jest.mock('../../../ducks/map-layer-filter', () => {
   const actual = jest.requireActual('../../../ducks/map-layer-filter');
@@ -33,6 +39,8 @@ describe('SideBar - MapLayersTab - SubjectsTab', () => {
     fetchTracksIfNecessary.mockReturnValue(new Promise(() => {}));
     hideSubjects.mockImplementation(() => () => {});
     showSubjects.mockImplementation(() => () => {});
+    addHeatmapSubjects.mockImplementation(() => () => {});
+    showSubjectTracks.mockImplementation(() => () => {});
 
     map = createMapMock();
 
@@ -233,16 +241,22 @@ describe('SideBar - MapLayersTab - SubjectsTab', () => {
       expect(getGroupButton('Tracks off')).not.toHaveAttribute('aria-busy');
     });
 
-    test.each(['Tracks off', 'Heatmap off'])('clears the loading state of the %s button once the group tracks load', async (buttonName) => {
-      fetchTracksIfNecessary.mockResolvedValue([]);
-      renderSubjectsTab();
+    test.each(['Tracks off', 'Heatmap off'])(
+      'clears the %s loading state once the group tracks load',
+      async (buttonName) => {
+        fetchTracksIfNecessary.mockResolvedValue([]);
+        renderSubjectsTab();
 
-      await userEvent.click(getGroupButton(buttonName));
+        await userEvent.click(getGroupButton(buttonName));
 
-      expect(getGroupButton(buttonName)).not.toHaveAttribute('aria-busy');
-    });
+        expect(getGroupButton(buttonName)).not.toHaveAttribute('aria-busy');
+      },
+    );
 
-    test.each(['Tracks off', 'Heatmap off'])('clears the loading state of the %s button when fetching the group tracks throws', async (buttonName) => {
+    test.each([
+      ['Tracks off', showSubjectTracks],
+      ['Heatmap off', addHeatmapSubjects],
+    ])('clears the %s loading state and still toggles when the group fetch throws', async (buttonName, toggle) => {
       const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
       fetchTracksIfNecessary.mockRejectedValue(new Error('network error'));
       renderSubjectsTab();
@@ -251,6 +265,7 @@ describe('SideBar - MapLayersTab - SubjectsTab', () => {
 
       expect(getGroupButton(buttonName)).not.toHaveAttribute('aria-busy');
       expect(consoleWarnSpy).toHaveBeenCalledWith(expect.any(String), expect.any(Error));
+      expect(toggle).toHaveBeenCalled();
     });
   });
 });

@@ -117,14 +117,14 @@ const ContentComponent = (props) => {
       && intersection(groupSubjectIDs, hiddenSubjectIDs).length !== groupSubjectIDs.length;
   };
 
-  // fetchTracks reports request errors through the store rather than rejecting, so this
-  // catch only guards the spinner against an unexpected throw.
   const fetchGroupTracks = async (setIsLoading) => {
     setIsLoading(true);
 
     try {
       await fetchTracksIfNecessary(subjectTrackIDsToLoad);
     } catch (error) {
+      // fetchTracks reports request errors through the store rather than
+      // rejecting, so this only catches an unexpected throw.
       console.warn('error fetching the tracks of a subject group', error);
     } finally {
       setIsLoading(false);
