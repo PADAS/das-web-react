@@ -123,9 +123,14 @@ const ContentComponent = (props) => {
     if (subjectTrackIDsToLoad.length) {
       setIsLoadingTracks(true);
 
-      await fetchTracksIfNecessary(subjectTrackIDsToLoad);
-
-      setIsLoadingTracks(false);
+      try {
+        await fetchTracksIfNecessary(subjectTrackIDsToLoad);
+      } catch (error) {
+        console.warn('error fetching the tracks for a subject group tracks toggle', error);
+        return;
+      } finally {
+        setIsLoadingTracks(false);
+      }
     }
 
     if (groupTrackState.track === TRACKING_CONTROL_STATES.FULLY_PINNED) {
@@ -153,9 +158,14 @@ const ContentComponent = (props) => {
     if (subjectTrackIDsToLoad.length) {
       setIsLoadingHeatmap(true);
 
-      await fetchTracksIfNecessary(subjectTrackIDsToLoad);
-
-      setIsLoadingHeatmap(false);
+      try {
+        await fetchTracksIfNecessary(subjectTrackIDsToLoad);
+      } catch (error) {
+        console.warn('error fetching the tracks for a subject group heatmap toggle', error);
+        return;
+      } finally {
+        setIsLoadingHeatmap(false);
+      }
     }
 
     mapLayerTracker.track('Check Group Heatmap checkbox', `Group:${name}`);

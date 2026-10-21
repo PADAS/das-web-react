@@ -232,5 +232,27 @@ describe('SideBar - MapLayersTab - SubjectsTab', () => {
       expect(getGroupButton('Heatmap off')).toHaveAttribute('aria-busy', 'true');
       expect(getGroupButton('Tracks off')).toHaveAttribute('aria-busy', 'false');
     });
+
+    test('clears the loading state of the track button once the group tracks load', async () => {
+      fetchTracksIfNecessary.mockResolvedValue([]);
+      renderSubjectsTab();
+
+      await userEvent.click(getGroupButton('Tracks off'));
+
+      expect(getGroupButton('Tracks off')).toHaveAttribute('aria-busy', 'false');
+    });
+
+    test('clears the loading state of the heatmap button when the group tracks fail to load', async () => {
+      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+      fetchTracksIfNecessary.mockRejectedValue(new Error('network error'));
+      renderSubjectsTab();
+
+      await userEvent.click(getGroupButton('Heatmap off'));
+
+      expect(getGroupButton('Heatmap off')).toHaveAttribute('aria-busy', 'false');
+      expect(consoleWarnSpy).toHaveBeenCalledWith(expect.any(String), expect.any(Error));
+
+      consoleWarnSpy.mockRestore();
+    });
   });
 });
