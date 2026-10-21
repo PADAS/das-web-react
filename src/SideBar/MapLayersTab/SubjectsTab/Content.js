@@ -28,14 +28,15 @@ const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 const TriggerComponent = memo((props) => {  // eslint-disable-line react/display-name
   const {
+    groupTrackState,
+    isLoadingHeatmap,
+    isLoadingTracks,
+    lastPositionTime,
     listLevel,
     name,
-    showTrackingControls,
-    loadingTracks,
-    groupTrackState,
     onGroupHeatmapToggle,
     onTrackButtonClick,
-    lastPositionTime,
+    showTrackingControls,
   } = props;
 
   const { t } = useTranslation('layers', { keyPrefix: 'layerList' });
@@ -54,14 +55,14 @@ const TriggerComponent = memo((props) => {  // eslint-disable-line react/display
     {showTrackingControls && <>
       {lastPositionTime && <DateTime className={styles.subjectGroupDateTime} date={lastPositionTime} />}
       <TrackToggleButton
-        loading={loadingTracks}
+        loading={isLoadingTracks}
         onClick={onTrackButtonClick}
         className={`${(partiallyPinned || partiallyVisible) ? mapLayersStyles.partialTrackButton : ''}`}
         showLabel={false}
         trackPinned={fullyPinned || partiallyPinned}
         trackVisible={fullyVisible || partiallyVisible}
       />
-      <HeatmapToggleButton className={mapLayersStyles.toggleButton} loading={loadingTracks}
+      <HeatmapToggleButton className={mapLayersStyles.toggleButton} loading={isLoadingHeatmap}
         heatmapVisible={heatmap === TRACKING_CONTROL_STATES.FULLY_HEATMAPPED}
         heatmapPartiallyVisible={heatmap === TRACKING_CONTROL_STATES.PARTIALLY_HEATMAPPED}
         onButtonClick={onGroupHeatmapToggle} showLabel={false} />
@@ -83,8 +84,9 @@ const ContentComponent = (props) => {
 
   const { t } = useTranslation('layers', { keyPrefix: 'layerList' });
 
-  const [loadingTracks, setTrackLoadingState] = useState(false);
   const [collapsibleShouldBeOpen, setCollapsibleOpenState] = useState(false);
+  const [isLoadingHeatmap, setIsLoadingHeatmap] = useState(false);
+  const [isLoadingTracks, setIsLoadingTracks] = useState(false);
 
   const groupItemProps = {
     map,
@@ -115,15 +117,25 @@ const ContentComponent = (props) => {
       && intersection(groupSubjectIDs, hiddenSubjectIDs).length !== groupSubjectIDs.length;
   };
 
+  const fetchGroupTracks = async (setIsLoading) => {
+    setIsLoading(true);
+
+    try {
+      await fetchTracksIfNecessary(subjectTrackIDsToLoad);
+    } catch (error) {
+      // fetchTracks reports request errors through the store rather than
+      // rejecting, so this only catches an unexpected throw.
+      console.warn('error fetching the tracks of a subject group', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const onTrackButtonClick = async (e) => {
     e.stopPropagation();
 
     if (subjectTrackIDsToLoad.length) {
-      setTrackLoadingState(true);
-
-      await fetchTracksIfNecessary(subjectTrackIDsToLoad);
-
-      setTrackLoadingState(false);
+      await fetchGroupTracks(setIsLoadingTracks);
     }
 
     if (groupTrackState.track === TRACKING_CONTROL_STATES.FULLY_PINNED) {
@@ -148,12 +160,9 @@ const ContentComponent = (props) => {
       return dispatch(removeHeatmapSubjects(...subjectIDsWithTrackingData));
     }
 
-    setTrackLoadingState(true);
     if (subjectTrackIDsToLoad.length) {
-      await fetchTracksIfNecessary(subjectTrackIDsToLoad);
+      await fetchGroupTracks(setIsLoadingHeatmap);
     }
-
-    setTrackLoadingState(false);
 
     mapLayerTracker.track('Check Group Heatmap checkbox', `Group:${name}`);
     return dispatch(addHeatmapSubjects(...subjectIDsWithTrackingData));
@@ -164,14 +173,15 @@ const ContentComponent = (props) => {
   if (!subgroups.length && !subjects.length) return null;
 
   const triggerProps = {
+    groupTrackState,
+    isLoadingHeatmap,
+    isLoadingTracks,
+    lastPositionTime,
     listLevel,
     name,
-    showTrackingControls,
-    onTrackButtonClick,
-    groupTrackState,
-    loadingTracks,
     onGroupHeatmapToggle,
-    lastPositionTime,
+    onTrackButtonClick,
+    showTrackingControls,
   };
 
   return <Collapsible
