@@ -18,7 +18,7 @@ const SubjectControlButton = ({
   return <div className={`${styles.container} ${containerClassName} ${showLabel ? ` ${styles.hasLabel}` : ''}`} onClick={onClick || undefined}>
     {loading && <LoadingOverlay loaderSize='24' className={styles.loadingOverlay} />}
     <button
-      aria-busy={loading}
+      aria-busy={loading || undefined}
       className={`${styles.button} ${buttonClassName}`}
       disabled={disabled}
       ref={ref}

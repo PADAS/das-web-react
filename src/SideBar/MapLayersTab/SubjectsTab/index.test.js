@@ -221,7 +221,7 @@ describe('SideBar - MapLayersTab - SubjectsTab', () => {
       await userEvent.click(getGroupButton('Tracks off'));
 
       expect(getGroupButton('Tracks off')).toHaveAttribute('aria-busy', 'true');
-      expect(getGroupButton('Heatmap off')).toHaveAttribute('aria-busy', 'false');
+      expect(getGroupButton('Heatmap off')).not.toHaveAttribute('aria-busy');
     });
 
     test('shows the loading state only on the heatmap button while the group tracks load', async () => {
@@ -230,7 +230,7 @@ describe('SideBar - MapLayersTab - SubjectsTab', () => {
       await userEvent.click(getGroupButton('Heatmap off'));
 
       expect(getGroupButton('Heatmap off')).toHaveAttribute('aria-busy', 'true');
-      expect(getGroupButton('Tracks off')).toHaveAttribute('aria-busy', 'false');
+      expect(getGroupButton('Tracks off')).not.toHaveAttribute('aria-busy');
     });
 
     test.each(['Tracks off', 'Heatmap off'])('clears the loading state of the %s button once the group tracks load', async (buttonName) => {
@@ -239,17 +239,17 @@ describe('SideBar - MapLayersTab - SubjectsTab', () => {
 
       await userEvent.click(getGroupButton(buttonName));
 
-      expect(getGroupButton(buttonName)).toHaveAttribute('aria-busy', 'false');
+      expect(getGroupButton(buttonName)).not.toHaveAttribute('aria-busy');
     });
 
-    test.each(['Tracks off', 'Heatmap off'])('clears the loading state of the %s button when the group tracks fail to load', async (buttonName) => {
+    test.each(['Tracks off', 'Heatmap off'])('clears the loading state of the %s button when fetching the group tracks throws', async (buttonName) => {
       const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
       fetchTracksIfNecessary.mockRejectedValue(new Error('network error'));
       renderSubjectsTab();
 
       await userEvent.click(getGroupButton(buttonName));
 
-      expect(getGroupButton(buttonName)).toHaveAttribute('aria-busy', 'false');
+      expect(getGroupButton(buttonName)).not.toHaveAttribute('aria-busy');
       expect(consoleWarnSpy).toHaveBeenCalledWith(expect.any(String), expect.any(Error));
     });
   });

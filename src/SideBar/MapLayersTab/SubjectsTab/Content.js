@@ -117,20 +117,25 @@ const ContentComponent = (props) => {
       && intersection(groupSubjectIDs, hiddenSubjectIDs).length !== groupSubjectIDs.length;
   };
 
+  // fetchTracks reports request errors through the store rather than rejecting, so this
+  // catch only guards the spinner against an unexpected throw.
+  const fetchGroupTracks = async (setIsLoading) => {
+    setIsLoading(true);
+
+    try {
+      await fetchTracksIfNecessary(subjectTrackIDsToLoad);
+    } catch (error) {
+      console.warn('error fetching the tracks of a subject group', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const onTrackButtonClick = async (e) => {
     e.stopPropagation();
 
     if (subjectTrackIDsToLoad.length) {
-      setIsLoadingTracks(true);
-
-      try {
-        await fetchTracksIfNecessary(subjectTrackIDsToLoad);
-      } catch (error) {
-        console.warn('error fetching the tracks for a subject group tracks toggle', error);
-        return;
-      } finally {
-        setIsLoadingTracks(false);
-      }
+      await fetchGroupTracks(setIsLoadingTracks);
     }
 
     if (groupTrackState.track === TRACKING_CONTROL_STATES.FULLY_PINNED) {
@@ -156,16 +161,7 @@ const ContentComponent = (props) => {
     }
 
     if (subjectTrackIDsToLoad.length) {
-      setIsLoadingHeatmap(true);
-
-      try {
-        await fetchTracksIfNecessary(subjectTrackIDsToLoad);
-      } catch (error) {
-        console.warn('error fetching the tracks for a subject group heatmap toggle', error);
-        return;
-      } finally {
-        setIsLoadingHeatmap(false);
-      }
+      await fetchGroupTracks(setIsLoadingHeatmap);
     }
 
     mapLayerTracker.track('Check Group Heatmap checkbox', `Group:${name}`);

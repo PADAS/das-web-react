@@ -94,7 +94,7 @@ describe('SubjectControls', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Tracks off' }));
 
       expect(screen.getByRole('button', { name: 'Tracks off' })).toHaveAttribute('aria-busy', 'true');
-      expect(screen.getByRole('button', { name: 'Heatmap off' })).toHaveAttribute('aria-busy', 'false');
+      expect(screen.getByRole('button', { name: 'Heatmap off' })).not.toHaveAttribute('aria-busy');
     });
 
     test('shows the loading state only on the heatmap button while the subject tracks load', async () => {
@@ -103,7 +103,7 @@ describe('SubjectControls', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Heatmap off' }));
 
       expect(screen.getByRole('button', { name: 'Heatmap off' })).toHaveAttribute('aria-busy', 'true');
-      expect(screen.getByRole('button', { name: 'Tracks off' })).toHaveAttribute('aria-busy', 'false');
+      expect(screen.getByRole('button', { name: 'Tracks off' })).not.toHaveAttribute('aria-busy');
     });
   });
 });
