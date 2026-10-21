@@ -1,6 +1,8 @@
 import { Provider } from 'react-redux';
+import userEvent from '@testing-library/user-event';
 
-import { render, screen } from '../../../test-utils';
+import { fetchTracksIfNecessary } from '../../../utils/tracks';
+import { render, screen, within } from '../../../test-utils';
 import { createMapMock } from '../../../__test-helpers/mocks';
 import { hideSubjects, showSubjects } from '../../../ducks/map-layer-filter';
 import { MAP_LAYER_SORT_VALUES, SORT_DIRECTION } from '../../../constants';
@@ -9,6 +11,10 @@ import { mockStore } from '../../../__test-helpers/MockStore';
 
 import SubjectsTab from './';
 
+jest.mock('../../../utils/tracks', () => ({
+  ...jest.requireActual('../../../utils/tracks'),
+  fetchTracksIfNecessary: jest.fn(),
+}));
 jest.mock('../../../ducks/map-layer-filter', () => {
   const actual = jest.requireActual('../../../ducks/map-layer-filter');
 
@@ -24,6 +30,7 @@ jest.mock('../../../ducks/map-layer-filter', () => {
 describe('SideBar - MapLayersTab - SubjectsTab', () => {
   let map, store;
   beforeEach(() => {
+    fetchTracksIfNecessary.mockReturnValue(new Promise(() => {}));
     hideSubjects.mockImplementation(() => () => {});
     showSubjects.mockImplementation(() => () => {});
 
@@ -198,5 +205,32 @@ describe('SideBar - MapLayersTab - SubjectsTab', () => {
     expect(subjects[1]).toHaveTextContent('Subject 1');
     expect(subjects[2]).toHaveTextContent('Subject 2');
     expect(subjects[3]).toHaveTextContent('Subject 4');
+  });
+
+  describe('the track and heatmap buttons of a subject group', () => {
+    const getGroupButton = (name) => within(screen.getByTestId('collapsible-Subjects Group 3'))
+      .getByRole('button', { name });
+
+    beforeEach(() => {
+      store.data.subjectStore['subject-4'].tracks_available = true;
+    });
+
+    test('shows the loading state only on the track button while the group tracks load', async () => {
+      renderSubjectsTab();
+
+      await userEvent.click(getGroupButton('Tracks off'));
+
+      expect(getGroupButton('Tracks off')).toHaveAttribute('aria-busy', 'true');
+      expect(getGroupButton('Heatmap off')).toHaveAttribute('aria-busy', 'false');
+    });
+
+    test('shows the loading state only on the heatmap button while the group tracks load', async () => {
+      renderSubjectsTab();
+
+      await userEvent.click(getGroupButton('Heatmap off'));
+
+      expect(getGroupButton('Heatmap off')).toHaveAttribute('aria-busy', 'true');
+      expect(getGroupButton('Tracks off')).toHaveAttribute('aria-busy', 'false');
+    });
   });
 });
