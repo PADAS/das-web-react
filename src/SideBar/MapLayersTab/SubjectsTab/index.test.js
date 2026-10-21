@@ -233,26 +233,24 @@ describe('SideBar - MapLayersTab - SubjectsTab', () => {
       expect(getGroupButton('Tracks off')).toHaveAttribute('aria-busy', 'false');
     });
 
-    test('clears the loading state of the track button once the group tracks load', async () => {
+    test.each(['Tracks off', 'Heatmap off'])('clears the loading state of the %s button once the group tracks load', async (buttonName) => {
       fetchTracksIfNecessary.mockResolvedValue([]);
       renderSubjectsTab();
 
-      await userEvent.click(getGroupButton('Tracks off'));
+      await userEvent.click(getGroupButton(buttonName));
 
-      expect(getGroupButton('Tracks off')).toHaveAttribute('aria-busy', 'false');
+      expect(getGroupButton(buttonName)).toHaveAttribute('aria-busy', 'false');
     });
 
-    test('clears the loading state of the heatmap button when the group tracks fail to load', async () => {
+    test.each(['Tracks off', 'Heatmap off'])('clears the loading state of the %s button when the group tracks fail to load', async (buttonName) => {
       const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
       fetchTracksIfNecessary.mockRejectedValue(new Error('network error'));
       renderSubjectsTab();
 
-      await userEvent.click(getGroupButton('Heatmap off'));
+      await userEvent.click(getGroupButton(buttonName));
 
-      expect(getGroupButton('Heatmap off')).toHaveAttribute('aria-busy', 'false');
+      expect(getGroupButton(buttonName)).toHaveAttribute('aria-busy', 'false');
       expect(consoleWarnSpy).toHaveBeenCalledWith(expect.any(String), expect.any(Error));
-
-      consoleWarnSpy.mockRestore();
     });
   });
 });
