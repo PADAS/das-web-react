@@ -136,6 +136,8 @@
 
       .legActionsColumn {
         @include fit-content-column;
+
+        vertical-align: middle;
       }
 
       .legActions {
