@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import isEqual from 'react-fast-compare';
 import { toast } from 'react-toastify';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector, useStore } from 'react-redux';
 import { useLocation, useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
@@ -10,6 +10,7 @@ import buildNewPatrolLegDraft from './utils/buildNewPatrolLegDraft';
 import { calcTitleAndSubtitle } from '../../../utils/titles';
 import { createPatrol } from '../../../ducks/patrols';
 import { fetchPatrolTypes } from '../../../ducks/patrol-types';
+import { getRecentRadioLocation } from '../../../utils/subjects';
 import { NEW_PATROL_CATEGORY, TrackerContext, trackEventFactory } from '../../../utils/analytics';
 import { PATROL_TYPE_QUERY_PARAMETER, TAB_KEYS } from '../../../constants';
 import { updateUserPreferences } from '../../../ducks/user-preferences';
@@ -29,8 +30,10 @@ const newPatrolTracker = trackEventFactory(NEW_PATROL_CATEGORY);
 const NewPatrolContent = ({ initialPatrolType }) => {
   const dispatch = useDispatch();
   const location = useLocation();
-  const navigate = useNavigate();
+  const store = useStore();
   const { t } = useTranslation('patrols', { keyPrefix: 'newPatrol' });
+
+  const navigate = useNavigate();
 
   const autoEndPatrols = useSelector((state) => state.view.userPreferences.autoEndPatrols);
   const autoStartPatrols = useSelector((state) => state.view.userPreferences.autoStartPatrols);
@@ -71,8 +74,18 @@ const NewPatrolContent = ({ initialPatrolType }) => {
       setInitialLeg((prevInitialLeg) => ({ ...prevInitialLeg, ...legChanges }));
     }
 
-    setLeg((prevLeg) => ({ ...prevLeg, ...legChanges }));
-  }, [dispatch]);
+    // Team leads come without positions, so the live subject on the map has to
+    // say where they are, read here to spare a render on every position update.
+    const teamLeadLocation = getRecentRadioLocation(
+      store.getState().data.subjectStore[legChanges.teamLead?.id] ?? legChanges.teamLead
+    );
+
+    setLeg((prevLeg) => ({
+      ...prevLeg,
+      ...legChanges,
+      ...(!!teamLeadLocation && !prevLeg.startLocation && { startLocation: teamLeadLocation }),
+    }));
+  }, [dispatch, store]);
 
   const onSubmit = async () => {
     newPatrolTracker.track('Click the "Save Patrol" button in new patrol');

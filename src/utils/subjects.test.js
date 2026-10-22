@@ -5,6 +5,7 @@ import {
   isBuoySubject,
   isGearSubjectSubtype,
   calcDisplayNameForSubject,
+  getRecentRadioLocation,
   updateSubjectLastPositionFromSocketStatusUpdate,
 } from './subjects.js';
 import { subjectFeatureWithOneDeviceProp, staticSubjectFeature, staticSubjectFeatureWithoutIcon } from '../__test-helpers/fixtures/subjects';
@@ -281,5 +282,54 @@ describe('updateSubjectLastPositionFromSocketStatusUpdate', () => {
       const result = updateSubjectLastPositionFromSocketStatusUpdate(subject, update);
       expect(result.last_position.properties.extra_field).toBe('kept');
     });
+  });
+});
+
+describe('getRecentRadioLocation', () => {
+  let radio;
+  beforeEach(() => {
+    jest.useFakeTimers().setSystemTime(new Date('2026-04-13T12:00:00.000Z'));
+
+    radio = {
+      last_position: { geometry: { coordinates: [36.8, -1.3] } },
+      last_position_date: '2026-04-13T11:50:00.000Z',
+      subject_subtype: 'ranger',
+    };
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  test('gives the last position of a radio that reported in the last 30 minutes', () => {
+    expect(getRecentRadioLocation(radio)).toEqual({ latitude: -1.3, longitude: 36.8 });
+  });
+
+  test('gives the last position of a stationary radio', () => {
+    radio.subject_subtype = 'stationary-radio';
+
+    expect(getRecentRadioLocation(radio)).toEqual({ latitude: -1.3, longitude: 36.8 });
+  });
+
+  test('gives no location for a subject that is not a radio', () => {
+    radio.subject_subtype = 'elephant';
+
+    expect(getRecentRadioLocation(radio)).toBeNull();
+  });
+
+  test('gives no location for a radio that has not reported in the last 30 minutes', () => {
+    radio.last_position_date = '2026-04-13T11:29:00.000Z';
+
+    expect(getRecentRadioLocation(radio)).toBeNull();
+  });
+
+  test('gives no location for a radio without a last position', () => {
+    radio.last_position = null;
+
+    expect(getRecentRadioLocation(radio)).toBeNull();
+  });
+
+  test('gives no location without a subject', () => {
+    expect(getRecentRadioLocation(undefined)).toBeNull();
   });
 });

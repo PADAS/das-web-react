@@ -60,8 +60,22 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
           [routinePatrol.value]: { isLoading: false, schema: patrolTypeFieldsSchema },
         },
         patrolStore: {},
-        patrolTeamAndTrackingOptions: { assets: [], members: [], teams: [] },
+        patrolTeamAndTrackingOptions: {
+          assets: [],
+          members: [
+            { id: 'radio-1', name: 'Ranger Radio', subject_subtype: 'ranger' },
+          ],
+          teams: [],
+        },
         patrolTypes,
+        subjectStore: {
+          'radio-1': {
+            id: 'radio-1',
+            last_position: { geometry: { coordinates: [36.8, -1.3] } },
+            last_position_date: '2026-04-13T11:50:00.000Z',
+            subject_subtype: 'ranger',
+          },
+        },
         user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.CREATE, PERMISSIONS.READ] } },
         userContent: {},
       },
@@ -86,7 +100,7 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
     jest.restoreAllMocks();
   });
 
-  const renderNewPatrol = ({ patrolTypeId = dogPatrol.id } = {}) => {
+  const renderNewPatrol = ({ patrolData, patrolTypeId = dogPatrol.id } = {}) => {
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
     const renderResult = render(
@@ -103,7 +117,13 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
 
         <NewPatrolNavigation />
       </Provider>,
-      { initialEntries: [`/patrols/new?patrol-type=${patrolTypeId}`] }
+      {
+        initialEntries: [{
+          pathname: '/patrols/new',
+          search: `?patrol-type=${patrolTypeId}`,
+          state: { patrolData },
+        }],
+      }
     );
 
     return { ...renderResult, user };
@@ -113,6 +133,19 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
 
   const getStartDateInput = (name) =>
     within(screen.getByRole('group', { name: 'Start date' })).getByRole('textbox', { name });
+
+  const pickTeamLead = async (user, name) => {
+    await user.click(screen.getByLabelText('Team Lead'));
+    await user.click(await screen.findByText(name));
+  };
+
+  const saveAndGetCreatedSegment = async (user) => {
+    await clickSave(user);
+
+    await waitFor(() => expect(createPatrol).toHaveBeenCalledTimes(1));
+
+    return createPatrol.mock.calls[0][0].patrol_segments[0];
+  };
 
   const pickRoutinePatrolType = async (user) => {
     await user.type(screen.getByRole('combobox', { name: 'Patrol Type' }), '{arrowdown}');
@@ -225,6 +258,37 @@ describe('SideBar - PatrolsManager - NewPatrol', () => {
 
     await waitFor(() => expect(screen.getByTestId('test-location')).toHaveTextContent('/patrols'));
     expect(screen.queryByRole('group', { name: 'Start Time' })).toBeNull();
+  });
+
+  describe('start location', () => {
+    test('starts the patrol where a radio team lead that reported recently is', async () => {
+      const { user } = renderNewPatrol();
+
+      await pickTeamLead(user, 'Ranger Radio');
+
+      const createdSegment = await saveAndGetCreatedSegment(user);
+
+      expect(createdSegment.start_location).toEqual({ latitude: -1.3, longitude: 36.8 });
+      expect(createdSegment.end_location).toBeNull();
+    });
+
+    test('does not start the patrol where a radio team lead missing from the map is', async () => {
+      store.data.subjectStore = {};
+
+      const { user } = renderNewPatrol();
+
+      await pickTeamLead(user, 'Ranger Radio');
+
+      expect((await saveAndGetCreatedSegment(user)).start_location).toBeNull();
+    });
+
+    test('keeps the start location the patrol already has when the user picks a radio team lead', async () => {
+      const { user } = renderNewPatrol({ patrolData: { location: { latitude: -2.1, longitude: 37.2 } } });
+
+      await pickTeamLead(user, 'Ranger Radio');
+
+      expect((await saveAndGetCreatedSegment(user)).start_location).toEqual({ latitude: -2.1, longitude: 37.2 });
+    });
   });
 
   describe('saving', () => {

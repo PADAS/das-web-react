@@ -42,6 +42,14 @@ export const radioHasRecentActivity = (radio) => {
   return hasRecentActivity;
 };
 
+export const getRecentRadioLocation = (subject) => {
+  const coordinates = subject?.last_position?.geometry?.coordinates;
+
+  return !!coordinates && subjectIsARadio(subject) && radioHasRecentActivity(subject)
+    ? { latitude: coordinates[1], longitude: coordinates[0] }
+    : null;
+};
+
 export const calcRecentRadiosFromSubjects = (...subjects) => {
   const recentRadios = subjects
     .filter(subjectIsARadio)

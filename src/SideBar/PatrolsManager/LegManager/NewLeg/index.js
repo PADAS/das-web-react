@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useId, useState } from 'react';
 import isEqual from 'react-fast-compare';
 import { toast } from 'react-toastify';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector, useStore } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import buildAddLegUpdate from './utils/buildAddLegUpdate';
@@ -11,6 +11,7 @@ import {
   displayStartTimeForPatrolSegment,
   earliestStartAfterPatrolSegment,
 } from '../../../../utils/patrols';
+import { getRecentRadioLocation } from '../../../../utils/subjects';
 import { NEW_LEG_CATEGORY, TrackerContext, trackEventFactory } from '../../../../utils/analytics';
 import { TAB_KEYS } from '../../../../constants';
 import { updatePatrol } from '../../../../ducks/patrols';
@@ -31,8 +32,10 @@ const newLegTracker = trackEventFactory(NEW_LEG_CATEGORY);
 
 const NewLeg = ({ patrol }) => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const store = useStore();
   const { t } = useTranslation('patrols', { keyPrefix: 'newLeg' });
+
+  const navigate = useNavigate();
 
   const { hasPatrolsUpdatePermission } = usePatrolsPermissions();
   const patrolState = usePatrolState(patrol);
@@ -83,8 +86,18 @@ const NewLeg = ({ patrol }) => {
       setInitialLeg((prevInitialLeg) => ({ ...prevInitialLeg, ...legChanges }));
     }
 
-    setLeg((prevLeg) => ({ ...prevLeg, ...legChanges }));
-  }, [dispatch]);
+    // Team leads come without positions, so the live subject on the map has to
+    // say where they are, read here to spare a render on every position update.
+    const teamLeadLocation = getRecentRadioLocation(
+      store.getState().data.subjectStore[legChanges.teamLead?.id] ?? legChanges.teamLead
+    );
+
+    setLeg((prevLeg) => ({
+      ...prevLeg,
+      ...legChanges,
+      ...(!!teamLeadLocation && !prevLeg.startLocation && { startLocation: teamLeadLocation }),
+    }));
+  }, [dispatch, store]);
 
   const onSubmit = async () => {
     newLegTracker.track('Click the "Save" button in new leg');
