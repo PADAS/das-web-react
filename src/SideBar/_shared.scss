@@ -5,6 +5,8 @@
 @use '../common/styles/layout';
 @use '../common/styles/vars/colors';
 
+$footer-button-min-width: 4.375rem;
+
 @mixin icon-button {
   @include buttons.icon-button;
 }
@@ -222,6 +224,7 @@
 @mixin save-button {
   @include buttons.primary-action-button;
 
+  min-width: $footer-button-min-width;
   position: relative;
   transition: background-color 150ms ease;
 
