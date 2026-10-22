@@ -168,14 +168,16 @@ export const resolveDurationHumanizerLanguage = (i18nLanguage) => {
 
 // `t` must be bound to the `dates` namespace.
 export const longTermDurationHumanizer = (t, i18nLanguage) => {
-  const humanizeDuration = durationHumanizer(
-    HUMANIZED_DURATION_CONFIGS.LONG_TERM_FULL_FORMAT(resolveDurationHumanizerLanguage(i18nLanguage))
-  );
+  const baseLanguage = i18nLanguage?.split('-')[0];
+  // A language the library lacks keeps the units the app translates itself.
+  const humanizeLongTermDuration = SUPPORTED_DURATION_HUMANIZER_LANGUAGES.includes(baseLanguage)
+    ? durationHumanizer(HUMANIZED_DURATION_CONFIGS.LONG_TERM_FULL_FORMAT(baseLanguage))
+    : longTermAbbreviatedDurationHumanizer(t);
 
   // Whole minutes alone would read a duration under one as no time at all.
   return (duration) => duration < MINUTE_IN_MILLISECONDS
     ? t('lessThanAMinuteDurationLabel')
-    : humanizeDuration(duration);
+    : humanizeLongTermDuration(duration);
 };
 
 export const getUserLocaleTime = (date = new Date()) => date.toLocaleTimeString(

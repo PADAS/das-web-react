@@ -214,11 +214,29 @@ describe('SideBar - PatrolsManager - LegForm - utils - getStaticFieldErrors', ()
   });
 
   describe('when another leg follows the leg', () => {
-    test('reports a missing end date', () => {
+    test('reports a missing end date for a leg that had one', () => {
+      const editedPatrolSegment = {
+        scheduled_end: null,
+        time_range: { end_time: new Date(2026, 3, 13, 17, 0).toISOString(), start_time: null },
+      };
       const nextLegStartDateTime = new Date(2026, 3, 13, 18, 0);
 
-      expect(getStaticFieldErrors(leg, { latestEndDateTime: nextLegStartDateTime, nextLegStartDateTime }))
-        .toEqual({ endDateTime: 'A leg followed by another one needs an end date.' });
+      expect(getStaticFieldErrors(leg, {
+        editedPatrolSegment,
+        latestEndDateTime: nextLegStartDateTime,
+        nextLegStartDateTime,
+      })).toEqual({ endDateTime: 'A leg followed by another one needs an end date.' });
+    });
+
+    test('does not report a missing end date for a leg stored without one', () => {
+      const editedPatrolSegment = { scheduled_end: null, time_range: { end_time: null, start_time: null } };
+      const nextLegStartDateTime = new Date(2026, 3, 13, 18, 0);
+
+      expect(getStaticFieldErrors(leg, {
+        editedPatrolSegment,
+        latestEndDateTime: nextLegStartDateTime,
+        nextLegStartDateTime,
+      })).toEqual({});
     });
 
     test('reports a start that matches the start of the next leg', () => {

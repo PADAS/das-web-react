@@ -18,8 +18,8 @@ import * as styles from '../styles.module.scss';
 const AddPatrolTab = ({ onHideModal }) => {
   const { t } = useTranslation('components', { keyPrefix: 'addItemButton.addItemModal.addPatrolTab' });
 
-  const navigate = useNavigate();
   const isPatrolSchemasEnabled = usePreviewFeature(PREVIEW_FEATURES.PATROL_SCHEMAS);
+  const navigate = useNavigate();
 
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
 

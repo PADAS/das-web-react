@@ -363,6 +363,14 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview', () => {
     expect(screen.queryByText('Leg 2 started')).not.toBeInTheDocument();
   });
 
+  test('does not mark the end of a patrol that never began', () => {
+    renderOverview({
+      patrol: patrolWithLegTimes({ end_time: '2026-04-13T02:00:00.000-07:00', start_time: null }),
+    });
+
+    expect(screen.queryByText(/^Patrol ended/)).not.toBeInTheDocument();
+  });
+
   test('shows the patrol ended milestone once the last leg has ended', () => {
     renderOverview({
       patrol: {

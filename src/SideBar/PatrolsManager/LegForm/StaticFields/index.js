@@ -75,6 +75,9 @@ const StaticFields = ({
   const endDateTime = parseLegDraftDateTime(leg.endDate, leg.endTime);
   const startDateTime = parseLegDraftDateTime(leg.startDate, leg.startTime);
 
+  // Only the last leg's end can be a plan, or that of a first leg still planned.
+  const canScheduleEnd = isLastLeg || (isFirstLeg && !leg.isAutoStart && !!startDateTime && isFuture(startDateTime));
+
   // An empty start date would reach the picker's calendar as an invalid bound.
   const endDateMin = isValidDate(leg.startDate) ? leg.startDate : undefined;
 
@@ -236,9 +239,8 @@ const StaticFields = ({
 
         {!isPause && renderCheckbox({
           id: autoEndCheckboxId,
-          // Only the last leg's end can be a plan.
-          isChecked: leg.isAutoEnd || !isLastLeg,
-          isDisabled: !isLastLeg || !endDateTime || !isFuture(endDateTime),
+          isChecked: leg.isAutoEnd || !canScheduleEnd,
+          isDisabled: !canScheduleEnd || !endDateTime || !isFuture(endDateTime),
           label: t('autoEndCheckboxLabel'),
           onChange: (isAutoEnd) => onChangeLeg({ isAutoEnd }),
         })}

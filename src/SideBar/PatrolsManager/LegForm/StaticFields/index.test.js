@@ -172,6 +172,18 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
     expect(autoEndCheckbox).toBeDisabled();
   });
 
+  test('offers to plan the end of a first leg still planned, even when another one follows it', () => {
+    renderStaticFields({
+      isLastLeg: false,
+      leg: { endDate: '2099-04-13', endTime: '10:00', isAutoEnd: false, startDate: '2099-04-13' },
+    });
+
+    const autoEndCheckbox = screen.getByRole('checkbox', { name: 'Automatically end the leg at this time' });
+
+    expect(autoEndCheckbox).not.toBeChecked();
+    expect(autoEndCheckbox).toBeEnabled();
+  });
+
   test('offers every end time option while the start time is still incomplete', async () => {
     renderStaticFields({ leg: { endDate: '2026-04-13', endTime: '10:00', startTime: ':' } });
 

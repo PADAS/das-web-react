@@ -536,8 +536,46 @@ describe('SideBar - PatrolsManager - LegManager - EditLeg', () => {
 
       await waitFor(() => expect(updatePatrol).toHaveBeenCalledTimes(1));
 
+      expect(updatePatrol.mock.calls[0][0].patrol_segments[0].scheduled_end).toBeNull();
       expect(updatePatrol.mock.calls[0][0].patrol_segments[0].time_range.end_time)
         .toBe(new Date(2026, 3, 13, 15, 0).toISOString());
+    });
+
+    test('turns the planned end of a leg another one follows into the time it ends on any edit', async () => {
+      patrol.patrol_segments[0].scheduled_end = new Date(2026, 3, 13, 17, 0).toISOString();
+      patrol.patrol_segments[0].time_range.end_time = null;
+      patrol.patrol_segments[1].time_range.start_time = new Date(2026, 3, 13, 18, 0).toISOString();
+
+      const { user } = renderEditLeg(firstLegId);
+
+      await editObjective(user, ' twice');
+      await clickSave(user);
+
+      await waitFor(() => expect(updatePatrol).toHaveBeenCalledTimes(1));
+
+      const [savedSegment] = updatePatrol.mock.calls[0][0].patrol_segments;
+
+      expect(savedSegment.scheduled_end).toBeNull();
+      expect(savedSegment.time_range.end_time).toBe(new Date(2026, 3, 13, 17, 0).toISOString());
+    });
+
+    test('leaves the planned end of a leg that has not started yet as a plan when another one follows', async () => {
+      patrol.patrol_segments[0].scheduled_end = new Date(2026, 3, 13, 15, 0).toISOString();
+      patrol.patrol_segments[0].scheduled_start = new Date(2026, 3, 13, 13, 0).toISOString();
+      patrol.patrol_segments[0].time_range = { end_time: null, start_time: null };
+      patrol.patrol_segments[1].time_range.start_time = new Date(2026, 3, 13, 18, 0).toISOString();
+
+      const { user } = renderEditLeg(firstLegId);
+
+      await editObjective(user, ' twice');
+      await clickSave(user);
+
+      await waitFor(() => expect(updatePatrol).toHaveBeenCalledTimes(1));
+
+      expect(updatePatrol.mock.calls[0][0].patrol_segments).toEqual([{
+        id: firstLegId,
+        segment_details: { objective: 'Sweep the fence line twice' },
+      }]);
     });
 
     test('sends the details of the patrol type the user picked, not the ones the leg was run under', async () => {

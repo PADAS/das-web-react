@@ -103,7 +103,7 @@ describe('longTermDurationHumanizer', () => {
     expect(humanizeDuration(TWO_DAYS_AND_THREE_HOURS, 'es')).toBe('2 días 3 horas');
   });
 
-  test('writes the units in English for a language it does not support', () => {
-    expect(humanizeDuration(TWO_DAYS_AND_THREE_HOURS, 'ne-NP')).toBe('2 days 3 hours');
+  test('writes the units the app translates for a language the library does not support', () => {
+    expect(humanizeDuration(TWO_DAYS_AND_THREE_HOURS, 'ne-NP')).toBe('2d 3h');
   });
 });

@@ -58,10 +58,8 @@ const segmentKeepingItsUnnamedRoster = (segment, unnamedAssetIds, unnamedMemberI
 // the user changed and leaves the leg's every other field as it stands.
 const buildEditLegUpdate = (patrol, patrolSegment, { initialLeg, isFirstLeg, isLastLeg, leg }) => {
   const editedSegment = segmentKeepingItsSeconds(buildLegSegment(leg, { isFirstLeg, isLastLeg }), patrolSegment);
-  const openedSegment = segmentKeepingItsSeconds(
-    buildLegSegment(initialLeg, { isFirstLeg, isLastLeg }),
-    patrolSegment
-  );
+  // Built as stored, so a planned end the next leg now overrides is sent too.
+  const openedSegment = segmentKeepingItsSeconds(buildLegSegment(initialLeg, { isFirstLeg }), patrolSegment);
 
   const unnamedAssetIds = unnamedRosterIds(patrolSegment.assets, openedSegment.assets);
   const unnamedMemberIds = unnamedRosterIds(patrolSegment.members, openedSegment.members);
@@ -145,7 +143,7 @@ const EditLegContent = ({ patrol, patrolSegment }) => {
 
     try {
       await dispatch(updatePatrol(
-        buildEditLegUpdate(patrol, patrolSegment, { initialLeg, isFirstLeg, isLastLeg: !nextPatrolSegment, leg })
+        buildEditLegUpdate(patrol, patrolSegment, { initialLeg, isFirstLeg, isLastLeg: !nextLegStartDateTime, leg })
       ));
 
       editLegTracker.track('Edited a leg of a patrol from edit leg');

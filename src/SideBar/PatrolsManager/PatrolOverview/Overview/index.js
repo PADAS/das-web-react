@@ -46,7 +46,11 @@ const Overview = ({
 
   // Held stable so that the memoized activity section can bail on a render
   // the patrol itself did not change on.
-  const patrolEndTime = useMemo(() => actualEndTimeForPatrol(patrol), [patrol]);
+  const patrolEndTime = useMemo(
+    // A patrol that never began has no end that marks anything that happened.
+    () => actualStartTimeForPatrol(patrol) ? actualEndTimeForPatrol(patrol) : null,
+    [patrol]
+  );
   const patrolStartTime = useMemo(() => actualStartTimeForPatrol(patrol), [patrol]);
 
   const containedEvents = useMemo(() => {
