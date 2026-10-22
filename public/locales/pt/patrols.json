@@ -118,6 +118,7 @@
       "endDateInputLabel": "Data de finalização",
       "endDateNotAfterStartDateError": "A finalização da etapa deve ser posterior ao seu início.",
       "endDateOverlapsNextLegError": "Esta etapa não pode se sobrepor à próxima.",
+      "endDateRequiredError": "Uma etapa seguida de outra precisa de uma data de finalização.",
       "endLocationLabel": "Localização da finalização",
       "endTimeInputLabel": "Hora da finalização",
       "endTimeLabel": "Hora da finalização",
@@ -144,8 +145,8 @@
     "addEventLinkErrorMessage": "O evento foi salvo, mas não foi possível adicioná-lo a esta etapa da patrulha.",
     "attachmentsSaveErrorMessage": "Não foi possível carregar alguns anexos. Tente novamente.",
     "endedTitle": {
-      "leg": "Etapa {{number}} encerrada",
-      "pause": "Pausa {{number}} encerrada"
+      "leg": "Etapa {{number}} encerrada após {{duration}}",
+      "pause": "Pausa {{number}} encerrada após {{duration}}"
     },
     "footer": {
       "addEventButtonLabel": "Relatar um evento nesta etapa de patrulha",
@@ -289,7 +290,7 @@
     "historyTabTitle": "Histórico",
     "overview": {
       "activityEmptyStateMessage": "A atividade da patrulha aparecerá aqui",
-      "legEndedTitle": "Etapa {{legNumber}} encerrada",
+      "legEndedTitle": "Etapa {{legNumber}} encerrada após {{duration}}",
       "legs": {
         "durationLabel": "Duração",
         "legActionsColumnHeader": "Ações",
@@ -315,9 +316,9 @@
         "zoomToLegBoundsButtonLabel": "Ajustar aos limites da etapa {{number}}"
       },
       "legStartedTitle": "Etapa {{legNumber}} iniciada",
-      "patrolEndedTitle": "Patrulha finalizada",
-      "patrolPausedTitle": "Patrulha pausada por {{pausedFor}}",
-      "patrolResumedTitle": "Patrulha retomada",
+      "patrolEndedTitle": "Patrulha finalizada após {{duration}}",
+      "patrolPausedTitle": "Patrulha pausada",
+      "patrolResumedTitle": "Patrulha retomada após {{duration}}",
       "patrolStartedTitle": "Patrulha iniciada",
       "viewLegLinkLabel": {
         "leg": "Ver etapa {{number}}",

@@ -56,9 +56,12 @@ const segmentKeepingItsUnnamedRoster = (segment, unnamedAssetIds, unnamedMemberI
 
 // The API merges a leg into the one it holds by id, so an edit sends the fields
 // the user changed and leaves the leg's every other field as it stands.
-const buildEditLegUpdate = (patrol, patrolSegment, { initialLeg, isFirstLeg, leg }) => {
-  const editedSegment = segmentKeepingItsSeconds(buildLegSegment(leg, { isFirstLeg }), patrolSegment);
-  const openedSegment = segmentKeepingItsSeconds(buildLegSegment(initialLeg, { isFirstLeg }), patrolSegment);
+const buildEditLegUpdate = (patrol, patrolSegment, { initialLeg, isFirstLeg, isLastLeg, leg }) => {
+  const editedSegment = segmentKeepingItsSeconds(buildLegSegment(leg, { isFirstLeg, isLastLeg }), patrolSegment);
+  const openedSegment = segmentKeepingItsSeconds(
+    buildLegSegment(initialLeg, { isFirstLeg, isLastLeg }),
+    patrolSegment
+  );
 
   const unnamedAssetIds = unnamedRosterIds(patrolSegment.assets, openedSegment.assets);
   const unnamedMemberIds = unnamedRosterIds(patrolSegment.members, openedSegment.members);
@@ -142,7 +145,7 @@ const EditLegContent = ({ patrol, patrolSegment }) => {
 
     try {
       await dispatch(updatePatrol(
-        buildEditLegUpdate(patrol, patrolSegment, { initialLeg, isFirstLeg, leg })
+        buildEditLegUpdate(patrol, patrolSegment, { initialLeg, isFirstLeg, isLastLeg: !nextPatrolSegment, leg })
       ));
 
       editLegTracker.track('Edited a leg of a patrol from edit leg');

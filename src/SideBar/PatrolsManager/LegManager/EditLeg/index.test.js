@@ -522,6 +522,24 @@ describe('SideBar - PatrolsManager - LegManager - EditLeg', () => {
       }]);
     });
 
+    test('saves the end of a leg another one follows as the time it ends, never as a plan', async () => {
+      patrol.patrol_segments[0].scheduled_end = new Date(2026, 3, 13, 17, 0).toISOString();
+      patrol.patrol_segments[0].time_range.end_time = null;
+      patrol.patrol_segments[1].time_range.start_time = new Date(2026, 3, 13, 18, 0).toISOString();
+
+      const { user } = renderEditLeg(firstLegId);
+
+      await user.clear(getDateInput('End time', 'Hour'));
+      await user.type(getDateInput('End time', 'Hour'), '03');
+
+      await clickSave(user);
+
+      await waitFor(() => expect(updatePatrol).toHaveBeenCalledTimes(1));
+
+      expect(updatePatrol.mock.calls[0][0].patrol_segments[0].time_range.end_time)
+        .toBe(new Date(2026, 3, 13, 15, 0).toISOString());
+    });
+
     test('sends the details of the patrol type the user picked, not the ones the leg was run under', async () => {
       delete store.data.patrolSchemas[routinePatrol.value];
 

@@ -28,6 +28,7 @@ const StaticFields = ({
   earliestStartDateTime = null,
   errors,
   isFirstLeg = true,
+  isLastLeg = true,
   isPause = false,
   latestEndDateTime = null,
   leg,
@@ -235,8 +236,9 @@ const StaticFields = ({
 
         {!isPause && renderCheckbox({
           id: autoEndCheckboxId,
-          isChecked: leg.isAutoEnd,
-          isDisabled: !endDateTime || !isFuture(endDateTime),
+          // Only the last leg's end can be a plan.
+          isChecked: leg.isAutoEnd || !isLastLeg,
+          isDisabled: !isLastLeg || !endDateTime || !isFuture(endDateTime),
           label: t('autoEndCheckboxLabel'),
           onChange: (isAutoEnd) => onChangeLeg({ isAutoEnd }),
         })}

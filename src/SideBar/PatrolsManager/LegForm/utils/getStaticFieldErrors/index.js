@@ -53,6 +53,11 @@ const getStaticFieldErrors = (leg, {
     return { startDateTime: t('staticFields.startDateMatchesNextLegStartError') };
   }
 
+  // A leg left without an end would keep running beside the next one.
+  if (nextLegStartDateTime && !isValidDate(leg.endDate)) {
+    return { endDateTime: t('staticFields.endDateRequiredError') };
+  }
+
   if (isValidDate(leg.endDate) && !isValidTime(leg.endTime)) {
     return { endTime: t('staticFields.endTimeRequiredError') };
   }

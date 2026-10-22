@@ -6,11 +6,12 @@ const getIsScheduled = (dateTime, isAuto) => !!dateTime && !isAuto && isFuture(d
 
 // Only the first leg's start may be left as a plan: starting the patrol is what
 // fulfils a scheduled start, and that only ever touches the first leg.
-const buildLegSegment = (leg, { isFirstLeg = true } = {}) => {
+const buildLegSegment = (leg, { isFirstLeg = true, isLastLeg = true } = {}) => {
   const endDateTime = parseLegDraftDateTime(leg.endDate, leg.endTime);
   const startDateTime = parseLegDraftDateTime(leg.startDate, leg.startTime);
 
-  const isEndScheduled = getIsScheduled(endDateTime, leg.isAutoEnd);
+  // Nothing ends a leg the next one follows, so only the last end can be a plan.
+  const isEndScheduled = isLastLeg && getIsScheduled(endDateTime, leg.isAutoEnd);
   const isStartScheduled = isFirstLeg && getIsScheduled(startDateTime, leg.isAutoStart);
 
   return {

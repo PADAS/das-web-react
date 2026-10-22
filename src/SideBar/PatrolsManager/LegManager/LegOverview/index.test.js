@@ -346,6 +346,18 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview', () => {
     expect(screen.getByRole('textbox')).toHaveValue('A new note');
   });
 
+  test('marks the end of a leg with how long it ran', () => {
+    const endedLeg = {
+      ...endedPatrolSegment,
+      time_range: { end_time: '2026-04-13T03:30:00.000-07:00', start_time: '2026-04-13T01:00:00.000-07:00' },
+    };
+
+    renderLegOverview({ patrol: { ...patrol, patrol_segments: [endedLeg, activePatrolSegment] } });
+
+    expect(screen.getByText('Leg 1 ended after 2 hours 30 minutes')).toBeInTheDocument();
+    expect(screen.getByText('Leg 1 started')).toBeInTheDocument();
+  });
+
   test('names a pause after the pauses of its patrol', () => {
     const pause = {
       ...activePatrolSegment,

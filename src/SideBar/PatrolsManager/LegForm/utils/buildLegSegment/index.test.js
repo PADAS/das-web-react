@@ -62,6 +62,13 @@ describe('SideBar - PatrolsManager - LegForm - utils - buildLegSegment', () => {
     expect(segment.time_range.end_time).toBeNull();
   });
 
+  test('sets a future end the user did not ask to end automatically as the end of a leg another one follows', () => {
+    const segment = buildLegSegment({ ...leg, endDate: '2026-04-20', endTime: '17:00' }, { isLastLeg: false });
+
+    expect(segment.scheduled_end).toBeNull();
+    expect(segment.time_range.end_time).toBe(new Date('2026-04-20T17:00').toISOString());
+  });
+
   test('leaves the times empty when there are no dates', () => {
     const segment = buildLegSegment(leg);
 

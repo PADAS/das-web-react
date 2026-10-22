@@ -1028,30 +1028,48 @@ const withPatrolSegmentRunAsPlanned = (patrolSegment, nextPatrolSegment) => {
 
 // Pausing and resuming both close the running leg and open a copy, so a pause
 // is a full leg and a resume restores the one it interrupted for free.
-const withPatrolSegmentContinuedAt = (patrolSegment, startTime, { isPause }) => ({
+const withPatrolSegmentContinuedAt = (patrolSegment, startTime, { endTime, isPause, scheduledEnd }) => ({
   // The places the interrupted leg was planned around are not this one's, and
   // the icon the server derived from its type is not the client's to send.
   ...omit(patrolSegment, ['end_location', 'events', 'icon_id', 'id', 'image_url', 'start_location', 'updates']),
   is_pause: isPause,
-  scheduled_end: null,
+  scheduled_end: scheduledEnd,
   scheduled_start: null,
-  time_range: { end_time: null, start_time: startTime },
+  time_range: { end_time: endTime, start_time: startTime },
 });
 
 const buildPatrolContinuationUpdate = (patrol, { isPause }) => {
-  const runningSegment = (patrol.patrol_segments ?? []).findLast(isSegmentActive);
+  const patrolSegments = patrol.patrol_segments ?? [];
+  const runningSegment = patrolSegments.findLast(isSegmentActive);
 
   // Nothing is under way to interrupt or to pick back up.
   if (!runningSegment) {
     return null;
   }
 
-  const continuationTime = new Date().toISOString();
+  const continuationDate = new Date();
+  const continuationTime = continuationDate.toISOString();
+
+  // A pause plans nothing, so resuming takes back the end the paused leg planned.
+  const interruptedSegment = isPause
+    ? null
+    : patrolSegments
+      .slice(0, patrolSegments.indexOf(runningSegment))
+      .findLast((patrolSegment) => !isPatrolSegmentAPause(patrolSegment));
+  const interruptedScheduledEnd = interruptedSegment ? scheduledEndTimeForPatrolSegment(interruptedSegment) : null;
 
   return {
     patrol_segments: [
       withPatrolSegmentTimeRange(runningSegment, { end_time: continuationTime }),
-      withPatrolSegmentContinuedAt(runningSegment, continuationTime, { isPause }),
+      withPatrolSegmentContinuedAt(runningSegment, continuationTime, {
+        // An end the leg reaches by itself is still ahead while it runs, so the
+        // pause takes it over and ends the patrol then unless it is resumed.
+        endTime: runningSegment.time_range?.end_time ?? null,
+        isPause,
+        scheduledEnd: !!interruptedScheduledEnd && interruptedScheduledEnd > continuationDate
+          ? interruptedSegment.scheduled_end
+          : null,
+      }),
     ],
     state: PATROL_API_STATES.OPEN,
   };

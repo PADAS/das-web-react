@@ -11,24 +11,20 @@ import {
   actualStartTimeForPatrol,
   actualStartTimeForPatrolSegment,
   displayNumberForPatrolSegment,
-  effectiveEndTimeForPatrolSegment,
+  getElapsedTimeForPatrol,
   getElapsedTimeForPatrolSegment,
   getReportsForPatrol,
   hasPatrolSegmentNotRun,
-  isPatrolPaused,
   isPatrolSegmentAPause,
 } from '../../../../utils/patrols';
 import { getEventIdsForCollection } from '../../../../utils/events';
-import { longTermAbbreviatedDurationHumanizer } from '../../../../utils/datetime';
+import { longTermDurationHumanizer } from '../../../../utils/datetime';
 import { PATROL_UI_STATES, TAB_KEYS } from '../../../../constants';
-import useCurrentTime from '../../../../hooks/useCurrentTime';
 
 import Activity from '../../Activity';
 import Legs from './Legs';
 
 import * as styles from './styles.module.scss';
-
-const PAUSED_TIME_REFRESH_INTERVAL = 30_000;
 
 const Overview = ({
   attachments,
@@ -43,12 +39,10 @@ const Overview = ({
   patrol,
   patrolState,
 }) => {
-  const { t } = useTranslation('patrols', { keyPrefix: 'patrolOverview.overview' });
+  const { i18n, t } = useTranslation('patrols', { keyPrefix: 'patrolOverview.overview' });
   const { t: tDates } = useTranslation('dates');
 
-  const currentTime = useCurrentTime(isPatrolPaused(patrol) ? PAUSED_TIME_REFRESH_INTERVAL : null);
-
-  const humanizeDuration = useMemo(() => longTermAbbreviatedDurationHumanizer(tDates), [tDates]);
+  const humanizeDuration = useMemo(() => longTermDurationHumanizer(tDates, i18n.language), [i18n.language, tDates]);
 
   // Held stable so that the memoized activity section can bail on a render
   // the patrol itself did not change on.
@@ -99,25 +93,22 @@ const Overview = ({
     // A pause interrupts the patrol rather than carrying it on, so its moments
     // are the patrol stopping and, where a leg follows, picking back up.
     if (isPatrolSegmentAPause(patrolSegment)) {
-      // A pause the patrol was called off or closed on has an end of its own,
-      // so only one the patrol is still sitting on counts up to now.
-      const pausedUntil = effectiveEndTimeForPatrolSegment(patrol, patrolSegment)?.getTime() ?? currentTime;
-      const pausedFor = humanizeDuration(getElapsedTimeForPatrolSegment(patrolSegment, pausedUntil));
-
       return [
         ...(startTime ? [{
           date: startTime,
           icon: PauseIcon,
           id: `${patrolSegment.id}-start`,
           link: legLinkForPatrolSegment(index),
-          title: t('patrolPausedTitle', { pausedFor }),
+          title: t('patrolPausedTitle'),
           variant: PATROL_UI_STATES.PAUSED.key,
         }] : []),
         ...(endTime ? [{
           date: endTime,
           icon: PlayIcon,
           id: `${patrolSegment.id}-end`,
-          title: t('patrolResumedTitle'),
+          title: t('patrolResumedTitle', {
+            duration: humanizeDuration(getElapsedTimeForPatrolSegment(patrolSegment)),
+          }),
           variant: PATROL_UI_STATES.ACTIVE.key,
         }] : []),
       ];
@@ -134,10 +125,13 @@ const Overview = ({
       ...(endTime ? [{
         date: endTime,
         id: `${patrolSegment.id}-end`,
-        title: t('legEndedTitle', { legNumber }),
+        title: t('legEndedTitle', {
+          duration: humanizeDuration(getElapsedTimeForPatrolSegment(patrolSegment)),
+          legNumber,
+        }),
       }] : []),
     ];
-  }), [currentTime, humanizeDuration, legLinkForPatrolSegment, patrol, t]);
+  }), [humanizeDuration, legLinkForPatrolSegment, patrol, t]);
 
   return <>
     <Legs patrol={patrol} patrolState={patrolState} />
@@ -148,7 +142,9 @@ const Overview = ({
       containedEvents={containedEvents}
       emptyStateMessage={t('activityEmptyStateMessage')}
       endTime={patrolEndTime}
-      endTitle={t('patrolEndedTitle')}
+      endTitle={t('patrolEndedTitle', {
+        duration: patrolEndTime ? humanizeDuration(getElapsedTimeForPatrol(patrol)) : null,
+      })}
       existingNotes={existingNotes}
       milestones={legMilestones}
       newAttachments={newAttachments}

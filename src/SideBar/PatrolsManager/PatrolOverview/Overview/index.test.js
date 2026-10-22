@@ -165,27 +165,53 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview', () => {
   test('shows the patrol started milestone, but no patrol ended milestone while the patrol runs', () => {
     renderOverview();
 
-    expect(screen.getByText('Patrol Started')).toBeInTheDocument();
-    expect(screen.queryByText('Patrol Ended')).not.toBeInTheDocument();
+    expect(screen.getByText('Patrol started')).toBeInTheDocument();
+    expect(screen.queryByText(/^Patrol ended/)).not.toBeInTheDocument();
   });
 
   test('marks the end of a leg that ran and the start of the one after it', () => {
     renderOverview();
 
-    expect(screen.getByText('Leg 1 Ended')).toBeInTheDocument();
-    expect(screen.getByText('Leg 2 Started')).toBeInTheDocument();
+    expect(screen.getByText(/^Leg 1 ended after/)).toBeInTheDocument();
+    expect(screen.getByText('Leg 2 started')).toBeInTheDocument();
   });
 
   test('marks a pause as the patrol stopping and picking back up, not as a leg', () => {
     renderOverview({ patrol: patrolWithPause() });
 
-    expect(screen.getByText(/Patrol Paused for/)).toBeInTheDocument();
-    expect(screen.getByText('Patrol Resumed')).toBeInTheDocument();
-    expect(screen.getByText('Leg 2 Started')).toBeInTheDocument();
-    expect(screen.queryByText('Leg 3 Started')).not.toBeInTheDocument();
+    expect(screen.getByText('Patrol paused')).toBeInTheDocument();
+    expect(screen.getByText(/^Patrol resumed after/)).toBeInTheDocument();
+    expect(screen.getByText('Leg 2 started')).toBeInTheDocument();
+    expect(screen.queryByText('Leg 3 started')).not.toBeInTheDocument();
   });
 
-  test('stops counting a pause the patrol was called off on at the cancellation', () => {
+  test('marks the patrol resuming with how long it was paused', () => {
+    const patrol = patrolWithLegTimes(
+      { end_time: '2026-04-13T02:00:00.000-07:00', start_time: '2026-04-13T01:00:00.000-07:00' },
+      { end_time: '2026-04-13T02:12:00.000-07:00', start_time: '2026-04-13T02:00:00.000-07:00' },
+      { end_time: null, start_time: '2026-04-13T02:12:00.000-07:00' },
+    );
+    patrol.patrol_segments[1].is_pause = true;
+
+    renderOverview({ patrol });
+
+    expect(screen.getByText('Patrol resumed after 12 minutes')).toBeInTheDocument();
+  });
+
+  test('marks the patrol resuming after a pause shorter than a minute', () => {
+    const patrol = patrolWithLegTimes(
+      { end_time: '2026-04-13T02:00:00.000-07:00', start_time: '2026-04-13T01:00:00.000-07:00' },
+      { end_time: '2026-04-13T02:00:33.000-07:00', start_time: '2026-04-13T02:00:00.000-07:00' },
+      { end_time: null, start_time: '2026-04-13T02:00:33.000-07:00' },
+    );
+    patrol.patrol_segments[1].is_pause = true;
+
+    renderOverview({ patrol });
+
+    expect(screen.getByText('Patrol resumed after less than a minute')).toBeInTheDocument();
+  });
+
+  test('does not mark a pause the patrol was called off on as the patrol resuming', () => {
     jest.useFakeTimers().setSystemTime(new Date('2026-04-14T01:00:00.000-07:00'));
 
     const [legOne] = patrolWithLeader.patrol_segments;
@@ -205,12 +231,13 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview', () => {
       },
     });
 
-    expect(screen.getByText('Patrol Paused for 1h')).toBeInTheDocument();
+    expect(screen.getByText('Patrol paused')).toBeInTheDocument();
+    expect(screen.queryByText(/^Patrol resumed/)).not.toBeInTheDocument();
 
     jest.useRealTimers();
   });
 
-  test('marks the end of a leg whose successor never started', () => {
+  test('marks the end of a leg whose successor never started, with how long the leg ran', () => {
     renderOverview({
       patrol: patrolWithLegTimes(
         { end_time: '2026-04-13T02:00:00.000-07:00', start_time: '2026-04-13T01:00:00.000-07:00' },
@@ -218,8 +245,8 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview', () => {
       ),
     });
 
-    expect(screen.getByText('Leg 1 Ended')).toBeInTheDocument();
-    expect(screen.queryByText('Leg 2 Started')).not.toBeInTheDocument();
+    expect(screen.getByText('Leg 1 ended after 1 hour')).toBeInTheDocument();
+    expect(screen.queryByText('Leg 2 started')).not.toBeInTheDocument();
   });
 
   test('leaves the first leg start and the last leg end to the patrol own milestones', () => {
@@ -230,10 +257,10 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview', () => {
       ),
     });
 
-    expect(screen.queryByText('Leg 1 Started')).not.toBeInTheDocument();
-    expect(screen.queryByText('Leg 2 Ended')).not.toBeInTheDocument();
-    expect(screen.getByText('Patrol Started')).toBeInTheDocument();
-    expect(screen.getByText('Patrol Ended')).toBeInTheDocument();
+    expect(screen.queryByText('Leg 1 started')).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Leg 2 ended after/)).not.toBeInTheDocument();
+    expect(screen.getByText('Patrol started')).toBeInTheDocument();
+    expect(screen.getByText('Patrol ended after 2 hours')).toBeInTheDocument();
   });
 
   test('links a leg started milestone to the leg it marks', () => {
@@ -241,7 +268,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview', () => {
 
     const [, legTwo] = patrolWithLeader.patrol_segments;
 
-    expect(activityLink('Leg 2 Started'))
+    expect(activityLink('Leg 2 started'))
       .toHaveAttribute('href', `/patrols/${patrolWithLeader.id}/legs/${legTwo.id}`);
   });
 
@@ -253,21 +280,21 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview', () => {
 
     renderOverview({ patrol });
 
-    expect(activityLink('Patrol Started')).toHaveAttribute('href', `/patrols/${patrol.id}/legs/leg-0`);
+    expect(activityLink('Patrol started')).toHaveAttribute('href', `/patrols/${patrol.id}/legs/leg-0`);
   });
 
   test('links a pause milestone to the pause it marks', () => {
     renderOverview({ patrol: patrolWithPause() });
 
-    expect(activityLink(/Patrol Paused for/))
+    expect(activityLink('Patrol paused'))
       .toHaveAttribute('href', `/patrols/${patrolWithLeader.id}/legs/pause-1`);
   });
 
   test('does not link the milestones that mark something ending', () => {
     renderOverview({ patrol: patrolWithPause() });
 
-    expect(activityRow('Leg 1 Ended').queryByRole('link')).toBeNull();
-    expect(activityRow('Patrol Resumed').queryByRole('link')).toBeNull();
+    expect(activityRow(/^Leg 1 ended after/).queryByRole('link')).toBeNull();
+    expect(activityRow(/^Patrol resumed after/).queryByRole('link')).toBeNull();
   });
 
   test('does not link the patrol ended milestone', () => {
@@ -277,7 +304,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview', () => {
       ),
     });
 
-    expect(activityRow('Patrol Ended').queryByRole('link')).toBeNull();
+    expect(activityRow(/^Patrol ended after/).queryByRole('link')).toBeNull();
   });
 
   test('marks both ends of a leg in the middle of the patrol', () => {
@@ -289,9 +316,9 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview', () => {
       ),
     });
 
-    expect(screen.getByText('Leg 2 Started')).toBeInTheDocument();
-    expect(screen.getByText('Leg 2 Ended')).toBeInTheDocument();
-    expect(screen.getByText('Leg 3 Started')).toBeInTheDocument();
+    expect(screen.getByText('Leg 2 started')).toBeInTheDocument();
+    expect(screen.getByText(/^Leg 2 ended after/)).toBeInTheDocument();
+    expect(screen.getByText('Leg 3 started')).toBeInTheDocument();
   });
 
   test('does not show a leg milestone that is still scheduled ahead', () => {
@@ -302,8 +329,8 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview', () => {
       ),
     });
 
-    expect(screen.queryByText('Leg 1 Ended')).not.toBeInTheDocument();
-    expect(screen.queryByText('Leg 2 Started')).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Leg 1 ended after/)).not.toBeInTheDocument();
+    expect(screen.queryByText('Leg 2 started')).not.toBeInTheDocument();
   });
 
   test('shows no leg milestone for a patrol with a single leg', () => {
@@ -314,9 +341,9 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview', () => {
       }),
     });
 
-    expect(screen.queryByText('Leg 1 Started')).not.toBeInTheDocument();
-    expect(screen.queryByText('Leg 1 Ended')).not.toBeInTheDocument();
-    expect(screen.getByText('Patrol Started')).toBeInTheDocument();
+    expect(screen.queryByText('Leg 1 started')).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Leg 1 ended after/)).not.toBeInTheDocument();
+    expect(screen.getByText('Patrol started')).toBeInTheDocument();
   });
 
   test('does not mark the end a closed patrol stamped on a leg that never ran', () => {
@@ -331,9 +358,9 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview', () => {
       },
     });
 
-    expect(screen.getByText('Leg 1 Ended')).toBeInTheDocument();
-    expect(screen.queryByText('Leg 2 Ended')).not.toBeInTheDocument();
-    expect(screen.queryByText('Leg 2 Started')).not.toBeInTheDocument();
+    expect(screen.getByText(/^Leg 1 ended after/)).toBeInTheDocument();
+    expect(screen.queryByText(/^Leg 2 ended after/)).not.toBeInTheDocument();
+    expect(screen.queryByText('Leg 2 started')).not.toBeInTheDocument();
   });
 
   test('shows the patrol ended milestone once the last leg has ended', () => {
@@ -346,7 +373,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview', () => {
       },
     });
 
-    expect(screen.getByText('Patrol Ended')).toBeInTheDocument();
+    expect(screen.getByText(/^Patrol ended after/)).toBeInTheDocument();
   });
 
   test('does not crash when the patrol is missing files or notes', () => {
