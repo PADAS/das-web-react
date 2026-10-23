@@ -6,7 +6,7 @@ import { EMPTY_DATE_VALUE } from '../../../../../../DatePicker';
 import { getHoursAndMinutesString } from '../../../../../../utils/datetime';
 
 // A leg begins where the one before it ends. While that end is unset it begins
-// now, or where the previous leg's own plan starts when that is still ahead.
+// now, or the minute after the previous leg starts when that is still ahead.
 const getStartDate = (previousPatrolSegment) => {
   const now = new Date();
 

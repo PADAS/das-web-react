@@ -310,15 +310,20 @@ export const actualEndTimeForPatrolSegment = (patrolSegment) => patrolSegment.ti
 export const scheduledEndTimeForPatrolSegment = (patrolSegment) =>
   patrolSegment.scheduled_end ? new Date(patrolSegment.scheduled_end) : null;
 
-// The earliest a following leg may begin is where this one ends, or begins
-// while it has no end.
+// The earliest a following leg may begin is where this one ends, or the minute
+// after it begins while it has no end, since two legs never share a start.
 export const earliestStartAfterPatrolSegment = (patrolSegment) => {
-  const earliestStart = displayEndTimeForPatrolSegment(patrolSegment)
-    ?? displayStartTimeForPatrolSegment(patrolSegment);
+  const endDateTime = displayEndTimeForPatrolSegment(patrolSegment);
 
-  return earliestStart && (earliestStart.getSeconds() || earliestStart.getMilliseconds())
-    ? addMinutes(startOfMinute(earliestStart), 1)
-    : earliestStart;
+  if (endDateTime) {
+    return endDateTime.getSeconds() || endDateTime.getMilliseconds()
+      ? addMinutes(startOfMinute(endDateTime), 1)
+      : endDateTime;
+  }
+
+  const startDateTime = displayStartTimeForPatrolSegment(patrolSegment);
+
+  return startDateTime ? addMinutes(startOfMinute(startDateTime), 1) : null;
 };
 
 // The latest a preceding leg may reach is where this one begins, down to the

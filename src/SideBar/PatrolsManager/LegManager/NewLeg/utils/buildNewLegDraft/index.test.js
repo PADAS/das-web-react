@@ -54,7 +54,20 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg - utils - buildNewLegDr
     expect(draft.startTime).toBe('08:30');
   });
 
-  test('starts the leg where the previous one does when that one is planned ahead of time', () => {
+  test('starts the leg on the minute after the previous one when that one began this same minute', () => {
+    const draft = buildDraft({
+      previousPatrolSegment: {
+        ...previousPatrolSegment,
+        scheduled_end: null,
+        time_range: { end_time: null, start_time: new Date(2026, 3, 13, 8, 30).toISOString() },
+      },
+    });
+
+    expect(draft.startDate).toBe('2026-04-13');
+    expect(draft.startTime).toBe('08:31');
+  });
+
+  test('starts the leg on the minute after the previous one when that one is planned ahead of time', () => {
     const draft = buildDraft({
       previousPatrolSegment: {
         ...previousPatrolSegment,
@@ -65,7 +78,7 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg - utils - buildNewLegDr
     });
 
     expect(draft.startDate).toBe('2026-04-20');
-    expect(draft.startTime).toBe('06:15');
+    expect(draft.startTime).toBe('06:16');
   });
 
   test('starts the leg on the minute after an end carrying seconds', () => {
