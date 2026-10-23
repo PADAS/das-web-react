@@ -415,7 +415,7 @@ describe('SideBar - PatrolsManager - LegManager - EditLeg', () => {
       }]);
     });
 
-    test('does not save a start moved onto the start of a leg before it that never ended', async () => {
+    test('holds a start moved onto the start of a leg before it that never ended to the minute after', async () => {
       patrol.patrol_segments[0].time_range.end_time = null;
 
       const { user } = renderEditLeg(lastLegId);
@@ -425,10 +425,12 @@ describe('SideBar - PatrolsManager - LegManager - EditLeg', () => {
 
       await clickSave(user);
 
-      expect(updatePatrol).not.toHaveBeenCalled();
-      expect(screen.getByText('This leg cannot start at the same time as the previous one.')).toBeVisible();
-      expect(screen.getByRole('group', { name: 'Start date' })).toHaveAttribute('aria-invalid', 'true');
-      expect(screen.getByRole('group', { name: 'Start time' })).toHaveAttribute('aria-invalid', 'true');
+      await waitFor(() => expect(updatePatrol).toHaveBeenCalledTimes(1));
+
+      expect(updatePatrol.mock.calls[0][0].patrol_segments).toEqual([{
+        id: lastLegId,
+        time_range: { end_time: null, start_time: new Date(2026, 3, 13, 6, 1).toISOString() },
+      }]);
     });
 
     test('does not save a start moved onto the start of the leg after it', async () => {

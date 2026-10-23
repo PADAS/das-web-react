@@ -200,14 +200,14 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
       expect(getStartDateTime()).toBe('2026 04 13 12 00 PM');
     });
 
-    test('starts the leg where the previous one does when that one is planned ahead of time', () => {
+    test('starts the leg on the minute after the previous one when that one is planned ahead of time', () => {
       patrol.patrol_segments[0].scheduled_end = null;
       patrol.patrol_segments[0].scheduled_start = new Date(2026, 3, 15, 7, 30).toISOString();
       patrol.patrol_segments[0].time_range = { end_time: null, start_time: null };
 
       renderNewLeg();
 
-      expect(getStartDateTime()).toBe('2026 04 15 07 30 AM');
+      expect(getStartDateTime()).toBe('2026 04 15 07 31 AM');
     });
 
     test('starts the leg on the minute after an end carrying seconds', () => {
@@ -368,7 +368,7 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
         .toBe(new Date(2026, 3, 13, 12, 0).toISOString());
     });
 
-    test('does not add the leg when it starts the same minute the running previous leg started on', async () => {
+    test('adds the leg on the minute after the running previous leg when that one started this same minute', async () => {
       jest.setSystemTime(new Date(2026, 3, 13, 12, 0, 10));
       patrol.patrol_segments[0].scheduled_end = null;
       patrol.patrol_segments[0].time_range.start_time = new Date(2026, 3, 13, 12, 0).toISOString();
@@ -377,10 +377,14 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
 
       await clickSave(user);
 
-      expect(updatePatrol).not.toHaveBeenCalled();
-      expect(screen.getByText('This leg cannot start at the same time as the previous one.')).toBeVisible();
-      expect(screen.getByRole('group', { name: 'Start date' })).toHaveAttribute('aria-invalid', 'true');
-      expect(screen.getByRole('group', { name: 'Start time' })).toHaveAttribute('aria-invalid', 'true');
+      await waitFor(() => expect(updatePatrol).toHaveBeenCalledTimes(1));
+
+      const [patrolUpdate] = updatePatrol.mock.calls[0];
+
+      expect(patrolUpdate.patrol_segments[0].time_range.end_time)
+        .toBe(new Date(2026, 3, 13, 12, 1).toISOString());
+      expect(patrolUpdate.patrol_segments[1].time_range.start_time)
+        .toBe(new Date(2026, 3, 13, 12, 1).toISOString());
     });
 
     test('does not add the leg when its end matches its start', async () => {

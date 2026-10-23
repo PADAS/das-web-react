@@ -1704,16 +1704,16 @@ describe('Patrols utils', () => {
       expect(earliestStartAfterPatrolSegment(segment)).toEqual(new Date('2022-06-20T00:00:00.000Z'));
     });
 
-    test('falls back to the start of a leg that carries no end', () => {
+    test('falls back to the minute after the start of a leg that carries no end', () => {
       const segment = { time_range: { start_time: '2022-06-14T11:00:00.000Z' } };
 
-      expect(earliestStartAfterPatrolSegment(segment)).toEqual(new Date('2022-06-14T11:00:00.000Z'));
+      expect(earliestStartAfterPatrolSegment(segment)).toEqual(new Date('2022-06-14T11:01:00.000Z'));
     });
 
-    test('falls back to the scheduled start of a leg that carries no end', () => {
+    test('falls back to the minute after the scheduled start of a leg that carries no end', () => {
       const segment = { scheduled_start: '2022-06-14T11:00:00.000Z', time_range: {} };
 
-      expect(earliestStartAfterPatrolSegment(segment)).toEqual(new Date('2022-06-14T11:00:00.000Z'));
+      expect(earliestStartAfterPatrolSegment(segment)).toEqual(new Date('2022-06-14T11:01:00.000Z'));
     });
 
     test('returns null for a leg with neither a start nor an end', () => {
@@ -1732,7 +1732,7 @@ describe('Patrols utils', () => {
       expect(earliestStartAfterPatrolSegment(segment)).toEqual(new Date('2022-06-15T11:01:00.000Z'));
     });
 
-    test('raises the start of a leg that carries no end too', () => {
+    test('falls back to the minute after a start carrying seconds', () => {
       expect(earliestStartAfterPatrolSegment({ scheduled_start: '2022-06-14T11:00:32.000Z', time_range: {} }))
         .toEqual(new Date('2022-06-14T11:01:00.000Z'));
     });
