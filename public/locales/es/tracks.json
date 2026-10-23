@@ -4,7 +4,8 @@
     "icon": "Ícono para {{patrolTitle}}",
     "itemTitle": "Patrulla: {{patrolTitle}}",
     "subjectIcon": "Icono para {{subject}}",
-    "trackLegendItemsName": "patrullas"
+    "trackLegendItemsName": "patrullas",
+    "trackTimeDescription": "En {{trackTime}}"
   },
   "subjectTrackLegend": {
     "description": "{{pointCount}} puntos en {{trackTime}}",

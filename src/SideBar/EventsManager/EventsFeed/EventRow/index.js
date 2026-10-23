@@ -86,7 +86,7 @@ const EventRow = ({ displayTimeProp, event }) => {
       </Link>
     </div>
 
-    {!!date && <TimeAgo className={styles.details} date={date} suffix={t('ageSuffix')} />}
+    {!!date && <TimeAgo className={styles.details} date={date} prefix={t('agePrefix')} suffix={t('ageSuffix')} />}
 
     <div className={styles.status}>
       {!!stateKey && <span className={`${styles.statusTitle} ${styles[stateKey]}`}>{t(`states.${stateKey}`)}</span>}

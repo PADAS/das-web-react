@@ -107,7 +107,8 @@
           },
           "updatedEventToastMessage": "#{{eventSerialNumber}} {{newState}}"
         },
-        "ageSuffix": "auparavant",
+        "agePrefix": "Il y a",
+        "ageSuffix": "",
         "patrolIndicator": "p",
         "states": {
           "active": "Actif",

@@ -374,6 +374,7 @@ describe('SideBar - PatrolsManager - Activity - SummaryStats', () => {
         time_range: FIRST_LEG_TIME_RANGE,
       }],
     };
+    store.data.tracks[DOG.id] = trackFor([[0, 0.5], [0, 0]], FIRST_LEG_TIME_RANGE);
 
     renderSummaryStats({ patrol: leaderlessPatrol });
 

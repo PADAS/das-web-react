@@ -4,7 +4,8 @@
     "icon": "{{patrolTitle}}को लागि आइकन",
     "itemTitle": "गस्ती: {{patrolTitle}}",
     "subjectIcon": "{{subject}} को आइकन",
-    "trackLegendItemsName": "गस्तीहरु"
+    "trackLegendItemsName": "गस्तीहरु",
+    "trackTimeDescription": "{{trackTime}} मा"
   },
   "subjectTrackLegend": {
     "description": "{{trackTime}} मा {{pointCount}} पोइन्टहरू",

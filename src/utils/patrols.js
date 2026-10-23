@@ -1495,4 +1495,4 @@ export const getBoundsForPatrol = (patrol, patrolTrackData) => {
 
 // A patrol has a track from the moment it begins, whatever state it went on to
 // reach: one called off halfway still covered ground.
-export const patrolStateAllowsTrackDisplay = (patrol) => hasPatrolBegun(patrol);
+export const patrolStateAllowsTrackDisplay = hasPatrolBegun;

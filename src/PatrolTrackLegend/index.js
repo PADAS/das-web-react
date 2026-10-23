@@ -29,13 +29,7 @@ const PatrolTrackLegend = () => {
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
   const trackTimeEnvelope = useSelector(selectTrackTimeEnvelope);
 
-  // The ground every drawn patrol track covers, as "61.3km over 2 days".
   const description = useMemo(() => {
-    // A patrol whose tracks are still loading would leave a total short of them all.
-    if (patrolsWithTrackData.some((patrolData) => patrolData.distance === null)) {
-      return '';
-    }
-
     const trackTimeEnvelopeFormatted = trackTimeEnvelope.until
       ? formatDistance(
         new Date(trackTimeEnvelope.from),
@@ -44,13 +38,16 @@ const PatrolTrackLegend = () => {
       )
       : formatDistanceToNow(new Date(trackTimeEnvelope.from), { locale: getCurrentLocale() });
 
-    return t('description', {
-      distance: formatDistanceInKilometers(
-        tUtils,
-        patrolsWithTrackData.reduce((distance, patrolData) => distance + patrolData.distance, 0)
-      ),
-      trackTime: trackTimeEnvelopeFormatted,
-    });
+    // A patrol whose distance is unknown would leave the total short of it.
+    return patrolsWithTrackData.some((patrolData) => patrolData.distance === null)
+      ? t('trackTimeDescription', { trackTime: trackTimeEnvelopeFormatted })
+      : t('description', {
+        distance: formatDistanceInKilometers(
+          tUtils,
+          patrolsWithTrackData.reduce((distance, patrolData) => distance + patrolData.distance, 0)
+        ),
+        trackTime: trackTimeEnvelopeFormatted,
+      });
   }, [patrolsWithTrackData, t, trackTimeEnvelope.from, trackTimeEnvelope.until, tUtils]);
 
   // One row per tracked patrol, listing the subjects whose tracks make it up.

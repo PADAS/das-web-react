@@ -109,7 +109,7 @@ describe('SideBar - EventsManager - EventsFeed - EventRow', () => {
 
       renderEventRow({ displayTimeProp: 'created_at' });
 
-      expect(screen.getByTestId('time-ago')).toHaveTextContent('17h 4m ago');
+      expect(screen.getByTestId('time-ago')).toHaveTextContent(/^17h 4m ago$/);
     });
 
     test('falls back to the age of the update date when the event lacks the date the feed is sorted by', () => {

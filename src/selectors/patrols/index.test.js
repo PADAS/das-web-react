@@ -1616,6 +1616,22 @@ describe('Selectors - Patrols', () => {
       expect(selectPatrolLeadSumDistance(state, patrol)).toBeNull();
     });
 
+    test('leaves the distance unknown while the track of a lead does not reach back to an earlier leg it led', () => {
+      state.data.tracks[FIRST_LEAD.id] = {
+        ...trackWithTimes([[0, 2], [0, 1]], ['2020-01-09T00:00:00.000Z', '2020-01-05T00:00:00.000Z']),
+        fetchedDateRange: { since: '2020-01-05T00:00:00.000Z' },
+      };
+      const patrol = {
+        state: 'done',
+        patrol_segments: [
+          patrolSegment(FIRST_LEAD, '2020-01-01T00:00:00.000Z', '2020-01-05T00:00:00.000Z'),
+          patrolSegment(FIRST_LEAD, '2020-01-05T00:00:00.000Z', '2020-01-09T00:00:00.000Z'),
+        ],
+      };
+
+      expect(selectPatrolLeadSumDistance(state, patrol)).toBeNull();
+    });
+
     test('leaves the distance unknown for a patrol that has not begun', () => {
       const patrol = {
         state: 'open',
@@ -1957,7 +1973,10 @@ describe('Selectors - Patrols', () => {
 
     test('counts no distance for a leg without a start time', () => {
       const patrolWithoutLegStartTime = {
-        patrol_segments: [legFor(RANGER, FIRST_LEG_TIME_RANGE), legFor(DOG, { end_time: SECOND_LEG_TIME_RANGE.end_time })],
+        patrol_segments: [
+          legFor(RANGER, FIRST_LEG_TIME_RANGE),
+          legFor(DOG, { end_time: SECOND_LEG_TIME_RANGE.end_time }),
+        ],
       };
 
       expect(selectPatrolTrackedSubjects(state, patrolWithoutLegStartTime)[0].distance).toBe(0);
@@ -1965,7 +1984,10 @@ describe('Selectors - Patrols', () => {
 
     test('leaves the distance unknown for a patrol whose first leg never began, though a later one did', () => {
       const patrolNotBegun = {
-        patrol_segments: [legFor(DOG, { end_time: FIRST_LEG_TIME_RANGE.end_time }), legFor(RANGER, FIRST_LEG_TIME_RANGE)],
+        patrol_segments: [
+          legFor(DOG, { end_time: FIRST_LEG_TIME_RANGE.end_time }),
+          legFor(RANGER, FIRST_LEG_TIME_RANGE),
+        ],
       };
 
       expect(selectPatrolTrackedSubjects(state, patrolNotBegun).map((trackedSubject) => trackedSubject.distance))

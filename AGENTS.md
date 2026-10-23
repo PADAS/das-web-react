@@ -145,9 +145,9 @@ A leg takes the patrol's state and its place in it: only the first leg can be re
 - **Cancel** (anything not yet over) calls the patrol off and leaves its legs as they were.
 - **Restore** (done, cancelled) reopens the legs that ending closed, and the patrol takes whatever state they give it.
 
-**Figures** derived for a patrol and each leg: duration, paused time, active time, distance (the leads' tracks summed leg by leg, or one chosen subject's), and the event count.
+**Figures** derived for a patrol and each leg: duration, paused time, active time, distance (the leads' tracks summed leg by leg, or one chosen subject's), and the event count. Until the patrol begins, only the event count has a value.
 
-**Tracks.** A patrol's route is the tracks of every subject its legs tracked, lead first, each cut to that subject's legs; pauses contribute nothing. A patrol has no track, distance or figures until it begins, whatever a later leg says; then its tracks draw one line per subject, with pins at the start, the end, handovers and pauses. Visibility cycles like a subject's track, a map click clears visible ones except those led by the clicked subject, and the track length and time slider bound them. While a patrol track is shown, the regular tracks of its subjects are dimmed.
+**Tracks.** A patrol's route is the tracks of every subject its legs tracked, lead first, each cut to that subject's legs; pauses contribute nothing. They draw once the patrol begins, whatever a later leg says, one line per subject, with pins at the start, the end, handovers and pauses. Visibility cycles like a subject's track, a map click clears visible ones except those led by the clicked subject, and the track length and time slider bound them. While a patrol track is shown, the regular tracks of its subjects are dimmed.
 
 **Events** join a patrol through a leg: an event lists its legs in `patrol_segments`, and a patrol's events are its legs'. An event added from Patrol Overview, or added to a patrol from Event Overview, goes to the running leg, else the last to have run; one added from Leg Overview goes to that leg.
 
