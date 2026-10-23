@@ -99,6 +99,50 @@ describe('PatrolTrackLegend', () => {
     expect(screen.getByText(LEAD.name)).toBeVisible();
   });
 
+  test('shows the distance the patrol covered over the track length', () => {
+    renderPatrolTrackLegend();
+
+    expect(screen.getByText('111.2km over 21 days')).toBeVisible();
+  });
+
+  test('shows the distance every patrol covered, and on each row its own', async () => {
+    const otherLead = { id: 'subjectOtherLead', name: 'Jordan Reeves' };
+    const otherPatrol = {
+      ...patrol,
+      id: 'patrol456',
+      patrol_segments: [{ ...patrol.patrol_segments[0], leader: otherLead }],
+      title: 'Southern sweep',
+    };
+    store.data.patrolStore[otherPatrol.id] = otherPatrol;
+    store.data.patrolTeamAndTrackingOptions.leaders = [LEAD, otherLead];
+    store.data.tracks[otherLead.id] = {
+      ...store.data.tracks[LEAD.id],
+      track: {
+        ...store.data.tracks[LEAD.id].track,
+        features: [{
+          ...store.data.tracks[LEAD.id].track.features[0],
+          geometry: { coordinates: [[2, 0], [0, 0]], type: 'LineString' },
+        }],
+      },
+    };
+    store.view.patrolTrackState.visible = [patrol.id, otherPatrol.id];
+    renderPatrolTrackLegend();
+
+    await userEvent.click(screen.getByLabelText('Open the list of patrols'));
+
+    expect(screen.getByText('333.6km over 21 days')).toBeVisible();
+    expect(screen.getAllByText('111.2km')).toHaveLength(2);
+    expect(screen.getAllByText('222.4km')).toHaveLength(2);
+  });
+
+  test('shows only the track length until the tracks of every patrol have loaded', () => {
+    store.data.tracks = {};
+    renderPatrolTrackLegend();
+
+    expect(screen.getByText('Over 21 days')).toBeVisible();
+    expect(screen.queryByText(/km/)).not.toBeInTheDocument();
+  });
+
   test('forgets the subjects the user hid on the patrol whose track is cleared', async () => {
     const otherPatrol = { ...patrol, id: 'patrol456', title: 'Southern sweep' };
     store.data.patrolStore[otherPatrol.id] = otherPatrol;
