@@ -46,9 +46,10 @@ const StaticFields = ({
   useImperativeHandle(ref, () => ({
     focusField: (field) => {
       const fieldRefs = {
-        endDate: endDatePickerRef,
+        endDateTime: endDatePickerRef,
         endTime: endTimePickerRef,
         startDate: startDatePickerRef,
+        startDateTime: startDatePickerRef,
         startTime: startTimePickerRef,
       };
 
@@ -96,9 +97,14 @@ const StaticFields = ({
 
   const startTimeMax = latestDate === leg.startDate ? getHoursAndMinutesString(latestEndDateTime) : undefined;
 
-  // A group shows a single message, wherever within it the error belongs.
-  const endDateTimeError = errors.endDate ?? errors.endTime;
-  const startDateTimeError = errors.startDate ?? errors.startTime;
+  // A group shows a single message, wherever within it the error belongs, and
+  // an error about the moment as a whole marks both of its pickers.
+  const endDateTimeError = errors.endTime ?? errors.endDateTime;
+  const isEndDateInvalid = !!errors.endDateTime;
+  const isEndTimeInvalid = !!errors.endTime || !!errors.endDateTime;
+  const isStartDateInvalid = !!errors.startDate || !!errors.startDateTime;
+  const isStartTimeInvalid = !!errors.startTime || !!errors.startDateTime;
+  const startDateTimeError = errors.startDate ?? errors.startTime ?? errors.startDateTime;
 
   const renderCheckbox = ({ id, isChecked, isDisabled, isHidden = false, label, onChange }) => <div
     aria-hidden={isHidden ? 'true' : undefined}
@@ -135,8 +141,8 @@ const StaticFields = ({
 
           <div className={styles.dateTimeInputs}>
             <DatePicker
-              aria-errormessage={errors.startDate ? startDateTimeErrorId : undefined}
-              aria-invalid={errors.startDate ? 'true' : 'false'}
+              aria-errormessage={isStartDateInvalid ? startDateTimeErrorId : undefined}
+              aria-invalid={isStartDateInvalid ? 'true' : 'false'}
               aria-label={t('startDateInputLabel')}
               className={styles.datePicker}
               max={latestDate}
@@ -148,8 +154,8 @@ const StaticFields = ({
             />
 
             <TimePicker
-              aria-errormessage={errors.startTime ? startDateTimeErrorId : undefined}
-              aria-invalid={errors.startTime ? 'true' : 'false'}
+              aria-errormessage={isStartTimeInvalid ? startDateTimeErrorId : undefined}
+              aria-invalid={isStartTimeInvalid ? 'true' : 'false'}
               aria-label={t('startTimeInputLabel')}
               max={startTimeMax}
               min={startTimeMin}
@@ -195,8 +201,8 @@ const StaticFields = ({
 
           <div className={styles.dateTimeInputs}>
             <DatePicker
-              aria-errormessage={errors.endDate ? endDateTimeErrorId : undefined}
-              aria-invalid={errors.endDate ? 'true' : 'false'}
+              aria-errormessage={isEndDateInvalid ? endDateTimeErrorId : undefined}
+              aria-invalid={isEndDateInvalid ? 'true' : 'false'}
               aria-label={t('endDateInputLabel')}
               className={styles.datePicker}
               max={latestDate}
@@ -208,8 +214,8 @@ const StaticFields = ({
             />
 
             <TimePicker
-              aria-errormessage={errors.endTime ? endDateTimeErrorId : undefined}
-              aria-invalid={errors.endTime ? 'true' : 'false'}
+              aria-errormessage={isEndTimeInvalid ? endDateTimeErrorId : undefined}
+              aria-invalid={isEndTimeInvalid ? 'true' : 'false'}
               aria-label={t('endTimeInputLabel')}
               disabled={!isValidDate(leg.endDate)}
               max={endTimeMax}

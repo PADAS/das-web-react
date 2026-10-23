@@ -1,4 +1,4 @@
-import { memo, useContext } from 'react';
+import { memo, useContext, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -30,7 +30,14 @@ import * as styles from './styles.module.scss';
 
 const { ACTIVE, CANCELLED, DONE, PAUSED, READY_TO_START, SCHEDULED, START_OVERDUE } = PATROL_UI_STATES;
 
+// The title link opens the row's menu too; buttons and inputs keep the browser's.
+const CONTEXT_MENU_CONTROL_SELECTOR = 'button, input';
 const ROW_CONTROL_SELECTOR = 'a, button, input';
+
+// The row's controls act on it in place, and its menus open through portals
+// from outside the row.
+const isRowItselfTarget = (event, controlSelector) => event.currentTarget.contains(event.target)
+  && !event.target.closest(controlSelector);
 
 const displayStartDate = (patrol) => formatPatrolStateTitleDate(displayStartTimeForPatrol(patrol));
 
@@ -46,15 +53,17 @@ const STATUS_DATE_BY_PATROL_STATE = {
 };
 
 const PatrolRow = ({ patrol }) => {
-  const navigate = useNavigate();
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolsFeed.patrolRow' });
   const { t: tStatusPill } = useTranslation('patrols', { keyPrefix: 'statusPill' });
 
-  const tracker = useContext(TrackerContext);
-
+  const navigate = useNavigate();
   const patrolState = usePatrolState(patrol);
 
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
+
+  const tracker = useContext(TrackerContext);
+
+  const contextMenuRef = useRef(null);
 
   const governingSegment = governingPatrolSegment(patrol);
 
@@ -70,19 +79,24 @@ const PatrolRow = ({ patrol }) => {
     : null;
 
   const onClickRow = (event) => {
-    // The row opens the patrol, but the controls it carries act on it in place,
-    // and its menu opens through a portal from outside the row.
-    const isRowItself = event.currentTarget.contains(event.target)
-      && !event.target.closest(ROW_CONTROL_SELECTOR);
-
-    if (isRowItself) {
+    if (isRowItselfTarget(event, ROW_CONTROL_SELECTOR)) {
       navigate(patrolPath);
 
       tracker.track('Open a patrol from the patrols feed');
     }
   };
 
-  return <li className={`${styles.patrolRow} ${styles[patrolState.key]}`} onClick={onClickRow}>
+  const onContextMenuRow = (event) => {
+    if (isRowItselfTarget(event, CONTEXT_MENU_CONTROL_SELECTOR)) {
+      contextMenuRef.current.open(event);
+    }
+  };
+
+  return <li
+    className={`${styles.patrolRow} ${styles[patrolState.key]}`}
+    onClick={onClickRow}
+    onContextMenu={onContextMenuRow}
+  >
     <span aria-hidden="true" className={styles.icon}>
       <SvgIcon
         iconId={governingSegment ? iconIdForPatrolSegment(patrolTypes, governingSegment) : null}
@@ -110,7 +124,7 @@ const PatrolRow = ({ patrol }) => {
       <span className={styles.statusDate}>{STATUS_DATE_BY_PATROL_STATE[patrolState.key]?.(patrol)}</span>
     </div>
 
-    <Actions className={styles.actions} patrol={patrol} patrolState={patrolState} />
+    <Actions className={styles.actions} contextMenuRef={contextMenuRef} patrol={patrol} patrolState={patrolState} />
   </li>;
 };
 

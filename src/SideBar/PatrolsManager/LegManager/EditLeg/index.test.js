@@ -365,6 +365,37 @@ describe('SideBar - PatrolsManager - LegManager - EditLeg', () => {
       }]);
     });
 
+    test('saves a leg that started and ended within the same minute', async () => {
+      patrol.patrol_segments[0].time_range = {
+        end_time: new Date(2026, 3, 13, 6, 0, 48).toISOString(),
+        start_time: new Date(2026, 3, 13, 6, 0, 12).toISOString(),
+      };
+
+      const { user } = renderEditLeg();
+
+      await editObjective(user, ' twice');
+      await clickSave(user);
+
+      await waitFor(() => expect(updatePatrol).toHaveBeenCalledTimes(1));
+
+      expect(updatePatrol.mock.calls[0][0].patrol_segments).toEqual([{
+        id: firstLegId,
+        segment_details: { objective: 'Sweep the fence line twice' },
+      }]);
+    });
+
+    test('does not save an end the user moves onto the start of the leg', async () => {
+      const { user } = renderEditLeg();
+
+      await user.clear(getDateInput('End time', 'Hour'));
+      await user.type(getDateInput('End time', 'Hour'), '06');
+
+      await clickSave(user);
+
+      expect(updatePatrol).not.toHaveBeenCalled();
+      expect(screen.getByText('The end of the leg must be later than its start.')).toBeVisible();
+    });
+
     test('gives back the seconds of a time the user left alone when retiming the other one', async () => {
       const startedAt = new Date(2026, 3, 13, 6, 0, 47, 512).toISOString();
       patrol.patrol_segments[0].time_range.start_time = startedAt;
@@ -382,6 +413,39 @@ describe('SideBar - PatrolsManager - LegManager - EditLeg', () => {
         id: firstLegId,
         time_range: { end_time: new Date(2026, 3, 13, 9, 0).toISOString(), start_time: startedAt },
       }]);
+    });
+
+    test('holds a start moved onto the start of a leg before it that never ended to the minute after', async () => {
+      patrol.patrol_segments[0].time_range.end_time = null;
+
+      const { user } = renderEditLeg(lastLegId);
+
+      await user.clear(getDateInput('Start time', 'Hour'));
+      await user.type(getDateInput('Start time', 'Hour'), '06');
+
+      await clickSave(user);
+
+      await waitFor(() => expect(updatePatrol).toHaveBeenCalledTimes(1));
+
+      expect(updatePatrol.mock.calls[0][0].patrol_segments).toEqual([{
+        id: lastLegId,
+        time_range: { end_time: null, start_time: new Date(2026, 3, 13, 6, 1).toISOString() },
+      }]);
+    });
+
+    test('does not save a start moved onto the start of the leg after it', async () => {
+      patrol.patrol_segments[0].time_range.end_time = null;
+
+      const { user } = renderEditLeg();
+
+      await user.clear(getDateInput('Start time', 'Hour'));
+      await user.type(getDateInput('Start time', 'Hour'), '10');
+
+      await clickSave(user);
+
+      expect(updatePatrol).not.toHaveBeenCalled();
+      expect(screen.getByText('This leg cannot start at the same time as the next one.')).toBeVisible();
+      expect(screen.getByRole('group', { name: 'Start time' })).toHaveAttribute('aria-invalid', 'true');
     });
 
     test('drops the overlap message once the user corrects the start time it points at', async () => {

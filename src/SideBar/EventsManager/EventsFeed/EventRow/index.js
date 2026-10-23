@@ -1,4 +1,4 @@
-import { memo, useContext } from 'react';
+import { memo, useContext, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { EVENT_FORM_STATES, TAB_KEYS } from '../../../../constants';
@@ -14,7 +14,14 @@ import Link from '../../../../Link';
 
 import * as styles from './styles.module.scss';
 
+// The title link opens the row's menu too; buttons and inputs keep the browser's.
+const CONTEXT_MENU_CONTROL_SELECTOR = 'button, input';
 const ROW_CONTROL_SELECTOR = 'a, button, input';
+
+// The row's controls act on it in place, and its menus open through portals
+// from outside the row.
+const isRowItselfTarget = (domEvent, controlSelector) => domEvent.currentTarget.contains(domEvent.target)
+  && !domEvent.target.closest(controlSelector);
 
 const STATE_KEY_BY_EVENT_STATE = {
   [EVENT_FORM_STATES.ACTIVE]: EVENT_FORM_STATES.ACTIVE,
@@ -24,12 +31,14 @@ const STATE_KEY_BY_EVENT_STATE = {
 };
 
 const EventRow = ({ displayTimeProp, event }) => {
-  const navigate = useNavigate();
   const { t } = useTranslation('reports', { keyPrefix: 'eventsManager.eventsFeed.eventRow' });
 
+  const navigate = useNavigate();
   const { coordinates, displayPriority, displaySubtitle, displayTitle } = useReport(event);
 
   const tracker = useContext(TrackerContext);
+
+  const contextMenuRef = useRef(null);
 
   const eventPath = `/${TAB_KEYS.EVENTS}/${event.id}`;
 
@@ -42,19 +51,24 @@ const EventRow = ({ displayTimeProp, event }) => {
   };
 
   const onClickRow = (clickEvent) => {
-    // The row opens the event, but the controls it carries act on it in place,
-    // and its menu opens through a portal from outside the row.
-    const isRowItself = clickEvent.currentTarget.contains(clickEvent.target)
-      && !clickEvent.target.closest(ROW_CONTROL_SELECTOR);
-
-    if (isRowItself) {
+    if (isRowItselfTarget(clickEvent, ROW_CONTROL_SELECTOR)) {
       navigate(eventPath);
 
       trackOpenEvent();
     }
   };
 
-  return <li className={`${styles.eventRow} ${styles[priorityKey]}`} onClick={onClickRow}>
+  const onContextMenuRow = (contextMenuEvent) => {
+    if (isRowItselfTarget(contextMenuEvent, CONTEXT_MENU_CONTROL_SELECTOR)) {
+      contextMenuRef.current.open(contextMenuEvent);
+    }
+  };
+
+  return <li
+    className={`${styles.eventRow} ${styles[priorityKey]}`}
+    onClick={onClickRow}
+    onContextMenu={onContextMenuRow}
+  >
     <span aria-hidden="true" className={styles.icon}>
       <EventIcon report={event} />
 
@@ -81,7 +95,7 @@ const EventRow = ({ displayTimeProp, event }) => {
       />
     </div>
 
-    <Actions className={styles.actions} coordinates={coordinates} event={event} />
+    <Actions className={styles.actions} contextMenuRef={contextMenuRef} coordinates={coordinates} event={event} />
   </li>;
 };
 

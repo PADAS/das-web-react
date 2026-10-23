@@ -19,7 +19,9 @@ import { showToast } from '../../../../../utils/toast';
 import { TrackerContext } from '../../../../../utils/analytics';
 import useJumpToLocation from '../../../../../hooks/useJumpToLocation';
 
+import ContextMenu from '../../../../../ContextMenu';
 import KebabMenu from '../../../../../KebabMenu';
+import Menu from '../../../../../Menu';
 import NotificationDetails from './NotificationDetails';
 
 import * as styles from './styles.module.scss';
@@ -32,7 +34,7 @@ const STATE_TOAST_CONFIG = { autoClose: 4000, hideProgressBar: true };
 
 const { ACTIVE, RESOLVED, REVIEW } = EVENT_FORM_STATES;
 
-const Actions = ({ className = '', coordinates, event }) => {
+const Actions = ({ className = '', contextMenuRef, coordinates, event }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'eventsManager.eventsFeed.eventRow.actions' });
 
@@ -146,6 +148,40 @@ const Actions = ({ className = '', coordinates, event }) => {
     }
   };
 
+  const renderMenuOptions = () => <>
+    {(isActive || isInReview) && <Menu.Option onClick={() => onSelectState(RESOLVED)}>
+      {t('stateTransitions.resolve')}
+    </Menu.Option>}
+
+    {isActive && <Menu.Option onClick={() => onSelectState(REVIEW)}>
+      {t('stateTransitions.review')}
+    </Menu.Option>}
+
+    {isInReview && <Menu.Option onClick={() => onSelectState(ACTIVE)}>
+      {t('stateTransitions.activate')}
+    </Menu.Option>}
+
+    {!isActive && !isInReview && <Menu.Option onClick={() => onSelectState(ACTIVE)}>
+      {t('stateTransitions.reopen')}
+    </Menu.Option>}
+
+    <Menu.Divider />
+
+    <Menu.Option className={styles.mobileOnlyOption} disabled={!hasLocation} onClick={onJumpToLocation}>
+      <MarkerFeedIcon aria-hidden="true" />
+
+      {t('jumpToLocationButtonLabel')}
+    </Menu.Option>
+
+    <Menu.Divider className={styles.mobileOnlyOption} />
+
+    <Menu.Option onClick={onCopyLink}>
+      <ClipIcon aria-hidden="true" />
+
+      {t('copyLinkOption')}
+    </Menu.Option>
+  </>;
+
   return <div className={className}>
     <div className={styles.desktopActions}>
       <button
@@ -172,38 +208,12 @@ const Actions = ({ className = '', coordinates, event }) => {
       isLoading={isUpdatingState}
       title={t('moreOptionsButtonLabel')}
     >
-      {(isActive || isInReview) && <KebabMenu.Option onClick={() => onSelectState(RESOLVED)}>
-        {t('stateTransitions.resolve')}
-      </KebabMenu.Option>}
-
-      {isActive && <KebabMenu.Option onClick={() => onSelectState(REVIEW)}>
-        {t('stateTransitions.review')}
-      </KebabMenu.Option>}
-
-      {isInReview && <KebabMenu.Option onClick={() => onSelectState(ACTIVE)}>
-        {t('stateTransitions.activate')}
-      </KebabMenu.Option>}
-
-      {!isActive && !isInReview && <KebabMenu.Option onClick={() => onSelectState(ACTIVE)}>
-        {t('stateTransitions.reopen')}
-      </KebabMenu.Option>}
-
-      <KebabMenu.Divider />
-
-      <KebabMenu.Option className={styles.mobileOnlyOption} disabled={!hasLocation} onClick={onJumpToLocation}>
-        <MarkerFeedIcon aria-hidden="true" />
-
-        {t('jumpToLocationButtonLabel')}
-      </KebabMenu.Option>
-
-      <KebabMenu.Divider className={styles.mobileOnlyOption} />
-
-      <KebabMenu.Option onClick={onCopyLink}>
-        <ClipIcon aria-hidden="true" />
-
-        {t('copyLinkOption')}
-      </KebabMenu.Option>
+      {renderMenuOptions()}
     </KebabMenu>
+
+    <ContextMenu aria-label={t('moreOptionsButtonLabel')} isLoading={isUpdatingState} ref={contextMenuRef}>
+      {renderMenuOptions()}
+    </ContextMenu>
   </div>;
 };
 

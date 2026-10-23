@@ -186,14 +186,14 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
       expect(getStartDateTime()).toBe('2026 04 13 12 00 PM');
     });
 
-    test('starts the leg where the previous one does when that one is planned ahead of time', () => {
+    test('starts the leg on the minute after the previous one when that one is planned ahead of time', () => {
       patrol.patrol_segments[0].scheduled_end = null;
       patrol.patrol_segments[0].scheduled_start = new Date(2026, 3, 15, 7, 30).toISOString();
       patrol.patrol_segments[0].time_range = { end_time: null, start_time: null };
 
       renderNewLeg();
 
-      expect(getStartDateTime()).toBe('2026 04 15 07 30 AM');
+      expect(getStartDateTime()).toBe('2026 04 15 07 31 AM');
     });
 
     test('starts the leg on the minute after an end carrying seconds', () => {
@@ -271,6 +271,7 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
       expect(updatePatrol).not.toHaveBeenCalled();
       expect(screen.getByText('A leg needs a start time.')).toBeVisible();
       expect(screen.getByRole('group', { name: 'Start time' })).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.getByRole('group', { name: 'Start date' })).toHaveAttribute('aria-invalid', 'false');
     });
 
     test('does not add the leg when a start typed on another day lands before the previous end', async () => {
@@ -288,6 +289,7 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
       expect(updatePatrol).not.toHaveBeenCalled();
       expect(screen.getByText('This leg cannot overlap the previous one.')).toBeVisible();
       expect(screen.getByRole('group', { name: 'Start date' })).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.getByRole('group', { name: 'Start time' })).toHaveAttribute('aria-invalid', 'true');
     });
 
     test('ends the previous leg where the new one begins when it carries no end', async () => {
@@ -305,6 +307,44 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
         .toBe(new Date(2026, 3, 13, 12, 0).toISOString());
       expect(patrolUpdate.patrol_segments[1].time_range.start_time)
         .toBe(new Date(2026, 3, 13, 12, 0).toISOString());
+    });
+
+    test('adds the leg on the minute after the running previous leg when that one started this same minute', async () => {
+      jest.setSystemTime(new Date(2026, 3, 13, 12, 0, 10));
+      patrol.patrol_segments[0].scheduled_end = null;
+      patrol.patrol_segments[0].time_range.start_time = new Date(2026, 3, 13, 12, 0).toISOString();
+
+      const { user } = renderNewLeg();
+
+      await clickSave(user);
+
+      await waitFor(() => expect(updatePatrol).toHaveBeenCalledTimes(1));
+
+      const [patrolUpdate] = updatePatrol.mock.calls[0];
+
+      expect(patrolUpdate.patrol_segments[0].time_range.end_time)
+        .toBe(new Date(2026, 3, 13, 12, 1).toISOString());
+      expect(patrolUpdate.patrol_segments[1].time_range.start_time)
+        .toBe(new Date(2026, 3, 13, 12, 1).toISOString());
+    });
+
+    test('does not add the leg when its end matches its start', async () => {
+      const { user } = renderNewLeg();
+
+      await user.type(getDateInput('End date', 'Year'), '2026');
+      await user.type(getDateInput('End date', 'Month'), '04');
+      await user.type(getDateInput('End date', 'Day'), '13');
+      await user.type(getDateInput('End time', 'Hour'), '10');
+      await user.type(getDateInput('End time', 'Minute'), '00');
+      await user.type(getDateInput('End time', 'Time period'), 'AM');
+
+      await clickSave(user);
+
+      expect(updatePatrol).not.toHaveBeenCalled();
+      expect(screen.getByText('The end of the leg must be later than its start.')).toBeVisible();
+      expect(screen.getByRole('group', { name: 'End date' })).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.getByRole('group', { name: 'End time' })).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.getByRole('group', { name: 'Start time' })).toHaveAttribute('aria-invalid', 'false');
     });
 
     test('shows an error message when the leg cannot be added', async () => {

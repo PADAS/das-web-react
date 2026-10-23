@@ -26,23 +26,26 @@ const EMPTY_METADATA = {};
 const SCHEMA_LOADER_SIZE = 40;
 
 const ERRORS_CLEARED_BY_LEG_DRAFT_FIELD = {
-  endDate: ['endDate', 'endTime'],
-  endTime: ['endDate', 'endTime'],
+  endDate: ['endDateTime', 'endTime'],
+  endTime: ['endDateTime', 'endTime'],
   patrolType: ['patrolType'],
-  startDate: ['endDate', 'startDate'],
-  startTime: ['endDate', 'startDate', 'startTime'],
+  startDate: ['endDateTime', 'startDate', 'startDateTime'],
+  startTime: ['endDateTime', 'startDateTime', 'startTime'],
 };
 
 const LegForm = ({
   earliestStartDateTime = null,
+  editedPatrolSegment = null,
   formId,
   isFirstLeg = true,
   isPause = false,
   latestEndDateTime = null,
   leg,
+  nextLegStartDateTime = null,
   onChangeLeg,
   onSubmit,
   patrolId = null,
+  previousLegStartDateTime = null,
 }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('patrols', { keyPrefix: 'legForm' });
@@ -93,7 +96,13 @@ const LegForm = ({
   const onSubmitForm = (event) => {
     event.preventDefault();
 
-    const newStaticFieldErrors = getStaticFieldErrors(leg, earliestStartDateTime, latestEndDateTime);
+    const newStaticFieldErrors = getStaticFieldErrors(leg, {
+      earliestStartDateTime,
+      editedPatrolSegment,
+      latestEndDateTime,
+      nextLegStartDateTime,
+      previousLegStartDateTime,
+    });
     setStaticFieldErrors(newStaticFieldErrors);
 
     const [erroneousField] = Object.keys(newStaticFieldErrors);

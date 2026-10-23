@@ -1188,7 +1188,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       store.data.patrolStore[patrolWithLeader.id] = { ...patrolWithLeader, state: 'done' };
       rerenderWithStore(rerender);
 
-      expect(screen.getByText('Done')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Done, Change patrol status' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
     });
 

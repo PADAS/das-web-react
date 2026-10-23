@@ -6,7 +6,11 @@ import { useTranslation } from 'react-i18next';
 
 import buildAddLegUpdate from './utils/buildAddLegUpdate';
 import buildNewLegDraft from './utils/buildNewLegDraft';
-import { canPatrolTakeNewLegs, earliestStartAfterPatrolSegment } from '../../../../utils/patrols';
+import {
+  canPatrolTakeNewLegs,
+  displayStartTimeForPatrolSegment,
+  earliestStartAfterPatrolSegment,
+} from '../../../../utils/patrols';
 import { NEW_LEG_CATEGORY, TrackerContext, trackEventFactory } from '../../../../utils/analytics';
 import { TAB_KEYS } from '../../../../constants';
 import { updatePatrol } from '../../../../ducks/patrols';
@@ -55,9 +59,13 @@ const NewLeg = ({ patrol }) => {
 
   const canAddLeg = hasPatrolsUpdatePermission && canPatrolTakeNewLegs(patrol, patrolState);
 
+  const earliestStartDateTime = previousPatrolSegment ? earliestStartAfterPatrolSegment(previousPatrolSegment) : null;
+
   const hasUnsavedChanges = !isEqual(leg, initialLeg);
 
-  const earliestStartDateTime = previousPatrolSegment ? earliestStartAfterPatrolSegment(previousPatrolSegment) : null;
+  const previousLegStartDateTime = previousPatrolSegment
+    ? displayStartTimeForPatrolSegment(previousPatrolSegment)
+    : null;
 
   const onChangeLeg = useCallback((legChanges, { isDefaultData = false } = {}) => {
     // Whether a patrol starts and ends by itself is a preference the next
@@ -144,6 +152,7 @@ const NewLeg = ({ patrol }) => {
           onChangeLeg={onChangeLeg}
           onSubmit={onSubmit}
           patrolId={patrol.id}
+          previousLegStartDateTime={previousLegStartDateTime}
         />
       </div>
 

@@ -1,4 +1,5 @@
-import { memo, useContext } from 'react';
+import { memo, useContext, useMemo } from 'react';
+import { isFuture } from 'date-fns';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -7,20 +8,24 @@ import { ReactComponent as ChevronRightIcon } from '../../../../../common/images
 import { ReactComponent as FitScreenIcon } from '../../../../../common/images/icons/fit-screen.svg';
 
 import {
+  calcPatrolSegmentState,
   canPatrolTakeNewLegs,
   displayEndTimeForPatrolSegment,
   displayNameForPatrolSegment,
   displayNumberForPatrolSegment,
   displayStartTimeForPatrolSegment,
+  effectiveEndTimeForPatrolSegment,
   getBoundsForPatrolSegment,
+  getElapsedTimeForPatrolSegment,
   hasPatrolSegmentNotRun,
   isPatrolSegmentAPause,
   scheduledEndTimeForPatrolSegment,
 } from '../../../../../utils/patrols';
 import { EMPTY_VALUE, PATROL_UI_STATES, TAB_KEYS } from '../../../../../constants';
-import { format, STANDARD_DATE_FORMAT } from '../../../../../utils/datetime';
+import { format, longTermAbbreviatedDurationHumanizer, STANDARD_DATE_FORMAT } from '../../../../../utils/datetime';
 import { selectPatrolSegmentsTrackData, selectTrackedSubjectsPerPatrolSegment } from '../../../../../selectors/patrols';
 import { TrackerContext } from '../../../../../utils/analytics';
+import useCurrentTime from '../../../../../hooks/useCurrentTime';
 import useJumpToLocation from '../../../../../hooks/useJumpToLocation';
 import useNavigate from '../../../../../hooks/useNavigate';
 import { usePatrolsPermissions } from '../../../../../hooks/usePermissions';
@@ -31,6 +36,12 @@ import TeamAndTracking from './TeamAndTracking';
 
 import * as styles from './styles.module.scss';
 
+const { CANCELLED, DONE, INVALID, PAUSED } = PATROL_UI_STATES;
+
+const LEG_STATE_REFRESH_INTERVAL = 30_000;
+
+const OVER_PATROL_UI_STATES = [CANCELLED, DONE, INVALID];
+
 const SIMPLIFIED_DATE_FORMAT = 'MM/dd/yyyy HH:mm';
 
 // A pause is numbered among the pauses, so what a label calls a row changes
@@ -40,13 +51,16 @@ const labelKeyForLeg = (leg, labelKey) => `${labelKey}.${leg.isPause ? 'pause' :
 const ROW_CONTROL_SELECTOR = 'a, button, input';
 
 const Legs = ({ patrol, patrolState }) => {
-  const navigate = useNavigate();
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolOverview.overview.legs' });
-
-  const tracker = useContext(TrackerContext);
+  const { t: tDates } = useTranslation('dates');
 
   const { hasPatrolsUpdatePermission } = usePatrolsPermissions();
   const jumpToLocation = useJumpToLocation();
+  const navigate = useNavigate();
+
+  // Legs begin and hand over by themselves, which changes neither the patrol
+  // nor its state, so the table follows the clock until the patrol is over.
+  useCurrentTime(OVER_PATROL_UI_STATES.includes(patrolState) ? null : LEG_STATE_REFRESH_INTERVAL);
 
   const patrolSegmentsTrackData = useSelector((state) => selectPatrolSegmentsTrackData(state, patrol));
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
@@ -54,23 +68,48 @@ const Legs = ({ patrol, patrolState }) => {
     (state) => selectTrackedSubjectsPerPatrolSegment(state, patrol)
   );
 
+  const tracker = useContext(TrackerContext);
+
   const canAddLeg = hasPatrolsUpdatePermission && canPatrolTakeNewLegs(patrol, patrolState);
 
-  // Not memoized: a leg reads the clock, and this component only renders when
-  // the patrol, its state or its tracks have moved anyway.
+  const humanizeDuration = useMemo(() => longTermAbbreviatedDurationHumanizer(tDates), [tDates]);
+
+  // Not memoized: a leg reads the clock.
   const legs = patrol.patrol_segments.map((patrolSegment, index) => {
     const hasNotRun = hasPatrolSegmentNotRun(patrol, patrolSegment);
 
+    const end = hasNotRun
+      ? scheduledEndTimeForPatrolSegment(patrolSegment)
+      : displayEndTimeForPatrolSegment(patrolSegment);
+    const start = displayStartTimeForPatrolSegment(patrolSegment);
+    const state = calcPatrolSegmentState(patrol, patrolSegment);
+
+    // A leg that ran its course is read by how long it took, not by its plan.
+    const duration = state === DONE
+      ? humanizeDuration(getElapsedTimeForPatrolSegment(
+        patrolSegment,
+        effectiveEndTimeForPatrolSegment(patrol, patrolSegment)?.getTime()
+      ))
+      : null;
+    // A leg carries the times it is due to run at before it runs, so the
+    // moment alone does not say it happened: only a time_range value past does.
+    const isEndPlanned = !!end && (hasNotRun || !patrolSegment.time_range?.end_time || isFuture(end));
+    const isStartPlanned = !!start && (!patrolSegment.time_range?.start_time || isFuture(start));
+
     return {
       bbox: getBoundsForPatrolSegment(patrolSegment, patrolSegmentsTrackData[index]),
-      end: hasNotRun ? scheduledEndTimeForPatrolSegment(patrolSegment) : displayEndTimeForPatrolSegment(patrolSegment),
+      duration,
+      end,
       hasNotRun,
       id: patrolSegment.id,
+      isEndPlanned,
       isPause: isPatrolSegmentAPause(patrolSegment),
+      isStartPlanned,
       number: displayNumberForPatrolSegment(patrol.patrol_segments, index),
       overviewPath: `/${TAB_KEYS.PATROLS}/${patrol.id}/legs/${patrolSegment.id}`,
       patrolTypeDisplay: displayNameForPatrolSegment(patrolTypes, patrolSegment),
-      start: displayStartTimeForPatrolSegment(patrolSegment),
+      start,
+      state,
       trackedSubjects: trackedSubjectsPerPatrolSegment[index] ?? [],
     };
   });
@@ -104,6 +143,10 @@ const Legs = ({ patrol, patrolState }) => {
     </time>
     : EMPTY_VALUE;
 
+  const renderScheduledIndicator = (isPlanned) => !!isPlanned && <span className={styles.secondaryLine}>
+    <span className={styles.scheduledIndicator}>{t('scheduledIndicator')}</span>
+  </span>;
+
   return <>
     <div className={`${styles.legTableWrapper} ${canAddLeg ? '' : styles.withoutNewLegButton}`}>
       <table className={styles.legTable}>
@@ -113,13 +156,11 @@ const Legs = ({ patrol, patrolState }) => {
           <tr>
             <th scope="col">{t('legColumnHeader')}</th>
 
-            <th scope="col">{t('patrolTypeColumnHeader')}</th>
+            <th className={styles.patrolTypeColumn} scope="col">{t('patrolTypeColumnHeader')}</th>
 
-            <th scope="col">{t('startColumnHeader')}</th>
+            <th colSpan={3} scope="col">{t('startAndEndColumnHeader')}</th>
 
-            <th scope="col">{t('endColumnHeader')}</th>
-
-            <th scope="col">{t('teamColumnHeader')}</th>
+            <th className={styles.teamColumn} scope="col">{t('teamColumnHeader')}</th>
 
             <th scope="col">
               <span className="sr-only">{t('legActionsColumnHeader')}</span>
@@ -133,35 +174,63 @@ const Legs = ({ patrol, patrolState }) => {
               key={leg.id}
               onClick={onNavigateToLeg(leg)}
             >
-            {leg.isPause
-              ? <td colSpan={2}>
-                <StatusPill className={styles.pausePill} state={PATROL_UI_STATES.PAUSED} />
+            {/* A pause is numbered among the pauses, so a number beside the
+                legs' would read as a leg of its own. */}
+            <td className={styles.legNumberColumn}>
+              {!leg.isPause && leg.number}
 
-                {!!leg.hasNotRun && <span className="sr-only">{t('legDidNotRunLabel')}</span>}
-              </td>
-              : <>
-                <td>
-                  {leg.number}
+              {!!leg.hasNotRun && <span className="sr-only">{t('legDidNotRunLabel')}</span>}
+            </td>
 
-                  {!!leg.hasNotRun && <span className="sr-only">{t('legDidNotRunLabel')}</span>}
-                </td>
+            <td className={styles.patrolTypeColumn}>
+              {leg.isPause
+                ? <StatusPill className={styles.statePill} state={PAUSED} />
+                : <>
+                  <span className={styles.primaryLine}>{leg.patrolTypeDisplay}</span>
 
-                <td>{leg.patrolTypeDisplay}</td>
+                  <span className={styles.secondaryLine}>
+                    <StatusPill className={styles.statePill} state={leg.state} />
+                  </span>
+                </>}
+            </td>
+
+            <td className={styles.startColumn}>
+              <span className={styles.primaryLine}>{renderLegDate(leg.start)}</span>
+
+              {leg.duration
+                ? <span className={styles.secondaryLine}>
+                  <span className={styles.duration}>
+                    <span className="sr-only">{t('durationLabel')} </span>
+
+                    {leg.duration}
+                  </span>
+                </span>
+                : renderScheduledIndicator(leg.isStartPlanned)}
+            </td>
+
+            {/* An open end is ordinary, so it is left blank, while a missing start
+                keeps its dash: a row must never read as beginning at its end. */}
+            <td className={styles.dateSeparatorColumn}>
+              {!!leg.end && <span aria-hidden="true">-</span>}
+            </td>
+
+            <td className={styles.endColumn}>
+              {!!leg.end && <>
+                <span className={styles.primaryLine}>{renderLegDate(leg.end)}</span>
+
+                {!leg.duration && renderScheduledIndicator(leg.isEndPlanned)}
               </>}
-
-            <td>{renderLegDate(leg.start)}</td>
-
-            <td>{renderLegDate(leg.end)}</td>
+            </td>
 
             {/* A pause tracks nothing and covers no ground: the team that sat
                 it out belongs to the legs either side of it. */}
-            <td>
+            <td className={styles.teamColumn}>
               {!leg.isPause
                 && <TeamAndTracking legNumber={leg.number} trackedSubjects={leg.trackedSubjects} />}
             </td>
 
-            <td>
-              <div className={styles.legActionsColumn}>
+            <td className={styles.legActionsColumn}>
+              <div className={styles.legActions}>
                 {!leg.isPause && <button
                   aria-label={t('zoomToLegBoundsButtonLabel', { number: leg.number })}
                   className={styles.zoomToLegBoundsButton}

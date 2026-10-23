@@ -6,7 +6,7 @@ import { createMapMock } from '../../../../__test-helpers/mocks';
 import { MapContext } from '../../../../MapContext';
 import { mockStore } from '../../../../__test-helpers/MockStore';
 import { PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../../../../constants';
-import { render, screen } from '../../../../test-utils';
+import { fireEvent, render, screen, waitFor } from '../../../../test-utils';
 import { TRACK_LENGTH_ORIGINS } from '../../../../ducks/tracks';
 import { TrackerContext } from '../../../../utils/analytics';
 import useNavigate from '../../../../hooks/useNavigate';
@@ -14,6 +14,11 @@ import useNavigate from '../../../../hooks/useNavigate';
 import PatrolRow from './';
 
 jest.mock('../../../../hooks/useNavigate', () => jest.fn());
+
+jest.mock('../../../../utils/tracks', () => ({
+  ...jest.requireActual('../../../../utils/tracks'),
+  fetchTracksIfNecessary: jest.fn(),
+}));
 
 jest.mock('../../../../SvgIcon', () => {
   const SvgIcon = ({ iconId }) => <span data-testid="patrolRow-icon">{iconId}</span>;
@@ -170,5 +175,63 @@ describe('SideBar - PatrolsManager - PatrolsFeed - PatrolRow', () => {
     renderPatrolRow({ patrol: cancelledPatrol });
 
     expect(screen.getByText('Cancelled')).toBeVisible();
+  });
+
+  test('opens the row menu, without opening the patrol, when the user right clicks the row itself', async () => {
+    renderPatrolRow();
+
+    await userEvent.pointer({ keys: '[MouseRight]', target: screen.getByText(activePatrol.serial_number) });
+
+    expect(await screen.findByRole('menu', { name: 'More options' })).toHaveFocus();
+    expect(screen.getByRole('menuitem', { name: 'Copy patrol link' })).toBeVisible();
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  test('opens the row menu when the user right clicks the title link', async () => {
+    renderPatrolRow();
+
+    await userEvent.pointer({ keys: '[MouseRight]', target: screen.getByRole('link') });
+
+    expect(await screen.findByRole('menu', { name: 'More options' })).toBeInTheDocument();
+  });
+
+  test('leaves the browser menu to a right click on a button of the row', () => {
+    renderPatrolRow();
+
+    expect(fireEvent.contextMenu(screen.getByRole('button', { name: 'Jump to location' }))).toBe(true);
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  });
+
+  test('keeps the kebab button collapsed while the row menu is open', async () => {
+    renderPatrolRow();
+
+    await userEvent.pointer({ keys: '[MouseRight]', target: screen.getByText(activePatrol.serial_number) });
+    await screen.findByRole('menu');
+
+    expect(screen.getByRole('button', { name: 'More options' })).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  test('swaps the row menu for the kebab menu when the user clicks the kebab button', async () => {
+    renderPatrolRow();
+
+    await userEvent.pointer({ keys: '[MouseRight]', target: screen.getByText(activePatrol.serial_number) });
+    await screen.findByRole('menu');
+
+    await userEvent.click(screen.getByRole('button', { name: 'More options' }));
+
+    await waitFor(() => expect(screen.getAllByRole('menu')).toHaveLength(1));
+    expect(screen.getByRole('button', { name: 'More options' })).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  test('swaps the kebab menu for the row menu when the user right clicks the row', async () => {
+    renderPatrolRow();
+
+    await userEvent.click(screen.getByRole('button', { name: 'More options' }));
+    await screen.findByRole('menu');
+
+    await userEvent.pointer({ keys: '[MouseRight]', target: screen.getByText(activePatrol.serial_number) });
+
+    await waitFor(() => expect(screen.getAllByRole('menu')).toHaveLength(1));
+    expect(screen.getByRole('button', { name: 'More options' })).toHaveAttribute('aria-expanded', 'false');
   });
 });

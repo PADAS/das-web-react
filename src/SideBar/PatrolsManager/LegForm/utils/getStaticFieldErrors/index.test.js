@@ -45,18 +45,71 @@ describe('SideBar - PatrolsManager - LegForm - utils - getStaticFieldErrors', ()
 
   test('reports an end date earlier than the start date', () => {
     expect(getStaticFieldErrors({ ...leg, endDate: '2026-04-12', endTime: '08:00' })).toEqual({
-      endDate: 'The end of the leg must be later than its start.',
+      endDateTime: 'The end of the leg must be later than its start.',
     });
   });
 
   test('reports an end time earlier than the start time on the same day', () => {
     expect(getStaticFieldErrors({ ...leg, endDate: '2026-04-13', endTime: '07:00' })).toEqual({
-      endDate: 'The end of the leg must be later than its start.',
+      endDateTime: 'The end of the leg must be later than its start.',
     });
   });
 
   test('does not report an end time later than the start time on the same day', () => {
     expect(getStaticFieldErrors({ ...leg, endDate: '2026-04-13', endTime: '09:00' })).toEqual({});
+  });
+
+  test('reports an end that matches the start', () => {
+    expect(getStaticFieldErrors({ ...leg, endDate: '2026-04-13', endTime: '08:00' })).toEqual({
+      endDateTime: 'The end of the leg must be later than its start.',
+    });
+  });
+
+  describe('when the leg is being edited', () => {
+    const buildEditedPatrolSegment = (startTime, endTime) => ({
+      id: 'segment-1',
+      time_range: { end_time: endTime.toISOString(), start_time: startTime.toISOString() },
+    });
+
+    test('does not report an end on the start minute when the stored times are seconds apart', () => {
+      const editedPatrolSegment = buildEditedPatrolSegment(
+        new Date(2026, 3, 13, 8, 0, 12),
+        new Date(2026, 3, 13, 8, 0, 48)
+      );
+
+      expect(getStaticFieldErrors(
+        { ...leg, endDate: '2026-04-13', endTime: '08:00' },
+        { editedPatrolSegment }
+      )).toEqual({});
+    });
+
+    test('reports an end moved onto the start minute that would be saved before the stored start', () => {
+      const editedPatrolSegment = buildEditedPatrolSegment(
+        new Date(2026, 3, 13, 8, 0, 30),
+        new Date(2026, 3, 13, 9, 15)
+      );
+
+      expect(getStaticFieldErrors(
+        { ...leg, endDate: '2026-04-13', endTime: '08:00' },
+        { editedPatrolSegment }
+      )).toEqual({
+        endDateTime: 'The end of the leg must be later than its start.',
+      });
+    });
+
+    test('reports an end that matches the start once both are moved off their stored minutes', () => {
+      const editedPatrolSegment = buildEditedPatrolSegment(
+        new Date(2026, 3, 13, 7, 0, 30),
+        new Date(2026, 3, 13, 9, 15, 10)
+      );
+
+      expect(getStaticFieldErrors(
+        { ...leg, endDate: '2026-04-13', endTime: '08:00' },
+        { editedPatrolSegment }
+      )).toEqual({
+        endDateTime: 'The end of the leg must be later than its start.',
+      });
+    });
   });
 
   test('reports a missing end time when the leg has an end date', () => {
@@ -83,80 +136,146 @@ describe('SideBar - PatrolsManager - LegForm - utils - getStaticFieldErrors', ()
 
   describe('when the leg follows another one', () => {
     test('reports a start date earlier than the earliest start of the leg', () => {
-      expect(getStaticFieldErrors(leg, new Date(2026, 3, 14, 8, 0))).toEqual({
-        startDate: 'This leg cannot overlap the previous one.',
+      expect(getStaticFieldErrors(leg, { earliestStartDateTime: new Date(2026, 3, 14, 8, 0) })).toEqual({
+        startDateTime: 'This leg cannot overlap the previous one.',
       });
     });
 
     test('reports a start time earlier than the earliest start of the leg on the same day', () => {
-      expect(getStaticFieldErrors(leg, new Date(2026, 3, 13, 9, 0))).toEqual({
-        startDate: 'This leg cannot overlap the previous one.',
+      expect(getStaticFieldErrors(leg, { earliestStartDateTime: new Date(2026, 3, 13, 9, 0) })).toEqual({
+        startDateTime: 'This leg cannot overlap the previous one.',
       });
     });
 
     test('reports a start that falls short of the earliest start of the leg by seconds', () => {
-      expect(getStaticFieldErrors(leg, new Date(2026, 3, 13, 8, 0, 32))).toEqual({
-        startDate: 'This leg cannot overlap the previous one.',
+      expect(getStaticFieldErrors(leg, { earliestStartDateTime: new Date(2026, 3, 13, 8, 0, 32) })).toEqual({
+        startDateTime: 'This leg cannot overlap the previous one.',
       });
     });
 
     test('does not report a start that meets the earliest start of the leg', () => {
-      expect(getStaticFieldErrors(leg, new Date(2026, 3, 13, 8, 0))).toEqual({});
+      expect(getStaticFieldErrors(leg, { earliestStartDateTime: new Date(2026, 3, 13, 8, 0) })).toEqual({});
+    });
+
+    test('reports a start that matches the start of the previous leg', () => {
+      const previousLegStartDateTime = new Date(2026, 3, 13, 8, 0);
+
+      expect(getStaticFieldErrors(leg, { earliestStartDateTime: previousLegStartDateTime, previousLegStartDateTime }))
+        .toEqual({ startDateTime: 'This leg cannot start at the same time as the previous one.' });
+    });
+
+    test('does not report a start whose stored seconds keep it after the start of the previous leg', () => {
+      const previousLegStartDateTime = new Date(2026, 3, 13, 8, 0);
+      const editedPatrolSegment = {
+        id: 'segment-1',
+        time_range: { end_time: null, start_time: new Date(2026, 3, 13, 8, 0, 30).toISOString() },
+      };
+
+      expect(getStaticFieldErrors(leg, {
+        earliestStartDateTime: previousLegStartDateTime,
+        editedPatrolSegment,
+        previousLegStartDateTime,
+      })).toEqual({});
+    });
+
+    test('does not report a start a minute after the start of the previous leg', () => {
+      const previousLegStartDateTime = new Date(2026, 3, 13, 7, 59);
+
+      expect(getStaticFieldErrors(leg, { earliestStartDateTime: previousLegStartDateTime, previousLegStartDateTime }))
+        .toEqual({});
+    });
+
+    test('reports an overlap with the previous leg before comparing the start with its start', () => {
+      expect(getStaticFieldErrors(leg, {
+        earliestStartDateTime: new Date(2026, 3, 13, 9, 0),
+        previousLegStartDateTime: new Date(2026, 3, 13, 8, 0),
+      })).toEqual({ startDateTime: 'This leg cannot overlap the previous one.' });
     });
 
     test('does not report a start later than the earliest start of the leg', () => {
-      expect(getStaticFieldErrors(leg, new Date(2026, 3, 12, 8, 0))).toEqual({});
+      expect(getStaticFieldErrors(leg, { earliestStartDateTime: new Date(2026, 3, 12, 8, 0) })).toEqual({});
     });
 
     test('reports the missing start date before comparing it with the previous leg', () => {
-      expect(getStaticFieldErrors({ ...leg, startDate: '--' }, new Date(2026, 3, 14, 8, 0))).toEqual({
+      const earliestStartDateTime = new Date(2026, 3, 14, 8, 0);
+
+      expect(getStaticFieldErrors({ ...leg, startDate: '--' }, { earliestStartDateTime })).toEqual({
         startDate: 'A leg needs a start date.',
       });
     });
 
     test('reports the missing start time before comparing it with the previous leg', () => {
-      expect(getStaticFieldErrors({ ...leg, startTime: ':' }, new Date(2026, 3, 14, 8, 0))).toEqual({
+      const earliestStartDateTime = new Date(2026, 3, 14, 8, 0);
+
+      expect(getStaticFieldErrors({ ...leg, startTime: ':' }, { earliestStartDateTime })).toEqual({
         startTime: 'A leg needs a start time.',
       });
     });
   });
 
   describe('when another leg follows the leg', () => {
+    test('reports a start that matches the start of the next leg', () => {
+      const nextLegStartDateTime = new Date(2026, 3, 13, 8, 0);
+
+      expect(getStaticFieldErrors(leg, { latestEndDateTime: nextLegStartDateTime, nextLegStartDateTime }))
+        .toEqual({ startDateTime: 'This leg cannot start at the same time as the next one.' });
+    });
+
+    test('does not report a start a minute before the start of the next leg', () => {
+      const nextLegStartDateTime = new Date(2026, 3, 13, 8, 1);
+
+      expect(getStaticFieldErrors(leg, { latestEndDateTime: nextLegStartDateTime, nextLegStartDateTime }))
+        .toEqual({});
+    });
+
+    test('does not report a start whose stored seconds keep it ahead of the next leg', () => {
+      const nextLegStartDateTime = new Date(2026, 3, 13, 8, 0);
+      const editedPatrolSegment = {
+        id: 'segment-1',
+        time_range: { end_time: null, start_time: new Date(2026, 3, 13, 7, 59, 40).toISOString() },
+      };
+
+      expect(getStaticFieldErrors(
+        { ...leg, startTime: '07:59' },
+        { editedPatrolSegment, latestEndDateTime: nextLegStartDateTime, nextLegStartDateTime }
+      )).toEqual({});
+    });
+
     test('reports a start date later than the latest end of the leg', () => {
-      expect(getStaticFieldErrors(leg, null, new Date(2026, 3, 12, 8, 0))).toEqual({
-        startDate: 'This leg cannot overlap the next one.',
+      expect(getStaticFieldErrors(leg, { latestEndDateTime: new Date(2026, 3, 12, 8, 0) })).toEqual({
+        startDateTime: 'This leg cannot overlap the next one.',
       });
     });
 
     test('reports a start time later than the latest end of the leg on the same day', () => {
-      expect(getStaticFieldErrors(leg, null, new Date(2026, 3, 13, 7, 0))).toEqual({
-        startDate: 'This leg cannot overlap the next one.',
+      expect(getStaticFieldErrors(leg, { latestEndDateTime: new Date(2026, 3, 13, 7, 0) })).toEqual({
+        startDateTime: 'This leg cannot overlap the next one.',
       });
     });
 
     test('does not report a start that meets the latest end of the leg', () => {
-      expect(getStaticFieldErrors(leg, null, new Date(2026, 3, 13, 8, 0))).toEqual({});
+      expect(getStaticFieldErrors(leg, { latestEndDateTime: new Date(2026, 3, 13, 8, 0) })).toEqual({});
     });
 
     test('reports an end date later than the latest end of the leg', () => {
       const legWithEnd = { ...leg, endDate: '2026-04-20', endTime: '08:00' };
 
-      expect(getStaticFieldErrors(legWithEnd, null, new Date(2026, 3, 14, 8, 0))).toEqual({
-        endDate: 'This leg cannot overlap the next one.',
+      expect(getStaticFieldErrors(legWithEnd, { latestEndDateTime: new Date(2026, 3, 14, 8, 0) })).toEqual({
+        endDateTime: 'This leg cannot overlap the next one.',
       });
     });
 
     test('does not report an end that meets the latest end of the leg', () => {
       const legWithEnd = { ...leg, endDate: '2026-04-14', endTime: '08:00' };
 
-      expect(getStaticFieldErrors(legWithEnd, null, new Date(2026, 3, 14, 8, 0))).toEqual({});
+      expect(getStaticFieldErrors(legWithEnd, { latestEndDateTime: new Date(2026, 3, 14, 8, 0) })).toEqual({});
     });
 
     test('reports the erroneous start of the leg before its end', () => {
       const legWithEnd = { ...leg, endDate: '2026-04-20', endTime: '08:00' };
 
-      expect(getStaticFieldErrors(legWithEnd, null, new Date(2026, 3, 12, 8, 0))).toEqual({
-        startDate: 'This leg cannot overlap the next one.',
+      expect(getStaticFieldErrors(legWithEnd, { latestEndDateTime: new Date(2026, 3, 12, 8, 0) })).toEqual({
+        startDateTime: 'This leg cannot overlap the next one.',
       });
     });
   });

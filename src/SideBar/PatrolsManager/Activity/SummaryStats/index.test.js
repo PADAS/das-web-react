@@ -373,8 +373,7 @@ describe('SideBar - PatrolsManager - Activity - SummaryStats', () => {
     await openDistanceMenu('Leg leads');
 
     expect(screen.getByRole('menuitemradio', { name: 'Leg leads' })).toHaveAccessibleDescription(
-      'The total distance covered by each leg\'s lead, or by the team member'
-      + ' or asset that went furthest on a leg with no lead'
+      'Or whoever went the furthest on a leg without a lead'
     );
   });
 

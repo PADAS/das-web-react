@@ -250,7 +250,7 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
   });
 
   test('shows the errors of the start and end dates', () => {
-    renderStaticFields({ errors: { endDate: 'The end is too early.', startDate: 'A date is needed.' } });
+    renderStaticFields({ errors: { endDateTime: 'The end is too early.', startDate: 'A date is needed.' } });
 
     expect(screen.getByText('A date is needed.')).toBeVisible();
     expect(screen.getByText('The end is too early.')).toBeVisible();
@@ -258,11 +258,10 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
     expect(screen.getByRole('group', { name: 'End date' })).toHaveAttribute('aria-invalid', 'true');
   });
 
-  test('marks only the dates invalid for an error about them', () => {
-    renderStaticFields({ errors: { endDate: 'The end is too early.', startDate: 'A date is needed.' } });
+  test('marks only the date invalid for an error about it', () => {
+    renderStaticFields({ errors: { startDate: 'A date is needed.' } });
 
     expect(screen.getByRole('group', { name: 'Start time' })).toHaveAttribute('aria-invalid', 'false');
-    expect(screen.getByRole('group', { name: 'End time' })).toHaveAttribute('aria-invalid', 'false');
   });
 
   test('shows the errors of the start and end times on the times themselves', () => {
@@ -284,7 +283,7 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
   });
 
   test('announces the errors of the start and end dates as they appear', () => {
-    renderStaticFields({ errors: { endDate: 'The end is too early.', startDate: 'A date is needed.' } });
+    renderStaticFields({ errors: { endDateTime: 'The end is too early.', startDate: 'A date is needed.' } });
 
     expect(screen.getAllByRole('alert')).toHaveLength(2);
   });
