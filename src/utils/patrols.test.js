@@ -640,6 +640,72 @@ describe('Patrols utils', () => {
       expect(pause.scheduled_start).toBeNull();
     });
 
+    describe('resuming a leg that plans its end', () => {
+      const pausedPatrolPlanningEndAt = (scheduledEnd) => ({
+        patrol_segments: [
+          {
+            ...runningLeg,
+            scheduled_end: scheduledEnd,
+            time_range: { end_time: subHours(new Date(), 1).toISOString(), start_time: '2022-06-15T10:00:00.000Z' },
+          },
+          {
+            ...runningLeg,
+            id: 'pause-1',
+            is_pause: true,
+            time_range: { end_time: null, start_time: subHours(new Date(), 1).toISOString() },
+          },
+        ],
+      });
+
+      test('gives the resumed leg back the planned end still ahead', () => {
+        const scheduledEnd = addHours(new Date(), 2).toISOString();
+
+        const { patrol_segments: [, resumedLeg] } = buildPatrolResumeUpdate(pausedPatrolPlanningEndAt(scheduledEnd));
+
+        expect(resumedLeg.scheduled_end).toBe(scheduledEnd);
+        expect(resumedLeg.time_range.end_time).toBeNull();
+      });
+
+      test('leaves the resumed leg without a planned end already passed', () => {
+        const scheduledEnd = subHours(new Date(), 1).toISOString();
+
+        const { patrol_segments: [, resumedLeg] } = buildPatrolResumeUpdate(pausedPatrolPlanningEndAt(scheduledEnd));
+
+        expect(resumedLeg.scheduled_end).toBeNull();
+      });
+    });
+
+    describe('pausing and resuming a leg that ends by itself', () => {
+      test('makes the pause end when the leg would have', () => {
+        const endTime = addHours(new Date(), 2).toISOString();
+        const patrolEndingByItself = {
+          patrol_segments: [{ ...runningLeg, time_range: { ...runningLeg.time_range, end_time: endTime } }],
+        };
+
+        const { patrol_segments: [closedLeg, pause] } = buildPatrolPauseUpdate(patrolEndingByItself);
+
+        expect(closedLeg.time_range.end_time).toBe(pause.time_range.start_time);
+        expect(pause.time_range.end_time).toBe(endTime);
+      });
+
+      test('gives the resumed leg back the end the pause took over', () => {
+        const endTime = addHours(new Date(), 2).toISOString();
+        const pausedPatrol = {
+          patrol_segments: [{
+            ...runningLeg,
+            id: 'pause-1',
+            is_pause: true,
+            time_range: { end_time: endTime, start_time: subHours(new Date(), 1).toISOString() },
+          }],
+        };
+
+        const { patrol_segments: [closedPause, resumedLeg] } = buildPatrolResumeUpdate(pausedPatrol);
+
+        expect(closedPause.time_range.end_time).toBe(resumedLeg.time_range.start_time);
+        expect(resumedLeg.time_range.end_time).toBe(endTime);
+      });
+    });
+
     test('has nothing to send when no leg is under way', () => {
       const endedPatrol = {
         patrol_segments: [{ time_range: { end_time: '2022-06-15T11:00:00.000Z', start_time: '2022-06-15T10:00:00.000Z' } }],

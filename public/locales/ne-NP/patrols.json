@@ -118,6 +118,7 @@
       "endDateInputLabel": "अन्त्य मिति",
       "endDateNotAfterStartDateError": "खण्डको अन्त्य समय सुरुवाती समय भन्दा पछि हुनुपर्छ।",
       "endDateOverlapsNextLegError": "यो खण्ड अर्को खण्डसँग खप्टिन सक्दैन।",
+      "endDateRequiredError": "अर्को खण्डले पछ्याएको खण्डलाई अन्त्य मिति आवश्यक छ।",
       "endLocationLabel": "अन्त्य स्थान",
       "endTimeInputLabel": "अन्त्य समय",
       "endTimeLabel": "अन्त्य समय",
@@ -144,8 +145,8 @@
     "addEventLinkErrorMessage": "घटना सुरक्षित भयो, तर यसलाई यो गस्ती खण्डमा थप्न सकिएन।",
     "attachmentsSaveErrorMessage": "केही संलग्न फाइलहरू अपलोड गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।",
     "endedTitle": {
-      "leg": "खण्ड {{number}} समाप्त भयो",
-      "pause": "रोकाइ {{number}} समाप्त भयो"
+      "leg": "खण्ड {{number}} {{duration}} पछि समाप्त भयो",
+      "pause": "रोकाइ {{number}} {{duration}} पछि समाप्त भयो"
     },
     "footer": {
       "addEventButtonLabel": "यो गस्ती खण्डमा घटना रिपोर्ट गर्नुहोस्",
@@ -289,7 +290,7 @@
     "historyTabTitle": "इतिहास",
     "overview": {
       "activityEmptyStateMessage": "गस्ती गतिविधि यहाँ देखा पर्नेछ",
-      "legEndedTitle": "खण्ड {{legNumber}} समाप्त भयो",
+      "legEndedTitle": "खण्ड {{legNumber}} {{duration}} पछि समाप्त भयो",
       "legs": {
         "durationLabel": "अवधि",
         "legActionsColumnHeader": "कार्यहरू",
@@ -315,9 +316,9 @@
         "zoomToLegBoundsButtonLabel": "खण्ड {{number}} को सीमामा मिलाउनुहोस्"
       },
       "legStartedTitle": "खण्ड {{legNumber}} सुरु भयो",
-      "patrolEndedTitle": "गस्ती समाप्त भएको",
-      "patrolPausedTitle": "गस्ती {{pausedFor}} का लागि रोकिएको",
-      "patrolResumedTitle": "गस्ती पुनः सुरु भएको",
+      "patrolEndedTitle": "गस्ती {{duration}} पछि समाप्त भएको",
+      "patrolPausedTitle": "गस्ती रोकिएको",
+      "patrolResumedTitle": "गस्ती {{duration}} पछि पुनः सुरु भएको",
       "patrolStartedTitle": "गस्ती सुरु भएको",
       "viewLegLinkLabel": {
         "leg": "खण्ड {{number}} हेर्नुहोस्",

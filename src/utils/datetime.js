@@ -90,6 +90,8 @@ export const getHoursAndMinutesString = (date) => {
   return `${dateHours}:${dateMinutes}`;
 };
 
+const MINUTE_IN_MILLISECONDS = 60 * 1000;
+
 const DEFAULT_HUMANIZED_DURATION_PROPS = {
   delimiter: ' ',
   maxDecimalPoints: 0,
@@ -122,6 +124,12 @@ export const HUMANIZED_DURATION_CONFIGS = {
     largest: 2,
     units: ['y', 'mo', 'w', 'd', 'h', 'm', 's'],
     spacer: '',
+  }),
+  LONG_TERM_FULL_FORMAT: (language = 'en') => ({
+    ...DEFAULT_HUMANIZED_DURATION_PROPS,
+    language,
+    largest: 2,
+    units: ['y', 'mo', 'w', 'd', 'h', 'm'],
   }),
   LONG_TERM_ABRREVIATED: (abbreviations) => ({
     ...DEFAULT_HUMANIZED_DURATION_PROPS,
@@ -156,6 +164,20 @@ export const resolveDurationHumanizerLanguage = (i18nLanguage) => {
   const baseLanguage = i18nLanguage?.split('-')[0];
 
   return SUPPORTED_DURATION_HUMANIZER_LANGUAGES.includes(baseLanguage) ? baseLanguage : 'en';
+};
+
+// `t` must be bound to the `dates` namespace.
+export const longTermDurationHumanizer = (t, i18nLanguage) => {
+  const baseLanguage = i18nLanguage?.split('-')[0];
+  // A language the library lacks keeps the units the app translates itself.
+  const humanizeLongTermDuration = SUPPORTED_DURATION_HUMANIZER_LANGUAGES.includes(baseLanguage)
+    ? durationHumanizer(HUMANIZED_DURATION_CONFIGS.LONG_TERM_FULL_FORMAT(baseLanguage))
+    : longTermAbbreviatedDurationHumanizer(t);
+
+  // Whole minutes alone would read a duration under one as no time at all.
+  return (duration) => duration < MINUTE_IN_MILLISECONDS
+    ? t('lessThanAMinuteDurationLabel')
+    : humanizeLongTermDuration(duration);
 };
 
 export const getUserLocaleTime = (date = new Date()) => date.toLocaleTimeString(

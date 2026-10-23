@@ -53,6 +53,14 @@ const getStaticFieldErrors = (leg, {
     return { startDateTime: t('staticFields.startDateMatchesNextLegStartError') };
   }
 
+  // A leg left without an end would keep running beside the next one, while
+  // one stored without it already reads as ending where the next one begins.
+  const hasStoredEnd = !!(editedPatrolSegment?.time_range?.end_time ?? editedPatrolSegment?.scheduled_end);
+
+  if (nextLegStartDateTime && hasStoredEnd && !isValidDate(leg.endDate)) {
+    return { endDateTime: t('staticFields.endDateRequiredError') };
+  }
+
   if (isValidDate(leg.endDate) && !isValidTime(leg.endTime)) {
     return { endTime: t('staticFields.endTimeRequiredError') };
   }

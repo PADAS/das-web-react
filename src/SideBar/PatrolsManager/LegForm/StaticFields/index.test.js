@@ -35,12 +35,13 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
     };
   });
 
-  const ControlledStaticFields = ({ earliestStartDateTime, errors, initialLeg, latestEndDateTime }) => {
+  const ControlledStaticFields = ({ earliestStartDateTime, errors, initialLeg, isLastLeg, latestEndDateTime }) => {
     const [leg, setLeg] = useState(initialLeg);
 
     return <StaticFields
       earliestStartDateTime={earliestStartDateTime}
       errors={errors}
+      isLastLeg={isLastLeg}
       latestEndDateTime={latestEndDateTime}
       leg={leg}
       onChangeLeg={(legChanges) => {
@@ -50,13 +51,20 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
     />;
   };
 
-  const renderStaticFields = ({ earliestStartDateTime = null, errors = {}, latestEndDateTime = null, leg } = {}) =>
+  const renderStaticFields = ({
+    earliestStartDateTime = null,
+    errors = {},
+    isLastLeg = true,
+    latestEndDateTime = null,
+    leg,
+  } = {}) =>
     render(
       <Provider store={mockStore(store)}>
         <ControlledStaticFields
           earliestStartDateTime={earliestStartDateTime}
           errors={errors}
           initialLeg={{ ...buildLegDraft(), startDate: '2026-04-13', startTime: '08:00', ...leg }}
+          isLastLeg={isLastLeg}
           latestEndDateTime={latestEndDateTime}
         />
       </Provider>
@@ -153,6 +161,27 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
     renderStaticFields();
 
     expect(screen.getByRole('checkbox', { name: 'Automatically end the leg at this time' })).toBeDisabled();
+  });
+
+  test('ends a leg another one follows automatically, without offering to plan its end', () => {
+    renderStaticFields({ isLastLeg: false, leg: { endDate: '2099-04-13', endTime: '10:00', isAutoEnd: false } });
+
+    const autoEndCheckbox = screen.getByRole('checkbox', { name: 'Automatically end the leg at this time' });
+
+    expect(autoEndCheckbox).toBeChecked();
+    expect(autoEndCheckbox).toBeDisabled();
+  });
+
+  test('offers to plan the end of a first leg still planned, even when another one follows it', () => {
+    renderStaticFields({
+      isLastLeg: false,
+      leg: { endDate: '2099-04-13', endTime: '10:00', isAutoEnd: false, startDate: '2099-04-13' },
+    });
+
+    const autoEndCheckbox = screen.getByRole('checkbox', { name: 'Automatically end the leg at this time' });
+
+    expect(autoEndCheckbox).not.toBeChecked();
+    expect(autoEndCheckbox).toBeEnabled();
   });
 
   test('offers every end time option while the start time is still incomplete', async () => {

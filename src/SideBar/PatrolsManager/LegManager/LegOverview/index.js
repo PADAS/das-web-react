@@ -17,6 +17,7 @@ import {
   canEditPatrolSegment,
   displayNumberForPatrolSegment,
   filterActivityItemsForPatrolSegment,
+  getElapsedTimeForPatrolSegment,
   getReportsForPatrolSegment,
   getTrackedSubjectsForPatrolSegment,
   hasPatrolSegmentNotRun,
@@ -26,6 +27,7 @@ import {
 import { fetchPatrol, updatePatrol, uploadPatrolFile } from '../../../../ducks/patrols';
 import { fetchTracksIfNecessary } from '../../../../utils/tracks';
 import { LEG_OVERVIEW_CATEGORY, TrackerContext, trackEventFactory } from '../../../../utils/analytics';
+import { longTermDurationHumanizer } from '../../../../utils/datetime';
 import { selectPatrolRosterFallbackSubjects } from '../../../../selectors/patrols';
 import { TAB_KEYS } from '../../../../constants';
 import useNavigate from '../../../../hooks/useNavigate';
@@ -49,7 +51,8 @@ const START_ICON_BY_LEG_KIND = { leg: ArrowRightFromLineIcon, pause: PauseIcon }
 
 const LegOverviewContent = ({ legNumber, onStagedChangesChange, patrol, patrolSegment }) => {
   const dispatch = useDispatch();
-  const { t } = useTranslation('patrols', { keyPrefix: 'legOverview' });
+  const { i18n, t } = useTranslation('patrols', { keyPrefix: 'legOverview' });
+  const { t: tDates } = useTranslation('dates');
 
   const activityEditing = usePatrolActivityEditing(patrol, legOverviewTracker);
   const legState = usePatrolState(patrol, patrolSegment);
@@ -86,6 +89,8 @@ const LegOverviewContent = ({ legNumber, onStagedChangesChange, patrol, patrolSe
   );
 
   const legStartTime = useMemo(() => actualStartTimeForPatrolSegment(patrolSegment), [patrolSegment]);
+
+  const humanizeDuration = useMemo(() => longTermDurationHumanizer(tDates, i18n.language), [i18n.language, tDates]);
 
   const legEvents = useMemo(() => {
     const segmentEvents = getReportsForPatrolSegment(patrolSegment);
@@ -247,7 +252,10 @@ const LegOverviewContent = ({ legNumber, onStagedChangesChange, patrol, patrolSe
           emptyStateMessage={t('activityEmptyStateMessage')}
           endIcon={END_ICON_BY_LEG_KIND[legKind]}
           endTime={legEndTime}
-          endTitle={t(`endedTitle.${legKind}`, { number: legNumber })}
+          endTitle={t(`endedTitle.${legKind}`, {
+            duration: legEndTime ? humanizeDuration(getElapsedTimeForPatrolSegment(patrolSegment)) : null,
+            number: legNumber,
+          })}
           existingNotes={legNotes}
           newAttachments={activityEditing.newAttachments}
           newNotes={activityEditing.newNotes}

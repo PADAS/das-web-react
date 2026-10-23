@@ -5,6 +5,7 @@ import { AddItemContext } from '../../';
 import AddPatrolTab from './';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import patrolTypes from '../../../__test-helpers/fixtures/patrol-types';
+import { PREVIEW_FEATURES } from '../../../constants';
 import { render, screen } from '../../../test-utils';
 import useNavigate from '../../../hooks/useNavigate';
 
@@ -19,7 +20,7 @@ describe('AddItemButton - AddItemModal - AddPatrolTab', () => {
     useNavigateMock = jest.fn(() => navigate);
     useNavigate.mockImplementation(useNavigateMock);
 
-    store = { data: { patrolTypes } };
+    store = { data: { patrolTypes }, view: { systemConfig: { previewFeatures: {} } } };
 
     renderAddPatrolTab = (props, addItemContext, overrideStore) => {
       render(
@@ -118,5 +119,31 @@ describe('AddItemButton - AddItemModal - AddPatrolTab', () => {
     expect(navigate).toHaveBeenCalledTimes(1);
     expect(navigate.mock.calls[0][0].pathname).toBe('/patrols/new');
     expect(navigate.mock.calls[0][0].search).toBe('?patrol-type=c6f88fd2-2b87-477a-9c23-3bc4b3eb845d');
+  });
+
+  describe('when added from a map location', () => {
+    const reportData = { location: { latitude: -1.3, longitude: 36.8 } };
+
+    const clickPatrolType = async () => userEvent.click(
+      await screen.findByTestId('categoryList-button-c6f88fd2-2b87-477a-9c23-3bc4b3eb845d')
+    );
+
+    test('starts the new patrol at that location', async () => {
+      store.view.systemConfig.previewFeatures[PREVIEW_FEATURES.PATROL_SCHEMAS] = true;
+
+      renderAddPatrolTab({}, { reportData });
+
+      await clickPatrolType();
+
+      expect(navigate.mock.calls[0][1].state.patrolData).toEqual({ location: reportData.location });
+    });
+
+    test('does not start the legacy patrol at that location', async () => {
+      renderAddPatrolTab({}, { reportData });
+
+      await clickPatrolType();
+
+      expect(navigate.mock.calls[0][1].state.patrolData).toEqual({});
+    });
   });
 });

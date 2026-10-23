@@ -118,6 +118,7 @@
       "endDateInputLabel": "Fecha de finalización",
       "endDateNotAfterStartDateError": "La finalización del tramo debe ser posterior a su inicio.",
       "endDateOverlapsNextLegError": "Este tramo no puede solaparse con el siguiente.",
+      "endDateRequiredError": "Un tramo seguido de otro necesita una fecha de finalización.",
       "endLocationLabel": "Ubicación final",
       "endTimeInputLabel": "Hora de finalización",
       "endTimeLabel": "Hora de finalización",
@@ -144,8 +145,8 @@
     "addEventLinkErrorMessage": "El evento se guardó, pero no se pudo agregar a este tramo de la patrulla.",
     "attachmentsSaveErrorMessage": "No se pudieron subir algunos archivos adjuntos. Vuelva a intentarlo.",
     "endedTitle": {
-      "leg": "Tramo {{number}} finalizado",
-      "pause": "Pausa {{number}} finalizada"
+      "leg": "Tramo {{number}} finalizado tras {{duration}}",
+      "pause": "Pausa {{number}} finalizada tras {{duration}}"
     },
     "footer": {
       "addEventButtonLabel": "Reportar un evento en este tramo de patrulla",
@@ -289,7 +290,7 @@
     "historyTabTitle": "Historial",
     "overview": {
       "activityEmptyStateMessage": "La actividad de la patrulla aparecerá aquí",
-      "legEndedTitle": "Tramo {{legNumber}} finalizado",
+      "legEndedTitle": "Tramo {{legNumber}} finalizado tras {{duration}}",
       "legs": {
         "durationLabel": "Duración",
         "legActionsColumnHeader": "Acciones",
@@ -315,9 +316,9 @@
         "zoomToLegBoundsButtonLabel": "Ajustar a los límites del tramo {{number}}"
       },
       "legStartedTitle": "Tramo {{legNumber}} iniciado",
-      "patrolEndedTitle": "Patrullaje finalizado",
-      "patrolPausedTitle": "Patrullaje en pausa por {{pausedFor}}",
-      "patrolResumedTitle": "Patrullaje reanudado",
+      "patrolEndedTitle": "Patrullaje finalizado tras {{duration}}",
+      "patrolPausedTitle": "Patrullaje en pausa",
+      "patrolResumedTitle": "Patrullaje reanudado tras {{duration}}",
       "patrolStartedTitle": "Patrullaje iniciado",
       "viewLegLinkLabel": {
         "leg": "Ver tramo {{number}}",

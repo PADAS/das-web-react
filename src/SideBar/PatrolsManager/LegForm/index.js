@@ -149,6 +149,7 @@ const LegForm = ({
         earliestStartDateTime={earliestStartDateTime}
         errors={staticFieldErrors}
         isFirstLeg={isFirstLeg}
+        isLastLeg={!nextLegStartDateTime}
         isPause={isPause}
         latestEndDateTime={latestEndDateTime}
         leg={leg}

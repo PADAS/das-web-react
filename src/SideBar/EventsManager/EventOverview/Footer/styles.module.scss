@@ -1,5 +1,6 @@
 @use '../../../../common/styles/buttons';
 @use '../../../../common/styles/vars/colors';
+@use '../../../shared';
 
 .footer {
   align-items: center;
@@ -23,6 +24,8 @@
 
     .cancelButton {
       @include buttons.base-button;
+
+      min-width: shared.$footer-button-min-width;
 
       &:hover {
         color: colors.$secondary-medium-gray;

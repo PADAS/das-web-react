@@ -16,6 +16,7 @@
     @include buttons.base-button;
 
     justify-content: center;
+    min-width: shared.$footer-button-min-width;
     text-decoration: none;
 
     &:hover {

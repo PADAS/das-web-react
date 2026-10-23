@@ -118,6 +118,7 @@
       "endDateInputLabel": "Tarehe ya mwisho",
       "endDateNotAfterStartDateError": "Mwisho wa kipande lazima uwe baadaye kuliko kuanza kwake.",
       "endDateOverlapsNextLegError": "Kipande hiki hakiwezi kuingiliana na kipande kinachofuata.",
+      "endDateRequiredError": "Kipande kinachofuatwa na kingine kinahitaji tarehe ya mwisho.",
       "endLocationLabel": "Mahali pa mwisho",
       "endTimeInputLabel": "Muda wa mwisho",
       "endTimeLabel": "Muda wa mwisho",
@@ -144,8 +145,8 @@
     "addEventLinkErrorMessage": "Tukio limehifadhiwa, lakini halikuweza kuongezwa kwenye kipande hiki cha doria.",
     "attachmentsSaveErrorMessage": "Baadhi ya viambatisho havikuweza kupakiwa. Tafadhali jaribu tena.",
     "endedTitle": {
-      "leg": "Kipande {{number}} kimekamilika",
-      "pause": "Msitisho {{number}} umekamilika"
+      "leg": "Kipande {{number}} kimekamilika baada ya {{duration}}",
+      "pause": "Msitisho {{number}} umekamilika baada ya {{duration}}"
     },
     "footer": {
       "addEventButtonLabel": "Ripoti tukio katika kipande hiki cha doria",
@@ -289,7 +290,7 @@
     "historyTabTitle": "Historia",
     "overview": {
       "activityEmptyStateMessage": "Shughuli za doria zitaonekana hapa",
-      "legEndedTitle": "Kipande {{legNumber}} kimekamilika",
+      "legEndedTitle": "Kipande {{legNumber}} kimekamilika baada ya {{duration}}",
       "legs": {
         "durationLabel": "Muda",
         "legActionsColumnHeader": "Vitendo",
@@ -315,9 +316,9 @@
         "zoomToLegBoundsButtonLabel": "Rekebisha kwenye mipaka ya kipande {{number}}"
       },
       "legStartedTitle": "Kipande {{legNumber}} kimeanza",
-      "patrolEndedTitle": "Doria imekamilika",
-      "patrolPausedTitle": "Doria imesitishwa kwa {{pausedFor}}",
-      "patrolResumedTitle": "Doria imeendelea",
+      "patrolEndedTitle": "Doria imekamilika baada ya {{duration}}",
+      "patrolPausedTitle": "Doria imesitishwa",
+      "patrolResumedTitle": "Doria imeendelea baada ya {{duration}}",
       "patrolStartedTitle": "Doria imeanza",
       "viewLegLinkLabel": {
         "leg": "Angalia kipande {{number}}",

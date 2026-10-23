@@ -36,6 +36,8 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
   const teamMember = { id: 'member-1', name: 'Nadia' };
   const asset = { id: 'asset-1', name: 'Land Cruiser' };
   const team = { display: 'Alpha', id: 'team-1' };
+  const radio = { id: 'radio-1', name: 'Ranger Radio', subject_subtype: 'ranger' };
+  const otherRadio = { id: 'radio-2', name: 'Base Radio', subject_subtype: 'stationary-radio' };
 
   let map, patrol, reduxStore, store;
   beforeEach(() => {
@@ -79,10 +81,22 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
         patrolStore: { [patrol.id]: patrol },
         patrolTeamAndTrackingOptions: {
           assets: [asset],
-          members: [teamLead, teamMember],
+          members: [teamLead, teamMember, radio, otherRadio],
           teams: [team],
         },
         patrolTypes,
+        subjectStore: {
+          [otherRadio.id]: {
+            ...otherRadio,
+            last_position: { geometry: { coordinates: [37.2, -2.1] } },
+            last_position_date: new Date(2026, 3, 13, 11, 50).toISOString(),
+          },
+          [radio.id]: {
+            ...radio,
+            last_position: { geometry: { coordinates: [36.8, -1.3] } },
+            last_position_date: new Date(2026, 3, 13, 11, 50).toISOString(),
+          },
+        },
         user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ, PERMISSIONS.UPDATE] } },
         userContent: {},
       },
@@ -224,6 +238,51 @@ describe('SideBar - PatrolsManager - LegManager - NewLeg', () => {
       expect(getDateInput('End date', 'Year')).toHaveValue('');
       expect(screen.getByLabelText('Start Location')).toHaveValue('');
       expect(screen.getByLabelText('End Location')).toHaveValue('');
+    });
+  });
+
+  describe('start location', () => {
+    const pickTeamLead = async (user, name) => {
+      await user.click(screen.getByLabelText('Team Lead'));
+      await user.click(await screen.findByText(name));
+    };
+
+    const saveAndGetAddedSegment = async (user) => {
+      await clickSave(user);
+
+      await waitFor(() => expect(updatePatrol).toHaveBeenCalledTimes(1));
+
+      return updatePatrol.mock.calls[0][0].patrol_segments[1];
+    };
+
+    test('starts the leg where a radio team lead that reported recently is', async () => {
+      const { user } = renderNewLeg();
+
+      await pickTeamLead(user, radio.name);
+
+      const addedSegment = await saveAndGetAddedSegment(user);
+
+      expect(addedSegment.start_location).toEqual({ latitude: -1.3, longitude: 36.8 });
+      expect(addedSegment.end_location).toBeNull();
+    });
+
+    test('does not start the leg where a radio team lead missing from the map is', async () => {
+      store.data.subjectStore = {};
+
+      const { user } = renderNewLeg();
+
+      await pickTeamLead(user, radio.name);
+
+      expect((await saveAndGetAddedSegment(user)).start_location).toBeNull();
+    });
+
+    test('keeps the start location the leg already has when the user picks a radio team lead', async () => {
+      const { user } = renderNewLeg();
+
+      await pickTeamLead(user, otherRadio.name);
+      await pickTeamLead(user, radio.name);
+
+      expect((await saveAndGetAddedSegment(user)).start_location).toEqual({ latitude: -2.1, longitude: 37.2 });
     });
   });
 

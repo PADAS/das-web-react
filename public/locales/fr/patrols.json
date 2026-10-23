@@ -118,6 +118,7 @@
       "endDateInputLabel": "Date de fin",
       "endDateNotAfterStartDateError": "La fin de l'étape doit être postérieure à son début.",
       "endDateOverlapsNextLegError": "Cette étape ne peut pas chevaucher la suivante.",
+      "endDateRequiredError": "Une étape suivie d'une autre doit avoir une date de fin.",
       "endLocationLabel": "Coordonnées GPS de fin",
       "endTimeInputLabel": "Heure de fin",
       "endTimeLabel": "Heure de fin",
@@ -144,8 +145,8 @@
     "addEventLinkErrorMessage": "L'événement a été enregistré, mais n'a pas pu être ajouté à cette étape de la patrouille.",
     "attachmentsSaveErrorMessage": "Certaines pièces jointes n'ont pas pu être téléversées. Veuillez réessayer.",
     "endedTitle": {
-      "leg": "Étape {{number}} terminée",
-      "pause": "Pause {{number}} terminée"
+      "leg": "Étape {{number}} terminée après {{duration}}",
+      "pause": "Pause {{number}} terminée après {{duration}}"
     },
     "footer": {
       "addEventButtonLabel": "Signaler un événement sur cette étape de patrouille",
@@ -289,7 +290,7 @@
     "historyTabTitle": "Historique",
     "overview": {
       "activityEmptyStateMessage": "L'activité de la patrouille apparaîtra ici",
-      "legEndedTitle": "Étape {{legNumber}} terminée",
+      "legEndedTitle": "Étape {{legNumber}} terminée après {{duration}}",
       "legs": {
         "durationLabel": "Durée",
         "legActionsColumnHeader": "Actions",
@@ -315,9 +316,9 @@
         "zoomToLegBoundsButtonLabel": "Ajuster aux limites de l'étape {{number}}"
       },
       "legStartedTitle": "Étape {{legNumber}} démarrée",
-      "patrolEndedTitle": "Patrouille terminée",
-      "patrolPausedTitle": "Patrouille en pause pendant {{pausedFor}}",
-      "patrolResumedTitle": "Patrouille reprise",
+      "patrolEndedTitle": "Patrouille terminée après {{duration}}",
+      "patrolPausedTitle": "Patrouille en pause",
+      "patrolResumedTitle": "Patrouille reprise après {{duration}}",
       "patrolStartedTitle": "Patrouille commencée",
       "viewLegLinkLabel": {
         "leg": "Voir l'étape {{number}}",
