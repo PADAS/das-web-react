@@ -29,12 +29,13 @@ const PatrolTrackLegend = () => {
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
   const trackTimeEnvelope = useSelector(selectTrackTimeEnvelope);
 
-  // The points every drawn patrol track holds, as "3 points over 2 days".
+  // The ground every drawn patrol track covers, as "61.3km over 2 days".
   const description = useMemo(() => {
-    const patrolTracksPointCount = patrolsWithTrackData.reduce(
-      (accumulator, patrolData) => accumulator + (patrolData.trackData?.points.features.length ?? 0),
-      0
-    );
+    // A patrol whose tracks are still loading would leave a total short of them all.
+    if (patrolsWithTrackData.some((patrolData) => patrolData.distance === null)) {
+      return '';
+    }
+
     const trackTimeEnvelopeFormatted = trackTimeEnvelope.until
       ? formatDistance(
         new Date(trackTimeEnvelope.from),
@@ -43,11 +44,16 @@ const PatrolTrackLegend = () => {
       )
       : formatDistanceToNow(new Date(trackTimeEnvelope.from), { locale: getCurrentLocale() });
 
-    return t('description', { pointCount: patrolTracksPointCount, trackTime: trackTimeEnvelopeFormatted });
-  }, [patrolsWithTrackData, t, trackTimeEnvelope.from, trackTimeEnvelope.until]);
+    return t('description', {
+      distance: formatDistanceInKilometers(
+        tUtils,
+        patrolsWithTrackData.reduce((distance, patrolData) => distance + patrolData.distance, 0)
+      ),
+      trackTime: trackTimeEnvelopeFormatted,
+    });
+  }, [patrolsWithTrackData, t, trackTimeEnvelope.from, trackTimeEnvelope.until, tUtils]);
 
   // One row per tracked patrol, listing the subjects whose tracks make it up.
-  // Only the subjects carry a distance: summing them tells a reader nothing.
   const items = useMemo(() => patrolsWithTrackData.map((patrolData) => {
     const patrolTitle = calcTitleAndSubtitleForPatrol(patrolData.patrol, patrolTypes).title;
 
@@ -67,6 +73,7 @@ const PatrolTrackLegend = () => {
         title: subjectTrackData.subject.name,
         trackColor: subjectTrackData.trackData?.track?.features?.[0]?.properties?.stroke ?? '',
       })),
+      description: patrolData.distance === null ? '' : formatDistanceInKilometers(tUtils, patrolData.distance),
       icon: <SvgIcon
         className={styles.itemIcon}
         iconId={iconTypeForPatrol(patrolData.patrol)}

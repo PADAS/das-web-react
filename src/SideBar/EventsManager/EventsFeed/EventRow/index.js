@@ -11,6 +11,7 @@ import Actions from './Actions';
 import DateTime from '../../../../DateTime';
 import EventIcon from '../../../../EventIcon';
 import Link from '../../../../Link';
+import TimeAgo from '../../../../TimeAgo';
 
 import * as styles from './styles.module.scss';
 
@@ -34,11 +35,13 @@ const EventRow = ({ displayTimeProp, event }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'eventsManager.eventsFeed.eventRow' });
 
   const navigate = useNavigate();
-  const { coordinates, displayPriority, displaySubtitle, displayTitle } = useReport(event);
+  const { coordinates, displayPriority, displayTitle } = useReport(event);
 
   const tracker = useContext(TrackerContext);
 
   const contextMenuRef = useRef(null);
+
+  const date = event[displayTimeProp] ?? event.updated_at ?? event.time;
 
   const eventPath = `/${TAB_KEYS.EVENTS}/${event.id}`;
 
@@ -77,22 +80,18 @@ const EventRow = ({ displayTimeProp, event }) => {
 
     <span className={styles.serialNumber}>{event.serial_number}</span>
 
-    <div className={`${styles.titleRow} ${displaySubtitle ? '' : styles.onlyLine}`}>
+    <div className={styles.titleRow}>
       <Link className={styles.titleLink} onClick={trackOpenEvent} title={displayTitle} to={eventPath}>
         {displayTitle}
       </Link>
     </div>
 
-    {!!displaySubtitle && <p className={styles.details}>{displaySubtitle}</p>}
+    {!!date && <TimeAgo className={styles.details} date={date} suffix={t('ageSuffix')} />}
 
     <div className={styles.status}>
       {!!stateKey && <span className={`${styles.statusTitle} ${styles[stateKey]}`}>{t(`states.${stateKey}`)}</span>}
 
-      <DateTime
-        className={styles.statusDate}
-        date={event[displayTimeProp] ?? event.updated_at ?? event.time}
-        showElapsed={false}
-      />
+      <DateTime className={styles.statusDate} date={date} showElapsed={false} />
     </div>
 
     <Actions className={styles.actions} contextMenuRef={contextMenuRef} coordinates={coordinates} event={event} />

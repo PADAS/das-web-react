@@ -1,6 +1,6 @@
 {
   "patrolTrackLegend": {
-    "description": "Pointi {{pointCount}} kwa muda wa {{trackTime}}",
+    "description": "{{distance}} kwa muda wa {{trackTime}}",
     "icon": "Ikoni kwa {{patrolTitle}}",
     "itemTitle": "Doria: {{patrolTitle}}",
     "subjectIcon": "Ikoni ya {{subject}}",

@@ -252,16 +252,16 @@ describe('Selectors - Patrols', () => {
         state: 'done',
         patrol_segments: [
           {
-            leader: { id: 'subjectA' },
-            time_range: {
-              end_time: '2019-11-02T00:00:00.000Z',
-            },
-          },
-          {
             leader: { id: 'subjectB' },
             time_range: {
               end_time: '2020-01-15T00:00:00.000Z',
               start_time: '2020-01-01T00:00:00.000Z',
+            },
+          },
+          {
+            leader: { id: 'subjectA' },
+            time_range: {
+              end_time: '2019-11-02T00:00:00.000Z',
             },
           },
         ],
@@ -301,18 +301,48 @@ describe('Selectors - Patrols', () => {
 
       expect(selectPatrolTrackData(state, patrol)).toEqual({
         hasTrackData: true,
-        leader: { id: 'subjectB' },
+        leader: { id: 'subjectA' },
         startStopGeometries: null,
         subjectsTrackData: [
-          { distance: null, isHidden: false, subject: { id: 'subjectA' }, trackData: null },
           {
             distance: expect.any(Number),
             isHidden: false,
             subject: { id: 'subjectB' },
             trackData: trimmedTrackData,
           },
+          { distance: null, isHidden: false, subject: { id: 'subjectA' }, trackData: null },
         ],
         trackData: trimmedTrackData,
+      });
+    });
+
+    test('has no track for a patrol whose first leg never began, though a later one did', () => {
+      state.data.tracks = {
+        subjectB: {
+          fetchedDateRange: { since: '2020-01-01T00:00:00.000Z' },
+          points: { features: [] },
+          track: {
+            features: [{
+              geometry: { type: 'LineString', coordinates: [[0, 0], [0, 1]] },
+              properties: { coordinateProperties: { times: ['2020-01-03T00:00:00.000Z', '2020-01-01T00:00:00.000Z'] } },
+            }],
+          },
+        },
+      };
+      const patrol = {
+        state: 'open',
+        patrol_segments: [
+          { leader: { id: 'subjectA' }, scheduled_start: '2019-12-01T00:00:00.000Z', time_range: {} },
+          { leader: { id: 'subjectB' }, time_range: { start_time: '2020-01-01T00:00:00.000Z' } },
+        ],
+      };
+
+      expect(selectPatrolTrackData(state, patrol)).toEqual({
+        hasTrackData: false,
+        leader: { id: 'subjectB' },
+        startStopGeometries: null,
+        subjectsTrackData: [],
+        trackData: null,
       });
     });
 
@@ -1595,6 +1625,18 @@ describe('Selectors - Patrols', () => {
       expect(selectPatrolLeadSumDistance(state, patrol)).toBeNull();
     });
 
+    test('leaves the distance unknown for a patrol whose first leg never began, though a later one did', () => {
+      const patrol = {
+        state: 'open',
+        patrol_segments: [
+          { leader: FIRST_LEAD, scheduled_start: '2020-01-01T00:00:00.000Z', time_range: {} },
+          patrolSegment(SECOND_LEAD, '2020-01-05T00:00:00.000Z', null),
+        ],
+      };
+
+      expect(selectPatrolLeadSumDistance(state, patrol)).toBeNull();
+    });
+
     test('keeps the whole of what the leads covered, whatever the track length setting draws', () => {
       state.view.trackSettings.length = 1;
 
@@ -1915,10 +1957,19 @@ describe('Selectors - Patrols', () => {
 
     test('counts no distance for a leg without a start time', () => {
       const patrolWithoutLegStartTime = {
-        patrol_segments: [legFor(RANGER, { end_time: FIRST_LEG_TIME_RANGE.end_time })],
+        patrol_segments: [legFor(RANGER, FIRST_LEG_TIME_RANGE), legFor(DOG, { end_time: SECOND_LEG_TIME_RANGE.end_time })],
       };
 
       expect(selectPatrolTrackedSubjects(state, patrolWithoutLegStartTime)[0].distance).toBe(0);
+    });
+
+    test('leaves the distance unknown for a patrol whose first leg never began, though a later one did', () => {
+      const patrolNotBegun = {
+        patrol_segments: [legFor(DOG, { end_time: FIRST_LEG_TIME_RANGE.end_time }), legFor(RANGER, FIRST_LEG_TIME_RANGE)],
+      };
+
+      expect(selectPatrolTrackedSubjects(state, patrolNotBegun).map((trackedSubject) => trackedSubject.distance))
+        .toEqual([null, null]);
     });
 
     test('counts no distance for a leg whose time range falls outside the fetched track', () => {
@@ -2522,6 +2573,104 @@ describe('Selectors - Patrols', () => {
 
       expect(selectPatrolsWithTracksData({ ...state, data: { ...state.data, eventStore: {} } }))
         .toBe(patrolsWithTracksData);
+    });
+
+    describe('distance', () => {
+      const buildTrack = (coordinates, times) => ({
+        fetchedDateRange: { since: '2019-12-01T00:00:00.000Z' },
+        points: { features: [] },
+        track: {
+          features: [{
+            geometry: { coordinates, type: 'LineString' },
+            properties: { coordinateProperties: { times } },
+          }],
+        },
+      });
+
+      const twoLegPatrol = {
+        id: 'patrol123',
+        patrol_segments: [
+          {
+            leader: { id: 'subject123' },
+            time_range: { end_time: '2020-01-04T00:00:00.000Z', start_time: '2020-01-01T00:00:00.000Z' },
+          },
+          {
+            leader: { id: 'subject456' },
+            time_range: { end_time: '2020-01-09T00:00:00.000Z', start_time: '2020-01-05T00:00:00.000Z' },
+          },
+        ],
+        state: 'done',
+      };
+
+      beforeEach(() => {
+        state.data.eventFilter.filter.date_range.lower = '2019-12-01T00:00:00.000Z';
+        state.view.patrolTrackState.visible = ['patrol123'];
+        state.data.patrolStore = { patrol123: twoLegPatrol };
+        state.data.tracks = {
+          subject123: buildTrack(
+            [[0, 2], [0, 1], [0, 0]],
+            ['2020-01-04T00:00:00.000Z', '2020-01-02T00:00:00.000Z', '2020-01-01T00:00:00.000Z']
+          ),
+          subject456: buildTrack(
+            [[2, 0], [1, 0], [0, 0]],
+            ['2020-01-09T00:00:00.000Z', '2020-01-07T00:00:00.000Z', '2020-01-05T00:00:00.000Z']
+          ),
+        };
+      });
+
+      test('adds up the leg leads as the patrol overview does when the track length covers the patrol', () => {
+        const [patrolWithTracksData] = selectPatrolsWithTracksData(state);
+
+        expect(patrolWithTracksData.distance).toBeGreaterThan(0);
+        expect(patrolWithTracksData.distance).toBeCloseTo(selectPatrolLeadSumDistance(state, twoLegPatrol));
+      });
+
+      test('leaves out the legs and the stretches the track length does not reach', () => {
+        state.view.trackSettings.length = 9;
+
+        const [patrolWithTracksData] = selectPatrolsWithTracksData(state);
+
+        expect(patrolWithTracksData.distance).toBeCloseTo(selectPatrolLeadSumDistance(state, twoLegPatrol) / 4);
+      });
+
+      test('leaves out what the time slider has not reached yet', () => {
+        state.view.timeSliderState = { active: true, virtualDate: '2020-01-07T00:00:00.000Z' };
+
+        const [patrolWithTracksData] = selectPatrolsWithTracksData(state);
+
+        expect(patrolWithTracksData.distance).toBeCloseTo(selectPatrolLeadSumDistance(state, twoLegPatrol) * 3 / 4);
+      });
+
+      test('is unknown until the track of every leg has loaded', () => {
+        state.data.tracks = omit(state.data.tracks, 'subject456');
+
+        const [patrolWithTracksData] = selectPatrolsWithTracksData(state);
+
+        expect(patrolWithTracksData.distance).toBeNull();
+      });
+
+      test('leaves out a patrol whose first leg never began, though a later one did', () => {
+        state.data.patrolStore = {
+          patrol123: {
+            ...twoLegPatrol,
+            patrol_segments: [
+              { ...twoLegPatrol.patrol_segments[0], scheduled_start: '2020-01-01T00:00:00.000Z', time_range: {} },
+              twoLegPatrol.patrol_segments[1],
+            ],
+            state: 'open',
+          },
+        };
+
+        expect(selectPatrolsWithTracksData(state)).toEqual([]);
+      });
+
+      test('counts the subjects the user hid in the legend', () => {
+        state.view.patrolTrackState.hiddenSubjects = { patrol123: ['subject123', 'subject456'] };
+
+        const [patrolWithTracksData] = selectPatrolsWithTracksData(state);
+
+        expect(patrolWithTracksData.distance).toBeCloseTo(selectPatrolLeadSumDistance(state, twoLegPatrol));
+      });
     });
   });
 

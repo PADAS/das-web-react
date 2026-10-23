@@ -99,6 +99,31 @@ describe('PatrolTrackLegend', () => {
     expect(screen.getByText(LEAD.name)).toBeVisible();
   });
 
+  test('shows the distance the patrol covered over the track length', () => {
+    renderPatrolTrackLegend();
+
+    expect(screen.getByText('111.2km over 21 days')).toBeVisible();
+  });
+
+  test('shows the distance every patrol covered, and on each row its own', async () => {
+    const otherPatrol = { ...patrol, id: 'patrol456', title: 'Southern sweep' };
+    store.data.patrolStore[otherPatrol.id] = otherPatrol;
+    store.view.patrolTrackState.visible = [patrol.id, otherPatrol.id];
+    renderPatrolTrackLegend();
+
+    await userEvent.click(screen.getByLabelText('Open the list of patrols'));
+
+    expect(screen.getByText('222.4km over 21 days')).toBeVisible();
+    expect(screen.getAllByText('111.2km')).toHaveLength(4);
+  });
+
+  test('does not show a distance until the patrol tracks have loaded', () => {
+    store.data.tracks = {};
+    renderPatrolTrackLegend();
+
+    expect(screen.queryByText(/km/)).not.toBeInTheDocument();
+  });
+
   test('forgets the subjects the user hid on the patrol whose track is cleared', async () => {
     const otherPatrol = { ...patrol, id: 'patrol456', title: 'Southern sweep' };
     store.data.patrolStore[otherPatrol.id] = otherPatrol;

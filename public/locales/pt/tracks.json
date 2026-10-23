@@ -1,6 +1,6 @@
 {
   "patrolTrackLegend": {
-    "description": "{{pointCount}} pontos ao longo de {{trackTime}}",
+    "description": "{{distance}} ao longo de {{trackTime}}",
     "icon": "Ícone para {{patrolTitle}}",
     "itemTitle": "Patrulha: {{patrolTitle}}",
     "subjectIcon": "Ícone para {{subject}}",

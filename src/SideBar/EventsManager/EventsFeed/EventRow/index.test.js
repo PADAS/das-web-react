@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { eventTypes } from '../../../../__test-helpers/fixtures/event-types';
 import { format, STANDARD_DATE_FORMAT } from '../../../../utils/datetime';
 import { mockStore } from '../../../../__test-helpers/MockStore';
-import { fireEvent, render, screen, waitFor, within } from '../../../../test-utils';
+import { act, fireEvent, render, screen, waitFor, within } from '../../../../test-utils';
 import { report } from '../../../../__test-helpers/fixtures/reports';
 import { TAB_KEYS } from '../../../../constants';
 import { TrackerContext } from '../../../../utils/analytics';
@@ -73,18 +73,18 @@ describe('SideBar - EventsManager - EventsFeed - EventRow', () => {
     expect(screen.getByRole('link', { name: 'Light' })).toBeVisible();
   });
 
-  test('shows the event type title on the details line of an event with a title of its own', () => {
-    renderEventRow();
-
-    expect(screen.getByText('Light')).toBeVisible();
-  });
-
   test('titles an event with a blank title after its event type', () => {
     event.title = '  ';
 
     renderEventRow();
 
     expect(screen.getByRole('link', { name: 'Light' })).toBeVisible();
+  });
+
+  test('does not show the event type below an event with a title of its own', () => {
+    renderEventRow();
+
+    expect(screen.queryByText('Light')).not.toBeInTheDocument();
   });
 
   test('does not repeat the event type below an untitled event', () => {
@@ -95,12 +95,40 @@ describe('SideBar - EventsManager - EventsFeed - EventRow', () => {
     expect(screen.getAllByText('Light')).toHaveLength(1);
   });
 
-  test('does not repeat the event type below a title that is the event type', () => {
-    event.title = 'Light';
+  describe('age', () => {
+    beforeEach(() => {
+      jest.useFakeTimers().setSystemTime(new Date('2024-03-04T11:00:00Z'));
+    });
 
-    renderEventRow();
+    afterEach(() => {
+      jest.useRealTimers();
+    });
 
-    expect(screen.getAllByText('Light')).toHaveLength(1);
+    test('shows the age of the date the feed is sorted by', () => {
+      event = { ...event, created_at: '2024-03-03T17:56:00Z', updated_at: '2024-03-04T10:00:00Z' };
+
+      renderEventRow({ displayTimeProp: 'created_at' });
+
+      expect(screen.getByTestId('time-ago')).toHaveTextContent('17h 4m ago');
+    });
+
+    test('falls back to the age of the update date when the event lacks the date the feed is sorted by', () => {
+      event = { ...event, created_at: undefined, time: '2024-03-03T17:56:00Z', updated_at: '2024-03-04T08:30:00Z' };
+
+      renderEventRow({ displayTimeProp: 'created_at' });
+
+      expect(screen.getByTestId('time-ago')).toHaveTextContent('2h 30m ago');
+    });
+
+    test('updates the age while the row is shown', () => {
+      event = { ...event, updated_at: '2024-03-03T17:56:00Z' };
+
+      renderEventRow();
+
+      act(() => jest.advanceTimersByTime(60_000));
+
+      expect(screen.getByTestId('time-ago')).toHaveTextContent('17h 5m ago');
+    });
   });
 
   test('shows the state of an active event in the active state color', () => {

@@ -1493,7 +1493,6 @@ export const getBoundsForPatrol = (patrol, patrolTrackData) => {
   return bbox(featureCollection(collectionData));
 };
 
-// A patrol has a track from the moment any leg begins, whatever state it went
-// on to reach: one called off halfway still covered ground.
-export const patrolStateAllowsTrackDisplay = (patrol) =>
-  (patrol.patrol_segments ?? []).some((patrolSegment) => !isSegmentPending(patrolSegment));
+// A patrol has a track from the moment it begins, whatever state it went on to
+// reach: one called off halfway still covered ground.
+export const patrolStateAllowsTrackDisplay = (patrol) => hasPatrolBegun(patrol);

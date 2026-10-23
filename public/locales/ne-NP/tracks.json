@@ -1,6 +1,6 @@
 {
   "patrolTrackLegend": {
-    "description": "{{trackTime}} मा {{pointCount}} पोइन्टहरू",
+    "description": "{{trackTime}} मा {{distance}}",
     "icon": "{{patrolTitle}}को लागि आइकन",
     "itemTitle": "गस्ती: {{patrolTitle}}",
     "subjectIcon": "{{subject}} को आइकन",

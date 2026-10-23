@@ -107,6 +107,7 @@
           },
           "updatedEventToastMessage": "#{{eventSerialNumber}} {{newState}}"
         },
+        "ageSuffix": "ilipita",
         "patrolIndicator": "d",
         "states": {
           "active": "Tendaji",

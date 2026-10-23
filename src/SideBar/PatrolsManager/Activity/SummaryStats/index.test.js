@@ -257,6 +257,30 @@ describe('SideBar - PatrolsManager - Activity - SummaryStats', () => {
     });
   });
 
+  test('shows a dash on every measurement of a leg whose patrol has not begun, though the leg did', () => {
+    const patrolNotBegun = {
+      ...endedPatrol,
+      patrol_segments: [
+        {
+          ...endedPatrol.patrol_segments[0],
+          scheduled_start: FIRST_LEG_TIME_RANGE.start_time,
+          time_range: { end_time: null, start_time: null },
+        },
+        endedPatrol.patrol_segments[1],
+      ],
+    };
+
+    renderSummaryStats({ patrol: patrolNotBegun, patrolSegment: patrolNotBegun.patrol_segments[1] });
+
+    expect(readSummaryStats()).toEqual({
+      'Active Time': '-',
+      'Distance': '-',
+      'Duration': '-',
+      'Events': '0',
+      'Paused Time': '-',
+    });
+  });
+
   test('shows a dash as the distance of a patrol without tracked subjects', () => {
     const patrolWithoutLeaders = {
       ...endedPatrol,
