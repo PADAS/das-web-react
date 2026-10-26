@@ -1,5 +1,6 @@
 import { CanceledError } from 'axios';
 import { Provider } from 'react-redux';
+import ReactGA4 from 'react-ga4';
 import { toast } from 'react-toastify';
 import { useLocation, useParams } from 'react-router';
 import userEvent from '@testing-library/user-event';
@@ -7,6 +8,8 @@ import userEvent from '@testing-library/user-event';
 import { act, render, screen, waitFor } from '../../../test-utils';
 import AddItemButton from '../../../AddItemButton';
 import { addPatrolSegmentToEvent } from '../../../utils/events';
+import { events } from '../../../__test-helpers/fixtures/events';
+import { fetchEvent } from '../../../ducks/events';
 import { fetchPatrol, updatePatrol, uploadPatrolFile } from '../../../ducks/patrols';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import patrolTypes from '../../../__test-helpers/fixtures/patrol-types';
@@ -29,6 +32,11 @@ const NavigateAwayButton = () => {
 };
 
 jest.mock('../../../AddItemButton', () => jest.fn());
+
+jest.mock('../../../ducks/events', () => ({
+  ...jest.requireActual('../../../ducks/events'),
+  fetchEvent: jest.fn(),
+}));
 
 jest.mock('../../../ducks/patrols', () => ({
   ...jest.requireActual('../../../ducks/patrols'),
@@ -66,6 +74,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     addItemButtonMock = jest.fn(() => <button data-testid="addEventButton" type="button" />);
     AddItemButton.mockImplementation(addItemButtonMock);
 
+    fetchEvent.mockImplementation(() => () => Promise.resolve());
     fetchPatrol.mockImplementation(() => () => Promise.resolve());
     updatePatrol.mockImplementation(() => () => Promise.resolve());
     uploadPatrolFile.mockResolvedValue({});
@@ -356,6 +365,11 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       <PatrolOverview />
     </Provider>
   );
+
+  const selectStatus = async (name, user = userEvent) => {
+    await user.click(screen.getByRole('button', { name: /Change patrol status/ }));
+    await user.click(await screen.findByRole('menuitem', { name }));
+  };
 
   const renderPatrolWithNotes = () => {
     store.data.patrolStore[patrolWithNotes.id] = patrolWithNotes;
@@ -1150,15 +1164,6 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       jest.useRealTimers();
     });
 
-    const openStatusSelect = () => userEvent.click(
-      screen.getByRole('button', { name: /Change patrol status/ })
-    );
-
-    const selectStatus = async (name) => {
-      await openStatusSelect();
-      await userEvent.click(await screen.findByRole('menuitem', { name }));
-    };
-
     const savedPayload = async () => {
       await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
@@ -1391,6 +1396,177 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
         expect(screen.getByRole('button', { name: 'Active, Change patrol status' })).toBeInTheDocument();
       });
       expect(updatePatrol).toHaveBeenCalledWith({ id: patrolWithLeader.id, state: 'cancelled' });
+    });
+  });
+  describe('live updates', () => {
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    const endedPatrolWithLeader = {
+      ...patrolWithLeader,
+      patrol_segments: patrolWithLeader.patrol_segments.map((patrolSegment) => ({
+        ...patrolSegment,
+        time_range: { ...patrolSegment.time_range, end_time: '2021-11-01T13:50:00.724000-07:00' },
+      })),
+      state: 'done',
+    };
+
+    const renderPatrolWithLeader = (patrol = patrolWithLeader) => {
+      store.data.patrolStore[patrolWithLeader.id] = patrol;
+
+      return renderPatrolOverview(patrolWithLeader.id);
+    };
+
+    const updatePatrolInStore = (rerender, patrol) => {
+      store.data.patrolStore[patrol.id] = patrol;
+      rerenderWithStore(rerender);
+    };
+
+    const addNewNote = async (text) => {
+      await userEvent.click(screen.getByTestId('addNoteButton'));
+      await userEvent.type(screen.getByTestId('activitySection-noteTextArea-'), text);
+      await userEvent.click(screen.getByTestId(`activitySection-noteDone-${text}`));
+    };
+
+    const clickSave = async () => {
+      await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+      await waitFor(() => {
+        expect(updatePatrol).toHaveBeenCalledTimes(1);
+      });
+    };
+
+    test('shows the patrol as done with its end once an update ends it, without fetching it again', async () => {
+      const { rerender } = await renderPatrolWithLeader();
+
+      expect(screen.queryByText(/Patrol ended after/)).not.toBeInTheDocument();
+
+      updatePatrolInStore(rerender, endedPatrolWithLeader);
+
+      expect(screen.getByRole('button', { name: 'Done, Change patrol status' })).toBeInTheDocument();
+      expect(screen.getByText(/Patrol ended after/)).toBeInTheDocument();
+      expect(fetchPatrol).toHaveBeenCalledTimes(1);
+    });
+
+    test('shows an event that an update adds to the patrol leg', async () => {
+      store.data.eventStore = {};
+      store.data.eventTypes = [];
+
+      const { rerender } = await renderPatrolWithLeader();
+
+      updatePatrolInStore(rerender, {
+        ...patrolWithLeader,
+        patrol_segments: patrolWithLeader.patrol_segments.map((patrolSegment) => ({
+          ...patrolSegment,
+          events: [{ ...events[0], id: 'event-added-on-mobile' }],
+        })),
+      });
+
+      expect(screen.getByTestId('activitySection-collapse-event-added-on-mobile')).toBeInTheDocument();
+    });
+
+    test('keeps an unsaved title and note through an update and saves only them', async () => {
+      const { rerender } = await renderPatrolWithLeader();
+
+      await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
+      await addNewNote('a new note');
+
+      updatePatrolInStore(rerender, endedPatrolWithLeader);
+
+      expect(screen.getByTestId('patrolOverview-title')).toHaveValue('Dog Patrol edited');
+
+      await clickSave();
+
+      expect(updatePatrol).toHaveBeenCalledWith({
+        id: patrolWithLeader.id,
+        notes: [{ text: 'a new note' }],
+        title: 'Dog Patrol edited',
+      });
+    });
+
+    test('drops a picked status once an update moves the patrol past the status it was picked in', async () => {
+      const { rerender } = await renderPatrolWithLeader();
+
+      await selectStatus('Pause');
+
+      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+
+      updatePatrolInStore(rerender, endedPatrolWithLeader);
+
+      expect(screen.getByRole('button', { name: 'Done, Change patrol status' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
+
+    test('saves the other changes without the dropped status and tracks that it was discarded', async () => {
+      jest.spyOn(ReactGA4, 'event').mockImplementation(() => {});
+
+      const { rerender } = await renderPatrolWithLeader();
+
+      await selectStatus('Pause');
+      await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
+
+      updatePatrolInStore(rerender, endedPatrolWithLeader);
+
+      await clickSave();
+
+      expect(updatePatrol).toHaveBeenCalledWith({ id: patrolWithLeader.id, title: 'Dog Patrol edited' });
+      expect(ReactGA4.event).toHaveBeenCalledWith(
+        expect.objectContaining({ action: 'Discarded a staged status the patrol moved past' })
+      );
+    });
+
+    test('does not track a discarded status when the picked one still applies', async () => {
+      jest.spyOn(ReactGA4, 'event').mockImplementation(() => {});
+
+      await renderPatrolWithLeader();
+
+      await selectStatus('Pause');
+      await clickSave();
+
+      expect(ReactGA4.event).not.toHaveBeenCalledWith(
+        expect.objectContaining({ action: 'Discarded a staged status the patrol moved past' })
+      );
+    });
+
+    test('drops a picked status once the patrol moves on by itself', async () => {
+      jest.useFakeTimers().setSystemTime(new Date('2026-04-13T12:00:00.000Z'));
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+
+      await renderPatrolWithLeader({
+        ...patrolWithLeader,
+        patrol_segments: [{
+          ...patrolWithLeader.patrol_segments.at(-1),
+          time_range: { end_time: null, start_time: '2026-04-13T12:10:00.000Z' },
+        }],
+      });
+
+      await selectStatus('Cancel', user);
+
+      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+
+      act(() => {
+        jest.advanceTimersByTime(10 * 60_000 + 1);
+      });
+
+      expect(screen.getByRole('button', { name: 'Active, Change patrol status' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
+
+    test('keeps a note an update adds alongside the new note the user saves', async () => {
+      const { rerender } = await renderPatrolWithNotes();
+
+      await addNewNote('a new note');
+
+      const remoteNote = { id: 'note3', text: 'Note added on mobile', updates: [{ time: '2021-10-06T01:00:00+00:00' }] };
+      updatePatrolInStore(rerender, { ...patrolWithNotes, notes: [...patrolWithNotes.notes, remoteNote] });
+
+      await clickSave();
+
+      expect(updatePatrol).toHaveBeenCalledWith({
+        id: patrolWithNotes.id,
+        notes: [...patrolWithNotes.notes, remoteNote, { text: 'a new note' }],
+      });
     });
   });
 });
