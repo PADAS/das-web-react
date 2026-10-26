@@ -26,8 +26,8 @@ export const generateStorageConfig = (key, storageMethod = storage, version = -1
 
 };
 
-export const generateOptionalStorageConfig = (key, INITIAL_STATE) => {
-  const storageConfig = generateStorageConfig(key);
+export const generateOptionalStorageConfig = (key, INITIAL_STATE, version, migrations) => {
+  const storageConfig = generateStorageConfig(key, storage, version, migrations);
   const shouldRestore = getKeyIsRestorable(key);
 
   const transform = createTransform(

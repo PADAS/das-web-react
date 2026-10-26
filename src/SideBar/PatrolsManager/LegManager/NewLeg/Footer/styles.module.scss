@@ -1,0 +1,34 @@
+@use '../../../../../common/styles/buttons';
+@use '../../../../../common/styles/vars/colors';
+@use '../../../_shared' as shared;
+
+.footer {
+  align-items: center;
+  background: white;
+  border-top: 1px solid colors.$very-light-gray-alt;
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  padding: 1rem;
+
+  .cancelButton {
+    @include buttons.base-button;
+
+    justify-content: center;
+    min-width: shared.$footer-button-min-width;
+    text-decoration: none;
+
+    &:hover {
+      color: colors.$secondary-medium-gray;
+    }
+
+    &:focus-visible {
+      outline-offset: 0;
+    }
+  }
+
+  .saveButton {
+    @include shared.save-button;
+  }
+}

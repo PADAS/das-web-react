@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -8,10 +8,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { acceptEula, fetchEula } from '../../ducks/eula';
+import { APP_ROUTES } from '../../constants/routes';
 import { clearAuth } from '../../ducks/auth';
 import { deleteCookie } from '../../utils/auth';
 import { fetchCurrentUser } from '../../ducks/user';
-import { REACT_APP_ROUTE_PREFIX } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
 
 import * as styles from './styles.module.scss';
@@ -29,7 +29,7 @@ const EulaPage = ({ temporaryAccessToken }) => {
   const [formAccepted, setFormAccepted] = useState(false);
   const [formError, setFormError] = useState(false);
   const [pageLoaded, setPageLoaded] = useState(false);
-  const [rerouteOnSuccess, setRerouteOnSuccess] = useState(location.state?.from || REACT_APP_ROUTE_PREFIX);
+  const [rerouteOnSuccess, setRerouteOnSuccess] = useState(location.state?.from || APP_ROUTES.ROOT);
   const [submitted, setSubmitted] = useState(false);
 
   const hasRouteAfterEulaAcceptedCookie = document.cookie
@@ -71,26 +71,29 @@ const EulaPage = ({ temporaryAccessToken }) => {
 
     dispatch(acceptEula({ accept: true, eula: eula.id, user: user.id }, generateTempAuthHeaderIfNecessary()))
       .then(() => dispatch(fetchCurrentUser())
-        .catch(() => this.props.history.push({
-          pathname: `${REACT_APP_ROUTE_PREFIX}login`,
-          search: this.props.location.search,
-        })))
+        .catch((error) => {
+          navigate({ pathname: APP_ROUTES.LOGIN, search: location.search });
+
+          throw error;
+        }))
       .then(() => setSubmitted(true))
       .catch((error) => {
         console.warn('error fetching EULA', JSON.parse(JSON.stringify(error)));
 
         setFormError(true);
       });
-  }, [dispatch, eula.id, formAccepted, generateTempAuthHeaderIfNecessary, user.id]);
+  }, [dispatch, eula.id, formAccepted, generateTempAuthHeaderIfNecessary, location.search, navigate, user.id]);
 
   useEffect(() => {
     dispatch(fetchCurrentUser())
-      .catch(() => navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search: location.search }));
+      .catch(() => navigate({ pathname: APP_ROUTES.LOGIN, search: location.search }));
     dispatch(fetchEula(generateTempAuthHeaderIfNecessary()));
   }, [dispatch, generateTempAuthHeaderIfNecessary, location.search, navigate]);
 
   useEffect(() => {
     if (rerouteCookieValue) {
+      // Updating state from this effect is intended.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRerouteOnSuccess(rerouteCookieValue);
     }
   }, [rerouteCookieValue]);
@@ -108,8 +111,10 @@ const EulaPage = ({ temporaryAccessToken }) => {
   }, [adminReferrer, canceled, rerouteCookieValue]);
 
   useEffect(() => {
-    if (user.hasOwnProperty('accepted_eula')) {
+    if (Object.hasOwn(user, 'accepted_eula')) {
       if (!user.accepted_eula) {
+        // Updating state from this effect is intended.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setPageLoaded(true);
       } else {
         navigate(-1);
@@ -157,7 +162,7 @@ const EulaPage = ({ temporaryAccessToken }) => {
 
     {submitted && !rerouteCookieValue && <Navigate to={rerouteOnSuccess} />}
 
-    {canceled && !adminReferrer && <Navigate to={`${REACT_APP_ROUTE_PREFIX}login`} />}
+    {canceled && !adminReferrer && <Navigate to={APP_ROUTES.LOGIN} />}
   </div>;
 };
 

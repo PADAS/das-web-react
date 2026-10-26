@@ -24,6 +24,7 @@
   },
   "mapDrawingTools": {
     "addPointLabel": "Click to add a point. \n Hit 'enter' or 'return' to complete.",
+    "areaLabel": "Area: {{area}}",
     "bearingLabel": "Bearing: {{bearing}}°",
     "distanceLabel": "Distance: {{distance}}",
     "instructionsLabel": "Click & drag to add a point",
@@ -41,6 +42,7 @@
     "title": "Map ruler"
   },
   "pointPopup": {
+    "areaLabel": "Area:",
     "bearingLabel": "Bearing:",
     "distanceLabel": "Distance from start:",
     "finishButton": "click here to finish"

@@ -1,6 +1,5 @@
-import React from 'react';
 import { Provider } from 'react-redux';
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw/http';
 import { setupServer } from 'msw/node';
 import { useLocation } from 'react-router';
 import userEvent from '@testing-library/user-event';
@@ -12,17 +11,18 @@ import eventCategories from '../__test-helpers/fixtures/event-categories';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { fetchPatrols, PATROLS_API_URL } from '../ducks/patrols';
 import { INITIAL_FILTER_STATE } from '../ducks/patrol-filter';
+import { INITIAL_GEAR_STATE } from '../ducks/gear';
 import { INITIAL_PATROLS_STATE } from '../ducks/patrols';
 import mockPatrolData from '../__test-helpers/fixtures/patrols';
 import MockSocketProvider, { mockedSocket } from '../__test-helpers/MockSocketContext';
 import { mockStore } from '../__test-helpers/MockStore';
 import patrols from '../__test-helpers/fixtures/patrols';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
-import { render, screen, waitFor } from '../test-utils';
+import { act, createEvent, fireEvent, render, screen, waitFor } from '../test-utils';
 import SideBar from '.';
-import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../constants';
+import { PERMISSION_KEYS, PERMISSIONS, PREVIEW_FEATURES, SYSTEM_CONFIG_FLAGS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { report } from '../__test-helpers/fixtures/reports';
 
 jest.mock('react-router', () => ({
@@ -36,6 +36,42 @@ jest.mock('../ducks/patrols', () => ({
 }));
 
 jest.mock('../hooks/useNavigate', () => jest.fn());
+
+jest.mock('../PatrolDetailView', () => {
+  const MockPatrolDetailView = () => <div data-testid="patrolDetailView" />;
+
+  return MockPatrolDetailView;
+});
+jest.mock('./EventsManager', () => {
+  const MockEventsManager = () => <div data-testid="eventsManager" />;
+
+  return MockEventsManager;
+});
+jest.mock('./GearTab', () => {
+  const MockGearTab = () => <div data-testid="gearTab" />;
+
+  return MockGearTab;
+});
+jest.mock('./MapLayersTab', () => {
+  const MockMapLayersTab = () => <div data-testid="mapLayersTab" />;
+
+  return MockMapLayersTab;
+});
+jest.mock('./PatrolsFeed', () => {
+  const MockPatrolsFeed = () => <div data-testid="patrolsFeed" />;
+
+  return MockPatrolsFeed;
+});
+jest.mock('./PatrolsManager', () => {
+  const MockPatrolsManager = () => <div data-testid="patrolsManager" />;
+
+  return MockPatrolsManager;
+});
+jest.mock('./SettingsPane', () => {
+  const MockSettingsPane = () => <div data-testid="settingsPane" />;
+
+  return MockSettingsPane;
+});
 
 const eventFeedResponse = { data: { results: events, next: null, count: events.length, page: 1 } };
 
@@ -88,6 +124,7 @@ describe('SideBar', () => {
         eventTypes,
         featureSets: { data: [] },
         feedEvents: { results: [] },
+        gear: { ...INITIAL_GEAR_STATE },
         mapLayerFilter: { text: '', hiddenAnalyzerIDs: [] },
         patrolFilter: {
           filter: {
@@ -112,9 +149,6 @@ describe('SideBar', () => {
         },
       },
       view: {
-        mapLocationSelection: {
-          isPickingLocation: false,
-        },
         userPreferences: {},
         sideBar: {},
         systemConfig: {
@@ -128,14 +162,16 @@ describe('SideBar', () => {
     };
   });
 
+  const sideBarTree = (mockedStore) => <Provider store={mockedStore}>
+    <MockSocketProvider>
+      <MapContext.Provider value={map}>
+        <SideBar />
+      </MapContext.Provider>
+    </MockSocketProvider>
+  </Provider>;
+
   const renderSideBar = (mockedStore = mockStore(store), { initialEntries } = {}) => render(
-    <Provider store={mockedStore}>
-      <MockSocketProvider>
-        <MapContext.Provider value={map}>
-          <SideBar />
-        </MapContext.Provider>
-      </MockSocketProvider>
-    </Provider>,
+    sideBarTree(mockedStore),
     initialEntries !== undefined ? { initialEntries } : {},
   );
 
@@ -288,6 +324,92 @@ describe('SideBar', () => {
     expect(screen.getByRole('link', { name: 'Settings' })).not.toHaveClass('active');
   });
 
+  test('shows the Otus tab when an Otus URL is configured', async () => {
+    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+
+    renderSideBar();
+
+    expect(screen.getByRole('link', { name: 'Otus' })).toBeVisible();
+  });
+
+  test('does not show the Otus tab when there is no Otus URL in the store', async () => {
+    renderSideBar();
+
+    expect(screen.queryByRole('link', { name: 'Otus' })).toBeNull();
+  });
+
+  test('sets the Otus tab as active', async () => {
+    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+    useLocationMock = jest.fn((() => ({ pathname: '/otus' })));
+    useLocation.mockImplementation(useLocationMock);
+
+    renderSideBar();
+
+    expect(screen.getByRole('link', { name: 'Events' })).not.toHaveClass('active');
+    expect(screen.getByRole('link', { name: 'Otus' })).toHaveClass('active');
+    expect(screen.getByRole('link', { name: 'Settings' })).not.toHaveClass('active');
+  });
+
+  test('keeps the Otus frame mounted when navigating to another tab', async () => {
+    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+    useLocationMock = jest.fn((() => ({ pathname: '/otus' })));
+    useLocation.mockImplementation(useLocationMock);
+
+    const { rerender } = renderSideBar();
+
+    const otusFrame = screen.getByTitle('Otus chat');
+
+    expect(screen.getByRole('region', { name: 'Otus' })).toHaveClass('active');
+
+    useLocationMock = jest.fn((() => ({ pathname: '/events' })));
+    useLocation.mockImplementation(useLocationMock);
+
+    rerender(sideBarTree(mockStore(store)));
+
+    expect(screen.getByTitle('Otus chat')).toBe(otusFrame);
+    expect(otusFrame).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Otus' })).not.toHaveClass('active');
+  });
+
+  test('navigates home when the user clicks the active Otus tab link', async () => {
+    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+    useLocationMock = jest.fn((() => ({ pathname: '/otus' })));
+    useLocation.mockImplementation(useLocationMock);
+
+    renderSideBar();
+
+    await userEvent.click(screen.getByRole('link', { name: 'Otus' }));
+
+    expect(navigate).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledWith('/');
+  });
+
+  test('leaves a modified click on the active Otus tab link to the browser', async () => {
+    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+    useLocationMock = jest.fn((() => ({ pathname: '/otus' })));
+    useLocation.mockImplementation(useLocationMock);
+    const user = userEvent.setup();
+
+    renderSideBar();
+
+    await user.keyboard('{Meta>}');
+    await user.click(screen.getByRole('link', { name: 'Otus' }));
+    await user.keyboard('{/Meta}');
+
+    expect(navigate).not.toHaveBeenCalledWith('/');
+  });
+
+  test('does not navigate home when the user clicks the Events tab link from an event detail view', async () => {
+    useLocationMock = jest.fn((() => ({ pathname: '/events/some-id' })));
+    useLocation.mockImplementation(useLocationMock);
+
+    renderSideBar();
+
+    await userEvent.click(screen.getByRole('link', { name: 'Events' }));
+
+    expect(navigate).not.toHaveBeenCalledWith('/');
+  });
+
   test('sets the settings tab as active', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/settings' })));
     useLocation.mockImplementation(useLocationMock);
@@ -307,14 +429,15 @@ describe('SideBar', () => {
     expect(screen.queryByRole('button', { name: 'Go Back' })).toBeNull();
   });
 
-  test('shows the back button in the report detail view', async () => {
+  test('does not show the default header in the event detail view', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/events/new' })));
     useLocation.mockImplementation(useLocationMock);
 
     renderSideBar();
 
     expect(screen.queryByRole('button', { name: 'Create Event' })).toBeNull();
-    expect(screen.getByRole('button', { name: 'Go Back' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Go Back' })).toBeNull();
+    expect(screen.queryByRole('heading', { name: 'Events' })).toBeNull();
   });
 
   test('shows the Add Patrol button in the patrols tab', async () => {
@@ -335,6 +458,28 @@ describe('SideBar', () => {
 
     expect(screen.queryByRole('button', { name: 'Create Patrol' })).toBeNull();
     expect(screen.getByRole('button', { name: 'Go Back' })).toBeVisible();
+  });
+
+  test('shows the back button in a nested patrol detail view', async () => {
+    useLocationMock = jest.fn((() => ({ pathname: '/patrols/abc/legs/def' })));
+    useLocation.mockImplementation(useLocationMock);
+
+    renderSideBar();
+
+    expect(screen.queryByRole('button', { name: 'Create Patrol' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Go Back' })).toBeVisible();
+  });
+
+  test('does not show the default header if a patrol item is active', async () => {
+    store.view.systemConfig.previewFeatures = { [PREVIEW_FEATURES.PATROL_SCHEMAS]: true };
+    useLocationMock = jest.fn((() => ({ pathname: '/patrols/123' })));
+    useLocation.mockImplementation(useLocationMock);
+
+    renderSideBar();
+
+    expect(screen.queryByRole('button', { name: 'Create Patrol' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Go Back' })).toBeNull();
+    expect(screen.queryByRole('heading', { name: 'Patrols' })).toBeNull();
   });
 
   test('does not show add or back buttons in the map layers tab', async () => {
@@ -359,28 +504,9 @@ describe('SideBar', () => {
     expect(screen.queryByRole('button', { name: 'Go Back' })).toBeNull();
   });
 
-  test('navigates to related event when user clicks the back button in the report detail view', async () => {
-    const relatedEventId = 'related-event-123';
+  test('navigates to current tab when user clicks the back button in the patrol detail view and location.key is default', async () => {
     useLocationMock = jest.fn((() => ({
-      pathname: '/events/456',
-      key: 'abc123',
-      state: { relatedEvent: relatedEventId }
-    })));
-    useLocation.mockImplementation(useLocationMock);
-
-    renderSideBar();
-
-    expect(navigate).not.toHaveBeenCalled();
-
-    await userEvent.click(screen.getByRole('button', { name: 'Go Back' }));
-
-    expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith(`/events/${relatedEventId}`, { replace: true });
-  });
-
-  test('navigates to current tab when user clicks the back button in the report detail view and location.key is default', async () => {
-    useLocationMock = jest.fn((() => ({
-      pathname: '/events/123',
+      pathname: '/patrols/123',
       key: 'default',
       state: null
     })));
@@ -393,7 +519,7 @@ describe('SideBar', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Go Back' }));
 
     expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/events', {});
+    expect(navigate).toHaveBeenCalledWith('/patrols', {});
   });
 
   test('navigates to current tab when user clicks the back button in the patrol detail view and location.state.comesFromLogin is true', async () => {
@@ -414,9 +540,9 @@ describe('SideBar', () => {
     expect(navigate).toHaveBeenCalledWith('/patrols', {});
   });
 
-  test('navigates to current tab when user clicks the back button in the report detail view and location.state.comesFromLngLatRedirection is true', async () => {
+  test('navigates to current tab when user clicks the back button in the patrol detail view and location.state.comesFromLngLatRedirection is true', async () => {
     useLocationMock = jest.fn((() => ({
-      pathname: '/events/123',
+      pathname: '/patrols/123',
       key: 'abc123',
       state: { comesFromLngLatRedirection: true }
     })));
@@ -429,12 +555,12 @@ describe('SideBar', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Go Back' }));
 
     expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/events', {});
+    expect(navigate).toHaveBeenCalledWith('/patrols', {});
   });
 
-  test('navigates back with when user clicks the back button in the report detail view and none of the special conditions are met', async () => {
+  test('navigates back when user clicks the back button in the patrol detail view and none of the special conditions are met', async () => {
     useLocationMock = jest.fn((() => ({
-      pathname: '/events/123',
+      pathname: '/patrols/123',
       key: 'abc123',
       state: null
     })));
@@ -472,6 +598,15 @@ describe('SideBar', () => {
     expect(screen.getByRole('heading')).toHaveTextContent('Map Layers');
   });
 
+  test('does not show the default header for the Otus tab', async () => {
+    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+    useLocationMock = jest.fn((() => ({ pathname: '/otus' })));
+    useLocation.mockImplementation(useLocationMock);
+    renderSideBar();
+
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Otus');
+  });
+
   test('sets the tab title for the Settings tab', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/settings' })));
     useLocation.mockImplementation(useLocationMock);
@@ -480,15 +615,19 @@ describe('SideBar', () => {
     expect(screen.getByRole('heading')).toHaveTextContent('Settings');
   });
 
-  test('closes the sidebar tabs when clicking the cross button', async () => {
+  test('does not show the tab header when no tab is open', async () => {
+    useLocationMock = jest.fn((() => ({ pathname: '/' })));
+    useLocation.mockImplementation(useLocationMock);
     renderSideBar();
 
-    expect(navigate).toHaveBeenCalledTimes(0);
+    expect(screen.queryByRole('heading')).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Close sidebar' })).toBeNull();
+  });
 
-    await userEvent.click(screen.getByRole('button', { name: 'Close Event Feed' }));
+  test('closes the sidebar tabs with a link to the root route', async () => {
+    renderSideBar();
 
-    expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/');
+    expect(screen.getByRole('link', { name: 'Close sidebar' })).toHaveAttribute('href', '/');
   });
 
   test('redirects to events path when legacy reports URL is accessed and events are enabled', async () => {
@@ -526,6 +665,16 @@ describe('SideBar', () => {
 
   test('does not navigate to home when current tab is in enabled tab keys', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/events' })));
+    useLocation.mockImplementation(useLocationMock);
+
+    renderSideBar();
+
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  test('does not navigate to home when the current tab is otus and the tab is enabled', async () => {
+    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+    useLocationMock = jest.fn((() => ({ pathname: '/otus' })));
     useLocation.mockImplementation(useLocationMock);
 
     renderSideBar();
@@ -629,71 +778,127 @@ describe('SideBar', () => {
     });
   });
 
-  test('navigates to current tab when Escape key is pressed in report detail view with sidebar focused', async () => {
-    useLocationMock = jest.fn((() => ({ pathname: '/events/123' })));
+  test('does not redirect away from /gear while the initial gear list is still loading', async () => {
+    useLocationMock = jest.fn((() => ({ pathname: '/gear' })));
     useLocation.mockImplementation(useLocationMock);
+    store.data.gear = {
+      ...INITIAL_GEAR_STATE,
+      initialLoadInProgress: true,
+      loading: true,
+    };
 
     renderSideBar();
-
-    const sidebar = screen.getByRole('navigation');
-    sidebar?.focus();
-
-    expect(navigate).not.toHaveBeenCalled();
-
-    await userEvent.keyboard('{Escape}');
-
-    expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/events');
-  });
-
-  test('navigates to current tab when Escape key is pressed in patrol detail view with sidebar focused', async () => {
-    useLocationMock = jest.fn((() => ({ pathname: '/patrols/123' })));
-    useLocation.mockImplementation(useLocationMock);
-
-    renderSideBar();
-
-    const sidebar = screen.getByRole('navigation');
-    sidebar?.focus();
-
-    expect(navigate).not.toHaveBeenCalled();
-
-    await userEvent.keyboard('{Escape}');
-
-    expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/patrols');
-  });
-
-  test('does not navigate when Escape key is pressed but not in detail view', async () => {
-    useLocationMock = jest.fn((() => ({ pathname: '/events' })));
-    useLocation.mockImplementation(useLocationMock);
-
-    renderSideBar();
-
-    const sidebar = screen.getByRole('navigation');
-    sidebar?.focus();
-
-    expect(navigate).not.toHaveBeenCalled();
-
-    await userEvent.keyboard('{Escape}');
 
     expect(navigate).not.toHaveBeenCalled();
   });
 
-  test('does not navigate when Escape key is pressed but location is being picked', async () => {
-    store.view.mapLocationSelection.isPickingLocation = true;
-    useLocationMock = jest.fn((() => ({ pathname: '/events/123' })));
+  test('redirects from /gear to home when the gear endpoint is unavailable', async () => {
+    store.data.gear = { ...INITIAL_GEAR_STATE, gearEndpointUnavailable: true };
+    useLocationMock = jest.fn((() => ({ pathname: '/gear' })));
     useLocation.mockImplementation(useLocationMock);
 
     renderSideBar();
 
-    const sidebar = screen.getByRole('navigation');
-    sidebar?.focus();
+    expect(navigate).toHaveBeenCalledWith('/', { replace: true });
+  });
 
-    expect(navigate).not.toHaveBeenCalled();
+  test('redirects from /gear to home when the gear list has loaded and is empty', async () => {
+    useLocationMock = jest.fn((() => ({ pathname: '/gear' })));
+    useLocation.mockImplementation(useLocationMock);
+    store.data.gear = {
+      ...INITIAL_GEAR_STATE,
+      hasGear: false,
+      initialLoadInProgress: false,
+      loading: false,
+    };
 
-    await userEvent.keyboard('{Escape}');
+    renderSideBar();
 
-    expect(navigate).not.toHaveBeenCalled();
+    expect(navigate).toHaveBeenCalledWith('/', { replace: true });
+  });
+
+  describe('closing', () => {
+    let routerNavigate;
+
+    const RouterNavigateCapture = () => {
+      routerNavigate = jest.requireActual('react-router').useNavigate();
+
+      return null;
+    };
+
+    const renderOpenSideBar = () => render(
+      <Provider store={mockStore(store)}>
+        <MockSocketProvider>
+          <MapContext.Provider value={map}>
+            <RouterNavigateCapture />
+
+            <SideBar />
+          </MapContext.Provider>
+        </MockSocketProvider>
+      </Provider>,
+      { initialEntries: ['/settings'] }
+    );
+
+    const navigateTo = (pathname) => act(() => routerNavigate(pathname));
+
+    const fireTransformTransitionEnd = (element) => {
+      const transitionEndEvent = createEvent.transitionEnd(element);
+      Object.defineProperty(transitionEndEvent, 'propertyName', { value: 'transform' });
+
+      fireEvent(element, transitionEndEvent);
+    };
+
+    beforeEach(() => {
+      useLocation.mockImplementation(jest.requireActual('react-router').useLocation);
+    });
+
+    test('keeps the tab content and header while the sidebar slides out', () => {
+      renderOpenSideBar();
+
+      navigateTo('/');
+
+      expect(screen.getByTestId('settingsPane')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Settings' })).toBeInTheDocument();
+      expect(screen.getByTestId('sideBar-tab')).toHaveAttribute('inert');
+    });
+
+    test('unmounts the tab content once the slide out transition ends', () => {
+      renderOpenSideBar();
+
+      navigateTo('/');
+      fireTransformTransitionEnd(screen.getByTestId('sideBar-tab'));
+
+      expect(screen.queryByTestId('settingsPane')).toBeNull();
+      expect(screen.queryByRole('heading', { name: 'Settings' })).toBeNull();
+    });
+
+    test('keeps the tab content when a transition inside the tab ends', () => {
+      renderOpenSideBar();
+
+      navigateTo('/');
+      fireTransformTransitionEnd(screen.getByTestId('settingsPane'));
+
+      expect(screen.getByTestId('settingsPane')).toBeInTheDocument();
+    });
+
+    test('unmounts the tab content after a delay when the transition end never fires', async () => {
+      renderOpenSideBar();
+
+      navigateTo('/');
+
+      await waitFor(() => expect(screen.queryByTestId('settingsPane')).toBeNull());
+    });
+
+    test('renders the new tab when the sidebar opens again while it slides out', () => {
+      renderOpenSideBar();
+
+      navigateTo('/');
+      navigateTo('/layers');
+
+      expect(screen.getByTestId('mapLayersTab')).toBeInTheDocument();
+      expect(screen.queryByTestId('settingsPane')).toBeNull();
+      expect(screen.getByTestId('sideBar-tab')).not.toHaveAttribute('inert');
+    });
   });
 
   test('shows the Data link when events, subjects, or patrols are available', () => {

@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { formatDistance, formatDistanceToNow } from 'date-fns';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -63,21 +63,21 @@ const SubjectTrackLegend = () => {
     };
   }), [subjectStore, subjectTracksTrimmedToTrackTimeEnvelope, t]);
 
-  const onRemoveSubjectTracks = (subjectId) => {
+  const onClearSubjectTracks = (subjectId) => {
     dispatch(updateTrackState({
       pinned: subjectTrackState.pinned.filter((pinnedSubjectTracksId) => pinnedSubjectTracksId !== subjectId),
       visible: subjectTrackState.visible.filter((visibleSubjectTracksId) => visibleSubjectTracksId !== subjectId),
     }));
 
-    mapInteractionTracker.track('Remove Subject Tracks Via Track Legend Popover');
+    mapInteractionTracker.track('Clear Subject Tracks Via Track Legend Popover');
   };
 
   return <TrackLegend
     description={description}
     items={items}
     itemsName={t('trackLegendItemsName')}
-    onClickClearTracks={() => dispatch(updateTrackState({ visible: [], pinned: [] }))}
-    onRemoveItemTracks={onRemoveSubjectTracks}
+    onClearItemTracks={onClearSubjectTracks}
+    onClickClearTracks={() => dispatch(updateTrackState({ pinned: [], visible: [] }))}
   />;
 };
 

@@ -35,8 +35,8 @@
     },
     "ecoscopeAnalysisLinkAriaLabel": "Ecoscope Analysis",
     "ecoscopeAnalysisLink": "Analysis",
-    "ecoscopeDownloaderLinkAriaLabel": "Ecoscope Downloader",
-    "ecoscopeDownloaderLink": "Downloader",
+    "ecoscopeDownloaderMigrationGuideLinkAriaLabel": "Ecoscope Downloader",
+    "ecoscopeDownloaderMigrationGuideLink": "Downloader",
     "ecoscopeHeading": "ECOSCOPE",
     "footer": {
       "clientVersion": "Web client version: {{version}}",
@@ -52,7 +52,9 @@
       "title": "Subject KML"
     },
     "navigationButton": {
+      "gear": "Gear",
       "mapLayers": "Map Layers",
+      "otus": "Otus",
       "patrols": "Patrols",
       "reports": "Events",
       "settings": "Settings"

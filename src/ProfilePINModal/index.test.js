@@ -1,4 +1,3 @@
-import React from 'react';
 import userEvent from '@testing-library/user-event';
 
 import { render, screen, waitFor } from '../test-utils';
@@ -20,8 +19,8 @@ describe('ProfilePINModal', () => {
   });
 
   test('the content', async () => {
-    await screen.findByText('Enter Your PIN');
-    await screen.findByText(`User: ${profile.username}`);
+    expect(await screen.findByText('Enter Your PIN')).toBeInTheDocument();
+    expect(await screen.findByText(`User: ${profile.username}`)).toBeInTheDocument();
   });
 
   test('entering the correct PIN invokes the onSuccess callback', async () => {

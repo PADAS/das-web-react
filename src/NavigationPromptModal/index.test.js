@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import userEvent from '@testing-library/user-event';
 
 import NavigationPromptModal from './';
@@ -52,13 +52,13 @@ describe('NavigationPromptModal', () => {
 
     renderNavigationPromptModal({ ...initialProps, when: true }, ChildComponent);
 
-    await screen.findByText(TITLE_TEXT);
+    expect(await screen.findByText(TITLE_TEXT)).toBeInTheDocument();
   });
 
   test('forces to show the modal even if when is false', async () => {
     renderNavigationPromptModal({ ...initialProps, when: false, show: true });
 
-    await screen.findByText(TITLE_TEXT);
+    expect(await screen.findByText(TITLE_TEXT)).toBeInTheDocument();
   });
 
   test('triggers onContinue and closes the modal if navigation attempt is continued in the negative', async () => {
@@ -114,6 +114,27 @@ describe('NavigationPromptModal', () => {
       expect(onContinue).toHaveBeenCalledWith(true);
       expect((screen.queryByText(TITLE_TEXT))).toBeNull();
     });
+  });
+
+  test('hides the save option when showPositiveContinueButton is false', async () => {
+    const ChildComponent = () => {
+      const { isNavigationBlocked, onNavigationAttemptBlocked } = useContext(NavigationContext);
+
+      useEffect(() => {
+        if (isNavigationBlocked) {
+          onNavigationAttemptBlocked();
+        }
+      }, [isNavigationBlocked, onNavigationAttemptBlocked]);
+
+      return null;
+    };
+
+    renderNavigationPromptModal({ ...initialProps, showPositiveContinueButton: false, when: true }, ChildComponent);
+
+    await screen.findByText(TITLE_TEXT);
+
+    expect(screen.queryByText('Save')).not.toBeInTheDocument();
+    expect(screen.getByText('Discard')).toBeInTheDocument();
   });
 
   test('triggers onCancel and closes the modal if navigation attempt is resolved (clicking "go back" button)', async () => {

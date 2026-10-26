@@ -1,16 +1,23 @@
 'use strict';
 
-// Custom Babel plugin to transform `import.meta.env.*` into `process.env.*`.
-module.exports = ({ types }) => ({
+// Custom Babel plugin to transform `import.meta.env.*` into `process.env.*`,
+// `import.meta.url` into the CJS module's file URL, and to strip any other
+// `import.meta.*` access down to an empty object so Jest's CJS transform
+// doesn't choke on syntax Node can't parse outside a module.
+const isImportMeta = (types, node) => types.isMetaProperty(node)
+  && node.meta.name === 'import'
+  && node.property.name === 'meta';
+
+module.exports = ({ template, types }) => ({
   name: 'transform-import-meta-env',
 
   visitor: {
     MemberExpression: (path) => {
-      if (
+      if (isImportMeta(types, path.node.object) && types.isIdentifier(path.node.property, { name: 'url' })) {
+        path.replaceWith(template.expression.ast`require('url').pathToFileURL(__filename).href`);
+      } else if (
         types.isMemberExpression(path.node.object) &&
-        types.isMetaProperty(path.node.object.object) &&
-        path.node.object.object.meta.name === 'import' &&
-        path.node.object.object.property.name === 'meta' &&
+        isImportMeta(types, path.node.object.object) &&
         types.isIdentifier(path.node.object.property, { name: 'env' })
       ) {
         path.replaceWith(
@@ -23,6 +30,11 @@ module.exports = ({ types }) => ({
             path.node.computed,
           ),
         );
+      }
+    },
+    MetaProperty: (path) => {
+      if (isImportMeta(types, path.node)) {
+        path.replaceWith(types.objectExpression([]));
       }
     },
   },

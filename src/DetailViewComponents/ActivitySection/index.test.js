@@ -1,27 +1,29 @@
-import React from 'react';
-import { http, HttpResponse } from 'msw';
+import { useState } from 'react';
+import { http, HttpResponse } from 'msw/http';
 import { Provider } from 'react-redux';
 import { setupServer } from 'msw/node';
 import userEvent from '@testing-library/user-event';
 
 import ActivitySection from './index';
 import { EVENT_API_URL } from '../../ducks/events';
-import { EVENT_TYPE_SCHEMA_API_URL } from '../../ducks/event-schemas';
+import { EVENT_TYPE_SCHEMA_V1_URL } from '../../ducks/event-schemas';
 import { files, notes, report } from '../../__test-helpers/fixtures/reports';
 import { mockStore } from '../../__test-helpers/MockStore';
 import patrols from '../../__test-helpers/fixtures/patrols';
 import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../constants';
 import { render, screen, waitFor, within } from '../../test-utils';
 import { TrackerContext } from '../../utils/analytics';
+import { fetchFileAsObjectUrlFromUrl } from '../../utils/file';
 
 jest.mock('../../utils/file', () => ({
   ...jest.requireActual('../../utils/file'),
+  fetchFileAsObjectUrlFromUrl: jest.fn(),
   fetchImageAsBase64FromUrl: jest.fn(),
 }));
 
 const server = setupServer(
   http.get(`${EVENT_API_URL}:eventId`, () => HttpResponse.json( { data: { ...report } })),
-  http.get(`${EVENT_TYPE_SCHEMA_API_URL}:name`, () => HttpResponse.json( { data: { results: {} } }))
+  http.get(EVENT_TYPE_SCHEMA_V1_URL(':name'), () => HttpResponse.json( { data: { results: {} } }))
 );
 
 beforeAll(() => server.listen());
@@ -29,13 +31,17 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 describe('DetailViewComponents - ActivitySection', () => {
-  const onDeleteAttachment = jest.fn(),
+  const onCancelNote = jest.fn(),
+    onDeleteAttachment = jest.fn(),
     onDeleteNote = jest.fn(),
     onDoneNote = jest.fn(),
     onChangeNote = jest.fn();
 
-  let store;
+  let store, tracker;
   beforeEach(() => {
+    fetchFileAsObjectUrlFromUrl.mockResolvedValue('blob:fake-object-url');
+
+    tracker = { track: jest.fn() };
     store = {
       data: {
         eventSchemas: {},
@@ -60,9 +66,11 @@ describe('DetailViewComponents - ActivitySection', () => {
   const notesToAdd = [{
     creationDate: new Date(currentDate.getTime() + 3).toISOString(),
     text: 'noteToAdd1',
+    tmpId: 'noteToAdd1-tmpId',
   }, {
     creationDate: new Date(currentDate.getTime() + 4).toISOString(),
     text: 'noteToAdd2',
+    tmpId: 'noteToAdd2-tmpId',
   }];
 
   const containedReports = patrols[2].patrol_segments[0].events;
@@ -80,21 +88,26 @@ describe('DetailViewComponents - ActivitySection', () => {
     notes: [
       ...notes,
       {
+        id: 'media-attachment-video-1',
         updated_at: new Date(2022, 6, 15).toISOString(),
         text: 'note1',
       }
     ],
     notesToAdd,
     startTime: new Date(2022, 6, 9),
+    onCancelNote,
     onDeleteAttachment,
     onDeleteNote,
     onChangeNote,
     onDoneNote,
   };
 
+  const isUnsavedNoteCollapse = (collapse) => notesToAdd
+    .some(({ text }) => collapse.dataset.testid === `activitySection-collapse-${text}`);
+
   const renderActivitySection = (props = defaultProps) => render(
     <Provider store={mockStore(store)}>
-      <TrackerContext.Provider value={{ track: jest.fn() }}>
+      <TrackerContext.Provider value={tracker}>
         <ActivitySection {...props} />
       </TrackerContext.Provider>
     </Provider>
@@ -133,7 +146,7 @@ describe('DetailViewComponents - ActivitySection', () => {
     const reportCollapse = await screen.findByTestId(`activitySection-collapse-${id}`);
 
     await waitFor(() => {
-      expect(reportCollapse).toHaveClass('collapse');
+      expect(reportCollapse).not.toHaveClass('show');
     });
   });
 
@@ -177,7 +190,7 @@ describe('DetailViewComponents - ActivitySection', () => {
     const imageCollapse = await screen.findByTestId(`activitySection-collapse-${id}`);
 
     await waitFor(() => {
-      expect(imageCollapse).toHaveClass('collapse');
+      expect(imageCollapse).not.toHaveClass('show');
     });
   });
 
@@ -222,38 +235,41 @@ describe('DetailViewComponents - ActivitySection', () => {
     const noteCollapse = await screen.findByTestId(`activitySection-collapse-${noteId}`);
 
     await waitFor(() => {
-      expect(noteCollapse).toHaveClass('collapse');
+      expect(noteCollapse).not.toHaveClass('show');
     });
   });
 
-  test('expands a new note when clicking the down arrow', async () => {
+  test('keeps a note that was never saved expanded, with its collapse toggle disabled', async () => {
     renderActivitySection();
 
-    const noteCollapse = await screen.findByTestId('activitySection-collapse-noteToAdd1');
-
-    expect(noteCollapse).toHaveClass('collapse');
-
-    const expandButton = await screen.findByTestId('activitySection-arrowDown-noteToAdd1');
-    await userEvent.click(expandButton);
-
     await waitFor(() => {
-      expect(noteCollapse).toHaveClass('show');
+      expect(screen.getByTestId('activitySection-collapse-noteToAdd1')).toHaveClass('show');
     });
+
+    expect((await screen.findByTestId('activitySection-arrowUp-noteToAdd1')).closest('button')).toBeDisabled();
   });
 
-  test('collapses a new note when clicking the up arrow', async () => {
+  test('does not cancel the edition of a note that was never saved when clicking its row', async () => {
     renderActivitySection();
 
-    const expandButton = await screen.findByTestId('activitySection-arrowDown-noteToAdd1');
-    await userEvent.click(expandButton);
-    const collapseButton = await screen.findByTestId('activitySection-arrowUp-noteToAdd1');
-    await userEvent.click(collapseButton);
+    await userEvent.click(await screen.findByTestId('activitySection-noteTitle-noteToAdd1'));
 
-    const noteCollapse = await screen.findByTestId('activitySection-collapse-noteToAdd1');
+    expect(onCancelNote).not.toHaveBeenCalled();
+    expect(screen.getByTestId('activitySection-collapse-noteToAdd1')).toHaveClass('show');
+  });
 
-    await waitFor(() => {
-      expect(noteCollapse).toHaveClass('collapse');
-    });
+  test('cancels the edition of a note when collapsing it', async () => {
+    const [note] = notes;
+    renderActivitySection();
+
+    await userEvent.click(await screen.findByTestId(`activitySection-editIcon-${note.id}`));
+    await userEvent.type(await screen.findByTestId(`activitySection-noteTextArea-${note.id}`), ' with changes');
+
+    expect(onCancelNote).toHaveBeenCalledTimes(0);
+
+    await userEvent.click(await screen.findByTestId(`activitySection-arrowUp-${note.id}`));
+
+    expect(onCancelNote).toHaveBeenCalledWith(note);
   });
 
   test('deletes a new note when clicking the trash button', async () => {
@@ -330,11 +346,11 @@ describe('DetailViewComponents - ActivitySection', () => {
 
     const items = await screen.findAllByRole('listitem');
 
-    expect((await within(items[0]).findAllByText('155027'))).toBeDefined();
-    expect((await within(items[1]).findAllByText('155027'))).toBeDefined();
-    expect((await within(items[2]).findAllByText('155884'))).toBeDefined();
-    expect((await within(items[3]).findAllByText('155884'))).toBeDefined();
-    expect((await within(items[4]).findAllByText('file1.pdf'))).toBeDefined();
+    expect((await within(items[0]).findAllByText('wildlife_sighting_rep'))).toBeDefined();
+    expect((await within(items[1]).findAllByText(/black view test\s+is immobile/))).toBeDefined();
+    expect((await within(items[2]).findAllByText('file1.pdf'))).toBeDefined();
+    expect((await within(items[3]).findAllByText('file2.pdf'))).toBeDefined();
+    expect((await within(items[4]).findAllByText('file1.png'))).toBeDefined();
   });
 
   test('expands all expandable items when clicking the button Expand All', async () => {
@@ -365,8 +381,195 @@ describe('DetailViewComponents - ActivitySection', () => {
     await userEvent.click(expandCollapseButton);
 
     await waitFor(() => {
-      collapses.forEach((collapse) => expect(collapse).toHaveClass('collapse'));
+      collapses.filter((collapse) => !isUnsavedNoteCollapse(collapse))
+        .forEach((collapse) => expect(collapse).not.toHaveClass('show'));
     });
+
+    collapses.filter(isUnsavedNoteCollapse).forEach((collapse) => expect(collapse).toHaveClass('show'));
+  });
+
+  test('swaps the expand all button for the collapse all one once every item is expanded', async () => {
+    renderActivitySection();
+
+    const expandCollapseButton = await screen.findByTestId('detailView-activitySection-expandCollapseButton');
+
+    expect(expandCollapseButton).toHaveTextContent('Expand All');
+
+    await userEvent.click(expandCollapseButton);
+
+    await waitFor(() => {
+      expect(expandCollapseButton).toHaveTextContent('Collapse All');
+    });
+
+    await userEvent.click(expandCollapseButton);
+
+    await waitFor(() => {
+      expect(expandCollapseButton).toHaveTextContent('Expand All');
+    });
+  });
+
+  test('expanding an item leaves the rest of the items collapsed', async () => {
+    const [note] = notes;
+    renderActivitySection();
+
+    await userEvent.click(await screen.findByTestId(`activitySection-arrowDown-${note.id}`));
+
+    const expandedCollapse = await screen.findByTestId(`activitySection-collapse-${note.id}`);
+
+    await waitFor(() => {
+      expect(expandedCollapse).toHaveClass('show');
+    });
+
+    const otherCollapses = (await screen.findAllByTestId((content) => content.startsWith('activitySection-collapse')))
+      .filter((collapse) => collapse !== expandedCollapse && !isUnsavedNoteCollapse(collapse));
+
+    expect(otherCollapses.length).toBeGreaterThan(0);
+    otherCollapses.forEach((collapse) => expect(collapse).not.toHaveClass('show'));
+  });
+
+  test('keeps offering Expand All after removing the only expanded item', async () => {
+    const [noteToAdd] = notesToAdd;
+    const [existingNote] = notes;
+
+    const StatefulActivitySection = () => {
+      const [notesPendingToAdd, setNotesPendingToAdd] = useState([noteToAdd]);
+
+      return <ActivitySection
+        {...defaultProps}
+        attachments={[]}
+        attachmentsToAdd={[]}
+        containedReports={[]}
+        notes={[existingNote]}
+        notesToAdd={notesPendingToAdd}
+        onDeleteNote={({ tmpId }) => setNotesPendingToAdd((current) => current.filter((note) => note.tmpId !== tmpId))}
+      />;
+    };
+
+    render(
+      <Provider store={mockStore(store)}>
+        <TrackerContext.Provider value={tracker}>
+          <StatefulActivitySection />
+        </TrackerContext.Provider>
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId(`activitySection-collapse-${noteToAdd.text}`)).toHaveClass('show');
+    });
+
+    await userEvent.click(await screen.findByTestId(`activitySection-deleteIcon-${noteToAdd.text}`));
+
+    await waitFor(() => {
+      expect(screen.queryByTestId(`activitySection-collapse-${noteToAdd.text}`)).toBeNull();
+    });
+
+    expect(screen.getByTestId(`activitySection-collapse-${existingNote.id}`)).not.toHaveClass('show');
+    expect(screen.getByTestId('detailView-activitySection-expandCollapseButton')).toHaveTextContent('Expand All');
+  });
+
+  test('expands a note that was never saved automatically', async () => {
+    renderActivitySection({
+      ...defaultProps,
+      attachments: [],
+      attachmentsToAdd: [],
+      containedReports: [],
+      notes: [],
+      notesToAdd: [{ creationDate: currentDate.toISOString(), text: '', tmpId: 'emptyNote-tmpId' }],
+    });
+
+    expect(await screen.findByRole('button', { name: 'Collapse note' })).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  test('shows the start and end date items', async () => {
+    renderActivitySection();
+
+    expect(await screen.findByText('Started')).toBeDefined();
+    expect(await screen.findByText('Ended')).toBeDefined();
+  });
+
+  test('tracks expanding and collapsing an individual card', async () => {
+    const [note] = notes;
+    renderActivitySection();
+
+    await userEvent.click(await screen.findByTestId(`activitySection-arrowDown-${note.id}`));
+
+    expect(tracker.track).toHaveBeenCalledWith('Expand existing note card in the activity section');
+
+    await userEvent.click(await screen.findByTestId(`activitySection-arrowUp-${note.id}`));
+
+    expect(tracker.track).toHaveBeenCalledWith('Collapse existing note card in the activity section');
+  });
+
+  test('tracks expanding and collapsing every card at once', async () => {
+    renderActivitySection();
+
+    const expandCollapseButton = await screen.findByTestId('detailView-activitySection-expandCollapseButton');
+    await userEvent.click(expandCollapseButton);
+
+    expect(tracker.track).toHaveBeenCalledWith('Expand All');
+
+    await userEvent.click(expandCollapseButton);
+
+    expect(tracker.track).toHaveBeenCalledWith('Collapse All');
+  });
+
+  test('does not track toggling all the cards when none of them is collapsible', async () => {
+    renderActivitySection({
+      ...defaultProps,
+      attachments: [],
+      attachmentsToAdd: [],
+      containedReports: [],
+      notes: [],
+      notesToAdd: [],
+    });
+
+    await userEvent.click(await screen.findByTestId('detailView-activitySection-expandCollapseButton'));
+
+    expect(tracker.track).not.toHaveBeenCalledWith('Expand All');
+  });
+
+  test('expands all the items when contained reports are hidden because events are not enabled', async () => {
+    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS] = false;
+    renderActivitySection();
+
+    const expandCollapseButton = await screen.findByTestId('detailView-activitySection-expandCollapseButton');
+    await userEvent.click(expandCollapseButton);
+
+    await waitFor(() => {
+      expect(expandCollapseButton).toHaveTextContent('Collapse All');
+    });
+  });
+
+  test('expands audio and video attachments without downloading them when clicking the button Expand All', async () => {
+    const videoAttachment = {
+      created_at: '2022-06-09T14:58:48.242658-07:00',
+      file_type: 'video',
+      filename: 'clip.mp4',
+      id: 'b1a3951e-20b7-4516-b0a2-df6f3e4bde22',
+      updated_at: '2022-06-09T14:58:48.242658-07:00',
+      updates: [{ time: '2022-06-09T21:58:48.248635+00:00' }],
+      url: 'https://das-7915.pamdas.org/clip.mp4',
+    };
+    const audioAttachment = {
+      created_at: '2022-06-10T14:58:48.242658-07:00',
+      file_type: 'audio',
+      filename: 'interview.m4a',
+      id: 'media-attachment-audio-1',
+      updated_at: '2022-06-10T14:58:48.242658-07:00',
+      updates: [{ time: '2022-06-10T21:58:48.248635+00:00' }],
+      url: 'https://das-7915.pamdas.org/interview.m4a',
+    };
+    renderActivitySection({ ...defaultProps, attachments: [...files, videoAttachment, audioAttachment] });
+
+    const expandCollapseButton = await screen.findByTestId('detailView-activitySection-expandCollapseButton');
+    await userEvent.click(expandCollapseButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId(`activitySection-collapse-${videoAttachment.id}`)).toHaveClass('show');
+      expect(screen.getByTestId(`activitySection-collapse-${audioAttachment.id}`)).toHaveClass('show');
+    });
+
+    expect(fetchFileAsObjectUrlFromUrl).not.toHaveBeenCalled();
   });
 
   test('shows activity action buttons if there are items', async () => {
@@ -376,13 +579,35 @@ describe('DetailViewComponents - ActivitySection', () => {
     expect((await screen.findByTestId('time-sort-btn'))).toBeDefined();
   });
 
+  test('shows the Expand All label when there are items but none are collapsible', async () => {
+    renderActivitySection({
+      ...defaultProps,
+      attachments: [],
+      attachmentsToAdd: [],
+      containedReports: [],
+      notes: [],
+      notesToAdd: [],
+    });
+
+    const expandCollapseButton = await screen.findByTestId('detailView-activitySection-expandCollapseButton');
+
+    expect(expandCollapseButton).toHaveTextContent('Expand All');
+
+    await userEvent.click(expandCollapseButton);
+
+    expect(expandCollapseButton).toHaveTextContent('Expand All');
+  });
+
   test('hides activity action buttons if items list is empty', async () => {
     renderActivitySection({
       ...defaultProps,
       attachments: [],
+      attachmentsToAdd: [],
       containedReports: [],
+      endTime: null,
       notes: [],
       notesToAdd: [],
+      startTime: null,
     });
 
     expect((await screen.queryByText('Expand All'))).toBeNull();

@@ -1,0 +1,9 @@
+@use '../../../_shared' as shared;
+
+.desktopActions {
+  @include shared.header-desktop-actions;
+}
+
+.mobileOnlyOption {
+  @include shared.header-mobile-only-option;
+}

@@ -1,5 +1,5 @@
 import { setupServer } from 'msw/node';
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw/http';
 
 import parallelPaginatedRequest from './parallelPaginatedRequest';
 import { EVENTS_API_URL } from '../ducks/events';
@@ -50,7 +50,7 @@ describe('parallelPaginatedRequest', () => {
     expect(allItems.length).toBe(results.length * expectedPages);
   });
 
-  test('handle proper amount of pages with its callback respectively ', async () => {
+  test('handle proper amount of pages with its callback respectively', async () => {
     const onPageFetch = jest.fn();
     const expectedPages = 4;
 
@@ -82,11 +82,10 @@ describe('parallelPaginatedRequest', () => {
   });
 
   test('throws error if first page can not be resolved', async () => {
-    try {
-      await parallelPaginatedRequest(`${EVENTS_API_URL}/notAPage?`);
-    } catch (e){
-      expect(e.message).toBe('Failed to fetch the first page. Aborting.');
-    }
+    server.use(http.get(`${EVENTS_API_URL}/notAPage`, () => new HttpResponse(null, { status: 500 })));
+
+    await expect(parallelPaginatedRequest(`${EVENTS_API_URL}/notAPage?`))
+      .rejects.toThrow('Failed to fetch the first page. Aborting.');
   });
 
 });

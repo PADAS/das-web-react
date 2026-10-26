@@ -1,4 +1,3 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -12,18 +11,22 @@ import {
   updateHeatmapSubjects,
   updateTrackState
 } from '../ducks/map-ui';
-import { render, screen, waitFor } from '../test-utils';
+import { act, render, screen, waitFor } from '../test-utils';
+import { addMapImage } from '../utils/map';
+import { fetchTracksIfNecessary } from '../utils/tracks';
 import { setTrackLength } from '../ducks/tracks';
 import { updatePatrolTrackState } from '../ducks/patrols';
 
 import { createMapMock } from '../__test-helpers/mocks';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
+import { SYMBOLS_LAYER_ID as SPATIAL_FEATURES_SYMBOLS_LAYER_ID } from '../SpatialFeaturesLayer';
 import MapDrawingToolsContextProvider from '../MapDrawingTools/ContextProvider';
 import { mockedSocket } from '../__test-helpers/MockSocketContext';
 import { mockStore } from '../__test-helpers/MockStore';
+import { INITIAL_GEAR_STATE } from '../ducks/gear';
 import { LAYER_IDS, PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../constants';
 
-import Map from './';
+import Map, { MAP_DATA_FETCH_DEBOUNCE_MS, TIME_SLIDER_HISTORY_MAP_DATA_FETCH_DEBOUNCE_MS } from './';
 
 const { TRACK_TIMEPOINTS } = LAYER_IDS;
 
@@ -45,11 +48,55 @@ jest.mock('../ducks/events', () => ({
   fetchMapEvents: jest.fn(),
 }));
 
+jest.mock('../EventFilter', () => {
+  const EventFilter = () => <div data-testid="eventFilter" />;
+
+  return EventFilter;
+});
+
+jest.mock('../ClustersLayer', () => () => null);
+
+jest.mock('../EventsTileLayers', () => () => null);
+
+jest.mock('../CursorGpsDisplay', () => () => null);
+
+jest.mock('../MapImagesLayer', () => () => null);
+
+jest.mock('../PatrolTrackLegend', () => () => null);
+
+jest.mock('../RightClickMarkerDropper', () => () => null);
+
+jest.mock('../SubjectTrackLegend', () => () => null);
+
+jest.mock('../UserCurrentLocationLayer', () => () => null);
+
+jest.mock('../TileEventFeaturesProvider', () => ({ children }) => children);
+
 jest.mock('../ducks/subjects', () => ({
   ...jest.requireActual('../ducks/subjects'),
   clearSubjectData: jest.fn(),
   fetchMapSubjects: jest.fn(),
 }));
+
+let mockLoadedMap = null;
+jest.mock('../EarthRangerMap', () => {
+  const { useEffect } = jest.requireActual('react');
+  const ActualEarthRangerMap = jest.requireActual('../EarthRangerMap').default;
+
+  const MockEarthRangerMap = ({ children, onMapLoaded, ...otherProps }) => {
+    useEffect(() => {
+      if (mockLoadedMap) {
+        onMapLoaded(mockLoadedMap);
+      }
+    }, [onMapLoaded]);
+
+    return mockLoadedMap
+      ? children
+      : <ActualEarthRangerMap onMapLoaded={onMapLoaded} {...otherProps}>{children}</ActualEarthRangerMap>;
+  };
+
+  return { __esModule: true, default: MockEarthRangerMap };
+});
 
 jest.mock('../ducks/layers', () => ({
   ...jest.requireActual('../ducks/layers'),
@@ -72,6 +119,16 @@ jest.mock('../ducks/map-ui', () => ({
 jest.mock('../ducks/tracks', () => ({
   ...jest.requireActual('../ducks/tracks'),
   setTrackLength: jest.fn(),
+}));
+
+jest.mock('../utils/tracks', () => ({
+  ...jest.requireActual('../utils/tracks'),
+  fetchTracksIfNecessary: jest.fn(),
+}));
+
+jest.mock('../utils/map', () => ({
+  ...jest.requireActual('../utils/map'),
+  addMapImage: jest.fn(),
 }));
 
 jest.mock('../ducks/patrols', () => ({
@@ -122,6 +179,7 @@ describe('Map', () => {
     updateTrackState.mockImplementation(updateTrackStateMock);
     useTranslationMock = jest.fn(() => ({ i18n: { language: 'en-US' }, t: (key) => key }));
     useTranslation.mockImplementation(useTranslationMock);
+    fetchTracksIfNecessary.mockReset();
 
     map = createMapMock();
     map.getStyle.mockImplementation(() => ({ layers: [] }));
@@ -135,6 +193,7 @@ describe('Map', () => {
         eventSchemas: {},
         featureSets: { data: [] },
         feedEvents: {},
+        gear: { ...INITIAL_GEAR_STATE },
         mapEvents: { events: [] },
         mapLayerFilter: {},
         maps: [{
@@ -160,7 +219,7 @@ describe('Map', () => {
         homeMap: { center: [] },
         mapClusterConfig: {},
         mapImages: {},
-        patrolTrackState: { pinned: [], visible: [] },
+        patrolTrackState: { hiddenSubjects: {}, pinned: [], visible: [] },
         mapLocationSelection: {},
         modals: { modals: [] },
         showMapNames: {},
@@ -214,6 +273,208 @@ describe('Map', () => {
       ]);
     });
 
+  });
+
+  describe('map events fetch gating (vector tiles flag)', () => {
+    beforeEach(() => jest.useFakeTimers());
+    afterEach(() => {
+      act(() => jest.runOnlyPendingTimers());
+      jest.useRealTimers();
+    });
+
+    test('fetches map events on the legacy path', () => {
+      renderMap(undefined, mockStore(store));
+
+      act(() => {
+        map.__test__.fireHandlers('moveend');
+        jest.runOnlyPendingTimers();
+      });
+
+      expect(fetchMapEventsMock).toHaveBeenCalled();
+    });
+
+    test('does not fetch map events when the flag is ON, but still fetches subjects', () => {
+      const flagStore = {
+        ...store,
+        view: {
+          ...store.view,
+          systemConfig: { ...store.view.systemConfig, previewFeatures: { events_vector_tiles: true } },
+        },
+      };
+
+      renderMap(undefined, mockStore(flagStore));
+
+      act(() => {
+        map.__test__.fireHandlers('moveend');
+        jest.runOnlyPendingTimers();
+      });
+
+      expect(fetchMapSubjectsMock).toHaveBeenCalled();
+      expect(fetchMapEventsMock).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('time slider data fetching', () => {
+    const EVENT_FILTER_LOWER = '2026-08-01T00:00:00.000Z';
+    const SCRUBBED = { active: true, hasScrubbedIntoPast: true, virtualDate: '2026-08-10T00:00:00.000Z' };
+    const AT_RANGE_END = { active: true, hasScrubbedIntoPast: false, virtualDate: null };
+
+    const makeSubject = (id, overrides) => ({
+      id,
+      last_position_date: '2026-08-20T00:00:00.000Z',
+      subject_subtype: 'ranger',
+      subject_type: 'person',
+      tracks_available: true,
+      ...overrides,
+    });
+
+    let timeSliderStore;
+
+    beforeEach(() => {
+      jest.useFakeTimers();
+
+      const data = {
+        ...store.data,
+        eventFilter: {
+          filter: { date_range: { lower: EVENT_FILTER_LOWER, upper: null }, event_type: [], text: '' },
+        },
+      };
+
+      /* redux-mock-store never reduces, so the state is swapped behind a getState function and a
+         no-op dispatch is used to make react-redux re-read it. Keeping one store instance keeps
+         the dispatch identity — and therefore the fetch callbacks — stable across updates. */
+      let state = { data, view: { ...store.view, timeSliderState: AT_RANGE_END } };
+
+      timeSliderStore = mockStore(() => state);
+      timeSliderStore.setTimeSliderState = (timeSliderState) => {
+        state = { data, view: { ...store.view, timeSliderState } };
+
+        // Two acts: the re-render and its effect must flush before the debounce timer is run.
+        act(() => {
+          timeSliderStore.dispatch({ type: 'TEST_STORE_NOTIFY' });
+        });
+
+        act(() => jest.runOnlyPendingTimers());
+      };
+    });
+
+    afterEach(() => {
+      act(() => jest.runOnlyPendingTimers());
+      jest.useRealTimers();
+    });
+
+    const renderTimeSliderMap = () => {
+      const rendered = renderMap(undefined, timeSliderStore);
+
+      act(() => jest.runOnlyPendingTimers());
+
+      return rendered;
+    };
+
+    test('refetches the map data when the slider is first scrubbed into the past', () => {
+      renderTimeSliderMap();
+
+      expect(fetchMapSubjectsMock).toHaveBeenCalledTimes(1);
+
+      timeSliderStore.setTimeSliderState(SCRUBBED);
+
+      expect(fetchMapSubjectsMock).toHaveBeenCalledTimes(2);
+    });
+
+    test('does not refetch the map data while the virtual date keeps moving', () => {
+      renderTimeSliderMap();
+
+      timeSliderStore.setTimeSliderState(SCRUBBED);
+      timeSliderStore.setTimeSliderState({ ...SCRUBBED, virtualDate: '2026-08-12T00:00:00.000Z' });
+
+      expect(fetchMapSubjectsMock).toHaveBeenCalledTimes(2);
+    });
+
+    test('does not refetch the map data when the handle returns to the end of the range', () => {
+      renderTimeSliderMap();
+
+      timeSliderStore.setTimeSliderState(SCRUBBED);
+
+      // Playback ends by clearing the virtual date, but history stays requested.
+      timeSliderStore.setTimeSliderState({ ...SCRUBBED, virtualDate: null });
+
+      expect(fetchMapSubjectsMock).toHaveBeenCalledTimes(2);
+    });
+
+    test('refetches the map data once when the time slider is closed while scrubbed into the past', () => {
+      renderTimeSliderMap();
+
+      timeSliderStore.setTimeSliderState(SCRUBBED);
+
+      // Closing the slider resets both fetch triggers at once.
+      timeSliderStore.setTimeSliderState({ active: false, hasScrubbedIntoPast: false, virtualDate: null });
+
+      expect(fetchMapSubjectsMock).toHaveBeenCalledTimes(3);
+    });
+
+    test('coalesces map moves for longer once the slider has been scrubbed into the past', () => {
+      renderTimeSliderMap();
+
+      timeSliderStore.setTimeSliderState(SCRUBBED);
+      fetchMapSubjectsMock.mockClear();
+
+      act(() => {
+        map.__test__.fireHandlers('moveend');
+        jest.advanceTimersByTime(MAP_DATA_FETCH_DEBOUNCE_MS);
+      });
+
+      expect(fetchMapSubjectsMock).not.toHaveBeenCalled();
+
+      act(() => jest.advanceTimersByTime(TIME_SLIDER_HISTORY_MAP_DATA_FETCH_DEBOUNCE_MS));
+
+      expect(fetchMapSubjectsMock).toHaveBeenCalledTimes(1);
+    });
+
+    test('keeps map moves responsive while the slider sits at the end of its range', () => {
+      renderTimeSliderMap();
+
+      fetchMapSubjectsMock.mockClear();
+
+      act(() => {
+        map.__test__.fireHandlers('moveend');
+        jest.advanceTimersByTime(MAP_DATA_FETCH_DEBOUNCE_MS);
+      });
+
+      expect(fetchMapSubjectsMock).toHaveBeenCalledTimes(1);
+    });
+
+    test('does not fire a stale fetch when a map move is followed by the first scrub', () => {
+      renderTimeSliderMap();
+
+      fetchMapSubjectsMock.mockClear();
+
+      // The move is still inside the short debounce window when the scrub lengthens it.
+      act(() => {
+        map.__test__.fireHandlers('moveend');
+        jest.advanceTimersByTime(MAP_DATA_FETCH_DEBOUNCE_MS / 5);
+      });
+
+      timeSliderStore.setTimeSliderState(SCRUBBED);
+
+      act(() => jest.advanceTimersByTime(TIME_SLIDER_HISTORY_MAP_DATA_FETCH_DEBOUNCE_MS));
+
+      expect(fetchMapSubjectsMock).toHaveBeenCalledTimes(1);
+    });
+
+    test('only requests tracks for subjects that can show one', async () => {
+      const trackableSubject = makeSubject('trackable');
+      fetchMapSubjectsMock.mockImplementation(() => () => Promise.resolve([
+        trackableSubject,
+        makeSubject('no-track-data', { tracks_available: false }),
+        makeSubject('fixed-position-radio', { subject_subtype: 'stationary-radio' }),
+        makeSubject('stationary-sensor', { subject_type: 'stationary-object' }),
+        makeSubject('reported-before-the-filter', { last_position_date: '2026-07-01T00:00:00.000Z' }),
+      ]));
+
+      renderTimeSliderMap();
+
+      await waitFor(() => expect(fetchTracksIfNecessary).toHaveBeenCalledWith([trackableSubject.id]));
+    });
   });
 
   test('translates the map text layers when i18n language changes', async () => {
@@ -285,11 +546,46 @@ describe('Map', () => {
     ]);
   });
 
+  describe('clicking a spatial feature point', () => {
+    const featurePoint = {
+      geometry: { coordinates: [-103.4, 20.7], type: 'Point' },
+      properties: { id: 'feature-point', name: 'Water Point' },
+    };
+
+    beforeEach(() => {
+      mockLoadedMap = map;
+      store.view.systemConfig = { [SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]: true };
+    });
+
+    afterEach(() => {
+      mockLoadedMap = null;
+    });
+
+    test('opens the feature popup', () => {
+      renderMap({ onMapLoad: jest.fn() });
+
+      map.__test__.fireHandlers('click', SPATIAL_FEATURES_SYMBOLS_LAYER_ID, { features: [featurePoint] });
+
+      expect(showPopupMock).toHaveBeenCalledWith('feature-symbol', expect.objectContaining({
+        coordinates: featurePoint.geometry.coordinates,
+      }));
+    });
+
+    test('does not open the feature popup while the user is picking a location', () => {
+      store.view.mapLocationSelection.isPickingLocation = true;
+      renderMap({ onMapLoad: jest.fn() });
+
+      map.__test__.fireHandlers('click', SPATIAL_FEATURES_SYMBOLS_LAYER_ID, { features: [featurePoint] });
+
+      expect(showPopupMock).not.toHaveBeenCalledWith('feature-symbol', expect.anything());
+    });
+  });
+
   test('does not show the EventFilter if user is picking a location on the map', async () => {
     store.view.mapLocationSelection.isPickingLocation = true;
     renderMap();
 
-    expect((await screen.queryByTestId('eventFilter-form'))).toBeNull();
+    expect((await screen.queryByTestId('eventFilter'))).toBeNull();
   });
 
   test('does not show the MapLocationSelectionOverview if user is drawing a geometry on the map', async () => {
@@ -350,6 +646,73 @@ describe('Map', () => {
 
     await waitFor(() => {
       expect(screen.findByTestId('mapLocationSelectionOverview-wrapper')).toBeDefined();
+    });
+  });
+
+  describe('an image the style is missing', () => {
+    beforeEach(() => {
+      addMapImage.mockResolvedValue({ img: 'the loaded image' });
+    });
+
+    const fireImageMissing = async (id) => {
+      renderMap();
+
+      await act(async () => {
+        map.__test__.fireHandlers('styleimagemissing', { id });
+      });
+    };
+
+    test('loads it from the src and sizes its id was built with', async () => {
+      await fireImageMissing('https://tenant.example.org/static/pin-black.svg-24-36');
+
+      expect(addMapImage).toHaveBeenCalledWith({
+        height: 36,
+        id: 'https://tenant.example.org/static/pin-black.svg-24-36',
+        src: 'https://tenant.example.org/static/pin-black.svg',
+        width: 24,
+      });
+    });
+
+    test('loads a marker the app drew itself, data URI and all', async () => {
+      const dataUri = `data:image/svg+xml;charset=utf-8,${encodeURIComponent('<svg><path d="M1-2"/></svg>')}`;
+
+      await fireImageMissing(`${dataUri}-27-37`);
+
+      expect(addMapImage).toHaveBeenCalledWith({ height: 37, id: `${dataUri}-27-37`, src: dataUri, width: 27 });
+    });
+
+    test('puts the loaded image on the map the style is missing it from', async () => {
+      map.hasImage.mockReturnValue(false);
+
+      await fireImageMissing('https://tenant.example.org/static/pin-black.svg-x-x');
+
+      expect(map.addImage)
+        .toHaveBeenCalledWith('https://tenant.example.org/static/pin-black.svg-x-x', 'the loaded image');
+    });
+
+    test('leaves an image the map already carries alone', async () => {
+      map.hasImage.mockReturnValue(true);
+
+      await fireImageMissing('https://tenant.example.org/static/pin-black.svg-x-x');
+
+      expect(map.addImage).not.toHaveBeenCalled();
+    });
+
+    test('leaves an id belonging to another registry to that registry', async () => {
+      await fireImageMissing('event-icon|fire_rep|300');
+
+      expect(addMapImage).not.toHaveBeenCalled();
+    });
+
+    test('says so rather than throwing when the image cannot be loaded', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+      addMapImage.mockRejectedValue(new Error('404'));
+
+      await fireImageMissing('https://tenant.example.org/static/gone.svg-x-x');
+
+      expect(console.warn).toHaveBeenCalledWith('Error adding map image:', expect.objectContaining({
+        id: 'https://tenant.example.org/static/gone.svg-x-x',
+      }));
     });
   });
 
@@ -592,6 +955,24 @@ describe('Map', () => {
       });
 
       expect(hidePopupMock).not.toHaveBeenCalled();
+    });
+
+    test('hides the unpinned patrol tracks when no subject track is shown', async () => {
+      store.view.patrolTrackState = { hiddenSubjects: {}, pinned: [], visible: ['patrol-1'] };
+
+      renderMap();
+
+      map.queryRenderedFeatures.mockImplementation(() => []);
+
+      await waitFor(() => {
+        map.__test__.fireHandlers('click', {
+          originalEvent: { stopPropagation: jest.fn() },
+          point: { x: 100, y: 100 },
+        });
+      });
+
+      expect(updatePatrolTrackStateMock).toHaveBeenCalledWith({ visible: [] });
+      expect(updateTrackStateMock).not.toHaveBeenCalled();
     });
   });
 });

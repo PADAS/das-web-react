@@ -1,6 +1,3 @@
-
-
-import React from 'react';
 import { Provider } from 'react-redux';
 
 
@@ -10,7 +7,7 @@ import { mockStore } from '../__test-helpers/MockStore';
 import { act, render } from '@testing-library/react';
 
 import RightClickMarkerDropper from '../RightClickMarkerDropper';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 
 let map;
 let store;
@@ -22,12 +19,12 @@ beforeEach(() => {
 });
 
 test('rendering without crashing', () => {
-  render(
+  expect(() => render(
     <Provider store={store}>
       <MapContext.Provider value={map}>
         <RightClickMarkerDropper />
       </MapContext.Provider>
-    </Provider>);
+    </Provider>)).not.toThrow();
 });
 
 test('showing a popup on map right click', () => {

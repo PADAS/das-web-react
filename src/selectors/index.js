@@ -1,8 +1,8 @@
 // reselect explanation and usage https://redux.js.org/recipes/computing-derived-data#connecting-a-selector-to-the-redux-store
 import { createSelector } from 'reselect';
 import { bboxPolygon, featureCollection } from '@turf/turf';
-import pickBy from 'lodash/pickBy';
 
+import { applyLocalEditsToEvent } from '../utils/locally-edited-event';
 import { createFeatureCollectionFromEvents } from '../utils/map';
 import { calcUrlForImage } from '../utils/img';
 import { PERMISSIONS } from '../constants';
@@ -21,6 +21,7 @@ const getUser = ({ data: { user } }) => user;
 const getAlertsFeatureFlag = ({ view: { systemConfig } }) => systemConfig?.alerts_enabled;
 
 export const analyzerFeatures = ({ data: { analyzerFeatures } }) => analyzerFeatures.data;
+export const analyzersHaveFailures = ({ data: { analyzerFeatures } }) => analyzerFeatures.hasFailures;
 export const featureSets = ({ data: { featureSets } }) => featureSets.data;
 export const getTimeSliderState = ({ view: { timeSliderState } }) => timeSliderState;
 export const getEventFilterDateRange = ({ data: { eventFilter: { filter: { date_range } } } }) => date_range;
@@ -51,19 +52,9 @@ export const getMapEventFeatureCollection = createSelector(
     }
 
     return createFeatureCollectionFromEvents(eventsInMap
-      .map((id) => {
-        if (locallyEditedEvent?.id === id) {
-          const event = {
-            ...eventStore[id],
-            ...pickBy(locallyEditedEvent, (value) => value !== undefined),
-            locallyEdited: true,
-          };
-
-          return event;
-        }
-
-        return eventStore[id];
-      })
+      .map((id) => (locallyEditedEvent?.id === id
+        ? applyLocalEditsToEvent(eventStore[id], locallyEditedEvent)
+        : eventStore[id]))
       .filter(item => !!item), eventTypes);
   }
 );

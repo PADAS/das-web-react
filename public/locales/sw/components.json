@@ -24,6 +24,16 @@
       "noOptionsMessage": "Hakuna chaguo za kuonyesha"
     }
   },
+  "communityPage": {
+    "coolOffChooseAnotherType": "Chagua aina nyingine ya tukio",
+    "coolOffMessage": "Umetuma fomu ya {{eventType}} hivi karibuni. Unaweza kutuma nyingine baada ya {{timeRemaining}}.",
+    "coolOffTimeRemaining": "Muda uliobaki: {{timeRemaining}}",
+    "coolOffTitle": "Tafadhali subiri kabla ya kutuma tena",
+    "coolOffTypeUnavailable": "Itapatikana baada ya {{timeRemaining}}",
+    "formSubmitted": "Imetumwa kwa mafanikio",
+    "invalidCommunityUrl": "URL ya jumuiya si sahihi",
+    "searchPlaceholder": "Tafuta aina za matukio..."
+  },
   "datePicker": {
     "calendarPopper": {
       "menuButtonLabel": "Fungua kalenda",
@@ -62,6 +72,7 @@
     "shareLocationToastTitle": "Jifunze zaidi"
   },
   "getUserLocationButton": {
+    "cancelButtonLabel": "Ghairi",
     "errorToastMessage": "Imeshindikana kusoma eneo lako la sasa: {{errorMessage}}",
     "loadingOverlayMessage": "Inajaribu kusoma eneo lako...",
     "userLocationButtonLabel": "Pata eneo la sasa"
@@ -104,6 +115,7 @@
     "menuPopover": {
       "dialogLabel": "Eneo",
       "getUserLocationButton": "Tumia eneo langu",
+      "permissionBlockedMessage": "Kushiriki eneo kumezuiwa na kivinjari. Ruhusu katika mipangilio ya kivinjari.",
       "pickMapLocationButton": "Weka kwenye ramani"
     },
     "setLocationButtonLabel": {
@@ -156,12 +168,6 @@
     "instructionsPopupLabel": "Bonyeza ili kuchagua mahali",
     "pickLocationButtonLabel": "Chagua mahali kwenye ramani"
   },
-  "priorityPicker": {
-    "amber": "Ambari",
-    "green": "Kijani",
-    "none": "Hakuna",
-    "red": "Nyekundu"
-  },
   "reportedBySelect": {
     "control": {
       "radioIconPlaceholder": "Nafasi ya alama ya redio kwa chagua la aliye ripoti"
@@ -177,6 +183,11 @@
     "singleValue": {
       "radioIcon": "Alama ya redio kwa {{name}} thamani"
     }
+  },
+  "reporterSelect": {
+    "allReportersGroupLabel": "Zote",
+    "recentRadiosGroupLabel": "Redio za hivi karibuni",
+    "restrictedReporterLabel": "ILIZUIWA"
   },
   "schemaFields": {
     "addButton": {
@@ -197,6 +208,9 @@
     "clearButtonLabel": "Futa kisanduku cha utafutaji",
     "defaultPlaceholder": "Tafuta..."
   },
+  "select": {
+    "noOptionsMessage": "Hakuna chaguo za kuonyesha"
+  },
   "serviceWorkerWatcher": {
     "confirmNotification": "Pakia tena",
     "newVersionAvailableNotification": "Toleo jipya la EarthRanger linapatikana. Itapakia mara ya mwisho unapochakaza tena kivinjari chako."
@@ -208,11 +222,24 @@
     "addPatrolButtonTitle": "Unda Doria",
     "backButtonLabel": "Nenda Nyuma",
     "backButtonTitle": "Nyuma",
-    "closeButtonTitle": "Funga",
-    "closeEventFeedButtonLabel": "Funga Onyesha Matukio",
-    "closeMapLayersButtonLabel": "Funga Safu za Ramani",
-    "closePatrolFeedButtonLabel": "Funga Onyesha Doria",
-    "closeSettingsButtonLabel": "Funga Mipangilio",
+    "closeButtonLabel": "Funga upau wa pembeni",
+    "detailViewHeader": {
+      "closeButtonLabel": "Funga upau wa pembeni"
+    },
+    "eventsLink": "Matukio",
+    "gearLink": "Vifaa",
+    "gearTab": {
+      "loadErrorFallback": "Ombi halikufaulu",
+      "loadErrorIntro": "Haikuweza kupakia vifaa kutoka kwa seva.",
+      "loading": "Inasasishwa…",
+      "loadingInitial": "Inapakia vifaa…",
+      "loadingList": "Bado inapakia orodha kamili…",
+      "noSearchResults": "Hakuna seti inayolingana na utafutaji.",
+      "retryButton": "Jaribu tena",
+      "searchFormAriaLabel": "Tafuta vifaa",
+      "searchPlaceholder": "Tafuta kwa jina",
+      "unknownManufacturer": "Nyingine"
+    },
     "layersLink": "Safu za Ramani",
     "mapLayersTab": {
       "analyzersTabTitle": "Wachambuzi",
@@ -222,12 +249,23 @@
       "featuresTabTitle": "Vipengele",
       "subjectsTabTitle": "Masomo"
     },
-    "patrolsLink": "Doria",
-    "reportsFeedTab": {
-      "fetchReportsErrorMessage": "Haikuweza kupakia matukio. Tafadhali jaribu tena.",
-      "tryAgainButton": "Jaribu tena"
+    "otusLink": "Otus",
+    "otusTab": {
+      "header": {
+        "betaBadgeLabel": "Beta",
+        "closeButtonLabel": "Funga Otus",
+        "newConversationButtonLabel": "Mazungumzo mapya",
+        "recentButtonLabel": "Za hivi karibuni",
+        "title": "Otus"
+      },
+      "iframeTitle": "Gumzo na Otus",
+      "loadErrorMessage": "Otus haikuweza kupakia kwenye tovuti hii. Jaribu tena, au wasiliana na Msaada tatizo likiendelea.",
+      "loadingMessage": "Otus inapakia…",
+      "resizeHandleLabel": "Badilisha ukubwa wa kidirisha cha Otus",
+      "retryButtonLabel": "Jaribu tena"
     },
-    "eventsLink": "Matukio",
+    "patrolsLink": "Doria",
+    "settingsLink": "Mipangilio",
     "settingsPane": {
       "alertsFrameTitle": "Sanidi tahadhari zako za EarthRanger",
       "alertsTabTitle": "Tahadhari",
@@ -241,7 +279,6 @@
           "patrolFiltersCheckboxLabel": "Vichuja vya Doria"
         },
         "experimentalFeaturesFieldSet": {
-          "CUSTOM_COORDINATE_SYSTEMS_ENABLED": "Mifumo ya Marejeo ya Koordinati",
           "legend": "Vipengele vya Majaribio"
         },
         "languageSelect": {
@@ -335,7 +372,9 @@
       },
       "mapTabTitle": "Ramani"
     },
-    "settingsLink": "Mipangilio"
+    "titleInput": {
+      "editButtonLabel": "Hariri kichwa"
+    }
   },
   "sortedNodes": {
     "labelAscending": "Badilisha Kwa Mpangilio wa Kushuka",
@@ -357,13 +396,19 @@
     "periodInputLabel": "Sehemu ya siku"
   },
   "timeSlider": {
-    "popoverHeader": "Upeo wa Tarehe",
-    "popoverResetButton": "Rudisha",
-    "slider": "Kishikilia Muda",
+    "closeButtonLabel": "Funga kishikilia muda",
+    "dateRangeButtonLabel": "Badilisha masafa ya tarehe",
+    "endDateNowSliderLabel": "Sasa",
+    "sliderLabel": "Kishikilia Muda",
+    "speedButtonLabel": "Fungua chaguo za kasi ya uchezaji",
+    "speedMenuHeader": "Kasi ya Uchezaji",
+    "speedMenuLabel": "Chaguo za kasi ya uchezaji",
+    "speedMenuOptionLabel": "Weka kasi ya uchezaji kuwa {{speed}}",
     "timeSliderMapControl": {
       "iconTitle": "Kishikilia Muda"
     },
-    "untilNowButton": "Sasa"
+    "playButtonLabel": "Cheza kishikilia muda",
+    "stopButtonLabel": "Simama kishikilia muda"
   },
   "toastBody": {
     "defaultLinkTitle": "Bonyeza hapa",

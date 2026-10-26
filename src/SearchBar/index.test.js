@@ -1,4 +1,3 @@
-import React from 'react';
 import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '../test-utils';
@@ -54,6 +53,14 @@ describe('SearchBar', () => {
     renderSearchBar({ onClear, value: 'Search' });
 
     expect(screen.getByRole('button', { name: 'Clear search' })).toBeVisible();
+  });
+
+  test('keeps the clear button out of the tab order', async () => {
+    const onClear = jest.fn();
+
+    renderSearchBar({ onClear, value: 'Search' });
+
+    expect(screen.getByRole('button', { name: 'Clear search' })).toHaveAttribute('tabindex', '-1');
   });
 
   test('clears the search when the user clicks the clear button', async () => {

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { featureCollection } from '@turf/turf';
 import { useSelector } from 'react-redux';
 
@@ -14,9 +14,9 @@ import {
   SOURCE_IDS,
 } from '../constants';
 import { getMapEventSymbolPointsWithVirtualDate } from '../selectors/events';
+import { primeEventIconParams } from '../utils/eventMapIcons';
 import { selectShouldEventsBeClustered } from '../selectors/clusters';
-import { MapContext } from '../App';
-import MapImageFromSvgSpriteRenderer, { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
+import { MapContext } from '../MapContext';
 import useMapSources from '../hooks/useMapSources';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
 
@@ -61,7 +61,6 @@ const SYMBOL_LAYER_FILTER = [
 
 const EventsLayer = ({
   bounceEventIDs = [],
-  mapImages = {},
   mapUserLayoutConfig,
   mapUserLayoutConfigByLayerId,
   minZoom,
@@ -80,7 +79,6 @@ const EventsLayer = ({
   const [bounceIDs, setBounceIDs] = useState([]);
   const [eventLayerIds, setEventLayerIds] = useState([]);
   const [eventsWithBounce, setEventsWithBounce] = useState(featureCollection([]));
-  const [mapEventFeatures, setMapEventFeatures] = useState(featureCollection([]));
 
   const onLayerInit = useCallback(() => setEventLayerIds([
     EVENT_SYMBOLS,
@@ -93,6 +91,8 @@ const EventsLayer = ({
   const onEventSymbolClick = useMemo(() =>
     withMultiLayerHandlerAwareness(
       map,
+      // Using this ref during render is intended.
+      // eslint-disable-next-line react-hooks/refs
       (event) => {
         if (!clicking.current) {
           clicking.current = true;
@@ -145,20 +145,21 @@ const EventsLayer = ({
         SCALE_ICON_IF_BOUNCED(1 / MAP_ICON_SCALE, ICON_SCALE_RATE)),
     ],
     'icon-image': ['concat',
+      'event-icon|',
       ['get', 'icon_id'],
-      '-',
+      '|',
       ['get', 'priority'],
       ['case',
         ['has', 'width'], [
           'concat',
-          '-',
+          '|',
           ['get', 'width'],
         ],
         ''],
       ['case',
         ['has', 'height'],
         ['concat',
-          '-',
+          '|',
           ['get', 'height'],
         ],
         ''],
@@ -208,6 +209,8 @@ const EventsLayer = ({
   }, [animationState.isRendering, bounceIDs.length, updateBounceSineAnimation]);
 
   useEffect(() => {
+    // Updating state from this effect is intended.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setEventsWithBounce({
       ...eventPointFeatureCollection,
       features: addBounceToEventMapFeatures(eventPointFeatureCollection.features, bounceEventIDs),
@@ -215,16 +218,17 @@ const EventsLayer = ({
   }, [bounceEventIDs, eventPointFeatureCollection]);
 
   useEffect(() => {
+    // Updating state from this effect is intended.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setBounceIDs(bounceEventIDs);
     setAnimationState({ frame: 1, isRendering: (bounceEventIDs.length > 0), scale: 0.0 });
   }, [bounceEventIDs]);
 
+  // Prime icon params for these features so the map's styleimagemissing handler
+  // can recover full event context (color/state/image) when it generates icons.
   useEffect(() => {
-    setMapEventFeatures({
-      ...eventsWithBounce,
-      features: eventsWithBounce.features.filter(feature => !map.hasImage(calcSvgImageIconId(feature))),
-    });
-  }, [eventsWithBounce, map, mapImages]);
+    primeEventIconParams(eventPointFeatureCollection.features);
+  }, [eventPointFeatureCollection]);
 
   useEffect(() => {
     const addClusterIconToMap = () => {
@@ -237,8 +241,8 @@ const EventsLayer = ({
   }, [map]);
 
   const geoJson = {
-    ...mapEventFeatures,
-    features: !shouldEventsBeClustered && !!showReportsOnMap ? mapEventFeatures.features : [],
+    ...eventsWithBounce,
+    features: !shouldEventsBeClustered && !!showReportsOnMap ? eventsWithBounce.features : [],
   };
   useMapSources([{ id: UNCLUSTERED_EVENTS_SOURCE, data: geoJson }]);
 
@@ -278,10 +282,6 @@ const EventsLayer = ({
 
       {isEventsLayerReady && <EventGeometryLayer onClick={onEventSymbolClick} />}
     </>}
-
-    {!!eventPointFeatureCollection?.features?.length && <MapImageFromSvgSpriteRenderer
-      reportFeatureCollection={eventPointFeatureCollection}
-    />}
   </>;
 };
 

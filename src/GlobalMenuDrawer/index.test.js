@@ -1,13 +1,13 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { addModal } from '../ducks/modals';
-import { createQuerySelectorMockImplementationWithHelpButtonReference } from '../JiraSupportWidget/index.test';
+import { createQuerySelectorMockImplementationWithHelpButtonReference } from '../__test-helpers/jiraSupportWidget';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 import GlobalMenuDrawer from '.';
 import { hideDrawer } from '../ducks/drawer';
+import { INITIAL_GEAR_STATE } from '../ducks/gear';
 import { mockStore } from '../__test-helpers/MockStore';
 import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS, } from '../constants';
 import { render, screen, within } from '../test-utils';
@@ -51,6 +51,7 @@ describe('GlobalMenuDrawer', () => {
       data: {
         eventFilter: {},
         eventTypes,
+        gear: { ...INITIAL_GEAR_STATE },
         systemStatus: {
           server: { version: '' },
         },
@@ -120,6 +121,53 @@ describe('GlobalMenuDrawer', () => {
     expect(screen.queryByRole('link', { name: 'Patrols' })).toBeNull();
   });
 
+  test('shows the Otus link in small screens when an Otus URL is configured', async () => {
+    useMatchMedia.mockImplementation(() => false);
+    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+    renderGlobalMenuDrawer();
+
+    expect(within(screen.getByRole('navigation')).getByRole('link', { name: 'Otus' })).toBeVisible();
+  });
+
+  test('does not show the Otus link in small screens when there is no Otus URL', async () => {
+    useMatchMedia.mockImplementation(() => false);
+    renderGlobalMenuDrawer();
+
+    expect(screen.queryByRole('link', { name: 'Otus' })).not.toBeInTheDocument();
+  });
+
+  test('does not show the Events link if events are not enabled', async () => {
+    useMatchMedia.mockImplementation(() => false);
+    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS] = false;
+    renderGlobalMenuDrawer();
+
+    expect(within(screen.getByRole('navigation')).queryByRole('link', { name: 'Events' })).toBeNull();
+  });
+
+  test('shows the Gear link if the site has gear', async () => {
+    useMatchMedia.mockImplementation(() => false);
+    store.data.gear.hasGear = true;
+    renderGlobalMenuDrawer();
+
+    expect(within(screen.getByRole('navigation')).getByRole('link', { name: 'Gear' })).toHaveAttribute('href', '/gear');
+  });
+
+  test('does not show the Gear link if the site has no gear', async () => {
+    useMatchMedia.mockImplementation(() => false);
+    renderGlobalMenuDrawer();
+
+    expect(within(screen.getByRole('navigation')).queryByRole('link', { name: 'Gear' })).toBeNull();
+  });
+
+  test('does not show the Map Layers link if all layers are disabled', async () => {
+    useMatchMedia.mockImplementation(() => false);
+    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS] = false;
+    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.SUBJECTS] = false;
+    renderGlobalMenuDrawer();
+
+    expect(within(screen.getByRole('navigation')).queryByRole('link', { name: 'Map Layers' })).toBeNull();
+  });
+
   test('does not show the Tableau button if it is not enabled', async () => {
     store.view.systemConfig.tableau_enabled = false;
     renderGlobalMenuDrawer();
@@ -127,7 +175,7 @@ describe('GlobalMenuDrawer', () => {
     expect(screen.queryByRole('button', { name: 'Tableau' })).toBeNull();
   });
 
-  test('opens a window to the tableau dashboard when clicking the Tableau button ', async () => {
+  test('opens a window to the tableau dashboard when clicking the Tableau button', async () => {
     global.open = jest.fn();
     renderGlobalMenuDrawer();
 
@@ -148,7 +196,7 @@ describe('GlobalMenuDrawer', () => {
     expect(screen.queryByRole('button', { name: 'Alerts' })).toBeNull();
   });
 
-  test('opens the alerts modal when clicking the Alerts button ', async () => {
+  test('opens the alerts modal when clicking the Alerts button', async () => {
     renderGlobalMenuDrawer();
 
     expect(addModal).toHaveBeenCalledTimes(0);

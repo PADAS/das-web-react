@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useId, useImperativeHandle, useRef } from 'react';
+import { memo, useEffect, useId, useImperativeHandle, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -54,7 +54,7 @@ const GpsFormatToggle = ({
 
   const { coordinatesString, outsideRepresentationBbox } = useStringifyCoordinates(lngLat);
 
-  const gpsFormatOptions = selectedCoordinateRepresentations.sort((optionA, optionB) => {
+  const gpsFormatOptions = [...selectedCoordinateRepresentations].sort((optionA, optionB) => {
     // Sort coordinate representation options alphabetically. If they are a
     // CRS, we use the name property, otherwise we simply use the GPS format
     // string.

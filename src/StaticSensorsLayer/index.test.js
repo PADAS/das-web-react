@@ -1,11 +1,10 @@
-import React from 'react';
 import { act, render, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 
 import { createMapMock } from '../__test-helpers/mocks';
 import { mockStore } from '../__test-helpers/MockStore';
 
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { staticSubjectFeature, staticSubjectFeatureWithoutDefaultValue } from '../__test-helpers/fixtures/subjects';
 import { LAYER_IDS, SOURCE_IDS } from '../constants';
 import StaticSensorsLayer, { DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER } from './';

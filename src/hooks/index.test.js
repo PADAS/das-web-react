@@ -1,10 +1,7 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 import { renderHook } from '../test-utils';
 
-import { FEATURE_FLAG_LABELS } from '../constants';
-
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 
 import { createMapMock } from '../__test-helpers/mocks';
 import { mockStore } from '../__test-helpers/MockStore';
@@ -14,7 +11,6 @@ import { useFeatureFlag, useMemoCompare, useMapEventBinding } from './';
 jest.mock('../constants', () => ({
   ...jest.requireActual('../constants'),
   DEVELOPMENT_FEATURE_FLAGS: { DUMMY_FF_FOR_TESTING: true },
-  FEATURE_FLAG_LABELS: { DUMMY_FF_FOR_TESTING: 'DUMMY_FF_FOR_TESTING' },
 }));
 
 describe('#useMapEventBinding', () => {
@@ -24,15 +20,15 @@ describe('#useMapEventBinding', () => {
   beforeEach(() => {
     map = createMapMock();
     handler = jest.fn();
-    wrapper = ({ children }) => <MapContext.Provider value={map}>{children}</MapContext.Provider>; // eslint-disable-line react/display-name
+    wrapper = ({ children }) => <MapContext.Provider value={map}>{children}</MapContext.Provider>;
   });
 
   test('binding a handler function', () => {
-    renderHook(() => useMapEventBinding('click', handler, layerId), { wrapper });
+    expect(() => renderHook(() => useMapEventBinding('click', handler, layerId), { wrapper })).not.toThrow();
   });
 
   test('not binding if no map is available', () => {
-    renderHook(() => useMapEventBinding('banana', handler, layerId)); // no context wrapper means there's no map available;
+    expect(() => renderHook(() => useMapEventBinding('banana', handler, layerId))).not.toThrow(); // no context wrapper means there's no map available;
   });
 
   describe('@param condition', () => {
@@ -99,7 +95,7 @@ describe('#useFeatureFlag', () => {
         experimentalFeatures: {}
       },
     });
-    wrapper = ({ children }) => <Provider store={store}>{children}</Provider>;  // eslint-disable-line react/display-name
+    wrapper = ({ children }) => <Provider store={store}>{children}</Provider>;
   });
 
   test('throwing an error if no matching feature flag has been set in the environment file', async () => {

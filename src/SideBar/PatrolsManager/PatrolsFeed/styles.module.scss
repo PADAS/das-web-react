@@ -1,0 +1,29 @@
+@use '../_shared' as shared;
+
+.patrolsFeed {
+  @include shared.default-view-width;
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+
+  .loader {
+    flex: 1;
+    max-width: 100%;
+  }
+
+  .emptyStateMessage {
+    margin: 0;
+    padding: 2rem 1rem;
+    text-align: center;
+  }
+
+  .patrolList {
+    flex: 1;
+    list-style: none;
+    margin: 0;
+    overflow-y: auto;
+    padding: 0;
+  }
+}

@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react';
+import { createContext, useState } from 'react';
 import SocketMock from 'socket.io-mock';
 
 export const SocketContext = createContext(null);

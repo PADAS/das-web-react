@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, memo } from 'react';
+import { useEffect, useState, useRef, memo } from 'react';
 import { connect } from 'react-redux';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
@@ -82,6 +82,8 @@ const BaseLayerControl = (props) => {
     <button title={t('popoverButton')} type='button' className={styles.button} onClick={togglePopoverState} ref={buttonRef}>
       <BaseMapIcon title={t('popoverButton')} />
     </button>
+    {/* Using this ref during render is intended. */}
+    {/* eslint-disable-next-line react-hooks/refs */}
     <Overlay placement='left' show={popoverOpen} rootClose onHide={() => setPopoverOpenState(false)} container={wrapperRef.current} target={wrapperRef.current}>
       <Popover className={styles.popup} title={t('popoverTitle')}>
         <ul className={styles.layerList}>

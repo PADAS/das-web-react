@@ -18,6 +18,7 @@
     },
     "mapDrawingTools": {
         "addPointLabel": "Clique para adicionar um ponto. Pressione \"Enter\" ou \"Voltar\" para completar.",
+        "areaLabel": "Área: {{area}}",
         "bearingLabel": "Direção {{bearing}}°",
         "distanceLabel": "Distância: {{distance}}",
         "instructionsLabel": "Clique e arraste para adicionar um ponto",
@@ -35,6 +36,7 @@
         "title": "Régua"
     },
     "pointPopup": {
+        "areaLabel": "Área:",
         "bearingLabel": "Direção:",
         "distanceLabel": "Distância a partir do início",
         "finishButton": "Clique aqui para finalizar"

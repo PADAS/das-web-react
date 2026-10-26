@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useRef, useState } from 'react';
+import { memo, useContext, useEffect, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { differenceInCalendarDays } from 'date-fns';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -43,7 +43,7 @@ const formatUnreadNewsItemsAsNotifications = (news = [], t) => news.map(item => 
 const NotificationItem = ({ item }) => {
   const { t } = useTranslation('top-bar', { keyPrefix: 'notificationMenu.notificationItem' });
 
-  const isNewsItem = item.hasOwnProperty('read');
+  const isNewsItem = Object.hasOwn(item, 'read');
   const isUnread = isNewsItem && !item.read;
 
   let displayMessage = item.message.replace(/(<([^>]+)>)/ig, '').substring(0, NEWS_ITEM_CHARACTER_LIMIT);
@@ -144,7 +144,7 @@ const NotificationMenu = (props) => {
 
     if (!isOpen) {
       const unreadNews = (news || []).filter(i => !i.read);
-      if (!!unreadNews.length) {
+      if (unreadNews.length) {
         readNews(unreadNews)
           .then(() => {
             const newNews = news.map((n) => n.read ? n : { ...n, read: true });
@@ -162,18 +162,23 @@ const NotificationMenu = (props) => {
   };
 
   useEffect(() => {
+    // Updating state from this effect is intended.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchNewsForMenu();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (socket) {
-      const consumeMessage = ({ data: msg }) => setNews([...formatUnreadNewsItemsAsNotifications([msg]), ...news], t);
+      const consumeMessage = ({ data: msg }) => setNews((currentNews) => [
+        ...formatUnreadNewsItemsAsNotifications([msg], t),
+        ...(currentNews ?? []),
+      ]);
 
       const [, fnRef] = socket.on('new_announcement', consumeMessage);
 
       return () => socket.off('new_announcement', fnRef);
     }
-  }, [news, socket, t]);
+  }, [socket, t]);
 
   return <Dropdown align="end" className={styles.dropdown} onToggle={onToggle} {...props}>
     <Dropdown.Toggle
@@ -182,7 +187,7 @@ const NotificationMenu = (props) => {
       data-testid="notification-toggle"
       ref={toggleBtnRef} title={t('toggleTitle')}
     >
-      <BellIcon className={`${styles.icon} ${!!notifications.length ? styles.activeIcon : ''}`} />
+      <BellIcon className={`${styles.icon} ${notifications.length ? styles.activeIcon : ''}`} />
 
       {!!unreadCount && <BadgeIcon className={styles.badge} count={unreadCount} data-testid="unread-count" />}
     </Dropdown.Toggle>
@@ -192,13 +197,15 @@ const NotificationMenu = (props) => {
       id="overlay-example"
       placement="bottom"
       role="alert"
+      // Using this ref during render is intended.
+      // eslint-disable-next-line react-hooks/refs
       target={toggleBtnRef.current}
     >
       {outdatedNotificationString}
     </Popover>}
 
     <Dropdown.Menu className={styles.menu} ref={menuRef}>
-      {!!notifications.length
+      {notifications.length
         ? notifications.map((item, index) => <NotificationItem item={item} key={index} />)
         : <h6 className={styles.noItems}>{t('noNewNotificationsHeader')}</h6>}
 

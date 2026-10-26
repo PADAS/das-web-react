@@ -1,4 +1,4 @@
-import React, { createContext, memo, useCallback, useState } from 'react';
+import { createContext, memo, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -18,6 +18,7 @@ export const AddItemContext = createContext();
 
 const AddItemButton = ({
   analyticsMetadata = { category: 'Feed', location: null },
+  'aria-label': ariaLabel = null,
   className = '',
   formProps = {
     hidePatrols: false,
@@ -29,6 +30,7 @@ const AddItemButton = ({
   hideAddPatrolTab = false,
   hideAddEventTab = false,
   iconComponent = <AddButtonIcon />,
+  label = null,
   modalProps = {},
   onAddPatrol = null,
   onAddReport = null,
@@ -79,17 +81,17 @@ const AddItemButton = ({
     </DelayedUnmount>
 
     <button
-      aria-label={t('defaultLabel')}
-      className={`${styles[`addItemButton-${variant}`]} ${className}`}
+      aria-label={ariaLabel ?? t('defaultLabel')}
+      className={`${styles[variant]} ${className}`}
       data-testid="addItemButton"
       onClick={onClick}
-      title={title || t('defaultTitle')}
+      title={title ?? (showLabel ? undefined : t('defaultTitle'))}
       type="button"
       {...restProps}
     >
       {iconComponent}
 
-      {showLabel && <label>{title || t('defaultTitle')}</label>}
+      {showLabel && <span>{label || title || t('defaultTitle')}</span>}
     </button>
   </AddItemContext.Provider> : null;
 };

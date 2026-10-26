@@ -2,71 +2,127 @@ import { useEffect, useRef } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
-import { POST_AUTH_SUCCESS } from '../ducks/auth';
-import useNavigate from '../hooks/useNavigate';
+
+import { APP_ROUTES } from '../constants/routes';
+import appConfig from '../config';
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
-import { hasAuth0CallbackParams } from '../utils/auth0';
+import { applyAccessToken, clearAuth } from '../ducks/auth';
+import { checkAccountLinked, GATE_RESULT } from '../utils/account-linking';
 import {
   clearIntendedPostAuth0SuccessRoute,
   getIntendedPostAuth0SuccessRoute,
   isValidTokenFormat,
+  markManagedUserNotProvisioned,
   stripAuth0Params,
+  takeManagedUserLoginAttempt,
 } from '../utils/auth';
+import { hasAuth0CallbackParams } from '../utils/auth0';
+import { redirectToExternalUrl } from '../utils/navigation';
+import useNavigate from '../hooks/useNavigate';
 
 const Auth0TokenManager = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, getAccessTokenSilently } = useAuth0();
+  const navigate = useNavigate();
+
   const existingToken = useSelector((state) => state.data.token?.access_token);
   const requireIdp = useSelector((state) => !!state.view.systemConfig?.require_idp);
+
+  const { isAuthenticated, getAccessTokenSilently, logout } = useAuth0();
+
   const hasHandledCallback = useRef(false);
   const sawAuth0Params = useRef(false);
 
   useEffect(() => {
-
     const ensureIdpToken = async () => {
       const hasAuth0Params = hasAuth0CallbackParams(location.search);
-      // Remember if we ever saw Auth0 params (they disappear when Auth0Provider processes them)
+      // Params disappear once Auth0Provider processes the callback, so remember them.
       if (hasAuth0Params) {
         sawAuth0Params.current = true;
       }
 
-      // Auth0 callback path: process when we saw params AND user is now authenticated
       if (sawAuth0Params.current && isAuthenticated && !hasHandledCallback.current) {
         hasHandledCallback.current = true;
 
+        // Read once per callback, before the try, so every failure below can name
+        // the path the user was on.
+        const attemptedManagedUserLogin = takeManagedUserLoginAttempt();
+        const failedLoginOptions = attemptedManagedUserLogin
+          ? { replace: true, state: { managedUserSignInFailed: true } }
+          : { replace: true };
+
         try {
-          // Auth0Provider has processed the callback, now get the token
           const token = await getAccessTokenSilently({
-            authorizationParams: {
-              audience: import.meta.env.REACT_APP_AUTH0_AUDIENCE,
-            },
+            authorizationParams: { audience: appConfig.auth0.audience },
           });
 
           const safe = String(token).trim();
           if (!isValidTokenFormat(safe)) {
             console.warn('Auth token format rejected');
-            navigate(`${REACT_APP_ROUTE_PREFIX}login`, { replace: true });
+            navigate(APP_ROUTES.LOGIN, failedLoginOptions);
             return;
           }
 
-          // Persist token
-          document.cookie = `token=${safe};path=/`;
-          dispatch({ type: POST_AUTH_SUCCESS, payload: { data: { access_token: safe } } });
+          if (requireIdp) {
+            const { result, linkUrl } = await checkAccountLinked(safe);
 
-          // Determine return route (localStorage survives Auth0 redirect)
+            if (result === GATE_RESULT.UNLINKED) {
+              // The link page asks for a legacy password a managed user does not have.
+              // End the Auth0 session instead — the tenant cookie outlives this page,
+              // so clearing only the local cache lets the next sign-in reuse this
+              // unusable identity. Awaited so a failed redirect reaches the catch
+              // rather than stranding the user on the callback URL.
+              if (attemptedManagedUserLogin) {
+                markManagedUserNotProvisioned();
+                dispatch(clearAuth());
+                await logout({
+                  logoutParams: {
+                    returnTo: `${window.location.origin}${REACT_APP_ROUTE_PREFIX}`,
+                  },
+                });
+                return;
+              }
+
+              // Unlinked: hand off to the server-owned link page (always a validated URL).
+              redirectToExternalUrl(linkUrl);
+              return;
+            }
+
+            // Unusable token: clear the SDK session + SPA token state, restart login.
+            if (result === GATE_RESULT.INVALID) {
+              logout({ openUrl: false }).catch(() => {});
+              dispatch(clearAuth());
+              navigate(APP_ROUTES.LOGIN, failedLoginOptions);
+              return;
+            }
+
+            // Transient: keep the SDK session (unlike INVALID) for retry, surface an error.
+            if (result === GATE_RESULT.TRANSIENT) {
+              navigate(APP_ROUTES.LOGIN, {
+                replace: true,
+                state: attemptedManagedUserLogin
+                  ? { managedUserSignInFailed: true }
+                  : { authLinkingError: true },
+              });
+              return;
+            }
+
+            // A LINKED result returns no early exit and falls through to the sign-in below.
+          }
+
+          dispatch(applyAccessToken(safe));
+
+          // Return route survives the Auth0 redirect in localStorage.
           const intendedRoute = getIntendedPostAuth0SuccessRoute();
           const returnTo = intendedRoute && !/\/login\b/.test(intendedRoute)
             ? intendedRoute
-            : REACT_APP_ROUTE_PREFIX;
+            : APP_ROUTES.ROOT;
           clearIntendedPostAuth0SuccessRoute();
 
-          const cleanUrl = stripAuth0Params(returnTo);
-          navigate(cleanUrl, { replace: true, state: { comesFromLogin: true } });
+          navigate(stripAuth0Params(returnTo), { replace: true, state: { comesFromLogin: true } });
         } catch (e) {
           console.error('Auth0 callback failed:', e);
-          navigate(`${REACT_APP_ROUTE_PREFIX}login`, { replace: true });
+          navigate(APP_ROUTES.LOGIN, failedLoginOptions);
         }
         return;
       }
@@ -76,7 +132,7 @@ const Auth0TokenManager = () => {
       }
     };
     ensureIdpToken();
-  }, [dispatch, existingToken, getAccessTokenSilently, isAuthenticated, requireIdp, navigate, location.search]);
+  }, [dispatch, existingToken, getAccessTokenSilently, isAuthenticated, logout, requireIdp, navigate, location.search]);
 
   return null;
 };

@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useState }  from 'react';
+import { memo, useEffect, useMemo, useState }  from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import { useSelector } from 'react-redux';
@@ -44,6 +44,8 @@ const MessagesModal = ({ onSelectSubject, selectedSubject = null }) => {
   };
 
   useEffect(() => {
+    // Updating state from this effect is intended.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectingRecipient(false);
   }, [params]);
 

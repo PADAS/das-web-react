@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import isEqual from 'react-fast-compare';
 import pluralize from 'pluralize';
 import { useTranslation } from 'react-i18next';

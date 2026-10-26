@@ -8,49 +8,60 @@
     "timeLabel": "Time"
   },
   "addAttachmentButton": "Attachment",
+  "addAttachmentButtonLabel": "Add an attachment",
   "addReportButtonLabel": "Create Event",
   "addReportButtonTitle": "Event",
   "addNoteButton": "Note",
+  "addNoteButtonLabel": "Add a note",
   "attachmentControls": {
     "addNoteTitle": "Add Note",
     "addAttachmentTitle": "Add Attachment"
   },
   "attachmentListItem": {
-    "collapseClosedButtonLabel": "Expand",
-    "collapseClosedButtonTitle": "Collapsed",
-    "collapseOpenButtonLabel": "Collapse",
-    "collapseOpenButtonTitle": "Expanded",
+    "audioPreviewAlt": "{{fileName}} audio preview",
+    "collapseClosedButtonLabel": "Expand {{fileName}}",
+    "collapseOpenButtonLabel": "Collapse {{fileName}}",
+    "deleteButtonTooltip": "Delete {{fileName}}",
+    "downloadButtonTooltip": "Download {{fileName}}",
+    "fullViewButtonTooltip": "Show {{fileName}} in full screen",
     "imagePreviewAlt": "{{fileName}} preview",
-    "downloadButtonTooltip": "Download",
-    "deleteButtonTooltip": "Delete",
-    "fullViewButtonTooltip": "Full View"
+    "mediaLoadErrorMessage": "Unable to load this file.",
+    "playButtonLabel": "Play {{fileName}}",
+    "videoPreviewAlt": "{{fileName}} video preview"
   },
   "containedReportListItem": {
-    "collapseClosedButtonLabel": "Expand",
-    "collapseClosedButtonTitle": "Collapsed",
-    "collapseOpenButtonLabel": "Collapse",
-    "collapseOpenButtonTitle": "Expanded",
-    "goToReportButtonTooltip": "Go to event"
+    "activeStateLabel": "Active",
+    "collapseClosedButtonLabel": "Expand {{title}}",
+    "collapseOpenButtonLabel": "Collapse {{title}}",
+    "loadingLabel": "Loading {{title}}",
+    "resolvedStateLabel": "Resolved",
+    "reviewStateLabel": "Review",
+    "serialNumberLabel": "Event number",
+    "stateLabel": "State",
+    "viewReportButtonLabel": "View event {{title}}"
   },
   "footer": {
     "cancelButton": "Cancel",
     "saveButton": "Save",
     "stateResolveButton": "Save and resolve",
-    "stateReopenButton": "Save and reopen"
+    "stateReviewButton": "Save and review",
+    "stateReopenButton": "Save and reopen",
+    "stateActivateButton": "Save and activate"
   },
   "header": {
     "historyLinkCreated": "Created",
     "historyLinkUpdated": "Updated",
     "resolvedLabel": "resolved",
+    "reviewLabel": "review",
     "sectionTitle": "History"
   },
   "historySection": {
     "sectionTitle": "History",
     "timeLabel": "Time"
   },
-  "imageModal": {
-    "errorTitle": "Error loading image.",
-    "errorMessage": "If you uploaded this file recently, please wait a minute and try again."
+  "mediaModal": {
+    "errorMessage": "If you uploaded this file recently, please wait a minute and try again.",
+    "errorTitle": "Error loading file."
   },
   "navigationPromptModal": {
     "cancelNavigationButtonText": "Go Back",
@@ -61,20 +72,16 @@
   },
   "noteListItem": {
     "cancelEditingNoteButton": "Cancel",
-    "collapseClosedButtonLabel": "Expand",
-    "collapseClosedButtonTitle": "Collapsed",
-    "collapseOpenButtonLabel": "Collapse",
-    "collapseOpenButtonTitle": "Expanded",
-    "deleteNoteButtonTooltip": "Delete",
+    "collapseClosedButtonLabel": "Expand note",
+    "collapseOpenButtonLabel": "Collapse note",
+    "deleteNoteButtonTooltip": "Delete note",
     "doneEditingNoteButton": "Done",
-    "editNoteButtonTooltip": "Edit",
+    "editNoteButtonTooltip": "Edit note",
+    "noteTextAreaLabel": "Note text",
     "noteTitle": "New note: {{noteText}}"
   },
   "reportFormSummary": {
     "reportTypeLabel": "Event Type",
-    "reportedByLabel": "Reported By",
-    "v2SchemaFormSummary": {
-      "collectionHumanizedValue": "{{collectionLength}} items"
-    }
+    "reportedByLabel": "Reported By"
   }
 }

@@ -1,4 +1,4 @@
-import React, { useMemo, memo } from 'react';
+import { useMemo, memo } from 'react';
 import { length, lineString } from '@turf/turf';
 import { useTranslation } from 'react-i18next';
 
@@ -6,6 +6,7 @@ import GpsFormatToggle from '../GpsFormatToggle';
 import AddItemButton from '../AddItemButton';
 import Popup from '../Popup';
 import { calcPositiveBearing } from '../utils/location';
+import { calcPolygonAreaDisplayString } from './utils';
 
 import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
@@ -33,6 +34,8 @@ const PointPopup = (props) => {
 
   }, [isFirstPoint, pointIndex, points]);
 
+  const polygonArea = useMemo(() => calcPolygonAreaDisplayString(points), [points]);
+
   const bearingFromPrev = useMemo(() => {
     if (isFirstPoint) return null;
 
@@ -57,6 +60,10 @@ const PointPopup = (props) => {
         <p>
           <strong>{t('bearingLabel')}</strong> {bearingFromPrev}&deg; <br />
           <strong>{t('distanceLabel')}</strong> {distanceFromStart}
+          {!!polygonArea && <>
+            <br />
+            <strong>{t('areaLabel')}</strong> {polygonArea}
+          </>}
         </p>
       </>}
       <AddItemButton
@@ -67,6 +74,8 @@ const PointPopup = (props) => {
             longitude: point[0],
           }
         }}
+        showLabel={false}
+        variant="secondary"
       />
     </>}
     {

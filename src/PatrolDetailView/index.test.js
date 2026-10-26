@@ -1,5 +1,4 @@
-import React from 'react';
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw/http';
 import { Provider } from 'react-redux';
 import { setupServer } from 'msw/node';
 import { useLocation, useSearchParams } from 'react-router';
@@ -10,13 +9,13 @@ import { API_URL } from '../constants';
 import { createMapMock } from '../__test-helpers/mocks';
 import { executeSaveActions } from '../utils/save';
 import { EVENT_API_URL } from '../ducks/events';
-import { PATROLS_API_URL } from '../ducks/patrols';
 import { GPS_FORMATS } from '../utils/location';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { mockStore } from '../__test-helpers/MockStore';
 import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import { patrolDefaultStoreData, scheduledPatrol } from '../__test-helpers/fixtures/patrols';
 import PatrolDetailView from './';
+import { PATROLS_API_URL, UPDATE_PATROL_SUCCESS } from '../ducks/patrols';
 import { TAB_KEYS } from '../constants';
 import { TrackerContext } from '../utils/analytics';
 import useNavigate from '../hooks/useNavigate';
@@ -148,7 +147,7 @@ describe('PatrolDetailView', () => {
     useLocation.mockImplementation(useLocationMock);
     useNavigateMock = jest.fn(() => navigate);
     useNavigate.mockImplementation(useNavigateMock);
-    useSearchParamsMock = jest.fn(() => ([new URLSearchParams({ patrolType: 'dog_patrol' })]));
+    useSearchParamsMock = jest.fn(() => ([new URLSearchParams({ 'patrol-type': 'dog_patrol' })]));
     useSearchParams.mockImplementation(useSearchParamsMock);
 
     mockPatrol = {
@@ -240,7 +239,7 @@ describe('PatrolDetailView', () => {
   test('redirects to /patrols if user tries to create a new patrol with an invalid patrolType', async () => {
     useLocationMock = jest.fn(() => ({ pathname: '/patrols/new', state: {} }),);
     useLocation.mockImplementation(useLocationMock);
-    useSearchParamsMock = jest.fn(() => ([new URLSearchParams({ patrolType: 'invalid' })]));
+    useSearchParamsMock = jest.fn(() => ([new URLSearchParams({ 'patrol-type': 'invalid' })]));
     useSearchParams.mockImplementation(useSearchParamsMock);
 
     renderWithWrapper(<PatrolDetailView />);
@@ -252,14 +251,14 @@ describe('PatrolDetailView', () => {
   });
 
   test('redirects to the same route assignin a temporal id in case it is missing', async () => {
-    useLocationMock = jest.fn(() => ({ pathname: '/patrols/new', search: '?patrolType=1234', state: {} }),);
+    useLocationMock = jest.fn(() => ({ pathname: '/patrols/new', search: '?patrol-type=1234', state: {} }),);
     useLocation.mockImplementation(useLocationMock);
 
     renderWithWrapper(<PatrolDetailView />);
 
     await waitFor(() => {
       expect(navigate).toHaveBeenCalled();
-      expect(navigate.mock.calls[0][0]).toBe('/patrols/new?patrolType=1234');
+      expect(navigate.mock.calls[0][0]).toBe('/patrols/new?patrol-type=1234');
       expect(navigate.mock.calls[0][1]).toHaveProperty('replace');
       expect(navigate.mock.calls[0][1]).toHaveProperty('state');
       expect(navigate.mock.calls[0][1].state).toHaveProperty('temporalId');
@@ -275,7 +274,7 @@ describe('PatrolDetailView', () => {
     const actions = builtStore.getActions();
 
     await waitFor(() => {
-      expect(actions[0].type).toBe('UPDATE_PATROL_SUCCESS');
+      expect(actions[0].type).toBe(UPDATE_PATROL_SUCCESS);
     });
   });
 
@@ -289,7 +288,7 @@ describe('PatrolDetailView', () => {
     const actions = builtStore.getActions();
 
     await waitFor(() => {
-      actions.forEach((action) => expect(action.type).not.toBe('UPDATE_PATROL_SUCCESS'));
+      actions.forEach((action) => expect(action.type).not.toBe(UPDATE_PATROL_SUCCESS));
     });
   });
 
@@ -302,7 +301,7 @@ describe('PatrolDetailView', () => {
     const actions = builtStore.getActions();
 
     await waitFor(() => {
-      actions.forEach((action) => expect(action.type).not.toBe('UPDATE_PATROL_SUCCESS'));
+      actions.forEach((action) => expect(action.type).not.toBe(UPDATE_PATROL_SUCCESS));
     });
   });
 
@@ -311,7 +310,7 @@ describe('PatrolDetailView', () => {
 
     const titleInput = await screen.findByTestId('patrolDetailView-header-title');
 
-    expect(titleInput).toHaveTextContent('Unknown patrol type');
+    expect(titleInput).toHaveTextContent('Dog Patrol');
 
     await userEvent.type(titleInput, '2');
 
@@ -353,7 +352,7 @@ describe('PatrolDetailView', () => {
     const startTimePicker = await screen.findByTestId('patrolDetailView-planSection-startTimePicker');
     const startTimePickerOpenOptionsButton = await within(startTimePicker).findByLabelText('Open time options');
     await userEvent.click(startTimePickerOpenOptionsButton);
-    const optionsList = await screen.findByTestId('timePicker-OptionsList');
+    const optionsList = await screen.findByTestId('timePicker-optionsList');
     const timeOptionsListItems = await within(optionsList).findAllByRole('option');
     await userEvent.click(timeOptionsListItems[2]);
 
@@ -414,7 +413,7 @@ describe('PatrolDetailView', () => {
     const endTimePicker = await screen.findByTestId('patrolDetailView-planSection-endTimePicker');
     const endTimePickerOpenOptionsButton = await within(endTimePicker).findByLabelText('Open time options');
     await userEvent.click(endTimePickerOpenOptionsButton);
-    const optionsList = await screen.findByTestId('timePicker-OptionsList');
+    const optionsList = await screen.findByTestId('timePicker-optionsList');
     const timeOptionsListItems = await within(optionsList).findAllByRole('option');
     await userEvent.click(timeOptionsListItems[2]);
 
@@ -637,8 +636,8 @@ describe('PatrolDetailView', () => {
       const cancelButton = await screen.findByText('Cancel');
       await userEvent.click(cancelButton);
 
-      await screen.findByText('Unsaved Changes');
-      await screen.findByText('There are unsaved changes. Would you like to go back, discard the changes, or save and continue?');
+      expect(await screen.findByText('Unsaved Changes')).toBeInTheDocument();
+      expect(await screen.findByText('There are unsaved changes. Would you like to go back, discard the changes, or save and continue?')).toBeInTheDocument();
     });
 
     test('saving unsaved changes', async () => {

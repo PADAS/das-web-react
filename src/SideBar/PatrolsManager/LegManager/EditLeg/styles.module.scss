@@ -1,0 +1,18 @@
+@use '../../../../common/styles/vars/colors';
+@use '../../_shared' as shared;
+
+.editLeg {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  .body {
+    background: colors.$light-gray-background;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 1rem 0;
+  }
+
+  @include shared.detail-view-width;
+}

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import PinField from 'react-pin-field';
@@ -25,6 +25,8 @@ const ProfilePINModal = ({ onSuccess, profile }) => {
     }
   }, [error]);
 
+  // Only the React Compiler needs these dependencies to line up.
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const onComplete = useCallback((pin) => {
     if (pin !== profile.pin.toString()) {
       return setError(true);

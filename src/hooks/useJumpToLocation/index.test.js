@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
+import { Provider } from 'react-redux';
 import { render, waitFor } from '@testing-library/react';
 import { useLocation as useRouterLocation } from 'react-router';
 
 import { createMapMock } from '../../__test-helpers/mocks';
-import { MapContext } from '../../App';
+import { MapContext } from '../../MapContext';
+import { mockStore } from '../../__test-helpers/MockStore';
 import useJumpToLocation from './';
 import { useMatchMedia } from '../';
 
@@ -40,9 +42,11 @@ describe('useJumpToLocation', () => {
   };
 
   const renderTestComponent = (coords, zoom = 15) => render(
-    <MapContext.Provider value={map}>
-      <TestComponent coordinates={coords} zoom={zoom} />
-    </MapContext.Provider>
+    <Provider store={mockStore({ view: { userPreferences: {} } })}>
+      <MapContext.Provider value={map}>
+        <TestComponent coordinates={coords} zoom={zoom} />
+      </MapContext.Provider>
+    </Provider>
   );
 
   test('fits the bounds of the coordinates in the map when there are multiple coordinates', async () => {
@@ -55,10 +59,10 @@ describe('useJumpToLocation', () => {
 
     await waitFor(() => {
       expect(map.fitBounds).toHaveBeenCalledTimes(1);
-      expect(map.fitBounds).toHaveBeenCalledWith({
-        _ne: { lat: 21.75709101172957, lng: -104.19557197413907 },
-        _sw: { lat: 20.75709101172957, lng: -105.19557197413907 },
-      }, { linear: true, padding: { top: 12, right: 90, bottom: 12, left: 12 }, speed: 200 });
+      expect(map.fitBounds).toHaveBeenCalledWith([
+        [-105.19557197413907, 20.75709101172957],
+        [-104.19557197413907, 21.75709101172957],
+      ], { linear: true, padding: { top: 12, right: 90, bottom: 12, left: 12 }, speed: 200 });
     });
   });
 
@@ -78,7 +82,7 @@ describe('useJumpToLocation', () => {
     });
   });
 
-  test('fits multi-dimensional coordinates into map boundaries ', async () => {
+  test('fits multi-dimensional coordinates into map boundaries', async () => {
     const mapBoundaries = {
       start: [-104.19557197413907, 20.75709101172957],
       end: [-45.19557197413907, 65.75709101172957]
@@ -89,16 +93,10 @@ describe('useJumpToLocation', () => {
     renderTestComponent(coordinates);
 
     await waitFor(() => {
-      const mapBoundariesParam = {
-        '_ne': {
-          lat: endingMapBoundary[1],
-          lng: endingMapBoundary[0],
-        },
-        '_sw': {
-          lat: startingMapBoundary[1],
-          lng: startingMapBoundary[0],
-        }
-      };
+      const mapBoundariesParam = [
+        [startingMapBoundary[0], startingMapBoundary[1]],
+        [endingMapBoundary[0], endingMapBoundary[1]],
+      ];
       const mapConfigsParam = {
         linear: true,
         padding: {
@@ -111,6 +109,23 @@ describe('useJumpToLocation', () => {
       };
       expect(map.fitBounds).toHaveBeenCalledTimes(1);
       expect(map.fitBounds).toHaveBeenCalledWith(mapBoundariesParam, mapConfigsParam);
+    });
+  });
+
+  test('fits the bounds of deeply nested polygon rings', async () => {
+    const coordinates = [
+      [[-104.19557197413907, 20.75709101172957], [-90.19557197413907, 30.75709101172957]],
+      [[-45.19557197413907, 65.75709101172957], [-66.19557197413907, 26.75709101172957]],
+    ];
+
+    renderTestComponent(coordinates);
+
+    await waitFor(() => {
+      expect(map.fitBounds).toHaveBeenCalledTimes(1);
+      expect(map.fitBounds).toHaveBeenCalledWith([
+        [-104.19557197413907, 20.75709101172957],
+        [-45.19557197413907, 65.75709101172957],
+      ], { linear: true, padding: { top: 12, right: 90, bottom: 12, left: 12 }, speed: 200 });
     });
   });
 
@@ -142,7 +157,7 @@ describe('useJumpToLocation', () => {
       expect(map.easeTo).toHaveBeenCalledTimes(1);
       expect(map.easeTo).toHaveBeenCalledWith({
         center: [-104.19557197413907, 20.75709101172957],
-        padding: { top: 12, right: 90, bottom: 12, left: 592 },
+        padding: { top: 12, right: 90, bottom: 12, left: 646 },
         speed: 200,
         zoom: 12,
       });
@@ -152,6 +167,7 @@ describe('useJumpToLocation', () => {
   test('sets the right padding if a sidebar tab is open in detail view', async () => {
     useRouterLocationMock = jest.fn(() => ({ pathname: '/events/123' }),);
     useRouterLocation.mockImplementation(useRouterLocationMock);
+    jest.replaceProperty(window, 'innerWidth', 1440);
 
     const coordinates = [-104.19557197413907, 20.75709101172957];
 
@@ -161,10 +177,52 @@ describe('useJumpToLocation', () => {
       expect(map.easeTo).toHaveBeenCalledTimes(1);
       expect(map.easeTo).toHaveBeenCalledWith({
         center: [-104.19557197413907, 20.75709101172957],
-        padding: { top: 12, right: 90, bottom: 12, left: 736 },
+        padding: { top: 12, right: 90, bottom: 12, left: 806 },
         speed: 200,
         zoom: 12,
       });
+    });
+  });
+
+  test('keeps the bounds it fits clear of an open sidebar', async () => {
+    useRouterLocationMock = jest.fn(() => ({ pathname: '/patrols/123' }),);
+    useRouterLocation.mockImplementation(useRouterLocationMock);
+    jest.replaceProperty(window, 'innerWidth', 1440);
+
+    const coordinates = [
+      [-104.19557197413907, 20.75709101172957],
+      [-105.19557197413907, 21.75709101172957],
+    ];
+
+    renderTestComponent(coordinates);
+
+    await waitFor(() => {
+      expect(map.fitBounds).toHaveBeenCalledTimes(1);
+      expect(map.fitBounds).toHaveBeenCalledWith([
+        [-105.19557197413907, 20.75709101172957],
+        [-104.19557197413907, 21.75709101172957],
+      ], { linear: true, padding: { top: 12, right: 90, bottom: 12, left: 806 }, speed: 200 });
+    });
+  });
+
+  test('leaves the map room to fit into when the sidebar takes up most of the window', async () => {
+    useRouterLocationMock = jest.fn(() => ({ pathname: '/patrols/123' }),);
+    useRouterLocation.mockImplementation(useRouterLocationMock);
+    jest.replaceProperty(window, 'innerWidth', 700);
+
+    const coordinates = [
+      [-104.19557197413907, 20.75709101172957],
+      [-105.19557197413907, 21.75709101172957],
+    ];
+
+    renderTestComponent(coordinates);
+
+    await waitFor(() => {
+      expect(map.fitBounds).toHaveBeenCalledTimes(1);
+      expect(map.fitBounds).toHaveBeenCalledWith([
+        [-105.19557197413907, 20.75709101172957],
+        [-104.19557197413907, 21.75709101172957],
+      ], { linear: true, padding: { top: 12, right: 90, bottom: 12, left: 460 }, speed: 200 });
     });
   });
 

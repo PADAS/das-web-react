@@ -1,6 +1,6 @@
 import { useContext }  from 'react';
 import { featureCollection } from '@turf/turf';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { useSelector } from 'react-redux';
 
 import { getMapEventFeatureCollectionByTypeWithVirtualDate } from '../selectors/events';

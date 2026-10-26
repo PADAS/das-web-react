@@ -1,10 +1,10 @@
-import React, { memo, useCallback, useContext } from 'react';
+import { memo, useCallback, useContext } from 'react';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 import MoonLoader from 'react-spinners/MoonLoader';
 import { useTranslation } from 'react-i18next';
 
 import { TAB_KEYS } from '../constants';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { ScrollRestoration } from '../SidebarScrollContext';
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
 

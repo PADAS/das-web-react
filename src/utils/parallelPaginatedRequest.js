@@ -47,7 +47,7 @@ async function parallelPaginatedRequest(apiUrl, requestConfig = {}, { itemsPerPa
 
   const processPage = async (page) => {
     const response = await fetchPage(apiUrl, requestConfig, page, itemsPerPage, maxRetries);
-    if (!!response) {
+    if (response) {
       onPageFetch?.(response);
       requestResults = requestResults.concat(response.results);
     }

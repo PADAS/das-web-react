@@ -11,12 +11,23 @@
       },
       "addReportTabTitle": "Ajouter un Événement"
     },
+    "defaultLabel": "Ajouter un Événement ou une Patrouille",
     "defaultTitle": "Ajouter"
   },
   "choiceList": {
     "select": {
       "noOptionsMessage": "Aucune option à afficher"
     }
+  },
+  "communityPage": {
+    "coolOffChooseAnotherType": "Choisir un autre type d'événement",
+    "coolOffMessage": "Vous avez récemment soumis un formulaire {{eventType}}. Vous pourrez en soumettre un autre dans {{timeRemaining}}.",
+    "coolOffTimeRemaining": "Temps restant : {{timeRemaining}}",
+    "coolOffTitle": "Veuillez patienter avant de soumettre à nouveau",
+    "coolOffTypeUnavailable": "Disponible dans {{timeRemaining}}",
+    "formSubmitted": "Envoyé avec succès",
+    "invalidCommunityUrl": "URL de communauté non valide",
+    "searchPlaceholder": "Rechercher des types d'événement..."
   },
   "datePicker": {
     "calendarPopper": {
@@ -56,6 +67,7 @@
     "shareLocationToastTitle": "Comment faire?"
   },
   "getUserLocationButton": {
+    "cancelButtonLabel": "Annuler",
     "errorToastMessage": "Impossible de lire votre position actuelle : {{errorMessage}}",
     "loadingOverlayMessage": "Tentative de lecture de votre position...",
     "userLocationButtonLabel": "Obtenir la position actuelle"
@@ -98,6 +110,7 @@
     "menuPopover": {
       "dialogLabel": "Emplacement",
       "getUserLocationButton": "Utiliser ma position",
+      "permissionBlockedMessage": "Partage de position bloqué par le navigateur. Autorisez-le dans les paramètres du navigateur.",
       "pickMapLocationButton": "Définir sur la carte"
     },
     "setLocationButtonLabel": {
@@ -145,12 +158,6 @@
     "instructionsPopupLabel": "Cliquez pour sélectionner un emplacement",
     "pickLocationButtonLabel": "Sélectionnez un emplacement sur la carte"
   },
-  "priorityPicker": {
-    "amber": "Ambre",
-    "green": "Verte",
-    "none": "Aucune",
-    "red": "Rouge"
-  },
   "numericInput": {
     "numericInputLabel": "Champ numérique",
     "incrementValueNumericInputButtonLabel": "Bouton d'incrémentation de la valeur numérique",
@@ -172,6 +179,11 @@
       "radioIcon": "Icône de radio pour"
     }
   },
+  "reporterSelect": {
+    "allReportersGroupLabel": "Tous",
+    "recentRadiosGroupLabel": "Radios récentes",
+    "restrictedReporterLabel": "RESTRICTION"
+  },
   "schemaFields": {
     "addButton": {
       "content": "Ajouter",
@@ -191,11 +203,38 @@
     "clearButtonLabel": "Effacer la barre de recherche",
     "defaultPlaceholder": "Recherche...."
   },
+  "select": {
+    "noOptionsMessage": "Aucune option à afficher"
+  },
   "serviceWorkerWatcher": {
     "confirmNotification": "Recharger",
     "newVersionAvailableNotification": "Une nouvelle version de EarthRanger est disponible. Elle sera appliquée la prochaine fois que vous actualiserez votre navigateur. "
   },
   "sideBar": {
+    "addEventButtonLabel": "Ajouter un Événement",
+    "addEventButtonTitle": "Ajouter un Événement",
+    "addPatrolButtonLabel": "Ajouter une Patrouille",
+    "addPatrolButtonTitle": "Ajouter une Patrouille",
+    "backButtonLabel": "Revenir en arrière",
+    "backButtonTitle": "Retour",
+    "closeButtonLabel": "Fermer la barre latérale",
+    "detailViewHeader": {
+      "closeButtonLabel": "Fermer la barre latérale"
+    },
+    "eventsLink": "Événements",
+    "gearLink": "Engins",
+    "gearTab": {
+      "loadErrorFallback": "Échec de la requête",
+      "loadErrorIntro": "Impossible de charger les engins depuis le serveur.",
+      "loading": "Mise à jour…",
+      "loadingInitial": "Chargement des engins…",
+      "loadingList": "Chargement de la liste complète…",
+      "noSearchResults": "Aucun ensemble ne correspond à la recherche.",
+      "retryButton": "Réessayer",
+      "searchFormAriaLabel": "Rechercher des engins",
+      "searchPlaceholder": "Rechercher par nom",
+      "unknownManufacturer": "Autre"
+    },
     "layersLink": "Calques",
     "mapLayersTab": {
       "analyzersTabTitle": "Barriere Virtuelle",
@@ -205,12 +244,23 @@
       "featuresTabTitle": "Calques",
       "subjectsTabTitle": "Appareils Suivis"
     },
-    "patrolsLink": "Patrouilles",
-    "reportsFeedTab": {
-      "fetchReportsErrorMessage": "Impossible de charger les événements. Veuillez réessayer.",
-      "tryAgainButton": "Réessayez"
+    "otusLink": "Otus",
+    "otusTab": {
+      "header": {
+        "betaBadgeLabel": "Bêta",
+        "closeButtonLabel": "Fermer Otus",
+        "newConversationButtonLabel": "Nouvelle conversation",
+        "recentButtonLabel": "Récentes",
+        "title": "Otus"
+      },
+      "iframeTitle": "Discussion avec Otus",
+      "loadErrorMessage": "Otus n’a pas pu se charger sur ce site. Réessayez ou contactez l’équipe de Soutien si le problème persiste.",
+      "loadingMessage": "Chargement d’Otus…",
+      "resizeHandleLabel": "Redimensionner le panneau Otus",
+      "retryButtonLabel": "Réessayer"
     },
-    "eventsLink": "Événements",
+    "patrolsLink": "Patrouilles",
+    "settingsLink": "Réglages",
     "settingsPane": {
       "alertsFrameTitle": "Configurer vos alertes EarthRanger",
       "alertsTabTitle": "Alertes",
@@ -224,7 +274,6 @@
           "patrolFiltersCheckboxLabel": "Filtres de patrouilles"
         },
         "experimentalFeaturesFieldSet": {
-          "CUSTOM_COORDINATE_SYSTEMS_ENABLED": "Systèmes de référence de coordonnées",
           "legend": "Fonctionnalités expérimentales"
         },
         "languageSelect": {
@@ -318,7 +367,9 @@
       },
       "mapTabTitle": "Carte"
     },
-    "settingsLink": "Réglages"
+    "titleInput": {
+      "editButtonLabel": "Modifier le titre"
+    }
   },
   "soundNotificationsPlayer": {
     "alarmRadioStateToastMessage": "TODO"
@@ -334,13 +385,19 @@
     "periodInputLabel": "Partie de la journée"
   },
   "timeSlider": {
-    "popoverHeader": "Intervalle de Dates",
-    "popoverResetButton": "Réinitialiser",
-    "slider": "Curseur Temporel",
+    "closeButtonLabel": "Fermer le curseur temporel",
+    "dateRangeButtonLabel": "Modifier la plage de dates",
+    "endDateNowSliderLabel": "Maintenant",
+    "sliderLabel": "Curseur Temporel",
+    "speedButtonLabel": "Ouvrir les options de vitesse de lecture",
+    "speedMenuHeader": "Vitesse de Lecture",
+    "speedMenuLabel": "Options de vitesse de lecture",
+    "speedMenuOptionLabel": "Définir la vitesse de lecture sur {{speed}}",
     "timeSliderMapControl": {
       "iconTitle": "Curseur Temporel"
     },
-    "untilNowButton": "Maintenant"
+    "playButtonLabel": "Lancer le curseur temporel",
+    "stopButtonLabel": "Arrêter le curseur temporel"
   },
   "toastBody": {
     "defaultLinkTitle": "Cliquez ici  ",

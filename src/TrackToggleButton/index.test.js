@@ -1,5 +1,3 @@
-import React from 'react';
-
 import TrackToggleButton from './';
 import { render, screen, userEvent, waitFor } from '../test-utils';
 
@@ -11,7 +9,7 @@ const renderTrackToggleButton = (trackVisible = true, trackPinned = true, showLa
 );
 
 test('rendering without crashing', () => {
-  renderTrackToggleButton();
+  expect(() => renderTrackToggleButton()).not.toThrow();
 });
 
 test('call onClick', () => {

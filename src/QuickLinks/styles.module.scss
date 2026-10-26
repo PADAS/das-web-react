@@ -1,5 +1,5 @@
-@import '../common/styles/layout';
-@import '../common/styles/vars/colors';
+@use '../common/styles/layout';
+@use '../common/styles/vars/colors';
 
 .navigationBar {
   display: flex;
@@ -7,7 +7,7 @@
   min-width: 3rem;
   background-color: white;
   
-  @media (min-width: $md-layout-width-min) {
+  @media (min-width: layout.$md-layout-width-min) {
     min-width: 4.5rem;
   }
 
@@ -16,27 +16,27 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    color: $secondary-light-gray;
+    color: colors.$secondary-light-gray;
     font-size: 0.625rem;
     height: 3rem;
     padding: 0;
     cursor: pointer;
-    border-bottom: 1px solid rgba(177, 179, 179, 0.25);
+    border-bottom: 1px solid rgb(177 179 179 / 25%);
 
     &:hover {
-      color: $bright-blue !important;
-      background-color: $very-light-blue !important;
+      color: colors.$bright-blue !important;
+      background-color: colors.$very-light-blue !important;
       font-weight: bold;
   
       svg {
-        color: $bright-blue;
+        color: colors.$bright-blue;
       }
     }
 
     svg {
-      color: $secondary-light-gray;
+      color: colors.$secondary-light-gray;
       
-      @media (min-width: $md-layout-width-min) {
+      @media (min-width: layout.$md-layout-width-min) {
         margin-bottom: 0.5rem;
       }
     }
@@ -44,54 +44,54 @@
     span {
       display: none;
 
-      @media (min-width: $md-layout-width-min) {
+      @media (min-width: layout.$md-layout-width-min) {
         display: block;
       }
     }
 
-    @media (min-width: $md-layout-width-min) {
+    @media (min-width: layout.$md-layout-width-min) {
       height: 5.5rem;
     }
   }
 
-  [class*=active] {
-    color: $bright-blue !important;
-    background-color: $very-light-blue !important;
+  [class*="active"] {
+    color: colors.$bright-blue !important;
+    background-color: colors.$very-light-blue !important;
     font-weight: bold;
 
     svg {
-      color: $bright-blue;
+      color: colors.$bright-blue;
     }
   }
 
-  [class*=active] ~ [class*=active] {
-    color: $secondary-light-gray !important;
+  [class*="active"] ~ [class*="active"] {
+    color: colors.$secondary-light-gray !important;
     background-color: white !important;
     font-weight: normal;
 
     &:hover {
-      color: $bright-blue !important;
-      background-color: $very-light-blue !important;
+      color: colors.$bright-blue !important;
+      background-color: colors.$very-light-blue !important;
       font-weight: bold;
   
       svg {
-        color: $bright-blue;
+        color: colors.$bright-blue;
       }
     }
 
     svg {
-      color: $secondary-light-gray;
+      color: colors.$secondary-light-gray;
     }
   }
 }
 
 .sectionsWrapper {
-  background-color: $very-light-gray;
+  background-color: colors.$very-light-gray;
   overflow-x: hidden;
   width: 100%;
   height: 100%;
 
-  &[class*=readonly] {
+  &[class*="readonly"] {
     cursor: not-allowed;
   }
 }

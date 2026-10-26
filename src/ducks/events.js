@@ -1,10 +1,12 @@
 import axios, { CancelToken, isCancel } from 'axios';
 import union from 'lodash/union';
 
-import { API_URL, TAB_KEYS } from '../constants';
+import { API_URL, API_V2_URL, PREVIEW_FEATURES, REALTIME_OVERLAY_WINDOW_MS, TAB_KEYS } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
-import { getBboxParamsFromMap } from '../utils/query';
+import { addRealtimeOverlayEvent, removeRealtimeOverlayEvent } from './events-realtime-overlay';
 import { generateErrorMessageForRequest } from '../utils/request';
+import { getBboxParamsFromMap, objectToParamString } from '../utils/query';
+import { getPreviewFeatureValue } from '../utils/feature-flags';
 import { addNormalizingPropertiesToEventDataFromAPI, eventBelongsToCollection,
   uniqueEventIds, validateReportAgainstCurrentEventFilter } from '../utils/events';
 import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
@@ -14,12 +16,15 @@ import { calcLocationParamStringForUserLocationCoords } from '../utils/location'
 import parallelPaginatedQuery from '../utils/parallelPaginatedRequest';
 import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
 
-export const EVENTS_API_URL = (
-  import.meta.env.REACT_APP_MOCK_EVENTS_API === 'true'
-  && import.meta.env.DEV
-) ? '/api/v1.0/activity/events/'
-  : `${API_URL}activity/events`;
+export const EVENTS_API_URL = `${API_URL}activity/events`;
 export const EVENT_API_URL = `${API_URL}activity/event/`;
+
+export const COMMUNITY_EVENTS_API_URL = (communityValue) =>
+  `${API_V2_URL}community/${communityValue}/activity/events/`;
+export const COMMUNITY_EVENT_NOTES_URL = (communityValue, eventId) =>
+  `${API_V2_URL}community/${communityValue}/activity/events/${eventId}/notes/`;
+export const COMMUNITY_EVENT_FILES_URL = (communityValue, eventId) =>
+  `${API_V2_URL}community/${communityValue}/activity/events/${eventId}/files/`;
 
 // actions
 const CLEAR_EVENT_DATA = 'CLEAR_EVENT_DATA';
@@ -37,7 +42,7 @@ const SET_EVENT_STATE_ERROR = 'SET_EVENT_STATE_ERROR';
 export const UPDATE_EVENT_START = 'UPDATE_EVENT_START';
 const UPDATE_EVENT_SUCCESS = 'UPDATE_EVENT_SUCCESS';
 const UPDATE_EVENT_ERROR = 'UPDATE_EVENT_ERROR';
-const REMOVE_EVENT_BY_ID = 'REMOVE_EVENT_BY_ID';
+export const REMOVE_EVENT_BY_ID = 'REMOVE_EVENT_BY_ID';
 
 const UPLOAD_EVENT_FILES_START = 'UPLOAD_EVENT_FILES_START';
 const UPLOAD_EVENT_FILES_SUCCESS = 'UPLOAD_EVENT_FILES_SUCCESS';
@@ -62,7 +67,7 @@ const FETCH_MAP_EVENTS_PAGE_SUCCESS = 'FETCH_MAP_EVENTS_PAGE_SUCCESS';
 
 const NEW_EVENT_TYPE = 'new_event';
 export const SOCKET_EVENT_DATA = 'SOCKET_EVENT_DATA';
-const UPDATE_EVENT_STORE = 'UPDATE_EVENT_STORE';
+export const UPDATE_EVENT_STORE = 'UPDATE_EVENT_STORE';
 
 const shouldAppendLocationToRequest = (state) => {
   const currentUser = state?.data?.selectedUserProfile?.username
@@ -80,7 +85,7 @@ const excludeOpenEventIfAlreadyInEventStore = (events, eventStore) => {
   return events;
 };
 
-export const socketEventData = (payload) => (dispatch) => {
+export const socketEventData = (payload) => (dispatch, getState) => {
   const { count, event_id, event_data, matches_current_filter, type } = payload;
 
   if (!matches_current_filter) {
@@ -108,6 +113,14 @@ export const socketEventData = (payload) => (dispatch) => {
     type: UPDATE_EVENT_STORE,
     payload: [event_data],
   });
+
+  const eventVectorTilesEnabled = getPreviewFeatureValue(getState(), PREVIEW_FEATURES.EVENTS_VECTOR_TILES);
+  if (eventVectorTilesEnabled) {
+    // Add or remove the event from the events realtime overlay depending on
+    // whether it matches the current filter since the tile won't be updated
+    // yet.
+    dispatch(matches_current_filter ? addRealtimeOverlayEvent(event_id) : removeRealtimeOverlayEvent(event_id));
+  }
 };
 
 
@@ -137,13 +150,8 @@ const fetchNamedFeedActionCreator = (name) => {
     })
       .then((response) => {
         if (typeof response !== 'undefined') { /* response === undefined for canceled requests. it's not an error, but it's a no-op for state management */
-          dispatch(updateEventStore(...excludeOpenEventIfAlreadyInEventStore(response.data.data.results, state.data.eventStore)));
+          dispatch(updateEventStore(...excludeOpenEventIfAlreadyInEventStore(response.data.data.results, getState().data.eventStore)));
 
-          if (
-            !response.data.data.results.length
-          || (validateReportAgainstCurrentEventFilter(response.data.data.results[0], { getState })) /* extra layer of validation for async query race condition edge cases */
-          ) {
-          }
           dispatch({
             name,
             type: FEED_FETCH_SUCCESS,
@@ -163,8 +171,6 @@ const fetchNamedFeedActionCreator = (name) => {
   };
 
   const fetchNextPageFn = url => (dispatch, getState) => {
-    const state = getState();
-
     cancelToken.cancel();
     cancelToken = CancelToken.source();
 
@@ -172,7 +178,7 @@ const fetchNamedFeedActionCreator = (name) => {
       cancelToken: cancelToken.token,
     })
       .then(response => {
-        dispatch(updateEventStore(...excludeOpenEventIfAlreadyInEventStore(response.data.data.results, state.data.eventStore)));
+        dispatch(updateEventStore(...excludeOpenEventIfAlreadyInEventStore(response.data.data.results, getState().data.eventStore)));
         dispatch({
           name,
           type: FEED_FETCH_NEXT_PAGE_SUCCESS,
@@ -200,7 +206,7 @@ export const clearEventData = () => ({
   type: CLEAR_EVENT_DATA,
 });
 
-export const createEvent = event => (dispatch, getState) => {
+export const createEvent = (event, communityInputValue = null) => (dispatch, getState) => {
   const params = {};
   const state = getState();
 
@@ -213,7 +219,8 @@ export const createEvent = event => (dispatch, getState) => {
     payload: event,
   });
 
-  return axios.post(EVENTS_API_URL, event, { params })
+  const url = communityInputValue ? COMMUNITY_EVENTS_API_URL(communityInputValue) : EVENTS_API_URL;
+  return axios.post(url, event, { params, ...(communityInputValue ? { skipAuth: true } : {}) })
     .then((response) => {
       dispatch({
         type: CREATE_EVENT_SUCCESS,
@@ -231,7 +238,7 @@ export const createEvent = event => (dispatch, getState) => {
     });
 };
 
-export const addNoteToEvent = (event_id, note) => (dispatch, getState) => {
+export const addNoteToEvent = (event_id, note, communityInputValue = null) => (dispatch, getState) => {
   const params = {};
   const state = getState();
 
@@ -243,7 +250,10 @@ export const addNoteToEvent = (event_id, note) => (dispatch, getState) => {
     type: ADD_EVENT_NOTE_START,
     payload: note,
   });
-  return axios.post(`${EVENT_API_URL}${event_id}/notes/`, note, { params })
+  const notesUrl = communityInputValue
+    ? COMMUNITY_EVENT_NOTES_URL(communityInputValue, event_id)
+    : `${EVENT_API_URL}${event_id}/notes/`;
+  return axios.post(notesUrl, note, { params, ...(communityInputValue ? { skipAuth: true } : {}) })
     .then((response) => {
       dispatch({
         type: ADD_EVENT_NOTE_SUCCESS,
@@ -292,7 +302,10 @@ export const fetchEvent = (event_id, parameters = {}) =>
       });
   };
 
-export const updateEvent = (event) => (dispatch, getState) => {
+// Community reports are always new (no id), so the save pipeline (generateSaveActionsForReportLikeObject)
+// routes them to createEvent, never here — and there is no community event-update endpoint. The
+// communityInputValue arg is accepted only for save-action signature parity and is intentionally unused.
+export const updateEvent = (event, _communityInputValue = null) => (dispatch, getState) => {
   const params = {};
   const state = getState();
 
@@ -370,8 +383,10 @@ export const setEventState = (id, state) => (dispatch, getState) => {
     });
 };
 
-export const uploadEventFile = (event_id, file) => (dispatch, getState) => {
-  const uploadUrl = `${EVENT_API_URL}${event_id}/files/`;
+export const uploadEventFile = (event_id, file, communityInputValue = null) => (dispatch, getState) => {
+  const uploadUrl = communityInputValue
+    ? COMMUNITY_EVENT_FILES_URL(communityInputValue, event_id)
+    : `${EVENT_API_URL}${event_id}/files/`;
   const params = {};
   const state = getState();
 
@@ -395,6 +410,7 @@ export const uploadEventFile = (event_id, file) => (dispatch, getState) => {
       'Content-Type': 'multipart/form-data',
     },
     params,
+    ...(communityInputValue ? { skipAuth: true } : {}),
   }).then((response) => {
     dispatch({
       type: UPLOAD_EVENT_FILES_SUCCESS,
@@ -477,6 +493,71 @@ export const fetchMapEvents = (map, parameters) => async (dispatch, getState) =>
 
       return Promise.reject(error);
     });
+};
+
+// Only one of these fetches runs at a time; a new call cancels the previous
+// one's request.
+let fetchRecentEventsIntoRealtimeOverlayCancelFn;
+
+export const cancelFetchRecentEventsIntoRealtimeOverlay = () => {
+  if (fetchRecentEventsIntoRealtimeOverlayCancelFn) {
+    fetchRecentEventsIntoRealtimeOverlayCancelFn();
+  }
+};
+
+// Fetches recently-updated events in the current viewport and reconciles each
+// with the overlay: events still matching the filter are shown, events that no
+// longer match are hidden.
+export const fetchRecentEventsIntoRealtimeOverlay = (map) => async (dispatch, getState) => {
+  if (!map) {
+    return Promise.resolve();
+  }
+
+  const params = {
+    bbox: await getBboxParamsFromMap(map),
+    // Limit to events changed within the overlay's retention window; bodies
+    // aren't needed here.
+    updated_since: new Date(Date.now() - REALTIME_OVERLAY_WINDOW_MS).toISOString(),
+    include_updates: false,
+    include_notes: false,
+    include_details: false,
+    include_related_events: false,
+  };
+
+  const state = getState();
+  if (shouldAppendLocationToRequest(state)) {
+    params.location = calcLocationParamStringForUserLocationCoords(state.view.userLocation.coords);
+  }
+
+  cancelFetchRecentEventsIntoRealtimeOverlay();
+
+  // Drop the state filter so resolved events come back too, they're needed
+  // below to decide which events to hide versus show.
+  const requestFilter = calcEventFilterForRequest({ params, format: 'object' });
+  delete requestFilter.state;
+  const eventFilterParamString = objectToParamString(requestFilter);
+
+  const cancelToken = new CancelToken((cancelFn) => { fetchRecentEventsIntoRealtimeOverlayCancelFn = cancelFn; });
+  try {
+    const results = await parallelPaginatedQuery(`${EVENTS_API_URL}?${eventFilterParamString}`, { cancelToken }, {});
+
+    if (results?.length) {
+      const recentEvents = excludeOpenEventIfAlreadyInEventStore(results, getState().data.eventStore);
+      dispatch(updateEventStore(...recentEvents));
+
+      // Decide show-vs-hide on state alone: it's always present on the event,
+      // so this avoids needing the notes/details we deliberately didn't fetch.
+      const stateFilter = getState().data.eventFilter?.state;
+      recentEvents.forEach((event) => {
+        const matchesStateFilter = !stateFilter || stateFilter.includes(event.state);
+        dispatch(matchesStateFilter ? addRealtimeOverlayEvent(event.id) : removeRealtimeOverlayEvent(event.id));
+      });
+    }
+  } catch (error) {
+    if (!cancelToken.reason && !isCancel(error)) {
+      console.warn('error fetching recent events into realtime overlay', error);
+    }
+  }
 };
 
 const fetchMapEventsComplete = results => (dispatch, getState) => {
@@ -599,7 +680,7 @@ export const eventStoreReducer = (state, { type, payload }) => {
           .map(({ related_event: { id } }) => state[id])
           .filter(item => !!item);
         incidentsToUpdate.forEach(incident => {
-          const toMerge = !!accumulator[incident.id] ? accumulator[incident.id] : incident;
+          const toMerge = accumulator[incident.id] ? accumulator[incident.id] : incident;
 
           accumulator[incident.id] = {
             ...toMerge,

@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
 
 import { BLOCKER_STATES, NavigationContext } from '../NavigationContextProvider';
@@ -29,6 +29,8 @@ const Link = ({ onClick, ...rest }) => {
 
   useEffect(() => {
     if (wasClicked && blocker.state === BLOCKER_STATES.PROCEEDING) {
+      // Updating state from this effect is intended.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSkipBlocker(true);
       setWasClicked(false);
 
@@ -40,6 +42,8 @@ const Link = ({ onClick, ...rest }) => {
 
   useEffect(() => {
     if (blocker.state === BLOCKER_STATES.UNBLOCKED) {
+      // Updating state from this effect is intended.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setWasClicked(false);
     }
   }, [blocker.state]);

@@ -1,64 +1,72 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
+import { useCallback, useImperativeHandle, useRef, useState } from 'react';
 
-import * as styles from './styles.module.scss';
+import { FOCUSABLE_SELECTOR } from '../constants';
 
-const ContextMenu = ({ children, className = '', disabled = false, options }) => {
-  const areaRef = useRef();
+import Menu, { FOCUS_INTENTS } from '../Menu';
 
-  const [contextMenuPosition, setContextMenuPosition] = useState(null);
+const isPointWithinRect = (point, rect) => point.x >= rect.left
+  && point.x <= rect.right
+  && point.y >= rect.top
+  && point.y <= rect.bottom;
 
-  const handleContextMenu = useCallback((event) => {
-    event.preventDefault();
+const ContextMenu = ({ 'aria-label': ariaLabel, children, isLoading = false, ref }) => {
+  const returnFocusRef = useRef(null);
 
-    if (!disabled) {
-      const bounds = event.currentTarget.getBoundingClientRect();
-      const x = event.clientX - bounds.left;
-      const y = event.clientY - bounds.top;
+  const [anchor, setAnchor] = useState(null);
+  const [show, setShow] = useState(false);
 
-      setContextMenuPosition({ x, y, flipHorizontally: x > (bounds.width / 2) });
-    }
-  }, [disabled]);
+  // Only the context menu key anchors the menu to an element, and a keyboard
+  // user expects to land on an option.
+  const isOpenedFromKeyboard = anchor instanceof Element;
 
-  useEffect(() => {
-    const onClick = () => setContextMenuPosition(null);
+  const hideMenu = useCallback(() => setShow(false), []);
 
-    const onContextMenu = (event) => {
-      if (!areaRef?.current?.contains(event.target)){
-        setContextMenuPosition(null);
+  const closeMenu = useCallback(() => {
+    hideMenu();
+
+    returnFocusRef.current?.focus({ preventScroll: true });
+  }, [hideMenu]);
+
+  useImperativeHandle(ref, () => ({
+    open: (contextMenuEvent) => {
+      contextMenuEvent.preventDefault();
+
+      // The menu takes no new action while the one it started is still running.
+      if (!isLoading) {
+        const point = { x: contextMenuEvent.clientX, y: contextMenuEvent.clientY };
+
+        // The context menu key reports no pointer over the area that listens.
+        const isFromPointer = isPointWithinRect(point, contextMenuEvent.currentTarget.getBoundingClientRect());
+
+        const focusedElement = document.activeElement;
+
+        // A click leaves focus on the page, and focus in a menu leaves with it,
+        // so a reopened menu keeps its target and a new one takes the area's.
+        returnFocusRef.current = !!focusedElement
+          && focusedElement !== document.body
+          && !focusedElement.closest('[role="menu"]')
+          ? focusedElement
+          : (show ? returnFocusRef.current : null) ?? contextMenuEvent.currentTarget.querySelector(FOCUSABLE_SELECTOR);
+
+        setAnchor(isFromPointer ? point : contextMenuEvent.target);
+        setShow(true);
       }
-    };
+    },
+  }), [isLoading, show]);
 
-    window.addEventListener('click', onClick);
-    window.addEventListener('contextmenu', onContextMenu);
-
-    return () => {
-      window.removeEventListener('click', onClick);
-      window.removeEventListener('contextmenu', onContextMenu);
-    };
-  }, []);
-
-  return <div
-      className={`${styles.menuArea} ${className}`}
-      data-testid="contextMenu-area"
-      onContextMenu={handleContextMenu}
-      ref={areaRef}
-    >
-    <div
-      className={`${styles.menuPositionReference} ${!contextMenuPosition ? styles.hidden : ''}`}
-      data-testid="contextMenu-positionReference"
-      style={{
-        left: `${contextMenuPosition?.x}px`,
-        top: `${contextMenuPosition?.y}px`,
-      }}
-    >
-      <Dropdown.Menu className={contextMenuPosition?.flipHorizontally ? styles.flipHorizontally : ''} show>
-        {options}
-      </Dropdown.Menu>
-    </div>
-
+  // The point it opened at belongs to no element, so it means nothing once
+  // anything scrolls.
+  return <Menu
+    anchor={anchor}
+    aria-label={ariaLabel}
+    focusIntent={isOpenedFromKeyboard ? FOCUS_INTENTS.FIRST_OPTION : FOCUS_INTENTS.MENU}
+    onClose={closeMenu}
+    onHide={hideMenu}
+    shouldHideOnScroll
+    show={show}
+  >
     {children}
-  </div>;
+  </Menu>;
 };
 
-export default memo(ContextMenu);
+export default ContextMenu;

@@ -1,66 +1,87 @@
 {
-    "activitySection": {
-        "collapseAllButton": "Minimizar",
-        "dateItemStartTitle": "Iniciado",
-        "dateItemEndedTitle": "Finalizado",
-        "expandAllButton": "Expandir",
-        "sectionTitle": "Atividade",
-        "timeLabel": "Hora"
-    },
-    "addAttachmentButton": "Arquivo anexo",
-    "addReportButtonLabel": "Criar Evento",
-    "addReportButtonTitle": "Evento",
-    "addNoteButton": "Anotação",
-    "attachmentControls": {
-        "addNoteTitle": "Adicionar anotação",
-        "addAttachmentTitle": "Anexar arquivo"
-    },
-    "attachmentListItem": {
-        "imagePreviewAlt": "{{fileName}} pré-visualização",
-        "downloadButtonTooltip": "Baixar",
-        "deleteButtonTooltip": "Apagar",
-        "fullViewButtonTooltip": "Visão geral"
-    },
-    "footer": {
-        "cancelButton": "Cancelar",
-        "saveButton": "Salvar",
-        "stateResolveButton": "Salvar e resolver",
-        "stateReopenButton": "Salvar e reabrir"
-    },
-    "goToReportButtonTooltip": "Ir a Evento",
-    "header": {
-        "historyLinkCreated": "Criado",
-        "historyLinkUpdated": "Atualizado",
-        "resolvedLabel": "Resolvido",
-        "sectionTitle": "Histórico"
-    },
-    "historySection": {
-        "sectionTitle": "Histórico",
-        "timeLabel": "Hora"
-    },
-    "imageModal": {
-        "errorTitle": "Erro ao carregar a imagem.",
-        "errorMessage": "Se você carregou este arquivo recentemente, espere um minuto e tente novamente."
-    },
-    "navigationPromptModal": {
-        "cancelNavigationButtonText": "Voltar",
-        "continueNavigationNegativeButtonText": "Descartar",
-        "continueNavigationPositiveButtonText": "Salvar",
-        "description": "Há alterações não salvas. Você gostaria de voltar, descartar as alterações ou salvar e continuar?",
-        "title": "Alterações não salvas"
-    },
-    "noteListItem": {
-        "cancelEditingNoteButton": "Cancelar",
-        "deleteNoteButtonTooltip": "Apagar",
-        "doneEditingNoteButton": "Finalizar",
-        "editNoteButtonTooltip": "Editar",
-        "noteTitle": "Nova anotação"
-    },
-    "reportFormSummary": {
-        "reportTypeLabel": "Tipo de evento",
-        "reportedByLabel": "Reportado por"
-    },
-    "v2SchemaFormSummary": {
-        "collectionHumanizedValue": "{{collectionLength}} itens"
-    }
+  "activitySection": {
+    "collapseAllButton": "Minimizar",
+    "dateItemStartTitle": "Iniciado",
+    "dateItemEndedTitle": "Finalizado",
+    "expandAllButton": "Expandir",
+    "sectionTitle": "Atividade",
+    "timeLabel": "Hora"
+  },
+  "addAttachmentButton": "Arquivo anexo",
+  "addAttachmentButtonLabel": "Adicionar arquivo anexo",
+  "addReportButtonLabel": "Criar Evento",
+  "addReportButtonTitle": "Evento",
+  "addNoteButton": "Anotação",
+  "addNoteButtonLabel": "Adicionar anotação",
+  "attachmentControls": {
+    "addNoteTitle": "Adicionar anotação",
+    "addAttachmentTitle": "Anexar arquivo"
+  },
+  "attachmentListItem": {
+    "audioPreviewAlt": "{{fileName}} pré-visualização de áudio",
+    "collapseClosedButtonLabel": "Expandir {{fileName}}",
+    "collapseOpenButtonLabel": "Minimizar {{fileName}}",
+    "deleteButtonTooltip": "Apagar {{fileName}}",
+    "downloadButtonTooltip": "Baixar {{fileName}}",
+    "fullViewButtonTooltip": "Mostrar {{fileName}} em tela cheia",
+    "imagePreviewAlt": "{{fileName}} pré-visualização",
+    "mediaLoadErrorMessage": "Não foi possível carregar este arquivo.",
+    "playButtonLabel": "Reproduzir {{fileName}}",
+    "videoPreviewAlt": "{{fileName}} pré-visualização de vídeo"
+  },
+  "containedReportListItem": {
+    "activeStateLabel": "Ativo",
+    "collapseClosedButtonLabel": "Expandir {{title}}",
+    "collapseOpenButtonLabel": "Minimizar {{title}}",
+    "loadingLabel": "Carregando {{title}}",
+    "resolvedStateLabel": "Resolvido",
+    "reviewStateLabel": "Em revisão",
+    "serialNumberLabel": "Número do evento",
+    "stateLabel": "Estado",
+    "viewReportButtonLabel": "Ver evento {{title}}"
+  },
+  "footer": {
+    "cancelButton": "Cancelar",
+    "saveButton": "Salvar",
+    "stateActivateButton": "Salvar e ativar",
+    "stateResolveButton": "Salvar e resolver",
+    "stateReopenButton": "Salvar e reabrir",
+    "stateReviewButton": "Salvar e revisar"
+  },
+  "header": {
+    "historyLinkCreated": "Criado",
+    "historyLinkUpdated": "Atualizado",
+    "resolvedLabel": "Resolvido",
+    "reviewLabel": "em revisão",
+    "sectionTitle": "Histórico"
+  },
+  "historySection": {
+    "sectionTitle": "Histórico",
+    "timeLabel": "Hora"
+  },
+  "mediaModal": {
+    "errorMessage": "Se você carregou este arquivo recentemente, espere um minuto e tente novamente.",
+    "errorTitle": "Erro ao carregar o arquivo."
+  },
+  "navigationPromptModal": {
+    "cancelNavigationButtonText": "Voltar",
+    "continueNavigationNegativeButtonText": "Descartar",
+    "continueNavigationPositiveButtonText": "Salvar",
+    "description": "Há alterações não salvas. Você gostaria de voltar, descartar as alterações ou salvar e continuar?",
+    "title": "Alterações não salvas"
+  },
+  "noteListItem": {
+    "cancelEditingNoteButton": "Cancelar",
+    "collapseClosedButtonLabel": "Expandir anotação",
+    "collapseOpenButtonLabel": "Minimizar anotação",
+    "deleteNoteButtonTooltip": "Apagar anotação",
+    "doneEditingNoteButton": "Finalizar",
+    "editNoteButtonTooltip": "Editar anotação",
+    "noteTextAreaLabel": "Texto da anotação",
+    "noteTitle": "Nova anotação: {{noteText}}"
+  },
+  "reportFormSummary": {
+    "reportTypeLabel": "Tipo de evento",
+    "reportedByLabel": "Reportado por"
+  }
 }

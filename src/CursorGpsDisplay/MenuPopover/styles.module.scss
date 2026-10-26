@@ -1,21 +1,21 @@
 @use 'sass:color';
-
 @use '../../common/styles/vars/colors';
 @use '../../common/styles/inputs';
 
 .menuPopover {
-  @include inputs.boxShadow;
+  @include inputs.box-shadow;
+
   border: none;
   border-radius: 0.25rem;
   padding: 0.5rem;
   width: 18rem;
 
-  [class*=popover-arrow] {
+  [class*="popover-arrow"] {
     display: none;
   }
 
   .gpsInput {
-    input[type=search] {
+    input[type="search"] {
       border-bottom-right-radius: 0;
       border-top-right-radius: 0;
     }

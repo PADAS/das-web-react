@@ -1,9 +1,8 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 
 import { renderHook } from '../../test-utils';
 import { createMapMock } from '../../__test-helpers/mocks';
-import { MapContext } from '../../App';
+import { MapContext } from '../../MapContext';
 
 import useClusterPolygon from './';
 import { mockStore } from '../../__test-helpers/MockStore';

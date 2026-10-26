@@ -1,125 +1,190 @@
 {
-    "dateFilter": {
-        "emptyEndDateMessage": "Agora",
-        "resetButton": "Redefinir",
-        "emptyStartDateMessage": "{{distanceInWordsDate}} atrás",
-        "title": "Intervalo de datas:"
+  "dateFilter": {
+    "emptyEndDateMessage": "Agora",
+    "resetButton": "Redefinir",
+    "emptyStartDateMessage": "{{distanceInWordsDate}} atrás",
+    "title": "Intervalo de datas:"
+  },
+  "dateRangeSelector": {
+    "endDateLabel": "Até:",
+    "lastSevenDaysLabel": "Últimos 7 dias",
+    "lastThirtyDaysLabel": "Últimos 30 dias",
+    "lastThreeMonthsLabel": "Últimos 3 meses",
+    "todayLabel": "Hoje",
+    "settingsTitle": "Preferências",
+    "startDateLabel": "Desde:",
+    "yesterdayLabel": "Ontem"
+  },
+  "eventFilters": {
+    "dateRangePopover": {
+      "emptyEndDateMessage": "Agora",
+      "endDateLabel": "Até",
+      "presetButtons": {
+        "lastSevenDays": "Últimos 7 dias",
+        "lastThirtyDays": "Últimos 30 dias",
+        "lastThreeMonths": "Últimos 3 meses",
+        "today": "Hoje",
+        "yesterday": "Ontem"
+      },
+      "presetsGroupLabel": "Intervalos de datas predefinidos",
+      "resetButton": "Redefinir",
+      "resetButtonLabel": "Redefinir filtros de data",
+      "startDateLabel": "Desde",
+      "title": "Intervalo de datas"
     },
-    "dateRangeSelector": {
-        "endDateLabel": "Até:",
-        "lastSevenDaysLabel": "Últimos 7 dias",
-        "lastThirtyDaysLabel": "Últimos 30 dias",
-        "lastThreeMonthsLabel": "Últimos 3 meses",
-        "todayLabel": "Hoje",
-        "settingsTitle": "Preferências",
-        "startDateLabel": "Desde:",
-        "yesterdayLabel": "Ontem"
+    "datesModifiedButtonLabel": "Datas, filtros de data aplicados",
+    "datesTitle": "Datas",
+    "filteredResultsSummary_one": "{{count}} resultado filtrado de <dateRange>{{dateRange}}</dateRange>",
+    "filteredResultsSummary_other": "{{count}} resultados filtrados de <dateRange>{{dateRange}}</dateRange>",
+    "filtersModifiedButtonLabel": "Filtros, filtros aplicados",
+    "filtersPopover": {
+      "eventTypesFilter": {
+        "label": "Tipos de Eventos",
+        "noMatchesMessage": "Nenhum tipo de evento correspondente",
+        "searchBarLabel": "Buscar tipos de eventos",
+        "searchBarPlaceholder": "Buscar tipos de eventos",
+        "setMatchesButton": "Usar estes",
+        "setMatchesButtonLabel_one": "Usar estes: {{count}} tipo de evento correspondente",
+        "setMatchesButtonLabel_other": "Usar estes: {{count}} tipos de eventos correspondentes"
+      },
+      "priorities": {
+        "amber": "Laranja",
+        "green": "Verde",
+        "none": "Nenhum",
+        "red": "Vermelho"
+      },
+      "priorityLabel": "Prioridade",
+      "reportedByLabel": "Reportado por",
+      "resetAllButton": "Redefinir tudo",
+      "resetButton": "Redefinir",
+      "resetEventTypesButtonLabel": "Redefinir tipos de eventos",
+      "resetPriorityButtonLabel": "Redefinir prioridade",
+      "resetStateButtonLabel": "Redefinir status",
+      "stateLabel": "Status ou Situação",
+      "states": {
+        "active": "Ativo",
+        "resolved": "Resolvido",
+        "review": "Em revisão"
+      },
+      "title": "Filtro de Eventos",
+      "unknownReporterLabel": "Relator desconhecido"
     },
-    "eventsFilter": {
-        "datesButton": "Datas",
-        "filtersButton": "Filtros",
-        "resetButton": "Redefinir",
-        "searchBarPlaceholder": "Buscar Eventos..."
-    },
-    "filters": {
-        "priorityPickerLabel": "Prioridade",
-        "reportTypesAllLabel": "Todos",
-        "reportTypesLabel": "Tipos de Eventos",
-        "reportTypesSelectionLabels": {
-            "allSelected": "Todos selecionados",
-            "noneSelected": "Nenhum selecionado",
-            "someSelected": "{{reportTypesCheckedCount}} de {{eventTypeIDsLength}} selecionado"
-        },
-        "resetAllButton": "Redefinir tudo",
-        "resetButton": "Redefinir",
-        "stateLabel": "Status ou Situação",
-        "stateSelector": {
-            "active": "Ativo",
-            "resolved": "Resolvido",
-            "all": "Todos"
-        },
-        "title": "Filtro de Eventos"
-    },
-    "friendlyFilterString": {
-        "resultLabel": "Resultado",
-        "resultsLabel": "Resultados ",
-        "fromLabel": "de",
-        "filteredLabel": "filtrado",
-        "sortingTypeLabel": ", ordem",
-        "byLabel": "por",
-        "eventSortOptions": {
-            "updatedAtLabel": "Data de atualização",
-            "createdAtLabel": "Data de criação",
-            "eventTimeLabel": "Data do Evento"
-        },
-        "ascendingLabel": "crescente"
-    },
-    "mapLayerFilter": {
-        "formLabel": "Pesquisar camadas",
-        "groupButton": {
-            "grouped": "Agrupadas",
-            "ungrouped": "Desagrupadas"
-        },
-        "groupButtonLabel": {
-            "grouped": "Desagrupar camadas",
-            "ungrouped": "Agrupar camadas"
-        },
-        "searchBarLabel": "Pesquisar camadas",
-        "searchBarPlaceholder": "Pesquisar camadas...",
-        "setSortByButton": {
-            "alphabetical": "Alfabética",
-            "last_update": "Última atualização"
-        },
-        "setSortByButtonLabel": "Abrir opções de ordenação para camadas",
-        "sortDirectionButtonLabel": {
-            "down": "Ordenar camadas em ordem crescente",
-            "up": "Ordenar camadas em ordem decrescente"
-        },
-        "sortByMenuLabel": "Opções de ordenação para camadas",
-        "sortByMenuOption": {
-            "alphabetical": "Alfabética",
-            "lastUpdate": "Última atualização"
-        },
-        "sortByMenuOptionLabel": {
-            "alphabetical": "Ordenar camadas alfabeticamente",
-            "lastUpdate": "Ordenar camadas por última atualização"
-        }
-    },
-    "patrolFilters": {
-        "datesTitle": "Datas",
-        "dateRangePopover": {
-            "title": "Intervalo de datas",
-            "resetButton": "Redefinir"
-        },
-        "filtersTitle": "Filtros",
-        "globalResetFilterButton": "Redefinir",
-        "searchbarPlaceHolder": "Buscar patrulhas",
-        "filtersPopover": {
-            "checkBoxAllOption": "Selecionar tudo",
-            "title": "Filtros de Patrulhas",
-            "resetAllButton": "Redefinir tudo",
-            "resetButton": "Redefinir",
-            "trackedByLabel": "Rastreado por",
-            "statusLabel": "Status ou Situação",
-            "patrolTypeLabel": "Tipo de Patrulha",
-            "reportedByPlaceholder": "Selecionar Dispositivo",
-            "patrolStatuses": {
-                "active": "Ativo",
-                "done": "Finalizado",
-                "cancelled": "Cancelado"
-            }
-        }
-    },
-    "patrolFiltersSettings": {
-        "byStartDateLabel": "Filtrar por data de inicio",
-        "byRangeDateLabel": "Filtrar por sobreposição de intervalo de datas",
-        "patrolWithinRangeTooltip": "Incluir patrulhas que iniciam no intervalo de datas",
-        "patrolOverlapsRangeTooltip": "Incluir patrulhas cujas datas de início e fim se sobreponham ao intervalo de datas"
-    },
-    "reportTypeMultiSelect": {
-        "placeholder": "Buscar tipos de eventos",
-        "noResultsLabel": "Sem correspondências",
-        "someResultsLabel": "Considerar estes {{resultCount}}",
-        "singleResultLabel": "Considerar este"
+    "filtersTitle": "Filtros",
+    "globalResetFilterButton": "Redefinir",
+    "resultsSummary_one": "{{count}} resultado de <dateRange>{{dateRange}}</dateRange>",
+    "resultsSummary_other": "{{count}} resultados de <dateRange>{{dateRange}}</dateRange>",
+    "searchBarPlaceholder": "Buscar Eventos...",
+    "sortControls": {
+      "setSortByButtonLabel": "Abrir opções de ordenação para eventos, ordenados por {{sortBy}}",
+      "sortByMenuLabel": "Opções de ordenação para eventos",
+      "sortByMenuOption": {
+        "createdAtLabel": "Data de criação",
+        "eventTimeLabel": "Data do evento",
+        "updatedAtLabel": "Data de atualização"
+      },
+      "sortDirectionButtonLabel": {
+        "down": "Ordenar eventos em ordem crescente",
+        "up": "Ordenar eventos em ordem decrescente"
+      }
     }
+  },
+  "friendlyFilterString": {
+    "resultLabel": "Resultado",
+    "resultsLabel": "Resultados ",
+    "fromLabel": "de",
+    "filteredLabel": "filtrado",
+    "sortingTypeLabel": ", ordem",
+    "byLabel": "por",
+    "eventSortOptions": {
+      "updatedAtLabel": "Data de atualização",
+      "createdAtLabel": "Data de criação",
+      "eventTimeLabel": "Data do Evento"
+    },
+    "ascendingLabel": "crescente"
+  },
+  "mapLayerFilter": {
+    "formLabel": "Pesquisar camadas",
+    "groupButton": {
+      "grouped": "Agrupadas",
+      "ungrouped": "Desagrupadas"
+    },
+    "groupButtonLabel": {
+      "grouped": "Desagrupar camadas",
+      "ungrouped": "Agrupar camadas"
+    },
+    "searchBarLabel": "Pesquisar camadas",
+    "searchBarPlaceholder": "Pesquisar camadas...",
+    "setSortByButton": {
+      "alphabetical": "Alfabética",
+      "last_update": "Última atualização"
+    },
+    "setSortByButtonLabel": "Abrir opções de ordenação para camadas",
+    "sortDirectionButtonLabel": {
+      "down": "Ordenar camadas em ordem crescente",
+      "up": "Ordenar camadas em ordem decrescente"
+    },
+    "sortByMenuLabel": "Opções de ordenação para camadas",
+    "sortByMenuOption": {
+      "alphabetical": "Alfabética",
+      "lastUpdate": "Última atualização"
+    },
+    "sortByMenuOptionLabel": {
+      "alphabetical": "Ordenar camadas alfabeticamente",
+      "lastUpdate": "Ordenar camadas por última atualização"
+    }
+  },
+  "patrolFilters": {
+    "dateRangePopover": {
+      "endDateLabel": "Até",
+      "endOfTodayMessage": "Fim de hoje",
+      "presetButtons": {
+        "lastSevenDays": "Últimos 7 dias",
+        "lastThirtyDays": "Últimos 30 dias",
+        "lastThreeMonths": "Últimos 3 meses",
+        "today": "Hoje",
+        "yesterday": "Ontem"
+      },
+      "presetsGroupLabel": "Intervalos de datas predefinidos",
+      "resetButton": "Redefinir",
+      "resetButtonLabel": "Redefinir filtros de data",
+      "startDateLabel": "Desde",
+      "title": "Intervalo de datas"
+    },
+    "datesModifiedButtonLabel": "Datas, filtros de data aplicados",
+    "datesTitle": "Datas",
+    "filteredResultsSummary_one": "{{count}} resultado filtrado de <dateRange>{{dateRange}}</dateRange>",
+    "filteredResultsSummary_other": "{{count}} resultados filtrados de <dateRange>{{dateRange}}</dateRange>",
+    "filtersModifiedButtonLabel": "Filtros, filtros aplicados",
+    "filtersPopover": {
+      "checkBoxAllOption": "Selecionar tudo",
+      "patrolStatuses": {
+        "active": "Ativo",
+        "cancelled": "Cancelado",
+        "done": "Finalizado"
+      },
+      "patrolTypeLabel": "Tipo de Patrulha",
+      "reportedByPlaceholder": "Selecionar Dispositivo",
+      "resetAllButton": "Redefinir tudo",
+      "resetButton": "Redefinir",
+      "resetPatrolTypesButtonLabel": "Redefinir tipos de patrulha",
+      "resetStatusButtonLabel": "Redefinir status",
+      "statusLabel": "Status ou Situação",
+      "teamLeadLabel": "Líder da equipe",
+      "title": "Filtros de Patrulhas",
+      "trackedByLabel": "Rastreado por",
+      "unknownTeamLeadLabel": "Líder da equipe desconhecido"
+    },
+    "filtersTitle": "Filtros",
+    "globalResetFilterButton": "Redefinir",
+    "resultsSummary_one": "{{count}} resultado de <dateRange>{{dateRange}}</dateRange>",
+    "resultsSummary_other": "{{count}} resultados de <dateRange>{{dateRange}}</dateRange>",
+    "searchbarPlaceHolder": "Buscar patrulhas"
+  },
+  "patrolFiltersSettings": {
+    "byRangeDateLabel": "Filtrar por sobreposição de intervalo de datas",
+    "byStartDateLabel": "Filtrar por data de inicio",
+    "dateFilterModeLabel": "Modo de filtro por data",
+    "patrolOverlapsRangeTooltip": "Incluir patrulhas cujas datas de início e fim se sobreponham ao intervalo de datas",
+    "patrolWithinRangeTooltip": "Incluir patrulhas que iniciam no intervalo de datas"
+  }
 }

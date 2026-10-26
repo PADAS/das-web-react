@@ -8,39 +8,60 @@
     "timeLabel": "Tiempo"
   },
   "addAttachmentButton": "Adjuntar",
+  "addAttachmentButtonLabel": "Agregar un adjunto",
   "addReportButtonLabel": "Crear Evento",
   "addReportButtonTitle": "Evento",
   "addNoteButton": "Nota",
+  "addNoteButtonLabel": "Agregar una nota",
   "attachmentControls": {
     "addNoteTitle": "Agregar Nota",
     "addAttachmentTitle": "Adjuntar archivo"
   },
   "attachmentListItem": {
+    "audioPreviewAlt": "{{fileName}} vista previa de audio",
+    "collapseClosedButtonLabel": "Expandir {{fileName}}",
+    "collapseOpenButtonLabel": "Colapsar {{fileName}}",
+    "deleteButtonTooltip": "Borrar {{fileName}}",
+    "downloadButtonTooltip": "Descargar {{fileName}}",
+    "fullViewButtonTooltip": "Mostrar {{fileName}} en pantalla completa",
     "imagePreviewAlt": "{{fileName}} vista previa",
-    "downloadButtonTooltip": "Descargar",
-    "deleteButtonTooltip": "Borrar",
-    "fullViewButtonTooltip": "Vista completa"
+    "mediaLoadErrorMessage": "No se pudo cargar este archivo.",
+    "playButtonLabel": "Reproducir {{fileName}}",
+    "videoPreviewAlt": "{{fileName}} vista previa de video"
+  },
+  "containedReportListItem": {
+    "activeStateLabel": "Activo",
+    "collapseClosedButtonLabel": "Expandir {{title}}",
+    "collapseOpenButtonLabel": "Colapsar {{title}}",
+    "loadingLabel": "Cargando {{title}}",
+    "resolvedStateLabel": "Resuelto",
+    "reviewStateLabel": "En revisión",
+    "serialNumberLabel": "Número de evento",
+    "stateLabel": "Estado",
+    "viewReportButtonLabel": "Ver evento {{title}}"
   },
   "footer": {
     "cancelButton": "Cancelar",
     "saveButton": "Guardar",
+    "stateActivateButton": "Guardar y activar",
     "stateResolveButton": "Guardar y resolver",
-    "stateReopenButton": "Guardar y reabrir"
+    "stateReopenButton": "Guardar y reabrir",
+    "stateReviewButton": "Guardar y revisar"
   },
-  "goToReportButtonTooltip": "Ir a evento",
   "header": {
     "historyLinkCreated": "Creado",
     "historyLinkUpdated": "Actualizado",
     "resolvedLabel": "Resuelto",
+    "reviewLabel": "en revisión",
     "sectionTitle": "Historial"
   },
   "historySection": {
     "sectionTitle": "Historial",
     "timeLabel": "Tiempo"
   },
-  "imageModal": {
-    "errorTitle": "Error al cargar la imagen.",
-    "errorMessage": "Si subió esta imagen recientemente, espere un minuto y vuelva a intentarlo, por favor."
+  "mediaModal": {
+    "errorMessage": "Si subió este archivo recientemente, espere un minuto y vuelva a intentarlo, por favor.",
+    "errorTitle": "Error al cargar el archivo."
   },
   "navigationPromptModal": {
     "cancelNavigationButtonText": "Regresar",
@@ -51,16 +72,16 @@
   },
   "noteListItem": {
     "cancelEditingNoteButton": "Cancelar",
-    "deleteNoteButtonTooltip": "Borrar",
+    "collapseClosedButtonLabel": "Expandir nota",
+    "collapseOpenButtonLabel": "Colapsar nota",
+    "deleteNoteButtonTooltip": "Borrar nota",
     "doneEditingNoteButton": "Listo",
-    "editNoteButtonTooltip": "Editar",
+    "editNoteButtonTooltip": "Editar nota",
+    "noteTextAreaLabel": "Texto de la nota",
     "noteTitle": "Nueva nota: {{noteText}}"
   },
   "reportFormSummary": {
     "reportTypeLabel": "Tipo de evento",
-    "reportedByLabel": "Reportado por",
-    "v2SchemaFormSummary": {
-      "collectionHumanizedValue": "{{collectionLength}} elementos"
-    }
+    "reportedByLabel": "Reportado por"
   }
 }

@@ -14,9 +14,11 @@ const useOnScreen = (element) => {
   }, []);
 
   useEffect(() => {
-    if (!!element) {
+    if (element) {
       intersectionObserverRef.current.observe(element);
     } else {
+      // Updating state from this effect is intended.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsElementOnScreen(false);
     }
   }, [element]);

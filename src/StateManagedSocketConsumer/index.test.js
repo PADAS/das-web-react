@@ -1,4 +1,3 @@
-import React from 'react';
 import MockSocketProvider, { mockedSocket } from '../__test-helpers/MockSocketContext';
 
 import StateManagedSocketConsumer from './';
@@ -6,11 +5,11 @@ import StateManagedSocketConsumer from './';
 import { render } from '@testing-library/react';
 
 it('renders without crashing', () => {
-  render(
+  expect(() => render(
     <MockSocketProvider>
       <StateManagedSocketConsumer />
     </MockSocketProvider>
-  );
+  )).not.toThrow();
 });
 
 describe('binding handlers', () => {

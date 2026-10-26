@@ -167,15 +167,15 @@ describe('NumericInput - utils', () => {
     expect( removeExtraDecimalSymbol('324.56,5,65.5,7', '.', ',') ).toBe('324.5656557');
   });
 
-  test('remove extra decimal symbols and adds a zero when value starts with point decimal symbol ', () => {
+  test('remove extra decimal symbols and adds a zero when value starts with point decimal symbol', () => {
     expect( removeExtraDecimalSymbol('.456.323.8,9', '.', ',') ).toBe('0.45632389');
   });
 
-  test('remove extra decimal symbols and adds a zero when value starts with comma decimal symbol ', () => {
+  test('remove extra decimal symbols and adds a zero when value starts with comma decimal symbol', () => {
     expect( removeExtraDecimalSymbol(',456,323.8.9', ',', '.') ).toBe('0,45632389');
   });
 
-  test('sanitize a string value removing invalid chars and formatting based on first decimal symbol found ', () => {
+  test('sanitize a string value removing invalid chars and formatting based on first decimal symbol found', () => {
     expect( sanitizeDecimalSymbols('32,.,.06,.8') ).toBe('32,068');
   });
 

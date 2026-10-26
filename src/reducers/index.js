@@ -7,16 +7,24 @@ import { generateStorageConfig } from './storage-config';
 import coordinateReferenceSystemsReducer from '../ducks/coordinate-reference-systems';
 import tokenReducer, { masterRequestTokenReducer } from '../ducks/auth';
 import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedReducer } from '../ducks/events';
+import communityReducer from '../ducks/community';
 import eventCategoriesReducer from '../ducks/event-categories';
 import eventTypesReducer from '../ducks/event-types';
 import observationsReducer from '../ducks/observations';
-import { patrolsFeedReducer, patrolStoreReducer, patrolTracksReducer } from '../ducks/patrols';
+import patrolSchemasReducer from '../ducks/patrol-schemas';
+import {
+  patrolsFeedReducer,
+  patrolStoreReducer,
+  patrolTeamAndTrackingOptionsReducer,
+  patrolTracksReducer,
+} from '../ducks/patrols';
 import patrolTypesReducer from '../ducks/patrol-types';
 import patrolFilterReducer, { persistenceConfig as patrolFilterPersistenceConfig } from '../ducks/patrol-filter';
 import mapsReducer, { homeMapReducer } from '../ducks/maps';
 import mapPositionReducer, { persistenceConfig as mapPositionPersistenceConfig } from '../ducks/map-position';
 import tracksReducer, { trackSettingsReducer } from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer, subjectStoreReducer } from '../ducks/subjects';
+import gearReducer from '../ducks/gear';
 import systemConfigReducer from '../ducks/system-config';
 import systemStatusReducer from '../ducks/system-status';
 import {
@@ -56,11 +64,12 @@ import baseLayersReducer, { currentBaseLayerReducer } from '../ducks/layers';
 import analyzersReducer from '../ducks/analyzers';
 import timeSliderReducer from '../ducks/timeslider';
 import externalReportingReducer from '../ducks/external-reporting';
-import patrolTrackedBySchemaReducer from '../ducks/trackedby';
 import sideBarReducer from '../ducks/side-bar';
 import locallyEditedEventReducer from '../ducks/locally-edited-event';
 import recentEventDataReceivedReducer from '../ducks/recent-event-data-received';
 import experimentalFeaturesReducer from '../ducks/experimental-features';
+import userContentReducer from '../ducks/user-content';
+import realtimeOverlayEventsReducer from '../ducks/events-realtime-overlay';
 
 const tokenPersistenceConfig = generateStorageConfig('token');
 const homeMapPersistenceConfig = generateStorageConfig('homeMap');
@@ -86,6 +95,7 @@ const rootReducer = combineReducers({
     patrolStore: patrolStoreReducer,
     feedEvents: eventFeedReducer,
     feedIncidents: incidentFeedReducer,
+    community: communityReducer,
     locallyEditedEvent: locallyEditedEventReducer,
     mapEvents: mapEventsReducer,
     eula: eulaReducer,
@@ -95,6 +105,7 @@ const rootReducer = combineReducers({
     eventCategories: eventCategoriesReducer,
     eventTypes: eventTypesReducer,
     featureSets: persistReducer(featureSetsPersistenceConfig, featuresReducer),
+    gear: gearReducer,
     mapLayerFilter: persistReducer(
       mapLayerFilterPersistenceConfig,
       mapLayerFilterReducer,
@@ -106,7 +117,10 @@ const rootReducer = combineReducers({
     masterRequestCancelToken: masterRequestTokenReducer,
     recentEventDataReceived: recentEventDataReceivedReducer,
     observations: observationsReducer,
+    patrolSchemas: patrolSchemasReducer,
+    patrolTeamAndTrackingOptions: patrolTeamAndTrackingOptionsReducer,
     patrolTypes: patrolTypesReducer,
+    realtimeOverlayEvents: realtimeOverlayEventsReducer,
     reports: externalReportingReducer,
     subjectGroups: subjectGroupsReducer,
     subjectStore: subjectStoreReducer,
@@ -114,10 +128,10 @@ const rootReducer = combineReducers({
     token: persistReducer(tokenPersistenceConfig, tokenReducer),
     tracks: tracksReducer,
     user: userReducer,
+    userContent: userContentReducer,
     userProfiles: userProfilesReducer,
     selectedUserProfile: persistReducer(userProfilePersistenceConfig, selectedUserProfileReducer),
     socketUpdates: socketActivityReducer,
-    patrolLeaderSchema: patrolTrackedBySchemaReducer,
   }),
   view: combineReducers({
     coordinateReferenceSystems: persistReducer(coordinateReferenceSystemsStorageConfig, coordinateReferenceSystemsReducer),

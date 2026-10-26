@@ -1,4 +1,3 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
@@ -58,7 +57,7 @@ describe('Header', () => {
     expect((screen.queryByTestId('patrol-drawer-header-details'))).toHaveTextContent('Scheduled');
     expect((screen.queryByTestId('patrol-drawer-header-description'))).toHaveTextContent('Scheduled');
     expect(buttons[0]).toHaveTextContent('Start');
-    expect(buttons[1]).toHaveClass('dropdown-toggle');
+    expect(buttons[1]).toHaveClass('toggle');
   });
 
   test('renders correctly case of an active patrol', async () => {
@@ -68,7 +67,13 @@ describe('Header', () => {
 
     expect((screen.queryByTestId('patrol-drawer-header-details'))).toBeDefined();
     expect((screen.queryByTestId('patrol-drawer-header-description'))).toHaveTextContent('Active');
-    expect(buttons[0]).toHaveClass('dropdown-toggle');
+    expect(buttons[0]).toHaveClass('toggle');
+  });
+
+  test('shows no distance for a patrol whose legs nothing has measured yet', async () => {
+    renderHeader({ patrol: activePatrol });
+
+    expect((await screen.findByTestId('patrol-drawer-header-details'))).toHaveTextContent('-');
   });
 
   test('renders correctly case of an overdue patrol', async () => {
@@ -77,9 +82,9 @@ describe('Header', () => {
     const buttons = await screen.findAllByRole('button');
 
     expect((screen.queryByTestId('patrol-drawer-header-details'))).toHaveTextContent('Scheduled');
-    expect((screen.queryByTestId('patrol-drawer-header-description'))).toHaveTextContent('Start Overdue');
+    expect((screen.queryByTestId('patrol-drawer-header-description'))).toHaveTextContent('Overdue');
     expect(buttons[0]).toHaveTextContent('Start');
-    expect(buttons[1]).toHaveClass('dropdown-toggle');
+    expect(buttons[1]).toHaveClass('toggle');
   });
 
   test('renders correctly case of an done patrol', async () => {
@@ -89,7 +94,7 @@ describe('Header', () => {
 
     expect((screen.queryByTestId('patrol-drawer-header-details'))).toBeDefined();
     expect((screen.queryByTestId('patrol-drawer-header-description'))).toHaveTextContent('Done');
-    expect(buttons[0]).toHaveClass('dropdown-toggle');
+    expect(buttons[0]).toHaveClass('toggle');
   });
 
   test('renders correctly case of an cancelled patrol', async () => {

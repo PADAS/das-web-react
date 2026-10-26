@@ -9,6 +9,7 @@ import {
   createLineSegmentGeoJsonForCoords,
   createMidpointsGeoJsonForCoords,
   createPointsGeoJsonForCoords,
+  getClosedRingCoords,
 } from './utils';
 import { DRAWING_MODES } from '.';
 import { MapDrawingToolsContext } from './ContextProvider';
@@ -29,7 +30,8 @@ export const useDrawToolGeoJson = (
   drawMode = DRAWING_MODES.POLYGON,
   polygonHover = false,
   draggedPoint = null,
-  isMediumLayoutOrLarger = true
+  isMediumLayoutOrLarger = true,
+  showLineFill = false
 ) => {
   const { setMapDrawingData } = useContext(MapDrawingToolsContext);
 
@@ -67,6 +69,9 @@ export const useDrawToolGeoJson = (
     const shouldCalculatePolygonData = drawMode === DRAWING_MODES.POLYGON
       && vertexCoordinates.length > POINTS_IN_A_LINE;
     const shouldCalculateMidpointsData = shouldCalculatePolygonData && !isDrawing && !draggedPoint && polygonHover;
+    const lineFillRing = showLineFill && !shouldCalculatePolygonData
+      ? getClosedRingCoords(vertexCoordinates)
+      : null;
 
     const isPolygonClosed = shouldCalculatePolygonData
       && isEqual(vertexCoordinates[0], vertexCoordinates[vertexCoordinates.length - 1]);
@@ -92,6 +97,10 @@ export const useDrawToolGeoJson = (
       data.fillLabelPoint = createLabelPointGeoJsonForPolygonThrottled(data.fillPolygon);
     }
 
+    if (lineFillRing) {
+      data.fillPolygon = createFillPolygonGeoJsonForCoords(lineFillRing);
+    }
+
     if (shouldCalculateMidpointsData) {
       data.drawnLinePoints = featureCollection([
         ...data.drawnLinePoints.features,
@@ -100,7 +109,7 @@ export const useDrawToolGeoJson = (
     }
 
     return data;
-  }, [vertexCoordinates, drawMode, isDrawing, draggedPoint, polygonHover, isMediumLayoutOrLarger]);
+  }, [vertexCoordinates, drawMode, isDrawing, draggedPoint, polygonHover, isMediumLayoutOrLarger, showLineFill]);
 
   const setMapDrawingDataThrottledRef = useRef(throttle((newGeoJson) => {
     setMapDrawingData(newGeoJson);

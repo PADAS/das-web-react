@@ -3,34 +3,42 @@
     "collapseAllButton": "Ficha Yote",
     "dateItemStartTitle": "Imeanza",
     "dateItemEndedTitle": "Imekamilika",
-    "expandAllButton": "Fungua Yote",
+    "expandAllButton": "Panua Yote",
     "sectionTitle": "Shughuli",
     "timeLabel": "Wakati"
   },
   "addAttachmentButton": "Kiambatisho",
+  "addAttachmentButtonLabel": "Ongeza kiambatisho",
   "addReportButtonLabel": "Unda Tukio",
   "addReportButtonTitle": "Tukio",
   "addNoteButton": "Maelezo",
+  "addNoteButtonLabel": "Ongeza maelezo",
   "attachmentControls": {
     "addNoteTitle": "Ongeza Maelezo",
     "addAttachmentTitle": "Ongeza Kiambatisho"
   },
   "attachmentListItem": {
-    "collapseClosedButtonLabel": "Fungua",
-    "collapseClosedButtonTitle": "Imefungwa",
-    "collapseOpenButtonLabel": "Funga",
-    "collapseOpenButtonTitle": "Imefunguliwa",
+    "audioPreviewAlt": "{{fileName}} muhtasari wa sauti",
+    "collapseClosedButtonLabel": "Panua {{fileName}}",
+    "collapseOpenButtonLabel": "Ficha {{fileName}}",
+    "deleteButtonTooltip": "Futa {{fileName}}",
+    "downloadButtonTooltip": "Pakua {{fileName}}",
+    "fullViewButtonTooltip": "Onyesha {{fileName}} kwenye skrini nzima",
     "imagePreviewAlt": "{{fileName}} muhtasari",
-    "downloadButtonTooltip": "Pakua",
-    "deleteButtonTooltip": "Futa",
-    "fullViewButtonTooltip": "Tazama Kamili"
+    "mediaLoadErrorMessage": "Imeshindwa kupakia faili hii.",
+    "playButtonLabel": "Cheza {{fileName}}",
+    "videoPreviewAlt": "{{fileName}} muhtasari wa video"
   },
   "containedReportListItem": {
-    "collapseClosedButtonLabel": "Fungua",
-    "collapseClosedButtonTitle": "Imefungwa",
-    "collapseOpenButtonLabel": "Funga",
-    "collapseOpenButtonTitle": "Imefunguliwa",
-    "goToReportButtonTooltip": "Nenda kwenye tukio"
+    "activeStateLabel": "Tendaji",
+    "collapseClosedButtonLabel": "Panua {{title}}",
+    "collapseOpenButtonLabel": "Ficha {{title}}",
+    "loadingLabel": "Inapakia {{title}}",
+    "resolvedStateLabel": "Imetatuliwa",
+    "reviewStateLabel": "Inakaguliwa",
+    "serialNumberLabel": "Nambari ya tukio",
+    "stateLabel": "Hali",
+    "viewReportButtonLabel": "Angalia tukio {{title}}"
   },
   "footer": {
     "cancelButton": "Ghairi",
@@ -48,9 +56,9 @@
     "sectionTitle": "Historia",
     "timeLabel": "Wakati"
   },
-  "imageModal": {
-    "errorTitle": "Kosa kwenye kupakia picha.",
-    "errorMessage": "Ikiwa uliweka faili hii hivi karibuni, tafadhali subiri dakika na ujaribu tena."
+  "mediaModal": {
+    "errorMessage": "Ikiwa uliweka faili hii hivi karibuni, tafadhali subiri dakika na ujaribu tena.",
+    "errorTitle": "Kosa kwenye kupakia faili."
   },
   "navigationPromptModal": {
     "cancelNavigationButtonText": "Nenda Nyuma",
@@ -61,20 +69,16 @@
   },
   "noteListItem": {
     "cancelEditingNoteButton": "Ghairi",
-    "collapseClosedButtonLabel": "Fungua",
-    "collapseClosedButtonTitle": "Imefungwa",
-    "collapseOpenButtonLabel": "Funga",
-    "collapseOpenButtonTitle": "Imefunguliwa",
-    "deleteNoteButtonTooltip": "Futa",
+    "collapseClosedButtonLabel": "Panua maelezo",
+    "collapseOpenButtonLabel": "Ficha maelezo",
+    "deleteNoteButtonTooltip": "Futa maelezo",
     "doneEditingNoteButton": "Imekamilika",
-    "editNoteButtonTooltip": "Hariri",
+    "editNoteButtonTooltip": "Hariri maelezo",
+    "noteTextAreaLabel": "Maandishi ya maelezo",
     "noteTitle": "Maelezo mapya: {{noteText}}"
   },
   "reportFormSummary": {
     "reportTypeLabel": "Aina ya Tukio",
-    "reportedByLabel": "Imeorodheshwa na",
-    "v2SchemaFormSummary": {
-      "collectionHumanizedValue": "{{collectionLength}} vitu"
-    }
+    "reportedByLabel": "Imeorodheshwa na"
   }
 }

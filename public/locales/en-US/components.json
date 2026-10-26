@@ -14,6 +14,16 @@
     "defaultLabel": "Create Event or Patrol",
     "defaultTitle": "Create"
   },
+  "communityPage": {
+    "coolOffChooseAnotherType": "Choose a different event type",
+    "coolOffMessage": "You recently submitted a {{eventType}} form. You can submit another one in {{timeRemaining}}.",
+    "coolOffTimeRemaining": "Time remaining: {{timeRemaining}}",
+    "coolOffTitle": "Please wait before submitting again",
+    "coolOffTypeUnavailable": "Available in {{timeRemaining}}",
+    "formSubmitted": "Successfully Submitted",
+    "invalidCommunityUrl": "Invalid Community URL",
+    "searchPlaceholder": "Search event types..."
+  },
   "checkMark": {
     "fullyCheckedTitle": "Visible",
     "partiallyCheckedTitle": "Partially visible",
@@ -62,6 +72,7 @@
     "shareLocationToastTitle": "Learn how"
   },
   "getUserLocationButton": {
+    "cancelButtonLabel": "Cancel",
     "errorToastMessage": "Could not read your current location: {{errorMessage}}",
     "loadingOverlayMessage": "Trying to read your location...",
     "userLocationButtonLabel": "Get current position"
@@ -104,6 +115,7 @@
     "menuPopover": {
       "dialogLabel": "Location",
       "getUserLocationButton": "Use my location",
+      "permissionBlockedMessage": "Location sharing blocked by browser. Allow it in your browser settings.",
       "pickMapLocationButton": "Set on map"
     },
     "setLocationButtonLabel": {
@@ -156,12 +168,6 @@
     "instructionsPopupLabel": "Click to select a location",
     "pickLocationButtonLabel": "Pick a location on the map"
   },
-  "priorityPicker": {
-    "amber": "Amber",
-    "green": "Green",
-    "none": "None",
-    "red": "Red"
-  },
   "reportedBySelect": {
     "control": {
       "radioIconPlaceholder": "Radio icon placeholder for reported by selector"
@@ -177,6 +183,11 @@
     "singleValue": {
       "radioIcon": "Radio icon for {{name}} value"
     }
+  },
+  "reporterSelect": {
+    "allReportersGroupLabel": "All",
+    "recentRadiosGroupLabel": "Recent radios",
+    "restrictedReporterLabel": "RESTRICTED"
   },
   "schemaFields": {
     "addButton": {
@@ -197,6 +208,9 @@
     "clearButtonLabel": "Clear search",
     "defaultPlaceholder": "Search..."
   },
+  "select": {
+    "noOptionsMessage": "No options to display"
+  },
   "serviceWorkerWatcher": {
     "confirmNotification": "Reload",
     "newVersionAvailableNotification": "A new version of EarthRanger is available. It will be loaded the next time you refresh your browser."
@@ -208,11 +222,25 @@
     "addPatrolButtonTitle": "Create Patrol",
     "backButtonLabel": "Go Back",
     "backButtonTitle": "Back",
-    "closeButtonTitle": "Close",
-    "closeEventFeedButtonLabel": "Close Event Feed",
-    "closeMapLayersButtonLabel": "Close Map Layers",
-    "closePatrolFeedButtonLabel": "Close Patrol Feed",
-    "closeSettingsButtonLabel": "Close Settings",
+    "closeButtonLabel": "Close sidebar",
+    "dataLink": "Data",
+    "detailViewHeader": {
+      "closeButtonLabel": "Close sidebar"
+    },
+    "eventsLink": "Events",
+    "gearLink": "Gear",
+    "gearTab": {
+      "loadErrorFallback": "Request failed",
+      "loadErrorIntro": "Could not load gear from the server.",
+      "loading": "Updating…",
+      "loadingInitial": "Loading gear…",
+      "loadingList": "Still loading the full list…",
+      "noSearchResults": "No gear sets match your search.",
+      "retryButton": "Try again",
+      "searchFormAriaLabel": "Search gear",
+      "searchPlaceholder": "Search by name",
+      "unknownManufacturer": "Other"
+    },
     "layersLink": "Map Layers",
     "mapLayersTab": {
       "analyzersTabTitle": "Analyzers",
@@ -222,12 +250,23 @@
       "featuresTabTitle": "Features",
       "subjectsTabTitle": "Subjects"
     },
-    "patrolsLink": "Patrols",
-    "reportsFeedTab": {
-      "fetchReportsErrorMessage": "Could not load events. Please try again.",
-      "tryAgainButton": "Try again"
+    "otusLink": "Otus",
+    "otusTab": {
+      "header": {
+        "betaBadgeLabel": "Beta",
+        "closeButtonLabel": "Close Otus",
+        "newConversationButtonLabel": "New conversation",
+        "recentButtonLabel": "Recent",
+        "title": "Otus"
+      },
+      "iframeTitle": "Otus chat",
+      "loadErrorMessage": "Otus couldn't load on this site. Try again, or contact support if this keeps happening.",
+      "loadingMessage": "Loading Otus…",
+      "resizeHandleLabel": "Resize Otus panel",
+      "retryButtonLabel": "Try again"
     },
-    "eventsLink": "Events",
+    "patrolsLink": "Patrols",
+    "settingsLink": "Settings",
     "settingsPane": {
       "alertsFrameTitle": "Configure your EarthRanger alerts",
       "alertsTabTitle": "Alerts",
@@ -241,7 +280,6 @@
           "patrolFiltersCheckboxLabel": "Patrol Filters"
         },
         "experimentalFeaturesFieldSet": {
-          "CUSTOM_COORDINATE_SYSTEMS_ENABLED": "Coordinate Reference Systems",
           "legend": "Experimental Features"
         },
         "languageSelect": {
@@ -335,7 +373,9 @@
       },
       "mapTabTitle": "Map"
     },
-    "settingsLink": "Settings"
+    "titleInput": {
+      "editButtonLabel": "Edit title"
+    }
   },
   "sortedNodes": {
     "labelAscending": "Change Order to Descending",
@@ -357,18 +397,52 @@
     "periodInputLabel": "Time period"
   },
   "timeSlider": {
-    "popoverHeader": "Date Range",
-    "popoverResetButton": "Reset",
-    "slider": "Timeslider",
+    "closeButtonLabel": "Close timeslider",
+    "dateRangeButtonLabel": "Change date range",
+    "endDateNowSliderLabel": "Now",
+    "sliderLabel": "Timeslider",
+    "speedButtonLabel": "Open playback speed options",
+    "speedMenuHeader": "Playback Speed",
+    "speedMenuLabel": "Playback speed options",
+    "speedMenuOptionLabel": "Set playback speed to {{speed}}",
     "timeSliderMapControl": {
       "iconTitle": "Timeslider"
     },
-    "untilNowButton": "Now"
+    "playButtonLabel": "Play timeslider",
+    "stopButtonLabel": "Stop timeslider"
   },
   "toastBody": {
     "defaultLinkTitle": "Click here",
     "defaultMessage": "An error has occurred",
     "hideDetailsButton": "Hide Details",
     "showDetailsButton": "See Details"
+  },
+  "dataWorkspace": {
+    "back": "Back",
+    "breadcrumbAriaLabel": "Data view breadcrumb",
+    "columnEventTime": "Event time",
+    "columnField": "Field",
+    "columnId": "ID",
+    "columnLastPosition": "Last position",
+    "columnName": "Name",
+    "columnPatrolStart": "Start",
+    "columnPatrolType": "Patrol type",
+    "columnSerial": "Serial",
+    "columnState": "State",
+    "columnSubtype": "Subtype",
+    "columnTitle": "Title",
+    "columnUpdatedAt": "Updated",
+    "columnValue": "Value",
+    "dataViewMenuLabel": "Data view options",
+    "dataViewMenuTitle": "Data view options",
+    "entityEvents": "Events",
+    "entityPatrols": "Patrols",
+    "entitySelectAriaLabel": "Choose what to show",
+    "entitySubjects": "Subjects",
+    "exploreError": "Could not load the details for this row",
+    "exportCsv": "Export CSV",
+    "exportCsvError": "Could not export the CSV",
+    "loadError": "Could not load the data",
+    "openStructure": "Open details"
   }
 }

@@ -397,6 +397,41 @@ export const snareSchemaV2 = {
   },
 };
 
+export const attachmentSchemaV2 = {
+  json: {
+    ...snareSchemaV2.json,
+    properties: {
+      attachment_field: {
+        description: '',
+        items: { properties: { uploadId: { type: 'string' } }, type: 'object' },
+        title: 'Attachment Field',
+        type: 'array',
+        unevaluatedItems: false,
+      },
+    },
+    required: [],
+  },
+  ui: {
+    ...snareSchemaV2.ui,
+    fields: {
+      attachment_field: {
+        allowableFileTypes: [],
+        conditionalDependents: [],
+        isRequired: false,
+        maxItems: null,
+        parent: '0-7_eLbCyR8Vypp_BjDlU',
+        type: 'ATTACHMENT',
+      },
+    },
+    sections: {
+      '0-7_eLbCyR8Vypp_BjDlU': {
+        ...snareSchemaV2.ui.sections['0-7_eLbCyR8Vypp_BjDlU'],
+        leftColumn: [{ name: 'attachment_field', type: 'field' }],
+      },
+    },
+  },
+};
+
 export const eventSchemas = {
   globalSchema,
   wildlife_sighting_rep: {

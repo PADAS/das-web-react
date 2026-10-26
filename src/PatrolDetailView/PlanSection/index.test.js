@@ -1,10 +1,9 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { createMapMock } from '../../__test-helpers/mocks';
 import { GPS_FORMATS } from '../../utils/location';
-import { MapContext } from '../../App';
+import { MapContext } from '../../MapContext';
 import MapDrawingToolsContextProvider from '../../MapDrawingTools/ContextProvider';
 import { newPatrol, overduePatrol,  patrolDefaultStoreData } from '../../__test-helpers/fixtures/patrols';
 import { render, screen, within } from '../../test-utils';
@@ -52,24 +51,20 @@ const store = {
     userPreferences: { gpsFormat: GPS_FORMATS.DEG },
   },
 };
-store.data.patrolLeaderSchema.trackedbySchema.properties.leader.enum_ext.push(
-  {
-    value: {
-      content_type: 'observations.subject',
-      id: 'dba0e0a6-0083-41be-a0eb-99e956977748',
-      name: 'Alex',
-      subject_type: 'person',
-      subject_subtype: 'ranger',
-      common_name: null,
-      additional: {},
-      created_at: '2021-08-31T14:42:06.701541-07:00',
-      updated_at: '2021-08-31T14:42:06.701557-07:00',
-      is_active: true,
-      tracks_available: false,
-      image_url: '/static/ranger-black.svg'
-    },
-  }
-);
+store.data.patrolTeamAndTrackingOptions.leaders.push({
+  content_type: 'observations.subject',
+  id: 'dba0e0a6-0083-41be-a0eb-99e956977748',
+  name: 'Alex',
+  subject_type: 'person',
+  subject_subtype: 'ranger',
+  common_name: null,
+  additional: {},
+  created_at: '2021-08-31T14:42:06.701541-07:00',
+  updated_at: '2021-08-31T14:42:06.701557-07:00',
+  is_active: true,
+  tracks_available: false,
+  image_url: '/static/ranger-black.svg'
+});
 
 describe('PatrolDetailView - PlanSection', () => {
   let map, mockedStore;
@@ -110,7 +105,7 @@ describe('PatrolDetailView - PlanSection', () => {
     const selectionImage = await screen.getByAltText('Radio icon for Alex value');
 
     expect(within(reportedBySelect).queryByText('Select Device...')).toBeNull();
-    expect(selectionImage).toHaveAttribute('src', 'https://localhost//static/ranger-black.svg');
+    expect(selectionImage).toHaveAttribute('src', 'https://localhost/static/ranger-black.svg');
     expect((await within(reportedBySelect).findByText('Alex'))).toBeDefined();
   });
 
@@ -160,7 +155,7 @@ describe('PatrolDetailView - PlanSection', () => {
     expect(onPatrolObjectiveChange).toHaveBeenCalled();
   });
 
-  test('it should show the field empty for new patrols', async () => {
+  test('it should show the objective empty for new patrols', async () => {
     renderPlanSectionWithWrapper();
 
     const objectiveInput = await screen.getByTestId('patrolDetailView-objectiveTextArea');
@@ -300,7 +295,7 @@ describe('PatrolDetailView - PlanSection', () => {
     expect(await screen.findByTestId('patrol-is-auto-end')).toBeDisabled();
   });
 
-  test('allows the user to check auto-end checkbox when the end date is the same as the start date ', async () => {
+  test('allows the user to check auto-end checkbox when the end date is the same as the start date', async () => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
 

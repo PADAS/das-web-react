@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import { addMapImage } from '../utils/map';
 import { bboxBoundsPolygon, userLocationCanBeShown as userLocationCanBeShownSelector } from '../selectors';
 import { MAP_ICON_SCALE, SOURCE_IDS } from '../constants';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { useMapEventBinding } from '../hooks';
 import useMapSources from '../hooks/useMapSources';
 

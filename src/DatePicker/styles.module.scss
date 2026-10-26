@@ -1,5 +1,4 @@
 @use 'sass:color';
-
 @use '../common/styles/inputs';
 @use '../common/styles/vars/colors';
 
@@ -14,7 +13,7 @@
   padding: 0.25rem 0.5rem;
   width: 10rem;
 
-  &:focus-within:not(.disabled) {
+  &:not(.disabled):has(input:focus-visible, button[aria-expanded="true"]) {
     border: 1px solid colors.$bright-blue;
     outline: 1px solid colors.$bright-blue;
   }
@@ -26,7 +25,7 @@
       color: colors.$bright-red;
     }
 
-    > [class*=react-datepicker-wrapper] [class*=caret] {
+    > [class*="react-datepicker-wrapper"] [class*="caret"] {
       border-top-color: colors.$bright-red;
     }
 

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useMemo } from 'react';
+import { memo, useCallback, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as HistoryIcon } from '../../common/images/icons/history.svg';
@@ -36,7 +36,7 @@ const HistorySection = ({ className = '', updates }) => {
     tracker.track(`Sort history section in ${order} order`);
   }, [tracker]);
 
-  const [SortButton, sortedItemsRendered] = useSortedNodesWithToggleBtn(updatesRendered, onSort);
+  const [sortButton, sortedItemsRendered] = useSortedNodesWithToggleBtn(updatesRendered, onSort);
 
   return <div className={className} data-testid="detailView-historySection">
     <div className={styles.sectionHeader}>
@@ -49,7 +49,7 @@ const HistorySection = ({ className = '', updates }) => {
       <div className={styles.actions}>
         <label>{t('timeLabel')}</label>
 
-        <SortButton />
+        {sortButton}
       </div>
     </div>
 

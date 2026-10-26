@@ -11,12 +11,23 @@
       },
       "addReportTabTitle": "Crear Evento"
     },
+    "defaultLabel": "Crear Evento o Patrulla",
     "defaultTitle": "Crear"
   },
   "choiceList": {
     "select": {
       "noOptionsMessage": "No hay opciones para mostrar"
     }
+  },
+  "communityPage": {
+    "coolOffChooseAnotherType": "Elegir otro tipo de evento",
+    "coolOffMessage": "Ha enviado recientemente un formulario de {{eventType}}. Podrá enviar otro en {{timeRemaining}}.",
+    "coolOffTimeRemaining": "Tiempo restante: {{timeRemaining}}",
+    "coolOffTitle": "Espere antes de volver a enviar",
+    "coolOffTypeUnavailable": "Disponible en {{timeRemaining}}",
+    "formSubmitted": "Enviado correctamente",
+    "invalidCommunityUrl": "URL de comunidad no válida",
+    "searchPlaceholder": "Buscar tipos de evento..."
   },
   "datePicker": {
     "calendarPopper": {
@@ -56,6 +67,7 @@
     "shareLocationToastTitle": "Aprende cómo"
   },
   "getUserLocationButton": {
+    "cancelButtonLabel": "Cancelar",
     "errorToastMessage": "No se pudo obtener tu ubicación actual: {{errorMessage}}",
     "loadingOverlayMessage": "Intentando obtener tu ubicación...",
     "userLocationButtonLabel": "Obtener ubicación actual"
@@ -98,6 +110,7 @@
     "menuPopover": {
       "dialogLabel": "Ubicación",
       "getUserLocationButton": "Usar mi ubicación",
+      "permissionBlockedMessage": "El navegador bloqueó el uso compartido de la ubicación. Permítelo en la configuración del navegador.",
       "pickMapLocationButton": "Establecer en el mapa"
     },
     "setLocationButtonLabel": {
@@ -145,12 +158,6 @@
     "instructionsPopupLabel": "Haz clic para seleccionar una ubicación",
     "pickLocationButtonLabel": "Selecciona una ubicación en el mapa"
   },
-  "priorityPicker": {
-    "amber": "Ambar",
-    "green": "Verde",
-    "none": "N/A",
-    "red": "Roja"
-  },
   "numericInput": {
     "numericInputLabel": "Campo numérico",
     "incrementValueNumericInputButtonLabel": "Botón para aumentar el valor numérico",
@@ -172,6 +179,11 @@
       "radioIcon": "Ícono de radio para el valor {{name}}"
     }
   },
+  "reporterSelect": {
+    "allReportersGroupLabel": "Todos",
+    "recentRadiosGroupLabel": "Radios recientes",
+    "restrictedReporterLabel": "RESTRINGIDO"
+  },
   "schemaFields": {
     "addButton": {
       "content": "Nuevo",
@@ -191,11 +203,38 @@
     "clearButtonLabel": "Limpiar la barra de búsqueda",
     "defaultPlaceholder": "Buscar..."
   },
+  "select": {
+    "noOptionsMessage": "No hay opciones para mostrar"
+  },
   "serviceWorkerWatcher": {
     "confirmNotification": "Recargar",
     "newVersionAvailableNotification": "Una nueva versión de EarthRanger está disponible. Se cargará la siguiente vez que recargue su navegador."
   },
   "sideBar": {
+    "addEventButtonLabel": "Crear Evento",
+    "addEventButtonTitle": "Crear Evento",
+    "addPatrolButtonLabel": "Crear Patrulla",
+    "addPatrolButtonTitle": "Crear Patrulla",
+    "backButtonLabel": "Volver atrás",
+    "backButtonTitle": "Atrás",
+    "closeButtonLabel": "Cerrar barra lateral",
+    "detailViewHeader": {
+      "closeButtonLabel": "Cerrar barra lateral"
+    },
+    "eventsLink": "Eventos",
+    "gearLink": "Aparejos",
+    "gearTab": {
+      "loadErrorFallback": "Error en la solicitud",
+      "loadErrorIntro": "No se pudo cargar el aparejo desde el servidor.",
+      "loading": "Actualizando…",
+      "loadingInitial": "Cargando aparejos…",
+      "loadingList": "Aún cargando la lista completa…",
+      "noSearchResults": "Ningún conjunto coincide con la búsqueda.",
+      "retryButton": "Reintentar",
+      "searchFormAriaLabel": "Buscar aparejos",
+      "searchPlaceholder": "Buscar por nombre",
+      "unknownManufacturer": "Otro"
+    },
     "layersLink": "Capas de mapa",
     "mapLayersTab": {
       "analyzersTabTitle": "Analizadores",
@@ -205,12 +244,23 @@
       "featuresTabTitle": "Funcionalidades",
       "subjectsTabTitle": "Sujetos"
     },
-    "patrolsLink": "Patrullas",
-    "reportsFeedTab": {
-      "fetchReportsErrorMessage": "No se pudieron cargar los eventos. Por favor intente de nuevo.",
-      "tryAgainButton": "Intentar de nuevo"
+    "otusLink": "Otus",
+    "otusTab": {
+      "header": {
+        "betaBadgeLabel": "Beta",
+        "closeButtonLabel": "Cerrar Otus",
+        "newConversationButtonLabel": "Nueva conversación",
+        "recentButtonLabel": "Recientes",
+        "title": "Otus"
+      },
+      "iframeTitle": "Chat de Otus",
+      "loadErrorMessage": "Otus no pudo cargarse en este sitio. Vuelva a intentarlo o contacte con soporte si el problema continúa.",
+      "loadingMessage": "Cargando Otus…",
+      "resizeHandleLabel": "Redimensionar el panel de Otus",
+      "retryButtonLabel": "Reintentar"
     },
-    "eventsLink": "Eventos",
+    "patrolsLink": "Patrullas",
+    "settingsLink": "Preferencias",
     "settingsPane": {
       "alertsFrameTitle": "Configure sus alertas de EarthRanger",
       "alertsTabTitle": "Alertas",
@@ -224,7 +274,6 @@
           "patrolFiltersCheckboxLabel": "Filtros de patrullas"
         },
         "experimentalFeaturesFieldSet": {
-          "CUSTOM_COORDINATE_SYSTEMS_ENABLED": "Sistemas de referencia de coordenadas",
           "legend": "Funcionalidades experimentales"
         },
         "languageSelect": {
@@ -318,7 +367,9 @@
       },
       "mapTabTitle": "Mapa"
     },
-    "settingsLink": "Preferencias"
+    "titleInput": {
+      "editButtonLabel": "Editar título"
+    }
   },
   "soundNotificationsPlayer": {
     "alarmRadioStateToastMessage": "{{subjectName}} necesita atención inmediata"
@@ -334,13 +385,19 @@
     "periodInputLabel": "Parte del día"
   },
   "timeSlider": {
-    "popoverHeader": "Rango de fechas",
-    "popoverResetButton": "Reiniciar",
-    "slider": "Control de tiempo",
+    "closeButtonLabel": "Cerrar control de tiempo",
+    "dateRangeButtonLabel": "Cambiar rango de fechas",
+    "endDateNowSliderLabel": "Ahora",
+    "sliderLabel": "Control de tiempo",
+    "speedButtonLabel": "Abrir opciones de velocidad de reproducción",
+    "speedMenuHeader": "Velocidad de Reproducción",
+    "speedMenuLabel": "Opciones de velocidad de reproducción",
+    "speedMenuOptionLabel": "Establecer la velocidad de reproducción en {{speed}}",
     "timeSliderMapControl": {
       "iconTitle": "Control de tiempo"
     },
-    "untilNowButton": "Ahora"
+    "playButtonLabel": "Reproducir control de tiempo",
+    "stopButtonLabel": "Detener control de tiempo"
   },
   "toastBody": {
     "defaultLinkTitle": "Haga clic aquí",

@@ -42,6 +42,14 @@ export const radioHasRecentActivity = (radio) => {
   return hasRecentActivity;
 };
 
+export const getRecentRadioLocation = (subject) => {
+  const coordinates = subject?.last_position?.geometry?.coordinates;
+
+  return !!coordinates && subjectIsARadio(subject) && radioHasRecentActivity(subject)
+    ? { latitude: coordinates[1], longitude: coordinates[0] }
+    : null;
+};
+
 export const calcRecentRadiosFromSubjects = (...subjects) => {
   const recentRadios = subjects
     .filter(subjectIsARadio)
@@ -64,10 +72,10 @@ export const getSubjectGroupSubjects = (...groups) => groups.reduce((accumulator
 export const getUniqueSubjectGroupSubjects = (...groups) => uniqBy(getSubjectGroupSubjects(...groups), 'id');
 export const getUniqueSubjectGroupSubjectIDs = (...groups) => getUniqueSubjectGroupSubjects(...groups).map(subject => subject.id);
 
-export const subjectIsStatic = subject => {
-  return subject?.is_static ?? subject?.properties?.is_static ?? subject.last_position?.properties?.is_static ??
-    subject?.subject_type === STATIONARY_SUBJECT_TYPE ?? subject?.properties?.subject_type === STATIONARY_SUBJECT_TYPE;
-};
+export const subjectIsStatic = (subject) => subject?.is_static
+  ?? subject?.properties?.is_static
+  ?? subject?.last_position?.properties?.is_static
+  ?? (subject?.subject_type === STATIONARY_SUBJECT_TYPE || subject?.properties?.subject_type === STATIONARY_SUBJECT_TYPE);
 
 export const canShowTrackForSubject = subject =>
   subject.tracks_available
@@ -112,12 +120,12 @@ export const updateSubjectLastPositionFromSocketStatusUpdate = (subject, updateO
 
   const returnVal = {
     ...subject,
-    last_position_date: update.properties.coordinateProperties.time,
+    last_position_date: update.properties?.coordinateProperties?.time,
     last_position_status: {
       ...subject.last_position_status,
       last_voice_call_start_at: update.properties.last_voice_call_start_at,
       radio_state_at: update.properties.radio_state_at,
-      radio_state: update.properties.state || subject.last_position.radio_state,
+      radio_state: update?.properties?.state || subject?.last_position?.radio_state,
     },
     last_position: {
       ...(subject?.last_position ?? {}), ...update, properties: {
@@ -132,7 +140,7 @@ export const updateSubjectLastPositionFromSocketStatusUpdate = (subject, updateO
     }
   };
 
-  if (update.hasOwnProperty('device_status_properties')) {
+  if (Object.hasOwn(update, 'device_status_properties')) {
     returnVal.device_status_properties = update.device_status_properties;
   }
 
@@ -200,7 +208,7 @@ export const markSubjectFeaturesWithActivePatrols = mapSubjects => ({
   ...mapSubjects,
   features: mapSubjects.features
     .map(feature => {
-      feature.properties.ticker = !!(getActivePatrolsForLeaderId(feature.properties.id).length) ? 'P' : '';
+      feature.properties.ticker = getActivePatrolsForLeaderId(feature.properties.id).length ? 'P' : '';
       return feature;
     })
 });
@@ -216,6 +224,10 @@ export const getDeviceStatusPropertiesForSubject = subject => {
 
   return subject?.device_status_properties ?? [];
 };
+const GEAR_SUBJECT_SUBTYPES = new Set(['ropeless_buoy_gearset', 'ropeless_buoy_device']);
+
+export const isGearSubjectSubtype = (subject) => GEAR_SUBJECT_SUBTYPES.has(subject?.subject_subtype);
+
 export const isBuoySubject = (subject) => subject?.subject_subtype === 'ropeless_buoy_gearset';
 
 export const calcDisplayNameForSubject = (subject) => {

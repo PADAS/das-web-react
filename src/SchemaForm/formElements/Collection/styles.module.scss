@@ -1,0 +1,85 @@
+@use '../../../common/styles/buttons';
+@use '../../../common/styles/vars/colors';
+
+.collection {
+  .header {
+    align-items: center;
+    border-radius: 0.25rem;
+    display: flex;
+    height: 2.5rem;
+    justify-content: space-between;
+    padding-right: 0.25rem;
+    width: 100%;
+
+    &.error {
+      .chevronButton {
+        color: colors.$bright-red;
+      }
+  
+      .label {
+        color: colors.$bright-red;
+      }
+    }
+
+    .chevronButton {
+      @include buttons.icon-button-small;
+
+      flex-shrink: 0;
+      margin-right: 0.5rem;
+    }
+
+    .label {
+      color: colors.$secondary-medium-gray;
+      font-size: 0.875rem;
+      font-weight: 400;
+      margin-bottom: 0.375rem;
+  
+      &.error {
+        color: colors.$bright-red;
+      }
+    }
+  }
+
+  .collapse {
+    margin-top: 0.5rem;
+
+    .emptyState {
+      background: white;
+      border: 1px dashed colors.$light-gray-border;
+      border-radius: 0.25rem;
+      height: 2.5rem;
+      width: 100%;
+    }
+
+    .addButton {
+      @include buttons.chip-text-button;
+
+      gap: 0.25rem;
+      margin-top: 1rem;
+
+      .icon {
+        height: 1.5rem;
+        width: 1.5rem;
+
+        path {
+          display: none;
+        }
+      }
+    }
+  }
+
+  .description {
+    color: colors.$alt-light-gray;
+    font-size: 0.875rem;
+    font-weight: 400;
+    margin: 0.125rem 0 0;
+
+    &.error {
+      color: colors.$bright-red;
+    }
+
+    &:empty {
+      margin: 0;
+    }
+  }
+}

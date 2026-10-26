@@ -4,11 +4,11 @@ import { useTranslation } from 'react-i18next';
 
 import {
   calcDisplayPriorityForReport,
-  displayTitleForEvent,
   eventTypeTitleForEvent,
   getCoordinatesForCollection,
   getCoordinatesForEvent,
 } from '../../utils/events';
+import { calcTitleAndSubtitle } from '../../utils/titles';
 import { REPORT_PRIORITY_NONE } from '../../constants';
 
 const useReport = (report) => {
@@ -20,22 +20,23 @@ const useReport = (report) => {
     () => report.is_collection ? getCoordinatesForCollection(report) : getCoordinatesForEvent(report),
     [report]
   );
-  const displayTitle = useMemo(() => {
-    const displayTitle = displayTitleForEvent(report, eventTypes);
-
-    return displayTitle ?? t('unknownEventTitle');
-  }, [eventTypes, report, t]);
-  const eventTypeTitle = useMemo(() => {
-    const eventTypeTitle = eventTypeTitleForEvent(report, eventTypes);
-
-    return eventTypeTitle ?? t('unknownEventType');
-  }, [eventTypes, report, t]);
+  const knownEventTypeTitle = useMemo(() => eventTypeTitleForEvent(report, eventTypes), [eventTypes, report]);
+  const titles = useMemo(
+    () => calcTitleAndSubtitle(report.title, knownEventTypeTitle),
+    [knownEventTypeTitle, report.title]
+  );
   const displayPriority = useMemo(
     () => calcDisplayPriorityForReport(report, eventTypes) || REPORT_PRIORITY_NONE.value,
     [eventTypes, report]
   );
 
-  return { coordinates, displayPriority, displayTitle, eventTypeTitle };
+  return {
+    coordinates,
+    displayPriority,
+    displaySubtitle: titles.subtitle,
+    displayTitle: titles.title || t('unknownEventTitle'),
+    eventTypeTitle: knownEventTypeTitle ?? t('unknownEventType'),
+  };
 };
 
 export default useReport;

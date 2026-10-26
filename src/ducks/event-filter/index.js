@@ -15,7 +15,9 @@ export const INITIAL_FILTER_STATE = {
   include_notes: true,
   include_files: false,
   include_related_events: true,
-  state: EVENT_STATE_CHOICES[0].value,
+  state: EVENT_STATE_CHOICES
+    .filter((choice) => choice.key === 'active' || choice.key === 'review')
+    .flatMap((choice) => choice.value),
   filter: {
     date_range: defaultDateRange,
     event_type: [],

@@ -1,5 +1,5 @@
-@import './controls';
+@use 'controls';
 
 :export {
-  baseBoxShadow: $base-box-shadow;
+  baseBoxShadow: controls.$base-box-shadow;
 }

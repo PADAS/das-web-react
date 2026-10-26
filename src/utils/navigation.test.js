@@ -1,4 +1,6 @@
-import { getCurrentIdFromURL, getCurrentTabFromURL } from './navigation';
+import { matchPath } from 'react-router';
+
+import { detailViewPattern, getCurrentIdFromURL, getCurrentTabFromURL, redirectToExternalUrl, tabPath } from './navigation';
 
 describe('Navigation utils', () => {
   describe('getCurrentIdFromURL', () => {
@@ -23,12 +25,51 @@ describe('Navigation utils', () => {
       expect(getCurrentTabFromURL('/events/other-stuff')).toBe('events');
       expect(getCurrentTabFromURL('/patrols/new')).toBe('patrols');
       expect(getCurrentTabFromURL('/layers')).toBe('layers');
+      expect(getCurrentTabFromURL('/gear')).toBe('gear');
       expect(getCurrentTabFromURL('/data')).toBe('data');
       expect(getCurrentTabFromURL('/data/')).toBe('data');
     });
 
     test('returns undefined if there is not a tab', () => {
       expect(getCurrentTabFromURL('/')).toBeUndefined();
+    });
+  });
+
+  describe('tabPath', () => {
+    test('prefixes the tab key with a leading slash', () => {
+      expect(tabPath('events')).toBe('/events');
+      expect(tabPath('patrols')).toBe('/patrols');
+    });
+  });
+
+  describe('detailViewPattern', () => {
+    test('builds a matchPath pattern scoped to the given tab', () => {
+      expect(detailViewPattern('events')).toBe('/events/:id/*');
+    });
+
+    test('matches a detail view URL and any nested path beneath it', () => {
+      expect(matchPath(detailViewPattern('patrols'), '/patrols/patrolId-987')).not.toBeNull();
+      expect(matchPath(detailViewPattern('patrols'), '/patrols/patrolId-987/legs/legId-1')).not.toBeNull();
+    });
+
+    test('does not match a different tab or the bare tab path', () => {
+      expect(matchPath(detailViewPattern('patrols'), '/events/reportId-1234')).toBeNull();
+      expect(matchPath(detailViewPattern('patrols'), '/patrols')).toBeNull();
+    });
+  });
+
+  describe('redirectToExternalUrl', () => {
+    afterEach(() => {
+      window.history.replaceState({}, '', '/');
+    });
+
+    test('assigns the given url to window.location', () => {
+      // jsdom only applies same-document (hash) navigations observably — a full
+      // cross-origin navigation logs "not implemented" without updating
+      // location — so assert the href assignment via a hash fragment.
+      redirectToExternalUrl('#linked');
+
+      expect(window.location.hash).toBe('#linked');
     });
   });
 });

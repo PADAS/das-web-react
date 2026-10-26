@@ -1,4 +1,10 @@
 {
+  "gearPopup": {
+    "dateTimeSuffix": "ago",
+    "deviceLabel": "Device {{label}}",
+    "lastUpdatedLabel": "Last updated",
+    "typeLabel": "Type"
+  },
   "analyzerConfigPopup": {
     "analyzerTypeHeader": {
       "environmental": "Environmental",
@@ -11,7 +17,8 @@
     }
   },
   "layerSelectorPopup": {
-    "searchBarPlaceholder": "Search"
+    "searchBarPlaceholder": "Search",
+    "unsavedChangesLabel": "Unsaved changes"
   },
   "mouseMarkerPopup": {
     "coordinatesStringOutsideBbox": "N/A",

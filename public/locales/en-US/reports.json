@@ -10,77 +10,115 @@
     },
     "modalTitle": "Add to Incident"
   },
-  "columnSort": {
-    "popoverTitle": "Sort by:",
-    "eventSortOptions": {
-      "updatedAtLabel": "Date Updated",
-      "createdAtLabel": "Created Date",
-      "eventTimeLabel": "Event Date"
-    },
-    "eventOrderOptions": {
-      "newest": "Newest to Oldest",
-      "oldest": "Oldest to Newest"
-    },
-    "sortDirectionToggleLabel": {
-      "ascending": "Change order to Descending",
-      "descending": "Change order to Ascending"
-    },
-    "sortDirectionToggleTitle": {
-      "ascending": "Ascending Order",
-      "descending": "Descending Order"
-    }
-  },
   "errorMessages": {
     "accordionHeaderButton": {
       "closed": "See details",
       "open": "Hide details"
     }
   },
-  "eventFeed": {
-    "loadingMoreReportsItem": "Loading more events...",
-    "noMoreReportsItem": "No more events to display.",
-    "noReportsItem": "No events to display."
-  },
   "eventIcon": {
     "collectionTitle": "Collection"
   },
-  "eventItemContextMenu": {
-    "errorToastMessage": "#{{serialNumber}} still {{state}}, something went wrong",
-    "notificationDetails": {
-      "failedReports": "WARNING: These events are still {{state}}",
-      "processedReports": {
-        "activated": "activated",
-        "resolved": "resolved",
-        "title": "These related events were {{newState}} as well:"
-      }
+  "eventsManager": {
+    "eventOverview": {
+      "footer": {
+        "cancelButton": "Cancel",
+        "cancelButtonLabel": "Cancel adding this event",
+        "saveAndActivateOption": "Save and activate",
+        "saveAndReopenOption": "Save and reopen",
+        "saveAndResolveOption": "Save and resolve",
+        "saveAndReviewOption": "Save and review",
+        "saveButton": "Save",
+        "saveOptionsMenuLabel": "More save options"
+      },
+      "header": {
+        "breadcrumbEventsLabel": "Events",
+        "breadcrumbNavLabel": "Event navigation",
+        "jumpToLocationButtonLabel": "Jump to location",
+        "patrolIndicator": "p",
+        "reportMenu": {
+          "addToIncidentOption": "Add to Incident",
+          "addToPatrolOption": "Add to Patrol",
+          "copyLinkMessage": "Link copied",
+          "copyLinkOption": "Copy Event Link",
+          "jumpToLocationOption": "Jump to location",
+          "moreOptionsButtonLabel": "More options",
+          "printOption": "Print Event Details"
+        },
+        "statusSelect": {
+          "states": {
+            "active": "Active",
+            "resolved": "Resolved",
+            "review": "In review"
+          },
+          "stateTransitions": {
+            "activate": "Activate",
+            "reopen": "Reopen",
+            "resolve": "Resolve",
+            "review": "Send to review"
+          },
+          "statusMenuLabel": "Event states",
+          "statusSelectLabel": "Change event state"
+        },
+        "titleInputLabel": "Event title"
+      },
+      "loadingLabel": "Loading event data"
     },
-    "state": {
-      "active": "active",
-      "resolved": "resolved"
-    },
-    "textCopyButtonItem": {
-      "label": "Copy event link",
-      "successMessage": "Link copied"
-    },
-    "updatedCollectionInfoToast": {
-      "activated": "activated",
-      "message": "The collection #{{collectionSerialNumber}} was {{newState}} correctly",
-      "resolved": "resolved"
-    },
-    "updatedReportInfoToastMessage": "#{{reportSerialNumber}} {{newState}}",
-    "updateReportStateItem": {
-      "reopen": "Reopen",
-      "resolve": "Resolve"
+    "eventsFeed": {
+      "emptyStateMessage": "No events to display.",
+      "eventListLabel": "Event list",
+      "eventRow": {
+        "actions": {
+          "copyLinkMessage": "Link copied",
+          "copyLinkOption": "Copy event link",
+          "jumpToLocationButtonLabel": "Jump to location",
+          "moreOptionsButtonLabel": "More options",
+          "notificationDetails": {
+            "failedEvents": "WARNING: These events could not be changed to state {{state}}",
+            "processedEvents": {
+              "activated": "activated",
+              "resolved": "resolved",
+              "review": "sent to review",
+              "title": "These related events were {{newState}} as well:"
+            },
+            "states": {
+              "active": "active",
+              "resolved": "resolved",
+              "review": "review"
+            }
+          },
+          "states": {
+            "active": "active",
+            "resolved": "resolved",
+            "review": "review"
+          },
+          "stateTransitions": {
+            "activate": "Activate",
+            "reopen": "Reopen",
+            "resolve": "Resolve",
+            "review": "Send to review"
+          },
+          "stateUpdateErrorToastMessage": "#{{serialNumber}} still {{state}}, something went wrong",
+          "updatedCollectionToast": {
+            "activated": "activated",
+            "message": "The collection #{{collectionSerialNumber}} was {{newState}} correctly",
+            "resolved": "resolved",
+            "review": "sent to review"
+          },
+          "updatedEventToastMessage": "#{{eventSerialNumber}} {{newState}}"
+        },
+        "patrolIndicator": "p",
+        "states": {
+          "active": "Active",
+          "resolved": "Resolved",
+          "review": "In review"
+        }
+      },
+      "fetchErrorMessage": "Could not load events. Please try again.",
+      "loadingLabel": "Loading events",
+      "loadingMoreLabel": "Loading more events",
+      "retryButton": "Try again"
     }
-  },
-  "prioritySelect": {
-    "labels": {
-      "amber": "Amber",
-      "green": "Green",
-      "none": "None",
-      "red": "Red"
-    },
-    "placeholder": "Select"
   },
   "reportGeometryDrawer": {
     "cancelationConfirmationModal": {
@@ -113,7 +151,8 @@
   },
   "reportListItem": {
     "dateTimeSuffix": "ago",
-    "resolvedState": "resolved"
+    "resolvedState": "resolved",
+    "reviewState": "review"
   },
   "reportManager": {
     "detailsSection": {
@@ -141,100 +180,24 @@
       },
       "dateLabel": "Event Date",
       "detailsHeader": "Details",
-      "errorLoadingSchema": "Error loading schema",
       "locationLabel": "Event Location",
-      "priorityLabel": "Priority",
-      "reportedByLabel": "Reported By",
-      "schemaForm": {
-        "errors": {
-          "alphanumericPattern": "Only letters and numbers are allowed.",
-          "collectionItems": "Some items of this collection have errors in their inner forms.",
-          "dateFormat": "Invalid date format or invalid date. Double-check the day, month and year.",
-          "dateTimeFormat": "Invalid date & time format or invalid date. Double-check the day, month and year.",
-          "defaultFormat": "Invalid format.",
-          "defaultPattern": "Invalid pattern.",
-          "emailFormat": "Invalid email format.",
-          "maximum": "This value should be less than or equal to {{maximum}}.",
-          "maxItems_one": "This collection must have at most {{count}} item.",
-          "maxItems_other": "This collection must have at most {{count}} items.",
-          "minimum": "This value should be greater than or equal to {{minimum}}.",
-          "minItems_one": "This collection must have at least {{count}} item.",
-          "minItems_other": "This collection must have at least {{count}} items.",
-          "required": "This is a required field.",
-          "timeFormat": "Invalid time format.",
-          "uriFormat": "Invalid URL format.",
-          "uuidFormat": "Invalid UUID format."
-        },
-        "fields": {
-          "collection": {
-            "addButtonLabel": "Add {{itemName}}",
-            "defaultAddButton": "Add",
-            "chevronButtonLabel": {
-              "closed": "Open the {{collectionLabel}} list",
-              "open": "Close the {{collectionLabel}} list"
-            },
-            "sortableList": {
-              "dragCancelAnnouncement": "Dragging was cancelled. {{activeItemTitle}} was dropped.",
-              "dragEndAnnouncement": "{{activeItemTitle}} was dropped at position {{overItemPosition}} of {{itemsLength}}.",
-              "draggableScreenReaderInstructions": "To pick up a {{itemName}}, press space or enter. While dragging, use the up and down arrow keys to move the {{itemName}} and update its position. Press space or enter again to drop the {{itemName}} in its new position.",
-              "dragOverAnnouncement": "{{activeItemTitle}} was moved into position {{overItemPosition}} of {{itemsLength}}.",
-              "dragStartAnnouncement": "Picked up {{activeItemTitle}}. {{activeItemTitle}} is in position {{activeItemPosition}} of {{itemsLength}}.",
-              "item": {
-                "collectionHumanizedValue": "{{collectionLength}} items",
-                "deleteButtonLabel": "Delete {{itemTitle}}",
-                "editButtonLabel": "Edit {{itemTitle}}",
-                "formModal": {
-                  "cancelButton": "Cancel",
-                  "deleteButton": "Delete {{itemTitle}}",
-                  "doneButton": "Done"
-                },
-                "formPreview": {
-                  "collectionHumanizedValue": "{{collectionLength}} items",
-                  "jumpToLocationButtonLabel": "Jump to {{field}} location"
-                },
-                "chevronButtonLabel": {
-                  "closed": "Open the {{itemTitle}} form preview",
-                  "open": "Close the {{itemTitle}} form preview"
-                }
-              }
-            }
-          },
-          "text": {
-            "urlLinkLabel": "Open URL in new tab"
-          }
-        },
-        "validationErrorsAnnouncement": "There are validation errors in the following fields:"
-      },
-      "stateDropdown": {
-        "active": "active",
-        "resolved": "resolved"
-      },
-      "timeLabel": "Event Time"
-    },
-    "header": {
-      "priority": {
+      "priorities": {
         "amber": "Amber",
         "green": "Green",
         "none": "None",
         "red": "Red"
       },
-      "reportMenu": {
-        "addToIncidentItem": "Add to Incident",
-        "addToPatrolItem": "Add to Patrol",
-        "label": "View Event Options",
-        "printReportItem": "Print Event Details",
-        "textCopyButtonLabel": "Copy Event Link",
-        "textCopyButtonSuccessMessage": "Link copied",
-        "title": "Event Options"
-      }
+      "priorityLabel": "Priority",
+      "reportedByLabel": "Reported By",
+      "schemaErrorMessage": "The fields of this event type could not be loaded.",
+      "schemaLoadingLabel": "Loading the fields of this event type",
+      "timeLabel": "Event Time"
     },
     "linksSection": {
       "linksHeader": "Links"
     },
     "reportDetailView": {
-      "cancelButton": "Cancel",
       "cantAddNoteAlert": "Can not add a new note: there's an empty note not saved yet",
-      "loadingMessage": "Saving...",
       "quickLinks": {
         "activityAnchor": "Activity",
         "detailsAnchor": "Details",
@@ -242,11 +205,6 @@
         "linksAnchor": "Links"
       },
       "saveErrorMessage": "Error saving event.",
-      "saveSplitButton": {
-        "saveAndReopenItem": "Save and reopen",
-        "saveAndResolveItem": "Save and resolve",
-        "title": "Save"
-      },
       "unknownErrorLabel": "Unknown error"
     }
   },

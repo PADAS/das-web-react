@@ -58,8 +58,7 @@ const FILTER_BACKFILL_MIN_ROWS = 24;
 const FILTER_BACKFILL_ROW_CAP = 120;
 
 const readPatrolsFeedNext = (state) => {
-  const feed = state.data.patrolsFeed;
-  return Array.isArray(feed) ? null : feed?.next ?? null;
+  return state.data.patrolsFeed.next;
 };
 
 const countFilteredLeafRows = (api) => {
@@ -170,7 +169,7 @@ const DataWorkspace = () => {
   const patrolsFeed = useFetchPatrolsFeed() ?? { loadingPatrolsFeed: false };
 
   const feedEvents = useSelector((state) => getFeedEvents(state));
-  const patrolsFeedMeta = useSelector((state) => state.data.patrolsFeed);
+  const patrolsFeedNext = useSelector((state) => state.data.patrolsFeed.next);
   const patrolsFromStore = useSelector(selectPatrolsFeedMappedFromStore);
 
   const sortedPatrols = useMemo(
@@ -186,6 +185,11 @@ const DataWorkspace = () => {
   }, [canReadPatrols, eventsEnabled, subjectsEnabled]);
 
   const [entity, setEntity] = useState(defaultEntity);
+  const [previousDefaultEntity, setPreviousDefaultEntity] = useState(defaultEntity);
+  if (previousDefaultEntity !== defaultEntity) {
+    setPreviousDefaultEntity(defaultEntity);
+    setEntity(defaultEntity);
+  }
   const [drillStack, setDrillStack] = useState([]);
   const [subjectRows, setSubjectRows] = useState([]);
   const [subjectsLoading, setSubjectsLoading] = useState(false);
@@ -223,13 +227,13 @@ const DataWorkspace = () => {
       dispatch(fetchNextEventFeedPage(feedEvents.next)).finally(() => {
         loadingMoreFeedRef.current = false;
       });
-    } else if (entity === ENTITY.PATROLS && patrolsFeedMeta?.next) {
+    } else if (entity === ENTITY.PATROLS && patrolsFeedNext) {
       loadingMoreFeedRef.current = true;
-      dispatch(fetchNextPatrolsFeedPage(patrolsFeedMeta.next)).finally(() => {
+      dispatch(fetchNextPatrolsFeedPage(patrolsFeedNext)).finally(() => {
         loadingMoreFeedRef.current = false;
       });
     }
-  }, [dispatch, entity, feedEvents.next, patrolsFeedMeta?.next]);
+  }, [dispatch, entity, feedEvents.next, patrolsFeedNext]);
 
   useEffect(() => {
     debouncedLoadMoreFeedRef.current = debounce(() => {
@@ -250,10 +254,6 @@ const DataWorkspace = () => {
     if (total === 0 || last < total - SCROLL_LOAD_EDGE_ROWS) return;
     debouncedLoadMoreFeedRef.current();
   }, [entity]);
-
-  useEffect(() => {
-    setEntity(defaultEntity);
-  }, [defaultEntity]);
 
   useEffect(() => {
     if (entity !== ENTITY.SUBJECTS) return undefined;

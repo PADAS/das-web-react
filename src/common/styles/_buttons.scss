@@ -1,10 +1,13 @@
-@import './vars/colors';
-@import './layout';
+@use 'sass:color';
+@use 'vars/colors';
+@use 'layout';
 
 $square-button-dimension: 2.25rem;
 $square-button-border-radius: .25rem;
+$chip-height: 2.25rem;
+$chip-height-small: 1.75rem;
 
-@mixin unstyledButton {
+@mixin unstyled-button {
   background: none;
   border: none;
   outline: none;
@@ -17,12 +20,10 @@ $square-button-border-radius: .25rem;
   }
 }
 
-@mixin imageButton($icon_name: null, $color: darken(gray, 15%), $bgcolor: transparent) {
-  @if ($icon_name) {
+@mixin image-button($icon_name: null, $color: color.adjust(gray, $lightness: -15%), $bgcolor: transparent) {
+  @if $icon_name {
     background: $bgcolor url('../images/icons/#{$icon_name}.svg') no-repeat;
-  }
-
-  @else {
+  } @else {
     background-color: $bgcolor;
   }
 
@@ -30,8 +31,8 @@ $square-button-border-radius: .25rem;
   border: none;
 }
 
-@mixin jumpButton {
-  background: rgba($medium-light-gray, 0.15);
+@mixin jump-button {
+  background: rgba(colors.$medium-light-gray, 0.15);
   border: none;
   border-radius: $square-button-border-radius;
   height: $square-button-dimension;
@@ -40,16 +41,16 @@ $square-button-border-radius: .25rem;
   width: $square-button-dimension;
 
   &:hover {
-    background-color: rgba(darken($medium-light-gray, 15%), 0.18);
+    background-color: rgba(color.adjust(colors.$medium-light-gray, $lightness: -15%), 0.18);
   }
 }
 
-@mixin patrolJumpButton {
-  @include jumpButton;
+@mixin patrol-jump-button {
+  @include jump-button;
 }
 
-@mixin multiJumpButton {
-  @include jumpButton;
+@mixin multi-jump-button {
+  @include jump-button;
 
   svg {
     left: 12.5%;
@@ -65,18 +66,19 @@ $square-button-border-radius: .25rem;
   }
 }
 
-@mixin linkButton {
-  @include unstyledButton;
+@mixin link-button {
+  @include unstyled-button;
+
   text-decoration: underline;
 }
 
 
-@mixin gearButton {
-  @include imageButton('gear');
+@mixin gear-button {
+  @include image-button('gear');
 }
 
-@mixin addButton($color: white, $bgcolor: $bright-blue) {
-  @include unstyledButton;
+@mixin add-button($color: white, $bgcolor: colors.$bright-blue) {
+  @include unstyled-button;
 
   position: relative;
   display: flex;
@@ -87,7 +89,7 @@ $square-button-border-radius: .25rem;
   width: 100%;
   font-size: 0.8rem;
 
-  @media (min-width: $md-layout-width-min) {
+  @media (min-width: layout.$md-layout-width-min) {
     font-size: 1rem;
   }
 
@@ -97,7 +99,7 @@ $square-button-border-radius: .25rem;
     background-color: $bgcolor;
     border-radius: 50%;
     margin-bottom: 0.25rem;
-    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 4px 4px rgb(0 0 0 / 25%);
 
     path {
       stroke: $bgcolor;
@@ -108,7 +110,7 @@ $square-button-border-radius: .25rem;
       fill: $color;
     }
 
-    @media (min-width: $md-layout-width-min) {
+    @media (min-width: layout.$md-layout-width-min) {
       height: 2.25rem;
       width: 2.25rem;
     }
@@ -119,12 +121,13 @@ $square-button-border-radius: .25rem;
   }
 }
 
-@mixin unstyledDropdown {
+@mixin unstyled-dropdown {
   all: unset;
   align-items: center;
   box-sizing: border-box;
   cursor: pointer;
   display: flex;
+
   // height: var(--nav-height);
   justify-content: flex-start;
   padding: .25rem 0;
@@ -144,11 +147,11 @@ $square-button-border-radius: .25rem;
 }
 
 
-@mixin mapboxControlButton {
-  background: $mapbox-control-bg-color;
-  box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px;
-  border: .5px solid rgba(0, 0, 0, 0.1);
-  border-width: 0px 0px 1px;
+@mixin mapbox-control-button {
+  background: colors.$mapbox-control-bg-color;
+  box-shadow: rgb(0 0 0 / 30%) 0 1px 4px;
+  border: .5px solid rgb(0 0 0 / 10%);
+  border-width: 0 0 1px;
   border-radius: 2px;
   color: #1A2026;
   height: 2.5rem;
@@ -170,31 +173,275 @@ $square-button-border-radius: .25rem;
   }
 }
 
-@mixin footerActionButton {
+@mixin inline-icon-button {
   align-items: center;
-  background-color: lighten($light-gray-background, 3.5%);
+  background: none;
   border: none;
   border-radius: 0.1875rem;
-  color: $secondary-medium-gray;
-  margin-right: 0.5rem;
-  font-size: 0.7rem;
-  font-weight: bold;
-  height: 2.5rem;
-  min-width: 2.5rem;
+  color: colors.$secondary-medium-gray;
+  display: inline-flex;
+  height: 1.5rem;
+  justify-content: center;
+  padding: 0;
+  width: 1.5rem;
 
   svg {
     height: 1rem;
-
-    @media (min-width: $md-layout-width-min) {
-      margin-right: 0.375rem;
-    }
+    width: 1rem;
   }
 
-  label {
+  &:hover:not(:disabled) {
+    background-color: colors.$light-gray-background;
+  }
+
+  &:focus-visible:not(:disabled) {
+    color: colors.$bright-blue;
+    outline: 2px solid colors.$bright-blue;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+}
+
+@mixin icon-button {
+  align-items: center;
+  background: none;
+  border: none;
+  border-radius: 0.25rem;
+  color: colors.$secondary-medium-gray;
+  display: flex;
+  height: $chip-height;
+  justify-content: center;
+  outline: none;
+  padding: 0;
+  text-decoration: none;
+  width: $chip-height;
+
+  svg {
+    height: 1.25rem;
+    width: 1.25rem;
+  }
+
+  &:focus-visible {
+    color: colors.$bright-blue;
+    outline: 2px solid colors.$bright-blue;
+  }
+
+  &:hover:not(:disabled) {
+    background: colors.$light-gray-background;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+}
+
+@mixin chip-icon-button {
+  align-items: center;
+  background-color: colors.$light-gray-background;
+  border: 1px solid colors.$light-gray-background;
+  border-radius: 0.25rem;
+  color: colors.$secondary-medium-gray;
+  display: flex;
+  height: $chip-height;
+  justify-content: center;
+  padding: 0;
+  width: $chip-height;
+
+  svg {
+    height: 1.25rem;
+    width: 1.25rem;
+  }
+
+  &:hover {
+    background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+    border-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+  }
+
+  &:focus-visible {
+    border-color: colors.$bright-blue;
+    outline: 1px solid colors.$bright-blue;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+
+    &:hover {
+      background-color: colors.$light-gray-background;
+      border-color: colors.$light-gray-background;
+    }
+  }
+}
+
+@mixin chip-active-state {
+  &.active {
+    background-color: colors.$bright-blue;
+    border-color: colors.$bright-blue;
+    color: white;
+
+    &:hover {
+      background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+      border-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+    }
+
+    &:focus-visible {
+      background-color: white;
+      border-color: colors.$bright-blue;
+      color: colors.$bright-blue;
+      outline: 1px solid colors.$bright-blue;
+    }
+  }
+}
+
+// Include it after chipActiveState, so an open menu keeps the focus look of
+// whichever state its button is in.
+@mixin chip-open-state {
+  &[aria-expanded='true'] {
+    border-color: colors.$bright-blue;
+    outline: 1px solid colors.$bright-blue;
+
+    &.active {
+      background-color: white;
+      color: colors.$bright-blue;
+    }
+  }
+}
+
+@mixin chip-text-button {
+  align-items: center;
+  background-color: colors.$light-gray-background;
+  border: 1px solid colors.$light-gray-background;
+  border-radius: 0.25rem;
+  color: colors.$secondary-medium-gray;
+  display: flex;
+  font-size: 0.875rem;
+  font-weight: 500;
+  height: $chip-height;
+  padding: 0 0.5rem;
+
+  &:hover {
+    background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+    border-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+  }
+
+  &:focus-visible {
+    border-color: colors.$bright-blue;
+    outline: 1px solid colors.$bright-blue;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+
+    &:hover {
+      background-color: colors.$light-gray-background;
+      border-color: colors.$light-gray-background;
+    }
+  }
+}
+
+@mixin chip-text-button-small {
+  @include chip-text-button;
+
+  height: $chip-height-small;
+}
+
+@mixin icon-button-small {
+  @include icon-button;
+
+  height: $chip-height-small;
+  width: $chip-height-small;
+
+  svg {
+    height: 1rem;
+    width: 1rem;
+  }
+}
+
+// The arrow glyph fills its viewBox, so it needs a smaller box than the icons
+// that carry their own padding.
+@mixin sort-direction-button {
+  @include chip-icon-button;
+  @include chip-active-state;
+
+  svg {
+    height: 1rem;
+    width: 1rem;
+  }
+}
+
+@mixin base-button {
+  @include chip-text-button;
+
+  gap: 0.375rem;
+  justify-content: center;
+
+  // Keeps the button square on the layouts that drop its label.
+  min-width: $chip-height;
+
+  svg {
+    flex-shrink: 0;
+    height: 1rem;
+    width: 1rem;
+  }
+
+  span {
     display: none;
 
-    @media (min-width: $md-layout-width-min) {
+    @media (min-width: layout.$md-layout-width-min) {
       display: unset;
     }
+  }
+}
+
+@mixin primary-action-button {
+  align-items: center;
+  background-color: colors.$bright-blue;
+  border: none;
+  border-radius: 0.25rem;
+  color: white;
+  display: inline-flex;
+  font-size: 0.875rem;
+  font-weight: 500;
+  gap: 0.375rem;
+  height: $chip-height;
+  justify-content: center;
+  padding: 0 0.5rem;
+
+  // Hovering a focused button would otherwise hide its focus ring.
+  &:hover:not(:disabled, :focus-visible) {
+    background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+  }
+
+  &:focus-visible {
+    background-color: white;
+    color: colors.$bright-blue;
+    outline: 2px solid colors.$bright-blue;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+}
+
+@mixin secondary-action-button {
+  @include primary-action-button;
+
+  background-color: colors.$very-light-blue;
+  color: colors.$bright-blue;
+  text-decoration: none;
+
+  &:hover:not(:disabled, :focus-visible) {
+    background-color: color.adjust(colors.$very-light-blue, $lightness: -5%);
+    color: colors.$bright-blue;
+  }
+
+  &:focus-visible {
+    background-color: colors.$very-light-blue;
   }
 }

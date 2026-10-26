@@ -1,0 +1,215 @@
+# LOCAL COPY of serca-pipelines/.github/workflows/_slack-notify-failure.yml.
+#
+# Not duplication by oversight — do not "fix" it by pointing at the shared one.
+# das-web-react is a PUBLIC repository and serca-pipelines is INTERNAL, and a
+# public repo cannot call a reusable workflow that lives in an internal or
+# private one. The org-level "accessible from repositories in this organization"
+# sharing covers private and internal consumers only.
+#
+# This was proved here, not assumed: an isolated probe calling the shared
+# workflow failed at startup with zero jobs, twice — runs 35124375293 and
+# 35124474323. A second attempt swapped a literal secret for an expression to
+# rule out a syntax error of our own, and failed identically. Merging the
+# cross-repo reference would have been a run-level startup failure on the next
+# push to develop, taking test, build, deploy-dev and sync-dev down with it, and
+# notify-failure would not have fired to report its own breakage.
+#
+# das and report-form-builder are private and internal respectively, so they
+# call the shared workflow directly. Only this repo needs the copy.
+#
+# Keep it in sync with the upstream by hand. If serca-pipelines ever becomes
+# public, or a public workflows repo appears, delete this file and change the
+# caller in develop.yml back to the cross-repo reference — a one-line change.
+#
+# Posts a Slack alert when a mainline build fails.
+#
+# The caller owns the trigger; this workflow owns the message. A caller adds:
+#
+#   notify-failure:
+#     needs: [ ...every job in the workflow... ]
+#     if: ${{ !cancelled() && contains(needs.*.result, 'failure') }}
+#     permissions:
+#       actions: read
+#     uses: ./.github/workflows/_slack-notify-failure.yml
+#     with:
+#       title: "das develop build failed"
+#     secrets:
+#       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+#
+# `actions: read` is what the jobs-API lookup needs. A called workflow's
+# permissions can only be a subset of the caller's, and exceeding them is a
+# workflow-validation error that fails the caller's whole run, not just this
+# job — so a caller that hardens with a restrictive top-level `permissions:`
+# block has to grant it there too.
+#
+# Two things about that `if:` are deliberate and easy to get wrong when copying
+# it into a new repo:
+#
+#   - Not `failure()`. A run that is superseded and cancelled mid-flight is not a
+#     broken build; `!cancelled()` is what keeps those quiet.
+#   - `contains(needs.*.result, 'failure')` rather than a per-job comparison, so
+#     it still fires when unrelated jobs were skipped — the normal shape when a
+#     pipeline has conditional jobs.
+#
+# `needs` has to list every job the caller wants covered. That cannot move in
+# here: the gate reads the *caller's* `needs.*.result`, so a job missing from
+# that list contributes nothing to the trigger and, if it is the only failure,
+# no alert fires at all.
+name: Slack Notify Failure
+
+on:
+  workflow_call:
+    inputs:
+      title:
+        description: 'Headline, e.g. "das develop build failed". Names the repo and branch, since one channel receives several pipelines.'
+        required: true
+        type: string
+      emoji:
+        description: 'Slack emoji shown before the title.'
+        required: false
+        type: string
+        default: ':rotating_light:'
+    secrets:
+      SLACK_WEBHOOK_URL:
+        description: 'Incoming webhook for the channel to alert.'
+        required: true
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+    steps:
+      # Read off the run's own jobs rather than the caller's `needs` context, so
+      # a matrix shard reports as "unit-test (core)" instead of the whole group.
+      # A reusable workflow shares the caller's run, so github.run_id here is the
+      # caller's run. This job is still in_progress while it queries, so its own
+      # conclusion is null and the failure filter already excludes it.
+      - name: Collect failed jobs
+        id: failed
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          REPO: ${{ github.repository }}
+        # `shell: bash` is load-bearing, not boilerplate. Omitting it gets
+        # `bash -e {0}` WITHOUT pipefail, so a `gh api --paginate` that returns
+        # page 1 and then fails on page 2 (rate limit, 5xx) leaves awk exiting 0:
+        # `|| NAMES=""` never fires and a PARTIAL job list is posted as if it were
+        # complete. Silent truncation is worse than the "unknown" this degrades to.
+        shell: bash
+        run: |
+          # Not `.conclusion == "failure"`: the jobs API also returns timed_out,
+          # action_required and neutral, and `needs.<job>.result` maps timed_out to
+          # failure — so the caller's gate fires, the alert posts, and the job list
+          # comes back empty. A shard hitting `timeout-minutes` is precisely when
+          # the name matters most. null is the in-progress notify job itself.
+          NAMES=$(gh api --paginate \
+            "repos/${REPO}/actions/runs/${RUN_ID}/attempts/${RUN_ATTEMPT}/jobs" \
+            --jq '.jobs[]
+                  | select(.conclusion != null
+                           and .conclusion != "success"
+                           and .conclusion != "skipped"
+                           and .conclusion != "cancelled")
+                  | .name' \
+            | awk 'NR>1{printf ", "} {printf "%s", $0} END{if (NR) print ""}') || NAMES=""
+          # awk, not `paste -sd ", "`: paste treats -d as a *list* of delimiters
+          # applied circularly, so three failures join as "a,b c" — garbling the
+          # one field this alert exists to communicate.
+          #
+          # `|| NAMES=""` degrades to "unknown" rather than aborting: a missing job
+          # list is worth far less than the notification itself.
+          echo "names=${NAMES:-unknown}" >> "$GITHUB_OUTPUT"
+
+      # Built with jq from env vars rather than interpolated into the action's
+      # payload input: a commit subject is attacker-controlled text and would
+      # otherwise be spliced into the JSON and into the expression context.
+      - name: Build Slack payload
+        env:
+          TITLE: ${{ inputs.title }}
+          EMOJI: ${{ inputs.emoji }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          COMMIT_URL: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
+          SHA: ${{ github.sha }}
+          ACTOR: ${{ github.event.pusher.name || github.actor }}
+          FAILED_JOBS: ${{ steps.failed.outputs.names }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        shell: bash
+        run: |
+          # Subject line only, capped: Slack rejects a section block over 3000
+          # characters and a merge commit body would blow past it. Shell expansion
+          # rather than `printf | head -n 1 | cut`, because under `-eo pipefail` a
+          # long message makes printf die of SIGPIPE (141) and abort the step,
+          # losing the alert, and `cut -c` can halve a multi-byte character.
+          SUBJECT=${COMMIT_MESSAGE%%$'\n'*}
+          SUBJECT=${SUBJECT:0:200}
+          SUBJECT=${SUBJECT:-(no commit message)}
+          jq -n \
+            --arg title "$TITLE" \
+            --arg emoji "$EMOJI" \
+            --arg subject "$SUBJECT" \
+            --arg commit_url "$COMMIT_URL" \
+            --arg short_sha "${SHA:0:7}" \
+            --arg actor "$ACTOR" \
+            --arg failed_jobs "$FAILED_JOBS" \
+            --arg run_url "$RUN_URL" \
+            '
+            # jq --arg makes a value safe as JSON, but these land inside mrkdwn
+            # blocks, which is a second, separate grammar. Without this a commit
+            # subject of "fix: cleanup <!channel>" @-broadcasts the channel on
+            # every failed build, and "<https://evil.example|see the fix>" renders
+            # as a plausible link. & must be replaced first.
+            def slack_escape:
+              gsub("&"; "&amp;") | gsub("<"; "&lt;") | gsub(">"; "&gt;");
+            # Every field that reaches a block is capped. With errors: true an
+            # invalid_blocks response fails the step, so an oversized field loses
+            # the alert entirely for a build that really did break — the subject
+            # was already capped upstream, and these are the remaining ones.
+            # A section block caps at 3000 characters, a header at 150.
+            def cap($n): if (length > $n) then .[:$n] + "…" else . end;
+            ($title | slack_escape) as $safe_title |
+            ($subject | slack_escape) as $safe_subject |
+            # Capped before escaping so an entity is not split, then again after,
+            # since escaping can grow the string. The outer cap can in principle
+            # halve an "&amp;" — that renders as literal text and cannot form a
+            # control sequence, so it is safe, just ugly, and unreachable unless
+            # a job name is mostly ampersands.
+            ($failed_jobs | cap(1800) | slack_escape | cap(2900)) as $safe_jobs |
+            {
+              text: "\($safe_title): \($safe_subject)",
+              blocks: [
+                {
+                  type: "header",
+                  text: { type: "plain_text", text: ("\($emoji) \($title)" | cap(149)) }
+                },
+                {
+                  type: "section",
+                  text: { type: "mrkdwn", text: "<\($commit_url)|`\($short_sha)`> \($safe_subject) — pushed by *\($actor)*" }
+                },
+                {
+                  type: "section",
+                  text: { type: "mrkdwn", text: "*Failed jobs*\n\($safe_jobs)" }
+                },
+                # A plain link rather than an actions/button block: even a pure-url
+                # button POSTs a block_actions interaction to the app behind the
+                # webhook, which shows the clicker an error when that app has no
+                # interactivity Request URL — the normal case for a webhook-only app.
+                {
+                  type: "context",
+                  elements: [ { type: "mrkdwn", text: "<\($run_url)|View workflow run>" } ]
+                }
+              ]
+            }' > "$RUNNER_TEMP/slack-payload.json"
+
+      # errors: true because the action defaults to false, i.e. it logs a rejected
+      # or revoked webhook and still exits 0. Left at the default, rotating the
+      # secret or removing the Slack app would make every future failure run this
+      # job to a green check while posting nothing, and the alerting would be dead
+      # with no signal until an outage went unnoticed.
+      - name: Post to Slack
+        uses: slackapi/slack-github-action@v4.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          errors: true
+          payload-file-path: ${{ runner.temp }}/slack-payload.json

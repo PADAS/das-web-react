@@ -1,5 +1,11 @@
 {
-    "analyzerConfigPopup": {
+  "gearPopup": {
+    "dateTimeSuffix": "अघि",
+    "deviceLabel": "यन्त्र {{label}}",
+    "lastUpdatedLabel": "पछिल्लो अद्यावधिक",
+    "typeLabel": "प्रकार"
+  },
+  "analyzerConfigPopup": {
         "analyzerTypeHeader": {
             "environmental": "वातावरणीय",
             "generic": "सामान्य",
@@ -11,7 +17,8 @@
         }
     },
     "layerSelectorPopup": {
-        "searchBarPlaceholder": "खोज्नुहोस्"
+        "searchBarPlaceholder": "खोज्नुहोस्",
+        "unsavedChangesLabel": "बचत नगरिएका परिवर्तनहरू"
     },
     "mouseMarkerPopup": {
         "coordinatesStringOutsideBbox": "उ/ल",

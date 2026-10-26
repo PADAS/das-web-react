@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import debounce from 'lodash/debounce';
 import noop from 'lodash/noop';
 import isEqual from 'react-fast-compare';
@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { BREAKPOINTS } from '../constants';
 import { calcPositiveBearing } from '../utils/location';
 import { LAYER_IDS, SOURCE_IDS } from './MapLayers';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { useDrawToolGeoJson } from './hooks';
 import { useMapEventBinding, useMatchMedia } from '../hooks';
 
@@ -35,6 +35,7 @@ const MapDrawingTools = ({
   onClickPoint = noop,
   points,
   renderCursorPopup = defaultCursorPopupRenderFn,
+  showLineFill = false,
 }) => {
   const map = useContext(MapContext);
 
@@ -60,12 +61,14 @@ const MapDrawingTools = ({
     drawingMode,
     isHoveringGeometry,
     draggedPoint,
-    isMediumLayoutOrLarger
+    isMediumLayoutOrLarger,
+    showLineFill
   );
 
   const showLayer = pointerLocation || points.length;
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // Memoizing the debounced handler, with these dependencies, is intended.
+  // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/use-memo
   const onMapClick = useCallback(debounce((event) => {
     event.preventDefault();
     event.originalEvent.stopPropagation();
@@ -190,6 +193,7 @@ const MapDrawingTools = ({
       isHoveringGeometry={isHoveringGeometry}
       setIsHoveringGeometry={setIsHoveringGeometry}
       setIsHoveringMidpoint={setIsHoveringMidpoint}
+      showLineFill={showLineFill}
     />
     {children}
   </>;
@@ -197,7 +201,7 @@ const MapDrawingTools = ({
 
 export default memo(MapDrawingTools);
 
-const DefaultCursorPopup = ({ coords, drawing, isHoveringMidpoint, lineLength, points }) => {
+export const DefaultCursorPopup = ({ area = null, coords, drawing, isHoveringMidpoint, lineLength, points }) => {
   const map = useContext(MapContext);
   const { t } = useTranslation('map-controls', { keyPrefix: 'mapDrawingTools' });
 
@@ -222,6 +226,7 @@ const DefaultCursorPopup = ({ coords, drawing, isHoveringMidpoint, lineLength, p
               bearing: calcPositiveBearing(points[points.length - 1], coords).toFixed(2)
             })}
           </p>
+          {!!area && <p>{t('areaLabel', { area })}</p>}
           <p>
             {t('distanceLabel', {
               distance: lineLength

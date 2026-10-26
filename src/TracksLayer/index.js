@@ -1,20 +1,16 @@
-import React, { memo, useCallback, useContext, useEffect } from 'react';
+import { memo, useCallback, useContext } from 'react';
 import { useSelector } from 'react-redux';
 
-import { addMapImage } from '../utils/map';
 import { LAYER_IDS } from '../constants';
 import { MAP_LAYERS_CATEGORY, trackEventFactory } from '../utils/analytics';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { selectSubjectTracksWithPatrolTrackShownFlag } from '../selectors/patrols';
 
-import Arrow from '../common/images/icons/track-arrow.svg?url';
 import TrackLayer from './track';
-
-const ARROW_IMG_ID = 'track_arrow';
 
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
-const TracksLayer = ({ onPointClick, onTrackLabelClick, showTimepoints = true }) => {
+const TracksLayer = ({ onPointClick, showTimepoints = true }) => {
   const map = useContext(MapContext);
 
   const subjectTracksWithPatrolTrackShownFlag = useSelector(selectSubjectTracksWithPatrolTrackShownFlag);
@@ -27,19 +23,12 @@ const TracksLayer = ({ onPointClick, onTrackLabelClick, showTimepoints = true })
     mapLayerTracker.track('Clicked Track Timepoint');
   }, [map, onPointClick]);
 
-  useEffect(() => {
-    if (!map.hasImage(ARROW_IMG_ID)) {
-      addMapImage({ src: Arrow, id: ARROW_IMG_ID });
-    }
-  }, [map]);
-
   return subjectTracksWithPatrolTrackShownFlag.length > 0
     ? subjectTracksWithPatrolTrackShownFlag.map((subjectTracks) => <TrackLayer
       id={subjectTracks.track.features[0].properties.id}
       key={`track-layer-${subjectTracks.track.features[0].properties.id}`}
       linePaint={{ 'line-opacity': subjectTracks.patrolTrackShown ? 0.4 : 1 }}
       onPointClick={onTimepointClick}
-      onTrackLabelClick={onTrackLabelClick}
       showTimepoints={showTimepoints}
       trackData={subjectTracks}
     />)

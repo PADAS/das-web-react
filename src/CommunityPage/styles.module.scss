@@ -1,0 +1,96 @@
+@use '../common/styles/vars/colors';
+
+.pageContainer {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  overflow-y: auto;
+  background-color: white;
+}
+
+.communityPage {
+  display: flex;
+  flex-direction: column;
+  width: 640px;
+  padding: 2rem 1rem 1rem;
+}
+
+.heading {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.loadingView {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: center;
+}
+
+.earthRangerLogo {
+  max-height: 14.4rem;
+  max-width: 14.4rem;
+}
+
+.loadingError {
+  color: colors.$bright-red;
+  font-weight: 500;
+  margin-top: 0.75rem;
+}
+
+.submittedModalBody {
+  font-size: 1.25rem;
+  font-weight: 500;
+  padding: 2rem;
+  text-align: center;
+}
+
+.coolOffNotice {
+  align-items: center;
+  background-color: colors.$very-light-blue;
+  border-color: colors.$light-gray-lines;
+  border-radius: 0.25rem;
+  border-style: solid;
+  border-width: 1px;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 1.5rem;
+  text-align: center;
+
+  .coolOffIcon {
+    height: 2.5rem;
+    width: 2.5rem;
+
+    > g {
+      stroke: colors.$primary-button-color;
+    }
+  }
+
+  .coolOffTitle {
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin: 1rem 0 0.5rem;
+  }
+
+  .coolOffMessage {
+    color: colors.$primary-font-color;
+    margin-bottom: 0;
+  }
+
+  .coolOffBackButton {
+    margin-top: 1.5rem;
+  }
+}
+
+.searchControls {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  > * {
+    flex: 1;
+  }
+}

@@ -1,0 +1,10 @@
+.addedReport {
+  inset: 0 0 auto;
+  position: absolute;
+  transform: translateX(-46rem);
+  transition: transform 0.4s ease-in-out;
+
+  &.show {
+    transform: translateX(0);
+  }
+}

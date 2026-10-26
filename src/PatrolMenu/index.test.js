@@ -1,4 +1,3 @@
-import React from 'react';
 import PatrolMenu from './index';
 import patrols from '../__test-helpers/fixtures/patrols';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
@@ -7,12 +6,23 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 import { useReactToPrint } from 'react-to-print';
 
-import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../constants';
+import { PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../constants';
 import { render, screen } from '../test-utils';
+import { downloadFileFromUrl } from '../utils/download';
 
 jest.mock('react-to-print', () => ({
   ...jest.requireActual('react-to-print'),
   useReactToPrint: jest.fn(),
+}));
+
+jest.mock('../store', () => ({}));
+
+jest.mock('../ducks/tracks', () => ({
+  TRACKS_API_URL: (id) => `/api/v1.0/subject/${id}/tracks/`,
+}));
+
+jest.mock('../utils/download', () => ({
+  downloadFileFromUrl: jest.fn(() => Promise.resolve()),
 }));
 
 describe('PatrolMenu', () => {
@@ -32,7 +42,8 @@ describe('PatrolMenu', () => {
   const minimumNecessaryStoreStructure = {
     data: {
       patrolTypes,
-      patrolStore: patrols.reduce((p, acc = {}) => ({ ...acc, [p.id]: p })),
+      patrolStore: patrols.reduce((acc, p) => ({ ...acc, [p.id]: p }), {}),
+      tracks: {},
     },
     view: {
       systemConfig: {
@@ -86,7 +97,19 @@ describe('PatrolMenu', () => {
     renderPatrolMenu();
     await userEvent.click(screen.getByRole('button'));
 
-    testMinimumOptionsMenu();
+    expect(screen.getByText('Copy patrol link')).toBeInTheDocument();
+    expect(screen.getByTestId('clip-icon')).toBeInTheDocument();
+    expect(screen.getByText('Print Patrol')).toBeInTheDocument();
+    expect(screen.getByTestId('printer-icon')).toBeInTheDocument();
+  });
+
+  test('reaches the copy button with the keyboard', async () => {
+    renderPatrolMenu(undefined, storeWithUpdatePermissions);
+    await userEvent.click(screen.getByRole('button'));
+
+    await userEvent.keyboard('{ArrowDown}{ArrowDown}{ArrowDown}');
+
+    expect(screen.getByRole('button', { name: 'Copy to clipboard' })).toHaveFocus();
   });
 
   test('prints the patrol details', async () => {
@@ -111,6 +134,27 @@ describe('PatrolMenu', () => {
     expect( screen.getByTestId('play-icon') ).toBeInTheDocument();
   });
 
+  test('offers ending a paused patrol, which is still running', async () => {
+    const pausedPatrol = {
+      ...testPatrol,
+      state: 'open',
+      patrol_segments: [{
+        ...testPatrol.patrol_segments[0],
+        is_pause: true,
+        time_range: { end_time: null, start_time: '2020-01-01T00:00:00.000Z' },
+      }],
+    };
+
+    renderPatrolMenu(
+      { ...initialProps, patrol: pausedPatrol, patrolState: PATROL_UI_STATES.PAUSED },
+      storeWithUpdatePermissions
+    );
+
+    await userEvent.click(screen.getByRole('button'));
+
+    expect(screen.getByText('End Patrol').closest('button')).not.toBeDisabled();
+  });
+
   test('renders restore menu option for a cancelled patrol', async () => {
     renderMenuWithCancelledPatrol();
     await userEvent.click(screen.getByRole('button'));
@@ -127,9 +171,132 @@ describe('PatrolMenu', () => {
     await userEvent.click(screen.getByRole('button'));
     await userEvent.click(screen.getByText('Restore Patrol'));
 
-    expect(onPatrolChange).toHaveBeenCalledWith({
-      patrol_segments: [{ time_range: { end_time: null } }],
-      state: 'open'
+    expect(onPatrolChange).toHaveBeenCalledWith({ state: 'open' });
+  });
+
+  describe('Download Patrol Track button', () => {
+    beforeEach(() => {
+      downloadFileFromUrl.mockImplementation(() => Promise.resolve());
+    });
+
+    // patrols[1] has a leader and a start_time, making it suitable for track tests
+    const patrolWithLeader = patrols[1];
+    const leaderId = patrolWithLeader.patrol_segments[0].leader.id;
+    const patrolStartTime = patrolWithLeader.patrol_segments[0].time_range.start_time;
+
+    const makeTrackStore = (times) => ({
+      ...minimumNecessaryStoreStructure,
+      data: {
+        ...minimumNecessaryStoreStructure.data,
+        tracks: {
+          [leaderId]: {
+            track: {
+              features: [{
+                properties: { coordinateProperties: { times } },
+              }],
+            },
+          },
+        },
+      },
+    });
+
+    const openMenu = async () => {
+      await userEvent.click(screen.getByRole('button'));
+    };
+
+    const getDownloadOption = () =>
+      screen.getByText('Download Patrol Track').closest('button');
+
+    test('is disabled when patrol has no leader', async () => {
+      renderPatrolMenu({ ...initialProps, patrol: patrols[0] });
+      await openMenu();
+      expect(getDownloadOption()).toBeDisabled();
+    });
+
+    test('is disabled when leader has no track in the store', async () => {
+      renderPatrolMenu({ ...initialProps, patrol: patrolWithLeader });
+      await openMenu();
+      expect(getDownloadOption()).toBeDisabled();
+    });
+
+    test('is disabled when track has no points within the patrol time range', async () => {
+      // All times are before the patrol start_time
+      const beforeStart = new Date(new Date(patrolStartTime).getTime() - 60000).toISOString();
+      const store = makeTrackStore([beforeStart]);
+      renderPatrolMenu({ ...initialProps, patrol: patrolWithLeader }, store);
+      await openMenu();
+      expect(getDownloadOption()).toBeDisabled();
+    });
+
+    test('is enabled when track has points within the patrol time range', async () => {
+      // Time is after the patrol start_time
+      const afterStart = new Date(new Date(patrolStartTime).getTime() + 60000).toISOString();
+      const store = makeTrackStore([afterStart]);
+      renderPatrolMenu({ ...initialProps, patrol: patrolWithLeader }, store);
+      await openMenu();
+      expect(getDownloadOption()).not.toBeDisabled();
+    });
+
+    test('calls downloadFileFromUrl with correct url, params, and filename when clicked', async () => {
+      const afterStart = new Date(new Date(patrolStartTime).getTime() + 60000).toISOString();
+      const store = makeTrackStore([afterStart]);
+      renderPatrolMenu({ ...initialProps, patrol: patrolWithLeader }, store);
+      await openMenu();
+
+      await userEvent.click(screen.getByText('Download Patrol Track'));
+
+      expect(downloadFileFromUrl).toHaveBeenCalledWith(
+        `/api/v1.0/subject/${leaderId}/tracks/`,
+        expect.objectContaining({
+          params: expect.objectContaining({ since: patrolStartTime }),
+          filename: `Patrol_${patrolWithLeader.serial_number}_${patrolWithLeader.patrol_segments[0].leader.name}.geojson`,
+        })
+      );
+    });
+
+    test('passes until param when patrol has an end_time', async () => {
+      const patrolEndTime = new Date(new Date(patrolStartTime).getTime() + 3600000).toISOString();
+      const trackTime = new Date(new Date(patrolStartTime).getTime() + 1800000).toISOString();
+      const patrolWithEndTime = {
+        ...patrolWithLeader,
+        patrol_segments: [{
+          ...patrolWithLeader.patrol_segments[0],
+          time_range: { start_time: patrolStartTime, end_time: patrolEndTime },
+        }],
+      };
+      const store = makeTrackStore([trackTime]);
+      renderPatrolMenu({ ...initialProps, patrol: patrolWithEndTime }, store);
+      await openMenu();
+
+      await userEvent.click(screen.getByText('Download Patrol Track'));
+
+      expect(downloadFileFromUrl).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          params: expect.objectContaining({ since: patrolStartTime, until: patrolEndTime }),
+        })
+      );
+    });
+
+    test('sanitizes invalid characters in leader name for the filename', async () => {
+      const afterStart = new Date(new Date(patrolStartTime).getTime() + 60000).toISOString();
+      const patrolWithSpecialName = {
+        ...patrolWithLeader,
+        patrol_segments: [{
+          ...patrolWithLeader.patrol_segments[0],
+          leader: { ...patrolWithLeader.patrol_segments[0].leader, name: 'John/Doe:Test' },
+        }],
+      };
+      const store = makeTrackStore([afterStart]);
+      renderPatrolMenu({ ...initialProps, patrol: patrolWithSpecialName }, store);
+      await openMenu();
+
+      await userEvent.click(screen.getByText('Download Patrol Track'));
+
+      expect(downloadFileFromUrl).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ filename: expect.stringContaining('John_Doe_Test') })
+      );
     });
   });
 
@@ -146,10 +313,9 @@ describe('PatrolMenu', () => {
     await user.click(screen.getByRole('button'));
     await user.click(screen.getByText('Start Patrol'));
 
-    expect(onPatrolChange).toHaveBeenCalledWith({
-      patrol_segments: [{ time_range: { end_time: null, start_time: mockedDate } }],
-      state: 'open'
-    });
+    expect(onPatrolChange).toHaveBeenCalledWith(expect.objectContaining({ state: 'open' }));
+    expect(onPatrolChange.mock.calls[0][0].patrol_segments.at(-1).time_range)
+      .toEqual(expect.objectContaining({ end_time: null, start_time: mockedDate }));
 
     jest.useRealTimers();
   });

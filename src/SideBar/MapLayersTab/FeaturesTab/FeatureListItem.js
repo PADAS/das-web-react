@@ -1,8 +1,8 @@
-import React, { memo, useContext } from 'react';
+import { memo, useContext } from 'react';
 import { useDispatch } from 'react-redux';
 import { center, bboxPolygon } from '@turf/turf';
 
-import { BREAKPOINTS } from '../../../constants';
+import { BREAKPOINTS, SIDEBAR_WIDTH_PIXELS } from '../../../constants';
 import { useMatchMedia } from '../../../hooks';
 import { showFeatures } from '../../../ducks/map-layer-filter';
 import { setMapFeatureHighlightIDs } from '../../../ducks/mapFeatureHighlight';
@@ -14,14 +14,12 @@ import { ReactComponent as ProximityIcon } from '../../../common/images/icons/pr
 import LocationJumpButton from '../../../LocationJumpButton';
 import { SYMBOLS_LAYER_ID, POLYGONS_LAYER_ID, LINES_LAYER_ID } from '../../../SpatialFeaturesLayer';
 
-import { MapContext } from '../../../App';
+import { MapContext } from '../../../MapContext';
 
 import * as styles from '../styles.module.scss';
 
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
-// eslint-disable-next-line react/display-name
-const SIDEBAR_WIDTH_PIXELS = 512;
 
 const FeatureListItem = memo((props) => {
   const map = useContext(MapContext);
@@ -84,6 +82,8 @@ const FeatureListItem = memo((props) => {
   </span>;
 
 });
+
+FeatureListItem.displayName = 'FeatureListItem';
 
 export default FeatureListItem;
 

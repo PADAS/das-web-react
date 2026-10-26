@@ -1,7 +1,8 @@
-@import '../common/styles/buttons';
+@use '../common/styles/buttons';
 
 .hamburger {
-  @include unstyledButton;
+  @include buttons.unstyled-button;
+
   --color:var(--hamburger-menu-color, white);
   --size: var(--hamburger-menu-size, 1.5rem);
   --transition-time: var(--hamburger-menu-transition-speed, .15s);
@@ -50,7 +51,7 @@
 
   &.open {
     span {
-      background-color: rgba(0, 0, 0, 0);
+      background-color: rgb(0 0 0 / 0%);
       width: calc(var(--size) - var(--spacing));
       transform: translate(calc(var(--spacing) * 0.85), calc(var(--spacing) * 0.5)) rotate(45deg);
 

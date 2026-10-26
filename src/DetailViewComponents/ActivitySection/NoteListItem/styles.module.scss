@@ -1,0 +1,60 @@
+@use '../../../common/styles/buttons';
+@use '../../../common/styles/vars/colors';
+
+.smallItemIcon {
+  --item-icon-size: 1.25rem;
+}
+
+.deletableNoteDetails {
+  --item-details-direction: row;
+  --item-details-justify: space-between;
+}
+
+.noteTextArea {
+  background-color: transparent;
+  border: none;
+  display: block;
+  font-size: 0.875rem;
+  height: 10rem;
+  padding: 0.25rem 0.5rem;
+  resize: none;
+  width: 100%;
+
+  &:focus-visible {
+    outline: 2px solid colors.$bright-blue;
+    outline-offset: -2px;
+  }
+
+  @media print {
+    display: none;
+  }
+}
+
+.printableNoteText {
+  display: none;
+  padding: 1rem 1.25rem;
+  white-space: pre-wrap;
+
+  @media print {
+    display: block;
+  }
+}
+
+.editingNoteActions {
+  align-items: center;
+  border-top: 0.0625rem solid colors.$light-gray-lines;
+  display: flex;
+  height: 3rem;
+  justify-content: flex-end;
+  padding: 0.5rem 1rem;
+
+  .cancelNoteButton {
+    @include buttons.chip-text-button;
+
+    margin-right: 0.5rem;
+  }
+
+  .doneNoteButton {
+    @include buttons.primary-action-button;
+  }
+}

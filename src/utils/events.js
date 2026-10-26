@@ -48,6 +48,12 @@ export const getReporterById = (id) => {
 
 export const displayTitleForEvent = (event, eventTypes) => event.title || eventTypeTitleForEvent(event, eventTypes);
 
+export const getIsEventFullyLoaded = (event) => !!event
+  && !!event.event_details
+  && !!event.files
+  && !!event.notes
+  && !!event.updates;
+
 export const getCoordinatesForEvent = (event) => {
   if (event?.geojson?.geometry?.type === 'Polygon') {
     return event.geojson.geometry.coordinates.reduce((accumulator, shape) => [...accumulator, ...shape], []);
@@ -96,7 +102,7 @@ export const createNewReportForEventType = (reportType, data) => {
     is_collection: false,
     location,
     priority: reportType.default_priority || 0,
-    reported_by: reporter || null,
+    reported_by: reporter || null,
     state: reportType.default_state || EVENT_FORM_STATES.ACTIVE,
     time: time ? new Date(time) : new Date(),
   };
@@ -163,8 +169,16 @@ export const addBounceToEventMapFeatures = (features, bounceIDs) => {
 export const validateReportAgainstCurrentEventFilter = (report, storeFromProps) => {
   const { data: { eventFilter, eventTypes } } = (storeFromProps || store).getState();
 
+  const { state: filterState, filter = {} } = eventFilter || {};
+  const {
+    date_range: { lower, upper } = {},
+    event_type: eventTypeFilterIds = [],
+    text = '',
+    priority = [],
+    reported_by: reportedByFilter = [],
+  } = filter;
+
   const reportMatchesDateFilter = () => {
-    const { filter: { date_range: { lower, upper } } } = eventFilter;
     const { updated_at } = report;
 
     const updateDate = new Date(updated_at);
@@ -178,22 +192,21 @@ export const validateReportAgainstCurrentEventFilter = (report, storeFromProps) 
     return true;
   };
 
-  const reportMatchesStateFilter = () => !eventFilter.state || eventFilter.state.includes(report.state);
+  const reportMatchesStateFilter = () => !filterState || filterState.includes(report.state);
 
   const reportMatchesEventTypeFilter = () => {
-    if (!eventFilter.filter.event_type.length) {
+    if (!eventTypeFilterIds.length) {
       return true;
     }
 
-    const eventTypeValuesFromFilterIds = eventFilter.filter.event_type
-      .map((id) => eventTypes.find((type) => type.id === id))
+    const eventTypeValuesFromFilterIds = eventTypeFilterIds
+      .map((id) => (eventTypes || []).find((type) => type.id === id))
       .filter((item) => !!item)
       .map(({ value }) => value);
     return eventTypeValuesFromFilterIds.includes(report.event_type);
   };
 
   const reportMatchesTextFiter = () => {
-    const { filter: { text } } = eventFilter;
     if (!text || !text.length) {
       return true;
     }
@@ -204,17 +217,17 @@ export const validateReportAgainstCurrentEventFilter = (report, storeFromProps) 
     return toTest.includes(text.toLowerCase());
   };
 
-  const reportMatchesPriorityFilter = () => !eventFilter.filter.priority.length
-    || eventFilter.filter.priority.includes(report.priority);
+  const reportMatchesPriorityFilter = () => !priority.length
+    || priority.includes(report.priority);
 
   const reportMatchesReportedByFilter = () => {
-    if (!eventFilter.filter.reported_by.length) {
+    if (!reportedByFilter.length) {
       return true;
     }
-    if (!!eventFilter.filter.reported_by.length && !report.reported_by) {
+    if (!!reportedByFilter.length && !report.reported_by) {
       return false;
     }
-    return eventFilter.filter.reported_by.includes(report.reported_by.id);
+    return reportedByFilter.includes(report.reported_by.id);
   };
 
   return reportMatchesStateFilter()
@@ -225,15 +238,11 @@ export const validateReportAgainstCurrentEventFilter = (report, storeFromProps) 
     && reportMatchesEventTypeFilter();
 };
 
-export const addPatrolSegmentToEvent = (segment_id, event_id) => {
-  const segmentPayload = { patrol_segments: [segment_id] };
-
-  return axios.patch(`${EVENT_API_URL}${event_id}/`, segmentPayload)
-    .catch((error) => console.warn('add segment error', error));
-};
+export const addPatrolSegmentToEvent = (segment_id, event_id) =>
+  axios.patch(`${EVENT_API_URL}${event_id}/`, { patrol_segments: [segment_id] });
 
 export const calcDisplayPriorityForReport = (report, eventTypes) => {
-  if (!!report.priority) {
+  if (report.priority) {
     return report.priority;
   }
 
@@ -293,20 +302,20 @@ export const isReportActive = (report) => ['active', 'new'].includes(report?.sta
 export const formValidator = customizeValidator({ AjvClass: AjvDraft04 });
 
 export const REPORT_SAVE_ACTIONS = {
-  create: (data) => ({
-    action: () => store.dispatch(createEvent(data)),
+  create: (data, communityInputValue = null) => ({
+    action: () => store.dispatch(createEvent(data, communityInputValue)),
     priority: 300,
   }),
-  update: (data) => ({
-    action: () => store.dispatch(updateEvent(data)),
+  update: (data, communityInputValue = null) => ({
+    action: () => store.dispatch(updateEvent(data, communityInputValue)),
     priority: 250,
   }),
-  addNote: (note) => ({
-    action: (event_id) => store.dispatch(addNoteToEvent(event_id, note)),
+  addNote: (note, communityInputValue = null) => ({
+    action: (event_id) => store.dispatch(addNoteToEvent(event_id, note, communityInputValue)),
     priority: 200,
   }),
-  addFile: (file) => ({
-    action: (event_id) => store.dispatch(uploadEventFile(event_id, file)),
+  addFile: (file, communityInputValue = null) => ({
+    action: (event_id) => store.dispatch(uploadEventFile(event_id, file, communityInputValue)),
     priority: 200,
   }),
 };

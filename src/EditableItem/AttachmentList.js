@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import DateTime from '../DateTime';
 
 import { ReactComponent as AttachmentIcon } from '../common/images/icons/attachment.svg';

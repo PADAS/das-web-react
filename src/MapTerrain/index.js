@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { connect } from 'react-redux';
 
 const DEFAULT_DEM_SOURCE_CONFIG = {

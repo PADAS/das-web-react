@@ -1,9 +1,9 @@
-import React, { memo, Suspense, useContext } from 'react';
+import { memo, Suspense, useContext } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import { useDispatch, useSelector } from 'react-redux';
 
-import ImageModal from '../ImageModal';
-import { MapContext } from '../App';
+import MediaModal from '../MediaModal';
+import { MapContext } from '../MapContext';
 import { removeModal } from '../ducks/modals';
 
 import * as styles from './styles.module.scss';
@@ -17,16 +17,10 @@ const ModalRenderer = () => {
   const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
   const modals = useSelector((state) => state.view.modals.modals);
 
-  return !!modals.length && <div data-testid="modalsRenderer-container">
+  return modals.length > 0 ? <div data-testid="modalsRenderer-container">
     <Suspense fallback={null}>
       {modals.map((item) => {
         const { content: ContentComponent, backdrop = 'static', id, modalProps, ...rest } = item;
-
-        const onHideModal = () => {
-          if (!isPickingLocation) {
-            dispatch(removeModal(id));
-          }
-        };
 
         return !!ContentComponent && <Modal
           backdrop={backdrop}
@@ -42,9 +36,9 @@ const ModalRenderer = () => {
             transition: 'opacity 0.3s linear, display 0 linear 0.3s,'
           }}
           {...modalProps}
-          onHide={onHideModal}
-          {...(ContentComponent.type?.name === ImageModal.type.name
-            ? { className: `${modalProps?.className || ''} ${styles.modalImageBackground}` }
+          onHide={() => !isPickingLocation && dispatch(removeModal(id))}
+          {...(ContentComponent === MediaModal
+            ? { className: `${modalProps?.className || ''} ${styles.modalMediaBackground}` }
             : {}
           )}
         >
@@ -52,7 +46,7 @@ const ModalRenderer = () => {
         </Modal>;
       })}
     </Suspense>
-  </div>;
+  </div> : null;
 };
 
 export default memo(ModalRenderer);

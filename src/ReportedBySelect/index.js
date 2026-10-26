@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef } from 'react';
 import { components } from 'react-select';
 import { List } from 'react-window';
 import { useSelector } from 'react-redux';
@@ -9,8 +9,8 @@ import { calcRecentRadiosFromSubjects, isRadioWithImage } from '../utils/subject
 import { calcUrlForImage } from '../utils/img';
 import { getGlobalSchemaReportedBy } from '../selectors';
 
+import LegacySelect from '../LegacySelect';
 import TimeAgo from '../TimeAgo';
-import Select from '../Select';
 
 import * as styles from './styles.module.scss';
 
@@ -45,7 +45,7 @@ const Option = ({ data, selectProps, innerProps: { onMouseMove: _onMouseMove, on
       </components.Option>
     </div>;
   } else {
-    const radioImage = isRadioWithImage(data) || calcUrlForImage(data.image_url);
+    const radioImage = calcUrlForImage(isRadioWithImage(data) || data.image_url);
     const isRecent = selectProps.recentRadios.some((item) => item.id === data.id)
       && (data.last_voice_call_start_at || data.last_position_date);
 
@@ -67,7 +67,7 @@ const Option = ({ data, selectProps, innerProps: { onMouseMove: _onMouseMove, on
 const MultiValueLabel = ({ data, ...restProps }) => {
   const { t } = useTranslation('components', { keyPrefix: 'reportedBySelect.multiValueLabel' });
 
-  const radioImage = isRadioWithImage(data) || calcUrlForImage(data.image_url);
+  const radioImage = calcUrlForImage(isRadioWithImage(data) || data.image_url);
 
   return <div className={styles.multiValue}>
     {radioImage && <img alt={t('radioIcon', { name: data.name })} src={radioImage} />}
@@ -81,7 +81,7 @@ const MultiValueLabel = ({ data, ...restProps }) => {
 const SingleValue = ({ data, children, ...restProps }) => {
   const { t } = useTranslation('components', { keyPrefix: 'reportedBySelect.singleValue' });
 
-  const radioImage = isRadioWithImage(data) || calcUrlForImage(data.image_url);
+  const radioImage = calcUrlForImage(isRadioWithImage(data) || data.image_url);
 
   return <components.SingleValue className={styles.singleValue} {...restProps}>
     {radioImage && <img alt={t('radioIcon', { name: data.name })} src={radioImage} />}
@@ -155,8 +155,6 @@ const ReportedBySelect = ({
   const reporters = useSelector(getGlobalSchemaReportedBy);
   const subjects = useSelector(allSubjects);
 
-  const [isMenuOpen, setMenuOpen] = useState(false);
-
   const selections = optionsFromProps ? optionsFromProps : reporters;
 
   const recentRadios = useMemo(
@@ -165,7 +163,7 @@ const ReportedBySelect = ({
   );
 
   const selected = useMemo(() => {
-    if (!Boolean(value)) {
+    if (!value) {
       return null;
     }
 
@@ -183,7 +181,7 @@ const ReportedBySelect = ({
   const options = useMemo(() => {
     const displayOptions = selections.filter(({ id }) => !recentRadios.some(({ id: radioId }) => radioId === id));
 
-    if (!!recentRadios.length) {
+    if (recentRadios.length) {
       return [
         {
           disabled: true,
@@ -202,20 +200,6 @@ const ReportedBySelect = ({
     return displayOptions;
   }, [recentRadios, selections]);
 
-  const onMenuClose = useCallback(() => {
-    setMenuOpen(false);
-  }, []);
-
-  const onMenuOpen = useCallback(() => {
-    setMenuOpen(true);
-  }, []);
-
-  const onKeyDown = useCallback((event) => {
-    if (event.key === 'Escape' && isMenuOpen) {
-      event.stopPropagation();
-    }
-  }, [isMenuOpen]);
-
   const selectStyles = {
     option(styles, { isDisabled: _isDisabled }) {
       return styles;
@@ -232,7 +216,7 @@ const ReportedBySelect = ({
     selectStyles.menuPortal = base => ({ ...base, fontSize: '0.9rem', zIndex: 9999 });
   }
 
-  return <Select
+  return <LegacySelect
     className={className}
     components={{ Control, MenuList, MultiValueLabel, Option, SingleValue }}
     getOptionLabel={getOptionLabel(t)}
@@ -243,9 +227,6 @@ const ReportedBySelect = ({
     isSearchable={true}
     menuShouldScrollIntoView={false}
     onChange={onChange}
-    onKeyDown={onKeyDown}
-    onMenuClose={onMenuClose}
-    onMenuOpen={onMenuOpen}
     options={options}
     placeholder={placeholder || t('placeholder')}
     recentRadios={recentRadios}

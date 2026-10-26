@@ -1,4 +1,3 @@
-import React from 'react';
 import userEvent from '@testing-library/user-event';
 
 import { fireEvent, render, screen, waitFor } from '../test-utils';
@@ -820,8 +819,21 @@ describe('TimePicker', () => {
 
     await userEvent.click(openTimeOptionsButton);
 
-    expect(screen.getByRole('presentation')).toBeVisible();
+    const timeOptions = screen.getByRole('presentation');
+
+    expect(timeOptions).toBeVisible();
+    expect(timeOptions).toHaveStyle({ position: 'fixed' });
     expect(openTimeOptionsButton).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  test('points the time options button at the popover it opens', async () => {
+    renderTimePicker();
+
+    const openTimeOptionsButton = screen.getByLabelText('Open time options');
+    await userEvent.click(openTimeOptionsButton);
+
+    expect(openTimeOptionsButton.getAttribute('aria-controls'))
+      .toBe(screen.getByRole('presentation').id);
   });
 
   test('closes the time options', async () => {

@@ -1,18 +1,24 @@
-.DS_Store
+# Dependencies
+/node_modules
 
+# Yarn: keep the pinned release and its config, ignore the cache and install state
 /.yarn/*
+!/.yarn/patches
+!/.yarn/plugins
+!/.yarn/releases
+!/.yarn/sdks
+!/.yarn/versions
+
+# Build and test output
 /build
 /coverage
-/node_modules
+
+# Local environment and runtime config
+*.local
+/public/config.js
+
+# Editors and tools
+.DS_Store
+/.idea
 /.vscode
-
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
+/.claude/settings.local.json

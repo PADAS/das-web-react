@@ -1,5 +1,4 @@
-import React from 'react';
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw/http';
 import { Provider } from 'react-redux';
 import { setupServer } from 'msw/node';
 import userEvent from '@testing-library/user-event';
@@ -7,9 +6,9 @@ import userEvent from '@testing-library/user-event';
 import { NEWS_API_URL } from '../ducks/news';
 
 import { mockStore } from '../__test-helpers/MockStore';
-import SocketProvider from '../__test-helpers/MockSocketContext';
+import SocketProvider, { mockedSocket } from '../__test-helpers/MockSocketContext';
 import mockNewsData from '../__test-helpers/fixtures/news';
-import { render, waitFor, waitForElementToBeRemoved, screen } from '../test-utils';
+import { render, waitFor, screen } from '../test-utils';
 
 import NotificationMenu from '../NotificationMenu';
 
@@ -34,11 +33,11 @@ afterAll(() => server.close());
 
 
 test('rendering without crashing', () => {
-  render(<Provider store={store} >
+  expect(() => render(<Provider store={store} >
     <SocketProvider>
       <NotificationMenu />
     </SocketProvider>
-  </Provider>);
+  </Provider>)).not.toThrow();
 });
 
 describe('listing news items', () => {
@@ -62,6 +61,26 @@ describe('listing news items', () => {
     const items = await waitFor(() => screen.getAllByRole('listitem'));
 
     expect(items[0]).toHaveTextContent(mockNewsData[0].description);
+  });
+
+  test('lists an announcement that arrives over the socket', async () => {
+    await waitFor(() => screen.getAllByRole('listitem'));
+
+    mockedSocket.socketClient.emit('new_announcement', {
+      data: {
+        additional: { created_at: '2021-07-05T00:00:00.000Z' },
+        description: 'A new announcement just arrived',
+        id: 'new-announcement',
+        link: 'https://earthranger.com/news',
+        read: false,
+        title: 'Fresh news',
+      },
+    });
+
+    const items = await screen.findAllByRole('listitem');
+
+    expect(items[0]).toHaveTextContent('A new announcement just arrived');
+    expect(items[0]).toHaveTextContent('Read more');
   });
 
   test('opening a new tab with a link when clicking "read more"', async () => {
@@ -108,7 +127,10 @@ describe('listing news items', () => {
       await userEvent.click(toggle);
 
       await waitFor(() => {
-        expect(screen.getAllByRole('listitem')).toHaveLength(4);
+        const listItemCount = screen.getAllByRole('listitem').length;
+        if (listItemCount !== 4) {
+          throw new Error(`Expected 4 list items, found ${listItemCount}.`);
+        }
       });
 
       userNotificationListItem = screen.getAllByRole('listitem')[0];
@@ -172,7 +194,7 @@ describe('handling failed news requests', () => {
   });
 
   test('showing an error message', async () => {
-    await screen.findByTestId('error-message');
+    expect(await screen.findByTestId('error-message')).toBeInTheDocument();
   });
 
   test('presenting a retry button which attempts to re-fetch news', async () => {
@@ -185,7 +207,7 @@ describe('handling failed news requests', () => {
 });
 
 describe('reminding users of unread messages', () => {
-  const unread = mockNewsData.filter(n => n.hasOwnProperty('read') && !n.read);
+  const unread = mockNewsData.filter(n => Object.hasOwn(n, 'read') && !n.read);
   let rendered;
 
   beforeEach(async () => {

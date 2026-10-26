@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -21,10 +19,10 @@ describe('#useSortedNodesWithToggleBtn', () => {
     ];
 
     const TestComponent = ({ list }) => {
-      const [SortButton, sortedResults] = useSortedNodesWithToggleBtn(list);
+      const [sortButton, sortedResults] = useSortedNodesWithToggleBtn(list);
 
       return <>
-        <SortButton />
+        {sortButton}
         <ul>
           {sortedResults}
         </ul>
@@ -55,5 +53,13 @@ describe('#useSortedNodesWithToggleBtn', () => {
 
     expect(listItems[0]).toHaveTextContent('I am older!');
     expect(listItems[1]).toHaveTextContent('I am newer!');
+  });
+
+  test('keeping the focus on the sort button after toggling it', async () => {
+    timeSortButton.focus();
+
+    await userEvent.keyboard('{Enter}');
+
+    expect(await screen.findByRole('button')).toHaveFocus();
   });
 });

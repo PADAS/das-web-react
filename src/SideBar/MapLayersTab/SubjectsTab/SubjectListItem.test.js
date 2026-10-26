@@ -1,7 +1,6 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 
-import { MapContext } from '../../../App';
+import { MapContext } from '../../../MapContext';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import { createMapMock } from '../../../__test-helpers/mocks';
 import { staticSubjectFeature, subjectFeatureWithOneDeviceProp } from '../../../__test-helpers/fixtures/subjects';
@@ -27,11 +26,11 @@ beforeEach(() => {
 });
 
 test('rendering without crashing', () => {
-  render(<Provider store={mockStore(store)}>
+  expect(() => render(<Provider store={mockStore(store)}>
     <MapContext.Provider value={map}>
       <SubjectListItem  map={map} {...staticSubjectFeature.properties}/>
     </MapContext.Provider>
-  </Provider>);
+  </Provider>)).not.toThrow();
 });
 
 describe('Rendering subject list item', () => {

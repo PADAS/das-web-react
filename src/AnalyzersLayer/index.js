@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import withMapViewConfig from '../WithMapViewConfig';
 
 import { LAYER_IDS, SOURCE_IDS } from '../constants';
@@ -47,22 +47,30 @@ const AnalyzerLayer = (
   { warningLines, criticalLines, warningPolys, criticalPolys, minZoom,
     layerGroups, onAnalyzerGroupEnter, onAnalyzerGroupExit, onAnalyzerFeatureClick, isSubjectSymbolsLayerReady }
 ) => {
-  const getLayerGroup = featureId => layerGroups
-    .filter(group => !!group.feature_ids.includes(featureId))
-    .reduce((accumulator, group) => [...accumulator, ...group.feature_ids], []);
+  const hoverStateIdsRef = useRef();
+  const latestPropsRef = useRef();
 
-  // hold state of feature group
-  let hoverStateIds;
+  // Stable handlers keep Mapbox from rebinding, which resets its hover state.
+  const onLayerMouseEnter = useCallback((event) => {
+    const featureId = event.features[0].properties.id;
 
-  const onAnalyzerFeatureEnter = (e) => {
-    const featureId = e.features[0].properties.id;
-    hoverStateIds = getLayerGroup(featureId);
-    onAnalyzerGroupEnter(e, hoverStateIds);
-  };
+    hoverStateIdsRef.current = latestPropsRef.current.layerGroups
+      .filter((layerGroup) => layerGroup.feature_ids.includes(featureId))
+      .flatMap((layerGroup) => layerGroup.feature_ids);
+    latestPropsRef.current.onAnalyzerGroupEnter(event, hoverStateIdsRef.current);
+  }, []);
 
-  const onAnalyzerFeatureExit = (e) => {
-    onAnalyzerGroupExit(e, hoverStateIds);
-  };
+  const onLayerMouseLeave = useCallback((event) => {
+    latestPropsRef.current.onAnalyzerGroupExit(event, hoverStateIdsRef.current);
+  }, []);
+
+  const onLayerClick = useCallback((event) => {
+    latestPropsRef.current.onAnalyzerFeatureClick(event);
+  }, []);
+
+  useEffect(() => {
+    latestPropsRef.current = { layerGroups, onAnalyzerFeatureClick, onAnalyzerGroupEnter, onAnalyzerGroupExit };
+  });
 
   const layerConfig = useMemo(() => ({
     before: SKY_LAYER,
@@ -109,21 +117,20 @@ const AnalyzerLayer = (
     options: layerConfig,
   }]);
 
-  // (eventType = 'click', handlerFn = noop, layerId = null, condition = true)
-  useMapEventBinding('mouseenter', onAnalyzerFeatureEnter, ANALYZER_POLYS_WARNING);
-  useMapEventBinding('mouseenter', onAnalyzerFeatureEnter, ANALYZER_POLYS_CRITICAL);
-  useMapEventBinding('mouseenter', onAnalyzerFeatureEnter, ANALYZER_LINES_WARNING);
-  useMapEventBinding('mouseenter', onAnalyzerFeatureEnter, ANALYZER_LINES_CRITICAL);
+  useMapEventBinding('mouseenter', onLayerMouseEnter, ANALYZER_POLYS_WARNING);
+  useMapEventBinding('mouseenter', onLayerMouseEnter, ANALYZER_POLYS_CRITICAL);
+  useMapEventBinding('mouseenter', onLayerMouseEnter, ANALYZER_LINES_WARNING);
+  useMapEventBinding('mouseenter', onLayerMouseEnter, ANALYZER_LINES_CRITICAL);
 
-  useMapEventBinding('mouseleave', onAnalyzerFeatureExit, ANALYZER_POLYS_WARNING);
-  useMapEventBinding('mouseleave', onAnalyzerFeatureExit, ANALYZER_POLYS_CRITICAL);
-  useMapEventBinding('mouseleave', onAnalyzerFeatureExit, ANALYZER_LINES_WARNING);
-  useMapEventBinding('mouseleave', onAnalyzerFeatureExit, ANALYZER_LINES_CRITICAL);
+  useMapEventBinding('mouseleave', onLayerMouseLeave, ANALYZER_POLYS_WARNING);
+  useMapEventBinding('mouseleave', onLayerMouseLeave, ANALYZER_POLYS_CRITICAL);
+  useMapEventBinding('mouseleave', onLayerMouseLeave, ANALYZER_LINES_WARNING);
+  useMapEventBinding('mouseleave', onLayerMouseLeave, ANALYZER_LINES_CRITICAL);
 
-  useMapEventBinding('click', onAnalyzerFeatureClick, ANALYZER_POLYS_WARNING);
-  useMapEventBinding('click', onAnalyzerFeatureClick, ANALYZER_POLYS_CRITICAL);
-  useMapEventBinding('click', onAnalyzerFeatureClick, ANALYZER_LINES_WARNING);
-  useMapEventBinding('click', onAnalyzerFeatureClick, ANALYZER_LINES_CRITICAL);
+  useMapEventBinding('click', onLayerClick, ANALYZER_POLYS_WARNING);
+  useMapEventBinding('click', onLayerClick, ANALYZER_POLYS_CRITICAL);
+  useMapEventBinding('click', onLayerClick, ANALYZER_LINES_WARNING);
+  useMapEventBinding('click', onLayerClick, ANALYZER_LINES_CRITICAL);
 
   return null;
 };

@@ -1,11 +1,10 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 
 import { render, screen } from '../../../test-utils';
 import { createMapMock } from '../../../__test-helpers/mocks';
 import { hideSubjects, showSubjects } from '../../../ducks/map-layer-filter';
 import { MAP_LAYER_SORT_VALUES, SORT_DIRECTION } from '../../../constants';
-import { MapContext } from '../../../App';
+import { MapContext } from '../../../MapContext';
 import { mockStore } from '../../../__test-helpers/MockStore';
 
 import SubjectsTab from './';

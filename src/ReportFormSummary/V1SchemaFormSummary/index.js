@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import Form from '@rjsf/react-bootstrap';
 
 import { formValidator } from '../../utils/events';

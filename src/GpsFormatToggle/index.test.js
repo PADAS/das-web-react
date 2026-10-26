@@ -1,4 +1,3 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
@@ -54,6 +53,18 @@ describe('GpsFormatToggle', () => {
     expect(radioInputs[2]).toHaveAttribute('value', 'DMS');
     expect(radioInputs[3]).toHaveAttribute('value', 'MGRS');
     expect(radioInputs[4]).toHaveAttribute('value', 'UTM');
+  });
+
+  test('keeps the stored order of the selected coordinate representations', async () => {
+    const selectedCoordinateRepresentations = [GPS_FORMATS.UTM, GPS_FORMATS.DEG, GPS_FORMATS.MGRS];
+    renderGpsFormatToggle({ name: 'name' }, {
+      view: {
+        ...store.view,
+        coordinateReferenceSystems: { selectedCoordinateRepresentations, storedSystems: [] },
+      },
+    });
+
+    expect(selectedCoordinateRepresentations).toEqual([GPS_FORMATS.UTM, GPS_FORMATS.DEG, GPS_FORMATS.MGRS]);
   });
 
   test('assigns the name to the radio inputs', async () => {

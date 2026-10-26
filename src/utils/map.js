@@ -2,9 +2,34 @@ import { featureCollection } from '@turf/turf';
 
 import store from '../store';
 import { addImageToMapIfNecessary } from '../ducks/map-images';
-import { MAP_ICON_SIZE, MAP_ICON_SCALE } from '../constants';
+import {
+  MAP_ICON_SIZE,
+  MAP_ICON_SCALE,
+  SIDEBAR_DETAIL_VIEW_WIDTH_PIXELS,
+  SIDEBAR_WIDTH_PIXELS,
+  TAB_KEYS,
+  VERTICAL_NAV_RAIL_WIDTH_PIXELS,
+} from '../constants';
 import { format, formatEventSymbolDate } from './datetime';
+import { getCurrentIdFromURL, getCurrentTabFromURL } from './navigation';
 import { imgElFromSrc, calcUrlForImage, calcImgIdFromUrlForMapImages } from './img';
+
+export const calcSidebarPaddingLeft = ({ isMediumLayoutOrLarger, otusTabWidth, pathname }) => {
+  if (isMediumLayoutOrLarger) {
+    const currentTab = getCurrentTabFromURL(pathname);
+    const itemId = getCurrentIdFromURL(pathname);
+
+    if (currentTab === TAB_KEYS.OTUS) {
+      return otusTabWidth + VERTICAL_NAV_RAIL_WIDTH_PIXELS;
+    }
+
+    if (currentTab || itemId) {
+      return (itemId ? SIDEBAR_DETAIL_VIEW_WIDTH_PIXELS : SIDEBAR_WIDTH_PIXELS) + VERTICAL_NAV_RAIL_WIDTH_PIXELS;
+    }
+  }
+
+  return undefined;
+};
 
 const addItemPropsToFeatureByKey = (item, feature, key) => {
   const toDelete = ['geojson', 'location', 'geometry', key];
@@ -90,9 +115,10 @@ export const addFeatureCollectionImagesToMap = (collection, options = {}, map = 
     .filter(({ properties: { image } }) => !!image)
     .map(({ properties }) => properties)
     .filter((properties, index, array) =>  array.findIndex(item => item.image === properties.image) === index)
+    // Given a map, the images already in its style need no loading again.
     .filter((properties) => {
       if (!map) return !!properties;
-      return !!map.hasImage(calcImgIdFromUrlForMapImages(properties.image, properties.width, properties.height));
+      return !map.hasImage(calcImgIdFromUrlForMapImages(properties.image, properties.width, properties.height));
     })
     .map(properties => addMapImage({ src: properties.image, height: properties.height, width: properties.width, options }));
 
@@ -234,11 +260,34 @@ export const buildGeoSpanFilter = (geoSpan) => {
     return null;
   }
 
-  const minLon = Math.min(lon1, lon2);
-  const maxLon = Math.max(lon1, lon2);
   const minLat = Math.min(lat1, lat2);
   const maxLat = Math.max(lat1, lat2);
-  return [minLon, minLat, maxLon, maxLat];
+  const crossesAntimeridian = Math.abs(lon1 - lon2) > 180;
+  // For an antimeridian-crossing bbox the GeoJSON convention is west > east; otherwise normalize.
+  const west = crossesAntimeridian ? Math.max(lon1, lon2) : Math.min(lon1, lon2);
+  const east = crossesAntimeridian ? Math.min(lon1, lon2) : Math.max(lon1, lon2);
+  return [west, minLat, east, maxLat];
 };
 
+export const safeRemoveMapLayer = (map, layerId) => {
+  if (map?.getLayer?.(layerId)) {
+    map.removeLayer(layerId);
+  }
+};
+
+export const safeRemoveMapSource = (map, sourceId) => {
+  if (map?.getSource?.(sourceId)) {
+    map.removeSource(sourceId);
+  }
+};
+
+// The map refuses a source a layer still reads from, and React tears a parent
+// down before its children: what a child layer left behind comes off first.
+export const safeRemoveMapSourceAndItsLayers = (map, sourceId) => {
+  (map?.getStyle?.()?.layers ?? [])
+    .filter((layer) => layer.source === sourceId)
+    .forEach((layer) => safeRemoveMapLayer(map, layer.id));
+
+  safeRemoveMapSource(map, sourceId);
+};
 

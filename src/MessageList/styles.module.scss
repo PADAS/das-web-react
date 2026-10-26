@@ -1,9 +1,10 @@
-@import '../common/styles/vars/colors';
+@use 'sass:color';
+@use '../common/styles/vars/colors';
 
 $icon-size: 1.5em;
 
 .dividerTitle {
-  $divider-color: darken($light-gray-border, 10%);
+  $divider-color: color.adjust(colors.$light-gray-border, $lightness: -10%);
 
   border-top: 1px solid $divider-color;
   color: $divider-color;
@@ -13,11 +14,13 @@ $icon-size: 1.5em;
   margin: 0.5em 0;
   text-align: center;
   text-transform: uppercase;
+
   span {
     background: white;
     font-size: 0.75em;
     padding: 0.25em;
   }
+
   &.reverse {
     margin: 0 0 0.5em;
   }
@@ -25,10 +28,11 @@ $icon-size: 1.5em;
 
 .senderDetails {
   align-items: center;
-  color: $light-font-color;
+  color: colors.$light-font-color;
   display: flex;
   font-size: 0.7em;
   margin-bottom: 0.5em;
+
   img, svg {
     margin-right: 0.5em;
     max-height: $icon-size;
@@ -40,20 +44,23 @@ $icon-size: 1.5em;
   .outgoingMessage {
     .messageDetails {
       align-self: flex-end;
-      background: lighten($light-blue, 35%);
-      border: 1px solid lighten($light-blue, 25%);
+      background: color.adjust(colors.$light-blue, $lightness: 35%);
+      border: 1px solid color.adjust(colors.$light-blue, $lightness: 25%);
       margin: 0 0 0 0.5rem;
     }
+
     .senderDetails {
       justify-content: flex-end;
+
       img, svg {
         margin-left: 0.5em;
       }
     }
   }
+
   .messageDetails {
-    background: lighten($light-blue, 25%);
-    border: 1px solid lighten($light-blue, 15%);
+    background: color.adjust(colors.$light-blue, $lightness: 25%);
+    border: 1px solid color.adjust(colors.$light-blue, $lightness: 15%);
     border-radius: 1em;
     margin: 0 0.5rem 0 0;
     width: 85%;
@@ -68,19 +75,23 @@ $icon-size: 1.5em;
   line-height: normal;
   margin: 0;
   text-align: left;
+
   ul {
     display: flex;
     flex-flow: column;
   }
+
   li li {
     display: flex;
     flex-flow: column;
     padding: 0.75em 1em;
     position: relative;
-    [class*=badge] {
+
+    [class*="badge"] {
       left: 1rem;
       position: absolute;
     }
+
     li {
       align-items: center;
       flex-flow: row;
@@ -90,6 +101,7 @@ $icon-size: 1.5em;
     }
   }
 }
+
 .messageDetails {
   align-items: center;
   display: flex;
@@ -124,30 +136,37 @@ $icon-size: 1.5em;
 
 .summaryList {
   $img-size: 2em;
-  [class*=senderDetails] {
+
+  [class*="senderDetails"] {
     font-size: 1.05em;
     font-style: normal;
     font-weight: 600;
     margin-bottom: 0;
   }
+
   li li {
     cursor: pointer;
     transition: background 0.15s linear;
+
     &:hover {
-      background: rgba($light-blue, 0.1);
+      background: rgba(colors.$light-blue, 0.1);
       text-decoration: underline;
     }
+
     &:not(:first-child) {
-      border-top: 1px solid $light-gray-border;
+      border-top: 1px solid colors.$light-gray-border;
     }
+
     img {
       max-height: $img-size;
       max-width: $img-size;
     }
   }
-  [class*=messageDetails] {
+
+  [class*="messageDetails"] {
     padding-top: 0.25em;
   }
+
   .messageTime {
     position: absolute;
     right: 1em;
@@ -177,8 +196,10 @@ $icon-size: 1.5em;
 
 .messageSubjectName {
   display: contents;
+
   &.clickable {
     cursor: pointer;
+
     &:hover {
       text-decoration: underline;
     }

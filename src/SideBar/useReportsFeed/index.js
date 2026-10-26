@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import debounce from 'lodash/debounce';
+import { isCancel } from 'axios';
 import isEqual from 'react-fast-compare';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -8,7 +9,7 @@ import { calcEventFilterForRequest } from '../../utils/event-filter';
 import { calcLocationParamStringForUserLocationCoords } from '../../utils/location';
 import { fetchEventFeed, fetchEventFeedCancelToken } from '../../ducks/events';
 import { getFeedEvents } from '../../selectors';
-import { INITIAL_FILTER_STATE, updateEventFilter } from '../../ducks/event-filter';
+import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
 import { objectToParamString } from '../../utils/query';
 import { userIsGeoPermissionRestricted } from '../../utils/geo-perms';
 
@@ -42,27 +43,24 @@ const useReportsFeed = () => {
     format: 'object',
   }, feedSort));
 
-  const setFeedSort = useCallback((sort) => {
-    dispatch(updateEventFilter(
-      {
-        filter: {
-          sort
-        }
-      }
-    ));
-  }, [dispatch]);
-
   const geoResrictedUserLocationCoords = useMemo(
     () => userIsGeoPermRestricted && userLocationCoords,
     [userIsGeoPermRestricted, userLocationCoords]
   );
 
+  // Using this ref during render is intended.
+  // eslint-disable-next-line react-hooks/refs
   const loadFeedEvents = useMemo(() => debounce((silent = false) => {
     if (!silent) {
       setEventLoadState(true);
     }
 
     return dispatch(fetchEventFeed({}, objectToParamString(eventParams.current)))
+      .catch((error) => {
+        if (!isCancel(error)) {
+          console.warn('Failed to fetch the event feed', error);
+        }
+      })
       .finally(() => setEventLoadState(false));
   }), [dispatch]);
 
@@ -104,18 +102,17 @@ const useReportsFeed = () => {
 
   useEffect(() => {
     if (loadingEventFeed && events.error) {
+      // Updating state from this effect is intended.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setEventLoadState(false);
     }
   }, [events.error, loadingEventFeed]);
 
-  return {
-    events,
-    feedSort,
-    loadFeedEvents,
-    loadingEventFeed,
-    setFeedSort,
-    shouldExcludeContained,
-  };
+  // The events feed is memoized, so it needs the same object between changes.
+  return useMemo(
+    () => ({ events, feedSort, loadFeedEvents, loadingEventFeed, shouldExcludeContained }),
+    [events, feedSort, loadFeedEvents, loadingEventFeed, shouldExcludeContained]
+  );
 };
 
 export default useReportsFeed;
