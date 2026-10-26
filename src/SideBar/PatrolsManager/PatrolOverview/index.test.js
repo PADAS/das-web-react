@@ -1575,7 +1575,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       );
     });
 
-    test('does not track a discarded status when the save does not go through', async () => {
+    test('tracks a discarded status once, when the save goes through after a failed attempt', async () => {
       jest.spyOn(ReactGA4, 'event').mockImplementation(() => {});
       jest.spyOn(console, 'warn').mockImplementation(() => {});
       updatePatrol.mockImplementation(() => () => Promise.reject(new Error('Save error')));
@@ -1595,6 +1595,16 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       expect(ReactGA4.event).not.toHaveBeenCalledWith(
         expect.objectContaining({ action: 'Discarded a staged status the patrol moved past' })
       );
+
+      updatePatrol.mockImplementation(() => () => Promise.resolve());
+      await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+      await waitFor(() => {
+        expect(updatePatrol).toHaveBeenCalledTimes(2);
+      });
+      expect(ReactGA4.event.mock.calls.filter(
+        ([gaEvent]) => gaEvent.action === 'Discarded a staged status the patrol moved past'
+      )).toHaveLength(1);
     });
 
     test('drops a picked status once the patrol moves on by itself', async () => {
