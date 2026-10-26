@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -23,6 +23,8 @@ const PatrolsFeed = () => {
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolsFeed' });
 
   const { isTableView } = useFeedTableView();
+
+  const [tableToolbarContainer, setTableToolbarContainer] = useState(null);
   const { loadingPatrolsFeed } = useFetchPatrolsFeed();
 
   const patrolsFeedMappedFromStore = useSelector(selectPatrolsFeedMappedFromStore);
@@ -31,9 +33,16 @@ const PatrolsFeed = () => {
 
   return <TrackerContext.Provider value={patrolsFeedTracker}>
     <div className={`${styles.patrolsFeed} ${isTableView ? styles.tableView : ''}`}>
-      <Filters resultCount={patrols.length} />
+      <Filters
+        resultCount={patrols.length}
+        summaryActionsRef={isTableView ? setTableToolbarContainer : undefined}
+      />
 
-      {isTableView && <PatrolsTable loading={loadingPatrolsFeed} patrols={patrols} />}
+      {isTableView && <PatrolsTable
+        loading={loadingPatrolsFeed}
+        patrols={patrols}
+        toolbarContainer={tableToolbarContainer}
+      />}
 
       {!isTableView && loadingPatrolsFeed && <DetailViewLoader className={styles.loader} />}
 

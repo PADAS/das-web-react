@@ -49,7 +49,7 @@ const formatCoordinates = (coordinates) => {
   return `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
 };
 
-const DateCell = ({ value }) => value ? <DateTime date={value} showElapsed={false} /> : null;
+const DateCell = ({ value }) => value ? <DateTime className={styles.dateCell} date={value} showElapsed={false} /> : null;
 
 const PriorityCell = ({ value, valueFormatted }) => <span className={styles.priorityCell}>
   <span
@@ -60,7 +60,7 @@ const PriorityCell = ({ value, valueFormatted }) => <span className={styles.prio
   {valueFormatted}
 </span>;
 
-const EventsTable = ({ events, eventsFeed }) => {
+const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
   const dispatch = useDispatch();
   const jumpToLocation = useJumpToLocation();
   const navigate = useNavigate();
@@ -262,6 +262,7 @@ const EventsTable = ({ events, eventsFeed }) => {
     renderBulkActions={renderBulkActions}
     rowData={events}
     tableKey={TAB_KEYS.EVENTS}
+    toolbarContainer={toolbarContainer}
   />;
 };
 

@@ -26,7 +26,7 @@ export const PATROL_TEXT_FILTER_DEBOUNCE_TIME = 200;
 
 const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);
 
-const PatrolFilter = ({ className = '' }) => {
+const PatrolFilter = ({ className = '', summaryActionsRef }) => {
   const { t } = useTranslation('filters', { keyPrefix: 'patrolFilters' });
   const dispatch = useDispatch();
   const patrolsFeedMappedFromStore = useSelector(selectPatrolsFeedMappedFromStore);
@@ -157,6 +157,8 @@ const PatrolFilter = ({ className = '' }) => {
         isFiltered={isFilterModified(patrolFilter)}
         totalFeedCount={patrolsFeedTotalCount}
       />
+
+      {!!summaryActionsRef && <div className={styles.summaryActions} ref={summaryActionsRef} />}
 
       {
           (filtersModified || dateRangeModified || !!filterText) &&

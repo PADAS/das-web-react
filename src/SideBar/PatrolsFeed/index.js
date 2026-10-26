@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 import { selectPatrolsFeedMappedFromStore } from '../../selectors/patrols';
@@ -17,6 +17,8 @@ const PatrolsFeed = () => {
   const navigate= useNavigate();
 
   const { isTableView } = useFeedTableView();
+
+  const [tableToolbarContainer, setTableToolbarContainer] = useState(null);
   const { loadingPatrolsFeed } = useFetchPatrolsFeed();
 
   const patrolsFeedMappedFromStore = useSelector(selectPatrolsFeedMappedFromStore);
@@ -25,9 +27,13 @@ const PatrolsFeed = () => {
 
   if (isTableView) {
     return <div className={styles.tableView}>
-      <PatrolFilter />
+      <PatrolFilter summaryActionsRef={setTableToolbarContainer} />
 
-      <PatrolsTable loading={loadingPatrolsFeed} patrols={sortedPatrols} />
+      <PatrolsTable
+        loading={loadingPatrolsFeed}
+        patrols={sortedPatrols}
+        toolbarContainer={tableToolbarContainer}
+      />
     </div>;
   }
 

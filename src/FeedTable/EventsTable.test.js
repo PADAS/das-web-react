@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, SORT_DIRECTION } from '../constants';
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { mockStore } from '../__test-helpers/MockStore';
-import { render, screen } from '../test-utils';
+import { render, screen, within } from '../test-utils';
 import { report } from '../__test-helpers/fixtures/reports';
 import { setEventState } from '../ducks/events';
 import { updateEventFilter } from '../ducks/event-filter';
@@ -47,6 +47,7 @@ describe('EventsTable', () => {
 
   beforeEach(() => {
     mockGridProps.length = 0;
+    document.body.innerHTML = '';
     window.localStorage.clear();
 
     jumpToLocation = jest.fn();
@@ -64,11 +65,23 @@ describe('EventsTable', () => {
     state = { data: { eventFilter: INITIAL_FILTER_STATE, eventTypes: [], feedEvents: { results: [report] } }, view: {} };
   });
 
-  const renderEventsTable = (events = [report]) => render(
-    <Provider store={mockStore(state)}>
-      <EventsTable events={events} eventsFeed={eventsFeed} />
-    </Provider>
-  );
+  const renderEventsTable = (events = [report]) => {
+    const toolbarContainer = document.createElement('div');
+    toolbarContainer.dataset.testid = 'toolbarContainer';
+    document.body.appendChild(toolbarContainer);
+
+    return render(
+      <Provider store={mockStore(state)}>
+        <EventsTable events={events} eventsFeed={eventsFeed} toolbarContainer={toolbarContainer} />
+      </Provider>
+    );
+  };
+
+  test('puts its controls in the spot the feed keeps for them', () => {
+    renderEventsTable();
+
+    expect(within(screen.getByTestId('toolbarContainer')).getByRole('button', { name: 'Export CSV' })).toBeVisible();
+  });
 
   test('sorts only the columns the events API orders by, with the feed sort', () => {
     renderEventsTable();

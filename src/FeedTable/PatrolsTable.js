@@ -19,14 +19,16 @@ import useNavigate from '../hooks/useNavigate';
 import DateTime from '../DateTime';
 import FeedTable from '.';
 
+import * as styles from './styles.module.scss';
+
 // A safety cap, so a bad `next` link cannot loop forever.
 const MAX_PAGES = 1000;
 
 const lastSegment = (patrol) => patrol?.patrol_segments?.[patrol.patrol_segments.length - 1];
 
-const DateCell = ({ value }) => value ? <DateTime date={value} showElapsed={false} /> : null;
+const DateCell = ({ value }) => value ? <DateTime className={styles.dateCell} date={value} showElapsed={false} /> : null;
 
-const PatrolsTable = ({ loading, patrols }) => {
+const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
   const dispatch = useDispatch();
   const jumpToLocation = useJumpToLocation();
   const navigate = useNavigate();
@@ -136,6 +138,7 @@ const PatrolsTable = ({ loading, patrols }) => {
     onOpenRow={onOpenRow}
     rowData={patrols}
     tableKey={TAB_KEYS.PATROLS}
+    toolbarContainer={toolbarContainer}
   />;
 };
 

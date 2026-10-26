@@ -27,11 +27,9 @@
 
 .toolbar {
   align-items: center;
-  border-bottom: 1px solid colors.$light-gray-lines;
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
-  min-height: 3rem;
-  padding: 0.5rem 1rem;
 }
 
 .selection {
@@ -58,6 +56,12 @@
 
 .columnsMenuItem {
   white-space: nowrap;
+}
+
+.dateCell {
+  align-items: center;
+  display: flex;
+  height: 100%;
 }
 
 .grid {

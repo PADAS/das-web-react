@@ -1,4 +1,4 @@
-import { memo, useContext, useMemo } from 'react';
+import { memo, useContext, useMemo, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import MoonLoader from 'react-spinners/MoonLoader';
 import uniq from 'lodash/uniq';
@@ -44,6 +44,8 @@ const EventsFeed = ({ eventsFeed }) => {
 
   const { isTableView } = useFeedTableView();
 
+  const [tableToolbarContainer, setTableToolbarContainer] = useState(null);
+
   const feedEvents = eventsFeed.events.results ?? EMPTY_EVENTS;
 
   const displayTimeProp = calcTimePropForSortConfig(eventsFeed.feedSort);
@@ -64,7 +66,7 @@ const EventsFeed = ({ eventsFeed }) => {
   return <TrackerContext.Provider value={eventsFeedTracker}>
     <ErrorBoundary>
       <div className={`${styles.eventsFeed} ${isTableView ? styles.tableView : ''}`}>
-        <EventFilter isSortable>
+        <EventFilter isSortable summaryActionsRef={isTableView ? setTableToolbarContainer : undefined}>
           <SortControls />
         </EventFilter>
 
@@ -76,7 +78,11 @@ const EventsFeed = ({ eventsFeed }) => {
           </button>
         </div>}
 
-        {!eventsFeed.events.error && isTableView && <EventsTable events={events} eventsFeed={eventsFeed} />}
+        {!eventsFeed.events.error && isTableView && <EventsTable
+          events={events}
+          eventsFeed={eventsFeed}
+          toolbarContainer={tableToolbarContainer}
+        />}
 
         {!eventsFeed.events.error && !isTableView && eventsFeed.loadingEventFeed && <DetailViewLoader
           className={styles.loader}

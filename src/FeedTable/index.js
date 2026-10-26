@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Button from 'react-bootstrap/Button';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Form from 'react-bootstrap/Form';
@@ -68,6 +69,8 @@ const writeHiddenColumns = (tableKey, hiddenColumns) => {
 // The expanded, tabular view of a feed. Filters stay with the feed; the table
 // adds what only makes sense with room to spare: column choice, multi-select,
 // bulk actions and CSV export. A column hides by default with `defaultHidden`.
+// Its controls render into `toolbarContainer`, a spot the feed keeps for them
+// beside the filter summary, so they take no row of their own.
 const FeedTable = ({
   columnDefs,
   exportFileName,
@@ -80,6 +83,7 @@ const FeedTable = ({
   renderBulkActions,
   rowData,
   tableKey,
+  toolbarContainer,
 }) => {
   const { t } = useTranslation('components', { keyPrefix: 'feedTable' });
 
@@ -153,7 +157,7 @@ const FeedTable = ({
   };
 
   return <div className={styles.feedTable} data-testid={`feedTable-${tableKey}`}>
-    <div className={styles.toolbar}>
+    {!!toolbarContainer && createPortal(<div className={styles.toolbar}>
       {selectedRows.length > 0 && <div className={styles.selection}>
         <span className={styles.selectionCount}>{t('selectedCount', { count: selectedRows.length })}</span>
 
@@ -192,7 +196,7 @@ const FeedTable = ({
           {t(selectedRows.length > 0 ? 'exportSelected' : 'exportAll')}
         </Button>
       </div>
-    </div>
+    </div>, toolbarContainer)}
 
     <div className={styles.grid}>
       <AgGridReact
