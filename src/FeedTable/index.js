@@ -26,7 +26,8 @@ const ROW_SELECTION = {
   mode: 'multiRow',
 };
 
-const DEFAULT_COL_DEF = { resizable: true, sortable: false };
+// `unSortIcon` marks sortable columns with an arrow even before they're sorted.
+const DEFAULT_COL_DEF = { resizable: true, sortable: false, unSortIcon: true };
 
 // Mirrors the web app's palette and type in common/styles/vars (_colors.scss, _fonts.scss).
 const gridTheme = themeQuartz.withParams({
