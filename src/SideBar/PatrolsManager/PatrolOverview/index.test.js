@@ -1544,6 +1544,22 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
     });
 
+    test('revives a dropped pick, marked unsaved, when an update returns the patrol to the status it was picked in', async () => {
+      const { rerender } = await renderPatrolWithLeader();
+
+      await selectStatus('End');
+
+      receivePatrolUpdate(rerender, endedPatrolWithLeader);
+
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+
+      receivePatrolUpdate(rerender, { ...patrolWithLeader, state: 'open' });
+
+      expect(screen.getByRole('button', { name: 'Done, Change patrol status' })).toBeInTheDocument();
+      expect(screen.getByText('Done')).toHaveClass('unsavedLabel');
+      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+    });
+
     test('saves the other changes without the dropped status and tracks that it was discarded', async () => {
       jest.spyOn(ReactGA4, 'event').mockImplementation(() => {});
 
