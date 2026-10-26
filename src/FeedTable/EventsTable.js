@@ -2,10 +2,10 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import startCase from 'lodash/startCase';
 import uniq from 'lodash/uniq';
-import { useDispatch, useSelector, useStore } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { EVENT_FORM_STATES, EVENT_SORT_OPTIONS, SORT_DIRECTION, TAB_KEYS } from '../constants';
+import { API_URL, EVENT_FORM_STATES, EVENT_SORT_OPTIONS, SORT_DIRECTION, TAB_KEYS } from '../constants';
 import {
   calcDisplayPriorityForReport,
   displayTitleForEvent,
@@ -14,8 +14,9 @@ import {
   getCoordinatesForEvent,
   PRIORITY_COLOR_MAP,
 } from '../utils/events';
+import { calcEventFilterForRequest } from '../utils/event-filter';
+import { downloadFileFromUrl } from '../utils/download';
 import { fetchNextEventFeedPage, setEventState } from '../ducks/events';
-import { getFeedEvents } from '../selectors';
 import { showToast } from '../utils/toast';
 import { updateEventFilter } from '../ducks/event-filter';
 import useJumpToLocation from '../hooks/useJumpToLocation';
@@ -25,9 +26,6 @@ import DateTime from '../DateTime';
 import FeedTable from '.';
 
 import * as styles from './styles.module.scss';
-
-// A safety cap, so a bad `next` link cannot loop forever while exporting.
-const MAX_EXPORT_PAGES = 1000;
 
 const STATE_KEY_BY_EVENT_STATE = {
   [EVENT_FORM_STATES.ACTIVE]: EVENT_FORM_STATES.ACTIVE,
@@ -64,7 +62,6 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
   const dispatch = useDispatch();
   const jumpToLocation = useJumpToLocation();
   const navigate = useNavigate();
-  const store = useStore();
   const { t } = useTranslation('components', { keyPrefix: 'feedTable' });
   const { t: tStates } = useTranslation('reports', { keyPrefix: 'eventsManager.eventsFeed.eventRow.states' });
 
@@ -203,13 +200,8 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     });
   };
 
-  const onLoadAllRows = async () => {
-    let next = getFeedEvents(store.getState()).next;
-    for (let pages = 0; next && pages < MAX_EXPORT_PAGES; pages += 1) {
-      await dispatch(fetchNextEventFeedPage(next));
-      next = getFeedEvents(store.getState()).next;
-    }
-  };
+  // The same export as the menu's Field Events report: every event matching the feed filter, with its details.
+  const onExport = () => downloadFileFromUrl(`${API_URL}activity/events/export?${calcEventFilterForRequest()}`, {});
 
   const onOpenRow = (event) => {
     navigate(`/${TAB_KEYS.EVENTS}/${event.id}`);
@@ -259,10 +251,9 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
 
   return <FeedTable
     columnDefs={columnDefs}
-    exportFileName="events"
     getRowId={(params) => params.data.id}
     loading={eventsFeed.loadingEventFeed}
-    onLoadAllRows={onLoadAllRows}
+    onExport={onExport}
     onLoadMore={onLoadMore}
     onOpenRow={onOpenRow}
     onSortChanged={onSortChanged}

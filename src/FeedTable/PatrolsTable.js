@@ -132,7 +132,6 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
 
   return <FeedTable
     columnDefs={columnDefs}
-    exportFileName="patrols"
     getRowId={(params) => params.data.id}
     loading={loading}
     onOpenRow={onOpenRow}

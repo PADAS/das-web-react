@@ -7,6 +7,8 @@ import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { mockStore } from '../__test-helpers/MockStore';
 import { render, screen, within } from '../test-utils';
 import { report } from '../__test-helpers/fixtures/reports';
+import { calcEventFilterForRequest } from '../utils/event-filter';
+import { downloadFileFromUrl } from '../utils/download';
 import { setEventState } from '../ducks/events';
 import { updateEventFilter } from '../ducks/event-filter';
 import useJumpToLocation from '../hooks/useJumpToLocation';
@@ -15,7 +17,7 @@ import useNavigate from '../hooks/useNavigate';
 import EventsTable from './EventsTable';
 
 const mockGridProps = [];
-const mockGridApi = { deselectAll: jest.fn(), exportDataAsCsv: jest.fn() };
+const mockGridApi = { deselectAll: jest.fn() };
 
 jest.mock('ag-grid-react', () => ({
   AgGridReact: function AgGridReactStub(props) {
@@ -35,6 +37,11 @@ jest.mock('../ducks/events', () => ({
   setEventState: jest.fn(),
 }));
 
+jest.mock('../utils/event-filter', () => ({
+  ...jest.requireActual('../utils/event-filter'),
+  calcEventFilterForRequest: jest.fn(),
+}));
+jest.mock('../utils/download', () => ({ downloadFileFromUrl: jest.fn() }));
 jest.mock('../hooks/useJumpToLocation', () => jest.fn());
 jest.mock('../hooks/useNavigate', () => jest.fn());
 jest.mock('../utils/toast', () => ({ showToast: jest.fn() }));
@@ -184,19 +191,13 @@ describe('EventsTable', () => {
     expect(eventsFeed.loadFeedEvents).toHaveBeenCalledWith(true);
   });
 
-  test('exports only the selected events when some are selected', async () => {
+  test('exports through the events export API with the feed filter', async () => {
+    calcEventFilterForRequest.mockReturnValue('state=active');
+    downloadFileFromUrl.mockResolvedValue();
     renderEventsTable();
 
-    act(() => {
-      lastGridProps().onGridReady({ api: mockGridApi });
-      lastGridProps().onSelectionChanged({ api: { getSelectedRows: () => [report] } });
-    });
+    await userEvent.click(screen.getByRole('button', { name: 'Export CSV' }));
 
-    await userEvent.click(screen.getByRole('button', { name: 'Export selected' }));
-
-    expect(mockGridApi.exportDataAsCsv).toHaveBeenCalledWith(expect.objectContaining({
-      fileName: 'earthranger-events.csv',
-      onlySelected: true,
-    }));
+    expect(downloadFileFromUrl).toHaveBeenCalledWith(expect.stringMatching(/activity\/events\/export\?state=active$/), {});
   });
 });

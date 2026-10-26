@@ -8,7 +8,6 @@ import { AgGridReact } from 'ag-grid-react';
 import { AllCommunityModule, ModuleRegistry, themeQuartz } from 'ag-grid-community';
 import { useTranslation } from 'react-i18next';
 
-import { processCellForCsvExport } from './csvCellSerialization';
 import { showToast } from '../utils/toast';
 
 import * as styles from './styles.module.scss';
@@ -68,16 +67,16 @@ const writeHiddenColumns = (tableKey, hiddenColumns) => {
 
 // The expanded, tabular view of a feed. Filters stay with the feed; the table
 // adds what only makes sense with room to spare: column choice, multi-select,
-// bulk actions and CSV export. A column hides by default with `defaultHidden`.
+// bulk actions and export. A column hides by default with `defaultHidden`.
+// The Export button shows when the feed passes `onExport`.
 // Its controls render into `toolbarContainer`, a spot the feed keeps for them
 // beside the filter summary, so they take no row of their own.
 const FeedTable = ({
   columnDefs,
-  exportFileName,
   getRowId,
   loading = false,
-  onLoadAllRows,
   onLoadMore,
+  onExport,
   onOpenRow,
   onSortChanged,
   renderBulkActions,
@@ -133,22 +132,10 @@ const FeedTable = ({
     }
   };
 
-  const onExport = async () => {
-    const onlySelected = selectedRows.length > 0;
-
+  const onExportClick = async () => {
     setExporting(true);
     try {
-      if (!onlySelected && onLoadAllRows) {
-        await onLoadAllRows();
-        // Lets the grid take in the rows the last page added.
-        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-      }
-
-      gridApi?.exportDataAsCsv({
-        fileName: `earthranger-${exportFileName}.csv`,
-        onlySelected,
-        processCellCallback: processCellForCsvExport,
-      });
+      await onExport();
     } catch {
       showToast({ message: t('exportError') });
     } finally {
@@ -185,16 +172,16 @@ const FeedTable = ({
           </Dropdown.Menu>
         </Dropdown>
 
-        <Button
+        {!!onExport && <Button
           data-testid="feedTable-exportButton"
           disabled={exporting || loading}
-          onClick={onExport}
+          onClick={onExportClick}
           size="sm"
           type="button"
           variant="outline-secondary"
         >
-          {t(selectedRows.length > 0 ? 'exportSelected' : 'exportAll')}
-        </Button>
+          {t('export')}
+        </Button>}
       </div>
     </div>, toolbarContainer)}
 

@@ -440,9 +440,8 @@
     "columnTitle": "Title",
     "columnUpdatedAt": "Updated",
     "columns": "Columns",
-    "exportAll": "Export CSV",
+    "export": "Export CSV",
     "exportError": "Could not export the CSV",
-    "exportSelected": "Export selected",
     "priority": {
       "amber": "Medium",
       "green": "Low",
