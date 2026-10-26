@@ -64,8 +64,8 @@ const PatrolOverviewContent = ({ patrol }) => {
   const isTitleDirty = editedTitle !== null
     && calcTitleAndSubtitleForPatrol({ ...patrol, title: editedTitle }, patrolTypes).title.trim() !== patrolTitle.trim();
 
-  // A pick made against a status the patrol has left, such as by ending on
-  // mobile, would undo that change. Matched by value, so a return revives it.
+  // A pick made against a status the patrol has since left would undo that
+  // change. A return to that same status revives the pick, on purpose.
   const isStateDirty = editedState !== null && editedState.basedOnState === patrolState;
 
   const state = isStateDirty ? editedState.pickedState : patrolState;
