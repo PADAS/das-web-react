@@ -1,0 +1,83 @@
+@use '../common/styles/vars/colors';
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.feedTable {
+  // Fades in behind the panel's widening, so the rows land once there is room.
+  animation: enter 0.3s ease-out 0.25s both;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+.toolbar {
+  align-items: center;
+  border-bottom: 1px solid colors.$light-gray-lines;
+  display: flex;
+  gap: 0.5rem;
+  min-height: 3rem;
+  padding: 0.5rem 1rem;
+}
+
+.selection {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.selectionCount {
+  font-weight: 600;
+}
+
+.toolbarEnd {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.columnsMenu {
+  max-height: 20rem;
+  overflow-y: auto;
+  padding: 0.5rem 0.75rem;
+}
+
+.columnsMenuItem {
+  white-space: nowrap;
+}
+
+.grid {
+  flex: 1;
+  min-height: 0;
+}
+
+.row {
+  cursor: pointer;
+}
+
+.priorityCell {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.priorityDot {
+  border-radius: 50%;
+  flex-shrink: 0;
+  height: 0.625rem;
+  width: 0.625rem;
+}

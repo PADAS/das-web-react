@@ -26,8 +26,6 @@ describe('Navigation utils', () => {
       expect(getCurrentTabFromURL('/patrols/new')).toBe('patrols');
       expect(getCurrentTabFromURL('/layers')).toBe('layers');
       expect(getCurrentTabFromURL('/gear')).toBe('gear');
-      expect(getCurrentTabFromURL('/data')).toBe('data');
-      expect(getCurrentTabFromURL('/data/')).toBe('data');
     });
 
     test('returns undefined if there is not a tab', () => {

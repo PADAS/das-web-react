@@ -170,10 +170,7 @@ describe('SideBar', () => {
     </MockSocketProvider>
   </Provider>;
 
-  const renderSideBar = (mockedStore = mockStore(store), { initialEntries } = {}) => render(
-    sideBarTree(mockedStore),
-    initialEntries !== undefined ? { initialEntries } : {},
-  );
+  const renderSideBar = (mockedStore = mockStore(store)) => render(sideBarTree(mockedStore));
 
   test('shows the events tab if user has permissions', async () => {
     renderSideBar();
@@ -901,51 +898,39 @@ describe('SideBar', () => {
     });
   });
 
-  test('shows the Data link when events, subjects, or patrols are available', () => {
-    renderSideBar();
+  describe('table view button', () => {
+    test('expands the events feed to the table view', async () => {
+      renderSideBar();
 
-    expect(screen.getByTestId('sideBar-dataLink')).toBeVisible();
+      await userEvent.click(screen.getByRole('button', { name: 'Expand to table' }));
+
+      expect(navigate).toHaveBeenCalledWith('/events?view=table');
+    });
+
+    test('collapses the table view back to the feed', async () => {
+      useLocation.mockImplementation(jest.fn(() => ({ pathname: '/events', search: '?view=table' })));
+
+      renderSideBar();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Collapse to list' }));
+
+      expect(navigate).toHaveBeenCalledWith('/events');
+    });
+
+    test('is not shown on a detail view', () => {
+      useLocation.mockImplementation(jest.fn(() => ({ pathname: '/events/123' })));
+
+      renderSideBar();
+
+      expect(screen.queryByRole('button', { name: 'Expand to table' })).toBeNull();
+    });
+
+    test('is not shown on tabs without a feed', () => {
+      useLocation.mockImplementation(jest.fn(() => ({ pathname: '/layers' })));
+
+      renderSideBar();
+
+      expect(screen.queryByRole('button', { name: 'Expand to table' })).toBeNull();
+    });
   });
-
-  test('does not show the Data link when events, subjects, and patrols are all unavailable', () => {
-    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS] = false;
-    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.SUBJECTS] = false;
-    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT] = false;
-    store.data.user.permissions = {};
-
-    renderSideBar();
-
-    expect(screen.queryByTestId('sideBar-dataLink')).toBeNull();
-  });
-
-  test('sets the Data tab as active', () => {
-    useLocationMock = jest.fn((() => ({ pathname: '/data' })));
-    useLocation.mockImplementation(useLocationMock);
-
-    renderSideBar(mockStore(store), { initialEntries: ['/data'] });
-
-    expect(screen.getByTestId('sideBar-dataLink')).toHaveClass('active');
-  });
-
-  test('does not render the wide sidebar panel on the Data route', () => {
-    useLocationMock = jest.fn((() => ({ pathname: '/data' })));
-    useLocation.mockImplementation(useLocationMock);
-
-    renderSideBar(mockStore(store), { initialEntries: ['/data'] });
-
-    expect(screen.queryByTestId('sideBar-closeTabButton')).toBeNull();
-    expect(screen.queryByRole('heading', { name: 'Data' })).toBeNull();
-  });
-
-  test('does not show add or back buttons on the Data tab', () => {
-    useLocationMock = jest.fn((() => ({ pathname: '/data' })));
-    useLocation.mockImplementation(useLocationMock);
-
-    renderSideBar(mockStore(store), { initialEntries: ['/data'] });
-
-    expect(screen.queryByRole('button', { name: 'Create Event' })).toBeNull();
-    expect(screen.queryByRole('button', { name: 'Create Patrol' })).toBeNull();
-    expect(screen.queryByRole('button', { name: 'Go Back' })).toBeNull();
-  });
-
 });

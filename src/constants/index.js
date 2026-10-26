@@ -69,7 +69,6 @@ export const PATROL_API_STATES = {
 export const PATROL_TYPE_QUERY_PARAMETER = 'patrol-type';
 
 export const TAB_KEYS = {
-  DATA: 'data',
   EVENTS: 'events',
   GEAR: 'gear',
   LAYERS: 'layers',

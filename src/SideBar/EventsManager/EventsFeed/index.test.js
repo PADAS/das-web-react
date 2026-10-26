@@ -23,6 +23,12 @@ jest.mock('../../../EventFilter', () => {
   return EventFilter;
 });
 
+jest.mock('../../../FeedTable/EventsTable', () => {
+  const EventsTable = ({ events }) => <div data-testid="eventsTable">{events.map((event) => event.id).join(',')}</div>;
+
+  return EventsTable;
+});
+
 jest.mock('./SortControls', () => {
   const SortControls = () => <button type="button">Sort</button>;
 
@@ -88,14 +94,29 @@ describe('SideBar - EventsManager - EventsFeed', () => {
     jest.restoreAllMocks();
   });
 
-  const renderEventsFeed = (eventsFeedOverrides) => render(
+  const renderEventsFeed = (eventsFeedOverrides, path = `/${TAB_KEYS.EVENTS}`) => render(
     <Provider store={mockStore({ data: {}, view: {} })}>
       <SidebarScrollProvider>
         <EventsFeed eventsFeed={{ ...eventsFeed, ...eventsFeedOverrides }} />
       </SidebarScrollProvider>
     </Provider>,
-    { initialEntries: [`/${TAB_KEYS.EVENTS}`] }
+    { initialEntries: [path] }
   );
+
+  test('shows the feed as a table under the same filter in the table view', () => {
+    renderEventsFeed(undefined, `/${TAB_KEYS.EVENTS}?view=table`);
+
+    expect(screen.getByTestId('eventFilter')).toBeVisible();
+    expect(screen.getByTestId('eventsTable')).toHaveTextContent('second,third,first');
+    expect(screen.queryByRole('list', { name: 'Event list' })).toBeNull();
+  });
+
+  test('shows the feed as a list outside the table view', () => {
+    renderEventsFeed();
+
+    expect(screen.queryByTestId('eventsTable')).toBeNull();
+    expect(screen.getByRole('list', { name: 'Event list' })).toBeVisible();
+  });
 
   const getEventRowTexts = () => within(screen.getByRole('list', { name: 'Event list' }))
     .getAllByRole('listitem')

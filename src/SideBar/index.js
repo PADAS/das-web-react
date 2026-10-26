@@ -4,11 +4,12 @@ import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowLeftIcon } from '../common/images/icons/arrow-left.svg';
+import { ReactComponent as CollapseIcon } from '../common/images/icons/collapse.svg';
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
 import { ReactComponent as ERLogo } from '../common/images/icons/er-logo.svg';
+import { ReactComponent as ExpandIcon } from '../common/images/icons/expand.svg';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
-import { ReactComponent as DataAnalyticsIcon } from '../common/images/icons/data-analytics.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
 import { ReactComponent as OtusIcon } from '../common/images/icons/otus.svg';
@@ -21,6 +22,7 @@ import { SocketContext } from '../withSocketConnection';
 import useNavigate from '../hooks/useNavigate';
 import { usePatrolsPermissions } from '../hooks/usePermissions';
 import { usePreviewFeature } from '../hooks';
+import useFeedTableView from '../FeedTable/useFeedTableView';
 import useReportsFeed from './useReportsFeed';
 
 import AddItemButton from '../AddItemButton';
@@ -76,8 +78,6 @@ const SideBar = () => {
 
   const canReadPatrols = patrolManagementEnabled && hasPatrolsReadPermission;
 
-  const showDataTab = eventsEnabled || subjectsEnabled || canReadPatrols;
-
   const currentTab = getCurrentTabFromURL(location.pathname);
 
   const isLegacyEventURL = currentTab === legacyEventsURL;
@@ -97,13 +97,12 @@ const SideBar = () => {
 
   const enabledTabKeys = useMemo(() => ({
     ...TAB_KEYS,
-    DATA: showDataTab ? TAB_KEYS.DATA : undefined,
     EVENTS: eventsEnabled ? TAB_KEYS.EVENTS : undefined,
     GEAR: showGearTab ? TAB_KEYS.GEAR : undefined,
     LAYERS: showLayersTab ? TAB_KEYS.LAYERS : undefined,
     OTUS: showOtusTab ? TAB_KEYS.OTUS : undefined,
     PATROLS: canReadPatrols ? TAB_KEYS.PATROLS : undefined,
-  }), [canReadPatrols, eventsEnabled, showDataTab, showGearTab, showLayersTab, showOtusTab]);
+  }), [canReadPatrols, eventsEnabled, showGearTab, showLayersTab, showOtusTab]);
 
   // If there is a current tab and it is in the enabled tab keys, the side bar
   // is open.
@@ -125,6 +124,10 @@ const SideBar = () => {
   const isSideBarClosing = !isSideBarOpen && !!tabLocation;
   const displayedPathname = (tabLocation ?? location).pathname;
   const displayedTab = getCurrentTabFromURL(displayedPathname);
+
+  const { isTableView, toggleTableView } = useFeedTableView();
+  const isFeedDisplayed = (displayedTab === TAB_KEYS.EVENTS || displayedTab === TAB_KEYS.PATROLS)
+    && !getCurrentIdFromURL(displayedPathname);
 
   const hideDefaultHeader = (patrolSchemasEnabled
     && canReadPatrols
@@ -229,16 +232,6 @@ const SideBar = () => {
         <span>{t('patrolsLink')}</span>
       </Link>}
 
-      {showDataTab && <Link
-        className={`${styles.navItem} ${currentTab === TAB_KEYS.DATA ? styles.active : ''}`}
-        data-testid="sideBar-dataLink"
-        to={`/${TAB_KEYS.DATA}`}
-      >
-        <DataAnalyticsIcon />
-
-        <span>{t('dataLink')}</span>
-      </Link>}
-
       {showGearTab && <Link
         className={`${styles.navItem} ${currentTab === TAB_KEYS.GEAR ? styles.active : ''}`}
         to={tabPath(TAB_KEYS.GEAR)}
@@ -277,7 +270,7 @@ const SideBar = () => {
       </Link>
     </div>
 
-    {currentTab !== TAB_KEYS.DATA && <div className={`${styles.tabsContainer} ${isSideBarOpen ? 'open' : ''}`}>
+    <div className={`${styles.tabsContainer} ${isSideBarOpen ? 'open' : ''}`}>
       <div
         className={`${styles.tab} ${isSideBarOpen ? 'open' : ''}`}
         data-testid="sideBar-tab"
@@ -317,15 +310,30 @@ const SideBar = () => {
             <h3 id="side-bar-tab-header">{t(`${displayedTab}Link`)}</h3>
           </div>
 
-          <Link
-            aria-label={t('closeButtonLabel')}
-            className={styles.closeButton}
-            data-testid="sideBar-closeTabButton"
-            title={t('closeButtonLabel')}
-            to="/"
-          >
-            <CrossIcon aria-hidden="true" className={styles.closeButtonIcon} />
-          </Link>
+          <div className={styles.headerActions}>
+            {isFeedDisplayed && <button
+              aria-label={t(isTableView ? 'collapseTableButtonLabel' : 'expandTableButtonLabel')}
+              aria-pressed={isTableView}
+              className={styles.tableViewButton}
+              data-testid="sideBar-tableViewButton"
+              onClick={toggleTableView}
+              title={t(isTableView ? 'collapseTableButtonLabel' : 'expandTableButtonLabel')}
+              type="button"
+            >
+              {isTableView
+                ? <CollapseIcon aria-hidden="true" className={styles.tableViewButtonIcon} />
+                : <ExpandIcon aria-hidden="true" className={styles.tableViewButtonIcon} />}
+            </button>}
+
+            <Link
+              aria-label={t('closeButtonLabel')}
+              className={styles.closeButton}
+              title={t('closeButtonLabel')}
+              to="/"
+            >
+              <CrossIcon aria-hidden="true" className={styles.closeButtonIcon} />
+            </Link>
+          </div>
         </div>}
 
         <div className={`${styles.tabBody} ${hideDefaultHeader ? styles.noHeader : ''}`}>
@@ -366,7 +374,7 @@ const SideBar = () => {
           </Routes>
         </div>
       </div>
-    </div>}
+    </div>
   </nav>;
 };
 
