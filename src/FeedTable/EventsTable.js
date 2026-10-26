@@ -109,7 +109,14 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
       valueGetter: (params) => calcDisplayPriorityForReport(params.data, eventTypes) || 0,
       width: 120,
     },
-    { colId: 'serial_number', field: 'serial_number', headerName: t('columnSerial'), minWidth: 80, width: 100 },
+    {
+      colId: 'serial_number',
+      field: 'serial_number',
+      headerName: t('columnSerial'),
+      minWidth: 80,
+      width: 100,
+      ...serverSortable('serial_number'),
+    },
     {
       colId: 'title',
       flex: 2,

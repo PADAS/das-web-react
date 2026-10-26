@@ -48,7 +48,10 @@ const EventsFeed = ({ eventsFeed }) => {
 
   const feedEvents = eventsFeed.events.results ?? EMPTY_EVENTS;
 
-  const displayTimeProp = calcTimePropForSortConfig(eventsFeed.feedSort);
+  // A serial number sort has no time of its own for the rows to show.
+  const displayTimeProp = eventsFeed.feedSort[1].value === 'serial_number'
+    ? 'updated_at'
+    : calcTimePropForSortConfig(eventsFeed.feedSort);
 
   const events = useMemo(() => sortEventsBySortConfig(
     eventsFeed.shouldExcludeContained ? excludeContainedEvents(feedEvents) : feedEvents,

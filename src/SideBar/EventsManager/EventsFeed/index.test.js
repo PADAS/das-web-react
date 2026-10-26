@@ -111,6 +111,14 @@ describe('SideBar - EventsManager - EventsFeed', () => {
     expect(screen.queryByRole('list', { name: 'Event list' })).toBeNull();
   });
 
+  test('shows the updated time on each row when sorted by serial number', () => {
+    const serialNumberSort = EVENT_SORT_OPTIONS.find((option) => option.value === 'serial_number');
+
+    renderEventsFeed({ feedSort: [SORT_DIRECTION.down, serialNumberSort] });
+
+    expect(getEventRowTexts()).toEqual(['#3 by updated_at', '#2 by updated_at', '#1 by updated_at']);
+  });
+
   test('shows the feed as a list outside the table view', () => {
     renderEventsFeed();
 
