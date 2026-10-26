@@ -8,11 +8,8 @@ import MoonLoader from 'react-spinners/MoonLoader';
 import KebabMenu from '../KebabMenu';
 import { useDispatch, useSelector, useStore } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community';
+import { ModuleRegistry, AllCommunityModule, themeQuartz } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
-
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-alpine.css';
 
 import { ReactComponent as ChevronRightIcon } from '../common/images/icons/chevron-right.svg';
 
@@ -146,6 +143,24 @@ const rowsFromValue = (raw, depth = 0) => {
   }
   return [];
 };
+
+// Mirrors the web app's palette and type in common/styles/vars (_colors.scss, _fonts.scss).
+const gridTheme = themeQuartz.withParams({
+  accentColor: '#006cd9', // $bright-blue
+  backgroundColor: '#fff',
+  borderColor: '#ddd', // $light-gray-lines
+  fontFamily: '"Helvetica Neue", helvetica, arial, sans-serif',
+  fontSize: 14,
+  foregroundColor: '#323335', // $primary-font-color
+  headerBackgroundColor: '#f4f7fd', // $very-light-blue
+  headerFontSize: 13,
+  headerFontWeight: 600,
+  headerTextColor: '#333', // $off-black
+  oddRowBackgroundColor: '#fbfbfb', // $off-white
+  rowHoverColor: '#e8f0fb', // $blue-highlight
+  selectedRowBackgroundColor: '#e8f0fb', // $blue-highlight
+  wrapperBorderRadius: 4,
+});
 
 const defaultColDef = {
   filter: true,
@@ -802,7 +817,7 @@ const DataWorkspace = () => {
         {entity === ENTITY.SUBJECTS && subjectsError && <div className={styles.emptyHint}>{t('loadError')}</div>}
 
         {!drillStack.length && !(entity === ENTITY.SUBJECTS && subjectsLoading) && <div
-          className={`ag-theme-alpine ${styles.gridInner}`}
+          className={styles.gridInner}
           data-testid="data-entity-grid"
         >
           <AgGridReact
@@ -818,11 +833,12 @@ const DataWorkspace = () => {
             onRowDoubleClicked={onMainRowDoubleClicked}
             rowData={mainRowData}
             rowSelection="single"
+            theme={gridTheme}
           />
         </div>}
 
         {!!drillStack.length && <div
-          className={`ag-theme-alpine ${styles.gridInner}`}
+          className={styles.gridInner}
           data-testid="data-drill-grid"
         >
           <AgGridReact
@@ -836,6 +852,7 @@ const DataWorkspace = () => {
             onRowDoubleClicked={openNestedStructure}
             rowData={drillStack[drillStack.length - 1].rows}
             rowSelection="single"
+            theme={gridTheme}
           />
         </div>}
 
