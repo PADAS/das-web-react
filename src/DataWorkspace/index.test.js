@@ -11,8 +11,12 @@ import { render, screen } from '../test-utils';
 
 import DataWorkspace from './index';
 
+const mockAgGridProps = [];
+
 jest.mock('ag-grid-react', () => ({
-  AgGridReact: function AgGridReactStub() {
+  AgGridReact: function AgGridReactStub(props) {
+    mockAgGridProps.push(props);
+
     return <div data-testid="ag-grid-stub" />;
   },
 }));
@@ -73,6 +77,7 @@ describe('DataWorkspace', () => {
   );
 
   beforeEach(() => {
+    mockAgGridProps.length = 0;
     mockUseFetchPatrolsFeed.mockImplementation(() => ({ loadingPatrolsFeed: false }));
   });
 
@@ -145,5 +150,48 @@ describe('DataWorkspace', () => {
 
     expect(screen.queryByRole('option', { name: 'Events' })).toBeNull();
     expect(screen.getByTestId('data-entity-select')).toHaveValue('subjects');
+  });
+
+  test('shows patrols by serial, title, type, state, leader, start, end and legs', async () => {
+    const user = userEvent.setup();
+    const patrol = {
+      id: 'patrol-1',
+      patrol_segments: [{
+        id: 'leg-1',
+        leader: { id: 'ranger-1', name: 'Ranger One' },
+        patrol_type: 'routine_patrol',
+        time_range: { end_time: '2026-10-01T12:00:00.000Z', start_time: '2026-10-01T08:00:00.000Z' },
+      }],
+      serial_number: 42,
+      state: 'done',
+      title: null,
+    };
+    renderWorkspace({
+      data: {
+        patrolsFeed: { count: 1, next: null, results: [patrol.id] },
+        patrolStore: { [patrol.id]: patrol },
+        patrolTypes: [{ display: 'Routine Patrol', id: 'type-1', value: 'routine_patrol' }],
+      },
+    });
+
+    await user.selectOptions(screen.getByTestId('data-entity-select'), 'patrols');
+
+    const { columnDefs, rowData } = mockAgGridProps[mockAgGridProps.length - 1];
+    const cellValues = columnDefs
+      .filter((columnDef) => !columnDef.hide)
+      .map((columnDef) => columnDef.valueGetter
+        ? columnDef.valueGetter({ data: rowData[0] })
+        : rowData[0][columnDef.field]);
+
+    expect(cellValues).toEqual([
+      42,
+      'Routine Patrol',
+      'Routine Patrol',
+      'Done',
+      'Ranger One',
+      '2026-10-01T08:00:00.000Z',
+      '2026-10-01T12:00:00.000Z',
+      1,
+    ]);
   });
 });

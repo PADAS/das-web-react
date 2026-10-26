@@ -28,7 +28,14 @@ import useFetchPatrolsFeed from '../SideBar/useFetchPatrolsFeed';
 import { getFeedEvents } from '../selectors';
 import { selectPatrolsFeedMappedFromStore } from '../selectors/patrols';
 import { displayTitleForEvent } from '../utils/events';
-import { sortPatrolList } from '../utils/patrols';
+import {
+  calcPatrolState,
+  calcTitleAndSubtitleForPatrol,
+  displayEndTimeForPatrol,
+  displayNameForPatrolSegment,
+  displayStartTimeForPatrol,
+  sortPatrolList,
+} from '../utils/patrols';
 import { showToast } from '../utils/toast';
 
 import {
@@ -156,11 +163,13 @@ const DataWorkspace = () => {
   const dispatch = useDispatch();
   const store = useStore();
   const { t } = useTranslation('components', { keyPrefix: 'dataWorkspace' });
+  const { t: tPatrolState } = useTranslation('patrols', { keyPrefix: 'statusPill.uiStateTitles' });
 
   const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
   const subjectsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SUBJECTS]);
   const patrolManagementEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]);
   const eventTypes = useSelector((state) => state.data.eventTypes ?? []);
+  const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
   const { hasPatrolsReadPermission } = usePatrolsPermissions();
   const canReadPatrols = patrolManagementEnabled && hasPatrolsReadPermission;
@@ -442,20 +451,60 @@ const DataWorkspace = () => {
   ]), [t]);
 
   const patrolColumnDefs = useMemo(() => ([
-    { field: 'id', headerName: t('columnId'), minWidth: 200, width: 220 },
-    { field: 'state', headerName: t('columnState'), width: 120 },
+    {
+      field: 'serial_number',
+      flex: 0,
+      headerName: t('columnSerial'),
+      maxWidth: 120,
+      minWidth: 64,
+      width: 88,
+    },
+    {
+      flex: 2,
+      headerName: t('columnTitle'),
+      minWidth: 140,
+      valueGetter: (p) => p.data ? calcTitleAndSubtitleForPatrol(p.data, patrolTypes).title ?? '' : '',
+    },
     {
       headerName: t('columnPatrolType'),
       minWidth: 140,
-      valueGetter: (p) => p.data?.patrol_type?.value ?? p.data?.patrol_type ?? '',
+      valueGetter: (p) => {
+        const lastSegment = p.data?.patrol_segments?.[p.data.patrol_segments.length - 1];
+
+        return lastSegment ? displayNameForPatrolSegment(patrolTypes, lastSegment) ?? '' : '';
+      },
+    },
+    {
+      headerName: t('columnState'),
+      minWidth: 120,
+      valueGetter: (p) => p.data ? tPatrolState(calcPatrolState(p.data).key) : '',
+    },
+    {
+      headerName: t('columnLeader'),
+      minWidth: 140,
+      valueGetter: (p) => p.data?.patrol_segments?.[p.data.patrol_segments.length - 1]?.leader?.name ?? '',
     },
     {
       flex: 1,
       headerName: t('columnPatrolStart'),
-      minWidth: 140,
-      valueGetter: (p) => p.data?.patrol_segments?.[0]?.time_range?.start_time ?? '',
+      minWidth: 152,
+      valueGetter: (p) => p.data ? displayStartTimeForPatrol(p.data)?.toISOString() ?? '' : '',
+      cellRenderer: (params) => params.value ? <DataWorkspaceEventDateCell date={params.value} /> : null,
     },
-  ]), [t]);
+    {
+      flex: 1,
+      headerName: t('columnPatrolEnd'),
+      minWidth: 152,
+      valueGetter: (p) => p.data ? displayEndTimeForPatrol(p.data)?.toISOString() ?? '' : '',
+      cellRenderer: (params) => params.value ? <DataWorkspaceEventDateCell date={params.value} /> : null,
+    },
+    {
+      headerName: t('columnLegs'),
+      maxWidth: 100,
+      valueGetter: (p) => p.data?.patrol_segments?.length ?? 0,
+    },
+    { field: 'id', headerName: t('columnId'), hide: true },
+  ]), [patrolTypes, t, tPatrolState]);
 
   const openNestedStructureForRow = useCallback((row) => {
     if (!row || row.raw === null || typeof row.raw !== 'object') return;
