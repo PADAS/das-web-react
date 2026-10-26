@@ -64,9 +64,11 @@ const PatrolOverviewContent = ({ patrol }) => {
   const isTitleDirty = editedTitle !== null
     && calcTitleAndSubtitleForPatrol({ ...patrol, title: editedTitle }, patrolTypes).title.trim() !== patrolTitle.trim();
 
-  const state = editedState ?? patrolState;
+  // A pick made against a status the patrol has left, such as by ending on
+  // mobile, would undo that change. A status that moves back revives it.
+  const isStateDirty = editedState !== null && editedState.basedOnState === patrolState;
 
-  const isStateDirty = editedState !== null;
+  const state = isStateDirty ? editedState.pickedState : patrolState;
 
   const patrolUpdates = useMemo(() => ({
     ...(isTitleDirty ? { title: title.trim() } : {}),
@@ -109,10 +111,14 @@ const PatrolOverviewContent = ({ patrol }) => {
   }), [onAddEvent, patrol.id, patrolTitle, t]);
 
   const onChangeState = useCallback((pickedState) => {
-    setEditedState(pickedState === patrolState ? null : pickedState);
+    setEditedState(pickedState === patrolState ? null : { basedOnState: patrolState, pickedState });
   }, [patrolState]);
 
   const savePatrol = useCallback(async () => {
+    if (editedState !== null && !isStateDirty) {
+      patrolOverviewTracker.track('Discarded a staged status the patrol moved past');
+    }
+
     // The status update is built here, and not alongside the other updates,
     // because it stamps the transition with the moment the patrol is saved.
     const statusUpdate = isStateDirty ? buildPatrolStatusUpdate(patrol, state) : null;
@@ -156,7 +162,7 @@ const PatrolOverviewContent = ({ patrol }) => {
     console.warn('Error saving patrol: ', failedRequest.reason);
 
     return false;
-  }, [activityEditing, dispatch, isStateDirty, patrol, patrolUpdates, state, t]);
+  }, [activityEditing, dispatch, editedState, isStateDirty, patrol, patrolUpdates, state, t]);
 
   const onSave = useCallback(async () => {
     patrolOverviewTracker.track('Click the "Save" button in patrol overview');

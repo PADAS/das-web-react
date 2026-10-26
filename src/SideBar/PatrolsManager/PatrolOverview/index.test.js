@@ -1260,7 +1260,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
     });
 
-    test('still sends the picked status when the patrol reaches it on its own before saving', async () => {
+    test('drops the picked status when the patrol reaches it on its own before saving', async () => {
       const { rerender } = await renderPatrolInStore(patrolWithLeader);
 
       await selectStatus('End');
@@ -1268,8 +1268,8 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       store.data.patrolStore[patrolWithLeader.id] = { ...patrolWithLeader, state: 'done' };
       rerenderWithStore(rerender);
 
-      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
-      expect((await savedPayload()).state).toBe('done');
+      expect(screen.getByRole('button', { name: 'Done, Change patrol status' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
     });
 
     test('sends the status picked last when another one replaces it', async () => {
