@@ -65,7 +65,7 @@ const PatrolOverviewContent = ({ patrol }) => {
     && calcTitleAndSubtitleForPatrol({ ...patrol, title: editedTitle }, patrolTypes).title.trim() !== patrolTitle.trim();
 
   // A pick made against a status the patrol has left, such as by ending on
-  // mobile, would undo that change. A status that moves back revives it.
+  // mobile, would undo that change. Matched by value, so a return revives it.
   const isStateDirty = editedState !== null && editedState.basedOnState === patrolState;
 
   const state = isStateDirty ? editedState.pickedState : patrolState;
@@ -115,10 +115,6 @@ const PatrolOverviewContent = ({ patrol }) => {
   }, [patrolState]);
 
   const savePatrol = useCallback(async () => {
-    if (editedState !== null && !isStateDirty) {
-      patrolOverviewTracker.track('Discarded a staged status the patrol moved past');
-    }
-
     // The status update is built here, and not alongside the other updates,
     // because it stamps the transition with the moment the patrol is saved.
     const statusUpdate = isStateDirty ? buildPatrolStatusUpdate(patrol, state) : null;
@@ -134,6 +130,10 @@ const PatrolOverviewContent = ({ patrol }) => {
     const refetchPatrol = dispatch(fetchPatrol(patrol.id)).catch(() => {});
 
     if (patrolUpdateResult.status === 'fulfilled') {
+      if (editedState !== null && !isStateDirty) {
+        patrolOverviewTracker.track('Discarded a staged status the patrol moved past');
+      }
+
       // The patrol update went through. Clear what it saved.
       setEditedState(null);
       setEditedTitle(null);
