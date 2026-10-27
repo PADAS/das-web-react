@@ -1651,6 +1651,92 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       });
     });
 
+    test('keeps a picked status through a remote edit that leaves the status alone and a later move with time', async () => {
+      jest.useFakeTimers().setSystemTime(new Date('2026-04-13T12:00:00.000Z'));
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+
+      const { rerender } = await renderPatrolWithLeader(patrolStartingByItself);
+
+      await selectStatus('Cancel', user);
+
+      receivePatrolUpdate(rerender, {
+        ...patrolStartingByItself,
+        patrol_segments: [{ ...patrolStartingByItself.patrol_segments[0], scheduled_end: '2026-04-13T18:00:00.000Z' }],
+      });
+
+      act(() => {
+        jest.advanceTimersByTime(10 * 60_000 + 1);
+      });
+
+      expect(screen.getByRole('button', { name: /^Cancelled, Change patrol status/ })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+    });
+
+    test('drops a picked status once the patrol ends by itself', async () => {
+      jest.useFakeTimers().setSystemTime(new Date('2026-04-13T12:00:00.000Z'));
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+
+      await renderPatrolWithLeader({
+        ...patrolWithLeader,
+        patrol_segments: [{
+          ...patrolWithLeader.patrol_segments.at(-1),
+          time_range: { end_time: '2026-04-13T12:10:00.000Z', start_time: '2026-04-13T11:00:00.000Z' },
+        }],
+      });
+
+      await selectStatus('Pause', user);
+
+      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+
+      act(() => {
+        jest.advanceTimersByTime(10 * 60_000 + 1);
+      });
+
+      expect(screen.getByRole('button', { name: 'Done, Change patrol status' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
+
+    test('drops a picked status the patrol can no longer take once it moves on by itself', async () => {
+      jest.useFakeTimers().setSystemTime(new Date('2026-04-13T12:00:00.000Z'));
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+
+      await renderPatrolWithLeader({ ...patrolStartingByItself, provenance: 'mobile' });
+
+      await selectStatus('Cancel', user);
+
+      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+
+      act(() => {
+        jest.advanceTimersByTime(10 * 60_000 + 1);
+      });
+
+      expect(screen.getByRole('button', { name: 'Active, Change patrol status' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
+
+    test('drops a picked start once the patrol has run and ended by itself', async () => {
+      jest.useFakeTimers().setSystemTime(new Date('2026-04-13T12:00:00.000Z'));
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+
+      await renderPatrolWithLeader({
+        ...patrolWithLeader,
+        patrol_segments: [{
+          ...patrolWithLeader.patrol_segments.at(-1),
+          time_range: { end_time: '2026-04-13T12:20:00.000Z', start_time: '2026-04-13T12:10:00.000Z' },
+        }],
+      });
+
+      await selectStatus('Start', user);
+
+      act(() => {
+        jest.setSystemTime(new Date('2026-04-13T12:30:00.000Z'));
+        jest.advanceTimersByTime(10 * 60_000 + 1);
+      });
+
+      expect(screen.getByRole('button', { name: 'Done, Change patrol status' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
+
     test('drops a picked status the patrol reaches by itself, so its own start time stands', async () => {
       jest.useFakeTimers().setSystemTime(new Date('2026-04-13T12:00:00.000Z'));
       const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });

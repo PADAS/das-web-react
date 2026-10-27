@@ -11,6 +11,7 @@ import { addPatrolSegmentToEvent } from '../../../utils/events';
 import buildPatrolStatusUpdate from '../utils/buildPatrolStatusUpdate';
 import getPatrolStatusOptions from '../utils/getPatrolStatusOptions';
 import {
+  calcPatrolState,
   calcTitleAndSubtitleForPatrol,
   getTrackedSubjectsForPatrolSegment,
   governingPatrolSegment,
@@ -19,7 +20,7 @@ import { fetchPatrol, updatePatrol, uploadPatrolFile } from '../../../ducks/patr
 import { fetchTracksIfNecessary } from '../../../utils/tracks';
 import { PATROL_OVERVIEW_CATEGORY, TrackerContext, trackEventFactory } from '../../../utils/analytics';
 import { selectPatrolRosterFallbackSubjects } from '../../../selectors/patrols';
-import { TAB_KEYS as SIDEBAR_TAB_KEYS } from '../../../constants';
+import { PATROL_UI_STATES, TAB_KEYS as SIDEBAR_TAB_KEYS } from '../../../constants';
 import useNavigate from '../../../hooks/useNavigate';
 import usePatrolActivityEditing from '../utils/usePatrolActivityEditing';
 import usePatrolState from '../../../hooks/usePatrolState';
@@ -38,18 +39,7 @@ const patrolOverviewTracker = trackEventFactory(PATROL_OVERVIEW_CATEGORY);
 const TAB_KEYS = { HISTORY: 'history', OVERVIEW: 'overview' };
 const TAB_LABELS = { [TAB_KEYS.HISTORY]: 'History', [TAB_KEYS.OVERVIEW]: 'Overview' };
 
-// What a patrol's status is read from, so that a status changed elsewhere can
-// be told apart from one that only moved on with time.
-const getPatrolStatusData = (patrol) => JSON.stringify([
-  patrol.state,
-  patrol.patrol_segments.map((patrolSegment) => [
-    patrolSegment.id,
-    patrolSegment.is_pause,
-    patrolSegment.scheduled_start,
-    patrolSegment.scheduled_end,
-    patrolSegment.time_range,
-  ]),
-]);
+const { CANCELLED, DONE } = PATROL_UI_STATES;
 
 const PatrolOverviewContent = ({ patrol }) => {
   const dispatch = useDispatch();
@@ -78,11 +68,13 @@ const PatrolOverviewContent = ({ patrol }) => {
   const isTitleDirty = editedTitle !== null
     && calcTitleAndSubtitleForPatrol({ ...patrol, title: editedTitle }, patrolTypes).title.trim() !== patrolTitle.trim();
 
-  // Saving a pick made before the status was changed elsewhere would undo that
-  // change. One that time alone moved past holds while it can still be made.
+  // Saving a pick made before the status changed elsewhere would undo that
+  // change. One that time alone moved past holds while the patrol can take it.
   const isStateDirty = editedState !== null && !editedState.isDropped && (
     editedState.basedOnState === patrolState
-    || (editedState.basedOnStatusData === getPatrolStatusData(patrol)
+    || (calcPatrolState(editedState.basedOnPatrol) === patrolState
+      && patrolState !== CANCELLED
+      && patrolState !== DONE
       && editedState.pickedState !== patrolState
       && getPatrolStatusOptions(patrol, patrolState).includes(editedState.pickedState))
   );
@@ -136,8 +128,8 @@ const PatrolOverviewContent = ({ patrol }) => {
 
   const onChangeState = useCallback((pickedState) => {
     setEditedState(pickedState === patrolState ? null : {
+      basedOnPatrol: patrol,
       basedOnState: patrolState,
-      basedOnStatusData: getPatrolStatusData(patrol),
       isDropped: false,
       pickedState,
     });
