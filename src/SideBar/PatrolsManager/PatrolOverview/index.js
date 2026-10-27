@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 
 import { addPatrolSegmentToEvent } from '../../../utils/events';
 import buildPatrolStatusUpdate from '../utils/buildPatrolStatusUpdate';
+import getPatrolStatusOptions from '../utils/getPatrolStatusOptions';
 import {
   calcTitleAndSubtitleForPatrol,
   getTrackedSubjectsForPatrolSegment,
@@ -37,6 +38,19 @@ const patrolOverviewTracker = trackEventFactory(PATROL_OVERVIEW_CATEGORY);
 const TAB_KEYS = { HISTORY: 'history', OVERVIEW: 'overview' };
 const TAB_LABELS = { [TAB_KEYS.HISTORY]: 'History', [TAB_KEYS.OVERVIEW]: 'Overview' };
 
+// What a patrol's status is read from, so that a status changed elsewhere can
+// be told apart from one that only moved on with time.
+const getPatrolStatusData = (patrol) => JSON.stringify([
+  patrol.state,
+  patrol.patrol_segments.map((patrolSegment) => [
+    patrolSegment.id,
+    patrolSegment.is_pause,
+    patrolSegment.scheduled_start,
+    patrolSegment.scheduled_end,
+    patrolSegment.time_range,
+  ]),
+]);
+
 const PatrolOverviewContent = ({ patrol }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -64,9 +78,19 @@ const PatrolOverviewContent = ({ patrol }) => {
   const isTitleDirty = editedTitle !== null
     && calcTitleAndSubtitleForPatrol({ ...patrol, title: editedTitle }, patrolTypes).title.trim() !== patrolTitle.trim();
 
-  // A pick made against a status the patrol has since left would undo that
-  // change. A return to that same status revives the pick, on purpose.
-  const isStateDirty = editedState !== null && editedState.basedOnState === patrolState;
+  // Saving a pick made before the status was changed elsewhere would undo that
+  // change. One that time alone moved past holds while it can still be made.
+  const isStateDirty = editedState !== null && !editedState.isDropped && (
+    editedState.basedOnState === patrolState
+    || (editedState.basedOnStatusData === getPatrolStatusData(patrol)
+      && editedState.pickedState !== patrolState
+      && getPatrolStatusOptions(patrol, patrolState).includes(editedState.pickedState))
+  );
+
+  // A dropped pick stays dropped, even if the patrol comes back to its status.
+  if (editedState !== null && !editedState.isDropped && !isStateDirty) {
+    setEditedState({ ...editedState, isDropped: true });
+  }
 
   const state = isStateDirty ? editedState.pickedState : patrolState;
 
@@ -111,8 +135,13 @@ const PatrolOverviewContent = ({ patrol }) => {
   }), [onAddEvent, patrol.id, patrolTitle, t]);
 
   const onChangeState = useCallback((pickedState) => {
-    setEditedState(pickedState === patrolState ? null : { basedOnState: patrolState, pickedState });
-  }, [patrolState]);
+    setEditedState(pickedState === patrolState ? null : {
+      basedOnState: patrolState,
+      basedOnStatusData: getPatrolStatusData(patrol),
+      isDropped: false,
+      pickedState,
+    });
+  }, [patrol, patrolState]);
 
   const savePatrol = useCallback(async () => {
     // The status update is built here, and not alongside the other updates,
