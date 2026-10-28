@@ -9,7 +9,9 @@ import { useTranslation } from 'react-i18next';
 
 import { addPatrolSegmentToEvent } from '../../../utils/events';
 import buildPatrolStatusUpdate from '../utils/buildPatrolStatusUpdate';
+import getPatrolStatusOptions from '../utils/getPatrolStatusOptions';
 import {
+  calcPatrolState,
   calcTitleAndSubtitleForPatrol,
   getTrackedSubjectsForPatrolSegment,
   governingPatrolSegment,
@@ -18,7 +20,7 @@ import { fetchPatrol, updatePatrol, uploadPatrolFile } from '../../../ducks/patr
 import { fetchTracksIfNecessary } from '../../../utils/tracks';
 import { PATROL_OVERVIEW_CATEGORY, TrackerContext, trackEventFactory } from '../../../utils/analytics';
 import { selectPatrolRosterFallbackSubjects } from '../../../selectors/patrols';
-import { TAB_KEYS as SIDEBAR_TAB_KEYS } from '../../../constants';
+import { PATROL_UI_STATES, TAB_KEYS as SIDEBAR_TAB_KEYS } from '../../../constants';
 import useNavigate from '../../../hooks/useNavigate';
 import usePatrolActivityEditing from '../utils/usePatrolActivityEditing';
 import usePatrolState from '../../../hooks/usePatrolState';
@@ -36,6 +38,8 @@ const patrolOverviewTracker = trackEventFactory(PATROL_OVERVIEW_CATEGORY);
 
 const TAB_KEYS = { HISTORY: 'history', OVERVIEW: 'overview' };
 const TAB_LABELS = { [TAB_KEYS.HISTORY]: 'History', [TAB_KEYS.OVERVIEW]: 'Overview' };
+
+const { CANCELLED, DONE } = PATROL_UI_STATES;
 
 const PatrolOverviewContent = ({ patrol }) => {
   const dispatch = useDispatch();
@@ -64,9 +68,23 @@ const PatrolOverviewContent = ({ patrol }) => {
   const isTitleDirty = editedTitle !== null
     && calcTitleAndSubtitleForPatrol({ ...patrol, title: editedTitle }, patrolTypes).title.trim() !== patrolTitle.trim();
 
-  const state = editedState ?? patrolState;
+  // Saving a pick made before the status changed elsewhere would undo that
+  // change. One that time alone moved past holds while the patrol can take it.
+  const isStateDirty = editedState !== null && !editedState.isDropped && (
+    editedState.basedOnState === patrolState
+    || (calcPatrolState(editedState.basedOnPatrol) === patrolState
+      && patrolState !== CANCELLED
+      && patrolState !== DONE
+      && editedState.pickedState !== patrolState
+      && getPatrolStatusOptions(patrol, patrolState).includes(editedState.pickedState))
+  );
 
-  const isStateDirty = editedState !== null;
+  // A dropped pick stays dropped, even if the patrol comes back to its status.
+  if (editedState !== null && !editedState.isDropped && !isStateDirty) {
+    setEditedState({ ...editedState, isDropped: true });
+  }
+
+  const state = isStateDirty ? editedState.pickedState : patrolState;
 
   const patrolUpdates = useMemo(() => ({
     ...(isTitleDirty ? { title: title.trim() } : {}),
@@ -109,8 +127,13 @@ const PatrolOverviewContent = ({ patrol }) => {
   }), [onAddEvent, patrol.id, patrolTitle, t]);
 
   const onChangeState = useCallback((pickedState) => {
-    setEditedState(pickedState === patrolState ? null : pickedState);
-  }, [patrolState]);
+    setEditedState(pickedState === patrolState ? null : {
+      basedOnPatrol: patrol,
+      basedOnState: patrolState,
+      isDropped: false,
+      pickedState,
+    });
+  }, [patrol, patrolState]);
 
   const savePatrol = useCallback(async () => {
     // The status update is built here, and not alongside the other updates,
@@ -128,6 +151,10 @@ const PatrolOverviewContent = ({ patrol }) => {
     const refetchPatrol = dispatch(fetchPatrol(patrol.id)).catch(() => {});
 
     if (patrolUpdateResult.status === 'fulfilled') {
+      if (editedState !== null && !isStateDirty) {
+        patrolOverviewTracker.track('Discarded a staged status the patrol moved past');
+      }
+
       // The patrol update went through. Clear what it saved.
       setEditedState(null);
       setEditedTitle(null);
@@ -156,7 +183,7 @@ const PatrolOverviewContent = ({ patrol }) => {
     console.warn('Error saving patrol: ', failedRequest.reason);
 
     return false;
-  }, [activityEditing, dispatch, isStateDirty, patrol, patrolUpdates, state, t]);
+  }, [activityEditing, dispatch, editedState, isStateDirty, patrol, patrolUpdates, state, t]);
 
   const onSave = useCallback(async () => {
     patrolOverviewTracker.track('Click the "Save" button in patrol overview');
