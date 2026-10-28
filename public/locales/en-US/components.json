@@ -442,12 +442,6 @@
     "columns": "Columns",
     "export": "Export CSV",
     "exportError": "Could not export the CSV",
-    "priority": {
-      "amber": "Medium",
-      "green": "Low",
-      "none": "None",
-      "red": "High"
-    },
     "reopenSelected": "Reopen",
     "resolveSelected": "Resolve",
     "selectedCount_one": "{{count}} selected",

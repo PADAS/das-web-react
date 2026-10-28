@@ -99,6 +99,14 @@ describe('EventsTable', () => {
     expect(columnById('priority').sortable).toBeUndefined();
   });
 
+  test('names priorities the way the rest of the app does', () => {
+    renderEventsTable();
+
+    const { valueFormatter } = columnById('priority');
+
+    expect([300, 200, 100, 0].map((value) => valueFormatter({ value }))).toEqual(['Red', 'Amber', 'Green', 'None']);
+  });
+
   test('sorts the feed when a column header is sorted', () => {
     renderEventsTable();
 

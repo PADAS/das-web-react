@@ -63,6 +63,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
   const jumpToLocation = useJumpToLocation();
   const navigate = useNavigate();
   const { t } = useTranslation('components', { keyPrefix: 'feedTable' });
+  const { t: tPriorities } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection.priorities' });
   const { t: tStates } = useTranslation('reports', { keyPrefix: 'eventsManager.eventsFeed.eventRow.states' });
 
   const eventSort = useSelector((state) => state.data.eventFilter.filter.sort);
@@ -102,7 +103,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
       colId: 'priority',
       headerName: t('columnPriority'),
       minWidth: 110,
-      valueFormatter: (params) => t(`priority.${(PRIORITY_COLOR_MAP[params.value] ?? PRIORITY_COLOR_MAP[0]).key}`),
+      valueFormatter: (params) => tPriorities((PRIORITY_COLOR_MAP[params.value] ?? PRIORITY_COLOR_MAP[0]).key),
       valueGetter: (params) => calcDisplayPriorityForReport(params.data, eventTypes) || 0,
       width: 120,
     },
@@ -177,7 +178,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
       valueGetter: (params) => formatCoordinates(getCoordinatesForEvent(params.data)),
     },
     ...detailColumns,
-  ], [detailColumns, eventTypes, serverSortable, t, tStates]);
+  ], [detailColumns, eventTypes, serverSortable, t, tPriorities, tStates]);
 
   const onSortChanged = (event) => {
     if (event.source !== 'uiColumnSorted') return;
