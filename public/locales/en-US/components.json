@@ -435,7 +435,7 @@
     "columnPatrolType": "Patrol type",
     "columnPriority": "Priority",
     "columnReportedBy": "Reported by",
-    "columnSerial": "#",
+    "columnSerial": "ID",
     "columnState": "State",
     "columnTitle": "Title",
     "columnUpdatedAt": "Updated",

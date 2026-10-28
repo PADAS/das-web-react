@@ -107,6 +107,12 @@ describe('EventsTable', () => {
     expect([300, 200, 100, 0].map((value) => valueFormatter({ value }))).toEqual(['Red', 'Amber', 'Green', 'None']);
   });
 
+  test('heads the serial number column ID', () => {
+    renderEventsTable();
+
+    expect(columnById('serial_number').headerName).toBe('ID');
+  });
+
   test('sorts the feed when a column header is sorted', () => {
     renderEventsTable();
 
