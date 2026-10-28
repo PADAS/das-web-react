@@ -69,11 +69,6 @@
     grid-area: title;
     min-width: 0;
 
-    &.onlyLine {
-      align-self: center;
-      grid-row: 1 / -1;
-    }
-
     .titleLink {
       border-radius: 0.125rem;
       color: colors.$off-black;

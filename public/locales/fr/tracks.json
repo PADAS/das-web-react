@@ -1,10 +1,11 @@
 {
   "patrolTrackLegend": {
-    "description": "{{pointCount}} points sur {{trackTime}}",
+    "description": "{{distance}} sur {{trackTime}}",
     "icon": "Icône pour {{patrolTitle}}",
     "itemTitle": "Patrouille : {{patrolTitle}}",
     "subjectIcon": "Icône pour {{subject}}",
-    "trackLegendItemsName": "patrouilles"
+    "trackLegendItemsName": "patrouilles",
+    "trackTimeDescription": "Sur {{trackTime}}"
   },
   "subjectTrackLegend": {
     "description": "{{pointCount}} points sur {{trackTime}}",
