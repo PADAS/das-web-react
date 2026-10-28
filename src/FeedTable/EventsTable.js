@@ -1,7 +1,5 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import startCase from 'lodash/startCase';
-import uniq from 'lodash/uniq';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -15,8 +13,13 @@ import {
   PRIORITY_COLOR_MAP,
 } from '../utils/events';
 import { calcEventFilterForRequest } from '../utils/event-filter';
+import { addModal } from '../ducks/modals';
 import { downloadFileFromUrl } from '../utils/download';
+import { fetchEventTypeSchema } from '../ducks/event-schemas';
 import { fetchNextEventFeedPage, setEventState } from '../ducks/events';
+import { fieldsFromEventDetails, fieldsFromV1Schema, fieldsFromV2Schema } from './eventTypeFields';
+import { selectCoordinatesRepresentation } from '../selectors/location';
+import { selectEventSchema } from '../selectors/event-schemas';
 import { showToast } from '../utils/toast';
 import { updateEventFilter } from '../ducks/event-filter';
 import useJumpToLocation from '../hooks/useJumpToLocation';
@@ -24,6 +27,7 @@ import useNavigate from '../hooks/useNavigate';
 
 import DateTime from '../DateTime';
 import FeedTable from '.';
+import ObjectViewModal, { ObjectValueLink } from './ObjectViewModal';
 
 import * as styles from './styles.module.scss';
 
@@ -34,11 +38,15 @@ const STATE_KEY_BY_EVENT_STATE = {
   [EVENT_FORM_STATES.REVIEW]: EVENT_FORM_STATES.REVIEW,
 };
 
-const formatDetailValue = (value) => {
-  if (value === null || value === undefined) return '';
-  if (Array.isArray(value)) return value.map(formatDetailValue).join(', ');
-  if (typeof value === 'object') return value.name ?? value.title ?? value.value ?? JSON.stringify(value);
-  return String(value);
+// The v2 schema endpoint answers in the v1 shape for v1 types, so the shape decides.
+const calcEventTypeFields = (eventSchema, events, coordinatesRepresentation) => {
+  try {
+    if (eventSchema?.json) return fieldsFromV2Schema(eventSchema, coordinatesRepresentation);
+    if (eventSchema?.schema) return fieldsFromV1Schema(eventSchema);
+  } catch (error) {
+    console.warn('Could not read the event type schema for the table columns', error);
+  }
+  return fieldsFromEventDetails(events);
 };
 
 const formatCoordinates = (coordinates) => {
@@ -48,6 +56,17 @@ const formatCoordinates = (coordinates) => {
 };
 
 const DateCell = ({ value }) => value ? <DateTime className={styles.dateCell} date={value} showElapsed={false} /> : null;
+
+const ComplexDetailCell = ({ colDef, value }) => {
+  const dispatch = useDispatch();
+
+  if (value === null || value === undefined || typeof value !== 'object') return null;
+
+  return <ObjectValueLink
+    onOpen={() => dispatch(addModal({ content: ObjectViewModal, title: colDef.headerName, value }))}
+    value={value}
+  />;
+};
 
 const PriorityCell = ({ value, valueFormatted }) => <span className={styles.priorityCell}>
   <span
@@ -69,6 +88,15 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
   const eventSort = useSelector((state) => state.data.eventFilter.filter.sort);
   const eventTypeFilter = useSelector((state) => state.data.eventFilter.filter.event_type);
   const eventTypes = useSelector((state) => state.data.eventTypes);
+  const coordinatesRepresentation = useSelector(selectCoordinatesRepresentation);
+
+  // Filtered to one event type, each of its fields gets a column.
+  const filteredEventType = eventTypeFilter.length === 1
+    ? eventTypes.find((eventType) => eventType.id === eventTypeFilter[0])
+    : null;
+  const eventSchema = useSelector((state) => filteredEventType
+    ? selectEventSchema(state, filteredEventType.value)
+    : null);
 
   const loadingMoreRef = useRef(false);
 
@@ -84,18 +112,31 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     sortingOrder: ['desc', 'asc'],
   }), [sortDirection, sortOption.value]);
 
-  // Filtered to one event type, the feed loads event details, and each field
-  // gets a column.
+  useEffect(() => {
+    if (filteredEventType && !eventSchema) {
+      dispatch(fetchEventTypeSchema(filteredEventType.value));
+    }
+  }, [dispatch, eventSchema, filteredEventType]);
+
+  // Columns come from the type's schema, so every field is listed even when the
+  // loaded events leave it empty; the loaded details are the fallback.
   const detailColumns = useMemo(() => {
     if (eventTypeFilter.length !== 1) return [];
 
-    return uniq(events.flatMap((event) => Object.keys(event.event_details ?? {}))).map((key) => ({
-      colId: `event_details.${key}`,
-      headerName: startCase(key),
+    return calcEventTypeFields(eventSchema, events, coordinatesRepresentation).map((field) => ({
+      colId: `event_details.${field.key}`,
+      headerName: field.label,
       minWidth: 140,
-      valueGetter: (params) => formatDetailValue(params.data?.event_details?.[key]),
+      ...(field.complex
+        ? {
+          cellDataType: false,
+          cellRenderer: ComplexDetailCell,
+          valueGetter: (params) => params.data?.event_details?.[field.key],
+        }
+        : { valueGetter: (params) => field.toText(params.data?.event_details) }),
+      ...(field.isDate && { cellRenderer: DateCell }),
     }));
-  }, [eventTypeFilter.length, events]);
+  }, [coordinatesRepresentation, eventSchema, eventTypeFilter.length, events]);
 
   const columnDefs = useMemo(() => [
     {

@@ -11,6 +11,7 @@ import {
   createEvent,
   EVENT_API_URL,
   EVENTS_API_URL,
+  eventStoreReducer,
   fetchEventFeed,
   fetchMapEvents,
   fetchRecentEventsIntoRealtimeOverlay,
@@ -28,6 +29,32 @@ jest.mock('../utils/events', () => ({
   ...jest.requireActual('../utils/events'),
   validateReportAgainstCurrentEventFilter: jest.fn(() => true),
 }));
+
+describe('eventStoreReducer', () => {
+  const details = { species: 'elephant' };
+
+  test('keeps loaded event details when a fetch that skips them answers null', () => {
+    const state = { e1: { event_details: details, id: 'e1', title: 'Old' } };
+
+    const nextState = eventStoreReducer(state, {
+      payload: [{ event_details: null, id: 'e1', title: 'New' }],
+      type: UPDATE_EVENT_STORE,
+    });
+
+    expect(nextState.e1).toEqual({ event_details: details, id: 'e1', title: 'New' });
+  });
+
+  test('takes newer event details', () => {
+    const state = { e1: { event_details: details, id: 'e1' } };
+
+    const nextState = eventStoreReducer(state, {
+      payload: [{ event_details: { species: 'lion' }, id: 'e1' }],
+      type: UPDATE_EVENT_STORE,
+    });
+
+    expect(nextState.e1.event_details).toEqual({ species: 'lion' });
+  });
+});
 
 describe('fetchMapEvents', () => {
   let map, store;

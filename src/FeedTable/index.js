@@ -111,14 +111,17 @@ const FeedTable = ({
 
   const clearSelection = useCallback(() => gridApi?.deselectAll(), [gridApi]);
 
+  // A control inside a cell, like a drill-down link, does its own thing instead of opening the row.
+  const opensRow = (event) => event.column.getColId() !== SELECTION_COLUMN_ID && !event.event?.target?.closest?.('button, a');
+
   const onCellClicked = (event) => {
-    if (event.column.getColId() !== SELECTION_COLUMN_ID) {
+    if (opensRow(event)) {
       onOpenRow(event.data);
     }
   };
 
   const onCellKeyDown = (event) => {
-    if (event.event?.key === 'Enter' && event.column.getColId() !== SELECTION_COLUMN_ID) {
+    if (event.event?.key === 'Enter' && opensRow(event)) {
       onOpenRow(event.data);
     }
   };

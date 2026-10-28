@@ -442,6 +442,12 @@
     "columns": "Columns",
     "export": "Export CSV",
     "exportError": "Could not export the CSV",
+    "objectView": {
+      "breadcrumbLabel": "Path",
+      "itemCount_one": "{{count}} item",
+      "itemCount_other": "{{count}} items",
+      "open": "View"
+    },
     "reopenSelected": "Reopen",
     "resolveSelected": "Resolve",
     "selectedCount_one": "{{count}} selected",

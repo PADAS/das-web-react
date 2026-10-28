@@ -7,8 +7,11 @@ import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { mockStore } from '../__test-helpers/MockStore';
 import { render, screen, within } from '../test-utils';
 import { report } from '../__test-helpers/fixtures/reports';
+import { snareSchemaV2 } from '../__test-helpers/fixtures/event-schemas';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { downloadFileFromUrl } from '../utils/download';
+import { GPS_FORMATS } from '../utils/location';
+import { fetchEventTypeSchema } from '../ducks/event-schemas';
 import { setEventState } from '../ducks/events';
 import { updateEventFilter } from '../ducks/event-filter';
 import useJumpToLocation from '../hooks/useJumpToLocation';
@@ -32,6 +35,11 @@ jest.mock('../ducks/event-filter', () => ({
   updateEventFilter: jest.fn(),
 }));
 
+jest.mock('../ducks/event-schemas', () => ({
+  ...jest.requireActual('../ducks/event-schemas'),
+  fetchEventTypeSchema: jest.fn(),
+}));
+
 jest.mock('../ducks/events', () => ({
   ...jest.requireActual('../ducks/events'),
   setEventState: jest.fn(),
@@ -49,8 +57,23 @@ jest.mock('../utils/toast', () => ({ showToast: jest.fn() }));
 const lastGridProps = () => mockGridProps[mockGridProps.length - 1];
 const columnById = (colId) => lastGridProps().columnDefs.find((column) => column.colId === colId);
 
+const v1Schema = {
+  schema: {
+    properties: {
+      animal_count: { title: 'Number of animals', type: 'number' },
+      herd: { properties: { leader: { type: 'string' } }, title: 'Herd', type: 'object' },
+      sighted_at: { format: 'date-time', title: 'Sighted at', type: 'string' },
+      species: { enum: ['elephant', 'lion'], title: 'Species', type: 'string' },
+    },
+  },
+  uiSchema: {
+    'ui:groups': [{ items: ['species', 'animal_count', 'herd', 'sighted_at'] }],
+    species: { 'ui:enumNames': ['Elephant', 'Lion'] },
+  },
+};
+
 describe('EventsTable', () => {
-  let eventsFeed, jumpToLocation, navigate, state;
+  let eventsFeed, jumpToLocation, navigate, state, store;
 
   beforeEach(() => {
     mockGridProps.length = 0;
@@ -63,22 +86,41 @@ describe('EventsTable', () => {
     useNavigate.mockReturnValue(navigate);
     updateEventFilter.mockImplementation(() => () => {});
     setEventState.mockImplementation(() => () => Promise.resolve());
+    fetchEventTypeSchema.mockImplementation(() => () => {});
 
     eventsFeed = {
       events: { next: null, results: [report] },
       loadFeedEvents: jest.fn(),
       loadingEventFeed: false,
     };
-    state = { data: { eventFilter: INITIAL_FILTER_STATE, eventTypes: [], feedEvents: { results: [report] } }, view: {} };
+    state = {
+      data: {
+        eventFilter: INITIAL_FILTER_STATE,
+        eventSchemas: {},
+        eventTypes: [],
+        feedEvents: { results: [report] },
+      },
+      view: { coordinateReferenceSystems: { storedSystems: [] }, userPreferences: { gpsFormat: GPS_FORMATS.DEG } },
+    };
   });
+
+  const filterToOneEventType = (eventType) => {
+    state.data.eventTypes = [eventType];
+    state.data.eventFilter = {
+      ...INITIAL_FILTER_STATE,
+      filter: { ...INITIAL_FILTER_STATE.filter, event_type: [eventType.id] },
+    };
+  };
 
   const renderEventsTable = (events = [report]) => {
     const toolbarContainer = document.createElement('div');
     toolbarContainer.dataset.testid = 'toolbarContainer';
     document.body.appendChild(toolbarContainer);
 
+    store = mockStore(state);
+
     return render(
-      <Provider store={mockStore(state)}>
+      <Provider store={store}>
         <EventsTable events={events} eventsFeed={eventsFeed} toolbarContainer={toolbarContainer} />
       </Provider>
     );
@@ -146,6 +188,15 @@ describe('EventsTable', () => {
     expect(jumpToLocation).toHaveBeenCalledWith(report.geojson.geometry.coordinates);
   });
 
+  test('does not open the event when a control inside a cell is clicked', () => {
+    renderEventsTable();
+
+    const button = document.createElement('button');
+    lastGridProps().onCellClicked({ column: { getColId: () => 'event_details.herd' }, data: report, event: { target: button } });
+
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
   test('does not open the event when its checkbox is clicked', () => {
     renderEventsTable();
 
@@ -154,17 +205,65 @@ describe('EventsTable', () => {
     expect(navigate).not.toHaveBeenCalled();
   });
 
-  test('adds a column per event detail when filtered to one event type', () => {
-    state.data.eventFilter = {
-      ...INITIAL_FILTER_STATE,
-      filter: { ...INITIAL_FILTER_STATE.filter, event_type: ['type-id'] },
-    };
+  test('asks for the event type schema when filtered to one event type', () => {
+    filterToOneEventType({ id: 'type-id', value: 'wildlife', version: 1 });
 
-    renderEventsTable([{ ...report, event_details: { animal_count: 3, species: { name: 'Elephant' } } }]);
+    renderEventsTable();
+
+    expect(fetchEventTypeSchema).toHaveBeenCalledWith('wildlife');
+  });
+
+  test('adds a column per field of a v1 event type schema, empty or not', () => {
+    filterToOneEventType({ id: 'type-id', value: 'wildlife', version: 1 });
+    state.data.eventSchemas = { wildlife: { base: v1Schema } };
+
+    renderEventsTable([{ ...report, event_details: { species: 'lion' } }]);
+
+    expect(fetchEventTypeSchema).not.toHaveBeenCalled();
+    expect(lastGridProps().columnDefs.filter((column) => column.colId.startsWith('event_details.'))
+      .map((column) => column.headerName)).toEqual(['Species', 'Number of animals', 'Herd', 'Sighted at']);
+    expect(columnById('event_details.species').valueGetter({ data: { event_details: { species: 'lion' } } }))
+      .toBe('Lion');
+    expect(columnById('event_details.animal_count').valueGetter({ data: { event_details: {} } })).toBe('');
+  });
+
+  test('opens an object field in a read-only view', async () => {
+    filterToOneEventType({ id: 'type-id', value: 'wildlife', version: 1 });
+    state.data.eventSchemas = { wildlife: { base: v1Schema } };
+    renderEventsTable();
+
+    const { cellRenderer: HerdCell, headerName } = columnById('event_details.herd');
+    const herd = { leader: 'Matriarch' };
+    render(<Provider store={store}><HerdCell colDef={{ headerName }} value={herd} /></Provider>);
+
+    await userEvent.click(screen.getByRole('button', { name: 'View' }));
+
+    expect(store.getActions()).toContainEqual(expect.objectContaining({
+      payload: expect.objectContaining({ title: 'Herd', value: herd }),
+      type: 'ADD_MODAL',
+    }));
+  });
+
+  test('adds a column per field of a v2 event type schema', () => {
+    filterToOneEventType({ id: 'type-id', value: 'snare', version: 2 });
+    state.data.eventSchemas = { snare: { base: snareSchemaV2 } };
+
+    renderEventsTable();
+
+    const column = columnById('event_details.number_of_snares_found');
+    expect(column.headerName).toBe('Number of Snares Found');
+    expect(column.valueGetter({ data: { event_details: { number_of_snares_found: 4 } } })).toBe('4');
+  });
+
+  test('falls back to the loaded event details without a schema', () => {
+    filterToOneEventType({ id: 'type-id', value: 'wildlife', version: 1 });
+    state.data.eventSchemas = { wildlife: { base: { error: new Error('Not found') } } };
+
+    renderEventsTable([{ ...report, event_details: { animal_count: 3, species: { name: 'Elephant', value: 'elephant' } } }]);
 
     expect(columnById('event_details.animal_count').headerName).toBe('Animal Count');
     expect(columnById('event_details.species').valueGetter({
-      data: { event_details: { species: { name: 'Elephant' } } },
+      data: { event_details: { species: { name: 'Elephant', value: 'elephant' } } },
     })).toBe('Elephant');
   });
 
