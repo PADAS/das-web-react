@@ -5,8 +5,12 @@ import { useTranslation } from 'react-i18next';
 
 import { API_URL, EVENT_FORM_STATES, EVENT_SORT_OPTIONS, SORT_DIRECTION, TAB_KEYS } from '../constants';
 import {
+  addPatrolSegmentToEvent,
   calcDisplayPriorityForReport,
+  createNewIncidentCollection,
   displayTitleForEvent,
+  eventBelongsToCollection,
+  eventBelongsToPatrol,
   eventTypeTitleForEvent,
   getCoordinatesForCollection,
   getCoordinatesForEvent,
@@ -16,8 +20,9 @@ import { calcEventFilterForRequest } from '../utils/event-filter';
 import { addModal } from '../ducks/modals';
 import { downloadFileFromUrl } from '../utils/download';
 import { fetchEventTypeSchema } from '../ducks/event-schemas';
-import { fetchNextEventFeedPage, setEventState } from '../ducks/events';
+import { addEventToIncident, createEvent, fetchNextEventFeedPage, setEventState } from '../ducks/events';
 import { fieldsFromEventDetails, fieldsFromV1Schema, fieldsFromV2Schema } from './eventTypeFields';
+import { governingPatrolSegment } from '../utils/patrols';
 import { selectCoordinatesRepresentation } from '../selectors/location';
 import { selectEventSchema } from '../selectors/event-schemas';
 import { showToast } from '../utils/toast';
@@ -25,6 +30,8 @@ import { updateEventFilter } from '../ducks/event-filter';
 import useJumpToLocation from '../hooks/useJumpToLocation';
 import useNavigate from '../hooks/useNavigate';
 
+import AddToIncidentModal from '../AddToIncidentModal';
+import AddToPatrolModal from '../AddToPatrolModal';
 import DateTime from '../DateTime';
 import FeedTable from '.';
 import ObjectViewModal, { ObjectValueLink } from './ObjectViewModal';
@@ -82,6 +89,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
   const jumpToLocation = useJumpToLocation();
   const navigate = useNavigate();
   const { t } = useTranslation('components', { keyPrefix: 'feedTable' });
+  const { t: tReportMenu } = useTranslation('reports', { keyPrefix: 'eventsManager.eventOverview.header.reportMenu' });
   const { t: tPriorities } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection.priorities' });
   const { t: tStates } = useTranslation('reports', { keyPrefix: 'eventsManager.eventsFeed.eventRow.states' });
 
@@ -254,10 +262,10 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     }
   };
 
-  const setSelectedEventsState = async (selectedEvents, state, clearSelection) => {
+  const updateSelectedEvents = async (selectedEvents, updateEvent, clearSelection) => {
     setUpdatingState(true);
 
-    const results = await Promise.allSettled(selectedEvents.map((event) => dispatch(setEventState(event.id, state))));
+    const results = await Promise.allSettled(selectedEvents.map(updateEvent));
     const failedCount = results.filter((result) => result.status === 'rejected').length;
 
     showToast(failedCount
@@ -268,6 +276,47 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     clearSelection();
     eventsFeed.loadFeedEvents(true);
   };
+
+  const setSelectedEventsState = (selectedEvents, state, clearSelection) => updateSelectedEvents(
+    selectedEvents,
+    (event) => dispatch(setEventState(event.id, state)),
+    clearSelection
+  );
+
+  // The same rules as the event's own menu: an event joins one patrol, and an
+  // incident can't join another or be in two.
+  const onStartAddSelectedToPatrol = (selectedEvents, clearSelection) => dispatch(addModal({
+    content: AddToPatrolModal,
+    onAddToPatrol: (patrol) => {
+      const patrolSegmentId = governingPatrolSegment(patrol)?.id;
+
+      return updateSelectedEvents(selectedEvents, (event) => !patrolSegmentId || eventBelongsToPatrol(event)
+        ? Promise.reject(new Error('The event cannot be added to this patrol'))
+        : addPatrolSegmentToEvent(patrolSegmentId, event.id), clearSelection);
+    },
+  }));
+
+  const addSelectedToIncident = async (selectedEvents, existingIncident, clearSelection) => {
+    let incident = existingIncident;
+    if (!incident) {
+      try {
+        incident = (await dispatch(createEvent(createNewIncidentCollection()))).data.data;
+      } catch {
+        showToast({ message: t('bulkStateError', { count: selectedEvents.length }) });
+        return;
+      }
+    }
+
+    await updateSelectedEvents(selectedEvents, (event) => event.is_collection || eventBelongsToCollection(event)
+      ? Promise.reject(new Error('The event cannot be added to an incident'))
+      : dispatch(addEventToIncident(event.id, incident.id)), clearSelection);
+  };
+
+  const onStartAddSelectedToIncident = (selectedEvents, clearSelection) => dispatch(addModal({
+    content: AddToIncidentModal,
+    onAddToExistingIncident: (incident) => addSelectedToIncident(selectedEvents, incident, clearSelection),
+    onAddToNewIncident: () => addSelectedToIncident(selectedEvents, null, clearSelection),
+  }));
 
   const renderBulkActions = (selectedEvents, clearSelection) => <>
     <Button
@@ -288,6 +337,26 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
       variant="outline-secondary"
     >
       {t('reopenSelected')}
+    </Button>
+
+    <Button
+      disabled={updatingState}
+      onClick={() => onStartAddSelectedToPatrol(selectedEvents, clearSelection)}
+      size="sm"
+      type="button"
+      variant="outline-secondary"
+    >
+      {tReportMenu('addToPatrolOption')}
+    </Button>
+
+    <Button
+      disabled={updatingState}
+      onClick={() => onStartAddSelectedToIncident(selectedEvents, clearSelection)}
+      size="sm"
+      type="button"
+      variant="outline-secondary"
+    >
+      {tReportMenu('addToIncidentOption')}
     </Button>
   </>;
 

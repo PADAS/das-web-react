@@ -12,10 +12,12 @@ import { calcEventFilterForRequest } from '../utils/event-filter';
 import { downloadFileFromUrl } from '../utils/download';
 import { GPS_FORMATS } from '../utils/location';
 import { fetchEventTypeSchema } from '../ducks/event-schemas';
-import { setEventState } from '../ducks/events';
+import { addEventToIncident, createEvent, setEventState } from '../ducks/events';
+import { addPatrolSegmentToEvent } from '../utils/events';
 import { updateEventFilter } from '../ducks/event-filter';
 import useJumpToLocation from '../hooks/useJumpToLocation';
 import useNavigate from '../hooks/useNavigate';
+import { showToast } from '../utils/toast';
 
 import EventsTable from './EventsTable';
 
@@ -42,7 +44,14 @@ jest.mock('../ducks/event-schemas', () => ({
 
 jest.mock('../ducks/events', () => ({
   ...jest.requireActual('../ducks/events'),
+  addEventToIncident: jest.fn(),
+  createEvent: jest.fn(),
   setEventState: jest.fn(),
+}));
+
+jest.mock('../utils/events', () => ({
+  ...jest.requireActual('../utils/events'),
+  addPatrolSegmentToEvent: jest.fn(),
 }));
 
 jest.mock('../utils/event-filter', () => ({
@@ -87,6 +96,9 @@ describe('EventsTable', () => {
     updateEventFilter.mockImplementation(() => () => {});
     setEventState.mockImplementation(() => () => Promise.resolve());
     fetchEventTypeSchema.mockImplementation(() => () => {});
+    addEventToIncident.mockImplementation(() => () => Promise.resolve());
+    addPatrolSegmentToEvent.mockResolvedValue();
+    createEvent.mockImplementation(() => () => Promise.resolve({ data: { data: { id: 'new-incident' } } }));
 
     eventsFeed = {
       events: { next: null, results: [report] },
@@ -302,6 +314,52 @@ describe('EventsTable', () => {
     expect(setEventState).toHaveBeenCalledWith(report.id, 'resolved');
     expect(mockGridApi.deselectAll).toHaveBeenCalled();
     expect(eventsFeed.loadFeedEvents).toHaveBeenCalledWith(true);
+  });
+
+  const selectEvents = (selectedEvents) => act(() => {
+    lastGridProps().onGridReady({ api: mockGridApi });
+    lastGridProps().onSelectionChanged({ api: { getSelectedRows: () => selectedEvents } });
+  });
+
+  const openedModal = () => store.getActions().find((action) => action.type === 'ADD_MODAL').payload;
+
+  test('adds the selected events to a patrol, except those already on one', async () => {
+    const onPatrol = { ...report, id: 'on-patrol', patrol_segments: [{ id: 'other-segment' }] };
+    renderEventsTable([report, onPatrol]);
+    selectEvents([report, onPatrol]);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Add to Patrol' }));
+    await act(() => openedModal().onAddToPatrol({ id: 'patrol', patrol_segments: [{ id: 'segment' }] }));
+
+    expect(addPatrolSegmentToEvent).toHaveBeenCalledTimes(1);
+    expect(addPatrolSegmentToEvent).toHaveBeenCalledWith('segment', report.id);
+    expect(showToast).toHaveBeenCalledWith({ message: '1 event could not be updated' });
+    expect(eventsFeed.loadFeedEvents).toHaveBeenCalledWith(true);
+  });
+
+  test('adds the selected events to a new incident', async () => {
+    const second = { ...report, id: 'second' };
+    renderEventsTable([report, second]);
+    selectEvents([report, second]);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Add to Incident' }));
+    await act(() => openedModal().onAddToNewIncident());
+
+    expect(createEvent).toHaveBeenCalledWith(expect.objectContaining({ event_type: 'incident_collection' }));
+    expect(addEventToIncident).toHaveBeenCalledWith(report.id, 'new-incident');
+    expect(addEventToIncident).toHaveBeenCalledWith('second', 'new-incident');
+    expect(showToast).toHaveBeenCalledWith({ message: '2 events updated', toastConfig: { type: 'success' } });
+  });
+
+  test('adds the selected events to an existing incident', async () => {
+    renderEventsTable();
+    selectEvents([report]);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Add to Incident' }));
+    await act(() => openedModal().onAddToExistingIncident({ id: 'incident' }));
+
+    expect(createEvent).not.toHaveBeenCalled();
+    expect(addEventToIncident).toHaveBeenCalledWith(report.id, 'incident');
   });
 
   test('exports through the events export API with the feed filter', async () => {
