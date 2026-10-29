@@ -1,7 +1,10 @@
 import { Provider } from 'react-redux';
+import userEvent from '@testing-library/user-event';
 
-import { render, screen } from '../../../test-utils';
+import { fetchTracksIfNecessary } from '../../../utils/tracks';
+import { render, screen, within } from '../../../test-utils';
 import { createMapMock } from '../../../__test-helpers/mocks';
+import { addHeatmapSubjects, showSubjectTracks } from '../../../ducks/map-ui';
 import { hideSubjects, showSubjects } from '../../../ducks/map-layer-filter';
 import { MAP_LAYER_SORT_VALUES, SORT_DIRECTION } from '../../../constants';
 import { MapContext } from '../../../MapContext';
@@ -9,6 +12,15 @@ import { mockStore } from '../../../__test-helpers/MockStore';
 
 import SubjectsTab from './';
 
+jest.mock('../../../utils/tracks', () => ({
+  ...jest.requireActual('../../../utils/tracks'),
+  fetchTracksIfNecessary: jest.fn(),
+}));
+jest.mock('../../../ducks/map-ui', () => ({
+  ...jest.requireActual('../../../ducks/map-ui'),
+  addHeatmapSubjects: jest.fn(),
+  showSubjectTracks: jest.fn(),
+}));
 jest.mock('../../../ducks/map-layer-filter', () => {
   const actual = jest.requireActual('../../../ducks/map-layer-filter');
 
@@ -24,8 +36,11 @@ jest.mock('../../../ducks/map-layer-filter', () => {
 describe('SideBar - MapLayersTab - SubjectsTab', () => {
   let map, store;
   beforeEach(() => {
+    fetchTracksIfNecessary.mockReturnValue(new Promise(() => {}));
     hideSubjects.mockImplementation(() => () => {});
     showSubjects.mockImplementation(() => () => {});
+    addHeatmapSubjects.mockImplementation(() => () => {});
+    showSubjectTracks.mockImplementation(() => () => {});
 
     map = createMapMock();
 
@@ -198,5 +213,59 @@ describe('SideBar - MapLayersTab - SubjectsTab', () => {
     expect(subjects[1]).toHaveTextContent('Subject 1');
     expect(subjects[2]).toHaveTextContent('Subject 2');
     expect(subjects[3]).toHaveTextContent('Subject 4');
+  });
+
+  describe('the track and heatmap buttons of a subject group', () => {
+    const getGroupButton = (name) => within(screen.getByTestId('collapsible-Subjects Group 3'))
+      .getByRole('button', { name });
+
+    beforeEach(() => {
+      store.data.subjectStore['subject-4'].tracks_available = true;
+    });
+
+    test('shows the loading state only on the track button while the group tracks load', async () => {
+      renderSubjectsTab();
+
+      await userEvent.click(getGroupButton('Tracks off'));
+
+      expect(getGroupButton('Tracks off')).toHaveAttribute('aria-busy', 'true');
+      expect(getGroupButton('Heatmap off')).not.toHaveAttribute('aria-busy');
+    });
+
+    test('shows the loading state only on the heatmap button while the group tracks load', async () => {
+      renderSubjectsTab();
+
+      await userEvent.click(getGroupButton('Heatmap off'));
+
+      expect(getGroupButton('Heatmap off')).toHaveAttribute('aria-busy', 'true');
+      expect(getGroupButton('Tracks off')).not.toHaveAttribute('aria-busy');
+    });
+
+    test.each(['Tracks off', 'Heatmap off'])(
+      'clears the %s loading state once the group tracks load',
+      async (buttonName) => {
+        fetchTracksIfNecessary.mockResolvedValue([]);
+        renderSubjectsTab();
+
+        await userEvent.click(getGroupButton(buttonName));
+
+        expect(getGroupButton(buttonName)).not.toHaveAttribute('aria-busy');
+      },
+    );
+
+    test.each([
+      ['Tracks off', showSubjectTracks],
+      ['Heatmap off', addHeatmapSubjects],
+    ])('clears the %s loading state and still toggles when the group fetch throws', async (buttonName, toggle) => {
+      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+      fetchTracksIfNecessary.mockRejectedValue(new Error('network error'));
+      renderSubjectsTab();
+
+      await userEvent.click(getGroupButton(buttonName));
+
+      expect(getGroupButton(buttonName)).not.toHaveAttribute('aria-busy');
+      expect(consoleWarnSpy).toHaveBeenCalledWith(expect.any(String), expect.any(Error));
+      expect(toggle).toHaveBeenCalled();
+    });
   });
 });
