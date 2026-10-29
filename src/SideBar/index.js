@@ -22,7 +22,7 @@ import { SocketContext } from '../withSocketConnection';
 import useNavigate from '../hooks/useNavigate';
 import { usePatrolsPermissions } from '../hooks/usePermissions';
 import { usePreviewFeature } from '../hooks';
-import useFeedTableView from '../FeedTable/useFeedTableView';
+import useFeedTableView, { useRestoreFeedTableView } from '../FeedTable/useFeedTableView';
 import useReportsFeed from './useReportsFeed';
 
 import AddItemButton from '../AddItemButton';
@@ -126,6 +126,7 @@ const SideBar = () => {
   const displayedTab = getCurrentTabFromURL(displayedPathname);
 
   const { isTableView, toggleTableView } = useFeedTableView();
+  useRestoreFeedTableView();
   const isFeedDisplayed = (displayedTab === TAB_KEYS.EVENTS || displayedTab === TAB_KEYS.PATROLS)
     && !getCurrentIdFromURL(displayedPathname);
 
