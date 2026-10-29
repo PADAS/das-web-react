@@ -22,8 +22,6 @@ export const ObjectValueLink = ({ onOpen, value }) => {
   </button>;
 };
 
-// A read-only view of an object's keys and values; nested objects open in place,
-// with a breadcrumb back up.
 const ObjectViewModal = ({ title, value }) => {
   const { t } = useTranslation('components', { keyPrefix: 'feedTable.objectView' });
 
@@ -45,7 +43,7 @@ const ObjectViewModal = ({ title, value }) => {
               ? <button className={styles.breadcrumbButton} onClick={() => setOpenedPath(openedPath.slice(0, index))} type="button">
                 {step.label}
               </button>
-              : <span className={styles.breadcrumbCurrent}>{step.label}</span>}
+              : <span aria-current="location" className={styles.breadcrumbCurrent}>{step.label}</span>}
           </li>)}
         </ol>
       </nav>}

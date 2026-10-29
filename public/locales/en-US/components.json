@@ -442,6 +442,18 @@
     "columns": "Columns",
     "export": "Export CSV",
     "exportError": "Could not export the CSV",
+    "grid": {
+      "allRowsCheckboxLabel": "Select all rows",
+      "checkedStateLabel": "selected",
+      "indeterminateStateLabel": "some selected",
+      "noRowsMessage": "Nothing to show",
+      "rowCheckboxLabel": "Select row",
+      "rowDeselectMessage": "Press Space to deselect this row",
+      "rowSelectMessage": "Press Space to select this row",
+      "uncheckedStateLabel": "not selected"
+    },
+    "moveColumnDownButtonLabel": "Move {{column}} down",
+    "moveColumnUpButtonLabel": "Move {{column}} up",
     "objectView": {
       "breadcrumbLabel": "Path",
       "itemCount_one": "{{count}} item",

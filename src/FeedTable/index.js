@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import isPlainObject from 'lodash/isPlainObject';
 import { createPortal } from 'react-dom';
 import Button from 'react-bootstrap/Button';
@@ -8,6 +8,9 @@ import MoonLoader from 'react-spinners/MoonLoader';
 import { AgGridReact } from 'ag-grid-react';
 import { AllCommunityModule, ModuleRegistry, themeQuartz } from 'ag-grid-community';
 import { useTranslation } from 'react-i18next';
+
+import { ReactComponent as ArrowDownIcon } from '../common/images/icons/arrow-down.svg';
+import { ReactComponent as ArrowUpIcon } from '../common/images/icons/arrow-up.svg';
 
 import { showToast } from '../utils/toast';
 
@@ -20,6 +23,9 @@ const LOAD_MORE_EDGE_ROWS = 10;
 
 const SELECTION_COLUMN_ID = 'ag-Grid-SelectionColumn';
 
+const CELL_CONTROLS = 'a[href], button';
+const CONTROL_KEYS = ['Enter', ' '];
+
 const ROW_SELECTION = {
   checkboxes: true,
   enableClickSelection: false,
@@ -27,10 +33,16 @@ const ROW_SELECTION = {
   mode: 'multiRow',
 };
 
-// `unSortIcon` marks sortable columns with an arrow even before they're sorted.
-const DEFAULT_COL_DEF = { resizable: true, sortable: false, unSortIcon: true };
+const DEFAULT_COL_DEF = {
+  resizable: true,
+  sortable: false,
+  // A control in a cell answers Enter and Space itself, not the grid.
+  suppressKeyboardEvent: ({ event }) => CONTROL_KEYS.includes(event.key) && !!event.target.closest(CELL_CONTROLS),
+  // Marks sortable columns with an arrow even before they're sorted.
+  unSortIcon: true,
+};
 
-// Mirrors the web app's palette and type in common/styles/vars (_colors.scss, _fonts.scss).
+// Mirrors the palette and type in common/styles/vars.
 const gridTheme = themeQuartz.withParams({
   accentColor: '#006cd9', // $bright-blue
   backgroundColor: '#fff',
@@ -49,7 +61,7 @@ const gridTheme = themeQuartz.withParams({
   wrapperBorder: false,
 });
 
-// Column resizes the user made, as opposed to the grid fitting flex columns.
+// Resizes the user made, as opposed to the grid fitting flex columns.
 const USER_RESIZE_SOURCES = ['autosizeColumns', 'uiColumnResized'];
 
 const storageKey = (setting, tableKey, scope) => `feedTable.${setting}.${tableKey}${scope ? `.${scope}` : ''}`;
@@ -67,13 +79,13 @@ const writeStored = (key, value) => {
   try {
     window.localStorage.setItem(key, JSON.stringify(value));
   } catch {
-    // Column choices are a convenience; the table works without remembering them.
+    // Column choices are a convenience; the table works without them.
   }
 };
 
 const readColumnOrder = (tableKey, scope) => readStored(storageKey('columnOrder', tableKey, scope), Array.isArray, null);
 
-// Columns in the saved order; ones it doesn't know go last, in their own order.
+// Columns the saved order doesn't know go last, in their own order.
 const orderColumns = (columns, order) => {
   const positions = new Map(order.map((colId, index) => [colId, index]));
   const positionOf = (column) => positions.get(column.colId) ?? order.length;
@@ -81,16 +93,13 @@ const orderColumns = (columns, order) => {
   return [...columns].sort((a, b) => positionOf(a) - positionOf(b));
 };
 
-// The expanded, tabular view of a feed. Filters stay with the feed; the table
-// adds what only makes sense with room to spare: column choice, multi-select,
-// bulk actions and export. A column hides by default with `defaultHidden`.
-// Column order and widths the user sets are remembered per table. A column
-// marked `layoutScoped` belongs to `layoutScope` (an event type's fields), whose
-// order is remembered on its own, so it doesn't disturb the table's base order.
-// The Export button shows when the feed passes `onExport`.
-// Its controls render into `toolbarContainer`, a spot the feed keeps for them
-// beside the filter summary, so they take no row of their own.
+const controlInCell = (element) => element.classList?.contains('ag-cell')
+  ? element.querySelector(CELL_CONTROLS)
+  : null;
+
+// `layoutScoped` columns, such as an event type's fields, keep their own order.
 const FeedTable = ({
+  ariaLabel,
   columnDefs,
   getRowId,
   layoutScope = '',
@@ -115,7 +124,22 @@ const FeedTable = ({
   const [hiddenColumns, setHiddenColumns] = useState(
     () => readStored(storageKey('hiddenColumns', tableKey), isPlainObject, {})
   );
+  const [movedColumn, setMovedColumn] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
+
+  const moveButtonRefs = useRef({});
+
+  const localeText = useMemo(() => ({
+    ariaChecked: t('grid.checkedStateLabel'),
+    ariaHeaderSelection: t('grid.allRowsCheckboxLabel'),
+    ariaIndeterminate: t('grid.indeterminateStateLabel'),
+    ariaRowDeselect: t('grid.rowDeselectMessage'),
+    ariaRowSelect: t('grid.rowSelectMessage'),
+    ariaRowSelectAll: t('grid.allRowsCheckboxLabel'),
+    ariaRowToggleSelection: t('grid.rowCheckboxLabel'),
+    ariaUnchecked: t('grid.uncheckedStateLabel'),
+    noRowsToShow: t('grid.noRowsMessage'),
+  }), [t]);
 
   const isColumnHidden = useCallback(
     (column) => hiddenColumns[column.colId] ?? !!column.defaultHidden,
@@ -128,16 +152,31 @@ const FeedTable = ({
     return (layoutScope && orderOf(layoutScope)) || orderOf('') || [];
   }, [columnOrders, layoutScope, tableKey]);
 
-  // The grid lays columns out in definition order, so the definitions carry the
-  // user's order and survive being rebuilt.
+  const orderedColumnDefs = useMemo(() => orderColumns(columnDefs, columnOrder), [columnDefs, columnOrder]);
+
+  // The grid lays columns out in definition order, so the order survives a
+  // rebuild only if the definitions carry it.
   const visibleColumnDefs = useMemo(
-    () => orderColumns(columnDefs, columnOrder).map(({ defaultHidden, layoutScoped: _layoutScoped, ...column }) => ({
+    () => orderedColumnDefs.map(({ defaultHidden, layoutScoped: _layoutScoped, ...column }) => ({
       ...column,
       ...(columnWidths[column.colId] && { flex: null, width: columnWidths[column.colId] }),
       hide: isColumnHidden({ ...column, defaultHidden }),
     })),
-    [columnDefs, columnOrder, columnWidths, isColumnHidden]
+    [columnWidths, isColumnHidden, orderedColumnDefs]
   );
+
+  useEffect(() => {
+    gridApi?.setGridAriaProperty('label', ariaLabel ?? null);
+  }, [ariaLabel, gridApi]);
+
+  useEffect(() => {
+    if (!movedColumn) return;
+
+    const { colId, direction } = movedColumn;
+    const otherDirection = direction === 'up' ? 'down' : 'up';
+    const button = moveButtonRefs.current[`${colId}.${direction}`];
+    (button?.disabled ? moveButtonRefs.current[`${colId}.${otherDirection}`] : button)?.focus();
+  }, [movedColumn]);
 
   const toggleColumn = (column) => {
     const nextHiddenColumns = { ...hiddenColumns, [column.colId]: !isColumnHidden(column) };
@@ -146,10 +185,7 @@ const FeedTable = ({
     writeStored(storageKey('hiddenColumns', tableKey), nextHiddenColumns);
   };
 
-  const onColumnMoved = (event) => {
-    if (!event.finished) return;
-
-    const order = event.api.getColumnState().map((column) => column.colId).filter((colId) => colId !== SELECTION_COLUMN_ID);
+  const saveColumnOrder = (order) => {
     const scopedColIds = columnDefs.filter((column) => column.layoutScoped).map((column) => column.colId);
     const nextColumnOrders = {
       ...columnOrders,
@@ -162,6 +198,23 @@ const FeedTable = ({
     if (layoutScope) {
       writeStored(storageKey('columnOrder', tableKey, layoutScope), order);
     }
+  };
+
+  const onColumnMoved = (event) => {
+    if (event.finished) {
+      saveColumnOrder(
+        event.api.getColumnState().map((column) => column.colId).filter((colId) => colId !== SELECTION_COLUMN_ID)
+      );
+    }
+  };
+
+  const moveColumn = (index, direction) => {
+    const order = orderedColumnDefs.map((column) => column.colId);
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    [order[index], order[targetIndex]] = [order[targetIndex], order[index]];
+
+    saveColumnOrder(order);
+    setMovedColumn({ colId: order[targetIndex], direction });
   };
 
   const onColumnResized = (event) => {
@@ -178,8 +231,9 @@ const FeedTable = ({
 
   const clearSelection = useCallback(() => gridApi?.deselectAll(), [gridApi]);
 
-  // A control inside a cell, like a drill-down link, does its own thing instead of opening the row.
-  const opensRow = (event) => event.column.getColId() !== SELECTION_COLUMN_ID && !event.event?.target?.closest?.('button, a');
+  // A control in a cell, such as a drill-down link, acts instead of the row.
+  const opensRow = (event) => event.column.getColId() !== SELECTION_COLUMN_ID
+    && !event.event?.target?.closest?.(CELL_CONTROLS);
 
   const onCellClicked = (event) => {
     if (opensRow(event)) {
@@ -190,6 +244,20 @@ const FeedTable = ({
   const onCellKeyDown = (event) => {
     if (event.event?.key === 'Enter' && opensRow(event)) {
       onOpenRow(event.data);
+    }
+  };
+
+  // Runs before the grid's own handler, which skips keys already handled.
+  const onGridKeyDownCapture = (event) => {
+    const control = controlInCell(event.target);
+    if (!control) return;
+
+    if (CONTROL_KEYS.includes(event.key)) {
+      event.preventDefault();
+      control.click();
+    } else if (event.key === 'Tab' && !event.shiftKey) {
+      event.preventDefault();
+      control.focus();
     }
   };
 
@@ -231,15 +299,40 @@ const FeedTable = ({
           </Dropdown.Toggle>
 
           <Dropdown.Menu className={styles.columnsMenu}>
-            {columnDefs.map((column) => <Form.Check
-              checked={!isColumnHidden(column)}
-              className={styles.columnsMenuItem}
-              id={`feedTable-${tableKey}-column-${column.colId}`}
-              key={column.colId}
-              label={column.headerName}
-              onChange={() => toggleColumn(column)}
-              type="checkbox"
-            />)}
+            {orderedColumnDefs.map((column, index) => <div className={styles.columnsMenuItem} key={column.colId}>
+              <Form.Check
+                checked={!isColumnHidden(column)}
+                className={styles.columnsMenuItemCheck}
+                id={`feedTable-${tableKey}-column-${column.colId}`}
+                label={column.headerName}
+                onChange={() => toggleColumn(column)}
+                type="checkbox"
+              />
+
+              <button
+                aria-label={t('moveColumnUpButtonLabel', { column: column.headerName })}
+                className={styles.moveColumnButton}
+                disabled={index === 0}
+                onClick={() => moveColumn(index, 'up')}
+                ref={(element) => { moveButtonRefs.current[`${column.colId}.up`] = element; }}
+                title={t('moveColumnUpButtonLabel', { column: column.headerName })}
+                type="button"
+              >
+                <ArrowUpIcon aria-hidden="true" />
+              </button>
+
+              <button
+                aria-label={t('moveColumnDownButtonLabel', { column: column.headerName })}
+                className={styles.moveColumnButton}
+                disabled={index === orderedColumnDefs.length - 1}
+                onClick={() => moveColumn(index, 'down')}
+                ref={(element) => { moveButtonRefs.current[`${column.colId}.down`] = element; }}
+                title={t('moveColumnDownButtonLabel', { column: column.headerName })}
+                type="button"
+              >
+                <ArrowDownIcon aria-hidden="true" />
+              </button>
+            </div>)}
           </Dropdown.Menu>
         </Dropdown>
 
@@ -256,7 +349,7 @@ const FeedTable = ({
       </div>
     </div>, toolbarContainer)}
 
-    <div className={styles.grid}>
+    <div className={styles.grid} onKeyDownCapture={onGridKeyDownCapture}>
       <AgGridReact
         columnDefs={visibleColumnDefs}
         defaultColDef={DEFAULT_COL_DEF}
@@ -265,6 +358,7 @@ const FeedTable = ({
         getRowId={getRowId}
         loading={loading || exporting}
         loadingOverlayComponent={() => <MoonLoader size={40} />}
+        localeText={localeText}
         onBodyScroll={onBodyScroll}
         onCellClicked={onCellClicked}
         onCellKeyDown={onCellKeyDown}

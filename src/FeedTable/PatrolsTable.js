@@ -35,6 +35,7 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
   const store = useStore();
   const { t } = useTranslation('components', { keyPrefix: 'feedTable' });
   const { t: tPatrolState } = useTranslation('patrols', { keyPrefix: 'statusPill.uiStateTitles' });
+  const { t: tSideBar } = useTranslation('components', { keyPrefix: 'sideBar' });
 
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
@@ -131,6 +132,7 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
   };
 
   return <FeedTable
+    ariaLabel={tSideBar('patrolsLink')}
     columnDefs={columnDefs}
     getRowId={(params) => params.data.id}
     loading={loading}

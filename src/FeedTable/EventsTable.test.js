@@ -22,7 +22,7 @@ import { showToast } from '../utils/toast';
 import EventsTable from './EventsTable';
 
 const mockGridProps = [];
-const mockGridApi = { deselectAll: jest.fn() };
+const mockGridApi = { deselectAll: jest.fn(), setGridAriaProperty: jest.fn() };
 
 jest.mock('ag-grid-react', () => ({
   AgGridReact: function AgGridReactStub(props) {
@@ -137,6 +137,14 @@ describe('EventsTable', () => {
       </Provider>
     );
   };
+
+  test('names its grid Events', () => {
+    renderEventsTable();
+
+    act(() => lastGridProps().onGridReady({ api: mockGridApi }));
+
+    expect(mockGridApi.setGridAriaProperty).toHaveBeenCalledWith('label', 'Events');
+  });
 
   test('puts its controls in the spot the feed keeps for them', () => {
     renderEventsTable();

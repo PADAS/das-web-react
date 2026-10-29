@@ -1,3 +1,4 @@
+@use '../../common/styles/buttons';
 @use '../../common/styles/vars/colors';
 
 .breadcrumb {
@@ -16,11 +17,15 @@
 }
 
 .breadcrumbButton {
-  background: none;
-  border: 0;
+  @include buttons.link-button;
+
   color: colors.$link-color;
   padding: 0;
-  text-decoration: underline;
+
+  &:focus-visible {
+    outline: 2px solid colors.$bright-blue;
+    outline-offset: 2px;
+  }
 }
 
 .breadcrumbCurrent {
@@ -51,14 +56,18 @@
 }
 
 .valueLink {
+  @include buttons.link-button;
+
   align-items: center;
-  background: none;
-  border: 0;
   color: colors.$link-color;
   display: inline-flex;
   gap: 0.25rem;
   padding: 0;
-  text-decoration: underline;
+
+  &:focus-visible {
+    outline: 2px solid colors.$bright-blue;
+    outline-offset: 2px;
+  }
 
   svg {
     height: 0.9rem;

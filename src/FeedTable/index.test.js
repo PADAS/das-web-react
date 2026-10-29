@@ -19,38 +19,41 @@ const FIELD_COLUMNS = [
 
 const stored = (key) => JSON.parse(window.localStorage.getItem(key));
 
+const DetailsCell = ({ onOpenDetails }) => <button onClick={onOpenDetails} type="button">Open details</button>;
+
 describe('FeedTable', () => {
-  let gridApi, toolbarContainer;
+  let gridApi, onOpenDetails, onOpenRow, toolbarContainer;
 
   beforeEach(() => {
     window.localStorage.clear();
+    onOpenDetails = jest.fn();
+    onOpenRow = jest.fn();
     toolbarContainer = document.createElement('div');
     document.body.appendChild(toolbarContainer);
   });
 
-  const feedTable = (columnDefs, layoutScope) => <FeedTable
+  const feedTable = (columnDefs, layoutScope, rowData = ROWS) => <FeedTable
+    ariaLabel="Test table"
     columnDefs={columnDefs}
     getRowId={(params) => params.data.id}
     layoutScope={layoutScope}
-    onOpenRow={jest.fn()}
-    rowData={ROWS}
+    onOpenRow={onOpenRow}
+    rowData={rowData}
     tableKey="test"
     toolbarContainer={toolbarContainer}
   />;
 
   const findGridApi = async () => {
     await waitFor(() => expect(document.querySelector('[grid-id]')).toBeTruthy());
-    // The grid's API is the one place to read and move its column order.
     gridApi = getGridApi(document.querySelector('[grid-id]').parentElement);
   };
 
-  const renderFeedTable = async (columnDefs = COLUMNS, layoutScope) => {
-    const result = render(feedTable(columnDefs, layoutScope));
+  const renderFeedTable = async (columnDefs = COLUMNS, layoutScope, rowData) => {
+    const result = render(feedTable(columnDefs, layoutScope, rowData));
     await findGridApi();
     return result;
   };
 
-  // A reload: the table mounts again from what this browser remembers.
   const remountFeedTable = async (unmount, columnDefs = COLUMNS, layoutScope) => {
     unmount();
     document.body.innerHTML = '';
@@ -58,9 +61,15 @@ describe('FeedTable', () => {
     return renderFeedTable(columnDefs, layoutScope);
   };
 
+  const focusCell = (colId) => act(() => gridApi.setFocusedCell(0, colId));
+
+  const renderFeedTableWithDetailsCell = () => renderFeedTable([
+    ...COLUMNS,
+    { cellRenderer: DetailsCell, cellRendererParams: { onOpenDetails }, colId: 'details', headerName: 'Details' },
+  ]);
+
   const shownColumnOrder = () => gridApi.getColumnState().filter((column) => !column.hide).map((column) => column.colId);
 
-  // The grid hands column events to its listeners after the current task.
   const userArranges = async (arrange) => {
     act(arrange);
     await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
@@ -146,5 +155,89 @@ describe('FeedTable', () => {
     await remountFeedTable(unmountOtherType, [...COLUMNS, ...FIELD_COLUMNS], 'type-1');
 
     expect(shownColumnOrder().slice(-5)).toEqual(['c', 'y', 'a', 'b', 'x']);
+  });
+
+  test('names the grid', async () => {
+    await renderFeedTable();
+
+    expect(await screen.findByRole('grid', { name: 'Test table' })).toBeInTheDocument();
+  });
+
+  test('names the selection checkboxes in the app language', async () => {
+    await renderFeedTable();
+
+    expect(await screen.findByRole('checkbox', { name: 'Select all rows' })).toBeInTheDocument();
+    expect(await screen.findByRole('checkbox', { name: 'Select row (not selected)' })).toBeInTheDocument();
+  });
+
+  test('says when there are no rows in the app language', async () => {
+    await renderFeedTable(COLUMNS, undefined, []);
+
+    expect(await screen.findByText('Nothing to show')).toBeVisible();
+  });
+
+  test('opens the row when Enter is pressed on a cell', async () => {
+    await renderFeedTable();
+    focusCell('a');
+
+    await userEvent.keyboard('{Enter}');
+
+    await waitFor(() => expect(onOpenRow).toHaveBeenCalledWith(ROWS[0]));
+  });
+
+  test('activates the control in a cell with Enter or Space instead of opening the row', async () => {
+    await renderFeedTableWithDetailsCell();
+    focusCell('details');
+
+    await userEvent.keyboard('{Enter}');
+    await userEvent.keyboard(' ');
+
+    expect(onOpenDetails).toHaveBeenCalledTimes(2);
+    await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
+    expect(onOpenRow).not.toHaveBeenCalled();
+  });
+
+  test('moves focus to the control in a cell with Tab, where Enter activates it', async () => {
+    await renderFeedTableWithDetailsCell();
+    focusCell('details');
+
+    await userEvent.tab();
+
+    expect(screen.getByRole('button', { name: 'Open details' })).toHaveFocus();
+
+    await userEvent.keyboard('{Enter}');
+
+    expect(onOpenDetails).toHaveBeenCalledTimes(1);
+    await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
+    expect(onOpenRow).not.toHaveBeenCalled();
+  });
+
+  test('moves a column from the Columns menu, keeping focus on it and saving the order', async () => {
+    await renderFeedTable();
+    await userEvent.click(screen.getByRole('button', { name: 'Columns' }));
+
+    expect(screen.getByRole('button', { name: 'Move A up' })).toBeDisabled();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Move C up' }));
+
+    expect(screen.getByRole('button', { name: 'Move C up' })).toHaveFocus();
+    expect(stored('feedTable.columnOrder.test')).toEqual(['a', 'c', 'b']);
+    await waitFor(() => expect(shownColumnOrder().slice(-3)).toEqual(['a', 'c', 'b']));
+
+    await userEvent.click(screen.getByRole('button', { name: 'Move C up' }));
+
+    expect(screen.getByRole('button', { name: 'Move C up' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Move C down' })).toHaveFocus();
+  });
+
+  test('closes the Columns menu with Escape and returns focus to its button', async () => {
+    await renderFeedTable();
+    await userEvent.click(screen.getByRole('button', { name: 'Columns' }));
+    await userEvent.click(screen.getByRole('checkbox', { name: 'A' }));
+
+    await userEvent.keyboard('{Escape}');
+
+    expect(screen.getByRole('button', { name: 'Columns' })).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.getByRole('button', { name: 'Columns' })).toHaveFocus();
   });
 });

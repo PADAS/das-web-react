@@ -45,7 +45,7 @@ const STATE_KEY_BY_EVENT_STATE = {
   [EVENT_FORM_STATES.REVIEW]: EVENT_FORM_STATES.REVIEW,
 };
 
-// The v2 schema endpoint answers in the v1 shape for v1 types, so the shape decides.
+// The v2 schema endpoint answers in the v1 shape for v1 types.
 const calcEventTypeFields = (eventSchema, events, coordinatesRepresentation) => {
   try {
     if (eventSchema?.json) return fieldsFromV2Schema(eventSchema, coordinatesRepresentation);
@@ -89,8 +89,9 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
   const jumpToLocation = useJumpToLocation();
   const navigate = useNavigate();
   const { t } = useTranslation('components', { keyPrefix: 'feedTable' });
-  const { t: tReportMenu } = useTranslation('reports', { keyPrefix: 'eventsManager.eventOverview.header.reportMenu' });
   const { t: tPriorities } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection.priorities' });
+  const { t: tReportMenu } = useTranslation('reports', { keyPrefix: 'eventsManager.eventOverview.header.reportMenu' });
+  const { t: tSideBar } = useTranslation('components', { keyPrefix: 'sideBar' });
   const { t: tStates } = useTranslation('reports', { keyPrefix: 'eventsManager.eventsFeed.eventRow.states' });
 
   const eventSort = useSelector((state) => state.data.eventFilter.filter.sort);
@@ -362,6 +363,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
   </>;
 
   return <FeedTable
+    ariaLabel={tSideBar('eventsLink')}
     columnDefs={columnDefs}
     getRowId={(params) => params.data.id}
     layoutScope={eventTypeFilter.length === 1 ? eventTypeFilter[0] : undefined}

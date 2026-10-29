@@ -1,3 +1,4 @@
+@use '../common/styles/buttons';
 @use '../common/styles/vars/colors';
 
 @keyframes enter {
@@ -13,7 +14,6 @@
 }
 
 .feedTable {
-  // Fades in behind the panel's widening, so the rows land once there is room.
   animation: enter 0.3s ease-out 0.25s both;
   display: flex;
   flex: 1;
@@ -55,7 +55,19 @@
 }
 
 .columnsMenuItem {
+  align-items: center;
+  display: flex;
+  gap: 0.25rem;
   white-space: nowrap;
+
+  .columnsMenuItemCheck {
+    flex: 1;
+    margin: 0;
+  }
+
+  .moveColumnButton {
+    @include buttons.icon-button-small;
+  }
 }
 
 .dateCell {
