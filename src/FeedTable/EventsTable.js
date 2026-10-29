@@ -134,6 +134,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     return calcEventTypeFields(eventSchema, events, coordinatesRepresentation).map((field) => ({
       colId: `event_details.${field.key}`,
       headerName: field.label,
+      layoutScoped: true,
       minWidth: 140,
       ...(field.complex
         ? {
@@ -363,6 +364,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
   return <FeedTable
     columnDefs={columnDefs}
     getRowId={(params) => params.data.id}
+    layoutScope={eventTypeFilter.length === 1 ? eventTypeFilter[0] : undefined}
     loading={eventsFeed.loadingEventFeed}
     onExport={onExport}
     onLoadMore={onLoadMore}
