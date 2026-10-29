@@ -62,6 +62,53 @@
     "hideDetailsButton": "Ocultar Detalles",
     "showDetailsButton": "Mostrar Detalles"
   },
+  "feedTable": {
+    "bulkStateError_one": "No se pudo actualizar {{count}} evento",
+    "bulkStateError_other": "No se pudieron actualizar {{count}} eventos",
+    "bulkStateSuccess_one": "{{count}} evento actualizado",
+    "bulkStateSuccess_other": "{{count}} eventos actualizados",
+    "clearSelection": "Limpiar",
+    "columnCreatedAt": "Creado",
+    "columnEventTime": "Hora del evento",
+    "columnEventType": "Tipo",
+    "columnLeader": "Líder",
+    "columnLegs": "Tramos",
+    "columnLocation": "Ubicación",
+    "columnPatrolEnd": "Fin",
+    "columnPatrolStart": "Inicio",
+    "columnPatrolType": "Tipo de patrulla",
+    "columnPriority": "Prioridad",
+    "columnReportedBy": "Reportado por",
+    "columns": "Columnas",
+    "columnSerial": "ID",
+    "columnState": "Estado",
+    "columnTitle": "Título",
+    "columnUpdatedAt": "Actualizado",
+    "export": "Exportar CSV",
+    "exportError": "No se pudo exportar el CSV",
+    "grid": {
+      "allRowsCheckboxLabel": "Seleccionar todas las filas",
+      "checkedStateLabel": "seleccionada",
+      "indeterminateStateLabel": "algunas seleccionadas",
+      "noRowsMessage": "No hay nada que mostrar",
+      "rowCheckboxLabel": "Seleccionar fila",
+      "rowDeselectMessage": "Presione la barra espaciadora para deseleccionar esta fila",
+      "rowSelectMessage": "Presione la barra espaciadora para seleccionar esta fila",
+      "uncheckedStateLabel": "no seleccionada"
+    },
+    "moveColumnDownButtonLabel": "Mover {{column}} hacia abajo",
+    "moveColumnUpButtonLabel": "Mover {{column}} hacia arriba",
+    "objectView": {
+      "breadcrumbLabel": "Ruta",
+      "itemCount_one": "{{count}} elemento",
+      "itemCount_other": "{{count}} elementos",
+      "open": "Ver"
+    },
+    "reopenSelected": "Reabrir",
+    "resolveSelected": "Resolver",
+    "selectedCount_one": "{{count}} seleccionado",
+    "selectedCount_other": "{{count}} seleccionados"
+  },
   "geoLocationWatcher": {
     "shareLocationToastMessage": "Comparte tu ubicación para ver datos con permisos geográficos.",
     "shareLocationToastTitle": "Aprende cómo"
@@ -218,10 +265,12 @@
     "backButtonLabel": "Volver atrás",
     "backButtonTitle": "Atrás",
     "closeButtonLabel": "Cerrar barra lateral",
+    "collapseTableButtonLabel": "Contraer a lista",
     "detailViewHeader": {
       "closeButtonLabel": "Cerrar barra lateral"
     },
     "eventsLink": "Eventos",
+    "expandTableButtonLabel": "Expandir a tabla",
     "gearLink": "Aparejos",
     "gearTab": {
       "loadErrorFallback": "Error en la solicitud",

@@ -97,10 +97,10 @@
     "sortingTypeLabel": ", sorted {{sortDirection}}",
     "byLabel": " by ",
     "eventSortOptions": {
-      "updatedAtLabel": "Date Updated",
       "createdAtLabel": "Created Date",
       "eventTimeLabel": "Event Date",
-      "serialNumberLabel": "Serial Number"
+      "serialNumberLabel": "Serial Number",
+      "updatedAtLabel": "Date Updated"
     },
     "ascendingLabel": " ascending"
   },

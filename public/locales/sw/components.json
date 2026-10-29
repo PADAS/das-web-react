@@ -67,6 +67,53 @@
     "hideDetailsButton": "Ficha Maelezo",
     "showDetailsButton": "Angalia Maelezo"
   },
+  "feedTable": {
+    "bulkStateError_one": "Tukio {{count}} halikuweza kusasishwa",
+    "bulkStateError_other": "Matukio {{count}} hayakuweza kusasishwa",
+    "bulkStateSuccess_one": "Tukio {{count}} limesasishwa",
+    "bulkStateSuccess_other": "Matukio {{count}} yamesasishwa",
+    "clearSelection": "Futa",
+    "columnCreatedAt": "Imeundwa",
+    "columnEventTime": "Muda wa Tukio",
+    "columnEventType": "Aina",
+    "columnLeader": "Kiongozi",
+    "columnLegs": "Vipande",
+    "columnLocation": "Mahali",
+    "columnPatrolEnd": "Mwisho",
+    "columnPatrolStart": "Mwanzo",
+    "columnPatrolType": "Aina ya doria",
+    "columnPriority": "Kipaumbele",
+    "columnReportedBy": "Iliripotiwa na",
+    "columns": "Safu wima",
+    "columnSerial": "Kitambulisho",
+    "columnState": "Hali",
+    "columnTitle": "Kichwa",
+    "columnUpdatedAt": "Imesasishwa",
+    "export": "Nakili CSV",
+    "exportError": "Imeshindwa kunakili CSV",
+    "grid": {
+      "allRowsCheckboxLabel": "Chagua safu mlalo zote",
+      "checkedStateLabel": "imechaguliwa",
+      "indeterminateStateLabel": "baadhi zimechaguliwa",
+      "noRowsMessage": "Hakuna cha kuonyesha",
+      "rowCheckboxLabel": "Chagua safu mlalo",
+      "rowDeselectMessage": "Bonyeza space kuondoa uteuzi wa safu mlalo hii",
+      "rowSelectMessage": "Bonyeza space kuchagua safu mlalo hii",
+      "uncheckedStateLabel": "haijachaguliwa"
+    },
+    "moveColumnDownButtonLabel": "Sogeza {{column}} chini",
+    "moveColumnUpButtonLabel": "Sogeza {{column}} juu",
+    "objectView": {
+      "breadcrumbLabel": "Njia",
+      "itemCount_one": "Kipengee {{count}}",
+      "itemCount_other": "Vipengee {{count}}",
+      "open": "Tazama"
+    },
+    "reopenSelected": "Fungua tena",
+    "resolveSelected": "Tatua",
+    "selectedCount_one": "{{count}} kimechaguliwa",
+    "selectedCount_other": "{{count}} vimechaguliwa"
+  },
   "geoLocationWatcher": {
     "shareLocationToastMessage": "Shiriki eneo lako ili uone data yenye idhini ya kijiografia",
     "shareLocationToastTitle": "Jifunze zaidi"
@@ -223,10 +270,12 @@
     "backButtonLabel": "Nenda Nyuma",
     "backButtonTitle": "Nyuma",
     "closeButtonLabel": "Funga upau wa pembeni",
+    "collapseTableButtonLabel": "Funga kuwa orodha",
     "detailViewHeader": {
       "closeButtonLabel": "Funga upau wa pembeni"
     },
     "eventsLink": "Matukio",
+    "expandTableButtonLabel": "Panua kuwa jedwali",
     "gearLink": "Vifaa",
     "gearTab": {
       "loadErrorFallback": "Ombi halikufaulu",
