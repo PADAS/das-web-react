@@ -198,6 +198,8 @@ const FeedTable = ({
         getRowId={getRowId}
         loading={loading || exporting}
         loadingOverlayComponent={() => <MoonLoader size={40} />}
+        // Column definitions are rebuilt whenever the loaded events change; without this, each rebuild undoes a dragged order.
+        maintainColumnOrder
         onBodyScroll={onBodyScroll}
         onCellClicked={onCellClicked}
         onCellKeyDown={onCellKeyDown}

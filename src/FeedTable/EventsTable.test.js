@@ -153,6 +153,18 @@ describe('EventsTable', () => {
     expect(columnById('priority').sortable).toBeUndefined();
   });
 
+  test('rebuilds its column definitions when the loaded events change, and the grid keeps a dragged order', () => {
+    const { rerender } = renderEventsTable();
+    const { columnDefs } = lastGridProps();
+
+    rerender(<Provider store={store}>
+      <EventsTable events={[{ ...report }]} eventsFeed={eventsFeed} toolbarContainer={document.createElement('div')} />
+    </Provider>);
+
+    expect(lastGridProps().columnDefs).not.toBe(columnDefs);
+    expect(lastGridProps().maintainColumnOrder).toBe(true);
+  });
+
   test('names priorities the way the rest of the app does', () => {
     renderEventsTable();
 
