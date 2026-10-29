@@ -897,4 +897,40 @@ describe('SideBar', () => {
       expect(screen.getByTestId('sideBar-tab')).not.toHaveAttribute('inert');
     });
   });
+
+  describe('table view button', () => {
+    test('expands the events feed to the table view', async () => {
+      renderSideBar();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Expand to table' }));
+
+      expect(navigate).toHaveBeenCalledWith('/events?view=table');
+    });
+
+    test('collapses the table view back to the feed', async () => {
+      useLocation.mockImplementation(jest.fn(() => ({ pathname: '/events', search: '?view=table' })));
+
+      renderSideBar();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Collapse to list' }));
+
+      expect(navigate).toHaveBeenCalledWith('/events');
+    });
+
+    test('is not shown on a detail view', () => {
+      useLocation.mockImplementation(jest.fn(() => ({ pathname: '/events/123' })));
+
+      renderSideBar();
+
+      expect(screen.queryByRole('button', { name: 'Expand to table' })).toBeNull();
+    });
+
+    test('is not shown on tabs without a feed', () => {
+      useLocation.mockImplementation(jest.fn(() => ({ pathname: '/layers' })));
+
+      renderSideBar();
+
+      expect(screen.queryByRole('button', { name: 'Expand to table' })).toBeNull();
+    });
+  });
 });

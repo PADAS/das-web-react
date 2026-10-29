@@ -242,6 +242,21 @@
     }
   }
 
+  .headerActions {
+    align-items: center;
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .tableViewButton {
+    @include buttons.icon-button;
+
+    .tableViewButtonIcon {
+      height: 1rem;
+      width: 1rem;
+    }
+  }
+
   .closeButton {
     @include buttons.icon-button;
 

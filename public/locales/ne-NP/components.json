@@ -62,6 +62,53 @@
     "hideDetailsButton": "विवरणहरु लुकाउनुहोस्",
     "showDetailsButton": "विवरणहरु हेर्नुहोस्"
   },
+  "feedTable": {
+    "bulkStateError_one": "{{count}} घटना अद्यावधिक गर्न सकिएन",
+    "bulkStateError_other": "{{count}} घटनाहरू अद्यावधिक गर्न सकिएन",
+    "bulkStateSuccess_one": "{{count}} घटना अद्यावधिक गरियो",
+    "bulkStateSuccess_other": "{{count}} घटनाहरू अद्यावधिक गरिए",
+    "clearSelection": "खाली गर्नुहोस्",
+    "columnCreatedAt": "सिर्जना गरिएको",
+    "columnEventTime": "घटनाको समय",
+    "columnEventType": "प्रकार",
+    "columnLeader": "नेता",
+    "columnLegs": "खण्डहरू",
+    "columnLocation": "स्थान",
+    "columnPatrolEnd": "अन्त्य",
+    "columnPatrolStart": "सुरु",
+    "columnPatrolType": "गस्ती प्रकार",
+    "columnPriority": "प्राथमिकता",
+    "columnReportedBy": "द्वारा रिपोर्ट गरिएको",
+    "columns": "स्तम्भहरू",
+    "columnSerial": "आईडी",
+    "columnState": "अवस्था",
+    "columnTitle": "शीर्षक",
+    "columnUpdatedAt": "अद्यावधिक गरिएको",
+    "export": "CSV निर्यात गर्नुहोस्",
+    "exportError": "CSV निर्यात गर्न सकिएन",
+    "grid": {
+      "allRowsCheckboxLabel": "सबै पङ्क्तिहरू चयन गर्नुहोस्",
+      "checkedStateLabel": "चयन गरिएको",
+      "indeterminateStateLabel": "केही चयन गरिएका",
+      "noRowsMessage": "देखाउन केही छैन",
+      "rowCheckboxLabel": "पङ्क्ति चयन गर्नुहोस्",
+      "rowDeselectMessage": "यो पङ्क्तिको चयन हटाउन space थिच्नुहोस्",
+      "rowSelectMessage": "यो पङ्क्ति चयन गर्न space थिच्नुहोस्",
+      "uncheckedStateLabel": "चयन नगरिएको"
+    },
+    "moveColumnDownButtonLabel": "{{column}} तल सार्नुहोस्",
+    "moveColumnUpButtonLabel": "{{column}} माथि सार्नुहोस्",
+    "objectView": {
+      "breadcrumbLabel": "मार्ग",
+      "itemCount_one": "{{count}} वस्तु",
+      "itemCount_other": "{{count}} वस्तुहरू",
+      "open": "हेर्नुहोस्"
+    },
+    "reopenSelected": "फेरी खोल्नुहोस्",
+    "resolveSelected": "समाधान गर्नुहोस्",
+    "selectedCount_one": "{{count}} चयन गरियो",
+    "selectedCount_other": "{{count}} चयन गरियो"
+  },
   "geoLocationWatcher": {
     "shareLocationToastMessage": "भू–अनुमतिबाट डाटा हेर्न तपाईंको लोकेसन सेयर गर्नुहोस्",
     "shareLocationToastTitle": "कसरी भनेर जान्नुहोस्"
@@ -218,10 +265,12 @@
     "backButtonLabel": "पछाडी फर्कनुहोस्",
     "backButtonTitle": "फर्कनुहोस्",
     "closeButtonLabel": "साइडबार बन्द गर्नुहोस्",
+    "collapseTableButtonLabel": "सूचीमा संकुचित गर्नुहोस्",
     "detailViewHeader": {
       "closeButtonLabel": "साइडबार बन्द गर्नुहोस्"
     },
     "eventsLink": "घटनाहरु",
+    "expandTableButtonLabel": "तालिकामा विस्तार गर्नुहोस्",
     "gearLink": "जाल",
     "gearTab": {
       "loadErrorFallback": "अनुरोध असफल भयो",

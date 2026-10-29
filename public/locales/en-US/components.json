@@ -67,6 +67,53 @@
     "hideDetailsButton": "Hide Details",
     "showDetailsButton": "See Details"
   },
+  "feedTable": {
+    "bulkStateError_one": "{{count}} event could not be updated",
+    "bulkStateError_other": "{{count}} events could not be updated",
+    "bulkStateSuccess_one": "{{count}} event updated",
+    "bulkStateSuccess_other": "{{count}} events updated",
+    "clearSelection": "Clear",
+    "columnCreatedAt": "Created",
+    "columnEventTime": "Event time",
+    "columnEventType": "Type",
+    "columnLeader": "Leader",
+    "columnLegs": "Legs",
+    "columnLocation": "Location",
+    "columnPatrolEnd": "End",
+    "columnPatrolStart": "Start",
+    "columnPatrolType": "Patrol type",
+    "columnPriority": "Priority",
+    "columnReportedBy": "Reported by",
+    "columns": "Columns",
+    "columnSerial": "ID",
+    "columnState": "State",
+    "columnTitle": "Title",
+    "columnUpdatedAt": "Updated",
+    "export": "Export CSV",
+    "exportError": "Could not export the CSV",
+    "grid": {
+      "allRowsCheckboxLabel": "Select all rows",
+      "checkedStateLabel": "selected",
+      "indeterminateStateLabel": "some selected",
+      "noRowsMessage": "Nothing to show",
+      "rowCheckboxLabel": "Select row",
+      "rowDeselectMessage": "Press Space to deselect this row",
+      "rowSelectMessage": "Press Space to select this row",
+      "uncheckedStateLabel": "not selected"
+    },
+    "moveColumnDownButtonLabel": "Move {{column}} down",
+    "moveColumnUpButtonLabel": "Move {{column}} up",
+    "objectView": {
+      "breadcrumbLabel": "Path",
+      "itemCount_one": "{{count}} item",
+      "itemCount_other": "{{count}} items",
+      "open": "View"
+    },
+    "reopenSelected": "Reopen",
+    "resolveSelected": "Resolve",
+    "selectedCount_one": "{{count}} selected",
+    "selectedCount_other": "{{count}} selected"
+  },
   "geoLocationWatcher": {
     "shareLocationToastMessage": "Share your location to view data with geo-permissions",
     "shareLocationToastTitle": "Learn how"
@@ -223,10 +270,12 @@
     "backButtonLabel": "Go Back",
     "backButtonTitle": "Back",
     "closeButtonLabel": "Close sidebar",
+    "collapseTableButtonLabel": "Collapse to list",
     "detailViewHeader": {
       "closeButtonLabel": "Close sidebar"
     },
     "eventsLink": "Events",
+    "expandTableButtonLabel": "Expand to table",
     "gearLink": "Gear",
     "gearTab": {
       "loadErrorFallback": "Request failed",

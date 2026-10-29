@@ -22,7 +22,7 @@ describe('SideBar - PatrolsFeed', () => {
   beforeEach(() => {
     store = {
       data: {
-        patrolsFeed: [],
+        patrolsFeed: { count: null, next: null, results: [] },
         patrolStore: {},
       },
       view: {},
@@ -56,7 +56,7 @@ describe('SideBar - PatrolsFeed', () => {
   });
 
   test('shows the patrol list with the sorted patrols', () => {
-    store.data.patrolsFeed = [donePatrol.id, activePatrol.id];
+    store.data.patrolsFeed = { count: null, next: null, results: [donePatrol.id, activePatrol.id] };
     store.data.patrolStore = {
       [donePatrol.id]: donePatrol,
       [activePatrol.id]: activePatrol,
@@ -77,7 +77,7 @@ describe('SideBar - PatrolsFeed', () => {
   });
 
   test('navigates to the patrol overview when a patrol is clicked', async () => {
-    store.data.patrolsFeed = [activePatrol.id];
+    store.data.patrolsFeed = { count: null, next: null, results: [activePatrol.id] };
     store.data.patrolStore = { [activePatrol.id]: activePatrol };
 
     PatrolList.mockImplementation(({ patrols, onItemClick }) => (

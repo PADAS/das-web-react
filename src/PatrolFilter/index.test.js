@@ -41,7 +41,7 @@ describe('PatrolFilter', () => {
           },
           status: INITIAL_FILTER_STATE.status,
         },
-        patrolsFeed: [],
+        patrolsFeed: { count: null, next: null, results: [] },
         subjectStore: {},
         patrolStore: {},
       },

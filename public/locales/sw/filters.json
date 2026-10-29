@@ -80,6 +80,7 @@
       "sortByMenuOption": {
         "createdAtLabel": "Tarehe ya Kuundwa",
         "eventTimeLabel": "Tarehe ya Tukio",
+        "serialNumberLabel": "Nambari ya tukio",
         "updatedAtLabel": "Tarehe iliyosasishwa"
       },
       "sortDirectionButtonLabel": {
@@ -96,9 +97,10 @@
     "sortingTypeLabel": ", imepangwa {{sortDirection}}",
     "byLabel": " kwa ",
     "eventSortOptions": {
-      "updatedAtLabel": "Tarehe ya Kusasishwa",
       "createdAtLabel": "Tarehe ya Kuundwa",
-      "eventTimeLabel": "Tarehe ya Tukio"
+      "eventTimeLabel": "Tarehe ya Tukio",
+      "serialNumberLabel": "Nambari ya tukio",
+      "updatedAtLabel": "Tarehe ya Kusasishwa"
     },
     "ascendingLabel": " kupanda"
   },

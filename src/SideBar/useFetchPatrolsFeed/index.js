@@ -12,7 +12,7 @@ const useFetchPatrolsFeed = () => {
 
   const fetchedFilterRef = useRef(patrolFilter);
 
-  const [loadingPatrolsFeed, setLoadingPatrolsFeed] = useState(!(patrolsFeed?.length > 0));
+  const [loadingPatrolsFeed, setLoadingPatrolsFeed] = useState(!(patrolsFeed.results.length > 0));
 
   useEffect(() => {
     // Prevent setting loadingPatrolsFeed to false if a fetch is cancelled and

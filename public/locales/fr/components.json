@@ -62,6 +62,53 @@
     "hideDetailsButton": "Masquer les Détails",
     "showDetailsButton": "Afficher les Détails"
   },
+  "feedTable": {
+    "bulkStateError_one": "{{count}} événement n'a pas pu être actualisé",
+    "bulkStateError_other": "{{count}} événements n'ont pas pu être actualisés",
+    "bulkStateSuccess_one": "{{count}} événement actualisé",
+    "bulkStateSuccess_other": "{{count}} événements actualisés",
+    "clearSelection": "Effacer",
+    "columnCreatedAt": "Créé",
+    "columnEventTime": "Heure",
+    "columnEventType": "Type",
+    "columnLeader": "Chef",
+    "columnLegs": "Étapes",
+    "columnLocation": "Position",
+    "columnPatrolEnd": "Fin",
+    "columnPatrolStart": "Début",
+    "columnPatrolType": "Type de patrouille",
+    "columnPriority": "Priorité",
+    "columnReportedBy": "Complété par",
+    "columns": "Colonnes",
+    "columnSerial": "ID",
+    "columnState": "Statut",
+    "columnTitle": "Titre",
+    "columnUpdatedAt": "Actualisé",
+    "export": "Exporter en CSV",
+    "exportError": "Le CSV n'a pas pu être exporté",
+    "grid": {
+      "allRowsCheckboxLabel": "Sélectionner toutes les lignes",
+      "checkedStateLabel": "sélectionnée",
+      "indeterminateStateLabel": "certaines sélectionnées",
+      "noRowsMessage": "Rien à afficher",
+      "rowCheckboxLabel": "Sélectionner la ligne",
+      "rowDeselectMessage": "Appuyez sur la barre d’espace pour désélectionner cette ligne",
+      "rowSelectMessage": "Appuyez sur la barre d’espace pour sélectionner cette ligne",
+      "uncheckedStateLabel": "non sélectionnée"
+    },
+    "moveColumnDownButtonLabel": "Déplacer {{column}} vers le bas",
+    "moveColumnUpButtonLabel": "Déplacer {{column}} vers le haut",
+    "objectView": {
+      "breadcrumbLabel": "Chemin",
+      "itemCount_one": "{{count}} élément",
+      "itemCount_other": "{{count}} éléments",
+      "open": "Voir"
+    },
+    "reopenSelected": "Réouvrir",
+    "resolveSelected": "Résoudre",
+    "selectedCount_one": "{{count}} sélectionné",
+    "selectedCount_other": "{{count}} sélectionnés"
+  },
   "geoLocationWatcher": {
     "shareLocationToastMessage": "Partager votre position pour afficher des données avec des autorisations géographiques",
     "shareLocationToastTitle": "Comment faire?"
@@ -218,10 +265,12 @@
     "backButtonLabel": "Revenir en arrière",
     "backButtonTitle": "Retour",
     "closeButtonLabel": "Fermer la barre latérale",
+    "collapseTableButtonLabel": "Réduire en liste",
     "detailViewHeader": {
       "closeButtonLabel": "Fermer la barre latérale"
     },
     "eventsLink": "Événements",
+    "expandTableButtonLabel": "Développer en tableau",
     "gearLink": "Engins",
     "gearTab": {
       "loadErrorFallback": "Échec de la requête",

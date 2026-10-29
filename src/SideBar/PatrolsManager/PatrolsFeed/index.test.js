@@ -63,7 +63,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed', () => {
         patrolStore: { [activePatrol.id]: activePatrol, [scheduledPatrol.id]: scheduledPatrol },
         patrolTeamAndTrackingOptions: { members: [] },
         patrolTypes: [],
-        patrolsFeed: [activePatrol.id, scheduledPatrol.id],
+        patrolsFeed: { count: null, next: null, results: [activePatrol.id, scheduledPatrol.id] },
         subjectStore: {},
         tracks: {},
         user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.UPDATE] } },
@@ -106,7 +106,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed', () => {
   });
 
   test('shows an empty state when no patrol matches the filters', async () => {
-    store.data.patrolsFeed = [];
+    store.data.patrolsFeed = { count: null, next: null, results: [] };
     store.data.patrolStore = {};
 
     renderPatrolsFeed();

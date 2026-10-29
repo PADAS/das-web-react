@@ -50,7 +50,7 @@ describe('SideBar - useFetchPatrolsFeed', () => {
     store = {
       data: {
         patrolFilter: INITIAL_PATROL_FILTER_STATE,
-        patrolsFeed: [],
+        patrolsFeed: { count: null, next: null, results: [] },
       },
       view: {},
     };
@@ -72,7 +72,7 @@ describe('SideBar - useFetchPatrolsFeed', () => {
   });
 
   test('refreshes the feed behind the patrols it already lists, without a loading state', async () => {
-    store.data.patrolsFeed = [patrols[0].id];
+    store.data.patrolsFeed = { count: null, next: null, results: [patrols[0].id] };
 
     const { result } = renderHook(() => useFetchPatrolsFeed(), { wrapper });
 
@@ -88,7 +88,7 @@ describe('SideBar - useFetchPatrolsFeed', () => {
   });
 
   test('waits for the new results when the patrol filter changes', async () => {
-    store.data.patrolsFeed = [patrols[0].id];
+    store.data.patrolsFeed = { count: null, next: null, results: [patrols[0].id] };
 
     const { rerender, result } = renderHook(() => useFetchPatrolsFeed(), { wrapper });
 
@@ -103,7 +103,7 @@ describe('SideBar - useFetchPatrolsFeed', () => {
   });
 
   test('keeps listing the patrols it has when a filter update leaves the filter unchanged', async () => {
-    store.data.patrolsFeed = [patrols[0].id];
+    store.data.patrolsFeed = { count: null, next: null, results: [patrols[0].id] };
 
     const { rerender, result } = renderHook(() => useFetchPatrolsFeed(), { wrapper });
 

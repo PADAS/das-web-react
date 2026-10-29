@@ -4,12 +4,14 @@ import debounce from 'lodash/debounce';
 import { isCancel } from 'axios';
 import isEqual from 'react-fast-compare';
 import { useDispatch, useSelector } from 'react-redux';
+import { useLocation } from 'react-router';
 
 import { calcEventFilterForRequest } from '../../utils/event-filter';
 import { calcLocationParamStringForUserLocationCoords } from '../../utils/location';
 import { fetchEventFeed, fetchEventFeedCancelToken } from '../../ducks/events';
 import { getFeedEvents } from '../../selectors';
 import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
+import { isTableViewSearch } from '../../FeedTable/useFeedTableView';
 import { objectToParamString } from '../../utils/query';
 import { userIsGeoPermissionRestricted } from '../../utils/geo-perms';
 
@@ -23,6 +25,10 @@ const useReportsFeed = () => {
   const userIsGeoPermRestricted = useSelector((state) => userIsGeoPermissionRestricted(state?.data?.user));
   const userLocationCoords = useSelector((state) => state?.view?.userLocation?.coords);
   const feedSort = eventFilter.filter.sort;
+
+  // The table gives each field of a single event type its own column.
+  const { search } = useLocation();
+  const includeDetails = isTableViewSearch(search) && eventFilter.filter.event_type.length === 1;
 
   const [loadingEventFeed, setEventLoadState] = useState(true);
 
@@ -79,7 +85,7 @@ const useReportsFeed = () => {
 
   useEffect(() => {
     const params = {
-      include_details: false,
+      include_details: includeDetails,
       include_files: false,
       include_notes: false,
       include_updates: false,
@@ -98,7 +104,7 @@ const useReportsFeed = () => {
     loadFeedEvents();
 
     return () => fetchEventFeedCancelToken.cancel();
-  }, [feedSort, eventFilter, loadFeedEvents, shouldExcludeContained]);
+  }, [feedSort, eventFilter, includeDetails, loadFeedEvents, shouldExcludeContained]);
 
   useEffect(() => {
     if (loadingEventFeed && events.error) {

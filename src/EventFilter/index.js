@@ -25,7 +25,7 @@ const POPOVER_KEYS = { DATES: 'dates', FILTERS: 'filters' };
 // close the popover that replaced it.
 const hidePopoverIfOpen = (popoverKey) => (openPopover) => openPopover === popoverKey ? null : openPopover;
 
-const EventFilter = ({ children, className = '', isSortable = false }) => {
+const EventFilter = ({ children, className = '', isSortable = false, summaryActionsRef }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('filters', { keyPrefix: 'eventFilters' });
 
@@ -167,6 +167,8 @@ const EventFilter = ({ children, className = '', isSortable = false }) => {
           values={{ dateRange: friendlyDateRange }}
         />
       </p>
+
+      {!!summaryActionsRef && <div className={styles.summaryActions} ref={summaryActionsRef} />}
 
       {!!canReset && <button className={styles.resetButton} onClick={onReset} type="button">
         {t('globalResetFilterButton')}

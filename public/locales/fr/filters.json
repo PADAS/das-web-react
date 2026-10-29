@@ -80,6 +80,7 @@
       "sortByMenuOption": {
         "createdAtLabel": "Date de Création",
         "eventTimeLabel": "Date de l'Événement",
+        "serialNumberLabel": "Numéro d'événement",
         "updatedAtLabel": "Date Actualisée"
       },
       "sortDirectionButtonLabel": {
@@ -96,9 +97,10 @@
     "sortingTypeLabel": "trié {{sortDirection}}",
     "byLabel": "par",
     "eventSortOptions": {
-      "updatedAtLabel": "Date Actualisée",
       "createdAtLabel": "Date de Création",
-      "eventTimeLabel": "Date"
+      "eventTimeLabel": "Date",
+      "serialNumberLabel": "Numéro d'événement",
+      "updatedAtLabel": "Date Actualisée"
     },
     "ascendingLabel": "croissant"
   },

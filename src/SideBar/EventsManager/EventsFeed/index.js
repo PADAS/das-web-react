@@ -1,4 +1,4 @@
-import { memo, useContext, useMemo } from 'react';
+import { memo, useContext, useMemo, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import MoonLoader from 'react-spinners/MoonLoader';
 import uniq from 'lodash/uniq';
@@ -14,9 +14,11 @@ import DetailViewLoader from '../../DetailViewLoader';
 import ErrorBoundary from '../../../ErrorBoundary';
 import ErrorMessage from '../../../ErrorMessage';
 import EventFilter from '../../../EventFilter';
+import EventsTable from '../../../FeedTable/EventsTable';
 import EventRow from './EventRow';
 import { ScrollRestoration, SidebarScrollContext } from '../../../SidebarScrollContext';
 import SortControls from './SortControls';
+import useFeedTableView from '../../../FeedTable/useFeedTableView';
 
 import * as styles from './styles.module.scss';
 
@@ -40,9 +42,16 @@ const EventsFeed = ({ eventsFeed }) => {
 
   const { scrollRef } = useContext(SidebarScrollContext);
 
+  const { isTableView } = useFeedTableView();
+
+  const [tableToolbarContainer, setTableToolbarContainer] = useState(null);
+
   const feedEvents = eventsFeed.events.results ?? EMPTY_EVENTS;
 
-  const displayTimeProp = calcTimePropForSortConfig(eventsFeed.feedSort);
+  // A serial number sort has no time of its own for the rows to show.
+  const displayTimeProp = eventsFeed.feedSort[1].value === 'serial_number'
+    ? 'updated_at'
+    : calcTimePropForSortConfig(eventsFeed.feedSort);
 
   const events = useMemo(() => sortEventsBySortConfig(
     eventsFeed.shouldExcludeContained ? excludeContainedEvents(feedEvents) : feedEvents,
@@ -59,8 +68,8 @@ const EventsFeed = ({ eventsFeed }) => {
 
   return <TrackerContext.Provider value={eventsFeedTracker}>
     <ErrorBoundary>
-      <div className={styles.eventsFeed}>
-        <EventFilter isSortable>
+      <div className={`${styles.eventsFeed} ${isTableView ? styles.tableView : ''}`}>
+        <EventFilter isSortable summaryActionsRef={isTableView ? setTableToolbarContainer : undefined}>
           <SortControls />
         </EventFilter>
 
@@ -72,18 +81,24 @@ const EventsFeed = ({ eventsFeed }) => {
           </button>
         </div>}
 
-        {!eventsFeed.events.error && eventsFeed.loadingEventFeed && <DetailViewLoader
+        {!eventsFeed.events.error && isTableView && <EventsTable
+          events={events}
+          eventsFeed={eventsFeed}
+          toolbarContainer={tableToolbarContainer}
+        />}
+
+        {!eventsFeed.events.error && !isTableView && eventsFeed.loadingEventFeed && <DetailViewLoader
           className={styles.loader}
           label={t('loadingLabel')}
         />}
 
-        {!eventsFeed.events.error && !eventsFeed.loadingEventFeed && events.length === 0 && <p
+        {!eventsFeed.events.error && !isTableView && !eventsFeed.loadingEventFeed && events.length === 0 && <p
           className={styles.emptyStateMessage}
         >
           {t('emptyStateMessage')}
         </p>}
 
-        {!eventsFeed.events.error && !eventsFeed.loadingEventFeed && events.length > 0 && <ScrollRestoration
+        {!eventsFeed.events.error && !isTableView && !eventsFeed.loadingEventFeed && events.length > 0 && <ScrollRestoration
           className={styles.eventListScrollContainer}
           namespace={TAB_KEYS.EVENTS}
         >

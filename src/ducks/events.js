@@ -673,7 +673,13 @@ export const eventStoreReducer = (state, { type, payload }) => {
     const toAdd = payload.reduce((accumulator, event) => {
       addNormalizingPropertiesToEventDataFromAPI(event);
 
-      accumulator[event.id] = { ...state[event.id], ...event };
+      // Fetches that skip details (map, realtime overlay) still answer `event_details: null`; keep loaded ones.
+      const keepLoadedDetails = event.event_details === null && !!state[event.id]?.event_details;
+      accumulator[event.id] = {
+        ...state[event.id],
+        ...event,
+        ...(keepLoadedDetails && { event_details: state[event.id].event_details }),
+      };
 
       if (event?.is_contained_in?.length) {
         const incidentsToUpdate = event.is_contained_in

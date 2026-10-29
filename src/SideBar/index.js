@@ -4,9 +4,11 @@ import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowLeftIcon } from '../common/images/icons/arrow-left.svg';
+import { ReactComponent as CollapseIcon } from '../common/images/icons/collapse.svg';
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
 import { ReactComponent as ERLogo } from '../common/images/icons/er-logo.svg';
+import { ReactComponent as ExpandIcon } from '../common/images/icons/expand.svg';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
@@ -20,6 +22,7 @@ import { SocketContext } from '../withSocketConnection';
 import useNavigate from '../hooks/useNavigate';
 import { usePatrolsPermissions } from '../hooks/usePermissions';
 import { usePreviewFeature } from '../hooks';
+import useFeedTableView, { useRestoreFeedTableView } from '../FeedTable/useFeedTableView';
 import useReportsFeed from './useReportsFeed';
 
 import AddItemButton from '../AddItemButton';
@@ -121,6 +124,11 @@ const SideBar = () => {
   const isSideBarClosing = !isSideBarOpen && !!tabLocation;
   const displayedPathname = (tabLocation ?? location).pathname;
   const displayedTab = getCurrentTabFromURL(displayedPathname);
+
+  const { isTableView, toggleTableView } = useFeedTableView();
+  useRestoreFeedTableView();
+  const isFeedDisplayed = (displayedTab === TAB_KEYS.EVENTS || displayedTab === TAB_KEYS.PATROLS)
+    && !getCurrentIdFromURL(displayedPathname);
 
   const hideDefaultHeader = (patrolSchemasEnabled
     && canReadPatrols
@@ -303,14 +311,30 @@ const SideBar = () => {
             <h3 id="side-bar-tab-header">{t(`${displayedTab}Link`)}</h3>
           </div>
 
-          <Link
-            aria-label={t('closeButtonLabel')}
-            className={styles.closeButton}
-            title={t('closeButtonLabel')}
-            to="/"
-          >
-            <CrossIcon aria-hidden="true" className={styles.closeButtonIcon} />
-          </Link>
+          <div className={styles.headerActions}>
+            {isFeedDisplayed && <button
+              aria-label={t(isTableView ? 'collapseTableButtonLabel' : 'expandTableButtonLabel')}
+              aria-pressed={isTableView}
+              className={styles.tableViewButton}
+              data-testid="sideBar-tableViewButton"
+              onClick={toggleTableView}
+              title={t(isTableView ? 'collapseTableButtonLabel' : 'expandTableButtonLabel')}
+              type="button"
+            >
+              {isTableView
+                ? <CollapseIcon aria-hidden="true" className={styles.tableViewButtonIcon} />
+                : <ExpandIcon aria-hidden="true" className={styles.tableViewButtonIcon} />}
+            </button>}
+
+            <Link
+              aria-label={t('closeButtonLabel')}
+              className={styles.closeButton}
+              title={t('closeButtonLabel')}
+              to="/"
+            >
+              <CrossIcon aria-hidden="true" className={styles.closeButtonIcon} />
+            </Link>
+          </div>
         </div>}
 
         <div className={`${styles.tabBody} ${hideDefaultHeader ? styles.noHeader : ''}`}>

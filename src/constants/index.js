@@ -385,6 +385,7 @@ export const EVENT_SORT_OPTIONS = [
   { value: 'updated_at', key: 'updatedAtLabel' },
   { value: 'created_at', key: 'createdAtLabel' },
   { value: 'event_time', key: 'eventTimeLabel' },
+  { value: 'serial_number', key: 'serialNumberLabel' },
 ];
 
 export const MAP_LAYER_SORT_VALUES = {
