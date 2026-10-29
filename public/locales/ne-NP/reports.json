@@ -104,6 +104,8 @@
           },
           "updatedEventToastMessage": "#{{eventSerialNumber}} {{newState}}"
         },
+        "agePrefix": "",
+        "ageSuffix": "अघि",
         "patrolIndicator": "ग",
         "states": {
           "active": "सक्रिय",

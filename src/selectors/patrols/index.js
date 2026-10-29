@@ -4,7 +4,12 @@ import { length } from '@turf/turf';
 import { shallowEqual } from 'react-redux';
 import uniq from 'lodash/uniq';
 
-import { buildTrackSegments, trackLengthWithinTimeRange, trimTrackDataToTimeRange } from '../../utils/tracks';
+import {
+  buildTrackSegments,
+  trackHasDataWithinTimeRange,
+  trackLengthWithinTimeRange,
+  trimTrackDataToTimeRange,
+} from '../../utils/tracks';
 import {
   actualStartTimeForPatrolSegment,
   displayNumberForPatrolSegment,
@@ -26,6 +31,8 @@ import { getSubjectLastPositionCoordinates } from '../../utils/subjects';
 import { selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod, selectTrackTimeEnvelope } from '../tracks';
 
 const EMPTY_HIDDEN_SUBJECT_IDS = [];
+const EMPTY_SUBJECT_IDS = [];
+const EMPTY_TRACKS = {};
 
 // A leg that never started bounds nothing, so it leaves the window as it is.
 const earliestTime = (time, otherTime) => {
@@ -78,9 +85,13 @@ const clampTimeRangeToTrackTimeEnvelope = (timeRange, trackTimeEnvelope) => {
   return until && new Date(since).getTime() > new Date(until).getTime() ? null : { since, until };
 };
 
+// The track helpers read an open end as null rather than Infinity.
+const toOpenEndedTimeRange = (timeRange) =>
+  ({ since: timeRange.since, until: timeRange.until === Infinity ? null : timeRange.until });
+
 // The time a subject spent on the patrol, in the shape the track helpers take.
 const patrolTimeRanges = (patrol, patrolSegments) => mergeSegmentTimeRanges(patrol, patrolSegments)
-  .map((timeRange) => ({ since: timeRange.since, until: timeRange.until === Infinity ? null : timeRange.until }));
+  .map(toOpenEndedTimeRange);
 
 // The stretch of the patrol a leg ran for: a leg the record left open still
 // ended when the patrol closed or the next leg took over.
@@ -115,7 +126,7 @@ const hasPatrolSegmentRun = (patrolSegment) =>
 // The kilometers a subject covered during a time range: its own track, bounded
 // to that range.
 const distanceCoveredInTimeRange = ({ since, until }, subjectTrack) =>
-  trackLengthWithinTimeRange(subjectTrack, since, until === Infinity ? null : until);
+  trackLengthWithinTimeRange(subjectTrack, since, until);
 
 // The subjects a leg's distance is read from. A lead answers for its leg;
 // without one, the furthest of the subjects it tracks stands in for it.
@@ -123,17 +134,53 @@ const measuredSubjectsForPatrolSegment = (patrolSegment, trackedSubjects) => pat
   ? trackedSubjects.filter((subject) => subject.id === patrolSegment.leader.id)
   : trackedSubjects;
 
-// The kilometers a leg covered, or nothing until every subject it is measured
-// by has a track: the furthest of those that arrived is not the furthest of all.
-const legDistanceForPatrolSegment = (patrol, patrolSegment, trackedSubjects, tracks) => {
-  const measuredSubjects = measuredSubjectsForPatrolSegment(patrolSegment, trackedSubjects);
+// The kilometers a leg covered in a time range, or nothing until every subject
+// it is measured by has a track that reaches across the range: the furthest
+// that arrived is not the furthest, and a track cut short covered less.
+const legDistanceForPatrolSegment = (patrolSegment, timeRange, trackedSubjects, tracks) => {
+  // A leg the track time envelope leaves out covered nothing the map draws.
+  if (!timeRange) {
+    return 0;
+  }
 
-  if (!measuredSubjects.length || measuredSubjects.some((subject) => !tracks[subject.id])) {
+  const measuredSubjects = measuredSubjectsForPatrolSegment(patrolSegment, trackedSubjects);
+  const isEveryTrackLoadedAcrossTimeRange = measuredSubjects.every((subject) => !!tracks[subject.id]
+    && trackHasDataWithinTimeRange(tracks[subject.id], timeRange.since, timeRange.until));
+
+  return !!measuredSubjects.length && isEveryTrackLoadedAcrossTimeRange
+    ? Math.max(...measuredSubjects.map((subject) => distanceCoveredInTimeRange(timeRange, tracks[subject.id])))
+    : null;
+};
+
+const calcPatrolLeadSumDistance = (
+  patrol,
+  patrolTeamAndTrackingOptions,
+  patrolRosterFallbackSubjects,
+  tracks,
+  trackTimeEnvelope = null
+) => {
+  if (!patrolStateAllowsTrackDisplay(patrol)) {
     return null;
   }
 
-  return Math.max(...measuredSubjects.map((subject) =>
-    distanceCoveredInTimeRange(patrolSegmentTimeRange(patrol, patrolSegment), tracks[subject.id])));
+  const legDistances = patrol.patrol_segments
+    .filter(hasPatrolSegmentRun)
+    .map((patrolSegment) => {
+      const timeRange = toOpenEndedTimeRange(patrolSegmentTimeRange(patrol, patrolSegment));
+
+      return legDistanceForPatrolSegment(
+        patrolSegment,
+        trackTimeEnvelope ? clampTimeRangeToTrackTimeEnvelope(timeRange, trackTimeEnvelope) : timeRange,
+        getTrackedSubjectsForPatrolSegment(patrolSegment, patrolTeamAndTrackingOptions, patrolRosterFallbackSubjects),
+        tracks
+      );
+    });
+
+  // A leg whose tracks have not arrived would leave a part of the patrol
+  // reading as the whole of it, so the patrol waits for every leg it ran.
+  return legDistances.length && legDistances.every((legDistance) => legDistance !== null)
+    ? legDistances.reduce((leadSumDistance, legDistance) => leadSumDistance + legDistance, 0)
+    : null;
 };
 
 // Every subject the given legs track, each paired with the legs it is on.
@@ -437,7 +484,7 @@ const buildTrackedSubjects = (
         ?? trackedSubjectPositions[trackedSubject.subject.id]
         ?? null,
       distance: subjectTrack
-        ? mergeSegmentTimeRanges(patrol, trackedSubject.patrolSegments).reduce(
+        ? patrolTimeRanges(patrol, trackedSubject.patrolSegments).reduce(
           (distance, timeRange) => distance + distanceCoveredInTimeRange(timeRange, subjectTrack),
           0
         )
@@ -522,10 +569,12 @@ export const selectPatrolRosterFallbackSubjects = createSelector(
   { memoizeOptions: { resultEqualityCheck: shallowEqual } }
 );
 
+// A patrol that has not begun has no tracks yet, whatever its later legs say.
 const selectPatrolTrackedSubjectTracks = createSelector(
   [selectPatrolTeamAndTrackingOptions, selectPatrolRosterFallbackSubjects, selectTracks, (_, patrol) => patrol],
-  (patrolTeamAndTrackingOptions, patrolRosterFallbackSubjects, tracks, patrol) =>
-    buildTrackedSubjectTracks([patrol], patrolTeamAndTrackingOptions, patrolRosterFallbackSubjects, tracks),
+  (patrolTeamAndTrackingOptions, patrolRosterFallbackSubjects, tracks, patrol) => patrolStateAllowsTrackDisplay(patrol)
+    ? buildTrackedSubjectTracks([patrol], patrolTeamAndTrackingOptions, patrolRosterFallbackSubjects, tracks)
+    : EMPTY_TRACKS,
   { memoizeOptions: { resultEqualityCheck: shallowEqual } }
 );
 
@@ -633,7 +682,6 @@ export const selectPatrolMapTrackData = createSelector(
     ({ ...patrolMapSubjectsTrackData, startStopGeometries: patrolStartStopGeometries })
 );
 
-// The ground a patrol covered: what each of its legs covered, added up.
 export const selectPatrolLeadSumDistance = createSelector(
   [
     selectPatrolTeamAndTrackingOptions,
@@ -641,38 +689,45 @@ export const selectPatrolLeadSumDistance = createSelector(
     selectPatrolTrackedSubjectTracks,
     (_, patrol) => patrol,
   ],
-  (patrolTeamAndTrackingOptions, patrolRosterFallbackSubjects, patrolTrackedSubjectTracks, patrol) => {
-    if (!patrolStateAllowsTrackDisplay(patrol)) {
-      return null;
-    }
+  (patrolTeamAndTrackingOptions, patrolRosterFallbackSubjects, patrolTrackedSubjectTracks, patrol) =>
+    calcPatrolLeadSumDistance(
+      patrol,
+      patrolTeamAndTrackingOptions,
+      patrolRosterFallbackSubjects,
+      patrolTrackedSubjectTracks
+    )
+);
 
-    const legDistances = patrol.patrol_segments
-      .filter(hasPatrolSegmentRun)
-      .map((patrolSegment) => legDistanceForPatrolSegment(
-        patrol,
-        patrolSegment,
-        getTrackedSubjectsForPatrolSegment(patrolSegment, patrolTeamAndTrackingOptions, patrolRosterFallbackSubjects),
-        patrolTrackedSubjectTracks
-      ));
-
-    // A leg whose tracks have not arrived would leave a part of the patrol
-    // reading as the whole of it, so the patrol waits for every leg it ran.
-    return legDistances.length && legDistances.every((legDistance) => legDistance !== null)
-      ? legDistances.reduce((leadSumDistance, legDistance) => leadSumDistance + legDistance, 0)
-      : null;
-  }
+const selectPatrolMapLeadSumDistance = createSelector(
+  [
+    selectPatrolTeamAndTrackingOptions,
+    selectPatrolRosterFallbackSubjects,
+    selectPatrolTrackedSubjectTracks,
+    selectTrackTimeEnvelope,
+    (_, patrol) => patrol,
+  ],
+  (patrolTeamAndTrackingOptions, patrolRosterFallbackSubjects, patrolTrackedSubjectTracks, trackTimeEnvelope, patrol) =>
+    calcPatrolLeadSumDistance(
+      patrol,
+      patrolTeamAndTrackingOptions,
+      patrolRosterFallbackSubjects,
+      patrolTrackedSubjectTracks,
+      trackTimeEnvelope
+    )
 );
 
 // The subjects the patrol's distance is read from. The feed measures every
 // patrol it lists, so a lead on every leg costs it one track per patrol.
 export const selectPatrolMeasuredSubjectIds = createSelector(
   [selectPatrolTeamAndTrackingOptions, selectPatrolRosterFallbackSubjects, (_, patrol) => patrol],
-  (patrolTeamAndTrackingOptions, patrolRosterFallbackSubjects, patrol) => uniq(patrol.patrol_segments
-    .filter(hasPatrolSegmentRun)
-    .flatMap((patrolSegment) => measuredSubjectsForPatrolSegment(
-      patrolSegment,
-      getTrackedSubjectsForPatrolSegment(patrolSegment, patrolTeamAndTrackingOptions, patrolRosterFallbackSubjects)
-    ).map((subject) => subject.id))),
+  (patrolTeamAndTrackingOptions, patrolRosterFallbackSubjects, patrol) => patrolStateAllowsTrackDisplay(patrol)
+    ? uniq(patrol.patrol_segments
+      .filter(hasPatrolSegmentRun)
+      .flatMap((patrolSegment) => measuredSubjectsForPatrolSegment(
+        patrolSegment,
+        getTrackedSubjectsForPatrolSegment(patrolSegment, patrolTeamAndTrackingOptions, patrolRosterFallbackSubjects)
+      ).map((subject) => subject.id)))
+    : EMPTY_SUBJECT_IDS,
   { memoizeOptions: { resultEqualityCheck: shallowEqual } }
 );
 
@@ -928,7 +983,11 @@ export const selectPatrolsWithTracksTrackedSubjectRequests = createSelector(
 export const selectPatrolsWithTracksData = createSelector(
   [selectPatrolsWithTracks, (state) => state],
   (patrolsWithTracks, state) => patrolsWithTracks
-    .map((patrol) => ({ patrol, ...selectPatrolMapTrackData(state, patrol) })),
+    .map((patrol) => ({
+      distance: selectPatrolMapLeadSumDistance(state, patrol),
+      patrol,
+      ...selectPatrolMapTrackData(state, patrol),
+    })),
   { memoizeOptions: { resultEqualityCheck: arePatrolsTracksDataEqual } }
 );
 

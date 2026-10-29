@@ -17,6 +17,7 @@ import {
   getElapsedTimeForPatrol,
   getElapsedTimeForPatrolSegment,
   getPausedTimeForPatrol,
+  hasPatrolBegun,
   isPatrolSegmentAPause,
 } from '../../../../utils/patrols';
 import { calcUrlForImage } from '../../../../utils/img';
@@ -56,8 +57,8 @@ const SummaryStats = ({ eventCount, patrol, patrolSegment = null }) => {
   const startTime = patrolSegment ? actualStartTimeForPatrolSegment(patrolSegment) : actualStartTimeForPatrol(patrol);
 
   // A leg planned ahead carries the time it is due to begin, so the time alone
-  // does not say it has.
-  const hasStarted = !!startTime && !isFuture(startTime);
+  // does not say it has, and no leg begins before the patrol does.
+  const hasStarted = hasPatrolBegun(patrol) && !!startTime && !isFuture(startTime);
 
   const currentTime = useCurrentTime(hasStarted && !endTimestamp ? ELAPSED_TIME_REFRESH_INTERVAL : null);
 
