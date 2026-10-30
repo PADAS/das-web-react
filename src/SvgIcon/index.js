@@ -274,20 +274,18 @@ const SvgIcon = ({ type, iconId, imageUrl, className, color, style, title, ...re
     : restStyle;
 
   // Page translation swaps sibling text nodes, so the icon mounts in a span.
-  return (
-    <span className={styles.wrapper}>
-      <InlineSvg
-        className={`${className || ''} ${isGeneric ? 'generic' : ''}`.trim()}
-        fallbackSrc={buildSpriteSvgUrl(GENERIC_ICON_ID, communityValue)}
-        key={iconSrc}
-        repSrc={repSrc}
-        src={iconSrc}
-        style={svgStyle}
-        title={title}
-        {...rest}
-      />
-    </span>
-  );
+  return <span className={styles.wrapper}>
+    <InlineSvg
+      className={`${className || ''} ${isGeneric ? 'generic' : ''}`.trim()}
+      fallbackSrc={buildSpriteSvgUrl(GENERIC_ICON_ID, communityValue)}
+      key={iconSrc}
+      repSrc={repSrc}
+      src={iconSrc}
+      style={svgStyle}
+      title={title}
+      {...rest}
+    />
+  </span>;
 };
 
 export default SvgIcon;
