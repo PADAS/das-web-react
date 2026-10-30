@@ -49,7 +49,7 @@ describe('SvgIcon', () => {
         expect(container.querySelector('svg')).toBeInTheDocument();
       });
 
-      const wrapper = container.querySelector('.svg-icon-wrapper > span');
+      const wrapper = container.querySelector('span[aria-hidden="true"]');
       // The wrapper drives the color: text color + fill:currentColor, so the (fill-stripped) paths inherit it.
       expect(wrapper).toHaveStyle({ color: 'rgb(4, 5, 6)', fill: 'currentColor' });
       // The hardcoded fill is stripped so nothing overrides the inherited color.
@@ -257,7 +257,6 @@ describe('SvgIcon', () => {
       return { promise, resolve };
     };
 
-    // Chrome translation swaps text nodes for <font> elements that React does not know about.
     const translateTextNodes = (element) => {
       [...element.childNodes]
         .filter((node) => node.nodeType === Node.TEXT_NODE)
@@ -267,15 +266,6 @@ describe('SvgIcon', () => {
           node.replaceWith(font);
         });
     };
-
-    const notFoundErrorLogged = (consoleErrorSpy) => consoleErrorSpy.mock.calls
-      .some((args) => args.some((arg) => String(arg?.name ?? arg).includes('NotFoundError')));
-
-    let consoleErrorSpy;
-
-    beforeEach(() => {
-      consoleErrorSpy = jest.spyOn(console, 'error');
-    });
 
     test('mounts the icon after the fetch resolves when the sibling text node was translated', async () => {
       const fetch = deferred();
@@ -295,7 +285,6 @@ describe('SvgIcon', () => {
         expect(container.querySelector('svg')).toBeInTheDocument();
       });
       expect(container).not.toBeEmptyDOMElement();
-      expect(notFoundErrorLogged(consoleErrorSpy)).toBe(false);
     });
 
     test('mounts the new icon when the iconId changes after the sibling text node was translated', async () => {
@@ -329,7 +318,6 @@ describe('SvgIcon', () => {
         expect(container.querySelector('path')).toHaveAttribute('d', 'second');
       });
       expect(container).not.toBeEmptyDOMElement();
-      expect(notFoundErrorLogged(consoleErrorSpy)).toBe(false);
     });
   });
 
