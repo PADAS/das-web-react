@@ -11,6 +11,10 @@
   box-sizing: border-box;
 }
 
+:root {
+  --era-14456-build: 2;
+}
+
 .webgl-error-message {
   margin: 1rem 6rem;
   max-width: 32rem;
