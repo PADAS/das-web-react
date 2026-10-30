@@ -24,6 +24,7 @@ import { setClientReleaseIdentifier } from './utils/analytics';
 import store from './store';
 import withTracker from './WithTracker';
 
+import AppErrorBoundary from './AppErrorBoundary';
 import Auth0TokenManager from './Auth0TokenManager';
 import DetectOffline from './DetectOffline';
 import GeoLocationWatcher from './GeoLocationWatcher';
@@ -100,32 +101,34 @@ const RootApp = () => {
     <Auth0TokenManager />
 
     <Suspense fallback={<LoadingOverlay />}>
-      <Routes>
-        <Route path={APP_ROUTES.LOGIN} element={<LoginWithTracker />} />
+      <AppErrorBoundary>
+        <Routes>
+          <Route path={APP_ROUTES.LOGIN} element={<LoginWithTracker />} />
 
-        <Route
-          path={APP_ROUTES.EULA}
-          element={<RequireAccessToken>
-            <EulaPageWithTracker />
-          </RequireAccessToken>}
-        />
+          <Route
+            path={APP_ROUTES.EULA}
+            element={<RequireAccessToken>
+              <EulaPageWithTracker />
+            </RequireAccessToken>}
+          />
 
-        <Route
-          path={APP_ROUTES.COMMUNITY}
-          element={<CommunityPage />}
-        />
+          <Route
+            path={APP_ROUTES.COMMUNITY}
+            element={<CommunityPage />}
+          />
 
-        <Route
-          path={APP_ROUTES.MAIN}
-          element={<RequireAccessToken>
-            <RequireEulaConfirmation>
-              <AppWithTracker />
-            </RequireEulaConfirmation>
-          </RequireAccessToken>}
-        />
+          <Route
+            path={APP_ROUTES.MAIN}
+            element={<RequireAccessToken>
+              <RequireEulaConfirmation>
+                <AppWithTracker />
+              </RequireEulaConfirmation>
+            </RequireAccessToken>}
+          />
 
-        <Route path="*" element={<PathNormalizationRouteComponent />} />
-      </Routes>
+          <Route path="*" element={<PathNormalizationRouteComponent />} />
+        </Routes>
+      </AppErrorBoundary>
     </Suspense>
   </>;
 };

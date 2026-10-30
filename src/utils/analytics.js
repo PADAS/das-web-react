@@ -43,6 +43,7 @@ export const ALERTS_CATEGORY = 'Alerts';
 export const FEED_CATEGORY = 'Feed';
 export const BETA_PREVIEW_CATEGORY = 'Beta Preview';
 export const SETTINGS_CATEGORY = 'Settings';
+export const APP_ERROR_CATEGORY = 'App Error';
 
 /**
  * Function to emit a GA event.

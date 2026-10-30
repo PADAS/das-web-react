@@ -4,6 +4,8 @@ import axios from 'axios';
 import DOMPurify from 'dompurify';
 import { API_V2_URL, DAS_HOST } from '../constants';
 
+import * as styles from './styles.module.scss';
+
 const GENERIC_ICON_ID = 'generic_rep';
 const REP_SUFFIX = '_rep';
 export const svgCache = new Map();
@@ -271,7 +273,8 @@ const SvgIcon = ({ type, iconId, imageUrl, className, color, style, title, ...re
     ? { ...restStyle, color: effectiveColor, fill: 'currentColor' }
     : restStyle;
 
-  return (
+  // Page translation swaps sibling text nodes, so the icon mounts in a span.
+  return <span className={styles.wrapper}>
     <InlineSvg
       className={`${className || ''} ${isGeneric ? 'generic' : ''}`.trim()}
       fallbackSrc={buildSpriteSvgUrl(GENERIC_ICON_ID, communityValue)}
@@ -282,7 +285,7 @@ const SvgIcon = ({ type, iconId, imageUrl, className, color, style, title, ...re
       title={title}
       {...rest}
     />
-  );
+  </span>;
 };
 
 export default SvgIcon;

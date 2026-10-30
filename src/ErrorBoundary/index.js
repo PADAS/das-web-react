@@ -6,18 +6,22 @@ import ErrorMessage from '../ErrorMessage';
 
 import * as styles from './styles.module.scss';
 
-const ErrorBoundaryComponent = ({ children }) => {
+const DefaultFallbackComponent = ({ error, resetErrorBoundary }) => {
   const { t } = useTranslation('components', { keyPrefix: 'errorBoundary' });
 
-  const DefaultFallbackComponent = ({ error, resetErrorBoundary }) => <div className={styles.fallback}>
+  return <div className={styles.fallback}>
     <ErrorMessage message={error.message} />
 
     <Button onClick={() => resetErrorBoundary()} type="button" variant="info">{t('reloadButton')}</Button>
   </div>;
-
-  return <ErrorBoundary FallbackComponent={DefaultFallbackComponent}>
-    {children}
-  </ErrorBoundary>;
 };
+
+const ErrorBoundaryComponent = ({ children, onError, onReset }) => <ErrorBoundary
+  FallbackComponent={DefaultFallbackComponent}
+  onError={onError}
+  onReset={onReset}
+>
+  {children}
+</ErrorBoundary>;
 
 export default ErrorBoundaryComponent;
