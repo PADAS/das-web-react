@@ -271,17 +271,20 @@ const SvgIcon = ({ type, iconId, imageUrl, className, color, style, title, ...re
     ? { ...restStyle, color: effectiveColor, fill: 'currentColor' }
     : restStyle;
 
+  // Browser page translation replaces sibling text nodes, so inserting the icon next to one throws NotFoundError.
   return (
-    <InlineSvg
-      className={`${className || ''} ${isGeneric ? 'generic' : ''}`.trim()}
-      fallbackSrc={buildSpriteSvgUrl(GENERIC_ICON_ID, communityValue)}
-      key={iconSrc}
-      repSrc={repSrc}
-      src={iconSrc}
-      style={svgStyle}
-      title={title}
-      {...rest}
-    />
+    <span className="svg-icon-wrapper" style={{ display: 'contents' }}>
+      <InlineSvg
+        className={`${className || ''} ${isGeneric ? 'generic' : ''}`.trim()}
+        fallbackSrc={buildSpriteSvgUrl(GENERIC_ICON_ID, communityValue)}
+        key={iconSrc}
+        repSrc={repSrc}
+        src={iconSrc}
+        style={svgStyle}
+        title={title}
+        {...rest}
+      />
+    </span>
   );
 };
 

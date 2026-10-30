@@ -20,12 +20,13 @@ import { EXTERNAL_SAME_DOMAIN_ROUTES, REACT_APP_GA4_TRACKING_ID, REACT_APP_ROUTE
 import { fetchSystemStatus } from './ducks/system-status';
 import { isSystemConfigLoaded } from './utils/auth';
 import registerServiceWorker from './registerServiceWorker';
-import { setClientReleaseIdentifier } from './utils/analytics';
+import { APP_ERROR_CATEGORY, setClientReleaseIdentifier, trackEventFactory } from './utils/analytics';
 import store from './store';
 import withTracker from './WithTracker';
 
 import Auth0TokenManager from './Auth0TokenManager';
 import DetectOffline from './DetectOffline';
+import ErrorBoundary from './ErrorBoundary';
 import GeoLocationWatcher from './GeoLocationWatcher';
 import JiraSupportWidget from './JiraSupportWidget';
 import LoadingOverlay from './EarthRangerIconLoadingOverlay';
@@ -67,6 +68,10 @@ const PathNormalizationRouteComponent = () => {
   return <a href={localMatch} ref={externalRedirectRef} style={{ opacity: 0 }} target="_self">{localMatch}</a>;
 };
 
+const appErrorTracker = trackEventFactory(APP_ERROR_CATEGORY);
+const onAppError = (error) => appErrorTracker.track('Render Error', error?.name);
+const onAppReset = () => window.location.reload();
+
 const RootApp = () => {
   const { i18n } = useTranslation();
   const dispatch = useDispatch();
@@ -100,32 +105,34 @@ const RootApp = () => {
     <Auth0TokenManager />
 
     <Suspense fallback={<LoadingOverlay />}>
-      <Routes>
-        <Route path={APP_ROUTES.LOGIN} element={<LoginWithTracker />} />
+      <ErrorBoundary onError={onAppError} onReset={onAppReset}>
+        <Routes>
+          <Route path={APP_ROUTES.LOGIN} element={<LoginWithTracker />} />
 
-        <Route
-          path={APP_ROUTES.EULA}
-          element={<RequireAccessToken>
-            <EulaPageWithTracker />
-          </RequireAccessToken>}
-        />
+          <Route
+            path={APP_ROUTES.EULA}
+            element={<RequireAccessToken>
+              <EulaPageWithTracker />
+            </RequireAccessToken>}
+          />
 
-        <Route
-          path={APP_ROUTES.COMMUNITY}
-          element={<CommunityPage />}
-        />
+          <Route
+            path={APP_ROUTES.COMMUNITY}
+            element={<CommunityPage />}
+          />
 
-        <Route
-          path={APP_ROUTES.MAIN}
-          element={<RequireAccessToken>
-            <RequireEulaConfirmation>
-              <AppWithTracker />
-            </RequireEulaConfirmation>
-          </RequireAccessToken>}
-        />
+          <Route
+            path={APP_ROUTES.MAIN}
+            element={<RequireAccessToken>
+              <RequireEulaConfirmation>
+                <AppWithTracker />
+              </RequireEulaConfirmation>
+            </RequireAccessToken>}
+          />
 
-        <Route path="*" element={<PathNormalizationRouteComponent />} />
-      </Routes>
+          <Route path="*" element={<PathNormalizationRouteComponent />} />
+        </Routes>
+      </ErrorBoundary>
     </Suspense>
   </>;
 };

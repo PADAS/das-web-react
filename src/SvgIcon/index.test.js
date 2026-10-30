@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { Provider } from 'react-redux';
-import { fireEvent, render, waitFor } from '../test-utils';
+import { act, fireEvent, render, waitFor } from '../test-utils';
 import { mockStore } from '../__test-helpers/MockStore';
 import { DAS_HOST } from '../constants';
 import SvgIcon, { InlineSvg, svgCache } from './';
@@ -49,7 +49,7 @@ describe('SvgIcon', () => {
         expect(container.querySelector('svg')).toBeInTheDocument();
       });
 
-      const wrapper = container.querySelector('span');
+      const wrapper = container.querySelector('.svg-icon-wrapper > span');
       // The wrapper drives the color: text color + fill:currentColor, so the (fill-stripped) paths inherit it.
       expect(wrapper).toHaveStyle({ color: 'rgb(4, 5, 6)', fill: 'currentColor' });
       // The hardcoded fill is stripped so nothing overrides the inherited color.
@@ -247,6 +247,89 @@ describe('SvgIcon', () => {
       });
       expect(axiosSpy.mock.calls[0][0]).toBe(`${DAS_HOST}/static/sprite-src/fire.svg`);
       expect(axiosSpy.mock.calls[1][0]).toBe(`${DAS_HOST}/static/sprite-src/fire_rep.svg`);
+    });
+  });
+
+  describe('browser page translation', () => {
+    const deferred = () => {
+      let resolve;
+      const promise = new Promise((res) => { resolve = res; });
+      return { promise, resolve };
+    };
+
+    // Chrome translation swaps text nodes for <font> elements that React does not know about.
+    const translateTextNodes = (element) => {
+      [...element.childNodes]
+        .filter((node) => node.nodeType === Node.TEXT_NODE)
+        .forEach((node) => {
+          const font = document.createElement('font');
+          font.textContent = `translated ${node.textContent}`;
+          node.replaceWith(font);
+        });
+    };
+
+    const notFoundErrorLogged = (consoleErrorSpy) => consoleErrorSpy.mock.calls
+      .some((args) => args.some((arg) => String(arg?.name ?? arg).includes('NotFoundError')));
+
+    let consoleErrorSpy;
+
+    beforeEach(() => {
+      consoleErrorSpy = jest.spyOn(console, 'error');
+    });
+
+    test('mounts the icon after the fetch resolves when the sibling text node was translated', async () => {
+      const fetch = deferred();
+      axiosSpy.mockReturnValue(fetch.promise);
+
+      const { container, getByTestId } = renderWithStore(<span data-testid="item">
+        <SvgIcon type="events" iconId="fire_rep" />
+        {'text'}
+      </span>);
+      translateTextNodes(getByTestId('item'));
+
+      await act(async () => {
+        fetch.resolve(mockAxiosResponse('image/svg+xml', '<svg><path d="M0 0"/></svg>'));
+      });
+
+      await waitFor(() => {
+        expect(container.querySelector('svg')).toBeInTheDocument();
+      });
+      expect(container).not.toBeEmptyDOMElement();
+      expect(notFoundErrorLogged(consoleErrorSpy)).toBe(false);
+    });
+
+    test('mounts the new icon when the iconId changes after the sibling text node was translated', async () => {
+      const firstFetch = deferred();
+      const secondFetch = deferred();
+      axiosSpy.mockImplementation((url) => (url.includes('first_rep') ? firstFetch.promise : secondFetch.promise));
+
+      const ui = (iconId) => <Provider store={store}>
+        <span data-testid="item">
+          <SvgIcon type="events" iconId={iconId} />
+          {'text'}
+        </span>
+      </Provider>;
+
+      const { container, getByTestId, rerender } = render(ui('first_rep'));
+      await act(async () => {
+        firstFetch.resolve(mockAxiosResponse('image/svg+xml', '<svg><path d="first"/></svg>'));
+      });
+      await waitFor(() => {
+        expect(container.querySelector('path')).toHaveAttribute('d', 'first');
+      });
+
+      translateTextNodes(getByTestId('item'));
+      rerender(ui('second_rep'));
+
+      await act(async () => {
+        secondFetch.resolve(mockAxiosResponse('image/svg+xml', '<svg><path d="second"/></svg>'));
+      });
+
+      await waitFor(() => {
+        expect(container.querySelector('path')).toHaveAttribute('d', 'second');
+      });
+      expect(container).not.toBeEmptyDOMElement();
+      expect(notFoundErrorLogged(consoleErrorSpy)).toBe(false);
     });
   });
 
