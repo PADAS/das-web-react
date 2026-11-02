@@ -20,6 +20,7 @@ import { EXTERNAL_SAME_DOMAIN_ROUTES, REACT_APP_GA4_TRACKING_ID, REACT_APP_ROUTE
 import { fetchSystemStatus } from './ducks/system-status';
 import { isSystemConfigLoaded } from './utils/auth';
 import registerServiceWorker from './registerServiceWorker';
+import { registerStaleBuildRecovery } from './utils/stale-build';
 import { setClientReleaseIdentifier } from './utils/analytics';
 import store from './store';
 import withTracker from './WithTracker';
@@ -33,6 +34,7 @@ import NavigationContextProvider from './NavigationContextProvider';
 import RequestConfigManager from './RequestConfigManager';
 import RequireAccessToken from './RequireAccessToken';
 import RequireEulaConfirmation from './RequireEulaConfirmation';
+import RootErrorBoundary from './RootErrorBoundary';
 import useWebVitals from './hooks/useWebVitals';
 
 const App = lazy(() => import('./App'));
@@ -51,6 +53,8 @@ ReactGA4.initialize(REACT_APP_GA4_TRACKING_ID, {
 });
 
 setClientReleaseIdentifier();
+
+registerStaleBuildRecovery();
 
 const PathNormalizationRouteComponent = () => {
   const location = useLocation();
@@ -95,7 +99,7 @@ const RootApp = () => {
     return <LoadingOverlay />;
   }
 
-  return <>
+  return <RootErrorBoundary>
     <RequestConfigManager />
     <Auth0TokenManager />
 
@@ -127,7 +131,7 @@ const RootApp = () => {
         <Route path="*" element={<PathNormalizationRouteComponent />} />
       </Routes>
     </Suspense>
-  </>;
+  </RootErrorBoundary>;
 };
 
 const root = createRoot(document.getElementById('root'));

@@ -1,0 +1,43 @@
+@use '../common/styles/buttons';
+@use '../common/styles/vars/colors';
+
+.fallback {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  justify-content: safe center;
+  padding: 3rem 1rem;
+  width: 100vw;
+
+  .logo {
+    margin-bottom: 3.5rem;
+    max-width: 20rem;
+    width: 100%;
+  }
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    max-width: 20rem;
+    text-align: center;
+    width: 100%;
+
+    .title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .message {
+      color: colors.$secondary-medium-gray;
+      margin-bottom: 1.5rem;
+    }
+
+    .reloadButton {
+      @include buttons.primary-action-button;
+
+      font-size: 1rem;
+    }
+  }
+}

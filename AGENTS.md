@@ -504,6 +504,7 @@ Function parameters follow the call's own logic, not the alphabet.
 ### Component Structure
 
 - Functional components with hooks. No PropTypes.
+- For basic elements, such as buttons or inputs, prefer styled native HTML over `react-bootstrap`.
 - Props destructured in the signature with defaults inline. `ref` is a plain prop. A component that wraps a DOM element collects the rest into `...otherProps` and spreads it last onto the root element.
 - Body order, groups separated by a blank line: library hooks (`useDispatch`, `useTranslation`, router hooks), app hooks, `useSelector` calls, `useContext`, `useRef`, `useId`, `useState`, derived variables, `useMemo`, handlers, `useEffect`, then the returned JSX.
 - Memoize only when it pays: for a dependency array, for a genuinely expensive computation, or for the props of a `memo` boundary you checked actually bails. Never to spare a field or two a re-render. In practice that makes the presentational children of a stateful container good `memo` candidates, and the container itself a poor one.
