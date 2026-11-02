@@ -36,6 +36,12 @@ import {
   updatePatrol,
 } from './';
 
+const FEED_EXCLUDED_DETAILS_SEARCH_PARAMS = {
+  include_files: 'false',
+  include_notes: 'false',
+  include_segment_events: 'false',
+  include_updates: 'false',
+};
 const PATROL_A_ID = 'aaaaaaaa-0000-0000-0000-000000000001';
 const PATROL_B_ID = 'bbbbbbbb-0000-0000-0000-000000000002';
 
@@ -155,24 +161,19 @@ describe('Ducks - Patrols', () => {
       expect((await fetchFeedSearchParams()).get('include_pauses')).toBe('true');
     });
 
-    test('leaves out the history, notes and files the feed does not render', async () => {
-      const searchParams = await fetchFeedSearchParams();
+    test('asks for whole patrols while patrol schemas are off', async () => {
+      const searchParams = Object.fromEntries(await fetchFeedSearchParams());
 
-      expect(searchParams.get('include_files')).toBe('false');
-      expect(searchParams.get('include_notes')).toBe('false');
-      expect(searchParams.get('include_updates')).toBe('false');
+      Object.keys(FEED_EXCLUDED_DETAILS_SEARCH_PARAMS)
+        .forEach((searchParam) => expect(searchParams).not.toHaveProperty(searchParam));
     });
 
-    test('asks for the leg events the legacy feed frames a patrol by while patrol schemas are off', async () => {
-      expect((await fetchFeedSearchParams()).get('include_segment_events')).toBe('true');
-    });
-
-    test('leaves out the leg events while patrol schemas are on', async () => {
+    test('leaves out the history, notes, files and leg events while patrol schemas are on', async () => {
       const searchParams = await fetchFeedSearchParams({
         systemConfig: { previewFeatures: { [PREVIEW_FEATURES.PATROL_SCHEMAS]: true } },
       });
 
-      expect(searchParams.get('include_segment_events')).toBe('false');
+      expect(Object.fromEntries(searchParams)).toMatchObject(FEED_EXCLUDED_DETAILS_SEARCH_PARAMS);
     });
 
     test('does not report a cancelled request as a failure', async () => {
