@@ -1,4 +1,4 @@
-@use '../../../_shared' as shared;
+@use '../../../shared';
 
 .desktopActions {
   @include shared.header-desktop-actions;

@@ -2,7 +2,7 @@
 @use '../../../../common/styles/inputs';
 @use '../../../../common/styles/layout';
 @use '../../../../common/styles/vars/colors';
-@use '../../_shared' as shared;
+@use '../../shared';
 
 .summaryStats {
   display: grid;

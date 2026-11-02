@@ -379,7 +379,7 @@ The map fills the screen, framed by a top bar, a sidebar and a global menu. On s
 
 ### Technical Stack
 
-- **Runtime and tooling:** Node 24, Yarn 4, Vite 8, ESLint, Stylelint
+- **Runtime and tooling:** Node 26, Yarn 4, Vite 8, ESLint, Stylelint
 - **UI:** React 19; `react-bootstrap` (Bootstrap 5); Sass modules
 - **Routing:** React Router 8 declarative mode, with `BrowserRouter`
 - **State:** Redux 5 + `redux-thunk`, `redux-promise`, `reselect`; persistence via `redux-persist`
