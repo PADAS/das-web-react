@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { mockStore } from '../__test-helpers/MockStore';
 import { render, screen } from '../test-utils';
 
-import useFeedTableView, { useRestoreFeedTableView } from './useFeedTableView';
+import useFeedTableView, { resetFeedTableViewChoices, useRestoreFeedTableView } from './useFeedTableView';
 
 const Harness = () => {
   const { pathname, search } = useLocation();
@@ -29,24 +29,24 @@ const renderAt = (url) => render(<Provider store={mockStore({ view: {} })}><Harn
   initialEntries: [url],
 });
 
-const savedChoice = (tab) => JSON.parse(window.localStorage.getItem(`feedTableView.${tab}`));
-const saveChoice = (tab, isTableView) => window.localStorage.setItem(`feedTableView.${tab}`, JSON.stringify(isTableView));
-
 describe('useFeedTableView', () => {
   beforeEach(() => {
-    window.localStorage.clear();
+    resetFeedTableViewChoices();
   });
 
-  test('restores the saved table view on a refresh', () => {
-    saveChoice('events', true);
+  test('starts on the feed after a refresh, even from a table URL', () => {
+    renderAt('/events?view=table');
 
-    renderAt('/events');
-
-    expect(screen.getByTestId('location')).toHaveTextContent('/events?view=table');
-    expect(screen.getByTestId('view')).toHaveTextContent('table');
+    expect(screen.getByTestId('location')).toHaveTextContent(/^\/events$/);
+    expect(screen.getByTestId('view')).toHaveTextContent('feed');
   });
 
-  test('stays on the feed without a saved choice', () => {
+  test('forgets the table view when the page is reloaded', async () => {
+    const { unmount } = renderAt('/events');
+    await userEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+    unmount();
+
+    resetFeedTableViewChoices();
     renderAt('/events');
 
     expect(screen.getByTestId('location')).toHaveTextContent(/^\/events$/);
@@ -71,14 +71,14 @@ describe('useFeedTableView', () => {
   });
 
   test('keeps the feed once toggled back to it', async () => {
-    saveChoice('events', true);
     renderAt('/events');
 
     await userEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Toggle' }));
 
     expect(screen.getByTestId('location')).toHaveTextContent(/^\/events$/);
-    expect(savedChoice('events')).toBe(false);
 
+    await userEvent.click(screen.getByRole('button', { name: 'Open item' }));
     await userEvent.click(screen.getByRole('link', { name: 'Events tab' }));
 
     expect(screen.getByTestId('location')).toHaveTextContent(/^\/events$/);
@@ -91,43 +91,29 @@ describe('useFeedTableView', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Back' }));
 
     expect(screen.getByTestId('location')).toHaveTextContent(/^\/events$/);
-    expect(savedChoice('events')).toBe(false);
-  });
 
-  test('takes the view from the URL over the saved choice, and saves it', () => {
-    saveChoice('events', false);
+    await userEvent.click(screen.getByRole('button', { name: 'Open item' }));
+    await userEvent.click(screen.getByRole('link', { name: 'Events tab' }));
 
-    renderAt('/events?view=table');
-
-    expect(screen.getByTestId('view')).toHaveTextContent('table');
-    expect(savedChoice('events')).toBe(true);
+    expect(screen.getByTestId('location')).toHaveTextContent(/^\/events$/);
   });
 
   test('keeps the events and patrols choices apart', async () => {
-    saveChoice('events', true);
-    renderAt('/patrols');
+    renderAt('/events');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+    await userEvent.click(screen.getByRole('link', { name: 'Patrols tab' }));
 
     expect(screen.getByTestId('location')).toHaveTextContent(/^\/patrols$/);
 
     await userEvent.click(screen.getByRole('link', { name: 'Events tab' }));
 
     expect(screen.getByTestId('location')).toHaveTextContent('/events?view=table');
-    expect(savedChoice('patrols')).toBeNull();
   });
 
   test('leaves item routes alone', () => {
-    saveChoice('events', true);
+    renderAt('/events/event-1?view=table');
 
-    renderAt('/events/event-1');
-
-    expect(screen.getByTestId('location')).toHaveTextContent(/^\/events\/event-1$/);
-  });
-
-  test('treats unreadable storage as no saved choice', () => {
-    window.localStorage.setItem('feedTableView.events', '{not json');
-
-    renderAt('/events');
-
-    expect(screen.getByTestId('location')).toHaveTextContent(/^\/events$/);
+    expect(screen.getByTestId('location')).toHaveTextContent('/events/event-1?view=table');
   });
 });
