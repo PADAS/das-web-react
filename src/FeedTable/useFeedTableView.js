@@ -69,11 +69,10 @@ const useFeedTableView = () => {
   return { isTableView, toggleTableView };
 };
 
-// A page load (a refresh, a new tab) always starts on the feed, even from a URL
-// that asks for the table. After that, a URL that says which view wins and is
-// remembered, and a list URL that doesn't say (a tab link, the way back from an
-// item) gets the remembered view. Back and Forward to such a URL show it as it
-// was, so Back can still undo an expand.
+// A URL that says which view wins and is remembered, so a shared table link
+// opens the table. A list URL that doesn't say (a tab link, the way back from an
+// item) gets the view remembered since the page loaded. Back and Forward to
+// such a URL show it as it was, so Back can still undo an expand.
 export const useRestoreFeedTableView = () => {
   const { pathname, search } = useLocation();
   const navigationType = useNavigationType();
@@ -86,13 +85,9 @@ export const useRestoreFeedTableView = () => {
     const feedTab = feedTabForPathname(pathname);
     if (!feedTab) return;
 
-    if (isFirstLocation) {
-      if (new URLSearchParams(search).has(VIEW_SEARCH_PARAM)) {
-        routerNavigate(`${pathname}${searchWithView(search, false)}`, { replace: true });
-      }
-    } else if (new URLSearchParams(search).has(VIEW_SEARCH_PARAM)) {
+    if (new URLSearchParams(search).has(VIEW_SEARCH_PARAM)) {
       writeTableViewChoice(feedTab, isTableViewSearch(search));
-    } else if (navigationType === 'POP') {
+    } else if (navigationType === 'POP' && !isFirstLocation) {
       writeTableViewChoice(feedTab, false);
     } else if (readTableViewChoice(feedTab)) {
       routerNavigate(`${pathname}${searchWithView(search, true)}`, { replace: true });

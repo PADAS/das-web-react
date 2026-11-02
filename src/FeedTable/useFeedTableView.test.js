@@ -34,11 +34,15 @@ describe('useFeedTableView', () => {
     resetFeedTableViewChoices();
   });
 
-  test('starts on the feed after a refresh, even from a table URL', () => {
+  test('opens the table from a shared table link, and remembers it', async () => {
     renderAt('/events?view=table');
 
-    expect(screen.getByTestId('location')).toHaveTextContent(/^\/events$/);
-    expect(screen.getByTestId('view')).toHaveTextContent('feed');
+    expect(screen.getByTestId('view')).toHaveTextContent('table');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Open item' }));
+    await userEvent.click(screen.getByRole('link', { name: 'Events tab' }));
+
+    expect(screen.getByTestId('location')).toHaveTextContent('/events?view=table');
   });
 
   test('forgets the table view when the page is reloaded', async () => {
