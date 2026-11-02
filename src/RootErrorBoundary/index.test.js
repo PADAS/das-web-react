@@ -41,6 +41,16 @@ describe('RootErrorBoundary', () => {
     expect(screen.getByText('EarthRanger ran into an unexpected problem. Reload the page to continue.')).toBeVisible();
   });
 
+  test('moves the focus to the reload button, described by the error, when a child crashes', () => {
+    renderRootErrorBoundary(<CrashingChild />);
+
+    const reloadButton = screen.getByRole('button', { name: 'Reload' });
+    expect(reloadButton).toHaveFocus();
+    expect(reloadButton).toHaveAccessibleDescription(
+      'Something went wrong EarthRanger ran into an unexpected problem. Reload the page to continue.'
+    );
+  });
+
   test('reloads the page when the user clicks the reload button', async () => {
     renderRootErrorBoundary(<CrashingChild />);
 

@@ -1,27 +1,39 @@
+import { useId } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useTranslation } from 'react-i18next';
-
-import { ReactComponent as EarthRangerLogo } from '../common/images/earth-ranger-logo.svg';
 
 import getWindowLocation from '../utils/getWindowLocation';
 
 import * as styles from './styles.module.scss';
 
-const RootErrorFallback = () => {
+export const RootErrorFallback = () => {
   const { t } = useTranslation('components', { keyPrefix: 'rootErrorBoundary' });
 
+  const messageId = useId();
+  const titleId = useId();
+
+  // The defaults cover a crash that happens before the translations load.
   return <main className={styles.fallback}>
-    <EarthRangerLogo aria-hidden className={styles.logo} />
+    <h1 className={styles.title} id={titleId}>
+      {t('errorTitle', { defaultValue: 'Something went wrong' })}
+    </h1>
 
-    <div className={styles.content}>
-      <h1 className={styles.title}>{t('errorTitle')}</h1>
+    <p className={styles.message} id={messageId}>
+      {t('reloadMessage', {
+        defaultValue: 'EarthRanger ran into an unexpected problem. Reload the page to continue.',
+      })}
+    </p>
 
-      <p className={styles.message}>{t('reloadMessage')}</p>
-
-      <button className={styles.reloadButton} onClick={() => getWindowLocation().reload()} type="button">
-        {t('reloadButtonLabel')}
-      </button>
-    </div>
+    <button
+      aria-describedby={`${titleId} ${messageId}`}
+      // The crash drops focus, so the button takes it and announces the page.
+      autoFocus
+      className={styles.reloadButton}
+      onClick={() => getWindowLocation().reload()}
+      type="button"
+    >
+      {t('reloadButtonLabel', { defaultValue: 'Reload' })}
+    </button>
   </main>;
 };
 

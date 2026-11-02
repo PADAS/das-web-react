@@ -2,42 +2,29 @@
 @use '../common/styles/vars/colors';
 
 .fallback {
-  align-items: center;
   display: flex;
   flex-direction: column;
   height: 100dvh;
   justify-content: safe center;
-  padding: 3rem 1rem;
+  overflow-y: auto;
+  padding: 3rem max(1rem, calc(50% - 10rem));
+  text-align: center;
   width: 100vw;
 
-  .logo {
-    margin-bottom: 3.5rem;
-    max-width: 20rem;
-    width: 100%;
+  .title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
   }
 
-  .content {
-    display: flex;
-    flex-direction: column;
-    max-width: 20rem;
-    text-align: center;
-    width: 100%;
+  .message {
+    color: colors.$secondary-medium-gray;
+    margin-bottom: 1.5rem;
+  }
 
-    .title {
-      font-size: 1.25rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
+  .reloadButton {
+    @include buttons.primary-action-button;
 
-    .message {
-      color: colors.$secondary-medium-gray;
-      margin-bottom: 1.5rem;
-    }
-
-    .reloadButton {
-      @include buttons.primary-action-button;
-
-      font-size: 1rem;
-    }
+    font-size: 1rem;
   }
 }

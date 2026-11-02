@@ -1,7 +1,7 @@
 import { CLIENT_BUILD_VERSION } from '../constants';
 import getWindowLocation from './getWindowLocation';
 
-import { registerStaleBuildRecovery, RELOADED_BUILD_STORAGE_KEY, reloadOnceOnPreloadError } from './stale-build';
+import { registerStaleBuildRecovery, RELOADED_BUILDS_STORAGE_KEY, reloadOnceOnPreloadError } from './stale-build';
 
 jest.mock('./getWindowLocation', () => jest.fn());
 
@@ -24,15 +24,28 @@ describe('utils - stale-build', () => {
       reloadOnceOnPreloadError();
 
       expect(reload).toHaveBeenCalledTimes(1);
-      expect(window.sessionStorage.getItem(RELOADED_BUILD_STORAGE_KEY)).toBe(CLIENT_BUILD_VERSION);
+      expect(JSON.parse(window.sessionStorage.getItem(RELOADED_BUILDS_STORAGE_KEY))).toEqual([CLIENT_BUILD_VERSION]);
     });
 
-    test('reloads the page when only an earlier build has reloaded', () => {
-      window.sessionStorage.setItem(RELOADED_BUILD_STORAGE_KEY, 'release-2.150.1-1234');
+    test('reloads the page when only another build has reloaded', () => {
+      window.sessionStorage.setItem(RELOADED_BUILDS_STORAGE_KEY, JSON.stringify(['release-2.150.1-1234']));
 
       reloadOnceOnPreloadError();
 
       expect(reload).toHaveBeenCalledTimes(1);
+      expect(JSON.parse(window.sessionStorage.getItem(RELOADED_BUILDS_STORAGE_KEY)))
+        .toEqual(['release-2.150.1-1234', CLIENT_BUILD_VERSION]);
+    });
+
+    test('does not reload the page again for a build that reloaded before another one did', () => {
+      window.sessionStorage.setItem(
+        RELOADED_BUILDS_STORAGE_KEY,
+        JSON.stringify([CLIENT_BUILD_VERSION, 'release-2.150.1-1234'])
+      );
+
+      reloadOnceOnPreloadError();
+
+      expect(reload).not.toHaveBeenCalled();
     });
 
     test('does not reload the page a second time for the same build', () => {

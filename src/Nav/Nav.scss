@@ -54,8 +54,8 @@
       overflow: hidden;
 
       .logo {
-        max-width: 8rem;
         max-height: 2rem;
+        max-width: 12.25rem;
       }
 
       @media (min-width: layout.$md-layout-width-min) {

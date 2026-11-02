@@ -34,7 +34,7 @@ import NavigationContextProvider from './NavigationContextProvider';
 import RequestConfigManager from './RequestConfigManager';
 import RequireAccessToken from './RequireAccessToken';
 import RequireEulaConfirmation from './RequireEulaConfirmation';
-import RootErrorBoundary from './RootErrorBoundary';
+import RootErrorBoundary, { RootErrorFallback } from './RootErrorBoundary';
 import useWebVitals from './hooks/useWebVitals';
 
 const App = lazy(() => import('./App'));
@@ -94,12 +94,12 @@ const RootApp = () => {
   // Block until system config is loaded from the server
   if (!isSystemConfigLoaded(systemConfig)) {
     if (configError) {
-      return <div>Failed to load system configuration. Please refresh.</div>;
+      return <RootErrorFallback />;
     }
     return <LoadingOverlay />;
   }
 
-  return <RootErrorBoundary>
+  return <>
     <RequestConfigManager />
     <Auth0TokenManager />
 
@@ -131,37 +131,39 @@ const RootApp = () => {
         <Route path="*" element={<PathNormalizationRouteComponent />} />
       </Routes>
     </Suspense>
-  </RootErrorBoundary>;
+  </>;
 };
 
 const root = createRoot(document.getElementById('root'));
 root.render(
-  <Provider store={store}>
-    <PersistGate loading={null} persistor={persistStore(store)} >
-      <Auth0Provider
-        domain={appConfig.auth0.domain}
-        clientId={appConfig.auth0.clientId}
-        authorizationParams={{
-          audience: appConfig.auth0.audience,
-          redirect_uri: `${window.location.origin}${REACT_APP_ROUTE_PREFIX}`,
-        }}
-        cacheLocation="localstorage"
-        useRefreshTokens={true}
-      >
-        <BrowserRouter basename={REACT_APP_ROUTE_PREFIX}>
-          <NavigationContextProvider>
-            <RootApp />
-          </NavigationContextProvider>
-        </BrowserRouter>
-      </Auth0Provider>
+  <RootErrorBoundary>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistStore(store)} >
+        <Auth0Provider
+          domain={appConfig.auth0.domain}
+          clientId={appConfig.auth0.clientId}
+          authorizationParams={{
+            audience: appConfig.auth0.audience,
+            redirect_uri: `${window.location.origin}${REACT_APP_ROUTE_PREFIX}`,
+          }}
+          cacheLocation="localstorage"
+          useRefreshTokens={true}
+        >
+          <BrowserRouter basename={REACT_APP_ROUTE_PREFIX}>
+            <NavigationContextProvider>
+              <RootApp />
+            </NavigationContextProvider>
+          </BrowserRouter>
+        </Auth0Provider>
 
-      <DetectOffline />
-    </PersistGate>
+        <DetectOffline />
+      </PersistGate>
 
-    <GeoLocationWatcher />
+      <GeoLocationWatcher />
 
-    <JiraSupportWidget />
-  </Provider>
+      <JiraSupportWidget />
+    </Provider>
+  </RootErrorBoundary>
 );
 
 registerServiceWorker();
