@@ -244,14 +244,14 @@
       "featuresTabTitle": "Funcionalidades",
       "subjectsTabTitle": "Sujetos"
     },
-    "otusLink": "Otus",
+    "otusLink": "Atlas",
     "otusTab": {
       "header": {
         "betaBadgeLabel": "Beta",
         "closeButtonLabel": "Cerrar Otus",
         "newConversationButtonLabel": "Nueva conversación",
         "recentButtonLabel": "Recientes",
-        "title": "Otus"
+        "title": "Atlas"
       },
       "iframeTitle": "Chat de Otus",
       "loadErrorMessage": "Otus no pudo cargarse en este sitio. Vuelva a intentarlo o contacte con soporte si el problema continúa.",

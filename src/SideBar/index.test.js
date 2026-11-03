@@ -326,13 +326,13 @@ describe('SideBar', () => {
 
     renderSideBar();
 
-    expect(screen.getByRole('link', { name: 'Otus' })).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Atlas' })).toBeVisible();
   });
 
   test('does not show the Otus tab when there is no Otus URL in the store', async () => {
     renderSideBar();
 
-    expect(screen.queryByRole('link', { name: 'Otus' })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Atlas' })).toBeNull();
   });
 
   test('sets the Otus tab as active', async () => {
@@ -343,7 +343,7 @@ describe('SideBar', () => {
     renderSideBar();
 
     expect(screen.getByRole('link', { name: 'Events' })).not.toHaveClass('active');
-    expect(screen.getByRole('link', { name: 'Otus' })).toHaveClass('active');
+    expect(screen.getByRole('link', { name: 'Atlas' })).toHaveClass('active');
     expect(screen.getByRole('link', { name: 'Settings' })).not.toHaveClass('active');
   });
 
@@ -356,7 +356,7 @@ describe('SideBar', () => {
 
     const otusFrame = screen.getByTitle('Otus chat');
 
-    expect(screen.getByRole('region', { name: 'Otus' })).toHaveClass('active');
+    expect(screen.getByRole('region', { name: 'Atlas' })).toHaveClass('active');
 
     useLocationMock = jest.fn((() => ({ pathname: '/events' })));
     useLocation.mockImplementation(useLocationMock);
@@ -365,7 +365,7 @@ describe('SideBar', () => {
 
     expect(screen.getByTitle('Otus chat')).toBe(otusFrame);
     expect(otusFrame).toBeInTheDocument();
-    expect(screen.getByRole('region', { name: 'Otus' })).not.toHaveClass('active');
+    expect(screen.getByRole('region', { name: 'Atlas' })).not.toHaveClass('active');
   });
 
   test('navigates home when the user clicks the active Otus tab link', async () => {
@@ -375,7 +375,7 @@ describe('SideBar', () => {
 
     renderSideBar();
 
-    await userEvent.click(screen.getByRole('link', { name: 'Otus' }));
+    await userEvent.click(screen.getByRole('link', { name: 'Atlas' }));
 
     expect(navigate).toHaveBeenCalledTimes(1);
     expect(navigate).toHaveBeenCalledWith('/');
@@ -390,7 +390,7 @@ describe('SideBar', () => {
     renderSideBar();
 
     await user.keyboard('{Meta>}');
-    await user.click(screen.getByRole('link', { name: 'Otus' }));
+    await user.click(screen.getByRole('link', { name: 'Atlas' }));
     await user.keyboard('{/Meta}');
 
     expect(navigate).not.toHaveBeenCalledWith('/');
@@ -601,7 +601,7 @@ describe('SideBar', () => {
     useLocation.mockImplementation(useLocationMock);
     renderSideBar();
 
-    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Otus');
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Atlas');
   });
 
   test('sets the tab title for the Settings tab', async () => {

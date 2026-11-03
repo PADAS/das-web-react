@@ -1,13 +1,13 @@
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { ReactComponent as BulletListIcon } from '../../../common/images/icons/bullet-list.svg';
 import { ReactComponent as CrossIcon } from '../../../common/images/icons/cross.svg';
-import { ReactComponent as PlusIcon } from '../../../common/images/icons/plus.svg';
+import { ReactComponent as ManageSearchIcon } from '../../../common/images/icons/manage-search.svg';
+import { ReactComponent as PlusCircleIcon } from '../../../common/images/icons/plus-circle.svg';
 
 import * as styles from './styles.module.scss';
 
-const Header = ({ onClose, onNewConversation, onToggleRecent, titleId }) => {
+const Header = ({ isRecentOpen = false, onClose, onNewConversation, onToggleRecent, titleId }) => {
   const { t } = useTranslation('components', { keyPrefix: 'sideBar.otusTab.header' });
 
   return <header className={styles.header}>
@@ -18,7 +18,7 @@ const Header = ({ onClose, onNewConversation, onToggleRecent, titleId }) => {
       title={t('newConversationButtonLabel')}
       type="button"
     >
-      <PlusIcon aria-hidden="true" className={styles.newConversationButtonIcon} />
+      <PlusCircleIcon aria-hidden="true" className={styles.newConversationButtonIcon} />
     </button>
 
     <div className={styles.titleGroup}>
@@ -29,12 +29,13 @@ const Header = ({ onClose, onNewConversation, onToggleRecent, titleId }) => {
 
     <div className={styles.actions}>
       <button
+        aria-pressed={isRecentOpen}
         className={styles.recentButton}
         onClick={onToggleRecent}
         title={t('recentButtonLabel')}
         type="button"
       >
-        <BulletListIcon aria-hidden="true" className={styles.recentButtonIcon} />
+        <ManageSearchIcon aria-hidden="true" className={styles.recentButtonIcon} />
 
         {t('recentButtonLabel')}
       </button>

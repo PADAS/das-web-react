@@ -53,7 +53,7 @@ describe('SideBar - OtusTab', () => {
 
   const getFrame = () => screen.getByTitle('Otus chat');
 
-  const getPanel = () => screen.getByRole('region', { name: 'Otus' });
+  const getPanel = () => screen.getByRole('region', { name: 'Atlas' });
 
   const getResizeHandle = () => screen.getByRole('separator', { name: 'Resize Otus panel' });
 
@@ -66,6 +66,13 @@ describe('SideBar - OtusTab', () => {
 
   const dispatchReadyMessage = (overrides = {}) => act(() => window.dispatchEvent(new MessageEvent('message', {
     data: { type: 'otus:ready' },
+    origin: OTUS_URL,
+    source: getFrame().contentWindow,
+    ...overrides,
+  })));
+
+  const dispatchThreadsMessage = (data, overrides = {}) => act(() => window.dispatchEvent(new MessageEvent('message', {
+    data: { type: 'otus:threads', ...data },
     origin: OTUS_URL,
     source: getFrame().contentWindow,
     ...overrides,
@@ -159,7 +166,7 @@ describe('SideBar - OtusTab', () => {
   test('shows the header before the frame has been loaded', () => {
     renderOtusTab({ isActive: false });
 
-    expect(screen.getByRole('heading', { name: 'Otus' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Atlas' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Close Otus' })).toBeVisible();
   });
 
@@ -190,6 +197,31 @@ describe('SideBar - OtusTab', () => {
 
     expect(postMessage).toHaveBeenCalledTimes(1);
     expect(postMessage).toHaveBeenCalledWith({ command: 'toggle-threads', type: 'otus:command' }, OTUS_URL);
+  });
+
+  test('shows the recent button as pressed once the frame reports the recent conversations are open', () => {
+    renderOtusTab();
+
+    dispatchThreadsMessage({ open: true });
+
+    expect(screen.getByRole('button', { name: 'Recent' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  test('shows the recent button as not pressed once the frame reports the recent conversations are closed', () => {
+    renderOtusTab();
+    dispatchThreadsMessage({ open: true });
+
+    dispatchThreadsMessage({ open: false });
+
+    expect(screen.getByRole('button', { name: 'Recent' })).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  test('ignores a recent conversations message that does not come from the frame origin', () => {
+    renderOtusTab();
+
+    dispatchThreadsMessage({ open: true }, { origin: 'https://evil.example.com' });
+
+    expect(screen.getByRole('button', { name: 'Recent' })).toHaveAttribute('aria-pressed', 'false');
   });
 
   test('posts the site and token to the frame when it announces it is ready', () => {

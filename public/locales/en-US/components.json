@@ -249,14 +249,14 @@
       "featuresTabTitle": "Features",
       "subjectsTabTitle": "Subjects"
     },
-    "otusLink": "Otus",
+    "otusLink": "Atlas",
     "otusTab": {
       "header": {
         "betaBadgeLabel": "Beta",
         "closeButtonLabel": "Close Otus",
         "newConversationButtonLabel": "New conversation",
         "recentButtonLabel": "Recent",
-        "title": "Otus"
+        "title": "Atlas"
       },
       "iframeTitle": "Otus chat",
       "loadErrorMessage": "Otus couldn't load on this site. Try again, or contact support if this keeps happening.",

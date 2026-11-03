@@ -249,14 +249,14 @@
       "featuresTabTitle": "Vipengele",
       "subjectsTabTitle": "Masomo"
     },
-    "otusLink": "Otus",
+    "otusLink": "Atlas",
     "otusTab": {
       "header": {
         "betaBadgeLabel": "Beta",
         "closeButtonLabel": "Funga Otus",
         "newConversationButtonLabel": "Mazungumzo mapya",
         "recentButtonLabel": "Za hivi karibuni",
-        "title": "Otus"
+        "title": "Atlas"
       },
       "iframeTitle": "Gumzo na Otus",
       "loadErrorMessage": "Otus haikuweza kupakia kwenye tovuti hii. Jaribu tena, au wasiliana na Msaada tatizo likiendelea.",
