@@ -226,14 +226,37 @@ jobs:
     secrets:
       ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
 
-  # Legacy kubectl deployments.
+  # Legacy kubectl deployments, chained the way das chains them.
   # Constant infra (project_id, bastion_host/instance/zone) is defaulted in the
   # reusable workflow. Deployment set lives in the LEGACY_DEPLOYMENTS repo var.
-  deploy-dev-legacy:
-    needs: [config, build, sync-stage]
+  #
+  # The reusable workflows are local copies, not the serca-pipelines ones: this
+  # repo is public and cannot call an internal one (see _slack-notify-failure.yml).
+  #
+  # deploy-legacy-stage is a canary on the `stage` site that runs beside the MT
+  # pipeline and gates the dev batch, so it has no environment: an approval
+  # would put the wave back behind a human. `develop` and `stage` are kept out
+  # of LEGACY_TENANTS_DEV, since each has a job of its own and would roll twice.
+  deploy-legacy-stage:
+    name: "deploy-legacy-stage (das-dev / stage site)"
+    needs: [config, build, test]
     uses: ./.github/workflows/_deploy_legacy_kubectl.yml
     with:
-      environment: "legacy"
+      environment: ""
+      image_repository: "europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react"
+      image_tag: ${{ needs.config.outputs.image-tag }}
+      deployments: ${{ vars.LEGACY_DEPLOYMENTS }}
+      cluster_name: "das-dev"
+      cluster_zone: "us-west1-a"
+      tenants: "stage"
+      service_account: ${{ vars.LEGACY_DEPLOY_SERVICE_ACCOUNT }}
+
+  deploy-legacy-dev-batch:
+    name: "deploy-legacy-dev-batch (das-dev / LEGACY_TENANTS_DEV)"
+    needs: [config, sync-stage, deploy-legacy-stage]
+    uses: ./.github/workflows/_deploy_legacy_kubectl.yml
+    with:
+      environment: "legacy-dev"
       image_repository: "europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react"
       image_tag: ${{ needs.config.outputs.image-tag }}
       deployments: ${{ vars.LEGACY_DEPLOYMENTS }}
@@ -244,13 +267,15 @@ jobs:
 
   # Split the single LEGACY_TENANTS_PROD list into parallel chunks.
   legacy-prod-split:
-    needs: [config, deploy-dev-legacy]
+    needs: [config, deploy-legacy-dev-batch]
     uses: ./.github/workflows/_split-list.yml
     with:
       list: ${{ vars.LEGACY_TENANTS_PROD }}
       groups: 3
 
-  deploy-prod-legacy:
+  # No `name:` here on purpose: GitHub appends the matrix value to the job name
+  # only when the name is implicit, so a red chunk says which one it was.
+  deploy-legacy-prod-batch:
     needs: [config, legacy-prod-split]
     strategy:
       max-parallel: 3
@@ -259,7 +284,7 @@ jobs:
         chunk: ${{ fromJson(needs.legacy-prod-split.outputs.chunks) }}
     uses: ./.github/workflows/_deploy_legacy_kubectl.yml
     with:
-      environment: "legacy"
+      environment: "legacy-prod"
       image_repository: "europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react"
       image_tag: ${{ needs.config.outputs.image-tag }}
       deployments: ${{ vars.LEGACY_DEPLOYMENTS }}
