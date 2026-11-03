@@ -337,7 +337,7 @@ describe('SideBar', () => {
 
   test('sets the Otus tab as active', async () => {
     store.view.systemConfig.otusUrl = 'https://otus.example.com';
-    useLocationMock = jest.fn((() => ({ pathname: '/otus' })));
+    useLocationMock = jest.fn((() => ({ pathname: '/atlas' })));
     useLocation.mockImplementation(useLocationMock);
 
     renderSideBar();
@@ -349,7 +349,7 @@ describe('SideBar', () => {
 
   test('keeps the Otus frame mounted when navigating to another tab', async () => {
     store.view.systemConfig.otusUrl = 'https://otus.example.com';
-    useLocationMock = jest.fn((() => ({ pathname: '/otus' })));
+    useLocationMock = jest.fn((() => ({ pathname: '/atlas' })));
     useLocation.mockImplementation(useLocationMock);
 
     const { rerender } = renderSideBar();
@@ -370,7 +370,7 @@ describe('SideBar', () => {
 
   test('navigates home when the user clicks the active Otus tab link', async () => {
     store.view.systemConfig.otusUrl = 'https://otus.example.com';
-    useLocationMock = jest.fn((() => ({ pathname: '/otus' })));
+    useLocationMock = jest.fn((() => ({ pathname: '/atlas' })));
     useLocation.mockImplementation(useLocationMock);
 
     renderSideBar();
@@ -383,7 +383,7 @@ describe('SideBar', () => {
 
   test('leaves a modified click on the active Otus tab link to the browser', async () => {
     store.view.systemConfig.otusUrl = 'https://otus.example.com';
-    useLocationMock = jest.fn((() => ({ pathname: '/otus' })));
+    useLocationMock = jest.fn((() => ({ pathname: '/atlas' })));
     useLocation.mockImplementation(useLocationMock);
     const user = userEvent.setup();
 
@@ -597,7 +597,7 @@ describe('SideBar', () => {
 
   test('does not show the default header for the Otus tab', async () => {
     store.view.systemConfig.otusUrl = 'https://otus.example.com';
-    useLocationMock = jest.fn((() => ({ pathname: '/otus' })));
+    useLocationMock = jest.fn((() => ({ pathname: '/atlas' })));
     useLocation.mockImplementation(useLocationMock);
     renderSideBar();
 
@@ -671,7 +671,7 @@ describe('SideBar', () => {
 
   test('does not navigate to home when the current tab is otus and the tab is enabled', async () => {
     store.view.systemConfig.otusUrl = 'https://otus.example.com';
-    useLocationMock = jest.fn((() => ({ pathname: '/otus' })));
+    useLocationMock = jest.fn((() => ({ pathname: '/atlas' })));
     useLocation.mockImplementation(useLocationMock);
 
     renderSideBar();

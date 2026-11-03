@@ -72,7 +72,7 @@ export const TAB_KEYS = {
   EVENTS: 'events',
   GEAR: 'gear',
   LAYERS: 'layers',
-  OTUS: 'otus',
+  OTUS: 'atlas',
   PATROLS: 'patrols',
   SETTINGS: 'settings',
 };
