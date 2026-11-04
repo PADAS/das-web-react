@@ -101,6 +101,8 @@
       "rowSelectMessage": "Press Space to select this row",
       "uncheckedStateLabel": "not selected"
     },
+    "loadedPatrolsMessage_one": "Showing {{loaded}} of {{count}} patrol",
+    "loadedPatrolsMessage_other": "Showing {{loaded}} of {{count}} patrols",
     "moveColumnDownButtonLabel": "Move {{column}} down",
     "moveColumnUpButtonLabel": "Move {{column}} up",
     "objectView": {

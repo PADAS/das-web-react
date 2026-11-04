@@ -96,6 +96,8 @@
       "rowSelectMessage": "यो पङ्क्ति चयन गर्न space थिच्नुहोस्",
       "uncheckedStateLabel": "चयन नगरिएको"
     },
+    "loadedPatrolsMessage_one": "{{count}} गस्तीमध्ये {{loaded}} देखाइँदै",
+    "loadedPatrolsMessage_other": "{{count}} गस्तीहरूमध्ये {{loaded}} देखाइँदै",
     "moveColumnDownButtonLabel": "{{column}} तल सार्नुहोस्",
     "moveColumnUpButtonLabel": "{{column}} माथि सार्नुहोस्",
     "objectView": {

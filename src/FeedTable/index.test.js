@@ -32,15 +32,17 @@ describe('FeedTable', () => {
     document.body.appendChild(toolbarContainer);
   });
 
-  const feedTable = (columnDefs, layoutScope, rowData = ROWS) => <FeedTable
+  const feedTable = (columnDefs, layoutScope, rowData = ROWS, otherProps = {}) => <FeedTable
     ariaLabel="Test table"
     columnDefs={columnDefs}
     getRowId={(params) => params.data.id}
     layoutScope={layoutScope}
     onOpenRow={onOpenRow}
+    renderBulkActions={() => null}
     rowData={rowData}
     tableKey="test"
     toolbarContainer={toolbarContainer}
+    {...otherProps}
   />;
 
   const findGridApi = async () => {
@@ -48,8 +50,8 @@ describe('FeedTable', () => {
     gridApi = getGridApi(document.querySelector('[grid-id]').parentElement);
   };
 
-  const renderFeedTable = async (columnDefs = COLUMNS, layoutScope, rowData) => {
-    const result = render(feedTable(columnDefs, layoutScope, rowData));
+  const renderFeedTable = async (columnDefs = COLUMNS, layoutScope, rowData, otherProps) => {
+    const result = render(feedTable(columnDefs, layoutScope, rowData, otherProps));
     await findGridApi();
     return result;
   };
@@ -168,6 +170,19 @@ describe('FeedTable', () => {
 
     expect(await screen.findByRole('checkbox', { name: 'Select all rows' })).toBeInTheDocument();
     expect(await screen.findByRole('checkbox', { name: 'Select row (not selected)' })).toBeInTheDocument();
+  });
+
+  test('offers no row selection without bulk actions', async () => {
+    await renderFeedTable(COLUMNS, undefined, ROWS, { renderBulkActions: undefined });
+
+    await screen.findByText('A');
+    expect(screen.queryByRole('checkbox', { name: 'Select all rows' })).toBeNull();
+  });
+
+  test('shows a status message in the toolbar', async () => {
+    await renderFeedTable(COLUMNS, undefined, ROWS, { statusMessage: 'Showing 1 of 3' });
+
+    expect(screen.getByRole('status')).toHaveTextContent('Showing 1 of 3');
   });
 
   test('says when there are no rows in the app language', async () => {

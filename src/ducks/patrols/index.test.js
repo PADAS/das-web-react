@@ -626,6 +626,15 @@ describe('Ducks - Patrols', () => {
       })).toEqual({ count: 3, next: null, results: [PATROL_A_ID, PATROL_B_ID] });
     });
 
+    test('lists a patrol once when a page repeats one already in the feed', () => {
+      const firstPage = { count: 3, next: 'page-2', results: [PATROL_A_ID] };
+
+      expect(patrolsFeedReducer(firstPage, {
+        payload: { count: 3, next: null, results: [PATROL_A_ID, PATROL_B_ID] },
+        type: FETCH_PATROLS_FEED_NEXT_PAGE_SUCCESS,
+      }).results).toEqual([PATROL_A_ID, PATROL_B_ID]);
+    });
+
     test('takes the patrol out of the feed when it stops matching the filter', () => {
       expect(patrolsFeedReducer(loadedFeed, { type: REMOVE_PATROL_FROM_FEED, payload: PATROL_A_ID }))
         .toEqual({ count: 1, next: null, results: [PATROL_B_ID] });

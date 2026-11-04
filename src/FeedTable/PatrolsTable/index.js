@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { useDispatch, useSelector, useStore } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -9,6 +9,7 @@ import {
   displayNameForPatrolSegment,
   displayStartTimeForPatrol,
   getPatrolLocationCoordinates,
+  governingPatrolSegment,
 } from '../../utils/patrols';
 import { fetchNextPatrolsFeedPage } from '../../ducks/patrols';
 import { selectPatrolTrackData } from '../../selectors/patrols';
@@ -17,11 +18,6 @@ import useJumpToLocation from '../../hooks/useJumpToLocation';
 import useNavigate from '../../hooks/useNavigate';
 
 import FeedTable, { formatDateValue } from '..';
-
-// A safety cap, so a bad `next` link cannot loop forever.
-const MAX_PAGES = 1000;
-
-const lastSegment = (patrol) => patrol?.patrol_segments?.[patrol.patrol_segments.length - 1];
 
 const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
   const dispatch = useDispatch();
@@ -32,30 +28,10 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
   const { t: tPatrolState } = useTranslation('patrols', { keyPrefix: 'statusPill.uiStateTitles' });
   const { t: tSideBar } = useTranslation('components', { keyPrefix: 'sideBar' });
 
+  const patrolsFeed = useSelector((state) => state.data.patrolsFeed);
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
-  // The patrols API has no ordering of its own, so the table sorts on its own
-  // and needs every page for that sort to be true.
-  useEffect(() => {
-    if (loading) return undefined;
-
-    let cancelled = false;
-    const loadAllPages = async () => {
-      for (let pages = 0; !cancelled && pages < MAX_PAGES; pages += 1) {
-        const { next } = store.getState().data.patrolsFeed;
-        if (!next) return;
-
-        try {
-          await dispatch(fetchNextPatrolsFeedPage(next));
-        } catch {
-          return;
-        }
-      }
-    };
-    loadAllPages();
-
-    return () => { cancelled = true; };
-  }, [dispatch, loading, store]);
+  const loadingMoreRef = useRef(false);
 
   const columnDefs = useMemo(() => [
     { colId: 'serial_number', field: 'serial_number', headerName: t('columnSerial'), minWidth: 80, sortable: true, width: 100 },
@@ -73,7 +49,7 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
       minWidth: 140,
       sortable: true,
       valueGetter: (params) => {
-        const segment = lastSegment(params.data);
+        const segment = governingPatrolSegment(params.data);
         return segment ? displayNameForPatrolSegment(patrolTypes, segment) ?? '' : '';
       },
     },
@@ -89,7 +65,7 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
       headerName: t('columnLeader'),
       minWidth: 140,
       sortable: true,
-      valueGetter: (params) => lastSegment(params.data)?.leader?.name ?? '',
+      valueGetter: (params) => governingPatrolSegment(params.data)?.leader?.name ?? '',
     },
     {
       valueFormatter: formatDateValue,
@@ -117,6 +93,18 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
     },
   ], [patrolTypes, t, tPatrolState]);
 
+  // The patrols API has no ordering, so the table sorts the loaded pages only.
+  const onLoadMore = () => {
+    if (!loadingMoreRef.current && patrolsFeed.next) {
+      loadingMoreRef.current = true;
+      dispatch(fetchNextPatrolsFeedPage(patrolsFeed.next))
+        .catch(() => {})
+        .finally(() => {
+          loadingMoreRef.current = false;
+        });
+    }
+  };
+
   const onOpenRow = (patrol) => {
     navigate(`/${TAB_KEYS.PATROLS}/${patrol.id}`);
 
@@ -131,8 +119,12 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
     columnDefs={columnDefs}
     getRowId={(params) => params.data.id}
     loading={loading}
+    onLoadMore={onLoadMore}
     onOpenRow={onOpenRow}
     rowData={patrols}
+    statusMessage={patrolsFeed.count > patrols.length
+      ? t('loadedPatrolsMessage', { count: patrolsFeed.count, loaded: patrols.length })
+      : null}
     tableKey={TAB_KEYS.PATROLS}
     toolbarContainer={toolbarContainer}
   />;

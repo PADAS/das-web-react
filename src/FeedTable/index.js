@@ -137,6 +137,7 @@ const FeedTable = ({
   onSortChanged,
   renderBulkActions,
   rowData,
+  statusMessage,
   tableKey,
   toolbarContainer,
 }) => {
@@ -319,6 +320,8 @@ const FeedTable = ({
         <Button onClick={clearSelection} size="sm" type="button" variant="link">{t('clearSelection')}</Button>
       </div>}
 
+      {!!statusMessage && <span className={styles.statusMessage} role="status">{statusMessage}</span>}
+
       <div className={styles.toolbarEnd}>
         <Dropdown autoClose="outside">
           <Dropdown.Toggle data-testid="feedTable-columnsToggle" size="sm" variant="outline-secondary">
@@ -396,7 +399,7 @@ const FeedTable = ({
         onSortChanged={onSortChanged}
         rowClass={styles.row}
         rowData={rowData}
-        rowSelection={ROW_SELECTION}
+        rowSelection={renderBulkActions ? ROW_SELECTION : undefined}
         theme={gridTheme}
       />
     </div>

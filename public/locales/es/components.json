@@ -96,6 +96,8 @@
       "rowSelectMessage": "Presione la barra espaciadora para seleccionar esta fila",
       "uncheckedStateLabel": "no seleccionada"
     },
+    "loadedPatrolsMessage_one": "Mostrando {{loaded}} de {{count}} patrulla",
+    "loadedPatrolsMessage_other": "Mostrando {{loaded}} de {{count}} patrullas",
     "moveColumnDownButtonLabel": "Mover {{column}} hacia abajo",
     "moveColumnUpButtonLabel": "Mover {{column}} hacia arriba",
     "objectView": {

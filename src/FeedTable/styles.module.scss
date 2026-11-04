@@ -42,6 +42,11 @@
   font-weight: 600;
 }
 
+.statusMessage {
+  color: colors.$secondary-medium-gray;
+  font-size: 0.875rem;
+}
+
 .toolbarEnd {
   display: flex;
   gap: 0.5rem;

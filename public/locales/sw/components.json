@@ -101,6 +101,8 @@
       "rowSelectMessage": "Bonyeza space kuchagua safu mlalo hii",
       "uncheckedStateLabel": "haijachaguliwa"
     },
+    "loadedPatrolsMessage_one": "Inaonyesha doria {{loaded}} kati ya {{count}}",
+    "loadedPatrolsMessage_other": "Inaonyesha doria {{loaded}} kati ya {{count}}",
     "moveColumnDownButtonLabel": "Sogeza {{column}} chini",
     "moveColumnUpButtonLabel": "Sogeza {{column}} juu",
     "objectView": {

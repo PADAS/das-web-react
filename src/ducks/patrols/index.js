@@ -1,5 +1,6 @@
 import axios, { CancelToken, isCancel } from 'axios';
 import omit from 'lodash/omit';
+import uniq from 'lodash/uniq';
 
 import { API_URL, PREVIEW_FEATURES } from '../../constants';
 import { calcPatrolFilterForRequest } from '../../utils/patrol-filter';
@@ -363,7 +364,7 @@ export const patrolsFeedReducer = globallyResettableReducer((state, { type, payl
     return payload;
 
   case FETCH_PATROLS_FEED_NEXT_PAGE_SUCCESS:
-    return { ...payload, results: [...state.results, ...payload.results] };
+    return { ...payload, results: uniq([...state.results, ...payload.results]) };
 
   case ADD_PATROL_TO_FEED:
     return state.results.includes(payload) ? state : {

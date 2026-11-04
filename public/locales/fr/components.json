@@ -96,6 +96,8 @@
       "rowSelectMessage": "Appuyez sur la barre d’espace pour sélectionner cette ligne",
       "uncheckedStateLabel": "non sélectionnée"
     },
+    "loadedPatrolsMessage_one": "{{loaded}} patrouille affichée sur {{count}}",
+    "loadedPatrolsMessage_other": "{{loaded}} patrouilles affichées sur {{count}}",
     "moveColumnDownButtonLabel": "Déplacer {{column}} vers le bas",
     "moveColumnUpButtonLabel": "Déplacer {{column}} vers le haut",
     "objectView": {
