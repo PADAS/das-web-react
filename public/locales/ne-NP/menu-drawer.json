@@ -13,10 +13,12 @@
     "exportButton": "निर्यात गर्नुहोस्"
   },
   "globalMenuDrawer": {
+    "adminLink": "प्रशासन",
     "alertsButton": "सुचना",
     "alertsModal": {
       "title": "सुचना"
     },
+    "appsHeader": "अर्थरेन्जर एपहरु",
     "communityButton": "समाज",
     "contactSupport": {
       "body": "तपाईंलाई हामीले कसरी सहयोग गर्न सक्छौं ?",
@@ -33,8 +35,6 @@
     },
     "ecoscopeAnalysisLinkAriaLabel": "Ecoscope सँग विश्लेषण",
     "ecoscopeAnalysisLink": "विश्लेषण",
-    "ecoscopeDownloaderMigrationGuideLinkAriaLabel": "Ecoscope डाउनलोडर",
-    "ecoscopeDownloaderMigrationGuideLink": "डाउनलोड",
     "ecoscopeHeading": "ECOSCOPE",
     "footer": {
       "clientVersion": "वेब ग्राहक संस्करण: {{version}}",
@@ -42,13 +42,19 @@
       "dataPrivacyPolicyLink": "डाटा गोपनियता नीति",
       "eulaLink": "प्रयोगकर्ता लाईसेन्स सम्झौता",
       "serverVersion": "सर्भर संस्करण: {{version}}",
+      "systemStatusLink": "प्रणालीको स्थिति",
       "websitePrivacyPolicyLink": "वेबसाइट गोपनीयता नीति"
     },
+    "gundiLink": "Gundi एकीकरणहरु",
     "header": "मुख्य मेनू",
     "helpCenterButton": "सहायता केन्द्र",
+    "learnHeader": "सिक्नुहोस्",
     "masterKMLModal": {
       "title": "विषय KML"
     },
+    "mobileAppStoreLink": "App Store (iPhone)",
+    "mobileGooglePlayLink": "Google Play (Android)",
+    "mobileHeading": "अर्थरेन्जर मोबाइल",
     "navigationButton": {
       "gear": "जाल",
       "mapLayers": "नक्साका तहहरु",
@@ -64,9 +70,11 @@
       "title": "टिप्पणी"
     },
     "tableauButton": "झांकी",
+    "trainingLink": "तालिम",
     "usersGuideButton": "प्रयोगकर्ताका लागि गाईड",
     "closeButtonLabel": "मुख्य मेनु बन्द गर्नुहोस्",
-    "closeButtonTitle": "बन्द गर्नुहोस्"
+    "closeButtonTitle": "बन्द गर्नुहोस्",
+    "whatsNewLink": "नयाँ के छ"
   },
   "kmlExportModal": {
     "dataExportModalTitle": "विषय KML फाइल निर्यात गर्नुहोस्",

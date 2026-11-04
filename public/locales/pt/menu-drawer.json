@@ -13,10 +13,12 @@
     "exportButton": "Exportar"
   },
   "globalMenuDrawer": {
+    "adminLink": "Administração",
     "alertsButton": "Alertas",
     "alertsModal": {
       "title": "Alertas"
     },
+    "appsHeader": "Aplicativos EarthRanger",
     "communityButton": "Comunidade",
     "contactSupport": {
       "body": "Como podemos te ajudar?",
@@ -33,8 +35,6 @@
     },
     "ecoscopeAnalysisLinkAriaLabel": "Análise com Ecoscope",
     "ecoscopeAnalysisLink": "Análise",
-    "ecoscopeDownloaderMigrationGuideLinkAriaLabel": "Baixador do Ecoscope",
-    "ecoscopeDownloaderMigrationGuideLink": "Baixar",
     "ecoscopeHeading": "ECOSCOPE",
     "footer": {
       "clientVersion": "Versão do cliente web: {{version}}",
@@ -42,13 +42,19 @@
       "dataPrivacyPolicyLink": "Política de privacidade de dados",
       "eulaLink": "Contrato de licença do usuário final ",
       "serverVersion": "Versão do servidor: {{version}}",
+      "systemStatusLink": "Status do sistema",
       "websitePrivacyPolicyLink": "Política de privacidade da página web"
     },
+    "gundiLink": "Integrações Gundi",
     "header": "Menu principal",
     "helpCenterButton": "Central de Ajuda",
+    "learnHeader": "Aprender",
     "masterKMLModal": {
       "title": "KML de indivíduos rastreados"
     },
+    "mobileAppStoreLink": "App Store (iPhone)",
+    "mobileGooglePlayLink": "Google Play (Android)",
+    "mobileHeading": "EarthRanger Mobile",
     "navigationButton": {
       "gear": "Equipamento",
       "mapLayers": "Camadas",
@@ -64,7 +70,9 @@
       "title": "Observações"
     },
     "tableauButton": "Tableau",
-    "usersGuideButton": "Guia do usuário"
+    "trainingLink": "Treinamento",
+    "usersGuideButton": "Guia do usuário",
+    "whatsNewLink": "Novidades"
   },
   "kmlExportModal": {
     "dataExportModalTitle": "Exportar archivo KML de indivíduos rastreados",

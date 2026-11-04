@@ -5,7 +5,15 @@ import { addModal } from '../ducks/modals';
 import { createQuerySelectorMockImplementationWithHelpButtonReference } from '../__test-helpers/jiraSupportWidget';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
-import GlobalMenuDrawer from '.';
+import GlobalMenuDrawer, {
+  ECOSCOPE_ANALYSIS_URL,
+  GUNDI_PORTAL_URL,
+  MOBILE_APP_STORE_URL,
+  MOBILE_GOOGLE_PLAY_URL,
+  RELEASE_NOTES_URL,
+  SYSTEM_STATUS_URL,
+  TRAINING_URL,
+} from '.';
 import { hideDrawer } from '../ducks/drawer';
 import { INITIAL_GEAR_STATE } from '../ducks/gear';
 import { mockStore } from '../__test-helpers/MockStore';
@@ -320,6 +328,44 @@ describe('GlobalMenuDrawer', () => {
 
     expect(addModal).toHaveBeenCalledTimes(1);
     expect(addModal.mock.calls[0][0].title).toBe('Field Events');
+  });
+
+  test('shows the Ecoscope Analysis link and no longer shows the retired Ecoscope Downloader link', async () => {
+    renderGlobalMenuDrawer();
+
+    expect(screen.getByRole('link', { name: 'Ecoscope Analysis' })).toHaveAttribute('href', ECOSCOPE_ANALYSIS_URL);
+    expect(screen.queryByRole('link', { name: 'Ecoscope Downloader' })).toBeNull();
+  });
+
+  test('does not show the Admin and Gundi links if the user is not staff', async () => {
+    renderGlobalMenuDrawer();
+
+    expect(screen.queryByRole('link', { name: 'Admin' })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Gundi Integrations' })).toBeNull();
+  });
+
+  test('shows the Admin and Gundi links if the user is staff', async () => {
+    store.data.user.is_staff = true;
+    renderGlobalMenuDrawer();
+
+    expect(screen.getByRole('link', { name: 'Admin' })).toHaveAttribute('href', expect.stringMatching(/\/admin$/));
+    expect(screen.getByRole('link', { name: 'Gundi Integrations' })).toHaveAttribute('href', GUNDI_PORTAL_URL);
+  });
+
+  test('shows the EarthRanger Mobile store links', async () => {
+    renderGlobalMenuDrawer();
+
+    expect(screen.getByRole('link', { name: 'App Store (iPhone)' })).toHaveAttribute('href', MOBILE_APP_STORE_URL);
+    expect(screen.getByRole('link', { name: 'Google Play (Android)' }))
+      .toHaveAttribute('href', MOBILE_GOOGLE_PLAY_URL);
+  });
+
+  test('shows the What\'s New, Training and System Status links', async () => {
+    renderGlobalMenuDrawer();
+
+    expect(screen.getByRole('link', { name: 'What\'s New' })).toHaveAttribute('href', RELEASE_NOTES_URL);
+    expect(screen.getByRole('link', { name: 'Training' })).toHaveAttribute('href', TRAINING_URL);
+    expect(screen.getByRole('link', { name: 'System Status' })).toHaveAttribute('href', SYSTEM_STATUS_URL);
   });
 
   test('when the global menu drawer is open the close button gets focused and there is a focus trap', async () => {

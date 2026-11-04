@@ -13,10 +13,12 @@
     "exportButton": "Export"
   },
   "globalMenuDrawer": {
+    "adminLink": "Admin",
     "alertsButton": "Alerts",
     "alertsModal": {
       "title": "Alerts"
     },
+    "appsHeader": "EARTHRANGER APPS",
     "closeButtonLabel": "Close Main Menu",
     "closeButtonTitle": "Close",
     "communityButton": "Community",
@@ -35,8 +37,6 @@
     },
     "ecoscopeAnalysisLinkAriaLabel": "Ecoscope Analysis",
     "ecoscopeAnalysisLink": "Analysis",
-    "ecoscopeDownloaderMigrationGuideLinkAriaLabel": "Ecoscope Downloader",
-    "ecoscopeDownloaderMigrationGuideLink": "Downloader",
     "ecoscopeHeading": "ECOSCOPE",
     "footer": {
       "clientVersion": "Web client version: {{version}}",
@@ -44,13 +44,19 @@
       "dataPrivacyPolicyLink": "Data Privacy Policy",
       "eulaLink": "End User License Agreement",
       "serverVersion": "Server version: {{version}}",
+      "systemStatusLink": "System Status",
       "websitePrivacyPolicyLink": "Website Privacy Policy"
     },
+    "gundiLink": "Gundi Integrations",
     "header": "Main Menu",
     "helpCenterButton": "Help Center",
+    "learnHeader": "LEARN",
     "masterKMLModal": {
       "title": "Subject KML"
     },
+    "mobileAppStoreLink": "App Store (iPhone)",
+    "mobileGooglePlayLink": "Google Play (Android)",
+    "mobileHeading": "EARTHRANGER MOBILE",
     "navigationButton": {
       "gear": "Gear",
       "mapLayers": "Map Layers",
@@ -66,7 +72,9 @@
       "title": "Observations"
     },
     "tableauButton": "Tableau",
-    "usersGuideButton": "User's Guide"
+    "trainingLink": "Training",
+    "usersGuideButton": "User's Guide",
+    "whatsNewLink": "What's New"
   },
   "kmlExportModal": {
     "dataExportModalTitle": "Export Subject KML File",

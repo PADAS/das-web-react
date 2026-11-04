@@ -13,10 +13,12 @@
     "exportButton": "Exportar"
   },
   "globalMenuDrawer": {
+    "adminLink": "Administración",
     "alertsButton": "Alertas",
     "alertsModal": {
       "title": "Alertas"
     },
+    "appsHeader": "APLICACIONES EARTHRANGER",
     "communityButton": "Comunidad",
     "contactSupport": {
       "body": "¿Cómo le podemos ayudar?",
@@ -33,8 +35,6 @@
     },
     "ecoscopeAnalysisLinkAriaLabel": "Análisis con Ecoscope",
     "ecoscopeAnalysisLink": "Análisis",
-    "ecoscopeDownloaderMigrationGuideLinkAriaLabel": "Descargador de Ecoscope",
-    "ecoscopeDownloaderMigrationGuideLink": "Descargar",
     "ecoscopeHeading": "ECOSCOPE",
     "footer": {
       "clientVersion": "Versión del cliente web: {{version}}",
@@ -42,13 +42,19 @@
       "dataPrivacyPolicyLink": "Política de Privacidad de datos",
       "eulaLink": "Acuerdo de Licencia de Usuario Final",
       "serverVersion": "Versión del servidor: {{version}}",
+      "systemStatusLink": "Estado del sistema",
       "websitePrivacyPolicyLink": "Política de Privacidad del sitio web"
     },
+    "gundiLink": "Integraciones de Gundi",
     "header": "Menú principal",
     "helpCenterButton": "Centro de ayuda",
+    "learnHeader": "APRENDER",
     "masterKMLModal": {
       "title": "KML Maestro"
     },
+    "mobileAppStoreLink": "App Store (iPhone)",
+    "mobileGooglePlayLink": "Google Play (Android)",
+    "mobileHeading": "EARTHRANGER MOBILE",
     "navigationButton": {
       "gear": "Aparejos",
       "mapLayers": "Capas de mapa",
@@ -64,7 +70,9 @@
       "title": "Eventos de Sujeto"
     },
     "tableauButton": "Tableau",
-    "usersGuideButton": "Guía de Usuario"
+    "trainingLink": "Capacitación",
+    "usersGuideButton": "Guía de Usuario",
+    "whatsNewLink": "Novedades"
   },
   "kmlExportModal": {
     "dataExportModalTitle": "Exportar archivo KML Maestro",

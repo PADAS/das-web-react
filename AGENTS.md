@@ -364,7 +364,7 @@ The map fills the screen, framed by a top bar, a sidebar and a global menu. On s
 - **Map**: map behavior and display options, and coordinate systems.
 - **Alerts**: the alerts page, behind the `ALERTS` flag and the alert rule read permission.
 
-**Global menu:** a drawer from the menu button, with Tableau, the alerts modal, Contact Support, help links, data exports, Ecoscope links, and the versions and legal links. Each export needs its own flag or permission, and the field reports export applies the current event filter.
+**Global menu:** a drawer from the menu button, with Tableau, the alerts modal, Contact Support, help links, data exports, Ecoscope links, links to the other EarthRanger apps (Admin and Gundi for staff only), release notes and training, and the system status, versions and legal links. Training materials teach its labels and order, so new items go below the existing ones rather than among them. Each export needs its own flag or permission, and the field reports export applies the current event filter.
 
 **Key files**
 - `Nav/`: the top bar.
