@@ -12,6 +12,12 @@ export const PATROL_CONFIG_API_URL = `${PATROLS_API_URL}config/default/resolved/
 export const PATROL_LEADERS_API_URL = `${PATROLS_API_URL}trackedby`;
 
 const PATROLS_FEED_PAGE_SIZE = 200;
+const PATROLS_FEED_EXCLUDED_DETAILS_PARAMS = {
+  include_files: false,
+  include_notes: false,
+  include_segment_events: false,
+  include_updates: false,
+};
 
 // Actions
 export const ADD_PATROL_NOTE_SUCCESS = 'PATROLS.ADD_PATROL_NOTE_SUCCESS';
@@ -109,16 +115,13 @@ export const fetchPatrolsFeed = () => (dispatch, getState) => {
   // A page of the previous filter's feed must not land in the new one.
   nextPatrolsFeedPageCancelToken.cancel();
 
-  // The feed renders no history, notes or files, which make up most of a
-  // patrol's weight. The legacy feed still frames a patrol by its leg events.
   const request = axios.get(
     `${PATROLS_API_URL}?${calcPatrolFilterForRequest({
       params: {
         ...PATROL_REQUEST_PARAMS,
-        include_files: false,
-        include_notes: false,
-        include_segment_events: !getPreviewFeatureValue(getState(), PREVIEW_FEATURES.PATROL_SCHEMAS),
-        include_updates: false,
+        // The legacy detail view reads these without refetching the patrol.
+        ...(getPreviewFeatureValue(getState(), PREVIEW_FEATURES.PATROL_SCHEMAS)
+          && PATROLS_FEED_EXCLUDED_DETAILS_PARAMS),
         page_size: PATROLS_FEED_PAGE_SIZE,
       },
     })}`,
