@@ -4,16 +4,16 @@ import debounce from 'lodash/debounce';
 import { isCancel } from 'axios';
 import isEqual from 'react-fast-compare';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation } from 'react-router';
 
 import { calcEventFilterForRequest } from '../../utils/event-filter';
 import { calcLocationParamStringForUserLocationCoords } from '../../utils/location';
 import { fetchEventFeed, fetchEventFeedCancelToken } from '../../ducks/events';
 import { getFeedEvents } from '../../selectors';
 import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
-import { isTableViewSearch } from '../../FeedTable/useFeedTableView';
 import { objectToParamString } from '../../utils/query';
+import { TAB_KEYS } from '../../constants';
 import { userIsGeoPermissionRestricted } from '../../utils/geo-perms';
+import useFeedTableView from '../../FeedTable/useFeedTableView';
 
 const EVENT_FEED_PAGE_SIZE = 50;
 
@@ -27,8 +27,8 @@ const useReportsFeed = () => {
   const feedSort = eventFilter.filter.sort;
 
   // The table gives each field of a single event type its own column.
-  const { search } = useLocation();
-  const includeDetails = isTableViewSearch(search) && eventFilter.filter.event_type.length === 1;
+  const { isTableView } = useFeedTableView(TAB_KEYS.EVENTS);
+  const includeDetails = isTableView && eventFilter.filter.event_type.length === 1;
 
   const [loadingEventFeed, setEventLoadState] = useState(true);
 

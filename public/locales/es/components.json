@@ -265,12 +265,10 @@
     "backButtonLabel": "Volver atrás",
     "backButtonTitle": "Atrás",
     "closeButtonLabel": "Cerrar barra lateral",
-    "collapseTableButtonLabel": "Contraer a lista",
     "detailViewHeader": {
       "closeButtonLabel": "Cerrar barra lateral"
     },
     "eventsLink": "Eventos",
-    "expandTableButtonLabel": "Expandir a tabla",
     "gearLink": "Aparejos",
     "gearTab": {
       "loadErrorFallback": "Error en la solicitud",
@@ -320,7 +318,8 @@
           "legend": "Recargar la página",
           "mapLayersCheckboxLabel": "Capas de mapa",
           "mapPositionAndZoomLevelCheckboxLabel": "Posición del mapa y nivel de zoom",
-          "patrolFiltersCheckboxLabel": "Filtros de patrullas"
+          "patrolFiltersCheckboxLabel": "Filtros de patrullas",
+          "tableViewCheckboxLabel": "Vista de tabla"
         },
         "experimentalFeaturesFieldSet": {
           "legend": "Funcionalidades experimentales"
@@ -416,6 +415,8 @@
       },
       "mapTabTitle": "Mapa"
     },
+    "showListButtonLabel": "Mostrar como lista",
+    "showTableButtonLabel": "Mostrar como tabla",
     "titleInput": {
       "editButtonLabel": "Editar título"
     }

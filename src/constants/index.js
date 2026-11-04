@@ -199,6 +199,7 @@ export const SYSTEM_CONFIG_FLAGS = {
 
 export const PREVIEW_FEATURES = {
   EVENTS_VECTOR_TILES: 'events_vector_tiles',
+  FEED_TABLE: 'feed_table',
   PATROL_SCHEMAS: 'patrol_schemas',
 };
 

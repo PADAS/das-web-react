@@ -270,12 +270,10 @@
     "backButtonLabel": "Go Back",
     "backButtonTitle": "Back",
     "closeButtonLabel": "Close sidebar",
-    "collapseTableButtonLabel": "Collapse to list",
     "detailViewHeader": {
       "closeButtonLabel": "Close sidebar"
     },
     "eventsLink": "Events",
-    "expandTableButtonLabel": "Expand to table",
     "gearLink": "Gear",
     "gearTab": {
       "loadErrorFallback": "Request failed",
@@ -325,7 +323,8 @@
           "legend": "App Refresh",
           "mapLayersCheckboxLabel": "Map Layers",
           "mapPositionAndZoomLevelCheckboxLabel": "Map Position & Zoom Level",
-          "patrolFiltersCheckboxLabel": "Patrol Filters"
+          "patrolFiltersCheckboxLabel": "Patrol Filters",
+          "tableViewCheckboxLabel": "Table View"
         },
         "experimentalFeaturesFieldSet": {
           "legend": "Experimental Features"
@@ -421,6 +420,8 @@
       },
       "mapTabTitle": "Map"
     },
+    "showListButtonLabel": "Show as list",
+    "showTableButtonLabel": "Show as table",
     "titleInput": {
       "editButtonLabel": "Edit title"
     }

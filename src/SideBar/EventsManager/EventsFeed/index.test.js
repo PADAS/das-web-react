@@ -1,7 +1,7 @@
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, SORT_DIRECTION, TAB_KEYS } from '../../../constants';
+import { DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, PREVIEW_FEATURES, SORT_DIRECTION, TAB_KEYS } from '../../../constants';
 import { fetchNextEventFeedPage } from '../../../ducks/events';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import { render, screen, within } from '../../../test-utils';
@@ -94,17 +94,20 @@ describe('SideBar - EventsManager - EventsFeed', () => {
     jest.restoreAllMocks();
   });
 
-  const renderEventsFeed = (eventsFeedOverrides, path = `/${TAB_KEYS.EVENTS}`) => render(
-    <Provider store={mockStore({ data: {}, view: {} })}>
+  const renderEventsFeed = (eventsFeedOverrides, view = {}) => render(
+    <Provider store={mockStore({ data: {}, view })}>
       <SidebarScrollProvider>
         <EventsFeed eventsFeed={{ ...eventsFeed, ...eventsFeedOverrides }} />
       </SidebarScrollProvider>
     </Provider>,
-    { initialEntries: [path] }
+    { initialEntries: [`/${TAB_KEYS.EVENTS}`] }
   );
 
   test('shows the feed as a table under the same filter in the table view', () => {
-    renderEventsFeed(undefined, `/${TAB_KEYS.EVENTS}?view=table`);
+    renderEventsFeed(undefined, {
+      feedTableView: { events: true },
+      systemConfig: { previewFeatures: { [PREVIEW_FEATURES.FEED_TABLE]: true } },
+    });
 
     expect(screen.getByTestId('eventFilter')).toBeVisible();
     expect(screen.getByTestId('eventsTable')).toHaveTextContent('second,third,first');

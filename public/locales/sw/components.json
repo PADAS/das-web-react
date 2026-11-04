@@ -270,12 +270,10 @@
     "backButtonLabel": "Nenda Nyuma",
     "backButtonTitle": "Nyuma",
     "closeButtonLabel": "Funga upau wa pembeni",
-    "collapseTableButtonLabel": "Funga kuwa orodha",
     "detailViewHeader": {
       "closeButtonLabel": "Funga upau wa pembeni"
     },
     "eventsLink": "Matukio",
-    "expandTableButtonLabel": "Panua kuwa jedwali",
     "gearLink": "Vifaa",
     "gearTab": {
       "loadErrorFallback": "Ombi halikufaulu",
@@ -325,7 +323,8 @@
           "legend": "Upya wa Programu",
           "mapLayersCheckboxLabel": "Safu za Ramani",
           "mapPositionAndZoomLevelCheckboxLabel": "Nafasi ya Ramani & Kiwango cha Kukaribia",
-          "patrolFiltersCheckboxLabel": "Vichuja vya Doria"
+          "patrolFiltersCheckboxLabel": "Vichuja vya Doria",
+          "tableViewCheckboxLabel": "Mwonekano wa Jedwali"
         },
         "experimentalFeaturesFieldSet": {
           "legend": "Vipengele vya Majaribio"
@@ -421,6 +420,8 @@
       },
       "mapTabTitle": "Ramani"
     },
+    "showListButtonLabel": "Onyesha kama orodha",
+    "showTableButtonLabel": "Onyesha kama jedwali",
     "titleInput": {
       "editButtonLabel": "Hariri kichwa"
     }

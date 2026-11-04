@@ -65,6 +65,7 @@ import analyzersReducer from '../ducks/analyzers';
 import timeSliderReducer from '../ducks/timeslider';
 import externalReportingReducer from '../ducks/external-reporting';
 import sideBarReducer from '../ducks/side-bar';
+import feedTableViewReducer, { persistenceConfig as feedTableViewPersistenceConfig } from '../ducks/feed-table-view';
 import locallyEditedEventReducer from '../ducks/locally-edited-event';
 import recentEventDataReceivedReducer from '../ducks/recent-event-data-received';
 import experimentalFeaturesReducer from '../ducks/experimental-features';
@@ -167,6 +168,7 @@ const rootReducer = combineReducers({
     showInactiveRadios: displayInactiveRadiosReducer,
     openMapFeatureTypeNames: openMapFeatureTypesReducer,
     sideBar: sideBarReducer,
+    feedTableView: persistReducer(feedTableViewPersistenceConfig, feedTableViewReducer),
   }),
 });
 

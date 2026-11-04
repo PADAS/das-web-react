@@ -265,12 +265,10 @@
     "backButtonLabel": "Revenir en arrière",
     "backButtonTitle": "Retour",
     "closeButtonLabel": "Fermer la barre latérale",
-    "collapseTableButtonLabel": "Réduire en liste",
     "detailViewHeader": {
       "closeButtonLabel": "Fermer la barre latérale"
     },
     "eventsLink": "Événements",
-    "expandTableButtonLabel": "Développer en tableau",
     "gearLink": "Engins",
     "gearTab": {
       "loadErrorFallback": "Échec de la requête",
@@ -320,7 +318,8 @@
           "legend": "Actualisation de l'application",
           "mapLayersCheckboxLabel": "Calques",
           "mapPositionAndZoomLevelCheckboxLabel": "Positionnement de la carte & niveau du zoom",
-          "patrolFiltersCheckboxLabel": "Filtres de patrouilles"
+          "patrolFiltersCheckboxLabel": "Filtres de patrouilles",
+          "tableViewCheckboxLabel": "Vue en tableau"
         },
         "experimentalFeaturesFieldSet": {
           "legend": "Fonctionnalités expérimentales"
@@ -416,6 +415,8 @@
       },
       "mapTabTitle": "Carte"
     },
+    "showListButtonLabel": "Afficher en liste",
+    "showTableButtonLabel": "Afficher en tableau",
     "titleInput": {
       "editButtonLabel": "Modifier le titre"
     }

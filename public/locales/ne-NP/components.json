@@ -265,12 +265,10 @@
     "backButtonLabel": "पछाडी फर्कनुहोस्",
     "backButtonTitle": "फर्कनुहोस्",
     "closeButtonLabel": "साइडबार बन्द गर्नुहोस्",
-    "collapseTableButtonLabel": "सूचीमा संकुचित गर्नुहोस्",
     "detailViewHeader": {
       "closeButtonLabel": "साइडबार बन्द गर्नुहोस्"
     },
     "eventsLink": "घटनाहरु",
-    "expandTableButtonLabel": "तालिकामा विस्तार गर्नुहोस्",
     "gearLink": "जाल",
     "gearTab": {
       "loadErrorFallback": "अनुरोध असफल भयो",
@@ -320,7 +318,8 @@
           "legend": "एप रिफ्रेस गर्नुहोस्",
           "mapLayersCheckboxLabel": "नक्साका तहहरु",
           "mapPositionAndZoomLevelCheckboxLabel": "नक्साको स्थिति र जुम स्तर",
-          "patrolFiltersCheckboxLabel": "गस्ती फिल्टर"
+          "patrolFiltersCheckboxLabel": "गस्ती फिल्टर",
+          "tableViewCheckboxLabel": "तालिका दृश्य"
         },
         "experimentalFeaturesFieldSet": {
           "legend": "प्रयोगात्मक सुविधाहरु"
@@ -416,6 +415,8 @@
       },
       "mapTabTitle": "नक्सा"
     },
+    "showListButtonLabel": "सूचीको रूपमा देखाउनुहोस्",
+    "showTableButtonLabel": "तालिकाको रूपमा देखाउनुहोस्",
     "titleInput": {
       "editButtonLabel": "शीर्षक सम्पादन गर्नुहोस्"
     }

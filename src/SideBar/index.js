@@ -4,16 +4,16 @@ import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowLeftIcon } from '../common/images/icons/arrow-left.svg';
-import { ReactComponent as CollapseIcon } from '../common/images/icons/collapse.svg';
+import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-list.svg';
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
 import { ReactComponent as ERLogo } from '../common/images/icons/er-logo.svg';
-import { ReactComponent as ExpandIcon } from '../common/images/icons/expand.svg';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
 import { ReactComponent as OtusIcon } from '../common/images/icons/otus.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
+import { ReactComponent as TableIcon } from '../common/images/icons/table.svg';
 
 import { detailViewPattern, getCurrentIdFromURL, getCurrentTabFromURL, tabPath } from '../utils/navigation';
 import { FEED_CATEGORY } from '../utils/analytics';
@@ -22,7 +22,7 @@ import { SocketContext } from '../withSocketConnection';
 import useNavigate from '../hooks/useNavigate';
 import { usePatrolsPermissions } from '../hooks/usePermissions';
 import { usePreviewFeature } from '../hooks';
-import useFeedTableView, { useRestoreFeedTableView } from '../FeedTable/useFeedTableView';
+import useFeedTableView, { useTableViewLink } from '../FeedTable/useFeedTableView';
 import useReportsFeed from './useReportsFeed';
 
 import AddItemButton from '../AddItemButton';
@@ -125,8 +125,8 @@ const SideBar = () => {
   const displayedPathname = (tabLocation ?? location).pathname;
   const displayedTab = getCurrentTabFromURL(displayedPathname);
 
-  const { isTableView, toggleTableView } = useFeedTableView();
-  useRestoreFeedTableView();
+  const { canShowTableView, isTableView, toggleTableView } = useFeedTableView();
+  useTableViewLink();
   const isFeedDisplayed = (displayedTab === TAB_KEYS.EVENTS || displayedTab === TAB_KEYS.PATROLS)
     && !getCurrentIdFromURL(displayedPathname);
 
@@ -312,18 +312,17 @@ const SideBar = () => {
           </div>
 
           <div className={styles.headerActions}>
-            {isFeedDisplayed && <button
-              aria-label={t(isTableView ? 'collapseTableButtonLabel' : 'expandTableButtonLabel')}
-              aria-pressed={isTableView}
+            {isFeedDisplayed && canShowTableView && <button
+              aria-label={t(isTableView ? 'showListButtonLabel' : 'showTableButtonLabel')}
               className={styles.tableViewButton}
               data-testid="sideBar-tableViewButton"
               onClick={toggleTableView}
-              title={t(isTableView ? 'collapseTableButtonLabel' : 'expandTableButtonLabel')}
+              title={t(isTableView ? 'showListButtonLabel' : 'showTableButtonLabel')}
               type="button"
             >
               {isTableView
-                ? <CollapseIcon aria-hidden="true" className={styles.tableViewButtonIcon} />
-                : <ExpandIcon aria-hidden="true" className={styles.tableViewButtonIcon} />}
+                ? <BulletListIcon aria-hidden="true" className={styles.tableViewButtonIcon} />
+                : <TableIcon aria-hidden="true" className={styles.tableViewButtonIcon} />}
             </button>}
 
             <Link

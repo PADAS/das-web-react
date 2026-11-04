@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import { setupServer } from 'msw/node';
 
 import { renderHook, waitFor } from '../../test-utils';
-import { DEFAULT_EVENT_SORT } from '../../constants';
+import { DEFAULT_EVENT_SORT, PREVIEW_FEATURES } from '../../constants';
 import { events, eventWithPoint } from '../../__test-helpers/fixtures/events';
 import { EVENTS_API_URL, EVENT_API_URL } from '../../ducks/events';
 import { INITIAL_FILTER_STATE as INITIAL_EVENT_FILTER_STATE } from '../../ducks/event-filter';
@@ -74,24 +74,47 @@ describe('useReportsFeed', () => {
     return includeDetailsParams;
   };
 
+  const showEventsTable = () => {
+    store.view.feedTableView = { events: true };
+    store.view.systemConfig = { previewFeatures: { [PREVIEW_FEATURES.FEED_TABLE]: true } };
+  };
+
   test('loads event details in the table view filtered to one event type', async () => {
+    showEventsTable();
     store.data.eventFilter = {
       ...INITIAL_EVENT_FILTER_STATE,
       filter: { ...INITIAL_EVENT_FILTER_STATE.filter, event_type: ['type-id'] },
     };
     const includeDetailsParams = captureIncludeDetailsParams();
 
-    renderUseReportsFeed(mockStore(store), ['/events?view=table']);
+    renderUseReportsFeed(mockStore(store));
 
     await waitFor(() => {
       expect(includeDetailsParams.at(-1)).toBe('true');
     });
   });
 
-  test('does not load event details in the table view across event types', async () => {
+  test('keeps loading event details while an event of the table is open', async () => {
+    showEventsTable();
+    store.data.eventFilter = {
+      ...INITIAL_EVENT_FILTER_STATE,
+      filter: { ...INITIAL_EVENT_FILTER_STATE.filter, event_type: ['type-id'] },
+    };
     const includeDetailsParams = captureIncludeDetailsParams();
 
-    renderUseReportsFeed(mockStore(store), ['/events?view=table']);
+    renderUseReportsFeed(mockStore(store), ['/events/event-id']);
+
+    await waitFor(() => {
+      expect(includeDetailsParams.length).toBeGreaterThan(0);
+    });
+    expect(includeDetailsParams).not.toContain('false');
+  });
+
+  test('does not load event details in the table view across event types', async () => {
+    showEventsTable();
+    const includeDetailsParams = captureIncludeDetailsParams();
+
+    renderUseReportsFeed(mockStore(store));
 
     await waitFor(() => {
       expect(includeDetailsParams.length).toBeGreaterThan(0);
