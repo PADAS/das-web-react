@@ -14,7 +14,10 @@ const pruneHiddenFieldErrors = (errors, formElements, collectionItemsMessage, pa
         prunedErrors[fieldName] = errors[fieldName];
       } else {
         const prunedItemErrors = Object.keys(itemErrors).reduce((accumulator, index) => {
-          const prunedItem = pruneHiddenFieldErrors(itemErrors[index], formElements, collectionItemsMessage, fieldId);
+          // Errors about the collection items themselves are not keyed by a numeric item index.
+          const prunedItem = Number.isInteger(Number(index))
+            ? pruneHiddenFieldErrors(itemErrors[index], formElements, collectionItemsMessage, fieldId)
+            : itemErrors[index];
 
           return Object.keys(prunedItem).length > 0 ? { ...accumulator, [index]: prunedItem } : accumulator;
         }, {});

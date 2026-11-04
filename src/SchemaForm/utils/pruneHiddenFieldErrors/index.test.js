@@ -98,4 +98,10 @@ describe('SchemaForm - utils - pruneHiddenFieldErrors', () => {
 
     expect(prune(errors)).toEqual(errors);
   });
+
+  test('keeps the error of an invalid item of a visible collection', () => {
+    const errors = { collection: { message: collectionItemsMessage, undefined: { 0: { message: 'Wrong type' } } } };
+
+    expect(prune(errors)).toEqual(errors);
+  });
 });
