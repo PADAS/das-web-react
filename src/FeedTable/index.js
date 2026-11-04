@@ -6,6 +6,7 @@ import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 import { AgGridReact } from 'ag-grid-react';
 import {
+  CellStyleModule,
   ClientSideRowModelModule,
   ColumnApiModule,
   LocaleModule,
@@ -28,6 +29,7 @@ import { showToast } from '../utils/toast';
 import * as styles from './styles.module.scss';
 
 ModuleRegistry.registerModules([
+  CellStyleModule,
   ClientSideRowModelModule,
   ColumnApiModule,
   LocaleModule,

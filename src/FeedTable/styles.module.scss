@@ -133,9 +133,13 @@
   .iconColumnCell {
     --ag-cell-horizontal-padding: 1px;
 
-    align-items: center;
-    display: flex;
-    justify-content: center;
+    [class~='ag-cell-wrapper'], [class~='ag-cell-value'] {
+      align-items: center;
+      display: flex;
+      height: 100%;
+      justify-content: center;
+      overflow: visible;
+    }
   }
 
   .headerCell {

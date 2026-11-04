@@ -1,10 +1,10 @@
 import { act } from 'react';
-import { getGridApi } from 'ag-grid-community';
+import { getGridApi, ModuleRegistry, ValidationModule } from 'ag-grid-community';
 import userEvent from '@testing-library/user-event';
 
 import { render, screen, waitFor } from '../test-utils';
 
-import FeedTable from '.';
+import FeedTable, { formatDateValue, ICON_COLUMN, IconCell } from '.';
 
 const COLUMNS = [
   { colId: 'a', field: 'a', headerName: 'A' },
@@ -186,6 +186,24 @@ describe('FeedTable', () => {
 
     expect(await screen.findByRole('checkbox', { name: 'Select all rows' })).toBeInTheDocument();
     expect(await screen.findByRole('checkbox', { name: 'Select row (not selected)' })).toBeInTheDocument();
+  });
+
+  test('has every grid module the tables use registered', async () => {
+    ModuleRegistry.registerModules([ValidationModule]);
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    await renderFeedTable([
+      { ...ICON_COLUMN, cellRenderer: () => <IconCell>!</IconCell>, menuName: 'Icon' },
+      { colId: 'a', field: 'a', headerName: 'A', sortable: true, sort: 'asc', sortingOrder: ['desc', 'asc'] },
+      { cellDataType: false, colId: 'b', field: 'b', headerName: 'B', valueFormatter: formatDateValue },
+      { colId: 'c', flex: 1, headerName: 'C', valueGetter: (params) => params.data.c },
+    ], undefined, ROWS, { getRowClass: () => 'row-theme', statusMessage: 'Status' });
+    await screen.findByText('!');
+
+    const messages = [...consoleError.mock.calls, ...consoleWarn.mock.calls].map((args) => args.join(' '));
+    expect(messages.filter((message) => message.includes('is not registered'))).toEqual([]);
+    expect(document.querySelector('.ag-row .ag-cell[col-id="icon"]')).toHaveClass('iconColumnCell');
   });
 
   test('offers no row selection without bulk actions', async () => {
