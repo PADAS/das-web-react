@@ -12,11 +12,7 @@ import { TrackerContext, trackEventFactory } from '../../../../utils/analytics';
 import StaticFields from './';
 
 const trackMock = jest.fn();
-const trackedCalls = [];
-const tracker = trackEventFactory('Test', (...args) => {
-  trackedCalls.push(args);
-  trackMock(...args);
-});
+const tracker = trackEventFactory('Test', trackMock);
 
 describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
   const onChangeLeg = jest.fn();
@@ -465,10 +461,26 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
       );
     });
 
-    test('sends only fixed labels, never a name or a location', () => {
-      const labels = trackedCalls.map(([, , label]) => label).filter((label) => label !== undefined && label !== null);
+    test('sends only fixed labels, never a name or a location', async () => {
+      store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = Object.values(GPS_FORMATS);
 
-      expect(labels).not.toHaveLength(0);
+      renderStaticFields();
+
+      for (const [fieldLabel, optionName] of [
+        ['Team', 'Alpha'],
+        ['Team Lead', 'Priya'],
+        ['Team Members', 'Maya Chen'],
+        ['Assets', 'Radio 7'],
+      ]) {
+        await userEvent.click(screen.getByLabelText(fieldLabel));
+        await userEvent.click(await screen.findByText(optionName));
+      }
+      await openLocationMenu('Start Location');
+      await userEvent.type(screen.getByRole('searchbox', { name: 'Search location in DEG format' }), '10,10');
+
+      const labels = trackMock.mock.calls.map(([, , label]) => label);
+
+      expect(labels.length).toBeGreaterThanOrEqual(5);
       labels.forEach((label) => expect(label).toMatch(/^(set|cleared|on|off|\d+)$/));
     });
   });
