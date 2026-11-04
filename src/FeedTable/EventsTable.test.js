@@ -370,6 +370,19 @@ describe('EventsTable', () => {
     expect(showToast).toHaveBeenCalledWith({ message: '2 events updated', toastConfig: { type: 'success' } });
   });
 
+  test('does not create an incident when none of the selected events can join one', async () => {
+    const inIncident = { ...report, is_contained_in: [{ related_event: { id: 'incident' } }] };
+    renderEventsTable([inIncident]);
+    selectEvents([inIncident]);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Add to Incident' }));
+    await act(() => openedModal().onAddToNewIncident());
+
+    expect(createEvent).not.toHaveBeenCalled();
+    expect(addEventToIncident).not.toHaveBeenCalled();
+    expect(showToast).toHaveBeenCalledWith({ message: '1 event could not be updated' });
+  });
+
   test('adds the selected events to an existing incident', async () => {
     renderEventsTable();
     selectEvents([report]);
@@ -389,5 +402,23 @@ describe('EventsTable', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Export CSV' }));
 
     expect(downloadFileFromUrl).toHaveBeenCalledWith(expect.stringMatching(/activity\/events\/export\?state=active$/), {});
+  });
+
+  test('exports in the order the table is sorted by', async () => {
+    const serialSort = [SORT_DIRECTION.up, EVENT_SORT_OPTIONS.find((option) => option.value === 'serial_number')];
+    state.data.eventFilter = { ...INITIAL_FILTER_STATE, filter: { ...INITIAL_FILTER_STATE.filter, sort: serialSort } };
+    downloadFileFromUrl.mockResolvedValue();
+    renderEventsTable();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Export CSV' }));
+
+    expect(calcEventFilterForRequest).toHaveBeenCalledWith({}, serialSort);
+  });
+
+  test('shows dates as plain text in the table date format', () => {
+    renderEventsTable();
+
+    expect(columnById('updated_at').valueFormatter({ value: '2026-03-04T05:06:00Z' })).toBe('04 Mar 26 05:06');
+    expect(columnById('updated_at').valueFormatter({ value: '' })).toBe('');
   });
 });

@@ -32,8 +32,7 @@ import useNavigate from '../hooks/useNavigate';
 
 import AddToIncidentModal from '../AddToIncidentModal';
 import AddToPatrolModal from '../AddToPatrolModal';
-import DateTime from '../DateTime';
-import FeedTable from '.';
+import FeedTable, { formatDateValue } from '.';
 import ObjectViewModal, { ObjectValueLink } from './ObjectViewModal';
 
 import * as styles from './styles.module.scss';
@@ -61,8 +60,6 @@ const formatCoordinates = (coordinates) => {
   const [longitude, latitude] = coordinates;
   return `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
 };
-
-const DateCell = ({ value }) => value ? <DateTime className={styles.dateCell} date={value} showElapsed={false} /> : null;
 
 const ComplexDetailCell = ({ colDef, value }) => {
   const dispatch = useDispatch();
@@ -144,7 +141,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
           valueGetter: (params) => params.data?.event_details?.[field.key],
         }
         : { valueGetter: (params) => field.toText(params.data?.event_details) }),
-      ...(field.isDate && { cellRenderer: DateCell }),
+      ...(field.isDate && { valueFormatter: formatDateValue }),
     }));
   }, [coordinatesRepresentation, eventSchema, eventTypeFilter.length, events]);
 
@@ -197,7 +194,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
       valueGetter: (params) => params.data?.reported_by?.name ?? '',
     },
     {
-      cellRenderer: DateCell,
+      valueFormatter: formatDateValue,
       colId: 'event_time',
       headerName: t('columnEventTime'),
       minWidth: 170,
@@ -205,7 +202,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
       ...serverSortable('event_time'),
     },
     {
-      cellRenderer: DateCell,
+      valueFormatter: formatDateValue,
       colId: 'updated_at',
       field: 'updated_at',
       headerName: t('columnUpdatedAt'),
@@ -213,7 +210,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
       ...serverSortable('updated_at'),
     },
     {
-      cellRenderer: DateCell,
+      valueFormatter: formatDateValue,
       colId: 'created_at',
       defaultHidden: true,
       field: 'created_at',
@@ -253,7 +250,10 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
   };
 
   // The same export as the menu's Field Events report: every event matching the feed filter, with its details.
-  const onExport = () => downloadFileFromUrl(`${API_URL}activity/events/export?${calcEventFilterForRequest()}`, {});
+  const onExport = () => downloadFileFromUrl(
+    `${API_URL}activity/events/export?${calcEventFilterForRequest({}, eventSort)}`,
+    {}
+  );
 
   const onOpenRow = (event) => {
     navigate(`/${TAB_KEYS.EVENTS}/${event.id}`);
@@ -299,8 +299,10 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
   }));
 
   const addSelectedToIncident = async (selectedEvents, existingIncident, clearSelection) => {
+    const canJoinIncident = (event) => !event.is_collection && !eventBelongsToCollection(event);
+
     let incident = existingIncident;
-    if (!incident) {
+    if (!incident && selectedEvents.some(canJoinIncident)) {
       try {
         incident = (await dispatch(createEvent(createNewIncidentCollection()))).data.data;
       } catch {
@@ -309,9 +311,9 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
       }
     }
 
-    await updateSelectedEvents(selectedEvents, (event) => event.is_collection || eventBelongsToCollection(event)
-      ? Promise.reject(new Error('The event cannot be added to an incident'))
-      : dispatch(addEventToIncident(event.id, incident.id)), clearSelection);
+    await updateSelectedEvents(selectedEvents, (event) => incident && canJoinIncident(event)
+      ? dispatch(addEventToIncident(event.id, incident.id))
+      : Promise.reject(new Error('The event cannot be added to an incident')), clearSelection);
   };
 
   const onStartAddSelectedToIncident = (selectedEvents, clearSelection) => dispatch(addModal({

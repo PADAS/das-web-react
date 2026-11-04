@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as ArrowDownIcon } from '../common/images/icons/arrow-down.svg';
 import { ReactComponent as ArrowUpIcon } from '../common/images/icons/arrow-up.svg';
 
+import { format, STANDARD_DATE_FORMAT } from '../utils/datetime';
 import { showToast } from '../utils/toast';
 
 import * as styles from './styles.module.scss';
@@ -91,6 +92,12 @@ const orderColumns = (columns, order) => {
   const positionOf = (column) => positions.get(column.colId) ?? order.length;
 
   return [...columns].sort((a, b) => positionOf(a) - positionOf(b));
+};
+
+export const formatDateValue = (params) => {
+  const date = params.value ? new Date(params.value) : null;
+
+  return date && !Number.isNaN(date.getTime()) ? format(date, STANDARD_DATE_FORMAT) : '';
 };
 
 const controlInCell = (element) => element.classList?.contains('ag-cell')
@@ -357,7 +364,7 @@ const FeedTable = ({
         ensureDomOrder
         getRowId={getRowId}
         loading={loading || exporting}
-        loadingOverlayComponent={() => <MoonLoader size={40} />}
+        loadingOverlayComponent={() => <div className={styles.loadingOverlay}><MoonLoader size={40} /></div>}
         localeText={localeText}
         onBodyScroll={onBodyScroll}
         onCellClicked={onCellClicked}

@@ -15,15 +15,18 @@ export const calcTimePropForSortConfig = ([, sortProp]) => sortProp.value === 'e
 export const sortEventsBySortConfig = (events, sortConfig) => {
   const [direction] = sortConfig;
   const comparisonProp = calcTimePropForSortConfig(sortConfig);
+  const sortValue = (event) => comparisonProp === 'serial_number'
+    ? Number(event.serial_number)
+    : new Date(event[comparisonProp]).getTime();
 
   return [...events].sort((a, b) => {
-    const date1 = new Date(a[comparisonProp]).getTime();
-    const date2 = new Date(b[comparisonProp]).getTime();
+    const value1 = sortValue(a);
+    const value2 = sortValue(b);
 
     if (direction === SORT_DIRECTION.up) {
-      return date1 - date2;
+      return value1 - value2;
     }
-    return date2 - date1;
+    return value2 - value1;
   });
 };
 

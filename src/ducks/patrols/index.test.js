@@ -594,6 +594,24 @@ describe('Ducks - Patrols', () => {
         { payload: { count: 3, next: null, results: [PATROL_B_ID] }, type: FETCH_PATROLS_FEED_NEXT_PAGE_SUCCESS },
       ]);
     });
+
+    test('drops a page still loading when the feed is fetched again for a new filter', async () => {
+      const nextPageUrl = `${PATROLS_API_URL}?page=2`;
+      server.use(http.get(PATROLS_API_URL, async ({ request }) => {
+        if (new URL(request.url).searchParams.get('page') === '2') {
+          await new Promise((resolve) => setTimeout(resolve, 50));
+        }
+
+        return HttpResponse.json({ data: { count: 1, next: null, previous: null, results: [patrolB] } });
+      }));
+
+      const store = mockStore({ data: {}, view: {} });
+      const pendingPage = store.dispatch(fetchNextPatrolsFeedPage(nextPageUrl)).then(() => 'loaded', () => 'dropped');
+      await store.dispatch(fetchPatrolsFeed()).request;
+
+      expect(await pendingPage).toBe('dropped');
+      expect(store.getActions().map((action) => action.type)).not.toContain(FETCH_PATROLS_FEED_NEXT_PAGE_SUCCESS);
+    });
   });
 
   describe('patrolsFeedReducer', () => {

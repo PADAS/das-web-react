@@ -100,8 +100,13 @@ export const fetchPatrol = (id) => (dispatch) => axios.get(`${PATROLS_API_URL}${
     throw error;
   });
 
+let nextPatrolsFeedPageCancelToken = CancelToken.source();
+
 export const fetchPatrolsFeed = () => (dispatch, getState) => {
   const cancelToken = CancelToken.source();
+
+  // A page of the previous filter's feed must not land in the new one.
+  nextPatrolsFeedPageCancelToken.cancel();
 
   // The feed renders no history, notes or files, which make up most of a
   // patrol's weight. The legacy feed still frames a patrol by its leg events.
@@ -136,8 +141,6 @@ export const fetchPatrolsFeed = () => (dispatch, getState) => {
 
   return { cancelToken, request };
 };
-
-let nextPatrolsFeedPageCancelToken = CancelToken.source();
 
 // The next page's URL comes from the API and already carries the filter.
 export const fetchNextPatrolsFeedPage = (url) => (dispatch) => {

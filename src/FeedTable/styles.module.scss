@@ -70,15 +70,13 @@
   }
 }
 
-.dateCell {
-  align-items: center;
-  display: flex;
-  height: 100%;
-}
-
 .grid {
   flex: 1;
   min-height: 0;
+}
+
+.loadingOverlay {
+  text-align: left;
 }
 
 .row {

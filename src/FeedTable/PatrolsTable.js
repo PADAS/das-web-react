@@ -16,17 +16,12 @@ import { TAB_KEYS } from '../constants';
 import useJumpToLocation from '../hooks/useJumpToLocation';
 import useNavigate from '../hooks/useNavigate';
 
-import DateTime from '../DateTime';
-import FeedTable from '.';
-
-import * as styles from './styles.module.scss';
+import FeedTable, { formatDateValue } from '.';
 
 // A safety cap, so a bad `next` link cannot loop forever.
 const MAX_PAGES = 1000;
 
 const lastSegment = (patrol) => patrol?.patrol_segments?.[patrol.patrol_segments.length - 1];
-
-const DateCell = ({ value }) => value ? <DateTime className={styles.dateCell} date={value} showElapsed={false} /> : null;
 
 const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
   const dispatch = useDispatch();
@@ -97,7 +92,7 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
       valueGetter: (params) => lastSegment(params.data)?.leader?.name ?? '',
     },
     {
-      cellRenderer: DateCell,
+      valueFormatter: formatDateValue,
       colId: 'start',
       headerName: t('columnPatrolStart'),
       minWidth: 170,
@@ -105,7 +100,7 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
       valueGetter: (params) => displayStartTimeForPatrol(params.data)?.toISOString() ?? '',
     },
     {
-      cellRenderer: DateCell,
+      valueFormatter: formatDateValue,
       colId: 'end',
       headerName: t('columnPatrolEnd'),
       minWidth: 170,
