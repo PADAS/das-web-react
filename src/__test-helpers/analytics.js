@@ -5,8 +5,7 @@ export const expectActionWithinGa4Limit = (action) => {
   expect(action.length).toBeLessThanOrEqual(GA4_MAX_ACTION_LENGTH);
 };
 
-// Pass a category for a mock given to trackEventFactory, which receives (category, action, label); leave it out for
-// a tracker's own track mock, which receives (action, label).
+// A mock given to trackEventFactory also receives the category, first.
 expect.extend({
   toHaveTrackedAction(trackMock, action, label, { category } = {}) {
     const expectedCall = [...(category === undefined ? [] : [category]), action, label];

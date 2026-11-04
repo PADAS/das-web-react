@@ -14,7 +14,6 @@ import * as patrolUtils from '../../../../../utils/patrols';
 import { render, screen, within } from '../../../../../test-utils';
 import { TRACK_LENGTH_ORIGINS } from '../../../../../ducks/tracks';
 import { TrackerContext } from '../../../../../utils/analytics';
-import '../../../../../__test-helpers/analytics';
 import { UPDATE_PATROL_TRACK_STATE } from '../../../../../ducks/patrols';
 
 import Header from './';

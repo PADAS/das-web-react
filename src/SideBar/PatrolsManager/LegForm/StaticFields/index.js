@@ -16,6 +16,7 @@ import TimePicker, { isValidTime } from '../../../../TimePicker';
 
 import * as styles from './styles.module.scss';
 
+const FIELD_TRACK_DEBOUNCE_DELAY = 1000;
 const TIME_OPTIONS_INTERVAL_IN_MINUTES = 15;
 
 const getOptionLabel = ({ name }) => name;
@@ -38,22 +39,9 @@ const StaticFields = ({
 }) => {
   const { t } = useTranslation('patrols', { keyPrefix: 'legForm.staticFields' });
 
-  const tracker = useContext(TrackerContext);
-
   const teamAndTrackingOptions = useSelector((state) => state.data.patrolTeamAndTrackingOptions);
 
-  const debouncedTrackEndDate = useMemo(() => tracker.debouncedTrack(1000), [tracker]);
-  const debouncedTrackEndTime = useMemo(() => tracker.debouncedTrack(1000), [tracker]);
-  const debouncedTrackStartDate = useMemo(() => tracker.debouncedTrack(1000), [tracker]);
-  const debouncedTrackStartTime = useMemo(() => tracker.debouncedTrack(1000), [tracker]);
-
-  // Saving closes the form, so a pending edit would otherwise never be tracked.
-  useEffect(() => () => {
-    debouncedTrackEndDate.flush();
-    debouncedTrackEndTime.flush();
-    debouncedTrackStartDate.flush();
-    debouncedTrackStartTime.flush();
-  }, [debouncedTrackEndDate, debouncedTrackEndTime, debouncedTrackStartDate, debouncedTrackStartTime]);
+  const tracker = useContext(TrackerContext);
 
   const endDatePickerRef = useRef();
   const endTimePickerRef = useRef();
@@ -126,6 +114,17 @@ const StaticFields = ({
   const isStartTimeInvalid = !!errors.startTime || !!errors.startDateTime;
   const startDateTimeError = errors.startDate ?? errors.startTime ?? errors.startDateTime;
 
+  // The pickers report every keystroke that parses, so each field tracks one
+  // event per edit.
+  const debouncedTrackers = useMemo(() => ({
+    endDate: tracker.debouncedTrack(FIELD_TRACK_DEBOUNCE_DELAY),
+    endLocation: tracker.debouncedTrack(FIELD_TRACK_DEBOUNCE_DELAY),
+    endTime: tracker.debouncedTrack(FIELD_TRACK_DEBOUNCE_DELAY),
+    startDate: tracker.debouncedTrack(FIELD_TRACK_DEBOUNCE_DELAY),
+    startLocation: tracker.debouncedTrack(FIELD_TRACK_DEBOUNCE_DELAY),
+    startTime: tracker.debouncedTrack(FIELD_TRACK_DEBOUNCE_DELAY),
+  }), [tracker]);
+
   const renderCheckbox = ({ id, isChecked, isDisabled, isHidden = false, label, onChange }) => <div
     aria-hidden={isHidden ? 'true' : undefined}
     className={`${styles.checkboxWrapper} ${isHidden ? styles.hidden : ''}`}
@@ -153,6 +152,11 @@ const StaticFields = ({
     />
   </div>;
 
+  // Saving closes the form, so a pending edit would otherwise never be tracked.
+  useEffect(() => () => {
+    Object.values(debouncedTrackers).forEach((debouncedTrack) => debouncedTrack.flush());
+  }, [debouncedTrackers]);
+
   return <div className={styles.staticFields}>
     <div className={styles.columns}>
       <div className={styles.column}>
@@ -170,7 +174,7 @@ const StaticFields = ({
               onChange={(startDate) => {
                 onChangeLeg({ startDate });
 
-                debouncedTrackStartDate('Change the start date from the leg form');
+                debouncedTrackers.startDate('Change the start date from the leg form');
               }}
               reactDatePickerProps={{ endDate: endDateTime, selectsStart: true, startDate: startDateTime }}
               ref={startDatePickerRef}
@@ -187,7 +191,7 @@ const StaticFields = ({
               onChange={(startTime) => {
                 onChangeLeg({ startTime });
 
-                debouncedTrackStartTime('Change the start time from the leg form');
+                debouncedTrackers.startTime('Change the start time from the leg form');
               }}
               ref={startTimePickerRef}
               value={leg.startTime}
@@ -224,7 +228,7 @@ const StaticFields = ({
             onChange={(startLocation) => {
               onChangeLeg({ startLocation: startLocation || null });
 
-              tracker.track('Change start location from the leg form', startLocation ? 'set' : 'cleared');
+              debouncedTrackers.startLocation('Change start location from the leg form', startLocation ? 'set' : 'cleared');
             }}
             value={leg.startLocation}
           />
@@ -246,7 +250,7 @@ const StaticFields = ({
               onChange={(endDate) => {
                 onChangeLeg({ endDate });
 
-                debouncedTrackEndDate('Change the end date from the leg form');
+                debouncedTrackers.endDate('Change the end date from the leg form');
               }}
               reactDatePickerProps={{ endDate: endDateTime, selectsEnd: true, startDate: startDateTime }}
               ref={endDatePickerRef}
@@ -264,7 +268,7 @@ const StaticFields = ({
               onChange={(endTime) => {
                 onChangeLeg({ endTime });
 
-                debouncedTrackEndTime('Change the end time from the leg form');
+                debouncedTrackers.endTime('Change the end time from the leg form');
               }}
               ref={endTimePickerRef}
               showDurationFromMin={!!endTimeMin}
@@ -298,7 +302,7 @@ const StaticFields = ({
             onChange={(endLocation) => {
               onChangeLeg({ endLocation: endLocation || null });
 
-              tracker.track('Change end location from the leg form', endLocation ? 'set' : 'cleared');
+              debouncedTrackers.endLocation('Change end location from the leg form', endLocation ? 'set' : 'cleared');
             }}
             value={leg.endLocation}
           />

@@ -6,7 +6,6 @@ import { mockStore } from '../../../../__test-helpers/MockStore';
 import { render, screen, waitFor } from '../../../../test-utils';
 import { resetGlobalDateRange } from '../../../../ducks/global-date-range';
 import { TrackerContext } from '../../../../utils/analytics';
-import '../../../../__test-helpers/analytics';
 
 import Filters, { TEXT_FILTER_DEBOUNCE_DELAY } from './';
 

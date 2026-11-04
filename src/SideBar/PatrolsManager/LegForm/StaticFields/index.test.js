@@ -6,7 +6,6 @@ import buildLegDraft from '../../utils/buildLegDraft';
 import { GPS_FORMATS } from '../../../../utils/location';
 import { mockStore } from '../../../../__test-helpers/MockStore';
 import { act, render, screen, within } from '../../../../test-utils';
-import '../../../../__test-helpers/analytics';
 import { TrackerContext, trackEventFactory } from '../../../../utils/analytics';
 
 import StaticFields from './';
@@ -331,7 +330,7 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
   });
 
   describe('tracking', () => {
-    const openLocationMenu = (fieldLabel) => userEvent.click(
+    const openLocationMenu = (user, fieldLabel) => user.click(
       within(screen.getByLabelText(fieldLabel).closest('[role="group"]'))
         .getByRole('button', { name: 'Open the location picker menu to set a value' })
     );
@@ -380,26 +379,7 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
       expect(trackMock).toHaveTrackedAction(action, 'off', { category: 'Test' });
     });
 
-    test.each([
-      ['Start Location', 'Change start location from the leg form'],
-      ['End Location', 'Change end location from the leg form'],
-    ])('tracks the %s the user sets and clears', async (fieldLabel, action) => {
-      store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = Object.values(GPS_FORMATS);
-
-      renderStaticFields();
-
-      await openLocationMenu(fieldLabel);
-      const searchInput = screen.getByRole('searchbox', { name: 'Search location in DEG format' });
-      await userEvent.type(searchInput, '10,10');
-
-      expect(trackMock).toHaveTrackedAction(action, 'set', { category: 'Test' });
-
-      await userEvent.clear(searchInput);
-
-      expect(trackMock).toHaveTrackedAction(action, 'cleared', { category: 'Test' });
-    });
-
-    describe('dates and times', () => {
+    describe('fields that track once per edit', () => {
       beforeEach(() => {
         jest.useFakeTimers();
       });
@@ -459,12 +439,39 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
           expect(countTracked(action)).toBe(1);
         }
       );
+
+      test.each([
+        ['Start Location', 'Change start location from the leg form'],
+        ['End Location', 'Change end location from the leg form'],
+      ])('tracks the %s once as set, a second after the user stops typing, and once as cleared', async (fieldLabel, action) => {
+        store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = Object.values(GPS_FORMATS);
+        const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+
+        renderStaticFields();
+
+        await openLocationMenu(user, fieldLabel);
+        const searchInput = screen.getByRole('searchbox', { name: 'Search location in DEG format' });
+        await user.type(searchInput, '10,10');
+
+        expect(countTracked(action)).toBe(0);
+
+        await act(async () => jest.advanceTimersByTime(1000));
+
+        expect(countTracked(action)).toBe(1);
+        expect(trackMock).toHaveTrackedAction(action, 'set', { category: 'Test' });
+
+        await user.clear(searchInput);
+        await act(async () => jest.advanceTimersByTime(1000));
+
+        expect(countTracked(action)).toBe(2);
+        expect(trackMock).toHaveTrackedAction(action, 'cleared', { category: 'Test' });
+      });
     });
 
     test('sends only fixed labels, never a name or a location', async () => {
       store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = Object.values(GPS_FORMATS);
 
-      renderStaticFields();
+      const { unmount } = renderStaticFields();
 
       for (const [fieldLabel, optionName] of [
         ['Team', 'Alpha'],
@@ -475,12 +482,13 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
         await userEvent.click(screen.getByLabelText(fieldLabel));
         await userEvent.click(await screen.findByText(optionName));
       }
-      await openLocationMenu('Start Location');
+      await openLocationMenu(userEvent, 'Start Location');
       await userEvent.type(screen.getByRole('searchbox', { name: 'Search location in DEG format' }), '10,10');
+      unmount();
 
       const labels = trackMock.mock.calls.map(([, , label]) => label);
 
-      expect(labels.length).toBeGreaterThanOrEqual(5);
+      expect(labels).toHaveLength(5);
       labels.forEach((label) => expect(label).toMatch(/^(set|cleared|on|off|\d+)$/));
     });
   });

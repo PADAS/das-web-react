@@ -4,7 +4,6 @@ import patrols, { multiLegPatrol } from '../../../../__test-helpers/fixtures/pat
 import { render, screen, within } from '../../../../test-utils';
 import { format, STANDARD_DATE_FORMAT } from '../../../../utils/datetime';
 import { TrackerContext } from '../../../../utils/analytics';
-import '../../../../__test-helpers/analytics';
 
 import History from './';
 

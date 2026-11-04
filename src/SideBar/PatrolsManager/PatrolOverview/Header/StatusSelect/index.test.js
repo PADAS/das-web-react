@@ -5,7 +5,6 @@ import { mockStore } from '../../../../../__test-helpers/MockStore';
 import { PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS } from '../../../../../constants';
 import { render, screen } from '../../../../../test-utils';
 import { TrackerContext } from '../../../../../utils/analytics';
-import '../../../../../__test-helpers/analytics';
 
 import StatusSelect from './';
 
