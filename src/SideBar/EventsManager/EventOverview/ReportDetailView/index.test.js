@@ -897,6 +897,30 @@ describe('SideBar - EventsManager - EventOverview - ReportDetailView', () => {
     });
   });
 
+  test('shows the error when the added event cannot be added to the incident', async () => {
+    executeSaveActionsMock = jest.fn(() => Promise.resolve([{ data: { data: { id: 'initial' } } }]));
+    executeSaveActions.mockImplementation(executeSaveActionsMock);
+    addEventToIncident.mockImplementation(() => () => Promise.reject({ request: {}, response: { status: 429 } }));
+
+    AddItemButtonMock = ({ formProps }) => { /* eslint-disable-line react/display-name */
+      useEffect(() => {
+        formProps.onSaveSuccess([{ data: { data: { id: 'added' } } }]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, []);
+
+      return null;
+    };
+    AddItemButton.mockImplementation(AddItemButtonMock);
+
+    state.data.eventStore = { initial: { ...mockReport, id: 'initial', is_collection: true } };
+
+    renderWithWrapper(<ReportDetailView isNewReport={false} reportId="initial" />);
+
+    expect(await screen.findByText(
+      'Too many requests. Please try again later, and contact your administrator if this problem persists (429).'
+    )).toBeInTheDocument();
+  });
+
   test('if the current report is not a collection, adding a new one creates a collections and appends both', async () => {
     const addedReport = { id: 'added' };
     const initialReport = { id: 'initial' };
@@ -1555,6 +1579,34 @@ describe('SideBar - EventsManager - EventOverview - ReportDetailView', () => {
       expect(within(linksSection).getByRole('link')).toHaveAttribute('href', `/patrols/${activePatrol.id}`);
       expect(titleInput.value.endsWith('!')).toBe(true);
       expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+    });
+
+    test('shows a history entry recorded elsewhere', async () => {
+      renderWithWrapper(<ReportDetailView isNewReport={false} reportId="456" />);
+
+      await screen.findByTestId('detailView-historySection');
+
+      state = {
+        ...state,
+        data: {
+          ...state.data,
+          eventStore: {
+            456: {
+              ...state.data.eventStore[456],
+              updates: [...mockReportWithNotes.updates, {
+                message: 'Added the report to an incident',
+                time: new Date('2022-12-17T04:00:00'),
+                user: { first_name: 'First', last_name: 'Last' },
+              }],
+            },
+          },
+        },
+      };
+      act(() => {
+        store.dispatch({ type: 'TEST.REFRESH_EVENT' });
+      });
+
+      expect(await screen.findByText('Added the report to an incident')).toBeInTheDocument();
     });
 
     test('offers to add an event to a patrol', async () => {

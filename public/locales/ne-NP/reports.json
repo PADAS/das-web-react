@@ -35,7 +35,7 @@
         "patrolIndicator": "ग",
         "reportMenu": {
           "addToIncidentOption": "घटनामा थप्नुहोस्",
-          "addToPatrolOption": "गस्तिमा थप्नुहोस्",
+          "addToPatrolOption": "गस्तीमा थप्नुहोस्",
           "copyLinkMessage": "लिकं कपि गरियो",
           "copyLinkOption": "घटनाको लिकं कपि गर्नुहोस्",
           "jumpToLocationOption": "स्थानमा जानुहोस्",
@@ -67,7 +67,7 @@
       "eventRow": {
         "actions": {
           "addToIncidentOption": "घटनामा थप्नुहोस्",
-          "addToPatrolOption": "गस्तिमा थप्नुहोस्",
+          "addToPatrolOption": "गस्तीमा थप्नुहोस्",
           "copyLinkMessage": "लिकं कपि गरियो",
           "copyLinkOption": "घटनाको लिकं कपि गर्नुहोस्",
           "jumpToLocationButtonLabel": "स्थानमा जानुहोस्",

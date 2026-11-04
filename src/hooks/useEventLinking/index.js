@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -36,6 +36,8 @@ const useEventLinking = (event, { saveEvent = null } = {}) => {
 
   const tracker = useContext(TrackerContext);
 
+  const createdIncidentRef = useRef(null);
+
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
   const [isLinking, setIsLinking] = useState(false);
   const [linkModalType, setLinkModalType] = useState(null);
@@ -54,7 +56,7 @@ const useEventLinking = (event, { saveEvent = null } = {}) => {
 
   const closeLinkModal = () => setIsLinkModalOpen(false);
 
-  // Only a saved event can be linked, and a save that fails shows its own errors.
+  // Only a saved event can be linked, and a failed save shows its own errors.
   const linkEvent = async ({ errorMessage, failureTrackingAction, link, successMessage, successTrackingAction }) => {
     setIsLinking(true);
 
@@ -103,11 +105,15 @@ const useEventLinking = (event, { saveEvent = null } = {}) => {
     errorMessage: t('addToNewIncidentErrorMessage'),
     failureTrackingAction: 'Fail to add an event to a new incident',
     link: async (eventId) => {
-      const response = await dispatch(createEvent(createNewIncidentCollection({ priority: event.priority })));
+      // A retry reuses the incident that the failed attempt created.
+      if (!createdIncidentRef.current) {
+        const response = await dispatch(createEvent(createNewIncidentCollection({ priority: event.priority })));
+        createdIncidentRef.current = response.data.data;
+      }
 
-      await dispatch(addEventToIncident(eventId, response.data.data.id));
+      await dispatch(addEventToIncident(eventId, createdIncidentRef.current.id));
 
-      return response.data.data;
+      return createdIncidentRef.current;
     },
     successMessage: (linkedEvent, linkedIncident) => t('addedToNewIncidentMessage', {
       eventSerialNumber: linkedEvent.serial_number,

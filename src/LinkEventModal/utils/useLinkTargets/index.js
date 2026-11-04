@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { isCancel } from 'axios';
+import uniqBy from 'lodash/uniqBy';
 import { useDispatch } from 'react-redux';
 
 import { EVENT_LINK_TARGET_TYPES } from '../../../constants';
@@ -42,15 +43,23 @@ const useLinkTargets = (type, searchText) => {
     setIsLoading(!pageUrl);
     setNextPageUrl(null);
 
-    try {
-      const page = await dispatch(FETCH_LINK_TARGETS_BY_TYPE[type](
-        searchText,
-        { nextPageUrl: pageUrl, signal: abortController.signal }
-      ));
-      const pageLinkTargets = FILTER_LINK_TARGETS_BY_TYPE[type](page.results);
+    const fetchPage = (url) => dispatch(FETCH_LINK_TARGETS_BY_TYPE[type](
+      searchText,
+      { nextPageUrl: url, signal: abortController.signal }
+    ));
 
+    try {
+      let page = await fetchPage(pageUrl);
+      let pageLinkTargets = FILTER_LINK_TARGETS_BY_TYPE[type](page.results);
+      // A page the filter empties would leave nothing to scroll to the next one.
+      while (!pageLinkTargets.length && page.next) {
+        page = await fetchPage(page.next);
+        pageLinkTargets = FILTER_LINK_TARGETS_BY_TYPE[type](page.results);
+      }
+
+      // A target that moved up the order between two pages comes in both.
       setLinkTargets((currentLinkTargets) => pageUrl
-        ? [...currentLinkTargets, ...pageLinkTargets]
+        ? uniqBy([...currentLinkTargets, ...pageLinkTargets], 'id')
         : pageLinkTargets);
       setNextPageUrl(page.next);
       setIsLoading(false);

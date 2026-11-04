@@ -127,7 +127,7 @@ export const fetchPatrolLinkTargets = (searchText, { nextPageUrl = null, signal 
     return response.data.data;
   } catch (error) {
     if (!isCancel(error)) {
-      console.warn('error fetching the patrols an event can be added to', error);
+      console.warn('Error fetching the patrols an event can be added to', error);
     }
 
     throw error;

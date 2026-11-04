@@ -143,6 +143,21 @@ describe('useEventLinking', () => {
     expect(track).toHaveBeenCalledWith('Add an event to a new incident');
   });
 
+  test('adds the event to the incident it already created when the user retries a failed link', async () => {
+    addEventToIncident.mockImplementationOnce(() => () => Promise.reject(new Error('link error')));
+    const { result } = renderUseEventLinking();
+
+    act(() => result.current.openLinkModal(EVENT_LINK_TARGET_TYPES.INCIDENT));
+    await act(() => result.current.addToNewIncident());
+    await act(() => result.current.addToNewIncident());
+
+    expect(createEvent).toHaveBeenCalledTimes(1);
+    expect(addEventToIncident).toHaveBeenNthCalledWith(2, 'event-id', 'new-incident-id');
+    expect(showToast).toHaveBeenLastCalledWith(expect.objectContaining({
+      message: 'Event 10 added to new incident 21.',
+    }));
+  });
+
   test('keeps the modal open and shows an error when the link fails', async () => {
     addEventToPatrol.mockImplementation(() => () => Promise.reject(new Error('link error')));
     const { result } = renderUseEventLinking();

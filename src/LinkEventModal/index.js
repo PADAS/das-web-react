@@ -1,4 +1,4 @@
-import { memo, useId, useMemo, useRef, useState } from 'react';
+import { useId, useMemo, useRef, useState } from 'react';
 import debounce from 'lodash/debounce';
 import InfiniteScroll from 'react-infinite-scroller';
 import Modal from 'react-bootstrap/Modal';
@@ -208,4 +208,4 @@ const LinkEventModal = ({
   </Modal>;
 };
 
-export default memo(LinkEventModal);
+export default LinkEventModal;

@@ -289,6 +289,23 @@ describe('Selectors - Event types', () => {
       });
     });
 
+    test('reads the permissions of a system category', () => {
+      const systemState = {
+        data: {
+          ...state.data,
+          eventCategories: {
+            ...state.data.eventCategories,
+            monitoring: { ...monitoringCategory, flag: 'system', permissions: ['read', 'update'] },
+          },
+        },
+      };
+
+      expect(selectEventCategoryPermissions(systemState, { event_type: 'fire_v2' })).toEqual({
+        hasCreatePermission: false,
+        hasUpdatePermission: true,
+      });
+    });
+
     test('grants no permission when the category is unknown', () => {
       expect(selectEventCategoryPermissions(state, { event_type: 'unknown' })).toEqual({
         hasCreatePermission: false,

@@ -6,9 +6,10 @@ const selectEventCategories = (state) => state.data.eventCategories;
 const selectEventTypes = (state) => state.data.eventTypes;
 const selectPatrolTypes = (state) => state.data.patrolTypes;
 
-// A category without a flag grants every action, as type creation reads it.
+// A category without a flag grants every action, as type creation reads it, and
+// the server checks a system category's permissions as it does a user one's.
 const hasEventCategoryPermission = (eventCategory, permission) => !!eventCategory
-  && (!eventCategory.flag || (eventCategory.flag === 'user' && !!eventCategory.permissions?.includes(permission)));
+  && (!eventCategory.flag || !!eventCategory.permissions?.includes(permission));
 
 export const selectCreatableEventTypesByCategory = createSelector(
   [selectEventCategories, selectEventTypes],
