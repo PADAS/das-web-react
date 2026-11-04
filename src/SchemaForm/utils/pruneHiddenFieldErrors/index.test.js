@@ -104,4 +104,10 @@ describe('SchemaForm - utils - pruneHiddenFieldErrors', () => {
 
     expect(prune(errors)).toEqual(errors);
   });
+
+  test('keeps the errors under an empty item key of a visible collection', () => {
+    const errors = { collection: { message: collectionItemsMessage, '': { hidden_child: { message: 'Wrong type' } } } };
+
+    expect(prune(errors)).toEqual(errors);
+  });
 });

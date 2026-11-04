@@ -2,6 +2,8 @@ import omit from 'lodash/omit';
 
 import { FORM_ELEMENT_TYPES } from '../../../utils/form-schemas/constants';
 
+const ITEM_INDEX_REGEX = /^\d+$/;
+
 const pruneHiddenFieldErrors = (errors, formElements, collectionItemsMessage, parentCollectionId = null) =>
   Object.keys(errors).reduce((prunedErrors, fieldName) => {
     const fieldId = parentCollectionId ? `${parentCollectionId}.${fieldName}` : fieldName;
@@ -15,7 +17,7 @@ const pruneHiddenFieldErrors = (errors, formElements, collectionItemsMessage, pa
       } else {
         const prunedItemErrors = Object.keys(itemErrors).reduce((accumulator, index) => {
           // Errors about the collection items themselves are not keyed by a numeric item index.
-          const prunedItem = Number.isInteger(Number(index))
+          const prunedItem = ITEM_INDEX_REGEX.test(index)
             ? pruneHiddenFieldErrors(itemErrors[index], formElements, collectionItemsMessage, fieldId)
             : itemErrors[index];
 
