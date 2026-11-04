@@ -10,14 +10,15 @@ import { TrackerContext, trackEventFactory } from '../../../../utils/analytics';
 
 import StaticFields from './';
 
-const trackMock = jest.fn();
-const tracker = trackEventFactory('Test', trackMock);
-
 describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
   const onChangeLeg = jest.fn();
 
   let store;
+  let tracker;
+  let trackMock;
   beforeEach(() => {
+    trackMock = jest.fn();
+    tracker = trackEventFactory('Test', trackMock);
     store = {
       data: {
         patrolTeamAndTrackingOptions: {

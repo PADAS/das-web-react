@@ -28,8 +28,6 @@ jest.mock('../../../ducks/patrol-schemas', () => ({
 
 const LINES_SOURCE_ID_PATTERN = /^form-location-markers-source-lines-.+$/;
 
-const tracker = trackEventFactory('Test', jest.fn());
-
 const EMPTY_PATROL_TYPE_SCHEMA = {
   json: { $schema: 'https://json-schema.org/draft/2020-12/schema', properties: {}, required: [], type: 'object' },
   ui: { fields: {}, headers: {}, order: [], sections: {} },
@@ -44,7 +42,9 @@ describe('SideBar - PatrolsManager - LegForm', () => {
   const onSubmit = jest.fn();
 
   let map, reduxStore, store;
+  let tracker;
   beforeEach(() => {
+    tracker = trackEventFactory('Test', jest.fn());
     fetchDefaultPatrolSegmentTypeSchema.mockImplementation(() => () => {});
     fetchPatrolTypeSchema.mockImplementation(() => () => {});
 

@@ -39,6 +39,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed - PatrolRow - Actions', () => {
   });
 
   beforeEach(() => {
+    track = jest.fn();
     updatePatrol.mockImplementation(() => () => Promise.resolve());
 
     store = {
@@ -61,7 +62,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed - PatrolRow - Actions', () => {
     jest.restoreAllMocks();
   });
 
-  const track = jest.fn();
+  let track;
 
   const renderActions = (props) => {
     reduxStore = mockStore(store);

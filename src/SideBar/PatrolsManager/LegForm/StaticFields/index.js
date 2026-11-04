@@ -152,7 +152,7 @@ const StaticFields = ({
     />
   </div>;
 
-  // Saving closes the form, so a pending edit would otherwise never be tracked.
+  // Closing the form, saved or discarded, would otherwise drop a pending edit.
   useEffect(() => () => {
     Object.values(debouncedTrackers).forEach((debouncedTrack) => debouncedTrack.flush());
   }, [debouncedTrackers]);

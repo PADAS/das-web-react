@@ -8,7 +8,7 @@ import userEvent from '@testing-library/user-event';
 import { act, render, screen, waitFor } from '../../../test-utils';
 import AddItemButton from '../../../AddItemButton';
 import { addPatrolSegmentToEvent } from '../../../utils/events';
-import { expectActionWithinGa4Limit } from '../../../__test-helpers/analytics';
+import { GA4_MAX_ACTION_LENGTH } from '../../../__test-helpers/analytics';
 import { fetchPatrol, updatePatrol, uploadPatrolFile } from '../../../ducks/patrols';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import patrolTypes from '../../../__test-helpers/fixtures/patrol-types';
@@ -265,7 +265,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       category: 'Patrol Overview',
       label: 'History',
     });
-    expectActionWithinGa4Limit('Click a tab in patrol overview');
+    expect('Click a tab in patrol overview'.length).toBeLessThanOrEqual(GA4_MAX_ACTION_LENGTH);
   });
 
   test('shows the footer', async () => {

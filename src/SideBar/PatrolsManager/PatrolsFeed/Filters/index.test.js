@@ -23,6 +23,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters', () => {
   let store;
 
   beforeEach(() => {
+    track = jest.fn();
     resetGlobalDateRange.mockImplementation(() => () => {});
     updatePatrolFilter.mockImplementation(() => () => {});
 
@@ -44,7 +45,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters', () => {
     };
   });
 
-  const track = jest.fn();
+  let track;
 
   const renderFilters = (props) => render(
     <Provider store={mockStore(store)}>

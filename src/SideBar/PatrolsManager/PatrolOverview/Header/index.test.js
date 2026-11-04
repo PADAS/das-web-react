@@ -92,6 +92,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
   let store;
   let reduxStore;
   beforeEach(() => {
+    track = jest.fn();
     useReactToPrint.mockImplementation(() => handlePrint);
 
     onChangeTitle = jest.fn();
@@ -123,7 +124,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
     jest.restoreAllMocks();
   });
 
-  const track = jest.fn();
+  let track;
 
   const renderHeader = (props, { withLocationDisplay = false } = {}) => {
     reduxStore = mockStore(store);

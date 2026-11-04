@@ -10,7 +10,10 @@ import History from './';
 describe('SideBar - PatrolsManager - PatrolOverview - History', () => {
   const patrolWithLeader = patrols[1];
 
-  const track = jest.fn();
+  let track;
+  beforeEach(() => {
+    track = jest.fn();
+  });
 
   const renderHistory = (props) => render(
     <TrackerContext.Provider value={{ track }}>
