@@ -571,6 +571,68 @@ describe('SchemaForm', () => {
     expect(inputField).toHaveFocus();
   });
 
+  describe('with fields the form does not render', () => {
+    beforeEach(() => {
+      schema.json.properties.tags = { deprecated: true, title: 'Tags', type: 'string' };
+    });
+
+    test('renders a value of the wrong type in a hidden field without throwing', () => {
+      renderSchemaForm({ formData: { text_field: 'a text value', tags: ['a', 'b'] } });
+
+      expect(screen.getByRole('textbox', { name: 'Text Field' })).toBeInTheDocument();
+    });
+
+    test('submits the form when a hidden field has a value of the wrong type', async () => {
+      renderSchemaForm({ formData: { text_field: 'a text value', tags: ['a', 'b'] } });
+
+      await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+      expect(onFormSubmit).toHaveBeenCalledTimes(1);
+      expect(screen.getByRole('alert')).not.toHaveTextContent('There are validation errors in the following fields:');
+    });
+
+    test('submits the form when a required hidden field has no value', async () => {
+      schema.json.required.push('tags');
+      renderSchemaForm();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+      expect(onFormSubmit).toHaveBeenCalledTimes(1);
+    });
+
+    test('submits the form when the form data has a key the schema does not declare', async () => {
+      renderSchemaForm({ formData: { text_field: 'a text value', not_in_schema: 'value' } });
+
+      await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+      expect(onFormSubmit).toHaveBeenCalledTimes(1);
+    });
+
+    test('keeps the visible field errors when a hidden field also has an error', async () => {
+      renderSchemaForm({ formData: { text_field: undefined, tags: ['a', 'b'] } });
+
+      await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+      const alert = screen.getByRole('alert');
+      expect(onFormSubmit).not.toHaveBeenCalled();
+      expect(alert).toHaveTextContent('Text Field');
+      expect(alert).not.toHaveTextContent('Tags');
+      expect(screen.getByRole('textbox', { name: 'Text Field' })).toBeInvalid();
+    });
+
+    test('does not leave the form invalid when its validate method is called with only hidden field errors', () => {
+      const validateRef = { current: null };
+      renderSchemaForm({ formData: { text_field: 'a text value', tags: ['a', 'b'] }, validateRef });
+
+      let isValid;
+      act(() => {
+        isValid = validateRef.current.validate();
+      });
+
+      expect(isValid).toBe(true);
+    });
+  });
+
   test('shows upload errors if there are any when the user submits the form', async () => {
     addAttachmentFieldToSchema(schema);
 
