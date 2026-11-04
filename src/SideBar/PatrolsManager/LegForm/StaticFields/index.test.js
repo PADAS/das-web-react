@@ -443,7 +443,7 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
       test.each([
         ['Start Location', 'Change start location from the leg form'],
         ['End Location', 'Change end location from the leg form'],
-      ])('tracks the %s once as set, a second after the user stops typing, and once as cleared', async (fieldLabel, action) => {
+      ])('tracks the %s once as set after typing stops, and once as cleared', async (fieldLabel, action) => {
         store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = Object.values(GPS_FORMATS);
         const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 

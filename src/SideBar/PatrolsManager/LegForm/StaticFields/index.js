@@ -228,7 +228,10 @@ const StaticFields = ({
             onChange={(startLocation) => {
               onChangeLeg({ startLocation: startLocation || null });
 
-              debouncedTrackers.startLocation('Change start location from the leg form', startLocation ? 'set' : 'cleared');
+              debouncedTrackers.startLocation(
+                'Change start location from the leg form',
+                startLocation ? 'set' : 'cleared'
+              );
             }}
             value={leg.startLocation}
           />
@@ -302,7 +305,10 @@ const StaticFields = ({
             onChange={(endLocation) => {
               onChangeLeg({ endLocation: endLocation || null });
 
-              debouncedTrackers.endLocation('Change end location from the leg form', endLocation ? 'set' : 'cleared');
+              debouncedTrackers.endLocation(
+                'Change end location from the leg form',
+                endLocation ? 'set' : 'cleared'
+              );
             }}
             value={leg.endLocation}
           />
