@@ -47,7 +47,7 @@ const EventsFeed = ({ eventsFeed }) => {
 
   const { scrollRef } = useContext(SidebarScrollContext);
 
-  const eventListContainerRef = useRef(null);
+  const emptyStateMessageRef = useRef(null);
 
   const feedEvents = eventsFeed.events.results ?? EMPTY_EVENTS;
 
@@ -64,7 +64,7 @@ const EventsFeed = ({ eventsFeed }) => {
   // take the focus. InfiniteScroll keeps the node of its list to itself.
   const onLinkModalExited = () => {
     if (!events.some((event) => event.id === eventLinking.linkModalEvent?.id)) {
-      eventListContainerRef.current?.querySelector('ul')?.focus();
+      (scrollRef.current?.querySelector('ul') ?? emptyStateMessageRef.current)?.focus();
     }
   };
 
@@ -95,6 +95,8 @@ const EventsFeed = ({ eventsFeed }) => {
 
       {!eventsFeed.events.error && !eventsFeed.loadingEventFeed && events.length === 0 && <p
         className={styles.emptyStateMessage}
+        ref={emptyStateMessageRef}
+        tabIndex={-1}
       >
         {t('emptyStateMessage')}
       </p>}
@@ -102,7 +104,6 @@ const EventsFeed = ({ eventsFeed }) => {
       {!eventsFeed.events.error && !eventsFeed.loadingEventFeed && events.length > 0 && <ScrollRestoration
         className={styles.eventListScrollContainer}
         namespace={TAB_KEYS.EVENTS}
-        ref={eventListContainerRef}
       >
         <InfiniteScroll
           aria-label={t('eventListLabel')}

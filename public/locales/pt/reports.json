@@ -251,7 +251,7 @@
     },
     "linksSection": {
       "linkItem": {
-        "removeButton": "Remover",
+        "removeButtonLabel": "Remover",
         "removeFromIncidentButtonLabel": "Remover do incidente {{serialNumber}}",
         "removeFromPatrolButtonLabel": "Remover da patrulha {{serialNumber}}"
       },

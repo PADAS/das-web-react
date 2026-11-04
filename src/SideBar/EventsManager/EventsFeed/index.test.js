@@ -1,3 +1,4 @@
+import { createRef } from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
@@ -12,7 +13,7 @@ import { fetchNextEventFeedPage, removeEventFromIncident, removeEventFromPatrol 
 import { mockStore } from '../../../__test-helpers/MockStore';
 import { render, screen, waitFor, within } from '../../../test-utils';
 import { report } from '../../../__test-helpers/fixtures/reports';
-import { SidebarScrollProvider } from '../../../SidebarScrollContext';
+import { SidebarScrollContext, SidebarScrollProvider } from '../../../SidebarScrollContext';
 import { TrackerContext } from '../../../utils/analytics';
 
 import EventsFeed from './';
@@ -33,6 +34,13 @@ jest.mock('../../../LinkEventModal', () => {
         onExited();
       }
     }, [onExited, show]);
+
+    React.useEffect(() => {
+      const onKeyDown = (keyboardEvent) => keyboardEvent.key === 'Escape' && onHide();
+      globalThis.document.addEventListener('keydown', onKeyDown);
+
+      return () => globalThis.document.removeEventListener('keydown', onKeyDown);
+    }, [onHide]);
 
     return show && <div aria-label={`Add #${event.serial_number} to ${type}`} role="dialog">
       <button onClick={onHide} type="button">Close</button>
@@ -279,6 +287,20 @@ describe('SideBar - EventsManager - EventsFeed', () => {
     expect(fetchNextEventFeedPage).toHaveBeenCalledWith('https://das/events?page=2');
   });
 
+  test('hands its scroll container to the sidebar, which keeps its scroll position', () => {
+    const scrollContext = { scrollRef: createRef(), scrollToLastPosition: jest.fn(), setScrollPosition: jest.fn() };
+    const store = mockStore({ data: { eventCategories: {}, eventTypes: [], user: {} }, view: { systemConfig: {} } });
+    render(<Provider store={store}>
+      <TrackerContext.Provider value={tracker}>
+        <SidebarScrollContext.Provider value={scrollContext}>
+          <EventsFeed eventsFeed={eventsFeed} />
+        </SidebarScrollContext.Provider>
+      </TrackerContext.Provider>
+    </Provider>, { initialEntries: [`/${TAB_KEYS.EVENTS}`] });
+
+    expect(scrollContext.scrollRef.current).toContainElement(screen.getByRole('list', { name: 'Event list' }));
+  });
+
   test('does not show a loading more spinner without a next page', () => {
     renderEventsFeed();
 
@@ -353,9 +375,9 @@ describe('SideBar - EventsManager - EventsFeed', () => {
 
       await userEvent.click(screen.getByRole('button', { name: 'Add #3 to incident' }));
       screen.getByRole('button', { name: 'Add #1 to incident' }).focus();
-      screen.getByRole('button', { name: 'Close' }).click();
+      await userEvent.keyboard('{Escape}');
 
-      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+      expect(screen.queryByRole('dialog')).toBeNull();
       expect(screen.getByRole('button', { name: 'Add #1 to incident' })).toHaveFocus();
     });
 
@@ -365,9 +387,19 @@ describe('SideBar - EventsManager - EventsFeed', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Add #3 to incident' }));
       rerenderEventsFeed({ events: { ...eventsFeed.events, results: [firstEvent, secondEvent] } });
       screen.getByRole('button', { name: 'Add #1 to incident' }).focus();
-      screen.getByRole('button', { name: 'Close' }).click();
+      await userEvent.keyboard('{Escape}');
 
-      await waitFor(() => expect(screen.getByRole('list', { name: 'Event list' })).toHaveFocus());
+      expect(screen.getByRole('list', { name: 'Event list' })).toHaveFocus();
+    });
+
+    test('moves the focus to the empty state when the modal closes after the last row left the feed', async () => {
+      const { rerenderEventsFeed } = renderEventsFeed();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Add #3 to incident' }));
+      rerenderEventsFeed({ events: { ...eventsFeed.events, results: [] } });
+      await userEvent.click(screen.getByRole('button', { name: 'Close' }));
+
+      expect(screen.getByText('No events to display.')).toHaveFocus();
     });
   });
 });

@@ -115,7 +115,7 @@ describe('SideBar - EventsManager - EventOverview - LinksSection', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Remove from patrol 1595' }));
 
     expect(onRemoveFromIncident).toHaveBeenCalledWith(event, incident.id);
-    expect(onRemoveFromPatrol).toHaveBeenCalledWith(event);
+    expect(onRemoveFromPatrol).toHaveBeenCalledWith(event, activePatrol.id);
   });
 
   test('offers to remove the event from each incident that holds it, and removes it from the one picked', async () => {

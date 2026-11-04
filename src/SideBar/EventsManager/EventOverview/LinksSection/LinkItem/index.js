@@ -66,7 +66,7 @@ const LinkItem = ({ isRemoveDisabled = false, isRemoving = false, item, onRemove
       title={t(REMOVE_BUTTON_LABEL_KEY_BY_LINK_TYPE[type], { serialNumber: item.serial_number })}
       type="button"
     >
-      <span className={styles.removeButtonLabel}>{t('removeButton')}</span>
+      <span className={styles.removeButtonLabel}>{t('removeButtonLabel')}</span>
 
       {isRemoving && <MoonLoader aria-hidden color="currentColor" size={REMOVE_LOADER_SIZE} />}
     </button>}

@@ -25,6 +25,8 @@ const useEventLinking = () => {
   const createdIncidentRef = useRef(null);
   // Updated at once, unlike the state, so a press before a render is ignored.
   const linkingEventIdsRef = useRef(new Set());
+  // Counts the openings of the picker, so a change closes only its own.
+  const linkModalOpeningRef = useRef(0);
   const saveLinkModalEventRef = useRef(null);
 
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
@@ -110,15 +112,17 @@ const useEventLinking = () => {
   });
 
   const addToLinkTarget = async (target) => {
+    const linkModalOpening = linkModalOpeningRef.current;
     const isAdded = await (linkModalType === EVENT_LINK_TARGET_TYPES.PATROL
       ? addToPatrol(target)
       : addToIncident(target));
-    if (isAdded) {
+    if (isAdded && linkModalOpening === linkModalOpeningRef.current) {
       closeLinkModal();
     }
   };
 
   const addToNewIncident = async () => {
+    const linkModalOpening = linkModalOpeningRef.current;
     const isAdded = await changeEventLinks(linkModalEvent, {
       change: async (eventId) => {
         // A retry reuses the incident that the event's failed attempt created.
@@ -143,13 +147,14 @@ const useEventLinking = () => {
       }),
       successTrackingAction: 'Add an event to a new incident',
     });
-    if (isAdded) {
+    if (isAdded && linkModalOpening === linkModalOpeningRef.current) {
       closeLinkModal();
     }
   };
 
   // Only a new event needs saving, and only once a target is picked.
   const openLinkModal = useCallback((type, event, saveEvent = null) => {
+    linkModalOpeningRef.current += 1;
     saveLinkModalEventRef.current = saveEvent;
 
     setLinkModalEvent(event);
@@ -172,8 +177,8 @@ const useEventLinking = () => {
     successTrackingAction: 'Remove an event from an incident',
   }), [changeEventLinks, dispatch, t]);
 
-  const removeFromPatrol = useCallback((event) => changeEventLinks(event, {
-    change: (eventId) => dispatch(removeEventFromPatrol(eventId, getEventPatrolId(event))),
+  const removeFromPatrol = useCallback((event, patrolId = getEventPatrolId(event)) => changeEventLinks(event, {
+    change: (eventId) => dispatch(removeEventFromPatrol(eventId, patrolId)),
     errorMessage: t('removeFromPatrolErrorMessage'),
     failureTrackingAction: 'Fail to remove an event from a patrol',
     successMessage: (unlinkedEvent, unlinkedPatrol) => unlinkedPatrol

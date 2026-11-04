@@ -31,9 +31,11 @@ const LinksSection = ({
   const removeLink = async (linkId, remove) => {
     setRemovingLinkId(linkId);
 
-    await remove();
-
-    setRemovingLinkId(null);
+    try {
+      await remove();
+    } finally {
+      setRemovingLinkId(null);
+    }
   };
 
   // Links also list incidents that link to the event without holding it.
@@ -68,7 +70,7 @@ const LinksSection = ({
         item={linkedPatrol}
         key={linkedPatrol.id}
         onRemove={eventLinkPermissions.canRemoveFromPatrol
-          ? () => removeLink(linkedPatrol.id, () => onRemoveFromPatrol(report))
+          ? () => removeLink(linkedPatrol.id, () => onRemoveFromPatrol(report, linkedPatrol.id))
           : null}
         to={`/${TAB_KEYS.PATROLS}/${linkedPatrol.id}`}
         type={LINK_TYPES.PATROL}

@@ -658,6 +658,7 @@ const ReportDetailView = ({
 
   // The hook's result is new each render, but its removals keep their identity.
   const removeFromIncident = eventLinking.removeFromIncident;
+  const removeFromPatrol = eventLinking.removeFromPatrol;
 
   // An event can sit in several incidents, so the child leaves this one.
   const onRemoveContainedReport = useCallback(async (containedReport) => {
@@ -666,17 +667,17 @@ const ReportDetailView = ({
     }
   }, [removeFromIncident, reportForm.id]);
 
-  const onRemoveFromIncident = async (event, incidentId) => {
+  const onRemoveFromIncident = useCallback(async (event, incidentId) => {
     if (await removeFromIncident(event, incidentId)) {
       focusFirstShownHeading([linksHeadingRef, historyHeadingRef]);
     }
-  };
+  }, [removeFromIncident]);
 
-  const onRemoveFromPatrol = async (event) => {
-    if (await eventLinking.removeFromPatrol(event)) {
+  const onRemoveFromPatrol = useCallback(async (event, patrolId) => {
+    if (await removeFromPatrol(event, patrolId)) {
       focusFirstShownHeading([linksHeadingRef, historyHeadingRef]);
     }
-  };
+  }, [removeFromPatrol]);
 
   // A failed save shows its own errors, and one under way returns nothing.
   const onSaveAddedReport = useCallback(([{ data: { data: secondReportSaved } }]) => {

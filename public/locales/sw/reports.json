@@ -251,7 +251,7 @@
     },
     "linksSection": {
       "linkItem": {
-        "removeButton": "Ondoa",
+        "removeButtonLabel": "Ondoa",
         "removeFromIncidentButtonLabel": "Ondoa kwenye tukio {{serialNumber}}",
         "removeFromPatrolButtonLabel": "Ondoa kwenye doria {{serialNumber}}"
       },

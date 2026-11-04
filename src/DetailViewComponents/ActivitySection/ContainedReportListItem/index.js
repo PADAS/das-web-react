@@ -31,9 +31,9 @@ const CAN_REMOVE_PERMISSION_BY_LINK_TARGET_TYPE = {
   [EVENT_LINK_TARGET_TYPES.PATROL]: 'canRemoveFromPatrol',
 };
 
-const REMOVE_BUTTON_KEY_BY_LINK_TARGET_TYPE = {
-  [EVENT_LINK_TARGET_TYPES.INCIDENT]: 'removeFromIncidentButton',
-  [EVENT_LINK_TARGET_TYPES.PATROL]: 'removeFromPatrolButton',
+const REMOVE_BUTTON_LABEL_KEY_BY_LINK_TARGET_TYPE = {
+  [EVENT_LINK_TARGET_TYPES.INCIDENT]: 'removeFromIncidentButtonLabel',
+  [EVENT_LINK_TARGET_TYPES.PATROL]: 'removeFromPatrolButtonLabel',
 };
 
 const CONTAINED_REPORT_ANALYTICS_LABEL = 'contained report';
@@ -199,7 +199,9 @@ const ContainedReportListItem = ({
             onClick={onClickRemove}
             type="button"
           >
-            <span className={styles.removeButtonLabel}>{t(REMOVE_BUTTON_KEY_BY_LINK_TARGET_TYPE[removeFrom])}</span>
+            <span className={styles.removeButtonLabel}>
+              {t(REMOVE_BUTTON_LABEL_KEY_BY_LINK_TARGET_TYPE[removeFrom])}
+            </span>
 
             {isRemoving && <MoonLoader aria-hidden color="currentColor" size={REMOVE_LOADER_SIZE} />}
           </button>

@@ -248,6 +248,55 @@ describe('useEventLinking', () => {
     expect(saveEvent).not.toHaveBeenCalled();
   });
 
+  test('leaves open the modal of another event that opened while a link ran', async () => {
+    let resolveAddEventToIncident;
+    addEventToIncident.mockImplementation(() => () => new Promise((resolve) => {
+      resolveAddEventToIncident = resolve;
+    }));
+    const otherEvent = { ...event, id: 'other-event-id', serial_number: 11 };
+    const { result } = renderUseEventLinking();
+
+    act(() => result.current.openLinkModal(EVENT_LINK_TARGET_TYPES.INCIDENT, event));
+    let addition;
+    act(() => {
+      addition = result.current.addToLinkTarget(incident);
+    });
+    act(() => result.current.closeLinkModal());
+    act(() => result.current.openLinkModal(EVENT_LINK_TARGET_TYPES.PATROL, otherEvent));
+    await act(async () => {
+      resolveAddEventToIncident();
+      await addition;
+    });
+
+    expect(showToast).toHaveBeenCalledWith(expect.objectContaining({ message: 'Event 10 added to incident 20.' }));
+    expect(result.current.isLinkModalOpen).toBe(true);
+    expect(result.current.linkModalEvent).toBe(otherEvent);
+  });
+
+  test('leaves open the modal of another event that opened while a new incident was created', async () => {
+    let resolveCreateEvent;
+    createEvent.mockImplementation(() => () => new Promise((resolve) => {
+      resolveCreateEvent = () => resolve({ data: { data: { id: 'new-incident-id', serial_number: 21 } } });
+    }));
+    const otherEvent = { ...event, id: 'other-event-id', serial_number: 11 };
+    const { result } = renderUseEventLinking();
+
+    act(() => result.current.openLinkModal(EVENT_LINK_TARGET_TYPES.INCIDENT, event));
+    let addition;
+    act(() => {
+      addition = result.current.addToNewIncident();
+    });
+    act(() => result.current.closeLinkModal());
+    act(() => result.current.openLinkModal(EVENT_LINK_TARGET_TYPES.INCIDENT, otherEvent));
+    await act(async () => {
+      resolveCreateEvent();
+      await addition;
+    });
+
+    expect(addEventToIncident).toHaveBeenCalledWith('event-id', 'new-incident-id');
+    expect(result.current.isLinkModalOpen).toBe(true);
+  });
+
   test('removes the event from its incident, confirms it and resolves to true', async () => {
     const { result } = renderUseEventLinking();
 
@@ -300,6 +349,17 @@ describe('useEventLinking', () => {
     expect(showToast).toHaveBeenCalledWith(expect.objectContaining({ message: 'Event 10 removed from patrol 30.' }));
     expect(tracker.track).toHaveBeenCalledWith('Remove an event from a patrol');
     expect(isRemoved).toBe(true);
+  });
+
+  test('removes the event from the patrol it is asked to', async () => {
+    const { result } = renderUseEventLinking();
+
+    await act(() => result.current.removeFromPatrol({
+      ...linkedEvent,
+      patrols: [...linkedEvent.patrols, 'other-patrol-id'],
+    }, 'other-patrol-id'));
+
+    expect(removeEventFromPatrol).toHaveBeenCalledWith('event-id', 'other-patrol-id');
   });
 
   test('shows an error and resolves to false when a removal fails', async () => {

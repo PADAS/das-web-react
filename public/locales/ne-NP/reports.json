@@ -251,7 +251,7 @@
     },
     "linksSection": {
       "linkItem": {
-        "removeButton": "हटाउनुहोस्",
+        "removeButtonLabel": "हटाउनुहोस्",
         "removeFromIncidentButtonLabel": "घटना {{serialNumber}} बाट हटाउनुहोस्",
         "removeFromPatrolButtonLabel": "गस्ती {{serialNumber}} बाट हटाउनुहोस्"
       },

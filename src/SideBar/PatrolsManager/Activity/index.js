@@ -67,10 +67,10 @@ const Activity = ({
 
   // A removed card takes its focused button along, so the heading takes focus.
   const onRemoveContainedEvent = useCallback(async (containedEvent) => {
-    if (await removeFromPatrol(containedEvent)) {
+    if (await removeFromPatrol(containedEvent, patrol.id)) {
       headingRef.current?.focus();
     }
-  }, [removeFromPatrol]);
+  }, [patrol.id, removeFromPatrol]);
 
   const {
     areAllItemsExpanded,
@@ -94,7 +94,7 @@ const Activity = ({
     onDeleteAttachment,
     onDeleteNote,
     onDoneNote,
-    // The server removes an event from the whole patrol, even from a leg's activity.
+    // Even from a leg's activity, the event leaves the whole patrol.
     onRemoveContainedReport: onRemoveContainedEvent,
     removeContainedReportFrom: EVENT_LINK_TARGET_TYPES.PATROL,
     removingContainedReportIds: eventLinking.linkingEventIds,

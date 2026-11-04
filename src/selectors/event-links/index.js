@@ -16,8 +16,8 @@ const selectUserPermissions = (state) => (state.data.selectedUserProfile?.id
   ? state.data.selectedUserProfile
   : state.data.user)?.permissions;
 
-// Every link change edits the event, so each one takes the right to update its
-// category; the server checks patrol links with that same right.
+// Every link change but leaving an incident edits the event, so it takes the
+// right to update its category; the server checks patrol links with it too.
 export const selectEventLinkPermissions = createSelector(
   [
     selectEventCategoryPermissions,

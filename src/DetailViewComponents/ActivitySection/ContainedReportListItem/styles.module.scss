@@ -67,10 +67,6 @@
   justify-content: flex-end;
   padding: 0.5rem 1rem;
 
-  @media print {
-    display: none;
-  }
-
   .removeButton {
     @include buttons.chip-text-button;
     @include buttons.chip-danger-state;
@@ -85,6 +81,10 @@
     &[aria-busy='true'] .removeButtonLabel {
       opacity: 0;
     }
+  }
+
+  @media print {
+    display: none;
   }
 }
 

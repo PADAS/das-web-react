@@ -173,6 +173,28 @@ describe('SideBar - PatrolsManager - Activity', () => {
       expect(screen.getByRole('heading', { name: 'Activity' })).toHaveFocus();
     });
 
+    test('removes an event from the patrol it shows, whichever patrol the event names first', async () => {
+      store.data.eventStore[report.id] = { ...patrolEvent, patrols: ['other-patrol-id', patrols[0].id] };
+      renderActivity({ containedEvents: [report] });
+
+      await userEvent.click(screen.getByRole('button', { name: 'Expand Light' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Remove from Patrol' }));
+
+      expect(removeEventFromPatrol).toHaveBeenCalledWith(report.id, patrols[0].id);
+    });
+
+    test('keeps the event, and the focus on its remove button, when the removal fails', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+      removeEventFromPatrol.mockImplementation(() => () => Promise.reject(new Error('Not found')));
+      renderActivity({ containedEvents: [report] });
+
+      await userEvent.click(screen.getByRole('button', { name: 'Expand Light' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Remove from Patrol' }));
+
+      expect(screen.getByRole('button', { name: 'Remove from Patrol' })).toHaveAttribute('aria-busy', 'false');
+      expect(screen.getByRole('button', { name: 'Remove from Patrol' })).toHaveFocus();
+    });
+
     test('does not offer to remove an event when patrol management is off', async () => {
       store.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT] = false;
       renderActivity({ containedEvents: [report] });

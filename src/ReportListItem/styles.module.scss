@@ -3,8 +3,11 @@
 @use '../common/styles/layout';
 
 .icon {
+  align-items: center;
   color: white;
+  display: flex;
   height: 100%;
+  justify-content: center;
   width: 100%;
 
   svg {

@@ -1652,7 +1652,7 @@ describe('SideBar - EventsManager - EventOverview - ReportDetailView', () => {
 
         await userEvent.click(await screen.findByRole('button', { name: `Remove from patrol ${activePatrol.serial_number}` }));
 
-        expect(removeEventFromPatrol).toHaveBeenCalledWith('456', '123');
+        expect(removeEventFromPatrol).toHaveBeenCalledWith('456', activePatrol.id);
         await waitFor(() => expect(screen.getByRole('heading', { name: 'Links' })).toHaveFocus());
         expect(screen.queryByRole('button', { name: `Remove from patrol ${activePatrol.serial_number}` })).toBeNull();
       });
@@ -1665,6 +1665,21 @@ describe('SideBar - EventsManager - EventOverview - ReportDetailView', () => {
 
         await waitFor(() => expect(screen.getByRole('heading', { name: 'History' })).toHaveFocus());
         expect(screen.queryByTestId('reportManager-linksSection')).toBeNull();
+      });
+
+      test('keeps the link, and the focus on its remove button, when the removal fails', async () => {
+        jest.spyOn(console, 'warn').mockImplementation(() => {});
+        removeEventFromPatrol.mockImplementation(() => () => Promise.reject(new Error('Not found')));
+        state.data.eventStore[456] = { ...mockReportWithNotes, patrols: ['123'] };
+        renderWithWrapper(<ReportDetailView isNewReport={false} reportId="456" />);
+
+        const removeButton = await screen.findByRole('button', {
+          name: `Remove from patrol ${activePatrol.serial_number}`,
+        });
+        await userEvent.click(removeButton);
+
+        await waitFor(() => expect(removeButton).toHaveAttribute('aria-busy', 'false'));
+        expect(removeButton).toHaveFocus();
       });
 
       test('keeps the links section busy while the menu removes the event, so it cannot remove it twice', async () => {
