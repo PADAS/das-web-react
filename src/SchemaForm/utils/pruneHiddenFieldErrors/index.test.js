@@ -1,13 +1,17 @@
+import { FORM_ELEMENT_TYPES } from '../../../utils/form-schemas/constants';
+
 import pruneHiddenFieldErrors from './';
 
 describe('SchemaForm - utils - pruneHiddenFieldErrors', () => {
   const collectionItemsMessage = 'Errors in the collection items';
   const formElements = {
-    visible_field: {},
-    collection: {},
-    'collection.visible_child': {},
-    'collection.nested': {},
-    'collection.nested.visible_grandchild': {},
+    collection: { type: FORM_ELEMENT_TYPES.COLLECTION },
+    'collection.location': { type: FORM_ELEMENT_TYPES.LOCATION },
+    'collection.nested': { type: FORM_ELEMENT_TYPES.COLLECTION },
+    'collection.nested.visible_grandchild': { type: FORM_ELEMENT_TYPES.TEXT },
+    'collection.visible_child': { type: FORM_ELEMENT_TYPES.TEXT },
+    location: { type: FORM_ELEMENT_TYPES.LOCATION },
+    visible_field: { type: FORM_ELEMENT_TYPES.TEXT },
   };
 
   const prune = (errors) => pruneHiddenFieldErrors(errors, formElements, collectionItemsMessage);
@@ -74,5 +78,24 @@ describe('SchemaForm - utils - pruneHiddenFieldErrors', () => {
         0: { nested: { message: collectionItemsMessage, 1: { visible_grandchild: { message: 'Required' } } } },
       },
     });
+  });
+
+  test('keeps the nested errors of a visible location field', () => {
+    const errors = { location: { message: 'Errors in the collection items', undefined: { latitude: { message: 'Max' } } } };
+
+    expect(prune(errors)).toEqual(errors);
+  });
+
+  test('keeps the nested errors of a visible location field inside a collection item', () => {
+    const errors = {
+      collection: {
+        message: collectionItemsMessage,
+        0: {
+          location: { message: collectionItemsMessage, undefined: { latitude: { message: 'Max' } } },
+        },
+      },
+    };
+
+    expect(prune(errors)).toEqual(errors);
   });
 });

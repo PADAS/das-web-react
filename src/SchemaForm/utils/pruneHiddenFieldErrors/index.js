@@ -1,5 +1,7 @@
 import omit from 'lodash/omit';
 
+import { FORM_ELEMENT_TYPES } from '../../../utils/form-schemas/constants';
+
 const pruneHiddenFieldErrors = (errors, formElements, collectionItemsMessage, parentCollectionId = null) =>
   Object.keys(errors).reduce((prunedErrors, fieldName) => {
     const fieldId = parentCollectionId ? `${parentCollectionId}.${fieldName}` : fieldName;
@@ -8,7 +10,7 @@ const pruneHiddenFieldErrors = (errors, formElements, collectionItemsMessage, pa
     if (formElements[fieldId]) {
       const itemErrors = omit(errors[fieldName], 'message');
 
-      if (Object.keys(itemErrors).length === 0) {
+      if (formElements[fieldId].type !== FORM_ELEMENT_TYPES.COLLECTION || Object.keys(itemErrors).length === 0) {
         prunedErrors[fieldName] = errors[fieldName];
       } else {
         const prunedItemErrors = Object.keys(itemErrors).reduce((accumulator, index) => {

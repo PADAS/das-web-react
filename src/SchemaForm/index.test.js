@@ -627,6 +627,14 @@ describe('SchemaForm', () => {
     });
   });
 
+  test('does not submit the form when a visible location field has an out of range coordinate', async () => {
+    renderSchemaForm({ formData: { location_field: { latitude: 100, longitude: 10 }, text_field: 'a text value' } });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+    expect(onFormSubmit).not.toHaveBeenCalled();
+  });
+
   test('shows upload errors if there are any when the user submits the form', async () => {
     addAttachmentFieldToSchema(schema);
 
