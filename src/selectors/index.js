@@ -10,7 +10,6 @@ import { PERMISSIONS } from '../constants';
 const locallyEditedEvent = ({ data: { locallyEditedEvent } }) => locallyEditedEvent;
 const mapEvents = ({ data: { mapEvents: { events } } }) => events;
 const feedEvents = ({ data: { feedEvents } }) => feedEvents;
-const feedIncidents = ({ data: { feedIncidents } }) => feedIncidents;
 const eventStore = ({ data: { eventStore } }) => eventStore;
 const hiddenFeatureIDs = ({ data: { mapLayerFilter: { hiddenFeatureIDs } } }) => hiddenFeatureIDs;
 const hiddenAnalyzerIDs = ({ data: { mapLayerFilter: { hiddenAnalyzerIDs } } }) => hiddenAnalyzerIDs;
@@ -64,16 +63,6 @@ export const getFeedEvents = createSelector(
   (feedEvents, eventStore) => ({
     ...feedEvents,
     results: feedEvents.results
-      .map(id => eventStore[id])
-      .filter(item => !!item),
-  }),
-);
-
-export const getFeedIncidents = createSelector(
-  [feedIncidents, eventStore],
-  (feedIncidents, eventStore) => ({
-    ...feedIncidents,
-    results: feedIncidents.results
       .map(id => eventStore[id])
       .filter(item => !!item),
   }),

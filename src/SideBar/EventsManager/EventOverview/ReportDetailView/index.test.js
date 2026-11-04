@@ -23,12 +23,12 @@ import { PATROLS_API_URL } from '../../../../ducks/patrols';
 import patrolTypes from '../../../../__test-helpers/fixtures/patrol-types';
 import ReportDetailView from './';
 import { setLocallyEditedEvent, unsetLocallyEditedEvent } from '../../../../ducks/locally-edited-event';
-import { TAB_KEYS } from '../../../../constants';
+import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../../../../constants';
 import { uploadFile } from '../../../../ducks/user-content';
 import useNavigate from '../../../../hooks/useNavigate';
 import { notes } from '../../../../__test-helpers/fixtures/reports';
 import { SidebarScrollProvider } from '../../../../SidebarScrollContext';
-import { cleanup, render, screen, waitFor, within } from '../../../../test-utils';
+import { act, render, screen, waitFor, within } from '../../../../test-utils';
 
 import * as styles from './styles.module.scss';
 
@@ -237,6 +237,7 @@ describe('SideBar - EventsManager - EventOverview - ReportDetailView', () => {
 
     state = {
       data: {
+        eventCategories: {},
         subjectStore: {},
         eventFilter: { filter: { date_range: { lower: '2020-01-01T06:00:00.000Z' } } },
         eventStore: { 456: mockReportWithNotes, 123: mockReport },
@@ -884,9 +885,6 @@ describe('SideBar - EventsManager - EventOverview - ReportDetailView', () => {
     };
     AddItemButton.mockImplementation(AddItemButtonMock);
 
-    fetchEventMock = jest.fn(() => () => initialReport[0]);
-    fetchEvent.mockImplementation(fetchEventMock);
-
     state.data.eventStore = { initial: { ...mockReport, id: 'initial', is_collection: true } };
 
     renderWithWrapper(
@@ -896,8 +894,6 @@ describe('SideBar - EventsManager - EventOverview - ReportDetailView', () => {
     await waitFor(() => {
       expect(addEventToIncident).toHaveBeenCalledTimes(1);
       expect(addEventToIncident).toHaveBeenCalledWith('added', 'initial');
-      expect(fetchEvent).toHaveBeenCalled();
-      expect(fetchEvent).toHaveBeenCalledWith('initial');
     });
   });
 
@@ -929,9 +925,6 @@ describe('SideBar - EventsManager - EventOverview - ReportDetailView', () => {
     createEventMock = jest.fn(() => () => incidentCollection);
     createEvent.mockImplementation(createEventMock);
 
-    fetchEventMock = jest.fn(() => () => incidentCollection);
-    fetchEvent.mockImplementation(fetchEventMock);
-
     renderWithWrapper(
       <ReportDetailView
             isNewReport
@@ -942,12 +935,7 @@ describe('SideBar - EventsManager - EventOverview - ReportDetailView', () => {
 
     await waitFor(() => {
       expect(createEventMock).toHaveBeenCalledTimes(1);
-      expect(addEventToIncident).toHaveBeenCalledTimes(2);
-      expect(addEventToIncident).toHaveBeenCalledWith('initial', 'incident');
-      expect(addEventToIncident).toHaveBeenCalledWith('added', 'incident');
-      expect(fetchEvent).toHaveBeenCalled();
-      expect(fetchEvent).toHaveBeenCalledWith('incident');
-      expect(navigate).toHaveBeenCalled();
+      expect(addEventToIncident.mock.calls).toEqual([['added', 'incident'], ['initial', 'incident']]);
       expect(navigate).toHaveBeenCalledWith('/events/incident', { replace: true });
     });
   });
@@ -1275,7 +1263,7 @@ describe('SideBar - EventsManager - EventOverview - ReportDetailView', () => {
           />
     );
 
-    expect((await screen.queryByTestId('reportManager-addReportButton'))).toBeNull();
+    expect(screen.queryByTestId('addItemButton-button')).toBeNull();
   });
 
   test('does not show add report button if report belongs to a collection', async () => {
@@ -1285,18 +1273,17 @@ describe('SideBar - EventsManager - EventOverview - ReportDetailView', () => {
       <ReportDetailView isNewReport={false} reportId="456" />
     );
 
-    expect((await screen.queryByTestId('reportManager-addReportButton'))).toBeNull();
+    expect(screen.queryByTestId('addItemButton-button')).toBeNull();
   });
 
-  test('does not show add report button if report belongs to patrol', async () => {
+  test('shows the add report button for an event in a patrol', async () => {
     state.data.eventStore = { 456: { ...mockReport, patrols: ['123'] } };
 
-    cleanup();
     renderWithWrapper(
       <ReportDetailView isNewReport={false} reportId="456" />
     );
 
-    expect((await screen.queryByTestId('reportManager-addReportButton'))).toBeNull();
+    expect(await screen.findByTestId('addItemButton-button')).toBeInTheDocument();
   });
 
   test('does not show add report button if this is an added report', async () => {
@@ -1541,6 +1528,58 @@ describe('SideBar - EventsManager - EventOverview - ReportDetailView', () => {
         expect(onSaveSuccess).toHaveBeenCalledTimes(1);
         res();
       }));
+    });
+  });
+
+  describe('links', () => {
+    beforeEach(() => {
+      state.data.user = { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ] } };
+      state.view.systemConfig = { [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true };
+    });
+
+    test('shows a link made elsewhere without discarding the unsaved edits', async () => {
+      renderWithWrapper(<ReportDetailView isNewReport={false} reportId="456" />);
+
+      const titleInput = await screen.findByRole('textbox', { name: 'Event title' });
+      await userEvent.type(titleInput, '!');
+
+      state = {
+        ...state,
+        data: { ...state.data, eventStore: { 456: { ...state.data.eventStore[456], patrols: ['123'] } } },
+      };
+      act(() => {
+        store.dispatch({ type: 'TEST.REFRESH_EVENT' });
+      });
+
+      const linksSection = await screen.findByTestId('reportManager-linksSection');
+      expect(within(linksSection).getByRole('link')).toHaveAttribute('href', `/patrols/${activePatrol.id}`);
+      expect(titleInput.value.endsWith('!')).toBe(true);
+      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+    });
+
+    test('offers to add an event to a patrol', async () => {
+      renderWithWrapper(<ReportDetailView isNewReport={false} reportId="456" />);
+
+      await userEvent.click(await screen.findByRole('button', { name: 'More options' }));
+
+      expect(await screen.findByRole('menuitem', { name: 'Add to Patrol' })).toBeInTheDocument();
+    });
+
+    test('does not offer to add an event being added from a patrol to another patrol', async () => {
+      renderWithWrapper(
+        <ReportDetailView
+          formProps={{ isPatrolReport: true, redirectTo: [{ pathname: '/patrols/123' }] }}
+          isNewReport
+          newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+          reportId="1234"
+        />
+      );
+
+      await userEvent.click(await screen.findByRole('button', { name: 'More options' }));
+
+      expect(await screen.findByRole('menuitem', { name: 'Print Event Details' })).toBeInTheDocument();
+      expect(screen.queryByRole('menuitem', { name: 'Add to Patrol' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('menuitem', { name: 'Add to Incident' })).not.toBeInTheDocument();
     });
   });
 });

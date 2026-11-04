@@ -6,6 +6,10 @@ const selectEventCategories = (state) => state.data.eventCategories;
 const selectEventTypes = (state) => state.data.eventTypes;
 const selectPatrolTypes = (state) => state.data.patrolTypes;
 
+// A category without a flag grants every action, as type creation reads it.
+const hasEventCategoryPermission = (eventCategory, permission) => !!eventCategory
+  && (!eventCategory.flag || (eventCategory.flag === 'user' && !!eventCategory.permissions?.includes(permission)));
+
 export const selectCreatableEventTypesByCategory = createSelector(
   [selectEventCategories, selectEventTypes],
   (eventCategories, eventTypes) => {
@@ -30,6 +34,22 @@ export const selectCreatableEventTypesByCategory = createSelector(
     });
 
     return creatableEventTypesByCategory;
+  }
+);
+
+// A legacy type embeds its category, while a current one names it by value.
+export const selectEventCategoryPermissions = createSelector(
+  [selectEventCategories, selectEventTypes, (_, event) => event?.event_type, (_, event) => event?.event_category],
+  (eventCategories, eventTypes, eventTypeValue, eventCategoryValue) => {
+    const matchingEventType = eventTypes.find((eventType) => eventType.value === eventTypeValue);
+    const eventCategory = matchingEventType?.version === 1
+      ? matchingEventType.category
+      : eventCategories[matchingEventType?.category ?? eventCategoryValue];
+
+    return {
+      hasCreatePermission: hasEventCategoryPermission(eventCategory, 'create'),
+      hasUpdatePermission: hasEventCategoryPermission(eventCategory, 'update'),
+    };
   }
 );
 

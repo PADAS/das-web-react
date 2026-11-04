@@ -22,12 +22,6 @@
     },
     "timeLabel": "Heure"
   },
-  "addToPatrolModal": {
-    "cancel": "Annuler",
-    "loading": "Chargement...",
-    "noMorePatrols": "Il n'y a plus de patrouilles à afficher.",
-    "title": "Ajouter à une patrouille"
-  },
   "detailView": {
     "addEmptyNoteAlert": "Impossible d'ajouter un nouveau commentaire: il y a un commentaire vide qui n'a pas encore été sauvegardé",
     "formButtons": {

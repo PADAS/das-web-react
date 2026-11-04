@@ -1,5 +1,6 @@
 import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import debounce from 'lodash/debounce';
+import pick from 'lodash/pick';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +19,6 @@ import {
   createNewIncidentCollection,
   createNewReportForEventType,
   eventBelongsToCollection,
-  eventBelongsToPatrol,
   formValidator,
   setOriginalTextToEventNotes,
 } from '../../../../utils/events';
@@ -55,6 +55,8 @@ const CLEAR_ERRORS_TIMEOUT = 7000;
 const FETCH_EVENT_DEBOUNCE_TIME = 300;
 const QUICK_LINKS_SCROLL_TOP_OFFSET = 20;
 const EVENT_DETAILS_KEY = 'event_details';
+// Links change outside the form, so they are read from the store.
+const EVENT_LINK_FIELDS = ['contains', 'is_contained_in', 'is_linked_to', 'patrol_segments', 'patrols'];
 const EVENT_UPDATEABLE_FIELDS = [
   'event_details',
   'geometry',
@@ -179,6 +181,11 @@ const ReportDetailView = ({
 
   const { displayTitle, eventTypeTitle } = useReport(reportForm);
 
+  const reportWithLinks = useMemo(
+    () => eventFromStore ? { ...reportForm, ...pick(eventFromStore, EVENT_LINK_FIELDS) } : reportForm,
+    [eventFromStore, reportForm]
+  );
+
   const eventSchema = useSelector((state) => reportForm
     ? selectEventSchema(state, reportForm.event_type, reportForm.id)
     : null);
@@ -200,9 +207,8 @@ const ReportDetailView = ({
 
   const originalReport = isNewReport ? newReport : reportFromStore;
   const isCollection = !!reportForm?.is_collection;
-  const isCollectionChild = eventBelongsToCollection(reportForm);
+  const isCollectionChild = eventBelongsToCollection(reportWithLinks);
   const isPatrolAddedReport = formProps && Object.hasOwn(formProps, 'isPatrolReport') && formProps.isPatrolReport;
-  const belongsToPatrol = eventBelongsToPatrol(reportForm);
 
   const parentCrumbs = useMemo(
     () => formProps?.parentCrumbs ?? [{ label: tHeader('breadcrumbEventsLabel'), to: `/${TAB_KEYS.EVENTS}` }],
@@ -212,8 +218,8 @@ const ReportDetailView = ({
   const containedReports = useMemo(
     // Only the React Compiler needs these dependencies to line up.
     // eslint-disable-next-line react-hooks/preserve-manual-memoization
-    () => reportForm?.contains?.map(({ related_event: report }) => report) || [],
-    [reportForm?.contains]
+    () => reportWithLinks?.contains?.map(({ related_event: report }) => report) || [],
+    [reportWithLinks?.contains]
   );
 
   const fetchEventDebounced = useMemo(
@@ -221,7 +227,7 @@ const ReportDetailView = ({
     [dispatch]
   );
 
-  const linkedPatrolIds = reportForm?.patrols;
+  const linkedPatrolIds = reportWithLinks?.patrols;
   const linkedPatrols = useMemo(
     () => linkedPatrolIds?.map((id) => patrolStore[id]).filter((patrol) => !!patrol) || [],
     [linkedPatrolIds, patrolStore]
@@ -230,18 +236,21 @@ const ReportDetailView = ({
   const linkedReportIds = useMemo(() => {
     let linkedReportIds = [];
 
-    if (Array.isArray(reportForm?.is_contained_in)) {
+    if (Array.isArray(reportWithLinks?.is_contained_in)) {
       linkedReportIds = [
         ...linkedReportIds,
-        ...reportForm.is_contained_in.map((containedIn) => containedIn.related_event.id),
+        ...reportWithLinks.is_contained_in.map((containedIn) => containedIn.related_event.id),
       ];
     }
-    if (Array.isArray(reportForm?.is_linked_to)) {
-      linkedReportIds = [...linkedReportIds, ...reportForm.is_linked_to.map((linkedTo) => linkedTo.related_event.id)];
+    if (Array.isArray(reportWithLinks?.is_linked_to)) {
+      linkedReportIds = [
+        ...linkedReportIds,
+        ...reportWithLinks.is_linked_to.map((linkedTo) => linkedTo.related_event.id),
+      ];
     }
 
     return linkedReportIds;
-  }, [reportForm.is_contained_in, reportForm.is_linked_to]);
+  }, [reportWithLinks.is_contained_in, reportWithLinks.is_linked_to]);
 
   const linkedReports = useMemo(
     () => linkedReportIds?.map((id) => eventStore[id]).filter((report) => !!report) || [],
@@ -296,9 +305,10 @@ const ReportDetailView = ({
     && !redirectTo
     && (isAddedReport || isPatrolAddedReport || hasUnsavedChanges);
 
+  const canLinkReport = !isAddedReport && !isPatrolAddedReport && !isCommunity;
+
   const shouldShowAddReportButton = !isAddedReport
     && !isPatrolAddedReport
-    && !belongsToPatrol
     && !relationshipButtonDisabled
     && !isCollectionChild
     && !isCommunity;
@@ -395,7 +405,7 @@ const ReportDetailView = ({
     return executeSaveActions(saveActions)
       .then((results) => {
         if (reportForm.is_collection && reportChanges.state) {
-          return Promise.all((reportForm?.contains ?? [])
+          return Promise.all((reportWithLinks.contains ?? [])
             .map(contained => contained.related_event.id)
             .map(id => dispatch(setEventState(id, reportChanges.state))));
         }
@@ -426,8 +436,20 @@ const ReportDetailView = ({
     originalReport.location,
     reportChanges,
     reportForm,
-    reportTracker
+    reportTracker,
+    reportWithLinks.contains,
   ]);
+
+  // Once saved, a new event opens at its own path, whether or not it gets linked.
+  const onSaveNewReport = useCallback(async () => {
+    const results = await onSaveReport(undefined, false);
+    const savedReport = results?.[0].data.data;
+    if (savedReport) {
+      setRedirectTo([`/${TAB_KEYS.EVENTS}/${savedReport.id}`, { replace: true }]);
+    }
+
+    return savedReport;
+  }, [onSaveReport]);
 
   const onChangeTitle = useCallback(
     (newTitle) => setReportForm({ ...reportForm, title: newTitle }),
@@ -625,25 +647,21 @@ const ReportDetailView = ({
         if (reportForm.is_collection) {
           reportTracker.track('Added report to incident');
 
-          await dispatch(addEventToIncident(secondReportSaved.id, thisReportSaved.id));
+          const collectionRefreshedResults = await dispatch(addEventToIncident(secondReportSaved.id, thisReportSaved.id));
 
-          dispatch(fetchEvent(secondReportSaved.id));
-          const collectionRefreshedResults = await dispatch(fetchEvent(thisReportSaved.id));
-
-          setReportForm(collectionRefreshedResults.data.data);
           onSaveSuccess({})(collectionRefreshedResults);
         } else {
           setIsSaving(true);
           const { data: { data: incidentCollection } } = await dispatch(createEvent(createNewIncidentCollection()));
-          await Promise.all([thisReportSaved.id, secondReportSaved.id]
-            .map(id => dispatch(addEventToIncident(id, incidentCollection.id))));
+          // Each addition refetches the incident, so the last one holds both.
+          await dispatch(addEventToIncident(thisReportSaved.id, incidentCollection.id));
+          const collectionRefreshedResults = await dispatch(
+            addEventToIncident(secondReportSaved.id, incidentCollection.id)
+          );
 
-          dispatch(fetchEvent(thisReportSaved.id));
-          dispatch(fetchEvent(secondReportSaved.id));
-          const collectionRefreshedResults = await dispatch(fetchEvent(incidentCollection.id));
           reportTracker.track('Added report to report');
           onSaveSuccess({}, [
-            `/${TAB_KEYS.EVENTS}/${collectionRefreshedResults.data.data.id}`,
+            `/${TAB_KEYS.EVENTS}/${incidentCollection.id}`,
             { replace: true },
           ])(collectionRefreshedResults);
         }
@@ -797,6 +815,7 @@ const ReportDetailView = ({
     <NavigationPromptModal onContinue={onNavigationContinue} when={shouldShowNavigationPrompt} />
 
     <Header
+      canLinkReport={canLinkReport}
       // A save sends the form as it was, so nothing can change until it ends.
       inert={isSaving}
       isCommunity={isCommunity}
@@ -805,12 +824,11 @@ const ReportDetailView = ({
       isTitleDirty={Object.hasOwn(reportChanges, 'title')}
       onChangeState={onReportStateChange}
       onChangeTitle={onChangeTitle}
-      onSaveReport={onSaveReport}
+      onSaveNewReport={isNewReport ? onSaveNewReport : null}
       parentCrumbs={parentCrumbs}
       printableContentRef={printableContentRef}
-      report={reportForm}
+      report={reportWithLinks}
       savedState={originalReport.state}
-      setRedirectTo={setRedirectTo}
     />
 
     {saveError && <ErrorMessages

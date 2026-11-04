@@ -9,7 +9,6 @@ import { ReactComponent as ClockIcon } from '../../../../common/images/icons/clo
 import { ReactComponent as PauseIcon } from '../../../../common/images/icons/pause.svg';
 import { ReactComponent as PlayIcon } from '../../../../common/images/icons/play.svg';
 
-import { addPatrolSegmentToEvent, getEventIdsForCollection } from '../../../../utils/events';
 import {
   actualEndTimeForPatrolSegment,
   actualStartTimeForPatrolSegment,
@@ -24,8 +23,10 @@ import {
   isPatrolSegmentAPause,
   isPatrolStateUnderWay,
 } from '../../../../utils/patrols';
+import { addEventToPatrol } from '../../../../ducks/events';
 import { fetchPatrol, updatePatrol, uploadPatrolFile } from '../../../../ducks/patrols';
 import { fetchTracksIfNecessary } from '../../../../utils/tracks';
+import { getEventIdsForCollection } from '../../../../utils/events';
 import { LEG_OVERVIEW_CATEGORY, TrackerContext, trackEventFactory } from '../../../../utils/analytics';
 import { longTermDurationHumanizer } from '../../../../utils/datetime';
 import { selectPatrolRosterFallbackSubjects } from '../../../../selectors/patrols';
@@ -106,25 +107,18 @@ const LegOverviewContent = ({ legNumber, onStagedChangesChange, patrol, patrolSe
 
   const onAddEvent = useCallback(async (saveResults) => {
     const [firstResult] = Array.isArray(saveResults) ? saveResults : [saveResults];
-    const newEventId = firstResult.data.data.id;
 
     // The event is already saved: a failed link leaves it out of the leg, not
     // unreported, so the rest of the flow carries on.
     try {
-      await addPatrolSegmentToEvent(patrolSegment.id, newEventId);
+      await dispatch(addEventToPatrol(firstResult.data.data.id, patrol.id, patrolSegment.id));
 
       legOverviewTracker.track('Link new event to leg');
-    } catch (error) {
+    } catch {
       toast.error(t('addEventLinkErrorMessage'));
 
       legOverviewTracker.track('Error linking new event to leg');
-
-      console.warn('Error linking a new event to a leg: ', error);
     }
-
-    // The event form is waiting on this, so a failed refresh must not reject
-    // into it.
-    await dispatch(fetchPatrol(patrol.id)).catch(() => {});
   }, [dispatch, patrol.id, patrolSegment.id, t]);
 
   const addEventFormProps = useMemo(() => ({

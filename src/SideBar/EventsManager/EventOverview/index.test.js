@@ -56,6 +56,7 @@ describe('SideBar - EventsManager - EventOverview', () => {
 
     store = {
       data: {
+        eventCategories: {},
         subjectStore: {},
         eventStore: {},
         eventTypes,
@@ -69,6 +70,7 @@ describe('SideBar - EventsManager - EventOverview', () => {
         },
         mapLocationSelection: { isPickingLocation: false },
         sideBar: {},
+        systemConfig: {},
         userPreferences: { gpsFormat: GPS_FORMATS.DEG },
       },
     };

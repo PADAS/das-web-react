@@ -18,6 +18,20 @@ const PATROLS_FEED_EXCLUDED_DETAILS_PARAMS = {
   include_updates: false,
 };
 
+export const PATROL_REQUEST_PARAMS = { include_pauses: true };
+
+export const LINK_TARGETS_PAGE_SIZE = 25;
+
+// A planned patrol cannot hold events. No status tells a cancelled patrol that
+// ran from one that never did, so the caller drops the latter.
+const PATROL_LINK_TARGETS_PARAMS = {
+  ...PATROL_REQUEST_PARAMS,
+  ...PATROLS_FEED_EXCLUDED_DETAILS_PARAMS,
+  exclude_empty_patrols: true,
+  page_size: LINK_TARGETS_PAGE_SIZE,
+  status: ['active', 'done', 'cancelled'],
+};
+
 // Actions
 export const ADD_PATROL_NOTE_SUCCESS = 'PATROLS.ADD_PATROL_NOTE_SUCCESS';
 
@@ -82,8 +96,6 @@ export const updatePatrolTrackState = (payload) => ({
 
 // The server leaves pause legs out of a patrol unless they are asked for, so
 // every request that answers with one has to ask.
-export const PATROL_REQUEST_PARAMS = { include_pauses: true };
-
 export const fetchPatrol = (id) => (dispatch) => axios.get(`${PATROLS_API_URL}${id}`, { params: PATROL_REQUEST_PARAMS })
   .then((response) => {
     dispatch({
@@ -98,6 +110,29 @@ export const fetchPatrol = (id) => (dispatch) => axios.get(`${PATROLS_API_URL}${
 
     throw error;
   });
+
+export const fetchPatrolLinkTargets = (searchText, { nextPageUrl = null, signal } = {}) => async () => {
+  try {
+    const response = nextPageUrl
+      ? await axios.get(nextPageUrl, { signal })
+      : await axios.get(PATROLS_API_URL, {
+        params: {
+          ...PATROL_LINK_TARGETS_PARAMS,
+          ...(searchText && { filter: JSON.stringify({ text: searchText }) }),
+        },
+        paramsSerializer: { indexes: null },
+        signal,
+      });
+
+    return response.data.data;
+  } catch (error) {
+    if (!isCancel(error)) {
+      console.warn('error fetching the patrols an event can be added to', error);
+    }
+
+    throw error;
+  }
+};
 
 export const fetchPatrolsFeed = () => (dispatch, getState) => {
   const cancelToken = CancelToken.source();

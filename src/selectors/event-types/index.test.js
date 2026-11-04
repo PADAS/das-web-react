@@ -4,6 +4,7 @@ import { dogPatrol, routinePatrol } from '../../__test-helpers/fixtures/patrol-t
 import {
   selectCreatableEventTypesByCategory,
   selectDisplayEventTypes,
+  selectEventCategoryPermissions,
   selectEventTypeById,
   selectEventTypeByValue,
 } from './';
@@ -235,6 +236,64 @@ describe('Selectors - Event types', () => {
         value: 'spoor_rep',
         version: 1,
       }, dogPatrol, routinePatrol]);
+    });
+  });
+
+  describe('selectEventCategoryPermissions', () => {
+    test('reads the permissions of the category a current event type names', () => {
+      const restrictedState = {
+        data: {
+          ...state.data,
+          eventCategories: { ...state.data.eventCategories, monitoring: { ...monitoringCategory, permissions: ['read'] } },
+        },
+      };
+
+      expect(selectEventCategoryPermissions(restrictedState, { event_type: 'fire_v2' })).toEqual({
+        hasCreatePermission: false,
+        hasUpdatePermission: false,
+      });
+    });
+
+    test('reads the permissions of the category a legacy event type embeds', () => {
+      const restrictedState = {
+        data: {
+          ...state.data,
+          eventTypes: [{ ...snareTypeV1, category: { ...snareTypeV1.category, permissions: ['update'] }, version: 1 }],
+        },
+      };
+
+      expect(selectEventCategoryPermissions(restrictedState, { event_type: 'snare_rep' })).toEqual({
+        hasCreatePermission: false,
+        hasUpdatePermission: true,
+      });
+    });
+
+    test('falls back to the category of the event when its type is unknown', () => {
+      expect(selectEventCategoryPermissions(state, { event_category: 'security', event_type: 'unknown' })).toEqual({
+        hasCreatePermission: true,
+        hasUpdatePermission: true,
+      });
+    });
+
+    test('grants every permission in a category without a flag', () => {
+      const unflaggedState = {
+        data: {
+          ...state.data,
+          eventCategories: { ...state.data.eventCategories, monitoring: { ...monitoringCategory, flag: null } },
+        },
+      };
+
+      expect(selectEventCategoryPermissions(unflaggedState, { event_type: 'fire_v2' })).toEqual({
+        hasCreatePermission: true,
+        hasUpdatePermission: true,
+      });
+    });
+
+    test('grants no permission when the category is unknown', () => {
+      expect(selectEventCategoryPermissions(state, { event_type: 'unknown' })).toEqual({
+        hasCreatePermission: false,
+        hasUpdatePermission: false,
+      });
     });
   });
 

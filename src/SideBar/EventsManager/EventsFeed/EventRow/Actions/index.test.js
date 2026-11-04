@@ -1,13 +1,18 @@
+import { http, HttpResponse } from 'msw/http';
 import { Provider } from 'react-redux';
+import { setupServer } from 'msw/node';
 import { toast } from 'react-toastify';
 import userEvent from '@testing-library/user-event';
 
+import { addEventToPatrol, setEventState, updateEvent } from '../../../../../ducks/events';
+import { eventTypes } from '../../../../../__test-helpers/fixtures/event-types';
 import { getReportLink } from '../../../../../utils/events';
 import { mockStore } from '../../../../../__test-helpers/MockStore';
+import { PATROLS_API_URL } from '../../../../../ducks/patrols';
+import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../../../../constants';
 import { render, screen, waitFor } from '../../../../../test-utils';
 import { report } from '../../../../../__test-helpers/fixtures/reports';
 import { setBounceEventIDs } from '../../../../../ducks/map-ui';
-import { setEventState, updateEvent } from '../../../../../ducks/events';
 import { showToast } from '../../../../../utils/toast';
 import { TrackerContext } from '../../../../../utils/analytics';
 import useJumpToLocation from '../../../../../hooks/useJumpToLocation';
@@ -16,6 +21,7 @@ import Actions from './';
 
 jest.mock('../../../../../ducks/events', () => ({
   ...jest.requireActual('../../../../../ducks/events'),
+  addEventToPatrol: jest.fn(),
   setEventState: jest.fn(),
   updateEvent: jest.fn(),
 }));
@@ -26,6 +32,12 @@ jest.mock('../../../../../utils/toast', () => ({
   ...jest.requireActual('../../../../../utils/toast'),
   showToast: jest.fn(),
 }));
+
+const server = setupServer();
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
 
 describe('SideBar - EventsManager - EventsFeed - EventRow - Actions', () => {
   const coordinates = report.geojson.geometry.coordinates;
@@ -39,6 +51,7 @@ describe('SideBar - EventsManager - EventsFeed - EventRow - Actions', () => {
   beforeEach(() => {
     jumpToLocation = jest.fn();
     track = jest.fn();
+    addEventToPatrol.mockImplementation(() => () => Promise.resolve());
     setEventState.mockImplementation(() => () => Promise.resolve());
     updateEvent.mockImplementation(() => () => Promise.resolve());
     useJumpToLocation.mockImplementation(() => jumpToLocation);
@@ -51,7 +64,7 @@ describe('SideBar - EventsManager - EventsFeed - EventRow - Actions', () => {
       ],
       is_collection: true,
     };
-    store = { data: {} };
+    store = { data: { eventCategories: {}, eventTypes: [] }, view: { systemConfig: {} } };
   });
 
   const renderActions = (props) => {
@@ -285,5 +298,57 @@ describe('SideBar - EventsManager - EventsFeed - EventRow - Actions', () => {
     expect(window.navigator.clipboard.writeText).toHaveBeenCalledWith(getReportLink(report));
     await waitFor(() => expect(toast.info).toHaveBeenCalledWith('Link copied', expect.anything()));
     expect(track).toHaveBeenCalledWith('Copy event link from the events feed');
+  });
+
+  describe('linking', () => {
+    const patrol = {
+      id: 'patrol-id',
+      patrol_segments: [{ id: 'leg-id', patrol_type: 'foot', time_range: { end_time: null, start_time: '2020-01-01T08:00:00Z' } }],
+      serial_number: 30,
+      state: 'open',
+    };
+
+    beforeEach(() => {
+      server.use(http.get(PATROLS_API_URL, () => HttpResponse.json({ data: { count: 1, next: null, results: [patrol] } })));
+
+      store = {
+        data: {
+          eventCategories: {},
+          eventTypes,
+          patrolTypes: [],
+          user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ] } },
+        },
+        view: { systemConfig: { [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true } },
+      };
+    });
+
+    test('offers to add an event the user may edit to an incident and to a patrol', async () => {
+      renderActions();
+
+      await openKebabMenu();
+
+      expect(await screen.findByRole('menuitem', { name: 'Add to Incident' })).toBeInTheDocument();
+      expect(screen.getByRole('menuitem', { name: 'Add to Patrol' })).toBeInTheDocument();
+    });
+
+    test('does not offer to add an event to a patrol it already belongs to', async () => {
+      renderActions({ event: { ...report, patrols: ['other-patrol-id'] } });
+
+      await openKebabMenu();
+
+      expect(await screen.findByRole('menuitem', { name: 'Add to Incident' })).toBeInTheDocument();
+      expect(screen.queryByRole('menuitem', { name: 'Add to Patrol' })).not.toBeInTheDocument();
+    });
+
+    test('adds the event to the patrol the user picks and tracks it', async () => {
+      renderActions();
+
+      await openKebabMenu();
+      await userEvent.click(await screen.findByRole('menuitem', { name: 'Add to Patrol' }));
+      await userEvent.click(await screen.findByRole('button', { name: /Add to patrol 30/ }));
+
+      expect(addEventToPatrol).toHaveBeenCalledWith(report.id, 'patrol-id');
+      expect(track).toHaveBeenCalledWith('Add an event to a patrol');
+    });
   });
 });
