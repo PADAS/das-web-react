@@ -37,6 +37,9 @@ import ObjectViewModal, { ObjectValueLink } from '../ObjectViewModal';
 
 import * as styles from './styles.module.scss';
 
+const EMPTY_COLUMNS = [];
+const EMPTY_EVENTS = [];
+
 const STATE_KEY_BY_EVENT_STATE = {
   [EVENT_FORM_STATES.ACTIVE]: EVENT_FORM_STATES.ACTIVE,
   [EVENT_FORM_STATES.NEW_LEGACY]: EVENT_FORM_STATES.ACTIVE,
@@ -117,12 +120,16 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     }
   }, [dispatch, eventSchema, filteredEventType]);
 
+  // Only the schemaless fallback reads the loaded events, so new events don't
+  // rebuild the columns of a type with a schema.
+  const eventsForFallbackColumns = eventSchema?.json || eventSchema?.schema ? EMPTY_EVENTS : events;
+
   // Columns come from the type's schema, so every field is listed even when the
   // loaded events leave it empty; the loaded details are the fallback.
   const detailColumns = useMemo(() => {
-    if (eventTypeFilter.length !== 1) return [];
+    if (eventTypeFilter.length !== 1) return EMPTY_COLUMNS;
 
-    return calcEventTypeFields(eventSchema, events, coordinatesRepresentation).map((field) => ({
+    return calcEventTypeFields(eventSchema, eventsForFallbackColumns, coordinatesRepresentation).map((field) => ({
       colId: `event_details.${field.key}`,
       headerName: field.label,
       layoutScoped: true,
@@ -137,7 +144,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
         : { valueGetter: (params) => field.toText(params.data?.event_details) }),
       ...(field.isDate && { valueFormatter: formatDateValue }),
     }));
-  }, [coordinatesRepresentation, eventSchema, eventTypeFilter.length, events]);
+  }, [coordinatesRepresentation, eventSchema, eventTypeFilter.length, eventsForFallbackColumns]);
 
   const columnDefs = useMemo(() => [
     {

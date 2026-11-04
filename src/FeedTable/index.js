@@ -20,7 +20,6 @@ import {
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as CheckIcon } from '../common/images/icons/check-light.svg';
-import { ReactComponent as GripDotsVerticalIcon } from '../common/images/icons/grip-dots-vertical.svg';
 
 import { format, STANDARD_DATE_FORMAT } from '../utils/datetime';
 import navigateMenuWithKeyboard from '../SideBar/utils/navigateMenuWithKeyboard';
@@ -56,12 +55,6 @@ const ROW_SELECTION = {
   mode: 'multiRow',
 };
 
-const HeaderLabel = ({ displayName }) => <span className={styles.headerLabel}>
-  <GripDotsVerticalIcon aria-hidden="true" className={styles.dragHandle} />
-
-  {displayName}
-</span>;
-
 // Alt and an arrow move the focused header's column, the keyboard's drag.
 const moveColumnWithKeyboard = ({ api, column, event }) => {
   const offset = COLUMN_MOVE_OFFSET_BY_KEY[event.key];
@@ -81,8 +74,9 @@ const moveColumnWithKeyboard = ({ api, column, event }) => {
 };
 
 const DEFAULT_COL_DEF = {
+  // The drag handle is drawn in CSS: a header component would be remounted,
+  // and flicker, each time the grid is given new column definitions.
   headerClass: styles.headerCell,
-  headerComponentParams: { innerHeaderComponent: HeaderLabel },
   resizable: true,
   sortable: false,
   // A control in a cell answers Enter and Space itself, not the grid.

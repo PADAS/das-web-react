@@ -133,25 +133,21 @@
   .headerCell {
     cursor: grab;
 
-    .headerLabel {
-      align-items: center;
-      display: flex;
-      gap: 0.25rem;
-      min-width: 0;
-
-      .dragHandle {
-        color: colors.$secondary-light-gray;
-        flex-shrink: 0;
-        height: 0.875rem;
-        width: 0.875rem;
-      }
+    [class~='ag-header-cell-label']::before {
+      background-color: colors.$secondary-light-gray;
+      content: '';
+      flex-shrink: 0;
+      height: 0.875rem;
+      margin-right: 0.25rem;
+      mask: url('../common/images/icons/grip-dots-vertical.svg') center / contain no-repeat;
+      width: 0.875rem;
     }
 
     &:hover {
       background-color: color.adjust(colors.$very-light-blue, $lightness: -2%);
 
-      .dragHandle {
-        color: colors.$secondary-medium-gray;
+      [class~='ag-header-cell-label']::before {
+        background-color: colors.$secondary-medium-gray;
       }
     }
 

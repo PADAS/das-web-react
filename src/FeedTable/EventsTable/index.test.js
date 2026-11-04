@@ -167,15 +167,28 @@ describe('EventsTable', () => {
     expect(columnById('priority').sortable).toBeUndefined();
   });
 
-  test('rebuilds its column definitions when the loaded events change', () => {
+  const rerenderWithNewEvents = (rerender) => rerender(<Provider store={store}>
+    <EventsTable events={[{ ...report }]} eventsFeed={eventsFeed} toolbarContainer={document.createElement('div')} />
+  </Provider>);
+
+  test('keeps its column definitions when the loaded events change', () => {
     const { rerender } = renderEventsTable();
     const { columnDefs } = lastGridProps();
 
-    rerender(<Provider store={store}>
-      <EventsTable events={[{ ...report }]} eventsFeed={eventsFeed} toolbarContainer={document.createElement('div')} />
-    </Provider>);
+    rerenderWithNewEvents(rerender);
 
-    expect(lastGridProps().columnDefs).not.toBe(columnDefs);
+    expect(lastGridProps().columnDefs).toBe(columnDefs);
+  });
+
+  test('keeps the columns of an event type with a schema when the loaded events change', () => {
+    filterToOneEventType({ id: 'type-id', value: 'snare', version: 2 });
+    state.data.eventSchemas = { snare: { base: snareSchemaV2 } };
+    const { rerender } = renderEventsTable();
+    const { columnDefs } = lastGridProps();
+
+    rerenderWithNewEvents(rerender);
+
+    expect(lastGridProps().columnDefs).toBe(columnDefs);
   });
 
   test('names priorities the way the rest of the app does', () => {
