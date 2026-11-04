@@ -29,7 +29,7 @@ const getStartingMapPositionValues = (mapPosition) => mapPosition?.center && map
   ? { bearing: mapPosition.bearing, center: mapPosition.center, pitch: mapPosition.pitch, zoom: mapPosition.zoom }
   : {};
 
-const EarthRangerMap = ({ children, controls, onMapLoaded, ...otherProps }) => {
+const EarthRangerMap = ({ children, controls, inert = false, onMapLoaded, ...otherProps }) => {
   const { t } = useTranslation('map-controls', { keyPrefix: 'earthRangerMap' });
 
   const currentBaseLayer = useSelector(state => state.view.currentBaseLayer);
@@ -119,7 +119,7 @@ const EarthRangerMap = ({ children, controls, onMapLoaded, ...otherProps }) => {
   // Using this ref during render is intended.
   // eslint-disable-next-line react-hooks/refs
   return <MapContext.Provider value={mapRef.current}>
-    <div className="map-wrapper" style={{ height: '100%' }}>
+    <div className="map-wrapper" inert={inert} style={{ height: '100%' }}>
       <div ref={mapContainerRef} {...otherProps} />
 
       {mapLoaded && <>
