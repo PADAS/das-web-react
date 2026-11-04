@@ -15,6 +15,7 @@ import * as patrolUtils from '../../../../utils/patrols';
 import { render, screen, within } from '../../../../test-utils';
 import { TRACK_LENGTH_ORIGINS } from '../../../../ducks/tracks';
 import { TrackerContext } from '../../../../utils/analytics';
+import '../../../../__test-helpers/analytics';
 import { UPDATE_PATROL_TRACK_STATE } from '../../../../ducks/patrols';
 
 import Header from './';
@@ -123,13 +124,15 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
     jest.restoreAllMocks();
   });
 
+  const track = jest.fn();
+
   const renderHeader = (props, { withLocationDisplay = false } = {}) => {
     reduxStore = mockStore(store);
 
     return render(
       <Provider store={reduxStore}>
         <MapContext.Provider value={map}>
-          <TrackerContext.Provider value={{ track: jest.fn() }}>
+          <TrackerContext.Provider value={{ track }}>
             <ControlledHeader
               onChangeTitle={onChangeTitle}
               onChangeState={onChangeState}
@@ -230,6 +233,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
 
     expect(action).toBeDefined();
     expect(action.payload).toEqual({ visible: [patrolWithLeader.id] });
+    expect(track).toHaveTrackedAction('Toggle track from patrol overview', 'visible');
   });
 
   test('shows the jump to location button', () => {

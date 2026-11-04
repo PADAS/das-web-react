@@ -6,6 +6,7 @@ import { mockStore } from '../../../../__test-helpers/MockStore';
 import { render, screen, waitFor } from '../../../../test-utils';
 import { resetGlobalDateRange } from '../../../../ducks/global-date-range';
 import { TrackerContext } from '../../../../utils/analytics';
+import '../../../../__test-helpers/analytics';
 
 import Filters, { TEXT_FILTER_DEBOUNCE_DELAY } from './';
 
@@ -44,9 +45,11 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters', () => {
     };
   });
 
+  const track = jest.fn();
+
   const renderFilters = (props) => render(
     <Provider store={mockStore(store)}>
-      <TrackerContext.Provider value={{ track: jest.fn() }}>
+      <TrackerContext.Provider value={{ track }}>
         <Filters resultCount={3} {...props} />
       </TrackerContext.Provider>
     </Provider>
@@ -106,6 +109,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters', () => {
 
     expect(filtersButton).toHaveAttribute('aria-expanded', 'true');
     expect(await screen.findByRole('dialog', { name: 'Patrol Filters' })).toBeVisible();
+    expect(track).toHaveTrackedAction('Toggle a filter popover', 'filters');
 
     await userEvent.click(filtersButton);
 

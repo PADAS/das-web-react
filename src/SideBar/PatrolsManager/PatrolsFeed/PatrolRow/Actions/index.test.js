@@ -13,6 +13,7 @@ import * as patrolUtils from '../../../../../utils/patrols';
 import { render, screen, waitFor } from '../../../../../test-utils';
 import { TRACK_LENGTH_ORIGINS } from '../../../../../ducks/tracks';
 import { TrackerContext } from '../../../../../utils/analytics';
+import '../../../../../__test-helpers/analytics';
 import { updatePatrol, UPDATE_PATROL_TRACK_STATE } from '../../../../../ducks/patrols';
 
 import Actions from './';
@@ -61,13 +62,15 @@ describe('SideBar - PatrolsManager - PatrolsFeed - PatrolRow - Actions', () => {
     jest.restoreAllMocks();
   });
 
+  const track = jest.fn();
+
   const renderActions = (props) => {
     reduxStore = mockStore(store);
 
     return render(
       <Provider store={reduxStore}>
         <MapContext.Provider value={map}>
-          <TrackerContext.Provider value={{ track: jest.fn() }}>
+          <TrackerContext.Provider value={{ track }}>
             <Actions patrol={activePatrol} patrolState={PATROL_UI_STATES.ACTIVE} {...props} />
           </TrackerContext.Provider>
         </MapContext.Provider>
@@ -93,6 +96,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed - PatrolRow - Actions', () => {
 
     expect(reduxStore.getActions().find((action) => action.type === UPDATE_PATROL_TRACK_STATE).payload)
       .toEqual({ visible: [activePatrol.id] });
+    expect(track).toHaveTrackedAction('Toggle track from the patrols feed', 'visible');
   });
 
   test('marks a visible track and names pinning it as the next move', () => {
@@ -178,6 +182,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed - PatrolRow - Actions', () => {
     await userEvent.click(await screen.findByRole('menuitem', { name: 'Cancel' }));
 
     expect(updatePatrol).toHaveBeenCalledWith(expect.objectContaining({ id: activePatrol.id, state: 'cancelled' }));
+    await waitFor(() => expect(track).toHaveTrackedAction('Pick a status from the patrols feed', 'cancelled'));
   });
 
   test('holds the menu shut while the move it was given is still saving', async () => {

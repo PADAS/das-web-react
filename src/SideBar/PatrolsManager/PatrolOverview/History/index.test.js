@@ -4,14 +4,17 @@ import patrols, { multiLegPatrol } from '../../../../__test-helpers/fixtures/pat
 import { render, screen, within } from '../../../../test-utils';
 import { format, STANDARD_DATE_FORMAT } from '../../../../utils/datetime';
 import { TrackerContext } from '../../../../utils/analytics';
+import '../../../../__test-helpers/analytics';
 
 import History from './';
 
 describe('SideBar - PatrolsManager - PatrolOverview - History', () => {
   const patrolWithLeader = patrols[1];
 
+  const track = jest.fn();
+
   const renderHistory = (props) => render(
-    <TrackerContext.Provider value={{ track: jest.fn() }}>
+    <TrackerContext.Provider value={{ track }}>
       <History patrol={patrolWithLeader} {...props} />
     </TrackerContext.Provider>
   );
@@ -40,8 +43,11 @@ describe('SideBar - PatrolsManager - PatrolOverview - History', () => {
 
     const toggledButton = screen.getByRole('button', { name: 'Sort history in descending order' });
     expect(toggledButton).toHaveAttribute('aria-pressed', 'true');
+    expect(track).toHaveTrackedAction('Sort history section', 'asc');
 
     await userEvent.click(toggledButton);
+
+    expect(track).toHaveTrackedAction('Sort history section', 'desc');
 
     expect(screen.getByRole('button', { name: 'Sort history in ascending order' })).toHaveAttribute('aria-pressed', 'false');
   });

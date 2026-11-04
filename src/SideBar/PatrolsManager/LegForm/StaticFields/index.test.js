@@ -5,9 +5,18 @@ import userEvent from '@testing-library/user-event';
 import buildLegDraft from '../../utils/buildLegDraft';
 import { GPS_FORMATS } from '../../../../utils/location';
 import { mockStore } from '../../../../__test-helpers/MockStore';
-import { render, screen, within } from '../../../../test-utils';
+import { act, render, screen, within } from '../../../../test-utils';
+import '../../../../__test-helpers/analytics';
+import { TrackerContext, trackEventFactory } from '../../../../utils/analytics';
 
 import StaticFields from './';
+
+const trackMock = jest.fn();
+const trackedCalls = [];
+const tracker = trackEventFactory('Test', (...args) => {
+  trackedCalls.push(args);
+  trackMock(...args);
+});
 
 describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
   const onChangeLeg = jest.fn();
@@ -60,13 +69,15 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
   } = {}) =>
     render(
       <Provider store={mockStore(store)}>
-        <ControlledStaticFields
-          earliestStartDateTime={earliestStartDateTime}
-          errors={errors}
-          initialLeg={{ ...buildLegDraft(), startDate: '2026-04-13', startTime: '08:00', ...leg }}
-          isLastLeg={isLastLeg}
-          latestEndDateTime={latestEndDateTime}
-        />
+        <TrackerContext.Provider value={tracker}>
+          <ControlledStaticFields
+            earliestStartDateTime={earliestStartDateTime}
+            errors={errors}
+            initialLeg={{ ...buildLegDraft(), startDate: '2026-04-13', startTime: '08:00', ...leg }}
+            isLastLeg={isLastLeg}
+            latestEndDateTime={latestEndDateTime}
+          />
+        </TrackerContext.Provider>
       </Provider>
     );
 
@@ -321,5 +332,144 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
     renderStaticFields({ errors: { startDate: 'A date is needed.' } });
 
     expect(screen.getByRole('group', { name: 'Start date' })).toHaveAccessibleErrorMessage('A date is needed.');
+  });
+
+  describe('tracking', () => {
+    const openLocationMenu = (fieldLabel) => userEvent.click(
+      within(screen.getByLabelText(fieldLabel).closest('[role="group"]'))
+        .getByRole('button', { name: 'Open the location picker menu to set a value' })
+    );
+
+    test.each([
+      ['Team', 'Alpha', 'Pick a team from the leg form', 'set'],
+      ['Team Lead', 'Priya', 'Pick a team lead from the leg form', 'set'],
+      ['Team Members', 'Maya Chen', 'Change team members from the leg form', '1'],
+      ['Assets', 'Radio 7', 'Change tracked assets from the leg form', '1'],
+    ])('tracks the %s the user picks', async (label, optionName, action, trackedLabel) => {
+      renderStaticFields();
+
+      await userEvent.click(screen.getByLabelText(label));
+      await userEvent.click(await screen.findByText(optionName));
+
+      expect(trackMock).toHaveTrackedAction(action, trackedLabel, { category: 'Test' });
+    });
+
+    test.each([
+      ['Team', { team: { display: 'Alpha', id: 'team-1' } }, 'Pick a team from the leg form', 'cleared'],
+      ['Team Lead', { teamLead: { id: 'member-2', name: 'Priya' } }, 'Pick a team lead from the leg form', 'cleared'],
+      ['Team Members', { teamMembers: [{ id: 'member-2', name: 'Priya' }] }, 'Change team members from the leg form', '0'],
+      ['Assets', { assets: [{ id: 'asset-1', name: 'Radio 7' }] }, 'Change tracked assets from the leg form', '0'],
+    ])('tracks the %s the user clears', async (label, leg, action, trackedLabel) => {
+      renderStaticFields({ leg });
+
+      await userEvent.type(screen.getByRole('combobox', { name: label }), '{backspace}');
+
+      expect(trackMock).toHaveTrackedAction(action, trackedLabel, { category: 'Test' });
+    });
+
+    test.each([
+      ['Automatically start the leg at this time', { startDate: '2099-01-01' }, 'Toggle auto-start from the leg form'],
+      [
+        'Automatically end the leg at this time',
+        { endDate: '2099-01-02', endTime: '10:00', startDate: '2099-01-01' },
+        'Toggle auto-end from the leg form',
+      ],
+    ])('tracks the user turning "%s" on and off', async (checkboxName, leg, action) => {
+      renderStaticFields({ leg });
+
+      await userEvent.click(screen.getByRole('checkbox', { name: checkboxName }));
+      expect(trackMock).toHaveTrackedAction(action, 'on', { category: 'Test' });
+
+      await userEvent.click(screen.getByRole('checkbox', { name: checkboxName }));
+      expect(trackMock).toHaveTrackedAction(action, 'off', { category: 'Test' });
+    });
+
+    test.each([
+      ['Start Location', 'Change start location from the leg form'],
+      ['End Location', 'Change end location from the leg form'],
+    ])('tracks the %s the user sets and clears', async (fieldLabel, action) => {
+      store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = Object.values(GPS_FORMATS);
+
+      renderStaticFields();
+
+      await openLocationMenu(fieldLabel);
+      const searchInput = screen.getByRole('searchbox', { name: 'Search location in DEG format' });
+      await userEvent.type(searchInput, '10,10');
+
+      expect(trackMock).toHaveTrackedAction(action, 'set', { category: 'Test' });
+
+      await userEvent.clear(searchInput);
+
+      expect(trackMock).toHaveTrackedAction(action, 'cleared', { category: 'Test' });
+    });
+
+    describe('dates and times', () => {
+      beforeEach(() => {
+        jest.useFakeTimers();
+      });
+
+      afterEach(() => {
+        jest.useRealTimers();
+      });
+
+      const DATE_TIME_FIELDS = [
+        ['Start date', 'Year', '2027', 'Change the start date from the leg form'],
+        ['Start time', 'Hour', '09', 'Change the start time from the leg form'],
+        ['End date', 'Year', '2027', 'Change the end date from the leg form'],
+        ['End time', 'Hour', '11', 'Change the end time from the leg form'],
+      ];
+
+      const typeInField = async (groupName, inputName, value) => {
+        const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+        const input = within(screen.getByRole('group', { name: groupName })).getByRole('textbox', { name: inputName });
+
+        await user.clear(input);
+        await user.type(input, value);
+      };
+
+      const countTracked = (action) => trackMock.mock.calls.filter((call) => call[1] === action).length;
+
+      test.each(DATE_TIME_FIELDS)(
+        'tracks the edit of the %s once, a second after the user stops typing',
+        async (groupName, inputName, value, action) => {
+          renderStaticFields({ leg: { endDate: '2026-04-14', endTime: '10:00' } });
+
+          await typeInField(groupName, inputName, value);
+
+          expect(countTracked(action)).toBe(0);
+
+          await act(async () => jest.advanceTimersByTime(999));
+
+          expect(countTracked(action)).toBe(0);
+
+          await act(async () => jest.advanceTimersByTime(1));
+
+          expect(countTracked(action)).toBe(1);
+          expect(trackMock).toHaveTrackedAction(action, undefined, { category: 'Test' });
+        }
+      );
+
+      test.each(DATE_TIME_FIELDS)(
+        'tracks a pending edit of the %s when the form closes',
+        async (groupName, inputName, value, action) => {
+          const { unmount } = renderStaticFields({ leg: { endDate: '2026-04-14', endTime: '10:00' } });
+
+          await typeInField(groupName, inputName, value);
+
+          expect(countTracked(action)).toBe(0);
+
+          unmount();
+
+          expect(countTracked(action)).toBe(1);
+        }
+      );
+    });
+
+    test('sends only fixed labels, never a name or a location', () => {
+      const labels = trackedCalls.map(([, , label]) => label).filter((label) => label !== undefined && label !== null);
+
+      expect(labels).not.toHaveLength(0);
+      labels.forEach((label) => expect(label).toMatch(/^(set|cleared|on|off|\d+)$/));
+    });
   });
 });

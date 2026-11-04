@@ -16,7 +16,7 @@ import { MapContext } from '../../../MapContext';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import patrolTypes, { dogPatrol, routinePatrol } from '../../../__test-helpers/fixtures/patrol-types';
 import { render, screen, waitFor, within } from '../../../test-utils';
-import { TrackerContext } from '../../../utils/analytics';
+import { TrackerContext, trackEventFactory } from '../../../utils/analytics';
 
 import LegForm from './';
 
@@ -27,6 +27,8 @@ jest.mock('../../../ducks/patrol-schemas', () => ({
 }));
 
 const LINES_SOURCE_ID_PATTERN = /^form-location-markers-source-lines-.+$/;
+
+const tracker = trackEventFactory('Test', jest.fn());
 
 const EMPTY_PATROL_TYPE_SCHEMA = {
   json: { $schema: 'https://json-schema.org/draft/2020-12/schema', properties: {}, required: [], type: 'object' },
@@ -91,7 +93,7 @@ describe('SideBar - PatrolsManager - LegForm', () => {
     return render(
       <Provider store={reduxStore}>
         <MapContext.Provider value={map}>
-          <TrackerContext.Provider value={{ track: jest.fn() }}>
+          <TrackerContext.Provider value={tracker}>
             <ControlledLegForm
               earliestStartDateTime={earliestStartDateTime}
               initialLeg={{

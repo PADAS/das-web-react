@@ -1,9 +1,10 @@
-import { useId, useImperativeHandle, useRef } from 'react';
+import { useContext, useEffect, useId, useImperativeHandle, useMemo, useRef } from 'react';
 import { format, isFuture } from 'date-fns';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { calcUrlForImage } from '../../../../utils/img';
+import { TrackerContext } from '../../../../utils/analytics';
 import { getHoursAndMinutesString } from '../../../../utils/datetime';
 import parseLegDraftDateTime from '../utils/parseLegDraftDateTime';
 
@@ -37,7 +38,22 @@ const StaticFields = ({
 }) => {
   const { t } = useTranslation('patrols', { keyPrefix: 'legForm.staticFields' });
 
+  const tracker = useContext(TrackerContext);
+
   const teamAndTrackingOptions = useSelector((state) => state.data.patrolTeamAndTrackingOptions);
+
+  const debouncedTrackEndDate = useMemo(() => tracker.debouncedTrack(1000), [tracker]);
+  const debouncedTrackEndTime = useMemo(() => tracker.debouncedTrack(1000), [tracker]);
+  const debouncedTrackStartDate = useMemo(() => tracker.debouncedTrack(1000), [tracker]);
+  const debouncedTrackStartTime = useMemo(() => tracker.debouncedTrack(1000), [tracker]);
+
+  // Saving closes the form, so a pending edit would otherwise never be tracked.
+  useEffect(() => () => {
+    debouncedTrackEndDate.flush();
+    debouncedTrackEndTime.flush();
+    debouncedTrackStartDate.flush();
+    debouncedTrackStartTime.flush();
+  }, [debouncedTrackEndDate, debouncedTrackEndTime, debouncedTrackStartDate, debouncedTrackStartTime]);
 
   const endDatePickerRef = useRef();
   const endTimePickerRef = useRef();
@@ -151,7 +167,11 @@ const StaticFields = ({
               className={styles.datePicker}
               max={latestDate}
               min={startDateMin}
-              onChange={(startDate) => onChangeLeg({ startDate })}
+              onChange={(startDate) => {
+                onChangeLeg({ startDate });
+
+                debouncedTrackStartDate('Change the start date from the leg form');
+              }}
               reactDatePickerProps={{ endDate: endDateTime, selectsStart: true, startDate: startDateTime }}
               ref={startDatePickerRef}
               value={leg.startDate}
@@ -164,7 +184,11 @@ const StaticFields = ({
               max={startTimeMax}
               min={startTimeMin}
               minutesInterval={TIME_OPTIONS_INTERVAL_IN_MINUTES}
-              onChange={(startTime) => onChangeLeg({ startTime })}
+              onChange={(startTime) => {
+                onChangeLeg({ startTime });
+
+                debouncedTrackStartTime('Change the start time from the leg form');
+              }}
               ref={startTimePickerRef}
               value={leg.startTime}
             />
@@ -184,7 +208,11 @@ const StaticFields = ({
           // Only the first leg's start can be a plan.
           isHidden: !isFirstLeg,
           label: t('autoStartCheckboxLabel'),
-          onChange: (isAutoStart) => onChangeLeg({ isAutoStart }),
+          onChange: (isAutoStart) => {
+            onChangeLeg({ isAutoStart });
+
+            tracker.track('Toggle auto-start from the leg form', isAutoStart ? 'on' : 'off');
+          },
         })}
 
         <div className={styles.field}>
@@ -193,7 +221,11 @@ const StaticFields = ({
           <LocationPicker
             id={startLocationId}
             inputProps={{ 'aria-label': t('startLocationLabel') }}
-            onChange={(startLocation) => onChangeLeg({ startLocation: startLocation || null })}
+            onChange={(startLocation) => {
+              onChangeLeg({ startLocation: startLocation || null });
+
+              tracker.track('Change start location from the leg form', startLocation ? 'set' : 'cleared');
+            }}
             value={leg.startLocation}
           />
         </div>
@@ -211,7 +243,11 @@ const StaticFields = ({
               className={styles.datePicker}
               max={latestDate}
               min={endDateMin}
-              onChange={(endDate) => onChangeLeg({ endDate })}
+              onChange={(endDate) => {
+                onChangeLeg({ endDate });
+
+                debouncedTrackEndDate('Change the end date from the leg form');
+              }}
               reactDatePickerProps={{ endDate: endDateTime, selectsEnd: true, startDate: startDateTime }}
               ref={endDatePickerRef}
               value={leg.endDate}
@@ -225,7 +261,11 @@ const StaticFields = ({
               max={endTimeMax}
               min={endTimeMin}
               minutesInterval={TIME_OPTIONS_INTERVAL_IN_MINUTES}
-              onChange={(endTime) => onChangeLeg({ endTime })}
+              onChange={(endTime) => {
+                onChangeLeg({ endTime });
+
+                debouncedTrackEndTime('Change the end time from the leg form');
+              }}
               ref={endTimePickerRef}
               showDurationFromMin={!!endTimeMin}
               value={leg.endTime}
@@ -242,7 +282,11 @@ const StaticFields = ({
           isChecked: leg.isAutoEnd || !canScheduleEnd,
           isDisabled: !canScheduleEnd || !endDateTime || !isFuture(endDateTime),
           label: t('autoEndCheckboxLabel'),
-          onChange: (isAutoEnd) => onChangeLeg({ isAutoEnd }),
+          onChange: (isAutoEnd) => {
+            onChangeLeg({ isAutoEnd });
+
+            tracker.track('Toggle auto-end from the leg form', isAutoEnd ? 'on' : 'off');
+          },
         })}
 
         <div className={styles.field}>
@@ -251,7 +295,11 @@ const StaticFields = ({
           <LocationPicker
             id={endLocationId}
             inputProps={{ 'aria-label': t('endLocationLabel') }}
-            onChange={(endLocation) => onChangeLeg({ endLocation: endLocation || null })}
+            onChange={(endLocation) => {
+              onChangeLeg({ endLocation: endLocation || null });
+
+              tracker.track('Change end location from the leg form', endLocation ? 'set' : 'cleared');
+            }}
             value={leg.endLocation}
           />
         </div>
@@ -264,7 +312,11 @@ const StaticFields = ({
           getOptionLabel: getTeamOptionLabel,
           id: teamSelectId,
           label: t('teamLabel'),
-          onChange: (team) => onChangeLeg({ team }),
+          onChange: (team) => {
+            onChangeLeg({ team });
+
+            tracker.track('Pick a team from the leg form', team ? 'set' : 'cleared');
+          },
           options: teamAndTrackingOptions.teams,
           value: leg.team,
         })}
@@ -273,7 +325,11 @@ const StaticFields = ({
           id: teamMembersSelectId,
           isMulti: true,
           label: t('teamMembersLabel'),
-          onChange: (teamMembers) => onChangeLeg({ teamMembers: [...teamMembers] }),
+          onChange: (teamMembers) => {
+            onChangeLeg({ teamMembers: [...teamMembers] });
+
+            tracker.track('Change team members from the leg form', String(teamMembers.length));
+          },
           options: teamAndTrackingOptions.members,
           renderOptionIcon: renderSubjectOptionIcon,
           value: leg.teamMembers,
@@ -284,7 +340,11 @@ const StaticFields = ({
         {renderSelect({
           id: teamLeadSelectId,
           label: t('teamLeadLabel'),
-          onChange: (teamLead) => onChangeLeg({ teamLead }),
+          onChange: (teamLead) => {
+            onChangeLeg({ teamLead });
+
+            tracker.track('Pick a team lead from the leg form', teamLead ? 'set' : 'cleared');
+          },
           options: teamAndTrackingOptions.members,
           renderOptionIcon: renderSubjectOptionIcon,
           value: leg.teamLead,
@@ -294,7 +354,11 @@ const StaticFields = ({
           id: assetsSelectId,
           isMulti: true,
           label: t('assetsLabel'),
-          onChange: (assets) => onChangeLeg({ assets: [...assets] }),
+          onChange: (assets) => {
+            onChangeLeg({ assets: [...assets] });
+
+            tracker.track('Change tracked assets from the leg form', String(assets.length));
+          },
           options: teamAndTrackingOptions.assets,
           renderOptionIcon: renderSubjectOptionIcon,
           value: leg.assets,

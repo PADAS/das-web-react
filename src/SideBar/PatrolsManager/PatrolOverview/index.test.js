@@ -1,5 +1,6 @@
 import { CanceledError } from 'axios';
 import { Provider } from 'react-redux';
+import ReactGA4 from 'react-ga4';
 import { toast } from 'react-toastify';
 import { useLocation, useParams } from 'react-router';
 import userEvent from '@testing-library/user-event';
@@ -8,6 +9,7 @@ import { act, render, screen, waitFor } from '../../../test-utils';
 import AddItemButton from '../../../AddItemButton';
 import { addPatrolSegmentToEvent } from '../../../utils/events';
 import { fetchPatrol, updatePatrol, uploadPatrolFile } from '../../../ducks/patrols';
+import { expectActionWithinGa4Limit } from '../../../__test-helpers/analytics';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import patrolTypes from '../../../__test-helpers/fixtures/patrol-types';
 import patrols from '../../../__test-helpers/fixtures/patrols';
@@ -29,6 +31,8 @@ const NavigateAwayButton = () => {
 };
 
 jest.mock('../../../AddItemButton', () => jest.fn());
+
+jest.mock('react-ga4', () => ({ __esModule: true, default: { event: jest.fn() } }));
 
 jest.mock('../../../ducks/patrols', () => ({
   ...jest.requireActual('../../../ducks/patrols'),
@@ -247,6 +251,21 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     await userEvent.click(historyTab);
 
     expect(historyTab).toHaveAttribute('aria-selected', 'true');
+  });
+
+  test('tracks the tab the user selects', async () => {
+    store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
+
+    await renderPatrolOverview(patrolWithoutLeader.id);
+
+    await userEvent.click(screen.getByRole('tab', { name: 'History' }));
+
+    expect(ReactGA4.event).toHaveBeenCalledWith({
+      action: 'Click a tab in patrol overview',
+      category: 'Patrol Overview',
+      label: 'History',
+    });
+    expectActionWithinGa4Limit('Click a tab in patrol overview');
   });
 
   test('shows the footer', async () => {

@@ -106,7 +106,7 @@ const Filters = ({ resultCount }) => {
   const onTogglePopover = (popoverKey) => () => {
     setOpenPopover((currentPopover) => currentPopover === popoverKey ? null : popoverKey);
 
-    tracker.track(`Toggle the ${popoverKey} filter popover`);
+    tracker.track('Toggle a filter popover', popoverKey);
   };
 
   useEffect(() => () => updateTextFilterDebounced.cancel(), [updateTextFilterDebounced]);

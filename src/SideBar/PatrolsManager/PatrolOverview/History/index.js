@@ -45,9 +45,10 @@ const History = ({ patrol }) => {
 
     setSortDirection(newSortDirection);
 
-    tracker.track(`Sort history section in ${
+    tracker.track(
+      'Sort history section',
       newSortDirection === SORT_DIRECTION.up ? ASCENDING_SORT_ORDER : DESCENDING_SORT_ORDER
-    } order`);
+    );
   };
 
   return <div className={styles.history}>

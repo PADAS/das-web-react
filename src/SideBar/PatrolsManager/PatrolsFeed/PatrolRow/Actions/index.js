@@ -131,7 +131,7 @@ const Actions = ({ className = '', contextMenuRef, patrol, patrolState }) => {
     try {
       await dispatch(updatePatrol({ ...buildPatrolStatusUpdate(patrol, pickedState), id: patrol.id }));
 
-      tracker.track(`Pick the "${pickedState.key}" patrol status from the patrols feed`);
+      tracker.track('Pick a status from the patrols feed', pickedState.key);
     } catch (error) {
       toast.error(t('statusUpdateErrorMessage'));
 
@@ -145,7 +145,8 @@ const Actions = ({ className = '', contextMenuRef, patrol, patrolState }) => {
     dispatch(togglePatrolTrackState(patrol.id));
 
     tracker.track(
-      `Toggle patrol track state to ${NEXT_TRACK_STATE_BY_TRACK_STATE[trackToggleState]} from the patrols feed`
+      'Toggle track from the patrols feed',
+      NEXT_TRACK_STATE_BY_TRACK_STATE[trackToggleState]
     );
   };
 
