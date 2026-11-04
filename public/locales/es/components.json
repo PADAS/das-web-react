@@ -324,6 +324,7 @@
           "tableViewCheckboxLabel": "Vista de tabla"
         },
         "experimentalFeaturesFieldSet": {
+          "FEED_TABLE": "Vista de tabla para eventos y patrullas",
           "legend": "Funcionalidades experimentales"
         },
         "languageSelect": {

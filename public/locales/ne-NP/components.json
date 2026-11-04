@@ -324,6 +324,7 @@
           "tableViewCheckboxLabel": "तालिका दृश्य"
         },
         "experimentalFeaturesFieldSet": {
+          "FEED_TABLE": "घटना र गस्तीका लागि तालिका दृश्य",
           "legend": "प्रयोगात्मक सुविधाहरु"
         },
         "languageSelect": {

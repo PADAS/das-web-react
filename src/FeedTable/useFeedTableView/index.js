@@ -2,10 +2,10 @@ import { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
 
-import { BREAKPOINTS, PREVIEW_FEATURES, TAB_KEYS } from '../../constants';
+import { BREAKPOINTS, TAB_KEYS } from '../../constants';
 import { getCurrentTabFromURL } from '../../utils/navigation';
 import { setFeedTableView } from '../../ducks/feed-table-view';
-import { useMatchMedia, usePreviewFeature } from '../../hooks';
+import { useFeatureFlag, useMatchMedia } from '../../hooks';
 
 const FEED_TABS = [TAB_KEYS.EVENTS, TAB_KEYS.PATROLS];
 
@@ -13,7 +13,7 @@ const FEED_TABS = [TAB_KEYS.EVENTS, TAB_KEYS.PATROLS];
 const useFeedTableView = (tab) => {
   const dispatch = useDispatch();
   const { pathname } = useLocation();
-  const isFeedTableEnabled = usePreviewFeature(PREVIEW_FEATURES.FEED_TABLE);
+  const isFeedTableEnabled = useFeatureFlag('FEED_TABLE');
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
   const feedTab = tab ?? getCurrentTabFromURL(pathname);

@@ -324,6 +324,7 @@
           "tableViewCheckboxLabel": "Visualização em tabela"
         },
         "experimentalFeaturesFieldSet": {
+          "FEED_TABLE": "Visualização em tabela para eventos e patrulhas",
           "legend": "Funções experimentais"
         },
         "languageSelect": {

@@ -5,10 +5,9 @@ import { FEED_TABLE_VIEW_STORAGE_KEY } from '../../../../ducks/feed-table-view';
 import { MAP_LAYER_FILTER_STORAGE_KEY } from '../../../../ducks/map-layer-filter';
 import { MAP_POSITION_STORAGE_KEY } from '../../../../ducks/map-position';
 import { PATROL_FILTER_STORAGE_KEY } from '../../../../ducks/patrol-filter';
-import { PREVIEW_FEATURES } from '../../../../constants';
 import { SETTINGS_CATEGORY, trackEventFactory } from '../../../../utils/analytics';
 import { useOptionalPersistence } from '../../../../reducers/storage-config';
-import { usePreviewFeature } from '../../../../hooks';
+import { useFeatureFlag } from '../../../../hooks';
 
 import * as styles from '../../styles.module.scss';
 
@@ -17,7 +16,7 @@ const settingsTracker = trackEventFactory(SETTINGS_CATEGORY);
 const AppRefreshFieldSet = () => {
   const { t } = useTranslation('components', { keyPrefix: 'sideBar.settingsPane.generalTab.appRefreshFieldSet' });
 
-  const isFeedTableEnabled = usePreviewFeature(PREVIEW_FEATURES.FEED_TABLE);
+  const isFeedTableEnabled = useFeatureFlag('FEED_TABLE');
 
   const { restorable: eventFilterRestorable, setRestorable: setEventFilterIsRestorable } = useOptionalPersistence(EVENT_FILTER_STORAGE_KEY, true);
   const { restorable: mapLayersRestorable, setRestorable: setMapLayerFiltersAreRestorable } = useOptionalPersistence(MAP_LAYER_FILTER_STORAGE_KEY, true);

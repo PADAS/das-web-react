@@ -904,7 +904,6 @@ describe('SideBar', () => {
       .filter((action) => action.type === SET_FEED_TABLE_VIEW);
 
     const renderWithFeedTable = (feedTableView = {}) => {
-      store.view.systemConfig.previewFeatures = { [PREVIEW_FEATURES.FEED_TABLE]: true };
       store.view.feedTableView = feedTableView;
       const mockedStore = mockStore(store);
       renderSideBar(mockedStore);
@@ -936,7 +935,8 @@ describe('SideBar', () => {
       expect(tableViewActions(mockedStore)).toEqual([setFeedTableView('events', true)]);
     });
 
-    test('is not shown without the table preview feature', () => {
+    test('is not shown with the table feature flag turned off', () => {
+      store.view.experimentalFeatures = { FEED_TABLE: false };
       renderSideBar();
 
       expect(screen.queryByRole('button', { name: 'Show as table' })).toBeNull();

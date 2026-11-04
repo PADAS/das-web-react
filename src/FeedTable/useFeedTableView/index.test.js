@@ -1,7 +1,7 @@
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { BREAKPOINTS, PREVIEW_FEATURES } from '../../constants';
+import { BREAKPOINTS } from '../../constants';
 import { mockStore } from '../../__test-helpers/MockStore';
 import { render, screen } from '../../test-utils';
 import { SET_FEED_TABLE_VIEW, setFeedTableView } from '../../ducks/feed-table-view';
@@ -27,7 +27,6 @@ describe('FeedTable - useFeedTableView', () => {
     state = {
       view: {
         feedTableView: { events: false, patrols: false },
-        systemConfig: { previewFeatures: { [PREVIEW_FEATURES.FEED_TABLE]: true } },
       },
     };
   });
@@ -72,9 +71,9 @@ describe('FeedTable - useFeedTableView', () => {
     expect(tableViewActions()).toEqual([setFeedTableView('events', true)]);
   });
 
-  test('cannot show the table without the preview feature', () => {
+  test('cannot show the table with its feature flag turned off', () => {
     state.view.feedTableView.events = true;
-    state.view.systemConfig.previewFeatures = {};
+    state.view.experimentalFeatures = { FEED_TABLE: false };
 
     renderHarness('/events');
 

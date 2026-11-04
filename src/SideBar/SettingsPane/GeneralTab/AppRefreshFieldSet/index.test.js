@@ -2,7 +2,6 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { mockStore } from '../../../../__test-helpers/MockStore';
-import { PREVIEW_FEATURES } from '../../../../constants';
 import { render, screen } from '../../../../test-utils';
 
 import AppRefreshFieldSet from './';
@@ -12,8 +11,8 @@ describe('SideBar - SettingsPane - GeneralTab - AppRefreshFieldSet', () => {
     jest.spyOn(window.localStorage.__proto__, 'setItem');
   });
 
-  const renderAppRefreshFieldSet = (props, previewFeatures = {}) => render(
-    <Provider store={mockStore({ view: { systemConfig: { previewFeatures } } })}>
+  const renderAppRefreshFieldSet = (props, experimentalFeatures = {}) => render(
+    <Provider store={mockStore({ view: { experimentalFeatures } })}>
       <AppRefreshFieldSet {...props} />
     </Provider>
   );
@@ -90,14 +89,14 @@ describe('SideBar - SettingsPane - GeneralTab - AppRefreshFieldSet', () => {
     );
   });
 
-  test('does not offer to keep the table view without the table preview feature', () => {
-    renderAppRefreshFieldSet();
+  test('does not offer to keep the table view with the table feature flag turned off', () => {
+    renderAppRefreshFieldSet({}, { FEED_TABLE: false });
 
     expect(screen.queryByRole('checkbox', { name: 'Table View' })).toBeNull();
   });
 
   test('updates the table view setting when user interacts with its checkbox', async () => {
-    renderAppRefreshFieldSet({}, { [PREVIEW_FEATURES.FEED_TABLE]: true });
+    renderAppRefreshFieldSet();
 
     expect(screen.getByRole('checkbox', { name: 'Table View' })).not.toBeChecked();
 

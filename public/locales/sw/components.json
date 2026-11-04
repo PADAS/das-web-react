@@ -329,6 +329,7 @@
           "tableViewCheckboxLabel": "Mwonekano wa Jedwali"
         },
         "experimentalFeaturesFieldSet": {
+          "FEED_TABLE": "Mwonekano wa jedwali kwa matukio na doria",
           "legend": "Vipengele vya Majaribio"
         },
         "languageSelect": {

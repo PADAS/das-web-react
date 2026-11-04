@@ -329,6 +329,7 @@
           "tableViewCheckboxLabel": "Table View"
         },
         "experimentalFeaturesFieldSet": {
+          "FEED_TABLE": "Table view for events and patrols",
           "legend": "Experimental Features"
         },
         "languageSelect": {

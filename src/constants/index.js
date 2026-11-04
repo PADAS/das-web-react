@@ -199,7 +199,6 @@ export const SYSTEM_CONFIG_FLAGS = {
 
 export const PREVIEW_FEATURES = {
   EVENTS_VECTOR_TILES: 'events_vector_tiles',
-  FEED_TABLE: 'feed_table',
   PATROL_SCHEMAS: 'patrol_schemas',
 };
 
@@ -378,7 +377,10 @@ export const SUPPORTED_LANGUAGES = {
 
 export const FEATURE_FLAGS = {};
 
-export const DEVELOPMENT_FEATURE_FLAGS = {};
+export const DEVELOPMENT_FEATURE_FLAGS = {
+  // On while the table is previewed; turned off per user in Settings > General.
+  FEED_TABLE: true,
+};
 
 export const LINK_TYPES = { PATROL: 'patrol', EVENT: 'event' };
 

@@ -324,6 +324,7 @@
           "tableViewCheckboxLabel": "Vue en tableau"
         },
         "experimentalFeaturesFieldSet": {
+          "FEED_TABLE": "Vue en tableau des événements et patrouilles",
           "legend": "Fonctionnalités expérimentales"
         },
         "languageSelect": {
