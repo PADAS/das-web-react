@@ -10,6 +10,7 @@ import {
   displayStartTimeForPatrol,
   getPatrolLocationCoordinates,
   governingPatrolSegment,
+  iconIdForPatrolSegment,
 } from '../../utils/patrols';
 import { fetchNextPatrolsFeedPage } from '../../ducks/patrols';
 import { selectPatrolTrackData } from '../../selectors/patrols';
@@ -17,9 +18,12 @@ import { TAB_KEYS } from '../../constants';
 import useJumpToLocation from '../../hooks/useJumpToLocation';
 import useNavigate from '../../hooks/useNavigate';
 
-import FeedTable, { formatDateValue } from '..';
+import FeedTable, { formatDateValue, IconCell } from '..';
+import SvgIcon from '../../SvgIcon';
 
 import * as styles from './styles.module.scss';
+
+const PatrolIconCell = ({ value }) => <IconCell><SvgIcon iconId={value} type="patrols" /></IconCell>;
 
 const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
   const dispatch = useDispatch();
@@ -36,6 +40,19 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
   const loadingMoreRef = useRef(false);
 
   const columnDefs = useMemo(() => [
+    {
+      cellRenderer: PatrolIconCell,
+      colId: 'icon',
+      headerName: '',
+      maxWidth: 56,
+      menuName: t('iconColumnTitle'),
+      minWidth: 56,
+      resizable: false,
+      valueGetter: (params) => {
+        const segment = governingPatrolSegment(params.data);
+        return segment ? iconIdForPatrolSegment(patrolTypes, segment) : null;
+      },
+    },
     { colId: 'serial_number', field: 'serial_number', headerName: t('serialColumnTitle'), minWidth: 80, sortable: true, width: 100 },
     {
       colId: 'title',

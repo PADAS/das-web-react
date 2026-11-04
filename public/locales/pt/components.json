@@ -85,6 +85,7 @@
       "rowSelectMessage": "Pressione a tecla de espaço para selecionar esta linha",
       "uncheckedStateLabel": "não selecionada"
     },
+    "iconColumnTitle": "Ícone",
     "leaderColumnTitle": "Líder",
     "legsColumnTitle": "Etapas",
     "loadedPatrolsMessage_one": "Mostrando {{loaded}} de {{count}} patrulha",

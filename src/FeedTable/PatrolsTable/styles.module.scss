@@ -4,6 +4,11 @@
 
 @mixin row-theme($theme) {
   --ag-row-hover-color: #{color.mix(map.get($theme, 'font-color') or map.get($theme, 'base'), white, colors.$patrol-row-tint)};
+  --feed-table-icon-background: #{map.get($theme, 'base')};
+
+  @if map.get($theme, 'font-color') {
+    --feed-table-icon-color: #{map.get($theme, 'font-color')};
+  }
 }
 
 .active {

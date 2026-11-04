@@ -85,6 +85,7 @@
       "rowSelectMessage": "यो पङ्क्ति चयन गर्न space थिच्नुहोस्",
       "uncheckedStateLabel": "चयन नगरिएको"
     },
+    "iconColumnTitle": "आइकन",
     "leaderColumnTitle": "नेता",
     "legsColumnTitle": "खण्डहरू",
     "loadedPatrolsMessage_one": "{{count}} गस्तीमध्ये {{loaded}} देखाइँदै",

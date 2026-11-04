@@ -90,6 +90,7 @@
       "rowSelectMessage": "Press Space to select this row",
       "uncheckedStateLabel": "not selected"
     },
+    "iconColumnTitle": "Icon",
     "leaderColumnTitle": "Leader",
     "legsColumnTitle": "Legs",
     "loadedPatrolsMessage_one": "Showing {{loaded}} of {{count}} patrol",

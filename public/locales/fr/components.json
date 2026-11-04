@@ -85,6 +85,7 @@
       "rowSelectMessage": "Appuyez sur la barre d’espace pour sélectionner cette ligne",
       "uncheckedStateLabel": "non sélectionnée"
     },
+    "iconColumnTitle": "Icône",
     "leaderColumnTitle": "Chef",
     "legsColumnTitle": "Étapes",
     "loadedPatrolsMessage_one": "{{loaded}} patrouille affichée sur {{count}}",

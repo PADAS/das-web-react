@@ -127,12 +127,27 @@ const writeStored = (key, value) => {
 
 const readColumnOrder = (tableKey, scope) => readStored(storageKey('columnOrder', tableKey, scope), Array.isArray, null);
 
-// Columns the saved order doesn't know go last, in their own order.
+// A column the saved order doesn't know goes first or last when it leads or
+// ends the definitions, and otherwise after the column it follows there.
 const orderColumns = (columns, order) => {
   const positions = new Map(order.map((colId, index) => [colId, index]));
-  const positionOf = (column) => positions.get(column.colId) ?? order.length;
+  const orderedColumns = columns
+    .filter((column) => positions.has(column.colId))
+    .sort((column, otherColumn) => positions.get(column.colId) - positions.get(otherColumn.colId));
 
-  return [...columns].sort((a, b) => positionOf(a) - positionOf(b));
+  columns.forEach((column, index) => {
+    if (!positions.has(column.colId)) {
+      const previousColumn = columns.slice(0, index).findLast((other) => orderedColumns.includes(other));
+      const hasKnownNextColumn = columns.slice(index + 1).some((other) => positions.has(other.colId));
+      const insertIndex = !previousColumn
+        ? 0
+        : (hasKnownNextColumn ? orderedColumns.indexOf(previousColumn) + 1 : orderedColumns.length);
+
+      orderedColumns.splice(insertIndex, 0, column);
+    }
+  });
+
+  return orderedColumns;
 };
 
 // With every shown column at a fixed width, the last one fills the rest.
@@ -150,6 +165,9 @@ const controlInCell = (element) => element.classList?.contains('ag-cell')
   ? element.querySelector(CELL_CONTROLS)
   : null;
 
+// Its colors come from the row's theme, as the feed rows' icons do.
+export const IconCell = ({ children }) => <span aria-hidden="true" className={styles.iconCell}>{children}</span>;
+
 export const formatDateValue = (params) => {
   const date = params.value ? new Date(params.value) : null;
 
@@ -157,6 +175,7 @@ export const formatDateValue = (params) => {
 };
 
 // `layoutScoped` columns, such as an event type's fields, keep their own order.
+// `menuName` names a column without a header, such as the icon, in the menu.
 const FeedTable = ({
   ariaLabel,
   columnDefs,
@@ -222,7 +241,7 @@ const FeedTable = ({
   // The grid lays columns out in definition order, so the order survives a
   // rebuild only if the definitions carry it.
   const visibleColumnDefs = useMemo(
-    () => fillWidthWithLastColumn(orderedColumnDefs.map(({ defaultHidden, layoutScoped: _layoutScoped, ...column }) => ({
+    () => fillWidthWithLastColumn(orderedColumnDefs.map(({ defaultHidden, layoutScoped: _layoutScoped, menuName: _menuName, ...column }) => ({
       ...column,
       ...(columnWidths[column.colId] && { flex: null, width: columnWidths[column.colId] }),
       hide: isColumnHidden({ ...column, defaultHidden }),
@@ -414,7 +433,7 @@ const FeedTable = ({
                 >
                   {!isColumnHidden(column) && <CheckIcon aria-hidden="true" className={styles.checkIcon} />}
 
-                  {column.headerName}
+                  {column.menuName ?? column.headerName}
                 </button>
               </li>)}
             </ul>

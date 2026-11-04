@@ -191,6 +191,13 @@ describe('EventsTable', () => {
     expect(lastGridProps().columnDefs).toBe(columnDefs);
   });
 
+  test('leads with an icon column named in the Columns menu but not in its header', () => {
+    renderEventsTable();
+
+    expect(lastGridProps().columnDefs[0]).toEqual(expect.objectContaining({ colId: 'icon', headerName: '' }));
+    expect(columnById('icon')).not.toHaveProperty('menuName');
+  });
+
   test('names priorities the way the rest of the app does', () => {
     renderEventsTable();
 

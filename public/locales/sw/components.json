@@ -90,6 +90,7 @@
       "rowSelectMessage": "Bonyeza space kuchagua safu mlalo hii",
       "uncheckedStateLabel": "haijachaguliwa"
     },
+    "iconColumnTitle": "Ikoni",
     "leaderColumnTitle": "Kiongozi",
     "legsColumnTitle": "Vipande",
     "loadedPatrolsMessage_one": "Inaonyesha doria {{loaded}} kati ya {{count}}",

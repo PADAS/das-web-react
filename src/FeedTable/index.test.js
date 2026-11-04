@@ -109,6 +109,22 @@ describe('FeedTable', () => {
     await waitFor(() => expect(shownColumnOrder().slice(-4)).toEqual(['c', 'a', 'b', 'd']));
   });
 
+  test('adds a new leading column first without resetting the order', async () => {
+    const { rerender } = await renderFeedTable();
+    await dragCToFront();
+
+    rerender(feedTable([{ colId: 'icon', field: 'icon', headerName: '', menuName: 'Icon' }, ...COLUMNS]));
+
+    await waitFor(() => expect(shownColumnOrder().slice(-4)).toEqual(['icon', 'c', 'a', 'b']));
+  });
+
+  test('names a column without a header by its menu name in the Columns menu', async () => {
+    await renderFeedTable([{ colId: 'icon', field: 'icon', headerName: '', menuName: 'Icon' }, ...COLUMNS]);
+    await userEvent.click(screen.getByRole('button', { name: 'Columns' }));
+
+    expect(screen.getByRole('menuitemcheckbox', { name: 'Icon' })).toBeVisible();
+  });
+
   test('keeps a dragged order and column widths across a reload', async () => {
     const { unmount } = await renderFeedTable();
     await dragCToFront();

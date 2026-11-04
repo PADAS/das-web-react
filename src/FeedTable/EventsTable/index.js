@@ -32,7 +32,8 @@ import calcEventTypeFields from './utils/calcEventTypeFields';
 import AddToIncidentModal from '../../AddToIncidentModal';
 import AddToPatrolModal from '../../AddToPatrolModal';
 import CollectionViewModal from './CollectionViewModal';
-import FeedTable, { formatDateValue } from '..';
+import EventIcon from '../../EventIcon';
+import FeedTable, { formatDateValue, IconCell } from '..';
 import ObjectViewModal, { ObjectValueLink } from '../ObjectViewModal';
 
 import * as styles from './styles.module.scss';
@@ -67,6 +68,8 @@ const ComplexDetailCell = ({ colDef, eventSchema, fieldName, value }) => {
     value={value}
   />;
 };
+
+const EventIconCell = ({ data }) => <IconCell><EventIcon report={data} /></IconCell>;
 
 const PriorityCell = ({ value, valueFormatted }) => <span className={styles.priorityCell}>
   <span
@@ -147,6 +150,15 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
   }, [coordinatesRepresentation, eventSchema, eventTypeFilter.length, eventsForFallbackColumns]);
 
   const columnDefs = useMemo(() => [
+    {
+      cellRenderer: EventIconCell,
+      colId: 'icon',
+      headerName: '',
+      maxWidth: 56,
+      menuName: t('iconColumnTitle'),
+      minWidth: 56,
+      resizable: false,
+    },
     {
       cellRenderer: PriorityCell,
       colId: 'priority',

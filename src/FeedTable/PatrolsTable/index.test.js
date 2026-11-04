@@ -3,6 +3,7 @@ import { Provider } from 'react-redux';
 
 import { activePatrol } from '../../__test-helpers/fixtures/patrols';
 import { fetchNextPatrolsFeedPage } from '../../ducks/patrols';
+import { governingPatrolSegment, iconIdForPatrolSegment } from '../../utils/patrols';
 import { mockStore } from '../../__test-helpers/MockStore';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import { render, screen } from '../../test-utils';
@@ -142,6 +143,15 @@ describe('FeedTable - PatrolsTable', () => {
     renderPatrolsTable([twoLegPatrol]);
 
     expect(columnById('leader').valueGetter({ data: twoLegPatrol })).toBe('Current leader');
+  });
+
+  test('shows the icon of the leg the patrol is on', () => {
+    renderPatrolsTable();
+
+    expect(lastGridProps().columnDefs[0].colId).toBe('icon');
+    expect(columnById('icon').valueGetter({ data: activePatrol })).toBe(
+      iconIdForPatrolSegment(patrolTypes, governingPatrolSegment(activePatrol))
+    );
   });
 
   test('opens the patrol when its row is clicked', () => {
