@@ -22,7 +22,13 @@ import { showToast } from '../../utils/toast';
 import EventsTable from './';
 
 const mockGridProps = [];
-const mockGridApi = { deselectAll: jest.fn(), setGridAriaProperty: jest.fn() };
+const mockGridApi = {
+  deselectAll: jest.fn(),
+  getAllDisplayedColumns: () => [],
+  getDisplayedRowCount: () => 0,
+  getFocusedCell: () => null,
+  setGridAriaProperty: jest.fn(),
+};
 
 jest.mock('ag-grid-react', () => ({
   AgGridReact: function AgGridReactStub(props) {
@@ -149,7 +155,7 @@ describe('EventsTable', () => {
   test('puts its controls in the spot the feed keeps for them', () => {
     renderEventsTable();
 
-    expect(within(screen.getByTestId('toolbarContainer')).getByRole('button', { name: 'Export CSV' })).toBeVisible();
+    expect(within(screen.getByTestId('toolbarContainer')).getByRole('button', { name: 'Export all fields (CSV)' })).toBeVisible();
   });
 
   test('sorts only the columns the events API orders by, with the feed sort', () => {
@@ -312,7 +318,7 @@ describe('EventsTable', () => {
     expect(columnById('title').hide).toBe(false);
 
     await userEvent.click(screen.getByRole('button', { name: 'Columns' }));
-    await userEvent.click(screen.getByRole('checkbox', { name: 'Title' }));
+    await userEvent.click(screen.getByRole('menuitemcheckbox', { name: 'Title' }));
 
     expect(columnById('title').hide).toBe(true);
     expect(JSON.parse(window.localStorage.getItem('feedTable.hiddenColumns.events'))).toEqual({ title: true });
@@ -399,7 +405,7 @@ describe('EventsTable', () => {
     downloadFileFromUrl.mockResolvedValue();
     renderEventsTable();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Export CSV' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Export all fields (CSV)' }));
 
     expect(downloadFileFromUrl).toHaveBeenCalledWith(expect.stringMatching(/activity\/events\/export\?state=active$/), {});
   });
@@ -410,7 +416,7 @@ describe('EventsTable', () => {
     downloadFileFromUrl.mockResolvedValue();
     renderEventsTable();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Export CSV' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Export all fields (CSV)' }));
 
     expect(calcEventFilterForRequest).toHaveBeenCalledWith({}, serialSort);
   });

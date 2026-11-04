@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import Button from 'react-bootstrap/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -138,7 +137,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     {
       cellRenderer: PriorityCell,
       colId: 'priority',
-      headerName: t('columnPriority'),
+      headerName: t('priorityColumnTitle'),
       minWidth: 110,
       valueFormatter: (params) => tPriorities((PRIORITY_COLOR_MAP[params.value] ?? PRIORITY_COLOR_MAP[0]).key),
       valueGetter: (params) => calcDisplayPriorityForReport(params.data, eventTypes) || 0,
@@ -147,7 +146,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     {
       colId: 'serial_number',
       field: 'serial_number',
-      headerName: t('columnSerial'),
+      headerName: t('serialColumnTitle'),
       minWidth: 80,
       width: 100,
       ...serverSortable('serial_number'),
@@ -155,20 +154,20 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     {
       colId: 'title',
       flex: 2,
-      headerName: t('columnTitle'),
+      headerName: t('titleColumnTitle'),
       minWidth: 180,
       valueGetter: (params) => displayTitleForEvent(params.data, eventTypes) ?? '',
     },
     {
       colId: 'event_type',
       flex: 1,
-      headerName: t('columnEventType'),
+      headerName: t('eventTypeColumnTitle'),
       minWidth: 140,
       valueGetter: (params) => eventTypeTitleForEvent(params.data, eventTypes) ?? '',
     },
     {
       colId: 'state',
-      headerName: t('columnState'),
+      headerName: t('stateColumnTitle'),
       minWidth: 100,
       valueGetter: (params) => {
         const stateKey = STATE_KEY_BY_EVENT_STATE[params.data?.state];
@@ -178,14 +177,14 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     },
     {
       colId: 'reported_by',
-      headerName: t('columnReportedBy'),
+      headerName: t('reportedByColumnTitle'),
       minWidth: 140,
       valueGetter: (params) => params.data?.reported_by?.name ?? '',
     },
     {
       valueFormatter: formatDateValue,
       colId: 'event_time',
-      headerName: t('columnEventTime'),
+      headerName: t('eventTimeColumnTitle'),
       minWidth: 170,
       valueGetter: (params) => params.data?.time ?? '',
       ...serverSortable('event_time'),
@@ -194,7 +193,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
       valueFormatter: formatDateValue,
       colId: 'updated_at',
       field: 'updated_at',
-      headerName: t('columnUpdatedAt'),
+      headerName: t('updatedAtColumnTitle'),
       minWidth: 170,
       ...serverSortable('updated_at'),
     },
@@ -203,19 +202,24 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
       colId: 'created_at',
       defaultHidden: true,
       field: 'created_at',
-      headerName: t('columnCreatedAt'),
+      headerName: t('createdAtColumnTitle'),
       minWidth: 170,
       ...serverSortable('created_at'),
     },
     {
       colId: 'location',
       defaultHidden: true,
-      headerName: t('columnLocation'),
+      headerName: t('locationColumnTitle'),
       minWidth: 170,
       valueGetter: (params) => formatCoordinates(getCoordinatesForEvent(params.data)),
     },
     ...detailColumns,
   ], [detailColumns, eventTypes, serverSortable, t, tPriorities, tStates]);
+
+  const getRowClass = useCallback(
+    (params) => styles[(PRIORITY_COLOR_MAP[calcDisplayPriorityForReport(params.data, eventTypes)] ?? PRIORITY_COLOR_MAP[0]).key],
+    [eventTypes]
+  );
 
   const onSortChanged = (event) => {
     if (event.source !== 'uiColumnSorted') return;
@@ -260,8 +264,8 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     const failedCount = results.filter((result) => result.status === 'rejected').length;
 
     showToast(failedCount
-      ? { message: t('bulkStateError', { count: failedCount }) }
-      : { message: t('bulkStateSuccess', { count: selectedEvents.length }), toastConfig: { type: 'success' } });
+      ? { message: t('bulkUpdateErrorMessage', { count: failedCount }) }
+      : { message: t('bulkUpdateSuccessMessage', { count: selectedEvents.length }), toastConfig: { type: 'success' } });
 
     setUpdatingState(false);
     clearSelection();
@@ -295,7 +299,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
       try {
         incident = (await dispatch(createEvent(createNewIncidentCollection()))).data.data;
       } catch {
-        showToast({ message: t('bulkStateError', { count: selectedEvents.length }) });
+        showToast({ message: t('bulkUpdateErrorMessage', { count: selectedEvents.length }) });
         return;
       }
     }
@@ -312,50 +316,47 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
   }));
 
   const renderBulkActions = (selectedEvents, clearSelection) => <>
-    <Button
+    <button
+      className={styles.bulkActionButton}
       disabled={updatingState}
       onClick={() => setSelectedEventsState(selectedEvents, EVENT_FORM_STATES.RESOLVED, clearSelection)}
-      size="sm"
       type="button"
-      variant="outline-secondary"
     >
-      {t('resolveSelected')}
-    </Button>
+      {t('resolveButtonLabel')}
+    </button>
 
-    <Button
+    <button
+      className={styles.bulkActionButton}
       disabled={updatingState}
       onClick={() => setSelectedEventsState(selectedEvents, EVENT_FORM_STATES.ACTIVE, clearSelection)}
-      size="sm"
       type="button"
-      variant="outline-secondary"
     >
-      {t('reopenSelected')}
-    </Button>
+      {t('reopenButtonLabel')}
+    </button>
 
-    <Button
+    <button
+      className={styles.bulkActionButton}
       disabled={updatingState}
       onClick={() => onStartAddSelectedToPatrol(selectedEvents, clearSelection)}
-      size="sm"
       type="button"
-      variant="outline-secondary"
     >
       {tReportMenu('addToPatrolOption')}
-    </Button>
+    </button>
 
-    <Button
+    <button
+      className={styles.bulkActionButton}
       disabled={updatingState}
       onClick={() => onStartAddSelectedToIncident(selectedEvents, clearSelection)}
-      size="sm"
       type="button"
-      variant="outline-secondary"
     >
       {tReportMenu('addToIncidentOption')}
-    </Button>
+    </button>
   </>;
 
   return <FeedTable
     ariaLabel={tSideBar('eventsLink')}
     columnDefs={columnDefs}
+    getRowClass={getRowClass}
     getRowId={(params) => params.data.id}
     layoutScope={eventTypeFilter.length === 1 ? eventTypeFilter[0] : undefined}
     loading={eventsFeed.loadingEventFeed}

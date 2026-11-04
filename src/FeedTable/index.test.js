@@ -94,8 +94,8 @@ describe('FeedTable', () => {
     await dragCToFront();
 
     await userEvent.click(screen.getByRole('button', { name: 'Columns' }));
-    await userEvent.click(screen.getByRole('checkbox', { name: 'A' }));
-    await userEvent.click(screen.getByRole('checkbox', { name: 'A' }));
+    await userEvent.click(screen.getByRole('menuitemcheckbox', { name: 'A' }));
+    await userEvent.click(screen.getByRole('menuitemcheckbox', { name: 'A' }));
 
     await waitFor(() => expect(shownColumnOrder().slice(-3)).toEqual(['c', 'a', 'b']));
   });
@@ -227,28 +227,85 @@ describe('FeedTable', () => {
     expect(onOpenRow).not.toHaveBeenCalled();
   });
 
-  test('moves a column from the Columns menu, keeping focus on it and saving the order', async () => {
+  const headerCell = (colId) => document.querySelector(`.ag-header-cell[col-id="${colId}"]`);
+
+  test('moves the focused column header with Alt and an arrow, keeping focus on it and saving the order', async () => {
+    await renderFeedTable();
+    act(() => gridApi.setFocusedHeader('c'));
+
+    await userEvent.keyboard('{Alt>}{ArrowLeft}{/Alt}');
+
+    expect(stored('feedTable.columnOrder.test')).toEqual(['a', 'c', 'b']);
+    await waitFor(() => expect(shownColumnOrder().slice(-3)).toEqual(['a', 'c', 'b']));
+    expect(headerCell('c')).toHaveFocus();
+  });
+
+  test('does not move a column before the selection checkboxes', async () => {
+    await renderFeedTable();
+    act(() => gridApi.setFocusedHeader('a'));
+
+    await userEvent.keyboard('{Alt>}{ArrowLeft}{/Alt}');
+
+    expect(stored('feedTable.columnOrder.test')).toBeNull();
+  });
+
+  test('describes how to move columns from the keyboard', async () => {
+    await renderFeedTable();
+
+    expect(await screen.findByRole('grid', { name: 'Test table' })).toHaveAccessibleDescription(
+      'Press Alt and the left or right arrow on a column header to move the column.'
+    );
+  });
+
+  test('lets the last shown column fill the width when every column has a fixed one', async () => {
+    window.localStorage.setItem('feedTable.columnWidths.test', JSON.stringify({ a: 100, b: 100, c: 100 }));
+    await renderFeedTable();
+
+    await waitFor(() => expect(gridApi.getColumn('c').getFlex()).toBe(1));
+    expect(gridApi.getColumn('b').getFlex()).toBeFalsy();
+  });
+
+  test('moves through the Columns menu with the arrow keys, Home and End', async () => {
     await renderFeedTable();
     await userEvent.click(screen.getByRole('button', { name: 'Columns' }));
 
-    expect(screen.getByRole('button', { name: 'Move A up' })).toBeDisabled();
+    expect(screen.getByRole('menu', { name: 'Columns shown' })).toBeVisible();
+    expect(screen.getByRole('menuitemcheckbox', { name: 'A' })).toHaveFocus();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Move C up' }));
+    await userEvent.keyboard('{ArrowDown}');
+    expect(screen.getByRole('menuitemcheckbox', { name: 'B' })).toHaveFocus();
 
-    expect(screen.getByRole('button', { name: 'Move C up' })).toHaveFocus();
-    expect(stored('feedTable.columnOrder.test')).toEqual(['a', 'c', 'b']);
-    await waitFor(() => expect(shownColumnOrder().slice(-3)).toEqual(['a', 'c', 'b']));
+    await userEvent.keyboard('{End}');
+    expect(screen.getByRole('menuitemcheckbox', { name: 'C' })).toHaveFocus();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Move C up' }));
+    await userEvent.keyboard('{Home}');
+    expect(screen.getByRole('menuitemcheckbox', { name: 'A' })).toHaveFocus();
+  });
 
-    expect(screen.getByRole('button', { name: 'Move C up' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Move C down' })).toHaveFocus();
+  test('marks the shown columns in the Columns menu', async () => {
+    await renderFeedTable();
+    await userEvent.click(screen.getByRole('button', { name: 'Columns' }));
+    await userEvent.click(screen.getByRole('menuitemcheckbox', { name: 'B' }));
+
+    expect(screen.getByRole('menuitemcheckbox', { name: 'A' })).toHaveAttribute('aria-checked', 'true');
+    expect(screen.getByRole('menuitemcheckbox', { name: 'B' })).toHaveAttribute('aria-checked', 'false');
+    expect(stored('feedTable.hiddenColumns.test')).toEqual({ b: true });
+  });
+
+  test('returns focus to the grid when the selection is cleared', async () => {
+    await renderFeedTable();
+    await userEvent.click(await screen.findByRole('checkbox', { name: 'Select row (not selected)' }));
+
+    await userEvent.click(screen.getByRole('button', { name: 'Clear' }));
+
+    expect(screen.queryByRole('button', { name: 'Clear' })).toBeNull();
+    expect(document.activeElement.closest('.ag-cell')).toBeTruthy();
   });
 
   test('closes the Columns menu with Escape and returns focus to its button', async () => {
     await renderFeedTable();
     await userEvent.click(screen.getByRole('button', { name: 'Columns' }));
-    await userEvent.click(screen.getByRole('checkbox', { name: 'A' }));
+    await userEvent.click(screen.getByRole('menuitemcheckbox', { name: 'A' }));
 
     await userEvent.keyboard('{Escape}');
 

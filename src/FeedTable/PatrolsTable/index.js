@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { useDispatch, useSelector, useStore } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -19,6 +19,8 @@ import useNavigate from '../../hooks/useNavigate';
 
 import FeedTable, { formatDateValue } from '..';
 
+import * as styles from './styles.module.scss';
+
 const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
   const dispatch = useDispatch();
   const jumpToLocation = useJumpToLocation();
@@ -34,18 +36,18 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
   const loadingMoreRef = useRef(false);
 
   const columnDefs = useMemo(() => [
-    { colId: 'serial_number', field: 'serial_number', headerName: t('columnSerial'), minWidth: 80, sortable: true, width: 100 },
+    { colId: 'serial_number', field: 'serial_number', headerName: t('serialColumnTitle'), minWidth: 80, sortable: true, width: 100 },
     {
       colId: 'title',
       flex: 2,
-      headerName: t('columnTitle'),
+      headerName: t('titleColumnTitle'),
       minWidth: 180,
       sortable: true,
       valueGetter: (params) => calcTitleAndSubtitleForPatrol(params.data, patrolTypes).title ?? '',
     },
     {
       colId: 'patrol_type',
-      headerName: t('columnPatrolType'),
+      headerName: t('patrolTypeColumnTitle'),
       minWidth: 140,
       sortable: true,
       valueGetter: (params) => {
@@ -55,14 +57,14 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
     },
     {
       colId: 'state',
-      headerName: t('columnState'),
+      headerName: t('stateColumnTitle'),
       minWidth: 120,
       sortable: true,
       valueGetter: (params) => tPatrolState(calcPatrolState(params.data).key),
     },
     {
       colId: 'leader',
-      headerName: t('columnLeader'),
+      headerName: t('leaderColumnTitle'),
       minWidth: 140,
       sortable: true,
       valueGetter: (params) => governingPatrolSegment(params.data)?.leader?.name ?? '',
@@ -70,7 +72,7 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
     {
       valueFormatter: formatDateValue,
       colId: 'start',
-      headerName: t('columnPatrolStart'),
+      headerName: t('patrolStartColumnTitle'),
       minWidth: 170,
       sortable: true,
       valueGetter: (params) => displayStartTimeForPatrol(params.data)?.toISOString() ?? '',
@@ -78,7 +80,7 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
     {
       valueFormatter: formatDateValue,
       colId: 'end',
-      headerName: t('columnPatrolEnd'),
+      headerName: t('patrolEndColumnTitle'),
       minWidth: 170,
       sortable: true,
       valueGetter: (params) => displayEndTimeForPatrol(params.data)?.toISOString() ?? '',
@@ -86,12 +88,14 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
     {
       colId: 'legs',
       defaultHidden: true,
-      headerName: t('columnLegs'),
+      headerName: t('legsColumnTitle'),
       maxWidth: 100,
       sortable: true,
       valueGetter: (params) => params.data?.patrol_segments?.length ?? 0,
     },
   ], [patrolTypes, t, tPatrolState]);
+
+  const getRowClass = useCallback((params) => styles[calcPatrolState(params.data).key], []);
 
   // The patrols API has no ordering, so the table sorts the loaded pages only.
   const onLoadMore = () => {
@@ -117,6 +121,7 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
   return <FeedTable
     ariaLabel={tSideBar('patrolsLink')}
     columnDefs={columnDefs}
+    getRowClass={getRowClass}
     getRowId={(params) => params.data.id}
     loading={loading}
     onLoadMore={onLoadMore}
