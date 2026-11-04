@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from 'react';
+import { lazy, memo, Suspense, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -12,10 +12,11 @@ import useFetchPatrolsFeed from '../../useFetchPatrolsFeed';
 import DetailViewLoader from '../DetailViewLoader';
 import Filters from './Filters';
 import PatrolRow from './PatrolRow';
-import PatrolsTable from '../../../FeedTable/PatrolsTable';
 import { ScrollRestoration } from '../../../SidebarScrollContext';
 
 import * as styles from './styles.module.scss';
+
+const PatrolsTable = lazy(() => import('../../../FeedTable/PatrolsTable'));
 
 const patrolsFeedTracker = trackEventFactory(PATROLS_FEED_CATEGORY);
 
@@ -38,11 +39,9 @@ const PatrolsFeed = () => {
         summaryActionsRef={isTableView ? setTableToolbarContainer : undefined}
       />
 
-      {isTableView && <PatrolsTable
-        loading={loadingPatrolsFeed}
-        patrols={patrols}
-        toolbarContainer={tableToolbarContainer}
-      />}
+      {isTableView && <Suspense fallback={<DetailViewLoader className={styles.loader} />}>
+        <PatrolsTable loading={loadingPatrolsFeed} patrols={patrols} toolbarContainer={tableToolbarContainer} />
+      </Suspense>}
 
       {!isTableView && loadingPatrolsFeed && <DetailViewLoader className={styles.loader} />}
 

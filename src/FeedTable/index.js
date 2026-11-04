@@ -6,7 +6,18 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import Form from 'react-bootstrap/Form';
 import MoonLoader from 'react-spinners/MoonLoader';
 import { AgGridReact } from 'ag-grid-react';
-import { AllCommunityModule, ModuleRegistry, themeQuartz } from 'ag-grid-community';
+import {
+  ClientSideRowModelModule,
+  ColumnApiModule,
+  LocaleModule,
+  ModuleRegistry,
+  RenderApiModule,
+  RowApiModule,
+  RowSelectionModule,
+  RowStyleModule,
+  ScrollApiModule,
+  themeQuartz,
+} from 'ag-grid-community';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowDownIcon } from '../common/images/icons/arrow-down.svg';
@@ -17,7 +28,16 @@ import { showToast } from '../utils/toast';
 
 import * as styles from './styles.module.scss';
 
-ModuleRegistry.registerModules([AllCommunityModule]);
+ModuleRegistry.registerModules([
+  ClientSideRowModelModule,
+  ColumnApiModule,
+  LocaleModule,
+  RenderApiModule,
+  RowApiModule,
+  RowSelectionModule,
+  RowStyleModule,
+  ScrollApiModule,
+]);
 
 // How close to the last loaded row a scroll asks for the next page.
 const LOAD_MORE_EDGE_ROWS = 10;

@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from 'react';
+import { lazy, memo, Suspense, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 import { selectPatrolsFeedMappedFromStore } from '../../selectors/patrols';
@@ -9,9 +9,10 @@ import useNavigate from '../../hooks/useNavigate';
 
 import PatrolFilter from '../../PatrolFilter';
 import PatrolList from '../../PatrolList';
-import PatrolsTable from '../../FeedTable/PatrolsTable';
 
 import * as styles from './styles.module.scss';
+
+const PatrolsTable = lazy(() => import('../../FeedTable/PatrolsTable'));
 
 const PatrolsFeed = () => {
   const navigate= useNavigate();
@@ -29,11 +30,9 @@ const PatrolsFeed = () => {
     return <div className={styles.tableView}>
       <PatrolFilter summaryActionsRef={setTableToolbarContainer} />
 
-      <PatrolsTable
-        loading={loadingPatrolsFeed}
-        patrols={sortedPatrols}
-        toolbarContainer={tableToolbarContainer}
-      />
+      <Suspense fallback={null}>
+        <PatrolsTable loading={loadingPatrolsFeed} patrols={sortedPatrols} toolbarContainer={tableToolbarContainer} />
+      </Suspense>
     </div>;
   }
 

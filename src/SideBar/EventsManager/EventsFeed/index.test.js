@@ -103,14 +103,14 @@ describe('SideBar - EventsManager - EventsFeed', () => {
     { initialEntries: [`/${TAB_KEYS.EVENTS}`] }
   );
 
-  test('shows the feed as a table under the same filter in the table view', () => {
+  test('shows the feed as a table under the same filter in the table view', async () => {
     renderEventsFeed(undefined, {
       feedTableView: { events: true },
       systemConfig: { previewFeatures: { [PREVIEW_FEATURES.FEED_TABLE]: true } },
     });
 
     expect(screen.getByTestId('eventFilter')).toBeVisible();
-    expect(screen.getByTestId('eventsTable')).toHaveTextContent('second,third,first');
+    expect(await screen.findByTestId('eventsTable')).toHaveTextContent('second,third,first');
     expect(screen.queryByRole('list', { name: 'Event list' })).toBeNull();
   });
 

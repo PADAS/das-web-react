@@ -1,4 +1,4 @@
-import { memo, useContext, useMemo, useState } from 'react';
+import { lazy, memo, Suspense, useContext, useMemo, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import MoonLoader from 'react-spinners/MoonLoader';
 import uniq from 'lodash/uniq';
@@ -14,13 +14,14 @@ import DetailViewLoader from '../../DetailViewLoader';
 import ErrorBoundary from '../../../ErrorBoundary';
 import ErrorMessage from '../../../ErrorMessage';
 import EventFilter from '../../../EventFilter';
-import EventsTable from '../../../FeedTable/EventsTable';
 import EventRow from './EventRow';
 import { ScrollRestoration, SidebarScrollContext } from '../../../SidebarScrollContext';
 import SortControls from './SortControls';
 import useFeedTableView from '../../../FeedTable/useFeedTableView';
 
 import * as styles from './styles.module.scss';
+
+const EventsTable = lazy(() => import('../../../FeedTable/EventsTable'));
 
 const EMPTY_EVENTS = [];
 const LOADING_MORE_SPINNER_SIZE = 20;
@@ -81,11 +82,11 @@ const EventsFeed = ({ eventsFeed }) => {
           </button>
         </div>}
 
-        {!eventsFeed.events.error && isTableView && <EventsTable
-          events={events}
-          eventsFeed={eventsFeed}
-          toolbarContainer={tableToolbarContainer}
-        />}
+        {!eventsFeed.events.error && isTableView && <Suspense
+          fallback={<DetailViewLoader className={styles.loader} label={t('loadingLabel')} />}
+        >
+          <EventsTable events={events} eventsFeed={eventsFeed} toolbarContainer={tableToolbarContainer} />
+        </Suspense>}
 
         {!eventsFeed.events.error && !isTableView && eventsFeed.loadingEventFeed && <DetailViewLoader
           className={styles.loader}
