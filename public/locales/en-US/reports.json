@@ -14,7 +14,13 @@
     "addedToPatrolMessage": "Event {{eventSerialNumber}} added to patrol {{patrolSerialNumber}}.",
     "addToIncidentErrorMessage": "Could not add the event to the incident. Please try again.",
     "addToNewIncidentErrorMessage": "Could not add the event to a new incident. Please try again.",
-    "addToPatrolErrorMessage": "Could not add the event to the patrol. Please try again."
+    "addToPatrolErrorMessage": "Could not add the event to the patrol. Please try again.",
+    "removedFromIncidentMessage": "Event {{eventSerialNumber}} removed from incident {{incidentSerialNumber}}.",
+    "removedFromPatrolMessage": "Event {{eventSerialNumber}} removed from patrol {{patrolSerialNumber}}.",
+    "removedFromUnloadedIncidentMessage": "Event {{eventSerialNumber}} removed from the incident.",
+    "removedFromUnloadedPatrolMessage": "Event {{eventSerialNumber}} removed from the patrol.",
+    "removeFromIncidentErrorMessage": "Could not remove the event from the incident. Please try again.",
+    "removeFromPatrolErrorMessage": "Could not remove the event from the patrol. Please try again."
   },
   "eventsManager": {
     "eventOverview": {
@@ -40,7 +46,9 @@
           "copyLinkOption": "Copy Event Link",
           "jumpToLocationOption": "Jump to location",
           "moreOptionsButtonLabel": "More options",
-          "printOption": "Print Event Details"
+          "printOption": "Print Event Details",
+          "removeFromIncidentOption": "Remove from Incident",
+          "removeFromPatrolOption": "Remove from Patrol"
         },
         "statusSelect": {
           "states": {
@@ -86,6 +94,8 @@
               "review": "review"
             }
           },
+          "removeFromIncidentOption": "Remove from Incident",
+          "removeFromPatrolOption": "Remove from Patrol",
           "states": {
             "active": "active",
             "resolved": "resolved",
@@ -240,6 +250,11 @@
       "timeLabel": "Event Time"
     },
     "linksSection": {
+      "linkItem": {
+        "removeButton": "Remove",
+        "removeFromIncidentButtonLabel": "Remove from incident {{serialNumber}}",
+        "removeFromPatrolButtonLabel": "Remove from patrol {{serialNumber}}"
+      },
       "linksHeader": "Links"
     },
     "reportDetailView": {

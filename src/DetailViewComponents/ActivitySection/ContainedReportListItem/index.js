@@ -1,4 +1,4 @@
-import { memo, useEffect } from 'react';
+import { memo, useEffect, useId } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import MoonLoader from 'react-spinners/MoonLoader';
 import { useDispatch, useSelector } from 'react-redux';
@@ -8,10 +8,11 @@ import { ReactComponent as ArrowDownSimpleIcon } from '../../../common/images/ic
 import { ReactComponent as ArrowIntoIcon } from '../../../common/images/icons/arrow-into.svg';
 import { ReactComponent as ArrowUpSimpleIcon } from '../../../common/images/icons/arrow-up-simple.svg';
 
-import { EVENT_FORM_STATES, TAB_KEYS } from '../../../constants';
+import { EVENT_FORM_STATES, EVENT_LINK_TARGET_TYPES, TAB_KEYS } from '../../../constants';
 import { fetchEvent } from '../../../ducks/events';
 import { format, STANDARD_DATE_FORMAT } from '../../../utils/datetime';
 import { getIsEventFullyLoaded, PRIORITY_COLOR_MAP } from '../../../utils/events';
+import { selectEventLinkPermissions } from '../../../selectors/event-links';
 import useReport from '../../../hooks/useReport';
 
 import EventIcon from '../../../EventIcon';
@@ -23,6 +24,17 @@ import * as styles from './styles.module.scss';
 
 const LOADER_COLOR = '#006cd9'; // Bright blue
 const LOADER_SIZE = 30;
+const REMOVE_LOADER_SIZE = 14;
+
+const CAN_REMOVE_PERMISSION_BY_LINK_TARGET_TYPE = {
+  [EVENT_LINK_TARGET_TYPES.INCIDENT]: 'canRemoveFromIncident',
+  [EVENT_LINK_TARGET_TYPES.PATROL]: 'canRemoveFromPatrol',
+};
+
+const REMOVE_BUTTON_KEY_BY_LINK_TARGET_TYPE = {
+  [EVENT_LINK_TARGET_TYPES.INCIDENT]: 'removeFromIncidentButton',
+  [EVENT_LINK_TARGET_TYPES.PATROL]: 'removeFromPatrolButton',
+};
 
 const CONTAINED_REPORT_ANALYTICS_LABEL = 'contained report';
 
@@ -33,13 +45,27 @@ const STATE_LABEL_KEYS = {
   [EVENT_FORM_STATES.REVIEW]: 'reviewStateLabel',
 };
 
-const ContainedReportListItem = ({ isOpen = false, onCollapse, onExpand, report }) => {
+const ContainedReportListItem = ({
+  isOpen = false,
+  isRemoving = false,
+  onCollapse,
+  onExpand,
+  onRemove = null,
+  removeFrom = null,
+  report,
+}) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('details-view', { keyPrefix: 'containedReportListItem' });
 
   const { displayPriority, displayTitle } = useReport(report);
 
   const eventFromEventStore = useSelector((state) => state.data.eventStore[report.id]);
+  const canRemove = useSelector((state) => !!onRemove && selectEventLinkPermissions(
+    state,
+    eventFromEventStore ?? report
+  )[CAN_REMOVE_PERMISSION_BY_LINK_TARGET_TYPE[removeFrom]]);
+
+  const titleId = useId();
 
   const { key: priorityKey } = PRIORITY_COLOR_MAP[displayPriority] || PRIORITY_COLOR_MAP['0'];
 
@@ -60,6 +86,14 @@ const ContainedReportListItem = ({ isOpen = false, onCollapse, onExpand, report 
     event.stopPropagation();
 
     onToggleCollapseRow();
+  };
+
+  // The button stays focusable while the removal runs, so presses are ignored
+  // here: disabling the focused button would drop the keyboard focus.
+  const onClickRemove = () => {
+    if (!isRemoving) {
+      onRemove(eventFromEventStore);
+    }
   };
 
   useEffect(() => {
@@ -85,7 +119,7 @@ const ContainedReportListItem = ({ isOpen = false, onCollapse, onExpand, report 
             {report.serial_number}
           </span>}
 
-          <p className={activitySectionStyles.itemTitle}>{displayTitle}</p>
+          <p className={activitySectionStyles.itemTitle} id={titleId}>{displayTitle}</p>
         </div>
 
         <div className={styles.metaGroup}>
@@ -155,6 +189,21 @@ const ContainedReportListItem = ({ isOpen = false, onCollapse, onExpand, report 
               <MoonLoader color={LOADER_COLOR} size={LOADER_SIZE} />
             </div>}
         </div>
+
+        {isEventFullyLoaded && canRemove && <div className={styles.footer}>
+          <button
+            aria-busy={isRemoving}
+            aria-describedby={titleId}
+            aria-disabled={isRemoving}
+            className={styles.removeButton}
+            onClick={onClickRemove}
+            type="button"
+          >
+            <span className={styles.removeButtonLabel}>{t(REMOVE_BUTTON_KEY_BY_LINK_TARGET_TYPE[removeFrom])}</span>
+
+            {isRemoving && <MoonLoader aria-hidden color="currentColor" size={REMOVE_LOADER_SIZE} />}
+          </button>
+        </div>}
       </div>
     </Collapse>
   </li>;

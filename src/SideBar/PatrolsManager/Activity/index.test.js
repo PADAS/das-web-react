@@ -1,12 +1,14 @@
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { fetchEvent } from '../../../ducks/events';
+import { eventTypes } from '../../../__test-helpers/fixtures/event-types';
+import { fetchEvent, removeEventFromPatrol } from '../../../ducks/events';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import { events } from '../../../__test-helpers/fixtures/events';
 import patrols, { multiLegPatrol } from '../../../__test-helpers/fixtures/patrols';
 import { render, screen } from '../../../test-utils';
-import { SYSTEM_CONFIG_FLAGS } from '../../../constants';
+import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../../constants';
+import { report } from '../../../__test-helpers/fixtures/reports';
 import { TrackerContext } from '../../../utils/analytics';
 
 import Activity from './';
@@ -14,6 +16,7 @@ import Activity from './';
 jest.mock('../../../ducks/events', () => ({
   ...jest.requireActual('../../../ducks/events'),
   fetchEvent: jest.fn(),
+  removeEventFromPatrol: jest.fn(),
 }));
 
 describe('SideBar - PatrolsManager - Activity', () => {
@@ -30,6 +33,7 @@ describe('SideBar - PatrolsManager - Activity', () => {
     store = {
       data: {
         eventStore: {},
+        eventCategories: {},
         eventTypes: [],
         patrolTypes: [],
         subjectStore: {},
@@ -145,5 +149,37 @@ describe('SideBar - PatrolsManager - Activity', () => {
     renderActivity({ patrol: multiLegPatrol, patrolSegment: multiLegPatrol.patrol_segments[0] });
 
     expect(screen.getByText('Duration')).toBeInTheDocument();
+  });
+
+  describe('removing an event from the patrol', () => {
+    let patrolEvent;
+
+    beforeEach(() => {
+      patrolEvent = { ...report, patrols: [patrols[0].id], updates: [] };
+      removeEventFromPatrol.mockImplementation(() => () => Promise.resolve());
+      store.data.eventStore[report.id] = patrolEvent;
+      store.data.eventTypes = eventTypes;
+      store.data.user = { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ] } };
+      store.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT] = true;
+    });
+
+    test('removes an event of the patrol, then focuses the activity heading', async () => {
+      renderActivity({ containedEvents: [report] });
+
+      await userEvent.click(screen.getByRole('button', { name: 'Expand Light' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Remove from Patrol' }));
+
+      expect(removeEventFromPatrol).toHaveBeenCalledWith(report.id, patrols[0].id);
+      expect(screen.getByRole('heading', { name: 'Activity' })).toHaveFocus();
+    });
+
+    test('does not offer to remove an event when patrol management is off', async () => {
+      store.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT] = false;
+      renderActivity({ containedEvents: [report] });
+
+      await userEvent.click(screen.getByRole('button', { name: 'Expand Light' }));
+
+      expect(screen.queryByRole('button', { name: 'Remove from Patrol' })).toBeNull();
+    });
   });
 });

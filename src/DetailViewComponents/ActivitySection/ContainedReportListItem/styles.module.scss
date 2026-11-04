@@ -1,4 +1,5 @@
 @use 'sass:map';
+@use '../../../common/styles/buttons';
 @use '../../../common/styles/layout';
 @use '../../../common/styles/vars/colors';
 
@@ -54,6 +55,35 @@
 
     @media (max-width: layout.$sm-layout-width-max) {
       order: 1;
+    }
+  }
+}
+
+.footer {
+  align-items: center;
+  border-top: 1px solid colors.$light-gray-lines;
+  display: flex;
+  height: 3rem;
+  justify-content: flex-end;
+  padding: 0.5rem 1rem;
+
+  @media print {
+    display: none;
+  }
+
+  .removeButton {
+    @include buttons.chip-text-button;
+    @include buttons.chip-danger-state;
+
+    display: grid;
+    place-items: center;
+
+    > * {
+      grid-area: 1 / 1;
+    }
+
+    &[aria-busy='true'] .removeButtonLabel {
+      opacity: 0;
     }
   }
 }

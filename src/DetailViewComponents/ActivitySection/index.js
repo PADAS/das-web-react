@@ -12,6 +12,7 @@ const ActivitySection = ({
   attachmentsToAdd,
   containedReports,
   endTime = null,
+  headingRef = null,
   isCommunity = false,
   notes,
   notesToAdd,
@@ -20,12 +21,21 @@ const ActivitySection = ({
   onDeleteNote,
   onChangeNote,
   onDoneNote,
+  onRemoveContainedReport = null,
   ref,
+  removeContainedReportFrom = null,
+  removingContainedReportIds,
   startTime = null,
 }) => {
   const { t } = useTranslation('details-view', { keyPrefix: 'activitySection' });
 
-  const { areAllItemsExpanded, hasItems, onToggleExpandAll, sortButton, sortedItems } = useActivityFeed({
+  const {
+    areAllItemsExpanded,
+    hasItems,
+    onToggleExpandAll,
+    sortButton,
+    sortedItems,
+  } = useActivityFeed({
     attachments,
     containedReports,
     endTime,
@@ -37,6 +47,9 @@ const ActivitySection = ({
     onDeleteAttachment,
     onDeleteNote,
     onDoneNote,
+    onRemoveContainedReport,
+    removeContainedReportFrom,
+    removingContainedReportIds,
     startTime,
   });
 
@@ -45,7 +58,7 @@ const ActivitySection = ({
       <div className={styles.title}>
         <BulletListIcon />
 
-        <h2>{t('sectionTitle')}</h2>
+        <h2 ref={headingRef} tabIndex={-1}>{t('sectionTitle')}</h2>
       </div>
 
       {hasItems && <div className={styles.actions}>

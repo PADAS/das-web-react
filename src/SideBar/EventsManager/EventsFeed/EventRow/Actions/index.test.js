@@ -1,18 +1,20 @@
-import { http, HttpResponse } from 'msw/http';
 import { Provider } from 'react-redux';
-import { setupServer } from 'msw/node';
 import { toast } from 'react-toastify';
 import userEvent from '@testing-library/user-event';
 
-import { addEventToPatrol, setEventState, updateEvent } from '../../../../../ducks/events';
+import {
+  EVENT_LINK_TARGET_TYPES,
+  PERMISSION_KEYS,
+  PERMISSIONS,
+  SYSTEM_CONFIG_FLAGS,
+} from '../../../../../constants';
 import { eventTypes } from '../../../../../__test-helpers/fixtures/event-types';
 import { getReportLink } from '../../../../../utils/events';
 import { mockStore } from '../../../../../__test-helpers/MockStore';
-import { PATROLS_API_URL } from '../../../../../ducks/patrols';
-import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../../../../constants';
 import { render, screen, waitFor } from '../../../../../test-utils';
 import { report } from '../../../../../__test-helpers/fixtures/reports';
 import { setBounceEventIDs } from '../../../../../ducks/map-ui';
+import { setEventState, updateEvent } from '../../../../../ducks/events';
 import { showToast } from '../../../../../utils/toast';
 import { TrackerContext } from '../../../../../utils/analytics';
 import useJumpToLocation from '../../../../../hooks/useJumpToLocation';
@@ -21,7 +23,6 @@ import Actions from './';
 
 jest.mock('../../../../../ducks/events', () => ({
   ...jest.requireActual('../../../../../ducks/events'),
-  addEventToPatrol: jest.fn(),
   setEventState: jest.fn(),
   updateEvent: jest.fn(),
 }));
@@ -33,25 +34,24 @@ jest.mock('../../../../../utils/toast', () => ({
   showToast: jest.fn(),
 }));
 
-const server = setupServer();
-
-beforeAll(() => server.listen());
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
-
 describe('SideBar - EventsManager - EventsFeed - EventRow - Actions', () => {
   const coordinates = report.geojson.geometry.coordinates;
 
   let collection;
   let jumpToLocation;
+  let onOpenLinkModal;
+  let onRemoveFromIncident;
+  let onRemoveFromPatrol;
   let reduxStore;
   let store;
   let track;
 
   beforeEach(() => {
     jumpToLocation = jest.fn();
+    onOpenLinkModal = jest.fn();
+    onRemoveFromIncident = jest.fn();
+    onRemoveFromPatrol = jest.fn();
     track = jest.fn();
-    addEventToPatrol.mockImplementation(() => () => Promise.resolve());
     setEventState.mockImplementation(() => () => Promise.resolve());
     updateEvent.mockImplementation(() => () => Promise.resolve());
     useJumpToLocation.mockImplementation(() => jumpToLocation);
@@ -73,7 +73,14 @@ describe('SideBar - EventsManager - EventsFeed - EventRow - Actions', () => {
     return render(
       <Provider store={reduxStore}>
         <TrackerContext.Provider value={{ track }}>
-          <Actions coordinates={coordinates} event={report} {...props} />
+          <Actions
+            coordinates={coordinates}
+            event={report}
+            onOpenLinkModal={onOpenLinkModal}
+            onRemoveFromIncident={onRemoveFromIncident}
+            onRemoveFromPatrol={onRemoveFromPatrol}
+            {...props}
+          />
         </TrackerContext.Provider>
       </Provider>
     );
@@ -301,22 +308,24 @@ describe('SideBar - EventsManager - EventsFeed - EventRow - Actions', () => {
   });
 
   describe('linking', () => {
-    const patrol = {
-      id: 'patrol-id',
-      patrol_segments: [{ id: 'leg-id', patrol_type: 'foot', time_range: { end_time: null, start_time: '2020-01-01T08:00:00Z' } }],
-      serial_number: 30,
-      state: 'open',
+    const linkedEvent = {
+      ...report,
+      is_contained_in: [{ related_event: { id: 'incident-id' } }],
+      patrols: ['patrol-id'],
     };
 
     beforeEach(() => {
-      server.use(http.get(PATROLS_API_URL, () => HttpResponse.json({ data: { count: 1, next: null, results: [patrol] } })));
-
       store = {
         data: {
           eventCategories: {},
           eventTypes,
           patrolTypes: [],
-          user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ] } },
+          user: {
+            permissions: {
+              [PERMISSION_KEYS.EVENT_RELATIONSHIPS]: [PERMISSIONS.DELETE],
+              [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ],
+            },
+          },
         },
         view: { systemConfig: { [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true } },
       };
@@ -329,26 +338,66 @@ describe('SideBar - EventsManager - EventsFeed - EventRow - Actions', () => {
 
       expect(await screen.findByRole('menuitem', { name: 'Add to Incident' })).toBeInTheDocument();
       expect(screen.getByRole('menuitem', { name: 'Add to Patrol' })).toBeInTheDocument();
+      expect(screen.queryByRole('menuitem', { name: 'Remove from Incident' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('menuitem', { name: 'Remove from Patrol' })).not.toBeInTheDocument();
     });
 
-    test('does not offer to add an event to a patrol it already belongs to', async () => {
-      renderActions({ event: { ...report, patrols: ['other-patrol-id'] } });
+    test('offers to remove an event from its incident and its patrol instead of adding it to others', async () => {
+      renderActions({ event: linkedEvent });
 
       await openKebabMenu();
 
-      expect(await screen.findByRole('menuitem', { name: 'Add to Incident' })).toBeInTheDocument();
+      expect(await screen.findByRole('menuitem', { name: 'Remove from Incident' })).toBeInTheDocument();
+      expect(screen.getByRole('menuitem', { name: 'Remove from Patrol' })).toBeInTheDocument();
+      expect(screen.queryByRole('menuitem', { name: 'Add to Incident' })).not.toBeInTheDocument();
       expect(screen.queryByRole('menuitem', { name: 'Add to Patrol' })).not.toBeInTheDocument();
     });
 
-    test('adds the event to the patrol the user picks and tracks it', async () => {
+    test('does not offer to remove an event from its incident without the delete permission', async () => {
+      store.data.user.permissions = { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ] };
+      renderActions({ event: linkedEvent });
+
+      await openKebabMenu();
+
+      expect(await screen.findByRole('menuitem', { name: 'Remove from Patrol' })).toBeInTheDocument();
+      expect(screen.queryByRole('menuitem', { name: 'Remove from Incident' })).not.toBeInTheDocument();
+    });
+
+    test('opens the link modal of the feed for the event', async () => {
       renderActions();
 
       await openKebabMenu();
       await userEvent.click(await screen.findByRole('menuitem', { name: 'Add to Patrol' }));
-      await userEvent.click(await screen.findByRole('button', { name: /Add to patrol 30/ }));
 
-      expect(addEventToPatrol).toHaveBeenCalledWith(report.id, 'patrol-id');
-      expect(track).toHaveBeenCalledWith('Add an event to a patrol');
+      expect(onOpenLinkModal).toHaveBeenCalledWith(EVENT_LINK_TARGET_TYPES.PATROL, report);
+    });
+
+    test('removes the event from its incident', async () => {
+      renderActions({ event: linkedEvent });
+
+      await openKebabMenu();
+      await userEvent.click(await screen.findByRole('menuitem', { name: 'Remove from Incident' }));
+
+      expect(onRemoveFromIncident).toHaveBeenCalledWith(linkedEvent);
+    });
+
+    test('removes the event from its patrol', async () => {
+      renderActions({ event: linkedEvent });
+
+      await openKebabMenu();
+      await userEvent.click(await screen.findByRole('menuitem', { name: 'Remove from Patrol' }));
+
+      expect(onRemoveFromPatrol).toHaveBeenCalledWith(linkedEvent);
+    });
+
+    test('marks the menu busy and keeps it closed while the links of the event change', async () => {
+      renderActions({ event: linkedEvent, isChangingLinks: true });
+
+      expect(screen.getByRole('button', { name: 'More options' })).toHaveAttribute('aria-busy', 'true');
+
+      await openKebabMenu();
+
+      expect(screen.queryByRole('menuitem')).not.toBeInTheDocument();
     });
   });
 });

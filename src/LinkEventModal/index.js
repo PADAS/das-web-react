@@ -56,6 +56,7 @@ const LinkEventModal = ({
   isLinking = false,
   onAdd,
   onCreateIncident,
+  onExited = null,
   onHide,
   show,
   type,
@@ -109,7 +110,14 @@ const LinkEventModal = ({
     setSearchedText('');
   };
 
-  return <Modal aria-labelledby={titleId} centered onHide={onHide} onKeyDown={keepFocusInside} show={show}>
+  return <Modal
+    aria-labelledby={titleId}
+    centered
+    onExited={onExited}
+    onHide={onHide}
+    onKeyDown={keepFocusInside}
+    show={show}
+  >
     <Modal.Header className={styles.header}>
       <div className={styles.titleStack}>
         <Modal.Title className={styles.title} id={titleId}>{t('title')}</Modal.Title>

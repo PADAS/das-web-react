@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { createRef, useState } from 'react';
 import { http, HttpResponse } from 'msw/http';
 import { Provider } from 'react-redux';
 import { setupServer } from 'msw/node';
@@ -7,10 +7,11 @@ import userEvent from '@testing-library/user-event';
 import ActivitySection from './index';
 import { EVENT_API_URL } from '../../ducks/events';
 import { EVENT_TYPE_SCHEMA_V1_URL } from '../../ducks/event-schemas';
+import { eventTypes } from '../../__test-helpers/fixtures/event-types';
 import { files, notes, report } from '../../__test-helpers/fixtures/reports';
 import { mockStore } from '../../__test-helpers/MockStore';
 import patrols from '../../__test-helpers/fixtures/patrols';
-import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../constants';
+import { EVENT_LINK_TARGET_TYPES, PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../constants';
 import { render, screen, waitFor, within } from '../../test-utils';
 import { TrackerContext } from '../../utils/analytics';
 import { fetchFileAsObjectUrlFromUrl } from '../../utils/file';
@@ -612,5 +613,68 @@ describe('DetailViewComponents - ActivitySection', () => {
 
     expect((await screen.queryByText('Expand All'))).toBeNull();
     expect((await screen.queryByText('time-sort-btn'))).toBeNull();
+  });
+
+  describe('removing a contained report', () => {
+    let linkedReport;
+    let onRemoveContainedReport;
+
+    beforeEach(() => {
+      linkedReport = { ...report, is_contained_in: [{ related_event: { id: 'incident-id' } }], updates: [] };
+      onRemoveContainedReport = jest.fn(() => Promise.resolve(true));
+      store.data.eventCategories = {};
+      store.data.eventStore[report.id] = linkedReport;
+      store.data.eventTypes = eventTypes;
+      store.data.user.permissions[PERMISSION_KEYS.EVENT_RELATIONSHIPS] = [PERMISSIONS.DELETE];
+    });
+
+    const renderRemovableActivitySection = () => renderActivitySection({
+      attachments: [],
+      containedReports: [linkedReport],
+      notes: [],
+      onRemoveContainedReport,
+      removeContainedReportFrom: EVENT_LINK_TARGET_TYPES.INCIDENT,
+    });
+
+    test('removes the contained report the user picks', async () => {
+      renderRemovableActivitySection();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Expand Light' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Remove from Incident' }));
+
+      expect(onRemoveContainedReport).toHaveBeenCalledWith(linkedReport);
+    });
+
+    test('hands its heading to the parent, which knows where the focus goes after a removal', () => {
+      const headingRef = createRef();
+      renderActivitySection({ ...defaultProps, headingRef });
+
+      expect(headingRef.current).toBe(screen.getByRole('heading', { name: 'Activity' }));
+    });
+
+    test('leaves the focus on the remove button, for the parent to move', async () => {
+      renderRemovableActivitySection();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Expand Light' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Remove from Incident' }));
+
+      await waitFor(() => expect(onRemoveContainedReport).toHaveBeenCalled());
+      expect(screen.getByRole('button', { name: 'Remove from Incident' })).toHaveFocus();
+    });
+
+    test('marks the contained report busy while its removal runs', async () => {
+      renderActivitySection({
+        attachments: [],
+        containedReports: [linkedReport],
+        notes: [],
+        onRemoveContainedReport,
+        removeContainedReportFrom: EVENT_LINK_TARGET_TYPES.INCIDENT,
+        removingContainedReportIds: new Set([report.id]),
+      });
+
+      await userEvent.click(screen.getByRole('button', { name: 'Expand Light' }));
+
+      expect(screen.getByRole('button', { name: 'Remove from Incident' })).toHaveAttribute('aria-busy', 'true');
+    });
   });
 });

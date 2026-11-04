@@ -34,6 +34,8 @@
     "collapseClosedButtonLabel": "Agrandir {{title}}",
     "collapseOpenButtonLabel": "Réduire {{title}}",
     "loadingLabel": "Chargement de {{title}}",
+    "removeFromIncidentButton": "Retirer de l'Incident",
+    "removeFromPatrolButton": "Retirer de la Patrouille",
     "resolvedStateLabel": "Résolu",
     "reviewStateLabel": "En révision",
     "serialNumberLabel": "Numéro d'événement",

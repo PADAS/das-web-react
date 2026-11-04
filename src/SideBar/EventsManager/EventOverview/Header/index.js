@@ -18,12 +18,16 @@ import * as styles from './styles.module.scss';
 
 const Header = ({
   canLinkReport = false,
+  isChangingLinks = false,
   isCommunity = false,
   isReadOnly = false,
   isStateDirty = false,
   isTitleDirty = false,
   onChangeState,
   onChangeTitle,
+  onOpenLinkModal,
+  onRemoveFromIncident,
+  onRemoveFromPatrol,
   onSaveNewReport = null,
   parentCrumbs,
   printableContentRef,
@@ -87,7 +91,11 @@ const Header = ({
     <ReportMenu
       canLinkReport={canLinkReport}
       hasLocation={hasLocation}
+      isChangingLinks={isChangingLinks}
       onJumpToLocation={onJumpToLocation}
+      onOpenLinkModal={onOpenLinkModal}
+      onRemoveFromIncident={onRemoveFromIncident}
+      onRemoveFromPatrol={onRemoveFromPatrol}
       onSaveNewReport={onSaveNewReport}
       printableContentRef={printableContentRef}
       report={report}

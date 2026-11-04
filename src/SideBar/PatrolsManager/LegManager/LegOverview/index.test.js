@@ -89,6 +89,7 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview', () => {
       data: {
         eventFilter: { filter: { date_range: { lower: '2020-01-01T06:00:00.000Z' } } },
         eventStore: {},
+        eventCategories: {},
         eventTypes: [],
         patrolSchemas: {},
         patrolTypes,

@@ -12,7 +12,7 @@ import * as styles from './styles.module.scss';
 
 const FILTERED_UPDATE_MESSAGES = ['Updated fields: ', 'Note Updated: '];
 
-const HistorySection = ({ className = '', updates }) => {
+const HistorySection = ({ className = '', headingRef = null, updates }) => {
   const tracker = useContext(TrackerContext);
   const { t } = useTranslation('details-view', { keyPrefix: 'historySection' });
 
@@ -43,7 +43,7 @@ const HistorySection = ({ className = '', updates }) => {
       <div className={styles.title}>
         <HistoryIcon />
 
-        <h2>{t('sectionTitle')}</h2>
+        <h2 ref={headingRef} tabIndex={-1}>{t('sectionTitle')}</h2>
       </div>
 
       <div className={styles.actions}>

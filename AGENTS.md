@@ -149,7 +149,7 @@ A leg takes the patrol's state and its place in it: only the first leg can be re
 
 **Tracks.** A patrol's route is the tracks of every subject its legs tracked, lead first, each cut to that subject's legs; pauses contribute nothing. They draw once the patrol begins, whatever a later leg says, one line per subject, with pins at the start, the end, handovers and pauses. Visibility cycles like a subject's track, a map click clears visible ones except those led by the clicked subject, and the track length and time slider bound them. While a patrol track is shown, the regular tracks of its subjects are dimmed.
 
-**Events** join a patrol through a leg: an event lists its legs in `patrol_segments` and its patrol in `patrols`, and a patrol's events are its legs'. An event belongs to one patrol at most, and only a patrol that began can take one. An event added from Patrol Overview, or added to a patrol from Event Overview or the Events Feed, goes to the leg the server picks for the event's time; one added from Leg Overview goes to that leg.
+**Events** join a patrol through a leg: an event lists its legs in `patrol_segments` and its patrol in `patrols`, and a patrol's events are its legs'. An event belongs to one patrol at most, and only a patrol that began can take one. An event added from Patrol Overview, or added to a patrol from Event Overview or the Events Feed, goes to the leg the server picks for the event's time; one added from Leg Overview goes to that leg. Removing an event takes it off the whole patrol, even from Leg Overview, and keeps the server from linking it again on its own.
 
 **Mobile patrols.** A patrol run from EarthRanger Mobile carries `provenance: 'mobile'`: while one is under way it takes no new legs and offers only End, and its legs can be edited only once done or cancelled.
 
@@ -170,7 +170,7 @@ A leg takes the patrol's state and its place in it: only the first leg can be re
 - `selectors/patrols/`: patrol tracks per subject and leg, distances, tracked subjects.
 - `SideBar/PatrolsManager/`: the Patrols tab routes and screens, and the shared `LegForm`.
 - `PatrolTracks/`, `PatrolTrackLayer/`, `PatrolStartStopLayer/`, `PatrolTrackLegend/`: the map layers and legend.
-- `LinkEventModal/`, `hooks/useEventLinking/`: adding an event to a patrol or an incident, from Event Overview and the Events Feed.
+- `LinkEventModal/`, `hooks/useEventLinking/`, `selectors/event-links/`: adding an event to a patrol or an incident and removing it, and who may, from the menus, the activity sections and the Links section.
 
 ### Gear
 

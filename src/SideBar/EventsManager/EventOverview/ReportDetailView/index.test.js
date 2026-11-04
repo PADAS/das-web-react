@@ -7,7 +7,14 @@ import { setupServer } from 'msw/node';
 import userEvent from '@testing-library/user-event';
 
 import AddItemButton from '../../../../AddItemButton';
-import { addEventToIncident, createEvent, fetchEvent } from '../../../../ducks/events';
+import {
+  addEventToIncident,
+  addEventToPatrol,
+  createEvent,
+  fetchEvent,
+  removeEventFromIncident,
+  removeEventFromPatrol,
+} from '../../../../ducks/events';
 import { activePatrol } from '../../../../__test-helpers/fixtures/patrols';
 import { createMapMock } from '../../../../__test-helpers/mocks';
 import { attachmentSchemaV2, eventSchemas, snareSchemaV2 } from '../../../../__test-helpers/fixtures/event-schemas';
@@ -56,8 +63,11 @@ jest.mock('../../../../hooks/useNavigate', () => jest.fn());
 jest.mock('../../../../ducks/events', () => ({
   ...jest.requireActual('../../../../ducks/events'),
   addEventToIncident: jest.fn(),
+  addEventToPatrol: jest.fn(),
   createEvent: jest.fn(),
   fetchEvent: jest.fn(),
+  removeEventFromIncident: jest.fn(),
+  removeEventFromPatrol: jest.fn(),
 }));
 
 jest.mock('../../../../ducks/locally-edited-event', () => ({
@@ -1609,12 +1619,225 @@ describe('SideBar - EventsManager - EventOverview - ReportDetailView', () => {
       expect(await screen.findByText('Added the report to an incident')).toBeInTheDocument();
     });
 
+    describe('removing', () => {
+      const updateStoredEvent = (eventId, changes) => {
+        state = {
+          ...state,
+          data: {
+            ...state.data,
+            eventStore: { ...state.data.eventStore, [eventId]: { ...state.data.eventStore[eventId], ...changes } },
+          },
+        };
+        store.dispatch({ type: 'TEST.REFRESH_EVENT' });
+      };
+
+      beforeEach(() => {
+        state.data.user.permissions[PERMISSION_KEYS.EVENT_RELATIONSHIPS] = [PERMISSIONS.DELETE];
+        state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS] = true;
+        removeEventFromIncident.mockImplementation((eventId) => async () => {
+          updateStoredEvent(eventId, { is_contained_in: [] });
+        });
+        removeEventFromPatrol.mockImplementation((eventId) => async () => {
+          updateStoredEvent(eventId, { patrols: [] });
+        });
+      });
+
+      test('removes the event from its patrol in the links section, then focuses the links heading', async () => {
+        state.data.eventStore[456] = {
+          ...mockReportWithNotes,
+          is_contained_in: [{ related_event: { id: '123' } }],
+          patrols: ['123'],
+        };
+        renderWithWrapper(<ReportDetailView isNewReport={false} reportId="456" />);
+
+        await userEvent.click(await screen.findByRole('button', { name: `Remove from patrol ${activePatrol.serial_number}` }));
+
+        expect(removeEventFromPatrol).toHaveBeenCalledWith('456', '123');
+        await waitFor(() => expect(screen.getByRole('heading', { name: 'Links' })).toHaveFocus());
+        expect(screen.queryByRole('button', { name: `Remove from patrol ${activePatrol.serial_number}` })).toBeNull();
+      });
+
+      test('focuses the history heading once the last link of the event is removed', async () => {
+        state.data.eventStore[456] = { ...mockReportWithNotes, patrols: ['123'] };
+        renderWithWrapper(<ReportDetailView isNewReport={false} reportId="456" />);
+
+        await userEvent.click(await screen.findByRole('button', { name: `Remove from patrol ${activePatrol.serial_number}` }));
+
+        await waitFor(() => expect(screen.getByRole('heading', { name: 'History' })).toHaveFocus());
+        expect(screen.queryByTestId('reportManager-linksSection')).toBeNull();
+      });
+
+      test('keeps the links section busy while the menu removes the event, so it cannot remove it twice', async () => {
+        removeEventFromPatrol.mockImplementation(() => () => new Promise(() => {}));
+        state.data.eventStore[456] = { ...mockReportWithNotes, patrols: ['123'] };
+        renderWithWrapper(<ReportDetailView isNewReport={false} reportId="456" />);
+
+        await userEvent.click(await screen.findByRole('button', { name: 'More options' }));
+        await userEvent.click(await screen.findByRole('menuitem', { name: 'Remove from Patrol' }));
+        const linksRemoveButton = screen.getByRole('button', { name: `Remove from patrol ${activePatrol.serial_number}` });
+        await userEvent.click(linksRemoveButton);
+
+        expect(linksRemoveButton).toHaveAttribute('aria-disabled', 'true');
+        expect(removeEventFromPatrol).toHaveBeenCalledTimes(1);
+      });
+
+      test('removes an event from the incident shown, of the several that hold it', async () => {
+        const containedEvent = {
+          ...mockReportWithNotes,
+          event_details: {},
+          files: [],
+          id: '789',
+          is_contained_in: [{ related_event: { id: 'other-incident-id' } }, { related_event: { id: '123' } }],
+          title: 'Contained event',
+        };
+        state.data.eventStore[123] = { ...mockReport, contains: [{ related_event: containedEvent }], is_collection: true };
+        state.data.eventStore[789] = containedEvent;
+        renderWithWrapper(<ReportDetailView isNewReport={false} reportId="123" />);
+
+        await userEvent.click(await screen.findByRole('button', { name: 'Expand Contained event' }));
+        await userEvent.click(screen.getByRole('button', { name: 'Remove from Incident' }));
+
+        expect(removeEventFromIncident).toHaveBeenCalledWith('789', '123');
+      });
+
+      describe('the focus after removing an event of the incident', () => {
+        const createContainedEvent = (id) => ({
+          ...mockReportWithNotes,
+          event_details: {},
+          files: [],
+          id,
+          is_contained_in: [{ related_event: { id: '123' } }],
+          notes: [],
+          title: `Contained event ${id}`,
+        });
+
+        beforeEach(() => {
+          removeEventFromIncident.mockImplementation((eventId, incidentId) => async () => {
+            updateStoredEvent(eventId, { is_contained_in: [] });
+            updateStoredEvent(incidentId, {
+              contains: state.data.eventStore[incidentId].contains
+                .filter((relationship) => relationship.related_event.id !== eventId),
+            });
+          });
+        });
+
+        const renderIncident = (containedEvents) => {
+          state.data.eventStore[123] = {
+            ...mockReport,
+            contains: containedEvents.map((containedEvent) => ({ related_event: containedEvent })),
+            is_collection: true,
+          };
+          containedEvents.forEach((containedEvent) => {
+            state.data.eventStore[containedEvent.id] = containedEvent;
+          });
+          renderWithWrapper(<ReportDetailView isNewReport={false} reportId="123" />);
+        };
+
+        test('focuses the activity heading while the incident holds other events', async () => {
+          renderIncident([createContainedEvent('789'), createContainedEvent('790')]);
+
+          await userEvent.click(await screen.findByRole('button', { name: 'Expand Contained event 789' }));
+          await userEvent.click(screen.getByRole('button', { description: 'Contained event 789', name: 'Remove from Incident' }));
+
+          await waitFor(() => expect(screen.getByRole('heading', { name: 'Activity' })).toHaveFocus());
+        });
+
+        test('focuses the next heading shown once the activity of the incident empties', async () => {
+          renderIncident([createContainedEvent('789')]);
+
+          await userEvent.click(await screen.findByRole('button', { name: 'Expand Contained event 789' }));
+          await userEvent.click(screen.getByRole('button', { description: 'Contained event 789', name: 'Remove from Incident' }));
+
+          await waitFor(() => expect(screen.getByRole('heading', { name: 'History' })).toHaveFocus());
+          expect(screen.queryByRole('heading', { name: 'Activity' })).toBeNull();
+        });
+      });
+
+      test('removes an event from the incident in its activity section', async () => {
+        const containedEvent = {
+          ...mockReportWithNotes,
+          event_details: {},
+          files: [],
+          id: '789',
+          is_contained_in: [{ related_event: { id: '123' } }],
+          serial_number: 789,
+          title: 'Contained event',
+        };
+        state.data.eventStore[123] = { ...mockReport, contains: [{ related_event: containedEvent }], is_collection: true };
+        state.data.eventStore[789] = containedEvent;
+        renderWithWrapper(<ReportDetailView isNewReport={false} reportId="123" />);
+
+        await userEvent.click(await screen.findByRole('button', { name: 'Expand Contained event' }));
+        await userEvent.click(screen.getByRole('button', { name: 'Remove from Incident' }));
+
+        expect(removeEventFromIncident).toHaveBeenCalledWith('789', '123');
+      });
+
+      test('does not offer to remove the events of an event that is not an incident', async () => {
+        const linkedEvent = {
+          ...mockReportWithNotes,
+          event_details: {},
+          files: [],
+          id: '789',
+          is_contained_in: [{ related_event: { id: '123' } }],
+          title: 'Linked event',
+        };
+        state.data.eventStore[123] = { ...mockReport, contains: [{ related_event: linkedEvent }] };
+        state.data.eventStore[789] = linkedEvent;
+        renderWithWrapper(<ReportDetailView isNewReport={false} reportId="123" />);
+
+        await userEvent.click(await screen.findByRole('button', { name: 'Expand Linked event' }));
+
+        expect(screen.queryByRole('button', { name: 'Remove from Incident' })).toBeNull();
+      });
+    });
+
     test('offers to add an event to a patrol', async () => {
       renderWithWrapper(<ReportDetailView isNewReport={false} reportId="456" />);
 
       await userEvent.click(await screen.findByRole('button', { name: 'More options' }));
 
       expect(await screen.findByRole('menuitem', { name: 'Add to Patrol' })).toBeInTheDocument();
+    });
+
+    describe('adding from the menu', () => {
+      const patrol = {
+        id: 'patrol-id',
+        patrol_segments: [{ id: 'leg-id', patrol_type: 'foot', time_range: { end_time: null, start_time: '2020-01-01T08:00:00Z' } }],
+        serial_number: 30,
+        state: 'open',
+      };
+
+      beforeEach(() => {
+        jest.spyOn(console, 'warn').mockImplementation(() => {});
+        addEventToPatrol.mockImplementation(() => () => Promise.resolve());
+        server.use(http.get(PATROLS_API_URL, () => HttpResponse.json({ data: { count: 1, next: null, results: [patrol] } })));
+      });
+
+      const addToPatrol = async () => {
+        await userEvent.click(await screen.findByRole('button', { name: 'More options' }));
+        await userEvent.click(await screen.findByRole('menuitem', { name: 'Add to Patrol' }));
+        await userEvent.click(await screen.findByRole('button', { name: /Add to patrol 30/ }));
+      };
+
+      test('adds the event to the patrol picked in the modal, then closes it', async () => {
+        renderWithWrapper(<ReportDetailView isNewReport={false} reportId="456" />);
+
+        await addToPatrol();
+
+        expect(addEventToPatrol).toHaveBeenCalledWith('456', 'patrol-id');
+        await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+      });
+
+      test('keeps the modal open when the event could not be added', async () => {
+        addEventToPatrol.mockImplementation(() => () => Promise.reject(new Error('link error')));
+        renderWithWrapper(<ReportDetailView isNewReport={false} reportId="456" />);
+
+        await addToPatrol();
+
+        await waitFor(() => expect(screen.getByRole('button', { name: /Add to patrol 30/ })).toBeEnabled());
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+      });
     });
 
     test('does not offer to add an event being added from a patrol to another patrol', async () => {

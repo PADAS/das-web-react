@@ -24,18 +24,6 @@ const usePermissions = (permissionKey) => {
   }), [permissionSet]);
 };
 
-export const useEventRelationshipsPermissions = () => {
-  const eventRelationshipsPermissions = usePermissions(PERMISSION_KEYS.EVENT_RELATIONSHIPS);
-
-  return useMemo(() => ({
-    hasEventRelationshipsCreatePermission: eventRelationshipsPermissions.hasCreatePermission,
-    hasEventRelationshipsDeletePermission: eventRelationshipsPermissions.hasDeletePermission,
-    hasEventRelationshipsExportPermission: eventRelationshipsPermissions.hasExportPermission,
-    hasEventRelationshipsReadPermission: eventRelationshipsPermissions.hasReadPermission,
-    hasEventRelationshipsUpdatePermission: eventRelationshipsPermissions.hasUpdatePermission,
-  }), [eventRelationshipsPermissions]);
-};
-
 export const useEventsPermissions = () => {
   const eventsPermissions = usePermissions(PERMISSION_KEYS.EVENTS);
 
