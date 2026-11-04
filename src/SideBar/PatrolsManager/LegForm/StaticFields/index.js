@@ -4,9 +4,9 @@ import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { calcUrlForImage } from '../../../../utils/img';
-import { TrackerContext } from '../../../../utils/analytics';
 import { getHoursAndMinutesString } from '../../../../utils/datetime';
 import parseLegDraftDateTime from '../utils/parseLegDraftDateTime';
+import { TrackerContext } from '../../../../utils/analytics';
 
 import DatePicker, { isValidDate } from '../../../../DatePicker';
 import LocationPicker from '../../../../LocationPicker';
