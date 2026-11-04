@@ -9,14 +9,14 @@ import {
   displayNameForPatrolSegment,
   displayStartTimeForPatrol,
   getPatrolLocationCoordinates,
-} from '../utils/patrols';
-import { fetchNextPatrolsFeedPage } from '../ducks/patrols';
-import { selectPatrolTrackData } from '../selectors/patrols';
-import { TAB_KEYS } from '../constants';
-import useJumpToLocation from '../hooks/useJumpToLocation';
-import useNavigate from '../hooks/useNavigate';
+} from '../../utils/patrols';
+import { fetchNextPatrolsFeedPage } from '../../ducks/patrols';
+import { selectPatrolTrackData } from '../../selectors/patrols';
+import { TAB_KEYS } from '../../constants';
+import useJumpToLocation from '../../hooks/useJumpToLocation';
+import useNavigate from '../../hooks/useNavigate';
 
-import FeedTable, { formatDateValue } from '.';
+import FeedTable, { formatDateValue } from '..';
 
 // A safety cap, so a bad `next` link cannot loop forever.
 const MAX_PAGES = 1000;

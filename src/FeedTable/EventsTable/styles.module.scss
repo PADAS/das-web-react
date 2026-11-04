@@ -1,0 +1,12 @@
+.priorityCell {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.priorityDot {
+  border-radius: 50%;
+  flex-shrink: 0;
+  height: 0.625rem;
+  width: 0.625rem;
+}

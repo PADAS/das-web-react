@@ -2,10 +2,10 @@ import isPlainObject from 'lodash/isPlainObject';
 import startCase from 'lodash/startCase';
 import uniq from 'lodash/uniq';
 
-import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from '../utils/form-schemas/constants';
-import getHumanizedFieldValue from '../utils/form-schemas/getHumanizedFieldValue';
-import normalizeChoiceListValues from '../utils/form-schemas/normalizeChoiceListValues';
-import transformSchemaToFormElements from '../utils/form-schemas/transformSchemaToFormElements';
+import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from '../../../../utils/form-schemas/constants';
+import getHumanizedFieldValue from '../../../../utils/form-schemas/getHumanizedFieldValue';
+import normalizeChoiceListValues from '../../../../utils/form-schemas/normalizeChoiceListValues';
+import transformSchemaToFormElements from '../../../../utils/form-schemas/transformSchemaToFormElements';
 
 // A field of one event type, as a table column: `key` in event_details, a
 // `label`, whether its value is `complex` (opened rather than shown), whether
@@ -49,7 +49,7 @@ const fieldFromV1Property = (key, property, uiSchema) => {
   };
 };
 
-export const fieldsFromV1Schema = ({ schema, uiSchema }) => {
+const fieldsFromV1Schema = ({ schema, uiSchema }) => {
   const properties = schema?.properties ?? {};
   const orderedKeys = uniq([
     ...(uiSchema?.['ui:groups'] ?? []).flatMap((group) => group.items),
@@ -59,7 +59,7 @@ export const fieldsFromV1Schema = ({ schema, uiSchema }) => {
   return orderedKeys.map((key) => fieldFromV1Property(key, properties[key], uiSchema));
 };
 
-export const fieldsFromV2Schema = (schema, coordinatesRepresentation) => {
+const fieldsFromV2Schema = (schema, coordinatesRepresentation) => {
   const formElements = transformSchemaToFormElements(schema);
 
   return formElements[ROOT_CANVAS_ID].details.sections
@@ -88,7 +88,7 @@ const isComplexValue = (value) => Array.isArray(value)
   ? value.some((item) => isPlainObject(item) && !isLegacyChoice(item))
   : isPlainObject(value) && !isLegacyChoice(value);
 
-export const fieldsFromEventDetails = (events) => uniq(events.flatMap((event) => Object.keys(event.event_details ?? {})))
+const fieldsFromEventDetails = (events) => uniq(events.flatMap((event) => Object.keys(event.event_details ?? {})))
   .map((key) => ({
     complex: events.some((event) => isComplexValue(event.event_details?.[key])),
     isDate: false,
@@ -101,3 +101,16 @@ export const fieldsFromEventDetails = (events) => uniq(events.flatMap((event) =>
       return textOrEmpty(Array.isArray(value) ? value.map(toLabel) : toLabel(value));
     },
   }));
+
+// The v2 schema endpoint answers in the v1 shape for v1 types.
+const calcEventTypeFields = (eventSchema, events, coordinatesRepresentation) => {
+  try {
+    if (eventSchema?.json) return fieldsFromV2Schema(eventSchema, coordinatesRepresentation);
+    if (eventSchema?.schema) return fieldsFromV1Schema(eventSchema);
+  } catch (error) {
+    console.warn('Could not read the event type schema for the table columns', error);
+  }
+  return fieldsFromEventDetails(events);
+};
+
+export default calcEventTypeFields;

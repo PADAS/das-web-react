@@ -2,24 +2,24 @@ import { act } from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, SORT_DIRECTION } from '../constants';
-import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
-import { mockStore } from '../__test-helpers/MockStore';
-import { render, screen, within } from '../test-utils';
-import { report } from '../__test-helpers/fixtures/reports';
-import { snareSchemaV2 } from '../__test-helpers/fixtures/event-schemas';
-import { calcEventFilterForRequest } from '../utils/event-filter';
-import { downloadFileFromUrl } from '../utils/download';
-import { GPS_FORMATS } from '../utils/location';
-import { fetchEventTypeSchema } from '../ducks/event-schemas';
-import { addEventToIncident, createEvent, setEventState } from '../ducks/events';
-import { addPatrolSegmentToEvent } from '../utils/events';
-import { updateEventFilter } from '../ducks/event-filter';
-import useJumpToLocation from '../hooks/useJumpToLocation';
-import useNavigate from '../hooks/useNavigate';
-import { showToast } from '../utils/toast';
+import { DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, SORT_DIRECTION } from '../../constants';
+import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
+import { mockStore } from '../../__test-helpers/MockStore';
+import { render, screen, within } from '../../test-utils';
+import { report } from '../../__test-helpers/fixtures/reports';
+import { snareSchemaV2 } from '../../__test-helpers/fixtures/event-schemas';
+import { calcEventFilterForRequest } from '../../utils/event-filter';
+import { downloadFileFromUrl } from '../../utils/download';
+import { GPS_FORMATS } from '../../utils/location';
+import { fetchEventTypeSchema } from '../../ducks/event-schemas';
+import { addEventToIncident, createEvent, setEventState } from '../../ducks/events';
+import { addPatrolSegmentToEvent } from '../../utils/events';
+import { updateEventFilter } from '../../ducks/event-filter';
+import useJumpToLocation from '../../hooks/useJumpToLocation';
+import useNavigate from '../../hooks/useNavigate';
+import { showToast } from '../../utils/toast';
 
-import EventsTable from './EventsTable';
+import EventsTable from './';
 
 const mockGridProps = [];
 const mockGridApi = { deselectAll: jest.fn(), setGridAriaProperty: jest.fn() };
@@ -32,36 +32,36 @@ jest.mock('ag-grid-react', () => ({
   },
 }));
 
-jest.mock('../ducks/event-filter', () => ({
-  ...jest.requireActual('../ducks/event-filter'),
+jest.mock('../../ducks/event-filter', () => ({
+  ...jest.requireActual('../../ducks/event-filter'),
   updateEventFilter: jest.fn(),
 }));
 
-jest.mock('../ducks/event-schemas', () => ({
-  ...jest.requireActual('../ducks/event-schemas'),
+jest.mock('../../ducks/event-schemas', () => ({
+  ...jest.requireActual('../../ducks/event-schemas'),
   fetchEventTypeSchema: jest.fn(),
 }));
 
-jest.mock('../ducks/events', () => ({
-  ...jest.requireActual('../ducks/events'),
+jest.mock('../../ducks/events', () => ({
+  ...jest.requireActual('../../ducks/events'),
   addEventToIncident: jest.fn(),
   createEvent: jest.fn(),
   setEventState: jest.fn(),
 }));
 
-jest.mock('../utils/events', () => ({
-  ...jest.requireActual('../utils/events'),
+jest.mock('../../utils/events', () => ({
+  ...jest.requireActual('../../utils/events'),
   addPatrolSegmentToEvent: jest.fn(),
 }));
 
-jest.mock('../utils/event-filter', () => ({
-  ...jest.requireActual('../utils/event-filter'),
+jest.mock('../../utils/event-filter', () => ({
+  ...jest.requireActual('../../utils/event-filter'),
   calcEventFilterForRequest: jest.fn(),
 }));
-jest.mock('../utils/download', () => ({ downloadFileFromUrl: jest.fn() }));
-jest.mock('../hooks/useJumpToLocation', () => jest.fn());
-jest.mock('../hooks/useNavigate', () => jest.fn());
-jest.mock('../utils/toast', () => ({ showToast: jest.fn() }));
+jest.mock('../../utils/download', () => ({ downloadFileFromUrl: jest.fn() }));
+jest.mock('../../hooks/useJumpToLocation', () => jest.fn());
+jest.mock('../../hooks/useNavigate', () => jest.fn());
+jest.mock('../../utils/toast', () => ({ showToast: jest.fn() }));
 
 const lastGridProps = () => mockGridProps[mockGridProps.length - 1];
 const columnById = (colId) => lastGridProps().columnDefs.find((column) => column.colId === colId);

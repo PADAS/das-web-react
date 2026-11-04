@@ -3,7 +3,7 @@ import Button from 'react-bootstrap/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { API_URL, EVENT_FORM_STATES, EVENT_SORT_OPTIONS, SORT_DIRECTION, TAB_KEYS } from '../constants';
+import { API_URL, EVENT_FORM_STATES, EVENT_SORT_OPTIONS, SORT_DIRECTION, TAB_KEYS } from '../../constants';
 import {
   addPatrolSegmentToEvent,
   calcDisplayPriorityForReport,
@@ -15,25 +15,25 @@ import {
   getCoordinatesForCollection,
   getCoordinatesForEvent,
   PRIORITY_COLOR_MAP,
-} from '../utils/events';
-import { calcEventFilterForRequest } from '../utils/event-filter';
-import { addModal } from '../ducks/modals';
-import { downloadFileFromUrl } from '../utils/download';
-import { fetchEventTypeSchema } from '../ducks/event-schemas';
-import { addEventToIncident, createEvent, fetchNextEventFeedPage, setEventState } from '../ducks/events';
-import { fieldsFromEventDetails, fieldsFromV1Schema, fieldsFromV2Schema } from './eventTypeFields';
-import { governingPatrolSegment } from '../utils/patrols';
-import { selectCoordinatesRepresentation } from '../selectors/location';
-import { selectEventSchema } from '../selectors/event-schemas';
-import { showToast } from '../utils/toast';
-import { updateEventFilter } from '../ducks/event-filter';
-import useJumpToLocation from '../hooks/useJumpToLocation';
-import useNavigate from '../hooks/useNavigate';
+} from '../../utils/events';
+import { calcEventFilterForRequest } from '../../utils/event-filter';
+import { addModal } from '../../ducks/modals';
+import { downloadFileFromUrl } from '../../utils/download';
+import { fetchEventTypeSchema } from '../../ducks/event-schemas';
+import { addEventToIncident, createEvent, fetchNextEventFeedPage, setEventState } from '../../ducks/events';
+import { governingPatrolSegment } from '../../utils/patrols';
+import { selectCoordinatesRepresentation } from '../../selectors/location';
+import { selectEventSchema } from '../../selectors/event-schemas';
+import { showToast } from '../../utils/toast';
+import { updateEventFilter } from '../../ducks/event-filter';
+import useJumpToLocation from '../../hooks/useJumpToLocation';
+import useNavigate from '../../hooks/useNavigate';
+import calcEventTypeFields from './utils/calcEventTypeFields';
 
-import AddToIncidentModal from '../AddToIncidentModal';
-import AddToPatrolModal from '../AddToPatrolModal';
-import FeedTable, { formatDateValue } from '.';
-import ObjectViewModal, { ObjectValueLink } from './ObjectViewModal';
+import AddToIncidentModal from '../../AddToIncidentModal';
+import AddToPatrolModal from '../../AddToPatrolModal';
+import FeedTable, { formatDateValue } from '..';
+import ObjectViewModal, { ObjectValueLink } from '../ObjectViewModal';
 
 import * as styles from './styles.module.scss';
 
@@ -42,17 +42,6 @@ const STATE_KEY_BY_EVENT_STATE = {
   [EVENT_FORM_STATES.NEW_LEGACY]: EVENT_FORM_STATES.ACTIVE,
   [EVENT_FORM_STATES.RESOLVED]: EVENT_FORM_STATES.RESOLVED,
   [EVENT_FORM_STATES.REVIEW]: EVENT_FORM_STATES.REVIEW,
-};
-
-// The v2 schema endpoint answers in the v1 shape for v1 types.
-const calcEventTypeFields = (eventSchema, events, coordinatesRepresentation) => {
-  try {
-    if (eventSchema?.json) return fieldsFromV2Schema(eventSchema, coordinatesRepresentation);
-    if (eventSchema?.schema) return fieldsFromV1Schema(eventSchema);
-  } catch (error) {
-    console.warn('Could not read the event type schema for the table columns', error);
-  }
-  return fieldsFromEventDetails(events);
 };
 
 const formatCoordinates = (coordinates) => {
