@@ -281,6 +281,60 @@ describe('EventsTable', () => {
     }));
   });
 
+  test('opens a v2 collection in the form\'s read-only collection view', async () => {
+    const collectionSchemaV2 = {
+      json: {
+        properties: { sightings: { items: { properties: {}, type: 'object' }, title: 'Sightings', type: 'array' } },
+        required: [],
+      },
+      ui: {
+        fields: {
+          sightings: {
+            buttonText: '',
+            columns: 1,
+            conditionalDependents: [],
+            itemIdentifier: '',
+            itemName: 'Sighting',
+            leftColumn: [],
+            parent: 'section-1',
+            rightColumn: [],
+            type: 'COLLECTION',
+          },
+        },
+        headers: {},
+        order: ['section-1'],
+        sections: {
+          'section-1': {
+            columns: 1,
+            conditions: [],
+            isActive: true,
+            label: '',
+            leftColumn: [{ name: 'sightings', type: 'field' }],
+            rightColumn: [],
+          },
+        },
+      },
+    };
+    filterToOneEventType({ id: 'type-id', value: 'sighting', version: 2 });
+    state.data.eventSchemas = { sighting: { base: collectionSchemaV2 } };
+    renderEventsTable();
+
+    const { cellRenderer: SightingsCell, cellRendererParams, headerName } = columnById('event_details.sightings');
+    const sightings = [{ note: 'By the river' }];
+    render(<Provider store={store}>
+      <SightingsCell colDef={{ headerName }} value={sightings} {...cellRendererParams} />
+    </Provider>);
+
+    await userEvent.click(screen.getByRole('button', { name: '1 item' }));
+
+    expect(openedModal()).toEqual(expect.objectContaining({
+      fieldName: 'sightings',
+      schema: collectionSchemaV2,
+      title: 'Sightings',
+      value: sightings,
+    }));
+  });
+
   test('adds a column per field of a v2 event type schema', () => {
     filterToOneEventType({ id: 'type-id', value: 'snare', version: 2 });
     state.data.eventSchemas = { snare: { base: snareSchemaV2 } };

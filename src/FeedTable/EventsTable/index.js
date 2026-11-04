@@ -31,6 +31,7 @@ import calcEventTypeFields from './utils/calcEventTypeFields';
 
 import AddToIncidentModal from '../../AddToIncidentModal';
 import AddToPatrolModal from '../../AddToPatrolModal';
+import CollectionViewModal from './CollectionViewModal';
 import FeedTable, { formatDateValue } from '..';
 import ObjectViewModal, { ObjectValueLink } from '../ObjectViewModal';
 
@@ -49,13 +50,17 @@ const formatCoordinates = (coordinates) => {
   return `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
 };
 
-const ComplexDetailCell = ({ colDef, value }) => {
+// A v2 collection opens in the form's own read-only view; other objects, without
+// a schema to label them, open in the generic object view.
+const ComplexDetailCell = ({ colDef, eventSchema, fieldName, value }) => {
   const dispatch = useDispatch();
 
   if (value === null || value === undefined || typeof value !== 'object') return null;
 
   return <ObjectValueLink
-    onOpen={() => dispatch(addModal({ content: ObjectViewModal, title: colDef.headerName, value }))}
+    onOpen={() => dispatch(addModal(eventSchema
+      ? { content: CollectionViewModal, fieldName, schema: eventSchema, title: colDef.headerName, value }
+      : { content: ObjectViewModal, title: colDef.headerName, value }))}
     value={value}
   />;
 };
@@ -126,6 +131,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
         ? {
           cellDataType: false,
           cellRenderer: ComplexDetailCell,
+          cellRendererParams: { eventSchema: eventSchema?.json ? eventSchema : null, fieldName: field.key },
           valueGetter: (params) => params.data?.event_details?.[field.key],
         }
         : { valueGetter: (params) => field.toText(params.data?.event_details) }),
