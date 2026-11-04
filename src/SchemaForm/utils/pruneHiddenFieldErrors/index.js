@@ -1,40 +1,29 @@
-const pruneErrors = (errors, formElements, collectionItemsMessage, parentCollectionId = null) => {
-  const pruned = {};
+import omit from 'lodash/omit';
 
-  Object.entries(errors).forEach(([fieldName, fieldError]) => {
+const pruneHiddenFieldErrors = (errors, formElements, collectionItemsMessage, parentCollectionId = null) =>
+  Object.keys(errors).reduce((prunedErrors, fieldName) => {
     const fieldId = parentCollectionId ? `${parentCollectionId}.${fieldName}` : fieldName;
-    if (!formElements[fieldId]) {
-      // The form does not render this field (deprecated, in an inactive section, or undeclared), so the user cannot
-      // fix it.
-      return;
-    }
 
-    const { message, ...itemErrors } = fieldError;
-    const itemIndexes = Object.keys(itemErrors);
-    if (itemIndexes.length === 0) {
-      // A plain field error, or a collection's own error (required, minItems, maxItems).
-      pruned[fieldName] = fieldError;
-      return;
-    }
+    // Fields the form does not render cannot be fixed by the user.
+    if (formElements[fieldId]) {
+      const itemErrors = omit(errors[fieldName], 'message');
 
-    const prunedItemErrors = {};
-    itemIndexes.forEach((index) => {
-      const prunedItem = pruneErrors(itemErrors[index], formElements, collectionItemsMessage, fieldId);
-      if (Object.keys(prunedItem).length > 0) {
-        prunedItemErrors[index] = prunedItem;
+      if (Object.keys(itemErrors).length === 0) {
+        prunedErrors[fieldName] = errors[fieldName];
+      } else {
+        const prunedItemErrors = Object.keys(itemErrors).reduce((accumulator, index) => {
+          const prunedItem = pruneHiddenFieldErrors(itemErrors[index], formElements, collectionItemsMessage, fieldId);
+
+          return Object.keys(prunedItem).length > 0 ? { ...accumulator, [index]: prunedItem } : accumulator;
+        }, {});
+
+        if (Object.keys(prunedItemErrors).length > 0 || errors[fieldName].message !== collectionItemsMessage) {
+          prunedErrors[fieldName] = { message: errors[fieldName].message, ...prunedItemErrors };
+        }
       }
-    });
-
-    if (Object.keys(prunedItemErrors).length > 0 || message !== collectionItemsMessage) {
-      pruned[fieldName] = { message, ...prunedItemErrors };
     }
-  });
 
-  return pruned;
-};
-
-// Drops the validation errors for fields the form does not render, as the user cannot see or fix them.
-const pruneHiddenFieldErrors = (fieldErrors, formElements, collectionItemsMessage) =>
-  pruneErrors(fieldErrors, formElements, collectionItemsMessage);
+    return prunedErrors;
+  }, {});
 
 export default pruneHiddenFieldErrors;

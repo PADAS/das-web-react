@@ -576,12 +576,6 @@ describe('SchemaForm', () => {
       schema.json.properties.tags = { deprecated: true, title: 'Tags', type: 'string' };
     });
 
-    test('renders a value of the wrong type in a hidden field without throwing', () => {
-      renderSchemaForm({ formData: { text_field: 'a text value', tags: ['a', 'b'] } });
-
-      expect(screen.getByRole('textbox', { name: 'Text Field' })).toBeInTheDocument();
-    });
-
     test('submits the form when a hidden field has a value of the wrong type', async () => {
       renderSchemaForm({ formData: { text_field: 'a text value', tags: ['a', 'b'] } });
 
