@@ -18,7 +18,7 @@ import { TAB_KEYS } from '../../constants';
 import useJumpToLocation from '../../hooks/useJumpToLocation';
 import useNavigate from '../../hooks/useNavigate';
 
-import FeedTable, { formatDateValue, IconCell } from '..';
+import FeedTable, { formatDateValue, ICON_COLUMN, IconCell } from '..';
 import SvgIcon from '../../SvgIcon';
 
 import * as styles from './styles.module.scss';
@@ -41,13 +41,9 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
 
   const columnDefs = useMemo(() => [
     {
+      ...ICON_COLUMN,
       cellRenderer: PatrolIconCell,
-      colId: 'icon',
-      headerName: '',
-      maxWidth: 56,
       menuName: t('iconColumnTitle'),
-      minWidth: 56,
-      resizable: false,
       valueGetter: (params) => {
         const segment = governingPatrolSegment(params.data);
         return segment ? iconIdForPatrolSegment(patrolTypes, segment) : null;

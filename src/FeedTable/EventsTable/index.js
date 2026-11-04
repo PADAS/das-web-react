@@ -33,7 +33,7 @@ import AddToIncidentModal from '../../AddToIncidentModal';
 import AddToPatrolModal from '../../AddToPatrolModal';
 import CollectionViewModal from './CollectionViewModal';
 import EventIcon from '../../EventIcon';
-import FeedTable, { formatDateValue, IconCell } from '..';
+import FeedTable, { formatDateValue, ICON_COLUMN, IconCell } from '..';
 import ObjectViewModal, { ObjectValueLink } from '../ObjectViewModal';
 
 import * as styles from './styles.module.scss';
@@ -151,13 +151,9 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
 
   const columnDefs = useMemo(() => [
     {
+      ...ICON_COLUMN,
       cellRenderer: EventIconCell,
-      colId: 'icon',
-      headerName: '',
-      maxWidth: 56,
       menuName: t('iconColumnTitle'),
-      minWidth: 56,
-      resizable: false,
     },
     {
       cellRenderer: PriorityCell,

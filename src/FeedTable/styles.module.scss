@@ -130,6 +130,14 @@
   flex: 1;
   min-height: 0;
 
+  .iconColumnCell {
+    --ag-cell-horizontal-padding: 1px;
+
+    align-items: center;
+    display: flex;
+    justify-content: center;
+  }
+
   .headerCell {
     cursor: grab;
 

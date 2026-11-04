@@ -165,6 +165,15 @@ const controlInCell = (element) => element.classList?.contains('ag-cell')
   ? element.querySelector(CELL_CONTROLS)
   : null;
 
+export const ICON_COLUMN = {
+  cellClass: styles.iconColumnCell,
+  colId: 'icon',
+  headerName: '',
+  maxWidth: 52,
+  minWidth: 52,
+  resizable: false,
+};
+
 // Its colors come from the row's theme, as the feed rows' icons do.
 export const IconCell = ({ children }) => <span aria-hidden="true" className={styles.iconCell}>{children}</span>;
 
