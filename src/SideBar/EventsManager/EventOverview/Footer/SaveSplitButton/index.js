@@ -3,6 +3,8 @@ import MoonLoader from 'react-spinners/MoonLoader';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 
+import { COLOR_TOKENS } from '../../../../../utils/colors';
+
 import navigateMenuWithKeyboard from '../../../../utils/navigateMenuWithKeyboard';
 
 import * as styles from './styles.module.scss';
@@ -106,7 +108,7 @@ const SaveSplitButton = ({
       <span className={styles.saveButtonLabel}>{label}</span>
 
       {isSaving && <span className={styles.saveButtonLoader}>
-        <MoonLoader aria-hidden color="white" size={SAVE_LOADER_SIZE} />
+        <MoonLoader aria-hidden color={COLOR_TOKENS['ui-text-primary-text-reversed']} size={SAVE_LOADER_SIZE} />
       </span>}
     </button>
 

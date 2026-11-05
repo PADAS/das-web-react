@@ -1,7 +1,11 @@
+import { COLOR_TOKENS } from '../utils/colors';
 import { DEFAULT_SYMBOL_PAINT } from '../constants';
 
+const DRAWING_COLOR = COLOR_TOKENS['amber-3'];
+const DRAWING_POINT_HIGHLIGHT_COLOR = COLOR_TOKENS['greyscale-white'];
+
 export const linePaint = {
-  'line-color': 'orange',
+  'line-color': DRAWING_COLOR,
   'line-dasharray': [2, 4],
   'line-width': 2,
 };
@@ -52,8 +56,8 @@ export const circlePaint = {
       ['==', ['get', 'pointHover'], true],
       ['==', ['get', 'midpointHover'], true],
     ],
-    'white',
-    'orange',
+    DRAWING_POINT_HIGHLIGHT_COLOR,
+    DRAWING_COLOR,
   ],
 
   'circle-stroke-color': [
@@ -63,8 +67,8 @@ export const circlePaint = {
       ['==', ['get', 'initialPoint'], true],
       ['==', ['feature-state', 'selected'], true],
     ],
-    'white',
-    'orange',
+    DRAWING_POINT_HIGHLIGHT_COLOR,
+    DRAWING_COLOR,
   ],
 
   'circle-opacity': [
@@ -96,5 +100,5 @@ export const circlePaint = {
 };
 
 export const fillLayout = { visibility: 'visible' };
-export const fillPaint = { 'fill-color': 'red', 'fill-opacity': 0.4 };
+export const fillPaint = { 'fill-color': COLOR_TOKENS['red-3'], 'fill-opacity': 0.4 };
 export const lightFillPaint = { ...fillPaint, 'fill-opacity': 0.1 };

@@ -1,6 +1,6 @@
-import { memo, useCallback, useMemo, useRef } from 'react';
+import { memo, useCallback, useRef } from 'react';
 
-import { adjustColorLightnessByPercentage } from '../utils/colors';
+import { COLOR_TOKENS } from '../utils/colors';
 
 import * as styles from './styles.module.scss';
 
@@ -12,16 +12,11 @@ const FeedListItem = ({
   IconComponent = null,
   onClick,
   themeBgColor = null,
-  themeColor = 'gray',
+  themeColor = COLOR_TOKENS['ui-event-priority-grey'],
   TitleComponent,
   ...otherProps
 }) => {
   const controlsRef = useRef(null);
-
-  const bodyBackgroundColor = useMemo(
-    () => themeBgColor || adjustColorLightnessByPercentage(themeColor, 200),
-    [themeBgColor, themeColor]
-  );
 
   // Clicking one of the controls shouldn't open the patrol.
   const onClickItem = useCallback((event) => {
@@ -33,7 +28,7 @@ const FeedListItem = ({
   return <Component
     className={`${styles.listItem} ${className}`}
     onClick={onClick && onClickItem}
-    style={{ backgroundColor: bodyBackgroundColor }}
+    style={{ backgroundColor: themeBgColor }}
     {...otherProps}
   >
     {IconComponent && <div className={styles.iconContainer} role="img" style={{ backgroundColor: themeColor }}>

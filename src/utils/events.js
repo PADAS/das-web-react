@@ -7,11 +7,10 @@ import isObject from 'lodash/isObject';
 import { addNoteToEvent, createEvent, EVENT_API_URL, updateEvent, uploadEventFile } from '../ducks/events';
 import { calcTopRatedReportAndTypeForCollection } from './event-types';
 import { calcUrlForImage } from './img';
+import { COLOR_TOKENS } from './colors';
 import { EVENT_FORM_STATES } from '../constants';
 import { getEventReporters } from '../selectors';
 import store from '../store';
-
-import * as colorVariables from '../common/styles/vars/colors.module.scss';
 
 export const eventWasRecentlyEditedByCurrentUser = (event, currentUser) => {
   const eventCreationDetails = event?.updates?.[0];
@@ -268,23 +267,23 @@ export const calcDisplayPriorityForReport = (report, eventTypes) => {
 
 export const PRIORITY_COLOR_MAP = {
   300: {
-    base: colorVariables.red,
-    background: colorVariables.redBg,
+    base: COLOR_TOKENS['ui-event-priority-red'],
+    background: COLOR_TOKENS['red-6'],
     key: 'red',
   },
   200: {
-    base: colorVariables.amber,
-    background: colorVariables.amberBg,
+    base: COLOR_TOKENS['ui-event-priority-amber'],
+    background: COLOR_TOKENS['amber-6'],
     key: 'amber',
   },
   100: {
-    base: colorVariables.green,
-    background: colorVariables.greenBg,
+    base: COLOR_TOKENS['ui-event-priority-green'],
+    background: COLOR_TOKENS['green-6'],
     key: 'green',
   },
   0: {
-    base: colorVariables.gray,
-    background: colorVariables.grayBg,
+    base: COLOR_TOKENS['ui-event-priority-grey'],
+    background: COLOR_TOKENS['greyscale-11'],
     key: 'none',
   },
 };

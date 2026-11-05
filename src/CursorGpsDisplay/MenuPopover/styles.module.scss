@@ -1,5 +1,4 @@
-@use 'sass:color';
-@use '../../common/styles/vars/colors';
+@use '../../common/styles/colors';
 @use '../../common/styles/inputs';
 
 .menuPopover {
@@ -22,31 +21,31 @@
   }
 
   .gpsInputButton {
-    background-color: colors.$light-gray-background;
-    border: 1px solid colors.$secondary-light-gray;
+    background-color: var(--er-ui-background-tertiary-background);
+    border: 1px solid var(--er-ui-field-outline);
     border-left: none;
     border-radius: 0 .2rem .2rem 0;
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-text-secondary-text);
     height: 2.5rem;
     min-width: 2.5rem;
     outline: none;
     width: 2.5rem;
 
     &:disabled {
-      background-color: colors.$disabled-field-gray;
+      background-color: var(--er-ui-background-tertiary-background);
       cursor: not-allowed;
       opacity: 0.66;
     }
 
     &:focus-visible:not(:disabled) {
-      background-color: white;
-      border: 1px solid colors.$bright-blue;
-      color: colors.$bright-blue;
-      outline: 1px solid colors.$bright-blue;
+      background-color: var(--er-ui-background-primary-background);
+      border: 1px solid var(--er-ui-cta-primary);
+      color: var(--er-ui-cta-primary);
+      outline: 1px solid var(--er-ui-cta-primary);
     }
 
     &:hover:not(:disabled) {
-      background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+      background-color: colors.shade(var(--er-ui-background-tertiary-background), 5%);
     }
 
     .searchIcon {

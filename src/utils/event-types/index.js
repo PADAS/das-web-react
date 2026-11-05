@@ -1,4 +1,10 @@
-import * as colorVariables from '../../common/styles/vars/colors.module.scss';
+import { COLOR_TOKENS } from '../colors';
+
+const ICON_COLOR_BY_PRIORITY = {
+  100: COLOR_TOKENS['ui-event-priority-green'],
+  200: COLOR_TOKENS['ui-event-priority-amber'],
+  300: COLOR_TOKENS['ui-event-priority-red'],
+};
 
 export const calcTopRatedReportAndTypeForCollection = (collection, reportTypes) => {
   const { contains } = collection;
@@ -27,22 +33,7 @@ export const calcTopRatedReportAndTypeForCollection = (collection, reportTypes) 
 };
 
 
-export const calcIconColorByPriority = (priority) => {
-  switch (priority) {
-  case 300: {
-    return colorVariables.red;
-  }
-  case 200: {
-    return colorVariables.amber;
-  }
-  case 100: {
-    return colorVariables.green;
-  }
-  default: {
-    return colorVariables.gray;
-  }
-  }
-};
+export const calcIconColorByPriority = (priority) => ICON_COLOR_BY_PRIORITY[priority] ?? COLOR_TOKENS['ui-event-priority-grey'];
 
 const getOrdernum = (item) => typeof item.ordernum === 'number' ? item.ordernum : 1000;
 

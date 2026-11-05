@@ -1,8 +1,7 @@
-@use 'sass:color';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 
-$checkmark-color: colors.$secondary-medium-gray;
-$hover-color: color.adjust($checkmark-color, $lightness: -12.5%);
+$checkmark-color: var(--er-ui-icons);
+$hover-color: colors.shade($checkmark-color, 34%);
 
 .checkmark {
   --dimensions: 1.5rem;
@@ -22,14 +21,14 @@ $hover-color: color.adjust($checkmark-color, $lightness: -12.5%);
   }
 
   &.partial {
-    fill: rgba($checkmark-color, 0.3);
+    fill: colors.with-opacity($checkmark-color, 30%);
 
     &:hover {
-      fill: rgba($hover-color, 0.3);
+      fill: colors.with-opacity($hover-color, 30%);
     }
   }
 
   &:hover {
-     fill: rgba($hover-color, 0.1);
+     fill: colors.with-opacity($hover-color, 10%);
   }
 }

@@ -1,12 +1,10 @@
-@use '../common/styles/vars/colors';
-
 .header {
   text-align: left;
   margin: -.7rem -.7rem 0;
   padding: .5rem;
   border-radius: 0.5rem 0.5rem 0 0;
-  background-color: colors.$off-black;
-  color: white;
+  background-color: var(--er-teal-t100);
+  color: var(--er-ui-text-primary-text-reversed);
 
   > div {
     &:first-child {
@@ -41,7 +39,7 @@
   
     .dateTimeDetails {
       display: inline;
-      color: white;
+      color: var(--er-ui-text-primary-text-reversed);
     }
 
     .dateTimeComma {
@@ -78,12 +76,12 @@
   line-height: normal;
   margin-bottom: 0.4rem;
   padding-bottom: 0.4rem;
-  border-bottom: 0.06px solid colors.$gray-border;
+  border-bottom: 0.06px solid var(--er-ui-field-outline);
 }
 
 .micActivity {
   align-items: baseline;
-  border-bottom: 0.06px solid colors.$gray-border;
+  border-bottom: 0.06px solid var(--er-ui-field-outline);
   justify-content: space-between;
   display: flex;
   margin: 0.2rem 0;

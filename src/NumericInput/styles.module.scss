@@ -1,38 +1,37 @@
-@use 'sass:color';
 @use '../common/styles/inputs';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 
 .numericInput {
   align-items: center;
-  background: white;
-  border: 1px solid colors.$light-gray-border;
+  background: var(--er-ui-background-primary-background);
+  border: 1px solid var(--er-ui-divider-lines);
   border-radius: 0.25rem;
   display: flex;
   height: 2.5rem;
 
   &:focus-within:not(.disabled) {
-    border: 1px solid colors.$bright-blue;
-    outline: 1px solid colors.$bright-blue;
+    border: 1px solid var(--er-ui-cta-primary);
+    outline: 1px solid var(--er-ui-cta-primary);
   }
 
   &.error {
-    border-color: colors.$bright-red;
+    border-color: var(--er-ui-status-error-destructive);
 
     .controls button {
-      color: colors.$bright-red;
+      color: var(--er-ui-status-error-destructive);
     }
 
     ::placeholder {
-      color: color.adjust(colors.$bright-red, $lightness: 33%);
+      color: colors.tint(var(--er-ui-status-error-destructive), 56%);
     }
   }
 
   &.readOnly {
-    background-color: colors.$off-white;
+    background-color: colors.$subtle-background;
   }
 
   &.disabled {
-    background-color: colors.$disabled-field-gray;
+    background-color: var(--er-ui-background-tertiary-background);
   }
 
   .input {
@@ -49,9 +48,9 @@
 
     button {
       align-items: center;
-      background-color: colors.$light-gray-background;
+      background-color: var(--er-ui-background-tertiary-background);
       border: none;
-      color: colors.$secondary-medium-gray;
+      color: var(--er-ui-text-secondary-text);
       display: flex;
       height: 50%;
       justify-content: center;
@@ -70,11 +69,11 @@
       }
 
       &:disabled {
-        background-color: colors.$disabled-field-gray;
+        background-color: var(--er-ui-background-tertiary-background);
       }
   
       &:hover:not(:disabled) {
-        background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+        background-color: colors.shade(var(--er-ui-background-tertiary-background), 5%);
       }
 
       svg {

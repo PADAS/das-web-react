@@ -1,5 +1,3 @@
-@use '../../../../../common/styles/vars/colors';
-
 .plan {
   display: flex;
   flex-direction: column;
@@ -9,14 +7,14 @@
     gap: 1rem;
 
     .sectionLabel {
-      border-bottom: 1px solid colors.$light-gray-lines;
+      border-bottom: 1px solid var(--er-ui-divider-lines);
       margin-bottom: 1rem;
       padding-bottom: 0.5rem;
     }
   }
 
   .section {
-    background: white;
+    background: var(--er-ui-background-primary-background);
     padding: 1rem;
 
     .schemaLoader {
@@ -25,7 +23,7 @@
     }
 
     .schemaErrorMessage {
-      color: colors.$bright-red;
+      color: var(--er-ui-status-error-destructive);
       font-size: 0.875rem;
       margin: 0;
     }

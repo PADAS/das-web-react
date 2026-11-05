@@ -1,10 +1,9 @@
-@use 'sass:color';
 @use '../../../common/styles/inputs';
-@use '../../../common/styles/vars/colors';
+@use '../../../common/styles/colors';
 
 
 .dropdownWrapper {
-  color: colors.$secondary-medium-gray;
+  color: var(--er-ui-text-secondary-text);
   font-size: 0.875rem;
   font-weight: 400;
   margin-bottom: 0.375rem;
@@ -17,7 +16,7 @@
   gap: 0.5rem;
 
   .optionLabel {
-    color: colors.$off-black;
+    color: var(--er-ui-text-primary-text);
     display: flex;
     flex-direction: column;
     max-width: 31.25rem;
@@ -30,7 +29,7 @@
     }
 
     .description {
-      color: colors.$alt-light-gray;
+      color: var(--er-ui-text-secondary-text);
       font-size: 0.875rem;
       font-weight: 400;
       line-height: 1.25;
@@ -42,12 +41,12 @@
 
   .checkMark{
     width: 0.8rem;
-    color: colors.$bright-blue;
+    color: var(--er-ui-cta-primary);
   }
 }
 
 .description {
-  color: colors.$alt-light-gray;
+  color: var(--er-ui-text-secondary-text);
   font-size: 0.875rem;
   font-weight: 400;
   margin: 0.125rem 0 0;
@@ -63,30 +62,30 @@
 }
 
 .multiValue {
-  background: colors.$semi-light-gray !important;
+  background: var(--er-ui-background-tertiary-background) !important;
   border-radius: 1rem !important;
   padding: 0 0.0625rem;
   font-weight: normal;
 }
 
 .multiValueRemove{
-  background: rgb(0 0 0 / 10%);
+  background: colors.with-opacity(var(--er-greyscale-0), 10%);
   border-radius: 50% !important;
-  color: colors.$secondary-medium-gray;
+  color: var(--er-ui-text-secondary-text);
   width: 1.2rem;
   height: 1.2rem;
   margin-top: 0.2rem;
   margin-right: 0.2rem;
 
   &.readOnly:hover {
-    background-color: rgb(0 0 0 / 10%);
-    color: colors.$secondary-medium-gray;
+    background-color: colors.with-opacity(var(--er-greyscale-0), 10%);
+    color: var(--er-ui-text-secondary-text);
     cursor: default;
   }
 }
 
 .control {
-  border-color: colors.$light-gray-border !important;
+  border-color: var(--er-ui-divider-lines) !important;
   font-weight: normal;
   min-height: 2.5rem !important;
 
@@ -95,21 +94,21 @@
   }
 
   &.readOnly {
-    background-color: colors.$off-white;
+    background-color: colors.$subtle-background;
   }
 
   &.dropdownError {
-    border-color: colors.$bright-red !important;
+    border-color: var(--er-ui-status-error-destructive) !important;
   }
 
   &.controlFocused {
-    border-color: colors.$bright-blue !important;
-    box-shadow: 0 0 0 1px colors.$bright-blue !important;
+    border-color: var(--er-ui-cta-primary) !important;
+    box-shadow: 0 0 0 1px var(--er-ui-cta-primary) !important;
   }
 }
 
 .error {
-  color: colors.$bright-red !important;
+  color: var(--er-ui-status-error-destructive) !important;
 }
 
 .indicatorContainer {
@@ -118,23 +117,23 @@
 
     align-items: center;
     border-radius: 0.25rem;
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-text-secondary-text);
     justify-content: center;
     padding: 0;
 
     &:hover {
-      background-color: colors.$semi-light-gray;
-      color: colors.$secondary-medium-gray;
+      background-color: var(--er-ui-background-tertiary-background);
+      color: var(--er-ui-text-secondary-text);
     }
   }
 
   &.caretError > div {
-    color: colors.$bright-red;
+    color: var(--er-ui-status-error-destructive);
   }
 
   &.readOnly > div:hover {
-    background-color: colors.$off-white;
-    color: colors.$secondary-medium-gray;
+    background-color: colors.$subtle-background;
+    color: var(--er-ui-text-secondary-text);
   }
 }
 

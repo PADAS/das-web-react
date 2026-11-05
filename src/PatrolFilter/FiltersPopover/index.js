@@ -6,6 +6,7 @@ import uniq from 'lodash/uniq';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
+import { COLOR_TOKENS } from '../../utils/colors';
 import { iconTypeForPatrol } from '../../utils/patrols';
 import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../../ducks/patrol-filter';
 import { trackEventFactory, PATROL_FILTER_CATEGORY } from '../../utils/analytics';
@@ -14,7 +15,6 @@ import CheckboxList from '../../CheckboxList';
 import SvgIcon from '../../SvgIcon';
 import ReportedBySelect from '../../ReportedBySelect';
 
-import * as colorVariables from '../../common/styles/vars/colors.module.scss';
 import * as patrolFiltersPopoverStyles from './styles.module.scss';
 import * as styles from '../styles.module.scss';
 
@@ -24,11 +24,9 @@ const CHECKBOX_LIST_ALL_OPTION_ID = 'all';
 const PATROL_FILTERS_LEADERS_KEY = 'tracked_by';
 const PATROL_FILTERS_PATROL_TYPE_KEY = 'patrol_type';
 const PATROL_FILTERS_STATUS_OPTIONS = [
-  { color: colorVariables.patrolActiveThemeColor, id: 'active' },
-  // { color: colorVariables.patrolReadyThemeColor, id: 'scheduled', value: 'Scheduled' },
-  // { color: colorVariables.patrolOverdueThemeColor, id: 'overdue', value: 'Overdue' },
-  { color: colorVariables.patrolDoneThemeColor, id: 'done' },
-  { color: colorVariables.patrolCancelledThemeColor, id: 'cancelled' },
+  { color: COLOR_TOKENS['ui-patrol-status-active'], id: 'active' },
+  { color: COLOR_TOKENS['greyscale-7'], id: 'done' },
+  { color: COLOR_TOKENS['greyscale-9'], id: 'cancelled' },
 ];
 
 const calculateNewCheckedItems = (clickedItemId, checkedItemIds) => {
@@ -136,7 +134,7 @@ const FiltersPopover = ({ ref, ...rest }) => {
     return {
       id: patrolType.id,
       value: <div className='patrolTypeItem'>
-        {patrolIconId && <SvgIcon color='black' iconId={patrolIconId} type='patrols' />}
+        {patrolIconId && <SvgIcon color={COLOR_TOKENS['ui-icons']} iconId={patrolIconId} type='patrols' />}
         {patrolType.display}
       </div>,
     };

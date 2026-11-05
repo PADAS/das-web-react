@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as CheckIcon } from '../../../common/images/icons/check-light.svg';
 
 import { BOOTSTRAP_DEFAULTS } from '../../../constants';
+import { themeReactSelect } from '../../../utils/colors';
 import getDisplayableChoiceListOptions from '../../../utils/form-schemas/getDisplayableChoiceListOptions';
 
 import * as styles from './styles.module.scss';
@@ -95,6 +96,7 @@ const Dropdown = ({ details, disabled, id, invalid, onChange, readOnly, value, .
     options={options}
     placeholder={details.hint}
     styles={{ menuPortal: (base) => ({ ...base, zIndex: BOOTSTRAP_DEFAULTS.MODAL_ZINDEX + 1 }) }}
+    theme={themeReactSelect}
     value={selectedValue}
     {...otherProps}
   />;

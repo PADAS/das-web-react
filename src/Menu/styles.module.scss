@@ -1,6 +1,5 @@
-@use 'sass:color';
 @use '../common/styles/inputs';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 
 .menuPopover {
   @include inputs.box-shadow;
@@ -18,7 +17,7 @@
     outline: none;
 
     .divider {
-      background-color: colors.$light-gray-lines;
+      background-color: var(--er-ui-background-tertiary-background);
       height: 1px;
       margin: 0.312rem 0;
       padding: 0;
@@ -27,9 +26,9 @@
     .item {
       .itemBtn {
         align-items: center;
-        background-color: white;
+        background-color: var(--er-ui-background-primary-background);
         border: none;
-        color: colors.$off-black;
+        color: var(--er-ui-text-primary-text);
         display: flex;
         outline: none;
         padding: 0.5rem 1rem;
@@ -42,11 +41,11 @@
         }
 
         &:hover:not(:disabled, [aria-disabled="true"], :focus-visible, :has(:focus-visible)) {
-          background-color: color.adjust(colors.$light-gray-background, $lightness: 5%);
+          background-color: colors.tint(var(--er-ui-background-tertiary-background), 62%);
         }
 
         &:focus-visible, &:has(:focus-visible) {
-          background-color: colors.$light-gray-background;
+          background-color: var(--er-ui-background-tertiary-background);
         }
 
         img, svg {
@@ -55,17 +54,17 @@
         }
 
         svg {
-          color: colors.$secondary-medium-light-gray;
+          color: var(--er-ui-icons);
           height: 1.125rem;
           width: 1.125rem;
         }
 
         &:disabled, &[aria-disabled="true"] {
-          color: colors.$secondary-medium-light-gray;
+          color: var(--er-ui-text-secondary-text);
           cursor: default;
 
           svg {
-            color: colors.$secondary-medium-light-gray;
+            color: var(--er-ui-icons);
           }
         }
       }

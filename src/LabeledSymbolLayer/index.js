@@ -1,5 +1,6 @@
 import { memo, useCallback, useContext, useEffect } from 'react';
 
+import { COLOR_TOKENS } from '../utils/colors';
 import { DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
 import { MapContext } from '../MapContext';
 import { useMapEventBinding } from '../hooks';
@@ -63,7 +64,7 @@ const LabeledSymbolLayer = ({
   const labelPaint = {
     ...DEFAULT_SYMBOL_PAINT,
     'icon-opacity': 0.5,
-    'icon-color': '#ffffff',
+    'icon-color': COLOR_TOKENS['ui-text-primary-text-reversed'],
     ...textPaint,
   };
 

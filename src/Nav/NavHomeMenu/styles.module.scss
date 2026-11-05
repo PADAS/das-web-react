@@ -1,6 +1,5 @@
-@use 'sass:color';
 @use '../../common/styles/layout';
-@use '../../common/styles/vars/colors';
+@use '../../common/styles/colors';
 
 header {
   .toggle {
@@ -23,7 +22,7 @@ header {
 
     &:hover,
     &:hover::after {
-      color: color.adjust(white, $lightness: -7%);
+      color: colors.shade(var(--er-ui-text-primary-text-reversed), 7%);
     }
 
     &::after {
@@ -49,7 +48,7 @@ header {
     }
 
     &[class*="active"] {
-      background: colors.$light-gray !important;
+      background: var(--er-ui-background-tertiary-background) !important;
       color: unset !important;
       font-weight: bold;
 

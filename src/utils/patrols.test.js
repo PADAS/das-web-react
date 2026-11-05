@@ -70,6 +70,7 @@ import {
   patrolWithUpdateApplied,
   sortPatrolList,
 } from './patrols';
+import { COLOR_TOKENS, tint } from './colors';
 import { PATROL_UI_STATES } from '../constants';
 import {
   newPatrol,
@@ -81,7 +82,6 @@ import {
   cancelledPatrol,
   multiLegPatrol,
 } from '../__test-helpers/fixtures/patrols';
-import * as colorVariables from '../common/styles/vars/colors.module.scss';
 import patrolTypes, { dogPatrol, routinePatrol } from '../__test-helpers/fixtures/patrol-types';
 import store from '../store';
 import { uploadPatrolFile } from '../ducks/patrols';
@@ -1346,7 +1346,7 @@ describe('Patrols utils', () => {
 
       const points = extractLegPatrolPoints(segment, null, null, null, true);
 
-      expect(points.start_location.properties.stroke).toBe('#FF0080');
+      expect(points.start_location.properties.stroke).toBe(COLOR_TOKENS['ui-data-tracks-track-1']);
     });
   });
 
@@ -1394,7 +1394,7 @@ describe('Patrols utils', () => {
 
       expect(lines.features).toHaveLength(1);
       expect(lines.features[0].geometry.coordinates).toEqual([[[1, 1], [2, 2]]]);
-      expect(lines.features[0].properties.stroke).toBe(colorVariables.patrolPausedThemeColor);
+      expect(lines.features[0].properties.stroke).toBe(COLOR_TOKENS['yellow-2']);
     });
 
     test('tells the dashes across a pause from the ones that reach the track of a patrol', () => {
@@ -1410,7 +1410,7 @@ describe('Patrols utils', () => {
       const lines = drawPatrolTrackConnectorLines(patrolPoints, trackDataWithPoints([3, 3], [0.5, 0.5]));
 
       expect(lines.features.map(({ properties }) => properties.stroke))
-        .toEqual(['#C87850', colorVariables.patrolPausedThemeColor]);
+        .toEqual(['#C87850', COLOR_TOKENS['yellow-2']]);
     });
 
     test('dashes nothing across a pause the patrol has not picked up from', () => {
@@ -3049,8 +3049,8 @@ describe('Patrols utils', () => {
 
     test('gives a paused patrol the paused theme', () => {
       expect(calcColorThemeForPatrolState(PAUSED)).toEqual({
-        background: colorVariables.patrolPausedThemeBgColor,
-        base: colorVariables.patrolPausedThemeColor,
+        background: tint(COLOR_TOKENS['yellow-2'], 0.95),
+        base: COLOR_TOKENS['yellow-2'],
       });
     });
   });

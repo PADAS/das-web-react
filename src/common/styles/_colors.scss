@@ -1,0 +1,59 @@
+// Colors are EarthRanger design tokens (--er-*), CSS custom properties loaded
+// from @allenai/design-system, so these helpers derive shades at runtime.
+
+@function shade($color, $amount) {
+  @return color-mix(in srgb, $color, black $amount);
+}
+
+@function tint($color, $amount) {
+  @return color-mix(in srgb, $color, white $amount);
+}
+
+@function with-opacity($color, $opacity) {
+  @return color-mix(in srgb, $color $opacity, transparent);
+}
+
+// Read-only fields, table headers and other quiet surfaces.
+$subtle-background: tint(var(--er-ui-background-tertiary-background), 50%);
+$report-no-priority-theme: (
+  base: var(--er-ui-event-priority-grey),
+  background: var(--er-greyscale-11),
+);
+$report-low-priority-theme: (
+  base: var(--er-ui-event-priority-green),
+  background: var(--er-green-6),
+);
+$report-medium-priority-theme: (
+  base: var(--er-ui-event-priority-amber),
+  background: var(--er-amber-6),
+);
+$report-high-priority-theme: (
+  base: var(--er-ui-event-priority-red),
+  background: var(--er-red-6),
+);
+$patrol-row-tint: 95%;
+$patrol-overdue-theme: (
+  base: var(--er-ui-patrol-status-overdue),
+  background: tint(var(--er-ui-patrol-status-overdue), $patrol-row-tint),
+);
+$patrol-active-theme: (
+  base: var(--er-ui-patrol-status-active),
+  background: tint(var(--er-ui-patrol-status-active), $patrol-row-tint),
+);
+$patrol-ready-theme: (
+  base: var(--er-ui-patrol-status-scheduled),
+  background: tint(var(--er-ui-patrol-status-scheduled), $patrol-row-tint),
+);
+$patrol-paused-theme: (
+  base: var(--er-yellow-2),
+  background: tint(var(--er-yellow-2), $patrol-row-tint),
+);
+$patrol-done-theme: (
+  base: var(--er-greyscale-7),
+  background: tint(var(--er-greyscale-7), $patrol-row-tint),
+);
+$patrol-cancelled-theme: (
+  base: var(--er-greyscale-9),
+  background: tint(var(--er-greyscale-9), $patrol-row-tint),
+  font-color: var(--er-ui-text-disabled),
+);

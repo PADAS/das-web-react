@@ -1,10 +1,9 @@
-@use 'sass:color';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 
 $icon-size: 1.5em;
 
 .dividerTitle {
-  $divider-color: color.adjust(colors.$light-gray-border, $lightness: -10%);
+  $divider-color: colors.shade(var(--er-ui-divider-lines), 12%);
 
   border-top: 1px solid $divider-color;
   color: $divider-color;
@@ -16,7 +15,7 @@ $icon-size: 1.5em;
   text-transform: uppercase;
 
   span {
-    background: white;
+    background: var(--er-ui-background-primary-background);
     font-size: 0.75em;
     padding: 0.25em;
   }
@@ -28,7 +27,7 @@ $icon-size: 1.5em;
 
 .senderDetails {
   align-items: center;
-  color: colors.$light-font-color;
+  color: var(--er-ui-text-secondary-text);
   display: flex;
   font-size: 0.7em;
   margin-bottom: 0.5em;
@@ -44,8 +43,8 @@ $icon-size: 1.5em;
   .outgoingMessage {
     .messageDetails {
       align-self: flex-end;
-      background: color.adjust(colors.$light-blue, $lightness: 35%);
-      border: 1px solid color.adjust(colors.$light-blue, $lightness: 25%);
+      background: colors.tint(var(--er-ui-cta-primary), 49%);
+      border: 1px solid colors.tint(var(--er-ui-cta-primary), 35%);
       margin: 0 0 0 0.5rem;
     }
 
@@ -59,8 +58,8 @@ $icon-size: 1.5em;
   }
 
   .messageDetails {
-    background: color.adjust(colors.$light-blue, $lightness: 25%);
-    border: 1px solid color.adjust(colors.$light-blue, $lightness: 15%);
+    background: colors.tint(var(--er-ui-cta-primary), 35%);
+    border: 1px solid colors.tint(var(--er-ui-cta-primary), 21%);
     border-radius: 1em;
     margin: 0 0.5rem 0 0;
     width: 85%;
@@ -149,12 +148,12 @@ $icon-size: 1.5em;
     transition: background 0.15s linear;
 
     &:hover {
-      background: rgba(colors.$light-blue, 0.1);
+      background: colors.with-opacity(var(--er-ui-cta-primary), 10%);
       text-decoration: underline;
     }
 
     &:not(:first-child) {
-      border-top: 1px solid colors.$light-gray-border;
+      border-top: 1px solid var(--er-ui-divider-lines);
     }
 
     img {

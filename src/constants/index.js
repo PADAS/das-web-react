@@ -1,4 +1,5 @@
 import * as packageJson from '../../package.json';
+import { COLOR_TOKENS, withOpacity } from '../utils/colors';
 import * as layoutVariables from '../common/styles/layout.module.scss';
 
 const { buildbranch, buildnum } = packageJson;
@@ -246,7 +247,7 @@ export const DEFAULT_SYMBOL_LAYOUT = {
 };
 
 export const DEFAULT_SYMBOL_PAINT = {
-  'text-halo-color': 'rgba(255,255,255,0.7)',
+  'text-halo-color': withOpacity(COLOR_TOKENS['greyscale-white'], 0.7),
   'text-halo-width': 1,
   'text-halo-blur': 1,
   'text-translate-anchor': 'viewport'
@@ -414,49 +415,49 @@ export const TIME_OF_DAY_PERIODS = [
     rangeString: '12:01 - 15:00',
     rangeMinutesMin: 721,
     rangeMinutesMax: 900,
-    color: '#f3e34b'
+    color: COLOR_TOKENS['ui-data-sequential-sequential-1']
   },
   {
     rangeString: '15:01 - 18:00',
     rangeMinutesMin: 901,
     rangeMinutesMax: 1080,
-    color: '#ffbd00'
+    color: COLOR_TOKENS['ui-data-sequential-sequential-2']
   },
   {
     rangeString: '18:01 - 21:00',
     rangeMinutesMin: 1081,
     rangeMinutesMax: 1260,
-    color: '#de5285'
+    color: COLOR_TOKENS['ui-data-sequential-sequential-3']
   },
   {
     rangeString: '21:01 - 00:00',
     rangeMinutesMin: 1261,
     rangeMinutesMax: 1440,
-    color: '#8d4e85'
+    color: COLOR_TOKENS['ui-data-sequential-sequential-4']
   },
   {
     rangeString: '00:01 - 03:00',
     rangeMinutesMin: 1,
     rangeMinutesMax: 180,
-    color: '#5b5ee9'
+    color: COLOR_TOKENS['ui-data-sequential-sequential-5']
   },
   {
     rangeString: '03:01 - 06:00',
     rangeMinutesMin: 181,
     rangeMinutesMax: 360,
-    color: '#1a5fb4'
+    color: COLOR_TOKENS['ui-data-sequential-sequential-6']
   },
   {
     rangeString: '06:01 - 09:00',
     rangeMinutesMin: 361,
     rangeMinutesMax: 540,
-    color: '#29a272'
+    color: COLOR_TOKENS['ui-data-sequential-sequential-7']
   },
   {
     rangeString: '09:01 - 12:00',
     rangeMinutesMin: 541,
     rangeMinutesMax: 720,
-    color: '#2ec27e'
+    color: COLOR_TOKENS['ui-data-sequential-sequential-8']
   }
 ];
 

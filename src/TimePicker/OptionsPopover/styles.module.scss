@@ -1,5 +1,4 @@
 @use '../../common/styles/inputs';
-@use '../../common/styles/vars/colors';
 
 .optionsPopover {
   @include inputs.box-shadow;
@@ -27,7 +26,7 @@
       }
 
       &.selected {
-        background-color: colors.$blue-highlight;
+        background-color: var(--er-ui-background-selected-background);
         scroll-margin: 2rem;
       }
 
@@ -40,7 +39,7 @@
         flex-direction: column;
 
         .duration {
-          color: colors.$secondary-medium-light-gray;
+          color: var(--er-ui-text-secondary-text);
           font-size: 0.875rem;
           margin-top: 0.125rem;
         }

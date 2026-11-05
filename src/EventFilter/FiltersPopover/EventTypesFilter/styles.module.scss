@@ -1,5 +1,4 @@
 @use '../../../common/styles/buttons';
-@use '../../../common/styles/vars/colors';
 @use '../../../common/styles/filter-popovers';
 
 .eventTypesFilter {
@@ -55,7 +54,7 @@
   }
 
   .noMatchesMessage {
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-text-secondary-text);
     font-size: 0.875rem;
     margin: 0.5rem 0 0;
   }

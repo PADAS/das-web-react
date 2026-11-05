@@ -9,6 +9,7 @@ import {
   fetchDefaultPatrolSegmentTypeSchema,
   fetchPatrolTypeSchema,
 } from '../../../../../ducks/patrol-schemas';
+import { COLOR_TOKENS } from '../../../../../utils/colors';
 import { isPatrolSegmentAPause } from '../../../../../utils/patrols';
 
 import SchemaFormSummary from '../../../../../SchemaFormSummary';
@@ -59,7 +60,7 @@ const Plan = ({ patrol, patrolSegment }) => {
 
   const renderSchemaLoader = (label, testId) => <div className={styles.section}>
     <div className={styles.schemaLoader} data-testid={testId} role="status">
-      <MoonLoader size={SCHEMA_LOADER_SIZE} />
+      <MoonLoader color={COLOR_TOKENS['ui-cta-primary']} size={SCHEMA_LOADER_SIZE} />
 
       <span className="sr-only">{label}</span>
     </div>

@@ -1,7 +1,6 @@
-@use 'sass:color';
 @use '../../../../common/styles/inputs';
 @use '../../../../common/styles/layout';
-@use '../../../../common/styles/vars/colors';
+@use '../../../../common/styles/colors';
 @use '../../shared';
 
 .summaryStats {
@@ -16,7 +15,7 @@
   }
 
   .statItem {
-    border: 1px solid colors.$light-gray-lines;
+    border: 1px solid var(--er-ui-divider-lines);
     border-radius: 0.3125rem;
     display: flex;
     flex-direction: column;
@@ -26,7 +25,7 @@
 
     .statLabel {
       align-items: center;
-      color: colors.$secondary-medium-gray;
+      color: var(--er-ui-text-secondary-text);
       display: flex;
       font-size: 0.875rem;
       font-weight: 400;
@@ -43,7 +42,7 @@
         padding: 0;
 
         &:hover {
-          color: colors.$off-black;
+          color: var(--er-ui-text-primary-text);
 
           .statLabelIcon path {
             fill: currentcolor;
@@ -51,7 +50,7 @@
         }
 
         &:focus-visible {
-          outline: 2px solid colors.$bright-blue;
+          outline: 2px solid var(--er-ui-cta-primary);
         }
 
         .statLabelIcon {
@@ -101,18 +100,18 @@
         width: 100%;
 
         &:hover {
-          background-color: color.adjust(colors.$light-gray-background, $lightness: 5%);
+          background-color: colors.tint(var(--er-ui-background-tertiary-background), 62%);
         }
 
         &:focus {
-          background-color: colors.$light-gray-background;
+          background-color: var(--er-ui-background-tertiary-background);
         }
 
         &[aria-checked="true"] {
-          background-color: colors.$blue-highlight;
+          background-color: var(--er-ui-background-selected-background);
 
           &:hover, &:focus {
-            background-color: color.adjust(colors.$blue-highlight, $lightness: -5%);
+            background-color: colors.shade(var(--er-ui-background-selected-background), 5%);
           }
         }
 
@@ -121,7 +120,7 @@
         }
 
         .checkIcon {
-          color: colors.$bright-blue;
+          color: var(--er-ui-cta-primary);
           flex-shrink: 0;
           height: 0.75rem;
           width: 0.75rem;
@@ -134,7 +133,7 @@
           min-width: 0;
 
           .description {
-            color: colors.$secondary-medium-gray;
+            color: var(--er-ui-text-secondary-text);
             font-size: 0.75rem;
             line-height: 1.25;
           }
@@ -161,7 +160,7 @@
         }
 
         .teamLeadIcon {
-          color: colors.$secondary-medium-gray;
+          color: var(--er-ui-icons);
           flex-shrink: 0;
           height: 0.875rem;
           width: 0.875rem;

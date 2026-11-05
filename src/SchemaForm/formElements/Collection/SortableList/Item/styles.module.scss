@@ -1,5 +1,5 @@
 @use '../../../../../common/styles/buttons';
-@use '../../../../../common/styles/vars/colors';
+@use '../../../../../common/styles/colors';
 
 .item {
   border-radius: 0.25rem;
@@ -7,13 +7,13 @@
   touch-action: manipulation;
 
   &:hover:not(.readOnly) {
-    box-shadow: 0 1px 4px rgb(0 0 0 / 25%);
+    box-shadow: 0 1px 4px colors.with-opacity(var(--er-greyscale-0), 25%);
     position: relative;
 
     .header {
       .titleWrapper {
         .dragHandleButton:not(:focus-visible) {
-          color: colors.$secondary-medium-gray;
+          color: var(--er-ui-text-secondary-text);
         }
       }
     }
@@ -39,11 +39,11 @@
 
   &.dragOverlay {
     cursor: grabbing;
-    box-shadow: 0 4px 8px rgb(0 0 0 / 25%);
+    box-shadow: 0 4px 8px colors.with-opacity(var(--er-greyscale-0), 25%);
     margin: 0;
 
     .header {
-      border: 2px solid colors.$bright-blue;
+      border: 2px solid var(--er-ui-cta-primary);
 
       .dragHandleButton,
       .actionButton {
@@ -58,7 +58,7 @@
         cursor: grabbing;
 
         .dragHandleButton {
-          color: colors.$secondary-medium-gray;
+          color: var(--er-ui-text-secondary-text);
         }
       }
     }
@@ -66,22 +66,22 @@
 
   &.error {
     .header {
-      border-color: colors.$bright-red;
+      border-color: var(--er-ui-status-error-destructive);
       margin-bottom: 1px;
 
       .titleWrapper {
         .dragHandleButton {
-          color: colors.$bright-red;
+          color: var(--er-ui-status-error-destructive);
         }
 
         .title {
-          color: colors.$bright-red;
+          color: var(--er-ui-status-error-destructive);
         }
       }
 
       .actionButtons {
         .actionButton {
-          color: colors.$bright-red;
+          color: var(--er-ui-status-error-destructive);
         }
       }
     }
@@ -124,8 +124,8 @@
 
   .header {
     align-items: center;
-    background: white;
-    border: 1px solid colors.$light-gray-border;
+    background: var(--er-ui-background-primary-background);
+    border: 1px solid var(--er-ui-divider-lines);
     border-radius: 0.25rem;
     display: flex;
     height: 2.5rem;
@@ -154,7 +154,7 @@
         cursor: grab;
 
         &:not(:focus-visible) {
-          color: colors.$secondary-light-gray;
+          color: var(--er-ui-text-disabled);
         }
 
         .dragHandle {

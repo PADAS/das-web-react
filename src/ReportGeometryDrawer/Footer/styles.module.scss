@@ -1,4 +1,4 @@
-@use '../../common/styles/vars/colors';
+@use '../../common/styles/colors';
 
 .footer {
   z-index: 12;
@@ -7,7 +7,7 @@
   left: 0;
   width: 100%;
   height: 4rem;
-  background: linear-gradient(180deg, #FFF 0%, rgb(255 255 255 / 65%) 100%);
+  background: linear-gradient(180deg, var(--er-ui-background-primary-background) 0%, colors.with-opacity(var(--er-ui-background-primary-background), 65%) 100%);
   backdrop-filter: blur(8px);
   display: flex;
   justify-content: flex-end;
@@ -17,7 +17,7 @@
 
 .cancelButton {
   background: transparent;
-  color: colors.$secondary-medium-gray;
+  color: var(--er-ui-text-secondary-text);
   font-weight: bold;
   border: none;
   margin-right: 1rem;

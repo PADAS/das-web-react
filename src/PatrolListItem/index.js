@@ -2,6 +2,7 @@ import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import Button from 'react-bootstrap/Button';
 import { shallowEqual, useSelector } from 'react-redux';
 
+import { COLOR_TOKENS } from '../utils/colors';
 import { EMPTY_VALUE } from '../constants';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { formatDistanceInKilometers } from '../utils/distance';
@@ -200,7 +201,7 @@ const PatrolListItem = ({
       title={displayTitle}
       type={onClick ? 'button' : undefined}
     >
-    <SvgIcon iconId={patrolIconId} style={{ fill: theme.fontColor ? theme.fontColor : 'white' }} type="patrols" />
+    <SvgIcon iconId={patrolIconId} style={{ fill: theme.fontColor ?? COLOR_TOKENS['ui-text-primary-text-reversed'] }} type="patrols" />
   </ControlElement>;
 
   const renderedTitleComponent = <>

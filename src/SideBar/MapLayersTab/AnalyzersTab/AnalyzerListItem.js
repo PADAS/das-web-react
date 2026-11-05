@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { connect } from 'react-redux';
 
+import { COLOR_TOKENS } from '../../../utils/colors';
 import { showFeatures } from '../../../ducks/map-layer-filter';
 import { showPopup } from '../../../ducks/popup';
 import { clearActiveAnalyzerFeatures, setAnalyzerFeatureActiveStateForIDs, getAnalyzerAdminPoint, fitMapBoundsForAnalyzer } from '../../../utils/analyzers';
@@ -20,8 +21,8 @@ const AnalyzerListItem = memo((props) => {
   const { properties } = features[0];
 
   const iconForCategory = category => {
-    if (category === 'geofence') return <GeofenceIcon stroke='black' style={{ height: '1.5rem', width: '1.5rem' }} />;
-    if (category === 'proximity') return <ProximityIcon stroke='black' style={{ height: '1.5rem', width: '1.5rem' }} />;
+    if (category === 'geofence') return <GeofenceIcon stroke={COLOR_TOKENS['ui-icons']} style={{ height: '1.5rem', width: '1.5rem' }} />;
+    if (category === 'proximity') return <ProximityIcon stroke={COLOR_TOKENS['ui-icons']} style={{ height: '1.5rem', width: '1.5rem' }} />;
     return null;
   };
 

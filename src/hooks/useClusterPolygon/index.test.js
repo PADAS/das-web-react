@@ -1,6 +1,7 @@
 import { Provider } from 'react-redux';
 
 import { renderHook } from '../../test-utils';
+import { COLOR_TOKENS, withOpacity } from '../../utils/colors';
 import { createMapMock } from '../../__test-helpers/mocks';
 import { MapContext } from '../../MapContext';
 
@@ -70,8 +71,8 @@ describe('useClusterPolygon', () => {
       id: 'cluster-polygon-layer',
       maxzoom: 18,
       paint: {
-        'fill-color': 'rgba(60, 120, 40, 0.4)',
-        'fill-outline-color': 'rgba(20, 100, 25, 1)',
+        'fill-color': withOpacity(COLOR_TOKENS['green-9'], 0.4),
+        'fill-outline-color': COLOR_TOKENS['green-1'],
       },
       source: 'cluster-polygon-source',
       type: 'fill',

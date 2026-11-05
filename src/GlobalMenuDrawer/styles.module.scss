@@ -1,10 +1,9 @@
 @use '../common/styles/buttons';
 @use '../common/styles/layout';
-@use '../common/styles/vars/colors';
 
 .globalMenuDrawer {
-  background-color: colors.$off-black;
-  color: white;
+  background-color: var(--er-teal-t100);
+  color: var(--er-ui-text-primary-text-reversed);
   display: flex;
   flex-direction: column;
   min-height: 100%;
@@ -38,7 +37,7 @@
       background: none;
       border: none;
       border-radius: 0.25rem;
-      color: white;
+      color: var(--er-ui-text-primary-text-reversed);
       display: flex;
       height: buttons.$chip-height;
       justify-content: center;
@@ -46,11 +45,11 @@
       width: buttons.$chip-height;
 
       &:focus-visible {
-        outline: 2px solid colors.$light-blue;
+        outline: 2px solid var(--er-green-7);
       }
 
       &:hover {
-        color: colors.$secondary-light-gray;
+        color: var(--er-ui-text-secondary-text-reversed);
       }
     }
   }
@@ -72,7 +71,7 @@
         margin-top: 1rem;
 
         h4 {
-          color: #b1b3b3;
+          color: var(--er-ui-text-secondary-text-reversed);
           font-size: .75rem;
           margin-bottom: 0.25rem;
         }
@@ -86,7 +85,7 @@
         background: none;
         border: none;
         border-radius: 0.25rem;
-        color: white;
+        color: var(--er-ui-text-primary-text-reversed);
         display: flex;
         padding: 0.125rem;
         text-align: left;
@@ -94,11 +93,11 @@
         width: fit-content;
 
         &:focus-visible {
-          outline: 2px solid colors.$light-blue;
+          outline: 2px solid var(--er-green-7);
         }
 
         &:hover {
-          color: colors.$secondary-light-gray;
+          color: var(--er-ui-text-secondary-text-reversed);
         }
 
         svg {
@@ -114,7 +113,7 @@
   }
 
   h3 {
-    color: #b1b3b3;
+    color: var(--er-ui-text-secondary-text-reversed);
     font-size: .875rem;
     margin-bottom: 1rem;
   }
@@ -138,14 +137,14 @@
 
         a {
           border-radius: 0.125rem;
-          color: colors.$light-blue;
+          color: var(--er-green-7);
           filter: brightness(1.25);
           font-size: 0.75rem;
           padding: 0;
           text-decoration: underline;
 
           &:hover {
-            color: colors.$bright-blue;
+            color: var(--er-green-7);
           }
         }
       }

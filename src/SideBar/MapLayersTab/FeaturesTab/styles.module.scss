@@ -1,8 +1,7 @@
-@use 'sass:color';
-@use '../../../common/styles/vars/colors';
+@use '../../../common/styles/colors';
 
 .featureItemList li {
   &:hover {
-    background: color.adjust(colors.$light-gray-background, $lightness: 7.5%);
+    background: colors.tint(var(--er-ui-background-tertiary-background), 93%);
   }
 }

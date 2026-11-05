@@ -1,8 +1,7 @@
-@use 'sass:color';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 
 .form {
-  border-bottom: 1px solid colors.$gray-border;
+  border-bottom: 1px solid var(--er-ui-field-outline);
   display: flex;
   padding: 0.25rem 0.75rem 0.75rem;
 
@@ -27,20 +26,20 @@
       padding: 0 0.5rem;
 
       &.active {
-        background-color: colors.$bright-blue;
-        border: 1px solid colors.$bright-blue;
-        color: white;
+        background-color: var(--er-ui-cta-primary);
+        border: 1px solid var(--er-ui-cta-primary);
+        color: var(--er-ui-text-primary-text-reversed);
 
         &:hover {
-          background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
-          border-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+          background-color: colors.shade(var(--er-ui-cta-primary), 17%);
+          border-color: colors.shade(var(--er-ui-cta-primary), 17%);
         }
 
         &:focus-visible:not(:disabled) {
-          background-color: white;
-          border-color: colors.$bright-blue;
-          color: colors.$bright-blue;
-          outline: 1px solid colors.$bright-blue;
+          background-color: var(--er-ui-background-primary-background);
+          border-color: var(--er-ui-cta-primary);
+          color: var(--er-ui-cta-primary);
+          outline: 1px solid var(--er-ui-cta-primary);
         }
       }
     }
@@ -49,12 +48,12 @@
 
 .filterPopover {
   > [class*="arrow"]::after {
-    border-bottom-color: colors.$popover-header-color;
+    border-bottom-color: var(--er-teal-t100);
   }
 
   [class*="popover-header"] {
-    background: colors.$highlight-color;
-    color: white;
+    background: var(--er-ui-cta-primary);
+    color: var(--er-ui-text-primary-text-reversed);
     padding: 1rem;
 
     &::before {
@@ -84,7 +83,7 @@ div.filterPopover {
   --dimensions: 1.5rem;
 
   align-items: center;
-  background: colors.$highlight-color;
+  background: var(--er-ui-cta-primary);
   display: flex;
   line-height: normal;
   width: 100%;
@@ -99,14 +98,14 @@ div.filterPopover {
     width: var(--dimensions);
 
     * {
-      stroke: white;
+      stroke: var(--er-ui-text-primary-text-reversed);
     }
   }
 }
 
 .filterRow {
   align-items: center;
-  border-bottom: 1px solid colors.$gray-border;
+  border-bottom: 1px solid var(--er-ui-field-outline);
   display: flex;
   justify-content: space-between;
   padding: 0.5rem;
@@ -131,7 +130,7 @@ div.filterPopover {
 
 .filterStringWrapper {
   align-items: center;
-  border-bottom: 1px solid colors.$light-gray-border;
+  border-bottom: 1px solid var(--er-ui-divider-lines);
   display: flex;
   justify-content: space-between;
   min-height: 2.81rem;

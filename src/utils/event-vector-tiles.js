@@ -1,12 +1,13 @@
 import { point } from '@turf/turf';
 
+import { COLOR_TOKENS, withOpacity } from './colors';
 import { DEFAULT_SYMBOL_LAYOUT, MAP_ICON_SCALE } from '../constants';
 import { PRIORITY_COLOR_MAP } from './events';
 
-export const TIME_SLIDER_DEFAULT_LABEL_COLOR = 'rgba(255, 255, 255, 0.7)';
+export const TIME_SLIDER_DEFAULT_LABEL_COLOR = withOpacity(COLOR_TOKENS['greyscale-white'], 0.7);
 
 const FADE_INTERPOLATION_CAP = 0.3;
-const TIME_SLIDER_RECENT_LABEL_COLOR = 'rgba(255, 255, 126, 1)';
+export const TIME_SLIDER_RECENT_LABEL_COLOR = COLOR_TOKENS['yellow-4'];
 
 // Fill color by priority.
 const PRIORITY_FILL_COLOR_EXPRESSION = [

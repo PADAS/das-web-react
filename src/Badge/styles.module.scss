@@ -1,6 +1,6 @@
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 
-@mixin badge-box-shadow($color: colors.$unknown-border) {
+@mixin badge-box-shadow($color: colors.tint(var(--er-ui-status-disabled), 28%)) {
   box-shadow: 0 0 .1rem $color;
 }
 
@@ -9,33 +9,33 @@
 
   align-items: center;
   border-radius: 100%;
-  background: colors.$unknown;
-  border: 2px solid colors.$unknown-border;
+  background: var(--er-ui-status-disabled);
+  border: 2px solid colors.tint(var(--er-ui-status-disabled), 28%);
   border-style: solid;
-  box-shadow: 0 0 .5rem colors.$unknown-border;
+  box-shadow: 0 0 .5rem colors.tint(var(--er-ui-status-disabled), 28%);
   display: flex;
   height: 1rem;
   justify-content: center;
   width: 1rem;
 
   &.red {
-    background: colors.$error;
-    border-color: colors.$error-border;
+    background: var(--er-ui-status-error-destructive);
+    border-color: colors.tint(var(--er-ui-status-error-destructive), 26%);
 
-    @include badge-box-shadow(colors.$error-border);
+    @include badge-box-shadow(colors.tint(var(--er-ui-status-error-destructive), 26%));
   }
 
   &.orange {
-    background: colors.$warning;
-    border-color: colors.$warning-border;
+    background: var(--er-ui-status-warning);
+    border-color: colors.tint(var(--er-ui-status-warning), 32%);
 
-    @include badge-box-shadow(colors.$warning-border);
+    @include badge-box-shadow(colors.tint(var(--er-ui-status-warning), 32%));
   }
 
   &.green {
-    background: colors.$healthy;
-    border-color: colors.$healthy-border;
+    background: var(--er-ui-status-success);
+    border-color: colors.tint(var(--er-ui-status-success), 21%);
 
-    @include badge-box-shadow(colors.$healthy-border);
+    @include badge-box-shadow(colors.tint(var(--er-ui-status-success), 21%));
   }
 }

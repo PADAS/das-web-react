@@ -1,13 +1,12 @@
-@use 'sass:color';
 @use '../common/styles/buttons';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 
 .addAttachmentButton {
   @include buttons.base-button;
 }
 
 .draggingOver {
-  background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
-  outline: 2px dashed colors.$off-black;
+  background-color: colors.shade(var(--er-ui-background-tertiary-background), 5%);
+  outline: 2px dashed var(--er-teal-t100);
   cursor: copy;
 }

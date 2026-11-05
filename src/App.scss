@@ -1,5 +1,4 @@
-@use 'sass:color';
-@use 'common/styles/vars/colors';
+@use 'common/styles/colors';
 @use 'common/styles/animations';
 @use 'common/styles/buttons';
 @use 'common/styles/layout';
@@ -192,7 +191,7 @@ body {
       cursor: default;
 
       &::before {
-        color: colors.$light-font-color;
+        color: var(--er-ui-text-secondary-text);
         content: 'You only have permission to view patrols, and may not edit them.';
         display: block;
         font-style: italic;
@@ -211,7 +210,7 @@ body {
   @include animations.fade-in;
 
   display: none;
-  background: rgb(255 255 255 / 85%);
+  background: colors.with-opacity(var(--er-ui-background-primary-background), 85%);
   border-radius: 0.666rem;
   line-height: normal;
   max-width: 14rem;
@@ -321,7 +320,7 @@ body {
 }
 
 .mapboxgl-ctrl-attrib.er-map {
-  background: rgb(white, 0.8);
+  background: colors.with-opacity(var(--er-ui-background-primary-background), 80%);
   font-size: 0.7rem;
   right: 0;
   bottom: 0;
@@ -349,7 +348,7 @@ body {
 }
 
 .mapboxgl-ctrl-scale {
-  background-color: rgb(255 255 255 / 75%);
+  background-color: colors.with-opacity(var(--er-ui-background-primary-background), 75%);
   transform: translate(-5rem, -1.5rem);
 }
 
@@ -371,13 +370,13 @@ body {
 }
 
 .btn-primary {
-  background-color: colors.$primary-button-color;
-  border-color: colors.$primary-button-color;
+  background-color: var(--er-ui-cta-primary);
+  border-color: var(--er-ui-cta-primary);
 }
 
 .btn-light {
-  background: colors.$light-gray;
-  color: colors.$secondary-medium-gray;
+  background: var(--er-ui-background-tertiary-background);
+  color: var(--er-ui-text-secondary-text);
 }
 
 .app-container h1,
@@ -391,7 +390,7 @@ h6 {
 }
 
 div.mapboxgl-popup-content {
-  background: rgb(255 255 255 / 88%);
+  background: colors.with-opacity(var(--er-ui-background-primary-background), 88%);
   border-radius: 0.5rem;
   text-align: center;
   width: 13rem;
@@ -415,7 +414,7 @@ div.mapboxgl-popup-content {
 }
 
 div.mapboxgl-popup-tip {
-  border-top-color: rgb(255 255 255 / 88%);
+  border-top-color: colors.with-opacity(var(--er-ui-background-primary-background), 88%);
 }
 
 .modal-dialog {
@@ -548,7 +547,7 @@ div.mapboxgl-popup-tip {
   }
 
   .modal-content {
-    box-shadow: 0 0 0.187rem colors.$light-gray;
+    box-shadow: 0 0 0.187rem var(--er-ui-background-tertiary-background);
   }
 
   .modal-header {
@@ -662,8 +661,8 @@ div.mapboxgl-popup-tip {
   }
 
   .side-menu {
-    background: white;
-    box-shadow: 0 0 0.25rem rgb(38 38 38);
+    background: var(--er-ui-background-primary-background);
+    box-shadow: 0 0 0.25rem var(--er-greyscale-3);
     display: flex;
     flex-flow: column;
     flex-grow: 0;
@@ -691,7 +690,7 @@ div.mapboxgl-popup-tip {
         }
 
         &::after {
-          border-left-color: colors.$bright-blue;
+          border-left-color: var(--er-ui-cta-primary);
         }
       }
     }
@@ -700,7 +699,7 @@ div.mapboxgl-popup-tip {
       margin-top: 0;
 
       .arrow::after {
-        border-bottom-color: colors.$popover-header-color;
+        border-bottom-color: var(--er-teal-t100);
       }
     }
 
@@ -721,7 +720,7 @@ div.mapboxgl-popup-tip {
     }
 
     .nav-link {
-      background: linear-gradient(to bottom, #fff 0%, #f0f0f0 48%, #fff 100%);
+      background: linear-gradient(to bottom, var(--er-ui-background-primary-background) 0%, var(--er-ui-background-tertiary-background) 48%, var(--er-ui-background-primary-background) 100%);
     }
 
     .nav-item {
@@ -732,8 +731,8 @@ div.mapboxgl-popup-tip {
       text-align: center;
 
       &:not(.active) {
-        background: color.adjust(colors.$title-bar-color, $lightness: 15%);
-        color: white;
+        background: colors.tint(var(--er-teal-t100), 19%);
+        color: var(--er-ui-text-primary-text-reversed);
 
         &:hover {
           text-decoration: underline;
@@ -749,11 +748,11 @@ div.mapboxgl-popup-tip {
     .handle {
       @include buttons.unstyled-button;
 
-      background-color: colors.$off-black;
-      border: 1px solid color.adjust(colors.$off-black, $lightness: 30%);
+      background-color: var(--er-teal-t100);
+      border: 1px solid colors.tint(var(--er-teal-t100), 38%);
       border-right: none;
       border-radius: 0.5rem 0 0 0.5rem;
-      color: white;
+      color: var(--er-ui-text-primary-text-reversed);
       font-size: 0.75rem;
       height: 3.9rem;
       width: 1.5rem;
@@ -764,16 +763,16 @@ div.mapboxgl-popup-tip {
 
       &:hover,
       &:active {
-        border: 1px solid color.adjust(colors.$off-black, $lightness: 25%);
+        border: 1px solid colors.tint(var(--er-teal-t100), 31%);
         border-right: none;
       }
 
       &:hover {
-        background-color: color.adjust(colors.$off-black, $lightness: -10%);
+        background-color: colors.shade(var(--er-teal-t100), 50%);
       }
 
       &:active {
-        background-color: color.adjust(colors.$off-black, $lightness: -16%);
+        background-color: colors.shade(var(--er-teal-t100), 79%);
       }
 
       span {
@@ -784,7 +783,7 @@ div.mapboxgl-popup-tip {
         svg {
           width: 0.75rem;
           height: 0.75rem;
-          fill: white;
+          fill: var(--er-ui-text-primary-text-reversed);
         }
       }
 

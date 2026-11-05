@@ -5,6 +5,7 @@
   "buildbranch": "generated_by_build",
   "buildnum": "also_generated_by_build",
   "dependencies": {
+    "@allenai/design-system": "github:allenai/design#semver=^0.4.0",
     "@auth0/auth0-react": "^2.30.0",
     "@dnd-kit/collision": "^0.5.3",
     "@dnd-kit/dom": "^0.5.3",

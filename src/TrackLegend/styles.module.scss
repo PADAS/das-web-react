@@ -1,5 +1,5 @@
 @use '../common/styles/buttons';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 @use './shared';
 
 .trackLegendWrapper {
@@ -42,13 +42,13 @@
         }
 
         .tracksOffIcon {
-          background-color: colors.$subject-control-btn-bg;
+          background-color: colors.with-opacity(var(--er-greyscale-7), 15%);
           border-radius: 0.25rem;
         }
 
         .title {
           align-items: center;
-          color: colors.$off-black;
+          color: var(--er-ui-text-primary-text);
           display: flex;
           font-weight: 500;
           margin: 0;
@@ -72,7 +72,7 @@
       }
 
       .pointsOverTime {
-        color: colors.$off-black;
+        color: var(--er-ui-text-primary-text);
         font-size: 0.875rem;
         margin: 0;
       }

@@ -5,6 +5,7 @@ import Modal from 'react-bootstrap/Modal';
 import MoonLoader from 'react-spinners/MoonLoader';
 import { useTranslation } from 'react-i18next';
 
+import { COLOR_TOKENS } from '../utils/colors';
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 
 import { EVENT_LINK_TARGET_TYPES, FOCUSABLE_SELECTOR } from '../constants';
@@ -192,7 +193,7 @@ const LinkEventModal = ({
           }))}
 
           {linkTargets.hasNextPage && <li className={styles.loadingMoreItem} key="loading-more">
-            <MoonLoader aria-hidden size={LOADER_SIZE} />
+            <MoonLoader aria-hidden color={COLOR_TOKENS['ui-cta-primary']} size={LOADER_SIZE} />
 
             <span className="sr-only">{t('loadingMoreLabel')}</span>
           </li>}

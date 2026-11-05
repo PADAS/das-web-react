@@ -1,24 +1,23 @@
-@use 'sass:color';
 @use '../common/styles/buttons';
 @use '../common/styles/inputs';
 @use '../common/styles/layout';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 
 @keyframes pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 0.2rem rgba(colors.$bright-green, 0.3);
+    box-shadow: 0 0 0 0.2rem colors.with-opacity(var(--er-ui-status-success), 30%);
   }
 
   50% {
-    box-shadow: 0 0 0 0.35rem rgba(colors.$bright-green, 0.1);
+    box-shadow: 0 0 0 0.35rem colors.with-opacity(var(--er-ui-status-success), 10%);
   }
 }
 
 .wrapper {
   align-items: center;
   backdrop-filter: blur(22px) saturate(175%);
-  background: rgb(255 255 255 / 55%);
+  background: colors.with-opacity(var(--er-ui-background-primary-background), 55%);
   border-radius: 2rem;
   bottom: 1.5rem;
   display: flex;
@@ -35,11 +34,11 @@
 
   .playStopButton {
     align-items: center;
-    background: colors.$bright-blue;
+    background: var(--er-ui-cta-primary);
     border: none;
     border-radius: 50%;
-    box-shadow: 0 3px 10px rgb(27 111 208 / 40%);
-    color: white;
+    box-shadow: 0 3px 10px colors.with-opacity(var(--er-ui-cta-primary), 40%);
+    color: var(--er-ui-text-primary-text-reversed);
     display: flex;
     flex-shrink: 0;
     height: 2.625rem;
@@ -53,11 +52,11 @@
     }
 
     &:hover {
-      background: color.adjust(colors.$bright-blue, $lightness: -8%);
+      background: colors.shade(var(--er-ui-cta-primary), 27%);
     }
 
     &:focus-visible {
-      outline: 2px solid colors.$bright-blue;
+      outline: 2px solid var(--er-ui-cta-primary);
       outline-offset: 3px;
     }
   }
@@ -88,7 +87,7 @@
     }
 
     .virtualDate {
-      color: colors.$light-font-color;
+      color: var(--er-ui-text-secondary-text);
       font-size: 0.75rem;
     }
 
@@ -98,7 +97,7 @@
   }
 
   .separator {
-    background-color: colors.$secondary-light-gray;
+    background-color: var(--er-greyscale-8);
     display: none;
     height: 1.875rem;
     width: 1px;
@@ -129,17 +128,17 @@
         outline: none;
 
         &::-webkit-slider-thumb {
-          box-shadow: 0 0 0 2px white, 0 0 0 5px colors.$bright-blue;
+          box-shadow: 0 0 0 2px var(--er-greyscale-white), 0 0 0 5px var(--er-ui-cta-primary);
         }
 
         &::-moz-range-thumb {
-          box-shadow: 0 0 0 2px white, 0 0 0 5px colors.$bright-blue;
+          box-shadow: 0 0 0 2px var(--er-greyscale-white), 0 0 0 5px var(--er-ui-cta-primary);
         }
       }
     }
 
     .sliderLabels {
-      color: colors.$light-font-color;
+      color: var(--er-ui-text-secondary-text);
       display: flex;
       font-size: 0.625rem;
       justify-content: space-between;
@@ -151,9 +150,9 @@
 
         .nowDot {
           animation: pulse 1.9s infinite;
-          background: colors.$bright-green;
+          background: var(--er-ui-status-success);
           border-radius: 50%;
-          box-shadow: 0 0 0 0.2rem rgba(colors.$bright-green, 0.3);
+          box-shadow: 0 0 0 0.2rem colors.with-opacity(var(--er-ui-status-success), 30%);
           height: 0.5rem;
           margin-right: 0.5rem;
           width: 0.5rem;
@@ -191,7 +190,7 @@
 
     &:hover:not(:disabled) {
       background: none;
-      color: colors.$dark-gray;
+      color: var(--er-ui-text-primary-text);
     }
 
     @media (min-width: layout.$md-layout-width-min) {
@@ -223,7 +222,7 @@
   }
 
   .speedMenuHeader {
-    color: colors.$light-font-color;
+    color: var(--er-ui-text-secondary-text);
     font-size: 0.6875rem;
     font-weight: 700;
     letter-spacing: 0.05em;
@@ -245,7 +244,7 @@
       }
 
       .speedMenuItemOption {
-        background-color: white;
+        background-color: var(--er-ui-background-primary-background);
         border: none;
         outline: none;
         padding: 0.5rem 0.75rem;
@@ -253,18 +252,18 @@
         width: 100%;
 
         &:hover {
-          background-color: color.adjust(colors.$light-gray-background, $lightness: 5%);
+          background-color: colors.tint(var(--er-ui-background-tertiary-background), 62%);
         }
 
         &:focus {
-          background-color: colors.$light-gray-background;
+          background-color: var(--er-ui-background-tertiary-background);
         }
 
         &[aria-checked="true"] {
-          background-color: colors.$blue-highlight;
+          background-color: var(--er-ui-background-selected-background);
 
           &:hover, &:focus {
-            background-color: color.adjust(colors.$blue-highlight, $lightness: -5%);
+            background-color: colors.shade(var(--er-ui-background-selected-background), 5%);
           }
         }
 
@@ -273,7 +272,7 @@
         }
 
         .checkIcon {
-          color: colors.$bright-blue;
+          color: var(--er-ui-cta-primary);
           height: 0.75rem;
           margin-right: 0.5rem;
           width: 0.75rem;

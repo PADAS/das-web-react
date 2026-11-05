@@ -1,0 +1,53 @@
+@use 'colors';
+
+// Libraries other than Bootstrap that ship their own colors, themed with the
+// tokens. Only src/index.scss uses this partial, which emits rules. Most of
+// these stylesheets load later, with lazy chunks, so :root outranks them.
+
+:root {
+  --toastify-color-error: var(--er-ui-status-error-destructive);
+  --toastify-color-info: var(--er-ui-status-running);
+  --toastify-color-light: var(--er-ui-background-elevated-component);
+  --toastify-color-progress-light: var(--er-ui-cta-primary);
+  --toastify-color-success: var(--er-ui-status-success);
+  --toastify-color-warning: var(--er-ui-status-warning);
+  --toastify-spinner-color: var(--er-ui-icons);
+  --toastify-spinner-color-empty-area: var(--er-ui-divider-lines);
+  --toastify-text-color-light: var(--er-ui-text-primary-text);
+  --toastify-toast-background: var(--er-ui-background-elevated-component);
+  --toastify-toast-shadow: 0 4px 12px #{colors.with-opacity(var(--er-greyscale-0), 10%)};
+
+  .mapboxgl-ctrl-group button + button {
+    border-top-color: var(--er-ui-divider-lines);
+  }
+
+  .mapboxgl-ctrl-attrib-button:focus,
+  .mapboxgl-ctrl-group button:focus,
+  .mapboxgl-ctrl-group button:focus:focus-visible {
+    box-shadow: 0 0 2px 2px var(--er-ui-cta-primary);
+  }
+
+  .mapboxgl-ctrl button:not(:disabled):hover,
+  .mapboxgl-popup-close-button:hover {
+    background-color: var(--er-ui-background-tertiary-background);
+  }
+
+  .mapboxgl-boxzoom {
+    border-color: var(--er-ui-text-primary-text);
+  }
+
+  #nprogress {
+    .bar {
+      background: var(--er-ui-cta-primary);
+    }
+
+    .peg {
+      box-shadow: 0 0 10px var(--er-ui-cta-primary), 0 0 5px var(--er-ui-cta-primary);
+    }
+
+    .spinner-icon {
+      border-left-color: var(--er-ui-cta-primary);
+      border-top-color: var(--er-ui-cta-primary);
+    }
+  }
+}

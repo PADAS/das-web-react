@@ -5,6 +5,7 @@ import MoonLoader from 'react-spinners/MoonLoader';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
+import { COLOR_TOKENS } from '../../../../utils/colors';
 import { ReactComponent as PencilWritingIcon } from '../../../../common/images/icons/pencil-writing.svg';
 
 import {
@@ -279,7 +280,7 @@ const DetailsSection = ({
 
     {isSchemaLoading && <div className={styles.section}>
       <div className={styles.schemaLoader} role="status">
-        <MoonLoader size={SCHEMA_LOADER_SIZE} />
+        <MoonLoader color={COLOR_TOKENS['ui-cta-primary']} size={SCHEMA_LOADER_SIZE} />
 
         <span className="sr-only">{t('schemaLoadingLabel')}</span>
       </div>

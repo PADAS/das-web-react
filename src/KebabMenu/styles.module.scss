@@ -1,5 +1,4 @@
-@use 'sass:color';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 
 .kebabMenu {
   display: inline-flex;
@@ -10,10 +9,10 @@
 
   .toggle {
     align-items: center;
-    background-color: var(--kebab-menu-background-color, #{colors.$light-gray-background});
-    border: 1px solid var(--kebab-menu-background-color, #{colors.$light-gray-background});
+    background-color: var(--kebab-menu-background-color, var(--er-ui-background-tertiary-background));
+    border: 1px solid var(--kebab-menu-background-color, var(--er-ui-background-tertiary-background));
     border-radius: 0.25rem;
-    color: var(--kebab-menu-dot-color, #{colors.$secondary-medium-gray});
+    color: var(--kebab-menu-dot-color, var(--er-ui-icons));
     display: flex;
     height: var(--kebab-menu-size, 2.25rem);
     justify-content: center;
@@ -21,43 +20,43 @@
     width: var(--kebab-menu-size, 2.25rem);
 
     .dots {
-      background-color: var(--kebab-menu-dot-color, #{colors.$secondary-medium-gray});
+      background-color: var(--kebab-menu-dot-color, var(--er-ui-icons));
       border-radius: 50%;
       box-shadow:
-        0 -0.5rem 0 var(--kebab-menu-dot-color, #{colors.$secondary-medium-gray}),
-        0 0.5rem 0 var(--kebab-menu-dot-color, #{colors.$secondary-medium-gray});
+        0 -0.5rem 0 var(--kebab-menu-dot-color, var(--er-ui-icons)),
+        0 0.5rem 0 var(--kebab-menu-dot-color, var(--er-ui-icons));
       height: 0.25rem;
       width: 0.25rem;
     }
 
     &:hover:not([aria-disabled="true"]) {
-      background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
-      border-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+      background-color: colors.shade(var(--er-ui-background-tertiary-background), 5%);
+      border-color: colors.shade(var(--er-ui-background-tertiary-background), 5%);
     }
 
     &:focus-visible {
-      border-color: colors.$bright-blue;
-      outline: 1px solid colors.$bright-blue;
+      border-color: var(--er-ui-cta-primary);
+      outline: 1px solid var(--er-ui-cta-primary);
     }
 
     &[aria-expanded="true"] {
-      background-color: colors.$bright-blue;
-      border-color: colors.$bright-blue;
+      background-color: var(--er-ui-cta-primary);
+      border-color: var(--er-ui-cta-primary);
 
       .dots {
-        --kebab-menu-dot-color: white;
+        --kebab-menu-dot-color: var(--er-ui-text-primary-text-reversed);
       }
 
       &:hover {
-        background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
-        border-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+        background-color: colors.shade(var(--er-ui-cta-primary), 17%);
+        border-color: colors.shade(var(--er-ui-cta-primary), 17%);
       }
 
       &:focus-visible {
-        background-color: white;
+        background-color: var(--er-ui-background-primary-background);
 
         .dots {
-          --kebab-menu-dot-color: #{colors.$bright-blue};
+          --kebab-menu-dot-color: var(--er-ui-cta-primary);
         }
       }
     }

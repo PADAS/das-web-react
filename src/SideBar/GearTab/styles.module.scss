@@ -1,3 +1,5 @@
+@use '../../common/styles/colors';
+
 .gearTab {
   display: flex;
   flex-direction: column;
@@ -62,8 +64,8 @@
 }
 
 .errorBanner {
-  background: var(--bs-danger-bg-subtle, #f8d7da);
-  border: 1px solid var(--bs-danger-border-subtle, #f1aeb5);
+  background: var(--er-ui-status-bg-error-bg);
+  border: 1px solid colors.tint(var(--er-ui-status-error-destructive), 65%);
   border-radius: 0.25rem;
   font-size: 0.875rem;
   margin-bottom: 0.75rem;

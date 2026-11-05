@@ -1,21 +1,21 @@
 @use '../../../../../common/styles/buttons';
-@use '../../../../../common/styles/vars/colors';
+@use '../../../../../common/styles/colors';
 @use '../../../../../common/styles/layout';
 
 .instructions {
-  color: colors.$off-black;
+  color: var(--er-ui-text-primary-text);
   margin-bottom: 0;
   margin-top: 2rem;
 }
 
 .searchBar {
-  background: white;
+  background: var(--er-ui-background-primary-background);
   margin-bottom: 0.5rem;
 }
 
 .resultsTable {
-  background: white;
-  border: 1px solid colors.$light-gray-lines;
+  background: var(--er-ui-background-primary-background);
+  border: 1px solid var(--er-ui-divider-lines);
   border-collapse: separate;
   border-radius: 0.5rem;
   border-spacing: 0;
@@ -56,12 +56,12 @@
   }
 
   thead {
-    background: colors.$very-light-gray;
-    color: colors.$secondary-medium-gray;
+    background: colors.$subtle-background;
+    color: var(--er-ui-text-secondary-text);
   }
 
   th, td {
-    border-bottom: 1px solid colors.$light-gray-lines;
+    border-bottom: 1px solid var(--er-ui-divider-lines);
     font-weight: 400;
     padding: 0.5rem;
 
@@ -76,7 +76,7 @@
         background: none;
         border: none;
         border-radius: 0.25rem;
-        color: colors.$bright-blue;
+        color: var(--er-ui-cta-primary);
         display: block;
         padding: 0 0.125rem;
 
@@ -85,7 +85,7 @@
         }
 
         &:focus-visible {
-          outline: 2px solid colors.$bright-blue;
+          outline: 2px solid var(--er-ui-cta-primary);
         }
       }
     }
@@ -103,7 +103,7 @@
       padding: 0.5rem;
 
       .message {
-        color: colors.$secondary-medium-gray;
+        color: var(--er-ui-text-secondary-text);
         display: block;
         font-size: 0.875rem;
         margin-top: 0.5rem;
@@ -113,7 +113,7 @@
 }
 
 .crsFinderMessage {
-  color: colors.$secondary-medium-gray;
+  color: var(--er-ui-text-secondary-text);
   font-size: 0.875rem;
   margin-bottom: 0;
   margin-top: 0.25rem;

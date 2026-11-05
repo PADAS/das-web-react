@@ -23,6 +23,7 @@ import {
 import { fetchCommunityInfo } from '../ducks/community';
 import { fetchEventsSchema } from '../ducks/event-schemas';
 import { fetchEventTypes } from '../ducks/event-types';
+import { COLOR_TOKENS } from '../utils/colors';
 import { SidebarScrollProvider } from '../SidebarScrollContext';
 import { uuid } from '../utils/string';
 
@@ -290,7 +291,7 @@ const CommunityPage = () => {
   } else if (isLoading || isRedirectingToOnlyType) {
     content = (
       <div className={styles.loadingView}>
-        <MoonLoader color="#333" size={50} />
+        <MoonLoader color={COLOR_TOKENS['ui-cta-primary']} size={50} />
       </div>
     );
   } else if (selectedType && isInCoolOff) {

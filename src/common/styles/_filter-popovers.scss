@@ -1,6 +1,5 @@
 @use 'buttons';
 @use 'inputs';
-@use 'vars/colors';
 
 @mixin filter-popover {
   @include inputs.box-shadow;
@@ -30,8 +29,8 @@
 // Sticky rather than outside the body, so it stays in the focus loop of the
 // popover while the fields scroll beneath it.
 @mixin reset-all-footer {
-  background-color: white;
-  border-top: 1px solid colors.$light-gray-lines;
+  background-color: var(--er-ui-background-primary-background);
+  border-top: 1px solid var(--er-ui-divider-lines);
   bottom: 0;
   display: flex;
   justify-content: center;
@@ -46,7 +45,7 @@
 }
 
 @mixin section-label {
-  color: colors.$off-black;
+  color: var(--er-ui-text-primary-text);
   font-size: 1rem;
   font-weight: 500;
   margin: 0 0 0.5rem;

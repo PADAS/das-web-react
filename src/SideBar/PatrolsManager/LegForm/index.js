@@ -11,6 +11,7 @@ import {
   fetchPatrolTypeSchema,
 } from '../../../ducks/patrol-schemas';
 import getStaticFieldErrors from './utils/getStaticFieldErrors';
+import { COLOR_TOKENS } from '../../../utils/colors';
 import { selectIsPatrolTrackShown } from '../../../selectors/patrols';
 
 import PatrolTypeField from './PatrolTypeField';
@@ -175,7 +176,7 @@ const LegForm = ({
     {!isPause && (!defaultPatrolSegmentTypeSchemaState || !!defaultPatrolSegmentTypeSchemaState.isLoading)
       && <div className={styles.section}>
         <div className={styles.schemaLoader} data-testid="legForm-universalFieldsSchemaLoader" role="status">
-          <MoonLoader size={SCHEMA_LOADER_SIZE} />
+          <MoonLoader color={COLOR_TOKENS['ui-cta-primary']} size={SCHEMA_LOADER_SIZE} />
 
           <span className="sr-only">{t('universalFieldsSchemaLoadingLabel')}</span>
         </div>
@@ -198,7 +199,7 @@ const LegForm = ({
           data-testid="legForm-patrolTypeSchemaLoader"
           role="status"
         >
-        <MoonLoader size={SCHEMA_LOADER_SIZE} />
+        <MoonLoader color={COLOR_TOKENS['ui-cta-primary']} size={SCHEMA_LOADER_SIZE} />
 
         <span className="sr-only">{t('patrolTypeSchemaLoadingLabel')}</span>
       </div>}

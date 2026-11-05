@@ -2,6 +2,7 @@ import { memo } from 'react';
 import MoonLoader from 'react-spinners/MoonLoader';
 import { useTranslation } from 'react-i18next';
 
+import { COLOR_TOKENS } from '../../../../utils/colors';
 import { ReactComponent as DocumentIcon } from '../../../../common/images/icons/document.svg';
 
 import { PATROL_OVERVIEW_CATEGORY } from '../../../../utils/analytics';
@@ -61,7 +62,7 @@ const Footer = ({
         <span className={styles.saveButtonLabel}>{t('saveButton')}</span>
 
         {isSaving && <span className={styles.saveButtonLoader}>
-          <MoonLoader aria-hidden color="white" size={SAVE_LOADER_SIZE} />
+          <MoonLoader aria-hidden color={COLOR_TOKENS['ui-text-primary-text-reversed']} size={SAVE_LOADER_SIZE} />
         </span>}
       </button>}
     </div>

@@ -1,6 +1,6 @@
 @use '../common/styles/buttons';
 @use '../common/styles/layout';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 
 .sideBar {
   display: flex;
@@ -28,7 +28,7 @@
   display: none;
   flex-direction: column;
   height: 100%;
-  background-color: rgb(0 0 0 / 80%);
+  background-color: colors.with-opacity(var(--er-teal-t100), 90%);
   backdrop-filter: blur(12px);
   width: var(--vertical-nav-width);
 
@@ -44,7 +44,7 @@
       align-items: center;
       width: 100%;
       height: 100%;
-      color: white;
+      color: var(--er-ui-text-primary-text-reversed);
       font-size: 0.75rem;
       opacity: 0.75;
       padding: 0;
@@ -57,7 +57,7 @@
 
   .navItem {
     align-items: center;
-    color: white;
+    color: var(--er-ui-text-primary-text-reversed);
     display: flex;
     flex-direction: column;
     font-size: 0.75rem;
@@ -70,17 +70,17 @@
     width: 100%;
 
     &.active {
-      background-color: rgb(255 255 255 / 10%);
+      background-color: colors.with-opacity(var(--er-ui-background-primary-background), 10%);
       opacity: 1;
     }
 
     &:hover {
-      background-color: rgb(255 255 255 / 10%);
+      background-color: colors.with-opacity(var(--er-ui-background-primary-background), 10%);
       opacity: 1;
     }
 
     svg {
-      fill: white;
+      fill: var(--er-ui-text-primary-text-reversed);
       margin-bottom: 0.5rem;
       height: auto;
       width: 1.5rem;
@@ -93,7 +93,7 @@
 
   &[class*="open"] {
     a[class*="active"] {
-      background: rgb(255 255 255 / 10%);
+      background: colors.with-opacity(var(--er-ui-background-primary-background), 10%);
       opacity: 1;
     }
   }
@@ -126,7 +126,7 @@
   }
 
   &[class*="open"] {
-    box-shadow: 0 0 3px rgb(black, 0.7);
+    box-shadow: 0 0 3px colors.with-opacity(var(--er-greyscale-0), 70%);
     width: var(--sidebar-width);
     min-width: var(--sidebar-width);
 
@@ -141,7 +141,7 @@
 }
 
 .tab {
-  background: linear-gradient(180deg, #FFF 0%, rgb(255 255 255 / 80%) 100%);
+  background: linear-gradient(180deg, var(--er-ui-background-primary-background) 0%, colors.with-opacity(var(--er-ui-background-primary-background), 80%) 100%);
   backdrop-filter: blur(12px);
   width: auto;
   transform: translateX(calc(calc(var(--sidebar-width) + var(--vertical-nav-width)) * -1));
@@ -153,7 +153,7 @@
   }
 
   .printLogo {
-    background-color: white;
+    background-color: var(--er-ui-background-primary-background);
     display: none;
     padding-top: 0.5rem;
     text-align: center;
@@ -205,7 +205,7 @@
 
 .header {
   align-items: center;
-  color: colors.$off-black;
+  color: var(--er-ui-text-primary-text);
   display: flex;
   height: 3.5rem;
   justify-content: space-between;

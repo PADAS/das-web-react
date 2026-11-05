@@ -1,5 +1,5 @@
 @forward '../shared';
-@use '../../common/styles/vars/colors';
+@use '../../common/styles/colors';
 @use '../shared';
 
 // Keyed by the patrol UI state keys, plus the new state of a draft.
@@ -17,7 +17,7 @@
   }
 
   &.new {
-    @include shared.header-icon-tile(('base': colors.$bright-blue));
+    @include shared.header-icon-tile(('base': var(--er-ui-cta-primary)));
   }
 
   &.paused {
@@ -35,7 +35,7 @@
 
 @mixin subject-menu-row {
   align-items: center;
-  background-color: white;
+  background-color: var(--er-ui-background-primary-background);
   display: flex;
   gap: 0.5rem;
   min-height: 2.5rem;

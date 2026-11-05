@@ -1,10 +1,10 @@
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 @use '../common/styles/buttons';
 @use '../common/styles/layout';
 
 .icon {
   align-items: center;
-  color: white;
+  color: var(--er-ui-text-primary-text-reversed);
   display: flex;
   height: 100%;
   justify-content: center;
@@ -31,8 +31,8 @@
 
   .patrolIndicator {
     align-items: center;
-    background: rgb(0 0 0 / 25%);
-    color: white;
+    background: colors.with-opacity(var(--er-greyscale-0), 25%);
+    color: var(--er-ui-text-primary-text-reversed);
     display: flex;
     font-size: 0.75rem;
     font-weight: 500;
@@ -56,7 +56,7 @@
   display: none;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
-  color: colors.$secondary-medium-gray;
+  color: var(--er-ui-text-secondary-text);
   min-width: 1.25rem;
 
   @media (min-width: layout.$md-layout-width-min) {
@@ -92,40 +92,40 @@
 
 .noPriority {
   &:hover {
-    background-color: colors.$no-priority-bg-hover !important;
+    background-color: colors.with-opacity(var(--er-greyscale-11), 75%) !important;
 
     div[role='img'] {
-      background-color: colors.$no-priority-base-hover !important;
+      background-color: colors.with-opacity(var(--er-ui-event-priority-grey), 75%) !important;
     }
   }
 }
 
 .lowPriority {
   &:hover {
-    background-color: colors.$low-priority-bg-hover !important;
+    background-color: colors.with-opacity(var(--er-green-6), 75%) !important;
 
     div[role='img'] {
-      background-color: colors.$low-priority-base-hover !important;
+      background-color: colors.with-opacity(var(--er-ui-event-priority-green), 75%) !important;
     }
   }
 }
 
 .mediumPriority {
   &:hover {
-    background-color: colors.$medium-priority-bg-hover !important;
+    background-color: colors.with-opacity(var(--er-amber-6), 75%) !important;
 
     div[role='img'] {
-      background-color: colors.$medium-priority-base-hover !important;
+      background-color: colors.with-opacity(var(--er-ui-event-priority-amber), 75%) !important;
     }
   }
 }
 
 .highPriority {
   &:hover {
-    background-color: colors.$high-priority-bg-hover !important;
+    background-color: var(--er-ui-status-bg-error-bg) !important;
 
     div[role='img'] {
-      background-color: colors.$high-priority-base-hover !important;
+      background-color: colors.with-opacity(var(--er-ui-event-priority-red), 75%) !important;
     }
   }
 }

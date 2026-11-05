@@ -1,5 +1,4 @@
 @use '../../common/styles/buttons';
-@use '../../common/styles/vars/colors';
 @use '../shared';
 
 .tracksList {
@@ -26,7 +25,7 @@
     }
 
     .title {
-      color: colors.$off-black;
+      color: var(--er-ui-text-primary-text);
       font-size: 0.875rem;
       margin: 0;
       overflow: hidden;
@@ -48,7 +47,7 @@
     }
 
     .description {
-      color: colors.$secondary-medium-gray;
+      color: var(--er-ui-text-secondary-text);
       font-size: 0.75rem;
       margin: 0;
       white-space: nowrap;
@@ -89,7 +88,7 @@
       @include shared.legend-row-icon-button;
 
       &.active {
-        color: colors.$bright-blue;
+        color: var(--er-ui-cta-primary);
       }
     }
   }

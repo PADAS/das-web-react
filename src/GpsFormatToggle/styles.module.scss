@@ -1,11 +1,10 @@
-@use 'sass:color';
 @use '../common/styles/buttons';
 @use '../common/styles/layout';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 
 .fieldset {
   align-items: center;
-  background-color: colors.$light-gray;
+  background-color: var(--er-ui-background-tertiary-background);
   display: flex;
   justify-content: space-evenly;
 
@@ -26,12 +25,12 @@
     width: 20%;
 
     .input:focus-visible + .label {
-      border: 2px solid colors.$bright-blue;
+      border: 2px solid var(--er-ui-cta-primary);
     }
 
     .label {
-      border: 2px solid colors.$light-gray;
-      color: colors.$off-black;
+      border: 2px solid var(--er-ui-background-tertiary-background);
+      color: var(--er-ui-text-primary-text);
       cursor: pointer;
       display: block;
       height: 100%;
@@ -43,19 +42,19 @@
       width: 100%;
 
       &.invalid {
-        color: colors.$bright-red;
+        color: var(--er-ui-status-error-destructive);
       }
 
       &:hover {
-        background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
-        border-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+        background-color: colors.shade(var(--er-ui-background-tertiary-background), 5%);
+        border-color: colors.shade(var(--er-ui-background-tertiary-background), 5%);
       }
 
       &.active {
-        background-color: white;
-        border-color: white;
-        border-bottom-color: colors.$bright-blue;
-        color: colors.$bright-blue;
+        background-color: var(--er-ui-background-primary-background);
+        border-color: var(--er-ui-background-primary-background);
+        border-bottom-color: var(--er-ui-cta-primary);
+        color: var(--er-ui-cta-primary);
       }
 
       svg {

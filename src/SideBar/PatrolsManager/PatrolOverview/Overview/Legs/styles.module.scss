@@ -1,5 +1,5 @@
+@use '../../../../../common/styles/colors';
 @use '../../../../../common/styles/layout';
-@use '../../../../../common/styles/vars/colors';
 @use '../../../shared';
 
 @mixin fit-content-column {
@@ -16,8 +16,8 @@
   }
 
   .legTable {
-    background: white;
-    border: 1px solid colors.$light-gray-lines;
+    background: var(--er-ui-background-primary-background);
+    border: 1px solid var(--er-ui-divider-lines);
     border-collapse: separate;
     border-radius: 0.25rem;
     border-spacing: 0;
@@ -30,7 +30,7 @@
     }
 
     th, td {
-      border-bottom: 1px solid colors.$light-gray-lines;
+      border-bottom: 1px solid var(--er-ui-divider-lines);
       line-height: 1.25rem;
       padding: 0.5rem;
       text-align: left;
@@ -50,7 +50,7 @@
     }
 
     thead th {
-      color: colors.$secondary-medium-gray;
+      color: var(--er-ui-text-secondary-text);
       font-weight: 400;
       padding: 0.375rem 0.5rem;
     }
@@ -59,12 +59,12 @@
       cursor: pointer;
 
       &.notRunLeg {
-        background: colors.$very-light-gray;
-        color: colors.$secondary-medium-gray;
+        background: colors.$subtle-background;
+        color: var(--er-ui-text-secondary-text);
       }
 
       &:hover:not(:has(button:hover)) {
-        background: colors.$blue-highlight;
+        background: var(--er-ui-background-selected-background);
       }
 
       &:last-child {
@@ -114,14 +114,14 @@
         margin-top: 0.25rem;
 
         .duration {
-          color: colors.$secondary-medium-gray;
+          color: var(--er-ui-text-secondary-text);
           font-size: 0.75rem;
         }
 
         .scheduledIndicator {
-          background: colors.$light-gray-background;
+          background: var(--er-ui-background-tertiary-background);
           border-radius: 0.625rem;
-          color: colors.$secondary-medium-gray;
+          color: var(--er-ui-text-secondary-text);
           font-size: 0.75rem;
           line-height: 1rem;
           padding: 0.125rem 0.375rem;

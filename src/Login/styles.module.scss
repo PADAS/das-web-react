@@ -1,5 +1,4 @@
-@use "sass:color";
-@use "../common/styles/vars/colors";
+@use '../common/styles/colors';
 
 @keyframes fadein {
   from {
@@ -35,18 +34,18 @@
     width: 100%;
 
     .label {
-      color: colors.$secondary-medium-gray;
+      color: var(--er-ui-text-secondary-text);
       font-size: 1rem;
       font-weight: 500;
       margin-bottom: 0.125rem;
 
       &.error {
-        color: colors.$bright-red;
+        color: var(--er-ui-status-error-destructive);
       }
     }
 
     .input {
-      border: 1px solid colors.$light-gray-border;
+      border: 1px solid var(--er-ui-divider-lines);
       border-radius: 0.25rem;
       height: 2.5rem;
       margin-bottom: 1.5rem;
@@ -58,22 +57,22 @@
       }
 
       &[aria-invalid="true"] {
-        border-color: colors.$bright-red;
+        border-color: var(--er-ui-status-error-destructive);
       }
     }
 
     .errorMessage {
-      color: colors.$bright-red;
+      color: var(--er-ui-status-error-destructive);
       font-size: 0.875rem;
       margin-bottom: 1.25rem;
     }
 
     .loginButton {
       align-items: center;
-      background-color: colors.$bright-blue;
+      background-color: var(--er-ui-cta-primary);
       border: none;
       border-radius: 0.25rem;
-      color: white;
+      color: var(--er-ui-text-primary-text-reversed);
       display: inline-flex;
       font-size: 1rem;
       font-weight: 500;
@@ -85,13 +84,13 @@
       transition: background-color 150ms ease;
 
       &:hover:not(:disabled, :focus-visible) {
-        background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+        background-color: colors.shade(var(--er-ui-cta-primary), 17%);
       }
 
       &:focus-visible {
-        background-color: white;
-        border: 2px solid colors.$bright-blue;
-        color: colors.$bright-blue;
+        background-color: var(--er-ui-background-primary-background);
+        border: 2px solid var(--er-ui-cta-primary);
+        color: var(--er-ui-cta-primary);
 
         /* Forced colors override the inversion, leaving no focus cue. */
         @media (forced-colors: active) {
@@ -111,22 +110,22 @@
       /* Compounded, not a sibling rule: a sibling would lose to the primary's own
          states on specificity. */
       &.secondaryButton {
-        background-color: white;
-        border: 1px solid colors.$bright-blue;
-        color: colors.$bright-blue;
+        background-color: var(--er-ui-background-primary-background);
+        border: 1px solid var(--er-ui-cta-primary);
+        color: var(--er-ui-cta-primary);
 
         /* Inverts the other way from the primary, whose focus state is this
            button's resting look. */
         &:focus-visible {
-          background-color: colors.$bright-blue;
-          color: white;
+          background-color: var(--er-ui-cta-primary);
+          color: var(--er-ui-text-primary-text-reversed);
         }
 
         &:hover:not(:disabled, :focus-visible) {
-          background-color: color.adjust(colors.$bright-blue, $lightness: 52%);
+          background-color: colors.tint(var(--er-ui-cta-primary), 73%);
 
           /* The resting blue reads 4.41:1 on this tint, under the 4.5:1 AA floor. */
-          color: color.adjust(colors.$bright-blue, $lightness: -5%);
+          color: colors.shade(var(--er-ui-cta-primary), 17%);
         }
       }
     }
@@ -135,8 +134,8 @@
   /* Info variant of the .alertMessage callout below (blue instead of red),
      used for the Auth0 migration guidance box. */
   .infoBox {
-    background-color: color.adjust(colors.$bright-blue, $lightness: 52%);
-    border: 1px solid colors.$bright-blue;
+    background-color: colors.tint(var(--er-ui-cta-primary), 73%);
+    border: 1px solid var(--er-ui-cta-primary);
     border-radius: 0.25rem;
     margin-bottom: 1.5rem;
     max-width: 20rem;
@@ -167,16 +166,16 @@
     }
 
     .helperText {
-      color: colors.$secondary-medium-gray;
+      color: var(--er-ui-text-secondary-text);
       font-size: 0.875rem;
       margin-bottom: 0;
     }
   }
 
   .alertMessage {
-    color: colors.$bright-red;
-    background-color: color.adjust(colors.$bright-red, $lightness: 56%);
-    border: 1px solid colors.$bright-red;
+    color: var(--er-ui-status-error-destructive);
+    background-color: var(--er-ui-status-bg-error-bg);
+    border: 1px solid var(--er-ui-status-error-destructive);
     margin-bottom: 1.5rem;
     max-width: 20rem;
     padding: 0.5rem;

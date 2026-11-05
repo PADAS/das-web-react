@@ -2,6 +2,7 @@ import { memo, useContext } from 'react';
 import { useDispatch } from 'react-redux';
 import { center, bboxPolygon } from '@turf/turf';
 
+import { COLOR_TOKENS } from '../../../utils/colors';
 import { BREAKPOINTS, SIDEBAR_WIDTH_PIXELS } from '../../../constants';
 import { useMatchMedia } from '../../../hooks';
 import { showFeatures } from '../../../ducks/map-layer-filter';
@@ -47,8 +48,8 @@ const FeatureListItem = memo((props) => {
   };
 
   const iconForCategory = category => {
-    if (category === 'geofence') return <GeofenceIcon stroke='black' style={{ height: '2rem', width: '2rem' }} />;
-    if (category === 'proximity') return <ProximityIcon stroke='black' style={{ height: '2rem', width: '2rem' }} />;
+    if (category === 'geofence') return <GeofenceIcon stroke={COLOR_TOKENS['ui-icons']} style={{ height: '2rem', width: '2rem' }} />;
+    if (category === 'proximity') return <ProximityIcon stroke={COLOR_TOKENS['ui-icons']} style={{ height: '2rem', width: '2rem' }} />;
     return null;
   };
 

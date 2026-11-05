@@ -12,6 +12,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@allenai/design-system@github:allenai/design#semver=^0.4.0":
+  version: 0.4.0
+  resolution: "@allenai/design-system@https://github.com/allenai/design.git#commit=064c76aff180495d7fcd1ce24856c9d1c578bf26"
+  dependencies:
+    yaml: "npm:^2.7.1"
+  checksum: 10c0/2fcfb8f715be8982dd2083123e7db93fca260d323e2a282e208fc9a8f6a400f8e5c89f92714c7a3106f3e0435b18d868b049b0bdf466b24d691b2897c87ba7b9
+  languageName: node
+  linkType: hard
+
 "@apideck/better-ajv-errors@npm:^0.3.1":
   version: 0.3.7
   resolution: "@apideck/better-ajv-errors@npm:0.3.7"
@@ -7867,6 +7876,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "das-web-react@workspace:."
   dependencies:
+    "@allenai/design-system": "github:allenai/design#semver=^0.4.0"
     "@auth0/auth0-react": "npm:^2.30.0"
     "@babel/core": "npm:^8.1.0"
     "@babel/preset-env": "npm:^8.0.7"
@@ -14736,6 +14746,15 @@ __metadata:
   version: 1.10.3
   resolution: "yaml@npm:1.10.3"
   checksum: 10c0/c309ff85a0a569a981d71ab9cf0fef68672a16b9cdf40639d1c3b30034f6cd16ee428602bd6d64ecf006f8c8bee499023cac236538f79898aa99fb5db529a2ed
+  languageName: node
+  linkType: hard
+
+"yaml@npm:^2.7.1":
+  version: 2.9.1
+  resolution: "yaml@npm:2.9.1"
+  bin:
+    yaml: bin.mjs
+  checksum: 10c0/9d06676ef02b89559a8b10a71882bd2cdae81e8393dc8dbc871615c3259475d9609ad973d19cb3c9e71e72d6206e3d1e7aa241c7e55f3d16fd2e77db305827d6
   languageName: node
   linkType: hard
 

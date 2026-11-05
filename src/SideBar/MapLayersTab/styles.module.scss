@@ -1,9 +1,8 @@
-@use 'sass:color';
-@use '../../common/styles/vars/colors';
+@use '../../common/styles/colors';
 @use '../../common/styles/layout';
 
 .tabs {
-  border-bottom: 1px solid colors.$light-gray-lines;
+  border-bottom: 1px solid var(--er-ui-divider-lines);
   flex-wrap: nowrap;
   max-width: var(--sidebar-width);
   min-height: fit-content;
@@ -11,7 +10,7 @@
   overflow: auto hidden;
 
   button[role="tab"] {
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-text-secondary-text);
     font-size: 1.125rem;
     font-weight: 500;
     border-top-left-radius: 0.25rem;
@@ -20,16 +19,16 @@
     white-space: nowrap;
 
     &:focus-visible {
-      background-color: colors.$blue-highlight;
+      background-color: var(--er-ui-background-selected-background);
       box-shadow: none;
     }
 
     &:hover {
-      border-bottom: 3px solid colors.$secondary-medium-light-gray;
+      border-bottom: 3px solid var(--er-ui-field-outline);
     }
     
     &[class*="active"] {
-      border-bottom: 3px solid colors.$bright-blue;
+      border-bottom: 3px solid var(--er-ui-cta-primary);
       font-weight: 500;
     }
   }
@@ -42,8 +41,8 @@
 }
 
 .footer {
-  background: white;
-  border-top: 1px solid colors.$light-gray-lines;
+  background: var(--er-ui-background-primary-background);
+  border-top: 1px solid var(--er-ui-divider-lines);
   padding: 1rem;
 
   .clearAllMapLayersButton {
@@ -55,7 +54,7 @@
     outline: none;
 
     &:focus-visible svg {
-      outline: 2px solid colors.$bright-blue;
+      outline: 2px solid var(--er-ui-cta-primary);
     }
 
     svg {
@@ -68,8 +67,8 @@
 }
 
 .errorBanner {
-  background: var(--bs-danger-bg-subtle, #f8d7da);
-  border: 1px solid var(--bs-danger-border-subtle, #f1aeb5);
+  background: var(--er-ui-status-bg-error-bg);
+  border: 1px solid colors.tint(var(--er-ui-status-error-destructive), 65%);
   border-radius: 0.25rem;
   font-size: 0.875rem;
   margin-bottom: 0.75rem;
@@ -81,7 +80,7 @@
 }
 
 .allCheckboxWrapper {
-  border-bottom: 1px solid colors.$light-gray-border;
+  border-bottom: 1px solid var(--er-ui-divider-lines);
   font-size: 1.25rem;
   padding: 0.75rem 1rem;
   width: 100%;
@@ -98,7 +97,7 @@
     width: 1px;
 
     &:focus-visible + .label svg {
-      outline: 2px solid colors.$bright-blue;
+      outline: 2px solid var(--er-ui-cta-primary);
     }
   }
 
@@ -124,7 +123,7 @@
 
   li {
     align-items: center;
-    border-bottom: 1px solid colors.$light-gray-border;
+    border-bottom: 1px solid var(--er-ui-divider-lines);
     display: flex;
     padding: 1rem;
 
@@ -161,14 +160,14 @@
 
   li {
     align-items: flex-start;
-    border-top: 1px solid colors.$light-gray-border;
+    border-top: 1px solid var(--er-ui-divider-lines);
 
     &:first-child {
       border-top: none;
     }
 
     &:last-child {
-      border-bottom: 1px solid colors.$light-gray-border;
+      border-bottom: 1px solid var(--er-ui-divider-lines);
     }
 
     display: flex;
@@ -255,12 +254,12 @@
 
       &[class*="is-disabled"] {
         &::after {
-          color: colors.$medium-light-gray;
+          color: var(--er-ui-text-secondary-text);
         }
       }
 
       &[class*="is-open"] {
-        box-shadow: 0 2px 3px colors.$medium-light-gray;
+        box-shadow: 0 2px 3px var(--er-greyscale-7);
         min-height: 3.3125rem;
 
         &::after {
@@ -275,12 +274,12 @@
   }
 
   .list {
-    background: colors.$light-gray-background;
-    border-left: 0.5rem solid colors.$light-gray-border;
+    background: var(--er-ui-background-tertiary-background);
+    border-left: 0.5rem solid var(--er-ui-divider-lines);
   }
 
   .itemList {
-    background: color.adjust(colors.$light-gray-background, $lightness: 3.5%);
+    background: colors.tint(var(--er-ui-background-tertiary-background), 44%);
     width: 100%;
 
     &.compressed {
@@ -299,7 +298,7 @@
   }
 
   .reportDesc {
-    background: color.adjust(colors.$light-gray-background, $lightness: 3.5%);
+    background: colors.tint(var(--er-ui-background-tertiary-background), 44%);
     width: 100%;
   }
 }

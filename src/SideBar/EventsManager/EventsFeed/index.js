@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { calcTimePropForSortConfig, sortEventsBySortConfig } from '../../../utils/event-filter';
+import { COLOR_TOKENS } from '../../../utils/colors';
 import { fetchNextEventFeedPage } from '../../../ducks/events';
 import { selectEventLinkPermissions } from '../../../selectors/event-links';
 import { TAB_KEYS } from '../../../constants';
@@ -127,7 +128,7 @@ const EventsFeed = ({ eventsFeed }) => {
 
           {hasMoreEvents && <li className={styles.loadingMoreItem} key="loading-more-events">
             <div role="status">
-              <MoonLoader aria-hidden size={LOADING_MORE_SPINNER_SIZE} />
+              <MoonLoader aria-hidden color={COLOR_TOKENS['ui-cta-primary']} size={LOADING_MORE_SPINNER_SIZE} />
 
               <span className="sr-only">{t('loadingMoreLabel')}</span>
             </div>

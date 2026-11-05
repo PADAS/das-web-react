@@ -1,5 +1,5 @@
 @use 'sass:map';
-@use '../../common/styles/vars/colors';
+@use '../../common/styles/colors';
 @use '../shared';
 
 @mixin patrol-option-theme($theme) {

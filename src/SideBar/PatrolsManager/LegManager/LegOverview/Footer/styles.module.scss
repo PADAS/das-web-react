@@ -1,5 +1,4 @@
 @use '../../../../../common/styles/buttons';
-@use '../../../../../common/styles/vars/colors';
 @use '../../../shared';
 
 .hideOnPrint {
@@ -10,8 +9,8 @@
 
 .footer {
   align-items: center;
-  background: white;
-  border-top: 1px solid colors.$very-light-gray-alt;
+  background: var(--er-ui-background-primary-background);
+  border-top: 1px solid var(--er-ui-divider-lines);
   display: flex;
   flex-shrink: 0;
   justify-content: space-between;

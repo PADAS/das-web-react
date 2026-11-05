@@ -1,10 +1,12 @@
+@use '../common/styles/colors';
+
 .hide {
   display: none;
   z-index: -1;
 }
 
 .modalMediaBackground {
-  background: rgb(0 0 0 / 85%) !important;
+  background: colors.with-opacity(var(--er-greyscale-0), 85%) !important;
 
   [class*="modal-dialog"] {
     max-width: 100%;

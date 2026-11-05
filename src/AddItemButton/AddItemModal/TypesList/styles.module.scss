@@ -1,13 +1,12 @@
 @use '../../../common/styles/buttons';
 @use '../../../common/styles/layout';
-@use '../../../common/styles/vars/colors';
 
 .typesContainer {
   height: 20rem;
   overflow-y: auto;
 
   .categoryTitle {
-    background: colors.$light-gray-background;
+    background: var(--er-ui-background-tertiary-background);
     line-height: normal;
     margin: 0;
     padding: 0.25rem 1rem;
@@ -40,23 +39,23 @@
   
       &:hover {
         border: none;
-        color: colors.$bright-blue;
+        color: var(--er-ui-cta-primary);
         text-decoration: underline;
 
         svg {
-          fill: colors.$bright-blue;
+          fill: var(--er-ui-cta-primary);
         }
       }
 
       &[aria-disabled='true'],
       &[aria-disabled='true']:hover {
-        color: colors.$secondary-medium-gray;
+        color: var(--er-ui-text-secondary-text);
         cursor: not-allowed;
         opacity: 0.6;
         text-decoration: none;
 
         svg {
-          fill: colors.$secondary-medium-gray;
+          fill: var(--er-ui-icons);
         }
       }
     }
@@ -71,11 +70,11 @@
     }
   
     &:first-child {
-      border-top: thin solid colors.$light-gray-border;
+      border-top: thin solid var(--er-ui-divider-lines);
     }
 
     .typeListItem {
-      border: 1px solid colors.$light-gray-border;
+      border: 1px solid var(--er-ui-divider-lines);
       display: flex;
       flex-direction: column;
       font-size: 0.8rem;
@@ -85,7 +84,7 @@
     }
 
     .typeUnavailableReason {
-      color: colors.$secondary-medium-gray;
+      color: var(--er-ui-text-secondary-text);
       display: block;
       font-size: 0.7rem;
       padding: 0 0.25rem 0.25rem;

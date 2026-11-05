@@ -11,6 +11,7 @@ import {
   resolveEventTimeSliderParameters,
   TIME_SLIDER_DEFAULT_LABEL_COLOR,
 } from './event-vector-tiles';
+import { COLOR_TOKENS } from './colors';
 import { MAP_ICON_SCALE } from '../constants';
 
 describe('utils - Event vector tiles', () => {
@@ -276,7 +277,7 @@ describe('utils - Event vector tiles', () => {
           'interpolate',
           ['linear'],
           ['/', ['abs', ['-', 5000, ['get', 'event_time_ms']]], 10000],
-          0, 'rgba(255, 255, 126, 1)',
+          0, COLOR_TOKENS['yellow-4'],
           0.3, TIME_SLIDER_DEFAULT_LABEL_COLOR,
         ],
         TIME_SLIDER_DEFAULT_LABEL_COLOR,

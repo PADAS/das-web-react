@@ -1,5 +1,4 @@
 @use '../../../../../../common/styles/buttons';
-@use '../../../../../../common/styles/vars/colors';
 
 .staticFields {
   display: flex;
@@ -31,7 +30,7 @@
         }
 
         .fieldLabel {
-          color: colors.$secondary-medium-gray;
+          color: var(--er-ui-text-secondary-text);
           font-size: 0.875rem;
           font-weight: normal;
           margin: 0;
@@ -68,9 +67,9 @@
               min-width: 0;
 
               .subjectLeadIndicator {
-                background: colors.$light-gray-background;
+                background: var(--er-ui-background-tertiary-background);
                 border-radius: 0.625rem;
-                color: colors.$secondary-medium-gray;
+                color: var(--er-ui-text-secondary-text);
                 font-size: 0.75rem;
                 margin-left: 0.5rem;
                 padding: 0 0.375rem;
@@ -79,9 +78,9 @@
           }
 
           .scheduledIndicator {
-            background: colors.$light-gray-background;
+            background: var(--er-ui-background-tertiary-background);
             border-radius: 0.625rem;
-            color: colors.$secondary-medium-gray;
+            color: var(--er-ui-text-secondary-text);
             font-size: 0.75rem;
             margin-left: 0.5rem;
             padding: 0 0.375rem;
@@ -93,7 +92,7 @@
             gap: 0.5rem;
 
             .coordinates {
-              color: colors.$secondary-medium-gray;
+              color: var(--er-ui-text-secondary-text);
               font-size: 0.875rem;
             }
 

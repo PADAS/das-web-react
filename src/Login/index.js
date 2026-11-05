@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
+import { COLOR_TOKENS } from '../utils/colors';
 import {
   ReactComponent as EarthRangerLogo,
 } from '../common/images/earth-ranger-logo.svg';
@@ -242,7 +243,7 @@ const LoginPage = () => {
           type="button"
         >
           {isAuth0Loading
-            ? <MoonLoader aria-hidden color="white" size={SUBMIT_LOADER_SIZE} />
+            ? <MoonLoader aria-hidden color={COLOR_TOKENS['ui-text-primary-text-reversed']} size={SUBMIT_LOADER_SIZE} />
             : t('loginButtonEmail')}
         </button>
 
@@ -314,7 +315,7 @@ const LoginPage = () => {
           type="submit"
         >
           {isLoading
-            ? <MoonLoader aria-hidden color="white" size={SUBMIT_LOADER_SIZE} />
+            ? <MoonLoader aria-hidden color={COLOR_TOKENS['ui-text-primary-text-reversed']} size={SUBMIT_LOADER_SIZE} />
             : t('loginButton')}
         </button>
       </form>

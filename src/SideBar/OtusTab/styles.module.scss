@@ -1,5 +1,4 @@
 @use '../../common/styles/layout';
-@use '../../common/styles/vars/colors';
 
 .otusTab {
   display: none;
@@ -18,7 +17,7 @@
 
     .loadError {
       align-items: center;
-      color: colors.$ui-text-primary;
+      color: var(--er-ui-text-primary-text);
       display: flex;
       flex: 1;
       flex-direction: column;
@@ -64,12 +63,12 @@
     }
 
     &:hover {
-      background-color: colors.$secondary-light-gray;
+      background-color: var(--er-greyscale-8);
     }
 
     &:focus-visible {
-      background-color: colors.$bright-blue;
-      outline: 2px solid colors.$bright-blue;
+      background-color: var(--er-ui-cta-primary);
+      outline: 2px solid var(--er-ui-cta-primary);
     }
   }
 }

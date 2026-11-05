@@ -1,5 +1,4 @@
-@use 'sass:color';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 @use '../common/styles/buttons';
 
 .label {
@@ -10,7 +9,7 @@
   .nullMessage {
     font-size: 0.75rem;
     height: 2rem;
-    color: colors.$link-color;
+    color: var(--er-ui-cta-primary);
     left: 0.25rem;
     pointer-events: none;
   }
@@ -22,7 +21,7 @@
 
 .presets {
   align-items: center;
-  background: color.adjust(colors.$light-gray-background, $lightness: 5%);
+  background: colors.tint(var(--er-ui-background-tertiary-background), 62%);
   display: flex;
   justify-content: space-evenly;
   flex-wrap: wrap;
@@ -31,14 +30,14 @@
   button {
     @include buttons.link-button;
 
-    color: colors.$medium-light-gray;
+    color: var(--er-ui-text-secondary-text);
     margin-bottom: 1rem;
     text-decoration: none;
   }
 
   &:hover {
     button {
-      color: colors.$link-color;
+      color: var(--er-ui-cta-primary);
     }
   }
 }
@@ -61,7 +60,7 @@
 }
 
 .currentSelectedRange{
-  color: color.adjust(colors.$primary-font-color, $lightness: 25%);
+  color: colors.tint(var(--er-ui-text-primary-text), 29%);
   display: block; 
   text-align: center;
   width: 100%;
@@ -82,7 +81,7 @@
   svg {
     height: 1.25rem;
     width: 1.25rem;
-    fill: #333;
+    fill: var(--er-ui-icons);
   }
 
   position: absolute;

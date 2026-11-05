@@ -3,6 +3,7 @@ import { Flipper, Flipped } from 'react-flip-toolkit';
 import MoonLoader from 'react-spinners/MoonLoader';
 import { useTranslation } from 'react-i18next';
 
+import { COLOR_TOKENS } from '../utils/colors';
 import { TAB_KEYS } from '../constants';
 import { MapContext } from '../MapContext';
 import { ScrollRestoration } from '../SidebarScrollContext';
@@ -35,7 +36,7 @@ const PatrolList = ({ patrols = [], loading, onItemClick }) => {
 
   if (loading) {
     return <div className={styles.loaderWrapper}>
-      <MoonLoader />
+      <MoonLoader color={COLOR_TOKENS['ui-cta-primary']} />
     </div>;
   }
 

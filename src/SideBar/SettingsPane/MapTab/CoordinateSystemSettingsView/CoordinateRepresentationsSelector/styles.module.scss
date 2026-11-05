@@ -1,21 +1,20 @@
-@use 'sass:color';
 @use '../../../../../common/styles/buttons';
-@use '../../../../../common/styles/vars/colors';
+@use '../../../../../common/styles/colors';
 
 .instructions {
-  color: colors.$secondary-medium-gray;
+  color: var(--er-ui-text-secondary-text);
   font-size: 0.875rem;
 }
 
 .fieldset {
-  background: white;
-  border: 1px solid colors.$light-gray-lines;
+  background: var(--er-ui-background-primary-background);
+  border: 1px solid var(--er-ui-divider-lines);
   border-radius: 0.5rem;
   padding: 0.5rem 1rem;
 
   .coordinatesRepresentationOption {
     align-items: center;
-    color: colors.$off-black;
+    color: var(--er-ui-text-primary-text);
     display: flex;
     gap: 0.75rem;
 
@@ -31,7 +30,7 @@
       white-space: nowrap;
 
       &.disabled {
-        color: colors.$alt-light-gray;
+        color: var(--er-ui-text-secondary-text);
         cursor: not-allowed
       }
     }
@@ -39,9 +38,9 @@
     .deleteButton {
       @include buttons.chip-icon-button;
 
-      background-color: colors.$high-priority-bg-hover;
-      border-color: colors.$high-priority-bg-hover;
-      color: colors.$bright-red;
+      background-color: var(--er-ui-status-bg-error-bg);
+      border-color: var(--er-ui-status-bg-error-bg);
+      color: var(--er-ui-status-error-destructive);
       flex-shrink: 0;
       margin-left: 1rem;
 
@@ -51,8 +50,8 @@
       }
 
       &:hover {
-        background-color: color.adjust(colors.$high-priority-bg-hover, $lightness: -5%);
-        border-color: color.adjust(colors.$high-priority-bg-hover, $lightness: -5%);
+        background-color: colors.shade(var(--er-ui-status-bg-error-bg), 5%);
+        border-color: colors.shade(var(--er-ui-status-bg-error-bg), 5%);
       }
     }
   }
@@ -66,20 +65,20 @@
       white-space: nowrap;
   
       &.disabled {
-        color: colors.$alt-light-gray;
+        color: var(--er-ui-text-secondary-text);
       }
     }
   }
 
   .separator {
-    border-top: 1px solid colors.$light-gray-lines;
+    border-top: 1px solid var(--er-ui-divider-lines);
     margin: 0.5rem 0;
     opacity: 1;
   }
 }
 
 .message {
-  color: colors.$secondary-medium-gray;
+  color: var(--er-ui-text-secondary-text);
   font-size: 0.875rem;
   margin-bottom: 0;
   margin-top: 0.25rem;

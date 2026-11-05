@@ -1,4 +1,4 @@
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 @use 'mixins';
 
 .controls {
@@ -26,8 +26,8 @@
 
 
 .hasLabel {
-  background-color: rgba(colors.$secondary-light-gray, .25);
-  border: 0.06rem solid colors.$secondary-medium-light-gray;
+  background-color: colors.with-opacity(var(--er-greyscale-8), 25%);
+  border: 0.06rem solid var(--er-ui-field-outline);
   max-width: 5.75rem;
   max-height: 2.25rem;
   border-radius: 0.2rem;

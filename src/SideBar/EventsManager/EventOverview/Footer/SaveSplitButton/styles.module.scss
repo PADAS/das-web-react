@@ -1,7 +1,6 @@
-@use 'sass:color';
 @use '../../../../../common/styles/buttons';
 @use '../../../../../common/styles/inputs';
-@use '../../../../../common/styles/vars/colors';
+@use '../../../../../common/styles/colors';
 @use '../../../../shared';
 
 .saveSplitButton {
@@ -15,7 +14,7 @@
     @include buttons.primary-action-button;
 
     border-bottom-left-radius: 0;
-    border-left: 1px solid rgb(255 255 255 / 50%);
+    border-left: 1px solid colors.with-opacity(var(--er-ui-background-primary-background), 50%);
     border-top-left-radius: 0;
     padding: 0 0.625rem;
 
@@ -30,7 +29,7 @@
     }
 
     &[aria-expanded='true'] {
-      background-color: color.adjust(colors.$bright-blue, $lightness: -10%);
+      background-color: colors.shade(var(--er-ui-cta-primary), 34%);
     }
   }
 
@@ -59,9 +58,9 @@
     .menuItem {
       .menuItemOption {
         align-items: center;
-        background-color: white;
+        background-color: var(--er-ui-background-primary-background);
         border: none;
-        color: colors.$off-black;
+        color: var(--er-ui-text-primary-text);
         display: flex;
         outline: none;
         padding: 0.5rem 1rem;
@@ -70,12 +69,12 @@
         width: 100%;
 
         &:hover:not(:focus-visible) {
-          background-color: color.adjust(colors.$light-gray-background, $lightness: 5%);
+          background-color: colors.tint(var(--er-ui-background-tertiary-background), 62%);
           cursor: pointer;
         }
 
         &:focus-visible {
-          background-color: colors.$light-gray-background;
+          background-color: var(--er-ui-background-tertiary-background);
         }
       }
 

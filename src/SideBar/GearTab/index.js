@@ -5,6 +5,7 @@ import Collapsible from 'react-collapsible';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
+import { COLOR_TOKENS } from '../../utils/colors';
 import { fetchAllGear, hideGearOnMap, showGearOnMap } from '../../ducks/gear';
 import { showPopup } from '../../ducks/popup';
 import {
@@ -232,7 +233,7 @@ const GearTab = () => {
     </div>}
 
     {showInitialLoader && <div className={styles.loaderWrapper}>
-      <MoonLoader aria-hidden size={40} />
+      <MoonLoader aria-hidden color={COLOR_TOKENS['ui-cta-primary']} size={40} />
       <p className={styles.loadingHint}>{t('loadingInitial')}</p>
     </div>}
 

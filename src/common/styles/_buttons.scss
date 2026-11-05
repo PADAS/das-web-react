@@ -1,5 +1,4 @@
-@use 'sass:color';
-@use 'vars/colors';
+@use 'colors';
 @use 'layout';
 
 $square-button-dimension: 2.25rem;
@@ -18,9 +17,13 @@ $chip-height-small: 1.75rem;
     border: none;
     outline: none;
   }
+
+  &:focus-visible {
+    outline: var(--er-ui-cta-primary) auto 1px;
+  }
 }
 
-@mixin image-button($icon_name: null, $color: color.adjust(gray, $lightness: -15%), $bgcolor: transparent) {
+@mixin image-button($icon_name: null, $bgcolor: transparent) {
   @if $icon_name {
     background: $bgcolor url('../images/icons/#{$icon_name}.svg') no-repeat;
   } @else {
@@ -32,7 +35,7 @@ $chip-height-small: 1.75rem;
 }
 
 @mixin jump-button {
-  background: rgba(colors.$medium-light-gray, 0.15);
+  background: colors.with-opacity(var(--er-greyscale-7), 15%);
   border: none;
   border-radius: $square-button-border-radius;
   height: $square-button-dimension;
@@ -41,7 +44,7 @@ $chip-height-small: 1.75rem;
   width: $square-button-dimension;
 
   &:hover {
-    background-color: rgba(color.adjust(colors.$medium-light-gray, $lightness: -15%), 0.18);
+    background-color: colors.with-opacity(colors.shade(var(--er-greyscale-7), 28%), 18%);
   }
 }
 
@@ -77,7 +80,7 @@ $chip-height-small: 1.75rem;
   @include image-button('gear');
 }
 
-@mixin add-button($color: white, $bgcolor: colors.$bright-blue) {
+@mixin add-button($color: var(--er-ui-text-primary-text-reversed), $bgcolor: var(--er-ui-cta-primary)) {
   @include unstyled-button;
 
   position: relative;
@@ -99,7 +102,7 @@ $chip-height-small: 1.75rem;
     background-color: $bgcolor;
     border-radius: 50%;
     margin-bottom: 0.25rem;
-    box-shadow: 0 4px 4px rgb(0 0 0 / 25%);
+    box-shadow: 0 4px 4px colors.with-opacity(var(--er-greyscale-0), 25%);
 
     path {
       stroke: $bgcolor;
@@ -116,9 +119,6 @@ $chip-height-small: 1.75rem;
     }
   }
 
-  &:focus {
-    outline: none;
-  }
 }
 
 @mixin unstyled-dropdown {
@@ -141,6 +141,10 @@ $chip-height-small: 1.75rem;
     outline: none !important;
   }
 
+  &:focus-visible {
+    outline: var(--er-ui-cta-primary) auto 1px !important;
+  }
+
   &::after {
     display: none;
   }
@@ -148,12 +152,12 @@ $chip-height-small: 1.75rem;
 
 
 @mixin mapbox-control-button {
-  background: colors.$mapbox-control-bg-color;
-  box-shadow: rgb(0 0 0 / 30%) 0 1px 4px;
-  border: .5px solid rgb(0 0 0 / 10%);
+  background: var(--er-ui-background-elevated-component);
+  box-shadow: colors.with-opacity(var(--er-greyscale-0), 30%) 0 1px 4px;
+  border: .5px solid colors.with-opacity(var(--er-greyscale-0), 10%);
   border-width: 0 0 1px;
   border-radius: 2px;
-  color: #1A2026;
+  color: var(--er-ui-text-primary-text);
   height: 2.5rem;
   width: 2.5rem;
   opacity: .95;
@@ -165,11 +169,7 @@ $chip-height-small: 1.75rem;
   svg {
     height: 1.75rem;
     width: 1.75rem;
-    fill: #333;
-  }
-
-  &:focus {
-    outline: 0;
+    fill: var(--er-ui-icons);
   }
 }
 
@@ -178,7 +178,7 @@ $chip-height-small: 1.75rem;
   background: none;
   border: none;
   border-radius: 0.1875rem;
-  color: colors.$secondary-medium-gray;
+  color: var(--er-ui-icons);
   display: inline-flex;
   height: 1.5rem;
   justify-content: center;
@@ -191,12 +191,12 @@ $chip-height-small: 1.75rem;
   }
 
   &:hover:not(:disabled) {
-    background-color: colors.$light-gray-background;
+    background-color: var(--er-ui-background-tertiary-background);
   }
 
   &:focus-visible:not(:disabled) {
-    color: colors.$bright-blue;
-    outline: 2px solid colors.$bright-blue;
+    color: var(--er-ui-cta-primary);
+    outline: 2px solid var(--er-ui-cta-primary);
   }
 
   &:disabled {
@@ -210,7 +210,7 @@ $chip-height-small: 1.75rem;
   background: none;
   border: none;
   border-radius: 0.25rem;
-  color: colors.$secondary-medium-gray;
+  color: var(--er-ui-icons);
   display: flex;
   height: $chip-height;
   justify-content: center;
@@ -225,12 +225,12 @@ $chip-height-small: 1.75rem;
   }
 
   &:focus-visible {
-    color: colors.$bright-blue;
-    outline: 2px solid colors.$bright-blue;
+    color: var(--er-ui-cta-primary);
+    outline: 2px solid var(--er-ui-cta-primary);
   }
 
   &:hover:not(:disabled) {
-    background: colors.$light-gray-background;
+    background: var(--er-ui-background-tertiary-background);
   }
 
   &:disabled {
@@ -241,10 +241,10 @@ $chip-height-small: 1.75rem;
 
 @mixin chip-icon-button {
   align-items: center;
-  background-color: colors.$light-gray-background;
-  border: 1px solid colors.$light-gray-background;
+  background-color: var(--er-ui-background-tertiary-background);
+  border: 1px solid var(--er-ui-background-tertiary-background);
   border-radius: 0.25rem;
-  color: colors.$secondary-medium-gray;
+  color: var(--er-ui-icons);
   display: flex;
   height: $chip-height;
   justify-content: center;
@@ -257,13 +257,13 @@ $chip-height-small: 1.75rem;
   }
 
   &:hover {
-    background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
-    border-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+    background-color: colors.shade(var(--er-ui-background-tertiary-background), 5%);
+    border-color: colors.shade(var(--er-ui-background-tertiary-background), 5%);
   }
 
   &:focus-visible {
-    border-color: colors.$bright-blue;
-    outline: 1px solid colors.$bright-blue;
+    border-color: var(--er-ui-cta-primary);
+    outline: 1px solid var(--er-ui-cta-primary);
   }
 
   &:disabled {
@@ -271,28 +271,28 @@ $chip-height-small: 1.75rem;
     opacity: 0.5;
 
     &:hover {
-      background-color: colors.$light-gray-background;
-      border-color: colors.$light-gray-background;
+      background-color: var(--er-ui-background-tertiary-background);
+      border-color: var(--er-ui-background-tertiary-background);
     }
   }
 }
 
 @mixin chip-active-state {
   &.active {
-    background-color: colors.$bright-blue;
-    border-color: colors.$bright-blue;
-    color: white;
+    background-color: var(--er-ui-cta-primary);
+    border-color: var(--er-ui-cta-primary);
+    color: var(--er-ui-text-primary-text-reversed);
 
     &:hover {
-      background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
-      border-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+      background-color: colors.shade(var(--er-ui-cta-primary), 17%);
+      border-color: colors.shade(var(--er-ui-cta-primary), 17%);
     }
 
     &:focus-visible {
-      background-color: white;
-      border-color: colors.$bright-blue;
-      color: colors.$bright-blue;
-      outline: 1px solid colors.$bright-blue;
+      background-color: var(--er-ui-background-primary-background);
+      border-color: var(--er-ui-cta-primary);
+      color: var(--er-ui-cta-primary);
+      outline: 1px solid var(--er-ui-cta-primary);
     }
   }
 }
@@ -301,22 +301,22 @@ $chip-height-small: 1.75rem;
 // whichever state its button is in.
 @mixin chip-open-state {
   &[aria-expanded='true'] {
-    border-color: colors.$bright-blue;
-    outline: 1px solid colors.$bright-blue;
+    border-color: var(--er-ui-cta-primary);
+    outline: 1px solid var(--er-ui-cta-primary);
 
     &.active {
-      background-color: white;
-      color: colors.$bright-blue;
+      background-color: var(--er-ui-background-primary-background);
+      color: var(--er-ui-cta-primary);
     }
   }
 }
 
 @mixin chip-text-button {
   align-items: center;
-  background-color: colors.$light-gray-background;
-  border: 1px solid colors.$light-gray-background;
+  background-color: var(--er-ui-background-tertiary-background);
+  border: 1px solid var(--er-ui-background-tertiary-background);
   border-radius: 0.25rem;
-  color: colors.$secondary-medium-gray;
+  color: var(--er-ui-text-secondary-text);
   display: flex;
   font-size: 0.875rem;
   font-weight: 500;
@@ -324,13 +324,13 @@ $chip-height-small: 1.75rem;
   padding: 0 0.5rem;
 
   &:hover {
-    background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
-    border-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+    background-color: colors.shade(var(--er-ui-background-tertiary-background), 5%);
+    border-color: colors.shade(var(--er-ui-background-tertiary-background), 5%);
   }
 
   &:focus-visible {
-    border-color: colors.$bright-blue;
-    outline: 1px solid colors.$bright-blue;
+    border-color: var(--er-ui-cta-primary);
+    outline: 1px solid var(--er-ui-cta-primary);
   }
 
   &:disabled {
@@ -338,21 +338,21 @@ $chip-height-small: 1.75rem;
     opacity: 0.5;
 
     &:hover {
-      background-color: colors.$light-gray-background;
-      border-color: colors.$light-gray-background;
+      background-color: var(--er-ui-background-tertiary-background);
+      border-color: var(--er-ui-background-tertiary-background);
     }
   }
 }
 
 // A busy button stays focusable, so it is aria-disabled rather than disabled.
 @mixin chip-danger-state {
-  background-color: colors.$high-priority-bg-hover;
-  border-color: colors.$high-priority-bg-hover;
-  color: colors.$bright-red;
+  background-color: var(--er-ui-status-bg-error-bg);
+  border-color: var(--er-ui-status-bg-error-bg);
+  color: var(--er-ui-status-error-destructive);
 
   &:hover {
-    background-color: color.adjust(colors.$high-priority-bg-hover, $lightness: -5%);
-    border-color: color.adjust(colors.$high-priority-bg-hover, $lightness: -5%);
+    background-color: colors.shade(var(--er-ui-status-bg-error-bg), 5%);
+    border-color: colors.shade(var(--er-ui-status-bg-error-bg), 5%);
   }
 
   &[aria-disabled='true'] {
@@ -362,8 +362,8 @@ $chip-height-small: 1.75rem;
 
   &:disabled:hover,
   &[aria-disabled='true']:hover {
-    background-color: colors.$high-priority-bg-hover;
-    border-color: colors.$high-priority-bg-hover;
+    background-color: var(--er-ui-status-bg-error-bg);
+    border-color: var(--er-ui-status-bg-error-bg);
   }
 }
 
@@ -423,10 +423,10 @@ $chip-height-small: 1.75rem;
 
 @mixin primary-action-button {
   align-items: center;
-  background-color: colors.$bright-blue;
+  background-color: var(--er-ui-cta-primary);
   border: none;
   border-radius: 0.25rem;
-  color: white;
+  color: var(--er-ui-text-primary-text-reversed);
   display: inline-flex;
   font-size: 0.875rem;
   font-weight: 500;
@@ -437,13 +437,13 @@ $chip-height-small: 1.75rem;
 
   // Hovering a focused button would otherwise hide its focus ring.
   &:hover:not(:disabled, :focus-visible) {
-    background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+    background-color: colors.shade(var(--er-ui-cta-primary), 17%);
   }
 
   &:focus-visible {
-    background-color: white;
-    color: colors.$bright-blue;
-    outline: 2px solid colors.$bright-blue;
+    background-color: var(--er-ui-background-primary-background);
+    color: var(--er-ui-cta-primary);
+    outline: 2px solid var(--er-ui-cta-primary);
   }
 
   &:disabled {
@@ -455,16 +455,16 @@ $chip-height-small: 1.75rem;
 @mixin secondary-action-button {
   @include primary-action-button;
 
-  background-color: colors.$very-light-blue;
-  color: colors.$bright-blue;
+  background-color: var(--er-ui-background-selected-background);
+  color: colors.shade(var(--er-ui-cta-primary), 15%);
   text-decoration: none;
 
   &:hover:not(:disabled, :focus-visible) {
-    background-color: color.adjust(colors.$very-light-blue, $lightness: -5%);
-    color: colors.$bright-blue;
+    background-color: colors.shade(var(--er-ui-background-selected-background), 5%);
+    color: colors.shade(var(--er-ui-cta-primary), 15%);
   }
 
   &:focus-visible {
-    background-color: colors.$very-light-blue;
+    background-color: var(--er-ui-background-selected-background);
   }
 }
