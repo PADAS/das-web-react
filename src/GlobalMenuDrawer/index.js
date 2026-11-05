@@ -73,6 +73,23 @@ export const TRAINING_URL = 'https://support.earthranger.com/training-registrati
 export const USERS_GUIDE_SITE_URL = 'https://support.earthranger.com/en_US/earthranger-web';
 export const WEBSITE_PRIVACY_POLICY_URL = 'https://www.earthranger.com/privacy-policy';
 
+const MOBILE_STORE_LINKS = [
+  {
+    analyticsLabel: 'Mobile App Store',
+    href: MOBILE_APP_STORE_URL,
+    Icon: AppleLogoIcon,
+    labelKey: 'mobileAppStoreLink',
+    userAgentPattern: /iPhone|iPad|iPod/,
+  },
+  {
+    analyticsLabel: 'Mobile Google Play',
+    href: MOBILE_GOOGLE_PLAY_URL,
+    Icon: AndroidLogoIcon,
+    labelKey: 'mobileGooglePlayLink',
+    userAgentPattern: /Android/,
+  },
+];
+
 const renderExternalLink = (href, icon, label, analyticsLabel) => <a
   href={href}
   onClick={() => mainToolbarTracker.track(`Click '${analyticsLabel}' menu item`)}
@@ -116,6 +133,9 @@ const GlobalMenuDrawer = () => {
   const dataPrivacyPolicyLinkRef = useRef();
 
   const canReadPatrols = patrolManagementEnabled && hasPatrolsReadPermission;
+  // iPadOS reports itself as a Mac, so only phones and older iPads match here.
+  const deviceMobileStoreLink = MOBILE_STORE_LINKS
+    .find((mobileStoreLink) => mobileStoreLink.userAgentPattern.test(window.navigator.userAgent));
 
   const jiraIframeHelpButton = useMemo(() => {
     const jiraWidgetIframe = document.querySelector(JIRA_WIDGET_IFRAME_SELECTOR);
@@ -190,6 +210,23 @@ const GlobalMenuDrawer = () => {
         if (newWindow) newWindow.opener = null;
       });
   };
+
+  const renderMobileStoreLinks = (mobileStoreLinks) => <li
+    className={`${styles.nestedListItem} ${styles.iconLinksNestedListItem}`}
+  >
+    <h4>{t('mobileHeading')}</h4>
+
+    <ul>
+      {mobileStoreLinks.map((mobileStoreLink) => <li key={mobileStoreLink.href}>
+        {renderExternalLink(
+          mobileStoreLink.href,
+          <mobileStoreLink.Icon aria-hidden />,
+          t(mobileStoreLink.labelKey),
+          mobileStoreLink.analyticsLabel,
+        )}
+      </li>)}
+    </ul>
+  </li>;
 
   const onContactSupportClick = () => {
     mainToolbarTracker.track('Click \'Contact Support\'');
@@ -294,6 +331,14 @@ const GlobalMenuDrawer = () => {
       </button>
     </header>
 
+    {!!deviceMobileStoreLink && <>
+      <hr aria-hidden className={styles.separator} />
+
+      <ul>
+        {renderMobileStoreLinks([deviceMobileStoreLink])}
+      </ul>
+    </>}
+
     {/* Only show the nav in small devices. */}
     {!isMediumLayoutOrLarger && <>
       <hr aria-hidden className={styles.separator} />
@@ -388,43 +433,23 @@ const GlobalMenuDrawer = () => {
       </li>
     </ul>
 
-    <hr aria-hidden className={styles.separator} />
+    {(!!user.is_staff || !deviceMobileStoreLink) && <>
+      <hr aria-hidden className={styles.separator} />
 
-    <h3>{t('appsHeader')}</h3>
+      <h3>{t('appsHeader')}</h3>
 
-    <ul>
-      {!!user.is_staff && <li>
-        {renderExternalLink(`${DAS_HOST}/admin`, <EarthRangerMarkIcon aria-hidden />, t('adminLink'), 'Admin')}
-      </li>}
+      <ul>
+        {!!user.is_staff && <li>
+          {renderExternalLink(`${DAS_HOST}/admin`, <EarthRangerMarkIcon aria-hidden />, t('adminLink'), 'Admin')}
+        </li>}
 
-      <li className={`${styles.nestedListItem} ${styles.iconLinksNestedListItem}`}>
-        <h4>{t('mobileHeading')}</h4>
+        {!deviceMobileStoreLink && renderMobileStoreLinks(MOBILE_STORE_LINKS)}
 
-        <ul>
-          <li>
-            {renderExternalLink(
-              MOBILE_APP_STORE_URL,
-              <AppleLogoIcon aria-hidden />,
-              t('mobileAppStoreLink'),
-              'Mobile App Store',
-            )}
-          </li>
-
-          <li>
-            {renderExternalLink(
-              MOBILE_GOOGLE_PLAY_URL,
-              <AndroidLogoIcon aria-hidden />,
-              t('mobileGooglePlayLink'),
-              'Mobile Google Play',
-            )}
-          </li>
-        </ul>
-      </li>
-
-      {!!user.is_staff && <li>
-        {renderExternalLink(GUNDI_PORTAL_URL, <GundiLogoIcon aria-hidden />, t('gundiLink'), 'Gundi')}
-      </li>}
-    </ul>
+        {!!user.is_staff && <li>
+          {renderExternalLink(GUNDI_PORTAL_URL, <GundiLogoIcon aria-hidden />, t('gundiLink'), 'Gundi')}
+        </li>}
+      </ul>
+    </>}
 
     <hr aria-hidden className={styles.separator} />
 

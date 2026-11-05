@@ -41,6 +41,11 @@ jest.mock('../hooks', () => ({
 }));
 jest.mock('../hooks/useNavigate', () => jest.fn());
 
+const ANDROID_USER_AGENT = 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) '
+  + 'Chrome/130.0.0.0 Mobile Safari/537.36';
+const IPHONE_USER_AGENT = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 '
+  + '(KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1';
+
 describe('GlobalMenuDrawer', () => {
   let addModalMock, fetchTableauDashboardMock, hideDrawerMock, navigate, store, useMatchMediaMock, useNavigateMock;
   beforeEach(() => {
@@ -89,6 +94,12 @@ describe('GlobalMenuDrawer', () => {
       },
     };
   });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  const mockUserAgent = (userAgent) => jest.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue(userAgent);
 
   const renderGlobalMenuDrawer = () => render(<Provider store={mockStore(store)}>
     <GlobalMenuDrawer />
@@ -355,12 +366,51 @@ describe('GlobalMenuDrawer', () => {
     expect(screen.getByRole('link', { name: 'Gundi Integrations' })).toHaveAttribute('href', GUNDI_PORTAL_URL);
   });
 
-  test('shows the EarthRanger Mobile store links', async () => {
+  test('shows both EarthRanger Mobile store links on a device that is not a phone', async () => {
     renderGlobalMenuDrawer();
 
     expect(screen.getByRole('link', { name: 'App Store (iPhone)' })).toHaveAttribute('href', MOBILE_APP_STORE_URL);
     expect(screen.getByRole('link', { name: 'Google Play (Android)' }))
       .toHaveAttribute('href', MOBILE_GOOGLE_PLAY_URL);
+  });
+
+  test('shows only the App Store link, above the rest of the menu, on an iPhone', async () => {
+    mockUserAgent(IPHONE_USER_AGENT);
+    renderGlobalMenuDrawer();
+
+    const appStoreLink = screen.getByRole('link', { name: 'App Store (iPhone)' });
+
+    expect(appStoreLink).toHaveAttribute('href', MOBILE_APP_STORE_URL);
+    expect(appStoreLink.compareDocumentPosition(screen.getByRole('button', { name: 'Tableau' })))
+      .toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(screen.queryByRole('link', { name: 'Google Play (Android)' })).toBeNull();
+  });
+
+  test('shows only the Google Play link, above the rest of the menu, on an Android phone', async () => {
+    mockUserAgent(ANDROID_USER_AGENT);
+    renderGlobalMenuDrawer();
+
+    const googlePlayLink = screen.getByRole('link', { name: 'Google Play (Android)' });
+
+    expect(googlePlayLink).toHaveAttribute('href', MOBILE_GOOGLE_PLAY_URL);
+    expect(googlePlayLink.compareDocumentPosition(screen.getByRole('button', { name: 'Tableau' })))
+      .toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(screen.queryByRole('link', { name: 'App Store (iPhone)' })).toBeNull();
+  });
+
+  test('does not show the EarthRanger Apps heading to a non-staff user on a phone', async () => {
+    mockUserAgent(ANDROID_USER_AGENT);
+    renderGlobalMenuDrawer();
+
+    expect(screen.queryByRole('heading', { name: 'EARTHRANGER APPS' })).toBeNull();
+  });
+
+  test('shows the EarthRanger Apps heading to a staff user on a phone', async () => {
+    mockUserAgent(IPHONE_USER_AGENT);
+    store.data.user.is_staff = true;
+    renderGlobalMenuDrawer();
+
+    expect(screen.getByRole('heading', { name: 'EARTHRANGER APPS' })).toBeInTheDocument();
   });
 
   test('shows the What\'s New, Training and System Status links', async () => {
