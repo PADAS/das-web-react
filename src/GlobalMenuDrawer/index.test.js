@@ -366,6 +366,18 @@ describe('GlobalMenuDrawer', () => {
     expect(screen.getByRole('link', { name: 'Gundi Integrations' })).toHaveAttribute('href', GUNDI_PORTAL_URL);
   });
 
+  test('lists Gundi Integrations right after Admin, above the EarthRanger Mobile links', async () => {
+    store.data.user.is_staff = true;
+    renderGlobalMenuDrawer();
+
+    const gundiLink = screen.getByRole('link', { name: 'Gundi Integrations' });
+
+    expect(screen.getByRole('link', { name: 'Admin' }).compareDocumentPosition(gundiLink))
+      .toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(gundiLink.compareDocumentPosition(screen.getByRole('link', { name: 'App Store (iPhone)' })))
+      .toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
   test('shows both EarthRanger Mobile store links on a device that is not a phone', async () => {
     renderGlobalMenuDrawer();
 

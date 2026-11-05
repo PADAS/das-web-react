@@ -443,11 +443,11 @@ const GlobalMenuDrawer = () => {
           {renderExternalLink(`${DAS_HOST}/admin`, <EarthRangerMarkIcon aria-hidden />, t('adminLink'), 'Admin')}
         </li>}
 
-        {!deviceMobileStoreLink && renderMobileStoreLinks(MOBILE_STORE_LINKS)}
-
         {!!user.is_staff && <li>
           {renderExternalLink(GUNDI_PORTAL_URL, <GundiLogoIcon aria-hidden />, t('gundiLink'), 'Gundi')}
         </li>}
+
+        {!deviceMobileStoreLink && renderMobileStoreLinks(MOBILE_STORE_LINKS)}
       </ul>
     </>}
 
