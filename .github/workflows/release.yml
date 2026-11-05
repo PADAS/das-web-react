@@ -126,11 +126,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # nginx falls back to the er-web-assets bucket for chunks a tab on an older
-  # release asks for. Uploading this release and re-uploading the live ones
-  # restarts the bucket's 30-day lifecycle, so a release's assets expire 30 days
-  # after it is replaced. Only the web-assets environment (release-* branches)
-  # can write to the bucket, and every deploy waits for this job.
+  # Feeds nginx's /assets/ fallback; re-uploading restarts the 30-day lifecycle.
+  # web-assets only allows release-* branches, so other dispatches stop here.
   publish-assets:
     needs: [config, build]
     runs-on: ubuntu-latest
@@ -163,23 +160,32 @@ jobs:
           for env in er-stage er-prod er-prod-me er-prod-us; do
             values_file="serca-argocd-apps/earthranger/das-web-react/values-${env}.yaml"
             if [ -f "$values_file" ]; then
-              yq '.image.tag' "$values_file" >> tags.txt
+              yq -r '.image.tag' "$values_file" >> tags.txt
             else
               echo "::warning::${values_file} not found, its live release is not refreshed"
             fi
           done
 
-          # Legacy tenants roll behind their own approvals and can lag the MT envs.
+          # Legacy tenants lag MT, so keep every tag of recent versions.
           gcloud artifacts docker tags list "$IMAGE" --filter='tag~/release-' --format='value(tag)' \
-            | sed 's#.*/##' | sort -V | tail -n "$RECENT_RELEASES" >> tags.txt
+            | sed 's#.*/##' > release-tags.txt
+          sed -E 's/-[0-9a-f]{7}$//' release-tags.txt | sort -Vu | tail -n "$RECENT_RELEASES" \
+            | while read -r version; do grep -E "^${version}-[0-9a-f]{7}$" release-tags.txt; done >> tags.txt
 
-          grep -E '^release-' tags.txt | sort -u | while read -r tag; do
+          mapfile -t tags < <(grep -E '^release-' tags.txt | sort -u)
+          for tag in "${tags[@]}"; do
             echo "::group::${tag}"
             container_id=$(docker create "${IMAGE}:${tag}")
-            docker cp "${container_id}:/usr/share/nginx/html/assets" "assets-${tag}"
+            if docker cp "${container_id}:/usr/share/nginx/html/assets" "assets-${tag}"; then
+              # cp, not rsync: overwriting is what restarts the 30-day lifecycle.
+              gcloud storage cp -r "assets-${tag}"/* "${BUCKET}/assets/" < /dev/null
+            elif [ "$tag" = "$TAG" ]; then
+              echo "::error::${tag} has no /usr/share/nginx/html/assets"
+              exit 1
+            else
+              echo "::warning::${tag} has no /usr/share/nginx/html/assets, skipped"
+            fi
             docker rm "$container_id" >/dev/null
-            # cp, not rsync: overwriting is what restarts the 30-day lifecycle.
-            gcloud storage cp -r "assets-${tag}"/* "${BUCKET}/assets/"
             echo "::endgroup::"
           done
 
