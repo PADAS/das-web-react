@@ -27,7 +27,6 @@ import withTracker from './WithTracker';
 import Auth0TokenManager from './Auth0TokenManager';
 import DetectOffline from './DetectOffline';
 import GeoLocationWatcher from './GeoLocationWatcher';
-import JiraSupportWidget from './JiraSupportWidget';
 import LoadingOverlay from './EarthRangerIconLoadingOverlay';
 import NavigationContextProvider from './NavigationContextProvider';
 import RequestConfigManager from './RequestConfigManager';
@@ -155,8 +154,6 @@ root.render(
     </PersistGate>
 
     <GeoLocationWatcher />
-
-    <JiraSupportWidget />
   </Provider>
 );
 

@@ -37,11 +37,6 @@ import { calcEventFilterForRequest } from '../utils/event-filter';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 import { hideDrawer } from '../ducks/drawer';
 import { getAlertsEnabled } from '../selectors';
-import {
-  JIRA_IFRAME_HELP_BUTTON_SELECTOR,
-  JIRA_WIDGET_IFRAME_SELECTOR,
-  selectSupportFormFieldByLabelText,
-} from '../JiraSupportWidget';
 import { useObservationsPermissions, usePatrolsPermissions } from '../hooks/usePermissions';
 import { useMatchMedia } from '../hooks';
 
@@ -59,7 +54,7 @@ const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
 const tableuAnalysisTracker = trackEventFactory(TABLEAU_ANALYSIS_CATEGORY);
 
 export const COMMUNITY_SITE_URL = 'https://Community.EarthRanger.com';
-export const CONTACT_SUPPORT_EMAIL_ADDRESS = 'support@pamdas.org';
+export const CONTACT_US_URL = 'https://support.earthranger.com/contact-us';
 export const DATA_PRIVACY_POLICY_URL = 'https://assets-global.website-files.com/61a93c4da07e4e6975c3f2b2/61eaeb2ccd0b65595bd4d387_EarthRanger_PP_ver2021-10-01.pdf';
 export const ECOSCOPE_ANALYSIS_URL = 'https://app.ecoscope.io/login';
 export const EULA_URL = 'https://assets.website-files.com/61a93c4da07e4e6975c3f2b2/61d7274b9ba24a5d8bac44b2_EarthRanger_EULA_ver2021-10-01.pdf';
@@ -101,7 +96,6 @@ const GlobalMenuDrawer = () => {
   const kmlExportEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.KML_EXPORT]);
   const otusUrl = useSelector((state) => state.view.systemConfig.otusUrl);
   const patrolManagementEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]);
-  const selectedUserProfile = useSelector((state) => state.data.selectedUserProfile);
   const serverData = useSelector((state) => state.data.systemStatus.server);
   const spatialFeaturesEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]);
   const subjectsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SUBJECTS]);
@@ -116,11 +110,6 @@ const GlobalMenuDrawer = () => {
   const dataPrivacyPolicyLinkRef = useRef();
 
   const canReadPatrols = patrolManagementEnabled && hasPatrolsReadPermission;
-
-  const jiraIframeHelpButton = useMemo(() => {
-    const jiraWidgetIframe = document.querySelector(JIRA_WIDGET_IFRAME_SELECTOR);
-    return jiraWidgetIframe?.contentDocument?.querySelector(JIRA_IFRAME_HELP_BUTTON_SELECTOR);
-  }, []);
 
   // Calculate the export modals buttons that should be rendered based on if
   // they are enabled or not.
@@ -189,23 +178,6 @@ const GlobalMenuDrawer = () => {
         const newWindow = window.open(display_url, '_blank', 'noopener,noreferrer');
         if (newWindow) newWindow.opener = null;
       });
-  };
-
-  const onContactSupportClick = () => {
-    mainToolbarTracker.track('Click \'Contact Support\'');
-
-    // Forward the click to the JIRA help button.
-    jiraIframeHelpButton.click();
-
-    // Prefill the site and user inputs if possible.
-    const siteInput = selectSupportFormFieldByLabelText('ER Site');
-    if (siteInput) {
-      siteInput.value = window.location.hostname;
-    }
-    const userInput = selectSupportFormFieldByLabelText('ER Requestor Name');
-    if (userInput) {
-      userInput.value = (selectedUserProfile?.id ? selectedUserProfile : user)?.username;
-    }
   };
 
   const onModalClick = useCallback((modal, analyticsTitle = REPORT_EXPORT_CATEGORY) => {
@@ -331,18 +303,16 @@ const GlobalMenuDrawer = () => {
       </li>
 
       <li>
-        {jiraIframeHelpButton ? <button onClick={onContactSupportClick} type="button">
-          <ChatIcon aria-hidden />
-
-          <span>{t('contactSupportButton')}</span>
-        </button> : <a
-          href={`mailto:${CONTACT_SUPPORT_EMAIL_ADDRESS}?subject=${t('contactSupport.subject')}&body=${t('contactSupport.body')}`}
+        <a
+          href={CONTACT_US_URL}
           onClick={() => mainToolbarTracker.track('Click \'Contact Support\'')}
+          rel="noopener noreferrer"
+          target="_blank"
         >
           <ChatIcon aria-hidden />
 
           <span>{t('contactSupportButton')}</span>
-        </a>}
+        </a>
       </li>
 
       <li>

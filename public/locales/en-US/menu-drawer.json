@@ -22,10 +22,6 @@
     "closeButtonLabel": "Close Main Menu",
     "closeButtonTitle": "Close",
     "communityButton": "Community",
-    "contactSupport": {
-      "body": "How can we help you?",
-      "subject": "Support request from user"
-    },
     "contactSupportButton": "Contact Support",
     "dailyReportModal": {
       "title": "Daily Report"

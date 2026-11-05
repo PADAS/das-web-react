@@ -2,10 +2,10 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { addModal } from '../ducks/modals';
-import { createQuerySelectorMockImplementationWithHelpButtonReference } from '../__test-helpers/jiraSupportWidget';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 import GlobalMenuDrawer, {
+  CONTACT_US_URL,
   ECOSCOPE_ANALYSIS_URL,
   GUNDI_PORTAL_URL,
   MOBILE_APP_STORE_URL,
@@ -215,22 +215,13 @@ describe('GlobalMenuDrawer', () => {
     expect(addModal.mock.calls[0][0].title).toBe('Alerts');
   });
 
-  test('forwards the click to the Jira Support Management widget Help button when clicking Contact Support', async () => {
-    const [mockQuerySelector, mockHelpButton] = createQuerySelectorMockImplementationWithHelpButtonReference();
-    jest.spyOn(global.document, 'querySelector').mockImplementation(mockQuerySelector);
-
+  test('links Contact Support to the Help Center contact page in a new tab', async () => {
     renderGlobalMenuDrawer();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Contact Support' }));
+    const contactSupportLink = screen.getByRole('link', { name: 'Contact Support' });
 
-    expect(mockHelpButton.click).toHaveBeenCalled();
-  });
-
-  test('If the Jira Help button is not available, shows a link to send an email to the Help Center', async () => {
-    renderGlobalMenuDrawer();
-
-    expect(screen.getByRole('link', { name: 'Contact Support' }))
-      .toHaveAttribute('href', 'mailto:support@pamdas.org?subject=Support request from user&body=How can we help you?');
+    expect(contactSupportLink).toHaveAttribute('href', CONTACT_US_URL);
+    expect(contactSupportLink).toHaveAttribute('target', '_blank');
   });
 
   test('opens the daily report modal when clicking the Daily Report button', async () => {

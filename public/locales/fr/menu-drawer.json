@@ -20,10 +20,6 @@
     },
     "appsHeader": "APPLICATIONS EARTHRANGER",
     "communityButton": "Communauté",
-    "contactSupport": {
-      "body": "Que pouvons-nous faire pour vous ?",
-      "subject": "Demande d'aide de la part de l'utilisateur"
-    },
     "contactSupportButton": "Contacter l'équipe de Soutien",
     "dailyReportModal": {
       "title": "Rapport Quotidien"
