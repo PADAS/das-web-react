@@ -68,17 +68,10 @@
           font-size: .75rem;
           margin-bottom: 0.25rem;
         }
-
-        ul {
-          margin-left: 1rem;
-        }
-
-        &.iconLinksNestedListItem ul {
-          margin-left: 0;
-        }
       }
 
       a, button {
+        align-items: center;
         background: none;
         border: none;
         border-radius: 0.25rem;
@@ -98,8 +91,14 @@
         }
 
         svg {
-          width: 1.25rem;
+          flex-shrink: 0;
           height: 1.5rem;
+          width: 1.5rem;
+
+          circle, path {
+            fill: currentcolor;
+            opacity: 1;
+          }
         }
 
         span {

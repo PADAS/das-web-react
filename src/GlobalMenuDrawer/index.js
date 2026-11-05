@@ -5,15 +5,15 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as AndroidLogoIcon } from '../common/images/icons/android-logo.svg';
 import { ReactComponent as AppleLogoIcon } from '../common/images/icons/apple-logo.svg';
+import { ReactComponent as BarChartIcon } from '../common/images/icons/bar-chart.svg';
 import { ReactComponent as BellIcon } from '../common/images/icons/bell-icon.svg';
 import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-list.svg';
-import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
+import { ReactComponent as ChatBubbleIcon } from '../common/images/icons/chat-bubble.svg';
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
 import { ReactComponent as EarthRangerMarkIcon } from '../common/images/icons/er-mark.svg';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { ReactComponent as GundiLogoIcon } from '../common/images/icons/gundi-logo.svg';
-import { ReactComponent as HeatmapIcon } from '../common/images/icons/heatmap.svg';
 import { ReactComponent as InformationIcon } from '../common/images/icons/information.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
@@ -212,7 +212,7 @@ const GlobalMenuDrawer = () => {
   };
 
   const renderMobileStoreLinks = (mobileStoreLinks) => <li
-    className={`${styles.nestedListItem} ${styles.iconLinksNestedListItem}`}
+    className={styles.nestedListItem}
   >
     <h4>{t('mobileHeading')}</h4>
 
@@ -361,7 +361,7 @@ const GlobalMenuDrawer = () => {
     <ul>
       <li>
         {!!tableauEnabled && <button onClick={() => openTableauReport()} type="button">
-          <HeatmapIcon aria-hidden />
+          <BarChartIcon aria-hidden />
 
           <span>{t('tableauButton')}</span>
         </button>}
@@ -377,7 +377,7 @@ const GlobalMenuDrawer = () => {
 
       <li>
         {jiraIframeHelpButton ? <button onClick={onContactSupportClick} type="button">
-          <ChatIcon aria-hidden />
+          <ChatBubbleIcon aria-hidden />
 
           <span>{t('contactSupportButton')}</span>
         </button> : <a
@@ -386,7 +386,7 @@ const GlobalMenuDrawer = () => {
           rel="noopener noreferrer"
           target="_blank"
         >
-          <ChatIcon aria-hidden />
+          <ChatBubbleIcon aria-hidden />
 
           <span>{t('contactSupportButton')}</span>
         </a>}
