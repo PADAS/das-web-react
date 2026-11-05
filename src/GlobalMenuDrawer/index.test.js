@@ -421,6 +421,14 @@ describe('GlobalMenuDrawer', () => {
     expect(screen.getByRole('link', { name: 'System Status' })).toHaveAttribute('href', SYSTEM_STATUS_URL);
   });
 
+  test('lists the footer links above the versions and copyright', async () => {
+    renderGlobalMenuDrawer();
+
+    expect(screen.getByRole('link', { name: 'Data Privacy Policy' })
+      .compareDocumentPosition(screen.getByText(/Server version/)))
+      .toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
   test('when the global menu drawer is open the close button gets focused and there is a focus trap', async () => {
     const { rerender } = renderGlobalMenuDrawer();
 

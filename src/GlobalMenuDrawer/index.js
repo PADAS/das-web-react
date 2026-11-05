@@ -466,18 +466,6 @@ const GlobalMenuDrawer = () => {
     </ul>
 
     <footer className={styles.footer}>
-      <p className={styles.versionsAndCopyright}>
-        {t('footer.serverVersion', { version: serverData.version })}
-
-        <br />
-
-        {t('footer.clientVersion', { version: CLIENT_BUILD_VERSION })}
-
-        <br />
-
-        {t('footer.copyright', { year: getYear(new Date()) })}
-      </p>
-
       <ul className={styles.policies}>
         <li>
           <a
@@ -489,6 +477,7 @@ const GlobalMenuDrawer = () => {
             {t('footer.systemStatusLink')}
           </a>
         </li>
+
         <li>
           <a href={EULA_URL} rel="noreferrer" target="_blank">{t('footer.eulaLink')}</a>
         </li>
@@ -510,6 +499,18 @@ const GlobalMenuDrawer = () => {
           </a>
         </li>
       </ul>
+
+      <p>
+        {t('footer.serverVersion', { version: serverData.version })}
+
+        <br />
+
+        {t('footer.clientVersion', { version: CLIENT_BUILD_VERSION })}
+
+        <br />
+
+        {t('footer.copyright', { year: getYear(new Date()) })}
+      </p>
     </footer>
   </div>;
 };
