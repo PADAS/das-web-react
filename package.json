@@ -28,7 +28,7 @@
     "dompurify": "^3.4.17",
     "epsg-index": "^2.0.0",
     "geodesy": "^2.4.0",
-    "humanize-duration": "^3.35.0",
+    "humanize-duration": "^3.35.1",
     "i18next": "^26.7.1",
     "i18next-browser-languagedetector": "^8.3.0",
     "i18next-chained-backend": "^5.0.8",
