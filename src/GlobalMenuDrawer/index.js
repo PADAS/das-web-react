@@ -3,18 +3,19 @@ import { getYear } from 'date-fns';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
+import { ReactComponent as AndroidLogoIcon } from '../common/images/icons/android-logo.svg';
+import { ReactComponent as AppleLogoIcon } from '../common/images/icons/apple-logo.svg';
 import { ReactComponent as BellIcon } from '../common/images/icons/bell-icon.svg';
 import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-list.svg';
 import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
-import { ReactComponent as ClipboardIcon } from '../common/images/icons/clipboard-icon.svg';
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
-import { ReactComponent as DownloadArrowIcon } from '../common/images/icons/download-arrow.svg';
+import { ReactComponent as EarthRangerMarkIcon } from '../common/images/icons/er-mark.svg';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
+import { ReactComponent as GundiLogoIcon } from '../common/images/icons/gundi-logo.svg';
 import { ReactComponent as HeatmapIcon } from '../common/images/icons/heatmap.svg';
 import { ReactComponent as InformationIcon } from '../common/images/icons/information.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
-import { ReactComponent as LinkIcon } from '../common/images/icons/link.svg';
 import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
 import { ReactComponent as OtusIcon } from '../common/images/icons/otus.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
@@ -391,7 +392,7 @@ const GlobalMenuDrawer = () => {
 
     <ul>
       {!!user.is_staff && <li>
-        {renderExternalLink(`${DAS_HOST}/admin`, <ClipboardIcon aria-hidden />, t('adminLink'), 'Admin')}
+        {renderExternalLink(`${DAS_HOST}/admin`, <EarthRangerMarkIcon aria-hidden />, t('adminLink'), 'Admin')}
       </li>}
 
       <li className={styles.nestedListItem}>
@@ -401,7 +402,7 @@ const GlobalMenuDrawer = () => {
           <li>
             {renderExternalLink(
               MOBILE_APP_STORE_URL,
-              <DownloadArrowIcon aria-hidden />,
+              <AppleLogoIcon aria-hidden />,
               t('mobileAppStoreLink'),
               'Mobile App Store',
             )}
@@ -410,7 +411,7 @@ const GlobalMenuDrawer = () => {
           <li>
             {renderExternalLink(
               MOBILE_GOOGLE_PLAY_URL,
-              <DownloadArrowIcon aria-hidden />,
+              <AndroidLogoIcon aria-hidden />,
               t('mobileGooglePlayLink'),
               'Mobile Google Play',
             )}
@@ -419,7 +420,7 @@ const GlobalMenuDrawer = () => {
       </li>
 
       {!!user.is_staff && <li>
-        {renderExternalLink(GUNDI_PORTAL_URL, <LinkIcon aria-hidden />, t('gundiLink'), 'Gundi')}
+        {renderExternalLink(GUNDI_PORTAL_URL, <GundiLogoIcon aria-hidden />, t('gundiLink'), 'Gundi')}
       </li>}
     </ul>
 
