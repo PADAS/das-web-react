@@ -335,6 +335,13 @@ describe('SideBar', () => {
     expect(screen.queryByRole('link', { name: 'Otus' })).toBeNull();
   });
 
+  test('links the Otus tab to /atlas', async () => {
+    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+    renderSideBar();
+
+    expect(screen.getByRole('link', { name: 'Otus' })).toHaveAttribute('href', '/atlas');
+  });
+
   test('sets the Otus tab as active', async () => {
     store.view.systemConfig.otusUrl = 'https://otus.example.com';
     useLocationMock = jest.fn((() => ({ pathname: '/atlas' })));

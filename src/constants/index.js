@@ -72,7 +72,7 @@ export const TAB_KEYS = {
   EVENTS: 'events',
   GEAR: 'gear',
   LAYERS: 'layers',
-  OTUS: 'atlas',
+  OTUS: 'atlas', // URL segment for the Otus tab, renamed Atlas; the key keeps its old name until the code rename
   PATROLS: 'patrols',
   SETTINGS: 'settings',
 };
