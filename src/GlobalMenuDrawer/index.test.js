@@ -2,6 +2,7 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { addModal } from '../ducks/modals';
+import { createQuerySelectorMockImplementationWithHelpButtonReference } from '../__test-helpers/jiraSupportWidget';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 import GlobalMenuDrawer, {
@@ -215,7 +216,18 @@ describe('GlobalMenuDrawer', () => {
     expect(addModal.mock.calls[0][0].title).toBe('Alerts');
   });
 
-  test('links Contact Support to the Help Center contact page in a new tab', async () => {
+  test('forwards the click to the Jira Support Management widget Help button when clicking Contact Support', async () => {
+    const [mockQuerySelector, mockHelpButton] = createQuerySelectorMockImplementationWithHelpButtonReference();
+    jest.spyOn(global.document, 'querySelector').mockImplementation(mockQuerySelector);
+
+    renderGlobalMenuDrawer();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Contact Support' }));
+
+    expect(mockHelpButton.click).toHaveBeenCalled();
+  });
+
+  test('links Contact Support to the Help Center contact page when the Jira Help button is not available', async () => {
     renderGlobalMenuDrawer();
 
     const contactSupportLink = screen.getByRole('link', { name: 'Contact Support' });

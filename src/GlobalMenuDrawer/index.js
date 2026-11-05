@@ -37,6 +37,11 @@ import { calcEventFilterForRequest } from '../utils/event-filter';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 import { hideDrawer } from '../ducks/drawer';
 import { getAlertsEnabled } from '../selectors';
+import {
+  JIRA_IFRAME_HELP_BUTTON_SELECTOR,
+  JIRA_WIDGET_IFRAME_SELECTOR,
+  selectSupportFormFieldByLabelText,
+} from '../JiraSupportWidget';
 import { useObservationsPermissions, usePatrolsPermissions } from '../hooks/usePermissions';
 import { useMatchMedia } from '../hooks';
 
@@ -96,6 +101,7 @@ const GlobalMenuDrawer = () => {
   const kmlExportEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.KML_EXPORT]);
   const otusUrl = useSelector((state) => state.view.systemConfig.otusUrl);
   const patrolManagementEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]);
+  const selectedUserProfile = useSelector((state) => state.data.selectedUserProfile);
   const serverData = useSelector((state) => state.data.systemStatus.server);
   const spatialFeaturesEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]);
   const subjectsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SUBJECTS]);
@@ -110,6 +116,11 @@ const GlobalMenuDrawer = () => {
   const dataPrivacyPolicyLinkRef = useRef();
 
   const canReadPatrols = patrolManagementEnabled && hasPatrolsReadPermission;
+
+  const jiraIframeHelpButton = useMemo(() => {
+    const jiraWidgetIframe = document.querySelector(JIRA_WIDGET_IFRAME_SELECTOR);
+    return jiraWidgetIframe?.contentDocument?.querySelector(JIRA_IFRAME_HELP_BUTTON_SELECTOR);
+  }, []);
 
   // Calculate the export modals buttons that should be rendered based on if
   // they are enabled or not.
@@ -178,6 +189,23 @@ const GlobalMenuDrawer = () => {
         const newWindow = window.open(display_url, '_blank', 'noopener,noreferrer');
         if (newWindow) newWindow.opener = null;
       });
+  };
+
+  const onContactSupportClick = () => {
+    mainToolbarTracker.track('Click \'Contact Support\'');
+
+    // Forward the click to the JIRA help button.
+    jiraIframeHelpButton.click();
+
+    // Prefill the site and user inputs if possible.
+    const siteInput = selectSupportFormFieldByLabelText('ER Site');
+    if (siteInput) {
+      siteInput.value = window.location.hostname;
+    }
+    const userInput = selectSupportFormFieldByLabelText('ER Requestor Name');
+    if (userInput) {
+      userInput.value = (selectedUserProfile?.id ? selectedUserProfile : user)?.username;
+    }
   };
 
   const onModalClick = useCallback((modal, analyticsTitle = REPORT_EXPORT_CATEGORY) => {
@@ -303,7 +331,11 @@ const GlobalMenuDrawer = () => {
       </li>
 
       <li>
-        <a
+        {jiraIframeHelpButton ? <button onClick={onContactSupportClick} type="button">
+          <ChatIcon aria-hidden />
+
+          <span>{t('contactSupportButton')}</span>
+        </button> : <a
           href={CONTACT_US_URL}
           onClick={() => mainToolbarTracker.track('Click \'Contact Support\'')}
           rel="noopener noreferrer"
@@ -312,7 +344,7 @@ const GlobalMenuDrawer = () => {
           <ChatIcon aria-hidden />
 
           <span>{t('contactSupportButton')}</span>
-        </a>
+        </a>}
       </li>
 
       <li>
