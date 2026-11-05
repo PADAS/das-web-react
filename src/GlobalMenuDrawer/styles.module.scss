@@ -72,6 +72,10 @@
         ul {
           margin-left: 1rem;
         }
+
+        &.iconLinksNestedListItem ul {
+          margin-left: 0;
+        }
       }
 
       a, button {

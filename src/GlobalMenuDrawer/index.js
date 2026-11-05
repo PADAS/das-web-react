@@ -397,7 +397,7 @@ const GlobalMenuDrawer = () => {
         {renderExternalLink(`${DAS_HOST}/admin`, <EarthRangerMarkIcon aria-hidden />, t('adminLink'), 'Admin')}
       </li>}
 
-      <li className={styles.nestedListItem}>
+      <li className={`${styles.nestedListItem} ${styles.iconLinksNestedListItem}`}>
         <h4>{t('mobileHeading')}</h4>
 
         <ul>
