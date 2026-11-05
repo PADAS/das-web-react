@@ -126,8 +126,65 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+  # nginx falls back to the er-web-assets bucket for chunks a tab on an older
+  # release asks for. Uploading this release and re-uploading the live ones
+  # restarts the bucket's 30-day lifecycle, so a release's assets expire 30 days
+  # after it is replaced. Only the web-assets environment (release-* branches)
+  # can write to the bucket, and every deploy waits for this job.
+  publish-assets:
+    needs: [config, build]
+    runs-on: ubuntu-latest
+    environment: web-assets
+    steps:
+      - name: GCP Auth
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+
+      - name: Configure Docker
+        run: gcloud auth configure-docker europe-west3-docker.pkg.dev
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.ARGOCD_APPS_SSH_KEY }}
+
+      - name: Upload the assets of this and the live releases
+        env:
+          BUCKET: gs://er-web-assets
+          IMAGE: europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react
+          RECENT_RELEASES: "5"
+          TAG: ${{ needs.config.outputs.image-tag }}
+        run: |
+          set -euo pipefail
+
+          git clone --depth=1 git@github.com:PADAS/serca-argocd-apps.git
+          echo "$TAG" > tags.txt
+          for env in er-stage er-prod er-prod-me er-prod-us; do
+            values_file="serca-argocd-apps/earthranger/das-web-react/values-${env}.yaml"
+            if [ -f "$values_file" ]; then
+              yq '.image.tag' "$values_file" >> tags.txt
+            else
+              echo "::warning::${values_file} not found, its live release is not refreshed"
+            fi
+          done
+
+          # Legacy tenants roll behind their own approvals and can lag the MT envs.
+          gcloud artifacts docker tags list "$IMAGE" --filter='tag~/release-' --format='value(tag)' \
+            | sed 's#.*/##' | sort -V | tail -n "$RECENT_RELEASES" >> tags.txt
+
+          grep -E '^release-' tags.txt | sort -u | while read -r tag; do
+            echo "::group::${tag}"
+            container_id=$(docker create "${IMAGE}:${tag}")
+            docker cp "${container_id}:/usr/share/nginx/html/assets" "assets-${tag}"
+            docker rm "$container_id" >/dev/null
+            # cp, not rsync: overwriting is what restarts the 30-day lifecycle.
+            gcloud storage cp -r "assets-${tag}"/* "${BUCKET}/assets/"
+            echo "::endgroup::"
+          done
+
   deploy-stage:
-    needs: [config, build, test]
+    needs: [config, build, test, publish-assets]
     uses: ./.github/workflows/_update-argo.yml
     with:
       app-name: das-web-react
@@ -239,7 +296,7 @@ jobs:
   # of LEGACY_TENANTS_DEV, since each has a job of its own and would roll twice.
   deploy-legacy-stage:
     name: "deploy-legacy-stage (das-dev / stage site)"
-    needs: [config, build, test]
+    needs: [config, build, test, publish-assets]
     uses: ./.github/workflows/_deploy_legacy_kubectl.yml
     with:
       environment: ""
