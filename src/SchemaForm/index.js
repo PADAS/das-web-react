@@ -11,6 +11,7 @@ import { FormInstanceContext } from './utils/useFormElementDomId';
 import getDefaultFormData from './utils/getDefaultFormData';
 import normalizeChoiceListValues from '../utils/form-schemas/normalizeChoiceListValues';
 import normalizeDateTimeFieldValue from './utils/normalizeDateTimeFieldValue';
+import pruneHiddenFieldErrors from './utils/pruneHiddenFieldErrors';
 import transformSchemaToFormElements from '../utils/form-schemas/transformSchemaToFormElements';
 import useMapLocationMarkers from './utils/useMapLocationMarkers';
 import useSchemaValidations from './utils/useSchemaValidations';
@@ -105,7 +106,11 @@ const SchemaForm = ({
   const validate = ({ shouldFocusFirstError = true } = {}) => {
     const schemaErrors = runSchemaValidations(normalizedFormData) || {};
     const uploadErrors = runUploadValidations(normalizedFormData);
-    const fieldErrors = merge({}, schemaErrors, uploadErrors);
+    const fieldErrors = pruneHiddenFieldErrors(
+      merge({}, schemaErrors, uploadErrors),
+      formElements,
+      t('errors.collectionItems')
+    );
     if (Object.keys(fieldErrors).length > 0) {
       const erroneousFields = Object.keys(fieldErrors);
 
@@ -316,7 +321,7 @@ const SchemaForm = ({
 
         <ul>
           {lastSubmissionErroneousFields.map((fieldId) => <li key={fieldId}>
-            {formElements[fieldId].details.label}
+            {formElements[fieldId]?.details.label ?? fieldId}
           </li>)}
         </ul>
       </>}
