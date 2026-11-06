@@ -49,8 +49,8 @@ h6 {
   accent-color: var(--er-ui-cta-primary);
 }
 
-// Keeps the browser's rounded focus ring, in the brand color.
-:focus-visible {
+// Zero specificity, so a component's own focus style wins whatever the CSS order.
+:where(:focus-visible) {
   outline: var(--er-ui-cta-primary) auto 1px;
 }
 
