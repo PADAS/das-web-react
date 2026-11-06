@@ -2,6 +2,7 @@ import { useCallback, useContext, useEffect, useRef } from 'react';
 import { buffer, concave, featureCollection } from '@turf/turf';
 import { useSelector } from 'react-redux';
 
+import { COLOR_TOKENS, withOpacity } from '../../utils/colors';
 import { CLUSTERS_MAX_ZOOM, LAYER_IDS, SOURCE_IDS } from '../../constants';
 import { MapContext } from '../../MapContext';
 
@@ -66,8 +67,8 @@ const useClusterPolygon = () => {
           id: LAYER_IDS.CLUSTER_POLYGON_LAYER_ID,
           maxzoom: CLUSTERS_MAX_ZOOM - 1,
           paint: {
-            'fill-color': 'rgba(60, 120, 40, 0.4)',
-            'fill-outline-color': 'rgba(20, 100, 25, 1)',
+            'fill-color': withOpacity(COLOR_TOKENS['green-9'], 40),
+            'fill-outline-color': COLOR_TOKENS['green-1'],
           },
           source: SOURCE_IDS.CLUSTER_POLYGON_SOURCE_ID,
           type: 'fill',

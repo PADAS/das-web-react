@@ -5,6 +5,7 @@ import LocationDotBluePNG from '../../../common/images/icons/location-dot-blue.p
 import LocationDotGrayPNG from '../../../common/images/icons/location-dot-gray.png';
 
 import { addMapImage } from '../../../utils/map';
+import { COLOR_TOKENS } from '../../../utils/colors';
 import { LAYER_IDS, SOURCE_IDS } from '../../../constants';
 import { MapContext } from '../../../MapContext';
 
@@ -155,13 +156,13 @@ const useMapLocationMarkers = (anchorLocation = null, onMarkerClick = null, hide
       // Add the marker connecting lines and outlines layers when the hook mounts.
       map.addLayer({
         id: layerIds.markerConnectingLines,
-        paint: { 'line-color': 'black', 'line-width': 1 },
+        paint: { 'line-color': COLOR_TOKENS['greyscale-0'], 'line-width': 1 },
         source: sourceIds.markerConnectingLines,
         type: 'line',
       }, layerIds.markers);
       map.addLayer({
         id: layerIds.markerConnectinOutlines,
-        paint: { 'line-color': 'white', 'line-width': 5 },
+        paint: { 'line-color': COLOR_TOKENS['greyscale-white'], 'line-width': 5 },
         source: sourceIds.markerConnectingLines,
         type: 'line',
       }, layerIds.markerConnectingLines);

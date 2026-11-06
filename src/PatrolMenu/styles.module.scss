@@ -1,8 +1,6 @@
-@use '../common/styles/vars/colors';
-
 .copyBtn {
   button {
-    color: colors.$off-black;
+    color: var(--er-ui-text-primary-text);
     padding-left: 0;
 
     &:hover:not(:disabled) {

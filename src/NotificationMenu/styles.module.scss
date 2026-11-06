@@ -1,4 +1,3 @@
-@use '../common/styles/vars/colors';
 @use '../common/styles/layout';
 
 .dropdown {
@@ -71,7 +70,7 @@ div.menu {
   }
 
   svg {
-    fill: white;
+    fill: var(--er-ui-text-primary-text-reversed);
   }
 }
 
@@ -80,7 +79,7 @@ div.menu {
   flex-flow: column;
 
   + .item {
-    border-top: 1px solid colors.$light-gray-border;
+    border-top: 1px solid var(--er-ui-divider-lines);
   }
 
   /*   &.unread *:not(button) {
@@ -137,7 +136,7 @@ div.menu {
 }
 
 .unreadNotificationsPopover {
-  color: colors.$primary-font-color;
+  color: var(--er-ui-text-primary-text);
   left: -9rem;
   padding: 0.5rem;
   text-align: center;

@@ -1,12 +1,11 @@
-@use 'sass:color';
 @use '../../../../../common/styles/inputs';
-@use '../../../../../common/styles/vars/colors';
+@use '../../../../../common/styles/colors';
 
 .statusPill {
   align-items: center;
   border: none;
   border-radius: 1rem;
-  color: white;
+  color: var(--er-ui-text-primary-text-reversed);
   display: flex;
   flex-shrink: 0;
   font-size: 0.875rem;
@@ -14,15 +13,15 @@
   padding: 0.125rem 0.625rem;
 
   &.active {
-    background-color: colors.$plum;
+    background-color: var(--er-ui-patrol-status-active);
   }
 
   &.resolved {
-    background-color: colors.$alt-light-gray;
+    background-color: var(--er-greyscale-5);
   }
 
   &.review {
-    background-color: colors.$dark-gold;
+    background-color: var(--er-yellow-2);
   }
 
   .unsavedLabel {
@@ -44,11 +43,11 @@
   }
 
   &:hover {
-    background-image: linear-gradient(rgb(0 0 0 / 8%), rgb(0 0 0 / 8%));
+    background-image: linear-gradient(colors.with-opacity(var(--er-greyscale-0), 8%), colors.with-opacity(var(--er-greyscale-0), 8%));
   }
 
   &:focus-visible {
-    outline: 2px solid colors.$bright-blue;
+    outline: 2px solid var(--er-ui-cta-primary);
     outline-offset: 1px;
   }
 }
@@ -72,9 +71,9 @@
     .menuItem {
       .menuItemOption {
         align-items: center;
-        background-color: white;
+        background-color: var(--er-ui-background-primary-background);
         border: none;
-        color: colors.$off-black;
+        color: var(--er-ui-text-primary-text);
         display: flex;
         outline: none;
         padding: 0.5rem 0.75rem;
@@ -83,19 +82,19 @@
         width: 100%;
 
         &:hover {
-          background-color: color.adjust(colors.$light-gray-background, $lightness: 5%);
+          background-color: colors.tint(var(--er-ui-background-tertiary-background), 62%);
           cursor: pointer;
         }
 
         &:focus {
-          background-color: colors.$light-gray-background;
+          background-color: var(--er-ui-background-tertiary-background);
         }
 
         &[aria-current="true"] {
-          background-color: colors.$blue-highlight;
+          background-color: var(--er-ui-background-selected-background);
 
           &:hover, &:focus {
-            background-color: color.adjust(colors.$blue-highlight, $lightness: -5%);
+            background-color: colors.shade(var(--er-ui-background-selected-background), colors.$surface-hover-shade);
           }
         }
 
@@ -104,7 +103,7 @@
         }
 
         .checkIcon {
-          color: colors.$bright-blue;
+          color: var(--er-ui-cta-primary);
           flex-shrink: 0;
           height: 0.75rem;
           margin-right: 0.5rem;

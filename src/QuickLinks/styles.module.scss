@@ -1,11 +1,11 @@
+@use '../common/styles/colors';
 @use '../common/styles/layout';
-@use '../common/styles/vars/colors';
 
 .navigationBar {
   display: flex;
   flex-direction: column;
   min-width: 3rem;
-  background-color: white;
+  background-color: var(--er-ui-background-primary-background);
   
   @media (min-width: layout.$md-layout-width-min) {
     min-width: 4.5rem;
@@ -16,25 +16,25 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    color: colors.$secondary-light-gray;
+    color: var(--er-ui-text-disabled);
     font-size: 0.625rem;
     height: 3rem;
     padding: 0;
     cursor: pointer;
-    border-bottom: 1px solid rgb(177 179 179 / 25%);
+    border-bottom: 1px solid var(--er-ui-divider-lines);
 
     &:hover {
-      color: colors.$bright-blue !important;
-      background-color: colors.$very-light-blue !important;
+      color: colors.shade(var(--er-ui-cta-primary), 15%) !important;
+      background-color: var(--er-ui-background-selected-background) !important;
       font-weight: bold;
   
       svg {
-        color: colors.$bright-blue;
+        color: var(--er-ui-cta-primary);
       }
     }
 
     svg {
-      color: colors.$secondary-light-gray;
+      color: var(--er-ui-icons);
       
       @media (min-width: layout.$md-layout-width-min) {
         margin-bottom: 0.5rem;
@@ -55,38 +55,38 @@
   }
 
   [class*="active"] {
-    color: colors.$bright-blue !important;
-    background-color: colors.$very-light-blue !important;
+    color: colors.shade(var(--er-ui-cta-primary), 15%) !important;
+    background-color: var(--er-ui-background-selected-background) !important;
     font-weight: bold;
 
     svg {
-      color: colors.$bright-blue;
+      color: var(--er-ui-cta-primary);
     }
   }
 
   [class*="active"] ~ [class*="active"] {
-    color: colors.$secondary-light-gray !important;
-    background-color: white !important;
+    color: var(--er-ui-text-disabled) !important;
+    background-color: var(--er-ui-background-primary-background) !important;
     font-weight: normal;
 
     &:hover {
-      color: colors.$bright-blue !important;
-      background-color: colors.$very-light-blue !important;
+      color: colors.shade(var(--er-ui-cta-primary), 15%) !important;
+      background-color: var(--er-ui-background-selected-background) !important;
       font-weight: bold;
   
       svg {
-        color: colors.$bright-blue;
+        color: var(--er-ui-cta-primary);
       }
     }
 
     svg {
-      color: colors.$secondary-light-gray;
+      color: var(--er-ui-icons);
     }
   }
 }
 
 .sectionsWrapper {
-  background-color: colors.$very-light-gray;
+  background-color: colors.$subtle-background;
   overflow-x: hidden;
   width: 100%;
   height: 100%;

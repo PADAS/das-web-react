@@ -1,27 +1,26 @@
 @use '../common/styles/buttons';
-@use '../common/styles/vars/colors';
 
 .textCopyButton {
   background: none;
   border: none;
   border-radius: 0.1875rem;
-  color: colors.$secondary-medium-gray;
+  color: var(--er-ui-text-secondary-text);
 
   &:disabled {
-    background-color: colors.$disabled-field-gray;
-    color: colors.$secondary-medium-gray;
+    background-color: var(--er-ui-background-tertiary-background);
+    color: var(--er-ui-text-secondary-text);
   }
 
   &:focus-visible:not(:disabled) {
-    outline: 2px solid colors.$bright-blue;
-    color: colors.$bright-blue;
+    outline: 2px solid var(--er-ui-cta-primary);
+    color: var(--er-ui-cta-primary);
   }
 
   &:hover:not(:disabled) {
-    background-color: colors.$light-gray-background;
+    background-color: var(--er-ui-background-tertiary-background);
   }
 
   .text {
-    color: black;
+    color: var(--er-ui-text-primary-text);
   }
 }

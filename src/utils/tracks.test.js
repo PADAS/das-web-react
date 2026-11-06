@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { startOfDay, subDays } from 'date-fns';
 
+import { COLOR_TOKENS } from './colors';
 import store from '../store';
 import { TIME_OF_DAY_PERIODS } from '../constants';
 import { TRACK_LENGTH_ORIGINS, TRACKS_API_URL } from '../ducks/tracks';
@@ -106,8 +107,8 @@ describe('utils - tracks', () => {
       const resultFeatures = [
         {
           properties: {
-            startColor: TIME_OF_DAY_PERIODS[1].color,
-            endColor: TIME_OF_DAY_PERIODS[4].color,
+            startColor: COLOR_TOKENS[TIME_OF_DAY_PERIODS[1].colorToken],
+            endColor: COLOR_TOKENS[TIME_OF_DAY_PERIODS[4].colorToken],
             startTime: '2025-02-27T21:42:01+00:00',
             endTime: '2025-02-24T06:06:05+00:00'
           },
@@ -120,8 +121,8 @@ describe('utils - tracks', () => {
         },
         {
           properties: {
-            startColor: TIME_OF_DAY_PERIODS[4].color,
-            endColor: TIME_OF_DAY_PERIODS[3].color,
+            startColor: COLOR_TOKENS[TIME_OF_DAY_PERIODS[4].colorToken],
+            endColor: COLOR_TOKENS[TIME_OF_DAY_PERIODS[3].colorToken],
             startTime: '2025-02-24T06:06:05+00:00',
             endTime: '2025-02-24T03:58:02+00:00'
           },
@@ -134,8 +135,8 @@ describe('utils - tracks', () => {
         },
         {
           properties: {
-            startColor: TIME_OF_DAY_PERIODS[3].color,
-            endColor: TIME_OF_DAY_PERIODS[2].color,
+            startColor: COLOR_TOKENS[TIME_OF_DAY_PERIODS[3].colorToken],
+            endColor: COLOR_TOKENS[TIME_OF_DAY_PERIODS[2].colorToken],
             startTime: '2025-02-24T03:58:02+00:00',
             endTime: '2025-02-17T00:16:01+00:00'
           },
@@ -148,8 +149,8 @@ describe('utils - tracks', () => {
         },
         {
           properties: {
-            startColor: TIME_OF_DAY_PERIODS[2].color,
-            endColor: TIME_OF_DAY_PERIODS[6].color,
+            startColor: COLOR_TOKENS[TIME_OF_DAY_PERIODS[2].colorToken],
+            endColor: COLOR_TOKENS[TIME_OF_DAY_PERIODS[6].colorToken],
             startTime: '2025-02-17T00:16:01+00:00',
             endTime: '2025-02-14T12:24:01+00:00'
           },

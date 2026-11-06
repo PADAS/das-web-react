@@ -1,4 +1,3 @@
-@use '../../../common/styles/vars/colors';
 @use '../shared';
 
 .newPatrol {
@@ -7,7 +6,7 @@
   height: 100%;
 
   .body {
-    background: colors.$light-gray-background;
+    background: var(--er-ui-background-tertiary-background);
     flex: 1;
     min-height: 0;
     overflow-y: auto;

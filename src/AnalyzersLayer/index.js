@@ -1,6 +1,7 @@
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import withMapViewConfig from '../WithMapViewConfig';
 
+import { COLOR_TOKENS } from '../utils/colors';
 import { LAYER_IDS, SOURCE_IDS } from '../constants';
 import { useMapEventBinding } from '../hooks';
 import useMapSources from '../hooks/useMapSources';
@@ -21,7 +22,7 @@ const linePaint = {
   'line-dasharray': [1, 1.5],
   'line-color': [
     'case',
-    ...IF_HAS_STATE('active', 'yellow', '#CCC'),
+    ...IF_HAS_STATE('active', COLOR_TOKENS['ui-status-warning'], COLOR_TOKENS['greyscale-8']),
   ],
   'line-opacity': [
     'case',
@@ -34,7 +35,7 @@ const criticalLinePaint = {
   ...linePaint,
   'line-color': [
     'case',
-    ...IF_HAS_STATE('active', 'red', '#CCC'),
+    ...IF_HAS_STATE('active', COLOR_TOKENS['ui-status-error-destructive'], COLOR_TOKENS['greyscale-8']),
   ]
 };
 

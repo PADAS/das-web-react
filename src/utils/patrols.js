@@ -18,6 +18,7 @@ import uniq from 'lodash/uniq';
 import uniqBy from 'lodash/uniqBy';
 
 import { calcTitleAndSubtitle } from './titles';
+import { COLOR_STEPS, COLOR_TOKENS, tint, tokenVar } from './colors';
 import { format, getCurrentLocale, SHORT_TIME_FORMAT } from './datetime';
 import { PATROL_UI_STATES, PATROL_API_STATES } from '../constants';
 
@@ -28,47 +29,28 @@ import { addNoteToPatrol, createPatrol, updatePatrol, uploadPatrolFile } from '.
 
 import { getReporterById } from './events';
 
-import * as colorVariables from '../common/styles/vars/colors.module.scss';
 
-const DEFAULT_STROKE = '#FF0080';
+const DEFAULT_STROKE = COLOR_TOKENS['ui-data-tracks-track-1'];
 export const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
 export const READY_TO_START_WINDOW_HOURS = 1; // hours before its start a patrol counts as ready to start
 
+const PATROL_DISABLED_TEXT_COLOR = 'var(--er-ui-text-disabled)';
+
+const createPatrolTheme = (tokenName, fontColor) => ({
+  background: tint(tokenVar(tokenName), COLOR_STEPS.rowTint),
+  base: tokenVar(tokenName),
+  fontColor,
+});
+
 const PATROL_STATUS_THEME_COLOR_MAP = {
-  [PATROL_UI_STATES.SCHEDULED.key]: {
-    base: colorVariables.patrolReadyThemeColor,
-    background: colorVariables.patrolReadyThemeBgColor,
-  },
-  [PATROL_UI_STATES.READY_TO_START.key]: {
-    base: colorVariables.patrolReadyThemeColor,
-    background: colorVariables.patrolReadyThemeBgColor,
-  },
-  [PATROL_UI_STATES.ACTIVE.key]: {
-    base: colorVariables.patrolActiveThemeColor,
-    background: colorVariables.patrolActiveThemeBgColor,
-  },
-  [PATROL_UI_STATES.PAUSED.key]: {
-    base: colorVariables.patrolPausedThemeColor,
-    background: colorVariables.patrolPausedThemeBgColor,
-  },
-  [PATROL_UI_STATES.DONE.key]: {
-    base: colorVariables.patrolDoneThemeColor,
-    background: colorVariables.patrolDoneThemeBgColor,
-  },
-  [PATROL_UI_STATES.START_OVERDUE.key]: {
-    base: colorVariables.patrolOverdueThemeColor,
-    background: colorVariables.patrolOverdueThemeBgColor,
-  },
-  [PATROL_UI_STATES.CANCELLED.key]: {
-    base: colorVariables.patrolCancelledThemeColor,
-    background: colorVariables.patrolCancelledThemeBgColor,
-    fontColor: colorVariables.patrolCancelledThemeFontColor,
-  },
-  [PATROL_UI_STATES.INVALID.key]: {
-    base: colorVariables.patrolCancelledThemeColor,
-    background: colorVariables.patrolCancelledThemeBgColor,
-    fontColor: colorVariables.patrolCancelledThemeFontColor,
-  },
+  [PATROL_UI_STATES.SCHEDULED.key]: createPatrolTheme('ui-patrol-status-scheduled'),
+  [PATROL_UI_STATES.READY_TO_START.key]: createPatrolTheme('ui-patrol-status-scheduled'),
+  [PATROL_UI_STATES.ACTIVE.key]: createPatrolTheme('ui-patrol-status-active'),
+  [PATROL_UI_STATES.PAUSED.key]: createPatrolTheme('yellow-2'),
+  [PATROL_UI_STATES.DONE.key]: createPatrolTheme('greyscale-7'),
+  [PATROL_UI_STATES.START_OVERDUE.key]: createPatrolTheme('ui-patrol-status-overdue'),
+  [PATROL_UI_STATES.CANCELLED.key]: createPatrolTheme('greyscale-9', PATROL_DISABLED_TEXT_COLOR),
+  [PATROL_UI_STATES.INVALID.key]: createPatrolTheme('greyscale-9', PATROL_DISABLED_TEXT_COLOR),
 };
 
 export const calcColorThemeForPatrolState = (patrolState) => {
@@ -1132,24 +1114,25 @@ export const sortPatrolList = (patrols) => orderBy(
 // inside its pin, and Mapbox picks an icon by image, not by a data expression.
 const PATROL_MARKER_HEIGHT = 37;
 const PATROL_MARKER_WIDTH = 27;
-const PATROL_MARKER_COLOR = '#0056C7';
+const PATROL_MARKER_COLOR = COLOR_TOKENS['blue-1'];
+const PATROL_MARKER_GLYPH_COLOR = COLOR_TOKENS['greyscale-white'];
 const PATROL_MARKER_PIN_PATH = 'M13.5 1C6.6 1 1 6.6 1 13.5c0 9 12.5 23 12.5 23S26 22.5 26 13.5C26 6.6 20.4 1 13.5 1z';
 const PATROL_MARKER_TEXT_FONT = 'Arial, Helvetica, sans-serif';
 
 const buildPatrolMarkerImage = (glyph) => {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${PATROL_MARKER_WIDTH}" `
     + `height="${PATROL_MARKER_HEIGHT}" viewBox="0 0 ${PATROL_MARKER_WIDTH} ${PATROL_MARKER_HEIGHT}">`
-    + `<path d="${PATROL_MARKER_PIN_PATH}" fill="${PATROL_MARKER_COLOR}" stroke="#ffffff" stroke-width="1.5"/>`
+    + `<path d="${PATROL_MARKER_PIN_PATH}" fill="${PATROL_MARKER_COLOR}" stroke="${PATROL_MARKER_GLYPH_COLOR}" stroke-width="1.5"/>`
     + `${glyph}</svg>`;
 
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 };
 
 const PATROL_START_MARKER_IMAGE = buildPatrolMarkerImage(
-  '<path d="M10.75 8.75 19 13.5l-8.25 4.75z" fill="#ffffff"/>'
+  `<path d="M10.75 8.75 19 13.5l-8.25 4.75z" fill="${PATROL_MARKER_GLYPH_COLOR}"/>`
 );
 const PATROL_END_MARKER_IMAGE = buildPatrolMarkerImage(
-  '<rect x="9.75" y="9.75" width="7.5" height="7.5" rx="1" fill="#ffffff"/>'
+  `<rect x="9.75" y="9.75" width="7.5" height="7.5" rx="1" fill="${PATROL_MARKER_GLYPH_COLOR}"/>`
 );
 
 const patrolLegMarkerImages = new Map();
@@ -1159,7 +1142,7 @@ const patrolLegMarkerImages = new Map();
 const buildPatrolLegMarkerImage = (legNumber) => {
   if (!patrolLegMarkerImages.has(legNumber)) {
     patrolLegMarkerImages.set(legNumber, buildPatrolMarkerImage(
-      '<circle cx="13.5" cy="13.5" r="7.5" fill="#ffffff"/>'
+      `<circle cx="13.5" cy="13.5" r="7.5" fill="${PATROL_MARKER_GLYPH_COLOR}"/>`
       + `<text x="13.5" y="13.5" fill="${PATROL_MARKER_COLOR}" font-family="${PATROL_MARKER_TEXT_FONT}" `
       + `font-size="11" font-weight="bold" text-anchor="middle" dominant-baseline="central">${legNumber}</text>`
     ));
@@ -1169,8 +1152,8 @@ const buildPatrolLegMarkerImage = (legNumber) => {
 };
 
 const PATROL_PAUSE_MARKER_IMAGE = buildPatrolMarkerImage(
-  '<rect x="9.25" y="9.5" width="3" height="8" rx="0.75" fill="#ffffff"/>'
-  + '<rect x="14.75" y="9.5" width="3" height="8" rx="0.75" fill="#ffffff"/>'
+  `<rect x="9.25" y="9.5" width="3" height="8" rx="0.75" fill="${PATROL_MARKER_GLYPH_COLOR}"/>`
+  + `<rect x="14.75" y="9.5" width="3" height="8" rx="0.75" fill="${PATROL_MARKER_GLYPH_COLOR}"/>`
 );
 
 export const PATROL_MARKER_KINDS = {
@@ -1404,7 +1387,7 @@ export const drawPatrolTrackConnectorLines = (patrolPoints, trackData) => {
       patrolTrackEndConnectors(patrolPoints, trackData),
       (patrolPoints.start_location ?? patrolPoints.end_location)?.properties.stroke
     ),
-    connectorLine(patrolPauseConnectors(patrolPoints), colorVariables.patrolPausedThemeColor),
+    connectorLine(patrolPauseConnectors(patrolPoints), COLOR_TOKENS['yellow-2']),
   ].filter(Boolean);
 
   return connectorLines.length ? featureCollection(connectorLines) : null;

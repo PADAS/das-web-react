@@ -7,7 +7,7 @@
   z-index: 3;
   top: 0;
   right: 0;
-  background-color: white;
+  background-color: var(--er-ui-background-primary-background);
   overflow-x: hidden;
   transform: translate3d(100%, 0, 0);
   transition: transform 0.4s linear;
@@ -38,7 +38,7 @@
 
   &[class*="open"] {
     display: block;
-    background-color: black;
+    background-color: var(--er-greyscale-0);
     opacity: 0.4;
   }
 }

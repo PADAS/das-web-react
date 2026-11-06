@@ -1,5 +1,3 @@
-@use '../common/styles/vars/colors';
-
 .popup {
   padding-bottom: 0.25rem;
 
@@ -9,7 +7,7 @@
     margin-bottom: 0.5rem;
 
     small {
-      color: colors.$highlight-color;
+      color: var(--er-ui-cta-primary);
       font-size: 0.65rem;
       font-style: italic;
       font-weight: normal;
@@ -17,7 +15,7 @@
   }
 
   [class*="mapboxgl-popup-content"] {
-    background: white;
+    background: var(--er-ui-background-primary-background);
   }
 }
 
@@ -61,7 +59,7 @@
 }
 
 .listItemGearIcon {
-  background: colors.$highlight-color;
+  background: var(--er-ui-cta-primary);
   border-radius: 50%;
   flex-shrink: 0;
   height: 0.75rem;

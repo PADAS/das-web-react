@@ -1,6 +1,6 @@
 @use '../common/styles/buttons';
 @use '../common/styles/layout';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 
 @mixin button-opacity {
   opacity: 0.75;
@@ -57,11 +57,11 @@
   }
 
   [type="button"][class*="controlButton"] {
-    background: rgb(white, 0.8);
+    background: colors.with-opacity(var(--er-ui-background-primary-background), 80%);
 
     &:hover,
     &:active {
-      background: white;
+      background: var(--er-ui-background-primary-background);
     }
   }
 }
@@ -112,7 +112,7 @@
 }
 
 .general-add-button {
-  color: colors.$bright-blue;
+  color: var(--er-ui-cta-primary);
   height: 2.5rem !important;
   width: 2.5rem !important;
 }

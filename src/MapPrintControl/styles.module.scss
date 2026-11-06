@@ -1,5 +1,4 @@
 @use '../common/styles/buttons';
-@use '../common/styles/vars/colors';
 
 .wrapper {
   position: relative;
@@ -42,8 +41,8 @@
 
   &.active svg {
     path, g, rect, polyline {
-      fill: colors.$bright-blue;
-      stroke: colors.$bright-blue;
+      fill: var(--er-ui-cta-primary);
+      stroke: var(--er-ui-cta-primary);
     }
 
     polyline, polygon {
@@ -53,7 +52,7 @@
 
   /* svg {
     path, g {
-      fill: #333;
+      fill: var(--er-ui-icons);
     }
   } */
 }

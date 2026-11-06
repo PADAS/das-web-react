@@ -1,20 +1,18 @@
-@use '../../common/styles/vars/colors';
-
 .modalBody {
   padding: 0;
 
   .tabs {
     border: 0;
-    background-color: colors.$light-gray;
+    background-color: var(--er-ui-background-tertiary-background);
 
     button[role="tab"] {
       border: 0;
-      border-bottom: 3px solid colors.$light-gray;
-      color: colors.$secondary-medium-gray;
+      border-bottom: 3px solid var(--er-ui-background-tertiary-background);
+      color: var(--er-ui-text-secondary-text);
 
       &[class*="active"] {
-        border-bottom: 3px solid colors.$bright-blue;
-        color: colors.$bright-blue;
+        border-bottom: 3px solid var(--er-ui-cta-primary);
+        color: var(--er-ui-cta-primary);
       }
     }
   }

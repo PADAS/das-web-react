@@ -35,7 +35,7 @@ const PatrolList = ({ patrols = [], loading, onItemClick }) => {
 
   if (loading) {
     return <div className={styles.loaderWrapper}>
-      <MoonLoader />
+      <MoonLoader color="var(--er-ui-cta-primary)" />
     </div>;
   }
 

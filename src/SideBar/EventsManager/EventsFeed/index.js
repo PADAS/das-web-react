@@ -127,7 +127,7 @@ const EventsFeed = ({ eventsFeed }) => {
 
           {hasMoreEvents && <li className={styles.loadingMoreItem} key="loading-more-events">
             <div role="status">
-              <MoonLoader aria-hidden size={LOADING_MORE_SPINNER_SIZE} />
+              <MoonLoader aria-hidden color="var(--er-ui-cta-primary)" size={LOADING_MORE_SPINNER_SIZE} />
 
               <span className="sr-only">{t('loadingMoreLabel')}</span>
             </div>

@@ -2,6 +2,7 @@ import Select from 'react-select';
 import { useTranslation } from 'react-i18next';
 
 import { SETTINGS_CATEGORY, trackEventFactory } from '../../../../utils/analytics';
+import { themeReactSelect } from '../../../../utils/colors';
 import { SUPPORTED_LANGUAGES } from '../../../../constants';
 
 import * as styles from '../../styles.module.scss';
@@ -29,6 +30,7 @@ const LanguageSelect = () => {
       inputId="language-select-input"
       onChange={onLanguageChange}
       options={LANGUAGE_OPTIONS}
+      theme={themeReactSelect}
       value={LANGUAGE_OPTIONS.find((languageOption) => languageOption.value === i18n.language)}
     />
   </div>;

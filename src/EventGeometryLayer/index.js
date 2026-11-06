@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 import { getMapEventFeatureCollectionByTypeWithVirtualDate } from '../selectors/events';
 import { LAYER_IDS, SOURCE_IDS } from '../constants';
 import { MAP_LOCATION_SELECTION_MODES } from '../ducks/map-ui';
-import { PRIORITY_COLOR_MAP } from '../utils/events';
+import { COLOR_TOKENS, PRIORITY_COLOR_MAP } from '../utils/colors';
 import { useMapEventBinding } from '../hooks';
 import useMapSources from '../hooks/useMapSources';
 import useMapLayers from '../hooks/useMapLayers';
@@ -15,10 +15,10 @@ const { EVENT_GEOMETRY_LAYER, EVENT_SYMBOLS } = LAYER_IDS;
 
 const { EVENT_GEOMETRY } = SOURCE_IDS;
 
-const NO_PRIORITY_COLOR = PRIORITY_COLOR_MAP[0].base;
-const LOW_PRIORITY_COLOR = PRIORITY_COLOR_MAP[100].base;
-const MEDIUM_PRIORITY_COLOR = PRIORITY_COLOR_MAP[200].base;
-const HIGH_PRIORITY_COLOR = PRIORITY_COLOR_MAP[300].base;
+const NO_PRIORITY_COLOR = COLOR_TOKENS[PRIORITY_COLOR_MAP[0].baseToken];
+const LOW_PRIORITY_COLOR = COLOR_TOKENS[PRIORITY_COLOR_MAP[100].baseToken];
+const MEDIUM_PRIORITY_COLOR = COLOR_TOKENS[PRIORITY_COLOR_MAP[200].baseToken];
+const HIGH_PRIORITY_COLOR = COLOR_TOKENS[PRIORITY_COLOR_MAP[300].baseToken];
 
 const PRIORITY_COLOR_EXPRESSION = [
   'case',

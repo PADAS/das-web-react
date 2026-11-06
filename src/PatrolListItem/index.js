@@ -200,7 +200,11 @@ const PatrolListItem = ({
       title={displayTitle}
       type={onClick ? 'button' : undefined}
     >
-    <SvgIcon iconId={patrolIconId} style={{ fill: theme.fontColor ? theme.fontColor : 'white' }} type="patrols" />
+    <SvgIcon
+      iconId={patrolIconId}
+      style={{ fill: theme.fontColor ?? 'var(--er-ui-text-primary-text-reversed)' }}
+      type="patrols"
+    />
   </ControlElement>;
 
   const renderedTitleComponent = <>

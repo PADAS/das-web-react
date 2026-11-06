@@ -380,7 +380,7 @@ The map fills the screen, framed by a top bar, a sidebar and a global menu. On s
 ### Technical Stack
 
 - **Runtime and tooling:** Node 26, Yarn 4, Vite 8, ESLint, Stylelint
-- **UI:** React 19; `react-bootstrap` (Bootstrap 5); Sass modules
+- **UI:** React 19; `react-bootstrap` (Bootstrap 5); Sass modules; EarthRanger design tokens (`@allenai/design-system`)
 - **Routing:** React Router 8 declarative mode, with `BrowserRouter`
 - **State:** Redux 5 + `redux-thunk`, `redux-promise`, `reselect`; persistence via `redux-persist`
 - **Map:** Mapbox GL
@@ -435,6 +435,10 @@ One Mapbox instance, created by `EarthRangerMap/`, is shared through `MapContext
 ### Form Schemas
 
 A current (v2) schema is a `{json, ui}` pair: a JSON Schema that validates the values, and a layout of fields, headers and sections. The client fetches it with `pre_render`, so the server fills in the choice lists, and turns both halves into one flat **formElements** map (`utils/form-schemas/`) that `SchemaForm` renders and validates. Legacy v1 event schemas render through `@rjsf`.
+
+### Design Tokens
+
+Colors are the EarthRanger design tokens of `@allenai/design-system`, loaded once as `--er-*` custom properties: semantic `--er-ui-*` tokens and the palette primitives behind them. They resolve at runtime, so Sass color functions cannot read them: `common/styles/_colors.scss` derives shades with `color-mix()` and holds the hover and active steps and the priority and patrol themes. Mapbox cannot read them either, so map paint and drawn images take hex values from `COLOR_TOKENS` in `utils/colors.js`. Libraries with palettes of their own are themed in `common/styles/_bootstrap-theme.scss` and `_vendor-theme.scss`, and react-select through `themeReactSelect`. Colors the server sends, such as a subject's, are drawn as given.
 
 ### Feature Flags and Permissions
 
@@ -528,12 +532,13 @@ Function parameters follow the call's own logic, not the alphabet.
 ### Styling
 
 - Component-specific styles go in a co-located `styles.module.scss`; global partials live in `src/common/styles/`; a subtree that repeats a pattern across its components keeps its own `_shared.scss` of mixins at its root.
-- Pull colors, layout breakpoints and mixins from those partials with `@use`; never hard-code a value that already exists as a variable.
+- Pull layout breakpoints and mixins from those partials with `@use`; never hard-code a value that already exists as a variable.
+- Colors are design tokens, never literals: `var(--er-*)` wherever a color ends up in CSS, from Sass or JS, and `COLOR_TOKENS` only for Mapbox. Prefer a semantic `--er-ui-*` token to a palette primitive. Theme a library through its own variables or theme API, never from a component.
 - Class names name the element's role inside the component rather than how it looks: `.menuItemOption`, `.legTableWrapper`, `.titleBarMain`.
 - Nest selectors to mirror the component's own DOM structure; keep media queries at the end of the block they modify.
 - Sizes, spacing and radii in `rem`. `px` is for hairlines only — borders, outlines and shadows.
-- Derive a hover, active or disabled shade from the variable with `color.adjust`; never introduce a second hex for it.
-- Anything interactive styles `:focus-visible`, not only `:hover`.
+- Derive hover, active and disabled shades with the helpers and steps of `_colors.scss`; never introduce a second color.
+- Anything interactive styles `:focus-visible`, not only `:hover`. Never remove the focus outline without drawing another in its place.
 
 ### Internationalization
 

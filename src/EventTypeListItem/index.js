@@ -1,11 +1,15 @@
 import { memo } from 'react';
 
-import { calcIconColorByPriority } from '../utils/event-types';
+import { PRIORITY_COLOR_MAP, tokenVar } from '../utils/colors';
 
 import SvgIcon from '../SvgIcon';
 
 const EventTypeListItem = ({ default_priority, display, icon_id, value }) => <span>
-  <SvgIcon color={calcIconColorByPriority(default_priority)} iconId={icon_id || value} type="events" />
+  <SvgIcon
+    color={tokenVar((PRIORITY_COLOR_MAP[default_priority] ?? PRIORITY_COLOR_MAP[0]).baseToken)}
+    iconId={icon_id || value}
+    type="events"
+  />
 
   {display}
 </span>;

@@ -1,11 +1,10 @@
-@use 'sass:color';
 @use '../common/styles/inputs';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 
 .datePicker {
   align-items: center;
-  background: white;
-  border: 1px solid colors.$light-gray-border;
+  background: var(--er-ui-background-primary-background);
+  border: 1px solid var(--er-ui-divider-lines);
   border-radius: 0.25rem;
   display: flex;
   height: 2.5rem;
@@ -14,37 +13,37 @@
   width: 10rem;
 
   &:not(.disabled):has(input:focus-visible, button[aria-expanded="true"]) {
-    border: 1px solid colors.$bright-blue;
-    outline: 1px solid colors.$bright-blue;
+    border: 1px solid var(--er-ui-cta-primary);
+    outline: 1px solid var(--er-ui-cta-primary);
   }
 
   &[aria-invalid="true"] {
-    border-color: colors.$bright-red;
+    border-color: var(--er-ui-status-error-destructive);
 
     > svg {
-      color: colors.$bright-red;
+      color: var(--er-ui-status-error-destructive);
     }
 
     > [class*="react-datepicker-wrapper"] [class*="caret"] {
-      border-top-color: colors.$bright-red;
+      border-top-color: var(--er-ui-status-error-destructive);
     }
 
     ::placeholder {
-      color: color.adjust(colors.$bright-red, $lightness: 33%);
+      color: colors.tint(var(--er-ui-status-error-destructive), 56%);
     }
   }
 
   &.readOnly {
-    background-color: colors.$off-white;
+    background-color: colors.$subtle-background;
   }
 
   &.disabled {
-    background-color: colors.$disabled-field-gray;
+    background-color: var(--er-ui-background-tertiary-background);
     pointer-events: none;
   }
 
   .calendarIcon {
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-icons);
     height: 1.125rem;
     width: 1.125rem;
   }

@@ -1,12 +1,11 @@
-@use 'sass:color';
 @use 'sass:map';
-@use '../../../../common/styles/vars/colors';
+@use '../../../../common/styles/colors';
 @use '../../../shared';
 
 @mixin event-row-theme($theme) {
   $theme-color: map.get($theme, 'base');
 
-  --event-row-hover-background: #{color.mix($theme-color, white, colors.$patrol-row-tint)};
+  --event-row-hover-background: #{colors.tint($theme-color, colors.$row-tint)};
 
   .icon {
     background-color: $theme-color;
@@ -15,8 +14,8 @@
 
 .eventRow {
   align-items: center;
-  background-color: white;
-  border-bottom: 1px solid colors.$light-gray-lines;
+  background-color: var(--er-ui-background-primary-background);
+  border-bottom: 1px solid var(--er-ui-divider-lines);
   cursor: pointer;
   display: grid;
   gap: 0 0.75rem;
@@ -34,7 +33,7 @@
     align-items: center;
     align-self: center;
     border-radius: 0.25rem;
-    color: white;
+    color: var(--er-ui-text-primary-text-reversed);
     display: flex;
     grid-area: icon;
     height: 3rem;
@@ -55,7 +54,7 @@
 
   .serialNumber {
     align-self: center;
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-text-secondary-text);
     font-size: 1rem;
     grid-area: serial;
     grid-row: 1 / -1;
@@ -71,7 +70,7 @@
 
     .titleLink {
       border-radius: 0.125rem;
-      color: colors.$off-black;
+      color: var(--er-ui-text-primary-text);
       font-size: 1rem;
       font-weight: 500;
       min-width: 0;
@@ -81,8 +80,8 @@
       white-space: nowrap;
 
       &:focus-visible {
-        color: colors.$bright-blue;
-        outline: 2px solid colors.$bright-blue;
+        color: var(--er-ui-cta-primary);
+        outline: 2px solid var(--er-ui-cta-primary);
         outline-offset: 2px;
         text-decoration: underline;
       }
@@ -91,7 +90,7 @@
 
   .details {
     align-self: start;
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-text-secondary-text);
     font-size: 0.75rem;
     grid-area: details;
     margin: 0;
@@ -114,20 +113,20 @@
       white-space: nowrap;
 
       &.active {
-        color: colors.$plum;
+        color: var(--er-ui-patrol-status-active);
       }
 
       &.resolved {
-        color: colors.$alt-light-gray;
+        color: var(--er-ui-text-secondary-text);
       }
 
       &.review {
-        color: colors.$dark-gold;
+        color: var(--er-yellow-2);
       }
     }
 
     .statusDate {
-      color: colors.$secondary-medium-gray;
+      color: var(--er-ui-text-secondary-text);
       font-size: 0.75rem;
       font-style: italic;
       white-space: nowrap;

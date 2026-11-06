@@ -1,14 +1,13 @@
-@use 'sass:color';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 @use '../common/styles/inputs';
 
 .button {
   align-items: center;
-  background: colors.$mapbox-control-bg-color;
+  background: var(--er-ui-background-elevated-component);
   border: none;
   border-radius: 0.125rem;
-  box-shadow: rgb(0 0 0 / 30%) 0 1px 4px;
-  color: colors.$primary-font-color;
+  box-shadow: colors.with-opacity(var(--er-greyscale-0), 30%) 0 1px 4px;
+  color: var(--er-ui-text-primary-text);
   display: flex;
   font-size: 0.75rem;
   height: 2.25rem;
@@ -17,28 +16,28 @@
   padding: 0.5rem;
 
   &:focus-visible {
-    outline: 2px solid colors.$bright-blue;
+    outline: 2px solid var(--er-ui-cta-primary);
   }
 
   &:hover {
-    background-color: color.adjust(colors.$light-gray-background, $lightness: 2%);
+    background-color: colors.tint(var(--er-ui-background-tertiary-background), 25%);
   }
 
   &[aria-expanded="true"] {
-    color: colors.$bright-blue;
+    color: var(--er-ui-cta-primary);
 
     .searchIcon {
       circle {
-        stroke: colors.$bright-blue;
+        stroke: var(--er-ui-cta-primary);
       }
   
       path {
-        fill: colors.$bright-blue;
+        fill: var(--er-ui-cta-primary);
       }
     }
 
     .caret {
-      border-top-color: colors.$bright-blue;
+      border-top-color: var(--er-ui-cta-primary);
     }
   }
 
@@ -53,18 +52,18 @@
 
       circle {
         fill: none;
-        stroke: colors.$secondary-medium-gray;
+        stroke: var(--er-ui-icons);
         stroke-width: 1rem;
       }
   
       path {
-        fill: colors.$secondary-medium-gray;
+        fill: var(--er-ui-icons);
       }
     }
   }
 
   .caret {
-    @include inputs.dropdown-caret($color: colors.$secondary-medium-gray);
+    @include inputs.dropdown-caret;
 
     margin-left: 0.5rem;
 

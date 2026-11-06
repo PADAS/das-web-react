@@ -1,5 +1,5 @@
 @use '../common/styles/buttons';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 
 
 @mixin button-background($image: 'tracks_off') {
@@ -19,7 +19,7 @@
     @include button-background;
 
     background-size: cover;
-    background-color: colors.$subject-control-btn-bg;
+    background-color: colors.with-opacity(var(--er-greyscale-7), 15%);
     border: none;
     border-radius: 0.25rem;
     display: block;

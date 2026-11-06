@@ -1,5 +1,4 @@
 @use '../../common/styles/buttons';
-@use '../../common/styles/vars/colors';
 @use '../../common/styles/inputs';
 
 .menuPopover {
@@ -16,7 +15,7 @@
     padding: 0.75rem 0.5rem;
 
     .permissionBlockedMessage {
-      color: colors.$bright-red;
+      color: var(--er-ui-status-error-destructive);
       font-size: 0.75rem;
       font-weight: 400;
       margin: 0.125rem 0 0;
@@ -41,8 +40,8 @@
           opacity: 0.5;
 
           &:hover {
-            background-color: colors.$light-gray-background;
-            border-color: colors.$light-gray-background;
+            background-color: var(--er-ui-background-tertiary-background);
+            border-color: var(--er-ui-background-tertiary-background);
           }
         }
 

@@ -15,7 +15,7 @@ import { eventSchemas } from '../../../__test-helpers/fixtures/event-schemas';
 import { eventTypes } from '../../../__test-helpers/fixtures/event-types';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import { NavigationContext } from '../../../NavigationContextProvider';
-import { PRIORITY_COLOR_MAP } from '../../../utils/events';
+import { PRIORITY_COLOR_MAP } from '../../../utils/colors';
 import { render, screen, waitFor } from '../../../test-utils';
 import { report } from '../../../__test-helpers/fixtures/reports';
 

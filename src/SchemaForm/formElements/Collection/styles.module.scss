@@ -1,5 +1,4 @@
 @use '../../../common/styles/buttons';
-@use '../../../common/styles/vars/colors';
 
 .collection {
   .header {
@@ -13,11 +12,11 @@
 
     &.error {
       .chevronButton {
-        color: colors.$bright-red;
+        color: var(--er-ui-status-error-destructive);
       }
   
       .label {
-        color: colors.$bright-red;
+        color: var(--er-ui-status-error-destructive);
       }
     }
 
@@ -29,13 +28,13 @@
     }
 
     .label {
-      color: colors.$secondary-medium-gray;
+      color: var(--er-ui-text-secondary-text);
       font-size: 0.875rem;
       font-weight: 400;
       margin-bottom: 0.375rem;
   
       &.error {
-        color: colors.$bright-red;
+        color: var(--er-ui-status-error-destructive);
       }
     }
   }
@@ -44,8 +43,8 @@
     margin-top: 0.5rem;
 
     .emptyState {
-      background: white;
-      border: 1px dashed colors.$light-gray-border;
+      background: var(--er-ui-background-primary-background);
+      border: 1px dashed var(--er-ui-divider-lines);
       border-radius: 0.25rem;
       height: 2.5rem;
       width: 100%;
@@ -69,13 +68,13 @@
   }
 
   .description {
-    color: colors.$alt-light-gray;
+    color: var(--er-ui-text-secondary-text);
     font-size: 0.875rem;
     font-weight: 400;
     margin: 0.125rem 0 0;
 
     &.error {
-      color: colors.$bright-red;
+      color: var(--er-ui-status-error-destructive);
     }
 
     &:empty {

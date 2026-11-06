@@ -1,13 +1,13 @@
-
 @use '../common/styles/buttons';
+@use '../common/styles/colors';
 
 button.detailsButton {
-  color: white;
+  color: var(--er-ui-text-primary-text-reversed);
   text-decoration: underline;
   white-space: nowrap;
 
   &:hover, &:active, &:visited {
-    color: white;
+    color: var(--er-ui-text-primary-text-reversed);
   }
 }
 
@@ -24,7 +24,7 @@ button.detailsButton {
 }
 
 .details {
-  border-top: 1px solid rgb(white, 0.5);
+  border-top: 1px solid colors.with-opacity(var(--er-ui-background-primary-background), 50%);
   margin-top: 1rem;
   padding: 0.5rem 0;
 }
@@ -32,7 +32,7 @@ button.detailsButton {
 button.linkButton {
   @include buttons.unstyled-button;
 
-  color: white;
+  color: var(--er-ui-text-primary-text-reversed);
   font-weight: 600;
   padding-top: 0;
   text-transform: uppercase;
@@ -42,6 +42,6 @@ button.linkButton {
   }
 
   &:hover, &:active, &:visited {
-    color: white;
+    color: var(--er-ui-text-primary-text-reversed);
   }
 }

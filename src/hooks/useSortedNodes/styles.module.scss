@@ -1,8 +1,6 @@
-@use '../../common/styles/vars/colors';
-
 .timeSortButton {
-  background-color: colors.$light-gray;
-  border-color: colors.$light-gray;
+  background-color: var(--er-ui-background-tertiary-background);
+  border-color: var(--er-ui-background-tertiary-background);
   width: 1.75rem;
   height: 1.75rem;
   padding: 0;
@@ -12,19 +10,19 @@
     margin-bottom: 0.19rem;
 
     path {
-      fill: colors.$secondary-medium-gray;
+      fill: var(--er-ui-icons);
     }
   }
 
   &:hover {
-    background-color: colors.$secondary-light-gray;
-    border-color: colors.$secondary-light-gray;
+    background-color: var(--er-ui-field-outline);
+    border-color: var(--er-ui-field-outline);
   }
 
   &:hover, &[class*="btn-primary"] {
     svg {
       path {
-        fill: white;
+        fill: var(--er-ui-text-primary-text-reversed);
       }
     }
   }

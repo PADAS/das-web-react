@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { addFeatureCollectionImagesToMap, safeRemoveMapSourceAndItsLayers } from '../utils/map';
+import { COLOR_TOKENS, withOpacity } from '../utils/colors';
 import { DEFAULT_SYMBOL_PAINT, LAYER_IDS } from '../constants';
 import { MapContext } from '../MapContext';
 import { PATROL_MARKER_KINDS } from '../utils/patrols';
@@ -17,7 +18,7 @@ const LINE_PAINT = {
   'line-color': [
     'case',
     ['has', 'stroke'], ['get', 'stroke'],
-    'orange',
+    COLOR_TOKENS['ui-patrol-status-track-line-mobile'],
   ],
   'line-dasharray': [1, 2],
   'line-width': ['step', ['zoom'], 2, 8, 2.5],
@@ -33,7 +34,7 @@ const LINE_LAYOUT = {
 const SYMBOL_PAINT = {
   ...DEFAULT_SYMBOL_PAINT,
   'text-halo-blur': 0.5,
-  'text-halo-color': 'rgba(0,0,0,0.7)',
+  'text-halo-color': withOpacity(COLOR_TOKENS['greyscale-0'], 70),
   'text-halo-width': 0.5,
 };
 

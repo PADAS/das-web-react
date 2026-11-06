@@ -1,4 +1,3 @@
-@use '../../../common/styles/vars/colors';
 @use '../../../common/styles/inputs';
 
 .timeZoneSelect {
@@ -7,7 +6,7 @@
   margin-bottom: 0.25rem;
 
   .label {
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-text-secondary-text);
     font-size: 0.75rem;
     margin-right: 0.5rem;
     white-space: nowrap;
@@ -23,15 +22,15 @@
       min-height: 2rem;
 
       &.focused {
-        border-color: colors.$bright-blue;
+        border-color: var(--er-ui-cta-primary);
 
         .singleValue {
-          color: colors.$secondary-medium-gray;
+          color: var(--er-ui-text-secondary-text);
         }
       }
 
       .singleValue {
-        color: black;
+        color: var(--er-ui-text-primary-text);
       }
 
       .dropdownIndicator {
@@ -39,7 +38,7 @@
         padding: 0.5rem;
 
         .caret {
-          @include inputs.dropdown-caret($color: colors.$secondary-medium-gray);
+          @include inputs.dropdown-caret;
     
           &.menuOpen {
             transform: rotate(180deg);
@@ -60,20 +59,20 @@
     padding-left: 1.75rem;
   
     &.focused {
-      background-color: colors.$semi-light-gray;
+      background-color: var(--er-ui-background-tertiary-background);
     }
   
     &.selected {
-      background-color: colors.$very-light-blue;
+      background-color: var(--er-ui-background-selected-background);
       padding-left: 0.5rem;
     }
   
     &:hover {
-      background-color: colors.$semi-light-gray;
+      background-color: var(--er-ui-background-tertiary-background);
     }
   
     .checkLightIcon {
-      color: colors.$bright-blue;
+      color: var(--er-ui-cta-primary);
       margin-right: 0.5rem;
       width: 0.75rem;
     }
@@ -84,7 +83,7 @@
       text-transform: capitalize;
   
       .label {
-        color: black;
+        color: var(--er-ui-text-primary-text);
         margin: 0;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -92,7 +91,7 @@
       }
   
       .description {
-        color: colors.$secondary-medium-gray;
+        color: var(--er-ui-text-secondary-text);
         margin: 0;
         overflow: hidden;
         text-overflow: ellipsis;

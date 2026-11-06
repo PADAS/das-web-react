@@ -1,5 +1,5 @@
 @use 'sass:map';
-@use '../../common/styles/vars/colors';
+@use '../../common/styles/colors';
 @use '../shared';
 
 @mixin incident-option-theme($theme) {
@@ -13,15 +13,15 @@
 
   .status .statusTitle {
     &.active {
-      color: colors.$plum;
+      color: var(--er-ui-patrol-status-active);
     }
 
     &.resolved {
-      color: colors.$alt-light-gray;
+      color: var(--er-ui-text-secondary-text);
     }
 
     &.review {
-      color: colors.$dark-gold;
+      color: var(--er-yellow-2);
     }
   }
 

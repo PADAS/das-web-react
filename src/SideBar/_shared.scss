@@ -1,9 +1,8 @@
 @forward '../common/styles/filter-popovers';
-@use 'sass:color';
 @use 'sass:map';
 @use '../common/styles/buttons';
 @use '../common/styles/layout';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 
 $footer-button-min-width: 4.375rem;
 
@@ -36,38 +35,38 @@ $footer-button-min-width: 4.375rem;
   }
 
   &.visible {
-    background-color: colors.$bright-blue;
-    border-color: colors.$bright-blue;
-    color: white;
+    background-color: var(--er-ui-cta-primary);
+    border-color: var(--er-ui-cta-primary);
+    color: var(--er-ui-text-primary-text-reversed);
 
     &:hover {
-      background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
-      border-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+      background-color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
+      border-color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
     }
 
     &:focus-visible {
-      background-color: white;
-      border-color: colors.$bright-blue;
-      color: colors.$bright-blue;
-      outline: 1px solid colors.$bright-blue;
+      background-color: var(--er-ui-background-primary-background);
+      border-color: var(--er-ui-cta-primary);
+      color: var(--er-ui-cta-primary);
+      outline: 1px solid var(--er-ui-cta-primary);
     }
   }
 
   &.pinned {
-    background-color: colors.$green;
-    border-color: colors.$green;
-    color: white;
+    background-color: var(--er-teal-t100);
+    border-color: var(--er-teal-t100);
+    color: var(--er-ui-text-primary-text-reversed);
 
     &:hover {
-      background-color: color.adjust(colors.$green, $lightness: -5%);
-      border-color: color.adjust(colors.$green, $lightness: -5%);
+      background-color: colors.shade(var(--er-teal-t100), colors.$hover-shade);
+      border-color: colors.shade(var(--er-teal-t100), colors.$hover-shade);
     }
 
     &:focus-visible {
-      background-color: white;
-      border-color: colors.$green;
-      color: colors.$green;
-      outline: 1px solid colors.$green;
+      background-color: var(--er-ui-background-primary-background);
+      border-color: var(--er-teal-t100);
+      color: var(--er-teal-t100);
+      outline: 1px solid var(--er-teal-t100);
     }
   }
 }
@@ -110,9 +109,9 @@ $footer-button-min-width: 4.375rem;
 }
 
 @mixin patrol-indicator-badge {
-  background: rgb(0 0 0 / 25%);
+  background: colors.with-opacity(var(--er-greyscale-0), 25%);
   border-top-left-radius: 0.25rem;
-  color: white;
+  color: var(--er-ui-text-primary-text-reversed);
   font-size: 0.625rem;
   font-weight: 500;
   left: 0;
@@ -133,7 +132,7 @@ $footer-button-min-width: 4.375rem;
 
   .icon {
     align-items: center;
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-icons);
     display: flex;
     justify-content: center;
 
@@ -145,7 +144,7 @@ $footer-button-min-width: 4.375rem;
   }
 
   .serialNumber {
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-text-secondary-text);
     font-size: 1.375rem;
     line-height: 2rem;
     margin: 0;
@@ -159,7 +158,7 @@ $footer-button-min-width: 4.375rem;
 @mixin header-icon-tile($theme) {
   background-color: map.get($theme, 'base');
   border-radius: 0.25rem;
-  color: map.get($theme, 'font-color') or white;
+  color: map.get($theme, 'font-color') or var(--er-ui-text-primary-text-reversed);
   flex-shrink: 0;
   height: 3rem;
   width: 3rem;
@@ -177,7 +176,7 @@ $footer-button-min-width: 4.375rem;
   min-width: 0;
 
   .subtitle {
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-text-secondary-text);
     font-size: 0.875rem;
     margin: 0;
     padding: 0 0.125rem;
@@ -193,7 +192,7 @@ $footer-button-min-width: 4.375rem;
   .provenancePill, .statePill {
     align-items: center;
     border-radius: 999px;
-    color: white;
+    color: var(--er-ui-text-primary-text-reversed);
     display: flex;
     flex-shrink: 0;
     font-size: 0.875rem;
@@ -201,16 +200,16 @@ $footer-button-min-width: 4.375rem;
   }
 
   .provenancePill {
-    background: colors.$off-black;
+    background: var(--er-teal-t100);
   }
 
   .statePill {
-    background: colors.$bright-blue;
+    background: var(--er-ui-cta-primary);
   }
 }
 
 @mixin header-title {
-  color: colors.$off-black;
+  color: var(--er-ui-text-primary-text);
   font-size: 1.375rem;
   font-weight: 500;
   height: 2rem;

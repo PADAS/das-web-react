@@ -1,7 +1,6 @@
-@use 'sass:color';
 @use '../../../../common/styles/buttons';
 @use '../../../../common/styles/inputs';
-@use '../../../../common/styles/vars/colors';
+@use '../../../../common/styles/colors';
 
 .sortingButton {
   @include buttons.chip-text-button;
@@ -55,7 +54,7 @@
       }
 
       .sortByMenuItemOption {
-        background-color: white;
+        background-color: var(--er-ui-background-primary-background);
         border: none;
         outline: none;
         padding: 0.5rem;
@@ -63,18 +62,18 @@
         width: 100%;
 
         &:hover {
-          background-color: color.adjust(colors.$light-gray-background, $lightness: 5%);
+          background-color: colors.tint(var(--er-ui-background-tertiary-background), 62%);
         }
 
         &:focus {
-          background-color: colors.$light-gray-background;
+          background-color: var(--er-ui-background-tertiary-background);
         }
 
         &[aria-checked="true"] {
-          background-color: colors.$blue-highlight;
+          background-color: var(--er-ui-background-selected-background);
 
           &:hover, &:focus {
-            background-color: color.adjust(colors.$blue-highlight, $lightness: -5%);
+            background-color: colors.shade(var(--er-ui-background-selected-background), colors.$surface-hover-shade);
           }
         }
 
@@ -83,7 +82,7 @@
         }
 
         .checkIcon {
-          color: colors.$bright-blue;
+          color: var(--er-ui-cta-primary);
           height: 0.75rem;
           margin-right: 0.5rem;
           width: 0.75rem;

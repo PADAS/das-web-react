@@ -232,7 +232,7 @@ const GearTab = () => {
     </div>}
 
     {showInitialLoader && <div className={styles.loaderWrapper}>
-      <MoonLoader aria-hidden size={40} />
+      <MoonLoader aria-hidden color="var(--er-ui-cta-primary)" size={40} />
       <p className={styles.loadingHint}>{t('loadingInitial')}</p>
     </div>}
 

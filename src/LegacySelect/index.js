@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import ReactSelect, { components } from 'react-select';
 
-import * as colorVars from '../common/styles/vars/colors.module.scss';
+import { themeReactSelect } from '../utils/colors';
+
 import * as controlsVars from '../common/styles/vars/controls.module.scss';
 
 import * as styles from './styles.module.scss';
@@ -22,7 +23,9 @@ const LegacySelect = ({ styles: customStyles, components, ref, ...rest }) => {
       const { isDisabled, isFocused } = state;
       return {
         ...styles,
-        backgroundColor: isFocused ? colorVars.optionHighlight : 'white',
+        backgroundColor: isFocused
+          ? 'var(--er-ui-background-selected-background)'
+          : 'var(--er-ui-background-primary-background)',
         color: 'inherit',
         display: isDisabled ? 'none' : 'block',
         cursor: isFocused ? 'pointer' : 'inherit',
@@ -47,6 +50,7 @@ const LegacySelect = ({ styles: customStyles, components, ref, ...rest }) => {
       components={{ DropdownIndicator, IndicatorsContainer, ...components }}
       ref={ref}
       styles={selectStyles}
+      theme={themeReactSelect}
       {...rest}
   />;
 };

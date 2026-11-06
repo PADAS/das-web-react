@@ -2,7 +2,7 @@ import MoonLoader from 'react-spinners/MoonLoader';
 import { useTranslation } from 'react-i18next';
 
 import { EVENT_FORM_STATES } from '../../constants';
-import { PRIORITY_COLOR_MAP } from '../../utils/events';
+import { PRIORITY_COLOR_MAP } from '../../utils/colors';
 import useReport from '../../hooks/useReport';
 
 import DateTime from '../../DateTime';

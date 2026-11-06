@@ -1,12 +1,11 @@
 @use '../../../../common/styles/buttons';
 @use '../../../../common/styles/layout';
-@use '../../../../common/styles/vars/colors';
 
 .filters {
   flex-shrink: 0;
 
   .controls {
-    border-bottom: 1px solid colors.$light-gray-lines;
+    border-bottom: 1px solid var(--er-ui-divider-lines);
     display: flex;
     flex-direction: column;
     padding: 0.75rem;
@@ -48,7 +47,7 @@
 
   .summaryBar {
     align-items: center;
-    border-bottom: 1px solid colors.$light-gray-lines;
+    border-bottom: 1px solid var(--er-ui-divider-lines);
     display: flex;
     gap: 0.5rem;
     justify-content: space-between;
@@ -56,7 +55,7 @@
     padding: 0.5rem;
 
     .summary {
-      color: colors.$off-black;
+      color: var(--er-ui-text-primary-text);
       font-size: 0.75rem;
       line-height: normal;
       margin: 0;

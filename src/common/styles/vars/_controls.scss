@@ -1,1 +1,3 @@
-$base-box-shadow: 0 0 0.93rem rgb(0 0 0 / 15%);
+@use '../colors';
+
+$base-box-shadow: 0 0 0.93rem colors.with-opacity(var(--er-greyscale-0), 15%);

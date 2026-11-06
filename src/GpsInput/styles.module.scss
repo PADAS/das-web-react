@@ -1,32 +1,31 @@
-@use 'sass:color';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 
 .inputWrapper {
   display: flex;
   margin-top: 0.5rem;
 
   .input {
-    border: 1px solid colors.$secondary-light-gray;
+    border: 1px solid var(--er-ui-field-outline);
     border-radius: 0.25rem;
     outline: none;
     padding: 0.25rem 0.5rem;
     width: 100%;
 
     &[aria-invalid="true"] {
-      border-color: colors.$bright-red;
+      border-color: var(--er-ui-status-error-destructive);
 
       &::placeholder {
-        color: color.adjust(colors.$bright-red, $lightness: 33%);
+        color: colors.tint(var(--er-ui-status-error-destructive), 56%);
       }
     }
 
     &:hover {
-      border: 1px solid colors.$off-black;
+      border: 1px solid var(--er-teal-t100);
     }
 
     &:focus-visible {
-      border-color: colors.$bright-blue;
-      outline: 1px solid colors.$bright-blue;
+      border-color: var(--er-ui-cta-primary);
+      outline: 1px solid var(--er-ui-cta-primary);
     }
 
     &::-webkit-search-decoration,
@@ -39,13 +38,13 @@
 }
 
 .description {
-  color: colors.$alt-light-gray;
+  color: var(--er-ui-text-secondary-text);
   font-size: 0.75rem;
   font-weight: 400;
   margin: 0.125rem 0 0;
 
   &.error {
-    color: colors.$bright-red;
+    color: var(--er-ui-status-error-destructive);
   }
 }
 
@@ -61,20 +60,20 @@
     padding-left: 1.75rem;
 
     &:hover, &.active {
-      background-color: colors.$semi-light-gray;
+      background-color: var(--er-ui-background-tertiary-background);
     }
   
     &[aria-selected="true"] {
-      background-color: colors.$very-light-blue;
+      background-color: var(--er-ui-background-selected-background);
       padding-left: 0.5rem;
 
       &:hover, &.active {
-        background-color: color.adjust(colors.$very-light-blue, $lightness: -5%);
+        background-color: colors.shade(var(--er-ui-background-selected-background), colors.$surface-hover-shade);
       }
     }
 
     .checkLightIcon {
-      color: colors.$bright-blue;
+      color: var(--er-ui-cta-primary);
       margin-right: 0.5rem;
       width: 0.75rem;
     }
@@ -86,7 +85,7 @@
       white-space: nowrap;
 
       .placeFormatted {
-        color: colors.$secondary-medium-gray;
+        color: var(--er-ui-text-secondary-text);
         display: block;
         font-size: 0.75rem;
         overflow: hidden;

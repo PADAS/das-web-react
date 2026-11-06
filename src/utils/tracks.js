@@ -13,6 +13,7 @@ import merge from 'lodash/merge';
 import store from '../store';
 import { TRACK_LENGTH_ORIGINS, fetchTracks } from '../ducks/tracks';
 import { removeNullAndUndefinedValuesFromObject } from './objects';
+import { COLOR_TOKENS } from './colors';
 import { getTimeInTimezone } from './datetime';
 import { TIME_OF_DAY_PERIODS } from '../constants';
 
@@ -509,8 +510,8 @@ const buildTrackFeatureSegments = (lineStringFeature, timeZone) => {
       break;
     }
 
-    const { color: startColor } = getTimeOfDayPeriodBasedOnTime(startTime, timeZone);
-    const { color: endColor } = getTimeOfDayPeriodBasedOnTime(endTime, timeZone);
+    const startColor = COLOR_TOKENS[getTimeOfDayPeriodBasedOnTime(startTime, timeZone).colorToken];
+    const endColor = COLOR_TOKENS[getTimeOfDayPeriodBasedOnTime(endTime, timeZone).colorToken];
 
     segments.push({
       type: 'Feature',

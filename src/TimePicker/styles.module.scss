@@ -1,11 +1,10 @@
-@use 'sass:color';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 @use '../common/styles/inputs';
 
 .timePicker {
   align-items: center;
-  background: white;
-  border: 1px solid colors.$light-gray-border;
+  background: var(--er-ui-background-primary-background);
+  border: 1px solid var(--er-ui-divider-lines);
   border-radius: 0.25rem;
   display: flex;
   height: 2.5rem;
@@ -14,23 +13,23 @@
   width: 7rem;
 
   &:not(.disabled):has(input:focus-visible, button[aria-expanded="true"]) {
-    border: 1px solid colors.$bright-blue;
-    outline: 1px solid colors.$bright-blue;
+    border: 1px solid var(--er-ui-cta-primary);
+    outline: 1px solid var(--er-ui-cta-primary);
   }
 
   &[aria-invalid="true"] {
-    border-color: colors.$bright-red;
+    border-color: var(--er-ui-status-error-destructive);
 
     svg > g {
-      stroke: colors.$bright-red;
+      stroke: var(--er-ui-status-error-destructive);
     }
 
     .optionsPopoverButton .caret {
-      border-top-color: colors.$bright-red;
+      border-top-color: var(--er-ui-status-error-destructive);
     }
 
     ::placeholder {
-      color: color.adjust(colors.$bright-red, $lightness: 33%);
+      color: colors.tint(var(--er-ui-status-error-destructive), 56%);
     }
   }
 
@@ -39,11 +38,11 @@
   }
 
   &.readOnly {
-    background-color: colors.$off-white;
+    background-color: colors.$subtle-background;
   }
 
   &.disabled {
-    background-color: colors.$disabled-field-gray;
+    background-color: var(--er-ui-background-tertiary-background);
   }
 
   .clockIcon {
@@ -51,7 +50,7 @@
     width: 1.125rem;
 
     > g {
-      stroke: colors.$secondary-medium-gray;
+      stroke: var(--er-ui-icons);
     }
   }
 
@@ -106,12 +105,12 @@
 
     &:focus {
       .caret {
-        border-top-color: colors.$bright-blue;
+        border-top-color: var(--er-ui-cta-primary);
       }
     }
 
     &:focus-visible:not([aria-expanded="true"])::after {
-      border: 2px solid colors.$bright-blue;
+      border: 2px solid var(--er-ui-cta-primary);
       border-radius: 0.25rem;
       content: '';
       height: 1.25rem;
@@ -123,7 +122,7 @@
     }
 
     .caret {
-      @include inputs.dropdown-caret($color: colors.$secondary-medium-gray);
+      @include inputs.dropdown-caret;
 
       &.open {
         transform: rotate(180deg);

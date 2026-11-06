@@ -242,7 +242,7 @@ const LoginPage = () => {
           type="button"
         >
           {isAuth0Loading
-            ? <MoonLoader aria-hidden color="white" size={SUBMIT_LOADER_SIZE} />
+            ? <MoonLoader aria-hidden color="var(--er-ui-text-primary-text-reversed)" size={SUBMIT_LOADER_SIZE} />
             : t('loginButtonEmail')}
         </button>
 
@@ -314,7 +314,7 @@ const LoginPage = () => {
           type="submit"
         >
           {isLoading
-            ? <MoonLoader aria-hidden color="white" size={SUBMIT_LOADER_SIZE} />
+            ? <MoonLoader aria-hidden color="var(--er-ui-text-primary-text-reversed)" size={SUBMIT_LOADER_SIZE} />
             : t('loginButton')}
         </button>
       </form>

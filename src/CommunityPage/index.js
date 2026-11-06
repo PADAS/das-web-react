@@ -290,7 +290,7 @@ const CommunityPage = () => {
   } else if (isLoading || isRedirectingToOnlyType) {
     content = (
       <div className={styles.loadingView}>
-        <MoonLoader color="#333" size={50} />
+        <MoonLoader color="var(--er-ui-cta-primary)" size={50} />
       </div>
     );
   } else if (selectedType && isInCoolOff) {

@@ -1,8 +1,6 @@
-@use '../../common/styles/vars/colors';
-
 .message {
   font-size: 1.125 rem;
-  color: colors.$off-black;
+  color: var(--er-ui-text-primary-text);
 }
 
 .buttons {
@@ -10,14 +8,14 @@
   justify-content: flex-end;
 
   .continueEditingButton {
-    background-color: white;
+    background-color: var(--er-ui-background-primary-background);
     border: none;
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-text-secondary-text);
     margin-right: 0.5rem;
   }
 
   .discardButton {
-    background-color: colors.$bright-red;
+    background-color: var(--er-ui-status-error-destructive);
     border: none;
   }
 }

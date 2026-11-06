@@ -281,11 +281,42 @@ const MyComponent = ({ isActive }) => <div className={`${styles.container} ${isA
 
 Shared styles live in `src/common/styles/`, and components pull them in with `@use`:
 
-- `vars/`: the color palette, fonts and control sizes.
+- `vars/`: fonts and control sizes.
+- `_colors.scss`: helpers that derive shades from the color tokens, the hover and active steps, and the priority and patrol themes.
+- `_bootstrap-theme.scss`, `_vendor-theme.scss`: the tokens applied to Bootstrap and the other libraries with colors of their own. Only `src/index.scss` uses them.
 - `_layout.scss`: breakpoints, media queries and layout mixins.
 - `_buttons.scss`, `_inputs.scss`, `_popovers.scss` and others: mixins for common elements.
 
-Base element styles, such as fonts and headings, are in `src/index.scss`.
+Base element styles, such as fonts, headings, the focus ring and placeholders, are in `src/index.scss`.
+
+#### Colors
+
+Colors are the EarthRanger design tokens, defined in Ai2's [DESIGN.md](https://github.com/allenai/design/blob/main/earthranger/DESIGN.md) and published as `@allenai/design-system`. `src/index.js` loads them as CSS custom properties, so styles read them with `var()`:
+
+```scss
+@use '../common/styles/colors';
+
+.saveButton {
+  background-color: var(--er-ui-cta-primary);
+  color: var(--er-ui-text-primary-text-reversed);
+
+  &:hover {
+    background-color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
+  }
+}
+```
+
+- Prefer the semantic tokens (`--er-ui-*`), named for their role, to the palette primitives (`--er-teal-t100`).
+- Sass color functions such as `color.adjust` cannot read custom properties. Derive shades with `colors.shade`, `colors.tint` and `colors.with-opacity`, and use the named steps for hover and active states.
+- JavaScript that sets a style writes `var(--er-*)` too. Mapbox and drawn images need hex values instead, from `COLOR_TOKENS` in `src/utils/colors.js`.
+
+#### Upgrading the design system
+
+The package is not on npm yet, so `package.json` pins it to a release tag of its GitHub repository, which `.yarnrc.yml` allows in `approvedGitRepositories`.
+
+1. Change the tag range in `package.json`, such as `github:allenai/design#semver=^0.5.0`, and run `yarn install`.
+2. Compare `earthranger/tokens.css` between the two tags and check the app, since one token can restyle every screen.
+3. Run `yarn test src/utils/colors.test.js`, which fails if a token the app uses was renamed or removed.
 
 ### Assets
 

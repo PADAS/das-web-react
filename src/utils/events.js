@@ -11,8 +11,6 @@ import { EVENT_FORM_STATES } from '../constants';
 import { getEventReporters } from '../selectors';
 import store from '../store';
 
-import * as colorVariables from '../common/styles/vars/colors.module.scss';
-
 export const eventWasRecentlyEditedByCurrentUser = (event, currentUser) => {
   const eventCreationDetails = event?.updates?.[0];
   const eventCreationUserId = eventCreationDetails?.user?.id;
@@ -264,29 +262,6 @@ export const calcDisplayPriorityForReport = (report, eventTypes) => {
   }
 
   return report.priority;
-};
-
-export const PRIORITY_COLOR_MAP = {
-  300: {
-    base: colorVariables.red,
-    background: colorVariables.redBg,
-    key: 'red',
-  },
-  200: {
-    base: colorVariables.amber,
-    background: colorVariables.amberBg,
-    key: 'amber',
-  },
-  100: {
-    base: colorVariables.green,
-    background: colorVariables.greenBg,
-    key: 'green',
-  },
-  0: {
-    base: colorVariables.gray,
-    background: colorVariables.grayBg,
-    key: 'none',
-  },
 };
 
 export const setOriginalTextToEventNotes = (event) => {
