@@ -31,7 +31,14 @@ const STATE_KEY_BY_EVENT_STATE = {
   [EVENT_FORM_STATES.REVIEW]: EVENT_FORM_STATES.REVIEW,
 };
 
-const EventRow = ({ displayTimeProp, event }) => {
+const EventRow = ({
+  displayTimeProp,
+  event,
+  isChangingLinks = false,
+  onOpenLinkModal,
+  onRemoveFromIncident,
+  onRemoveFromPatrol,
+}) => {
   const { t } = useTranslation('reports', { keyPrefix: 'eventsManager.eventsFeed.eventRow' });
 
   const navigate = useNavigate();
@@ -94,7 +101,16 @@ const EventRow = ({ displayTimeProp, event }) => {
       <DateTime className={styles.statusDate} date={date} showElapsed={false} />
     </div>
 
-    <Actions className={styles.actions} contextMenuRef={contextMenuRef} coordinates={coordinates} event={event} />
+    <Actions
+      className={styles.actions}
+      contextMenuRef={contextMenuRef}
+      coordinates={coordinates}
+      event={event}
+      isChangingLinks={isChangingLinks}
+      onOpenLinkModal={onOpenLinkModal}
+      onRemoveFromIncident={onRemoveFromIncident}
+      onRemoveFromPatrol={onRemoveFromPatrol}
+    />
   </li>;
 };
 

@@ -1,20 +1,23 @@
-import { memo, useContext, useMemo } from 'react';
+import { memo, useContext, useMemo, useRef } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import MoonLoader from 'react-spinners/MoonLoader';
 import uniq from 'lodash/uniq';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { calcTimePropForSortConfig, sortEventsBySortConfig } from '../../../utils/event-filter';
-import { FEED_CATEGORY, TrackerContext, trackEventFactory } from '../../../utils/analytics';
 import { fetchNextEventFeedPage } from '../../../ducks/events';
+import { selectEventLinkPermissions } from '../../../selectors/event-links';
 import { TAB_KEYS } from '../../../constants';
+import useEventLinking from '../../../hooks/useEventLinking';
 
+import DelayedUnmount from '../../../DelayedUnmount';
 import DetailViewLoader from '../../DetailViewLoader';
 import ErrorBoundary from '../../../ErrorBoundary';
 import ErrorMessage from '../../../ErrorMessage';
 import EventFilter from '../../../EventFilter';
 import EventRow from './EventRow';
+import LinkEventModal from '../../../LinkEventModal';
 import { ScrollRestoration, SidebarScrollContext } from '../../../SidebarScrollContext';
 import SortControls from './SortControls';
 
@@ -22,8 +25,6 @@ import * as styles from './styles.module.scss';
 
 const EMPTY_EVENTS = [];
 const LOADING_MORE_SPINNER_SIZE = 20;
-
-const eventsFeedTracker = trackEventFactory(FEED_CATEGORY);
 
 // A collection already lists the events it contains, so they are left out.
 const excludeContainedEvents = (events) => {
@@ -38,7 +39,15 @@ const EventsFeed = ({ eventsFeed }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'eventsManager.eventsFeed' });
 
+  const eventLinking = useEventLinking();
+
+  const linkModalEventPermissions = useSelector(
+    (state) => selectEventLinkPermissions(state, eventLinking.linkModalEvent)
+  );
+
   const { scrollRef } = useContext(SidebarScrollContext);
+
+  const emptyStateMessageRef = useRef(null);
 
   const feedEvents = eventsFeed.events.results ?? EMPTY_EVENTS;
 
@@ -51,65 +60,96 @@ const EventsFeed = ({ eventsFeed }) => {
 
   const hasMoreEvents = events.length > 0 && !!eventsFeed.events.next;
 
+  // Adding to an incident can drop the row the modal opened from, which would
+  // take the focus. InfiniteScroll keeps the node of its list to itself.
+  const onLinkModalExited = () => {
+    if (!events.some((event) => event.id === eventLinking.linkModalEvent?.id)) {
+      (scrollRef.current?.querySelector('ul') ?? emptyStateMessageRef.current)?.focus();
+    }
+  };
+
   const onLoadMoreEvents = () => {
     if (eventsFeed.events.next) {
       dispatch(fetchNextEventFeedPage(eventsFeed.events.next));
     }
   };
 
-  return <TrackerContext.Provider value={eventsFeedTracker}>
-    <ErrorBoundary>
-      <div className={styles.eventsFeed}>
-        <EventFilter isSortable>
-          <SortControls />
-        </EventFilter>
+  return <ErrorBoundary>
+    <div className={styles.eventsFeed}>
+      <EventFilter isSortable>
+        <SortControls />
+      </EventFilter>
 
-        {!!eventsFeed.events.error && <div className={styles.errorState}>
-          <ErrorMessage details={eventsFeed.events.error} message={t('fetchErrorMessage')} />
+      {!!eventsFeed.events.error && <div className={styles.errorState}>
+        <ErrorMessage details={eventsFeed.events.error} message={t('fetchErrorMessage')} />
 
-          <button className={styles.retryButton} onClick={() => eventsFeed.loadFeedEvents()} type="button">
-            {t('retryButton')}
-          </button>
-        </div>}
+        <button className={styles.retryButton} onClick={() => eventsFeed.loadFeedEvents()} type="button">
+          {t('retryButton')}
+        </button>
+      </div>}
 
-        {!eventsFeed.events.error && eventsFeed.loadingEventFeed && <DetailViewLoader
-          className={styles.loader}
-          label={t('loadingLabel')}
-        />}
+      {!eventsFeed.events.error && eventsFeed.loadingEventFeed && <DetailViewLoader
+        className={styles.loader}
+        label={t('loadingLabel')}
+      />}
 
-        {!eventsFeed.events.error && !eventsFeed.loadingEventFeed && events.length === 0 && <p
-          className={styles.emptyStateMessage}
+      {!eventsFeed.events.error && !eventsFeed.loadingEventFeed && events.length === 0 && <p
+        className={styles.emptyStateMessage}
+        ref={emptyStateMessageRef}
+        tabIndex={-1}
+      >
+        {t('emptyStateMessage')}
+      </p>}
+
+      {!eventsFeed.events.error && !eventsFeed.loadingEventFeed && events.length > 0 && <ScrollRestoration
+        className={styles.eventListScrollContainer}
+        namespace={TAB_KEYS.EVENTS}
+      >
+        <InfiniteScroll
+          aria-label={t('eventListLabel')}
+          className={styles.eventList}
+          element="ul"
+          getScrollParent={() => scrollRef.current}
+          hasMore={hasMoreEvents}
+          loadMore={onLoadMoreEvents}
+          tabIndex={-1}
+          useWindow={false}
         >
-          {t('emptyStateMessage')}
-        </p>}
+          {events.map((event) => <EventRow
+            displayTimeProp={displayTimeProp}
+            event={event}
+            isChangingLinks={eventLinking.linkingEventIds.has(event.id)}
+            key={event.id}
+            onOpenLinkModal={eventLinking.openLinkModal}
+            onRemoveFromIncident={eventLinking.removeFromIncident}
+            onRemoveFromPatrol={eventLinking.removeFromPatrol}
+          />)}
 
-        {!eventsFeed.events.error && !eventsFeed.loadingEventFeed && events.length > 0 && <ScrollRestoration
-          className={styles.eventListScrollContainer}
-          namespace={TAB_KEYS.EVENTS}
-        >
-          <InfiniteScroll
-            aria-label={t('eventListLabel')}
-            className={styles.eventList}
-            element="ul"
-            getScrollParent={() => scrollRef.current}
-            hasMore={hasMoreEvents}
-            loadMore={onLoadMoreEvents}
-            useWindow={false}
-          >
-            {events.map((event) => <EventRow displayTimeProp={displayTimeProp} event={event} key={event.id} />)}
+          {hasMoreEvents && <li className={styles.loadingMoreItem} key="loading-more-events">
+            <div role="status">
+              <MoonLoader aria-hidden size={LOADING_MORE_SPINNER_SIZE} />
 
-            {hasMoreEvents && <li className={styles.loadingMoreItem} key="loading-more-events">
-              <div role="status">
-                <MoonLoader aria-hidden size={LOADING_MORE_SPINNER_SIZE} />
+              <span className="sr-only">{t('loadingMoreLabel')}</span>
+            </div>
+          </li>}
+        </InfiniteScroll>
+      </ScrollRestoration>}
 
-                <span className="sr-only">{t('loadingMoreLabel')}</span>
-              </div>
-            </li>}
-          </InfiniteScroll>
-        </ScrollRestoration>}
-      </div>
-    </ErrorBoundary>
-  </TrackerContext.Provider>;
+      <DelayedUnmount isMounted={eventLinking.isLinkModalOpen}>
+        <LinkEventModal
+          canCreateIncident={linkModalEventPermissions.canCreateIncident}
+          event={eventLinking.linkModalEvent}
+          isLinking={eventLinking.isLinking}
+          onAdd={eventLinking.addToLinkTarget}
+          onCreateIncident={eventLinking.addToNewIncident}
+          onExited={onLinkModalExited}
+          onHide={eventLinking.closeLinkModal}
+          show={eventLinking.isLinkModalOpen}
+          type={eventLinking.linkModalType}
+        />
+      </DelayedUnmount>
+    </div>
+  </ErrorBoundary>;
 };
 
 export default memo(EventsFeed);

@@ -14,7 +14,13 @@
     "addedToPatrolMessage": "घटना {{eventSerialNumber}} गस्ती {{patrolSerialNumber}} मा थपियो ।",
     "addToIncidentErrorMessage": "घटनालाई घटनामा थप्न सकिएन । कृपया फेरी प्रयास गर्नुहोस् ।",
     "addToNewIncidentErrorMessage": "घटनालाई नयाँ घटनामा थप्न सकिएन । कृपया फेरी प्रयास गर्नुहोस् ।",
-    "addToPatrolErrorMessage": "घटनालाई गस्तीमा थप्न सकिएन । कृपया फेरी प्रयास गर्नुहोस् ।"
+    "addToPatrolErrorMessage": "घटनालाई गस्तीमा थप्न सकिएन । कृपया फेरी प्रयास गर्नुहोस् ।",
+    "removedFromIncidentMessage": "घटना {{eventSerialNumber}} घटना {{incidentSerialNumber}} बाट हटाइयो ।",
+    "removedFromPatrolMessage": "घटना {{eventSerialNumber}} गस्ती {{patrolSerialNumber}} बाट हटाइयो ।",
+    "removedFromUnloadedIncidentMessage": "घटना {{eventSerialNumber}} घटनाबाट हटाइयो ।",
+    "removedFromUnloadedPatrolMessage": "घटना {{eventSerialNumber}} गस्तीबाट हटाइयो ।",
+    "removeFromIncidentErrorMessage": "घटनालाई घटनाबाट हटाउन सकिएन । कृपया फेरी प्रयास गर्नुहोस् ।",
+    "removeFromPatrolErrorMessage": "घटनालाई गस्तीबाट हटाउन सकिएन । कृपया फेरी प्रयास गर्नुहोस् ।"
   },
   "eventsManager": {
     "eventOverview": {
@@ -40,7 +46,9 @@
           "copyLinkOption": "घटनाको लिकं कपि गर्नुहोस्",
           "jumpToLocationOption": "स्थानमा जानुहोस्",
           "moreOptionsButtonLabel": "थप विकल्पहरू",
-          "printOption": "घटना प्रिन्ट गर्नुहोस्"
+          "printOption": "घटना प्रिन्ट गर्नुहोस्",
+          "removeFromIncidentOption": "घटनाबाट हटाउनुहोस्",
+          "removeFromPatrolOption": "गस्तीबाट हटाउनुहोस्"
         },
         "statusSelect": {
           "states": {
@@ -86,6 +94,8 @@
               "review": "समीक्षा"
             }
           },
+          "removeFromIncidentOption": "घटनाबाट हटाउनुहोस्",
+          "removeFromPatrolOption": "गस्तीबाट हटाउनुहोस्",
           "states": {
             "active": "सक्रिय",
             "resolved": "समाधान गरिएको",
@@ -240,6 +250,11 @@
       "timeLabel": "घटनाको समय"
     },
     "linksSection": {
+      "linkItem": {
+        "removeButtonLabel": "हटाउनुहोस्",
+        "removeFromIncidentButtonLabel": "घटना {{serialNumber}} बाट हटाउनुहोस्",
+        "removeFromPatrolButtonLabel": "गस्ती {{serialNumber}} बाट हटाउनुहोस्"
+      },
       "linksHeader": "लिकंहरु"
     },
     "reportDetailView": {

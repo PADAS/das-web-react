@@ -93,3 +93,17 @@ describe('the feed list item click handler', () => {
     await expect(userEvent.click(within(container).getByText('I am the title'))).resolves.not.toThrow();
   });
 });
+describe('the feed list item element', () => {
+  test('is a list item by default', () => {
+    expect(screen.getByRole('listitem')).toBeInTheDocument();
+  });
+
+  test('renders as the element it is given', () => {
+    cleanup();
+
+    render(<FeedListItem Component="div" TitleComponent={<h3>I am the title</h3>} />);
+
+    expect(screen.queryByRole('listitem')).toBeNull();
+    expect(screen.getByRole('heading', { name: 'I am the title' })).toBeInTheDocument();
+  });
+});

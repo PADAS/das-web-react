@@ -4,7 +4,6 @@ import { mockStore } from '../../__test-helpers/MockStore';
 import { renderHook } from '../../test-utils';
 
 import {
-  useEventRelationshipsPermissions,
   useEventsPermissions,
   useMessagesPermissions,
   useObservationsPermissions,
@@ -58,20 +57,6 @@ describe('usePermissions', () => {
   const wrapper = ({ children }) => <Provider store={mockStore(store)}>
     {children}
   </Provider>;
-
-  describe('useEventRelationshipsPermissions', () => {
-    test('returns the event relationships permissions', async () => {
-      const { result } = renderHook(() => useEventRelationshipsPermissions(), { wrapper });
-
-      expect(result.current).toEqual({
-        hasEventRelationshipsCreatePermission: false,
-        hasEventRelationshipsDeletePermission: true,
-        hasEventRelationshipsExportPermission: false,
-        hasEventRelationshipsReadPermission: false,
-        hasEventRelationshipsUpdatePermission: false,
-      });
-    });
-  });
 
   describe('useEventsPermissions', () => {
     test('returns the events permissions', async () => {

@@ -14,7 +14,13 @@
     "addedToPatrolMessage": "Evento {{eventSerialNumber}} adicionado à patrulha {{patrolSerialNumber}}.",
     "addToIncidentErrorMessage": "Não foi possível adicionar o evento ao incidente. Por favor, tente novamente.",
     "addToNewIncidentErrorMessage": "Não foi possível adicionar o evento a um novo incidente. Por favor, tente novamente.",
-    "addToPatrolErrorMessage": "Não foi possível adicionar o evento à patrulha. Por favor, tente novamente."
+    "addToPatrolErrorMessage": "Não foi possível adicionar o evento à patrulha. Por favor, tente novamente.",
+    "removedFromIncidentMessage": "Evento {{eventSerialNumber}} removido do incidente {{incidentSerialNumber}}.",
+    "removedFromPatrolMessage": "Evento {{eventSerialNumber}} removido da patrulha {{patrolSerialNumber}}.",
+    "removedFromUnloadedIncidentMessage": "Evento {{eventSerialNumber}} removido do incidente.",
+    "removedFromUnloadedPatrolMessage": "Evento {{eventSerialNumber}} removido da patrulha.",
+    "removeFromIncidentErrorMessage": "Não foi possível remover o evento do incidente. Por favor, tente novamente.",
+    "removeFromPatrolErrorMessage": "Não foi possível remover o evento da patrulha. Por favor, tente novamente."
   },
   "eventsManager": {
     "eventOverview": {
@@ -40,7 +46,9 @@
           "copyLinkOption": "Copiar link do evento",
           "jumpToLocationOption": "Ir para a localização",
           "moreOptionsButtonLabel": "Mais opções",
-          "printOption": "Imprimir Evento"
+          "printOption": "Imprimir Evento",
+          "removeFromIncidentOption": "Remover do incidente",
+          "removeFromPatrolOption": "Remover da patrulha"
         },
         "statusSelect": {
           "states": {
@@ -86,6 +94,8 @@
               "review": "em revisão"
             }
           },
+          "removeFromIncidentOption": "Remover do incidente",
+          "removeFromPatrolOption": "Remover da patrulha",
           "states": {
             "active": "ativo",
             "resolved": "resolvido",
@@ -240,6 +250,11 @@
       "timeLabel": "Hora do evento"
     },
     "linksSection": {
+      "linkItem": {
+        "removeButtonLabel": "Remover",
+        "removeFromIncidentButtonLabel": "Remover do incidente {{serialNumber}}",
+        "removeFromPatrolButtonLabel": "Remover da patrulha {{serialNumber}}"
+      },
       "linksHeader": "Links"
     },
     "reportDetailView": {

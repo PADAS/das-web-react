@@ -1,17 +1,12 @@
 import { Provider } from 'react-redux';
-import { http, HttpResponse } from 'msw/http';
-import { setupServer } from 'msw/node';
 import { ToastContainer } from 'react-toastify';
 import { useReactToPrint } from 'react-to-print';
 import userEvent from '@testing-library/user-event';
 
-import { addEventToIncident, addEventToPatrol, createEvent, EVENTS_API_URL } from '../../../../../ducks/events';
+import { EVENT_LINK_TARGET_TYPES, PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../../../../constants';
 import { eventTypes } from '../../../../../__test-helpers/fixtures/event-types';
 import { mockStore } from '../../../../../__test-helpers/MockStore';
-import { PATROLS_API_URL } from '../../../../../ducks/patrols';
-import patrolTypes from '../../../../../__test-helpers/fixtures/patrol-types';
-import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../../../../constants';
-import { render, screen, waitFor } from '../../../../../test-utils';
+import { render, screen } from '../../../../../test-utils';
 import { report } from '../../../../../__test-helpers/fixtures/reports';
 import { TrackerContext } from '../../../../../utils/analytics';
 
@@ -22,51 +17,26 @@ jest.mock('react-to-print', () => ({
   useReactToPrint: jest.fn(),
 }));
 
-jest.mock('../../../../../ducks/events', () => ({
-  ...jest.requireActual('../../../../../ducks/events'),
-  addEventToIncident: jest.fn(),
-  addEventToPatrol: jest.fn(),
-  createEvent: jest.fn(),
-}));
-
-const server = setupServer();
-
-beforeAll(() => server.listen());
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
-
 describe('SideBar - EventsManager - EventOverview - Header - ReportMenu', () => {
-  const incident = { contains: [], event_type: 'incident_collection', id: 'incident-id', is_collection: true, serial_number: 20 };
-  const patrol = {
-    id: 'patrol-id',
-    patrol_segments: [{ id: 'leg-id', patrol_type: 'foot', time_range: { end_time: null, start_time: '2020-01-01T08:00:00Z' } }],
-    serial_number: 30,
-    state: 'open',
-  };
-
   let handlePrint;
+  let onOpenLinkModal;
+  let onRemoveFromIncident;
+  let onRemoveFromPatrol;
   let onSaveNewReport;
   let state;
 
   beforeEach(() => {
     handlePrint = jest.fn();
-    onSaveNewReport = jest.fn(() => Promise.resolve({ ...report, id: 'saved-event-id' }));
-
-    addEventToIncident.mockImplementation(() => () => Promise.resolve());
-    addEventToPatrol.mockImplementation(() => () => Promise.resolve());
-    createEvent.mockImplementation(() => () => Promise.resolve({ data: { data: { id: 'new-incident-id', serial_number: 21 } } }));
+    onOpenLinkModal = jest.fn();
+    onRemoveFromIncident = jest.fn();
+    onRemoveFromPatrol = jest.fn();
+    onSaveNewReport = jest.fn();
     useReactToPrint.mockImplementation(() => handlePrint);
-
-    server.use(
-      http.get(EVENTS_API_URL, () => HttpResponse.json({ data: { count: 1, next: null, results: [incident] } })),
-      http.get(PATROLS_API_URL, () => HttpResponse.json({ data: { count: 1, next: null, results: [patrol] } }))
-    );
 
     state = {
       data: {
         eventCategories: {},
         eventTypes,
-        patrolTypes,
         user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ] } },
       },
       view: { systemConfig: { [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true } },
@@ -80,6 +50,9 @@ describe('SideBar - EventsManager - EventOverview - Header - ReportMenu', () => 
           canLinkReport
           hasLocation
           onJumpToLocation={jest.fn()}
+          onOpenLinkModal={onOpenLinkModal}
+          onRemoveFromIncident={onRemoveFromIncident}
+          onRemoveFromPatrol={onRemoveFromPatrol}
           printableContentRef={{ current: null }}
           report={report}
           title="Light"
@@ -192,74 +165,82 @@ describe('SideBar - EventsManager - EventOverview - Header - ReportMenu', () => 
     expect(screen.queryByRole('menuitem', { name: 'Add to Patrol' })).not.toBeInTheDocument();
   });
 
-  test('adds a saved event to the patrol the user picks without saving it again', async () => {
-    renderReportMenu({ onSaveNewReport: null });
-
-    await openMenu();
-    await userEvent.click(screen.getByRole('menuitem', { name: 'Add to Patrol' }));
-    await userEvent.click(await screen.findByRole('button', { name: /Add to patrol 30/ }));
-
-    expect(addEventToPatrol).toHaveBeenCalledWith(report.id, 'patrol-id');
-    expect(onSaveNewReport).not.toHaveBeenCalled();
-    expect(await screen.findByText('Event 165634 added to patrol 30.')).toBeInTheDocument();
-    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
-  });
-
-  test('adds the event to the incident the user picks', async () => {
+  test('opens the modal to add the event to an incident or a patrol', async () => {
     renderReportMenu();
 
     await openMenu();
     await userEvent.click(screen.getByRole('menuitem', { name: 'Add to Incident' }));
-    await userEvent.click(await screen.findByRole('button', { name: /Add to incident 20/ }));
-
-    expect(addEventToIncident).toHaveBeenCalledWith(report.id, 'incident-id');
-  });
-
-  test('adds the event to a new incident', async () => {
-    renderReportMenu();
-
     await openMenu();
-    await userEvent.click(screen.getByRole('menuitem', { name: 'Add to Incident' }));
-    await userEvent.click(await screen.findByRole('button', { name: 'Create new incident' }));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Add to Patrol' }));
 
-    expect(createEvent).toHaveBeenCalledWith(expect.objectContaining({ priority: report.priority }));
-    expect(addEventToIncident).toHaveBeenCalledWith(report.id, 'new-incident-id');
+    expect(onOpenLinkModal).toHaveBeenNthCalledWith(1, EVENT_LINK_TARGET_TYPES.INCIDENT, report, null);
+    expect(onOpenLinkModal).toHaveBeenNthCalledWith(2, EVENT_LINK_TARGET_TYPES.PATROL, report, null);
   });
 
-  test('saves a new event before adding it to a patrol', async () => {
-    renderReportMenu({ onSaveNewReport, report: { ...report, id: undefined, serial_number: undefined } });
+  test('hands the modal how to save a new event', async () => {
+    const newReport = { ...report, id: undefined, serial_number: undefined };
+    renderReportMenu({ onSaveNewReport, report: newReport });
 
     await openMenu();
     await userEvent.click(screen.getByRole('menuitem', { name: 'Add to Patrol' }));
-    await userEvent.click(await screen.findByRole('button', { name: /Add to patrol 30/ }));
 
-    expect(onSaveNewReport).toHaveBeenCalled();
-    expect(addEventToPatrol).toHaveBeenCalledWith('saved-event-id', 'patrol-id');
+    expect(onOpenLinkModal).toHaveBeenCalledWith(EVENT_LINK_TARGET_TYPES.PATROL, newReport, onSaveNewReport);
   });
 
-  test('links nothing when the user cancels', async () => {
-    renderReportMenu();
+  test('shows that the links of the event are changing', () => {
+    renderReportMenu({ isChangingLinks: true });
 
-    await openMenu();
-    await userEvent.click(screen.getByRole('menuitem', { name: 'Add to Patrol' }));
-    await screen.findByRole('button', { name: /Add to patrol 30/ });
-    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-
-    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
-    expect(addEventToPatrol).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: 'More options' })).toHaveAttribute('aria-busy', 'true');
   });
 
-  test('tells the user when the event could not be added to the patrol', async () => {
-    jest.spyOn(console, 'warn').mockImplementation(() => {});
-    addEventToPatrol.mockImplementation(() => () => Promise.reject(new Error('link error')));
+  describe('removing the event from its links', () => {
+    let linkedReport;
 
-    renderReportMenu();
+    beforeEach(() => {
+      linkedReport = { ...report, is_contained_in: [{ related_event: { id: 'incident-id' } }], patrols: ['patrol-id'] };
+      state.data.user.permissions[PERMISSION_KEYS.EVENT_RELATIONSHIPS] = [PERMISSIONS.DELETE];
+    });
 
-    await openMenu();
-    await userEvent.click(screen.getByRole('menuitem', { name: 'Add to Patrol' }));
-    await userEvent.click(await screen.findByRole('button', { name: /Add to patrol 30/ }));
+    test('offers to remove the event from its incident and its patrol instead of adding it to others', async () => {
+      renderReportMenu({ report: linkedReport });
 
-    expect(await screen.findByText('Could not add the event to the patrol. Please try again.')).toBeInTheDocument();
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
+      await openMenu();
+
+      expect(screen.getByRole('menuitem', { name: 'Remove from Incident' })).toBeInTheDocument();
+      expect(screen.getByRole('menuitem', { name: 'Remove from Patrol' })).toBeInTheDocument();
+      expect(screen.queryByRole('menuitem', { name: 'Add to Incident' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('menuitem', { name: 'Add to Patrol' })).not.toBeInTheDocument();
+    });
+
+    test('does not offer to remove the event from its incident without the delete permission', async () => {
+      delete state.data.user.permissions[PERMISSION_KEYS.EVENT_RELATIONSHIPS];
+      renderReportMenu({ report: linkedReport });
+
+      await openMenu();
+
+      expect(screen.queryByRole('menuitem', { name: 'Remove from Incident' })).not.toBeInTheDocument();
+    });
+
+    test('does not offer to remove an event being added from somewhere else', async () => {
+      renderReportMenu({ canLinkReport: false, report: linkedReport });
+
+      await openMenu();
+
+      expect(screen.queryByRole('menuitem', { name: 'Remove from Incident' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('menuitem', { name: 'Remove from Patrol' })).not.toBeInTheDocument();
+    });
+
+    test('removes the event from its incident or its patrol at once', async () => {
+      renderReportMenu({ report: linkedReport });
+
+      await openMenu();
+      await userEvent.click(screen.getByRole('menuitem', { name: 'Remove from Incident' }));
+      await openMenu();
+      await userEvent.click(screen.getByRole('menuitem', { name: 'Remove from Patrol' }));
+
+      expect(onRemoveFromIncident).toHaveBeenCalledWith(linkedReport);
+      expect(onRemoveFromPatrol).toHaveBeenCalledWith(linkedReport);
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
   });
 });

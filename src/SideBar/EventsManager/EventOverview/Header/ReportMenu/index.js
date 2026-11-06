@@ -1,6 +1,7 @@
 import { memo, useContext } from 'react';
 import { toast } from 'react-toastify';
 import { useReactToPrint } from 'react-to-print';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ClipIcon } from '../../../../../common/images/icons/link.svg';
@@ -12,12 +13,10 @@ import { ReactComponent as PrinterIcon } from '../../../../../common/images/icon
 import { basePrintingStyles } from '../../../../../utils/styles';
 import { EVENT_LINK_TARGET_TYPES } from '../../../../../constants';
 import { getReportLink } from '../../../../../utils/events';
+import { selectEventLinkPermissions } from '../../../../../selectors/event-links';
 import { TrackerContext } from '../../../../../utils/analytics';
-import useEventLinking from '../../../../../hooks/useEventLinking';
 
-import DelayedUnmount from '../../../../../DelayedUnmount';
 import KebabMenu from '../../../../../KebabMenu';
-import LinkEventModal from '../../../../../LinkEventModal';
 
 import * as styles from './styles.module.scss';
 
@@ -26,7 +25,11 @@ const COPY_LINK_TOAST_AUTOCLOSE = 2000;
 const ReportMenu = ({
   canLinkReport = false,
   hasLocation,
+  isChangingLinks = false,
   onJumpToLocation,
+  onOpenLinkModal,
+  onRemoveFromIncident,
+  onRemoveFromPatrol,
   onSaveNewReport = null,
   printableContentRef,
   report,
@@ -39,7 +42,7 @@ const ReportMenu = ({
   });
   const { t } = useTranslation('reports', { keyPrefix: 'eventsManager.eventOverview.header.reportMenu' });
 
-  const eventLinking = useEventLinking(report, { saveEvent: onSaveNewReport });
+  const eventLinkPermissions = useSelector((state) => selectEventLinkPermissions(state, report));
 
   const tracker = useContext(TrackerContext);
 
@@ -58,58 +61,64 @@ const ReportMenu = ({
     }
   };
 
-  return <>
-    <KebabMenu align="end" aria-label={t('moreOptionsButtonLabel')} title={t('moreOptionsButtonLabel')}>
-      <KebabMenu.Option className={styles.mobileOnlyOption} disabled={!hasLocation} onClick={onJumpToLocation}>
-        <MarkerFeedIcon aria-hidden="true" />
+  return <KebabMenu
+    align="end"
+    aria-label={t('moreOptionsButtonLabel')}
+    isLoading={isChangingLinks}
+    title={t('moreOptionsButtonLabel')}
+  >
+    <KebabMenu.Option className={styles.mobileOnlyOption} disabled={!hasLocation} onClick={onJumpToLocation}>
+      <MarkerFeedIcon aria-hidden="true" />
 
-        {t('jumpToLocationOption')}
-      </KebabMenu.Option>
+      {t('jumpToLocationOption')}
+    </KebabMenu.Option>
 
-      <KebabMenu.Divider className={styles.mobileOnlyOption} />
+    <KebabMenu.Divider className={styles.mobileOnlyOption} />
 
-      {canLinkReport && eventLinking.permissions.canAddToIncident && <KebabMenu.Option
-        onClick={() => eventLinking.openLinkModal(EVENT_LINK_TARGET_TYPES.INCIDENT)}
-      >
-        <IncidentIcon aria-hidden="true" />
+    {canLinkReport && eventLinkPermissions.canAddToIncident && <KebabMenu.Option
+      onClick={() => onOpenLinkModal(EVENT_LINK_TARGET_TYPES.INCIDENT, report, onSaveNewReport)}
+    >
+      <IncidentIcon aria-hidden="true" />
 
-        {t('addToIncidentOption')}
-      </KebabMenu.Option>}
+      {t('addToIncidentOption')}
+    </KebabMenu.Option>}
 
-      {canLinkReport && eventLinking.permissions.canAddToPatrol && <KebabMenu.Option
-        onClick={() => eventLinking.openLinkModal(EVENT_LINK_TARGET_TYPES.PATROL)}
-      >
-        <PatrolIcon aria-hidden="true" />
+    {canLinkReport && eventLinkPermissions.canRemoveFromIncident && <KebabMenu.Option
+      onClick={() => onRemoveFromIncident(report)}
+    >
+      <IncidentIcon aria-hidden="true" />
 
-        {t('addToPatrolOption')}
-      </KebabMenu.Option>}
+      {t('removeFromIncidentOption')}
+    </KebabMenu.Option>}
 
-      {!!report.id && <KebabMenu.Option onClick={onCopyLink}>
-        <ClipIcon aria-hidden="true" />
+    {canLinkReport && eventLinkPermissions.canAddToPatrol && <KebabMenu.Option
+      onClick={() => onOpenLinkModal(EVENT_LINK_TARGET_TYPES.PATROL, report, onSaveNewReport)}
+    >
+      <PatrolIcon aria-hidden="true" />
 
-        {t('copyLinkOption')}
-      </KebabMenu.Option>}
+      {t('addToPatrolOption')}
+    </KebabMenu.Option>}
 
-      <KebabMenu.Option onClick={onPrint}>
-        <PrinterIcon aria-hidden="true" />
+    {canLinkReport && eventLinkPermissions.canRemoveFromPatrol && <KebabMenu.Option
+      onClick={() => onRemoveFromPatrol(report)}
+    >
+      <PatrolIcon aria-hidden="true" />
 
-        {t('printOption')}
-      </KebabMenu.Option>
-    </KebabMenu>
+      {t('removeFromPatrolOption')}
+    </KebabMenu.Option>}
 
-    <DelayedUnmount isMounted={eventLinking.isLinkModalOpen}>
-      <LinkEventModal
-        canCreateIncident={eventLinking.permissions.canCreateIncident}
-        event={report}
-        isLinking={eventLinking.isLinking}
-        onAdd={eventLinking.addToLinkTarget}
-        onCreateIncident={eventLinking.addToNewIncident}
-        onHide={eventLinking.closeLinkModal}
-        show={eventLinking.isLinkModalOpen}
-        type={eventLinking.linkModalType}
-      />
-    </DelayedUnmount>
-  </>;
+    {!!report.id && <KebabMenu.Option onClick={onCopyLink}>
+      <ClipIcon aria-hidden="true" />
+
+      {t('copyLinkOption')}
+    </KebabMenu.Option>}
+
+    <KebabMenu.Option onClick={onPrint}>
+      <PrinterIcon aria-hidden="true" />
+
+      {t('printOption')}
+    </KebabMenu.Option>
+  </KebabMenu>;
 };
 
 export default memo(ReportMenu);

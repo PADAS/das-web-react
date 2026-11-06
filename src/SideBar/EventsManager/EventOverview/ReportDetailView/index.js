@@ -28,23 +28,27 @@ import { extractObjectDifference } from '../../../../utils/objects';
 import { fetchEventTypeSchema } from '../../../../ducks/event-schemas';
 import { fetchPatrol } from '../../../../ducks/patrols';
 import normalizeChoiceListValues from '../../../../utils/form-schemas/normalizeChoiceListValues';
+import { selectEventLinkPermissions } from '../../../../selectors/event-links';
 import { selectEventSchema } from '../../../../selectors/event-schemas';
 import { selectEventTypeById, selectEventTypeByValue } from '../../../../selectors/event-types';
 import { setLocallyEditedEvent, unsetLocallyEditedEvent } from '../../../../ducks/locally-edited-event';
 import { SidebarScrollContext } from '../../../../SidebarScrollContext';
-import { TAB_KEYS } from '../../../../constants';
+import { EVENT_LINK_TARGET_TYPES, TAB_KEYS } from '../../../../constants';
 import { TrackerContext } from '../../../../utils/analytics';
 import transformSchemaToFormElements from '../../../../utils/form-schemas/transformSchemaToFormElements';
+import useEventLinking from '../../../../hooks/useEventLinking';
 import useNavigate from '../../../../hooks/useNavigate';
 import useReport from '../../../../hooks/useReport';
 import { uuid } from '../../../../utils/string';
 
 import ActivitySection from '../../../../DetailViewComponents/ActivitySection';
+import DelayedUnmount from '../../../../DelayedUnmount';
 import DetailsSection from '../DetailsSection';
 import ErrorMessages from '../../../../ErrorMessages';
 import Footer from '../Footer';
 import Header from '../Header';
 import HistorySection from '../../../../DetailViewComponents/HistorySection';
+import LinkEventModal from '../../../../LinkEventModal';
 import LinksSection from '../LinksSection';
 import NavigationPromptModal from '../../../../NavigationPromptModal';
 import QuickLinks from '../../../../QuickLinks';
@@ -118,6 +122,9 @@ const generateErrorListForApiResponseDetails = (response, t) => {
   }
 };
 
+// A section unmounts once its last item is gone, so focus moves on to the next.
+const focusFirstShownHeading = (headingRefs) => headingRefs.find((headingRef) => headingRef.current)?.current.focus();
+
 const ReportDetailView = ({
   className = '',
   formProps = {},
@@ -141,6 +148,8 @@ const ReportDetailView = ({
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager' });
   const { t: tHeader } = useTranslation('reports', { keyPrefix: 'eventsManager.eventOverview.header' });
 
+  const eventLinking = useEventLinking();
+
   const reportTracker = useContext(TrackerContext);
   const { setScrollPosition } = useContext(SidebarScrollContext);
 
@@ -153,8 +162,14 @@ const ReportDetailView = ({
       return selectEventTypeByValue(state, eventTypeValue);
     }
   });
+  const linkModalEventPermissions = useSelector(
+    (state) => selectEventLinkPermissions(state, eventLinking.linkModalEvent)
+  );
   const patrolStore = useSelector((state) => state.data.patrolStore);
 
+  const activityHeadingRef = useRef(null);
+  const historyHeadingRef = useRef(null);
+  const linksHeadingRef = useRef(null);
   const newAttachmentRef = useRef(null);
   const newNoteRef = useRef(null);
   const printableContentRef = useRef(null);
@@ -641,6 +656,29 @@ const ReportDetailView = ({
 
   }, [attachmentsToAdd, reportAttachments, reportTracker]);
 
+  // The hook's result is new each render, but its removals keep their identity.
+  const removeFromIncident = eventLinking.removeFromIncident;
+  const removeFromPatrol = eventLinking.removeFromPatrol;
+
+  // An event can sit in several incidents, so the child leaves this one.
+  const onRemoveContainedReport = useCallback(async (containedReport) => {
+    if (await removeFromIncident(containedReport, reportForm.id)) {
+      focusFirstShownHeading([activityHeadingRef, linksHeadingRef, historyHeadingRef]);
+    }
+  }, [removeFromIncident, reportForm.id]);
+
+  const onRemoveFromIncident = useCallback(async (event, incidentId) => {
+    if (await removeFromIncident(event, incidentId)) {
+      focusFirstShownHeading([linksHeadingRef, historyHeadingRef]);
+    }
+  }, [removeFromIncident]);
+
+  const onRemoveFromPatrol = useCallback(async (event, patrolId) => {
+    if (await removeFromPatrol(event, patrolId)) {
+      focusFirstShownHeading([linksHeadingRef, historyHeadingRef]);
+    }
+  }, [removeFromPatrol]);
+
   // A failed save shows its own errors, and one under way returns nothing.
   const onSaveAddedReport = useCallback(([{ data: { data: secondReportSaved } }]) => {
     onSaveReport(undefined, false)?.then(async (results) => {
@@ -824,12 +862,16 @@ const ReportDetailView = ({
       canLinkReport={canLinkReport}
       // A save sends the form as it was, so nothing can change until it ends.
       inert={isSaving}
+      isChangingLinks={eventLinking.linkingEventIds.has(reportForm.id)}
       isCommunity={isCommunity}
       isReadOnly={eventType?.readonly}
       isStateDirty={Object.hasOwn(reportChanges, 'state')}
       isTitleDirty={Object.hasOwn(reportChanges, 'title')}
       onChangeState={onReportStateChange}
       onChangeTitle={onChangeTitle}
+      onOpenLinkModal={eventLinking.openLinkModal}
+      onRemoveFromIncident={eventLinking.removeFromIncident}
+      onRemoveFromPatrol={eventLinking.removeFromPatrol}
       onSaveNewReport={isNewReport ? onSaveNewReport : null}
       parentCrumbs={parentCrumbs}
       printableContentRef={printableContentRef}
@@ -917,6 +959,7 @@ const ReportDetailView = ({
                 attachments={reportAttachments}
                 attachmentsToAdd={attachmentsToAdd}
                 containedReports={containedReports}
+                headingRef={activityHeadingRef}
                 isCommunity={isCommunity}
                 notes={reportNotes}
                 notesToAdd={notesToAdd}
@@ -927,6 +970,9 @@ const ReportDetailView = ({
                 reportNotes={reportNotes}
                 onCancelNote={onCancelNote}
                 onDoneNote={onDoneNote}
+                onRemoveContainedReport={isCollection ? onRemoveContainedReport : null}
+                removeContainedReportFrom={EVENT_LINK_TARGET_TYPES.INCIDENT}
+                removingContainedReportIds={eventLinking.linkingEventIds}
               />
             </QuickLinks.Section>
 
@@ -937,7 +983,15 @@ const ReportDetailView = ({
               className={styles.section}
               hidden={!shouldRenderLinksSection}
             >
-              <LinksSection linkedPatrols={linkedPatrols} linkedReports={linkedReports} />
+              <LinksSection
+                headingRef={linksHeadingRef}
+                isChangingLinks={eventLinking.linkingEventIds.has(reportForm.id)}
+                linkedPatrols={linkedPatrols}
+                linkedReports={linkedReports}
+                onRemoveFromIncident={onRemoveFromIncident}
+                onRemoveFromPatrol={onRemoveFromPatrol}
+                report={eventFromStore}
+              />
             </QuickLinks.Section>
 
             {shouldRenderHistorySection && <div className={styles.historySectionSeparation} />}
@@ -947,7 +1001,11 @@ const ReportDetailView = ({
               className={styles.section}
               hidden={!shouldRenderHistorySection}
             >
-              <HistorySection className={styles.historySection} updates={reportWithStoreFields?.updates || []} />
+              <HistorySection
+                className={styles.historySection}
+                headingRef={historyHeadingRef}
+                updates={reportWithStoreFields?.updates || []}
+              />
             </QuickLinks.Section>
           </QuickLinks.SectionsWrapper>
 
@@ -970,6 +1028,19 @@ const ReportDetailView = ({
       report={originalReport}
       shouldShowAddReportButton={shouldShowAddReportButton}
     />
+
+    <DelayedUnmount isMounted={eventLinking.isLinkModalOpen}>
+      <LinkEventModal
+        canCreateIncident={linkModalEventPermissions.canCreateIncident}
+        event={eventLinking.linkModalEvent}
+        isLinking={eventLinking.isLinking}
+        onAdd={eventLinking.addToLinkTarget}
+        onCreateIncident={eventLinking.addToNewIncident}
+        onHide={eventLinking.closeLinkModal}
+        show={eventLinking.isLinkModalOpen}
+        type={eventLinking.linkModalType}
+      />
+    </DelayedUnmount>
   </div>;
 };
 

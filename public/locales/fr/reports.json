@@ -14,7 +14,13 @@
     "addedToPatrolMessage": "Événement {{eventSerialNumber}} ajouté à la patrouille {{patrolSerialNumber}}.",
     "addToIncidentErrorMessage": "Impossible d'ajouter l'événement à l'incident. Veuillez réessayer.",
     "addToNewIncidentErrorMessage": "Impossible d'ajouter l'événement à un nouvel incident. Veuillez réessayer.",
-    "addToPatrolErrorMessage": "Impossible d'ajouter l'événement à la patrouille. Veuillez réessayer."
+    "addToPatrolErrorMessage": "Impossible d'ajouter l'événement à la patrouille. Veuillez réessayer.",
+    "removedFromIncidentMessage": "Événement {{eventSerialNumber}} retiré de l'incident {{incidentSerialNumber}}.",
+    "removedFromPatrolMessage": "Événement {{eventSerialNumber}} retiré de la patrouille {{patrolSerialNumber}}.",
+    "removedFromUnloadedIncidentMessage": "Événement {{eventSerialNumber}} retiré de l'incident.",
+    "removedFromUnloadedPatrolMessage": "Événement {{eventSerialNumber}} retiré de la patrouille.",
+    "removeFromIncidentErrorMessage": "Impossible de retirer l'événement de l'incident. Veuillez réessayer.",
+    "removeFromPatrolErrorMessage": "Impossible de retirer l'événement de la patrouille. Veuillez réessayer."
   },
   "eventsManager": {
     "eventOverview": {
@@ -40,7 +46,9 @@
           "copyLinkOption": "Copier le lien de l'événement",
           "jumpToLocationOption": "Aller à l'emplacement",
           "moreOptionsButtonLabel": "Plus d'options",
-          "printOption": "Imprimer l'Événement"
+          "printOption": "Imprimer l'Événement",
+          "removeFromIncidentOption": "Retirer de l'Incident",
+          "removeFromPatrolOption": "Retirer de la Patrouille"
         },
         "statusSelect": {
           "states": {
@@ -86,6 +94,8 @@
               "review": "En révision"
             }
           },
+          "removeFromIncidentOption": "Retirer de l'Incident",
+          "removeFromPatrolOption": "Retirer de la Patrouille",
           "states": {
             "active": "actif",
             "resolved": "résolu",
@@ -240,6 +250,11 @@
       "timeLabel": "Heure"
     },
     "linksSection": {
+      "linkItem": {
+        "removeButtonLabel": "Retirer",
+        "removeFromIncidentButtonLabel": "Retirer de l'incident {{serialNumber}}",
+        "removeFromPatrolButtonLabel": "Retirer de la patrouille {{serialNumber}}"
+      },
       "linksHeader": "Liens"
     },
     "reportDetailView": {
